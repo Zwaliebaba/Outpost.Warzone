@@ -1,0 +1,684 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="Block.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="Cursor.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="Dderror.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="Debug.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="DXInput.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="Font.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="fractions.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameInt.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameResource.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="Heap.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="Image.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="Input.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="ListMacs.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="Mem.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="MemInt.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="Mono.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="multiWDG.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="ResLY.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="resource_y.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="Screen.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="StrRes.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="StrRes_y.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="StrResLY.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="Surface.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="Treap.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="TreapInt.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="Trig.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="types.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="w95trace.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="wdg.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="ani.h">
+      <Filter>Gamelib</Filter>
+    </ClInclude>
+    <ClInclude Include="anim.h">
+      <Filter>Gamelib</Filter>
+    </ClInclude>
+    <ClInclude Include="animobj.h">
+      <Filter>Gamelib</Filter>
+    </ClInclude>
+    <ClInclude Include="GTime.h">
+      <Filter>Gamelib</Filter>
+    </ClInclude>
+    <ClInclude Include="hashtabl.h">
+      <Filter>Gamelib</Filter>
+    </ClInclude>
+    <ClInclude Include="maxpidef.h">
+      <Filter>Gamelib</Filter>
+    </ClInclude>
+    <ClInclude Include="parser.h">
+      <Filter>Gamelib</Filter>
+    </ClInclude>
+    <ClInclude Include="parser_y.h">
+      <Filter>Gamelib</Filter>
+    </ClInclude>
+    <ClInclude Include="pqueue.h">
+      <Filter>Gamelib</Filter>
+    </ClInclude>
+    <ClInclude Include="priority.h">
+      <Filter>Gamelib</Filter>
+    </ClInclude>
+    <ClInclude Include="ptrlist.h">
+      <Filter>Gamelib</Filter>
+    </ClInclude>
+    <ClInclude Include="3dfxFunc.h">
+      <Filter>ivis02</Filter>
+    </ClInclude>
+    <ClInclude Include="3dfxmode.h">
+      <Filter>ivis02</Filter>
+    </ClInclude>
+    <ClInclude Include="3dfxText.h">
+      <Filter>ivis02</Filter>
+    </ClInclude>
+    <ClInclude Include="amd3d.h">
+      <Filter>ivis02</Filter>
+    </ClInclude>
+    <ClInclude Include="BitImage.h">
+      <Filter>ivis02</Filter>
+    </ClInclude>
+    <ClInclude Include="bspfunc.h">
+      <Filter>ivis02</Filter>
+    </ClInclude>
+    <ClInclude Include="bspimd.h">
+      <Filter>ivis02</Filter>
+    </ClInclude>
+    <ClInclude Include="bug.h">
+      <Filter>ivis02</Filter>
+    </ClInclude>
+    <ClInclude Include="d3dmode.h">
+      <Filter>ivis02</Filter>
+    </ClInclude>
+    <ClInclude Include="d3drender.h">
+      <Filter>ivis02</Filter>
+    </ClInclude>
+    <ClInclude Include="dx6TexMan.h">
+      <Filter>ivis02</Filter>
+    </ClInclude>
+    <ClInclude Include="fbf.h">
+      <Filter>ivis02</Filter>
+    </ClInclude>
+    <ClInclude Include="geo.h">
+      <Filter>ivis02</Filter>
+    </ClInclude>
+    <ClInclude Include="imd.h">
+      <Filter>ivis02</Filter>
+    </ClInclude>
+    <ClInclude Include="ivi.h">
+      <Filter>ivis02</Filter>
+    </ClInclude>
+    <ClInclude Include="ivisdef.h">
+      <Filter>ivis02</Filter>
+    </ClInclude>
+    <ClInclude Include="ivispatch.h">
+      <Filter>ivis02</Filter>
+    </ClInclude>
+    <ClInclude Include="pcx.h">
+      <Filter>ivis02</Filter>
+    </ClInclude>
+    <ClInclude Include="pieBlitFunc.h">
+      <Filter>ivis02</Filter>
+    </ClInclude>
+    <ClInclude Include="pieclip.h">
+      <Filter>ivis02</Filter>
+    </ClInclude>
+    <ClInclude Include="piedef.h">
+      <Filter>ivis02</Filter>
+    </ClInclude>
+    <ClInclude Include="piefunc.h">
+      <Filter>ivis02</Filter>
+    </ClInclude>
+    <ClInclude Include="pieMatrix.h">
+      <Filter>ivis02</Filter>
+    </ClInclude>
+    <ClInclude Include="pieMode.h">
+      <Filter>ivis02</Filter>
+    </ClInclude>
+    <ClInclude Include="piePalette.h">
+      <Filter>ivis02</Filter>
+    </ClInclude>
+    <ClInclude Include="pieState.h">
+      <Filter>ivis02</Filter>
+    </ClInclude>
+    <ClInclude Include="pieTexture.h">
+      <Filter>ivis02</Filter>
+    </ClInclude>
+    <ClInclude Include="pieTypes.h">
+      <Filter>ivis02</Filter>
+    </ClInclude>
+    <ClInclude Include="rendfunc.h">
+      <Filter>ivis02</Filter>
+    </ClInclude>
+    <ClInclude Include="rendmode.h">
+      <Filter>ivis02</Filter>
+    </ClInclude>
+    <ClInclude Include="tex.h">
+      <Filter>ivis02</Filter>
+    </ClInclude>
+    <ClInclude Include="texd3d.h">
+      <Filter>ivis02</Filter>
+    </ClInclude>
+    <ClInclude Include="TextDraw.h">
+      <Filter>ivis02</Filter>
+    </ClInclude>
+    <ClInclude Include="v4101.h">
+      <Filter>ivis02</Filter>
+    </ClInclude>
+    <ClInclude Include="vid.h">
+      <Filter>ivis02</Filter>
+    </ClInclude>
+    <ClInclude Include="vsr.h">
+      <Filter>ivis02</Filter>
+    </ClInclude>
+    <ClInclude Include="netlobby.h">
+      <Filter>NetPlay</Filter>
+    </ClInclude>
+    <ClInclude Include="Netplay.h">
+      <Filter>NetPlay</Filter>
+    </ClInclude>
+    <ClInclude Include="netprov.h">
+      <Filter>NetPlay</Filter>
+    </ClInclude>
+    <ClInclude Include="netsupp.h">
+      <Filter>NetPlay</Filter>
+    </ClInclude>
+    <ClInclude Include="Bar.h">
+      <Filter>Widget</Filter>
+    </ClInclude>
+    <ClInclude Include="Button.h">
+      <Filter>Widget</Filter>
+    </ClInclude>
+    <ClInclude Include="EditBox.h">
+      <Filter>Widget</Filter>
+    </ClInclude>
+    <ClInclude Include="Form.h">
+      <Filter>Widget</Filter>
+    </ClInclude>
+    <ClInclude Include="Label.h">
+      <Filter>Widget</Filter>
+    </ClInclude>
+    <ClInclude Include="Slider.h">
+      <Filter>Widget</Filter>
+    </ClInclude>
+    <ClInclude Include="Tip.h">
+      <Filter>Widget</Filter>
+    </ClInclude>
+    <ClInclude Include="WidgBase.h">
+      <Filter>Widget</Filter>
+    </ClInclude>
+    <ClInclude Include="Widget.h">
+      <Filter>Widget</Filter>
+    </ClInclude>
+    <ClInclude Include="WidgInt.h">
+      <Filter>Widget</Filter>
+    </ClInclude>
+    <ClInclude Include="CodePrint.h">
+      <Filter>Script</Filter>
+    </ClInclude>
+    <ClInclude Include="Event.h">
+      <Filter>Script</Filter>
+    </ClInclude>
+    <ClInclude Include="EvntSave.h">
+      <Filter>Script</Filter>
+    </ClInclude>
+    <ClInclude Include="Interp.h">
+      <Filter>Script</Filter>
+    </ClInclude>
+    <ClInclude Include="Parse.h">
+      <Filter>Script</Filter>
+    </ClInclude>
+    <ClInclude Include="Script.h">
+      <Filter>Script</Filter>
+    </ClInclude>
+    <ClInclude Include="Script_y.h">
+      <Filter>Script</Filter>
+    </ClInclude>
+    <ClInclude Include="stack.h">
+      <Filter>Script</Filter>
+    </ClInclude>
+    <ClInclude Include="sequence.h">
+      <Filter>Sequence</Filter>
+    </ClInclude>
+    <ClInclude Include="STREAMER.H">
+      <Filter>Sequence</Filter>
+    </ClInclude>
+    <ClInclude Include="aud.h">
+      <Filter>Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="audio.h">
+      <Filter>Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="EAX.H">
+      <Filter>Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="mixer.h">
+      <Filter>Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="QMIXER.H">
+      <Filter>Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="track.h">
+      <Filter>Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="tracklib.h">
+      <Filter>Sound</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="Block.c">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="Cursor.c">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="Dderror.c">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug.c">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="DXInput.c">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="Font.c">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="Frame.c">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameResource.c">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="Heap.c">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="Image.c">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="Input.c">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="Mem.c">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="Mono.c">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="multiWDG.c">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="resource_l.c">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="resource_y.c">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="Screen.c">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="StrRes.c">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="StrRes_l.c">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="StrRes_y.c">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="Surface.c">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="Treap.c">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="Trig.c">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="W95trace.c">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="wdg.c">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="anim.c">
+      <Filter>Gamelib</Filter>
+    </ClCompile>
+    <ClCompile Include="animobj.c">
+      <Filter>Gamelib</Filter>
+    </ClCompile>
+    <ClCompile Include="GTime.c">
+      <Filter>Gamelib</Filter>
+    </ClCompile>
+    <ClCompile Include="hashtabl.c">
+      <Filter>Gamelib</Filter>
+    </ClCompile>
+    <ClCompile Include="parser_l.c">
+      <Filter>Gamelib</Filter>
+    </ClCompile>
+    <ClCompile Include="parser_y.c">
+      <Filter>Gamelib</Filter>
+    </ClCompile>
+    <ClCompile Include="pqueue.c">
+      <Filter>Gamelib</Filter>
+    </ClCompile>
+    <ClCompile Include="ptrlist.c">
+      <Filter>Gamelib</Filter>
+    </ClCompile>
+    <ClCompile Include="3dfxdyn.c">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="3dfxFunc.c">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="3dfxmode.c">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="3dfxtext.c">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="BitImage.c">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="bspimd.c">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="Bug.c">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="d3dmode.c">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="d3drender.c">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="dx6TexMan.c">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="Fbf.c">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="getdxver.cpp">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="Imd.c">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="imdload.c">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="Ivi.c">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="Pcx.c">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="pieBlitFunc.c">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="pieClip.c">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="piedraw.c">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="piefunc.c">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="pieMatrix.c">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="pieMode.c">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="piePalette.c">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="pieState.c">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="pieTexture.c">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="rendfunc.c">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="rendmode.c">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="Tex.c">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="texd3d.c">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="TextDraw.c">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="V4101.c">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="Vsr.c">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="netAudio.c">
+      <Filter>NetPlay</Filter>
+    </ClCompile>
+    <ClCompile Include="netcrypt.c">
+      <Filter>NetPlay</Filter>
+    </ClCompile>
+    <ClCompile Include="netjoin.c">
+      <Filter>NetPlay</Filter>
+    </ClCompile>
+    <ClCompile Include="netlobby.c">
+      <Filter>NetPlay</Filter>
+    </ClCompile>
+    <ClCompile Include="netplay.c">
+      <Filter>NetPlay</Filter>
+    </ClCompile>
+    <ClCompile Include="netprov.c">
+      <Filter>NetPlay</Filter>
+    </ClCompile>
+    <ClCompile Include="netsupp.c">
+      <Filter>NetPlay</Filter>
+    </ClCompile>
+    <ClCompile Include="netusers.c">
+      <Filter>NetPlay</Filter>
+    </ClCompile>
+    <ClCompile Include="Bar.c">
+      <Filter>Widget</Filter>
+    </ClCompile>
+    <ClCompile Include="Button.c">
+      <Filter>Widget</Filter>
+    </ClCompile>
+    <ClCompile Include="EditBox.c">
+      <Filter>Widget</Filter>
+    </ClCompile>
+    <ClCompile Include="Form.c">
+      <Filter>Widget</Filter>
+    </ClCompile>
+    <ClCompile Include="Label.c">
+      <Filter>Widget</Filter>
+    </ClCompile>
+    <ClCompile Include="Slider.c">
+      <Filter>Widget</Filter>
+    </ClCompile>
+    <ClCompile Include="Tip.c">
+      <Filter>Widget</Filter>
+    </ClCompile>
+    <ClCompile Include="Widget.c">
+      <Filter>Widget</Filter>
+    </ClCompile>
+    <ClCompile Include="CodePrint.c">
+      <Filter>Script</Filter>
+    </ClCompile>
+    <ClCompile Include="Event.c">
+      <Filter>Script</Filter>
+    </ClCompile>
+    <ClCompile Include="EvntSave.c">
+      <Filter>Script</Filter>
+    </ClCompile>
+    <ClCompile Include="Interp.c">
+      <Filter>Script</Filter>
+    </ClCompile>
+    <ClCompile Include="Script.c">
+      <Filter>Script</Filter>
+    </ClCompile>
+    <ClCompile Include="Script_l.c">
+      <Filter>Script</Filter>
+    </ClCompile>
+    <ClCompile Include="Script_y.c">
+      <Filter>Script</Filter>
+    </ClCompile>
+    <ClCompile Include="Stack.c">
+      <Filter>Script</Filter>
+    </ClCompile>
+    <ClCompile Include="Sequence.c">
+      <Filter>Sequence</Filter>
+    </ClCompile>
+    <ClCompile Include="audio.c">
+      <Filter>Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="mixer.c">
+      <Filter>Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="qstrack.c">
+      <Filter>Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="track.c">
+      <Filter>Sound</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Framework">
+      <UniqueIdentifier>{b6512305-8326-4d86-aa65-1b1483f45df9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Gamelib">
+      <UniqueIdentifier>{13bc249d-6089-4959-965b-82b54fc8ea99}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ivis02">
+      <UniqueIdentifier>{0d7d1d83-a43e-4556-b3aa-1ccadb1fb77f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NetPlay">
+      <UniqueIdentifier>{4b7b78b1-878b-4b16-9995-c8f4a8151b30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Script">
+      <UniqueIdentifier>{f59b33cc-9e12-4887-a953-c733d084fce5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sequence">
+      <UniqueIdentifier>{9b1cf67f-c2a8-4872-aa0f-683d7d8bf174}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sound">
+      <UniqueIdentifier>{10ac5322-19da-4c78-bc7e-eaa62a837e66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Widget">
+      <UniqueIdentifier>{5089e6fa-7d5f-4eea-b092-848d609c2f01}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="parser.y">
+      <Filter>Gamelib</Filter>
+    </None>
+    <None Include="Resource.y">
+      <Filter>Gamelib</Filter>
+    </None>
+    <None Include="StrRes.y">
+      <Filter>Gamelib</Filter>
+    </None>
+    <None Include="parser.l">
+      <Filter>Gamelib</Filter>
+    </None>
+    <None Include="Resource.l">
+      <Filter>Gamelib</Filter>
+    </None>
+    <None Include="StrRes.l">
+      <Filter>Gamelib</Filter>
+    </None>
+    <None Include="script.y">
+      <Filter>Script</Filter>
+    </None>
+    <None Include="script.l">
+      <Filter>Script</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="Mplayer.lib">
+      <Filter>NetPlay</Filter>
+    </Library>
+    <Library Include="WINSTR.LIB">
+      <Filter>Sequence</Filter>
+    </Library>
+    <Library Include="QMixer.lib">
+      <Filter>Sound</Filter>
+    </Library>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,66 @@
+/*
+ * Frontend WRF file
+ *
+ */
+
+directory   "images"	// *Note* Must load the IMGPAGE files before the IMG.
+file        IMGPAGE 		"frend0.pcx"
+file        IMGPAGE 		"frend1.pcx"
+file        IMGPAGE 		"frend2.pcx"
+file        IMGPAGE 		"frend3.pcx"
+file        IMGPAGE 		"intfac3.pcx"
+file        IMGPAGE 		"intfac0.pcx"
+file        IMGPAGE 		"intfac1.pcx"
+file        IMGPAGE 		"intfac2.pcx"
+file        IMGPAGE 		"intfac4.pcx"
+file		IMG 		"intfac.img"
+file		IMG 		"frend.img"
+
+directory	"texpages"
+file		TEXPAGE 	"page-7-barbarians-arizona.pcx"
+file		TEXPAGE		"page-14-droid hubs.pcx"
+file		TEXPAGE		"page-16-droid drives.pcx"
+file		TEXPAGE		"page-17-droid weapons.pcx"
+file		TEXPAGE		"page-21-fx`s-hard.pcx"
+file		TEXPAGE		"page-21-fx`s-soft.pcx"
+file		TEXPAGE		"page-11-player buildings.pcx"
+file		TEXPAGE		"page-12-player buildings.pcx"
+file		TEXPAGE		"page-13-player buildings.pcx"
+file		TEXPAGE		"page-15-droid hubs.pcx"
+file		TEXPAGE		"page-18-fx`s-hard.pcx"
+file		TEXPAGE		"page-18-fx`s-soft.pcx"
+file		TEXPAGE		"page-19-fx`s-hard.pcx"
+file		TEXPAGE		"page-19-fx`s-soft.pcx"
+file		TEXPAGE		"page-20-fx`s-hard.pcx"
+file		TEXPAGE		"page-20-fx`s-soft.pcx"
+file		TEXPAGE		"page-10-laboratories.pcx"
+file		TEXPAGE		"page-22-fx`s.pcx"
+file		TEXPAGE		"page-23-fx`s-hard.pcx"
+file		TEXPAGE		"page-23-fx`s-soft.pcx"
+file		TEXPAGE		"page-24-fx`s.pcx"
+file		TEXPAGE		"page-8-player buildings-bases.pcx"
+file		TEXPAGE		"page-9-player-soft buildings-bases.pcx"
+file		TEXPAGE		"page-9-player-hard buildings-bases.pcx"
+file		TEXPAGE 	"page-6-features-arizona.pcx"
+
+directory	"audio\SFX\Interfce"
+//beeps
+	
+file 		WAV	"Beep1.wav"			//Close Window
+file 		WAV	"Beep2.wav"			//Open New Window	
+file 		WAV	"Beep4.wav"			//Select
+file 		WAV	"Beep5.wav"				
+file 		WAV	"Beep6.wav"				
+file 		WAV	"Beep7.wav"			//Zoom On Radar
+file 		WAV	"Beep8.wav"			//Buzzer
+file 		WAV	"Beep9.wav"			
+file 		WAV	"GmeShtDn.wav"			//Game Shutdown
+
+directory	"audio"
+file		AUDIOCFG	"frontaud.cfg"
+
+directory	"messages\strings"
+file		STR_RES		"Strings.txt"
+// NOTE THE NEW LOCATION FOLKS - ALEXM
+file		STR_RES		"Names.txt"
+

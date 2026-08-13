@@ -1,0 +1,27 @@
+/*
+ * multiRes.wrf
+ *
+ * Files for multiplayer research
+ *
+ */
+
+/*messages must be read in before research */
+/*directory 	"messages"
+file		SMSG		"messages.txt"
+file		SMSG		"ResMessages1.txt"
+file		SMSG		"ResMessages12.txt"
+file		SMSG		"ResMessages2.txt"
+file		SMSG		"ResMessages23.txt"
+file		SMSG		"ResMessages3.txt"
+file		SMSG		"ResMessagesAll.txt"
+*/
+
+directory 	"stats\research\multiplayer"
+file		RESCH		"Research.txt"
+file		RPREREQ		"PRResearch.txt"
+file		RCOMPRED	"RedComponents.txt"
+file		RCOMPRES	"ResultComponent.txt"
+file		RSTRREQ		"ResearchStruct.txt"
+file		RSTRRED		"RedStructure.txt"
+file		RSTRRES		"ResultStructure.txt"
+file		RFUNC		"ResearchFunctions.txt"

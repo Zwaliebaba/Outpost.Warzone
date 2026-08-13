@@ -1,0 +1,45 @@
+/*
+ * VidMem2.wrf
+ *
+ * All data files for the video memory
+ *
+ */
+
+
+directory	"images"	// *Note* Must load the IMGPAGE files before the IMG.
+file        IMGPAGE "intfac0.pcx"
+file        IMGPAGE "intfac1.pcx"
+file        IMGPAGE "intfac2.pcx"
+file        IMGPAGE "intfac3.pcx"
+file        IMGPAGE	"intfac4.pcx"
+file		IMG "intfac.img"
+
+directory	"texpages"
+file		TEXPAGE 	"page-7-barbarians-Urban.pcx"
+file		TEXPAGE		"page-14-droid hubs.pcx"
+file		TEXPAGE		"page-16-droid drives.pcx"
+file		TEXPAGE		"page-17-droid weapons.pcx"
+file 		TERTILES	"tertilesc2.pcx"
+file 		HWTERTILES	"tertilesc2hw.pcx"
+file		TEXPAGE		"page-21-fx`s-hard.pcx"
+file		TEXPAGE		"page-21-fx`s-soft.pcx"
+file		TEXPAGE		"page-11-player buildings.pcx"
+file		TEXPAGE		"page-12-player buildings.pcx"
+file		TEXPAGE		"page-13-player buildings.pcx"
+file		TEXPAGE		"page-15-droid hubs.pcx"
+file		TEXPAGE		"page-18-fx`s-hard.pcx"
+file		TEXPAGE		"page-18-fx`s-soft.pcx"
+file		TEXPAGE		"page-19-fx`s-hard.pcx"
+file		TEXPAGE		"page-19-fx`s-soft.pcx"
+file		TEXPAGE		"page-20-fx`s-hard.pcx"
+file		TEXPAGE		"page-20-fx`s-soft.pcx"
+file		TEXPAGE		"page-10-laboratories.pcx"
+file		TEXPAGE		"page-22-fx`s.pcx"
+file		TEXPAGE		"page-23-fx`s-hard.pcx"
+file		TEXPAGE		"page-23-fx`s-soft.pcx"
+file		TEXPAGE		"page-24-fx`s.pcx"
+//-file		TEXPAGE		"page-25-fx`s-Alpha.pcx" // should be conditional - needed for 3dfx
+file		TEXPAGE		"page-8-player buildings-bases Urban.pcx"
+file		TEXPAGE		"page-9-player-soft buildings-bases-urban.pcx"	//need altering to urban**DONE**
+file		TEXPAGE		"page-9-player-hard buildings-bases-urban.pcx"
+file		TEXPAGE 	"page-6-features-Urban Area.pcx"

@@ -1,0 +1,70 @@
+/*
+ * Stats.wrf
+ *
+ * The in game stats and the related data file for it.
+ *
+ */
+
+// NOTE THE NEW LOCATION FOLKS - ALEXM !!!!!!
+directory	"messages/strings"
+file		STR_RES		"Names.txt"
+
+directory 	"stats"
+file 		SWEAPON		"Weapons.txt"
+file 		SBODY		"Body.txt"
+file		SBRAIN		"Brain.txt"
+file		SPROP		"Propulsion.txt"
+file		SSENSOR		"Sensor.txt"
+file		SECM		"ECM.txt"
+file		SREPAIR		"Repair.txt"
+//file		SPROGRAM	"Program.txt"
+file 		SCONSTR		"Construction.txt"
+file		SPROPTYPES	"PropulsionType.txt"
+//must be loaded in after propulsion types
+file		SPROPSND	"PropulsionSounds.txt"
+file		STERRTABLE	"TerrainTable.txt"
+file		SSPECABIL	"SpecialAbility.txt"
+file		SBPIMD		"BodyPropulsionIMD.txt"
+//weapon sounds must be loaded in after weapons
+file		SWEAPSND	"WeaponSounds.txt"
+//load after propulsion types
+file		SWEAPMOD	"WeaponModifier.txt"
+
+file		STEMPL		"Templates.txt"
+file		STEMPWEAP	"assignWeapons.txt"
+//file		STEMPPROG	"assignPrograms.txt"
+
+file		SFUNC		"Functions.txt"
+
+file		SSTRUCT		"Structures.txt"
+file		SSTRFUNC	"StructureFunctions.txt"
+file		SSTRWEAP	"StructureWeapons.txt"
+file		SSTRMOD		"StructureModifier.txt"
+
+file		SFEAT		"Features.txt"
+
+/*The PC has them all loaded thoroughout the game now*/
+/*messages must be read in before research */
+directory 	"messages"
+file		SMSG		"messages.txt"
+file		SMSG		"ResMessages1.txt"
+file		SMSG		"ResMessages12.txt"
+file		SMSG		"ResMessages2.txt"
+file		SMSG		"ResMessages23.txt"
+file		SMSG		"ResMessages3.txt"
+file		SMSG		"ResMessagesAll.txt"
+
+
+/***********************************************/
+/* These are done on a campaign basis now
+directory 	"stats\research"
+file		RESCH		"Research.txt"
+file		RPREREQ		"PRResearch.txt"
+
+file		RCOMPRED	"RedComponents.txt"
+file		RCOMPRES	"ResultComponent.txt"
+file		RSTRREQ		"ResearchStruct.txt"
+file		RSTRRED		"RedStructure.txt"
+file		RSTRRES		"ResultStructure.txt"
+file		RFUNC		"ResearchFunctions.txt"
+*/

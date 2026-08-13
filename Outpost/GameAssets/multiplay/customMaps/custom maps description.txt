@@ -1,0 +1,8 @@
+This MUST be used for custom/internet downloaded maps, so we might as well use it everywhere.
+
+ab-xxxxxxx.wrf
+a = 2-8      			// number of players.
+b = c/d	     			// type of map.		campaign/deathmatch
+x 	     			// anything you like.
+
+The .gam file and associated directory must NOT have a prefix, (unlike the built in maps)

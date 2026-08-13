@@ -1,0 +1,124 @@
+/*
+ * Basic.wrf
+ *
+ * Data files that are explicitly referenced in the game code.
+ *
+ */
+
+
+directory	"effects"
+file		IMD		"FXL3DSHK.PIE"
+file		IMD		"FXLIGHTR.PIE"
+file		IMD		"FXEXPDRT.PIE"
+file		IMD		"MIRAIN.PIE"
+file		IMD		"MISNOW.PIE"
+file		IMD		"FXATExp.PIE"
+file		IMD		"FXSExp.PIE"
+file		IMD		"FXLExp.PIE"	
+
+file		IMD		"PARTHEAD.PIE"
+file		IMD		"PARTBODY.PIE"
+file		IMD		"PARTLEGS.PIE"
+file		IMD		"PARTARM.PIE"
+file		IMD		"FXSSTEAM.PIE"
+file		IMD		"FXMSTEAM.PIE"
+//-file		IMD		"FXLSTEAM.PIE"
+//file		IMD		"TEST.PIE"
+
+
+file		IMD		"FXSMOKE.PIE"
+//file		IMD		"FXGRDEXP.PIE"
+file		IMD		"FXDUST.PIE"
+file		IMD		"FXPLASMA.PIE"
+file		IMD		"FXFT.PIE"
+file		IMD		"FXMFLARE.PIE"
+file		IMD		"cybitbod.pie"
+file		IMD		"cybitgun.pie"
+file		IMD		"cybitrkt.pie"
+file		IMD		"cybitlg1.pie"
+file		IMD     "fxblip.pie"
+file		IMD     "cyshadow.pie"
+file		IMD	"fxblood.pie"
+file		IMD	"fxpower.pie"
+file		IMD	"fxssmoke.pie"
+file		IMD	"midebr1.pie"
+file		IMD	"midebr2.pie"
+file		IMD	"midebr3.pie"
+file		IMD	"midebr4.pie"
+file		IMD	"midebr5.pie"
+//file		IMD	"sky.pie"
+
+file		IMD		"fxvtl01.PIE"
+file		IMD		"fxvtl2and3.PIE"
+file		IMD		"fxvtl04.PIE"
+file		IMD		"fxvtl5to8.PIE"
+file		IMD		"fxvtl09.PIE"
+file		IMD		"fxvtl10.PIE"
+file		IMD		"fxvtl11.PIE"
+file		IMD		"fxvtl12.PIE"
+
+
+directory 	"misc"
+file		IMD		"arrow.pie"
+file		IMD		"miNum1.pie"
+file		IMD		"miNum2.pie"
+file		IMD		"miNum3.pie"
+file		IMD		"miNum4.pie"
+file		IMD		"miNum5.pie"
+file		IMD		"miCNum1.pie"
+file		IMD		"miCNum2.pie"
+file		IMD		"miCNum3.pie"
+file		IMD		"miCNum4.pie"
+file		IMD		"miCNum5.pie"
+file		IMD		"miVNum1.pie"
+file		IMD		"miVNum2.pie"
+file		IMD		"miVNum3.pie"
+file		IMD		"miVNum4.pie"
+file		IMD		"miVNum5.pie"
+file		IMD		"iccamera.pie"
+file		IMD		"blipenm.pie"
+file		IMD		"blipart.pie"
+file		IMD		"blipres.pie"
+file		IMD		"mitrnshd.pie"
+file		IMD		"mirnum1.pie"
+
+directory	"structs"
+file		IMD		"blderik.pie"
+
+directory	"components\bodies"
+file		IMD		"runanim.pie"
+file		IMD		"runflame.pie"
+file		IMD		"flamfall.pie"
+file		IMD		"fireknee.pie"
+file		IMD		"walkanim.pie"
+
+// no ani
+file		IMD		"cybdpstd.pie"
+file		IMD		"cybdpair.pie"
+
+// ani
+file		IMD		"cybdpjmp.pie"
+file		IMD		"cybdplnd.pie"
+file		IMD		"cybdprun.pie"
+
+// no ani
+file		IMD		"cybd_std.pie"
+
+// ani
+file		IMD		"cybd_run.pie"
+
+directory	"anims"
+file		ANI			"runanim.ani"
+file		ANI			"runflame.ani"
+file		ANI			"flamfall.ani"
+file		ANI			"fireknee.ani"
+file		ANI			"walkanim.ani"
+file		ANI			"blderik.ani"
+file		ANI			"cybd_run.ani"
+file		ANI			"cybdpjmp.ani"
+file		ANI			"cybdplnd.ani"
+file		ANI			"cybdprun.ani"
+
+file		ANIMCFG		"anim.cfg"
+
+

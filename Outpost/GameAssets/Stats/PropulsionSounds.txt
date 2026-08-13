@@ -1,0 +1,4 @@
+Wheeled,Con-Move Off.wav,-1,-1,Con-Move.wav,-1,Con-Shut down.wav,2
+Tracked,-1,-1,-1,Tread.wav,-1,-1,3
+Hover,HovStart.wav,-1,-1,HovMove.wav,-1,HovStop.wav,4
+Lift,VtolOff.wav,-1,-1,VtolMove.wav,-1,VtolLand.wav,5

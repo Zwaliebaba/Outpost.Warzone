@@ -1,0 +1,484 @@
+/*
+ * Audio WRF file
+ *
+ */
+
+directory	"audio\MemResSp\DesnSeq"
+//Design Sequence 
+
+file		WAV	"PCV331.wav"		//Turret Selected
+file		WAV	"PCV332.wav"		//Body Selected
+file		WAV	"PCV333.wav"		//Propulsion Selected
+file		WAV	"PCV334.wav" 		//Design Completed
+
+directory	"audio\MemResSp\Struct"
+//Structures
+
+file		WAV	"PCV335.wav"		//Construction Started
+file		WAV	"PCV336.wav"		//Construction Completed
+file		WAV	"PCV337.wav"		//Structure Under Attack
+file		WAV	"PCV339.wav"		//Structure Repair In Progress
+file		WAV	"PCV340.wav"		//Structure Demolished
+
+directory	"audio\MemResSp\Power"
+//Power
+
+file		WAV	"PCV341.wav"		//Power Generator Under Attack
+file		WAV	"PCV342.wav"		//Power Generator Destroyed
+file		WAV	"PCV343.wav"		//Power Low
+file		WAV	"PCV344.wav"		//Power Resource
+file		WAV	"PCV345.wav"		//Derrick Under Attack
+file		WAV	"PCV346.wav"		//Derrick Destroyed
+file		WAV	"PCV347.wav"		//Resource Depleted
+file		WAV	"PCV348.wav"		//Power Transfer in Progress
+file		WAV	"PCV349.wav"		//Power Generator Required
+
+directory	"audio\MemResSp\Research"
+//Research
+
+file		WAV	"PCV350.wav"		//Research Facility Required
+file		WAV	"PCV351.wav"		//Artefact
+file		WAV	"PCV352.wav"		//Artefact Recovered
+file		WAV	"PCV353.wav"		//New Research Project Available
+file		WAV	"PCV354.wav"		//New Structure Available
+file		WAV	"PCV355.wav"		//New Component Available
+file		WAV	"PCV356.wav"		//New Cyborg Available
+file		WAV	"PCV357.wav"		//Research Completed	
+file		WAV	"PCV358.wav"		//Major Research Completed
+file		WAV	"PCV359.wav"		//Structure Research Completed
+file		WAV	"PCV360.wav"		//Power Research Completed
+file		WAV	"PCV361.wav"		//Computer Research Completed
+file		WAV	"PCV362.wav"		//Vehicle Research Completed
+file		WAV	"PCV363.wav"		//Systems Research Completed
+file		WAV	"PCV364.wav"		//Weapon Research Completed
+file		WAV	"PCV365.wav"		//Cyborg Research Completed
+
+directory	"audio\MemResSp\Productn"
+//Production
+
+file		WAV	"PCV366.wav"		//Production Started
+file		WAV	"PCV367.wav"		//Production Completed
+file		WAV	"PCV368.wav"		//Production Paused
+file		WAV	"PCV369.wav"		//Production Cancelled
+file		WAV	"PCV370.wav"		//Delivery Point Assigned
+file		WAV	"PCV371.wav"		//Delivery Point Assigned to
+
+directory	"audio\MemResSp\Repair"
+//Repair
+
+file		WAV	"PCV372.wav"		//Unit Repaired
+
+directory	"audio\MemResSp\Detect"
+//Detection
+
+file		WAV	"PCV373.wav"		//Scavengers Detected
+file		WAV	"PCV374.wav"		//Scavenger Base Detected
+file		WAV	"PCV375.wav"		//Scavenger Outpost Detected
+file		WAV	"PCV376.wav"		//Resource Detected
+file		WAV	"PCV377.wav"		//Artefact Detected
+file		WAV	"PCV378.wav"		//Enemy Unit Detected
+file		WAV	"PCV379.wav"		//Enemy Base Detected
+file		WAV	"PCV380.wav"		//Ally Detected
+file		WAV	"PCV381.wav"		//Enemy Transport Detected
+file		WAV	"PCV382.wav"		//Enemy LZ Detected
+file		WAV	"PCV383.wav"		//Friendly Landing Zone Detected
+file		WAV	"PCV384.wav"		//NEXUS Tower Detected
+file		WAV	"PCV385.wav"		//NEXUS Turret Detected
+file		WAV	"PCV386.wav"		//NEXUS Unit Detected
+file		WAV	"PCV387.wav"		//Enemy Battery Detected
+file		WAV	"PCV388.wav"		//Enemy VTOLs Detected
+
+directory	"audio\MemResSp\Status"
+//Status
+
+file		WAV	"PCV389.wav"		//Scavenger Base
+file		WAV	"PCV390.wav"		//Scavenger Outpost
+file		WAV	"PCV391.wav"		//Scavenger  Outpost Eradicated
+file		WAV	"PCV392.wav"		//Scavenger Base Eradicated
+file		WAV	"PCV393.wav"		//Enemy Base
+file		WAV	"PCV394.wav"		//Enemy Base Eradicated
+file		WAV	"PCV395.wav"		//Incoming Enemy Transport
+file		WAV	"PCV396.wav"		//Enemy Landing Zone
+file		WAV	"PCV397.wav"		//LZ 1
+file		WAV	"PCV398.wav"		//LZ 2
+
+directory	"audio\MemResSp\Combat"
+//Combat
+
+file		WAV	"PCV399.wav"		//Unit Under Attack
+file		WAV	"PCV400.wav"		//Unit Destroyed
+file		WAV	"PCV401.wav"		//Unit Retreating
+file		WAV	"PCV402.wav"		//Unit Returning for Repair
+
+directory	"audio\MemResSp\ArtBat"
+//Artillery Batteries
+
+file		WAV	"PCV403.wav"		//Assigned to Sensor
+file		WAV	"PCV404.wav"		//Sensor Locked On
+file		WAV	"PCV405.wav"		//Assigned to Counter-battery Radar
+file		WAV	"PCV406.wav"		//Enemy Battery Located
+file		WAV	"PCV407.wav"		//Battery Firing Counter Attack
+
+directory	"audio\MemResSp\VTOLs"
+//VTOLs
+
+file		WAV	"PCV408.wav"		//Interceptors Launched
+file		WAV	"PCV409.wav"		//Re-arming
+file		WAV	"PCV410.wav"		//VTOLs Engaging
+file		WAV	"PCV411.wav"		//Assigned
+file		WAV	"PCV412.wav"		//Interceptors Assigned
+
+directory	"audio\MemResSp\Console"
+//Command Console
+
+file		WAV	"PCV413.wav"		//Command Console Activated
+file		WAV	"PCV414.wav"		//Short Range
+file		WAV	"PCV415.wav"		//Long Range
+file		WAV	"PCV416.wav"		//Optimum Range
+file		WAV	"PCV417.wav"		//Retreat at Medium Damage
+file		WAV	"PCV418.wav"		//Retreat at Heavy Damage
+file		WAV	"PCV419.wav"		//No Retreat
+file		WAV	"PCV420.wav"		//Fire-At-Will
+file		WAV	"PCV421.wav"		//Return Fire
+file		WAV	"PCV422.wav"		//Cease Fire
+file		WAV	"PCV423.wav"		//Hold Position
+file		WAV	"PCV424.wav"		//Guard
+file		WAV	"PCV425.wav"		//Pursue
+file		WAV	"PCV426.wav"		//Patrol
+file		WAV	"PCV427.wav"		//Return to LZ
+file		WAV	"PCV428.wav"		//Recycling
+file		WAV	"PCV429.wav"		//Scatter
+
+directory	"audio\MemResSp\Tutorial"
+//Tutorial Stuff
+
+file		WAV	"PCV430.wav"		//Not possible. Try again
+file		WAV	"PCV431.wav"		//No
+file		WAV	"PCV432.wav"		//That is incorrect
+file		WAV	"PCV433.wav"		//Well done
+file		WAV	"PCV434.wav"		//Excellent
+
+directory	"audio\MemResSp\CmndrAsi"
+//Group and Commander Assignment
+
+file		WAV	"PCV435.wav"		//Assigned to Commander
+file		WAV	"PCV436.wav"		//Group Reporting
+file		WAV	"PCV437.wav"		//Commander  Reporting
+
+directory	"audio\MemResSp\Routing"
+//Routing
+
+file		WAV	"PCV438.wav"		//Route Obstructed
+file		WAV	"PCV439.wav"		//No Route Available
+
+directory	"audio\MemResSp\Trnsport"
+//Transports and LZs
+
+file		WAV	"PCV440.wav"		//Reinforcements are available
+file		WAV	"PCV441.wav"		//Reinforcements in Transit
+file		WAV	"PCV442.wav"		//Reinforcements Landing
+file		WAV	"PCV443.wav"		//Transport Under Attack
+file		WAV	"PCV444.wav"		//Transport Repairing
+file		WAV	"PCV445.wav"		//LZ Compromised
+file		WAV	"LZ-Clear.wav"		//LZ Clear
+file		WAV	"PCV446.wav"		//Transport Returning to Base
+file		WAV	"PCV447.wav"		//Transport Unable to Land.  Aborting drop
+
+directory	"audio\MemResSp\MissMesg"
+//Mission Messages
+
+file		WAV	"PCV448.wav"		//Mission Objective
+file		WAV	"PCV449.wav"		//Mission Update
+file		WAV	"PCV450.wav"		//Warzone Paused
+file		WAV	"PCV451.wav"		//Warzone Active
+file		WAV	"PCV452.wav"		//Mission Results
+file		WAV	"PCV453.wav"		//Research Stolen
+file		WAV	"PCV454.wav"		//Technology Taken
+file		WAV	"PCV455.wav"		//Incoming Transmission
+file		WAV	"PCV456.wav"		//Incoming Intelligence Report
+file		WAV	"PCV458.wav"		//Mission Failed
+file		WAV	"PCV459.wav"		//Mission Successful
+file		WAV	"PCV460.wav"		//Objective Accomplished
+file		WAV	"PCV461.wav"		//Objective Failed
+file		WAV	"PCV462.wav"		//Mission Timer Activated
+file		WAV	"PCV463.wav"		//10 Minutes Remaining
+file		WAV	"PCV464.wav"		//5 Minutes Remaining
+file		WAV	"PCV465.wav"		//3 Minutes Remaining
+file		WAV	"PCV466.wav"		//2 Minutes Remaining
+file		WAV	"PCV467.wav"		//1 Minute Remaining
+file		WAV	"PCV468.wav"		//Unit Captured
+file		WAV	"PCV469.wav"		//Warning! System Failure Imminent
+file		WAV	"PCV470.wav"		//You are defeated!
+file		WAV	"PCV471.wav"		//Missile Codes Deciphered
+file		WAV	"PCV472.wav"		//First Stage Missile Codes Deciphered
+file		WAV	"PCV473.wav"		//Second Stage Missile Codes Deciphered
+file		WAV	"PCV474.wav"		//Third Stage Missile Codes Deciphered
+file		WAV	"PCV475.wav"		//Missile Codes Cracked
+file		WAV	"PCV476.wav"		//Entering Warzone
+file		WAV	"PCV477.wav"		//Alliance Accepted
+file		WAV	"PCV478.wav"		//Alliance Broken
+file		WAV	"PCV479.wav"		//Alliance Offered
+file		WAV	"PCV480.wav"		//Player Entering Warzone
+file		WAV	"PCV481.wav"		//Player Exiting Warzone
+file		WAV	"PCV482.wav"		//Gift Received
+file		WAV	"PCV483.wav"		//Power Transferred
+file		WAV	"PCV484.wav"		//Sensor Download
+file		WAV	"PCV485.wav"		//Technology Transferred
+file		WAV	"PCV486.wav"		//Units Transferred
+
+directory	"audio\MemResSp\CmndrVoc"
+//Group & Commander Voices - Male
+
+file		WAV	"Group.wav"
+file		WAV	"9.wav"
+file		WAV	"8.wav" 				
+file		WAV	"7.wav" 				
+file		WAV	"6.wav" 				
+file		WAV	"5.wav" 				
+file		WAV	"4.wav" 				
+file		WAV	"3.wav" 				
+file		WAV	"2.wav" 				
+file		WAV	"1.wav" 				
+file		WAV	"0.wav" 				
+file		WAV	"Reprting.wav" 				
+file		WAV	"Commnder.wav" 				
+file		WAV	"COM021.wav"		//Scavengers Detected
+file		WAV	"COM022.wav"		//Scavenger Base Detected
+file		WAV	"COM023.wav"		//Scavenger Outpost Detected
+file		WAV	"COM024.wav"		//Resource Detected
+file		WAV	"COM025.wav"		//Artefact Detected
+file		WAV	"COM026.wav"		//Enemy Detected
+file		WAV	"COM027.wav"		//Enemy Base Detected
+file		WAV	"COM028.wav"		//Ally Detected
+file		WAV	"COM029.wav"		//Enemy Transport Detected
+file		WAV	"COM030.wav"		//Enemy LZ Detected
+file		WAV	"COM031.wav"		//Friendly Landing Zone Detected
+file		WAV	"COM032.wav"		//NEXUS Tower Detected
+file		WAV	"COM033.wav"		//NEXUS Turret Detected
+file		WAV	"COM034.wav"		//NEXUS Detected
+file		WAV	"COM035.wav"		//Enemy Battery Detected
+file		WAV	"COM036.wav"		//Enemy VTOLs Detected
+file		WAV	"COM037.wav"		//Route Obstructed
+file		WAV	"COM038.wav"		//No Route Available
+file		WAV	"COM039.wav"		//Unable to Comply
+file		WAV	"COM040.wav"		//Returning for Repair
+file		WAV	"COM041.wav"		//Heading for Rally Point
+
+directory	"audio\RadClick"
+//RADIO CLICKS
+
+file		WAV	"RadClik1.wav"				
+file		WAV	"RadClik2.wav"				
+file		WAV	"RadClik3.wav"				
+file		WAV	"RadClik4.wav" 				
+file		WAV	"RadClik5.wav"				
+file		WAV	"RadClik6.wav"				
+
+directory	"audio\TrnspPil"
+//TRANSPORT PILOTS
+		
+file		WAV	"T-AproLZ.wav"		//Approaching LZ
+file		WAV	"T-ARBoys.wav"		//Alright boys
+file		WAV	"T-GrnLi5.wav"		//You will have a green light in 5
+file		WAV	"T-GrnLi4.wav"		//4
+file		WAV	"T-GrnLi3.wav"		//3
+file		WAV	"T-GrnLi2.wav"		//2
+file		WAV	"T-GoGoGo.wav"		//Go Go Go
+file		WAV	"T-DustOf.wav"		//Prepare for dust off
+
+directory	"audio\VtolTalk"
+//VTOL Pilots			
+	
+file		WAV	"V-Eloc1.wav"		//Enemy located
+file		WAV	"V-OnWay1.wav"		//On our way
+file 		WAV	"V-RetBa1.Wav"		//Returning to base
+file		WAV	"V-LocOn1.Wav"		//Locked-on
+file 		WAV	"V-AtkRn1.Wav"		//Commencing attack run
+file 		WAV	"V-AbtRn1.Wav"		//Aborting attack run
+
+file		WAV	"V-Eloc2.wav"		//Enemy located
+file 		WAV	"V-OnWay2.wav"		//On our way
+file 		WAV	"V-RetBa2.Wav"		//Returning to base
+file		WAV	"V-LocOn2.Wav"		//Locked-on
+file 		WAV	"V-AtkRn2.Wav"		//Commencing attack run
+file 		WAV	"V-AbtRn2.Wav"		//Aborting attack run
+	
+file		WAV	"V-Eloc3.wav"		//Enemy located
+file 		WAV	"V-OnWay3.wav"		//On our way
+file 		WAV	"V-RetBa3.Wav"		//Returning to base
+file		WAV	"V-LocOn3.Wav"		//Locked-on
+file 		WAV	"V-AtkRn3.Wav"		//Commencing attack run
+file 		WAV	"V-AbtRn3.Wav"  	//Aborting attack run
+
+directory	"audio\Coltive"
+//THE COLLECTIVE
+		
+file 		WAV	"COl011a.wav"		//Cleanse & Destroy
+file 		WAV	"COl012a.wav"		//Affirmative destroying biologicals
+file 		WAV	"COl013a.wav"		//Attack
+file 		WAV	"COl014a.wav"		//Fire
+file 		WAV	"COl015a.wav"		//Enemy Detected
+file 		WAV	"COl016a.wav"		//Engaging
+file 		WAV	"COl017a.wav"		//Starting Attack Run
+file 		WAV	"COl018a.wav"		//Die
+file 		WAV	"COl019a.wav"		//Intercept and Destroy
+file 		WAV	"COl020a.wav"		//Enemy Destroyed
+
+directory	"audio\SFX\Weapons"
+//weapon sounds
+				
+file 		WAV	"rocket.wav"			
+file 		WAV	"RotLsr.wav"		//Rotary Laser
+file 		WAV	"GaussGun.wav"			
+file 		WAV	"LrgCan.wav"		//Large Cannon
+file 		WAV	"SmlCan.wav"		//Small Cannon
+file 		WAV	"MedCan.wav"		//Medium Cannon
+file 		WAV	"FlmThrow.wav"		//Flame Thrower
+file 		WAV	"PlsLsr.wav"		//Pulse Laser
+file 		WAV	"BemLsr.wav"		//Beam Laser
+file 		WAV	"Mortar.wav"				
+file 		WAV	"HwtzFlgt.wav"		//Howitz Flight
+file 		WAV	"MgBar1.wav"
+file 		WAV	"MgBar2.wav"
+file 		WAV	"MgBar3.wav"
+file 		WAV	"MgHeavy.wav"
+file 		WAV	"MgTower.wav"
+file 		WAV	"Splash.wav"
+file 		WAV	"AsltMG.wav"
+file 		WAV	"RapdCan.wav"
+file 		WAV	"HiVelCan.wav"
+file 		WAV	"NxsTower.wav"
+
+	/* Construction sounds */
+file 		WAV	"Weld-1.wav"
+file 		WAV	"Weld-2.wav"
+file 		WAV	"BldStart.wav"
+file 		WAV	"BldLoop.wav"
+file 		WAV	"Build1.wav"
+file 		WAV	"Build2.wav"
+file 		WAV	"Build3.wav"
+file 		WAV	"Build4.wav"
+
+directory	"audio\SFX\Explons"
+//Explosions
+
+file 		WAV	"SmlExpl.wav"				
+file 		WAV	"LsrExpl.wav"				
+file 		WAV	"LrgExpl.wav"				
+file 		WAV	"ATnkExpl.wav"				
+file 		WAV	"Richet1.wav"				
+file 		WAV	"Richet2.wav"				
+file 		WAV	"Richet3.wav"				
+file 		WAV	"Squish.wav"
+file 		WAV	"BldFall.wav"
+file		WAV	"NxsExpld.wav"
+	
+directory	"audio\SFX\Interfce"
+//beeps
+	
+file 		WAV	"Beep1.wav"			//Close Window
+file 		WAV	"Beep2.wav"			//Open New Window	
+file 		WAV	"Beep4.wav"			//Select
+file 		WAV	"Beep5.wav"				
+file 		WAV	"Beep6.wav"				
+file 		WAV	"Beep7.wav"			//Zoom On Radar
+file 		WAV	"Beep8.wav"			//Buzzer
+file 		WAV	"Beep9.wav"			
+file 		WAV	"GmeShtDn.wav"			//Game Shutdown
+
+directory	"audio\SFX\Vehicle"	
+// Gazza's droid engine noises
+	
+file 		WAV	"Con-Move Off.wav"
+file 		WAV	"Con-Move.wav"
+file 		WAV	"Con-Shut down.wav"
+	
+file 		WAV	"TFlight.wav"			//Blimp Flight
+file 		WAV	"THover.wav"			//Blimp Idle
+file 		WAV	"TLand.wav"			//Blimp Land
+file 		WAV	"TStart.wav"			//Blimp Take off
+	
+file 		WAV	"VtolLand.wav"
+file 		WAV	"VtolOff.wav"
+file 		WAV	"Vtol-Move.wav"
+	
+file 		WAV	"Tread.wav"
+	
+file 		WAV	"HovMove.wav"
+file 		WAV	"HovStart.wav"
+file 		WAV	"HovStop.wav"
+
+file 		WAV	"Cyber-Move.wav"
+
+directory	"audio\SFX\Building"	
+//Building FX
+
+file 		WAV	"OilPump.wav"				
+file 		WAV	"PowerHum.wav"				
+file 		WAV	"PowerSpk.wav"				
+file 		WAV	"Steam.wav"				
+file 		WAV	"ECMTower.wav"				
+file 		WAV	"FreRoar.wav"				
+
+directory	"audio\SFX\Misc"	
+//Miscellaneous
+	
+file 		WAV	"Help.wav"
+file 		WAV	"Scream.wav"
+file 		WAV	"Scream2.wav"
+file 		WAV	"Scream3.wav"
+file 		WAV	"Scream4.wav"
+file 		WAV	"Silence.wav"
+
+directory	"audio\Extra"	
+//Extra
+
+file 		WAV	"LndgZne.wav"		//Landing Zone  	
+file 		WAV	"NmeDeted.wav"		//Enemy Detected 
+file 		WAV	"Pcv611.wav"		//Structure Captured 
+file 		WAV	"Pcv612.wav"		//Civilian Rescued 
+file 		WAV	"Pcv613.wav"		//Civilians Rescued
+file 		WAV	"Pcv615.wav"		//Units Rescued 
+file 		WAV	"Pcv616.wav"		//Group Rescued 
+file 		WAV	"Pcv618.wav"		//Group Captured 
+file 		WAV	"Pcv621.wav"		//Objective Captured 
+file 		WAV	"Pcv622.wav"		//Objective Destroyed 
+file 		WAV	"Pcv623.wav"		//Structure Infected 
+file 		WAV	"Pcv625.wav"		//Group Infected 
+file 		WAV	"Pcv629.wav"		//Out Of Time 
+file 		WAV	"Pcv631.wav"		//Enemy Escaped 
+file 		WAV	"Pcv632.wav"		//Enemy Escaping 
+file 		WAV	"Pcv633.wav"		//Enemy Transport Landing 
+file 		WAV	"Pcv635.wav"		//Team Alpha Eradicated 
+file 		WAV	"Pcv636.wav"		//Team Beta Eradicated 
+file 		WAV	"Pcv637.wav"		//Team Gamma Eradicated 
+file 		WAV	"Pcv638.wav"		//Team Alpha Rescued 
+file 		WAV	"Pcv639.wav"		//Team Beta Rescued 
+file 		WAV	"Pcv640.wav"		//Team Gamma Rescued 
+file 		WAV	"Pcv650.wav"		//Laser Satellite firing 
+file 		WAV	"Pcv652.wav"		//Satellite Uplink 
+file 		WAV	"Pcv653.wav"		//NASDA Central 
+file 		WAV	"Pcv654.wav"		//Nuclear Reactor 
+file 		WAV	"Pcv655.wav"		//SAM Site 
+file 		WAV	"Pcv656.wav"		//Missile Silo 
+file 		WAV	"Pcv657.wav"		//Incoming Laser Satellite Strike
+
+directory	"audio\Nexus"
+//Nexus
+
+file 		WAV	"DefAbsrd.wav"
+file 		WAV	"DefNut.wav"
+file 		WAV	"Laugh1.wav"
+file 		WAV	"Laugh2.wav"
+file 		WAV	"Laugh3.wav"
+file 		WAV	"PordComp.wav"
+file 		WAV	"ResAbsrd.wav"
+file 		WAV	"StrutAbs.wav"
+file 		WAV	"StrutNut.wav"
+file 		WAV	"SynpLnk.wav"
+file 		WAV	"UntAbsrd.wav"
+file 		WAV	"UntNut.wav"
+
+
+directory "audio"
+file		AUDIOCFG "audio.cfg"

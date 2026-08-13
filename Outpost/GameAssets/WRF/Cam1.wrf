@@ -1,0 +1,21 @@
+/*
+ * Cam1.wrf
+ *
+ * Files for Cam1
+ *
+ */
+
+directory 	"messages\strings"
+file		STR_RES		"Strings.txt"
+file		STR_RES		"GenStrings.txt"
+file		STR_RES		"Cam1Strings.txt"
+file		STR_RES		"Cam2Strings.txt"
+file		STR_RES		"Cam3Strings.txt"
+//file		STR_RES		"TutStrings.txt"
+file		STR_RES		"ResStrings.txt"
+file		STR_RES		"ScrStrings.txt"
+
+directory 	"messages"
+file		SMSG		"Cam1Messages.txt"
+file		SMSG		"Cam2Messages.txt"
+file		SMSG		"Cam3Messages.txt"

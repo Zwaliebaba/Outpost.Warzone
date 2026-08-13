@@ -1,0 +1,18 @@
+/*
+ * Cam1Res.wrf
+ *
+ * Files for Cam1 research
+ *
+ */
+
+directory 	"stats\research\cam1"
+file		RESCH		"Research.txt"
+file		RPREREQ	"PRResearch.txt"
+
+file		RCOMPRED	"RedComponents.txt"
+file		RCOMPRES	"ResultComponent.txt"
+file		RSTRREQ	"ResearchStruct.txt"
+file		RSTRRED	"RedStructure.txt"
+file		RSTRRES	"ResultStructure.txt"
+file		RFUNC		"ResearchFunctions.txt"
+
