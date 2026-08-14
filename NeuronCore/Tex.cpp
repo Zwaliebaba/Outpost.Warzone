@@ -6,7 +6,7 @@
 #include "Frame.h"
 #include "IvisDef.h"
 #include "PieState.h"
-#include "DX6TexMan.h"
+#include "TexMan.h"
 #include "Tex.h"
 #include "RendMode.h"
 #include "Pcx.h"

@@ -1,8 +1,12 @@
 /*
  * Screen.h
  *
- * Interface to the Direct Draw double buffered display.
+ * Interface to the Direct3D 9 display.
  *
+ * The framework owns the D3D9 object, the device and the swap chain. The 3D
+ * renderer (D3DRender.cpp) borrows the device from here rather than creating
+ * one of its own, which is how DirectDraw used to hand its back buffer to
+ * Direct3D 6.
  */
 #ifndef _screen_h
 #define _screen_h
@@ -15,32 +19,105 @@
 #endif
 
 #pragma warning (disable : 4201 4214 4115 4514)
-#define INIT_GUID
 #define WIN32_LEAN_AND_MEAN
 #define WIN32_EXTRA_LEAN
 #include <windows.h>
-#include <ddraw.h>
+#include <d3d9.h>
 #pragma warning (default : 4201 4214 4115)
 
 #include "Types.h"
 
 /* Free up a COM object */
 #undef RELEASE
-#define RELEASE(x) if ((x) != NULL) {(void)(x)->lpVtbl->Release(x); (x) = NULL;}
+#define RELEASE(x) if ((x) != nullptr) {(void)(x)->Release(); (x) = nullptr;}
 
-/* Return a pointer to the Direct Draw objects */
-extern LPDIRECTDRAW4 screenGetDDObject(void);
+/* The layout of a pixel. This carries what the DirectDraw DDPIXELFORMAT used
+ * to carry for the code that packs colours by hand, without the rest of it.
+ */
+using SCREEN_PIXELFORMAT = struct _screen_pixelformat
+{
+  UDWORD bitCount;
+  UDWORD rMask, gMask, bMask, aMask;
+};
 
-/* Return a pointer to the Direct Draw back buffer surface */
-extern LPDIRECTDRAWSURFACE4 screenGetSurface(void);
+/* The display is 32 bit, but the backdrop, the FMV frames and the
+ * text-over-video path are all still composited in software as RGB565 and
+ * converted on the way to the display. These two are the whole of that
+ * conversion.
+ */
+__inline UDWORD screen565To32(UWORD pixel)
+{
+  UDWORD r = (pixel >> 11) & 0x1f;
+  UDWORD g = (pixel >> 5) & 0x3f;
+  UDWORD b = pixel & 0x1f;
 
-/* Return a pointer to the front buffer pixel format */
-extern DDPIXELFORMAT* screenGetFrontBufferPixelFormat(void);
+  /* Replicate the high bits into the low ones so that full-scale input
+   * produces full-scale output. */
+  r = (r << 3) | (r >> 2);
+  g = (g << 2) | (g >> 4);
+  b = (b << 3) | (b >> 2);
 
-/* Return a pointer to the back buffer pixel format */
-extern DDPIXELFORMAT* screenGetBackBufferPixelFormat(void);
+  return 0xff000000 | (r << 16) | (g << 8) | b;
+}
 
-/* Flip back and front buffers */
+__inline UWORD screen32To565(UDWORD pixel)
+{
+  UDWORD r = (pixel >> 16) & 0xff;
+  UDWORD g = (pixel >> 8) & 0xff;
+  UDWORD b = pixel & 0xff;
+
+  return static_cast<UWORD>(((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3));
+}
+
+/* The state of the device, as reported by TestCooperativeLevel */
+using SCREEN_DEVICE_STATE = enum _screen_device_state
+{
+  SCREEN_DEVICE_OK,
+  // usable
+  SCREEN_DEVICE_LOST,
+  // lost and not yet resettable - nothing to do but wait
+  SCREEN_DEVICE_NEEDSRESET // lost and ready to be reset
+};
+
+/* Return the Direct3D 9 object */
+extern LPDIRECT3D9 screenGetD3D(void);
+
+/* Return the Direct3D 9 device */
+extern LPDIRECT3DDEVICE9 screenGetDevice(void);
+
+/* Return the pixel format of the display */
+extern SCREEN_PIXELFORMAT* screenGetFrontBufferPixelFormat(void);
+
+/* Return the pixel format of the back buffer */
+extern SCREEN_PIXELFORMAT* screenGetBackBufferPixelFormat(void);
+
+/* Ask the device whether it has been lost */
+extern SCREEN_DEVICE_STATE screenTestDeviceState(void);
+
+/* Reset the device after it has been lost. Only valid when
+ * screenTestDeviceState returns SCREEN_DEVICE_NEEDSRESET.
+ */
+extern BOOL screenResetDevice(void);
+
+/* A locked view of the back buffer, for the paths that still write pixels
+ * directly: the backdrop, the FMV frames and the debug 2D display.
+ */
+using SCREEN_LOCK = struct _screen_lock
+{
+  UBYTE* pPixels;
+  SDWORD pitch; // bytes between the start of one row and the next
+  UDWORD width, height;
+};
+
+/* Lock the back buffer. Must be paired with screenUnlockBackBuffer, and must
+ * not be called between a BeginScene and its EndScene.
+ */
+extern BOOL screenLockBackBuffer(SCREEN_LOCK* psLock);
+
+/* Release a lock taken by screenLockBackBuffer */
+extern void screenUnlockBackBuffer(void);
+
+/* Present the back buffer */
 extern void screenFlip(BOOL clearBackBuffer);
 
 /* backDrop */
@@ -57,7 +134,9 @@ void screen_SetFogColour(UDWORD newFogColour);
 /* Toggle the display between full screen or windowed */
 extern void screenToggleMode(void);
 
-/* Toggle the display between 8 bit and 16 bit */
+/* Kept for the video playback code. The display no longer changes bit depth
+ * to play a sequence, so this now does nothing but report success.
+ */
 extern BOOL screenToggleVideoPlaybackMode(void);
 
 using SCREEN_MODE = enum _screen_mode
@@ -82,7 +161,7 @@ extern SCREEN_MODE screenGetMode(void);
  */
 extern void screenSetPalette(UDWORD first, UDWORD count, PALETTEENTRY* psPalette);
 
-/* Return the best colour match when in a palettised mode */
+/* Return the best colour match in the stored palette */
 extern UBYTE screenGetPalEntry(UBYTE red, UBYTE green, UBYTE blue);
 
 /* Set the colour for text */
@@ -93,12 +172,17 @@ extern void screenSetTextColour(UBYTE red, UBYTE green, UBYTE blue);
  */
 extern void screenTextOut(UDWORD x, UDWORD y, STRING* pFormat, ...);
 
+/* The image surfaces the 2D blits read from. Declared in Surface.h, which
+ * Frame.h includes before this header.
+ */
+struct _surface;
+
 /* Blit the source rectangle of the surface
  * to the back buffer at the given location.
  * The blit is clipped to the screen size.
  */
 extern void screenBlit(SDWORD destX, SDWORD destY, // The location on screen
-                       LPDIRECTDRAWSURFACE4 psSurf, // The surface to blit from
+                       struct _surface* psSurf, // The surface to blit from
                        UDWORD srcX, UDWORD srcY, UDWORD width, UDWORD height); // The source rectangle from the surface
 
 /*
@@ -106,7 +190,7 @@ extern void screenBlit(SDWORD destX, SDWORD destY, // The location on screen
  * the size of the destination rectangle.
  * This clips to the size of the back buffer.
  */
-extern void screenScaleBlit(SDWORD destX, SDWORD destY, SDWORD destWidth, SDWORD destHeight, LPDIRECTDRAWSURFACE4 psSurf, SDWORD srcX,
+extern void screenScaleBlit(SDWORD destX, SDWORD destY, SDWORD destWidth, SDWORD destHeight, struct _surface* psSurf, SDWORD srcX,
                             SDWORD srcY, SDWORD srcWidth, SDWORD srcHeight);
 
 /* Blit a tile (rectangle) from the surface
@@ -116,22 +200,16 @@ extern void screenScaleBlit(SDWORD destX, SDWORD destY, SDWORD destWidth, SDWORD
  * The blit is clipped to the screen size.
  */
 extern void screenBlitTile(SDWORD destX, SDWORD destY, // The location on screen
-                           LPDIRECTDRAWSURFACE4 psSurf, // The surface to blit from
+                           struct _surface* psSurf, // The surface to blit from
                            UDWORD width, UDWORD height, // The size of the tile
                            UDWORD tile); // The tile number
 
 /* Return the actual value that will be poked into screen memory
- * given an RGB value.  The value is padded with zeros up to a
- * UDWORD but is based on the bit depth of the screen mode.
+ * given an RGB value.
  */
 extern UDWORD screenGetCacheColour(UBYTE red, UBYTE green, UBYTE blue);
 
-/* Set the colour for drawing lines.
- *
- * This caches a colour value that can be poked directly into the
- * current screen mode's video memory.  There is some overhead to this
- * call so all lines of the same colour should be drawn at the same time.
- */
+/* Set the colour for drawing lines. */
 extern void screenSetLineColour(UBYTE red, UBYTE green, UBYTE blue);
 
 /* Set the value to be poked into screen memory for line drawing.

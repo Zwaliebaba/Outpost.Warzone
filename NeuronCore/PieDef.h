@@ -16,7 +16,7 @@
 #include "IvisDef.h"
 #include "IvisPatch.h"
 
-#include "d3d.h"
+#include "D3D9Vertex.h"
 
 /***************************************************************************/
 /*

@@ -95,13 +95,13 @@ UDWORD fontPixelWidth(STRING* pString)
 /* Print text in the current font at location x,y */
 void fontPrint(SDWORD x, SDWORD y, STRING* pFormat, ...)
 {
-  HRESULT ddrval;
   STRING aTxtBuff[1024];
   va_list pArgs;
-  DDSURFACEDESC2 sDDSD;
+  SCREEN_LOCK sLock;
   UDWORD endX;
-  UBYTE *pSrc, *pDest, font;
-  UWORD *p16Dest, charInd;
+  UBYTE *pSrc, *pClip, font;
+  UDWORD* pDest;
+  UWORD charInd;
   UDWORD px, py, bit;
   PROP_CHAR* psChar;
 
@@ -124,9 +124,9 @@ void fontPrint(SDWORD x, SDWORD y, STRING* pFormat, ...)
   if (pSrc != (UBYTE*)aTxtBuff)
   {
     /* Chop off the start of the string */
-    pDest = (UBYTE*)aTxtBuff;
-    while (*pSrc != '\0') { *pDest++ = *pSrc++; }
-    *pDest = '\0';
+    pClip = (UBYTE*)aTxtBuff;
+    while (*pSrc != '\0') { *pClip++ = *pSrc++; }
+    *pClip = '\0';
   }
 
   /* Clip the string to the right of the screen */
@@ -143,93 +143,49 @@ void fontPrint(SDWORD x, SDWORD y, STRING* pFormat, ...)
     *pSrc = '\0';
   }
 
-  sDDSD.dwSize = sizeof(DDSURFACEDESC2);
-  ddrval = psBack->lpVtbl->Lock(psBack, nullptr, &sDDSD, DDLOCK_WAIT, nullptr);
-  if (ddrval != DD_OK)
+  if (!screenLockBackBuffer(&sLock))
   {
     DEBUG_ASSERT_TEXT(FALSE, "fontPrint: Couldn't lock back buffer");
     return;
   }
 
-  switch (sBackBufferPixelFormat.dwRGBBitCount)
+  /* Go through each scan line of the text */
+  for (py = 0; py < psCurrFont->height; py++)
   {
-  case 8:
-    /* Go through each scan line of the text */
-    for (py = 0; py < psCurrFont->height; py++)
+    /* Scan along the string */
+    pDest = (UDWORD*)(sLock.pPixels + (y + py) * sLock.pitch) + x;
+    for (pSrc = (UBYTE*)aTxtBuff; *pSrc != '\0'; pSrc++)
     {
-      /* Scan along the string */
-      pDest = static_cast<UBYTE*>(sDDSD.lpSurface) + (y + py) * sDDSD.lPitch + x;
-      for (pSrc = (UBYTE*)aTxtBuff; *pSrc != '\0'; pSrc++)
+      charInd = fontGetCharIndex(*pSrc);
+      if (charInd > 0)
       {
-        charInd = fontGetCharIndex(*pSrc);
-        if (charInd > 0)
+        /* Do the scan line of the current character */
+        psChar = psCurrFont->psChars + charInd;
+        for (px = 0; px < psChar->width;)
         {
-          /* Do the scan line of the current character */
-          psChar = psCurrFont->psChars + charInd;
-          for (px = 0; px < psChar->width;)
+          font = *(psChar->pData + py * psChar->pitch + (px / 8));
+          for (bit = 0; bit < 8 && px < psChar->width; bit++, px++)
           {
-            font = *(psChar->pData + py * psChar->pitch + (px / 8));
-            for (bit = 0; bit < 8 && px < psChar->width; bit++, px++)
-            {
-              if (font & (1 << bit))
-                *pDest = static_cast<UBYTE>(fontColour);
-              pDest++;
-            }
+            if (font & (1 << bit))
+              *pDest = fontColour;
+            pDest++;
           }
         }
-        else
-          pDest += psCurrFont->spaceWidth;
       }
+      else
+        pDest += psCurrFont->spaceWidth;
     }
-    break;
-  case 16:
-    /* Go through each scan line of the text */
-    for (py = 0; py < psCurrFont->height; py++)
-    {
-      /* Scan along the string */
-      p16Dest = (UWORD*)(static_cast<UBYTE*>(sDDSD.lpSurface) + (y + py) * sDDSD.lPitch + (x << 1));
-      for (pSrc = (UBYTE*)aTxtBuff; *pSrc != '\0'; pSrc++)
-      {
-        charInd = fontGetCharIndex(*pSrc);
-        if (charInd > 0)
-        {
-          /* Do the scan line of the current character */
-          psChar = psCurrFont->psChars + charInd;
-          for (px = 0; px < psChar->width;)
-          {
-            font = *(psChar->pData + py * psChar->pitch + (px / 8));
-            for (bit = 0; bit < 8 && px < psChar->width; bit++, px++)
-            {
-              if (font & (1 << bit))
-                *p16Dest = static_cast<UWORD>(fontColour);
-              p16Dest++;
-            }
-          }
-        }
-        else
-          p16Dest += psCurrFont->spaceWidth;
-      }
-    }
-    break;
-  case 24: DEBUG_ASSERT_TEXT(FALSE, "24 bit text output not implemented");
-    break;
-  case 32: DEBUG_ASSERT_TEXT(FALSE, "32 bit text output not implemented");
-    break;
-  default: DEBUG_ASSERT_TEXT(FALSE, "Unknown display pixel format");
-    break;
   }
 
-  ddrval = psBack->lpVtbl->Unlock(psBack, static_cast<LPRECT>(sDDSD.lpSurface));
-  if (ddrval != DD_OK) { DEBUG_ASSERT_TEXT(FALSE, "fontPrint: Couldn;t unlock back buffer"); }
+  screenUnlockBackBuffer();
 }
 
 /* Directly print a single font character from the PROP_CHAR struct */
 void fontPrintChar(SDWORD x, SDWORD y, PROP_CHAR* psChar, UDWORD height)
 {
-  HRESULT ddrval;
-  DDSURFACEDESC2 sDDSD;
-  UBYTE *pDest, font;
-  UWORD* p16Dest;
+  SCREEN_LOCK sLock;
+  UBYTE font;
+  UDWORD* pDest;
   UDWORD px, py, bit;
 
   /* The data buffer may well be bigger than this, but the test is easier this way */
@@ -241,61 +197,29 @@ void fontPrintChar(SDWORD x, SDWORD y, PROP_CHAR* psChar, UDWORD height)
     return;
 
   /* Lock the buffer */
-  sDDSD.dwSize = sizeof(DDSURFACEDESC2);
-  ddrval = psBack->lpVtbl->Lock(psBack, nullptr, &sDDSD, DDLOCK_WAIT, nullptr);
-  if (ddrval != DD_OK)
+  if (!screenLockBackBuffer(&sLock))
   {
     DEBUG_ASSERT_TEXT(FALSE, "fontPrintChar: Couldn't lock back buffer");
     return;
   }
 
-  /* Specific char prints for the different screen modes */
-  switch (sBackBufferPixelFormat.dwRGBBitCount)
+  /* Go through each scan line of the character */
+  for (py = 0; py < height; py++)
   {
-  case 8:
-    /* Go through each scan line of the text */
-    for (py = 0; py < height; py++)
+    pDest = (UDWORD*)(sLock.pPixels + (y + py) * sLock.pitch) + x;
+    for (px = 0; px < psChar->width;)
     {
-      pDest = static_cast<UBYTE*>(sDDSD.lpSurface) + (y + py) * sDDSD.lPitch + x;
-      for (px = 0; px < psChar->width;)
+      font = *(psChar->pData + py * psChar->pitch + (px / 8));
+      for (bit = 0; bit < 8 && px < psChar->width; bit++, px++)
       {
-        font = *(psChar->pData + py * psChar->pitch + (px / 8));
-        for (bit = 0; bit < 8 && px < psChar->width; bit++, px++)
-        {
-          if (font & (1 << bit))
-            *pDest = static_cast<UBYTE>(fontColour);
-          pDest++;
-        }
+        if (font & (1 << bit))
+          *pDest = fontColour;
+        pDest++;
       }
     }
-    break;
-  case 16:
-    /* Go through each scan line of the text */
-    for (py = 0; py < height; py++)
-    {
-      p16Dest = (UWORD*)(static_cast<UBYTE*>(sDDSD.lpSurface) + (y + py) * sDDSD.lPitch + (x << 1));
-      for (px = 0; px < psChar->width;)
-      {
-        font = *(psChar->pData + py * psChar->pitch + (px / 8));
-        for (bit = 0; bit < 8 && px < psChar->width; bit++, px++)
-        {
-          if (font & (1 << bit))
-            *p16Dest = static_cast<UWORD>(fontColour);
-          p16Dest++;
-        }
-      }
-    }
-    break;
-  case 24: DEBUG_ASSERT_TEXT(FALSE, "24 bit text output not implemented");
-    break;
-  case 32: DEBUG_ASSERT_TEXT(FALSE, "32 bit text output not implemented");
-    break;
-  default: DEBUG_ASSERT_TEXT(FALSE, "Unknown display pixel format");
-    break;
   }
 
-  ddrval = psBack->lpVtbl->Unlock(psBack, static_cast<LPRECT>(sDDSD.lpSurface));
-  if (ddrval != DD_OK) { DEBUG_ASSERT_TEXT(FALSE, "screenTextOut: Couldn;t unlock back buffer"); }
+  screenUnlockBackBuffer();
 }
 
 /* Save font information into a file buffer */

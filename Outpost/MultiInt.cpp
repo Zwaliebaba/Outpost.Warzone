@@ -183,10 +183,12 @@ void loadMapPreview(void)
 
   iBitmap tempBmp[BACKDROP_WIDTH * BACKDROP_HEIGHT];
   UDWORD i, j, x, y, height, offX, offY;
-  UBYTE scale, col, coltab[16], bitDepth = 8;
+  UBYTE scale, col, coltab[16];
+  /* The backdrop is always composited in 16 bit now - the 8 bit path was for
+   * a palettised display, which went with DirectDraw. */
+  UBYTE bitDepth = 16;
   MAPTILE *psTile, *WTile;
   iSprite backDropSprite;
-  DDPIXELFORMAT* pDDPixelFormat;
 
   if (psMapTiles)
     mapShutdown();
@@ -208,12 +210,6 @@ void loadMapPreview(void)
 
   for (col = 0; col < 16; col += 1)
     coltab[col] = pal_GetNearestColour(col * 16, col * 16, col * 16);
-
-  pDDPixelFormat = screenGetBackBufferPixelFormat();
-  if (pDDPixelFormat->dwRGBBitCount == 16)
-    bitDepth = 16;
-  else
-    bitDepth = 8;
 
   backDropSprite.width = BACKDROP_WIDTH;
   backDropSprite.height = BACKDROP_HEIGHT;

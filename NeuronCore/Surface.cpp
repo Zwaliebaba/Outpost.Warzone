@@ -1,61 +1,53 @@
 #include "pch.h"
+/*
+ * Surface.cpp
+ *
+ * System memory image surfaces. See Surface.h for why these are no longer
+ * DirectDraw surfaces.
+ */
 
-// surfRecreate pix format stuff 
 #include "Frame.h"
 #include "FrameInt.h"
 
 #define NUM_8BIT_PAL_ENTRIES	256
 
-/* The number of bits in one colour gun of the windows PALETTEENTRY struct */
-#define PALETTEENTRY_BITS 8
-
 /* The list of all surfaces created by surfCreate() */
 SURFACE_LIST* psSurfaces = nullptr;
 
-/* Create a DD surface */
-BOOL surfCreate(LPDIRECTDRAWSURFACE4* ppsSurface, // The created surface
+/* Create a surface */
+BOOL surfCreate(LPSURFACE* ppsSurface, // The created surface
                 UDWORD width, UDWORD height, // The size of the surface
-                UDWORD caps, // The caps bits for the surfac
-                DDPIXELFORMAT* psPixFormat, // The pixel format for the surface
-                BOOL bColourKey, // Colour key flag
                 BOOL bAddToList) // Add pointer to surface list
 {
-  HRESULT ddrval;
-  LPDIRECTDRAW4 psDD;
-  DDSURFACEDESC2 ddsd;
+  LPSURFACE psSurf;
   SURFACE_LIST* psNew;
 
-  bColourKey = bColourKey;
+  DEBUG_ASSERT_TEXT(ppsSurface != NULL, "surfCreate: NULL surface pointer");
 
-  psDD = screenGetDDObject();
-
-  DEBUG_ASSERT_TEXT(psDD != NULL, "surfCreate: NULL DD object - framework not initialised?");
-
-  if ((screenMode == SCREEN_WINDOWED) && (displayMode == MODE_8BITFUDGE))
+  if ((width == 0) || (height == 0))
   {
-    /* Can't store the surfaces in video memory when we're fudging 8bit mode */
-    caps = (caps & ~static_cast<UDWORD>(DDSCAPS_VIDEOMEMORY));
-  }
-
-  memset(&ddsd, 0, sizeof(DDSURFACEDESC2));
-  ddsd.dwSize = sizeof(DDSURFACEDESC2);
-
-  if (caps == 0)
-    ddsd.dwFlags = DDSD_WIDTH | DDSD_HEIGHT | DDSD_PIXELFORMAT;
-  else { ddsd.dwFlags = DDSD_WIDTH | DDSD_HEIGHT | DDSD_PIXELFORMAT | DDSD_CAPS; }
-
-  ddsd.dwWidth = width;
-  ddsd.dwHeight = height;
-  ddsd.ddsCaps.dwCaps = caps;
-  if (psPixFormat == nullptr) { memcpy(&ddsd.ddpfPixelFormat, screenGetBackBufferPixelFormat(), sizeof(DDPIXELFORMAT)); }
-  else
-    memcpy(&ddsd.ddpfPixelFormat, psPixFormat, sizeof(DDPIXELFORMAT));
-  ddrval = psDD->lpVtbl->CreateSurface(psDD, &ddsd, ppsSurface, nullptr);
-  if (ddrval != DD_OK)
-  {
-    Neuron::Fatal("Create surface failed:\n{}", DDErrorToString(ddrval));
+    Neuron::Fatal("surfCreate: zero sized surface requested");
     return FALSE;
   }
+
+  psSurf = new (std::nothrow) SURFACE[1];
+  if (psSurf == nullptr)
+  {
+    Neuron::Fatal("Out of memory");
+    return FALSE;
+  }
+
+  psSurf->width = width;
+  psSurf->height = height;
+  psSurf->pitch = width * sizeof(UDWORD);
+  psSurf->pPixels = new (std::nothrow) UDWORD[width * height];
+  if (psSurf->pPixels == nullptr)
+  {
+    delete[] psSurf;
+    Neuron::Fatal("Out of memory");
+    return FALSE;
+  }
+  memset(psSurf->pPixels, 0, width * height * sizeof(UDWORD));
 
   if (bAddToList)
   {
@@ -63,117 +55,79 @@ BOOL surfCreate(LPDIRECTDRAWSURFACE4* ppsSurface, // The created surface
     psNew = new (std::nothrow) SURFACE_LIST[1];
     if (psNew == nullptr)
     {
+      delete[] psSurf->pPixels;
+      delete[] psSurf;
       Neuron::Fatal("Out of memory");
       return FALSE;
     }
 
     /* Add the entry to the list */
-    psNew->psSurface = *ppsSurface;
+    psNew->psSurface = psSurf;
     psNew->psNext = psSurfaces;
     psSurfaces = psNew;
   }
 
+  *ppsSurface = psSurf;
+
   return TRUE;
 }
 
-/* Release a surface */
-void surfRelease(LPDIRECTDRAWSURFACE4 psSurface)
+/* Free a surface and its pixels */
+static void surfDestroy(LPSURFACE psSurface)
 {
-  SURFACE_LIST *psPrev, *psCurr;
+  if (psSurface == nullptr)
+    return;
+
+  delete[] psSurface->pPixels;
+  psSurface->pPixels = nullptr;
+  delete[] psSurface;
+}
+
+/* Release a surface */
+void surfRelease(LPSURFACE psSurface)
+{
+  SURFACE_LIST *psPrev = nullptr, *psCurr;
+
+  if (psSurface == nullptr)
+    return;
+
+  if (psSurfaces == nullptr)
+  {
+    /* Never went on the list - just free it */
+    surfDestroy(psSurface);
+    return;
+  }
 
   if (psSurfaces->psSurface == psSurface)
   {
     psCurr = psSurfaces;
     psSurfaces = psSurfaces->psNext;
-    RELEASE(psCurr->psSurface);
+    surfDestroy(psCurr->psSurface);
     delete[] psCurr;
-    psCurr = nullptr;
+    return;
   }
-  else
+
+  for (psCurr = psSurfaces; (psCurr != nullptr) && (psCurr->psSurface != psSurface); psCurr = psCurr->psNext)
+    psPrev = psCurr;
+  DEBUG_ASSERT_TEXT(psCurr != NULL, "surfRelease: Couldn't find surface");
+  if (psCurr != nullptr)
   {
-    for (psCurr = psSurfaces; (psCurr != nullptr) && (psCurr->psSurface != psSurface); psCurr = psCurr->psNext)
-      psPrev = psCurr;
-    DEBUG_ASSERT_TEXT(psCurr != NULL, "surfRelease: Couldn't find surface");
-    if (psCurr != nullptr)
-    {
-      psPrev->psNext = psCurr->psNext;
-      RELEASE(psCurr->psSurface);
-      delete[] psCurr;
-      psCurr = nullptr;
-    }
+    psPrev->psNext = psCurr->psNext;
+    surfDestroy(psCurr->psSurface);
+    delete[] psCurr;
   }
 }
 
-/* Re-create a surface - useful for video surfaces after a mode change */
-BOOL surfRecreate(LPDIRECTDRAWSURFACE4* ppsSurface)
+/* Re-create a surface after a mode change.
+ *
+ * Nothing to do: surfaces are in system memory, so a mode change cannot
+ * lose them and their format does not depend on the display's.
+ */
+BOOL surfRecreate(LPSURFACE* ppsSurface)
 {
-  DDSURFACEDESC2 ddsd;
-  HRESULT ddrval;
-  SURFACE_LIST* psCurr;
-  LPDIRECTDRAW4 psDD;
-  UDWORD mask;
+  DEBUG_ASSERT_TEXT(ppsSurface != NULL && *ppsSurface != NULL, "surfRecreate: NULL surface");
 
-  psDD = screenGetDDObject();
-
-  /* Find the surface entry */
-  for (psCurr = psSurfaces; (psCurr != nullptr) && (psCurr->psSurface != *ppsSurface); psCurr = psCurr->psNext);
-
-  if (psCurr == nullptr)
-  {
-    Neuron::Fatal("Couldn't find surface");
-    return FALSE;
-  }
-
-  /* Get the description of the old surface */
-  memset(&ddsd, 0, sizeof(DDSURFACEDESC2));
-  ddsd.dwSize = sizeof(DDSURFACEDESC2);
-  ddrval = (*ppsSurface)->lpVtbl->GetSurfaceDesc(*ppsSurface, &ddsd);
-  if (ddrval != DD_OK)
-  {
-    DEBUG_ASSERT_TEXT(FALSE, "Couldn't get surface description:\n{}", DDErrorToString(ddrval));
-    return FALSE;
-  }
-
-  /* only want the caps, width,height and pixel format from this */
-  ddsd.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT;
-
-  if ((displayMode == MODE_8BITFUDGE) && (screenMode == SCREEN_WINDOWED))
-  {
-    /* Direct draw will have set the pixel format to the windows pixel format
-     * even though you can't use the surface.
-     * Have to make the surface non video memory and 8bit again.
-     */
-    mask = DDSCAPS_VIDEOMEMORY | DDSCAPS_LOCALVIDMEM | DDSCAPS_NONLOCALVIDMEM;
-    ddsd.ddsCaps.dwCaps = ddsd.ddsCaps.dwCaps & ~mask;
-    memset(&ddsd.ddpfPixelFormat, 0, sizeof(DDPIXELFORMAT));
-    ddsd.ddpfPixelFormat.dwSize = sizeof(DDPIXELFORMAT);
-    ddsd.ddpfPixelFormat.dwFlags = DDPF_PALETTEINDEXED8 | DDPF_RGB;
-    ddsd.ddpfPixelFormat.dwRGBBitCount = 8;
-  }
-
-
-  /* Release the old surface */
-  RELEASE(*ppsSurface);
-
-  /* Create it again */
-  ddrval = psDD->lpVtbl->CreateSurface(psDD, &ddsd, ppsSurface, nullptr);
-  if (ddrval != DD_OK)
-  {
-    DEBUG_ASSERT_TEXT(FALSE, "Create surface failed:\n{}", DDErrorToString(ddrval));
-    return FALSE;
-  }
-
-
-#ifdef DEBUG
-  ddrval = (*ppsSurface)->lpVtbl->GetSurfaceDesc(*ppsSurface, &ddsd);
-  if (ddrval != DD_OK)
-  {
-    DEBUG_ASSERT_TEXT(FALSE, "Couldn't get surface description:\n{}", DDErrorToString(ddrval));
-    return FALSE;
-  }
-#endif
-
-  psCurr->psSurface = *ppsSurface;
+  return TRUE;
 }
 
 /* Release all the allocated surfaces */
@@ -184,404 +138,77 @@ void surfShutDown(void)
   for (psCurr = psSurfaces; psCurr != nullptr; psCurr = psNext)
   {
     psNext = psCurr->psNext;
-    /* The DD surface might have been released elsewhere */
-    if (psCurr->psSurface->lpVtbl != nullptr) { RELEASE(psCurr->psSurface); }
+    surfDestroy(psCurr->psSurface);
     delete[] psCurr;
-    psCurr = nullptr;
   }
+  psSurfaces = nullptr;
 }
 
-/* Copy the data from one surface to another - useful for loading
- * a video memory surface from a system memory surface.
- */
-BOOL surfLoadFromSurface(LPDIRECTDRAWSURFACE4 psDest, // The surface to load to
-                         LPDIRECTDRAWSURFACE4 psSrc) // The surface to load from
+/* Copy the data from one surface to another */
+BOOL surfLoadFromSurface(LPSURFACE psDest, // The surface to load to
+                         LPSURFACE psSrc) // The surface to load from
 {
-  DDSURFACEDESC2 ddsdSrc, ddsdDest;
-  RECT sDestRect, sSrcRect;
-  BOOL destVideo, srcSystem;
-  HRESULT ddrval;
+  UDWORD width, height, y;
 
-  /* Get the size of the surfaces */
-  memset(&ddsdDest, 0, sizeof(DDSURFACEDESC2));
-  ddsdDest.dwSize = sizeof(DDSURFACEDESC2);
-  ddrval = psDest->lpVtbl->GetSurfaceDesc(psDest, &ddsdDest);
-  if (ddrval != DD_OK)
-  {
-    DEBUG_ASSERT_TEXT(FALSE, "Couldn't get surface description:\n{}", DDErrorToString(ddrval));
+  DEBUG_ASSERT_TEXT((psDest != NULL) && (psSrc != NULL), "surfLoadFromSurface: NULL surface");
+
+  if ((psDest == nullptr) || (psSrc == nullptr))
     return FALSE;
-  }
-  sDestRect.left = 0;
-  sDestRect.top = 0;
-  sDestRect.right = ddsdDest.dwWidth;
-  sDestRect.bottom = ddsdDest.dwHeight;
-  destVideo = ddsdDest.ddsCaps.dwCaps & DDSCAPS_VIDEOMEMORY;
 
-  memset(&ddsdSrc, 0, sizeof(DDSURFACEDESC2));
-  ddsdSrc.dwSize = sizeof(DDSURFACEDESC2);
-  ddrval = psSrc->lpVtbl->GetSurfaceDesc(psSrc, &ddsdSrc);
-  if (ddrval != DD_OK)
+  /* Copy the overlapping area, as the DirectDraw blit this replaces did */
+  width = psSrc->width < psDest->width ? psSrc->width : psDest->width;
+  height = psSrc->height < psDest->height ? psSrc->height : psDest->height;
+
+  for (y = 0; y < height; y++)
   {
-    DEBUG_ASSERT_TEXT(FALSE, "Couldn't get surface description:\n{}", DDErrorToString(ddrval));
-    return FALSE;
-  }
-  sSrcRect.left = 0;
-  sSrcRect.top = 0;
-  sSrcRect.right = ddsdSrc.dwWidth;
-  sSrcRect.bottom = ddsdSrc.dwHeight;
-  srcSystem = ddsdSrc.ddsCaps.dwCaps & DDSCAPS_SYSTEMMEMORY;
-
-  /* Now cut down the source rectangle if it's bigger than the destination surface */
-  sSrcRect.right = sSrcRect.right > sDestRect.right ? sDestRect.right : sSrcRect.right;
-  sSrcRect.bottom = sSrcRect.bottom > sDestRect.bottom ? sDestRect.bottom : sSrcRect.bottom;
-
-  /* Now make sure the rects are the same,
-   * effectively this just reduces the DestRect if it is bigger than the source.
-   */
-  sDestRect.right = sSrcRect.right;
-  sDestRect.bottom = sSrcRect.bottom;
-
-  /* Copy the data into the surface */
-  ddrval = psDest->lpVtbl->Blt(psDest, &sDestRect, psSrc, &sSrcRect, DDBLT_WAIT, nullptr);
-  if (ddrval != DD_OK)
-  {
-    DEBUG_ASSERT_TEXT(FALSE, "Couldn't do the blit:\n{}", DDErrorToString(ddrval));
-    return FALSE;
+    memcpy((UBYTE*)psDest->pPixels + psDest->pitch * y, (UBYTE*)psSrc->pPixels + psSrc->pitch * y, width * sizeof(UDWORD));
   }
 
   return TRUE;
 }
 
-/***************************************************************************/
-/*
- * DDColorMatch
- *
- * convert a RGB color to a pysical color.
- *
- * we do this by leting GDI SetPixel() do the color matching
- * then we lock the memory and see what it got mapped to.
- */
-/***************************************************************************/
-/*********NOT************/
-
-/***************************************************************************/
-/*
- * DDSetColorKey
- *
- * set a color key for a surface, given a RGB.
- * if you pass CLR_INVALID as the color key, the pixel
- * in the upper-left corner will be used.
- */
-/***************************************************************************/
-
-HRESULT DDSetColorKey(IDirectDrawSurface4* pdds, COLORREF rgb)
-{
-  DDCOLORKEY ddck;
-
-  ddck.dwColorSpaceLowValue = rgb;
-  ddck.dwColorSpaceHighValue = ddck.dwColorSpaceLowValue;
-  return pdds->lpVtbl->SetColorKey(pdds, DDCKEY_SRCBLT, &ddck);
-}
-
-/***************************************************************************/
-
-/* Load image data into a Direct Draw surface */
-BOOL surfLoadFrom8Bit(LPDIRECTDRAWSURFACE4 psSurf, // The surface to load to
+/* Load palettised image data into a surface */
+BOOL surfLoadFrom8Bit(LPSURFACE psSurf, // The surface to load to
                       UDWORD width, UDWORD height, // The size of the image data
                       UBYTE* pImageData, // The image data
                       PALETTEENTRY* psPalette) // The image palette data
 {
-  UDWORD i, j; // Loop counters
-  UDWORD surfWidth, surfHeight; // actual size of surface
-  DWORD palFlags; // Flags for creating the palette
-  UBYTE* pImageSrc; // Pointer into the image data
-  UBYTE* pImageEnd; // End of the image data
-  UBYTE* pSurf8Dest;
-  UWORD* pSurf16Dest; // Pointers into the image surface
-  UDWORD* pSurf32Dest;
-  HRESULT ddrval; // DD or D3D return value
-  DDSURFACEDESC2 ddsd; // Surface description for creating surfaces
-  LPDIRECTDRAWPALETTE psPal = nullptr; // The textures DD palette
-  //	PALETTEENTRY			psNewPalette;	// The surfaces palette if necessary
-  DDPIXELFORMAT sPixelFormat; // The surfaces pixel format
-  LPDIRECTDRAW4 psDD; // The direct draw object
+  UDWORD i, j;
+  UBYTE* pImageSrc;
+  UDWORD* pDest;
+  UDWORD aPalette[NUM_8BIT_PAL_ENTRIES];
 
-  BOOL aColoursUsed[NUM_8BIT_PAL_ENTRIES];
-  UDWORD coloursUsed;
+  DEBUG_ASSERT_TEXT(psSurf != NULL, "surfLoadFrom8Bit: NULL surface pointer");
+  DEBUG_ASSERT_TEXT(psPalette != NULL, "surfLoadFrom8Bit: NULL palette");
 
-  /* Variables for storing the bit patterns for RGB data */
-  SDWORD rShift, rPalShift;
-  SDWORD gShift, gPalShift;
-  SDWORD bShift, bPalShift;
-  SDWORD aShift, aPalShift;
-  DWORD currMask;
-  UWORD r, g, b;
-
-  /* Validate the arguments */
-  DEBUG_ASSERT_TEXT(psSurf != NULL, "NULL surface pointer");
-
-  /* Get the DD object */
-  psDD = screenGetDDObject();
-
-  DEBUG_ASSERT_TEXT(psDD != NULL, "surfLoadFrom8Bit: NULL DD object - framework not initialised?");
-
-  /* Get the pixel format for the surface */
-  memset(&sPixelFormat, 0, sizeof(DDPIXELFORMAT));
-  sPixelFormat.dwSize = sizeof(DDPIXELFORMAT);
-  ddrval = psSurf->lpVtbl->GetPixelFormat(psSurf, &sPixelFormat);
-  if (ddrval != DD_OK)
-  {
-    Neuron::Fatal("Couldn't get pixel format for surface load:\n{}", DDErrorToString(ddrval));
+  if ((psSurf == nullptr) || (pImageData == nullptr) || (psPalette == nullptr))
     return FALSE;
+
+  /* Pack the palette once rather than per pixel. Entry 0 is the colour key
+   * the blits treat as transparent, so it stays fully black. */
+  for (i = 0; i < NUM_8BIT_PAL_ENTRIES; i++)
+  {
+    aPalette[i] = (static_cast<UDWORD>(psPalette[i].peRed) << 16) | (static_cast<UDWORD>(psPalette[i].peGreen) << 8) | static_cast<UDWORD>(
+      psPalette[i].peBlue);
   }
 
-  DEBUG_ASSERT_TEXT(sPixelFormat.dwRGBBitCount >= 8, "surfLoadFrom8Bit: less than 8 bit palettised not yet implemented");
-
-  /* Create a palette for the texture if necessary */
-  if (sPixelFormat.dwRGBBitCount <= 8)
+  pImageSrc = pImageData;
+  for (j = 0; (j < psSurf->height) && (j < height); j++)
   {
-    if (sPixelFormat.dwRGBBitCount < 8)
-    {
-      /* The surface is paletised with less than 256 colours.
-       * Need to see how many colours are in the image data.
-       */
-      for (i = 0; i < NUM_8BIT_PAL_ENTRIES; i++)
-        aColoursUsed[i] = FALSE;
-      pImageEnd = pImageData + width * height;
-      for (pImageSrc = pImageData; pImageSrc < pImageEnd; pImageSrc++)
-        aColoursUsed[*pImageSrc] = TRUE;
-      coloursUsed = 0;
-      for (i = 0; i < NUM_8BIT_PAL_ENTRIES; i++)
-      {
-        if (aColoursUsed[i])
-          coloursUsed++;
-      }
-    }
-    /* Might have to deal with paletted surfaces that aren't 8 bit */
-    switch (sPixelFormat.dwRGBBitCount)
-    {
-    case 1:
-      if (coloursUsed > 2)
-      {
-        Neuron::Fatal("Too many colours to load image into surface");
-        return FALSE;
-      }
-      palFlags = DDPCAPS_1BIT;
-      break;
-    case 2:
-      if (coloursUsed > 4)
-      {
-        Neuron::Fatal("Too many colours to load image into surface");
-        return FALSE;
-      }
-      palFlags = DDPCAPS_2BIT;
-      break;
-    case 4:
-      if (coloursUsed > 16)
-      {
-        Neuron::Fatal("Too many colours to load image into surface");
-        return FALSE;
-      }
-      palFlags = DDPCAPS_4BIT;
-      break;
-    case 8:
-      palFlags = DDPCAPS_8BIT | DDPCAPS_ALLOW256;
-      break;
-    }
-    ddrval = psDD->lpVtbl->CreatePalette(psDD, palFlags, psPalette, &psPal, nullptr);
-    if (ddrval != DD_OK)
-    {
-      Neuron::Fatal("CreatePalette failed for image surface:\n{}", DDErrorToString(ddrval));
-      goto exit_with_error;
-    }
-    /* Set the palette on the texture surface */
-    ddrval = psSurf->lpVtbl->SetPalette(psSurf, psPal);
-    if (ddrval != DD_OK)
-    {
-      Neuron::Fatal("SetPalette failed for image surface:\n{}", DDErrorToString(ddrval));
-      goto exit_with_error;
-    }
-  }
-
-  /* Lock the texture surface to store the image data */
-  memset(&ddsd, 0, sizeof(DDSURFACEDESC2));
-  ddsd.dwSize = sizeof(DDSURFACEDESC2);
-  ddrval = psSurf->lpVtbl->Lock(psSurf, nullptr, &ddsd, 0, nullptr);
-  if (ddrval != DD_OK)
-  {
-    Neuron::Fatal("Lock failed for surface image load:\n{}", DDErrorToString(ddrval));
-    goto exit_with_error;
-  }
-
-  surfWidth = ddsd.dwWidth;
-  surfHeight = ddsd.dwHeight;
-
-  /* store the texture data */
-  if (sPixelFormat.dwRGBBitCount >= 16)
-  {
-    /* Storing to a true colour surface.
-       Find the shifts needed to store each colour */
-    if ((sPixelFormat.dwRBitMask > 0) && (sPixelFormat.dwGBitMask > 0) && (sPixelFormat.dwBBitMask > 0))
-    {
-      /*lint -save -e722 */
-      currMask = sPixelFormat.dwRBitMask;
-      for (rShift = 0; !(currMask & 1); currMask >>= 1, rShift++);
-      for (rPalShift = 0; (currMask & 1); currMask >>= 1, rPalShift++);
-      rPalShift = PALETTEENTRY_BITS - rPalShift;
-
-      currMask = sPixelFormat.dwGBitMask;
-      for (gShift = 0; !(currMask & 1); currMask >>= 1, gShift++);
-      for (gPalShift = 0; (currMask & 1); currMask >>= 1, gPalShift++);
-      gPalShift = PALETTEENTRY_BITS - gPalShift;
-
-      currMask = sPixelFormat.dwBBitMask;
-      for (bShift = 0; !(currMask & 1); currMask >>= 1, bShift++);
-      for (bPalShift = 0; (currMask & 1); currMask >>= 1, bPalShift++);
-      bPalShift = PALETTEENTRY_BITS - bPalShift;
-    }
-    else
-    {
-      Neuron::Fatal("Unknown surface format : Palettised with BitCount >= 16 ?!?");
-      goto exit_with_error;
-    }
-    if (sPixelFormat.dwRGBAlphaBitMask > 0)
-    {
-      currMask = sPixelFormat.dwRGBAlphaBitMask;
-      for (aShift = 0; !(currMask & 1); currMask >>= 1, aShift++);
-      for (aPalShift = 0; (currMask & 1); currMask >>= 1, aPalShift++);
-      aPalShift = PALETTEENTRY_BITS - aPalShift;
-      /*lint -restore */
-    }
-    else
-    {
-      /* No alpha information, so set up the palette shift to loose it */
-      aShift = 0;
-      aPalShift = PALETTEENTRY_BITS;
-    }
-  }
-  switch (sPixelFormat.dwRGBBitCount)
-  {
-  case 8:
-    pImageSrc = pImageData;
-    for (j = 0; (j < surfHeight) && (j < height); j++)
-    {
-      pSurf8Dest = static_cast<UBYTE*>(ddsd.lpSurface) + ddsd.lPitch * j;
-      for (i = 0; (i < surfWidth) && (i < width); i++)
-        *(pSurf8Dest++) = *(pImageSrc++);
-    }
-    break;
-  case 16:
-    pImageSrc = pImageData;
-    if (((surfHeight * 2) == height) && ((surfHeight * 2) == height)) //half scale
-    {
-      for (j = 0; (j < surfHeight) && (j < height); j++)
-      {
-        pSurf16Dest = (UWORD*)(static_cast<UBYTE*>(ddsd.lpSurface) + ddsd.lPitch * j);
-        for (i = 0; (i < surfWidth) && (i < width); i++)
-        {
-          /*lint -save -e644 */
-          r = static_cast<UWORD>(psPalette[*pImageSrc].peRed >> rPalShift);
-          r += static_cast<UWORD>(psPalette[pImageSrc[1]].peRed >> rPalShift);
-          r += static_cast<UWORD>(psPalette[pImageSrc[width]].peRed >> rPalShift);
-          r += static_cast<UWORD>(psPalette[pImageSrc[width + 1]].peRed >> rPalShift);
-          r >>= 2; //average of 4 pixels
-          g = static_cast<UWORD>(psPalette[*pImageSrc].peGreen >> gPalShift);
-          g += static_cast<UWORD>(psPalette[pImageSrc[1]].peGreen >> gPalShift);
-          g += static_cast<UWORD>(psPalette[pImageSrc[width]].peGreen >> gPalShift);
-          g += static_cast<UWORD>(psPalette[pImageSrc[width + 1]].peGreen >> gPalShift);
-          g >>= 2; //average of 4 pixels
-          b = static_cast<UWORD>(psPalette[*pImageSrc].peBlue >> bPalShift);
-          b += static_cast<UWORD>(psPalette[pImageSrc[1]].peBlue >> bPalShift);
-          b += static_cast<UWORD>(psPalette[pImageSrc[width]].peBlue >> bPalShift);
-          b += static_cast<UWORD>(psPalette[pImageSrc[width + 1]].peBlue >> bPalShift);
-          b >>= 2; //average of 4 pixels
-
-          *pSurf16Dest = r << rShift;
-          *pSurf16Dest |= g << gShift;
-          *pSurf16Dest |= b << bShift;
-          /*lint -restore */
-          pImageSrc += 2; //skip a pixel every pixel 
-          pSurf16Dest++;
-        }
-        pImageSrc += width; //skip a line every line 
-      }
-    }
-    else
-    {
-      for (j = 0; (j < surfHeight) && (j < height); j++)
-      {
-        pSurf16Dest = (UWORD*)(static_cast<UBYTE*>(ddsd.lpSurface) + ddsd.lPitch * j);
-        for (i = 0; (i < surfWidth) && (i < width); i++)
-        {
-          /*lint -save -e644 */
-          *pSurf16Dest = static_cast<UWORD>((psPalette[*pImageSrc].peRed >> rPalShift) << rShift);
-          *pSurf16Dest |= static_cast<UWORD>((psPalette[*pImageSrc].peGreen >> gPalShift) << gShift);
-          *pSurf16Dest |= static_cast<UWORD>((psPalette[*pImageSrc].peBlue >> bPalShift) << bShift);
-          /*lint -restore */
-          pImageSrc++;
-          pSurf16Dest++;
-        }
-      }
-    }
-    break;
-  case 24:
-    pImageSrc = pImageData;
-    for (j = 0; (j < surfHeight) && (j < height); j++)
-    {
-      pSurf32Dest = (UDWORD*)(static_cast<UBYTE*>(ddsd.lpSurface) + ddsd.lPitch * j);
-      for (i = 0; (i < surfWidth) && (i < width); i++)
-      {
-        /*lint -save -e644 */
-        *pSurf32Dest = static_cast<UDWORD>((psPalette[*pImageSrc].peRed >> rPalShift) << rShift);
-        *pSurf32Dest |= static_cast<UDWORD>((psPalette[*pImageSrc].peGreen >> gPalShift) << gShift);
-        *pSurf32Dest |= static_cast<UDWORD>((psPalette[*pImageSrc].peBlue >> bPalShift) << bShift);
-        /*lint -restore */
-        pImageSrc++;
-        pSurf32Dest = (UDWORD*)(((UBYTE*)pSurf32Dest) + 3);
-      }
-    }
-    break;
-  case 32:
-    pImageSrc = pImageData;
-    for (j = 0; (j < surfHeight) && (j < height); j++)
-    {
-      pSurf32Dest = (UDWORD*)(static_cast<UBYTE*>(ddsd.lpSurface) + ddsd.lPitch * j);
-      for (i = 0; (i < surfWidth) && (i < width); i++)
-      {
-        /*lint -save -e644 */
-        *pSurf32Dest = static_cast<UDWORD>((psPalette[*pImageSrc].peRed >> rPalShift) << rShift);
-        *pSurf32Dest |= static_cast<UDWORD>((psPalette[*pImageSrc].peGreen >> gPalShift) << gShift);
-        *pSurf32Dest |= static_cast<UDWORD>((psPalette[*pImageSrc].peBlue >> bPalShift) << bShift);
-        /*lint -restore */
-        pImageSrc++;
-        pSurf32Dest++;
-      }
-    }
-    break;
-  default: Neuron::Fatal("Unsupported surface pixel format");
-    goto exit_with_error;
-  }
-
-  ddrval = psSurf->lpVtbl->Unlock(psSurf, nullptr);
-  if (ddrval != DD_OK)
-  {
-    Neuron::Fatal("Unlock failed for texture page load:\n{}", DDErrorToString(ddrval));
-    goto exit_with_error;
+    pDest = (UDWORD*)((UBYTE*)psSurf->pPixels + psSurf->pitch * j);
+    for (i = 0; (i < psSurf->width) && (i < width); i++)
+      pDest[i] = aPalette[pImageSrc[i]];
+    pImageSrc += width;
   }
 
   return TRUE;
-
-exit_with_error: RELEASE(psPal);
-  RELEASE(psSurf);
-
-  return FALSE;
 }
 
-/* Load a BMP file and create a system memory surface to store it in.
+/* Load a BMP file and create a surface to store it in.
  * If pWidth or pHeight is NULL the size of the image will not be returned.
  */
 BOOL surfCreateFromBMP(STRING* pFileName, // The BMP file
-                       LPDIRECTDRAWSURFACE4* ppsSurface, // The created surface
+                       LPSURFACE* ppsSurface, // The created surface
                        UDWORD* pWidth, // The width of the image
                        UDWORD* pHeight) // The height of the image
 {
@@ -595,43 +222,34 @@ BOOL surfCreateFromBMP(STRING* pFileName, // The BMP file
   if (!imageParseBMP(pImageFile, imageFileSize, &width, &height, &pImageData, &psImagePalette))
   {
     delete[] pImageFile;
-    pImageFile = nullptr;
     return FALSE;
   }
 
   delete[] pImageFile;
-  pImageFile = nullptr;
 
-  if (!surfCreate(ppsSurface, width, height, DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY, screenGetBackBufferPixelFormat(), FALSE, TRUE))
-  {
-    delete[] pImageData;
-    pImageData = nullptr;
-    if (psImagePalette) { delete[] psImagePalette; }
-    return FALSE;
-  }
-
-  if (psImagePalette)
-  {
-    if (!surfLoadFrom8Bit(*ppsSurface, width, height, pImageData, psImagePalette))
-    {
-      delete[] pImageData;
-      pImageData = nullptr;
-      delete[] psImagePalette;
-      psImagePalette = nullptr;
-      return FALSE;
-    }
-    delete[] pImageData;
-    pImageData = nullptr;
-    delete[] psImagePalette;
-    psImagePalette = nullptr;
-  }
-  else
+  if (psImagePalette == nullptr)
   {
     Neuron::Fatal("Surface loading from true colour images not implemented");
     delete[] pImageData;
-    pImageData = nullptr;
     return FALSE;
   }
+
+  if (!surfCreate(ppsSurface, width, height, TRUE))
+  {
+    delete[] pImageData;
+    delete[] psImagePalette;
+    return FALSE;
+  }
+
+  if (!surfLoadFrom8Bit(*ppsSurface, width, height, pImageData, psImagePalette))
+  {
+    delete[] pImageData;
+    delete[] psImagePalette;
+    return FALSE;
+  }
+
+  delete[] pImageData;
+  delete[] psImagePalette;
 
   /* Return the size of the image if it is needed */
   if (pWidth && pHeight)

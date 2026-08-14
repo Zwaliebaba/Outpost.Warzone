@@ -1,17 +1,31 @@
 #include "pch.h"
+/***************************************************************************/
+/*
+ * TexMan.cpp
+ *
+ * The texture pages the renderer draws from.
+ *
+ * The Direct3D 6 version of this file was mostly a video memory budget: it
+ * asked DirectDraw how much texture memory was free, chose between 32 full
+ * size pages, a mix of 256 and 128 pixel pages, and an 8 bit palettised mode,
+ * created the pages as DirectDraw surfaces, and uploaded each texture through
+ * a system memory staging surface and a Blt.
+ *
+ * Direct3D 9's managed pool does all of that: it keeps a system memory copy
+ * of every texture and moves it in and out of video memory as needed. So the
+ * pages are simply 32 managed 256x256 A8R8G8B8 textures, and uploading one
+ * is a lock, a palette lookup and an unlock. That is what deleted the paging
+ * logic the migration plan expected to lose here.
+ */
+/***************************************************************************/
+
 #include "Frame.h"
 #include "PieDef.h"
 #include "PieState.h"
 #include "PiePalette.h"
 #include "D3DRender.h"
-#include "DX6TexMan.h"
+#include "TexMan.h"
 #include "Tex.h"
-
-/***************************************************************************/
-/*
- *	Global Variables
- */
-/***************************************************************************/
 
 /***************************************************************************/
 /*
@@ -20,37 +34,11 @@
 /***************************************************************************/
 
 #define MAX_TEX_PAGES 32
-#define HIGH_RES_PAGES 9
-#define BIG_TEXTURE_SIZE 256
-#define SMALL_TEXTURE_SIZE 128
-#define RADAR_TEXTURE_SIZE 256
+#define TEXTURE_SIZE 256
+
+/* The radar occupies the top left corner of its page rather than the whole
+ * of it, which is what dtm_GetRadarTexImageSize reports to the blit code. */
 #define RADAR_SIZE 128
-#define MIN_TEX_MEMORY 1048576
-#define REQ_8BIT_TEX_MEMORY (2*1048576)
-#define REQ_TEX_MEMORY (4*1048576)
-
-using TEXTURECONTAINER = struct _tex_container
-{
-  LPDIRECTDRAWSURFACE4 psSurface4;
-  LPDIRECT3DTEXTURE2 psTexture2;
-};
-
-using TEXSEARCHINFO = struct _tex_search_info
-{
-  SDWORD requestedPaletteMode;
-  UDWORD requestedBPP;
-  BOOL b8BPPAvailable;
-  BOOL bFoundGoodFormat;
-  DDPIXELFORMAT ddpf; // Result of texture format search
-};
-
-using TEX_MAN_MODE = enum TEX_MAN_MODE
-{
-  FULL_16BIT,
-  MED_16BIT,
-  LOW_16BIT,
-  FULL_8BIT
-};
 
 /***************************************************************************/
 /*
@@ -58,33 +46,26 @@ using TEX_MAN_MODE = enum TEX_MAN_MODE
  */
 /***************************************************************************/
 
-TEXTURECONTAINER aTextures[MAX_TEX_PAGES];
-TEXTURECONTAINER radarTexture;
+static LPDIRECT3DTEXTURE9 aTextures[MAX_TEX_PAGES];
 
-TEXSEARCHINFO texInfo;
+/* The game palette packed into A8R8G8B8. Entry zero is the transparent one -
+ * it carries an alpha of zero, and the alpha test throws it away. That is
+ * what DirectDraw's colour key on black used to do.
+ */
+static UDWORD texPal32Bit[PALETTE_SIZE];
 
-TEX_MAN_MODE texSize = FULL_16BIT;
-LPDIRECTDRAWSURFACE4 psImage256Surface4 = nullptr;
-LPDIRECTDRAWSURFACE4 psImage128Surface4 = nullptr;
-LPDIRECTDRAWSURFACE4 psRadarSurf4 = nullptr;
-LPDIRECTDRAWPALETTE pDDPal;
-LPDIRECT3DMATERIAL3 psMtrl3 = nullptr;
-D3DMATERIAL mtrl;
-D3DMATERIALHANDLE hMtrl;
+/* The page currently bound to stage 0, so that a redundant SetTexture can be
+ * skipped and so that a device reset can put the binding back. */
+static SDWORD currentTexPage = -1;
 
-UWORD texPal16Bit[PALETTE_SIZE];
 /***************************************************************************/
 /*
  *	Local ProtoTypes
  */
 /***************************************************************************/
 
-static HRESULT CALLBACK TextureSearchCallback(DDPIXELFORMAT* pddpf, VOID* param);
-static BOOL dtm_CreateTextureSurface(LPDIRECTDRAWSURFACE4* ppsSurface4, SDWORD size, DWORD dwCaps);
-static BOOL dtm_surfLoadFrom8Bit(LPDIRECTDRAWSURFACE4 psSurf4, UDWORD width, UDWORD height, UBYTE* pImageData, BOOL b8Bit);
-static BOOL dtm_Build16BitTexturePalette(DDPIXELFORMAT* DDPixelFormat);
-static void SetTextureStageStates(void);
-static void SetMaterial(void);
+static BOOL dtm_BuildTexturePalette(void);
+static BOOL dtm_UploadImage(LPDIRECT3DTEXTURE9 psTexture, UDWORD width, UDWORD height, UBYTE* pImageData);
 
 /***************************************************************************/
 /*
@@ -93,336 +74,54 @@ static void SetMaterial(void);
 /***************************************************************************/
 
 /*
- *	BOOL dtm_Initialise(void)
+ *	dtm_Initialise
  *
- *	called after screen and z buffers alloacted and after d3dDevices initialised
- *	Allocates 32 256 * 256 16bit texture pages 4Mb if possible
- *	else tries to Allocate 8 bit pages else chooses a compression ratio
+ *	Called once the device exists. Creates the texture pages in the managed
+ *	pool, which is the whole of what used to be a video memory negotiation.
  */
-
 BOOL dtm_Initialise(void)
 {
+  LPDIRECT3DDEVICE9 psDevice = d3d_GetDevice();
   HRESULT hResult;
-  BOOL bSpace = TRUE;
-  SDWORD i, j;
-  SDWORD videoTextureSize = BIG_TEXTURE_SIZE;
-  LPDIRECT3DDEVICE3 pD3D3;
-  LPDIRECTDRAW4 pDD4;
-  DDSCAPS2 ddsCaps2;
-  UDWORD totalVideoMemory;
-  UDWORD freeVideoMemory;
+  SDWORD i;
 
-  texInfo.requestedPaletteMode = DDPF_RGB;
-  texInfo.requestedBPP = 16;
-  texInfo.b8BPPAvailable = FALSE;
-  texInfo.bFoundGoodFormat = FALSE;
-
-  pD3D3 = d3d_GetpsD3DDevice3();
-  pDD4 = d3d_GetpsDD4();
-
-  // Enumerate the texture formats, and find the closest device-supported
-  // texture pixel format
-  hResult = pD3D3->lpVtbl->EnumTextureFormats(pD3D3, TextureSearchCallback, &texInfo);
-
-  if (hResult != D3D_OK)
-  {
-    DEBUG_ASSERT_TEXT(FALSE, "dtm_Initialise: EnumTextureFormats failed\n{}",DDErrorToString(hResult));
+  if (psDevice == nullptr)
     return FALSE;
-  }
 
-  if (!texInfo.bFoundGoodFormat)
+  memset(aTextures, 0, sizeof(aTextures));
+
+  for (i = 0; i < MAX_TEX_PAGES; i++)
   {
-    DEBUG_ASSERT_TEXT(FALSE, "dtm_Initialise: RGB texture mode not found\n{}",DDErrorToString(hResult));
-    return FALSE;
-  }
-
-  memset(&ddsCaps2, 0, sizeof(DDSCAPS2));
-  ddsCaps2.dwCaps = DDSCAPS_TEXTURE;
-
-  hResult = pDD4->lpVtbl->GetAvailableVidMem(pDD4, &ddsCaps2, (LPDWORD)&totalVideoMemory, (LPDWORD)&freeVideoMemory);
-  if (hResult != D3D_OK)
-  {
-    DEBUG_ASSERT_TEXT(FALSE, "dtm_Initialise: GetAvailableVidMem failed\n{}",DDErrorToString(hResult));
-    return FALSE;
-  }
-
-  switch (pie_GetTexCap())
-  {
-  default: case TEX_CAP_UNDEFINED:
+    hResult = psDevice->CreateTexture(TEXTURE_SIZE, TEXTURE_SIZE, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &aTextures[i], nullptr);
+    if (hResult != D3D_OK)
     {
-      if (freeVideoMemory < MIN_TEX_MEMORY)
-      {
-        texSize = LOW_16BIT;
-        Neuron::Fatal("DX6 has reported insufficient texture space {}.", freeVideoMemory);
-        return FALSE;
-      }
-      if (((freeVideoMemory >= REQ_8BIT_TEX_MEMORY) && (freeVideoMemory < REQ_TEX_MEMORY)) && texInfo.b8BPPAvailable)
-      {
-#ifdef JEREMY
-        Neuron::DebugTrace("DX6 has reported limited texture space {}.\nSwitching to 8 bit texture mode.", freeVideoMemory);
-#endif
-        texSize = FULL_8BIT;
-        texInfo.requestedPaletteMode = DDPF_PALETTEINDEXED8;
-        texInfo.requestedBPP = 8;
-        texInfo.bFoundGoodFormat = FALSE;
-        // Enumerate the texture formats, and find the closest device-supported
-        // texture pixel format
-        hResult = pD3D3->lpVtbl->EnumTextureFormats(pD3D3, TextureSearchCallback, &texInfo);
-
-        if (hResult != D3D_OK)
-        {
-          Neuron::Fatal("DX6 Initialise: EnumTextureFormats failed\n{}",DDErrorToString(hResult));
-          return FALSE;
-        }
-
-        if (!texInfo.bFoundGoodFormat)
-        {
-          Neuron::Fatal("DX6 Initialise: RGB texture mode not found\n{}",DDErrorToString(hResult));
-          return FALSE;
-        }
-
-        hResult = pDD4->lpVtbl->CreatePalette(pDD4, DDPCAPS_8BIT | DDPCAPS_ALLOW256, pie_GetWinPal(), &pDDPal, nullptr);
-        if (hResult != DD_OK)
-        {
-          Neuron::Fatal("DX6 Initialise: CreatePalette failed for palettised mode.\n{}",DDErrorToString(hResult));
-          return FALSE;
-        }
-      }
-      else if (freeVideoMemory < REQ_TEX_MEMORY)
-      {
-        texSize = MED_16BIT;
-        Neuron::DebugTrace("DX6 has reported limited texture space {}.\nSwitching to low texture mode.", freeVideoMemory);
-      }
-    }
-    break;
-  case TEX_CAP_2M:
-    texSize = MED_16BIT;
-    break;
-  case TEX_CAP_8BIT:
-    if (texInfo.b8BPPAvailable)
-    {
-#ifdef JEREMY
-      Neuron::DebugTrace("DX6 has reported limited texture space {}.\nSwitching to 8 bit texture mode.", freeVideoMemory);
-#endif
-      texSize = FULL_8BIT;
-      texInfo.requestedPaletteMode = DDPF_PALETTEINDEXED8;
-      texInfo.requestedBPP = 8;
-      texInfo.bFoundGoodFormat = FALSE;
-      // Enumerate the texture formats, and find the closest device-supported
-      // texture pixel format
-      hResult = pD3D3->lpVtbl->EnumTextureFormats(pD3D3, TextureSearchCallback, &texInfo);
-
-      if (hResult != D3D_OK)
-      {
-        Neuron::Fatal("DX6 Initialise: EnumTextureFormats failed\n{}",DDErrorToString(hResult));
-        return FALSE;
-      }
-
-      if (!texInfo.bFoundGoodFormat)
-      {
-        Neuron::Fatal("DX6 Initialise: texture mode not found\n{}",DDErrorToString(hResult));
-        return FALSE;
-      }
-
-      hResult = pDD4->lpVtbl->CreatePalette(pDD4, DDPCAPS_8BIT | DDPCAPS_ALLOW256, pie_GetWinPal(), &pDDPal, nullptr);
-      if (hResult != DD_OK)
-      {
-        Neuron::Fatal("DX6 Initialise: CreatePalette failed for palettised mode.\n{}",DDErrorToString(hResult));
-        return FALSE;
-      }
-    }
-    else
-      texSize = FULL_16BIT;
-    break;
-  case TEX_CAP_FULL:
-    texSize = FULL_16BIT;
-    break;
-  }
-
-  //clear surface pointers
-  for (i = 0; (i < MAX_TEX_PAGES); i++)
-    aTextures[i].psSurface4 = nullptr;
-
-  if ((texSize == FULL_16BIT) || (texSize == FULL_8BIT))
-  {
-    bSpace = TRUE;
-    for (i = 0; ((i < MAX_TEX_PAGES) & bSpace); i++)
-    {
-      bSpace = dtm_CreateTextureSurface(&(aTextures[i].psSurface4), videoTextureSize,
-                                        DDSCAPS_TEXTURE | DDSCAPS_LOCALVIDMEM | DDSCAPS_VIDEOMEMORY);
-
-      if (bSpace)
-      {
-        // Create the texture
-        hResult = aTextures[i].psSurface4->lpVtbl->QueryInterface(aTextures[i].psSurface4, IID_IDirect3DTexture2,
-                                                                  (LPVOID*)&aTextures[i].psTexture2);
-        if (hResult != D3D_OK)
-        {
-          Neuron::Fatal("DX6 Initialise: Query Interfacefailed for Texture Surface\n{}",DDErrorToString(hResult));
-          return FALSE;
-        }
-      }
-      else
-      {
-        //that failed so free them and try for MED textures
-        for (j = 0; (j < i); j++)
-          aTextures[i].psSurface4->lpVtbl->Release(aTextures[i].psSurface4);
-        if (texSize == FULL_8BIT)
-        {
-          //something went wrong with 8bit mode
-          //so get a 16bit mode
-          texInfo.requestedPaletteMode = DDPF_RGB;
-          texInfo.requestedBPP = 16;
-          texInfo.b8BPPAvailable = FALSE;
-          texInfo.bFoundGoodFormat = FALSE;
-          // Enumerate the texture formats, and find the closest device-supported
-          // texture pixel format
-          hResult = pD3D3->lpVtbl->EnumTextureFormats(pD3D3, TextureSearchCallback, &texInfo);
-
-          if (hResult != D3D_OK)
-          {
-            Neuron::Fatal("dtm_Initialise: EnumTextureFormats failed on second pass\n{}",DDErrorToString(hResult));
-            return FALSE;
-          }
-
-          if (!texInfo.bFoundGoodFormat)
-          {
-            Neuron::Fatal("dtm_Initialise: RGB texture mode failed after 8bit fail\n{}",DDErrorToString(hResult));
-            return FALSE;
-          }
-        }
-        texSize = MED_16BIT;
-      }
+      Neuron::Fatal("dtm_Initialise: couldn't create texture page {}:\n{}", i, DXErrorToString(hResult));
+      return FALSE;
     }
   }
 
-  if (texSize == MED_16BIT)
-  {
-    bSpace = TRUE;
-    for (i = 0; ((i < HIGH_RES_PAGES) & bSpace); i++)
-    {
-      bSpace = dtm_CreateTextureSurface(&(aTextures[i].psSurface4), videoTextureSize,
-                                        DDSCAPS_TEXTURE | DDSCAPS_LOCALVIDMEM | DDSCAPS_VIDEOMEMORY);
-
-      if (bSpace)
-      {
-        // Create the texture
-        hResult = aTextures[i].psSurface4->lpVtbl->QueryInterface(aTextures[i].psSurface4, IID_IDirect3DTexture2,
-                                                                  (LPVOID*)&aTextures[i].psTexture2);
-        if (hResult != D3D_OK)
-        {
-          Neuron::Fatal("DX6 Initialise: Query Interface failed for Texture Surface (2)\n{}",DDErrorToString(hResult));
-          return FALSE;
-        }
-      }
-      else
-      {
-        //that failed so free them and try for MED textures
-        for (j = 0; (j < i); j++)
-          aTextures[i].psSurface4->lpVtbl->Release(aTextures[i].psSurface4);
-        texSize = LOW_16BIT;
-      }
-    }
-
-    for (i = HIGH_RES_PAGES; ((i < MAX_TEX_PAGES) & bSpace); i++)
-    {
-      bSpace = dtm_CreateTextureSurface(&(aTextures[i].psSurface4), SMALL_TEXTURE_SIZE,
-                                        DDSCAPS_TEXTURE | DDSCAPS_LOCALVIDMEM | DDSCAPS_VIDEOMEMORY);
-
-      if (bSpace)
-      {
-        // Create the texture
-        hResult = aTextures[i].psSurface4->lpVtbl->QueryInterface(aTextures[i].psSurface4, IID_IDirect3DTexture2,
-                                                                  (LPVOID*)&aTextures[i].psTexture2);
-        if (hResult != D3D_OK)
-        {
-          Neuron::Fatal("DX6 Initialise: Query Interface failed for Texture Surface (3)\n{}",DDErrorToString(hResult));
-          return FALSE;
-        }
-      }
-      else
-      {
-        //that failed so free them and try for MED textures
-        for (j = 0; (j < i); j++)
-          aTextures[i].psSurface4->lpVtbl->Release(aTextures[i].psSurface4);
-        texSize = LOW_16BIT;
-      }
-    }
-  }
-
-  if (texSize == LOW_16BIT)
-  {
-    Neuron::Fatal("DX6 has reported insufficient texture space {}.", freeVideoMemory); //mar10!!jps
-    return FALSE; //mar10!!jps
-    bSpace = TRUE;
-    for (i = 0; ((i < MAX_TEX_PAGES) & bSpace); i++)
-    {
-      bSpace = dtm_CreateTextureSurface(&(aTextures[i].psSurface4), videoTextureSize,
-                                        DDSCAPS_TEXTURE | DDSCAPS_LOCALVIDMEM | DDSCAPS_VIDEOMEMORY);
-
-      if (bSpace)
-      {
-        // Create the texture
-        hResult = aTextures[i].psSurface4->lpVtbl->QueryInterface(aTextures[i].psSurface4, IID_IDirect3DTexture2,
-                                                                  (LPVOID*)&aTextures[i].psTexture2);
-        if (hResult != D3D_OK)
-        {
-          Neuron::Fatal("DX6 Initialise: Query Interface failed for Texture Surface (4)\n{}",DDErrorToString(hResult));
-          return FALSE;
-        }
-      }
-    }
-  }
-
-  dtm_CreateTextureSurface(&psImage256Surface4, BIG_TEXTURE_SIZE, DDSCAPS_TEXTURE | DDSCAPS_ALLOCONLOAD | DDSCAPS_SYSTEMMEMORY);
-
-  if ((texSize == MED_16BIT) || (texSize == LOW_16BIT))
-  {
-    dtm_CreateTextureSurface(&psImage128Surface4, SMALL_TEXTURE_SIZE, DDSCAPS_TEXTURE | DDSCAPS_ALLOCONLOAD | DDSCAPS_SYSTEMMEMORY);
-    dtm_CreateTextureSurface(&psRadarSurf4, SMALL_TEXTURE_SIZE, DDSCAPS_TEXTURE | DDSCAPS_ALLOCONLOAD | DDSCAPS_SYSTEMMEMORY);
-  }
-  else
-    dtm_CreateTextureSurface(&psRadarSurf4, BIG_TEXTURE_SIZE, DDSCAPS_TEXTURE | DDSCAPS_ALLOCONLOAD | DDSCAPS_SYSTEMMEMORY);
-
-  if (texSize != FULL_8BIT)
-    dtm_Build16BitTexturePalette(&texInfo.ddpf);
-
-  SetMaterial();
-
+  currentTexPage = -1;
   dtm_SetTexturePage(0);
 
-  SetTextureStageStates();
+  dtm_ApplyTextureStates();
 
   return TRUE;
 }
+
+/***************************************************************************/
 
 BOOL dtm_ReleaseTextures(void)
 {
   SDWORD i;
-  //free them and try for MED textures
-  for (i = 0; (i < MAX_TEX_PAGES); i++)
-  {
-    if (aTextures[i].psSurface4 != nullptr)
-    {
-      aTextures[i].psSurface4->lpVtbl->Release(aTextures[i].psSurface4);
-      aTextures[i].psSurface4 = nullptr;
-    }
-  }
 
-  /* release upload surfaces */
-  if (psImage256Surface4 != nullptr)
-  {
-    psImage256Surface4->lpVtbl->Release(psImage256Surface4);
-    psImage256Surface4 = nullptr;
-  }
-  if (psImage128Surface4 != nullptr)
-  {
-    psImage128Surface4->lpVtbl->Release(psImage128Surface4);
-    psImage128Surface4 = nullptr;
-  }
+  for (i = 0; i < MAX_TEX_PAGES; i++) { RELEASE(aTextures[i]); }
+
+  currentTexPage = -1;
 
   return TRUE;
 }
+
+/***************************************************************************/
 
 BOOL dtm_ReLoadTexture(SDWORD i)
 {
@@ -434,11 +133,13 @@ BOOL dtm_ReLoadTexture(SDWORD i)
   return dtm_LoadTexSurface(&_TEX_PAGE[i].tex, i);
 }
 
+/***************************************************************************/
+
 BOOL dtm_ReloadAllTextures(void)
 {
   SDWORD i;
-  //free them and try for MED textures
-  for (i = 0; (i < MAX_TEX_PAGES); i++)
+
+  for (i = 0; i < MAX_TEX_PAGES; i++)
   {
     /* set pie texture pointer */
     if ((_TEX_PAGE[i].tex.bmp != nullptr) && (i != RADAR_TEXPAGE_D3D))
@@ -447,496 +148,204 @@ BOOL dtm_ReloadAllTextures(void)
   return TRUE;
 }
 
+/***************************************************************************/
+/*
+ * dtm_RestoreTextures
+ *
+ * Managed textures survive a device reset with their contents intact, so
+ * unlike the DirectDraw version this only has to put the binding back.
+ * Pages that were never created - if the reset followed a device that was
+ * recreated rather than reset - are refilled.
+ */
 BOOL dtm_RestoreTextures(void)
 {
-  SDWORD i;
-  //free them and try for MED textures
-  for (i = 0; (i < MAX_TEX_PAGES); i++)
-  {
-    if (aTextures[i].psSurface4->lpVtbl->IsLost(aTextures[i].psSurface4) != DD_OK)
-    {
-      aTextures[i].psSurface4->lpVtbl->Restore(aTextures[i].psSurface4);
-      /* set pie texture pointer */
-      if ((_TEX_PAGE[i].tex.bmp != nullptr) && (i != RADAR_TEXPAGE_D3D))
-        dtm_LoadTexSurface(&_TEX_PAGE[i].tex, i);
-    }
-  }
-  return TRUE;
-}
+  SDWORD page;
 
-BOOL dtm_CreateTextureSurface(LPDIRECTDRAWSURFACE4* ppsSurface4, SDWORD size, DWORD dwCaps)
-{
-  LPDIRECT3DDEVICE3 pD3D3;
-  LPDIRECTDRAW4 pDD4;
-  DDSURFACEDESC2 ddSurfDesc2;
-  HRESULT hResult;
-  DDCOLORKEY blackKey;
-
-  pD3D3 = d3d_GetpsD3DDevice3();
-  pDD4 = d3d_GetpsDD4();
-
-  blackKey.dwColorSpaceLowValue = 0;
-  blackKey.dwColorSpaceHighValue = 0;
-
-  // set texture caps */
-  memset(&ddSurfDesc2, 0, sizeof(DDSURFACEDESC2));
-  ddSurfDesc2.dwSize = sizeof(DDSURFACEDESC2);
-  ddSurfDesc2.dwFlags = DDSD_WIDTH | DDSD_HEIGHT | DDSD_PIXELFORMAT | DDSD_CAPS;
-  ddSurfDesc2.dwWidth = size;
-  ddSurfDesc2.dwHeight = size;
-  ddSurfDesc2.ddsCaps.dwCaps = dwCaps;
-  memcpy(&ddSurfDesc2.ddpfPixelFormat, &texInfo.ddpf, sizeof(DDPIXELFORMAT));
-
-  //create the surface
-  hResult = pDD4->lpVtbl->CreateSurface(pDD4, &ddSurfDesc2, ppsSurface4, nullptr);
-  if (hResult != DD_OK)
-  {
-    Neuron::DebugTrace("dtm_CreateTextureSurface: Create texture surface failed:\n{}", DDErrorToString(hResult));
-    Neuron::DebugTrace("Unable to allocate sufficient texture space.\nSwitching to low texture mode.");
+  if (aTextures[0] == nullptr)
     return FALSE;
-  }
 
-  if (texInfo.requestedPaletteMode == DDPF_PALETTEINDEXED8)
-  {
-    // Set the palette on the texture surface
-    hResult = (*ppsSurface4)->lpVtbl->SetPalette(*ppsSurface4, pDDPal);
-    if (hResult != DD_OK)
-    {
-      Neuron::DebugTrace("dtm_CreateTextureSurface: SetPalette failed for texture surface:\n{}",DDErrorToString(hResult));
-      return FALSE;
-    }
-  }
-
-  if (D3DGetAlphaKey() == FALSE)
-  {
-    //enable colourkeying for this surface
-    hResult = (*ppsSurface4)->lpVtbl->SetColorKey(*ppsSurface4, DDCKEY_SRCBLT, &blackKey);
-    if (hResult != DD_OK)
-    {
-      Neuron::DebugTrace("dtm_CreateTextureSurface: SetColorKey failed for texture surface:\n{}", DDErrorToString(hResult));
-      return FALSE;
-    }
-  }
+  page = currentTexPage;
+  currentTexPage = -1;
+  dtm_SetTexturePage(page);
 
   return TRUE;
 }
 
-//-----------------------------------------------------------------------------
-// Name: TextureSearchCallback()
-// Desc: Enumeration callback routine to find a best-matching texture format. 
-//       The param data is the DDPIXELFORMAT of the best-so-far matching
-//       texture. Note: the desired BPP is passed in the dwSize field, and the
-//       default BPP is passed in the dwFlags field.
-//-----------------------------------------------------------------------------
-static HRESULT CALLBACK TextureSearchCallback(DDPIXELFORMAT* pddpf, VOID* param)
-{
-  auto psTexInfo = static_cast<TEXSEARCHINFO*>(param);
-
-  if (nullptr == pddpf || nullptr == param)
-    return DDENUMRET_OK;
-
-  // Skip any funky modes
-  if (pddpf->dwFlags & (DDPF_LUMINANCE | DDPF_BUMPLUMINANCE | DDPF_BUMPDUDV))
-    return DDENUMRET_OK;
-
-  if ((pddpf->dwFlags & DDPF_PALETTEINDEXED8)) //8 bits available
-  {
-    psTexInfo->b8BPPAvailable = TRUE;
-
-    if (psTexInfo->requestedPaletteMode == DDPF_PALETTEINDEXED8)
-    {
-      // Accept the first 8-bit palettized format we get
-      memcpy(&psTexInfo->ddpf, pddpf, sizeof(DDPIXELFORMAT));
-      psTexInfo->bFoundGoodFormat = TRUE;
-      return DDENUMRET_CANCEL;
-    }
-    //ignor if not requested
-    return DDENUMRET_OK;
-  }
-
-  if (psTexInfo->bFoundGoodFormat) //must be still looking for 8bit availability 
-    return DDENUMRET_OK;
-
-  if (!(pddpf->dwFlags & psTexInfo->requestedPaletteMode)) //not an RGB mode so ignor
-    return DDENUMRET_OK;
-
-  // Else, skip any paletized formats (all modes under 16bpp)
-  if (pddpf->dwRGBBitCount < psTexInfo->requestedBPP)
-    return DDENUMRET_OK;
-
-  // Else, skip any FourCC formats
-  if (pddpf->dwFourCC != 0)
-    return DDENUMRET_OK;
-
-  // Make sure current alpha format agrees with requested format type
-  if (D3DGetAlphaKey() == TRUE)
-  {
-    if (!(pddpf->dwFlags & DDPF_ALPHAPIXELS))
-      return DDENUMRET_OK;
-  }
-  else
-  {
-    if (pddpf->dwFlags & DDPF_ALPHAPIXELS)
-      return DDENUMRET_OK;
-  }
-
-  // Check if we found a good match
-  if (pddpf->dwRGBBitCount == psTexInfo->requestedBPP)
-  {
-    memcpy(&psTexInfo->ddpf, pddpf, sizeof(DDPIXELFORMAT));
-    psTexInfo->bFoundGoodFormat = TRUE;
-    return DDENUMRET_OK;
-  }
-
-  return DDENUMRET_OK;
-}
+/***************************************************************************/
 
 void dtm_SetTexturePage(SDWORD i)
 {
-  LPDIRECT3DDEVICE3 pd3dDevice3 = d3d_GetpsD3DDevice3();
+  LPDIRECT3DDEVICE9 psDevice = d3d_GetDevice();
+
+  if (psDevice == nullptr)
+    return;
+
+  if (i == currentTexPage)
+    return;
 
   if ((i >= 0) && (i < MAX_TEX_PAGES))
-    pd3dDevice3->lpVtbl->SetTexture(pd3dDevice3, 0, aTextures[i].psTexture2);
+    (void)psDevice->SetTexture(0, aTextures[i]);
   else
-    pd3dDevice3->lpVtbl->SetTexture(pd3dDevice3, 0, nullptr);
+    (void)psDevice->SetTexture(0, nullptr);
+
+  currentTexPage = i;
 }
 
-void SetTextureStageStates(void)
+/***************************************************************************/
+
+void dtm_ApplyTextureStates(void)
 {
-  LPDIRECT3DDEVICE3 pd3dDevice3 = d3d_GetpsD3DDevice3();
+  LPDIRECT3DDEVICE9 psDevice = d3d_GetDevice();
 
-  pd3dDevice3->lpVtbl->SetTextureStageState(pd3dDevice3, 0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-  pd3dDevice3->lpVtbl->SetTextureStageState(pd3dDevice3, 0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
-  pd3dDevice3->lpVtbl->SetTextureStageState(pd3dDevice3, 0, D3DTSS_COLOROP, D3DTOP_MODULATE);
-  pd3dDevice3->lpVtbl->SetTextureStageState(pd3dDevice3, 0, D3DTSS_MINFILTER, D3DTFN_LINEAR);
-  pd3dDevice3->lpVtbl->SetTextureStageState(pd3dDevice3, 0, D3DTSS_MAGFILTER, D3DTFG_LINEAR);
-  pd3dDevice3->lpVtbl->SetTextureStageState(pd3dDevice3, 0, D3DTSS_MIPFILTER, D3DTFP_NONE);
-  pd3dDevice3->lpVtbl->SetRenderState(pd3dDevice3, D3DRENDERSTATE_DITHERENABLE, TRUE);
-  pd3dDevice3->lpVtbl->SetRenderState(pd3dDevice3, D3DRENDERSTATE_SPECULARENABLE, TRUE);
-}
-
-void dx6_SetBilinear(BOOL bBilinearOn)
-{
-  HRESULT hResult;
-  LPDIRECT3DDEVICE3 pd3dDevice3 = d3d_GetpsD3DDevice3();
-
-  if (bBilinearOn)
-  {
-    hResult = pd3dDevice3->lpVtbl->SetTextureStageState(pd3dDevice3, 0, D3DTSS_MINFILTER, D3DTFN_LINEAR);
-    DEBUG_ASSERT_TEXT(hResult == D3D_OK, "dx6_SetBilinear: bilinear SetRenderState failed\n{}",DDErrorToString(hResult));
-    hResult = pd3dDevice3->lpVtbl->SetTextureStageState(pd3dDevice3, 0, D3DTSS_MAGFILTER, D3DTFG_LINEAR);
-    DEBUG_ASSERT_TEXT(hResult == D3D_OK, "dx6_SetBilinear: bilinear SetRenderState failed\n{}",DDErrorToString(hResult));
-  }
-  else
-  {
-    hResult = pd3dDevice3->lpVtbl->SetTextureStageState(pd3dDevice3, 0, D3DTSS_MINFILTER, D3DTFN_POINT);
-    DEBUG_ASSERT_TEXT(hResult == D3D_OK, "dx6_SetBilinear: bilinear SetRenderState failed\n{}",DDErrorToString(hResult));
-    hResult = pd3dDevice3->lpVtbl->SetTextureStageState(pd3dDevice3, 0, D3DTSS_MAGFILTER, D3DTFG_POINT);
-    DEBUG_ASSERT_TEXT(hResult == D3D_OK, "dx6_SetBilinear: bilinear SetRenderState failed\n{}",DDErrorToString(hResult));
-  }
-}
-
-void SetMaterial(void)
-{
-  HRESULT hResult;
-  LPDIRECT3D3 pd3d3 = d3d_GetpsD3D();
-  LPDIRECT3DDEVICE3 pd3dDevice3 = d3d_GetpsD3DDevice3();
-
-  hResult = pd3d3->lpVtbl->CreateMaterial(pd3d3, &psMtrl3, nullptr);
-  if (hResult != DD_OK)
-  {
-    DEBUG_ASSERT_TEXT(FALSE, "dtm SetMaterial: CreateMaterial failed\n{}",DDErrorToString(hResult));
+  if (psDevice == nullptr)
     return;
-  }
-  ZeroMemory(&mtrl, sizeof(D3DMATERIAL));
-  mtrl.dwSize = sizeof(D3DMATERIAL);
-  mtrl.dcvDiffuse.r = mtrl.dcvAmbient.r = 1.0f;
-  mtrl.dcvDiffuse.g = mtrl.dcvAmbient.g = 1.0f;
-  mtrl.dcvDiffuse.b = mtrl.dcvAmbient.b = 1.0f;
-  mtrl.dwRampSize = 16L; // A default ramp size
-  mtrl.power = 40.0f;
 
-  psMtrl3->lpVtbl->SetMaterial(psMtrl3, &mtrl);
-  psMtrl3->lpVtbl->GetHandle(psMtrl3, pd3dDevice3, &hMtrl);
-  pd3dDevice3->lpVtbl->SetLightState(pd3dDevice3, D3DLIGHTSTATE_MATERIAL, hMtrl);
-  pd3dDevice3->lpVtbl->SetLightState(pd3dDevice3, D3DLIGHTSTATE_AMBIENT, 0x40404040);
+  (void)psDevice->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+  (void)psDevice->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+  (void)psDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
+
+  /* Filtering moved from the texture stage to the sampler in Direct3D 9. */
+  (void)psDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+  (void)psDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+  (void)psDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
+  (void)psDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
+  (void)psDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
+
+  /* The binding is part of the device state a reset discards too. */
+  if ((currentTexPage >= 0) && (currentTexPage < MAX_TEX_PAGES))
+    (void)psDevice->SetTexture(0, aTextures[currentTexPage]);
 }
 
-void dtm_SetSurfaceAlpha(LPDIRECTDRAWSURFACE4 psSurf4)
+/***************************************************************************/
+
+void dtm_SetBilinear(BOOL bBilinearOn)
+{
+  LPDIRECT3DDEVICE9 psDevice = d3d_GetDevice();
+  HRESULT hResult;
+  D3DTEXTUREFILTERTYPE filter = bBilinearOn ? D3DTEXF_LINEAR : D3DTEXF_POINT;
+
+  if (psDevice == nullptr)
+    return;
+
+  hResult = psDevice->SetSamplerState(0, D3DSAMP_MINFILTER, filter);
+  DEBUG_ASSERT_TEXT(hResult == D3D_OK, "dtm_SetBilinear: min filter failed\n{}", DXErrorToString(hResult));
+  hResult = psDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, filter);
+  DEBUG_ASSERT_TEXT(hResult == D3D_OK, "dtm_SetBilinear: mag filter failed\n{}", DXErrorToString(hResult));
+}
+
+/***************************************************************************/
+/*
+ * dtm_UploadImage
+ *
+ * Expand palettised image data into the top left of a texture page.
+ *
+ * Direct3D 6 needed a system memory staging surface and a Blt to get here,
+ * because a video memory surface could not be written directly. A managed
+ * texture is backed by system memory, so this writes into it and lets the
+ * runtime move it.
+ */
+static BOOL dtm_UploadImage(LPDIRECT3DTEXTURE9 psTexture, UDWORD width, UDWORD height, UBYTE* pImageData)
 {
   HRESULT hResult;
-  DDSURFACEDESC2 ddsd;
-  DWORD dwAlphaMask, dwRGBMask, dwColorkey = 0x00000000; // Colorkey on black
-  WORD* p16;
-  DWORD* p32;
-  DWORD x, y;
+  D3DLOCKED_RECT sLocked;
+  D3DSURFACE_DESC sDesc;
+  UDWORD x, y;
+  UBYTE* pSrc;
+  UDWORD* pDest;
 
-  memset(&ddsd, 0, sizeof(DDSURFACEDESC2));
-  ddsd.dwSize = sizeof(DDSURFACEDESC2);
+  if ((psTexture == nullptr) || (pImageData == nullptr))
+    return FALSE;
 
-  hResult = psSurf4->lpVtbl->GetSurfaceDesc(psSurf4, &ddsd);
-  if (hResult != DD_OK)
+  /* Rebuild the packed palette each time. It costs 256 iterations against a
+   * 65536 pixel upload, and it means a texture loaded after the game palette
+   * changes gets the palette it is actually meant to have. */
+  if (!dtm_BuildTexturePalette())
+    return FALSE;
+
+  hResult = psTexture->GetLevelDesc(0, &sDesc);
+  if (hResult != D3D_OK)
   {
-    DEBUG_ASSERT_TEXT(FALSE, "dtm_SetSurfaceAlpha: GetSurfaceDesc failed\n{}", DDErrorToString(hResult));
-    return;
+    DEBUG_ASSERT_TEXT(FALSE, "dtm_UploadImage: GetLevelDesc failed\n{}", DXErrorToString(hResult));
+    return FALSE;
   }
 
-  if (ddsd.ddpfPixelFormat.dwRGBAlphaBitMask)
+  hResult = psTexture->LockRect(0, &sLocked, nullptr, 0);
+  if (hResult != D3D_OK)
   {
-    // Lock the texture surface
-    memset(&ddsd, 0, sizeof(DDSURFACEDESC2));
-    ddsd.dwSize = sizeof(DDSURFACEDESC2);
-    while (psSurf4->lpVtbl->Lock(psSurf4, nullptr, &ddsd, 0, nullptr) == DDERR_WASSTILLDRAWING) { ; }
-
-    dwAlphaMask = ddsd.ddpfPixelFormat.dwRGBAlphaBitMask;
-    dwRGBMask = (ddsd.ddpfPixelFormat.dwRBitMask | ddsd.ddpfPixelFormat.dwGBitMask | ddsd.ddpfPixelFormat.dwBBitMask);
-
-    // Add an opaque alpha value to each non-colorkeyed pixel
-    for (y = 0; y < ddsd.dwHeight; y++)
-    {
-      p16 = (WORD*)(static_cast<BYTE*>(ddsd.lpSurface) + y * ddsd.lPitch);
-      p32 = (DWORD*)(static_cast<BYTE*>(ddsd.lpSurface) + y * ddsd.lPitch);
-
-      for (x = 0; x < ddsd.dwWidth; x++)
-      {
-        if (ddsd.ddpfPixelFormat.dwRGBBitCount == 16)
-        {
-          if ((*p16 &= dwRGBMask) != dwColorkey)
-            *p16 |= dwAlphaMask;
-          p16++;
-        }
-        if (ddsd.ddpfPixelFormat.dwRGBBitCount == 32)
-        {
-          if ((*p32 &= dwRGBMask) != dwColorkey)
-            *p32 |= dwAlphaMask;
-          p32++;
-        }
-      }
-
-      psSurf4->lpVtbl->Unlock(psSurf4, nullptr);
-    }
+    DEBUG_ASSERT_TEXT(FALSE, "dtm_UploadImage: LockRect failed\n{}", DXErrorToString(hResult));
+    return FALSE;
   }
+
+  pSrc = pImageData;
+  for (y = 0; (y < height) && (y < sDesc.Height); y++)
+  {
+    pDest = (UDWORD*)(static_cast<UBYTE*>(sLocked.pBits) + sLocked.Pitch * y);
+    for (x = 0; (x < width) && (x < sDesc.Width); x++)
+      pDest[x] = texPal32Bit[pSrc[x]];
+    pSrc += width;
+  }
+
+  (void)psTexture->UnlockRect(0);
+
+  return TRUE;
 }
+
+/***************************************************************************/
 
 BOOL dtm_LoadTexSurface(iTexture* psIvisTex, SDWORD index)
 {
-  LPDIRECTDRAWSURFACE4 psSurf4;
-  DDCOLORKEY blackKey;
-
-  blackKey.dwColorSpaceLowValue = 0;
-  blackKey.dwColorSpaceHighValue = 0;
-
-  if ((texSize == LOW_16BIT) || ((texSize == MED_16BIT) && (index >= HIGH_RES_PAGES)))
-    psSurf4 = psImage128Surface4;
-  else
-    psSurf4 = psImage256Surface4;
-  if (!surfLoadFrom8Bit(psSurf4, psIvisTex->width, psIvisTex->height, psIvisTex->bmp, pie_GetWinPal()))
+  if ((index < 0) || (index >= MAX_TEX_PAGES))
   {
-    DEBUG_ASSERT_TEXT(FALSE, "dtm SetMaterial: CreateMaterial failed.");
+    DEBUG_ASSERT_TEXT(FALSE, "dtm_LoadTexSurface: texture page {} out of range", index);
     return FALSE;
   }
 
-#if 1 //alpaha is set for palette used in dtm_surfLoadFrom8Bit
-  if (D3DGetAlphaKey() == TRUE)
-  {
-    /* set transparent bits for textures with real alpha (not palettized) */
-    dtm_SetSurfaceAlpha(psSurf4);
-  }
-#endif
-
-  /* copy texture to on-card surface */
-  aTextures[index].psSurface4->lpVtbl->Blt(aTextures[index].psSurface4, nullptr, psSurf4, nullptr, DDBLT_WAIT, nullptr);
-
-  return TRUE;
+  return dtm_UploadImage(aTextures[index], psIvisTex->width, psIvisTex->height, psIvisTex->bmp);
 }
 
-BOOL dtm_BLTRadarToTex(void)
-{
-  aTextures[RADAR_TEXPAGE_D3D].psSurface4->lpVtbl->Blt(aTextures[RADAR_TEXPAGE_D3D].psSurface4, nullptr, psRadarSurf4, nullptr, DDBLT_WAIT,
-                                                       nullptr);
-  return TRUE;
-}
+/***************************************************************************/
 
 BOOL dtm_LoadRadarSurface(BYTE* radarBuffer)
 {
-  if ((texSize == MED_16BIT) || (texSize == LOW_16BIT))
-    psRadarSurf4 = psImage128Surface4;
-  else
-    psRadarSurf4 = psImage256Surface4;
-
-  if (!dtm_surfLoadFrom8Bit(psRadarSurf4, 128, 128, radarBuffer, (texSize == FULL_8BIT)))
-  {
-    DEBUG_ASSERT_TEXT(FALSE, "dtm SetMaterial: CreateMaterial failed.");
-    return FALSE;
-  }
-  return dtm_BLTRadarToTex();
+  return dtm_UploadImage(aTextures[RADAR_TEXPAGE_D3D], RADAR_SIZE, RADAR_SIZE, (UBYTE*)radarBuffer);
 }
+
+/***************************************************************************/
 
 SDWORD dtm_GetRadarTexImageSize(void)
 {
-  if ((texSize == MED_16BIT) || (texSize == LOW_16BIT))
-    return 256; //the radar fills the texture
-  return 128; //the radar is in the top left of the image
+  /* The radar image sits in the top left RADAR_SIZE pixels of a full size
+   * page - every page is full size now, so this no longer depends on which
+   * texture mode was negotiated at start up. */
+  return RADAR_SIZE;
 }
 
-BOOL dtm_surfLoadFrom8Bit(LPDIRECTDRAWSURFACE4 psSurf4, // The surface to load to
-                          UDWORD width, UDWORD height, // The size of the image data
-                          UBYTE* pImageData, // The image data
-                          BOOL b8Bit) // palette size
-{
-  UBYTE* s8;
-  UBYTE* d8;
-  UWORD* d16;
-  UDWORD x, y;
-  DDSURFACEDESC2 ddsd;
-
-  memset(&ddsd, 0, sizeof(DDSURFACEDESC2));
-  ddsd.dwSize = sizeof(DDSURFACEDESC2);
-  while (psSurf4->lpVtbl->Lock(psSurf4, nullptr, &ddsd, 0, nullptr) == DDERR_WASSTILLDRAWING) { ; }
-
-  s8 = pImageData;
-  if (b8Bit)
-  {
-    d8 = static_cast<UBYTE*>(ddsd.lpSurface);
-    for (y = 0; y < height; y++)
-    {
-      for (x = 0; x < width; x++)
-        d8[x] = s8[x];
-      s8 += width;
-      d8 += ddsd.lPitch;
-    }
-  }
-  else
-  {
-    d16 = static_cast<UWORD*>(ddsd.lpSurface);
-    for (y = 0; y < height; y++)
-    {
-      for (x = 0; x < width; x++)
-        d16[x] = texPal16Bit[s8[x]];
-      s8 += width;
-      d16 = (UWORD*)((UBYTE*)d16 + ddsd.lPitch);
-    }
-  }
-
-  psSurf4->lpVtbl->Unlock(psSurf4, nullptr);
-
-  return TRUE;
-}
-
-BOOL dtm_Build16BitTexturePalette(DDPIXELFORMAT* DDPixelFormat)
+/***************************************************************************/
+/*
+ * dtm_BuildTexturePalette
+ *
+ * Pack the game palette into A8R8G8B8, with entry zero transparent.
+ *
+ * Direct3D 6 needed this in whatever 16 bit layout the card had handed back,
+ * which is what the bit mask scanning in the old dtm_Build16BitTexturePalette
+ * was for. The texture format is ours to choose now, so the packing is fixed.
+ */
+static BOOL dtm_BuildTexturePalette(void)
 {
   iColour* psPal;
   UDWORD i;
-  UWORD alpha, red, green, blue;
-  BYTE ap = 0, ac = 0, rp = 0, rc = 0, gp = 0, gc = 0, bp = 0, bc = 0;
-  ULONG mask;
-
-  /*
-  // Cannot convert iof not 16bit mode 
-  */
-
-  DEBUG_ASSERT_TEXT(DDPixelFormat->dwRGBBitCount == 16, "dtm_Build16BitTexturePalette RGB bit count not 16");
 
   psPal = pie_GetGamePal();
-
-  /*
-  // Cannot playback if not 16bit mode 
-  */
-  if (DDPixelFormat->dwRGBBitCount == 16)
-  {
-    /*
-    // Find out the RGB type of the surface and tell the codec...
-    */
-    mask = DDPixelFormat->dwRGBAlphaBitMask;
-
-    if (mask != 0)
-    {
-      while (!(mask & 1))
-      {
-        mask >>= 1;
-        ap++;
-      }
-    }
-
-    while ((mask & 1))
-    {
-      mask >>= 1;
-      ac++;
-    }
-
-    mask = DDPixelFormat->dwRBitMask;
-
-    if (mask != 0)
-    {
-      while (!(mask & 1))
-      {
-        mask >>= 1;
-        rp++;
-      }
-    }
-
-    while ((mask & 1))
-    {
-      mask >>= 1;
-      rc++;
-    }
-
-    mask = DDPixelFormat->dwGBitMask;
-
-    if (mask != 0)
-    {
-      while (!(mask & 1))
-      {
-        mask >>= 1;
-        gp++;
-      }
-    }
-
-    while ((mask & 1))
-    {
-      mask >>= 1;
-      gc++;
-    }
-
-    mask = DDPixelFormat->dwBBitMask;
-
-    if (mask != 0)
-    {
-      while (!(mask & 1))
-      {
-        mask >>= 1;
-        bp++;
-      }
-    }
-
-    while ((mask & 1))
-    {
-      mask >>= 1;
-      bc++;
-    }
-  }
-
-  alpha = 0;
+  if (psPal == nullptr)
+    return FALSE;
 
   for (i = 0; i < PALETTE_SIZE; i++)
   {
-    //alpha = 0 when i = 0
-    red = static_cast<UWORD>(psPal[i].r);
-    green = static_cast<UWORD>(psPal[i].g);
-    blue = static_cast<UWORD>(psPal[i].b);
+    UDWORD alpha = (i == 0) ? 0x00000000 : 0xff000000;
 
-    alpha >>= (8 - ac);
-    red >>= (8 - rc);
-    blue >>= (8 - bc);
-    green >>= (8 - gc);
-
-    alpha <<= ap;
-    red <<= rp;
-    blue <<= bp;
-    green <<= gp;
-
-    texPal16Bit[i] = alpha + red + green + blue;
-    alpha = 0xff; //alpha = 0xff when i > 0
+    texPal32Bit[i] = alpha | (static_cast<UDWORD>(psPal[i].r) << 16) | (static_cast<UDWORD>(psPal[i].g) << 8) | static_cast<UDWORD>(psPal[i].
+      b);
   }
-  return (TRUE);
+
+  return TRUE;
 }

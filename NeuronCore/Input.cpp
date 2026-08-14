@@ -4,7 +4,6 @@
 #define WIN32_LEAN_AND_MEAN
 #define WIN32_EXTRA_LEAN
 #include <windows.h>
-#include <ddraw.h>
 #pragma warning (default : 4201 4214 4115)
 
 /* Allow frame header files to be singly included */
@@ -13,6 +12,7 @@
 /* The input buffer printf's */
 #include "Types.h"
 #include "Input.h"
+#include "Surface.h"
 #include "Screen.h"
 #include "FrameInt.h"
 #include "Frame.h"

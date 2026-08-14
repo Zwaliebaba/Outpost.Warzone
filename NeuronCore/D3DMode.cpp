@@ -1,11 +1,9 @@
 #include "pch.h"
 
-#include "d3d.h"
-
 #include "RendMode.h"
 #include "PieClip.h"
 #include "D3DRender.h"
-#include "DX6TexMan.h"
+#include "TexMan.h"
 
 /***************************************************************************/
 
@@ -106,21 +104,10 @@ void _renderBegin_D3D(void)
 void _renderEnd_D3D(void) { EndSceneD3D(); }
 
 /***************************************************************************/
-
-void SetD3DFlags(uint32 type, int* iFlags)
-{
-  *iFlags = 0;
-
-  if (type & PIE_ALPHA)
-    *iFlags |= D3D_TRI_ALPHABLEND;
-
-  if (type & PIE_COLOURKEYED)
-    *iFlags |= D3D_TRI_COLOURKEY;
-
-  if (type & PIE_NO_CULL)
-    *iFlags |= D3D_TRI_NOCULL;
-}
-
+/* SetD3DFlags translated the PIE_ polygon flags into the D3D_TRI_ flags the
+ * Direct3D 6 triangle setup took. Nothing called it, and DrawPrimitiveUP has
+ * no per-triangle flags to take, so it has gone with them.
+ */
 /***************************************************************************/
 
 void _palette_D3D(int i, int r, int g, int b)

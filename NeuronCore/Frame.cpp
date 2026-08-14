@@ -25,9 +25,6 @@ HINSTANCE hInstance;
 /* Handle for the main window */
 HWND hWndMain;
 
-/* Flag if directdraw is active*/
-static BOOL bActiveDDraw;
-
 // window class name
 #define WINDOW_CLASS_NAME	"Framework"
 
@@ -455,7 +452,6 @@ BOOL frameInitialise(HANDLE hInst, // The windows application instance
   mouseOn = TRUE;
   displayMouse = TRUE;
   hInstance = static_cast<HINSTANCE>(hInst);
-  bActiveDDraw = TRUE;
 
   /* Initialise the trig stuff */
   if (!trigInitialise())
@@ -464,8 +460,8 @@ BOOL frameInitialise(HANDLE hInst, // The windows application instance
   if (!winInitApp(hInstance, pWindowName, width, height))
     return FALSE;
 
-  /* Initialise the Direct Draw Buffers */
-  if (!screenInitialise(width, height, bitDepth, fullScreen, bVidMem, bActiveDDraw, hWndMain))
+  /* Create the Direct3D device and its swap chain */
+  if (!screenInitialise(width, height, bitDepth, fullScreen, bVidMem, TRUE, hWndMain))
     return FALSE;
   /* Initialise the input system */
   inputInitialise();
@@ -529,13 +525,9 @@ FRAME_STATUS frameUpdate(void)
     focusLast = focusState;
   }
 
-  /* If things are running normally, restore the surfaces and update the framerate */
+  /* If things are running normally, update the framerate */
   if ((!winQuit) && (focusState == FOCUS_IN))
   {
-    /* Restore any surfaces that have been lost */
-    if (bActiveDDraw)
-      screenRestoreSurfaces();
-
     /* Update the frame rate stuff */
     MaintainFrameStuff();
   }
@@ -545,13 +537,8 @@ FRAME_STATUS frameUpdate(void)
 
 void frameShutDown(void)
 {
-  if (bActiveDDraw)
-  {
-    surfShutDown();
-
-    screenShutDown();
-  }
-  else { RELEASE(psDD); }
+  surfShutDown();
+  screenShutDown();
 
   /* Free the default cursor */
   DestroyCursor(hCursor);

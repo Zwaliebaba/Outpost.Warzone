@@ -1,11 +1,11 @@
 /*
- * dderror.h
+ * DXError.h
  *
- * Convert direct draw error codes to an error string.
+ * Convert a DirectX error code to an error string.
  *
  */
-#ifndef _dderror_h
-#define _dderror_h
+#ifndef _dxerror_h
+#define _dxerror_h
 
 /* Check the header files have been included from frame.h if they
  * are used outside of the framework library.
@@ -16,14 +16,12 @@
 
 #pragma warning (disable : 4201 4214 4115 4514)
 #include <windows.h>
-#include <ddraw.h>
-#include <d3d.h>
-#include <d3drm.h>
+#include <d3d9.h>
 #pragma warning (default : 4201 4214 4115)
 
 #include "Types.h"
 
-/* Turn a DD, D3D, or D3DRM error code into a string */
-extern STRING* DDErrorToString(HRESULT error);
+/* Turn a Direct3D 9 (or general COM) error code into a string */
+extern STRING* DXErrorToString(HRESULT error);
 
 #endif

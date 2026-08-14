@@ -15,11 +15,10 @@
 #include <stdlib.h>
 
 #include "Types.h"
-#include "Screen.h"
-#include "ddraw.h"
-#include "Dderror.h"
-#include "Input.h"
 #include "Surface.h"
+#include "Screen.h"
+#include "DXError.h"
+#include "Input.h"
 #include "Image.h"
 #include "Font.h"
 #include "Treap.h"
@@ -112,13 +111,6 @@ extern UDWORD frameGetRecentRate(void);
 
 /* The handle for the application window */
 extern HWND frameGetWinHandle(void);
-
-//enumerate all available direct draw devices
-extern BOOL frameDDEnumerate(void);
-
-extern SDWORD frameGetNumDDDevices(void);
-
-extern char* frameGetDDDeviceName(SDWORD);
 
 // Return a string for a windows error code
 extern STRING* winErrorToString(SDWORD error);

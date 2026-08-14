@@ -12,9 +12,8 @@
 #include "PieState.h"
 #include "PieDef.h"
 #include "D3DRender.h"
-#include "DX6TexMan.h"
+#include "TexMan.h"
 #include "Tex.h"
-#include "TexD3D.h"
 
 /***************************************************************************/
 /*
@@ -489,7 +488,7 @@ void pie_SetBilinear(BOOL bilinearOn)
     rendStates.bilinearOn = bilinearOn;
     pieStateCount++;
     if (pie_GetRenderEngine() == ENGINE_D3D)
-      dx6_SetBilinear(bilinearOn);
+      dtm_SetBilinear(bilinearOn);
   }
 #endif
 }

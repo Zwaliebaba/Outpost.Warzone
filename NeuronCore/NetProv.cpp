@@ -208,12 +208,12 @@ BOOL NETsetupModem(LPVOID* addr, char* Phoneno, UDWORD modemToUse)
     goto FAILURE;
 
   // query for an ANSI DirectPlay4 interface
-  hr = lpDPlay1->lpVtbl->QueryInterface(lpDPlay1, IID_IDirectPlay4A, (LPVOID*)&lpDPlay4A);
+  hr = lpDPlay1->QueryInterface(IID_IDirectPlay4A, (LPVOID*)&lpDPlay4A);
   if FAILED(hr)
     goto FAILURE;
 
   // get size of player address for player zero
-  hr = lpDPlay4A->lpVtbl->GetPlayerAddress(lpDPlay4A, DPID_ALLPLAYERS, nullptr, &dwAddressSize);
+  hr = lpDPlay4A->GetPlayerAddress(DPID_ALLPLAYERS, nullptr, &dwAddressSize);
   if (hr != DPERR_BUFFERTOOSMALL)
     goto FAILURE;
 
@@ -226,7 +226,7 @@ BOOL NETsetupModem(LPVOID* addr, char* Phoneno, UDWORD modemToUse)
   }
 
   // get the address
-  hr = lpDPlay4A->lpVtbl->GetPlayerAddress(lpDPlay4A, DPID_ALLPLAYERS, lpAddress, &dwAddressSize);
+  hr = lpDPlay4A->GetPlayerAddress(DPID_ALLPLAYERS, lpAddress, &dwAddressSize);
   if FAILED(hr)
     goto FAILURE;
 
@@ -256,9 +256,9 @@ BOOL NETsetupModem(LPVOID* addr, char* Phoneno, UDWORD modemToUse)
 
 FAILURE:
   if (lpDPlay1)
-    lpDPlay1->lpVtbl->Release(lpDPlay1);
+    lpDPlay1->Release();
   if (lpDPlay4A)
-    lpDPlay4A->lpVtbl->Release(lpDPlay4A);
+    lpDPlay4A->Release();
   if (lpAddress)
   {
     delete[] static_cast<UBYTE*>(lpAddress);

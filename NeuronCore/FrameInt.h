@@ -35,26 +35,17 @@ extern HWND hWndMain;
 
 extern BOOL screenInitialise(UDWORD width, // Display width
                              UDWORD height, // Display height
-                             UDWORD bitDepth, // Display bit depth
+                             UDWORD bitDepth, // Display bit depth - recorded
+                             // only, the display is always 32 bit
                              BOOL fullScreen, // Whether to start windowed
                              // or full screen.
-                             BOOL bVidMem, // Whether to put surfaces in
-                             // video memory
-                             BOOL bDDraw, // Whether to create ddraw surfaces												// video memory
+                             BOOL bVidMem, // No longer used - the managed
+                             // pool decides where resources live
+                             BOOL bCreateDevice, // Whether to create a device at all
                              HANDLE hWindow); // The main windows handle
 
-/* Release the DD objects */
+/* Release the Direct3D objects */
 extern void screenShutDown(void);
-
-/* Restore the direct draw surfaces - internal use only */
-extern void screenRestoreSurfaces(void);
-
-/* In full screen mode flip to the GDI buffer.
- * Use this if you want the user to see any GDI output.
- * This is mainly used so that ASSERTs and message boxes appear
- * even in full screen mode.
- */
-extern void screenFlipToGDI(void);
 
 /* Deal with windows messages to maintain the state of the keyboard and mouse */
 extern void inputProcessMessages(UINT message, WPARAM wParam, LPARAM lParam);
@@ -67,7 +58,7 @@ extern void inputNewFrame(void);
 /* The list of surfaces structure */
 using SURFACE_LIST = struct _surface_list
 {
-  LPDIRECTDRAWSURFACE4 psSurface;
+  LPSURFACE psSurface;
   struct _surface_list* psNext;
 };
 
@@ -80,15 +71,21 @@ extern void surfShutDown(void);
 /* Free current currently open widget file */
 BOOL FreeCurrentWDG(void);
 
-/* The Direct Draw object */
-extern LPDIRECTDRAW4 psDD;
+/* The Direct3D objects */
+extern LPDIRECT3D9 psD3D;
+extern LPDIRECT3DDEVICE9 psD3DDevice;
 
 /* The Current screen size and bit depth */
 extern UDWORD screenWidth;
 extern UDWORD screenHeight;
 extern UDWORD screenDepth;
 
-/* Which modes the library can run in */
+/* Which modes the library can run in.
+ *
+ * MODE_8BITFUDGE - an 8 bit back buffer expanded into a true colour window -
+ * went with DirectDraw; the display is 32 bit either way round now, so the
+ * library is always MODE_BOTH.
+ */
 using DISPLAY_MODES = enum _display_modes
 {
   MODE_BOTH,
@@ -97,9 +94,6 @@ using DISPLAY_MODES = enum _display_modes
   // Can only run windowed, not full screen
   MODE_FULLSCREEN,
   // Can only run full screen not windowed
-  MODE_8BITFUDGE,
-  // Runs 8 bit full screen, then true colour windowed
-  // blitting the 8 bit back buffer to the windows display
 };
 
 /* The current screen mode (full screen/windowed) */
@@ -108,15 +102,8 @@ extern SCREEN_MODE screenMode;
 /* Which mode (of operation) the library is running in */
 extern DISPLAY_MODES displayMode;
 
-/* The Front and back buffers */
-extern LPDIRECTDRAWSURFACE4 psFront;
-extern LPDIRECTDRAWSURFACE4 psBack;
-
 /* The Pixel format of the back buffer */
-extern DDPIXELFORMAT sBackBufferPixelFormat;
-
-/* Window's Pixel format */
-extern DDPIXELFORMAT sWinPixelFormat;
+extern SCREEN_PIXELFORMAT sBackBufferPixelFormat;
 
 // The possible flip states
 using FLIP_STATE = enum _flip_state

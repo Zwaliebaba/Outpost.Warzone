@@ -16,7 +16,6 @@
 #include "PieFunc.h"
 #include "Tex.h"
 #include "D3DMode.h"
-#include "TexD3D.h"
 #include "RendMode.h"
 #include "PieClip.h"
 

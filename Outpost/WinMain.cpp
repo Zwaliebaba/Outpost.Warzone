@@ -33,7 +33,7 @@
 #include "NetPlay.h"
 #include "LoadSave.h"
 #include "D3DRender.h"
-#include "DX6TexMan.h"
+#include "TexMan.h"
 #include "Game.h"
 #include "Lighting.h"
 #include "Mixer.h"

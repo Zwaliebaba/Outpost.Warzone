@@ -129,7 +129,6 @@ BOOL seq_RenderVideoToBuffer(iSurface* pSurface, char* sequenceName, int time, i
   int videoTime;
   BOOL state = TRUE;
   FILE* pFileHandle;
-  DDPIXELFORMAT* pDDPixelFormat;
   UNUSEDPARAMETER(pSurface);
 
   if (seqCommand == SEQUENCE_KILL)
@@ -185,21 +184,20 @@ BOOL seq_RenderVideoToBuffer(iSurface* pSurface, char* sequenceName, int time, i
     iV_SetTextColour(-1);
 
     videoMode = VIDEO_D3D_WINDOW;
-    pDDPixelFormat = screenGetBackBufferPixelFormat();
 
     //for new timing
     frame = 0;
     videoFrameTime = GetTickCount();
 
 #ifdef INCLUDE_AUDIO
-    if ((bSeqPlaying = seq_SetSequenceForBuffer(aVideoName, videoMode, audio_GetDirectSoundObj(), videoFrameTime, pDDPixelFormat, perfMode))
+    if ((bSeqPlaying = seq_SetSequenceForBuffer(aVideoName, videoMode, audio_GetDirectSoundObj(), videoFrameTime, perfMode))
       == FALSE)
 #else
-    if ((bSeqPlaying = seq_SetSequenceForBuffer(aVideoName, videoMode, NULL, videoFrameTime, pDDPixelFormat, perfMode)) == FALSE)
+    if ((bSeqPlaying = seq_SetSequenceForBuffer(aVideoName, videoMode, NULL, videoFrameTime, perfMode)) == FALSE)
 #endif
     {
 #ifdef DUMMY_VIDEO
-      if ((bSeqPlaying = seq_SetSequenceForBuffer("noVideo.rpl", videoMode, nullptr, time, pDDPixelFormat, perfMode)) == TRUE)
+      if ((bSeqPlaying = seq_SetSequenceForBuffer("noVideo.rpl", videoMode, nullptr, time, perfMode)) == TRUE)
         return TRUE;
 #endif
       DEBUG_ASSERT_TEXT(FALSE, "seq_RenderVideoToBuffer: unable to initialise sequence {}",aVideoName);
@@ -448,14 +446,13 @@ BOOL seq_StartFullScreenVideo(char* videoName, char* audioName)
   videoFrameTime = GetTickCount();
 
 #ifdef INCLUDE_AUDIO
-  if (!seq_SetSequence(aVideoName, screenGetSurface(), audio_GetDirectSoundObj(), videoFrameTime + VIDEO_PLAYBACK_DELAY, pVideoBuffer,
-                       perfMode))
+  if (!seq_SetSequence(aVideoName, audio_GetDirectSoundObj(), videoFrameTime + VIDEO_PLAYBACK_DELAY, pVideoBuffer, perfMode))
 #else
-  if (!seq_SetSequence(aVideoName, screenGetSurface(), NULL, videoFrameTime + VIDEO_PLAYBACK_DELAY, pVideoBuffer, perfMode))
+  if (!seq_SetSequence(aVideoName, NULL, videoFrameTime + VIDEO_PLAYBACK_DELAY, pVideoBuffer, perfMode))
 #endif
   {
 #ifdef DUMMY_VIDEO
-    if (seq_SetSequence("noVideo.rpl", screenGetSurface(), nullptr, videoFrameTime + VIDEO_PLAYBACK_DELAY, pVideoBuffer, perfMode))
+    if (seq_SetSequence("noVideo.rpl", nullptr, videoFrameTime + VIDEO_PLAYBACK_DELAY, pVideoBuffer, perfMode))
     {
       strcpy(aAudioName, "noVideo.wav");
       return TRUE;
@@ -490,7 +487,6 @@ BOOL seq_UpdateFullScreenVideo(CLEAR_MODE* pbClear)
   SDWORD subMin, subMax;
   int videoTime;
   static int videoFrameTime = 0, textFrame = 0;
-  LPDIRECTDRAWSURFACE4 lpDDSF;
   BOOL bMoreThanOneSequenceLine = FALSE;
 
   if (seq_GetCurrentFrame() == 0)
@@ -572,8 +568,7 @@ BOOL seq_UpdateFullScreenVideo(CLEAR_MODE* pbClear)
       frameLag /= RPL_FRAME_TIME; // if were running slow frame lag will be greater than 1
       videoFrameTime += frameLag * RPL_FRAME_TIME; //frame Lag should be 1 (most of the time)   
       //call sequence player to decode a frame
-      lpDDSF = screenGetSurface();
-      frame = seq_RenderOneFrame(lpDDSF, frameLag, subMin, subMax);
+      frame = seq_RenderOneFrame(frameLag, subMin, subMax);
     }
     else
     {
@@ -587,15 +582,13 @@ BOOL seq_UpdateFullScreenVideo(CLEAR_MODE* pbClear)
       }
       videoFrameTime += frameSkip * RPL_FRAME_TIME; //frame Lag should be 1 (most of the time)   
       //call sequence player to decode a frame
-      lpDDSF = screenGetSurface();
-      frame = seq_RenderOneFrame(lpDDSF, frameSkip, subMin, subMax);
+      frame = seq_RenderOneFrame(frameSkip, subMin, subMax);
     }
   }
   else
   {
     //call sequence player to download last frame
-    lpDDSF = screenGetSurface();
-    frame = seq_RenderOneFrame(lpDDSF, 0, 2, 0);
+    frame = seq_RenderOneFrame(0, 2, 0);
   }
   //print any text over the video
   realFrame = textFrame + 1;
@@ -605,19 +598,17 @@ BOOL seq_UpdateFullScreenVideo(CLEAR_MODE* pbClear)
     {
       if ((realFrame >= aSeqList[currentPlaySeq].aText[i].startFrame) && (realFrame <= aSeqList[currentPlaySeq].aText[i].endFrame))
       {
-        lpDDSF = screenGetSurface();
         if (bMoreThanOneSequenceLine)
           aSeqList[currentPlaySeq].aText[i].x = 20 + D_W;
-        pie_DrawTextToSurface(lpDDSF, (unsigned char*)&(aSeqList[currentPlaySeq].aText[i].pText[0]), aSeqList[currentPlaySeq].aText[i].x,
-                              aSeqList[currentPlaySeq].aText[i].y);
+        pie_DrawTextToBackBuffer((unsigned char*)&(aSeqList[currentPlaySeq].aText[i].pText[0]), aSeqList[currentPlaySeq].aText[i].x,
+                                 aSeqList[currentPlaySeq].aText[i].y);
       }
       else if (aSeqList[currentPlaySeq].bSeqLoop) //if its a looped video always draw the text
       {
-        lpDDSF = screenGetSurface();
         if (bMoreThanOneSequenceLine)
           aSeqList[currentPlaySeq].aText[i].x = 20 + D_W;
-        pie_DrawTextToSurface(lpDDSF, (unsigned char*)&(aSeqList[currentPlaySeq].aText[i].pText[0]), aSeqList[currentPlaySeq].aText[i].x,
-                              aSeqList[currentPlaySeq].aText[i].y);
+        pie_DrawTextToBackBuffer((unsigned char*)&(aSeqList[currentPlaySeq].aText[i].pText[0]), aSeqList[currentPlaySeq].aText[i].x,
+                                 aSeqList[currentPlaySeq].aText[i].y);
       }
     }
   }
@@ -633,7 +624,7 @@ BOOL seq_UpdateFullScreenVideo(CLEAR_MODE* pbClear)
       if (aSeqList[currentPlaySeq].bSeqLoop)
       {
         seq_ClearMovie();
-        if (!seq_SetSequence(aVideoName, screenGetSurface(), nullptr, GetTickCount() + VIDEO_PLAYBACK_DELAY, pVideoBuffer, perfMode))
+        if (!seq_SetSequence(aVideoName, nullptr, GetTickCount() + VIDEO_PLAYBACK_DELAY, pVideoBuffer, perfMode))
           bHoldSeqForAudio = TRUE;
         frameDuration = seq_GetFrameTimeInClicks();
       }

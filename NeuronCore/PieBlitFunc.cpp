@@ -11,14 +11,13 @@
 #include "Frame.h"
 #include <time.h>
 #include "PieBlitFunc.h"
-#include "DX6TexMan.h"
+#include "TexMan.h"
 #include "Bug.h"
 #include "PieDef.h"
 #include "PieMode.h"
 #include "PieState.h"
 #include "RendFunc.h"
 #include "RendMode.h"
-#include "TexD3D.h"
 #include "Pcx.h"
 #include "PieClip.h"
 #include "PieFunc.h"
@@ -476,132 +475,38 @@ void pie_RenderRadarRotated(IMAGEDEF* Image, iBitmap* Bmp, UDWORD Modulus, int x
   pie_DrawImage(&pieImage, &dest, &rendStyle);
 }
 
-/*	Converts an 8 bit raw (palettised) source image to
-	a 16 bit argb destination image 
+/*	Converts an 8 bit raw (palettised) source image to a 16 bit RGB565
+	destination image.
+
+	The bDummy argument used to say whether the destination was a 3dfx
+	surface, which was always 565, as against the display's own 16 bit
+	format, which was whatever DirectDraw had handed back. Both are 565 now,
+	so the two branches - and the bit mask scanning that fed the second one -
+	collapsed into one.
 */
-void bufferTo16Bit(UBYTE* origBuffer, UWORD* newBuffer, BOOL b3DFX)
+void bufferTo16Bit(UBYTE* origBuffer, UWORD* newBuffer, BOOL bDummy)
 {
   UBYTE paletteIndex;
-  UWORD newColour;
-  UWORD gun;
   UDWORD i;
-  DDPIXELFORMAT* DDPixelFormat;
-  ULONG mask;
-  BYTE ap = 0, ac = 0, rp = 0, rc = 0, gp = 0, gc = 0, bp = 0, bc = 0;
   iColour* psPalette;
   UDWORD size;
 
-  if (b3DFX)
-  {
-    // 565 RGB
-    ap = 16;
-    ac = 0;
-    rp = 11;
-    rc = 5;
-    gp = 5;
-    gc = 6;
-    bp = 0;
-    bc = 5;
-  }
-  else
-  {
-    DDPixelFormat = screenGetBackBufferPixelFormat();
-    /*
-    // Cannot playback if not 16bit mode 
-    */
-    if (DDPixelFormat->dwRGBBitCount == 16)
-    {
-      /*
-      // Find out the RGB type of the surface and tell the codec...
-      */
-      mask = DDPixelFormat->dwRGBAlphaBitMask;
-      if (mask != 0)
-      {
-        while (!(mask & 1))
-        {
-          mask >>= 1;
-          ap++;
-        }
-      }
-      while ((mask & 1))
-      {
-        mask >>= 1;
-        ac++;
-      }
+  (void)bDummy;
 
-      mask = DDPixelFormat->dwRBitMask;
-      if (mask != 0)
-      {
-        while (!(mask & 1))
-        {
-          mask >>= 1;
-          rp++;
-        }
-      }
-      while ((mask & 1))
-      {
-        mask >>= 1;
-        rc++;
-      }
-
-      mask = DDPixelFormat->dwGBitMask;
-      if (mask != 0)
-      {
-        while (!(mask & 1))
-        {
-          mask >>= 1;
-          gp++;
-        }
-      }
-      while ((mask & 1))
-      {
-        mask >>= 1;
-        gc++;
-      }
-
-      mask = DDPixelFormat->dwBBitMask;
-      if (mask != 0)
-      {
-        while (!(mask & 1))
-        {
-          mask >>= 1;
-          bp++;
-        }
-      }
-      while ((mask & 1))
-      {
-        mask >>= 1;
-        bc++;
-      }
-    }
-  }
+  psPalette = pie_GetGamePal();
 
   /*
     640*480, 8 bit colour source image 
     640*480, 16 bit colour destination image
   */
-  size = BACKDROP_WIDTH * BACKDROP_HEIGHT; //pie_GetVideoBufferWidth()*pie_GetVideoBufferHeight();
+  size = BACKDROP_WIDTH * BACKDROP_HEIGHT;
   for (i = 0; i < size; i++)
   {
-    psPalette = pie_GetGamePal();
     /* Get the next colour */
     paletteIndex = *origBuffer++;
-    /* Flush out destination word (and alpha bits) */
-    newColour = 0;
-    /* Get red bits - 5 */
-    gun = static_cast<UWORD>(psPalette[paletteIndex].r >> (8 - rc));
-    gun = gun << rp;
-    newColour += gun;
-    /* Get green bits - 6 */
-    gun = static_cast<UWORD>(psPalette[paletteIndex].g >> (8 - gc));
-    gun = gun << gp;
-    newColour += gun;
-    /* Get blue bits - 5 */
-    gun = static_cast<UWORD>(psPalette[paletteIndex].b >> (8 - bc));
-    gun = gun << bp;
-    newColour += gun;
-    /* Copy over */
-    *newBuffer++ = newColour;
+
+    *newBuffer++ = static_cast<UWORD>(((psPalette[paletteIndex].r >> 3) << 11) | ((psPalette[paletteIndex].g >> 2) << 5) | (psPalette[
+      paletteIndex].b >> 3));
   }
 }
 
@@ -611,21 +516,14 @@ void pie_LoadBackDrop(SCREENTYPE screenType, BOOL b3DFX)
 {
   iSprite backDropSprite;
   iBitmap tempBmp[BACKDROP_WIDTH * BACKDROP_HEIGHT];
-  DDPIXELFORMAT* pDDPixelFormat;
   UDWORD chooser0, chooser1;
   CHAR backd[128];
-  SDWORD bitDepth;
+  /* The backdrop is always composited in 16 bit now. It used to be left as
+   * 8 bit palettised whenever the display was not 16 bit, which meant a
+   * palettised display; there is no such display any more. */
+  SDWORD bitDepth = 16;
 
-  if (b3DFX)
-    bitDepth = 16;
-  else
-  {
-    pDDPixelFormat = screenGetBackBufferPixelFormat();
-    if (pDDPixelFormat->dwRGBBitCount == 16)
-      bitDepth = 16;
-    else
-      bitDepth = 8;
-  }
+  (void)b3DFX;
 
   //randomly load in a backdrop piccy.
   srand(static_cast<unsigned>(time(NULL)));
@@ -699,7 +597,7 @@ void pie_D3DRenderForFlip(void)
 {
   if (pgSrcData != nullptr)
   {
-    pie_RenderImageToSurface(screenGetSurface(), gSurfaceOffsetX, gSurfaceOffsetY, pgSrcData, gSrcWidth, gSrcHeight, gSrcStride);
+    pie_RenderImageToBackBuffer(gSurfaceOffsetX, gSurfaceOffsetY, pgSrcData, gSrcWidth, gSrcHeight, gSrcStride);
     pgSrcData = nullptr;
   }
 }

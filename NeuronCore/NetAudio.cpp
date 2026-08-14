@@ -298,8 +298,7 @@ static BOOL setupPlayBuffer(VOID)
   playbackBuff.dwBufferBytes = SAMPLETIME * pcmwf.wf.nAvgBytesPerSec; // SAMPLETIME-second buffer. 
   playbackBuff.lpwfxFormat = (LPWAVEFORMATEX)&pcmwf;
 
-  hr = lpDirectSound->lpVtbl->CreateSoundBuffer(lpDirectSound, // Create buffer. 
-                                                &playbackBuff, &lpDirectSoundBuffer, nullptr);
+  hr = lpDirectSound->CreateSoundBuffer(&playbackBuff, &lpDirectSoundBuffer, nullptr); // Create buffer.
 
   if (hr != DS_OK)
   {

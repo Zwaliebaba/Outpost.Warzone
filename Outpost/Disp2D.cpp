@@ -687,7 +687,7 @@ void blitTile(RECT* psDestRect, RECT* psSrcRect, UDWORD texture)
   ddrval = psTiles->lpVtbl->Lock(psTiles, NULL, &sDDSDSrc, DDLOCK_WAIT, NULL);
   if (ddrval != DD_OK)
   {
-    Neuron::Fatal("Lock failed for tile blit:\n{}", DDErrorToString(ddrval));
+    Neuron::Fatal("Lock failed for tile blit:\n{}", DXErrorToString(ddrval));
     return;
   }
 
@@ -696,7 +696,7 @@ void blitTile(RECT* psDestRect, RECT* psSrcRect, UDWORD texture)
   ddrval = psBack->lpVtbl->Lock(psBack, NULL, &sDDSDDest, DDLOCK_WAIT, NULL);
   if (ddrval != DD_OK)
   {
-    Neuron::Fatal("Lock failed for tile blit:\n{}", DDErrorToString(ddrval));
+    Neuron::Fatal("Lock failed for tile blit:\n{}", DXErrorToString(ddrval));
     return;
   }
 
@@ -805,10 +805,10 @@ void blitTile(RECT* psDestRect, RECT* psSrcRect, UDWORD texture)
   }
 
   ddrval = psBack->lpVtbl->Unlock(psBack, NULL);
-  if (ddrval != DD_OK) { Neuron::Fatal("Unlock failed for tileBlit:\n{}", DDErrorToString(ddrval)); }
+  if (ddrval != DD_OK) { Neuron::Fatal("Unlock failed for tileBlit:\n{}", DXErrorToString(ddrval)); }
 
   ddrval = psVidTiles->lpVtbl->Unlock(psTiles, NULL);
-  if (ddrval != DD_OK) { Neuron::Fatal("Unlock failed for tileBlit:\n{}", DDErrorToString(ddrval)); }
+  if (ddrval != DD_OK) { Neuron::Fatal("Unlock failed for tileBlit:\n{}", DXErrorToString(ddrval)); }
 }
 
 /* Display the terrain type over the normal tiles */
@@ -849,7 +849,7 @@ void dispTerrain(UDWORD x, UDWORD y, TYPE_OF_TERRAIN type)
                   DDBLT_COLORFILL | DDBLT_WAIT, &sDDBltFX);
     if (ddrval != DD_OK)
     {
-      DBERROR(("Couldn't do terrain blit\n%s", DDErrorToString(ddrval)));
+      DBERROR(("Couldn't do terrain blit\n%s", DXErrorToString(ddrval)));
     }*/
   screenTextOut(sDestRect.left, sDestRect.top, "%d", type);
 }

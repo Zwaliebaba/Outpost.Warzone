@@ -4,8 +4,7 @@
 #include "Frame.h"
 #include "Sequence.h"
 
-// Direct Draw and Sound Include files
-#include <ddraw.h>
+// Sound include files
 #define SEQUENCE_SOUND
 #ifdef SEQUENCE_SOUND
 #include <dsound.h>
@@ -28,6 +27,24 @@ using A_STRUCT = struct _aStruct
 #define TEXT_BOXES
 #define VIDEO_WIDTH 640
 #define VIDEO_HEIGHT 480
+
+/* The pixel layout frames are decoded into: RGB565, no alpha. The display is
+ * 32 bit, and the blit into it converts, so the decoder's format no longer
+ * has to follow whatever the card handed back.
+ */
+#define SEQ_ALPHA_POS   0
+#define SEQ_ALPHA_BITS  0
+#define SEQ_RED_POS     11
+#define SEQ_RED_BITS    5
+#define SEQ_GREEN_POS   5
+#define SEQ_GREEN_BITS  6
+#define SEQ_BLUE_POS    0
+#define SEQ_BLUE_BITS   5
+
+/* Every colour's low bit, used to halve a pixel's brightness without letting
+ * one channel bleed into the next. Was derived from the surface's masks.
+ */
+#define SEQ_LOW_BIT_MASK ((UDWORD)(0xffff - (1 << SEQ_BLUE_POS) - (1 << SEQ_GREEN_POS) - (1 << SEQ_RED_POS)))
 
 /***************************************************************************/
 /*
@@ -52,7 +69,6 @@ LPDIRECTSOUNDBUFFER lpDSSB = nullptr;
 LPBYTE soundbuffer1 = nullptr;
 LPBYTE soundbuffer2 = nullptr;
 ULONG temp;
-UDWORD lowBitMask;
 BOOL bPlayerOn;
 BOOL bSmallVideo = FALSE;
 BOOL bTextBoxes = FALSE;
@@ -74,18 +90,14 @@ void SoundCallBackFunc(LPSOUNDHANDLE shandle);
 // D3D_WINDOWED video size 16bit uses screen pixel mode
 // 3DFX_WINDOWED video size 16bit BGR 565 mode
 // 3DFX_FULLSCREEN 640 * 480 BGR 565 mode
-BOOL seq_SetSequenceForBuffer(char* filename, VIDEO_MODE mode, LPDIRECTSOUND lpDS, int startTime, DDPIXELFORMAT* DDPixelFormat,
-                              PERF_MODE perfMode)
+BOOL seq_SetSequenceForBuffer(char* filename, VIDEO_MODE mode, LPDIRECTSOUND lpDS, int startTime, PERF_MODE perfMode)
 {
   long width, height;
-  long pixelBitDepth = 16;
   long precision, channels;
   long compression;
   BOOL bCompression;
   DSBUFFERDESC DS_bd;
   WAVEFORMATEX pcmwf;
-  BYTE ap = 0, ac = 0, rp = 0, rc = 0, gp = 0, gc = 0, bp = 0, bc = 0;
-  ULONG mask;
 
   mhandle = nullptr;
   vhandle = nullptr;
@@ -155,10 +167,10 @@ BOOL seq_SetSequenceForBuffer(char* filename, VIDEO_MODE mode, LPDIRECTSOUND lpD
     DS_bd.dwBufferBytes = 32768;
     DS_bd.lpwfxFormat = &pcmwf;
 
-    if (lpDS->lpVtbl->CreateSoundBuffer(lpDS, &DS_bd, &lpDSSB, nullptr) != DS_OK)
+    if (lpDS->CreateSoundBuffer(&DS_bd, &lpDSSB, nullptr) != DS_OK)
       return FALSE;
 
-    if (lpDSSB->lpVtbl->Lock(lpDSSB, 0, 16384, (void**)&soundbuffer1, &temp, nullptr, nullptr, 0) != DS_OK)
+    if (lpDSSB->Lock(0, 16384, (void**)&soundbuffer1, &temp, nullptr, nullptr, 0) != DS_OK)
       return FALSE;
 
     soundbuffer2 = soundbuffer1 + 16384;
@@ -178,113 +190,27 @@ BOOL seq_SetSequenceForBuffer(char* filename, VIDEO_MODE mode, LPDIRECTSOUND lpD
 #ifdef SEQUENCE_SOUND
   if (shandle)
   {
-    lpDSSB->lpVtbl->Unlock(lpDSSB, soundbuffer1, 16384, nullptr, 0);
+    lpDSSB->Unlock(soundbuffer1, 16384, nullptr, 0);
 
     Streamer_SetSoundDecodeMode(shandle, SSDM_IDLE);
   }
   LastUpdated = SSDM_SECONDBUFFER;
 #endif //SEQUENCE_SOUND
 
-  /*
-  // Cannot playback if not 16bit mode 
-  */
-  if (DDPixelFormat->dwRGBBitCount == 16)
-  {
-    /*
-    // Find out the RGB type of the surface and tell the codec...
-    */
-    mask = DDPixelFormat->dwRGBAlphaBitMask;
-
-    if (mask != 0)
-    {
-      while (!(mask & 1))
-      {
-        mask >>= 1;
-        ap++;
-      }
-    }
-
-    while ((mask & 1))
-    {
-      mask >>= 1;
-      ac++;
-    }
-
-    mask = DDPixelFormat->dwRBitMask;
-
-    if (mask != 0)
-    {
-      while (!(mask & 1))
-      {
-        mask >>= 1;
-        rp++;
-      }
-    }
-
-    while ((mask & 1))
-    {
-      mask >>= 1;
-      rc++;
-    }
-
-    mask = DDPixelFormat->dwGBitMask;
-
-    if (mask != 0)
-    {
-      while (!(mask & 1))
-      {
-        mask >>= 1;
-        gp++;
-      }
-    }
-
-    while ((mask & 1))
-    {
-      mask >>= 1;
-      gc++;
-    }
-
-    mask = DDPixelFormat->dwBBitMask;
-
-    if (mask != 0)
-    {
-      while (!(mask & 1))
-      {
-        mask >>= 1;
-        bp++;
-      }
-    }
-
-    while ((mask & 1))
-    {
-      mask >>= 1;
-      bc++;
-    }
-  }
-  else
-  {
-    //assume 555
-    ap = 15;
-    ac = 1;
-    rp = 10;
-    rc = 5;
-    gp = 5;
-    gc = 5;
-    bp = 0;
-    bc = 5;
-  }
-  lowBitMask = 0xffff - (1 << bp) - (1 << gp) - (1 << rp);
-  if (ac)
-    lowBitMask -= (1 << ap);
-  // Set the video pixel RGB format
-  if (Streamer_SetPixelFormat(vhandle, SPF_BPP16, ap, ac, rp, rc, gp, gc, bp, bc) != STREAMER_OK)
+  /* Frames are decoded as RGB565 and converted when they are written to the
+   * 32 bit display. The Direct3D 6 code asked the destination surface what
+   * 16 bit layout the card had given it and told the codec that, which is
+   * what the two pages of bit mask scanning here used to do.
+   */
+  if (Streamer_SetPixelFormat(vhandle, SPF_BPP16, SEQ_ALPHA_POS, SEQ_ALPHA_BITS, SEQ_RED_POS, SEQ_RED_BITS, SEQ_GREEN_POS, SEQ_GREEN_BITS,
+                              SEQ_BLUE_POS, SEQ_BLUE_BITS) != STREAMER_OK)
     return FALSE;
 
 #ifdef SEQUENCE_SOUND
   if (shandle)
   {
     // Begin sound playback
-    if (lpDSSB->lpVtbl->Play(lpDSSB, 0, 0, DSBPLAY_LOOPING) != DS_OK)
+    if (lpDSSB->Play(0, 0, DSBPLAY_LOOPING) != DS_OK)
       return VIDEO_SOUND_ERROR;
   }
 #endif //SEQUENCE_SOUND
@@ -296,18 +222,12 @@ BOOL seq_SetSequenceForBuffer(char* filename, VIDEO_MODE mode, LPDIRECTSOUND lpD
  * directX fullscreeen render uses local buffer to store previous frame data
  * directX 640 * 480 16bit rgb mode render through local buffer to back buffer
  */
-BOOL seq_SetSequence(char* filename, LPDIRECTDRAWSURFACE4 lpDDSF, LPDIRECTSOUND lpDS, int startTime, char* lpBF, PERF_MODE perfMode)
+BOOL seq_SetSequence(char* filename, LPDIRECTSOUND lpDS, int startTime, char* lpBF, PERF_MODE perfMode)
 {
   long width, height;
-  long pixelBitDepth;
   long precision, channels;
   long compression;
   BOOL bCompression;
-
-  DDSURFACEDESC2 DD_sd;
-  DDPIXELFORMAT DDPixelFormat;
-  ULONG mask;
-  BYTE ap = 0, ac = 0, rp = 0, rc = 0, gp = 0, gc = 0, bp = 0, bc = 0;
 
   DSBUFFERDESC DS_bd;
   WAVEFORMATEX pcmwf;
@@ -322,11 +242,6 @@ BOOL seq_SetSequence(char* filename, LPDIRECTDRAWSURFACE4 lpDDSF, LPDIRECTSOUND 
   else
     bSmallVideo = TRUE;
 
-  //get display mode	
-  DD_sd.dwSize = sizeof(DD_sd);
-  if (lpDDSF->lpVtbl->GetSurfaceDesc(lpDDSF, &DD_sd) != DD_OK)
-    return FALSE;
-  pixelBitDepth = DD_sd.ddpfPixelFormat.dwRGBBitCount;
   /*
   // Initialise the movie with a 2MB buffersize
   */
@@ -402,10 +317,10 @@ BOOL seq_SetSequence(char* filename, LPDIRECTDRAWSURFACE4 lpDDSF, LPDIRECTSOUND 
 
     bPlayerOn = FALSE;
 
-    if (lpDS->lpVtbl->CreateSoundBuffer(lpDS, &DS_bd, &lpDSSB, nullptr) != DS_OK)
+    if (lpDS->CreateSoundBuffer(&DS_bd, &lpDSSB, nullptr) != DS_OK)
       return FALSE;
 
-    if (lpDSSB->lpVtbl->Lock(lpDSSB, 0, 32768, (void**)&soundbuffer1, &temp, nullptr, nullptr, 0) != DS_OK)
+    if (lpDSSB->Lock(0, 32768, (void**)&soundbuffer1, &temp, nullptr, nullptr, 0) != DS_OK)
       return FALSE;
 
     soundbuffer2 = soundbuffer1 + 16384;
@@ -425,119 +340,27 @@ BOOL seq_SetSequence(char* filename, LPDIRECTDRAWSURFACE4 lpDDSF, LPDIRECTSOUND 
 #ifdef SEQUENCE_SOUND
   if (shandle)
   {
-    lpDSSB->lpVtbl->Unlock(lpDSSB, soundbuffer1, 16384, nullptr, 0);
+    lpDSSB->Unlock(soundbuffer1, 16384, nullptr, 0);
 
     Streamer_SetSoundDecodeMode(shandle, SSDM_IDLE);
   }
   LastUpdated = SSDM_SECONDBUFFER;
 #endif //SEQUENCE_SOUND
 
-  DDPixelFormat.dwSize = sizeof(DDPIXELFORMAT);
-  if (lpDDSF->lpVtbl->GetPixelFormat(lpDDSF, &DDPixelFormat) != DD_OK)
-    return FALSE;
-
-  /*
-  // Cannot playback if not 16bit mode 
-  */
-  if (DDPixelFormat.dwRGBBitCount == 16)
-  {
-    /*
-    // Find out the RGB type of the surface and tell the codec...
-    */
-    mask = DDPixelFormat.dwRGBAlphaBitMask;
-
-    if (mask != 0)
-    {
-      while (!(mask & 1))
-      {
-        mask >>= 1;
-        ap++;
-      }
-    }
-
-    while ((mask & 1))
-    {
-      mask >>= 1;
-      ac++;
-    }
-
-    mask = DDPixelFormat.dwRBitMask;
-
-    if (mask != 0)
-    {
-      while (!(mask & 1))
-      {
-        mask >>= 1;
-        rp++;
-      }
-    }
-
-    while ((mask & 1))
-    {
-      mask >>= 1;
-      rc++;
-    }
-
-    mask = DDPixelFormat.dwGBitMask;
-
-    if (mask != 0)
-    {
-      while (!(mask & 1))
-      {
-        mask >>= 1;
-        gp++;
-      }
-    }
-
-    while ((mask & 1))
-    {
-      mask >>= 1;
-      gc++;
-    }
-
-    mask = DDPixelFormat.dwBBitMask;
-
-    if (mask != 0)
-    {
-      while (!(mask & 1))
-      {
-        mask >>= 1;
-        bp++;
-      }
-    }
-
-    while ((mask & 1))
-    {
-      mask >>= 1;
-      bc++;
-    }
-  }
-  else
-  {
-    //assume 555
-    ap = 15;
-    ac = 1;
-    rp = 10;
-    rc = 5;
-    gp = 5;
-    gc = 5;
-    bp = 0;
-    bc = 5;
-  }
-  lowBitMask = 0xffff - (1 << bp) - (1 << gp) - (1 << rp);
-  if (ac)
-    lowBitMask -= (1 << ap);
-  /*
-		// Set the video pixel RGB format
-		*/
-  if (Streamer_SetPixelFormat(vhandle, SPF_BPP16, ap, ac, rp, rc, gp, gc, bp, bc) != STREAMER_OK)
+  /* Frames are decoded as RGB565 and converted when they are written to the
+   * 32 bit display. The Direct3D 6 code asked the destination surface what
+   * 16 bit layout the card had given it and told the codec that, which is
+   * what the two pages of bit mask scanning here used to do.
+   */
+  if (Streamer_SetPixelFormat(vhandle, SPF_BPP16, SEQ_ALPHA_POS, SEQ_ALPHA_BITS, SEQ_RED_POS, SEQ_RED_BITS, SEQ_GREEN_POS, SEQ_GREEN_BITS,
+                              SEQ_BLUE_POS, SEQ_BLUE_BITS) != STREAMER_OK)
     return FALSE;
 
 #ifdef SEQUENCE_SOUND
   if (shandle)
   {
     // Begin sound playback
-    if (lpDSSB->lpVtbl->Play(lpDSSB, 0, 0, DSBPLAY_LOOPING) != DS_OK)
+    if (lpDSSB->Play(0, 0, DSBPLAY_LOOPING) != DS_OK)
       return VIDEO_SOUND_ERROR;
   }
 #endif //SEQUENCE_SOUND
@@ -616,7 +439,7 @@ int seq_RenderOneFrameToBuffer(char* lpSF, int skip, SDWORD subMin, SDWORD subMa
         pixel = blitSrc[i];
         if ((i > subXstart) && (i < subXend))
         {
-          pixel &= lowBitMask;
+          pixel &= SEQ_LOW_BIT_MASK;
           pixel >>= 1;
           pixel += 0x2;
         }
@@ -632,20 +455,20 @@ int seq_RenderOneFrameToBuffer(char* lpSF, int skip, SDWORD subMin, SDWORD subMa
   {
     if (Streamer_GetSoundDecodeMode(shandle) == SSDM_IDLE)
     {
-      if (lpDSSB->lpVtbl->GetCurrentPosition(lpDSSB, &CurrentPos, &CurrentWritePos) != DS_OK)
+      if (lpDSSB->GetCurrentPosition(&CurrentPos, &CurrentWritePos) != DS_OK)
         return VIDEO_SOUND_ERROR;
 
       if ((LastUpdated == SSDM_SECONDBUFFER) && (CurrentPos > 16384))
       {
         Streamer_SetSoundDecodeMode(shandle, SSDM_FIRSTBUFFER);
 
-        lpDSSB->lpVtbl->Lock(lpDSSB, 0, 16384, (void**)&soundbuffer1, &temp, nullptr, nullptr, 0);
+        lpDSSB->Lock(0, 16384, (void**)&soundbuffer1, &temp, nullptr, nullptr, 0);
       }
       else if ((LastUpdated == SSDM_FIRSTBUFFER) && (CurrentPos < 16384))
       {
         Streamer_SetSoundDecodeMode(shandle, SSDM_SECONDBUFFER);
 
-        lpDSSB->lpVtbl->Lock(lpDSSB, 16384, 16384, (void**)&soundbuffer2, &temp, nullptr, nullptr, 0);
+        lpDSSB->Lock(16384, 16384, (void**)&soundbuffer2, &temp, nullptr, nullptr, 0);
       }
     }
   }
@@ -657,22 +480,24 @@ int seq_RenderOneFrameToBuffer(char* lpSF, int skip, SDWORD subMin, SDWORD subMa
 }
 
 /*
- * render one frame to a direct draw surface (normally the back buffer)
- * directX 640 * 480 16bit rgb mode render through local buffer to back buffer
+ * Decode one frame into the local buffer and blit it into the back buffer.
+ *
+ * The frame arrives as RGB565 and the back buffer is X8R8G8B8, so unlike the
+ * DirectDraw version this converts as it copies rather than moving words.
  */
-int seq_RenderOneFrame(LPDIRECTDRAWSURFACE4 lpDDSF, int skip, SDWORD subMin, SDWORD subMax)
+int seq_RenderOneFrame(int skip, SDWORD subMin, SDWORD subMax)
 {
-  DDSURFACEDESC2 DD_sd;
-  HRESULT hRes;
+  SCREEN_LOCK sLock;
   STRESULT sRes = STREAMER_OK;
-  WORD *blitDest, *blitSrc;
+  WORD* blitSrc;
+  UDWORD* blitDest;
   int i, j;
   WORD pixel;
-  BOOL bDoubled;
   int frame;
   DWORD CurrentPos, CurrentWritePos;
   SDWORD borderX, borderY;
   SDWORD subYstart, subYend, subXstart, subXend;
+  SDWORD row;
 
   if ((mhandle == nullptr) || (vhandle == nullptr))
     return VIDEO_FRAME_ERROR;
@@ -702,131 +527,140 @@ int seq_RenderOneFrame(LPDIRECTDRAWSURFACE4 lpDDSF, int skip, SDWORD subMin, SDW
   else if (sRes != STREAMER_OK)
     Neuron::DebugTrace("STREAMER_STREAM ERROR {} {}\n",sRes,frame);
 
-  // We lock the surface before blitting video to it.
-  DD_sd.dwSize = sizeof(DD_sd);
-  if (lpDDSF->lpVtbl->GetSurfaceDesc(lpDDSF, &DD_sd) != DD_OK)
-    return FALSE;
-
-  hRes = lpDDSF->lpVtbl->Lock(lpDDSF, nullptr, &DD_sd,DDLOCK_WAIT, nullptr);
-  if (hRes != DD_OK)
+  // We lock the back buffer before blitting video to it.
+  if (!screenLockBackBuffer(&sLock))
   {
-    Neuron::Fatal("Sequence player back  buffer lock failed:\n{}", DDErrorToString(hRes));
+    Neuron::Fatal("Sequence player back buffer lock failed");
     return VIDEO_SURFACE_ERROR;
   }
 
-  if (hRes == DD_OK)
+  if (!bSmallVideo)
   {
-    if (!bSmallVideo)
-    {
-      borderX = (static_cast<SDWORD>(DD_sd.dwWidth) - VIDEO_WIDTH) / 2;
-      borderY = (static_cast<SDWORD>(DD_sd.dwHeight) - VIDEO_HEIGHT) / 4;
-    }
-    else
-    {
-      borderX = (static_cast<SDWORD>(DD_sd.dwWidth) - VIDEO_WIDTH / 2) / 2;
-      borderY = (static_cast<SDWORD>(DD_sd.dwHeight) - VIDEO_HEIGHT / 2) / 4;
-    }
+    borderX = (static_cast<SDWORD>(sLock.width) - VIDEO_WIDTH) / 2;
+    borderY = (static_cast<SDWORD>(sLock.height) - VIDEO_HEIGHT) / 4;
+  }
+  else
+  {
+    borderX = (static_cast<SDWORD>(sLock.width) - VIDEO_WIDTH / 2) / 2;
+    borderY = (static_cast<SDWORD>(sLock.height) - VIDEO_HEIGHT / 2) / 4;
+  }
 
-    blitDest = static_cast<WORD*>(DD_sd.lpSurface) + borderX + borderY * DD_sd.lPitch;
-    bDoubled = FALSE;
-    if ((movieWidth * 2) <= static_cast<int>(DD_sd.dwWidth))
+  if (borderX < 0)
+    borderX = 0;
+  if (borderY < 0)
+    borderY = 0;
+
+  blitSrc = (WORD*)localBuffer;
+  row = borderY;
+
+  if (bTextBoxes)
+  {
+    subYstart = subMin - 10; //only ever in fullscreen mode
+    subYend = subMax + 6;
+    subXstart = 14;
+    subXend = 624;
+
+    if (subYstart < 0)
+      subYstart = 0;
+    if (subYend > VIDEO_HEIGHT)
+      subYend = VIDEO_HEIGHT;
+  }
+  else
+  {
+    subYstart = movieHeight;
+    subYend = movieHeight;
+    subXstart = movieWidth;
+    subXend = movieWidth;
+  }
+
+  /* The row stepping here is the one behaviour change. The DirectDraw
+   * version started from lpSurface + borderY * lPitch counted in words, so
+   * it stepped twice as far down the surface as it meant to; that only
+   * showed up above 480 lines, where borderY stops being zero. */
+#define SEQ_ROW(y) ((UDWORD*)(sLock.pPixels + sLock.pitch * (y)) + borderX)
+
+  //blit videoBuffer to the back buffer
+  for (j = 0; j < subYstart; j++, row++)
+  {
+    if (row < 0 || row >= static_cast<SDWORD>(sLock.height))
     {
-      if ((movieHeight * 2) <= static_cast<int>(DD_sd.dwHeight))
+      blitSrc += movieWidth;
+      continue;
+    }
+    blitDest = SEQ_ROW(row);
+    for (i = 0; i < movieWidth; i++)
+    {
+      if (borderX + i < static_cast<SDWORD>(sLock.width))
+        blitDest[i] = screen565To32(blitSrc[i]);
+    }
+    blitSrc += movieWidth;
+  }
+  if (bTextBoxes)
+  {
+    for (j = subYstart; j < subYend; j++, row++)
+    {
+      if (row < 0 || row >= static_cast<SDWORD>(sLock.height))
       {
-        if (DD_sd.ddpfPixelFormat.dwRGBBitCount == 16)
-        {
-          if (!bSmallVideo)
-            bDoubled = TRUE;
-        }
+        blitSrc += movieWidth;
+        continue;
       }
-    }
-    blitSrc = (WORD*)localBuffer;
-
-    if (bTextBoxes)
-    {
-      subYstart = subMin - 10; //only ever in fullscreen mode
-      subYend = subMax + 6;
-      subXstart = 14;
-      subXend = 624;
-
-      if (subYstart < 0)
-        subYstart = 0;
-      if (subYend > VIDEO_HEIGHT)
-        subYend = VIDEO_HEIGHT;
-    }
-    else
-    {
-      subYstart = movieHeight;
-      subYend = movieHeight;
-      subXstart = movieWidth;
-      subXend = movieWidth;
-    }
-
-    //blit videoBuffer to ddSurface
-    for (j = 0; j < subYstart; j++)
-    {
+      blitDest = SEQ_ROW(row);
       for (i = 0; i < movieWidth; i++)
       {
         pixel = blitSrc[i];
-        blitDest[i] = pixel;
+        if ((i > subXstart) && (i < subXend))
+        {
+          pixel &= static_cast<WORD>(SEQ_LOW_BIT_MASK);
+          pixel >>= 1;
+          pixel += 0x2;
+        }
+        if (borderX + i < static_cast<SDWORD>(sLock.width))
+          blitDest[i] = screen565To32(pixel);
       }
       blitSrc += movieWidth;
-      blitDest = (WORD*)((LPBYTE)blitDest + DD_sd.lPitch);
     }
-    if (bTextBoxes)
+    for (j = subYend; j < movieHeight; j++, row++)
     {
-      for (j = subYstart; j < subYend; j++)
+      if (row < 0 || row >= static_cast<SDWORD>(sLock.height))
       {
-        for (i = 0; i < movieWidth; i++)
-        {
-          pixel = blitSrc[i];
-          if ((i > subXstart) && (i < subXend))
-          {
-            pixel &= lowBitMask;
-            pixel >>= 1;
-            pixel += 0x2;
-          }
-          blitDest[i] = pixel;
-        }
         blitSrc += movieWidth;
-        blitDest = (WORD*)((LPBYTE)blitDest + DD_sd.lPitch);
+        continue;
       }
-      for (j = subYend; j < movieHeight; j++)
+      blitDest = SEQ_ROW(row);
+      for (i = 0; i < movieWidth; i++)
       {
-        for (i = 0; i < movieWidth; i++)
-        {
-          pixel = blitSrc[i];
-          blitDest[i] = pixel;
-        }
-        blitSrc += movieWidth;
-        blitDest = (WORD*)((LPBYTE)blitDest + DD_sd.lPitch);
+        if (borderX + i < static_cast<SDWORD>(sLock.width))
+          blitDest[i] = screen565To32(blitSrc[i]);
       }
+      blitSrc += movieWidth;
     }
   }
 
-  // We can unlock the suurface now as we have finished with it, 
+#undef SEQ_ROW
+
+  // We can unlock the surface now as we have finished with it,
   // until the next decode is required
-  lpDDSF->lpVtbl->Unlock(lpDDSF, static_cast<LPRECT>(DD_sd.lpSurface));
+  screenUnlockBackBuffer();
 
 #ifdef SEQUENCE_SOUND
   if (shandle)
   {
     if (Streamer_GetSoundDecodeMode(shandle) == SSDM_IDLE)
     {
-      if (lpDSSB->lpVtbl->GetCurrentPosition(lpDSSB, &CurrentPos, &CurrentWritePos) != DS_OK)
+      if (lpDSSB->GetCurrentPosition(&CurrentPos, &CurrentWritePos) != DS_OK)
         return VIDEO_SOUND_ERROR;
 
       if ((LastUpdated == SSDM_SECONDBUFFER) && (CurrentPos > 16384))
       {
         Streamer_SetSoundDecodeMode(shandle, SSDM_FIRSTBUFFER);
 
-        lpDSSB->lpVtbl->Lock(lpDSSB, 0, 16384, (void**)&soundbuffer1, &temp, nullptr, nullptr, 0);
+        lpDSSB->Lock(0, 16384, (void**)&soundbuffer1, &temp, nullptr, nullptr, 0);
       }
       else if ((LastUpdated == SSDM_FIRSTBUFFER) && (CurrentPos < 16384))
       {
         Streamer_SetSoundDecodeMode(shandle, SSDM_SECONDBUFFER);
 
-        lpDSSB->lpVtbl->Lock(lpDSSB, 16384, 16384, (void**)&soundbuffer2, &temp, nullptr, nullptr, 0);
+        lpDSSB->Lock(16384, 16384, (void**)&soundbuffer2, &temp, nullptr, nullptr, 0);
       }
     }
   }
@@ -866,20 +700,20 @@ BOOL seq_RefreshVideoBuffers(void)
   {
     if (Streamer_GetSoundDecodeMode(shandle) == SSDM_IDLE)
     {
-      if (lpDSSB->lpVtbl->GetCurrentPosition(lpDSSB, &CurrentPos, &CurrentWritePos) != DS_OK)
+      if (lpDSSB->GetCurrentPosition(&CurrentPos, &CurrentWritePos) != DS_OK)
         return VIDEO_SOUND_ERROR;
 
       if ((LastUpdated == SSDM_SECONDBUFFER) && (CurrentPos > 16384))
       {
         Streamer_SetSoundDecodeMode(shandle, SSDM_FIRSTBUFFER);
 
-        lpDSSB->lpVtbl->Lock(lpDSSB, 0, 16384, (void**)&soundbuffer1, &temp, nullptr, nullptr, 0);
+        lpDSSB->Lock(0, 16384, (void**)&soundbuffer1, &temp, nullptr, nullptr, 0);
       }
       else if ((LastUpdated == SSDM_FIRSTBUFFER) && (CurrentPos < 16384))
       {
         Streamer_SetSoundDecodeMode(shandle, SSDM_SECONDBUFFER);
 
-        lpDSSB->lpVtbl->Lock(lpDSSB, 16384, 16384, (void**)&soundbuffer2, &temp, nullptr, nullptr, 0);
+        lpDSSB->Lock(16384, 16384, (void**)&soundbuffer2, &temp, nullptr, nullptr, 0);
       }
     }
   }
@@ -894,8 +728,8 @@ BOOL seq_ShutDown(void)
 {
   if (lpDSSB)
   {
-    lpDSSB->lpVtbl->Stop(lpDSSB);
-    lpDSSB->lpVtbl->Release(lpDSSB);
+    lpDSSB->Stop();
+    lpDSSB->Release();
   }
   /* Shutdown Sound, Video and Movie*/
   Streamer_ShutDownSound(&shandle);
@@ -914,8 +748,8 @@ void SoundCallBackFunc(LPSOUNDHANDLE shandle)
 
   state = Streamer_GetSoundDecodeMode(shandle);
 
-  if (state == SSDM_FIRSTBUFFER) { lpDSSB->lpVtbl->Unlock(lpDSSB, soundbuffer1, 16384, nullptr, 0); }
-  else if (state == SSDM_SECONDBUFFER) { lpDSSB->lpVtbl->Unlock(lpDSSB, soundbuffer2, 16384, nullptr, 0); }
+  if (state == SSDM_FIRSTBUFFER) { lpDSSB->Unlock(soundbuffer1, 16384, nullptr, 0); }
+  else if (state == SSDM_SECONDBUFFER) { lpDSSB->Unlock(soundbuffer2, 16384, nullptr, 0); }
 
   Streamer_SetSoundDecodeMode(shandle, SSDM_IDLE);
   LastUpdated = state;

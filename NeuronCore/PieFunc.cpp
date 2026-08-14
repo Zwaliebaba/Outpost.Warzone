@@ -19,7 +19,6 @@
 #include "PieTexture.h"
 #include "PieClip.h"
 
-#include "d3d.h"
 #include "D3DRender.h"
 
 /***************************************************************************/
@@ -523,48 +522,44 @@ void pie_doWeirdBoxFX(UDWORD x, UDWORD y, UDWORD x2, UDWORD y2, UDWORD trans)
   */
 }
 
-//render raw data in system memory to direct draw surface 
-//use outside of D3D sceen only
-void pie_RenderImageToSurface(LPDIRECTDRAWSURFACE4 lpDDS4, SDWORD surfaceOffsetX, SDWORD surfaceOffsetY, UWORD* pSrcData, SDWORD srcWidth,
-                              SDWORD srcHeight, SDWORD srcStride)
+//render raw 16 bit data in system memory to the back buffer
+//use outside of a D3D scene only
+void pie_RenderImageToBackBuffer(SDWORD surfaceOffsetX, SDWORD surfaceOffsetY, UWORD* pSrcData, SDWORD srcWidth, SDWORD srcHeight,
+                                 SDWORD srcStride)
 {
-  DDSURFACEDESC2 DD_sd;
-  HRESULT hRes;
-  int i, j, surfaceSkip, srcSkip;
-  UWORD *pSurface, *pSrc;
-  SDWORD surfaceStride;
+  SCREEN_LOCK sLock;
+  int i, j;
+  UWORD* pSrc;
+  UDWORD* pDest;
 
-  // We lock the surface before blitting video to it.
-  DD_sd.dwSize = sizeof(DD_sd);
-  if (lpDDS4->lpVtbl->GetSurfaceDesc(lpDDS4, &DD_sd) != DD_OK)
+  if (pSrcData == nullptr)
+    return;
+
+  if (!screenLockBackBuffer(&sLock))
   {
-    Neuron::Fatal("pie_RenderImageToSurface GetSurfaceDesc failed:\n");
+    Neuron::Fatal("pie_RenderImageToBackBuffer: back buffer lock failed");
     return;
   }
 
-  hRes = lpDDS4->lpVtbl->Lock(lpDDS4, nullptr, &DD_sd,DDLOCK_WAIT, nullptr);
-  if (hRes != DD_OK)
-    Neuron::Fatal("pie_RenderImageToSurface buffer lock failed:\n{}", DDErrorToString(hRes));
-
-  pSurface = static_cast<WORD*>(DD_sd.lpSurface);
   pSrc = pSrcData;
-
-  //word strides
-  surfaceStride = DD_sd.lPitch / 2;
+  //word stride
   srcStride /= 2;
-
-  pSurface += (surfaceOffsetX + surfaceOffsetY * surfaceStride);
-
-  surfaceSkip = surfaceStride - srcWidth;
-  srcSkip = srcStride - srcWidth;
 
   for (i = 0; i < srcHeight; i++)
   {
+    if (surfaceOffsetY + i < 0 || surfaceOffsetY + i >= static_cast<SDWORD>(sLock.height))
+    {
+      pSrc += srcStride;
+      continue;
+    }
+    pDest = (UDWORD*)(sLock.pPixels + sLock.pitch * (surfaceOffsetY + i)) + surfaceOffsetX;
     for (j = 0; j < srcWidth; j++)
-      *pSurface++ = *pSrc++;
-    pSurface += surfaceSkip;
-    pSrc += srcSkip;
+    {
+      if (surfaceOffsetX + j >= 0 && surfaceOffsetX + j < static_cast<SDWORD>(sLock.width))
+        pDest[j] = screen565To32(pSrc[j]);
+    }
+    pSrc += srcStride;
   }
-  // We can unlock the surface now as we have finished with it, 
-  lpDDS4->lpVtbl->Unlock(lpDDS4, static_cast<LPRECT>(DD_sd.lpSurface));
+
+  screenUnlockBackBuffer();
 }

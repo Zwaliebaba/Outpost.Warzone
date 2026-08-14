@@ -1,9 +1,13 @@
 #include "pch.h"
 /*
- * Screen.c
+ * Screen.cpp
  *
- * Basic double buffered display using direct draw.
+ * The Direct3D 9 display.
  *
+ * DirectDraw had a front buffer, a back buffer and a flip; D3D9 has a swap
+ * chain and Present. The back buffer is created lockable so that the paths
+ * that still write pixels by hand - the backdrop, the FMV frames, the debug
+ * 2D display - keep working; everything else draws through the device.
  */
 
 #include <stdio.h>
@@ -12,14 +16,10 @@
 #define WIN32_LEAN_AND_MEAN
 #define WIN32_EXTRA_LEAN
 #include <windows.h>
-#include <ddraw.h>
 #pragma warning (default : 4201 4214 4115)
 
 #include "Frame.h"
 #include "FrameInt.h"
-
-/* Control Whether the back buffer is in system memory for full screen */
-#define FULL_SCREEN_SYSTEM	TRUE
 
 /* The Current screen size and bit depth */
 UDWORD screenWidth = 0;
@@ -35,53 +35,36 @@ DISPLAY_MODES displayMode;
 /* The handle for the main application window */
 /* defined in Frame.cpp */
 
-/* The Direct Draw objects */
-#define MAX_DDDEVICES 6
-static LPDIRECTDRAW psDD1 = nullptr;
-LPDIRECTDRAW4 psDD = nullptr;
-GUID aDDDeviceGUID[MAX_DDDEVICES];
-DDDEVICEIDENTIFIER aDDDeviceInfo[MAX_DDDEVICES];
-DDDEVICEIDENTIFIER aDDHostInfo[MAX_DDDEVICES];
-static SDWORD numDevices = 0;
-/* The Front and back buffers */
-LPDIRECTDRAWSURFACE4 psFront = nullptr;
-/* The back buffer is not static to give a back door to display routines so
- * they can get at the back buffer directly.
- * Mainly did this to link in Sam's 3D engine.
+/* The Direct3D objects */
+LPDIRECT3D9 psD3D = nullptr;
+LPDIRECT3DDEVICE9 psD3DDevice = nullptr;
+
+/* The parameters the device was created with. Kept so that the device can be
+ * reset - after a lost device, or a switch between windowed and full screen -
+ * without having to work them out again.
  */
-LPDIRECTDRAWSURFACE4 psBack = nullptr;
+static D3DPRESENT_PARAMETERS sPresentParams;
 
-/* The palette for palettised modes */
-static LPDIRECTDRAWPALETTE psPalette = nullptr;
+/* Whether the device was created at all. frameInitialise can be asked not to,
+ * and the game then runs without a display.
+ */
+static BOOL bDeviceCreated = FALSE;
 
-/* The actual palette entries for the display palette */
+/* The back buffer surface, only held while it is locked */
+static LPDIRECT3DSURFACE9 psLockedBackBuffer = nullptr;
+
+/* The palette entries kept for palette matching. The display has not been
+ * palettised since DirectDraw went, but the game still asks for the nearest
+ * entry to an RGB value when it packs its own colours.
+ */
 #define PAL_MAX				256
 static PALETTEENTRY asPalEntries[PAL_MAX];
 
-/* The palette entries of the display palette converted to the current
- * windows true colour format - used in 8BITFUDGE mode
+/* The pixel format of the display, and of the back buffer. Both are
+ * X8R8G8B8 - they are kept separate because the callers still ask for each.
  */
-static UDWORD aWinPalette[PAL_MAX];
-
-/* The bit depth at which it is assumed the mode is palettised */
-#define PALETTISED_BITDEPTH   8
-
-/* The number of bits in one colour gun of the windows PALETTEENTRY struct */
-#define PALETTEENTRY_BITS 8
-
-/* The window's clipper object */
-static LPDIRECTDRAWCLIPPER psClipper = nullptr;
-
-/* The Pixel format of the front buffer */
-DDPIXELFORMAT sFrontBufferPixelFormat;
-
-/* The Pixel format of the back buffer */
-DDPIXELFORMAT sBackBufferPixelFormat;
-
-/* Window's Pixel format */
-DDPIXELFORMAT sWinPixelFormat;
-
-/* The size of the windows display mode */
+SCREEN_PIXELFORMAT sFrontBufferPixelFormat;
+SCREEN_PIXELFORMAT sBackBufferPixelFormat;
 
 // The current flip state
 FLIP_STATE screenFlipState;
@@ -102,14 +85,6 @@ BOOL bUpload = FALSE;
 //fog
 DWORD fogColour = 0;
 
-using WIN_PACK = struct _win_pack
-{
-  SDWORD rShift, rPalShift;
-  SDWORD gShift, gPalShift;
-  SDWORD bShift, bPalShift;
-};
-static WIN_PACK sWinPack;
-
 /* The current colour for line drawing */
 static UDWORD lineColour = 0;
 
@@ -119,588 +94,115 @@ static UDWORD textColour = 0;
 /* The current fill colour */
 static UDWORD fillColour = 0;
 
-/* flag forcing buffers into video memory */
-static BOOL g_bVidMem;
-
 static UDWORD backDropWidth = BACKDROP_WIDTH;
 static UDWORD backDropHeight = BACKDROP_HEIGHT;
 
-/*********************************************************/
-/*********************************************************/
-/*********************************************************/
-/*********************************************************/
-/*********************************************************/
-// DX6 code
+/* The pixel format every surface and buffer in the framework uses */
+#define SCREEN_D3DFORMAT	D3DFMT_X8R8G8B8
 
-//-----------------------------------------------------------------------------
-// Name: DDEnumCallbackEx()
-// Desc: This callback gets the information for each device enumerated
-//-----------------------------------------------------------------------------
-BOOL WINAPI DDEnumCallbackEx(GUID* pGUID, LPSTR pDescription, LPSTR pName, LPVOID pContext, HMONITOR hm)
+/*********************************************************/
+/* Device creation                                       */
+/*********************************************************/
+
+/* Fill in sFrontBufferPixelFormat/sBackBufferPixelFormat for X8R8G8B8 */
+static void setPixelFormats(void)
 {
-  LPDIRECTDRAW pDD; // DD1 interface, used to get DD4 interface
-  LPDIRECTDRAW4 pDD4 = nullptr; // DirectDraw4 interface
-  HRESULT hRet;
-  GUID* aGUID;
+  sBackBufferPixelFormat.bitCount = 32;
+  sBackBufferPixelFormat.rMask = 0x00ff0000;
+  sBackBufferPixelFormat.gMask = 0x0000ff00;
+  sBackBufferPixelFormat.bMask = 0x000000ff;
+  sBackBufferPixelFormat.aMask = 0x00000000;
 
-  aGUID = static_cast<GUID*>(pContext);
-  if (pGUID != nullptr)
-    aGUID[0] = *pGUID;
-
-  // Create the main DirectDraw object
-  hRet = DirectDrawCreate(pGUID, &pDD, nullptr);
-  if (hRet != DD_OK)
-  {
-    Neuron::Fatal("DDEnumCallbackEx Create failed:\n{}", DDErrorToString(hRet));
-    return DDENUMRET_CANCEL;
-  }
-
-  // Fetch DirectDraw4 interface
-  hRet = pDD->lpVtbl->QueryInterface(pDD, IID_IDirectDraw4, (LPVOID*)&pDD4);
-  if (hRet != DD_OK)
-    return DDENUMRET_CANCEL;
-
-  // Get the device information and save it
-  hRet = pDD4->lpVtbl->GetDeviceIdentifier(pDD4, &aDDDeviceInfo[numDevices], 0);
-  hRet = pDD4->lpVtbl->GetDeviceIdentifier(pDD4, &aDDHostInfo[numDevices],DDGDI_GETHOSTIDENTIFIER);
-
-  // Finished with the DirectDraw object, so release it
-  if (pDD4)
-    pDD4->lpVtbl->Release(pDD4);
-
-  // Finished with the DirectDraw object, so release it
-  if (pDD)
-    pDD->lpVtbl->Release(pDD);
-
-  // Bump to the next open slot or finish the callbacks if full
-  if (numDevices < MAX_DDDEVICES)
-    numDevices++;
-  else
-    return DDENUMRET_CANCEL;
-  return DDENUMRET_OK;
+  sFrontBufferPixelFormat = sBackBufferPixelFormat;
 }
 
-//-----------------------------------------------------------------------------
-// Name: DDEnumCallback()
-// Desc: Old style callback retained for backwards compatibility
-//-----------------------------------------------------------------------------
-BOOL WINAPI DDEnumCallback(GUID* pGUID, LPSTR pDescription, LPSTR pName, LPVOID context)
+/* Fill in the present parameters for the current screen mode and size */
+static void setPresentParameters(void)
 {
-  return (DDEnumCallbackEx(pGUID, pDescription, pName, context, nullptr));
+  memset(&sPresentParams, 0, sizeof(D3DPRESENT_PARAMETERS));
+
+  sPresentParams.BackBufferWidth = screenWidth;
+  sPresentParams.BackBufferHeight = screenHeight;
+  sPresentParams.BackBufferFormat = SCREEN_D3DFORMAT;
+  sPresentParams.BackBufferCount = 1;
+  sPresentParams.MultiSampleType = D3DMULTISAMPLE_NONE;
+  sPresentParams.SwapEffect = D3DSWAPEFFECT_DISCARD;
+  sPresentParams.hDeviceWindow = hWndMain;
+  sPresentParams.Windowed = (screenMode == SCREEN_WINDOWED) ? TRUE : FALSE;
+  sPresentParams.EnableAutoDepthStencil = TRUE;
+  sPresentParams.AutoDepthStencilFormat = D3DFMT_D16;
+
+  /* The backdrop, the FMV frames and the debug 2D display all write to the
+   * back buffer with the CPU, so it has to be lockable. */
+  sPresentParams.Flags = D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
+
+  sPresentParams.FullScreen_RefreshRateInHz = 0;
+  sPresentParams.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
 }
 
-//-----------------------------------------------------------------------------
-// Name: frame_DDEnumerate()
-// Desc: Entry point to the program. Initializes everything and calls
-//       DirectDrawEnumerateEx() to get all of the device info.
-//-----------------------------------------------------------------------------
-BOOL frameDDEnumerate(void)
+/* Size and decorate the window for the current screen mode */
+static void setWindowStyle(void)
 {
-  LPDIRECTDRAWENUMERATEEX pDirectDrawEnumerateEx;
-  HINSTANCE hDDrawDLL;
-
-  // Do a GetModuleHandle and GetProcAddress in order to get the
-  // DirectDrawEnumerateEx function
-  hDDrawDLL = GetModuleHandle("DDRAW");
-  if (!hDDrawDLL)
-    return FALSE;
-
-  numDevices = 0;
-
-  pDirectDrawEnumerateEx = (LPDIRECTDRAWENUMERATEEX)GetProcAddress(hDDrawDLL, "DirectDrawEnumerateExA");
-  if (pDirectDrawEnumerateEx)
-  {
-    pDirectDrawEnumerateEx(DDEnumCallbackEx, &aDDDeviceGUID[0],
-                           DDENUM_ATTACHEDSECONDARYDEVICES | DDENUM_DETACHEDSECONDARYDEVICES | DDENUM_NONDISPLAYDEVICES);
-  }
-  else
-  {
-    // Old DirectDraw, so do it the old way
-    DirectDrawEnumerate(DDEnumCallback, &aDDDeviceGUID[0]);
-  }
-
-  if (numDevices == 0)
-    return FALSE;
-  return TRUE;
-}
-
-SDWORD frameGetNumDDDevices(void) { return numDevices; }
-
-char* frameGetDDDeviceName(SDWORD deviceId) { return aDDDeviceInfo[numDevices].szDriver; }
-
-/*********************************************************/
-/*********************************************************/
-/*********************************************************/
-/*********************************************************/
-/*********************************************************/
-/*********************************************************/
-
-/* Get the pixel format for the Windowed display.
- * Only used at startup.
- */
-static BOOL getWindowsPixelFormat(void)
-{
-  HRESULT ddrval;
-  DDSURFACEDESC2 ddsd; // Direct Draw surface description
-  UDWORD currMask;
-
-  DEBUG_ASSERT_TEXT(psDD != NULL, "getWindowsPixelFormat: NULL Direct Draw object");
-  DEBUG_ASSERT_TEXT((psFront == NULL) && (psBack == NULL) && (psClipper == NULL), "getWindowsPixelFormat: DD objects have not been released");
-
-  /* Set the cooperative level - windowed */
-  ddrval = psDD->lpVtbl->SetCooperativeLevel(psDD, hWndMain, DDSCL_NORMAL);
-  if (ddrval != DD_OK)
-  {
-    Neuron::Fatal("Set cooperative level failed:\n{}", DDErrorToString(ddrval));
-    return FALSE;
-  }
-
-  /* Get the Primary Surface. */
-  memset(&ddsd, 0, sizeof(DDSURFACEDESC2));
-  ddsd.dwSize = sizeof(DDSURFACEDESC2);
-  ddsd.dwFlags = DDSD_CAPS;
-  ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
-  ddrval = psDD->lpVtbl->CreateSurface(psDD, &ddsd, &psFront, nullptr);
-  if (ddrval != DD_OK)
-  {
-    Neuron::Fatal("Create Primary Surface failed:\n{}", DDErrorToString(ddrval));
-    return FALSE;
-  }
-
-  //copy the palette
-  memset(&sFrontBufferPixelFormat, 0, sizeof(DDPIXELFORMAT));
-  sFrontBufferPixelFormat.dwSize = sizeof(DDPIXELFORMAT);
-  ddrval = psFront->lpVtbl->GetPixelFormat(psFront, &sFrontBufferPixelFormat);
-  if (ddrval != DD_OK)
-  {
-    Neuron::Fatal("Couldn't get pixel format:\n{}", DDErrorToString(ddrval));
-    return FALSE;
-  }
-
-  /* Get the size of the windows display */
-  ddrval = psFront->lpVtbl->GetSurfaceDesc(psFront, &ddsd);
-  if (ddrval != DD_OK)
-  {
-    Neuron::Fatal("Couldn't get primary surface description:\n{}", DDErrorToString(ddrval));
-    return FALSE;
-  }
-
-  /* Get the pixel format of the front buffer */
-  memset(&sWinPixelFormat, 0, sizeof(DDPIXELFORMAT));
-  sWinPixelFormat.dwSize = sizeof(DDPIXELFORMAT);
-  ddrval = psFront->lpVtbl->GetPixelFormat(psFront, &sWinPixelFormat);
-  if (ddrval != DD_OK)
-  {
-    Neuron::Fatal("Couldn't get pixel format:\n{}", DDErrorToString(ddrval));
-    return FALSE;
-  }
-
-  /* Release the primary surface */
-  RELEASE(psFront);
-
-  /* Now calculate the colour packing if windows is in a true colour mode */
-  if (sWinPixelFormat.dwRGBBitCount >= 16)
-  {
-    currMask = sWinPixelFormat.dwRBitMask;
-    for (sWinPack.rShift = 0; !(currMask & 1); currMask >>= 1, sWinPack.rShift++);
-    for (sWinPack.rPalShift = 0; (currMask & 1); currMask >>= 1, sWinPack.rPalShift++);
-    sWinPack.rPalShift = PALETTEENTRY_BITS - sWinPack.rPalShift;
-
-    currMask = sWinPixelFormat.dwGBitMask;
-    for (sWinPack.gShift = 0; !(currMask & 1); currMask >>= 1, sWinPack.gShift++);
-    for (sWinPack.gPalShift = 0; (currMask & 1); currMask >>= 1, sWinPack.gPalShift++);
-    sWinPack.gPalShift = PALETTEENTRY_BITS - sWinPack.gPalShift;
-
-    currMask = sWinPixelFormat.dwBBitMask;
-    for (sWinPack.bShift = 0; !(currMask & 1); currMask >>= 1, sWinPack.bShift++);
-    for (sWinPack.bPalShift = 0; (currMask & 1); currMask >>= 1, sWinPack.bPalShift++);
-    sWinPack.bPalShift = PALETTEENTRY_BITS - sWinPack.bPalShift;
-  }
-
-  return TRUE;
-}
-
-/* Convert the display palette to a set of true colour entries of
- * the same pixel format as the windows display
- */
-static void updateWindowsPalette(UDWORD first, UDWORD count)
-{
-  UDWORD i;
-
-  if (sWinPixelFormat.dwRGBBitCount >= 16)
-  {
-    for (i = 0; i < count; i++)
-    {
-      aWinPalette[i + first] = (asPalEntries[i + first].peRed >> sWinPack.rPalShift) << sWinPack.rShift;
-      aWinPalette[i + first] |= (asPalEntries[i + first].peGreen >> sWinPack.gPalShift) << sWinPack.gShift;
-      aWinPalette[i + first] |= (asPalEntries[i + first].peBlue >> sWinPack.bPalShift) << sWinPack.bShift;
-    }
-  }
-}
-
-/* Create the direct draw objects for a windowed display */
-static BOOL createDDWindowed(void)
-{
-  HRESULT ddrval;
-  DDSURFACEDESC2 ddsd; // Direct Draw surface description
   RECT sWinSize;
 
-  DEBUG_ASSERT_TEXT(psDD != NULL, "createDDWindowed: NULL Direct Draw object");
-  DEBUG_ASSERT_TEXT((psFront == NULL) && (psBack == NULL) && (psClipper == NULL), "createDDWindowed: DD objects have not been released");
+  if (screenMode == SCREEN_WINDOWED)
+  {
+    (void)SetWindowLong(hWndMain, GWL_STYLE, WIN_STYLE);
+    (void)SetWindowLong(hWndMain, GWL_EXSTYLE, WIN_EXSTYLE);
 
-  /* Set the cooperative level - windowed */
-  ddrval = psDD->lpVtbl->SetCooperativeLevel(psDD, hWndMain, DDSCL_NORMAL);
-  if (ddrval != DD_OK)
-  {
-    Neuron::Fatal("Set cooperative level failed:\n{}", DDErrorToString(ddrval));
-    return FALSE;
-  }
+    /* Work out how big the window has to be for the client area to be the
+     * size of the display. */
+    (void)SetRect(&sWinSize, 0, 0, screenWidth, screenHeight);
+    (void)AdjustWindowRectEx(&sWinSize, WIN_STYLE, FALSE, WIN_EXSTYLE);
 
-  /* Create the Primary Surface.
-   * Can't create a flipping structure as the surface is for a window.
-   * Instead we'll do a blt of the back buffer to the front buffer.
-   */
-  memset(&ddsd, 0, sizeof(DDSURFACEDESC2));
-  ddsd.dwSize = sizeof(DDSURFACEDESC2);
-  ddsd.dwFlags = DDSD_CAPS;
-  ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
-  ddrval = psDD->lpVtbl->CreateSurface(psDD, &ddsd, &psFront, nullptr);
-  if (ddrval != DD_OK)
-  {
-    Neuron::Fatal("Create Primary Surface failed:\n{}", DDErrorToString(ddrval));
-    return FALSE;
-  }
+    sWinSize.right -= sWinSize.left;
+    sWinSize.left = 0;
+    sWinSize.bottom -= sWinSize.top;
+    sWinSize.top = 0;
 
-  //copy the palette
-  memset(&sFrontBufferPixelFormat, 0, sizeof(DDPIXELFORMAT));
-  sFrontBufferPixelFormat.dwSize = sizeof(DDPIXELFORMAT);
-  ddrval = psFront->lpVtbl->GetPixelFormat(psFront, &sFrontBufferPixelFormat);
-  if (ddrval != DD_OK)
-  {
-    Neuron::Fatal("Couldn't get pixel format:\n{}", DDErrorToString(ddrval));
-    return FALSE;
-  }
-
-  /* Get the pixel format of the front buffer */
-  memset(&sWinPixelFormat, 0, sizeof(DDPIXELFORMAT));
-  sWinPixelFormat.dwSize = sizeof(DDPIXELFORMAT);
-  ddrval = psFront->lpVtbl->GetPixelFormat(psFront, &sWinPixelFormat);
-  if (ddrval != DD_OK)
-  {
-    Neuron::Fatal("Couldn't get pixel format:\n{}", DDErrorToString(ddrval));
-    return FALSE;
-  }
-
-  // Check the available bit depth and see what modes we can run in
-  if ((screenDepth == PALETTISED_BITDEPTH) && (sWinPixelFormat.dwRGBBitCount >= 16))
-  {
-    /*
-     * windowed 16+ bit front buffer 8 bit back buffer
-     */
-    displayMode = MODE_8BITFUDGE;
-  }
-  else if (sWinPixelFormat.dwRGBBitCount != screenDepth)
-  {
-    Neuron::Fatal("Windows bit depth is not set to the required format.\n" "Application switching to full screen mode.");
-    displayMode = MODE_FULLSCREEN;
-    RELEASE(psFront);
-    return FALSE;
+    (void)SetWindowPos(hWndMain, nullptr, 0, 0, sWinSize.right, sWinSize.bottom,
+                       SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOCOPYBITS);
+    (void)SetWindowPos(hWndMain, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE | SWP_NOCOPYBITS);
   }
   else
   {
-    //windowed 16 bit front buffer 16 bit back buffer
-    displayMode = MODE_BOTH;
+    /* Make the app window completely undecorated so GDI is effectively
+     * shut out. */
+    (void)SetWindowLong(hWndMain, GWL_STYLE, WS_POPUP | WS_VISIBLE);
+    (void)SetWindowLong(hWndMain, GWL_EXSTYLE, 0);
+    (void)SetWindowPos(hWndMain, HWND_TOP, 0, 0, screenWidth, screenHeight, SWP_NOACTIVATE | SWP_NOCOPYBITS);
   }
-
-  /* Create the back buffer */
-  if (displayMode == MODE_8BITFUDGE)
-  {
-    memset(&ddsd, 0, sizeof(DDSURFACEDESC2));
-    ddsd.dwSize = sizeof(DDSURFACEDESC2);
-    ddsd.dwFlags = DDSD_WIDTH | DDSD_HEIGHT | DDSD_PIXELFORMAT | DDSD_CAPS;
-    ddsd.dwWidth = screenWidth;
-    ddsd.dwHeight = screenHeight;
-    ddsd.ddpfPixelFormat.dwFlags = DDPF_RGB | DDPF_PALETTEINDEXED8;
-    ddsd.ddpfPixelFormat.dwRGBBitCount = 8;
-    ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY | DDSCAPS_3DDEVICE;
-    ddrval = psDD->lpVtbl->CreateSurface(psDD, &ddsd, &psBack, nullptr);
-    if (ddrval != DD_OK)
-    {
-      Neuron::Fatal("Create Back surface failed:\n{}", DDErrorToString(ddrval));
-      return FALSE;
-    }
-  }
-  else
-  {
-    memset(&ddsd, 0, sizeof(DDSURFACEDESC2));
-    ddsd.dwSize = sizeof(DDSURFACEDESC2);
-    ddsd.dwFlags = DDSD_WIDTH | DDSD_HEIGHT | DDSD_CAPS;
-    ddsd.dwWidth = screenWidth;
-    ddsd.dwHeight = screenHeight;
-    ddsd.ddpfPixelFormat.dwFlags = DDPF_RGB;
-    ddsd.ddpfPixelFormat.dwRGBBitCount = 16;
-    ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_3DDEVICE;
-    /* Force the back buffer into system memory for a debug build */
-#ifdef DEBUG
-    if (!g_bVidMem)
-      ddsd.ddsCaps.dwCaps |= DDSCAPS_SYSTEMMEMORY;
-#endif
-    ddrval = psDD->lpVtbl->CreateSurface(psDD, &ddsd, &psBack, nullptr);
-    if (ddrval != DD_OK)
-    {
-      Neuron::Fatal("Create Back surface failed:\n{}", DDErrorToString(ddrval));
-      return FALSE;
-    }
-  }
-
-  /* Create Clippers for the front surface */
-  ddrval = psDD->lpVtbl->CreateClipper(psDD, 0, &psClipper, nullptr);
-  if (ddrval != DD_OK)
-  {
-    Neuron::Fatal("Failed to create clipper:\n{}", DDErrorToString(ddrval));
-    return FALSE;
-  }
-  ddrval = psClipper->lpVtbl->SetHWnd(psClipper, 0, hWndMain);
-  if (ddrval != DD_OK)
-  {
-    Neuron::Fatal("SetHWnd failed for clipper:\n{}", DDErrorToString(ddrval));
-    return FALSE;
-  }
-  ddrval = psFront->lpVtbl->SetClipper(psFront, psClipper);
-  if (ddrval != DD_OK)
-  {
-    Neuron::Fatal("Failed to set clipper for front buffer:\n{}", DDErrorToString(ddrval));
-    return FALSE;
-  }
-
-  /* If we are in a palettised mode, create a palette */
-  if (screenDepth == PALETTISED_BITDEPTH)
-  {
-    /* Create the palette from the stored palette entries */
-    ddrval = psDD->lpVtbl->CreatePalette(psDD, DDPCAPS_8BIT, asPalEntries, &psPalette, nullptr);
-    if (ddrval != DD_OK)
-    {
-      Neuron::Fatal("Failed to create palette:\n{}", DDErrorToString(ddrval));
-      return FALSE;
-    }
-
-    /* Assign the palette to the front buffer unless we're 8bit fudging */
-    if (displayMode != MODE_8BITFUDGE)
-    {
-      ddrval = psFront->lpVtbl->SetPalette(psFront, psPalette);
-      if (ddrval != DD_OK) { Neuron::Fatal("Couldn't set palette for front buffer:\n{}", DDErrorToString(ddrval)); }
-    }
-
-    /* Assign the palette to the back buffer */
-    ddrval = psBack->lpVtbl->SetPalette(psBack, psPalette);
-    if (ddrval != DD_OK) { Neuron::Fatal("Couldn't set palette for back buffer:\n{}", DDErrorToString(ddrval)); }
-  }
-
-  /* Reset the style of the window to have title bars, etc. */
-  (void)SetWindowLong(hWndMain, GWL_STYLE, WIN_STYLE);
-  (void)SetWindowLong(hWndMain, GWL_EXSTYLE, WIN_EXSTYLE);
-
-  /* Get the actual size of window we want (including the size of
-     title bars etc.) */
-  (void)SetRect(&sWinSize, 0, 0, screenWidth, screenHeight);
-  (void)AdjustWindowRectEx(&sWinSize, WIN_STYLE, FALSE, WIN_EXSTYLE);
-
-  /* The rectangle returned has values for the window edges relative to
-     the display area origin, i.e. left and top are negative - so we have
-     to adjust */
-  sWinSize.right -= sWinSize.left;
-  sWinSize.left = 0;
-  sWinSize.bottom -= sWinSize.top;
-  sWinSize.top = 0;
-
-  /* Set the window size.
-   * Ripped this out of the D3D example code - not too sure why we
-   * have to do it twice.  I've no wish to become a windows programmer
-   * so if it works why worry :-)
-   */
-  (void)SetWindowPos(hWndMain, nullptr, 0, 0, sWinSize.right, sWinSize.bottom, SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOCOPYBITS);
-  (void)SetWindowPos(hWndMain, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE | SWP_NOCOPYBITS);
-
-  return TRUE;
 }
 
-/* Release the DD objects for a windowed display */
-static BOOL releaseDDWindowed(void)
+/* Create the device with the current present parameters.
+ *
+ * Tries hardware vertex processing first, then software; the game feeds the
+ * device pre-transformed vertices, so software processing costs it nothing
+ * but is the only thing some drivers will give us.
+ */
+static BOOL createDevice(void)
 {
-  RELEASE(psPalette);
-  RELEASE(psClipper);
-  RELEASE(psFront);
-  RELEASE(psBack);
+  HRESULT hRes;
+  DWORD behaviourFlags[2] = {D3DCREATE_HARDWARE_VERTEXPROCESSING, D3DCREATE_SOFTWARE_VERTEXPROCESSING};
+  SDWORD i;
 
-  return TRUE;
-}
-
-/* Create the DD objects for a full screen display */
-static BOOL createDDFullScreen(void)
-{
-  HRESULT ddrval;
-  DDSURFACEDESC2 ddsd; // Direct Draw surface description
-#if !FULL_SCREEN_SYSTEM
-  DDSCAPS ddscaps;
-#endif
-
-  DEBUG_ASSERT_TEXT(psDD != NULL, "createDDFullScreen: No Direct Draw Object");
-  DEBUG_ASSERT_TEXT((psFront == NULL) && (psBack == NULL) && (psClipper == NULL), "createDDFullScreen: DD objects have not been released");
-
-  /* Make the app window completely undecorated so GDI is
-   * effectively shut out.
-   */
-  (void)SetWindowLong(hWndMain, GWL_STYLE, 0);
-  (void)SetWindowLong(hWndMain, GWL_EXSTYLE, 0);
-
-  /* Set the cooperative level - exclusive */
-  ddrval = psDD->lpVtbl->SetCooperativeLevel(psDD, hWndMain, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN);
-  if (ddrval != DD_OK)
+  for (i = 0; i < 2; i++)
   {
-    Neuron::Fatal("Set cooperative level failed:\n{}", DDErrorToString(ddrval));
+    hRes = psD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWndMain, behaviourFlags[i] | D3DCREATE_FPU_PRESERVE, &sPresentParams,
+                               &psD3DDevice);
+    if (hRes == D3D_OK)
+      return TRUE;
+  }
+
+  /* No hardware device - fall back on the reference rasteriser so that a
+   * machine without a usable driver still starts. */
+  hRes = psD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_REF, hWndMain, D3DCREATE_SOFTWARE_VERTEXPROCESSING | D3DCREATE_FPU_PRESERVE,
+                             &sPresentParams, &psD3DDevice);
+  if (hRes != D3D_OK)
+  {
+    Neuron::Fatal("Create D3D device failed:\n{}", DXErrorToString(hRes));
     return FALSE;
   }
-
-  /* Set the display mode */
-  ddrval = psDD->lpVtbl->SetDisplayMode(psDD, screenWidth, screenHeight, screenDepth, 0, 0); // Set these so the DD1 version is used
-  if (ddrval != DD_OK)
-  {
-    Neuron::Fatal("Set display mode failed:\n{}", DDErrorToString(ddrval));
-    return FALSE;
-  }
-
-#if FULL_SCREEN_SYSTEM
-  /* Create the Primary Surface. */
-  memset(&ddsd, 0, sizeof(DDSURFACEDESC2));
-  ddsd.dwSize = sizeof(DDSURFACEDESC2);
-  ddsd.dwFlags = DDSD_CAPS;
-  ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
-  ddrval = psDD->lpVtbl->CreateSurface(psDD, &ddsd, &psFront, nullptr);
-  if (ddrval != DD_OK)
-  {
-    Neuron::Fatal("Create Primary Surface failed:\n{}", DDErrorToString(ddrval));
-    return FALSE;
-  }
-
-  //copy the palette
-  memset(&sFrontBufferPixelFormat, 0, sizeof(DDPIXELFORMAT));
-  sFrontBufferPixelFormat.dwSize = sizeof(DDPIXELFORMAT);
-  ddrval = psFront->lpVtbl->GetPixelFormat(psFront, &sFrontBufferPixelFormat);
-  if (ddrval != DD_OK)
-  {
-    Neuron::Fatal("Couldn't get pixel format:\n{}", DDErrorToString(ddrval));
-    return FALSE;
-  }
-
-  /* Create the back buffer */
-  memset(&ddsd, 0, sizeof(DDSURFACEDESC2));
-  ddsd.dwSize = sizeof(DDSURFACEDESC2);
-  ddsd.dwFlags = DDSD_WIDTH | DDSD_HEIGHT | DDSD_CAPS;
-  ddsd.dwWidth = screenWidth;
-  ddsd.dwHeight = screenHeight;
-  ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_3DDEVICE;
-  /* Force the back buffer into system memory unless flag set */
-  if (!g_bVidMem)
-    ddsd.ddsCaps.dwCaps |= DDSCAPS_SYSTEMMEMORY;
-  ddrval = psDD->lpVtbl->CreateSurface(psDD, &ddsd, &psBack, nullptr);
-  if (ddrval != DD_OK)
-  {
-    Neuron::Fatal("Create Back surface failed:\n{}", DDErrorToString(ddrval));
-    return FALSE;
-  }
-#else
-  /* Create the Primary Surface. */
-  memset(&ddsd, 0, sizeof(DDSURFACEDESC2)); ddsd.dwSize = sizeof(DDSURFACEDESC2); ddsd.dwFlags = DDSD_CAPS | DDSD_BACKBUFFERCOUNT; ddsd.
-    ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE | DDSCAPS_COMPLEX | DDSCAPS_FLIP; ddsd.dwBackBufferCount = 1;
-  // Use 2 for triple buffering, 1 for double
-
-  ddrval = psDD->lpVtbl->CreateSurface(psDD, &ddsd, &psFront, NULL); if (ddrval != DD_OK)
-  {
-    Neuron::Fatal("Create Primary Surface failed:\n{}", DDErrorToString(ddrval));
-    return FALSE;
-  }
-
-  //copy the palette
-  memset(&sFrontBufferPixelFormat, 0, sizeof(DDPIXELFORMAT)); sFrontBufferPixelFormat.dwSize = sizeof(DDPIXELFORMAT); ddrval = psFront->
-    lpVtbl->GetPixelFormat(psFront, &sFrontBufferPixelFormat); if (ddrval != DD_OK)
-  {
-    Neuron::Fatal("Couldn't get pixel format:\n{}", DDErrorToString(ddrval));
-    return FALSE;
-  }
-
-  /* Get the back buffer */
-  memset(&ddscaps, 0, sizeof(DDSCAPS)); ddscaps.dwCaps = DDSCAPS_BACKBUFFER; ddrval = psFront->lpVtbl->
-    GetAttachedSurface(psFront, &ddscaps, &psBack); if (ddrval != DD_OK)
-  {
-    Neuron::Fatal("Get Back surface failed:\n{}", DDErrorToString(ddrval));
-    return FALSE;
-  }
-#endif
-
-  /* Get the pixel format of the front buffer */
-  memset(&sWinPixelFormat, 0, sizeof(DDPIXELFORMAT));
-  sWinPixelFormat.dwSize = sizeof(DDPIXELFORMAT);
-  ddrval = psFront->lpVtbl->GetPixelFormat(psFront, &sWinPixelFormat);
-  if (ddrval != DD_OK)
-  {
-    Neuron::Fatal("Couldn't get pixel format:\n{}", DDErrorToString(ddrval));
-    return FALSE;
-  }
-
-  /* If we are in a palettised mode, create a palette */
-  if (screenDepth == PALETTISED_BITDEPTH)
-  {
-    /* Create the palette from the stored palette entries */
-    ddrval = psDD->lpVtbl->CreatePalette(psDD, DDPCAPS_8BIT, asPalEntries, &psPalette, nullptr);
-    if (ddrval != DD_OK)
-    {
-      Neuron::Fatal("Failed to create palette:\n{}", DDErrorToString(ddrval));
-      return FALSE;
-    }
-
-    /* Assign the palette to the front buffer */
-    ddrval = psFront->lpVtbl->SetPalette(psFront, psPalette);
-    if (ddrval != DD_OK) { Neuron::Fatal("Couldn't set palette for front buffer:\n{}", DDErrorToString(ddrval)); }
-
-    /* Assign the palette to the back buffer */
-    ddrval = psFront->lpVtbl->SetPalette(psBack, psPalette);
-    if (ddrval != DD_OK) { Neuron::Fatal("Couldn't set palette for back buffer:\n{}", DDErrorToString(ddrval)); }
-  }
-
-  return TRUE;
-}
-
-/* Release the DD objects for a full screen display */
-static BOOL releaseDDFullScreen(void)
-{
-  HRESULT ddrval;
-
-  if (psDD == nullptr)
-    return TRUE;
-
-  DEBUG_ASSERT_TEXT(screenMode == SCREEN_FULLSCREEN, "releaseDDFullScreen: Attempt to release when not in full screen mode");
-  DEBUG_ASSERT_TEXT(psClipper == NULL, "releaseDDFullScreen: Clipper object not released");
-
-  /* Clear up exclusive mode */
-  screenFlipToGDI();
-  ddrval = psDD->lpVtbl->RestoreDisplayMode(psDD);
-  if (ddrval != DD_OK)
-  {
-    Neuron::Fatal("RestoreDisplayMode failed:\n{}", DDErrorToString(ddrval));
-    return FALSE;
-  }
-
-  /* Set the cooperative level - windowed */
-  ddrval = psDD->lpVtbl->SetCooperativeLevel(psDD, hWndMain, DDSCL_NORMAL);
-  if (ddrval != DD_OK)
-  {
-    Neuron::Fatal("Set cooperative level failed:\n{}", DDErrorToString(ddrval));
-    return FALSE;
-  }
-
-  RELEASE(psPalette);
-  RELEASE(psBack);
-  RELEASE(psFront);
 
   return TRUE;
 }
@@ -708,276 +210,230 @@ static BOOL releaseDDFullScreen(void)
 /* get screen window handle */
 HWND screenGetHWnd(void) { return hWndMain; }
 
-/* Initialise the double buffered display */
+/* Initialise the display */
 BOOL screenInitialise(UDWORD width, // Display width
                       UDWORD height, // Display height
-                      UDWORD bitDepth, // Display bit depth
+                      UDWORD bitDepth, // Display bit depth - the display is
+                      // always 32 bit now, this is only recorded
                       BOOL fullScreen, // Whether to start windowed
                       // or full screen.
-                      BOOL bVidMem, // Whether to put surfaces in
-                      // video memory
-                      BOOL bDDraw, // Whether to create ddraw surfaces												// video memory
+                      BOOL bVidMem, // No longer used: the managed pool
+                      // decides where resources live
+                      BOOL bCreateDevice, // Whether to create the device at all
                       HANDLE hWindow) // The main windows handle
 {
-  HRESULT ddrval;
-  DDSURFACEDESC2 sSurfDesc;
-  BOOL modeAvailable = FALSE;
-  UDWORD i, j, k, index;
-  //	DDSURFACEDESC		ddsd;		// Direct Draw surface description
+  (void)bitDepth;
+  (void)bVidMem;
 
   /* Store the screen information */
   screenWidth = width;
   screenHeight = height;
-  screenDepth = bitDepth;
+  screenDepth = 32;
 
   hWndMain = static_cast<HWND>(hWindow);
 
-  /* store vidmem flag */
-  g_bVidMem = bVidMem;
+  setPixelFormats();
 
-  frameDDEnumerate();
+  memset(asPalEntries, 0, sizeof(PALETTEENTRY) * PAL_MAX);
+  asPalEntries[PAL_MAX - 1].peRed = 0xff;
+  asPalEntries[PAL_MAX - 1].peGreen = 0xff;
+  asPalEntries[PAL_MAX - 1].peBlue = 0xff;
 
-  /* Create the DD object */
-  ddrval = DirectDrawCreate(nullptr, &psDD1, nullptr);
-  if (ddrval != DD_OK)
+  /* Both windowed and full screen render to the same 32 bit back buffer,
+   * so the library can always run either way round. */
+  displayMode = MODE_BOTH;
+  screenMode = fullScreen ? SCREEN_FULLSCREEN : SCREEN_WINDOWED;
+
+  if (!bCreateDevice)
+    return TRUE;
+
+  psD3D = Direct3DCreate9(D3D_SDK_VERSION);
+  if (psD3D == nullptr)
   {
-    Neuron::Fatal("Create DD object failed:\n{}", DDErrorToString(ddrval));
+    Neuron::Fatal("Create Direct3D 9 object failed - is DirectX 9 installed?");
     return FALSE;
   }
 
-  /* Get the DD2 interface */
-  ddrval = psDD1->lpVtbl->QueryInterface(psDD1, IID_IDirectDraw4, (LPVOID*)&psDD);
-  if (ddrval != DD_OK)
+  setWindowStyle();
+  setPresentParameters();
+
+  if (!createDevice())
   {
-    Neuron::Fatal("Create DD2 object failed:\n{}", DDErrorToString(ddrval));
+    /* The requested mode failed, so try the other one - this is what the
+     * DirectDraw code did with its two cooperative levels. */
+    screenMode = fullScreen ? SCREEN_WINDOWED : SCREEN_FULLSCREEN;
+    setWindowStyle();
+    setPresentParameters();
+    if (!createDevice())
+    {
+      RELEASE(psD3D);
+      return FALSE;
+    }
+  }
+
+  bDeviceCreated = TRUE;
+
+  screenFlipState = FLIP_IDLE;
+  InitializeCriticalSection(&sScreenFlipCritical);
+  hScreenFlipSemaphore = CreateSemaphore(nullptr, 0, 1, nullptr);
+  if (hScreenFlipSemaphore == nullptr)
+  {
+    Neuron::Fatal("Couldn't create flip semaphore");
     return FALSE;
   }
-  /* Get the pixel format for the current windows display.
-   * If this doesn't match the required bit depth, only full screen mode will
-   * be available.
-   */
-  if (!getWindowsPixelFormat())
-    return FALSE;
 
-  /* If we're going to run in a palettised mode initialise the palette */
-  if (bitDepth == PALETTISED_BITDEPTH)
-  {
-    memset(asPalEntries, 0, sizeof(PALETTEENTRY) * PAL_MAX);
-
-    /* Bash in a range of colours */
-    for (i = 0; i <= 4; i++)
-    {
-      for (j = 0; j <= 4; j++)
-      {
-        for (k = 0; k <= 4; k++)
-        {
-          index = i * 25 + j * 5 + k;
-          asPalEntries[index].peRed = static_cast<UBYTE>(i * 63);
-          asPalEntries[index].peGreen = static_cast<UBYTE>(j * 63);
-          asPalEntries[index].peBlue = static_cast<UBYTE>(k * 63);
-        }
-      }
-    }
-
-    /* Fill in a grey scale */
-    for (i = 0; i < 64; i++)
-    {
-      asPalEntries[i + 125].peRed = static_cast<UBYTE>(i << 2);
-      asPalEntries[i + 125].peGreen = static_cast<UBYTE>(i << 2);
-      asPalEntries[i + 125].peBlue = static_cast<UBYTE>(i << 2);
-    }
-
-    /* Colour 0 is always black */
-    asPalEntries[0].peRed = 0;
-    asPalEntries[0].peGreen = 0;
-    asPalEntries[0].peBlue = 0;
-
-    /* Colour 255 is always white */
-    asPalEntries[255].peRed = 0xff;
-    asPalEntries[255].peGreen = 0xff;
-    asPalEntries[255].peBlue = 0xff;
-
-    updateWindowsPalette(0, 256);
-  }
-
-  if (bDDraw)
-  {
-    if (fullScreen)
-    {
-      /* Start in full screen mode */
-      screenMode = SCREEN_FULLSCREEN;
-      if (!createDDFullScreen())
-      {
-        //requested mode failed so try and start in the other mode
-        screenMode = SCREEN_WINDOWED;
-        fullScreen = FALSE;
-        if (!createDDWindowed())
-          return FALSE; //both modes failed (we tried)
-      }
-    }
-    else
-    {
-      screenMode = SCREEN_WINDOWED;
-      if (!createDDWindowed())
-      {
-        //requested mode failed so try and start in the other mode
-        screenMode = SCREEN_FULLSCREEN;
-        fullScreen = TRUE;
-        if (!createDDFullScreen())
-          return FALSE; //both modes failed (we tried)
-      }
-    }
-  }
-  else
-  {
-    screenMode = SCREEN_FULLSCREEN;
-    DEBUG_ASSERT_TEXT(psDD != NULL, "createDDFullScreen: No Direct Draw Object");
-    DEBUG_ASSERT_TEXT((psFront == NULL) && (psBack == NULL) && (psClipper == NULL), "createDDFullScreen: DD objects have not been released");
-
-    /* Make the app window completely undecorated so GDI is
-     * effectively shut out.
-     */
-    (void)SetWindowLong(hWndMain, GWL_STYLE, 0);
-    (void)SetWindowLong(hWndMain, GWL_EXSTYLE, 0);
-
-    /* Set the cooperative level - exclusive */
-    ddrval = psDD->lpVtbl->SetCooperativeLevel(psDD, hWndMain, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN);
-    if (ddrval != DD_OK)
-    {
-      Neuron::Fatal("Set cooperative level failed:\n{}", DDErrorToString(ddrval));
-      return FALSE;
-    }
-    /* Set the display mode */
-    ddrval = psDD->lpVtbl->SetDisplayMode(psDD, screenWidth, screenHeight, screenDepth, 0, 0); // Set these so the DD1 version is used
-    if (ddrval != DD_OK)
-    {
-      Neuron::Fatal("Set display mode failed:\n{}", DDErrorToString(ddrval));
-      return FALSE;
-    }
-  }
-
-  if (bDDraw)
-  {
-    /* Get the pixel format of the screen buffer */
-    memset(&sBackBufferPixelFormat, 0, sizeof(DDPIXELFORMAT));
-    sBackBufferPixelFormat.dwSize = sizeof(DDPIXELFORMAT);
-    ddrval = psBack->lpVtbl->GetPixelFormat(psBack, &sBackBufferPixelFormat);
-    if (ddrval != DD_OK)
-    {
-      Neuron::Fatal("Couldn't get pixel format:\n{}", DDErrorToString(ddrval));
-      return FALSE;
-    }
-
-    screenFlipState = FLIP_IDLE;
-    InitializeCriticalSection(&sScreenFlipCritical);
-    hScreenFlipSemaphore = CreateSemaphore(nullptr, 0, 1, nullptr);
-    if (hScreenFlipSemaphore == nullptr)
-    {
-      Neuron::Fatal("Couldn't create flip semaphore");
-      return FALSE;
-    }
-  }
   return TRUE;
 }
 
-/* Release the DD objects */
+/* Release the D3D objects */
 void screenShutDown(void)
 {
-  if (screenMode == SCREEN_WINDOWED)
-    releaseDDWindowed();
-  else
-    releaseDDFullScreen();
+  if (bDeviceCreated)
+  {
+    DeleteCriticalSection(&sScreenFlipCritical);
+    CloseHandle(hScreenFlipSemaphore);
+    hScreenFlipSemaphore = nullptr;
+    bDeviceCreated = FALSE;
+  }
 
-  DeleteCriticalSection(&sScreenFlipCritical);
-  CloseHandle(hScreenFlipSemaphore);
-
-  RELEASE(psDD);
-  RELEASE(psDD1);
+  RELEASE(psLockedBackBuffer);
+  RELEASE(psD3DDevice);
+  RELEASE(psD3D);
 }
 
 BOOL screenReInit(void)
 {
-  BOOL bFullScreen;
-
-  if (screenMode == SCREEN_FULLSCREEN)
-    bFullScreen = TRUE;
-  else
-    bFullScreen = FALSE;
+  BOOL bFullScreen = (screenMode == SCREEN_FULLSCREEN);
 
   screenShutDown();
 
-  return screenInitialise(screenWidth, screenHeight, screenDepth, bFullScreen, g_bVidMem, TRUE, hWndMain);
+  return screenInitialise(screenWidth, screenHeight, screenDepth, bFullScreen, TRUE, TRUE, hWndMain);
 }
 
-/* Return a pointer to the Direct Draw 2 object */
-LPDIRECTDRAW4 screenGetDDObject(void) { return psDD; }
+/* Return the Direct3D 9 object */
+LPDIRECT3D9 screenGetD3D(void) { return psD3D; }
 
-/* Return a pointer to the Direct Draw back buffer surface */
-LPDIRECTDRAWSURFACE4 screenGetSurface(void) { return psBack; }
+/* Return the Direct3D 9 device */
+LPDIRECT3DDEVICE9 screenGetDevice(void) { return psD3DDevice; }
 
 /* Return a pointer to the Front buffer pixel format */
-DDPIXELFORMAT* screenGetFrontBufferPixelFormat(void)
+SCREEN_PIXELFORMAT* screenGetFrontBufferPixelFormat(void)
 {
-  if (psDD)
+  if (psD3DDevice)
     return &sFrontBufferPixelFormat;
   return nullptr;
 }
 
 /* Return a pointer to the back buffer pixel format */
-DDPIXELFORMAT* screenGetBackBufferPixelFormat(void)
+SCREEN_PIXELFORMAT* screenGetBackBufferPixelFormat(void)
 {
-  if (psDD)
+  if (psD3DDevice)
     return &sBackBufferPixelFormat;
   return nullptr;
 }
 
-/*
- * screenRestoreSurfaces
- *
- * Restore the direct draw surfaces if they have been lost.
- *
- * This is only used internally within the library.
- */
-void screenRestoreSurfaces(void)
+/*********************************************************/
+/* Device loss                                           */
+/*********************************************************/
+
+SCREEN_DEVICE_STATE screenTestDeviceState(void)
 {
-  HRESULT ddrval;
-  SURFACE_LIST* psCurr;
+  HRESULT hRes;
 
-  /* Restore any surfaces that have been lost */
-  if (psFront->lpVtbl->IsLost(psFront) == DDERR_SURFACELOST)
-  {
-    ddrval = psFront->lpVtbl->Restore(psFront);
-    if (ddrval != DD_OK)
-    {
-      Neuron::Fatal("Couldn't restore front buffer:\n{}", DDErrorToString(ddrval));
-      frameShutDown();
-    }
-  }
+  if (psD3DDevice == nullptr)
+    return SCREEN_DEVICE_LOST;
 
-  if (psBack->lpVtbl->IsLost(psBack) == DDERR_SURFACELOST)
-  {
-    ddrval = psBack->lpVtbl->Restore(psBack);
-    if (ddrval != DD_OK)
-    {
-      Neuron::Fatal("Couldn't restore back buffer:\n{}", DDErrorToString(ddrval));
-      frameShutDown();
-    }
-  }
+  hRes = psD3DDevice->TestCooperativeLevel();
 
-  /* Now go down the list of surfaces that have been allocated by surfCreate */
-  for (psCurr = psSurfaces; psCurr != nullptr; psCurr = psCurr->psNext)
-  {
-    if (psCurr->psSurface->lpVtbl->IsLost(psCurr->psSurface) == DDERR_SURFACELOST)
-    {
-      ddrval = psCurr->psSurface->lpVtbl->Restore(psCurr->psSurface);
-      if ((ddrval != DD_OK) && (ddrval != DDERR_WRONGMODE))
-      {
-        Neuron::Fatal("Couldn't restore surface:\n{}", DDErrorToString(ddrval));
-        frameShutDown();
-      }
-    }
-  }
+  if (hRes == D3D_OK)
+    return SCREEN_DEVICE_OK;
+  if (hRes == D3DERR_DEVICENOTRESET)
+    return SCREEN_DEVICE_NEEDSRESET;
+
+  return SCREEN_DEVICE_LOST;
 }
+
+BOOL screenResetDevice(void)
+{
+  HRESULT hRes;
+
+  if (psD3DDevice == nullptr)
+    return FALSE;
+
+  /* Anything in the default pool has to be gone before the reset. The only
+   * thing the framework keeps there is a lock on the back buffer, which
+   * should never be held across a reset, but a lost device can leave one
+   * behind. */
+  RELEASE(psLockedBackBuffer);
+
+  hRes = psD3DDevice->Reset(&sPresentParams);
+  if (hRes != D3D_OK)
+  {
+    Neuron::DebugTrace("screenResetDevice: Reset failed:\n{}", DXErrorToString(hRes));
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
+/*********************************************************/
+/* Back buffer access                                    */
+/*********************************************************/
+
+BOOL screenLockBackBuffer(SCREEN_LOCK* psLock)
+{
+  HRESULT hRes;
+  D3DLOCKED_RECT sLocked;
+  D3DSURFACE_DESC sDesc;
+
+  DEBUG_ASSERT_TEXT(psLockedBackBuffer == NULL, "screenLockBackBuffer: back buffer already locked");
+
+  if (psD3DDevice == nullptr)
+    return FALSE;
+
+  hRes = psD3DDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &psLockedBackBuffer);
+  if (hRes != D3D_OK)
+  {
+    Neuron::DebugTrace("screenLockBackBuffer: GetBackBuffer failed:\n{}", DXErrorToString(hRes));
+    return FALSE;
+  }
+
+  hRes = psLockedBackBuffer->GetDesc(&sDesc);
+  if (hRes != D3D_OK)
+  {
+    Neuron::DebugTrace("screenLockBackBuffer: GetDesc failed:\n{}", DXErrorToString(hRes));
+    RELEASE(psLockedBackBuffer);
+    return FALSE;
+  }
+
+  hRes = psLockedBackBuffer->LockRect(&sLocked, nullptr, 0);
+  if (hRes != D3D_OK)
+  {
+    Neuron::DebugTrace("screenLockBackBuffer: LockRect failed:\n{}", DXErrorToString(hRes));
+    RELEASE(psLockedBackBuffer);
+    return FALSE;
+  }
+
+  psLock->pPixels = static_cast<UBYTE*>(sLocked.pBits);
+  psLock->pitch = sLocked.Pitch;
+  psLock->width = sDesc.Width;
+  psLock->height = sDesc.Height;
+
+  return TRUE;
+}
+
+void screenUnlockBackBuffer(void)
+{
+  if (psLockedBackBuffer == nullptr)
+    return;
+
+  (void)psLockedBackBuffer->UnlockRect();
+  RELEASE(psLockedBackBuffer);
+}
+
+/*********************************************************/
+/* Backdrop                                              */
+/*********************************************************/
 
 void screen_SetBackDrop(UWORD* newBackDropBmp, UDWORD width, UDWORD height)
 {
@@ -1005,593 +461,166 @@ UDWORD screen_GetBackDropWidth(void)
   return 0;
 }
 
+/* Read the back buffer back into a 16 bit software buffer */
 void screen_Upload(UWORD* newBackDropBmp)
 {
-  HRESULT ddrval;
-  DDSURFACEDESC2 ddsdBack;
-  UDWORD y;
-  UBYTE* p8Src;
-  UWORD* p16Src;
-  UBYTE* p8Dest;
-  UWORD* p16Dest;
+  SCREEN_LOCK sLock;
+  UDWORD x, y;
+  UDWORD* pSrc;
+  UWORD* pDest;
 
   if (newBackDropBmp == nullptr)
     return;
-  //only set for d3d
-  /* Lock the back buffer */
-  ddsdBack.dwSize = sizeof(DDSURFACEDESC2);
-  ddrval = psBack->lpVtbl->Lock(psBack, nullptr, &ddsdBack, DDLOCK_WAIT, nullptr);
-  if (ddrval != DD_OK)
-  {
-    Neuron::Fatal("Back buffer lock failed:\n{}", DDErrorToString(ddrval));
+
+  if (!screenLockBackBuffer(&sLock))
     return;
-  }
 
-  switch (ddsdBack.ddpfPixelFormat.dwRGBBitCount)
+  pDest = newBackDropBmp;
+  for (y = 0; (y < screenHeight) && (y < sLock.height); y++)
   {
-  case 8: //assume src bmp is palettised to same palette
-
-    p8Src = static_cast<UBYTE*>(ddsdBack.lpSurface);
-    p8Dest = (UBYTE*)newBackDropBmp;
-    for (y = 0; (y < screenHeight); y++)
-    {
-      memcpy(p8Dest, p8Src, screenWidth);
-      p8Src += ddsdBack.lPitch;
-      p8Dest += screenWidth;
-    }
-    break;
-  case 16:
-    p16Src = (UWORD*)static_cast<UBYTE*>(ddsdBack.lpSurface);
-    p16Dest = newBackDropBmp;
-    for (y = 0; (y < screenHeight); y++)
-    {
-      memcpy(p16Dest, p16Src, screenWidth * 2);
-      p16Src += ddsdBack.lPitch / 2;
-      p16Dest += screenWidth;
-    }
-    break;
-  case 24:
-  case 32: default: Neuron::DebugTrace("Upload not implemented for this bit depth");
-    break;
+    pSrc = (UDWORD*)(sLock.pPixels + sLock.pitch * y);
+    for (x = 0; (x < screenWidth) && (x < sLock.width); x++)
+      pDest[x] = screen32To565(pSrc[x]);
+    pDest += screenWidth;
   }
-  /* Unlock the back buffer */
-  ddrval = psBack->lpVtbl->Unlock(psBack, static_cast<LPRECT>(ddsdBack.lpSurface));
-  if (ddrval != DD_OK) { Neuron::Fatal("Back buffer unlock failed:\n{}", DDErrorToString(ddrval)); }
+
+  screenUnlockBackBuffer();
 }
 
 void screen_SetFogColour(UDWORD newFogColour)
 {
-  UDWORD red, green, blue;
-  static UDWORD currentFogColour = 0;
-
-  if (newFogColour != currentFogColour)
-  {
-    if (sBackBufferPixelFormat.dwRGBBitCount == 16) //only set in 16 bit modes
-    {
-      if (sBackBufferPixelFormat.dwGBitMask == 0x07e0) //565
-      {
-        red = newFogColour >> 8;
-        red &= sBackBufferPixelFormat.dwRBitMask;
-        green = newFogColour >> 5;
-        green &= sBackBufferPixelFormat.dwGBitMask;
-        blue = newFogColour >> 3;
-        blue &= sBackBufferPixelFormat.dwBBitMask;
-        fogColour = red + green + blue;
-      }
-      else if (sBackBufferPixelFormat.dwGBitMask == 0x03e0) //555
-      {
-        red = newFogColour >> 9;
-        red &= sBackBufferPixelFormat.dwRBitMask;
-        green = newFogColour >> 6;
-        green &= sBackBufferPixelFormat.dwGBitMask;
-        blue = newFogColour >> 3;
-        blue &= sBackBufferPixelFormat.dwBBitMask;
-        fogColour = red + green + blue;
-      }
-    }
-    currentFogColour = newFogColour;
-  }
+  /* The back buffer is 32 bit ARGB, so the colour the game hands over is
+   * already in the right layout - the DirectDraw code had to repack it into
+   * whatever 16 bit format the card had given it. */
+  fogColour = D3DCOLOR_XRGB((newFogColour >> 16) & 0xff, (newFogColour >> 8) & 0xff, newFogColour & 0xff);
 }
 
-/* Flip back and front buffers */
-//always clears or renders backdrop
+/*********************************************************/
+/* Present                                               */
+/*********************************************************/
+
+/* Draw the backdrop into the back buffer, centred, converting 565 to 32 bit */
+static void drawBackDrop(void)
+{
+  SCREEN_LOCK sLock;
+  UDWORD x, y;
+  UDWORD* pDest;
+  UWORD* pSrc;
+  UDWORD destX, destY;
+
+  if (!screenLockBackBuffer(&sLock))
+    return;
+
+  destX = (screenWidth > backDropWidth) ? (screenWidth - backDropWidth) / 2 : 0;
+  destY = (screenHeight > backDropHeight) ? (screenHeight - backDropHeight) / 2 : 0;
+
+  pSrc = pBackDropData;
+  for (y = 0; (y < backDropHeight) && (destY + y < sLock.height); y++)
+  {
+    pDest = (UDWORD*)(sLock.pPixels + sLock.pitch * (destY + y)) + destX;
+    for (x = 0; (x < backDropWidth) && (destX + x < sLock.width); x++)
+      pDest[x] = screen565To32(pSrc[x]);
+    pSrc += backDropWidth;
+  }
+
+  screenUnlockBackBuffer();
+}
+
+/* Present the back buffer, then clear it or fill it with the backdrop */
 void screenFlip(BOOL clearBackBuffer)
 {
-  POINT sWinOrigin; // Screen coords of the window origin
-  RECT sSrcRect, sDestRect; // Source and destination blit rectangles
-  HRESULT ddrval;
-  DDBLTFX sDDBlitFX;
-  DDSURFACEDESC2 ddsdFront, ddsdBack;
-  UDWORD x, y;
-  UDWORD xStart, xEnd, yStart, yEnd;
-  UBYTE* p8Src;
-  UWORD* p16Src;
-  UBYTE* p8Dest;
-  UWORD* p16Dest;
-  UBYTE* p24Dest;
-  UDWORD* p32Dest;
-  UDWORD bufferSize;
+  HRESULT hRes;
+
+  if (psD3DDevice == nullptr)
+    return;
 
   // note that we have started a flip
   EnterCriticalSection(&sScreenFlipCritical);
   screenFlipState = FLIP_STARTED;
 
-  if ((screenMode == SCREEN_WINDOWED) && (displayMode == MODE_8BITFUDGE))
-  {
-    /* Copy from the 8Bit back buffer to the true colour window */
-
-    /* Get the screen coords of the window */
-    sWinOrigin.x = sWinOrigin.y = 0;
-    if (!ClientToScreen(hWndMain, &sWinOrigin))
-    {
-      Neuron::Fatal("Couldn't get window screen coords\n");
-      return;
-    }
-
-    /* Clip to the size of the screen */
-    if (sWinOrigin.x < -static_cast<SDWORD>(screenWidth) || sWinOrigin.x >= static_cast<SDWORD>(screenWidth) || sWinOrigin.y < -static_cast<
-      SDWORD>(screenHeight) || sWinOrigin.y >= static_cast<SDWORD>(screenHeight))
-    {
-      /* I'm using a goto here as the test is quicker and I don't
-         want to indent the rest of the blit code.
-         The goto just stops the blit happening as it is all offscreen */
-      goto clipped;
-    }
-    yStart = 0;
-    xStart = 0;
-    yEnd = screenHeight;
-    xEnd = screenWidth;
-    /* Lock the back buffer */
-    ddsdBack.dwSize = sizeof(DDSURFACEDESC2);
-    ddrval = psBack->lpVtbl->Lock(psBack, nullptr, &ddsdBack, DDLOCK_WAIT, nullptr);
-    if (ddrval != DD_OK)
-    {
-      Neuron::Fatal("Back buffer lock failed:\n{}", DDErrorToString(ddrval));
-      return;
-    }
-
-    /* Lock the front buffer */
-    ddsdFront.dwSize = sizeof(DDSURFACEDESC2);
-    ddrval = psFront->lpVtbl->Lock(psFront, nullptr, &ddsdFront, DDLOCK_WAIT, nullptr);
-    if (ddrval != DD_OK)
-    {
-      Neuron::Fatal("Front buffer lock failed:\n{}", DDErrorToString(ddrval));
-      return;
-    }
-
-    /* Now copy over the back buffer */
-    switch (sWinPixelFormat.dwRGBBitCount)
-    {
-    case 16:
-      for (y = yStart; (y < yEnd); y++)
-      {
-        p8Src = (static_cast<UBYTE*>(ddsdBack.lpSurface) + ddsdBack.lPitch * y + xStart);
-        p16Dest = (UWORD*)(static_cast<UBYTE*>(ddsdFront.lpSurface) + ddsdFront.lPitch * (y + sWinOrigin.y)) + sWinOrigin.x + xStart;
-        for (x = xStart; (x < xEnd); x++)
-          *p16Dest++ = static_cast<UWORD>(aWinPalette[*p8Src++]);
-      }
-      break;
-    case 24:
-      for (y = yStart; (y < yEnd); y++)
-      {
-        p8Src = (static_cast<UBYTE*>(ddsdBack.lpSurface) + ddsdBack.lPitch * y + xStart);
-        p24Dest = (static_cast<UBYTE*>(ddsdFront.lpSurface) + ddsdFront.lPitch * (y + sWinOrigin.y)) + sWinOrigin.x * 3 + xStart * 3;
-        for (x = xStart; (x < xEnd); x++)
-        {
-          *((UDWORD*)p24Dest) = aWinPalette[*p8Src++];
-          p24Dest++;
-          p24Dest++;
-          p24Dest++;
-        }
-      }
-      break;
-    case 32:
-      for (y = yStart; (y < yEnd); y++)
-      {
-        p8Src = (static_cast<UBYTE*>(ddsdBack.lpSurface) + ddsdBack.lPitch * y + xStart);
-        p32Dest = (UDWORD*)(static_cast<UBYTE*>(ddsdFront.lpSurface) + ddsdFront.lPitch * (y + sWinOrigin.y)) + sWinOrigin.x + xStart;
-        for (x = xStart; (x < xEnd); x++)
-          *p32Dest++ = aWinPalette[*p8Src++];
-      }
-      break;
-    default: Neuron::DebugTrace("8Bit fudge mode not implemented for this bit depth");
-      break;
-    }
-
-    /* Unlock the front buffer */
-    ddrval = psFront->lpVtbl->Unlock(psFront, static_cast<LPRECT>(ddsdFront.lpSurface));
-    if (ddrval != DD_OK)
-    {
-      Neuron::Fatal("Front buffer unlock failed:\n{}", DDErrorToString(ddrval));
-      return;
-    }
-
-    /* Unlock the back buffer */
-    ddrval = psBack->lpVtbl->Unlock(psBack, static_cast<LPRECT>(ddsdBack.lpSurface));
-    if (ddrval != DD_OK)
-    {
-      Neuron::Fatal("Back buffer unlock failed:\n{}", DDErrorToString(ddrval));
-      return;
-    }
-
-    /* If the clipping finds the window is completely off screen it jumps here */
-  clipped: ;
-  }
-  else if (screenMode == SCREEN_WINDOWED)
-  {
-    /* Wait for the VBlank */
-    ddrval = psDD->lpVtbl->WaitForVerticalBlank(psDD, DDWAITVB_BLOCKBEGIN, nullptr);
-    if ((ddrval != DD_OK) && (ddrval != DDERR_UNSUPPORTED))
-      Neuron::Fatal("Wait for VBlank failed:\n{}", DDErrorToString(ddrval));
-
-    /* Get the screen coords of the window */
-    sWinOrigin.x = sWinOrigin.y = 0;
-    if (!ClientToScreen(hWndMain, &sWinOrigin))
-    {
-      Neuron::Fatal("Couldn't get window screen coords\n");
-      return;
-    }
-    (void)SetRect(&sDestRect, sWinOrigin.x, sWinOrigin.y, sWinOrigin.x + screenWidth, sWinOrigin.y + screenHeight);
-
-    /* Then blt to those coords */
-    (void)SetRect(&sSrcRect, 0, 0, screenWidth, screenHeight);
-    ddrval = psFront->lpVtbl->Blt(psFront, &sDestRect, psBack, &sSrcRect, DDBLT_ASYNC, nullptr);
-    if (ddrval == DDERR_WASSTILLDRAWING)
-    {
-      /* Couldn't do an async blit so we'll have to wait for it to finish */
-      ddrval = psFront->lpVtbl->Blt(psFront, &sDestRect, psBack, &sSrcRect, DDBLT_WAIT, nullptr);
-    }
-    if (ddrval != DD_OK)
-    {
-      Neuron::Fatal("Page flip (blit) failed:\n{}", DDErrorToString(ddrval));
-      return;
-    }
-  }
-  else
-  {
-#if FULL_SCREEN_SYSTEM
-    /* Wait for the VBlank */
-    ddrval = psDD->lpVtbl->WaitForVerticalBlank(psDD, DDWAITVB_BLOCKBEGIN, nullptr);
-    if ((ddrval != DD_OK) && (ddrval != DDERR_UNSUPPORTED))
-      Neuron::Fatal("Wait for VBlank failed:\n{}", DDErrorToString(ddrval));
-
-    (void)SetRect(&sSrcRect, 0, 0, screenWidth, screenHeight);
-    ddrval = psFront->lpVtbl->Blt(psFront, &sSrcRect, psBack, &sSrcRect, DDBLT_WAIT, nullptr);
-    /*		if (ddrval == DDERR_WASSTILLDRAWING)
-        {
-          // Couldn't do an async blit so we'll have to wait for it to finish
-          ddrval = psFront->lpVtbl->Blt(
-                    psFront, &sSrcRect,
-                    psBack, &sSrcRect,
-                    DDBLT_WAIT, NULL);
-        }*/
-    if (ddrval != DD_OK)
-    {
-      Neuron::Fatal("Page flip (blit) failed:\n{}", DDErrorToString(ddrval));
-      return;
-    }
-#else
-    /* Try an asynchronous flip first, if that fails then wait for the
-       hardware to become free */
-    ddrval = psFront->lpVtbl->Flip(psFront, NULL, DDFLIP_WAIT);
-    /*		if (ddrval == DDERR_WASSTILLDRAWING)
-        {
-          ddrval = psFront->lpVtbl->Flip(
-                  psFront,
-                  NULL,
-                  DDFLIP_WAIT);
-        }*/
-    if (ddrval != DD_OK)
-    {
-      Neuron::Fatal("Page flip failed:\n{}", DDErrorToString(ddrval));
-      return;
-    }
-#endif
-  }
+  hRes = psD3DDevice->Present(nullptr, nullptr, nullptr, nullptr);
+  if ((hRes != D3D_OK) && (hRes != D3DERR_DEVICELOST))
+    Neuron::DebugTrace("screenFlip: Present failed:\n{}", DXErrorToString(hRes));
 
   // note that we have finished a flip
   screenFlipState = FLIP_FINISHED;
 
-  if ((bBackDrop) && (pBackDropData != nullptr) AND clearBackBuffer)
+  if (clearBackBuffer)
   {
-    if (screenWidth > backDropWidth)
+    if (bBackDrop && (pBackDropData != nullptr))
     {
-      memset(&sDDBlitFX, 0, sizeof(DDBLTFX));
-      sDDBlitFX.dwSize = sizeof(DDBLTFX);
-      sDDBlitFX.dwFillColor = 0;
-      (void)SetRect(&sDestRect, 0, 0, screenWidth, screenHeight);
-      ddrval = psBack->lpVtbl->Blt(psBack, &sDestRect, nullptr, nullptr, DDBLT_COLORFILL | DDBLT_WAIT, &sDDBlitFX);
-      if (ddrval != DD_OK)
-      {
-        Neuron::Fatal("Clear back buffer failed:\n{}", DDErrorToString(ddrval));
-        return;
-      }
-    }
+      /* Clear first so that a backdrop smaller than the display does not
+       * leave the previous frame around its edges. */
+      if ((screenWidth > backDropWidth) || (screenHeight > backDropHeight))
+        (void)psD3DDevice->Clear(0, nullptr, D3DCLEAR_TARGET, 0, 1.0f, 0);
 
-    /* Lock the back buffer */
-    ddsdBack.dwSize = sizeof(DDSURFACEDESC2);
-    ddrval = psBack->lpVtbl->Lock(psBack, nullptr, &ddsdBack, DDLOCK_WAIT, nullptr);
-    if (ddrval != DD_OK)
-    {
-      Neuron::Fatal("Back buffer lock failed:\n{}", DDErrorToString(ddrval));
-      return;
+      drawBackDrop();
     }
-
-    switch (ddsdBack.ddpfPixelFormat.dwRGBBitCount)
-    {
-    case 8: //assume src bmp is palettised to same palette
-      p8Dest = (static_cast<UBYTE*>(ddsdBack.lpSurface) + (screenWidth - backDropWidth) / 2 + ddsdBack.lPitch * (screenHeight -
-        backDropHeight) / 2);
-      p8Src = (UBYTE*)pBackDropData;
-      for (y = 0; (y < backDropHeight); y++)
-      {
-        memcpy(p8Dest, p8Src, backDropWidth);
-        p8Src += backDropWidth;
-        p8Dest += ddsdBack.lPitch;
-      }
-      break;
-    case 16:
-      p16Dest = (UWORD*)(static_cast<UBYTE*>(ddsdBack.lpSurface) + (screenWidth - backDropWidth) + ddsdBack.lPitch * (screenHeight -
-        backDropHeight) / 2);
-      p16Src = pBackDropData;
-      for (y = 0; (y < backDropHeight); y++)
-      {
-        memcpy(p16Dest, p16Src, backDropWidth * 2);
-        p16Src += backDropWidth;
-        p16Dest += ddsdBack.lPitch / 2;
-      }
-      break;
-    case 24:
-    case 32: default: Neuron::DebugTrace("BackDrop not implemented for this bit depth");
-      break;
-    }
-
-    /* Unlock the back buffer */
-    ddrval = psBack->lpVtbl->Unlock(psBack, static_cast<LPRECT>(ddsdBack.lpSurface));
-    if (ddrval != DD_OK)
-    {
-      Neuron::Fatal("Back buffer unlock failed:\n{}", DDErrorToString(ddrval));
-      return;
-    }
-  }
-  else if (clearBackBuffer) //clear backBuffer
-  {
-    memset(&sDDBlitFX, 0, sizeof(DDBLTFX));
-    sDDBlitFX.dwSize = sizeof(DDBLTFX);
-    sDDBlitFX.dwFillColor = fogColour;
-    (void)SetRect(&sDestRect, 0, 0, screenWidth, screenHeight);
-    ddrval = psBack->lpVtbl->Blt(psBack, &sDestRect, nullptr, nullptr, DDBLT_COLORFILL | DDBLT_WAIT, &sDDBlitFX);
-    if (ddrval != DD_OK)
-    {
-      Neuron::Fatal("Clear back buffer failed:\n{}", DDErrorToString(ddrval));
-      return;
-    }
+    else { (void)psD3DDevice->Clear(0, nullptr, D3DCLEAR_TARGET, fogColour, 1.0f, 0); }
   }
 
   LeaveCriticalSection(&sScreenFlipCritical);
   ReleaseSemaphore(hScreenFlipSemaphore, 1, nullptr);
 }
 
+/*********************************************************/
+/* Mode switching                                        */
+/*********************************************************/
+
 /* Swap between windowed and full screen mode */
 void screenToggleMode(void)
 {
-  if ((displayMode == MODE_WINDOWED) || (displayMode == MODE_FULLSCREEN))
-  {
-    /* The framework can only run in the current screen mode */
+  SCREEN_MODE newMode;
+
+  if (psD3DDevice == nullptr)
     return;
-  }
 
   if (screenMode == SCREEN_WINDOWED)
-  {
-    /* Release the windowed DD objects */
-    if (!releaseDDWindowed())
-    {
-      frameShutDown();
-      return;
-    }
-    /* Create the full screen DD objects */
-    if (!createDDFullScreen())
-    {
-      frameShutDown();
-      return;
-    }
-    screenMode = SCREEN_FULLSCREEN;
-  }
+    newMode = SCREEN_FULLSCREEN;
   else if (screenMode == SCREEN_FULLSCREEN)
+    newMode = SCREEN_WINDOWED;
+  else
+    return;
+
+  screenMode = newMode;
+  setWindowStyle();
+  setPresentParameters();
+
+  if (!screenResetDevice())
   {
-    /* Release the full screen DD objects */
-    if (!releaseDDFullScreen())
+    /* Put it back the way it was and try to carry on in the old mode. */
+    screenMode = (newMode == SCREEN_FULLSCREEN) ? SCREEN_WINDOWED : SCREEN_FULLSCREEN;
+    setWindowStyle();
+    setPresentParameters();
+    if (!screenResetDevice())
     {
+      Neuron::Fatal("screenToggleMode: couldn't reset the device for either mode");
       frameShutDown();
-      return;
     }
-    /* Create the windowed DD objects */
-    if (!createDDWindowed())
-    {
-      frameShutDown();
-      return;
-    }
-    screenMode = SCREEN_WINDOWED;
   }
 }
 
-/* Swap between windowed and full screen mode */
-BOOL screenToggleVideoPlaybackMode(void)
-{
-  HRESULT ddrval;
-  DDSURFACEDESC2 ddsd; // Direct Draw surface description
-#if !FULL_SCREEN_SYSTEM
-  DDSCAPS ddscaps;
-#endif
-
-  if ((displayMode == MODE_WINDOWED) || (displayMode == MODE_FULLSCREEN))
-  {
-    /* The framework can only run in the current screen mode */
-    return TRUE;
-  }
-
-  if (screenMode == SCREEN_WINDOWED)
-    return TRUE;
-
-  if (screenMode == SCREEN_FULLSCREEN)
-  {
-    screenDepth = 16;
-    screenMode = SCREEN_FULLSCREEN_VIDEO;
-    RELEASE(psPalette);
-  }
-  else if (screenMode == SCREEN_FULLSCREEN_VIDEO)
-  {
-    screenDepth = 8;
-    screenMode = SCREEN_FULLSCREEN;
-  }
-
-  RELEASE(psBack);
-  RELEASE(psFront);
-
-  /* Set the display mode */
-  ddrval = psDD->lpVtbl->SetDisplayMode(psDD, screenWidth, screenHeight, screenDepth, 0, 0); // Set these so the DD1 version is used
-  if (ddrval != DD_OK)
-  {
-    Neuron::Fatal("Set display mode failed:\n{}", DDErrorToString(ddrval));
-    return FALSE;
-  }
-
-#if FULL_SCREEN_SYSTEM
-  /* Create the Primary Surface. */
-  memset(&ddsd, 0, sizeof(DDSURFACEDESC2));
-  ddsd.dwSize = sizeof(DDSURFACEDESC2);
-  ddsd.dwFlags = DDSD_CAPS;
-  ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
-  ddrval = psDD->lpVtbl->CreateSurface(psDD, &ddsd, &psFront, nullptr);
-  if (ddrval != DD_OK)
-  {
-    Neuron::Fatal("Create Primary Surface failed:\n{}", DDErrorToString(ddrval));
-    return FALSE;
-  }
-
-  //copy the palette
-  memset(&sFrontBufferPixelFormat, 0, sizeof(DDPIXELFORMAT));
-  sFrontBufferPixelFormat.dwSize = sizeof(DDPIXELFORMAT);
-  ddrval = psFront->lpVtbl->GetPixelFormat(psFront, &sFrontBufferPixelFormat);
-  if (ddrval != DD_OK)
-  {
-    Neuron::Fatal("Couldn't get pixel format:\n{}", DDErrorToString(ddrval));
-    return FALSE;
-  }
-
-  /* Create the back buffer */
-  memset(&ddsd, 0, sizeof(DDSURFACEDESC2));
-  ddsd.dwSize = sizeof(DDSURFACEDESC2);
-  ddsd.dwFlags = DDSD_WIDTH | DDSD_HEIGHT | DDSD_CAPS;
-  ddsd.dwWidth = screenWidth;
-  ddsd.dwHeight = screenHeight;
-  ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_3DDEVICE;
-  /* Force the back buffer into system memory unless flag set */
-  if (!g_bVidMem)
-    ddsd.ddsCaps.dwCaps |= DDSCAPS_SYSTEMMEMORY;
-  ddrval = psDD->lpVtbl->CreateSurface(psDD, &ddsd, &psBack, nullptr);
-  if (ddrval != DD_OK)
-  {
-    Neuron::Fatal("Create Back surface failed:\n{}", DDErrorToString(ddrval));
-    return FALSE;
-  }
-#else
-  /* Create the Primary Surface. */
-  memset(&ddsd, 0, sizeof(DDSURFACEDESC2)); ddsd.dwSize = sizeof(DDSURFACEDESC2); ddsd.dwFlags = DDSD_CAPS | DDSD_BACKBUFFERCOUNT; ddsd.
-    ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE | DDSCAPS_COMPLEX | DDSCAPS_FLIP; ddsd.dwBackBufferCount = 1;
-  // Use 2 for triple buffering, 1 for double
-
-  ddrval = psDD->lpVtbl->CreateSurface(psDD, &ddsd, &psFront, NULL); if (ddrval != DD_OK)
-  {
-    Neuron::Fatal("Create Primary Surface failed:\n{}", DDErrorToString(ddrval));
-    return FALSE;
-  }
-
-  //copy the palette
-  memset(&sFrontBufferPixelFormat, 0, sizeof(DDPIXELFORMAT)); sFrontBufferPixelFormat.dwSize = sizeof(DDPIXELFORMAT); ddrval = psFront->
-    lpVtbl->GetPixelFormat(psFront, &sFrontBufferPixelFormat); if (ddrval != DD_OK)
-  {
-    Neuron::Fatal("Couldn't get pixel format:\n{}", DDErrorToString(ddrval));
-    return FALSE;
-  }
-
-  /* Get the back buffer */
-  memset(&ddscaps, 0, sizeof(DDSCAPS)); ddscaps.dwCaps = DDSCAPS_BACKBUFFER; ddrval = psFront->lpVtbl->
-    GetAttachedSurface(psFront, &ddscaps, &psBack); if (ddrval != DD_OK)
-  {
-    Neuron::Fatal("Get Back surface failed:\n{}", DDErrorToString(ddrval));
-    return FALSE;
-  }
-#endif
-  /* If we are in a palettised mode, create a palette */
-  if (screenDepth == PALETTISED_BITDEPTH)
-  {
-    /* Create the palette from the stored palette entries */
-    ddrval = psDD->lpVtbl->CreatePalette(psDD, DDPCAPS_8BIT, asPalEntries, &psPalette, nullptr);
-    if (ddrval != DD_OK)
-    {
-      Neuron::Fatal("Failed to create palette:\n{}", DDErrorToString(ddrval));
-      return FALSE;
-    }
-
-    /* Assign the palette to the front buffer */
-    ddrval = psFront->lpVtbl->SetPalette(psFront, psPalette);
-    if (ddrval != DD_OK) { Neuron::Fatal("Couldn't set palette for front buffer:\n{}", DDErrorToString(ddrval)); }
-
-    /* Assign the palette to the back buffer */
-    ddrval = psFront->lpVtbl->SetPalette(psBack, psPalette);
-    if (ddrval != DD_OK) { Neuron::Fatal("Couldn't set palette for back buffer:\n{}", DDErrorToString(ddrval)); }
-  }
-
-  return TRUE;
-}
+/* The display no longer changes bit depth to play a sequence. */
+BOOL screenToggleVideoPlaybackMode(void) { return TRUE; }
 
 SCREEN_MODE screenGetMode(void) { return screenMode; }
 
 /* Set screen mode */
 void screenSetMode(SCREEN_MODE mode)
 {
-  // disable this if there isn't any direct draw
-  if (psDD == nullptr)
+  if (psD3DDevice == nullptr)
     return;
 
-  /* If the mode is the same as the current one, don't have to do
-	 * anything.  Otherwise toggle the mode.
-	 */
   if (mode != screenMode)
     screenToggleMode();
 }
 
-/* In full screen mode flip to the GDI buffer.
- * Use this if you want the user to see any GDI output.
- * This is mainly used so that ASSERTs and message boxes appear
- * even in full screen mode.
- */
-void screenFlipToGDI(void)
-{
-#if !FULL_SCREEN_SYSTEM
-  HRESULT ddrval; if (screenMode == SCREEN_FULLSCREEN)
-  {
-    ddrval = psDD->lpVtbl->FlipToGDISurface(psDD);
-    if (ddrval != DD_OK)
-    {
-      /* Can't use a message box here as this function gets called by
-       * the message box routine.
-       */
-      Neuron::DebugTrace("Flip to GDI failed:\n{}", DDErrorToString(ddrval));
-    }
-  }
-#endif
-}
+/*********************************************************/
+/* Palette matching                                      */
+/*********************************************************/
 
-/* Set palette entries for the display buffer
- * first specifies the first palette entry. count the number of entries
- * The psPalette should have at least first + count entries in it.
- */
 void screenSetPalette(UDWORD first, UDWORD count, PALETTEENTRY* psEntries)
 {
-  HRESULT ddrval;
-
   DEBUG_ASSERT_TEXT((first+count-1 < PAL_MAX), "screenSetPalette: invalid entry range");
 
   if (count == 0)
@@ -1610,54 +639,14 @@ void screenSetPalette(UDWORD first, UDWORD count, PALETTEENTRY* psEntries)
     count -= 1;
 
   memcpy(asPalEntries + first, psEntries + first, sizeof(PALETTEENTRY) * count);
-
-  if (sBackBufferPixelFormat.dwRGBBitCount == 8) // palettised mode
-  {
-    ddrval = psPalette->lpVtbl->SetEntries(psPalette, 0, 0,PAL_MAX, asPalEntries);
-    if (ddrval != DD_OK)
-      Neuron::Fatal("Couldn't set palette entries:\n{}", DDErrorToString(ddrval));
-
-    /* Update the true colour version of the palette for the windowed display */
-    updateWindowsPalette(first, count);
-  }
-  /* Some testing code to see what the palettes get set to - not really needed
-    // Assign the palette to the front buffer
-    if (displayMode != MODE_8BITFUDGE ||
-      (displayMode == MODE_8BITFUDGE && screenMode == SCREEN_FULLSCREEN))
-    {
-      ddrval = psFront->lpVtbl->SetPalette(psFront, psPalette);
-      if (ddrval != DD_OK)
-      {
-        DBERROR(("Couldn't set palette for front buffer:\n%s",
-              DDErrorToString(ddrval)));
-      }
-    }
-  
-    // Get the palette of the front buffer 
-    if (displayMode != MODE_8BITFUDGE ||
-      (displayMode == MODE_8BITFUDGE && screenMode == SCREEN_FULLSCREEN))
-    {
-      ddrval = psFront->lpVtbl->GetPalette(psFront, &psTmpPal);
-      if (ddrval != DD_OK)
-      {
-        DBERROR(("Couldn't get palette:\n%s", DDErrorToString(ddrval)));
-      }
-      ddrval = psTmpPal->lpVtbl->GetEntries(psTmpPal, 0,0, PAL_MAX, aTmpEntries);
-      if (ddrval != DD_OK)
-      {
-        DBERROR(("Couldn't get palette entries:\n%s", DDErrorToString(ddrval)));
-      }
-    }*/
 }
 
-/* Return the best colour match when in a palettised mode */
+/* Return the best colour match in the stored palette */
 UBYTE screenGetPalEntry(UBYTE red, UBYTE green, UBYTE blue)
 {
   UDWORD i, minDist, dist;
   UDWORD redDiff, greenDiff, blueDiff;
   UBYTE colour;
-
-  DEBUG_ASSERT_TEXT(sBackBufferPixelFormat.dwRGBBitCount == 8, "screenSetPalette: not in a palettised mode");
 
   minDist = 0xff * 0xff * 0xff;
   colour = 0;
@@ -1679,82 +668,51 @@ UBYTE screenGetPalEntry(UBYTE red, UBYTE green, UBYTE blue)
   return colour;
 }
 
-/* Set the colour for text */
-void screenSetTextColour(UBYTE red, UBYTE green, UBYTE blue)
+/* Return the actual value that will be poked into screen memory
+ * given an RGB value.
+ */
+UDWORD screenGetCacheColour(UBYTE red, UBYTE green, UBYTE blue)
 {
-  SDWORD rShift, rPalShift;
-  SDWORD gShift, gPalShift;
-  SDWORD bShift, bPalShift;
-  UDWORD currMask;
+  // RGB = 000 will be transparent to the colour keyed blits, so check for it
+  // and change to RGB = 111.
+  if ((red == 0) && (green == 0) && (blue == 0))
+    red = green = blue = 1;
 
-  if (sBackBufferPixelFormat.dwRGBBitCount >= 16)
-  {
-    currMask = sBackBufferPixelFormat.dwRBitMask;
-    for (rShift = 0; !(currMask & 1); currMask >>= 1, rShift++);
-    for (rPalShift = 0; (currMask & 1); currMask >>= 1, rPalShift++);
-    rPalShift = PALETTEENTRY_BITS - rPalShift;
-
-    currMask = sBackBufferPixelFormat.dwGBitMask;
-    for (gShift = 0; !(currMask & 1); currMask >>= 1, gShift++);
-    for (gPalShift = 0; (currMask & 1); currMask >>= 1, gPalShift++);
-    gPalShift = PALETTEENTRY_BITS - gPalShift;
-
-    currMask = sBackBufferPixelFormat.dwBBitMask;
-    for (bShift = 0; !(currMask & 1); currMask >>= 1, bShift++);
-    for (bPalShift = 0; (currMask & 1); currMask >>= 1, bPalShift++);
-    bPalShift = PALETTEENTRY_BITS - bPalShift;
-  }
-
-  switch (sBackBufferPixelFormat.dwRGBBitCount)
-  {
-  case 8:
-    textColour = screenGetPalEntry(red, green, blue);
-    break;
-  case 16:
-  case 24:
-  case 32:
-    textColour = (red >> rPalShift) << rShift;
-    textColour |= (green >> gPalShift) << gShift;
-    textColour |= (blue >> bPalShift) << bShift;
-    break;
-  default: DEBUG_ASSERT_TEXT(FALSE, "Unknown display pixel format");
-    break;
-  }
+  return (static_cast<UDWORD>(red) << 16) | (static_cast<UDWORD>(green) << 8) | static_cast<UDWORD>(blue);
 }
 
-/* Output text to the display screen at location x,y.
- * The remaining arguments are as printf.
- */
+/* Set the colour for text */
+void screenSetTextColour(UBYTE red, UBYTE green, UBYTE blue) { textColour = screenGetCacheColour(red, green, blue); }
+
+/*********************************************************/
+/* 2D drawing into the back buffer                       */
+/*                                                       */
+/* Only the debug 2D display uses these. They were        */
+/* DirectDraw blits and locks; they are now plain writes  */
+/* into the locked back buffer.                          */
+/*********************************************************/
+
+/* Output text to the display screen at location x,y. */
 void screenTextOut(UDWORD x, UDWORD y, STRING* pFormat, ...)
 {
-  HRESULT ddrval;
   STRING aTxtBuff[1024];
   va_list pArgs;
-  DDSURFACEDESC2 sDDSD;
+  SCREEN_LOCK sLock;
   UDWORD strLen;
-  UBYTE *pSrc, *pDest, font;
-  UWORD* p16Dest;
+  UBYTE *pSrc, font;
+  UDWORD* pDest;
   UDWORD px, py;
 
   va_start(pArgs, pFormat);
   vsprintf(aTxtBuff, pFormat, pArgs);
+  va_end(pArgs);
 
   /* See if the string is offscreen */
-  if ((y < 0) || (y >= screenHeight - FONT_HEIGHT))
+  if (y >= screenHeight - FONT_HEIGHT)
     return;
-  if ((static_cast<SDWORD>(x) < -(static_cast<SDWORD>(strlen(aTxtBuff)) + 1) * FONT_HEIGHT) || (x >= screenWidth))
+  if (x >= screenWidth)
     return;
 
-  /* Clip the string to the size of the screen */
-  if (x < 0)
-  {
-    /* Chop off the start of the string */
-    pSrc = (UBYTE*)aTxtBuff - (x / FONT_WIDTH) + 1;
-    x = FONT_WIDTH - ((-static_cast<SDWORD>(x)) % FONT_WIDTH);
-    pDest = (UBYTE*)aTxtBuff;
-    while (*pSrc != '\0') { *pDest++ = *pSrc++; }
-    *pDest = '\0';
-  }
   strLen = strlen(aTxtBuff);
   if (x + strLen * FONT_WIDTH >= screenWidth)
   {
@@ -1762,82 +720,47 @@ void screenTextOut(UDWORD x, UDWORD y, STRING* pFormat, ...)
     aTxtBuff[strLen - 1 - ((x + strLen * FONT_WIDTH) - screenWidth) / FONT_WIDTH] = '\0';
   }
 
-  sDDSD.dwSize = sizeof(DDSURFACEDESC2);
-  ddrval = psBack->lpVtbl->Lock(psBack, nullptr, &sDDSD, DDLOCK_WAIT, nullptr);
-  if (ddrval != DD_OK)
-  {
-    DEBUG_ASSERT_TEXT(FALSE, "screenTextOut: Couldn't lock back buffer");
+  if (!screenLockBackBuffer(&sLock))
     return;
-  }
 
-  switch (sBackBufferPixelFormat.dwRGBBitCount)
+  for (py = 0; py < FONT_HEIGHT; py++)
   {
-  case 8:
-    for (py = 0; py < FONT_HEIGHT; py++)
+    pDest = (UDWORD*)(sLock.pPixels + (y + py) * sLock.pitch) + x;
+    for (pSrc = (UBYTE*)aTxtBuff; *pSrc != '\0'; pSrc++)
     {
-      pDest = static_cast<UBYTE*>(sDDSD.lpSurface) + (y + py) * sDDSD.lPitch + x;
-      for (pSrc = (UBYTE*)aTxtBuff; *pSrc != '\0'; pSrc++)
+      if ((*pSrc >= PRINTABLE_START) && (*pSrc < PRINTABLE_START + PRINTABLE_CHARS))
       {
-        if ((*pSrc >= PRINTABLE_START) && (*pSrc < PRINTABLE_START + PRINTABLE_CHARS))
+        font = aFontData[*pSrc - PRINTABLE_START][py];
+        for (px = 0; px < FONT_WIDTH; px++)
         {
-          font = aFontData[*pSrc - PRINTABLE_START][py];
-          for (px = 0; px < FONT_WIDTH; px++)
-          {
-            if (font & (1 << px))
-              *pDest = static_cast<UBYTE>(textColour);
-            pDest++;
-          }
+          if (font & (1 << px))
+            *pDest = textColour;
+          pDest++;
         }
-        else
-          pDest += FONT_WIDTH;
       }
+      else
+        pDest += FONT_WIDTH;
     }
-    break;
-  case 16:
-    for (py = 0; py < FONT_HEIGHT; py++)
-    {
-      p16Dest = (UWORD*)(static_cast<UBYTE*>(sDDSD.lpSurface) + (y + py) * sDDSD.lPitch) + x;
-      for (pSrc = (UBYTE*)aTxtBuff; *pSrc != '\0'; pSrc++)
-      {
-        if ((*pSrc >= PRINTABLE_START) && (*pSrc < PRINTABLE_START + PRINTABLE_CHARS))
-        {
-          font = aFontData[*pSrc - PRINTABLE_START][py];
-          for (px = 0; px < FONT_WIDTH; px++)
-          {
-            if (font & (1 << px))
-              *p16Dest = static_cast<UWORD>(textColour);
-            p16Dest++;
-          }
-        }
-        else
-          p16Dest += FONT_WIDTH;
-      }
-    }
-    break;
-  case 24: DEBUG_ASSERT_TEXT(FALSE, "24 bit text output not implemented");
-    break;
-  case 32: DEBUG_ASSERT_TEXT(FALSE, "32 bit text output not implemented");
-    break;
-  default: DEBUG_ASSERT_TEXT(FALSE, "Unknown display pixel format");
-    break;
   }
 
-  ddrval = psBack->lpVtbl->Unlock(psBack, static_cast<LPRECT>(sDDSD.lpSurface));
-  if (ddrval != DD_OK) { DEBUG_ASSERT_TEXT(FALSE, "screenTextOut: Couldn;t unlock back buffer"); }
+  screenUnlockBackBuffer();
 }
 
-/* Blit the source rectangle of the surface
- * to the back buffer at the given location.
- * The blit is clipped to the screen size.
+/* Blit the source rectangle of the surface to the back buffer at the given
+ * location, treating black as transparent. The blit is clipped to the screen.
  */
 void screenBlit(SDWORD destX, SDWORD destY, // The location on screen
-                LPDIRECTDRAWSURFACE4 psSurf, // The surface to blit from
+                LPSURFACE psSurf, // The surface to blit from
                 UDWORD srcX, UDWORD srcY, UDWORD uwidth, UDWORD uheight) // The source rectangle from the surface
 {
-  RECT sSrcRect, sDestRect;
-  HRESULT ddrval;
-  DDBLTFX sBltFX;
+  SCREEN_LOCK sLock;
   SDWORD width, height;
+  SDWORD x, y;
+  UDWORD *pSrc, *pDest;
+  UDWORD pixel;
+
+  if (psSurf == nullptr)
+    return;
 
   width = uwidth;
   height = uheight;
@@ -1856,11 +779,7 @@ void screenBlit(SDWORD destX, SDWORD destY, // The location on screen
     width += destX;
     destX = 0;
   }
-  else if (destX + width >= static_cast<SDWORD>(screenWidth))
-  {
-    /* clip right side */
-    width = static_cast<SDWORD>(screenWidth) - destX;
-  }
+  else if (destX + width >= static_cast<SDWORD>(screenWidth)) { width = static_cast<SDWORD>(screenWidth) - destX; }
   if (destY < 0)
   {
     /* clip top */
@@ -1868,41 +787,50 @@ void screenBlit(SDWORD destX, SDWORD destY, // The location on screen
     height += destY;
     destY = 0;
   }
-  else if (destY + height >= static_cast<SDWORD>(screenHeight))
+  else if (destY + height >= static_cast<SDWORD>(screenHeight)) { height = static_cast<SDWORD>(screenHeight) - destY; }
+
+  /* and on the source */
+  if (srcX + width > psSurf->width)
+    width = psSurf->width - srcX;
+  if (srcY + height > psSurf->height)
+    height = psSurf->height - srcY;
+  if (width <= 0 || height <= 0)
+    return;
+
+  if (!screenLockBackBuffer(&sLock))
+    return;
+
+  for (y = 0; y < height; y++)
   {
-    /* clip bottom */
-    height = static_cast<SDWORD>(screenHeight) - destY;
+    pSrc = (UDWORD*)((UBYTE*)psSurf->pPixels + psSurf->pitch * (srcY + y)) + srcX;
+    pDest = (UDWORD*)(sLock.pPixels + sLock.pitch * (destY + y)) + destX;
+    for (x = 0; x < width; x++)
+    {
+      pixel = pSrc[x];
+      if ((pixel & 0x00ffffff) != 0)
+        pDest[x] = pixel;
+    }
   }
 
-  DEBUG_ASSERT_TEXT((destX >= 0) && (destX+width <= static_cast<SDWORD>(screenWidth)) &&
-    (destY >= 0) && (destY+height <= static_cast<SDWORD>(screenHeight)), "screenBlit: Clipping failed");
-
-  /* now do the blit */
-  (void)SetRect(&sSrcRect, srcX, srcY, srcX + width, srcY + height);
-  (void)SetRect(&sDestRect, destX, destY, destX + width, destY + height);
-  memset(&sBltFX, 0, sizeof(DDBLTFX));
-  sBltFX.dwSize = sizeof(DDBLTFX);
-  sBltFX.ddckSrcColorkey.dwColorSpaceLowValue = 0;
-  sBltFX.ddckSrcColorkey.dwColorSpaceHighValue = 0;
-  ddrval = psBack->lpVtbl->Blt(psBack, &sDestRect, psSurf, &sSrcRect,
-                               //						DDBLT_WAIT,
-                               DDBLT_WAIT | DDBLT_KEYSRCOVERRIDE, &sBltFX);
-  if (ddrval != DD_OK) { DEBUG_ASSERT_TEXT(FALSE, "Blit failed:\n{}", DDErrorToString(ddrval)); }
+  screenUnlockBackBuffer();
 }
 
 /*
- * Blit the source rectangle to the back buffer scaling it to
- * the size of the destination rectangle.
- * This clips to the size of the back buffer.
+ * Blit the source rectangle to the back buffer scaling it to the size of the
+ * destination rectangle. This clips to the size of the back buffer.
  */
-void screenScaleBlit(SDWORD destX, SDWORD destY, SDWORD destWidth, SDWORD destHeight, LPDIRECTDRAWSURFACE4 psSurf, SDWORD srcX, SDWORD srcY,
+void screenScaleBlit(SDWORD destX, SDWORD destY, SDWORD destWidth, SDWORD destHeight, LPSURFACE psSurf, SDWORD srcX, SDWORD srcY,
                      SDWORD srcWidth, SDWORD srcHeight)
 {
-  RECT sSrcRect, sDestRect;
-  HRESULT ddrval;
+  SCREEN_LOCK sLock;
   SDWORD lowShrink;
   SDWORD highShrink;
-  DDBLTFX sBltFX;
+  SDWORD x, y, sx, sy;
+  UDWORD *pSrc, *pDest;
+  UDWORD pixel;
+
+  if (psSurf == nullptr || destWidth <= 0 || destHeight <= 0)
+    return;
 
   /* Do clipping on the destination rect */
   if ((destX + destWidth <= 0) || (destY + destHeight <= 0) || (destX >= static_cast<SDWORD>(screenWidth)) || (destY >= static_cast<SDWORD>(
@@ -1938,115 +866,61 @@ void screenScaleBlit(SDWORD destX, SDWORD destY, SDWORD destWidth, SDWORD destHe
     destHeight -= lowShrink + highShrink;
   }
 
-  DEBUG_ASSERT_TEXT((destX >= 0) && (destX + destWidth < static_cast<SDWORD>(screenWidth)) &&
-    (destY >= 0) && (destY + destHeight < static_cast<SDWORD>(screenHeight)), "screenScaleBlit: Clip failed");
+  if (destWidth <= 0 || destHeight <= 0 || srcWidth <= 0 || srcHeight <= 0)
+    return;
 
-  /* now do the blit */
-  (void)SetRect(&sSrcRect, srcX, srcY, srcX + srcWidth, srcY + srcHeight);
-  (void)SetRect(&sDestRect, destX, destY, destX + destWidth, destY + destHeight);
-  memset(&sBltFX, 0, sizeof(DDBLTFX));
-  sBltFX.dwSize = sizeof(DDBLTFX);
-  sBltFX.ddckSrcColorkey.dwColorSpaceLowValue = 0;
-  sBltFX.ddckSrcColorkey.dwColorSpaceHighValue = 0;
-  ddrval = psBack->lpVtbl->Blt(psBack, &sDestRect, psSurf, &sSrcRect, DDBLT_WAIT | DDBLT_KEYSRCOVERRIDE, &sBltFX);
-  if (ddrval != DD_OK)
-    DEBUG_ASSERT_TEXT(FALSE, "scaleBlit failed\n{}", DDErrorToString(ddrval));
+  if (!screenLockBackBuffer(&sLock))
+    return;
+
+  for (y = 0; y < destHeight; y++)
+  {
+    sy = srcY + y * srcHeight / destHeight;
+    if (sy < 0 || sy >= static_cast<SDWORD>(psSurf->height))
+      continue;
+    pSrc = (UDWORD*)((UBYTE*)psSurf->pPixels + psSurf->pitch * sy);
+    pDest = (UDWORD*)(sLock.pPixels + sLock.pitch * (destY + y)) + destX;
+    for (x = 0; x < destWidth; x++)
+    {
+      sx = srcX + x * srcWidth / destWidth;
+      if (sx < 0 || sx >= static_cast<SDWORD>(psSurf->width))
+        continue;
+      pixel = pSrc[sx];
+      if ((pixel & 0x00ffffff) != 0)
+        pDest[x] = pixel;
+    }
+  }
+
+  screenUnlockBackBuffer();
 }
 
-/* Blit a tile (rectangle) from the surface
- * to the back buffer at the given location.
- * The tile is specified by it's size and number, numbering
- * across from top left to bottom right.
- * The blit is clipped to the screen size.
- */
+/* Blit a tile (rectangle) from the surface to the back buffer. */
 void screenBlitTile(SDWORD destX, SDWORD destY, // The location on screen
-                    LPDIRECTDRAWSURFACE4 psSurf, // The surface to blit from
+                    LPSURFACE psSurf, // The surface to blit from
                     UDWORD width, UDWORD height, // The size of the tile
                     UDWORD tile) // The tile number
 {
   UDWORD tilesPerLine, srcX, srcY;
-  DDSURFACEDESC2 ddsd;
-  HRESULT ddrval;
 
-  /* Get the surface size */
-  ddsd.dwSize = sizeof(DDSURFACEDESC2);
-  ddrval = psSurf->lpVtbl->GetSurfaceDesc(psSurf, &ddsd);
+  if (psSurf == nullptr || width == 0)
+    return;
 
   /* Calculate where the tile is on the surface */
-  tilesPerLine = ddsd.dwWidth / width;
+  tilesPerLine = psSurf->width / width;
+  if (tilesPerLine == 0)
+    return;
   srcX = (tile % tilesPerLine) * width;
   srcY = (tile / tilesPerLine) * height;
 
-  DEBUG_ASSERT_TEXT(((srcX + width) <= ddsd.dwWidth) && ((srcY + height) <= ddsd.dwHeight), "screenBlitTile: Tile off source surface");
+  DEBUG_ASSERT_TEXT(((srcX + width) <= psSurf->width) && ((srcY + height) <= psSurf->height), "screenBlitTile: Tile off source surface");
 
   /* blit the tile */
   screenBlit(destX, destY, psSurf, srcX, srcY, width, height);
 }
 
-/* Return the actual value that will be poked into screen memory
- * given an RGB value.  The value is padded with zeros up to a
- * UDWORD but is based on the bit depth of the screen mode.
- */
-UDWORD screenGetCacheColour(UBYTE red, UBYTE green, UBYTE blue)
-{
-  SDWORD rShift, rPalShift;
-  SDWORD gShift, gPalShift;
-  SDWORD bShift, bPalShift;
-  UDWORD currMask;
-  UDWORD colour;
-
-  // RGB = 000 will be transparent on most hardware so check for it and change to RGB = 111.
-  if ((red == 0) && (green == 0) && (blue == 0))
-    red = green = blue = 1;
-
-  if (sBackBufferPixelFormat.dwRGBBitCount >= 16)
-  {
-    currMask = sBackBufferPixelFormat.dwRBitMask;
-    for (rShift = 0; !(currMask & 1); currMask >>= 1, rShift++);
-    for (rPalShift = 0; (currMask & 1); currMask >>= 1, rPalShift++);
-    rPalShift = PALETTEENTRY_BITS - rPalShift;
-
-    currMask = sBackBufferPixelFormat.dwGBitMask;
-    for (gShift = 0; !(currMask & 1); currMask >>= 1, gShift++);
-    for (gPalShift = 0; (currMask & 1); currMask >>= 1, gPalShift++);
-    gPalShift = PALETTEENTRY_BITS - gPalShift;
-
-    currMask = sBackBufferPixelFormat.dwBBitMask;
-    for (bShift = 0; !(currMask & 1); currMask >>= 1, bShift++);
-    for (bPalShift = 0; (currMask & 1); currMask >>= 1, bPalShift++);
-    bPalShift = PALETTEENTRY_BITS - bPalShift;
-  }
-
-  switch (sBackBufferPixelFormat.dwRGBBitCount)
-  {
-  case 8:
-    colour = screenGetPalEntry(red, green, blue);
-    break;
-  case 16:
-  case 24:
-  case 32:
-    colour = (red >> rPalShift) << rShift;
-    colour |= (green >> gPalShift) << gShift;
-    colour |= (blue >> bPalShift) << bShift;
-    break;
-  default: DEBUG_ASSERT_TEXT(FALSE, "Unknown display pixel format");
-    break;
-  }
-
-  return colour;
-}
-
-/* Set the colour for drawing lines.
- *
- * This caches a colour value that can be poked directly into the
- * current screen mode's video memory.  There is some overhead to this
- * call so all lines of the same colour should be drawn at the same time.
- */
+/* Set the colour for drawing lines. */
 void screenSetLineColour(UBYTE red, UBYTE green, UBYTE blue) { lineColour = screenGetCacheColour(red, green, blue); }
 
-/* Set the value to be poked into screen memory for line drawing.
- * The colour value used should be one returned by screenGetCacheColour.
- */
+/* Set the value to be poked into screen memory for line drawing. */
 void screenSetLineCacheColour(UDWORD colour) { lineColour = colour; }
 
 /* Clipping outcodes are bit flags, combined with |= and tested with &, so
@@ -2081,11 +955,10 @@ void screenDrawLine(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1)
   SDWORD d, x, y, ax, ay, sx, sy, dx, dy;
   SDWORD lineChange;
   UBYTE* pOffset;
-  HRESULT ddrval;
-  DDSURFACEDESC2 ddsd;
+  SCREEN_LOCK sLock;
   BOOL clipped;
   OUTCODE code0, code1, code;
-  float cx, cy;
+  float cx = 0.0f, cy = 0.0f;
   // the clipping loop counter the assertion below reports. Left outside any
   // DEBUG guard so the function stays correct whether or not that assertion
   // is compiled in.
@@ -2159,152 +1032,69 @@ void screenDrawLine(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1)
     (x1 >= 0) && (x1 < static_cast<SDWORD>(screenWidth)) && (y0 >= 0) && (y0 < static_cast<SDWORD>(screenHeight)) && (y1 >= 0) && (y1 <
       static_cast<SDWORD>(screenHeight)), "screenDrawLine: Failed to clip to screen");
 
-  /* Lock the texture surface to draw the line */
-  memset(&ddsd, 0, sizeof(DDSURFACEDESC2));
-  ddsd.dwSize = sizeof(DDSURFACEDESC2);
-  ddrval = psBack->lpVtbl->Lock(psBack, nullptr, &ddsd, DDLOCK_WAIT, nullptr);
-  if (ddrval != DD_OK)
-  {
-    DEBUG_ASSERT_TEXT(FALSE, "Lock failed for line draw:\n{}", DDErrorToString(ddrval));
+  if (!screenLockBackBuffer(&sLock))
     return;
-  }
 
-  /* have display mode specific versions for speed
-     - it only affects the write operation */
-  switch (sBackBufferPixelFormat.dwRGBBitCount)
+  /* Do some initial set up for the line */
+  dx = x1 - x0;
+  dy = y1 - y0;
+  ax = abs(dx) << 1;
+  ay = abs(dy) << 1;
+  sx = dx < 0 ? -1 : 1;
+  sy = dy < 0 ? -1 : 1;
+
+  x = x0;
+  y = y0;
+  pOffset = sLock.pPixels + sLock.pitch * y0 + (x0 << 2);
+  lineChange = dy < 0 ? -sLock.pitch : sLock.pitch;
+  if (ax > ay)
   {
-  case 8:
-    /* Do some initial set up for the line */
-    dx = x1 - x0;
-    dy = y1 - y0;
-    ax = abs(dx) << 1;
-    ay = abs(dy) << 1;
-    sx = dx < 0 ? -1 : 1;
-    sy = dy < 0 ? -1 : 1;
-
-    x = x0;
-    y = y0;
-    pOffset = static_cast<UBYTE*>(ddsd.lpSurface) + ddsd.lPitch * y0 + x0;
-    lineChange = dy < 0 ? -static_cast<SDWORD>(ddsd.lPitch) : static_cast<SDWORD>(ddsd.lPitch);
-    if (ax > ay)
+    /* x dominant */
+    d = ay - ax / 2;
+    FOREVER
     {
-      /* x dominant */
-      d = ay - ax / 2;
-      FOREVER
+      *((UDWORD*)pOffset) = lineColour;
+      if (x == x1)
       {
-        *pOffset = static_cast<UBYTE>(lineColour);
-        if (x == x1)
-        {
-          /* Finished line - end loop */
-          break;
-        }
-        if (d >= 0)
-        {
-          y = y + sy;
-          d = d - ax;
-          pOffset += lineChange;
-        }
-        x = x + sx;
-        d = d + ay;
-        pOffset += sx;
+        /* Finished line - end loop */
+        break;
       }
-    }
-    else
-    {
-      /* y dominant */
-      d = ax - ay / 2;
-      FOREVER
+      if (d >= 0)
       {
-        *pOffset = static_cast<UBYTE>(lineColour);
-        if (y == y1)
-        {
-          /* Finished line - end loop */
-          break;
-        }
-        if (d >= 0)
-        {
-          x = x + sx;
-          d = d - ay;
-          pOffset += sx;
-        }
         y = y + sy;
-        d = d + ax;
+        d = d - ax;
         pOffset += lineChange;
       }
+      x = x + sx;
+      d = d + ay;
+      pOffset += sx * 4;
     }
-    break;
-  case 16:
-    /* Do some initial set up for the line */
-    dx = x1 - x0;
-    dy = y1 - y0;
-    ax = abs(dx) << 1;
-    ay = abs(dy) << 1;
-    sx = dx < 0 ? -1 : 1;
-    sy = dy < 0 ? -1 : 1;
-
-    x = x0;
-    y = y0;
-    pOffset = static_cast<UBYTE*>(ddsd.lpSurface) + ddsd.lPitch * y0 + (x0 << 1);
-    lineChange = dy < 0 ? -static_cast<SDWORD>(ddsd.lPitch) : static_cast<SDWORD>(ddsd.lPitch);
-    if (ax > ay)
+  }
+  else
+  {
+    /* y dominant */
+    d = ax - ay / 2;
+    FOREVER
     {
-      /* x dominant */
-      d = ay - ax / 2;
-      FOREVER
+      *((UDWORD*)pOffset) = lineColour;
+      if (y == y1)
       {
-        *((UWORD*)pOffset) = static_cast<UWORD>(lineColour);
-        if (x == x1)
-        {
-          /* Finished line - end loop */
-          break;
-        }
-        if (d >= 0)
-        {
-          y = y + sy;
-          d = d - ax;
-          pOffset += lineChange;
-        }
+        /* Finished line - end loop */
+        break;
+      }
+      if (d >= 0)
+      {
         x = x + sx;
-        d = d + ay;
-        pOffset += sx;
-        pOffset += sx;
+        d = d - ay;
+        pOffset += sx * 4;
       }
+      y = y + sy;
+      d = d + ax;
+      pOffset += lineChange;
     }
-    else
-    {
-      /* y dominant */
-      d = ax - ay / 2;
-      FOREVER
-      {
-        *((UWORD*)pOffset) = static_cast<UWORD>(lineColour);
-        if (y == y1)
-        {
-          /* Finished line - end loop */
-          break;
-        }
-        if (d >= 0)
-        {
-          x = x + sx;
-          d = d - ay;
-          pOffset += sx;
-          pOffset += sx;
-        }
-        y = y + sy;
-        d = d + ax;
-        pOffset += lineChange;
-      }
-    }
-    break;
-  case 24: DEBUG_ASSERT_TEXT(FALSE, "24 bit line drawing not implemented");
-    break;
-  case 32: DEBUG_ASSERT_TEXT(FALSE, "32 bit line drawing not implemented");
-    break;
-  default: DEBUG_ASSERT_TEXT(FALSE, "Unknown display pixel format");
-    break;
   }
 
-  ddrval = psBack->lpVtbl->Unlock(psBack, nullptr);
-  if (ddrval != DD_OK) { DEBUG_ASSERT_TEXT(FALSE, "Unlock failed for line draw:\n{}", DDErrorToString(ddrval)); }
+  screenUnlockBackBuffer();
 }
 
 /* Draw a rectangle (unfilled) */
@@ -2320,18 +1110,17 @@ void screenDrawRect(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1)
 /* Set the colour for fill operations */
 void screenSetFillColour(UBYTE red, UBYTE green, UBYTE blue) { fillColour = screenGetCacheColour(red, green, blue); }
 
-/* Set the value to be poked into screen memory for filling.
- * The colour value used should be one returned by screenGetCacheColour.
- */
+/* Set the value to be poked into screen memory for filling. */
 void screenSetFillCacheColour(UDWORD colour) { fillColour = colour; }
 
 /* Draw a filled rectangle */
 void screenFillRect(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1)
 {
-  RECT sDestRect;
-  HRESULT ddrval;
-  DDBLTFX sDDBlitFX;
+  D3DRECT sRect;
   SDWORD tmp;
+
+  if (psD3DDevice == nullptr)
+    return;
 
   /* make sure x0,y0 is top left */
   if (x1 < x0)
@@ -2362,52 +1151,49 @@ void screenFillRect(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1)
   if (y1 >= static_cast<SDWORD>(screenHeight))
     y1 = screenHeight - 1;
 
-  memset(&sDDBlitFX, 0, sizeof(DDBLTFX));
-  sDDBlitFX.dwSize = sizeof(DDBLTFX);
-  sDDBlitFX.dwFillColor = fillColour;
-  (void)SetRect(&sDestRect, x0, y0, x1 + 1, y1 + 1);
-  ddrval = psBack->lpVtbl->Blt(psBack, &sDestRect, nullptr, nullptr, DDBLT_COLORFILL | DDBLT_WAIT, &sDDBlitFX);
-  if (ddrval != DD_OK) { DEBUG_ASSERT_TEXT(FALSE, "Fill rect failed:\n{}", DDErrorToString(ddrval)); }
+  sRect.x1 = x0;
+  sRect.y1 = y0;
+  sRect.x2 = x1 + 1;
+  sRect.y2 = y1 + 1;
+
+  (void)psD3DDevice->Clear(1, &sRect, D3DCLEAR_TARGET, fillColour, 1.0f, 0);
 }
 
 /* Draw a circle/ellipse */
 void screenDrawEllipse(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1)
 {
-  HRESULT ddrval;
+  HRESULT hRes;
   HDC hdc;
   HPEN hpen;
+  LPDIRECT3DSURFACE9 psBack = nullptr;
 
-  /* This doesn't work in fudge mode so quit */
-  if ((screenMode == SCREEN_WINDOWED) && (displayMode == MODE_8BITFUDGE))
+  if (psD3DDevice == nullptr)
     return;
 
-  /* Get the device context for the back surface */
-  ddrval = psBack->lpVtbl->GetDC(psBack, &hdc);
-
-  /* Were we successfull? */
-  if (ddrval != DD_OK)
+  hRes = psD3DDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &psBack);
+  if (hRes != D3D_OK)
   {
-    /* If not, then report the error */
-    DEBUG_ASSERT_TEXT(FALSE, "Elipse draw failed - couldn't get device context:\n{}", DDErrorToString(ddrval));
+    DEBUG_ASSERT_TEXT(FALSE, "Ellipse draw failed - couldn't get back buffer:\n{}", DXErrorToString(hRes));
+    return;
   }
 
-  /* Otherwise draw the ellipse */
-  else
+  /* Get the device context for the back buffer */
+  hRes = psBack->GetDC(&hdc);
+  if (hRes != D3D_OK)
   {
-    hpen = CreatePen(PS_SOLID, 0, RGB(255, 255, 255));
-    SelectObject(hdc, hpen);
-
-    (void)Arc(hdc, x0, y0, x1, y1, x0, y0, x0, y0);
-    /* Attempt to release the surface */
-    ddrval = psBack->lpVtbl->ReleaseDC(psBack, hdc);
-
-    /* Everything fine? */
-    if (ddrval != DD_OK)
-    {
-      /* No -report the error */
-      DEBUG_ASSERT_TEXT(FALSE, "Elipse draw failed - couldn't release context:\n{}", DDErrorToString(ddrval));
-    }
-
-    DeleteObject(hpen);
+    DEBUG_ASSERT_TEXT(FALSE, "Ellipse draw failed - couldn't get device context:\n{}", DXErrorToString(hRes));
+    RELEASE(psBack);
+    return;
   }
+
+  hpen = CreatePen(PS_SOLID, 0, RGB(255, 255, 255));
+  SelectObject(hdc, hpen);
+
+  (void)Arc(hdc, x0, y0, x1, y1, x0, y0, x0, y0);
+
+  hRes = psBack->ReleaseDC(hdc);
+  if (hRes != D3D_OK) { DEBUG_ASSERT_TEXT(FALSE, "Ellipse draw failed - couldn't release context:\n{}", DXErrorToString(hRes)); }
+
+  DeleteObject(hpen);
+  RELEASE(psBack);
 }

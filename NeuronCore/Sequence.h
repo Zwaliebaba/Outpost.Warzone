@@ -12,7 +12,6 @@
 
 /***************************************************************************/
 
-#include <ddraw.h>
 #include <dsound.h>
 
 /***************************************************************************/
@@ -65,14 +64,18 @@ using PERF_MODE = enum _perf_mode
  *	Global ProtoTypes
  */
 /***************************************************************************/
-//buffer render for software_window 3DFX_window and 3DFX_fullscreen modes
-extern BOOL seq_SetSequenceForBuffer(char* filename, VIDEO_MODE mode, LPDIRECTSOUND lpDS, int startTime, DDPIXELFORMAT* DDPixelFormat,
-                                     PERF_MODE perfMode);
+/* Frames are decoded as RGB565 and converted on the way to the 32 bit
+ * display, so neither of these takes a pixel format any more: the decoder is
+ * told 565 and the conversion is fixed.
+ */
+
+//decode into a caller supplied 16 bit buffer
+extern BOOL seq_SetSequenceForBuffer(char* filename, VIDEO_MODE mode, LPDIRECTSOUND lpDS, int startTime, PERF_MODE perfMode);
 extern int seq_RenderOneFrameToBuffer(char* lpSF, int skip, SDWORD boxMin, SDWORD boxMax);
 
-//directX fullscreeen render uses local buffer to store previous frame data
-extern BOOL seq_SetSequence(char* filename, LPDIRECTDRAWSURFACE4 lpDDSF, LPDIRECTSOUND lpDS, int startTime, char* lpBF, PERF_MODE perfMode);
-extern int seq_RenderOneFrame(LPDIRECTDRAWSURFACE4 lpDDSF, int skip, SDWORD boxMin, SDWORD boxMax);
+//decode into a local buffer, then blit it into the back buffer
+extern BOOL seq_SetSequence(char* filename, LPDIRECTSOUND lpDS, int startTime, char* lpBF, PERF_MODE perfMode);
+extern int seq_RenderOneFrame(int skip, SDWORD boxMin, SDWORD boxMax);
 
 extern int seq_ClearMovie(void);
 

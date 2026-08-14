@@ -5,18 +5,11 @@
 
 /***************************************************************************/
 
-#include "d3d.h"
+#include "D3D9Vertex.h"
 #include "Frame.h"
-#include "TexD3D.h"
 #include "PieState.h"
 
 /***************************************************************************/
-
-#define RAMP_SIZE_D3D		64
-
-#define D3D_TRI_COLOURKEY	0x0001
-#define D3D_TRI_NOCULL		0x0002
-#define D3D_TRI_ALPHABLEND	0x0004
 
 using D3DINFO = struct D3DINFO
 {
@@ -34,7 +27,6 @@ extern void BeginSceneD3D(void);
 extern void EndSceneD3D(void);
 extern void D3D_PIEPolygon(SDWORD numVerts, PIEVERTEX* pVrts);
 extern void D3DDrawPoly(int nVerts, D3DTLVERTEX* psVert);
-extern void D3DSetAlphaBlending(BOOL bAlphaOn);
 extern void D3DSetTranslucencyMode(TRANSLUCENCY_MODE transMode);
 
 extern void D3DSetColourKeying(BOOL bKeyingOn);
@@ -47,18 +39,19 @@ extern BOOL D3DGetAlphaKey(void);
 
 extern void D3DSetTexelOffsetState(BOOL bOffsetOn);
 
+extern void D3DEnableFog(BOOL bEnable);
+extern void D3DSetFogColour(D3DCOLOR dwColor);
+
 extern void D3DReInit(void);
 extern void D3DTestCooperativeLevel(BOOL bGotFocus);
 
-extern void D3DSetClipWindow(SDWORD xMin, SDWORD yMin, SDWORD xMax, SDWORD yMax);
+/* Re-apply every render state the device holds. Called after the device is
+ * reset, which throws all of them away.
+ */
+extern void D3DApplyRenderStates(void);
 
 extern BOOL d3d_bHardware(void);
-extern LPDDPIXELFORMAT d3d_GetCurTexSurfDesc(void);
-extern LPDIRECT3DDEVICE3 d3d_GetpsD3DDevice3(void);
-extern LPDIRECT3D3 d3d_GetpsD3D(void);
-extern LPDIRECTDRAW4 d3d_GetpsDD4(void);
-
-extern BOOL CreateMaterial(LPDIRECT3D3 lpD3D, D3DMATERIALHANDLE* hMat, LPDIRECT3DMATERIAL3* ppsMat, D3DTEXTUREHANDLE hTexture);
+extern LPDIRECT3DDEVICE9 d3d_GetDevice(void);
 
 /***************************************************************************/
 

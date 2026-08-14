@@ -12,7 +12,7 @@
 #include "PieTexture.h"
 #include "PieDef.h"
 #include "PieState.h"
-#include "DX6TexMan.h"
+#include "TexMan.h"
 #include "Tex.h"
 
 /***************************************************************************/

@@ -7,7 +7,6 @@
 #include "RendMode.h"
 #include "RendFunc.h"
 #include "PieClip.h"
-#include <ddraw.h>
 
 #include "PieBlitFunc.h"
 
@@ -853,7 +852,11 @@ void pie_RenderDeepBlueTintedBitmap(iBitmap* bmp, int x, int y, int w, int h, in
   }
 }
 
-void pie_RenderCharToSurface(UDWORD* lpSurface, SDWORD pitch, IMAGEFILE* ImageFile, UWORD ID, int x, int y, UWORD colour)
+/* Draw one character into a locked 32 bit back buffer. The subtitles over an
+ * FMV sequence are the only thing that draws this way; everything else goes
+ * through the textured quads in PieDraw.
+ */
+static void pie_RenderCharToBackBuffer(SCREEN_LOCK* psLock, IMAGEFILE* ImageFile, UWORD ID, int x, int y)
 {
   IMAGEDEF* Image;
   iBitmap* bmp;
@@ -861,8 +864,8 @@ void pie_RenderCharToSurface(UDWORD* lpSurface, SDWORD pitch, IMAGEFILE* ImageFi
   int w;
   int h;
   int ow;
-  int i, j, lineb_w;
-  UWORD* bp;
+  int i, j;
+  UDWORD* bp;
 
   assert(ID < ImageFile->Header.NumImages);
   Image = &ImageFile->ImageDefs[ID];
@@ -878,59 +881,38 @@ void pie_RenderCharToSurface(UDWORD* lpSurface, SDWORD pitch, IMAGEFILE* ImageFi
   h = Image->Height;
   ow = Modulus;
 
-  //word pitch
-  pitch /= 2;
-
-  bp = (UWORD*)lpSurface + x + y * pitch;
-
-  lineb_w = pitch - w;
   for (i = 0; i < h; i++)
   {
+    if ((y + i < 0) || (y + i >= static_cast<int>(psLock->height)))
+    {
+      bmp += ow;
+      continue;
+    }
+    bp = (UDWORD*)(psLock->pPixels + psLock->pitch * (y + i)) + x;
     for (j = 0; j < w; j++)
     {
-      if (*bmp)
-        *bp = palette16Bit[*bmp];
+      if (*bmp && (x + j >= 0) && (x + j < static_cast<int>(psLock->width)))
+        bp[j] = palette32Bit[*bmp];
       bmp++;
-      bp++;
     }
     bmp += (ow - w);
-    bp += lineb_w;
   }
 }
 
-void pie_DrawTextToSurface(LPDIRECTDRAWSURFACE4 lpDDSF, unsigned char* String, int XPos, int YPos)
+void pie_DrawTextToBackBuffer(unsigned char* String, int XPos, int YPos)
 {
   int Index;
   UWORD ImageID;
   IVIS_FONT* Font = &iVFonts[ActiveFontID];
-  UDWORD* lpSurface;
-  DDSURFACEDESC2 DD_sd;
-  HRESULT hRes;
+  SCREEN_LOCK sLock;
 
-  // We lock the surface before blitting video to it.
-  DD_sd.dwSize = sizeof(DD_sd);
-  if (lpDDSF->lpVtbl->GetSurfaceDesc(lpDDSF, &DD_sd) != DD_OK)
+  // We lock the back buffer before drawing the subtitles onto the video
+  // frame that was blitted into it.
+  if (!screenLockBackBuffer(&sLock))
   {
-    Neuron::Fatal("Sequence player text GetSurfaceDesc failed:");
+    Neuron::Fatal("Sequence player text draw buffer lock failed");
     return;
   }
-
-  hRes = lpDDSF->lpVtbl->Lock(lpDDSF, nullptr, &DD_sd,DDLOCK_WAIT, nullptr);
-  if (hRes != DD_OK)
-  {
-    Neuron::Fatal("Sequence player text draw buffer lock failed:\n{}", DDErrorToString(hRes));
-    return;
-  }
-
-  if (DD_sd.ddpfPixelFormat.dwRGBBitCount != 16)
-  {
-    // We can unlock the suurface now as we have finished with it, 
-    // until the next decode is required
-    lpDDSF->lpVtbl->Unlock(lpDDSF, static_cast<LPRECT>(DD_sd.lpSurface));
-    return;
-  }
-
-  lpSurface = static_cast<UDWORD*>(DD_sd.lpSurface);
 
   while (*String != 0)
   {
@@ -938,19 +920,16 @@ void pie_DrawTextToSurface(LPDIRECTDRAWSURFACE4 lpDDSF, unsigned char* String, i
     if (Index != ASCII_SPACE)
     {
       ImageID = Font->AsciiTable[Index];
-      pie_RenderCharToSurface(lpSurface, DD_sd.lPitch, Font->FontFile, ImageID, XPos, YPos, 0xffff);
+      pie_RenderCharToBackBuffer(&sLock, Font->FontFile, ImageID, XPos, YPos);
       XPos += iV_GetImageWidth(Font->FontFile, ImageID) + 1;
     }
     else
       XPos += Font->FontSpaceSize;
 
     String++;
-
-    //	if((Index >= 0) && (Index <= Font->FontEndID - Font->FontStartID))
   }
-  // We can unlock the suurface now as we have finished with it, 
-  // until the next decode is required
-  lpDDSF->lpVtbl->Unlock(lpDDSF, static_cast<LPRECT>(DD_sd.lpSurface));
+
+  screenUnlockBackBuffer();
 }
 
 void pie_DrawText270(unsigned char* String, int XPos, int YPos)

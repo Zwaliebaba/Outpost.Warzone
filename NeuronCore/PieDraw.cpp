@@ -9,7 +9,6 @@
 #include "PieDef.h"
 #include "PieState.h"
 #include "PieClip.h"
-#include "d3d.h"
 #include "D3DRender.h"
 
 #define MIST

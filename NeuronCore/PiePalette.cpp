@@ -39,133 +39,38 @@ uint8 colours[16];
 	x over y
 */
 uint8 transLookup[PALETTE_SIZE][PALETTE_SIZE];
-UWORD palette16Bit[PALETTE_SIZE]; //16 bit version of the present palette
+/* The present palette packed for the two destinations that still take packed
+ * pixels: the 16 bit software buffers (backdrop, FMV frames) which are fixed
+ * at RGB565, and the 32 bit display.
+ *
+ * The Direct3D 6 version of this derived the layout from whatever 16 bit
+ * pixel format DirectDraw had handed back for the front buffer, which is why
+ * it opened with a page of bit mask scanning. The formats are ours to choose
+ * now, so both are constants.
+ */
+UWORD palette16Bit[PALETTE_SIZE]; //RGB565 version of the present palette
+UDWORD palette32Bit[PALETTE_SIZE]; //X8R8G8B8 version of the present palette
 
-BOOL pal_Make16BitPalette(void)
+BOOL pal_MakePackedPalettes(void)
 {
-  DDPIXELFORMAT* DDPixelFormat;
   iColour* psPal;
   UDWORD i;
-  UWORD alpha, red, green, blue;
-  BYTE ap = 0, ac = 0, rp = 0, rc = 0, gp = 0, gc = 0, bp = 0, bc = 0;
-  ULONG mask;
-
-  /*
-  // Cannot convert iof not 16bit mode 
-  */
-
-  DDPixelFormat = screenGetFrontBufferPixelFormat();
-
-  if (DDPixelFormat == nullptr)
-    return FALSE;
 
   psPal = pie_GetGamePal();
-
-  /*
-  // Cannot playback if not 16bit mode 
-  */
-  if (DDPixelFormat->dwRGBBitCount == 16)
-  {
-    /*
-    // Find out the RGB type of the surface and tell the codec...
-    */
-    mask = DDPixelFormat->dwRGBAlphaBitMask;
-
-    if (mask != 0)
-    {
-      while (!(mask & 1))
-      {
-        mask >>= 1;
-        ap++;
-      }
-    }
-
-    while ((mask & 1))
-    {
-      mask >>= 1;
-      ac++;
-    }
-
-    mask = DDPixelFormat->dwRBitMask;
-
-    if (mask != 0)
-    {
-      while (!(mask & 1))
-      {
-        mask >>= 1;
-        rp++;
-      }
-    }
-
-    while ((mask & 1))
-    {
-      mask >>= 1;
-      rc++;
-    }
-
-    mask = DDPixelFormat->dwGBitMask;
-
-    if (mask != 0)
-    {
-      while (!(mask & 1))
-      {
-        mask >>= 1;
-        gp++;
-      }
-    }
-
-    while ((mask & 1))
-    {
-      mask >>= 1;
-      gc++;
-    }
-
-    mask = DDPixelFormat->dwBBitMask;
-
-    if (mask != 0)
-    {
-      while (!(mask & 1))
-      {
-        mask >>= 1;
-        bp++;
-      }
-    }
-
-    while ((mask & 1))
-    {
-      mask >>= 1;
-      bc++;
-    }
-  }
-  else
-  {
-    //if not 16 bit use blue 5 only so we know the problem
-    bc = 5;
-  }
-
-  alpha = 0;
+  if (psPal == nullptr)
+    return FALSE;
 
   for (i = 0; i < PALETTE_SIZE; i++)
   {
-    //alpha = 0 when i = 0
-    red = static_cast<UWORD>(psPal[i].r);
-    green = static_cast<UWORD>(psPal[i].g);
-    blue = static_cast<UWORD>(psPal[i].b);
+    UDWORD red = psPal[i].r;
+    UDWORD green = psPal[i].g;
+    UDWORD blue = psPal[i].b;
 
-    alpha >>= (8 - ac);
-    red >>= (8 - rc);
-    blue >>= (8 - bc);
-    green >>= (8 - gc);
-
-    alpha <<= ap;
-    red <<= rp;
-    blue <<= bp;
-    green <<= gp;
-
-    palette16Bit[i] = alpha + red + green + blue;
-    alpha = 0xff; //alpha = 0xff when i > 0
+    palette16Bit[i] = static_cast<UWORD>(((red >> 3) << 11) | ((green >> 2) << 5) | (blue >> 3));
+    palette32Bit[i] = (red << 16) | (green << 8) | blue;
   }
-  return (TRUE);
+
+  return TRUE;
 }
 
 //*************************************************************************
@@ -238,7 +143,7 @@ BOOL pal_AddNewPalette(iColour* pal)
   screenSetPalette(0, PALETTE_SIZE, psWinPal);
 
   pie_SetColourDefines();
-  pal_Make16BitPalette();
+  pal_MakePackedPalettes();
   return 0;
 }
 

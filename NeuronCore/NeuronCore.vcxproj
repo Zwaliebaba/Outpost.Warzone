@@ -49,7 +49,7 @@
       <DisableSpecificWarnings>4129;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>false</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;DIRECTINPUT_VERSION=0x0700;CINTERFACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;DIRECTINPUT_VERSION=0x0700;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\DX9\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -73,7 +73,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>false</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;DIRECTINPUT_VERSION=0x0700;CINTERFACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;DIRECTINPUT_VERSION=0x0700;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\DX9\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -101,12 +101,11 @@
     <ClInclude Include="Bug.h" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="CodePrint.h" />
-    <ClInclude Include="Cursor.h" />
+    <ClInclude Include="D3D9Vertex.h" />
     <ClInclude Include="D3DMode.h" />
     <ClInclude Include="D3DRender.h" />
-    <ClInclude Include="Dderror.h" />
+    <ClInclude Include="DXError.h" />
     <ClInclude Include="Debug.h" />
-    <ClInclude Include="DX6TexMan.h" />
     <ClInclude Include="DXInput.h" />
     <ClInclude Include="EditBox.h" />
     <ClInclude Include="Event.h" />
@@ -172,7 +171,7 @@
     <ClInclude Include="StrRes_y.h" />
     <ClInclude Include="Surface.h" />
     <ClInclude Include="Tex.h" />
-    <ClInclude Include="TexD3D.h" />
+    <ClInclude Include="TexMan.h" />
     <ClInclude Include="TextDraw.h" />
     <ClInclude Include="Tip.h" />
     <ClInclude Include="Track.h" />
@@ -196,11 +195,9 @@
     <ClCompile Include="Bug.cpp" />
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="CodePrint.cpp" />
-    <ClCompile Include="Cursor.cpp" />
     <ClCompile Include="D3DMode.cpp" />
     <ClCompile Include="D3DRender.cpp" />
-    <ClCompile Include="Dderror.cpp" />
-    <ClCompile Include="DX6TexMan.cpp" />
+    <ClCompile Include="DXError.cpp" />
     <ClCompile Include="DXInput.cpp" />
     <ClCompile Include="EditBox.cpp" />
     <ClCompile Include="Event.cpp" />
@@ -263,7 +260,7 @@
     <ClCompile Include="StrRes_y.cpp" />
     <ClCompile Include="Surface.cpp" />
     <ClCompile Include="Tex.cpp" />
-    <ClCompile Include="TexD3D.cpp" />
+    <ClCompile Include="TexMan.cpp" />
     <ClCompile Include="TextDraw.cpp" />
     <ClCompile Include="Tip.cpp" />
     <ClCompile Include="Track.cpp" />
