@@ -96,7 +96,6 @@
     <ClInclude Include="Audio.h" />
     <ClInclude Include="Bar.h" />
     <ClInclude Include="BitImage.h" />
-    <ClInclude Include="Block.h" />
     <ClInclude Include="BSPFunc.h" />
     <ClInclude Include="BSPIMD.h" />
     <ClInclude Include="Bug.h" />
@@ -123,7 +122,6 @@
     <ClInclude Include="Geo.h" />
     <ClInclude Include="GTime.h" />
     <ClInclude Include="HashTabl.h" />
-    <ClInclude Include="Heap.h" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="IMD.h" />
     <ClInclude Include="Input.h" />
@@ -134,8 +132,6 @@
     <ClInclude Include="Label.h" />
     <ClInclude Include="ListMacs.h" />
     <ClInclude Include="MaxPiDef.h" />
-    <ClInclude Include="Mem.h" />
-    <ClInclude Include="MemInt.h" />
     <ClInclude Include="Mixer.h" />
     <ClInclude Include="Mono.h" />
     <ClInclude Include="MultiWDG.h" />
@@ -200,7 +196,6 @@
     <ClCompile Include="Audio.cpp" />
     <ClCompile Include="Bar.cpp" />
     <ClCompile Include="BitImage.cpp" />
-    <ClCompile Include="Block.cpp" />
     <ClCompile Include="BSPIMD.cpp" />
     <ClCompile Include="Bug.cpp" />
     <ClCompile Include="Button.cpp" />
@@ -222,7 +217,6 @@
     <ClCompile Include="FrameResource.cpp" />
     <ClCompile Include="GTime.cpp" />
     <ClCompile Include="HashTabl.cpp" />
-    <ClCompile Include="Heap.cpp" />
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="IMD.cpp" />
     <ClCompile Include="IMDLoad.cpp" />
@@ -230,7 +224,6 @@
     <ClCompile Include="Interp.cpp" />
     <ClCompile Include="Ivi.cpp" />
     <ClCompile Include="Label.cpp" />
-    <ClCompile Include="Mem.cpp" />
     <ClCompile Include="Mixer.cpp" />
     <ClCompile Include="Mono.cpp" />
     <ClCompile Include="MultiWDG.cpp" />

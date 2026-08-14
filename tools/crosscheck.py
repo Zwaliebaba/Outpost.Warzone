@@ -80,7 +80,7 @@ def build_shadow(dst):
             p = os.path.join(d, f)
             rel = f'{proj}/{f}'
             try:
-                t = open(p, encoding='utf-8', errors='replace').read()
+                t = open(p, encoding='utf-8', errors='surrogateescape').read()
             except OSError:
                 continue
             orig = t
@@ -115,7 +115,7 @@ def build_shadow(dst):
                               'std::runtime_error("Fatal Error")')
 
             if t != orig:
-                open(p, 'w', encoding='utf-8').write(t)
+                open(p, 'w', encoding='utf-8', errors='surrogateescape').write(t)
 
 
 def system_includes(dst):
@@ -126,7 +126,7 @@ def system_includes(dst):
         d = os.path.join(dst, proj)
         for f in os.listdir(d):
             if f.endswith(('.cpp', '.h')):
-                t = open(os.path.join(d, f), encoding='utf-8', errors='replace').read()
+                t = open(os.path.join(d, f), encoding='utf-8', errors='surrogateescape').read()
                 names.update(m.group(1) for m in pat.finditer(t))
     return {n.rsplit('/', 1)[-1] for n in names}
 
