@@ -7,6 +7,8 @@
 #ifndef _aidef_h
 #define _aidef_h
 
+#include "Base.h"
+
 typedef enum _ai_state
 {
 	AI_PAUSE,			// do no ai
