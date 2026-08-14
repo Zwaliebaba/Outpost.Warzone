@@ -8,7 +8,7 @@
 #define _mem_h
 
 #include <stdlib.h>
-#include "types.h"
+#include "Types.h"
 #include "Debug.h"
 
 /* DEBUG_MALLOC == TRUE uses debugging malloc and free
@@ -30,9 +30,7 @@
 #define DEBUG_MALLOC	FALSE
 #define DEBUG_HEAP		FALSE
 
-//#ifdef PSX
 //#warning DEBUG MALLOC DISABLED ON PSX
-//#endif
 
 #endif
 

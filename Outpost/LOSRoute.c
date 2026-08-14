@@ -8,7 +8,6 @@
 #include <stdlib.h>
 
 // Wall hug printf's
-//#define DEBUG_GROUP0
 // optimise printf's
 #define DEBUG_GROUP1
 #include "Frame.h"
@@ -237,7 +236,6 @@ BOOL fpathObstructionCallback(SDWORD x, SDWORD y, SDWORD dist)
 	MAPTILE	*psTile;
 #endif
 
-	// See if this point is past the final point (dot product)
 	vx = x - finalX;
 	vy = y - finalY;
 	if (vx*vectorX + vy*vectorY <=0)
@@ -329,7 +327,6 @@ BOOL fpathTileVisCallback(SDWORD x, SDWORD y, SDWORD dist)
 {
 	SDWORD	vx,vy;
 
-	// See if this point is past the final point (dot product)
 	vx = x - finalX;
 	vy = y - finalY;
 	if (vx*vectorX + vy*vectorY <=0)
@@ -359,7 +356,6 @@ BOOL fpathTileLOSCallback(SDWORD x, SDWORD y, SDWORD dist)
 	BOOL	cont = TRUE;
 	SDWORD	vx,vy;
 
-	// See if this point is past the final point (dot product)
 	vx = x - finalX;
 	vy = y - finalY;
 	if (vx*vectorX + vy*vectorY <=0)
@@ -373,7 +369,6 @@ BOOL fpathTileLOSCallback(SDWORD x, SDWORD y, SDWORD dist)
 		if (fpathBlockingTile(x>>TILE_SHIFT,y>>TILE_SHIFT))
 		{
 			// found an obstruction, note the last clear tile
-//			memcpy(&sNearBlock, &sCurrBlock, sizeof(FP_POINT));
 			tlosState = TLOS_NEARSIDE;
 		}
 		break;
@@ -381,9 +376,6 @@ BOOL fpathTileLOSCallback(SDWORD x, SDWORD y, SDWORD dist)
 		if (!fpathBlockingTile(x>>TILE_SHIFT,y>>TILE_SHIFT))
 		{
 			// got past the obstruction - note the clear tile
-//			sFarBlock.x = x;
-//			sFarBlock.y = y;
-//			sFarBlock.dist = dist;
 			tlosState = TLOS_FARSIDE;
 		}
 		break;
@@ -451,7 +443,6 @@ BOOL fpathNextHugDir(SDWORD x, SDWORD y, SDWORD *pDir, SDWORD hugDir)
 }
 
 
-// Wall hug around an obstruction (using tile coords)
 static BOOL fpathWallHug(SDWORD sx,SDWORD sy,	// start pos
 						 SDWORD *pFarIndex,		// end position in asFarPoints
 						 SDWORD dir,			// which way to face at start of wall hug
@@ -474,7 +465,6 @@ static BOOL fpathWallHug(SDWORD sx,SDWORD sy,	// start pos
 		}
 	}*/
 	// now turn away from the obstruction to wall hug
-//	dir = fpathUpdateDir(dir, -hugDir);
 
 	// Now wall hug around the obstacle
 	numPoints = 1;
@@ -831,7 +821,6 @@ void fpathOptimiseRoute(SDWORD sx, SDWORD sy, SDWORD fx, SDWORD fy,
 			mapTile(asPoints[currIndex].x>>TILE_SHIFT,
 					asPoints[currIndex].y>>TILE_SHIFT)->tileInfoBits |= ROUTE;
 #endif
-//			break;
 		}
 	}
 
@@ -855,7 +844,7 @@ void fpathOptimiseRoute(SDWORD sx, SDWORD sy, SDWORD fx, SDWORD fy,
 
 
 // Append points from a wall hug to the end of a route
-BOOL fpathAppendRoute(FP_POINT *asPoints, SDWORD numPoints)
+static BOOL fpathAppendRoute(FP_POINT *asPoints, SDWORD numPoints)
 {
 	if (numPoints + pathPoints >= FPATH_ROUTEMAX)
 	{
@@ -985,11 +974,6 @@ BOOL fpathTileRoute(MOVE_CONTROL *psMoveCntl,
 
 	// Initialise the stack
 	stackTop = 0;
-/*	asRouteStack[0].type = ST_START;
-	asRouteStack[0].start = -1;
-	asRouteStack[0].end = -1;
-	asRouteStack[0].prev = -1;
-	asRouteStack[0].dist = 0;*/
 
 	// search for a route
 	routeState = RS_SEARCHING;
@@ -1039,8 +1023,6 @@ BOOL fpathTileRoute(MOVE_CONTROL *psMoveCntl,
 			leftSuccess = FALSE;
 		}
 
-//		pathPoints = prevPoints;
-//		leftSuccess = leftSuccess && fpathAppendRoute(asLeftHug,leftPoints);
 		if (leftSuccess)
 		{
 
@@ -1093,8 +1075,6 @@ BOOL fpathTileRoute(MOVE_CONTROL *psMoveCntl,
 			}
 		}
 
-//		pathPoints = prevPoints;
-//		rightSuccess = rightSuccess && fpathAppendRoute(asRightHug,rightPoints);
 		if (rightSuccess)
 		{
 			// optimise the route
@@ -1181,7 +1161,6 @@ BOOL fpathTileRoute(MOVE_CONTROL *psMoveCntl,
 
 				// build the route points into the route buffer
 				fpathBuildRoute(stackCurr);
-//				prevPoints = pathPoints;
 			}
 
 			// See if the route has got to the target
@@ -1224,16 +1203,14 @@ BOOL fpathTileRoute(MOVE_CONTROL *psMoveCntl,
 		}
 		for(i=0; i<pathPoints; i++)
 		{
-			psMoveCntl->MovementList[i].XCoordinate = asRoutePoints[i].x;
-			psMoveCntl->MovementList[i].YCoordinate = asRoutePoints[i].y;
+			psMoveCntl->asPath[i].x = (UBYTE)asRoutePoints[i].x;
+			psMoveCntl->asPath[i].y = (UBYTE)asRoutePoints[i].y;
 		}
-		psMoveCntl->MovementList[pathPoints].XCoordinate = -1;
-		psMoveCntl->MovementList[pathPoints].YCoordinate = -1;
+		psMoveCntl->numPoints = (UBYTE)pathPoints;
 	}
 	else
 	{
-		psMoveCntl->MovementList[0].XCoordinate = -1;
-		psMoveCntl->MovementList[0].YCoordinate = -1;
+		psMoveCntl->numPoints = 0;
 	}
 
 	return routeState == RS_SUCCESS;
@@ -1244,8 +1221,6 @@ BOOL fpathTileRoute(MOVE_CONTROL *psMoveCntl,
 /*BOOL fpathTileRoute(SDWORD sx, SDWORD sy, SDWORD fx, SDWORD fy)
 {
 	UDWORD		ray;		// angle to cast the ray
-//	UDWORD		length;
-//	SDWORD		xdiff,ydiff;
 	MAPTILE		*psTile;
 	SDWORD		leftPoints, rightPoints;
 	SDWORD		leftDist, rightDist, finalDist;

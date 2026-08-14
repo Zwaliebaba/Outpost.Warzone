@@ -127,7 +127,6 @@ extern BOOL	bAllowOtherKeyPresses;
 
 extern void	kf_TriggerRayCast( void );
 extern void kf_ToggleFormationSpeedLimiting( void );
-//extern void	kf_ToggleSensorDisplay( void );
 extern void kf_SensorDisplayOn( void );
 extern void kf_SensorDisplayOff( void );
 extern void	kf_JumpToResourceExtractor( void );
@@ -181,12 +180,6 @@ void kf_NormalSpeed( void );
 #define	SECS_PER_SPIN	2
 #define MAP_SPIN_RATE	(SPIN_SCALING/SECS_PER_SPIN)
 
-#ifdef PSX
-extern void kf_SelectNaybors(void);
-extern void kf_NextUnit(void);
-extern void kf_NextGroup(void);
-extern void kf_PrevGroup(void);
-#endif
 
 extern int fogCol;
 

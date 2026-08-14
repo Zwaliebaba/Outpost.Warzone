@@ -3,10 +3,10 @@
 #include "HCI.h"
 #include "MapDisplay.h"
 #include "Display3D.h"
-#include "ivisdef.h" //ivis matrix code
-#include "piedef.h" //pie render
-#include "geo.h" //ivis matrix code
-#include "MiscImd.h"
+#include "IvisDef.h" //ivis matrix code
+#include "PieDef.h" //pie render
+#include "Geo.h" //ivis matrix code
+#include "MiscIMD.h"
 #include "Effects.h"
 #include "Bridge.h"
 /* 
@@ -91,7 +91,6 @@ BOOL	renderBridgeSection(STRUCTURE *psStructure)
 {
 	SDWORD			structX,structY,structZ;	
 	SDWORD			rx,rz;
-	//iIMDShape		*imd;
 	iVector			dv;
 
 			/* Bomb out if it's not visible and there's no active god mode */
@@ -232,7 +231,6 @@ iVector	dv;
 		   		dv.z = ((i*128)+64);
 				dv.y = bridge.bridgeHeight;
 				addEffect(&dv,EFFECT_SMOKE,SMOKE_TYPE_DRIFTING,FALSE,NULL,0);
-//				addExplosion(&dv,TYPE_EXPLOSION_SMOKE_CLOUD,NULL);
 			}
 		}
 		else
@@ -243,7 +241,6 @@ iVector	dv;
 		   		dv.z = ((bridge.startY*128)+64);
 				dv.y = bridge.bridgeHeight;
 				addEffect(&dv,EFFECT_SMOKE,SMOKE_TYPE_DRIFTING,FALSE,NULL,0);
-//				addExplosion(&dv,TYPE_EXPLOSION_SMOKE_CLOUD,NULL);
 			}
 		}
 			/* Flatten the start tile */
@@ -269,7 +266,6 @@ iVector	dv;
 		   		dv.z = ((i*128)+64);
 				dv.y = bridge.bridgeHeight;
 				addEffect(&dv,EFFECT_EXPLOSION,EXPLOSION_TYPE_SMALL,FALSE,NULL,0);
-//				addExplosion(&dv,TYPE_EXPLOSION_MED,NULL);
 			}
 		}
 		else
@@ -280,7 +276,6 @@ iVector	dv;
 		   		dv.z = ((bridge.startY*128)+64);
 				dv.y = bridge.bridgeHeight;
 				addEffect(&dv,EFFECT_EXPLOSION,EXPLOSION_TYPE_SMALL,FALSE,NULL,0);
-//				addExplosion(&dv,TYPE_EXPLOSION_MED,NULL);
 			}
 		}
 	

@@ -5,39 +5,38 @@
 #include <direct.h>
 #include "Frame.h"
 #include "Widget.h"
-#include "script.h"
+#include "Script.h"
 #include "Init.h"
 #include "Loop.h"
 #include "Objects.h"
 #include "Display.h"
-#include "pieState.h"
+#include "PieState.h"
 #include "GTime.h"
 #include "WinMain.h"
 #include "Wrappers.h"
-#include "scriptTabs.h"
-#include "deliverance.h"
-#include "frontend.h"
-#include "seqdisp.h"
-#include "audio.h"
+#include "ScriptTabs.h"
+#include "Deliverance.h"
+#include "FrontEnd.h"
+#include "SeqDisp.h"
+#include "Audio.h"
 #include "Console.h"
 #include "RendMode.h"
-#include "pieMode.h"
-#include "dGlide.h"
+#include "PieMode.h"
 #include "Levels.h"
-#include "research.h"
-#include "warzoneConfig.h"
-#include "clParse.h"
-#include "cdSpan.h"
-#include "config.h"
-#include "multiplay.h"
-#include "netplay.h"
-#include "loadsave.h"
-#include "d3drender.h"
-#include "dx6texman.h"
-#include "game.h"
-#include "lighting.h"
-#include "mixer.h"
-#include "wdg.h"
+#include "Research.h"
+#include "WarzoneConfig.h"
+#include "ClParse.h"
+#include "CDSpan.h"
+#include "Config.h"
+#include "MultiPlay.h"
+#include "NetPlay.h"
+#include "LoadSave.h"
+#include "D3DRender.h"
+#include "DX6TexMan.h"
+#include "Game.h"
+#include "Lighting.h"
+#include "Mixer.h"
+#include "WDG.h"
 #include "MultiWDG.h"
 
 
@@ -57,24 +56,13 @@ BOOL	videoInitialised = FALSE;
 BOOL	gameInitialised = FALSE;
 BOOL	frontendInitialised = FALSE;
 BOOL	reInit = FALSE;
-BOOL	bGlideFound=FALSE;		
 BOOL	bDisableLobby;
-
-
-// Some prototypes because I can't be arse to create a .h file
-BOOL InitGlideDLL(void);
-BOOL ShutdownGlideDLL(void);
 
 
 // callback functions for message boxes and assert boxes
 DB_MBRETVAL fxMBCallback(SBYTE *pBuffer)
 {
 	(void)pBuffer;
-
-	if(pie_GetRenderEngine() == ENGINE_GLIDE)
-	{
-		grSstControl(GR_CONTROL_DEACTIVATE);
-	}
 
 	return DBR_USE_WINDOWS_MB;
 }
@@ -114,7 +102,6 @@ int WINAPI WinMain(
 	BOOL			quit = FALSE;
 	BOOL			Restart = FALSE;
 	BOOL			paused = FALSE;//, firstTime = TRUE;
-	BOOL			bGlide = FALSE;
 	BOOL			bVidMem = FALSE;
 	SDWORD			dispBitDepth = DISP_BITDEPTH;
 	SDWORD			introVideoControl = 3;
@@ -123,12 +110,7 @@ int WINAPI WinMain(
 	SDWORD			pSize;
 
 	(void)nShowCmd;
-//	(void)lpCmdLine;
 	(void)hPrevInstance;
-
-	// initialise all the command line states
-	clStartWindowed = FALSE;
-	clIntroVideo = FALSE;
 
 	if (!pie_CheckForDX6())
 	{
@@ -140,13 +122,6 @@ int WINAPI WinMain(
 
 	war_SetRendMode(REND_MODE_HAL);
 
-	if (InitGlideDLL())	// In ivis02/3dfxdyn.c - returns FALSE if no glide2x.dll is not found
-	{
-		bGlideFound = TRUE;
-		war_SetRendMode(REND_MODE_GLIDE);//default to glide this will be over writen by Registry or Command line if found
-	}
-
-   
 init://jump here from the end if re_initialising
 
 
@@ -167,19 +142,15 @@ init://jump here from the end if re_initialising
 	bDisableLobby = FALSE;
 
 	// parse the command line
-//	if (bDisableLobby || !NetPlay.bLobbyLaunched)
-//	{
 		if(!reInit)
 		{
-			if(!ParseCommandLine(lpCmdLine,bGlideFound))
+			if(!ParseCommandLine(lpCmdLine))
 			{
 				return -1;
 			}
 		}
-//	}
 
 	// find out if the lobby stuff has been disabled
-//	bDisableLobby = checkDisableLobby();
 	if (!bDisableLobby &&
 		!lobbyInitialise())			// ajl. Init net stuff. Lobby can modify startup conditions like commandline.
 	{
@@ -195,39 +166,28 @@ init://jump here from the end if re_initialising
 	//always start windowed toggle to fullscreen later
 	if (war_GetRendMode() == REND_MODE_HAL)
 	{
-		bGlide = FALSE;
 		bVidMem = TRUE;
 		dispBitDepth = DISP_HARDBITDEPTH;
 	}
 	else if (war_GetRendMode() == REND_MODE_REF)
 	{
-		bGlide = FALSE;
 		bVidMem = TRUE;
 		dispBitDepth = DISP_HARDBITDEPTH;
 	}
 	else if (war_GetRendMode() == REND_MODE_RGB)
 	{
-		bGlide = FALSE;
-		bVidMem = FALSE;
-		dispBitDepth = DISP_HARDBITDEPTH;
-	}
-	else if (war_GetRendMode() == REND_MODE_GLIDE)
-	{
-		bGlide = TRUE;
 		bVidMem = FALSE;
 		dispBitDepth = DISP_HARDBITDEPTH;
 	}
 	else
 	{
-		bGlide = FALSE;
 		bVidMem = FALSE;
 		dispBitDepth = DISP_BITDEPTH;
 	}
 
-//	frameDDEnumerate();
 
 	if (!frameInitialise(hInstance, "Warzone 2100",
-									DISP_WIDTH,DISP_HEIGHT,dispBitDepth, !clStartWindowed, bVidMem, bGlide))
+									DISP_WIDTH,DISP_HEIGHT,dispBitDepth, !clStartWindowed, bVidMem))
 	{
 		return -1;
 	}
@@ -240,14 +200,7 @@ init://jump here from the end if re_initialising
 	pie_ScreenFlip(CLEAR_BLACK);
 	pie_ScreenFlip(CLEAR_BLACK);
 
-	if (war_GetRendMode() == REND_MODE_GLIDE)
-	{
-		dbg_SetMessageBoxCallback(fxMBCallback);
-		dbg_SetErrorBoxCallback(fxMBCallback);
-		dbg_SetAssertCallback(fxMBCallback);
-	}
-
-	if(gameStatus == GS_VIDEO_MODE) 
+	if(gameStatus == GS_VIDEO_MODE)
 	{
 		introVideoControl = 0;//play video
 		gameStatus = GS_TITLE_SCREEN;
@@ -268,22 +221,11 @@ init://jump here from the end if re_initialising
 	pal_AddNewPalette(psPaletteBuffer);
 	FREE(psPaletteBuffer);
 
-	if (war_GetRendMode() == REND_MODE_GLIDE)
-	{
 #ifdef COVERMOUNT
-		pie_LoadBackDrop(SCREEN_COVERMOUNT,TRUE);
+	pie_LoadBackDrop(SCREEN_COVERMOUNT,FALSE);
 #else
-		pie_LoadBackDrop(SCREEN_RANDOMBDROP,TRUE);
+	pie_LoadBackDrop(SCREEN_RANDOMBDROP,FALSE);
 #endif
-	}
-	else
-	{
-#ifdef COVERMOUNT
-		pie_LoadBackDrop(SCREEN_COVERMOUNT,FALSE);
-#else
-		pie_LoadBackDrop(SCREEN_RANDOMBDROP,FALSE);
-#endif
-	}
 	pie_SetFogStatus(FALSE);
 	pie_ScreenFlip(CLEAR_BLACK);
 
@@ -304,11 +246,6 @@ init://jump here from the end if re_initialising
 // If windowed mode not requested then toggle to full screen. Doing
 // it here rather than in the call to frameInitialise fixes a problem
 // where machines with an NVidia and a 3DFX would kill the 3dfx display. (Definitly a HACK, PD)
-/*	if(!clStartWindowed)
-	{
-		screenToggleMode();
-	}
-*/
 	//set all the pause states to false
 	setAllPauseStates(FALSE);
 
@@ -350,9 +287,6 @@ init://jump here from the end if re_initialising
 				{
 					goto exit;
 				}
-				/*if (!levLoadData(pLevelName, saveGameName)) {
-					return -1;
-				}*/
 				screen_StopBackDrop();
 				break;
 			case GS_NORMAL:
@@ -392,7 +326,6 @@ init://jump here from the end if re_initialising
 		DBPRINTF(("Entering main loop\n"));
 
 		Restart = FALSE;
-		//firstTime = TRUE;
 
 		while (!Restart)
 		{
@@ -415,14 +348,6 @@ init://jump here from the end if re_initialising
 			case FRAME_KILLFOCUS:
 				paused = TRUE;
 				gameTimeStop();
-				if (pie_GetRenderEngine() == ENGINE_GLIDE)
-				{
-					if (!gl_Deactivate())
-					{
-						quit = TRUE;
-						Restart = TRUE;
-					}
-				}
 				mixer_SaveIngameVols();
 				mixer_RestoreWinVols();
 				audio_StopAll();
@@ -435,15 +360,7 @@ init://jump here from the end if re_initialising
 					quit = TRUE;
 					Restart = TRUE;
 				}
-				if (pie_GetRenderEngine() == ENGINE_GLIDE)
-				{
-					if (!gl_Reactivate())
-					{
-						quit = TRUE;
-						Restart = TRUE;
-					}
-				}
-				else if (pie_GetRenderEngine() == ENGINE_D3D)
+				if (pie_GetRenderEngine() == ENGINE_D3D)
 				{
 					dtm_RestoreTextures();
 				}
@@ -478,8 +395,6 @@ init://jump here from the end if re_initialising
 								break;
 
 	//						case TITLECODE_ATTRACT:
-	//							DBPRINTF(("TITLECODE_ATTRACT\n"));
-	//							break;
 
 							case TITLECODE_SAVEGAMELOAD:
 								DBPRINTF(("TITLECODE_SAVEGAMELOAD\n"));
@@ -541,13 +456,10 @@ init://jump here from the end if re_initialising
 								quit = TRUE;
 #endif
 
-#ifdef WIN32
 								if(NetPlay.bLobbyLaunched)
 								{
-//									changeTitleMode(QUIT);
 									quit = TRUE;
 								}
-#endif
 								break;
 							case GAMECODE_FASTEXIT:
 								DBPRINTF(("GAMECODE_FASTEXIT\n"));
@@ -563,7 +475,6 @@ init://jump here from the end if re_initialising
 
 							case GAMECODE_PLAYVIDEO:
 								DBPRINTF(("GAMECODE_PLAYVIDEO\n"));
-//dont schange mode any more								gameStatus = GS_VIDEO_MODE;
 								Restart = FALSE;
 								break;
 
@@ -684,8 +595,6 @@ init://jump here from the end if re_initialising
 
 	frameShutDown();
 
-	ShutdownGlideDLL();
-
 	if (reInit) goto init;
 
 	PostQuitMessage(0);
@@ -701,8 +610,6 @@ exit:
 	pal_ShutDown();
 
 	frameShutDown();
-
-	ShutdownGlideDLL();
 
 	PostQuitMessage(1);
 

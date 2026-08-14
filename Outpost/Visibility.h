@@ -31,7 +31,6 @@ extern BOOL visibleObjectBlock(BASE_OBJECT *psViewer, BASE_OBJECT *psTarget,
 // Do visibility check, but with walls completely blocking LOS.
 extern BOOL visibleObjWallBlock(BASE_OBJECT *psViewer, BASE_OBJECT *psTarget);
 
-// Find the wall that is blocking LOS to a target (if any)
 extern BOOL visGetBlockingWall(BASE_OBJECT *psViewer, BASE_OBJECT *psTarget, STRUCTURE **ppsWall);
 
 extern void	processVisibility(BASE_OBJECT *psCurr);
@@ -52,7 +51,6 @@ extern void startSensorDisplay(void);
 
 
 
-#ifdef WIN32
 // fast test for whether obj2 is in range of obj1
 __inline BOOL visObjInRange(BASE_OBJECT *psObj1, BASE_OBJECT *psObj2, SDWORD range)
 {
@@ -90,6 +88,5 @@ __inline BOOL visObjInRange(BASE_OBJECT *psObj1, BASE_OBJECT *psObj2, SDWORD ran
 
 	return TRUE;
 }
-#endif
 
 #endif

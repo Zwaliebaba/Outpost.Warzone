@@ -6,32 +6,31 @@
  * Routines for setting the game options and starting the init process.
  */
 
-#include "frame.h"			// for everything
-#include "map.h"
-#include "game.h"			// for loading maps
-#include "message.h"		// for clearing messages.
-#include "winmain.h"
+#include "Frame.h"			// for everything
+#include "Map.h"
+#include "Game.h"			// for loading maps
+#include "Message.h"		// for clearing messages.
+#include "WinMain.h"
 #include "Display3D.h"		// for changing the viewpoint
-#include "power.h"
-#include "widget.h"
-#include "gtime.h"
+#include "Power.h"
+#include "Widget.h"
+#include "GTime.h"
 #include "NetPlay.h"
 #include "HCI.h"
-#include "config.h"			// lobby cfg.
-#include "clparse.h"
-#include "piestate.h"
-#include "dGlide.h"
-#include "component.h"
-#include "console.h"
-#include "multiplay.h"
-#include "audio.h"
-#include "multijoin.h"
-#include "frontend.h"
-#include "levels.h"
-#include "multistat.h"
-#include "multiint.h"
-#include "multilimit.h"
-#include "multigifts.h"
+#include "Config.h"			// lobby cfg.
+#include "ClParse.h"
+#include "PieState.h"
+#include "Component.h"
+#include "Console.h"
+#include "MultiPlay.h"
+#include "Audio.h"
+#include "MultiJoin.h"
+#include "FrontEnd.h"
+#include "Levels.h"
+#include "MultiStat.h"
+#include "MultiInt.h"
+#include "MultiLimit.h"
+#include "MultiGifts.h"
 // ////////////////////////////////////////////////////////////////////////////
 // GUID for warzone lobby and MPATH stuff.  i hate this stuff.
 #include <INITGUID.h>
@@ -58,8 +57,6 @@ static BOOL dMatchInit			(VOID);
 static BOOL campInit			(VOID);
 BOOL		hostCampaign		(STRING *sGame,		STRING *sPlayer);
 BOOL		joinCampaign		(UDWORD gameNumber, STRING *playername);
-//BOOL		hostArena			(STRING *sGame,		STRING *sPlayer);
-//BOOL		joinArena			(UDWORD gameNumber, STRING *playername);
 BOOL		LobbyLaunched		(VOID);
 VOID		playerResponding	(VOID);
 BOOL		multiInitialise		(VOID);		//only once.
@@ -161,10 +158,6 @@ void recvOptions(NETMSG *pMsg)
 	pos += sizeof(game);
 	if(strncmp((CHAR*)game.version,buildTime,8) != 0)
 	{
-		if (pie_GetRenderEngine() == ENGINE_GLIDE)
-		{
-			grSstControl(GR_CONTROL_DEACTIVATE);
-		}
 #ifndef DEBUG
 		DBERROR(("Host is running a different version of Warzone2100."));
 #endif
@@ -189,10 +182,6 @@ void recvOptions(NETMSG *pMsg)
 	pos += sizeof(checkval);
 	if(checkval != NEThashVal(NetPlay.cryptKey[0]))
 	{	
-		if (pie_GetRenderEngine() == ENGINE_GLIDE)
-		{
-			grSstControl(GR_CONTROL_DEACTIVATE);
-		}
 		DBERROR(("Host Binary is different from this one. Cheating?"));
 #ifdef COVERMOUNT
 		DBERROR(("Warzone 2100 Demo is not compatible with the release version"));
@@ -345,7 +334,6 @@ BOOL joinCampaign(UDWORD gameNumber, STRING *sPlayer)
 
 	if(!ingame.localJoiningInProgress)
 	{
-//		game.type = CAMPAIGN;
 		if(!NetPlay.bLobbyLaunched)
 		{
 			NETjoinGame(NetPlay.games[gameNumber].desc.guidInstance,sPlayer);	// join 
@@ -655,18 +643,12 @@ BOOL multiTemplateSetup()
 		strcat(sTemp,".For");	
 	
 		loadForce(sTemp);
-//		useTheForce(TRUE);	
 	}
 
 
 	switch (game.type)
 	{
 //	case DMATCH:
-//		for(player=0;player<MAX_PLAYERS;player++)
-//		{
-//			 copyTemplateSet(DEATHMATCHTEMPLATES,player);
-//		}
-//		break;
 
 	case TEAMPLAY:
 	case CAMPAIGN:
@@ -761,7 +743,6 @@ BOOL cleanMap(UDWORD player)
 	firstRes = TRUE;
 
 	// reverse so we always remove the last object. re-reverse afterwards.
-//	reverseObjectList((BASE_OBJECT**)&apsStructLists[player]);	
 
 
 	switch(game.base)							
@@ -775,7 +756,6 @@ BOOL cleanMap(UDWORD player)
 		while(psD)
 		{
 			psD2=psD->psNext;
-			//if(psD->droidType != DROID_CONSTRUCT)
             if (!(psD->droidType == DROID_CONSTRUCT OR
                 psD->droidType == DROID_CYBORG_CONSTRUCT))
 			{
@@ -878,7 +858,6 @@ BOOL cleanMap(UDWORD player)
 	}		
 
 	// rerev list to get back to normal.
-//	reverseObjectList((BASE_OBJECT**)&apsStructLists[player]);
 
 	bMultiPlayer = TRUE;
 	return TRUE;
@@ -1082,19 +1061,10 @@ BOOL multiGameInit(VOID)
 		openchannels[player] =TRUE;								//open comms to this player.
 	}
 
-//	if(game.type == DMATCH)
-//	{	
-//		dMatchInit();
-//		if(NetPlay.bHost)
-//		{
 //			addDMatchDroid(1);							// each player adds a newdroid point.
 //			playerResponding();							// say hi, only if host, clients wait until all info recvd.
-//		}
-//	}
 //	else		
-//	{
 		campInit();
-//	}
 
 	return TRUE;
 }

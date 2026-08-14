@@ -9,10 +9,7 @@
 #include "WidgInt.h"
 #include "EditBox.h"
 #include "Form.h"
-#include "Vid.h"
-#ifdef PSX
-#include "Primatives.h"
-#endif
+#include "RendMode.h"
 
 /* Pixel gap between edge of edit box and text */
 #define WEDB_XGAP	4
@@ -47,7 +44,6 @@ BOOL editBoxCreate(W_EDITBOX **ppsWidget, W_EDBINIT *psInit)
 	}
 
 //	ASSERT((PTRVALID(psInit->psFont, sizeof(PROP_FONT)),
-//		"editBoxCreate: Invalid font pointer"));
 
 	/* Allocate the required memory */
 #if W_USE_MALLOC
@@ -70,7 +66,6 @@ BOOL editBoxCreate(W_EDITBOX **ppsWidget, W_EDBINIT *psInit)
 	(*ppsWidget)->y = psInit->y;
 	(*ppsWidget)->width = psInit->width;
 	(*ppsWidget)->height = psInit->height;
-//	(*ppsWidget)->psFont = psInit->psFont;
 	(*ppsWidget)->FontID = psInit->FontID;
 	if (psInit->pDisplay)
 	{
@@ -85,9 +80,6 @@ BOOL editBoxCreate(W_EDITBOX **ppsWidget, W_EDBINIT *psInit)
 	(*ppsWidget)->UserData = psInit->UserData;
 	(*ppsWidget)->pBoxDisplay = psInit->pBoxDisplay;
 	(*ppsWidget)->pFontDisplay = psInit->pFontDisplay;
-#ifdef PSX
-	(*ppsWidget)->OTIndex = WidgGetOTIndex();
-#endif
 	(*ppsWidget)->AudioCallback = WidgGetAudioCallback();
 	(*ppsWidget)->HilightAudioID = WidgGetHilightAudioID();
 	(*ppsWidget)->ClickedAudioID = WidgGetClickedAudioID();
@@ -263,13 +255,11 @@ static void fitStringStart(STRING *pBuffer, UDWORD boxWidth, UWORD *pCount, UWOR
 	UDWORD		len;
 	UWORD		printWidth, printChars, width;
 	STRING		*pCurr;
-//	PROP_FONT	*psCurrFont;
 
 	len = strlen(pBuffer);
 	printWidth = 0;
 	printChars = 0;
 	pCurr = pBuffer;
-//	psCurrFont = fontGet();
 
 	/* Find the number of characters that will fit in boxWidth */
 	while (printChars < len)
@@ -298,11 +288,9 @@ static void fitStringEnd(STRING *pBuffer, UDWORD boxWidth,
 	UDWORD		len;
 	UWORD		printWidth, printChars, width;
 	STRING		*pCurr;
-//	PROP_FONT	*psCurrFont;
 
 	len = strlen(pBuffer);
 
-//	psCurrFont = fontGet();
 	pCurr = pBuffer + len - 1;
 	printChars = 0;
 	printWidth = 0;
@@ -331,7 +319,6 @@ static void fitStringEnd(STRING *pBuffer, UDWORD boxWidth,
 /* Run an edit box widget */
 void editBoxRun(W_EDITBOX *psWidget, W_CONTEXT *psContext)
 {
-#ifdef WIN32
 	UDWORD	key, len, editState;
 	UDWORD	pos;
 	STRING	*pBuffer;
@@ -540,7 +527,6 @@ void editBoxRun(W_EDITBOX *psWidget, W_CONTEXT *psContext)
 	psWidget->printStart = printStart;
 	psWidget->printWidth = printWidth;
 	psWidget->printChars = printChars;
-#endif
 }
 
 
@@ -586,17 +572,11 @@ void editBoxClicked(W_EDITBOX *psWidget, W_CONTEXT *psContext)
 			fitStringEnd(psWidget->aText, psWidget->width,
 				&psWidget->printStart, &psWidget->printChars, &psWidget->printWidth);
 
-#ifdef WIN32
 			/* Clear the input buffer */
 			inputClearBuffer();
-#endif
 			/* Tell the form that the edit box has focus */
 			screenSetFocus(psContext->psScreen, (WIDGET *)psWidget);
 
-#ifdef PSX
-			// So we can tell when it's been clicked on.
-			widgSetReturn((WIDGET *)psWidget);
-#endif
 		}
 	}
 }
@@ -613,9 +593,7 @@ void editBoxFocusLost(W_EDITBOX *psWidget)
 	psWidget->printStart = 0;
 	fitStringStart(psWidget->aText,psWidget->width,
 				   &psWidget->printChars, &psWidget->printWidth);
-#ifdef WIN32
 	widgSetReturn((WIDGET *)psWidget);
-#endif
 }
 
 
@@ -659,7 +637,6 @@ void editBoxDisplay(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD *pC
 {
 	W_EDITBOX	*psEdBox;
 	SDWORD		x0,y0,x1,y1, fx,fy, cx,cy;
-//	PROP_FONT	*psCurrFont;
 	int CurrFontID;
 	STRING		ch, *pInsPoint, *pPrint;
 #if CURSOR_BLINK
@@ -667,7 +644,6 @@ void editBoxDisplay(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD *pC
 #endif
 
 	psEdBox = (W_EDITBOX *)psWidget;
-//	psCurrFont = psEdBox->psFont;
 	CurrFontID = psEdBox->FontID;
 
 	x0=psEdBox->x + xOffset;
@@ -679,9 +655,6 @@ void editBoxDisplay(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD *pC
 		psEdBox->pBoxDisplay((WIDGET *)psEdBox, xOffset, yOffset, pColours);
 	} else {
 		pie_BoxFillIndex(x0,y0,x1,y1,WCOL_BKGRND);
-#ifdef PSX
-		iV_SetOTIndex_PSX(iV_GetOTIndex_PSX()-1);
-#endif
 		iV_Line(x0,y0, x1,y0,*(pColours + WCOL_DARK));
 		iV_Line(x0,y0, x0,y1,*(pColours + WCOL_DARK));
 		iV_Line(x0,y1, x1,y1,*(pColours + WCOL_LIGHT));
@@ -689,10 +662,8 @@ void editBoxDisplay(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD *pC
 	}
 
 	fx = x0 + WEDB_XGAP;// + (psEdBox->width - fw) / 2;
-//	fy = y0 + (psEdBox->height - psCurrFont->height + psCurrFont->baseLine) / 2;
 
 	iV_SetFont(CurrFontID);
-//	fontSet(psCurrFont);
 	iV_SetTextColour((UBYTE)*(pColours + WCOL_TEXT));
 
   	fy = y0 + (psEdBox->height - iV_GetTextLineSize())/2 - iV_GetTextAboveBase();
@@ -705,19 +676,9 @@ void editBoxDisplay(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD *pC
 	ch = *pInsPoint;
 
 	*pInsPoint = '\0';
-//	if(psEdBox->pFontDisplay) {
-//		psEdBox->pFontDisplay(fx,fy, pPrint);
-//	} else {
-#ifdef PSX
-		if(iV_GetOTIndex_PSX() >= OT2D_FARFARFORE) {
-			iV_SetOTIndex_PSX(iV_GetOTIndex_PSX()-1);
-		}
-#endif
 		iV_DrawText(pPrint,fx,fy);
-//	}
 	*pInsPoint = ch;
 
-#ifdef WIN32
 	/* Display the cursor if editing */
 #if CURSOR_BLINK
 	blink = (GetTickCount()/WEDB_BLINKRATE) % 2;
@@ -746,10 +707,8 @@ void editBoxDisplay(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD *pC
 		cx = x0 + WEDB_XGAP + iV_GetTextWidth(psEdBox->aText + psEdBox->printStart);
 		*pInsPoint = ch;
 	  	cy = fy;
-//		cy = fy + psCurrFont->height - (psCurrFont->baseLine >> 1);
 		iV_Line(cx,cy, cx + WEDB_CURSORSIZE,cy,*(pColours + WCOL_CURSOR));
 	}
-#endif
 
 	if(psEdBox->pBoxDisplay == NULL) {
 		if (psEdBox->state & WEDBS_HILITE)

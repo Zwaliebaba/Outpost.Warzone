@@ -9,14 +9,6 @@
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug|x64">
-      <Configuration>Debug</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|x64">
-      <Configuration>Release</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>18.0</VCProjectVersion>
@@ -30,27 +22,14 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v145</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v145</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v145</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -63,23 +42,17 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
+      <UseStructuredOutput>false</UseStructuredOutput>
+      <DisableSpecificWarnings>4129;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <SDLCheck>false</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;DIRECTINPUT_VERSION=0x0700;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>false</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)DX9\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\DX9\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -92,55 +65,16 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
+      <UseStructuredOutput>false</UseStructuredOutput>
+      <DisableSpecificWarnings>4129;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <WarningLevel>Level3</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <Link>
-      <SubSystem>
-      </SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
-    <Manifest>
-      <EnableSegmentHeap>true</EnableSegmentHeap>
-    </Manifest>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <Link>
-      <SubSystem>
-      </SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
-    <Manifest>
-      <EnableSegmentHeap>true</EnableSegmentHeap>
-    </Manifest>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <SDLCheck>false</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;DIRECTINPUT_VERSION=0x0700;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>false</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\DX9\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -152,139 +86,126 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="3dfxFunc.h" />
-    <ClInclude Include="3dfxmode.h" />
-    <ClInclude Include="3dfxText.h" />
-    <ClInclude Include="amd3d.h" />
-    <ClInclude Include="ani.h" />
-    <ClInclude Include="anim.h" />
-    <ClInclude Include="animobj.h" />
-    <ClInclude Include="aud.h" />
-    <ClInclude Include="audio.h" />
+    <ClInclude Include="AMD3D.h" />
+    <ClInclude Include="Ani.h" />
+    <ClInclude Include="Anim.h" />
+    <ClInclude Include="AnimObj.h" />
+    <ClInclude Include="Aud.h" />
+    <ClInclude Include="Audio.h" />
     <ClInclude Include="Bar.h" />
     <ClInclude Include="BitImage.h" />
     <ClInclude Include="Block.h" />
-    <ClInclude Include="bspfunc.h" />
-    <ClInclude Include="bspimd.h" />
-    <ClInclude Include="bug.h" />
+    <ClInclude Include="BSPFunc.h" />
+    <ClInclude Include="BSPIMD.h" />
+    <ClInclude Include="Bug.h" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="CodePrint.h" />
     <ClInclude Include="Cursor.h" />
-    <ClInclude Include="d3dmode.h" />
-    <ClInclude Include="d3drender.h" />
+    <ClInclude Include="D3DMode.h" />
+    <ClInclude Include="D3DRender.h" />
     <ClInclude Include="Dderror.h" />
     <ClInclude Include="Debug.h" />
-    <ClInclude Include="dx6TexMan.h" />
+    <ClInclude Include="DX6TexMan.h" />
     <ClInclude Include="DXInput.h" />
-    <ClInclude Include="EAX.H" />
     <ClInclude Include="EditBox.h" />
     <ClInclude Include="Event.h" />
     <ClInclude Include="EvntSave.h" />
-    <ClInclude Include="fbf.h" />
+    <ClInclude Include="Fbf.h" />
     <ClInclude Include="Font.h" />
     <ClInclude Include="Form.h" />
-    <ClInclude Include="fractions.h" />
+    <ClInclude Include="Fractions.h" />
     <ClInclude Include="Frame.h" />
     <ClInclude Include="FrameInt.h" />
     <ClInclude Include="FrameResource.h" />
-    <ClInclude Include="geo.h" />
+    <ClInclude Include="Geo.h" />
     <ClInclude Include="GTime.h" />
-    <ClInclude Include="hashtabl.h" />
+    <ClInclude Include="HashTabl.h" />
     <ClInclude Include="Heap.h" />
     <ClInclude Include="Image.h" />
-    <ClInclude Include="imd.h" />
+    <ClInclude Include="IMD.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Interp.h" />
-    <ClInclude Include="ivi.h" />
-    <ClInclude Include="ivisdef.h" />
-    <ClInclude Include="ivispatch.h" />
+    <ClInclude Include="Ivi.h" />
+    <ClInclude Include="IvisDef.h" />
+    <ClInclude Include="IvisPatch.h" />
     <ClInclude Include="Label.h" />
     <ClInclude Include="ListMacs.h" />
-    <ClInclude Include="maxpidef.h" />
+    <ClInclude Include="MaxPiDef.h" />
     <ClInclude Include="Mem.h" />
     <ClInclude Include="MemInt.h" />
-    <ClInclude Include="mixer.h" />
+    <ClInclude Include="Mixer.h" />
     <ClInclude Include="Mono.h" />
-    <ClInclude Include="multiWDG.h" />
-    <ClInclude Include="netlobby.h" />
-    <ClInclude Include="Netplay.h" />
-    <ClInclude Include="netprov.h" />
-    <ClInclude Include="netsupp.h" />
+    <ClInclude Include="MultiWDG.h" />
+    <ClInclude Include="NetLobby.h" />
+    <ClInclude Include="NetPlay.h" />
+    <ClInclude Include="NetProv.h" />
+    <ClInclude Include="NetSupp.h" />
     <ClInclude Include="Parse.h" />
-    <ClInclude Include="parser.h" />
+    <ClInclude Include="Parser.h" />
     <ClInclude Include="parser_y.h" />
-    <ClInclude Include="pch.h" />
-    <ClInclude Include="pcx.h" />
-    <ClInclude Include="pieBlitFunc.h" />
-    <ClInclude Include="pieclip.h" />
-    <ClInclude Include="piedef.h" />
-    <ClInclude Include="piefunc.h" />
-    <ClInclude Include="pieMatrix.h" />
-    <ClInclude Include="pieMode.h" />
-    <ClInclude Include="piePalette.h" />
-    <ClInclude Include="pieState.h" />
-    <ClInclude Include="pieTexture.h" />
-    <ClInclude Include="pieTypes.h" />
-    <ClInclude Include="pqueue.h" />
-    <ClInclude Include="priority.h" />
-    <ClInclude Include="ptrlist.h" />
+    <ClInclude Include="Pcx.h" />
+    <ClInclude Include="PieBlitFunc.h" />
+    <ClInclude Include="PieClip.h" />
+    <ClInclude Include="PieDef.h" />
+    <ClInclude Include="PieFunc.h" />
+    <ClInclude Include="PieMatrix.h" />
+    <ClInclude Include="PieMode.h" />
+    <ClInclude Include="PiePalette.h" />
+    <ClInclude Include="PieState.h" />
+    <ClInclude Include="PieTexture.h" />
+    <ClInclude Include="PieTypes.h" />
+    <ClInclude Include="PQueue.h" />
+    <ClInclude Include="Priority.h" />
+    <ClInclude Include="PtrList.h" />
     <ClInclude Include="QMIXER.H" />
-    <ClInclude Include="rendfunc.h" />
-    <ClInclude Include="rendmode.h" />
+    <ClInclude Include="RendFunc.h" />
+    <ClInclude Include="RendMode.h" />
     <ClInclude Include="ResLY.h" />
-    <ClInclude Include="Resource.h" />
     <ClInclude Include="resource_y.h" />
     <ClInclude Include="Screen.h" />
     <ClInclude Include="Script.h" />
     <ClInclude Include="Script_y.h" />
-    <ClInclude Include="sequence.h" />
+    <ClInclude Include="Sequence.h" />
     <ClInclude Include="Slider.h" />
-    <ClInclude Include="stack.h" />
+    <ClInclude Include="Stack.h" />
     <ClInclude Include="STREAMER.H" />
     <ClInclude Include="StrRes.h" />
     <ClInclude Include="StrResLY.h" />
     <ClInclude Include="StrRes_y.h" />
     <ClInclude Include="Surface.h" />
-    <ClInclude Include="tex.h" />
-    <ClInclude Include="texd3d.h" />
+    <ClInclude Include="Tex.h" />
+    <ClInclude Include="TexD3D.h" />
     <ClInclude Include="TextDraw.h" />
     <ClInclude Include="Tip.h" />
-    <ClInclude Include="track.h" />
-    <ClInclude Include="tracklib.h" />
+    <ClInclude Include="Track.h" />
+    <ClInclude Include="TrackLib.h" />
     <ClInclude Include="Treap.h" />
     <ClInclude Include="TreapInt.h" />
     <ClInclude Include="Trig.h" />
-    <ClInclude Include="types.h" />
-    <ClInclude Include="v4101.h" />
-    <ClInclude Include="vid.h" />
-    <ClInclude Include="vsr.h" />
-    <ClInclude Include="w95trace.h" />
-    <ClInclude Include="wdg.h" />
+    <ClInclude Include="Types.h" />
+    <ClInclude Include="W95Trace.h" />
+    <ClInclude Include="WDG.h" />
     <ClInclude Include="WidgBase.h" />
     <ClInclude Include="Widget.h" />
     <ClInclude Include="WidgInt.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="3dfxdyn.c" />
-    <ClCompile Include="3dfxFunc.c" />
-    <ClCompile Include="3dfxmode.c" />
-    <ClCompile Include="3dfxtext.c" />
-    <ClCompile Include="anim.c" />
-    <ClCompile Include="animobj.c" />
-    <ClCompile Include="audio.c" />
+    <ClCompile Include="Anim.c" />
+    <ClCompile Include="AnimObj.c" />
+    <ClCompile Include="Audio.c" />
     <ClCompile Include="Bar.c" />
     <ClCompile Include="BitImage.c" />
     <ClCompile Include="Block.c" />
-    <ClCompile Include="bspimd.c" />
+    <ClCompile Include="BSPIMD.c" />
     <ClCompile Include="Bug.c" />
     <ClCompile Include="Button.c" />
     <ClCompile Include="CodePrint.c" />
     <ClCompile Include="Cursor.c" />
-    <ClCompile Include="d3dmode.c" />
-    <ClCompile Include="d3drender.c" />
+    <ClCompile Include="D3DMode.c" />
+    <ClCompile Include="D3DRender.c" />
     <ClCompile Include="Dderror.c" />
     <ClCompile Include="Debug.c" />
-    <ClCompile Include="dx6TexMan.c" />
+    <ClCompile Include="DX6TexMan.c" />
     <ClCompile Include="DXInput.c" />
     <ClCompile Include="EditBox.c" />
     <ClCompile Include="Event.c" />
@@ -294,52 +215,46 @@
     <ClCompile Include="Form.c" />
     <ClCompile Include="Frame.c" />
     <ClCompile Include="FrameResource.c" />
-    <ClCompile Include="getdxver.cpp" />
+    <ClCompile Include="GetDXVer.cpp" />
     <ClCompile Include="GTime.c" />
-    <ClCompile Include="hashtabl.c" />
+    <ClCompile Include="HashTabl.c" />
     <ClCompile Include="Heap.c" />
     <ClCompile Include="Image.c" />
-    <ClCompile Include="Imd.c" />
-    <ClCompile Include="imdload.c" />
+    <ClCompile Include="IMD.c" />
+    <ClCompile Include="IMDLoad.c" />
     <ClCompile Include="Input.c" />
     <ClCompile Include="Interp.c" />
     <ClCompile Include="Ivi.c" />
     <ClCompile Include="Label.c" />
     <ClCompile Include="Mem.c" />
-    <ClCompile Include="mixer.c" />
+    <ClCompile Include="Mixer.c" />
     <ClCompile Include="Mono.c" />
-    <ClCompile Include="multiWDG.c" />
-    <ClCompile Include="netAudio.c" />
-    <ClCompile Include="netcrypt.c" />
-    <ClCompile Include="netjoin.c" />
-    <ClCompile Include="netlobby.c" />
-    <ClCompile Include="netplay.c" />
-    <ClCompile Include="netprov.c" />
-    <ClCompile Include="netsupp.c" />
-    <ClCompile Include="netusers.c" />
+    <ClCompile Include="MultiWDG.c" />
+    <ClCompile Include="NetAudio.c" />
+    <ClCompile Include="NetCrypt.c" />
+    <ClCompile Include="NetJoin.c" />
+    <ClCompile Include="NetLobby.c" />
+    <ClCompile Include="NetPlay.c" />
+    <ClCompile Include="NetProv.c" />
+    <ClCompile Include="NetSupp.c" />
+    <ClCompile Include="NetUsers.c" />
     <ClCompile Include="parser_l.c" />
     <ClCompile Include="parser_y.c" />
-    <ClCompile Include="pch.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="Pcx.c" />
-    <ClCompile Include="pieBlitFunc.c" />
-    <ClCompile Include="pieClip.c" />
-    <ClCompile Include="piedraw.c" />
-    <ClCompile Include="piefunc.c" />
-    <ClCompile Include="pieMatrix.c" />
-    <ClCompile Include="pieMode.c" />
-    <ClCompile Include="piePalette.c" />
-    <ClCompile Include="pieState.c" />
-    <ClCompile Include="pieTexture.c" />
-    <ClCompile Include="pqueue.c" />
-    <ClCompile Include="ptrlist.c" />
-    <ClCompile Include="qstrack.c" />
-    <ClCompile Include="rendfunc.c" />
-    <ClCompile Include="rendmode.c" />
+    <ClCompile Include="PieBlitFunc.c" />
+    <ClCompile Include="PieClip.c" />
+    <ClCompile Include="PieDraw.c" />
+    <ClCompile Include="PieFunc.c" />
+    <ClCompile Include="PieMatrix.c" />
+    <ClCompile Include="PieMode.c" />
+    <ClCompile Include="PiePalette.c" />
+    <ClCompile Include="PieState.c" />
+    <ClCompile Include="PieTexture.c" />
+    <ClCompile Include="PQueue.c" />
+    <ClCompile Include="PtrList.c" />
+    <ClCompile Include="QSTrack.c" />
+    <ClCompile Include="RendFunc.c" />
+    <ClCompile Include="RendMode.c" />
     <ClCompile Include="resource_l.c" />
     <ClCompile Include="resource_y.c" />
     <ClCompile Include="Screen.c" />
@@ -354,16 +269,14 @@
     <ClCompile Include="StrRes_y.c" />
     <ClCompile Include="Surface.c" />
     <ClCompile Include="Tex.c" />
-    <ClCompile Include="texd3d.c" />
+    <ClCompile Include="TexD3D.c" />
     <ClCompile Include="TextDraw.c" />
     <ClCompile Include="Tip.c" />
-    <ClCompile Include="track.c" />
+    <ClCompile Include="Track.c" />
     <ClCompile Include="Treap.c" />
     <ClCompile Include="Trig.c" />
-    <ClCompile Include="V4101.c" />
-    <ClCompile Include="Vsr.c" />
-    <ClCompile Include="W95trace.c" />
-    <ClCompile Include="wdg.c" />
+    <ClCompile Include="W95Trace.c" />
+    <ClCompile Include="WDG.c" />
     <ClCompile Include="Widget.c" />
   </ItemGroup>
   <ItemGroup>
@@ -375,11 +288,6 @@
     <None Include="script.y" />
     <None Include="StrRes.l" />
     <None Include="StrRes.y" />
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="Mplayer.lib" />
-    <Library Include="QMixer.lib" />
-    <Library Include="WINSTR.LIB" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -5,7 +5,6 @@
  *
  */
 
-#ifdef WIN32
 
 #pragma warning (disable : 4201 4214 4115 4514)
 #define WIN32_LEAN_AND_MEAN
@@ -22,7 +21,6 @@
 #include "Mem.h"
 #include "Image.h"
 
-// Define this if you want to generate pictures (for tools ?)
 #define WRITEIMAGES
 
 
@@ -520,7 +518,6 @@ BOOL imageCreateBMP(UBYTE			*pImageData,		// Original file
 
 	}
 
-	// Copy the image inverted (why are bmp files inverted?)
 	for (Ycoord=Height-1;Ycoord>=0;Ycoord--)
 	{
 		ImagePointer= pImageData+(Ycoord*Width*(BitCount/8));
@@ -543,4 +540,3 @@ BOOL imageCreateBMP(UBYTE			*pImageData,		// Original file
 
 #endif
 
-#endif	// End of #ifdef WIN32

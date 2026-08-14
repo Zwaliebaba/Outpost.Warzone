@@ -18,12 +18,11 @@
 #define FRAME_LIB_INCLUDE
 
 /* The input buffer printf's */
-//#define DEBUG_GROUP1
 #include "Types.h"
 #include "Debug.h"
 #include "Input.h"
 #include "Screen.h"
-#include "frameint.h"
+#include "FrameInt.h"
 #include "Fractions.h"
 #include "Frame.h"
 
@@ -64,7 +63,6 @@ static SDWORD			dragX, dragY;
 /* The current mouse button state */
 static KEY_STATE aMouseState[3];
 
-#ifdef WIN32
 /* The size of the input buffer */
 #define INPUT_MAXSTR	512
 
@@ -74,9 +72,6 @@ static UDWORD	*pStartBuffer, *pEndBuffer;
 
 void keyScanToString(KEY_CODE code, STRING *ascii, UDWORD maxStringSize)
 {
-#ifdef PSX
-	DBPRINTF(("keyscantostring ... not installed\n"));
-#else
 	if(code == KEY_MAXSCAN)
 	{
 		strcpy(ascii,"???");
@@ -84,7 +79,6 @@ void keyScanToString(KEY_CODE code, STRING *ascii, UDWORD maxStringSize)
 	}
 	ASSERT(((code >= 0) && (code <= KEY_MAXSCAN), "Invalid key code: %d", code));
 	GetKeyNameText((UDWORD)((UWORD)code<<16),ascii,maxStringSize);
-#endif
 }
 
 
@@ -174,7 +168,6 @@ UDWORD inputGetKey(void)
 
 	return retVal;
 }
-#endif
 /* Deal with windows messages to maintain the state of the keyboard and mouse */
 void inputProcessMessages(UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -234,14 +227,9 @@ void inputProcessMessages(UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		if (repeat > 0)
 		{
-#ifdef PSX
-			DBPRINTF(("WM_KEYDOWN %x %x\n",vk,repeat));
-#endif
 
-#ifdef WIN32
 			DBP1(("Code: %x\n", vk));
 			inputAddBuffer(vk, repeat);
-#endif
 		}
 
 
@@ -250,9 +238,6 @@ void inputProcessMessages(UINT message, WPARAM wParam, LPARAM lParam)
 		/*************************************************************/
 	case WM_SYSKEYDOWN:
 
-#ifdef PSX
-		DBPRINTF(("WM_KEYDOWN %d\n",code));
-#endif
 
 		if ((aKeyState[code] == KEY_UP) ||
 			(aKeyState[code] == KEY_RELEASED) ||
@@ -289,9 +274,6 @@ void inputProcessMessages(UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_KEYUP:
 	case WM_SYSKEYUP:
 
-#ifdef PSX
-		DBPRINTF(("WM_KEYUP %d\n",code));
-#endif
 
 		if (aKeyState[code] == KEY_PRESSED)
 		{
@@ -310,29 +292,6 @@ void inputProcessMessages(UINT message, WPARAM wParam, LPARAM lParam)
 			/* store the current mouse position */
 			mouseXPos = LOWORD(lParam);
 			mouseYPos = HIWORD(lParam);
-	#ifdef WIN32		// ffs am
-			if(bRunningUnderGlide)
-			{
-				scrX = GetSystemMetrics(SM_CXFULLSCREEN);
-				scrY = GetSystemMetrics(SM_CYFULLSCREEN);
-
-				divX = MAKEFRACT(mouseXPos) / scrX;
-				divY = MAKEFRACT(mouseYPos) / scrY;
-
-				mouseXPos = MAKEINT(divX*screenWidth);
-				mouseYPos = MAKEINT(divY*screenHeight);
-			}
-	#endif
-			/*
-			if(mouseXPos>=screenWidth)
-			{
-				mouseXPos = screenWidth-1;
-			}
-			if(mouseYPos >= screenHeight)
-			{
-				mouseYPos = screenHeight-1;
-			}
-			*/
 
 			/* now see if a drag has started */
 			if ((aMouseState[dragKey] == KEY_PRESSED ||
@@ -340,7 +299,6 @@ void inputProcessMessages(UINT message, WPARAM wParam, LPARAM lParam)
 				(ABSDIF(dragX,mouseXPos) > DRAG_THRESHOLD ||
 				 ABSDIF(dragY,mouseYPos) > DRAG_THRESHOLD))
 			{
-	//		DBPRINTF(("dragging\n"));
 				aMouseState[dragKey] = KEY_DRAG;
 			}
 		}
@@ -446,12 +404,7 @@ void inputProcessMessages(UINT message, WPARAM wParam, LPARAM lParam)
 		repeat = lParam & 0xf;
 		/* Store the repeat count number of characters
 		   while there is space in the buffer */
-#ifdef WIN32
 		inputAddBuffer(wParam, repeat);
-#endif
-#ifdef PSX
-		DBPRINTF(("WM_CHAR  %d %d\n",wParam,repeat));
-#endif
 		break;
 	default:
 		break;
@@ -465,7 +418,6 @@ void inputNewFrame(void)
 {
 	UDWORD i;
 
-#ifdef WIN32
 	/* Do the keyboard */
 	for (i=0; i< KEY_MAXSCAN; i++)
 	{
@@ -479,13 +431,6 @@ void inputNewFrame(void)
 			aKeyState[i] = KEY_UP;
 		}
 	}
-#else
-	/* Do the keyboard */
-	for (i=0; i< KEY_MAXSCAN; i++)
-	{
-		aKeyState[i] = KEY_UP;
-	}
-#endif
 
 	/* Do the mouse */
 	for(i=0; i<3; i++)

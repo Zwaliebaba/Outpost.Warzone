@@ -1,7 +1,7 @@
 #ifndef _mapdisplay_h
 #define _mapdisplay_h
 
-#include "pieTypes.h"
+#include "PieTypes.h"
 
 /* MapDisplay.h */
 
@@ -25,28 +25,18 @@ extern iSurface* setUpMapSurface(UDWORD width, UDWORD height);
 
 /* Render the world to given surface */
 //extern void	renderMapToBuffer( struct iSurface *pSurface, iVector *location, iVector *viewVector, 
-//						  UDWORD distance );
 // Render a Map Surface to display memory.
 extern void renderMapSurface(struct iSurface *pSurface, UDWORD x, UDWORD y, UDWORD width, UDWORD height);
 
-#ifdef WIN32
 /* renders up to two IMDs into the surface - used by message display in Intelligence Map */
 extern void renderIMDToBuffer(struct iSurface *pSurface, struct iIMDShape *pIMD,
 							  struct iIMDShape *pIMD2, UDWORD WindowX,UDWORD WindowY,
 							  UDWORD OriginX,UDWORD OriginY);
 extern void renderResearchToBuffer(iSurface *pSurface, RESEARCH *psResearch, 
                             UDWORD OriginX, UDWORD OriginY);
-#endif
 
 extern void	releaseMapSurface(struct iSurface *pSurface);
 
-#ifdef PSX
-
-extern void renderIntelIMD(struct iIMDShape *pIMD,struct iIMDShape *pIMD2,SWORD OriginX,SWORD OriginY, BOOL SpinMe);
-
-extern void renderIntelWorld(iVector *location, iVector *viewVector,
-						  UDWORD distance,SWORD OriginX,SWORD OriginY);
-#endif
 
 #endif
 

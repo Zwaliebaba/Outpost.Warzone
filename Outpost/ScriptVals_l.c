@@ -259,8 +259,8 @@ extern int	yt_getc YY_ARGS((void));
 			else { YY_SCANNER; scrv_leng = (n); YY_USER; }
 
 YY_DECL	void	scrv__reset YY_ARGS((void));
-YY_DECL	int	input	YY_ARGS((void));
-YY_DECL	int	unput	YY_ARGS((int c));
+static	int	input	YY_ARGS((void));
+static	int	unput	YY_ARGS((int c));
 
 /* functions defined in libl.lib */
 extern	int	scrv_wrap	YY_ARGS((void));
@@ -902,7 +902,7 @@ scrv__reset()
 	scrv_lineno = 1;		/* line number */
 }
 /* get input char with pushback */
-YY_DECL int
+static int
 input()
 {
 	int c;
@@ -931,7 +931,7 @@ input()
 /*f
  * pushback char
  */
-YY_DECL int
+static int
 unput(c)
 	int c;
 {

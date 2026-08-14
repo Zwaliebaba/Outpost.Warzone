@@ -10,7 +10,7 @@
 #include "Tip.h"
 #include "Form.h"
 #include "Bar.h"
-#include "Vid.h"
+#include "RendMode.h"
 #include "PiePalette.h"
 
 /* The widget heap */
@@ -88,9 +88,6 @@ BOOL barGraphCreate(W_BARGRAPH **ppsWidget, W_BARINIT *psInit)
 	(*ppsWidget)->majorSize = psInit->size;
 	(*ppsWidget)->minorSize = psInit->minorSize;
 	(*ppsWidget)->iRange = psInit->iRange;
-#ifdef PSX
-	(*ppsWidget)->OTIndex = WidgGetOTIndex();
-#endif
 
 	/* Set the display function */
 	if (psInit->pDisplay)
@@ -111,7 +108,6 @@ BOOL barGraphCreate(W_BARGRAPH **ppsWidget, W_BARINIT *psInit)
 	}
 	/* Set the major colour */
 //	(*ppsWidget)->majorCol = screenGetCacheColour(psInit->sCol.red,
-//											psInit->sCol.green, psInit->sCol.blue);
 	(*ppsWidget)->majorCol = (UBYTE)pal_GetNearestColour(psInit->sCol.red,
 															psInit->sCol.green, psInit->sCol.blue);
 
@@ -119,7 +115,6 @@ BOOL barGraphCreate(W_BARGRAPH **ppsWidget, W_BARINIT *psInit)
 	if (psInit->style & WBAR_DOUBLE)
 	{
 //		(*ppsWidget)->minorCol = screenGetCacheColour(psInit->sMinorCol.red,
-//												psInit->sMinorCol.green, psInit->sMinorCol.blue);
 		(*ppsWidget)->majorCol = (UBYTE)pal_GetNearestColour(psInit->sMinorCol.red,
 												psInit->sMinorCol.green, psInit->sMinorCol.blue);
 	}
@@ -214,24 +209,6 @@ void widgSetMinorBarSize(W_SCREEN *psScreen, UDWORD id, UDWORD iValue )
 }
 
 
-#if 0
-/* Run a barGraph widget */
-void barGraphRun(W_BARGRAPH *psWidget)
-{
-}
-
-
-/* Respond to a mouse click */
-void barGraphClicked(W_BARGRAPH *psWidget)
-{
-}
-
-
-/* Respond to a mouse up */
-void barGraphReleased(W_BARGRAPH *psWidget)
-{
-}
-#endif
 
 
 /* Respond to a mouse moving over a barGraph */

@@ -6,11 +6,8 @@
  */
 
 // route success printf's
-//#define DEBUG_GROUP0
 // way point printf's
-//#define DEBUG_GROUP1
 // gateway route printf's
-//#define DEBUG_GROUP2
 
 #include "Frame.h"
 
@@ -121,7 +118,6 @@ SDWORD fpathGetMaxRoute(void)
 BOOL fpathGroundBlockingTile(SDWORD x, SDWORD y)
 {
 	MAPTILE	*psTile;
-//	FEATURE	*psFeat;
 
     //doesn't look like we need this - pickATile wasn't working with it! - AB 8/2/99
 	/* check VTOL limits if not routing */
@@ -169,7 +165,6 @@ BOOL fpathGroundBlockingTile(SDWORD x, SDWORD y)
 			return(FALSE);
 		}
 	}*/
-//#endif
 
 #ifndef TEST_BED
 	if ((psTile->tileInfoBits & BITS_FPATHBLOCK) ||
@@ -303,7 +298,6 @@ BOOL fpathLiftBlockingTile(SDWORD x, SDWORD y)
 	}
 }
 
-// Check if an edge map tile blocks a vtol (for sliding at map edge)
 BOOL fpathLiftSlideBlockingTile(SDWORD x, SDWORD y)
 {
 	if ( x < 1 || y < 1 ||
@@ -390,7 +384,6 @@ BOOL fpathEndPointCallback(SDWORD x, SDWORD y, SDWORD dist)
 
 	dist = dist;
 
-	// See if this point is past the final point (dot product)
 	vx = x - finalX;
 	vy = y - finalY;
 	if (vx*vectorX + vy*vectorY <=0)
@@ -428,10 +421,6 @@ void fpathSetDirectRoute( BASE_OBJECT *psObj, SDWORD targetX, SDWORD targetY )
 
 		psMoveCntl->DestinationX = targetX;
 		psMoveCntl->DestinationY = targetY;
-//		psMoveCntl->MovementList[0].XCoordinate = targetX;
-//		psMoveCntl->MovementList[0].YCoordinate = targetY;
-//		psMoveCntl->MovementList[1].XCoordinate = -1;
-//		psMoveCntl->MovementList[1].YCoordinate = -1;
 		psMoveCntl->numPoints = 1;
 		psMoveCntl->asPath[0].x = (UBYTE)(targetX >> TILE_SHIFT);
 		psMoveCntl->asPath[0].y = (UBYTE)(targetY >> TILE_SHIFT);
@@ -445,8 +434,6 @@ void fpathAppendRoute( MOVE_CONTROL *psMoveCntl, ASTAR_ROUTE *psAStarRoute )
 	SDWORD		mi, ai;
 
 	// find the end of the last route
-//	for(mi=0; psMoveCntl->MovementList[mi].XCoordinate != -1; mi += 1)
-//		;
 
 	mi = psMoveCntl->numPoints;
 	ai = 0;
@@ -454,17 +441,13 @@ void fpathAppendRoute( MOVE_CONTROL *psMoveCntl, ASTAR_ROUTE *psAStarRoute )
 	{
 //		psMoveCntl->MovementList[mi].XCoordinate =
 		psMoveCntl->asPath[mi].x = (UBYTE)(psAStarRoute->asPos[ai].x);
-//			(UBYTE)(psAStarRoute->asPos[ai].x >> TILE_SHIFT);
 //		psMoveCntl->MovementList[mi].YCoordinate =
 		psMoveCntl->asPath[mi].y = (UBYTE)(psAStarRoute->asPos[ai].y);
-//			(UBYTE)(psAStarRoute->asPos[ai].y >> TILE_SHIFT);
 
 		ai += 1;
 		mi += 1;
 	}
 
-//	psMoveCntl->MovementList[mi].XCoordinate = -1;
-//	psMoveCntl->MovementList[mi].YCoordinate = -1;
 	psMoveCntl->numPoints = (UBYTE)(psMoveCntl->numPoints + ai);
 	psMoveCntl->DestinationX = (psAStarRoute->finalX << TILE_SHIFT) + TILE_UNITS/2;
 	psMoveCntl->DestinationY = (psAStarRoute->finalY << TILE_SHIFT) + TILE_UNITS/2;
@@ -756,201 +739,6 @@ void fpathGatewayCoords(GATEWAY *psGate, SDWORD *px, SDWORD *py)
 }
 
 // create a final route from a gateway route
-#if 0
-SDWORD fpathGatewayRouteOld(BASE_OBJECT *psObj, SDWORD routeMode, SDWORD GWTerrain,
-						 SDWORD sx, SDWORD sy, SDWORD fx, SDWORD fy,
-						 MOVE_CONTROL *psMoveCntl)
-{
-	static SDWORD	linkx,linky, gwx,gwy, asret, routex,routey;
-	ASTAR_ROUTE		sAStarRoute;
-	SDWORD			retval = FPR_OK, gwRet;
-	static GATEWAY	*psCurrRoute, *psGWRoute, *psLastGW;
-	BOOL			bRouting = TRUE;
-	BOOL			firstRoute = TRUE;
-
-	// keep trying gateway routes until out of options
-	while (bRouting)
-	{
-
-		if (routeMode == ASR_NEWROUTE)
-		{
-			firstRoute = FALSE;
-
-			DBP2(("Gateway route - droid %d\n", psObj->id));
-			gwRet = gwrAStarRoute(psObj->player, GWTerrain,
-								  sx,sy, fx,fy, &psGWRoute);
-			switch (gwRet)
-			{
-			case GWR_OK:
-				// initialise the move control structure
-				psMoveCntl->numPoints = 0;
-				break;
-			case GWR_NEAREST:
-				if (firstRoute)
-				{
-					// first time a route has been generated
-					// initialise the move control structure
-					psMoveCntl->numPoints = 0;
-				}
-				else
-				{
-					DBP2(("   GW route returned GWR_NEAREST for second route\n"));
-					// can't find a better route than the last one
-					if (psMoveCntl->numPoints > 0)
-					{
-						// return the last route as it got as near as you can
-						retval = FPR_OK;
-					}
-					else
-					{
-						DBP2(("     no points - route failed\n"));
-						retval = FPR_FAILED;
-					}
-					goto exit;
-				}
-				break;
-			case GWR_NOZONE:
-			case GWR_SAMEZONE:
-				// no zone information - try a normal route
-				psGWRoute = NULL;
-				break;
-			case GWR_FAILED:
-				DBP2(("   Gateway route failed\n"));
-				retval = FPR_FAILED;
-				goto exit;
-				break;
-			}
-		}
-
-
-		// stop routing through any gateways which are not in the route
-		fpathSetGatewayBlock();
-
-		if (routeMode == ASR_NEWROUTE)
-		{
-			// if the start of the route is on the first gateway, skip it
-			if ((psGWRoute != NULL) && fpathPointInGateway(sx,sy, psGWRoute))
-			{
-				psGWRoute = psGWRoute->psRoute;
-			}
-
-			linkx = sx;
-			linky = sy;
-			psCurrRoute = psGWRoute;
-			psLastGW = NULL;
-		}
-
-		// now generate the route
-		bRouting = FALSE;
-		while (psCurrRoute != NULL)
-		{
-			// if the end of the route is on the last gateway, skip it
-			if ((psCurrRoute->psRoute == NULL) && fpathPointInGateway(fx,fy, psCurrRoute))
-			{
-				break;
-			}
-
-	/*		gwx = (psCurrRoute->x1 + psCurrRoute->x2)/2;
-			gwy = (psCurrRoute->y1 + psCurrRoute->y2)/2;
-
-			gwx = gwx * TILE_UNITS + TILE_UNITS/2;
-			gwy = gwy * TILE_UNITS + TILE_UNITS/2;*/
-			fpathGatewayCoords(psCurrRoute, &gwx, &gwy);
-
-			DBP2(("   astar route : (%d,%d) -> (%d,%d)\n",
-				linkx>>TILE_SHIFT, linky>>TILE_SHIFT,
-				gwx>>TILE_SHIFT, gwy>>TILE_SHIFT));
-			asret = fpathAStarRoute(routeMode, &sAStarRoute, linkx,linky, gwx,gwy);
-			routeMode = ASR_NEWROUTE;
-			if ((asret == ASR_NEAREST) &&
-				actionRouteBlockingPos((DROID *)psObj, sAStarRoute.finalX,sAStarRoute.finalY))
-			{
-				// found a blocking wall - route to that
-				fpathAppendRoute(psMoveCntl, &sAStarRoute);
-				retval = FPR_OK;
-				goto exit;
-			}
-			else if ((asret == ASR_FAILED) ||
-					 (asret == ASR_NEAREST))
-			{
-				// no route found - try ditching this gateway
-				// and trying a new gateway route
-				DBP2(("   Route failed - trying new gatway route\n"));
-				psCurrRoute->flags |= GWR_IGNORE;
-				bRouting = TRUE;
-				fpathClearGatewayBlock();
-				break;
-			}
-			else if (asret == ASR_PARTIAL)
-			{
-				// routing hasn't finished yet
-				DBP2(("   Reschedule\n"));
-				retval = FPR_WAIT;
-				goto exit;
-			}
-
-			fpathAppendRoute(psMoveCntl, &sAStarRoute);
-
-			linkx = gwx;
-			linky = gwy;
-
-			psLastGW = psCurrRoute;
-			psCurrRoute = psCurrRoute->psRoute;
-		}
-
-		// only finish off if no new gateway route is going to be generated
-		if (!bRouting)
-		{
-			asret = fpathAStarRoute(routeMode,&sAStarRoute, linkx,linky, fx,fy);
-			routeMode = ASR_NEWROUTE;
-			if ((asret == ASR_NEAREST) &&
-				actionRouteBlockingPos((DROID *)psObj, sAStarRoute.finalX,sAStarRoute.finalY))
-			{
-				// found a blocking wall - route to that
-				fpathAppendRoute(psMoveCntl, &sAStarRoute);
-				retval = FPR_OK;
-				goto exit;
-			}
-			else if ((psLastGW != NULL) &&
-				((asret == ASR_FAILED) ||
-				 (asret == ASR_NEAREST)))
-			{
-				// no route found - try ditching the last gateway
-				// and trying a new gateway route
-				DBP2(("   Route failed - trying new gatway route\n"));
-				psLastGW->flags |= GWR_IGNORE;
-				bRouting = TRUE;
-				fpathClearGatewayBlock();
-			}
-			else if (asret == ASR_FAILED)
-			{
-				DBP2(("   Final route failed\n"));
-				retval = FPR_FAILED;
-				goto exit;
-			}
-			else if (asret == ASR_PARTIAL)
-			{
-				// routing hasn't finished yet
-				DBP2(("   Reschedule\n"));
-				retval = FPR_WAIT;
-				goto exit;
-			}
-
-			fpathAppendRoute(psMoveCntl, &sAStarRoute);
-		}
-	}
-
-exit:
-	// reset the routing block flags
-	fpathClearGatewayBlock();
-	if (retval != FPR_WAIT)
-	{
-		fpathClearIgnore();
-	}
-
-	return retval;
-}
-#endif
 
 
 // check if the route to a gateway has already been generated
@@ -992,7 +780,6 @@ void fpathBlockGatewayLink(GATEWAY *psLast, GATEWAY *psCurr)
 		numLinks = psLast->zone1Links + psLast->zone2Links;
 		for(link = 0; link < numLinks; link += 1)
 		{
-//			if (psLast->psLinks[link].psGateway == psCurr)
 			if (psLast->psLinks[link].flags & GWRL_CHILD)
 			{
 				DBP2((" last link %d", link));
@@ -1002,7 +789,6 @@ void fpathBlockGatewayLink(GATEWAY *psLast, GATEWAY *psCurr)
 		numLinks = psCurr->zone1Links + psCurr->zone2Links;
 		for(link = 0; link < numLinks; link += 1)
 		{
-//			if (psCurr->psLinks[link].psGateway == psLast)
 			if (psCurr->psLinks[link].flags & GWRL_PARENT)
 			{
 				DBP2((" curr link %d", link));
@@ -1164,9 +950,7 @@ SDWORD fpathGatewayRoute(BASE_OBJECT *psObj, SDWORD routeMode, SDWORD GWTerrain,
 
 			// only route between the gateways if it wasn't done on a previous route
 //			if (!fpathCheckRouteMatch(psMoveCntl, &matchPoints, gwx,gwy))
-//			if (1)
 			{
-//				psMoveCntl->numPoints = (UBYTE)matchPoints;
 
 				DBP2(("   astar route : (%d,%d) -> (%d,%d) zone %d\n",
 					linkx>>TILE_SHIFT, linky>>TILE_SHIFT,
@@ -1181,11 +965,6 @@ SDWORD fpathGatewayRoute(BASE_OBJECT *psObj, SDWORD routeMode, SDWORD GWTerrain,
 					retval = FPR_WAIT;
 					goto exit;
 				}
-/*				else if (asret != ASR_FAILED)
-				{
-					fpathAppendRoute(psMoveCntl, &sAStarRoute);
-					matchPoints = psMoveCntl->numPoints;
-				}*/
 				routeMode = ASR_NEWROUTE;
 
 				if ((asret == ASR_NEAREST) &&
@@ -1306,7 +1085,6 @@ FPATH_RETVAL fpathRoute(BASE_OBJECT *psObj, MOVE_CONTROL *psMoveCntl,
 	SDWORD				x,y;
 	SDWORD				dir, nearestDir, minDist, tileDist;
 	FPATH_RETVAL		retVal = FPR_OK;
-//	DROID				*psCurr;
 	DROID				*psDroid;
 	PROPULSION_STATS	*psPropStats;
 	UDWORD				GWTerrain;
@@ -1529,7 +1307,6 @@ FPATH_RETVAL fpathRoute(BASE_OBJECT *psObj, MOVE_CONTROL *psMoveCntl,
 	}
 	else
 	{
-//		DBPRINTF(("Partial Route: %d\n", psDroid->id));
 		psPartialRouteObj = NULL;
 		retVal = fpathGatewayRoute(psObj, ASR_CONTINUE, GWTerrain,
 						startX,startY, targetX,targetY, psMoveCntl);
@@ -1554,14 +1331,6 @@ exit:
 
 #ifndef TEST_BED
 	// reset all the droid flags
-/*	for(psCurr = apsDroidLists[psObj->player]; psCurr; psCurr = psCurr->psNext)
-	{
-		if (psCurr->sMove.Status == MOVEINACTIVE)
-		{
-			psTile = mapTile(psCurr->x >> TILE_SHIFT, psCurr->y >> TILE_SHIFT);
-			psTile->tileInfoBits &= ~BITS_FPATHBLOCK;
-		}
-	}*/
 #endif
 
 	// reset the blocking tile function

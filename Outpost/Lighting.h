@@ -1,5 +1,5 @@
 /* Lighting.h - Alex */
-#include "pieTypes.h"
+#include "PieTypes.h"
 
 #define FOG_FLAGS		7	
 #define FOG_BACKGROUND	1	
@@ -27,7 +27,6 @@ UDWORD	colour;
 } LIGHT;
 
 extern void	processLight(LIGHT *psLight);
-//extern void	initLighting( void );
 extern void initLighting(UDWORD x1, UDWORD y1, UDWORD x2, UDWORD y2);
 extern void	lightValueForTile(UDWORD tileX, UDWORD tileY);
 extern void	calcTileIllum(UDWORD tileX, UDWORD tileY);

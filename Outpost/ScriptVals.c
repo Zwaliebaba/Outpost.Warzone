@@ -9,11 +9,11 @@
 #include "Frame.h"
 #include "Script.h"
 #include "Objects.h"
-#include "base.h"
+#include "Base.h"
 #include "ScriptTabs.h"
 #include "ScriptVals.h"
 #include "GTime.h"
-#include "text.h"
+#include "Text.h"
 #include "Group.h"
 
 // Keep all the loaded script contexts
@@ -217,8 +217,6 @@ BOOL scrvGetContext(STRING *pID, SCRIPT_CONTEXT **ppsContext)
 // Find a base object from it's id
 BOOL scrvGetBaseObj(UDWORD id, BASE_OBJECT **ppsObj)
 {
-	//UDWORD			i;
-	//UDWORD			player;
 	BASE_OBJECT		*psObj;
 
 	

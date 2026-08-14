@@ -13,31 +13,26 @@
 #include "HCI.h"
 #include "GTime.h"
 #include "Power.h"
-#include "audio.h"
-#include "audio_id.h"
+#include "Audio.h"
+#include "AudioID.h"
 #include "Objects.h"
-#include "display.h"
+#include "Display.h"
 #include "Console.h"
 #include "Order.h"
 #include "Structure.h"
-#include "MiscImd.h"
-#include "anim_id.h"
+#include "MiscIMD.h"
+#include "AnimID.h"
 #include "Visibility.h"
-#include "text.h"
+#include "Text.h"
 #include "Effects.h"
 #include "Geometry.h"
 #include "Scores.h"
-#ifdef WIN32
 #include "MultiPlay.h" 
 #include "AdvVis.h"
-#endif
 #include "MapGrid.h"
-#include "display3d.h"
+#include "Display3D.h"
 #include "Gateway.h"
 
-#ifdef PSX
-extern  BOOL EnableVibration;
-#endif
 
 /* The statistics for the features */
 FEATURE_STATS	*asFeatureStats;
@@ -46,8 +41,6 @@ UDWORD			numFeatureStats;
 #define	DRIVE_OVER_RUBBLE_TILE		54
 #define NO_DRIVE_OVER_RUBBLE_TILE	67
 
-//Value is stored for easy access to this feature in destroyDroid()/destroyStruct()
-//UDWORD			droidFeature;
 UDWORD			structFeature;
 UDWORD			oilResFeature;
 
@@ -65,7 +58,6 @@ void featureInitVars(void)
 {
 	asFeatureStats = NULL;
 	numFeatureStats = 0;
-	//droidFeature = 0;
 	structFeature = 0;
 	oilResFeature = 0;
 }
@@ -145,7 +137,6 @@ BOOL loadFeatureStats(SBYTE *pFeatureData, UDWORD bufferSize)
 	UDWORD				i;
 	STRING				featureName[MAX_NAME_SIZE], GfxFile[MAX_NAME_SIZE], 
 						type[MAX_NAME_SIZE];
-						//compName[MAX_NAME_SIZE], compType[MAX_NAME_SIZE];
 
 	//keep the start so we release it at the end
 	pData = pFeatureData;
@@ -244,7 +235,6 @@ BOOL loadFeatureStats(SBYTE *pFeatureData, UDWORD bufferSize)
 		psFeature++;
 	}
 
-//	FREE(pData);
 	
 	return TRUE;
 
@@ -429,7 +419,6 @@ BOOL loadFeatureStats(SBYTE *pFeatureData, UDWORD bufferSize)
 	psStats->tileDraw = TRUE;
 	psStats->allowLOS = TRUE;
 	psStats->psImd = resGetData("IMD", "drwreck.imd");
-	//Value is stored for easy access to this feature in destroyDroid()
 	droidFeature = psStats - asFeatureStats;
 
 	psStats++;
@@ -607,7 +596,6 @@ void featureStatsShutDown(void)
 {
 	FEATURE_STATS	*psFeature = asFeatureStats;
 
-//#ifndef RESOURCE_NAMES
 #if !defined(RESOURCE_NAMES) && !defined(STORE_RESOURCE_ID)
 	
 	UDWORD			inc;
@@ -632,7 +620,6 @@ BOOL featureDamage(FEATURE *psFeature, UDWORD damage, UDWORD weaponClass,
 	UDWORD		penDamage;
 
 	/* this is ignored for features */
-	//(void)weaponClass;
     UNUSEDPARAMETER(weaponClass);
 
 	ASSERT((PTRVALID(psFeature, sizeof(FEATURE)),
@@ -679,12 +666,7 @@ BOOL featureDamage(FEATURE *psFeature, UDWORD damage, UDWORD weaponClass,
 			psFeature->body -= 1;
 		}
 	}
-#ifdef WIN32
-//	if(psFeature->sDisplay.imd->ymax > 300)
-//	{
 		psFeature->timeLastHit = gameTime;
-//	}
-#endif
 	return FALSE;
 
 }
@@ -783,19 +765,14 @@ FEATURE * buildFeature(FEATURE_STATS *psStats, UDWORD x, UDWORD y,BOOL FromSave)
 		psFeature->direction = 0;
    		psFeature->gfxScaling = 100;	// but irrelevant anyway, cos it's not scaled
 	}
-	//psFeature->damage = featureDamage;
 	psFeature->selected = FALSE;
 	psFeature->psStats = psStats;
-	//psFeature->subType = psStats->subType;
 	psFeature->body = psStats->body;
 	psFeature->player = MAX_PLAYERS+1;	//set the player out of range to avoid targeting confusions
-#ifdef WIN32
 	psFeature->bTargetted = FALSE;
 	psFeature->timeLastHit = 0;
-#endif
 
 
-#ifdef WIN32	
 	if(getRevealStatus())
 	{
 		vis = 0;
@@ -812,7 +789,6 @@ FEATURE * buildFeature(FEATURE_STATS *psStats, UDWORD x, UDWORD y,BOOL FromSave)
 			vis = 0;
 		}
 	}
-#endif
 	for(i=0; i<MAX_PLAYERS; i++)
 	{
 		psFeature->visible[i] = 0;//vis;
@@ -830,19 +806,11 @@ FEATURE * buildFeature(FEATURE_STATS *psStats, UDWORD x, UDWORD y,BOOL FromSave)
 	// set up the imd for the feature
 	if(psFeature->psStats->subType==FEAT_BUILD_WRECK)
 	{
-#ifdef WIN32
-//		psFeature->sDisplay.imd = wreckageImds[rand()%MAX_WRECKAGE];
 		psFeature->sDisplay.imd = getRandomWreckageImd();
-#else
-		psFeature->sDisplay.imd = NULL;
-		DBPRINTF(("buildFeature: NO WRECKS ON PSX\n"));
-		assert(0);
-#endif
 	}
 	else
 	{
 		psFeature->sDisplay.imd = psStats->psImd;
-//DBPRINTF(("%d %d\n",psStats->psImd->ymin,psStats->psImd->ymax);
   	}
 
 
@@ -853,14 +821,12 @@ FEATURE * buildFeature(FEATURE_STATS *psStats, UDWORD x, UDWORD y,BOOL FromSave)
 		for (breadth = 0; breadth <= psStats->baseBreadth; breadth++)
 		{
 			//check not outside of map - for load save game
-#ifdef WIN32
 			ASSERT(((mapX+width) < mapWidth,
 				"x coord bigger than map width - %s, id = %d",
 				getName(psFeature->psStats->pName), psFeature->id));
 			ASSERT(((mapY+breadth) < mapHeight,
 				"y coord bigger than map height - %s, id = %d",
 				getName(psFeature->psStats->pName), psFeature->id));
-#endif
 			psTile = mapTile(mapX+width, mapY+breadth);
 			if (width != psStats->baseWidth && breadth != psStats->baseBreadth)
 			{
@@ -871,9 +837,6 @@ FEATURE * buildFeature(FEATURE_STATS *psStats, UDWORD x, UDWORD y,BOOL FromSave)
 				SET_TILE_FEATURE(psTile);	
 				// if it's a tall feature then flag it in the map.
 				if(psFeature->sDisplay.imd->ymax > TALLOBJECT_YMAX) {
-//#ifdef PSX
-//DBPRINTF(("Tall feature %d, (%d x %d)\n",psFeature->sDisplay.imd->ymax,psStats->baseWidth,psStats->baseBreadth));
-//#endif
 					SET_TILE_TALLSTRUCTURE(psTile);
 				}
 
@@ -899,15 +862,7 @@ FEATURE * buildFeature(FEATURE_STATS *psStats, UDWORD x, UDWORD y,BOOL FromSave)
 	psFeature->startTime = gameTime;
 
 //	// set up the imd for the feature
-//	if(psFeature->psStats->subType==FEAT_BUILD_WRECK)
-//	{
-//		psFeature->sDisplay.imd = wreckageImds[rand()%MAX_WRECKAGE];
-//	}
 //	else
-//	{
-//		psFeature->sDisplay.imd = psStats->psImd;
-//DBPRINTF(("%d %d\n",psStats->psImd->ymin,psStats->psImd->ymax);
-// 	}
 
 	// add the feature to the grid
 	gridAddObject((BASE_OBJECT *)psFeature);
@@ -927,10 +882,8 @@ void featureRelease(FEATURE *psFeature)
 void featureUpdate(FEATURE *psFeat)
 {
    //	if(getRevealStatus())
-   //	{
 		// update the visibility for the feature
 		processVisibility((BASE_OBJECT *)psFeat);
-   //	}
 
 	switch (psFeat->psStats->subType)
 	{
@@ -938,9 +891,7 @@ void featureUpdate(FEATURE *psFeat)
 	case FEAT_BUILD_WRECK:
 //		//kill off wrecked droids and structures after 'so' long
 //		if ((gameTime - psFeat->startTime) > WRECK_LIFETIME)
-//		{
 			destroyFeature(psFeat); // get rid of the now!!!
-//		}
 		break;
 	}
 }
@@ -954,9 +905,6 @@ void removeFeature(FEATURE *psDel)
 	MESSAGE		*psMessage;
 	iVector		pos;
 
-//	iVector		dv;
-//	UWORD		uwFlameCycles, uwFlameAnims, i;
-//	UDWORD		x, y, udwFlameDelay;
 
 	ASSERT( (PTRVALID(psDel, sizeof(FEATURE)),
 		"removeFeature: invalid feature pointer\n") );
@@ -969,12 +917,10 @@ void removeFeature(FEATURE *psDel)
 		return;
 	}
 
-#ifdef WIN32	// dont send if starting up, all players do this anyway.
 	if(bMultiPlayer && !ingame.localJoiningInProgress)
 	{
 		SendDestroyFeature(psDel);	// inform other players of destruction
 	}
-#endif
 
 	//remove from the map data
 	mapX = (psDel->x - psDel->psStats->baseWidth * TILE_UNITS / 2) >> TILE_SHIFT;
@@ -983,9 +929,7 @@ void removeFeature(FEATURE *psDel)
 	{
 		for (breadth = 0; breadth < psDel->psStats->baseBreadth; breadth++)
 		{
-	 //psor		mapTile(mapX+width, mapY+breadth)->psObject = NULL;
 			psTile = mapTile(mapX+width, mapY+breadth);
-		  //	psTile->tileInfoBits = (UBYTE)(psTile->tileInfoBits & BITS_STRUCTURE_MASK);
 			/* Don't need to worry about clearing structure bits - they should not be there! */
 			SET_TILE_EMPTY(psTile);
 			CLEAR_TILE_NODRAW(psTile);
@@ -1025,7 +969,6 @@ void removeFeature(FEATURE *psDel)
 
 	killFeature(psDel);
 
-#ifdef WIN32	// No wrecks on PSX please.
 	//once a feature of type FEAT_BUILDING is destroyed - it leaves a wrecked 
 	//struct FEATURE in its place - ?!
 	if (psDel->psStats->subType == FEAT_BUILDING)
@@ -1042,9 +985,7 @@ void removeFeature(FEATURE *psDel)
 		}*/
 
 //		buildFeature((asFeatureStats + structFeature), mapX << TILE_SHIFT, 
-//			mapY << TILE_SHIFT, FALSE);
 	}
-#endif
 }
 
 /* Remove a Feature and free it's memory */
@@ -1104,7 +1045,6 @@ void destroyFeature(FEATURE *psDel)
 			// smoke effect should disguise this happening
 			mapX = (psDel->x - psDel->psStats->baseWidth * TILE_UNITS / 2) >> TILE_SHIFT;
 			mapY = (psDel->y - psDel->psStats->baseBreadth * TILE_UNITS / 2) >> TILE_SHIFT;
-//			if(psDel->sDisplay.imd->ymax>300)
 		if(psDel->psStats->subType == FEAT_SKYSCRAPER)
 			{
 				for (width = 0; width < psDel->psStats->baseWidth; width++)
@@ -1149,21 +1089,14 @@ void destroyFeature(FEATURE *psDel)
 		addEffect(&pos,EFFECT_DESTRUCTION,DESTRUCTION_TYPE_FEATURE,FALSE,NULL,0);
 
 		//play sound
-#ifdef WIN32		// ffs gj
 		if(psDel->psStats->subType == FEAT_SKYSCRAPER)
 		{
 			audio_PlayStaticTrack( psDel->x, psDel->y, ID_SOUND_BUILDING_FALL );
 		}
 		else
-#endif
 		{
 			audio_PlayStaticTrack( psDel->x, psDel->y, ID_SOUND_EXPLOSION );
 		}
-#if defined(PSX) && defined(LIBPAD)
-		if(EnableVibration) {
-			SetVibro1(0,120,512);
-		}
-#endif
 	}
 //---------------------------------------------------------------------------------------
 

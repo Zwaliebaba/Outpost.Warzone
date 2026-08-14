@@ -5,10 +5,10 @@
 
 #include <stdio.h>
 
-#include "frame.h"
-#include "parser.h"
-#include "audio.h"
-#include "anim.h"
+#include "Frame.h"
+#include "Parser.h"
+#include "Audio.h"
+#include "Anim.h"
 
 static int			g_iCurAnimID = 0;
 static int			g_iDummy;

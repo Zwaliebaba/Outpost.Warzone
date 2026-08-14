@@ -21,7 +21,7 @@
 #include <d3drm.h>
 #pragma warning (default : 4201 4214 4115)
 
-#include "types.h"
+#include "Types.h"
 
 /* Turn a DD, D3D, or D3DRM error code into a string */
 extern STRING *DDErrorToString(HRESULT error);

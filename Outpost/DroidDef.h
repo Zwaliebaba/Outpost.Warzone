@@ -6,15 +6,14 @@
 #ifndef _droiddef_h
 #define _droiddef_h
 
-#include "animobj.h"
-#include "audio.h"
+#include "AnimObj.h"
+#include "Audio.h"
 
 /* The number of components in the asParts / asBits arrays */
 #define DROID_MAXCOMP		(COMP_NUMCOMPONENTS - 1)//(COMP_NUMCOMPONENTS - 2)
 
 /* The maximum number of droid weapons and programs */
 #define DROID_MAXWEAPS		1//3
-//#define DROID_MAXPROGS		3
 #define	DROID_DAMAGE_SCALING	400
 // This should really be logarithmic
 #define	CALC_DROID_SMOKE_INTERVAL(x) ((((100-x)+10)/10) * DROID_DAMAGE_SCALING)
@@ -24,10 +23,6 @@
 //used to get a location next to a droid - withinh one tile
 #define LOOK_NEXT_TO_DROID		8
 
-#ifdef PSX
-//#define DROID_SCALE	133	// Percentage scale for droids on PSX.
-#define DROID_SCALE	100	// Percentage scale for droids on PSX.
-#endif
 
 /* The different types of droid */
 // NOTE, if you add to, or change this list then you'll need
@@ -54,7 +49,6 @@ typedef enum _droid_type
 
 typedef struct _component
 {
-//	UDWORD					nStat;
 	UBYTE			nStat;				// Allowing a maximum of 255 stats per file
 	//UDWORD					hitPoints; NOT USED?
 
@@ -75,7 +69,6 @@ typedef struct _program
 typedef struct _order_list
 {
 	SDWORD				order;
-	//BASE_OBJECT	*psObj;
     void                *psOrderTarget; //this needs to cope with objects and stats
 	UWORD				x,y,x2,y2;      //line build requires two sets of coords
 } ORDER_LIST;
@@ -90,11 +83,9 @@ typedef struct _droid_template
 	// on the PSX the NameHash entry is used. If it is database generated template, the hashed version of the short name of the template is stored. If it is a user generated template NULL is stored.
 	STATS_BASE;						/* basic stats */ 
 
-#ifdef WIN32
 	// on the PC this contains the full editable ascii name of the template
 	// on the PSX this is not used, the full name is NON-EDITABLE and is generated from the template components e.g. Viper Mk I
 	STRING			aName[DROID_MAXNAME];	 
-#endif
 	UBYTE 			NameVersion;			// Version number used in name (e.g. Viper Mk "I" would be stored as 1 - Viper Mk "X" as 10)  - copied to droid structure
 
 	/* The droid components.  This array is indexed by COMPONENT_TYPE
@@ -117,10 +108,8 @@ typedef struct _droid_template
 	//UDWORD			asProgs[DROID_MAXPROGS];	/* program indices*/
 
 	DROID_TYPE		droidType;					// The type of droid
-//#ifdef WIN32
 	UDWORD			multiPlayerID;				// multiplayer unique descriptor(cant use id's for templates)
 												// used for save games as well now - AB 29/10/98
-//#endif
 	struct _droid_template	*psNext;			/* Pointer to next template*/
 
 } DROID_TEMPLATE;
@@ -131,13 +120,8 @@ typedef struct _droid
 	/* The common structure elements for all objects */
 	BASE_ELEMENTS(struct _droid);
 
-#ifdef WIN32
 	//Ascii name of the droid - This is generated from the droid template and can not be changed by the game player after creation.
 	STRING		aName[DROID_MAXNAME];			
-#else
-	// If the droid is from the database a hashed value pointing to its name is stored, if it is user created then it is NULL, and its name must be created from the droids components (see templates)
-	UDWORD		HashedDroidName;
-#endif
 //	UBYTE 		NameVersion;			// Version number used for generating on-the-fly names (e.g. Viper Mk "I" would be stored as 1 - Viper Mk "X" as 10)  - copied from droid template
 
 
@@ -167,25 +151,19 @@ typedef struct _droid
 	UDWORD		originalBody;		//the original body points
 	UDWORD		body;				// the current body points
 	UDWORD		armour[NUM_WEAPON_CLASS];
-	//UDWORD		power;
-//tjc	UDWORD		imdNum;
 	UWORD		numKills;
 	//UWORD		turretRotRate; THIS IS A CONSTANT
 	UWORD		turretRotation;
 	UWORD		turretPitch;	//*
 	UBYTE 		NameVersion;			// Version number used for generating on-the-fly names (e.g. Viper Mk "I" would be stored as 1 - Viper Mk "X" as 10)  - copied from droid template
 	UBYTE		currRayAng;
-//	UDWORD		numKills;
 
     SWORD       resistance;             //used in Electronic Warfare
 
 //	SDWORD		activeWeapon;		// The currently selected weapon
-	//UDWORD		numWeaps;
 	WEAPON		asWeaps[DROID_MAXWEAPS];
 
 	//SDWORD		activeProg;			// The currently running program
-	//UDWORD		numProgs;
-	//PROGRAM		asProgs[DROID_MAXPROGS];
 
 	// The group the droid belongs to
 	struct		_droid_group	*psGroup;
@@ -195,22 +173,17 @@ typedef struct _droid
                                                     //for vtols its the rearming pad
 
 	// queued orders
-#ifdef WIN32
 	SDWORD			listSize;
 	ORDER_LIST		asOrderList[ORDER_LIST_MAX];
-#endif
 
 
 	/* Order data */
 	SDWORD				order;
 	UWORD				orderX,orderY;
 	UWORD				orderX2,orderY2;
-#ifdef WIN32
-// 	BASE_OBJECT	*psLastAttacker;
 	UDWORD				lastHitWeapon;
 	UDWORD				timeLastHit;
 	BOOL				bTargetted;
-#endif
 
 	BASE_OBJECT	*psTarget;
 	struct _base_stats	*psTarStats;
@@ -218,9 +191,7 @@ typedef struct _droid
 	// secondary order data
 	UDWORD				secondaryOrder;
 
-#ifdef WIN32
 	UDWORD				lastSync;			// multiplayer synchronisation value.
-#endif
 
 	/* Action data */
 	SDWORD				action;
@@ -239,15 +210,11 @@ typedef struct _droid
 	
 	/* Movement control data */
 	MOVE_CONTROL		sMove;	
-//	void				*lastTile;
 	/* AI data */
-//	AI_DATA				sAI;				
 	/* anim data */
 	ANIM_OBJECT			*psCurAnim;			
 
-#ifdef WIN32
 	SDWORD				iAudioID;
-#endif
 }
 DROID;
 

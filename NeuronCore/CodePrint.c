@@ -316,8 +316,6 @@ void cpPrintVarFunc(SCRIPT_VARFUNC pFunc, UDWORD index)
 void cpPrintArrayInfo(UDWORD **pip, SCRIPT_CODE *psProg)
 {
 	SDWORD		i, dimensions;//, elements[VAR_MAX_DIMENSIONS];
-//	SDWORD		elementDWords;
-//	UBYTE		*pElem;
 	UDWORD		*ip = *pip;
 	UDWORD		base;
 
@@ -328,13 +326,6 @@ void cpPrintArrayInfo(UDWORD **pip, SCRIPT_CODE *psProg)
 	dimensions = ((*ip) & ARRAY_DIMENSION_MASK) >> ARRAY_DIMENSION_SHIFT;
 
 	// get the number of elements for each dimension
-/*	pElem = (UBYTE *) (ip + 1);
-	for(i=0; i<dimensions; i+=1)
-	{
-		elements[i] = *pElem;
-
-		pElem += 1;
-	}*/
 
 	DBPRINTF(("%d->", base));
 	for(i=0; i<psProg->psArrayInfo[base].dimensions; i+= 1)
@@ -342,7 +333,6 @@ void cpPrintArrayInfo(UDWORD **pip, SCRIPT_CODE *psProg)
 		DBPRINTF(("[%d]", psProg->psArrayInfo[base].elements[i]));
 	}
 	// calculate the number of DWORDs needed to store the number of elements for each dimension of the array
-//	elementDWords = (dimensions - 1)/4 + 1;
 
 	// update the insrtuction pointer
 	*pip += 1;// + elementDWords;

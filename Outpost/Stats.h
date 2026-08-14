@@ -16,13 +16,10 @@
 /* The stores for the different stats */
 extern BODY_STATS			*asBodyStats;
 extern BRAIN_STATS			*asBrainStats;
-//extern POWER_STATS			*asPowerStats;
 extern PROPULSION_STATS		*asPropulsionStats;
 extern SENSOR_STATS			*asSensorStats;
 extern ECM_STATS			*asECMStats;
-//extern ARMOUR_STATS			*asArmourStats;
 extern REPAIR_STATS			*asRepairStats;
-//extern PROGRAM_STATS		*asProgramStats;
 extern WEAPON_STATS			*asWeaponStats;
 extern CONSTRUCT_STATS		*asConstructStats;
 
@@ -48,30 +45,24 @@ extern BODY_UPGRADE			asBodyUpgrade[MAX_PLAYERS][BODY_TYPE];
 /* The number of different stats stored */
 extern UDWORD		numBodyStats;
 extern UDWORD		numBrainStats;
-//extern UDWORD		numPowerStats;
 extern UDWORD		numPropulsionStats;
 extern UDWORD		numSensorStats;
 extern UDWORD		numECMStats;
-//extern UDWORD		numArmourStats;
 extern UDWORD		numRepairStats;
 extern UDWORD		numProgramStats;
 extern UDWORD		numWeaponStats;
 extern UDWORD		numConstructStats;
 
-//extern UDWORD		numPropulsionTypes;
 extern UDWORD		numTerrainTypes;
 extern UDWORD		numSpecialAbility;
 
 /* What number the ref numbers start at for each type of stat */
 #define REF_BODY_START			0x010000
 #define REF_BRAIN_START			0x020000
-//#define REF_POWER_START			0x030000
 #define REF_PROPULSION_START	0x040000
 #define REF_SENSOR_START		0x050000
 #define REF_ECM_START			0x060000
-//#define REF_ARMOUR_START		0x070000
 #define REF_REPAIR_START		0x080000
-//#define REF_PROGRAM_START		0x090000
 #define REF_WEAPON_START		0x0a0000
 #define REF_RESEARCH_START		0x0b0000
 #define REF_TEMPLATE_START		0x0c0000
@@ -102,7 +93,6 @@ extern UBYTE		*apStructTypeLists[MAX_PLAYERS];
 extern BOOL statsAllocWeapons(UDWORD numEntries);
 
 /*Allocate Armour stats*/
-//extern BOOL statsAllocArmour(UDWORD numEntries);
 
 /*Allocate Body stats*/
 extern BOOL statsAllocBody(UDWORD numEntries);
@@ -111,7 +101,6 @@ extern BOOL statsAllocBody(UDWORD numEntries);
 extern BOOL statsAllocBrain(UDWORD numEntries);
 
 /*Allocate Power stats*/
-//extern BOOL statsAllocPower(UDWORD numEntries);
 
 /*Allocate Propulsion stats*/
 extern BOOL statsAllocPropulsion(UDWORD numEntries);
@@ -141,7 +130,6 @@ extern UDWORD numCR(UBYTE *pFileBuffer, UDWORD fileSize);
 extern BOOL loadWeaponStats(SBYTE *pWeaponData, UDWORD bufferSize);
 
 /*Load the armour stats from the file exported from Access*/
-//extern BOOL loadArmourStats(void);
 
 /*Load the body stats from the file exported from Access*/
 extern BOOL loadBodyStats(SBYTE *pBodyData, UDWORD bufferSize);
@@ -150,7 +138,6 @@ extern BOOL loadBodyStats(SBYTE *pBodyData, UDWORD bufferSize);
 extern BOOL loadBrainStats(SBYTE *pBrainData, UDWORD bufferSize);
 
 /*Load the power stats from the file exported from Access*/
-//extern BOOL loadPowerStats(void);
 
 /*Load the propulsion stats from the file exported from Access*/
 extern BOOL loadPropulsionStats(SBYTE *pPropulsionData, UDWORD bufferSize);
@@ -200,7 +187,6 @@ extern BOOL loadWeaponModifiers(SBYTE *pWeapModData, UDWORD bufferSize);
 extern void statsSetWeapon(WEAPON_STATS	*psStats, UDWORD index);
 
 /*Set the stats for a particular armour type*/
-//extern void statsSetArmour(ARMOUR_STATS	*psStats, UDWORD index);
 
 /*Set the stats for a particular body type*/
 extern void statsSetBody(BODY_STATS	*psStats, UDWORD index);
@@ -209,7 +195,6 @@ extern void statsSetBody(BODY_STATS	*psStats, UDWORD index);
 extern void statsSetBrain(BRAIN_STATS	*psStats, UDWORD index);
 
 /*Set the stats for a particular power type*/
-//extern void statsSetPower(POWER_STATS	*psStats, UDWORD index);
 
 /*Set the stats for a particular propulsion type*/
 extern void statsSetPropulsion(PROPULSION_STATS	*psStats, UDWORD index);
@@ -224,7 +209,6 @@ extern void statsSetECM(ECM_STATS	*psStats, UDWORD index);
 extern void statsSetRepair(REPAIR_STATS	*psStats, UDWORD index);
 
 /*Set the stats for a particular program type*/
-//extern void statsSetProgram(PROGRAM_STATS	*psStats, UDWORD index);
 
 /*Set the stats for a particular construct type*/
 extern void statsSetConstruct(CONSTRUCT_STATS	*psStats, UDWORD index);
@@ -233,22 +217,18 @@ extern void statsSetConstruct(CONSTRUCT_STATS	*psStats, UDWORD index);
 *		Get stats functions
 *******************************************************************************/
 extern WEAPON_STATS *statsGetWeapon(UDWORD ref);
-//extern ARMOUR_STATS *statsGetArmour(UDWORD ref);
 extern BODY_STATS *statsGetBody(UDWORD ref);
 extern BRAIN_STATS *statsGetBrain(UDWORD ref);
-//extern POWER_STATS *statsGetPower(UDWORD ref);
 extern PROPULSION_STATS *statsGetPropulsion(UDWORD ref);
 extern SENSOR_STATS *statsGetSensor(UDWORD ref);
 extern ECM_STATS *statsGetECM(UDWORD ref);
 extern REPAIR_STATS *statsGetRepair(UDWORD ref);
-//extern PROGRAM_STATS *statsGetProgram(UDWORD ref);
 extern CONSTRUCT_STATS *statsGetConstruct(UDWORD ref);
 
 /*******************************************************************************
 *		Generic stats functions
 *******************************************************************************/
 /*Load the stats from the Access database*/
-//extern BOOL loadStats(void);
 
 /*calls the STATS_DEALLOC macro for each set of stats*/
 extern BOOL statsShutDown(void);
@@ -280,7 +260,6 @@ extern BOOL setTechLevel(BASE_STATS *psStats, STRING *pLevel);
 extern SDWORD	getWeaponSubClass(STRING *pSubClass);
 /*either gets the name associated with the resource (if one) or allocates space and copies pName*/
 extern BOOL allocateName(STRING **ppStore, STRING *pName);
-//converts the name read in from Access into the name which is used in the Stat lists (or ignores it)
 extern BOOL getResourceName(STRING *pName);
 /*return the name to display for the interface - valid for OBJECTS and STATS*/
 extern STRING* getName(STRING *pNameID);

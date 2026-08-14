@@ -16,21 +16,16 @@
 #include "Edit2D.h"
 #include "Map.h"
 /* Includes direct access to render library */
-#include "ivisdef.h"
-#include "pieState.h"
+#include "IvisDef.h"
+#include "PieState.h"
 
-#ifdef WIN32
-#include "pieMode.h"
-#endif
+#include "PieMode.h"
+#include "RendMode.h"
 
-#include "vid.h"
 #include "BitImage.h"
 
-#ifdef PSX
-#include "primatives.h"
-#endif
 
-#include "Display3d.h"
+#include "Display3D.h"
 #include "Edit3D.h"
 #include "Disp2D.h"
 #include "Structure.h"
@@ -39,18 +34,18 @@
 #include "GTime.h"
 #include "HCI.h"
 #include "Stats.h"
-#include "game.h"
-#include "power.h"
-#include "audio.h"
-#include "audio_id.h"
+#include "Game.h"
+#include "Power.h"
+#include "Audio.h"
+#include "AudioID.h"
 #include "WidgInt.h"
-#include "bar.h"
-#include "form.h"
-#include "label.h"
-#include "button.h"
-#include "editbox.h"
-#include "slider.h"
-#include "fractions.h"
+#include "Bar.h"
+#include "Form.h"
+#include "Label.h"
+#include "Button.h"
+#include "EditBox.h"
+#include "Slider.h"
+#include "Fractions.h"
 #include "Order.h"
 #include "WinMain.h"
 
@@ -63,12 +58,8 @@ static BOOL	EnableLocks = TRUE;
 static SDWORD LockRefs = 0;
 
 IMAGEFILE *IntImages;	// All the 2d graphics for the user interface.
-#ifdef PSX
-//IMAGEFILE *EffectImages;
-#endif
 
 
-#ifdef WIN32
 // Form frame definitions.
 IMAGEFRAME FrameNormal = {
 	0,0, 0,0,
@@ -103,27 +94,7 @@ IMAGEFRAME FrameRadar = {
 	{FR_IGNORE, 0,0, 0,0 ,0},
 	{FR_IGNORE, 0,0, 0,0 ,0}},
 };
-#else
-// Form frame definitions.
-IMAGEFRAME FrameNormal = {
-	0,0, 0,0,
-	0,
-	0,
-	0,
-	0,
-	0, FR_SOLID,
-	0, FR_SOLID,
-	0, FR_SOLID,
-	0, FR_SOLID,
-	{{FR_FRAME,	0,1, 0,-1 ,190},
-	{FR_IGNORE, 0,0, 0,0 ,0},
-	{FR_IGNORE, 0,0, 0,0 ,0},
-	{FR_IGNORE, 0,0, 0,0 ,0},
-	{FR_IGNORE, 0,0, 0,0 ,0}},
-};
-#endif
 
-//IMAGEFRAME FrameObject = {
 //	0,0, 0,0,
 //	-1,
 //	-1,
@@ -138,9 +109,7 @@ IMAGEFRAME FrameNormal = {
 //	{FR_IGNORE, 0,0, 0,0 ,0},
 //	{FR_IGNORE, 0,0, 0,0 ,0},
 //	{FR_IGNORE, 0,0, 0,0 ,0}},
-//};
 //
-//IMAGEFRAME FrameStats = {
 //	0,0, 0,0,
 //	-1,
 //	-1,
@@ -155,9 +124,7 @@ IMAGEFRAME FrameNormal = {
 //	{FR_IGNORE, 0,0, 0,0 ,0},
 //	{FR_IGNORE, 0,0, 0,0 ,0},
 //	{FR_IGNORE, 0,0, 0,0 ,0}},
-//};
 //
-//IMAGEFRAME FrameDesignView = {
 //	0,0, 0,0,
 //	IMAGE_FRAME_VC0,
 //	IMAGE_FRAME_VC1,
@@ -172,9 +139,7 @@ IMAGEFRAME FrameNormal = {
 //	{FR_FRAME, 0,0, 0,0 ,1},
 //	{FR_FRAME, 0,0, 0,0 ,1},
 //	{FR_FRAME, 0,0, 0,0 ,1}},
-//};
 //
-//IMAGEFRAME FrameDesignHilight = {
 //	0,0, 0,0,
 //	IMAGE_FRAME_HC0,
 //	IMAGE_FRAME_HC1,
@@ -189,9 +154,7 @@ IMAGEFRAME FrameNormal = {
 //	{FR_FRAME, 0,0, 0,0 ,1},
 //	{FR_FRAME, 0,0, 0,0 ,1},
 //	{FR_FRAME, 0,0, 0,0 ,1}},
-//};
 //
-//IMAGEFRAME FrameText = {
 //	0,0, 0,0,
 //	-1,
 //	-1,
@@ -206,37 +169,7 @@ IMAGEFRAME FrameNormal = {
 //	{FR_IGNORE, 0,0, 0,0 ,0},
 //	{FR_IGNORE, 0,0, 0,0 ,0},
 //	{FR_IGNORE, 0,0, 0,0 ,0}},
-//};
 
-#ifdef PSX
-// Tab definitions, defines graphics to use for major and minor tabs.
-TABDEF	StandardTab = {
-	IMAGE_TAB1,		  	// Major tab normal.
-	IMAGE_TABSELECTED,	// Major tab clicked.
-	IMAGE_TABHILIGHT,	// Major tab hilighted by mouse.
-	IMAGE_TABSELECTED,	// Major tab currently selected.
-
-	IMAGE_TAB1,			// Minor tab tab Normal.
-	IMAGE_TABSELECTED,	// Minor tab clicked.
-	IMAGE_TABHILIGHT,	// Minor tab hilighted by mouse.
-	IMAGE_TABSELECTED,	// Minor tab currently selected.
-};
-TABDEF SystemTab = {
-	IMAGE_DES_WEAPONS,
-	IMAGE_DES_WEAPONS,
-	IMAGE_DES_EXTRAHI,
-	IMAGE_DES_WEAPONS,
-
-	/*IMAGE_TAB1,
-	IMAGE_TAB1DOWN,
-	IMAGE_TABHILIGHT,
-	IMAGE_TABSELECTED,*/
-	IMAGE_SIDETAB,
-	IMAGE_SIDETABDOWN,
-	IMAGE_SIDETABHI,
-	IMAGE_SIDETABSEL,
-};
-#else
 // Tab definitions, defines graphics to use for major and minor tabs.
 TABDEF	StandardTab = {
 	IMAGE_TAB1,			// Major tab normal.
@@ -276,7 +209,6 @@ TABDEF	SmallTab = {
 	IMAGE_TABHILIGHT_SM,	// Minor tab hilighted by mouse.
 	IMAGE_TAB1SELECTED_SM,	// Minor tab currently selected.
 };
-#endif
 
 
 
@@ -285,20 +217,12 @@ TABDEF	SmallTab = {
 BOOL imageInitBitmaps(void)
 {
   	IntImages = (IMAGEFILE*)resGetData("IMG","intfac.img");
-#ifdef PSX
-//  	EffectImages = (IMAGEFILE*)resGetData("IMG","gamefx.img");
-	if(GetGameMode() == GS_NORMAL) {
-		InitRadar_PSX(RADWIDTH/2,RADHEIGHT/2);
-	}
-#endif
-//	IntImages = iV_LoadImageFile("intpc.img");
 
 	return TRUE;
 }
 
 void imageDeleteBitmaps(void)
 {
-//	iV_FreeImageFile(IntImages);
 }
 
 
@@ -310,7 +234,6 @@ void DrawEnableLocks(BOOL Enable)
 
 void DrawBegin(void)
 {
-#ifdef WIN32
 	if(EnableLocks) {
 		if(LockRefs == 0) {
 			pie_LocalRenderBegin();
@@ -318,13 +241,11 @@ void DrawBegin(void)
 
 		LockRefs++;
 	}
-#endif
 }
 
 
 void DrawEnd(void)
 {
-#ifdef WIN32
 	if(EnableLocks) {
 		LockRefs--;
 
@@ -334,7 +255,6 @@ void DrawEnd(void)
 			pie_LocalRenderEnd();
 		}
 	}
-#endif
 }
 
 void RenderWindowFrame(IMAGEFRAME *Frame,UDWORD x,UDWORD y,UDWORD Width,UDWORD Height)
@@ -351,32 +271,6 @@ void RenderOpaqueWindow(IMAGEFRAME *Frame,UDWORD x,UDWORD y,UDWORD Width,UDWORD 
 
 #define INCEND	(0)
 
-#ifdef PSX
-
-// Much smaller PSX version without the legacy stuff.
-
-void RenderBorder(UDWORD x,UDWORD y,UDWORD Width,UDWORD Height)
-{
-	iV_Line(x,y,x+Width,y,COL_BLACK);
-	iV_Line(x+Width,y,x+Width,y+Height,COL_BLACK);
-	iV_Line(x+Width,y+Height,x,y+Height,COL_BLACK);
-	iV_Line(x,y+Height,x,y,COL_BLACK);
-}
-
-void RenderWindow(IMAGEFRAME *Frame,UDWORD x,UDWORD y,UDWORD Width,UDWORD Height,BOOL Opaque)
-{
-	RenderBorder(x,y,Width,Height);
-
-	if(Opaque)
-	{
-		iV_BoxFill( x,y,x+Width,y+Height,190);
-	}
-	else
-	{
-		iV_TransBoxFill( x,y,x+Width,y+Height );
-	}
-}
-#else
 
 // Render a window frame.
 //
@@ -402,9 +296,6 @@ void RenderWindow(IMAGEFRAME *Frame,UDWORD x,UDWORD y,UDWORD Width,UDWORD Height
 	for(RectI=0; RectI<5; RectI++) {
 		Rect = &Frame->FRect[RectI];
 
-//		if(Opaque==FALSE) {
-//			screenSetFillCacheColour(Rect->ColourIndex);
-//		}
 
 		switch(Rect->Type) {
 			case FR_FRAME:
@@ -415,37 +306,17 @@ void RenderWindow(IMAGEFRAME *Frame,UDWORD x,UDWORD y,UDWORD Width,UDWORD Height
 						Masked = TRUE;
 					}
 
-#ifdef WIN32
-					if (pie_GetRenderEngine() == ENGINE_GLIDE)
-					{
-						iV_UniTransBoxFill( x+Rect->TLXOffset,
-										y+Rect->TLYOffset,
-										x+Width-INCEND+Rect->BRXOffset,
-										y+Height-INCEND+Rect->BRYOffset,
-										(FILLRED<<16) | (FILLGREEN<<8) | FILLBLUE, FILLTRANS);
-					}
-					else
-#endif					
-					{
-						iV_TransBoxFill( x+Rect->TLXOffset,
-										y+Rect->TLYOffset,
-										x+Width-INCEND+Rect->BRXOffset,
-										y+Height-INCEND+Rect->BRYOffset);
-					}
+					iV_TransBoxFill( x+Rect->TLXOffset,
+									y+Rect->TLYOffset,
+									x+Width-INCEND+Rect->BRXOffset,
+									y+Height-INCEND+Rect->BRYOffset);
 				}
 				else
 				{
-#ifdef PSX
-					iV_BoxFill( x+Rect->TLXOffset,
-								y+Rect->TLYOffset,
-								x+Width-INCEND+Rect->BRXOffset,
-								y+Height-INCEND+Rect->BRYOffset,Rect->ColourIndex);
-#else
 					pie_BoxFillIndex( x+Rect->TLXOffset,
 								y+Rect->TLYOffset,
 								x+Width-INCEND+Rect->BRXOffset,
 								y+Height-INCEND+Rect->BRYOffset,Rect->ColourIndex);
-#endif
 				}
 				break;
 
@@ -455,23 +326,11 @@ void RenderWindow(IMAGEFRAME *Frame,UDWORD x,UDWORD y,UDWORD Width,UDWORD Height
 						Width &= 0xfffc;	// Software transboxfill needs to be a multiple of 4 pixels.
 						Masked = TRUE;
 					}
-#ifdef WIN32
 
-					if (pie_GetRenderEngine() == ENGINE_GLIDE)
-					{
-						iV_UniTransBoxFill(x+Rect->TLXOffset,
-										y+Rect->TLYOffset,
-										x+Rect->BRXOffset,
-										y+Height-INCEND+Rect->BRYOffset,
-										(FILLRED<<16) | (FILLGREEN<<8) | FILLBLUE, FILLTRANS);
-					} else 
-#endif
-					{
-						iV_TransBoxFill( x+Rect->TLXOffset,
-										y+Rect->TLYOffset,
-										x+Rect->BRXOffset,
-										y+Height-INCEND+Rect->BRYOffset);
-					}
+					iV_TransBoxFill( x+Rect->TLXOffset,
+									y+Rect->TLYOffset,
+									x+Rect->BRXOffset,
+									y+Height-INCEND+Rect->BRYOffset);
 				} else {
 					iV_BoxFill( x+Rect->TLXOffset,
 								y+Rect->TLYOffset,
@@ -486,22 +345,10 @@ void RenderWindow(IMAGEFRAME *Frame,UDWORD x,UDWORD y,UDWORD Width,UDWORD Height
 						Width &= 0xfffc;	// Software transboxfill needs to be a multiple of 4 pixels.
 						Masked = TRUE;
 					}
-#ifdef WIN32
-					if (pie_GetRenderEngine() == ENGINE_GLIDE)
-					{
-						iV_UniTransBoxFill( x+Width-INCEND+Rect->TLXOffset,
-										y+Rect->TLYOffset,
-										x+Width-INCEND+Rect->BRXOffset,
-										y+Height-INCEND+Rect->BRYOffset,
-										(FILLRED<<16) | (FILLGREEN<<8) | FILLBLUE, FILLTRANS);
-					} else 
-#endif
-					{
-						iV_TransBoxFill( x+Width-INCEND+Rect->TLXOffset,
-										y+Rect->TLYOffset,
-										x+Width-INCEND+Rect->BRXOffset,
-										y+Height-INCEND+Rect->BRYOffset);
-					}
+					iV_TransBoxFill( x+Width-INCEND+Rect->TLXOffset,
+									y+Rect->TLYOffset,
+									x+Width-INCEND+Rect->BRXOffset,
+									y+Height-INCEND+Rect->BRYOffset);
 				} else {
 					iV_BoxFill( x+Width-INCEND+Rect->TLXOffset,
 								y+Rect->TLYOffset,
@@ -516,22 +363,10 @@ void RenderWindow(IMAGEFRAME *Frame,UDWORD x,UDWORD y,UDWORD Width,UDWORD Height
 						Width &= 0xfffc;	// Software transboxfill needs to be a multiple of 4 pixels.
 						Masked = TRUE;
 					}
-#ifdef WIN32
-					if (pie_GetRenderEngine() == ENGINE_GLIDE)
-					{
-						iV_UniTransBoxFill( x+Rect->TLXOffset,
-										y+Rect->TLYOffset,
-										x+Width-INCEND+Rect->BRXOffset,
-										y+Rect->BRYOffset,
-										(FILLRED<<16) | (FILLGREEN<<8) | FILLBLUE, FILLTRANS);
-					}else
-#endif
-					  {
-						iV_TransBoxFill( x+Rect->TLXOffset,
-										y+Rect->TLYOffset,
-										x+Width-INCEND+Rect->BRXOffset,
-										y+Rect->BRYOffset);
-					}
+					iV_TransBoxFill( x+Rect->TLXOffset,
+									y+Rect->TLYOffset,
+									x+Width-INCEND+Rect->BRXOffset,
+									y+Rect->BRYOffset);
 				} else {
 					iV_BoxFill( x+Rect->TLXOffset,
 								y+Rect->TLYOffset,
@@ -548,23 +383,10 @@ void RenderWindow(IMAGEFRAME *Frame,UDWORD x,UDWORD y,UDWORD Width,UDWORD Height
 						Width &= 0xfffc;	// Software transboxfill needs to be a multiple of 4 pixels.
 						Masked = TRUE;
 					}
-#ifdef WIN32
-					if (pie_GetRenderEngine() == ENGINE_GLIDE)
-					{
-						iV_UniTransBoxFill( x+Rect->TLXOffset,
-										y+Height-INCEND+Rect->TLYOffset,
-										x+Width-INCEND+Rect->BRXOffset,
-										y+Height-INCEND+Rect->BRYOffset,
-										(FILLRED<<16) | (FILLGREEN<<8) | FILLBLUE, FILLTRANS);
-					} 
-					else
-#endif
-					{
-						iV_TransBoxFill( x+Rect->TLXOffset,
-										y+Height-INCEND+Rect->TLYOffset,
-										x+Width-INCEND+Rect->BRXOffset,
-										y+Height-INCEND+Rect->BRYOffset);
-					}
+					iV_TransBoxFill( x+Rect->TLXOffset,
+									y+Height-INCEND+Rect->TLYOffset,
+									x+Width-INCEND+Rect->BRXOffset,
+									y+Height-INCEND+Rect->BRYOffset);
 
 				} else {
 					iV_BoxFill( x+Rect->TLXOffset,
@@ -579,9 +401,6 @@ void RenderWindow(IMAGEFRAME *Frame,UDWORD x,UDWORD y,UDWORD Width,UDWORD Height
 
 	DrawBegin();
 
-#ifdef PSX
-	iV_SetOTIndex_PSX(iV_GetOTIndex_PSX()-1);
-#endif
 
 	if(Frame->TopLeft >= 0) {
 		WTopLeft = (SWORD)iV_GetImageWidth(IntImages,Frame->TopLeft);
@@ -682,4 +501,3 @@ void RenderWindow(IMAGEFRAME *Frame,UDWORD x,UDWORD y,UDWORD Width,UDWORD Height
 	DrawEnd();
 }
 
-#endif

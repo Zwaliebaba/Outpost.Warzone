@@ -7,73 +7,46 @@
 #include <stdio.h>
 
 #include "Frame.h"
-#include "ivisdef.h" //ivis palette code
-#include "pieState.h"
-#include "textdraw.h" //ivis text code
+#include "RendMode.h"
+#include "IvisDef.h" //ivis palette code
+#include "PieState.h"
+#include "TextDraw.h" //ivis text code
 
-#ifdef WIN32
-#include "piemode.h"
-#include "pieMatrix.h"
-#include "pieFunc.h"
-#endif
+#include "PieMode.h"
+#include "PieMatrix.h"
+#include "PieFunc.h"
 
-#include "hci.h"		// access to widget screen.
-#include "widget.h"
+#include "HCI.h"		// access to widget screen.
+#include "Widget.h"
 #include "Wrappers.h"
 #include "WinMain.h"
 #include "Objects.h"
 #include "Display.h"
-#include "Display3d.h"
+#include "Display3D.h"
 #include "FrontEnd.h"
 #include "Frend.h"		// display logo.
-#include "console.h"
-#include "intimage.h"
-#include "text.h"
-#include "intdisplay.h"	//for shutdown
-#include "audio.h"		
-#include "audio_id.h"		
-#include "gtime.h"
-#include "ingameop.h"
+#include "Console.h"
+#include "IntImage.h"
+#include "Text.h"
+#include "IntDisplay.h"	//for shutdown
+#include "Audio.h"		
+#include "AudioID.h"		
+#include "GTime.h"
+#include "InGameOp.h"
 #include "KeyMap.h"
-#include "mission.h"
+#include "Mission.h"
 
-#ifdef WIN32
-#include "keyedit.h"
+#include "KeyEdit.h"
 #include "SeqDisp.h"
-#include "3dfxfunc.h"
-#include "vid.h"
-#include "config.h"
+#include "Config.h"
 #include "resource.h"
-#include "netPlay.h"	// multiplayer 
-#include "multiplay.h"
-#include "Multiint.h"				
-#include "multistat.h"
-#include "multilimit.h"
-#endif
-
-#ifdef PSX
-#include "map.h"
-#include "display3d_psx.h"
-#include "libsn.h"
-#include "vid.h"
-#include "Primatives.h"
-#include "VPad.h"
-#include "CtrlPSX.h"
-#include "InitPSX.h"
-
-/* callback type for res pre-load callback*/
-typedef void (*SPECIALVBLCALLBACK)(void);
-
-void SetSpecialVblCallback( SPECIALVBLCALLBACK routine);
+#include "NetPlay.h"	// multiplayer 
+#include "MultiPlay.h"
+#include "MultiInt.h"				
+#include "MultiStat.h"
+#include "MultiLimit.h"
 
 
-extern BOOL fastExit;
-extern BOOL IsMouseDrawEnabled(void);
-
-
-#endif
-
-#ifdef WIN32   
 
 
 extern void frontEndCheckCD( tMode tModeNext, CD_INDEX cdIndex );
@@ -86,17 +59,10 @@ typedef struct _star
 
 
 STAR	stars[30];	// quick hack for loading stuff
-#endif
 
-#ifdef WIN32
 #define LOADBARY	460		// position of load bar.
 #define LOADBARY2	470
 #define LOAD_BOX_SHADES	6
-#else
-#define LOADBARY	(460-16)		// position of load bar.
-#define LOADBARY2	(470-16)
-#define LOAD_BOX_SHADES	6
-#endif
 
 extern IMAGEFILE	*FrontImages;
 extern int WFont;
@@ -114,7 +80,6 @@ void	runCreditsScreen	( void );
 UDWORD	lastTick=0;
 
 
-#ifdef WIN32
 void	initStars( void )
 {
 UDWORD	i;
@@ -124,16 +89,13 @@ UDWORD	i;
 		stars[i].speed = rand()%10+2;	// always move
 	}
 }
-#endif
 // //////////////////////////////////////////////////////////////////
 // Initialise frontend globals and statics.
 //
 BOOL frontendInitVars(void)
 {
 	firstcall = TRUE;
-#ifdef WIN32
 	initStars();
-#endif
 
 	return TRUE;
 }
@@ -142,7 +104,6 @@ BOOL frontendInitVars(void)
 // play the intro if first EVER boot.
 BOOL playIntroOnInstall( VOID )
 {
-#ifdef WIN32
 	DWORD result;
 
 	if(!openWarzoneKey())
@@ -162,9 +123,6 @@ BOOL playIntroOnInstall( VOID )
 		return FALSE;
 	}
 
-#else
-	return FALSE;
-#endif
 }
 
 // ///////////////// /////////////////////////////////////////////////
@@ -172,25 +130,12 @@ BOOL playIntroOnInstall( VOID )
 TITLECODE titleLoop(void)
 {
 	TITLECODE RetCode = TITLECODE_CONTINUE;
-#ifdef PSX
-	StartScene();	// Setup all the primative handling for this frame
-#ifdef DEBUG
-	pollhost();
-#endif
-	iV_SetScaleFlags_PSX(IV_SCALE_POSITION | IV_SCALE_SIZE);
-#endif
 
 
-#ifdef WIN32
 	pie_GlobalRenderBegin();
 	pie_SetDepthBufferStatus(DEPTH_CMP_ALWAYS_WRT_ON);
 	pie_SetFogStatus(FALSE);
 	screen_RestartBackDrop();
-#else
-	if(GetControllerType(0) == CON_MOUSE) {
-		EnableMouseDraw(TRUE);
-	}
-#endif
 
 	if(firstcall)
 	{	
@@ -206,7 +151,6 @@ TITLECODE titleLoop(void)
 
 		pie_SetMouse(IntImages,IMAGE_CURSOR_DEFAULT);			// reset cursor (hw)
 
-#ifdef WIN32
 
 		frameSetCursorFromRes(IDC_DEFAULT);						// reset cursor	(sw)
 
@@ -254,13 +198,11 @@ TITLECODE titleLoop(void)
 				changeTitleMode(GAMEFIND);
 			}
 		}
-#endif
 	}
 
 	switch(titleMode)								// run relevant title screen code.
 	{
 
-#ifdef WIN32										// MULTIPLAYER screens
 		case PROTOCOL:
 			runConnectionScreen();					// multiplayer connection screen.
 			break;
@@ -282,7 +224,6 @@ TITLECODE titleLoop(void)
 		case KEYMAP:
 			runKeyMapEditor();
 			break;
-#endif
 
 		case TITLE:
 			runTitleMenu();
@@ -296,21 +237,13 @@ TITLECODE titleLoop(void)
 			runTutorialMenu();
 			break;
 
-#ifdef WIN32
 //		case GRAPHICS:
-//			runGraphicsOptionsMenu();
-//			break;
 
 		case CREDITS:
 			runCreditsScreen();
 			break;
-#endif
 //		case DEMOMODE:
-//			runDemoMenu();
-//			break;
 //	case VIDEO:
-//			runVideoOptionsMenu();
-//			break;
 		case OPTIONS:
 			runOptionsMenu();
 			break;
@@ -319,11 +252,9 @@ TITLECODE titleLoop(void)
 			runGameOptionsMenu();
 			break;
 
-#ifdef WIN32
 		case GAME2:
 			runGameOptions2Menu();
 			break;
-#endif
 
 		case QUIT:
 			RetCode = TITLECODE_QUITGAME;
@@ -331,9 +262,7 @@ TITLECODE titleLoop(void)
 		
 		case STARTGAME:	
 		case LOADSAVEGAME:
-#ifdef WIN32
 			initLoadingScreen(TRUE,TRUE);//render active
-#endif
   			if (titleMode == LOADSAVEGAME)
 			{
 				RetCode = TITLECODE_SAVEGAMELOAD;
@@ -342,21 +271,14 @@ TITLECODE titleLoop(void)
 			{
 				RetCode = TITLECODE_STARTGAME;
 			}
-#ifdef WIN32
 			pie_GlobalRenderEnd(TRUE);//force to black
-#endif
 			return RetCode;			// don't flip!
 			break;
 
 		case SHOWINTRO:
-#ifdef PSX		// ffs js
-			screenFlip(TRUE);//flip to clear screen but not here//reshow intro video.
-	  		screenFlip(TRUE);//flip to clear screen but not here
-#else
 			pie_SetFogStatus(FALSE);
 			pie_ScreenFlip(CLEAR_BLACK);//flip to clear screen but not here//reshow intro video.
 	  		pie_ScreenFlip(CLEAR_BLACK);//flip to clear screen but not here
-#endif
 			changeTitleMode(TITLE);
 			RetCode = TITLECODE_SHOWINTRO;
 			break;
@@ -367,37 +289,16 @@ TITLECODE titleLoop(void)
 
 	audio_Update();
 
-#ifdef WIN32			
-	if (pie_GetRenderEngine() == ENGINE_GLIDE)
-	{
-		if(!bUsingKeyboard)
-		{
-			pie_DrawMouse(mouseX(),mouseY());  //iV_DrawMousePointer(mouseX(),mouseY());
-		}
-	}
 	pie_GlobalRenderEnd(TRUE);//force to black
 	pie_SetFogStatus(FALSE);
 	pie_ScreenFlip(CLEAR_BLACK);//title loop
 
-//#ifdef WIN32
 	if ((keyDown(KEY_LALT) || keyDown(KEY_RALT)) &&	/* Check for toggling display mode */
-		keyPressed(KEY_RETURN) AND pie_GetRenderEngine()!=ENGINE_GLIDE)
+		keyPressed(KEY_RETURN))
 	{
 		screenToggleMode();
 	}
-//#endif
 
-#else
-	if(GetControllerType(0) == CON_MOUSE) {
-		if(IsMouseDrawEnabled()) {
-	//	if(MouseDrawEnabled) {
-			iV_SetOTIndex_PSX(0);
-			pie_DrawMouse(mouseX(),mouseY());
-		}
-	}
-
- 	EndScene();		// finalise the primative for this frame (start drawing)
-#endif // End of ifdef PSX
 	return RetCode;
 }
 
@@ -406,7 +307,6 @@ TITLECODE titleLoop(void)
 // Loading Screen.
 
 
-#ifdef WIN32
 
 //loadbar update
 void loadingScreenCallback(void)
@@ -429,25 +329,14 @@ void loadingScreenCallback(void)
 	lastTick = GetTickCount();
 	pie_GlobalRenderBegin();
 	DrawBegin();
-  	if(pie_GetRenderEngine() == ENGINE_D3D)
-	{
-		pie_UniTransBoxFill(1,1,2,2,0x00010101, 32);
-	}
+  	pie_UniTransBoxFill(1,1,2,2,0x00010101, 32);
 	/* Draw the black rectangle at the bottom */
 
 	topX = 10+D_W;
 	topY = 450+D_H-1;
 	botX = 630+D_W;
 	botY = 470+D_H+1;
-//	pie_BoxFillIndex(10+D_W,450+D_H-1,630+D_W,470+D_H+1,COL_BLACK);
-	if (pie_Hardware())
-	{
-		pie_UniTransBoxFill(topX,topY,botX,botY,0x00010101, 24);
-	}
-	else
-	{
-		pie_BoxFillIndex(topX,topY,botX,botY,COL_BLACK);
-	}
+	pie_UniTransBoxFill(topX,topY,botX,botY,0x00010101, 24);
 
 
 	for(i=1; i<19; i++)
@@ -460,14 +349,7 @@ void loadingScreenCallback(void)
 		{
 			stars[i].xPos = (UWORD)(stars[i].xPos + stars[i].speed);
 		}
-		if (pie_Hardware())
-		{
-			pie_UniTransBoxFill(10+stars[i].xPos+D_W,450+i+D_H,10+stars[i].xPos+(2*stars[i].speed)+D_W,450+i+2+D_H,0x00ffffff, 255);
-		}
-		else
-		{
-	   	  	pie_BoxFillIndex(10+stars[i].xPos+D_W,450+i+D_H,10+stars[i].xPos+2+D_W,450+i+2+D_H,COL_WHITE);
-		}
+		pie_UniTransBoxFill(10+stars[i].xPos+D_W,450+i+D_H,10+stars[i].xPos+(2*stars[i].speed)+D_W,450+i+2+D_H,0x00ffffff, 255);
 
    	}
 	
@@ -528,14 +410,7 @@ void startCreditsScreen( BOOL bRenderActive)
 
 	lastChange = gameTime;
 	// fill buffers
-	if (pie_GetRenderEngine() == ENGINE_GLIDE)
-	{
-		pie_LoadBackDrop(screen,TRUE);
-	}
-	else
-	{
-		pie_LoadBackDrop(screen,FALSE);
-	}
+	pie_LoadBackDrop(screen,FALSE);
 
 	if (bRenderActive)
 	{
@@ -582,8 +457,6 @@ void	runCreditsScreen( void )
 			screen = SCREEN_SLIDE4;
 			break;
 //		case 4:
-//			screen = SCREEN_SLIDE5;
-//			break;		
 		case 4:
 			screen = SCREEN_CREDITS;
 			break;
@@ -593,14 +466,7 @@ void	runCreditsScreen( void )
 			return;
 			break;
 		}		
-		if (pie_GetRenderEngine() == ENGINE_GLIDE)
-		{
-			pie_LoadBackDrop(screen,TRUE);
-		}
-		else
-		{
-			pie_LoadBackDrop(screen,FALSE);
-		}
+		pie_LoadBackDrop(screen,FALSE);
 		pie_SetFogStatus(FALSE);
 		pie_ScreenFlip(CLEAR_BLACK);//flip to set back buffer
 		pie_ScreenFlip(CLEAR_BLACK);//init loading
@@ -619,139 +485,6 @@ void closeLoadingScreen(void)
 	loadScreenCallNo = 0;
 }
 
-#else	// PSX Version.
-
-extern void DrawBoxNow(int x1, int y1, int x2, int y2, int r,int g,int b);
-
-#define LOADINGBARDELAY (100)
-//loadbar update
-void loadingScreenCallback(void)
-{
-	static UDWORD	lastdraw=0;
-	UDWORD			x;
-	UDWORD			y = 230;
-	UDWORD			i;
-	if(clock()-lastdraw < LOADINGBARDELAY ) 
-	{
-		return;
-	}
-
-	// Set the draw environment to draw to the front buffer.
-	// This get's reset the next time we do a StartScene,EndScene
-	SetFrontBufferDraw();
-
-	lastdraw = clock();
-	loadScreenCallNo +=8;
-
-//	StartScene();	// Setup all the primative handling for this frame
-
-	iV_SetScaleFlags_PSX(IV_SCALE_POSITION | IV_SCALE_SIZE);
-	DrawBoxNow( 9+8 ,LOADBARY-2  ,631-8,  LOADBARY2+2 , 128,128,128);	//COL_GREEN);		// draw blue box	
-	DrawBoxNow( 11+8,LOADBARY  , 629-8, LOADBARY2 ,0,0,0);	//1); // COL_BLACK);	// draw black box
-	x = (10+8)+(loadScreenCallNo % (620-24-16) );							// draw sweep.
-	for(i=0; i<LOAD_BOX_SHADES; i++)
-	{
-		DrawBoxNow(x+(i*4),LOADBARY,x+(i*4)+4,LOADBARY2,
-			i*30,i*30,i*30);
-	}
-
-//	// Restore normal backbuffer draw.
-//	SetBackBufferDraw();
-
-//BPRINTF(("loadingscreencallback\n"));
-//EndScene();		// finalise the primative for this frame (start drawing)
-// 	EndSceneSpecial();		// finalise the primative for this frame (start drawing)
-	return;
-}
-
-extern UBYTE *LoadBackdrop(char *FileName,BOOL UsePrimBuffer);
-extern BOOL UnloadBackdrop(void);
-extern void StartBackdropDisplay(void);
-extern void StopBackdropDisplay(void);
-
-// fill buffers with the static screen
-//void initLoadingScreen( BOOL drawbdrop, BOOL bRenderActive)
-//{
-//}
-
-// fill buffers with the static screen
-void initLoadingScreen( BOOL drawbdrop, BOOL bRenderActive)
-{
-	int i;
-	char TitleText[] = {"Warzone 2100"};
-
-	DBPRINTF(("initLoadingScreen\n"));
-
-	SetISBG(0);		// was 0 ,Dissable background clear.
-
-	// Load the backdrop into system memory.
-//	LoadBackdrop("loading.tim",TRUE);
-//	// Set it's update function.
-//	StartBackdropDisplay();
-
-//	SetISBG(0);		// Dissable background clear.
-
-	StopBackdropDisplay();
-	DrawSync(0);
-
-	// flip to lowres for this screen.
-	SetDisplaySize(DISPLAY_WIDTH,DISPLAY_HEIGHT);
-	EnableMouseDraw(FALSE);
-
-	// make sure the backdrop has been downloaded on both display buffers.
-	for(i=0; i<2; i++) {
-		StartScene();
-		ResetBlueWash();
-		ClearBlueWash(FALSE);
-		iV_SetFont(WFont);
-		iV_SetOTIndex_PSX(OT2D_FARFORE);
-		iV_SetTextColour(-1);
-		iV_DrawText(TitleText, (640-iV_GetTextWidth(TitleText))/2,96);
-		iV_DrawText(strresGetString(psStringRes,STR_GAM_LOADING),
-					(640-iV_GetTextWidth(strresGetString(psStringRes,STR_GAM_LOADING)))/2,96+32);
-	 	EndScene();
-	}
-
-	StartScene();
-	EndScene();
-	DrawSync(0);
-
-//	// Stop downloading backdrop.
-//	StopBackdropDisplay();
-//	// And remove it from memory.
-//	UnloadBackdrop();
-
-	// setup the callback....
-	SetSpecialVblCallback(loadingScreenCallback);
-	loadScreenCallNo = 0;
-}
-
-
-void StartLoadingBar(void)
-{
-	SetSpecialVblCallback(loadingScreenCallback);
-}
-
-
-void StopLoadingBar(void)
-{
-	SetSpecialVblCallback(NULL);
-}
-
-
-
-// shut down the loading screen
-void closeLoadingScreen(void)
-{
-	DBPRINTF(("closeLoadingScreen\n"));
-	SetSpecialVblCallback(NULL);
-	loadScreenCallNo = 0;
-
-	SetISBG(ENABLE_ISBG);		// was 0 Enable background clear (NOT).
-	RemoveLoadingBackdrop();
-}
-
-#endif	// End of PSX version.
 
 
 
@@ -762,14 +495,8 @@ void closeLoadingScreen(void)
 BOOL displayGameOver(BOOL bDidit)
 {
 
-#ifdef WIN32
 // AlexL says take this out......
-//	setConsolePermanence(TRUE,TRUE);
-//	flushConsoleMessages( );
 
-//	addConsoleMessage(" ", CENTRE_JUSTIFY );
-//	addConsoleMessage(strresGetString(psStringRes,STR_GAM_GAMEOVER), CENTRE_JUSTIFY );
-//	addConsoleMessage(" ", CENTRE_JUSTIFY );
 
     //set this for debug mode too - what gets displayed then depends on whether we 
     //have won or lost and if we are in debug mode
@@ -801,22 +528,8 @@ BOOL displayGameOver(BOOL bDidit)
 	}
 
 //	if(getDebugMappingStatus()) 
-//	{
-//		intAddInGameOptions();
-//	}
 	else
-#endif
 	{
-#ifdef PSX
-		if(bDidit)
-		{
-			setPlayerHasWon(TRUE);	// quit to frontend..
-		}
-		else
-		{
-			setPlayerHasLost(TRUE);
-		}
-#endif
         //clear out any mission widgets - timers etc that may be on the screen
         clearMissionWidgets();
 		intAddMissionResult(bDidit, TRUE);

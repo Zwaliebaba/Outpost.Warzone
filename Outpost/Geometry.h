@@ -26,10 +26,6 @@ extern STRUCTURE	*getTileStructure(UDWORD x, UDWORD y);
 extern FEATURE		*getTileFeature(UDWORD x, UDWORD y);
 
 
-//extern	BOOL	bScreenShakeActive;
-//extern	UDWORD	screenShakeStarted;
-//extern	UDWORD	screenShakeLength;
-//extern	void	attemptScreenShake(void);
 
 extern	void			baseObjScreenCoords(BASE_OBJECT *baseObj, iPoint *pt);
 extern	void			WorldPointToScreen( iPoint *worldPt, iPoint *screenPt );

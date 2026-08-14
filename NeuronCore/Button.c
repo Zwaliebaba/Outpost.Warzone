@@ -11,7 +11,7 @@
 #include "Button.h"
 #include "Form.h"
 #include "Tip.h"
-#include "vid.h"
+#include "RendMode.h"
 
 /* The widget heap */
 OBJ_HEAP	*psButHeap;
@@ -33,13 +33,7 @@ BOOL buttonCreate(W_BUTTON **ppsWidget, W_BUTINIT *psInit)
 		return FALSE;
 	}
 
-//#ifdef DEBUG
-//	if (psInit->pText)
-//	{
 //		ASSERT((PTRVALID(psInit->psFont, sizeof(PROP_FONT)),
-//			"buttonCreate: Invalid font pointer"));
-//	}
-//#endif
 
 	/* Allocate the required memory */
 #if W_USE_MALLOC
@@ -105,9 +99,6 @@ BOOL buttonCreate(W_BUTTON **ppsWidget, W_BUTINIT *psInit)
 	(*ppsWidget)->callback = psInit->pCallback;
 	(*ppsWidget)->pUserData = psInit->pUserData;
 	(*ppsWidget)->UserData = psInit->UserData;
-#ifdef PSX
-	(*ppsWidget)->OTIndex = WidgGetOTIndex();
-#endif
 	(*ppsWidget)->AudioCallback = WidgGetAudioCallback();
 	(*ppsWidget)->HilightAudioID = WidgGetHilightAudioID();
 	(*ppsWidget)->ClickedAudioID = WidgGetClickedAudioID();
@@ -121,7 +112,6 @@ BOOL buttonCreate(W_BUTTON **ppsWidget, W_BUTINIT *psInit)
 	{
 		(*ppsWidget)->display = buttonDisplay;
 	}
-//	(*ppsWidget)->psFont = psInit->psFont;
 	(*ppsWidget)->FontID = psInit->FontID;
 
 	buttonInitialise(*ppsWidget);
@@ -245,7 +235,6 @@ extern UDWORD gameTime2;
 /* Run a button widget */
 void buttonRun(W_BUTTON *psButton)
 {
-//	(void)psButton;
 	if(psButton->state & WBUTS_FLASH) {
 		if (((gameTime2/250) % 2) == 0) {
 			psButton->state &= ~WBUTS_FLASHON;
@@ -334,14 +323,12 @@ void buttonDisplay(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD *pCo
 {
 	W_BUTTON	*psButton;
 	SDWORD		x0,y0,x1,y1, fx,fy,fw;
-//	PROP_FONT	*psCurrFont;
 	int			CurrFontID;
 
 	ASSERT((PTRVALID(psWidget, sizeof(W_BUTTON)),
 		"buttonDisplay: Invalid widget pointer"));
 
 	psButton = (W_BUTTON *)psWidget;
-//	psCurrFont = psButton->psFont;
 	CurrFontID = psButton->FontID;
 
 	x0=psButton->x + xOffset;
@@ -353,9 +340,6 @@ void buttonDisplay(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD *pCo
 	{
 		/* Display the button down */
 		pie_BoxFillIndex(x0,y0,x1,y1,WCOL_BKGRND);
-#ifdef PSX
-		iV_SetOTIndex_PSX(iV_GetOTIndex_PSX()-1);
-#endif
 		iV_Line(x0,y0, x1,y0,*(pColours + WCOL_DARK));
 		iV_Line(x0,y0, x0,y1,*(pColours + WCOL_DARK));
 		iV_Line(x0,y1, x1,y1,*(pColours + WCOL_LIGHT));
@@ -389,9 +373,6 @@ void buttonDisplay(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD *pCo
 	{
 		/* Display the disabled button */
 		pie_BoxFillIndex(x0,y0,x1,y1,WCOL_BKGRND);
-#ifdef PSX
-		iV_SetOTIndex_PSX(iV_GetOTIndex_PSX()-1);
-#endif
 		iV_Line(x0,y0, x1,y0,*(pColours + WCOL_LIGHT));
 		iV_Line(x0,y0, x0,y1,*(pColours + WCOL_LIGHT));
 		iV_Line(x0,y1, x1,y1,*(pColours + WCOL_DARK));
@@ -422,15 +403,11 @@ void buttonDisplay(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD *pCo
 	{
 		/* Display the button up */
 		pie_BoxFillIndex(x0,y0,x1,y1,WCOL_BKGRND);
-#ifdef PSX
-		iV_SetOTIndex_PSX(iV_GetOTIndex_PSX()-1);
-#endif
 		iV_Line(x0,y0, x1,y0,*(pColours + WCOL_LIGHT));
 		iV_Line(x0,y0, x0,y1,*(pColours + WCOL_LIGHT));
 		iV_Line(x0,y1, x1,y1,*(pColours + WCOL_DARK));
 		iV_Line(x1,y1, x1,y0,*(pColours + WCOL_DARK));
 
-		//if (0)
 		if (psButton->pText)
 		{
 			iV_SetFont(psButton->FontID);

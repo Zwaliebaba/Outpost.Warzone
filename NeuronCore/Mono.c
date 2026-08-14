@@ -5,7 +5,6 @@
  *
  */
 
-#ifdef WIN32
 
 #include <stdio.h>
 #include <string.h>
@@ -14,8 +13,8 @@
 /* Allow frame header files to be singly included */
 #define FRAME_LIB_INCLUDE
 
-#include "mono.h"
-#include "types.h"
+#include "Mono.h"
+#include "Types.h"
 
 /* Turn off some warnings as I can't be bothered sorting it out properly */
 #pragma warning (disable : 4244 4057)
@@ -487,4 +486,3 @@ static UBYTE	DBug_CheckFormatChar(UBYTE	ub_percentchar)
 	return (ub_isformatchar);
 }
 
-#endif

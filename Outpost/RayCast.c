@@ -15,13 +15,8 @@
 #include "Map.h"
 
 #include "RayCast.h"
-#include "Display3d.h"
-//#ifdef ALEXM
+#include "Display3D.h"
 #include "Effects.h"
-//#endif
-#ifdef PSX
-#include "DCache.h"
-#endif
 
 // accuracy for the raycast lookup tables
 #define RAY_ACC		12
@@ -45,7 +40,6 @@ typedef struct _ray_point
 /* x and y increments for each ray angle */
 static SDWORD	rayDX[NUM_RAYS], rayDY[NUM_RAYS];
 static SDWORD	rayHDist[NUM_RAYS], rayVDist[NUM_RAYS];
-//static FRACT	rayTan[NUM_RAYS], rayCos[NUM_RAYS], raySin[NUM_RAYS];
 static SDWORD	rayFPTan[NUM_RAYS], rayFPInvTan[NUM_RAYS];
 static SDWORD	rayFPInvCos[NUM_RAYS], rayFPInvSin[NUM_RAYS];
 
@@ -53,7 +47,6 @@ static SDWORD	rayFPInvCos[NUM_RAYS], rayFPInvSin[NUM_RAYS];
 #define angle_PSX2WORLD(ang) ((((ang)%4096)*360)/4096)
 
 /* Initialise the ray tables */
-#ifdef WIN32
 BOOL rayInitialise(void)
 {
 	SDWORD	i;
@@ -122,155 +115,15 @@ BOOL rayInitialise(void)
 	return TRUE;
 }
 
-#else	// Start of PSX version.
 
-BOOL rayInitialise(void)
-{
-	SDWORD	i;
-	FRACT	angle = MAKEFRACT(0);
-	FRACT	val;
-
-	for(i=0; i<NUM_RAYS; i++)
-	{
-		// Set up the fixed offset tables for calculating the intersection points
-
-		angle = (i*4096) / NUM_RAYS;
-
-		val = rcos(angle);
-		if(val != 0) {
-			val = (rsin(angle)*4096) / val;
-		} else {
-			val = MAX_FRACT;
-		}
-
-
-
-		rayDX[i] = (SDWORD)(TILE_UNITS * (RAY_ACCMUL / 4096) * val);
-
-//		rayDX[i] = (SDWORD)(TILE_UNITS * RAY_ACCMUL * val);
-		if (i <= NUM_RAYS/4 ||
-			(i >= 3*NUM_RAYS/4))
-		{
-			rayDX[i] = -rayDX[i];
-		}
-		if(val == 0) {
-			val = (FRACT)1;	// Horrible hack to avoid divide by zero.
-		}
-
-
-#define ACC_LOST (2)	// we this fact from the calc to make all the calcs fit in 32 signed bits
-		{
-			SDWORD top;
-			SDWORD bot;
-
-			top = (TILE_UNITS * RAY_ACCMUL * (4096 / ACC_LOST) );
-			bot=val/ACC_LOST;
-
-			if (bot==0)	// divide by zero check
-			{
-				if (top>=0)
-				{
-					rayDY[i] = (SDWORD)(SDWORD_MAX);
-				}
-				else
-				{
-					rayDY[i] = (SDWORD)(SDWORD_MIN);
-					
-				}
-			}
-			else
-			{
-				rayDY[i] = (SDWORD)(top / bot);
-			}
-
-			
-		}	
-
-
-//		rayDY[i] = (SDWORD)(TILE_UNITS * RAY_ACCMUL / val);
-		if (i >= NUM_RAYS/2)
-		{
-			rayDY[i] = -rayDY[i];
-		}
-
-		// These are used to calculate the initial intersection
-		rayFPTan[i] = val;
-		rayFPInvTan[i] = RAY_ACCMUL*4096 / val;
-
-		// Set up the trig tables for calculating the offset distances
-		val = rsin(angle);
-		if(val == 0) {
-			val = (FRACT)1;
-		}
-
-		rayFPInvSin[i] = RAY_ACCMUL*4096 / val;
-		if (i >= NUM_RAYS/2)
-		{
-			rayVDist[i] = (-TILE_UNITS*4096) / val;
-		}
-		else
-		{
-			rayVDist[i] = TILE_UNITS*4096 / val;
-		}
-
-		val = rcos(angle);
-
-		if(val == 0) {
-			val = (FRACT)1;
-		}
-
-		rayFPInvCos[i] = RAY_ACCMUL*4096 /  val;
-		if (i < NUM_RAYS/4 || i > 3*NUM_RAYS/4)
-		{
-			rayHDist[i] = TILE_UNITS*4096 / val;
-		}
-		else
-		{
-			rayHDist[i] = (-TILE_UNITS*4096) / val;
-		}
-
-//		DBPRINTF(("%d Tan %d InvTan %d ",i,rayFPTan[i],rayFPInvTan[i]);
-//		DBPRINTF(("InvSin %d VDist %d ",rayFPInvSin[i],rayVDist[i]);
-//		DBPRINTF(("InvCos %d HDist %d ",rayFPInvCos[i],rayHDist[i]);
-//		DBPRINTF(("rayDX %d rayDY %d\n",rayDX[i],rayDY[i]);
-	}
-
-	return TRUE;
-}
-
-#endif
-
-//void rayC(UDWORD x, UDWORD y, UDWORD ray, UDWORD length, RAY_CALLBACK callback);
 //
 ////#ifdef WIN32
 //
-//void rayCast(UDWORD x, UDWORD y, UDWORD ray, UDWORD length, RAY_CALLBACK callback)
-//{
-//	rayC(x, y, ray, length, callback);
-//}
 
-//#else
 //
-//void rayCast(UDWORD x, UDWORD y, UDWORD ray, UDWORD length, RAY_CALLBACK callback)
-//{
-//	static UDWORD Tx;
-//	static UDWORD Ty;
-//	static UDWORD Tray;
-//	static UDWORD Tlength;
-//	static RAY_CALLBACK Tcallback;
 //
-//	Tx = x;
-//	Ty = y;
-//	Tray = ray;
-//	Tlength = length;
-//	Tcallback = callback;
 //	// Stack in the DCache.
-//	SetSpDCache();
-//	rayC(Tx, Ty, Tray, Tlength, Tcallback);
-//	SetSpNormal();
-//}
 //
-//#endif
 
 /* cast a ray from x,y (world coords) at angle ray (0-360)
  * The ray angle starts at zero along the positive y axis and
@@ -508,12 +361,7 @@ UDWORD rayPointsToAngle(SDWORD x1,SDWORD y1, SDWORD x2,SDWORD y2)
 	xdiff = x2 - x1;
 	ydiff = y1 - y2;
 
-#ifdef WIN32
 	angle = (SDWORD)((NUM_RAYS/2) * atan2(xdiff, ydiff) / PI);
-#else
-	angle = (SDWORD)ratan2(xdiff, ydiff);
-	angle = angle_PSX2WORLD(angle);
-#endif
 
 	angle += NUM_RAYS/2;
 	angle = angle % NUM_RAYS;
@@ -569,10 +417,7 @@ SDWORD rayPointDist(SDWORD x1,SDWORD y1, SDWORD x2,SDWORD y2,
 /*	Gets the maximum terrain height along a certain direction to the edge of the grid
 	from wherever you specify, as well as the distance away 
 */
-// typedef BOOL (*RAY_CALLBACK)(SDWORD x, SDWORD y, SDWORD dist);
-//void rayCast(UDWORD x, UDWORD y, UDWORD ray, UDWORD length, RAY_CALLBACK callback)
 
-//#define TEST_RAY
 
 /* Nasty global vars - put into a structure? */
 //-----------------------------------------------------------------------------------
@@ -611,7 +456,6 @@ static BOOL	getTileHighestCallback(SDWORD x, SDWORD y, SDWORD dist)
 {
 SDWORD	heightDif;
 UDWORD	height;
-//iVector	pos;
 	if(clipXY(x,y))
 	{
 		height = map_Height(x,y);
@@ -622,10 +466,6 @@ UDWORD	height;
 				MAKEFRACT(6*TILE_UNITS)));//MAKEFRACT(dist-(TILE_UNITS*3))));
 			gHighestHeight = height;
   		}
-//		pos.x = x;
-//		pos.y = height;
-//		pos.z = y;
-//		addEffect(&pos,EFFECT_EXPLOSION,EXPLOSION_TYPE_SMALL,FALSE,NULL,0);
 	}
 	else
 	{
@@ -657,7 +497,6 @@ iVector	pos;
 		// there is a tall structure  on the current tile and the current tile is not the starting tile.
 //		if( (dist>TILE_UNITS) ||
 //			( (HasTallStructure = TILE_HAS_TALLSTRUCTURE(mapTile(x>>TILE_SHIFT,y>>TILE_SHIFT))) &&
-//			((x >> TILE_SHIFT != gStartTileX) || (y >> TILE_SHIFT != gStartTileY)) ) ) {
 			/* Get height at this intersection point */
 			height = map_Height(x,y);
 
@@ -675,11 +514,7 @@ iVector	pos;
 			}
 
 			/* Work out the angle to this point from start point */
-#ifdef WIN32
 			newPitch = RAD_TO_DEG(atan2(MAKEFRACT(heightDif),MAKEFRACT(dist)));
-#else
-			newPitch = MAKEFRACT((SDWORD)angle_PSX2World( ratan2(heightDif, dist) ));
-#endif
 
 			/* Is this the steepest we've found? */
 			if(newPitch>gPitch)
@@ -695,12 +530,6 @@ iVector	pos;
 			pos.z = y;
 			addEffect(&pos,EFFECT_EXPLOSION,EXPLOSION_TYPE_SMALL,FALSE,NULL,0);
 #endif
-	//		if(height > gMaxRayHeight)
-	//		{
-	//			gMaxRayHeight = height;
-	//			gRayDist = dist;
-	//			return(TRUE);
-	//		}
 		}
 	}
 	else
@@ -720,9 +549,6 @@ void	getBestPitchToEdgeOfGrid(UDWORD x, UDWORD y, UDWORD direction, SDWORD *pitc
 	gHeight = map_Height(x,y);
 	gStartTileX = x >> TILE_SHIFT;
 	gStartTileY = y >> TILE_SHIFT;
-//#ifdef TEST_RAY
-//DBPRINTF(("%d\n",direction);
-//#endif
 	rayCast(x,y, direction%360,5430,getTileHeightCallback);
 	*pitch = MAKEINT(gPitch);
 }

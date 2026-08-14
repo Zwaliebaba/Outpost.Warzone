@@ -3,17 +3,11 @@
  * Only needed for map preprocessing.
  *
  */
-#ifdef WIN32
 // segment printf's
-//#define DEBUG_GROUP1
 // stack printf's
-//#define DEBUG_GROUP2
 // gwProcessMap printf's
-//#define DEBUG_GROUP3
 // RLE zone map size
-//#define DEBUG_GROUP4
 // equivalence printf's
-//#define DEBUG_GROUP5
 #ifdef EDITORWORLD
 
 #include <malloc.h>
@@ -75,9 +69,7 @@ BOOL gwFloodBlock(SDWORD x, SDWORD y);
 // generate the zone equivalence tables
 BOOL gwGenerateZoneEquiv(SDWORD numZones);
 
-#ifdef WIN32
 #define ENABLEFILL		// disable this on the psx 
-#endif
 
 #ifdef ENABLEFILL
 struct Segment stack[MAX], *sp = stack;	/* stack of filled segments */
@@ -95,9 +87,7 @@ void gwSeedFill(SDWORD x, SDWORD y, SDWORD nv)
 #ifdef ENABLEFILL
     int l, x1, x2, dy;
     Pixel ov;							/* old pixel value */
-#ifdef WIN32
     struct Segment stack[MAX], *sp = stack;	/* stack of filled segments */
-#endif
     ov = gwGetZone(x, y);		/* read pv at seed point */
 
     if (ov==nv) {
@@ -150,7 +140,6 @@ skip:
     }
 #else
 	//	GODDAM *#!! LOWERCASE assert IS ABSOLUTELY NO %^$## USE ON THE PC
-//	assert(2+2==5);
 	ASSERT((FALSE, "gwSeedFill disabled"));
 #endif
 }
@@ -510,11 +499,7 @@ BOOL gwCreateBlankZoneMap(void)
 	}
 	for(i=0; i< gwMapHeight(); i++)
 	{
-#ifdef WIN32
 		apRLEZones[i] = MALLOC(gwMapWidth() * 2);
-#else
-		apRLEZones[i] = MALLOC(1 * 2);		// we need to get some memory back
-#endif
 		if (apRLEZones[i] == NULL)
 		{
 			DBERROR(("gwCreateBlankZoneMap: Out of memory"));
@@ -607,9 +592,6 @@ void gwSetZone(SDWORD x, SDWORD y, SDWORD zone)
 
 BOOL gwFloodBlock(SDWORD x, SDWORD y)
 {
-//	MAPTILE		*psTile;
-//	SDWORD		type;
-//	BOOL		gateway;
 
 	if ((x < 0) || (x >= gwMapWidth()) ||
 		(y < 0) || (y >= gwMapHeight()))
@@ -617,16 +599,11 @@ BOOL gwFloodBlock(SDWORD x, SDWORD y)
 		return TRUE;
 	}
 
-//	psTile = mapTile(x,y);
-//	type = TERRAIN_TYPE(psTile);
-//	gateway = (psTile->tileInfoBits & BITS_GATEWAY) != 0;
 
-//	return (type == TER_CLIFFFACE) || (type == TER_WATER) || gateway;
 
 	return giIsGateway(x,y) ||
 		   ( !bGwWaterFlood && (giIsClifface(x,y) || giIsWater(x,y))) ||
 		   ( bGwWaterFlood && !giIsWater(x,y) );
-//	return giIsClifface(x,y) || giIsWater(x,y) || giIsGateway(x,y);
 }
 
 #else
@@ -657,4 +634,3 @@ BOOL gwFloodBlock(SDWORD x, SDWORD y)
 
 
 
-#endif

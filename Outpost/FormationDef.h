@@ -7,7 +7,6 @@
 
 // maximum number of lines in a formation
 #define F_MAXLINES		4
-// maximum number of unit members of a formation (cannot be more that 128)
 #define F_MAXMEMBERS	20
 
 // information about a formation line

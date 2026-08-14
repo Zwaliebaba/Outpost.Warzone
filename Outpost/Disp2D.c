@@ -14,9 +14,7 @@
 #include <stdio.h>
 
 /* blitTile printfs */
-//#define DEBUG_GROUP1
 /* Surf recreate bitmap */
-//#define DEBUG_GROUP2
 #include "Frame.h"
 #include "FrameInt.h"
 #include "Map.h"
@@ -35,14 +33,8 @@
 #include "Component.h"
 #include "Projectile.h"
 
-//#ifdef WIN32
-//#include "netplay.h"
-//#include "MultiPlay.h"
-//#include "MultiStat.h"
-//#endif
 
 // hack to display the collsion box
-//extern 	QUAD	sBox;
 
 /* The drag start threshold distance (in squared world coordinates) */
 #define DRAG_THRESHOLD ((4*5)*(4*5))
@@ -88,9 +80,6 @@ static BOOL			visibleInfo = FALSE;
 static BOOL			showStats = FALSE;
 static UDWORD		godModeKeys[]={KEY_G,KEY_O,KEY_D};
 static UDWORD		godModeIndex=0;
-//static DROID		*psSelected = NULL;
-//static STRUCTURE	*psBuilding = NULL;
-//static FEATURE		*psFeature = NULL;
 
 void showDroidRange(DROID *psDroid);
 void	showGameStats( void );
@@ -568,17 +557,6 @@ BOOL process2DInput(void)
 
 /*
 removed cos types are different - am
-#if 0
-	if (keyPressed(KEY_H))
-	{
-		psTile = psMapTiles;
-		for(i=mapWidth*mapHeight; i>0; i--)
-		{
-//			psTile->type = TER_ROAD;
-			psTile++;
-		}
-	}
-#endif
 */
 	/* Process mouse clicks, dependant on mouse mode */
 	disp2DToWorld(mouseX(), mouseY(), &worldX,&worldY);
@@ -859,7 +837,6 @@ void blitTile(RECT *psDestRect, RECT *psSrcRect, UDWORD texture)
 	SDWORD					x,y, xDir,yDir, srcInc,destInc;
 
 	psBack = screenGetSurface();
-//	surfCreate(&psBack, 640,480, DDSCAPS_SYSTEMMEMORY, NULL);
 
 	/* Store the source rect as four points */
 	sP1.x = psSrcRect->left;
@@ -927,7 +904,6 @@ void blitTile(RECT *psDestRect, RECT *psSrcRect, UDWORD texture)
 	sDDSDSrc.dwSize = sizeof(DDSURFACEDESC2);
 //	ddrval = psVidTiles->lpVtbl->Lock(
 //					psVidTiles,
-//					NULL, &sDDSDSrc, DDLOCK_WAIT, NULL);
 	ddrval = psTiles->lpVtbl->Lock(
 					psTiles,
 					NULL, &sDDSDSrc, DDLOCK_WAIT, NULL);
@@ -1125,9 +1101,7 @@ void blitTile(RECT *psDestRect, RECT *psSrcRect, UDWORD texture)
 /* Display the terrain type over the normal tiles */
 void dispTerrain(UDWORD x, UDWORD y, TYPE_OF_TERRAIN type)
 {
-//	HRESULT					ddrval;
 	LPDIRECTDRAWSURFACE4		psBack;
-//	DDBLTFX					sDDBltFX;
 	RECT					sDestRect;
 
 	psBack = screenGetSurface();
@@ -1239,7 +1213,6 @@ static void display2DMap(void)
 		for(scrY = 0; scrY < DISP_HEIGHT; scrY += TILE_SIZE2D)
 		{
 			psTile = mapTile(x,y);
-//			if (psTile->tileVisible[selectedPlayer] OR godMode)
 //			if  ( (psTile->tileVisBits & (1<<selectedPlayer) OR godMode))
 			if ( TEST_TILE_VISIBLE(selectedPlayer,psTile) OR godMode)
 			{
@@ -1282,7 +1255,6 @@ static void display2DMap(void)
 		sy1 = sy0 + (sStructPos.height * TILE_SIZE2D);
 
 		screenSetLineCacheColour(outlineColour);
-		//screenSetLineColour(0xff,0xff,0xff);
 		screenDrawLine(sx0,sy0, sx1,sy0);
 		screenDrawLine(sx0,sy0, sx0,sy1);
 		screenDrawLine(sx0,sy1, sx1,sy1);
@@ -1601,8 +1573,6 @@ static void display2DBullets(void)
 									psVidFlash, FLASH_SIZE,FLASH_SIZE,
 									flashFrame);
 				}
-//				disp2DFromWorld(psCurr->tarX, psCurr->tarY, &scrX2, &scrY2);
-//				screenDrawLine(scrX1,scrY1, scrX2,scrY2);
 			}
 			else
 			{
@@ -1733,13 +1703,6 @@ UDWORD		Count;
 	screenTextOut(400, 16, "Player has %d Structures",Count);
 	screenTextOut(400,0,"Game Ticks: %d",gameTime);
 	
-//	if(apsDroidLists[0])
-//	{
-//		screenTextOut(400,48,"Droid Direction : %d",apsDroidLists[0]->direction);
-//		screenTextOut(400,64,"View Angle : %d",(UDWORD) ((UDWORD)player.r.y/DEG_1)%360);
-//		screenTextOut(400,80,"Difference : %d",(UDWORD) ((UDWORD)player.r.y/DEG_1)%360 - apsDroidLists[0]->direction);
-//		screenTextOut(400,96,"Left First : %d",leftFirst);
-//	}
 
 }
 

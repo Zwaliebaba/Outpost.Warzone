@@ -9,30 +9,23 @@
 #include "Objects.h"
 #include "GTime.h"
 #include "Research.h"
-#include "message.h"
-#include "text.h"
-#include "audio.h"
-#include "audio_id.h"
+#include "Message.h"
+#include "Text.h"
+#include "Audio.h"
+#include "AudioID.h"
 #include "Script.h"
 #include "ScriptTabs.h"
 #include "HCI.h"
-#include "console.h"
+#include "Console.h"
 #include "CmdDroid.h"
 #include "Power.h"
-#include "mission.h"
+#include "Mission.h"
 
 #include "Frend.h"		// frontend ids.
 #include "IntImage.h"
 
-#ifdef WIN32
 #include "MultiPlay.h"
-#endif
 
-#ifdef WIN32
-//#include "intfac.h"		// Interface image id's.
-#else
-//#include "intpsx.h"
-#endif
 
 //used to calc the research power
 #define RESEARCH_FACTOR		32//16
@@ -48,26 +41,11 @@ RESEARCH                *psCBLastResearch;
 //research is now loaded per campaign - this hopefully is the max there will be in any one campaign!
 //changing above a UBYTE size will require changes throughout research - put the designers off if you can!
 //PC and PSX are different because of the multiplayer research trees
-#ifdef WIN32
-//#define MAX_RESEARCH        (216 + 20)
-//#define MAX_RESEARCH        (255)
 //new levels required for Patch
 #define MAX_RESEARCH        (450)
-#else
-#define MAX_RESEARCH        (211 + 20)
-#endif
 
 //need to define max's for each of the lists associated with the research - these 
 //values have been chosen based on the current research stats - 21/12/98
-#ifdef WIN32
-//#define MAX_RESEARCH_PR             (280 + 20)
-/*#define MAX_RESEARCH_PR             (400)
-#define MAX_RESEARCH_STRUCT_PR      (24 + 5)
-#define MAX_RESEARCH_FUNC           (150 + 25)
-#define MAX_RESEARCH_STRUCT_RED     (10 + 2)
-#define MAX_RESEARCH_ARTE_RED       (20 + 5)
-#define MAX_RESEARCH_STRUCT_RES     (44 + 5)
-#define MAX_RESEARCH_ARTE_RES       (65 + 5)*/
 //new levels required for Patches
 #define MAX_RESEARCH_PR             (650)
 #define MAX_RESEARCH_STRUCT_PR      (44 + 5)
@@ -76,23 +54,12 @@ RESEARCH                *psCBLastResearch;
 #define MAX_RESEARCH_ARTE_RED       (40 + 5)
 #define MAX_RESEARCH_STRUCT_RES     (84 + 5)
 #define MAX_RESEARCH_ARTE_RES       (125 + 5)
-#else
-#define MAX_RESEARCH_PR             (180 + 20 + 4)
-#define MAX_RESEARCH_STRUCT_PR      (24 + 5)
-#define MAX_RESEARCH_FUNC           (150 + 25)
-#define MAX_RESEARCH_STRUCT_RED     (10 + 2)
-#define MAX_RESEARCH_ARTE_RED       (20 + 5)
-//#define MAX_RESEARCH_STRUCT_RES     (28 + 5)
-#define MAX_RESEARCH_STRUCT_RES     (44 + 5)
-#define MAX_RESEARCH_ARTE_RES       (50 + 5)
-#endif
 
 
 
 //need corresponding arrays for the above 
 //needs to be a UWORD* for the Patches
 UWORD               *pResearchPR;
-//UBYTE               *pResearchPR;
 UWORD               *pResearchStructPR;
 FUNCTION            **pResearchFunc;
 UWORD               *pResearchStructRed;
@@ -101,11 +68,7 @@ UWORD               *pResearchStructRes;
 COMP_BASE_STATS	    **pResearchArteRes;
 COMP_BASE_STATS	    **pResearchArteRep;
 
-#ifdef WIN32
 UWORD               numResearchPR;
-#else
-UBYTE               numResearchPR;
-#endif
 
 UWORD               numResearchStructPR;
 UBYTE               numResearchFunc;
@@ -134,7 +97,6 @@ static COMP_BASE_STATS * getComponentDetails(STRING *pName, STRING *pCompName);
 static void replaceComponent(COMP_BASE_STATS *pNewComponent, COMP_BASE_STATS *pOldComponent,
 					  UBYTE player);
 static BOOL checkResearchName(RESEARCH *psRes, UDWORD numStats);
-//static void enableSelfRepair(UBYTE player);
 
 char *getResearchName(RESEARCH *pResearch)
 {
@@ -190,7 +152,6 @@ BOOL researchInitVars(void)
     //and deal with all the other arrays for research
     //needs to be UWORD sized for the Patches
     pResearchPR = (UWORD *) MALLOC(sizeof(UWORD) * MAX_RESEARCH_PR);
-    //pResearchPR = (UBYTE *) MALLOC(sizeof(UBYTE) * MAX_RESEARCH_PR);
 	if (pResearchPR == NULL)
 	{
 		DBERROR(("Research Stats - Out of memory"));
@@ -198,7 +159,6 @@ BOOL researchInitVars(void)
 	}
     //needs to be UWORD sized for the Patches
     memset(pResearchPR, 0, (MAX_RESEARCH_PR * sizeof(UWORD)));
-    //memset(pResearchPR, 0, (MAX_RESEARCH_PR * sizeof(UBYTE)));
 
     pResearchStructPR = (UWORD *) MALLOC(sizeof(UWORD) * MAX_RESEARCH_STRUCT_PR);
 	if (pResearchStructPR == NULL)
@@ -258,7 +218,6 @@ BOOL researchInitVars(void)
 
 	for(i=0; i<MAX_PLAYERS; i++) 
     {
-		//asPlayerResList[i] = NULL;
 		bSelfRepair[i] = FALSE;
 	}
 
@@ -284,15 +243,8 @@ BOOL loadResearch(SBYTE *pResearchData, UDWORD bufferSize)
 	pStartResearchData = pResearchData;
 
 	researchCount = numCR((UBYTE *)pResearchData, bufferSize);
-	/*asResearch = (RESEARCH *)MALLOC(sizeof(RESEARCH)*researchCount);
-	if (asResearch == NULL)
-	{
-		DBERROR(("Research Stats - Out of memory"));
-		return FALSE;
-	}*/
 
 	numResearch = researchCount;
-	//ASSERT(((numResearch) < REF_RANGE, "Too many ResearchStats!!"));
     ASSERT(((numResearch) <= MAX_RESEARCH, 
         "Too many ResearchStats!! - max allowed %d", MAX_RESEARCH));
 
@@ -453,7 +405,6 @@ BOOL loadResearch(SBYTE *pResearchData, UDWORD bufferSize)
 
 		//check the tech code is valid
         if (techCode > 1)
-		//if (pResearch->techCode != TC_MAJOR AND pResearch->techCode != TC_MINOR)
 		{
 			DBERROR(("Invalid tech code for research topic - %s ", getResearchName(pResearch)));
 			return FALSE;
@@ -576,7 +527,6 @@ BOOL loadResearch(SBYTE *pResearchData, UDWORD bufferSize)
             }
             //don't MALLOC - get them from the pre-defined arrays
             pResearch->pRedArtefacts = pResearchArteRed + numResearchArteRed;
-            //pResearchArteRed += pResearch->numRedArtefacts;
             //keep track on how many are being allocated
             numResearchArteRed = (UBYTE)(numResearchArteRed + pResearch->numRedArtefacts);
 		}
@@ -597,7 +547,6 @@ BOOL loadResearch(SBYTE *pResearchData, UDWORD bufferSize)
             }
             //don't MALLOC - get them from the pre-defined arrays
             pResearch->pArtefactResults = pResearchArteRes + numResearchArteRes;
-            //pResearchArteRes += pResearch->numArteResults;
             //keep track on how many are being allocated
             numResearchArteRes = (UBYTE)(numResearchArteRes + pResearch->numArteResults);
 		}
@@ -619,7 +568,6 @@ BOOL loadResearch(SBYTE *pResearchData, UDWORD bufferSize)
             }
             //don't MALLOC - get them from the pre-defined arrays
             pResearch->pReplacedArtefacts = pResearchArteRep + numResearchArteRep;
-            //pResearchArteRep += pResearch->numArteResults;
             //keep track on how many are being allocated
             numResearchArteRep = (UBYTE)(numResearchArteRep + pResearch->numArteResults);
 		}
@@ -641,7 +589,6 @@ BOOL loadResearch(SBYTE *pResearchData, UDWORD bufferSize)
             }
             //don't MALLOC - get them from the pre-defined arrays
             pResearch->pFunctionList = pResearchFunc + numResearchFunc;
-            //pResearchFunc += pResearch->numFunctions;
             //keep track on how many are being allocated
             numResearchFunc = (UBYTE)(numResearchFunc + pResearch->numFunctions);
 		}
@@ -663,13 +610,8 @@ BOOL loadResearch(SBYTE *pResearchData, UDWORD bufferSize)
             }
             //don't MALLOC - get them from the pre-defined arrays
             pResearch->pPRList = pResearchPR + numResearchPR;
-            //pResearchPR += pResearch->numPRRequired;
             //keep track on how many are being allocated
-#ifdef WIN32
             numResearchPR = (UWORD)(numResearchPR + pResearch->numPRRequired);
-#else
-            numResearchPR = (UBYTE)(numResearchPR + pResearch->numPRRequired);
-#endif
 		}
 
 		//allocate storage for the structures
@@ -690,7 +632,6 @@ BOOL loadResearch(SBYTE *pResearchData, UDWORD bufferSize)
             }
             //don't MALLOC - get them from the pre-defined arrays
             pResearch->pStructList = pResearchStructPR + numResearchStructPR;
-            //pResearchStructPR += pResearch->numStructures;
             //keep track on how many are being allocated
             numResearchStructPR = (UBYTE)(numResearchStructPR + pResearch->numStructures);
 		}
@@ -712,7 +653,6 @@ BOOL loadResearch(SBYTE *pResearchData, UDWORD bufferSize)
             }
             //don't MALLOC - get them from the pre-defined arrays
             pResearch->pRedStructs = pResearchStructRed + numResearchStructRed;
-            //pResearchStructRed += pResearch->numRedStructs;
             //keep track on how many are being allocated
             numResearchStructRed = (UBYTE)(numResearchStructRed + pResearch->numRedStructs);
 		}
@@ -733,7 +673,6 @@ BOOL loadResearch(SBYTE *pResearchData, UDWORD bufferSize)
             }
             //don't MALLOC - get them from the pre-defined arrays
             pResearch->pStructureResults = pResearchStructRes + numResearchStructRes;
-            //pResearchStructRes += pResearch->numStructResults;
             //keep track on how many are being allocated
             numResearchStructRes = (UBYTE)(numResearchStructRes + pResearch->numStructResults);
 		}
@@ -759,7 +698,6 @@ BOOL loadResearch(SBYTE *pResearchData, UDWORD bufferSize)
 		//increment the list to the start of the next storage block
 		pResearch++;
 	}
-//	FREE(pStartResearchData);
 
     //Do this in initResearch now since there is a Max Research
 	//now we know how many research topics there are we can create the 
@@ -786,7 +724,6 @@ BOOL loadResearchPR(SBYTE *pPRData, UDWORD bufferSize)
 	SBYTE				*pStartPRData;
 	UDWORD				NumToAlloc = 0, i;
 	STRING				ResearchName[MAX_NAME_SIZE], PRName[MAX_NAME_SIZE];
-	//UBYTE				incR, incPR;
     UWORD				incR, incPR;
 	RESEARCH			*pResearch = asResearch, *pPRResearch = asResearch;
 	BOOL				recFound;
@@ -890,7 +827,6 @@ BOOL loadResearchPR(SBYTE *pPRData, UDWORD bufferSize)
 		//increment the pointer to the start of the next record
 		pPRData = strchr(pPRData,'\n') + 1;
 	}
-//	FREE(pStartPRData);
 	return TRUE;
 }
 
@@ -1049,7 +985,6 @@ BOOL loadResearchArtefacts(SBYTE *pArteData, UDWORD bufferSize, UDWORD listNumbe
         //increment the pointer to the start of the next record
 		pArteData = strchr(pArteData,'\n') + 1;
 	}
-//	FREE(pStartArteData);
 	return TRUE;
 }
 
@@ -1059,7 +994,6 @@ BOOL loadResearchStructures(SBYTE *pStructData, UDWORD bufferSize,UDWORD listNum
 	SBYTE				*pStartStructData;
 	UDWORD				NumToAlloc = 0, i;
 	STRING				ResearchName[MAX_NAME_SIZE], StructureName[MAX_NAME_SIZE];
-	//UBYTE				incR;
     UWORD				incR;
     UWORD               incS;
 	RESEARCH			*pResearch = asResearch;
@@ -1215,7 +1149,6 @@ BOOL loadResearchStructures(SBYTE *pStructData, UDWORD bufferSize,UDWORD listNum
 		//increment the pointer to the start of the next record
 		pStructData = strchr(pStructData,'\n') + 1;
 	}
-//	FREE(pStartStructData);
 	return TRUE;
 }
 
@@ -1331,7 +1264,6 @@ BOOL loadResearchFunctions(SBYTE *pFunctionData, UDWORD bufferSize)
 		//increment the pointer to the start of the next record
 		pFunctionData = strchr(pFunctionData,'\n') + 1;
 	}
-//	FREE(pStartFunctionData);
 	return TRUE;
 }
 
@@ -1351,13 +1283,11 @@ There can only be 'limit' number of entries
 'topic' is the currently researched topic
 */
 //needs to be UWORD sized for Patches
-//UBYTE fillResearchList(UBYTE *plist, UDWORD playerID, UWORD topic, UWORD limit)
 
 // NOTE by AJL may 99 - skirmish now has it's own version of this, skTopicAvail.
 
 UWORD fillResearchList(UWORD *plist, UDWORD playerID, UWORD topic, UWORD limit)
 {
-	//UBYTE				inc, count=0;
     UWORD				inc, count=0;
 	UDWORD				incPR, incS;
 	PLAYER_RESEARCH		*pPlayerRes = asPlayerResList[playerID]; 
@@ -1367,7 +1297,6 @@ UWORD fillResearchList(UWORD *plist, UDWORD playerID, UWORD topic, UWORD limit)
 	ASSERT((numResearch < UWORD_MAX, 
 		"fillResearchList: only using a UWORD for storage - need more!"));
 	//ASSERT((numResearch < UBYTE_MAX, 
-	//	"fillResearchList: only using a UBYTE for storage - need more!"));
 	for (inc=0; inc < numResearch; inc++)
 	{
 		//if the inc matches the 'topic' - automatically add to the list
@@ -1389,10 +1318,8 @@ UWORD fillResearchList(UWORD *plist, UDWORD playerID, UWORD topic, UWORD limit)
 			}
 		}
 
-#ifdef WIN32
 		//if single player mode and key topic, then ignore cos can't do it!
 		if (!bMultiPlayer)
-#endif
 		{
 			if (asResearch[inc].keyTopic)
 			{
@@ -1632,7 +1559,6 @@ void researchResult(UDWORD researchIndex, UBYTE player, BOOL bDisplay)
 					if (psCurr->pStructureType->type == REF_RESEARCH)
 					{
 						//upgrade the research points
-						//researchUpgrade(pFunction, psCurr);
 						structureResearchUpgrade(psCurr);
 					}
 					//set the function upgrade flag for future factories being built
@@ -2137,8 +2063,6 @@ BOOL ResearchShutDown(void)
 #if !defined (RESOURCE_NAMES) && !defined (STORE_RESOURCE_ID)
 		FREE(pList->pName);
 #endif
-		//FREE(pList->pTechnologyName);
-//		FREE(pList->pSubGroupName);
 		if (pList->numRedArtefacts > 0)
 		{
 			FREE(pList->pRedArtefacts);
@@ -2196,7 +2120,6 @@ BOOL ResearchShutDown(void)
     //and init all the other arrays used
     //needs to be UWORD sized for the Patches
     memset(pResearchPR, 0, (MAX_RESEARCH_PR * sizeof(UWORD)));
-    //memset(pResearchPR, 0, (MAX_RESEARCH_PR * sizeof(UBYTE)));
     memset(pResearchStructPR, 0, (MAX_RESEARCH_STRUCT_PR * sizeof(UWORD)));
     memset(pResearchFunc, 0, (MAX_RESEARCH_FUNC * sizeof(FUNCTION *)));
     memset(pResearchStructRed, 0, (MAX_RESEARCH_STRUCT_RED * sizeof(UWORD)));
@@ -2234,7 +2157,6 @@ BOOL ResearchRelease(void)
 /*puts research facility on hold*/
 void holdResearch(STRUCTURE *psBuilding)
 {
-#ifdef WIN32
 	RESEARCH_FACILITY		*psResFac;
 
 	ASSERT((psBuilding->pStructureType->type == REF_RESEARCH, 
@@ -2252,9 +2174,6 @@ void holdResearch(STRUCTURE *psBuilding)
 			audio_PlayTrack(ID_SOUND_WINDOWCLOSE);
 		}
 	}
-#else
-	cancelResearch(psBuilding);
-#endif
 }
 
 /*release a research facility from hold*/
@@ -2338,13 +2257,11 @@ void cancelResearch(STRUCTURE *psBuilding)
         }
 		else
 		{
-#ifdef WIN32		// only PC version saves these
 			/*store the points - need to keep this so can add points after the topic 
 			has been cancelled and restarted*/
 			pPlayerRes->currentPoints += (psResFac->researchPoints * (gameTime - 
                 psResFac->timeStarted)) / GAME_TICKS_PER_SEC;
 
-#endif    	
             //set the researched flag
 			MakeResearchCancelled(pPlayerRes);
 		}
@@ -2355,7 +2272,6 @@ void cancelResearch(STRUCTURE *psBuilding)
         psResFac->psSubject = NULL;
 
 		//set the researched flag - only set the flag to cancelled if it got past the accruePower stage
-		//pPlayerRes->researched = CANCELLED_RESEARCH;
 	}
 }
 
@@ -2389,7 +2305,6 @@ static UWORD setIconIDFromHashedName(STRING *pIconName, UDWORD NameHash)
 	Image = Images->ImageDefs;
 	for(i=0; i<Images->Header.NumImages; i++) {
 		if(IconHash == Image->HashValue) {
-//			DBPRINTF(("Matched research icon #%d\n",IconHash));
 			return i;
 		}
 
@@ -2397,7 +2312,6 @@ static UWORD setIconIDFromHashedName(STRING *pIconName, UDWORD NameHash)
 	}
 
     //add more names as images are created
-//	ASSERT((FALSE, "Invalid icon graphic %s for topic %s", pIconName, pName));
 	DBPRINTF(("Failed to matched research icon  %s #%d\n",pIconName,IconHash));
 
 	return 0;	// Should never get here.
@@ -2801,9 +2715,7 @@ RESEARCH * getResearch(STRING *pName, BOOL resName)
 void replaceComponent(COMP_BASE_STATS *pNewComponent, COMP_BASE_STATS *pOldComponent,
 					  UBYTE player)
 {
-	//DROID			*psDroid;
 	DROID_TEMPLATE	*psTemplates;
-	//STRUCTURE		*psStructure;
 	UDWORD			inc, oldType, newType, oldCompInc, newCompInc;
 
 
@@ -2841,24 +2753,14 @@ void replaceComponent(COMP_BASE_STATS *pNewComponent, COMP_BASE_STATS *pOldCompo
 				}
 				break;
 			//case COMP_PROGRAM:
-			//	for (inc=0; inc < psDroid->numProgs; inc++)
-			//	{
 			//		if ((psDroid->asProgs[inc].psStats->ref - REF_PROGRAM_START) == 
 			//			oldCompInc)
-			//		{
-			//			psDroid->asProgs[inc].psStats = (asProgramStats + newCompInc);
-			//		}
-			//	}
-			//	break;
 			case COMP_WEAPON:
                 //can only be one weapon now
-				//for (inc=0; inc < psDroid->numWeaps; inc++)
                 if (psDroid->asWeaps[0].nStat > 0)
 				{
-					//if (psDroid->asWeaps[inc].nStat == oldCompInc)
                     if (psDroid->asWeaps[0].nStat == oldCompInc)
 					{
-						//psDroid->asWeaps[inc].nStat = newCompInc;
                         psDroid->asWeaps[0].nStat = newCompInc;
 					}
 				}
@@ -2889,14 +2791,6 @@ void replaceComponent(COMP_BASE_STATS *pNewComponent, COMP_BASE_STATS *pOldCompo
 				}
 				break;
 			//case COMP_PROGRAM:
-			//	for (inc=0; inc < psTemplates->numProgs; inc++)
-			//	{
-			//		if (psTemplates->asProgs[inc] == oldCompInc)
-			//		{
-			//			psTemplates->asProgs[inc] = newCompInc;
-			//		}
-			//	}
-			//	break;
 			case COMP_WEAPON:
 				for (inc=0; inc < psTemplates->numWeaps; inc++)
 				{
@@ -2933,23 +2827,16 @@ void replaceComponent(COMP_BASE_STATS *pNewComponent, COMP_BASE_STATS *pOldCompo
 			case COMP_SENSOR:
 				if (psStructure->pStructureType->pSensor == (asSensorStats + oldCompInc))
 				{
-					//psStructure->sensorPower = (asSensorStats + newCompInc)->power;
 					psStructure->sensorPower = (UWORD)sensorPower(asSensorStats + 
 						newCompInc,player);
-					//psStructure->sensorRange = (asSensorStats + newCompInc)->range;
 					psStructure->sensorRange = (UWORD)sensorRange(asSensorStats + 
 						newCompInc,player);
 				}
 				break;
 			case COMP_WEAPON:
-				//for (inc=0; inc < psStructure->numWeaps; inc++)
                 //can only be one weapon now
                 if (psStructure->asWeaps[0].nStat > 0)
 				{
-					//if (psStructure->asWeaps[inc].nStat == oldCompInc)
-					//{
-					//	psStructure->asWeaps[inc].nStat = newCompInc;
-					//}
 					if (psStructure->asWeaps[0].nStat == oldCompInc)
 					{
 						psStructure->asWeaps[0].nStat = newCompInc;
@@ -3089,9 +2976,7 @@ void researchReward(UBYTE losingPlayer, UBYTE rewardPlayer)
 		researchResult(rewardID, rewardPlayer, TRUE);
 		if (rewardPlayer == selectedPlayer)
 		{
-			//addConsoleMessage(strresGetString(psStringRes,STR_GAM_RESREWARD), DEFAULT_JUSTIFY);
             //name the actual reward
-            //addConsoleMessage(asResearch[rewardID].pName, DEFAULT_JUSTIFY);
            	CONPRINTF(ConsoleString,(ConsoleString,"%s :- %s",
         	    strresGetString(psStringRes,STR_GAM_RESREWARD), 
                 getName(asResearch[rewardID].pName)));
@@ -3376,23 +3261,16 @@ void replaceStructureComponent(STRUCTURE *pList, UDWORD oldType, UDWORD oldCompI
 			case COMP_SENSOR:
 				if (psStructure->pStructureType->pSensor == (asSensorStats + oldCompInc))
 				{
-					//psStructure->sensorPower = (asSensorStats + newCompInc)->power;
 					psStructure->sensorPower = (UWORD)sensorPower(asSensorStats + 
 						newCompInc,player);
-					//psStructure->sensorRange = (asSensorStats + newCompInc)->range;
 					psStructure->sensorRange = (UWORD)sensorRange(asSensorStats + 
 						newCompInc,player);
 				}
 				break;
 			case COMP_WEAPON:
-				//for (inc=0; inc < psStructure->numWeaps; inc++)
                 //can only be one weapon now
                 if (psStructure->asWeaps[0].nStat > 0)
 				{
-					/*if (psStructure->asWeaps[inc].nStat == oldCompInc)
-					{
-						psStructure->asWeaps[inc].nStat = newCompInc;
-					}*/
 					if (psStructure->asWeaps[0].nStat == oldCompInc)
 					{
 						psStructure->asWeaps[0].nStat = newCompInc;
@@ -3440,13 +3318,10 @@ void switchComponent(DROID *psDroid, UDWORD oldType, UDWORD oldCompInc,
 			break;*/
 		case COMP_WEAPON:
             //can only be one weapon now
-			//for (inc=0; inc < psDroid->numWeaps; inc++)
             if (psDroid->asWeaps[0].nStat > 0)
 			{
-				//if (psDroid->asWeaps[inc].nStat == oldCompInc)
                 if (psDroid->asWeaps[0].nStat == oldCompInc)
 				{
-					//psDroid->asWeaps[inc].nStat = newCompInc;
                     psDroid->asWeaps[0].nStat = newCompInc;
 				}
 			}

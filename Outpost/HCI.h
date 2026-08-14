@@ -6,13 +6,10 @@
 #ifndef _hci_h
 #define _hci_h
 
-#include "widget.h"
+#include "Widget.h"
 #include "Message.h"
-#ifdef WIN32
-#include "cdspan.h"
+#include "CDSpan.h"
 #include "PieClip.h"
-#endif
-//#include "IntImage.h"
 
 // store the objects that are being used for the object bar
 #define			MAX_OBJECTS		15//10 we need at least 15 for the 3 different types of factory
@@ -21,19 +18,12 @@
 #define	BASE_COORDS_X	(640)
 #define	BASE_COORDS_Y	(480)
 
-#ifdef WIN32
 #define	BASE_COORDS_X	(640)
 #define	BASE_COORDS_Y	(480)
 #define E_W (DISP_WIDTH - BASE_COORDS_X)
 #define E_H (DISP_HEIGHT - BASE_COORDS_Y)
 #define	D_W	((DISP_WIDTH - BASE_COORDS_X)/2)
 #define	D_H ((DISP_HEIGHT - BASE_COORDS_Y)/2)
-#else
-#define	D_W (0)
-#define	D_H	(0)
-#define E_W (0)
-#define E_H (0)
-#endif
 
 #define IDRET_FORM				1		// The reticule form
 #define IDRET_OPTIONS			2		// option button
@@ -83,7 +73,6 @@
 #define IDSTAT_TABFORM			4004		// The tab form with the stats buttons
 #define IDSTAT_START			4100		// The first stats ID
 #define IDSTAT_END				4179		// The last stats ID
-//#define IDSTAT_BARSTART		4200
 #define IDSTAT_BAREND			4299
 #define IDSTAT_TIMEBARSTART		4300
 #define IDSTAT_TIMEBAREND		4399
@@ -129,13 +118,8 @@
 #define OBJ_STATSTARTY	0
 
 //slider bar positions
-#ifdef PSX
-#define STAT_SLDX			4	// Slider x.
-#define STAT_SLDY			8	// Slider y.
-#else
 #define STAT_SLDX			8	// Slider x.
 #define STAT_SLDY			4	// Slider y.
-#endif
 #define STAT_SLDWIDTH		70	// Slider width.
 #define STAT_SLDHEIGHT		12	//4	// Slider height.
 
@@ -190,18 +174,11 @@
 #define UNPACKDWORD_QUAD_D(a) ( (a) & 0xff)
 
 
-//#define BUILDPOINTS_STRUCTDIV 1
-//#define BUILDPOINTS_DROIDDIV 5
-//#define POWERPOINTS_STRUCTDIV 1
 #define POWERPOINTS_DROIDDIV	5 //3 
 
 #define OBJ_BUTWIDTH		60		// Button width.
 #define OBJ_BUTHEIGHT		46		// Button height.
-#ifdef WIN32
 #define OBJ_TEXTX			2
-#else
-#define OBJ_TEXTX			4
-#endif
 #define OBJ_T1TEXTY			2
 #define OBJ_T2TEXTY			14
 #define OBJ_T3TEXTY			26
@@ -210,7 +187,6 @@
 #define STAT_SLD_OX	(0)			// Stat window slider offset.
 #define STAT_SLD_OY	(0)
 #define STAT_SLDSTOPS		10	// Slider number of stops.
-#ifdef WIN32
 #define STAT_PROGBARX			3
 #define STAT_PROGBARY			36
 #define STAT_PROGBARWIDTH		(OBJ_BUTWIDTH-8)
@@ -219,16 +195,6 @@
 #define STAT_TIMEBARY			(OBJ_BUTHEIGHT-STAT_PROGBARHEIGHT-3)
 #define STAT_POWERBARX			3
 #define STAT_POWERBARY			(OBJ_BUTHEIGHT-STAT_PROGBARHEIGHT-6)
-#else
-#define STAT_PROGBARX			4
-#define STAT_PROGBARY			34
-#define STAT_PROGBARWIDTH		(OBJ_BUTWIDTH-12)
-#define STAT_PROGBARHEIGHT		4
-#define STAT_TIMEBARX			4
-#define STAT_TIMEBARY			(OBJ_BUTHEIGHT-STAT_PROGBARHEIGHT-8)
-#define STAT_POWERBARX			4
-#define STAT_POWERBARY			(OBJ_BUTHEIGHT-STAT_PROGBARHEIGHT-6)
-#endif
 #define STAT_PROGBARMAJORRED	255//0xcc
 #define STAT_PROGBARMAJORGREEN	235//0
 #define STAT_PROGBARMAJORBLUE	19//0
@@ -252,10 +218,8 @@
 
 typedef enum {
 	INT_NORMAL,		// Standard mode (just the reticule)
-#ifdef WIN32
 	INT_OPTION,		// Option screen
 	INT_EDIT,		// Edit mode
-#endif
 	INT_EDITSTAT,	// Stat screen up for placing objects
 	INT_OBJECT,		// Object screen
 	INT_STAT,		// Object screen with stat screen
@@ -274,13 +238,8 @@ typedef enum {
 } INTMODE;
 
 //NOT ANYMORE! 10/08/98 AB
-//#ifdef WIN32
-//#define INCLUDE_PRODSLIDER	// Include quantity slider in manufacture window.
-//#endif
 
-//#ifdef WIN32
 #define INCLUDE_FACTORYLISTS
-//#endif
 
 extern INTMODE intMode;
 
@@ -301,7 +260,6 @@ extern UDWORD			intLastWidget;
 extern UDWORD			objStatID;
 
 /* The flag to specify if the Intelligence screen is up */
-//extern BOOL				intelMapUp;
 
 /* The current template for the design screen to start with*/
 extern DROID_TEMPLATE	*psCurrTemplate;
@@ -329,10 +287,8 @@ as big as Pie View in Research Msg now*/
 /* pointer to hold the imd to use for a new template in the design screen */
 extern iIMDShape	*pNewDesignIMD;
 
-#ifdef WIN32
 extern UBYTE	*DisplayBuffer;
 extern SDWORD	displayBufferSize;
-#endif
 
 extern BOOL ClosingMessageView;
 extern BOOL ClosingIntelMap;
@@ -405,7 +361,6 @@ void intCommanderSelected(DROID *psDroid);
 extern UWORD numForms(UDWORD total, UDWORD perForm);
 
 //sets up the Intelligence Screen as far as the interface is concerned
-//extern void addIntelScreen(BOOL playImmediate);
 extern void addIntelScreen(void);
 
 // update shadow...
@@ -432,11 +387,9 @@ extern STRUCTURE* interfaceStructList(void);
 //sets up the Transporter Screen as far as the interface is concerned
 extern void addTransporterInterface(DROID *psSelected, BOOL onMission);
 
-#ifdef WIN32
 /* CD change box */
 extern void addCDChangeInterface( CD_INDEX CDrequired,
 		CDSPAN_CALLBACK fpOKCallback, CDSPAN_CALLBACK fpCancelCallback );
-#endif
 
 /*causes a reticule button to start flashing*/
 extern void flashReticuleButton(UDWORD buttonID);
@@ -451,7 +404,6 @@ extern void togglePowerBar(void);
 extern void intShowPowerBar(void);
 
 //hides the power bar from the display
-//extern void intHidePowerBar(void);
 
 //hides the power bar from the display - regardless of what player requested!
 extern void forceHidePowerBar(void);
@@ -465,14 +417,6 @@ extern void intRemoveProximityButton(PROXIMITY_DISPLAY *psProxDisp);
 /* Allows us to fool the widgets with a keypress */
 void	setKeyButtonMapping( UDWORD	val );
 
-#ifdef PSX
-void SetMouseFormPosition(W_FORMINIT *sFormInit);
-
-void intDestroyStructure(STRUCTURE *psStruct);
-void intDestroyDroid(DROID *psDroid);
-
-void intInitObjectCycle(void);
-#endif
 
 STRUCTURE *intFindAStructure(void);
 STRUCTURE* intGotoNextStructureType(UDWORD structType,BOOL JumpTo,BOOL CancelDrive);

@@ -6,7 +6,6 @@
  */
 
 // surfRecreate pix format stuff 
-//#define DEBUG_GROUP1
 #include "Frame.h"
 #include "FrameInt.h"
 
@@ -471,8 +470,6 @@ BOOL surfLoadFrom8Bit(
 	memset(&ddsd, 0, sizeof(DDSURFACEDESC2));
 	ddsd.dwSize = sizeof(DDSURFACEDESC2);
 	ddrval = psSurf->lpVtbl->Lock(psSurf, NULL, &ddsd, 0, NULL);
-//	ddsd.lpSurface = MALLOC(surfWidth*surfHeight*4);
-//	ddsd.lPitch = surfWidth;
 	if (ddrval != DD_OK)
 	{
 		DBERROR(("Lock failed for surface image load:\n%s",

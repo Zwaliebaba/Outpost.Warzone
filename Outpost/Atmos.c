@@ -1,4 +1,3 @@
-#ifdef WIN32
 /* Atmos.c - Handles atmospherics such as snow and rain */
 /* Alex McLean, Pumpkin Studios, EIDOS Interactive */
 /* 
@@ -9,16 +8,16 @@
 #include "PieDef.h"
 #include "PieState.h"
 #include "Display3D.h"
-#include "Display3dDef.h"
+#include "Display3Ddef.h"
 #include "GTime.h"
-#include "MiscImd.h"
+#include "MiscIMD.h"
 #include "Map.h"
 #include "Atmos.h"
 #include "Loop.h"
 #include "Geo.h"
 #include "Effects.h"
-#include "lighting.h"
-#include "bucket3d.h"
+#include "Lighting.h"
+#include "Bucket3D.h"
 #include "HCI.h"
 
 // -----------------------------------------------------------------------------
@@ -93,10 +92,6 @@ iVector	pos;
 	/* Establish how long the last game frame took */
 	fraction = MAKEFRACT(frameTime)/GAME_TICKS_PER_SEC;
 
- //	if(weather==WT_NONE)
- //	{
- //		return;
- //	}
 
 	for(i=0; i<MAX_ATMOS_PARTICLES; i++)
 	{
@@ -401,4 +396,3 @@ WT_CLASS	atmosGetWeatherType( void )
 	return(weather);
 }
 
-#endif

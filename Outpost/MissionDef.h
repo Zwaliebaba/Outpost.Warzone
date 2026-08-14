@@ -45,7 +45,6 @@ typedef struct _mission
 	STRUCTURE					*apsStructLists[MAX_PLAYERS];	//original object lists
 	DROID						*apsDroidLists[MAX_PLAYERS];
 	FEATURE						*apsFeatureLists[MAX_PLAYERS];
-	//struct _proximity_display	*apsProxDisp[MAX_PLAYERS];
 	FLAG_POSITION				*apsFlagPosLists[MAX_PLAYERS];
 	PLAYER_POWER				asPower[MAX_PLAYERS];
 
@@ -56,7 +55,6 @@ typedef struct _mission
 											// < 0 = none allowed
    	UDWORD				cheatTime;			//time the cheating started (mission time-wise!)
 
-	//LANDING_ZONE		homeLZ;
     UWORD               homeLZ_X;           //selectedPlayer's LZ x and y
     UWORD               homeLZ_Y;
 	SDWORD				playerX;			//original view position

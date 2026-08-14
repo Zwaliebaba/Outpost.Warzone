@@ -70,11 +70,11 @@ static int printf(char* c, ...)
 /* Allow frame header files to be singly included */
 #define FRAME_LIB_INCLUDE
 
-#include "types.h"
-#include "debug.h"
-#include "mem.h"
-#include "heap.h"
-#include "treap.h"
+#include "Types.h"
+#include "Debug.h"
+#include "Mem.h"
+#include "Heap.h"
+#include "Treap.h"
 #include "StrRes.h"
 #include "StrResLY.h"
 

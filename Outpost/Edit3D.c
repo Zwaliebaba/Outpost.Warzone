@@ -33,7 +33,6 @@ void Edit3DInitVars(void)
 
 
 
-#ifdef WIN32
 /* Raises a tile by a #defined height */
 void	raiseTile(UDWORD tile3dX, UDWORD tile3dY)
 {
@@ -83,7 +82,6 @@ SDWORD	newHeight;
 		psTile->height=(unsigned char) newHeight;
 	}
 }
-#endif
 
 
 BOOL	inHighlight(UDWORD realX, UDWORD realY)
@@ -144,12 +142,6 @@ void init3DBuilding(BASE_STATS *psStats,BUILDCALLBACK CallBack,void *UserData)
 void	kill3DBuilding		( void )
 {
 	CancelDeliveryRepos();
-#ifdef PSX
-	if(buildState != BUILD3D_NONE) {
-		intBuildCancel();
-	}
-	CancelStructurePosition();
-#endif
     //cancel the drag boxes
     dragBox3D.status = DRAG_INACTIVE;
     wallDrag.status = DRAG_INACTIVE;

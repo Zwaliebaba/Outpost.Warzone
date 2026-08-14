@@ -10,7 +10,7 @@
 #include "Deliverance.h"
 #include "GTime.h"
 #include "Objects.h"
-#include "Multiplay.h"
+#include "MultiPlay.h"
 #include "NetPlay.h"
 
 // how long to pause between sending cheat messages
