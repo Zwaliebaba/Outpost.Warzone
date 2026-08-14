@@ -237,8 +237,8 @@ SDWORD		fileSize;
 /* Stores the texture for a specific tile */
 static	iTexture texturePage = {6, 64, 64, NULL};
 /* Points for flipping the texture around if the tile is flipped or rotated */
-POINT 	sP1,sP2,sP3,sP4;
-POINT	*psP1,*psP2,*psP3,*psP4,*psPTemp;
+static POINT 	sP1,sP2,sP3,sP4;
+static POINT	*psP1,*psP2,*psP3,*psP4,*psPTemp;
 /* Pointer to which tile the mouse is currently over */
 MAPTILE	*tile3dOver = NULL;
 /* Records the present X and Y values for the current mouse tile (in tiles */
@@ -260,7 +260,7 @@ BOOL	gouraudShading = TRUE;
 /* Have we located the mouse? */
 BOOL	mouseLocated = TRUE;
 /* Mouse x and y - saves reading them every time we want to use them */
-SDWORD	mX,mY;
+static SDWORD	mX,mY;
 /* Index so we know how to find the tile BEHIND the one currently being processed for any view angle */
 UDWORD	stepIndex;
 /* The box used for multiple selection - present screen coordinates */

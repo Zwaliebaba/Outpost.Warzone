@@ -63,10 +63,10 @@
 #include "KeyBind.h"
 #include "Wrappers.h"
 #include "PowerCrypt.h"
+#include "MultiJoin.h"                     // intDisplayMultiJoiningStatus
 
 #ifdef DEBUG
 #include "ObjMem.h"
-#include "MultiJoin.h"                     // intDisplayMultiJoiningStatus
 #endif
 
 #define MISSION_COMPLETE_DELAY	4000
