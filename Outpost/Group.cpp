@@ -50,8 +50,6 @@ void grpJoin(DROID_GROUP* psGroup, DROID* psDroid)
 {
   psGroup->refCount += 1;
 
-  ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)), "grpJoin: invalid group pointer"));
-
   // if psDroid == NULL just increase the refcount don't add anything to the list
   if (psDroid != nullptr)
   {
@@ -94,8 +92,6 @@ void grpJoinEnd(DROID_GROUP* psGroup, DROID* psDroid)
 
   psGroup->refCount += 1;
 
-  ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)), "grpJoin: invalid group pointer"));
-
   // if psDroid == NULL just increase the refcount don't add anything to the list
   if (psDroid != nullptr)
   {
@@ -135,8 +131,6 @@ void grpJoinEnd(DROID_GROUP* psGroup, DROID* psDroid)
 void grpLeave(DROID_GROUP* psGroup, DROID* psDroid)
 {
   DROID *psPrev, *psCurr;
-
-  ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)), "grpLeave: invalid group pointer"));
 
   if ((psDroid != nullptr) && (psDroid->psGroup != psGroup))
   {
@@ -191,8 +185,6 @@ SDWORD grpNumMembers(DROID_GROUP* psGroup)
   DROID* psCurr;
   SDWORD num;
 
-  ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)), "grpNumMembers: invalid droid group"));
-
   num = 0;
   for (psCurr = psGroup->psList; psCurr; psCurr = psCurr->psGrpNext)
     num += 1;
@@ -205,8 +197,6 @@ void grpReset(DROID_GROUP* psGroup)
 {
   DROID *psCurr, *psNext;
 
-  ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)), "grpReset: invalid droid group"));
-
   for (psCurr = psGroup->psList; psCurr; psCurr = psNext)
   {
     psNext = psCurr->psGrpNext;
@@ -216,7 +206,6 @@ void grpReset(DROID_GROUP* psGroup)
 
 /* Give a group an order */
 
-//	ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)),
 //
 //	if (bMultiPlayer && SendGroupOrder(	psGroup, psData->x,	psData->y,	psData->psObj) )
 //	{	// turn off multiplay messages,since we've send a group one instead.
@@ -227,8 +216,6 @@ void orderGroup(DROID_GROUP* psGroup, DROID_ORDER order)
 {
   DROID* psCurr;
 
-  ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)), "orderGroup: invalid droid group"));
-
   for (psCurr = psGroup->psList; psCurr; psCurr = psCurr->psGrpNext)
     orderDroid(psCurr, order);
 }
@@ -237,8 +224,6 @@ void orderGroup(DROID_GROUP* psGroup, DROID_ORDER order)
 void orderGroupLoc(DROID_GROUP* psGroup, DROID_ORDER order, UDWORD x, UDWORD y)
 {
   DROID* psCurr;
-
-  ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)), "orderGroupLoc: invalid droid group"));
 
   if (bMultiPlayer)
   {
@@ -262,8 +247,6 @@ void orderGroupObj(DROID_GROUP* psGroup, DROID_ORDER order, BASE_OBJECT* psObj)
 {
   DROID* psCurr;
 
-  ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)), "orderGroupObj: invalid droid group"));
-
   if (bMultiPlayer)
   {
     SendGroupOrderGroup(psGroup, order, 0, 0, psObj);
@@ -285,8 +268,6 @@ void orderGroupObj(DROID_GROUP* psGroup, DROID_ORDER order, BASE_OBJECT* psObj)
 void grpSetSecondary(DROID_GROUP* psGroup, SECONDARY_ORDER sec, SECONDARY_STATE state)
 {
   DROID* psCurr;
-
-  ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)), "grpSetSecondary: invalid droid group"));
 
   for (psCurr = psGroup->psList; psCurr; psCurr = psCurr->psGrpNext)
     secondarySetState(psCurr, sec, state);

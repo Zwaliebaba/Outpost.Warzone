@@ -3681,8 +3681,6 @@ BOOL loadSaveDroidInitV2(UBYTE* pFileData, UDWORD filesize, UDWORD quantity)
     }
     else
     {
-      ASSERT((PTRVALID(psTemplate, sizeof(DROID_TEMPLATE)), "loadSaveUnitInitV2: Invalid template pointer"));
-
       // Need to set apCompList[pDroidInit->player][componenttype][compid] = AVAILABLE for each droid.
 
       {
@@ -3977,7 +3975,7 @@ DROID* buildDroidFromSaveDroidV19(SAVE_DROID_V18* psSaveDroid, UDWORD version)
   /*create the Droid */
 
   // ignore brains for now
-  // not any *$£&!!! more - JOHN
+  // not any *$ï¿½&!!! more - JOHN
 
   if (psSaveDroid->x == INVALID_XY) { psDroid = buildDroid(psTemplate, psSaveDroid->x, psSaveDroid->y, psSaveDroid->player, TRUE); }
   else if (psSaveDroid->saveType == DROID_ON_TRANSPORT) { psDroid = buildDroid(psTemplate, 0, 0, psSaveDroid->player, TRUE); }
@@ -4185,7 +4183,7 @@ DROID* buildDroidFromSaveDroid(SAVE_DROID* psSaveDroid, UDWORD version)
   /*create the Droid */
 
   // ignore brains for now
-  // not any *$£&!!! more - JOHN
+  // not any *$ï¿½&!!! more - JOHN
 
   turnOffMultiMsg(TRUE);
 

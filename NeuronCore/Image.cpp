@@ -61,7 +61,6 @@ BOOL imageParsePCX(UBYTE* pFileData, // Original file
   SWORD runlen;
 
   ASSERT((fileSize > 0, "Invalid file size"));
-  ASSERT((PTRVALID(pFileData, fileSize), "Invalid file buffer"));
   ASSERT((ppImageData != NULL, "Invalid image data pointer"));
   ASSERT((ppsPalette != NULL, "Invalide palette data pointer"));
 
@@ -197,8 +196,6 @@ BOOL imageParseBMP(UBYTE* pFileData, // Original file
   UBYTE *pImgDest, *pImgSrc;
 
   (void)fileSize;
-
-  ASSERT((PTRVALID(pFileData, fileSize), "imageParseBMP: Invalid file data pointer"));
 
   /* Check that the first two bytes are ASCII "BM" */
   if (*((UWORD*)pFileData) != 0x4d42)

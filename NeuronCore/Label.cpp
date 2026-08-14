@@ -20,8 +20,6 @@ BOOL labelCreate(W_LABEL** ppsWidget, W_LABINIT* psInit)
     return FALSE;
   }
 
-  //	ASSERT((PTRVALID(psInit->psFont, sizeof(PROP_FONT)),
-
   /* Allocate the required memory */
 #if W_USE_MALLOC
   *ppsWidget = (W_LABEL*)MALLOC(sizeof(W_LABEL)); if (*ppsWidget == NULL)
@@ -81,8 +79,6 @@ void labelFree(W_LABEL* psWidget)
 #if W_USE_STRHEAP
   if (psWidget->pTip) { widgFreeString(psWidget->pTip); }
 #endif
-
-  ASSERT((PTRVALID(psWidget, sizeof(W_LABEL)), "labelFree: Invalid label pointer"));
 
 #if W_USE_MALLOC
   FREE(psWidget);

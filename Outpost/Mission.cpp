@@ -1729,8 +1729,6 @@ void aiUpdateMissionStructure(STRUCTURE* psStructure)
   DROID_TEMPLATE* psNextTemplate;
 #endif
 
-  ASSERT((PTRVALID(psStructure, sizeof(STRUCTURE)), "aiUpdateMissionStructure: invalid Structure pointer"));
-
   ASSERT(((psStructure->pStructureType->type == REF_FACTORY OR
     psStructure->pStructureType->type == REF_CYBORG_FACTORY OR psStructure->pStructureType->type == REF_VTOL_FACTORY OR psStructure->
     pStructureType->type == REF_RESEARCH), "aiUpdateMissionStructure: Structure is not a Factory or Research Facility"));
@@ -1952,8 +1950,6 @@ void aiUpdateMissionStructure(STRUCTURE* psStructure)
 /* The update routine for all Structures left back at base during a Mission*/
 void missionStructureUpdate(STRUCTURE* psBuilding)
 {
-  ASSERT((PTRVALID(psBuilding, sizeof(STRUCTURE)), "structureUpdate: Invalid Structure pointer"));
-
   //update the manufacture/research of the building
   //	if (psBuilding->pStructureType->type == REF_FACTORY OR
   //		psBuilding->pStructureType->type == REF_CYBORG_FACTORY OR
@@ -1970,8 +1966,6 @@ void missionStructureUpdate(STRUCTURE* psBuilding)
 Only interested in Transporters at present*/
 void missionDroidUpdate(DROID* psDroid)
 {
-  ASSERT((PTRVALID(psDroid, sizeof(DROID)), "unitUpdate: Invalid unit pointer"));
-
   /*This is required for Transporters that are moved offWorld so the 
   saveGame doesn't try to set their position in the map - especially important
   for endCam2 where there isn't a valid map!*/
@@ -2534,7 +2528,6 @@ BOOL intAddTransporterTimer(void)
 		return FALSE;
 	}
 
-
 	//add labels for the time display
 	memset(&sLabInit,0,sizeof(W_LABINIT));
 	sLabInit.formID = IDTRANSTIMER_FORM;
@@ -2727,8 +2720,6 @@ void intUpdateTransporterTimer(struct _widget* psWidget, struct _w_context* psCo
   psTransporter = static_cast<DROID*>(Label->pUserData);
   if (psTransporter != nullptr)
   {
-    ASSERT((PTRVALID(psTransporter, sizeof(DROID)), "intUpdateTransporterTimer: invalid Droid pointer"));
-
     if (psTransporter->action == DACTION_TRANSPORTIN || psTransporter->action == DACTION_TRANSPORTWAITTOFLYIN)
     {
       if (mission.ETA == LZ_COMPROMISED_TIME)

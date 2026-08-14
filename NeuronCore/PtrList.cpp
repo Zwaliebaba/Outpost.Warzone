@@ -47,8 +47,6 @@ BOOL ptrList_Create(PTRLIST** ppsList, UDWORD udwInitElements, UDWORD udwExtElem
 
 void ptrList_Destroy(PTRLIST* ptrList)
 {
-  ASSERT((PTRVALID(ptrList, sizeof(PTRLIST)), "ptrList_Destroy: list pointer invalid\n"));
-
   ptrList_Clear(ptrList);
 
   /* destroy heaps */
@@ -82,19 +80,15 @@ void ptrList_Clear(PTRLIST* ptrList)
 {
   LISTNODE *psNode, *psNodeTmp;
 
-  ASSERT((PTRVALID(ptrList, sizeof(PTRLIST)), "ptrList_Destroy: table pointer invalid\n"));
-
   /* free nodes */
   psNode = ptrList->psNode;
 
   while (psNode != nullptr)
   {
     /* return node element to heap */
-    ASSERT((PTRVALID(psNode->psElement, ptrList->udwElementSize), "ptrList_Destroy: element pointer invalid\n"));
     HEAP_FREE(ptrList->psElementHeap, psNode->psElement);
 
     /* return node to heap */
-    ASSERT((PTRVALID(psNode, sizeof(LISTNODE)), "ptrList_Destroy: node pointer invalid\n"));
     psNodeTmp = psNode->psNext;
     HEAP_FREE(ptrList->psNodeHeap, psNode);
     psNode = psNodeTmp;
@@ -115,8 +109,6 @@ void* ptrList_GetElement(PTRLIST* ptrList)
 {
   void* psElement;
 
-  ASSERT((PTRVALID(ptrList, sizeof(PTRLIST)), "ptrList_GetElement: table pointer invalid\n"));
-
   HEAP_ALLOC(ptrList->psElementHeap, &psElement);
 
   return psElement;
@@ -133,8 +125,6 @@ void* ptrList_GetElement(PTRLIST* ptrList)
 
 void ptrList_FreeElement(PTRLIST* ptrList, void* psElement)
 {
-  ASSERT((PTRVALID(ptrList, sizeof(PTRLIST)), "ptrList_FreeElement: table pointer invalid\n"));
-
   if (HEAP_FREE(ptrList->psElementHeap, psElement) == FALSE)
     DBPRINTF(("ptrList_FreeElement: couldn't free element\n"));
 }
@@ -144,9 +134,6 @@ void ptrList_FreeElement(PTRLIST* ptrList, void* psElement)
 void ptrList_InsertElement(PTRLIST* ptrList, void* psElement, SDWORD sdwKey)
 {
   LISTNODE *psNode, *psCurNode, *psPrevNode;
-
-  ASSERT((PTRVALID(ptrList, sizeof(PTRLIST)), "ptrList_InsertElement: table pointer invalid\n"));
-  ASSERT((PTRVALID(psElement, ptrList->udwElementSize), "ptrList_InsertElement: element pointer invalid\n"));
 
   /* get node from heap */
   HEAP_ALLOC(ptrList->psNodeHeap, &psNode);
@@ -193,8 +180,6 @@ BOOL ptrList_RemoveElement(PTRLIST* ptrList, void* psElement, SDWORD sdwKey)
   LISTNODE *psCurNode, *psPrevNode;
   BOOL bOK;
 
-  ASSERT((PTRVALID(ptrList, sizeof(PTRLIST)), "ptrList_RemoveElement: table pointer invalid\n"));
-
   psPrevNode = nullptr;
   psCurNode = ptrList->psNode;
   EnterCriticalSection(&critSecAudio);
@@ -234,12 +219,10 @@ BOOL ptrList_RemoveElement(PTRLIST* ptrList, void* psElement, SDWORD sdwKey)
     }
 
     /* return element to heap */
-    ASSERT((PTRVALID(psCurNode->psElement, ptrList->udwElementSize), "ptrList_RemoveElement: element pointer invalid\n"));
     ASSERT((psCurNode->psElement == psElement, "ptrList_RemoveElement: removing wrong element!\n"));
     HEAP_FREE(ptrList->psElementHeap, psCurNode->psElement);
 
     /* return node to heap */
-    ASSERT((PTRVALID(psCurNode, sizeof(LISTNODE)), "ptrList_RemoveElement: node pointer invalid\n"));
     HEAP_FREE(ptrList->psNodeHeap, psCurNode);
 
     bOK = TRUE;

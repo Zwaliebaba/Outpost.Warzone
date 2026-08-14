@@ -767,8 +767,6 @@ BOOL structUsesPower(STRUCTURE* psStruct)
 {
   BOOL bUsesPower = FALSE;
 
-  ASSERT((PTRVALID(psStruct, sizeof(STRUCTURE)), "structUsesPower: Invalid Structure pointer"));
-
   switch (psStruct->pStructureType->type)
   {
   case REF_FACTORY:
@@ -790,8 +788,6 @@ BOOL structUsesPower(STRUCTURE* psStruct)
 BOOL droidUsesPower(DROID* psDroid)
 {
   BOOL bUsesPower = FALSE;
-
-  ASSERT((PTRVALID(psDroid, sizeof(DROID)), "unitUsesPower: Invalid unit pointer"));
 
   switch (psDroid->droidType)
   {
@@ -1098,7 +1094,6 @@ void powerCheck(BOOL bBeforePowerUsed, UBYTE player)
 {
 	STRUCTURE	*psBuilding;
 	UDWORD		usedPower;
-
 
 	asPower[player]->extractedPower = 0;
 	asPower[player]->capacity = 0;

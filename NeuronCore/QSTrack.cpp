@@ -313,7 +313,7 @@ void sound_FreeTrack(TRACK* psTrack)
 {
   auto psRiffData = static_cast<RIFFDATA*>(psTrack->pMem);
 
-  if (!PTRVALID(psRiffData, sizeof(RIFFDATA)))
+  if (psRiffData == nullptr)
   {
     DBPRINTF(("sound_FreeTrack: invalid data pointer"));
     return;

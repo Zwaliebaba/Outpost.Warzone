@@ -1195,8 +1195,6 @@ void renderAnimComponent(COMPONENT_OBJECT* psObj)
   auto psParentObj = static_cast<BASE_OBJECT*>(psObj->psParent);
   UDWORD brightness, specular;
 
-  ASSERT((PTRVALID(psParentObj, sizeof(SIMPLE_OBJECT)), "renderAnimComponent: invalid parent object pointer"));
-
   /* only draw visible bits */
   if ((psParentObj->type == OBJ_DROID) AND !godMode AND !demoGetStatus())
   {
@@ -2785,8 +2783,6 @@ void renderShadow(DROID* psDroid, iIMDShape* psShadowIMD)
 void renderDroid(DROID* psDroid)
 {
   //	ASSERT((psDroid->x != 0 && psDroid->y != 0,
-
-  //	ASSERT( (PTRVALID(psPropStats, sizeof(PROPULSION_STATS)),
 
   displayComponentObject((BASE_OBJECT*)psDroid);
   targetAdd((BASE_OBJECT*)psDroid);

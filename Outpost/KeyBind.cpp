@@ -1575,8 +1575,6 @@ DROID	*psDroid;
     if(!psDroid->selected)
     {
       psPropStats = asPropulsionStats + psDroid->asBits[COMP_PROPULSION].nStat;
-      ASSERT( (PTRVALID(psPropStats, sizeof(PROPULSION_STATS)),
-          "moveUpdateDroid: invalid propulsion stats pointer") );
       if ( psPropStats->propulsionType == propType )
       {
         psDroid->selected = TRUE;

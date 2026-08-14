@@ -298,8 +298,6 @@ void cpPrintProgram(SCRIPT_CODE* psProg)
   ARRAY_DATA* psCurrArray;
   ARRAY_DEBUG* psCurrArrayDebug;
 
-  ASSERT((PTRVALID(psProg, sizeof(SCRIPT_CODE)), "cpPrintProgram: Invalid program pointer"));
-
   debugInfo = psProg->psDebug != nullptr;
 
   if (debugInfo)
@@ -473,8 +471,6 @@ void cpPrintProgram(SCRIPT_CODE* psProg)
     default: ASSERT((FALSE,"cpPrintProgram: Unknown opcode: %x", *ip));
       break;
     }
-
-    ASSERT(((ip <= end) || PTRVALID(ip, sizeof(UDWORD)), "cpPrintProgram: instruction pointer no longer valid"));
 
     opcode = (*ip) >> OPCODE_SHIFT;
     data = (*ip) & OPCODE_DATAMASK;

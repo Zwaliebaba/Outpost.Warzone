@@ -88,7 +88,6 @@ static void animObj_HashFreeElementFunc(void* psElement)
 {
   auto psObj = static_cast<ANIM_OBJECT*>(psElement);
 
-  ASSERT((PTRVALID(psObj, sizeof(ANIM_OBJECT)), "animObj_HashFreeElementFunc: object pointer invalid\n"));
 }
 
 /***************************************************************************/
@@ -217,8 +216,6 @@ ANIM_OBJECT* animObj_GetFirst(void)
   ANIM_OBJECT* psObj;
 
   psObj = static_cast<ANIM_OBJECT*>(hashTable_GetFirst(g_pAnimObjTable));
-
-  ASSERT((psObj == NULL || PTRVALID(psObj, sizeof(ANIM_OBJECT)), "animObj_GetFirst: object pointer not valid\n"));
 
   return psObj;
 }

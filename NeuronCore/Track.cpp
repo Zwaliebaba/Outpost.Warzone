@@ -311,8 +311,6 @@ SDWORD sound_GetNumPlaying(SDWORD iTrack)
 
 void sound_CheckSample(AUDIO_SAMPLE* psSample)
 {
-  ASSERT((PTRVALID(psSample,sizeof(AUDIO_SAMPLE)), "sound_CheckSample: sample pointer invalid\n"));
-
   ASSERT(( psSample->iSample >=0 ||
     psSample->iSample == SAMPLE_NOT_ALLOCATED, "sound_CheckSample: sample %i out of range\n", psSample->iSample ));
 

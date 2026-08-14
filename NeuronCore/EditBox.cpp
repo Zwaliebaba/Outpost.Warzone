@@ -38,8 +38,6 @@ BOOL editBoxCreate(W_EDITBOX** ppsWidget, W_EDBINIT* psInit)
     return FALSE;
   }
 
-  //	ASSERT((PTRVALID(psInit->psFont, sizeof(PROP_FONT)),
-
   /* Allocate the required memory */
 #if W_USE_MALLOC
   *ppsWidget = (W_EDITBOX*)MALLOC(sizeof(W_EDITBOX)); if (*ppsWidget == NULL)
@@ -97,8 +95,6 @@ void editBoxFree(W_EDITBOX* psWidget)
 /* Initialise an edit box widget */
 void editBoxInitialise(W_EDITBOX* psWidget)
 {
-  ASSERT((PTRVALID(psWidget, sizeof(W_EDITBOX)), "editBoxInitialise: Invalid edit box pointer"));
-
   psWidget->state = WEDBS_FIXED;
   psWidget->printStart = 0;
   iV_SetFont(psWidget->FontID);
@@ -457,8 +453,6 @@ void editBoxRun(W_EDITBOX* psWidget, W_CONTEXT* psContext)
 /* Set the current string for the edit box */
 void editBoxSetString(W_EDITBOX* psWidget, STRING* pText)
 {
-  ASSERT((PTRVALID(psWidget, sizeof(W_EDITBOX)), "editBoxSetString: Invalid edit box pointer"));
-
   widgCopyString(psWidget->aText, pText);
   psWidget->state = WEDBS_FIXED;
   psWidget->printStart = 0;

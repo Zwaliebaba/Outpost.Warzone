@@ -761,7 +761,6 @@ void displayCompObj(BASE_OBJECT* psObj, iVector* mountRotation, BOOL bButton)
 
   /* get propulsion stats */
   psPropStats = asPropulsionStats + psDroid->asBits[COMP_PROPULSION].nStat;
-  ASSERT((PTRVALID(psPropStats, sizeof(PROPULSION_STATS)), "moveUpdateUnit: invalid propulsion stats pointer"));
 
   /* render vtol jet if flying - horrible hack - GJ */
   if (((psPropStats->propulsionType == LIFT) &&

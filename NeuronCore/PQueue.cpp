@@ -132,8 +132,6 @@ void queue_Enqueue(QUEUE* pQueue, void* psElement, int iPriority)
   QUEUE_NODE *psFreeNode, *psNode, *psNodePrev;
 
   /* check input */
-  ASSERT((PTRVALID(pQueue,sizeof(QUEUE)), "queue_Enqueue: queue pointer invalid\n"));
-  ASSERT((PTRVALID(psElement,pQueue->iElementSize), "queue_Enqueue: element pointer invalid\n"));
 
 #if QUEUE_INSERTION_TEST
   psNode = pQueue->psNodeQHead;
@@ -211,7 +209,6 @@ void* queue_Dequeue(QUEUE* pQueue)
   QUEUE_NODE* psNode;
 
   /* check input */
-  ASSERT((PTRVALID(pQueue,sizeof(QUEUE)), "queue_Dequeue: queue pointer invalid\n"));
 
   if (pQueue->psNodeQHead != nullptr)
   {
@@ -249,8 +246,6 @@ QUEUE_NODE* queue_FindElement(QUEUE* pQueue, void* psElement)
   QUEUE_NODE *psNode, *psNodePrev;
 
   /* check input */
-  ASSERT((PTRVALID(pQueue,sizeof(QUEUE)), "queue_FindElement: queue pointer invalid\n"));
-  ASSERT((PTRVALID(psElement,pQueue->iElementSize), "queue_FindElement: element pointer invalid\n"));
 
   /* init pointers to head of queue */
   psNodePrev = psNode = pQueue->psNodeQHead;
@@ -329,8 +324,6 @@ BOOL queue_RemoveCurrent(QUEUE* pQueue) { return queue_RemoveNode(pQueue, pQueue
 BOOL queue_RemoveNode(QUEUE* pQueue, QUEUE_NODE* psNode)
 {
   /* check input */
-  ASSERT((PTRVALID(pQueue,sizeof(QUEUE)), "queue_RemoveNode: queue pointer invalid\n"));
-  ASSERT((PTRVALID(psNode,sizeof(QUEUE_NODE)), "queue_RemoveNode: node pointer invalid\n"));
 
   /* if node valid, remove from queue and return to free node list */
   if (psNode == nullptr)
@@ -393,8 +386,6 @@ BOOL queue_RemoveElement(QUEUE* pQueue, void* psElement)
   QUEUE_NODE* psNode;
 
   /* check input */
-  ASSERT((PTRVALID(pQueue,sizeof(QUEUE)), "queue_Dequeue: queue pointer invalid\n"));
-  ASSERT((PTRVALID(psElement,pQueue->iElementSize), "queue_RemoveElement: element pointer invalid\n"));
 
   if ((psNode = queue_FindElement(pQueue, psElement)) != nullptr)
   {

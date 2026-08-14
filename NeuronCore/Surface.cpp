@@ -319,8 +319,6 @@ BOOL surfLoadFrom8Bit(LPDIRECTDRAWSURFACE4 psSurf, // The surface to load to
 
   /* Validate the arguments */
   ASSERT((psSurf != NULL, "NULL surface pointer"));
-  ASSERT((PTRVALID(pImageData, width*height), "Invalid image data pointer."));
-  ASSERT((PTRVALID(psPalette, NUM_8BIT_PAL_ENTRIES*sizeof(PALETTEENTRY)), "Invalid palette pointer."));
 
   /* Get the DD object */
   psDD = screenGetDDObject();

@@ -36,8 +36,6 @@ static UDWORD fontColour;
 /* Set the current font */
 void fontSet(PROP_FONT* psFont)
 {
-  ASSERT((PTRVALID(psFont, sizeof(PROP_FONT)), "fontSet: Invalid font pointer"));
-
   psCurrFont = psFont;
 }
 
@@ -59,8 +57,6 @@ UWORD fontGetCharIndex(UWORD code)
 {
   UDWORD i;
   PROP_PRINTABLE* psOffset;
-
-  ASSERT((PTRVALID(psCurrFont, sizeof(PROP_FONT)), "fontGetCharIndex: Invalid font pointer"));
 
   /* If there is no offset data return the code */
   if (psCurrFont->numOffset == 0)
@@ -89,8 +85,6 @@ UDWORD fontPixelWidth(STRING* pString)
   STRING* pCurr;
   UDWORD width;
 
-  ASSERT((PTRVALID(psCurrFont, sizeof(PROP_FONT)), "fontPixelWidth: Invalid font pointer"));
-
   width = 0;
   for (pCurr = pString; *pCurr != '\0'; pCurr++)
     width += psCurrFont->psChars[fontGetCharIndex(*pCurr)].width;
@@ -113,8 +107,6 @@ void fontPrint(SDWORD x, SDWORD y, STRING* pFormat, ...)
 
   va_start(pArgs, pFormat);
   vsprintf(aTxtBuff, pFormat, pArgs);
-
-  ASSERT((PTRVALID(psCurrFont, sizeof(PROP_FONT)), "fontPrint: Invalid font pointer"));
 
   /* See if the string is offscreen */
   if ((y < 0) || (y >= static_cast<SDWORD>(screenHeight) - static_cast<SDWORD>(psCurrFont->height)))
@@ -240,9 +232,7 @@ void fontPrintChar(SDWORD x, SDWORD y, PROP_CHAR* psChar, UDWORD height)
   UWORD* p16Dest;
   UDWORD px, py, bit;
 
-  ASSERT((PTRVALID(psChar, sizeof(PROP_CHAR)), "fontPrintChar: Invalid character pointer"));
   /* The data buffer may well be bigger than this, but the test is easier this way */
-  ASSERT((PTRVALID(psChar->pData, height), "fontPrintChar: Invalid character data pointer"));
 
   /* See if the character is on screen */
   if (x + psChar->width < 0 || x >= static_cast<SDWORD>(screenWidth))
@@ -317,10 +307,6 @@ BOOL fontSave(PROP_FONT* psFont, UBYTE** ppFileData, UDWORD* pFileSize)
   PROP_CHAR *psCurrC, *psSaveC;
   UBYTE *pData, *pSave;
 
-  ASSERT((PTRVALID(psFont, sizeof(PROP_FONT)), "fontSave: Invalid font pointer"));
-  ASSERT((PTRVALID(psFont->psOffset, sizeof(PROP_PRINTABLE)*psFont->numOffset), "fontSave: Invalid offset data"));
-  ASSERT((PTRVALID(psFont->psChars, sizeof(PROP_CHAR) * psFont->numChars), "fontSave: Invalid character data"));
-
   /* First off calculate the size of the font file */
   *pFileSize = sizeof(FONT_SAVEHDR);
   *pFileSize += sizeof(PROP_PRINTABLE) * psFont->numOffset;
@@ -383,7 +369,6 @@ BOOL fontLoad(UBYTE* pFileData, UDWORD fileSize, PROP_FONT** ppsFont)
   UBYTE *pData, *pLoad;
 
   (void)fileSize;
-  ASSERT((PTRVALID(pFileData, fileSize), "fontLoad: Invalid file data pointer"));
 
   *ppsFont = nullptr;
 

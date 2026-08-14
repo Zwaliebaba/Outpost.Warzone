@@ -1000,7 +1000,6 @@ BOOL loadResourceFunction(SBYTE* pData)
 	functionName[0] = '\0';
 	sscanf(pData, "%[^','],%d", &functionName, &psFunction->maxPower);
 
-
 	//allocate storage for the name
 	storeName((FUNCTION *)psFunction, functionName);
 
@@ -1268,14 +1267,12 @@ BOOL loadRepairDroidFunction(SBYTE* pData)
 		return FALSE;
 	}
 
-
 	//get the repair stats pointer
 	pRepairType = asRepairStats;
 	psFunction->pRepair = NULL;
 #ifdef HASH_NAMES
 	HashedName=HashString(repairType);
 #endif
-
 
 	for (i=0; i < numRepairStats; i++)
 	{
@@ -1552,10 +1549,8 @@ void structureProductionUpgrade(STRUCTURE* psBuilding)
 
   //upgrade the Output
   pFact = (FACTORY*)psBuilding->pFunctionality;
-  ASSERT((PTRVALID(pFact, sizeof(FACTORY)), "structureProductionUpgrade: invalid Factory pointer"));
 
   pFactFunc = (PRODUCTION_FUNCTION*)psBuilding->pStructureType->asFuncList[0];
-  ASSERT((PTRVALID(pFactFunc, sizeof(PRODUCTION_FUNCTION)), "structureProductionUpgrade: invalid Function pointer"));
 
   //current base value depends on whether there are modules attached to the structure
   baseOutput = pFactFunc->productionOutput;
@@ -1579,10 +1574,8 @@ void structureResearchUpgrade(STRUCTURE* psBuilding)
 
   //upgrade the research points
   pRes = (RESEARCH_FACILITY*)psBuilding->pFunctionality;
-  ASSERT((PTRVALID(pRes, sizeof(RESEARCH_FACILITY)), "structureResearchUpgrade: invalid Research pointer"));
 
   pResFunc = (RESEARCH_FUNCTION*)psBuilding->pStructureType->asFuncList[0];
-  ASSERT((PTRVALID(pResFunc, sizeof(RESEARCH_FUNCTION)), "structureResearchUpgrade: invalid Function pointer"));
 
   //current base value depends on whether there are modules attached to the structure
   baseOutput = pResFunc->researchPoints;
@@ -1602,10 +1595,8 @@ void structureReArmUpgrade(STRUCTURE* psBuilding)
 
   //upgrade the reArm points
   pPad = (REARM_PAD*)psBuilding->pFunctionality;
-  ASSERT((PTRVALID(pPad, sizeof(REARM_PAD)), "structureReArmUpgrade: invalid ReArm pointer"));
 
   pPadFunc = (REARM_FUNCTION*)psBuilding->pStructureType->asFuncList[0];
-  ASSERT((PTRVALID(pPadFunc, sizeof(REARM_FUNCTION)), "structureReArmUpgrade: invalid Function pointer"));
 
   pPad->reArmPoints = pPadFunc->reArmPoints + (pPadFunc->reArmPoints * asReArmUpgrade[psBuilding->player].modifier) / 100;
 }
@@ -1619,10 +1610,8 @@ void structurePowerUpgrade(STRUCTURE* psBuilding)
 
   //upgrade the research points
   pPowerGen = (POWER_GEN*)psBuilding->pFunctionality;
-  ASSERT((PTRVALID(pPowerGen, sizeof(POWER_GEN)), "structurePowerUpgrade: invalid Power Gen pointer"));
 
   pPGFunc = (POWER_GEN_FUNCTION*)psBuilding->pStructureType->asFuncList[0];
-  ASSERT((PTRVALID(pPGFunc, sizeof(POWER_GEN_FUNCTION)), "structurePowerUpgrade: invalid Function pointer"));
 
   //current base value depends on whether there are modules attached to the structure
   baseOutput = pPGFunc->powerMultiplier;
@@ -1642,10 +1631,8 @@ void structureRepairUpgrade(STRUCTURE* psBuilding)
 
   //upgrade the research points
   pRepair = (REPAIR_FACILITY*)psBuilding->pFunctionality;
-  ASSERT((PTRVALID(pRepair, sizeof(REPAIR_FACILITY)), "structureRepairUpgrade: invalid Repair pointer"));
 
   pRepairFunc = (REPAIR_DROID_FUNCTION*)psBuilding->pStructureType->asFuncList[0];
-  ASSERT((PTRVALID(pRepairFunc, sizeof(REPAIR_DROID_FUNCTION)), "structureRepairUpgrade: invalid Function pointer"));
 
   pRepair->power = pRepairFunc->repairPoints + (pRepairFunc->repairPoints * asRepairFacUpgrade[psBuilding->player].modifier) / 100;
 }

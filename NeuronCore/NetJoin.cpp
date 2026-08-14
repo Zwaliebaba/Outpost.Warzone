@@ -75,7 +75,7 @@ BOOL NEThaltJoining(VOID)
     hr = IDirectPlayX_SetSessionDesc(glpDP, sessionDesc, 0); // write it back
   }
 
-  if (PTRVALID(mempointer, size)) { FREE(mempointer); }
+  if (mempointer) { FREE(mempointer); }
   return TRUE;
 }
 

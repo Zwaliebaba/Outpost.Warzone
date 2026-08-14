@@ -744,8 +744,6 @@ BOOL scrAddDroidToMissionList(void)
     return FALSE;
   }
 
-  ASSERT((PTRVALID(psTemplate, sizeof(DROID_TEMPLATE)), "scrAddUnitToMissionList: Invalid template pointer"));
-
 #ifdef SCRIPT_CHECK_MAX_UNITS
   // Don't build a new droid if player limit reached, unless it's a transporter.
   if (IsPlayerDroidLimitReached(player) && (psTemplate->droidType != DROID_TRANSPORTER))
@@ -789,8 +787,6 @@ BOOL scrAddDroid(void)
     ASSERT((FALSE, "scrAddUnit:player number is too high"));
     return FALSE;
   }
-
-  ASSERT((PTRVALID(psTemplate, sizeof(DROID_TEMPLATE)), "scrAddUnit: Invalid template pointer"));
 
 #ifdef SCRIPT_CHECK_MAX_UNITS
   // Don't build a new droid if player limit reached, unless it's a transporter.
@@ -837,8 +833,6 @@ BOOL scrAddDroidToTransporter(void)
     return TRUE;
   }
 
-  ASSERT((PTRVALID(psTransporter, sizeof(DROID)), "scrAddUnitToTransporter: invalid transporter pointer"));
-  ASSERT((PTRVALID(psDroid, sizeof(DROID)), "scrAddUnitToTransporter: invalid unit pointer"));
   ASSERT((psTransporter->droidType == DROID_TRANSPORTER, "scrAddUnitToTransporter: invalid transporter type"));
 
   /* check for space */
@@ -1208,7 +1202,6 @@ BOOL scrRemoveMessage(void)
 	SDWORD			player;
 	VIEWDATA		*psViewData;
 
-
 	if (!stackPopParams(2, ST_INTMESSAGE, &psViewData , VAL_INT, &player))
 	{
 		return FALSE;
@@ -1261,11 +1254,9 @@ BOOL scrBuildDroid(void)
     return FALSE;
   }
 
-  ASSERT((PTRVALID(psFactory, sizeof(STRUCTURE)), "scrBuildUnit: Invalid structure pointer"));
   ASSERT(((psFactory->pStructureType->type == REF_FACTORY OR
       psFactory->pStructureType->type == REF_CYBORG_FACTORY OR psFactory->pStructureType->type == REF_VTOL_FACTORY),
     "scrBuildUnit: structure is not a factory"));
-  ASSERT((PTRVALID(psTemplate, sizeof(DROID_TEMPLATE)), "scrBuildUnit: Invalid template pointer"));
 
   //check building the right sort of droid for the factory
   if (!validTemplateForFactory(psTemplate, psFactory))
@@ -1363,7 +1354,7 @@ BOOL scrDestroyFeature(void)
   if (!stackPopParams(1, ST_FEATURE, &psFeature))
     return FALSE;
 
-  if (psFeature == nullptr) { ASSERT((PTRVALID(psFeature, sizeof(FEATURE)), "scrDestroyFeature: Invalid feature pointer")); }
+  if (psFeature == nullptr) {  }
 
   removeFeature(psFeature);
 
@@ -1502,8 +1493,6 @@ BOOL scrAddFeature(void)
 
   psStat = asFeatureStats + iFeat;
 
-  ASSERT((PTRVALID(psStat, sizeof(FEATURE_STATS)), "scrAddFeature: Invalid feature pointer"));
-
   if (psStat != nullptr)
   {
     iMapX = iX >> TILE_SHIFT;
@@ -1549,8 +1538,6 @@ BOOL scrAddStructure(void)
     return FALSE;
 
   psStat = asStructureStats + iStruct;
-
-  ASSERT((PTRVALID(psStat, sizeof(STRUCTURE_STATS)), "scrAddStructure: Invalid feature pointer"));
 
   if (psStat != nullptr)
   {
@@ -1605,7 +1592,7 @@ BOOL scrDestroyStructure(void)
   if (!stackPopParams(1, ST_STRUCTURE, &psStruct))
     return FALSE;
 
-  if (psStruct == nullptr) { ASSERT((PTRVALID(psStruct, sizeof(STRUCTURE)), "scrDestroyStructure: Invalid structure pointer")); }
+  if (psStruct == nullptr) {  }
 
   removeStruct(psStruct, TRUE);
 
@@ -4513,8 +4500,6 @@ BOOL scrAddTemplate(void)
     return FALSE;
   }
 
-  ASSERT((PTRVALID(psTemplate, sizeof(DROID_TEMPLATE)),"scrAddTemplate: Invalid template pointer"));
-
   if (addTemplate(player, psTemplate))
   {
     if (!stackPushResult(VAL_BOOL,TRUE))
@@ -4909,8 +4894,6 @@ BOOL scrTakeOverSingleDroid(void)
     return FALSE;
   }
 
-  ASSERT((PTRVALID(psDroidToTake, sizeof(DROID)), "scrTakeOverSingleUnit: Invalid unit pointer"));
-
   psNewDroid = giftSingleDroid(psDroidToTake, playerToGain);
 
   if (!stackPushResult(ST_DROID, (SDWORD)psNewDroid))
@@ -5005,8 +4988,6 @@ BOOL scrTakeOverSingleStructure(void)
     ASSERT((FALSE, "scrTakeOverSingleStructure: Null structure"));
     return FALSE;
   }
-
-  ASSERT((PTRVALID(psStructToTake, sizeof(STRUCTURE)), "scrTakeOverSingleStructure: Invalid structure pointer"));
 
   structureInc = psStructToTake->pStructureType->ref - REF_STRUCTURE_START;
   if (playerToGain == static_cast<SDWORD>(selectedPlayer) AND StructIsFactory(psStructToTake) AND asStructLimits[playerToGain][structureInc]

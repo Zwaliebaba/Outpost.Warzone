@@ -309,8 +309,6 @@ iIMDShape* anim_GetShapeFromID(UWORD uwID)
     return nullptr;
   psAnim3D = (ANIM3D*)psAnim;
 
-  ASSERT((PTRVALID( psAnim3D, sizeof(ANIM3D)), "anim_GetShapeFromID: invalid anim pointer\n" ));
-
   return psAnim3D->psFrames;
 }
 

@@ -198,9 +198,7 @@ BOOL interpRunScript(SCRIPT_CONTEXT* psContext, INTERP_RUNTYPE runType, UDWORD i
   SCRIPT_CODE* psProg;
   SDWORD instructionCount = 0;
 
-  ASSERT((PTRVALID(psContext, sizeof(SCRIPT_CONTEXT)), "interpRunScript: invalid context pointer"));
   psProg = psContext->psCode;
-  ASSERT((PTRVALID(psProg, sizeof(SCRIPT_CODE)), "interpRunScript: invalid script code pointer"));
 
   if (bInterpRunning)
   {

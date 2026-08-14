@@ -405,7 +405,7 @@ void intAddFactoryInc(struct _widget* psWidget, struct _w_context* psContext)
   psObj = static_cast<BASE_OBJECT*>(Label->pUserData);
   if (psObj != nullptr)
   {
-    ASSERT((PTRVALID(psObj, sizeof(STRUCTURE)) && psObj->type == OBJ_STRUCTURE, "intAddFactoryInc: invalid structure pointer"));
+    ASSERT((psObj->type == OBJ_STRUCTURE, "intAddFactoryInc: invalid structure pointer"));
 
     ASSERT((!psObj->died,"intAddFactoryInc: object is dead"));
 
@@ -442,8 +442,6 @@ void intAddProdQuantity(struct _widget* psWidget, struct _w_context* psContext)
   psStat = static_cast<BASE_STATS*>(Label->pUserData);
   if (psStat != nullptr)
   {
-    ASSERT((PTRVALID(psStat, sizeof(DROID_TEMPLATE)), "intAddProdQuantity: invalid template pointer"));
-
     psTemplate = (DROID_TEMPLATE*)psStat;
 
     psObj = getCurrentSelected();
@@ -524,7 +522,7 @@ void intUpdateCommandSize(struct _widget* psWidget, struct _w_context* psContext
   psObj = static_cast<BASE_OBJECT*>(Label->pUserData);
   if (psObj != nullptr)
   {
-    ASSERT((PTRVALID(psObj, sizeof(DROID)) && psObj->type == OBJ_DROID, "intUpdateCommandSize: invalid droid pointer"));
+    ASSERT((psObj->type == OBJ_DROID, "intUpdateCommandSize: invalid droid pointer"));
 
     ASSERT((!psObj->died,"intUpdateCommandSize: droid has died"));
 
@@ -556,7 +554,7 @@ void intUpdateCommandExp(struct _widget* psWidget, struct _w_context* psContext)
   psObj = static_cast<BASE_OBJECT*>(Label->pUserData);
   if (psObj != nullptr)
   {
-    ASSERT((PTRVALID(psObj, sizeof(DROID)) && psObj->type == OBJ_DROID, "intUpdateCommandSize: invalid droid pointer"));
+    ASSERT((psObj->type == OBJ_DROID, "intUpdateCommandSize: invalid droid pointer"));
 
     ASSERT((!psObj->died,"intUpdateCommandSize: droid has died"));
 
@@ -592,7 +590,7 @@ void intUpdateCommandFact(struct _widget* psWidget, struct _w_context* psContext
   psObj = static_cast<BASE_OBJECT*>(Label->pUserData);
   if (psObj != nullptr)
   {
-    ASSERT((PTRVALID(psObj, sizeof(DROID)) && psObj->type == OBJ_DROID, "intUpdateCommandSize: invalid droid pointer"));
+    ASSERT((psObj->type == OBJ_DROID, "intUpdateCommandSize: invalid droid pointer"));
 
     ASSERT((!psObj->died,"intUpdateCommandSize: droid has died"));
 
@@ -2995,7 +2993,6 @@ void intDisplayTransportButton(struct _widget* psWidget, UDWORD xOffset, UDWORD 
   //allocate this outside of the if so the rank icons are always draw
   psDroid = static_cast<DROID*>(Buffer->Data);
   //there should always be a droid associated with the button
-  ASSERT((PTRVALID(psDroid, sizeof(DROID)), "intDisplayTransportButton: invalid droid pointer"));
 
   Hilight = Form->state & WCLICK_HILITE;
 
@@ -3007,7 +3004,6 @@ void intDisplayTransportButton(struct _widget* psWidget, UDWORD xOffset, UDWORD 
   Buffer->State = Form->state;
 
   //there should always be a droid associated with the button
-  //ASSERT((PTRVALID(psDroid, sizeof(DROID)),
 
   if (psDroid)
     RenderToButton(nullptr, 0, psDroid, psDroid->player, Buffer, Down, IMDTYPE_DROID,TOPBUTTON);

@@ -572,8 +572,6 @@ void aiUpdateDroid(DROID* psDroid)
   SDWORD state;
   BOOL lookForTarget;
 
-  ASSERT((PTRVALID(psDroid, sizeof(DROID)), "updateUnitAI: invalid Unit pointer"));
-
   lookForTarget = TRUE;
   // don't look for a target if sulking
   if (psDroid->action == DACTION_SULK)

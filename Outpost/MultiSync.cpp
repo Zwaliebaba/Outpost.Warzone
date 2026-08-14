@@ -482,7 +482,6 @@ static void offscreenUpdate(DROID* psDroid, UDWORD dam, UDWORD x, UDWORD y, FRAC
 
   // snap droid(if on ground)  to terrain level at x,y.
   psPropStats = asPropulsionStats + psDroid->asBits[COMP_PROPULSION].nStat;
-  ASSERT((PTRVALID(psPropStats, sizeof(PROPULSION_STATS)),"offscreenUpdate: invalid propulsion stats pointer"));
   if (psPropStats->propulsionType != LIFT) // if not airborne.
     psDroid->z = map_Height(psDroid->x, psDroid->y);
 }

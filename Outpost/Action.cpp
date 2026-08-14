@@ -243,7 +243,6 @@ BOOL actionInsideMinRange(DROID* psDroid, BASE_OBJECT* psObj)
 		return FALSE;
 		break;
 	}
-	//ASSERT((PTRVALID(psStructStats, sizeof(STRUCTURE_STATS)),
 
 	// find a new destination
 	//if (getDroidDestination(psStructStats, psDroid->orderX, psDroid->orderY,pX,pY))
@@ -628,7 +627,6 @@ void actionUpdateVtolAttack(DROID* psDroid)
   if (psDroid->asWeaps[0].nStat > 0)
   {
     psWeapStats = asWeaponStats + psDroid->asWeaps[0].nStat;
-    ASSERT((PTRVALID(psWeapStats, sizeof(WEAPON_STATS)), "actionUpdateVtolAttack: invalid weapon stats pointer" ));
   }
 
   /* order back to base after fixed number of attack runs */
@@ -883,7 +881,6 @@ void actionUpdateDroid(DROID* psDroid)
   MAPTILE* psTile;
 
   psPropStats = asPropulsionStats + psDroid->asBits[COMP_PROPULSION].nStat;
-  ASSERT((PTRVALID(psPropStats, sizeof(PROPULSION_STATS)), "actionUpdateUnit: invalid propulsion stats pointer"));
 
   ASSERT((psDroid->turretRotation < 360, "turretRotation out of range"));
   ASSERT((psDroid->direction < 360, "unit direction out of range"));
@@ -2078,7 +2075,6 @@ static void actionDroidBase(DROID* psDroid, DROID_ACTION_DATA* psAction)
   UDWORD droidX, droidY;
   BASE_OBJECT* psTarget;
 
-  ASSERT((PTRVALID(psDroid, sizeof(DROID)), "actionUnitBase: Invalid Unit pointer"));
   ASSERT((psDroid->type == OBJ_DROID, "actionUnitBase: Unit pointer does not reference a unit"));
 
 #ifdef DEBUG_GROUP0

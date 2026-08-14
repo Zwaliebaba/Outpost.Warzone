@@ -121,8 +121,6 @@ static BOOL formCreatePlain(W_FORM** ppsWidget, W_FORMINIT* psInit)
 /* Free a plain form widget */
 static void formFreePlain(W_FORM* psWidget)
 {
-  ASSERT((PTRVALID(psWidget, sizeof(W_FORM)), "formFreePlain: Invalid form pointer"));
-
   widgReleaseWidgetList(psWidget->psWidgets);
 #if W_USE_MALLOC
   FREE(psWidget);
@@ -196,8 +194,6 @@ static BOOL formCreateClickable(W_CLICKFORM** ppsWidget, W_FORMINIT* psInit)
 /* Free a plain form widget */
 static void formFreeClickable(W_CLICKFORM* psWidget)
 {
-  ASSERT((PTRVALID(psWidget, sizeof(W_FORM)), "formFreePlain: Invalid form pointer"));
-
   widgReleaseWidgetList(psWidget->psWidgets);
 #if W_USE_STRHEAP
   if (psWidget->pTip) { widgFreeString(psWidget->pTip); }
@@ -356,8 +352,6 @@ static void formFreeTabbed(W_TABFORM* psWidget)
   WIDGET* psCurr;
   W_FORMGETALL sGetAll;
 
-  ASSERT((PTRVALID(psWidget, sizeof(W_TABFORM)), "formFreeTabbed: Invalid form pointer"));
-
   formFreeTips(psWidget);
 
   formInitGetAllWidgets((W_FORM*)psWidget, &sGetAll);
@@ -428,11 +422,8 @@ BOOL formAddWidget(W_FORM* psForm, WIDGET* psWidget, W_INIT* psInit)
   WIDGET** ppsList;
   W_MAJORTAB* psMajor;
 
-  ASSERT((PTRVALID(psWidget, sizeof(WIDGET)), "formAddWidget: Invalid widget pointer"));
-
   if (psForm->style & WFORM_TABBED)
   {
-    ASSERT((PTRVALID(psForm, sizeof(W_TABFORM)), "formAddWidget: Invalid tab form pointer"));
     psTabForm = (W_TABFORM*)psForm;
     if (psInit->majorID >= psTabForm->numMajor)
     {
@@ -451,7 +442,6 @@ BOOL formAddWidget(W_FORM* psForm, WIDGET* psWidget, W_INIT* psInit)
   }
   else
   {
-    ASSERT((PTRVALID(psForm, sizeof(W_FORM)), "formAddWidget: Invalid form pointer"));
     psWidget->psNext = psForm->psWidgets;
     psForm->psWidgets = psWidget;
   }
@@ -572,7 +562,6 @@ void widgSetTabs(W_SCREEN* psScreen, UDWORD id, UWORD major, UWORD minor)
     ASSERT((FALSE,"widgSetTabs: couldn't find tabbed form from id"));
     return;
   }
-  ASSERT((PTRVALID(psForm, sizeof(W_TABFORM)), "widgSetTabs: Invalid tab form pointer"));
 
   if (major >= psForm->numMajor || minor >= psForm->asMajor[major].numMinor)
   {
@@ -596,7 +585,6 @@ void widgGetTabs(W_SCREEN* psScreen, UDWORD id, UWORD* pMajor, UWORD* pMinor)
     ASSERT((FALSE,"widgGetTabs: couldn't find tabbed form from id"));
     return;
   }
-  ASSERT((PTRVALID(psForm, sizeof(W_TABFORM)), "widgGetTabs: Invalid tab form pointer"));
 
   *pMajor = psForm->majorT;
   *pMinor = psForm->minorT;
@@ -613,7 +601,6 @@ void widgSetColour(W_SCREEN* psScreen, UDWORD id, UDWORD colour, UBYTE red, UBYT
     ASSERT((FALSE,"widgSetColour: couldn't find form from id"));
     return;
   }
-  ASSERT((PTRVALID(psForm, sizeof(W_FORM)), "widgSetColour: Invalid tab form pointer"));
 
   if (colour >= WCOL_MAX)
   {
@@ -627,8 +614,6 @@ void widgSetColour(W_SCREEN* psScreen, UDWORD id, UDWORD colour, UBYTE red, UBYT
 void formGetOrigin(W_FORM* psWidget, SDWORD* pXOrigin, SDWORD* pYOrigin)
 {
   W_TABFORM* psTabForm;
-
-  ASSERT((PTRVALID(psWidget, sizeof(W_FORM)), "formGetOrigin: Invalid form pointer"));
 
   if (psWidget->style & WFORM_TABBED)
   {
@@ -668,7 +653,6 @@ void formInitialise(W_FORM* psWidget)
 
   if (psWidget->style & WFORM_TABBED)
   {
-    ASSERT((PTRVALID(psWidget, sizeof(W_TABFORM)), "formInitialise: invalid tab form pointer"));
     psTabForm = (W_TABFORM*)psWidget;
     psTabForm->majorT = 0;
     psTabForm->minorT = 0;
@@ -678,11 +662,9 @@ void formInitialise(W_FORM* psWidget)
   }
   else if (psWidget->style & WFORM_CLICKABLE)
   {
-    ASSERT((PTRVALID(psWidget, sizeof(W_CLICKFORM)), "formInitialise: invalid clickable form pointer"));
     psClickForm = (W_CLICKFORM*)psWidget;
     psClickForm->state = WCLICK_NORMAL;
   }
-  else { ASSERT((PTRVALID(psWidget, sizeof(W_FORM)), "formInitialise: invalid form pointer")); }
 
   psWidget->psLastHiLite = nullptr;
 }

@@ -605,8 +605,6 @@ void StartMessageSequences(MESSAGE* psMessage, BOOL Start)
   if (psMessage->type == MSG_PROXIMITY)
     return;
 
-  ASSERT((PTRVALID(psMessage->pViewData, sizeof(VIEWDATA)), "StartMessageSequences: invalid ViewData pointer"));
-
   if (((VIEWDATA*)psMessage->pViewData)->type == VIEW_RPL)
   {
     VIEW_REPLAY* psViewReplay;
@@ -1221,7 +1219,6 @@ appropriate sized image for the view*/
 {
 	UDWORD	x1, x2, y, indent = 10;
 
-
 	x1 = INTMAP_TEXTX;
 	x2 = INTMAP_TEXTX + INTMAP_TEXTWIDTH;
 	y = INTMAP_TEXTY + INTMAP_TEXTHEIGHT + indent;
@@ -1253,7 +1250,6 @@ appropriate sized image for the view*/
 #ifdef PSX
 	DisplayControlDiag();
 #endif
-
 
 #ifdef PSX	
 	setConsoleSizePos(x1+2,y-32-iV_GetTextLineSize()*2,(x2-x1)-4);

@@ -366,7 +366,6 @@ BOOL bufferSTEMPWEAPLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
 		return FALSE;
 	}
 
-
 	//not interested in this value
 	*ppData = NULL;
 	return TRUE;
@@ -533,7 +532,6 @@ BOOL bufferRPREREQLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
 	{
 		return FALSE;
 	}
-
 
 	//not interested in this value
 	*ppData = NULL;
@@ -1006,8 +1004,6 @@ void dataAudioRelease(void* pData)
   else
   {
     auto psTrack = static_cast<TRACK*>(pData);
-
-    ASSERT((PTRVALID(psTrack, sizeof(TRACK)), "dataAudioRelease: invalid track pointer"));
 
     audio_ReleaseTrack(psTrack);
     FREE(psTrack);

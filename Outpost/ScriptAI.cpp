@@ -35,8 +35,6 @@ BOOL scrGroupAddDroid(void)
   if (!stackPopParams(2, ST_GROUP, &psGroup, ST_DROID, &psDroid))
     return FALSE;
 
-  ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)), "scrGroupAdd: Invalid group pointer"));
-  ASSERT((PTRVALID(psDroid, sizeof(DROID)), "scrGroupAdd: Invalid droid pointer"));
   if (psDroid == nullptr)
     return FALSE;
   if (psDroid->droidType == DROID_COMMAND)
@@ -64,8 +62,6 @@ BOOL scrGroupAddArea(void)
 
   if (!stackPopParams(6, ST_GROUP, &psGroup, VAL_INT, &player, VAL_INT, &x1, VAL_INT, &y1, VAL_INT, &x2, VAL_INT, &y2))
     return FALSE;
-
-  ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)), "scrGroupAdd: Invalid group pointer"));
 
   if (player < 0 || player >= MAX_PLAYERS)
   {
@@ -96,8 +92,6 @@ BOOL scrGroupAddAreaNoGroup(void)
   if (!stackPopParams(6, ST_GROUP, &psGroup, VAL_INT, &player, VAL_INT, &x1, VAL_INT, &y1, VAL_INT, &x2, VAL_INT, &y2))
     return FALSE;
 
-  ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)), "scrGroupAddNoGroup: Invalid group pointer"));
-
   if (player < 0 || player >= MAX_PLAYERS)
   {
     ASSERT((FALSE, "scrGroupAddAreaNoGroup: invalid player"));
@@ -125,9 +119,6 @@ BOOL scrGroupAddGroup(void)
   if (!stackPopParams(2, ST_GROUP, &psTo, ST_GROUP, &psFrom))
     return FALSE;
 
-  ASSERT((PTRVALID(psTo, sizeof(DROID_GROUP)), "scrGroupAddGroup: Invalid group pointer"));
-  ASSERT((PTRVALID(psFrom, sizeof(DROID_GROUP)), "scrGroupAddGroup: Invalid group pointer"));
-
   for (psDroid = psFrom->psList; psDroid; psDroid = psNext)
   {
     psNext = psDroid->psGrpNext;
@@ -147,8 +138,6 @@ BOOL scrGroupMember(void)
   if (!stackPopParams(2, ST_GROUP, &psGroup, ST_DROID, &psDroid))
     return FALSE;
 
-  ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)), "scrGroupMember: Invalid group pointer"));
-  ASSERT((PTRVALID(psDroid, sizeof(DROID)), "scrGroupMember: Invalid droid pointer"));
   if (psDroid == nullptr)
     return FALSE;
 
@@ -173,8 +162,6 @@ BOOL scrIdleGroup(void)
   if (!stackPopParams(1, ST_GROUP, &psGroup))
     return FALSE;
 
-  ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)), "scrIdleGroup: invalid group pointer"));
-
   for (psDroid = psGroup->psList; psDroid; psDroid = psDroid->psGrpNext)
   {
     if (psDroid->order == DORDER_NONE || (psDroid->order == DORDER_GUARD && psDroid->psTarget == nullptr))
@@ -197,8 +184,6 @@ BOOL scrInitIterateGroup(void)
 
   if (!stackPopParams(1, ST_GROUP, &psGroup))
     return FALSE;
-
-  ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)), "scrInitGroupIterate: invalid group pointer"));
 
   psScrIterateGroup = psGroup;
   psScrIterateGroupDroid = psGroup->psList;
@@ -284,8 +269,6 @@ BOOL scrOrderGroup(void)
   if (!stackPopParams(2, ST_GROUP, &psGroup, VAL_INT, &order))
     return FALSE;
 
-  ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)), "scrOrderGroup: Invalid group pointer"));
-
   if (order != DORDER_STOP && order != DORDER_RETREAT && order != DORDER_DESTRUCT && order != DORDER_RTR && order != DORDER_RTB && order !=
     DORDER_RUN)
   {
@@ -307,8 +290,6 @@ BOOL scrOrderGroupLoc(void)
 
   if (!stackPopParams(4, ST_GROUP, &psGroup, VAL_INT, &order, VAL_INT, &x, VAL_INT, &y))
     return FALSE;
-
-  ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)), "scrOrderGroupLoc: Invalid group pointer"));
 
   if (order != DORDER_MOVE && order != DORDER_SCOUT)
   {
@@ -337,9 +318,6 @@ BOOL scrOrderGroupObj(void)
   if (!stackPopParams(3, ST_GROUP, &psGroup, VAL_INT, &order, ST_BASEOBJECT, &psObj))
     return FALSE;
 
-  ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)), "scrOrderGroupObj: Invalid group pointer"));
-  ASSERT((PTRVALID(psObj, sizeof(BASE_OBJECT)), "scrOrderGroupObj: Invalid object pointer"));
-
   if (order != DORDER_ATTACK && order != DORDER_HELPBUILD && order != DORDER_DEMOLISH && order != DORDER_REPAIR && order != DORDER_OBSERVE
     && order != DORDER_EMBARK && order != DORDER_FIRESUPPORT)
   {
@@ -363,7 +341,6 @@ BOOL scrOrderDroid(void)
   if (!stackPopParams(2, ST_DROID, &psDroid, VAL_INT, &order))
     return FALSE;
 
-  ASSERT((PTRVALID(psDroid, sizeof(DROID)), "scrOrderUnit: Invalid unit pointer"));
   if (psDroid == nullptr)
     return FALSE;
 
@@ -388,7 +365,6 @@ BOOL scrOrderDroidLoc(void)
   if (!stackPopParams(4, ST_DROID, &psDroid, VAL_INT, &order, VAL_INT, &x, VAL_INT, &y))
     return FALSE;
 
-  ASSERT((PTRVALID(psDroid, sizeof(DROID)), "scrOrderUnitLoc: Invalid unit pointer"));
   if (psDroid == nullptr)
     return FALSE;
 
@@ -418,8 +394,6 @@ BOOL scrOrderDroidObj(void)
   if (!stackPopParams(3, ST_DROID, &psDroid, VAL_INT, &order, ST_BASEOBJECT, &psObj))
     return FALSE;
 
-  ASSERT((PTRVALID(psDroid, sizeof(DROID)), "scrOrderUnitObj: Invalid unit pointer"));
-  ASSERT((PTRVALID(psObj, sizeof(BASE_OBJECT)), "scrOrderUnitObj: Invalid object pointer"));
   if (psDroid == nullptr || psObj == nullptr)
     return FALSE;
 
@@ -452,8 +426,6 @@ BOOL scrOrderDroidStatsLoc(void)
   }
   psStats = (BASE_STATS*)(asStructureStats + statIndex);
 
-  ASSERT((PTRVALID(psDroid, sizeof(DROID)), "scrOrderUnitStatsLoc: Invalid Unit pointer"));
-  ASSERT((PTRVALID(psStats, sizeof(BASE_STATS)), "scrOrderUnitStatsLoc: Invalid object pointer"));
   if (psDroid == nullptr)
     return FALSE;
 
@@ -486,7 +458,6 @@ BOOL scrSetDroidSecondary(void)
   if (!stackPopParams(3, ST_DROID, &psDroid, VAL_INT, &sec, VAL_INT, &state))
     return FALSE;
 
-  ASSERT((PTRVALID(psDroid, sizeof(DROID)), "scrSetUnitSecondary: invalid unit pointer"));
   if (psDroid == nullptr)
     return FALSE;
 
@@ -503,8 +474,6 @@ BOOL scrSetGroupSecondary(void)
 
   if (!stackPopParams(3, ST_GROUP, &psGroup, VAL_INT, &sec, VAL_INT, &state))
     return FALSE;
-
-  ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)), "scrSetGroupSecondary: invalid group pointer"));
 
   grpSetSecondary(psGroup, static_cast<SECONDARY_ORDER>(sec), state);
 
@@ -1560,10 +1529,6 @@ BOOL scrSkFireLassat(void)
 
 	psStats = (BASE_STATS *)(asStructureStats + statIndex);
 
-	ASSERT((PTRVALID(psDroid, sizeof(DROID)),
-		"scrOrderDroidLineBuild: Invalid Unit pointer"));
-	ASSERT((PTRVALID(psStats, sizeof(BASE_STATS)),
-		"scrOrderDroidLineBuild: Invalid object pointer"));
 	if (psDroid == NULL)
 	{
 		return FALSE;
@@ -1578,7 +1543,6 @@ BOOL scrSkFireLassat(void)
 			"scrOrderDroidLineBuild: Invalid location"));
 		return FALSE;
 	}
-
 
 	if(IsPlayerStructureLimitReached(psDroid->player) == FALSE)
 	{
@@ -1653,7 +1617,6 @@ fail:
 	}
 	return TRUE;
 }
-
 
 // get template
 BOOL skGetTemplate(void)

@@ -56,7 +56,6 @@ _inline int IsPointOnPlane(PSPLANE psPlane, iVector* vP)
 
   /* validate input */
 #ifdef BSP_MAXDEBUG
-  ASSERT((PTRVALID(psPlane,sizeof(PLANE)), "IsPointOnPlane: invalid plane\n"));
 #endif
 
   /* subtract point on plane from input point to get position vector */
@@ -155,7 +154,6 @@ void GetPlane(iIMDShape* s, UDWORD PolygonID, PSPLANE psPlane)
   iVectorf Result;
   iIMDPoly* psTri;
   /* validate input */
-  ASSERT((PTRVALID(psPlane,sizeof(PLANE)), "GetPlane: invalid plane\n"));
 
   psTri = &(s->polys[PolygonID]);
   CurrentVertexList = s->points;
@@ -290,7 +288,6 @@ static void GetTriangleNormal(PSTRIANGLE psTri, iVectorf* psN, int pA, int pB, i
   iVectorf vecA, vecB;
 
   /* validate input */
-  ASSERT((PTRVALID(psTri,sizeof(iIMDPoly)), "GetTriangleNormal: invalid triangle\n"));
 
   /* get triangle edge vectors */
   vecA.x = MAKEFRACT(IMDvec(psTri->pindex[pA])->x - IMDvec(psTri->pindex[pB])->x);

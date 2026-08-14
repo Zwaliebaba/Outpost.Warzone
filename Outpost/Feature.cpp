@@ -600,8 +600,6 @@ BOOL featureDamage(FEATURE* psFeature, UDWORD damage, UDWORD weaponClass, UDWORD
   /* this is ignored for features */
   UNUSEDPARAMETER(weaponClass);
 
-  ASSERT((PTRVALID(psFeature, sizeof(FEATURE)), "featureDamage: Invalid feature pointer"));
-
   DBP1(("featureDamage(%d): body %d armour %d damage: %d\n", psFeature->id, psFeature->body, psFeature->psStats->armour, damage));
 
   //EMP cannons do not work on Features
@@ -841,8 +839,6 @@ void removeFeature(FEATURE* psDel)
   MESSAGE* psMessage;
   iVector pos;
 
-  ASSERT((PTRVALID(psDel, sizeof(FEATURE)), "removeFeature: invalid feature pointer\n"));
-
   if (psDel->died)
   {
     // feature has already been killed, quit
@@ -927,8 +923,6 @@ void destroyFeature(FEATURE* psDel)
   UDWORD mapX, mapY;
   MAPTILE* psTile;
   UDWORD texture;
-
-  ASSERT((PTRVALID(psDel, sizeof(FEATURE)), "destroyFeature: invalid feature pointer\n"));
 
   //---------------------------------------------------------------------------------------
   /* Only add if visible and damageable*/

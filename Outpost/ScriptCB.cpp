@@ -232,8 +232,6 @@ BOOL scrCBDroidSelected(void)
   if (!stackPopParams(1, VAL_REF | ST_DROID, &ppsDroid))
     return FALSE;
 
-  ASSERT((PTRVALID(psCBSelectedDroid, sizeof(DROID)), "scrSCUnitSelected: invalid unit pointer"));
-
   *ppsDroid = psCBSelectedDroid;
 
   if (!stackPushResult(VAL_BOOL, TRUE))

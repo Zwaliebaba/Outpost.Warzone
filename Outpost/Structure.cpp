@@ -1298,8 +1298,6 @@ BOOL structureDamage(STRUCTURE* psStructure, UDWORD damage, UDWORD weaponClass, 
 
   UNUSEDPARAMETER(weaponClass);
 
-  ASSERT((PTRVALID(psStructure, sizeof(STRUCTURE)), "structureDamage: Invalid Structure pointer"));
-
   DBP1(("structureDamage(%d): body %d armour %d damage: %d\n", psStructure->id, psStructure->body, psStructure->armour, damage));
 
   //EMP cannons do not work on Structures
@@ -1373,11 +1371,9 @@ BOOL structSetManufacture(STRUCTURE* psStruct, DROID_TEMPLATE* psTempl, UBYTE qu
 {
   FACTORY* psFact;
 
-  ASSERT((PTRVALID(psStruct, sizeof(STRUCTURE)) && psStruct->type == OBJ_STRUCTURE &&
-    (psStruct->pStructureType->type == REF_FACTORY OR psStruct->pStructureType->type == REF_CYBORG_FACTORY OR psStruct->pStructureType->type
-      == REF_VTOL_FACTORY), "structSetManufacture: invalid Factory pointer"));
+  ASSERT(( psStruct->type == OBJ_STRUCTURE && (psStruct->pStructureType->type == REF_FACTORY OR psStruct->pStructureType->type == REF_CYBORG_FACTORY OR psStruct->pStructureType->type
+      == REF_VTOL_FACTORY) , "structSetManufacture: invalid Factory pointer"));
   /* psTempl might be NULL if the build is being cancelled in the middle */
-  ASSERT((psTempl == NULL || PTRVALID(psTempl, sizeof(DROID_TEMPLATE)), "structSetManufacture: invalid Template pointer"));
 
   //assign it to the Factory
   psFact = (FACTORY*)psStruct->pFunctionality;
@@ -3250,8 +3246,6 @@ void aiUpdateStructure(STRUCTURE* psStructure)
   DROID_TEMPLATE* psNextTemplate;
 #endif
 
-  ASSERT((PTRVALID(psStructure, sizeof(STRUCTURE)), "aiUpdateStructure: invalid Structure pointer"));
-
   if (psStructure->psTarget && psStructure->psTarget->died)
     psStructure->psTarget = nullptr;
 
@@ -3411,8 +3405,6 @@ void aiUpdateStructure(STRUCTURE* psStructure)
       /* select next droid if none being repaired */
       if (psChosenObj == nullptr)
       {
-        ASSERT((PTRVALID( psRepairFac->psGroup, sizeof(DROID_GROUP) ), "aiUpdateStructure: invalid repair facility group pointer" ));
-
         // get droid next in repair queue
         /*				changed this just to scan for the first droid waiting for repair
                 cos using groups here causes all sorts of problems elsewhere. John
@@ -3774,7 +3766,6 @@ void aiUpdateStructure(STRUCTURE* psStructure)
       UDWORD powerCost; //, iPower;
 
       psDroid = (DROID*)psChosenObj;
-      ASSERT((PTRVALID(psDroid, sizeof(DROID)), "aiUpdateStructure: invalid droid pointer" ));
       psRepairFac = (REPAIR_FACILITY*)psStructure->pFunctionality;
 
       if (psDroid->action == DACTION_WAITDURINGREPAIR && actionTargetTurret((BASE_OBJECT*)psStructure, psChosenObj,
@@ -3953,7 +3944,6 @@ if (psRepairFac->powerAccrued < iPower)
       psReArmPad = (REARM_PAD*)psStructure->pFunctionality;
 
       psDroid = (DROID*)psChosenObj;
-      ASSERT((PTRVALID(psDroid, sizeof(DROID)), "aiUpdateStructure: invalid droid pointer" ));
       ASSERT((vtolDroid(psDroid),"aiUpdateStructure: invalid droid type"));
 
       //check hasn't died whilst waiting to be rearmed
@@ -4128,8 +4118,6 @@ void structureUpdate(STRUCTURE* psBuilding)
   UDWORD widthScatter, breadthScatter;
   UDWORD percentDamage, emissionInterval, iPointsToAdd, iPointsRequired;
   iVector dv;
-
-  ASSERT((PTRVALID(psBuilding, sizeof(STRUCTURE)), "structureUpdate: Invalid Structure pointer"));
 
   //update the manufacture/research of the building once complete
   if (psBuilding->status == SS_BUILT)
@@ -5159,8 +5147,6 @@ BOOL removeStruct(STRUCTURE* psDel, BOOL bDestroy)
   SDWORD cluster;
   FLAG_POSITION* psAssemblyPoint = nullptr;
 
-  ASSERT((PTRVALID(psDel, sizeof(STRUCTURE)), "destroyStruct: invalid structure pointer\n"));
-
   if (bDestroy)
     removeStructFromMap(psDel);
 
@@ -5298,7 +5284,6 @@ BOOL destroyStruct(STRUCTURE* psDel)
   BOOL bMinor;
 
   bMinor = FALSE;
-  ASSERT((PTRVALID(psDel, sizeof(STRUCTURE)), "destroyStruct: invalid structure pointer\n"));
 
   if (bMultiPlayer)
   {
@@ -5746,8 +5731,6 @@ void findAssemblyPointPosition(UDWORD* pX, UDWORD* pY, UDWORD player)
 bCheck is set to TRUE for initial placement of the Assembly Point*/
 void setAssemblyPoint(FLAG_POSITION* psAssemblyPoint, UDWORD x, UDWORD y, UDWORD player, BOOL bCheck)
 {
-  ASSERT((PTRVALID(psAssemblyPoint, sizeof(FLAG_POSITION)), "setAssemblyPoint: invalid AssemblyPoint pointer"));
-
   //check its valid
   x = x >> TILE_SHIFT;
   y = y >> TILE_SHIFT;
@@ -6331,8 +6314,6 @@ STRUCTURE_STATS* getModuleStat(STRUCTURE* psStruct)
 {
   STRUCTURE_STATS* psStat;
 
-  ASSERT((PTRVALID(psStruct, sizeof(STRUCTURE)), "getModuleStat: Invalid structure pointer"));
-
   psStat = nullptr;
   switch (psStruct->pStructureType->type)
   {
@@ -6374,8 +6355,6 @@ void printStructureInfo(STRUCTURE* psStructure)
 {
   UBYTE numConnected, i;
   POWER_GEN* psPowerGen;
-
-  ASSERT((PTRVALID(psStructure, sizeof(STRUCTURE)), "printStructureInfo: Invalid Structure pointer"));
 
   switch (psStructure->pStructureType->type)
   {
@@ -6490,8 +6469,6 @@ BOOL electronicDamage(BASE_OBJECT* psTarget, UDWORD damage, UBYTE attackPlayer)
     psStructure = (STRUCTURE*)psTarget;
     bCompleted = FALSE;
 
-    ASSERT((PTRVALID(psStructure, sizeof(STRUCTURE)), "electronicDamage: Invalid Structure pointer"));
-
     ASSERT((psStructure->pStructureType->resistance != 0, "electronicDamage: invalid structure for EW"));
 
     //if resistance is already less than 0 don't do any more 
@@ -6528,8 +6505,6 @@ BOOL electronicDamage(BASE_OBJECT* psTarget, UDWORD damage, UBYTE attackPlayer)
   {
     psDroid = (DROID*)psTarget;
     bCompleted = FALSE;
-
-    ASSERT((PTRVALID(psDroid, sizeof(DROID)), "electronicDamage: Invalid Droid pointer"));
 
     //in multiPlayer cannot attack a Transporter with EW
     if (bMultiPlayer)
@@ -6614,8 +6589,6 @@ BOOL validStructResistance(STRUCTURE* psStruct)
 {
   BOOL bTarget = FALSE;
 
-  ASSERT((PTRVALID(psStruct, sizeof(STRUCTURE)), "invalidStructResistance: invalid structure pointer"));
-
 #ifdef TEST_EW
   bMultiPlayer = TRUE;
 #endif
@@ -6685,8 +6658,6 @@ UDWORD structureBaseBody(STRUCTURE* psStructure)
   UBYTE player, capacity;
   UDWORD body;
 
-  ASSERT((PTRVALID(psStructure, sizeof(STRUCTURE)), "structureBaseBody: invalid structure pointer"));
-
   psStats = psStructure->pStructureType;
   player = psStructure->player;
 
@@ -6694,8 +6665,7 @@ UDWORD structureBaseBody(STRUCTURE* psStructure)
   {
   //modules may be attached
   case REF_FACTORY:
-  case REF_VTOL_FACTORY: ASSERT(
-      (PTRVALID(psStructure->pFunctionality, sizeof(FUNCTIONALITY)), "structureBaseBody: invalid structure functionality pointer"));
+  case REF_VTOL_FACTORY: 
     if (((FACTORY*)psStructure->pFunctionality)->capacity > 0)
     {
       body = 0;
@@ -6712,8 +6682,7 @@ UDWORD structureBaseBody(STRUCTURE* psStructure)
     //no modules
     return psStats->bodyPoints;
     break;
-  case REF_RESEARCH: ASSERT(
-      (PTRVALID(psStructure->pFunctionality, sizeof(FUNCTIONALITY)), "structureBaseBody: invalid structure functionality pointer"));
+  case REF_RESEARCH: 
     if (((RESEARCH_FACILITY*)psStructure->pFunctionality)->capacity > 0)
     {
       body = 0;
@@ -6725,8 +6694,7 @@ UDWORD structureBaseBody(STRUCTURE* psStructure)
     //no modules
     return psStats->bodyPoints;
     break;
-  case REF_POWER_GEN: ASSERT(
-      (PTRVALID(psStructure->pFunctionality, sizeof(FUNCTIONALITY)), "structureBaseBody: invalid structure functionality pointer"));
+  case REF_POWER_GEN: 
     if (((POWER_GEN*)psStructure->pFunctionality)->capacity > 0)
     {
       body = 0;
@@ -7983,8 +7951,6 @@ BOOL checkStructureStats(void)
     {
       for (inc = 0; inc < asStructureStats[structInc].numFuncs; inc++)
       {
-        ASSERT((PTRVALID(asStructureStats[structInc].asFuncList[inc], sizeof(FUNCTION *)),"checkStructureStats: \
-                    Invalid function for structure %s", asStructureStats[structInc].pName));
       }
     }
     else
