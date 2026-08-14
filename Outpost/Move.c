@@ -1120,7 +1120,7 @@ static void movePeekNextTarget(DROID *psDroid, SDWORD *pX, SDWORD *pY)
 	}
 }*/
 
-static	mvPersRad = 20, mvCybRad = 30, mvSmRad = 40, mvMedRad = 50, mvLgRad = 60;
+static	SDWORD	mvPersRad = 20, mvCybRad = 30, mvSmRad = 40, mvMedRad = 50, mvLgRad = 60;
 
 // Get the radius of a base object for collision
 static SDWORD moveObjRadius(BASE_OBJECT *psObj)

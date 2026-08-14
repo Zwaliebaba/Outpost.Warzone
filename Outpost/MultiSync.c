@@ -405,8 +405,8 @@ BOOL recvDroidCheck(NETMSG *m)
 
 		//////////////////////////////////////
 		// now make note of how accurate the world model is for this droid.	// if droid is close then remember.
-		if(    abs(x- pD->x)<(TILE_UNITS*2)
-			|| abs(y- pD->y)<(TILE_UNITS*2))
+		if(    abs((SDWORD)(x- pD->x))<(TILE_UNITS*2)
+			|| abs((SDWORD)(y- pD->y))<(TILE_UNITS*2))
 		{
 			pD->lastSync	= gameTime;								// note we did a reasonable job.
 		}
@@ -456,8 +456,8 @@ static void highLevelDroidUpdate(DROID *psDroid,UDWORD x, UDWORD y,
 	// offscreen updates will make this ok each time.
 	if(psDroid->order == DORDER_NONE && order == DORDER_NONE)
 	{
-		if(  (abs(x- psDroid->x)>(TILE_UNITS*2))		// if more than 2 tiles wrong.
-		   ||(abs(y- psDroid->y)>(TILE_UNITS*2)) )
+		if(  (abs((SDWORD)(x- psDroid->x))>(TILE_UNITS*2))		// if more than 2 tiles wrong.
+		   ||(abs((SDWORD)(y- psDroid->y))>(TILE_UNITS*2)) )
 		{
 			turnOffMultiMsg(TRUE);
 			orderDroidLoc(psDroid, DORDER_MOVE,x,y);

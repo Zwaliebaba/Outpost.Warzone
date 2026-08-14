@@ -5010,8 +5010,8 @@ BOOL validLocation(BASE_STATS *psStats, UDWORD x, UDWORD y, UDWORD player,
 				wallDrag.x2 = mouseTileX;
 				wallDrag.y2 = mouseTileY;
 
-				dx = (UWORD)(abs(mouseTileX - wallDrag.x1));
-				dy = (UWORD)(abs(mouseTileY - wallDrag.y1));
+				dx = (UWORD)(abs((SDWORD)(mouseTileX - wallDrag.x1)));
+				dy = (UWORD)(abs((SDWORD)(mouseTileY - wallDrag.y1)));
 
 				if(dx >= dy) 
                 {

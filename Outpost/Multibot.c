@@ -949,8 +949,8 @@ static VOID ProcessDroidOrder(DROID *psDroid, DROID_ORDER order,UDWORD x,		 UDWO
 
 	if(destid==0 && desttype==0)							// target is a location
 	{
-		if(    abs(psDroid->x - x )< (TILE_UNITS/2)  
-			&& abs(psDroid->y - y )< (TILE_UNITS/2) )		// don't bother if close.
+		if(    abs((SDWORD)(psDroid->x - x))< (TILE_UNITS/2)  
+			&& abs((SDWORD)(psDroid->y - y))< (TILE_UNITS/2) )		// don't bother if close.
 		{
 			return;
 		}

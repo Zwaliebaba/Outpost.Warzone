@@ -279,7 +279,7 @@ int iV_PolyClip2D(int npoints, iVertex *points, iVertex *clip)
 static int _xtclip_edge2d(iVertex *s1, iVertex *s2, iVertex *clip)
 
 {
-	register n, dx;
+	int32 n, dx;
 	int32 t;
 
 	n = 1;
@@ -397,7 +397,7 @@ static int _xtclip_edge2d(iVertex *s1, iVertex *s2, iVertex *clip)
 static int pie_ClipXT(PIEVERTEX *s1, PIEVERTEX *s2, PIEVERTEX *clip)
 
 {
-	register n, dx;
+	int32 n, dx;
 	int32 t;
 
 	n = 1;
@@ -834,7 +834,7 @@ static int pie_ClipYT(PIEVERTEX *s1, PIEVERTEX *s2, PIEVERTEX *clip)
 static int _xclip_edge2d(iVertex *s1, iVertex *s2, iVertex *clip)
 
 {
-	register n, dx;
+	int32 n, dx;
 
 	n = 1;
 

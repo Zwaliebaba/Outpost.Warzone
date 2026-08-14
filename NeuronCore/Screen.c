@@ -41,7 +41,7 @@ LPDIRECTDRAW4		psDD = NULL;
 GUID aDDDeviceGUID[MAX_DDDEVICES];
 DDDEVICEIDENTIFIER aDDDeviceInfo[MAX_DDDEVICES];
 DDDEVICEIDENTIFIER aDDHostInfo[MAX_DDDEVICES];
-static numDevices = 0;
+static SDWORD numDevices = 0;
 /* The Front and back buffers */
 LPDIRECTDRAWSURFACE4	psFront = NULL;
 /* The back buffer is not static to give a back door to display routines so

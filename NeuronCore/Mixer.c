@@ -34,7 +34,7 @@ mixer_GetVolumeControlID( DWORD dwComponentType, DWORD *pdwControlID,
 	memset( &mixerLine, 0 , sizeof(MIXERLINE) );
 	mixerLine.cbStruct        = sizeof(MIXERLINE);
 	mixerLine.dwComponentType = dwComponentType;
-	if ( (mmRes = mixerGetLineInfo( g_hMixer, &mixerLine,
+	if ( (mmRes = mixerGetLineInfo( (HMIXEROBJ)g_hMixer, &mixerLine,
 				MIXER_GETLINEINFOF_COMPONENTTYPE )) != MMSYSERR_NOERROR )
 	{
 		DBPRINTF( ("mixer_GetVolumeControlID: mixerGetLineInfo failed\n ") );
@@ -57,7 +57,7 @@ mixer_GetVolumeControlID( DWORD dwComponentType, DWORD *pdwControlID,
 		mixerLineControls.cControls     = mixerLine.cControls;
 		mixerLineControls.cbmxctrl      = sizeof(MIXERCONTROL);
 		mixerLineControls.pamxctrl      = aMixerControl;
-		if ( (mmRes = mixerGetLineControls( g_hMixer, &mixerLineControls,
+		if ( (mmRes = mixerGetLineControls( (HMIXEROBJ)g_hMixer, &mixerLineControls,
 						MIXER_GETLINECONTROLSF_ALL )) != MMSYSERR_NOERROR )
 		{
 			DBPRINTF( ("mixer_GetVolumeControlID: mixerGetLineControls failed\n ") );
@@ -204,7 +204,7 @@ mixer_GetVolume( DWORD dwControlID, DWORD iVolRange )
 		mixerCntlDetails.cChannels   = 1;
 		mixerCntlDetails.cbDetails   = sizeof(MIXERCONTROLDETAILS_UNSIGNED);
 		mixerCntlDetails.paDetails   = &mxCntrlDetUnSigned;
-		if ( (mmRes = mixerGetControlDetails( g_hMixer, &mixerCntlDetails,
+		if ( (mmRes = mixerGetControlDetails( (HMIXEROBJ)g_hMixer, &mixerCntlDetails,
 				MIXER_GETCONTROLDETAILSF_VALUE )) != MMSYSERR_NOERROR     )
 		{
 			return 0;
@@ -240,7 +240,7 @@ mixer_SetVolume( DWORD dwControlID, DWORD iVolRange, SDWORD iVol )
 		mixerCntlDetails.cChannels   = 1;
 		mixerCntlDetails.cbDetails   = sizeof(MIXERCONTROLDETAILS_UNSIGNED);
 		mixerCntlDetails.paDetails   = &mxCntrlDetUnSigned;
-		if ( (mmRes = mixerSetControlDetails( g_hMixer, &mixerCntlDetails,
+		if ( (mmRes = mixerSetControlDetails( (HMIXEROBJ)g_hMixer, &mixerCntlDetails,
 				MIXER_GETCONTROLDETAILSF_VALUE )) != MMSYSERR_NOERROR     )
 		{
 			return;

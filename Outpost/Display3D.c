@@ -5163,7 +5163,7 @@ UDWORD	desPitch;
 			desPitch = (360-getDesiredPitch());
 
 			/* Do nothing if we're within 2 degrees of optimum */
-			if(abs(pitch-desPitch) < 2) // near enough
+			if(abs((SDWORD)(pitch-desPitch)) < 2) // near enough
 			{
 					/*NOP*/		  
 			}	

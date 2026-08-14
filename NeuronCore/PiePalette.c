@@ -35,7 +35,7 @@ void pie_SetColourDefines(void);
 iColour*			psGamePal = NULL;
 PALETTEENTRY*		psWinPal = NULL;
 uint8				palShades[PALETTE_SIZE * PALETTE_SHADE_LEVEL];
-bPaletteInitialised = FALSE;
+BOOL				bPaletteInitialised = FALSE;
 uint8	 colours[16];
 /* Look up table for transparency */
 /*	entry[x][y] tells you what colour to poke in when you're writing

@@ -758,8 +758,8 @@ BOOL CheckFinishedFindPosition(void)
 					wallDrag.x2 = mouseTileX;
 					wallDrag.y2 = mouseTileY;
 
-					dx = abs(mouseTileX - wallDrag.x1);
-					dy = abs(mouseTileY - wallDrag.y1);
+					dx = abs((SDWORD)(mouseTileX - wallDrag.x1));
+					dy = abs((SDWORD)(mouseTileY - wallDrag.y1));
 
 					if(dx >= dy) {
 						wallDrag.y2 = wallDrag.y1;
@@ -798,8 +798,8 @@ void HandleDrag(void)
 					wallDrag.x2 = mouseTileX;
 					wallDrag.y2 = mouseTileY;
 
-					dx = abs(mouseTileX - wallDrag.x1);
-					dy = abs(mouseTileY - wallDrag.y1);
+					dx = abs((SDWORD)(mouseTileX - wallDrag.x1));
+					dy = abs((SDWORD)(mouseTileY - wallDrag.y1));
 
 					if(dx >= dy) {
 						wallDrag.y2 = wallDrag.y1;
@@ -832,8 +832,8 @@ void HandleDrag(void)
 				wallDrag.x2 = mouseTileX;
 				wallDrag.y2 = mouseTileY;
 
-				dx = abs(mouseTileX - wallDrag.x1);
-				dy = abs(mouseTileY - wallDrag.y1);
+				dx = abs((SDWORD)(mouseTileX - wallDrag.x1));
+				dy = abs((SDWORD)(mouseTileY - wallDrag.y1));
 
 				if(dx >= dy) {
 					wallDrag.y2 = wallDrag.y1;

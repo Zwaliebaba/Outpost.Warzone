@@ -101,8 +101,8 @@ UDWORD	bestSoFar;
 		    if( (bSelected ? psDroid->selected : TRUE ) )
 		    {
 			    /* Get the differences */
-			    xDif = abs(psDroid->x - x);
-			    yDif = abs(psDroid->y - y);
+			    xDif = abs((SDWORD)(psDroid->x - x));
+			    yDif = abs((SDWORD)(psDroid->y - y));
 			    /* Approximates the distance away - using a sqrt approximation */
 			    dist = max(xDif,yDif) + (min(xDif,yDif))/2;	// approximates, but never more than 11% out...
 			    /* Is this the nearest one we got so far? */
@@ -508,8 +508,8 @@ UDWORD	maxDistance;
 			/* Only process tiles that are on the map */
 			if(tileX < (SDWORD)mapWidth AND tileY<(SDWORD)mapHeight)
 			{
-				xDif = abs(worldX - (i<<TILE_SHIFT));
-				yDif = abs(worldY - (j<<TILE_SHIFT));
+				xDif = abs((SDWORD)(worldX - (i<<TILE_SHIFT)));
+				yDif = abs((SDWORD)(worldY - (j<<TILE_SHIFT)));
 				distance = (UDWORD)sqrt(( (float)(xDif*xDif) + (float)(yDif*yDif) ));
 				multiplier = (1-((float) ( (float)distance / (float) maxDistance)));
 				multiplier = (float) (1.0 - ((float)distance/(float)maxDistance));

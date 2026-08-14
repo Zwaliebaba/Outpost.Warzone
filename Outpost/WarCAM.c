@@ -696,7 +696,7 @@ SDWORD	xPos,yPos,zPos;
 			bGotFlying = TRUE;
 			droidHeight = psDroid->z;
 			mapHeight = map_Height(psDroid->x,psDroid->y);
-			difHeight = abs(droidHeight - mapHeight);
+			difHeight = abs((SDWORD)(droidHeight - mapHeight));
 			if(difHeight < MIN_TRACK_HEIGHT)
 			{
 				bTooLow = TRUE;

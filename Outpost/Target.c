@@ -186,8 +186,8 @@ BASE_OBJECT *targetAquireNearestView(SWORD x,SWORD y,UWORD TargetType)
 
 	for(i=0; i<NumTargets; i++) {
 		psObj = TargetList[i].psObj;
-		dx = abs(psObj->sDisplay.screenX - x);
-		dy = abs(psObj->sDisplay.screenY - y);
+		dx = abs((SDWORD)(psObj->sDisplay.screenX - x));
+		dy = abs((SDWORD)(psObj->sDisplay.screenY - y));
 		dx += dy/2;
 		if(dx < NearestDx) {
 			if(TargetList[i].Type & TargetType) {

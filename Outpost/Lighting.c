@@ -493,9 +493,9 @@ UDWORD	total;
 	y2 = pos->y;
 	z2 = pos->z;
 
-	xDif = abs(x1-x2);
-	yDif = abs(y1-y2);
-	zDif = abs(z1-z2);
+	xDif = abs((SDWORD)(x1-x2));
+	yDif = abs((SDWORD)(y1-y2));
+	zDif = abs((SDWORD)(z1-z2));
 
 	total = (xDif*xDif) + (yDif*yDif) + (zDif*zDif);
 	return((UDWORD)sqrt(total));

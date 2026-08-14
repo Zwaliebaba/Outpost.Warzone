@@ -73,8 +73,14 @@ typedef enum _secondary_order
 	DSO_ASSIGN_VTOL_PRODUCTION,
 } SECONDARY_ORDER;
 
-// the state of secondary orders
-typedef enum _secondary_state
+/* The state of secondary orders.  These are bit flags: they are combined with
+   |, tested with &, and masked with the DSS_*_MASK values below, so the type
+   holds arbitrary combinations rather than just the listed constants.  As with
+   INTERP_TYPE, the constants live in an anonymous enum and the type itself is
+   an integer typedef, since in C++ the result of masking an enum is an int and
+   cannot be assigned back to the enum type.  SDWORD matches the int MSVC gives
+   an enum whose values all fit in one. */
+enum
 {
 	DSS_ARANGE_SHORT		= 0x000001,
 	DSS_ARANGE_LONG			= 0x000002,
@@ -99,7 +105,8 @@ typedef enum _secondary_state
 	DSS_FIREDES_SET			= 0x800000,
 	DSS_VTOLPROD_START		= 0x01000000,
 	DSS_VTOLPROD_END		= 0x10000000,
-} SECONDARY_STATE;
+};
+typedef SDWORD SECONDARY_STATE;
 
 // masks for the secondary order state
 #define DSS_ARANGE_MASK		0x000003

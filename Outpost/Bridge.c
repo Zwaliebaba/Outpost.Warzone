@@ -45,7 +45,7 @@ UDWORD	i;
 	}
 
 	/* Get the bridge length */
-	bridgeLength = ( xBridge ? abs(startY-endY) : abs(startX-endX) );
+	bridgeLength = ( xBridge ? abs((SDWORD)(startY-endY)) : abs((SDWORD)(startX-endX)) );
 
 	/* check it's not too long or short */
 	if(bridgeLength<MINIMUM_BRIDGE_SPAN OR bridgeLength>MAXIMUM_BRIDGE_SPAN)
@@ -199,13 +199,13 @@ BOOL	startHigher;
 	if(xBridge)
 	{
 		info->bConstantX = TRUE;
-		info->bridgeLength = abs(startY-endY);
+		info->bridgeLength = abs((SDWORD)(startY-endY));
 	}
 	/* We've got a bridge of constant Y */
 	else if(yBridge)
 	{
 		info->bConstantX = FALSE;
-		info->bridgeLength = abs(startX-endX);
+		info->bridgeLength = abs((SDWORD)(startX-endX));
 	}
 	else
 	{

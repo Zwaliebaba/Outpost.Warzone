@@ -1231,7 +1231,7 @@ UDWORD	height;
 	{
 		percent = 100;
 	}
-	range = 50 - abs(50-percent);
+	range = 50 - abs((SDWORD)(50-percent));
 #ifdef DOLIGHTS
 	light.position.x = MAKEINT(psEffect->position.x);
 	light.position.y = MAKEINT(psEffect->position.y);
