@@ -3,7 +3,7 @@
 #include <math.h>
 #include <stdio.h>
 #include "Objects.h"
-#include "map.h"
+#include "Map.h"
 #include "Loop.h"
 #include "RayCast.h"
 #include "Geometry.h"
@@ -11,13 +11,13 @@
 #include "GTime.h"
 #include "MapGrid.h"
 #include "Cluster.h"
-#include "audio.h"
-#include "audio_id.h"
+#include "Audio.h"
+#include "AudioID.h"
 #include "ScriptExtern.h"
-#include "structure.h"
+#include "Structure.h"
 
 #include "Visibility.h"
-#include "multiplay.h"
+#include "MultiPlay.h"
 #include "AdvVis.h"
 
 

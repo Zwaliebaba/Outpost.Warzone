@@ -2,17 +2,17 @@
 /* Alex McLean */
 
 #include "Frame.h"
-#include "pieDef.h"
-#include "pieFunc.h"
-#include "pieMode.h"
-#include "pieState.h"
+#include "PieDef.h"
+#include "PieFunc.h"
+#include "PieMode.h"
+#include "PieState.h"
 #include "Text.h"
 #include "DisplayDef.h"
 #include "RendMode.h"
 #include "HCI.h"
-#include "intdisplay.h"
-#include "audio.h"
-#include "cdaudio.h"
+#include "IntDisplay.h"
+#include "Audio.h"
+#include "CDAudio.h"
 #include "CDSpan.h"
 
 // turn on/off checks

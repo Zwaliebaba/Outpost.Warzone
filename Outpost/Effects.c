@@ -20,27 +20,27 @@
 #include <stdio.h>
 #include <assert.h>
 #include "Frame.h"
-#include "ivisdef.h" //ivis matrix code
-#include "piedef.h" //ivis matrix code
-#include "pieState.h"
-#include "geo.h" //ivis matrix code
+#include "IvisDef.h" //ivis matrix code
+#include "PieDef.h" //ivis matrix code
+#include "PieState.h"
+#include "Geo.h" //ivis matrix code
 #include "GTime.h"
-#include "Display3d.h"
+#include "Display3D.h"
 #include "Map.h"
 #include "Bucket3D.h"
-#include "pieMode.h"
+#include "PieMode.h"
 #include "Mission.h"
 
 /*Remove this one!!! :-( */
-#include "MiscImd.h"
+#include "MiscIMD.h"
 #include "Effects.h"
-#include "audio.h"
-#include "audio_id.h"
+#include "Audio.h"
+#include "AudioID.h"
 #include "HCI.h"
 #include "Lighting.h"
 #include "Console.h"
 #include "Loop.h"
-#include "rendmode.h"
+#include "RendMode.h"
 #include "MultiPlay.h"
 
 #include "Game.h"

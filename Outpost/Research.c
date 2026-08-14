@@ -9,24 +9,24 @@
 #include "Objects.h"
 #include "GTime.h"
 #include "Research.h"
-#include "message.h"
-#include "text.h"
-#include "audio.h"
-#include "audio_id.h"
+#include "Message.h"
+#include "Text.h"
+#include "Audio.h"
+#include "AudioID.h"
 #include "Script.h"
 #include "ScriptTabs.h"
 #include "HCI.h"
-#include "console.h"
+#include "Console.h"
 #include "CmdDroid.h"
 #include "Power.h"
-#include "mission.h"
+#include "Mission.h"
 
 #include "Frend.h"		// frontend ids.
 #include "IntImage.h"
 
 #include "MultiPlay.h"
 
-//#include "intfac.h"		// Interface image id's.
+//#include "IntFac.h"		// Interface image id's.
 
 //used to calc the research power
 #define RESEARCH_FACTOR		32//16

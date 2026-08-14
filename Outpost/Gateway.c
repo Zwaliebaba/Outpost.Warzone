@@ -57,7 +57,7 @@
 //#define DEBUG_GROUP1
 #include "Frame.h"
 #include "Map.h"
-#include "Astar.h"
+#include "AStar.h"
 #include "FPath.h"
 #include "Wrappers.h"
 #endif

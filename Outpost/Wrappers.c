@@ -7,44 +7,44 @@
 #include <stdio.h>
 
 #include "Frame.h"
-#include "rendmode.h"
-#include "ivisdef.h" //ivis palette code
-#include "pieState.h"
-#include "textdraw.h" //ivis text code
+#include "RendMode.h"
+#include "IvisDef.h" //ivis palette code
+#include "PieState.h"
+#include "TextDraw.h" //ivis text code
 
-#include "piemode.h"
-#include "pieMatrix.h"
-#include "pieFunc.h"
+#include "PieMode.h"
+#include "PieMatrix.h"
+#include "PieFunc.h"
 
-#include "hci.h"		// access to widget screen.
-#include "widget.h"
+#include "HCI.h"		// access to widget screen.
+#include "Widget.h"
 #include "Wrappers.h"
 #include "WinMain.h"
 #include "Objects.h"
 #include "Display.h"
-#include "Display3d.h"
+#include "Display3D.h"
 #include "FrontEnd.h"
 #include "Frend.h"		// display logo.
-#include "console.h"
-#include "intimage.h"
-#include "text.h"
-#include "intdisplay.h"	//for shutdown
-#include "audio.h"		
-#include "audio_id.h"		
-#include "gtime.h"
-#include "ingameop.h"
+#include "Console.h"
+#include "IntImage.h"
+#include "Text.h"
+#include "IntDisplay.h"	//for shutdown
+#include "Audio.h"		
+#include "AudioID.h"		
+#include "GTime.h"
+#include "InGameOp.h"
 #include "KeyMap.h"
-#include "mission.h"
+#include "Mission.h"
 
-#include "keyedit.h"
+#include "KeyEdit.h"
 #include "SeqDisp.h"
-#include "config.h"
+#include "Config.h"
 #include "resource.h"
-#include "netPlay.h"	// multiplayer 
-#include "multiplay.h"
-#include "Multiint.h"				
-#include "multistat.h"
-#include "multilimit.h"
+#include "NetPlay.h"	// multiplayer 
+#include "MultiPlay.h"
+#include "MultiInt.h"				
+#include "MultiStat.h"
+#include "MultiLimit.h"
 
 
 

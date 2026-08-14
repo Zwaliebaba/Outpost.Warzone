@@ -9,7 +9,7 @@
 
 #include "Frame.h"
 #include "Combat.h"
-#include "FindPath.h"
+#include "Findpath.h"
 #include "GTime.h"
 #include "Map.h"
 #include "Mechanics.h"

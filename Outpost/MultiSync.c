@@ -10,25 +10,25 @@
  * Alex Lee, pumpkin Studios, bath.
  */
 
-#include "frame.h"
+#include "Frame.h"
 #include "Stats.h"
-#include "gtime.h"
+#include "GTime.h"
 #include "Map.h"
 #include "Objects.h"
 #include "Display.h"								// for checking if droid in view.
-#include "order.h"
-#include "action.h"
-#include "hci.h"									// for byte packing funcs.
-#include "display3ddef.h"							// tile size constants.
-#include "console.h"
-#include "text.h"									// to access strings
-#include "geometry.h"								// for gettilestructure
-#include "mapgrid.h"								// for move droids directly.
-#include "netplay.h"
-#include "multiplay.h"
-#include "frontend.h"								// for titlemode
-#include "multistat.h"
-#include "power.h"									// for power checks
+#include "Order.h"
+#include "Action.h"
+#include "HCI.h"									// for byte packing funcs.
+#include "Display3Ddef.h"							// tile size constants.
+#include "Console.h"
+#include "Text.h"									// to access strings
+#include "Geometry.h"								// for gettilestructure
+#include "MapGrid.h"								// for move droids directly.
+#include "NetPlay.h"
+#include "MultiPlay.h"
+#include "FrontEnd.h"								// for titlemode
+#include "MultiStat.h"
+#include "Power.h"									// for power checks
 // ////////////////////////////////////////////////////////////////////////////
 // function definitions
 BOOL		sendCheck			(VOID);							// send/recv  check info

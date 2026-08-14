@@ -6,10 +6,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "ivisdef.h" //ivis matrix code
-#include "pieState.h" //ivis matrix code
-#include "pieFunc.h" //ivis matrix code
-#include "geo.h" //ivis matrix code
+#include "IvisDef.h" //ivis matrix code
+#include "PieState.h" //ivis matrix code
+#include "PieFunc.h" //ivis matrix code
+#include "Geo.h" //ivis matrix code
 #include "Map.h"
 #include "Lighting.h"
 #include "Display3D.h"

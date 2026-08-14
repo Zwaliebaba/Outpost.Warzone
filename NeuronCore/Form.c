@@ -9,7 +9,7 @@
 #include "WidgInt.h"
 #include "Form.h"
 #include "Tip.h"
-#include "rendmode.h"
+#include "RendMode.h"
 #include "PiePalette.h"
 
 /* The widget heaps */

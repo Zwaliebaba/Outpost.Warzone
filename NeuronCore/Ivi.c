@@ -2,21 +2,21 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <time.h>
-#include "ivisdef.h"
-#include "pieState.h"
-//#include "ivi.h"
+#include "IvisDef.h"
+#include "PieState.h"
+//#include "Ivi.h"
 //#include "v3d.h"
-#include "rendmode.h"
-#include "pieMode.h"
-//#include "geo.h"
-#include "bug.h"
+#include "RendMode.h"
+#include "PieMode.h"
+//#include "Geo.h"
+#include "Bug.h"
 //#include "pio.h"
-#include "piePalette.h"
-#include "pieMatrix.h"
+#include "PiePalette.h"
+#include "PieMatrix.h"
 //#include "kyb.h"
-#include "tex.h"
+#include "Tex.h"
 //#include "pdv.h"
-#include "ivispatch.h"
+#include "IvisPatch.h"
 
 //*************************************************************************
 

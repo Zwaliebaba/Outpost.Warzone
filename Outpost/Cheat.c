@@ -4,7 +4,7 @@
 #include "Frame.h"
 #include "Cheat.h"
 #include "Console.h"
-#include "Keybind.h"
+#include "KeyBind.h"
 
 static	BOOL	bAllowCheatCodes = TRUE;
 

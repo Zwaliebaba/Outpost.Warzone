@@ -20,6 +20,11 @@ jobs:
       - name: Add MSBuild to PATH
         uses: microsoft/setup-msbuild@v2
 
+      # The compiler resolves includes case-insensitively on Windows, so a
+      # wrong filename still builds. This is what catches it.
+      - name: Check filename casing
+        run: python tools/check_case.py
+
       # /flp contains a semicolon, which PowerShell reads as a statement
       # separator unless the whole switch is quoted. Building serially: with
       # /m the failing project's diagnostics can be interleaved away.

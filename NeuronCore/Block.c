@@ -15,7 +15,7 @@
 // memory usage printf's
 #define DEBUG_GROUP0
 
-#include "types.h"
+#include "Types.h"
 #include "Debug.h"
 #include "Mem.h"
 #include "Heap.h"

@@ -4,34 +4,34 @@
  *  Also the selection of disk files..
  */
 
-#include "frame.h"
-#include "widget.h"
+#include "Frame.h"
+#include "Widget.h"
 
-#include "Display3d.h"
-#include "intDisplay.h"
-#include "text.h"
-#include "rendmode.h"
-#include "piedef.h"
-#include "gtime.h"
-#include "geo.h"
-#include "levels.h"
-#include "objmem.h"		 	//for droid lists.
-#include "component.h"		// for disaplycomponentobj.
+#include "Display3D.h"
+#include "IntDisplay.h"
+#include "Text.h"
+#include "RendMode.h"
+#include "PieDef.h"
+#include "GTime.h"
+#include "Geo.h"
+#include "Levels.h"
+#include "ObjMem.h"		 	//for droid lists.
+#include "Component.h"		// for disaplycomponentobj.
 #include "HCI.h"			// for wFont def.& intmode.
-//#include "intfac.h"		// for images.
-#include "power.h"
-#include "loadsave.h"		// for drawbluebox
-#include "console.h"
-#include "ai.h"
-#include "csnap.h"
-#include "frend.h"
-#include "netplay.h"
-#include "multiplay.h"
-#include "multistat.h"
-#include "multimenu.h"
-#include "multiint.h"
-#include "multigifts.h"
-#include "multijoin.h"
+//#include "IntFac.h"		// for images.
+#include "Power.h"
+#include "LoadSave.h"		// for drawbluebox
+#include "Console.h"
+#include "AI.h"
+#include "CSnap.h"
+#include "Frend.h"
+#include "NetPlay.h"
+#include "MultiPlay.h"
+#include "MultiStat.h"
+#include "MultiMenu.h"
+#include "MultiInt.h"
+#include "MultiGifts.h"
+#include "MultiJoin.h"
 
 // ////////////////////////////////////////////////////////////////////////////
 // defines

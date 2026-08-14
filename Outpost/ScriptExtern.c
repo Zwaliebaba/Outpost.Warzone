@@ -12,7 +12,7 @@
 #include "ScriptTabs.h"
 #include "ScriptExtern.h"
 
-#include "multiplay.h"
+#include "MultiPlay.h"
 
 #include "WinMain.h"
 #include "HCI.h"

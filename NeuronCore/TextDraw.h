@@ -1,7 +1,7 @@
 #ifndef _INCLUDED_TEXTDRAW_
 #define _INCLUDED_TEXTDRAW_
 
-#include "ivisdef.h"
+#include "IvisDef.h"
 #define iV_DrawText			pie_DrawText
 #define iV_DrawText270		pie_DrawText270
 

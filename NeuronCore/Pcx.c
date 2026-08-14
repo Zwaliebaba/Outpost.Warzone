@@ -1,17 +1,17 @@
 
-#include "frame.h"
-#include "ivisdef.h"
-#include "fbf.h"
-#include "bug.h"
+#include "Frame.h"
+#include "IvisDef.h"
+#include "Fbf.h"
+#include "Bug.h"
 
-#include "ivispatch.h"
+#include "IvisPatch.h"
 
 //#include <stdio.h>
 //#include <stdlib.h>
 //#include <io.h>
-//#include "pcx.h"
+//#include "Pcx.h"
 //#include "pal.h"
-//#include "bug.h"
+//#include "Bug.h"
 //#include "ivisheap.h"
 
 //*************************************************************************

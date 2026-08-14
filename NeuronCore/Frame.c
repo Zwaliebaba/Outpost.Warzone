@@ -25,11 +25,11 @@
 
 // window focus messages 
 //#define DEBUG_GROUP1
-#include "frame.h"
-#include "frameint.h"
-#include "wdg.h"
+#include "Frame.h"
+#include "FrameInt.h"
+#include "WDG.h"
 
-#include "fractions.h"
+#include "Fractions.h"
 
 
 

@@ -79,11 +79,11 @@ typedef struct yyTypedRules_tag {	/* Typed rule table */
 #include "ScriptVals.h"
 #include "Objects.h"
 #include "GTime.h"
-#include "droid.h"
-#include "structure.h"
-#include "message.h"
-#include "audio.h"
-#include "levels.h"
+#include "Droid.h"
+#include "Structure.h"
+#include "Message.h"
+#include "Audio.h"
+#include "Levels.h"
 #include "Research.h"
 
 // The current script code

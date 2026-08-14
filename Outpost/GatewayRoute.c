@@ -20,7 +20,7 @@ BOOL	gwrDoMessage;
 #include "Map.h"
 #include "Gateway.h"
 #include "GatewayRoute.h"
-#include "Fpath.h"
+#include "FPath.h"
 
 // the open list
 static GATEWAY	*psOpenList;

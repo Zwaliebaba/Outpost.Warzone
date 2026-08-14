@@ -10,13 +10,13 @@
 #include "Frame.h"
 #include "Objects.h"
 #include "Map.h"
-#include "FindPath.h"
+#include "Findpath.h"
 #include "Visibility.h"
 #include "GTime.h"
 #include "Combat.h"
 #include "HCI.h"
 #include "Player.h"
-#include "power.h"
+#include "Power.h"
 #include "Geometry.h"
 #include "Order.h"
 #include "Action.h"
@@ -24,9 +24,9 @@
 #include "Drive.h"
 #include "Projectile.h"
 #include "CmdDroid.h"
-#include "group.h"
+#include "Group.h"
 
-#include "multiplay.h"
+#include "MultiPlay.h"
 
 // alliances
 UBYTE	alliances[MAX_PLAYERS][MAX_PLAYERS];

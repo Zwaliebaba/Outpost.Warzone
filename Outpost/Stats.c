@@ -12,9 +12,9 @@
 #include "Stats.h"
 #include "Map.h"
 #include "WinMain.h"
-#include "audio_id.h"
+#include "AudioID.h"
 #include "Projectile.h"
-#include "text.h"
+#include "Text.h"
 #define WEAPON_TIME		100
 
 

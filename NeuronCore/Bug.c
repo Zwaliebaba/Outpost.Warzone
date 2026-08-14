@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#include "ivi.h"
-#include "bug.h"
+#include "Ivi.h"
+#include "Bug.h"
 
 
 

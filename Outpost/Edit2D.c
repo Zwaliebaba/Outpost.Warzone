@@ -16,8 +16,8 @@
 
 #include "GTime.h"
 #include "Map.h"
-#include "ivi.h"
-#include "Display3d.h"
+#include "Ivi.h"
+#include "Display3D.h"
 #include "Disp2D.h"
 #include "Edit2D.h"
 

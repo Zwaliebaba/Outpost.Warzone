@@ -12,7 +12,7 @@
 #include "GTime.h"
 #include "Group.h"
 #include "Order.h"
-#include "multiplay.h"
+#include "MultiPlay.h"
 
 extern UDWORD selectedPlayer;
 

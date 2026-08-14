@@ -12,8 +12,8 @@
 #include "FrameResource.h"
 #include "ResLY.h"
 
-#include "wdg.h"
-#include "multiwdg.h"
+#include "WDG.h"
+#include "MultiWDG.h"
 
 
 // control how data files are loaded

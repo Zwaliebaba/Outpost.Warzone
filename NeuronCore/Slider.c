@@ -8,7 +8,7 @@
 #include "Widget.h"
 #include "WidgInt.h"
 #include "Slider.h"
-#include "rendmode.h"
+#include "RendMode.h"
 
 /* The widget heaps */
 OBJ_HEAP	*psSldHeap;

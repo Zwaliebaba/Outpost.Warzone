@@ -87,7 +87,7 @@ extern TABDEF StandardTab;
 extern TABDEF SystemTab;
 extern TABDEF SmallTab;
 
-#include "intfac.h"		// Interface image id's.
+#include "IntFac.h"		// Interface image id's.
 
 extern BOOL imageInitBitmaps(void);
 

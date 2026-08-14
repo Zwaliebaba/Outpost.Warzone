@@ -11,8 +11,8 @@
 /***************************************************************************/
 
 // Standard include file
-#include "frame.h"
-#include "sequence.h"
+#include "Frame.h"
+#include "Sequence.h"
 
 // Direct Draw and Sound Include files
 #include <ddraw.h>
@@ -24,7 +24,7 @@
 
  
 // ESCAPE include file
-#include "streamer.h"
+#include "STREAMER.H"
 
 
 /***************************************************************************/

@@ -11,15 +11,15 @@
 #include "Base.h"
 #include "DroidDef.h"
 #include "StatsDef.h"
-#include "text.h"
+#include "Text.h"
 #include "Geometry.h"
 #include "Console.h"
 #include "Selection.h"
 #include "HCI.h"
 #include "Map.h"
 #include "Selection.h"
-#include "Display3d.h"
-#include "WarCam.h"
+#include "Display3D.h"
+#include "WarCAM.h"
 #include "Display.h"
 
 // ---------------------------------------------------------------------

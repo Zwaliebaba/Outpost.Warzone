@@ -18,7 +18,7 @@
 #include "Message.h"
 #include "ResearchDef.h"
 #include "Audio.h"
-#include "Multiplay.h"
+#include "MultiPlay.h"
 #include "Text.h"
 #include "Levels.h"
 #include "ScriptVals.h"

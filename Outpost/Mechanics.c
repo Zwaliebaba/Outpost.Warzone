@@ -12,14 +12,14 @@
 #include "Mechanics.h"
 #include "Stats.h"
 #include "Structure.h"
-#include "game.h"
-#include "power.h"
-#include "projectile.h"
+#include "Game.h"
+#include "Power.h"
+#include "Projectile.h"
 #include "Move.h"
-#include "message.h"
-#include "deliverance.h"
+#include "Message.h"
+#include "Deliverance.h"
 #include "AStar.h"
-#include "visibility.h"
+#include "Visibility.h"
 
 BOOL gameStatStart(void);
 void gameStatEnd(void);

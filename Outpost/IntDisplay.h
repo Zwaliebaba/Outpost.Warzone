@@ -3,14 +3,14 @@
 
 #include "Widget.h"
 #include "WidgInt.h"
-#include "bar.h"
-#include "form.h"
-#include "label.h"
-#include "button.h"
-#include "editbox.h"
-#include "slider.h"
+#include "Bar.h"
+#include "Form.h"
+#include "Label.h"
+#include "Button.h"
+#include "EditBox.h"
+#include "Slider.h"
 #include "IntImage.h"
-#include "droid.h"
+#include "Droid.h"
 
 #define NUM_OBJECTSURFACES		(10)
 #define NUM_TOPICSURFACES		(5)

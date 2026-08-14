@@ -15,61 +15,61 @@
 #include "Atmos.h"	// temporary only for here
 #include "CSnap.h"
 /* Includes direct access to render library */
-#include "piedef.h"
-#include "pieState.h"
-#include "rendmode.h"
+#include "PieDef.h"
+#include "PieState.h"
+#include "RendMode.h"
 
 //#include "ivisheap.h"//make a call for this
 
-#include "tex.h"//make a call for this
+#include "Tex.h"//make a call for this
 #include "Component.h"
 #include "Display3D.h"
 #include "resource.h"
 #include "HCI.h"
-#include "text.h"
+#include "Text.h"
 #include "Edit3D.h"
 #include "Geometry.h"
 #include "GTime.h"
-#include "audio.h"
-#include "audio_id.h"
-#include "radar.h"
-#include "MiscImd.h"
+#include "Audio.h"
+#include "AudioID.h"
+#include "Radar.h"
+#include "MiscIMD.h"
 #include "Lighting.h"
-#include "fractions.h"
+#include "Fractions.h"
 #include "Console.h"
 #include "Order.h"
 #include "Wrappers.h"
-#include "power.h"
+#include "Power.h"
 #include "Map.h"
-#include "keymap.h"
-#include "intImage.h"
-#include "mechanics.h"
+#include "KeyMap.h"
+#include "IntImage.h"
+#include "Mechanics.h"
 #include "InGameOp.h"
-#include "oPrint.h"
+#include "OPrint.h"
 #include "WarCAM.h"
 #include "KeyBind.h"
 #include "KeyMap.h"
 #include "Projectile.h"
-#include "message.h"
-#include "effects.h"
+#include "Message.h"
+#include "Effects.h"
 #include "Script.h"
 #include "ScriptTabs.h"
 #include "ScriptExtern.h"
 #include "ScriptCB.h"
-#include "target.h"
-#include "drive.h"
+#include "Target.h"
+#include "Drive.h"
 #include "CmdDroid.h"
 #include "Gateway.h"
 #include "Selection.h"
 #include "Transporter.h"
-#include "intOrder.h"
+#include "IntOrder.h"
 
 
 //#ifdef THREEDFX
 //#include "3dfxFunc.h"
 //#endif
-#include "pieClip.h"		// ffs am
-#include "multiplay.h"
+#include "PieClip.h"		// ffs am
+#include "MultiPlay.h"
 
 #define	SHAKE_TIME	(1500)
 

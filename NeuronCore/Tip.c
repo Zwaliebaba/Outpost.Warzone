@@ -10,7 +10,7 @@
 #include "Widget.h"
 #include "WidgInt.h"
 #include "Tip.h"
-#include "rendmode.h"
+#include "RendMode.h"
 
 
 

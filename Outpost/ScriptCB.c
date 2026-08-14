@@ -13,10 +13,10 @@
 #include "ScriptCB.h"
 #include "Projectile.h"
 #include "HCI.h"
-#include "group.h"
-#include "transporter.h"
-#include "mission.h"
-#include "research.h"
+#include "Group.h"
+#include "Transporter.h"
+#include "Mission.h"
+#include "Research.h"
 
 // unit taken over..
 DROID		*psScrCBDroidTaken;

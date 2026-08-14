@@ -6,9 +6,9 @@
 #ifndef _message_h
 #define _message_h
 
-#include "structure.h"
-#include "messageDef.h"
-#include "deliverance.h"
+#include "Structure.h"
+#include "MessageDef.h"
+#include "Deliverance.h"
 
 #define NO_AUDIO_MSG		-1
 

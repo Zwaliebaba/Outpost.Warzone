@@ -7,8 +7,8 @@
 
 #include <math.h>
 
-#include "ivisdef.h" //ivis matrix code
-#include "geo.h" //ivis matrix code
+#include "IvisDef.h" //ivis matrix code
+#include "Geo.h" //ivis matrix code
 
 #include "ObjectDef.h"
 #include "Map.h"
@@ -16,7 +16,7 @@
 #include "Geometry.h"
 #include "GTime.h"
 #include "HCI.h"
-#include "display.h"
+#include "Display.h"
 
 
 

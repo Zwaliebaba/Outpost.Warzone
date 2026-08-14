@@ -13,9 +13,9 @@
 /* Allow frame header files to be singly included */
 #define FRAME_LIB_INCLUDE
 
-#include "types.h"
-#include "mem.h"
-#include "debug.h"
+#include "Types.h"
+#include "Mem.h"
+#include "Debug.h"
 #include "Heap.h"
 #include "Treap.h"
 #include "TreapInt.h"

@@ -22,7 +22,7 @@
 #include <ddraw.h>
 #pragma warning (default : 4201 4214 4115)
 
-#include "types.h"
+#include "Types.h"
 
 /* Free up a COM object */
 #undef RELEASE

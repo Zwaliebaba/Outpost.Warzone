@@ -7,8 +7,8 @@
 	temporary world 'effects 
 	Alex McLean, Pumpkin Studios, EIDOS Interactive, 1998.
 */
-#include "piedef.h"
-#include "pieTypes.h"
+#include "PieDef.h"
+#include "PieTypes.h"
 
 /* All the effect groups */
 typedef enum 

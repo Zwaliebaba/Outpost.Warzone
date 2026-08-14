@@ -2,15 +2,15 @@
 /* Alex McLean, Pumpkin Studios, EIDOS Interactive, 1997 */
 
 #include "Frame.h"
-#include "pieTypes.h"
-#include "pieState.h"
-#include "dx6TexMan.h"
-#include "pieTexture.h"
-#include "piePalette.h"
-#include "display3Ddef.h"
+#include "PieTypes.h"
+#include "PieState.h"
+#include "DX6TexMan.h"
+#include "PieTexture.h"
+#include "PiePalette.h"
+#include "Display3Ddef.h"
 #include "Texture.h"
 #include "Radar.h"
-#include "tex.h"
+#include "Tex.h"
 
 /* Can fit at most 32 texture pages into a 2meg texture memory */
 #define MAX_TEXTURE_PAGES	32

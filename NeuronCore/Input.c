@@ -23,7 +23,7 @@
 #include "Debug.h"
 #include "Input.h"
 #include "Screen.h"
-#include "frameint.h"
+#include "FrameInt.h"
 #include "Fractions.h"
 #include "Frame.h"
 

@@ -14,49 +14,49 @@
 
 #include "stdio.h"
 #include "Frame.h"
-#include "winMain.h"
+#include "WinMain.h"
 #include "Objects.h"
-#include "display.h"
-#include "widget.h"
+#include "Display.h"
+#include "Widget.h"
 /* Includes direct access to render library */
-#include "ivisdef.h"
-#include "pieState.h"
-#include "keyedit.h"
-#include "pieFunc.h"
-#include "warzoneConfig.h"
-#include "rendmode.h"
+#include "IvisDef.h"
+#include "PieState.h"
+#include "KeyEdit.h"
+#include "PieFunc.h"
+#include "WarzoneConfig.h"
+#include "RendMode.h"
 
-#include "display3d.h"
-#include "intdisplay.h"
-#include "audio.h"					// for sound.
-#include "audio_id.h"				// for sound..
-#include "cdaudio.h"
-#include "mixer.h"
-#include "config.h"
+#include "Display3D.h"
+#include "IntDisplay.h"
+#include "Audio.h"					// for sound.
+#include "AudioID.h"				// for sound..
+#include "CDAudio.h"
+#include "Mixer.h"
+#include "Config.h"
 
-#include "design.h"					// for intadddesign
-#include "hci.h"					// for intShowPower
-#include "text.h"					// to get at string resources.
+#include "Design.h"					// for intadddesign
+#include "HCI.h"					// for intShowPower
+#include "Text.h"					// to get at string resources.
 #include "FrontEnd.h"
 #include "Console.h"
-#include "wrappers.h"
-#include "component.h"
-#include "loadsave.h"
+#include "Wrappers.h"
+#include "Component.h"
+#include "LoadSave.h"
 #include "CSnap.h"
-//#include "wrappers.h"				// for bUsingKeyboard.
+//#include "Wrappers.h"				// for bUsingKeyboard.
 #include "Frend.h"
-#include "game.h"
+#include "Game.h"
 #include "Init.h"
-#include "difficulty.h"
+#include "Difficulty.h"
 #include "InGameOp.h"
 
-#include "advvis.h"
-#include "seqDisp.h"
-#include "multiplay.h"
-#include "multiint.h"
-#include "multilimit.h"
-#include "multistat.h"
-#include "netplay.h"
+#include "AdvVis.h"
+#include "SeqDisp.h"
+#include "MultiPlay.h"
+#include "MultiInt.h"
+#include "MultiLimit.h"
+#include "MultiStat.h"
+#include "NetPlay.h"
 
 
 #define VERSION_STRING	"VER 1.10"

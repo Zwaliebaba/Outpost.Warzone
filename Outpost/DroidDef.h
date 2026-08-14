@@ -6,8 +6,8 @@
 #ifndef _droiddef_h
 #define _droiddef_h
 
-#include "animobj.h"
-#include "audio.h"
+#include "AnimObj.h"
+#include "Audio.h"
 
 /* The number of components in the asParts / asBits arrays */
 #define DROID_MAXCOMP		(COMP_NUMCOMPONENTS - 1)//(COMP_NUMCOMPONENTS - 2)

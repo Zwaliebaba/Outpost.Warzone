@@ -7,7 +7,7 @@
 
 
 #include "Frame.h"
-#include "widget.h"
+#include "Widget.h"
 #include "Objects.h"
 #include "Script.h"
 #include "ScriptTabs.h"
@@ -20,19 +20,19 @@
 #include "ScriptCB.h"
 #include "ScriptAI.h"
 
-#include "droid.h"
+#include "Droid.h"
 #include "HCI.h"
-#include "message.h"
-//#include "mission.h"
-#include "levels.h"
+#include "Message.h"
+//#include "Mission.h"
+#include "Levels.h"
 #include "Order.h"
 #include "GTime.h"
-#include "mission.h"
+#include "Mission.h"
 
-#include "design.h"			// for the iddes_...
-#include "display.h"		// for the MT_...  
-#include "multiplay.h"
-#include "intfac.h"
+#include "Design.h"			// for the iddes_...
+#include "Display.h"		// for the MT_...  
+#include "MultiPlay.h"
+#include "IntFac.h"
 
 /* The table of user defined types
  * The format is :

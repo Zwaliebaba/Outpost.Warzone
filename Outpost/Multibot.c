@@ -4,27 +4,27 @@
  * Alex Lee , 97/98 Pumpkin Studios, Bath
  * Multiplay stuff relevant to droids only.
  */
-#include "frame.h"
+#include "Frame.h"
 
 #include "Droid.h"						// for droid sending and ordering.
 #include "DroidDef.h"
 #include "Base.h"						// for sending WHOLE droids.
 #include "Stats.h"
-#include "move.h"						// for ordering droids
-#include "Objmem.h"
-#include "power.h"						// for powercalculated
+#include "Move.h"						// for ordering droids
+#include "ObjMem.h"
+#include "Power.h"						// for powercalculated
 #include "Order.h"
-#include "geometry.h"					// for formations.
-#include "map.h"
-#include "group.h"
+#include "Geometry.h"					// for formations.
+#include "Map.h"
+#include "Group.h"
 #include "Formation.h"
-#include "Netplay.h"					// the netplay library.
-#include "multiplay.h"					// warzone net stuff.
-#include "multijoin.h"
-#include "cmdDroid.h"					// command droids
+#include "NetPlay.h"					// the netplay library.
+#include "MultiPlay.h"					// warzone net stuff.
+#include "MultiJoin.h"
+#include "CmdDroid.h"					// command droids
 #include "Action.h"
-#include "console.h"
-#include "mapGrid.h"
+#include "Console.h"
+#include "MapGrid.h"
 
 #define ANYPLAYER	99
 #define UNKNOWN		99

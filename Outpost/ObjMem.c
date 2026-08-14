@@ -12,12 +12,12 @@
 #include "GTime.h"
 #include "HCI.h"
 #include "Map.h"
-#include "power.h"
+#include "Power.h"
 #include "Script.h"
 #include "ScriptVals.h"
 #include "ScriptTabs.h"
 #include "ScriptCB.h"
-#include "mission.h"
+#include "Mission.h"
 
 /* Allocation sizes for the droid, structure and feature heaps */
 

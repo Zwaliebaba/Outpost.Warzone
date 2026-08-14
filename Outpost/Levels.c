@@ -18,12 +18,12 @@
 #include "LevelInt.h"
 #include "Game.h"
 #include "Lighting.h"
-#include "pieState.h"
+#include "PieState.h"
 #include "Data.h"
 #include "MultiWDG.h"
 
 //#ifdef DEBUG
-#include "script.h"
+#include "Script.h"
 #include "ScriptTabs.h"
 //#endif
 

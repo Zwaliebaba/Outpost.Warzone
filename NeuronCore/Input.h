@@ -13,7 +13,7 @@
 #error Framework header files MUST be included from Frame.h ONLY.
 #endif
 
-#include "types.h"
+#include "Types.h"
 
 /* The defines for all the key codes */
 typedef enum _key_code

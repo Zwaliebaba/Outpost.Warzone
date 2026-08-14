@@ -15,7 +15,7 @@
 #include "Types.h"
 #include "Debug.h"
 #include "Mem.h"
-#include "heap.h"
+#include "Heap.h"
 #include "Treap.h"
 #include "StrRes.h"
 #include "StrResLY.h"

@@ -1,7 +1,7 @@
 #ifndef _mapdisplay_h
 #define _mapdisplay_h
 
-#include "pieTypes.h"
+#include "PieTypes.h"
 
 /* MapDisplay.h */
 

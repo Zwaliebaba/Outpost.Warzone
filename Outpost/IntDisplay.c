@@ -16,17 +16,17 @@
 #include "Loop.h"
 #include "Edit2D.h"
 #include "Map.h"
-#include "radar.h"
+#include "Radar.h"
 /* Includes direct access to render library */
-#include "ivisdef.h"
-#include "pieState.h"
-#include "pieMode.h"			// ffs
-#include "pieClip.h"			// ffs 
-#include "pieBlitFunc.h"
-#include "rendmode.h"
-#include "geo.h"
+#include "IvisDef.h"
+#include "PieState.h"
+#include "PieMode.h"			// ffs
+#include "PieClip.h"			// ffs 
+#include "PieBlitFunc.h"
+#include "RendMode.h"
+#include "Geo.h"
 
-#include "Display3d.h"
+#include "Display3D.h"
 #include "Edit3D.h"
 #include "Disp2D.h"
 #include "Structure.h"
@@ -35,26 +35,26 @@
 #include "GTime.h"
 #include "HCI.h"
 #include "Stats.h"
-#include "game.h"
-#include "power.h"
-#include "audio.h"
-#include "audio_id.h"
-#include "fractions.h"
+#include "Game.h"
+#include "Power.h"
+#include "Audio.h"
+#include "AudioID.h"
+#include "Fractions.h"
 #include "Order.h"
-#include "frontend.h"
+#include "FrontEnd.h"
 #include "IntImage.h"
 #include "IntDisplay.h"
 #include "Component.h"
 #include "Console.h"
 #include "CmdDroid.h"
 #include "Group.h"
-#include "csnap.h"
-#include "text.h"
-#include "transporter.h"
-#include "mission.h"
+#include "CSnap.h"
+#include "Text.h"
+#include "Transporter.h"
+#include "Mission.h"
 
 
-#include "multiplay.h"
+#include "MultiPlay.h"
 
 
 // Is a clickable form widget hilited, either because the cursor is over it or it is flashing.

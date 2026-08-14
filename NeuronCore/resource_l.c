@@ -284,8 +284,8 @@ static int fprintf(FILE* f,char* c,...)
 #define FRAME_LIB_INCLUDE
 
 #include <string.h>
-#include "types.h"
-#include "debug.h"
+#include "Types.h"
+#include "Debug.h"
 #include "ResLY.h"
 
 /* Get the Yacc definitions */

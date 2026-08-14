@@ -10,7 +10,7 @@
 #include "Tip.h"
 #include "Form.h"
 #include "Bar.h"
-#include "rendmode.h"
+#include "RendMode.h"
 #include "PiePalette.h"
 
 /* The widget heap */

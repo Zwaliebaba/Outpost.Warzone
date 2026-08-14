@@ -9,54 +9,54 @@
 #include <stdio.h>		// get rid of a couple of warnings.
 #include <direct.h>		//dito
 
-#include "frame.h"
-#include "frameint.h"
-#include "widget.h"
+#include "Frame.h"
+#include "FrameInt.h"
+#include "Widget.h"
 
-#include "winmain.h"
+#include "WinMain.h"
 #include "Objects.h"
-#include "display.h"// pal stuff
-#include "display3d.h"
+#include "Display.h"// pal stuff
+#include "Display3D.h"
 
 /* Includes direct access to render library */
-#include "piedef.h"
-#include "pieState.h"
-#include "pieClip.h"
-#include "rendmode.h"
-#include "objmem.h"
-#include "gateway.h"
+#include "PieDef.h"
+#include "PieState.h"
+#include "PieClip.h"
+#include "RendMode.h"
+#include "ObjMem.h"
+#include "Gateway.h"
 #include "time.h"
 #include "GTime.h"
-#include "text.h"
-#include "config.h"
-#include "intdisplay.h"
-#include "design.h"
-#include "hci.h"
-#include "csnap.h"
-#include "power.h"
-#include "loadsave.h"			// for blueboxes.
-#include "piematrix.h"			// for setgeometricoffset
-#include "component.h"
-#include "map.h"
-#include "console.h"			// chat box stuff
-#include "frend.h"
-#include "advvis.h"
-//#include "editbox.h"
+#include "Text.h"
+#include "Config.h"
+#include "IntDisplay.h"
+#include "Design.h"
+#include "HCI.h"
+#include "CSnap.h"
+#include "Power.h"
+#include "LoadSave.h"			// for blueboxes.
+#include "PieMatrix.h"			// for setgeometricoffset
+#include "Component.h"
+#include "Map.h"
+#include "Console.h"			// chat box stuff
+#include "Frend.h"
+#include "AdvVis.h"
+//#include "EditBox.h"
 #include "FrontEnd.h"
-//#include "texture.h"
-#include "data.h"
-#include "script.h"
-#include "keymap.h"
+//#include "Texture.h"
+#include "Data.h"
+#include "Script.h"
+#include "KeyMap.h"
 
-#include "Netplay.h"
-#include "multiplay.h"
-#include "multiint.h"
-#include "multijoin.h"
-#include "multistat.h"
-#include "multirecv.h"
-#include "multimenu.h"
+#include "NetPlay.h"
+#include "MultiPlay.h"
+#include "MultiInt.h"
+#include "MultiJoin.h"
+#include "MultiStat.h"
+#include "MultiRecv.h"
+#include "MultiMenu.h"
 
-#include "levels.h"
+#include "Levels.h"
 
 #include <initguid.h>
 // GUID for MPlayer service provider. Will This Change???

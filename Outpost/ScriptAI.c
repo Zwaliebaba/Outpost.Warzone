@@ -21,9 +21,9 @@
 #include "NetPlay.h"
 #include "CmdDroid.h"
 #include "Projectile.h"
-#include "research.h"
-#include "gateway.h"
-#include "multiplay.h"
+#include "Research.h"
+#include "Gateway.h"
+#include "MultiPlay.h"
 
 // Add a droid to a group
 BOOL scrGroupAddDroid(void)

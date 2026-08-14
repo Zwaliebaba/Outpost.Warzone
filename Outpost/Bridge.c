@@ -3,10 +3,10 @@
 #include "HCI.h"
 #include "MapDisplay.h"
 #include "Display3D.h"
-#include "ivisdef.h" //ivis matrix code
-#include "piedef.h" //pie render
-#include "geo.h" //ivis matrix code
-#include "MiscImd.h"
+#include "IvisDef.h" //ivis matrix code
+#include "PieDef.h" //pie render
+#include "Geo.h" //ivis matrix code
+#include "MiscIMD.h"
 #include "Effects.h"
 #include "Bridge.h"
 /* 

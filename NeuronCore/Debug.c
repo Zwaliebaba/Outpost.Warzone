@@ -16,8 +16,8 @@
 #include <Windows.h>
 #pragma warning (default : 4201 4214 4115)
 
-#include "frame.h"
-#include "frameint.h"
+#include "Frame.h"
+#include "FrameInt.h"
 
 
 

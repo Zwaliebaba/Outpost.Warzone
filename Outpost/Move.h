@@ -8,8 +8,8 @@
 #define _move_h
 
 #include "ObjectDef.h"
-#include "FindPath.h"
-#include "audio.h"
+#include "Findpath.h"
+#include "Audio.h"
 
 /* The base movement speed */
 extern FRACT	baseSpeed;

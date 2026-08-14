@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "rendmode.h"
-#include "bug.h"
-#include "piePalette.h"
-#include "pcx.h"
-#include "tex.h"
-#include "ivispatch.h"
+#include "RendMode.h"
+#include "Bug.h"
+#include "PiePalette.h"
+#include "Pcx.h"
+#include "Tex.h"
+#include "IvisPatch.h"
 
 
 #include "BitImage.h"

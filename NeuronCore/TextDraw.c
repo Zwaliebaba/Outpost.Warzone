@@ -1,19 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "ivisdef.h"
-#include "pieState.h"
-#include "rendmode.h"
-#include "rendfunc.h"
-#include "pieClip.h"
+#include "IvisDef.h"
+#include "PieState.h"
+#include "RendMode.h"
+#include "RendFunc.h"
+#include "PieClip.h"
 #include <ddraw.h>
 
-#include "pieBlitFunc.h"
-//#include "Intfac.h"			// ffs am
+#include "PieBlitFunc.h"
+//#include "IntFac.h"			// ffs am
 
-#include "bug.h"
-#include "piePalette.h"
-#include "ivispatch.h"
+#include "Bug.h"
+#include "PiePalette.h"
+#include "IvisPatch.h"
 #include "TextDraw.h"
 #include "BitImage.h"
 

@@ -8,8 +8,8 @@
 #ifndef _objectdef_h
 #define _objectdef_h
 
-#include "frame.h"
-#include "pieTypes.h"
+#include "Frame.h"
+#include "PieTypes.h"
 
 #include "AIDef.h"
 #include "FunctionDef.h"

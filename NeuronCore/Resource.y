@@ -24,8 +24,8 @@ static int printf(char* c, ...)
 // file printfs
 //#define DEBUG_GROUP1
 #include <string.h>
-#include "types.h"
-#include "debug.h"
+#include "Types.h"
+#include "Debug.h"
 #include "ResLY.h"
 #include "FrameResource.h"
 

@@ -3,9 +3,9 @@
 #include <io.h>
 
 
-#include "fbf.h"
-#include "ivispatch.h"
-#include "frame.h"
+#include "Fbf.h"
+#include "IvisPatch.h"
+#include "Frame.h"
 
 #define MAXBUFFERS			5
 #define BUFFERSIZE			1024

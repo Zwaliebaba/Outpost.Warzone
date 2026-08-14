@@ -8,13 +8,13 @@
 #include "Frame.h"
 #include "Base.h"
 #include "Droid.h"
-#include "action.h"
-#include "order.h"
+#include "Action.h"
+#include "Order.h"
 #include "Component.h"
-#include "ivisdef.h" //ivis matrix code
-#include "geo.h" //ivis matrix code
-#include "piedef.h" //ivis matrix code
-#include "pieState.h" //ivis render code
+#include "IvisDef.h" //ivis matrix code
+#include "Geo.h" //ivis matrix code
+#include "PieDef.h" //ivis matrix code
+#include "PieState.h" //ivis render code
 #include "Lighting.h"
 
 
@@ -29,11 +29,11 @@
 #include "Objects.h"
 #include "Display.h"
 #include "Geometry.h"
-#include "Display3d.h"
+#include "Display3D.h"
 #include "Map.h"
 #include "GTime.h"
 #include "IntDisplay.h"
-#include "MiscImd.h"
+#include "MiscIMD.h"
 #include "Effects.h"
 #include "E3Demo.h"
 #include "Transporter.h"

@@ -1,11 +1,11 @@
 #include "Frame.h"
 #include "GTime.h"
-#include "text.h"
+#include "Text.h"
 #include "KeyMap.h"
 #include "Console.h"
 #include "KeyBind.h"
-#include "Display3d.h"
-#include "keyedit.h"
+#include "Display3D.h"
+#include "KeyEdit.h"
 
 /*	
 	KeyMap.c

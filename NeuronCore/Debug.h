@@ -83,10 +83,10 @@
 #endif
 
 #include <stdarg.h>
-#include "types.h"
+#include "Types.h"
 
 /* Include the mono printing stuff */
-#include "mono.h"
+#include "Mono.h"
 
 /****************************************************************************************
  *

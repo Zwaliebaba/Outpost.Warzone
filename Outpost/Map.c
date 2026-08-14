@@ -20,18 +20,18 @@
 #include "Map.h"
 #include "GTime.h"
 #include "HCI.h"
-#include "projectile.h"
+#include "Projectile.h"
 // chnaged line	- alex
 #include "Display3D.h"
 #include "Lighting.h"
 // end of chnage - alex
-#include "game.h"
+#include "Game.h"
 #include "Environ.h"
 #include "AdvVis.h"
 #include "Gateway.h"
 #include "Wrappers.h"
 
-#include "fractions.h"
+#include "Fractions.h"
 
 BOOL	bDoneWater = FALSE;
 BOOL	nearLand(UDWORD x, UDWORD y);

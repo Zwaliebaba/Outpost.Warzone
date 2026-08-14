@@ -15,7 +15,7 @@
 #include "Map.h"
 
 #include "RayCast.h"
-#include "Display3d.h"
+#include "Display3D.h"
 //#ifdef ALEXM
 #include "Effects.h"
 //#endif

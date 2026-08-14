@@ -22,7 +22,7 @@
 #include "Surface.h"
 #include "Screen.h"
 #include "Input.h"
-#include "DDError.h"
+#include "Dderror.h"
 #include "DXInput.h"
 #include "FrameInt.h"
 #include "Cursor.h"

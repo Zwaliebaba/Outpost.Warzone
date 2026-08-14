@@ -4,17 +4,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include "frame.h"
-#include "ivisdef.h"
-#include "pieState.h"
-#include "dx6TexMan.h"
-#include "tex.h"
-#include "rendmode.h"
-#include "pcx.h"
-#include "piePalette.h"
-#include "bug.h"
-#include "ivispatch.h"
-#include "d3drender.h"
+#include "Frame.h"
+#include "IvisDef.h"
+#include "PieState.h"
+#include "DX6TexMan.h"
+#include "Tex.h"
+#include "RendMode.h"
+#include "Pcx.h"
+#include "PiePalette.h"
+#include "Bug.h"
+#include "IvisPatch.h"
+#include "D3DRender.h"
 
 
 

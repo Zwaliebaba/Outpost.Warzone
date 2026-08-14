@@ -10,7 +10,7 @@
 #ifndef _display_h
 #define _display_h
 
-#include "base.h"
+#include "Base.h"
 #include "Structure.h"
 
 

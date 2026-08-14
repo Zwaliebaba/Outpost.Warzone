@@ -13,7 +13,7 @@
 #include "Cluster.h"
 #include "Console.h"
 #include "HCI.h"
-#include "Gtime.h"
+#include "GTime.h"
 #include "Script.h"
 #include "ScriptTabs.h"
 #include "ScriptCB.h"

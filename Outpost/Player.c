@@ -10,7 +10,7 @@
 #include "Objects.h"
 #include "Map.h"
 #include "Player.h"
-#include "game.h"
+#include "Game.h"
 #include "Order.h"
 #include "ObjectDef.h"
 

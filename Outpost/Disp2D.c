@@ -36,7 +36,7 @@
 #include "Projectile.h"
 
 //#ifdef WIN32
-//#include "netplay.h"
+//#include "NetPlay.h"
 //#include "MultiPlay.h"
 //#include "MultiStat.h"
 //#endif

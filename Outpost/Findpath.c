@@ -11,11 +11,11 @@
 
 #include "Objects.h"
 #include "Map.h"
-#include "FindPath.h"
+#include "Findpath.h"
 #include "GTime.h"
 #include "Geometry.h"
 
-#include "fractions.h"
+#include "Fractions.h"
 
 #define TURN_RATE 220
 
