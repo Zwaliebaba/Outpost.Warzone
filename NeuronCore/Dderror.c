@@ -17,8 +17,8 @@
 /* Allow frame header files to be singly included */
 #define FRAME_LIB_INCLUDE
 
-#include "dderror.h"
-#include "types.h"
+#include "Dderror.h"
+#include "Types.h"
 
 /*lint -e650
  * Turn off the constant out of range warning for some of these error numbers

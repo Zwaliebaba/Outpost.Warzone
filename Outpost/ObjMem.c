@@ -5,38 +5,20 @@
  *
  */
 
-//#define DEBUG_GROUP1
 #include "Frame.h"
 #include "Objects.h"
 #include "Deliverance.h"
 #include "GTime.h"
 #include "HCI.h"
 #include "Map.h"
-#include "power.h"
+#include "Power.h"
 #include "Script.h"
 #include "ScriptVals.h"
 #include "ScriptTabs.h"
 #include "ScriptCB.h"
-#include "mission.h"
+#include "Mission.h"
 
 /* Allocation sizes for the droid, structure and feature heaps */
-#ifdef PSX
-
-#define DROID_INIT		150		// scream !
-#define STRUCTURE_INIT	150		// Must include walls ... ekkk ! +350 for 1c (!)
-
-#define DROID_EXT		15
-#define STRUCTURE_EXT	15
-#define STRUCTFUNC_INIT	50
-#define STRUCTFUNC_EXT	5
-#define FEATURE_INIT	145		// Surely this can be reduced.
-#define FEATURE_EXT		15
-#define FLAGPOS_INIT	20
-#define FLAGPOS_EXT		5
-#define TEMPLATE_INIT	120		// was 40 but this there is 116 templates in template.txt alone ... Arse ... 84 bytes each as well ... arse ...
-#define TEMPLATE_EXT	10
-
-#else
 
 #define DROID_INIT		400
 #define STRUCTURE_INIT	200
@@ -52,7 +34,6 @@
 #define TEMPLATE_INIT	120		// was 40 but this there is 116 templates in template.txt alone ... Arse ... 84 bytes each as well ... arse ...
 #define TEMPLATE_EXT	10
 
-#endif
 
 
 /* The memory heaps for the different object types */
@@ -65,7 +46,6 @@ OBJ_HEAP		*psFlagPosHeap;
 OBJ_HEAP		*psTemplateHeap;
 
 
-//SDWORD	factoryDeliveryPointCheck[MAX_PLAYERS][NUM_FACTORY_TYPES][MAX_FACTORY];
 SDWORD	factoryDeliveryPointCheck[MAX_PLAYERS][NUM_FLAG_TYPES][MAX_FACTORY];
 // the initial value for the object ID
 #define OBJ_ID_INIT		20000
@@ -91,7 +71,7 @@ FLAG_POSITION	*apsFlagPosLists[MAX_PLAYERS];
 BASE_OBJECT		*psDestroyedObj=NULL;
 
 
-#if defined(DEBUG) && defined(WIN32)
+#if defined(DEBUG)
 // store a record of units that recently died
 typedef struct _morgue
 {
@@ -398,7 +378,6 @@ void objmemUpdate(void)
 	}
 
 // turn off the list integrity check for all builds
-//#ifdef DEBUG
 #if 0
 #define DESTROY(list, del, type) \
 	_DESTROY(list, del, type); \
@@ -708,7 +687,6 @@ void checkFactoryFlags(void)
 	//clear the check array	
 	for(player=0; player<MAX_PLAYERS; player++)
 	{
-		//for(type=0; type<NUM_FACTORY_TYPES; type++)
         for(type=0; type<NUM_FLAG_TYPES; type++)
 		{
 			for(factory=0; factory<MAX_FACTORY; factory++)
@@ -760,7 +738,6 @@ void removeStructFunc(FUNCTIONALITY *psDel)
 /**************************  OBJECT ACCESS FUNCTIONALITY ********************************/
 
 // Find a base object from it's id
-//this function is similar to BOOL scrvGetBaseObj(UDWORD id, BASE_OBJECT **ppsObj)
 BASE_OBJECT *getBaseObjFromId(UDWORD id)
 {
 	UDWORD			i;

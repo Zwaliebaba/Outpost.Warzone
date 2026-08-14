@@ -10,13 +10,11 @@
 #include "Objects.h"
 #include "Map.h"
 #include "Player.h"
-#include "game.h"
+#include "Game.h"
 #include "Order.h"
 #include "ObjectDef.h"
 
-#ifdef WIN32
 #include "MultiPlay.h"
-#endif
 
 /* The position for the computer players to attack */
 #define ATTACKX		39
@@ -59,7 +57,6 @@ struct _position2 aBasePos[MAX_PLAYERS] =
 #define DROID_SCAN		7
 
 /* Quick hack to choose droid templates to build */
-//#define MAX_DROIDTYPES	3
 /*struct _man_info {
 	UDWORD		templIndex;		// which template to build
 	UDWORD		points;			// number of points towards group total
@@ -166,10 +163,7 @@ void playerShutDown(void)
 /* Update the AI for a player */
 void playerUpdate(UDWORD player)
 {
-//	DROID		*psCurr;
-//	STRUCTURE	*psStruct;
 
-#ifdef WIN32
 	if ((!bMultiPlayer) && (player ==0))		// this'll have to come out to allow p1 AI
 	{											// currently stops the whole thing crashing. 
 		return;
@@ -178,12 +172,6 @@ void playerUpdate(UDWORD player)
 	{
 		return;
 	}
-#else
-	if (player == 0) 
-	{
-		return;
-	}
-#endif
 
 	// See if the human player has been seen by this player 
 /*	if (!asPlayerAI[player].building)
@@ -217,20 +205,11 @@ void playerUpdate(UDWORD player)
 	}
 */
 	// Check none of the droids in the attack group have died
-//	playerCheckGroup(&asPlayerAI[player].psAttackGrp);
 }
 
 /* deal with a new droid being built by a factory */
 void playerNewDroid(DROID *psDroid)
 {
-//	UDWORD			player;
-//	UDWORD			newManu, templIndex;
-//	SDWORD			xdiff, ydiff, radSquared;
-//	DROID_TEMPLATE	*psTempl;
-//	STRUCTURE		*psStruct;
-//	DROID			*psCurr;
-//	BOOL			foundDroid;
-//	char			droidName[MAX_NAME_SIZE];
 
 	UNUSEDPARAMETER(psDroid);
 
@@ -265,7 +244,6 @@ void playerNewDroid(DROID *psDroid)
 	//This now happens in buildDroid - AB 6/1/98
 	//move droid to assembly point 
 	//orderDroidLoc(psDroid, DORDER_MOVE,	aAssemblyPos[player].x << TILE_SHIFT,
-	//		aAssemblyPos[player].y << TILE_SHIFT);
 
 	//SCRIPTED NOW
 	/* Move the droid to the assembly point 
@@ -294,7 +272,6 @@ void playerNewDroid(DROID *psDroid)
 		if (!foundDroid)
 		{
 			orderGroupLoc(psDroid, DORDER_MOVE, ATTACKX << TILE_SHIFT, ATTACKY << TILE_SHIFT);
-//				asPlayerAI[player].psAttackGrp = NULL;
 			asPlayerAI[player].groupPoints = 0;
 		}
 	}
@@ -312,9 +289,6 @@ void playerNewDroid(DROID *psDroid)
 	// Choose a new droid to build 
 	newManu = rand() % numManInfo[player];
 	templIndex = aManInfo[player][newManu].templIndex;
-//	psTempl = apsDroidTemplates[player];
-//	for(i=0; i != templIndex && psTempl; i++, psTempl = psTempl->psNext)
-//		;
 	switch (templIndex)
 	{
 	case 1:
@@ -364,9 +338,6 @@ void playerNewDroid(DROID *psDroid)
 	{
 		newManu = rand() % numManInfo[player];
 		templIndex = aManInfo[player][newManu].templIndex;
-//		psTempl = apsDroidTemplates[player];
-//		for(i=0; i != templIndex && psTempl; i++, psTempl = psTempl->psNext)
-//			;
 		switch (templIndex)
 		{
 		case 1:
@@ -396,11 +367,6 @@ void playerNewDroid(DROID *psDroid)
 */
 //New version in Structure.c - AB 6/1/98
 /*sets the point new droids go to - x/y in world coords*/
-/*void setAssemblyPoint(UDWORD x, UDWORD y, UDWORD player)
-{
-	aAssemblyPos[player].x = x >> TILE_SHIFT;
-	aAssemblyPos[player].y = y >> TILE_SHIFT;
-}*/
 
 /* sends players droids to attack a specified x/y. Checks to see if any enemy 
 droids are near to the home base first*/
@@ -450,7 +416,6 @@ void attackLocation(UDWORD x, UDWORD y, UDWORD player)
 	if (!foundDroid)
 	{
 		orderGroupLoc(psDroid, DORDER_MOVE, x, y);
-//		asPlayerAI[player].groupPoints = 0;
 	}*/
 }
 

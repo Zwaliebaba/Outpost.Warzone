@@ -10,24 +10,13 @@
 #ifndef _display_h
 #define _display_h
 
-#include "base.h"
+#include "Base.h"
 #include "Structure.h"
 
-#ifdef PSX
-void tboxInitialise(void);
-void tboxGrow(void);
-BOOL tboxValid(void);
-void tboxSelect(void);
-void tboxDraw(void);
-#endif
 
 /* Initialise the display system */
 extern BOOL dispInitialise(void);
 
-#ifdef PSX
-/* Shutdown the display system */
-extern BOOL dispShutdown(void);
-#endif
 
 extern void shakeStart(void);
 
@@ -35,7 +24,6 @@ extern void shakeStart(void);
 extern BOOL dispModeChange();
 
 /* Process the user input. This just processes the key input and jumping around the radar*/
-//extern BOOL processInput(void);
 
 extern void ProcessRadarInput(void);
 
@@ -69,15 +57,9 @@ extern	void	setRadarJump(BOOL	val);
 extern void displayWorld(void);
 
 // Illumination value for standard light level "as the artist drew it" ... not darker, not lighter
-#ifdef WIN32
 #define ILLUMINATION_NONE (13)
-#else
-#define ILLUMINATION_NONE (128)
-#endif
 
 
-//#define MAX_SCROLL_SPEED	1600
-//#define SCROLL_SPEED_ACCEL	800
 
 #define MAX_SCROLL_SPEED (800+scroll_speed_accel)	// make max speed dependant on accel chosen.
 
@@ -193,10 +175,8 @@ BOOL IsMouseAtLeft(void);
 BOOL CheckObjInScrollLimits(UWORD *xPos,UWORD *zPos);
 BOOL CheckInScrollLimits(SDWORD *xPos,SDWORD *zPos);
 extern BOOL CheckScrollLimits(void);
-//extern BOOL	widgetsOn;
 extern BOOL	rotActive;
 extern float	gamma;
-//extern BOOL	forceWidgetsOn;
 
 BASE_OBJECT	*mouseTarget( void );
 

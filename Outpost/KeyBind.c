@@ -9,46 +9,43 @@
 #include "Display.h"
 #include "MapDisplay.h"
 #include "Display3D.h"
-#include "Edit3d.h"
+#include "Edit3D.h"
 #include "KeyBind.h"
 #include "Mechanics.h"
 #include "Audio.h"
-#include "Audio_id.h"
+#include "AudioID.h"
 #include "Lighting.h"
 #include "Power.h"
 #include "HCI.h"
-#include "oPrint.h"
+#include "OPrint.h"
 #include "Wrappers.h"
-#include "inGameOp.h"
+#include "InGameOp.h"
 #include "Effects.h"
 #include "Component.h"
 #include "Geometry.h"
 #include "Radar.h"
-#ifdef WIN32
 #include "Cheat.h"
 #include "E3Demo.h"	// will this be on PSX?
-#include "netplay.h"
-#include "multiplay.h"
-#include "multimenu.h"
+#include "NetPlay.h"
+#include "MultiPlay.h"
+#include "MultiMenu.h"
 #include "Atmos.h"
-#include "dGlide.h"
 #include "RayCast.h"
 #include "AdvVis.h"
-#include "game.h"
+#include "Game.h"
 #include "Difficulty.h"
-#endif
 
-#include "intorder.h"
+#include "IntOrder.h"
 #include "Widget.h"
 #include "WidgInt.h"
-#include "bar.h"
-#include "form.h"
-#include "label.h"
+#include "Bar.h"
+#include "Form.h"
+#include "Label.h"
 #include "Button.h"
 #include "Order.h"
-#include "rendmode.h"
-#include "pieState.h"
-#include "pieMatrix.h"
+#include "RendMode.h"
+#include "PieState.h"
+#include "PieMatrix.h"
 
 #include "KeyMap.h"
 #include "Loop.h"
@@ -59,7 +56,7 @@
 #include "MapGrid.h"
 #include "Order.h"
 #include "Drive.h"
-#include "text.h"
+#include "Text.h"
 #include "Selection.h"
 #include "Difficulty.h"
 
@@ -80,9 +77,7 @@ STRUCTURE	*psOldRE = NULL;
 extern		void shakeStop(void);
 STRING	sTextToSend[MAX_CONSOLE_STRING_LENGTH];	
 
-#ifdef WIN32
 int fogCol = 0;//start in nicks mode
-#endif
 
 /* Support functions to minimise code size */
 void	kfsf_SelectAllSameProp	( PROPULSION_TYPE propType );
@@ -216,9 +211,7 @@ void	kf_BuildInfo( void )
 /* Toggles whether the windows surface gets updated */
 void	kf_UpdateWindow( void )
 {
- #ifdef WIN32
 	 	updateVideoCard = !updateVideoCard;
-#endif
 		addConsoleMessage("Windows surface update toggled",DEFAULT_JUSTIFY);
 }
 
@@ -301,52 +294,16 @@ void	kf_SetToughUnitsLevel( void )
 /* Writes out the frame rate */
 void	kf_FrameRate( void )
 {
-#ifdef WIN32
 
-	if (pie_GetRenderEngine() == ENGINE_GLIDE)
+	if(weHave3DNow())
 	{
-		if(weHave3DNow())
-		{
-		CONPRINTF(ConsoleString,(ConsoleString,"GLIDE (With AMD 3DNow!) fps - %d; PIEs - %d; polys - %d; Terr. polys - %d; States %d",
-				frameGetFrameRate(),loopPieCount,loopPolyCount,loopTileCount,loopStateChanges));
-		}
-		else
-		{
- 	 	 	CONPRINTF(ConsoleString,(ConsoleString,"GLIDE fps - %d; PIEs - %d; polys - %d; Terr. polys - %d; States %d",
-				frameGetFrameRate(),loopPieCount,loopPolyCount,loopTileCount,loopStateChanges));
-		}
-//		ASSERT((war_GetFog(),"Fog is Disabled"));
-//		ASSERT((war_GetTranslucent(),"Transparency is Disabled"));
-//		ASSERT((war_GetAdditive(),"Additive Transpaency is Disabled"));
-		DBPRINTF(("GLIDE fps - %d; PIEs - %d; polys - %d; Terr. polys - %d; States %d;",
+		CONPRINTF(ConsoleString,(ConsoleString,"DIRECT3D (With AMD 3DNow!) fps %d; PIEs %d; polys %d; Terr. polys %d; States %d",
 			frameGetFrameRate(),loopPieCount,loopPolyCount,loopTileCount,loopStateChanges));
 	}
-	else if (pie_GetRenderEngine() == ENGINE_D3D)
-	{
-		if(weHave3DNow())
-		{
-			CONPRINTF(ConsoleString,(ConsoleString,"DIRECT3D (With AMD 3DNow!) fps %d; PIEs %d; polys %d; Terr. polys %d; States %d",
-				frameGetFrameRate(),loopPieCount,loopPolyCount,loopTileCount,loopStateChanges));
-		}
-		else
-		{
- 	 	   	CONPRINTF(ConsoleString,(ConsoleString,"DIRECT3D fps %d; PIEs %d; polys %d; Terr. polys %d; States %d",
-				frameGetFrameRate(),loopPieCount,loopPolyCount,loopTileCount,loopStateChanges));
-		}
-
-	}
 	else
-	{	
-		if(weHave3DNow())
-		{
-			CONPRINTF(ConsoleString,(ConsoleString,"SOFTWARE (With AMD 3DNow!) fps - %d; pie's - %d; polys - %d; Terr. polys - %d;",
-				frameGetFrameRate(),loopPieCount,loopPolyCount,loopTileCount));
-		}
-		else
-		{
-			CONPRINTF(ConsoleString,(ConsoleString,"SOFTWARE fps - %d; pie's - %d; polys - %d; Terr. polys - %d;",
-				frameGetFrameRate(),loopPieCount,loopPolyCount,loopTileCount));
-		}
+	{
+ 	   	CONPRINTF(ConsoleString,(ConsoleString,"DIRECT3D fps %d; PIEs %d; polys %d; Terr. polys %d; States %d",
+			frameGetFrameRate(),loopPieCount,loopPolyCount,loopTileCount,loopStateChanges));
 	}
 		if (bMultiPlayer)
 		{
@@ -362,8 +319,6 @@ void	kf_FrameRate( void )
 		gameStats = !gameStats;
 
 		CONPRINTF(ConsoleString,(ConsoleString,"Built at %s on %s",__TIME__,__DATE__));
-//		addConsoleMessage("Game statistics display toggled",DEFAULT_JUSTIFY);
-#endif
 }
 
 // --------------------------------------------------------------------------
@@ -407,7 +362,6 @@ void kf_ShowNumObjects( void )
 void	kf_ToggleRadar( void )
 {
   		radarOnScreen = !radarOnScreen;
-//		addConsoleMessage("Radar display toggled",DEFAULT_JUSTIFY);
 }
 
 // --------------------------------------------------------------------------
@@ -423,7 +377,6 @@ void	kf_ToggleOutline( void )
 		{
 			terrainOutline = TRUE;
 		}
-//		addConsoleMessage("Tile outline display toggled",DEFAULT_JUSTIFY);
 }
 
 // --------------------------------------------------------------------------
@@ -431,13 +384,11 @@ void	kf_ToggleOutline( void )
 /* Toggles infinite power on/off */
 void	kf_TogglePower( void )
 {
-#ifdef WIN32
 #ifndef DEBUG
 if(bMultiPlayer)
 {
 	return;
 }
-#endif
 #endif
 		powerCalculated = !powerCalculated;
 		if (powerCalculated)
@@ -456,7 +407,6 @@ if(bMultiPlayer)
 /* Recalculates the lighting values for a tile */
 void	kf_RecalcLighting( void )
 {
-		//initLighting();
         initLighting(0, 0, mapWidth, mapHeight);
 		addConsoleMessage("Lighting values for all tiles recalculated",DEFAULT_JUSTIFY);
 }
@@ -466,21 +416,16 @@ void	kf_RecalcLighting( void )
 /* Raises the 3dfx gamma value */
 void	kf_RaiseGamma( void )
 {
-#ifdef WIN32
-	if (pie_GetRenderEngine() == ENGINE_GLIDE)
+	if(gamma<(float)5.0)
 	{
-		if(gamma<(float)5.0)
-		{
-			gamma = gamma+(float)0.1;
-			pie_SetGammaValue(gamma);
-			addConsoleMessage("Gamma correction altered",DEFAULT_JUSTIFY);
-		}
-		else
-		{
-			gamma = (float)0.2;
-		}
+		gamma = gamma+(float)0.1;
+		pie_SetGammaValue(gamma);
+		addConsoleMessage("Gamma correction altered",DEFAULT_JUSTIFY);
 	}
-#endif
+	else
+	{
+		gamma = (float)0.2;
+	}
 }
 
 // --------------------------------------------------------------------------
@@ -488,21 +433,16 @@ void	kf_RaiseGamma( void )
 /* Lowers the threedfx gamma value */
 void	kf_LowerGamma( void )
 {
-#ifdef WIN32
-	if (pie_GetRenderEngine() == ENGINE_GLIDE)
+	if(gamma>(float)0.2)
 	{
-		if(gamma>(float)0.2)
-		{
-			gamma = gamma-(float)0.1;
-			pie_SetGammaValue(gamma);
-			addConsoleMessage("Gamma correction lowered",DEFAULT_JUSTIFY);
-		}
-		else
-		{
-			addConsoleMessage("Gamma correction at MINIMUM",DEFAULT_JUSTIFY);
-		}
+		gamma = gamma-(float)0.1;
+		pie_SetGammaValue(gamma);
+		addConsoleMessage("Gamma correction lowered",DEFAULT_JUSTIFY);
 	}
-#endif
+	else
+	{
+		addConsoleMessage("Gamma correction at MINIMUM",DEFAULT_JUSTIFY);
+	}
 }	
 
 // --------------------------------------------------------------------------
@@ -510,14 +450,7 @@ void	kf_LowerGamma( void )
 /* Sends the 3dfx screen buffer to disk */
 void	kf_ScreenDump( void )
 {
-	if(pie_GetRenderEngine() == ENGINE_GLIDE)
-	{
-		CONPRINTF(ConsoleString,(ConsoleString,"3dfx 24 bit raw screen dump written to working directory : %s",iV_ScreenDumpToDisk()));
-	}
-	else
-	{
-		CONPRINTF(ConsoleString,(ConsoleString,"Screen dump function presently only works on 3dfx based cards."));
-	}
+	CONPRINTF(ConsoleString,(ConsoleString,"Screen dump function presently only works on 3dfx based cards."));
 }
 
 // --------------------------------------------------------------------------
@@ -526,17 +459,14 @@ void	kf_ScreenDump( void )
 void	kf_AllAvailable( void )
 {
 
-#ifdef WIN32
 #ifndef DEBUG
 if(bMultiPlayer && (NetPlay.bComms != 0) )
 {
 	return;
 }
 #endif
-#endif
 
 
-//		addConsoleMessage("All items made available",DEFAULT_JUSTIFY);
 		makeAllAvailable();
 
 }
@@ -547,10 +477,6 @@ if(bMultiPlayer && (NetPlay.bComms != 0) )
 void	kf_TriFlip( void )
 {
 iVector	pos;
-//MAPTILE	*psTile;
-//		psTile = mapTile(mouseTileX,mouseTileY);
-//		TOGGLE_TRIFLIP(psTile);
-//		addConsoleMessage("Triangle flip status toggled",DEFAULT_JUSTIFY);
 		pos.x = mouseTileX*TILE_UNITS + TILE_UNITS/2;
 		pos.z = mouseTileY*TILE_UNITS + TILE_UNITS/2;
 		pos.y = map_Height(pos.x,pos.x);
@@ -564,7 +490,6 @@ iVector	pos;
 // --------------------------------------------------------------------------
 void	kf_ToggleBackgroundFog( void )
 {
-#ifdef WIN32
 	static BOOL bEnabled  = TRUE;//start in nicks mode
 	
 		if (bEnabled)//true, so go to false
@@ -586,12 +511,10 @@ void	kf_ToggleBackgroundFog( void )
 			}
 			fogStatus |= FOG_BACKGROUND;//set lowest bit of 3
 		}
-#endif
 }
 
 extern void	kf_ToggleDistanceFog( void )
 {
-#ifdef WIN32
 	static BOOL bEnabled  = TRUE;//start in nicks mode
 	
 		if (bEnabled)//true, so go to false
@@ -613,12 +536,10 @@ extern void	kf_ToggleDistanceFog( void )
 			}
 			fogStatus |= FOG_DISTANCE;//set lowest bit of 3
 		}
-#endif
 }
 
 void	kf_ToggleMistFog( void )
 {
-#ifdef WIN32
 	static BOOL bEnabled  = TRUE;//start in nicks mode
 	
 		if (bEnabled)//true, so go to false
@@ -640,12 +561,10 @@ void	kf_ToggleMistFog( void )
 			}
 			fogStatus |= FOG_GROUND;//set highest bit of 3
 		}
-#endif
 }
 
 void	kf_ToggleFogColour( void )
 {
-#ifdef WIN32
 	fogCol++;
 	if (fogCol>4)
 		fogCol = 0;
@@ -669,12 +588,10 @@ void	kf_ToggleFogColour( void )
 			//pie_SetFogColour(0x0078684f);//(nicks colour + 404040)/2
 		break;
 	}
-#endif
 }
 
 void	kf_ToggleFog( void )
 {
-#ifdef WIN32
 	static BOOL fogEnabled = FALSE;
 	
 		if (fogEnabled)
@@ -682,15 +599,12 @@ void	kf_ToggleFog( void )
 			fogEnabled = FALSE;
 			pie_SetFogStatus(FALSE);
 			pie_EnableFog(fogEnabled);
-//			addConsoleMessage("Fog Off",DEFAULT_JUSTIFY);
 		}
 		else
 		{
 			fogEnabled = TRUE;
 			pie_EnableFog(fogEnabled);
-//			addConsoleMessage("Fog On",DEFAULT_JUSTIFY);
 		}
-#endif
 }
 
 // --------------------------------------------------------------------------
@@ -698,7 +612,6 @@ void	kf_ToggleFog( void )
 /* Toggles fog on/off */
 void	kf_ToggleWidgets( void )
 {
-//	 	widgetsOn = !widgetsOn;
 	if(getWidgetsStatus())
 	{
 		setWidgetsStatus(FALSE);
@@ -707,7 +620,6 @@ void	kf_ToggleWidgets( void )
 	{
 		setWidgetsStatus(TRUE);
 	}
-//	addConsoleMessage("Widgets display toggled",DEFAULT_JUSTIFY);
 }
 
 // --------------------------------------------------------------------------
@@ -725,31 +637,14 @@ void	kf_ToggleCamera( void )
 // --------------------------------------------------------------------------
 
 /* Simulates a close down */
-/*
-void	kf_SimCloseDown( void )
-{
-#ifdef WIN32
-  		bScreenClose = TRUE;
-		audio_PlayTrack( ID_SOUND_THX_SHUTDOWN );
-
-		closingTimeStart = gameTime;
-//		widgetsOn = FALSE;
-		spinScene = TRUE;
-		radarOnScreen = FALSE;
-		screenCloseState = SC_CLOSING_DOWN;
-#endif
-}
-*/
 // --------------------------------------------------------------------------
 
 /* Toggles on/off gouraud shading */
 void	kf_ToggleGouraud( void )
 {
-#ifdef WIN32
  	gouraudShading = !gouraudShading;
  	addConsoleMessage("Gouraud shading toggled",DEFAULT_JUSTIFY);
 	texPage++;
-#endif
 }
 
 // --------------------------------------------------------------------------
@@ -765,7 +660,6 @@ void	kf_RaiseTile( void )
 /* Lowers the tile under the mouse */
 void	kf_LowerTile( void )
 {
-//	lowerTile(mouseTileX,mouseTileY);
 	selNextSpecifiedBuilding(REF_FACTORY);
 }
 
@@ -774,15 +668,7 @@ void	kf_LowerTile( void )
 /* Quick game exit */
 void	kf_SystemClose( void )
 {
-#ifdef WIN32
-	if(pie_GetRenderEngine() == ENGINE_GLIDE)
-	{
-		grSstControl(GR_CONTROL_DEACTIVATE);
-	}
-
-//	ExitProcess(4);
 	loopFastExit();
-#endif
 }
 
 // --------------------------------------------------------------------------
@@ -885,23 +771,6 @@ void	kf_ShrinkScreen( void )
 */
 // --------------------------------------------------------------------------
 // Expand the screen
-/*
-void	kf_ExpandScreen( void )
-{
-	if(xOffset)
-	{
-   		if (distance>DISTANCE)
-   		{
-   			distance-=170;
-   		}
-   		xOffset-=8;
-   		if(yOffset)
-   		{
-   			yOffset-=8;
-   		}
-	}
-}
-*/
 // --------------------------------------------------------------------------
 /* Spins the world round left */
 void	kf_RotateLeft( void )
@@ -937,37 +806,20 @@ void	kf_PitchBack( void )
 FRACT	fraction;
 FRACT	pitchAmount;
 
-//#ifdef ALEXM
-//SDWORD	pitch;
-//SDWORD	angConcern;
-//#endif
 
 	fraction = MAKEFRACT(frameTime2)/GAME_TICKS_PER_SEC;
 	pitchAmount = fraction * MAP_PITCH_RATE;
 
-//#ifdef ALEXM
-//	pitch = getSuggestedPitch();
-//	angConcern = DEG(360-pitch);
 //
-//	if(player.r.x < angConcern) 
-//	{
-//#endif
 
 	player.r.x+= MAKEINT(pitchAmount);
 
-//#ifdef ALEXM
-//	}
-//#endif
-//#ifdef ALEXM
 //	if(getDebugMappingStatus() == FALSE)
-//#endif
 
-//	{
  	if(player.r.x>DEG(360+MAX_PLAYER_X_ANGLE))
   	{
    		player.r.x = DEG(360+MAX_PLAYER_X_ANGLE);
    	}
-//	}
 	setDesiredPitch(player.r.x/DEG_1);
 }
 
@@ -981,15 +833,11 @@ FRACT	pitchAmount;
 	fraction = MAKEFRACT(frameTime2)/GAME_TICKS_PER_SEC;
 	pitchAmount = fraction * MAP_PITCH_RATE;
 	player.r.x-= MAKEINT(pitchAmount);
-//#ifdef ALEXM
 //	if(getDebugMappingStatus() == FALSE)
-//#endif
-//	{
 	if(player.r.x <DEG(360+MIN_PLAYER_X_ANGLE))
 	{
 		player.r.x = DEG(360+MIN_PLAYER_X_ANGLE);
 	}
-//	}
 	setDesiredPitch(player.r.x/DEG_1);
 }
 
@@ -1013,13 +861,11 @@ void	kf_ShowMappings( void )
 void	kf_SelectPlayer( void )
 {
     UDWORD	playerNumber, prevPlayer;
-#ifdef WIN32
 #ifndef DEBUG
 if(bMultiPlayer && (NetPlay.bComms != 0) )
 {
 	return;
 }
-#endif
 #endif
     //store the current player
     prevPlayer = selectedPlayer;
@@ -1033,7 +879,6 @@ if(bMultiPlayer && (NetPlay.bComms != 0) )
 	{
 		selectedPlayer = playerNumber;
 	}
-   //	godMode = TRUE;
 
     if (prevPlayer == selectedPlayer)
     {
@@ -1043,7 +888,6 @@ if(bMultiPlayer && (NetPlay.bComms != 0) )
 }
 // --------------------------------------------------------------------------
 
-#ifdef WIN32
 
 /* Selects the player's groups 1..9 */
 void	kf_SelectGrouping( void )
@@ -1093,91 +937,16 @@ BOOL	Selected;
 #endif
 }
 
-#else	// Start of PSX version.
-
-/* Selects the player's groups 1..9 */
-void	kf_SelectGrouping( void )
-{
-	UDWORD	groupNumber;
-	BOOL	bAlreadySelected;
-	DROID	*psDroid;
-	BOOL	Selected = FALSE;
-
-	bAlreadySelected = FALSE;
-	groupNumber = (getLastSubKey()-KEY_Q) + 1;
-
-	printf("G# %d ",groupNumber);
-	if(groupNumber <= 2) {	// Only allow 2 groups on L1&L2, R1&R2 reserved for droid cycle and cluster selection.
-		for(psDroid = apsDroidLists[selectedPlayer]; psDroid!=NULL; psDroid = psDroid->psNext)
-		{
-			/* Wipe out the ones in the wrong group */
-			if(psDroid->selected AND psDroid->group!=groupNumber)
-			{
-				psDroid->selected = FALSE;
-			}
-			/* Get the right ones */
-			if(psDroid->group == groupNumber)
-			{
-				if(psDroid->selected)
-				{
-					bAlreadySelected = TRUE;
-				}
-			}
-		}
-		if(bAlreadySelected)
-		{
-			Selected = activateGroupAndMove(selectedPlayer,groupNumber);
-		}
-		else
-		{
-			Selected = activateGroup(selectedPlayer,groupNumber);
-		}
-		printf("Selected %d\n",Selected);
-	}
-
-	// Did'nt get anything?
-	if(!Selected) {
-		switch(groupNumber) {
-			case	1:
-			case	2:
-			case	3:
-				intGotoNextDroidType(DROID_ANY);
-				// Tell the driving system that the selection may have changed.
-				driveSelectionChanged();
-				break;
-			case	4:
-				if(driveModeActive()) {
-					intSelectDroidsInDroidCluster(driveGetDriven());
-				}	// Need to make this work in point'n'click mode as well.
-				break;
-		}
-	} else {
-		// Tell the driving system that the selection may have changed.
-		driveSelectionChanged();
-	}
-}
-
-#endif	// End of PSX version.
 
 // --------------------------------------------------------------------------
 
-#ifdef PSX
-extern BOOL IgnoreNextMouseClick;
-#endif
 
 
 void	kf_AssignGrouping( void )
 {
 UDWORD	groupNumber;
 
-#ifdef WIN32
 	groupNumber = (getLastSubKey()-KEY_1) + 1;	
-#else
-	groupNumber = (getLastSubKey()-KEY_1) + 1;
-	IgnoreNextMouseClick = TRUE;
-//	IgnoreNextMouseRelease();	// Tell framework to ignore the next mouse button released message.
-	dragBox3D.status = DRAG_INACTIVE;
-#endif
 	assignDroidsToGroup(selectedPlayer,groupNumber);
 }
 
@@ -1187,14 +956,7 @@ void	kf_SelectCommander( void )
 {
 SDWORD	cmdNumber;
 
-#ifdef WIN32
 	cmdNumber = (getLastSubKey()-KEY_1) + 1;	
-#else
-	cmdNumber = (getLastSubKey()-KEY_1) + 1;
-	IgnoreNextMouseClick = TRUE;
-//	IgnoreNextMouseRelease();	// Tell framework to ignore the next mouse button released message.
-	dragBox3D.status = DRAG_INACTIVE;
-#endif
 
 	// now select the appropriate commander
 	selCommander(cmdNumber);
@@ -1206,11 +968,7 @@ void	kf_SelectMoveGrouping( void )
 {
 UDWORD	groupNumber;
 
-#ifdef WIN32
 	groupNumber = (getLastSubKey()-KEY_1) + 1;
-#else
-	groupNumber = (getLastSubKey()-KEY_A) + 1;
-#endif
 	activateGroupAndMove(selectedPlayer,groupNumber);
 }
 // --------------------------------------------------------------------------
@@ -1228,13 +986,11 @@ void	kf_addInGameOptions( void )
 /* Tell the scripts to start a mission*/
 void	kf_AddMissionOffWorld( void )
 {
-#ifdef WIN32
 #ifndef DEBUG
 if(bMultiPlayer)
 {
 	return;
 }
-#endif
 #endif
 	game_SetValidityKey(VALIDITYKEY_CTRL_M);
 	eventFireCallbackTrigger(CALL_MISSION_START);
@@ -1243,13 +999,11 @@ if(bMultiPlayer)
 /* Tell the scripts to end a mission*/
 void	kf_EndMissionOffWorld( void )
 {
-#ifdef WIN32
 #ifndef DEBUG
 if(bMultiPlayer)
 {
 	return;
 }
-#endif
 #endif
 	eventFireCallbackTrigger(CALL_MISSION_END);
 }
@@ -1257,13 +1011,11 @@ if(bMultiPlayer)
 /* Initialise the player power levels*/
 void	kf_NewPlayerPower( void )
 {
-#ifdef WIN32
 #ifndef DEBUG
 if(bMultiPlayer)
 {
 	return;
 }
-#endif
 #endif
 	newGameInitPower();
 }
@@ -1272,17 +1024,14 @@ if(bMultiPlayer)
 // Display multiplayer guff.
 void	kf_addMultiMenu(void)
 {
-#ifdef WIN32
 	if(bMultiPlayer)
 	{
 		intAddMultiMenu();
 	}
-#endif
 }
 
 // --------------------------------------------------------------------------
 // start/stop capturing audio for multiplayer
-#ifdef WIN32
 void kf_multiAudioStart(void)
 {
 	if(bMultiPlayer							// multiplayer game
@@ -1303,17 +1052,14 @@ void kf_multiAudioStop(void)
 	}
 	return;
 }
-#endif
 // --------------------------------------------------------------------------
 
 void	kf_JumpToMapMarker( void )
 {
-#ifdef WIN32
 UDWORD	entry;
 	if(!getRadarTrackingStatus())
 	{
 		entry = getLastSubKey();
-//		CONPRINTF(ConsoleString,(ConsoleString,"Restoring map position %d:%d",getMarkerX(entry),getMarkerY(entry)));
 		player.p.x = getMarkerX(entry);
 		player.p.z = getMarkerY(entry);
 		player.r.y = getMarkerSpin(entry);
@@ -1323,7 +1069,6 @@ UDWORD	entry;
 			camToggleStatus();
 		}
 	}
-#endif
 }
 
 
@@ -1331,17 +1076,13 @@ UDWORD	entry;
 /* Raises the G Offset */
 void	kf_UpGeoOffset( void )
 {
-#ifdef WIN32
 	geoOffset++;
-#endif
 }
 // --------------------------------------------------------------------------
 /* Lowers the geoOffset */
 void	kf_DownGeoOffset( void )
 {
-#ifdef WIN32
 	geoOffset--;
-#endif
 }
 // --------------------------------------------------------------------------
 /* Ups the droid scale */
@@ -1368,13 +1109,11 @@ void	kf_TogglePowerBar( void )
 /* Toggles whether we process debug key mappings */
 void	kf_ToggleDebugMappings( void )
 {
-#ifdef WIN32
 #ifndef DEBUG
 if(bMultiPlayer && (NetPlay.bComms != 0) )
 {
 	return;
 }
-#endif
 #endif
 
 #ifndef DEBUG
@@ -1393,12 +1132,10 @@ if(bMultiPlayer && (NetPlay.bComms != 0) )
 			CONPRINTF(ConsoleString,(ConsoleString,"ALL Debug Key Mappings - PERMITTED"));
 			CONPRINTF(ConsoleString,(ConsoleString,"DISCLAIMER: YOU HAVE NOW CHEATED"));
 		}
-#ifdef WIN32
 		if(bMultiPlayer)
 		{
 			sendTextMessage("Presses Debug. CHEAT",TRUE);
 		}
-#endif
 
 	}
 }
@@ -1407,26 +1144,22 @@ if(bMultiPlayer && (NetPlay.bComms != 0) )
 
 void	kf_ToggleGodMode( void )
 {
-#ifdef WIN32
 #ifndef DEBUG
 if(bMultiPlayer && (NetPlay.bComms != 0) )
 {
 	return;
 }
 #endif
-#endif
 
 	if(godMode)
 	{
 		godMode = FALSE;
-//		setDifficultyLevel(getDifficultyLevel());
 		CONPRINTF(ConsoleString,(ConsoleString,"God Mode OFF"));
 		demoProcessTilesOut();
 	}
 	else
 	{
 		godMode = TRUE;
-//		setModifiers(FRACTCONST(1000,100),FRACTCONST(100,1000));
 		CONPRINTF(ConsoleString,(ConsoleString,"God Mode ON"));
 		demoProcessTilesIn();
 	}
@@ -1448,12 +1181,10 @@ void	kf_SeekNorth( void )
 void	kf_TogglePauseMode( void )
 {
 
-#ifdef WIN32
 	if(bMultiPlayer && (NetPlay.bComms != 0) )
 	{
 		return;
 	}
-#endif
 
 	/* Is the game running? */
 	if(gamePaused() == FALSE)
@@ -1486,12 +1217,10 @@ void	kf_FinishResearch( void )
 {
 	STRUCTURE	*psCurr;
 
-	//for (psCurr=apsStructLists[selectedPlayer]; psCurr; psCurr = psCurr->psNext)
 	for (psCurr=interfaceStructList(); psCurr; psCurr = psCurr->psNext)
 	{
 		if (psCurr->pStructureType->type == REF_RESEARCH)
 		{
-			//((RESEARCH_FACILITY *)psCurr->pFunctionality)->timeStarted = 0;
 			((RESEARCH_FACILITY *)psCurr->pFunctionality)->timeStarted = gameTime + 100000;
 			//set power accrued to high value so that will trigger straight away
 			((RESEARCH_FACILITY *)psCurr->pFunctionality)->powerAccrued = 10000;
@@ -1509,18 +1238,14 @@ void	kf_FinishResearch( void )
 // --------------------------------------------------------------------------
 void	kf_ToggleEnergyBars( void )
 {
-#ifdef WIN32
 	toggleEnergyBars();
 	CONPRINTF(ConsoleString,(ConsoleString, strresGetString(psStringRes,STR_GAM_ENERGY ) ));
-#endif
 }
 // --------------------------------------------------------------------------
 void	kf_ToggleReloadBars( void )
 {
-#ifdef WIN32
 	toggleReloadBarDisplay();
 	CONPRINTF(ConsoleString,(ConsoleString, strresGetString(psStringRes,STR_GAM_ENERGY ) ));
-#endif
 }
 // --------------------------------------------------------------------------
 void	kf_ToggleDemoMode( void )
@@ -1549,13 +1274,11 @@ void	kf_ToggleDemoMode( void )
 // --------------------------------------------------------------------------
 void	kf_ChooseOptions( void )
 {
-//	if(!widgetsOn) widgetsOn = TRUE;
 	intResetScreen(TRUE);
 	setWidgetsStatus(TRUE);
 	intAddOptions();
 }
 
-#ifdef WIN32
 // --------------------------------------------------------------------------
 void	kf_ToggleBlips( void )
 {
@@ -1639,9 +1362,7 @@ void	kf_JumpToUnassignedUnits( void )
 void	kf_ToggleOverlays( void )
 {
 		/* Make sure they're both the same */
-//		radarOnScreen = widgetsOn;
 		/* Flip their states */
-//		radarOnScreen = !radarOnScreen;
 
 	if(getWidgetsStatus())
 	{
@@ -1656,7 +1377,6 @@ void	kf_ToggleOverlays( void )
 
 void	kf_SensorDisplayOn( void )
 {
-//	debugToggleSensorDisplay();
 	startSensorDisplay();
 }
 
@@ -1667,15 +1387,6 @@ void	kf_SensorDisplayOff( void )
 
 
 // --------------------------------------------------------------------------
-/*
-#define IDRET_OPTIONS		2		// option button
-#define IDRET_BUILD			3		// build button
-#define IDRET_MANUFACTURE	4		// manufacture button
-#define IDRET_RESEARCH		5		// research button
-#define IDRET_INTEL_MAP		6		// intelligence map button
-#define IDRET_DESIGN		7		// design droids button
-#define IDRET_CANCEL		8		// central cancel button
-*/
 // --------------------------------------------------------------------------
 void	kf_ChooseCommand( void )
 {
@@ -1683,14 +1394,6 @@ void	kf_ChooseCommand( void )
 	{
 		setKeyButtonMapping(IDRET_COMMAND);
 	}
-/*
-WIDGET *psWidg;
-W_BUTTON *psButton;
-
-	psWidg = widgGetFromID(psWScreen,IDRET_COMMAND);
-	psButton = (W_BUTTON*)psWidg;
-	buttonClicked(psButton,WKEY_PRIMARY);
-	*/
 }
 // --------------------------------------------------------------------------
 void	kf_ChooseManufacture( void )
@@ -1700,14 +1403,6 @@ void	kf_ChooseManufacture( void )
 		setKeyButtonMapping(IDRET_MANUFACTURE);
 	}
 
-	/*
-WIDGET *psWidg;
-W_BUTTON *psButton;
-
-	psWidg = widgGetFromID(psWScreen,IDRET_MANUFACTURE);
-	psButton = (W_BUTTON*)psWidg;
-	buttonClicked(psButton,WKEY_PRIMARY);
-	*/
 
 }
 // --------------------------------------------------------------------------
@@ -1718,13 +1413,6 @@ void	kf_ChooseResearch( void )
 		setKeyButtonMapping(IDRET_RESEARCH);
 	}
 
-	/*
-WIDGET *psWidg;
-W_BUTTON *psButton;
-	psWidg = widgGetFromID(psWScreen,IDRET_RESEARCH);
-	psButton = (W_BUTTON*)psWidg;
-	buttonClicked(psButton,WKEY_PRIMARY);
-	 */
 }
 // --------------------------------------------------------------------------
 void	kf_ChooseBuild( void )
@@ -1734,13 +1422,6 @@ void	kf_ChooseBuild( void )
 		setKeyButtonMapping(IDRET_BUILD);
 	}
 
-	/*
-WIDGET *psWidg;
-W_BUTTON *psButton;
-	psWidg = widgGetFromID(psWScreen,IDRET_BUILD);
-	psButton = (W_BUTTON*)psWidg;
-	buttonClicked(psButton,WKEY_PRIMARY);
-	*/
 }
 
 // --------------------------------------------------------------------------
@@ -1751,13 +1432,6 @@ void	kf_ChooseDesign( void )
 		setKeyButtonMapping(IDRET_DESIGN);
 	}
 
-	/*
-WIDGET *psWidg;
-W_BUTTON *psButton;
-	psWidg = widgGetFromID(psWScreen,IDRET_DESIGN);
-	psButton = (W_BUTTON*)psWidg;
-	buttonClicked(psButton,WKEY_PRIMARY);
-	*/
 }
 // --------------------------------------------------------------------------
 void	kf_ChooseIntelligence( void )
@@ -1767,13 +1441,6 @@ void	kf_ChooseIntelligence( void )
 		setKeyButtonMapping(IDRET_INTEL_MAP);
 	}
 
-	/*
-WIDGET *psWidg;
-W_BUTTON *psButton;
-	psWidg = widgGetFromID(psWScreen,IDRET_INTEL_MAP);
-	psButton = (W_BUTTON*)psWidg;
-	buttonClicked(psButton,WKEY_PRIMARY);
-	*/
 
 }
 // --------------------------------------------------------------------------
@@ -1782,13 +1449,6 @@ void	kf_ChooseCancel( void )
 {
 	setKeyButtonMapping(IDRET_CANCEL);
 
-/*
-WIDGET *psWidg;
-W_BUTTON *psButton;
-	psWidg = widgGetFromID(psWScreen,IDRET_CANCEL);
-	psButton = (W_BUTTON*)psWidg;
-	buttonClicked(psButton,WKEY_PRIMARY);
-  */
 
 }
 // --------------------------------------------------------------------------
@@ -1856,7 +1516,6 @@ void	kf_MoveToLastMessagePos( void )
 	if ( audio_GetPreviousQueueTrackPos( &iX, &iY, &iZ ) )
 	{
 // Should use requestRadarTrack but the camera gets jammed so use setViewpos - GJ
-//		requestRadarTrack( iX, iY );
 		setViewPos( iX>>TILE_SHIFT, iY>>TILE_SHIFT, TRUE );
 	}
 }
@@ -1924,11 +1583,6 @@ STRUCTURE	*psCStruct, *psNStruct;
 				destroyDroid(psCDroid);
 			}
 			// wipe out all their structures
-		  //	for(psCStruct=apsStructLists[player]; psCStruct; psCStruct=psNStruct)
-		  //	{
-		  //		psNStruct = psCStruct->psNext;
-		  //		destroyStruct(psCStruct);
-		  //	}
 		}
 	}
 }
@@ -1939,13 +1593,11 @@ void kf_KillSelected(void)
 	DROID		*psCDroid, *psNDroid;
 	STRUCTURE	*psCStruct, *psNStruct;
 
-#ifdef WIN32
 #ifndef DEBUG
 if(bMultiPlayer)
 {
 	return;
 }
-#endif
 #endif
 
 	for(psCDroid=apsDroidLists[selectedPlayer]; psCDroid; psCDroid=psNDroid)
@@ -1953,7 +1605,6 @@ if(bMultiPlayer)
 		psNDroid = psCDroid->psNext;
 		if (psCDroid->selected)
 		{
-//		  	removeDroid(psCDroid);
 			destroyDroid(psCDroid);
 		}
 	}
@@ -1966,7 +1617,6 @@ if(bMultiPlayer)
 		}
 	}
 }
-#endif
 
 // --------------------------------------------------------------------------
 // display the grid info for all the selected objects
@@ -1997,19 +1647,16 @@ void kf_ShowGridInfo(void)
 // --------------------------------------------------------------------------
 void kf_GiveTemplateSet(void)
 {
-#ifdef WIN32
 	addTemplateSet(4,0);
 	addTemplateSet(4,1);
 	addTemplateSet(4,2);
 	addTemplateSet(4,3);
-#endif
 }
 
 // --------------------------------------------------------------------------
 // Chat message. NOTE THIS FUNCTION CAN DISABLE ALL OTHER KEYPRESSES
 void kf_SendTextMessage(void)
 {
-#ifdef WIN32
 	CHAR	ch;									
 
 	if(/*bMultiPlayer || */!bAllowOtherKeyPresses OR getCheatCodeStatus()) 
@@ -2030,7 +1677,6 @@ void kf_SendTextMessage(void)
 		   //	if((ch == INPBUF_CR) || (strlen(sTextToSend)==MAX_TYPING_LENGTH) 
 			{
 				bAllowOtherKeyPresses = TRUE;
-			 //	flushConsoleMessages();					
 				if(bMultiPlayer && NetPlay.bComms)
 				{
 					sendTextMessage(sTextToSend,FALSE);
@@ -2051,7 +1697,6 @@ void kf_SendTextMessage(void)
 			else if(ch == INPBUF_ESC)								//abort.
 			{
 				bAllowOtherKeyPresses = TRUE;
-			 //	flushConsoleMessages();						
 				return;
 			}		
 			else							 						// display
@@ -2069,7 +1714,6 @@ void kf_SendTextMessage(void)
 			}else{
 				strcpy(sTextToSend,ingame.phrases[0]);
 				bAllowOtherKeyPresses = TRUE;
-			 //	flushConsoleMessages();					
 				sendTextMessage(sTextToSend,FALSE);
 				return;
 			}
@@ -2080,7 +1724,6 @@ void kf_SendTextMessage(void)
 			}else{
 				strcpy(sTextToSend,ingame.phrases[1]);
 				bAllowOtherKeyPresses = TRUE;
-			//	flushConsoleMessages();					
 				sendTextMessage(sTextToSend,FALSE);			
 				return;
 			}
@@ -2091,7 +1734,6 @@ void kf_SendTextMessage(void)
 			}else{
 				strcpy(sTextToSend,ingame.phrases[2]);
 				bAllowOtherKeyPresses = TRUE;
-			//	flushConsoleMessages();					
 				sendTextMessage(sTextToSend,FALSE);
 				return;
 			}
@@ -2102,7 +1744,6 @@ void kf_SendTextMessage(void)
 			}else{
 				strcpy(sTextToSend,ingame.phrases[3]);
 				bAllowOtherKeyPresses = TRUE;
-			//	flushConsoleMessages();					
 				sendTextMessage(sTextToSend,FALSE);
 				return;
 			}
@@ -2113,7 +1754,6 @@ void kf_SendTextMessage(void)
 			}else{
 				strcpy(sTextToSend,ingame.phrases[4]);
 				bAllowOtherKeyPresses = TRUE;
-			 //	flushConsoleMessages();					
 				sendTextMessage(sTextToSend,FALSE);
 				return;
 			}
@@ -2122,10 +1762,8 @@ void kf_SendTextMessage(void)
 
 //		flushConsoleMessages();								//clear
 //		addConsoleMessage(sTextToSend,DEFAULT_JUSTIFY);		//display
-//		iV_DrawText(sTextToSend,16+D_W,RADTLY+D_H-16);
 		return;
 	}
-#endif
 }
 // --------------------------------------------------------------------------
 void	kf_ToggleConsole( void )
@@ -2169,42 +1807,30 @@ void	kf_SelectAllUnits( void )
  
 	selDroidSelection(selectedPlayer, DS_ALL_UNITS, DST_UNUSED, FALSE);
 
-/*
-DROID	*psDroid;
-	for(psDroid = apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext)
-	{
-		psDroid->selected = TRUE;
-	}
-*/
 }
 // --------------------------------------------------------------------------
 void	kf_SelectAllVTOLs( void )
 {
-  //	kfsf_SelectAllSameProp(LIFT);
 	selDroidSelection(selectedPlayer,DS_BY_TYPE,DST_VTOL,FALSE);
 }
 // --------------------------------------------------------------------------
 void	kf_SelectAllHovers( void )
 {
-//	kfsf_SelectAllSameProp(HOVER);
 	selDroidSelection(selectedPlayer,DS_BY_TYPE,DST_HOVER,FALSE);
 }
 // --------------------------------------------------------------------------
 void	kf_SelectAllWheeled( void )
 {
-//	kfsf_SelectAllSameProp(WHEELED);
 	selDroidSelection(selectedPlayer,DS_BY_TYPE,DST_WHEELED,FALSE);
 }
 // --------------------------------------------------------------------------
 void	kf_SelectAllTracked( void )
 {
-//	kfsf_SelectAllSameProp(TRACKED);
 	selDroidSelection(selectedPlayer,DS_BY_TYPE,DST_TRACKED,FALSE);
 }
 // --------------------------------------------------------------------------
 void	kf_SelectAllHalfTracked( void )
 {
-//	kfsf_SelectAllSameProp(HALF_TRACKED);
 	selDroidSelection(selectedPlayer,DS_BY_TYPE,DST_HALF_TRACKED,FALSE);
 }
 
@@ -2212,35 +1838,12 @@ void	kf_SelectAllHalfTracked( void )
 void	kf_SelectAllDamaged( void )
 {
 	selDroidSelection(selectedPlayer,DS_BY_TYPE,DST_ALL_DAMAGED,FALSE);
-/*
-DROID	*psDroid;
-UDWORD	damage;
-
-	for(psDroid = apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext)
-	{
-		damage = PERCENT(psDroid->body,psDroid->originalBody);
-		if(damage<REPAIRLEV_LOW)
-		{
-			psDroid->selected = TRUE;
-		}
-	}
-*/
 }
 // --------------------------------------------------------------------------
 void	kf_SelectAllCombatUnits( void )
 {
 	selDroidSelection(selectedPlayer,DS_BY_TYPE,DST_ALL_COMBAT,FALSE);
 
-/*
-DROID	*psDroid;
-	for(psDroid = apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext)
-	{
-		if(psDroid->numWeaps)
-		{
-			psDroid->selected = TRUE;
-		}	
-	}
-*/
 }
 // --------------------------------------------------------------------------
 void	kfsf_SelectAllSameProp( PROPULSION_TYPE propType )
@@ -2273,13 +1876,11 @@ void	kf_SelectAllSameType( void )
 	selDroidSelection(selectedPlayer,DS_BY_TYPE,DST_ALL_SAME,FALSE);
 	/*
 DROID	*psDroid;
-//PROPULSION_STATS	*psPropStats;
 
 	for(psDroid = apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext)
 	{
 		if(psDroid->selected)
 		{
-//			psPropStats = asPropulsionStats + psDroid->asBits[COMP_PROPULSION].nStat;
 //			kfsf_SelectAllSameProp(psPropStats->propulsionType);	// non optimal - multiple assertion!?
 			kfsf_SelectAllSameName(psDroid->aName);
 		}
@@ -2408,10 +2009,6 @@ DROID	*psDroid;
 			secondarySetState(psDroid,sec,state);
 			/* Kick him out of group if he's going for repair */	  // Now done in secondarySetState
 		   //	if ((sec == DSO_RETURN_TO_LOC) && (state == DSS_RTL_REPAIR))
-		   //	{
-		   //		psDroid->group = UBYTE_MAX;
-		   //		psDroid->selected = FALSE;
-		   //	}
 		}
 	}
 }
@@ -2436,9 +2033,6 @@ DROID	*psOther;
 
 	if(found)
 	{
-//		 getBlockHeightDirToEdgeOfGrid(UDWORD x, UDWORD y, UBYTE direction, UDWORD *height, UDWORD *dist)
-   //		getBlockHeightDirToEdgeOfGrid(psOther->x,psOther->y,psOther->direction,&height,&dist);
-//		getBlockHeightDirToEdgeOfGrid(mouseTileX*TILE_UNITS,mouseTileY*TILE_UNITS,getTestAngle(),&height,&dist);
 	}
 }
 // --------------------------------------------------------------------------
@@ -2491,12 +2085,10 @@ UDWORD		xJump,yJump;
 
 void kf_ToggleFormationSpeedLimiting( void )
 {
-#ifdef WIN32
 	if(bMultiPlayer)
 	{
 		return;
 	}
-#endif
 	if ( moveFormationSpeedLimitingOn() )
 	{
 		addConsoleMessage(strresGetString(psStringRes,STR_GAM_FORMATION_OFF),LEFT_JUSTIFY);

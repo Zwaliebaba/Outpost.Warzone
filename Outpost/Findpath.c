@@ -6,16 +6,15 @@
  */
 
 /* Turn printf's */
-//#define DEBUG_GROUP1
 #include "Frame.h"
 
 #include "Objects.h"
 #include "Map.h"
-#include "FindPath.h"
+#include "Findpath.h"
 #include "GTime.h"
 #include "Geometry.h"
 
-#include "fractions.h"
+#include "Fractions.h"
 
 #define TURN_RATE 220
 
@@ -277,7 +276,6 @@ SDWORD	MovementIndex;
 		(Route[RoutePosition-1].XCoordinate!=BlockX || 
 		Route[RoutePosition-1].YCoordinate!=BlockY) )
 		{
-		// Save away the destination position (Last block in the sequence)
 		Route[RoutePosition].XCoordinate=BlockX;
 		Route[RoutePosition].YCoordinate=BlockY;
 		RoutePosition++;
@@ -637,7 +635,6 @@ UDWORD		tarX,tarY;
 FRACT		fraction;
 
 #ifdef DEBUG
-//	gameTimeStop();
 #endif
 
 	/* First, check to see if we actually have a path to pursue */
@@ -754,7 +751,6 @@ FRACT		fraction;
 	}
 
 #ifdef DEBUG
-//	gameTimeStart();
 #endif
 
 	/* We're not there yet */

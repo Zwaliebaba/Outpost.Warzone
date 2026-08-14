@@ -9,7 +9,7 @@
 
 #include "Frame.h"
 #include "Combat.h"
-#include "FindPath.h"
+#include "Findpath.h"
 #include "GTime.h"
 #include "Map.h"
 #include "Mechanics.h"
@@ -20,7 +20,6 @@
 #include "Visibility.h"
 
 /* Initialise the mechanics system */
-//extern BOOL mechInitialise(void);
 
 /* Shutdown the mechanics system */
 extern BOOL mechShutdown(void);

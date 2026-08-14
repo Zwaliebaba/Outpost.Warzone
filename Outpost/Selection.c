@@ -11,15 +11,15 @@
 #include "Base.h"
 #include "DroidDef.h"
 #include "StatsDef.h"
-#include "text.h"
+#include "Text.h"
 #include "Geometry.h"
 #include "Console.h"
 #include "Selection.h"
 #include "HCI.h"
 #include "Map.h"
 #include "Selection.h"
-#include "Display3d.h"
-#include "WarCam.h"
+#include "Display3D.h"
+#include "WarCAM.h"
 #include "Display.h"
 
 // ---------------------------------------------------------------------
@@ -123,7 +123,6 @@ UDWORD	count;
 				/* can select everything except transporters */
 				if(psDroid->droidType != DROID_TRANSPORTER)
 				{
-//					psDroid->selected = TRUE;
 					SelectDroid(psDroid);
 					count++;
 				}
@@ -178,7 +177,6 @@ UDWORD	count;
 		psDroid; psDroid = psDroid->psNext)
 		{
 			/* Does it have a weapon? */
-			//if(psDroid->numWeaps)
             if(psDroid->asWeaps[0].nStat > 0)
 			{
 		  		/* Is on screen relevant? */
@@ -219,7 +217,6 @@ UDWORD	count;
                     //we don't want to get the Transporter
 	 				if(psDroid->droidType != DROID_TRANSPORTER)
                     {
-//    					psDroid->selected = TRUE;
 						SelectDroid(psDroid);
 	    				count ++;
                     }
@@ -242,7 +239,6 @@ DROID	*psDroid;
 			{
 				count++;
 			}
-//			psDroid->selected = FALSE;
 			DeSelectDroid(psDroid);
 		}
 	return(count);
@@ -269,7 +265,6 @@ DROID	*psDroid;
 // Selects all units the same as the one(s) selected
 UDWORD	selSelectAllSame( UDWORD player, BOOL bOnScreen)
 {
-#ifdef WIN32
 
 DROID	*psDroid;
 UDWORD	count;
@@ -283,9 +278,6 @@ UDWORD	count;
 			}
 		}
 	return(selNumSelected(player));
-#else
-	return 0;
-#endif
 
 
 }
@@ -293,7 +285,6 @@ UDWORD	count;
 // sub-function - selects all units with same name as one passed in
 UDWORD	selNameSelect( STRING *droidName, UDWORD player, BOOL bOnScreen )
 {
-#ifdef WIN32
 DROID	*psDroid;
 UDWORD	count;
 
@@ -306,7 +297,6 @@ UDWORD	count;
 				{
 					if(!strcmp(droidName,psDroid->aName))
 					{
-//						psDroid->selected = TRUE;
 						SelectDroid(psDroid);
 						count++;
 					}
@@ -317,11 +307,7 @@ UDWORD	count;
 		return(count+1); 
 	else 
 		return(count);
-#else
-	return 0;
-#endif
 }
-#ifdef WIN32
 // ffs am
 // ---------------------------------------------------------------------
 void	selNextSpecifiedUnit(UDWORD unitType)
@@ -398,19 +384,16 @@ BOOL	bLaterInList, bMatch;
 	if(psResult AND !psResult->died)
 	{
 	 	selDroidDeselect(selectedPlayer);
-//		psResult->selected = TRUE;
 		SelectDroid(psResult);
 		if(getWarCamStatus())
 		{
 			camToggleStatus();			 // messy - fix this
-	//		setViewPos(psCentreDroid->x>>TILE_SHIFT,psCentreDroid->y>>TILE_SHIFT);
 			processWarCam(); //odd, but necessary
 			camToggleStatus();				// messy - FIXME
 		}
 		else
 			if(!getWarCamStatus())
 			{
-//				camToggleStatus();
 				/* Centre display on him if warcam isn't active */
 				setViewPos(psResult->x>>TILE_SHIFT,psResult->y>>TILE_SHIFT,TRUE);
 			}
@@ -435,86 +418,6 @@ BOOL	bLaterInList, bMatch;
 		}
 	}
 }
-#if 0
-// ---------------------------------------------------------------------
-void	selNextRepairUnit( void )
-{
-DROID	*psCurr;
-DROID	*psResult;
-DROID	*psFirst;
-BOOL	bLaterInList;
-	
-	for(psCurr = apsDroidLists[selectedPlayer],psFirst = NULL,psResult = NULL,bLaterInList = FALSE; 
-		psCurr AND !psResult; psCurr = psCurr->psNext)
-	{
-		if( psCurr->droidType == DROID_REPAIR OR
-            psCurr->droidType == DROID_CYBORG_REPAIR )
-		{
-			
-		 	/* Always store away the first one we find */
-			if(!psFirst)
-			{
-				psFirst = psCurr;
-			}
-		 
-			if(psCurr == psOldRD)
-			{
-				bLaterInList = TRUE;
-			}
-
-			/* Nothing previously found... */
-			if(!psOldRD)
-			{
-				psResult = psCurr;
-			}
-
-			/* Only select is this isn't the old one and it's further on in list */
-			else if(psCurr!=psOldRD AND bLaterInList)
-			{
-				psResult = psCurr;
-			} 	
-
-		 }
-	}
-
-	/* Did we get one? */
-	if(!psResult)
-	{
-		/* was there at least one - the first one? Resetting */
-		if(psFirst)
-		{
-			psResult = psFirst;
-		}
-	}
-
-	if(psResult AND !psResult->died)
-	{
-	 	selDroidDeselect(selectedPlayer);
-//		psResult->selected = TRUE;
-		SelectDroid(psResult);
-		if(getWarCamStatus())
-		{
-			camToggleStatus();			 // messy - fix this
-	//		setViewPos(psCentreDroid->x>>TILE_SHIFT,psCentreDroid->y>>TILE_SHIFT);
-			processWarCam(); //odd, but necessary
-			camToggleStatus();				// messy - FIXME
-		}
-		else
-			if(!getWarCamStatus())
-			{
-//				camToggleStatus();
-				/* Centre display on him if warcam isn't active */
-				setViewPos(psResult->x>>TILE_SHIFT,psResult->y>>TILE_SHIFT,TRUE);
-			}
-		psOldRD = psResult;
-	}
-	else
-	{
-		addConsoleMessage(strresGetString(psStringRes,STR_GAM_REPNOTFOUND),LEFT_JUSTIFY);
-	}
-}
-// ---------------------------------------------------------------------
-#endif
 // ---------------------------------------------------------------------
 void	selNextUnassignedUnit( void )
 {
@@ -568,19 +471,16 @@ BOOL	bLaterInList;
 	if(psResult AND !psResult->died)
 	{
 	 	selDroidDeselect(selectedPlayer);
-//		psResult->selected = TRUE;
 		SelectDroid(psResult);
 		if(getWarCamStatus())
 		{
 			camToggleStatus();			 // messy - fix this
-	//		setViewPos(psCentreDroid->x>>TILE_SHIFT,psCentreDroid->y>>TILE_SHIFT);
 			processWarCam(); //odd, but necessary
 			camToggleStatus();				// messy - FIXME
 		}
 		else
 			if(!getWarCamStatus())
 			{
-//				camToggleStatus();
 				/* Centre display on him if warcam isn't active */
 				setViewPos(psResult->x>>TILE_SHIFT,psResult->y>>TILE_SHIFT,TRUE);
 			}
@@ -705,7 +605,6 @@ void selCommander(SDWORD n)
 
 				// this horrible bit of code is taken from activateGroupAndMove
 				// and sets the camera position to that of the commander
-#ifdef WIN32
 				if(getWarCamStatus())
 				{
 					camToggleStatus();			 // messy - fix this
@@ -718,11 +617,6 @@ void selCommander(SDWORD n)
 					/* Centre display on him if warcam isn't active */
 					setViewPos(psCurr->x>>TILE_SHIFT,psCurr->y>>TILE_SHIFT,TRUE);
 				}
-#else
-				if(!getWarCamStatus() || camGetMode() == CAMMODE_PANTOLOCATION) {
-					setViewPos(psCurr->x>>TILE_SHIFT,psCurr->y>>TILE_SHIFT,TRUE);
-				}
-#endif
 			}
 			setSelectedCommander((UDWORD)n);
 			return;
@@ -732,4 +626,3 @@ void selCommander(SDWORD n)
 
 // ---------------------------------------------------------------------
 
-#endif

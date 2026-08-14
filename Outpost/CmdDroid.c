@@ -12,9 +12,7 @@
 #include "GTime.h"
 #include "Group.h"
 #include "Order.h"
-#ifdef WIN32
-#include "multiplay.h"
-#endif
+#include "MultiPlay.h"
 
 extern UDWORD selectedPlayer;
 
@@ -93,12 +91,7 @@ void cmdDroidAddDroid(DROID *psCommander, DROID *psDroid)
 		orderDroidObj(psDroid, DORDER_GUARD, (BASE_OBJECT *)psCommander);
 	}
 
-//#ifdef WIN32
 //	if(bMultiPlayer && myResponsibility(psDroid->player) )
-//	{
-//		sendCommandDroid(psCommander,psDroid);
-//	}
-//#endif
 }
 
 // return the current target designator for a player
@@ -160,13 +153,11 @@ SDWORD cmdDroidGetLevel(DROID *psCommander)
 {
 	SDWORD	numKills = psCommander->numKills;
 
-#ifdef WIN32
 	// commanders do not need as much experience in multiplayer
 	if (bMultiExpBoost)
 	{
 		numKills *= 2;
 	}
-#endif
 
 	if (numKills > 2047)
 	{
@@ -256,7 +247,6 @@ DROID	*psCurr;
 		{
 			if(psCurr->psGroup->psCommander == psDroid)
 			{
-//				psCurr->selected = TRUE;
 				SelectDroid(psCurr);
 			}
 		}

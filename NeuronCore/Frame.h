@@ -11,37 +11,25 @@
 #include <windows.h>
 #pragma warning (default : 4201 4214 4115)
 
-#ifdef PSX		// If Playstation version then compile lean version.
 
-#ifdef FINALBUILD
-#define scrv_error(a...) ;	// don't want the yackky errors on final version
-#endif
-
-#define FRAMEWORK_LEAN_AND_MEAN
-#include "cfunc.h"	// redefines memset & cpy to fast version - calls cfunc.lib
-#include "printf.h"	// in framepsx
-#endif
-
-#include "types.h"
-#include "debug.h"
-#include "mem.h"
-#include "screen.h"
+#include "Types.h"
+#include "Debug.h"
+#include "Mem.h"
+#include "Screen.h"
 #include "ddraw.h"
-#include "dderror.h"
-#include "input.h"
-#include "surface.h"
+#include "Dderror.h"
+#include "Input.h"
+#include "Surface.h"
 #include "Image.h"
 #include "Font.h"
 #include "Heap.h"
 #include "Treap.h"
-#include "w95trace.h"
+#include "W95Trace.h"
 #include "Fractions.h"
 #include "Trig.h"
 #include "FrameResource.h"
 #include "StrRes.h"
-#ifdef WIN32
 #include "DXInput.h"
-#endif
 #include "Block.h"
 #include "ListMacs.h"
 
@@ -52,8 +40,7 @@ extern BOOL frameInitialise(HANDLE hInstance,		// The windows application instan
 					 UDWORD height,			// The display height
 					 UDWORD bitDepth,		// The display bit depth
 					 BOOL	fullScreen,		// Whether to start full screen or windowed
-					 BOOL	bVidMem,	 	// Whether to put surfaces in video memory
-					 BOOL	bGlide );		// Whether to create surfaces
+					 BOOL	bVidMem );	 	// Whether to put surfaces in video memory
 
 /* Shut down the framework library.
  * This clears up all the Direct Draw stuff and ensures
@@ -140,7 +127,6 @@ BOOL loadFile2(STRING *pFileName, UBYTE **ppFileData, UDWORD *pFileSize, BOOL Al
 /* Save the data in the buffer into the given file */
 extern BOOL saveFile(STRING *pFileName, UBYTE *pFileData, UDWORD fileSize);
 
-#ifdef WIN32
 // load a file from disk into a fixed memory buffer
 extern BOOL loadFileToBuffer(STRING *pFileName, UBYTE *pFileBuffer, UDWORD bufferSize, UDWORD *pSize);
 // as above but returns quietly if no file found
@@ -149,7 +135,6 @@ extern BOOL loadFileToBufferNoError(STRING *pFileName, UBYTE *pFileBuffer, UDWOR
 extern SDWORD ftol(float f);
 extern BOOL	bRunningUnderGlide;
 
-#endif
 
 UINT HashString( char *String );
 UINT HashStringIgnoreCase( char *String );

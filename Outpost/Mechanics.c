@@ -6,20 +6,19 @@
  */
 
 /* extra structures required for demo */
-//#define DEMO
 
 #include "Frame.h"
 #include "Mechanics.h"
 #include "Stats.h"
 #include "Structure.h"
-#include "game.h"
-#include "power.h"
-#include "projectile.h"
+#include "Game.h"
+#include "Power.h"
+#include "Projectile.h"
 #include "Move.h"
-#include "message.h"
-#include "deliverance.h"
+#include "Message.h"
+#include "Deliverance.h"
 #include "AStar.h"
-#include "visibility.h"
+#include "Visibility.h"
 
 BOOL gameStatStart(void);
 void gameStatEnd(void);
@@ -27,10 +26,6 @@ void gameStatEnd(void);
 
 
 /* Initialise the mechanics system */
-//BOOL mechInitialise(void)
-//{
-//	UBYTE	*pFileData;
-//	UDWORD	fileSize;
 
 	/* Initialise the map */
 	/*if (!loadFile("blank.map", &pFileData, &fileSize))
@@ -91,34 +86,14 @@ void gameStatEnd(void);
 //	gameStatStart();	- moved to data.c when stats are loaded from WRF - John.
 
 	/*set up the Power levels for each player - again this is set up in load game now*/
-	//initPlayerPower();
 
-//	return TRUE;
-//}
 
 
 /* Shutdown the mechanics system */
 BOOL mechShutdown(void)
 {
-//	UDWORD	i;
-//	DROID	*psCurr;
 	BASE_OBJECT		*psObj, *psNext;
 
-  /*	for(i=0; i<MAX_PLAYERS; i++)
-	{
-		for(psCurr=apsDroidLists[i]; psCurr != NULL; psCurr = psCurr->psNext)
-		{
-			FREE(psCurr->pName);
-			if (psCurr->numWeaps > 0)
-			{
-				FREE(psCurr->asWeaps);
-			}
-			if (psCurr->numProgs > 0)
-			{
-				FREE(psCurr->asProgs);
-			}
-		}
-	}*/
 
 	for(psObj = psDestroyedObj; psObj; psObj = psNext)
 	{
@@ -151,7 +126,6 @@ BOOL mechShutdown(void)
 	psDestroyedObj = NULL;
 
 	//Free the space allocated for the players lists
-//	gameStatEnd();
 
 	return TRUE;
 }
@@ -198,7 +172,6 @@ void freeComponentLists(void)
 		FREE(apCompLists[inc][COMP_REPAIRUNIT]);
 		FREE(apCompLists[inc][COMP_CONSTRUCT]);
 		FREE(apCompLists[inc][COMP_WEAPON]);
-		//FREE(apCompLists[inc][COMP_PROGRAM]);
 	}
 }
 
@@ -251,14 +224,7 @@ void freeStructureLists(void)
 //initialises the players list for the start of the DEMO
 BOOL gameStatStart(void)
 {
-//	UDWORD			inc, comp, stat;
 	BOOL			builtRes = FALSE, builtGen = FALSE;
-#if 0
-	STRUCTURE		*psStructure;
-	DROID_TEMPLATE	*pTemplate;
-	DROID_TEMPLATE	*pNewTempl, *pCurrTempl;
-	UDWORD			posX, posY;
-#endif
 
 /**********************************************************************
  *              All this gets done by calls from data.c to
@@ -593,78 +559,7 @@ BOOL gameStatStart(void)
 		}
 	}
 #endif
-#if 0
-	//give each player a resource extractor and a power generator
-	for (inc=0; inc < MAX_PLAYERS; inc++)
-	{
-		builtGen = builtRes = FALSE;
-		//make the structures available in the lists
-		for (comp = 0; comp < numStructureStats; comp++)
-		{
-			if (asStructureStats[comp].type == REF_RESOURCE_EXTRACTOR)
-			{
-//				apStructTypeLists[inc][comp] = AVAILABLE;
-				do
-				{
-					posX = rand()%mapWidth/2+mapWidth/4;
-					posY = rand()%mapHeight/2+mapHeight/4;
-				}
-				while(blockingTile(posX,posY,TER_ALL));
-/*				psStructure = buildStructure(&asStructureStats[comp], posX << 
-					TILE_SHIFT + TILE_UNITS/2 , (posY << TILE_SHIFT) + TILE_UNITS/2,
-					inc); */
-				psStructure = buildStructure(&asStructureStats[comp], 
-					posX << TILE_SHIFT, (posY << TILE_SHIFT), inc,FALSE); 
-				psStructure->status = SS_BUILT;
-				builtRes = TRUE;
-			}
-			if (asStructureStats[comp].type == REF_POWER_GEN)
-			{
-//				apStructTypeLists[inc][comp] = AVAILABLE;
-				do
-				{
-					posX = rand()%mapWidth/2+mapWidth/4;
-					posY = rand()%mapHeight/2+mapHeight/4;
-				}
-				while(blockingTile(posX,posY,TER_ALL));
-/*				psStructure = buildStructure(&asStructureStats[comp], posX << 
-					TILE_SHIFT + TILE_UNITS/2, (posY << TILE_SHIFT) + TILE_UNITS/2, 
-					inc); */
-				psStructure = buildStructure(&asStructureStats[comp], 
-					posX << TILE_SHIFT, posY << TILE_SHIFT, inc,FALSE); 
-				psStructure->status = SS_BUILT;
-				builtGen = TRUE;
-			}
-			if (builtRes & builtGen)
-			{
-				break;
-			}
-		}
-	}
-#endif
 
-//#ifdef DEMO
-#if	0
-	for (inc = 1; inc < MAX_PLAYERS; inc++)
-	{
-		pCurrTempl = NULL;
-		for(pTemplate = apsDroidTemplates[0]; pTemplate; pTemplate=pTemplate->psNext)
-		{
-			if (createTemplate(pTemplate, &pNewTempl))
-			{
-				if (pCurrTempl == NULL)
-				{
-					apsDroidTemplates[inc] = pNewTempl;
-				}
-				else
-				{
-					pCurrTempl->psNext = pNewTempl;
-				}
-				pCurrTempl = pNewTempl;
-			}
-		}
-	}
-#endif
 
 	return TRUE;
 }
@@ -685,7 +580,6 @@ void gameStatEnd(void)
 		FREE(apCompLists[inc][COMP_REPAIRUNIT]);
 		FREE(apCompLists[inc][COMP_CONSTRUCT]);
 		FREE(apCompLists[inc][COMP_WEAPON]);
-		//FREE(apCompLists[inc][COMP_PROGRAM]);
 
 		//free the structure lists
 		if(apStructTypeLists[inc]) {
@@ -736,10 +630,6 @@ void makeAllAvailable(void)
 		{
 			apCompLists[i][COMP_REPAIRUNIT][comp] = AVAILABLE;
 		}
-		/*for (comp=i; comp <numProgramStats; comp++)
-		{
-			apCompLists[i][COMP_PROGRAM][comp] = AVAILABLE;
-		}*/
 
 		//make all the structures available
 		for (comp=0; comp < numStructureStats; comp++)

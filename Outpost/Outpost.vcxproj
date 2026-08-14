@@ -9,14 +9,6 @@
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug|x64">
-      <Configuration>Debug</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|x64">
-      <Configuration>Release</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NeuronCore\NeuronCore.vcxproj">
@@ -27,33 +19,32 @@
     <ClCompile Include="Action.c" />
     <ClCompile Include="AdvVis.c" />
     <ClCompile Include="AI.c" />
-    <ClCompile Include="ani.c" />
-    <ClCompile Include="arrow.c" />
+    <ClCompile Include="Ani.c" />
+    <ClCompile Include="Arrow.c" />
     <ClCompile Include="AStar.c" />
     <ClCompile Include="Atmos.c" />
-    <ClCompile Include="aud.c" />
-    <ClCompile Include="audio_id.c" />
+    <ClCompile Include="Aud.c" />
+    <ClCompile Include="AudioID.c" />
     <ClCompile Include="Bridge.c" />
-    <ClCompile Include="bucket3d.c" />
-    <ClCompile Include="BuildPos.c" />
-    <ClCompile Include="cdaudio.c" />
+    <ClCompile Include="Bucket3D.c" />
+    <ClCompile Include="CDAudio.c" />
     <ClCompile Include="CDSpan.c" />
     <ClCompile Include="Cheat.c" />
-    <ClCompile Include="clParse.c" />
+    <ClCompile Include="ClParse.c" />
     <ClCompile Include="Cluster.c" />
     <ClCompile Include="CmdDroid.c" />
     <ClCompile Include="Combat.c" />
     <ClCompile Include="Component.c" />
-    <ClCompile Include="config.c" />
+    <ClCompile Include="Config.c" />
     <ClCompile Include="Console.c" />
-    <ClCompile Include="csnap.c" />
+    <ClCompile Include="CSnap.c" />
     <ClCompile Include="Data.c" />
     <ClCompile Include="Design.c" />
     <ClCompile Include="Difficulty.c" />
     <ClCompile Include="Disp2D.c" />
     <ClCompile Include="Display.c" />
-    <ClCompile Include="display3d.c" />
-    <ClCompile Include="drive.c" />
+    <ClCompile Include="Display3D.c" />
+    <ClCompile Include="Drive.c" />
     <ClCompile Include="Droid.c" />
     <ClCompile Include="E3Demo.c" />
     <ClCompile Include="Edit2D.c" />
@@ -65,27 +56,27 @@
     <ClCompile Include="Formation.c" />
     <ClCompile Include="FPath.c" />
     <ClCompile Include="FrontEnd.c" />
-    <ClCompile Include="function.c" />
-    <ClCompile Include="game.c" />
+    <ClCompile Include="Function.c" />
+    <ClCompile Include="Game.c" />
     <ClCompile Include="Gateway.c" />
     <ClCompile Include="GatewayRoute.c" />
     <ClCompile Include="GatewaySup.c" />
     <ClCompile Include="Geometry.c" />
     <ClCompile Include="Group.c" />
     <ClCompile Include="HCI.c" />
-    <ClCompile Include="inGameOp.c" />
+    <ClCompile Include="InGameOp.c" />
     <ClCompile Include="Init.c" />
     <ClCompile Include="IntDisplay.c" />
     <ClCompile Include="IntelMap.c" />
     <ClCompile Include="IntImage.c" />
     <ClCompile Include="IntOrder.c" />
     <ClCompile Include="KeyBind.c" />
-    <ClCompile Include="keyedit.c" />
+    <ClCompile Include="KeyEdit.c" />
     <ClCompile Include="KeyMap.c" />
     <ClCompile Include="Levels.c" />
     <ClCompile Include="Level_l.c" />
     <ClCompile Include="Lighting.c" />
-    <ClCompile Include="loadsave.c" />
+    <ClCompile Include="LoadSave.c" />
     <ClCompile Include="Loop.c" />
     <ClCompile Include="LOSRoute.c" />
     <ClCompile Include="Map.c" />
@@ -93,34 +84,34 @@
     <ClCompile Include="MapGrid.c" />
     <ClCompile Include="Mechanics.c" />
     <ClCompile Include="Message.c" />
-    <ClCompile Include="MiscImd.c" />
-    <ClCompile Include="mission.c" />
+    <ClCompile Include="MiscIMD.c" />
+    <ClCompile Include="Mission.c" />
     <ClCompile Include="Move.c" />
-    <ClCompile Include="Mpdpxtra.c" />
-    <ClCompile Include="mplayer.c" />
+    <ClCompile Include="MPDPXtra.c" />
+    <ClCompile Include="MPlayer.c" />
     <ClCompile Include="Multibot.c" />
-    <ClCompile Include="multigifts.c" />
+    <ClCompile Include="MultiGifts.c" />
     <ClCompile Include="MultiInt.c" />
-    <ClCompile Include="multijoin.c" />
-    <ClCompile Include="multilimit.c" />
+    <ClCompile Include="MultiJoin.c" />
+    <ClCompile Include="MultiLimit.c" />
     <ClCompile Include="MultiMenu.c" />
     <ClCompile Include="MultiOpt.c" />
-    <ClCompile Include="multiplay.c" />
-    <ClCompile Include="Multistat.c" />
-    <ClCompile Include="multistruct.c" />
+    <ClCompile Include="MultiPlay.c" />
+    <ClCompile Include="MultiStat.c" />
+    <ClCompile Include="MultiStruct.c" />
     <ClCompile Include="MultiSync.c" />
     <ClCompile Include="Objects.c" />
     <ClCompile Include="ObjMem.c" />
-    <ClCompile Include="oPrint.c" />
+    <ClCompile Include="OPrint.c" />
     <ClCompile Include="OptimisePath.c" />
     <ClCompile Include="Order.c" />
     <ClCompile Include="Player.c" />
-    <ClCompile Include="power.c" />
+    <ClCompile Include="Power.c" />
     <ClCompile Include="PowerCrypt.c" />
-    <ClCompile Include="projectile.c" />
+    <ClCompile Include="Projectile.c" />
     <ClCompile Include="Radar.c" />
     <ClCompile Include="RayCast.c" />
-    <ClCompile Include="readfiles.c" />
+    <ClCompile Include="ReadFiles.c" />
     <ClCompile Include="Research.c" />
     <ClCompile Include="Scores.c" />
     <ClCompile Include="ScriptAI.c" />
@@ -133,17 +124,16 @@
     <ClCompile Include="ScriptVals_l.c" />
     <ClCompile Include="ScriptVals_y.c" />
     <ClCompile Include="Selection.c" />
-    <ClCompile Include="seqDisp.c" />
+    <ClCompile Include="SeqDisp.c" />
     <ClCompile Include="Stats.c" />
-    <ClCompile Include="structure.c" />
-    <ClCompile Include="target.c" />
+    <ClCompile Include="Structure.c" />
+    <ClCompile Include="Target.c" />
     <ClCompile Include="Text.c" />
     <ClCompile Include="Texture.c" />
     <ClCompile Include="Transporter.c" />
     <ClCompile Include="Visibility.c" />
     <ClCompile Include="WarCAM.c" />
-    <ClCompile Include="warzoneConfig.c" />
-    <ClCompile Include="Water.c" />
+    <ClCompile Include="WarzoneConfig.c" />
     <ClCompile Include="WinMain.c" />
     <ClCompile Include="Wrappers.c" />
   </ItemGroup>
@@ -152,29 +142,28 @@
     <ClInclude Include="AdvVis.h" />
     <ClInclude Include="AI.h" />
     <ClInclude Include="AIDef.h" />
-    <ClInclude Include="anim_id.h" />
-    <ClInclude Include="arrow.h" />
+    <ClInclude Include="AnimID.h" />
+    <ClInclude Include="Arrow.h" />
     <ClInclude Include="AStar.h" />
     <ClInclude Include="Atmos.h" />
-    <ClInclude Include="audio_id.h" />
+    <ClInclude Include="AudioID.h" />
     <ClInclude Include="Base.h" />
     <ClInclude Include="Bridge.h" />
-    <ClInclude Include="bucket3d.h" />
-    <ClInclude Include="BuildPos.h" />
+    <ClInclude Include="Bucket3D.h" />
     <ClInclude Include="Bullet.h" />
     <ClInclude Include="BulletDef.h" />
-    <ClInclude Include="cdaudio.h" />
+    <ClInclude Include="CDAudio.h" />
     <ClInclude Include="CDSpan.h" />
     <ClInclude Include="Cheat.h" />
-    <ClInclude Include="clParse.h" />
+    <ClInclude Include="ClParse.h" />
     <ClInclude Include="Cluster.h" />
     <ClInclude Include="CmdDroid.h" />
     <ClInclude Include="CmdDroidDef.h" />
     <ClInclude Include="Combat.h" />
     <ClInclude Include="Component.h" />
-    <ClInclude Include="config.h" />
+    <ClInclude Include="Config.h" />
     <ClInclude Include="Console.h" />
-    <ClInclude Include="csnap.h" />
+    <ClInclude Include="CSnap.h" />
     <ClInclude Include="Data.h" />
     <ClInclude Include="Deliverance.h" />
     <ClInclude Include="Design.h" />
@@ -184,7 +173,7 @@
     <ClInclude Include="Display3D.h" />
     <ClInclude Include="Display3Ddef.h" />
     <ClInclude Include="DisplayDef.h" />
-    <ClInclude Include="drive.h" />
+    <ClInclude Include="Drive.h" />
     <ClInclude Include="Droid.h" />
     <ClInclude Include="DroidDef.h" />
     <ClInclude Include="E3Demo.h" />
@@ -198,33 +187,33 @@
     <ClInclude Include="Formation.h" />
     <ClInclude Include="FormationDef.h" />
     <ClInclude Include="FPath.h" />
-    <ClInclude Include="frend.h" />
+    <ClInclude Include="Frend.h" />
     <ClInclude Include="FrontEnd.h" />
-    <ClInclude Include="function.h" />
+    <ClInclude Include="Function.h" />
     <ClInclude Include="FunctionDef.h" />
-    <ClInclude Include="game.h" />
-    <ClInclude Include="gamedefs.h" />
+    <ClInclude Include="Game.h" />
+    <ClInclude Include="GameDefs.h" />
     <ClInclude Include="Gateway.h" />
     <ClInclude Include="GatewayDef.h" />
     <ClInclude Include="GatewayRoute.h" />
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="Group.h" />
     <ClInclude Include="HCI.h" />
-    <ClInclude Include="inGameOp.h" />
+    <ClInclude Include="InGameOp.h" />
     <ClInclude Include="Init.h" />
     <ClInclude Include="IntDisplay.h" />
     <ClInclude Include="IntelMap.h" />
-    <ClInclude Include="intfac.h" />
+    <ClInclude Include="IntFac.h" />
     <ClInclude Include="IntImage.h" />
     <ClInclude Include="IntOrder.h" />
-    <ClInclude Include="ivis02.h" />
+    <ClInclude Include="Ivis02.h" />
     <ClInclude Include="KeyBind.h" />
-    <ClInclude Include="keyedit.h" />
+    <ClInclude Include="KeyEdit.h" />
     <ClInclude Include="KeyMap.h" />
     <ClInclude Include="LevelInt.h" />
     <ClInclude Include="Levels.h" />
     <ClInclude Include="Lighting.h" />
-    <ClInclude Include="loadsave.h" />
+    <ClInclude Include="LoadSave.h" />
     <ClInclude Include="Loop.h" />
     <ClInclude Include="LOSRoute.h" />
     <ClInclude Include="Map.h" />
@@ -232,32 +221,32 @@
     <ClInclude Include="MapGrid.h" />
     <ClInclude Include="Mechanics.h" />
     <ClInclude Include="Message.h" />
-    <ClInclude Include="messageDef.h" />
-    <ClInclude Include="MiscImd.h" />
-    <ClInclude Include="mission.h" />
+    <ClInclude Include="MessageDef.h" />
+    <ClInclude Include="MiscIMD.h" />
+    <ClInclude Include="Mission.h" />
     <ClInclude Include="MissionDef.h" />
     <ClInclude Include="Move.h" />
     <ClInclude Include="MoveDef.h" />
-    <ClInclude Include="mpdpxtra.h" />
-    <ClInclude Include="multigifts.h" />
-    <ClInclude Include="multiint.h" />
-    <ClInclude Include="multijoin.h" />
-    <ClInclude Include="multilimit.h" />
+    <ClInclude Include="MPDPXtra.h" />
+    <ClInclude Include="MultiGifts.h" />
+    <ClInclude Include="MultiInt.h" />
+    <ClInclude Include="MultiJoin.h" />
+    <ClInclude Include="MultiLimit.h" />
     <ClInclude Include="MultiMenu.h" />
-    <ClInclude Include="multiplay.h" />
-    <ClInclude Include="multirecv.h" />
-    <ClInclude Include="multistat.h" />
+    <ClInclude Include="MultiPlay.h" />
+    <ClInclude Include="MultiRecv.h" />
+    <ClInclude Include="MultiStat.h" />
     <ClInclude Include="ObjectDef.h" />
     <ClInclude Include="Objects.h" />
     <ClInclude Include="ObjMem.h" />
-    <ClInclude Include="oprint.h" />
+    <ClInclude Include="OPrint.h" />
     <ClInclude Include="OptimisePath.h" />
     <ClInclude Include="Order.h" />
-    <ClInclude Include="orderdef.h" />
+    <ClInclude Include="OrderDef.h" />
     <ClInclude Include="Player.h" />
-    <ClInclude Include="power.h" />
-    <ClInclude Include="powercrypt.h" />
-    <ClInclude Include="projectile.h" />
+    <ClInclude Include="Power.h" />
+    <ClInclude Include="PowerCrypt.h" />
+    <ClInclude Include="Projectile.h" />
     <ClInclude Include="Radar.h" />
     <ClInclude Include="RayCast.h" />
     <ClInclude Include="Research.h" />
@@ -273,18 +262,18 @@
     <ClInclude Include="ScriptVals.h" />
     <ClInclude Include="ScriptVals_y.h" />
     <ClInclude Include="Selection.h" />
-    <ClInclude Include="seqDisp.h" />
+    <ClInclude Include="SeqDisp.h" />
     <ClInclude Include="Stats.h" />
     <ClInclude Include="StatsDef.h" />
     <ClInclude Include="Structure.h" />
     <ClInclude Include="StructureDef.h" />
-    <ClInclude Include="target.h" />
+    <ClInclude Include="Target.h" />
     <ClInclude Include="Text.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Transporter.h" />
     <ClInclude Include="Visibility.h" />
     <ClInclude Include="WarCAM.h" />
-    <ClInclude Include="warzoneConfig.h" />
+    <ClInclude Include="WarzoneConfig.h" />
     <ClInclude Include="Weapons.h" />
     <ClInclude Include="WinMain.h" />
     <ClInclude Include="Wrappers.h" />
@@ -307,27 +296,14 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v145</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v145</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v145</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -340,80 +316,56 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
+      <UseStructuredOutput>false</UseStructuredOutput>
+      <DisableSpecificWarnings>4129;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <SDLCheck>false</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;DIRECTINPUT_VERSION=0x0700;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\NeuronCore;$(MSBuildThisFileDirectory)..\DX9\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)..\DX9\Lib;$(MSBuildThisFileDirectory)..\NeuronCore;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <AdditionalDependencies>ddraw.lib;dxguid.lib;dsound.lib;dinput.lib;dplayx.lib;winmm.lib;ole32.lib;wsock32.lib;comdlg32.lib;QMixer.lib;Mplayer.lib;WINSTR.LIB;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
     </Manifest>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)GameAssets\Icons;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
+      <UseStructuredOutput>false</UseStructuredOutput>
+      <DisableSpecificWarnings>4129;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <WarningLevel>Level3</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <SDLCheck>false</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;DIRECTINPUT_VERSION=0x0700;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\NeuronCore;$(MSBuildThisFileDirectory)..\DX9\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)..\DX9\Lib;$(MSBuildThisFileDirectory)..\NeuronCore;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <AdditionalDependencies>ddraw.lib;dxguid.lib;dsound.lib;dinput.lib;dplayx.lib;winmm.lib;ole32.lib;wsock32.lib;comdlg32.lib;QMixer.lib;Mplayer.lib;WINSTR.LIB;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
     </Manifest>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-    </ClCompile>
-    <Link>
-      <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
-    <Manifest>
-      <EnableSegmentHeap>true</EnableSegmentHeap>
-    </Manifest>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-    </ClCompile>
-    <Link>
-      <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
-    <Manifest>
-      <EnableSegmentHeap>true</EnableSegmentHeap>
-    </Manifest>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)GameAssets\Icons;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

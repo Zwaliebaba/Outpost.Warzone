@@ -6,7 +6,6 @@
 #define FILLBLUE 128
 #define FILLTRANS 128
 
-#ifdef WIN32
 // Sprite image structure.
 typedef struct {
 	UDWORD BMPNum;	// Source bitmap index.
@@ -17,10 +16,6 @@ typedef struct {
 	SDWORD XOffset;	// X offset for drawing.
 	SDWORD YOffset;	// Y offset for drawing.
 } IMAGE;
-#else
-#include "ImagePSX.h"
-#include "gamefx.h"
-#endif
 
 
 enum {
@@ -72,9 +67,6 @@ typedef struct {
 } TABDEF;
 
 extern IMAGEFILE *IntImages;	// All the 2d graphics for the user interface.
-#ifdef PSX
-//extern IMAGEFILE *EffectImages;
-#endif
 
 // A few useful defined frames.
 extern IMAGEFRAME FrameNormal;
@@ -93,35 +85,23 @@ extern IMAGEFRAME FrameText;
 // A few useful defined tabs.
 extern TABDEF StandardTab;
 extern TABDEF SystemTab;
-#ifdef WIN32
 extern TABDEF SmallTab;
-#endif
 
-#ifdef WIN32
-#include "intfac.h"		// Interface image id's.
-#else
-#include "intpsx.h"
-#endif
+#include "IntFac.h"		// Interface image id's.
 
 extern BOOL imageInitBitmaps(void);
 
 extern void imageDeleteBitmaps(void);
 
 // Draw an image to a surface.
-//extern void DrawImageSR(IMAGE *Image,UDWORD x,UDWORD y);
 
 // Draw an image to a display memory.
-//extern void DrawImage4101(IMAGE *Image,UDWORD x,UDWORD y);
 
-//extern void DrawImageRect4101(IMAGE *Image,UDWORD x,UDWORD y,UDWORD x0,UDWORD y0,UDWORD Width,UDWORD Height);
 
-//extern void DrawTransImageRect4101(IMAGE *Image,UDWORD x,UDWORD y,UDWORD x0,UDWORD y0,UDWORD Width,UDWORD Height);
 
 // Draw an image to a surface with colour 0 transparent.
-//extern void DrawTransImageSR(IMAGE *Image,UDWORD x,UDWORD y);
 
 // Draw an image to a display memory with colour 0 transparent.
-//extern void DrawTransImage4101(IMAGE *Image,UDWORD x,UDWORD y);
 
 // Enable / Dissable locks.
 extern void DrawEnableLocks(BOOL Enable);

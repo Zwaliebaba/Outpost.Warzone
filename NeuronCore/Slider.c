@@ -8,7 +8,7 @@
 #include "Widget.h"
 #include "WidgInt.h"
 #include "Slider.h"
-#include "Vid.h"
+#include "RendMode.h"
 
 /* The widget heaps */
 OBJ_HEAP	*psSldHeap;
@@ -97,9 +97,6 @@ BOOL sliderCreate(W_SLIDER **ppsWidget, W_SLDINIT *psInit)
 	(*ppsWidget)->y = psInit->y;
 	(*ppsWidget)->width = psInit->width;
 	(*ppsWidget)->height = psInit->height;
-#ifdef PSX
-	(*ppsWidget)->OTIndex = WidgGetOTIndex();
-#endif
 	if (psInit->pDisplay)
 	{
 		(*ppsWidget)->display = psInit->pDisplay;
@@ -333,18 +330,6 @@ void sliderRun(W_SLIDER *psWidget, W_CONTEXT *psContext)
 /* Respond to a mouse click */
 void sliderClicked(W_SLIDER *psWidget, W_CONTEXT *psContext)
 {
-#if 0
-	SWORD	x,y;
-	UWORD	width,height;
-	SDWORD	mx,my;
-
-	/* Get the slider position */
-	sliderGetBarBox(psWidget, &x,&y, &width,&height);
-
-	/* Did the mouse click on the slider ? */
-	mx = psContext->mx - psWidget->x;
-	my = psContext->my - psWidget->y;
-#endif
 	if(DragEnabled) {
 		if (psContext->mx >= psWidget->x &&
 			psContext->mx <= psWidget->x + psWidget->width &&

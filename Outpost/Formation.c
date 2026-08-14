@@ -6,7 +6,6 @@
  */
 
 
-//#define DEBUG_GROUP0
 #include "Frame.h"
 #include "Objects.h"
 #include "Map.h"
@@ -200,7 +199,6 @@ BOOL formationFind(FORMATION **ppsFormation, SDWORD x, SDWORD y)
 	return psCurr != NULL;
 }
 
-// find formation speed (currently speed of slowest unit)
 void formationUpdateSpeed( FORMATION *psFormation, BASE_OBJECT *psNew )
 {
 	DROID		*psDroid;
@@ -479,14 +477,11 @@ void formationFindFree(FORMATION *psFormation, BASE_OBJECT *psObj,
 		xdiff = x - (SDWORD)psObj->x;
 		ydiff = y - (SDWORD)psObj->y;
 		dist = xdiff*xdiff + ydiff*ydiff;
-//		dist += psFormation->rankDist*psFormation->rankDist * rank*rank;
 		if (((dist < objDist) && (rank == chosenRank)) ||
 			(rank < chosenRank))
-//		if (dist < objDist)
 		{
 			// this gap is nearer
 			objDist = dist;
-//			objDist += psFormation->rankDist*psFormation->rankDist * rank*rank;
 
 			chosenLine = line;
 			chosenDist = currDist + objRadius;
@@ -732,7 +727,6 @@ void formationReorder(FORMATION *psFormation)
 		if (aFreePos[line].dist >= psFormation->size * aFreePos[line].rank)
 		{
 			aFreePos[line].dist = psFormation->size * aFreePos[line].rank;
-//				+ formationObjRadius(apsObjects[obj]);
 			aFreePos[line].rank += 1;
 		}
 		formationCalcPos(psFormation, line, aFreePos[line].dist,
@@ -764,12 +758,6 @@ BOOL formationGetPos( FORMATION *psFormation, BASE_OBJECT *psObj,
 	xdiff = (SDWORD)psFormation->x - (SDWORD)psObj->x;
 	ydiff = (SDWORD)psFormation->y - (SDWORD)psObj->y;
 	distSq = xdiff*xdiff + ydiff*ydiff;
-//	rangeSq = 3*psFormation->size/2;
-//	rangeSq = rangeSq*rangeSq;
-//	if (distSq > F_JOINRANGE*F_JOINRANGE)
-//	{
-//		return FALSE;
-//	}
 
 	// see if the unit is already in the formation
 	asMembers = psFormation->asMembers;
@@ -831,7 +819,6 @@ BOOL formationGetPos( FORMATION *psFormation, BASE_OBJECT *psObj,
 
 
 
-// See if a unit is a member of a formation (i.e. it has a position assigned)
 BOOL formationMember(FORMATION *psFormation, BASE_OBJECT *psObj)
 {
 	SDWORD		member;
@@ -882,11 +869,9 @@ SDWORD formationObjRadius(BASE_OBJECT *psObj)
 		}
 		break;
 	case OBJ_STRUCTURE:
-//		radius = psObj->sDisplay.imd->visRadius;
 		radius = psObj->sDisplay.imd->radius/2;
 		break;
 	case OBJ_FEATURE:
-//		radius = psObj->sDisplay.imd->visRadius;
 		radius = psObj->sDisplay.imd->radius/2;
 		break;
 	default:

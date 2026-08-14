@@ -3,14 +3,14 @@
 
 #include "Widget.h"
 #include "WidgInt.h"
-#include "bar.h"
-#include "form.h"
-#include "label.h"
-#include "button.h"
-#include "editbox.h"
-#include "slider.h"
+#include "Bar.h"
+#include "Form.h"
+#include "Label.h"
+#include "Button.h"
+#include "EditBox.h"
+#include "Slider.h"
 #include "IntImage.h"
-#include "droid.h"
+#include "Droid.h"
 
 #define NUM_OBJECTSURFACES		(10)
 #define NUM_TOPICSURFACES		(5)
@@ -19,11 +19,7 @@
 #define NUM_OBJECTBUFFERS		(NUM_OBJECTSURFACES*4)
 #define NUM_STATBUFFERS			(NUM_STATSURFACES*4)
 #define NUM_TOPICBUFFERS		(NUM_TOPICSURFACES*4)
-#ifdef WIN32
 #define NUM_SYSTEM0BUFFERS		(NUM_SYSTEM0SURFACES*8)
-#else
-#define NUM_SYSTEM0BUFFERS		(NUM_SYSTEM0SURFACES*4)
-#endif
 
 /* Power levels are divided by this for power bar display. The extra factor has 
 been included so that the levels appear the same for the power bar as for the
@@ -31,9 +27,7 @@ power values in the buttons */
 #define POWERBAR_SCALE			(5 * WBAR_SCALE/STAT_PROGBARWIDTH)	
 
 #define BUTTONOBJ_ROTSPEED		90	// Speed to rotate objects rendered in
-									// buttons ( degrees per second )
 
-//the two types of button used in the object display (bottom bar)
 #define		TOPBUTTON			0
 #define		BTMBUTTON			1
 
@@ -66,31 +60,6 @@ struct 	iSurface *Surface;	// Ivis surface definition.
 } BUTTON_SURFACE;
 
 
-#ifdef PSX
-
-#define RENDERED_BUTTON_InUse (1)
-#define RENDERED_BUTTON_Initialised (2)
-
-#define RENDERBUTTON_INUSE(x)  ((x)->flags|=RENDERED_BUTTON_InUse)
-#define RENDERBUTTON_NOTINUSE(x)  ((x)->flags&=(~RENDERED_BUTTON_InUse))
-
-#define RENDERBUTTON_INITIALISED(x)  ((x)->flags|=RENDERED_BUTTON_Initialised)
-#define RENDERBUTTON_NOTINITIALISED(x)  ((x)->flags&=(~RENDERED_BUTTON_Initialised))
-
-#define IsBufferInitialised(x) ((x)->flags&RENDERED_BUTTON_Initialised==RENDERED_BUTTON_Initialised)
-#define IsBufferInUse(x) ((x)->flags&RENDERED_BUTTON_InUse==RENDERED_BUTTON_InUse)
-
-typedef struct {
-	UBYTE flags;		// see RENDERED_BUTTON flags above
-	UWORD ImdRotation;		
-	UDWORD State;		// Copy of widget's state so we know if state has changed.
-	void *Data;			// Any data we want to attach.
-	void *Data2;		// Any data we want to attach.
-} RENDERED_BUTTON;
-
-
-
-#else
 
 // I tried to get the PC code working with the above PSX structure but it was having none of it
 //  ... sorry about that ... TC
@@ -118,15 +87,12 @@ typedef struct {
 
 
 
-#endif
 
 
 extern RENDERED_BUTTON TopicBuffers[NUM_TOPICBUFFERS];
 extern RENDERED_BUTTON ObjectBuffers[NUM_OBJECTBUFFERS];
 extern RENDERED_BUTTON StatBuffers[NUM_STATBUFFERS];
 extern RENDERED_BUTTON System0Buffers[NUM_SYSTEM0BUFFERS];
-//extern RENDERED_BUTTON System1Buffers[NUM_OBJECTBUFFERS];
-//extern RENDERED_BUTTON System2Buffers[NUM_OBJECTBUFFERS];
 extern BUTTON_SURFACE TopicSurfaces[NUM_TOPICSURFACES];
 extern BUTTON_SURFACE ObjectSurfaces[NUM_OBJECTSURFACES];
 extern BUTTON_SURFACE StatSurfaces[NUM_STATSURFACES];
@@ -173,8 +139,6 @@ void ClearTopicButtonBuffer(SDWORD BufferID);
 
 void RefreshObjectButtons(void);
 void RefreshSystem0Buttons(void);
-//void RefreshSystem1Buttons(void);
-//void RefreshSystem2Buttons(void);
 void RefreshTopicButtons(void);
 void RefreshStatsButtons(void);
 
@@ -273,7 +237,6 @@ void RenderButton(struct _widget *psWidget,RENDERED_BUTTON *Buffer,UDWORD x,UDWO
 void RenderImageToButton(IMAGEFILE *ImageFile,UWORD ImageID,RENDERED_BUTTON *Buffer,BOOL Down, UDWORD buttonType);
 void RenderBlankToButton(RENDERED_BUTTON *Buffer,BOOL Down, UDWORD buttonType);
 
-//void RenderCompositeDroid(UDWORD Index,iVector *Rotation,iVector *Position);
 
 
 extern BOOL DroidIsRepairing(DROID *Droid);
@@ -293,31 +256,21 @@ iIMDShape *StructureGetIMD(STRUCTURE *Structure);
 
 DROID_TEMPLATE *FactoryGetTemplate(FACTORY *Factory);
 
-//iIMDShape *TemplateGetIMD(DROID_TEMPLATE *DroidTemp,UDWORD Player);
-//UDWORD TemplateGetIMDIndex(DROID_TEMPLATE *Template,UDWORD Player);
 
-//SDWORD ResearchGetImage(RESEARCH_FACILITY *Research);
 
 BOOL StatIsStructure(BASE_STATS *Stat);
 iIMDShape *StatGetStructureIMD(BASE_STATS *Stat,UDWORD Player);
 BOOL StatIsTemplate(BASE_STATS *Stat);
 BOOL StatIsFeature(BASE_STATS *Stat);
 
-//iIMDShape *StatGetTemplateIMD(BASE_STATS *Stat,UDWORD Player);
-//UDWORD StatGetTemplateIMDIndex(BASE_STATS *Stat,UDWORD Player);
 
 BOOL StatIsComponent(BASE_STATS *Stat);
-//iIMDShape *StatGetComponentIMD(BASE_STATS *Stat);
-//iIMDShape *StatGetComponentIMD(BASE_STATS *Stat, SDWORD compID);
 BOOL StatGetComponentIMD(BASE_STATS *Stat, SDWORD compID,iIMDShape **CompIMD,iIMDShape **MountIMD);
 
 BOOL StatIsResearch(BASE_STATS *Stat);
-//void StatGetResearchImage(BASE_STATS *Stat,SDWORD *Image,iIMDShape **Shape, BOOL drawTechIcon);
 void StatGetResearchImage(BASE_STATS *psStat, SDWORD *Image, iIMDShape **Shape, 
                           BASE_STATS **ppGraphicData, BOOL drawTechIcon);
 
-//SWORD GetTokenID(TOKENID *Tok,STRING *Token);
-//SWORD FindTokenID(TOKENID *Tok,STRING *Token);
 
 //displays a border for a form
 extern void intDisplayBorderForm(struct _widget *psWidget, UDWORD xOffset, 
@@ -345,12 +298,6 @@ extern void intDisplayProximityBlips(struct _widget *psWidget, UDWORD xOffset,
 
 extern void intUpdateQuantitySlider(struct _widget *psWidget, struct _w_context *psContext);
 
-#ifdef PSX
-//void intUpdateReticuleButtonNoSB(struct _widget *psWidget, struct _w_context *psContext);
-void intSetVibroOnID(UDWORD id);
-void intUpdateReticuleButton(struct _widget *psWidget, struct _w_context *psContext);
-#define intUpdateReticuleButtonNoSB intUpdateReticuleButton
-#endif
 
 extern void intDisplayDPButton(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD *pColours);
 

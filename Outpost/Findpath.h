@@ -30,14 +30,6 @@
 #define MOVEROUTESHUFFLE	13
 
 //bit operators for map movement
-#if 0
-#define SUPER_BIT	0x01
-#define CHAR_BIT	0x02
-#define BUILD_BIT	0x04
-#define VECH_BIT	0x08
-
-#define ALL_BIT		SUPER_BIT+CHAR_BIT+BUILD_BIT+VECH_BIT
-#endif
 
 extern BOOL blockingTile(UDWORD x, UDWORD y, UDWORD mask);
 

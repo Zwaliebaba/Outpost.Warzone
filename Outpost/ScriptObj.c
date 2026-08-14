@@ -18,9 +18,7 @@
 #include "Message.h"
 #include "ResearchDef.h"
 #include "Audio.h"
-#ifdef WIN32
-#include "Multiplay.h"
-#endif
+#include "MultiPlay.h"
 #include "Text.h"
 #include "Levels.h"
 #include "ScriptVals.h"
@@ -29,7 +27,6 @@
 // Get values from a base object
 BOOL scrBaseObjGet(UDWORD index)
 {
-//	INTERP_VAL		sVal;
 	INTERP_TYPE		type;
 	BASE_OBJECT		*psObj;
 	SDWORD			val;
@@ -154,7 +151,6 @@ BOOL scrBaseObjGet(UDWORD index)
 		case OBJ_STRUCTURE:
 			psStruct = (STRUCTURE *)psObj;
 			type = VAL_INT;
-			//val = psStruct->body * 100 / psStruct->baseBodyPoints;
 			val = psStruct->body * 100 / structureBody(psStruct);
 			break;
 		}
@@ -379,7 +375,6 @@ BOOL scrGroupObjGet(UDWORD index)
 	return TRUE;
 }
 
-#ifdef WIN32
 // get the name from a stat pointer
 STRING	*scrGetStatName(INTERP_TYPE type, UDWORD data)
 {
@@ -644,17 +639,6 @@ BOOL scrValDefSave(INTERP_TYPE type, UDWORD data, UBYTE *pBuffer, UDWORD *pSize)
 		*pSize = sizeof(UDWORD) * members + sizeof(SDWORD) * 5;
 		break;
 	case ST_SOUND:
-/*		pName = sound_GetTrackName((SDWORD)data);
-		if (pName == NULL)
-		{
-			DBERROR(("scrValDefSave: couldn't get sound track name"));
-			return FALSE;
-		}
-		if (pBuffer)
-		{
-			strcpy((char *)pBuffer, pName);
-		}
-		*pSize = strlen((char *)pName) + 1;*/
 		if (pBuffer)
 		{
 			*((UDWORD *) pBuffer) = sound_GetTrackHashName((SDWORD)data);
@@ -966,13 +950,3 @@ BOOL scrValDefLoad(SDWORD version, INTERP_TYPE type, UBYTE *pBuffer, UDWORD size
 	return TRUE;
 }
 
-#else
-BOOL scrValDefSave(INTERP_TYPE type, UDWORD data, UBYTE *pBuffer, UDWORD *pSize)
-{
-	DBERROR(("scrValDefSave: not implemented for PSX"));
-}
-BOOL scrValDefLoad(SDWORD version, INTERP_TYPE type, UBYTE *pBuffer, UDWORD size, UDWORD *pData)
-{
-	DBERROR(("scrValDefLoad: not implemented for PSX"));
-}
-#endif

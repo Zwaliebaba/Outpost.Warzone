@@ -15,7 +15,6 @@
 #define MALLOC(a) malloc(a)
 #define FREE(a) free(a); a = NULL;
 
-//	ASSERT((psCurr!=NULL, "LIST_REMOVE: " __FILE__ "(%d): entry not found", __LINE__));
 
 #define LIST_REMOVE(psHead, psEntry, TYPE) \
 { \
@@ -52,12 +51,10 @@
 #else
 
 // gateway linking printf's
-//#define DEBUG_GROUP0
 // water gate printf's
-//#define DEBUG_GROUP1
 #include "Frame.h"
 #include "Map.h"
-#include "Astar.h"
+#include "AStar.h"
 #include "FPath.h"
 #include "Wrappers.h"
 #endif
@@ -116,7 +113,6 @@ BOOL gwInitialise(void)
 		return FALSE;
 	}
 #endif
-//	if (!gwLinkGateways()) return FALSE;
 
 	return TRUE;
 }
@@ -382,7 +378,6 @@ static void gwCalcZoneCenter(SDWORD zone, SDWORD *px, SDWORD *py)
 }
 
 // check all the zones are of reasonable sizes
-#ifdef WIN32
 void gwCheckZoneSizes(void)
 {
 	SDWORD		zone, xsum,ysum, numtiles, inzone;
@@ -427,7 +422,6 @@ void gwCheckZoneSizes(void)
 		}
 	}
 }
-#endif
 
 // add the land/water link gateways
 BOOL gwGenerateLinkGates(void)
@@ -564,7 +558,6 @@ BOOL gwZoneInEquiv(SDWORD mainZone, SDWORD checkZone)
 		return FALSE;
 	}
 //	ASSERT((apEquivZones != NULL,
-//		"gwZoneInEquiv: no zone equivalence table"));
 
 	for(i=0; i<aNumEquiv[mainZone]; i+= 1)
 	{
@@ -706,9 +699,6 @@ BOOL gwLinkGateways(void)
 	SDWORD		x,y, gwX,gwY, zone1Links,zone2Links, link, zone, otherZone;
 	SDWORD		zoneLinks;
 	BOOL		bZone1, bAddLink;
-#ifdef PSX
-	SDWORD 		xdiff,ydiff;
-#endif
 
 	// note which zones have a gateway
 	aZoneReachable = MALLOC( sizeof(UBYTE) * gwNumZones );
@@ -856,15 +846,7 @@ BOOL gwLinkGateways(void)
 						psLink->x1,psLink->y1, psLink->x2,psLink->y2));
 					psCurr->psLinks[link].psGateway = psLink;
 					psCurr->psLinks[link].flags = 0;
-#ifdef WIN32
 					psCurr->psLinks[link].dist = (SWORD)gwRouteLength(psCurr, psLink);
-#else
-					x = (psLink->x1 + psLink->x2)/2;
-					y = (psLink->y1 + psLink->y2)/2;
-					xdiff = x - gwX;
-					ydiff = y - gwY;
-					psCurr->psLinks[link].dist = iSQRT(xdiff*xdiff + ydiff*ydiff);
-#endif
 					link += 1;
 				}
 			}
@@ -1199,17 +1181,9 @@ BOOL gwZoneReachable(SDWORD zone)
 }
 
 // check if the gateway flag is set on a tile
-/*BOOL gwTileIsGateway(SDWORD x, SDWORD y)
-{
-	return (mapTile((UDWORD)x,(UDWORD)y)->tileInfoBits & BITS_GATEWAY) != 0;
-}*/
 
 
 // get the terrain type of a map tile
-/*SDWORD gwTileTerrainType(SDWORD x, SDWORD y)
-{
-	return TERRAIN_TYPE(mapTile((UDWORD)x,(UDWORD)y));
-}*/
 
 #endif
 

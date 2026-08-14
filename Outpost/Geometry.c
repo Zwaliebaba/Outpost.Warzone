@@ -5,12 +5,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifdef WIN32		// not wanted for PSX
 #include <math.h>
-#endif
 
-#include "ivisdef.h" //ivis matrix code
-#include "geo.h" //ivis matrix code
+#include "IvisDef.h" //ivis matrix code
+#include "Geo.h" //ivis matrix code
 
 #include "ObjectDef.h"
 #include "Map.h"
@@ -18,20 +16,12 @@
 #include "Geometry.h"
 #include "GTime.h"
 #include "HCI.h"
-#include "display.h"
+#include "Display.h"
 
-#ifdef PSX
-#include <inline_c.h>
-#include <gtemac.h>
-#endif
 
 
 void testAngles(void);
 void	processImpact(UDWORD worldX, UDWORD worldY, UBYTE severity,UDWORD tilesAcross);
-//UDWORD	getTileOwner(UDWORD	x, UDWORD y);
-//BASE_OBJECT	*getTileOccupier(UDWORD x, UDWORD y);
-//STRUCTURE	*getTileStructure(UDWORD x, UDWORD y);
-//FEATURE		*getTileFeature(UDWORD x, UDWORD y);
 void	baseObjScreenCoords	( BASE_OBJECT *baseObj, iPoint *pt				);
 SDWORD	calcDirection		( UDWORD x0, UDWORD y0, UDWORD x1, UDWORD y1	);
 UDWORD	adjustDirection		( SDWORD present, SDWORD difference				);
@@ -42,11 +32,7 @@ int inQuad(POINT *pt, QUAD *quad);
 /* The arc over which bullets fly */
 UBYTE	sineHeightTable[SIZE_SINE_TABLE];
 
-//BOOL	bScreenShakeActive = FALSE;
-//UDWORD	screenShakeStarted = 0;
-//UDWORD	screenShakeLength = 0;
 
-#ifdef WIN32	// uses nasty maths functions
 
 
 void initBulletTable( void )
@@ -61,14 +47,6 @@ UBYTE	height;
 }
 
 //void	attemptScreenShake(void)
-//{
-//	if(!bScreenShakeActive)
-//	{
-//		bScreenShakeActive = TRUE;
-//		screenShakeStarted = gameTime;
-//		screenShakeLength = 1500;
-//	}
-//}
 
 /* Angle returned is reflected in line x=0 */
 SDWORD	calcDirection(UDWORD x0, UDWORD y0, UDWORD x1, UDWORD y1)
@@ -97,70 +75,7 @@ double	angle;
 }
 
 
-#else
 
-
-
-void initBulletTable( void )
-{
-UDWORD	 i;
-UBYTE	height;
-	for (i=0; i<SIZE_SINE_TABLE; i++)
-	{
-	height = (UBYTE) ((AMPLITUDE_HEIGHT*rsin((i*2048)/SIZE_SINE_TABLE))/4096);
-	sineHeightTable[i] = height;
-	}
-}
-
-
-
-/* Angle returned is reflected in line x=0 */
-//
-// Pretty much untested on PSX - but I think it should work
-//
-SDWORD	calcDirection(UDWORD x0, UDWORD y0, UDWORD x1, UDWORD y1)
-{
-	SDWORD	xDif,yDif;
-	long angle;
-	SDWORD GameAngle;
-
-	xDif = (x1-x0);
-	/* Watch out here - should really be y1-y0, but coordinate system is reversed in Y */
-	yDif = (y0-y1);
-
-	angle = ratan2(yDif,xDif);	// PlayStation routine returns value in range 0->4096 (4096=360 degrees)
-
-	angle+= (4096/4);			// add ninety degrees (as in PC)
-
-	GameAngle =(((angle&4095)*360)/4096);		// must do a bitwise "and" to avoid negative angles
-
-	ASSERT((GameAngle >= 0 && GameAngle < 360,
-		"calcDirection: droid direction out of range"));	
-
-
-	return (GameAngle);
-}
-
-//void	attemptScreenShake(void)
-//{
-//	if(!bScreenShakeActive)
-//	{
-//		bScreenShakeActive = TRUE;
-//		screenShakeStarted = gameTime;
-//		screenShakeLength = 1500;
-//#if defined(PSX) && defined(LIBPAD)
-//		SetVibro1(0,64,256);
-//#endif
-//	}
-//}
-
-
-#endif
-
-#ifdef PSX
-#define max(a,b) (((a)>(b))?(a):(b))
-#define min(a,b) (((a)<(b))?(a):(b))
-#endif
 // -------------------------------------------------------------------------------------------
 /*	A useful function and one that should have been written long ago, assuming of course
 	that is hasn't been!!!! Alex M, 24th Sept, 1998. Returns the nearest unit
@@ -265,12 +180,10 @@ SDWORD directionDiff(SDWORD a, SDWORD b)
 	return diff;
 }
 
-#ifdef WIN32
 
 void WorldPointToScreen( iPoint *worldPt, iPoint *screenPt )
 {
 iVector vec,null;
-//MAPTILE	*psTile;
 UDWORD	worldX,worldY;
 SDWORD	xShift,zShift;
 int32	rx,rz;
@@ -309,8 +222,6 @@ int32	rx,rz;
 	vec.z = terrainMidY*TILE_UNITS - (worldY - player.p.z);
 
 	/* Which tile is it on? - In order to establish height (y coordinate in 3 space) */
-//	psTile = mapTile(worldX/TILE_UNITS,worldY/TILE_UNITS);
-//	vec.y = psTile->height;
 	vec.y = map_Height(worldX/TILE_UNITS,worldY/TILE_UNITS);
 
 	/* Set matrix context to local - get an identity matrix */
@@ -332,74 +243,6 @@ int32	rx,rz;
 	pie_MatEnd();
 }
 
-#else
-
-static SVECTOR ZeroVector={0,0,0};
-
-// Assumes world matrix context already set.
-void WorldPointToScreen( iPoint *worldPt, iPoint *screenPt )
-{
-	iVector vec;
-//	SVECTOR null;
-	SWORD Screen[2];
-	UDWORD	worldX,worldY;
-	SDWORD	xShift,zShift;
-//		int32	rx,rz;
-
-//		/* Get into game context */
-//		/* Get the x,z translation components */
-//		rx = player.p.x & (TILE_UNITS-1);
-//	 	rz = player.p.z & (TILE_UNITS-1);
-//	
-//	/* Push identity matrix onto stack */
-//		psxiV_MatrixBegin();
-//	
-//		/* Set the camera position */
-//		psxiV_ITRANSLATE(camera.p.x,camera.p.y,camera.p.z);
-//	
-//		/* Rotate for the player */
-//		psxiV_MatrixRotateZ(player.r.z);
-//		psxiV_MatrixRotateY(player.r.y);
-//		psxiV_MatrixRotateX(player.r.x);
-//		
-//		/* Translate */
-//		psxiV_TRANSLATE(-rx,-player.p.y,rz);
-
-//	/* No rotation is necessary*/
-//	null.vx = 0; null.vy = 0; null.vz = 0;
-
-	/* Pull out coords now, because we use them twice */
-	worldX = worldPt->x;
-	worldY = worldPt->y;
-
-	/* Get the coordinates of the object into the grid */
-	vec.x = ( worldX - player.p.x) - terrainMidX*TILE_UNITS;
-	vec.z = terrainMidY*TILE_UNITS - (worldY - player.p.z);
-
-	/* Which tile is it on? - In order to establish height (y coordinate in 3 space) */
-	vec.y = map_Height(worldX/TILE_UNITS,worldY/TILE_UNITS);
-
-	/* Translate */
-	psxiV_TRANSLATE(vec.x,vec.y,vec.z);
-
- 	xShift = player.p.x & (TILE_UNITS-1);
-	zShift = player.p.z & (TILE_UNITS-1);
-
-	/* Translate */
-	psxiV_TRANSLATE(xShift,0,-zShift);
-
-	psxUseMatrix();
-
-	/* Project - no rotation being done. So effectively mapping from 3 space to 2 space */
-//	psxiV_RotateProject(&null,Screen);
-	gte_ldv0(&ZeroVector);
-   	gte_rtps();
-    gte_stsxy((long *)Screen);
-	
-	screenPt->x = Screen[0]*2;
-	screenPt->y = Screen[1]*2;
-}
-#endif
 
 /*	Calculates the RELATIVE screen coords of a game object from its BASE_OBJECT pointer */
 /*	Alex - Saturday 5th July, 1997  */
@@ -488,7 +331,6 @@ FEATURE		*psReturn;
 UDWORD		centreX, centreY;
 UDWORD		strX,strY;
 UDWORD		width,breadth;
-//UDWORD		i;
 
 	/* No point in checking if there's no feature here! */
 	if(!TILE_HAS_FEATURE(mapTile(x,y)))
@@ -534,11 +376,9 @@ UDWORD		width,breadth;
 BASE_OBJECT	*getTileOccupier(UDWORD x, UDWORD y)
 {
 
-//DBPRINTF(("gto x=%d y=%d (%d,%d)\n",x,y,x*TILE_UNITS,y*TILE_UNITS);
 	/* Firsty - check there is something on it?! */
 	if(!TILE_OCCUPIED(mapTile(x,y)))
 	{
-//DBPRINTF(("gto nothing\n");
 		/* Nothing here at all! */
 		return(NULL);
 	}
@@ -552,7 +392,6 @@ BASE_OBJECT	*getTileOccupier(UDWORD x, UDWORD y)
 	/* Has it got a fetaure? */
 	if(TILE_HAS_FEATURE(mapTile(x,y)))
 	{
-//DBPRINTF(("gto feature\n");
 		/* Return the feature */
 		return( (BASE_OBJECT *) getTileFeature(x,y) );
 	}
@@ -560,7 +399,6 @@ BASE_OBJECT	*getTileOccupier(UDWORD x, UDWORD y)
 		have both a feature and structure simultaneously */
 	else if (TILE_HAS_STRUCTURE(mapTile(x,y)))
 	{
-//DBPRINTF(("gto structure\n");
 		/* Send back structure pointer */
 		return( (BASE_OBJECT *) getTileStructure(x,y) );
 	}
@@ -598,10 +436,6 @@ UDWORD		retVal;
 
 void getObjectsOnTile(MAPTILE *psTile)
 {
-/*UDWORD	i;
-FEATURE	*psFeature;
-DROID	*psDroid;
-STRUCTURE	*psStructure;*/
 
 	(void)psTile;
 
@@ -639,15 +473,8 @@ SDWORD	dX,dY;
 	return(FALSE);
 }
 
-#ifdef PSX
 void	processImpact(UDWORD worldX, UDWORD worldY, UBYTE severity, UDWORD tilesAcross)
 {
-	DBPRINTF(("processImpact not on PSX!\n"));
-}
-#else
-void	processImpact(UDWORD worldX, UDWORD worldY, UBYTE severity, UDWORD tilesAcross)
-{
-//MAPTILE	*psTile;
 UDWORD	height;
 SDWORD	newHeight;
 UDWORD	distance;
@@ -705,4 +532,3 @@ UDWORD	maxDistance;
 		}
 	}
 }
-#endif

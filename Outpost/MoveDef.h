@@ -7,15 +7,10 @@
 #ifndef _movedef_h
 #define _movedef_h
 
-#ifdef PSX
-#define TRAVELSIZE			70
-#else
 #define TRAVELSIZE			100
-#endif
 
 typedef struct _path_point
 {
-//	SDWORD		XCoordinate,YCoordinate;
 	UBYTE		x,y;
 } PATH_POINT;
 
@@ -28,9 +23,7 @@ typedef struct _move_control
 //	SDWORD	Speed;						// Speed at which object moves along the movement list
 	UBYTE	Position;	   				// Position in asPath
 	UBYTE	numPoints;					// number of points in asPath
-//	PATH_POINT	MovementList[TRAVELSIZE];
 	PATH_POINT	asPath[TRAVELSIZE];		// Pointer to list of block X,Y coordinates.
-										// When initialised list is terminated by (0xffff,0xffff)
 										// Values prefixed by 0x8000 are pixel coordinates instead of
 										// block coordinates
 	SDWORD	DestinationX;				// DestinationX,Y should match objects current X,Y
@@ -69,17 +62,9 @@ typedef struct _move_control
 	UWORD	iAttackRuns;
 
 	// added for vtol movement
-#ifdef WIN32
 	FRACT	fz;
-#endif
 
 	/* Only needed for Alex's movement update ? */
-//	UDWORD	timeStarted;
-//	UDWORD	arrivalTime;
-//	UDWORD	pathStarted;
-//	BOOL	startedMoving;
-//	UDWORD	lastTime;
-//	BOOL	speedChange;
 } MOVE_CONTROL;
 
 

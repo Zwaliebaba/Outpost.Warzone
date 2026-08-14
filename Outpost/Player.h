@@ -24,10 +24,8 @@ extern void playerUpdate(UDWORD player);
 extern void playerNewDroid(DROID *psDroid);
 
 /* Get a player to start manufacturing droids */
-//extern void playerStartManufacture(UDWORD player);
 
 /*sets the point new droids go to - x/y in world coords*/
-//extern void setAssemblyPoint(UDWORD x, UDWORD y, UDWORD player);
 
 /* sends players droids to attack a specified x/y */
 extern void attackLocation(UDWORD x, UDWORD y, UDWORD player);

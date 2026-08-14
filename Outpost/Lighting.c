@@ -6,10 +6,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "ivisdef.h" //ivis matrix code
-#include "pieState.h" //ivis matrix code
-#include "pieFunc.h" //ivis matrix code
-#include "geo.h" //ivis matrix code
+#include "IvisDef.h" //ivis matrix code
+#include "PieState.h" //ivis matrix code
+#include "PieFunc.h" //ivis matrix code
+#include "Geo.h" //ivis matrix code
 #include "Map.h"
 #include "Lighting.h"
 #include "Display3D.h"
@@ -30,7 +30,6 @@ void	doBuildingLights( void );
 void	processLight(LIGHT *psLight);
 UDWORD	calcDistToTile(UDWORD tileX, UDWORD tileY, iVector *pos);
 void	colourTile(SDWORD xIndex, SDWORD yIndex, LIGHT_COLOUR colour, UBYTE percent);
-//void	initLighting( void );
 void	calcTileIllum(UDWORD tileX, UDWORD tileY);
 void	normalsOnTile(UDWORD tileX, UDWORD tileY, UDWORD quadrant);
 UDWORD	numNormals;		// How many normals have we got?
@@ -68,13 +67,6 @@ MAPTILE	*psTile;
 		}	
 	}
 
-	//for(i=2; i<mapHeight-2; i++)
-	//{
-	//	for(j=2; j<mapWidth-2; j++)
-	//	{
-	//		calcTileIllum(j,i);
-	//	}
-	//}
 
 	for(i=1; i<mapHeight-1; i++)
 	{
@@ -90,7 +82,6 @@ MAPTILE	*psTile;
 		{
 			if(i==0 OR j==0 OR i>=mapWidth-1 OR j>=mapHeight-1)
 			{
-//				mapTile(i,j)->height = 0;
 				psTile = mapTile(i,j);
 				if(TERRAIN_TYPE(psTile) == TER_WATER)
 				{
@@ -138,14 +129,7 @@ void initLighting(UDWORD x1, UDWORD y1, UDWORD x2, UDWORD y2)
             //always make the edge tiles dark
             if (i==0 OR j==0 OR i >= mapWidth-1 OR j >= mapHeight-1)
             {
-			    if (pie_Hardware())
-			    {
-				    psTile->illumination = 16;
-			    }
-			    else
-			    {
-				    psTile->illumination = 2;
-			    }
+			    psTile->illumination = 16;
 
                 //give water tiles at edge of map a border
 				if(TERRAIN_TYPE(psTile) == TER_WATER)
@@ -217,33 +201,17 @@ UDWORD	val;
 	pie_VectorNormalise(&finalVector);
 	pie_VectorNormalise(&theSun);
    
-//	iV_NumberOut(theSun.x,100,100,255);
-//	iV_NumberOut(theSun.y,100,110,255);
-//	iV_NumberOut(theSun.z,100,120,255);
 
-//	iV_NumberOut(numNormals,100,140,255);
    
 	dotProduct =	(finalVector.x * theSun.x +
 					finalVector.y * theSun.y +
 					finalVector.z * theSun.z)>>FP12_SHIFT;
 
    /* iV_NumberOut(dotProduct,100,150,255);*/
-	if (pie_Hardware())
-	{
-		val = ((abs(dotProduct))/16);
-		if(val==0) val = 1;
-		if(val>254) val = 254;
-		mapTile(tileX,tileY)->illumination = (UBYTE) val;
-	}
-	else
-	{
-	  //	mapTile(tileX,tileY)->illumination = (UBYTE)(((abs(dotProduct))/256)%16);
-		val = ((abs(dotProduct))/256);
-		if(val==0) val =1;
-		if(val>15) val = 15;
-	  	mapTile(tileX,tileY)->illumination = (UBYTE)val;
-
-	}
+	val = ((abs(dotProduct))/16);
+	if(val==0) val = 1;
+	if(val>254) val = 254;
+	mapTile(tileX,tileY)->illumination = (UBYTE) val;
 }
 
 void normalsOnTile(UDWORD tileX, UDWORD tileY, UDWORD quadrant)
@@ -280,7 +248,6 @@ SDWORD	rMod,drMod,dMod,nMod;
 	case 0:
 	case 2:
 		/* Is it flipped? In this case one triangle  */
-//		if(psTile->triangleFlip)
 		if(TRI_FLIPPED(psTile))
 		{
 			if(quadrant==0)
@@ -347,7 +314,6 @@ SDWORD	rMod,drMod,dMod,nMod;
 	case 1:
 	case 3:
 		/* Is it flipped? In this case two triangles  */
-//		if(psTile->triangleFlip)
 		if(TRI_FLIPPED(psTile))
 		{
 	   	 	corner1.x = tileX<<TILE_SHIFT;
@@ -415,82 +381,6 @@ SDWORD	rMod,drMod,dMod,nMod;
 	} // end switch
 }
 
-#if 0
-/*	Processes a light into the tileScreenInfo structure - this needs
-	to be optimised and profiled as it's costly to perform 
-*/
-void	processLight(LIGHT *psLight)
-{
-SDWORD	i,j;
-UDWORD	tileX,tileY;
-UDWORD	offset;
-UDWORD	distToCorner;
-UDWORD	percent;
-UDWORD	xIndex,yIndex;
-SDWORD	xUpper,yUpper,xLower,yLower;
-SDWORD	gridMinX,gridMinY,gridMaxX,gridMaxY;
-
-	/* Firstly - there's no point processing lights that are off the grid */
-	if(clipXY(psLight->position.x,psLight->position.z) == FALSE)
-	{
-		return;
-	}
-
-	tileX = (psLight->position.x/TILE_UNITS);
-	tileY = (psLight->position.z/TILE_UNITS);
-	offset = psLight->range/TILE_UNITS;
-
-	if(player.p.x>=0)
-	{
-		gridMinX = player.p.x/TILE_UNITS;
-	}
-	else
-	{
-		gridMinX = 0;
-	}
-	if(player.p.z >=0)
-	{
-		gridMinY = player.p.z/TILE_UNITS;
-	}
-	else
-	{
-		gridMinY = 0;
-	}
-	gridMaxX = gridMinX + visibleXTiles;
-	gridMaxY = gridMinY + visibleYTiles;
-
-	xLower = tileX - offset;
-	xUpper = tileX + offset;
-	yLower = tileY - offset;
-	yUpper = tileY + offset;
-
-	for(i=xLower; i<xUpper; i++)
-	{
-		for(j=yLower; j<yUpper; j++)
-		{
-			/*	
-				We must make sure that we don't attempt to colour a tile that isn't actually
-				on our grid - say when a light is on the periphery of the grid.
-			*/
-			if(i>gridMinX AND i<gridMaxX AND j>gridMinY AND j<gridMaxY)
-			{
-		 		distToCorner = calcDistToTile(i,j,&psLight->position);	
-				/* If we're inside the range of the light */
-				if(distToCorner<psLight->range)
-				{
-					/* Find how close we are to it */
-					percent = 100 - PERCENT(distToCorner,psLight->range);
-
-					xIndex = i - playerXTile;
-					yIndex = j - playerZTile;
-					colourTile(xIndex,yIndex,psLight->colour, (UBYTE)percent);
-				}
-			}
-		}
-	}
-}
-
-#endif
 
 void	processLight(LIGHT *psLight)
 {
@@ -573,7 +463,6 @@ UDWORD	percent;
 					xIndex = i - playerXTile;
 					yIndex = j - playerZTile;
 					// Might go off the grid for light ranges > one tile
-//					if(i<visibleXTiles AND j<visibleYTiles AND i>=0 AND j>=0)
 					if(xIndex >= 0 AND yIndex >= 0 AND 
                         xIndex < (SDWORD)visibleXTiles AND 
                         yIndex < (SDWORD)visibleYTiles)
@@ -587,27 +476,6 @@ UDWORD	percent;
 	}
 }
 
-/*
-UDWORD	calcDistToTile(UDWORD tileX, UDWORD tileY, iVector *pos)
-{
-UDWORD	x1,y1;
-UDWORD	x2,y2;
-UDWORD	xDif,yDif,zDif;
-UDWORD	total;
-
-	x1 = tileX * TILE_UNITS;
-	y1 = tileY * TILE_UNITS;
-
-	x2 = pos->x;
-	y2 = pos->z;
-
-	xDif = abs(x1-x2);
-	zDif = abs(y1-y2);
-
-	total = (xDif*xDif) + (yDif*yDif);
-	return((UDWORD)sqrt(total));
-}
-*/
  UDWORD	calcDistToTile(UDWORD tileX, UDWORD tileY, iVector *pos)
 {
 UDWORD	x1,y1,z1;
@@ -766,7 +634,6 @@ float	fraction,adjust;
 	psDroid->illumination = (UBYTE)retVal;
 }
 
-//#define EDGE_FOG
 
 
 UDWORD	lightDoFogAndIllumination(UBYTE brightness, SDWORD dx, SDWORD dz, UDWORD* pSpecular)
@@ -774,7 +641,6 @@ UDWORD	lightDoFogAndIllumination(UBYTE brightness, SDWORD dx, SDWORD dz, UDWORD*
 SDWORD	umbraRadius;	// Distance to start of light falloff
 SDWORD	penumbraRadius; // radius of area of obscurity
 SDWORD	umbra;
-//SDWORD	edge;
 SDWORD	distance;
 SDWORD	cosA,sinA;
 PIELIGHT lighting, specular, fogColour;
@@ -829,14 +695,6 @@ SDWORD	mist = 0;
 		edge = 255;
 	}
 #endif
-	if (!pie_Hardware())
-	{
-		//no fog
-		//software version so return an 8 bit light value
-		*pSpecular = 0;
-		return (UDWORD)pie_ByteScale((UBYTE)brightness,(UBYTE)umbra);
-	}
-
 
 	if ((distance) < 32)
 	{
@@ -941,15 +799,7 @@ SDWORD	mist = 0;
 		brightness = (UBYTE)pie_ByteScale((UBYTE)brightness, (UBYTE)umbra);
 	}
 
-	if (pie_GetRenderEngine() == ENGINE_GLIDE)//glide
-	{
-		*pSpecular = 0;
-		lighting.byte.a = (UBYTE)fog;
-		lighting.byte.r = brightness;
-		lighting.byte.g = brightness;
-		lighting.byte.b = brightness;
-	}
-	else if ( fog == 0)//(d3d with no fog)
+	if ( fog == 0)//(d3d with no fog)
 	{
 		*pSpecular = 0;
 		lighting.byte.a = UBYTE_MAX;
@@ -978,28 +828,6 @@ SDWORD	mist = 0;
 }
 
 
-/*
-void	doBuildingLights( void )
-{
-STRUCTURE	*psStructure;
-UDWORD	i;
-LIGHT	light;
-
-	for(i=0; i<MAX_PLAYERS; i++)
-	{
-		for(psStructure = apsStructLists[i]; psStructure; psStructure = psStructure->psNext)
-		{
-			light.range = psStructure->pStructureType->baseWidth * TILE_UNITS;
-			light.position.x = psStructure->x;
-			light.position.z = psStructure->y;
-			light.position.y = map_Height(light.position.x,light.position.z);
-			light.range = psStructure->pStructureType->baseWidth * TILE_UNITS;
-			light.colour = LIGHT_WHITE;
-			processLight(&light);
-		}
-	}
-}
-*/
 #ifdef ALEXM
 void	findSunVector( void )
 {

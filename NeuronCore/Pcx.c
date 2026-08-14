@@ -1,25 +1,16 @@
 
-#include "frame.h"
-#include "ivisdef.h"
-#include "fbf.h"
-#include "bug.h"
+#include "Frame.h"
+#include "IvisDef.h"
+#include "Fbf.h"
+#include "Bug.h"
 
-#include "ivispatch.h"
+#include "IvisPatch.h"
 
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <io.h>
-//#include "pcx.h"
-//#include "pal.h"
-//#include "bug.h"
-//#include "ivisheap.h"
 
 //*************************************************************************
 
-#ifdef WIN32
 
 #define PCX_BUFFER_SIZE		65536
-//#define PCX_PIXEL(s,x,y)	(* ((uint8 *) ((s)->bmp + (x) + ((y) * (s)->width))))
 
 //*************************************************************************
 
@@ -202,7 +193,6 @@ BOOL pie_PCXLoadToBuffer(char *file, iSprite *s, iColour* pal)
 
 	if (pal)
 	{
-//		ASSERT((FALSE,"warning palette is being loaded for %s",file));
  		_load_palette(pal);
 	}
 
@@ -261,7 +251,6 @@ iBool iV_PCXLoad(char *file, iSprite *s, iColour *pal)
 		iV_FileClose(_PCX_FI);
 		return FALSE;
 	}
-//	DBPRINTF(("PCX LOAD [%s] size=%d ptr=%p\n",file,bsize,s->bmp));
 
 	_load_image(s->bmp,bsize);
 
@@ -389,16 +378,3 @@ BOOL pie_PCXLoadMemToBuffer(int8 *pcximge, iSprite *s, iColour *pal)
 //*************************************************************************
 
 
-#else // PSX version.
-
-
-
-#include "psxvram.h"
-
-#define TEXTUREWIDTH (256)
-#define TEXTUREHEIGHT (256)
-
-static	AREA *VRAMarea;	// Playstation vram area structure
-
-
-#endif // End of PSX version.

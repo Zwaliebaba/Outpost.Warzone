@@ -52,7 +52,6 @@ void grpReset(DROID_GROUP *psGroup);
 
 /* Give a group an order */
 struct _droid_order_data;
-//extern void orderGroupBase(DROID_GROUP *psGroup, struct _droid_order_data *psData);
 
 /* Give a group an order */
 extern void orderGroup(DROID_GROUP *psGroup, DROID_ORDER order);

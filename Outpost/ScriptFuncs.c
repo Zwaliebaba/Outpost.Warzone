@@ -17,61 +17,54 @@
 #include "HCI.h"
 #include "Message.h"
 #include "IntelMap.h"
-#include "map.h"
-#include "player.h"
-#include "structure.h"
-#include "display3d.h"
-#include "research.h"
-#include "audio.h"
-#include "text.h"
-#include "audio_id.h"
-#include "power.h"
-#include "console.h"
+#include "Map.h"
+#include "Player.h"
+#include "Structure.h"
+#include "Display3D.h"
+#include "Research.h"
+#include "Audio.h"
+#include "Text.h"
+#include "AudioID.h"
+#include "Power.h"
+#include "Console.h"
 #include "ScriptFuncs.h"
 #include "Geometry.h"
 #include "Visibility.h"
 #include "Gateway.h"
-#include "drive.h"
-#include "display.h"
-#include "component.h"
+#include "Drive.h"
+#include "Display.h"
+#include "Component.h"
 #include "ScriptExtern.h"
-#include "seqDisp.h"
+#include "SeqDisp.h"
 
-#include "fpath.h"
-#ifdef WIN32
-#include "warzoneConfig.h"
-#include "lighting.h"
-#include "atmos.h"
-#include "cdaudio.h"
-#include "cdspan.h"
-#include "netplay.h"
-#include "multiplay.h"
-#include "multigifts.h"
-#include "multilimit.h"
-#include "advvis.h"
-#endif
-#include "pieState.h"
-#include "wrappers.h"
+#include "FPath.h"
+#include "WarzoneConfig.h"
+#include "Lighting.h"
+#include "Atmos.h"
+#include "CDAudio.h"
+#include "CDSpan.h"
+#include "NetPlay.h"
+#include "MultiPlay.h"
+#include "MultiGifts.h"
+#include "MultiLimit.h"
+#include "AdvVis.h"
+#include "PieState.h"
+#include "Wrappers.h"
 #include "Order.h"
-#include "orderDef.h"
+#include "OrderDef.h"
 #include "Mission.h"
 #include "Loop.h"
 #include "FrontEnd.h"
 #include "Group.h"
 #include "Transporter.h"
 #include "Radar.h"
-#include "levels.h"
-#include "mission.h"
-#include "projectile.h"
+#include "Levels.h"
+#include "Mission.h"
+#include "Projectile.h"
 #include "Cluster.h"
 
-#ifdef PSX
-#include "dcache.h"
-#endif
 
 //used in the set nogoArea and LandingZone functions - use the ones defined in Map.h
-//#define MAX_MAP_WIDTH		192
-//#define MAX_MAP_HEIGHT		128
 
 // If this is defined then check max number of units not reached before adding more.
 #define SCRIPT_CHECK_MAX_UNITS
@@ -903,7 +896,6 @@ BOOL scrAddDroidToMissionList(void)
 BOOL scrAddDroid(void)
 {
 	SDWORD			x, y, player;
-//	INTERP_VAL		sVal;
 	DROID_TEMPLATE	*psTemplate;
 	DROID			*psDroid;
 
@@ -1003,7 +995,6 @@ BOOL scrBuildingDestroyed(void)
 {
 	SDWORD		player;
 	UDWORD		structureID;
-//	INTERP_VAL	sVal;
 	BOOL		destroyed;
 	STRUCTURE	*psCurr;
 
@@ -1052,7 +1043,6 @@ BOOL scrBuildingDestroyed(void)
 BOOL scrEnableStructure(void)
 {
 	SDWORD		player, index;
-//	INTERP_VAL	sVal;
 
 	if (!stackPopParams(2, ST_STRUCTURESTAT, &index, VAL_INT, &player))
 	{
@@ -1087,7 +1077,6 @@ BOOL scrEnableStructure(void)
 }
 
 
-#ifdef WIN32
 // -----------------------------------------------------------------------------------------
 // Check if a structure can be built.
 // currently PC skirmish only.
@@ -1115,14 +1104,12 @@ BOOL scrIsStructureAvailable(void)
 	}
 	return TRUE;
 }
-#endif
 
 // -----------------------------------------------------------------------------------------
 //make the droid with the matching id the currently selected droid
 BOOL scrSelectDroidByID(void)
 {
 	SDWORD			player, droidID;
-//	INTERP_VAL		sVal;
 	BOOL			selected;
 
 	if (!stackPopParams(2, ST_DROIDID, &droidID, VAL_INT, &player))
@@ -1172,9 +1159,6 @@ BOOL scrNumMB(void)
 		return FALSE;
 	}
 
-/*	gameTimeStop();
-	DBERROR(("scrNumMB: called by script with value: %d", val));
-	gameTimeStart();*/
 	DBPRINTF(("scrNumMB: called by script with value: %d\n", val));
 
 	return TRUE;
@@ -1225,7 +1209,6 @@ BOOL scrAddReticuleButton(void)
 	return(TRUE);
 #endif
 
-#ifdef WIN32
 	//set the appropriate flag to 'draw' the button
 	switch (val)
 	{
@@ -1258,9 +1241,6 @@ BOOL scrAddReticuleButton(void)
 		ASSERT((FALSE, "scrAddReticuleButton: Invalid reticule Button ID"));
 		return FALSE;
 	}
-#else
-	intShowReticuleButton(val,TRUE);
-#endif
 	return TRUE;
 }
 
@@ -1269,23 +1249,12 @@ BOOL scrAddReticuleButton(void)
 BOOL scrRemoveReticuleButton(void)
 {
 	SDWORD	val;
-#ifdef WIN32
 	BOOL	bReset;
-#endif
 
-#ifdef WIN32
 	if (!stackPopParams(2, VAL_INT, &val,VAL_BOOL, &bReset))
 	{
 		return FALSE;
 	}
-#else
-	// SCARY HUH?!
-	if (!stackPopParams(1, VAL_INT, &val))
-	{
-		return FALSE;
-	}
-#endif
-#ifdef WIN32
 	if(bInTutorial)
 	{
 		if(bReset)	// not always desirable
@@ -1324,11 +1293,6 @@ BOOL scrRemoveReticuleButton(void)
 		ASSERT((FALSE, "scrAddReticuleButton: Invalid reticule Button ID"));
 		return FALSE;
 	}
-#else
-		intShowReticuleButton(val,FALSE);
-
-//		widgHide(psWScreen, val);
-#endif
 	return TRUE;
 }
 
@@ -1339,7 +1303,6 @@ BOOL scrAddMessage(void)
 	MESSAGE			*psMessage;
 	SDWORD			msgType, player;
 	BOOL			playImmediate;
-//	INTERP_VAL		sVal;
 	VIEWDATA		*psViewData;
 	UDWORD			height;
 
@@ -1386,10 +1349,6 @@ BOOL scrAddMessage(void)
 
 		if (playImmediate)
 		{
-	//		psCurrentMsg = psMessage;
-			//initTextDisplay(psCurrentMsg, WFont, 255);
-			//addIntelScreen(TRUE);
-	//		addIntelScreen();
 			displayImmediateMessage(psMessage);
 			stopReticuleButtonFlash(IDRET_INTEL_MAP);
 		}
@@ -1472,7 +1431,6 @@ BOOL scrRemoveMessage(void)
 BOOL scrBuildDroid(void)
 {
 	SDWORD			player, productionRun;
-//	INTERP_VAL		sVal, sVal2;
 	STRUCTURE		*psFactory;
 	DROID_TEMPLATE	*psTemplate;
 
@@ -1512,12 +1470,8 @@ BOOL scrBuildDroid(void)
 	//check building the right sort of droid for the factory
 	if (!validTemplateForFactory(psTemplate, psFactory))
 	{
-#ifdef WIN32
 		ASSERT((FALSE, "scrBuildUnit: invalid template - %s for factory - %s",
 			&psTemplate->aName, psFactory->pStructureType->pName));
-#else
-		ASSERT((FALSE, "scrBuildUnit: invalid template - for factory"));
-#endif
 		return FALSE;
 	}
 		
@@ -1562,7 +1516,6 @@ BOOL	scrSetAssemblyPoint(void)
 // test for structure is idle or not
 BOOL	scrStructureIdle(void)
 {
-//	INTERP_VAL	sVal;
 	STRUCTURE	*psBuilding;
 	BOOL		idle;
 
@@ -1570,7 +1523,6 @@ BOOL	scrStructureIdle(void)
 	{
 		return FALSE;
 	}
-//	DBPRINTF(("scrStructureIdle called\n"));
 
 	if (psBuilding == NULL)
 	{
@@ -1586,7 +1538,6 @@ BOOL	scrStructureIdle(void)
 	}
 
 
-//	DBPRINTF(("structure %p is %d\n",psBuilding,idle));
 
 	if (!stackPushResult(VAL_BOOL, (UDWORD)idle))
 	{
@@ -1623,7 +1574,6 @@ BOOL	scrAttackLocation(void)
 BOOL scrDestroyFeature(void)
 {
 	FEATURE		*psFeature;
-//	INTERP_VAL	sVal;
 
 	if (!stackPopParams(1, ST_FEATURE, &psFeature))
 	{
@@ -1649,7 +1599,6 @@ BOOL scrDestroyFeature(void)
 static	FEATURE_STATS	*psFeatureStatToFind[MAX_PLAYERS];
 static	SDWORD			playerToEnum[MAX_PLAYERS];
 static  SDWORD			getFeatureCount[MAX_PLAYERS]={0};
-//static	FEATURE			*psCurrEnumFeature[MAX_PLAYERS];
 
 // -----------------------------------------------------------------------------------------
 // init enum visible features.
@@ -1664,7 +1613,6 @@ BOOL scrInitGetFeature(void)
 
 	psFeatureStatToFind[bucket]		= (FEATURE_STATS *)(asFeatureStats + iFeat);				// find this stat
 	playerToEnum[bucket]			= player;				// that this player can see
-//	psCurrEnumFeature[bucket]		= apsFeatureLists[0];			
 	getFeatureCount[bucket]			= 0;					// start at the beginning of list.
 	return TRUE;
 }
@@ -1774,7 +1722,6 @@ BOOL scrGetFeature(void)
 
 		psCurrEnumFeature[bucket] = psCurrEnumFeature[bucket]->psNext;
 	}
-	// push NULL, none found;
 	if (!stackPushResult(ST_FEATURE, (UDWORD)NULL))
 	{
 		return FALSE;
@@ -2006,7 +1953,6 @@ BOOL scrEnumStruct(void)
 		enumStructCount++;
 		psStruct = psStruct->psNext;
 	}
-	// push NULL, none found;
 	if (!stackPushResult(ST_STRUCTURE, (UDWORD)NULL))
 	{
 		return FALSE;
@@ -2020,7 +1966,6 @@ BOOL scrEnumStruct(void)
 /*looks to see if a structure (specified by type) exists and is being built*/
 BOOL scrStructureBeingBuilt(void)
 {
-//	INTERP_VAL			sVal;
 	UDWORD				structInc;
 	STRUCTURE_STATS		*psStats;
 	SDWORD				player;
@@ -2065,7 +2010,6 @@ BOOL scrStructureBeingBuilt(void)
 }
 
 
-#ifdef WIN32
 // -----------------------------------------------------------------------------------------
 // multiplayer skirmish only for now.
 // returns TRUE if a specific struct is complete. I know it's like the previous func, 
@@ -2093,13 +2037,11 @@ BOOL scrStructureComplete(void)
 	return TRUE;
 }
 
-#endif
 
 // -----------------------------------------------------------------------------------------
 /*looks to see if a structure (specified by type) exists and built*/
 BOOL scrStructureBuilt(void)
 {
-//	INTERP_VAL			sVal;
 	UDWORD				structInc;
 	STRUCTURE_STATS		*psStats;
 	SDWORD				player;
@@ -2147,7 +2089,6 @@ BOOL scrStructureBuilt(void)
 BOOL scrCentreView(void)
 {
 	BASE_OBJECT	*psObj;
-//	INTERP_VAL	sVal;
 
 	if (!stackPopParams(1, ST_BASEOBJECT, &psObj))
 	{
@@ -2496,7 +2437,6 @@ BOOL scrSetScrollParams(void)
 	scrollMaxY = maxY;
 
     //when the scroll limits change midgame - need to redo the lighting
-    //initLighting(scrollMinX, scrollMinY, scrollMaxX, scrollMaxY);
     initLighting(prevMinX < scrollMinX ? prevMinX : scrollMinX, 
         prevMinY < scrollMinY ? prevMinY : scrollMinY, 
         prevMaxX < scrollMaxX ? prevMaxX : scrollMaxX,
@@ -2528,7 +2468,6 @@ BOOL scrSetScrollMinX(void)
     scrollMinX = minX;
 
     //when the scroll limits change midgame - need to redo the lighting
-    //initLighting(scrollMinX, scrollMinY, scrollMaxX, scrollMaxY);
     initLighting(prevMinX < scrollMinX ? prevMinX : scrollMinX, 
         scrollMinY, scrollMaxX, scrollMaxY);
 
@@ -2558,7 +2497,6 @@ BOOL scrSetScrollMinY(void)
 	scrollMinY = minY;
 
     //when the scroll limits change midgame - need to redo the lighting
-    //initLighting(scrollMinX, scrollMinY, scrollMaxX, scrollMaxY);
     initLighting(scrollMinX, 
         prevMinY < scrollMinY ? prevMinY : scrollMinY, 
         scrollMaxX, scrollMaxY);
@@ -2589,7 +2527,6 @@ BOOL scrSetScrollMaxX(void)
 	scrollMaxX = maxX;
 
     //when the scroll limits change midgame - need to redo the lighting
-    //initLighting(scrollMinX, scrollMinY, scrollMaxX, scrollMaxY);
     initLighting(scrollMinX,  scrollMinY, 
         prevMaxX < scrollMaxX ? prevMaxX : scrollMaxX,
         scrollMaxY);
@@ -2620,7 +2557,6 @@ BOOL scrSetScrollMaxY(void)
 	scrollMaxY = maxY;
 
     //when the scroll limits change midgame - need to redo the lighting
-    //initLighting(scrollMinX, scrollMinY, scrollMaxX, scrollMaxY);
     initLighting(scrollMinX, scrollMinY, scrollMaxX,
         prevMaxY < scrollMaxY ? prevMaxY : scrollMaxY);
 
@@ -2785,14 +2721,11 @@ BOOL scrSetStructureLimits(void)
 
 	psStructLimits = asStructLimits[player];
 	psStructLimits[structInc].limit = (UBYTE)limit;
-#ifdef WIN32
 	psStructLimits[structInc].globalLimit = (UBYTE)limit;
-#endif
 	return TRUE;
 }
 
 
-#ifdef WIN32
 // -----------------------------------------------------------------------------------------
 // multiplayer limit handler.
 BOOL scrApplyLimitSet()
@@ -2800,7 +2733,6 @@ BOOL scrApplyLimitSet()
 	applyLimitSet();
 	return TRUE;
 }
-#endif
 
 
 // -----------------------------------------------------------------------------------------
@@ -2916,7 +2848,6 @@ BOOL scrAddConsoleText(void)
 }
 
 
-#ifdef WIN32
 // -----------------------------------------------------------------------------------------
 /* add a text message to the top of the screen for the selected player - without clearing whats there*/
 BOOL scrTagConsoleText(void)
@@ -2945,21 +2876,17 @@ BOOL scrTagConsoleText(void)
 
 	return TRUE;
 }
-#endif
 
 // -----------------------------------------------------------------------------------------
-#ifdef WIN32
 BOOL	scrClearConsole(void)
 {
 	flushConsoleMessages();
 	return(TRUE);
 }
-#endif
 // -----------------------------------------------------------------------------------------
 //demo functions for turning the power on
 BOOL scrTurnPowerOff(void)
 {
-	//powerCalculated = FALSE;
 	powerCalc(FALSE);
 
 	return TRUE;
@@ -2970,7 +2897,6 @@ BOOL scrTurnPowerOff(void)
 BOOL scrTurnPowerOn(void)
 {
 
-	//powerCalculated = TRUE;
 	powerCalc(TRUE);
 
 	return TRUE;
@@ -3044,7 +2970,6 @@ BOOL scrGameOverMessage(void)
 	MESSAGE			*psMessage;
 	SDWORD			msgType, player;
 	VIEWDATA		*psViewData;
-	//UDWORD			height;
 
 
 	if (!stackPopParams(4, ST_INTMESSAGE, &psViewData , VAL_INT, &msgType,
@@ -3084,16 +3009,11 @@ BOOL scrGameOverMessage(void)
 	}
 
     //this now called when the video Quit is processed
-	//displayGameOver(gameOver);
 
 	return TRUE;
 }
 
 
-#ifdef PSX
-UBYTE OutroMovie[] = "misc\\outro.str";
-UBYTE OutroText[] = "misc\\outro.txa";
-#endif
 
 // -----------------------------------------------------------------------------------------
 //function to call when the game is over
@@ -3108,10 +3028,8 @@ BOOL scrGameOver(void)
 
     /*this function will only be called with gameOver = TRUE when at the end of 
     the game so we'll just hard-code what happens!*/
-#ifdef WIN32
     //don't want this in multiplayer...
     if (!bMultiPlayer)
-#endif
     {
         if (gameOver == TRUE AND !bInTutorial)
         {
@@ -3119,18 +3037,8 @@ BOOL scrGameOver(void)
 		    setScriptWinLoseVideo(PLAY_WIN);
 
     	    seq_ClearSeqList();
-#ifdef WIN32
 	        seq_AddSeqToList("outro.rpl",NULL,"outro.txa", FALSE,0);
 	        seq_StartNextFullScreenVideo();
-#else
-			// Set the stack pointer to point to the alternative stack which is'nt limited to 1k.
-//	        seq_AddSeqToList("misc\\outro.str",NULL,"misc\\outro.txa", FALSE,0);
-		
-			SetSpAlt();
-	        seq_AddSeqToList(OutroMovie,NULL,OutroText, FALSE,0);
-	        seq_StartNextFullScreenVideo();
-			SetSpAltNormal();
-#endif
         }
     }
 
@@ -3240,9 +3148,7 @@ BOOL scrPlayBackgroundAudio(void)
 		return FALSE;
 	}
 
-#ifdef WIN32
 	cdspan_PlayInGameAudio(pText, iVol);
-#endif
 
 	return TRUE;
 	
@@ -3259,34 +3165,27 @@ BOOL scrPlayCDAudio(void)
 		return FALSE;
 	}
 
-#ifdef WIN32
 
-#if defined(WIN32) && !defined(I_LIKE_LISTENING_TO_CDS)
+#if !defined(I_LIKE_LISTENING_TO_CDS)
 	cdAudio_PlayTrack( iTrack );	
 #endif
-//#ifdef PSX
-//	cdAudio_PlayTrack( iTrack );	
 //
-//#endif
-#endif	// Playstation CD audio no hardcoded.
 	return TRUE;
 }
 
 // -----------------------------------------------------------------------------------------
 BOOL scrStopCDAudio(void)
 {
-#ifdef WIN32
-#if defined(WIN32) && !defined(I_LIKE_LISTENING_TO_CDS)
+#if !defined(I_LIKE_LISTENING_TO_CDS)
 	cdAudio_Stop();
 #endif
-#endif	// Playstation CD audio no hardcoded.
 	return TRUE;
 }
 
 // -----------------------------------------------------------------------------------------
 BOOL scrPauseCDAudio(void)
 {
-#if defined(WIN32) && !defined(I_LIKE_LISTENING_TO_CDS)
+#if !defined(I_LIKE_LISTENING_TO_CDS)
 	cdAudio_Pause();
 #endif
 	return TRUE;
@@ -3295,7 +3194,7 @@ BOOL scrPauseCDAudio(void)
 // -----------------------------------------------------------------------------------------
 BOOL scrResumeCDAudio(void)
 {
-#if defined(WIN32) && !defined(I_LIKE_LISTENING_TO_CDS)
+#if !defined(I_LIKE_LISTENING_TO_CDS)
 	cdAudio_Resume();
 #endif
 	return TRUE;
@@ -3535,7 +3434,6 @@ BOOL scrStartMission(void)
 		return FALSE;
 	}
 
-	//if (missionType > MISSION_NONE)
 	if (missionType > LDS_NONE)
 	{
 		ASSERT((FALSE, "Invalid Mission Type"));
@@ -3543,14 +3441,8 @@ BOOL scrStartMission(void)
 	}
 
 	// check the last mission got finished
-	/*if (mission.type != MISSION_NONE)
-	{
-		DBMB(("scrStartMission: old mission incomplete\n   ending mission with success"));
-		endMission(TRUE);
-	}*/
 
 	// tell the loop that a new level has to be loaded up - not yet!
-	//loopNewLevel = TRUE;
 	strcpy(pLevelName, pGame);
 
 	// find the level dataset
@@ -3561,9 +3453,7 @@ BOOL scrStartMission(void)
 	}
 
 	//set the mission rolling...
-	//nextMissionType = missionType;
 	nextMissionType = psNewLevel->type;
-//	loopMissionState = LMS_SETUPMISSION;
 	loopMissionState = LMS_CLEAROBJECTS;
 
 /*	if (!setUpMission(missionType))
@@ -3599,7 +3489,6 @@ BOOL scrSetSnow(void)
 		return FALSE;
 	}
 
-#ifdef WIN32
 	if(bState)
 	{
 		atmosSetWeatherType(WT_SNOWING);
@@ -3608,7 +3497,6 @@ BOOL scrSetSnow(void)
 	{
 		atmosSetWeatherType(WT_NONE);
 	}
-#endif
 	return TRUE;
 }
 
@@ -3623,7 +3511,6 @@ BOOL scrSetRain(void)
 		return FALSE;
 	}
 
-#ifdef WIN32
 	if(bState)
 	{
 		atmosSetWeatherType(WT_RAINING);
@@ -3632,7 +3519,6 @@ BOOL scrSetRain(void)
 	{
 		atmosSetWeatherType(WT_NONE);
 	}
-#endif
 	return TRUE;
 }
 
@@ -3646,7 +3532,6 @@ BOOL scrSetBackgroundFog(void)
 	{
 		return FALSE;
 	}
-#ifdef WIN32
 	//jps 17 feb 99 just set the status let other code worry about fogEnable/reveal
 	if (bState)//true, so go to false
 	{
@@ -3673,7 +3558,6 @@ BOOL scrSetBackgroundFog(void)
 	{
 		pie_SetFogStatus(FALSE);
 		pie_EnableFog(FALSE);
-//		fogStatus = 0;
 		return TRUE;
 	}
 
@@ -3703,7 +3587,6 @@ BOOL scrSetBackgroundFog(void)
 		}
 	}
 */
-#endif
 	return TRUE;
 }
 
@@ -3717,7 +3600,6 @@ BOOL scrSetDepthFog(void)
 	{
 		return FALSE;
 	}
-#ifdef WIN32		// ffs am
 //jps 17 feb 99 just set the status let other code worry about fogEnable/reveal
 	if (bState)//true, so go to false
 	{
@@ -3743,7 +3625,6 @@ BOOL scrSetDepthFog(void)
 	{	
 		pie_SetFogStatus(FALSE);
 		pie_EnableFog(FALSE);
-//		fogStatus = 0;
 		return TRUE;
 	}
 
@@ -3773,7 +3654,6 @@ BOOL scrSetDepthFog(void)
 		}
 	}
 */
-#endif
 	return TRUE;
 }
 
@@ -3789,16 +3669,12 @@ BOOL scrSetFogColour(void)
 		return FALSE;
 	}
 
-#ifdef WIN32
 //	if (pie_GetRenderEngine() == ENGINE_GLIDE)
-//	{
 		red &= 0xff;	
 		green &= 0xff;	
 		blue &= 0xff;	
 		scrFogColour = ((red << 16) + (green << 8) + blue);
 		pie_SetFogColour(scrFogColour);
-//	}
-#endif
 	return TRUE;
 }
 
@@ -3821,7 +3697,6 @@ BOOL scrRefTest(void)
 
 // -----------------------------------------------------------------------------------------
 // is player a human or computer player? (multiplayer only)
-#ifdef WIN32
 BOOL scrIsHumanPlayer(void)
 {
 	SDWORD	player;
@@ -3838,7 +3713,6 @@ BOOL scrIsHumanPlayer(void)
 
 	return TRUE;
 }
-#endif
 
 // -----------------------------------------------------------------------------------------
 // Set an alliance between two players
@@ -3868,34 +3742,10 @@ BOOL scrCreateAlliance(void)
 
 	formAlliance((UBYTE)player1, (UBYTE)player2,TRUE,FALSE);
 
-/*
-#ifdef WIN32	
-	if(bMultiPlayer) 
-	{
-
-		if(game.alliance==NO_ALLIANCES || player1 >= game.maxPlayers || player2>=game.maxPlayers)
-		{
-			return TRUE;
-		}
-
-		if(alliances[player1][player2] != ALLIANCE_FORMED)
-		{
-#ifdef DEBUG
-			CONPRINTF(ConsoleString,(ConsoleString,"%d and %d form an alliance.",player1,player2));
-#endif
-			sendAlliance((UBYTE)player1,(UBYTE)player2,ALLIANCE_FORMED,0);
-		}
-	}
-#endif
-
-	alliances[player1][player2] = ALLIANCE_FORMED;
-	alliances[player2][player1] = ALLIANCE_FORMED;
-*/
 	return TRUE;
 }
 
 
-#ifdef WIN32
 // -----------------------------------------------------------------------------------------
 // offer an alliance
 BOOL scrOfferAlliance(void)
@@ -3917,7 +3767,6 @@ BOOL scrOfferAlliance(void)
 	requestAlliance((UBYTE)player1,(UBYTE)player2,TRUE,TRUE);
 	return TRUE;
 }
-#endif
 
 // -----------------------------------------------------------------------------------------
 // Break an alliance between two players
@@ -3937,18 +3786,6 @@ BOOL scrBreakAlliance(void)
 		ASSERT((FALSE, "scrCreateAlliance: player out of range"));
 		return FALSE;
 	}
-/*
-if(bMultiPlayer)
-	{
-	
-
-		if(alliances[player1][player2] != ALLIANCE_BROKEN)
-		{
-			CONPRINTF(ConsoleString,(ConsoleString,"%d and %d break alliance.",player1,player2));
-			sendAlliance((UBYTE)player1,(UBYTE)player2,ALLIANCE_BROKEN,0);
-		}
-}
-*/
 
 
 	if(bMultiPlayer)
@@ -3963,10 +3800,6 @@ if(bMultiPlayer)
 	{
 		breakAlliance(player1,player2,FALSE,TRUE);
 	}
-/*
-	alliances[player1][player2] = ALLIANCE_BROKEN;
-	alliances[player2][player1] = ALLIANCE_BROKEN;
-*/
 	return TRUE;
 }
 
@@ -3976,7 +3809,6 @@ if(bMultiPlayer)
 // returns true if 2 or more players are in alliance.
 BOOL scrAllianceExists(void)
 {
-#ifdef WIN32
 	UDWORD i,j;
 	for(i=0;i<MAX_PLAYERS;i++)
 	{
@@ -3993,7 +3825,6 @@ BOOL scrAllianceExists(void)
 		}
 	}
 
-#endif
 
 	if (!stackPushResult(VAL_BOOL, FALSE))
 	{
@@ -4063,7 +3894,6 @@ BOOL scrPlayerInAlliance(void)
 BOOL scrDominatingAlliance(void)
 {
 	UDWORD i,j;
-#ifdef WIN32
 	for(i=0;i<MAX_PLAYERS;i++)
 	{
 		for(j=0;j<MAX_PLAYERS;j++)
@@ -4082,7 +3912,6 @@ BOOL scrDominatingAlliance(void)
 		}
 // -----------------------------------------------------------------------------------------
 	}
-#endif
 
 	if (!stackPushResult(VAL_BOOL, TRUE))
 	{
@@ -4101,7 +3930,6 @@ BOOL scrMyResponsibility(void)
 	{
 		return FALSE;
 	}
-#ifdef WIN32
 	if(	myResponsibility(player) )
 	{
 		if (!stackPushResult(VAL_BOOL, TRUE))
@@ -4116,12 +3944,6 @@ BOOL scrMyResponsibility(void)
 			return FALSE;
 		}
 	}
-#else
-	if (!stackPushResult(VAL_BOOL, TRUE))
-	{
-		return FALSE;
-	}
-#endif
 
 	return TRUE;
 }	
@@ -4313,12 +4135,10 @@ BOOL scrCompleteResearch(void)
 
 	researchResult(researchIndex, (UBYTE)player, FALSE);
 
-#ifdef WIN32
 	if(bMultiPlayer && (gameTime > 2 ))
 	{
 		SendResearch((UBYTE)player,researchIndex );
 	}
-#endif
 
 	return TRUE;
 }
@@ -4334,14 +4154,12 @@ BOOL scrFlashOn(void)
 	{
 		return FALSE;
 	}
-#ifdef WIN32
 	// For the time being ... we will perform the old code for the reticule ...
 	if (button >= IDRET_OPTIONS && button <= IDRET_CANCEL)
 	{
 		flashReticuleButton((UDWORD)button);
 		return TRUE;
 	}
-#endif
 
 	if(widgGetFromID(psWScreen,button) != NULL)
 	{
@@ -4361,13 +4179,11 @@ BOOL scrFlashOff(void)
 	{
 		return FALSE;
 	}
-#ifdef WIN32
 	if (button >= IDRET_OPTIONS && button <= IDRET_CANCEL)
 	{
 		stopReticuleButtonFlash((UDWORD)button);
 		return TRUE;
 	}
-#endif
 
 	if(widgGetFromID(psWScreen,button) != NULL)
 	{
@@ -4609,12 +4425,6 @@ BOOL scrSetRadarZoom(void)
 		return FALSE;
 	}
 
-#ifdef PSX
-	if (level == 2)
-	{
-		level = 1;
-	}
-#endif
 
 	SetRadarZoom((UWORD)level);
 
@@ -4635,7 +4445,6 @@ BOOL scrSetMissionTime(void)
 	time *= 100;
 
 	//check not more than one hour - the mission timers cannot cope at present! - (visually)
-	//if (time > 60*60*GAME_TICKS_PER_SEC)
 	//check not more than 99 mins - the mission timers cannot cope at present! - (visually)
     //we're allowing up to 5 hours now!
     if (time > 5*60*60*GAME_TICKS_PER_SEC)
@@ -4645,9 +4454,7 @@ BOOL scrSetMissionTime(void)
 	}
 	//store the value
 	mission.time = time;
-#ifdef WIN32		// ffs ab    ... but shouldn't this be on the psx ?
     setMissionCountDown();
-#endif
 
 	//add the timer to the interface
 	if (mission.time >= 0)
@@ -4712,10 +4519,6 @@ BOOL scrSetReinforcementTime(void)
 
     //not interseted in this check any more -  AB 28/01/99
     //quick check of the value - don't check if time has not been set
-	/*if (mission.time > 0 AND time != LZ_COMPROMISED_TIME AND time > mission.time)
-	{
-		DBMB(("scrSetReinforcementTime: reinforcement time greater than mission time!"));
-	}*/
 	//store the value
 	mission.ETA = time;
 
@@ -4730,9 +4533,7 @@ BOOL scrSetReinforcementTime(void)
     //make sure the timer is not there if the reinforcement time has been set to < 0
     if (time < 0)
     {
-#ifdef WIN32
         intRemoveTransporterTimer();
-#endif
         /*only remove the launch if haven't got a transporter droid since the 
         scripts set the time to -1 at the between stage if there are not going 
         to be reinforcements on the submap  */
@@ -4791,9 +4592,7 @@ BOOL scrSetAllStructureLimits(void)
 	for (i = 0; i < numStructureStats; i++)
 	{
 		psStructLimits[i].limit = (UBYTE)limit;
-#ifdef WIN32
 		psStructLimits[i].globalLimit = (UBYTE)limit;
-#endif
 	}
 
 	return TRUE;
@@ -5008,7 +4807,6 @@ BOOL	bVisible;
 			}
 		}
 	}
-//	DBPRINTF(("scrThreatInArea: returning %d\n", totalThreat));
 	if(!stackPushResult(VAL_INT,totalThreat))
 	{
 		ASSERT((FALSE,"SCRIPT : Cannot push result in scrThreatInArea"));
@@ -5093,7 +4891,6 @@ UDWORD	tileNum;
 		return(FALSE);
 	}
 
-#ifdef WIN32
 	if(tileNum > 96)
 	{
 		ASSERT((FALSE,"SCRIPT : Water tile number too high in scrSetWaterTile"));
@@ -5101,7 +4898,6 @@ UDWORD	tileNum;
 	}
 
 	setUnderwaterTile(tileNum);
-#endif
 	return(TRUE);
 }
 // -----------------------------------------------------------------------------------------
@@ -5115,7 +4911,6 @@ UDWORD	tileNum;
 		return(FALSE);
 	}
 
-#ifdef WIN32
 	if(tileNum > 96)
 	{
 		ASSERT((FALSE,"SCRIPT : Rubble tile number too high in scrSetWaterTile"));
@@ -5123,7 +4918,6 @@ UDWORD	tileNum;
 	}
 
 	setRubbleTile(tileNum);
-#endif
 	return(TRUE);
 }
 // -----------------------------------------------------------------------------------------
@@ -5137,19 +4931,15 @@ UDWORD	campaignNumber;
 		return(FALSE);
 	}
 
-#ifdef WIN32
 	setCampaignNumber(campaignNumber);
-#endif
 	return(TRUE);
 }
 // -----------------------------------------------------------------------------------------
-#ifdef WIN32
 BOOL	scrGetUnitCount( void )
 {
 	return TRUE;
 }
 
-#endif
 // -----------------------------------------------------------------------------------------
 // Tests whether a structure has a certain module for a player. Tests whether any structure
 // has this module if structure is null
@@ -5401,10 +5191,6 @@ BOOL scrAddTemplate(void)
 	{
 		return FALSE;
 	}
-#ifdef PSX
-	ASSERT((FALSE,"ScrAddTemplate: Not on PSX"));
-	stackPushResult(VAL_BOOL,FALSE);
-#else
 	if (player >= MAX_PLAYERS)
 	{
 		ASSERT((FALSE, "scrAddTemplate:player number is too high"));
@@ -5427,7 +5213,6 @@ BOOL scrAddTemplate(void)
 			return FALSE;
 		}
 	}
-#endif
 	return TRUE;
 }
 
@@ -5666,7 +5451,6 @@ BOOL scrGetGameStatus(void)
 		return FALSE;
 	}
 
-//	DBPRINTF(("getgamestatus choice=%d\n",GameChoice));
 
 	result=FALSE;		// the default result is false
 
@@ -5678,10 +5462,6 @@ BOOL scrGetGameStatus(void)
 			break;
 
 		case STATUS_BattleMapViewEnabled:
-//			if (driveTacticalActive()==TRUE) result=TRUE;
-#ifdef PSX
-			if (driveWasDriving()==TRUE) result=TRUE;
-#endif 
 
 			if (result==TRUE)
 			{
@@ -6072,7 +5852,6 @@ BOOL scrTakeOverStructsInArea(void)
                 {
                     numChanged++;
                     //check the structure limits aren't compromised
-                    //structureInc = psNewStruct->pStructureType->ref - REF_STRUCTURE_START;
                     if (asStructLimits[toPlayer][structureInc].currentQuantity > 
                         asStructLimits[toPlayer][structureInc].limit)
                     {
@@ -6122,9 +5901,7 @@ BOOL scrSetPlayCountDown(void)
 		return FALSE;
 	}
 
-#ifdef WIN32
     setPlayCountDown((UBYTE)bState);
-#endif
 
 	return TRUE;
 }
@@ -6309,7 +6086,6 @@ BOOL scrResetLimboMission(void)
 }
 
 
-#ifdef WIN32
 // skirmish only.
 BOOL scrIsVtol(void)
 {
@@ -6334,9 +6110,7 @@ BOOL scrIsVtol(void)
 	return TRUE;
 }
 
-#endif
 
-#ifdef WIN32
 // do the setting up of the template list for the tutorial.
 BOOL scrTutorialTemplates(void)
 {
@@ -6386,4 +6160,3 @@ BOOL scrTutorialTemplates(void)
 	}
 	return TRUE;
 }
-#endif

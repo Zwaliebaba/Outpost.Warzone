@@ -122,7 +122,6 @@ BOOL interpGetArrayVarData(UDWORD **pip, VAL_CHUNK *psGlobals, SCRIPT_CODE *psPr
 	SDWORD		i, dimensions, vals[VAR_MAX_DIMENSIONS];
 	UBYTE		*elements; //[VAR_MAX_DIMENSIONS]
 	SDWORD		size, val;//, elementDWords;
-//	UBYTE		*pElem;
 	UDWORD		*ip = *pip;
 	UDWORD		base, index;
 
@@ -147,13 +146,6 @@ BOOL interpGetArrayVarData(UDWORD **pip, VAL_CHUNK *psGlobals, SCRIPT_CODE *psPr
 
 	// get the number of elements for each dimension
 	elements = psProg->psArrayInfo[base].elements;
-/*	pElem = (UBYTE *) (ip + 1);
-	for(i=0; i<dimensions; i+=1)
-	{
-		elements[i] = *pElem;
-
-		pElem += 1;
-	}*/
 
 	// calculate the index of the array element
 	size = 1;
@@ -198,7 +190,6 @@ BOOL interpGetArrayVarData(UDWORD **pip, VAL_CHUNK *psGlobals, SCRIPT_CODE *psPr
 	*ppsVal = interpGetVarData(psGlobals, psProg->psArrayInfo[base].base + index);
 
 	// calculate the number of DWORDs needed to store the number of elements for each dimension of the array
-//	elementDWords = (dimensions - 1)/4 + 1;
 
 	// update the insrtuction pointer
 	*pip += 1;// + elementDWords;
@@ -226,7 +217,6 @@ BOOL interpRunScript(SCRIPT_CONTEXT *psContext, INTERP_RUNTYPE runType, UDWORD i
 	SCRIPT_FUNC		scriptFunc;
 	SCRIPT_VARFUNC	scriptVarFunc;
 	SCRIPT_CODE		*psProg;
-//	SDWORD			arrayIndex, dimensions, arrayElements[VAR_MAX_DIMENSIONS];
 	SDWORD			instructionCount = 0;
 
 	ASSERT((PTRVALID(psContext, sizeof(SCRIPT_CONTEXT)),
@@ -394,24 +384,8 @@ BOOL interpRunScript(SCRIPT_CONTEXT *psContext, INTERP_RUNTYPE runType, UDWORD i
 			break;
 		case OP_PUSHARRAYGLOBAL:
 			// get the number of array elements
-//			arrayElements = (data & ARRAY_ELEMENT_MASK) >> ARRAY_ELEMENT_SHIFT;
-//			data = data & ARRAY_INDEX_MASK;
 			// get the array index
 //			if (!stackPopParams(1, VAL_INT, &arrayIndex))
-//			{
-//				goto exit_with_error;
-//			}
-//			TRCPRINTF(("PUSHARRAYGLOBAL  [%d] %d(+%d)\n", arrayIndex, data, arrayElements));
-//			if (data + arrayElements > numGlobals)
-//			{
-//				ASSERT((FALSE, "interpRunScript: variable index out of range"));
-//				goto exit_with_error;
-//			}
-//			if (arrayIndex < 0 || arrayIndex >= arrayElements)
-//			{
-//				ASSERT((FALSE, "interpRunScript: array index out of range"));
-//				goto exit_with_error;
-//			}
 			TRCPRINTF(("PUSHARRAYGLOBAL  "));
 			if (!interpGetArrayVarData(&ip, psGlobals, psProg, &psVar))
 			{
@@ -425,8 +399,6 @@ BOOL interpRunScript(SCRIPT_CONTEXT *psContext, INTERP_RUNTYPE runType, UDWORD i
 			break;
 		case OP_POPARRAYGLOBAL:
 			// get the number of array elements
-//			arrayElements = (data & ARRAY_ELEMENT_MASK) >> ARRAY_ELEMENT_SHIFT;
-//			data = data & ARRAY_INDEX_MASK;
 			// get the array index
 /*			if (!stackPopParams(1, VAL_INT, &arrayIndex))
 			{

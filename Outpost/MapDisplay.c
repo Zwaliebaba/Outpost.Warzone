@@ -15,38 +15,27 @@
 #include "stdio.h"
 
 /* Includes direct access to render library */
-#include "ivisdef.h"
-#include "piedef.h"
-#include "piestate.h"
-#ifdef WIN32
-#include "piemode.h"
-#include "pietexture.h"
-#endif
-#include "pieMatrix.h"
-#include "vid.h"
+#include "IvisDef.h"
+#include "PieDef.h"
+#include "PieState.h"
+#include "PieMode.h"
+#include "PieTexture.h"
+#include "PieMatrix.h"
+#include "RendMode.h"
 
 #include "Map.h"
 #include "MapDisplay.h"
 #include "Component.h"
 #include "Disp2D.h"
-#include "Display3d.h"
+#include "Display3D.h"
 #include "HCI.h"
-#include "intelmap.h"
+#include "IntelMap.h"
 #include "IntImage.h"
-#ifdef WIN32
-//#include "dGlide.h"
 #include "Texture.h"
 #include "IntDisplay.h"
-#endif
 
 
-#ifdef PSX
-#include "component.h"
-#include "primatives.h"
-#include "DrawIMD_psx.h"
-#endif
 
-#ifdef WIN32		// whole file is going on PSX !!!!!!!
 
 
 
@@ -64,15 +53,11 @@ extern BOOL		godMode;
 
 /*	Sets up the intelligence map by allocating the necessary memory and assigning world
 	variables for the renderer to work with */
-//void		setUpIntelMap		(UDWORD width, UDWORD height);
 /* Draws the intelligence map to the already setup buffer */
-//void		renderIntelMap		(iVector *location, iVector *viewVector, UDWORD elevation);
 
 /* Frees up the memory we've used */
-//void		releaseIntelMap		( void );
 
 /* Draw the grid */
-//void		drawMapWorld		( iSurface *pSurface );
 void		drawMapWorld		( void );
 
 /* Draw a tile on the grid */
@@ -82,12 +67,9 @@ void		drawMapWorld		( void );
 void		drawMapTile2(SDWORD i, SDWORD j);
 
 /* Clears the map buffer prior to drawing in it */
-//static	void	clearMapBuffer(iSurface *surface);
 //clear text message background with gray fill
-//static void clearIntelText(iSurface *pSurface);
 
 /*fills the map buffer with intelColours prior to drawing in it*/
-//static	void	fillMapBuffer(iSurface *surface);
 
 //only used in software
 /*fills the map buffer with a bitmap prior to drawing in it*/
@@ -97,7 +79,6 @@ static void	fillMapBufferWithBitmap(iSurface *surface);
 void		tileLayouts(int texture);
 
 //fill the intelColours array with the colours used for the background
-//static void setUpIntelColours(void);
 /* ----------------------------------------------------------------------------------------- */
 
 static	iTexture texturePage = {6, 64, 64, NULL};
@@ -129,12 +110,8 @@ iSurface*	setUpMapSurface(UDWORD width, UDWORD height)
 void		*bufSpace;
 iSurface	*pMapSurface;
 
-#ifdef PSX
-	return NULL;
-#endif
 	/*	Release the old buffer if necessary - we may use many different intel maps
 		before resetting the game back to init/close */
-	//releaseIntelMap();
 
 	/* Get the required memory for the render surface */
 	bufSpace = MALLOC(width*height);
@@ -152,7 +129,6 @@ iSurface	*pMapSurface;
 	ASSERT((pMapSurface!=NULL,"Whoa - can't make surface for map"));
 
 	//set up the intel colours
-	//setUpIntelColours();
 
 	/*	Return a pointer to our surface - from this they can get the rendered buffer
 		as well as info about width and height etc. */
@@ -164,23 +140,19 @@ void	releaseMapSurface(iSurface *pSurface)
 	/* Free up old alloaction if necessary */
 	if(pSurface!=NULL)
 	{
-#ifdef WIN32
 		/* Free up old buffer if necessary */
 		if(pSurface->buffer!=NULL)
 		{
 			FREE(pSurface->buffer);
 		}
-#endif
 		FREE(pSurface);
 	}
 }
 
 
-#ifdef WIN32
 
 /* Draws the world into the current surface - set using 
    iV_RenderAssign(iV_MODE_SURFACE,pSurface) */
-//void	drawMapWorld(iSurface *pSurface)
 void	drawMapWorld(void)
 {
 	SDWORD			i,j;
@@ -279,119 +251,6 @@ void	drawMapTile(SDWORD i, SDWORD j)
     	 		tileScreenCoords[i+0][j+0].x,tileScreenCoords[i+0][j+0].y,255); 
 }
 */
-#else
-
-// PSX version.
-
-/* Draws the world into the current surface - set using 
-   iV_RenderAssign(iV_MODE_SURFACE,pSurface) */
-//void	drawMapWorld(iSurface *pSurface)
-void	drawMapWorld(void)
-{
-	SDWORD i,j;
-	MAPTILE *psTile;
-	iVector tileCoords;
-	iVector BSPCamera;
-	static UDWORD angle = 0;
-
-	/* How many tiles to draw on grid - calculate */
-	mapGridWidth	= BUFFER_GRIDX;
-	mapGridHeight	= BUFFER_GRIDY;
-
-	/* Mid point tiles? */
-	mapGridMidX		= (mapGridWidth>>1);
-	mapGridMidY		= (mapGridHeight>>1);
-
-	/* Where are we positioned? */
-	mapGridX = mapPos.x>>TILE_SHIFT;
-	mapGridZ = mapPos.z>>TILE_SHIFT;
-
-	/* Pixel position inside tile */
-	gridDivX = mapPos.x & (TILE_UNITS-1);
-	gridDivZ = mapPos.z & (TILE_UNITS-1);
-
-	CalcBSPCameraPos(&BSPCamera);
-	SetBSPCameraPos(BSPCamera.x,BSPCamera.y,BSPCamera.z);
-
-	/* Set up context */
-	psxiV_MatrixBegin();
-
-	/* Translate for the camera position */
-	psxiV_ITRANSLATE(0,0,elevation);
-	
-	/* Rotate for the view angle */
-	psxiV_MatrixRotateZ(mapView.z);
-	psxiV_MatrixRotateY(mapView.y);
-	psxiV_MatrixRotateX(mapView.x);
-
-	/* Translate to our location */
-	psxiV_TRANSLATE(-gridDivX,-mapPos.y,gridDivZ);
-
-	/* Rotate round */
-	angle += ROTATE_ANGLE;
-	if (angle > 360)
-	{
-		angle -= 360;
-	}
-	psxiV_MatrixRotateY(DEG(angle) + mapPos.y);
-
-	/* Now we're in camera and viewer context */
-	psxUseMatrix();
-
-	for(i=0; i<mapGridWidth+1; i++)
-	{
-		for (j=0; j<mapGridHeight+1; j++)
-		{
-			psTile = mapTile(mapGridX+j,mapGridZ+i);
-			tileCoords.x	= ((j - mapGridMidX)<<TILE_SHIFT);
-			tileCoords.y	= psTile->height;
-			tileCoords.z	= ((mapGridMidY-i)<<TILE_SHIFT);
-			/* Rotate and project the tile to get its screen coords and distance away */
-//			psxiV_RotateProject(&tileXYZ,&(ScreenVertexMesh[(i*(terrainSizeY+1))+j].Primative.x) );
-			tileScreenCoords[i][j].z = psxiV_RotateProject(&tileCoords,(iPoint *)&tileScreenCoords[i][j]);
-		}
-	}
-	
-	for(i=0; i<mapGridWidth; i++)
-	{
-		for (j=0; j<mapGridHeight; j++)
-		{
-//			drawMapTile2(i,j);
-		}
-	}
-
-	doBucket = FALSE;
-//	displayFeatures();
-//	displayStaticObjects();
-//	displayDynamicObjects();
-	//don't show proximity messages in this view
-	//don't show Delivery Points in this view
-	doBucket = TRUE;
-
-	/* Close matrix context */
-//	iV_MatrixEnd();
-}
-
-/*
-void	drawMapTile(SDWORD i, SDWORD j)
-{
-#ifdef PSX
-		iV_SetOTIndex_PSX(OT2D_EXTREMEBACK);
-		DBPRINTF(("drawMapTile called\n");
-#endif
-
-		 iV_Line(tileScreenCoords[i+0][j+0].x,tileScreenCoords[i+0][j+0].y,
-    	 		tileScreenCoords[i+0][j+1].x,tileScreenCoords[i+0][j+1].y,255);
-    	 iV_Line(tileScreenCoords[i+0][j+1].x,tileScreenCoords[i+0][j+1].y,
-		 		tileScreenCoords[i+1][j+1].x,tileScreenCoords[i+1][j+1].y,255);
-    	 iV_Line(tileScreenCoords[i+1][j+1].x,tileScreenCoords[i+1][j+1].y,
-    	 		tileScreenCoords[i+1][j+0].x,tileScreenCoords[i+1][j+0].y,255);
-    	 iV_Line(tileScreenCoords[i+1][j+0].x,tileScreenCoords[i+1][j+0].y,
-    	 		tileScreenCoords[i+0][j+0].x,tileScreenCoords[i+0][j+0].y,255); 
-}
-*/
-
-#endif
 
 /* Clears the map buffer prior to drawing in it */
 /*void	clearMapBuffer(iSurface *surface)
@@ -447,9 +306,6 @@ void	drawMapTile(SDWORD i, SDWORD j)
 /*fills the map buffer with a bitmap*/
 void	fillMapBufferWithBitmap(iSurface *surface)
 {
-#ifdef PSX
-	DBPRINTF(("fillMapBufferWithBitmap not defined on psx\n");
-#else
 	UBYTE		*toFill;
 	UDWORD		x, y, extraWidth, surfaceWidth, surfaceHeight, 
 				bitmapWidth, bitmapHeight, xSource, ySource,
@@ -468,7 +324,6 @@ void	fillMapBufferWithBitmap(iSurface *surface)
 	pBitmapBuffer = IntImages->TexturePages[pImageDef->TPageID].bmp;
 	x0 = (UDWORD)pImageDef->Tu + 5;
 	y0 = (UDWORD)pImageDef->Tv + 5;
-	//pBitmapBuffer += (x0 + y0 * Modulus);
 
 	bitmapWidth = pImageDef->Width - 10;
 	bitmapHeight = pImageDef->Height - 10;
@@ -487,7 +342,6 @@ void	fillMapBufferWithBitmap(iSurface *surface)
 		}
 		toFill += extraWidth;
 	}
-#endif
 }
 
 //clear text message background with gray fill
@@ -517,16 +371,11 @@ void	fillMapBufferWithBitmap(iSurface *surface)
 /* This draws the tile regardless of whether the tile should be VISIBLE */
 void	drawMapTile2(SDWORD i, SDWORD j)
 {
-#ifdef PSX
-	DBPRINTF(("drawmaptile2 not defined on psx\n");
-#else
 UDWORD	renderFlag;
 UDWORD	realX, realY;
 UDWORD	tileNumber;
 UDWORD	topL,botL,topR,botR;
-//UDWORD	n;
 iVertex p[4];
-//iVertex clip[iV_POLY_MAX_POINTS];
 MAPTILE	*psTile;
 iPoint	offset;
 
@@ -547,14 +396,7 @@ iPoint	offset;
 	//if ( TEST_TILE_VISIBLE(selectedPlayer, psTile) OR godMode)
  		/* get the appropriate tile texture */
  		tileNumber = psTile->texture; 
-		if (pie_GetRenderEngine() == ENGINE_GLIDE)
-		{
-			pie_SetTexturePage(tileTexInfo[tileNumber & TILE_NUMMASK].texPage);
-		}
-		else
-		{
-			texturePage.bmp = tilesRAW[tileNumber & TILE_NUMMASK];
-		}
+		texturePage.bmp = tilesRAW[tileNumber & TILE_NUMMASK];
  		  
 		/* Check for flipped and rotated tiles */
 		tileLayouts(tileNumber & ~TILE_NUMMASK);
@@ -596,11 +438,6 @@ iPoint	offset;
 		}
 
 		renderFlag = 0;
-		if (pie_GetRenderEngine() == ENGINE_GLIDE)
-		{
-			offset.x = (tileTexInfo[tileNumber & TILE_NUMMASK].xOffset * 64); 
-			offset.y = (tileTexInfo[tileNumber & TILE_NUMMASK].yOffset * 64); 
-		}
 		pie_DrawTriangle(p, &texturePage, renderFlag, &offset);	
 		// Clip the polygon and establish how many sides it has. 
 		// This routines also now clips shading and U,V values - Alex.
@@ -640,7 +477,6 @@ iPoint	offset;
 
 		}
 		pie_DrawTriangle(p, &texturePage, renderFlag, &offset);	
-#endif
 }
 
 
@@ -683,19 +519,8 @@ void	tileLayouts(int texture)
 // Render a Map Surface to display memory.
 void renderMapSurface(iSurface *pSurface, UDWORD x, UDWORD y, UDWORD width, UDWORD height)
 {
-#ifdef WIN32
-	if (!pie_Hardware())
-	{
-		pie_LocalRenderBegin();
-
-		iV_ppBitmap((iBitmap*)pSurface->buffer, x, y, width, height,pSurface->width);
-
-		pie_LocalRenderEnd();
-	}
-#endif
 }
 
-#ifdef WIN32
 /* renders up to two IMDs into the surface - used by message display in Intelligence Map 
 THIS HAS BEEN REPLACED BY renderResearchToBuffer()*/
 /*void renderIMDToBuffer(iSurface *pSurface, iIMDShape *pIMD, iIMDShape *pIMD2,
@@ -714,9 +539,7 @@ THIS HAS BEEN REPLACED BY renderResearchToBuffer()*/
 	}
 
 	// Empty the buffer 
-	//clearMapBuffer(pSurface);
 	//fill with the intelColours set up at the beginning
-	//fillMapBuffer(pSurface);
 	//fill with IMAGE_BUT0 graphic
 	if (!pie_Hardware())
 	{
@@ -737,7 +560,6 @@ THIS HAS BEEN REPLACED BY renderResearchToBuffer()*/
 
 	// shift back
 	pie_TRANSLATE(0,0,BUTTON_DEPTH);
-//	pie_TRANSLATE(0,0,pIMD->sradius*8);
 	scaleMatrix(RESEARCH_COMPONENT_SCALE);
 
 	// Pitch down a bit 
@@ -783,28 +605,12 @@ void renderResearchToBuffer(iSurface *pSurface, RESEARCH *psResearch,
 	UDWORD          basePlateSize, Radius;
     SDWORD          scale;
 	
-	if(!pie_Hardware())
-	{
-		 //Ensure all rendering is done to our bitmap and not to back or primary buffer
-   		iV_RenderAssign(iV_MODE_SURFACE,pSurface);
-    	//fill with IMAGE_BUT0 graphic
-        fillMapBufferWithBitmap(pSurface);
-	}
-
 	// Set identity (present) context
 	pie_MatBegin();
 
-	if (pie_Hardware())
-	{
-		pie_SetGeometricOffset(OriginX+10,OriginY+10);
-	}
-	else
-	{
-		pie_SetGeometricOffset(pSurface->width/2,pSurface->height/2);
-	}
+	pie_SetGeometricOffset(OriginX+10,OriginY+10);
 
 	// Pitch down a bit 
-	//pie_MatRotX(DEG(-30));
 
     // Rotate round
 	angle += ROTATE_ANGLE;
@@ -918,178 +724,16 @@ void renderResearchToBuffer(iSurface *pSurface, RESEARCH *psResearch,
 	// close matrix context
 	pie_MatEnd();
 
-	if (!pie_Hardware())
-	{
-		// Tell renderer we're back to back buffer 
-		iV_RenderAssign(iV_MODE_4101,&rendSurface);
-	}
-}
-
-#else
-
-extern void draw3DScene(void);
-
-
-void renderIntelWorld(iVector *location, iVector *viewVector,
-						  UDWORD distance,SWORD OriginX,SWORD OriginY)
-{
-	iView View;
-
-	oldPos.x = player.p.x;
-	oldPos.y = player.p.y;
-	oldPos.z = player.p.z;
-
-	oldView.x = player.r.x;
-	oldView.y = player.r.y;
-	oldView.z = player.r.z;
-
-	/* What are we looking at? */
-	mapPos.x = player.p.x = location->x;
-	mapPos.y = player.p.y = location->y;
-	mapPos.z = player.p.z = location->z;
-
-	/* And from what angle? */
-	mapView.x = player.r.x = viewVector->x;
-	mapView.y = player.r.y = viewVector->y;
-	mapView.z = player.r.z = viewVector->z;
-
-	/* And from how far away? */
-	elevation = distance;
-
-	SetGeomOffset(OriginX/2,OriginY/2);
-
-	View.p.x = location->x;
-	View.p.y = location->y;
-	View.p.z = location->z;
-	View.r.x = viewVector->x;
-	View.r.y = viewVector->y;
-	View.r.z = viewVector->z;
-
-
-/*	Annette made me do it. - draw3DScene does not take any parameters anymore ... so all this view stuff isn't used ... unless anyone knows differently
-	draw3DScene(&View);
-*/
-
-	draw3DScene();
-
-//DBPRINTF(("map display - not on psx ... yet\n");
-
-
-	player.p.x = oldPos.x; 
-	player.p.y = oldPos.y; 
-	player.p.z = oldPos.z; 
-
-	player.r.x = oldView.x;
-	player.r.y = oldView.y;
-	player.r.z = oldView.z;
-}
-
-#endif
-
-
-
-
-
-
-
-
-
-
-
-#else  // PSX VERSION OF FILE !!!!!!!!!!!!!
-
-
-#define ROTATE_ANGLE	5
-
-iSurface*	setUpMapSurface(UDWORD width, UDWORD height) 
-{
-	
-}	
-
-
-
-void	releaseMapSurface(iSurface *pSurface)
-{
 }
 
 
-void renderIntelIMD(iIMDShape *pIMD,iIMDShape *pIMD2,SWORD OriginX,SWORD OriginY, BOOL SpinMe)
-{
-	static UDWORD angle = 0;
-	SWORD OldBias;
-
-	iVector Rotation,Position,NullVector;
-
-	SetGeomOffset(OriginX/2,OriginY/2);
-
-	Rotation.x = -30;
-	Rotation.y = angle;
-	Rotation.z = 0;
-
-	NullVector.x = 0;
-	NullVector.y = 0;
-	NullVector.z = 0;
-
-	Position.x = 0;
-	Position.y = 0;
-
-#ifdef WIN32
-
-	Position.z = pIMD->sradius*8;
-#ifdef LIMITBUTZ
-	if (Position.z > (INTERFACE_DEPTH- pIMD->sradius))
-	{
-		Position.z = INTERFACE_DEPTH - pIMD->sradius;
-	}
-#endif
-
-#else
-	Position.z = pIMD->radius*8;
-#ifdef LIMITBUTZ
-	if (Position.z > (INTERFACE_DEPTH- pIMD->radius))
-	{
-		Position.z = INTERFACE_DEPTH - pIMD->radius;
-	}
-#endif
-#endif
-	/* display current component */
-	SetGeomOffset( XToPSX(OriginX),YToPSX(OriginY) );
-
-	SetIMDRenderingMode(USE_FIXEDZ,0);			// When rendering buttons we need to write to a constant entry in the OT ... this is set by the second param
-	setComponentButtonOTIndex(OT2D_FARFARFORE);	// Force draw depth to foreground.
-
-	// Stop the renderer playing with the OTZ.
-	OldBias = psxiv_GetZBias();		// Store the current Z Bias.
-	psxiv_SetZBias(0);				// Don't want the renderer to add anything to the OtZ.
-	psxiv_EnableZCheck(FALSE);		// Rendering over the 2d so don't check for this in the renderer.
-
-	// Flush the current TPageID at this OT index.
-	UpdateTPageID(0,OT2D_FARFARFORE);	
-
-	displayIMDButton(pIMD,&Rotation,&Position,TRUE, PSX_BUTTON_SCALE);
-	if(pIMD2) {
-		displayIMDButton(pIMD2,&Rotation,&Position,TRUE, PSX_BUTTON_SCALE);
-	}
-
-	psxiv_SetZBias(OldBias);			// Restore the renderers z bias.
-	psxiv_EnableZCheck(TRUE);			// And re-enable OtZ range checks
-	SetIMDRenderingMode(USE_MAXZ,0); 	// Set OT position calculation back to using the max Z value
-	setComponentButtonOTIndex(ORDERING_BUTTONRENDERING);	// Restore draw depth for button rendering.
-
-	if (SpinMe==TRUE)
-	{
-		angle += 2;
-		if (angle > 360)
-		{
-			angle -= 360;
-		}
-		
-	}
-}
-
-void renderMapSurface(iSurface *pSurface, UDWORD x, UDWORD y, UDWORD width, UDWORD height)
-{
-}
 
 
-#endif
+
+
+
+
+
+
+
+

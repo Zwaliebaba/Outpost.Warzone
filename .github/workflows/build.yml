@@ -1,0 +1,50 @@
+name: Build
+
+on:
+  push:
+    branches: ['**']
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: ${{ matrix.configuration }}|Win32
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        configuration: [Debug, Release]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v2
+
+      # The compiler resolves includes case-insensitively on Windows, so a
+      # wrong filename still builds. This is what catches it.
+      - name: Check filename casing
+        run: python tools/check_case.py
+
+      # /flp contains a semicolon, which PowerShell reads as a statement
+      # separator unless the whole switch is quoted. Building serially: with
+      # /m the failing project's diagnostics can be interleaved away.
+      - name: Build
+        run: msbuild Outpost\Outpost.vcxproj /p:Configuration=${{ matrix.configuration }} /p:Platform=Win32 /v:normal /nologo "/flp:LogFile=build.log;Verbosity=diagnostic"
+
+      # MSBuild can exit non-zero with the failure only in the file log, so
+      # surface it rather than leaving the job with no explanation.
+      - name: Show failures from build log
+        if: failure()
+        run: |
+          if (Test-Path build.log) {
+            Select-String -Path build.log -Pattern 'error |fatal error|Build FAILED|Error\(s\)|LNK' |
+              Select-Object -Last 60 | ForEach-Object { $_.Line }
+          } else { Write-Host 'no build.log produced' }
+
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log-${{ matrix.configuration }}
+          path: build.log
+          if-no-files-found: ignore

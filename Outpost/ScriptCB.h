@@ -13,7 +13,6 @@ extern DROID		*psScrCBDroidTaken;
 extern DROID		*psScrCBNewDroid;
 extern STRUCTURE	*psScrCBNewDroidFact;
 
-// deal with unit takover(2)
 extern BOOL scrCBDroidTaken(void);
 
 // Deal with a CALL_NEWDROID

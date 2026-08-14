@@ -62,7 +62,6 @@ extern UDWORD	aDefaultSensor[MAX_PLAYERS];
 extern UDWORD	aDefaultECM[MAX_PLAYERS];
 extern UDWORD	aDefaultRepair[MAX_PLAYERS];
 
-//extern BOOL loadResearch(void);
 extern BOOL loadResearch(SBYTE *pResearchData, UDWORD bufferSize);
 //Load the pre-requisites for a research list
 extern BOOL loadResearchPR(SBYTE *pPRData, UDWORD bufferSize);
@@ -78,7 +77,6 @@ extern BOOL loadResearchStructures(SBYTE *pStructData, UDWORD bufferSize,
 /*function to check what can be researched for a particular player at any one 
   instant. Returns the number to research*/
 //extern UBYTE fillResearchList(UBYTE *plist, UDWORD playerID, UWORD topic, 
-//							   UWORD limit);
 //needs to be UWORD sized for Patches
 extern UWORD fillResearchList(UWORD *plist, UDWORD playerID, UWORD topic, 
                               UWORD limit);

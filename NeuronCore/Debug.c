@@ -8,9 +8,6 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
-#ifdef PSX
-#include <libsn.h>
-#endif
 
 
 #pragma warning (disable : 4201 4214 4115 4514)
@@ -19,12 +16,9 @@
 #include <Windows.h>
 #pragma warning (default : 4201 4214 4115)
 
-#include "frame.h"
-#include "frameint.h"
+#include "Frame.h"
+#include "FrameInt.h"
 
-#ifdef PSX
-char DBGstring[256];
-#endif
 
 
 
@@ -265,23 +259,17 @@ void dbg_ErrorBox(SBYTE *pFormat, ...)
  * (In fact there is no reason for this to be used outside the ASSERT macro)
  */
 #define ASSERT_DEFAULT_FILE "No Valid Assert File Name"
-//static SBYTE aAssertFile[DEBUG_STR_MAX];
 static SBYTE *pAssertFile;
 static UDWORD AssertLine;
 void dbg_AssertPosition(SBYTE *pFile, UDWORD Line)
 {
 	if (pFile == NULL)
 	{
-#ifdef WIN32
 		/* Ensure the box can be seen */
 		screenFlipToGDI();
 
 		(void)MessageBox(frameGetWinHandle(), "Invalid assertion arguments\n", "Error",
 			       MB_OK | MB_ICONWARNING);
-#else
-		DBPRINTF(("Error : Invalid assertion arguments\n"));
-#endif
-//		strcpy(aAssertFile, ASSERT_DEFAULT_FILE);
 		pAssertFile = ASSERT_DEFAULT_FILE;
 		AssertLine = 0;
 		return;
@@ -312,7 +300,6 @@ void dbg_AssertPosition(SBYTE *pFile, UDWORD Line)
  * DebugBreak is used to jump into the debugger.
  *
  */
-#ifdef WIN32
 void dbg_Assert(BOOL Expression, SBYTE *pFormat, ...)
 {
 	va_list		pArgs;
@@ -338,7 +325,6 @@ void dbg_Assert(BOOL Expression, SBYTE *pFormat, ...)
 		}
 		if (retVal == DBR_USE_WINDOWS_MB)
 		{
-//			if (!bRunningUnderGlide)
 			{
 				Result = MessageBox(frameGetWinHandle(), aBuffer, "Assertion Failure",
 									MB_YESNOCANCEL | MB_ICONWARNING);
@@ -353,8 +339,6 @@ void dbg_Assert(BOOL Expression, SBYTE *pFormat, ...)
 		if (retVal == DBR_YES ||
 			Result == IDYES)
 		{
-//			abort();
-//			frameShutDown();
 			ExitProcess(3);
 		}
 		else if (retVal == DBR_NO || Result == IDNO)
@@ -369,14 +353,4 @@ void dbg_Assert(BOOL Expression, SBYTE *pFormat, ...)
 
 	}
 }
-#else
-void dbg_Assert(BOOL Expression, SBYTE *pFormat, ...)
-{
-	if (!Expression)
-	{
-		DBPRINTF(("\n\nAssertion failed , File: %s\nLine: %d\n\n", pAssertFile, AssertLine));
-		PSYQpause();
-	}
-}
-#endif
 

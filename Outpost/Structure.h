@@ -31,15 +31,8 @@
 
 /*This should correspond to the structLimits! */
 #define	MAX_FACTORY			5
-#ifdef WIN32
 #define MAX_PROD_RUN	20
 
-#else
-
-#define MAX_PROD_RUN	4		// Set the number of different types to build to 4 on the playstation (desperate attempt to clas back some memory)
-
-
-#endif
 
 //used to flag when the Factory is ready to start building
 #define ACTION_START_TIME	0
@@ -136,7 +129,6 @@ extern BOOL validLocation(BASE_STATS *psStats, UDWORD x, UDWORD y, UDWORD player
 /* for a new structure, find a location along an edge which the droid can get
 to and return this as the destination for the droid */
 //extern BOOL getDroidDestination(STRUCTURE_STATS *psPositionStats, UDWORD structX, 
-//	UDWORD structY, UDWORD * pDroidX, UDWORD *pDroidY);
 /*for a structure or feature, find a location along an edge which the droid can get
 to and return this as the destination for the droid*/
 extern BOOL getDroidDestination(BASE_STATS *psPositionStats, UDWORD structX, 
@@ -162,7 +154,6 @@ extern BOOL checkStructureStatus( STRUCTURE_STATS *psStats, UDWORD player, UDWOR
 /*sets the point new droids go to - x/y in world coords for a Factory*/
 extern void setAssemblyPoint(FLAG_POSITION *psAssemblyPoint, UDWORD x, UDWORD y, 
                              UDWORD player, BOOL bCheck);
-//extern void createAssemblyPoint(STRUCTURE* psStruct);
 
 /* consider delivery points when selected by player*/
 extern void processDeliveryPoint(UDWORD player, UDWORD x, UDWORD y);
@@ -183,9 +174,7 @@ extern STRUCTURE_STATS * structGetDemolishStat( void );
 extern BOOL placeDroid(STRUCTURE *psStructure, UDWORD *droidX, UDWORD *droidY);
 
 /*sets the flag to indicate a Power Generator Exists - so do Oil Derrick anim*/
-//extern void setPowerGenExists(BOOL state, UDWORD player);
 /*returns teh status of the flag*/
-//extern BOOL getPowerGenExists(UDWORD player);
 
 /*sets the flag to indicate a HQ Exists - so draw Radar*/
 extern void setHQExists(BOOL state, UDWORD player);
@@ -213,7 +202,6 @@ through the list of structures at Home Base when on an offWorld mission map*/
 extern BOOL radarCheckForHQ(UDWORD player);
 
 // Set the command droid that factory production should go to
-//struct _command_droid;
 extern void assignFactoryCommandDroid(STRUCTURE *psStruct, struct _droid *psCommander);
 
 // remove all factories from a command droid
@@ -240,7 +228,6 @@ if not a good combination!*/
 extern BOOL validTemplateForFactory(DROID_TEMPLATE *psTemplate, STRUCTURE *psFactory);
 
 /*calculates the damage caused to the resistance levels of structures*/
-//extern BOOL electronicDamage(STRUCTURE *psStructure, UDWORD damage, UBYTE attackPlayer);
 //electronic damage can be targetted at droids as well as structures now - AB 5/11/98
 extern BOOL electronicDamage(BASE_OBJECT *psTarget, UDWORD damage, UBYTE attackPlayer);
 

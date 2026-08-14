@@ -9,7 +9,7 @@
 #include "WidgInt.h"
 #include "Form.h"
 #include "Tip.h"
-#include "Vid.h"
+#include "RendMode.h"
 #include "PiePalette.h"
 
 /* The widget heaps */
@@ -78,14 +78,8 @@ static void formSetDefaultColours(W_FORM *psForm)
 
 	}
 //old colours ??
-//	psForm->aColours[WCOL_BKGRND] = screenGetCacheColour(0xbf,0xbf,0xbf);
 //	psForm->aColours[WCOL_TEXT] = -1;	// use bmp colours  was screenGetCacheColour(0,0,0);
-//	psForm->aColours[WCOL_LIGHT] = screenGetCacheColour(0xff,0xff,0xff);
-//	psForm->aColours[WCOL_DARK] = screenGetCacheColour(0,0,0);
-//	psForm->aColours[WCOL_HILITE] = screenGetCacheColour(0x44,0x44,0x44);
-//	psForm->aColours[WCOL_CURSOR] = screenGetCacheColour(0xff,0,0);
 //	psForm->aColours[WCOL_TIPBKGRND] = screenGetCacheColour(50,50,100); //was screenGetCacheColour(0xcc,0xcc,0xcc);
-//	psForm->aColours[WCOL_DISABLE] = screenGetCacheColour(0x7f,0x7f,0x7f);
 }
 
 /* Create a plain form widget */
@@ -115,9 +109,6 @@ static BOOL formCreatePlain(W_FORM **ppsWidget, W_FORMINIT *psInit)
 	(*ppsWidget)->y = psInit->y;
 	(*ppsWidget)->width = psInit->width;
 	(*ppsWidget)->height = psInit->height;
-#ifdef PSX
-	(*ppsWidget)->OTIndex = WidgGetOTIndex();
-#endif
 	if (psInit->pDisplay)
 	{
 		(*ppsWidget)->display = psInit->pDisplay;
@@ -184,9 +175,6 @@ static BOOL formCreateClickable(W_CLICKFORM **ppsWidget, W_FORMINIT *psInit)
 	(*ppsWidget)->callback = psInit->pCallback;
 	(*ppsWidget)->pUserData = psInit->pUserData;
 	(*ppsWidget)->UserData = psInit->UserData;
-#ifdef PSX
-	(*ppsWidget)->OTIndex = WidgGetOTIndex();
-#endif
 	(*ppsWidget)->AudioCallback = WidgGetAudioCallback();
 	(*ppsWidget)->HilightAudioID = WidgGetHilightAudioID();
 	(*ppsWidget)->ClickedAudioID = WidgGetClickedAudioID();
@@ -365,9 +353,6 @@ static BOOL formCreateTabbed(W_TABFORM **ppsWidget, W_FORMINIT *psInit)
 	(*ppsWidget)->minorPos = psInit->minorPos;
 	(*ppsWidget)->pTabDisplay = psInit->pTabDisplay;
 	(*ppsWidget)->pFormDisplay = psInit->pFormDisplay;
-#ifdef PSX
-	(*ppsWidget)->OTIndex = WidgGetOTIndex();
-#endif
 	formSetDefaultColours((W_FORM *)(*ppsWidget));
 
 	/* Set up the tab data.
@@ -741,7 +726,6 @@ void widgSetColour(W_SCREEN *psScreen, UDWORD id, UDWORD colour,
 		ASSERT((FALSE, "widgSetColour: Colour id out of range"));
 		return;
 	}
-//	psForm->aColours[colour] = screenGetCacheColour(red,green,blue);
 	psForm->aColours[colour] = (UBYTE)pal_GetNearestColour(red,green,blue);
 }
 
@@ -773,22 +757,10 @@ void formGetOrigin(W_FORM *psWidget, SDWORD *pXOrigin, SDWORD *pYOrigin)
 		}
 //		if ((psTabForm->majorPos == WFORM_TABTOP) ||
 //			(psTabForm->minorPos == WFORM_TABTOP))
-//		{
-//			*pYOrigin = psTabForm->tabThickness;
-//		}
 //		else
-//		{
-//			*pYOrigin = 0;
-//		}
 //		if ((psTabForm->majorPos == WFORM_TABLEFT) ||
 //			(psTabForm->minorPos == WFORM_TABLEFT))
-//		{
-//			*pXOrigin = psTabForm->tabThickness;
-//		}
 //		else
-//		{
-//			*pXOrigin = 0;
-//		}
 	}
 	else
 	{
@@ -957,22 +929,6 @@ static BOOL formPickTab(W_TABFORM *psForm, UDWORD fx, UDWORD fy,
 	}
 
 //		/* Adjust for where the tabs are */
-//	if (psForm->majorPos == WFORM_TABLEFT || psForm->minorPos == WFORM_TABLEFT)
-//	{
-//		x0 += psForm->tabThickness;
-//	}
-//	if (psForm->majorPos == WFORM_TABRIGHT || psForm->minorPos == WFORM_TABRIGHT)
-//	{
-//		x1 -= psForm->tabThickness;
-//	}
-//	if (psForm->majorPos == WFORM_TABTOP || psForm->minorPos == WFORM_TABTOP)
-//	{
-//		y0 += psForm->tabThickness;
-//	}
-//	if (psForm->majorPos == WFORM_TABBOTTOM || psForm->minorPos == WFORM_TABBOTTOM)
-//	{
-//		y1 -= psForm->tabThickness;
-//	}
 
 
 	xOffset = yOffset = 0;
@@ -1619,27 +1575,10 @@ void formDisplayTabbed(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD 
 	}
 
 	/* Adjust for where the tabs are */
-//	if (psForm->majorPos == WFORM_TABLEFT || psForm->minorPos == WFORM_TABLEFT)
-//	{
-//		x0 += psForm->tabThickness - psForm->tabHorzOffset;
-//	}
-//	if (psForm->majorPos == WFORM_TABRIGHT || psForm->minorPos == WFORM_TABRIGHT)
-//	{
-//		x1 -= psForm->tabThickness - psForm->tabHorzOffset;
-//	}
-//	if (psForm->majorPos == WFORM_TABTOP || psForm->minorPos == WFORM_TABTOP)
-//	{
-//		y0 += psForm->tabThickness - psForm->tabVertOffset;
-//	}
-//	if (psForm->majorPos == WFORM_TABBOTTOM || psForm->minorPos == WFORM_TABBOTTOM)
-//	{
-//		y1 -= psForm->tabThickness - psForm->tabVertOffset;
-//	}
 
 	if(psForm->pFormDisplay) {
 		psForm->pFormDisplay((WIDGET *)psForm, xOffset, yOffset, psForm->aColours);
 	} else {
-	//	screenSetLineColour(0,0,0);
 		/* Draw the form outline */
 		if (!(psForm->style & WFORM_INVISIBLE))
 		{

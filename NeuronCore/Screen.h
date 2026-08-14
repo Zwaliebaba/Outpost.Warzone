@@ -22,7 +22,7 @@
 #include <ddraw.h>
 #pragma warning (default : 4201 4214 4115)
 
-#include "types.h"
+#include "Types.h"
 
 /* Free up a COM object */
 #undef RELEASE
@@ -164,8 +164,6 @@ extern void screenFillRect(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1);
 /* Draw an ellipse, and therefore circles too by specifying bounding box */
 /* x0,y0 - top left, x1,y1 - bottom right */
 extern void screenDrawEllipse(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1);
-
-extern BOOL screenInitialiseGlide(UDWORD	width, UDWORD height, HANDLE hWindow);
 
 extern BOOL screenReInit( void );
 

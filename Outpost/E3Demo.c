@@ -11,15 +11,14 @@
 
 // -------------------------------------------------------------------------
 
-#if defined(WIN32) || defined(E3DEMO)
 
 #include "GTime.h"
 #include "Objects.h"
 #include "Map.h"
 #include "HCI.h"
-#include "WarCam.h"
+#include "WarCAM.h"
 #include "Order.h"
-#include "Display3d.h"
+#include "Display3D.h"
 #include "Map.h"
 #include "Geometry.h"
 #include "Action.h"
@@ -102,7 +101,6 @@ UDWORD	i,numWith;
 		lastCameraMove = gameTime;
 		/* The bones */
 		findSomethingInteresting();
-	  //	player.r.x = DEG(-90);
 
 	}
 	/* Otherwise, just send a droid off to war */
@@ -256,8 +254,6 @@ PROPULSION_STATS	*psPropStats;
 	gotNewTarget = FALSE;
 
 	/* Keep going until we get one */
-//	while(!gotNewTarget)
-//	{
 		/* Are we only to seek locations? */
 		if(bSeekOnlyLocations)
 		{
@@ -310,10 +306,8 @@ PROPULSION_STATS	*psPropStats;
 			  	selectedPlayer = player;
 				psLastDroid = psDroid;	
 			  //	if(orderState(psDroid,DORDER_ATTACK) == FALSE)
-			  //	{
 		 	 		orderDroidLoc(psDroid,DORDER_MOVE,
 					apsStructLists[otherPlayer]->x, apsStructLists[otherPlayer]->y);
-			  //	}
 
 				if(!getWarCamStatus())
 				{
@@ -346,7 +340,6 @@ PROPULSION_STATS	*psPropStats;
 		default:
 			break;
 		}
-//	}
 }
 
 // -------------------------------------------------------------------------
@@ -462,109 +455,6 @@ BOOL	tooNearEdge( UDWORD x, UDWORD y )
 	}
 }
 
-#ifdef PSX
-
-extern BOOL DirectControl;
-extern BOOL AttractMode;
-extern UDWORD AttractTime;
-
-//UDWORD demoTime;
-
-#define DEMO_IDLE_TIME (GAME_TICKS_PER_SEC*60*5)
-
-void demoToggle(void)
-{
-	if(demoGetStatus() == FALSE) {
-		demoStart();
-	} else {
-		demoStop();
-	}
-}
-
-
-void demoStart(void)
-{
-	if(demoGetStatus() == FALSE) {
-		StopCameraMode();
-		toggleDemoStatus();
-		enableConsoleDisplay(TRUE);
-		AttractMode = TRUE;
-		AttractTime = gameTime2;
-	}
-}
-
-
-void demoStop(void)
-{
-	if(demoGetStatus() == TRUE) {
-
-		toggleDemoStatus();
-		flushConsoleMessages();
-		setConsolePermanence(FALSE,TRUE);
-		permitNewConsoleMessages(TRUE);
-		addConsoleMessage("Demo Mode OFF - Returning to normal game mode",LEFT_JUSTIFY);
-
-		// If warcam active then disable it.
-		if(getWarCamStatus()) {
-			camToggleStatus();
-		}
-
-		// If direct control active then start drive mode.
-//		if(!DirectControl) {
-		if(DirectControl) {
-			StopDriverMode();
-//			BeginDriveMode();
-			StartCameraMode();
-		}
-	}
-}
-
-
-void demoReset(void)
-{
-	demoStop();
-//	demoTime = gameTime + DEMO_IDLE_TIME;
-}
-
-extern BOOL AttractMode;
-
-void demoUpdate(void)
-{
-	// If demoTime reached then start demo.
-	if(gameTime2 >= GetControlIdleTime()+DEMO_IDLE_TIME) {
-		demoStart();
-	} else {
-
-//DBPRINTF(("AttractMode = FALSE : %d %d %d\n",gameTime,GetControlIdleTime(),DEMO_IDLE_TIME);
-		AttractMode = FALSE;
-		demoStop();
-	}
-	
-//	if(gameTime > demoTime) {
-//		demoStart();
-//	}
-}
-
-#endif
 
 
 
-#else
-/* empty demo functions */
-BOOL demoGetStatus ( void )
-{
-	return(FALSE);
-}
-
-void initDemoCamera( void )
-{
-}
-
-void processDemoCam( void )
-{
-}
-
-void toggleDemoStatus( void )
-{
-}
-#endif

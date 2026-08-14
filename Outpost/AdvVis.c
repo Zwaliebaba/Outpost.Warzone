@@ -2,13 +2,12 @@
 /* Experiment - possibly only for the faster configurations */
 /* Makes smooth transitions for terrain visibility */
 
-#ifdef WIN32
-#include "frame.h"
+#include "Frame.h"
 #include "Objects.h"
 #include "Base.h"
 #include "Map.h"
 #include "GTime.h"
-#include "Display3d.h"
+#include "Display3D.h"
 #include "AdvVis.h"
 #include "HCI.h"
 #include "PieState.h"
@@ -26,13 +25,6 @@ UDWORD	avCalculated;
 UDWORD	avIgnored;
 
 // ------------------------------------------------------------------------------------
-/*
-#ifdef ALEXM
-static	bRevealActive = TRUE;
-#else
-static	bRevealActive = FALSE;
-#endif
-*/
 BOOL	bRevealActive = FALSE;
 // ------------------------------------------------------------------------------------
 void	avInformOfChange(SDWORD x, SDWORD y);
@@ -201,7 +193,6 @@ void	preProcessVisibility( void )
 UDWORD		i,j;
 MAPTILE		*psTile;
 STRUCTURE	*psStruct;
-//FEATURE		*psFeature;
 
 	for(i=0; i<mapWidth;i++)
 	{
@@ -246,4 +237,3 @@ STRUCTURE	*psStruct;
 }
 // ------------------------------------------------------------------------------------
 
-#endif

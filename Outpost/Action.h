@@ -86,7 +86,6 @@ void actionDroidObjLoc(DROID *psDroid, DROID_ACTION action,
 								UWORD *pRotation, UWORD *pPitch, SWORD rotRate,
 								SWORD pitchRate, BOOL bDirectFire, BOOL bInvert);*/
 //								UDWORD *pRotation, UDWORD *pPitch, SDWORD rotRate,
-//								SDWORD pitchRate, BOOL bDirectFire, BOOL bInvert);
 extern BOOL actionTargetTurret(BASE_OBJECT *psAttacker, BASE_OBJECT *psTarget, UWORD *pRotation,
 		UWORD *pPitch, WEAPON_STATS *psWeapStats, BOOL bInvert);
 

@@ -8,46 +8,36 @@
 	Alex M. */
 #include "stdio.h"
 #include "Frame.h"
-#include "geo.h"
-#include "piedef.h" //ivis matrix code
+#include "Geo.h"
+#include "PieDef.h" //ivis matrix code
 #include "Objects.h"
 #include "WarCAM.h"
 #include "Display.h"
-#include "Display3d.h"
+#include "Display3D.h"
 #include "HCI.h"
 #include "Console.h"
 #include "GTime.h"
 #include "Effects.h"
 #include "Map.h"
 #include "Geometry.h"
-#include "oprint.h"
-#include "MiscImd.h"
+#include "OPrint.h"
+#include "MiscIMD.h"
 #include "Loop.h"
-#include "drive.h"
+#include "Drive.h"
 #include "Move.h"
 #include "Order.h"
 #include "Action.h"
 #include "IntDisplay.h"
 #include "E3Demo.h"
 #include "RayCast.h"
-#include "Display3d.h"
+#include "Display3D.h"
 #ifndef PAUL
 #include "Selection.h"
 #endif
-#ifdef PSX
-#include "drawIMD_psx.h"
-#include "VPad.h"
-#include "ctrlpsx.h"
-#endif
 
-#ifdef WIN32
 #define MODFRACT(value,mod) \
 	while((value) < 0)	{ (value) += (mod); } \
 	while((value) > (mod)) { (value) -= (mod); }
-#else 
-#define MODFRACT(value,mod) \
-	(value) = (value) % (mod)
-#endif
 
 #define MIN_TRACK_HEIGHT 16
 
@@ -76,15 +66,9 @@ SDWORD	presAvAngle = 0;;
 /*	These are the DEFAULT offsets that make us track _behind_ a droid and allow
 	it to be pretty far _down_ the screen, so we can see more 
 */
-#ifdef WIN32
 #define	CAM_DEFAULT_X_OFFSET	-400
 #define CAM_DEFAULT_Y_OFFSET	-400	
 #define	MINCAMROTX	-20
-#else
-#define	CAM_DEFAULT_X_OFFSET	200
-#define CAM_DEFAULT_Y_OFFSET	200	
-#define MINCAMROTX  -10
-#endif
 
 /* Function Prototypes... */
 /* Firstly for tracking position */
@@ -106,7 +90,6 @@ BOOL	camTrackCamera				( void );
 void	camSwitchOff				( void );
 BOOL	getWarCamStatus				( void );
 void	camToggleInfo				( void );
-//void	setUpRadarTarget			( SDWORD x, SDWORD y );
 void	setUpRadarTarget			( SDWORD x, SDWORD y );
 void	requestRadarTrack			( SDWORD x, SDWORD y );
 BOOL	getRadarTrackingStatus		( void );
@@ -135,7 +118,6 @@ static	BOOL bFullInfo = FALSE;
 static	BOOL bRadarTrackingRequested = FALSE;
 
 /* World coordinates for a radar track/jump */
-//static  SDWORD	 radarX,radarY;	
 static  FRACT	 radarX,radarY;	
 
 /*	Where we were up to (pos and rot) last update - allows us to see whether
@@ -225,13 +207,11 @@ BOOL Status = TRUE;
 				}
 				else
 				{
-//					CONPRINTF(ConsoleString,(ConsoleString,"DROID-CAM V0.1 Enabled - Now tracking new location"));
 				}
 			}
 			else
 			{
 				/* We've requested a track with no droid selected */
-//				addConsoleMessage("Droid-CAM V0.1 ERROR - No targets(s) selected",DEFAULT_JUSTIFY);
 				trackingCamera.status = CAM_INACTIVE;
 			}
 		break;
@@ -254,9 +234,7 @@ BOOL Status = TRUE;
 					trackingCamera.status = CAM_RESET;
 				}
 			}
-#ifdef WIN32
 		processLeaderSelection();
-#endif
 		break;
 	case CAM_RESET:
 			/* Reset camera to pre-droid tracking status */
@@ -267,7 +245,6 @@ BOOL Status = TRUE;
 			}
 			/* Switch to inactive mode */
 			trackingCamera.status = CAM_INACTIVE;
-//			addConsoleMessage("Droid-CAM V0.1 Disabled",DEFAULT_JUSTIFY);
 			Status = FALSE;
 		break;
 	default:
@@ -343,18 +320,13 @@ BASE_OBJECT	*camFindDroidTarget(void)
 
 	for(psDroid = apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext)
 	{
-#ifdef PSX
-		if( (psDroid->selected) || (bTrackingTransporter && (psDroid->droidType == DROID_TRANSPORTER) ) )
-#else
 		if(psDroid->selected)
-#endif
 		{
 			/* Return the first one found */
 			return( (BASE_OBJECT*)psDroid);
 		}
 	}
 
-//printf("camFindUnitTarget : NOT FOUND\n");
 	/* We didn't find one */
 	return(NULL);
 }
@@ -410,7 +382,6 @@ void	camAllignWithTarget(BASE_OBJECT *psTarget)
 	trackingCamera.oldView.p.y = trackingCamera.position.y = MAKEFRACT(player.p.y);
 	trackingCamera.oldView.p.z = trackingCamera.position.z = MAKEFRACT(player.p.z);
 
-   //	trackingCamera.rotation.x = player.r.x = DEG(-90);
 	/* No initial velocity for moving */
 	trackingCamera.velocity.x = trackingCamera.velocity.y = trackingCamera.velocity.z = MAKEFRACT(0);
 	/* Nor for rotation */
@@ -426,16 +397,12 @@ void	camAllignWithTarget(BASE_OBJECT *psTarget)
 	/* Store away when we started */
 	trackingCamera.lastUpdate = gameTime2;
 
-#ifdef PSX
-	trackingCamera.status = CAM_TRACKING;
-#endif
 	OldViewValid = TRUE;
 }
 
 //-----------------------------------------------------------------------------------
 
 
-#ifdef WIN32
 
 
 //-----------------------------------------------------------------------------------
@@ -492,7 +459,6 @@ BOOL	bFlying;
 DROID	*psDroid;
 UDWORD	multiAngle;
 PROPULSION_STATS	*psPropStats;
-//SDWORD	pitch;
 SDWORD	angle;
 
 	angle = abs(((player.r.x/182)%90));
@@ -560,7 +526,6 @@ SDWORD	angle;
 		{
 			getGroupTrackingConcerns(&xConcern,&yConcern,&zConcern,trackingCamera.target->group,TRUE);
 		}
-//		getBestPitchToEdgeOfGrid(xConcern,zConcern,360-((getAverageTrackAngle(TRUE)+180)%360),&pitch);
 		yConcern+=angle*5;
 
 	}
@@ -574,7 +539,6 @@ SDWORD	angle;
 	if(trackingCamera.target->type == OBJ_DROID AND getNumDroidsSelected()<=2)
 	{
 //		getBestPitchToEdgeOfGrid(trackingCamera.target->x,trackingCamera.target->z,
-//			360-((trackingCamera.target->direction+180)%360),&pitch);
 		yConcern+=angle*5;
 
 	}
@@ -600,15 +564,11 @@ SDWORD	angle;
 						          
 	if(update & Y_UPDATE)	          
 	{					          
-//		flushConsoleMessages();
-//		CONPRINTF(ConsoleString,(ConsoleString,"Attempted height : %d",yConcern));
 
 		/* Need to update acceleration along y axis */
 		realPos = (yConcern);
 		separation = (FRACT)(realPos - trackingCamera.position.y);
 		if(bFlying) separation = separation/2;
-//		CONPRINTF(ConsoleString,(ConsoleString,"Separation : %f",separation));
-//		CONPRINTF(ConsoleString,(ConsoleString,"Distance : %d",distance));
 		if(!bFlying)
 		{
 		 	trackingCamera.acceleration.y =
@@ -644,7 +604,6 @@ SDWORD	angle;
 
 void	updateCameraVelocity( UBYTE	update )
 {
-//UDWORD	frameTime;
 FRACT	fraction;
 	
 	/*	Get the time fraction of a second - the next two lines are present in 4
@@ -652,7 +611,6 @@ FRACT	fraction;
 		it may be an idea to calculate these higher up and store them in a static but 
 		I've left them in for clarity for now */
 
-//	frameTime = gameTime - trackingCamera.lastUpdate;
 	fraction = (MAKEFRACT(frameTime2) / (FRACT)GAME_TICKS_PER_SEC);
 
 	if(update & X_UPDATE)
@@ -675,7 +633,6 @@ FRACT	fraction;
 
 void	updateCameraPosition(UBYTE update)
 {
-//UDWORD	frameTime;
 BOOL	bFlying;
 FRACT	fraction;
 DROID	*psDroid;
@@ -692,7 +649,6 @@ PROPULSION_STATS	*psPropStats;
 		}
 	}
 	/* See above */
-//	frameTime = gameTime - trackingCamera.lastUpdate;
 	fraction = (MAKEFRACT(frameTime2) / (FRACT)GAME_TICKS_PER_SEC);
 
 	if(update & X_UPDATE)
@@ -703,18 +659,9 @@ PROPULSION_STATS	*psPropStats;
 						          
 	if(update & Y_UPDATE)	          
 	{					          
-//		if(trackingCamera.target->type == OBJ_TARGET)
-//		{
 			/* Need to update position along y axis */
-//		if(!bFlying)
-//		{
 			trackingCamera.position.y +=(trackingCamera.velocity.y * fraction);
-//		}
 //		else
-//		{
-//			trackingCamera.position.y += MAKEINT(((FRACT)trackingCamera.velocity.y * fraction));
-//		}
-//		}
 	}					          
 						          
 	if(update & Z_UPDATE)	          
@@ -823,11 +770,7 @@ SDWORD	xPos,yPos,zPos;
 			xConcern += DEG(-16);
 		}	
 	
-		//xConcern = DEG(trackingCamera.target->pitch);
 	   //	if(xConcern>DEG(MINCAMROTX))
-	   //	{
-	   //		xConcern = DEG(MINCAMROTX);
-	   //	}
 		while(trackingCamera.rotation.x<0)
 			{
 				trackingCamera.rotation.x+=DEG(360);
@@ -891,10 +834,8 @@ SDWORD	xPos,yPos,zPos;
 	calculated acceleration */
 void	updateCameraRotationVelocity( UBYTE update )
 {
-//UDWORD	frameTime;
 FRACT	fraction;
 
-//	frameTime = gameTime - trackingCamera.lastUpdate;
 	fraction = (MAKEFRACT(frameTime2) / (FRACT)GAME_TICKS_PER_SEC);
 
 	if(update & Y_UPDATE)
@@ -916,10 +857,8 @@ FRACT	fraction;
 /* Move the camera around by adding the velocity */
 void	updateCameraRotationPosition( UBYTE update )										
 {
-//UDWORD	frameTime;
 FRACT	fraction;
 
-//	frameTime = gameTime - trackingCamera.lastUpdate;
 	fraction = (MAKEFRACT(frameTime2) / (FRACT)GAME_TICKS_PER_SEC);
 
  	if(update & Y_UPDATE)
@@ -974,10 +913,6 @@ BOOL	bFlying;
    	if(trackingCamera.target->type == OBJ_DROID)
 	{
 
-//		if(!trackingCamera.target->selected)
-//		{
-//			return(FALSE);
-//		}
 	}
 
 	/* Update the acceleration,velocity and position of the camera for movement */
@@ -1028,12 +963,6 @@ BOOL	bFlying;
 	 	updateCameraRotationVelocity(CAM_ALL);
 		updateCameraRotationPosition(CAM_ALL);
 	}
-	/*
-	else if(bIsBuilding)
-	{
-		updateCameraRotationVelocity(CAM_X_ONLY);
-	}
-	*/
 	else
 	{
 		updateCameraRotationVelocity(CAM_X_AND_Y);
@@ -1067,12 +996,6 @@ BOOL	bFlying;
    		player.r.x = DEG(360+MAX_PLAYER_X_ANGLE);
    	}
 
-	/*
-	if(bIsBuilding)
-	{
-		player.r.y+=DEG(1);
-	}
-	*/
 	/* Clip the position to the edge of the map */
 	CheckScrollLimits();
 
@@ -1418,7 +1341,6 @@ SDWORD	getPresAngle( void )
 }
 //-----------------------------------------------------------------------------------
 
-#ifdef WIN32
 //-----------------------------------------------------------------------------------
 UDWORD	getNumDroidsSelected( void )
 {
@@ -1438,7 +1360,6 @@ UDWORD	count;
 	return(count);
 */
 }
-#endif
 //-----------------------------------------------------------------------------------
 void	getTrackingConcerns(SDWORD *x,SDWORD *y, SDWORD *z)
 {
@@ -1485,20 +1406,13 @@ UDWORD	count;
 				if(bOnScreen ? droidOnScreen(psDroid,DISP_WIDTH/4) : TRUE)
 				{
 //					if(droidOnScreen(psDroid,DISP_WIDTH/4))
-//					{
 				 		count++;
 						xTotals+=psDroid->x;
 						yTotals+=psDroid->z;	// note the flip
 						zTotals+=psDroid->y;
-//					}
 				}
 //				else
-//				{
-//						count++;
-//						xTotals+=psDroid->x;
 //						yTotals+=psDroid->z;	// note the flip
-//						zTotals+=psDroid->y;
-//				}
 			}
 		}
 
@@ -1511,648 +1425,6 @@ UDWORD	count;
 }
 //-----------------------------------------------------------------------------------
 
-#else	// Start of PSX version.
-
-static iVector targPos;
-static iVector targRot;
-static SDWORD targDist;
-static UWORD OrbitAngle;
-
-#define VIEWDIST	(1000)
-#define VIEWRAYDIST (1500)
-#define VIEWALT		(200)
-#define VLENGTH(a,b) ((UDWORD)(a)/2+(UDWORD)(b)/2)
-#define	VIEWRAYSTEP	(64)
-#define	VIEWDAMP 	(8)
-#define VIEWTOPDOWNANG	(270)
-#define VIEWTOPDOWNDIST	(2048)
-#define VIEW45ANG		(315)
-#define VIEWHEIGHT		(300) // Was 200 but the wind changed
-#define MAX_CAM_DELTA	(256)
-#define MAX_CAMROT_BEHIND_DELTA (2048)
-#define MAX_CAMROT_BEHIND_SLOWDELTA (512)
-#define MAX_CAMROT_TOPDOWN_DELTA (16384)
-#define MAX_CAMROT_ORBIT_DELTA (16384)
-#define MAX_CAMROT_USER_DELTA (16384)
-
-#define VIEW_MIN_PITCH	(0)
-#define VIEW_MAX_PITCH	(16384)
-#define VIEW_MIN_DIST	(0)	//(1000)
-#define VIEW_MAX_DIST	(1000)	//(2400)
-
-#define ROTACC			(128*4*2)
-#define MAX_ROTVEL		(1024*4)
-#define PITCHACC		(64*4*2)
-#define MAX_PITCHVEL	(512*4)
-#define SCROLLACC		(64*2)
-#define MAX_SCROLLVEL	(1024)
-#define ZOOMACC			(16*2)
-#define MAX_ZOOMVEL		(64)
-
-static UWORD CameraMode = CAMMODE_INACTIVE;
-static UWORD CameraControlMode = CAMCONMODE_PITCH | CAMCONMODE_YAW | CAMCONMODE_DISTANCE;
-static SWORD UserPitch = 0;
-static SWORD UserYaw = 0;
-static int UserDistance = 0;
-static int NoInputTime = 0;
-static int ViewPosDamp = VIEWDAMP;
-static int ViewRotDamp = VIEWDAMP;
-static int ViewDistDamp = VIEWDAMP;
-
-
-DROID *getTrackingDroid( void )
-{
-	if(!getWarCamStatus()) return(NULL);
-	if(trackingCamera.status != CAM_TRACKING) return(NULL);
-	return((DROID*)trackingCamera.target);
-}
-
-
-// Initialise statics.
-//
-void camInitVars(void)
-
-{
-	DBPRINTF(("** camInitVars **\n"));
-	OldViewValid = FALSE;
-	CameraControlMode = CAMCONMODE_PITCH | CAMCONMODE_YAW | CAMCONMODE_DISTANCE;
-	camSetMode(CAMMODE_BEHIND);
-	camResetDamping();
-}
-
-
-void camResetDamping(void)
-{
-	ViewPosDamp = VIEWDAMP;
-	ViewRotDamp = VIEWDAMP;
-	ViewDistDamp = VIEWDAMP;
-}
-
-
-void camSetDamping(int PosDamp,int RotDamp,int DistDamp)
-{
-	ViewPosDamp = PosDamp;
-	ViewRotDamp = RotDamp;
-	ViewDistDamp = DistDamp;
-}
-
-
-void camGetDamping(int *PosDamp,int *RotDamp,int *DistDamp)
-{
-	if(PosDamp != NULL) {
-		*PosDamp = ViewPosDamp;
-	}
-	if(RotDamp != NULL) {
-		*RotDamp = ViewRotDamp;
-	}
-	if(DistDamp != NULL) {
-		*DistDamp = ViewDistDamp;
-	}
-}
-
-static BASE_OBJECT PanTarget;
-static int PanTargetDistance;
-
-
-void camPanToLocation(int x,int y)
-{
-	DBPRINTF(("camPanToLocation(%d %d)\n",x,y));
-
-
-	PanTarget.x = x;
-	PanTarget.y = y;
-	if( (x<0) OR (y<0) OR (x > (SDWORD)((mapWidth-1)*TILE_UNITS)) OR (y > (SDWORD)((mapHeight-1)*TILE_UNITS)) )
-	{
-		PanTarget.z = 128 * ELEVATION_SCALE;
-	}
-	else
-	{
-		PanTarget.z = map_Height(x,y);
-	}
-
-	// Only set new target rotation and distance if were not interupting a current pan.
-	if(CameraMode != CAMMODE_PANTOLOCATION) {
-		PanTarget.direction = player.r.y;
-		PanTarget.pitch = player.r.x;
-		PanTarget.roll = player.r.z;
-		PanTargetDistance = getViewDistance();
-	}
-	PanTarget.type = OBJ_TARGET;
-	PanTarget.died = 0;
-
-	camAllignWithTarget(&PanTarget);
-	CameraMode = CAMMODE_PANTOLOCATION;
-
- 	setWarCamActive(TRUE);
-}
-
-
-// Set the camera mode, top down,behind object or orbit object.
-//
-void camSetMode(UWORD CamMode)
-{
-	if(CameraMode != CamMode) {
-		CameraMode = CamMode;
-		OrbitAngle = 0;
-
-		switch(CameraMode) {
-			case CAMMODE_TOPDOWN:
-				UserPitch = VIEW_MAX_PITCH;
-				UserYaw = 0;
-				UserDistance = 0;
-				NoInputTime = 0;
-				break;
-			case CAMMODE_BEHIND:
-			case CAMMODE_ORBIT:
-				UserPitch = 0;
-				UserYaw = 0;
-				UserDistance = 0;
-				NoInputTime = 0;
-				break;
-		}
-	}
-}
-
-
-void camSetControlMode(UWORD CamConMode)
-{
-	CameraControlMode = CamConMode;
-}
-
-
-UWORD camGetControlMode(void)
-{
-	return CameraControlMode;
-}
-
-
-// Return the current camera mode, one of the CAMMODE_? enum.
-//
-UWORD camGetMode(void)
-{
-	return CameraMode;
-}
-
-
-// Return TRUE if the user is playing with the view controls.
-//
-BOOL camViewControlsActive(void)
-{
-	if( VPadDown(VPAD_ROTLEFT) || 
-		VPadDown(VPAD_ROTRIGHT) ||
-		VPadDown(VPAD_PITCHUP) ||
-		VPadDown(VPAD_PITCHDOWN) ||
-		VPadDown(VPAD_ZOOMIN) ||
-		VPadDown(VPAD_ZOOMOUT) ) {
-		return TRUE;
-	}
-
-	return FALSE;
-}
-
-
-// Given a value, cap it to the specified range.
-//
-SDWORD ForceValRange(SDWORD Val,SDWORD Min,SDWORD Max)
-{
-	if(Val < Min) {
-		return Min;
-	} else if(Val > Max) {
-		return Max;
-	}
-
-	return Val;
-}
-
-
-// Update the camera.
-//
-BOOL camTrackCamera(void)
-{
-	SDWORD DeltaX;
-	SDWORD DeltaZ;
-	SDWORD DeltaY;
-	SDWORD DeltaD;
-	SDWORD DeltaRX;
-	SDWORD DeltaRZ;
-	SDWORD DeltaRY;
-	SWORD Pitch,camPitch,TPitch;
-	SDWORD ViewDist = VIEWDIST;
-	SDWORD curDist;
- 	int xRotVel = 0;
-	int yRotVel = 0;
-	int xVel = 0;
-	int yVel = 0;
-	int dVel = 0;
-	BOOL ABut0,ABut1;
-	SWORD Direction;
-	SDWORD MaxDelta = MAX_CAM_DELTA;
-	SDWORD MaxRotDelta;
-
-	/* Most importantly - see if the target we're tracking is dead! */
-	if(trackingCamera.target->died)
-	{
-		return(FALSE);
-	}
-
-	/*	Cancel tracking if it's no longer selected.
-		This may not be desirable? 	*/
-   	if(trackingCamera.target->type == OBJ_DROID)
-	{
-		if( (!trackingCamera.target->selected) && 
-			(!(bTrackingTransporter && (((DROID*)trackingCamera.target)->droidType == DROID_TRANSPORTER) )) )
-		{
-printf("camTrackCamera : NO\n");
-			return(FALSE);
-		}
-	}
-
-	/* Record the old positions for comparison */
-	oldPosition.x = player.p.x;
-	oldPosition.y = player.p.y;
-	oldPosition.z = player.p.z;
-
-
-	// Handle camera user control.
-	if((CameraControlMode) && !gamePaused()) {
-		if(GetControllerType(0) == CON_ANALOG) {
-			GetAnalogVelocities(0,&xVel,&yVel,&ABut0,&yRotVel,&xRotVel,&ABut1);
-
-			if(ABut1)
-			{
-				dVel = xRotVel;
-				xRotVel = yRotVel = 0;
-			}
-
-			yRotVel *= 16;
-			xRotVel *= 2;
-			yRotVel = -yRotVel;
-
-		} if(GetControllerType(0) == CON_MOUSE) {
-			if(MouseRightDown()) {
-				GetMouseVel(0,&yRotVel,&xRotVel);
-				yRotVel *= 128;
-				xRotVel *= 96;
-			}
-		} else {
-			BOOL Action = FALSE;
-
-			Action |= ConVel(VPAD_ROTRIGHT,VPAD_ROTLEFT,&yRotVel,ROTACC,MAX_ROTVEL);
-			Action |= ConVel(VPAD_PITCHUP,VPAD_PITCHDOWN,&xRotVel,PITCHACC,MAX_PITCHVEL);
-			Action |= ConVel(VPAD_SCROLLRIGHT,VPAD_SCROLLLEFT,&xVel,SCROLLACC,MAX_SCROLLVEL);
-			Action |= ConVel(VPAD_SCROLLDOWN,VPAD_SCROLLUP,&yVel,SCROLLACC,MAX_SCROLLVEL);
-			Action |= ConVel(VPAD_ZOOMOUT,VPAD_ZOOMIN,&dVel,ZOOMACC,MAX_ZOOMVEL);
-		}
-
-		if((xRotVel == 0) && (yRotVel == 0) && (dVel == 0)) {
-			NoInputTime++;
-			// If there's been no user input for a while
-			if(NoInputTime == 16) {
-				if( CameraMode == CAMMODE_TOPDOWN ||
-					CameraMode == CAMMODE_RESTORE ||
-					CameraMode == CAMMODE_PANTOLOCATION) {
-//					UserPitch = VIEW_MAX_PITCH;
-//					UserYaw = 0;
-				} else {
-					// Reset user pitch and yaw.
-#if(0)
-					UserPitch = 0;
-					UserYaw = 0;
-					UserDistance = 0;
-#else
-// Rather than just set to 0, decrement over a period of time.
-					if(UserPitch > 0) {
-						UserPitch -= 512;
-						if(UserPitch < 0) {
-							UserPitch = 0;
-						}
-					} else if(UserPitch < 0) {
-						UserPitch += 512;
-						if(UserPitch > 0) {
-							UserPitch = 0;
-						}
-					}
-
-					if(UserYaw > 0) {
-						UserYaw -= 512;
-						if(UserYaw < 0) {
-							UserYaw = 0;
-						}
-					} else if(UserYaw < 0) {
-						UserYaw += 512;
-						if(UserYaw > 0) {
-							UserYaw = 0;
-						}
-					}
-
-					UserDistance = 0;
-
-					if((UserYaw != 0) || (UserPitch != 0)) {
-						NoInputTime = 15;
-					}
-#endif
-//					MaxRotDelta = 64;	//MAX_CAMROT_DELTA/8;
-				}
-			}
-			if(NoInputTime > 16) {
-				NoInputTime = 17;
-			}
-		} else {
-			// User input so set fast rotation delta.
-//			MaxRotDelta = MAX_CAMROT_DELTA;
-			NoInputTime = 0;
-		}
-
-		if(CameraControlMode & CAMCONMODE_YAW) {
-//			UserYaw += yRotVel;
-			UserYaw -= yRotVel;
-			UserYaw = UserYaw & 65535;
-		}
-
-		if(CameraControlMode & CAMCONMODE_PITCH) {
-			UserPitch -= xRotVel;
-
-			if(UserPitch > VIEW_MAX_PITCH) {
-				UserPitch = VIEW_MAX_PITCH;
-			}
-
-			if(CameraMode == CAMMODE_TOPDOWN) {
-				if(UserPitch < 4618) {
-					UserPitch = 4618;
-				}
-			} else {
-				if(UserPitch < VIEW_MIN_PITCH) {
-					UserPitch = VIEW_MIN_PITCH;
-				}
-			}
-		}
-
-		if(CameraControlMode & CAMCONMODE_DISTANCE) {
-			UserDistance += dVel;
-			if(UserDistance < VIEW_MIN_DIST) {
-				UserDistance = VIEW_MIN_DIST;
-			} else if(UserDistance > VIEW_MAX_DIST) {
-				UserDistance = VIEW_MAX_DIST;
-			}
-		}
-	}
-
-	switch(CameraMode) {
-		// Camera following an object.
-		case	CAMMODE_BEHIND:
-			MaxRotDelta = MAX_CAMROT_BEHIND_DELTA;
-			if((UserPitch != 0) || (UserYaw !=0)) {
-				MaxRotDelta = MAX_CAMROT_BEHIND_SLOWDELTA;
-			}
-
-			camPitch = (SDWORD)angle_PSX2World( -ratan2(VIEWHEIGHT+trackingCamera.target->z/2, ViewDist) );
-//			camPitch = (SDWORD)angle_PSX2World( -ratan2(VIEWHEIGHT, ViewDist) );
-
-			if(CameraControlMode & CAMCONMODE_YAW) {
-				Direction = (trackingCamera.target->direction + ((UserYaw*360)/65536)) %360;
-			} else {
-				Direction = trackingCamera.target->direction;
-			}
-
-			getBestPitchToEdgeOfGrid(trackingCamera.target->x,trackingCamera.target->y,
-									360-(((player.r.y*360)>>16)%360),&Pitch);
-
-//printf("%d %d %d : ",trackingCamera.target->x,trackingCamera.target->y,trackingCamera.target->z);
-//printf("%d %d\n",camPitch,Pitch);
-
-			if(CameraControlMode & CAMCONMODE_PITCH) {
-				Pitch += (UserPitch*360)/65536;
-			}
-
-			Pitch += 10;
-			Pitch = -Pitch;
-			if(Pitch < camPitch) {
-				camPitch = Pitch;
-			}
-
-			if(camPitch < -90) {
-				camPitch = -90;
-			}
-
-			// Varie the view distance according to the view pitch.
-			TPitch = -(camPitch+12);
-			if(TPitch < 0) {
-				TPitch = 0;
-			}
-			targDist = VIEWDIST+TPitch*16 + UserDistance;
-			if(targDist > 2400) {
-				targDist = 2400;
-				UserDistance = 2400-VIEWDIST+TPitch*16;
-			}
-
-			camPitch = DEG(camPitch);
-			targRot.y = DEG(Direction-180);
-//			targRot.y = DEG(trackingCamera.target->direction-180);
-
-		//	DBPRINTF(("%d,%d\n",Pitch+10,ViewDist);
-			// Position camera over object.
-			targPos.x = trackingCamera.target->x-(VISIBLE_XTILES*TILE_UNITS)/2;
-			targPos.y = -(trackingCamera.target->z);
-			targPos.z = trackingCamera.target->y-(VISIBLE_YTILES*TILE_UNITS)/2;
-			break;
-
-		case	CAMMODE_TOPDOWN:
-			// Camera top down view.
-			MaxRotDelta = MAX_CAMROT_TOPDOWN_DELTA;
-
-			targDist = VIEWTOPDOWNDIST + UserDistance;
-			if(targDist > 2400) {
-				targDist = 2400;
-				UserDistance = 2400-VIEWTOPDOWNDIST;
-			}
-
-			Direction = 0;
-
-			if(CameraControlMode & CAMCONMODE_YAW) {
-				Direction = ((UserYaw*360)/65536)%360;
-			}
-
-			if(CameraControlMode & CAMCONMODE_PITCH) {
-				camPitch = DEG(((-UserPitch*360)/65536)%360);
-//				DBPRINTF(("%d %d\n",UserPitch);
-				if(camPitch > -24) {
-					camPitch = -24;
-				}
-			} else {
-				camPitch = VIEWTOPDOWNANG;
-			}
-
-			targRot.y = DEG(Direction);
-
-//			DBPRINTF(("cp %d\n",camPitch);
-			// Position camera over object.
-			targPos.x = trackingCamera.target->x-(VISIBLE_XTILES*TILE_UNITS)/2;
-			targPos.y = -(trackingCamera.target->z);
-			targPos.z = trackingCamera.target->y-(VISIBLE_YTILES*TILE_UNITS)/2;
-			break;
-
-		case	CAMMODE_ORBIT:
-			// Camera orbiting an object.
-			MaxRotDelta = MAX_CAMROT_ORBIT_DELTA;
-
-			camPitch = DEG(VIEW45ANG);
-			targDist = VIEWTOPDOWNDIST;
-			targRot.y = DEG(OrbitAngle % 360);
-			OrbitAngle += 2;
-			// Position camera over object.
-			targPos.x = trackingCamera.target->x-(VISIBLE_XTILES*TILE_UNITS)/2;
-			targPos.y = -(trackingCamera.target->z);
-			targPos.z = trackingCamera.target->y-(VISIBLE_YTILES*TILE_UNITS)/2;
-			break;
-
-		case	CAMMODE_RESTORE:
-			MaxRotDelta = MAX_CAMROT_TOPDOWN_DELTA;
-			camPitch = trackingCamera.oldView.r.x;	//DEG(330);
-			targRot.y = trackingCamera.oldView.r.y;	//DEG(330);
-			targDist = trackingCamera.oldDistance;	//1700;
-//			ViewRotDamp = 4;
-//			ViewDistDamp = 2;
-//			ViewPosDamp = 2;
-
-			// Position camera over object.
-			targPos.x = trackingCamera.target->x-(VISIBLE_XTILES*TILE_UNITS)/2;
-			targPos.y = -(trackingCamera.target->z);
-			targPos.z = trackingCamera.target->y-(VISIBLE_YTILES*TILE_UNITS)/2;
-			break;
-
-		case	CAMMODE_PANTOLOCATION:
-			MaxRotDelta = MAX_CAMROT_ORBIT_DELTA;
-			camPitch = PanTarget.pitch;
-			targRot.y = PanTarget.direction;
-			targRot.z = PanTarget.roll;
-			targDist = PanTargetDistance;
-
-			// Position camera over object.
-			targPos.x = PanTarget.x-(VISIBLE_XTILES*TILE_UNITS)/2;
-			targPos.y = -(PanTarget.z);
-			targPos.z = PanTarget.y-(VISIBLE_YTILES*TILE_UNITS)/2;
-
-//			ViewRotDamp = 4;
-//			ViewDistDamp = 2;
-//			ViewPosDamp = 2;
-			break;
-
-		default:
-//			DBPRINTF(("Unknown camera mode\n"));
-			MaxRotDelta = MAX_CAMROT_BEHIND_DELTA;
-			camPitch = DEG(VIEW45ANG);
-	}
-
-	// If the target is along way from the current position then
-	// pitch the camera down and pull back.
-	if(	CameraMode == CAMMODE_BEHIND ) {
-		BOOL CheckSpeed = TRUE; 
-
-		// Don't do this if it's a vtol or a transporter.
-		if(trackingCamera.target->type == OBJ_DROID) {
-			DROID *psDroid = trackingCamera.target;
-			PROPULSION_STATS *psPropStats;
-
-			psPropStats = asPropulsionStats + psDroid->asBits[COMP_PROPULSION].nStat;
-			if (psPropStats->propulsionType == LIFT) {
-				CheckSpeed = FALSE;
-			}
-		}
-
-		if (CheckSpeed) {
-
-			DeltaX = abs(targPos.x - player.p.x);
-			DeltaY = abs(targPos.z - player.p.z);
-			if((DeltaX + DeltaY) > 512) {
-				camPitch = DEG(VIEWTOPDOWNANG);
-				targDist = VIEWTOPDOWNDIST;
-			}
-		}
-	}
-
-	// Rotate to view from behind object.
-	targRot.x = camPitch;	//DEG(camPitch);
-	targRot.z = 0;
-
-	if((xRotVel |= 0) || (yRotVel |= 0)) {
-		MaxRotDelta = MAX_CAMROT_USER_DELTA;
-	}
-
-//	DBPRINTF(("%d\n",MaxRotDelta);
-
-	// Set position with damping.
-	DeltaX = ForceValRange((targPos.x - player.p.x)/ViewPosDamp,-MaxDelta,MaxDelta);
-	DeltaY = ForceValRange((targPos.y - player.p.y)/ViewPosDamp,-MaxDelta,MaxDelta);
-	DeltaZ = ForceValRange((targPos.z - player.p.z)/ViewPosDamp,-MaxDelta,MaxDelta);
-	player.p.x += DeltaX;
-	player.p.y += DeltaY;
-	player.p.z += DeltaZ;
-
-//printf("%d %d %d\n",DeltaX,DeltaY,DeltaZ);
-
-//	if(!getRadarTrackingStatus()) {
-		// Set rotation with damping.
-		DeltaRX = ForceValRange((SWORD)((UWORD)targRot.x - (UWORD)player.r.x)/ViewRotDamp,-MaxRotDelta,MaxRotDelta);
-		DeltaRY = ForceValRange((SWORD)((UWORD)targRot.y - (UWORD)player.r.y)/ViewRotDamp,-MaxRotDelta,MaxRotDelta);
-		DeltaRZ = ForceValRange((SWORD)((UWORD)targRot.z - (UWORD)player.r.z)/ViewRotDamp,-MaxRotDelta,MaxRotDelta);
-		player.r.x += DeltaRX;
-		player.r.y += DeltaRY;
-		player.r.z += DeltaRZ;
-
-		// Set view distance with damping.
-		curDist = getViewDistance();
-		DeltaD = (targDist - curDist)/ViewDistDamp;
-		curDist += DeltaD;
-		setViewDistance(curDist);
-
-		switch(CameraMode) {
-			case	CAMMODE_RESTORE:
-//				DBPRINTF(("%d %d %d %d\n",DeltaRX,DeltaRY,DeltaRZ,DeltaD));
-				if( (abs(DeltaRX) + abs(DeltaRY) + abs(DeltaRZ) + abs(DeltaD))/4 == 0) {
-					DBPRINTF(("View restored\n"));
-					camResetDamping();
-//					camSetOldView(player.p.x,player.p.y,player.p.z,
-//								player.r.x,player.r.y,getViewDistance());
-//								DEG(330),DEG(330),1700);
-					camToggleStatus();
-					CameraMode = CAMMODE_INACTIVE;
-					DBPRINTF(("View restored done\n"));
-				}
-				break;
-
-			case	CAMMODE_PANTOLOCATION:
-//				DBPRINTF(("%d %d %d\n",DeltaX,DeltaY,DeltaZ));
-				if( (abs(DeltaX) + abs(DeltaY) + abs(DeltaZ))/2 == 0) {
-					DBPRINTF(("Target reached\n"));
-					camResetDamping();
-//					camSetOldView(	PanTarget.x,PanTarget.y,PanTarget.z,
-//									PanTarget.pitch,PanTarget.direction,
-//									PanTargetDistance);
-//									trackingCamera.oldView.r.x,trackingCamera.oldView.r.y,
-//									trackingCamera.oldDistance);
-//					camSetOldView(	player.p.x,player.p.y,player.p.z,
-//									player.r.x,player.r.y
-//									getViewDistance());
-					camToggleStatus();
-					CameraMode = CAMMODE_INACTIVE;
-					DBPRINTF(("Target reached done\n"));
-				}
-				break;
-		}
-//	}
-
-//	// Switch off if we're jumping to a new location and we've got there.
-//	if(getRadarTrackingStatus())
-//	{
-//		if(getPositionMagnitude() < 50) {
-//			camToggleStatus();
-//		}
-//	}
-
-	return TRUE;
-}
-
-#endif
 
 
 void camSetOldView(int x,int y,int z,int rx,int ry,int dist)
@@ -2164,14 +1436,6 @@ void camSetOldView(int x,int y,int z,int rx,int ry,int dist)
 	UNUSEDPARAMETER(ry);
 	UNUSEDPARAMETER(dist);
 
-//DBPRINTF(("camSetOldView(%d %d %d %d %d %d)\n",x,y,z,rx,ry,dist));
-//DBPRINTF(("%d %d %d %d %d %d\n",player.p.x,player.p.y,player.r.x,player.r.y,getViewDistance()));
-//	trackingCamera.oldView.p.x = x;
-//	trackingCamera.oldView.p.y = y;
-//	trackingCamera.oldView.p.z = z;
-//	trackingCamera.oldView.r.x = rx;
-//	trackingCamera.oldView.r.y = ry;
-//	trackingCamera.oldDistance = dist;
 }
 
 
@@ -2179,24 +1443,13 @@ void camSetOldView(int x,int y,int z,int rx,int ry,int dist)
 void	camSwitchOff( void )
 {
  	/* Restore the angles */
-#ifdef PSX
-	if(OldViewValid) {
-		player.r.x = trackingCamera.oldView.r.x;
-		player.r.y = trackingCamera.oldView.r.y;
-		player.r.z = trackingCamera.oldView.r.z;
-		setViewDistance(trackingCamera.oldDistance);
-	}
-#else
-//	player.r.x = trackingCamera.oldView.r.x;
 	player.r.z = trackingCamera.oldView.r.z;
 
 	/* And height */
 	/* Is this desirable??? */
-//	player.p.y = trackingCamera.oldView.p.y;	
 
 	/* Restore distance */
 	setViewDistance(trackingCamera.oldDistance);
-#endif
 }
 
 //-----------------------------------------------------------------------------------
@@ -2221,13 +1474,6 @@ BOOL	getWarCamStatus( void )
 /* Flips the status of tracking to the opposite of what it presently is */
 void	camToggleStatus( void )
 {
-#ifdef PSX
-	if(trackingCamera.status != CAM_INACTIVE) {
-		if(bTrackingTransporter) {
-			return;
-		}
-	}
-#endif
 
  	/* If it's off */
 	if(trackingCamera.status == CAM_INACTIVE)
@@ -2240,9 +1486,6 @@ void	camToggleStatus( void )
 		/* Otherwise, switch it off */
 		setWarCamActive(FALSE);
 //		if(getDrivingStatus())
-//		{
-//			StopDriverMode();
-//		}
 	}
 }
 
@@ -2255,7 +1498,6 @@ void	camToggleInfo(void)
 }
 
 /* Sets up the dummy target for the camera */
-//void	setUpRadarTarget(SDWORD x, SDWORD y)
 void	setUpRadarTarget(SDWORD x, SDWORD y)
 {
 
@@ -2279,17 +1521,12 @@ void	setUpRadarTarget(SDWORD x, SDWORD y)
 /* Informs the tracking camera that we want to start tracking to a new radar target */
 void	requestRadarTrack(SDWORD x, SDWORD y)
 {
-/*	
-	ASSERT((x<mapWidth*TILE_UNITS,"Weirdy x coordinate for tracking"));
-	ASSERT((y<mapHeight*TILE_UNITS,"Weirdy y coordinate for tracking"));
-*/
 	
 	radarX = (SWORD)x;
  	radarY = (SWORD)y;
  	bRadarTrackingRequested = TRUE;
 	trackingCamera.status = CAM_REQUEST;
 	processWarCam();
-// 	setWarCamActive(TRUE);
 }
 
 /* Returns whether we're presently tracking to a new _location_ */
@@ -2303,7 +1540,6 @@ BOOL	retVal;
 	}
 	else
 	{
-		//if(/*trackingCamera.target && */trackingCamera.target->type == OBJ_TARGET)
         //if you know why the above check was commented out please tell me AB 19/11/98
         if(trackingCamera.target && trackingCamera.target->type == OBJ_TARGET)
 		{
@@ -2320,61 +1556,12 @@ BOOL	retVal;
 /* Displays a spinning MTV style logo in the top right of the screen */
 void	dispWarCamLogo( void )
 {
-#ifdef WIN32
-//iVector		dv;
 //
 //	if(gamePaused())
-//	{
 //		/* get out if we're paused */
-//		return;
-//	}
 //
-//	warCamLogoRotation += MAKEINT( (MAKEFRACT(LOGO_ROT_SPEED) * fraction) );
-//	dv.x = 280;
-//	dv.y = 165;
-//	dv.z = 1000;
 //	iV_MatrixBegin();							/* Push the indentity matrix */
-//	iV_TRANSLATE(dv.x,dv.y,dv.z);
-//	scaleMatrix(15);
-//	iV_MatrixRotateY(warCamLogoRotation);
-//	iV_MatrixRotateX(player.r.x);
 //
-//	pie_Draw3DShape(cameraImd, 0, 0, pie_MAX_BRIGHT_LEVEL, 0, pie_BUTTON, 0);
-//	iV_MatrixEnd();
-#else	// PSX camera renderer.
-//	iVector dv;
-//	SWORD dummyscreen[2];
-//	SVECTOR ZeroVector={0,0,0};
-//	FRACT	fraction;
-//	PIE PieParams;
-//
-//	PieParams.Flags = PIE_PALETTEID;
-//	PieParams.PaletteID = 0;
-//
-//	fraction = (MAKEFRACT(frameTime) / (FRACT)GAME_TICKS_PER_SEC);
-//
-//	warCamLogoRotation += MAKEINT( ((FRACT)(LOGO_ROT_SPEED) * fraction) );
-//	dv.x = 282;
-//	dv.y = 165;
-//	dv.z = 1000;
-//
-//	SetBSPObjectPos(dv.x,dv.y,dv.z);	// this isn't right is it ?
-//	dv.y = -dv.y;
-//
-//	psxPushMatrix();
-//	psxiV_MatrixBegin();
-//
-//    psxiV_TRANSLATE(dv.x,dv.y,dv.z);
-//	scaleMatrix(15);
-//	psxiV_MatrixRotateY(warCamLogoRotation);
-//	psxiV_MatrixRotateX(player.r.x);
-//
-//	psxUseMatrix();
-//
-//	psxiv_SetIMDZ(psxiV_RotateProject(&ZeroVector,dummyscreen));
-//   	DrawPie(cameraImd,&PieParams);
-//	psxPopMatrix();
-#endif
 }
 
 void	toggleRadarAllignment( void )

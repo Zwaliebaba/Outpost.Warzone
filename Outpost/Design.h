@@ -80,7 +80,6 @@
 #define IDDES_CONSTPOINTSLAB	5225		// The construction build points label
 #define IDDES_CONSTWEIGHTLAB	5226		// The construction weight label
 //extras added AB 3/9/97
-//#define IDDES_BODYPOINTSLAB		5227		// The body points label
 #define IDDES_BODYARMOURHLAB	5228		// The body armour (heat) bar graph label
 
 #define IDDES_TEMPPOWERLAB		5229		// The template's Power req label

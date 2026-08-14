@@ -7,34 +7,26 @@
 #include "Loop.h"
 #include "Edit2D.h"
 #include "Map.h"
-#include "bitimage.h"//bitmap routines
+#include "BitImage.h"//bitmap routines
 
-#ifdef PSX
-#include "Primatives.h"
-#include "csnap.h"
-#include "dcache.h"
-extern CURSORSNAP InterfaceSnap;
-#endif
 
-#include "Display3d.h"
+#include "Display3D.h"
 #include "HCI.h"
-#include "audio.h"
-#include "audio_id.h"
+#include "Audio.h"
+#include "AudioID.h"
 #include "WidgInt.h"
-#include "bar.h"
-#include "form.h"
-#include "label.h"
-#include "button.h"
-#include "editbox.h"
-#include "slider.h"
+#include "Bar.h"
+#include "Form.h"
+#include "Label.h"
+#include "Button.h"
+#include "EditBox.h"
+#include "Slider.h"
 #include "Order.h"
 #include "IntImage.h"
 #include "IntDisplay.h"
 #include "IntOrder.h"
 #include "Text.h"
-#ifdef WIN32
 #include "ScriptExtern.h"
-#endif
 
 
 #define ORDER_X			23
@@ -46,11 +38,7 @@ extern CURSORSNAP InterfaceSnap;
 #define ORDER_BUTGAP	4
 #define ORDER_BOTTOMY	318	+ E_H
 
-#ifdef WIN32
 #define MAX_SELECTED_DROIDS	100	// Max size of selected droids list.
-#else
-#define MAX_SELECTED_DROIDS	16	// Max size of selected droids list.
-#endif
 #define MAX_AVAILABLE_ORDERS 16	// Max available orders list.
 #define MAX_DISPLAYABLE_ORDERS 11	// Max number of displayable orders.
 #define MAX_ORDER_BUTS 5		// Max number of buttons for a given order.
@@ -68,10 +56,6 @@ extern CURSORSNAP InterfaceSnap;
 #define IDORDER_FIRE_DESIGNATOR				8100
 #define IDORDER_ASSIGN_VTOL_PRODUCTION		8110
 
-//#define IDORDER_RETURN_TO_BASE		8050
-//#define IDORDER_DESTRUCT				8060
-//#define IDORDER_RETURN_TO_REPAIR		8080
-//#define IDORDER_EMBARK				8100
 
 typedef enum {
 	ORD_BTYPE_RADIO,			// Only one state allowed.
@@ -194,7 +178,6 @@ ORDERBUTTONS OrderButtons[NUM_ORDERS]=
 		{STR_DORD_FIREDES,	0,	0},
 		{DSS_FIREDES_SET,	0,	0}
 	},
-#ifdef WIN32	// No patrol button on PSX.
 	{
 		ORDBUTCLASS_NORMAL,
 		DSO_PATROL,
@@ -209,7 +192,6 @@ ORDERBUTTONS OrderButtons[NUM_ORDERS]=
 		{STR_DORD_PATROL,	0,	0},
 		{DSS_PATROL_SET,	0,	0}
 	},
-#endif
 	{
 		ORDBUTCLASS_NORMAL,
 		DSO_HALTTYPE,
@@ -232,13 +214,8 @@ ORDERBUTTONS OrderButtons[NUM_ORDERS]=
 		ORD_JUSTIFY_CENTER | ORD_JUSTIFY_NEWLINE,
 		IDORDER_RETURN,
 		3,0,
-#ifdef WIN32
 		{IMAGE_ORD_RTRUP,	IMAGE_ORD_GOTOHQUP,	IMAGE_ORD_EMBARKUP},
 		{IMAGE_ORD_RTRUP,	IMAGE_ORD_GOTOHQUP,	IMAGE_ORD_EMBARKUP},
-#else
-		{IMAGE_ORD_GOTOREPAIR,	IMAGE_ORD_GOTOHQUP,	IMAGE_ORD_EMBARK},
-		{IMAGE_ORD_GOTOREPAIR,	IMAGE_ORD_GOTOHQUP,	IMAGE_ORD_EMBARK},
-#endif
 		{IMAGE_DES_HILIGHT,		IMAGE_DES_HILIGHT,	IMAGE_DES_HILIGHT},
 		{STR_DORD_RETREPAIR,	STR_DORD_RETBASE,	STR_DORD_EMBARK},
 		{DSS_RTL_REPAIR,	DSS_RTL_BASE,	DSS_RTL_TRANSPORT},
@@ -257,7 +234,6 @@ ORDERBUTTONS OrderButtons[NUM_ORDERS]=
 		{STR_DORD_HOLDPOS,	0,	0},
 		{DSS_HOLD_SET,	0,	0}
 	},
-//	{
 //		ORDBUTCLASS_NORMALMIXED,
 //		DSO_RETURN_TO_BASE, DSO_EMBARK,		 DSO_RETURN_TO_REPAIR,
 //		DSS_RTB_MASK,		DSS_EMBARK_MASK, DSS_RTR_MASK,
@@ -269,7 +245,6 @@ ORDERBUTTONS OrderButtons[NUM_ORDERS]=
 //		{IMAGE_ORD_GOTOHQUP,	IMAGE_ORD_GOTOHQUP,	IMAGE_ORD_GOTOHQUP},
 //		{IMAGE_DES_HILIGHT,	IMAGE_DES_HILIGHT,	IMAGE_DES_HILIGHT},
 //		{STR_DORD_RETBASE,	STR_DORD_RETBASE,	STR_DORD_RETREPAIR},
-//		{DSS_RTB_SET,	DSS_EMBARK_SET,	DSS_RTR_SET}
 //	},
 	{
 		ORDBUTCLASS_NORMAL,
@@ -323,7 +298,6 @@ ORDERBUTTONS OrderButtons[NUM_ORDERS]=
 		{STR_DORD_RETREPAIR,	0,	0},
 		{DSS_RTR_SET,	0,	0}
 	},
-//	{
 //		ORDBUTCLASS_NORMAL,
 //		DSO_DESTRUCT,
 //		DSS_DESTRUCT_MASK,
@@ -335,7 +309,6 @@ ORDERBUTTONS OrderButtons[NUM_ORDERS]=
 //		{IMAGE_ORD_DESTRUCT1UP,	IMAGE_ORD_DESTRUCT2GREY,	0},
 //		{IMAGE_DES_HILIGHT,	IMAGE_DES_HILIGHT,	0},
 //		{STR_DORD_ARMDESTRUCT,	STR_DORD_DESTRUCT,	0},
-//		{DSS_DESTRUCT_SET,	DSS_DESTRUCT_SET,	0}
 //	},*/
 	{
 		ORDBUTCLASS_NORMAL,
@@ -405,7 +378,6 @@ extern UDWORD currentGameFrame;
 extern void intDisplayPlainForm(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD *pColours);
 
 static BOOL BuildSelectedDroidList(void);
-//static BOOL factorySelected(void);
 static BOOL SetSecondaryState(SECONDARY_ORDER sec, SECONDARY_STATE State);
 static BOOL BuildDroidOrderList(void);
 static BOOL BuildStructureOrderList(STRUCTURE *psStructure);
@@ -420,25 +392,9 @@ static STRUCTURE *psSelectedFactory;
 static UWORD NumAvailableOrders;
 static AVORDER AvailableOrders[MAX_AVAILABLE_ORDERS];
 //works on factories now as well - AB 21/04/99
-//static BOOL CheckDroidOrderList(void);
 static BOOL CheckObjectOrderList(void);
 static BOOL intRefreshOrderButtons(void);
 
-#ifdef PSX
-static UWORD OrderCenterX;
-static UWORD OrderCenterY;
-
-UWORD GetOrderCenterX(void)
-{															 
-	return OrderCenterX;
-}
-
-
-UWORD GetOrderCenterY(void)
-{
-	return OrderCenterY;
-}
-#endif
 
 
 BOOL OrderUp = FALSE;
@@ -450,7 +406,6 @@ BOOL intUpdateOrder(DROID *psDroid)
 	{
 		widgDelete(psWScreen, IDORDER_CLOSE);
         //changed to a BASE_OBJECT to accomodate the factories - AB 21/04/99
-		//intAddOrder(psDroid);
         intAddOrder((BASE_OBJECT *)psDroid);
 	}
 
@@ -461,7 +416,6 @@ BOOL intUpdateOrder(DROID *psDroid)
 // Returns TRUE if the form was displayed ok.
 //
 //changed to a BASE_OBJECT to accomodate the factories - AB 21/04/99
-//BOOL _intAddOrder(DROID *Droid)
 BOOL _intAddOrder(BASE_OBJECT *psObj)
 {
 	W_FORMINIT			sFormInit;
@@ -480,13 +434,11 @@ BOOL _intAddOrder(BASE_OBJECT *psObj)
     DROID       *Droid;
     STRUCTURE   *psStructure;
 
-#ifdef WIN32
 	if(bInTutorial)
 	{
 		// No RMB orders in tutorial!!
 		return(FALSE);
 	}
-#endif
 	// Is the form already up?
 	if(widgGetFromID(psWScreen,IDORDER_FORM) != NULL) {
 		intRemoveOrderNoAnim();
@@ -524,11 +476,7 @@ BOOL _intAddOrder(BASE_OBJECT *psObj)
         psStructure =  NULL;
     }
 
-#ifdef PSX
-	Animate = FALSE;
-#endif
 
-  //	intResetScreen(TRUE);
 	setWidgetsStatus(TRUE);
 
 	NumAvailableOrders = 0;
@@ -564,7 +512,6 @@ BOOL _intAddOrder(BASE_OBJECT *psObj)
     {
 	    if(!BuildDroidOrderList()) 
         {
-		    // If no orders then return;
 		    return FALSE;
         }
 	}
@@ -572,9 +519,6 @@ BOOL _intAddOrder(BASE_OBJECT *psObj)
 	widgEndScreen(psWScreen);
 
 	/* Create the basic form */
-#ifdef PSX
-	WidgSetOTIndex(OT2D_BACK);
-#endif
 	memset(&sFormInit, 0, sizeof(W_FORMINIT));
 	sFormInit.formID = 0;
 	sFormInit.id = IDORDER_FORM;
@@ -595,13 +539,7 @@ BOOL _intAddOrder(BASE_OBJECT *psObj)
 	{
 		return FALSE;
 	}
-#ifdef PSX
-//	// Position the mouse in the center of this form.
-//	SetCurrentSnapFormID(&InterfaceSnap,sFormInit.id);
-	WidgSetOTIndex(OT2D_FARFORE);
-#endif
 
-#ifdef WIN32
 	// Add the close button.
 	memset(&sButInit, 0, sizeof(W_BUTINIT));
 	sButInit.formID = IDORDER_FORM;
@@ -619,7 +557,6 @@ BOOL _intAddOrder(BASE_OBJECT *psObj)
 	{
 		return FALSE;
 	}
-#endif
 
 	memset(&sButInit, 0, sizeof(W_BUTINIT));
 	sButInit.formID = IDORDER_FORM;
@@ -636,7 +573,6 @@ BOOL _intAddOrder(BASE_OBJECT *psObj)
    		OrdIndex = AvailableOrders[j].OrderIndex;
 
 		// Get current order state.
-   		//secondaryGetState(SelectedDroids[0], OrderButtons[OrdIndex].Order, &State);
 		State = GetSecondaryStates(OrderButtons[OrdIndex].Order);
 
 		// Get number of buttons.
@@ -660,15 +596,6 @@ BOOL _intAddOrder(BASE_OBJECT *psObj)
 		sButInit.id = OrderButtons[OrdIndex].ButBaseID;
 
 		NumJustifyButs = NumButs;
-//		for(k=j; k<NumAvailableOrders; k++) {
-//	   		UWORD Index = AvailableOrders[j].OrderIndex;
-//			if(OrderButtons[OrdIndex].ButJustify & ORD_JUSTIFY_NEWLINE) {
-//				DBPRINTF(("NewLine %d \n",k);
-//				break;
-//			} else {
-//				DBPRINTF(("SameLine %d \n",k);
-//			}
-//		}
 
 		bLastCombine = FALSE;
 
@@ -686,7 +613,6 @@ BOOL _intAddOrder(BASE_OBJECT *psObj)
 			case ORD_JUSTIFY_CENTER:
 //				sButInit.x = (SWORD)((sFormInit.width / 2) -
 //						( ((NumJustifyButs * GetImageWidth(IntImages,OrderButtons[OrdIndex].ButImageID[0])) + 
-//						((NumJustifyButs-1) * ORDER_BUTGAP ) ) / 2 ));
 				sButInit.x = ((SWORD)((sFormInit.width ) -
 						( ((NumJustifyButs * GetImageWidth(IntImages,OrderButtons[OrdIndex].ButImageID[0])) + 
 						((NumJustifyButs-1) * ORDER_BUTGAP ) ))))/2;
@@ -814,13 +740,6 @@ BOOL _intAddOrder(BASE_OBJECT *psObj)
 
 			if (!bHidden)
 			{
-#ifdef PSX
-				// bit of a hack this, don't want to set the recycle confirm
-				// button as the current snap since it's greyed out to start with.
-				if(sButInit.id != IDORDER_RECYCLE+1) {
-					intSetCurrentCursorPosition(&InterfaceSnap,sButInit.id);
-				}
-#endif
 				sButInit.x = (SWORD)(sButInit.x + sButInit.width + ORDER_BUTGAP);
 			}
 			sButInit.id++;
@@ -840,10 +759,6 @@ BOOL _intAddOrder(BASE_OBJECT *psObj)
 	Form->height = (UWORD)(Height + CLOSE_HEIGHT + ORDER_BUTGAP);
 	Form->y = (SWORD)(ORDER_BOTTOMY-Form->height);
 
-#ifdef PSX
-	OrderCenterX = Form->x + Form->width/2;
-	OrderCenterY = Form->y + Form->height/2;
-#endif
 
 	OrderUp = TRUE;
 
@@ -865,9 +780,7 @@ void intRunOrder(void)
 	for(i=0; i<NumSelectedDroids; i++) {
 		if (SelectedDroids[i])
 		{
-//			if(SelectedDroids[i]->selected) {
 				NumSelected++;
-//			}
 			if(SelectedDroids[i]->died) {
 				NumDead++;
 				SelectedDroids[i]=NULL;
@@ -1062,64 +975,19 @@ static BOOL _intRefreshOrder(void)
 //
 BOOL intRefreshOrder(void)
 {
-//	DBPRINTF(("intRefreshOrder\n"));
-#ifdef PSX
-	// If the stacks in the dcache then..
-	if(SpInDCache()) {
-	   static BOOL res;
-
-		// Set the stack pointer to point to the alternative stack which is'nt limited to 1k.
-		SetSpAlt();
-		res = _intRefreshOrder();
-		SetSpAltNormal();
-
-		return res;
-	}
-#endif
 	return _intRefreshOrder();
 }
 
 
 //changed to a BASE_OBJECT to accomodate the factories - AB 21/04/99
-//BOOL intAddOrder(DROID *Droid)
 BOOL intAddOrder(BASE_OBJECT *psObj)
 {
-#ifdef PSX
-	// If the stacks in the dcache then..
-	if(SpInDCache()) {
-		static DROID *_Droid;
-		static BOOL ret;
-
-		_Droid = Droid;
-		// Set the stack pointer to point to the alternative stack which is'nt limited to 1k.
-		SetSpAlt();
-		ret = _intAddOrder(_Droid);
-		SetSpAltNormal();
-
-		return ret;
-	}
-#endif
     //changed to a BASE_OBJECT to accomodate the factories - AB 21/04/99
-	//return _intAddOrder(Droid);
     return _intAddOrder(psObj);
 }
 
 void intProcessOrder(UDWORD id)
 {
-#ifdef PSX
-	// If the stacks in the dcache then..
-	if(SpInDCache()) {
-		static UWORD _id;
-
-		_id = id;
-		// Set the stack pointer to point to the alternative stack which is'nt limited to 1k.
-		SetSpAlt();
-		_intProcessOrder(_id);
-		SetSpAltNormal();
-
-		return;
-	}
-#endif
 	_intProcessOrder(id);
 }
 
@@ -1128,9 +996,6 @@ void intProcessOrder(UDWORD id)
 //
 void intRemoveOrder(void)
 {
-#ifdef PSX
-	intRemoveOrderNoAnim();
-#else
 	W_TABFORM *Form;
 
 	widgDelete(psWScreen, IDORDER_CLOSE);
@@ -1146,7 +1011,6 @@ void intRemoveOrder(void)
 		NumSelectedDroids = 0;
         psSelectedFactory = NULL;
     }
-#endif
 }
 
 
@@ -1170,7 +1034,6 @@ static BOOL BuildSelectedDroidList(void)
 	DROID *psDroid;
 
 	for(psDroid = apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext) {
-//		if(psDroid->selected AND psDroid->sDisplay.frameNumber == currentGameFrame) {
 		if(psDroid->selected) {
 			if(NumSelectedDroids < MAX_SELECTED_DROIDS) {
 				SelectedDroids[NumSelectedDroids] = psDroid;
@@ -1179,7 +1042,6 @@ static BOOL BuildSelectedDroidList(void)
 		}
 	}
 
-//	DBPRINTF(("%d droids selected\n",NumSelectedDroids));
 
 	if(NumSelectedDroids) {
 		return TRUE;
@@ -1304,7 +1166,6 @@ static BOOL BuildDroidOrderList(void)
 // Build a list of orders available for the selected structure.
 static BOOL BuildStructureOrderList(STRUCTURE *psStructure)
 {
-    //only valid for Factories (at the moment)
     if (!StructIsFactory(psStructure))
     {
         ASSERT((FALSE, "BuildStructureOrderList: structure is not a factory"));
@@ -1329,7 +1190,6 @@ static BOOL BuildStructureOrderList(STRUCTURE *psStructure)
 
 // check whether the order list has changed
 //works on factories now as well - AB 21/04/99
-//static BOOL CheckDroidOrderList(void)
 static BOOL CheckObjectOrderList(void)
 {
 	UWORD OrdIndex;
@@ -1345,7 +1205,6 @@ static BOOL CheckObjectOrderList(void)
     //added for factories - AB 21/04/99
     if (psSelectedFactory != NULL)
     {
-        //only valid for Factories (at the moment)
         if (!StructIsFactory(psSelectedFactory))
         {
             ASSERT((FALSE, "CheckObjectOrderList: structure is not a factory"));
@@ -1446,7 +1305,6 @@ static BOOL intRefreshOrderButtons(void)
    		OrdIndex = AvailableOrders[j].OrderIndex;
 
 		// Get current order state.
-   		//secondaryGetState(SelectedDroids[0], OrderButtons[OrdIndex].Order, &State);
 		State = GetSecondaryStates(OrderButtons[OrdIndex].Order);
 
 		// Get number of buttons.

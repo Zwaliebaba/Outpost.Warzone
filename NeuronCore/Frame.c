@@ -24,16 +24,12 @@
 #include <time.h>
 
 // window focus messages 
-//#define DEBUG_GROUP1
-#include "frame.h"
-#include "frameint.h"
-#include "wdg.h"
+#include "Frame.h"
+#include "FrameInt.h"
+#include "WDG.h"
 
-#include "fractions.h"
+#include "Fractions.h"
 
-#ifdef	 PSX
-#include  "CtrlPSX.h"
-#endif
 
 
 #include <assert.h>
@@ -265,7 +261,6 @@ static STRING winErrorString[255];
 // Return a string for a windows error code
 STRING *winErrorToString(SDWORD error)
 {
-#ifdef WIN32
 	LPVOID lpMsgBuf;
  
 	FormatMessage( 
@@ -284,9 +279,6 @@ STRING *winErrorToString(SDWORD error)
 
 	// Free the buffer.
 	LocalFree( lpMsgBuf );
-#else
-	winErrorString[0] = '0';
-#endif
 
 	return winErrorString;
 }
@@ -311,7 +303,6 @@ void frameSetCursor(HCURSOR hNewCursor)
 	SetCursor(hCursor);
 }
 
-#ifdef WIN32	// not on PSX
 
 
 
@@ -432,16 +423,9 @@ static long FAR PASCAL Wndproc( HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 				PostMessage(hWndMain, WM_SETFOCUS, 0,0);
 				if (bRunningUnderGlide)
 				{
-//				  	ShowWindow(hWndMain, SW_MAXIMIZE);
-//				  	ShowWindow(hWndMain, SW_RESTORE);
-//					ShowWindow(hWndMain, SW_SHOWMAXIMIZED);
-//					UpdateWindow(hWndMain);
-//					res = ShowOwnedPopups(hWndMain, TRUE);
 					res = IsIconic(hWndMain);
 					if (res)
 					{
-//						res = OpenIcon(hWndMain);
-//						PostMessage(hWndMain, WM_SYSCOMMAND, SC_MAXIMIZE,0);
 						ShowWindow(hWndMain, SW_SHOWMAXIMIZED);
 					}
 				}
@@ -453,10 +437,6 @@ static long FAR PASCAL Wndproc( HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 				PostMessage(hWndMain, WM_KILLFOCUS, 0,0);
 				if (bRunningUnderGlide)
 				{
-//				  	ShowWindow(hWndMain, SW_MINIMIZE);
-//					UpdateWindow(hWndMain);
-//				  	ShowWindow(hWndMain, SW_HIDE);
-//					res = ShowOwnedPopups(hWndMain, FALSE);
 					res = IsIconic(hWndMain);
 					if (!res)
 					{
@@ -560,54 +540,6 @@ extern void frameSetWindowProc(DEFWINPROCTYPE winProc)
  * Do that Windows initialization thang...
  */
 
-
-static BOOL WinInitGlide(HANDLE hInstance, char *name, int width, int height, BOOL maximize)
-{
-	WNDCLASS cls;
-//	HWND hWndMainGlide;	// note that this doesn't go anywhere....
-
-	cls.hInstance     = hInstance;//GetModuleHandle(NULL);
-	cls.hIcon         = LoadIcon(cls.hInstance, IDI_APPLICATION);
-	cls.hCursor       = LoadCursor(cls.hInstance, IDC_ARROW);
-	cls.lpszMenuName  = NULL;
-	cls.lpszClassName = WINDOW_CLASS_NAME;
-	cls.hbrBackground = (HBRUSH)GetStockObject(NULL_BRUSH);//GetStockObject(BLACK_BRUSH);
-	cls.style         = CS_DBLCLKS | CS_VREDRAW | CS_HREDRAW;
-	cls.lpfnWndProc   = Wndproc;
-	cls.cbClsExtra    = 0;
-	cls.cbWndExtra    = 0;
-
-	bRunningUnderGlide = TRUE;
-
-	if (!RegisterClass(&cls))
-	{
-		return FALSE;
-	}
-	width = GetSystemMetrics(SM_CXSCREEN);
-	height = GetSystemMetrics(SM_CYSCREEN);
-	// Initialise the window to be huge so it always covers the whole screen
-#ifdef DEBUG
-	hWndMain = CreateWindowEx(WS_EX_APPWINDOW, "Framework", name, WS_POPUP, 0, 0, width, height, NULL, NULL, cls.hInstance, NULL);
-#else
-	hWndMain = CreateWindowEx(WS_EX_APPWINDOW | WS_EX_TOPMOST, "Framework", name, WS_POPUP, 0, 0, width, height, NULL, NULL, cls.hInstance, NULL);
-#endif
-//	width; height;
-//	hWndMain = CreateWindowEx(WS_EX_APPWINDOW, "Framework", name, WS_POPUP, 0, 0, SDWORD_MAX, SDWORD_MAX, NULL, NULL, cls.hInstance, NULL);
-	if(!hWndMain)
-	{
-		DBERROR(("Whoa! Cannot create the main window for the glide version"));
-		return(FALSE);
-	}
-
-	ShowCursor(TRUE);
-  	ShowWindow(hWndMain, maximize ? SW_MAXIMIZE : SW_NORMAL);
-	UpdateWindow(hWndMain);
-
-	/* Store the default window procedure */
-	frameWinProc = NULL;
-
-	return TRUE;
-}
 
 static BOOL winInitApp(HANDLE hInstance,	// Instance handle for the program
 				STRING *pWindowName,	// The text to put on the window title bar
@@ -719,8 +651,7 @@ BOOL frameInitialise(HANDLE hInst,			// The windows application instance
 					 UDWORD height,			// The display height
 					 UDWORD bitDepth,		// The display bit depth
 					 BOOL	fullScreen,		// Whether to start full screen or windowed
-					 BOOL	bVidMem,	 	// Whether to put surfaces in video memory
-					 BOOL	bGlide )		// Whether to create surfaces
+					 BOOL	bVidMem )	 	// Whether to put surfaces in video memory
 {
 	HWND	hWndPrev;
 
@@ -734,78 +665,32 @@ BOOL frameInitialise(HANDLE hInst,			// The windows application instance
 	winQuit = FALSE;
 	focusState = FOCUS_IN;
 	focusLast = FOCUS_IN;
-	if(!bGlide)
-	{
-		mouseOn = TRUE;
-		displayMouse = TRUE;
-	}
-	else
-	{
-		mouseOn = FALSE;
-		displayMouse = FALSE;
-	}
+	mouseOn = TRUE;
+	displayMouse = TRUE;
 	hInstance = hInst;
-	bActiveDDraw = !bGlide;
+	bActiveDDraw = TRUE;
 
 //	/* Initialise the memory system */
 //	if (!memInitialise())
-//	{
-//		return FALSE;
-//	}
 
 //	if (!blkInitialise())
-//	{
-//		return FALSE;
-//	}
 
 	/* Initialise the trig stuff */
 	if (!trigInitialise())
 	{
 		return FALSE;
 	}
-//#ifdef ALEXM
-	if(bGlide)
-	{
-		/* Initialise the windows stuff for Glide and open a window */
-		if (!WinInitGlide(hInstance,pWindowName, width, height,TRUE))
-		{
-			return FALSE;
-		}
-		
-	}
-	else
 	/* Initialise the windows stuff and open a window */
 	if (!winInitApp(hInstance, pWindowName, width, height))
 	{
 		return FALSE;
 	}
 
-	if(bGlide)		  // Don't do this for Glide.
-	{
-		(void) screenInitialiseGlide(width,height,hWndMain);
-	}
-	else
-	{
-		/* Initialise the Direct Draw Buffers */
-		if (!screenInitialise(width, height, bitDepth, fullScreen, bVidMem, bActiveDDraw, hWndMain))
-		{
-			return FALSE;							
-		}
-	}
-//#else
-#if 0
-   	/* Initialise the windows stuff and open a window */
-	if (!winInitApp(hInstance, pWindowName, width, height))
+	/* Initialise the Direct Draw Buffers */
+	if (!screenInitialise(width, height, bitDepth, fullScreen, bVidMem, bActiveDDraw, hWndMain))
 	{
 		return FALSE;
 	}
-
-  	/* Initialise the Direct Draw Buffers */
-	if (!screenInitialise(width, height, bitDepth, fullScreen, bVidMem, bActiveDDraw, hWndMain))
-	{
-		return FALSE;							
-	}
-#endif
 	/* Initialise the input system */
 	inputInitialise();
 	/* Initialise the frame rate stuff */
@@ -939,116 +824,6 @@ void frameShutDown(void)
 
 }
 
-#else // ifdef WIN32 - here are the PSX version of the routines
-
-
-void frameSetCursorFromRes(WORD resID)
-{
-//	SetPSXCursorFrame(resID);
-}
-
-/*
- * frameInitialise
- *
- * Initialise the framework library. - PSX Version
- */
-BOOL frameInitialise(HANDLE hInst,			// The windows application instance
-					 STRING *pWindowName,	// The text to appear in the window title bar
-					 UDWORD	width,			// The display width
-					 UDWORD height,			// The display height
-					 UDWORD bitDepth,		// The display bit depth
-					 BOOL	fullScreen,		// Whether to start full screen or windowed
-					 BOOL	bVidMem,	 	// Whether to put surfaces in video memory
-					 BOOL	bGlide )		// Whether to create surfaces
-{
-	winQuit = FALSE;
-	focusState = FOCUS_IN;
-	focusLast = FOCUS_IN;
-	mouseOn = TRUE;
-	displayMouse = TRUE;
-	hInstance = hInst;
-
-	if (!memInitialise())
-	{
-		return FALSE;
-	}
-
-
-	if (!blkInitialise())
-	{
-		return FALSE;
-	}
-
-	/* Initialise the windows stuff and open a window - windows stuff */
-//	if (!winInitApp(hInstance, pWindowName, width, height))
-//	{
-//		return FALSE;
-//	}
-
-
-
-	/* Initialise the Direct Draw Buffers */
-	if (!screenInitialise(width, height, bitDepth, fullScreen, hWndMain))
-	{
-		return FALSE;
-	}
-
-	/* Initialise the input system */
-//	inputInitialise();
-
-	/* Initialise the frame rate stuff */
-	InitFrameStuff();
-
-
-	/* Initialise the trig stuff ... must go after the PSX hard init (uses SQRT)*/
-	if (!trigInitialise())
-	{
-		return FALSE;
-	}
-
-	// Initialise the resource stuff
-	if (!resInitialise())
-	{
-		return FALSE;
-	}
-
-
-
-
-	return TRUE;
-}
-
-
-
-
-
-/*
- * frameUpdate
- *
- * Call this each cycle to allow the framework to deal with
- * windows messages, and do general house keeping.
- *
- * Returns FRAME_STATUS.
- */
-FRAME_STATUS frameUpdate(void)
-{
-	/* Tell the input system about the start of another frame */
-	inputNewFrame();
-
-	MaintainFrameStuff();
-
-	return NULL;
-}
-
-
-
-void frameShutDown(void)
-{
-}
-
-
-
-#endif
 
 BOOL loadFile(STRING *pFileName, UBYTE **ppFileData, UDWORD *pFileSize)
 {
@@ -1077,9 +852,6 @@ BOOL loadFile2(STRING *pFileName, UBYTE **ppFileData, UDWORD *pFileSize, BOOL Al
 	// directly from CD, i.e. from the WDG's normal fopen/fread calls will never work!
 #ifdef DEBUG
 	DBPRINTF(("FOPEN ! %s\n",pFileName));
- #ifdef PSX_USECD
-	assert(2+2==5);		// no fopens when using CD code !!!
- #endif
 
 #endif
 
@@ -1089,7 +861,6 @@ BOOL loadFile2(STRING *pFileName, UBYTE **ppFileData, UDWORD *pFileSize, BOOL Al
 #endif
 
 // Not needed in a PSX FINALBUILD.
-#if defined(WIN32) || !defined(FINALBUILD)
 	pFileHandle = fopen(pFileName, "rb");
 	if (pFileHandle == NULL)
 	{
@@ -1115,7 +886,6 @@ BOOL loadFile2(STRING *pFileName, UBYTE **ppFileData, UDWORD *pFileSize, BOOL Al
 	{
 		/* Allocate a buffer to store the data and a terminating zero */
 // we don't want this popping up in the tools (makewdg)
-//		DBPRINTF(("#############FILELOAD MALLOC - size=%d\n",(FileSize)+1));
 		*ppFileData = (UBYTE *)MALLOC((FileSize) + 1);
 		if (*ppFileData == NULL)
 		{
@@ -1148,11 +918,9 @@ BOOL loadFile2(STRING *pFileName, UBYTE **ppFileData, UDWORD *pFileSize, BOOL Al
 	// Add the terminating zero
 	*((*ppFileData) + FileSize) = 0;
 	*pFileSize=FileSize;	// always set to correct size
-#endif
 	return TRUE;
 }
 
-#ifdef WIN32
 
 // load a file from disk into a fixed memory buffer
 BOOL loadFileToBuffer(STRING *pFileName, UBYTE *pFileBuffer, UDWORD bufferSize, UDWORD *pSize)
@@ -1270,7 +1038,6 @@ BOOL loadFileToBufferNoError(STRING *pFileName, UBYTE *pFileBuffer, UDWORD buffe
 
 	return TRUE;
 }
-#endif
 
 
 
@@ -1289,11 +1056,7 @@ BOOL saveFile(STRING *pFileName, UBYTE *pFileData, UDWORD fileSize)
 
 	if (fwrite(pFileData, fileSize, 1, pFile) != 1)
 	{
-#ifdef WIN32	// ffs
 		DBERROR(("Write failed for %s: %s", pFileName, winErrorToString(GetLastError()) ));
-#else
-		DBERROR(("Write failed for %s", pFileName ));
-#endif	
 		return FALSE;
 	}
 
@@ -1328,8 +1091,6 @@ static SDWORD WDGCacheEndPos=-1;
 #define	ONE_EIGHTH		((UINT) (BITS_IN_int / 8))
 #define	HIGH_BITS		( ~((UINT)(~0) >> ONE_EIGHTH ))      
 
-//#define	HIGH_BITS		((UINT)(0xf0000000))
-//#define	LOW_BITS		((UINT)(0x0fffffff))
 
 
 

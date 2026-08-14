@@ -11,8 +11,8 @@
 /***************************************************************************/
 
 // Standard include file
-#include "frame.h"
-#include "sequence.h"
+#include "Frame.h"
+#include "Sequence.h"
 
 // Direct Draw and Sound Include files
 #include <ddraw.h>
@@ -20,11 +20,10 @@
 #ifdef SEQUENCE_SOUND
 	#include <dsound.h>
 #endif
-//#define CRAP_VIDEO
 
  
 // ESCAPE include file
-#include "streamer.h"
+#include "STREAMER.H"
 
 
 /***************************************************************************/
@@ -85,7 +84,6 @@ void SoundCallBackFunc( LPSOUNDHANDLE shandle );
 /***************************************************************************/
 
 //buffer render for software_window 3DFX_window and 3DFX_fullscreen modes
-// SOFT_WINDOWED video size 16bit rgb 555 mode (convert to 8bit from the buffer)
 // D3D_WINDOWED video size 16bit uses screen pixel mode
 // 3DFX_WINDOWED video size 16bit BGR 565 mode
 // 3DFX_FULLSCREEN 640 * 480 BGR 565 mode
@@ -97,7 +95,6 @@ BOOL seq_SetSequenceForBuffer(char* filename, VIDEO_MODE mode, LPDIRECTSOUND lpD
 	long				compression;
 	BOOL				bCompression;
 	DSBUFFERDESC		DS_bd;
-//	DDPIXELFORMAT		DDPixelFormat;
 	WAVEFORMATEX		pcmwf;
 	BYTE				ap = 0,	ac = 0, rp = 0,	rc = 0, gp = 0,	gc = 0, bp = 0, bc = 0;
 	ULONG				mask;
@@ -132,64 +129,21 @@ BOOL seq_SetSequenceForBuffer(char* filename, VIDEO_MODE mode, LPDIRECTSOUND lpD
 	/*
 	// Initialise the video playback environment
 	*/
-	//		Streamer_InitVideo( 	LPVIDEOHANDLE *handle,LPMOVIEHANDLE mhandle,UINT moviexsize,UINT movieysize,INT videoleft,INT videotop,INT viewportleft,INT viewporttop,UINT viewportwidth,UINT viewportheight,UINT properties,LPLONG  bufferPixelWidth,LPLONG  bufferPixelDepth)
 
-	if (mode == VIDEO_3DFX_FULLSCREEN)
-	{
-		if (((movieWidth <= (VIDEO_WIDTH/2)) && (movieHeight <= (VIDEO_HEIGHT/2))) && !bSmallVideo)//render doubled
-		{
-			if ( Streamer_InitVideo(	&vhandle,
-										mhandle,
-										movieWidth,
-										movieHeight,
-										0,
-										0,
-										0,
-										0,
-										0,
-										0,
-										DFLAG_INVIEWPORT | DFLAG_DOUBLED,// | DFLAG_CLEAROUTPUT | //DFLAG_DOUBLED | 
-										&width,
-										&height ) != STREAMER_OK ) return FALSE;
-			movieWidth *= 2;
-			movieHeight *= 2;
-			Streamer_SetVideoPitch(vhandle,movieWidth,movieHeight);
-		}
-		else
-		{
-			if ( Streamer_InitVideo(	&vhandle,
-										mhandle,
-										movieWidth,
-										movieHeight,
-										0,
-										0,
-										0,
-										0,
-										0,
-										0,
-										DFLAG_INVIEWPORT,// | DFLAG_CLEAROUTPUT | //DFLAG_DOUBLED | 
-										&width,
-										&height ) != STREAMER_OK ) return FALSE;
-			Streamer_SetVideoPitch(vhandle,movieWidth,movieHeight);
-		}
-	}
-	else //if ((mode == VIDEO_SOFT_WINDOW) || (mode == VIDEO_D3D_WINDOW) || (mode == VIDEO_3DFX_WINDOW))
-	{
-		if ( Streamer_InitVideo(	&vhandle,
-									mhandle,
-									movieWidth,
-									movieHeight,
-									0,
-									0,
-									0,
-									0,
-									0,
-									0,
-									DFLAG_INVIEWPORT,// | DFLAG_DOUBLED, | DFLAG_CLEAROUTPUT | //DFLAG_DOUBLED | 
-									&width,
-									&height ) != STREAMER_OK ) return FALSE;
-		Streamer_SetVideoPitch(vhandle,movieWidth,movieHeight);
-	}
+	if ( Streamer_InitVideo(	&vhandle,
+								mhandle,
+								movieWidth,
+								movieHeight,
+								0,
+								0,
+								0,
+								0,
+								0,
+								0,
+								DFLAG_INVIEWPORT,// | DFLAG_DOUBLED, | DFLAG_CLEAROUTPUT | //DFLAG_DOUBLED | 
+								&width,
+								&height ) != STREAMER_OK ) return FALSE;
+	Streamer_SetVideoPitch(vhandle,movieWidth,movieHeight);
 
 
 #ifdef SEQUENCE_SOUND
@@ -279,7 +233,6 @@ BOOL seq_SetSequenceForBuffer(char* filename, VIDEO_MODE mode, LPDIRECTSOUND lpD
 						NULL,
 						0 );
 
-//jps mar4		Streamer_SetSoundDecodeMode( shandle, SSDM_SECONDBUFFER );	
 		Streamer_SetSoundDecodeMode( shandle, SSDM_IDLE	);	
 	}
 	LastUpdated = SSDM_SECONDBUFFER;
@@ -288,9 +241,82 @@ BOOL seq_SetSequenceForBuffer(char* filename, VIDEO_MODE mode, LPDIRECTSOUND lpD
 	/*
 	// Cannot playback if not 16bit mode 
 	*/
-	if (mode == VIDEO_SOFT_WINDOW)
+	if( DDPixelFormat->dwRGBBitCount == 16 )
 	{
-		//555 RGB
+		/*
+		// Find out the RGB type of the surface and tell the codec...
+		*/
+		mask = DDPixelFormat->dwRGBAlphaBitMask;
+
+		if(mask!=0)
+		{
+			while(!(mask & 1))
+			{
+				mask>>=1;
+				ap++;
+			}
+		}
+
+		while((mask & 1))
+		{
+			mask>>=1;
+			ac++;
+		}
+
+		mask = DDPixelFormat->dwRBitMask;
+
+		if(mask!=0)
+		{
+			while(!(mask & 1))
+			{
+				mask>>=1;
+				rp++;
+			}
+		}
+
+		while((mask & 1))
+		{
+			mask>>=1;
+			rc++;
+		}
+
+		mask = DDPixelFormat->dwGBitMask;
+
+		if(mask!=0)
+		{
+			while(!(mask & 1))
+			{
+				mask>>=1;
+				gp++;
+			}
+		}
+
+		while((mask & 1))
+		{
+			mask>>=1;
+			gc++;
+		}
+
+		mask = DDPixelFormat->dwBBitMask;
+
+		if(mask!=0)
+		{
+			while(!(mask & 1))
+			{
+				mask>>=1;
+				bp++;
+			}
+		}
+
+		while((mask & 1))
+		{
+			mask>>=1;
+			bc++;
+		}
+	}
+	else
+	{
+		//assume 555
 		ap = 15;
 		ac = 1;
 		rp = 10;
@@ -300,113 +326,10 @@ BOOL seq_SetSequenceForBuffer(char* filename, VIDEO_MODE mode, LPDIRECTSOUND lpD
 		bp = 0;
 		bc = 5;
 	}
-	else if ((mode == VIDEO_3DFX_FULLSCREEN) || (mode == VIDEO_3DFX_WINDOW)) 
+	lowBitMask = 0xffff - (1<<bp) - (1<<gp) - (1<<rp);
+	if (ac)
 	{
-		// 565 BGR
-		ap = 16;
-		ac = 0;
-		rp = 0;
-		rc = 5;
-		gp = 5;
-		gc = 6;
-		bp = 11;
-		bc = 5;
-	}
-	else if (mode == VIDEO_D3D_WINDOW)
-	{
-		/*
-		// Cannot playback if not 16bit mode 
-		*/
-		if( DDPixelFormat->dwRGBBitCount == 16 )
-		{
-			/*
-			// Find out the RGB type of the surface and tell the codec...
-			*/
-			mask = DDPixelFormat->dwRGBAlphaBitMask;
-
-			if(mask!=0)
-			{
-				while(!(mask & 1))
-				{
-					mask>>=1;
-					ap++;
-				}
-			}
-
-			while((mask & 1))
-			{
-				mask>>=1;
-				ac++;
-			}
-
-			mask = DDPixelFormat->dwRBitMask;
-
-			if(mask!=0)
-			{
-				while(!(mask & 1))
-				{
-					mask>>=1;
-					rp++;
-				}
-			}
-
-			while((mask & 1))
-			{
-				mask>>=1;
-				rc++;
-			}
-
-			mask = DDPixelFormat->dwGBitMask;
-
-			if(mask!=0)
-			{
-				while(!(mask & 1))
-				{
-					mask>>=1;
-					gp++;
-				}
-			}
-
-			while((mask & 1))
-			{
-				mask>>=1;
-				gc++;
-			}
-
-			mask = DDPixelFormat->dwBBitMask;
-
-			if(mask!=0)
-			{
-				while(!(mask & 1))
-				{
-					mask>>=1;
-					bp++;
-				}
-			}
-
-			while((mask & 1))
-			{
-				mask>>=1;
-				bc++;
-			}
-		}
-		else
-		{
-			//assume 555
-			ap = 15;
-			ac = 1;
-			rp = 10;
-			rc = 5;
-			gp = 5;
-			gc = 5;
-			bp = 0;
-			bc = 5;
-		}
-		lowBitMask = 0xffff - (1<<bp) - (1<<gp) - (1<<rp);
-		if (ac)
-		{
-			lowBitMask -= (1<<ap);
-		}
+		lowBitMask -= (1<<ap);
 	}
 	// Set the video pixel RGB format
 	if ( Streamer_SetPixelFormat( vhandle, SPF_BPP16, ap, ac, rp, rc, gp, gc, bp, bc ) != STREAMER_OK )
@@ -416,7 +339,6 @@ BOOL seq_SetSequenceForBuffer(char* filename, VIDEO_MODE mode, LPDIRECTSOUND lpD
 	if ( shandle )
 	{
 		// Begin sound playback
-//mar4		if ( lpDSSB->lpVtbl->Play(lpDSSB, 0, 0, 0) != DS_OK )
 		if ( lpDSSB->lpVtbl->Play(lpDSSB, 0, 0, DSBPLAY_LOOPING) != DS_OK )
 				return VIDEO_SOUND_ERROR;
 	}
@@ -485,7 +407,6 @@ BOOL seq_SetSequence(char* filename, LPDIRECTDRAWSURFACE4 lpDDSF, LPDIRECTSOUND 
 		/*
 		// Initialise the video playback environment
 		*/
-//		Streamer_InitVideo( 	LPVIDEOHANDLE *handle,LPMOVIEHANDLE mhandle,UINT moviexsize,UINT movieysize,INT videoleft,INT videotop,INT viewportleft,INT viewporttop,UINT viewportwidth,UINT viewportheight,UINT properties,LPLONG  bufferPixelWidth,LPLONG  bufferPixelDepth)
 		if (((movieWidth <= (VIDEO_WIDTH/2)) && (movieHeight <= (VIDEO_HEIGHT/2))) && !bSmallVideo)//render doubled
 		{
 			if ( Streamer_InitVideo(	&vhandle,
@@ -611,7 +532,6 @@ BOOL seq_SetSequence(char* filename, LPDIRECTDRAWSURFACE4 lpDDSF, LPDIRECTSOUND 
 						NULL,
 						0 );
 
-//jps mar4		Streamer_SetSoundDecodeMode( shandle, SSDM_SECONDBUFFER );	
 		Streamer_SetSoundDecodeMode( shandle, SSDM_IDLE );	
 	}
 	LastUpdated = SSDM_SECONDBUFFER;
@@ -723,7 +643,6 @@ BOOL seq_SetSequence(char* filename, LPDIRECTDRAWSURFACE4 lpDDSF, LPDIRECTSOUND 
 		if ( shandle )
 		{
 			// Begin sound playback
-//mar4			if ( lpDSSB->lpVtbl->Play(lpDSSB, 0, 0, 0) != DS_OK )
 			if ( lpDSSB->lpVtbl->Play(lpDSSB, 0, 0, DSBPLAY_LOOPING) != DS_OK )
 					return VIDEO_SOUND_ERROR;
 		}
@@ -872,7 +791,6 @@ int	seq_RenderOneFrameToBuffer(char *lpSF, int skip, SDWORD subMin, SDWORD subMa
 			}
 		}
 	}
-//mar4	lpDSSB->lpVtbl->Play(lpDSSB, 0, 0, DSBPLAY_LOOPING);
 #endif //SEQUENCE_SOUND
 
 	if (sRes == STREAMER_OK)
@@ -1101,7 +1019,6 @@ int	seq_RenderOneFrame(LPDIRECTDRAWSURFACE4	lpDDSF, int skip, SDWORD subMin, SDW
 			}
 		}
 	}
-//	lpDSSB->lpVtbl->Play(lpDSSB, 0, 0, DSBPLAY_LOOPING);
 #endif //SEQUENCE_SOUND
 
 	if (sRes == STREAMER_OK)

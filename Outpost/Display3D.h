@@ -3,11 +3,11 @@
 #ifndef _display3d_h
 #define _display3d_h
 
-#include "display3ddef.h"	// This should be the only place including this file on the PC ... display3d_psx.h on the playstation
+#include "Display3Ddef.h"	// This should be the only place including this file on the PC ... display3d_psx.h on the playstation
 #include "PieTypes.h"
 #include "PieDef.h"
 #include "ObjectDef.h"
-#include "message.h"
+#include "Message.h"
 
 extern BOOL	xInOrder,yInOrder,yBeforeX,spinScene;
 
@@ -79,7 +79,6 @@ extern iBitmap	**tilesRAW;
 extern UDWORD worldAngle;
 extern UDWORD	stepIndex;
 extern iPalette	gamePal;
-//extern void	assignSensorTarget( DROID *psDroid );
 extern void	assignSensorTarget( BASE_OBJECT *psObj );
 extern void	assignDestTarget( void );
 extern void	processSensorTarget( void );
@@ -100,10 +99,6 @@ extern UDWORD	intensity1,intensity2,intensity3;
 extern UDWORD	lightLevel;
 extern UDWORD	demoTextPage;
 extern BOOL		updateVideoCard;
-//extern BOOL		bScreenClose;
-//extern UDWORD closingTimeStart;
-//extern UDWORD screenCloseState;
-//extern BOOL	bPlayerHasHQ;
 
 #define	INITIAL_DESIRED_PITCH		(325)
 #define INITIAL_STARTING_PITCH		(-75)
@@ -113,7 +108,6 @@ extern BOOL bRender3DOnly;
 
 extern UDWORD visibleXTiles;
 extern UDWORD visibleYTiles;
-#ifdef WIN32
 
 // Expanded PIEVERTEX.
 typedef struct {
@@ -126,7 +120,6 @@ typedef struct {
 } SVMESH;
 
 extern SVMESH tileScreenInfo[LAND_YGRD][LAND_XGRD];
-#endif
 
 /* load IMDs AFTER RESOURCE FILE */
 extern BOOL loadExtraIMDs(void);
@@ -138,7 +131,6 @@ extern UDWORD  getDroidRankGraphic(DROID *psDroid);
 #define	BASE_MUZZLE_FLASH_DURATION	(GAME_TICKS_PER_SEC/10)
 #define	EFFECT_MUZZLE_ADDITIVE		128
 
-#ifdef WIN32	
 #define CLOSING_TIME	800
 #define LINE_TIME		600
 #define DOT_TIME		200
@@ -147,7 +139,6 @@ extern UDWORD  getDroidRankGraphic(DROID *psDroid);
 #define SC_CLOSING_IN	3
 #define SC_WAITING		4
 #define SC_DOT_KILL		5
-#endif
 
 #define BAR_FULL	0
 #define BAR_BASIC	1

@@ -6,7 +6,7 @@
 #ifndef _scriptvals_h
 #define _scriptvals_h
 
-#include "base.h"
+#include "Base.h"
 
 // The possible types of initialisation values
 typedef enum _init_type
@@ -39,13 +39,7 @@ extern void scrvSetInputBuffer(UBYTE *pBuffer, UDWORD size);
 extern void scrvGetErrorData(int *pLine, char **ppText);
 
 /* A simple error reporting routine */
-#ifdef WIN32
 extern void scrv_error(char *pMessage,...);
-#else
-	#ifndef FINALBUILD
-		extern void scrv_error(char *pMessage,...);
-	#endif
-#endif
 
 // parse a value file
 extern int scrv_parse(void);
@@ -100,7 +94,6 @@ extern void scrvReset(void);
 extern BOOL scrvLoad(UBYTE *pData, UDWORD size);
 
 // Link any object types to the actual pointer values
-//extern BOOL scrvLinkValues(void);
 
 // Find a base object from it's id
 extern BOOL scrvGetBaseObj(UDWORD id, BASE_OBJECT **ppsObj);

@@ -8,8 +8,8 @@
 #define _move_h
 
 #include "ObjectDef.h"
-#include "FindPath.h"
-#include "audio.h"
+#include "Findpath.h"
+#include "Audio.h"
 
 /* The base movement speed */
 extern FRACT	baseSpeed;
@@ -31,7 +31,6 @@ extern BOOL moveDroidTo(DROID *psDroid, UDWORD x, UDWORD y);
 // the droid will not join a formation when it gets to the location
 extern BOOL moveDroidToNoFormation(DROID *psDroid, UDWORD x, UDWORD y);
 
-// move a droid directly to a location (used by vtols only)
 extern void moveDroidToDirect(DROID *psDroid, UDWORD x, UDWORD y);
 
 // Get a droid to turn towards a locaton
@@ -59,25 +58,11 @@ extern void moveSetFormationSpeedLimiting( BOOL );
 extern void moveToggleFormationSpeedLimiting( void );
 extern BOOL moveFormationSpeedLimitingOn( void );
 
-#ifdef WIN32
 /* audio callback used to kill movement sounds */
 extern BOOL moveCheckDroidMovingAndVisible( AUDIO_SAMPLE *psSample );
-#endif
 // set a vtol to be hovering in the air
 void moveMakeVtolHover( DROID *psDroid );
 
-//BOOL StartDriverMode(void);
-//void StopDriverMode(void);
-//BOOL driveModeActive(void);
-//BOOL driveIsDriven(DROID *psDroid);
-//BOOL driveIsFollower(DROID *psDroid);
-//DROID *driveGetDriven(void);
-//void driveDroidKilled(DROID *psDroid);
-//void driveSelectionChanged(void);
-//void driveNextDriver(void);
-//void driveUpdate(void);
-//extern void	setDrivingStatus( BOOL val );
-//extern BOOL	getDrivingStatus( void );
 
 #endif
 

@@ -17,7 +17,6 @@
 
 #define NO_ALLIANCES		0			//alliance possibilities for games.
 #define ALLIANCES			1
-//#define GROUP_WINS		2
 
 // alliances
 extern UBYTE alliances[MAX_PLAYERS][MAX_PLAYERS];
