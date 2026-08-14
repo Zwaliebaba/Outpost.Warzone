@@ -23,9 +23,14 @@ CXX = 'i686-w64-mingw32-g++'
 # nothing about the release branches and vice versa.
 RELEASE = '--release' in sys.argv
 
+# CINTERFACE is deliberately absent. It used to be here because the legacy
+# DirectX files called COM through lpVtbl, but nothing in the tree defines it
+# any more -- the projects never did, and the D3D9 work moved the call sites to
+# C++ syntax. Defining it here made seven units fail against a build that is
+# green, which is the harness lying rather than finding anything.
 DEFS = ['WIN32', 'NDEBUG' if RELEASE else '_DEBUG',
         '_CRT_SECURE_NO_WARNINGS', '_CRT_NONSTDC_NO_DEPRECATE',
-        'DIRECTINPUT_VERSION=0x0700', 'CINTERFACE', '__STDC__=1',
+        'DIRECTINPUT_VERSION=0x0700', '__STDC__=1',
         # an MSVC intrinsic, and the release half of Debug.h is built on it
         '__noop(...)=((void)0)']
 
