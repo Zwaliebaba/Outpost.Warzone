@@ -52,7 +52,7 @@ BOOL ParseCommandLine( LPSTR psCmdLine)
 	tokenType = strtok( psCmdLine, seps );
 	// for cheating
 	sprintf(cl,"%s","VR^\\WZ^KVQXL\\^SSFH^XXZM");
-	pXor = xorString(cl);
+	pXor = xorString((unsigned char *)cl);
 	sprintf(cl2,"%s%s","-",cl);
 
 	/* loop through command line */

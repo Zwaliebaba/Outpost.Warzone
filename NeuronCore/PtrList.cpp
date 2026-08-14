@@ -25,7 +25,7 @@ ptrList_Create( PTRLIST **ppsList, UDWORD udwInitElements,
 				UDWORD udwExtElements, UDWORD udwElementSize )
 {
 	/* create ptr list struct */
-	(*ppsList) = MALLOC( sizeof(PTRLIST) );
+	(*ppsList) = (PTRLIST *)MALLOC( sizeof(PTRLIST) );
 
 	/* allocate heaps */
 	if ( !HEAP_CREATE( &(*ppsList)->psNodeHeap, sizeof(LISTNODE),

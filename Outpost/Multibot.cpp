@@ -1231,7 +1231,7 @@ BOOL receiveWholeDroid(NETMSG *m)
 		NetGet(m,sizecount,pD->psTarStats);			sizecount+=sizeof(pD->psTarStats);	//later!
 
 		//store the droid for later.
-		tempDroid = MALLOC(sizeof(DROIDSTORE));
+		tempDroid = (DROIDSTORE *)MALLOC(sizeof(DROIDSTORE));
 		tempDroid->psDroid  = pD;
 		tempDroid->psNext	= tempDroidList;	
 		tempDroidList		= tempDroid;

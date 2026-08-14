@@ -178,7 +178,7 @@ BOOL levParse(UBYTE *pBuffer, SDWORD size)
 			if (state == LP_START || state == LP_WAITDATA)
 			{
 				// start a new level data set
-				psDataSet = MALLOC(sizeof(LEVEL_DATASET));
+				psDataSet = (LEVEL_DATASET *)MALLOC(sizeof(LEVEL_DATASET));
 				if (!psDataSet)
 				{
 					levError("Out of memory");
@@ -356,7 +356,7 @@ BOOL levParse(UBYTE *pBuffer, SDWORD size)
 				}
 #endif
 				// store the level name
-				psDataSet->pName = MALLOC(strlen(pLevToken) + 1);
+				psDataSet->pName = (STRING *)MALLOC(strlen(pLevToken) + 1);
 				if (!psDataSet->pName)
 				{
 					levError("Out of memory");
@@ -397,7 +397,7 @@ BOOL levParse(UBYTE *pBuffer, SDWORD size)
 				}
 
 				// store the data name
-				psDataSet->apDataFiles[currData] = MALLOC(strlen(pLevToken) + 1);
+				psDataSet->apDataFiles[currData] = (STRING *)MALLOC(strlen(pLevToken) + 1);
 				if (!psDataSet->apDataFiles[currData])
 				{
 					levError("Out of memory");
@@ -664,7 +664,7 @@ BOOL levLoadData(STRING *pName, STRING *pSaveName, SDWORD saveType)
 	}
 
 	/* Keep a copy of the present level name */
-	strcpy(currentLevelName,pName);
+	strcpy((char *)currentLevelName,pName);
 
     bCamChangeSaveGame = FALSE;
     if (pSaveName AND saveType == GTYPE_SAVE_START)

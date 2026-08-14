@@ -43,7 +43,7 @@ mixer_GetVolumeControlID( DWORD dwComponentType, DWORD *pdwControlID,
 	else
 	{
 		/* allocate control space */
-		aMixerControl = MALLOC( mixerLine.cControls * sizeof(MIXERCONTROL) );
+		aMixerControl = (MIXERCONTROL *)MALLOC( mixerLine.cControls * sizeof(MIXERCONTROL) );
 		if ( aMixerControl == NULL )
 		{
 			DBPRINTF( ("mixer_GetVolumeControlID: malloc failed\n ") );

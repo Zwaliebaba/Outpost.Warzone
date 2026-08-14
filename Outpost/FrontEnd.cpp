@@ -1719,7 +1719,7 @@ VOID addTextButton(UDWORD id,  UDWORD PosX, UDWORD PosY, STRING *txt,BOOL bAlign
 	if(bAlign)
 	{
 		sButInit.style = WBUT_PLAIN;
-		sButInit.width = (short)(iV_GetTextWidth(txt)+10);//FRONTEND_BUTWIDTH;
+		sButInit.width = (short)(iV_GetTextWidth((unsigned char *)txt)+10);//FRONTEND_BUTWIDTH;
 		sButInit.x+=35;
 	}
 	else
@@ -1843,7 +1843,7 @@ VOID displayTitleBitmap(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset
 		sprintf(sTmp, VERSION_STRING " - Build: %s ???",__DATE__);
 		break;
 	}
-	pie_DrawText270(sTmp,DISP_WIDTH-10,DISP_HEIGHT-15);
+	pie_DrawText270((unsigned char *)sTmp,DISP_WIDTH-10,DISP_HEIGHT-15);
 
 }
 
@@ -1875,7 +1875,7 @@ VOID displayTextOption(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset,
 		hilight = TRUE;
 	}
 
-  	fw = iV_GetTextWidth(psBut->pText);
+  	fw = iV_GetTextWidth((unsigned char *)psBut->pText);
 	fy = yOffset + psWidget->y + (psWidget->height - iV_GetTextLineSize())/2 - iV_GetTextAboveBase();
 
 	if (psWidget->style & WBUT_TXTCENTRE)							//check for centering, calculate offset.
@@ -1904,7 +1904,7 @@ VOID displayTextOption(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset,
 		}
 	}
 
-	iV_DrawText( psBut->pText, fx, fy);
+	iV_DrawText( (unsigned char *)psBut->pText, fx, fy);
 
 
 	if(!greyOut)													// dont snap to unavailable buttons.
@@ -1936,9 +1936,9 @@ VOID displayTextAt270(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset, 
 	iV_SetTextColour(PIE_TEXT_WHITE);
 
 	fx = xOffset + psWidget->x;
-	fy = yOffset + psWidget->y + iV_GetTextWidth(psLab->aText) ;		
+	fy = yOffset + psWidget->y + iV_GetTextWidth((unsigned char *)psLab->aText) ;		
 
-	iV_DrawText270( psLab->aText, fx, fy);
+	iV_DrawText270( (unsigned char *)psLab->aText, fx, fy);
 }
 
 

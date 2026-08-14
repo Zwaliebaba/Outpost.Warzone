@@ -671,13 +671,13 @@ static void displayLoadSlot(struct _widget *psWidget, UDWORD xOffset, UDWORD yOf
 		iV_SetFont(WFont);									// font
 		iV_SetTextColour(-1);								//colour
 
-		while(iV_GetTextWidth(butString) > psWidget->width)
+		while(iV_GetTextWidth((unsigned char *)butString) > psWidget->width)
 		{
 			butString[strlen(butString)-1]='\0';
 		}
 
 		//draw text								
-		iV_DrawText( butString, x+4, y+17);
+		iV_DrawText( (unsigned char *)butString, x+4, y+17);
 
 	}
 }

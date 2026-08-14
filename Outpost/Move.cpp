@@ -3762,7 +3762,7 @@ void moveGetStatusStr( UBYTE status, char *szStr )
 void
 moveCyborgLaunchAnimDone( ANIM_OBJECT *psObj )
 {
-	DROID	*psDroid = psObj->psParent;
+	DROID	*psDroid = (DROID *)psObj->psParent;
 
 	ASSERT( (PTRVALID(psDroid, sizeof(DROID)),
 			"moveCyborgLaunchAnimDone: invalid cyborg pointer") );
@@ -3777,7 +3777,7 @@ moveCyborgLaunchAnimDone( ANIM_OBJECT *psObj )
 void
 moveCyborgTouchDownAnimDone( ANIM_OBJECT *psObj )
 {
-	DROID	*psDroid = psObj->psParent;
+	DROID	*psDroid = (DROID *)psObj->psParent;
 
 	ASSERT( (PTRVALID(psDroid, sizeof(DROID)),
 			"moveCyborgTouchDownAnimDone: invalid cyborg pointer") );
@@ -3990,7 +3990,7 @@ BOOL moveCheckDroidMovingAndVisible( AUDIO_SAMPLE *psSample )
 	}
 	else
 	{
-		psDroid = psSample->psObj;
+		psDroid = (DROID *)psSample->psObj;
 		ASSERT( (PTRVALID(psDroid, sizeof(DROID)),
 			"moveCheckUnitMovingAndVisible: unit pointer invalid\n") );
 	}
@@ -4066,7 +4066,7 @@ BOOL moveDroidStartCallback( AUDIO_SAMPLE *psSample )
 	}
 	else
 	{
-		psDroid = psSample->psObj;
+		psDroid = (DROID *)psSample->psObj;
 		ASSERT( (PTRVALID(psDroid, sizeof(DROID)),
 			"moveDroidStartCallback: unit pointer invalid\n") );
 	}

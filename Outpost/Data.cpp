@@ -856,7 +856,7 @@ BOOL dataIMGPAGELoad(UBYTE *pBuffer, UDWORD size, void **ppData)
 
 	UNUSEDPARAMETER(size);
 
-	psSprite = MALLOC(sizeof(iSprite));
+	psSprite = (iSprite *)MALLOC(sizeof(iSprite));
 	if (!psSprite)	{
 		return FALSE;
 	}
@@ -876,7 +876,7 @@ BOOL dataIMGPAGELoad(UBYTE *pBuffer, UDWORD size, void **ppData)
 
 void dataIMGPAGERelease(void *pData)
 {
-	iSprite *psSprite = pData;
+	iSprite *psSprite = (iSprite *)pData;
 	FREE(psSprite->bmp);
 	FREE(psSprite);
 }
@@ -893,7 +893,7 @@ BOOL dataTERTILESLoad(UBYTE *pBuffer, UDWORD size, void **ppData)
 
 void dataTERTILESRelease(void *pData)
 {
-	iSprite *psSprite = pData;
+	iSprite *psSprite = (iSprite *)pData;
 	
 	freeTileTextures();
 	FREE(psSprite->bmp);
@@ -959,7 +959,7 @@ BOOL dataHWTERTILESLoad(UBYTE *pBuffer, UDWORD size, void **ppData)
 
 void dataHWTERTILESRelease(void *pData)
 {
-	iSprite *psSprite = pData;
+	iSprite *psSprite = (iSprite *)pData;
 	
 	freeTileTextures();
 	FREE(psSprite->bmp);
@@ -1070,7 +1070,7 @@ BOOL bufferTexPageLoad(UBYTE *pBuffer, UDWORD size, void **ppData)
 	}
 	else
 	{
-		NewTexturePage = MALLOC(sizeof(TEXTUREPAGE));
+		NewTexturePage = (TEXTUREPAGE *)MALLOC(sizeof(TEXTUREPAGE));
 		if (!NewTexturePage) return FALSE;
 
 		NewTexturePage->Texture=NULL;
@@ -1079,7 +1079,7 @@ BOOL bufferTexPageLoad(UBYTE *pBuffer, UDWORD size, void **ppData)
 		psPal=MALLOC(sizeof(iPalette));
 		if (!psPal) return FALSE;
 
-		psSprite = MALLOC(sizeof(iSprite));
+		psSprite = (iSprite *)MALLOC(sizeof(iSprite));
 		if (!psSprite)
 		{
 			return FALSE;
@@ -1142,7 +1142,7 @@ BOOL bufferTexPageLoadHardOnly(UBYTE *pBuffer, UDWORD size, void **ppData)
 /* Release an iSprite */
 void dataISpriteRelease(void *pData)
 {
-	iSprite		*psSprite = pData;
+	iSprite		*psSprite = (iSprite *)pData;
 
 	FREE(psSprite->bmp);
 	FREE(psSprite);
@@ -1268,7 +1268,7 @@ BOOL dataAnimCfgLoad( UBYTE *pBuffer, UDWORD size, void **ppData )
 
 void dataAnimRelease( void *pData )
 {
-	anim_ReleaseAnim(pData);
+	anim_ReleaseAnim((BASEANIM *)pData);
 }
 
 /* Load a string resource file */

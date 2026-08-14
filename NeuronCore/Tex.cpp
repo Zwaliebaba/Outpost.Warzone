@@ -221,7 +221,7 @@ int pie_ReloadTexPage(char *filename,UBYTE *pBuffer)
 	s.height = _TEX_PAGE[i].tex.height;
 	s.bmp = _TEX_PAGE[i].tex.bmp;
 
-	pie_PCXLoadMemToBuffer(pBuffer,&s,NULL); 
+	pie_PCXLoadMemToBuffer((int8 *)pBuffer,&s,NULL); 
 
  	if(pie_GetRenderEngine() == ENGINE_D3D)
 	{

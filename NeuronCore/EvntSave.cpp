@@ -563,7 +563,7 @@ BOOL eventSaveState(SDWORD version, UBYTE **ppBuffer, UDWORD *pFileSize)
 
 	
 	// Allocate the buffer to save to
-	pBuffer = MALLOC(totalSize);
+	pBuffer = (UBYTE *)MALLOC(totalSize);
 	if (pBuffer == NULL)
 	{
 		DBERROR(("eventSaveState: out of memory"));

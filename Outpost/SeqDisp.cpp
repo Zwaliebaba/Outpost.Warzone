@@ -299,13 +299,13 @@ BOOL seq_SetupVideoBuffers(void)
   UBYTE r, g, b;
   //assume 320 * 240 * 16bit playback surface
   mallocSize = (RPL_WIDTH * RPL_HEIGHT * RPL_DEPTH);
-  if ((pVideoBuffer = MALLOC(mallocSize)) == NULL)
+  if ((pVideoBuffer = (char *)MALLOC(mallocSize)) == NULL)
   {
     return FALSE;
   }
 
   mallocSize = 1 << (RPL_BITS_555); //palette only used in 555mode
-  if ((pVideoPalette = MALLOC(mallocSize)) == NULL)
+  if ((pVideoPalette = (char *)MALLOC(mallocSize)) == NULL)
   {
     return FALSE;
   }
@@ -744,7 +744,7 @@ BOOL seq_AddTextForVideo(UBYTE* pText, SDWORD xOffset, SDWORD yOffset, SDWORD st
 
   ASSERT((aSeqList[currentSeq].currentText < MAX_TEXT_OVERLAYS, "seq_AddTextForVideo: too many text lines"));
 
-  sourceLength = strlen(pText);
+  sourceLength = strlen((const char *)pText);
   currentLength = sourceLength;
   currentText = &(aSeqList[currentSeq].aText[aSeqList[currentSeq].currentText].pText[0]);
 
@@ -765,7 +765,7 @@ BOOL seq_AddTextForVideo(UBYTE* pText, SDWORD xOffset, SDWORD yOffset, SDWORD st
 
   //check the string is shortenough to print
   //if not take a word of the end and try again
-  while (iV_GetTextWidth(currentText) > BUFFER_WIDTH)
+  while (iV_GetTextWidth((unsigned char *)currentText) > BUFFER_WIDTH)
   {
     currentLength--;
     while ((pText[currentLength] != ' ') && (currentLength > 0))
@@ -793,7 +793,7 @@ BOOL seq_AddTextForVideo(UBYTE* pText, SDWORD xOffset, SDWORD yOffset, SDWORD st
   if ((bJustify) && (currentLength == sourceLength))
   {
     //justify this text
-    justification = BUFFER_WIDTH - iV_GetTextWidth(currentText);
+    justification = BUFFER_WIDTH - iV_GetTextWidth((unsigned char *)currentText);
     if ((bJustify == SEQ_TEXT_JUSTIFY) && (justification > MIN_JUSTIFICATION))
     {
       aSeqList[currentSeq].aText[aSeqList[currentSeq].currentText].x += (justification / 2);
@@ -866,21 +866,21 @@ BOOL seq_AddTextFromFile(STRING* pTextName, BOOL bJustify)
   }
 
   pTextBuffer = DisplayBuffer;
-  pCurrentLine = strtok(pTextBuffer, seps);
+  pCurrentLine = strtok((char *)pTextBuffer, (const char *)seps);
   while (pCurrentLine != NULL)
   {
     if (*pCurrentLine != '/')
     {
-      if (sscanf(pCurrentLine, "%d %d %d %d", &xOffset, &yOffset, &startFrame, &endFrame) == 4)
+      if (sscanf((const char *)pCurrentLine, "%d %d %d %d", &xOffset, &yOffset, &startFrame, &endFrame) == 4)
       {
         //get the text
-        pText = strrchr(pCurrentLine, '"');
+        pText = strrchr((const char *)pCurrentLine, '"');
         ASSERT((pText != NULL,"seq_AddTextFromFile error parsing text file"));
         if (pText != NULL)
         {
           *pText = (UBYTE)0;
         }
-        pText = strchr(pCurrentLine, '"');
+        pText = strchr((const char *)pCurrentLine, '"');
         ASSERT((pText != NULL,"seq_AddTextFromFile error parsing text file"));
         if (pText != NULL)
         {
@@ -889,7 +889,7 @@ BOOL seq_AddTextFromFile(STRING* pTextName, BOOL bJustify)
       }
     }
     //get next line
-    pCurrentLine = strtok(NULL, seps);
+    pCurrentLine = strtok(NULL, (const char *)seps);
   }
   return TRUE;
 }

@@ -131,7 +131,7 @@ static BOOL pushedKeyCombo(UDWORD subkey)
 	keyReAssignMapping( metakey, subkey, KEY_IGNORE, KEY_MAXSCAN );
 
 	/* Try and see if its there already - damn well should be! */
-	psMapping = keyGetMappingFromFunction(selectedKeyMap->function);
+	psMapping = keyGetMappingFromFunction((void *)selectedKeyMap->function);
 
 	/* Cough if it's not there */
 	ASSERT((psMapping!=NULL,"Trying to patch a non-existant function mapping - whoop whoop!!!"));

@@ -345,7 +345,7 @@ void	displayMultiChat( void )
 UDWORD	pixelLength;
 UDWORD	pixelHeight;
 
-		pixelLength = iV_GetTextWidth(sTextToSend);
+		pixelLength = iV_GetTextWidth((unsigned char *)sTextToSend);
 		pixelHeight = iV_GetTextLineSize();
 
 		if(gameTime2%500<250)
@@ -356,7 +356,7 @@ UDWORD	pixelHeight;
 			/* GET RID OF THE MAGIC NUMBERS BELOW */
 		iV_TransBoxFill(RET_X+1,474+E_H-pixelHeight,RET_X+1+pixelLength+2,473+E_H);
 
-		iV_DrawText(sTextToSend,RET_X+3,469+E_H);
+		iV_DrawText((unsigned char *)sTextToSend,RET_X+3,469+E_H);
 }
 
 // Optimisation to stop it being calculated every frame
@@ -513,7 +513,7 @@ BOOL		bPlayerHasHQ = FALSE;
 		if(!gamePaused())
 		{
  			iV_DrawText(getLevelName(),RET_X+134,420+E_H);
- 			getAsciiTime(buildInfo,gameTime);
+ 			getAsciiTime((STRING *)buildInfo,gameTime);
  			iV_DrawText(buildInfo,RET_X+134,434+E_H);
 		}
 #endif

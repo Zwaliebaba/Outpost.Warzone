@@ -364,7 +364,7 @@ void *blkAlloc(BLOCK_HEAP *psHeap, SDWORD size)
 	pAlloc = ((UBYTE *)(pAlloc) + sizeof(MEM_NODE) + SAFETY_ZONE_SIZE);
 #endif
 
-	psCurr->pLastAllocated=pAlloc;
+	psCurr->pLastAllocated=(UBYTE *)pAlloc;
 ///* - error trapping an out-of-mem allocation !!!
 
 NoMemChk:

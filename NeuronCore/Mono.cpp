@@ -152,7 +152,7 @@ void	dbg_MONO_PrintString(SDWORD	 ub_leftedge,
 
 
 	/* initialise the variables */
-	pub_formatstringptr = pub_formatstring;
+	pub_formatstringptr = (UBYTE *)pub_formatstring;
 	aub_percentstring[0] = '\0';
 	ub_percentstringindex = 0;
 	aub_currentcharacter[1] = '\0';
@@ -196,8 +196,8 @@ void	dbg_MONO_PrintString(SDWORD	 ub_leftedge,
 
 					/* print the string */
 					DBug_DumpString(ub_leftedge, ub_topedge, &aub_expandedstring[0], ub_attribute);
-					ub_leftedge += (UBYTE)strlen(&aub_expandedstring[0]);
-					ub_numprinted += (UBYTE)strlen(&aub_expandedstring[0]);
+					ub_leftedge += (UBYTE)strlen((const char *)&aub_expandedstring[0]);
+					ub_numprinted += (UBYTE)strlen((const char *)&aub_expandedstring[0]);
 
 					/* start a new percent string; don't do this for a '%%' */
 					if (ub_percentstringindex != 0)
@@ -242,8 +242,8 @@ void	dbg_MONO_PrintString(SDWORD	 ub_leftedge,
 
 						/* print the string */
 						DBug_DumpString(ub_leftedge, ub_topedge, &aub_expandedstring[0], ub_attribute);
-						ub_leftedge += (UBYTE)strlen(&aub_expandedstring[0]);
-						ub_numprinted += (UBYTE)strlen(&aub_expandedstring[0]);
+						ub_leftedge += (UBYTE)strlen((const char *)&aub_expandedstring[0]);
+						ub_numprinted += (UBYTE)strlen((const char *)&aub_expandedstring[0]);
 
 						/* clear the strings */
 						ub_percentstringindex = 0;
@@ -333,7 +333,7 @@ static void	DBug_DumpString(SDWORD	 ub_leftedge,
 			/* it is; init the variables */
 			pub_screenptr = (UBYTE *)(MONO_SCREEN_ADDR + ((ub_topedge * (MONO_SCREEN_WIDTH * 2)) + (ub_leftedge * 2)));
 
-			ul_stringlength = strlen(pub_stringptr);
+			ul_stringlength = strlen((const char *)pub_stringptr);
 
 			/* check for clipping */
 			if ((ub_leftedge + ul_stringlength) > MONO_SCREEN_WIDTH)
@@ -367,7 +367,7 @@ static UBYTE	DBug_ExpandString(UBYTE		*pub_stringbuffer,
 	ub_newattribute = ub_oldattribute;
 
 	/* find the last character */
-	ub_stringlength = (UBYTE)strlen(pub_percentstring) - 1;
+	ub_stringlength = (UBYTE)strlen((const char *)pub_percentstring) - 1;
 	ub_percentchar = *(pub_percentstring + ub_stringlength);
 
 	/* see what it is */
@@ -382,7 +382,7 @@ static UBYTE	DBug_ExpandString(UBYTE		*pub_stringbuffer,
 
 		case	'c':	/* character */
 
-			sprintf(pub_stringbuffer, pub_percentstring, va_arg(val_arglist, char));
+			sprintf((char *)pub_stringbuffer, (const char *)pub_percentstring, va_arg(val_arglist, char));
 
 			break;
 
@@ -392,7 +392,7 @@ static UBYTE	DBug_ExpandString(UBYTE		*pub_stringbuffer,
 		case	'u':	/* unsigned decimal integers */
 		case	'o':	/* unsigned octal */
 
-			sprintf(pub_stringbuffer, pub_percentstring, va_arg(val_arglist, int));
+			sprintf((char *)pub_stringbuffer, (const char *)pub_percentstring, va_arg(val_arglist, int));
 
 			break;
 
@@ -403,7 +403,7 @@ static UBYTE	DBug_ExpandString(UBYTE		*pub_stringbuffer,
 		case	'g':	/* uses %e or %f, whichever is shorter */
 		case	'G':	/* uses %E or %F, whichever is shorter */
 
-			sprintf(pub_stringbuffer, pub_percentstring, va_arg(val_arglist, double));
+			sprintf((char *)pub_stringbuffer, (const char *)pub_percentstring, va_arg(val_arglist, double));
 
 			break;
 
@@ -413,14 +413,14 @@ static UBYTE	DBug_ExpandString(UBYTE		*pub_stringbuffer,
 		case	'x':	/* unsigned hexadecimal (lower case) */
 		case	'X':	/* unsigned hexadecimal (upper case) */
 
-			sprintf(pub_stringbuffer, pub_percentstring, va_arg(val_arglist, char *));
+			sprintf((char *)pub_stringbuffer, (const char *)pub_percentstring, va_arg(val_arglist, char *));
 
 			break;
 
 
 		case	'n':	/* how many characters printed so far */
 
-			pub_numberchars = va_arg(val_arglist, char *);
+			pub_numberchars = (UBYTE *)va_arg(val_arglist, char *);
 			*pub_numberchars = ub_numprinted;
 
 			break;
@@ -428,7 +428,7 @@ static UBYTE	DBug_ExpandString(UBYTE		*pub_stringbuffer,
 
 		case	'%':	/* percent char (no arg) */
 
-			sprintf(pub_stringbuffer, "%%");
+			sprintf((char *)pub_stringbuffer, "%%");
 
 			break;
 

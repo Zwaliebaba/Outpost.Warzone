@@ -1611,7 +1611,7 @@ static void _widgDisplayForm(W_FORM *psForm, UDWORD xOffset, UDWORD yOffset)
 
 
 	/* Display the form */
-	psForm->display((WIDGET *)psForm, xOffset, yOffset, psForm->aColours);
+	psForm->display((WIDGET *)psForm, xOffset, yOffset, (UDWORD *)psForm->aColours);
 	if(psForm->disableChildren == TRUE) {
 		return;
 	}
@@ -1647,7 +1647,7 @@ static void _widgDisplayForm(W_FORM *psForm, UDWORD xOffset, UDWORD yOffset)
 		}
 		else
 		{
-			psCurr->display(psCurr, xOffset, yOffset, psForm->aColours);
+			psCurr->display(psCurr, xOffset, yOffset, (UDWORD *)psForm->aColours);
 		}
 	}
 }

@@ -98,7 +98,7 @@ void SetMousePos(UDWORD nowt,UDWORD x,UDWORD y)
 
 void AllocateSnapBuffer(CURSORSNAP *SnapBuffer,UWORD MaxSnaps)
 {
-	SnapBuffer->SnapCoords = MALLOC(sizeof(CURSORSNAP)*MaxSnaps);
+	SnapBuffer->SnapCoords = (SNAPCOORD *)MALLOC(sizeof(CURSORSNAP)*MaxSnaps);
 	SnapBuffer->MaxSnaps = MaxSnaps;
 	SnapBuffer->NumSnaps = 0;
 	SnapBuffer->CurrentSnap = 0;

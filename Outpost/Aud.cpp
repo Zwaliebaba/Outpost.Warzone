@@ -211,7 +211,7 @@ audio_GetClusterCentre( void *psClusterObj, SDWORD *piX, SDWORD *piY, SDWORD *pi
 	iNumObj = *piX = *piY = *piZ = 0;
 
 	/* clustGetClusterID returns 0 if cluster is empty or no droids moving */
-	iClusterID = clustGetClusterID( psClusterObj );
+	iClusterID = clustGetClusterID( (BASE_OBJECT *)psClusterObj );
 	if ( iClusterID == 0 )
 	{
 		DBPRINTF( ("audio_GetClusterCentre: empty cluster!\n") );
@@ -302,7 +302,7 @@ BOOL
 audio_ClusterEmpty( void * psClusterObj )
 {
 	/* clustGetClusterID returns 0 if cluster is empty */
-	if ( clustGetClusterID( psClusterObj ) == 0 )
+	if ( clustGetClusterID( (BASE_OBJECT *)psClusterObj ) == 0 )
 	{
 		return TRUE;
 	}
@@ -317,7 +317,7 @@ audio_ClusterEmpty( void * psClusterObj )
 SDWORD
 audio_GetClusterIDFromObj( void *psClusterObj )
 {
-	return clustGetClusterID( psClusterObj );
+	return clustGetClusterID( (BASE_OBJECT *)psClusterObj );
 }
 
 /***************************************************************************/

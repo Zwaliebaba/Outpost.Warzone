@@ -267,7 +267,7 @@ STRING* winErrorToString(SDWORD error)
                 (LPTSTR)&lpMsgBuf, 0, NULL);
 
   // Copy the string.
-  strncpy(winErrorString, lpMsgBuf, 254);
+  strncpy(winErrorString, (const char *)lpMsgBuf, 254);
   winErrorString[255] = '0';
 
   // Free the buffer.

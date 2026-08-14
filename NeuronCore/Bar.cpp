@@ -217,7 +217,7 @@ void barGraphHiLite(W_BARGRAPH *psWidget, W_CONTEXT *psContext)
 	if (psWidget->pTip)
 	{
 		tipStart((WIDGET *)psWidget, psWidget->pTip, psContext->psScreen->TipFontID,
-				 psContext->psForm->aColours,
+				 (UDWORD *)psContext->psForm->aColours,
 				 psWidget->x + psContext->xOffset, psWidget->y + psContext->yOffset,
 				 psWidget->width, psWidget->height);
 	}

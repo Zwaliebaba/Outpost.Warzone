@@ -135,7 +135,7 @@ void tipDisplay(void)
 			topGap = TIP_VGAP;
 			iV_SetFont(FontID);
 
-			fw = iV_GetTextWidth(pTip);
+			fw = iV_GetTextWidth((unsigned char *)pTip);
 			tw = fw + TIP_HGAP*2;
 			th = topGap*2 + iV_GetTextLineSize()+iV_GetTextBelowBase();
 
@@ -195,7 +195,7 @@ void tipDisplay(void)
 
 		iV_SetFont(FontID);
 		iV_SetTextColour((UWORD)TipColour);
-		iV_DrawText(pTip,fx,fy);
+		iV_DrawText((unsigned char *)pTip,fx,fy);
 		break;
 	}
 }

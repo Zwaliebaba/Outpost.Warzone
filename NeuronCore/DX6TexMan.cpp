@@ -872,7 +872,7 @@ BOOL dtm_surfLoadFrom8Bit(
 	s8 = pImageData;
 	if (b8Bit)
 	{
-		d8 = ddsd.lpSurface;
+		d8 = (UBYTE *)ddsd.lpSurface;
 		for( y=0; y<height; y++ )
 		{
         

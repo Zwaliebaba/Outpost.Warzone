@@ -52,7 +52,7 @@ static UBYTE	aByteScale[256][256];
 
 void pie_DownLoadBufferToScreen(void *pSrcData, UDWORD destX, UDWORD destY,UDWORD srcWidth,UDWORD srcHeight,UDWORD srcStride)
 {
-	pie_D3DSetupRenderForFlip(destX, destY, pSrcData, srcWidth, srcHeight, srcStride);
+	pie_D3DSetupRenderForFlip(destX, destY, (UWORD *)pSrcData, srcWidth, srcHeight, srcStride);
 	return;
 }
 

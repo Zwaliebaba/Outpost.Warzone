@@ -300,7 +300,7 @@ UDWORD	div;
 			/* Now render the text by the bar */
 			sprintf(text,strresGetString(psStringRes,infoBars[index].stringID),
 					infoBars[index].number);
-			iV_DrawText(text, x + width + 16, y + 12);
+			iV_DrawText((unsigned char *)text, x + width + 16, y + 12);
 
 			/* If we're beyond STAT_ROOKIE, then we're on rankings */
 			if(index>=STAT_GREEN AND index <= STAT_ACE)
@@ -328,17 +328,17 @@ void	dispAdditionalInfo( void )
 
 	/* Firstly, top of the screen, number of artefacts found */
 	sprintf(text,strresGetString(psStringRes,STR_MR_ARTEFACTS_FOUND),missionData.artefactsFound);
-	iV_DrawText(text,(DISP_WIDTH - iV_GetTextWidth(text))/2,300+D_H);
+	iV_DrawText((unsigned char *)text,(DISP_WIDTH - iV_GetTextWidth((unsigned char *)text))/2,300+D_H);
 
 	/* Get the mission result time in a string - and write it out */
 	getAsciiTime((char*)&text2,gameTime-missionData.missionStarted);
 	sprintf(text,strresGetString(psStringRes,STR_MR_MISSION_TIME),text2);
-	iV_DrawText(text,(DISP_WIDTH - iV_GetTextWidth(text))/2,320+D_H);	
+	iV_DrawText((unsigned char *)text,(DISP_WIDTH - iV_GetTextWidth((unsigned char *)text))/2,320+D_H);	
   
 	/* Write out total game time so far */
 	getAsciiTime((char*)&text2,gameTime);
 	sprintf(text,strresGetString(psStringRes,STR_MR_GAME_TIME),text2);
-	iV_DrawText(text,(DISP_WIDTH - iV_GetTextWidth(text))/2,340+D_H);
+	iV_DrawText((unsigned char *)text,(DISP_WIDTH - iV_GetTextWidth((unsigned char *)text))/2,340+D_H);
 }
 // -----------------------------------------------------------------------------------
 void	fillUpStats( void )

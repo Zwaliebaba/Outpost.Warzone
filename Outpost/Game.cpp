@@ -8198,7 +8198,7 @@ static BOOL writeTerrainTypeMapFile(STRING *pFileName)
 
 	// Calculate the file size
 	fileSize = TILETYPE_HEADER_SIZE + sizeof(UWORD) * MAX_TILE_TEXTURES;
-	pFileData = MALLOC(fileSize);
+	pFileData = (UBYTE *)MALLOC(fileSize);
 	if (!pFileData)
 	{
 		DBERROR(("writeTerrainTypeMapFile: Out of memory"));
@@ -8412,7 +8412,7 @@ static BOOL writeCompListFile(STRING *pFileName)
 		numProgramStats) * MAX_PLAYERS;
 	fileSize = COMPLIST_HEADER_SIZE + (sizeof(SAVE_COMPLIST) * totalComp);
 	//allocate the buffer space
-	pFileData = MALLOC(fileSize);
+	pFileData = (UBYTE *)MALLOC(fileSize);
 	if (!pFileData)
 	{
 		DBERROR(("writeCompListFile: Out of memory"));
@@ -8710,7 +8710,7 @@ static BOOL writeStructTypeListFile(STRING *pFileName)
 		numStructureStats * MAX_PLAYERS);
 
 	//allocate the buffer space
-	pFileData = MALLOC(fileSize);
+	pFileData = (UBYTE *)MALLOC(fileSize);
 	if (!pFileData)
 	{
 		DBERROR(("writeStructTypeListFile: Out of memory"));
@@ -8963,7 +8963,7 @@ static BOOL writeResearchFile(STRING *pFileName)
 		numResearch);
 
 	//allocate the buffer space
-	pFileData = MALLOC(fileSize);
+	pFileData = (UBYTE *)MALLOC(fileSize);
 	if (!pFileData)
 	{
 		DBERROR(("writeResearchFile: Out of memory"));
@@ -9171,7 +9171,7 @@ static BOOL writeMessageFile(STRING *pFileName)
 
 
 	//allocate the buffer space
-	pFileData = MALLOC(fileSize);
+	pFileData = (UBYTE *)MALLOC(fileSize);
 	if (!pFileData)
 	{
 		DBERROR(("writeMessageFile: Out of memory"));
@@ -9603,7 +9603,7 @@ static BOOL writeFlagFile(STRING *pFileName)
 
 
 	//allocate the buffer space
-	pFileData = MALLOC(fileSize);
+	pFileData = (UBYTE *)MALLOC(fileSize);
 	if (!pFileData)
 	{
 		DBERROR(("writeflagFile: Out of memory"));
@@ -9788,7 +9788,7 @@ static BOOL writeProductionFile(STRING *pFileName)
 
 
 	//allocate the buffer space
-	pFileData = MALLOC(fileSize);
+	pFileData = (UBYTE *)MALLOC(fileSize);
 	if (!pFileData)
 	{
 		DBERROR(("writeProductionFile: Out of memory"));

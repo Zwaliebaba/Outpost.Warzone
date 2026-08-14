@@ -442,7 +442,7 @@ UDWORD	exceed;
 			psMessage AND (numProcessed<consoleVisibleLines) AND (exceed < 4); // ho ho ho!!! 
 			psMessage = psMessage->psNext)
 		{
-			if((UDWORD)iV_GetTextWidth(psMessage->text) > mainConsole.width)
+			if((UDWORD)iV_GetTextWidth((unsigned char *)psMessage->text) > mainConsole.width)
 			{
 				exceed++;
 			}
@@ -472,7 +472,7 @@ UDWORD	exceed;
 		psMessage = psMessage->psNext)
 	{
  		/* Draw the text string */
-		MesY = pie_DrawFormattedText(psMessage->text,
+		MesY = pie_DrawFormattedText((UBYTE *)psMessage->text,
 									mainConsole.topX,MesY,
 									mainConsole.width,
 									psMessage->JustifyType,FALSE);
@@ -568,13 +568,13 @@ UDWORD	MesY;
 	for(i=count-1; i>0; i--)
 	{
 		/* Draw the text string */
-		MesY = pie_DrawFormattedText(consoleStorage[history[i]].text,
+		MesY = pie_DrawFormattedText((UBYTE *)consoleStorage[history[i]].text,
 									mainConsole.topX,MesY,
 									mainConsole.width,
 									consoleStorage[history[i]].JustifyType,FALSE);
 	}
 	/* Draw the top one */
-	(void) pie_DrawFormattedText(consoleStorage[history[0]].text,
+	(void) pie_DrawFormattedText((UBYTE *)consoleStorage[history[0]].text,
 									mainConsole.topX,MesY,
 									mainConsole.width,
 									consoleStorage[history[0]].JustifyType,FALSE);
@@ -605,7 +605,7 @@ UDWORD	MesY;
 			while(!bQuit AND consoleStorage[thisIndex].id AND count<8)
 			{
  				/* Draw the text string */
-				MesY = pie_DrawFormattedText(consoleStorage[thisIndex].text,
+				MesY = pie_DrawFormattedText((UBYTE *)consoleStorage[thisIndex].text,
 											mainConsole.topX,MesY,
 											mainConsole.width,
 											consoleStorage[thisIndex].JustifyType,FALSE);

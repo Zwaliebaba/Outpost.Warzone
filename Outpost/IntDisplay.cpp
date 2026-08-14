@@ -711,7 +711,7 @@ void intDisplayPowerBar(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset
 #if	DRAW_POWER_BAR_TEXT
     iV_SetFont(WFont);
 	itoa( realPower, szVal, 10 );
-	textWidth = iV_GetTextWidth( szVal );
+	textWidth = iV_GetTextWidth( (unsigned char *)szVal );
 	BarWidth -= textWidth;
 #endif
 
@@ -830,7 +830,7 @@ void intDisplayPowerBar(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset
 
 #if	DRAW_POWER_BAR_TEXT
 	iV_SetTextColour(-1);
-	iV_DrawText( szVal, iX, iY );
+	iV_DrawText( (unsigned char *)szVal, iX, iY );
 #endif
 }
 
@@ -1930,7 +1930,7 @@ void intDisplayDPButton(struct _widget *psWidget, UDWORD xOffset,
 
 	UNUSEDPARAMETER(pColours);
 
-	psStruct = psButton->pUserData;
+	psStruct = (STRUCTURE *)psButton->pUserData;
 	if (psStruct)
 	{
 		ASSERT((StructIsFactory(psStruct), 
@@ -2128,7 +2128,7 @@ void InitialiseButtonData(void)
 	UDWORD i;
 
 	for(i=0; i<NUM_OBJECTSURFACES; i++) {
-		ObjectSurfaces[i].Buffer = MALLOC(Width*Height);
+		ObjectSurfaces[i].Buffer = (uint8 *)MALLOC(Width*Height);
 		ASSERT((ObjectSurfaces[i].Buffer!=NULL,"intInitialise : Failed to allocate Object surface"));
 		ObjectSurfaces[i].Surface = iV_SurfaceCreate(REND_SURFACE_USR,Width,Height,10,10,ObjectSurfaces[i].Buffer);
 		ASSERT((ObjectSurfaces[i].Surface!=NULL,"intInitialise : Failed to create Object surface"));
@@ -2140,7 +2140,7 @@ void InitialiseButtonData(void)
 	}
 
 	for(i=0; i<NUM_SYSTEM0SURFACES; i++) {
-		System0Surfaces[i].Buffer = MALLOC(Width*Height);
+		System0Surfaces[i].Buffer = (uint8 *)MALLOC(Width*Height);
 		ASSERT((System0Surfaces[i].Buffer!=NULL,"intInitialise : Failed to allocate System0 surface"));
 		System0Surfaces[i].Surface = iV_SurfaceCreate(REND_SURFACE_USR,Width,Height,10,10,System0Surfaces[i].Buffer);
 		ASSERT((System0Surfaces[i].Surface!=NULL,"intInitialise : Failed to create System0 surface"));
@@ -2152,7 +2152,7 @@ void InitialiseButtonData(void)
 	}
 
 	for(i=0; i<NUM_TOPICSURFACES; i++) {
-		TopicSurfaces[i].Buffer = MALLOC(WidthTopic*HeightTopic);
+		TopicSurfaces[i].Buffer = (uint8 *)MALLOC(WidthTopic*HeightTopic);
 		ASSERT((TopicSurfaces[i].Buffer!=NULL,"intInitialise : Failed to allocate Topic surface"));
 		TopicSurfaces[i].Surface = iV_SurfaceCreate(REND_SURFACE_USR,WidthTopic,HeightTopic,10,10,TopicSurfaces[i].Buffer);
 		ASSERT((TopicSurfaces[i].Surface!=NULL,"intInitialise : Failed to create Topic surface"));
@@ -2164,7 +2164,7 @@ void InitialiseButtonData(void)
 	}
 
 	for(i=0; i<NUM_STATSURFACES; i++) {
-		StatSurfaces[i].Buffer = MALLOC(Width*Height);
+		StatSurfaces[i].Buffer = (uint8 *)MALLOC(Width*Height);
 		ASSERT((StatSurfaces[i].Buffer!=NULL,"intInitialise : Failed to allocate Stats surface"));
 		StatSurfaces[i].Surface = iV_SurfaceCreate(REND_SURFACE_USR,Width,Height,10,10,StatSurfaces[i].Buffer);
 		ASSERT((StatSurfaces[i].Surface!=NULL,"intInitialise : Failed to create Stat surface"));
@@ -3186,7 +3186,7 @@ void intDisplayStatsBar(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset
 
 	/* indent to allow text value */
 #if	DRAW_BAR_TEXT
-	iX = x0 + iV_GetTextWidth( szCheckWidth );
+	iX = x0 + iV_GetTextWidth( (unsigned char *)szCheckWidth );
 	iY = y0 + (iV_GetImageHeight(IntImages,IMAGE_DES_STATSCURR) - iV_GetTextLineSize())/2 -
 					iV_GetTextAboveBase();
 #else
@@ -3202,7 +3202,7 @@ void intDisplayStatsBar(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset
 #if	DRAW_BAR_TEXT
 	itoa( BarGraph->iValue, szVal, 10 );
 	iV_SetTextColour(-1);
-	iV_DrawText( szVal, x0, iY );
+	iV_DrawText( (unsigned char *)szVal, x0, iY );
 #endif
 
 	//draw the comparison value - only if not zero
@@ -3254,7 +3254,7 @@ void intDisplayDesignPowerBar(struct _widget *psWidget, UDWORD xOffset,
 
 	/* indent to allow text value */
 #if	DRAW_BAR_TEXT
-	iX = x0 + iV_GetTextWidth( szCheckWidth );
+	iX = x0 + iV_GetTextWidth( (unsigned char *)szCheckWidth );
 	iY = y0 + (iV_GetImageHeight(IntImages,IMAGE_DES_STATSCURR) - iV_GetTextLineSize())/2 -
 					iV_GetTextAboveBase();
 #else
@@ -3279,7 +3279,7 @@ void intDisplayDesignPowerBar(struct _widget *psWidget, UDWORD xOffset,
 #if	DRAW_BAR_TEXT
 	itoa( BarGraph->iValue, szVal, 10 );
 	iV_SetTextColour(-1);
-	iV_DrawText( szVal, x0, iY );
+	iV_DrawText( (unsigned char *)szVal, x0, iY );
 #endif
 
 

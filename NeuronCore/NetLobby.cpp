@@ -50,11 +50,11 @@ BOOL NETsetRegistryEntries(char *name,char *guid,char *file,char *cline,char *pa
 
 	if(ghGameDisp == REG_CREATED_NEW_KEY)			// set the key values.
 	{
-		RegSetValueEx(ghGameKey, "Guid"				,0, REG_SZ, guid, strlen(guid)+1 );	//guid
-		RegSetValueEx(ghGameKey, "File"				,0, REG_SZ, file, strlen(file)+1 );	//file
-		RegSetValueEx(ghGameKey, "CommandLine"		,0, REG_SZ, cline,strlen(cline)+1);	//commandline
-		RegSetValueEx(ghGameKey, "Path"				,0, REG_SZ, path, strlen(path)+1 );	//path
-		RegSetValueEx(ghGameKey, "CurrentDirectory"	,0, REG_SZ, cdir, strlen(cdir)+1 );	//currentdir
+		RegSetValueEx(ghGameKey, "Guid"				,0, REG_SZ, (const BYTE *)guid, strlen(guid)+1 );	//guid
+		RegSetValueEx(ghGameKey, "File"				,0, REG_SZ, (const BYTE *)file, strlen(file)+1 );	//file
+		RegSetValueEx(ghGameKey, "CommandLine"		,0, REG_SZ, (const BYTE *)cline,strlen(cline)+1);	//commandline
+		RegSetValueEx(ghGameKey, "Path"				,0, REG_SZ, (const BYTE *)path, strlen(path)+1 );	//path
+		RegSetValueEx(ghGameKey, "CurrentDirectory"	,0, REG_SZ, (const BYTE *)cdir, strlen(cdir)+1 );	//currentdir
 	}
 
 	RegCloseKey(ghGameKey);
@@ -125,7 +125,7 @@ BOOL NETcheckRegistryEntries(char *name,char *guid)
 	}
 	else
 	{
-		fclose(pFileHandle);
+		fclose((FILE *)pFileHandle);
 	}	
 
 	// success..

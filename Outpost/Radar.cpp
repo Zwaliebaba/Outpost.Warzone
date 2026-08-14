@@ -123,7 +123,7 @@ void resetRadarRedraw(void)
 
 BOOL InitRadar(void)
 {
-	radarBuffer = MALLOC(RADWIDTH*RADHEIGHT);
+	radarBuffer = (UBYTE *)MALLOC(RADWIDTH*RADHEIGHT);
 	if(radarBuffer==NULL) return FALSE;
 	memset(radarBuffer,0,RADWIDTH*RADHEIGHT);
 

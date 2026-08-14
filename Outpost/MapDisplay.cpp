@@ -123,7 +123,7 @@ iSurface	*pMapSurface;
 	ASSERT((bufSpace!=NULL,"Can't get the memory for the map buffer"));
 
 	/* Build our new surface */
-	pMapSurface = iV_SurfaceCreate(REND_SURFACE_USR, width, height, 10, 10,bufSpace);
+	pMapSurface = iV_SurfaceCreate(REND_SURFACE_USR, width, height, 10, 10,(uint8 *)bufSpace);
 
 	/* Exit if we can't get it! */
 	ASSERT((pMapSurface!=NULL,"Whoa - can't make surface for map"));

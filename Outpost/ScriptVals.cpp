@@ -80,13 +80,13 @@ BOOL scrvAddContext(STRING *pID, SCRIPT_CONTEXT *psContext, SCRV_TYPE type)
 {
 	SCRV_STORE		*psNew;
 
-	psNew = MALLOC(sizeof(SCRV_STORE));
+	psNew = (SCRV_STORE *)MALLOC(sizeof(SCRV_STORE));
 	if (!psNew)
 	{
 		DBERROR(("scrvAddContext: Out of memory"));
 		return FALSE;
 	}
-	psNew->pIDString = MALLOC(strlen(pID) + 1);
+	psNew->pIDString = (STRING *)MALLOC(strlen(pID) + 1);
 	if (!psNew->pIDString)
 	{
 		DBERROR(("scrvAddContext: Out of memory"));
@@ -149,7 +149,7 @@ void scrvUpdateBasePointers(void)
 		if (asBasePointers[i] != NULL)
 		{
 			psVal = asBasePointers[i];
-			psObj = psVal->v.oval;
+			psObj = (BASE_OBJECT *)psVal->v.oval;
 
 			if (psObj && psObj->died && psObj->died != NOT_CURRENT_LIST)
 			{
@@ -184,7 +184,7 @@ void scrvReleaseGroup(INTERP_VAL *psVal)
 {
 	DROID_GROUP		*psGroup;
 
-	psGroup = psVal->v.oval;
+	psGroup = (DROID_GROUP *)psVal->v.oval;
 	grpReset(psGroup);
 
 	ASSERT((psGroup->refCount == 1,

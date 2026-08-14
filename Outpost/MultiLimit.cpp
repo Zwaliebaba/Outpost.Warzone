@@ -336,7 +336,7 @@ VOID createLimitSet(VOID)
 
 	//close your eyes now
 	pChanges = MALLOC(numchanges*(sizeof(UDWORD)+sizeof(UBYTE)));	// allocate some mem for this.
-	pEntry = pChanges;
+	pEntry = (UBYTE *)pChanges;
 
 	for(i=0;i<numStructureStats;i++)								// prepare chunk.
 	{
@@ -351,7 +351,7 @@ VOID createLimitSet(VOID)
 	// you can open them again.
 
 	ingame.numStructureLimits	= numchanges;
-	ingame.pStructureLimits		= pChanges;
+	ingame.pStructureLimits		= (UBYTE *)pChanges;
 
 	sendOptions(0,0);
 
@@ -449,7 +449,7 @@ VOID displayStructureBar(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffse
 
 	// draw limit
 	sprintf(str,"%d",((W_SLIDER*)(widgGetFromID(psWScreen,psWidget->id+1)))->pos);
-	iV_DrawText(str, x+270, y+(psWidget->height/2)+3);
+	iV_DrawText((unsigned char *)str, x+270, y+(psWidget->height/2)+3);
 
 	// add snap
 	AddCursorSnap(&InterfaceSnap,(SWORD)(x+10) , (SWORD)(y+10) , psWidget->formID,psWidget->id,NULL);

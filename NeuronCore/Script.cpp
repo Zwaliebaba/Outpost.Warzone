@@ -168,7 +168,7 @@ BOOL scriptSaveProg(SCRIPT_CODE *psProg, UDWORD *pSize, UBYTE **ppData)
 	}
 
 	// Allocate the save buffer
-	*ppData = MALLOC(*pSize);
+	*ppData = (UBYTE *)MALLOC(*pSize);
 	if (!*ppData)
 	{
 		DBERROR(("scriptSaveProg: out of memory"));
@@ -444,7 +444,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE *pData, SCRIPT_CODE **ppsProg)
 	UDWORD		data, saveFunc;
 
 	// Allocate the program structure
-	psProg = MALLOC(sizeof(SCRIPT_CODE));
+	psProg = (SCRIPT_CODE *)MALLOC(sizeof(SCRIPT_CODE));
 	if (!psProg)
 	{
 		DBERROR(("scriptLoadProg: out of memory"));
@@ -484,7 +484,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE *pData, SCRIPT_CODE **ppsProg)
 
 	if (psProg->numGlobals > 0)
 	{
-		psProg->pGlobals = MALLOC(sizeof(INTERP_TYPE) * psProg->numGlobals);
+		psProg->pGlobals = (INTERP_TYPE *)MALLOC(sizeof(INTERP_TYPE) * psProg->numGlobals);
 		if (!psProg->pGlobals)
 		{
 			DBERROR(("scriptLoadProg: out of memory"));
@@ -504,7 +504,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE *pData, SCRIPT_CODE **ppsProg)
 	if (psProg->numArrays > 0)
 	{
 		// Load the array data
-		psProg->psArrayInfo = MALLOC(sizeof(ARRAY_DATA) * psProg->numArrays);
+		psProg->psArrayInfo = (ARRAY_DATA *)MALLOC(sizeof(ARRAY_DATA) * psProg->numArrays);
 		if (psProg->psArrayInfo == NULL)
 		{
 			DBERROR(("scriptLoadProg: out of memory"));
@@ -517,7 +517,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE *pData, SCRIPT_CODE **ppsProg)
 	}
 
 	// Load the trigger data
-	psProg->psTriggerData = MALLOC(sizeof(TRIGGER_DATA) * psProg->numTriggers);
+	psProg->psTriggerData = (TRIGGER_DATA *)MALLOC(sizeof(TRIGGER_DATA) * psProg->numTriggers);
 	if (!psProg->psTriggerData)
 	{
 		DBERROR(("scriptLoadProg: out of memory"));
@@ -531,7 +531,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE *pData, SCRIPT_CODE **ppsProg)
 
 
 	// Load the trigger and event tables
-	psProg->pTriggerTab = MALLOC(sizeof(UWORD) * (psProg->numTriggers+1));
+	psProg->pTriggerTab = (UWORD *)MALLOC(sizeof(UWORD) * (psProg->numTriggers+1));
 	if (!psProg->pTriggerTab)
 	{
 		DBERROR(("scriptLoadProg: out of memory"));
@@ -544,7 +544,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE *pData, SCRIPT_CODE **ppsProg)
 
 
 
-	psProg->pEventTab = MALLOC(sizeof(UWORD) * (psProg->numEvents+1));
+	psProg->pEventTab = (UWORD *)MALLOC(sizeof(UWORD) * (psProg->numEvents+1));
 	if (!psProg->pEventTab)
 	{
 		DBERROR(("scriptLoadProg: out of memory"));
@@ -557,7 +557,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE *pData, SCRIPT_CODE **ppsProg)
 	DbgSize+=(sizeof(UWORD) * (psProg->numEvents+1)); 
 
 
-	psProg->pEventLinks = MALLOC(sizeof(SWORD) * psProg->numEvents);
+	psProg->pEventLinks = (SWORD *)MALLOC(sizeof(SWORD) * psProg->numEvents);
 	if (!psProg->pEventLinks)
 	{
 		DBERROR(("scriptLoadProg: out of memory"));
@@ -580,7 +580,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE *pData, SCRIPT_CODE **ppsProg)
 
 
 
-	psProg->pCode = MALLOC(psProg->size);
+	psProg->pCode = (UDWORD *)MALLOC(psProg->size);
 	if (!psProg->pCode)
 	{
 		DBERROR(("scriptLoadProg: out of memory"));
@@ -648,7 +648,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE *pData, SCRIPT_CODE **ppsProg)
 
 		UDWORD Tot=0;
 
-		psProg->psDebug = MALLOC(sizeof(SCRIPT_DEBUG) * psProg->debugEntries);
+		psProg->psDebug = (SCRIPT_DEBUG *)MALLOC(sizeof(SCRIPT_DEBUG) * psProg->debugEntries);
 		if (!psProg->psDebug)
 		{
 			DBERROR(("scriptLoadProg: out of memory"));
@@ -659,7 +659,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE *pData, SCRIPT_CODE **ppsProg)
 
 		if (psProg->numGlobals > 0)
 		{
-			psProg->psVarDebug = MALLOC(sizeof(VAR_DEBUG) * psProg->numGlobals);
+			psProg->psVarDebug = (VAR_DEBUG *)MALLOC(sizeof(VAR_DEBUG) * psProg->numGlobals);
 			if (!psProg->psVarDebug)
 			{
 				DBERROR(("scriptLoadProg: out of memory"));
@@ -673,7 +673,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE *pData, SCRIPT_CODE **ppsProg)
 		}
 		if (psProg->numArrays > 0)
 		{
-			psProg->psArrayDebug = MALLOC(sizeof(ARRAY_DEBUG) * psProg->numArrays);
+			psProg->psArrayDebug = (ARRAY_DEBUG *)MALLOC(sizeof(ARRAY_DEBUG) * psProg->numArrays);
 			if (!psProg->psArrayDebug)
 			{
 				DBERROR(("scriptLoadProg: out of memory"));
@@ -713,7 +713,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE *pData, SCRIPT_CODE **ppsProg)
 				StringSize=strlen((STRING *)pPos)+1;
 
 
-				psProg->psVarDebug[i].pIdent = MALLOC(StringSize);
+				psProg->psVarDebug[i].pIdent = (STRING *)MALLOC(StringSize);
 				if (!psProg->psVarDebug[i].pIdent)
 				{
 					DBERROR(("scriptLoadProg: out of memory"));
@@ -751,7 +751,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE *pData, SCRIPT_CODE **ppsProg)
 				StringSize=strlen((STRING *)pPos)+1;
 
 
-				psProg->psArrayDebug[i].pIdent = MALLOC(StringSize);
+				psProg->psArrayDebug[i].pIdent = (STRING *)MALLOC(StringSize);
 				if (!psProg->psArrayDebug[i].pIdent)
 				{
 					DBERROR(("scriptLoadProg: out of memory"));

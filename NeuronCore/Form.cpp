@@ -1089,7 +1089,7 @@ void formRun(W_FORM *psWidget, W_CONTEXT *psContext)
 					{
 						/* Got a tip - start it off */
 						tipStart((WIDGET *)psTabForm, pTip,
-								 psContext->psScreen->TipFontID, psTabForm->aColours,
+								 psContext->psScreen->TipFontID, (UDWORD *)psTabForm->aColours,
 								 sTabPos.x + psContext->xOffset,
 								 sTabPos.y + psContext->yOffset,
 								 sTabPos.width,sTabPos.height);
@@ -1223,7 +1223,7 @@ void formHiLite(W_FORM *psWidget, W_CONTEXT *psContext)
 		if (psClickForm->pTip)
 		{
 			tipStart((WIDGET *)psClickForm, psClickForm->pTip,
-					 psContext->psScreen->TipFontID, psContext->psForm->aColours,
+					 psContext->psScreen->TipFontID, (UDWORD *)psContext->psForm->aColours,
 					 psWidget->x + psContext->xOffset, psWidget->y + psContext->yOffset,
 					 psWidget->width, psWidget->height);
 		}
@@ -1577,7 +1577,7 @@ void formDisplayTabbed(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD 
 	/* Adjust for where the tabs are */
 
 	if(psForm->pFormDisplay) {
-		psForm->pFormDisplay((WIDGET *)psForm, xOffset, yOffset, psForm->aColours);
+		psForm->pFormDisplay((WIDGET *)psForm, xOffset, yOffset, (UDWORD *)psForm->aColours);
 	} else {
 		/* Draw the form outline */
 		if (!(psForm->style & WFORM_INVISIBLE))

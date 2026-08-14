@@ -46,30 +46,30 @@ BOOL trigInitialise(void)
 
 
 	// Allocate the tables
-	aSin=MALLOC(sizeof(FRACT) * TRIG_DEGREES);
+	aSin=(FRACT *)MALLOC(sizeof(FRACT) * TRIG_DEGREES);
 	if (!aSin)
 	{
 		return FALSE;
 	}
-	aCos=MALLOC(sizeof(FRACT) * TRIG_DEGREES);
+	aCos=(FRACT *)MALLOC(sizeof(FRACT) * TRIG_DEGREES);
 	if (!aCos)
 	{
 		return FALSE;
 	}
-	aInvSin=MALLOC(sizeof(FRACT) * TRIG_ACCURACY);
+	aInvSin=(FRACT *)MALLOC(sizeof(FRACT) * TRIG_ACCURACY);
 	if (!aInvSin)
 	{
 		return FALSE;
 	}
 
-	aInvCos=MALLOC(sizeof(FRACT) * TRIG_ACCURACY);
+	aInvCos=(FRACT *)MALLOC(sizeof(FRACT) * TRIG_ACCURACY);
 	if (!aInvCos)
 	{
 		return FALSE;
 	}
 
 
-	aSqrt=MALLOC(sizeof(FRACT) * SQRT_ACCURACY);
+	aSqrt=(FRACT *)MALLOC(sizeof(FRACT) * SQRT_ACCURACY);
 	if (!aSqrt)
 	{
 		return FALSE;

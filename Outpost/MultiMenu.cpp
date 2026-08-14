@@ -209,7 +209,7 @@ void displayRequestOption(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffs
 	iV_SetFont(WFont);									// font
 	iV_SetTextColour(-1);								//colour
 
-	while(iV_GetTextWidth(butString) > psWidget->width -10 )
+	while(iV_GetTextWidth((unsigned char *)butString) > psWidget->width -10 )
 	{
 		butString[strlen(butString)-1]='\0';
 	}
@@ -570,7 +570,7 @@ void displayExtraGubbins(UDWORD height)
 
 	// draw timer
 	getAsciiTime(str,gameTime);
-	iV_DrawText(str, MULTIMENU_FORM_X+MULTIMENU_C2 ,MULTIMENU_FORM_Y+MULTIMENU_FONT_OSET) ;
+	iV_DrawText((unsigned char *)str, MULTIMENU_FORM_X+MULTIMENU_C2 ,MULTIMENU_FORM_Y+MULTIMENU_FONT_OSET) ;
 
 	//draw grid
 	iV_Line(MULTIMENU_FORM_X+MULTIMENU_C0 -6 , MULTIMENU_FORM_Y,
@@ -641,7 +641,7 @@ void displayMultiPlayer(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset
 		sprintf(str,"%d:",player,getPlayerName(player) );
 		
 		strcat(str, getPlayerName(player) );
-		while(iV_GetTextWidth(str) >= (MULTIMENU_C0-MULTIMENU_C2-10) )
+		while(iV_GetTextWidth((unsigned char *)str) >= (MULTIMENU_C0-MULTIMENU_C2-10) )
 		{
 			str[strlen(str)-1]='\0';
 		}

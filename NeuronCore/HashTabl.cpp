@@ -73,9 +73,9 @@ hashTable_Create( HASHTABLE **ppsTable, UDWORD udwTableSize,
 	/* allocate and init table */
 
 
-	(*ppsTable) = MALLOC( sizeof(HASHTABLE) );
+	(*ppsTable) = (HASHTABLE *)MALLOC( sizeof(HASHTABLE) );
 	udwSize = udwTableSize * sizeof(HASHNODE *);
-	(*ppsTable)->ppsNode = MALLOC( udwSize );
+	(*ppsTable)->ppsNode = (HASHNODE **)MALLOC( udwSize );
 	memset( (*ppsTable)->ppsNode, 0, udwSize );
 
 	/* allocate heaps */

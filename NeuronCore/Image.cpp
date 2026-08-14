@@ -439,10 +439,10 @@ BOOL imageCreateBMP(UBYTE			*pImageData,		// Original file
 	else
 		BitCount=24;
 
-	psFileHeader=MALLOC(sizeof(BMP_FILEHEADER));
+	psFileHeader=(BMP_FILEHEADER *)MALLOC(sizeof(BMP_FILEHEADER));
 	if (psFileHeader==NULL) return FALSE;
 
-	psInfoHeader=MALLOC(sizeof(BMP_INFOHEADER));
+	psInfoHeader=(BMP_INFOHEADER *)MALLOC(sizeof(BMP_INFOHEADER));
 	if (psInfoHeader==NULL)
 	{
 		FREE(psFileHeader);
@@ -461,7 +461,7 @@ BOOL imageCreateBMP(UBYTE			*pImageData,		// Original file
 	}
 
 
-	BMPdata=MALLOC(BMPSize);	
+	BMPdata=(UBYTE *)MALLOC(BMPSize);	
 	if (BMPdata==NULL)	// No mem for BMP file
 	{
 		FREE(psInfoHeader);

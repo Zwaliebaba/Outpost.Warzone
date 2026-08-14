@@ -1294,7 +1294,7 @@ droidCheckBuildStillInProgress( AUDIO_SAMPLE *psSample )
 	}
 	else
 	{
-		psDroid = psSample->psObj;
+		psDroid = (DROID *)psSample->psObj;
 		ASSERT( (PTRVALID(psDroid, sizeof(DROID)),
 			"unitCheckBuildStillInProgress: unit pointer invalid\n") );
 	}
@@ -1317,7 +1317,7 @@ droidBuildStartAudioCallback( AUDIO_SAMPLE *psSample )
 	ASSERT( (PTRVALID(psSample, sizeof(AUDIO_SAMPLE)),
 		"unitBuildStartAudioCallback: audio sample pointer invalid\n") );
 
-	psDroid = psSample->psObj;
+	psDroid = (DROID *)psSample->psObj;
 
 	if ( psDroid != NULL )
 	{
@@ -6490,7 +6490,7 @@ BOOL droidAudioTrackStopped( AUDIO_SAMPLE *psSample )
 
 	if ( psSample->psObj != NULL )
 	{
-		psDroid = psSample->psObj;
+		psDroid = (DROID *)psSample->psObj;
 
         if ( psDroid->type == OBJ_DROID && !psDroid->died )
 		{

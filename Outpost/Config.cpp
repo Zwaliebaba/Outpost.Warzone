@@ -781,6 +781,6 @@ BOOL setWarzoneKeyString(STRING *pName, STRING *pString)
 // ////////////////////////////////////////////////////////////////////////////
 BOOL setWarzoneKeyBinary(STRING *pName, VOID *pData, UDWORD size)
 {
-	RegSetValueEx(ghWarzoneKey, pName ,0, REG_BINARY, pData, size );
+	RegSetValueEx(ghWarzoneKey, pName ,0, REG_BINARY, (const BYTE *)pData, size );
 	return TRUE;
 }

@@ -71,7 +71,7 @@ BOOL addToForce(DROID_TEMPLATE  *templ)
 		 psTempl = psTempl->psNext); 
 	if(!psTempl)
 	{
-		pT = MALLOC(sizeof(DROID_TEMPLATE));
+		pT = (DROID_TEMPLATE *)MALLOC(sizeof(DROID_TEMPLATE));
 		if ( !pT)
 		{
 			return FALSE;
@@ -91,7 +91,7 @@ BOOL addToForce(DROID_TEMPLATE  *templ)
 	}
 	
 	// add droid.
-	pF = MALLOC(sizeof(FORCE_MEMBER));						// create a slot in the force.
+	pF = (FORCE_MEMBER *)MALLOC(sizeof(FORCE_MEMBER));						// create a slot in the force.
 	if (!pF)
 	{
 		return FALSE;

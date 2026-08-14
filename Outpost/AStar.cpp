@@ -129,7 +129,7 @@ BOOL astarInitialise(void)
 	}
 
 #if OPEN_LIST == 2
-	apsNodes = MALLOC(sizeof(FP_NODE *) * FPATH_TABLESIZE);
+	apsNodes = (FP_NODE **)MALLOC(sizeof(FP_NODE *) * FPATH_TABLESIZE);
 	if (!apsNodes)
 	{
 		return FALSE;

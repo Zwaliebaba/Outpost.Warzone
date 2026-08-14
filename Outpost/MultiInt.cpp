@@ -366,7 +366,7 @@ static void decideWRF(void)
 	}
 	else
 	{
-		fclose(pFileHandle);
+		fclose((FILE *)pFileHandle);
 	}		
 }
 
@@ -2240,13 +2240,13 @@ static void processMultiopWidgets(UDWORD id)
 		strcpy((STRING*)sPlayer,widgGetString(psWScreen, MULTIOP_PNAME));
 
 		// chop to 15 chars..
-		while(strlen(sPlayer) > 15)	// clip name.
+		while(strlen((const char *)sPlayer) > 15)	// clip name.
 		{
-			sPlayer[strlen(sPlayer)-1]='\0';
+			sPlayer[strlen((const char *)sPlayer)-1]='\0';
 		}
 
 		// update string.
-		widgSetString(psWScreen, MULTIOP_PNAME,sPlayer);
+		widgSetString(psWScreen, MULTIOP_PNAME,(STRING *)sPlayer);
 
 
 		removeWildcards((STRING*)sPlayer);
@@ -3570,7 +3570,7 @@ void displayRemoteGame(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset,
 	}
 
 	//draw game name
-	while(iV_GetTextWidth(NetPlay.games[i].name) > (psWidget->width-110) )
+	while(iV_GetTextWidth((unsigned char *)NetPlay.games[i].name) > (psWidget->width-110) )
 	{
 		NetPlay.games[i].name[strlen(NetPlay.games[i].name)-1]='\0';
 	}
@@ -3660,7 +3660,7 @@ void displayPlayer(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset, UDW
 		iV_SetTextColour(-1);													// colour
 
 		// name
-		while(iV_GetTextWidth(NetPlay.players[i].name) > psWidget->width -68)	// clip name.
+		while(iV_GetTextWidth((unsigned char *)NetPlay.players[i].name) > psWidget->width -68)	// clip name.
 		{
 			NetPlay.players[i].name[strlen(NetPlay.players[i].name)-1]='\0';
 		}

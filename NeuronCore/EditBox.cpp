@@ -676,7 +676,7 @@ void editBoxDisplay(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD *pC
 	ch = *pInsPoint;
 
 	*pInsPoint = '\0';
-		iV_DrawText(pPrint,fx,fy);
+		iV_DrawText((unsigned char *)pPrint,fx,fy);
 	*pInsPoint = ch;
 
 	/* Display the cursor if editing */

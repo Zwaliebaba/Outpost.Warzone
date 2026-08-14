@@ -125,7 +125,7 @@ void		MPDPXTRA_CheckDisplayErrors()
 	{
 		if (ERROR_SUCCESS == RegQueryValueEx(hKey,"DEBUGDYNDLL",NULL,NULL,value,&valueSize))
 		{
-			if (atoi(value) >= 1)
+			if (atoi((const char *)value) >= 1)
 				gMPDPXTRALibDisplayErrors = TRUE;
 			else
 				gMPDPXTRALibDisplayErrors = FALSE;

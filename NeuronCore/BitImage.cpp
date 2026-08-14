@@ -89,20 +89,20 @@ IMAGEFILE *iV_LoadImageFile(UBYTE *FileData, UDWORD FileSize)
 	Header = (IMAGEHEADER*)Ptr;
 	Ptr += sizeof(IMAGEHEADER);
 
-	ImageFile = MALLOC(sizeof(IMAGEFILE));
+	ImageFile = (IMAGEFILE *)MALLOC(sizeof(IMAGEFILE));
 	if(ImageFile == NULL) {
 		DBERROR(("Out of memory"));
 		return NULL;
 	}
 
 
-	ImageFile->TexturePages = MALLOC(sizeof(iSprite)*Header->NumTPages);
+	ImageFile->TexturePages = (iSprite *)MALLOC(sizeof(iSprite)*Header->NumTPages);
 	if(ImageFile->TexturePages == NULL) {
 		DBERROR(("Out of memory"));
 		return NULL;
 	}
 
-	ImageFile->ImageDefs = MALLOC(sizeof(IMAGEDEF)*Header->NumImages);
+	ImageFile->ImageDefs = (IMAGEDEF *)MALLOC(sizeof(IMAGEDEF)*Header->NumImages);
 	if(ImageFile->ImageDefs == NULL) {
 		DBERROR(("Out of memory"));
 		return NULL;
