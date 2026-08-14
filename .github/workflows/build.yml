@@ -21,12 +21,21 @@ jobs:
         uses: microsoft/setup-msbuild@v2
 
       # /flp contains a semicolon, which PowerShell reads as a statement
-      # separator unless the whole switch is quoted.
+      # separator unless the whole switch is quoted. Building serially: with
+      # /m the failing project's diagnostics can be interleaved away.
       - name: Build
-        run: msbuild Outpost\Outpost.vcxproj /p:Configuration=${{ matrix.configuration }} /p:Platform=Win32 /m /v:minimal /nologo "/flp:LogFile=build.log;Verbosity=normal;ErrorsOnly"
+        run: msbuild Outpost\Outpost.vcxproj /p:Configuration=${{ matrix.configuration }} /p:Platform=Win32 /v:normal /nologo "/flp:LogFile=build.log;Verbosity=diagnostic"
 
-      # The tail of a failed build is dominated by the error summary, which
-      # omits which translation unit each error came from.
+      # MSBuild can exit non-zero with the failure only in the file log, so
+      # surface it rather than leaving the job with no explanation.
+      - name: Show failures from build log
+        if: failure()
+        run: |
+          if (Test-Path build.log) {
+            Select-String -Path build.log -Pattern 'error |fatal error|Build FAILED|Error\(s\)|LNK' |
+              Select-Object -Last 60 | ForEach-Object { $_.Line }
+          } else { Write-Host 'no build.log produced' }
+
       - name: Upload build log
         if: always()
         uses: actions/upload-artifact@v4

@@ -9,6 +9,7 @@
 
 #include "frame.h"
 #include "warzoneConfig.h"
+#include "AdvVis.h"
 #include "pieState.h"
 
 
