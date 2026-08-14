@@ -629,8 +629,8 @@ sound_SetSamplePan( AUDIO_SAMPLE * psSample, int iPan )
 
 /***************************************************************************/
 
-static void
-sound_SetSampleVol( AUDIO_SAMPLE * psSample, int iVol, BOOL bScale3D )
+void
+sound_SetSampleVol( AUDIO_SAMPLE * psSample, SDWORD iVol, BOOL bScale3D )
 {
 	g_uiRet = QSOUND(SetVolume( g_hQMixer, psSample->iSample,
 						0, audio_GetSampleMixVol(psSample,iVol,bScale3D) ));

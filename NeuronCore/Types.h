@@ -19,7 +19,11 @@
 /* Basic numeric types */
 typedef unsigned	char	UBYTE;
 typedef	signed		char	SBYTE;
-typedef signed		char	STRING;
+/* STRING is a character type, not a numeric one.  Plain char keeps it
+   distinct from SBYTE so that string literals and the CRT's char* APIs
+   interoperate without a cast.  MSVC's default char is signed, so this is
+   identical in representation to the previous signed char. */
+typedef				char	STRING;
 typedef	unsigned	short	UWORD;
 typedef	signed		short	SWORD;
 typedef	unsigned	int		UDWORD;

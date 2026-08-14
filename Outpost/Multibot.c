@@ -124,7 +124,7 @@ BOOL sendVtolRearm(DROID *psDroid,STRUCTURE *psStruct, UBYTE chosen)
 		return FALSE;
 	}
 
-	NetAdd(msg,0,(UBYTE)(psDroid->player));
+	NetAddType(msg,0,UBYTE,psDroid->player);
 	NetAdd(msg,1,psDroid->id);
 	NetAdd(msg,5,chosen);
 	if(psStruct)
@@ -136,8 +136,8 @@ BOOL sendVtolRearm(DROID *psDroid,STRUCTURE *psStruct, UBYTE chosen)
 		NetAdd(msg,6,blank);
 	}
 
-	NetAdd(msg,10,((UBYTE)(psDroid->sMove.iAttackRuns)) );
-	NetAdd(msg,11,((UBYTE)(psDroid->asWeaps[0].ammo)) );
+	NetAddType(msg,10,UBYTE,psDroid->sMove.iAttackRuns);
+	NetAddType(msg,11,UBYTE,psDroid->asWeaps[0].ammo);
 
 	msg.size = 12;
 	msg.type = NET_VTOLREARM;
@@ -503,8 +503,8 @@ BOOL SendDroidMove(DROID *pDroid, UDWORD x, UDWORD y,BOOL bFormation)
 		NetAdd(m,0,pDroid->id);						//droid to move
 		NetAdd(m,4,x);								//x pos
 		NetAdd(m,8,y);								//y pos
-		NetAdd(m,12,(char)pDroid->player);			//owner of droid(for speed!)
-		NetAdd(m,13,(char)bFormation);				//use a formation?
+		NetAddType(m,12,char,pDroid->player);			//owner of droid(for speed!)
+		NetAddType(m,13,char,bFormation);				//use a formation?
 		m.size = 14;
 		m.type = NET_DROIDMOVE;
 		NETbcast(&m,FALSE);

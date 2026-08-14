@@ -183,10 +183,23 @@ extern BOOL DirectPlaySystemMessageHandler(LPVOID);						// what to do with syst
 
 // Some shortcuts to help you along!
 #define NetAdd(m,pos,thing) \
-	memcpy(&(m.body[pos]),&(thing),sizeof(thing)) 
+	memcpy(&(m.body[pos]),&(thing),sizeof(thing))
 
 #define NetAdd2(m,pos,thing) \
-	memcpy( &((*m).body[pos]), &(thing), sizeof(thing)) 
+	memcpy( &((*m).body[pos]), &(thing), sizeof(thing))
+
+/* Width-explicit variants.  Callers that need to put a value on the wire as a
+   narrower type used to write NetAdd(m,pos,((UBYTE)value)); taking the address
+   of a cast is an MSVC-only extension and is invalid C++.  Naming the type
+   materialises a temporary instead, so the number of bytes copied is still
+   sizeof(type) and the message layout is unchanged. */
+#define NetAddType(m,pos,type,value) \
+	do { type netAddTmp_ = (type)(value); \
+		 memcpy(&(m.body[pos]), &netAddTmp_, sizeof(netAddTmp_)); } while (0)
+
+#define NetAdd2Type(m,pos,type,value) \
+	do { type netAddTmp_ = (type)(value); \
+		 memcpy(&((*m).body[pos]), &netAddTmp_, sizeof(netAddTmp_)); } while (0)
 
 #define NetGet(m,pos,thing) \
 	memcpy(&(thing),&(m->body[pos]),sizeof(thing))

@@ -63,7 +63,7 @@ static BOOL		bConsoleDisplayEnabled;
 static UDWORD	consoleVisibleLines;
 
 /* Whether new messages are allowed to be added */
-static allowNewMessages;
+static BOOL allowNewMessages;
 
 /* What's the default justification */
 static CONSOLE_TEXT_JUSTIFICATION	defJustification;

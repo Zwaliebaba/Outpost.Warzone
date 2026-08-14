@@ -192,7 +192,7 @@ BOOL NETinitAudioCapture(VOID)
 
 	captureBuff.dwSize		= sizeof(DSCBUFFERDESC);
 	captureBuff.dwFlags		= DSCBCAPS_WAVEMAPPED;
-	captureBuff.dwBufferBytes= SAMPLETIME * wfx.nAvgBytesPerSec;		// SAMPLETIME second’s worth of audio
+	captureBuff.dwBufferBytes= SAMPLETIME * wfx.nAvgBytesPerSec;		// SAMPLETIME secondï¿½s worth of audio
 	captureBuff.lpwfxFormat =  &wfx;
  
 	hr = IDirectSoundCapture_CreateCaptureBuffer(lpDirectSoundCapture,
@@ -375,7 +375,7 @@ static BOOL setupPlayBuffer(VOID)
 
 // ////////////////////////////////////////////////////////////////////////
 
-BOOL NETinitPlaybackBuffer(LPDIRECTSOUND pDs)
+BOOL NETinitPlaybackBuffer(VOID *pDs)
 {
 	NetPlay.bAllowCapturePlay	= FALSE;
 	NetPlay.bCaptureInUse		= FALSE;
@@ -391,7 +391,7 @@ BOOL NETinitPlaybackBuffer(LPDIRECTSOUND pDs)
 	else
 	{
 		ourDSPointer= FALSE;
-		lpDirectSound = pDs;
+		lpDirectSound = (LPDIRECTSOUND)pDs;
 	}
 
 	if( FALSE == setupPlayBuffer() )		// setup play buffer.

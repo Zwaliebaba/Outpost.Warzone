@@ -595,10 +595,10 @@ VOID  technologyGiveAway(STRUCTURE *pS)
 		NetAdd(m,m.size,type);
 		m.size += sizeof(type);
 
-		NetAdd(m,m.size,((UWORD)x));
+		NetAddType(m,m.size,UWORD,x);
 		m.size += sizeof(UWORD);
 
-		NetAdd(m,m.size,((UWORD)y));
+		NetAddType(m,m.size,UWORD,y);
 		m.size += sizeof(UWORD);
 		
 		NetAdd(m,m.size,pF->id);
@@ -675,8 +675,8 @@ void addLoserGifts(void)
 
 			pF = buildFeature((asFeatureStats+i),x<<TILE_SHIFT, y<<TILE_SHIFT,FALSE);	
 		
-			NetAdd(m,m.size,((UWORD)x));		m.size += sizeof(UWORD);
-			NetAdd(m,m.size,((UWORD)y));		m.size += sizeof(UWORD);
+			NetAddType(m,m.size,UWORD,x);		m.size += sizeof(UWORD);
+			NetAddType(m,m.size,UWORD,y);		m.size += sizeof(UWORD);
 			NetAdd(m,m.size,pF->id);			m.size += sizeof(pF->id);
 
 			m.body[m.size]  = ONEPLAYER;
@@ -769,9 +769,9 @@ VOID  addMultiPlayerRandomArtifacts(UDWORD quantity,SDWORD type)
 
 		pF = buildFeature((asFeatureStats+i),x<<TILE_SHIFT, y<<TILE_SHIFT,FALSE);	
 		
-		NetAdd(m,m.size,((UWORD)x));
+		NetAddType(m,m.size,UWORD,x);
 		m.size += sizeof(UWORD);
-		NetAdd(m,m.size,((UWORD)y));
+		NetAddType(m,m.size,UWORD,y);
 		m.size += sizeof(UWORD);
 
 		NetAdd(m,m.size,pF->id);

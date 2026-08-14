@@ -943,7 +943,7 @@ int	seq_RenderOneFrame(LPDIRECTDRAWSURFACE4	lpDDSF, int skip, SDWORD subMin, SDW
 				blitDest[i] = pixel; 
 			}
 			blitSrc += movieWidth;
-			((LPBYTE)blitDest) += DD_sd.lPitch;
+			blitDest = (WORD *)((LPBYTE)blitDest + DD_sd.lPitch);
 		}
 		if (bTextBoxes)
 		{	
@@ -961,7 +961,7 @@ int	seq_RenderOneFrame(LPDIRECTDRAWSURFACE4	lpDDSF, int skip, SDWORD subMin, SDW
 					blitDest[i] = pixel; 
 				}
 				blitSrc += movieWidth;
-				((LPBYTE)blitDest) += DD_sd.lPitch;
+				blitDest = (WORD *)((LPBYTE)blitDest + DD_sd.lPitch);
 			}
 			for (j = subYend;j <  movieHeight;j++)
 			{
@@ -971,7 +971,7 @@ int	seq_RenderOneFrame(LPDIRECTDRAWSURFACE4	lpDDSF, int skip, SDWORD subMin, SDW
 					blitDest[i] = pixel; 
 				}
 				blitSrc += movieWidth;
-				((LPBYTE)blitDest) += DD_sd.lPitch;
+				blitDest = (WORD *)((LPBYTE)blitDest + DD_sd.lPitch);
 			}
 		}
 	}

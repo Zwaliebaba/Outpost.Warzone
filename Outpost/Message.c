@@ -48,7 +48,7 @@ OBJ_HEAP		*psProxDispHeap;
  */
 UDWORD	msgID = 0;
 
-static currentNumProxDisplays;
+static UDWORD currentNumProxDisplays;
 /* The list of messages allocated */
 MESSAGE		*apsMessages[MAX_PLAYERS];
 

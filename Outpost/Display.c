@@ -282,9 +282,9 @@ static BOOL	bScreenShakeActive = FALSE;
 static UDWORD screenShakeStarted;
 static UDWORD screenShakeLength;
 //used to determine is a weapon droid is assigned to a sensor tower or sensor droid
-static bSensorAssigned;
+static BOOL bSensorAssigned;
 //used to determine if the player has selected a Las Sat structure
-static bLasSatStruct;
+static BOOL bLasSatStruct;
 
 // Local prototypes
 static MOUSE_TARGET	itemUnderMouse(BASE_OBJECT **ppObjUnderCursor);

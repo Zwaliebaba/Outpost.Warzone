@@ -289,7 +289,7 @@ static void packageCheck(UDWORD i, NETMSG *pMsg, DROID *pD)
 		NetAdd2(pMsg,	i+24,		pD->orderX);
 		NetAdd2(pMsg,	i+26,		pD->orderY);
 	}
-	NetAdd2(pMsg,		i+28,		((UWORD)pD->numKills));		// droid kills
+	NetAdd2Type(pMsg,i+28,UWORD,pD->numKills);		// droid kills
 
 	pMsg->size =(UWORD)( pMsg->size + 30);
 	
@@ -693,20 +693,20 @@ static BOOL sendStructureCheck(VOID)
 		// functionality.
 		if (pS->pStructureType->type == REF_RESEARCH)
 		{	
-			NetAdd(m,19, ((UBYTE)((RESEARCH_FACILITY*)pS->pFunctionality)->capacity ));
+			NetAddType(m,19,UBYTE,((RESEARCH_FACILITY*)pS->pFunctionality)->capacity);
 			m.size +=1;
 		}
 		if (pS->pStructureType->type == REF_FACTORY OR
 //			pS->pStructureType->type == REF_CYBORG_FACTORY OR
 			pS->pStructureType->type == REF_VTOL_FACTORY)
 		{	
-			NetAdd(m,19,((UBYTE)((FACTORY*)pS->pFunctionality)->capacity ) );
+			NetAddType(m,19,UBYTE,((FACTORY*)pS->pFunctionality)->capacity);
 			m.size +=1;
 
 		}
 		if (pS->pStructureType->type == REF_POWER_GEN)
 		{
-			NetAdd(m,19,((UBYTE)((POWER_GEN*)pS->pFunctionality)->capacity) );
+			NetAddType(m,19,UBYTE,((POWER_GEN*)pS->pFunctionality)->capacity);
 			m.size +=1;
 		}
 		

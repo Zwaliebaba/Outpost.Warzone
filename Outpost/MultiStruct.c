@@ -74,13 +74,13 @@ BOOL sendBuildStarted(STRUCTURE *psStruct,DROID *psDroid)
 {
 	NETMSG	msg;
 	UDWORD zero=0;
-	NetAdd(msg,0,((UBYTE)psDroid->player));			//player
+	NetAddType(msg,0,UBYTE,psDroid->player);			//player
 	NetAdd(msg,1,psDroid->psTarStats->ref);	//id of thing to build
 	NetAdd(msg,5,psDroid->orderX);					// x 
 	NetAdd(msg,7,psDroid->orderY);					// y
 	NetAdd(msg,11,psDroid->id);						// droid to order to build it
 	NetAdd(msg,15,psStruct->id);					// building id to create
-	NetAdd(msg,19,((UBYTE)psDroid->order));			// building id to create
+	NetAddType(msg,19,UBYTE,psDroid->order);			// building id to create
 
 	if(psDroid->psTarget && (psDroid->psTarget->type == OBJ_STRUCTURE))
 	{
@@ -347,7 +347,7 @@ BOOL sendLasSat(UBYTE player,STRUCTURE *psStruct, BASE_OBJECT *psObj)
 	NetAdd(msg,0,player);
 	NetAdd(msg,1,psStruct->id);
 	NetAdd(msg,5,psObj->id);
-	NetAdd(msg,9,((UBYTE)psObj->player));
+	NetAddType(msg,9,UBYTE,psObj->player);
 		
 	msg.size = 10;
 	msg.type = NET_LASSAT;

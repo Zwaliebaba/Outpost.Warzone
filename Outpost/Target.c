@@ -5,9 +5,9 @@
 
 #include <stdio.h>
 #include <assert.h>
-#include <frame.h>
-#include <gtime.h>
-#include <animobj.h>
+#include <Frame.h>
+#include <GTime.h>
+#include <AnimObj.h>
 
 #include "StatsDef.h"
 #include "Base.h"
