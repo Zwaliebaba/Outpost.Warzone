@@ -309,37 +309,6 @@
     <ClInclude Include="NeuronCore.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="BitImage.cpp" />
-    <ClCompile Include="BSPIMD.cpp" />
-    <ClCompile Include="Bug.cpp" />
-    <ClCompile Include="D3DMode.cpp" />
-    <ClCompile Include="D3DRender.cpp" />
-    <ClCompile Include="DX6TexMan.cpp" />
-    <ClCompile Include="Fbf.cpp" />
-    <ClCompile Include="IMD.cpp" />
-    <ClCompile Include="IMDLoad.cpp" />
-    <ClCompile Include="Ivi.cpp" />
-    <ClCompile Include="Pcx.cpp" />
-    <ClCompile Include="PieBlitFunc.cpp" />
-    <ClCompile Include="PieClip.cpp" />
-    <ClCompile Include="PieDraw.cpp" />
-    <ClCompile Include="PieFunc.cpp" />
-    <ClCompile Include="PieMatrix.cpp" />
-    <ClCompile Include="PieMode.cpp" />
-    <ClCompile Include="PiePalette.cpp" />
-    <ClCompile Include="PieState.cpp" />
-    <ClCompile Include="PieTexture.cpp" />
-    <ClCompile Include="PQueue.cpp" />
-    <ClCompile Include="PtrList.cpp" />
-    <ClCompile Include="QSTrack.cpp" />
-    <ClCompile Include="RendFunc.cpp" />
-    <ClCompile Include="RendMode.cpp" />
-    <ClCompile Include="Screen.cpp" />
-    <ClCompile Include="Stack.cpp" />
-    <ClCompile Include="Tex.cpp" />
-    <ClCompile Include="TexD3D.cpp" />
-    <ClCompile Include="TextDraw.cpp" />
-    <ClCompile Include="WDG.cpp" />
     <ClCompile Include="Block.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
@@ -509,6 +478,99 @@
       <Filter>Gamelib</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp" />
+    <ClCompile Include="WDG.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="Pcx.cpp">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="PieBlitFunc.cpp">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="PieClip.cpp">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="PieDraw.cpp">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="PieFunc.cpp">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="PieMatrix.cpp">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="PieMode.cpp">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="PiePalette.cpp">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="PieState.cpp">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="PieTexture.cpp">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="BitImage.cpp">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="BSPIMD.cpp">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="Bug.cpp">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DMode.cpp">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DRender.cpp">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="DX6TexMan.cpp">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="Fbf.cpp">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="IMD.cpp">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="IMDLoad.cpp">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="Ivi.cpp">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="RendFunc.cpp">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="RendMode.cpp">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="Tex.cpp">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="TexD3D.cpp">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="TextDraw.cpp">
+      <Filter>ivis02</Filter>
+    </ClCompile>
+    <ClCompile Include="PtrList.cpp">
+      <Filter>Gamelib</Filter>
+    </ClCompile>
+    <ClCompile Include="PQueue.cpp">
+      <Filter>Gamelib</Filter>
+    </ClCompile>
+    <ClCompile Include="QSTrack.cpp">
+      <Filter>Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="Screen.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="Stack.cpp">
+      <Filter>Script</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Framework">
