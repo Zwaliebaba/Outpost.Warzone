@@ -74,9 +74,9 @@ typedef enum _object_type
 
 /***************************************************************************/
 
-typedef BASE_OBJECT
+typedef struct BASE_OBJECT
 {
-	BASE_ELEMENTS( BASE_OBJECT );
+	BASE_ELEMENTS( struct BASE_OBJECT );
 }
 BASE_OBJECT;
 
