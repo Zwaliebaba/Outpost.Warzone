@@ -114,7 +114,7 @@ BOOL NETinit(GUID g,BOOL bFirstCall)
 
 		hr = DirectPlayLobbyCreate(NULL,&glpTEMP,NULL,NULL,0);		// create lobinterface
 		hr = IDirectPlayLobby_QueryInterface(glpTEMP,				// set this up to allowfor service dialog
-											&IID_IDirectPlayLobby3,	// box overrides.
+											IID_IDirectPlayLobby3,	// box overrides.
 											(LPVOID*)&glpDPL3 );		// GLPDPL nalso gets set here.
 	}
 	

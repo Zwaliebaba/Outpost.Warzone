@@ -187,7 +187,7 @@ D3DTexCreateFromIvisTex( TEXPAGE_D3D			*psTexPage,
 
     /* Query source surface for a texture interface */
 	hResult = psSurfaceSrc->lpVtbl->QueryInterface( psSurfaceSrc,
-							&IID_IDirect3DTexture2,
+							IID_IDirect3DTexture2,
 							(LPVOID*) &psTextureSrc );
 	if ( hResult != DD_OK )
 	{
@@ -263,7 +263,7 @@ D3DTexCreateFromIvisTex( TEXPAGE_D3D			*psTexPage,
 	/* Query destination surface for a texture interface */
 	hResult = psTexPage->psSurface->lpVtbl->QueryInterface(
 							psTexPage->psSurface,
-							&IID_IDirect3DTexture2,
+							IID_IDirect3DTexture2,
 							(LPVOID*) &psTexPage->psTexture );
 	if ( hResult != DD_OK )
 	{

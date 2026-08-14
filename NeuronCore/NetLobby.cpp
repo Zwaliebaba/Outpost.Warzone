@@ -208,7 +208,7 @@ BOOL NETconnectToLobby(LPNETPLAY lpNetPlay)
 		DBPRINTF(("NETPLAY:didnt connect\n"));
 		goto FAILURE;
 	}
-	hr = IDirectPlay2_QueryInterface(lpDirectPlay2A, &IID_IDirectPlay4A, (LPVOID *) &lpDirectPlay4A);// Obtain IDirectPlay4A interface
+	hr = IDirectPlay2_QueryInterface(lpDirectPlay2A, IID_IDirectPlay4A, (LPVOID *) &lpDirectPlay4A);// Obtain IDirectPlay4A interface
 	if FAILED(hr)
 	{	DBPRINTF(("NETPLAY:didnt query\n"));
 		goto FAILURE;

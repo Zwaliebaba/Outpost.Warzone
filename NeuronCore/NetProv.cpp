@@ -170,7 +170,7 @@ static DWORD  elementModemSize;
 
 static BOOL FAR PASCAL enumModemAddress(REFGUID guidDataType,  DWORD dwDataSize,  LPCVOID lpData,  LPVOID lpContext  )
 {
- 	if(IsEqualGUID(guidDataType,&DPAID_Modem))
+ 	if(IsEqualGUID(guidDataType,DPAID_Modem))
 	{
 		if(elementModemCount ==0)
 		{
@@ -217,7 +217,7 @@ BOOL NETsetupModem(LPVOID *addr, char *Phoneno, UDWORD modemToUse )
 		goto FAILURE;
 
 	// query for an ANSI DirectPlay4 interface
-	hr = lpDPlay1->lpVtbl->QueryInterface(lpDPlay1, &IID_IDirectPlay4A, (LPVOID *) &lpDPlay4A);
+	hr = lpDPlay1->lpVtbl->QueryInterface(lpDPlay1, IID_IDirectPlay4A, (LPVOID *) &lpDPlay4A);
 	if FAILED(hr)
 		goto FAILURE;
 

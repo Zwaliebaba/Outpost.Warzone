@@ -610,25 +610,25 @@ static void addConnections(UDWORD begin)
 			return;
 		}
 
-		if (IsEqualGUID(&(NetPlay.protocols[i].guid), &DPSPGUID_MODEM))
+		if (IsEqualGUID(NetPlay.protocols[i].guid, DPSPGUID_MODEM))
 		{
 			addTextButton(CON_TYPESID_START+i,FRONTEND_POS1X,pos, strresGetString(psStringRes,STR_CON_MODEM),FALSE,FALSE);
 		}
-		else if (IsEqualGUID(&(NetPlay.protocols[i].guid), &DPSPGUID_TCPIP))
+		else if (IsEqualGUID(NetPlay.protocols[i].guid, DPSPGUID_TCPIP))
 		{
 			addTextButton(CON_TYPESID_START+i,FRONTEND_POS1X,pos, strresGetString(psStringRes,STR_CON_INTERNET),FALSE,FALSE);
 		}
 
-		else if (IsEqualGUID(&(NetPlay.protocols[i].guid), &DPSPGUID_IPX))
+		else if (IsEqualGUID(NetPlay.protocols[i].guid, DPSPGUID_IPX))
 		{
 			addTextButton(CON_TYPESID_START+i,FRONTEND_POS1X,pos, strresGetString(psStringRes,STR_CON_LAN),FALSE,FALSE);
 		}
 
-		else if (IsEqualGUID(&(NetPlay.protocols[i].guid), &DPSPGUID_SERIAL))
+		else if (IsEqualGUID(NetPlay.protocols[i].guid, DPSPGUID_SERIAL))
 		{
 			addTextButton(CON_TYPESID_START+i,FRONTEND_POS1X,pos, strresGetString(psStringRes,STR_CON_CABLE),FALSE,FALSE);
 		}
-		else if (IsEqualGUID(&(NetPlay.protocols[i].guid), &SPGUID_MPLAYER))
+		else if (IsEqualGUID(NetPlay.protocols[i].guid, SPGUID_MPLAYER))
 		{
 			addTextButton(CON_TYPESID_START+i,FRONTEND_POS1X,pos, "Play on EidosGames.com",FALSE,FALSE);
 		}
@@ -691,25 +691,25 @@ VOID runConnectionScreen(void )
 	if(  SettingsUp==0 &&  (id >= CON_TYPESID_START) && (id<=CON_TYPESID_END) )
 	{
 
-		if (IsEqualGUID(&(NetPlay.protocols[id-CON_TYPESID_START].guid), &DPSPGUID_MODEM))
+		if (IsEqualGUID(NetPlay.protocols[id-CON_TYPESID_START].guid, DPSPGUID_MODEM))
 		{	
 			chosenproto =1;
 			OptionsModem(id);
 		}
 
-		else if (IsEqualGUID(&(NetPlay.protocols[id-CON_TYPESID_START].guid), &DPSPGUID_TCPIP))
+		else if (IsEqualGUID(NetPlay.protocols[id-CON_TYPESID_START].guid, DPSPGUID_TCPIP))
 		{
 			chosenproto =2;
 			OptionsInet(id);
 		}
 
-		else if (IsEqualGUID(&(NetPlay.protocols[id-CON_TYPESID_START].guid), &DPSPGUID_IPX))
+		else if (IsEqualGUID(NetPlay.protocols[id-CON_TYPESID_START].guid, DPSPGUID_IPX))
 		{
 			chosenproto =3;
 			OptionsIPX(id);
 		}
 
-		else if (IsEqualGUID(&(NetPlay.protocols[id-CON_TYPESID_START].guid), &DPSPGUID_SERIAL))
+		else if (IsEqualGUID(NetPlay.protocols[id-CON_TYPESID_START].guid, DPSPGUID_SERIAL))
 		{
 			chosenproto =4;
 			baud = 19200;
@@ -719,7 +719,7 @@ VOID runConnectionScreen(void )
 			widgSetButtonState(psConScreen, CON_19200,WBUT_LOCK);
 		}
 	
-		else if(IsEqualGUID(&(NetPlay.protocols[id-CON_TYPESID_START].guid), &SPGUID_MPLAYER) ) // mplayer
+		else if(IsEqualGUID(NetPlay.protocols[id-CON_TYPESID_START].guid, SPGUID_MPLAYER) ) // mplayer
 		{
 			if(system("multiplay\\MplayNow\\mplaynow.exe") != -1) 		// launch gizmo, if present. If not, tough...
 			{
@@ -834,7 +834,7 @@ VOID runConnectionScreen(void )
 			game.packetsPerSec			= IPXPACKETS;
 			safeSearch = TRUE;
 			for(i=0;
-				i<MaxProtocols && !IsEqualGUID(&(NetPlay.protocols[i].guid), &DPSPGUID_IPX);
+				i<MaxProtocols && !IsEqualGUID(NetPlay.protocols[i].guid, DPSPGUID_IPX);
 				i++);
 			finalconnection = NetPlay.protocols[i].connection;
 			break;

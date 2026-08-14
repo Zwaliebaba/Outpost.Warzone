@@ -36,7 +36,7 @@ BOOL DInpInitialise(void)
 		return FALSE;
 	}
 
-	hr = psDI->lpVtbl->CreateDevice(psDI, &GUID_SysMouse, &psDIMouse, NULL);
+	hr = psDI->lpVtbl->CreateDevice(psDI, GUID_SysMouse, &psDIMouse, NULL);
 	if (FAILED(hr))
 	{
 		DBERROR(("DXInpInitialise: couldn't create mouse object"));

@@ -1547,7 +1547,7 @@ CreateDevice( int iDriver )
 
 	/* create D3D device */
 	hResult = g_sD3DGlob.psD3D3->lpVtbl->CreateDevice( g_sD3DGlob.psD3D3,
-				&g_sD3DGlob.Driver[g_sD3DGlob.uwCurrDriver].Guid,
+				g_sD3DGlob.Driver[g_sD3DGlob.uwCurrDriver].Guid,
 				g_sD3DGlob.psBack4, &g_sD3DGlob.psD3DDevice3,NULL);
 
 	if (hResult != DD_OK)
@@ -1812,7 +1812,7 @@ rend_InitD3D( void )
 	if ( g_sD3DGlob.psD3D3 == NULL )
 	{
 		hRes = g_sD3DGlob.psDD4->lpVtbl->QueryInterface( g_sD3DGlob.psDD4,
-							&IID_IDirect3D3, &g_sD3DGlob.psD3D3 ); 
+							IID_IDirect3D3, &g_sD3DGlob.psD3D3 ); 
 		if ( hRes != D3D_OK )
 		{
 			DBERROR( ("InitD3D: couldn't create Direct3D3 driver object") );

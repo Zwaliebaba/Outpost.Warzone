@@ -161,7 +161,7 @@ DDEnumCallbackEx(GUID *pGUID, LPSTR pDescription, LPSTR pName,
     }
 
     // Fetch DirectDraw4 interface
-    hRet = pDD->lpVtbl->QueryInterface(pDD, &IID_IDirectDraw4, (LPVOID *)&pDD4);
+    hRet = pDD->lpVtbl->QueryInterface(pDD, IID_IDirectDraw4, (LPVOID *)&pDD4);
     if (hRet != DD_OK)
     {
         return DDENUMRET_CANCEL;
@@ -930,7 +930,7 @@ BOOL screenInitialise(UDWORD		width,			// Display width
 	}
 
 	/* Get the DD2 interface */
-    ddrval = psDD1->lpVtbl->QueryInterface(psDD1, &IID_IDirectDraw4, (LPVOID *)&psDD);
+    ddrval = psDD1->lpVtbl->QueryInterface(psDD1, IID_IDirectDraw4, (LPVOID *)&psDD);
 	if (ddrval != DD_OK)
 	{
 		DBERROR(("Create DD2 object failed:\n%s", DDErrorToString(ddrval)));

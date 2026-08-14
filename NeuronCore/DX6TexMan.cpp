@@ -271,7 +271,7 @@ BOOL dtm_Initialise(void)
 			if (bSpace)
 			{
 					// Create the texture
-				hResult = aTextures[i].psSurface4->lpVtbl->QueryInterface(aTextures[i].psSurface4, &IID_IDirect3DTexture2,
+				hResult = aTextures[i].psSurface4->lpVtbl->QueryInterface(aTextures[i].psSurface4, IID_IDirect3DTexture2,
 													 (LPVOID*) &aTextures[i].psTexture2);
 				if ( hResult != D3D_OK )
 				{
@@ -325,7 +325,7 @@ BOOL dtm_Initialise(void)
 			if (bSpace)
 			{
 					// Create the texture
-				hResult = aTextures[i].psSurface4->lpVtbl->QueryInterface(aTextures[i].psSurface4, &IID_IDirect3DTexture2,
+				hResult = aTextures[i].psSurface4->lpVtbl->QueryInterface(aTextures[i].psSurface4, IID_IDirect3DTexture2,
 													 (LPVOID*) &aTextures[i].psTexture2);
 				if ( hResult != D3D_OK )
 				{
@@ -351,7 +351,7 @@ BOOL dtm_Initialise(void)
 			if (bSpace)
 			{
 					// Create the texture
-				hResult = aTextures[i].psSurface4->lpVtbl->QueryInterface(aTextures[i].psSurface4, &IID_IDirect3DTexture2,
+				hResult = aTextures[i].psSurface4->lpVtbl->QueryInterface(aTextures[i].psSurface4, IID_IDirect3DTexture2,
 													 (LPVOID*) &aTextures[i].psTexture2);
 				if ( hResult != D3D_OK )
 				{
@@ -383,7 +383,7 @@ BOOL dtm_Initialise(void)
 			if (bSpace)
 			{
 					// Create the texture
-				hResult = aTextures[i].psSurface4->lpVtbl->QueryInterface(aTextures[i].psSurface4, &IID_IDirect3DTexture2,
+				hResult = aTextures[i].psSurface4->lpVtbl->QueryInterface(aTextures[i].psSurface4, IID_IDirect3DTexture2,
 													 (LPVOID*) &aTextures[i].psTexture2);
 				if ( hResult != D3D_OK )
 				{
