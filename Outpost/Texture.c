@@ -1,4 +1,4 @@
-/* Texture stuff. Calls 3dfxText functions in the 3dfx cases */
+/* Texture stuff. */
 /* Alex McLean, Pumpkin Studios, EIDOS Interactive, 1997 */
 
 #include "Frame.h"

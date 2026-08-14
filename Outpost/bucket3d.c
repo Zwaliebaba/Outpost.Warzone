@@ -137,49 +137,42 @@ extern BOOL bucketAddTypeToList(RENDER_TYPE objectType, void* pObject)
 	//put the object data into the tag
 	newTag->objectType = objectType;  
 	newTag->pObject = pObject;
-	if(pie_Hardware())
+	if ((objectType == RENDER_EFFECT) && ((((EFFECT*)pObject)->group == EFFECT_EXPLOSION) || 
+		(((EFFECT*)pObject)->group == EFFECT_CONSTRUCTION) || 
+		(((EFFECT*)pObject)->group == EFFECT_SMOKE) ||
+		(((EFFECT*)pObject)->group == EFFECT_FIREWORK)))
 	{
-		if ((objectType == RENDER_EFFECT) && ((((EFFECT*)pObject)->group == EFFECT_EXPLOSION) || 
-			(((EFFECT*)pObject)->group == EFFECT_CONSTRUCTION) || 
-			(((EFFECT*)pObject)->group == EFFECT_SMOKE) ||
-			(((EFFECT*)pObject)->group == EFFECT_FIREWORK)))
-		{
 
-			z = bucketCalculateZ(objectType, pObject);
-		}
-		else if(objectType == RENDER_SHADOW)
-		{
-			z = bucketCalculateZ(objectType, pObject);
-		}	
-		else if(objectType == RENDER_PROJECTILE_TRANSPARENT)
-		{
-			z = bucketCalculateZ(objectType, pObject);
-		}
-		else if(objectType == RENDER_PROXMSG)
-		{
-			z = bucketCalculateZ(objectType, pObject);
-		}
-
-//		else if(objectType == RENDER_PARTICLE)
-//		{
-//			z = bucketCalculateZ(objectType, pObject);
-//		}
-		else if(objectType == RENDER_WATERTILE)
-		{
-			z = bucketCalculateZ(objectType, pObject);
-		}
-/*		else if(objectType == RENDER_PROJECTILE)//rendered solid so sort by state
-		{
-			z = bucketCalculateZ(objectType, pObject);
-		}
-*/		else
-		{
-			z = bucketCalculateState(objectType, pObject);
-		}
+		z = bucketCalculateZ(objectType, pObject);
 	}
-	else
+	else if(objectType == RENDER_SHADOW)
 	{
 		z = bucketCalculateZ(objectType, pObject);
+	}	
+	else if(objectType == RENDER_PROJECTILE_TRANSPARENT)
+	{
+		z = bucketCalculateZ(objectType, pObject);
+	}
+	else if(objectType == RENDER_PROXMSG)
+	{
+		z = bucketCalculateZ(objectType, pObject);
+	}
+
+//	else if(objectType == RENDER_PARTICLE)
+//	{
+//		z = bucketCalculateZ(objectType, pObject);
+//	}
+	else if(objectType == RENDER_WATERTILE)
+	{
+		z = bucketCalculateZ(objectType, pObject);
+	}
+/*	else if(objectType == RENDER_PROJECTILE)//rendered solid so sort by state
+	{
+		z = bucketCalculateZ(objectType, pObject);
+	}
+*/	else
+	{
+		z = bucketCalculateState(objectType, pObject);
 	}
 
 	if (z < 0)
@@ -280,22 +273,11 @@ extern BOOL bucketRenderCurrentList(void)
 #endif
 				break;
 				case RENDER_TILE:
-					if (pie_Hardware())
-					{
-					
-						drawTerrainTile(((TILE_BUCKET*)thisTag->pObject)->i,((TILE_BUCKET*)thisTag->pObject)->j);
-					}
-					else
-					{
-						drawTexturedTile(((TILE_BUCKET*)thisTag->pObject)->i,((TILE_BUCKET*)thisTag->pObject)->j);
-					}
+					drawTerrainTile(((TILE_BUCKET*)thisTag->pObject)->i,((TILE_BUCKET*)thisTag->pObject)->j);
 				break;
 
 				case RENDER_WATERTILE:
-					if (pie_Hardware())
-					{
-						drawTerrainWaterTile(((TILE_BUCKET*)thisTag->pObject)->i,((TILE_BUCKET*)thisTag->pObject)->j);
-					}
+					drawTerrainWaterTile(((TILE_BUCKET*)thisTag->pObject)->i,((TILE_BUCKET*)thisTag->pObject)->j);
 					break;
 
 				case RENDER_PROJECTILE:

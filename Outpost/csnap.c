@@ -85,32 +85,12 @@ void snapInitVars(void)
 void SetMousePos(UDWORD nowt,UDWORD x,UDWORD y)
 {
 	POINT	point;
-	FRACT	divX,divY;
-	UDWORD	scrX,scrY;
-	UDWORD	mXPos,mYPos;
 
 	UNUSEDPARAMETER(nowt);
-	if(pie_GetRenderEngine()==ENGINE_GLIDE)
-	{
-		scrX = GetSystemMetrics(SM_CXFULLSCREEN);
-		scrY = GetSystemMetrics(SM_CYFULLSCREEN);
-
-		divX = MAKEFRACT(x) / pie_GetVideoBufferWidth();
-		divY = MAKEFRACT(y) / pie_GetVideoBufferHeight();
-	
-		mXPos = MAKEINT(divX*scrX);
-		mYPos = MAKEINT(divY*scrY);
-		SetCursorPos(mXPos,mYPos);
-	}
-	else
-	{
-		point.x = x;
-		point.y = y;
-		ClientToScreen(frameGetWinHandle(),&point);
-		SetCursorPos(point.x,point.y);
-	}
-
-
+	point.x = x;
+	point.y = y;
+	ClientToScreen(frameGetWinHandle(),&point);
+	SetCursorPos(point.x,point.y);
 }
 
 
