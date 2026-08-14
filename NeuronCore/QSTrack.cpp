@@ -78,13 +78,16 @@ using RIFFDATA = struct RIFFDATA
 
 /***************************************************************************/
 
+static void sound_SetSamplePan(AUDIO_SAMPLE* psSample, int iPan);
+static void sound_SetSampleVol(AUDIO_SAMPLE* psSample, SDWORD iVol, BOOL bScale3D);
+
+/***************************************************************************/
+
 BOOL sound_InitLibrary(void)
 {
   static WAVEFORMATEX wFormatMonoPCM16 = {WAVE_FORMAT_PCM, 1, QS_SAMPLINGRATE, AVERAGEBYTERATE_MONO16, MONO_16BIT_BLOCKALIGN, BIT16, 0},
                       wFormatStereoPCM16 = {
                         WAVE_FORMAT_PCM, 2, QS_SAMPLINGRATE, AVERAGEBYTERATE_STEREO16, STEREO_16BIT_BLOCKALIGN, BIT16, 0
-                      }, wFormatMonoADPCM11 = {WAVE_FORMAT_ADPCM, 1, KHZ11, 5644, 256, 4, 32}, wFormatMonoADPCM22 = {
-                        WAVE_FORMAT_ADPCM, 1, KHZ22, 11155, 512, 4, 512
                       };
 
   /* specify number of dynamic channels to be as many hardware as possible
@@ -111,15 +114,10 @@ BOOL sound_InitLibrary(void)
   if (g_uiRet == -1)
     goto initError;
 
-# if USE_COMPRESSED_SPEECH
-  /* configure fixed 2D speech queue channel */
-  g_uiRet = QSOUND(ConfigureChannel( g_hQMixer, QS_CHANNEL_QUEUE, QMIX_CHANNELTYPE_2D, &wFormatMonoADPCM11, 0 ))  ; if (g_uiRet < 0) { goto initError; }
-#else
   /* configure fixed 2D speech queue channel */
   g_uiRet = QSOUND(ConfigureChannel( g_hQMixer, QS_CHANNEL_QUEUE, QMIX_CHANNELTYPE_2D, &wFormatMonoPCM16, nullptr ))  ;
   if (g_uiRet < 0)
     goto initError;
-#endif
 
   /* configure fixed 2D streaming channel */
   g_uiRet = QSOUND(ConfigureChannel( g_hQMixer, QS_CHANNEL_STREAM, QMIX_CHANNELTYPE_2D, &wFormatStereoPCM16, nullptr ))  ;
@@ -189,28 +187,6 @@ static void sound_SaveTrackData(TRACK* psTrack, QMIXWAVEPARAMS* psQMixParams, LP
 
   /* save data pointer in track */
   psTrack->pMem = psRiffData;
-}
-
-/***************************************************************************/
-
-BOOL sound_ReadTrackFromFile(TRACK* psTrack, char szFileName[])
-{
-  QMIXWAVEPARAMS sQMixParams;
-  LPMIXWAVE psMixWave;
-
-  memset(&sQMixParams, 0, sizeof(QMIXWAVEPARAMS));
-  sQMixParams.FileName = szFileName;
-  psMixWave = QSOUND(OpenWaveEx( g_hQMixer, &sQMixParams, QMIX_FILE ));
-
-  if (psMixWave)
-  {
-    sound_SaveTrackData(psTrack, &sQMixParams, psMixWave);
-    return TRUE;
-  }
-  g_iError = QSOUND(GetLastError());
-  QSOUND(GetErrorText( g_iError, g_szErrMsg, MAX_STR ));
-  Neuron::Fatal("sound_LoadTrackFromFile: {}", g_szErrMsg);
-  return FALSE;
 }
 
 /***************************************************************************/
@@ -500,7 +476,7 @@ void sound_StopSample(SDWORD iSample)
 
 /***************************************************************************/
 
-void sound_SetSamplePan(AUDIO_SAMPLE* psSample, int iPan)
+static void sound_SetSamplePan(AUDIO_SAMPLE* psSample, int iPan)
 {
   g_uiRet = QSOUND(SetPan( g_hQMixer, psSample->iSample, 0, iPan*30/AUDIO_PAN_RANGE ))  ;
 
@@ -514,7 +490,7 @@ void sound_SetSamplePan(AUDIO_SAMPLE* psSample, int iPan)
 
 /***************************************************************************/
 
-void sound_SetSampleVol(AUDIO_SAMPLE* psSample, SDWORD iVol, BOOL bScale3D)
+static void sound_SetSampleVol(AUDIO_SAMPLE* psSample, SDWORD iVol, BOOL bScale3D)
 {
   g_uiRet = QSOUND(SetVolume( g_hQMixer, psSample->iSample, 0, audio_GetSampleMixVol(psSample,iVol,bScale3D) ))  ;
   if (g_uiRet != 0)
@@ -522,19 +498,6 @@ void sound_SetSampleVol(AUDIO_SAMPLE* psSample, SDWORD iVol, BOOL bScale3D)
     g_iError = QSOUND(GetLastError());
     QSOUND(GetErrorText( g_iError, g_szErrMsg, MAX_STR ));
     Neuron::DebugTrace("sound_SetSampleVol: sample {} {}\n", psSample->iSample, g_szErrMsg);
-  }
-}
-
-/***************************************************************************/
-
-void sound_SetSampleVolAll(int iVol)
-{
-  g_uiRet = QSOUND(SetVolume( g_hQMixer, 0, QMIX_ALL, audio_GetMixVol(iVol) ))  ;
-  if (g_uiRet != 0)
-  {
-    g_iError = QSOUND(GetLastError());
-    QSOUND(GetErrorText( g_iError, g_szErrMsg, MAX_STR ));
-    Neuron::DebugTrace("sound_SetSampleVolAll: {}", g_szErrMsg);
   }
 }
 
@@ -603,69 +566,6 @@ void sound_SetObjectPosition(SDWORD iSample, SDWORD iX, SDWORD iY, SDWORD iZ)
 
 /***************************************************************************/
 
-void sound_PauseSample(AUDIO_SAMPLE* psSample)
-{
-  g_uiRet = QSOUND(PauseChannel( g_hQMixer, 0, psSample->iSample ));
-
-  if (g_uiRet != 0)
-  {
-    g_iError = QSOUND(GetLastError());
-    QSOUND(GetErrorText( g_iError, g_szErrMsg, MAX_STR ));
-    Neuron::DebugTrace("sound_PauseSample: {}", g_szErrMsg);
-  }
-}
-
-/***************************************************************************/
-
-void sound_ResumeSample(AUDIO_SAMPLE* psSample)
-{
-  g_uiRet = QSOUND(RestartChannel( g_hQMixer, 0, psSample->iSample ));
-
-  if (g_uiRet != 0)
-  {
-    g_iError = QSOUND(GetLastError());
-    QSOUND(GetErrorText( g_iError, g_szErrMsg, MAX_STR ));
-    Neuron::DebugTrace("sound_ResumeSample: {}", g_szErrMsg);
-  }
-}
-
-/***************************************************************************/
-
-void sound_PauseAll(void)
-{
-  g_uiRet = QSOUND(PauseChannel( g_hQMixer, 0, QMIX_ALL ));
-  if (g_uiRet != 0)
-  {
-    g_iError = QSOUND(GetLastError());
-    QSOUND(GetErrorText( g_iError, g_szErrMsg, MAX_STR ));
-    Neuron::DebugTrace("sound_PauseAll: {}", g_szErrMsg);
-  }
-
-  /* don't pause streaming channel */
-  g_uiRet = QSOUND(RestartChannel( g_hQMixer, 0, QS_CHANNEL_STREAM ));
-  if (g_uiRet != 0)
-  {
-    g_iError = QSOUND(GetLastError());
-    QSOUND(GetErrorText( g_iError, g_szErrMsg, MAX_STR ));
-    Neuron::DebugTrace("sound_PauseAll: {}", g_szErrMsg);
-  }
-}
-
-/***************************************************************************/
-
-void sound_ResumeAll(void)
-{
-  g_uiRet = QSOUND(RestartChannel( g_hQMixer, 0, QMIX_ALL ));
-  if (g_uiRet != 0)
-  {
-    g_iError = QSOUND(GetLastError());
-    QSOUND(GetErrorText( g_iError, g_szErrMsg, MAX_STR ));
-    Neuron::DebugTrace("sound_ResumeAll: {}", g_szErrMsg);
-  }
-}
-
-/***************************************************************************/
-
 void sound_StopAll(void)
 {
   g_uiRet = QSOUND(FlushChannel( g_hQMixer, 0, QMIX_ALL ));
@@ -676,15 +576,6 @@ void sound_StopAll(void)
     QSOUND(GetErrorText( g_iError, g_szErrMsg, MAX_STR ));
     Neuron::DebugTrace("sound_StopAll: {}", g_szErrMsg);
   }
-}
-
-/***************************************************************************/
-
-BOOL sound_SampleIsFinished(AUDIO_SAMPLE* psSample)
-{
-  if (QSOUND(IsChannelDone( g_hQMixer, psSample->iSample )))
-    return TRUE;
-  return FALSE;
 }
 
 /***************************************************************************/

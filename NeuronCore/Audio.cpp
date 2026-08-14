@@ -491,17 +491,6 @@ BOOL audio_Update(void)
 
 /***************************************************************************/
 
-BOOL audio_LoadTrackFromFile(char szFileName[])
-{
-  /* if audio not enabled return TRUE to carry on game without audio */
-  if (g_bAudioEnabled == FALSE)
-    return TRUE;
-
-  return sound_LoadTrackFromFile(szFileName);
-}
-
-/***************************************************************************/
-
 void* audio_LoadTrackFromBuffer(UBYTE* pBuffer, UDWORD udwSize)
 {
   /* if audio not enabled return TRUE to carry on game without audio */
@@ -808,79 +797,6 @@ void audio_PlayTrack(int iTrack)
       delete psSample;
     }
   }
-}
-
-/***************************************************************************/
-
-void audio_StopTrack(int iTrack)
-{
-  /* return if audio not enabled */
-  if (g_bAudioEnabled == FALSE)
-    return;
-
-  iTrack;
-}
-
-/***************************************************************************/
-
-void audio_SetTrackPan(int iTrack, int iPan)
-{
-  /* return if audio not enabled */
-  if (g_bAudioEnabled == FALSE)
-    return;
-
-  iTrack;
-  iPan;
-}
-
-/***************************************************************************/
-
-void audio_SetTrackVol(int iTrack, int iVol)
-{
-  /* return if audio not enabled */
-  if (g_bAudioEnabled == FALSE)
-    return;
-
-  iTrack;
-  iVol;
-}
-
-/***************************************************************************/
-
-void audio_SetTrackFreq(int iTrack, int iFreq)
-{
-  /* return if audio not enabled */
-  if (g_bAudioEnabled == FALSE)
-    return;
-
-  iTrack;
-  iFreq;
-}
-
-/***************************************************************************/
-
-void audio_PauseAll(void)
-{
-  /* return if audio not enabled */
-  if (g_bAudioEnabled == FALSE)
-    return;
-
-  g_bAudioPaused = TRUE;
-
-  sound_PauseAll();
-}
-
-/***************************************************************************/
-
-void audio_ResumeAll(void)
-{
-  /* return if audio not enabled */
-  if (g_bAudioEnabled == FALSE)
-    return;
-
-  g_bAudioPaused = FALSE;
-
-  sound_ResumeAll();
 }
 
 /***************************************************************************/

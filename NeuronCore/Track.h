@@ -84,7 +84,6 @@ using TRACK = struct TRACK
 BOOL sound_Init(HWND hWnd, SDWORD iMaxSameSamples);
 BOOL sound_Shutdown();
 
-BOOL sound_LoadTrackFromFile(char szFileName[]);
 void* sound_LoadTrackFromBuffer(UBYTE* pBuffer, UDWORD udwSize);
 BOOL sound_SetTrackVals(TRACK* psTrack, BOOL bLoop, SDWORD iTrack, SDWORD iVol, SDWORD iPriority, SDWORD iAudibleRadius, SDWORD VagID);
 BOOL sound_ReleaseTrack(TRACK* psTrack);
