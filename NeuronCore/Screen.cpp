@@ -32,7 +32,7 @@ SCREEN_MODE		screenMode = SCREEN_WINDOWED;
 DISPLAY_MODES	displayMode;
 
 /* The handle for the main application window */
-HWND		hWndMain = NULL;
+/* defined in Frame.cpp */
 
 /* The Direct Draw objects */
 #define MAX_DDDEVICES 6

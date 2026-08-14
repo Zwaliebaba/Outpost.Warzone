@@ -38,6 +38,9 @@
 #include "HCI.h"					// for intShowPower
 #include "Text.h"					// to get at string resources.
 #include "FrontEnd.h"
+
+/* Sole definition; FrontEnd.h declares it. */
+tMode titleMode;
 #include "Console.h"
 #include "Wrappers.h"
 #include "Component.h"

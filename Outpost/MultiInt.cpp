@@ -70,14 +70,14 @@ extern BOOL					bSendingMap;
 extern void intDisplayTemplateButton(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD *pColours);
 extern BOOL intAddTemplateButtons(UDWORD formID, UDWORD formWidth, UDWORD formHeight,
 								  UDWORD butWidth, UDWORD butHeight, UDWORD gap,
-								  DROID_TEMPLATE *psSelected, BOOL blankButton);
+								  DROID_TEMPLATE *psSelected);
 
 extern BOOL plotStructurePreview(iSprite *backDropSprite,UBYTE scale,UDWORD offX,UDWORD offY);
 
 
 BOOL						bHosted			= FALSE;				//we have set up a game
 UBYTE						sPlayer[128];							// player name (to be used)
-UBYTE						buildTime[9]	 = __TIME__ ;
+char						buildTime[9]	 = __TIME__ ;
 static BOOL					bColourChooserUp= FALSE;
 static SWORD				SettingsUp		= 0;
 static UBYTE				InitialProto	= 0;
@@ -2796,7 +2796,7 @@ BOOL startMultiOptions(BOOL bReenter)
 			game.maxPlayers = 4;
 		}
 
-		strncpy((CHAR *)game.version,(STRING*)buildTime,8);		// note buildtime.
+		strncpy((CHAR *)game.version,buildTime,8);		// note buildtime.
 
 		ingame.localOptionsReceived = FALSE;
 		if(ingame.numStructureLimits)
@@ -3054,7 +3054,7 @@ static VOID AvailableForces(VOID)
 	intAddTemplateButtons(IDDES_TEMPLFORM, FORCE_AVAILABLEWIDTH ,
 							   FORCE_AVAILABLEHEIGHT,
 							   OBJ_BUTWIDTH,OBJ_BUTHEIGHT,2,
-							   NULL, FALSE);
+							   NULL);
 
 
 }

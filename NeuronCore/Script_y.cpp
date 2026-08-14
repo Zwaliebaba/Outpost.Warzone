@@ -11,6 +11,14 @@
  */
 #ifndef YY_ARGS
 #if defined(__STDC__) || defined(__cplusplus)
+/* These four are file-scope definitions in every generated parser; give
+   them this parser's prefix so linking several together does not
+   collide, now that C++ makes each one a real definition. */
+#define yyval	scr_yyval
+#define yypvt	scr_yypvt
+#define yyerrflag	scr_yyerrflag
+#define yynerrs	scr_yynerrs
+
 #define YY_ARGS(x)	x
 #else
 #define YY_ARGS(x)	()

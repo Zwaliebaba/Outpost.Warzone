@@ -19,6 +19,9 @@
 #include "FrameInt.h"
 #include "Map.h"
 #include "Disp2D.h"
+
+/* Sole definition; Bullet.h declares it. */
+PROJ_OBJECT   *psActiveBullets;
 #include "Objects.h"
 #include "Display.h"
 #include "Loop.h"

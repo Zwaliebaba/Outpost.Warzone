@@ -65,7 +65,7 @@ BOOL		saveKeyMap			(void);
 BOOL		loadKeyMap			(void);
 static BOOL	pushedKeyMap		(UDWORD key);
 
-extern char	buildTime[8];
+extern char	buildTime[9];
 
 // ////////////////////////////////////////////////////////////////////////////
 // funcs
