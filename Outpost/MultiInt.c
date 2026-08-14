@@ -22,6 +22,7 @@
 #include "piedef.h"
 #include "pieState.h"
 #include "pieClip.h"
+#include "rendmode.h"
 #include "objmem.h"
 #include "gateway.h"
 #include "time.h"

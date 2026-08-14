@@ -6,6 +6,7 @@
 
 // ////////////////////////////////////////////////////////////////////////
 // Prototypes.
+extern VOID	freePermMalloc(void);
 extern HRESULT CreateDirectPlayInterface( LPDIRECTPLAY4A *lplpDirectPlay4A );
 extern HRESULT DestroyDirectPlayInterface(HWND hWnd, LPDIRECTPLAY4A lpDirectPlay4A);
 extern HRESULT HostSession	(LPDIRECTPLAY4A lpDirectPlay4A,LPSTR lpszSessionName, LPSTR lpszPlayerName,LPNETPLAY lpNetPlay,

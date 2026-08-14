@@ -169,5 +169,8 @@ extern void formDisplay(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD
 extern void formDisplayClickable(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD *pColours);
 extern void formDisplayTabbed(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD *pColours);
 
+/* Clear a form's flashing state */
+extern void formClearFlash(W_FORM *psWidget);
+
 #endif
 

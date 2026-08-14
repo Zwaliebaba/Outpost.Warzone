@@ -21,6 +21,7 @@
 
 #include "geo.h"
 #include "imd.h"
+#include "rendmode.h"
 
 
 #include "target.h"

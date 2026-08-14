@@ -11,6 +11,7 @@
 #include "Button.h"
 #include "Form.h"
 #include "Tip.h"
+#include "rendmode.h"
 
 /* The widget heap */
 OBJ_HEAP	*psButHeap;

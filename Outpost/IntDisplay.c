@@ -23,6 +23,7 @@
 #include "pieMode.h"			// ffs
 #include "pieClip.h"			// ffs 
 #include "pieBlitFunc.h"
+#include "rendmode.h"
 #include "geo.h"
 
 #include "Display3d.h"

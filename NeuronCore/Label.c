@@ -11,6 +11,7 @@
 #include "Label.h"
 #include "Form.h"
 #include "Tip.h"
+#include "rendmode.h"
 
 /* The widget heaps */
 OBJ_HEAP	*psLabHeap;

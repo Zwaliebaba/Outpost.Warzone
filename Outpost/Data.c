@@ -897,76 +897,7 @@ BOOL dataTERTILESLoad(UBYTE *pBuffer, UDWORD size, void **ppData)
 
 	UNUSEDPARAMETER(size);
 
-	if(pie_Hardware()) {
-		*ppData = NULL;	
-		return TRUE;
-	}
-	
-	// tile loader.
-	if (bTilesPCXLoaded)
-	{
-		DBPRINTF(("Reloading terrain tiles\n"));
-
-		if(!pie_PCXLoadMemToBuffer((SBYTE *)pBuffer,&tilesPCX,NULL))
-		{
-			DBERROR(("TERTILES reload failed"));
-			return FALSE;
-		}
-	}
-	else
-	{
-		DBPRINTF(("Loading terrain tiles\n"));
-		if(!iV_PCXLoadMem((SBYTE *)pBuffer,&tilesPCX,NULL))
-		{
-			DBERROR(("TERTILES load failed"));
-			return FALSE;
-		}
-	}
-
-//	if (pie_Hardware())
-//	{
-//		getTileRadarColours();
-//		// make several 256 * 256 pages
-//		if (bTilesPCXLoaded)
-//		{
-//			remakeTileTexturePages(tilesPCX.width,tilesPCX.height,TILE_WIDTH, TILE_HEIGHT, tilesPCX.bmp);
-//		}
-//		else
-//		{
-//			makeTileTexturePages(tilesPCX.width,tilesPCX.height,TILE_WIDTH, TILE_HEIGHT, tilesPCX.bmp);
-//		}
-//	}
-//	else
-//	{
-		/* Squirt the tiles into a nice long thin bitmap */
-		if (bTilesPCXLoaded)
-		{
-			if(!remakeTileTextures())
-			{
-	 			DBERROR(("Problem converting the terrain graphics file"));
-				return(FALSE);	
-			}
-		}
-		else
-		{
-			if(!makeTileTextures())
-			{
-	 			DBERROR(("Problem converting the terrain graphics file"));
-				return(FALSE);	
-			}
-		}
-//	}
-
-	if (bTilesPCXLoaded)
-	{
-		*ppData = NULL;	
-	}
-	else
-	{
-		bTilesPCXLoaded = TRUE;
-		*ppData = &tilesPCX;
-	}
-	DBPRINTF(("Tiles loaded\n"));
+	*ppData = NULL;	
 	return TRUE;
 }
 
@@ -989,10 +920,6 @@ BOOL dataHWTERTILESLoad(UBYTE *pBuffer, UDWORD size, void **ppData)
 
 	UNUSEDPARAMETER(size);
 
-	if(!pie_Hardware()) {
-		*ppData = NULL;	
-		return TRUE;
-	}
 	
 	// tile loader.
 	if (bTilesPCXLoaded)
@@ -1015,18 +942,15 @@ BOOL dataHWTERTILESLoad(UBYTE *pBuffer, UDWORD size, void **ppData)
 		}
 	}
 
-	if (pie_Hardware())
+	getTileRadarColours();
+	// make several 256 * 256 pages
+	if (bTilesPCXLoaded)
 	{
-		getTileRadarColours();
-		// make several 256 * 256 pages
-		if (bTilesPCXLoaded)
-		{
-			remakeTileTexturePages(tilesPCX.width,tilesPCX.height,TILE_WIDTH, TILE_HEIGHT, tilesPCX.bmp);
-		}
-		else
-		{
-			makeTileTexturePages(tilesPCX.width,tilesPCX.height,TILE_WIDTH, TILE_HEIGHT, tilesPCX.bmp);
-		}
+		remakeTileTexturePages(tilesPCX.width,tilesPCX.height,TILE_WIDTH, TILE_HEIGHT, tilesPCX.bmp);
+	}
+	else
+	{
+		makeTileTexturePages(tilesPCX.width,tilesPCX.height,TILE_WIDTH, TILE_HEIGHT, tilesPCX.bmp);
 	}
 //	else
 //	{

@@ -13,6 +13,7 @@
 #include "rendMode.h"
 #include "pieFunc.h"
 #include "pieState.h"
+#include "GTime.h"
 #include "pieMatrix.h"
 #include "pieTexture.h"
 #include "pieClip.h"

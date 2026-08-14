@@ -7,6 +7,7 @@
 #include <stdio.h>
 
 #include "Frame.h"
+#include "rendmode.h"
 #include "ivisdef.h" //ivis palette code
 #include "pieState.h"
 #include "textdraw.h" //ivis text code

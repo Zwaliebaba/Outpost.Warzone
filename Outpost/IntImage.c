@@ -20,6 +20,7 @@
 #include "pieState.h"
 
 #include "pieMode.h"
+#include "rendmode.h"
 
 #include "BitImage.h"
 

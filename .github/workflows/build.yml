@@ -3,7 +3,6 @@ name: Build
 on:
   push:
     branches: ['**']
-  pull_request:
   workflow_dispatch:
 
 jobs:
@@ -21,8 +20,10 @@ jobs:
       - name: Add MSBuild to PATH
         uses: microsoft/setup-msbuild@v2
 
+      # /flp contains a semicolon, which PowerShell reads as a statement
+      # separator unless the whole switch is quoted.
       - name: Build
-        run: msbuild Outpost\Outpost.vcxproj /p:Configuration=${{ matrix.configuration }} /p:Platform=Win32 /m /v:normal /nologo /flp:LogFile=build.log;Verbosity=normal
+        run: msbuild Outpost\Outpost.vcxproj /p:Configuration=${{ matrix.configuration }} /p:Platform=Win32 /m /v:minimal /nologo "/flp:LogFile=build.log;Verbosity=normal;ErrorsOnly"
 
       # The tail of a failed build is dominated by the error summary, which
       # omits which translation unit each error came from.

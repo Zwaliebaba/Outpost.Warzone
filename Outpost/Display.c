@@ -17,6 +17,7 @@
 /* Includes direct access to render library */
 #include "piedef.h"
 #include "pieState.h"
+#include "rendmode.h"
 
 //#include "ivisheap.h"//make a call for this
 

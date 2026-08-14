@@ -55,10 +55,6 @@ BOOL CheckColourKey( iIMDShape *psShape );
 
 
 
-// psx version is in sscanf.c
-
-int __cdecl _input (FILE *infile, const char *format, va_list arglist );
-
 // Special re-mix of sscanf that moves the string pointer along
 int __cdecl sscanf1 (
         char **stringPos,
@@ -70,26 +66,45 @@ int __cdecl sscanf1 (
  */
 {
         va_list arglist;
-        FILE str;
-        FILE *infile = &str;
+        char skipFormat[256];
+        char *string;
         int retval;
-		char *string;
+        int consumed;
+        UDWORD i,j;
 
 		string=*stringPos;
 
         va_start(arglist, format);
+        retval = vsscanf(string, format, arglist);
+        va_end(arglist);
 
-//        _ASSERTE(string != NULL);
-//        _ASSERTE(format != NULL);
+		/* Replay the same parse with every conversion suppressed, so it takes
+		 * no arguments and %n can report how far along the string it reached.
+		 */
+		j = 0;
+        for (i=0; format[i] != '\0' AND j < sizeof(skipFormat)-4; i++)
+		{
+			skipFormat[j++] = format[i];
+			if (format[i] == '%' AND format[i+1] != '\0')
+			{
+				if (format[i+1] == '%')
+				{
+					skipFormat[j++] = format[++i];
+				}
+				else
+				{
+					skipFormat[j++] = '*';
+				}
+			}
+		}
+		skipFormat[j++] = '%';
+		skipFormat[j++] = 'n';
+		skipFormat[j] = '\0';
 
-        infile->_flag = _IOREAD|_IOSTRG|_IOMYBUF;
-        infile->_ptr = infile->_base = (char *) string;
-//        infile->_cnt = strlen(string);		// This is wrong ... what if the string isn't zero terminated it'll take forwever (and it does!)
-		infile->_cnt = 32768;		// dummy length ... to see if it will fail
+		consumed = 0;
+		sscanf(string, skipFormat, &consumed);
 
-        retval = (_input(infile,format,arglist));
-
-		*stringPos=infile->_ptr;
+		*stringPos = string + consumed;
 
         return(retval);
 }

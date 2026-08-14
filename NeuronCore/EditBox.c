@@ -9,6 +9,7 @@
 #include "WidgInt.h"
 #include "EditBox.h"
 #include "Form.h"
+#include "rendmode.h"
 
 /* Pixel gap between edge of edit box and text */
 #define WEDB_XGAP	4

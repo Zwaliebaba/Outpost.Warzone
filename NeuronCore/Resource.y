@@ -23,6 +23,7 @@ static int printf(char* c, ...)
 #define DEBUG_GROUP0
 // file printfs
 //#define DEBUG_GROUP1
+#include <string.h>
 #include "types.h"
 #include "debug.h"
 #include "ResLY.h"
