@@ -1,17 +1,7 @@
 
 
-#ifdef WIN32
  #define DRIVEFUNCINLINE _inline
 
-#else
-
- #ifdef DEFINE_DRIVE_INLINE
- #define DRIVEFUNCINLINE 
- #else
- #define DRIVEFUNCINLINE __inline extern
- #endif
-
-#endif
 
 
 extern BOOL DirectControl;

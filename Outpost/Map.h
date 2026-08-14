@@ -176,11 +176,7 @@ extern UDWORD	relativeSpeeds[TERRAIN_TYPES][MARKER];
 #endif*/
 /* Arbitrary maximum number of terrain textures - used in look up table for terrain type */
 
-#ifdef WIN32
 #define MAX_TILE_TEXTURES	255
-#else
-#define MAX_TILE_TEXTURES	81
-#endif
 
 extern UBYTE terrainTypes[MAX_TILE_TEXTURES];
 
@@ -203,12 +199,10 @@ typedef struct _maptile
 	UBYTE			height;			// The height at the top left of the tile
 	UBYTE			illumination;	// How bright is this tile?
 	UWORD			texture;		// Which graphics texture is on this tile
-#ifdef WIN32
 	UBYTE			bMaxed;
 	UBYTE			level;
 
 	UBYTE			inRange;		// sensor range display.
-#endif
 
 									// This is also used to store the tile flip flags
 //  What's been removed - 46 bytes per tile so far
@@ -223,15 +217,9 @@ typedef struct _maptile
 
 
 /* The maximum map size */
-#ifdef WIN32
 #define MAP_MAXWIDTH	256
 #define MAP_MAXHEIGHT	256
 #define MAP_MAXAREA		(256*256)
-#else
-#define MAP_MAXWIDTH	256			// Maximum value for map width.
-#define MAP_MAXHEIGHT	256			// Maximum value for map height.
-#define MAP_MAXAREA		(192*128)	// Maximum value for map width * map height
-#endif
 #define TILE_MAX_HEIGHT		(255 * ELEVATION_SCALE) 
 #define TILE_MIN_HEIGHT		  0
 
@@ -284,39 +272,15 @@ extern void mapSaveTexture(void);
 extern void	mapWaterProcess( void );
 
 
-#ifdef WIN32
 #define FUNCINLINE _inline
-#else
-
-#undef FUNCINLINE
-#ifdef DEFINE_MAPINLINE
-#define FUNCINLINE 
-#else
-#define FUNCINLINE __inline extern
-#endif
-
-
-#endif
 
 /* Return a pointer to the tile structure at x,y */
 FUNCINLINE MAPTILE *mapTile(UDWORD x, UDWORD y)
 {
-#ifdef WIN32
 	ASSERT((x < mapWidth,
 		"mapTile: x coordinate bigger than map width"));
 	ASSERT((y < mapHeight,
 		"mapTile: y coordinate bigger than map height"));
-#else
-#ifdef DEBUG
-	assert(psMapTiles);		// make sure it's not zero
-	if((x>=mapWidth) || (y>=mapHeight)) 
-	{
-		printf("mapTile: invalid XY (%d,%d)\n",x,y);
-		return psMapTiles;
-	}
-
-#endif
-#endif
 	//return psMapTiles + x + (y << mapShift); //width no longer a power of 2
 	return psMapTiles + x + (y * mapWidth); 
 }
@@ -327,17 +291,10 @@ FUNCINLINE SWORD map_TileHeight(UDWORD x, UDWORD y)
 {
     x = x >= (mapWidth) ? (mapWidth-1) : x;
 	y = y >= (mapHeight) ? (mapHeight-1) : y;
-#ifdef WIN32
 	ASSERT((x < mapWidth,
 		"mapTile: x coordinate bigger than map width"));
 	ASSERT((y < mapHeight,
 		"mapTile: y coordinate bigger than map height"));
-#else
-	if((x>=mapWidth) || (y>=mapHeight)) {
-		printf("mapTileHeight: invalid XY (%d,%d)\n",x,y);
-		return 0;
-	}
-#endif
 
 //	return ((psMapTiles[x + (y << mapShift)].height) * ELEVATION_SCALE);//width no longer a power of 2
 	return (SWORD)((psMapTiles[x + (y * mapWidth)].height) * ELEVATION_SCALE);
@@ -346,17 +303,10 @@ FUNCINLINE SWORD map_TileHeight(UDWORD x, UDWORD y)
 /*sets the tile height */
 FUNCINLINE void setTileHeight(UDWORD x, UDWORD y, UDWORD height)
 {
-#ifdef WIN32
 	ASSERT((x < mapWidth,
 		"mapTile: x coordinate bigger than map width"));
 	ASSERT((y < mapHeight,
 		"mapTile: y coordinate bigger than map height"));
-#else
-	if((x>=mapWidth) || (y>=mapHeight)) {
-		printf("setTileHeight: invalid XY (%d,%d)\n",x,y);
-		return;
-	}
-#endif
 	//psMapTiles[x + (y << mapShift)].height = height;//width no longer a power of 2
 	psMapTiles[x + (y * mapWidth)].height = (UBYTE) (height / ELEVATION_SCALE);
 }

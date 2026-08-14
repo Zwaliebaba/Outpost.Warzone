@@ -23,13 +23,11 @@
 #include "bspfunc.h"
 #include "E3Demo.h"	// on the psx?
 #include "Loop.h"
-#ifdef WIN32					
 #include "Atmos.h"
 #include "RayCast.h"
 #include "Levels.h"
 #ifdef JEREMY
 #include "groundMist.h"
-#endif
 #endif
 /* Includes from PUMPKIN stuff */
 #include "Frame.h"
@@ -81,20 +79,16 @@
 #include "Combat.h"
 #include "order.h"
 
-#ifdef WIN32
 #include "Scores.h"
-#endif
 #ifdef ARROWS
 #include "arrow.h"
 #endif
 
-#ifdef WIN32
 #include "multiplay.h"
 
 #include "environ.h"
 #include "AdvVis.h"
 
-#endif
 
 #include "Texture.h"
 //#ifdef THREEDFX
@@ -1017,7 +1011,6 @@ void drawTiles(iView *camera, iView *player)
 	}
 	/* This is done here as effects can light the terrain - pause mode problems though */
 	processEffects();
-#ifdef WIN32
 	atmosUpdateSystem();
 	if(waterOnMap())
 	{
@@ -1028,7 +1021,6 @@ void drawTiles(iView *camera, iView *player)
 		avUpdateTiles();
 	}
 
-#endif
 
 //	doBuildingLights();
 	/* ---------------------------------------------------------------- */
@@ -1089,9 +1081,7 @@ void drawTiles(iView *camera, iView *player)
 	display3DProjectiles();//bucket render implemented
 
 	drawEffects();
-#ifdef WIN32
 	atmosDrawParticles();
-#endif
 #ifdef BUCKET
 	bucketRenderCurrentList();
 #endif
@@ -1168,9 +1158,7 @@ BOOL	init3DView(void)
 	/* Initialise the effects system */
   //	initEffectsSystem();
 
-#ifdef WIN32
 	atmosInitSystem();
-#endif
 
 	initDemoCamera();
 
@@ -1597,12 +1585,10 @@ renderAnimComponent( COMPONENT_OBJECT *psObj )
 			brightness = pie_MAX_BRIGHT_LEVEL;
 		}
 
-#ifdef WIN32
 		if(getRevealStatus() && !godMode)
 		{
 			brightness = avGetObjLightLevel((BASE_OBJECT*)psParentObj,brightness);
 		}
-#endif
 		brightness = (UDWORD)lightDoFogAndIllumination((UBYTE)brightness,getCentreX()-posX,getCentreZ()-posY, &specular);
 
 		pie_Draw3DShape(psObj->psShape, 0, iPlayer, brightness, specular, pie_NO_BILINEAR, 0);
@@ -1890,20 +1876,16 @@ void displayStaticObjects( void )
 								pFunctionality)->active)
 							{
 								displayAnimation( psAnimObj, FALSE );
-#ifdef WIN32
 								if(selectedPlayer == psStructure->player)
 								{
 									audio_PlayObjStaticTrack( (void *) psStructure, ID_SOUND_OIL_PUMP_2 );
 								}
-#endif
 							}
 							else
 							{
 								/* hold anim on first frame */
 								displayAnimation( psAnimObj, TRUE );
-#ifdef WIN32
 								audio_StopObjTrack( (void *) psStructure, ID_SOUND_OIL_PUMP_2 );
-#endif
 							}
 
 						}
@@ -2240,7 +2222,6 @@ BOOL		bForceDraw;
 		}
 
 
-#ifdef WIN32
 		if(godMode OR demoGetStatus() OR bForceDraw)
 		{
 			brightness = 200;
@@ -2249,7 +2230,6 @@ BOOL		bForceDraw;
 		{
 			brightness = avGetObjLightLevel((BASE_OBJECT*)psFeature,brightness);
 		}
-#endif
 
 		brightness = lightDoFogAndIllumination(brightness,getCentreX()-featX,getCentreZ()-featY, &specular);
 		if(psFeature->psStats->subType == FEAT_OIL_RESOURCE)
@@ -2439,7 +2419,6 @@ REPAIR_FACILITY		*psRepairFac = NULL;
 
 	// -------------------------------------------------------------------------------
 	/* Power stations and factories have pulsing lights  */
-#ifdef WIN32	// not on the playstation they dont
 	if(psStructure->sDisplay.imd->numFrames > 0)
 	{
         /*OK, so we've got a hack for a new structure - its a 2x2 wall but 
@@ -2461,8 +2440,6 @@ REPAIR_FACILITY		*psRepairFac = NULL;
 	{
 		animFrame = 0;
 	}
-#else
-#endif
 	playerFrame =getPlayerColour(psStructure->player);// psStructure->player
 
   	// -------------------------------------------------------------------------------
@@ -2524,7 +2501,6 @@ REPAIR_FACILITY		*psRepairFac = NULL;
 			buildingBrightness = 200+brightVar;
 		}
 		
-#ifdef WIN32
 		if(godMode OR demoGetStatus())
 		{
 			buildingBrightness = buildingBrightness;
@@ -2534,7 +2510,6 @@ REPAIR_FACILITY		*psRepairFac = NULL;
 		{
 			buildingBrightness = avGetObjLightLevel((BASE_OBJECT*)psStructure,buildingBrightness);
 		}
-#endif
 		buildingBrightness = lightDoFogAndIllumination((UBYTE)buildingBrightness,getCentreX()-structX,getCentreZ()-structY, &specular);
 
 		/* Draw the building's base first */
@@ -2885,7 +2860,6 @@ SDWORD			brightVar;
 
 			buildingBrightness = 200 + brightVar;
 		}
-#ifdef WIN32
 		if(godMode OR demoGetStatus())
 		{
 			buildingBrightness = buildingBrightness;
@@ -2895,7 +2869,6 @@ SDWORD			brightVar;
 		{
 			buildingBrightness = avGetObjLightLevel((BASE_OBJECT*)psStructure,buildingBrightness);
 		}
-#endif
 		brightness = lightDoFogAndIllumination((UBYTE)buildingBrightness,getCentreX()-structX,getCentreZ()-structY, &specular);
 
 		//first check if partially built - ANOTHER HACK!
@@ -3206,7 +3179,6 @@ BOOL	renderWallSection(STRUCTURE *psStructure)
 			buildingBrightness = 200 + brightVar;
 		}
 
-	#ifdef WIN32
 		if(godMode OR demoGetStatus())
 		{
 			/* NOP */
@@ -3215,7 +3187,6 @@ BOOL	renderWallSection(STRUCTURE *psStructure)
 		{
 			buildingBrightness = avGetObjLightLevel((BASE_OBJECT*)psStructure,buildingBrightness);
 		}
-	#endif
 
 		brightness = lightDoFogAndIllumination((UBYTE)buildingBrightness,getCentreX()-structX,getCentreZ()-structY, &specular);
 

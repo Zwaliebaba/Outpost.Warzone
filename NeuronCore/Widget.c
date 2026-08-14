@@ -20,11 +20,6 @@
 
 #include "Tip.h"
 
-#ifdef PSX
-#include "ivis02.h"
-#include "Primatives.h"
-#include "DCache.h"
-#endif
 
 #include <assert.h>
 
@@ -42,9 +37,6 @@ static WIDGET	*psMouseOverWidget;
 
 static UDWORD	pressed, released;
 
-#ifdef PSX
-static UWORD widgCurrentOTIndex = 1;
-#endif
 
 static WIDGET_AUDIOCALLBACK AudioCallback = NULL;
 static SWORD HilightAudioID = -1;
@@ -1635,13 +1627,6 @@ static void _widgDisplayForm(W_FORM *psForm, UDWORD xOffset, UDWORD yOffset)
 	WIDGET	*psCurr;
 	SDWORD	xOrigin,yOrigin;
 
-#ifdef PSX
-	if(psForm->OTIndex >= OT2D_SIZE) {
-		DBPRINTF(("widgDisplayForm : OTIndex %d, MaxOTIndex %d\n",psForm->OTIndex,OT2D_SIZE));
-		DBPRINTF(("Type : %d\n", psForm->type));
-	}
-	iV_SetOTIndex_PSX(psForm->OTIndex);
-#endif
 
 	/* Display the form */
 	psForm->display((WIDGET *)psForm, xOffset, yOffset, psForm->aColours);
@@ -1680,12 +1665,6 @@ static void _widgDisplayForm(W_FORM *psForm, UDWORD xOffset, UDWORD yOffset)
 		}
 		else
 		{
-#ifdef PSX
-			if(psCurr->OTIndex >= OT2D_SIZE) {
-				DBPRINTF(("widgDisplayForm 2 : OTIndex %d, MaxOTIndex %d\n",psCurr->OTIndex,OT2D_SIZE));
-			}
-			iV_SetOTIndex_PSX(psCurr->OTIndex);
-#endif
 			psCurr->display(psCurr, xOffset, yOffset, psForm->aColours);
 		}
 	}
@@ -1695,16 +1674,6 @@ static void _widgDisplayForm(W_FORM *psForm, UDWORD xOffset, UDWORD yOffset)
 
 static void widgDisplayForm(W_FORM *psForm, UDWORD xOffset, UDWORD yOffset)
 {
-#ifdef PSX
-	// If the stacks in the dcache then..
-	if(SpInDCache()) {
-		// Set the stack pointer to point to the alternative stack which is'nt limited to 1k.
-		SetSpAlt();
-		_widgDisplayForm(psForm,xOffset,yOffset);
-		SetSpAltNormal();
-		return;
-	}
-#endif
 	_widgDisplayForm(psForm,xOffset,yOffset);
 }
 
@@ -1913,26 +1882,6 @@ static void widgRun(WIDGET *psWidget, W_CONTEXT *psContext)
 	}
 }
 
-#ifdef PSX
-void WidgSetOTIndex(UWORD OTIndex)
-{
-	if(OTIndex >= OT2D_SIZE) {
-		DBPRINTF(("WidgSetOTIndex : OTIndex %d, MaxOTIndex %d\n",OTIndex,OT2D_SIZE));
-		assert(0);
-	}
-	widgCurrentOTIndex = OTIndex;
-}
-
-UWORD WidgGetOTIndex(void)
-{
-	if(widgCurrentOTIndex >= OT2D_SIZE) {
-		DBPRINTF(("WidgGetOTIndex : OTIndex %d, MaxOTIndex %d\n",widgCurrentOTIndex,OT2D_SIZE));
-//		assert(0);
-	}
-
-	return widgCurrentOTIndex;
-}
-#endif
 
 
 void WidgSetAudio(WIDGET_AUDIOCALLBACK Callback,SWORD HilightID,SWORD ClickedID)

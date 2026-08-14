@@ -26,15 +26,8 @@
 #include "Lighting.h"
 // end of chnage - alex
 #include "game.h"
-#ifdef WIN32
 #include "Environ.h"
 #include "AdvVis.h"
-#endif
-#ifdef PSX
-#include "utils.h"	// getdword()
-#include "Levels.h"
-#include "Mission.h"
-#endif
 #include "Gateway.h"
 #include "Wrappers.h"
 
@@ -58,13 +51,9 @@ typedef struct _map_save_header
 	UDWORD		height;
 } MAP_SAVEHEADER;
 
-#ifdef WIN32
 #define SAVE_MAP_V2 \
 	UWORD		texture; \
 	UBYTE		height
-#else
-#define SAVE_MAP_V2		UBYTE textureByte[2];	UBYTE height
-#endif
 
 typedef struct _map_save_tilev2
 {
@@ -115,11 +104,7 @@ typedef struct _zonemap_save_header {
 //
 // - I couldn't bring myself to rewrite John's execellent fixed/floating point code
 //
-#ifdef WIN32
 typedef float AAFLOAT;
-#elif defined(PSX)
-typedef SDWORD AAFLOAT;
-#endif
 
 
 /* Sanity check definitions for the save struct file sizes */
@@ -129,7 +114,6 @@ typedef SDWORD AAFLOAT;
 #define SAVE_TILE_SIZEV2	3
 
 /* Floating point constants for aaLine */
-#ifdef WIN32
 /* Windows fpu version */
 #define AA_ZERO				0.0F
 #define AA_ONE				1.0F
@@ -143,25 +127,6 @@ typedef SDWORD AAFLOAT;
 /* Access the root table */
 #define AARTFUNC(x) (aAARootTbl[ (UDWORD)((x) * ROOT_TABLE_SIZE) ])
 
-#elif defined (PSX)
-/* Playstation fixed point version */
-#define AA_FRACBITS			12		// Number of fractional bits in the fixed point number
-#define AA_DIVACCBITS 		8		// pre-multiply for fixed point divide
-
-#define AA_ZERO				(0)
-#define AA_ONE				(1<<AA_FRACBITS)
-#define AA_NINES			((999<<AA_FRACBITS)/1000)
-
-#define AA_HALF     		((5<<AA_FRACBITS)/10)
-#define AA_PMAX				(1<<AA_FRACBITS)	// Maximum perpendicular distance from line center
-
-#define AADIV(a,b)  		( ((a<<AA_DIVACCBITS)/b) << (AA_FRACBITS-AA_DIVACCBITS)  )	// fixed point divide
-#define AAMUL(a,b)  		( (a*b) >> AA_FRACBITS )	// multiply two fixed point numbers
-
-/* Access the root table */
-#define AARTFUNC(x)			(aAARootTbl[ (x) >> aaRootShift])
-
-#endif
 
 // Maximun expected return value from get height
 #define	MAX_HEIGHT			(256 * ELEVATION_SCALE)	
@@ -193,9 +158,6 @@ static UDWORD		maxLinePoints = 0;
 
 /* The sqrt(1/(1+x*x)) table for aaLine */
 AAFLOAT		*aAARootTbl;
-#ifdef PSX
-UDWORD		aaRootShift;			// Shift on input values to the root table
-#endif
 
 /* pixel increment values for aaLine                        */
 /*   -- assume PIXINC(dx,dy) is a macro such that:          */
@@ -215,17 +177,9 @@ static int orth_pixinc[4];
 UBYTE terrainTypes[MAX_TILE_TEXTURES];
 
 
-#ifdef WIN32
 #define GETTILE_TEXTURE(tile) (tile->texture)
-#else
-#define GETTILE_TEXTURE(tile) (GetDword(&tile->texture))
-#endif
 
-#ifdef WIN32
 #define GETTILE_TEXTURE2(tile) (tile->texture)
-#else
-#define GETTILE_TEXTURE2(tile) (GetWord(&tile->texture))
-#endif
 
 /* pointer to a load map function - depends on version */
 BOOL (*pLoadMapFunc)(UBYTE *pFileData, UDWORD fileSize);
@@ -285,9 +239,6 @@ BOOL mapNew(UDWORD width, UDWORD height)
 	}
 	*/
 
-#ifdef PSX
-	DBPRINTF(("mapNew: width=%d height=%d\n",width,height));
-#endif
 	psMapTiles = (MAPTILE *)MALLOC(sizeof(MAPTILE) * width*height);
 	if (psMapTiles == NULL)
 	{
@@ -338,13 +289,8 @@ BOOL mapNew(UDWORD width, UDWORD height)
 		psTile++;
 	}
 	*/
-#ifdef WIN32
 	//environInit();
     environReset();
-#else
-	//initLighting();
-    initLighting(0, 0, mapWidth, mapHeight);
-#endif
 	/*set up the scroll mins and maxs - set values to valid ones for a new map*/
 	scrollMinX = scrollMinY = 0;
 	scrollMaxX = mapWidth;
@@ -408,18 +354,7 @@ BOOL mapLoadV2(UBYTE *pFileData, UDWORD fileSize)
 	psTileData = (MAP_SAVETILEV2 *)(pFileData + SAVE_HEADER_SIZE);
 	for(i=0; i< mapWidth * mapHeight; i++)
 	{
-#ifdef WIN32
 		psMapTiles[i].texture = GETTILE_TEXTURE2(psTileData);  
-#else
-		{
-			UWORD Texture;
-
-			Texture= (((UWORD)(psTileData->textureByte[1]))<<8);
-			Texture|= ((UWORD)(psTileData->textureByte[0]));
-			psMapTiles[i].texture=Texture;
-		}
-
-#endif
 
 
 //		psMapTiles[i].type = psTileData->type;
@@ -467,18 +402,7 @@ BOOL mapLoadV3(UBYTE *pFileData, UDWORD fileSize)
 	psTileData = (MAP_SAVETILEV2 *)(pFileData + SAVE_HEADER_SIZE);
 	for(i=0; i< mapWidth * mapHeight; i++)
 	{
-#ifdef WIN32
 		psMapTiles[i].texture = GETTILE_TEXTURE2(psTileData);  
-#else
-		{
-			UWORD Texture;
-
-			Texture= (((UWORD)(psTileData->textureByte[1]))<<8);
-			Texture|= ((UWORD)(psTileData->textureByte[0]));
-			psMapTiles[i].texture=Texture;
-		}
-
-#endif
 
 
 //		psMapTiles[i].type = psTileData->type;
@@ -603,7 +527,7 @@ BOOL mapLoadV3(UBYTE *pFileData, UDWORD fileSize)
 	LOADBARCALLBACK();	//	loadingScreenCallback();
 
 
-#if defined(DEBUG) && defined(WIN32)
+#if defined(DEBUG)
 	gwCheckZoneSizes();
 #endif
 
@@ -713,31 +637,6 @@ BOOL mapLoad(UBYTE *pFileData, UDWORD fileSize)
 	/* Allocate the memory for the map */
 	if (mapAlloc)
 	{
-#ifdef PSX
-		DBPRINTF(("\nmapLoad: width=%d height=%d\n",width,height));
-		DBPRINTF(("psMapTiles == %p\n",psMapTiles));
-
-		// If it's an offworld mission and were not going back to the main campaign map
-		// ie SUB_1_D then don't allocate more memory for the mission map, just load it
-		// in over the existing one.
-		if(getLevelLoadFlags() & LDF_CAMEND) 
-		{
-			psMapTiles = mission.psMapTiles;
-			DBPRINTF(("Overwriting existing map @ %p\n",psMapTiles));
-			memset(psMapTiles, 0, sizeof(MAPTILE) * width*height);
-		} else {
-			DBPRINTF(("Allocating new map\n"));
-			psMapTiles = (MAPTILE *)MALLOC(sizeof(MAPTILE) * width*height);
-			if (psMapTiles == NULL)
-			{
-				DBERROR(("mapLoad: Out of memory"));
-				return FALSE;
-			}
-			memset(psMapTiles, 0, sizeof(MAPTILE) * width*height);
-		}
-
-		DBPRINTF(("psMapTiles == %p\n\n",psMapTiles));
-#else
 
 		psMapTiles = (MAPTILE *)MALLOC(sizeof(MAPTILE) * width*height);
 		if (psMapTiles == NULL)
@@ -746,7 +645,6 @@ BOOL mapLoad(UBYTE *pFileData, UDWORD fileSize)
 			return FALSE;
 		}
 		memset(psMapTiles, 0, sizeof(MAPTILE) * width*height);
-#endif
 	 
 
 		mapWidth = width;
@@ -784,13 +682,8 @@ BOOL mapLoad(UBYTE *pFileData, UDWORD fileSize)
 	pLoadMapFunc(pFileData, fileSize);
 
 //	mapPixTblInit();
-#ifdef WIN32
   	//environInit();
     environReset();
-#else
-	//initLighting();
-    initLighting(0, 0, mapWidth, mapHeight);
-#endif
 
 	/* set up the scroll mins and maxs - set values to valid ones for any new map */
 	scrollMinX = scrollMinY = 0;
@@ -864,16 +757,8 @@ BOOL mapSave(UBYTE **ppFileData, UDWORD *pFileSize)
 	psTile = psMapTiles;
 	for(i=0; i<mapWidth*mapHeight; i++)
 	{
-#ifdef WIN32
 		// don't save the noblock flag as it gets set again when the objects are loaded
 		psTileData->texture = (UWORD)(psTile->texture & (UWORD)~TILE_NOTBLOCKING);
-#else
-		{
-			UWORD Texture=psTile->texture;
-			psTileData->textureByte[0]=(UBYTE)(Texture&0xff);			
-			psTileData->textureByte[1]=(UBYTE)((Texture&0xff00)>>8);			
-		}
-#endif
 		psTileData->height = psTile->height;
 
 		psTileData = (MAP_SAVETILE *)((UBYTE *)psTileData + SAVE_TILE_SIZE);
@@ -988,15 +873,7 @@ BOOL mapSaveMission(UBYTE **ppFileData, UDWORD *pFileSize)
 	psTile = psMapTiles;
 	for(i=0; i<mapWidth*mapHeight; i++)
 	{
-#ifdef WIN32
 		psTileData->texture = psTile->texture;
-#else
-		{
-			UWORD Texture=psTile->texture;
-			psTileData->textureByte[0]=(UBYTE)(Texture&0xff);			
-			psTileData->textureByte[1]=(UBYTE)((Texture&0xff00)>>8);			
-		}
-#endif
 		psTileData->height = psTile->height;
 
 		psTileData = (MAP_SAVETILE *)((UBYTE *)psTileData + SAVE_TILE_SIZE);
@@ -1232,9 +1109,6 @@ void mapRootTblInit(void)
 
 	tablecells = (1 << tablebits) + 1;
 	
-#ifdef PSX
-	aaRootShift = AA_FRACBITS - tablebits;
-#endif
 
 	/* Allocate the table */
 	aAARootTbl = MALLOC( tablecells * sizeof(AAFLOAT) );
@@ -1451,7 +1325,6 @@ extern SWORD map_Height(UDWORD x, UDWORD y)
 	ox = (x & (TILE_UNITS-1));
 	oy = (y & (TILE_UNITS-1));
 
-#ifdef WIN32
 	if(TERRAIN_TYPE(mapTile(tileX,tileY)) == TER_WATER)
 	{
 		bWaterTile = TRUE;
@@ -1469,7 +1342,6 @@ extern SWORD map_Height(UDWORD x, UDWORD y)
 		return((SEA_LEVEL + (dy*ELEVATION_SCALE)));
 		*/
 	}
-#endif
 
 	tileYOffset = (tileY * mapWidth);
 
@@ -1648,7 +1520,6 @@ UDWORD GetHeightOfMap(void)
 	return mapHeight;
 }
 
-#ifdef WIN32
 // -----------------------------------------------------------------------------------
 /* This will save out the visibility data */
 BOOL	writeVisibilityData( STRING *pFileName )
@@ -1775,5 +1646,4 @@ UBYTE				*pVisData;
 	return(TRUE);
 }
 // -----------------------------------------------------------------------------------
-#endif
 

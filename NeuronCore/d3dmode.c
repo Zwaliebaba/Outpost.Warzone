@@ -16,7 +16,6 @@
 #define SIZE_D3D		(WIDTH_D3D * HEIGHT_D3D)
 
 // whole file is not needed when using PSX data
-#ifndef PIEPSX		// was #ifdef WIN32
 
 /***************************************************************************/
 
@@ -265,4 +264,3 @@ void SetTransFilter_D3D(UDWORD filter,UDWORD tablenumber)
 {return;}
 void TransBoxFill_D3D(UDWORD a, UDWORD b, UDWORD c, UDWORD d)
 {return;}
-#endif

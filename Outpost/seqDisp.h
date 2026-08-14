@@ -7,9 +7,7 @@
 #ifndef _SeqDisp_h
 #define _SeqDisp_h
 
-#ifdef WIN32			// ffs js (bastard)
 #include "pieMode.h"
-#endif
 /***************************************************************************/
 /*
  *	Global Definitions
@@ -44,11 +42,7 @@ extern BOOL	seq_BlitBufferToScreen(char* screen, SDWORD screenStride, SDWORD xOf
 //full screen render
 //extern BOOL seq_PlayVideo(char* pSeq, char* pAudio);
 //extern BOOL seq_StartFullScreenVideo(char* sequenceFile, char* audioFile);//start videos through seqList 
-#ifdef WIN32
 extern BOOL seq_UpdateFullScreenVideo(CLEAR_MODE *bClear);
-#else
-extern BOOL seq_UpdateFullScreenVideo(void);
-#endif
 extern BOOL seq_StopFullScreenVideo(void);
 //control
 extern BOOL	seq_SetupVideoBuffers(void);
@@ -70,23 +64,8 @@ extern BOOL seq_GetSubtitles(void);
 
 
 
-#ifdef WIN32
 /*returns the next sequence in the list to play*/
 extern void seq_StartNextFullScreenVideo(void);
-#else
-
-// PlayStream return values.
-typedef enum _stre
-{
-	PLAYSTR_END,
-	PLAYSTR_USER,		// user selected exit
-	PLAYSTR_ERROR,
-} STREAM_RETURN;
-
-
-STREAM_RETURN seq_StartFullScreenVideo(char* videoFile, char* pAudio, char *pText);
-
-#endif
 
  
 #endif	//SeqDisp.h

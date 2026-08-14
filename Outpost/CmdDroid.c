@@ -12,9 +12,7 @@
 #include "GTime.h"
 #include "Group.h"
 #include "Order.h"
-#ifdef WIN32
 #include "multiplay.h"
-#endif
 
 extern UDWORD selectedPlayer;
 
@@ -160,13 +158,11 @@ SDWORD cmdDroidGetLevel(DROID *psCommander)
 {
 	SDWORD	numKills = psCommander->numKills;
 
-#ifdef WIN32
 	// commanders do not need as much experience in multiplayer
 	if (bMultiExpBoost)
 	{
 		numKills *= 2;
 	}
-#endif
 
 	if (numKills > 2047)
 	{

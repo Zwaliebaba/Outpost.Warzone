@@ -5,7 +5,6 @@
  *
  */
 
-#ifdef WIN32
 
 #pragma warning (disable : 4201 4214 4115 4514)
 #define WIN32_LEAN_AND_MEAN
@@ -543,4 +542,3 @@ BOOL imageCreateBMP(UBYTE			*pImageData,		// Original file
 
 #endif
 
-#endif	// End of #ifdef WIN32

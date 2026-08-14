@@ -17,9 +17,7 @@
 #include "piedef.h"
 #include "objMem.h"
 #include "map.h"
-#ifdef WIN32
 #include "multiplay.h"
-#endif
 /* Allocation sizes for the message heaps */
 #define MESSAGE_INIT		20
 #define MESSAGE_EXT			5
@@ -600,7 +598,6 @@ VIEWDATA *loadViewData(SBYTE *pViewMsgData, UDWORD bufferSize)
 			//sscanf(pViewMsgData,"%[^',']", &name);
 			sscanf1(&pViewMsgData,"%[^','],",&name);
 
-#ifdef WIN32
 			//get the ID for the string
 			if (!strresGetIDNum(psStringRes, name, &id))
 			{
@@ -609,10 +606,6 @@ VIEWDATA *loadViewData(SBYTE *pViewMsgData, UDWORD bufferSize)
 			}
 			//get the string from the id
 			psViewData->ppTextMsg[dataInc] = strresGetString(psStringRes, id);
-#else
-			// Playstation version stores the hash of the string id.
-			psViewData->ppTextMsg[dataInc] = (STRING*)HashString(name);
-#endif
 		}
 
 		//sscanf(pViewMsgData,"%d", &psViewData->type);
@@ -761,14 +754,8 @@ VIEWDATA *loadViewData(SBYTE *pViewMsgData, UDWORD bufferSize)
 						DBERROR(("Cannot find the view data string id %s ", name));
 						return NULL;
 					}
-#ifdef WIN32
 					//get the string from the id
 					psViewReplay->pSeqList[dataInc].ppTextMsg[seqInc] = strresGetString(psStringRes, id);
-#else
-				// Playstation version stored the hashname and resolves it later 
-				// This is because we have to load the researchstrings
-					psViewReplay->pSeqList[dataInc].ppTextMsg[seqInc] = (STRING*)HashString(name);
-#endif
 
 
 
@@ -809,7 +796,6 @@ VIEWDATA *loadViewData(SBYTE *pViewMsgData, UDWORD bufferSize)
 				return NULL;
 			}
 		
-#ifdef WIN32
 			audioName[0] = '\0';
 			sscanf1(&pViewMsgData, "%d,%d,%d,%[^','],%d", &LocX, &LocY, &LocZ, 
 				&audioName,&proxType);
@@ -836,19 +822,6 @@ VIEWDATA *loadViewData(SBYTE *pViewMsgData, UDWORD bufferSize)
 					return FALSE;
 				}
 			}
-#else
-			sscanf1(&pViewMsgData, "%d,%d,%d,%d,%d", &LocX, &LocY, &LocZ, 
-				&audioID,&proxType);
- #ifdef DEBUG
-			if ( ((audioID < 0) || (audioID >= ID_MAX_SOUND)) &&
-				 (audioID != NO_SOUND) )
-			{
-				DBERROR(("Invalid Proximity message Sound ID - %d for message %s", 
-						audioID, audioName));
-				return FALSE;
-			}
- #endif
-#endif
 
 			((VIEW_PROXIMITY *)psViewData->pData)->audioID = audioID;
 
@@ -1173,48 +1146,3 @@ void addOilResourceProximities(void)
 
 
 
-#ifdef PSX
-
-void PlayAllMessages(void)
-{
-	VIEWDATA_LIST *CurrentMessage;
-	STRING String[256];
-
-// Now we loop through all the messages in order
-
-	DBPRINTF(("Starting messages\n"));
-	CurrentMessage=apsViewData;
-
-	while(CurrentMessage!=NULL)
-	{
-		UDWORD MessageCnt;
-		UDWORD Message;
-
-		 MessageCnt=CurrentMessage->numViewData;
-		 for (Message=0;Message<MessageCnt;Message++)
-		 {
-			VIEWDATA *mess;
-			MESSAGE psMessage;
-
-
-			mess=&CurrentMessage->psViewData[Message];
-#ifdef PSX
-			sprintf(String,"Message %d of %d [%s] type=%d\n",Message,MessageCnt-1,mess->pName, mess->type);
-			prnt(1,String,0,0);
-#endif
-
-			psMessage.type=MSG_MISSION;
-			psMessage.pViewData=mess;
-			psMessage.psNext=NULL;
-			StartMessageSequences(&psMessage,TRUE);
-			seq_WaitSequenceListEmpty();
-			
-		 }														 
-
-
-		CurrentMessage=CurrentMessage->psNext;
-	}
-
-}
-
-#endif

@@ -541,13 +541,11 @@ init://jump here from the end if re_initialising
 								quit = TRUE;
 #endif
 
-#ifdef WIN32
 								if(NetPlay.bLobbyLaunched)
 								{
 //									changeTitleMode(QUIT);
 									quit = TRUE;
 								}
-#endif
 								break;
 							case GAMECODE_FASTEXIT:
 								DBPRINTF(("GAMECODE_FASTEXIT\n"));

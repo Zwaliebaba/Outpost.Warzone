@@ -1,4 +1,3 @@
-#ifdef WIN32
 /***************************************************************************/
 /*
  * pieBlitFunc.h
@@ -101,4 +100,3 @@ extern void pie_ResetBackDrop(void);
 
 
 
-#endif

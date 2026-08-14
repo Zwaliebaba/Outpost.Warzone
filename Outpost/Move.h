@@ -59,10 +59,8 @@ extern void moveSetFormationSpeedLimiting( BOOL );
 extern void moveToggleFormationSpeedLimiting( void );
 extern BOOL moveFormationSpeedLimitingOn( void );
 
-#ifdef WIN32
 /* audio callback used to kill movement sounds */
 extern BOOL moveCheckDroidMovingAndVisible( AUDIO_SAMPLE *psSample );
-#endif
 // set a vtol to be hovering in the air
 void moveMakeVtolHover( DROID *psDroid );
 

@@ -17,13 +17,8 @@
 
 
 // control how data files are loaded
-#ifdef WIN32   // I don't know what this is ... but it certainly doesn't work on the playstation  ... (it sounds like the .WDG cacheing to me!)
 #define SINGLE_BUFFER_LOAD
 
-#else
-#include "cdPSX.h"
-
-#endif
 
 							  
 extern void InitWDG(char *WdgFileName);
@@ -43,18 +38,10 @@ static RES_TYPE *psResTypes=NULL;
 // and a NULL name check on PSX (static array)
 
 
-#ifdef WIN32
 #define resValidType(Type) (Type)
 #define resNextType(Type)  (Type->psNext)
 #define resGetResDataPointer(psRes) (psRes->pData)
 #define resGetResBlockID(psRes) (psRes->blockID)
-#else
-#define resValidType(Type) (Type->HashedType)		// a null hashedtype indicates end of list
-#define resNextType(Type)  (Type+1)
-//// on the psx we need to unpack the data
-#define resGetResDataPointer(psRes) ((void *)(((psRes->PackedDataID)&0x00ffffff)|0x80000000))
-#define resGetResBlockID(psRes) ((UDWORD)(((psRes->PackedDataID)&0xff000000)>>24))
-#endif
 
 
 
@@ -129,22 +116,6 @@ BOOL resInitialise(void)
 	AddBinaryResourceType("SCRIPT");
 #endif
 
-#ifdef PSX
-	// we must now initialise the cache before checking the wdg
-	//
-	// This is because the cache setup code initialises the additional buffer for the wdg/wrf catalogs
-	// which are loaded in WDG_SetCurrentWDG
-
-		// if you allocate the cache to a size of zero then it will use the default area for the cache
-		// on the PC this will be the display buffer	(NOT YET IMPLEMENTED)
-		// on the PSX this will be the primative buffer
-
-	FILE_InitialiseCache(0);		// 
-	WDG_SetCurrentWDG("warzone.wdg");
-
-
-
-#else	// the pc can handle it the old way
 		FILE_InitialiseCache(2*1024*1024);		// set the cache to be 2meg for the time being ...!
 //		WDG_SetCurrentWDG("warzone.wdg");
 		if (!wdgMultiInit())
@@ -165,7 +136,6 @@ BOOL resInitialise(void)
 		FILE_InitialiseCache(2*1024*1024);		// set the cache to be 2meg for the time being ...!
 	}
 */
-#endif
 
 
 
@@ -284,7 +254,6 @@ BOOL resLoad(STRING *pResFile, SDWORD blockID,
 	return TRUE;
 }
 
-#ifdef WIN32
 
 /* Allocate a RES_TYPE structure */
 static BOOL resAlloc(STRING *pType, RES_TYPE **ppsFunc)
@@ -320,9 +289,7 @@ static BOOL resAlloc(STRING *pType, RES_TYPE **ppsFunc)
 
 	return TRUE;
 }
-#endif
 
-#ifdef WIN32
 
 /* Add a buffer load function for a file type */
 BOOL resAddBufferLoad(STRING *pType, RES_BUFFERLOAD buffLoad,
@@ -367,7 +334,6 @@ BOOL resAddFileLoad(STRING *pType, RES_FILELOAD fileLoad,
 	return TRUE;
 }
 
-#endif
 
 // Make a string lower case
 void resToLower(STRING *pStr)
@@ -414,7 +380,6 @@ void SetLastHashName(UDWORD HashName)
 }
 
 
-#ifdef WIN32
 
 // load a file from disk into a fixed memory buffer
 BOOL resLoadFromDisk(STRING *pFileName, UBYTE **ppBuffer, UDWORD *pSize)
@@ -469,7 +434,6 @@ BOOL resLoadFromDisk(STRING *pFileName, UBYTE **ppBuffer, UDWORD *pSize)
 	return TRUE;
 }
 
-#endif
 
 
 // Structure for each file currently in use in the resource  ... probably only going to be one ... but we will handle upto MAXLOADEDRESOURCE
@@ -532,7 +496,6 @@ BOOL RetreiveResourceFile(char *ResourceName, RESOURCEFILE **NewResource)
 	*NewResource=ResData;
 
 
-#ifdef WIN32
 
 	if (pFileBuffer &&
 		resLoadFromDisk(ResourceName, &pBuffer, &size))
@@ -543,7 +506,6 @@ BOOL RetreiveResourceFile(char *ResourceName, RESOURCEFILE **NewResource)
 		return(TRUE);
 	}
 
-#endif
 
 	blockSuspendUsage();
 
@@ -616,24 +578,14 @@ void AddBinaryResourceType(char *ResourceType)
 
 void resDataInit(RES_DATA* psRes, STRING *DebugName, UDWORD DataIDHash, void *pData, UDWORD BlockID)
 {
-#ifdef WIN32
 
 	psRes->pData = pData;
 	psRes->blockID = resBlockID;
 
-#else
-	UDWORD PackedDataID=0;
-	PackedDataID=((UDWORD)pData)&0x00ffffff;		// Just get lower 24 bits
-	PackedDataID|=(BlockID<<24);					// Mask in the block ID
-	psRes->PackedDataID=PackedDataID;
-
-#endif
 	psRes->HashedID=DataIDHash;
 
 #ifdef DEBUG
-#ifdef WIN32
 		strcpy(psRes->aID,DebugName);
-#endif
 		psRes->usage = 0;
 #endif
 }
@@ -689,11 +641,7 @@ BOOL resLoadFile(STRING *pType, STRING *pFile)
 			{
 				if(psRes->HashedID == HashedName)
 				{
-#ifdef WIN32
 					DBPRINTF(("resLoadFile: Duplicate file name: %s (hash %x) for type %s",pFile, HashedName, psT->aType));
-#else
-					DBPRINTF(("resLoadFile: Duplicate file name: %s (hash %x) for type %x",pFile, HashedName, psT->HashedType));
-#endif
 					//assert(2+2==5);
 
 					// assume that they are actually both the same and silently fail
@@ -826,9 +774,6 @@ void *resGetDataFromHash(STRING *pType, UDWORD HashedID)
 	}
 	if (psT == NULL)
 	{
-#ifdef PSX
-		DBPRINTF(("resGetData: Unknown type: %s\n", pType));
-#endif
 		ASSERT((FALSE, "resGetData: Unknown type: %s", pType));
 		return NULL;
 	}
@@ -849,9 +794,6 @@ void *resGetDataFromHash(STRING *pType, UDWORD HashedID)
 
 	if (psRes == NULL)
 	{
-#ifdef PSX
-		DBPRINTF(("resGetDataFromHash: Unknown ID:"));
-#endif
 		ASSERT((FALSE, "resGetDataFromHash: Unknown ID:"));
 		return NULL;
 	}
@@ -885,9 +827,6 @@ void *resGetData(STRING *pType, STRING *pID)
 	}
 	if (psT == NULL)
 	{
-#ifdef PSX
-		DBPRINTF(("resGetData: Unknown type: %s\n", pType));
-#endif
 		ASSERT((FALSE, "resGetData: Unknown type: %s", pType));
 		return NULL;
 	}
@@ -908,9 +847,6 @@ void *resGetData(STRING *pType, STRING *pID)
 
 	if (psRes == NULL)
 	{
-#ifdef PSX
-		DBPRINTF(("resGetData: Unknown ID: %s\n", pID));
-#endif
 		ASSERT((FALSE, "resGetData: Unknown ID: %s", pID));
 		return NULL;
 	}
@@ -989,9 +925,6 @@ BOOL resGetIDfromData(STRING *pType, void *pData, STRING **ppID)
 	}
 	if (psT == NULL)
 	{
-#ifdef PSX
-		DBPRINTF(("resGetData: Unknown type: %s\n", pType));
-#endif
 		ASSERT((FALSE, "resGetData: Unknown type: %s", pType));
 		return FALSE;
 	}
@@ -1009,9 +942,6 @@ BOOL resGetIDfromData(STRING *pType, void *pData, STRING **ppID)
 
 	if (psRes == NULL)
 	{
-#ifdef PSX
-		DBPRINTF(("resGetIDfromData: couldn't find data for type %s\n", pType));
-#endif
 		ASSERT((FALSE, "resGetIDfromData: couldn't find data for type %s\n", pType));
 		return FALSE;
 	}
@@ -1087,11 +1017,7 @@ void resReleaseAll(void)
 #ifdef DEBUG
 			if (psRes->usage == 0)
 			{
-#ifdef WIN32
 				DBPRINTF(("%s resource: %s(%04x) not used\n", psT->aType, psRes->aID,psRes->HashedID));
-#else
-				DBPRINTF(("type %x resource: %x not used\n", psT->HashedType, psRes->HashedID));
-#endif
 
 			}
 #endif
@@ -1104,9 +1030,7 @@ void resReleaseAll(void)
 			FREE(psRes);
 		}
 		psNT = resNextType(psT);
-#ifdef WIN32
 		FREE(psT);
-#endif
 	}
 
 	psResTypes = NULL;
@@ -1131,11 +1055,7 @@ void resReleaseBlockData(SDWORD blockID)
 #ifdef DEBUG
 				if (psRes->usage == 0)
 				{
-#ifdef WIN32
 					DBPRINTF(("%s resource: %x not used\n", psT->aType, psRes->HashedID));
-#else
-					DBPRINTF(("%x resource: %x not used\n", psT->HashedType, psRes->HashedID));
-#endif
 				}
 #endif
 				if(psT->release != NULL)
@@ -1186,11 +1106,7 @@ void resReleaseAllData(void)
 #ifdef DEBUG
 			if (psRes->usage == 0)
 			{
-#ifdef WIN32
 					DBPRINTF(("%s resource: %x not used\n", psT->aType, psRes->HashedID));
-#else
-					DBPRINTF(("%x resource: %x not used\n", psT->HashedType, psRes->HashedID));
-#endif
 			}
 #endif
 
@@ -1230,29 +1146,7 @@ void resReleaseAllData(void)
 BOOL LoadWRF(char *pResFile, UBYTE **pBuffer, UDWORD *size)
 {
 
-#ifdef PSX
-	UBYTE WRFname[256];
-
-/*
-
-	UBYTE *WRFAddress;
-
-	assert(GetPrimBufferAllocatedSize()==0);		// make sure that we arent using the prim buffer already
-
-	WRFAddress=AllocInPrimBuffers(MAXWRFSIZE);		// load the wrf into this address
-*/
-	strcpy(WRFname,"WRF\\");
-	strcat(WRFname,pResFile);
-/*
-	*pBuffer=WRFAddress;
-	*size=MAXWRFSIZE;
-
-	return (loadFile2(WRFname,pBuffer,size,FALSE));	  // we don't want loadfile to allocate any memory ... we are passing in the address to load the file
-*/
-	return (loadFile2(WRFname,pBuffer,size,TRUE));		// on the PC (and now the PSX) we just allocate the memory 
-#else
 	return (loadFile2(pResFile,pBuffer,size,TRUE));		// on the PC (and now the PSX) we just allocate the memory 
-#endif
 
 
 }
@@ -1338,11 +1232,7 @@ BOOL FILE_ProcessFile(WRFINFO *CurrentFile, UBYTE *pRetreivedFile)
 // Now process the buffer data by calling the relevant buffer command
 	if (!psT->buffLoad(pRetreivedFile, CurrentFile->filesize, &pData))
 	{
-#ifdef WIN32
 		DBPRINTF(("No buffer command for this type %s\n",psT->aType));
-#else
-		DBPRINTF(("No buffer command for this type %x\n",psT->HashedType));
-#endif
 		return FALSE;
 	}
 

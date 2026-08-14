@@ -14,9 +14,7 @@
 #include "Order.h"
 #include "ObjectDef.h"
 
-#ifdef WIN32
 #include "MultiPlay.h"
-#endif
 
 /* The position for the computer players to attack */
 #define ATTACKX		39
@@ -169,7 +167,6 @@ void playerUpdate(UDWORD player)
 //	DROID		*psCurr;
 //	STRUCTURE	*psStruct;
 
-#ifdef WIN32
 	if ((!bMultiPlayer) && (player ==0))		// this'll have to come out to allow p1 AI
 	{											// currently stops the whole thing crashing. 
 		return;
@@ -178,12 +175,6 @@ void playerUpdate(UDWORD player)
 	{
 		return;
 	}
-#else
-	if (player == 0) 
-	{
-		return;
-	}
-#endif
 
 	// See if the human player has been seen by this player 
 /*	if (!asPlayerAI[player].building)

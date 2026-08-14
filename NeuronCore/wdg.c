@@ -18,22 +18,13 @@
 #include "wdg.h"
 #include "MultiWDG.h"
 
-#ifdef PSX
-#include "cdpsx.h"
-#include "file_psx.h"
-#endif
 
 /** local definitions **/
 
-#ifdef PSX
 //#define	PRIMCATALOG		// define this if we want to use the primative buffer to store the wdg catalogs - frees up 29k (!)
-#else
-//#define	PRIMCATALOG		// define this if we want to use the primative buffer to store the wdg catalogs - frees up 29k (!)
-#endif
 
 
 
-#ifndef PSX_USECD
 
 #define MAX_STR (256)
 
@@ -49,16 +40,6 @@ int freadpos(UDWORD filepos,UBYTE *buffer, UDWORD bytescount, FILE *handle)
 	return (fread(buffer,1,bytescount,handle));
 }
 
-#else
-// This is for PSX CD code only 
-typedef UDWORD DISK_FILE;		// this isn't used !
-
-#define DISK_OpenFile(name)								OpenCDfile(name)
-#define DISK_ReadPos(filepos,buffer,bytecount,handle)	ReadCDdata(filepos,buffer,bytecount)	
-#define DISK_Close(handle)								CloseCDfile()
-
-#define MAX_STR (32)
-#endif
 
 
 
@@ -489,14 +470,6 @@ BOOL WDG_ProcessWRF(char *WRFname,BOOL UseDataFromWDG )
 
 		UBYTE *pRetreivedFile;
 
-#ifdef PSX
-extern UDWORD MouseIn2;
-
-	if (MouseIn2 == 1)
-	{
-		zrintf("file =%d",File);
-	}
-#endif
 		CurrentFile = WRFfilesCatalog + File;
 
 		if (CurrentFile->offset == UDWORD_MAX)
@@ -569,7 +542,7 @@ BOOL FILE_ShutdownCache(void)
 		}
 		Cache.IsCacheDataMalloced=FALSE;
 	}
-#if defined(WIN32) && defined(PRIMCATALOG)
+#if defined(PRIMCATALOG)
 
 	if (PrimBufferCatalog)
 	{
@@ -661,27 +634,12 @@ BOOL FILE_InitialiseCache(SDWORD CacheSize)
 	}
 	else if (CacheSize==0)
 	{
-#ifdef PSX
-		UDWORD BufferUsed;
-#endif
 
 		UBYTE *CacheStart;
 		UDWORD CacheSize;
 
 		Cache.IsCacheDataMalloced=FALSE;
 
-#ifdef PSX
-
-	// Calculate where the cache is on the playstation
-		BufferUsed=GetPrimBufferAllocatedSize();
-		DBPRINTF(("InitialiseCache - %d bytes already allocated in the primative buffer\n",BufferUsed));
-
-
-		GetPrimBufferMem(&CacheStart, &CacheSize);
-		// adjust the values by the amount allocated
-		CacheStart+=BufferUsed;
-		CacheSize-=BufferUsed;
-#endif
 
 // if we are loading the catalog data from the primative buffer add in the size and setup the pointers now
 #ifdef	PRIMCATALOG

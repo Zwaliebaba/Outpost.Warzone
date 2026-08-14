@@ -13,21 +13,10 @@
 #include "base.h"
 #include "Structure.h"
 
-#ifdef PSX
-void tboxInitialise(void);
-void tboxGrow(void);
-BOOL tboxValid(void);
-void tboxSelect(void);
-void tboxDraw(void);
-#endif
 
 /* Initialise the display system */
 extern BOOL dispInitialise(void);
 
-#ifdef PSX
-/* Shutdown the display system */
-extern BOOL dispShutdown(void);
-#endif
 
 extern void shakeStart(void);
 
@@ -69,11 +58,7 @@ extern	void	setRadarJump(BOOL	val);
 extern void displayWorld(void);
 
 // Illumination value for standard light level "as the artist drew it" ... not darker, not lighter
-#ifdef WIN32
 #define ILLUMINATION_NONE (13)
-#else
-#define ILLUMINATION_NONE (128)
-#endif
 
 
 //#define MAX_SCROLL_SPEED	1600

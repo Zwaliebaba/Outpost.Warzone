@@ -8,13 +8,7 @@
 #define _gtime_h
 
 /* The number of ticks per second for the game clock */
-#ifdef WIN32
 #define GAME_TICKS_PER_SEC		1000
-#else
-#define GAME_TICKS_PER_SEC		1000
-
-
-#endif
 
 // The maximum time for one frame (stops the clock running away when debugging)
 // changed to /6 by ajl. if this needs to go back to ticks/10 then tell me. 

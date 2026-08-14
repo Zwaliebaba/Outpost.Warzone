@@ -534,7 +534,6 @@ GAMECODE gameLoop(void)
 		{
 			scroll();
 		}
-#ifdef WIN32
 		if(InGameOpUp)		// ingame options menu up, run it!
 		{
 			intRunInGameOptions();
@@ -597,7 +596,6 @@ GAMECODE gameLoop(void)
 				}
 			}
 		}
-#endif
 
 	}
 
@@ -701,7 +699,6 @@ GAMECODE gameLoop(void)
 			pie_SetDepthBufferStatus(DEPTH_CMP_ALWAYS_WRT_ON);
 			pie_SetFogStatus(FALSE);
 
-#ifdef WIN32
 			if(bMultiPlayer)
 			{
 //				if((game.type == DMATCH) && !MultiMenuUp)
@@ -715,7 +712,6 @@ GAMECODE gameLoop(void)
 					setWidgetsStatus(FALSE);
 				}
 			}
-#endif
 			if(getWidgetsStatus())
 			{
 				intDisplayWidgets();
@@ -1114,11 +1110,7 @@ static BOOL bActiveBackDrop = FALSE;
 	/* restore volume after video quit */
 	if ( bVolKilled == TRUE )
 	{
-#ifdef WIN32
 		mixer_SetWavVolume( g_iGlobalVol );
-#else
-		sound_SetGlobalVolume( g_iGlobalVol );
-#endif
 	}
 	
 	return GAMECODE_CONTINUE;

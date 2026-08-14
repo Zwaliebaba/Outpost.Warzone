@@ -7,9 +7,7 @@
 //#include "ivi.h"
 //#include "v3d.h"
 #include "rendmode.h"
-#ifdef WIN32
 #include "pieMode.h"
-#endif
 //#include "geo.h"
 #include "bug.h"
 //#include "pio.h"
@@ -28,38 +26,19 @@
 
 //*************************************************************************
 
-#ifdef WIN32
 iError	_iVERROR;
-#endif
 
 //*************************************************************************
 
-#ifdef PSX
-void iV_Initialise(void)
-{
-#ifdef iV_DEBUG
-
-	iV_DEBUG_CREATE_LOG;
-
-#endif
-	_iv_vid_setup();
-	_TEX_INDEX = 0;
-//	_iv_heap_setup();
-
-	iV_DEBUG0("iVi[Initialise] = successful\n");
-}
-#endif
 
 //*************************************************************************
 // pass in true to reset the palette too.
 void iV_Reset(int bPalReset)
 {
-#ifdef WIN32
 	if (pie_GetRenderEngine() == ENGINE_GLIDE)
 	{
 		reset3dfx();
 	}
-#endif
 	_TEX_INDEX = 0;
 	iV_ClearFonts();		// Initialise the IVIS font module.
 }
@@ -76,14 +55,10 @@ void iV_ShutDown(void)
 #endif
 
 	iV_DEBUG0("4\n");
-#ifdef WIN32
 	pie_ShutDown();
-#endif
 	iV_DEBUG0("5\n");
 
-	#ifdef WIN32
 	iV_VideoMemoryUnlock();
-	#endif
 
 	iV_DEBUG0("6\n");
 
@@ -131,19 +106,12 @@ void iV_Abort(char *string, ...)
 #ifndef FINALBUILD
 void iV_Error(long errorn, char *msge, ...)
 {
-#ifndef PIEPSX
 	va_list argptr;
 
 	va_start(argptr,msge);
 	vsprintf(&_iVERROR.msge[0],msge,argptr);
 	va_end(argptr);
 	_iVERROR.n = errorn;
-#else
-
-	
-	// ON playstation the output the messages as a printf
-	DBPRINTF(("iV_ERROR:%s\n",msge));
-#endif
 
 }
 #endif
