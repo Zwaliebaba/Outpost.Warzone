@@ -322,8 +322,6 @@ int iV_GetDisplayHeight(void)
 //
 //*************************************************************************
 
-void (*iV_VSync)(void);
-
 void (*iV_pLine)(int x0, int y0, int x1, int y1, uint32 colour);
 void (*iV_TransTriangle)(iVertex *vrt);
 

@@ -1892,7 +1892,7 @@ void dealWithDroidSelect(DROID *psDroid, BOOL bDragBox)
 				groupNumber = psD->group;
 			}
 		}
-		if(bGotGroup && ( keyDown(KEY_LCTRL) || keyDown(KEY_RCTRL || keyDown(KEY_LSHIFT) || keyDown(KEY_RSHIFT)) ))
+		if(bGotGroup && ( keyDown(KEY_LCTRL) || keyDown(KEY_RCTRL) || keyDown(KEY_LSHIFT) || keyDown(KEY_RSHIFT) ))
 		{
 			psDroid->group = (UBYTE)groupNumber;
 			secondarySetAverageGroupState(selectedPlayer, (UDWORD)groupNumber);

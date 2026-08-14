@@ -594,7 +594,7 @@ BOOL loadKeyMap(void)
 		fclose(pFileHandle);
 		return FALSE;
 	}
-	if(strncmp(&ver,buildTime,8) != 0)	// check 
+	if(strncmp(ver,buildTime,8) != 0)	// check 
 	{
 		fclose(pFileHandle);
 		return FALSE;	

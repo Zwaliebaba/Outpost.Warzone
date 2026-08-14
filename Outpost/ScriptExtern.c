@@ -18,6 +18,7 @@
 #include "HCI.h"
 #include "GTime.h"
 #include "RendFunc.h"                      // iV_GetMouseFrame
+#include "Display.h"                       // getTargetType
 
 
 // current game level

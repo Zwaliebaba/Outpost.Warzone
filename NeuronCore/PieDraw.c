@@ -1414,7 +1414,8 @@ void pie_DrawTile(PIEVERTEX *pv0, PIEVERTEX *pv1, PIEVERTEX *pv2, PIEVERTEX *pv3
 
 	tileCount++;
 
-	pie_SetRendMode(TRANS_DECAL);
+	pie_SetRendMode(REND_GOURAUD_TEX);	// was written TRANS_DECAL, which is a
+										// TRANSLUCENCY_MODE sharing the value 0
 	pie_SetTexturePage(texPage);
 	pie_SetBilinear(TRUE);
 

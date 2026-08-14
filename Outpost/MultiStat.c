@@ -593,7 +593,7 @@ BOOL loadMultiStats(STRING *sPlayerName,PLAYERSTATS *playerStats)
 
 	memcpy(&tmp,&NetPlay.cryptKey,sizeof(tmp));
 	NETsetKey(11974,224351,2023901,21080);
-	NETunmangleData( codedst,&st,sizeof(SAVEDPLAYERSTATS));
+	NETunmangleData( (long *)codedst,(long *)&st,sizeof(SAVEDPLAYERSTATS));
 	NETsetKey(tmp[0],tmp[1],tmp[2],tmp[3]);
 
 	//set stats.
