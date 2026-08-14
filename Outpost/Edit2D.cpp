@@ -79,7 +79,7 @@ static void rotBox(PASTE_BOX *psBox);
 	STRING	aType[255], *pCurr;
 
 	// Allocate an array to store the type mapping
-	aDefaultType = MALLOC(sizeof(TERRAIN_TYPE) * maxTexTile);
+	aDefaultType = (TERRAIN_TYPE *)MALLOC(sizeof(TERRAIN_TYPE) * maxTexTile);
 	if (!aDefaultType)
 	{
 		DBERROR(("Out of memory"));

@@ -81,14 +81,18 @@ typedef enum {
 	ie button 1 = enable destruct, button 2 = destruct
 */
 
-typedef enum {
+/* Justification is combined with ORD_JUSTIFY_NEWLINE (0x10) and masked with
+   ORD_JUSTIFY_MASK, so the type carries flags as well as the base value and
+   cannot be a plain enum in C++. */
+enum {
 	ORD_JUSTIFY_LEFT,			// Pretty self explanatory really.
 	ORD_JUSTIFY_RIGHT,
 	ORD_JUSTIFY_CENTER,
 	ORD_JUSTIFY_COMBINE,		// allow the button to be put on the same line
 								// as other orders with the same justify type
 	ORD_NUM_JUSTIFY_TYPES,
-} ORDBUTTONJUSTIFY;
+};
+typedef SDWORD ORDBUTTONJUSTIFY;
 
 // maximum number of orders on one line
 #define ORD_MAX_COMBINE_BUTS	3

@@ -3480,7 +3480,7 @@ BOOL addWhiteBoard()
 	sFormInit.y =(SWORD)( WHITEY-D_H);
 	sFormInit.width = WHITEW;
 	sFormInit.height = WHITEH;
-	sFormInit.pDisplay = displayWhiteBoard;
+	sFormInit.pDisplay = (WIDGET_DISPLAY)displayWhiteBoard;
 	widgAddForm(psWhiteScreen, &sFormInit);
 	
 	bWhiteBoardUp = TRUE;

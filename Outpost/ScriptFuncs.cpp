@@ -1380,7 +1380,7 @@ BOOL scrRemoveMessage(void)
 	}
 
 	//find the message
-	psMessage = findMessage((MSG_VIEWDATA *)psViewData, msgType, player);
+	psMessage = findMessage((MSG_VIEWDATA *)psViewData, (MESSAGE_TYPE)msgType, player);
 	if (psMessage)
 	{
 		//delete it

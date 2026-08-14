@@ -634,7 +634,7 @@ BOOL FILE_InitialiseCache(SDWORD CacheSize)
 #ifdef	PRIMCATALOG
 	if (PrimBufferCatalog==NULL)
 	{
-		PrimBufferCatalog=MALLOC(sizeof(PRIMBUFFERCATALOG));
+		PrimBufferCatalog= (PRIMBUFFERCATALOG *)MALLOC(sizeof(PRIMBUFFERCATALOG));
 
 		PrimBufferCatalog->Check1=CHECK1;			// sanity check (even in release - only 8 bytes)
 		PrimBufferCatalog->Check2=CHECK2;

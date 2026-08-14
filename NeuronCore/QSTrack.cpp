@@ -271,7 +271,7 @@ sound_ReadRiffMemResFile( QMIXWAVEPARAMS *pQMixParams, void *pBuffer,
 	memset( &mmioInfo, 0, sizeof(MMIOINFO) );
 	mmioInfo.fccIOProc = FOURCC_MEM;
 	mmioInfo.cchBuffer = udwSize;
-	mmioInfo.pchBuffer = pBuffer;
+	mmioInfo.pchBuffer = (HPSTR)pBuffer;
 
 	hmmio = mmioOpen( NULL, &mmioInfo, MMIO_READ );
     if ( !hmmio )
@@ -331,7 +331,7 @@ sound_ReadRiffMemResFile( QMIXWAVEPARAMS *pQMixParams, void *pBuffer,
 	}
 
 	pQMixParams->Resident.Bytes = dataChunk.cksize;
-    pQMixParams->Resident.Data  = MALLOC( dataChunk.cksize );
+    pQMixParams->Resident.Data  = (HPSTR)MALLOC( dataChunk.cksize );
 
     if ( mmioRead( hmmio, (char *) pQMixParams->Resident.Data,
 					dataChunk.cksize) != (LONG)dataChunk.cksize )

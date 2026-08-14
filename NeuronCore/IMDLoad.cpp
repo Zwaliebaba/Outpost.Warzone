@@ -698,7 +698,7 @@ static iBool _imd_load_bsp(UBYTE **ppFileData, UBYTE *FileDataEnd, iIMDShape *s,
 	}
 
 	// Build table of nodes - we sort out the links later 
-	NodeList=MALLOC((sizeof(BSPTREENODE))*BSPNodeCount);	// Allocate the entire node tree
+	NodeList=(PSBSPTREENODE)MALLOC((sizeof(BSPTREENODE))*BSPNodeCount);	// Allocate the entire node tree
 
 	memset(NodeList,0,(sizeof(BSPTREENODE))*BSPNodeCount);	// Zero it out ... we need to make all pointers NULL
 

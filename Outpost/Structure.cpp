@@ -825,7 +825,7 @@ BOOL loadStructureStats(SBYTE *pStructData, UDWORD bufferSize)
 		}
 
 		//set the struct strength
-		psStructure->strength = getStructStrength(strength);
+		psStructure->strength = (STRUCT_STRENGTH)getStructStrength(strength);
 		if (psStructure->strength == INVALID_STRENGTH)
 		{
 			DBERROR(("loadStructureStats: Unknown structure strength for %s", 
@@ -1349,7 +1349,7 @@ BOOL loadStructureStrengthModifiers(SBYTE *pStrengthModData, UDWORD bufferSize)
 			&weaponEffectName, &strengthName, &modifier);
 
 		//get the weapon effect inc
-		effectInc = getWeaponEffect(weaponEffectName);
+		effectInc = (WEAPON_EFFECT)getWeaponEffect(weaponEffectName);
 		if (effectInc == INVALID_WEAPON_EFFECT)
 		{
 			DBERROR(("loadStructureStrengthModifiers: Invalid Weapon Effect - %s", 
@@ -1357,7 +1357,7 @@ BOOL loadStructureStrengthModifiers(SBYTE *pStrengthModData, UDWORD bufferSize)
 			return FALSE;
 		}
 		//get the propulsion inc
-		strengthInc = getStructStrength(strengthName);
+		strengthInc = (STRUCT_STRENGTH)getStructStrength(strengthName);
 		if (strengthInc == INVALID_STRENGTH)
 		{
 			DBERROR(("loadStructureStrengthModifiers: Invalid Strength type - %s", 

@@ -40,7 +40,7 @@ typedef struct _cursor_resource
 HINSTANCE hInstance;
 
 /* Handle for the main window */
-HANDLE hWndMain;
+HWND hWndMain;
 
 /* Flag if directdraw is active*/
 static BOOL bActiveDDraw;
@@ -249,7 +249,7 @@ UDWORD frameGetFrameNumber(void)
 }
 
 /* Return the handle for the application window */
-HANDLE frameGetWinHandle(void)
+HWND frameGetWinHandle(void)
 {
   return hWndMain;
 }
@@ -474,7 +474,7 @@ static BOOL winInitApp(HANDLE hInstance, // Instance handle for the program
   STRING* pMsgBuf;
 
   /* Create the default cursor for the app - a simple arrow */
-  hInternalCursor = CreateCursor(hInstance, DEF_CURSOR_X, DEF_CURSOR_Y, DEF_CURSOR_WIDTH,DEF_CURSOR_HEIGHT, aCursorMask,
+  hInternalCursor = CreateCursor((HINSTANCE)hInstance, DEF_CURSOR_X, DEF_CURSOR_Y, DEF_CURSOR_WIDTH,DEF_CURSOR_HEIGHT, aCursorMask,
                                  aCursorData);
   if (hInternalCursor == NULL)
   {
@@ -496,7 +496,7 @@ static BOOL winInitApp(HANDLE hInstance, // Instance handle for the program
   wc.lpfnWndProc = Wndproc;
   wc.cbClsExtra = 0;
   wc.cbWndExtra = 0;
-  wc.hInstance = hInstance;
+  wc.hInstance = (HINSTANCE)hInstance;
   wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
   wc.hCursor = NULL; //hCursor;
   wc.hbrBackground = (HBRUSH)GetStockObject(NULL_BRUSH); //(COLOR_WINDOW+1); //GetStockObject( WHITE_BRUSH );
@@ -528,7 +528,7 @@ static BOOL winInitApp(HANDLE hInstance, // Instance handle for the program
                             "Framework", pWindowName, WIN_STYLE, // Window style, defined in WinMain.h
                             0, 0, // Initial window location
                             sWinSize.right, sWinSize.bottom, // Initial window size
-                            NULL, NULL, hInstance, NULL);
+                            NULL, NULL, (HINSTANCE)hInstance, NULL);
 
   if (!hWndMain)
   {
@@ -569,7 +569,7 @@ BOOL frameInitialise(HANDLE hInst, // The windows application instance
   focusLast = FOCUS_IN;
   mouseOn = TRUE;
   displayMouse = TRUE;
-  hInstance = hInst;
+  hInstance = (HINSTANCE)hInst;
   bActiveDDraw = TRUE;
 
   /* Initialise the trig stuff */

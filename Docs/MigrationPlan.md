@@ -262,20 +262,65 @@ game's `.rpl` movies — the briefings and research sequences under
 decoder.
 
 Removing it therefore means **replacing FMV playback**, not deleting a utility.
-The assets cannot be decoded without a replacement, so this needs a decision:
+The `.rpl` assets cannot be decoded without a replacement, so the format they
+migrate to is a decision in its own right.
 
-1. **Re-encode and re-implement.** Convert the `.rpl` assets offline to a
-   modern container, and play them back through Media Foundation (or a small
-   bundled decoder) into the D3D9 dynamic texture that Phase 2 introduces.
-   Preserves the sequences; costs an asset conversion pass plus a new playback
-   path.
-2. **Drop FMV.** Replace sequences with static screens or skip them. Cheapest,
-   but loses game content.
+#### The assets
 
-Option 1 is the recommended default, but it is the user's call. Either way the
-work is tightly coupled to Phase 2's rewrite of `Sequence.cpp`, so the two should
-be scheduled together. Once done, remove `WINSTR.LIB`, `winstr.dll`,
-`STREAMER.H` and `Dec130.dll`.
+19 sequences, **15.7 MB** in total, the largest 1.4 MB. They are
+320x240-era content, and each carries **audio as well as video** —
+`Sequence.cpp` reads `Movie_GetSoundChannels`, `Movie_GetSoundPrecision` and
+`Movie_GetSoundRate`, and feeds a DirectSound buffer alongside the frames. Any
+replacement has to carry the audio and keep it in sync, not just the pictures.
+
+#### Considered and rejected: frames as DDS textures
+
+The appeal is obvious — store the frames as textures and playback needs no
+decoder at all, just a sample per frame into the quad Phase 2 introduces. Two
+things rule it out as the general answer.
+
+**There is no `Texture2DArray` in Direct3D 9.** Texture arrays arrived with
+Direct3D 10. D3D9 offers only `IDirect3DTexture9`,
+`IDirect3DVolumeTexture9` and `IDirect3DCubeTexture9`. The nearest equivalents
+each have a catch:
+
+| Approach | Catch |
+|---|---|
+| Volume texture, frames on Z | Trilinear filtering blends adjacent *frames*; `MaxVolumeExtent` caps are low |
+| Texture atlas, frames tiled | Bounded by `MaxTextureWidth`/`MaxTextureHeight` |
+| One DDS per frame, streamed | No caps problem, but thousands of files per sequence |
+
+**The size cost is severe.** Block compression is per-frame and has no temporal
+compression, which is where video codecs get nearly all their ratio. At DXT1
+(0.5 byte/pixel), a 320x240 frame is ~38 KB, so one 60-second sequence at 15 fps
+is ~34 MB — twice the entire current set, for one sequence. Expect **50-100x
+growth** overall, plus DXT blocking artefacts on exactly the kind of gradient
+content these sequences contain. And DDS carries no audio track.
+
+Where this approach *does* fit is short UI animations and effect flipbooks:
+small frame counts, no audio, and decode-free sampling is genuinely simpler
+there. It is worth keeping in mind for Phase 2's effects work, just not for FMV.
+
+#### The plan: re-encode to a modern container
+
+Convert the `.rpl` assets offline to a modern container, and play them back
+through Media Foundation (or a small bundled decoder) into the D3D9 dynamic
+texture Phase 2 introduces. This keeps the asset footprint in the same order as
+today, keeps the audio track with its sync, and still removes `WINSTR.LIB`
+entirely. Since the source material is 320x240, a modern codec will not look
+worse than what ships now.
+
+Two things to settle when the work starts: whether a decoder ships with the
+game or Media Foundation's built-in support is relied on, and whether the
+original `.rpl` files are kept in the repository as the conversion source.
+
+Dropping FMV altogether — static screens in place of the sequences — remains
+the cheap fallback if the conversion proves not to be worth it, at the cost of
+game content.
+
+Either way the work is tightly coupled to Phase 2's rewrite of `Sequence.cpp`,
+so the two should be scheduled together. Once done, remove `WINSTR.LIB`,
+`winstr.dll`, `STREAMER.H` and `Dec130.dll`.
 
 After Phases 4-6 the only remaining non-system dependencies are the DirectX
 libraries themselves — which also removes the last constraint pinning the build

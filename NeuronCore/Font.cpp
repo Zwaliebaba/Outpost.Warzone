@@ -283,7 +283,7 @@ void fontPrint(SDWORD x, SDWORD y, STRING *pFormat, ...)
 		break;
 	}
 
-	ddrval = psBack->lpVtbl->Unlock(psBack, sDDSD.lpSurface);
+	ddrval = psBack->lpVtbl->Unlock(psBack, (LPRECT)sDDSD.lpSurface);
 	if (ddrval != DD_OK)
 	{
 		ASSERT((FALSE, "fontPrint: Couldn;t unlock back buffer"));
@@ -378,7 +378,7 @@ void fontPrintChar(SDWORD x,SDWORD y, PROP_CHAR *psChar, UDWORD height)
 		break;
 	}
 
-	ddrval = psBack->lpVtbl->Unlock(psBack, sDDSD.lpSurface);
+	ddrval = psBack->lpVtbl->Unlock(psBack, (LPRECT)sDDSD.lpSurface);
 	if (ddrval != DD_OK)
 	{
 		ASSERT((FALSE, "screenTextOut: Couldn;t unlock back buffer"));

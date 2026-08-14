@@ -467,7 +467,7 @@ UDWORD	percent;
                         xIndex < (SDWORD)visibleXTiles AND 
                         yIndex < (SDWORD)visibleYTiles)
 					{
-						colourTile(xIndex,yIndex,psLight->colour, (UBYTE)(2*percent));
+						colourTile(xIndex,yIndex,(LIGHT_COLOUR)psLight->colour, (UBYTE)(2*percent));
 					}
 				}
 

@@ -180,7 +180,7 @@ static BOOL eventLoadContext(SDWORD version, UBYTE *pBuffer, UDWORD *pSize)
 	{
 		// get the script code
 		pScriptID = (STRING *)pPos;
-		psCode = resGetData("SCRIPT", pScriptID);
+		psCode = (SCRIPT_CODE *)resGetData("SCRIPT", pScriptID);
 		pPos += strlen(pScriptID) + 1;
 
 		// check the number of variables
@@ -196,7 +196,7 @@ static BOOL eventLoadContext(SDWORD version, UBYTE *pBuffer, UDWORD *pSize)
 		pPos += sizeof(UBYTE);
 
 		// create the context
-		if (!eventNewContext(psCode, release, &psCCont))
+		if (!eventNewContext(psCode, (CONTEXT_RELEASE)release, &psCCont))
 		{
 			return FALSE;
 		}
@@ -294,7 +294,7 @@ static BOOL eventLoadContextHashed(SDWORD version, UBYTE *pBuffer, UDWORD *pSize
 		// get the script code
 		hashedName = *((UDWORD*)pPos);
 		pPos += sizeof(UDWORD);
-		psCode = resGetDataFromHash("SCRIPT", hashedName);
+		psCode = (SCRIPT_CODE *)resGetDataFromHash("SCRIPT", hashedName);
 		
 
 		// check the number of variables
@@ -310,7 +310,7 @@ static BOOL eventLoadContextHashed(SDWORD version, UBYTE *pBuffer, UDWORD *pSize
 		pPos += sizeof(UBYTE);
 
 		// create the context
-		if (!eventNewContext(psCode, release, &psCCont))
+		if (!eventNewContext(psCode, (CONTEXT_RELEASE)release, &psCCont))
 		{
 			return FALSE;
 		}

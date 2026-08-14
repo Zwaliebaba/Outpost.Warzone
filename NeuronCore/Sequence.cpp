@@ -402,7 +402,7 @@ BOOL seq_SetSequence(char* filename, LPDIRECTDRAWSURFACE4 lpDDSF, LPDIRECTSOUND 
 		movieHeight = Movie_GetYSize( mhandle );
 
 		//malloc a buffer for video playback
-		localBuffer = lpBF;//always 16bit
+		localBuffer = (LPBYTE)lpBF;//always 16bit
 		memset(localBuffer, 0, VIDEO_WIDTH * VIDEO_HEIGHT * sizeof(WORD));
 		/*
 		// Initialise the video playback environment
@@ -707,7 +707,7 @@ int	seq_RenderOneFrameToBuffer(char *lpSF, int skip, SDWORD subMin, SDWORD subMa
 							shandle,
 							NULL,
 							skip,
-							lpSF,
+							(LPBYTE)lpSF,
 							NULL,
 							NULL,
 							0 );
@@ -978,7 +978,7 @@ int	seq_RenderOneFrame(LPDIRECTDRAWSURFACE4	lpDDSF, int skip, SDWORD subMin, SDW
 
 	// We can unlock the suurface now as we have finished with it, 
 	// until the next decode is required
-	lpDDSF->lpVtbl->Unlock(lpDDSF, DD_sd.lpSurface );
+	lpDDSF->lpVtbl->Unlock(lpDDSF, (LPRECT)DD_sd.lpSurface );
 	
 
 #ifdef SEQUENCE_SOUND

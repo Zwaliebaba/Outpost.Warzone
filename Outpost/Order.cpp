@@ -1400,7 +1400,7 @@ void orderDroidBase(DROID *psDroid, DROID_ORDER_DATA *psOrder)
 #endif
 
 	// deal with a droid receiving a primary order
-	if (secondaryGotPrimaryOrder(psDroid, psOrder->order))
+	if (secondaryGotPrimaryOrder(psDroid, (DROID_ORDER)psOrder->order))
 	{
 		psOrder->order = DORDER_NONE;
 	}
@@ -2520,7 +2520,7 @@ BOOL orderDroidList(DROID *psDroid)
         //don't send BUILD orders in multiplayer
 		if(bMultiPlayer AND !(sOrder.order == DORDER_BUILD OR sOrder.order == DORDER_LINEBUILD))
 		{
-			SendDroidInfo(psDroid,  sOrder.order , sOrder.x, sOrder.y,sOrder.psObj);
+			SendDroidInfo(psDroid,  (DROID_ORDER)sOrder.order , sOrder.x, sOrder.y,sOrder.psObj);
 		}
 
 		return TRUE;
@@ -3748,9 +3748,9 @@ BOOL secondarySetState(DROID *psDroid, SECONDARY_ORDER sec, SECONDARY_STATE Stat
 					order = DORDER_NONE;
 					break;
 				}
-				if (!orderState(psDroid, order))
+				if (!orderState(psDroid, (DROID_ORDER)order))
 				{
-					orderDroid(psDroid, order);
+					orderDroid(psDroid, (DROID_ORDER)order);
 				}
 			}
 			break;
@@ -3896,7 +3896,7 @@ void secondarySetAverageGroupState(UDWORD player, UDWORD group)
 	for(i=0; i<MAX_ORDERS; i++)
 	{
 		state = secondaryGetAverageGroupState(player, group, aOrders[i].mask);
-		secondarySetGroupState(player, group, aOrders[i].order, state);
+		secondarySetGroupState(player, group, (SECONDARY_ORDER)aOrders[i].order, state);
 	}
 }
 

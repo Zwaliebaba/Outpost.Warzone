@@ -648,7 +648,7 @@ audio_SetTrackVals( char szFileName[], BOOL bLoop, int *piID, int iVol,
 	}
 
 	/* get track pointer from resource */
-	psTrack = resGetData( "WAV", szFileName );
+	psTrack = (TRACK *)resGetData( "WAV", szFileName );
 
 	if ( psTrack == NULL )
 	{
@@ -691,7 +691,7 @@ audio_SetTrackValsHashName( UDWORD hash, BOOL bLoop, int iTrack, int iVol,
 	}
 
 	/* get track pointer from resource */
-	psTrack = resGetDataFromHash( "WAV", hash );
+	psTrack = (TRACK *)resGetDataFromHash( "WAV", hash );
 
 	if ( psTrack == NULL )
 	{
@@ -1170,7 +1170,7 @@ audio_GetTrackID( char szFileName[] )
 	}
 	else
 	{
-		psTrack = resGetData( "WAV", szFileName );
+		psTrack = (TRACK *)resGetData( "WAV", szFileName );
 
 		if ( psTrack == NULL )
 		{
@@ -1200,7 +1200,7 @@ audio_GetTrackIDFromHash( UDWORD hash )
 	}
 	else
 	{
-		psTrack = resGetDataFromHash( "WAV", hash );
+		psTrack = (TRACK *)resGetDataFromHash( "WAV", hash );
 
 		if ( psTrack == NULL )
 		{

@@ -1029,7 +1029,7 @@ void destroyFeature(FEATURE *psDel)
 			pos.x = psDel->x + widthScatter - rand()%(2*widthScatter);
 			pos.z = psDel->y + breadthScatter - rand()%(2*breadthScatter);
 			pos.y = psDel->z + 32 + rand()%heightScatter;
-			addEffect(&pos,EFFECT_EXPLOSION,explosionSize,FALSE,NULL,0);
+			addEffect(&pos,EFFECT_EXPLOSION,(EFFECT_TYPE)explosionSize,FALSE,NULL,0);
 		}			
 
 //	  	if(psDel->sDisplay.imd->ymax>300)	// WARNING - STATS CHANGE NEEDED!!!!!!!!!!!

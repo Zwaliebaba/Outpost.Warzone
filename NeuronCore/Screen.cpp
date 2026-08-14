@@ -32,7 +32,7 @@ SCREEN_MODE		screenMode = SCREEN_WINDOWED;
 DISPLAY_MODES	displayMode;
 
 /* The handle for the main application window */
-HANDLE		hWndMain = NULL;
+HWND		hWndMain = NULL;
 
 /* The Direct Draw objects */
 #define MAX_DDDEVICES 6
@@ -913,7 +913,7 @@ BOOL screenInitialise(UDWORD		width,			// Display width
 	screenHeight = height;
 	screenDepth = bitDepth;
 
-	hWndMain = hWindow;
+	hWndMain = (HWND)hWindow;
 
 	/* store vidmem flag */
 	g_bVidMem = bVidMem;
@@ -1307,7 +1307,7 @@ void screen_Upload(UWORD* newBackDropBmp)
 		break;
 	}
 	/* Unlock the back buffer */
-	ddrval = psBack->lpVtbl->Unlock(psBack, ddsdBack.lpSurface);
+	ddrval = psBack->lpVtbl->Unlock(psBack, (LPRECT)ddsdBack.lpSurface);
 	if (ddrval != DD_OK)
 	{
 		DBERROR(("Back buffer unlock failed:\n%s", DDErrorToString(ddrval)));
@@ -1476,7 +1476,7 @@ void screenFlip(BOOL clearBackBuffer)
 
 
 		/* Unlock the front buffer */
-		ddrval = psFront->lpVtbl->Unlock(psFront, ddsdFront.lpSurface);
+		ddrval = psFront->lpVtbl->Unlock(psFront, (LPRECT)ddsdFront.lpSurface);
 		if (ddrval != DD_OK)
 		{
 			DBERROR(("Front buffer unlock failed:\n%s", DDErrorToString(ddrval)));
@@ -1484,7 +1484,7 @@ void screenFlip(BOOL clearBackBuffer)
 		}
 
 		/* Unlock the back buffer */
-		ddrval = psBack->lpVtbl->Unlock(psBack, ddsdBack.lpSurface);
+		ddrval = psBack->lpVtbl->Unlock(psBack, (LPRECT)ddsdBack.lpSurface);
 		if (ddrval != DD_OK)
 		{
 			DBERROR(("Back buffer unlock failed:\n%s", DDErrorToString(ddrval)));
@@ -1655,7 +1655,7 @@ clipped: ;
 		}
 
 		/* Unlock the back buffer */
-		ddrval = psBack->lpVtbl->Unlock(psBack, ddsdBack.lpSurface);
+		ddrval = psBack->lpVtbl->Unlock(psBack, (LPRECT)ddsdBack.lpSurface);
 		if (ddrval != DD_OK)
 		{
 			DBERROR(("Back buffer unlock failed:\n%s", DDErrorToString(ddrval)));
@@ -2232,7 +2232,7 @@ void screenTextOut(UDWORD x, UDWORD y, STRING *pFormat, ...)
 		break;
 	}
 
-	ddrval = psBack->lpVtbl->Unlock(psBack, sDDSD.lpSurface);
+	ddrval = psBack->lpVtbl->Unlock(psBack, (LPRECT)sDDSD.lpSurface);
 	if (ddrval != DD_OK)
 	{
 		ASSERT((FALSE,"screenTextOut: Couldn;t unlock back buffer"));
@@ -2499,13 +2499,16 @@ void screenSetLineCacheColour(UDWORD colour)
 }
 
 
-typedef enum _outcode
+/* Clipping outcodes are bit flags, combined with |= and tested with &, so
+   the type holds combinations rather than the listed constants alone. */
+enum
 {
 	OUT_TOP = 0x8,
 	OUT_BOTTOM = 0x4,
 	OUT_RIGHT = 0x2,
 	OUT_LEFT = 0x1,
-} OUTCODE;
+};
+typedef SDWORD OUTCODE;
 
 __inline void compOutCode(SDWORD x, SDWORD y, OUTCODE *pCode)
 {

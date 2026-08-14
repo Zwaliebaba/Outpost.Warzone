@@ -609,7 +609,7 @@ void pie_RenderImageToSurface(LPDIRECTDRAWSURFACE4 lpDDS4, SDWORD surfaceOffsetX
 		pSrc += srcSkip;
 	}
 	// We can unlock the surface now as we have finished with it, 
-	lpDDS4->lpVtbl->Unlock(lpDDS4, DD_sd.lpSurface );
+	lpDDS4->lpVtbl->Unlock(lpDDS4, (LPRECT)DD_sd.lpSurface );
 }
 
 

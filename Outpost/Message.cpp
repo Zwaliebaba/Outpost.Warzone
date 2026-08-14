@@ -301,7 +301,7 @@ void viewDataHeapShutDown(void)
 	 MESSAGE *psMsgToAdd = NULL;
 
 	 //first create a message of the required type
-	 CREATE_MSG(psMsgHeap, &psMsgToAdd, msgType);
+	 CREATE_MSG(psMsgHeap, &psMsgToAdd, (MESSAGE_TYPE)msgType);
 	 if (!psMsgToAdd)
 	 {
 		 return NULL;
@@ -822,7 +822,7 @@ VIEWDATA *loadViewData(SBYTE *pViewMsgData, UDWORD bufferSize)
 				ASSERT((FALSE, "Invalid proximity message sub type - %s", name));
 				return NULL;
 			}
-			((VIEW_PROXIMITY *)psViewData->pData)->proxType = proxType;
+			((VIEW_PROXIMITY *)psViewData->pData)->proxType = (PROX_TYPE)proxType;
 			break;
 		default:
 			DBERROR(("Unknown ViewData type"));

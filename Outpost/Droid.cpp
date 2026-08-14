@@ -3818,7 +3818,7 @@ DROID* buildDroid(DROID_TEMPLATE *pTemplate, UDWORD x, UDWORD y, UDWORD player,
 		for (inc = 0; inc < NUM_WEAPON_CLASS; inc++)
 		{
 			psDroid->armour[inc] = bodyArmour(asBodyStats + pTemplate->
-				asParts[COMP_BODY], (UBYTE)player, CYBORG_BODY_UPGRADE, inc);
+				asParts[COMP_BODY], (UBYTE)player, CYBORG_BODY_UPGRADE, (WEAPON_CLASS)inc);
 		}
 	}
 	else
@@ -3826,7 +3826,7 @@ DROID* buildDroid(DROID_TEMPLATE *pTemplate, UDWORD x, UDWORD y, UDWORD player,
 		for (inc = 0; inc < NUM_WEAPON_CLASS; inc++)
 		{
 			psDroid->armour[inc] = bodyArmour(asBodyStats + pTemplate->
-				asParts[COMP_BODY], (UBYTE)player, DROID_BODY_UPGRADE, inc);
+				asParts[COMP_BODY], (UBYTE)player, DROID_BODY_UPGRADE, (WEAPON_CLASS)inc);
 		}
 	}
 
@@ -5255,7 +5255,7 @@ UDWORD	passes;
 	/* Exit if they're fine! */
 	if(sensiblePlace(*x,*y) AND oneDroid(*x,*y))
 	{
-		return(TRUE);
+		return((PICKTILE)TRUE);
 	}
 
 	/* Initial box dimensions and set iteration count to zero */

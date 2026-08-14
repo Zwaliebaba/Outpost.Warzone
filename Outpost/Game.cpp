@@ -4299,7 +4299,7 @@ DROID* buildDroidFromSaveDroidV11(SAVE_DROID_V11* psSaveDroid)
 
 	psTemplate->buildPoints = calcTemplateBuild(psTemplate);
 	psTemplate->powerPoints = calcTemplatePower(psTemplate);
-	psTemplate->droidType = psSaveDroid->droidType;
+	psTemplate->droidType = (DROID_TYPE)psSaveDroid->droidType;
 
 	/*create the Droid */
 
@@ -4414,7 +4414,7 @@ DROID* buildDroidFromSaveDroidV19(SAVE_DROID_V18* psSaveDroid, UDWORD version)
 
 	psTemplate->buildPoints = calcTemplateBuild(psTemplate);
 	psTemplate->powerPoints = calcTemplatePower(psTemplate);
-	psTemplate->droidType = psSaveDroid->droidType;
+	psTemplate->droidType = (DROID_TYPE)psSaveDroid->droidType;
 
 	/*create the Droid */
 
@@ -4662,7 +4662,7 @@ DROID* buildDroidFromSaveDroid(SAVE_DROID* psSaveDroid, UDWORD version)
 
 	psTemplate->buildPoints = calcTemplateBuild(psTemplate);
 	psTemplate->powerPoints = calcTemplatePower(psTemplate);
-	psTemplate->droidType = psSaveDroid->droidType;
+	psTemplate->droidType = (DROID_TYPE)psSaveDroid->droidType;
 
 	/*create the Droid */
 
@@ -7617,7 +7617,7 @@ BOOL loadSaveTemplateV7(UBYTE *pFileData, UDWORD filesize, UDWORD numTemplates)
 		psTemplate->aName[DROID_MAXNAME-1]=0;
 
 		psTemplate->ref = psSaveTemplate->ref;
-		psTemplate->droidType = psSaveTemplate->droidType;
+		psTemplate->droidType = (DROID_TYPE)psSaveTemplate->droidType;
 		found = TRUE;
 		//for (i=0; i < DROID_MAXCOMP; i++) - not intestested in the first comp - COMP_UNKNOWN
 		for (i=1; i < DROID_MAXCOMP; i++)
@@ -7739,7 +7739,7 @@ BOOL loadSaveTemplateV14(UBYTE *pFileData, UDWORD filesize, UDWORD numTemplates)
 		
 
 		psTemplate->ref = psSaveTemplate->ref;
-		psTemplate->droidType = psSaveTemplate->droidType;
+		psTemplate->droidType = (DROID_TYPE)psSaveTemplate->droidType;
 		psTemplate->multiPlayerID = psSaveTemplate->multiPlayerID;
 		found = TRUE;
 		//for (i=0; i < DROID_MAXCOMP; i++) - not intestested in the first comp - COMP_UNKNOWN
@@ -7887,7 +7887,7 @@ BOOL loadSaveTemplateV(UBYTE *pFileData, UDWORD filesize, UDWORD numTemplates)
 		
 
 		psTemplate->ref = psSaveTemplate->ref;
-		psTemplate->droidType = psSaveTemplate->droidType;
+		psTemplate->droidType = (DROID_TYPE)psSaveTemplate->droidType;
 		psTemplate->multiPlayerID = psSaveTemplate->multiPlayerID;
 		found = TRUE;
 		//for (i=0; i < DROID_MAXCOMP; i++) - not intestested in the first comp - COMP_UNKNOWN

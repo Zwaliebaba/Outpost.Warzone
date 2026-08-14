@@ -67,7 +67,9 @@ typedef struct _interp_typeequiv
 } TYPE_EQUIV;
 
 /* Opcodes for the script interpreter */
-typedef enum _op_code
+/* Script opcodes are unpacked from a word by shifting, so the type has to
+   accept a computed value, not only the listed constants. */
+enum
 {
 	OP_PUSH,		// Push value onto stack
 	OP_PUSHREF,		// Push a pointer to a variable onto the stack
@@ -113,7 +115,8 @@ typedef enum _op_code
 	OP_LESSEQUAL,
 	OP_GREATER,
 	OP_LESS,
-} OPCODE;
+};
+typedef SDWORD OPCODE;
 
 /* How far the opcode is shifted up a UDWORD to allow other data to be
  * stored in the same UDWORD

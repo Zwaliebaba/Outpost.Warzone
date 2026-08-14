@@ -978,7 +978,7 @@ void pie_DrawTextToSurface(LPDIRECTDRAWSURFACE4	lpDDSF, unsigned char *String, i
 	{
 		// We can unlock the suurface now as we have finished with it, 
 		// until the next decode is required
-		lpDDSF->lpVtbl->Unlock(lpDDSF, DD_sd.lpSurface );
+		lpDDSF->lpVtbl->Unlock(lpDDSF, (LPRECT)DD_sd.lpSurface );
 		return;
 	}
 
@@ -1008,7 +1008,7 @@ void pie_DrawTextToSurface(LPDIRECTDRAWSURFACE4	lpDDSF, unsigned char *String, i
 	}
 	// We can unlock the suurface now as we have finished with it, 
 	// until the next decode is required
-	lpDDSF->lpVtbl->Unlock(lpDDSF, DD_sd.lpSurface );
+	lpDDSF->lpVtbl->Unlock(lpDDSF, (LPRECT)DD_sd.lpSurface );
 }
 
 

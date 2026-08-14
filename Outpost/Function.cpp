@@ -785,7 +785,7 @@ BOOL loadWeaponUpgradeFunction(SBYTE *pData)
 	//allocate storage for the name
 	storeName((FUNCTION *)psFunction, functionName);
 
-	psFunction->subClass = getWeaponSubClass(weaponSubClass);
+	psFunction->subClass = (WEAPON_CLASS)getWeaponSubClass(weaponSubClass);
 	if (psFunction->subClass == INVALID_SUBCLASS)
 	{
 		return FALSE;

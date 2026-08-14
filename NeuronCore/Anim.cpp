@@ -140,7 +140,7 @@ anim_Create3D( char szPieFileName[], UWORD uwStates,
 	}
 
 	/* get local pointer to shape */
-	psAnim3D->psFrames = (g_animGlobals.pGetShapeFunc) (szPieFileName);
+	psAnim3D->psFrames = (iIMDShape *)(g_animGlobals.pGetShapeFunc) (szPieFileName);
 
 	/* count frames in imd */
 	psFrames = psAnim3D->psFrames;
@@ -291,7 +291,7 @@ void
 anim_SetVals( char szFileName[], UWORD uwAnimID )
 {
 	/* get track pointer from resource */
-	BASEANIM	*psAnim = resGetData( "ANI", szFileName );
+	BASEANIM	*psAnim = (BASEANIM *)resGetData( "ANI", szFileName );
 
 	if ( psAnim == NULL )
 	{

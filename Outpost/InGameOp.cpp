@@ -169,7 +169,7 @@ void ResetMaxStringWidth(void)
 void AddMaxStringWidth(STR_RES *psRes, UDWORD StringID)
 {
 	UDWORD StringWidth;
-	StringWidth=iV_GetTextWidth(strresGetString(psRes,StringID));
+	StringWidth=iV_GetTextWidth((unsigned char *)strresGetString(psRes,StringID));
 	if (StringWidth>MaxStringWidth) MaxStringWidth=StringWidth;
 
 }

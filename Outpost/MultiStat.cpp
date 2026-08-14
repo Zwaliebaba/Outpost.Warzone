@@ -449,7 +449,7 @@ BOOL loadForce(char *name)
 	// old method
 	for(tcount;tcount!=0;tcount--)											// get templates
 	{
-		psTempl = MALLOC(sizeof(DROID_TEMPLATE));
+		psTempl = (DROID_TEMPLATE *)MALLOC(sizeof(DROID_TEMPLATE));
 		if (psTempl == NULL)	//!HEAP_ALLOC(psTemplateHeap, &psTempl))
 		{
 			DBERROR(("Couldn't allocate template for %s", fileName));

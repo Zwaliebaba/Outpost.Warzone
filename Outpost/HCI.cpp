@@ -3023,7 +3023,7 @@ static void intProcessStats(UDWORD id)
 	else if(id == IDSTAT_LOOP_BUTTON) 
 	{
 		// Process the loop button.
-		psStruct = widgGetUserData(psWScreen, IDSTAT_LOOP_LABEL);
+		psStruct = (STRUCTURE *)widgGetUserData(psWScreen, IDSTAT_LOOP_LABEL);
 		if (psStruct)
 		{
 			//LMB pressed
@@ -3052,7 +3052,7 @@ static void intProcessStats(UDWORD id)
 	else if(id == IDSTAT_DP_BUTTON)
 	{
 		// Process the DP button
-		psStruct = widgGetUserData(psWScreen, IDSTAT_DP_BUTTON);
+		psStruct = (STRUCTURE *)widgGetUserData(psWScreen, IDSTAT_DP_BUTTON);
 		if (psStruct)
 		{
 			// make sure that the factory isn't assigned to a commander

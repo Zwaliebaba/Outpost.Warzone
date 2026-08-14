@@ -83,7 +83,7 @@ BOOL NETcheckRegistryEntries(char *name,char *guid)
 
 	// check guid exists
 	resultsize = 256;
-	if(RegQueryValueEx(key,"Guid",NULL,&type,(char*)&result,&resultsize) !=  ERROR_SUCCESS)
+	if(RegQueryValueEx(key,"Guid",NULL,&type,(LPBYTE)(char*)&result,&resultsize) !=  ERROR_SUCCESS)
 	{
 		DBERROR(("NETPLAY: DirectPlay Registry Key Does Not Have Guid Entry. No Lobby Support"));
 		RegCloseKey(key);
@@ -100,7 +100,7 @@ BOOL NETcheckRegistryEntries(char *name,char *guid)
 
 	// check File exists on disk
 	resultsize = 256;
-	if(RegQueryValueEx(key,"Path",	NULL,&type,(char*)&result,&resultsize) !=  ERROR_SUCCESS)
+	if(RegQueryValueEx(key,"Path",	NULL,&type,(LPBYTE)(char*)&result,&resultsize) !=  ERROR_SUCCESS)
 	{
 		DBERROR(("NETPLAY: DirectPlay Registry Key Does Not Have An Path Entry. No Lobby Support"));
 		RegCloseKey(key);
@@ -108,7 +108,7 @@ BOOL NETcheckRegistryEntries(char *name,char *guid)
 	}
 	strcpy(path,result);
 	resultsize = 256;
-	if(RegQueryValueEx(key,"File",	NULL,&type,(char*)&result,&resultsize) !=  ERROR_SUCCESS)
+	if(RegQueryValueEx(key,"File",	NULL,&type,(LPBYTE)(char*)&result,&resultsize) !=  ERROR_SUCCESS)
 	{
 		DBERROR(("NETPLAY: DirectPlay Registry Key Does Not Have An File Entry. No Lobby Support"));
 		RegCloseKey(key);

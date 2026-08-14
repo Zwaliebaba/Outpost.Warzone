@@ -861,7 +861,7 @@ BOOL dataIMGPAGELoad(UBYTE *pBuffer, UDWORD size, void **ppData)
 		return FALSE;
 	}
 
-	if(!iV_PCXLoadMem((SBYTE *)pBuffer,psSprite,NULL)) 
+	if(!iV_PCXLoadMem((int8 *)(SBYTE *)pBuffer,psSprite,NULL)) 
 	{
 		DBERROR(("IMGPAGE load failed"));
 		FREE(psSprite);
@@ -912,7 +912,7 @@ BOOL dataHWTERTILESLoad(UBYTE *pBuffer, UDWORD size, void **ppData)
 	{
 		DBPRINTF(("Reloading terrain tiles\n"));
 
-		if(!pie_PCXLoadMemToBuffer((SBYTE *)pBuffer,&tilesPCX,NULL))
+		if(!pie_PCXLoadMemToBuffer((int8 *)(SBYTE *)pBuffer,&tilesPCX,NULL))
 		{
 			DBERROR(("HWTERTILES reload failed"));
 			return FALSE;
@@ -921,7 +921,7 @@ BOOL dataHWTERTILESLoad(UBYTE *pBuffer, UDWORD size, void **ppData)
 	else
 	{
 		DBPRINTF(("Loading terrain tiles\n"));
-		if(!iV_PCXLoadMem((SBYTE *)pBuffer,&tilesPCX,NULL))
+		if(!iV_PCXLoadMem((int8 *)(SBYTE *)pBuffer,&tilesPCX,NULL))
 		{
 			DBERROR(("HWTERTILES load failed"));
 			return FALSE;
@@ -1076,7 +1076,7 @@ BOOL bufferTexPageLoad(UBYTE *pBuffer, UDWORD size, void **ppData)
 		NewTexturePage->Texture=NULL;
 		NewTexturePage->Palette=NULL;
 
-		psPal=MALLOC(sizeof(iPalette));
+		psPal= (iPalette *)MALLOC(sizeof(iPalette));
 		if (!psPal) return FALSE;
 
 		psSprite = (iSprite *)MALLOC(sizeof(iSprite));
@@ -1085,7 +1085,7 @@ BOOL bufferTexPageLoad(UBYTE *pBuffer, UDWORD size, void **ppData)
 			return FALSE;
 		}
 
-		if (!iV_PCXLoadMem((SBYTE *)pBuffer, psSprite, NULL))
+		if (!iV_PCXLoadMem((int8 *)(SBYTE *)pBuffer, psSprite, NULL))
 		{
 			FREE(psSprite);
 			return FALSE;
@@ -1184,7 +1184,7 @@ BOOL dataAudioLoad( UBYTE *pBuffer, UDWORD size, void **ppData )
 		*ppData = NULL;
 		return TRUE;
 	}
-	else if ( (psTrack = audio_LoadTrackFromBuffer( pBuffer, size )) == NULL )
+	else if ( (psTrack = (TRACK *)audio_LoadTrackFromBuffer( pBuffer, size )) == NULL )
 	{
 		return FALSE;
 	}

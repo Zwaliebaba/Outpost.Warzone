@@ -377,7 +377,7 @@ BOOL scrOrderGroup(void)
 	}
 
 	DBP1(("scrOrderGroup: group %p (%d) order %d\n", psGroup, grpNumMembers(psGroup), order));
-	orderGroup(psGroup, order);
+	orderGroup(psGroup, (DROID_ORDER)order);
 
 	return TRUE;
 }
@@ -414,7 +414,7 @@ BOOL scrOrderGroupLoc(void)
 
 	DBP1(("scrOrderGroupLoc: group %p (%d) order %d (%d,%d)\n",
 		psGroup, grpNumMembers(psGroup), order, x,y));
-	orderGroupLoc(psGroup, order, (UDWORD)x,(UDWORD)y);
+	orderGroupLoc(psGroup, (DROID_ORDER)order, (UDWORD)x,(UDWORD)y);
 
 	return TRUE;
 }
@@ -452,7 +452,7 @@ BOOL scrOrderGroupObj(void)
 
 	DBP1(("scrOrderGroupObj: group %p (%d) order %d,  obj type %d player %d id %d\n",
 		psGroup, grpNumMembers(psGroup), order, psObj->type, psObj->player, psObj->id));
-	orderGroupObj(psGroup, order, psObj);
+	orderGroupObj(psGroup, (DROID_ORDER)order, psObj);
 
 	return TRUE;
 }
@@ -487,7 +487,7 @@ BOOL scrOrderDroid(void)
 		return FALSE;
 	}
 
-	orderDroid(psDroid, order);
+	orderDroid(psDroid, (DROID_ORDER)order);
 
 	return TRUE;
 }
@@ -526,7 +526,7 @@ BOOL scrOrderDroidLoc(void)
 		return FALSE;
 	}
 
-	orderDroidLoc(psDroid, order, (UDWORD)x,(UDWORD)y);
+	orderDroidLoc(psDroid, (DROID_ORDER)order, (UDWORD)x,(UDWORD)y);
 
 	return TRUE;
 }
@@ -566,7 +566,7 @@ BOOL scrOrderDroidObj(void)
 		return FALSE;
 	}
 
-	orderDroidObj(psDroid, order, psObj);
+	orderDroidObj(psDroid, (DROID_ORDER)order, psObj);
 
 	return TRUE;
 }
@@ -619,7 +619,7 @@ BOOL scrOrderDroidStatsLoc(void)
 	// Don't allow scripts to order structure builds if players structure
 	// limit has been reached.
 	if(IsPlayerStructureLimitReached(psDroid->player) == FALSE) {
-		orderDroidStatsLoc(psDroid, order, psStats, (UDWORD)x,(UDWORD)y);
+		orderDroidStatsLoc(psDroid, (DROID_ORDER)order, psStats, (UDWORD)x,(UDWORD)y);
 	}
 
 	return TRUE;
@@ -644,7 +644,7 @@ BOOL scrSetDroidSecondary(void)
 		return FALSE;
 	}
 
-	secondarySetState(psDroid, sec, state);
+	secondarySetState(psDroid, (SECONDARY_ORDER)sec, state);
 
 	return TRUE;
 }
@@ -663,7 +663,7 @@ BOOL scrSetGroupSecondary(void)
 	ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)),
 		"scrSetGroupSecondary: invalid group pointer"));
 
-	grpSetSecondary(psGroup, sec, state);
+	grpSetSecondary(psGroup, (SECONDARY_ORDER)sec, state);
 
 	return TRUE;
 }

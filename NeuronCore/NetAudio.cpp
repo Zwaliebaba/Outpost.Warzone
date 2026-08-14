@@ -516,7 +516,7 @@ void NETplayIncomingAudio(NETMSG *pMsg)
 	}
 	else
 	{
-		NETqueueIncomingAudio(pMsg->body, pMsg->size,TRUE);		// use the circular buffer...
+		NETqueueIncomingAudio((LPBYTE)pMsg->body, pMsg->size,TRUE);		// use the circular buffer...
 		NetPlay.bCaptureInUse = TRUE;
 	}
 

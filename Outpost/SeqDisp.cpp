@@ -866,7 +866,7 @@ BOOL seq_AddTextFromFile(STRING* pTextName, BOOL bJustify)
   }
 
   pTextBuffer = DisplayBuffer;
-  pCurrentLine = strtok((char *)pTextBuffer, (const char *)seps);
+  pCurrentLine = (UBYTE *)strtok((char *)pTextBuffer, (const char *)seps);
   while (pCurrentLine != NULL)
   {
     if (*pCurrentLine != '/')
@@ -874,13 +874,13 @@ BOOL seq_AddTextFromFile(STRING* pTextName, BOOL bJustify)
       if (sscanf((const char *)pCurrentLine, "%d %d %d %d", &xOffset, &yOffset, &startFrame, &endFrame) == 4)
       {
         //get the text
-        pText = strrchr((const char *)pCurrentLine, '"');
+        pText = (UBYTE *)strrchr((const char *)pCurrentLine, '"');
         ASSERT((pText != NULL,"seq_AddTextFromFile error parsing text file"));
         if (pText != NULL)
         {
           *pText = (UBYTE)0;
         }
-        pText = strchr((const char *)pCurrentLine, '"');
+        pText = (UBYTE *)strchr((const char *)pCurrentLine, '"');
         ASSERT((pText != NULL,"seq_AddTextFromFile error parsing text file"));
         if (pText != NULL)
         {
@@ -889,7 +889,7 @@ BOOL seq_AddTextFromFile(STRING* pTextName, BOOL bJustify)
       }
     }
     //get next line
-    pCurrentLine = strtok(NULL, (const char *)seps);
+    pCurrentLine = (UBYTE *)strtok(NULL, (const char *)seps);
   }
   return TRUE;
 }

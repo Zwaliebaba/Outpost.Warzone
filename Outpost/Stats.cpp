@@ -675,21 +675,21 @@ BOOL loadWeaponStats(SBYTE *pWeaponData, UDWORD bufferSize)
 		}
 
 		//set the subClass
-		psStats->weaponSubClass = getWeaponSubClass(weaponSubClass);
+		psStats->weaponSubClass = (WEAPON_SUBCLASS)getWeaponSubClass(weaponSubClass);
 		if (psStats->weaponSubClass == INVALID_SUBCLASS)
 		{
 			return FALSE;
 		}
 
 		//set the movement model
-		psStats->movementModel = getMovementModel(movement);
+		psStats->movementModel = (MOVEMENT_MODEL)getMovementModel(movement);
 		if (psStats->movementModel == INVALID_MOVEMENT)
 		{
 			return FALSE;
 		}
 
 		//set the weapon effect
-		psStats->weaponEffect = getWeaponEffect(weaponEffect);
+		psStats->weaponEffect = (WEAPON_EFFECT)getWeaponEffect(weaponEffect);
 		if (psStats->weaponEffect == INVALID_WEAPON_EFFECT)
 		{
 			DBERROR(("loadWepaonStats: Invalid weapon effect for weapon %s", 
@@ -2484,7 +2484,7 @@ BOOL loadWeaponModifiers(SBYTE *pWeapModData, UDWORD bufferSize)
 			(char*)&weaponEffectName, (char*)&propulsionName, &modifier);
 
 		//get the weapon effect inc
-		effectInc = getWeaponEffect(weaponEffectName);
+		effectInc = (WEAPON_EFFECT)getWeaponEffect(weaponEffectName);
 		if (effectInc == INVALID_WEAPON_EFFECT)
 		{
 			DBERROR(("loadWeaponModifiers: Invalid Weapon Effect - %s", 
@@ -2492,7 +2492,7 @@ BOOL loadWeaponModifiers(SBYTE *pWeapModData, UDWORD bufferSize)
 			return FALSE;
 		}
 		//get the propulsion inc
-		propInc = getPropulsionType(propulsionName);
+		propInc = (PROPULSION_TYPE)getPropulsionType(propulsionName);
 		if (propInc == INVALID_PROP_TYPE)
 		{
 			DBERROR(("loadWeaponModifiers: Invalid Propulsion type - %s", 

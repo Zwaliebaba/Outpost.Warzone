@@ -445,7 +445,7 @@ VOID displayStructureBar(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffse
 	// draw name
 	iV_SetFont(WFont);											// font
 	iV_SetTextColour(-1);										//colour
-	iV_DrawText(getName(stat->pName), x+80, y+(psWidget->height/2)+3);
+	iV_DrawText((unsigned char *)getName(stat->pName), x+80, y+(psWidget->height/2)+3);
 
 	// draw limit
 	sprintf(str,"%d",((W_SLIDER*)(widgGetFromID(psWScreen,psWidget->id+1)))->pos);

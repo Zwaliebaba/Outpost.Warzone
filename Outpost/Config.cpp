@@ -148,7 +148,7 @@ BOOL loadConfig(BOOL bResourceAvailable)
 	// sequences
 	if(getWarzoneKeyNumeric("sequences",&val))		
 	{
-		war_SetSeqMode(val);
+		war_SetSeqMode((SEQ_MODE)val);
 	}
 	else
 	{
@@ -171,7 +171,7 @@ BOOL loadConfig(BOOL bResourceAvailable)
 
 	if(getWarzoneKeyNumeric("difficulty",&val))		
 	{
-		setDifficultyLevel(val);
+		setDifficultyLevel((DIFFICULTY_LEVEL)val);
 	}
 	else
 	{
@@ -460,7 +460,7 @@ BOOL loadRenderMode()
 			val = REND_MODE_HAL;
 			break;
 		}
-		war_SetRendMode(val);
+		war_SetRendMode((WAR_REND_MODE)val);
 		if (val == REND_MODE_HAL)//d3d
 		{
 			if(getWarzoneKeyNumeric("d3dFog",&val))

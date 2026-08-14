@@ -152,7 +152,7 @@ BOOL dtm_Initialise(void)
 	ddsCaps2.dwCaps = DDSCAPS_TEXTURE; 
 
 
-	hResult = pDD4->lpVtbl->GetAvailableVidMem(pDD4, &ddsCaps2, &totalVideoMemory, &freeVideoMemory);
+	hResult = pDD4->lpVtbl->GetAvailableVidMem(pDD4, &ddsCaps2, (LPDWORD)&totalVideoMemory, (LPDWORD)&freeVideoMemory);
 	if ( hResult != D3D_OK )
 	{
 		ASSERT((FALSE,"dtm_Initialise: GetAvailableVidMem failed\n%s",DDErrorToString(hResult)));

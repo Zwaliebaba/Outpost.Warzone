@@ -175,7 +175,7 @@ static BOOL FAR PASCAL enumModemAddress(REFGUID guidDataType,  DWORD dwDataSize,
 		if(elementModemCount ==0)
 		{
 			DBPRINTF(("\nNETPLAY: using modem %s\n",lpData));
-			elementModemData = lpData;
+			elementModemData = (LPVOID)lpData;
 			elementModemSize = dwDataSize;
 			return FALSE;
 		}

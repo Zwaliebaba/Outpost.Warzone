@@ -1302,13 +1302,13 @@ FPATH_RETVAL fpathRoute(BASE_OBJECT *psObj, MOVE_CONTROL *psMoveCntl,
 	DBP0(("Unit %d: ", psObj->id));
 	if (psPartialRouteObj == NULL)
 	{
-		retVal = fpathGatewayRoute(psObj, ASR_NEWROUTE, GWTerrain,
+		retVal = (FPATH_RETVAL)fpathGatewayRoute(psObj, ASR_NEWROUTE, GWTerrain,
 						startX,startY, targetX,targetY, psMoveCntl);
 	}
 	else
 	{
 		psPartialRouteObj = NULL;
-		retVal = fpathGatewayRoute(psObj, ASR_CONTINUE, GWTerrain,
+		retVal = (FPATH_RETVAL)fpathGatewayRoute(psObj, ASR_CONTINUE, GWTerrain,
 						startX,startY, targetX,targetY, psMoveCntl);
 	}
 	if (retVal == FPR_WAIT)

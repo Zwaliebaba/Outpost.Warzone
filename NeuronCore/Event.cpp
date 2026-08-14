@@ -468,7 +468,7 @@ BOOL eventCopyContext(SCRIPT_CONTEXT *psContext, SCRIPT_CONTEXT **ppsNew)
 		"eventCopyContext: Invalid context pointer"));
 
 	// Get a new context
-	if (!eventNewContext(psContext->psCode, psContext->release, &psNew))
+	if (!eventNewContext(psContext->psCode, (CONTEXT_RELEASE)psContext->release, &psNew))
 	{
 		return FALSE;
 	}

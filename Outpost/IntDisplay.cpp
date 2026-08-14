@@ -3726,7 +3726,7 @@ void intDisplayResSubGroup(struct _widget *psWidget, UDWORD xOffset, UDWORD yOff
 void intDisplayAllyIcon(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD *pColours)
 {
 	W_LABEL		*Label =  (W_LABEL*)psWidget;
-	UDWORD		i = Label->pUserData;
+	UDWORD		i = (UDWORD)Label->pUserData;
 	UDWORD		x = Label->x + xOffset;
 	UDWORD		y = Label->y + yOffset;
     UNUSEDPARAMETER(pColours);

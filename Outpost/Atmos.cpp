@@ -393,6 +393,6 @@ void	atmosSetWeatherType(WT_CLASS type)
 // -----------------------------------------------------------------------------
 WT_CLASS	atmosGetWeatherType( void )
 {
-	return(weather);
+	return((WT_CLASS)weather);
 }
 

@@ -82,19 +82,19 @@ BOOL blkCreate(BLOCK_HEAP **ppsHeap, SDWORD init, SDWORD ext)
 {
 						 
 	DBPRINTF(("BLKCREATE CALLED !!!!!!!!!!!!!!!!!!!!!!\n"));
-	*ppsHeap = RMALLOC(sizeof(BLOCK_HEAP));
+	*ppsHeap = (BLOCK_HEAP *)RMALLOC(sizeof(BLOCK_HEAP));
 	if (!*ppsHeap)
 	{
 		DBERROR(("blkCreate: Out of memory"));
 		return FALSE;
 	}
-	(*ppsHeap)->psBlocks = RMALLOC(sizeof(BLOCK_HEAP_MEM));
+	(*ppsHeap)->psBlocks = (BLOCK_HEAP_MEM *)RMALLOC(sizeof(BLOCK_HEAP_MEM));
 	if (!(*ppsHeap)->psBlocks)
 	{
 		DBERROR(("blkCreate: Out of memory"));
 		return FALSE;
 	}
-	(*ppsHeap)->psBlocks->pMem = RMALLOC(init);
+	(*ppsHeap)->psBlocks->pMem = (UBYTE *)RMALLOC(init);
 	if (!(*ppsHeap)->psBlocks->pMem)
 	{
 
@@ -292,7 +292,7 @@ void *blkAlloc(BLOCK_HEAP *psHeap, SDWORD size)
 	// if there wasn't a block try to allocate a new one
 	if ((psCurr == NULL) && (psHeap->ext != 0))
 	{
-		psNew = RMALLOC(sizeof(BLOCK_HEAP_MEM));
+		psNew = (BLOCK_HEAP_MEM *)RMALLOC(sizeof(BLOCK_HEAP_MEM));
 		if (!psNew)
 		{
 			ASSERT((FALSE, "blkAlloc: warning out of memory"));
@@ -301,12 +301,12 @@ void *blkAlloc(BLOCK_HEAP *psHeap, SDWORD size)
 		}
 		if (size < psHeap->ext)
 		{
-			psNew->pMem = RMALLOC(psHeap->ext);
+			psNew->pMem = (UBYTE *)RMALLOC(psHeap->ext);
 			psNew->size = psHeap->ext;
 		}
 		else
 		{
-			psNew->pMem = RMALLOC(size);
+			psNew->pMem = (UBYTE *)RMALLOC(size);
 			psNew->size = size;
 		}
 		if (!psNew->pMem)
