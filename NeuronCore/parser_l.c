@@ -795,8 +795,7 @@ typedef struct audp__save_block_tag {
 } YY_SAVED;
 
 YY_SAVED *
-audp_SaveScan(fp)
-FILE * fp;
+audp_SaveScan(FILE *fp)
 {
 	YY_SAVED * p;
 
@@ -823,8 +822,7 @@ FILE * fp;
  * Restore previous LEX state
  */
 void
-audp_RestoreScan(p)
-YY_SAVED * p;
+audp_RestoreScan(YY_SAVED *p)
 {
 	if (p == NULL)
 		return;
@@ -880,8 +878,7 @@ input()
  * pushback char
  */
 static int
-unput(c)
-	int c;
+unput(int c)
 {
 #ifndef YY_PRESERVE
 	if (audp__end >= YYLMAX) {

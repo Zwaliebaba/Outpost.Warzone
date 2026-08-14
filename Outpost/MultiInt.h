@@ -20,6 +20,11 @@ extern	BOOL	startForceSelect		(VOID);
 
 extern	BOOL	chooseColour			(UDWORD);
 
+// note the argument is of type DPID, not DWORD; spelled DWORD here (as
+// player2dpid is in MultiPlay.h) so this header does not have to pull in
+// dplay.h for the files that only want the frontend definitions.
+extern	VOID	kickPlayer				(DWORD dpid);
+
 extern	BOOL	addMultiBut				(W_SCREEN *screen, UDWORD formid,UDWORD id,UDWORD x, UDWORD y,
 										 UDWORD width, UDWORD height, UDWORD tipres,
 										 UDWORD norm,UDWORD hi,BOOL showmouseover);

@@ -782,8 +782,7 @@ typedef struct res__save_block_tag {
 } YY_SAVED;
 
 YY_SAVED *
-res_SaveScan(fp)
-FILE * fp;
+res_SaveScan(FILE *fp)
 {
 	YY_SAVED * p;
 
@@ -810,8 +809,7 @@ FILE * fp;
  * Restore previous LEX state
  */
 void
-res_RestoreScan(p)
-YY_SAVED * p;
+res_RestoreScan(YY_SAVED *p)
 {
 	if (p == NULL)
 		return;
@@ -867,8 +865,7 @@ input()
  * pushback char
  */
 static int
-unput(c)
-	int c;
+unput(int c)
 {
 #ifndef YY_PRESERVE
 	if (res__end >= YYLMAX) {

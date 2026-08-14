@@ -847,8 +847,7 @@ typedef struct scrv__save_block_tag {
 } YY_SAVED;
 
 YY_SAVED *
-scrv_SaveScan(fp)
-FILE * fp;
+scrv_SaveScan(FILE *fp)
 {
 	YY_SAVED * p;
 
@@ -875,8 +874,7 @@ FILE * fp;
  * Restore previous LEX state
  */
 void
-scrv_RestoreScan(p)
-YY_SAVED * p;
+scrv_RestoreScan(YY_SAVED *p)
 {
 	if (p == NULL)
 		return;
@@ -932,8 +930,7 @@ input()
  * pushback char
  */
 static int
-unput(c)
-	int c;
+unput(int c)
 {
 #ifndef YY_PRESERVE
 	if (scrv__end >= YYLMAX) {

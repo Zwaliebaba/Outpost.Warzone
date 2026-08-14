@@ -61,6 +61,7 @@
 
 
 #include "Target.h"
+#include "IntDisplay.h"
 #include "Drive.h"
 
 static	SWORD DrivingAudioTrack=-1;		// Which hardware channel are we using for the car driving noise

@@ -47,6 +47,7 @@
 
 #include "MultiPlay.h"
 #include "NetPlay.h"
+#include "IMD.h"									// tpAddPIE
 
 /**********************************************************
  *

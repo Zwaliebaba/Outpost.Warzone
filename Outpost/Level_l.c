@@ -850,8 +850,7 @@ typedef struct lev__save_block_tag {
 } YY_SAVED;
 
 YY_SAVED *
-lev_SaveScan(fp)
-FILE * fp;
+lev_SaveScan(FILE *fp)
 {
 	YY_SAVED * p;
 
@@ -878,8 +877,7 @@ FILE * fp;
  * Restore previous LEX state
  */
 void
-lev_RestoreScan(p)
-YY_SAVED * p;
+lev_RestoreScan(YY_SAVED *p)
 {
 	if (p == NULL)
 		return;
@@ -935,8 +933,7 @@ input()
  * pushback char
  */
 static int
-unput(c)
-	int c;
+unput(int c)
 {
 #ifndef YY_PRESERVE
 	if (lev__end >= YYLMAX) {

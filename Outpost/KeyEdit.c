@@ -20,6 +20,7 @@
 #include "BitImage.h"
 #include "IntDisplay.h"
 #include "AudioID.h"
+#include "PieBlitFunc.h"
 
 // ////////////////////////////////////////////////////////////////////////////
 // defines

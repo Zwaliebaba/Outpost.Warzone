@@ -828,8 +828,7 @@ typedef struct strres__save_block_tag {
 } YY_SAVED;
 
 YY_SAVED *
-strres_SaveScan(fp)
-FILE * fp;
+strres_SaveScan(FILE *fp)
 {
 	YY_SAVED * p;
 
@@ -856,8 +855,7 @@ FILE * fp;
  * Restore previous LEX state
  */
 void
-strres_RestoreScan(p)
-YY_SAVED * p;
+strres_RestoreScan(YY_SAVED *p)
 {
 	if (p == NULL)
 		return;
@@ -913,8 +911,7 @@ input()
  * pushback char
  */
 static int
-unput(c)
-	int c;
+unput(int c)
 {
 #ifndef YY_PRESERVE
 	if (strres__end >= YYLMAX) {
