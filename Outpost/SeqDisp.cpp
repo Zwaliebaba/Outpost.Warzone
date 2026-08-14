@@ -33,7 +33,6 @@
  *	local Definitions
  */
 /***************************************************************************/
-#define INCLUDE_AUDIO
 #define DUMMY_VIDEO
 #define RPL_WIDTH 640
 #define RPL_HEIGHT 480
@@ -189,15 +188,10 @@ BOOL seq_RenderVideoToBuffer(iSurface* pSurface, char* sequenceName, int time, i
     frame = 0;
     videoFrameTime = GetTickCount();
 
-#ifdef INCLUDE_AUDIO
-    if ((bSeqPlaying = seq_SetSequenceForBuffer(aVideoName, videoMode, audio_GetDirectSoundObj(), videoFrameTime, perfMode))
-      == FALSE)
-#else
-    if ((bSeqPlaying = seq_SetSequenceForBuffer(aVideoName, videoMode, NULL, videoFrameTime, perfMode)) == FALSE)
-#endif
+    if ((bSeqPlaying = seq_SetSequenceForBuffer(aVideoName, videoMode, videoFrameTime, perfMode)) == FALSE)
     {
 #ifdef DUMMY_VIDEO
-      if ((bSeqPlaying = seq_SetSequenceForBuffer("noVideo.rpl", videoMode, nullptr, time, perfMode)) == TRUE)
+      if ((bSeqPlaying = seq_SetSequenceForBuffer("noVideo.rpl", videoMode, time, perfMode)) == TRUE)
         return TRUE;
 #endif
       DEBUG_ASSERT_TEXT(FALSE, "seq_RenderVideoToBuffer: unable to initialise sequence {}",aVideoName);
@@ -445,14 +439,10 @@ BOOL seq_StartFullScreenVideo(char* videoName, char* audioName)
   frame = 0;
   videoFrameTime = GetTickCount();
 
-#ifdef INCLUDE_AUDIO
-  if (!seq_SetSequence(aVideoName, audio_GetDirectSoundObj(), videoFrameTime + VIDEO_PLAYBACK_DELAY, pVideoBuffer, perfMode))
-#else
-  if (!seq_SetSequence(aVideoName, NULL, videoFrameTime + VIDEO_PLAYBACK_DELAY, pVideoBuffer, perfMode))
-#endif
+  if (!seq_SetSequence(aVideoName, videoFrameTime + VIDEO_PLAYBACK_DELAY, pVideoBuffer, perfMode))
   {
 #ifdef DUMMY_VIDEO
-    if (seq_SetSequence("noVideo.rpl", nullptr, videoFrameTime + VIDEO_PLAYBACK_DELAY, pVideoBuffer, perfMode))
+    if (seq_SetSequence("noVideo.rpl", videoFrameTime + VIDEO_PLAYBACK_DELAY, pVideoBuffer, perfMode))
     {
       strcpy(aAudioName, "noVideo.wav");
       return TRUE;
@@ -624,7 +614,7 @@ BOOL seq_UpdateFullScreenVideo(CLEAR_MODE* pbClear)
       if (aSeqList[currentPlaySeq].bSeqLoop)
       {
         seq_ClearMovie();
-        if (!seq_SetSequence(aVideoName, nullptr, GetTickCount() + VIDEO_PLAYBACK_DELAY, pVideoBuffer, perfMode))
+        if (!seq_SetSequence(aVideoName, GetTickCount() + VIDEO_PLAYBACK_DELAY, pVideoBuffer, perfMode))
           bHoldSeqForAudio = TRUE;
         frameDuration = seq_GetFrameTimeInClicks();
       }

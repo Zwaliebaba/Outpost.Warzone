@@ -69,12 +69,17 @@ using PERF_MODE = enum _perf_mode
  * told 565 and the conversion is fixed.
  */
 
+/* Neither takes an IDirectSound any more. FMV audio used to be played through
+ * the object QMixer had created for the game's mixer; the mixer is XAudio2
+ * now, so Sequence.cpp creates and owns its own.
+ */
+
 //decode into a caller supplied 16 bit buffer
-extern BOOL seq_SetSequenceForBuffer(char* filename, VIDEO_MODE mode, LPDIRECTSOUND lpDS, int startTime, PERF_MODE perfMode);
+extern BOOL seq_SetSequenceForBuffer(char* filename, VIDEO_MODE mode, int startTime, PERF_MODE perfMode);
 extern int seq_RenderOneFrameToBuffer(char* lpSF, int skip, SDWORD boxMin, SDWORD boxMax);
 
 //decode into a local buffer, then blit it into the back buffer
-extern BOOL seq_SetSequence(char* filename, LPDIRECTSOUND lpDS, int startTime, char* lpBF, PERF_MODE perfMode);
+extern BOOL seq_SetSequence(char* filename, int startTime, char* lpBF, PERF_MODE perfMode);
 extern int seq_RenderOneFrame(int skip, SDWORD boxMin, SDWORD boxMax);
 
 extern int seq_ClearMovie(void);

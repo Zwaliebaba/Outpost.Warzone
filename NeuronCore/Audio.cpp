@@ -928,17 +928,6 @@ void audio_CheckAllUnloaded() { sound_CheckAllUnloaded(); }
 
 /***************************************************************************/
 
-LPDIRECTSOUND audio_GetDirectSoundObj(void)
-{
-  /* return if audio not enabled */
-  if (g_bAudioEnabled == FALSE)
-    return nullptr;
-
-  return sound_GetDirectSoundObj();
-}
-
-/***************************************************************************/
-
 SDWORD audio_GetTrackID(char szFileName[])
 {
   TRACK* psTrack;

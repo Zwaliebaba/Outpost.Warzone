@@ -689,20 +689,3 @@ BOOL sound_SampleIsFinished(AUDIO_SAMPLE* psSample)
 
 /***************************************************************************/
 
-LPDIRECTSOUND sound_GetDirectSoundObj(void)
-{
-  LPDIRECTSOUND pDirectSound;
-
-  g_uiRet = QSOUND(GetDirectSound( g_hQMixer, (void **)&pDirectSound ));
-
-  if (g_uiRet != 0)
-  {
-    g_iError = QSOUND(GetLastError());
-    QSOUND(GetErrorText( g_iError, g_szErrMsg, MAX_STR ));
-    Neuron::DebugTrace("sound_GetDirectSoundObj: {}", g_szErrMsg);
-    return nullptr;
-  }
-  return pDirectSound;
-}
-
-/***************************************************************************/

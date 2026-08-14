@@ -485,7 +485,9 @@ BOOL multiInitialise(VOID)
 {
   // NET AUDIO CAPTURE 
   NETinitAudioCapture();
-  NETinitPlaybackBuffer(audio_GetDirectSoundObj()); // pass in a dsound pointer to use.
+  // Null means NetAudio creates its own IDirectSound. It used to be handed the
+  // one QMixer had made for the game's mixer, which XAudio2 does not provide.
+  NETinitPlaybackBuffer(nullptr);
 
   return TRUE; // use the menus dumbass.
 }

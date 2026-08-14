@@ -10,8 +10,6 @@
 
 /***************************************************************************/
 
-#include "dsound.h"
-
 #include "Track.h"
 
 /***************************************************************************/
@@ -65,8 +63,6 @@ void sound_StopAll(void);
 void sound_Update(void);
 
 UDWORD sound_GetGameTime(void);
-
-LPDIRECTSOUND sound_GetDirectSoundObj(void);
 
 /***************************************************************************/
 
