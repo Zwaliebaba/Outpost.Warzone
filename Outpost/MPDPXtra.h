@@ -160,7 +160,6 @@ typedef unsigned long MPPLAYERID;
 #define MP_LOAD_DLL_DYNAMICALLY
 #endif
 
-//#include "mplayer.h"
 
 #ifdef __BORLANDC
 #pragma option -a.					// Pack on compiler defined byte boundaries (like pack pop!)

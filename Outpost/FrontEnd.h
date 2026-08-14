@@ -35,7 +35,6 @@ typedef enum _title_mode {
 tMode titleMode;					// the global case
 
 #define DEFAULT_LEVEL	"CAM_1A"
-//#define DEFAULT_LEVEL	"CAM_2A"
 #define TUTORIAL_LEVEL	"TUTORIAL3"
 
 #define MAX_LEVEL_NAME_SIZE	(256)
@@ -53,8 +52,6 @@ extern BOOL startTitleMenu			(VOID);
 extern BOOL runTitleMenu			(VOID);
 extern BOOL runSinglePlayerMenu		(VOID);
 extern BOOL runMultiPlayerMenu		(VOID);
-//extern BOOL runVideoOptionsMenu		(VOID);
-//extern BOOL runGraphicsOptionsMenu	(VOID);
 extern BOOL runGameOptionsMenu		(VOID);
 extern BOOL runDemoMenu				(VOID);
 extern BOOL runOptionsMenu			(VOID);
@@ -150,19 +147,14 @@ BOOL addIGTextButton(UDWORD id,UWORD y,UDWORD StringID,UDWORD Style);
 #define FRONTEND_LOADGAME		20012
 #define FRONTEND_PLAYINTRO		20013
 
-//#define FRONTEND_MOUSESPEED		20014		// options
 #define FRONTEND_SCROLLSPEED	20015
-//#define FRONTEND_GAMMA			20016
 #define FRONTEND_FX				20017
 #define FRONTEND_MUSIC			20018
 
 #define FRONTEND_TUTORIAL		20019
 #define FRONTEND_FASTPLAY		20020
-//#define FRONTEND_FOGTYPE		20021
 
-//#define FRONTEND_MOUSESPEED_SL	20021		// options sliders
 #define FRONTEND_SCROLLSPEED_SL	20022
-//#define FRONTEND_GAMMA_SL		20023
 #define FRONTEND_FX_SL			20024
 #define FRONTEND_MUSIC_SL		20025
 
@@ -189,11 +181,6 @@ BOOL addIGTextButton(UDWORD id,UWORD y,UDWORD StringID,UDWORD Style);
 #define FRONTEND_CONTROL		20041
 #define FRONTEND_CONTROL_BT		20042
 
-//#define FRONTEND_VIDEO			20051
-//#define FRONTEND_SOFTWARE		20052
-//#define FRONTEND_DIRECTX		20053
-//#define FRONTEND_OPENGL			20054
-//#define FRONTEND_GLIDE			20055
 
 #define FRONTEND_DEMO			20056
 #define FRONTEND_DEMO1			20057
@@ -205,7 +192,6 @@ BOOL addIGTextButton(UDWORD id,UWORD y,UDWORD StringID,UDWORD Style);
 #define FRONTEND_LOGO			20062
 
 #define FRONTEND_GAMEOPTIONS 	20063
-//#define FRONTEND_GRAPHICS		20064
 #define FRONTEND_TEXTURES		20065
 #define FRONTEND_TEXTURES_R		20066
 #define FRONTEND_EFFECTS		20067

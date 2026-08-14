@@ -13,7 +13,6 @@ used for the mist and water effects. These are preprocessed.
 #define RANDOMLY_ONE_OR_MINUS_ONE	(rand()%2 ? -1 : 1)
 #define ENVIRON_WATER_INIT_VALUE	(10 + (rand()%10))
 #define ENVIRON_LAND_INIT_VALUE		(32 + (rand()%32))
-//#define ENVIRON_WATER_DATA_VALUE	(70 + (rand()%30))
 #define ENVIRON_WATER_DATA_VALUE	(155 + (100-rand()%200))
 #define ENVIRON_LAND_DATA_VALUE		(0)
 #define ENVIRON_WATER_LOWEST		(0.0f)
@@ -274,8 +273,6 @@ extern UDWORD map_MistValue(UDWORD x, UDWORD y)
 
 	tileYOffset = (tileY * mapWidth);
 
-//	ox = (SDWORD)x - (SDWORD)(tileX << TILE_SHIFT);
-//	oy = (SDWORD)y - (SDWORD)(tileY << TILE_SHIFT);
 
 	ASSERT((ox < TILE_UNITS, "mapHeight: x offset too big"));
 	ASSERT((oy < TILE_UNITS, "mapHeight: y offset too big"));

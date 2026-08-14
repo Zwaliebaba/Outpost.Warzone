@@ -319,7 +319,6 @@ void	kf_FrameRate( void )
 		gameStats = !gameStats;
 
 		CONPRINTF(ConsoleString,(ConsoleString,"Built at %s on %s",__TIME__,__DATE__));
-//		addConsoleMessage("Game statistics display toggled",DEFAULT_JUSTIFY);
 }
 
 // --------------------------------------------------------------------------
@@ -363,7 +362,6 @@ void kf_ShowNumObjects( void )
 void	kf_ToggleRadar( void )
 {
   		radarOnScreen = !radarOnScreen;
-//		addConsoleMessage("Radar display toggled",DEFAULT_JUSTIFY);
 }
 
 // --------------------------------------------------------------------------
@@ -379,7 +377,6 @@ void	kf_ToggleOutline( void )
 		{
 			terrainOutline = TRUE;
 		}
-//		addConsoleMessage("Tile outline display toggled",DEFAULT_JUSTIFY);
 }
 
 // --------------------------------------------------------------------------
@@ -410,7 +407,6 @@ if(bMultiPlayer)
 /* Recalculates the lighting values for a tile */
 void	kf_RecalcLighting( void )
 {
-		//initLighting();
         initLighting(0, 0, mapWidth, mapHeight);
 		addConsoleMessage("Lighting values for all tiles recalculated",DEFAULT_JUSTIFY);
 }
@@ -471,7 +467,6 @@ if(bMultiPlayer && (NetPlay.bComms != 0) )
 #endif
 
 
-//		addConsoleMessage("All items made available",DEFAULT_JUSTIFY);
 		makeAllAvailable();
 
 }
@@ -482,10 +477,6 @@ if(bMultiPlayer && (NetPlay.bComms != 0) )
 void	kf_TriFlip( void )
 {
 iVector	pos;
-//MAPTILE	*psTile;
-//		psTile = mapTile(mouseTileX,mouseTileY);
-//		TOGGLE_TRIFLIP(psTile);
-//		addConsoleMessage("Triangle flip status toggled",DEFAULT_JUSTIFY);
 		pos.x = mouseTileX*TILE_UNITS + TILE_UNITS/2;
 		pos.z = mouseTileY*TILE_UNITS + TILE_UNITS/2;
 		pos.y = map_Height(pos.x,pos.x);
@@ -608,13 +599,11 @@ void	kf_ToggleFog( void )
 			fogEnabled = FALSE;
 			pie_SetFogStatus(FALSE);
 			pie_EnableFog(fogEnabled);
-//			addConsoleMessage("Fog Off",DEFAULT_JUSTIFY);
 		}
 		else
 		{
 			fogEnabled = TRUE;
 			pie_EnableFog(fogEnabled);
-//			addConsoleMessage("Fog On",DEFAULT_JUSTIFY);
 		}
 }
 
@@ -623,7 +612,6 @@ void	kf_ToggleFog( void )
 /* Toggles fog on/off */
 void	kf_ToggleWidgets( void )
 {
-//	 	widgetsOn = !widgetsOn;
 	if(getWidgetsStatus())
 	{
 		setWidgetsStatus(FALSE);
@@ -632,7 +620,6 @@ void	kf_ToggleWidgets( void )
 	{
 		setWidgetsStatus(TRUE);
 	}
-//	addConsoleMessage("Widgets display toggled",DEFAULT_JUSTIFY);
 }
 
 // --------------------------------------------------------------------------
@@ -650,21 +637,6 @@ void	kf_ToggleCamera( void )
 // --------------------------------------------------------------------------
 
 /* Simulates a close down */
-/*
-void	kf_SimCloseDown( void )
-{
-#ifdef WIN32
-  		bScreenClose = TRUE;
-		audio_PlayTrack( ID_SOUND_THX_SHUTDOWN );
-
-		closingTimeStart = gameTime;
-//		widgetsOn = FALSE;
-		spinScene = TRUE;
-		radarOnScreen = FALSE;
-		screenCloseState = SC_CLOSING_DOWN;
-#endif
-}
-*/
 // --------------------------------------------------------------------------
 
 /* Toggles on/off gouraud shading */
@@ -688,7 +660,6 @@ void	kf_RaiseTile( void )
 /* Lowers the tile under the mouse */
 void	kf_LowerTile( void )
 {
-//	lowerTile(mouseTileX,mouseTileY);
 	selNextSpecifiedBuilding(REF_FACTORY);
 }
 
@@ -697,7 +668,6 @@ void	kf_LowerTile( void )
 /* Quick game exit */
 void	kf_SystemClose( void )
 {
-//	ExitProcess(4);
 	loopFastExit();
 }
 
@@ -801,23 +771,6 @@ void	kf_ShrinkScreen( void )
 */
 // --------------------------------------------------------------------------
 // Expand the screen
-/*
-void	kf_ExpandScreen( void )
-{
-	if(xOffset)
-	{
-   		if (distance>DISTANCE)
-   		{
-   			distance-=170;
-   		}
-   		xOffset-=8;
-   		if(yOffset)
-   		{
-   			yOffset-=8;
-   		}
-	}
-}
-*/
 // --------------------------------------------------------------------------
 /* Spins the world round left */
 void	kf_RotateLeft( void )
@@ -853,37 +806,20 @@ void	kf_PitchBack( void )
 FRACT	fraction;
 FRACT	pitchAmount;
 
-//#ifdef ALEXM
-//SDWORD	pitch;
-//SDWORD	angConcern;
-//#endif
 
 	fraction = MAKEFRACT(frameTime2)/GAME_TICKS_PER_SEC;
 	pitchAmount = fraction * MAP_PITCH_RATE;
 
-//#ifdef ALEXM
-//	pitch = getSuggestedPitch();
-//	angConcern = DEG(360-pitch);
 //
-//	if(player.r.x < angConcern) 
-//	{
-//#endif
 
 	player.r.x+= MAKEINT(pitchAmount);
 
-//#ifdef ALEXM
-//	}
-//#endif
-//#ifdef ALEXM
 //	if(getDebugMappingStatus() == FALSE)
-//#endif
 
-//	{
  	if(player.r.x>DEG(360+MAX_PLAYER_X_ANGLE))
   	{
    		player.r.x = DEG(360+MAX_PLAYER_X_ANGLE);
    	}
-//	}
 	setDesiredPitch(player.r.x/DEG_1);
 }
 
@@ -897,15 +833,11 @@ FRACT	pitchAmount;
 	fraction = MAKEFRACT(frameTime2)/GAME_TICKS_PER_SEC;
 	pitchAmount = fraction * MAP_PITCH_RATE;
 	player.r.x-= MAKEINT(pitchAmount);
-//#ifdef ALEXM
 //	if(getDebugMappingStatus() == FALSE)
-//#endif
-//	{
 	if(player.r.x <DEG(360+MIN_PLAYER_X_ANGLE))
 	{
 		player.r.x = DEG(360+MIN_PLAYER_X_ANGLE);
 	}
-//	}
 	setDesiredPitch(player.r.x/DEG_1);
 }
 
@@ -947,7 +879,6 @@ if(bMultiPlayer && (NetPlay.bComms != 0) )
 	{
 		selectedPlayer = playerNumber;
 	}
-   //	godMode = TRUE;
 
     if (prevPlayer == selectedPlayer)
     {
@@ -1129,7 +1060,6 @@ UDWORD	entry;
 	if(!getRadarTrackingStatus())
 	{
 		entry = getLastSubKey();
-//		CONPRINTF(ConsoleString,(ConsoleString,"Restoring map position %d:%d",getMarkerX(entry),getMarkerY(entry)));
 		player.p.x = getMarkerX(entry);
 		player.p.z = getMarkerY(entry);
 		player.r.y = getMarkerSpin(entry);
@@ -1224,14 +1154,12 @@ if(bMultiPlayer && (NetPlay.bComms != 0) )
 	if(godMode)
 	{
 		godMode = FALSE;
-//		setDifficultyLevel(getDifficultyLevel());
 		CONPRINTF(ConsoleString,(ConsoleString,"God Mode OFF"));
 		demoProcessTilesOut();
 	}
 	else
 	{
 		godMode = TRUE;
-//		setModifiers(FRACTCONST(1000,100),FRACTCONST(100,1000));
 		CONPRINTF(ConsoleString,(ConsoleString,"God Mode ON"));
 		demoProcessTilesIn();
 	}
@@ -1289,12 +1217,10 @@ void	kf_FinishResearch( void )
 {
 	STRUCTURE	*psCurr;
 
-	//for (psCurr=apsStructLists[selectedPlayer]; psCurr; psCurr = psCurr->psNext)
 	for (psCurr=interfaceStructList(); psCurr; psCurr = psCurr->psNext)
 	{
 		if (psCurr->pStructureType->type == REF_RESEARCH)
 		{
-			//((RESEARCH_FACILITY *)psCurr->pFunctionality)->timeStarted = 0;
 			((RESEARCH_FACILITY *)psCurr->pFunctionality)->timeStarted = gameTime + 100000;
 			//set power accrued to high value so that will trigger straight away
 			((RESEARCH_FACILITY *)psCurr->pFunctionality)->powerAccrued = 10000;
@@ -1348,7 +1274,6 @@ void	kf_ToggleDemoMode( void )
 // --------------------------------------------------------------------------
 void	kf_ChooseOptions( void )
 {
-//	if(!widgetsOn) widgetsOn = TRUE;
 	intResetScreen(TRUE);
 	setWidgetsStatus(TRUE);
 	intAddOptions();
@@ -1437,9 +1362,7 @@ void	kf_JumpToUnassignedUnits( void )
 void	kf_ToggleOverlays( void )
 {
 		/* Make sure they're both the same */
-//		radarOnScreen = widgetsOn;
 		/* Flip their states */
-//		radarOnScreen = !radarOnScreen;
 
 	if(getWidgetsStatus())
 	{
@@ -1454,7 +1377,6 @@ void	kf_ToggleOverlays( void )
 
 void	kf_SensorDisplayOn( void )
 {
-//	debugToggleSensorDisplay();
 	startSensorDisplay();
 }
 
@@ -1465,15 +1387,6 @@ void	kf_SensorDisplayOff( void )
 
 
 // --------------------------------------------------------------------------
-/*
-#define IDRET_OPTIONS		2		// option button
-#define IDRET_BUILD			3		// build button
-#define IDRET_MANUFACTURE	4		// manufacture button
-#define IDRET_RESEARCH		5		// research button
-#define IDRET_INTEL_MAP		6		// intelligence map button
-#define IDRET_DESIGN		7		// design droids button
-#define IDRET_CANCEL		8		// central cancel button
-*/
 // --------------------------------------------------------------------------
 void	kf_ChooseCommand( void )
 {
@@ -1481,14 +1394,6 @@ void	kf_ChooseCommand( void )
 	{
 		setKeyButtonMapping(IDRET_COMMAND);
 	}
-/*
-WIDGET *psWidg;
-W_BUTTON *psButton;
-
-	psWidg = widgGetFromID(psWScreen,IDRET_COMMAND);
-	psButton = (W_BUTTON*)psWidg;
-	buttonClicked(psButton,WKEY_PRIMARY);
-	*/
 }
 // --------------------------------------------------------------------------
 void	kf_ChooseManufacture( void )
@@ -1498,14 +1403,6 @@ void	kf_ChooseManufacture( void )
 		setKeyButtonMapping(IDRET_MANUFACTURE);
 	}
 
-	/*
-WIDGET *psWidg;
-W_BUTTON *psButton;
-
-	psWidg = widgGetFromID(psWScreen,IDRET_MANUFACTURE);
-	psButton = (W_BUTTON*)psWidg;
-	buttonClicked(psButton,WKEY_PRIMARY);
-	*/
 
 }
 // --------------------------------------------------------------------------
@@ -1516,13 +1413,6 @@ void	kf_ChooseResearch( void )
 		setKeyButtonMapping(IDRET_RESEARCH);
 	}
 
-	/*
-WIDGET *psWidg;
-W_BUTTON *psButton;
-	psWidg = widgGetFromID(psWScreen,IDRET_RESEARCH);
-	psButton = (W_BUTTON*)psWidg;
-	buttonClicked(psButton,WKEY_PRIMARY);
-	 */
 }
 // --------------------------------------------------------------------------
 void	kf_ChooseBuild( void )
@@ -1532,13 +1422,6 @@ void	kf_ChooseBuild( void )
 		setKeyButtonMapping(IDRET_BUILD);
 	}
 
-	/*
-WIDGET *psWidg;
-W_BUTTON *psButton;
-	psWidg = widgGetFromID(psWScreen,IDRET_BUILD);
-	psButton = (W_BUTTON*)psWidg;
-	buttonClicked(psButton,WKEY_PRIMARY);
-	*/
 }
 
 // --------------------------------------------------------------------------
@@ -1549,13 +1432,6 @@ void	kf_ChooseDesign( void )
 		setKeyButtonMapping(IDRET_DESIGN);
 	}
 
-	/*
-WIDGET *psWidg;
-W_BUTTON *psButton;
-	psWidg = widgGetFromID(psWScreen,IDRET_DESIGN);
-	psButton = (W_BUTTON*)psWidg;
-	buttonClicked(psButton,WKEY_PRIMARY);
-	*/
 }
 // --------------------------------------------------------------------------
 void	kf_ChooseIntelligence( void )
@@ -1565,13 +1441,6 @@ void	kf_ChooseIntelligence( void )
 		setKeyButtonMapping(IDRET_INTEL_MAP);
 	}
 
-	/*
-WIDGET *psWidg;
-W_BUTTON *psButton;
-	psWidg = widgGetFromID(psWScreen,IDRET_INTEL_MAP);
-	psButton = (W_BUTTON*)psWidg;
-	buttonClicked(psButton,WKEY_PRIMARY);
-	*/
 
 }
 // --------------------------------------------------------------------------
@@ -1580,13 +1449,6 @@ void	kf_ChooseCancel( void )
 {
 	setKeyButtonMapping(IDRET_CANCEL);
 
-/*
-WIDGET *psWidg;
-W_BUTTON *psButton;
-	psWidg = widgGetFromID(psWScreen,IDRET_CANCEL);
-	psButton = (W_BUTTON*)psWidg;
-	buttonClicked(psButton,WKEY_PRIMARY);
-  */
 
 }
 // --------------------------------------------------------------------------
@@ -1654,7 +1516,6 @@ void	kf_MoveToLastMessagePos( void )
 	if ( audio_GetPreviousQueueTrackPos( &iX, &iY, &iZ ) )
 	{
 // Should use requestRadarTrack but the camera gets jammed so use setViewpos - GJ
-//		requestRadarTrack( iX, iY );
 		setViewPos( iX>>TILE_SHIFT, iY>>TILE_SHIFT, TRUE );
 	}
 }
@@ -1722,11 +1583,6 @@ STRUCTURE	*psCStruct, *psNStruct;
 				destroyDroid(psCDroid);
 			}
 			// wipe out all their structures
-		  //	for(psCStruct=apsStructLists[player]; psCStruct; psCStruct=psNStruct)
-		  //	{
-		  //		psNStruct = psCStruct->psNext;
-		  //		destroyStruct(psCStruct);
-		  //	}
 		}
 	}
 }
@@ -1749,7 +1605,6 @@ if(bMultiPlayer)
 		psNDroid = psCDroid->psNext;
 		if (psCDroid->selected)
 		{
-//		  	removeDroid(psCDroid);
 			destroyDroid(psCDroid);
 		}
 	}
@@ -1822,7 +1677,6 @@ void kf_SendTextMessage(void)
 		   //	if((ch == INPBUF_CR) || (strlen(sTextToSend)==MAX_TYPING_LENGTH) 
 			{
 				bAllowOtherKeyPresses = TRUE;
-			 //	flushConsoleMessages();					
 				if(bMultiPlayer && NetPlay.bComms)
 				{
 					sendTextMessage(sTextToSend,FALSE);
@@ -1843,7 +1697,6 @@ void kf_SendTextMessage(void)
 			else if(ch == INPBUF_ESC)								//abort.
 			{
 				bAllowOtherKeyPresses = TRUE;
-			 //	flushConsoleMessages();						
 				return;
 			}		
 			else							 						// display
@@ -1861,7 +1714,6 @@ void kf_SendTextMessage(void)
 			}else{
 				strcpy(sTextToSend,ingame.phrases[0]);
 				bAllowOtherKeyPresses = TRUE;
-			 //	flushConsoleMessages();					
 				sendTextMessage(sTextToSend,FALSE);
 				return;
 			}
@@ -1872,7 +1724,6 @@ void kf_SendTextMessage(void)
 			}else{
 				strcpy(sTextToSend,ingame.phrases[1]);
 				bAllowOtherKeyPresses = TRUE;
-			//	flushConsoleMessages();					
 				sendTextMessage(sTextToSend,FALSE);			
 				return;
 			}
@@ -1883,7 +1734,6 @@ void kf_SendTextMessage(void)
 			}else{
 				strcpy(sTextToSend,ingame.phrases[2]);
 				bAllowOtherKeyPresses = TRUE;
-			//	flushConsoleMessages();					
 				sendTextMessage(sTextToSend,FALSE);
 				return;
 			}
@@ -1894,7 +1744,6 @@ void kf_SendTextMessage(void)
 			}else{
 				strcpy(sTextToSend,ingame.phrases[3]);
 				bAllowOtherKeyPresses = TRUE;
-			//	flushConsoleMessages();					
 				sendTextMessage(sTextToSend,FALSE);
 				return;
 			}
@@ -1905,7 +1754,6 @@ void kf_SendTextMessage(void)
 			}else{
 				strcpy(sTextToSend,ingame.phrases[4]);
 				bAllowOtherKeyPresses = TRUE;
-			 //	flushConsoleMessages();					
 				sendTextMessage(sTextToSend,FALSE);
 				return;
 			}
@@ -1914,7 +1762,6 @@ void kf_SendTextMessage(void)
 
 //		flushConsoleMessages();								//clear
 //		addConsoleMessage(sTextToSend,DEFAULT_JUSTIFY);		//display
-//		iV_DrawText(sTextToSend,16+D_W,RADTLY+D_H-16);
 		return;
 	}
 }
@@ -1960,42 +1807,30 @@ void	kf_SelectAllUnits( void )
  
 	selDroidSelection(selectedPlayer, DS_ALL_UNITS, DST_UNUSED, FALSE);
 
-/*
-DROID	*psDroid;
-	for(psDroid = apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext)
-	{
-		psDroid->selected = TRUE;
-	}
-*/
 }
 // --------------------------------------------------------------------------
 void	kf_SelectAllVTOLs( void )
 {
-  //	kfsf_SelectAllSameProp(LIFT);
 	selDroidSelection(selectedPlayer,DS_BY_TYPE,DST_VTOL,FALSE);
 }
 // --------------------------------------------------------------------------
 void	kf_SelectAllHovers( void )
 {
-//	kfsf_SelectAllSameProp(HOVER);
 	selDroidSelection(selectedPlayer,DS_BY_TYPE,DST_HOVER,FALSE);
 }
 // --------------------------------------------------------------------------
 void	kf_SelectAllWheeled( void )
 {
-//	kfsf_SelectAllSameProp(WHEELED);
 	selDroidSelection(selectedPlayer,DS_BY_TYPE,DST_WHEELED,FALSE);
 }
 // --------------------------------------------------------------------------
 void	kf_SelectAllTracked( void )
 {
-//	kfsf_SelectAllSameProp(TRACKED);
 	selDroidSelection(selectedPlayer,DS_BY_TYPE,DST_TRACKED,FALSE);
 }
 // --------------------------------------------------------------------------
 void	kf_SelectAllHalfTracked( void )
 {
-//	kfsf_SelectAllSameProp(HALF_TRACKED);
 	selDroidSelection(selectedPlayer,DS_BY_TYPE,DST_HALF_TRACKED,FALSE);
 }
 
@@ -2003,35 +1838,12 @@ void	kf_SelectAllHalfTracked( void )
 void	kf_SelectAllDamaged( void )
 {
 	selDroidSelection(selectedPlayer,DS_BY_TYPE,DST_ALL_DAMAGED,FALSE);
-/*
-DROID	*psDroid;
-UDWORD	damage;
-
-	for(psDroid = apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext)
-	{
-		damage = PERCENT(psDroid->body,psDroid->originalBody);
-		if(damage<REPAIRLEV_LOW)
-		{
-			psDroid->selected = TRUE;
-		}
-	}
-*/
 }
 // --------------------------------------------------------------------------
 void	kf_SelectAllCombatUnits( void )
 {
 	selDroidSelection(selectedPlayer,DS_BY_TYPE,DST_ALL_COMBAT,FALSE);
 
-/*
-DROID	*psDroid;
-	for(psDroid = apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext)
-	{
-		if(psDroid->numWeaps)
-		{
-			psDroid->selected = TRUE;
-		}	
-	}
-*/
 }
 // --------------------------------------------------------------------------
 void	kfsf_SelectAllSameProp( PROPULSION_TYPE propType )
@@ -2064,13 +1876,11 @@ void	kf_SelectAllSameType( void )
 	selDroidSelection(selectedPlayer,DS_BY_TYPE,DST_ALL_SAME,FALSE);
 	/*
 DROID	*psDroid;
-//PROPULSION_STATS	*psPropStats;
 
 	for(psDroid = apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext)
 	{
 		if(psDroid->selected)
 		{
-//			psPropStats = asPropulsionStats + psDroid->asBits[COMP_PROPULSION].nStat;
 //			kfsf_SelectAllSameProp(psPropStats->propulsionType);	// non optimal - multiple assertion!?
 			kfsf_SelectAllSameName(psDroid->aName);
 		}
@@ -2199,10 +2009,6 @@ DROID	*psDroid;
 			secondarySetState(psDroid,sec,state);
 			/* Kick him out of group if he's going for repair */	  // Now done in secondarySetState
 		   //	if ((sec == DSO_RETURN_TO_LOC) && (state == DSS_RTL_REPAIR))
-		   //	{
-		   //		psDroid->group = UBYTE_MAX;
-		   //		psDroid->selected = FALSE;
-		   //	}
 		}
 	}
 }
@@ -2227,9 +2033,6 @@ DROID	*psOther;
 
 	if(found)
 	{
-//		 getBlockHeightDirToEdgeOfGrid(UDWORD x, UDWORD y, UBYTE direction, UDWORD *height, UDWORD *dist)
-   //		getBlockHeightDirToEdgeOfGrid(psOther->x,psOther->y,psOther->direction,&height,&dist);
-//		getBlockHeightDirToEdgeOfGrid(mouseTileX*TILE_UNITS,mouseTileY*TILE_UNITS,getTestAngle(),&height,&dist);
 	}
 }
 // --------------------------------------------------------------------------

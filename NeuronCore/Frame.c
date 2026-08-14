@@ -24,7 +24,6 @@
 #include <time.h>
 
 // window focus messages 
-//#define DEBUG_GROUP1
 #include "Frame.h"
 #include "FrameInt.h"
 #include "WDG.h"
@@ -424,16 +423,9 @@ static long FAR PASCAL Wndproc( HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 				PostMessage(hWndMain, WM_SETFOCUS, 0,0);
 				if (bRunningUnderGlide)
 				{
-//				  	ShowWindow(hWndMain, SW_MAXIMIZE);
-//				  	ShowWindow(hWndMain, SW_RESTORE);
-//					ShowWindow(hWndMain, SW_SHOWMAXIMIZED);
-//					UpdateWindow(hWndMain);
-//					res = ShowOwnedPopups(hWndMain, TRUE);
 					res = IsIconic(hWndMain);
 					if (res)
 					{
-//						res = OpenIcon(hWndMain);
-//						PostMessage(hWndMain, WM_SYSCOMMAND, SC_MAXIMIZE,0);
 						ShowWindow(hWndMain, SW_SHOWMAXIMIZED);
 					}
 				}
@@ -445,10 +437,6 @@ static long FAR PASCAL Wndproc( HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 				PostMessage(hWndMain, WM_KILLFOCUS, 0,0);
 				if (bRunningUnderGlide)
 				{
-//				  	ShowWindow(hWndMain, SW_MINIMIZE);
-//					UpdateWindow(hWndMain);
-//				  	ShowWindow(hWndMain, SW_HIDE);
-//					res = ShowOwnedPopups(hWndMain, FALSE);
 					res = IsIconic(hWndMain);
 					if (!res)
 					{
@@ -684,21 +672,14 @@ BOOL frameInitialise(HANDLE hInst,			// The windows application instance
 
 //	/* Initialise the memory system */
 //	if (!memInitialise())
-//	{
-//		return FALSE;
-//	}
 
 //	if (!blkInitialise())
-//	{
-//		return FALSE;
-//	}
 
 	/* Initialise the trig stuff */
 	if (!trigInitialise())
 	{
 		return FALSE;
 	}
-//#ifdef ALEXM
 	/* Initialise the windows stuff and open a window */
 	if (!winInitApp(hInstance, pWindowName, width, height))
 	{
@@ -710,20 +691,6 @@ BOOL frameInitialise(HANDLE hInst,			// The windows application instance
 	{
 		return FALSE;
 	}
-//#else
-#if 0
-   	/* Initialise the windows stuff and open a window */
-	if (!winInitApp(hInstance, pWindowName, width, height))
-	{
-		return FALSE;
-	}
-
-  	/* Initialise the Direct Draw Buffers */
-	if (!screenInitialise(width, height, bitDepth, fullScreen, bVidMem, bActiveDDraw, hWndMain))
-	{
-		return FALSE;							
-	}
-#endif
 	/* Initialise the input system */
 	inputInitialise();
 	/* Initialise the frame rate stuff */
@@ -919,7 +886,6 @@ BOOL loadFile2(STRING *pFileName, UBYTE **ppFileData, UDWORD *pFileSize, BOOL Al
 	{
 		/* Allocate a buffer to store the data and a terminating zero */
 // we don't want this popping up in the tools (makewdg)
-//		DBPRINTF(("#############FILELOAD MALLOC - size=%d\n",(FileSize)+1));
 		*ppFileData = (UBYTE *)MALLOC((FileSize) + 1);
 		if (*ppFileData == NULL)
 		{
@@ -1125,8 +1091,6 @@ static SDWORD WDGCacheEndPos=-1;
 #define	ONE_EIGHTH		((UINT) (BITS_IN_int / 8))
 #define	HIGH_BITS		( ~((UINT)(~0) >> ONE_EIGHTH ))      
 
-//#define	HIGH_BITS		((UINT)(0xf0000000))
-//#define	LOW_BITS		((UINT)(0x0fffffff))
 
 
 

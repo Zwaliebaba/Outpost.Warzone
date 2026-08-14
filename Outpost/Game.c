@@ -532,9 +532,7 @@ typedef struct _save_move_control
 //	SDWORD	Speed;						// Speed at which object moves along the movement list
 	UBYTE	Position;	   				// Position in asPath
 	UBYTE	numPoints;					// number of points in asPath
-//	PATH_POINT	MovementList[TRAVELSIZE];
 	PATH_POINT	asPath[TRAVELSIZE];		// Pointer to list of block X,Y coordinates.
-										// When initialised list is terminated by (0xffff,0xffff)
 										// Values prefixed by 0x8000 are pixel coordinates instead of
 										// block coordinates
 	SDWORD	DestinationX;				// DestinationX,Y should match objects current X,Y
@@ -573,12 +571,6 @@ typedef struct _save_move_control
 	UWORD	iAttackRuns;
 
 	/* Only needed for Alex's movement update ? */
-//	UDWORD	timeStarted;
-//	UDWORD	arrivalTime;
-//	UDWORD	pathStarted;
-//	BOOL	startedMoving;
-//	UDWORD	lastTime;
-//	BOOL	speedChange;
 } SAVE_MOVE_CONTROL;
 
 
@@ -1095,7 +1087,6 @@ typedef struct _save_flag
 	UDWORD		repairId;
 } SAVE_FLAG;
 
-//PRODUCTION_RUN		asProductionRun[NUM_FACTORY_TYPES][MAX_FACTORY][MAX_PROD_RUN];
 typedef struct _save_production
 {
 	UBYTE						quantity;			//number to build
@@ -1284,7 +1275,6 @@ char *getSaveStructNameV(SAVE_STRUCTURE *psSaveStructure)
 /*This just loads up the .gam file to determine which level data to set up - split up
 so can be called in levLoadData when starting a game from a load save game*/
 
-// GameIsLevelStart is TRUE when we are starting a new level from the game data (i.e. WDG data not memcard on PSX)
 
 //
 // GameIsLevelStart is always TRUE on both PC & PSX versions !!!
@@ -1320,13 +1310,7 @@ error:
 	/* Start the game clock */
 	gameTimeStart();
 
-//#ifdef WIN32
-//	if (multiPlayerInUse)
-//	{
 //		bMultiPlayer = TRUE;				// reenable multi player messages.
-//		multiPlayerInUse = FALSE;
-//	}
-//#endif	
 	return FALSE;
 }
 
@@ -1381,7 +1365,6 @@ BOOL loadMissionExtras(STRING *pGameToLoad, SWORD levelType)
 }
 #endif
 
-//#ifdef NEW_SAVE //V11 Save
 	if (saveGameVersion >= VERSION_11)
 	{
 		//if user save game then load up the messages AFTER any droids or structures are loaded
@@ -1408,7 +1391,6 @@ BOOL loadMissionExtras(STRING *pGameToLoad, SWORD levelType)
    
 		}
     }
-//#endif
 
 	return TRUE;
 }
@@ -1419,7 +1401,6 @@ BOOL loadMissionExtras(STRING *pGameToLoad, SWORD levelType)
 BOOL loadGame(STRING *pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSaveGame)
 {
 	STRING			aFileName[256];
-	//OPENFILENAME		sOFN;
 	UDWORD			fileExten, fileSize, pl;
 	UBYTE			*pFileData = NULL;
 	UDWORD			player, inc, i, j;
@@ -1451,11 +1432,8 @@ BOOL loadGame(STRING *pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
 		freeAllStructs();
 		freeAllFeatures();
 
-	//	droidTemplateShutDown();
 		if (psMapTiles)
 		{
-//			FREE(psMapTiles);
-//			mapFreeTilesAndStrips();
 		}
 		if (aMapLinePoints)
 		{
@@ -1655,9 +1633,6 @@ BOOL loadGame(STRING *pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
 			{
 				setPlayerHasLost(saveGameData.bPlayerHasLost);
 			}
-/*			setPlayCountDown(saveGameData.bPlayCountDown);
-			setPlayerHasWon(saveGameData.bPlayerHasWon);
-			setPlayerHasLost(saveGameData.bPlayerHasLost);*/
 		}
 
 		if (saveGameVersion >= VERSION_27)//V27
@@ -1732,7 +1707,6 @@ BOOL loadGame(STRING *pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
 	}
 	
 	//initialise the scroll values
-	//startX = startY = width = height = 0;
 
 	//before loading the data - turn power off so don't get any power low warnings
 	powerCalculated = FALSE;
@@ -1756,15 +1730,12 @@ BOOL loadGame(STRING *pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
 		DBPRINTF(("loadgame: Fail4\n"));
 		goto error;
 	}
-	//aFileName[fileExten - 1] = '\0';
-	//strcat(aFileName, "\\");
 */
 	strcpy(aFileName, pGameToLoad);
 	fileExten = strlen(aFileName) - 3;			// hack - !
 	aFileName[fileExten - 1] = '\0';
 	strcat(aFileName, "\\");
 
-	//the terrain type WILL only change with Campaign changes (well at the moment!)
 	//if (freeMem) - this now works for Cam Start and Cam Change
     if ((gameType != GTYPE_SCENARIO_EXPAND) ||
 		UserSaveGame)
@@ -1800,11 +1771,8 @@ BOOL loadGame(STRING *pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
 		//NOT ANY MORE - use multiPlayerID (unique template id) to prevent duplicate's being loaded
 		//Only want to clear the lists in the final version of the game
 
-//#ifdef FINAL
 		//first clear the templates
-//		droidTemplateShutDown();
 		// only free player 0 templates - keep all the others from the stats
-//#define ALLOW_ACCESS_TEMPLATES
 #ifndef ALLOW_ACCESS_TEMPLATES
 		{
 			DROID_TEMPLATE	*pTemplate, *pNext;
@@ -1850,7 +1818,6 @@ BOOL loadGame(STRING *pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
 			DBPRINTF(("loadgame: Fail22\n"));
 			goto error;
 		}
-		//JPS 25 feb (reverse templates moved from here)
 	}
 
 	if (saveGameOnMission && UserSaveGame)
@@ -1868,8 +1835,6 @@ BOOL loadGame(STRING *pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
         }
 
 		//load the map and the droids then swap pointers
-//		psMapTiles = NULL;
-//		aMapLinePoints = NULL;
 		//load in the map file 
 		aFileName[fileExten] = '\0';
 		strcat(aFileName, "mission.map");
@@ -1907,10 +1872,6 @@ BOOL loadGame(STRING *pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
 
 	// reload the objects that were in the mission list 
 //except droids these are always loaded directly to the mission.apsDroidList
-/*
-	*apsFlagPosLists[MAX_PLAYERS];
-	asPower[MAX_PLAYERS];
-*/
 		LOADBARCALLBACK();	//		loadingScreenCallback();
 		//load in the features -do before the structures
 		aFileName[fileExten] = '\0';
@@ -1976,7 +1937,6 @@ BOOL loadGame(STRING *pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
 		if (loadFileToBuffer(aFileName, pFileData, displayBufferSize, &fileSize))
 		{
 			//load the data into mission.apsDroidLists
-			//ppsCurrentDroidLists = mission.apsDroidLists;
 			if (!loadSaveDroid(pFileData, fileSize, apsDroidLists))
 			{
 				DBPRINTF(("loadgame: Fail12\n"));
@@ -2118,16 +2078,12 @@ BOOL loadGame(STRING *pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
 		aFileName[fileExten] = '\0';
 		strcat(aFileName, "resState.bjo");
 		// Load in the chosen file data 
-//#ifdef WIN32
 		pFileData = DisplayBuffer;
 		if (!loadFileToBuffer(aFileName, pFileData, displayBufferSize, &fileSize))
 		{
 			DBPRINTF(("loadgame: Fail32\n"));
 			goto error;
 		}
-//#else
-//		if (!LoadGameLoad(aFileName,&pFileData,&fileSize,UserSaveGame)) goto error;
-//#endif
 
 		//load the research status data
 		if (pFileData)
@@ -2183,7 +2139,6 @@ BOOL loadGame(STRING *pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
 		}
 
 		//load the data into apsDroidLists
-		//ppsCurrentDroidLists = apsDroidLists;
 		if (!loadSaveDroid(pFileData, fileSize, apsDroidLists))
 		{
 			DBPRINTF(("loadgame: Fail12\n"));
@@ -2230,7 +2185,6 @@ BOOL loadGame(STRING *pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
 				if (loadFileToBuffer(aFileName, pFileData, displayBufferSize, &fileSize))
 				{
 					//load the data into mission.apsDroidLists
-					//ppsCurrentDroidLists = mission.apsDroidLists;
 					if (!loadSaveDroid(pFileData, fileSize, mission.apsDroidLists))
 					{
 						DBPRINTF(("loadgame: Fail12\n"));
@@ -2244,7 +2198,6 @@ BOOL loadGame(STRING *pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
 
 	LOADBARCALLBACK();	//	loadingScreenCallback();
 //21feb	if (saveGameOnMission && UserSaveGame)
-//21feb	{
 	if (saveGameVersion >= VERSION_23)
 	{
 		//load in the limbo droids
@@ -2255,7 +2208,6 @@ BOOL loadGame(STRING *pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
 		if (loadFileToBuffer(aFileName, pFileData, displayBufferSize, &fileSize))
 		{
 			//load the data into apsDroidLists
-			//ppsCurrentDroidLists = apsLimboDroids;
 			if (!loadSaveDroid(pFileData, fileSize, apsLimboDroids))
 			{
 				DBPRINTF(("loadgame: Fail12\n"));
@@ -2368,7 +2320,6 @@ BOOL loadGame(STRING *pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
 
 	LOADBARCALLBACK();	//	loadingScreenCallback();
 
-//#ifdef NEW_SAVE //V11 Save	
 	if (saveGameVersion >= VERSION_11)
 	{
 		//if user save game then load up the Visibility
@@ -2395,11 +2346,9 @@ BOOL loadGame(STRING *pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
 
 		}
 	}
-//#endif
 
 	LOADBARCALLBACK();	//	loadingScreenCallback();
 
-//#ifdef NEW_SAVE_V13 //V13 Save	
 	if (saveGameVersion > VERSION_12)
 	{
 		//if user save game then load up the Visibility
@@ -2426,7 +2375,6 @@ BOOL loadGame(STRING *pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
 
 		}
 	}
-//#endif
 	LOADBARCALLBACK();	//	loadingScreenCallback();
 
 	if (saveGameVersion > VERSION_12)
@@ -2489,8 +2437,6 @@ BOOL loadGame(STRING *pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
 
 	LOADBARCALLBACK();	//	loadingScreenCallback();
 
-//#endif
-//#ifdef NEW_SAVE_V12 //v12 Save
 	if (saveGameVersion >= VERSION_12)
 	{
 		//if user save game then load up the flags AFTER any droids or structures are loaded
@@ -2676,17 +2622,10 @@ BOOL loadGame(STRING *pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
 	}
 	//don't need to do this anymore - AB 22/04/98
 	//set up the power levels for each player if not
-	/*if (!keepObjects)
-	{
-		clearPlayerPower();
-		initPlayerPower();
-	}*/
 
 	//set all players to have some power at start - will be scripted!
-	//newGameInitPower();
 
 	//set these values to suitable for first map - will be scripted!
-	//setLandingZone(10,51,12,53);
 
 	//if user save game then reset the time - THIS SETS BOTH TIMERS - BEWARE IF YOU USE IT
 	if ((gameType == GTYPE_SAVE_START) ||
@@ -2719,19 +2658,11 @@ BOOL loadGame(STRING *pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
 	//after the clock has been reset need to check if any res_extractors are active
 	checkResExtractorsActive();
 
-//#ifdef WIN32
-//	if (multiPlayerInUse)
-//	{
 //		bMultiPlayer = TRUE;				// reenable multi player messages.
-//		multiPlayerInUse = FALSE;
-//	}
-//#endif
-   //	initViewPosition();
 	setViewAngle(INITIAL_STARTING_PITCH);
 	setDesiredPitch(INITIAL_DESIRED_PITCH);
 
 #ifndef COVERMOUNT
-    //check if limbo_expand mission has changed to an expand mission for user save game (mid-mission)
     if (gameType == GTYPE_SAVE_MIDMISSION AND missionLimboExpand())
     {
         /*when all the units have moved from the mission.apsDroidList then the 
@@ -2771,8 +2702,6 @@ error:
 	droidTemplateShutDown();
 	if (psMapTiles)
 	{
-//		FREE(psMapTiles);
-//		mapFreeTilesAndStrips();
 	}
 	if (aMapLinePoints)
 	{
@@ -2795,13 +2724,7 @@ error:
 
 	/* Start the game clock */
 	gameTimeStart();
-//#ifdef WIN32
-//	if (multiPlayerInUse)
-//	{
 //		bMultiPlayer = TRUE;				// reenable multi player messages.
-//		multiPlayerInUse = FALSE;
-//	}
-//#endif	
 
 	return FALSE;
 }
@@ -2844,7 +2767,6 @@ BOOL saveGame(STRING *aFileName, SDWORD saveType)
 	aFileName[fileExtension] = '\0';
 	strcat(aFileName, "unit.bjo");
 	/*Write the current droid lists to the file*/
-	//ppsCurrentDroidLists = apsDroidLists;
 	if (!writeDroidFile(aFileName,apsDroidLists))
 	{
 		goto error;
@@ -2931,7 +2853,6 @@ BOOL saveGame(STRING *aFileName, SDWORD saveType)
 		goto error;
 	}
 
-//#ifdef NEW_SAVE //V11 Save	
 	//create the message filename
 	aFileName[fileExtension] = '\0';
 	strcat(aFileName, "MesState.bjo");
@@ -2940,9 +2861,7 @@ BOOL saveGame(STRING *aFileName, SDWORD saveType)
 	{
 		goto error;
 	}
-//#endif
 
-//#ifdef NEW_SAVE //V14 Save	
 	//create the proximity message filename
 	aFileName[fileExtension] = '\0';
 	strcat(aFileName, "ProxState.bjo");
@@ -2951,9 +2870,7 @@ BOOL saveGame(STRING *aFileName, SDWORD saveType)
 	{
 		goto error;
 	}
-//#endif
 
-//#ifdef NEW_SAVE //V11 Save	
 	//create the message filename
 	aFileName[fileExtension] = '\0';
 	strcat(aFileName, "VisState.bjo");
@@ -2962,9 +2879,7 @@ BOOL saveGame(STRING *aFileName, SDWORD saveType)
 	{
 		goto error;
 	}
-//#endif
 
-//#ifdef NEW_SAVE_V13 //V13 Save	
 	//create the message filename
 	aFileName[fileExtension] = '\0';
 	strcat(aFileName, "ProdState.bjo");
@@ -2974,9 +2889,7 @@ BOOL saveGame(STRING *aFileName, SDWORD saveType)
 		goto error;
 	}
 
-//#endif
  
-//#ifdef FX_SAVE //added at V13 save	
 	//create the message filename
 	aFileName[fileExtension] = '\0';
 	strcat(aFileName, "FXState.bjo");
@@ -2985,7 +2898,6 @@ BOOL saveGame(STRING *aFileName, SDWORD saveType)
 	{
 		goto error;
 	}
-//#endif
 
 	//added at V15 save	
 	//create the message filename
@@ -2996,9 +2908,7 @@ BOOL saveGame(STRING *aFileName, SDWORD saveType)
 	{
 		goto error;
 	}
-//#endif
 
-//#ifdef NEW_SAVE //V12 Save	
 	//create the message filename
 	aFileName[fileExtension] = '\0';
 	strcat(aFileName, "FlagState.bjo");
@@ -3007,9 +2917,7 @@ BOOL saveGame(STRING *aFileName, SDWORD saveType)
 	{
 		goto error;
 	}
-//#endif
 
-//#ifdef NEW_SAVE //V21 Save	
 	//create the message filename
 	aFileName[fileExtension] = '\0';
 	strcat(aFileName, "command.bjo");
@@ -3018,11 +2926,8 @@ BOOL saveGame(STRING *aFileName, SDWORD saveType)
 	{
 		goto error;
 	}
-//#endif
 
 	//create the structLimits filename
-	/*aFileName[sOFN.nFileExtension] = '\0';
-	strcat(aFileName, "limits.bjo");*/
 	/*Write the data to the file DONE IN SCRIPTS NOW*/
 	/*if (!writeStructLimitsFile(aFileName))
 	{
@@ -3045,7 +2950,6 @@ BOOL saveGame(STRING *aFileName, SDWORD saveType)
 	aFileName[fileExtension-1] = '\0';
 	strcat(aFileName, "\\mUnit.bjo");
 	/*Write the swapped droid lists to the file*/
-	//ppsCurrentDroidLists = mission.apsDroidLists;
 	if (!writeDroidFile(aFileName, mission.apsDroidLists))
 	{
 		goto error;
@@ -3072,7 +2976,6 @@ BOOL saveGame(STRING *aFileName, SDWORD saveType)
 	aFileName[fileExtension] = '\0';
 	strcat(aFileName, "limbo.bjo");
 	/*Write the swapped droid lists to the file*/
-	//ppsCurrentDroidLists = apsLimboDroids;
 	if (!writeDroidFile(aFileName, apsLimboDroids))
 	{
 		goto error;
@@ -3245,7 +3148,6 @@ BOOL gameLoad(UBYTE *pFileData, UDWORD filesize)
 		return FALSE;
 	}
 
-//	DBMB(("IsScenario = %d\nfor the game that's being loaded.", IsScenario));
 
 	return TRUE;
 }
@@ -3324,7 +3226,6 @@ BOOL getCampaignV(UBYTE *pFileData, UDWORD filesize, UDWORD version)
 		return FALSE;
 	}
 
-//	savedGameTime = psSaveGame->gameTime;
 
 	campaign = psSaveGame->saveKey;
 	campaign &= (SAVEKEY_ONMISSION - 1);
@@ -3383,7 +3284,6 @@ UDWORD getCampaign(STRING *pGameToLoad, BOOL *bSkipCDCheck)
 	{
 		if(((SAVE_GAME *)pFileData)->multiPlayer == 1) 
 		{
-//			return 0;
 			*bSkipCDCheck = TRUE;
 		}
 	}
@@ -3400,7 +3300,6 @@ UDWORD getCampaign(STRING *pGameToLoad, BOOL *bSkipCDCheck)
 		return 0;
 	}
 
-//	DBMB(("IsScenario = %d\nfor the game that's being loaded.", IsScenario));
 
 	return 0;
 }
@@ -3419,7 +3318,6 @@ BOOL gameLoadV7(UBYTE *pFileData, UDWORD filesize)
 	SAVE_GAME_V7				*psSaveGame;
 	LEVEL_DATASET				*psNewLevel;
 
-//	DBERROR(("gameLoadV7: this is and outdated save game"));
 
 	psSaveGame = (SAVE_GAME_V7 *) pFileData;
 
@@ -3481,7 +3379,6 @@ BOOL gameLoadV7(UBYTE *pFileData, UDWORD filesize)
 BOOL gameLoadV(UBYTE *pFileData, UDWORD filesize, UDWORD version)
 {
 	SAVE_GAME		*psSaveGame;
-//	LEVEL_DATASET	*psNewLevel;
 	UBYTE			inc;
 	SDWORD			i, j;
 	static	SAVE_POWER	powerSaved[MAX_PLAYERS];
@@ -3688,7 +3585,6 @@ BOOL gameLoadV(UBYTE *pFileData, UDWORD filesize, UDWORD version)
 		ASSERT((strlen(date)<MAX_STR_LENGTH,"BuildDate; String error"));
 		if (strcmp(psSaveGame->buildDate,date) != 0)
 		{
-//			ASSERT((gameType != GTYPE_SAVE_MIDMISSION,"Mid-game save out of date. Continue with caution."));
 			DBPRINTF(("saveGame build date differs;/nsavegame %s/n build    %s/n",psSaveGame->buildDate,date));
 			validityKey = validityKey|VALIDITYKEY_DATE;
 			if (gameType == GTYPE_SAVE_MIDMISSION)
@@ -3822,7 +3718,6 @@ BOOL gameLoadV(UBYTE *pFileData, UDWORD filesize, UDWORD version)
 		//check to see whether mission automatically starts
 		if (gameType == GTYPE_SAVE_START)
 		{
-//			launchMission();
 			if (!levLoadData(pLevelName, NULL, 0))
 			{
 				return FALSE;
@@ -3966,7 +3861,6 @@ BOOL writeGameFile(STRING *pFileName, SDWORD saveType)
 	disp3d_getView(&(psSaveGame->currentPlayerPos));
 
 	//mission data
-//	psSaveGame->missionStartTime =		mission.startTime;		
 	psSaveGame->missionOffTime =		mission.time;
 	psSaveGame->missionETA =			mission.ETA;
     psSaveGame->missionCheatTime =		mission.cheatTime;
@@ -4188,7 +4082,6 @@ BOOL loadSaveDroidInitV2(UBYTE *pFileData, UDWORD filesize,UDWORD quantity)
 				pDroidInit->name,pDroidInit->player));
 
 #ifdef DEBUG
-//			DumpDroidTemplates();
 #endif
 
 		} 
@@ -4219,7 +4112,6 @@ BOOL loadSaveDroidInitV2(UBYTE *pFileData, UDWORD filesize,UDWORD quantity)
 		pDroidInit++;
 	}
 
-//	powerCalculated = TRUE;
 
 
 
@@ -4274,9 +4166,7 @@ DROID_TEMPLATE *FindDroidTemplate(STRING *name,UDWORD player)
 
 		while(Template) {
 
-			//if(strcmp(name,Template->pName)==0) {
 			if(strcmp(name,Template->aName)==0) {
-//				DBPRINTF(("%s %d , %d\n",name,player,TempPlayer));
 				return Template;
 			}
 			Template = Template->psNext;
@@ -4420,7 +4310,6 @@ DROID* buildDroidFromSaveDroidV11(SAVE_DROID_V11* psSaveDroid)
 		psSaveDroid->player, FALSE);
 
 	//copy the droid's weapon stats
-	//for (i=0; i < DROID_MAXWEAPS; i++)
     if (psDroid->asWeaps[0].nStat > 0)
 	{
         //only one weapon now
@@ -4532,7 +4421,6 @@ DROID* buildDroidFromSaveDroidV19(SAVE_DROID_V18* psSaveDroid, UDWORD version)
 
 	// ignore brains for now
 	// not any *$£&!!! more - JOHN
-//	psTemplate->asParts[COMP_BRAIN] = 0;
 
 	if(psSaveDroid->x == INVALID_XY)
 	{
@@ -4558,7 +4446,6 @@ DROID* buildDroidFromSaveDroidV19(SAVE_DROID_V18* psSaveDroid, UDWORD version)
 
 	
 	//copy the droid's weapon stats
-	//for (i=0; i < DROID_MAXWEAPS; i++)
     if (psDroid->asWeaps[0].nStat > 0)
 	{
 		psDroid->asWeaps[0].hitPoints = psSaveDroid->asWeaps[0].hitPoints;
@@ -4610,7 +4497,6 @@ DROID* buildDroidFromSaveDroidV19(SAVE_DROID_V18* psSaveDroid, UDWORD version)
 		psDroid->actionStarted		= psSaveDroid->actionStarted;	
 		psDroid->actionPoints		= psSaveDroid->actionPoints;
         //actionHeight has been renamed to powerAccrued - AB 7/1/99
-        //psDroid->actionHeight		= psSaveDroid->actionHeight;	
 		psDroid->powerAccrued		= psSaveDroid->actionHeight;	
 		//added for V14
 
@@ -4647,7 +4533,6 @@ DROID* buildDroidFromSaveDroidV19(SAVE_DROID_V18* psSaveDroid, UDWORD version)
 		(UDWORD)(psDroid->psBaseStruct ) = psSaveDroidV14->baseStructID;						
 		psDroid->group = psSaveDroidV14->group;			
 		psDroid->selected = psSaveDroidV14->selected;		
-//20feb		psDroid->cluster = psSaveDroidV14->cluster;		
 		psDroid->died = psSaveDroidV14->died;			
 		psDroid->lastEmission =	psSaveDroidV14->lastEmission;
 //warning V14 - v17 only		
@@ -4681,7 +4566,6 @@ DROID* buildDroidFromSaveDroidV19(SAVE_DROID_V18* psSaveDroid, UDWORD version)
 		(UDWORD)(psDroid->psBaseStruct ) = psSaveDroid->baseStructID;						
 		psDroid->group = psSaveDroid->group;			
 		psDroid->selected = psSaveDroid->selected;		
-//20feb		psDroid->cluster = psSaveDroid->cluster;		
 		psDroid->died = psSaveDroid->died;			
 		psDroid->lastEmission =	psSaveDroid->lastEmission;
 		for (i=0; i < MAX_PLAYERS; i++)
@@ -4784,7 +4668,6 @@ DROID* buildDroidFromSaveDroid(SAVE_DROID* psSaveDroid, UDWORD version)
 
 	// ignore brains for now
 	// not any *$£&!!! more - JOHN
-//	psTemplate->asParts[COMP_BRAIN] = 0;
 
 
 	turnOffMultiMsg(TRUE);
@@ -4815,7 +4698,6 @@ DROID* buildDroidFromSaveDroid(SAVE_DROID* psSaveDroid, UDWORD version)
 
 	
 	//copy the droid's weapon stats
-	//for (i=0; i < DROID_MAXWEAPS; i++)
     if (psDroid->asWeaps[0].nStat > 0)
 	{
 		psDroid->asWeaps[0].hitPoints = psSaveDroid->asWeaps[0].hitPoints;
@@ -4865,7 +4747,6 @@ DROID* buildDroidFromSaveDroid(SAVE_DROID* psSaveDroid, UDWORD version)
 	psDroid->actionStarted		= psSaveDroid->actionStarted;	
 	psDroid->actionPoints		= psSaveDroid->actionPoints;
     //actionHeight has been renamed to powerAccrued - AB 7/1/99
-    //psDroid->actionHeight		= psSaveDroid->actionHeight;	
 	psDroid->powerAccrued		= psSaveDroid->actionHeight;	
 	//added for V14
 
@@ -4892,7 +4773,6 @@ DROID* buildDroidFromSaveDroid(SAVE_DROID* psSaveDroid, UDWORD version)
 	(UDWORD)(psDroid->psBaseStruct ) = psSaveDroid->baseStructID;						
 	psDroid->group = psSaveDroid->group;			
 	psDroid->selected = psSaveDroid->selected;		
-//20feb	psDroid->cluster = psSaveDroid->cluster;		
 	psDroid->died = psSaveDroid->died;			
 	psDroid->lastEmission =	psSaveDroid->lastEmission;
 	for (i=0; i < MAX_PLAYERS; i++)
@@ -5042,18 +4922,6 @@ BOOL loadDroidSetPointers(void)
 				}
 				psDroid = psDroid->psNext;
 			}
-			/*
-			for(psDroid = ppsDroidLists[list][i]; psDroid; psDroid = psDroid->psNext)
-			{
-				id = (UDWORD)(psDroid->psTarget);
-				psDroid->psTarget = (id==UDWORD_MAX ? NULL : getBaseObjFromId(id));
-				id = (UDWORD)(psDroid->psActionTarget);
-				psDroid->psActionTarget = ( id==UDWORD_MAX ? NULL : getBaseObjFromId(id));
-				ASSERT((((UDWORD)psDroid->psTarget)!=UDWORD_MAX,"Found invalid target"));
-				ASSERT((((UDWORD)psDroid->psActionTarget)!=UDWORD_MAX,"Found invalid action target"));
-				DBPRINTF(("psDroid->psTarget = %d\n",psDroid->psTarget));
-			}
-			*/
 		}
 	}
 
@@ -5096,7 +4964,6 @@ BOOL loadDroidSetPointers(void)
 BOOL loadSaveDroidV11(UBYTE *pFileData, UDWORD filesize, UDWORD numDroids, UDWORD version, DROID **ppsCurrentDroidLists)
 {
 	SAVE_DROID_V11				*psSaveDroid, sSaveDroid;
-//	DROID_TEMPLATE			*psTemplate, sTemplate;
 	DROID					*psDroid;
 	DROID_GROUP				*psCurrentTransGroup;
 	UDWORD					count;
@@ -5192,7 +5059,6 @@ BOOL loadSaveDroidV11(UBYTE *pFileData, UDWORD filesize, UDWORD numDroids, UDWOR
 BOOL loadSaveDroidV19(UBYTE *pFileData, UDWORD filesize, UDWORD numDroids, UDWORD version, DROID **ppsCurrentDroidLists)
 {
 	SAVE_DROID_V18				*psSaveDroid, sSaveDroid;
-//	DROID_TEMPLATE			*psTemplate, sTemplate;
 	DROID					*psDroid;
 	DROID_GROUP				*psCurrentTransGroup;
 	UDWORD					count;
@@ -5299,13 +5165,11 @@ BOOL loadSaveDroidV19(UBYTE *pFileData, UDWORD filesize, UDWORD numDroids, UDWOR
 BOOL loadSaveDroidV(UBYTE *pFileData, UDWORD filesize, UDWORD numDroids, UDWORD version, DROID **ppsCurrentDroidLists)
 {
 	SAVE_DROID				*psSaveDroid, sSaveDroid;
-//	DROID_TEMPLATE			*psTemplate, sTemplate;
 	DROID					*psDroid;
 	DROID_GROUP				*psCurrentTransGroup;
 	UDWORD					count;
 	UDWORD					NumberOfSkippedDroids=0;
 	UDWORD					sizeOfSaveDroid;
-//	DROID_GROUP				*psGrp;
 
 	psCurrentTransGroup = NULL;
 	
@@ -5402,7 +5266,6 @@ BOOL buildSaveDroidFromDroid(SAVE_DROID* psSaveDroid, DROID* psCurr, DROID_SAVE_
 
 #ifdef ALLOWSAVE
 
-//			strcpy(psSaveDroid->name, psCurr->pName);
 
 			/*want to store the resource ID string for compatibilty with 
 			different versions of save game - NOT HAPPENING - the name saved is 
@@ -5434,8 +5297,6 @@ BOOL buildSaveDroidFromDroid(SAVE_DROID* psSaveDroid, DROID* psCurr, DROID_SAVE_
 				}
 			}
 			psSaveDroid->body = psCurr->body;
-//			psSaveDroid->activeWeapon = psCurr->activeWeapon;
-			//psSaveDroid->numWeaps = psCurr->numWeaps;
 			/*for (i=0; i < psCurr->numWeaps; i++)
 			{
 #ifdef HASH_NAMES
@@ -5445,7 +5306,6 @@ BOOL buildSaveDroidFromDroid(SAVE_DROID* psSaveDroid, DROID* psCurr, DROID_SAVE_
 #endif
 				{
 					//ignore this record
-					//continue;
 					break;
 				}
 				psSaveDroid->asWeaps[i].hitPoints = psCurr->asWeaps[i].hitPoints;
@@ -5534,7 +5394,6 @@ BOOL buildSaveDroidFromDroid(SAVE_DROID* psSaveDroid, DROID* psCurr, DROID_SAVE_
 			psSaveDroid->actionStarted	= psCurr->actionStarted;
 			psSaveDroid->actionPoints	= psCurr->actionPoints;
             //actionHeight has been renamed to powerAccrued - AB 7/1/99
-			//psSaveDroid->actionHeight	= psCurr->actionHeight;
             psSaveDroid->actionHeight	= psCurr->powerAccrued;
 
 			//version 14
@@ -5568,7 +5427,6 @@ BOOL buildSaveDroidFromDroid(SAVE_DROID* psSaveDroid, DROID* psCurr, DROID_SAVE_
 			}
 			psSaveDroid->group = psCurr->group;
 			psSaveDroid->selected = psCurr->selected;
-//20feb			psSaveDroid->cluster = psCurr->cluster;
 			psSaveDroid->died = psCurr->died;
 			psSaveDroid->lastEmission = psCurr->lastEmission;
 			for (i=0; i < MAX_PLAYERS; i++)
@@ -5633,8 +5491,6 @@ BOOL buildSaveDroidFromDroid(SAVE_DROID* psSaveDroid, DROID* psCurr, DROID_SAVE_
 				}
 			}*/
 
-//			psSaveDroid->sMove = psCurr->sMove;
-//			psSaveDroid->sDisplay = psCurr->sDisplay;
 
 			/* psSaveDroid->aiState = psCurr->sAI.state;
 			if (psCurr->sAI.psTarget)
@@ -5918,7 +5774,6 @@ BOOL loadSaveStructureV7(UBYTE *pFileData, UDWORD filesize, UDWORD numStructures
 		/*create the Structure */
 		//psStructure = buildStructure((asStructureStats + psSaveStructure->
 		//	structureInc), psSaveStructure->x, psSaveStructure->y, 
-		//	psSaveStructure->player);
 		
 		//for modules - need to check the base structure exists
 		if (IsStatExpansionModule(psStats))
@@ -5935,11 +5790,6 @@ BOOL loadSaveStructureV7(UBYTE *pFileData, UDWORD filesize, UDWORD numStructures
 		}
 
         //check not too near the edge
-        /*if (psSaveStructure->x <= TILE_UNITS OR psSaveStructure->y <= TILE_UNITS)
-        {
-			DBERROR(("Structure being built too near the edge of the map"));
-            continue;
-        }*/
 
         //check not trying to build too near the edge
     	if(((psSaveStructure->x >> TILE_SHIFT) < TOO_NEAR_EDGE) || ((
@@ -5974,7 +5824,6 @@ BOOL loadSaveStructureV7(UBYTE *pFileData, UDWORD filesize, UDWORD numStructures
 			//copy the values across
 			psStructure->id = psSaveStructure->id;
 			//are these going to ever change from the values set up with?
-//			psStructure->z = (UWORD)psSaveStructure->z;
 			psStructure->direction = (UWORD)psSaveStructure->direction;
 		}
 
@@ -5997,10 +5846,6 @@ BOOL loadSaveStructureV7(UBYTE *pFileData, UDWORD filesize, UDWORD numStructures
 		}
 
 		psStructure->currentBuildPts = (SWORD)psSaveStructure->currentBuildPts;
-//		psStructure->body = psSaveStructure->body;
-//		psStructure->armour = psSaveStructure->armour;
-//		psStructure->resistance = psSaveStructure->resistance;
-//		psStructure->repair = psSaveStructure->repair;
 		switch (psStructure->pStructureType->type)
 		{
 			case REF_FACTORY:
@@ -6008,14 +5853,10 @@ BOOL loadSaveStructureV7(UBYTE *pFileData, UDWORD filesize, UDWORD numStructures
 				((FACTORY *)psStructure->pFunctionality)->capacity = (UBYTE)psSaveStructure->
 					capacity;
 				//((FACTORY *)psStructure->pFunctionality)->productionOutput = psSaveStructure->
-				//	output;
 				//((FACTORY *)psStructure->pFunctionality)->quantity = psSaveStructure->
-				//	quantity;
 				//((FACTORY *)psStructure->pFunctionality)->timeStarted = gameTime -
-				//	savedGameTime - (psSaveStructure->timeStarted);
 				//((FACTORY*)psStructure->pFunctionality)->timeToBuild = ((DROID_TEMPLATE *)
 				//	psSaveStructure->subjectInc)->buildPoints / ((FACTORY *)psStructure->pFunctionality)->
-				//	productionOutput;
 
 				//adjust the module structures IMD
 				if (psSaveStructure->capacity)
@@ -6188,11 +6029,6 @@ BOOL loadSaveStructureV19(UBYTE *pFileData, UDWORD filesize, UDWORD numStructure
 			}
 		}
         //check not too near the edge
-        /*if (psSaveStructure->x <= TILE_UNITS OR psSaveStructure->y <= TILE_UNITS)
-        {
-			DBERROR(("Structure being built too near the edge of the map"));
-            continue;
-        }*/
         //check not trying to build too near the edge
     	if(((psSaveStructure->x >> TILE_SHIFT) < TOO_NEAR_EDGE) || ((
             psSaveStructure->x >> TILE_SHIFT) > (SDWORD)(mapWidth - TOO_NEAR_EDGE)))
@@ -6226,7 +6062,6 @@ BOOL loadSaveStructureV19(UBYTE *pFileData, UDWORD filesize, UDWORD numStructure
 			//copy the values across
 			psStructure->id = psSaveStructure->id;
 			//are these going to ever change from the values set up with?
-//			psStructure->z = (UWORD)psSaveStructure->z;
 			psStructure->direction = (UWORD)psSaveStructure->direction;
 		}
 
@@ -6273,7 +6108,6 @@ BOOL loadSaveStructureV19(UBYTE *pFileData, UDWORD filesize, UDWORD numStructure
 			psStructure->currentBuildPts = (SWORD)psSaveStructure->currentBuildPts;
 			psStructure->currentPowerAccrued = psSaveStructure->currentPowerAccrued;
 		}
-//		psStructure->repair = (UWORD)psSaveStructure->repair;
 		switch (psStructure->pStructureType->type)
 		{
 			case REF_FACTORY:
@@ -6285,7 +6119,6 @@ BOOL loadSaveStructureV19(UBYTE *pFileData, UDWORD filesize, UDWORD numStructure
 					psFactory = ((FACTORY *)psStructure->pFunctionality);
 					psFactory->capacity = 0;//capacity reset during module build (UBYTE)psSaveStructure->capacity;
                     //this is set up during module build - if the stats have changed it will also set up with the latest value
-					//psFactory->productionOutput = (UBYTE)psSaveStructure->output;
 					psFactory->quantity = (UBYTE)psSaveStructure->quantity;
 					psFactory->timeStarted = psSaveStructure->droidTimeStarted;
 					psFactory->powerAccrued = psSaveStructure->powerAccrued;
@@ -6307,7 +6140,6 @@ BOOL loadSaveStructureV19(UBYTE *pFileData, UDWORD filesize, UDWORD numStructure
                 
 					}
 				// imd set by building modules
-				//	psStructure->sDisplay.imd = factoryModuleIMDs[psSaveStructure->capacity-1][0];
 					
 				//if factory reset the delivery points
 					//this trashes the flag pos pointer but flag pos list is cleared when flags load
@@ -6337,7 +6169,6 @@ BOOL loadSaveStructureV19(UBYTE *pFileData, UDWORD filesize, UDWORD numStructure
 				psResearch = ((RESEARCH_FACILITY *)psStructure->pFunctionality);
 				psResearch->capacity = 0;//capacity set when module loaded psSaveStructure->capacity;
                 //this is set up during module build - if the stats have changed it will also set up with the latest value
-                //psResearch->researchPoints = psSaveStructure->output;
 				psResearch->powerAccrued = psSaveStructure->powerAccrued;
 				//clear subject
 				psResearch->psSubject = NULL;
@@ -6387,7 +6218,6 @@ BOOL loadSaveStructureV19(UBYTE *pFileData, UDWORD filesize, UDWORD numStructure
 					capacity = psSaveStructure->capacity;
 					//build the appropriate number of modules
                     buildStructure(psModule, psStructure->x, psStructure->y, psStructure->player, FALSE);
-//					psStructure->sDisplay.imd = researchModuleIMDs[psSaveStructure->capacity-1];
 				}
 				break;
 			case REF_POWER_GEN:
@@ -6398,7 +6228,6 @@ BOOL loadSaveStructureV19(UBYTE *pFileData, UDWORD filesize, UDWORD numStructure
 					capacity = psSaveStructure->capacity;
 					//build the appropriate number of modules
                     buildStructure(psModule, psStructure->x, psStructure->y, psStructure->player, FALSE);
-//					psStructure->sDisplay.imd = powerModuleIMDs[psSaveStructure->capacity-1];
 				}
 				break;
 			case REF_RESOURCE_EXTRACTOR:
@@ -6489,7 +6318,6 @@ BOOL loadSaveStructureV19(UBYTE *pFileData, UDWORD filesize, UDWORD numStructure
 
 					break;
 				case REF_RESEARCH:
-//21feb					intCheckResearchButton();
 					break;
 				default:
 					//do nothing for factories etc
@@ -6602,11 +6430,6 @@ BOOL loadSaveStructureV(UBYTE *pFileData, UDWORD filesize, UDWORD numStructures,
 			}
 		}
         //check not too near the edge
-        /*if (psSaveStructure->x <= TILE_UNITS OR psSaveStructure->y <= TILE_UNITS)
-        {
-			DBERROR(("Structure being built too near the edge of the map"));
-            continue;
-        }*/
         //check not trying to build too near the edge
     	if(((psSaveStructure->x >> TILE_SHIFT) < TOO_NEAR_EDGE) || ((
             psSaveStructure->x >> TILE_SHIFT) > (SDWORD)(mapWidth - TOO_NEAR_EDGE)))
@@ -6640,7 +6463,6 @@ BOOL loadSaveStructureV(UBYTE *pFileData, UDWORD filesize, UDWORD numStructures,
 			//copy the values across
 			psStructure->id = psSaveStructure->id;
 			//are these going to ever change from the values set up with?
-//			psStructure->z = (UWORD)psSaveStructure->z;
 			psStructure->direction = (UWORD)psSaveStructure->direction;
 		}
 
@@ -6677,7 +6499,6 @@ BOOL loadSaveStructureV(UBYTE *pFileData, UDWORD filesize, UDWORD numStructures,
         //armour not ever adjusted...
 
 
-//		psStructure->repair = (UWORD)psSaveStructure->repair;
 		switch (psStructure->pStructureType->type)
 		{
 			case REF_FACTORY:
@@ -6687,7 +6508,6 @@ BOOL loadSaveStructureV(UBYTE *pFileData, UDWORD filesize, UDWORD numStructures,
 				psFactory = ((FACTORY *)psStructure->pFunctionality);
 				psFactory->capacity = 0;//capacity reset during module build (UBYTE)psSaveStructure->capacity;
                 //this is set up during module build - if the stats have changed it will also set up with the latest value
-				//psFactory->productionOutput = (UBYTE)psSaveStructure->output;
 				psFactory->quantity = (UBYTE)psSaveStructure->quantity;
 				psFactory->timeStarted = psSaveStructure->droidTimeStarted;
 				psFactory->powerAccrued = psSaveStructure->powerAccrued;
@@ -6709,7 +6529,6 @@ BOOL loadSaveStructureV(UBYTE *pFileData, UDWORD filesize, UDWORD numStructures,
             
 				}
 			// imd set by building modules
-			//	psStructure->sDisplay.imd = factoryModuleIMDs[psSaveStructure->capacity-1][0];
 				
 			//if factory reset the delivery points
 				//this trashes the flag pos pointer but flag pos list is cleared when flags load
@@ -6793,7 +6612,6 @@ BOOL loadSaveStructureV(UBYTE *pFileData, UDWORD filesize, UDWORD numStructures,
 					capacity = psSaveStructure->capacity;
 					//build the appropriate number of modules
                     buildStructure(psModule, psStructure->x, psStructure->y, psStructure->player, FALSE);
-//					psStructure->sDisplay.imd = powerModuleIMDs[psSaveStructure->capacity-1];
 				}
 				break;
 			case REF_RESOURCE_EXTRACTOR:
@@ -6896,7 +6714,6 @@ BOOL loadSaveStructureV(UBYTE *pFileData, UDWORD filesize, UDWORD numStructures,
 
 					break;
 				case REF_RESEARCH:
-//21feb					intCheckResearchButton();
 					break;
 				default:
 					//do nothing for factories etc
@@ -6988,7 +6805,6 @@ BOOL writeStructFile(STRING *pFileName)
 			{
 				psSaveStruct->visible[i] = psCurr->visible[i];
 			}
-			//psSaveStruct->structureInc = psCurr->pStructureType - asStructureStats;
 			psSaveStruct->status = psCurr->status;
 			//check if body at max
 			if (psCurr->body >= structureBody(psCurr))
@@ -7028,7 +6844,6 @@ BOOL writeStructFile(STRING *pFileName)
 					psFactory = ((FACTORY *)psCurr->pFunctionality);
 					psSaveStruct->capacity	= psFactory->capacity;			
                     //don't need to save this - it gets set up
-					//psSaveStruct->output			= psFactory->productionOutput;	
 					psSaveStruct->quantity			= psFactory->quantity;			
 					psSaveStruct->droidTimeStarted	= psFactory->timeStarted;		
 					psSaveStruct->powerAccrued		= psFactory->powerAccrued;
@@ -7072,7 +6887,6 @@ BOOL writeStructFile(STRING *pFileName)
 						pFunctionality)->capacity;
                     //don't need to save this - it gets set up
 					//psSaveStruct->output = ((RESEARCH_FACILITY *)psCurr->
-					//	pFunctionality)->researchPoints;
 					psSaveStruct->powerAccrued = ((RESEARCH_FACILITY *)psCurr->
 						pFunctionality)->powerAccrued;
 					psSaveStruct->timeStartHold	= ((RESEARCH_FACILITY *)psCurr->
@@ -7414,10 +7228,8 @@ BOOL loadSaveFeatureV2(UBYTE *pFileData, UDWORD filesize, UDWORD numFeatures)
 
 		//create the Feature
 		//buildFeature(asFeatureStats + psSaveFeature->featureInc, 
-		//	psSaveFeature->x, psSaveFeature->y);
 		pFeature = buildFeature(psStats, psSaveFeature->x, psSaveFeature->y,TRUE);
 		//will be added to the top of the linked list
-		//pFeature = apsFeatureLists[0];
 		if (!pFeature)
 		{
 			ASSERT((FALSE, "loadSaveFeature:Unable to create feature"));
@@ -7469,11 +7281,6 @@ BOOL loadSaveFeatureV14(UBYTE *pFileData, UDWORD filesize, UDWORD numFeatures, U
 	{
 		psSaveFeature = (SAVE_FEATURE_V14*) pFileData;
 
-		/*if (psSaveFeature->featureInc > numFeatureStats)
-		{
-			DBERROR(("Invalid Feature Type - unable to load save game"));
-			goto error;
-		}*/
 		//get the stats for this feature
 		found = FALSE;
 
@@ -7505,16 +7312,13 @@ BOOL loadSaveFeatureV14(UBYTE *pFileData, UDWORD filesize, UDWORD numFeatures, U
 		}
 		//create the Feature
 		//buildFeature(asFeatureStats + psSaveFeature->featureInc, 
-		//	psSaveFeature->x, psSaveFeature->y);
 		pFeature = buildFeature(psStats, psSaveFeature->x, psSaveFeature->y,TRUE);
 		//will be added to the top of the linked list
-		//pFeature = apsFeatureLists[0];
 		if (!pFeature)
 		{
 			ASSERT((FALSE, "loadSaveFeature:Unable to create feature"));
 			return FALSE;
 		}
-//DBPRINTF(("Loaded feature - id = %d @ %p\n",psSaveFeature->id,pFeature);
 		//restore values
 		pFeature->id = psSaveFeature->id;
 		pFeature->direction = (UWORD)psSaveFeature->direction;
@@ -7566,11 +7370,6 @@ BOOL loadSaveFeatureV(UBYTE *pFileData, UDWORD filesize, UDWORD numFeatures, UDW
 	{
 		psSaveFeature = (SAVE_FEATURE*) pFileData;
 
-		/*if (psSaveFeature->featureInc > numFeatureStats)
-		{
-			DBERROR(("Invalid Feature Type - unable to load save game"));
-			goto error;
-		}*/
 		//get the stats for this feature
 		found = FALSE;
 
@@ -7602,16 +7401,13 @@ BOOL loadSaveFeatureV(UBYTE *pFileData, UDWORD filesize, UDWORD numFeatures, UDW
 		}
 		//create the Feature
 		//buildFeature(asFeatureStats + psSaveFeature->featureInc, 
-		//	psSaveFeature->x, psSaveFeature->y);
 		pFeature = buildFeature(psStats, psSaveFeature->x, psSaveFeature->y,TRUE);
 		//will be added to the top of the linked list
-		//pFeature = apsFeatureLists[0];
 		if (!pFeature)
 		{
 			ASSERT((FALSE, "loadSaveFeature:Unable to create feature"));
 			return FALSE;
 		}
-//DBPRINTF(("Loaded feature - id = %d @ %p\n",psSaveFeature->id,pFeature);
 		//restore values
 		pFeature->id = psSaveFeature->id;
 		pFeature->direction = (UWORD)psSaveFeature->direction;
@@ -7678,9 +7474,6 @@ BOOL writeFeatureFile(STRING *pFileName)
 
 		psSaveFeature->id = psCurr->id;
 
-//		psSaveFeature->x = psCurr->x - psCurr->psStats->baseWidth * TILE_UNITS / 2;
-//		psSaveFeature->y = psCurr->y - psCurr->psStats->baseBreadth * TILE_UNITS / 2;
-//		psSaveFeature->z = psCurr->z;
 
 		psSaveFeature->x = psCurr->x;
 		psSaveFeature->y = psCurr->y;
@@ -7694,7 +7487,6 @@ BOOL writeFeatureFile(STRING *pFileName)
 			psSaveFeature->visible[i] = psCurr->visible[i];
 		}
 
-//		psSaveFeature->featureInc = psCurr->psStats - asFeatureStats;
 		psSaveFeature = (SAVE_FEATURE *)((UBYTE *)psSaveFeature + sizeof(SAVE_FEATURE));
 	}
 
@@ -7844,7 +7636,6 @@ BOOL loadSaveTemplateV7(UBYTE *pFileData, UDWORD filesize, UDWORD numTemplates)
 				DBERROR(("This component no longer exists - %s, the template will be deleted",psSaveTemplate->asParts[i]));
 
 				found = FALSE;
-				//continue;
 				break;
 			}
 			psTemplate->asParts[i] = (UDWORD)compInc;
@@ -7869,7 +7660,6 @@ BOOL loadSaveTemplateV7(UBYTE *pFileData, UDWORD filesize, UDWORD numTemplates)
 
 
 				found = FALSE;
-				//continue;
 				break;
 			}
 			psTemplate->asWeaps[i] = (UDWORD)compInc;
@@ -7969,7 +7759,6 @@ BOOL loadSaveTemplateV14(UBYTE *pFileData, UDWORD filesize, UDWORD numTemplates)
 				DBERROR(("This component no longer exists - %s, the template will be deleted",psSaveTemplate->asParts[i]));
 
 				found = FALSE;
-				//continue;
 				break;
 			}
 			psTemplate->asParts[i] = (UDWORD)compInc;
@@ -7994,7 +7783,6 @@ BOOL loadSaveTemplateV14(UBYTE *pFileData, UDWORD filesize, UDWORD numTemplates)
 
 
 				found = FALSE;
-				//continue;
 				break;
 			}
 			psTemplate->asWeaps[i] = (UDWORD)compInc;
@@ -8014,10 +7802,6 @@ BOOL loadSaveTemplateV14(UBYTE *pFileData, UDWORD filesize, UDWORD numTemplates)
 		psTemplate->powerPoints = calcTemplatePower(psTemplate);
 
 #ifdef NEW_SAVE_V14
-//		if (psSaveTemplate->player == 0)
-//		{
-//			DBPRINTF(("building from save %s %d\n",psTemplate->aName,psTemplate->multiPlayerID));
-//		}
 #endif
 
 		//store it in the apropriate player' list
@@ -8140,7 +7924,6 @@ BOOL loadSaveTemplateV(UBYTE *pFileData, UDWORD filesize, UDWORD numTemplates)
 				DBERROR(("This component no longer exists - %s, the template will be deleted",psSaveTemplate->asParts[i]));
 
 				found = FALSE;
-				//continue;
 				break;
 			}
 			psTemplate->asParts[i] = (UDWORD)compInc;
@@ -8165,7 +7948,6 @@ BOOL loadSaveTemplateV(UBYTE *pFileData, UDWORD filesize, UDWORD numTemplates)
 
 
 				found = FALSE;
-				//continue;
 				break;
 			}
 			psTemplate->asWeaps[i] = (UDWORD)compInc;
@@ -8178,17 +7960,12 @@ BOOL loadSaveTemplateV(UBYTE *pFileData, UDWORD filesize, UDWORD numTemplates)
 		}
 
 		//no! put brains back in 10Feb //ignore brains and programs for now
-		//psTemplate->asParts[COMP_BRAIN] = 0;
 
 		//calculate the total build points
 		psTemplate->buildPoints = calcTemplateBuild(psTemplate);
 		psTemplate->powerPoints = calcTemplatePower(psTemplate);
 
 #ifdef NEW_SAVE_V14
-//		if (psSaveTemplate->player == 0)
-//		{
-//			DBPRINTF(("building from save %s %d\n",psTemplate->aName,psTemplate->multiPlayerID));
-//		}
 #endif
 
 		//store it in the apropriate player' list
@@ -8282,7 +8059,6 @@ BOOL writeTemplateFile(STRING *pFileName)
 
 
 
-			//strcpy(psSaveTemplate->name, psCurr->pName);
 			strcpy(psSaveTemplate->name, psCurr->aName);
 
 			psSaveTemplate->ref = psCurr->ref;
@@ -8290,10 +8066,6 @@ BOOL writeTemplateFile(STRING *pFileName)
 			psSaveTemplate->droidType = (UBYTE)psCurr->droidType;
 			psSaveTemplate->multiPlayerID = psCurr->multiPlayerID;
 #ifdef NEW_SAVE_V14
-//			if (player == 0)
-//			{
-//				DBPRINTF(("saving %s %d \n",psCurr->aName,psCurr->multiPlayerID));
-//			}
 #endif
 			//for (i=0; i < DROID_MAXCOMP; i++) not interested in first comp - COMP_UNKNOWN
 			for (i=1; i < DROID_MAXCOMP; i++) 
@@ -8304,7 +8076,6 @@ BOOL writeTemplateFile(STRING *pFileName)
 				{
 					//ignore this record
 					break;
-					//continue;
 				}
 			}
 			psSaveTemplate->numWeaps = psCurr->numWeaps;
@@ -8315,7 +8086,6 @@ BOOL writeTemplateFile(STRING *pFileName)
 
 				{
 					//ignore this record
-					//continue;
 					break;
 				}
 			}
@@ -8751,19 +8521,6 @@ static BOOL writeCompListFile(STRING *pFileName)
 			psSaveCompList->state = apCompLists[player][COMP_BRAIN][i];
 			psSaveCompList = (SAVE_COMPLIST *)((UBYTE *)psSaveCompList + sizeof(SAVE_COMPLIST));
 		}
-		/*for(i = 0; i < numProgramStats; i++)
-		{
-			psStats = (COMP_BASE_STATS *)(asProgramStats + i);
-#ifdef HASH_NAMES
-			psSaveCompList->NameHash=psStats->NameHash;
-#else
-			strcpy(psSaveCompList->name, psStats->pName);
-#endif
-			psSaveCompList->type = COMP_PROGRAM;
-			psSaveCompList->player = (UBYTE)player;
-			psSaveCompList->state = apCompLists[player][COMP_PROGRAM][i];
-			psSaveCompList = (SAVE_COMPLIST *)((UBYTE *)psSaveCompList + sizeof(SAVE_COMPLIST));
-		}*/
 	}
 
 	if (!saveFile(pFileName, pFileData, fileSize))
@@ -9288,7 +9045,6 @@ BOOL loadSaveMessageV(UBYTE *pFileData, UDWORD filesize, UDWORD numMessages, UDW
     UNUSEDPARAMETER(version);
 
 	//clear any messages put in during level loads	
-	//freeMessages();
 
     //only clear the messages if its a mid save game
 	if (gameType == GTYPE_SAVE_MIDMISSION)
@@ -9489,7 +9245,6 @@ static BOOL writeMessageFile(STRING *pFileName)
 
 	return TRUE;
 }
-//#endif
  
 // -----------------------------------------------------------------------------------------
 #ifdef SAVE_PROXIMITY_STUFF//V14 Save this is not done because all messages are rebuilt
@@ -9544,14 +9299,11 @@ BOOL loadSaveProximityV(UBYTE *pFileData, UDWORD filesize, UDWORD numProximitys,
 		psSaveProximity = (SAVE_PROXIMITY *) pFileData;
 		if (psSaveProximity->type == MSG_PROXIMITY)
 		{
-//			addProximity(psSaveProximity->type, psSaveProximity->proxPos, psSaveProximity->player);
 		}
 		else
 		{
-//			psProximity = addProximity(psSaveProximity->type, FALSE, psSaveProximity->player);
 			if (psProximity)
 			{
-	//			psProximity->pViewData = getViewData(psSaveProximity->name);
 			}
 		}
 	}
@@ -9947,7 +9699,6 @@ static BOOL writeFlagFile(STRING *pFileName)
 
 	return TRUE;
 }
-//#endif
 
 // -----------------------------------------------------------------------------------------
 //#ifdef PRODUCTION
@@ -10030,7 +9781,6 @@ static BOOL writeProductionFile(STRING *pFileName)
 	PRODUCTION_RUN	*psCurrentProd;
 	UDWORD				factoryType,factoryNum,runNum;
 
-//PRODUCTION_RUN		asProductionRun[NUM_FACTORY_TYPES][MAX_FACTORY][MAX_PROD_RUN];
 
 
 	fileSize = PRODUCTION_HEADER_SIZE + (sizeof(SAVE_PRODUCTION) * 
@@ -10082,7 +9832,6 @@ static BOOL writeProductionFile(STRING *pFileName)
 
 	return TRUE;
 }
-//#endif
 
 
 

@@ -143,7 +143,6 @@ typedef struct {UDWORD pieFlag; PIELIGHT colour, specular; UBYTE light, trans, s
 typedef struct {long n; char msge[240];} iError;
 typedef int32 fixed;
 
-// This is the new resource loaded structure (TEXPAGE)
 typedef struct
 {
 	iSprite *Texture;
@@ -175,8 +174,6 @@ typedef struct
  */
 /***************************************************************************/
 extern void pie_Draw3DShape(iIMDShape *shape, int frame, int team, UDWORD colour, UDWORD specular, int pieFlag, int pieData);
-//extern void pie_Draw3DIntelShape(iIMDShape *shape, int frame, int team, UDWORD colour, UDWORD specular, int pieFlag, int pieData);
-//extern void pie_Draw3DNowShape(iIMDShape *shape, int frame, int team, UDWORD col, UDWORD spec, int pieFlag, int pieFlagData);
 extern void pie_DrawImage(PIEIMAGE *image, PIERECT *dest, PIESTYLE *style);
 extern void pie_DrawImage270(PIEIMAGE *image, PIERECT *dest, PIESTYLE *style);
 
@@ -186,7 +183,6 @@ extern void pie_DrawLine(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1, UDWORD colo
 extern void pie_DrawTriangle(iVertex *pv, iTexture* texPage, UDWORD renderFlags, iPoint *offset);
 //PIEVERTEX poly draw for all hardware modes
 extern void pie_DrawPoly(SDWORD numVrts, PIEVERTEX *aVrts, SDWORD texPage, void* psEffects);
-//PIEVERTEX triangle draw (glide specific)
 extern void	pie_DrawFastTriangle(PIEVERTEX *v1, PIEVERTEX *v2, PIEVERTEX *v3, iTexture* texPage, int pieFlag, int pieFlagData);
 
 extern void pie_GetResetCounts(SDWORD* pPieCount, SDWORD* pTileCount, SDWORD* pPolyCount, SDWORD* pStateCount);

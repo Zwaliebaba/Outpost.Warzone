@@ -55,7 +55,6 @@ void OutputDebugStringW95( LPCTSTR lpOutputString, ...)
     heventDBWIN = OpenEvent(EVENT_MODIFY_STATE, FALSE, "DBWIN_BUFFER_READY");
     if ( !heventDBWIN )
     {
-        //MessageBox(NULL, "DBWIN_BUFFER_READY nonexistent", NULL, MB_OK);
         return;            
     }
 
@@ -63,7 +62,6 @@ void OutputDebugStringW95( LPCTSTR lpOutputString, ...)
     heventData = OpenEvent(EVENT_MODIFY_STATE, FALSE, "DBWIN_DATA_READY");
     if ( !heventData )
     {
-        // MessageBox(NULL, "DBWIN_DATA_READY nonexistent", NULL, MB_OK);
         CloseHandle(heventDBWIN);
         return;            
     }
@@ -71,7 +69,6 @@ void OutputDebugStringW95( LPCTSTR lpOutputString, ...)
     hSharedFile = CreateFileMapping((HANDLE)-1, NULL, PAGE_READWRITE, 0, 4096, "DBWIN_BUFFER");
     if (!hSharedFile) 
     {
-        //MessageBox(NULL, "DebugTrace: Unable to create file mapping object DBWIN_BUFFER", "Error", MB_OK);
         CloseHandle(heventDBWIN);
         CloseHandle(heventData);
         return;
@@ -80,7 +77,6 @@ void OutputDebugStringW95( LPCTSTR lpOutputString, ...)
     lpszSharedMem = (LPSTR)MapViewOfFile(hSharedFile, FILE_MAP_WRITE, 0, 0, 512);
     if (!lpszSharedMem) 
     {
-        //MessageBox(NULL, "DebugTrace: Unable to map shared memory", "Error", MB_OK);
         CloseHandle(heventDBWIN);
         CloseHandle(heventData);
         return;

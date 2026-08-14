@@ -81,7 +81,6 @@ DDPIXELFORMAT		sBackBufferPixelFormat;
 DDPIXELFORMAT		sWinPixelFormat;
 
 /* The size of the windows display mode */
-//static UDWORD		winDispWidth, winDispHeight;
 
 // The current flip state
 FLIP_STATE	screenFlipState;
@@ -364,33 +363,6 @@ static BOOL getWindowsPixelFormat(void)
 
 	return TRUE;
 }
-#if 0
-/*
- * enumModesCallback
- *
- * Callback used by the Direct Draw EnumDisplayModes
- * function.
- * This is used to check a mode exists that matches the
- * requested mode.
- */
-static HRESULT WINAPI enumModesCallback(
-			LPDDSURFACEDESC2 psSurfaceDesc,
-			LPVOID pModeAvailable)
-{
-	/* This function only gets called if the size matches -
-	 * only need to check the bit depth.
-	 */
-	if (psSurfaceDesc->ddpfPixelFormat.dwRGBBitCount == screenDepth)
-	{
-		*((BOOL *)pModeAvailable) = TRUE;
-		return DDENUMRET_OK;
-	}
-	else
-	{
-		return DDENUMRET_OK;
-	}
-}
-#endif
 
 
 /* Convert the display palette to a set of true colour entries of
@@ -940,7 +912,6 @@ BOOL screenInitialise(UDWORD		width,			// Display width
 	screenWidth = width;
 	screenHeight = height;
 	screenDepth = bitDepth;
-//	screenRequested = fullScreen;
 
 	hWndMain = hWindow;
 
@@ -965,30 +936,6 @@ BOOL screenInitialise(UDWORD		width,			// Display width
 		DBERROR(("Create DD2 object failed:\n%s", DDErrorToString(ddrval)));
 		return FALSE;
 	}
-#if 0
-	/* Check that we can change to the requested mode.
-	 * If not only window mode will be available (unless the windows
-	 * bit depth doesn't match what is required).
-	 */
-	 //why check when all we can do at this point is fail anyway
-
-	memset(&sSurfDesc, 0, sizeof(DDSURFACEDESC2));
-	sSurfDesc.dwSize = sizeof(DDSURFACEDESC2);
-	sSurfDesc.dwFlags = DDSD_WIDTH | DDSD_HEIGHT;
-	sSurfDesc.dwWidth = width;
-	sSurfDesc.dwHeight = height;
-	ddrval = psDD->lpVtbl->EnumDisplayModes(
-						psDD,
-						0,				// Flags
-						NULL,//&sSurfDesc,		// Surface Description
-						&modeAvailable,	// callback function sets this if mode found
-						enumModesCallback);		// the callback function
-	if (ddrval != DD_OK)
-	{
-		DBERROR(("Enumerate display modes failed:\n%s", DDErrorToString(ddrval)));
-		return FALSE;
-	}
-#endif
 	/* Get the pixel format for the current windows display.
 	 * If this doesn't match the required bit depth, only full screen mode will
 	 * be available.
@@ -1457,24 +1404,6 @@ void screenFlip(BOOL clearBackBuffer)
 		xStart = 0;
 		yEnd = screenHeight;
 		xEnd = screenWidth;
-		/*
-		if (sWinOrigin.x < 0)
-		{
-			xStart = -sWinOrigin.x;
-		}
-		if (sWinOrigin.x + screenWidth >= winDispWidth)
-		{
-			xEnd = winDispWidth - sWinOrigin.x;
-		}
-		if (sWinOrigin.y < 0)
-		{
-			yStart = - sWinOrigin.y;
-		}
-		if (sWinOrigin.y + screenHeight >= winDispHeight)
-		{
-			yEnd = winDispHeight - sWinOrigin.y;
-		}
-		*/
 		/* Lock the back buffer */
 		ddsdBack.dwSize = sizeof(DDSURFACEDESC2);
 		ddrval = psBack->lpVtbl->Lock(psBack, NULL, &ddsdBack,
@@ -1586,11 +1515,9 @@ clipped: ;
 		}
 		(void)SetRect(&sDestRect, sWinOrigin.x, sWinOrigin.y,
 				sWinOrigin.x+screenWidth, sWinOrigin.y+screenHeight);
-//		(void)SetRect(&sDestRect, 0,0,100,100);
 
 		/* Then blt to those coords */
 		(void)SetRect(&sSrcRect, 0,0, screenWidth, screenHeight);
-//		(void)SetRect(&sSrcRect, 0,0, 100, 100);
 		ddrval = psFront->lpVtbl->Blt(
 							psFront, &sDestRect,
 							psBack, &sSrcRect,
@@ -2017,7 +1944,6 @@ void screenFlipToGDI(void)
 	if (screenMode == SCREEN_FULLSCREEN)
 	{
 		ddrval = psDD->lpVtbl->FlipToGDISurface(psDD);
-//		ddrval = DD_OK;
 		if (ddrval != DD_OK)
 		{
 			/* Can't use a message box here as this function gets called by
@@ -2036,8 +1962,6 @@ void screenFlipToGDI(void)
 void screenSetPalette(UDWORD first, UDWORD count, PALETTEENTRY *psEntries)
 {
 	HRESULT					ddrval;
-/*	LPDIRECTDRAWPALETTE		psTmpPal;
-	PALETTEENTRY			aTmpEntries[PAL_MAX];*/
 
 	ASSERT(((first+count-1 < PAL_MAX),
 		"screenSetPalette: invalid entry range"));
@@ -2610,8 +2534,6 @@ void screenDrawLine(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1)
 {
 	SDWORD			d, x,y, ax,ay, sx,sy, dx,dy;
 	SDWORD			lineChange;
-//	SDWORD			dx,dy, accX, currY;
-//	SDWORD			xDir, yDir, endX, endY;
 	UBYTE			*pOffset;
 	HRESULT			ddrval;
 	DDSURFACEDESC2	ddsd;

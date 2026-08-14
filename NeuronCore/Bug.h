@@ -6,7 +6,6 @@
 #define iV_DEBUG_FILE	"IVI.LOG"
 
 #ifdef _DEBUG
-//	#define iV_DEBUG
 #endif
 
 #ifdef iV_DEBUG

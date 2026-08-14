@@ -75,7 +75,6 @@
 #include "FormationDef.h"
 #include "Formation.h"
 
-//#include "Glide.h"
 #include "CDAudio.h"
 #include "Mixer.h"
 #include "AdvVis.h"
@@ -135,10 +134,8 @@ BLOCK_HEAP	*psMissionHeap;
 // Same for WIN32 and PSX.
 //
 UWORD FEAsciiLookup[256] = 
-//#else
 //// We can use bytes as long as we ensure the font images are the 1st 256 in the image file.
 //UBYTE FEAsciiLookup[256] = 
-//#endif
 {
 	IMAGE_TFONT_63,	//0		0..32 are all mapped to question marks
 	IMAGE_TFONT_63,	//1
@@ -401,12 +398,9 @@ UWORD FEAsciiLookup[256] =
 // Ascii to font image id lookup table for in game font.
 // Same for WIN32 and PSX.
 //
-//#ifdef WIN32
 //UWORD AsciiLookup[256] = 
-//#else
 //// We can use bytes as long as we ensure the font images are the 1st 256 in the image file.
 UWORD AsciiLookup[256] = 
-//#endif
 {
 	IMAGE_ASCII63,	//0		0..32 are all mapped to question marks
 	IMAGE_ASCII63,	//1
@@ -673,7 +667,6 @@ BOOL DirectControl = FALSE;
 
 
 extern int FEFont;
-//extern int FEBigFont;
 
 
 // Each module in the game should have a call from here to initialise
@@ -811,7 +804,6 @@ BOOL systemInitialise(void)
 	pie_SetTranslucent(war_GetTranslucent());
 	pie_SetAdditive(war_GetAdditive());
 	
-//	displayBufferSize = iV_GetDisplayWidth()*iV_GetDisplayHeight()*iV_GetDisplayBytesPP();
 	displayBufferSize = DISP_WIDTH*DISP_HEIGHT*2;
 	if (displayBufferSize < 1500000)
 	{
@@ -1102,9 +1094,6 @@ BOOL frontendShutdown(void)
 	saveConfig();			// save settings to registry.
 
 	//	if (!aiShutdown())
-//	{
-//		return FALSE;
-//	}
 
 	if (!mechShutdown())
 	{
@@ -1117,7 +1106,6 @@ BOOL frontendShutdown(void)
 	scrShutDown();
 
 	//do this before shutting down the iV library
-//	D3DFreeTexturePages();
 	resReleaseAllData();
 
 	if (!objShutdown())
@@ -1301,7 +1289,6 @@ BOOL stageOneShutDown(void)
 	DBPRINTF(("stageOneShutDown\n"));
 
 	//do this before shutting down the iV library
-//	D3DFreeTexturePages();
 
 	if ( audio_Disabled() == FALSE )
 	{
@@ -1450,9 +1437,6 @@ BOOL stageTwoInitialise(void)
 	LOADBARCALLBACK();	//	loadingScreenCallback();
 
 //	if (!initTitle())
-//	{
-//		return(FALSE);
-//	}
 
 	if (!initMessage())			/* Initialise the message heaps */
 	{
@@ -1472,8 +1456,6 @@ BOOL stageTwoInitialise(void)
 
 	pie_SetMouse(IntImages,IMAGE_CURSOR_DEFAULT);	// Set the default cursor shape.
 	frameSetCursorFromRes(IDC_DEFAULT);
-//	drawRadar3dfx(64,64);
-//	iV_DownLoadRadar(radarBuffer3dfx);
 
 
 	SetFormAudioIDs(ID_SOUND_WINDOWOPEN,ID_SOUND_WINDOWCLOSE);
@@ -1481,11 +1463,7 @@ BOOL stageTwoInitialise(void)
 //	mapNew(256,256);	// Generate the largest size of map needed for the game
 //	if (!loadGame("final.gam"))
 //	if (!loadGame("savetest.gam"))
-//	{
-//		return FALSE;
-//	}
 
-//	intSetMapPos(43 << TILE_SHIFT, 43 << TILE_SHIFT);
 
 
 
@@ -1593,8 +1571,6 @@ void SetScrollLimitsTilesVisible(void)
 //
 BOOL stageThreeInitialise(void)
 {
-//MAPTILE	*psTile;
-//UDWORD	i,j;
 
 	STRUCTURE *psStr;
 
@@ -1613,7 +1589,6 @@ BOOL stageThreeInitialise(void)
 	}
 
 	effectResetUpdates();
-	//initLighting();
     initLighting(0, 0, mapWidth, mapHeight);
 
 
@@ -1648,12 +1623,6 @@ BOOL stageThreeInitialise(void)
 		intRemoveMissionResultNoAnim();
 	}
 
-//#ifdef WIN32
-//	if(bMultiPlayer)
-//	{
-//		multiGameInit();
-//	}
-//#endif
 
 
 	// determine if to use radar
@@ -1707,10 +1676,6 @@ BOOL stageThreeShutDown(void)
 	{
 		multiGameShutdown();
 	}
-//#if 0
-//	environShutDown();
-//#endif
-//	avCloseSystem();
 
 	cmdDroidMultiExpBoost(FALSE);
 
@@ -1729,7 +1694,6 @@ BOOL stageThreeShutDown(void)
 	/*
 		When this line wasn't at this point. The PSX version always failed on the next script after the tutorial ... unexplained why?
 	*/
-//	bInTutorial=FALSE;
 	scrExternReset();
 
     //reset the run data so that doesn't need to be initialised in the scripts
@@ -1737,7 +1701,6 @@ BOOL stageThreeShutDown(void)
 
 	// Remove any remaining enemy objects.
 // Now done in mission state loop.
-//	missionDestroyObjects();	
 
 
 	resetVTOLLandingPos();
@@ -1784,7 +1747,6 @@ BOOL campaignReset(void)
 // Reset the game when loading a save game
 BOOL saveGameReset(void)
 {
-//#ifdef MISSION_S
 	DBPRINTF(("saveGameReset\n"));
 
 #if !defined(I_LIKE_LISTENING_TO_CDS)
@@ -1801,10 +1763,8 @@ BOOL saveGameReset(void)
 	freeAllDroids();																								  
 	freeAllFeatures();
 	freeAllFlagPositions();
-//#ifdef NEW_SAVE added for V12 SAVE safe for all versions
 	initMission();
 	initTransporters();
-//#endif
 	//free up the gateway stuff?
 	gwShutDown();
 	intResetScreen(TRUE);
@@ -1827,10 +1787,8 @@ BOOL newMapInitialise(void)
 	DBPRINTF(("newMapInitialise\n"));
 
 //NEW_SAVE removed for V11 Save removed for all versions
-//	initViewPosition();
 
 // initialise the gateway stuff
-//#ifdef WIN32
 	// this no longer necessary when RLE map zones are loaded
 //	gwProcessMap();	// now loaded with map.
 
@@ -1840,7 +1798,6 @@ BOOL newMapInitialise(void)
 		return FALSE;
 	}
 */
-//#endif
 
 
 
@@ -1857,13 +1814,8 @@ void	initMiscVars( void )
 	godMode = TRUE;
 #endif
 
-//#ifdef ALEXM
-//   	setBlipDraw(TRUE);
-//	setProximityDraw(FALSE);
-//#else
 	setBlipDraw(TRUE);
 	setProximityDraw(TRUE);
-//#endif
 
 	radarOnScreen = TRUE;
 	enableConsoleDisplay(TRUE);

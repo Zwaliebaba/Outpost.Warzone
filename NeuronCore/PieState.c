@@ -100,7 +100,6 @@ static void pie_SetColourCombine(COLOUR_MODE colCombMode);
 static void pie_SetTexCombine(TEX_MODE texCombMode);
 static void pie_SetAlphaCombine(ALPHA_MODE alphaCombMode);
 static void pie_SetTranslucencyMode(TRANSLUCENCY_MODE transMode);
-//static void pie_SetAlphaCombine(BOOL trans);
 
 /***************************************************************************/
 /*
@@ -159,8 +158,6 @@ void pie_ResetStates(void) //Sets all states
     pie_SetDepthBufferStatus(temp);
 
     //set render mode
-    //	pie_SetTranslucent(TRUE);
-    //	pie_SetAdditive(TRUE);
 
     //basic gouraud textured rendering
     temp = rendStates.texCombine;
@@ -538,17 +535,6 @@ void pie_SetRendMode(REND_MODE rendMode)
     }
 }
 
-/*
-BOOL pie_GetTranslucent(void)
-{
-	if (rendStates.transMode == TRANS_DECAL)
-	{
-		return FALSE;
-	}
-	return TRUE;
-
-}
-*/
 /***************************************************************************/
 
 void pie_SetColourKeyedBlack(BOOL keyingOn)

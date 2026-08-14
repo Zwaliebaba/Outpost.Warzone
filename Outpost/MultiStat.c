@@ -79,7 +79,6 @@ BOOL addToForce(DROID_TEMPLATE  *templ)
 		memcpy(pT, templ, sizeof(DROID_TEMPLATE));
 
 		// calculate power etc for this template
-//		initTemplatePoints();
 		pT->buildPoints = calcTemplateBuild(pT);
 		pT->powerPoints = calcTemplatePower(pT);
 
@@ -240,12 +239,6 @@ VOID useTheForce(BOOL bAddTempl)//Luke
 
 	UNUSEDPARAMETER(bAddTempl);
 
-//	if(game.type == DMATCH)
-//	{
-//		chooseForceLoc(&x,&y);
-//	}
-//	if(game.type == CAMPAIGN)
-//	{
 		if(apsDroidLists[selectedPlayer])
 		{
 			//set drop off point to pos of other droids.
@@ -259,7 +252,6 @@ VOID useTheForce(BOOL bAddTempl)//Luke
 			}
 
 		}
-//	}
 
 	x1 = x;													// now we have a coord, place droids
 	y1 = y;
@@ -312,7 +304,6 @@ VOID useTheForce(BOOL bAddTempl)//Luke
 
 
 //		if(usePower(selectedPlayer, pTempl->powerPoints))
-//		{
 			pDr= buildDroid(pTempl, x<<TILE_SHIFT, y<<TILE_SHIFT, selectedPlayer, FALSE);
 
 			removeFromForce(0);									// remove from force (to free power)
@@ -324,7 +315,6 @@ VOID useTheForce(BOOL bAddTempl)//Luke
 				position.y = pDr->z;
 				addEffect(&position,EFFECT_EXPLOSION,EXPLOSION_TYPE_DISCOVERY,FALSE,NULL,FALSE);
 			}	
-//		}
 	}
 
 }
@@ -419,7 +409,6 @@ BOOL saveForce(char *name,FORCE *pfForce)
 BOOL loadForce(char *name)
 {
 	STRING			fileName[255]="";
-//	STRING			tname[255]="";
 	FILE			*pFileHandle;
 	UDWORD			tcount,fcount=0,ref;
 	DROID_TEMPLATE	*psTempl;
@@ -437,7 +426,6 @@ BOOL loadForce(char *name)
 		removeFromForce(0);	
 	}
 
-//	DBERROR(("tem %d   :   mem %d",Force.pForceTemplates ,	Force.pMembers));
 
 	Force.pForceTemplates = NULL;
 	Force.pMembers = NULL;
@@ -603,7 +591,6 @@ BOOL loadMultiStats(STRING *sPlayerName,PLAYERSTATS *playerStats)
 	loadFile(fileName,&pFileData,&((UDWORD)size));
 	codedst = ((SAVEDPLAYERSTATS*)pFileData);
 
-	//decode packet;
 	memcpy(&tmp,&NetPlay.cryptKey,sizeof(tmp));
 	NETsetKey(11974,224351,2023901,21080);
 	NETunmangleData( codedst,&st,sizeof(SAVEDPLAYERSTATS));
@@ -648,7 +635,6 @@ BOOL saveMultiStats(STRING *sFileName, STRING *sPlayerName,PLAYERSTATS *playerSt
 	memset(st.padding,1,4);
 	strcpy(st.name, sPlayerName);
 	
-	//encode packet;
 	memcpy(&tmp,&NetPlay.cryptKey,sizeof(tmp));
 	NETsetKey(11974,224351,2023901,21080);
 	NETmangleData(&st,&codedst,sizeof(SAVEDPLAYERSTATS));	

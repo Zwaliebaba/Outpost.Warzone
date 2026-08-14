@@ -22,10 +22,8 @@
 #include "Data.h"
 #include "MultiWDG.h"
 
-//#ifdef DEBUG
 #include "Script.h"
 #include "ScriptTabs.h"
-//#endif
 
 // semi hack to get the playstation to load resources from the WDG
 
@@ -33,7 +31,6 @@
 #define MULTI_TYPE_START	10
 
 
-// block ID number start for the current level data (as opposed to a dataset)
 #define CURRENT_DATAID		LEVEL_MAXFILES
 
 static	UBYTE	currentLevelName[32];
@@ -475,12 +472,10 @@ BOOL levReleaseMissionData(void)
 				resReleaseBlockData(i + CURRENT_DATAID);
 			}
 		}
-//#ifndef COVERMOUNT
 		if (psCurrLevel->type == LDS_BETWEEN)
 		{
 			BLOCK_RESET(psMissionHeap);
 		}
-//#endif
 
 	}
 
@@ -576,7 +571,6 @@ BOOL levLoadSingleWRF(STRING *pName)
 }
 
 
-// load up the base data set for a level (used by savegames)
 BOOL levLoadBaseData(STRING *pName)
 {
 	LEVEL_DATASET	*psNewLevel, *psBaseData;
@@ -657,7 +651,6 @@ BOOL levLoadData(STRING *pName, STRING *pSaveName, SDWORD saveType)
 	DBPRINTF(("Loading level %s\n", pName));
 
 	// reset fog
-//	fogStatus = 0;
 //	pie_EnableFog(FALSE);//removed, always set by script or save game
 	
 	levelLoadType = saveType;
@@ -806,11 +799,9 @@ BOOL levLoadData(STRING *pName, STRING *pSaveName, SDWORD saveType)
 #endif
 	if (psNewLevel->game == -1)  //no .gam file to load - BETWEEN missions (for Editor games only)
 	{
-//#ifndef COVERMOUNT
 
 		ASSERT((psNewLevel->type == LDS_BETWEEN,
 			"levLoadData: only BETWEEN missions do not need a .gam file"));
-//#endif
 		DBP0(("levLoadData: no .gam file for level: BETWEEN mission\n"));
 		if (pSaveName != NULL)
 		{
@@ -896,8 +887,6 @@ BOOL levLoadData(STRING *pName, STRING *pSaveName, SDWORD saveType)
 		    }
 
             //we now need to go to the next level
-            //psNewLevel = psChangeLevel;
-            //psChangeLevel = NULL;
 
             //stageTwoShutDown??
             //block_reset??
@@ -1116,7 +1105,6 @@ iV_Reset(FALSE);//unload font, to avoid crash on 8th load... ajl 15/sep/99
 	}
 
 
-	//if (pSaveName != NULL && saveType == GTYPE_SAVE_MIDMISSION)
     if (pSaveName != NULL)
 	{
 		//load MidMission Extras
@@ -1143,14 +1131,12 @@ iV_Reset(FALSE);//unload font, to avoid crash on 8th load... ajl 15/sep/99
 	}
 
 //want to test with release build too
-//#ifdef DEBUG
     //this enables us to to start cam2/cam3 without going via a save game and get the extra droids
     //in from the script-controlled Transporters
     if (!pSaveName AND psNewLevel->type == LDS_CAMSTART)
     {
         eventFireCallbackTrigger(CALL_NO_REINFORCEMENTS_LEFT);
     }
-//#endif
 
     //restore the level name for comparisons on next mission load up
     if (psChangeLevel == NULL)

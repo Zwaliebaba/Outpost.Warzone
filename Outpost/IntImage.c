@@ -95,7 +95,6 @@ IMAGEFRAME FrameRadar = {
 	{FR_IGNORE, 0,0, 0,0 ,0}},
 };
 
-//IMAGEFRAME FrameObject = {
 //	0,0, 0,0,
 //	-1,
 //	-1,
@@ -110,9 +109,7 @@ IMAGEFRAME FrameRadar = {
 //	{FR_IGNORE, 0,0, 0,0 ,0},
 //	{FR_IGNORE, 0,0, 0,0 ,0},
 //	{FR_IGNORE, 0,0, 0,0 ,0}},
-//};
 //
-//IMAGEFRAME FrameStats = {
 //	0,0, 0,0,
 //	-1,
 //	-1,
@@ -127,9 +124,7 @@ IMAGEFRAME FrameRadar = {
 //	{FR_IGNORE, 0,0, 0,0 ,0},
 //	{FR_IGNORE, 0,0, 0,0 ,0},
 //	{FR_IGNORE, 0,0, 0,0 ,0}},
-//};
 //
-//IMAGEFRAME FrameDesignView = {
 //	0,0, 0,0,
 //	IMAGE_FRAME_VC0,
 //	IMAGE_FRAME_VC1,
@@ -144,9 +139,7 @@ IMAGEFRAME FrameRadar = {
 //	{FR_FRAME, 0,0, 0,0 ,1},
 //	{FR_FRAME, 0,0, 0,0 ,1},
 //	{FR_FRAME, 0,0, 0,0 ,1}},
-//};
 //
-//IMAGEFRAME FrameDesignHilight = {
 //	0,0, 0,0,
 //	IMAGE_FRAME_HC0,
 //	IMAGE_FRAME_HC1,
@@ -161,9 +154,7 @@ IMAGEFRAME FrameRadar = {
 //	{FR_FRAME, 0,0, 0,0 ,1},
 //	{FR_FRAME, 0,0, 0,0 ,1},
 //	{FR_FRAME, 0,0, 0,0 ,1}},
-//};
 //
-//IMAGEFRAME FrameText = {
 //	0,0, 0,0,
 //	-1,
 //	-1,
@@ -178,7 +169,6 @@ IMAGEFRAME FrameRadar = {
 //	{FR_IGNORE, 0,0, 0,0 ,0},
 //	{FR_IGNORE, 0,0, 0,0 ,0},
 //	{FR_IGNORE, 0,0, 0,0 ,0}},
-//};
 
 // Tab definitions, defines graphics to use for major and minor tabs.
 TABDEF	StandardTab = {
@@ -227,14 +217,12 @@ TABDEF	SmallTab = {
 BOOL imageInitBitmaps(void)
 {
   	IntImages = (IMAGEFILE*)resGetData("IMG","intfac.img");
-//	IntImages = iV_LoadImageFile("intpc.img");
 
 	return TRUE;
 }
 
 void imageDeleteBitmaps(void)
 {
-//	iV_FreeImageFile(IntImages);
 }
 
 
@@ -308,9 +296,6 @@ void RenderWindow(IMAGEFRAME *Frame,UDWORD x,UDWORD y,UDWORD Width,UDWORD Height
 	for(RectI=0; RectI<5; RectI++) {
 		Rect = &Frame->FRect[RectI];
 
-//		if(Opaque==FALSE) {
-//			screenSetFillCacheColour(Rect->ColourIndex);
-//		}
 
 		switch(Rect->Type) {
 			case FR_FRAME:

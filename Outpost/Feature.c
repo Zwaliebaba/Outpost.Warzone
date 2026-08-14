@@ -41,8 +41,6 @@ UDWORD			numFeatureStats;
 #define	DRIVE_OVER_RUBBLE_TILE		54
 #define NO_DRIVE_OVER_RUBBLE_TILE	67
 
-//Value is stored for easy access to this feature in destroyDroid()/destroyStruct()
-//UDWORD			droidFeature;
 UDWORD			structFeature;
 UDWORD			oilResFeature;
 
@@ -60,7 +58,6 @@ void featureInitVars(void)
 {
 	asFeatureStats = NULL;
 	numFeatureStats = 0;
-	//droidFeature = 0;
 	structFeature = 0;
 	oilResFeature = 0;
 }
@@ -140,7 +137,6 @@ BOOL loadFeatureStats(SBYTE *pFeatureData, UDWORD bufferSize)
 	UDWORD				i;
 	STRING				featureName[MAX_NAME_SIZE], GfxFile[MAX_NAME_SIZE], 
 						type[MAX_NAME_SIZE];
-						//compName[MAX_NAME_SIZE], compType[MAX_NAME_SIZE];
 
 	//keep the start so we release it at the end
 	pData = pFeatureData;
@@ -239,7 +235,6 @@ BOOL loadFeatureStats(SBYTE *pFeatureData, UDWORD bufferSize)
 		psFeature++;
 	}
 
-//	FREE(pData);
 	
 	return TRUE;
 
@@ -424,7 +419,6 @@ BOOL loadFeatureStats(SBYTE *pFeatureData, UDWORD bufferSize)
 	psStats->tileDraw = TRUE;
 	psStats->allowLOS = TRUE;
 	psStats->psImd = resGetData("IMD", "drwreck.imd");
-	//Value is stored for easy access to this feature in destroyDroid()
 	droidFeature = psStats - asFeatureStats;
 
 	psStats++;
@@ -602,7 +596,6 @@ void featureStatsShutDown(void)
 {
 	FEATURE_STATS	*psFeature = asFeatureStats;
 
-//#ifndef RESOURCE_NAMES
 #if !defined(RESOURCE_NAMES) && !defined(STORE_RESOURCE_ID)
 	
 	UDWORD			inc;
@@ -627,7 +620,6 @@ BOOL featureDamage(FEATURE *psFeature, UDWORD damage, UDWORD weaponClass,
 	UDWORD		penDamage;
 
 	/* this is ignored for features */
-	//(void)weaponClass;
     UNUSEDPARAMETER(weaponClass);
 
 	ASSERT((PTRVALID(psFeature, sizeof(FEATURE)),
@@ -674,10 +666,7 @@ BOOL featureDamage(FEATURE *psFeature, UDWORD damage, UDWORD weaponClass,
 			psFeature->body -= 1;
 		}
 	}
-//	if(psFeature->sDisplay.imd->ymax > 300)
-//	{
 		psFeature->timeLastHit = gameTime;
-//	}
 	return FALSE;
 
 }
@@ -776,10 +765,8 @@ FEATURE * buildFeature(FEATURE_STATS *psStats, UDWORD x, UDWORD y,BOOL FromSave)
 		psFeature->direction = 0;
    		psFeature->gfxScaling = 100;	// but irrelevant anyway, cos it's not scaled
 	}
-	//psFeature->damage = featureDamage;
 	psFeature->selected = FALSE;
 	psFeature->psStats = psStats;
-	//psFeature->subType = psStats->subType;
 	psFeature->body = psStats->body;
 	psFeature->player = MAX_PLAYERS+1;	//set the player out of range to avoid targeting confusions
 	psFeature->bTargetted = FALSE;
@@ -819,13 +806,11 @@ FEATURE * buildFeature(FEATURE_STATS *psStats, UDWORD x, UDWORD y,BOOL FromSave)
 	// set up the imd for the feature
 	if(psFeature->psStats->subType==FEAT_BUILD_WRECK)
 	{
-//		psFeature->sDisplay.imd = wreckageImds[rand()%MAX_WRECKAGE];
 		psFeature->sDisplay.imd = getRandomWreckageImd();
 	}
 	else
 	{
 		psFeature->sDisplay.imd = psStats->psImd;
-//DBPRINTF(("%d %d\n",psStats->psImd->ymin,psStats->psImd->ymax);
   	}
 
 
@@ -852,9 +837,6 @@ FEATURE * buildFeature(FEATURE_STATS *psStats, UDWORD x, UDWORD y,BOOL FromSave)
 				SET_TILE_FEATURE(psTile);	
 				// if it's a tall feature then flag it in the map.
 				if(psFeature->sDisplay.imd->ymax > TALLOBJECT_YMAX) {
-//#ifdef PSX
-//DBPRINTF(("Tall feature %d, (%d x %d)\n",psFeature->sDisplay.imd->ymax,psStats->baseWidth,psStats->baseBreadth));
-//#endif
 					SET_TILE_TALLSTRUCTURE(psTile);
 				}
 
@@ -880,15 +862,7 @@ FEATURE * buildFeature(FEATURE_STATS *psStats, UDWORD x, UDWORD y,BOOL FromSave)
 	psFeature->startTime = gameTime;
 
 //	// set up the imd for the feature
-//	if(psFeature->psStats->subType==FEAT_BUILD_WRECK)
-//	{
-//		psFeature->sDisplay.imd = wreckageImds[rand()%MAX_WRECKAGE];
-//	}
 //	else
-//	{
-//		psFeature->sDisplay.imd = psStats->psImd;
-//DBPRINTF(("%d %d\n",psStats->psImd->ymin,psStats->psImd->ymax);
-// 	}
 
 	// add the feature to the grid
 	gridAddObject((BASE_OBJECT *)psFeature);
@@ -908,10 +882,8 @@ void featureRelease(FEATURE *psFeature)
 void featureUpdate(FEATURE *psFeat)
 {
    //	if(getRevealStatus())
-   //	{
 		// update the visibility for the feature
 		processVisibility((BASE_OBJECT *)psFeat);
-   //	}
 
 	switch (psFeat->psStats->subType)
 	{
@@ -919,9 +891,7 @@ void featureUpdate(FEATURE *psFeat)
 	case FEAT_BUILD_WRECK:
 //		//kill off wrecked droids and structures after 'so' long
 //		if ((gameTime - psFeat->startTime) > WRECK_LIFETIME)
-//		{
 			destroyFeature(psFeat); // get rid of the now!!!
-//		}
 		break;
 	}
 }
@@ -935,9 +905,6 @@ void removeFeature(FEATURE *psDel)
 	MESSAGE		*psMessage;
 	iVector		pos;
 
-//	iVector		dv;
-//	UWORD		uwFlameCycles, uwFlameAnims, i;
-//	UDWORD		x, y, udwFlameDelay;
 
 	ASSERT( (PTRVALID(psDel, sizeof(FEATURE)),
 		"removeFeature: invalid feature pointer\n") );
@@ -962,9 +929,7 @@ void removeFeature(FEATURE *psDel)
 	{
 		for (breadth = 0; breadth < psDel->psStats->baseBreadth; breadth++)
 		{
-	 //psor		mapTile(mapX+width, mapY+breadth)->psObject = NULL;
 			psTile = mapTile(mapX+width, mapY+breadth);
-		  //	psTile->tileInfoBits = (UBYTE)(psTile->tileInfoBits & BITS_STRUCTURE_MASK);
 			/* Don't need to worry about clearing structure bits - they should not be there! */
 			SET_TILE_EMPTY(psTile);
 			CLEAR_TILE_NODRAW(psTile);
@@ -1020,7 +985,6 @@ void removeFeature(FEATURE *psDel)
 		}*/
 
 //		buildFeature((asFeatureStats + structFeature), mapX << TILE_SHIFT, 
-//			mapY << TILE_SHIFT, FALSE);
 	}
 }
 
@@ -1081,7 +1045,6 @@ void destroyFeature(FEATURE *psDel)
 			// smoke effect should disguise this happening
 			mapX = (psDel->x - psDel->psStats->baseWidth * TILE_UNITS / 2) >> TILE_SHIFT;
 			mapY = (psDel->y - psDel->psStats->baseBreadth * TILE_UNITS / 2) >> TILE_SHIFT;
-//			if(psDel->sDisplay.imd->ymax>300)
 		if(psDel->psStats->subType == FEAT_SKYSCRAPER)
 			{
 				for (width = 0; width < psDel->psStats->baseWidth; width++)

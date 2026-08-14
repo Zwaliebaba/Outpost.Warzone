@@ -4,18 +4,12 @@
 #include <time.h>
 #include "IvisDef.h"
 #include "PieState.h"
-//#include "Ivi.h"
-//#include "v3d.h"
 #include "RendMode.h"
 #include "PieMode.h"
-//#include "Geo.h"
 #include "Bug.h"
-//#include "pio.h"
 #include "PiePalette.h"
 #include "PieMatrix.h"
-//#include "kyb.h"
 #include "Tex.h"
-//#include "pdv.h"
 #include "IvisPatch.h"
 
 //*************************************************************************
@@ -58,7 +52,6 @@ void iV_ShutDown(void)
 
 	iV_DEBUG0("7\n");
 
-//	_iv_heap_tidy();
 
 	iV_DEBUG0("8\n");
 

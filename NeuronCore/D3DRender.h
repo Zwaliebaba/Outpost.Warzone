@@ -35,9 +35,6 @@ extern void	BeginSceneD3D( void );
 extern void	EndSceneD3D( void );
 extern void D3D_PIEPolygon( SDWORD numVerts, PIEVERTEX* pVrts);
 extern void D3DDrawPoly( int nVerts, D3DTLVERTEX * psVert);
-//extern BOOL	D3DGetD3DTexturePage( iTexture *pIvisTex, iPalette pIvisPal );
-//extern void D3DFreeTexturePages( void );
-//extern void RestoreAllD3DTextures( void );
 extern void D3DSetAlphaBlending( BOOL bAlphaOn );
 extern void D3DSetTranslucencyMode( TRANSLUCENCY_MODE transMode );
 

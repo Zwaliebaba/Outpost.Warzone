@@ -65,8 +65,6 @@
 
 
 //used in the set nogoArea and LandingZone functions - use the ones defined in Map.h
-//#define MAX_MAP_WIDTH		192
-//#define MAX_MAP_HEIGHT		128
 
 // If this is defined then check max number of units not reached before adding more.
 #define SCRIPT_CHECK_MAX_UNITS
@@ -898,7 +896,6 @@ BOOL scrAddDroidToMissionList(void)
 BOOL scrAddDroid(void)
 {
 	SDWORD			x, y, player;
-//	INTERP_VAL		sVal;
 	DROID_TEMPLATE	*psTemplate;
 	DROID			*psDroid;
 
@@ -998,7 +995,6 @@ BOOL scrBuildingDestroyed(void)
 {
 	SDWORD		player;
 	UDWORD		structureID;
-//	INTERP_VAL	sVal;
 	BOOL		destroyed;
 	STRUCTURE	*psCurr;
 
@@ -1047,7 +1043,6 @@ BOOL scrBuildingDestroyed(void)
 BOOL scrEnableStructure(void)
 {
 	SDWORD		player, index;
-//	INTERP_VAL	sVal;
 
 	if (!stackPopParams(2, ST_STRUCTURESTAT, &index, VAL_INT, &player))
 	{
@@ -1115,7 +1110,6 @@ BOOL scrIsStructureAvailable(void)
 BOOL scrSelectDroidByID(void)
 {
 	SDWORD			player, droidID;
-//	INTERP_VAL		sVal;
 	BOOL			selected;
 
 	if (!stackPopParams(2, ST_DROIDID, &droidID, VAL_INT, &player))
@@ -1165,9 +1159,6 @@ BOOL scrNumMB(void)
 		return FALSE;
 	}
 
-/*	gameTimeStop();
-	DBERROR(("scrNumMB: called by script with value: %d", val));
-	gameTimeStart();*/
 	DBPRINTF(("scrNumMB: called by script with value: %d\n", val));
 
 	return TRUE;
@@ -1312,7 +1303,6 @@ BOOL scrAddMessage(void)
 	MESSAGE			*psMessage;
 	SDWORD			msgType, player;
 	BOOL			playImmediate;
-//	INTERP_VAL		sVal;
 	VIEWDATA		*psViewData;
 	UDWORD			height;
 
@@ -1359,10 +1349,6 @@ BOOL scrAddMessage(void)
 
 		if (playImmediate)
 		{
-	//		psCurrentMsg = psMessage;
-			//initTextDisplay(psCurrentMsg, WFont, 255);
-			//addIntelScreen(TRUE);
-	//		addIntelScreen();
 			displayImmediateMessage(psMessage);
 			stopReticuleButtonFlash(IDRET_INTEL_MAP);
 		}
@@ -1445,7 +1431,6 @@ BOOL scrRemoveMessage(void)
 BOOL scrBuildDroid(void)
 {
 	SDWORD			player, productionRun;
-//	INTERP_VAL		sVal, sVal2;
 	STRUCTURE		*psFactory;
 	DROID_TEMPLATE	*psTemplate;
 
@@ -1531,7 +1516,6 @@ BOOL	scrSetAssemblyPoint(void)
 // test for structure is idle or not
 BOOL	scrStructureIdle(void)
 {
-//	INTERP_VAL	sVal;
 	STRUCTURE	*psBuilding;
 	BOOL		idle;
 
@@ -1539,7 +1523,6 @@ BOOL	scrStructureIdle(void)
 	{
 		return FALSE;
 	}
-//	DBPRINTF(("scrStructureIdle called\n"));
 
 	if (psBuilding == NULL)
 	{
@@ -1555,7 +1538,6 @@ BOOL	scrStructureIdle(void)
 	}
 
 
-//	DBPRINTF(("structure %p is %d\n",psBuilding,idle));
 
 	if (!stackPushResult(VAL_BOOL, (UDWORD)idle))
 	{
@@ -1592,7 +1574,6 @@ BOOL	scrAttackLocation(void)
 BOOL scrDestroyFeature(void)
 {
 	FEATURE		*psFeature;
-//	INTERP_VAL	sVal;
 
 	if (!stackPopParams(1, ST_FEATURE, &psFeature))
 	{
@@ -1618,7 +1599,6 @@ BOOL scrDestroyFeature(void)
 static	FEATURE_STATS	*psFeatureStatToFind[MAX_PLAYERS];
 static	SDWORD			playerToEnum[MAX_PLAYERS];
 static  SDWORD			getFeatureCount[MAX_PLAYERS]={0};
-//static	FEATURE			*psCurrEnumFeature[MAX_PLAYERS];
 
 // -----------------------------------------------------------------------------------------
 // init enum visible features.
@@ -1633,7 +1613,6 @@ BOOL scrInitGetFeature(void)
 
 	psFeatureStatToFind[bucket]		= (FEATURE_STATS *)(asFeatureStats + iFeat);				// find this stat
 	playerToEnum[bucket]			= player;				// that this player can see
-//	psCurrEnumFeature[bucket]		= apsFeatureLists[0];			
 	getFeatureCount[bucket]			= 0;					// start at the beginning of list.
 	return TRUE;
 }
@@ -1743,7 +1722,6 @@ BOOL scrGetFeature(void)
 
 		psCurrEnumFeature[bucket] = psCurrEnumFeature[bucket]->psNext;
 	}
-	// push NULL, none found;
 	if (!stackPushResult(ST_FEATURE, (UDWORD)NULL))
 	{
 		return FALSE;
@@ -1975,7 +1953,6 @@ BOOL scrEnumStruct(void)
 		enumStructCount++;
 		psStruct = psStruct->psNext;
 	}
-	// push NULL, none found;
 	if (!stackPushResult(ST_STRUCTURE, (UDWORD)NULL))
 	{
 		return FALSE;
@@ -1989,7 +1966,6 @@ BOOL scrEnumStruct(void)
 /*looks to see if a structure (specified by type) exists and is being built*/
 BOOL scrStructureBeingBuilt(void)
 {
-//	INTERP_VAL			sVal;
 	UDWORD				structInc;
 	STRUCTURE_STATS		*psStats;
 	SDWORD				player;
@@ -2066,7 +2042,6 @@ BOOL scrStructureComplete(void)
 /*looks to see if a structure (specified by type) exists and built*/
 BOOL scrStructureBuilt(void)
 {
-//	INTERP_VAL			sVal;
 	UDWORD				structInc;
 	STRUCTURE_STATS		*psStats;
 	SDWORD				player;
@@ -2114,7 +2089,6 @@ BOOL scrStructureBuilt(void)
 BOOL scrCentreView(void)
 {
 	BASE_OBJECT	*psObj;
-//	INTERP_VAL	sVal;
 
 	if (!stackPopParams(1, ST_BASEOBJECT, &psObj))
 	{
@@ -2463,7 +2437,6 @@ BOOL scrSetScrollParams(void)
 	scrollMaxY = maxY;
 
     //when the scroll limits change midgame - need to redo the lighting
-    //initLighting(scrollMinX, scrollMinY, scrollMaxX, scrollMaxY);
     initLighting(prevMinX < scrollMinX ? prevMinX : scrollMinX, 
         prevMinY < scrollMinY ? prevMinY : scrollMinY, 
         prevMaxX < scrollMaxX ? prevMaxX : scrollMaxX,
@@ -2495,7 +2468,6 @@ BOOL scrSetScrollMinX(void)
     scrollMinX = minX;
 
     //when the scroll limits change midgame - need to redo the lighting
-    //initLighting(scrollMinX, scrollMinY, scrollMaxX, scrollMaxY);
     initLighting(prevMinX < scrollMinX ? prevMinX : scrollMinX, 
         scrollMinY, scrollMaxX, scrollMaxY);
 
@@ -2525,7 +2497,6 @@ BOOL scrSetScrollMinY(void)
 	scrollMinY = minY;
 
     //when the scroll limits change midgame - need to redo the lighting
-    //initLighting(scrollMinX, scrollMinY, scrollMaxX, scrollMaxY);
     initLighting(scrollMinX, 
         prevMinY < scrollMinY ? prevMinY : scrollMinY, 
         scrollMaxX, scrollMaxY);
@@ -2556,7 +2527,6 @@ BOOL scrSetScrollMaxX(void)
 	scrollMaxX = maxX;
 
     //when the scroll limits change midgame - need to redo the lighting
-    //initLighting(scrollMinX, scrollMinY, scrollMaxX, scrollMaxY);
     initLighting(scrollMinX,  scrollMinY, 
         prevMaxX < scrollMaxX ? prevMaxX : scrollMaxX,
         scrollMaxY);
@@ -2587,7 +2557,6 @@ BOOL scrSetScrollMaxY(void)
 	scrollMaxY = maxY;
 
     //when the scroll limits change midgame - need to redo the lighting
-    //initLighting(scrollMinX, scrollMinY, scrollMaxX, scrollMaxY);
     initLighting(scrollMinX, scrollMinY, scrollMaxX,
         prevMaxY < scrollMaxY ? prevMaxY : scrollMaxY);
 
@@ -2918,7 +2887,6 @@ BOOL	scrClearConsole(void)
 //demo functions for turning the power on
 BOOL scrTurnPowerOff(void)
 {
-	//powerCalculated = FALSE;
 	powerCalc(FALSE);
 
 	return TRUE;
@@ -2929,7 +2897,6 @@ BOOL scrTurnPowerOff(void)
 BOOL scrTurnPowerOn(void)
 {
 
-	//powerCalculated = TRUE;
 	powerCalc(TRUE);
 
 	return TRUE;
@@ -3003,7 +2970,6 @@ BOOL scrGameOverMessage(void)
 	MESSAGE			*psMessage;
 	SDWORD			msgType, player;
 	VIEWDATA		*psViewData;
-	//UDWORD			height;
 
 
 	if (!stackPopParams(4, ST_INTMESSAGE, &psViewData , VAL_INT, &msgType,
@@ -3043,7 +3009,6 @@ BOOL scrGameOverMessage(void)
 	}
 
     //this now called when the video Quit is processed
-	//displayGameOver(gameOver);
 
 	return TRUE;
 }
@@ -3204,10 +3169,7 @@ BOOL scrPlayCDAudio(void)
 #if !defined(I_LIKE_LISTENING_TO_CDS)
 	cdAudio_PlayTrack( iTrack );	
 #endif
-//#ifdef PSX
-//	cdAudio_PlayTrack( iTrack );	
 //
-//#endif
 	return TRUE;
 }
 
@@ -3472,7 +3434,6 @@ BOOL scrStartMission(void)
 		return FALSE;
 	}
 
-	//if (missionType > MISSION_NONE)
 	if (missionType > LDS_NONE)
 	{
 		ASSERT((FALSE, "Invalid Mission Type"));
@@ -3480,14 +3441,8 @@ BOOL scrStartMission(void)
 	}
 
 	// check the last mission got finished
-	/*if (mission.type != MISSION_NONE)
-	{
-		DBMB(("scrStartMission: old mission incomplete\n   ending mission with success"));
-		endMission(TRUE);
-	}*/
 
 	// tell the loop that a new level has to be loaded up - not yet!
-	//loopNewLevel = TRUE;
 	strcpy(pLevelName, pGame);
 
 	// find the level dataset
@@ -3498,9 +3453,7 @@ BOOL scrStartMission(void)
 	}
 
 	//set the mission rolling...
-	//nextMissionType = missionType;
 	nextMissionType = psNewLevel->type;
-//	loopMissionState = LMS_SETUPMISSION;
 	loopMissionState = LMS_CLEAROBJECTS;
 
 /*	if (!setUpMission(missionType))
@@ -3605,7 +3558,6 @@ BOOL scrSetBackgroundFog(void)
 	{
 		pie_SetFogStatus(FALSE);
 		pie_EnableFog(FALSE);
-//		fogStatus = 0;
 		return TRUE;
 	}
 
@@ -3673,7 +3625,6 @@ BOOL scrSetDepthFog(void)
 	{	
 		pie_SetFogStatus(FALSE);
 		pie_EnableFog(FALSE);
-//		fogStatus = 0;
 		return TRUE;
 	}
 
@@ -3719,13 +3670,11 @@ BOOL scrSetFogColour(void)
 	}
 
 //	if (pie_GetRenderEngine() == ENGINE_GLIDE)
-//	{
 		red &= 0xff;	
 		green &= 0xff;	
 		blue &= 0xff;	
 		scrFogColour = ((red << 16) + (green << 8) + blue);
 		pie_SetFogColour(scrFogColour);
-//	}
 	return TRUE;
 }
 
@@ -3793,29 +3742,6 @@ BOOL scrCreateAlliance(void)
 
 	formAlliance((UBYTE)player1, (UBYTE)player2,TRUE,FALSE);
 
-/*
-#ifdef WIN32	
-	if(bMultiPlayer) 
-	{
-
-		if(game.alliance==NO_ALLIANCES || player1 >= game.maxPlayers || player2>=game.maxPlayers)
-		{
-			return TRUE;
-		}
-
-		if(alliances[player1][player2] != ALLIANCE_FORMED)
-		{
-#ifdef DEBUG
-			CONPRINTF(ConsoleString,(ConsoleString,"%d and %d form an alliance.",player1,player2));
-#endif
-			sendAlliance((UBYTE)player1,(UBYTE)player2,ALLIANCE_FORMED,0);
-		}
-	}
-#endif
-
-	alliances[player1][player2] = ALLIANCE_FORMED;
-	alliances[player2][player1] = ALLIANCE_FORMED;
-*/
 	return TRUE;
 }
 
@@ -3860,18 +3786,6 @@ BOOL scrBreakAlliance(void)
 		ASSERT((FALSE, "scrCreateAlliance: player out of range"));
 		return FALSE;
 	}
-/*
-if(bMultiPlayer)
-	{
-	
-
-		if(alliances[player1][player2] != ALLIANCE_BROKEN)
-		{
-			CONPRINTF(ConsoleString,(ConsoleString,"%d and %d break alliance.",player1,player2));
-			sendAlliance((UBYTE)player1,(UBYTE)player2,ALLIANCE_BROKEN,0);
-		}
-}
-*/
 
 
 	if(bMultiPlayer)
@@ -3886,10 +3800,6 @@ if(bMultiPlayer)
 	{
 		breakAlliance(player1,player2,FALSE,TRUE);
 	}
-/*
-	alliances[player1][player2] = ALLIANCE_BROKEN;
-	alliances[player2][player1] = ALLIANCE_BROKEN;
-*/
 	return TRUE;
 }
 
@@ -4535,7 +4445,6 @@ BOOL scrSetMissionTime(void)
 	time *= 100;
 
 	//check not more than one hour - the mission timers cannot cope at present! - (visually)
-	//if (time > 60*60*GAME_TICKS_PER_SEC)
 	//check not more than 99 mins - the mission timers cannot cope at present! - (visually)
     //we're allowing up to 5 hours now!
     if (time > 5*60*60*GAME_TICKS_PER_SEC)
@@ -4610,10 +4519,6 @@ BOOL scrSetReinforcementTime(void)
 
     //not interseted in this check any more -  AB 28/01/99
     //quick check of the value - don't check if time has not been set
-	/*if (mission.time > 0 AND time != LZ_COMPROMISED_TIME AND time > mission.time)
-	{
-		DBMB(("scrSetReinforcementTime: reinforcement time greater than mission time!"));
-	}*/
 	//store the value
 	mission.ETA = time;
 
@@ -4902,7 +4807,6 @@ BOOL	bVisible;
 			}
 		}
 	}
-//	DBPRINTF(("scrThreatInArea: returning %d\n", totalThreat));
 	if(!stackPushResult(VAL_INT,totalThreat))
 	{
 		ASSERT((FALSE,"SCRIPT : Cannot push result in scrThreatInArea"));
@@ -5547,7 +5451,6 @@ BOOL scrGetGameStatus(void)
 		return FALSE;
 	}
 
-//	DBPRINTF(("getgamestatus choice=%d\n",GameChoice));
 
 	result=FALSE;		// the default result is false
 
@@ -5559,7 +5462,6 @@ BOOL scrGetGameStatus(void)
 			break;
 
 		case STATUS_BattleMapViewEnabled:
-//			if (driveTacticalActive()==TRUE) result=TRUE;
 
 			if (result==TRUE)
 			{
@@ -5950,7 +5852,6 @@ BOOL scrTakeOverStructsInArea(void)
                 {
                     numChanged++;
                     //check the structure limits aren't compromised
-                    //structureInc = psNewStruct->pStructureType->ref - REF_STRUCTURE_START;
                     if (asStructLimits[toPlayer][structureInc].currentQuantity > 
                         asStructLimits[toPlayer][structureInc].limit)
                     {

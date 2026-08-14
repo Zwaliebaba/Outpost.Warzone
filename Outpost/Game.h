@@ -16,12 +16,6 @@
  */
 /***************************************************************************/
 //the version number used in save games
-//#define VERSION_1				1				//demo save games
-//#define VERSION_2				2				//names saved for components/structures/features
-//#define VERSION_3				3				//changes to SAVE_GAME
-//#define VERSION_4				4				//changes to SAVE_GAME
-//#define VERSION_5				5				//different types of save game added
-//#define VERSION_6				6				//level name added to a user save game
 #define VERSION_7				7				//string ID names saved for comps an objects
 #define VERSION_8				8				//research status saved out for user saved games
 #define VERSION_9				9				//power and experience saved out for user saved games
@@ -108,7 +102,6 @@ typedef struct _score_save_header
 extern BOOL loadGame(STRING *pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSaveGame);	// UserSaveGame is TRUE when the save game is not a new level (User Save Game)
 /*This just loads up the .gam file to determine which level data to set up - split up
 so can be called in levLoadData when starting a game from a load save game*/
-// GameIsLevelStart is TRUE when we are starting a new level from the game data (i.e. WDG data not memcard on PSX)
 extern BOOL loadGameInit(STRING *pGameToLoad,BOOL GameIsLevelStart);
 
 extern BOOL loadMissionExtras(STRING *pGameToLoad, SWORD levelType);

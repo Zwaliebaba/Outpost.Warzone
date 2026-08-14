@@ -16,9 +16,7 @@
 
 #include "RayCast.h"
 #include "Display3D.h"
-//#ifdef ALEXM
 #include "Effects.h"
-//#endif
 
 // accuracy for the raycast lookup tables
 #define RAY_ACC		12
@@ -42,7 +40,6 @@ typedef struct _ray_point
 /* x and y increments for each ray angle */
 static SDWORD	rayDX[NUM_RAYS], rayDY[NUM_RAYS];
 static SDWORD	rayHDist[NUM_RAYS], rayVDist[NUM_RAYS];
-//static FRACT	rayTan[NUM_RAYS], rayCos[NUM_RAYS], raySin[NUM_RAYS];
 static SDWORD	rayFPTan[NUM_RAYS], rayFPInvTan[NUM_RAYS];
 static SDWORD	rayFPInvCos[NUM_RAYS], rayFPInvSin[NUM_RAYS];
 
@@ -119,37 +116,14 @@ BOOL rayInitialise(void)
 }
 
 
-//void rayC(UDWORD x, UDWORD y, UDWORD ray, UDWORD length, RAY_CALLBACK callback);
 //
 ////#ifdef WIN32
 //
-//void rayCast(UDWORD x, UDWORD y, UDWORD ray, UDWORD length, RAY_CALLBACK callback)
-//{
-//	rayC(x, y, ray, length, callback);
-//}
 
-//#else
 //
-//void rayCast(UDWORD x, UDWORD y, UDWORD ray, UDWORD length, RAY_CALLBACK callback)
-//{
-//	static UDWORD Tx;
-//	static UDWORD Ty;
-//	static UDWORD Tray;
-//	static UDWORD Tlength;
-//	static RAY_CALLBACK Tcallback;
 //
-//	Tx = x;
-//	Ty = y;
-//	Tray = ray;
-//	Tlength = length;
-//	Tcallback = callback;
 //	// Stack in the DCache.
-//	SetSpDCache();
-//	rayC(Tx, Ty, Tray, Tlength, Tcallback);
-//	SetSpNormal();
-//}
 //
-//#endif
 
 /* cast a ray from x,y (world coords) at angle ray (0-360)
  * The ray angle starts at zero along the positive y axis and
@@ -443,10 +417,7 @@ SDWORD rayPointDist(SDWORD x1,SDWORD y1, SDWORD x2,SDWORD y2,
 /*	Gets the maximum terrain height along a certain direction to the edge of the grid
 	from wherever you specify, as well as the distance away 
 */
-// typedef BOOL (*RAY_CALLBACK)(SDWORD x, SDWORD y, SDWORD dist);
-//void rayCast(UDWORD x, UDWORD y, UDWORD ray, UDWORD length, RAY_CALLBACK callback)
 
-//#define TEST_RAY
 
 /* Nasty global vars - put into a structure? */
 //-----------------------------------------------------------------------------------
@@ -485,7 +456,6 @@ static BOOL	getTileHighestCallback(SDWORD x, SDWORD y, SDWORD dist)
 {
 SDWORD	heightDif;
 UDWORD	height;
-//iVector	pos;
 	if(clipXY(x,y))
 	{
 		height = map_Height(x,y);
@@ -496,10 +466,6 @@ UDWORD	height;
 				MAKEFRACT(6*TILE_UNITS)));//MAKEFRACT(dist-(TILE_UNITS*3))));
 			gHighestHeight = height;
   		}
-//		pos.x = x;
-//		pos.y = height;
-//		pos.z = y;
-//		addEffect(&pos,EFFECT_EXPLOSION,EXPLOSION_TYPE_SMALL,FALSE,NULL,0);
 	}
 	else
 	{
@@ -531,7 +497,6 @@ iVector	pos;
 		// there is a tall structure  on the current tile and the current tile is not the starting tile.
 //		if( (dist>TILE_UNITS) ||
 //			( (HasTallStructure = TILE_HAS_TALLSTRUCTURE(mapTile(x>>TILE_SHIFT,y>>TILE_SHIFT))) &&
-//			((x >> TILE_SHIFT != gStartTileX) || (y >> TILE_SHIFT != gStartTileY)) ) ) {
 			/* Get height at this intersection point */
 			height = map_Height(x,y);
 
@@ -565,12 +530,6 @@ iVector	pos;
 			pos.z = y;
 			addEffect(&pos,EFFECT_EXPLOSION,EXPLOSION_TYPE_SMALL,FALSE,NULL,0);
 #endif
-	//		if(height > gMaxRayHeight)
-	//		{
-	//			gMaxRayHeight = height;
-	//			gRayDist = dist;
-	//			return(TRUE);
-	//		}
 		}
 	}
 	else
@@ -590,9 +549,6 @@ void	getBestPitchToEdgeOfGrid(UDWORD x, UDWORD y, UDWORD direction, SDWORD *pitc
 	gHeight = map_Height(x,y);
 	gStartTileX = x >> TILE_SHIFT;
 	gStartTileY = y >> TILE_SHIFT;
-//#ifdef TEST_RAY
-//DBPRINTF(("%d\n",direction);
-//#endif
 	rayCast(x,y, direction%360,5430,getTileHeightCallback);
 	*pitch = MAKEINT(gPitch);
 }

@@ -20,7 +20,6 @@
 #ifdef SEQUENCE_SOUND
 	#include <dsound.h>
 #endif
-//#define CRAP_VIDEO
 
  
 // ESCAPE include file
@@ -85,7 +84,6 @@ void SoundCallBackFunc( LPSOUNDHANDLE shandle );
 /***************************************************************************/
 
 //buffer render for software_window 3DFX_window and 3DFX_fullscreen modes
-// SOFT_WINDOWED video size 16bit rgb 555 mode (convert to 8bit from the buffer)
 // D3D_WINDOWED video size 16bit uses screen pixel mode
 // 3DFX_WINDOWED video size 16bit BGR 565 mode
 // 3DFX_FULLSCREEN 640 * 480 BGR 565 mode
@@ -97,7 +95,6 @@ BOOL seq_SetSequenceForBuffer(char* filename, VIDEO_MODE mode, LPDIRECTSOUND lpD
 	long				compression;
 	BOOL				bCompression;
 	DSBUFFERDESC		DS_bd;
-//	DDPIXELFORMAT		DDPixelFormat;
 	WAVEFORMATEX		pcmwf;
 	BYTE				ap = 0,	ac = 0, rp = 0,	rc = 0, gp = 0,	gc = 0, bp = 0, bc = 0;
 	ULONG				mask;
@@ -132,7 +129,6 @@ BOOL seq_SetSequenceForBuffer(char* filename, VIDEO_MODE mode, LPDIRECTSOUND lpD
 	/*
 	// Initialise the video playback environment
 	*/
-	//		Streamer_InitVideo( 	LPVIDEOHANDLE *handle,LPMOVIEHANDLE mhandle,UINT moviexsize,UINT movieysize,INT videoleft,INT videotop,INT viewportleft,INT viewporttop,UINT viewportwidth,UINT viewportheight,UINT properties,LPLONG  bufferPixelWidth,LPLONG  bufferPixelDepth)
 
 	if ( Streamer_InitVideo(	&vhandle,
 								mhandle,
@@ -237,7 +233,6 @@ BOOL seq_SetSequenceForBuffer(char* filename, VIDEO_MODE mode, LPDIRECTSOUND lpD
 						NULL,
 						0 );
 
-//jps mar4		Streamer_SetSoundDecodeMode( shandle, SSDM_SECONDBUFFER );	
 		Streamer_SetSoundDecodeMode( shandle, SSDM_IDLE	);	
 	}
 	LastUpdated = SSDM_SECONDBUFFER;
@@ -344,7 +339,6 @@ BOOL seq_SetSequenceForBuffer(char* filename, VIDEO_MODE mode, LPDIRECTSOUND lpD
 	if ( shandle )
 	{
 		// Begin sound playback
-//mar4		if ( lpDSSB->lpVtbl->Play(lpDSSB, 0, 0, 0) != DS_OK )
 		if ( lpDSSB->lpVtbl->Play(lpDSSB, 0, 0, DSBPLAY_LOOPING) != DS_OK )
 				return VIDEO_SOUND_ERROR;
 	}
@@ -413,7 +407,6 @@ BOOL seq_SetSequence(char* filename, LPDIRECTDRAWSURFACE4 lpDDSF, LPDIRECTSOUND 
 		/*
 		// Initialise the video playback environment
 		*/
-//		Streamer_InitVideo( 	LPVIDEOHANDLE *handle,LPMOVIEHANDLE mhandle,UINT moviexsize,UINT movieysize,INT videoleft,INT videotop,INT viewportleft,INT viewporttop,UINT viewportwidth,UINT viewportheight,UINT properties,LPLONG  bufferPixelWidth,LPLONG  bufferPixelDepth)
 		if (((movieWidth <= (VIDEO_WIDTH/2)) && (movieHeight <= (VIDEO_HEIGHT/2))) && !bSmallVideo)//render doubled
 		{
 			if ( Streamer_InitVideo(	&vhandle,
@@ -539,7 +532,6 @@ BOOL seq_SetSequence(char* filename, LPDIRECTDRAWSURFACE4 lpDDSF, LPDIRECTSOUND 
 						NULL,
 						0 );
 
-//jps mar4		Streamer_SetSoundDecodeMode( shandle, SSDM_SECONDBUFFER );	
 		Streamer_SetSoundDecodeMode( shandle, SSDM_IDLE );	
 	}
 	LastUpdated = SSDM_SECONDBUFFER;
@@ -651,7 +643,6 @@ BOOL seq_SetSequence(char* filename, LPDIRECTDRAWSURFACE4 lpDDSF, LPDIRECTSOUND 
 		if ( shandle )
 		{
 			// Begin sound playback
-//mar4			if ( lpDSSB->lpVtbl->Play(lpDSSB, 0, 0, 0) != DS_OK )
 			if ( lpDSSB->lpVtbl->Play(lpDSSB, 0, 0, DSBPLAY_LOOPING) != DS_OK )
 					return VIDEO_SOUND_ERROR;
 		}
@@ -800,7 +791,6 @@ int	seq_RenderOneFrameToBuffer(char *lpSF, int skip, SDWORD subMin, SDWORD subMa
 			}
 		}
 	}
-//mar4	lpDSSB->lpVtbl->Play(lpDSSB, 0, 0, DSBPLAY_LOOPING);
 #endif //SEQUENCE_SOUND
 
 	if (sRes == STREAMER_OK)
@@ -1029,7 +1019,6 @@ int	seq_RenderOneFrame(LPDIRECTDRAWSURFACE4	lpDDSF, int skip, SDWORD subMin, SDW
 			}
 		}
 	}
-//	lpDSSB->lpVtbl->Play(lpDSSB, 0, 0, DSBPLAY_LOOPING);
 #endif //SEQUENCE_SOUND
 
 	if (sRes == STREAMER_OK)

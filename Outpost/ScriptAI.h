@@ -173,7 +173,6 @@ BOOL scrSkDifficultyModifier(void);
 BOOL scrSkDefenseLocation(void);
 
 // line build.
-//BOOL scrSkOrderDroidLineBuild(void);
 
 
 

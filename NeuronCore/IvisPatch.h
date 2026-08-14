@@ -63,10 +63,7 @@
 #define iV_SIN						SIN
 #define iV_COS						COS
 
-//#define iV_Clipping2D				pie_Set2DClip
 
-//#define iV_PolyClipTex2D			pie_PolyClipTex2D
-//#define iV_PolyClip2D				pie_PolyClip2D
 
 //heap crash
 #define iV_HeapAlloc(size) MALLOC(size)

@@ -259,7 +259,6 @@ void dbg_ErrorBox(SBYTE *pFormat, ...)
  * (In fact there is no reason for this to be used outside the ASSERT macro)
  */
 #define ASSERT_DEFAULT_FILE "No Valid Assert File Name"
-//static SBYTE aAssertFile[DEBUG_STR_MAX];
 static SBYTE *pAssertFile;
 static UDWORD AssertLine;
 void dbg_AssertPosition(SBYTE *pFile, UDWORD Line)
@@ -271,7 +270,6 @@ void dbg_AssertPosition(SBYTE *pFile, UDWORD Line)
 
 		(void)MessageBox(frameGetWinHandle(), "Invalid assertion arguments\n", "Error",
 			       MB_OK | MB_ICONWARNING);
-//		strcpy(aAssertFile, ASSERT_DEFAULT_FILE);
 		pAssertFile = ASSERT_DEFAULT_FILE;
 		AssertLine = 0;
 		return;
@@ -327,7 +325,6 @@ void dbg_Assert(BOOL Expression, SBYTE *pFormat, ...)
 		}
 		if (retVal == DBR_USE_WINDOWS_MB)
 		{
-//			if (!bRunningUnderGlide)
 			{
 				Result = MessageBox(frameGetWinHandle(), aBuffer, "Assertion Failure",
 									MB_YESNOCANCEL | MB_ICONWARNING);
@@ -342,8 +339,6 @@ void dbg_Assert(BOOL Expression, SBYTE *pFormat, ...)
 		if (retVal == DBR_YES ||
 			Result == IDYES)
 		{
-//			abort();
-//			frameShutDown();
 			ExitProcess(3);
 		}
 		else if (retVal == DBR_NO || Result == IDNO)

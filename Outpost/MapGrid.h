@@ -28,11 +28,8 @@ typedef struct _grid_array
 #define GRID_MAXAREA (MAP_MAXAREA/(GRID_SIZE*GRID_SIZE))
 
 // The size of the grid
-//#define GRID_WIDTH	(MAP_MAXWIDTH/GRID_SIZE)
-//#define GRID_HEIGHT	(MAP_MAXHEIGHT/GRID_SIZE)
 
 // The map grid 
-//extern GRID_ARRAY	*apsMapGrid[GRID_WIDTH][GRID_HEIGHT];
 
 
 // initialise the grid system
@@ -64,7 +61,6 @@ extern void gridGarbageCollect(void);
 extern void gridDisplayCoverage(BASE_OBJECT *psObj);
 
 // initialise the grid system to start iterating through units that
-// could affect a location (x,y in world coords)
 extern void gridStartIterate(SDWORD x, SDWORD y);
 
 // get the next object that could affect a location,

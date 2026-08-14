@@ -22,10 +22,6 @@
 
 void testAngles(void);
 void	processImpact(UDWORD worldX, UDWORD worldY, UBYTE severity,UDWORD tilesAcross);
-//UDWORD	getTileOwner(UDWORD	x, UDWORD y);
-//BASE_OBJECT	*getTileOccupier(UDWORD x, UDWORD y);
-//STRUCTURE	*getTileStructure(UDWORD x, UDWORD y);
-//FEATURE		*getTileFeature(UDWORD x, UDWORD y);
 void	baseObjScreenCoords	( BASE_OBJECT *baseObj, iPoint *pt				);
 SDWORD	calcDirection		( UDWORD x0, UDWORD y0, UDWORD x1, UDWORD y1	);
 UDWORD	adjustDirection		( SDWORD present, SDWORD difference				);
@@ -36,9 +32,6 @@ int inQuad(POINT *pt, QUAD *quad);
 /* The arc over which bullets fly */
 UBYTE	sineHeightTable[SIZE_SINE_TABLE];
 
-//BOOL	bScreenShakeActive = FALSE;
-//UDWORD	screenShakeStarted = 0;
-//UDWORD	screenShakeLength = 0;
 
 
 
@@ -54,14 +47,6 @@ UBYTE	height;
 }
 
 //void	attemptScreenShake(void)
-//{
-//	if(!bScreenShakeActive)
-//	{
-//		bScreenShakeActive = TRUE;
-//		screenShakeStarted = gameTime;
-//		screenShakeLength = 1500;
-//	}
-//}
 
 /* Angle returned is reflected in line x=0 */
 SDWORD	calcDirection(UDWORD x0, UDWORD y0, UDWORD x1, UDWORD y1)
@@ -199,7 +184,6 @@ SDWORD directionDiff(SDWORD a, SDWORD b)
 void WorldPointToScreen( iPoint *worldPt, iPoint *screenPt )
 {
 iVector vec,null;
-//MAPTILE	*psTile;
 UDWORD	worldX,worldY;
 SDWORD	xShift,zShift;
 int32	rx,rz;
@@ -238,8 +222,6 @@ int32	rx,rz;
 	vec.z = terrainMidY*TILE_UNITS - (worldY - player.p.z);
 
 	/* Which tile is it on? - In order to establish height (y coordinate in 3 space) */
-//	psTile = mapTile(worldX/TILE_UNITS,worldY/TILE_UNITS);
-//	vec.y = psTile->height;
 	vec.y = map_Height(worldX/TILE_UNITS,worldY/TILE_UNITS);
 
 	/* Set matrix context to local - get an identity matrix */
@@ -349,7 +331,6 @@ FEATURE		*psReturn;
 UDWORD		centreX, centreY;
 UDWORD		strX,strY;
 UDWORD		width,breadth;
-//UDWORD		i;
 
 	/* No point in checking if there's no feature here! */
 	if(!TILE_HAS_FEATURE(mapTile(x,y)))
@@ -395,11 +376,9 @@ UDWORD		width,breadth;
 BASE_OBJECT	*getTileOccupier(UDWORD x, UDWORD y)
 {
 
-//DBPRINTF(("gto x=%d y=%d (%d,%d)\n",x,y,x*TILE_UNITS,y*TILE_UNITS);
 	/* Firsty - check there is something on it?! */
 	if(!TILE_OCCUPIED(mapTile(x,y)))
 	{
-//DBPRINTF(("gto nothing\n");
 		/* Nothing here at all! */
 		return(NULL);
 	}
@@ -413,7 +392,6 @@ BASE_OBJECT	*getTileOccupier(UDWORD x, UDWORD y)
 	/* Has it got a fetaure? */
 	if(TILE_HAS_FEATURE(mapTile(x,y)))
 	{
-//DBPRINTF(("gto feature\n");
 		/* Return the feature */
 		return( (BASE_OBJECT *) getTileFeature(x,y) );
 	}
@@ -421,7 +399,6 @@ BASE_OBJECT	*getTileOccupier(UDWORD x, UDWORD y)
 		have both a feature and structure simultaneously */
 	else if (TILE_HAS_STRUCTURE(mapTile(x,y)))
 	{
-//DBPRINTF(("gto structure\n");
 		/* Send back structure pointer */
 		return( (BASE_OBJECT *) getTileStructure(x,y) );
 	}
@@ -459,10 +436,6 @@ UDWORD		retVal;
 
 void getObjectsOnTile(MAPTILE *psTile)
 {
-/*UDWORD	i;
-FEATURE	*psFeature;
-DROID	*psDroid;
-STRUCTURE	*psStructure;*/
 
 	(void)psTile;
 
@@ -502,7 +475,6 @@ SDWORD	dX,dY;
 
 void	processImpact(UDWORD worldX, UDWORD worldY, UBYTE severity, UDWORD tilesAcross)
 {
-//MAPTILE	*psTile;
 UDWORD	height;
 SDWORD	newHeight;
 UDWORD	distance;

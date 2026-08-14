@@ -171,9 +171,6 @@ proj_FreeAllProjectiles( void )
 BOOL
 proj_Shutdown( void )
 {
-#if 0
-	heapReport();
-#endif
 
 	/* destroy hash table */
 	hashTable_Destroy( g_pProjObjTable );
@@ -298,7 +295,6 @@ proj_SendProjectile( WEAPON *psWeap, BASE_OBJECT *psAttacker, SDWORD player,
 		muzzle.y = psAttacker->y;
 		muzzle.z = psAttacker->z;
 		/* GJ - horrible hack to get droid tower projectiles at correct height */
-		//muzzle.z = psAttacker->z + psAttacker->sDisplay.imd->ymax;
 	}
 
 	/* Initialise the structure */
@@ -347,7 +343,6 @@ proj_SendProjectile( WEAPON *psWeap, BASE_OBJECT *psAttacker, SDWORD player,
 	}
 	else
 	{
-//		tarHeight = map_Height(tarX,tarY);
 		tarHeight = (SDWORD)tarZ;
 		scoreUpdateVar(WD_SHOTS_OFF_TARGET);
 	}
@@ -387,8 +382,6 @@ proj_SendProjectile( WEAPON *psWeap, BASE_OBJECT *psAttacker, SDWORD player,
 		}
 		psObj->pitch = (SWORD)( RAD_TO_DEG(fR) );
 
-//	DBPRINTF(("dx=%d dy=%d dir=%d\n",dx,dy,psObj->direction);
-//DBPRINTF(("direct- pitch=%d direction=%d\n",psObj->pitch,psObj->direction);
 		/* set function pointer */
 		psObj->pInFlightFunc = proj_InFlightDirectFunc;
 	}
@@ -408,17 +401,10 @@ proj_SendProjectile( WEAPON *psWeap, BASE_OBJECT *psAttacker, SDWORD player,
 			psObj->pitch = PROJ_MAX_PITCH;
 
 			/* increase velocity: tan angle could be hard-coded but is variable here */
-//			fS = trigSin(PROJ_MAX_PITCH);
-//			fC = trigCos(PROJ_MAX_PITCH);
-//			fT = FRACTdiv( fS, fC );
-//			fS = ACC_GRAVITY*(1+(fT*fT)) / (MAKEFRACT(2) * (fR*fT - MAKEFRACT(dz)));
-//			iVel = MAKEINT_D( trigIntSqrt(MAKEINT(fS*fR*fR)) );
 
 			fS = (FRACT_D)trigSin(PROJ_MAX_PITCH);
 			fC = (FRACT_D)trigCos(PROJ_MAX_PITCH);
 			fT = FRACTdiv_D( fS, fC );
-//			fS = ACC_GRAVITY*(1+(fT*fT)) / (MAKEFRACT(2) * (fR*fT - MAKEFRACT(dz)));
-//			iVel = MAKEINT( trigIntSqrt(MAKEINT(fS*fR*fR)) );
 			fS = ACC_GRAVITY*(MAKEFRACT_D(1)+FRACTmul_D(fT,fT));
 			fS = FRACTdiv_D(fS,(2 * (FRACTmul_D(fR,fT) - MAKEFRACT_D(dz))));
 			{
@@ -586,7 +572,6 @@ proj_InFlightDirectFunc( PROJ_OBJECT *psObj )
 	{
 */
 
-//	}
 
 	/* If it's homing and it has a target (not a miss)... */
 	if(psStats->movementModel == MM_HOMINGDIRECT AND psObj->psDest)
@@ -602,12 +587,7 @@ proj_InFlightDirectFunc( PROJ_OBJECT *psObj )
 		dz = (SDWORD)(psObj->srcHeight+psObj->altChange)-(SDWORD)psObj->srcHeight;
 	}
 
-	/*
-	dx = (SDWORD)psObj->tarX-(SDWORD)psObj->startX;
-	dy = (SDWORD)psObj->tarY-(SDWORD)psObj->startY;
-	*/
 
-//	rad = fastRoot(dx,dy);
 	rad = (SDWORD)iSQRT( dx*dx + dy*dy );
 
 
@@ -621,8 +601,6 @@ proj_InFlightDirectFunc( PROJ_OBJECT *psObj )
 
 	iX = psObj->startX + (dist * dx / rad);
 	iY = psObj->startY + (dist * dy / rad);
-//	iX = psObj->x + MAKEINT(FRACTmul(baseSpeed, MAKEFRACT(dx))) / rad;
-//	iY = psObj->y + MAKEINT(FRACTmul(baseSpeed, MAKEFRACT(dy))) / rad;
 
 	/* impact if about to go off map else update coordinates */
 	if ( worldOnMap( iX, iY ) == FALSE )
@@ -665,7 +643,6 @@ proj_InFlightDirectFunc( PROJ_OBJECT *psObj )
 			pos.y = psObj->z-8;
 			pos.z = psObj->y;
   			addEffect(&pos,EFFECT_EXPLOSION,EXPLOSION_TYPE_LASER,FALSE,NULL,0);
-	  //		addEffect(&pos,EFFECT_EXPLOSION,EXPLOSION_TYPE_FLARE,FALSE,NULL,0);
 		}
 	}
 	/*
@@ -709,7 +686,6 @@ proj_InFlightDirectFunc( PROJ_OBJECT *psObj )
 	{
 		/* It's damage time */
 //		psObj->x = psObj->tarX;		// leave it there, but use tarX and tarY for damage
-//		psObj->y = psObj->tarY;
 	  	psObj->state = PROJ_IMPACT;
 	}
 
@@ -760,7 +736,6 @@ proj_InFlightIndirectFunc( PROJ_OBJECT *psObj )
 	iRad = fastRoot(dx,dy);
 
 
-//DBPRINTF(("dx=%d dy=%d irad=%d\n",dx,dy,iRad);
 
 	iDist = iTime * psObj->vXY / GAME_TICKS_PER_SEC;
 
@@ -784,7 +759,6 @@ proj_InFlightIndirectFunc( PROJ_OBJECT *psObj )
 				iTime / GAME_TICKS_PER_SEC;
 	psObj->z = (UWORD)(psObj->srcHeight + dz);
 
-//DBPRINTF(("missile: dist=%d time=%d x=%d y=%d z=%d vxy=%d\n",iDist,iTime,psObj->x,psObj->y,psObj->z,psObj->vXY);
 
 	fVVert = MAKEFRACT(psObj->vZ - (iTime*ACC_GRAVITY/GAME_TICKS_PER_SEC));
 	psObj->pitch = (SWORD)( RAD_TO_DEG(atan2(fVVert, psObj->vXY)) );
@@ -814,7 +788,6 @@ proj_InFlightIndirectFunc( PROJ_OBJECT *psObj )
 			pos.y = psObj->z-8;
 			pos.z = psObj->y;
   			addEffect(&pos,EFFECT_EXPLOSION,EXPLOSION_TYPE_LASER,FALSE,NULL,0);
-	  //		addEffect(&pos,EFFECT_EXPLOSION,EXPLOSION_TYPE_FLARE,FALSE,NULL,0);
 		}
 	}
 	/*
@@ -850,7 +823,6 @@ proj_InFlightIndirectFunc( PROJ_OBJECT *psObj )
 		
 		/* It's damage time */
 //		psObj->x = psObj->tarX;		 // leave it where it is, but use tarX, tarY for damage
-//		psObj->y = psObj->tarY;
 		psObj->z = (UWORD)(pos.y + 8);//map_Height(psObj->x,psObj->y) + 8;	// bring up the impact explosion
 		psObj->state = PROJ_IMPACT;
 		bOver = TRUE;
@@ -948,11 +920,6 @@ proj_ImpactFunc( PROJ_OBJECT *psObj )
 //	if(GFX_VISIBLE(psObj))
 	{
 		/* Set stuff burning if it's a flame droid... */
-//		if(psStats->weaponSubClass == WSC_FLAME)
-//		{
-//			position.x = psObj->tarX;
-//			position.z = psObj->tarY;
-//			position.y = map_Height(position.x, position.z);
 			/* Shouldn't need to do this check but the stats aren't all at a value yet... */ // FIXME
 			if(psStats->incenRadius AND psStats->incenTime)
 			{
@@ -963,10 +930,8 @@ proj_ImpactFunc( PROJ_OBJECT *psObj )
 				effectGiveAuxVarSec(psStats->incenTime);
 				addEffect(&position,EFFECT_FIRE,FIRE_TYPE_LOCALISED,FALSE,NULL,0);
 			}
-//		}
 		// may want to add both a fire effect and the las sat effect
 		if (psStats->weaponSubClass == WSC_LAS_SAT)
-//		else if (psStats->weaponSubClass == 100)
 		{
 			position.x = psObj->tarX;
 			position.z = psObj->tarY;
@@ -1026,11 +991,9 @@ proj_ImpactFunc( PROJ_OBJECT *psObj )
 					if(gfxVisible(psObj))
 //				if(GFX_VISIBLE(psObj))
 				addMultiEffect(&position,&scatter,EFFECT_EXPLOSION,EXPLOSION_TYPE_SPECIFIED,TRUE,psStats->pWaterHitGraphic,psStats->numExplosions,psStats->lightWorld,psStats->effectSize);
-//				addEffect(&position,EFFECT_EXPLOSION,EXPLOSION_TYPE_SPECIFIED,TRUE,psStats->pWaterHitGraphic);
 			}
 			else
 			{
-//				addEffect(&position,EFFECT_EXPLOSION,EXPLOSION_TYPE_NOT_FACING,TRUE,psStats->pWaterHitGraphic);
 					if(gfxVisible(psObj))
 //				if(GFX_VISIBLE(psObj))
 				addMultiEffect(&position,&scatter,EFFECT_EXPLOSION,EXPLOSION_TYPE_NOT_FACING,TRUE,psStats->pWaterHitGraphic,psStats->numExplosions,psStats->lightWorld,psStats->effectSize);
@@ -1040,14 +1003,12 @@ proj_ImpactFunc( PROJ_OBJECT *psObj )
 		{
 			if(psStats->facePlayer)
 			{
-//				addEffect(&position,EFFECT_EXPLOSION,EXPLOSION_TYPE_SPECIFIED,TRUE,psStats->pTargetMissGraphic);
 					if(gfxVisible(psObj))
 //				if(GFX_VISIBLE(psObj))
 				addMultiEffect(&position,&scatter,EFFECT_EXPLOSION,EXPLOSION_TYPE_SPECIFIED,TRUE,psStats->pTargetMissGraphic,psStats->numExplosions,psStats->lightWorld,psStats->effectSize);
 			}
 			else
 			{
-//				addEffect(&position,EFFECT_EXPLOSION,EXPLOSION_TYPE_NOT_FACING,TRUE,psStats->pTargetMissGraphic);
 					if(gfxVisible(psObj))
 //				if(GFX_VISIBLE(psObj))
 				addMultiEffect(&position,&scatter,EFFECT_EXPLOSION,EXPLOSION_TYPE_NOT_FACING,TRUE,psStats->pTargetMissGraphic,psStats->numExplosions,psStats->lightWorld,psStats->effectSize);
@@ -1062,14 +1023,12 @@ proj_ImpactFunc( PROJ_OBJECT *psObj )
 		scatter.x = psStats->radius; scatter.y = 0;	scatter.z = psStats->radius;
 		if(psStats->facePlayer)
 		{
-//			addEffect(&position,EFFECT_EXPLOSION,EXPLOSION_TYPE_SPECIFIED,TRUE,psStats->pTargetHitGraphic);
 					if(gfxVisible(psObj))
 //			if(GFX_VISIBLE(psObj))
 			addMultiEffect(&position,&scatter,EFFECT_EXPLOSION,EXPLOSION_TYPE_SPECIFIED,TRUE,psStats->pTargetHitGraphic,psStats->numExplosions,psStats->lightWorld,psStats->effectSize);
 		}
 		else
 		{
-//			addEffect(&position,EFFECT_EXPLOSION,EXPLOSION_TYPE_NOT_FACING,TRUE,psStats->pTargetHitGraphic);
 					if(gfxVisible(psObj))
 //			if(GFX_VISIBLE(psObj))
 			addMultiEffect(&position,&scatter,EFFECT_EXPLOSION,EXPLOSION_TYPE_NOT_FACING,TRUE,psStats->pTargetHitGraphic,psStats->numExplosions,psStats->lightWorld,psStats->effectSize);
@@ -1118,35 +1077,19 @@ proj_ImpactFunc( PROJ_OBJECT *psObj )
 					{
 						updateMultiStatsDamage(psObj->psSource->player,psObj->psDest->player,damage);
 					}
-	//				bMultiTemp = TRUE;
-	//				bMultiPlayer = FALSE;
 				}
 	//			else
-	//			{
-	//				bMultiTemp = FALSE;
-	//			}
 				DBP1(("Damage to object %d, player %d\n",
 						psObj->psDest->id, psObj->psDest->player));
 				/*the damage depends on the weapon effect and the target propulsion type or structure strength*/
 	  			bKilled = objectDamage(psObj->psDest,damage , psStats->weaponClass,psStats->weaponSubClass);
 	
-	//#ifdef WIN32
-	//			if(bMultiTemp) 
-	//			{
-	//				bMultiPlayer = TRUE;
-	//			}
-	//#endif
 				if(bKilled)
 				{
 					proj_UpdateKills(psObj);
 				}
 
 				// do the attacked callback
-	/*			psScrCBAttacker = psObj->psSource;
-				psScrCBTarget = psObj->psObj->psDest;
-				eventFireCallbackTrigger(CALL_ATTACKED);
-				psScrCBAttacker = NULL;
-				psScrCBTarget = NULL;*/
 			}
 		}
 		else
@@ -1172,45 +1115,26 @@ proj_ImpactFunc( PROJ_OBJECT *psObj )
 				{
 					if(psObj->psSource && myResponsibility(psObj->psSource->player))
 					{
-						//updateMultiStatsDamage(psObj->psSource->player,psObj->psDest->player,psStats->damage);
 						updateMultiStatsDamage(psObj->psSource->player,
 							//psObj->psDest->player,	calcDamage(psStats->damage, 
 							psObj->psDest->player, damage	);
 					}
-//					bMultiPlayer = FALSE;
-//					bMultiTemp = TRUE;
 				}
 //				else
-//				{
-//					bMultiTemp = FALSE;
-//				}
-//my_error("",0,"","Damage to object %d, player %d\n",psObj->psDest->id, psObj->psDest->player);
 
 				DBP1(("Damage to object %d, player %d\n",
 						psObj->psDest->id, psObj->psDest->player));
-				//bKilled = psObj->psDest->damage(psObj->psDest, psStats->damage,psStats->weaponClass);
 				/*bKilled = psObj->psDest->damage(psObj->psDest, calcDamage(
 					//psStats->damage, psStats->weaponEffect, psObj->psDest),
 					weaponDamage(psStats,psObj->player), psStats->
 					weaponEffect, psObj->psDest), psStats->weaponClass);*/
 				bKilled = objectDamage(psObj->psDest, damage, psStats->weaponClass,psStats->weaponSubClass);
-//#ifdef WIN32
-//				if(bMultiTemp)
-//				{
-//					bMultiPlayer = TRUE;
-//				}
-//#endif
 				
 				if(bKilled)
 				{
 					proj_UpdateKills(psObj);
 				}
 				// do the attacked callback
-/*				psScrCBAttacker = psObj->psSource;
-				psScrCBTarget = psObj->psObj->psDest;
-				eventFireCallbackTrigger(CALL_ATTACKED);
-				psScrCBAttacker = NULL;
-				psScrCBTarget = NULL;*/
 			}
 		}
 	}
@@ -1226,14 +1150,12 @@ proj_ImpactFunc( PROJ_OBJECT *psObj )
 		{
 			if(psStats->facePlayer)
 			{
-//				addEffect(&position,EFFECT_EXPLOSION,EXPLOSION_TYPE_SPECIFIED,TRUE,psStats->pWaterHitGraphic);
 					if(gfxVisible(psObj))
 //				if(GFX_VISIBLE(psObj))
 				addMultiEffect(&position,&scatter,EFFECT_EXPLOSION,EXPLOSION_TYPE_SPECIFIED,TRUE,psStats->pWaterHitGraphic,psStats->numExplosions,psStats->lightWorld,psStats->effectSize);
 			}
 			else
 			{
-//				addEffect(&position,EFFECT_EXPLOSION,EXPLOSION_TYPE_NOT_FACING,TRUE,psStats->pWaterHitGraphic);
 					if(gfxVisible(psObj))
 //				if(GFX_VISIBLE(psObj))
 				addMultiEffect(&position,&scatter,EFFECT_EXPLOSION,EXPLOSION_TYPE_NOT_FACING,TRUE,psStats->pWaterHitGraphic,psStats->numExplosions,psStats->lightWorld,psStats->effectSize);
@@ -1244,14 +1166,12 @@ proj_ImpactFunc( PROJ_OBJECT *psObj )
 		{
 			if(psStats->facePlayer)
 			{
-//				addEffect(&position,EFFECT_EXPLOSION,EXPLOSION_TYPE_SPECIFIED,TRUE,psStats->pTargetHitGraphic);
 					if(gfxVisible(psObj))
 //				if(GFX_VISIBLE(psObj))
 				addMultiEffect(&position,&scatter,EFFECT_EXPLOSION,EXPLOSION_TYPE_SPECIFIED,TRUE,psStats->pTargetHitGraphic,psStats->numExplosions,psStats->lightWorld,psStats->effectSize);
 			}
 			else
 			{
-//				addEffect(&position,EFFECT_EXPLOSION,EXPLOSION_TYPE_NOT_FACING,TRUE,psStats->pTargetHitGraphic);
 					if(gfxVisible(psObj))
 //				if(GFX_VISIBLE(psObj))
 				addMultiEffect(&position,&scatter,EFFECT_EXPLOSION,EXPLOSION_TYPE_NOT_FACING,TRUE,psStats->pTargetHitGraphic,psStats->numExplosions,psStats->lightWorld,psStats->effectSize);
@@ -1313,7 +1233,6 @@ proj_ImpactFunc( PROJ_OBJECT *psObj )
 					if ((xDiff*xDiff + yDiff*yDiff) <= radSquared)
 					{
 						HIT_ROLL(dice);
-						//if (dice < psStats->radiusHit)
 						if (dice < weaponRadiusHit(psStats, psObj->player))
 						{
 							DBP1(("Damage to object %d, player %d\n",
@@ -1331,7 +1250,6 @@ proj_ImpactFunc( PROJ_OBJECT *psObj )
 								turnOffMultiMsg(TRUE);
 							}
 
-							//bKilled = psCurrD->damage(psCurrD, psStats->radiusDamage, psStats->weaponClass);
 							/*bKilled = psCurrD->damage(psCurrD, calcDamage(
 								//psStats->radiusDamage, psStats->weaponEffect, 
 								weaponRadDamage(psStats,psObj->player), 
@@ -1367,7 +1285,6 @@ proj_ImpactFunc( PROJ_OBJECT *psObj )
 					if ((xDiff*xDiff + yDiff*yDiff) <= radSquared)
 					{
 						HIT_ROLL(dice);
-						//if (dice < psStats->radiusHit)
 						if (dice < weaponRadiusHit(psStats, psObj->player))
 						{
 						damage = calcDamage(weaponRadDamage(
@@ -1436,12 +1353,10 @@ proj_ImpactFunc( PROJ_OBJECT *psObj )
 				if ((xDiff*xDiff + yDiff*yDiff) <= radSquared)
 				{
 					HIT_ROLL(dice);
-					//if (dice < psStats->radiusHit)
 					if (dice < weaponRadiusHit(psStats, psObj->player))
 					{
 						DBP1(("Damage to object %d, player %d\n",
 								psCurrF->id, psCurrF->player));
-						//(void)psCurrF->damage(psCurrF, psStats->radiusDamage, psStats->weaponClass);
 						//(void)psCurrF->damage(psCurrF, calcDamage(psStats->radiusDamage, 
 						/*(void)psCurrF->damage(psCurrF, calcDamage(weaponRadDamage(
 							psStats, psObj->player), psStats->weaponEffect, 
@@ -1591,7 +1506,6 @@ proj_checkBurnDamage( BASE_OBJECT *apsList, PROJ_OBJECT *psProj,
 	UDWORD			damageSoFar;
 	SDWORD			damageToDo;
 	BOOL			bKilled;
-//	BOOL			bMultiTemp;
 
 	// note the attacker if any
 	g_pProjLastAttacker = psProj->psSource;
@@ -1646,28 +1560,11 @@ proj_checkBurnDamage( BASE_OBJECT *apsList, PROJ_OBJECT *psProj,
 						DBP1(("Burn damage of %d to object %d, player %d\n",
 								damageToDo, psCurr->id, psCurr->player));
 
-//#ifdef WIN32
-//						if(bMultiPlayer)
-//						{
-//							bMultiPlayer = FALSE;
-//							bMultiTemp = TRUE;
-//						}
 //						else
-//						{
-//							bMultiTemp = FALSE;
-//						}
-//#endif
 						
-						//bKilled = psCurr->damage(psCurr, damageToDo, psStats->weaponClass);
 	  					bKilled = objectDamage(psCurr, damageToDo, psStats->weaponClass,psStats->weaponSubClass);
 						psCurr->burnDamage += damageToDo;
 
-//#ifdef WIN32
-//						if(bMultiTemp)
-//						{
-//							bMultiPlayer = TRUE;
-//						}
-//#endif
 
 						if(bKilled)
 						{
@@ -1785,7 +1682,6 @@ UDWORD	calcDamage(UDWORD baseDamage, WEAPON_EFFECT weaponEffect, BASE_OBJECT *ps
 		damage1 = baseDamage * Mod / 100;
 
 
-//	my_error("",0,"","STRUCT damage1=%d damage=%d baseDamage=%d mod=%d (weaponEffect=%d proptype=%d) \n",damage1,damage,baseDamage,Mod,weaponEffect,PropType);
 	}
 #endif		
 

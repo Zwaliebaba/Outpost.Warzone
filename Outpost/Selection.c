@@ -123,7 +123,6 @@ UDWORD	count;
 				/* can select everything except transporters */
 				if(psDroid->droidType != DROID_TRANSPORTER)
 				{
-//					psDroid->selected = TRUE;
 					SelectDroid(psDroid);
 					count++;
 				}
@@ -178,7 +177,6 @@ UDWORD	count;
 		psDroid; psDroid = psDroid->psNext)
 		{
 			/* Does it have a weapon? */
-			//if(psDroid->numWeaps)
             if(psDroid->asWeaps[0].nStat > 0)
 			{
 		  		/* Is on screen relevant? */
@@ -219,7 +217,6 @@ UDWORD	count;
                     //we don't want to get the Transporter
 	 				if(psDroid->droidType != DROID_TRANSPORTER)
                     {
-//    					psDroid->selected = TRUE;
 						SelectDroid(psDroid);
 	    				count ++;
                     }
@@ -242,7 +239,6 @@ DROID	*psDroid;
 			{
 				count++;
 			}
-//			psDroid->selected = FALSE;
 			DeSelectDroid(psDroid);
 		}
 	return(count);
@@ -301,7 +297,6 @@ UDWORD	count;
 				{
 					if(!strcmp(droidName,psDroid->aName))
 					{
-//						psDroid->selected = TRUE;
 						SelectDroid(psDroid);
 						count++;
 					}
@@ -389,19 +384,16 @@ BOOL	bLaterInList, bMatch;
 	if(psResult AND !psResult->died)
 	{
 	 	selDroidDeselect(selectedPlayer);
-//		psResult->selected = TRUE;
 		SelectDroid(psResult);
 		if(getWarCamStatus())
 		{
 			camToggleStatus();			 // messy - fix this
-	//		setViewPos(psCentreDroid->x>>TILE_SHIFT,psCentreDroid->y>>TILE_SHIFT);
 			processWarCam(); //odd, but necessary
 			camToggleStatus();				// messy - FIXME
 		}
 		else
 			if(!getWarCamStatus())
 			{
-//				camToggleStatus();
 				/* Centre display on him if warcam isn't active */
 				setViewPos(psResult->x>>TILE_SHIFT,psResult->y>>TILE_SHIFT,TRUE);
 			}
@@ -426,86 +418,6 @@ BOOL	bLaterInList, bMatch;
 		}
 	}
 }
-#if 0
-// ---------------------------------------------------------------------
-void	selNextRepairUnit( void )
-{
-DROID	*psCurr;
-DROID	*psResult;
-DROID	*psFirst;
-BOOL	bLaterInList;
-	
-	for(psCurr = apsDroidLists[selectedPlayer],psFirst = NULL,psResult = NULL,bLaterInList = FALSE; 
-		psCurr AND !psResult; psCurr = psCurr->psNext)
-	{
-		if( psCurr->droidType == DROID_REPAIR OR
-            psCurr->droidType == DROID_CYBORG_REPAIR )
-		{
-			
-		 	/* Always store away the first one we find */
-			if(!psFirst)
-			{
-				psFirst = psCurr;
-			}
-		 
-			if(psCurr == psOldRD)
-			{
-				bLaterInList = TRUE;
-			}
-
-			/* Nothing previously found... */
-			if(!psOldRD)
-			{
-				psResult = psCurr;
-			}
-
-			/* Only select is this isn't the old one and it's further on in list */
-			else if(psCurr!=psOldRD AND bLaterInList)
-			{
-				psResult = psCurr;
-			} 	
-
-		 }
-	}
-
-	/* Did we get one? */
-	if(!psResult)
-	{
-		/* was there at least one - the first one? Resetting */
-		if(psFirst)
-		{
-			psResult = psFirst;
-		}
-	}
-
-	if(psResult AND !psResult->died)
-	{
-	 	selDroidDeselect(selectedPlayer);
-//		psResult->selected = TRUE;
-		SelectDroid(psResult);
-		if(getWarCamStatus())
-		{
-			camToggleStatus();			 // messy - fix this
-	//		setViewPos(psCentreDroid->x>>TILE_SHIFT,psCentreDroid->y>>TILE_SHIFT);
-			processWarCam(); //odd, but necessary
-			camToggleStatus();				// messy - FIXME
-		}
-		else
-			if(!getWarCamStatus())
-			{
-//				camToggleStatus();
-				/* Centre display on him if warcam isn't active */
-				setViewPos(psResult->x>>TILE_SHIFT,psResult->y>>TILE_SHIFT,TRUE);
-			}
-		psOldRD = psResult;
-	}
-	else
-	{
-		addConsoleMessage(strresGetString(psStringRes,STR_GAM_REPNOTFOUND),LEFT_JUSTIFY);
-	}
-}
-// ---------------------------------------------------------------------
-#endif
 // ---------------------------------------------------------------------
 void	selNextUnassignedUnit( void )
 {
@@ -559,19 +471,16 @@ BOOL	bLaterInList;
 	if(psResult AND !psResult->died)
 	{
 	 	selDroidDeselect(selectedPlayer);
-//		psResult->selected = TRUE;
 		SelectDroid(psResult);
 		if(getWarCamStatus())
 		{
 			camToggleStatus();			 // messy - fix this
-	//		setViewPos(psCentreDroid->x>>TILE_SHIFT,psCentreDroid->y>>TILE_SHIFT);
 			processWarCam(); //odd, but necessary
 			camToggleStatus();				// messy - FIXME
 		}
 		else
 			if(!getWarCamStatus())
 			{
-//				camToggleStatus();
 				/* Centre display on him if warcam isn't active */
 				setViewPos(psResult->x>>TILE_SHIFT,psResult->y>>TILE_SHIFT,TRUE);
 			}

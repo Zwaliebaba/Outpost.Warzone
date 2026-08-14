@@ -102,7 +102,6 @@ BOOL sendBuildStarted(STRUCTURE *psStruct,DROID *psDroid)
 // put down a base plate and start droid building it!
 BOOL recvBuildStarted(NETMSG *pMsg)
 {
-	//UDWORD			targetId,order,droidId,structId,x,z,y,structStat,player;
 	UDWORD			targetId,order,droidId,structId,structStat;
 	UWORD			x,z,y,player;
 	STRUCTURE_STATS *psStats;
@@ -228,7 +227,6 @@ BOOL recvBuildFinished(NETMSG *m)
 	// check for similar buildings, to avoid overlaps
 	if( TILE_HAS_STRUCTURE(mapTile(x>>TILE_SHIFT,y>>TILE_SHIFT))   )		
 	{
-		// get structure;
 		psStr = getTileStructure(x>>TILE_SHIFT, y>>TILE_SHIFT);
 		if(asStructureStats[typeindex].type == psStr->pStructureType->type)
 		{

@@ -121,7 +121,6 @@ int iV_FileGet(int fd)
 
 	if (fbf[fd].n == 0) {
 		fbf[fd].n = fread(fbf[fd].buffer,sizeof(int8),fbf[fd].buffersize,fbf[fd].fp);
-		//fbf[fd].n = read(fbf[fd].fp,fbf[fd].buffer,fbf[fd].buffersize);
 		fbf[fd].b = fbf[fd].buffer;
 	}
 
@@ -175,7 +174,6 @@ int iV_FilePut(int fd, int8 c)
 	int i = 1;
 
 	if (fbf[fd].n == fbf[fd].buffersize) {
-		//i = fwrite(fbf[fd].fp,fbf[fd].buffer,fbf[fd].buffersize);
 		i = fwrite(fbf[fd].buffer,sizeof(int8),fbf[fd].buffersize,fbf[fd].fp);
 		fbf[fd].n = 0;
 		fbf[fd].b = fbf[fd].buffer;

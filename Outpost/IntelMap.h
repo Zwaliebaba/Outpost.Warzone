@@ -23,7 +23,6 @@ extern MESSAGE			*psCurrentMsg;
 extern TEXT_DISPLAY		currentTextDisplay;
 
 /* Add the Intelligence Map widgets to the widget screen */
-//extern BOOL intAddIntelMap(BOOL playCurrent);
 extern BOOL intAddIntelMap(void);
 /*Add the 3D world view for the current message */
 extern BOOL intAddMessageView(MESSAGE *psMessage);
@@ -33,11 +32,9 @@ extern void intRemoveMessageView(BOOL animated);
 /* Process return codes from the Intelligence Map */
 extern void intProcessIntelMap(UDWORD id);
 /* Process return code from the Message View for Tutorial Mode*/
-//extern void intProcessMessageView(UDWORD id);
 
 /* rotate the view so looking directly down if forward = TRUE or
  back to previous view if forward = FALSE */
-//extern void intelMapView(BOOL forward);
 
 /* Remove the Intelligence Map widgets from the screen */
 extern void intRemoveIntelMap(void);
@@ -46,10 +43,8 @@ extern void intRemoveIntelMap(void);
 extern void intRemoveIntelMapNoAnim(void);
 
 //initialise the text display stats for the current message
-//extern void initTextDisplay(MESSAGE *psMessage, UDWORD fontID, UWORD fontColour);
 
 /* scroll the text message from left to right - aka tickertape messages */
-//extern void scrollMessage(STRING *pText, UDWORD startX, UDWORD endX, UDWORD y, UDWORD gap);
 
 /*sets psCurrentMsg for the Intelligence screen*/
 extern void setCurrentMsg(void);

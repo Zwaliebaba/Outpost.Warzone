@@ -25,28 +25,8 @@
 #define MaxProtocols		12					// max number of returnable protocols.
 #define MaxGames			12					// max number of concurrently playable games to allow.
 typedef	unsigned	int		UDWORD;				// for similarity to warzone
-//#define USE_DIRECTPLAY_PROTOCOL				// use DX6 protocol.
 
 //typedef struct {								//Available game storage... JUST FOR REFERENCE!
-//    DWORD dwSize;
-//    DWORD dwFlags;
-//    GUID  guidInstance;
-//    GUID  guidApplication;
-//    DWORD dwMaxPlayers;
-//    DWORD dwCurrentPlayers;
-//    union  {
-//        LPWSTR lpszSessionName;
-//        LPSTR  lpszSessionNameA;};
-//    union  {
-//        LPWSTR lpszPassword;
-//        LPSTR  lpszPasswordA;  };
-//    DWORD dwReserved1;
-//    DWORD dwReserved2;
-//    DWORD dwUser1;
-//    DWORD dwUser2;
-//    DWORD dwUser3;
-//    DWORD dwUser4;
-//} DPSESSIONDESC2, FAR *LPDPSESSIONDESC2;
 
 // Games Storage Structures
 typedef struct{

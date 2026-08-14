@@ -6,11 +6,8 @@
  */
 
 // A* printf's
-//#define DEBUG_GROUP0
 // open list printf's
-//#define DEBUG_GROUP1
 // summary info printf's
-//#define DEBUG_GROUP2
 #include <assert.h>
 
 #include "Frame.h"
@@ -60,7 +57,6 @@ typedef struct _fp_node
 FP_NODE		*psOpen;
 
 // Size of closed hash table
-//#define FPATH_TABLESIZE		20671
 #define FPATH_TABLESIZE		4091
 
 
@@ -175,16 +171,6 @@ void fpathShutDown(void)
 #define RAND_MULTI	25173
 #define RAND_INC	13849
 #define RAND_MOD	0xffff
-/*SDWORD fpathHashFunc(SDWORD x, SDWORD y)
-{
-	UDWORD	index;
-
-	index = ((UDWORD)x * RAND_MULTI + RAND_INC) & RAND_MOD;
-	index = index ^ ((UDWORD)y * RAND_MULTI + RAND_INC) & RAND_MOD;
-	index = index % FPATH_TABLESIZE;
-
-	return index;
-}*/
 
 /* next four used in HashPJW */
 #define	BITS_IN_int		32
@@ -261,12 +247,6 @@ FP_NODE *fpathHashPresent(FP_NODE *apsTable[], SDWORD x, SDWORD y)
 	return psFound;
 }
 
-/*	FP_NODE		*psPrev, *psFound;
-
-	index = fpathHashFunc(x,y);
-
-	return psFound;
-}*/
 
 
 // Remove a node from the hash table
@@ -776,7 +756,6 @@ FP_NODE *fpathNewNode(SDWORD x, SDWORD y, SDWORD dist, FP_NODE *psRoute)
 	psNode->type = NT_OPEN;
 
 #ifdef TEST_BED
-//	mapTile(x,y)->tileInfoBits |= HUG;
 #endif
 
 	return psNode;
@@ -828,7 +807,6 @@ BOOL fpathVisCallback(SDWORD x, SDWORD y, SDWORD dist)
 
 	dist = dist;
 
-	// See if this point is past the final point (dot product)
 	vx = x - finalX;
 	vy = y - finalY;
 	if (vx*vectorX + vy*vectorY <=0)
@@ -920,11 +898,6 @@ BOOL fpathAStarRoute(ASTAR_ROUTE *psRoutePoints,
 #endif
 	SDWORD		numPoints;
 
-/*	firstHit=0;
-	secondHit=0;
-	astarInner=0;
-	astarOuter=0;
-	astarRemove=0;*/
 
 	tileSX = sx >> TILE_SHIFT; tileSY = sy >> TILE_SHIFT;
 	tileFX = fx >> TILE_SHIFT; tileFY = fy >> TILE_SHIFT;
@@ -1041,7 +1014,6 @@ BOOL fpathAStarRoute(ASTAR_ROUTE *psRoutePoints,
 		}
 
 //		ASSERT((fpathValidateTree(psOpen),
-//			"fpathAStarRoute: Invalid open tree"));
 
 		// add the current point to the closed nodes
 		fpathHashRemove(apsOpen, psCurr->x, psCurr->y);
@@ -1053,7 +1025,6 @@ BOOL fpathAStarRoute(ASTAR_ROUTE *psRoutePoints,
 #ifdef TEST_BED
 	for(psCurr=psRoute; psCurr; psCurr = psCurr->psRoute)
 	{
-//		mapTile(psCurr->x, psCurr->y)->tileInfoBits |= ROUTE;
 	}
 #endif
 
@@ -1141,14 +1112,12 @@ BOOL fpathAStarRoute(ASTAR_ROUTE *psRoutePoints,
 #endif
 
 	fpathHashReset();
-//	fpathOpenReset();
 
 
 	return TRUE;
 
 exit_error:
 	fpathHashReset();
-//	fpathOpenReset();
 	return FALSE;
 }
 
@@ -1169,13 +1138,7 @@ static 	FP_NODE		*psNearest, *psRoute;
 	SDWORD		count, maxuse, hashUse, hashLists;
 #endif
 
-/*	firstHit=0;
-	secondHit=0;
-	astarInner=0;
-	astarOuter=0;
-	astarRemove=0;*/
 
-//	DBPRINTF(("Astar start\n");
 
 
 	tileSX = sx >> TILE_SHIFT; tileSY = sy >> TILE_SHIFT;
@@ -1303,25 +1266,20 @@ static 	FP_NODE		*psNearest, *psRoute;
 		}
 
 //		ASSERT((fpathValidateTree(psOpen),
-//			"fpathAStarRoute: Invalid open tree"));
 
 		// add the current point to the closed nodes
-//		fpathHashRemove(apsOpen, psCurr->x, psCurr->y);
-//		fpathHashAdd(apsClosed, psCurr);
 		psCurr->type = NT_CLOSED;
 		DBP0(("HashAdd - closed : %3d,%3d (%d,%d) = %d\n",
 				psCurr->x,psCurr->y, psCurr->dist, psCurr->est, psCurr->dist+psCurr->est));
 	}
 
 
-//	DBPRINTF(("Astar fin astarOuter=%d astarInner=%d\n",astarOuter,astarInner);
 
 
 
 #ifdef TEST_BED
 	for(psCurr=psRoute; psCurr; psCurr = psCurr->psRoute)
 	{
-//		mapTile(psCurr->x, psCurr->y)->tileInfoBits |= ROUTE;
 	}
 #endif
 
@@ -1399,14 +1357,12 @@ static 	FP_NODE		*psNearest, *psRoute;
 #endif
 
 	fpathHashReset();
-//	fpathOpenReset();
 
 	return retval;
 
 
 exit_error:
 	fpathHashReset();
-//	fpathOpenReset();
 	return ASR_FAILED;
 }
 

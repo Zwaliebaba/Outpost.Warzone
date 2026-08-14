@@ -60,15 +60,6 @@ extern	UBYTE	sPlayer[128];
 #define FORCE_DROIDX			70	
 #define FORCE_DROIDY			220
 
-//#define FORCE_LO				10304							
-//#define FORCE_LOX				7
-//#define FORCE_LOY				220
-//#define FORCE_MED				10305							
-//#define FORCE_MEDX				52
-//#define FORCE_MEDY				220
-//#define FORCE_HI				10306							
-//#define FORCE_HIX				97
-//#define FORCE_HIY				220
 
 #define FORCE_CURRENT			10307
 #define FORCE_CURRENTX			FORCE_STATSX+FORCE_STATSWIDTH+33
@@ -212,7 +203,6 @@ extern	UBYTE	sPlayer[128];
 #define MULTIOP_MAP_ICON		10258
 #define MULTIOP_MAP				10259
 
-//#define MULTIOP_ARENA			10260
 #define MULTIOP_CAMPAIGN		10261
 #define MULTIOP_TEAMPLAY		10262
 #define MULTIOP_SKIRMISH		10263

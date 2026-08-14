@@ -14,7 +14,6 @@
 
 /* The maximum number of droid weapons and programs */
 #define DROID_MAXWEAPS		1//3
-//#define DROID_MAXPROGS		3
 #define	DROID_DAMAGE_SCALING	400
 // This should really be logarithmic
 #define	CALC_DROID_SMOKE_INTERVAL(x) ((((100-x)+10)/10) * DROID_DAMAGE_SCALING)
@@ -50,7 +49,6 @@ typedef enum _droid_type
 
 typedef struct _component
 {
-//	UDWORD					nStat;
 	UBYTE			nStat;				// Allowing a maximum of 255 stats per file
 	//UDWORD					hitPoints; NOT USED?
 
@@ -71,7 +69,6 @@ typedef struct _program
 typedef struct _order_list
 {
 	SDWORD				order;
-	//BASE_OBJECT	*psObj;
     void                *psOrderTarget; //this needs to cope with objects and stats
 	UWORD				x,y,x2,y2;      //line build requires two sets of coords
 } ORDER_LIST;
@@ -111,10 +108,8 @@ typedef struct _droid_template
 	//UDWORD			asProgs[DROID_MAXPROGS];	/* program indices*/
 
 	DROID_TYPE		droidType;					// The type of droid
-//#ifdef WIN32
 	UDWORD			multiPlayerID;				// multiplayer unique descriptor(cant use id's for templates)
 												// used for save games as well now - AB 29/10/98
-//#endif
 	struct _droid_template	*psNext;			/* Pointer to next template*/
 
 } DROID_TEMPLATE;
@@ -156,25 +151,19 @@ typedef struct _droid
 	UDWORD		originalBody;		//the original body points
 	UDWORD		body;				// the current body points
 	UDWORD		armour[NUM_WEAPON_CLASS];
-	//UDWORD		power;
-//tjc	UDWORD		imdNum;
 	UWORD		numKills;
 	//UWORD		turretRotRate; THIS IS A CONSTANT
 	UWORD		turretRotation;
 	UWORD		turretPitch;	//*
 	UBYTE 		NameVersion;			// Version number used for generating on-the-fly names (e.g. Viper Mk "I" would be stored as 1 - Viper Mk "X" as 10)  - copied from droid template
 	UBYTE		currRayAng;
-//	UDWORD		numKills;
 
     SWORD       resistance;             //used in Electronic Warfare
 
 //	SDWORD		activeWeapon;		// The currently selected weapon
-	//UDWORD		numWeaps;
 	WEAPON		asWeaps[DROID_MAXWEAPS];
 
 	//SDWORD		activeProg;			// The currently running program
-	//UDWORD		numProgs;
-	//PROGRAM		asProgs[DROID_MAXPROGS];
 
 	// The group the droid belongs to
 	struct		_droid_group	*psGroup;
@@ -192,7 +181,6 @@ typedef struct _droid
 	SDWORD				order;
 	UWORD				orderX,orderY;
 	UWORD				orderX2,orderY2;
-// 	BASE_OBJECT	*psLastAttacker;
 	UDWORD				lastHitWeapon;
 	UDWORD				timeLastHit;
 	BOOL				bTargetted;
@@ -222,9 +210,7 @@ typedef struct _droid
 	
 	/* Movement control data */
 	MOVE_CONTROL		sMove;	
-//	void				*lastTile;
 	/* AI data */
-//	AI_DATA				sAI;				
 	/* anim data */
 	ANIM_OBJECT			*psCurAnim;			
 

@@ -10,7 +10,6 @@
 #include "OrderDef.h"
 
 //turn off the build queue availability until desired release date!
-//#define DISABLE_BUILD_QUEUE
 
 // The droid orders
 typedef enum _droid_order
@@ -160,8 +159,6 @@ extern void orderSelectedLoc(UDWORD player, UDWORD x, UDWORD y);
 extern void orderSelectedLocAdd(UDWORD player, UDWORD x, UDWORD y, BOOL add);
 
 /* Give selected droids a new waypoint to add to move*/
-//extern void orderSelectedWaypoint(UDWORD player, UDWORD x, UDWORD y);
-//extern BOOL orderAddWayPoint(DROID *psDroid ,UDWORD dX,UDWORD dY);
 
 /* Give selected droids an order with an object target */
 extern void orderSelectedObj(UDWORD player, BASE_OBJECT *psObj);

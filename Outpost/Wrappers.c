@@ -238,18 +238,12 @@ TITLECODE titleLoop(void)
 			break;
 
 //		case GRAPHICS:
-//			runGraphicsOptionsMenu();
-//			break;
 
 		case CREDITS:
 			runCreditsScreen();
 			break;
 //		case DEMOMODE:
-//			runDemoMenu();
-//			break;
 //	case VIDEO:
-//			runVideoOptionsMenu();
-//			break;
 		case OPTIONS:
 			runOptionsMenu();
 			break;
@@ -299,13 +293,11 @@ TITLECODE titleLoop(void)
 	pie_SetFogStatus(FALSE);
 	pie_ScreenFlip(CLEAR_BLACK);//title loop
 
-//#ifdef WIN32
 	if ((keyDown(KEY_LALT) || keyDown(KEY_RALT)) &&	/* Check for toggling display mode */
 		keyPressed(KEY_RETURN))
 	{
 		screenToggleMode();
 	}
-//#endif
 
 	return RetCode;
 }
@@ -344,7 +336,6 @@ void loadingScreenCallback(void)
 	topY = 450+D_H-1;
 	botX = 630+D_W;
 	botY = 470+D_H+1;
-//	pie_BoxFillIndex(10+D_W,450+D_H-1,630+D_W,470+D_H+1,COL_BLACK);
 	pie_UniTransBoxFill(topX,topY,botX,botY,0x00010101, 24);
 
 
@@ -466,8 +457,6 @@ void	runCreditsScreen( void )
 			screen = SCREEN_SLIDE4;
 			break;
 //		case 4:
-//			screen = SCREEN_SLIDE5;
-//			break;		
 		case 4:
 			screen = SCREEN_CREDITS;
 			break;
@@ -507,12 +496,7 @@ BOOL displayGameOver(BOOL bDidit)
 {
 
 // AlexL says take this out......
-//	setConsolePermanence(TRUE,TRUE);
-//	flushConsoleMessages( );
 
-//	addConsoleMessage(" ", CENTRE_JUSTIFY );
-//	addConsoleMessage(strresGetString(psStringRes,STR_GAM_GAMEOVER), CENTRE_JUSTIFY );
-//	addConsoleMessage(" ", CENTRE_JUSTIFY );
 
     //set this for debug mode too - what gets displayed then depends on whether we 
     //have won or lost and if we are in debug mode
@@ -544,9 +528,6 @@ BOOL displayGameOver(BOOL bDidit)
 	}
 
 //	if(getDebugMappingStatus()) 
-//	{
-//		intAddInGameOptions();
-//	}
 	else
 	{
         //clear out any mission widgets - timers etc that may be on the screen

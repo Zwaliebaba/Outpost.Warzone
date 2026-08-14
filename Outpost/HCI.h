@@ -10,7 +10,6 @@
 #include "Message.h"
 #include "CDSpan.h"
 #include "PieClip.h"
-//#include "IntImage.h"
 
 // store the objects that are being used for the object bar
 #define			MAX_OBJECTS		15//10 we need at least 15 for the 3 different types of factory
@@ -74,7 +73,6 @@
 #define IDSTAT_TABFORM			4004		// The tab form with the stats buttons
 #define IDSTAT_START			4100		// The first stats ID
 #define IDSTAT_END				4179		// The last stats ID
-//#define IDSTAT_BARSTART		4200
 #define IDSTAT_BAREND			4299
 #define IDSTAT_TIMEBARSTART		4300
 #define IDSTAT_TIMEBAREND		4399
@@ -176,9 +174,6 @@
 #define UNPACKDWORD_QUAD_D(a) ( (a) & 0xff)
 
 
-//#define BUILDPOINTS_STRUCTDIV 1
-//#define BUILDPOINTS_DROIDDIV 5
-//#define POWERPOINTS_STRUCTDIV 1
 #define POWERPOINTS_DROIDDIV	5 //3 
 
 #define OBJ_BUTWIDTH		60		// Button width.
@@ -243,13 +238,8 @@ typedef enum {
 } INTMODE;
 
 //NOT ANYMORE! 10/08/98 AB
-//#ifdef WIN32
-//#define INCLUDE_PRODSLIDER	// Include quantity slider in manufacture window.
-//#endif
 
-//#ifdef WIN32
 #define INCLUDE_FACTORYLISTS
-//#endif
 
 extern INTMODE intMode;
 
@@ -270,7 +260,6 @@ extern UDWORD			intLastWidget;
 extern UDWORD			objStatID;
 
 /* The flag to specify if the Intelligence screen is up */
-//extern BOOL				intelMapUp;
 
 /* The current template for the design screen to start with*/
 extern DROID_TEMPLATE	*psCurrTemplate;
@@ -372,7 +361,6 @@ void intCommanderSelected(DROID *psDroid);
 extern UWORD numForms(UDWORD total, UDWORD perForm);
 
 //sets up the Intelligence Screen as far as the interface is concerned
-//extern void addIntelScreen(BOOL playImmediate);
 extern void addIntelScreen(void);
 
 // update shadow...
@@ -416,7 +404,6 @@ extern void togglePowerBar(void);
 extern void intShowPowerBar(void);
 
 //hides the power bar from the display
-//extern void intHidePowerBar(void);
 
 //hides the power bar from the display - regardless of what player requested!
 extern void forceHidePowerBar(void);

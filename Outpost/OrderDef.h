@@ -18,8 +18,6 @@ typedef struct _run_data
 typedef struct _droid_order_data
 {
 	SDWORD			order;
-	//UDWORD			x,y;
-	//UDWORD			x2,y2;
 	UWORD			x,y;
 	UWORD			x2,y2;
 	BASE_OBJECT		*psObj;

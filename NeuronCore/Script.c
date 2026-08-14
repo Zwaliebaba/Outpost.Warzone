@@ -201,7 +201,6 @@ BOOL scriptSaveProg(SCRIPT_CODE *psProg, UDWORD *pSize, UBYTE **ppData)
 	pPos = *ppData + sizeof(BINARY_HDR);
 
 
-//	DBPRINTF(("Header %d\n",sizeof(BINARY_HDR)));
 	DbgSize+=sizeof(BINARY_HDR);
 
 
@@ -209,7 +208,6 @@ BOOL scriptSaveProg(SCRIPT_CODE *psProg, UDWORD *pSize, UBYTE **ppData)
 	pPos += (sizeof(INTERP_TYPE) * psProg->numGlobals);
 
 
-//	DBPRINTF(("globs %d\n", (sizeof(INTERP_TYPE) * psProg->numGlobals)));
 	DbgSize+=(sizeof(INTERP_TYPE) * psProg->numGlobals);
 
 	// save the array information
@@ -222,7 +220,6 @@ BOOL scriptSaveProg(SCRIPT_CODE *psProg, UDWORD *pSize, UBYTE **ppData)
 	memcpy(pPos, psProg->psTriggerData, sizeof(TRIGGER_DATA) * psProg->numTriggers);
 	pPos += sizeof(TRIGGER_DATA) * psProg->numTriggers;
 
-//	DBPRINTF(("Trigs %d\n",(sizeof(TRIGGER_DATA) * psProg->numTriggers)));
 	DbgSize+= (sizeof(TRIGGER_DATA) * psProg->numTriggers);
 
 	// Save the trigger and event tables
@@ -232,14 +229,12 @@ BOOL scriptSaveProg(SCRIPT_CODE *psProg, UDWORD *pSize, UBYTE **ppData)
 	memcpy(pPos, psProg->pTriggerTab, sizeof(UWORD) * (psProg->numTriggers+1));
 	pPos += sizeof(UWORD) * (psProg->numTriggers+1);  // just to make sure pPos is on a DWORD boundary
 
-//	DBPRINTF(("Trig2 %d\n",(sizeof(UWORD) * (psProg->numTriggers+1))));
 	DbgSize+= (sizeof(UWORD) * (psProg->numTriggers+1));
 
 
 	memcpy(pPos, psProg->pEventTab, sizeof(UWORD) * (psProg->numEvents+1));
 	pPos += sizeof(UWORD) * (psProg->numEvents+1);
 
-//	DBPRINTF(("Events %d\n",(sizeof(UWORD) * (psProg->numEvents+1))));
 	DbgSize+= (sizeof(UWORD) * (psProg->numEvents+1));
 
 
@@ -247,13 +242,10 @@ BOOL scriptSaveProg(SCRIPT_CODE *psProg, UDWORD *pSize, UBYTE **ppData)
 	memcpy(pPos, psProg->pEventLinks, sizeof(SWORD) * psProg->numEvents);
 	pPos += sizeof(SWORD) * psProg->numEvents;
 
-//	DBPRINTF(("EventsLinks %d\n",(sizeof(SWORD) * (psProg->numEvents))));
 	DbgSize+= (sizeof(SWORD) * (psProg->numEvents));
 
 
-//	DBPRINTF(("Align [%d] ",pPos));
 	pPos= (UBYTE *) ((((UDWORD)pPos)+3)&(~3));	// align up me landlord !
-//	DBPRINTF((" [%d]\n",pPos));
 
 
 	// Save the code
@@ -352,7 +344,6 @@ BOOL scriptSaveProg(SCRIPT_CODE *psProg, UDWORD *pSize, UBYTE **ppData)
 		ip += aOpSize[opcode];
 	}
 	pPos += psProg->size;
-//	DBPRINTF(("Prog %d\n",(psProg->size)));
 	DbgSize+= (psProg->size);
 
 	// Now store the debug info
@@ -376,7 +367,6 @@ BOOL scriptSaveProg(SCRIPT_CODE *psProg, UDWORD *pSize, UBYTE **ppData)
 
 
 		pPos += sizeof(SCRIPT_DEBUG) * psProg->debugEntries;
-//		DBPRINTF(("DbgInfo %d\n",(sizeof(SCRIPT_DEBUG) * psProg->debugEntries)));
 		DbgSize+= (sizeof(SCRIPT_DEBUG) * psProg->debugEntries);
 
 
@@ -394,14 +384,12 @@ BOOL scriptSaveProg(SCRIPT_CODE *psProg, UDWORD *pSize, UBYTE **ppData)
 				*pPos=0;			// Null string ... just store a zero
 				pPos++;				// Move it on by one
 				DbgISize++;
-//				DBPRINTF(("%d) storage=%d size=2 - NULL STRING\n",i,psProg->psVarDebug[i].storage));
 			}
 			else
 			{
 				strcpy((STRING *)pPos, psProg->psVarDebug[i].pIdent);
 				pPos += (strlen(psProg->psVarDebug[i].pIdent) + 1);
 				DbgISize+= (strlen(psProg->psVarDebug[i].pIdent) + 1);
-//				DBPRINTF(("%d) storage=%d size=%d [%s]\n",i,psProg->psVarDebug[i].storage,strlen(psProg->psVarDebug[i].pIdent)+1+sizeof(STORAGE_TYPE),psProg->psVarDebug[i].pIdent));
 			}
 
 		}
@@ -420,24 +408,20 @@ BOOL scriptSaveProg(SCRIPT_CODE *psProg, UDWORD *pSize, UBYTE **ppData)
 				*pPos=0;			// Null string ... just store a zero
 				pPos++;				// Move it on by one
 				DbgISize++;
-//				DBPRINTF(("%d) storage=%d size=2 - NULL STRING\n",i,psProg->psVarDebug[i].storage));
 			}
 			else
 			{
 				strcpy((STRING *)pPos, psProg->psArrayDebug[i].pIdent);
 				pPos += (strlen(psProg->psArrayDebug[i].pIdent) + 1);
 				DbgISize+= (strlen(psProg->psArrayDebug[i].pIdent) + 1);
-//				DBPRINTF(("%d) storage=%d size=%d [%s]\n",i,psProg->psVarDebug[i].storage,strlen(psProg->psVarDebug[i].pIdent)+1+sizeof(STORAGE_TYPE),psProg->psVarDebug[i].pIdent));
 			}
 
 		}
 
-//		DBPRINTF(("DbgISize %d\n",DbgISize));
 		DbgSize+=DbgISize;
 	}
 
 
-//	DBPRINTF(("Total script size %d\n",DbgSize));
 
 
 	return TRUE;
@@ -455,7 +439,6 @@ BOOL scriptLoadProg(UDWORD size, UBYTE *pData, SCRIPT_CODE **ppsProg)
 	BINARY_HDR	*psHdr;
 	UBYTE		*pPos;
 	UDWORD		*ip;
-//	UDWORD		alignTriggers;
 	OPCODE		opcode;
 	UDWORD DbgSize=0;
 	UDWORD		data, saveFunc;
@@ -488,19 +471,15 @@ BOOL scriptLoadProg(UDWORD size, UBYTE *pData, SCRIPT_CODE **ppsProg)
 	psProg->numEvents = psHdr->numEvents;
 	psProg->arraySize = psHdr->arraySize;
 
-	// need one extra trigger entry here (see save code for explaination -tjc )
 //	alignTriggers = ((psProg->numTriggers+1) % 2) == 0 ? psProg->numTriggers+1 :
-//								psProg->numTriggers+1+1;
 
 	// Load the variable types
 	pPos = pData + sizeof(BINARY_HDR);
 
 
-//	DBPRINTF(("HEADER = %d\n",sizeof(BINARY_HDR)));
 	DbgSize+=sizeof(BINARY_HDR);
 
 
-//	DBG1();
 
 
 	if (psProg->numGlobals > 0)
@@ -514,8 +493,6 @@ BOOL scriptLoadProg(UDWORD size, UBYTE *pData, SCRIPT_CODE **ppsProg)
 		memcpy(psProg->pGlobals, pPos, sizeof(INTERP_TYPE) * psProg->numGlobals);
 		pPos += sizeof(INTERP_TYPE) * psProg->numGlobals;
 
-//	DBPRINTF(("GLOBALS = %d\n", sizeof(INTERP_TYPE) * psProg->numGlobals));
-//	DBG1();
 	DbgSize+=( sizeof(INTERP_TYPE) * psProg->numGlobals);
 	}
 	else
@@ -550,8 +527,6 @@ BOOL scriptLoadProg(UDWORD size, UBYTE *pData, SCRIPT_CODE **ppsProg)
 	pPos += sizeof(TRIGGER_DATA) * psProg->numTriggers;
 
 
-//	DBPRINTF(("TRIGGERS = %d\n",sizeof(TRIGGER_DATA) * psProg->numTriggers));
-//	DBG1();
 	DbgSize+=sizeof(TRIGGER_DATA) * psProg->numTriggers;
 
 
@@ -565,8 +540,6 @@ BOOL scriptLoadProg(UDWORD size, UBYTE *pData, SCRIPT_CODE **ppsProg)
 	memcpy(psProg->pTriggerTab, pPos, sizeof(UWORD) * (psProg->numTriggers+1));
 	pPos += sizeof(UWORD) * (psProg->numTriggers+1); 
 
-//	DBPRINTF(("TRIGTAB = %d\n",sizeof(UWORD) * (psProg->numTriggers+1))); 
-//	DBG1();
 	DbgSize+=(sizeof(UWORD) * (psProg->numTriggers+1)); 
 
 
@@ -581,8 +554,6 @@ BOOL scriptLoadProg(UDWORD size, UBYTE *pData, SCRIPT_CODE **ppsProg)
 	pPos += sizeof(UWORD) * (psProg->numEvents+1);
 
 
-//	DBPRINTF(("EVENTTAB = %d\n",sizeof(UWORD) * (psProg->numEvents+1))); 
-//	DBG1();
 	DbgSize+=(sizeof(UWORD) * (psProg->numEvents+1)); 
 
 
@@ -596,15 +567,11 @@ BOOL scriptLoadProg(UDWORD size, UBYTE *pData, SCRIPT_CODE **ppsProg)
 	pPos += sizeof(SWORD) * psProg->numEvents;
 
 
-//	DBPRINTF(("EVENTLINKS = %d\n",sizeof(UWORD) * (psProg->numEvents))); 
-//	DBG1();
 	DbgSize+=(sizeof(SWORD) * psProg->numEvents); 
 
 
 
-//	DBPRINTF(("ALIGNMENT PHASE: old=%p ",pPos));
 	pPos= (UBYTE *) ((((UDWORD)pPos)+3)&(~3));	// align up me landlord !
-//	DBPRINTF(("new=%p\n",pPos));
 
 	// Load the code
 	ASSERT(((pPos - pData) % 4 == 0,
@@ -672,9 +639,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE *pData, SCRIPT_CODE **ppsProg)
 	pPos += psProg->size;
 																	  
 
-//	DBPRINTF(("PROG = %d\n",(psProg->size))); 
 	DbgSize+=((psProg->size)); 
-//	DBG1();
 
 
 	// Now load the debug info
@@ -721,9 +686,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE *pData, SCRIPT_CODE **ppsProg)
 			psProg->psArrayDebug = NULL;
 		}
 
-//		DBPRINTF(("DBGINFO = %d\n",sizeof(SCRIPT_DEBUG) * psProg->debugEntries));
 		DbgSize+=(sizeof(SCRIPT_DEBUG) * psProg->debugEntries);
-//	DBG1();
 	
 
 		for(i=0; i<psProg->numGlobals; i++)
@@ -741,7 +704,6 @@ BOOL scriptLoadProg(UDWORD size, UBYTE *pData, SCRIPT_CODE **ppsProg)
 			// Special check for null string
 			if (*pPos==0)
 			{
-//				DBPRINTF(("String %d) is NULL\n",i));
 				psProg->psVarDebug[i].pIdent = NULL;
 				StringSize=1;
 			}
@@ -750,7 +712,6 @@ BOOL scriptLoadProg(UDWORD size, UBYTE *pData, SCRIPT_CODE **ppsProg)
 
 				StringSize=strlen((STRING *)pPos)+1;
 
-//				DBPRINTF(("String %d) size=%d [%s]\n",i,StringSize+sizeof(STORAGE_TYPE),(STRING *)pPos));
 
 				psProg->psVarDebug[i].pIdent = MALLOC(StringSize);
 				if (!psProg->psVarDebug[i].pIdent)
@@ -763,7 +724,6 @@ BOOL scriptLoadProg(UDWORD size, UBYTE *pData, SCRIPT_CODE **ppsProg)
 			pPos += StringSize;
 			DbgSize+= StringSize;
 			Tot+= StringSize;
-//		DBG1();
 
 		}
 
@@ -782,7 +742,6 @@ BOOL scriptLoadProg(UDWORD size, UBYTE *pData, SCRIPT_CODE **ppsProg)
 			// Special check for null string
 			if (*pPos==0)
 			{
-//				DBPRINTF(("String %d) is NULL\n",i));
 				psProg->psArrayDebug[i].pIdent = NULL;
 				StringSize=1;
 			}
@@ -791,7 +750,6 @@ BOOL scriptLoadProg(UDWORD size, UBYTE *pData, SCRIPT_CODE **ppsProg)
 
 				StringSize=strlen((STRING *)pPos)+1;
 
-//				DBPRINTF(("String %d) size=%d [%s]\n",i,StringSize+sizeof(STORAGE_TYPE),(STRING *)pPos));
 
 				psProg->psArrayDebug[i].pIdent = MALLOC(StringSize);
 				if (!psProg->psArrayDebug[i].pIdent)
@@ -804,12 +762,9 @@ BOOL scriptLoadProg(UDWORD size, UBYTE *pData, SCRIPT_CODE **ppsProg)
 			pPos += StringSize;
 			DbgSize+= StringSize;
 			Tot+= StringSize;
-//		DBG1();
 
 		}
 
-//		DBPRINTF(("DBGSTRING = %d\n",Tot));
-//	DBG1();
 
 	}
 	else

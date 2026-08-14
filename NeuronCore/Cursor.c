@@ -48,7 +48,6 @@ static DWORD	cursorThreadID;
 
 // Whether the thread should exit
 static BOOL		cursorExitThread;
-//static BOOL		cursorThreadRunning;
 
 // Whether the save buffer contains valid data
 static BOOL		saveValid;
@@ -207,7 +206,6 @@ static DWORD WINAPI cursorThreadUpdate(LPVOID param)
 
 	param = param;
 
-//	DBPRINTF(("cursorThread start\n"));
 	threadCount = 0;
 	threadStart = GetTickCount();
 	currFrame = 0;
@@ -220,7 +218,6 @@ static DWORD WINAPI cursorThreadUpdate(LPVOID param)
 		sSaveRect.right = CURSOR_SAVEWIDTH;
 		sSaveRect.bottom = CURSOR_SAVEHEIGHT;
 
-//		SleepEx(13);
 		waitRet = WaitForSingleObjectEx(hScreenFlipSemaphore, 15, FALSE);
 		if (waitRet == WAIT_TIMEOUT)
 		{
@@ -297,7 +294,6 @@ static DWORD WINAPI cursorThreadUpdate(LPVOID param)
 				sBltFX.ddckSrcColorkey.dwColorSpaceHighValue = 0;
 
 				// Wait for the V-Blank
-//				ddrval = psDD->lpVtbl->WaitForVerticalBlank(psDD,DDWAITVB_BLOCKBEGIN, NULL);
 
 				ddrval = psFront->lpVtbl->Blt(
 								psFront, &sScreenRect,
@@ -313,7 +309,6 @@ static DWORD WINAPI cursorThreadUpdate(LPVOID param)
 		threadCount += 1;
 	}
 
-//	DBPRINTF(("cursorThreadExit\n"));
 
 	return 0;
 }

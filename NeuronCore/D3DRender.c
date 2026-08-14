@@ -178,24 +178,6 @@ InitD3D( D3DINFO *psD3Dinfo )
 }
 
 /***************************************************************************/
-#if 0
-void
-D3DFreeTexturePages( void )
-{
-	DWORD	i;
-
-	/* free D3D texture pages */
-	for ( i=0; i<iV_TEX_MAX; i++ )
-	{
-		if ( _TEX_PAGE[i].tex.pTex != NULL )
-		{
-			D3DFreeTexturePage( _TEX_PAGE[i].tex.pTex );
-			FREE( _TEX_PAGE[i].tex.pTex );
-			_TEX_PAGE[i].tex.pTex = NULL;
-		}
-	}
-}
-#endif
 /***************************************************************************/
 
 void
@@ -883,26 +865,11 @@ SetRenderState( void )
 									480.0f, 0.0f, 0.0f, 0.0f };
 
 //	/* set rendering defaults */
-//	if ( g_sD3Dinfo.bHardware == TRUE )
-//	{
 //		g_sD3DGlob.TextureFilter     = D3DFILTER_NEAREST;//D3DFILTER_LINEAR
-//	}
 //	else
-//	{
-//		g_sD3DGlob.TextureFilter     = D3DFILTER_NEAREST;
-//	}
 
 	/* set rendering defaults */
-//	if ( g_sD3Dinfo.bZBufferOn == TRUE )
-//	{
-//		g_sD3DGlob.bZBufferOn        = TRUE;
-//		g_sD3DGlob.bZBufferCompareOn = TRUE;
-//	}
 //	else
-//	{
-//		g_sD3DGlob.bZBufferOn        = FALSE;
-//		g_sD3DGlob.bZBufferCompareOn = FALSE;
-//	}
 
 	g_sD3DGlob.ShadeMode         = D3DSHADE_GOURAUD;
 	g_sD3DGlob.bPerspCorrect     = FALSE;
@@ -970,36 +937,6 @@ exit_with_error:
 	return FALSE;
 }
 /***************************************************************************/
-#if 0
-void
-RestoreAllD3DTextures( void )
-{
-	int				i;
-	TEXPAGE_D3D		*psTexPage;
-	LPDDPIXELFORMAT	psCurTexSurfDesc;
-
-	psCurTexSurfDesc =
-		&g_sD3DGlob.TextureFormat[g_sD3DGlob.uwCurrTextureFormat].ddsd;
-
-	/* free and reload D3D texture pages */
-	for ( i=0; i<iV_TEX_MAX; i++ )
-	{
-		/* reload D3D texture if ivis texture loaded */
-		if ( _TEX_PAGE[i].tex.width > 0 )
-		{
-			psTexPage = _TEX_PAGE[i].tex.pTex;
-
-			if ( psTexPage != NULL )
-			{
-				D3DFreeTexturePage( psTexPage );
-			}
-
-			D3DGetD3DTexturePage( &_TEX_PAGE[i].tex,
-								  _TEX_PAGE[i].tex.pPal );
-		}
-	}
-}
-#endif
 /***************************************************************************/
 
 
@@ -1644,7 +1581,6 @@ ChooseDriver( void )
 	BOOL		bDriverFound = FALSE;
 	UWORD		uwDriver;
 	SBYTE		seps[] = " ,\t\n";
-//	SBYTE		*token;
 
 	/* zero drivers */
 	g_sD3DGlob.uwNumDrivers = 0;
@@ -1871,7 +1807,6 @@ rend_InitD3D( void )
 	g_sD3DGlob.psBack4 = screenGetSurface();
 
 //no handled in the framework	/* look for 2nd video card (3dfx?) */
-//	D3DEnumDDrawDevices(); 
 
 	/* Retrieve the Direct3D interface from the DirectDraw object */
 	if ( g_sD3DGlob.psD3D3 == NULL )
@@ -1897,7 +1832,6 @@ rend_InitD3D( void )
 	ATTEMPT( ChooseDriver() );
 
 	/* get client window */
-//	GetClientWin( screenGetHWnd() );
 
 	if ( g_sD3Dinfo.bHardware == TRUE )
 	{
@@ -1914,7 +1848,6 @@ rend_InitD3D( void )
 	D3DValidateDevice();
 	D3DSetCardSpecificParams();
 	D3DGetCaps();
-//	D3DEnableFog( 0x00B08f5f );
 
 	/* init texture manager */
 	dtm_Initialise();

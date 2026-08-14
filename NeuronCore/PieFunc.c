@@ -170,7 +170,6 @@ void pie_DrawBoundingDisc(iIMDShape *shape, int pieFlag)
 	int32 rx, ry, rz;
 	int32 tzx, tzy;
 
-//	pieCount++;
 
 	pie_SetTexturePage(-1);
 
@@ -466,15 +465,7 @@ void pie_AddFogandMist(SDWORD depth, SDWORD height, PIELIGHT* pColour, PIELIGHT*
 	DWORD sRed,sGreen,sBlue;
 
 	/// get colour components
-/*	cRed = pColour->r;
-	cGreen = pColour->g;
-	cBlue = pColour->b;
-*/
 	/// get specular components
-/*	sRed = pSpecular->r;
-	sGreen = pSpecular->g;
-	sBlue = pSpecular->b;
-*/
 	// fog level is gradual upto FOG_DEPTH then ramps up suddenly
 	if (depth < (FOG_DEPTH/2))
 	{
@@ -566,7 +557,6 @@ UDWORD	radius;
 
 	xDif = xDif/4096;	 // cos it's fixed point
 	yDif = yDif/4096;
-//	pie_BoxFill(100,100,200,200,234);
    	pie_CornerBox(x,y,x2,y2,trans,20+(radius+xDif),20+(radius+yDif),20+(radius-xDif),20+(radius-yDif));
    	pie_SetDepthBufferStatus(DEPTH_CMP_LEQ_WRT_ON);
 	*/

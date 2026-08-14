@@ -67,13 +67,7 @@ extern	void	toggleConsoleDrop( void );
 /* Basic wrapper to sprintf - allows convenient printf style game info to be displayed */
 
 
-//	#ifdef DEBUG 
-//	#define DBCONPRINTF(x)			consolePrintf x
-//	#else
-//	#define DBCONPRINTF(x)
-//	#endif
 //
-//	#define CONPRINTF(x)			consolePrintf x
 
 /*
  Usage:

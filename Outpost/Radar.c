@@ -1,4 +1,3 @@
-//#include <stdio.h>
 #include "Frame.h"
 /* Includes direct access to render library */
 #include "PieDef.h"
@@ -29,7 +28,6 @@
 #define HIT_NOTIFICATION	(GAME_TICKS_PER_SEC*2)
 
 
-//#define CHECKBUFFER		// Do assertions for buffer overun\underun
 
 #define ALPHABLEND_RADAR	// Define this to do semi transparency on PSX radar.
 #define BLEND_RATE	0		// Semi-transparency rate for PSX radar.
@@ -37,7 +35,6 @@
 #define RADAR_3DFX_TU	0
 #define RADAR_3DFX_TV	0
 #define RADAR_DRAW_VIEW_BOX		// If defined then draw a box to show the viewing area.
-//#define	RADAR_TRIANGLE_TOPLEFT	// If defined then put direction triangle in top left
 								// otherwise put in view box and scale it by zoom level.
 #ifdef RADAR_TRIANGLE_TOPLEFT
 #define RADAR_TRIANGLE_SIZE		16
@@ -146,14 +143,6 @@ BOOL InitRadar(void)
 	colGrey = COL_DARKGREY;
 	colWhite = COL_WHITE;
 
-//	clanColours[0] = (UDWORD)iV_PaletteNearestColour(255,255,0);
-//	clanColours[1] = (UDWORD)iV_PaletteNearestColour(255,255,0);
-//	clanColours[2] = (UDWORD)iV_PaletteNearestColour(255,255,0);
-//	clanColours[3] = (UDWORD)iV_PaletteNearestColour(255,255,0);
-//	clanColours[4] = (UDWORD)iV_PaletteNearestColour(255,255,0);
-//	clanColours[5] = (UDWORD)iV_PaletteNearestColour(255,255,0);
-//	clanColours[6] = (UDWORD)iV_PaletteNearestColour(255,255,0);
-//	clanColours[7] = (UDWORD)iV_PaletteNearestColour(255,255,0);
 
 	pie_InitRadar();
 	return TRUE;
@@ -196,13 +185,10 @@ void CalcRadarPosition(UDWORD mX,UDWORD mY,UDWORD *PosX,UDWORD *PosY)
 	CalcRadarPixelSize(&boxSizeH,&boxSizeV);
 	CalcRadarScroll(boxSizeH,boxSizeV);
 
-	//*PosX = ((mX-RADTLX-RadarOffsetX)/boxSizeH)+RadarScrollX+RadarMapOriginX;
-	//*PosY = ((mY-RADTLY-RadarOffsetY)/boxSizeV)+RadarScrollY+RadarMapOriginY;
 	
 
 	// Calculate where on the radar we clicked
 	Xoffset=mX-RADTLX-RadarOffsetX;
-	// we need to check for negative values (previously this meant that sPosX/Y were becoming huge)
 	if (Xoffset<0) Xoffset=0;
 
 	Yoffset=mY-RADTLY-RadarOffsetY;
@@ -271,32 +257,10 @@ static void CalcRadarPixelSize(UWORD *SizeH,UWORD *SizeV)
 	*SizeH = Size;
 	*SizeV = Size;
 
-//#ifdef FORCEPIXELSIZE
-//#ifdef WIN32
-//	*SizeH = 2;
-//	*SizeV = 2;
-//#else
-//	*SizeH = 2;
-//	*SizeV = 2;
-//#endif
-//#else
-//	UWORD boxSizeH,boxSizeV;
 //
-//	boxSizeH = (UWORD)(RadarWidth/mapWidth);
-//	boxSizeV = (UWORD)(RadarHeight/mapHeight);
 //
 //// Ensure boxSizeH and V are always 1 or greater and equal to each other.
-//	if((boxSizeH == 0) || (boxSizeV ==0)) {
-//		boxSizeH = boxSizeV = 1;
-//	} else if(boxSizeH > boxSizeV) {
-//		boxSizeV = boxSizeH;
-//	} else {
-//		boxSizeH = boxSizeV;
-//	}
 //
-//	*SizeH = boxSizeH;
-//	*SizeV = boxSizeV;
-//#endif
 }
 
 
@@ -436,7 +400,6 @@ void drawRadar(void)
 						RADTLX+RADWIDTH,RADTLY+RADHEIGHT);
 
 
-	//iV_DrawSemiTransImageDef(&RadarImage,radarBuffer,RadarWidth,RADTLX,RADTLY,192);
 
 	pie_RenderRadar(&RadarImage,radarBuffer,RadarWidth,RADTLX,RADTLY);
 
@@ -669,7 +632,6 @@ static void DrawRadarObjects(UBYTE *screen,UDWORD Modulus,UWORD boxSizeH,UWORD b
 	SizeV = boxSizeV;
 	VisWidth = RadVisWidth;
 	VisHeight = RadVisHeight;
-//	SweepPos = sweep - RadarOffsetY;
 	OffsetX = RadarOffsetX;
 	OffsetY = RadarOffsetY;
 
@@ -779,7 +741,6 @@ static void DrawRadarObjects(UBYTE *screen,UDWORD Modulus,UWORD boxSizeH,UWORD b
 				x = x&(~(boxSizeH-1));
 				y = y&(~(boxSizeV-1));
 
-//				if( ((y >= sweep) && (y <= sweep+(bh*boxSizeV))) || (RadarRedraw) ) {
 					SSizeH = (SWORD)boxSizeH*bh;
 					SSizeV = (SWORD)boxSizeV*bw;
 
@@ -841,7 +802,6 @@ static void DrawRadarObjects(UBYTE *screen,UDWORD Modulus,UWORD boxSizeH,UWORD b
 						psStruct->radarX = (UWORD)(x + OffsetX);
 						psStruct->radarY = (UWORD)(y + OffsetY);
 					}
-//				}
 			}
    		}
    	}
@@ -979,10 +939,6 @@ UDWORD	camNumber;
 	centre.y = RADTLY+y+(visibleYTiles*boxSizeV)/2;       
    	
 	RotateVector2D(v,tv,&centre,player.r.y,4);
-  //	iV_Line(tv[0].x,tv[0].y,tv[1].x,tv[1].y,colWhite);
-  //	iV_Line(tv[1].x,tv[1].y,tv[3].x,tv[3].y,colWhite);
-  //	iV_Line(tv[3].x,tv[3].y,tv[2].x,tv[2].y,colWhite);
-  //	iV_Line(tv[2].x,tv[2].y,tv[0].x,tv[0].y,colWhite);
 
 	camNumber = getCampaignNumber();
 	switch(camNumber)
@@ -1007,7 +963,6 @@ UDWORD	camNumber;
 
 static void DrawRadarExtras(UWORD boxSizeH,UWORD boxSizeV)
 {
-//	UDWORD	viewX,viewY;
 	SDWORD	viewX,viewY;
 	SDWORD	offsetX,offsetY;
 	iVector v[3],tv[3],ov;
@@ -1026,20 +981,6 @@ static void DrawRadarExtras(UWORD boxSizeH,UWORD boxSizeV)
 	//don't update the strobe whilst the game is paused
 	if (!gameUpdatePaused())
 	{
-		/*
-		if(radarStrobe)
-		{
-			iV_Line(RADTLX+radarStrobeX,RADTLY,RADTLX+radarStrobeX,RADBRY,boxPulseColours[radarStrobeIndex]);
-			iV_Line(RADTLX,RADTLY+radarStrobeY,RADBRX,RADTLY+radarStrobeY,boxPulseColours[radarStrobeIndex++]);
-
-			sweep = viewY;
-			if(radarStrobeIndex >= BOX_PULSE_SIZE)
-			{
-				radarStrobe = FALSE;
-				radarStrobeIndex = 0;
-			}	
-		}
-		*/
 	}
 
 

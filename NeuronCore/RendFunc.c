@@ -8,9 +8,6 @@
 #include "IvisPatch.h"
 #include "Fractions.h"
 #include "PieClip.h"
-//#ifdef INC_GLIDE
-//#include "Glide.h"
-//#endif
 
 
 #ifndef PIETOOL

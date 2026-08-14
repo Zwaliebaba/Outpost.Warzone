@@ -127,7 +127,6 @@ extern BOOL	bAllowOtherKeyPresses;
 
 extern void	kf_TriggerRayCast( void );
 extern void kf_ToggleFormationSpeedLimiting( void );
-//extern void	kf_ToggleSensorDisplay( void );
 extern void kf_SensorDisplayOn( void );
 extern void kf_SensorDisplayOff( void );
 extern void	kf_JumpToResourceExtractor( void );

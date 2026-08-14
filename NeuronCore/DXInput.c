@@ -28,9 +28,7 @@ static SDWORD		mickeyX, mickeyY, mickeyScale;
 BOOL DInpInitialise(void)
 {
 	HRESULT			hr; 
-//	DIDATAFORMAT	sDataFormat;
 
-	// Create the direct input object;
 	hr = DirectInputCreate(hInstance, DIRECTINPUT_VERSION, &psDI, NULL); 
 	if (FAILED(hr))
 	{
@@ -45,13 +43,6 @@ BOOL DInpInitialise(void)
 		return FALSE;
 	}
 
-/*	memcpy(&sDataFormat, &c_dfDIMouse, sizeof(DIDATAFORMAT));
-	sDataFormat.dwFlags = DIDF_ABSAXIS;
-	sDataFormat.dwSize = sizeof(DIDATAFORMAT);
-	sDataFormat.dwObjSize = sizeof(DIOBJECTDATAFORMAT);
-	sDataFormat.dwDataSize = 0;
-	sDataFormat.dwNumObjs = 0;
-	sDataFormat.rgodf = NULL;*/
 	hr = psDIMouse->lpVtbl->SetDataFormat(psDIMouse, &c_dfDIMouse);//&sDataFormat);
 	if (FAILED(hr))
 	{

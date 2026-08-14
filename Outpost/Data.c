@@ -12,7 +12,6 @@
 //render library
 #include "PieDef.h"
 #include "PieState.h"
-//#include "pal.h"
 #include "Pcx.h"
 #include "BitImage.h"
 
@@ -602,7 +601,6 @@ BOOL bufferRESCHLoad(UBYTE *pBuffer, UDWORD size, void **ppData)
 
 	/* set a dummy value so the release function gets called - the Release 
     function is now called when load up the next set
-	//*ppData = (void *)1;
     pass back NULL so that can load the same name file for the next campaign*/
 	*ppData = NULL;
 	return TRUE;
@@ -844,10 +842,6 @@ BOOL dataIMDBufferLoad(UBYTE *pBuffer, UDWORD size, void **ppData)
 
 
 /* Release an imd */
-/*void dataIMDRelease(void *pData)
-{
-	iV_IMDRelease(pData);
-}*/
 
 
 
@@ -857,7 +851,6 @@ BOOL dataIMDBufferLoad(UBYTE *pBuffer, UDWORD size, void **ppData)
 
 BOOL dataIMGPAGELoad(UBYTE *pBuffer, UDWORD size, void **ppData)
 {
-//	iPalette sPal;
 	iSprite *psSprite;
 
 	UNUSEDPARAMETER(size);
@@ -890,10 +883,6 @@ void dataIMGPAGERelease(void *pData)
 // Tertiles loader. This version for software renderer.
 BOOL dataTERTILESLoad(UBYTE *pBuffer, UDWORD size, void **ppData)
 {
-//	UDWORD i;
-//	BLOCK_HEAP	*psHeap;
-//	UBYTE	*pFileData, *pImageData;
-//	UDWORD	fileSize, width,height;
 
 	UNUSEDPARAMETER(size);
 
@@ -913,10 +902,6 @@ void dataTERTILESRelease(void *pData)
 // Tertiles loader. This version for hardware renderer.
 BOOL dataHWTERTILESLoad(UBYTE *pBuffer, UDWORD size, void **ppData)
 {
-//	UDWORD i;
-//	BLOCK_HEAP	*psHeap;
-//	UBYTE	*pFileData, *pImageData;
-//	UDWORD	fileSize, width,height;
 
 	UNUSEDPARAMETER(size);
 
@@ -953,25 +938,10 @@ BOOL dataHWTERTILESLoad(UBYTE *pBuffer, UDWORD size, void **ppData)
 		makeTileTexturePages(tilesPCX.width,tilesPCX.height,TILE_WIDTH, TILE_HEIGHT, tilesPCX.bmp);
 	}
 //	else
-//	{
 //		/* Squirt the tiles into a nice long thin bitmap */
-//		if (bTilesPCXLoaded)
-//		{
 //			if(!remakeTileTextures())
-//			{
-//	 			DBERROR(("Problem converting the terrain graphics file"));
-//				return(FALSE);	
-//			}
-//		}
 //		else
-//		{
 //			if(!makeTileTextures())
-//			{
-//	 			DBERROR(("Problem converting the terrain graphics file"));
-//				return(FALSE);	
-//			}
-//		}
-//	}
 
 	if (bTilesPCXLoaded)
 	{
@@ -1021,27 +991,11 @@ void dataIMGRelease(void *pData)
 
 
 /* Load a PCX to an iSprite */
-//BOOL dataISpriteLoad(STRING *pFile, void **ppData)
-//{
-//	iPalette	sPal;
-//	iSprite		*psSprite;
 //
-//	psSprite = MALLOC(sizeof(iSprite));
-//	if (!psSprite)
-//	{
-//		return FALSE;
-//	}
 //
 //	if (!iV_PCXLoad(pFile, psSprite, sPal))
-//	{
-//		FREE(psSprite);
-//		return FALSE;
-//	}
 //
-//	*ppData = psSprite;
 //
-//	return TRUE;
-//}
 
 
 #define TEXTUREWIDTH (256)
@@ -1057,7 +1011,6 @@ BOOL bufferTexPageLoad(UBYTE *pBuffer, UDWORD size, void **ppData)
 	iSprite		*psSprite;
 	STRING		texfile[255];
 	SDWORD		i, id;
-//	BOOL		bFound = FALSE;
 	size;	// why?
 
 
@@ -1511,7 +1464,6 @@ BOOL dataScriptLoadVals(UBYTE *pBuffer, UDWORD size, void **ppData)
 		return FALSE;
 	}
 #ifdef SAVECOMPILEDSCRIPTS
-//	scriptSaveCompiledVals();	
 #endif
 
 
@@ -1624,9 +1576,7 @@ BOOL dataInitLoadFuncs(void)
 {
 
 	RES_TYPE_MIN *CurrentType;
-//	UDWORD	i;
 
-	// init the cheat system;
 	resetCheatHash();
 
 	CurrentType=ResourceTypes;	// point to the first entry

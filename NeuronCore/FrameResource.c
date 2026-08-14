@@ -34,8 +34,6 @@ static RES_TYPE *psResTypes=NULL;
 
 
 // check to see if RES_TYPE entry is valie
-// this is a NULL check on PC (linked list)
-// and a NULL name check on PSX (static array)
 
 
 #define resValidType(Type) (Type)
@@ -94,7 +92,6 @@ VOID resDoResLoadCallback()
 /* Initialise the resource module */
 BOOL resInitialise(void)
 {
-//	BOOL res;
 
 	ASSERT((psResTypes == NULL,
 		"resInitialise: resource module hasn't been shut down??"));
@@ -117,7 +114,6 @@ BOOL resInitialise(void)
 #endif
 
 		FILE_InitialiseCache(2*1024*1024);		// set the cache to be 2meg for the time being ...!
-//		WDG_SetCurrentWDG("warzone.wdg");
 		if (!wdgMultiInit())
 		{
 			return FALSE;
@@ -129,7 +125,6 @@ BOOL resInitialise(void)
 	{
 		// if you allocate the cache to a size of zero then it will use the default area for the cache
 
-		// on the PC this will be the display buffer	(NOT YET IMPLEMENTED)
 
 		// on the PSX this will be the primative buffer
 
@@ -179,7 +174,6 @@ BOOL resLoad(STRING *pResFile, SDWORD blockID,
 	BLOCK_HEAP	*psOldHeap;
 	BOOL bAllowWRFProcessing;
 
-//	FILE_SetupCache(pLoadBuffer,bufferSize);
 
 	strcpy(aCurrResDir, aResDir);
 
@@ -597,8 +591,6 @@ void resDataInit(RES_DATA* psRes, STRING *DebugName, UDWORD DataIDHash, void *pD
 BOOL resLoadFile(STRING *pType, STRING *pFile)
 {
 	RES_TYPE	*psT;
-//	UBYTE		*pBuffer;
-//	UDWORD		size;
 	void		*pData;
 	RES_DATA	*psRes;
 	STRING		aFileName[FILE_MAXCHAR];
@@ -634,7 +626,6 @@ BOOL resLoadFile(STRING *pType, STRING *pFile)
 			return FALSE;
 		}
 
-//	#ifdef DEBUG
 		{
 			UDWORD HashedName=HashStringIgnoreCase(pFile);
 			for (psRes = psT->psRes; psRes; psRes = psRes->psNext)
@@ -642,7 +633,6 @@ BOOL resLoadFile(STRING *pType, STRING *pFile)
 				if(psRes->HashedID == HashedName)
 				{
 					DBPRINTF(("resLoadFile: Duplicate file name: %s (hash %x) for type %s",pFile, HashedName, psT->aType));
-					//assert(2+2==5);
 
 					// assume that they are actually both the same and silently fail
 					// lovely little hack to allow some files to be loaded from disk (believe it or not!).
@@ -654,7 +644,6 @@ BOOL resLoadFile(STRING *pType, STRING *pFile)
 
 
 
-//	#endif
 
 		// Create the file name
 		if (strlen(aCurrResDir) + strlen(pFile) + 1 >= FILE_MAXCHAR)
@@ -674,7 +663,6 @@ BOOL resLoadFile(STRING *pType, STRING *pFile)
 			if (strcmp(pType,BinaryTypeNames[BinaryType])==0)
 			{
 	#ifdef DEBUG
-	//			DBPRINTF(("BINARY TYPE FOUND - [%s]\n",pType));
 	#endif
 				aFileName[strlen(aFileName)-1]=0;	// shorten string by 1 character to remove slash
 				strcat(aFileName,".BIN\\");			// add the binary directory extension		
@@ -739,7 +727,6 @@ BOOL resLoadFile(STRING *pType, STRING *pFile)
 				psT->release(pData);
 				return FALSE;
 			}
-			// LastResourceFilename may have been changed (e.g. by TEXPAGE loading)
 			resDataInit(psRes,LastResourceFilename,HashStringIgnoreCase(LastResourceFilename),pData,resBlockID);
 
 
@@ -758,7 +745,6 @@ void *resGetDataFromHash(STRING *pType, UDWORD HashedID)
 {
 	RES_TYPE	*psT;
 	RES_DATA	*psRes;
-//	STRING		aID[RESID_MAXCHAR];
 	UDWORD HashedType;
 	// Find the correct type
 
@@ -779,7 +765,6 @@ void *resGetDataFromHash(STRING *pType, UDWORD HashedID)
 	}
 
 	{
-//		UDWORD HashedID=HashStringIgnoreCase(pID);
 		for(psRes = psT->psRes; psRes; psRes = psRes->psNext)
 		{
 			if (psRes->HashedID==HashedID)
@@ -811,7 +796,6 @@ void *resGetData(STRING *pType, STRING *pID)
 {
 	RES_TYPE	*psT;
 	RES_DATA	*psRes;
-//	STRING		aID[RESID_MAXCHAR];
 	UDWORD HashedType;
 	// Find the correct type
 
@@ -960,7 +944,6 @@ BOOL resPresent(STRING *pType, STRING *pID)
 {
 	RES_TYPE	*psT;
 	RES_DATA	*psRes;
-//	STRING		aID[RESID_MAXCHAR];
 
 	// Find the correct type
 	UDWORD HashedType=HashString(pType);
@@ -976,16 +959,13 @@ BOOL resPresent(STRING *pType, STRING *pID)
 	/* Bow out if unrecognised type */
 	if (psT == NULL)
 	{
-//		ASSERT((FALSE, "resPresent: Unknown type"));
 		return FALSE;
 	}
 
 	{
 		UDWORD HashedID=HashStringIgnoreCase(pID);
-//		DBPRINTF(("%x - %d\n",HashedID,pID));
 		for(psRes = psT->psRes; psRes; psRes = psRes->psNext)
 		{
-//	DBPRINTF(("!= %x\n",psRes->HashedID));
 			if (psRes->HashedID==HashedID)
 			{
 				/* We found it */
@@ -1191,7 +1171,6 @@ void resDefineLoadFuncTable(RES_TYPE*ResourceTypes)
 	CurrRes=psResTypes;
 	while(CurrRes->aType)
 	{
-//		DBPRINTF(("type = [%s]\n",CurrRes->aType));
 		CurrRes->HashedType=HashString(CurrRes->aType);
 		CurrRes++;
 	}
@@ -1225,7 +1204,6 @@ BOOL FILE_ProcessFile(WRFINFO *CurrentFile, UBYTE *pRetreivedFile)
 
 	// This is the normal hash value that is used to indentify the resource
 	// it is normally just a hased version of the filename
-	// however sometime the filename can change in buffload (e.g. when loading texture pages)
 	// we need the ability to adjust the hash value as well! - absoulutly insane!
 	CurrentFileNameHash=CurrentFile->name;
 
@@ -1249,10 +1227,8 @@ BOOL FILE_ProcessFile(WRFINFO *CurrentFile, UBYTE *pRetreivedFile)
 			return FALSE;
 		}
 
-		// LastResourceFilename may have been changed (e.g. by TEXPAGE loading)
 		// So we need to adjust the hashed name as well
 
-//		resDataInit(psRes,CurrentFile->name,pData,resBlockID);
 
 		resDataInit(psRes,"a wdg file",CurrentFileNameHash,pData,resBlockID);
 

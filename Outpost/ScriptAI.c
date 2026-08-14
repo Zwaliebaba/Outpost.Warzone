@@ -6,9 +6,7 @@
  */
 
 // various script tracing printf's
-//#define DEBUG_GROUP0
 // script order printf's
-//#define DEBUG_GROUP1
 #include "Frame.h"
 #include "Objects.h"
 #include "Group.h"
@@ -621,11 +619,6 @@ BOOL scrOrderDroidStatsLoc(void)
 	if(IsPlayerStructureLimitReached(psDroid->player) == FALSE) {
 		orderDroidStatsLoc(psDroid, order, psStats, (UDWORD)x,(UDWORD)y);
 	}
-//#ifdef PSX
-//	else {
-//		BeepMessage(STR_GAM_MAXSTRUCTSREACHED);
-//#endif
-//	}
 
 	return TRUE;
 }
@@ -881,15 +874,12 @@ UDWORD scrStructTargetMask(STRUCTURE *psStruct)
 		mask = SCR_ST_RESOURCE_EXTRACTOR;
 		break;
 	case REF_DEFENSE:
-		//if (psStats->numWeaps == 0 && psStats->pSensor != NULL)
         if (psStats->psWeapStat == NULL && psStats->pSensor != NULL)
 		{
 			mask = SCR_ST_SENSOR;
 		}
-		//else if (psStats->numWeaps > 0)
         else if (psStats->psWeapStat != NULL)
 		{
-			//psWStats = psStats->asWeapList[0];
             psWStats = psStats->psWeapStat;
 			if (!proj_Direct(psWStats))
 			{
@@ -974,7 +964,6 @@ UDWORD scrDroidTargetMask(DROID *psDroid)
 	case DROID_CYBORG:
 	case DROID_CYBORG_SUPER:
 	case DROID_WEAPON:
-		//if (psDroid->numWeaps > 0)
         if (psDroid->asWeaps[0].nStat > 0)
 		{
 			psWStats = asWeaponStats + psDroid->asWeaps[0].nStat;
@@ -1635,7 +1624,6 @@ BOOL scrSkDoResearch(void)
 	}
 */
 
-//	UDWORD				count;
 }
 
 // ********************************************************************************************
@@ -1732,11 +1720,6 @@ BOOL scrSkDifficultyModifier(void)
 		{
 			psResFacility =	(RESEARCH_FACILITY*)psStr->pFunctionality;
 
-			/*if(psResFacility->timeToResearch )
-			{
-				amount = psResFacility->timeToResearch;
-				psResFacility->timeToResearch  = amount - ( (amount*3*game.skDiff[player])/100);
-			}*/
             //this is not appropriate now the timeToResearch is not used - 10/06/99 so...
             //add 0-60% to the amount required to research
             if (psResFacility->psSubject)
@@ -2064,7 +2047,6 @@ BOOL skAddTemplate(void)
 		return FALSE;
 	}
 	psTempl =(DROID_TEMPLATE *)stempl;
-//	psT = MALLOC(sizeof(SKIRMISHSTORE));
 	HEAP_ALLOC(psTemplateHeap,&psT);
 	if ( !psT)
 	{

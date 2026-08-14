@@ -17,13 +17,11 @@
 
 //OLD PLAYER_POWER
 //typedef struct _player_power
-//{
 //	UDWORD		availablePower;		/* quantity that can be used from the Generators */
 //	UDWORD		extractedPower;		/* quantity being extracted but not converted 
 //									   by a Generator */
 //	SDWORD		capacity;			/* the spare capacity of the generators */
 //	SDWORD		usedPower;			/* quantity currently being used */
-//} PLAYER_POWER;
 
 
 //NEW PLAYER_POWER
@@ -47,7 +45,6 @@ extern BOOL allocPlayerPower(void);
 extern void clearPlayerPower(void);
 
 /*initialise the PlayerPower list */
-//extern initPlayerPower(void);
 
 /*reset the power levels when a power_gen or resource_extractor is destroyed */
 extern BOOL resetPlayerPower(UDWORD player, STRUCTURE *psStruct);
@@ -66,7 +63,6 @@ extern void addPower(UDWORD player, UDWORD quantity);
 
 /* Each Resource Extractor yields EXTRACT_POINTS per second until there are none
    left in the resource. */
-//extern void updateExtractedPower(STRUCTURE	*psBuilding);
 extern UDWORD updateExtractedPower(STRUCTURE	*psBuilding);
 
 /* Update current power based on what was extracted during the last cycle and 
@@ -88,11 +84,9 @@ void newGameInitPower(void);
 //informs the power array that a Object has been destroyed
 extern void powerDestroyObject(BASE_OBJECT *psObject);
 
-//extern void spreadPower(UBYTE player);
 /*accrue the power in the facilities that require it*/
 extern BOOL accruePower(BASE_OBJECT *psObject);
 //returns the relevant list based on OffWorld or OnWorld for the accruePower function
-//extern STRUCTURE* powerUpdateStructList(UBYTE player);
 
 /*inform the players power struct that the last Object to receive power has changed*/
 extern void updateLastPowered(BASE_OBJECT *psObject,UBYTE player);
@@ -122,9 +116,7 @@ extern	BOOL			powerCalculated;
 
 //Disused Functions...
 /*Update the extracted power if necessary */
-//extern void extractedPowerUpdate(STRUCTURE *psBuilding);
 
 /*update the generator capacity if necessary */
-//extern void capacityUpdate(STRUCTURE * psBuilding);
 
 #endif //power.h

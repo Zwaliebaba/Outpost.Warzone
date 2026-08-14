@@ -262,7 +262,6 @@ static BOOL sendDroidCheck(VOID)
 // Send a Single Droid Check message
 static void packageCheck(UDWORD i, NETMSG *pMsg, DROID *pD)
 {
-//	UDWORD packtemp;
 	pMsg->body[			i+0] =		(CHAR)pD->player;	
 	pMsg->body[			i+1] =		(CHAR)pD->order;		// order being executed
 	NetAdd2( pMsg,		i+2,		pD->id);				// droid id
@@ -385,11 +384,7 @@ BOOL recvDroidCheck(NETMSG *m)
 			onscreen = FALSE;
 		}
 
-//		if( pD->lastSync > gameTime)pD->lastSync =0;
 //		if(  (gameTime - pD->lastSync) > SYNC_PANIC )	// if it's been a while then jump it.
-//		{
-//			onscreen = FALSE;
-//		}
 
 
 		//////////////////////////////////////
@@ -509,9 +504,7 @@ static void onscreenUpdate(DROID *psDroid,
 	}
 
 //	if(psDroid->order == DORDER_NONE || (psDroid->order == DORDER_GUARD && psDroid->action == DACTION_NONE) )
-//	{
 //		psDroid->direction	 = dir  %360;				//update rotation
-//	}
 
 	return;
 }
@@ -812,10 +805,8 @@ BOOL recvStructureCheck( NETMSG *m)
 		{
 			NETlogEntry("scheck: didn't find structure at all, building it",0,0);
 
-//			buildFlatten(psStats, x,y,z);
 //			levelGround(x,y,z,
 //				((STRUCTURE_STATS *)psStats)->baseWidth,
-//				((STRUCTURE_STATS *)psStats)->baseBreadth);
 
 			powerCalc(FALSE);	// turn off power
 			pS = buildStructure((STRUCTURE_STATS *)psStats, x , y ,player,TRUE);
@@ -863,19 +854,16 @@ BOOL recvStructureCheck( NETMSG *m)
 				switch(pS->pStructureType->type)
 				{
 				case REF_RESEARCH:
-					//for (j = 0; (j<numStructureStats) && (asStructureStats[j].type != REF_RESEARCH_MODULE);j++);
 					j = researchModuleStat;
 					break;
 				
 				case REF_FACTORY:
 				case REF_VTOL_FACTORY:
 	//			case REF_CYBORG_FACTORY:
-					//for (j = 0; (j<numStructureStats) && (asStructureStats[j].type != REF_FACTORY_MODULE);j++);
 					j = factoryModuleStat;
 					break;
 				
 				case REF_POWER_GEN:
-					//for (j = 0; (j<numStructureStats) && (asStructureStats[j].type != REF_POWER_MODULE);j++);
 					j = powerModuleStat;
 					break;
 				
@@ -1111,7 +1099,6 @@ BOOL sendPing(VOID)
 	{
 		if( isHumanPlayer(i) && PingSend[i] && ingame.PingTimes[i] && (i!= selectedPlayer) )
 		{
-	//		CONPRINTF(ConsoleString,(ConsoleString,strresGetString(psStringRes,STR_MUL_RESPOND),getPlayerName(i) ));
 			ingame.PingTimes[i] = PING_LIMIT;
 		}
 		else if( !isHumanPlayer(i) && PingSend[i] && ingame.PingTimes[i] && (i!= selectedPlayer) )

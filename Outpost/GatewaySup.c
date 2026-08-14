@@ -4,15 +4,10 @@
  *
  */
 // segment printf's
-//#define DEBUG_GROUP1
 // stack printf's
-//#define DEBUG_GROUP2
 // gwProcessMap printf's
-//#define DEBUG_GROUP3
 // RLE zone map size
-//#define DEBUG_GROUP4
 // equivalence printf's
-//#define DEBUG_GROUP5
 #ifdef EDITORWORLD
 
 #include <malloc.h>
@@ -145,7 +140,6 @@ skip:
     }
 #else
 	//	GODDAM *#!! LOWERCASE assert IS ABSOLUTELY NO %^$## USE ON THE PC
-//	assert(2+2==5);
 	ASSERT((FALSE, "gwSeedFill disabled"));
 #endif
 }
@@ -598,9 +592,6 @@ void gwSetZone(SDWORD x, SDWORD y, SDWORD zone)
 
 BOOL gwFloodBlock(SDWORD x, SDWORD y)
 {
-//	MAPTILE		*psTile;
-//	SDWORD		type;
-//	BOOL		gateway;
 
 	if ((x < 0) || (x >= gwMapWidth()) ||
 		(y < 0) || (y >= gwMapHeight()))
@@ -608,16 +599,11 @@ BOOL gwFloodBlock(SDWORD x, SDWORD y)
 		return TRUE;
 	}
 
-//	psTile = mapTile(x,y);
-//	type = TERRAIN_TYPE(psTile);
-//	gateway = (psTile->tileInfoBits & BITS_GATEWAY) != 0;
 
-//	return (type == TER_CLIFFFACE) || (type == TER_WATER) || gateway;
 
 	return giIsGateway(x,y) ||
 		   ( !bGwWaterFlood && (giIsClifface(x,y) || giIsWater(x,y))) ||
 		   ( bGwWaterFlood && !giIsWater(x,y) );
-//	return giIsClifface(x,y) || giIsWater(x,y) || giIsGateway(x,y);
 }
 
 #else

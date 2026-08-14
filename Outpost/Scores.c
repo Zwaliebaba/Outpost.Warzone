@@ -265,7 +265,6 @@ UDWORD	div;
 				infoBars[index].bQueued = TRUE;
 
 				/* Play a sound */
-//				audio_PlayTrack(ID_SOUND_BUTTON_CLICK_5);
 			}
 			x = infoBars[index].topX+D_W;
 			y = infoBars[index].topY+D_H;
@@ -275,11 +274,9 @@ UDWORD	div;
 			iV_Box(x,y,x+width,y+height,0);
 
 			/* Draw the background border box */
-		 //	pie_UniTransBoxFill(x-1,y-1,x+width+1,y+height+1,0x00010101,255);
 			iV_BoxFill(x-1,y-1,x+width+1,y+height+1,1);
 
 			/* Draw the interior grey */
-		  //	pie_UniTransBoxFill(x,y,x+width,y+height,0x00888888,96);
 			iV_BoxFill(x,y,x+width,y+height,222);
 
 			if( ((gameTime2 - dispST) > infoBars[index].queTime) )
@@ -295,10 +292,8 @@ UDWORD	div;
 				{
 
 					/* Black shadow */
-	//				pie_UniTransBoxFill(x+1,y+3,x+MAKEINT(length)-1,y+height-1,0x00010101,255);
 					iV_BoxFill(x+1,y+3,x+MAKEINT(length)-1,y+height-1,1);
 					/* Solid coloured bit */
-	//				pie_UniTransBoxFill(x+1,y+2,x+MAKEINT(length)-3,y+height-3,0x00ffff00,255);
 					iV_BoxFill(x+1,y+2,x+MAKEINT(length)-4,y+height-4,(UBYTE)infoBars[index].colour);
 				}
 			}

@@ -29,7 +29,6 @@
 
 
 // To multiply a FRACT by a integer just use the normal operator 
-//   e.g.   FractValue2=FractValue*Interger;
 //
 // save is true of divide
 
@@ -91,7 +90,6 @@ typedef float FRACT_D;
 #define FRACTdiv_D(x,y) ((x)/(y))
 #define fSQRT_D(x) ((FRACT)sqrt(x))
 
-//#define MAKEINT_D(x) ((SDWORD)(x))
 __inline SDWORD MAKEINT_D (float f)
 {
 	SDWORD i;
@@ -101,8 +99,6 @@ __inline SDWORD MAKEINT_D (float f)
 }
 
 //changed definitions
-//#define MAKEINT(x) ((SDWORD)(x))
-//#define MAKEINT(x) (ftol(x))
 __inline SDWORD MAKEINT (float f)
 {
 	SDWORD i;
@@ -112,12 +108,9 @@ __inline SDWORD MAKEINT (float f)
 }
 
 
-//#define fastRoot(x,y) (sqrt(x * x + y * y))
 #define fastRoot(x,y) ((abs(x) > abs(y)) ? (abs(x) + abs(y)/2) : (abs(y) + abs(x)/2))
 
 //unused definitions
-//#define iSQRT_D(x) ((UDWORD)sqrt((double)x))
-//#define iSQRT(x) ((UDWORD)sqrt((double)x))
 
 #else
 
@@ -143,8 +136,6 @@ __inline SDWORD MAKEINT (float f)
 
 #define fastRoot(x,y) (sqrt(x * x + y * y))
 
-//#define iSQRT_D(x) ((UDWORD)sqrt((double)x))
-//#define iSQRT(x) ((UDWORD)sqrt((double)x))
 
 #endif
 

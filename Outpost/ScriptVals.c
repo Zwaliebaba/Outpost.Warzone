@@ -217,8 +217,6 @@ BOOL scrvGetContext(STRING *pID, SCRIPT_CONTEXT **ppsContext)
 // Find a base object from it's id
 BOOL scrvGetBaseObj(UDWORD id, BASE_OBJECT **ppsObj)
 {
-	//UDWORD			i;
-	//UDWORD			player;
 	BASE_OBJECT		*psObj;
 
 	

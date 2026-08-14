@@ -119,7 +119,6 @@ BOOL dtm_Initialise(void)
 	SDWORD		videoTextureSize = BIG_TEXTURE_SIZE;
 	LPDIRECT3DDEVICE3 pD3D3;
 	LPDIRECTDRAW4	 pDD4;
-//	DDSURFACEDESC2	 ddSurfDesc2;
 	DDSCAPS2	ddsCaps2;
 	UDWORD      totalVideoMemory;
 	UDWORD      freeVideoMemory;
@@ -653,7 +652,6 @@ void dtm_SetTexturePage(SDWORD i)
 	{
 		pd3dDevice3->lpVtbl->SetTexture(pd3dDevice3, 0, NULL);
 	}
-//	SetTextureStageStates();
 }
 
 void SetTextureStageStates(void)
@@ -795,7 +793,6 @@ BOOL dtm_LoadTexSurface( iTexture *psIvisTex, SDWORD index )
 	{
 		psSurf4 = psImage256Surface4;
 	}
-//mar7	if (!dtm_surfLoadFrom8Bit(psSurf4, psIvisTex->width, psIvisTex->height, psIvisTex->bmp, (texSize == FULL_8BIT)))
 	if (!surfLoadFrom8Bit(psSurf4, psIvisTex->width, psIvisTex->height, psIvisTex->bmp,  pie_GetWinPal()))
 	{
 		ASSERT((FALSE,"dtm SetMaterial: CreateMaterial failed."));
@@ -819,13 +816,6 @@ BOOL dtm_LoadTexSurface( iTexture *psIvisTex, SDWORD index )
  
 BOOL dtm_BLTRadarToTex(void)
 {
-#if 0 //alpaha is set for palette used in dtm_surfLoadFrom8Bit
-	if ( D3DGetAlphaKey() == TRUE )
-	{
-		/* set transparent bits for textures with real alpha (not palettized) */
-		dtm_SetSurfaceAlpha( psRadarSurf4 );
-	}
-#endif
 
    aTextures[RADAR_TEXPAGE_D3D].psSurface4->lpVtbl->Blt(aTextures[RADAR_TEXPAGE_D3D].psSurface4, NULL, psRadarSurf4, NULL, DDBLT_WAIT, NULL );
    return TRUE;

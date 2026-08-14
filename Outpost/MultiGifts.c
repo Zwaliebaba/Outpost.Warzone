@@ -34,7 +34,6 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-//#define DMATCH_DROID_LIMIT	25			// max number of droids in a dmatch game (per player).	
 
 #define	ENDFREQUENCY		5000		 // how often to check end game conditions
 #define MAXFRAGS			10000		 // max score in a frag match.
@@ -45,7 +44,6 @@
 BOOL			recvGift						(NETMSG *pMsg);
 BOOL			sendGift						(UDWORD type,UDWORD to);
 static VOID		giftRadar						(UDWORD from, UDWORD to,BOOL send);
-//static VOID		giftSingleDroid					(DROID *psD,UDWORD from,UDWORD to);
 static VOID		recvGiftDroids					(UDWORD from,UDWORD to,NETMSG *pMsg);
 static VOID		sendGiftDroids					(UDWORD from,UDWORD to);
 static VOID		giftResearch					(UDWORD from,UDWORD to,BOOL send);
@@ -61,14 +59,8 @@ VOID			addMultiPlayerRandomArtifacts	(UDWORD quantity,SDWORD type);
 VOID			recvMultiPlayerRandomArtifacts	(NETMSG *pMsg);
 VOID			giftArtifact					(UDWORD owner,UDWORD x,UDWORD y);
 VOID			processMultiPlayerArtifacts		(VOID);
-//DROID_TEMPLATE *pickDistribTempl				(UDWORD player);
 BOOL			addOilDrum						(UDWORD count);
 
-//BOOL			addDMatchDroid					(UDWORD count);
-//BOOL			foundDMatchDroid				(UDWORD player,UDWORD x,UDWORD y);
-//BOOL			deathmatchCheck					(VOID);
-//static BOOL		dMatchWinner					(UDWORD winplayer,BOOL bcast);
-//BOOL			recvdMatchWinner				(NETMSG *pMsg);
 VOID			addLoserGifts					(VOID);
 
 
@@ -190,9 +182,6 @@ void giftRadar(UDWORD from, UDWORD to,BOOL send)
 // ////////////////////////////////////////////////////////////////////////////
 // give a droid - MOVED INTO DROID.C - AB 5/11/98
 
-/*static void giftSingleDroid(DROID *psD,UDWORD from,UDWORD to)
-{
-}*/
 
 static void recvGiftDroids(UDWORD from,UDWORD to,NETMSG *pMsg)
 {
@@ -332,7 +321,6 @@ void giftPower(UDWORD from,UDWORD to,BOOL send)
 	else
 	{
 		gifval = asPower[from]->currentPower /3;
-//		asPower[from]->currentPower -= gifval;
 		usePower(from, gifval);
 	}
 
@@ -636,9 +624,6 @@ VOID  technologyGiveAway(STRUCTURE *pS)
 
 void addLoserGifts(void)
 {
-//	DROID			*psD;
-//	DROID_TEMPLATE	*psTempl;
-//	iVector			position;
 	static UDWORD	lastgift=0;
 	UDWORD			i,x,y,quantity,count;
 	NETMSG			m;
@@ -863,7 +848,6 @@ void giftArtifact(UDWORD owner,UDWORD x,UDWORD y)
 	
 	if(owner == ANYPLAYER)
 	{
-//		foundDMatchDroid(selectedPlayer,x,y);
 	}
 	else if(owner >= MAX_PLAYERS)	//1.04 bodge to stop savegame crash
 	{
@@ -919,16 +903,8 @@ VOID processMultiPlayerArtifacts(VOID)
 				position.y = pF->z;
 				addEffect(&position,EFFECT_EXPLOSION,EXPLOSION_TYPE_DISCOVERY,FALSE,NULL,FALSE);
 							
-//				if(game.type == DMATCH)
-//				{
-//					x = pF->x;
-//					y = pF->y;
 //					removeFeature(pF);			// remove artifact+ send info.					
-//					foundDMatchDroid(selectedPlayer, x,y);
-//					addDMatchDroid(1);
-//				}
 //				else
-//				{
 					x = pF->x;
 					y = pF->y;
 					pl= pF->player;
@@ -936,22 +912,13 @@ VOID processMultiPlayerArtifacts(VOID)
 					giftArtifact(pl,x,y);		// reward player.	
 					pF->player = 0;				
 					audio_QueueTrack( ID_SOUND_ARTIFACT_RECOVERED );
-//				}
 			}
 		}
 
 
 		// oil drums
-//		if(pF->psStats->subType == FEAT_OIL_DRUM)
-//		{	
-//			found = objectInRange((BASE_OBJECT *)apsDroidLists[selectedPlayer], pF->x,pF->y,(TILE_UNITS+(TILE_UNITS/3))  );
-//			if(found)
-//			{
 //				giftPower(ANYPLAYER,selectedPlayer,TRUE);		// give power and tell everyone.
 //				removeFeature(pF);								// remove artifact+ send info.
-//				addOilDrum(1);
-//			}
-//		}
 
 	}
 

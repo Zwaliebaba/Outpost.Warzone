@@ -49,7 +49,6 @@ void fontSet(PROP_FONT *psFont)
 	psCurrFont = psFont;
 }
 
-//extern PROP_FONT	*psWFont;
 
 /* Get the current font */
 PROP_FONT *fontGet(void)
@@ -548,7 +547,6 @@ BOOL fontLoad(UBYTE *pFileData, UDWORD fileSize, PROP_FONT **ppsFont)
 		psCurrC->width = psLoadC->width;
 		psCurrC->pitch = psLoadC->pitch;
 
-//		DBPRINTF(("(%dof%d) font data size %d\n",	i,(*ppsFont)->numChars,(*ppsFont)->height * psCurrC->pitch));
 		psCurrC->pData = (UBYTE *)MALLOC((*ppsFont)->height * psCurrC->pitch);
 		if (!psCurrC->pData)
 		{

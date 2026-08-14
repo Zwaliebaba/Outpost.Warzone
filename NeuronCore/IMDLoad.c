@@ -49,7 +49,6 @@ static char		imagePath[MAX_FILE_PATH] = {""};
 
 static iIMDShape *_imd_load_level(UBYTE **FileData,UBYTE *FileDataEnd, int nlevels, int texpage);
 static char *_imd_get_path(char *filename, char *path);
-//iIMDShape *iV_ProcessIMD(UBYTE **FileData, UBYTE *FileDataEnd, UBYTE *IMDpath,iBool palkeep);
 iIMDShape *iV_ProcessIMD(UBYTE **ppFileData, UBYTE *FileDataEnd, UBYTE *IMDpath, UBYTE *PCXpath,iBool palkeep);
 BOOL CheckColourKey( iIMDShape *psShape );
 
@@ -167,7 +166,6 @@ iIMDShape *iV_IMDLoad(char *filename, iBool palkeep)
 
 	iV_DEBUG1("imd[IMDLoad] = loading shape file '%s':",filename);
 
-//	DBPRINTF(("imd[IMDLoad] = loading shape file '%s':\n",filename));
 
 
 	strcpy(_IMD_NAME,filename);
@@ -267,7 +265,6 @@ iIMDShape *iV_ProcessIMD(UBYTE **ppFileData, UBYTE *FileDataEnd, UBYTE *IMDpath,
 	UDWORD		level;
 #endif
 
-//	char *t;
 
 	IMDcount++;
 
@@ -599,7 +596,6 @@ static iBool _imd_load_polys(UBYTE **ppFileData, UBYTE *FileDataEnd, iIMDShape *
 				p2.z = points[poly->pindex[poly->npnts-1]].z;
 
 				pie_SurfaceNormal(&p0,&p1,&p2,&poly->normal);
-				//iV_DEBUG3("normal %d %d %d\n",poly->normal.x,poly->normal.y,poly->normal.z);
 			} else
 				poly->normal.x = poly->normal.y = poly->normal.z = 0;
 
@@ -754,13 +750,11 @@ static iBool _imd_load_bsp(UBYTE **ppFileData, UBYTE *FileDataEnd, iIMDShape *s,
 			
 			IMDTri->BSP_NextPoly=psNode->TriSameDir;
 			psNode->TriSameDir=PolygonID;
-//			list_Add( psNode->psTriSameDir , &(s->polys[PolygonID]) );
 		}
 
 		// Generate the plane equation - if weve got any polygons
 		if (FirstPolygonID!=-1)
 		{
-//			GetPlane(&(s->polys[FirstPolygonID]),&(psNode->Plane));
 			GetPlane(s,FirstPolygonID,&(psNode->Plane));
 		}
 		else
@@ -795,7 +789,6 @@ static iBool _imd_load_bsp(UBYTE **ppFileData, UBYTE *FileDataEnd, iIMDShape *s,
 		IMDTri->BSP_NextPoly=psNode->TriOppoDir;
 		psNode->TriOppoDir=PolygonID;
 
-//			list_Add( psNode->psTriOppoDir , &(s->polys[PolygonID]) );
 		}
 
 		if (sscanf1(ppFileData,"%d",&NodeID) != 1)	// Check that we read 1 parameter ok
@@ -868,13 +861,11 @@ BOOL ReadPoints(UBYTE **ppFileData, UBYTE *FileDataEnd, iIMDShape *s)
 			return FALSE;
 		}
 		
-//		DBPRINTF(("%d) x=%d y=%x z=%d\n",i,newX,newY,newZ));
 		//check for duplicate points
 		match = -1;
 		j = 0;
 
 
-		// scan through list upto the number of points added (lastPoint) ... not up to the number of points scanned in (i)  (which will include duplicates)
 		while((j < lastPoint) && (match == -1))
 //		while((j < i) && (match == -1))
 		{
@@ -956,7 +947,6 @@ static iBool _imd_load_points(UBYTE **ppFileData, UBYTE *FileDataEnd, iIMDShape 
 		return FALSE;
 
 
-	// Read in points and remove duplicates (!)
 	if (ReadPoints(ppFileData,FileDataEnd, s)==FALSE) return FALSE;
 
 
@@ -1053,7 +1043,6 @@ static iBool _imd_load_points(UBYTE **ppFileData, UBYTE *FileDataEnd, iIMDShape 
 		extremeZ = pie_MAX(tempZMax,-tempZMin);
 
 		s->visRadius = pie_MAX(extremeX,extremeZ);
-		// no need to scale an IMD shape (only FSD)
 
 		xmax = pie_MAX(s->xmax,-s->xmin);
 		ymax = pie_MAX(s->ymax,-s->ymin);
@@ -1122,7 +1111,6 @@ static iBool _imd_load_points(UBYTE **ppFileData, UBYTE *FileDataEnd, iIMDShape 
 		rad_sq = dx*dx + dy*dy + dz*dz;
 		rad = sqrt(rad_sq);
 
-		// second pass (find tight sphere)
 
 		for (p = s->points, i=0; i<s->npoints; i++, p++) {
 			dx = p->x - cen.x;
@@ -1215,13 +1203,10 @@ static iIMDShape *_imd_load_level(UBYTE **ppFileData, UBYTE *FileDataEnd, int nl
 {
 	iIMDShape *s;
 	char buffer[MAX_FILE_PATH];
-//	int level;
 	int n;
 	int npolys;
 
 #ifdef BSPIMD
-//		UWORD NumberOfParameters;
-//		UDWORD count;
 #endif
 
 	if (nlevels == 0)
@@ -1277,7 +1262,6 @@ static iIMDShape *_imd_load_level(UBYTE **ppFileData, UBYTE *FileDataEnd, int nl
 
 		s->npoints = n;
 
-//	DBPRINTF(("%s %d , %d \n",buffer,n,s->npoints));
 
 		// Some imd/pie's were greater than the max number of points causing all sorts of memory overflows (blfact2)
 		//
@@ -1297,11 +1281,9 @@ static iIMDShape *_imd_load_level(UBYTE **ppFileData, UBYTE *FileDataEnd, int nl
 	  
 		if (strcmp(buffer,"POLYGONS") != 0) {
 			iV_Error(0xff,"(_load_level) expecting 'POLYGONS' directive");
-//			DBPRINTF(("buffer=[%s] npolys=%d\n",buffer,npolys));
 			return NULL;
 		}
 
-//			DBPRINTF(("loading polygons - %d\n",s->npolys));
 		_imd_load_polys(ppFileData,FileDataEnd,s);
 
 
@@ -1320,9 +1302,7 @@ static iIMDShape *_imd_load_level(UBYTE **ppFileData, UBYTE *FileDataEnd, int nl
 			while(OptionalsCompleted==FALSE)
 			{
 
-//				DBPRINTF(("current file pos = %p (%x)(%x)(%x)  - endoffile = %p\n",*ppFileData,**ppFileData,*((*ppFileData)+1),*((*ppFileData)+2),FileDataEnd));
 
-				// check for end of file (give or take white space)
 				if (AtEndOfFile(*ppFileData,FileDataEnd)==TRUE)
 				{
 					OptionalsCompleted=TRUE;
@@ -1359,7 +1339,6 @@ static iIMDShape *_imd_load_level(UBYTE **ppFileData, UBYTE *FileDataEnd, int nl
 				else
 				{
 
-//				DBPRINTF(("1) current file pos = %p (%x)  - endoffile = %p\n",*ppFileData,**ppFileData,FileDataEnd));
 					iV_Error(0xff,"(_load_level) unexpected directive %s %d",buffer,&n);
 					OptionalsCompleted=TRUE;
 					break;
@@ -1555,7 +1534,6 @@ void tpAddPIE(char *FileName,iIMDShape *pIMD)
 			}
 		}
 
-//		DBPRINTF(("Added PIE %d \"%s\" @ %p\n",tp_NumPies,FileName,pIMD));
 
 		tp_NumPies++;
 	}

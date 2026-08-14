@@ -25,7 +25,6 @@ extern iSurface* setUpMapSurface(UDWORD width, UDWORD height);
 
 /* Render the world to given surface */
 //extern void	renderMapToBuffer( struct iSurface *pSurface, iVector *location, iVector *viewVector, 
-//						  UDWORD distance );
 // Render a Map Surface to display memory.
 extern void renderMapSurface(struct iSurface *pSurface, UDWORD x, UDWORD y, UDWORD width, UDWORD height);
 

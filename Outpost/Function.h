@@ -15,20 +15,6 @@ extern FUNCTION		**asFunctions;
 extern UDWORD		numFunctions;
 
 //lists the current Upgrade level that can be applied to a structure through research
-//extern FUNCTION_UPGRADE		*apProductionUpgrades[MAX_PLAYERS];
-//extern UDWORD		numProductionUpgrades;
-//extern FUNCTION_UPGRADE		*apResearchUpgrades[MAX_PLAYERS];
-//extern UDWORD		numResearchUpgrades;
-//extern FUNCTION_UPGRADE		*apArmourUpgrades[MAX_PLAYERS];
-//extern UDWORD		numArmourUpgrades;
-//extern FUNCTION_UPGRADE		*apBodyUpgrades[MAX_PLAYERS];
-//extern UDWORD		numBodyUpgrades;
-//extern FUNCTION_UPGRADE		*apRepairUpgrades[MAX_PLAYERS];
-//extern UDWORD		numRepairUpgrades;
-//extern FUNCTION_UPGRADE		*apResistanceUpgrades[MAX_PLAYERS];
-//extern UDWORD		numResistanceUpgrades;
-//extern FUNCTION_UPGRADE		*apWeaponUpgrades[MAX_PLAYERS];
-//extern UDWORD		numWeaponUpgrades;
 
 extern BOOL loadFunctionStats(SBYTE *pFunctionData, UDWORD bufferSize);
 
@@ -55,15 +41,6 @@ extern BOOL loadDroidConstUpgradeFunction(SBYTE *pData);
 extern BOOL loadReArmFunction(SBYTE *pData);
 extern BOOL loadReArmUpgradeFunction(SBYTE *pData);
 
-//extern BOOL loadFunction(SBYTE *pData, UDWORD functionType);
-//extern BOOL loadDefensiveStructFunction(SBYTE *pData);//, UDWORD functionType);
-//extern BOOL loadArmourUpgradeFunction(SBYTE *pData);//, UDWORD functionType);
-//extern BOOL loadPowerRegFunction(SBYTE *pData);//, UDWORD functionType);
-//extern BOOL loadPowerRelayFunction(SBYTE *pData);//, UDWORD functionType);
-//extern BOOL loadRadarMapFunction(SBYTE *pData);//, UDWORD functionType);
-//extern BOOL loadRepairUpgradeFunction(SBYTE *pData);//, UDWORD functionType);
-//extern BOOL loadResistanceUpgradeFunction(SBYTE *pData);//, UDWORD functionType);
-//extern BOOL loadBodyUpgradeFunction(SBYTE *pData);//, UDWORD functionType);
 
 extern void productionUpgrade(FUNCTION *pFunction, UBYTE player);
 extern void researchUpgrade(FUNCTION *pFunction, UBYTE player);
@@ -94,10 +71,6 @@ extern void droidBodyUpgrade(FUNCTION *pFunction, DROID *psDroid);
 extern void upgradeTransporterDroids(DROID *psTransporter, 
                               void(*pUpgradeFunction)(DROID *psDroid));
 
-//extern void armourUpgrade(FUNCTION *pFunction, STRUCTURE *psBuilding);
-//extern void repairUpgrade(FUNCTION *pFunction, STRUCTURE *psBuilding);
-//extern void bodyUpgrade(FUNCTION *pFunction, STRUCTURE *psBuilding);
-//extern void resistanceUpgrade(FUNCTION *pFunction, STRUCTURE *psBuilding);
 
 extern BOOL FunctionShutDown();
 

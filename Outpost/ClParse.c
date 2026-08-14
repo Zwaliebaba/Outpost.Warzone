@@ -79,7 +79,6 @@ BOOL ParseCommandLine( LPSTR psCmdLine)
 
 			war_SetRendMode(REND_MODE_HAL);
 			pie_SetDirect3DDeviceName("Direct3D HAL");
-//			bCrippleD3D = TRUE;
 			pie_SetVideoBufferWidth(640);
 			pie_SetVideoBufferHeight(480);
 		}
@@ -146,12 +145,10 @@ BOOL ParseCommandLine( LPSTR psCmdLine)
 			}
 		}
 
-//#ifndef COVERMOUNT
 		else if( stricmp( tokenType,cl2) == 0)
 		{
 			bAllowDebugMode =TRUE;
 		}
-//#endif
 		else if( stricmp( tokenType,"-640") == 0)// Temporary - this will be switchable in game
 		{
 			pie_SetVideoBufferWidth(640);
@@ -250,9 +247,6 @@ BOOL ParseCommandLine( LPSTR psCmdLine)
 
 		else
 		{
-			// ignore (gamespy requirement)
-		//	DBERROR( ("Unrecognised command-line token %s\n", tokenType) );
-		//	return FALSE;
 		}
 
 		/* Get next token: */
@@ -283,26 +277,10 @@ BOOL ParseCommandLine( LPSTR psCmdLine)
 BOOL scanGameSpyFlags(LPSTR gflag,LPSTR value)
 {
 	static UBYTE count = 0;
-//	UDWORD val;
 	LPVOID finalconnection;	 
 
-//#ifdef COVERMOUNT
-//	return TRUE;
-//#endif
 
 
-#if 0
-	// check for gamespy flag...
-
-	// if game spy not enabled....
-	if(!openWarzoneKey())
-		return FALSE;
-	if(!getWarzoneKeyNumeric("allowGameSpy",&val))
-	{
-		return TRUE;
-	}
-	closeWarzoneKey();
-#endif
 
 	count++;
 	if(count == 1)

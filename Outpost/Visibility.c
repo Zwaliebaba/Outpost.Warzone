@@ -63,7 +63,6 @@ static SDWORD			visLevelInc, visLevelDec;
 
 // the last sensor power to see an object - used by process visibility
 // to avoid having to recalculate it
-//static SDWORD			lastSensorPower;
 
 // whether a side has seen a unit on another side yet
 
@@ -147,7 +146,6 @@ static SDWORD visObjHeight(BASE_OBJECT *psObject)
 	{
 	case OBJ_DROID:
 		height = 80;
-//		height = psObject->sDisplay.imd->ymax;
 		break;
 	case OBJ_STRUCTURE:
 		height = psObject->sDisplay.imd->ymax;
@@ -215,7 +213,6 @@ static BOOL rayTerrainCallback(SDWORD x, SDWORD y, SDWORD dist)
 				)
 			{
 				avInformOfChange(x>>TILE_SHIFT,y>>TILE_SHIFT);
-//				SET_TILE_SENSOR(psTile);
 			}
 		}
 	}
@@ -228,7 +225,6 @@ static BOOL rayTerrainCallback(SDWORD x, SDWORD y, SDWORD dist)
 static BOOL rayLOSCallback(SDWORD x, SDWORD y, SDWORD dist)
 {
 	SDWORD		newG;		// The new gradient
-//	MAPTILE		*psTile;
 	SDWORD		distSq;
 	SDWORD		tileX,tileY;
 	MAPTILE		*psTile;
@@ -276,8 +272,6 @@ static BOOL rayLOSCallback(SDWORD x, SDWORD y, SDWORD dist)
 	else
 	{
 		// Store the height at this tile for next time round
-	//	psTile = mapTile(x >> TILE_SHIFT, y >> TILE_SHIFT);
-	//	lastH = psTile->height * ELEVATION_SCALE;
 		tileX = x>>TILE_SHIFT;
 		tileY = y>>TILE_SHIFT;
 
@@ -288,11 +282,9 @@ static BOOL rayLOSCallback(SDWORD x, SDWORD y, SDWORD dist)
 				!TILE_HAS_SMALLSTRUCTURE(psTile))
 			{
 				lastH = 2*UBYTE_MAX * ELEVATION_SCALE;
-	//			currG = UBYTE_MAX * ELEVATION_SCALE * GRAD_MUL / lastD;
 				numWalls += 1;
 				wallX = x;
 				wallY = y;
-	//			return FALSE;
 			}
 			else
 			{
@@ -309,11 +301,8 @@ static BOOL rayLOSCallback(SDWORD x, SDWORD y, SDWORD dist)
 	return TRUE;
 }
 
-//#define VTRAYSTEP	(NUM_RAYS/80)
 #define VTRAYSTEP	(NUM_RAYS/120)
 
-//SDWORD currRayAng;
-//BOOL currRayPending = FALSE;
 
 
 // Call this once per game cycle to update visible terrain ray angle when spreading processor
@@ -321,12 +310,6 @@ static BOOL rayLOSCallback(SDWORD x, SDWORD y, SDWORD dist)
 //
 void visTilesUpdateLoadSpread(void)
 {
-//	if(currRayPending) {
-//		currRayAng += VTRAYSTEP;
-//		if(currRayAng >= (NUM_RAYS/4)) {
-//			currRayAng = 0;	//Pending = FALSE;
-//		}
-//	}
 }
 
 #define	DUPF_SCANTERRAIN 0x01
@@ -397,11 +380,9 @@ void visTilesUpdate(BASE_OBJECT *psObj,BOOL SpreadLoad)
 		rayCast(psObj->x,psObj->y,(currRayAng+(NUM_RAYS/2)+(NUM_RAYS/4))%360, range, rayTerrainCallback);
 
 		psDroid->currRayAng += VTRAYSTEP;
-//DBPRINTF(("%p %d\n",psDroid,psDroid->currRayAng);
 		if(psDroid->currRayAng >= (NUM_RAYS/4)) {
 			psDroid->currRayAng = 0;
 			psDroid->updateFlags &= ~DUPF_SCANTERRAIN;
-//DBPRINTF(("%p done\n",psDroid);
 		}
 	} else {
 		// Do the whole circle.
@@ -429,14 +410,12 @@ void visTilesUpdate(BASE_OBJECT *psObj,BOOL SpreadLoad)
  * psTarget can be any type of BASE_OBJECT (e.g. a tree).
  * struckBlock controls whether structures block LOS
  */
-//BOOL visibleObjectBlock(BASE_OBJECT *psViewer, BASE_OBJECT *psTarget, BOOL structBlock)
 BOOL visibleObject(BASE_OBJECT *psViewer, BASE_OBJECT *psTarget)
 {
 	SDWORD		x,y, ray;
 	SDWORD		xdiff,ydiff, rangeSquared;
 	SDWORD		range;
 	UDWORD		senPower, ecmPower;
-//	SDWORD		x1,y1, x2,y2;
 	SDWORD		tarG, top;
 	STRUCTURE	*psStruct;
 
@@ -472,7 +451,6 @@ BOOL visibleObject(BASE_OBJECT *psViewer, BASE_OBJECT *psTarget)
 		{
 			// if a unit is targetted by a counter battery sensor
 			// it is automatically seen
-//			lastSensorPower = senPower;
 			return TRUE;
 		}
 
@@ -561,22 +539,11 @@ BOOL visibleObject(BASE_OBJECT *psViewer, BASE_OBJECT *psTarget)
 		return FALSE;
 	}
 
-//	if (rangeSquared > BASE_VISIBILITY*BASE_VISIBILITY)
-//	{
 		/* Not automatically seen so have to check against ecm */
 //		sensorPower = visCalcPower(psViewer->x,psViewer->y, psTarget->x,psTarget->y,
-//									sensorPower, sensorRange);
-//		lastSensorPower = senPower;
 		// ecm power was already calculated in processVisiblity
-/*		if (sensorPower < ecmPower)
-		{
-			return FALSE;
-		}*/
-//	}
 //	else
-//	{
 //		lastSensorPower = MAX_SENSOR_POWER;	// NOTE this was "lastSensorPower == 0" which I assume was wrong (PD)
-//	}
 	if (rangeSquared == 0)
 	{
 		// Should never be on top of each other, but ...
@@ -584,7 +551,6 @@ BOOL visibleObject(BASE_OBJECT *psViewer, BASE_OBJECT *psTarget)
 	}
 
 	// initialise the callback variables
-//	startH = mapTile(x>>TILE_SHIFT,y>>TILE_SHIFT)->height * ELEVATION_SCALE;
 	startH = psViewer->z;
 	startH += visObjHeight(psViewer);
 	currG = -UBYTE_MAX * GRAD_MUL * ELEVATION_SCALE;
@@ -634,11 +600,6 @@ BOOL visibleObject(BASE_OBJECT *psViewer, BASE_OBJECT *psTarget)
 
 	// See if the target can be seen
 	top = ((SDWORD)psTarget->z + visObjHeight(psTarget) - startH);
-//	tarG = (top*top) * GRAD_MUL / rangeSquared;
-//	if (top < 0)
-//	{
-//		tarG = - tarG;
-//	}
 	tarG = top * GRAD_MUL / lastD;
 
 	return tarG >= currG;
@@ -658,7 +619,6 @@ BOOL visibleObjWallBlock(BASE_OBJECT *psViewer, BASE_OBJECT *psTarget)
 }
 
 
-// Find the wall that is blocking LOS to a target (if any)
 BOOL visGetBlockingWall(BASE_OBJECT *psViewer, BASE_OBJECT *psTarget, STRUCTURE **ppsWall)
 {
 	SDWORD		tileX, tileY, player;
@@ -709,7 +669,6 @@ found:
 	{
 	case OBJ_DROID:
 		structBlock = FALSE;
-//		structBlock = TRUE;
 		break;
 	default:
 		structBlock = FALSE;
@@ -734,46 +693,26 @@ found:
 }*/
 
 
-//#ifdef WIN32
-//
-//void processVisibility(BASE_OBJECT *psObj)
-//{
-//	processVis(psObj);
-//}
-//
-//#else
 //
 //
-//void processVisibility(BASE_OBJECT *psObj)
-//{
-//	static BASE_OBJECT *psTmpObj;
+//
+//
 //
 //	// Stack in the DCache.
-//	psTmpObj = psObj;
-//	SetSpDCache();
-//	processVis(psTmpObj);
-//	SetSpNormal();
-//}
 //
-//#endif
 //
 //
 /* Find out what can see this object */
 void processVisibility(BASE_OBJECT *psObj)
 {
 
-//	DROID		*psCount;
 	DROID		*psDroid;
 	STRUCTURE	*psBuilding;
 	UDWORD		i, maxPower, ecmPoints;
-//	UDWORD		currPower;
 	ECM_STATS	*psECMStats;
 	BOOL		prevVis[MAX_PLAYERS], currVis[MAX_PLAYERS];
-//	SDWORD		maxSensor[MAX_PLAYERS];
 	SDWORD		visLevel;
-//	SDWORD		powerRatio;
 	BASE_OBJECT	*psViewer;
-//	BOOL		changed;
 	MESSAGE		*psMessage;
 	UDWORD		player, ally;
 
@@ -788,14 +727,12 @@ void processVisibility(BASE_OBJECT *psObj)
 		psDroid = (DROID *)psObj;
 		psECMStats = asECMStats + psDroid->asBits[COMP_ECM].nStat;
 		ecmPoints = ecmPower(psECMStats, psDroid->player);
-		//if (psECMStats->power < maxPower)
 		if (ecmPoints < maxPower)
 		{
 			psDroid->ECMMod = maxPower;
 		}
 		else
 		{
-			//psDroid->ECMMod = psECMStats->power;
 			psDroid->ECMMod = ecmPoints;
 			maxPower = psDroid->ECMMod;
 		}
@@ -1158,24 +1095,13 @@ void visGetRayObjects(SDWORD x1,SDWORD y1, SDWORD x2,SDWORD y2)
 	SDWORD	xdiff,ydiff;
 	SDWORD	distSq,rangeSq, powerBoost;
 	UDWORD	finalPower;
-//	SDWORD	dist, absx,absy;
 
 	xdiff = (SDWORD)x1 - (SDWORD)x2;
 	ydiff = (SDWORD)y1 - (SDWORD)y2;
 	distSq = xdiff*xdiff + ydiff*ydiff;
 	rangeSq = (SDWORD)(range*range);
-//	absx = abs(xdiff);
-//	absy = abs(ydiff);
-//	dist = absx > absy ? absx + absy/2 : absx/2 + absy;
 
-//	if (dist >= range)
-//	{
-//		finalPower = 0;
-//	}
 //	else
-//	{
-//		finalPower = power - power * dist / range;
-//	}
 
 	if (distSq > rangeSq)
 	{
@@ -1184,7 +1110,6 @@ void visGetRayObjects(SDWORD x1,SDWORD y1, SDWORD x2,SDWORD y2)
 	else
 	{
 		// increase the power -> will be bigger than power for some of range
-//		powerBoost = 3 * power / 2;
 		powerBoost = power;
 		finalPower = (UDWORD)(powerBoost - powerBoost * distSq / rangeSq);
 		// bring the power lower than max power
@@ -1209,8 +1134,6 @@ void startSensorDisplay()
 	UDWORD		x;
 	DROID		*psDroid;
 	STRUCTURE	*psStruct;
-//	SDWORD		range;
-//	SDWORD		ray;
 
 	// clear each sensor bit.
 	psTile = psMapTiles;
@@ -1225,14 +1148,9 @@ void startSensorDisplay()
 	// units.
 	for(psDroid = apsDroidLists[selectedPlayer];psDroid;psDroid=psDroid->psNext)
 	{
-//		range = psDroid->sensorRange;
-//		for(ray=0; ray < NUM_RAYS; ray += NUM_RAYS/80)
-//		{
 //			startH = psDroid->z + visObjHeight((BASE_OBJECT*)psDroid);// initialise the callback variables //rayTerrainCallback
 //			currG = -UBYTE_MAX * GRAD_MUL;	// Cast the rays from the viewer	
 			visTilesUpdate((BASE_OBJECT*)psDroid,FALSE);
-//			rayCast(psDroid->x,psDroid->y,ray, range, rayTerrainCallback);
-//		}
 
 	}
 	// structs.

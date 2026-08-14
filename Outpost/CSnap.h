@@ -2,7 +2,6 @@
 #ifndef _INCLUDED_CSNAP_
 #define _INCLUDED_CSNAP_
 
-//#define SNAP_ERASABLE
 
 
 typedef enum {

@@ -8,7 +8,6 @@
 #define _text_h
 
 //the two defines below are MUTUALLY EXCLUSIVE! don't have both defined...
-//#define RESOURCE_NAMES
 #define	STORE_RESOURCE_ID
 
 /* ID numbers for all the fixed strings */

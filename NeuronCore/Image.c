@@ -21,7 +21,6 @@
 #include "Mem.h"
 #include "Image.h"
 
-// Define this if you want to generate pictures (for tools ?)
 #define WRITEIMAGES
 
 
@@ -519,7 +518,6 @@ BOOL imageCreateBMP(UBYTE			*pImageData,		// Original file
 
 	}
 
-	// Copy the image inverted (why are bmp files inverted?)
 	for (Ycoord=Height-1;Ycoord>=0;Ycoord--)
 	{
 		ImagePointer= pImageData+(Ycoord*Width*(BitCount/8));

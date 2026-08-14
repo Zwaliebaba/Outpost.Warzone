@@ -6,19 +6,11 @@
 
 #include "IvisPatch.h"
 
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <io.h>
-//#include "Pcx.h"
-//#include "pal.h"
-//#include "Bug.h"
-//#include "ivisheap.h"
 
 //*************************************************************************
 
 
 #define PCX_BUFFER_SIZE		65536
-//#define PCX_PIXEL(s,x,y)	(* ((uint8 *) ((s)->bmp + (x) + ((y) * (s)->width))))
 
 //*************************************************************************
 
@@ -201,7 +193,6 @@ BOOL pie_PCXLoadToBuffer(char *file, iSprite *s, iColour* pal)
 
 	if (pal)
 	{
-//		ASSERT((FALSE,"warning palette is being loaded for %s",file));
  		_load_palette(pal);
 	}
 
@@ -260,7 +251,6 @@ iBool iV_PCXLoad(char *file, iSprite *s, iColour *pal)
 		iV_FileClose(_PCX_FI);
 		return FALSE;
 	}
-//	DBPRINTF(("PCX LOAD [%s] size=%d ptr=%p\n",file,bsize,s->bmp));
 
 	_load_image(s->bmp,bsize);
 

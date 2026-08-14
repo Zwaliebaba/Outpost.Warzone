@@ -15,7 +15,6 @@
 #define MALLOC(a) malloc(a)
 #define FREE(a) free(a); a = NULL;
 
-//	ASSERT((psCurr!=NULL, "LIST_REMOVE: " __FILE__ "(%d): entry not found", __LINE__));
 
 #define LIST_REMOVE(psHead, psEntry, TYPE) \
 { \
@@ -52,9 +51,7 @@
 #else
 
 // gateway linking printf's
-//#define DEBUG_GROUP0
 // water gate printf's
-//#define DEBUG_GROUP1
 #include "Frame.h"
 #include "Map.h"
 #include "AStar.h"
@@ -116,7 +113,6 @@ BOOL gwInitialise(void)
 		return FALSE;
 	}
 #endif
-//	if (!gwLinkGateways()) return FALSE;
 
 	return TRUE;
 }
@@ -562,7 +558,6 @@ BOOL gwZoneInEquiv(SDWORD mainZone, SDWORD checkZone)
 		return FALSE;
 	}
 //	ASSERT((apEquivZones != NULL,
-//		"gwZoneInEquiv: no zone equivalence table"));
 
 	for(i=0; i<aNumEquiv[mainZone]; i+= 1)
 	{
@@ -1186,17 +1181,9 @@ BOOL gwZoneReachable(SDWORD zone)
 }
 
 // check if the gateway flag is set on a tile
-/*BOOL gwTileIsGateway(SDWORD x, SDWORD y)
-{
-	return (mapTile((UDWORD)x,(UDWORD)y)->tileInfoBits & BITS_GATEWAY) != 0;
-}*/
 
 
 // get the terrain type of a map tile
-/*SDWORD gwTileTerrainType(SDWORD x, SDWORD y)
-{
-	return TERRAIN_TYPE(mapTile((UDWORD)x,(UDWORD)y));
-}*/
 
 #endif
 

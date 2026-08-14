@@ -169,7 +169,6 @@ BOOL StartDriverMode(DROID *psOldDroid)
 	DROID *psDroid;
 	DROID *psLastDriven;
 
-//	DBPRINTF(("StartDriveMode\n"));
 
 	IdleTime = gameTime;
 
@@ -184,13 +183,11 @@ BOOL StartDriverMode(DROID *psOldDroid)
 			if((psDrivenDroid == NULL) && (psDroid != psOldDroid)) {
 				// The first droid found becomes the driven droid.
 				if(!(DroidIsBuilding(psDroid) || DroidGoingToBuild(psDroid))) {
-//					psDroid->sMove.Status = MOVEDRIVE;
 				}
 				psDrivenDroid = psDroid;
 				DBPRINTF(("New driven droid\n"));
 			} else if(psDroid != psDrivenDroid) {
 				// All the others become followers of the driven droid.
-//				psDroid->sMove.Status = MOVEDRIVEFOLLOW;
 			}
 		}
 	}
@@ -214,7 +211,6 @@ BOOL StartDriverMode(DROID *psOldDroid)
 			psDrivenDroid = intGotoNextDroidType(NULL,DROID_TRANSPORTER,TRUE);
 		}
 
-//		DBPRINTF(("Selected a new driven droid : %p\n",psDrivenDroid));
 	}
 
 	if(psDrivenDroid) {
@@ -255,9 +251,7 @@ void ChangeDriver(void)
 
 	if(psDrivenDroid != NULL) {
 		DBPRINTF(("Driver Changed\n"));
-//		audio_StopObjTrack(psDrivenDroid,ID_SOUND_SMALL_DROID_RUN);
 
-//		psDrivenDroid = NULL;
 
 		for(psDroid = apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext) {
 			if( (psDroid->sMove.Status == MOVEDRIVE) ) {
@@ -268,11 +262,6 @@ void ChangeDriver(void)
 		}
 	}
 
-//	#ifdef PSX
-//	MouseMovement(TRUE);
-//	#endif
-//	setDrivingStatus(FALSE);
-//	DriveControlEnabled = FALSE;
 }
 
 
@@ -284,7 +273,6 @@ void StopDriverMode(void)
 
 	if(psDrivenDroid != NULL) {
 		DBPRINTF(("Drive mode canceled\n"));
-//		audio_StopObjTrack(psDrivenDroid,ID_SOUND_SMALL_DROID_RUN);
 
 		psDrivenDroid = NULL;
 
@@ -305,51 +293,27 @@ void StopDriverMode(void)
 
 // Returns TRUE if we have a driven droid.
 //
-//INLINED BOOL driveHasDriven(void)
-//INLINED {
-//INLINED 	return (DirectControl) && (psDrivenDroid != NULL) ? TRUE : FALSE;
-//INLINED }
 
 
 // Returns TRUE if drive mode is active.
 //
-//INLINED BOOL driveModeActive(void)
-//INLINED {
-//INLINED //DBPRINTF(("%d\n",DirectControl);
 //INLINED #ifdef DRIVEFIXED
-//INLINED 	return DirectControl;
 //INLINED #else
-//INLINED 	return psDrivenDroid != NULL ? TRUE : FALSE;
 //INLINED #endif
-//INLINED }
 
 
 // Return TRUE if the specified droid is the driven droid.
 //
-//INLINED BOOL driveIsDriven(DROID *psDroid)
-//INLINED {
 //INLINED #ifdef DRIVEFIXED
-//INLINED 	return (DirectControl) && (psDrivenDroid != NULL) && (psDroid == psDrivenDroid) ? TRUE : FALSE;
 //INLINED #else
-//INLINED 	return (psDrivenDroid != NULL) && (psDroid == psDrivenDroid) ? TRUE : FALSE;
 //INLINED #endif
-//INLINED }
 
 
-//INLINED BOOL driveIsFollower(DROID *psDroid)
-//INLINED {
 //INLINED #ifdef DRIVEFIXED
-//INLINED 	return (DirectControl) && (psDrivenDroid != NULL) && (psDroid != psDrivenDroid) && psDroid->selected ? TRUE : FALSE;
 //INLINED #else
-//INLINED 	return (psDrivenDroid != NULL) && (psDroid != psDrivenDroid) && psDroid->selected ? TRUE : FALSE;
 //INLINED #endif
-//INLINED }
 
 
-//INLINED DROID *driveGetDriven(void)
-//INLINED {
-//INLINED 	return psDrivenDroid;
-//INLINED }
 
 
 // Call this whenever a droid gets killed or removed.
@@ -358,41 +322,23 @@ void StopDriverMode(void)
 //
 BOOL driveDroidKilled(DROID *psDroid)
 {
-//	DROID *NewDroid;
 
 	if(driveModeActive()) {
 		if(psDroid == psDrivenDroid) {
 			ChangeDriver();
-	//		StopDriverMode();
 
 			psDrivenDroid = NULL;
 
-//			psDroid->selected = FALSE;
 			DeSelectDroid(psDroid);
 
 			if(!StartDriverMode(psDroid)) {
-	//			NewDroid = intGotoNextDroidType(NULL,DROID_ANY,TRUE);
 	//
-	//			DBPRINTF(("Droid Killed %p new %p\n",psDroid,NewDroid));
 	//
-	//			if(NewDroid == psDroid) {
-	//				NewDroid = intGotoNextDroidType(NULL,DROID_ANY,TRUE);
-	//				DBPRINTF(("Droid Killed %p new %p\n",psDroid,NewDroid));
-	//			}
 	//
-	//			if((!StartDriverMode()) || (NewDroid == psDroid)) {
-	//#ifdef PSX
 	//				// Failed to find a droid to track!
-	//				DBPRINTF(("No droid to drive!\n"));
 	//
-	//		DBPRINTF(("no droids, find a structure\n");
-	//				if(StartObjectOrbit((BASE_OBJECT*)intFindAStructure())) {
-	//				} else {
 	//		DBPRINTF(("no structures or droids, should be game over!\n");
-	//				}
-	//#endif
 					return FALSE;
-	//			}
 			}
 		}
 	}
@@ -421,7 +367,6 @@ void driveSelectionChanged(void)
 {
 	if(driveModeActive()) {
 		if(psDrivenDroid) {
-	//		StopDriverMode();
 			ChangeDriver();
 			StartDriverMode(NULL);
 			driveTacticalSelectionChanged();
@@ -435,16 +380,12 @@ void driveSelectionChanged(void)
 void driveNextDriver(void)
 {
 	DROID *psDroid;
-//	BOOL Found = FALSE;
 
-//DBPRINTF(("driveNextDriver %p\n",psDrivenDroid);
 
 	// Start from the current driven droid.
 	for(psDroid = psDrivenDroid; psDroid; psDroid = psDroid->psNext) {
 		if( (psDroid->selected) && (psDroid != psDrivenDroid) ) {
 			// Found one so make it the driven droid.
-//			psDrivenDroid->sMove.Status = MOVEINACTIVE;
-//			psDroid->sMove.Status = MOVEDRIVE;
 			psDrivenDroid = psDroid;
 			camAllignWithTarget((BASE_OBJECT*)psDroid);
 			driveTacticalSelectionChanged();
@@ -452,7 +393,6 @@ void driveNextDriver(void)
 		}
 	}
 
-//	if(!Found) {
 		// Not found so start at the begining.
 		for(psDroid = apsDroidLists[selectedPlayer]; 
 			psDroid && (psDroid != psDrivenDroid);
@@ -460,15 +400,12 @@ void driveNextDriver(void)
 
 			if(psDroid->selected) {
 				// Found one so make it the driven droid.
-//				psDrivenDroid->sMove.Status = MOVEINACTIVE;
-//				psDroid->sMove.Status = MOVEDRIVE;
 				psDrivenDroid = psDroid;
 				camAllignWithTarget((BASE_OBJECT*)psDroid);
 				driveTacticalSelectionChanged();
 				return;
 			}
 		}
-//	}
 	// No other selected droids found. Oh well...
 }
 
@@ -656,7 +593,6 @@ void driveUpdate(void)
 					if(	(psDroid->selected) &&
 						(psDroid != psDrivenDroid) &&
 						(psDroid->droidType != DROID_TRANSPORTER) &&
-						//((psPropStats->propulsionType != LIFT) || (psDroid->droidType == DROID_CYBORG)) ) {
                         ((psPropStats->propulsionType != LIFT) || cyborgDroid(psDroid)) ) 
                     {
 						// Send new orders to it's followers.
@@ -676,19 +612,8 @@ void driveUpdate(void)
 		} else {
 #ifdef DRIVEFIXED
 			// Start driving
-//DBPRINTF(("StartDriveMode\n");
 			if(StartDriverMode(NULL) == FALSE) {
-//DBPRINTF(("StartObjectOrbit\n");
 //				// No droids to drive so start orbiting a structure.
-//				if(!OrbitIsValid()) {
-//					if(StartObjectOrbit((BASE_OBJECT*)intFindAStructure())) {
-//						MouseMovement(FALSE);
-//						setDrivingStatus(TRUE);
-//						DriveControlEnabled = TRUE;
-//					} else {
-//	DBPRINTF(("** Failed to start drive mode **\n");
-//					}
-//				}
 			}
 #endif
 		}
@@ -711,8 +636,6 @@ SDWORD driveGetMoveDir(void)
 
 void driveSetDroidMove(DROID *psDroid)
 {
-//	psDroid->sMove.speed = MAKEFRACT(driveSpeed);
-//	psDroid->sMove.dir = driveDir;
 	psDroid->direction = (UWORD)driveDir;
 }
 
@@ -787,8 +710,6 @@ void driveProcessAquireButton(void)
 {
 	if(mouseReleased(MOUSE_RMB) || keyPressed(KEY_S)) {
 		BASE_OBJECT	*psObj;
-//		psObj = targetAquireNext(TARGET_TYPE_ANY);
-//		psObj = targetAquireNearestObj(targetGetCrosshair(),TARGET_TYPE_ANY);
 		psObj = targetAquireNearestObjView((BASE_OBJECT*)psDrivenDroid,TARGET_TYPE_ANY);
 	}
 }
@@ -802,7 +723,6 @@ void driveStartBuild(void)
 {
 	intRemoveReticule();
 	DriveInterfaceEnabled = FALSE;
-//	driveDisableInterface();
 	driveEnableControl();
 }
 
@@ -829,11 +749,6 @@ BOOL driveAllowControl(void)
 	if( TacticalActive ||
 		DriveInterfaceEnabled ||
 		(!DriveControlEnabled) ) {
-//		if( TacticalActive )	DBPRINTF(("TacticalActive\n");
-//		if( DriveInterfaceEnabled )	DBPRINTF(("DriveInterfaceEnabled\n");
-//		if( DeliveryReposValid() ) DBPRINTF(("DeliveryReposValid\n");
-//		if( (camGetMode() == CAMMODE_ORBIT) ) DBPRINTF(("CAMMODE_ORBIT\n");
-//		if( (!DriveControlEnabled) ) DBPRINTF(("!DriveControlEnabled\n");
 
 		return FALSE;
 	}
@@ -846,9 +761,6 @@ BOOL driveAllowControl(void)
 //
 void driveEnableTactical(void)
 {
-//	MouseMovement(TRUE);
-//	SetMouseRange(0,RADTLX,RADTLY,RADTLX+RADWIDTH,RADTLY+RADHEIGHT);
-//	SetMousePos(0,RADTLX+RADWIDTH/2,RADTLY+RADHEIGHT/2);
 
 	StartTacticalScroll(TRUE);
 	TacticalActive = TRUE;
@@ -862,9 +774,6 @@ void driveDisableTactical(void)
 {
 	if(driveModeActive() && TacticalActive) {
 		CancelTacticalScroll();
-	//	MouseMovement(FALSE);
-	//	SetMouseRange(0,16,16,639-16,479-16);
-	//	SetMousePos(0,320,160);
 		TacticalActive = FALSE;
 		DBPRINTF(("Tactical Mode Canceled\n"));
 	}

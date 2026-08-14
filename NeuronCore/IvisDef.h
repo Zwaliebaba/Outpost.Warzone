@@ -126,7 +126,6 @@ typedef struct {
 typedef struct iIMDShapeEffect
 {
 	uint32 flags;			// This 'flags' can be used to check if the file is a 3d PIE file or a special effect
-	// the bit that is set is 	iV_IMD_XEFFECT (see	imd.h)
 	void	*ImageFile;	// ( cast this to (IMAGEFILE*) when using it). - // When loaded as a binary this contains the hashed value of the text starting frame
 	UWORD	firstframe;				//	When loaded as binary this contains the file number of the data file to be loaded (see  iV_ProcessBPIE)
 
@@ -142,7 +141,6 @@ typedef struct iIMDShapeEffect
 typedef struct iIMDShapeProjectile
 {
 	uint32 flags;			// This 'flags' can be used to check if the file is a 3d PIE file or a special effect
-	// the bit that is set is 	iV_IMD_XEFFECT_PROJECTILE (see	imd.h)
 
 	uint8 Type;
 	uint8 Radius;

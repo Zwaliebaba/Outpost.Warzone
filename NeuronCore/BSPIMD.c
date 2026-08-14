@@ -22,7 +22,6 @@
 
 #define BSP_BACKFACECULL	// if defined we perform the backface cull in the BSP (we get this for free (!))
 
-//#define BSP_MAXDEBUG		// define this if you want max debug options (runs very slow)
 
 #include "BSPIMD.h"
 
@@ -110,7 +109,6 @@ _inline int IsPointOnPlane( PSPLANE psPlane, iVector * vP )
 static void TraverseTreeAndRender( PSBSPTREENODE psNode)
 {
 	/* is viewer on same side? */
-// On the playstation we need the list in reverse order (front most polygon first)
 // so we just do the list the opposite way around - this affects the BACKFACE culling as well 
 	if ( IsPointOnPlane( &psNode->Plane, BSPScrPos ) == SAME_SIDE )
 	{
@@ -370,18 +368,13 @@ void GetRealCameraPos(OBJPOS *Camera,SDWORD Distance, iVector *CameraLoc)
 
 //  as pitch is negative ... we need to subtract the value from y to go up the axis
 	CameraLoc->y = Camera->y - 	((SIN(Camera->pitch) * Distance)>>FP12_SHIFT);
-//	CameraLoc->y = Camera->y + 	((iV_SIN(Camera->pitch) * Distance)>>FP12_SHIFT);
 
 	Yinc =  ((COS(Camera->pitch) * Distance)>>FP12_SHIFT);
 
-//	DBPRINTF(("camera x=%d y=%d z=%d\n",Camera->x,Camera->y,Camera->z));
-//	DBPRINTF(("pitch=%ld yaw=%ld Yinc=%ld Dist=%ld\n",Camera->pitch,Camera->yaw,Yinc,Distance));
 
 	CameraLoc->x = Camera->x + ((SIN(-Camera->yaw) * (-Yinc))>>FP12_SHIFT);
 	CameraLoc->z = Camera->z + ((COS(-Camera->yaw) * (Yinc))>>FP12_SHIFT);
 
-//	DBPRINTF(("out) camera x=%d y=%d z=%d\n",CameraLoc->x,CameraLoc->y,CameraLoc->z));
-//	DBPRINTF(("t=%d t1=%d t2=%d t3=%d z=%d\n",t,t1,t2,t3,CameraLoc->z));
 
 }
 

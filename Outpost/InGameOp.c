@@ -13,7 +13,6 @@
 #include "Text.h"
 #include "PieState.h"		// for getrendertype
 #include "resource.h"
-//#include "Display.h"		// for gamma.
 #include "FrontEnd.h"		// for textdisplay function
 #include "LoadSave.h"		// for textdisplay function
 #include "Console.h"		// to add console message
@@ -33,7 +32,6 @@
 #include "Transporter.h"
 #include "NetPlay.h"
 
-//extern W_SCREEN *psWScreen;
 extern CURSORSNAP InterfaceSnap;
 extern void addText(int FontID,UDWORD FormID,UDWORD id,  UDWORD PosX, UDWORD PosY, STRING *txt, UDWORD attachID,BOOL *State);
 
@@ -235,7 +233,6 @@ static BOOL _intAddInGameOptions(void)
 	widgAddForm(psWScreen, &sFormInit);
 
 	// add 'quit' text
-// #ifdef COVERMOUNT
  #if 0
 	addIGTextButton(INTINGAMEOP_QUIT,INTINGAMEOP_3_Y,STR_GAME_QUIT,OPALIGN);
  #else
@@ -388,14 +385,7 @@ void intProcessInGameOptions(UDWORD id)
 		break;
 
 //	case INTINGAMEOP_REPLAY:
-//		intCloseInGameOptions(TRUE, FALSE);
 //		if(0!=strcmp(getLevelName(),"CAM_1A"))
-//		{
-//			loopMissionState = LMS_LOADGAME;
-//			strcpy(saveGameName, "replay\\replay.gam");
-//			addConsoleMessage(strresGetString(psStringRes, STR_GAME_SAVED), LEFT_JUSTIFY);
-//		}
-//		break;
 	case INTINGAMEOP_LOAD:
 		intCloseInGameOptions(TRUE, FALSE);
 		addLoadSave(LOAD_INGAME,"savegame\\","gam",strresGetString(psStringRes,STR_MR_LOAD_GAME));	// change mode when loadsave returns//		if(runLoadSave())// check for file name.
@@ -420,10 +410,6 @@ void intProcessInGameOptions(UDWORD id)
 		break;
 	
 //	case INTINGAMEOP_GAMMA_S:
-//		gamma = (float)(widgGetSliderPos(psWScreen,INTINGAMEOP_GAMMA_S))/25  ;
-//		if(gamma<0.5)  gamma = (float).5;
-//		pie_SetGammaValue(gamma);
-//		break;
 	
 	default:
 		break;

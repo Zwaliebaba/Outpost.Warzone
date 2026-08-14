@@ -117,9 +117,6 @@ static void heapCreateFreeList(OBJ_HEAP *psHeap)
  */
 BOOL heapCreate(OBJ_HEAP **ppsHeap, UDWORD size, UDWORD init, UDWORD ext)
 {
-/*	UDWORD		i;
-	FREE_OBJECT	*psCurr;
-	UBYTE		*pBase;*/
 
 #if DEBUG_HEAP
 	int			Heap;

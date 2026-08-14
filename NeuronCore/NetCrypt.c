@@ -67,17 +67,8 @@ UDWORD	NEThashFile(STRING *pFileName)
 
 	}
 
-#if 0 // 1 byte version
-	// xor the file with it's self.
-	while((c=getc(pFileHandle))!=EOF)
-	{
-		hashval = hashval ^ c;
-	}
-	fclose(pFileHandle);
-#endif
 
 	DBPRINTF(("NEThashFile: Hash Complete :   *****  %u  ***** is todays magic number.\n",hashval));
-//	DBERROR(("%d",hashval));
 
 	return hashval;
 }
@@ -187,9 +178,6 @@ NETMSG *NETmanglePacket(NETMSG *msg)
 	NETMSG result;
 	UDWORD pos=0;
 
-#if 0
-	return msg;
-#endif
 	
 	if(msg->size > MaxMsgSize-NIBBLELENGTH)
 	{

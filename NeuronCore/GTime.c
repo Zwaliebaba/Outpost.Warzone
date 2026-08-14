@@ -7,12 +7,10 @@
 
 #include <time.h>
 
-//#define DEBUG_GROUP1
 #include "Frame.h"
 #include "GTime.h"
 
 #define TIME_FIX
-//#define RATE_LIMIT
 
 #define GTIME_MINFRAME	(GAME_TICKS_PER_SEC/80)		
 
@@ -48,7 +46,6 @@ static UDWORD	stopCount;
 /* Initialise the game clock */
 BOOL gameTimeInit(void)
 {
-	//gameTime = 0;
     /*start the timer off at 2 so that when the scripts strip the map of objects 
     for multiPlayer they will be processed as if they died*/
     gameTime = 2;

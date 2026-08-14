@@ -91,12 +91,7 @@ void cmdDroidAddDroid(DROID *psCommander, DROID *psDroid)
 		orderDroidObj(psDroid, DORDER_GUARD, (BASE_OBJECT *)psCommander);
 	}
 
-//#ifdef WIN32
 //	if(bMultiPlayer && myResponsibility(psDroid->player) )
-//	{
-//		sendCommandDroid(psCommander,psDroid);
-//	}
-//#endif
 }
 
 // return the current target designator for a player
@@ -252,7 +247,6 @@ DROID	*psCurr;
 		{
 			if(psCurr->psGroup->psCommander == psDroid)
 			{
-//				psCurr->selected = TRUE;
 				SelectDroid(psCurr);
 			}
 		}

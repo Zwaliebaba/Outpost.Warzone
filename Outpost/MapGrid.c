@@ -17,7 +17,6 @@
 #define GRID_UNITS	(GRID_SIZE * TILE_UNITS)
 
 // Initial and extension sizes for the grid heap
-//#define GRID_HEAPINIT	(GRID_WIDTH*GRID_HEIGHT)
 #define GRID_HEAPINIT	(GRID_MAXAREA)
 #define GRID_HEAPEXT	4
 
@@ -30,7 +29,6 @@ OBJ_HEAP	*psGridHeap;
 GRID_ARRAY	*apsMapGrid[GRID_MAXAREA];
 #define GridIndex(a,b) (((b)*gridWidth) + (a))
 
-//GRID_ARRAY	*apsMapGrid[GRID_WIDTH][GRID_HEIGHT];
 
 // which grid to garbage collect on next
 SDWORD		garbageX, garbageY;
@@ -62,7 +60,6 @@ BOOL gridInitialise(void)
 		return FALSE;
 	}
 
-//	memset(apsMapGrid, 0, sizeof(GRID_ARRAY *) * GRID_WIDTH * GRID_HEIGHT);
 	memset(apsMapGrid, 0, sizeof(GRID_ARRAY *) * GRID_MAXAREA);
 
 	garbageX = 0;
@@ -81,19 +78,15 @@ void gridClear(void)
 	SDWORD		x,y;
 
 	DBPRINTF(("gridClear %d %d\n",gridWidth,gridHeight));
-//	for(x=0; x<GRID_WIDTH; x+=1)
 	for(x=0; x<gridWidth; x+=1)
 	{
-//		for(y=0; y<GRID_HEIGHT; y+=1)
 		for(y=0; y<gridHeight; y+=1)
 		{
-//			for(psCurr = apsMapGrid[x][y]; psCurr; psCurr = psNext)
 			for(psCurr = apsMapGrid[GridIndex(x,y)]; psCurr; psCurr = psNext)
 			{
 				psNext = psCurr->psNext;
 				HEAP_FREE(psGridHeap, psCurr);
 			}
-//			apsMapGrid[x][y] = NULL;
 			apsMapGrid[GridIndex(x,y)] = NULL;
 		}
 	}
@@ -138,7 +131,6 @@ void gridReset(void)
 // shutdown the grid system
 void gridShutDown(void)
 {
-	//gridReset();
 	gridClear();
 
 	HEAP_DESTROY(psGridHeap);
@@ -228,13 +220,10 @@ void gridRemoveObject(BASE_OBJECT *psObj)
 		GRID_ARRAY		*psCurr;
 		SDWORD			i,x,y;
 
-//		for (x=0; x<GRID_WIDTH; x++)
 		for (x=0; x<gridWidth; x++)
 		{
-//			for(y=0; y<GRID_HEIGHT; y++)
 			for(y=0; y<gridHeight; y++)
 			{
-//				for (psCurr = apsMapGrid[x][y]; psCurr; psCurr = psCurr->psNext)
 				for (psCurr = apsMapGrid[GridIndex(x,y)]; psCurr; psCurr = psCurr->psNext)
 				{
 					for (i=0; i<MAX_GRID_ARRAY_CHUNK; i++)
@@ -254,12 +243,10 @@ void gridRemoveObject(BASE_OBJECT *psObj)
 
 
 // initialise the grid system to start iterating through units that
-// could affect a location (x,y in world coords)
 void gridStartIterate(SDWORD x, SDWORD y)
 {
 //	ASSERT(( (x >= 0) && (x < GRID_WIDTH*GRID_UNITS) &&
 //			 (y >= 0) && (y < GRID_WIDTH*GRID_UNITS),
-//		"gridStartIterate: coords off grid"));
 	ASSERT(( (x >= 0) && (x < gridWidth*GRID_UNITS) &&
 			 (y >= 0) && (y < gridHeight*GRID_UNITS),
 		"gridStartIterate: coords off grid"));
@@ -267,7 +254,6 @@ void gridStartIterate(SDWORD x, SDWORD y)
 	x = x / GRID_UNITS;
 	y = y / GRID_UNITS;
 
-//	psIterateGrid = apsMapGrid[x][y];
 	psIterateGrid = apsMapGrid[GridIndex(x,y)];
 	iterateEntry = 0;
 }
@@ -318,13 +304,11 @@ void gridGarbageCollect(void)
 	gridCompactArray(garbageX,garbageY);
 
 	garbageX += 1;
-//	if (garbageX >= GRID_WIDTH)
 	if (garbageX >= gridWidth)
 	{
 		garbageX = 0;
 		garbageY += 1;
 
-//		if (garbageY >= GRID_HEIGHT)
 		if (garbageY >= gridHeight)
 		{
 			garbageX = 0;
@@ -332,54 +316,6 @@ void gridGarbageCollect(void)
 		}
 	}
 
-//#ifdef DEBUG
-#if 0
-	// integrity check the array
-	{
-		GRID_ARRAY	*psCurr, *psCheck;
-		SDWORD		curr, check;
-		BASE_OBJECT	*psObj;
-
-		check = 0;
-//		psCheck = apsMapGrid[garbageX][garbageY];
-		psCheck = apsMapGrid[GridIndex(garbageX,garbageY)];
-		while (psCheck != NULL)
-		{
-			psObj = psCheck->apsObjects[check];
-			if (psObj != NULL)
-			{
-				// see if there is a duplicate element in the array
-				curr = 0;
-//				psCurr = apsMapGrid[garbageX][garbageY];
-				psCurr = apsMapGrid[GridIndex(garbageX,garbageY)];
-				while ( psCurr != NULL )
-				{
-					if ( !((psCurr == psCheck) && (curr == check)) &&
-						(psCurr->apsObjects[curr] == psObj) )
-					{
-						ASSERT((FALSE, "mapGrid integrity check failed"));
-
-						psCurr->apsObjects[curr] = NULL;
-					}
-
-					curr += 1;
-					if (curr >= MAX_GRID_ARRAY_CHUNK)
-					{
-						psCurr=psCurr->psNext;
-						curr = 0;
-					}
-				}
-			}
-
-			check += 1;
-			if (check >= MAX_GRID_ARRAY_CHUNK)
-			{
-				psCheck = psCheck->psNext;
-				check = 0;
-			}
-		}
-	}
-#endif
 }
 
 
@@ -391,7 +327,6 @@ void gridAddArrayObject(SDWORD x, SDWORD y, BASE_OBJECT *psObj)
 
 	// see if there is an empty slot in the currently allocated array
 	psPrev = NULL;
-//	for (psCurr = apsMapGrid[x][y]; psCurr; psCurr=psCurr->psNext)
 	for (psCurr = apsMapGrid[GridIndex(x,y)]; psCurr; psCurr=psCurr->psNext)
 	{
 		for(i=0; i<MAX_GRID_ARRAY_CHUNK; i++)
@@ -420,7 +355,6 @@ void gridAddArrayObject(SDWORD x, SDWORD y, BASE_OBJECT *psObj)
 	// add the chunk to the end of the list
 	if (psPrev == NULL)
 	{
-//		apsMapGrid[x][y] = psNew;
 		apsMapGrid[GridIndex(x,y)] = psNew;
 	}
 	else
@@ -436,7 +370,6 @@ void gridRemoveArrayObject(SDWORD x, SDWORD y, BASE_OBJECT *psObj)
 	GRID_ARRAY		*psCurr;
 	SDWORD			i;
 
-//	for (psCurr = apsMapGrid[x][y]; psCurr; psCurr = psCurr->psNext)
 	for (psCurr = apsMapGrid[GridIndex(x,y)]; psCurr; psCurr = psCurr->psNext)
 	{
 		for (i=0; i<MAX_GRID_ARRAY_CHUNK; i++)
@@ -457,7 +390,6 @@ void gridCompactArray(SDWORD x, SDWORD y)
 	GRID_ARRAY		*psDone, *psMove, *psPrev, *psNext;
 	SDWORD			done, move;
 
-//	psDone = psMove = apsMapGrid[x][y];
 	psDone = psMove = apsMapGrid[GridIndex(x,y)];
 	done = move = 0;
 
@@ -498,7 +430,6 @@ void gridCompactArray(SDWORD x, SDWORD y)
 	// now release any unused chunks
 	if (psPrev == NULL)
 	{
-//		apsMapGrid[x][y] = NULL;
 		apsMapGrid[GridIndex(x,y)] = NULL;
 	}
 	else
@@ -525,12 +456,10 @@ void gridDisplayCoverage(BASE_OBJECT *psObj)
 
 		DBPRINTF(("Grid coverage for object %d (%d,%d) - range %d\n",
 			psObj->id, psObj->x,psObj->y, gridObjRange(psObj)));
-//		for (x=0; x<GRID_WIDTH; x++)
 		for (x=0; x<gridWidth; x++)
 		{
 			for(y=0; y<gridHeight; y++)
 			{
-//				psCurr = apsMapGrid[x][y];
 				psCurr = apsMapGrid[GridIndex(x,y)];
 				i = 0;
 				while (psCurr != NULL)

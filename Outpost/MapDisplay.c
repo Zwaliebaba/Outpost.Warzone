@@ -53,15 +53,11 @@ extern BOOL		godMode;
 
 /*	Sets up the intelligence map by allocating the necessary memory and assigning world
 	variables for the renderer to work with */
-//void		setUpIntelMap		(UDWORD width, UDWORD height);
 /* Draws the intelligence map to the already setup buffer */
-//void		renderIntelMap		(iVector *location, iVector *viewVector, UDWORD elevation);
 
 /* Frees up the memory we've used */
-//void		releaseIntelMap		( void );
 
 /* Draw the grid */
-//void		drawMapWorld		( iSurface *pSurface );
 void		drawMapWorld		( void );
 
 /* Draw a tile on the grid */
@@ -71,12 +67,9 @@ void		drawMapWorld		( void );
 void		drawMapTile2(SDWORD i, SDWORD j);
 
 /* Clears the map buffer prior to drawing in it */
-//static	void	clearMapBuffer(iSurface *surface);
 //clear text message background with gray fill
-//static void clearIntelText(iSurface *pSurface);
 
 /*fills the map buffer with intelColours prior to drawing in it*/
-//static	void	fillMapBuffer(iSurface *surface);
 
 //only used in software
 /*fills the map buffer with a bitmap prior to drawing in it*/
@@ -86,7 +79,6 @@ static void	fillMapBufferWithBitmap(iSurface *surface);
 void		tileLayouts(int texture);
 
 //fill the intelColours array with the colours used for the background
-//static void setUpIntelColours(void);
 /* ----------------------------------------------------------------------------------------- */
 
 static	iTexture texturePage = {6, 64, 64, NULL};
@@ -120,7 +112,6 @@ iSurface	*pMapSurface;
 
 	/*	Release the old buffer if necessary - we may use many different intel maps
 		before resetting the game back to init/close */
-	//releaseIntelMap();
 
 	/* Get the required memory for the render surface */
 	bufSpace = MALLOC(width*height);
@@ -138,7 +129,6 @@ iSurface	*pMapSurface;
 	ASSERT((pMapSurface!=NULL,"Whoa - can't make surface for map"));
 
 	//set up the intel colours
-	//setUpIntelColours();
 
 	/*	Return a pointer to our surface - from this they can get the rendered buffer
 		as well as info about width and height etc. */
@@ -163,7 +153,6 @@ void	releaseMapSurface(iSurface *pSurface)
 
 /* Draws the world into the current surface - set using 
    iV_RenderAssign(iV_MODE_SURFACE,pSurface) */
-//void	drawMapWorld(iSurface *pSurface)
 void	drawMapWorld(void)
 {
 	SDWORD			i,j;
@@ -335,7 +324,6 @@ void	fillMapBufferWithBitmap(iSurface *surface)
 	pBitmapBuffer = IntImages->TexturePages[pImageDef->TPageID].bmp;
 	x0 = (UDWORD)pImageDef->Tu + 5;
 	y0 = (UDWORD)pImageDef->Tv + 5;
-	//pBitmapBuffer += (x0 + y0 * Modulus);
 
 	bitmapWidth = pImageDef->Width - 10;
 	bitmapHeight = pImageDef->Height - 10;
@@ -387,9 +375,7 @@ UDWORD	renderFlag;
 UDWORD	realX, realY;
 UDWORD	tileNumber;
 UDWORD	topL,botL,topR,botR;
-//UDWORD	n;
 iVertex p[4];
-//iVertex clip[iV_POLY_MAX_POINTS];
 MAPTILE	*psTile;
 iPoint	offset;
 
@@ -553,9 +539,7 @@ THIS HAS BEEN REPLACED BY renderResearchToBuffer()*/
 	}
 
 	// Empty the buffer 
-	//clearMapBuffer(pSurface);
 	//fill with the intelColours set up at the beginning
-	//fillMapBuffer(pSurface);
 	//fill with IMAGE_BUT0 graphic
 	if (!pie_Hardware())
 	{
@@ -576,7 +560,6 @@ THIS HAS BEEN REPLACED BY renderResearchToBuffer()*/
 
 	// shift back
 	pie_TRANSLATE(0,0,BUTTON_DEPTH);
-//	pie_TRANSLATE(0,0,pIMD->sradius*8);
 	scaleMatrix(RESEARCH_COMPONENT_SCALE);
 
 	// Pitch down a bit 
@@ -628,7 +611,6 @@ void renderResearchToBuffer(iSurface *pSurface, RESEARCH *psResearch,
 	pie_SetGeometricOffset(OriginX+10,OriginY+10);
 
 	// Pitch down a bit 
-	//pie_MatRotX(DEG(-30));
 
     // Rotate round
 	angle += ROTATE_ANGLE;

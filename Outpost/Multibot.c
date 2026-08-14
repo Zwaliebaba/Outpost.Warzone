@@ -45,9 +45,6 @@ BOOL		recvVtolRearm(NETMSG *pMsg);
 BOOL		sendDroidSecondary	(DROID *psDroid, SECONDARY_ORDER sec, SECONDARY_STATE state);
 BOOL		recvDroidSecondary	(NETMSG *pMsg);
 
-//BOOL		SendSingleDroidWaypoint(DROID *psDroid, UDWORD x,UDWORD y);
-//BOOL		SendDroidWaypoint	(UBYTE player,UDWORD	x, UDWORD y);
-//BOOL		recvDroidWaypoint	(NETMSG *pMsg);
 
 BOOL		SendDroidMove		(DROID  *pDroid, UDWORD x, UDWORD y,BOOL bFormation);
 BOOL		recvDroidMove		(NETMSG *pMsg);
@@ -623,10 +620,8 @@ BOOL recvDroid(NETMSG * m)
 	{
 		if (!usePower(player,pT->powerPoints))// take the power.
 		{
-//			DBCONPRINTF(ConsoleString,(ConsoleString,"MULTIPLAYER: not enough power to build remote droid."));
 			NETlogEntry("not enough power to build recvd droid, val=player",0,player);
 // build anyway..
-//			return FALSE;
 		}
 	}
 
@@ -654,9 +649,6 @@ BOOL recvDroid(NETMSG * m)
 
 BOOL SendCmdGroup(DROID_GROUP *psGroup, UWORD x, UWORD y, BASE_OBJECT *psObj)
 {
-	//NETMSG	m;
-	//DROID	*pDroid;
-	//USHORT	droidcount=0;
 
     UNUSEDPARAMETER(psObj);
     UNUSEDPARAMETER(x);
@@ -808,7 +800,6 @@ BOOL recvGroupOrder(NETMSG *pMsg)
 	USHORT		droidcount;
 
 //	DROID		*psPrev = NULL;	// fomation vars.
-//	FORMATION	*psFormation = NULL;
 	BOOL		bCmdOr = FALSE;
 	DROID_ORDER	order;
 
@@ -1160,18 +1151,15 @@ BOOL receiveWholeDroid(NETMSG *m)
 	UDWORD			sizecount=0;
 	DROID_TEMPLATE	dt;
 	DROID			*pD,*existingdroid;
-//	BOOL			temp= FALSE;
 
 	DROIDSTORE		*tempDroid;
 
-	//UDWORD x,y,z,id;
 	UWORD x,y,z;
 	UDWORD id;
 	UBYTE player;
 
 	// get the stuff
 	NetGet(m,sizecount,dt.asParts);				sizecount+=sizeof(dt.asParts);		// build a template
-//	NetGet(m,sizecount,dt.powerPoints);			sizecount+=sizeof(dt.powerPoints);	
 	NetGet(m,sizecount,dt.asWeaps);				sizecount+=sizeof(dt.asWeaps);
 	NetGet(m,sizecount,x);						sizecount+=sizeof(x);				// edit it.
 	NetGet(m,sizecount,y);						sizecount+=sizeof(y);

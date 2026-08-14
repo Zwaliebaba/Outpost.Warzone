@@ -457,7 +457,6 @@ BOOL	showChangeCDBox( W_SCREEN *psCurWScreen, CD_INDEX CDrequired,
 	sLabInit.width = 40;
 	sLabInit.height = 20;
 	sLabInit.pText = szMessage;
-//	sLabInit.pTip = "";
 	sLabInit.FontID = WFont;
 	if (!widgAddLabel(psCurWScreen, &sLabInit))
 	{
@@ -472,7 +471,6 @@ BOOL	showChangeCDBox( W_SCREEN *psCurWScreen, CD_INDEX CDrequired,
 	sButInit.y = 30;
 	sButInit.width = iV_GetImageWidth(IntImages, IMAGE_CDCHANGE_OK);
 	sButInit.height = iV_GetImageHeight(IntImages, IMAGE_CDCHANGE_OK);
-//	sButInit.pTip = "";
 	sButInit.pDisplay = intDisplayImageHilight;
 	sButInit.pUserData = (void*)PACKDWORD_TRI(0,IMAGE_CDCHANGE_OK , IMAGE_CDCHANGE_OK);
 	sButInit.FontID = WFont;
@@ -489,7 +487,6 @@ BOOL	showChangeCDBox( W_SCREEN *psCurWScreen, CD_INDEX CDrequired,
 	sButInit.y = 30;
 	sButInit.width = iV_GetImageWidth(IntImages, IMAGE_CDCHANGE_CANCEL);
 	sButInit.height = iV_GetImageHeight(IntImages, IMAGE_CDCHANGE_CANCEL);
-//	sButInit.pTip = "";
 	sButInit.pDisplay = intDisplayImageHilight;
 	sButInit.pUserData = (void*)PACKDWORD_TRI(0,IMAGE_CDCHANGE_CANCEL , IMAGE_CDCHANGE_CANCEL);
 	sButInit.FontID = WFont;

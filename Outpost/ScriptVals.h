@@ -94,7 +94,6 @@ extern void scrvReset(void);
 extern BOOL scrvLoad(UBYTE *pData, UDWORD size);
 
 // Link any object types to the actual pointer values
-//extern BOOL scrvLinkValues(void);
 
 // Find a base object from it's id
 extern BOOL scrvGetBaseObj(UDWORD id, BASE_OBJECT **ppsObj);

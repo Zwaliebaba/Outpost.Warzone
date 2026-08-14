@@ -67,7 +67,6 @@ BOOL NETinit(GUID g,BOOL bFirstCall)
 	LPDIRECTPLAYLOBBY glpTEMP;					// for setting overrides.
 	UDWORD			i;
 
-//	NEThashFile("warzonedebug.exe");
 
 	if(bFirstCall)
 	{
@@ -337,7 +336,6 @@ BOOL NETbcast(NETMSG *msg,BOOL guarantee)
 // receive a message over the current connection
 BOOL NETrecv(NETMSG * pMsg)
 {
-//	NETMSG		mTemp;
 	DPID		idTo,idFrom;	
 	HRESULT		hr;
 

@@ -71,7 +71,6 @@ VOID displayStructureBar(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffse
 
 BOOL useStruct(UDWORD count,UDWORD i)
 {
-//	STRUCTURE_STATS	*pStat = asStructureStats+i;
 
 	if(count >= (4*BUTPERFORM))
 	{
@@ -145,7 +144,6 @@ BOOL startLimitScreen(void)
 //					8,5,
 //					iV_GetImageWidth(FrontImages,IMAGE_RETURN),
 //					iV_GetImageHeight(FrontImages,IMAGE_RETURN),
-//					STR_MUL_CANCEL,IMAGE_RETURN,IMAGE_RETURN_HI,TRUE);
 
 
 	// ok button
@@ -153,7 +151,6 @@ BOOL startLimitScreen(void)
 //					LIMITS_OKX,LIMITS_OKY,
 //					iV_GetImageWidth(FrontImages,IMAGE_BIGOK),
 //					iV_GetImageHeight(FrontImages,IMAGE_BIGOK),
-//					STR_MUL_OK,IMAGE_BIGOK,IMAGE_BIGOK,TRUE);
 
 	addMultiBut(psWScreen,IDLIMITS,IDLIMITS_RETURN,
 					LIMITS_OKX-40,LIMITS_OKY,
@@ -280,10 +277,8 @@ VOID runLimitScreen(void)
 		case IDLIMITS_RETURN:
 			// reset the sliders..
 			eventReset();
-//			resReleaseBlockData(500);
 			resReleaseBlockData(501);
 			resReleaseBlockData(502);
-//			eventReset();
 			bForceEditorLoaded = FALSE;
 			changeTitleMode(MULTIOPTION);
 			

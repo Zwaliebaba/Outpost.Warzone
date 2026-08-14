@@ -7,7 +7,6 @@ extern void	calcRadarColour(iBitmap *tileBitmap, UDWORD tileNumber);
 #define RGB_ENTRIES	3
 #define MAX_RADARZOOM 2
 
-//#define RADAR_POSITION_AT_ZOOM
 
 /* Radar.h */
 extern void resetRadarRedraw(void);
@@ -23,7 +22,6 @@ extern BOOL CoordInRadar(int x,int y);
 extern void GetRadarPlayerPos(UDWORD *XPos,UDWORD *YPos);
 extern	void	downloadAtStartOfFrame( void );
 
-//#define RADAR_ROT	1
 
 
 #endif

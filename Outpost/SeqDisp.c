@@ -134,8 +134,6 @@ BOOL	seq_RenderVideoToBuffer( iSurface *pSurface, char *sequenceName, int time, 
 		//stop the movie
 		seq_ShutDown();
 		bSeqPlaying = FALSE;
-//		bSeqInit = FALSE;
-		//return seq_ReleaseVideoBuffers();
 		return TRUE;
 	}
 
@@ -143,7 +141,6 @@ BOOL	seq_RenderVideoToBuffer( iSurface *pSurface, char *sequenceName, int time, 
 	{
 		//this is done in HCI intInitialise() now
 		//if ((bSeqInit = seq_SetupVideoBuffers()) == FALSE)
-		//	return FALSE;
 	}
 
 	if (!bSeqPlaying)
@@ -233,7 +230,6 @@ BOOL	seq_RenderVideoToBuffer( iSurface *pSurface, char *sequenceName, int time, 
 		//call sequence player to decode a frame
 		frame = seq_RenderOneFrameToBuffer(pVideoBuffer, frameLag, 2, 0);//skip frame if behind
 //old call
-//		frame = seq_RenderOneFrameToBuffer(pVideoBuffer, 1);
 	}
 
 	if (frame == VIDEO_FINISHED)
@@ -484,7 +480,6 @@ BOOL seq_StartFullScreenVideo(char* videoName, char* audioName)
 		}
 #endif
 		seq_StopFullScreenVideo();
-//		ASSERT((FALSE,"seq_StartFullScreenVideo: unable to initialise sequence %s",aVideoName));
 		return FALSE;
 	}
 	if (perfMode != VIDEO_PERF_SKIP_FRAMES)//JPS fix for video problems with some sound cards 9 may 99
@@ -788,7 +783,6 @@ static SDWORD lastX;
 	if (((xOffset == 0) && (yOffset == 0)) && (currentLength > 0))
 	{
 		aSeqList[currentSeq].aText[aSeqList[currentSeq].currentText].x = lastX;
-		//	aSeqList[currentSeq].aText[aSeqList[currentSeq].currentText-1].x;
 		aSeqList[currentSeq].aText[aSeqList[currentSeq].currentText].y = aSeqList[currentSeq].
 			aText[aSeqList[currentSeq].currentText-1].y + iV_GetTextLineSize();
 	}
@@ -871,14 +865,6 @@ BOOL	seq_AddTextFromFile(STRING *pTextName, BOOL bJustify)
 	strcpy(aTextName,"sequenceAudio\\");
 	strcat(aTextName,pTextName);
 	
-/*
-	fileHandle = FindFirstFile(aTextName,&findData);
-	if (fileHandle == INVALID_HANDLE_VALUE)
-	{
-		return FALSE;
-	}
-	FindClose(fileHandle);
-*/	
 	if (loadFileToBufferNoError(aTextName, DisplayBuffer, displayBufferSize, &fileSize) == FALSE)
 	{
 		return FALSE;

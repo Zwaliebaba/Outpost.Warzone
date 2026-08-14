@@ -1064,7 +1064,6 @@ int	pie_ClipFlat2dLine(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1)
 		x0 = x0 - ((x1 - x0) * (psRendSurface->clip.bottom - y0))/(y1 - y0);
 		y0 = psRendSurface->clip.bottom;
 	}
-//check x1 (v1 is on screen)
 	if (x1 < psRendSurface->clip.left)
 	{
 		//relign left edge

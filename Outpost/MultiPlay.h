@@ -155,18 +155,15 @@ extern UBYTE				bDisplayMultiJoiningStatus;	// draw load progress?
 #define ANYPLAYER				99
 #define ONEPLAYER				98
 
-//#define DMATCH					11			// to easily distinguish game types when joining.
 #define CAMPAIGN				12
 #define TEAMPLAY				13
 
 #define	SKIRMISH				14
 #define MULTI_SKIRMISH2			18
 #define MULTI_SKIRMISH3			19
-//#define MULTI_SKIRMISHA			20
 
 #define MULTI_CAMPAIGN2			15
 #define MULTI_CAMPAIGN3			16
-//#define MULTI_CAMPAIGNA			17
 
 
 #define NOLIMIT					0			// limit options for dmatch.
@@ -263,8 +260,6 @@ extern BOOL SendCmdGroup		(DROID_GROUP *psGroup, UWORD x, UWORD y, BASE_OBJECT *
 extern BOOL SendGroupOrderGroup(DROID_GROUP *psGroup, DROID_ORDER order,UDWORD x,UDWORD y,BASE_OBJECT *psObj);
 
 
-//extern BOOL SendDroidWaypoint	(UBYTE player, UDWORD	x, UDWORD y);
-//extern BOOL SendSingleDroidWaypoint(DROID *psDroid, UDWORD x,UDWORD y);
 extern BOOL sendDroidSecondary	(DROID *psDroid, SDWORD sec, SDWORD state);
 extern BOOL sendDroidSecondaryAll(DROID *psDroid);
 extern BOOL sendDroidEmbark     (DROID *psDroid);
@@ -282,8 +277,6 @@ extern BOOL sendLeavingMsg		(VOID);
 
 extern BOOL hostCampaign		(STRING *sGame, STRING *sPlayer);
 extern BOOL joinCampaign		(UDWORD gameNumber, STRING *playername);
-//extern BOOL hostArena			(STRING *sGame, STRING *sPlayer);
-//extern BOOL joinArena			(UDWORD gameNumber, STRING *playername);
 extern VOID	playerResponding	(VOID);
 extern BOOL multiGameInit		(VOID);
 extern BOOL multiGameShutdown	(VOID);

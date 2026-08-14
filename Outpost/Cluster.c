@@ -6,7 +6,6 @@
  */
 
 // cluster empty printf's
-//#define DEBUG_GROUP0
 #include "Frame.h"
 #include "Objects.h"
 #include "Map.h"
@@ -368,38 +367,6 @@ SDWORD clustFindUnused(void)
 
 
 // display the current clusters
-/*void clustDisplay(void)
-{
-	SDWORD	player, cluster;
-	DROID	*psCurr;
-	BOOL	shownCluster;
-
-	DBPRINTF(("Current clusters:\n"));
-	for (player=0; player<MAX_PLAYERS; player++)
-	{
-		DBPRINTF(("Player %d:\n", player));
-		for (cluster=0; cluster < UBYTE_MAX; cluster++)
-		{
-			shownCluster = FALSE;
-			for (psCurr=apsDroidLists[player]; psCurr; psCurr=psCurr->psNext)
-			{
-				if (psCurr->cluster == cluster)
-				{
-					if (!shownCluster)
-					{
-						DBPRINTF(("   Cluster %d:  ", cluster));
-						shownCluster = TRUE;
-					}
-					DBPRINTF(("%d  ", psCurr->id));
-				}
-			}
-			if (shownCluster)
-			{
-				DBPRINTF(("\n"));
-			}
-		}
-	}
-}*/
 
 // display the current clusters
 void clustDisplay(void)
@@ -430,9 +397,6 @@ void clustDisplay(void)
 			for(player = 0; player < MAX_PLAYERS; player++)
 			{
 //				if (player == (SDWORD)selectedPlayer)
-//				{
-//					continue;
-//				}
 
 				for(psDroid=apsDroidLists[player]; psDroid; psDroid=psDroid->psNext)
 				{
@@ -510,7 +474,6 @@ void clustUpdateObject(BASE_OBJECT * psObj)
 				// found the old cluster - change it to the new one
 				aClusterMap[i] = (UBYTE)newCluster;
 				aClusterAttacked[newCluster] = aClusterAttacked[oldCluster];
-//				aClusterVisibility[newCluster] = aClusterVisibility[oldCluster];
 				aClusterVisibility[newCluster] = 0;
 				for(player = 0; player < MAX_PLAYERS; player++)
 				{
@@ -713,7 +676,6 @@ void clustObjectSeen(BASE_OBJECT *psObj, BASE_OBJECT *psViewer)
 			!(aClusterVisibility[psObj->cluster] & (1 << player)))
 		{
 //			DBPRINTF(("cluster %d (player %d) seen by player %d\n",
-//				clustGetClusterID(psObj), psObj->player, player));
 			aClusterVisibility[psObj->cluster] |= 1 << player;
 
 			psScrCBObjSeen = psObj;
@@ -749,7 +711,6 @@ void clustObjectAttacked(BASE_OBJECT *psObj)
 	if ((aClusterAttacked[psObj->cluster] + ATTACK_CB_PAUSE) < gameTime)
 	{
 //		DBPRINTF(("CALL_ATTACKED player %d, cluster %d\n",
-//			psObj->player, psObj->cluster));
 		psScrCBTarget = psObj;
 		eventFireCallbackTrigger(CALL_ATTACKED);
 

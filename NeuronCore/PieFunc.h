@@ -48,7 +48,6 @@ extern void pie_InitMaths(void);
 extern UBYTE pie_ByteScale(UBYTE a, UBYTE b);
 extern void	pie_CornerBox(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1, UDWORD colour,
 					  UBYTE a, UBYTE b, UBYTE c, UBYTE d);
-//extern void	pie_doWeirdBoxFX(UDWORD x, UDWORD y, UDWORD x2, UDWORD y2);
 extern void	pie_doWeirdBoxFX(UDWORD x, UDWORD y, UDWORD x2, UDWORD y2, UDWORD	trans);
 extern void	pie_TransColouredTriangle(PIEVERTEX *vrt, UDWORD rgb, UDWORD trans);
 extern void pie_RenderImageToSurface(LPDIRECTDRAWSURFACE4 lpDDS4, SDWORD surfaceOffsetX, SDWORD surfaceOffsetY, UWORD* pSrcData, SDWORD srcWidth, SDWORD srcHeight, SDWORD srcStride);

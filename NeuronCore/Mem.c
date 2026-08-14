@@ -369,7 +369,6 @@ BOOL memPointerValid(void *pPtr, size_t size)
 		return TRUE;
 	}
 
-	// check the block heaps as well (if the code is there)
 #ifdef DEBUG_BLOCK
 	return blkPointerValidAll(pPtr, size);
 #else

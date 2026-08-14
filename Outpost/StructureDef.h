@@ -97,7 +97,6 @@ typedef struct _flag_position
 	UBYTE		factoryInc;						//indicates whether the first, second etc factory
 	UBYTE		factoryType;					//indicates whether standard, cyborg or vtol factory
 //	UBYTE		factorySub;						//sub value. needed to order production points.
-//	UBYTE		primary;
 	struct _flag_position	*psNext;
 } FLAG_POSITION;
 
@@ -106,7 +105,6 @@ typedef struct _flag_position
 #define NUM_DEMO_STRUCTS	12
 #endif
 
-//only allowed one weapon per structure (more memory for Tim) 
 #define STRUCT_MAXWEAPS		1
 
 typedef enum _struct_strength
@@ -214,7 +212,6 @@ typedef struct _factory
 	UBYTE				quantity;			/* The number of droids to produce OR for 
 											   selectedPlayer, how many loops to perform*/
 	UBYTE				loopsPerformed;		/* how many times the loop has been performed*/
-	//struct _propulsion_types*	propulsionType;		
 	//UBYTE				propulsionType;		/* The type of propulsion the facility 
 	//										   can produce*/
 	UBYTE				productionOutput;	/* Droid Build Points Produced Per 
@@ -232,8 +229,6 @@ typedef struct _factory
 	
     //these are no longer required - yipee!
 	// The group the droids produced by this factory belong to - used for Missions
-	//struct _droid_group		*psGroup;
-	//struct _droid			*psGrpNext;
 
 } FACTORY;
 
@@ -289,7 +284,6 @@ typedef struct _structure
 	/* The common structure elements for all objects */
 	BASE_ELEMENTS(struct _structure);
 
-//	UDWORD		ref;
 	STRUCTURE_STATS*	pStructureType;		/* pointer to the structure stats for this 
 											   type of building */	
 	UBYTE		status;						/* defines whether the structure is being 
@@ -332,12 +326,10 @@ typedef struct _structure
 	UWORD		radarY;
 	//the ecm power needs to be stored since the actual ecm stat can change with research
 	UWORD		ecmPower;
-	//FRACT		heightScale;	
 
 	FUNCTIONALITY	*pFunctionality;		/* pointer to structure that contains fields
 											   necessary for functionality */
 	/* The weapons on the structure */
-	//UWORD		numWeaps;
 	UBYTE		targetted;
 	WEAPON		asWeaps[STRUCT_MAXWEAPS];
 	BASE_OBJECT	*psTarget;

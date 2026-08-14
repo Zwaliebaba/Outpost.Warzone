@@ -108,7 +108,6 @@ iIMDShape	*getRandomWreckageImd( void )
 	{
 		WreckageIMD=(getImdFromIndex(MI_WRECK0));
 	}
-	// check to make sure one exists  (will fail on renderfeature if null)
 	assert(WreckageIMD);
 
 	return(WreckageIMD);
@@ -126,7 +125,6 @@ iIMDShape	*getRandomDebrisImd( void )
 }
 // -------------------------------------------------------------------------------
 
-//iIMDShape	*pAssemblyPointIMDs[NUM_FACTORY_TYPES][MAX_FACTORY];
 iIMDShape	*pAssemblyPointIMDs[NUM_FLAG_TYPES][MAX_FACTORY];
 
 BOOL	initMiscImds( void )
@@ -151,7 +149,6 @@ BOOL	initMiscImds( void )
 			DBERROR(("Can't find assembly point graphic for factory"));
 			return(FALSE);
 		}
-//#ifdef WIN32
 		cybName[6] = *pieNum; 
 		pAssemblyPointIMDs[CYBORG_FLAG][i] = resGetData("IMD", cybName);
 		if (!pAssemblyPointIMDs[CYBORG_FLAG][i])
@@ -172,10 +169,6 @@ BOOL	initMiscImds( void )
 			DBERROR(("Can't find assembly point graphic for repair facility"));
 			return(FALSE);
 		}
-//#else
-//		pAssemblyPointIMDs[CYBORG_FLAG][i] = pAssemblyPointIMDs[FACTORY_FLAG][i];
-//		pAssemblyPointIMDs[VTOL_FLAG][i] = pAssemblyPointIMDs[FACTORY_FLAG][i];
-//#endif
 	}
 
 	return(TRUE);

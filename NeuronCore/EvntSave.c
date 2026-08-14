@@ -28,7 +28,6 @@ static BOOL eventSaveContext(UBYTE *pBuffer, UDWORD *pSize)
 	INTERP_VAL			*psVal;
 	SCR_VAL_SAVE		saveFunc;
 	UBYTE				*pPos;
-//not hashed	STRING				*pScriptID;
 	UDWORD				hashedName;
 	UWORD				*pValSize;
 
@@ -50,7 +49,6 @@ static BOOL eventSaveContext(UBYTE *pBuffer, UDWORD *pSize)
 		numContext += 1;
 
 		// save the context info
-//nothashed if (!resGetIDfromData("SCRIPT", psCCont->psCode, &hashedName))
 		if (!resGetHashfromData("SCRIPT", psCCont->psCode, &hashedName))
 		{
 			DBERROR(("eventSaveContext: couldn't find script resource id"));
@@ -60,8 +58,6 @@ static BOOL eventSaveContext(UBYTE *pBuffer, UDWORD *pSize)
 
 		if (pBuffer != NULL)
 		{
-//not hashed			strcpy((STRING *)pPos, pScriptID);
-//not hashed			pPos += strlen(pScriptID) + 1;
 			*((UDWORD*)pPos) = (UDWORD)hashedName;
 			pPos += sizeof(UDWORD);
 
@@ -72,7 +68,6 @@ static BOOL eventSaveContext(UBYTE *pBuffer, UDWORD *pSize)
 			pPos += sizeof(UBYTE);
 		}
 
-//not hashed		size += strlen(pScriptID) + 1 + sizeof(SWORD) + sizeof(UBYTE);
 		size += sizeof(UDWORD) + sizeof(SWORD) + sizeof(UBYTE);
 
 		// save the context variables
@@ -280,7 +275,6 @@ static BOOL eventLoadContextHashed(SDWORD version, UBYTE *pBuffer, UDWORD *pSize
 	INTERP_TYPE			type;
 	SCR_VAL_LOAD		loadFunc;
 	UBYTE				*pPos;
-//not hashed	STRING				*pScriptID;
 	UDWORD				hashedName;
 	SCRIPT_CODE			*psCode;
 	SWORD				release;
@@ -298,9 +292,6 @@ static BOOL eventLoadContextHashed(SDWORD version, UBYTE *pBuffer, UDWORD *pSize
 	for(context=0; context < numContext; context += 1)
 	{
 		// get the script code
-//notHashed		pScriptID = (STRING *)pPos;
-//notHashed		psCode = resGetData("SCRIPT", pScriptID);
-//notHashed		pPos += strlen(pScriptID) + 1;
 		hashedName = *((UDWORD*)pPos);
 		pPos += sizeof(UDWORD);
 		psCode = resGetDataFromHash("SCRIPT", hashedName);

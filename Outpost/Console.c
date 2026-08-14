@@ -492,8 +492,6 @@ BOOL	bQuit;
 UDWORD	marker;
 UDWORD	linePitch;
 UDWORD	MesY;
-//UDWORD	buildWidth;
-//STRING	buildData[255];
 
 	/* Check there actually are any messages */
 	thisIndex = messageId;

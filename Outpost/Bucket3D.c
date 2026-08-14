@@ -127,7 +127,6 @@ extern BOOL bucketAddTypeToList(RENDER_TYPE objectType, void* pObject)
 	newTag = &tagResource[resourceCounter];
 	if(resourceCounter>=NUM_OBJECTS)
 	{
-//		DBPRINTF(("bucket sort too many objects"));
 		/* Just get out if there's too much to render already...! */
 		return(TRUE);
 	}
@@ -158,10 +157,6 @@ extern BOOL bucketAddTypeToList(RENDER_TYPE objectType, void* pObject)
 		z = bucketCalculateZ(objectType, pObject);
 	}
 
-//	else if(objectType == RENDER_PARTICLE)
-//	{
-//		z = bucketCalculateZ(objectType, pObject);
-//	}
 	else if(objectType == RENDER_WATERTILE)
 	{
 		z = bucketCalculateZ(objectType, pObject);
@@ -288,11 +283,7 @@ extern BOOL bucketRenderCurrentList(void)
 					renderAnimComponent((COMPONENT_OBJECT*)thisTag->pObject);
 				break;
 //				case RENDER_GRAVITON:
-//					renderGraviton((GRAVITON*)thisTag->pObject);
-//				break;
 //				case RENDER_SMOKE:
-//					renderSmoke((PARTICLE*)thisTag->pObject);
-//				break;
 				case RENDER_DELIVPOINT:
 					renderDeliveryPoint((FLAG_POSITION*)thisTag->pObject);
 				break;
@@ -305,13 +296,10 @@ extern BOOL bucketRenderCurrentList(void)
 		bucketArray[z] = NULL;
 	}
 
-//	testRender();
 
 	
 	//reset the tag array
 	resourceCounter = 0;
-//	iV_NumberOut(worldMax,100,100,255);
- //	iV_NumberOut(worldMin,100,200,255);
 	zMax = SDWORD_MIN;
 	zMin = SDWORD_MAX;
 	worldMax = SDWORD_MIN;
@@ -720,11 +708,8 @@ SDWORD bucketCalculateState(RENDER_TYPE objectType, void* pObject)
 				break;
 
 				case EFFECT_SMOKE:
-//				renderSmokeEffect(psEffect);
 				case EFFECT_GRAVITON:
-//				renderGravitonEffect(psEffect);
 				case EFFECT_BLOOD:
-//				renderBloodEffect(psEffect);
 				case EFFECT_STRUCTURE:
 				case EFFECT_DESTRUCTION:
 				default:
@@ -787,59 +772,6 @@ void testRender(void)
 	pie_Line(CLIP_RIGHT, CLIP_BOTTOM, CLIP_LEFT, CLIP_BOTTOM, 2);
 	pie_Line(CLIP_LEFT, CLIP_BOTTOM, CLIP_LEFT, CLIP_TOP, 2);
 
-/*	pie_Line(320, 200, 320, 100, 2);
-	pie_Line(301, 100, 319, 100, 2);
-	pie_Line(319, 200, 301, 200, 2);
-	pie_Line(300, 100, 300, 200, 2);
-
-	pie_Box(520, 450, 540, 470, 2);
-	pie_BoxFillIndex(560, 450, 580, 470, 2);
-	pie_UniTransBoxFill(600, 450, 620, 470, 0x0000007f, 0x0f);
-
-
-	pie_Box(400, 100, 463, 163, 2);
-
-	pie_SetBilinear(FALSE);
-
-	image.texPage = 0;
-	image.tu = 0;
-	image.tv = 0;
-	image.tw = 63;
-	image.th = 63;
-	dest.x = 400;
-	dest.y = 100;
-	dest.w = 63;
-	dest.h = 63;
-	
-	
-	pie_DrawImage(&image, &dest, &style);
-
-	image.texPage = 0;
-	image.tu = 0;
-	image.tv = 0;
-	image.tw = 63;
-	image.th = 31;
-	dest.x = 500;
-	dest.y = 100;
-	dest.w = 63;
-	dest.h = 31;
-	
-	
-	pie_DrawImage(&image, &dest, &style);
-
-	image.texPage = 0;
-	image.tu = 0;
-	image.tv = 0;
-	image.tw = 31;
-	image.th = 63;
-	dest.x = 400;
-	dest.y = 200;
-	dest.w = 31;
-	dest.h = 63;
-	
-	
-	pie_DrawImage(&image, &dest, &style);
-*/
 	pie_SetDepthBufferStatus(DEPTH_CMP_LEQ_WRT_ON);
 
 }

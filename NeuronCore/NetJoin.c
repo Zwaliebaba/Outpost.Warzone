@@ -125,7 +125,6 @@ BOOL NETfindGame(BOOL async)										/// may (not) want to use async here...
 	DPSESSIONDESC2		sessionDesc;								// template to find. 
 	GUID				guidSessionInstance;
 	DWORD				size;
-//	LPVOID				mempointer=0;
 	LPDPSESSIONDESC2	lpSessionDesc;								// template to find. 
 
 
@@ -251,7 +250,6 @@ DWORD NETgetGameFlags(UDWORD flag)
 	LPDPSESSIONDESC2	sessionDesc;							// template to find. 
 	DWORD				size=1;
 	HRESULT				hr;
-//	LPVOID				mempointer;
 	DWORD				result;
 	LPDPLCONNECTION		lobDesc;
 
@@ -356,7 +354,6 @@ BOOL NETsetGameFlags(UDWORD flag,DWORD value)
 	LPDPSESSIONDESC2	sessionDesc;
 	DWORD				size=1;
 	HRESULT				hr;
-//	LPVOID				mempointer=NULL;
 	LPDPLCONNECTION		lobDesc;
 
 

@@ -57,8 +57,6 @@ static BOOL dMatchInit			(VOID);
 static BOOL campInit			(VOID);
 BOOL		hostCampaign		(STRING *sGame,		STRING *sPlayer);
 BOOL		joinCampaign		(UDWORD gameNumber, STRING *playername);
-//BOOL		hostArena			(STRING *sGame,		STRING *sPlayer);
-//BOOL		joinArena			(UDWORD gameNumber, STRING *playername);
 BOOL		LobbyLaunched		(VOID);
 VOID		playerResponding	(VOID);
 BOOL		multiInitialise		(VOID);		//only once.
@@ -336,7 +334,6 @@ BOOL joinCampaign(UDWORD gameNumber, STRING *sPlayer)
 
 	if(!ingame.localJoiningInProgress)
 	{
-//		game.type = CAMPAIGN;
 		if(!NetPlay.bLobbyLaunched)
 		{
 			NETjoinGame(NetPlay.games[gameNumber].desc.guidInstance,sPlayer);	// join 
@@ -646,18 +643,12 @@ BOOL multiTemplateSetup()
 		strcat(sTemp,".For");	
 	
 		loadForce(sTemp);
-//		useTheForce(TRUE);	
 	}
 
 
 	switch (game.type)
 	{
 //	case DMATCH:
-//		for(player=0;player<MAX_PLAYERS;player++)
-//		{
-//			 copyTemplateSet(DEATHMATCHTEMPLATES,player);
-//		}
-//		break;
 
 	case TEAMPLAY:
 	case CAMPAIGN:
@@ -752,7 +743,6 @@ BOOL cleanMap(UDWORD player)
 	firstRes = TRUE;
 
 	// reverse so we always remove the last object. re-reverse afterwards.
-//	reverseObjectList((BASE_OBJECT**)&apsStructLists[player]);	
 
 
 	switch(game.base)							
@@ -766,7 +756,6 @@ BOOL cleanMap(UDWORD player)
 		while(psD)
 		{
 			psD2=psD->psNext;
-			//if(psD->droidType != DROID_CONSTRUCT)
             if (!(psD->droidType == DROID_CONSTRUCT OR
                 psD->droidType == DROID_CYBORG_CONSTRUCT))
 			{
@@ -869,7 +858,6 @@ BOOL cleanMap(UDWORD player)
 	}		
 
 	// rerev list to get back to normal.
-//	reverseObjectList((BASE_OBJECT**)&apsStructLists[player]);
 
 	bMultiPlayer = TRUE;
 	return TRUE;
@@ -1073,19 +1061,10 @@ BOOL multiGameInit(VOID)
 		openchannels[player] =TRUE;								//open comms to this player.
 	}
 
-//	if(game.type == DMATCH)
-//	{	
-//		dMatchInit();
-//		if(NetPlay.bHost)
-//		{
 //			addDMatchDroid(1);							// each player adds a newdroid point.
 //			playerResponding();							// say hi, only if host, clients wait until all info recvd.
-//		}
-//	}
 //	else		
-//	{
 		campInit();
-//	}
 
 	return TRUE;
 }

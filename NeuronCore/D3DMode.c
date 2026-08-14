@@ -2,7 +2,6 @@
 
 #include "d3d.h"
 
-//#include "Ivi.h"
 #include "RendMode.h"
 #include "PieClip.h"
 #include "D3DRender.h"

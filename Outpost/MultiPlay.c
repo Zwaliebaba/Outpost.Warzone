@@ -46,7 +46,6 @@
 BOOL						bMultiPlayer				= FALSE;	// true when more than 1 player.
 STRING						sForceName[256]				= "Default";
 DPID						player2dpid[MAX_PLAYERS]	={0,0,0,0,0,0,0,0};		//stores dpids of each player. FILTHY HACK (ASSUMES 8playerS)
-//UDWORD						arenaPlayersReceived=0;
 BOOL						openchannels[MAX_PLAYERS]={TRUE};
 UBYTE						bDisplayMultiJoiningStatus;
 
@@ -213,12 +212,7 @@ BOOL multiPlayerLoop(VOID)
 	processMultiPlayerArtifacts();		// process artifacts
 
 //	if( (game.type == DMATCH) && !ingame.localJoiningInProgress)
-//	{
-//		deathmatchCheck();
-//	}
 		
-//	if (game.type != DMATCH)
-//	{	
 		joinCount =0;
 		for(i=0;i<MAX_PLAYERS;i++)
 		{
@@ -251,7 +245,6 @@ BOOL multiPlayerLoop(VOID)
 				setWidgetsStatus(TRUE);
 			}
 		}	
-//	}
 
 	// process network audio
 	if(game.bytesPerSec==IPXBYTESPERSEC)
@@ -434,7 +427,6 @@ BASE_OBJECT *IdToPointer(UDWORD id,UDWORD player)
 STRING *getPlayerName(UDWORD player)
 {
 	UDWORD i;
-//	STRING tempString[2];
 	for(i=0;i<MAX_PLAYERS;i++)
 	{
 		if(player2dpid[player] == NetPlay.players[i].dpid)
@@ -469,7 +461,6 @@ STRING *getPlayerName(UDWORD player)
 					strcpy(tempString,strresGetString(psStringRes, STR_FE_CYAN));
 					break;
 				}
-//				sprintf(tempString,"%d",player);
 				return tempString;
 			}
 
@@ -705,8 +696,6 @@ BOOL recvMessage(VOID)
 				break;
 
 //			case NET_WAYPOINT:					// add waypoint to droids.
-//				recvDroidWaypoint(&msg);
-//				break;
 			case NET_SECONDARY:					// set a droids secondary order level.
 				recvDroidSecondary(&msg);	
 				break;
@@ -723,8 +712,6 @@ BOOL recvMessage(VOID)
 				recvRequestDroid(&msg);
 				break;
 //			case NET_REQUESTPLAYER:				// a new player requires information
-//				multiPlayerRequest(&msg);
-//				break;
 			case NET_GIFT:						// an alliance gift from one player to another.
 				recvGift(&msg);
 				break;
@@ -732,8 +719,6 @@ BOOL recvMessage(VOID)
 				recvScoreSubmission(&msg);
 				break;
 //			case NET_DMATCHWIN:					// someone has won!.
-//				recvdMatchWinner(&msg);
-//				break;
 			case NET_VTOL:
 				recvHappyVtol(&msg);
 				break;			
@@ -782,8 +767,6 @@ BOOL recvMessage(VOID)
 				break;
 			
 //			case NET_STRUCT:								// structure set.
-//				receiveWholeStructure(&msg);		
-//				break;
 		
 			default:
 				break;					
@@ -853,9 +836,6 @@ BOOL recvMessage(VOID)
 			break;
 
 		default:
-//			NetGet((&msg),4,a);
-//			DBPRINTF(("wierdy message arrived, type:%d size:%d msg:%d ",msg.type,msg.size,a)); 
-//			return FALSE;
 			break;
 		}
 	}
@@ -1384,8 +1364,6 @@ BOOL sendDestroyExtra(BASE_OBJECT *psKilled,BASE_OBJECT *psKiller)
 // ////////////////////////////////////////////////////////////////////////////
 BOOL recvDestroyExtra(NETMSG *pMsg)
 {
-//	BASE_OBJECT	*psKilled;
-//	UDWORD		 killedId;
 
 	BASE_OBJECT	*psSrc;
 	UDWORD		srcId;

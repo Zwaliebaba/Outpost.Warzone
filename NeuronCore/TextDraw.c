@@ -9,7 +9,6 @@
 #include <ddraw.h>
 
 #include "PieBlitFunc.h"
-//#include "IntFac.h"			// ffs am
 
 #include "Bug.h"
 #include "PiePalette.h"
@@ -53,7 +52,6 @@ typedef struct {
 	int FontLineSize;		// Pixel spacing used for new lines.
 	int FontSpaceSize;		// Pixel spacing used for spaces.
 	SWORD FontColourIndex;	// The colour index to use.
-//	BOOL	bGameFont;
 	UWORD *AsciiTable;
 } IVIS_FONT;
 
@@ -94,7 +92,6 @@ void iV_ClearFonts(void)
 // IMAGEFILE *ImageFile		Image file containing the font graphics.
 // UWORD *AsciiTable		Array of 256 Ascii to ImageID lookups.
 // int SpaceSize			Pixel size of a space.
-// BOOL bInGame				Specifies that the font is used in game (WHY?)
 //
 int iV_CreateFontIndirect(IMAGEFILE *ImageFile,UWORD *AsciiTable,int SpaceSize)
 {
@@ -141,53 +138,6 @@ int iV_CreateFontIndirect(IMAGEFILE *ImageFile,UWORD *AsciiTable,int SpaceSize)
 	return NumFonts-1;
 }
 
-/*
-int iV_CreateFont(IMAGEFILE *ImageFile,UWORD StartID,UWORD EndID,int SpaceSize, BOOL bInGame)
-{
-	int Above,Below;
-	int Height;
-	UWORD i;
-	IVIS_FONT *Font;
-
-	assert(NumFonts < MAX_IVIS_FONTS-1);
-	
-	Font = &iVFonts[NumFonts];
-
-	Font->FontFile = ImageFile;
-	Font->FontStartID = StartID;
-	Font->FontEndID = EndID; 
-	Font->FontSpaceSize = SpaceSize;
-	Font->FontLineSize = 0;
-	Font->FontAbove = 0;
-	Font->FontBelow = 0;
-	Font->bGameFont = bInGame;
-
-	for(i=Font->FontStartID; i<Font->FontEndID; i++) {
-
-		Above = iV_GetImageYOffset(Font->FontFile,i);
-		Below = Above + iV_GetImageHeight(Font->FontFile,i);
-		Height = abs(Above) + abs(Below);
-
-		if(Above  < Font->FontAbove) {
-			Font->FontAbove = Above;
-		}
-
-		if(Below  > Font->FontBelow) {
-			Font->FontBelow = Below;
-		}
-
-		if(Height > Font->FontLineSize) {
-			Font->FontLineSize = Height;
-		}
-	}
-
-	ActiveFontID = NumFonts;
-
-	NumFonts++;
-
-	return NumFonts-1;
-}
-*/
 
 void iV_SetFont(int FontID)
 {
@@ -237,7 +187,6 @@ int iV_GetTextWidth(unsigned char *String)
 			}
 		}
 
-//		DBPRINTF(("letter[%c] currentwidth=%d\n",Index,MaxX));
 		String++;
 	}
 
@@ -448,7 +397,6 @@ RENDERTEXT_CALLBACK *GetIndirectDrawTextCallback( void)
 
 #define EXTENTS_USEMAXWIDTH (0)
 #define EXTENTS_USELASTX (1)
-//UBYTE ExtentsMode=EXTENTS_USEMAXWIDTH;
 
 UBYTE ExtentsMode=EXTENTS_USEMAXWIDTH;
 
@@ -502,7 +450,6 @@ UDWORD pie_DrawFormattedText(UBYTE *String,UDWORD x,UDWORD y,UDWORD Width,UDWORD
 	si = 0;
 	
 
-//	DBPRINTF(("[%s] @(%d,%d) extentsmode=%d just=%d\n",String,x,y,ExtentsMode,Justify));
 														
 	while(si < Len) {
 		// Remove leading spaces, usefull when doing centre justify.
@@ -530,7 +477,6 @@ UDWORD pie_DrawFormattedText(UBYTE *String,UDWORD x,UDWORD y,UDWORD Width,UDWORD
 		// Parse through the string, adding words until width is achieved.
 		while( (si < strlen((char*)String)) && (WWidth <= Width) && (!NewLine)) {
 			osi = si;
-//DBPRINTF(("[%s] si=%d wwidth=%d width=%d factor=%d\n",FWord,si,WWidth,Width,DisplayXFactor));
 
 			// Get the next word.
    			i = 0;
@@ -615,13 +561,11 @@ UDWORD pie_DrawFormattedText(UBYTE *String,UDWORD x,UDWORD y,UDWORD Width,UDWORD
 		}
 #endif
 
-//DBPRINTF(("end [%s] si=%d wwidth=%d width=%d factor=%d\n",FWord,si,WWidth,Width,DisplayXFactor));
 
 
 		TWidth = iV_GetTextWidth(FString);
 
 
-//		DBPRINTF(("string[%s] is %d of %d pixels wide (according to DrawFormattedText)\n",FString,TWidth,Width));
 
 		// Do justify.
 		switch(Justify) {
@@ -651,7 +595,6 @@ UDWORD pie_DrawFormattedText(UBYTE *String,UDWORD x,UDWORD y,UDWORD Width,UDWORD
 			Indirect_pie_DrawText(FString,jx,jy);
 
 
-//DBPRINTF(("[%s] @ %d,%d\n",FString,jx,jy));
 
 /* callback type for resload display callback*/
 		// remember where we were..
@@ -679,7 +622,6 @@ UDWORD pie_DrawFormattedText(UBYTE *String,UDWORD x,UDWORD y,UDWORD Width,UDWORD
 				if (LastX>ExtentsEndX) ExtentsEndX=LastX;
 			}
 
-//			DBPRINTF(("extentsstartx = %d extentsendx=%d\n",ExtentsStartX,ExtentsEndX));
 		}
 
 
@@ -696,7 +638,6 @@ UDWORD pie_DrawFormattedText(UBYTE *String,UDWORD x,UDWORD y,UDWORD Width,UDWORD
 		if (ExtentsMode==EXTENTS_USEMAXWIDTH)
 		{
 			ExtentsStartX = x;	// Was jx, but this broke the console centre justified text background.
-//			ExtentsEndX = jx + TWidth;
 			ExtentsEndX = x + Width;
 
 		}
@@ -719,20 +660,12 @@ UDWORD pie_DrawFormattedText(UBYTE *String,UDWORD x,UDWORD y,UDWORD Width,UDWORD
 	}
 
 
-//#ifdef PSX
-//#ifndef TESTBED
 //	// Need to take	FTEXT_LEFTJUSTIFYAPPEND into account here.
-//	if(DrawBack) {
 //		// Move y up to the top of the text.
-//		y += iV_GetTextAboveBase();
 //
 //		// and draw a transparent box behind the text.
 //		TransBoxFillRGB_psx(x,y, x+Width,
 //							jy-iV_GetTextLineSize()+iV_GetTextBelowBase(),
-//							16,16,128);
-//	}
-//#endif
-//#endif
 
 	return jy;
 }
@@ -871,7 +804,6 @@ void pie_DrawText(unsigned char *String,int XPos,int YPos)
 	IVIS_FONT *Font = &iVFonts[ActiveFontID];
 
 
-   //	if(Font->bGameFont)
 	{
 		pie_DrawTextNew(String,XPos,YPos);
 		return;
@@ -906,11 +838,7 @@ void pie_DrawText(unsigned char *String,int XPos,int YPos)
 	#endif
 			}
 			else if(Index == -1) {
-	//#ifdef WIN32
 				XPos += Font->FontSpaceSize;
-	//#else
-	//			XPos += Font->FontSpaceSize*2;
-	//#endif
 			}
 
 			String++;
@@ -1010,23 +938,15 @@ void pie_RenderCharToSurface(UDWORD *lpSurface, SDWORD pitch, IMAGEFILE *ImageFi
 	{
 		for (j=0; j<w; j++)
 		{
-			/*
-			if(*bmp++)
-			{
-				*bp = colour;
-			}
-			*/
 			if(*bmp)
 			{
 				*bp = palette16Bit[*bmp];
 			}
 			bmp++;
 			bp++;
-//			bp++;
 		}
 		bmp += (ow - w);
 		bp += lineb_w;
-//		bp += lineb_w;
 	}
 }
 
@@ -1039,7 +959,6 @@ void pie_DrawTextToSurface(LPDIRECTDRAWSURFACE4	lpDDSF, unsigned char *String, i
 	DDSURFACEDESC2	DD_sd; 
 	HRESULT			hRes;
 
-//	pie_BeginTextRender(Font->FontColourIndex);
 	// We lock the surface before blitting video to it.
 	DD_sd.dwSize = sizeof( DD_sd );
 	if ( lpDDSF->lpVtbl->GetSurfaceDesc(lpDDSF, &DD_sd ) != DD_OK )
@@ -1080,21 +999,11 @@ void pie_DrawTextToSurface(LPDIRECTDRAWSURFACE4	lpDDSF, unsigned char *String, i
 		}
 	
 		String++;
-		//	Index = ( *String - '!' );
 
 	//	if((Index >= 0) && (Index <= Font->FontEndID - Font->FontStartID))
-	//	{
-	//		ImageID = (UWORD)(Font->FontStartID + Index);
 
-	//		pie_RenderCharToSurface(lpSurface, DD_sd.lPitch, Font->FontFile, ImageID, XPos, YPos, 0xffff);
 
-	//		XPos += iV_GetImageWidth(Font->FontFile,ImageID) + 1;
 
-	//}
-	//	else if(Index == -1)
-	//	{
-	//		XPos += Font->FontSpaceSize;
-	//	}
 
 	}
 	// We can unlock the suurface now as we have finished with it, 
@@ -1135,47 +1044,17 @@ void pie_DrawText270(unsigned char *String,int XPos,int YPos)
 }
 
 
-//void pie_DrawText270(unsigned char *String,int XPos,int YPos)
-//{
-//	int Index;
-//	IVIS_FONT *Font = &iVFonts[ActiveFontID];
 //
-//#ifdef WIN32
 //	if (pie_Hardware())
-//#endif
-//	{
-//		YPos += (iV_GetImageWidth(Font->FontFile,(UWORD)(Font->FontStartID)) + 1) ;
-//	}
 //
 //
-//	pie_BeginTextRender(Font->FontColourIndex);
 //					
-//	while (*String!=0)	
-//	{
-//		Index = ( *String - '!' );
 //		if((Index >= 0) && (Index <= Font->FontEndID - Font->FontStartID)) 
-//		{			
-//			pie_TextRender270(Font->FontFile,(UWORD)(Index+Font->FontStartID),XPos,YPos);
 //
-//#ifdef WIN32
-//			YPos -= (iV_GetImageWidth(Font->FontFile,(UWORD)(Index+Font->FontStartID)) +1) ;
-//#else
-//			YPos -= (iV_GetImageWidth(Font->FontFile,(UWORD)(Index+Font->FontStartID)) +2) ;
-////			YPos -= (iV_GetImageWidth(Font->FontFile,Index+Font->FontStartID)+1)*2 ;
-//#endif
 //
-//		}
-//		else if(Index == -1)
-//		{
 ////#ifdef WIN32
-//			YPos -= (Font->FontSpaceSize);
 ////#else
-////			YPos -= (Font->FontSpaceSize)*2;
 ////#endif
-//		}
-//		String++;
-//	}
-//}
 
 void pie_BeginTextRender(SWORD ColourIndex)
 {

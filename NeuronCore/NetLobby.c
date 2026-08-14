@@ -9,7 +9,6 @@
 #include <windowsx.h>
 #include "Frame.h"				// for dbprintf
 #include "NetPlay.h"
-//#include "NetLobby.h"
 
 // note registry entries should be set by the installation routine. 
 // MPlayer requires registry entries too.

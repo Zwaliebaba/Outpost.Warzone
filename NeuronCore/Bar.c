@@ -108,7 +108,6 @@ BOOL barGraphCreate(W_BARGRAPH **ppsWidget, W_BARINIT *psInit)
 	}
 	/* Set the major colour */
 //	(*ppsWidget)->majorCol = screenGetCacheColour(psInit->sCol.red,
-//											psInit->sCol.green, psInit->sCol.blue);
 	(*ppsWidget)->majorCol = (UBYTE)pal_GetNearestColour(psInit->sCol.red,
 															psInit->sCol.green, psInit->sCol.blue);
 
@@ -116,7 +115,6 @@ BOOL barGraphCreate(W_BARGRAPH **ppsWidget, W_BARINIT *psInit)
 	if (psInit->style & WBAR_DOUBLE)
 	{
 //		(*ppsWidget)->minorCol = screenGetCacheColour(psInit->sMinorCol.red,
-//												psInit->sMinorCol.green, psInit->sMinorCol.blue);
 		(*ppsWidget)->majorCol = (UBYTE)pal_GetNearestColour(psInit->sMinorCol.red,
 												psInit->sMinorCol.green, psInit->sMinorCol.blue);
 	}
@@ -211,24 +209,6 @@ void widgSetMinorBarSize(W_SCREEN *psScreen, UDWORD id, UDWORD iValue )
 }
 
 
-#if 0
-/* Run a barGraph widget */
-void barGraphRun(W_BARGRAPH *psWidget)
-{
-}
-
-
-/* Respond to a mouse click */
-void barGraphClicked(W_BARGRAPH *psWidget)
-{
-}
-
-
-/* Respond to a mouse up */
-void barGraphReleased(W_BARGRAPH *psWidget)
-{
-}
-#endif
 
 
 /* Respond to a mouse moving over a barGraph */

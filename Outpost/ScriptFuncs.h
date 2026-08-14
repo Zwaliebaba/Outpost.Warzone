@@ -89,7 +89,6 @@ extern BOOL scrRemoveReticuleButton(void);
 extern BOOL scrAddMessage(void);
 
 // add a tutorial message to the Intelligence Display
-//extern BOOL scrAddTutorialMessage(void);
 
 //make the droid with the matching id the currently selected droid
 extern BOOL scrSelectDroidByID(void);
@@ -103,7 +102,6 @@ extern BOOL	scrStructureIdle(void);
 // sends a players droids to a location to attack
 extern BOOL	scrAttackLocation(void);
 
-// enumerate features;
 extern BOOL scrInitGetFeature(void);
 extern BOOL scrGetFeature(void);
 
@@ -258,18 +256,13 @@ BOOL scrSetGroupRetreatHealth(void);
 extern BOOL scrStartMission(void);
 
 //end a mission NO LONGER CALLED FROM SCRIPT
-//extern BOOL scrEndMission(void);
 
-//set Snow (enable disable snow)
 extern BOOL scrSetSnow(void);
 
-//set Rain (enable disable Rain)
 extern BOOL scrSetRain(void);
 
-//set Background Fog (replace fade out with fog)
 extern BOOL scrSetBackgroundFog(void);
 
-//set Depth Fog (gradual fog from mid range to edge of world)
 extern BOOL scrSetDepthFog(void);
 
 //set Mission Fog colour, may be modified by weather effects
@@ -305,7 +298,6 @@ extern BOOL scrAllianceExistsBetween(void);
 extern BOOL scrPlayerInAlliance(void);
 
 // push true if group wins are allowed.
-//extern BOOL scrAllianceState(void);
 
 // push true if a single alliance is dominant.
 extern BOOL scrDominatingAlliance(void);

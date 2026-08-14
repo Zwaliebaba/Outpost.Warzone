@@ -5,7 +5,6 @@
  *
  */
 
-//#define DEBUG_GROUP1
 #include "Frame.h"
 #include "Objects.h"
 #include "Deliverance.h"
@@ -47,7 +46,6 @@ OBJ_HEAP		*psFlagPosHeap;
 OBJ_HEAP		*psTemplateHeap;
 
 
-//SDWORD	factoryDeliveryPointCheck[MAX_PLAYERS][NUM_FACTORY_TYPES][MAX_FACTORY];
 SDWORD	factoryDeliveryPointCheck[MAX_PLAYERS][NUM_FLAG_TYPES][MAX_FACTORY];
 // the initial value for the object ID
 #define OBJ_ID_INIT		20000
@@ -380,7 +378,6 @@ void objmemUpdate(void)
 	}
 
 // turn off the list integrity check for all builds
-//#ifdef DEBUG
 #if 0
 #define DESTROY(list, del, type) \
 	_DESTROY(list, del, type); \
@@ -690,7 +687,6 @@ void checkFactoryFlags(void)
 	//clear the check array	
 	for(player=0; player<MAX_PLAYERS; player++)
 	{
-		//for(type=0; type<NUM_FACTORY_TYPES; type++)
         for(type=0; type<NUM_FLAG_TYPES; type++)
 		{
 			for(factory=0; factory<MAX_FACTORY; factory++)
@@ -742,7 +738,6 @@ void removeStructFunc(FUNCTIONALITY *psDel)
 /**************************  OBJECT ACCESS FUNCTIONALITY ********************************/
 
 // Find a base object from it's id
-//this function is similar to BOOL scrvGetBaseObj(UDWORD id, BASE_OBJECT **ppsObj)
 BASE_OBJECT *getBaseObjFromId(UDWORD id)
 {
 	UDWORD			i;

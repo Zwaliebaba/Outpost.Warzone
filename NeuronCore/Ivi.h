@@ -68,7 +68,6 @@ extern void iV_Error(long n, char *msge, ...);
  *	Global Type Definitions
  */
 /***************************************************************************/
-// Basic type (replace with framework definitions)
 typedef unsigned char uchar;
 typedef uint32 ufixed;
 typedef struct {int32 w, x, y, z;} iQuat;

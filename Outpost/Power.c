@@ -36,21 +36,17 @@
 BOOL	powerCalculated;
 
 /*Update the capcity and available power if necessary */
-//static void availablePowerUpdate(STRUCTURE *psBuilding);
 /*looks through the player's list of droids and structures to see what power 
 has been used*/
-//static UDWORD calcPlayerUsedPower(UDWORD player);
 
 /* Updates the current power based on the extracted power and a Power Generator*/
 static void updateCurrentPower(POWER_GEN *psPowerGen, UDWORD player);
 
 /*accrue the power in the facilities that require it*/
-//static void accruePower(STRUCTURE *psStructure);
 
 //returns the relevant list based on OffWorld or OnWorld
 static STRUCTURE* powerStructList(UBYTE player);
 //returns the relevant list based on OffWorld or OnWorld for the accruePower function
-//static STRUCTURE* powerUpdateStructList(UBYTE player);
 
 PLAYER_POWER		*asPower[MAX_PLAYERS];
 
@@ -133,10 +129,7 @@ BOOL checkPower(UDWORD player, UDWORD quantity, BOOL playAudio)
     //Not playing the power low message anymore - 6/1/99
 	/*else if (player == selectedPlayer)
 	{
-//#ifdef PSX
 //#warning POWER LOW IS DISABLED
-//		return TRUE;
-//#endif
 		if (playAudio && player == selectedPlayer)
 		{
 			audio_QueueTrack( ID_SOUND_POWER_LOW );
@@ -171,10 +164,7 @@ BOOL usePower(UDWORD player, UDWORD quantity)
 	}
 	else if (player == selectedPlayer)
 	{
-//#ifdef PSX
 //#warning POWER LOW IS DISABLED
-//		return TRUE;
-//#endif
 
 		if(titleMode == FORCESELECT) //|| (titleMode == DESIGNSCREEN))
 		{
@@ -182,7 +172,6 @@ BOOL usePower(UDWORD player, UDWORD quantity)
 		}
 
         //Not playing the power low message anymore - 6/1/99
-		//audio_QueueTrack( ID_SOUND_POWER_LOW );
 	}
 	return FALSE;
 }
@@ -247,7 +236,6 @@ UDWORD updateExtractedPower(STRUCTURE	*psBuilding)
 		{
             //lose a lot on rounding this way
 			pResExtractor->timeLastUpdated = gameTime;
-            //pResExtractor->timeLastUpdated = gameTime - (timeDiff - GAME_TICKS_PER_SEC);
 			if (pResExtractor->power > pointsToAdd)
 			{
 				extractedPoints += pointsToAdd;
@@ -263,9 +251,7 @@ UDWORD updateExtractedPower(STRUCTURE	*psBuilding)
 			{
                 //if not having unlimited power, put the 2 lines below back in
 				//set the extractor to be inactive
-				//pResExtractor->active = FALSE;
 				//break the link between the power gen and the res extractor
-				//releaseResExtractor(psBuilding);
 
 				//for now, when the power = 0 set it back to the max level!
 				pResExtractor->power = ((RESOURCE_FUNCTION*)psBuilding->pStructureType->
@@ -366,7 +352,6 @@ void updatePlayerPower(UDWORD player)
 		psList = apsStructLists[player];
 	}*/
 
-	//for (psStruct = psList; psStruct != NULL; psStruct = psStruct->psNext)
 	for (psStruct = powerStructList((UBYTE)player); psStruct != NULL; psStruct = 
 		psStruct->psNext)
 	{
@@ -499,7 +484,6 @@ void setPlayerPower(UDWORD power, UDWORD player)
 		return;
 	}
 
-	//asPower[player]->initialPower = power;
 	asPower[player]->currentPower = power;
 
 	pwrcSetPlayerCryptPower(player, asPower[player]->currentPower);
@@ -512,7 +496,6 @@ void newGameInitPower(void)
 
 	for (inc=0; inc < MAX_PLAYERS; inc++)
 	{
-		//setPlayerPower(400, inc);
         //add as opposed to set
         addPower(inc, 400);
 	}
@@ -527,11 +510,6 @@ passed through the object lists each cycle whilst there is some*/
 	UBYTE		first = TRUE, warning = 0;
 
 	psStartStruct = asPower[player]->psLastPowered;
-	//if (!psStartStruct OR psStartStruct->died)
-	//if (!psStartStruct)
-	//{
-	//	psStartStruct = powerUpdateStructList(player);
-	//}
 
 	//got to have the minimum power
 	while ((asPower[player]->currentPower > POWER_PER_CYCLE) OR (!powerCalculated))
@@ -724,12 +702,10 @@ BOOL accruePower(BASE_OBJECT *psObject)
         {
         case DROID_CONSTRUCT:
         case DROID_CYBORG_CONSTRUCT:
-            //check trying to build something (and that hasn't been blown up)
             if (DroidIsBuilding(psDroid) AND psDroid->psTarget AND !psDroid->psTarget->died)
             {
 			    //powerDiff = ((STRUCTURE *)psDroid->psTarget)->pStructureType->
                 //    powerToBuild - ((STRUCTURE *)psDroid->psTarget)->
-                //    currentPowerAccrued;
                 powerDiff = structPowerToBuild((STRUCTURE *)psDroid->psTarget) - 
                     ((STRUCTURE *)psDroid->psTarget)->currentPowerAccrued;
 			    //if equal then don't need power
@@ -1015,7 +991,6 @@ void powerCheck(BOOL bBeforePowerUsed, UBYTE player)
 				asPower[player]->usedPower = asPower[player]->availablePower - 
 					usedPower;
 				asPower[player]->availablePower = 0;
-//				audio_PlayTrack( ID_SOUND_POWER_LOW );
 			}
 			else
 			{
@@ -1141,10 +1116,6 @@ void powerCheck(BOOL bBeforePowerUsed, UBYTE player)
 		}
 
 		//for power gens need to use the multiplier
-		//if (psBuilding->pStructureType->type == REF_POWER_GEN)
-		//{
-		//	power = power * ((POWER_GEN *)psBuilding->pFunctionality)->multiplier;
-		//}
 		
 		asPower[psBuilding->player]->capacity -= power;
 		asPower[psBuilding->player]->availablePower += power ;
@@ -1204,7 +1175,6 @@ void powerCheck(BOOL bBeforePowerUsed, UBYTE player)
 		}
 		//asPower[psBuilding->player]->capacity += (((POWER_GEN *)psBuilding->
 		//	pFunctionality)->power * ((POWER_GEN *)psBuilding->pFunctionality)->
-		//	multiplier);
 
 		power = (((POWER_GEN *)psBuilding->pFunctionality)->power * 
 			((POWER_GEN *)psBuilding->pFunctionality)->multiplier);

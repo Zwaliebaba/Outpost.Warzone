@@ -79,7 +79,6 @@ extern iBitmap	**tilesRAW;
 extern UDWORD worldAngle;
 extern UDWORD	stepIndex;
 extern iPalette	gamePal;
-//extern void	assignSensorTarget( DROID *psDroid );
 extern void	assignSensorTarget( BASE_OBJECT *psObj );
 extern void	assignDestTarget( void );
 extern void	processSensorTarget( void );
@@ -100,10 +99,6 @@ extern UDWORD	intensity1,intensity2,intensity3;
 extern UDWORD	lightLevel;
 extern UDWORD	demoTextPage;
 extern BOOL		updateVideoCard;
-//extern BOOL		bScreenClose;
-//extern UDWORD closingTimeStart;
-//extern UDWORD screenCloseState;
-//extern BOOL	bPlayerHasHQ;
 
 #define	INITIAL_DESIRED_PITCH		(325)
 #define INITIAL_STARTING_PITCH		(-75)

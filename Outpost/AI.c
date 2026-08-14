@@ -6,7 +6,6 @@
  */
 
 /* Droid attack printf's */
-//#define DEBUG_GROUP1
 #include "Frame.h"
 #include "Objects.h"
 #include "Map.h"
@@ -34,7 +33,6 @@ UBYTE	alliances[MAX_PLAYERS][MAX_PLAYERS];
 /* alliance code for ai. return true if an alliance has formed. */
 BOOL aiCheckAlliances(UDWORD s1,UDWORD s2)
 {
-    //features have their player number set to (MAX_PLAYERS + 1)
     if ( s1 == (MAX_PLAYERS + 1) || s2 == (MAX_PLAYERS + 1))
     {
         return FALSE;
@@ -153,7 +151,6 @@ BOOL aiNearestTarget(DROID *psDroid, BASE_OBJECT **ppsObj)
 						break;
 					}
 				}
-				//else if (((STRUCTURE *)psObj)->numWeaps > 0)
                 else if (((STRUCTURE *)psObj)->asWeaps[0].nStat > 0)
 				{
 					// structure with weapons - go for this
@@ -234,7 +231,6 @@ BOOL aiChooseTarget(BASE_OBJECT *psObj,
 					BASE_OBJECT **ppsTarget)
 {
 	UDWORD	radSquared;
-//	UDWORD	player;
 	BASE_OBJECT		*psCurr, *psTarget;
 	SDWORD			xdiff,ydiff, distSq, tarDist, minDist;//, longRange;
 	WEAPON_STATS	*psWStats;
@@ -494,10 +490,8 @@ BOOL aiChooseTarget(BASE_OBJECT *psObj,
 BOOL aiChooseSensorTarget(BASE_OBJECT *psObj, BASE_OBJECT **ppsTarget)
 {
 	UDWORD	radSquared;
-//	UDWORD	player;
 	BASE_OBJECT		*psCurr, *psTarget;
 	SDWORD	xdiff,ydiff, distSq, tarDist;
-//    BOOL    bSuperSensor = FALSE;
 
 	/* Get the sensor range */
 	switch (psObj->type)
@@ -645,7 +639,6 @@ void aiUpdateDroid(DROID *psDroid)
 	BASE_OBJECT	*psTarget;
 	SDWORD		state;
 	BOOL		lookForTarget;
-//	BOOL		bTemp;
 
 	ASSERT((PTRVALID(psDroid, sizeof(DROID)),
 		"updateUnitAI: invalid Unit pointer"));
@@ -730,7 +723,6 @@ void aiUpdateDroid(DROID *psDroid)
 		aiChooseTarget((BASE_OBJECT *)psDroid, &psTarget))
 	{
 //			my_error("",0,"","Droid(%s) attacking : %d\n",
-//					psDroid->pName, psTarget->id );
 
 
 		turnOffMultiMsg(TRUE);

@@ -29,7 +29,6 @@
 typedef struct _warzoneGlobals
 {
 	WAR_REND_MODE	renderMode;
-//	TEX_MODE	textureMode;
 	SEQ_MODE	seqMode;
 	BOOL		bFog;
 	BOOL		bTranslucent;

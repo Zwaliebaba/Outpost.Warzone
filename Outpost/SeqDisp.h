@@ -40,7 +40,6 @@ extern BOOL	seq_RenderVideoToBuffer(iSurface *pSurface, char* sequenceName, int 
 extern BOOL	seq_BlitBufferToScreen(char* screen, SDWORD screenStride, SDWORD xOffset, SDWORD yOffset);
 
 //full screen render
-//extern BOOL seq_PlayVideo(char* pSeq, char* pAudio);
 //extern BOOL seq_StartFullScreenVideo(char* sequenceFile, char* audioFile);//start videos through seqList 
 extern BOOL seq_UpdateFullScreenVideo(CLEAR_MODE *bClear);
 extern BOOL seq_StopFullScreenVideo(void);

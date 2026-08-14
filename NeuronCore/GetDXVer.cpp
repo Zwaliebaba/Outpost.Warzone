@@ -318,10 +318,7 @@ GetDXVersion(LPDWORD pdwDXVersion, LPDWORD pdwDXPlatform)
      */
     *pdwDXVersion = 0x600;
 
-//    if (pSurf4) {pSurf4->Release();}
-//    if (pSurf3) {pSurf3->Release();}
     if (pSurf) {pSurf->Release();}
-//    if (pDDraw2) {pDDraw2->Release();}
     if (pDDraw) {pDDraw->Release();}
     FreeLibrary(DDHinst);
 

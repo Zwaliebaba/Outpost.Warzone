@@ -82,18 +82,13 @@ SDWORD	modifyForDifficultyLevel(SDWORD basicVal,BOOL IsPlayer)
 // You can't garantee that we don't want damage modifiers in normal difficulty.	
 //	/* Unmodified! */
 //	if(getDifficultyLevel() == DL_NORMAL)
-//	{
-//		return(basicVal);
-//	}
 
-//	retVal = basicVal*fDifModifier;
 	if(IsPlayer) {
 		retVal = (SDWORD)ROUND(basicVal*fDifPlayerModifier); 
 	} else {
 		retVal = (SDWORD)ROUND(basicVal*fDifEnemyModifier); 
 	}
 
-//	DBPRINTF(("%d : %d %d\n",IsPlayer,basicVal,retVal));
 
 	return retVal;
 }

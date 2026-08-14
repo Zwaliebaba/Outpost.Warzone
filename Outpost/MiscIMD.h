@@ -25,7 +25,6 @@ extern iIMDShape	*waterImd;
 extern iIMDShape	*droidDamageImd;
 extern iIMDShape	*smallSteamImd;
 extern iIMDShape	*plasmaImd;
-//extern iIMDShape	*pAssemblyPointIMDs[NUM_FACTORY_TYPES][MAX_FACTORY];
 extern iIMDShape	*pAssemblyPointIMDs[NUM_FLAG_TYPES][MAX_FACTORY];
 extern iIMDShape	*blipImd;
 extern iIMDShape	*shadowImd;

@@ -33,16 +33,6 @@ extern void barGraphFree(W_BARGRAPH *psWidget);
 /* Initialise a barGraph widget before running it */
 extern void barGraphInitialise(W_BARGRAPH *psWidget);
 
-#if 0
-/* Run a barGraph widget */
-extern void barGraphRun(W_BARGRAPH *psWidget);
-
-/* Respond to a mouse click */
-extern void barGraphClicked(W_BARGRAPH *psWidget);
-
-/* Respond to a mouse up */
-extern void barGraphReleased(W_BARGRAPH *psWidget);
-#endif
 
 /* Respond to a mouse moving over a barGraph */
 extern void barGraphHiLite(W_BARGRAPH *psWidget, W_CONTEXT *psContext);

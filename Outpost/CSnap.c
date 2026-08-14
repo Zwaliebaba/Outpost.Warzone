@@ -116,7 +116,6 @@ void ReleaseSnapBuffer(CURSORSNAP *SnapBuffer)
 void StartCursorSnap(CURSORSNAP *SnapBuffer)
 {
 	SnapBuffer->NumSnaps = 0;
-//	SnapBuffer->CurrentSnap = 0;
 }
 
 
@@ -129,7 +128,6 @@ void InitCursorSnap(CURSORSNAP *SnapBuffer,UWORD NumSnaps)
 
 void AddCursorSnap(CURSORSNAP *SnapBuffer,SWORD PosX,SWORD PosY,UDWORD FormID,UDWORD ID,SNAPBIAS *Bias)
 {
-//	UWORD i;
 	int Index = -1;
 
 #ifdef SNAP_ERASABLE
@@ -164,15 +162,12 @@ void AddCursorSnap(CURSORSNAP *SnapBuffer,SWORD PosX,SWORD PosY,UDWORD FormID,UD
 		}
 	} else if(SnapBuffer->NewCurrentID) {
 		if(ID == SnapBuffer->NewCurrentID) {
-//			DBPRINTF(("Found New ID %d\n",SnapBuffer->NewCurrentID);
 			SnapBuffer->NewCurrentID = 0;
 			SnapBuffer->CurrentSnap = Index;
 			GotoSnap(SnapBuffer);
 		} else {
-//			DBPRINTF(("Not Found New ID %d\n",SnapBuffer->NewCurrentID);
 		}
 	}
-//	DBPRINTF(("%d : %d,%d\n",Index,SnapBuffer->SnapCoords[Index].SnapX,SnapBuffer->SnapCoords[Index].SnapY);
 }
 
 
@@ -237,7 +232,6 @@ void SetCurrentSnapFormID(CURSORSNAP *SnapBuffer,UDWORD FormID)
 		if(FormID) {
 			// Get the screen extents of the specified form and move the mouse there.
 			if(widgGetScreenExtents(FormID,&x,&y,&w,&h) == TRUE) {
-		//		DBPRINTF(("%d %d,%d %d\n",x,y,w,h);
 				SetMousePos(0,x+w/2,y+h/2);
 			}
 		}
@@ -256,7 +250,6 @@ void SetCurrentSnapID(CURSORSNAP *SnapBuffer,UDWORD ID)
 		if(ID) {
 			// Get the screen extents of the specified widget and move the mouse there.
 			if(widgGetScreenExtents(ID,&x,&y,&w,&h) == TRUE) {
-		//		DBPRINTF(("%d %d,%d %d\n",x,y,w,h);
 				SetMousePos(0,x+w/2,y+h/2);
 			}
 		}
@@ -343,7 +336,6 @@ void GotoDirectionalSnap(CURSORSNAP *SnapBuffer,SNAPDIRECTION Direction,SWORD Cu
 		SnapBuffer->CurrentSnap = 0;
 	}
 
-//	DBPRINTF(("NumSnaps %d %d %d\n",SnapBuffer->NumSnaps,Direction,EnabledFormID);
 
 	for(i=0; i<SnapBuffer->NumSnaps; i++) {
 		SNAPBIAS *Bias = SnapBuffer->SnapCoords[CurrentSnap].Bias;	//i].Bias;
@@ -371,7 +363,6 @@ void GotoDirectionalSnap(CURSORSNAP *SnapBuffer,SNAPDIRECTION Direction,SWORD Cu
 			} else if(Direction == SNAP_UP) {
 
 				if(dy >= 0) {
-//					DBPRINTF(("Skip SNAP_UP\n");
 					continue;
 				}
 
@@ -379,7 +370,6 @@ void GotoDirectionalSnap(CURSORSNAP *SnapBuffer,SNAPDIRECTION Direction,SWORD Cu
 				dy = abs(dy);
 
 				Dist = dx*Bias->UDxBias + dy*Bias->UDyBias;
-//DBPRINTF(("SNAP_UP %d %d : %d %d : %d\n",abs(dx),abs(dy),abs(dx*Bias->UDxBias),abs(dy*Bias->UDyBias),Dist);
 				if((Dist < NearestDist) && (dx < MaxXDist)) {
 					NearestSnap = i;
 					NearestDist = Dist;
@@ -388,7 +378,6 @@ void GotoDirectionalSnap(CURSORSNAP *SnapBuffer,SNAPDIRECTION Direction,SWORD Cu
 			} else if(Direction == SNAP_RIGHT) {
 
 				if(dx <= 0) {
-//					DBPRINTF(("Skip SNAP_RIGHT\n");
 					continue;
 				}
 
@@ -396,7 +385,6 @@ void GotoDirectionalSnap(CURSORSNAP *SnapBuffer,SNAPDIRECTION Direction,SWORD Cu
 				dy = abs(dy);
 
 				Dist = dx*Bias->RDxBias + dy*Bias->RDyBias;
-//DBPRINTF(("SNAP_RIGHT %d %d : %d %d : %d\n",abs(dx),abs(dy),abs(dx*Bias->RDxBias),abs(dy*Bias->RDyBias),Dist);
 				if((Dist < NearestDist) && (dy < MaxYDist)) {
 					NearestSnap = i;
 					NearestDist = Dist;
@@ -405,7 +393,6 @@ void GotoDirectionalSnap(CURSORSNAP *SnapBuffer,SNAPDIRECTION Direction,SWORD Cu
 			} else if(Direction == SNAP_DOWN) {
 
 				if(dy <= 0) {
-//					DBPRINTF(("Skip SNAP_DOWN\n");
 					continue;
 				}
 
@@ -413,7 +400,6 @@ void GotoDirectionalSnap(CURSORSNAP *SnapBuffer,SNAPDIRECTION Direction,SWORD Cu
 				dy = abs(dy);
 
 				Dist = dx*Bias->DDxBias + dy*Bias->DDyBias;
-//DBPRINTF(("SNAP_DOWN %d %d : %d %d : %d\n",abs(dx),abs(dy),abs(dx*Bias->DDxBias),abs(dy*Bias->DDyBias),Dist));
 				if((Dist < NearestDist) && (dx < MaxXDist)) {
 					NearestSnap = i;
 					NearestDist = Dist;
@@ -422,7 +408,6 @@ void GotoDirectionalSnap(CURSORSNAP *SnapBuffer,SNAPDIRECTION Direction,SWORD Cu
 			} else if(Direction == SNAP_LEFT) {
 
 				if(dx >= 0) {
-//					DBPRINTF(("Skip SNAP_LEFT\n");
 					continue;
 				}
 
@@ -430,7 +415,6 @@ void GotoDirectionalSnap(CURSORSNAP *SnapBuffer,SNAPDIRECTION Direction,SWORD Cu
 				dx = abs(dx);
 				dy = abs(dy);
 				Dist = dx*Bias->LDxBias + dy*Bias->LDyBias;
-//DBPRINTF(("SNAP_LEFT %d %d : %d %d : %d\n",abs(dx),abs(dy),abs(dx*Bias->LDxBias),abs(dy*Bias->LDyBias),Dist);
 				if((Dist < NearestDist) && (dy < MaxYDist)) {
 					NearestSnap = i;
 					NearestDist = Dist;

@@ -30,9 +30,7 @@
 #define DEBUG_MALLOC	FALSE
 #define DEBUG_HEAP		FALSE
 
-//#ifdef PSX
 //#warning DEBUG MALLOC DISABLED ON PSX
-//#endif
 
 #endif
 

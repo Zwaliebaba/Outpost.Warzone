@@ -27,7 +27,6 @@
 // Get values from a base object
 BOOL scrBaseObjGet(UDWORD index)
 {
-//	INTERP_VAL		sVal;
 	INTERP_TYPE		type;
 	BASE_OBJECT		*psObj;
 	SDWORD			val;
@@ -152,7 +151,6 @@ BOOL scrBaseObjGet(UDWORD index)
 		case OBJ_STRUCTURE:
 			psStruct = (STRUCTURE *)psObj;
 			type = VAL_INT;
-			//val = psStruct->body * 100 / psStruct->baseBodyPoints;
 			val = psStruct->body * 100 / structureBody(psStruct);
 			break;
 		}
@@ -641,17 +639,6 @@ BOOL scrValDefSave(INTERP_TYPE type, UDWORD data, UBYTE *pBuffer, UDWORD *pSize)
 		*pSize = sizeof(UDWORD) * members + sizeof(SDWORD) * 5;
 		break;
 	case ST_SOUND:
-/*		pName = sound_GetTrackName((SDWORD)data);
-		if (pName == NULL)
-		{
-			DBERROR(("scrValDefSave: couldn't get sound track name"));
-			return FALSE;
-		}
-		if (pBuffer)
-		{
-			strcpy((char *)pBuffer, pName);
-		}
-		*pSize = strlen((char *)pName) + 1;*/
 		if (pBuffer)
 		{
 			*((UDWORD *) pBuffer) = sound_GetTrackHashName((SDWORD)data);

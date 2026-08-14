@@ -11,9 +11,6 @@ iBool	_mode_D3D_REF( void );
 void	_close_D3D( void );
 void	_renderBegin_D3D( void );
 void	_renderEnd_D3D( void );
-//void	_triangle_D3D( iVertex *vrt, iTexture *tex, uint32 type );
-//void	_quad_D3D( iVertex *vrt, iTexture *tex, uint32 type );
-//void	_polygon_D3D(  int npoints, iVertex *vrt, iTexture *tex, uint32 type );
 void	_palette_D3D( int i, int r, int g, int b );
 void	_dummyFunc_D3D( void );
 

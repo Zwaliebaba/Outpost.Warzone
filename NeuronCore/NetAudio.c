@@ -223,7 +223,6 @@ BOOL NETinitAudioCapture(VOID)
 	}
 
 	NetPlay.bAllowCaptureRecord = TRUE;
-//	allowCapture = TRUE;
 	return(TRUE);
 }
 

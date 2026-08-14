@@ -37,8 +37,6 @@ STRING		*pName;
 struct _keyMapping	*psNext;
 } KEY_MAPPING;
 
-//extern BOOL	keyAddMapping			( UDWORD functionId, KEY_CODE metaCode, KEY_CODE subCode );
-//extern BOOL	keyAddMapping			( KEY_CODE metaCode, KEY_CODE subcode, KEY_ACTION action, void *function, STRING *name );
 extern KEY_MAPPING	*keyAddMapping			( KEY_STATUS status, KEY_CODE metaCode, KEY_CODE subcode, 
 									 KEY_ACTION action, void (*pKeyMapFunc)(void), STRING *name );
 extern BOOL	keyRemoveMapping		( KEY_CODE metaCode, KEY_CODE subCode );

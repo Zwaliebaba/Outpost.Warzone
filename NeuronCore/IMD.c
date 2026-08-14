@@ -8,7 +8,6 @@
 // we need BSPIMD defined if we want to read & use the BSP imd files
 		   
 // Define this if we are compile ivis for the BSP generating tool, also for PIEBIN tool
-//#define PIETOOL
 
 
 
@@ -23,10 +22,7 @@
 
 #include "IvisDef.h"
 #include "IMD.h"		  
-//#include "Geo.h"
-//#include "txt.h"
 #include "Bug.h"
-//#include "pal.h"
 #include "Tex.h"
 #include "IvisPatch.h"
 
@@ -214,7 +210,6 @@ void DumpTriangleList(FILE *fp,PSBSPPTRLIST TriList)
 	assert(BSPPolys<iV_IMD_MAX_POLYS);
 
 
-//	DBPRINTF(("Dumping TriList %p\n",TriList));
 
 	if (TriList==NULL) return;
 	

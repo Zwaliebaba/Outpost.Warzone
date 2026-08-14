@@ -132,9 +132,6 @@ IMAGEFILE *iV_LoadImageFile(UBYTE *FileData, UDWORD FileSize)
 void iV_FreeImageFile(IMAGEFILE *ImageFile)
 {
 
-//	for(i=0; i<ImageFile->Header.NumTPages; i++) {
-//		FREE(ImageFile->TexturePages[i].bmp);
-//	}
 	
 	FREE(ImageFile->TexturePages);
 	FREE(ImageFile->ImageDefs);
@@ -145,7 +142,6 @@ void iV_FreeImageFile(IMAGEFILE *ImageFile)
 static BOOL LoadTextureFile(char *FileName,iSprite *pSprite,int *texPageID)
 {
 	SDWORD i;
-//	iPalette pal;
 
 	DBPRINTF(("ltf) %s\n",FileName));
 

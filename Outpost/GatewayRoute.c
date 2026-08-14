@@ -4,9 +4,7 @@
  */
 
 // print out the gateways examined while generating the route
-//#define DEBUG_GROUP0
 // print out the final route
-//#define DEBUG_GROUP1
 
 #include "Frame.h"
 
@@ -109,7 +107,6 @@ BOOL gwrConsiderGateway(GATEWAY *psGate)
 // check whether all the tiles on a gateway are blocked
 BOOL gwrBlockedGateway(GATEWAY *psGate, SDWORD player, UDWORD terrain)
 {
-//	SDWORD	pos;
 	BOOL	blocked;
 	MAPTILE	*psTile;
 

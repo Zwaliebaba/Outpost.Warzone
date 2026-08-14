@@ -337,25 +337,12 @@ static BOOL widgCheckIDForm(W_FORM *psForm, UDWORD id)
 	return FALSE;
 }
 
-#if 0
-/* Check whether an ID number has been used on a screen */
-static BOOL widgCheckID(W_SCREEN *psScreen, UDWORD id)
-{
-	return widgCheckIDForm((W_FORM *)psScreen->psForm, id);
-}
-#endif
 
 
 ///* Set the tool tip font for a screen */
-//void widgSetTipFont(W_SCREEN *psScreen, PROP_FONT *psFont)
-//{
 //	ASSERT((PTRVALID(psScreen, sizeof(W_SCREEN)),
-//		"widgSetTipFont: Invalid screen pointer"));
 //	ASSERT((psFont == NULL || PTRVALID(psFont, sizeof(PROP_FONT)),
-//		"widgSetTipFont: Invalid font pointer"));
 //
-//	psScreen->psTipFont = psFont;
-//}
 
 
 /* Set the tool tip font for a screen */
@@ -364,7 +351,6 @@ void widgSetTipFont(W_SCREEN *psScreen, int FontID)
 	ASSERT((PTRVALID(psScreen, sizeof(W_SCREEN)),
 		"widgSetTipFont: Invalid screen pointer"));
 //	ASSERT((psFont == NULL || PTRVALID(psFont, sizeof(PROP_FONT)),
-//		"widgSetTipFont: Invalid font pointer"));
 
 	psScreen->TipFontID = FontID;
 }
@@ -1156,7 +1142,6 @@ void widgSetButtonFlash(W_SCREEN *psScreen, UDWORD id)
 	}
 	else if ((psWidget->type == WIDG_EDITBOX))
 	{
-//		editBoxSetState((W_EDITBOX *)psWidget, state);
 	}
 	else
 	{
@@ -1414,9 +1399,6 @@ static void widgProcessForm(W_CONTEXT *psContext)
 	/* Note current form */
 	psForm = psContext->psForm;
 
-//	if(psForm->disableChildren == TRUE) {
-//		return;
-//	}
 
 	/* Note the current mouse position */
 	mx = psContext->mx;

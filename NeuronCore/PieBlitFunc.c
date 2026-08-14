@@ -178,7 +178,6 @@ void pie_TransBoxFill(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1)
 	rgb = (pie_FILLRED<<16) | (pie_FILLGREEN<<8) | pie_FILLBLUE;//blue
 	transparency = pie_FILLTRANS;
 	pie_UniTransBoxFill(x0, y0, x1, y1, rgb, transparency);
-//	pie_doWeirdBoxFX(x0,y0,x1,y1);
 
 }
 
@@ -186,8 +185,6 @@ void pie_TransBoxFill(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1)
 void pie_UniTransBoxFill(SDWORD x0,SDWORD y0, SDWORD x1, SDWORD y1, UDWORD rgb, UDWORD transparency)
 {
 	UDWORD light;
-//  	pie_doWeirdBoxFX(x0,y0,x1,y1);
-//	return;
 
 	if (x0>psRendSurface->clip.right || x1<psRendSurface->clip.left ||
 		y0>psRendSurface->clip.bottom || y1<psRendSurface->clip.top)

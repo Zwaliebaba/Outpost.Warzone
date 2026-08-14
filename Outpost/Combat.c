@@ -8,11 +8,8 @@
 #include <math.h>
 
 /* Turn on the damage printf's from combExplodeBullet */
-//#define DEBUG_GROUP1
 /* Turn on LOS printf's */
-//#define DEBUG_GROUP2
 /* Turn on Missed printf's */
-//#define DEBUG_GROUP3
 #include "Frame.h"
 
 #include "Objects.h"
@@ -41,8 +38,6 @@
 static TILE_COORD	*aLOSPoints;
 
 /* Number of tiles that missed bullets scatter from target */
-//#define DIRECT_SCATTERDIST 3
-//#define INDIRECT_SCATTERDIST 2
 
 /* minimum miss distance */
 #define MIN_MISSDIST	(TILE_UNITS/6)
@@ -143,7 +138,6 @@ void combFire(WEAPON *psWeap, BASE_OBJECT *psAttacker, BASE_OBJECT *psTarget)
 		break;
 	case OBJ_STRUCTURE:
 		damLevel = PERCENT(((STRUCTURE *)psAttacker)->body,
-						//((STRUCTURE *)psAttacker)->baseBodyPoints);
 			structureBody((STRUCTURE *)psAttacker));
 		break;
 	default:
@@ -270,13 +264,10 @@ void combFire(WEAPON *psWeap, BASE_OBJECT *psAttacker, BASE_OBJECT *psTarget)
 
 	// apply upgrades - do these when know if its longHit or shortHit
 	//hitMod = hitMod * (asWeaponUpgrade[psAttacker->player]
-	//							[psStats->weaponSubClass].shortHit + 100) / 100;
 
 	// add the attackers experience modifier
 	if (psAttacker->type == OBJ_DROID)
 	{
-//		hitMod = hitMod + (hitMod * 5) * getDroidLevel((DROID *)psAttacker) / 100;
-//		hitMod = hitMod + hitMod * cmdDroidHitMod((DROID *)psAttacker) / 100;
 		level = getDroidLevel((DROID *)psAttacker);
 		cmdLevel = cmdGetCommanderLevel((DROID *)psAttacker);
 		if (level > cmdLevel)
@@ -292,8 +283,6 @@ void combFire(WEAPON *psWeap, BASE_OBJECT *psAttacker, BASE_OBJECT *psTarget)
 	// subtract the defenders experience modifier
 /*	if (psTarget->type == OBJ_DROID)
 	{
-//		hitMod = hitMod - hitMod * 2 * getDroidLevel((DROID *)psTarget) / 100;
-//		hitMod = hitMod - hitMod * cmdDroidEvasionMod((DROID *)psTarget) / 100;
 		level = getDroidLevel((DROID *)psTarget);
 		cmdLevel = cmdGetCommanderLevel((DROID *)psTarget);
 		if (level > cmdLevel)
@@ -354,7 +343,6 @@ void combFire(WEAPON *psWeap, BASE_OBJECT *psAttacker, BASE_OBJECT *psTarget)
 		/* NEED TO TAKE ACCOUNT OF ECM, BODY SHAPE ETC. */
 		/************************************************/
 		HIT_ROLL(dice);
-		//if (dice <= psStats->shortHit * hitMod /100)
 		if (dice <= (weaponShortHit(psStats,psAttacker->player) * hitMod /100) + hitInc)
 		{
 			/* Kerrrbaaang !!!!! a hit */
@@ -391,7 +379,6 @@ void combFire(WEAPON *psWeap, BASE_OBJECT *psAttacker, BASE_OBJECT *psTarget)
 		/* NEED TO TAKE ACCOUNT OF ECM, BODY SHAPE ETC. */
 		/************************************************/
 		HIT_ROLL(dice);
-		//if (dice <= psStats->longHit * hitMod /100)
 		if (dice <= (weaponLongHit(psStats,psAttacker->player) * hitMod /100) + hitInc)
 		{
 			/* Kerrrbaaang !!!!! a hit */

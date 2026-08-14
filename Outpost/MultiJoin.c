@@ -65,8 +65,6 @@ VOID setupNewPlayer		(DPID dpid,UDWORD player);				// stuff to do when player jo
 //BOOL multiPlayerRequest	(NETMSG *pMsg);							// remote player has requested info 
 //BOOL UpdateClient		(DPID dest, UDWORD playerToSend);		// send information to a remote player
 //BOOL ProcessDroidOrders	(VOID);									// ince setup, this player issues each droid order.
-//BOOL SendFeatures		(FEATURE *pFeature, DPID player);
-//BOOL recvFeatures		(NETMSG *pMsg);
 VOID resetMultiVisibility(UDWORD player);
 
 // ////////////////////////////////////////////////////////////////////////////
@@ -104,7 +102,6 @@ FAILURE:
 	// what should we do now ?
 	NetGet(pMsg,0,pl);
 
-//	DBERROR(("%s has different data to you CHEATING?"));
 
 	sprintf(sTmp,"%s has different data. CHEATING or wrong version",getPlayerName(pl));
 	addConsoleMessage(sTmp,DEFAULT_JUSTIFY);
@@ -114,7 +111,6 @@ FAILURE:
 	{
 		kickPlayer( player2dpid[pl] );
 	}
-//	setPlayerHasLost(TRUE);
 	return TRUE;
 }
 
@@ -354,11 +350,7 @@ void setupNewPlayer(DPID dpid,UDWORD player)
 	ingame.PingTimes[player] =0;						// reset ping time
 	ingame.JoiningInProgress[player] = TRUE;			// note that player is now joining.
 
-//	if (game.type == DMATCH)
-//	{
 //		// set the power level for that player..	
-//		setPower(player, game.power);
-//	}
 
 	for(i=0;i<MAX_PLAYERS;i++)							// set all alliances to broken.
 	{
@@ -428,9 +420,6 @@ BOOL UpdateClient(DPID dest, UDWORD playerToSend)
 	NETMSG			 m;
 	DROID			*pD;
 	UDWORD			 i=0;
-//	STRUCTURE		*pS;
-//	DROID_TEMPLATE	*pT;
-//	PLAYER_RESEARCH	*pR;
 
 	for(pD = apsDroidLists[playerToSend]; pD; pD=pD->psNext)	// **DROIDS**
 	{
@@ -444,34 +433,17 @@ BOOL UpdateClient(DPID dest, UDWORD playerToSend)
 
 //	pR = asPlayerResList[playerToSend];							// **RESEARCH** 
 //	for(i=0; i<numResearch; i++)								// do for each topic.
-//	{
 //		if(pR[i].researched == RESEARCHED)						// send if researched
-//		{
-//			NetAdd(m,0,(char)playerToSend);					
 //			NetAdd(m,1,i);										// reference into topic.
-//			m.size =1+sizeof(UDWORD);
-//			m.type = NET_RESEARCH;
-//			NETsend(m,dest,TRUE);
-//		}
-//	}
 
 //	pT = apsDroidTemplates[playerToSend];						// **TEMPLATES**
-//	while(pT)
-//	{
 //		m.body[0]= (char) playerToSend;							//player to attach template to
 //		memcpy(&(m.body[1]),pT,	sizeof(DROID_TEMPLATE));		//the template itself
 //		strcpy(&(m.body[1+sizeof(DROID_TEMPLATE)]),	pT->pName );//the name to give the template
-//		m.size =(UWORD)(sizeof(DROID_TEMPLATE)+ strlen(pT->pName) +2);
-//		m.type=NET_TEMPLATE;		
-//		NETsend(m,dest,TRUE);
 //		pT=pT->psNext;											// onto next template
-//	}
 	
 //	for(pS=apsStructLists[playerToSend]; pS; pS=pS->psNext)		//  **STRUCTURES**
-//	{
 	// NOTE SEND WHOLE STRUCTURE DOESNT WORK! need to do as sendwholedroids.
-//		SendWholeStructure(pS,dest);
-//	}
 	
 
 

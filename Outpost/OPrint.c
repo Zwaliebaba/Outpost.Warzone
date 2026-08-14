@@ -13,7 +13,6 @@
 
 #ifndef FINALBUILD
 #define OPRINTF	CONPRINTF
-//#define OPRINTF DBPRINTF
 
 // print out information about a base object
 void printBaseObjInfo(BASE_OBJECT *psObj)
@@ -65,14 +64,10 @@ void printWeaponInfo(WEAPON_STATS *psStats)
 		pWC = "WC_KINETIC";
 		break;
 	//case WC_EXPLOSIVE:	//rockets etc
-	//	pWC = "WC_EXPLOSIVE";
-	//	break;
 	case WC_HEAT:		//laser etc
 		pWC = "WC_HEAT";
 		break;
 	//case WC_MISC:		//others we haven't thought of!
-	//	pWC = "WC_MISC";
-	//	break;
 	default:
 		pWC = "UNKNOWN CLASS";
 		break;
@@ -172,7 +167,6 @@ void printWeaponInfo(WEAPON_STATS *psStats)
 			  "   sHt %d lHt %d pause %d dam %d\n",
 				psStats->shortRange, proj_GetLongRange(psStats,0), psStats->minRange,
 				proj_Direct(psStats) ? "direct" : "indirect",
-				//psStats->shortHit, psStats->longHit, psStats->firePause, psStats->damage));
 				weaponShortHit(psStats,(UBYTE)selectedPlayer), weaponLongHit(psStats,
 				(UBYTE)selectedPlayer), weaponFirePause(psStats,(UBYTE)selectedPlayer), 
 				weaponDamage(psStats, (UBYTE)selectedPlayer)));
@@ -260,7 +254,6 @@ void printDroidInfo(DROID *psDroid)
 				psECMStats = asECMStats + psDroid->asBits[i].nStat;
 				printComponentInfo((COMP_BASE_STATS *)psECMStats);
 				OPRINTF(ConsoleString,(ConsoleString,"   pwr %d loc %d imd %p\n",
-					//psECMStats->power, psECMStats->location, psECMStats->pMountGraphic));
 					ecmPower(psECMStats, psDroid->player), psECMStats->location, 
 					psECMStats->pMountGraphic));
 			}
@@ -293,7 +286,6 @@ void printDroidInfo(DROID *psDroid)
 				psConstStats = asConstructStats + psDroid->asBits[i].nStat;
 				printComponentInfo((COMP_BASE_STATS *)psConstStats);
 				OPRINTF(ConsoleString,(ConsoleString,"   cPnts %d imd %p\n",
-					//psConstStats->constructPoints, psConstStats->pMountGraphic));
 					constructorPoints(psConstStats, psDroid->player), 
 					psConstStats->pMountGraphic));
 			}

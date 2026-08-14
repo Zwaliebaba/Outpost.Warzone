@@ -11,7 +11,6 @@
 #define FRAME_LIB_INCLUDE
 
 // Report unused strings
-//#define DEBUG_GROUP0
 #include "Types.h"
 #include "Debug.h"
 #include "Mem.h"

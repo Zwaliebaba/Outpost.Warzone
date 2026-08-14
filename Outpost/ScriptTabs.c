@@ -23,7 +23,6 @@
 #include "Droid.h"
 #include "HCI.h"
 #include "Message.h"
-//#include "Mission.h"
 #include "Levels.h"
 #include "Order.h"
 #include "GTime.h"
@@ -886,13 +885,11 @@ CONST_SYMBOL asConstantTable[] =
 	{ "IDDES_BODYBUTTON",	VAL_INT,	0,		IDDES_BODYBUTTON,	0 },
 	{ "IDDES_PROPBUTTON",	VAL_INT,	0,		IDDES_PROPBUTTON,	0 },
 
-	// the first (top-left)  button on the object window (right of the reticule window)
 	{ "IDOBJ_STATSTART",	VAL_INT,	0,		IDOBJ_STATSTART,	0 },
 
 	// one below obj_statstart
 	{ "IDOBJ_OBJSTART",		VAL_INT,	0,		IDOBJ_OBJSTART,	0 },
 
-	// the first (top-left) button on the list window (up from the reticule)
 	{ "IDSTAT_START",		VAL_INT,	0,		IDSTAT_START,	0 },
 
 
@@ -1039,7 +1036,6 @@ CONST_SYMBOL asConstantTable[] =
 	{ "IMAGE_CURSOR_FIX",	  VAL_INT,	0,		IMAGE_CURSOR_FIX,	    0 },
 	{ "IMAGE_CURSOR_EMBARK",  VAL_INT,	0,	 	IMAGE_CURSOR_EMBARK, 	0 },
 
-	// game mode types  (possible values for intMode)
 	{ "INT_NORMAL",			VAL_INT,	0,		INT_NORMAL,	0 },		// Standard mode (just the reticule)
 	{ "INT_OPTION",			VAL_INT,	0,		INT_OPTION,0 },	// Option screen
 	{ "INT_EDITSTAT",		VAL_INT,	0,		INT_EDITSTAT,0 },	// Stat screen up for placing objects

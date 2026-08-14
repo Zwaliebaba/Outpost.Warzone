@@ -64,7 +64,6 @@ ULONG				mask;
 		return FALSE;
 	}
 
-//	ASSERT((DDPixelFormat->dwRGBBitCount == 16, "make16BitPalette RGB bit count not 16"));
 
 	psPal =	pie_GetGamePal();
 

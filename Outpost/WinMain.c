@@ -110,7 +110,6 @@ int WINAPI WinMain(
 	SDWORD			pSize;
 
 	(void)nShowCmd;
-//	(void)lpCmdLine;
 	(void)hPrevInstance;
 
 	// initialise all the command line states
@@ -147,8 +146,6 @@ init://jump here from the end if re_initialising
 	bDisableLobby = FALSE;
 
 	// parse the command line
-//	if (bDisableLobby || !NetPlay.bLobbyLaunched)
-//	{
 		if(!reInit)
 		{
 			if(!ParseCommandLine(lpCmdLine))
@@ -156,10 +153,8 @@ init://jump here from the end if re_initialising
 				return -1;
 			}
 		}
-//	}
 
 	// find out if the lobby stuff has been disabled
-//	bDisableLobby = checkDisableLobby();
 	if (!bDisableLobby &&
 		!lobbyInitialise())			// ajl. Init net stuff. Lobby can modify startup conditions like commandline.
 	{
@@ -194,7 +189,6 @@ init://jump here from the end if re_initialising
 		dispBitDepth = DISP_BITDEPTH;
 	}
 
-//	frameDDEnumerate();
 
 	if (!frameInitialise(hInstance, "Warzone 2100",
 									DISP_WIDTH,DISP_HEIGHT,dispBitDepth, !clStartWindowed, bVidMem))
@@ -256,11 +250,6 @@ init://jump here from the end if re_initialising
 // If windowed mode not requested then toggle to full screen. Doing
 // it here rather than in the call to frameInitialise fixes a problem
 // where machines with an NVidia and a 3DFX would kill the 3dfx display. (Definitly a HACK, PD)
-/*	if(!clStartWindowed)
-	{
-		screenToggleMode();
-	}
-*/
 	//set all the pause states to false
 	setAllPauseStates(FALSE);
 
@@ -302,9 +291,6 @@ init://jump here from the end if re_initialising
 				{
 					goto exit;
 				}
-				/*if (!levLoadData(pLevelName, saveGameName)) {
-					return -1;
-				}*/
 				screen_StopBackDrop();
 				break;
 			case GS_NORMAL:
@@ -344,7 +330,6 @@ init://jump here from the end if re_initialising
 		DBPRINTF(("Entering main loop\n"));
 
 		Restart = FALSE;
-		//firstTime = TRUE;
 
 		while (!Restart)
 		{
@@ -414,8 +399,6 @@ init://jump here from the end if re_initialising
 								break;
 
 	//						case TITLECODE_ATTRACT:
-	//							DBPRINTF(("TITLECODE_ATTRACT\n"));
-	//							break;
 
 							case TITLECODE_SAVEGAMELOAD:
 								DBPRINTF(("TITLECODE_SAVEGAMELOAD\n"));
@@ -479,7 +462,6 @@ init://jump here from the end if re_initialising
 
 								if(NetPlay.bLobbyLaunched)
 								{
-//									changeTitleMode(QUIT);
 									quit = TRUE;
 								}
 								break;
@@ -497,7 +479,6 @@ init://jump here from the end if re_initialising
 
 							case GAMECODE_PLAYVIDEO:
 								DBPRINTF(("GAMECODE_PLAYVIDEO\n"));
-//dont schange mode any more								gameStatus = GS_VIDEO_MODE;
 								Restart = FALSE;
 								break;
 

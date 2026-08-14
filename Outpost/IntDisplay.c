@@ -10,7 +10,6 @@
 #include <assert.h>
 
 #include "Frame.h"
-//#include "Widget.h"
 
 #include "Objects.h"
 #include "Loop.h"
@@ -59,14 +58,12 @@
 
 // Is a clickable form widget hilited, either because the cursor is over it or it is flashing.
 //
-//#define formIsHilite(p) ( (((W_CLICKFORM*)p)->state & WCLICK_HILITE) || \
 //						  (((W_CLICKFORM*)p)->state & WCLICK_FLASHON) )
 #define formIsHilite(p) 	(((W_CLICKFORM*)p)->state & WCLICK_HILITE)
 #define formIsFlashing(p)	(((W_CLICKFORM*)p)->state & WCLICK_FLASHON)
 
 // Is a button widget hilited, either because the cursor is over it or it is flashing.
 //
-//#define buttonIsHilite(p) ( (((W_BUTTON*)p)->state & WBUTS_HILITE) ||	\
 //						    (((W_BUTTON*)p)->state & WBUTS_FLASHON) )
 #define buttonIsHilite(p) 	(((W_BUTTON*)p)->state & WBUTS_HILITE)
 #define buttonIsFlashing(p)  (((W_BUTTON*)p)->state & WBUTS_FLASHON)
@@ -173,8 +170,6 @@ static SDWORD ButtonDrawXOffset;
 static SDWORD ButtonDrawYOffset;
 
 
-//static UDWORD DisplayQuantity = 1;
-//static SDWORD ActualQuantity = -1;
 
 
 // Set audio IDs for form opening/closing anims.
@@ -212,7 +207,6 @@ void intUpdateProgressBar(struct _widget *psWidget, struct _w_context *psContext
 		return;
 	}
 
-//	ASSERT((!psObj->died,"intUpdateProgressBar: object is dead"));
 	if(psObj->died AND psObj->died != NOT_CURRENT_LIST)
 	{
 		return;
@@ -226,7 +220,6 @@ void intUpdateProgressBar(struct _widget *psWidget, struct _w_context *psContext
 			if(DroidIsBuilding(Droid)) {		// Is it building.
 				ASSERT((Droid->asBits[COMP_CONSTRUCT].nStat,"intUpdateProgressBar: invalid droid type"));
 				Structure = DroidGetBuildStructure(Droid);				// Get the structure it's building.
-//				ASSERT((Structure != NULL,"intUpdateProgressBar : NULL Structure pointer."));
 				if(Structure) 
                 {
 				    //check if have all the power to build yet
@@ -235,7 +228,6 @@ void intUpdateProgressBar(struct _widget *psWidget, struct _w_context *psContext
                     if (Structure->currentPowerAccrued < (SWORD)BuildPower)
 				    {
 					    //if not started building show how much power accrued
-					    //Range = Structure->pStructureType->powerToBuild;
                         Range = BuildPower;
 					    BuildPoints = Structure->currentPowerAccrued;
 					    //set the colour of the bar to green
@@ -279,7 +271,6 @@ void intUpdateProgressBar(struct _widget *psWidget, struct _w_context *psContext
 				//check started to build
 				if (Manufacture->timeStarted == ACTION_START_TIME)
 				{
-					//BuildPoints = 0;
 					//if not started building show how much power accrued
 					Range = ((DROID_TEMPLATE *)Manufacture->psSubject)->powerPoints;
 					BuildPoints = Manufacture->powerAccrued;
@@ -319,13 +310,11 @@ void intUpdateProgressBar(struct _widget *psWidget, struct _w_context *psContext
 				pPlayerRes = asPlayerResList[selectedPlayer] + ((RESEARCH *)Research->
 					psSubject - asResearch);
                 //this is no good if you change which lab is researching the topic and one lab is faster
-				//Range = Research->timeToResearch;
                 Range = ((RESEARCH *)((RESEARCH_FACILITY*)Structure->
                     pFunctionality)->psSubject)->researchPoints;
 				//check started to research
 				if (Research->timeStarted == ACTION_START_TIME)
 				{
-					//BuildPoints = 0;
 					//if not started building show how much power accrued
 					Range = ((RESEARCH *)Research->psSubject)->researchPower;
 					BuildPoints = Research->powerAccrued;
@@ -412,7 +401,6 @@ void intUpdateQuantity(struct _widget *psWidget, struct _w_context *psContext)
 
 		psTemplate = (DROID_TEMPLATE *)StructureGetFactory(Structure)->psSubject;
    		//Quantity = getProductionQuantity(Structure, psTemplate) - 
-		//					getProductionBuilt(Structure, psTemplate);
         Quantity = getProductionQuantity(Structure, psTemplate);
         Remaining = getProductionBuilt(Structure, psTemplate);
         if (Quantity > Remaining)
@@ -694,9 +682,7 @@ void intUpdateCommandFact(struct _widget *psWidget, struct _w_context *psContext
 }
 
 
-//#ifdef WIN32
 #define DRAW_POWER_BAR_TEXT TRUE
-//#endif
 
 #define BARXOFFSET	46
 
@@ -713,7 +699,6 @@ void intDisplayPowerBar(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset
 #if	DRAW_POWER_BAR_TEXT
 	static char		szVal[8];
 #endif
-		//SDWORD Used,Avail,ManPow;
 	UNUSEDPARAMETER(pColours);
 
 //	asPower[selectedPlayer]->availablePower+=32;	// temp to test.
@@ -731,21 +716,9 @@ void intDisplayPowerBar(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset
 #endif
 
 
-	/*Avail = asPower[selectedPlayer]->availablePower / POWERBAR_SCALE;
-	Used = asPower[selectedPlayer]->usedPower / POWERBAR_SCALE;*/
 
-	/*if (Used < 0)
-	{
-		Used = 0;
-	}
-	
-	Total = Avail + Used;*/
 
-	/*if(ManPow > Avail) {
-		ManPow = Avail;
-	}*/
 
-	//Empty = BarGraph->width - Total;
 	if (ManPow > Avail)
 	{
 		Empty = BarWidth - ManPow;
@@ -757,9 +730,6 @@ void intDisplayPowerBar(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset
 
 	//if(Total > BarGraph->width) {				// If total size greater than bar size then scale values.
 	if(Avail > BarWidth) {				
-		//Used = PERNUM(BarGraph->width,Used,Total);
-		//ManPow = PERNUM(BarGraph->width,ManPow,Total);
-		//Avail = BarGraph->width - Used;
 		ManPow = PERNUM(BarWidth,ManPow,Avail);
 		Avail = BarWidth;
 		Empty = 0;
@@ -776,7 +746,6 @@ void intDisplayPowerBar(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset
 	y0 = yOffset + BarGraph->y;
 
 
-//	pie_SetDepthBufferStatus(DEPTH_CMP_ALWAYS_WRT_OFF);
 	pie_SetDepthBufferStatus(DEPTH_CMP_ALWAYS_WRT_ON);
 	pie_SetFogStatus(FALSE);
 
@@ -900,7 +869,6 @@ void intDisplayStatusButton(struct _widget *psWidget, UDWORD xOffset, UDWORD yOf
 
 	Buffer->State = Form->state;
 
-//		Down = Form->state & (WCLICK_DOWN | WCLICK_LOCKED | WCLICK_CLICKLOCK);
 
 	Object = NULL;
 	Image = -1;
@@ -916,14 +884,12 @@ void intDisplayStatusButton(struct _widget *psWidget, UDWORD xOffset, UDWORD yOf
 	}
 
 	if(psObj) {
-//			screenTextOut(64,48,"psObj: %p",psObj);
 		switch (psObj->type) {
 			case OBJ_DROID:						// If it's a droid...
 				Droid = (DROID*)psObj;
 
 				if(DroidIsBuilding(Droid)) {
 					Structure = DroidGetBuildStructure(Droid);
-//						DBPRINTF(("%p : %p",Droid,Structure));
 					if(Structure) {
 						Object = Structure;	//(void*)StructureGetIMD(Structure);
 						IMDType = IMDTYPE_STRUCTURE;
@@ -1036,7 +1002,6 @@ void intDisplayStatusButton(struct _widget *psWidget, UDWORD xOffset, UDWORD yOf
                                 }
 								RENDERBUTTON_INITIALISED(Buffer);
 							}
-//								Image = ResearchGetImage((RESEARCH_FACILITY*)Structure);
 						}
 						break;
 				}
@@ -1066,9 +1031,7 @@ void intDisplayStatusButton(struct _widget *psWidget, UDWORD xOffset, UDWORD yOf
 	}
 
 
-//						RENDERBUTTON_INITIALISED(Buffer);
 
-//	DBPRINTF(("%d\n",iV_GetOTIndex_PSX());
 
 	// Draw the button.
 	RenderButton(psWidget,Buffer, xOffset+Form->x, yOffset+Form->y, TOPBUTTON,Down);
@@ -1147,7 +1110,6 @@ void intDisplayObjectButton(struct _widget *psWidget, UDWORD xOffset, UDWORD yOf
 
 			case OBJ_STRUCTURE:					// If it's a structure...
 				IMDType = IMDTYPE_STRUCTURE;
-//					Object = (void*)StructureGetIMD((STRUCTURE*)psObj);
 				Object = (void*)psObj;
 				break;
 
@@ -1221,8 +1183,6 @@ void intDisplayStatsButton(struct _widget *psWidget, UDWORD xOffset, UDWORD yOff
 	{
 		if(StatIsStructure(Stat)) 
 		{
-//				IMDType = IMDTYPE_STRUCTURE;
-//				Object = (void*)StatGetStructureIMD(Stat,selectedPlayer);
 			Object = (void*)Stat;
 			Player = selectedPlayer;
 			IMDType = IMDTYPE_STRUCTURESTAT;
@@ -1235,10 +1195,6 @@ void intDisplayStatsButton(struct _widget *psWidget, UDWORD xOffset, UDWORD yOff
 		else 
 		{
 			//if(StatIsComponent(Stat)) 
-			//{
-			//	IMDType = IMDTYPE_COMPONENT;
-			//	Shape = StatGetComponentIMD(Stat);
-			//}
 			compID = StatIsComponent(Stat); // This failes for viper body.
 			if (compID != COMP_UNKNOWN)
 			{
@@ -1303,8 +1259,6 @@ void intDisplayStatsButton(struct _widget *psWidget, UDWORD xOffset, UDWORD yOff
 		if(Down) 
 		{
 			CurrentStatsTemplate = Stat;
-//				CurrentStatsShape = Object;
-//				CurrentStatsIndex = (SWORD)IMDIndex;
 		}
 
 	} 
@@ -1314,8 +1268,6 @@ void intDisplayStatsButton(struct _widget *psWidget, UDWORD xOffset, UDWORD yOff
 		//BLANK button for now - AB 9/1/98
 		Object = NULL;
 		CurrentStatsTemplate = NULL;
-//			CurrentStatsShape = NULL;
-//			CurrentStatsIndex = -1;
 	}
 
 	if(Object) {
@@ -1393,21 +1345,13 @@ void AdjustTabFormSize(W_TABFORM *Form,UDWORD *x0,UDWORD *y0,UDWORD *x1,UDWORD *
 
 void intDisplayObjectForm(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD *pColours)
 {
-//	W_TABFORM *Form = (W_TABFORM*)psWidget;
-//	UDWORD x0,y0,x1,y1;
 	UNUSEDPARAMETER(psWidget);
 	UNUSEDPARAMETER(xOffset);
 	UNUSEDPARAMETER(yOffset);
 	UNUSEDPARAMETER(pColours);
 //
-//	x0 = xOffset+Form->x;
-//	y0 = yOffset+Form->y;
-//	x1 = x0 + Form->width;
-//	y1 = y0 + Form->height;
 //
-//	AdjustTabFormSize(Form,&x0,&y0,&x1,&y1);
 //
-//	RenderWindowFrame(&FrameObject,x0,y0,x1-x0,y1-y0);
 }
 
 
@@ -1615,16 +1559,10 @@ void intDisplayImageHilight(struct _widget *psWidget, UDWORD xOffset, UDWORD yOf
 	switch(psWidget->type) {
 		case WIDG_FORM:
 			Hilight = formIsHilite(psWidget);
-//			if( ((W_CLICKFORM*)psWidget)->state & WCLICK_HILITE) ||  {
-//				Hilight = TRUE;
-//			}
 			break;
 
 		case WIDG_BUTTON:
 			Hilight = buttonIsHilite(psWidget);
-//			if( ((W_BUTTON*)psWidget)->state & WBUTS_HILITE) {
-//				Hilight = TRUE;
-//			}
 			break;
 
 		case WIDG_EDITBOX:
@@ -1674,9 +1612,6 @@ void GetButtonState(struct _widget *psWidget,BOOL *Hilight,UDWORD *Down,BOOL *Gr
 	switch(psWidget->type) {
 		case WIDG_FORM:
 			*Hilight = formIsHilite(psWidget);
-//			if( ((W_CLICKFORM*)psWidget)->state & WCLICK_HILITE) {
-//				Hilight = TRUE;
-//			}
 			if( ((W_CLICKFORM*)psWidget)->state & (WCLICK_DOWN | WCLICK_LOCKED | WCLICK_CLICKLOCK)) {
 				*Down = 1;
 			}
@@ -1687,9 +1622,6 @@ void GetButtonState(struct _widget *psWidget,BOOL *Hilight,UDWORD *Down,BOOL *Gr
 
 		case WIDG_BUTTON:
 			*Hilight = buttonIsHilite(psWidget);
-//			if( ((W_BUTTON*)psWidget)->state & WBUTS_HILITE) {
-//				*Hilight = TRUE;
-//			}
 			if( ((W_BUTTON*)psWidget)->state & (WBUTS_DOWN | WBUTS_LOCKED | WBUTS_CLICKLOCK)) {
 				*Down = 1;
 			}
@@ -1733,49 +1665,15 @@ void intDisplayButtonHilight(struct _widget *psWidget, UDWORD xOffset, UDWORD yO
 
 	GetButtonState(psWidget,&Hilight,&Down,&Grey);
 
-//	switch(psWidget->type) {
 //		case WIDG_FORM:
-//			if( ((W_CLICKFORM*)psWidget)->state & WCLICK_HILITE) {
-//				Hilight = TRUE;
-//			}
-//			if( ((W_CLICKFORM*)psWidget)->state & (WCLICK_DOWN | WCLICK_LOCKED | WCLICK_CLICKLOCK)) {
-//				Down = 1;
-//			}
-//			if( ((W_CLICKFORM*)psWidget)->state & WCLICK_GREY) {
-//				Grey = 1;
-//			}
-//			break;
 //
 //		case WIDG_BUTTON:
-//			if( ((W_BUTTON*)psWidget)->state & WBUTS_HILITE) {
-//				Hilight = TRUE;
-//			}
-//			if( ((W_BUTTON*)psWidget)->state & (WBUTS_DOWN | WBUTS_LOCKED | WBUTS_CLICKLOCK)) {
-//				Down = 1;
-//			}
-//			if( ((W_BUTTON*)psWidget)->state & WBUTS_GREY) {
-//				Grey = 1;
-//			}
-//			break;
 //
 //		case WIDG_EDITBOX:
-//			if( ((W_EDITBOX*)psWidget)->state & WEDBS_HILITE) {
-//				Hilight = TRUE;
-//			}
-//			break;
 //
 //		case WIDG_SLIDER:
-//			if( ((W_SLIDER*)psWidget)->state & SLD_HILITE) {
-//				Hilight = TRUE;
-//			}
-//			if( ((W_SLIDER*)psWidget)->state & (WCLICK_DOWN | WCLICK_LOCKED | WCLICK_CLICKLOCK)) {
-//				Down = 1;
-//			}
-//			break;
 //
 //		default:
-//			Hilight = FALSE;
-//	}
 
 	if(Grey) {
 		ImageID = (UWORD)(UNPACKDWORD_TRI_A((UDWORD)psWidget->pUserData));
@@ -1871,14 +1769,12 @@ void intDisplayReticuleButton(struct _widget *psWidget, UDWORD xOffset, UDWORD y
 
 	ASSERT((psWidget->type == WIDG_BUTTON,"intDisplayReticuleButton : Not a button"));
 
-//	iV_DrawTransImage(IntImages,ImageID,x,y);
 	if(((W_BUTTON*)psWidget)->state & WBUTS_GREY) {
 		iV_DrawTransImage(IntImages,IMAGE_RETICULE_GREY,x,y);
 		return;
 	}
 
 	Down = ((W_BUTTON*)psWidget)->state & (WBUTS_DOWN | WBUTS_CLICKLOCK);
-//	Hilight = ((W_BUTTON*)psWidget)->state & WBUTS_HILITE;
 	Hilight = buttonIsHilite(psWidget);
 
 	if(Down) 
@@ -1900,7 +1796,6 @@ void intDisplayReticuleButton(struct _widget *psWidget, UDWORD xOffset, UDWORD y
 		//flashing button?
 		if (flashing)
 		{
-//			if (flashTime < 2)
 			if (((gameTime/250) % 2) == 0)
 			{
 				ImageID = (UWORD)(Index);//IMAGE_RETICULE_BUTDOWN;//a step in the right direction JPS 27-4-98
@@ -1948,14 +1843,9 @@ void intDisplayTab(struct _widget *psWidget,UDWORD TabType, UDWORD Position,
 	UNUSEDPARAMETER(Height);
     UNUSEDPARAMETER(Number);
 
-//	ASSERT((Number < 4,"intDisplayTab : Too many tabs."));
     //Number represents which tab we are on but not interested since they all look the same now - AB 25/01/99
-	/*if(Number > 3) {
-		Number = 3;
-	}*/
 
 	if(TabType == TAB_MAJOR) {
-		//iV_DrawTransImage(IntImages,(UWORD)(Tab->MajorUp+Number),x,y);
         iV_DrawTransImage(IntImages,(UWORD)Tab->MajorUp,x,y);
 
 		if(Hilight) {
@@ -1964,7 +1854,6 @@ void intDisplayTab(struct _widget *psWidget,UDWORD TabType, UDWORD Position,
 			iV_DrawTransImage(IntImages,(UWORD)Tab->MajorSelected,x,y);
 		}
 	} else {
-		//iV_DrawTransImage(IntImages,(UWORD)(Tab->MinorUp+Number),x,y);
         iV_DrawTransImage(IntImages,(UWORD)(Tab->MinorUp),x,y);
 
 		if(Hilight) {
@@ -1977,92 +1866,22 @@ void intDisplayTab(struct _widget *psWidget,UDWORD TabType, UDWORD Position,
 
 //void intDisplaySystemTab(struct _widget *psWidget,UDWORD TabType, UDWORD Position,
 //				   UDWORD Number,BOOL Selected,BOOL Hilight,UDWORD x,UDWORD y,UDWORD Width,UDWORD Height)
-//{
-//	TABDEF *Tab = (TABDEF*)psWidget->pUserData;
-//#ifdef PSX
-//	UWORD ImageID;
-//#endif
 //
-////	ASSERT((Number < 4,"intDisplaySystemTab : Too many tabs."));
-//	UNUSEDPARAMETER(Position);
-//	UNUSEDPARAMETER(Width);
-//	UNUSEDPARAMETER(Height);
 //
 //	Number = Number%4;	// Make sure number never gets bigger than 3.
 //
-//#ifdef WIN32
-//	if(TabType == TAB_MAJOR) 
-//	{
-//		iV_DrawTransImage(IntImages,(UWORD)(Tab->MajorUp+Number),x,y);
 //
-//		if(Hilight) 
-//		{
-//			iV_DrawTransImage(IntImages,Tab->MajorHilight,x,y);
-//		} 
-//		else if(Selected) 
-//		{
-//			iV_DrawTransImage(IntImages,(UWORD)(Tab->MajorSelected+Number),x,y);
-//		}
-//	}
 //	else
-//	{
-//		//ASSERT((FALSE,"intDisplaySystemTab : NOT CATERED FOR!!!"));
-//		iV_DrawTransImage(IntImages,(UWORD)(Tab->MinorUp),x,y);
 //
-//		if(Hilight) 
-//		{
-//			iV_DrawTransImage(IntImages,Tab->MinorHilight,x,y);
-//		} 
-//		else if(Selected) 
-//		{
-//			iV_DrawTransImage(IntImages,Tab->MinorSelected,x,y);
-//		}
-//	}
-//#else
-//	if(TabType == TAB_MAJOR) 
-//	{
-//		if(Hilight) 
-//		{
-//			iV_DrawTransImage(IntImages,Tab->MajorHilight,x,y);
-//		} 
-//		else if(Selected) 
-//		{
-//			iV_DrawTransImage(IntImages,(UWORD)(Tab->MajorSelected+Number),x,y);
-//		}
 //
-//		ImageID = (UWORD)(Tab->MajorUp+Number);
-//		iV_DrawTransImage(IntImages,ImageID,x,y);
-//	}
 //	else
-//	{
-//		if(Hilight) 
-//		{
-//			iV_DrawTransImage(IntImages,Tab->MinorHilight,x,y);
-//		} 
-//		else if(Selected) 
-//		{
-//			iV_DrawTransImage(IntImages,Tab->MinorSelected,x,y);
-//		}
 //
-//		ImageID = (UWORD)(Tab->MinorUp);
-//		iV_DrawTransImage(IntImages,ImageID,x,y);
-//	}
 //
 //	AddCursorSnap(&InterfaceSnap,
 //					x+(iV_GetImageXOffset(IntImages,ImageID))+iV_GetImageWidth(IntImages,ImageID)/2,
 //					y+(iV_GetImageYOffset(IntImages,ImageID))+iV_GetImageHeight(IntImages,ImageID)/2,
-//					psWidget->formID,psWidget->id,NULL);
-//#endif
-//}
 
-//static void intUpdateSliderCount(struct _widget *psWidget, struct _w_context *psContext)
-//{
-//	W_SLIDER *Slider = (W_SLIDER*)psWidget;
-//	UDWORD Quantity = Slider->pos + 1;
 //
-//	W_LABEL *Label = (W_LABEL*)widgGetFromID(psWScreen,IDSTAT_SLIDERCOUNT);
-//	Label->pUserData = (void*)Quantity;
-//}
 
 // Display one of three images depending on if the widget is currently depressed (ah!).
 //
@@ -2087,10 +1906,6 @@ void intDisplayButtonPressed(struct _widget *psWidget, UDWORD xOffset,
 	}
 
 	Hilight = (UBYTE)buttonIsHilite(psButton);
-//	if (psButton->state & WBUTS_HILITE) 
-//	{
-//		Hilight = 1;
-//	}
 
 
 	iV_DrawTransImage(IntImages,ImageID,x,y);
@@ -2127,10 +1942,6 @@ void intDisplayDPButton(struct _widget *psWidget, UDWORD xOffset,
 		}
 
 		hilight = (UBYTE)buttonIsHilite(psButton);
-//		if (psButton->state & WBUTS_HILITE) 
-//		{
-//			hilight = TRUE;
-//		}
 
 		switch(psStruct->pStructureType->type)
 		{
@@ -2167,37 +1978,21 @@ void intDisplaySlider(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset, 
 	UDWORD x = xOffset+psWidget->x;
 	UDWORD y = yOffset+psWidget->y;
 	SWORD sx;
-	//SWORD x0,y0, x1;
 
 	UNUSEDPARAMETER(pColours);
 	iV_DrawTransImage(IntImages,IMAGE_SLIDER_BACK,x+STAT_SLD_OX,y+STAT_SLD_OY);
 
-/*	x0 = (SWORD)(Slider->x + xOffset + Slider->barSize/2);
-	y0 = (SWORD)(Slider->y + yOffset + Slider->height/2);
-	x1 = (SWORD)(x0 + Slider->width - Slider->barSize);
-	screenSetLineCacheColour(*(pColours + WCOL_DARK));
-	screenDrawLine(x0,y0, x1,y0);
-*/
 
 
-//#ifdef WIN32
 	sx = (SWORD)((Slider->width - Slider->barSize)
 	 			 * Slider->pos / Slider->numStops);
-//#else
-//	iV_SetOTIndex_PSX(iV_GetOTIndex_PSX()-1);
 //	sx = (SWORD)((Slider->width-12 - Slider->barSize)
-//	 			 * Slider->pos / Slider->numStops)+4;
-//#endif
 
 	iV_DrawTransImage(IntImages,IMAGE_SLIDER_BUT,x+sx,y-2);
 
-//#ifdef PSX
 //	AddCursorSnap(&InterfaceSnap,
 //					x+iV_GetImageCenterX(IntImages,IMAGE_SLIDER_BACK),
 //					y+iV_GetImageCenterY(IntImages,IMAGE_SLIDER_BACK),
-//					psWidget->formID,psWidget->id,NULL);
-//#endif
-	//DisplayQuantity = Slider->pos + 1;
 }
 
 /* display highlighted edit box from left, middle and end edit box graphics */
@@ -2263,8 +2058,6 @@ void intDisplayNumber(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset, 
 	{
 		psStruct = (STRUCTURE *)Label->pUserData;
 		psFactory = (FACTORY *) psStruct->pFunctionality;
-		//psFactory = (FACTORY *)((STRUCTURE *)Label->pUserData)->pFunctionality;
-		//if (psFactory->psSubject)
 		{
 			Quantity = psFactory->quantity;
 		}
@@ -2312,16 +2105,9 @@ void intDeleteGraphics(void)
 	imageDeleteBitmaps();
 }
 
-//#ifdef PSX
 //// This sets up a test button for rendering on the playstation
-//void InitialiseTestButton(UDWORD Width,UDWORD Height)
-//{
-//	TestButtonBuffer.InUse=FALSE;
 //  	TestButtonBuffer.Surface = iV_SurfaceCreate(REND_SURFACE_USR,Width,Height,0,0,NULL);	// This allocates the surface in psx VRAM
-//	ASSERT((TestButtonBuffer.Surface!=NULL,"intInitialise : Failed to create TestButton surface"));
-//}
 //
-//#endif
 
 
 static RENDERED_BUTTON *CurrentOpenButton=NULL;
@@ -2615,12 +2401,10 @@ void ClearButton(BOOL Down,UDWORD Size, UDWORD buttonType)
 
 	if(Down)
 	{
-//		pie_ImageFileID(IntImages,(UWORD)(IMAGE_BUT0_DOWN+(Size*2)+(buttonType*6)),ButXPos,ButYPos);
 		pie_ImageFileID(IntImages,(UWORD)(IMAGE_BUT0_DOWN+(buttonType*2)),ButXPos,ButYPos);
 	}
 	else
 	{
-//		pie_ImageFileID(IntImages,(UWORD)(IMAGE_BUT0_UP+(Size*2)+(buttonType*6)),ButXPos,ButYPos);
 		pie_ImageFileID(IntImages,(UWORD)(IMAGE_BUT0_UP+(buttonType*2)),ButXPos,ButYPos);
 	}
 }
@@ -2785,9 +2569,7 @@ void CreateIMDButton(IMAGEFILE *ImageFile,UWORD ImageID,void *Object,UDWORD Play
 			Radius = getComponentRadius((BASE_STATS*)Object);
 			Size = 2;//small structure
 			scale = rescaleButtonObject(Radius, COMP_BUT_SCALE, COMPONENT_RADIUS);
-			//scale = COMP_BUT_SCALE;
 			//ASSERT((Radius <= OBJECT_RADIUS,"Object too big for button - %s", 
-			//		((BASE_STATS*)Object)->pName));
 		}
 		else if(IMDType == IMDTYPE_RESEARCH)
 		{
@@ -2796,7 +2578,6 @@ void CreateIMDButton(IMAGEFILE *ImageFile,UWORD ImageID,void *Object,UDWORD Play
 			{
 				Size = 2;//small structure
 				scale = rescaleButtonObject(Radius, COMP_BUT_SCALE, COMPONENT_RADIUS);
-				//scale = COMP_BUT_SCALE;
 			}
 			else if(Radius <= 128)
 			{
@@ -2924,15 +2705,10 @@ void CreateImageButton(IMAGEFILE *ImageFile,UWORD ImageID,RENDERED_BUTTON *Buffe
 	UDWORD ox,oy;
 
 	ox = oy = 0;
-	/*if(Down) 
-	{
-		ox = oy = 2;
-	} */
 
 	ClearButton(Down,0, buttonType);
 
 	iV_DrawTransImage(ImageFile,ImageID,ButXPos+ox,ButYPos+oy);
-//	DrawTransImageSR(Image,ox,oy);
 
 }
 
@@ -2979,7 +2755,6 @@ BOOL DroidIsDemolishing(DROID *Droid)
 	STRUCTURE *Structure;
 	UDWORD x,y;
 
-	//if(droidType(Droid) != DROID_CONSTRUCT) return FALSE;
     if (!(droidType(Droid) == DROID_CONSTRUCT OR droidType(Droid) == 
         DROID_CYBORG_CONSTRUCT))
     {
@@ -3026,7 +2801,6 @@ BOOL DroidIsBuilding(DROID *Droid)
 	STRUCTURE *Structure;
 	UDWORD x,y;
 
-	//if(droidType(Droid) != DROID_CONSTRUCT) return FALSE;
     if (!(droidType(Droid) == DROID_CONSTRUCT OR
         droidType(Droid) == DROID_CYBORG_CONSTRUCT)) 
     {
@@ -3041,7 +2815,6 @@ BOOL DroidIsBuilding(DROID *Droid)
 			orderStateObj(Droid, DORDER_HELPBUILD,(BASE_OBJECT**)&Structure) ) {
 
 //		DBPRINTF(("%p : %d %d\n",Droid,orderStateObj(Droid, DORDER_BUILD,(BASE_OBJECT**)&Structure),
-//						orderStateObj(Droid, DORDER_HELPBUILD,(BASE_OBJECT**)&Structure)));
 
 		return TRUE;
 	}
@@ -3050,14 +2823,12 @@ BOOL DroidIsBuilding(DROID *Droid)
 }
 
 
-// Returns TRUE if the droid has been ordered build something ( but has'nt started yet )
 //
 BOOL DroidGoingToBuild(DROID *Droid)
 {
 	BASE_STATS	*Stats;
 	UDWORD x,y;
 
-	//if(droidType(Droid) != DROID_CONSTRUCT) return FALSE;
     if (!(droidType(Droid) == DROID_CONSTRUCT OR
         droidType(Droid) == DROID_CYBORG_CONSTRUCT)) 
     {
@@ -3156,10 +2927,6 @@ iIMDShape *DroidGetIMD(DROID *Droid)
 	return Droid->sDisplay.imd;
 }
 
-/*UDWORD DroidGetIMDIndex(DROID *Droid)
-{
-	return Droid->imdNum;
-}*/
 
 BOOL StructureIsManufacturing(STRUCTURE *Structure)
 {
@@ -3188,7 +2955,6 @@ RESEARCH_FACILITY *StructureGetResearch(STRUCTURE *Structure)
 
 iIMDShape *StructureGetIMD(STRUCTURE *Structure)
 {
-//	return buildingIMDs[aBuildingIMDs[Structure->player][Structure->pStructureType->type]];
 	return Structure->pStructureType->pIMD;
 }
 
@@ -3198,23 +2964,11 @@ DROID_TEMPLATE *FactoryGetTemplate(FACTORY *Factory)
 	return (DROID_TEMPLATE*)Factory->psSubject;
 }
 
-//iIMDShape *TemplateGetIMD(DROID_TEMPLATE *Template,UDWORD Player)
-//{
-////	return droidIMDs[GetIMDFromTemplate(Template,Player)];
-//	return NULL;
-//}
 //
 ///*UDWORD TemplateGetIMDIndex(DROID_TEMPLATE *Template,UDWORD Player)
-//{
-//	return GetIMDFromTemplate(Template,Player);
 //}*/
 //
-//SDWORD ResearchGetImage(RESEARCH_FACILITY *Research)
-//{
-//	UNUSEDPARAMETER(Research);
 //
-//	return 0;	//IMAGE_RESITEM;
-//}
 
 
 BOOL StatIsStructure(BASE_STATS *Stat)
@@ -3232,7 +2986,6 @@ BOOL StatIsFeature(BASE_STATS *Stat)
 iIMDShape *StatGetStructureIMD(BASE_STATS *Stat,UDWORD Player)
 {
 	(void)Player;
-	//return buildingIMDs[aBuildingIMDs[Player][((STRUCTURE_STATS*)Stat)->type]];
 	return ((STRUCTURE_STATS*)Stat)->pIMD;
 }
 
@@ -3242,89 +2995,61 @@ BOOL StatIsTemplate(BASE_STATS *Stat)
 				 Stat->ref < REF_TEMPLATE_START + REF_RANGE);
 }
 
-//iIMDShape *StatGetTemplateIMD(BASE_STATS *Stat,UDWORD Player)
-//{
-//	return TemplateGetIMD((DROID_TEMPLATE*)Stat,Player);
-//}
 //
 ///*UDWORD StatGetTemplateIMDIndex(BASE_STATS *Stat,UDWORD Player)
-//{
-//	return TemplateGetIMDIndex((DROID_TEMPLATE*)Stat,Player);
 //}*/
 
-//BOOL StatIsComponent(BASE_STATS *Stat)
 SDWORD StatIsComponent(BASE_STATS *Stat)
 {
 	SDWORD		compID = -1;
 
 	if(Stat->ref >= REF_BODY_START &&
 				 Stat->ref < REF_BODY_START + REF_RANGE) {
-		//return TRUE;
 		return COMP_BODY;
 	}
 
 	if(Stat->ref >= REF_BRAIN_START &&
 				 Stat->ref < REF_BRAIN_START + REF_RANGE) {
-		//return TRUE;
 		return COMP_BRAIN;
 	}
 
 	if(Stat->ref >= REF_PROPULSION_START &&
 				 Stat->ref < REF_PROPULSION_START + REF_RANGE) {
-		//return TRUE;
 		return COMP_PROPULSION;
 	}
 
 	if(Stat->ref >= REF_WEAPON_START &&
 				 Stat->ref < REF_WEAPON_START + REF_RANGE) {
-		//return TRUE;
 		return COMP_WEAPON;
 	}
 
 	if(Stat->ref >= REF_SENSOR_START &&
 				 Stat->ref < REF_SENSOR_START + REF_RANGE) {
-		//return TRUE;
 		return COMP_SENSOR;
 	}
 
 	if(Stat->ref >= REF_ECM_START &&
 				 Stat->ref < REF_ECM_START + REF_RANGE) {
-		//return TRUE;
 		return COMP_ECM;
 	}
 
 	if(Stat->ref >= REF_CONSTRUCT_START &&
 				 Stat->ref < REF_CONSTRUCT_START + REF_RANGE) {
-		//return TRUE;
 		return COMP_CONSTRUCT;
 	}
 
 	if(Stat->ref >= REF_REPAIR_START &&
 				 Stat->ref < REF_REPAIR_START + REF_RANGE) {
-		//return TRUE;
 		return COMP_REPAIRUNIT;
 	}
 
-	//return FALSE;
 	return COMP_UNKNOWN;
 }
 
-//iIMDShape *StatGetComponentIMD(BASE_STATS *Stat)
-//iIMDShape *StatGetComponentIMD(BASE_STATS *Stat, SDWORD compID)
 BOOL StatGetComponentIMD(BASE_STATS *Stat, SDWORD compID,iIMDShape **CompIMD,iIMDShape **MountIMD)
 {
 	WEAPON_STATS		*psWStat;
-	/*SWORD ID;
-
-	ID = GetTokenID(CompIMDIDs,Stat->pName);
-	if(ID >= 0) {
-		return componentIMDs[ID];
-	}
-
-	ASSERT((0,"StatGetComponent : Unknown component"));*/
 	
-//	COMP_BASE_STATS *CompStat = (COMP_BASE_STATS *)Stat;
-//	DBPRINTF(("%s\n",Stat->pName));
 	
 	*CompIMD = NULL;
 	*MountIMD = NULL;
@@ -3334,14 +3059,11 @@ BOOL StatGetComponentIMD(BASE_STATS *Stat, SDWORD compID,iIMDShape **CompIMD,iIM
 	case COMP_BODY:
 		*CompIMD = ((COMP_BASE_STATS *)Stat)->pIMD;
 		return TRUE;
-//		return ((COMP_BASE_STATS *)Stat)->pIMD;
 
 	case COMP_BRAIN:
 //		ASSERT(( ((UBYTE*)Stat >= (UBYTE*)asCommandDroids) &&
 //				 ((UBYTE*)Stat < (UBYTE*)asCommandDroids + sizeof(asCommandDroids)),
-//				 "StatGetComponentIMD: This 'BRAIN_STATS' is actually meant to be a 'COMMAND_DROID'"));
 
-//		psWStat = asWeaponStats + ((COMMAND_DROID *)Stat)->nWeapStat;
 		psWStat = ((BRAIN_STATS *)Stat)->psWeaponStat;
 		*MountIMD = psWStat->pMountGraphic;
 		*CompIMD = psWStat->pIMD;
@@ -3391,7 +3113,6 @@ BOOL StatIsResearch(BASE_STATS *Stat)
 				REF_RESEARCH_START + REF_RANGE);
 }
 
-//void StatGetResearchImage(BASE_STATS *psStat, SDWORD *Image,iIMDShape **Shape, BOOL drawTechIcon)
 void StatGetResearchImage(BASE_STATS *psStat, SDWORD *Image, iIMDShape **Shape, 
                           BASE_STATS **ppGraphicData, BOOL drawTechIcon)
 {
@@ -3431,41 +3152,15 @@ void StatGetResearchImage(BASE_STATS *psStat, SDWORD *Image, iIMDShape **Shape,
 	}
 
 	//test for all - AB		
-//	return IMD_DEFAULT;
 	return -1;
 }*/
 
 // Find a token in the specified token list and return it's Index.
 //
-/*SWORD FindTokenID(TOKENID *Tok,STRING *Token)
-{
-	SWORD Index = 0;
-	while(Tok->Token!=NULL) {
-		if(strcmp(Tok->Token,Token) == 0) {
-			return Index;
-		}
-		Index++;
-		Tok++;
-	}
 
-	return -1;
-}*/
-
-//void intDisplayBorderForm(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD *pColours)
-//{
-//	W_TABFORM *Form = (W_TABFORM*)psWidget;
-//	UDWORD x0,y0,x1,y1;
-//	UNUSEDPARAMETER(pColours);
 //
-//	x0 = xOffset+Form->x;
-//	y0 = yOffset+Form->y;
-//	x1 = x0 + Form->width;
-//	y1 = y0 + Form->height;
 //
-//	AdjustTabFormSize(Form,&x0,&y0,&x1,&y1);
 //
-//	RenderWindowFrame(&FrameNormal,x0,y0,x1-x0,y1-y0);
-//}
 
 #define	DRAW_BAR_TEXT	1
 
@@ -3484,7 +3179,6 @@ void intDisplayStatsBar(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset
 	y0 = yOffset + BarGraph->y;
 
 //	//draw the background image
-//	iV_DrawTransImage(IntImages,IMAGE_DES_STATSBACK,x0,y0);
 
 	//increment for the position of the level indicator
 	x0 += 3;
@@ -3551,7 +3245,6 @@ void intDisplayDesignPowerBar(struct _widget *psWidget, UDWORD xOffset,
 	//draw the background image
 	iV_DrawImage(IntImages,IMAGE_DES_POWERBAR_LEFT,x0,y0);
 	iV_DrawImage(IntImages,IMAGE_DES_POWERBAR_RIGHT,
-		//xOffset+psWidget->width-iV_GetImageWidth(IntImages, IMAGE_DES_POWERBAR_RIGHT),y0);
         x0 + psWidget->width-iV_GetImageWidth(IntImages, IMAGE_DES_POWERBAR_RIGHT),y0);
 
 	//increment for the position of the bars within the background image
@@ -3580,7 +3273,6 @@ void intDisplayDesignPowerBar(struct _widget *psWidget, UDWORD xOffset,
 
 	//draw current value section
 	iV_DrawImageRect(IntImages,IMAGE_DES_STATSCURR,	iX, y0, 0, 0,
-						//BarGraph->majorSize, iV_GetImageHeight(IntImages,IMAGE_DES_STATSCURR));
                         width, iV_GetImageHeight(IntImages,IMAGE_DES_STATSCURR));
 
 	/* draw text value */
@@ -3600,7 +3292,6 @@ void intDisplayDesignPowerBar(struct _widget *psWidget, UDWORD xOffset,
         {
             width = barWidth;
         }
-		//iV_DrawTransImage(IntImages,IMAGE_DES_STATSCOMP,x0+BarGraph->minorSize ,y0);
         iV_DrawTransImage(IntImages, IMAGE_DES_STATSCOMP, iX + width ,y0);
 	}
 
@@ -3616,18 +3307,15 @@ void WidgetAudioCallback(int AudioID)
 {
 	static	SDWORD LastTimeAudio;
 	if(AudioID >= 0) {
-//		DBPRINTF(("%d\n",AudioID));
 
 		SDWORD TimeSinceLastWidgetBeep;
 
 		// Don't allow a widget beep if one was made in the last WIDGETBEEPGAP milliseconds
-		// This stops double beeps happening (which seems to happen all the time)
 		TimeSinceLastWidgetBeep=gameTime2-LastTimeAudio;
 		if (TimeSinceLastWidgetBeep<0 || TimeSinceLastWidgetBeep>WIDGETBEEPGAP)
 		{
 			LastTimeAudio=gameTime2;
 			audio_PlayTrack(AudioID);
-//			DBPRINTF(("AudioID %d\n",AudioID));
 		}
 	}
 }
@@ -3668,11 +3356,9 @@ void intDisplayTransportButton(struct _widget *psWidget, UDWORD xOffset,
 
 	Buffer->State = Form->state;
 
-	//psDroid = (DROID*)Buffer->Data;
 
 	//there should always be a droid associated with the button
 	//ASSERT((PTRVALID(psDroid, sizeof(DROID)),
-	//	"intDisplayTransportButton: invalid droid pointer"));
 
 	if (psDroid) 
 	{
@@ -3714,10 +3400,7 @@ void intDisplayTransportButton(struct _widget *psWidget, UDWORD xOffset,
 void drawRadarBlips()
 {
 	PROXIMITY_DISPLAY	*psProxDisp;
-//	STRUCTURE			*psBuilding;
 	FEATURE				*psFeature;
-	//VIEW_PROXIMITY		*pViewProximity;
-	//SDWORD				x, y;
 	UWORD				imageID;
 	UDWORD				VisWidth, VisHeight, delay = 150;
 	PROX_TYPE			proxType;
@@ -3739,7 +3422,6 @@ void drawRadarBlips()
 			psProxDisp->radarY > 0 AND psProxDisp->radarY < VisHeight)
 		{
 			//pViewProximity = (VIEW_PROXIMITY*)psProxDisp->psMessage->
-			//	pViewData->pData;
 			if (psProxDisp->type == POS_PROXDATA)
 			{
 				proxType = ((VIEW_PROXIMITY*)((VIEWDATA *)psProxDisp->psMessage->
@@ -3763,7 +3445,6 @@ void drawRadarBlips()
 			if (psProxDisp->psMessage->read)
 			{
 				//imageID = (UWORD)(IMAGE_RAD_ENM3 + (pViewProximity->
-				//	proxType * (NUM_PULSES + 1)));
 				imageID = (UWORD)(IMAGE_RAD_ENM3 + (proxType * (NUM_PULSES + 1)));
 			}
 			else
@@ -3779,7 +3460,6 @@ void drawRadarBlips()
 					psProxDisp->timeLastDrawn = gameTime2;
 				}
 				//imageID = (UWORD)(IMAGE_RAD_ENM1 + psProxDisp->strobe + (
-				//	pViewProximity->proxType * (NUM_PULSES + 1)));
 				imageID = (UWORD)(IMAGE_RAD_ENM1 + psProxDisp->strobe + (
 					proxType * (NUM_PULSES + 1)));
 			}
@@ -3831,25 +3511,13 @@ void drawRadarBlips()
 	*/
 
 // deathmatch code
-//#ifdef WIN32	
 //	if(bMultiPlayer && (game.type == DMATCH))
-//	{
 //		for (psFeature = apsFeatureLists[0]; psFeature != NULL; psFeature = 
 //			psFeature->psNext)
-//		{
 //			if( psFeature->psStats->subType == FEAT_GEN_ARTE)	// it's an artifact.
-//			{
 //				worldPosToRadarPos(psFeature->x >> TILE_SHIFT ,
-//								   psFeature->y >> TILE_SHIFT,  &radarX,&radarY);
 //				if (radarX > 0 && radarX < (SDWORD)VisWidth &&			// it's visable.
 //					radarY > 0 && radarY < (SDWORD)VisHeight)
-//				{
-//					iV_DrawTransImage(IntImages,(UWORD)(IMAGE_RAD_ENM3),radarX + RADTLX, radarY + RADTLY);
-//				}
-//			}
-//		}
-//	}
-//#endif
 
 }
 
@@ -3898,10 +3566,7 @@ void intDisplayProximityBlips(struct _widget *psWidget, UDWORD xOffset,
 	W_CLICKFORM			*psButton = (W_CLICKFORM*)psWidget;
 	PROXIMITY_DISPLAY	*psProxDisp = (PROXIMITY_DISPLAY *)psButton->pUserData;
 	MESSAGE				*psMsg = psProxDisp->psMessage;
-	//BOOL				Hilight = FALSE;
-//	UWORD				imageID;
 	UDWORD				delay = 100;
-	//VIEW_PROXIMITY		*pViewProximity;
 	SDWORD				x, y;
 
 	UNUSEDPARAMETER(pColours);
@@ -3915,7 +3580,6 @@ void intDisplayProximityBlips(struct _widget *psWidget, UDWORD xOffset,
 	{
 		return;
 	}
-	//pViewProximity = (VIEW_PROXIMITY*)psProxDisp->psMessage->pViewData->pData;
 	if (psProxDisp->type == POS_PROXDATA)
 	{
 		x = ((VIEW_PROXIMITY*)((VIEWDATA *)psProxDisp->psMessage->pViewData)->pData)->x;
@@ -4065,13 +3729,9 @@ void intDisplayAllyIcon(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset
 	UDWORD		i = Label->pUserData;
 	UDWORD		x = Label->x + xOffset;
 	UDWORD		y = Label->y + yOffset;
-//	char		str[2];
     UNUSEDPARAMETER(pColours);
 
     iV_DrawTransImage(IntImages,IMAGE_DES_BODYPOINTS,x,y);
 
-//	iV_SetTextColour(-1);
-//	sprintf(&str,"%d",i);
-//	pie_DrawText(&str, x+6, y-1 );
 
 }

@@ -185,7 +185,6 @@ _keymapsave keyMapSaveTable[] =
 	kf_SensorDisplayOn,
 	kf_SensorDisplayOff,
 
-//#ifdef DEBUG	// debug mappings only
 	kf_AllAvailable,
 	kf_ToggleDebugMappings,
 	kf_NewPlayerPower,
@@ -212,7 +211,6 @@ _keymapsave keyMapSaveTable[] =
 	kf_ToggleGodMode,
 	kf_EndMissionOffWorld, 
 	kf_SystemClose,
-//#endif
 
 	NULL		// last function!
 };
@@ -261,7 +259,6 @@ void	keyInitMappings( BOOL bForceDefaults )
   	keyAddMapping(KEYMAP_ASSIGNABLE,KEY_IGNORE,KEY_F8,KEYMAP_PRESSED,kf_ToggleConsole,			strresGetString(psStringRes,STR_BIND_TOGCON));
   	keyAddMapping(KEYMAP_ASSIGNABLE,KEY_IGNORE,KEY_F9,KEYMAP_PRESSED,kf_ToggleEnergyBars,		strresGetString(psStringRes,STR_BIND_BARS));
 	keyAddMapping(KEYMAP_ASSIGNABLE,KEY_IGNORE,KEY_F10,KEYMAP_PRESSED,kf_ScreenDump,				strresGetString(psStringRes,STR_BIND_SHOT));
-//	keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE,KEY_F10,KEYMAP_PRESSED,kf_ScreenDump,				strresGetString(psStringRes,STR_BIND_SHOT));
 	keyAddMapping(KEYMAP_ASSIGNABLE,KEY_IGNORE,KEY_F11,KEYMAP_PRESSED,kf_ToggleFormationSpeedLimiting,			strresGetString(psStringRes,STR_BIND_SPLIM));
 	keyAddMapping(KEYMAP_ASSIGNABLE,KEY_IGNORE,KEY_F12,KEYMAP_PRESSED,kf_MoveToLastMessagePos,	strresGetString(psStringRes,STR_BIND_PREV));
 	//                                **********************************
@@ -400,7 +397,6 @@ if(bAllowDebugMode)
 	keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE,KEY_V,KEYMAP_PRESSED,kf_ToggleVisibility,			"Toggle visibility");
 	keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE,KEY_W,KEYMAP_DOWN,kf_LowerTile,						"Lower tile height");	
 	keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE,KEY_Y,KEYMAP_PRESSED,kf_ToggleDemoMode,				"Toggles on/off DEMO Mode");
-//	keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE,KEY_Z,KEYMAP_PRESSED,kf_ToggleSensorDisplay,			"Toggle Sensor display");
 	keyAddMapping(KEYMAP__DEBUG,KEY_LCTRL,KEY_B,KEYMAP_PRESSED,kf_EndMissionOffWorld,			"End Mission");
 	keyAddMapping(KEYMAP__DEBUG,KEY_LCTRL,KEY_KP_MINUS,KEYMAP_PRESSED,kf_SystemClose,			"System Close (EXIT)");
 	keyAddMapping(KEYMAP__DEBUG,KEY_LCTRL,KEY_E,KEYMAP_PRESSED,kf_DebugDroidInfo,				"Show unit info");
@@ -429,37 +425,6 @@ if(bAllowDebugMode)
 	saveKeyMap();	// save out the default key mappings.
 
 //  ------------------------ OLD STUFF - Store here! 
-	/*
-	keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE,KEY_F6,KEYMAP_DOWN,kf_UpGeoOffset,"Raise the geometric offset");
-	keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE,KEY_F7,KEYMAP_DOWN,kf_DownGeoOffset,"Lower the geometric offset");
-	keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE,KEY_F8,KEYMAP_DOWN,kf_UpDroidScale,"Increase droid Scaling");
-	keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE,KEY_F9,KEYMAP_DOWN,kf_DownDroidScale,"Decrease droid Scaling");
-	keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE,KEY_A,KEYMAP_PRESSED,kf_AllAvailable,"Make all avilable");
-	keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE,KEY_B,KEYMAP_PRESSED,kf_MaxScrollLimits,"Allows full area map viewing");
-	keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE,KEY_C,KEYMAP_PRESSED,kf_SimCloseDown,"Simulate Screen Close Down");
-	keyAddMapping(KEYMAP_ALWAYS,KEY_IGNORE,KEY_D,KEYMAP_PRESSED,kf_ToggleDrivingMode,"Toggle Driving Mode");
-	keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE,KEY_E,KEYMAP_PRESSED,kf_ToggleDroidInfo,"Display droid info whilst tracking");
-	keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE,KEY_F,KEYMAP_PRESSED,kf_TriFlip,"Flip terrain triangle");
-	keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE,KEY_G,KEYMAP_PRESSED,kf_ToggleGouraud,"Toggle Gouraud Shading");
-	keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE,KEY_I,KEYMAP_PRESSED,kf_ToggleWidgets,"Toggle Widgets");
-	keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE,KEY_J,KEYMAP_PRESSED,kf_ToggleRadarAllign,"Toggles Radar allignment");
-	keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE,KEY_K,KEYMAP_PRESSED,kf_KillSelected,"Kill Selected Droid");
-	keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE,KEY_L,KEYMAP_PRESSED,kf_RecalcLighting,"Recalculate Lighting");
-	keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE,KEY_M,KEYMAP_PRESSED,kf_ShowMappings,"Show Keyboard mappings");
-	keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE,KEY_N,KEYMAP_PRESSED,kf_GiveTemplateSet,"Give Template Set");
-	keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE,KEY_O,KEYMAP_PRESSED,kf_ToggleOutline,"Tile Outline");
-	keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE,KEY_P,KEYMAP_PRESSED,kf_TogglePower,"Infinite power");
-	keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE,KEY_Q,KEYMAP_DOWN,kf_RaiseTile,"Raise tile height");
-	keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE,KEY_R,KEYMAP_PRESSED,kf_ShowNumObjects,"Show number of Objects");
-	keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE,KEY_S,KEYMAP_PRESSED,kf_FrameRate,"Show Frame Rate");
-	keyAddMapping(KEYMAP_ALWAYS,KEY_IGNORE,KEY_T,KEYMAP_PRESSED,kf_SendTextMessage,"Send Text Message");	
-	keyAddMapping(KEYMAP_ALWAYS,KEY_IGNORE,KEY_U,KEYMAP_PRESSED,kf_ToggleBackgroundFog,"Toggle Background Fog");	
-	keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE,KEY_V,KEYMAP_PRESSED,kf_BuildInfo,"Build date and time");
-	keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE,KEY_W,KEYMAP_DOWN,kf_LowerTile,"Lower tile height");
-	keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE,KEY_X,KEYMAP_PRESSED,kf_DebugDroidInfo,"Droid Debug Info");
-	keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE,KEY_Y,KEYMAP_PRESSED,kf_ToggleDemoMode,"Toggles on/off DEMO Mode");
-	keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE,KEY_Z,KEYMAP_PRESSED,kf_ShowGridInfo,"DBPRINTF map grid coverage");
-	*/
 
 //  ------------------------ OLD STUFF - Store here!
 	
@@ -469,7 +434,6 @@ if(bAllowDebugMode)
 
 // ----------------------------------------------------------------------------------
 /* Adds a new mapping to the list */
-//BOOL	keyAddMapping(KEY_CODE metaCode, KEY_CODE subCode, KEY_ACTION action,void *function, STRING *name)
 KEY_MAPPING *keyAddMapping(KEY_STATUS status,KEY_CODE metaCode, KEY_CODE subCode, KEY_ACTION action,
 					  void (*pKeyMapFunc)(void), STRING *name)
 {
@@ -513,7 +477,6 @@ BLOCK_HEAP  *psHeap;
 	newMapping->lastCalled	= gameTime;
 
 	/* And what gets called when it's activated */
-	//newMapping->function	= function;
 	newMapping->function	= pKeyMapFunc;
 
 	/* Is it functional on the key being down or just pressed */

@@ -440,8 +440,6 @@ void blkFree(BLOCK_HEAP *psHeap, void *pMemToFree)
 
 #else
 // non debug free !
-//	psHeap = psHeap;
-//	pMemToFree = pMemToFree;
 #endif
 
 	{
@@ -449,7 +447,6 @@ void blkFree(BLOCK_HEAP *psHeap, void *pMemToFree)
 
 #if(1)
 
-		//DBPRINTF(("UNABLE TO FREE MEMORY\n"));		
 
 
 #else
@@ -461,7 +458,6 @@ void blkFree(BLOCK_HEAP *psHeap, void *pMemToFree)
 		}
 		else
 		{
-//			DBPRINTF(("blkFree called - memory NOT released\n"));		
 		}
 #endif
 #endif

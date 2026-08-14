@@ -40,7 +40,6 @@
 #ifndef _debug_h
 #define _debug_h
 
-//#define ALWAYS_ASSERT	// Define this to always process ASSERT even on release builds.
 
 /* Check the header files have been included from frame.h if they
  * are used outside of the framework library.

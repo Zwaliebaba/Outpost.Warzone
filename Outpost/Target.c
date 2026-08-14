@@ -71,9 +71,7 @@ void targetOpenList(BASE_OBJECT *psTargeting)
 void targetCloseList(void)
 {
 	if(!FoundCurrent) {
-//		targetAquireNew();
 	}
-//DBPRINTF(("%d %d %d\n",NumTargets,TargetCurrent,TargetCurrentID);
 }
 
 
@@ -181,10 +179,8 @@ BASE_OBJECT *targetAquireNearestView(SWORD x,SWORD y,UWORD TargetType)
 {
 	UWORD i;
 	UWORD Nearesti = 0;
-//	UDWORD NearestDsq = UDWORD_MAX;
 	UDWORD NearestDx = UDWORD_MAX;
 	UDWORD dx,dy;
-//	UDWORD Dsq;
 	BASE_OBJECT *NearestObj = NULL;
 	BASE_OBJECT *psObj;
 
@@ -192,7 +188,6 @@ BASE_OBJECT *targetAquireNearestView(SWORD x,SWORD y,UWORD TargetType)
 		psObj = TargetList[i].psObj;
 		dx = abs(psObj->sDisplay.screenX - x);
 		dy = abs(psObj->sDisplay.screenY - y);
-//		Dsq = dx*dx+dy*dy*4;
 		dx += dy/2;
 		if(dx < NearestDx) {
 			if(TargetList[i].Type & TargetType) {
@@ -202,19 +197,11 @@ BASE_OBJECT *targetAquireNearestView(SWORD x,SWORD y,UWORD TargetType)
 			}
 		}
 
-//		if(Dsq < NearestDsq) {
-//			if(TargetList[i].Type & TargetType) {
-//				NearestDsq = Dsq;
-//				Nearesti = i;
-//				NearestObj = psObj;
-//			}
-//		}
 	}
 
 	if(NearestObj != NULL) {
 		TargetCurrent = Nearesti;
 		if(TargetCurrentID != NearestObj->id) {
-//printf("set1 %d\n",TargetCurrentID);
 			TargetCurrentID = NearestObj->id;
 			targetStartAnim();
 		}
@@ -330,7 +317,6 @@ void targetMarkCurrent(void)
 	SWORD Offset;
 	SWORD x0,y0,x1,y1;
 
-//printf("%d\n",TargetCurrentID);
 	if(TargetCurrentID == UDWORD_MAX) {
 		return;
 	}

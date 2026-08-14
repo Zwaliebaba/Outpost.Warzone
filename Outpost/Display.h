@@ -24,7 +24,6 @@ extern void shakeStart(void);
 extern BOOL dispModeChange();
 
 /* Process the user input. This just processes the key input and jumping around the radar*/
-//extern BOOL processInput(void);
 
 extern void ProcessRadarInput(void);
 
@@ -61,8 +60,6 @@ extern void displayWorld(void);
 #define ILLUMINATION_NONE (13)
 
 
-//#define MAX_SCROLL_SPEED	1600
-//#define SCROLL_SPEED_ACCEL	800
 
 #define MAX_SCROLL_SPEED (800+scroll_speed_accel)	// make max speed dependant on accel chosen.
 
@@ -178,10 +175,8 @@ BOOL IsMouseAtLeft(void);
 BOOL CheckObjInScrollLimits(UWORD *xPos,UWORD *zPos);
 BOOL CheckInScrollLimits(SDWORD *xPos,SDWORD *zPos);
 extern BOOL CheckScrollLimits(void);
-//extern BOOL	widgetsOn;
 extern BOOL	rotActive;
 extern float	gamma;
-//extern BOOL	forceWidgetsOn;
 
 BASE_OBJECT	*mouseTarget( void );
 

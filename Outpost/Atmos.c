@@ -92,10 +92,6 @@ iVector	pos;
 	/* Establish how long the last game frame took */
 	fraction = MAKEFRACT(frameTime)/GAME_TICKS_PER_SEC;
 
- //	if(weather==WT_NONE)
- //	{
- //		return;
- //	}
 
 	for(i=0; i<MAX_ATMOS_PARTICLES; i++)
 	{

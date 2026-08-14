@@ -96,7 +96,6 @@ BOOL scrGenExternGet(UDWORD index)
 	case EXTID_CURSOR:
 		type = VAL_INT;
 		val = iV_GetMouseFrame();	// from  rendfunc.c 
-//		DBPRINTF(("CURSOR = %d val\n",val));
 		break;
 	case EXTID_INTMODE:
 		type=VAL_INT;

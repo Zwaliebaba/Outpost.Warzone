@@ -8,7 +8,6 @@
 #include <stdio.h>
 
 /* loop position printf's */
-//#define DEBUG_GROUP1
 #include "Frame.h"
 #include "Loop.h"
 #include "RendMode.h"
@@ -139,7 +138,6 @@ GAMECODE gameLoop(void)
 {
 	DROID		*psCurr, *psNext;
 	STRUCTURE	*psCBuilding, *psNBuilding;
-//	BOOL		bPlayerHasHQ = FALSE;
 	FEATURE		*psCFeat, *psNFeat;
 	UDWORD		i,widgval;
 	BOOL		quitting=FALSE;
@@ -147,9 +145,7 @@ GAMECODE gameLoop(void)
 	CLEAR_MODE	clearMode;
 //	DumpVRAM();	// use mouse to scroll through vram
 
-//	dumpimdpoints();
 
-//	heapIntegrityCheck(psDroidHeap);
 
 //JPS 24 feb???
 	if (fogStatus & FOG_BACKGROUND)
@@ -221,14 +217,10 @@ GAMECODE gameLoop(void)
 					frameSetCursorFromRes(IDC_DEFAULT);
 					//if( (intRetVal != INT_FULLSCREENPAUSE) && (
 					//	intRetVal != INT_INTELPAUSE) ) 
-					//{
 						intRetVal = INT_INTERCEPT;
-					//}
 				}
 			}
-		//}
 
-//		intRetVal = INT_NONE;
 
 
 		// we need two versions of the loop conditions, since PSX doesn't have
@@ -280,7 +272,6 @@ GAMECODE gameLoop(void)
 			if(bMultiPlayer)
 			{
 				multiPlayerLoop();
-//		RecvMessage();
 			}
 			for(i=0; i<MAX_PLAYERS; i++)
 			{
@@ -291,10 +282,8 @@ GAMECODE gameLoop(void)
                 powerCheck(TRUE, (UBYTE)i);
 
 				//spread the power out...done in aiUpdateStructure now
-				//spreadPower((UBYTE)i);
 
 				//set the flag for each player
-				//setPowerGenExists(FALSE, i);
 				setHQExists(FALSE, i);
                 setSatUplinkExists(FALSE, i);
 
@@ -457,25 +446,17 @@ GAMECODE gameLoop(void)
 			DBP1(("loop: Smoke/Explosion Update\n"));
 
 			/* Ensure smoke drifts up! */
-//			raiseSmoke();
-//			updateGravitons();
 
 			/* update animations */
 			animObj_Update();
 
 			/* Raise and increase frames of explosions */
-//			updateExplosions();
 			/* Update all the temporary world effects */
-//			processEffects();
 
-//			flushConsoleMessages();
-//			clustDisplay();
 
-		//}
 		// Don't update the game world if the design screen is up and single player game
 		//if (((intRetVal != INT_FULLSCREENPAUSE ) || bMultiPlayer) AND ((intRetVal != 
 		//	INT_INTELNOSCROLL) || bMultiPlayer))
-		//{
 			//not any more!
 			//need to be able to scroll and have radar still in Intelligence Screen - 
 			//but only if 3D View is not up
@@ -483,19 +464,13 @@ GAMECODE gameLoop(void)
 			{
 				scroll();
 			}*/
-		//}
 		// Don't update the game world if the design screen is up and single player game
 		//if ((intRetVal != INT_FULLSCREENPAUSE ) || bMultiPlayer) 
-		//{
-//			DBP1(("Radar update \n"));
 //			/* Make radar line sweep and colour cycle */
-//			updateRadar();
-		//}
 
 		// Don't update the game world if the design screen is up and single player game
 		//if ((intRetVal != INT_FULLSCREENPAUSE AND intRetVal != 
 		//	INT_INTELPAUSE) || bMultiPlayer)
-		//{
 			DBP1(("loop: Objmem Update\n"));
 
 			objmemUpdate();
@@ -534,7 +509,6 @@ GAMECODE gameLoop(void)
 		if(InGameOpUp)		// ingame options menu up, run it!
 		{
 			intRunInGameOptions();
-//			processFrontendSnap(FALSE);
 			widgval = widgRunScreen(psWScreen);
 			intProcessInGameOptions(widgval);
 			if(widgval == INTINGAMEOP_QUIT_CONFIRM)
@@ -618,7 +592,6 @@ GAMECODE gameLoop(void)
 	}
 	if  (!video)
 	{
-		//if (!quitting && intRetVal != INT_FULLSCREENPAUSE)
 		if (!quitting)
 		{
 			if (!gameUpdatePaused())
@@ -635,7 +608,6 @@ GAMECODE gameLoop(void)
 						}
 					}
 					*/
-				  //	bPlayerHasHQ = radarCheckForHQ(selectedPlayer);
 
 					if( //(intRetVal != INT_INTELPAUSE) &&
 						(dragBox3D.status != DRAG_DRAGGING) &&
@@ -648,16 +620,11 @@ GAMECODE gameLoop(void)
 					processInput();
 
 					//no key clicks or in Intelligence Screen
-	//				if (intRetVal == INT_INTELPAUSE)
 					if (intRetVal == INT_NONE && !InGameOpUp)// OR intRetVal == INT_INTELPAUSE)
 					{
 						DBP1(("loop: 3D input\n"));
-						//quitting = processInput();
 						//don't want to handle the mouse input here when in intelligence screen
-						//if (intRetVal != INT_INTELPAUSE)
-						//{
 							processMouseClickInput();
-						//}
 					}
 					DBP1(("loop: display3D\n"));		
 					downloadAtStartOfFrame();
@@ -680,17 +647,12 @@ GAMECODE gameLoop(void)
 				}
 			}
 			/* Display the in game interface */
-//			if(widgetsOn OR forceWidgetsOn)
-//			{
 			pie_SetDepthBufferStatus(DEPTH_CMP_ALWAYS_WRT_ON);
 			pie_SetFogStatus(FALSE);
 
 			if(bMultiPlayer)
 			{
 //				if((game.type == DMATCH) && !MultiMenuUp)
-//				{
-//					intDisplayMiniMultiMenu();
-//				}
 
 				if(bDisplayMultiJoiningStatus)
 				{
@@ -704,16 +666,12 @@ GAMECODE gameLoop(void)
 			}
 			pie_SetDepthBufferStatus(DEPTH_CMP_LEQ_WRT_ON);
 			pie_SetFogStatus(TRUE);
-//			}
 
-	//#endif
 		}										   
 		/*else if (!quitting)
 		{
 			// Display the in game interface 
-	//#ifdef PSX
 	//		DrawMousePointer(mouseX(),mouseY());	// add the mouse pointer as a primative
-	//#endif
 
 			DBP1(("loop: Display widgets\n"));
 			if(widgetsOn)
@@ -755,20 +713,7 @@ GAMECODE gameLoop(void)
 	}
 
 	/* Check for pause */
-//	if (!video)
-//	{
 //		if (keyPressed(KEY_F12) && !paused)
-//		{
-//			paused = TRUE;
-//			gameTimeStop();
-	//		addGameMessage("Game Status : PAUSED",1000, TRUE);
-//			addConsoleMessage("Game has been paused",DEFAULT_JUSTIFY);
-//		}
-//		else if (keyPressed(KEY_F12) && paused)
-//		{
-//			paused = FALSE;
-//			gameTimeStart();
-//		}
 //	}		// ALL THIS GUBBINS DONE IN A PROPER KEYMAPPING NOW (A DEBUG ONE THOUGH!).
 
 	DBP1(("loop: flip\n"));
@@ -797,9 +742,7 @@ GAMECODE gameLoop(void)
 
 //JPS 24 feb???		pie_ScreenFlip(clearMode);//gameloopflip
 	 //	if(pie_Hardware())
-	 //	{
 			/* Needs to be handled! */
-	 //	}
 	//	else
 		{
 			/* Check for toggling display mode */
@@ -847,7 +790,6 @@ GAMECODE gameLoop(void)
 		clearMode = CLEAR_BLACK;
 		break;
 	case LMS_NEWLEVEL:
-		//nextMissionType = MISSION_NONE;
 		nextMissionType = LDS_NONE;
 		return GAMECODE_NEWLEVEL;
 		break;
@@ -865,9 +807,7 @@ GAMECODE gameLoop(void)
 		pie_ScreenFlip(CLEAR_BLACK);//gameloopflip
 		pie_ScreenFlip(CLEAR_BLACK);//gameloopflip
 	 //	if(pie_Hardware())
-	 //	{
 			/* Needs to be handled! */
-	//	}
 	//	else
 		{
 			/* Check for toggling display mode */
@@ -889,9 +829,7 @@ GAMECODE gameLoop(void)
 		pie_ScreenFlip(CLEAR_BLACK);//gameloopflip
 		pie_ScreenFlip(CLEAR_BLACK);//gameloopflip
 	  //	if(pie_Hardware())
-	   //	{
 			/* Needs to be handled! */
-	  //	}
 	  //	else
 		{
 			/* Check for toggling display mode */
@@ -976,7 +914,6 @@ static BOOL bActiveBackDrop = FALSE;
             displayGameOver(getScriptWinLoseVideo() == PLAY_WIN);
         }
 #endif
-//		clearCount = 0;
 		pie_ScreenFlip(CLEAR_BLACK);// videoloopflip extra mar10
 		if (bActiveBackDrop)
 		{
@@ -1003,7 +940,6 @@ static BOOL bActiveBackDrop = FALSE;
 			{
 				screen_RestartBackDrop();
 			}
-		 	//bClear = CLEAR_BLACK;
 			seq_StartNextFullScreenVideo();
 		}
 		else
@@ -1025,7 +961,6 @@ static BOOL bActiveBackDrop = FALSE;
                 displayGameOver(getScriptWinLoseVideo() == PLAY_WIN);
             }
 #endif
-//		    clearCount = 0;
 			pie_ScreenFlip(CLEAR_BLACK);// videoloopflip extra mar10
     		if (bActiveBackDrop)
 	    	{
@@ -1093,7 +1028,6 @@ void loop_ClearVideoPlaybackMode(void)
 	paused = FALSE;
 	video = FALSE;
 	gameTimeStart();
-//	pie_SetFogStatus(TRUE);
 	cdAudio_Resume();
 	ASSERT((videoMode == 0,"loop_ClearVideoPlaybackMode: out of sync."));
 }

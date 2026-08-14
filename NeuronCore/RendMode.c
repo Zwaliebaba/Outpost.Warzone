@@ -12,7 +12,6 @@
 //*************************************************************************
 //*************************************************************************
 
-//void (*iV_VideoClose)(void);
 void (*iV_VSync)(void);
 //*************************************************************************
 
@@ -323,51 +322,25 @@ int iV_GetDisplayHeight(void)
 //
 //*************************************************************************
 
-//void (*pie_VideoShutDown)(void);
 void (*iV_VSync)(void);
-//void (*iV_Clear)(uint32 colour);
-//void (*iV_RenderEnd)(void);
-//void (*iV_RenderBegin)(void);
-//void (*iV_Palette)(int i, int r, int g, int b);
 
-//void (*pie_Draw3DShape)(iIMDShape *shape, int frame, int team, UDWORD colour, UDWORD specular, int pieFlag, int pieData);
 void (*iV_pLine)(int x0, int y0, int x1, int y1, uint32 colour);
-//void (*iV_Line)(int x0, int y0, int x1, int y1, uint32 colour);
-//void (*iV_Polygon)(int npoints, iVertex *vrt, iTexture *tex, uint32 type);
-//void (*iV_Triangle)(iVertex *vrt, iTexture *tex, uint32 type);
-//void (*iV_TransPolygon)(int num, iVertex *vrt);
 void (*iV_TransTriangle)(iVertex *vrt);
-//void (*iV_Box)(int x0,int y0, int x1, int y1, uint32 colour);
-//void (*iV_BoxFill)(int x0, int y0, int x1, int y1, uint32 colour);
 
 char* (*iV_ScreenDumpToDisk)(void);
 
-//void (*iV_DownloadDisplayBuffer)(UBYTE *DisplayBuffer);
-//void (*pie_DownLoadRadar)(unsigned char *buffer);
 
-//void (*iV_TransBoxFill)(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1);
-//void (*iV_UniTransBoxFill)(SDWORD x0,SDWORD y0, SDWORD x1, SDWORD y1, UDWORD rgb, UDWORD transparency);
 
-//void (*iV_DrawImage)(IMAGEFILE *ImageFile,UWORD ID,int x,int y);
-//void (*iV_DrawImageRect)(IMAGEFILE *ImageFile,UWORD ID,int x,int y,int x0,int y0,int Width,int Height);
-//void (*iV_DrawTransImage)(IMAGEFILE *ImageFile,UWORD ID,int x,int y);
-//void (*iV_DrawTransImageRect)(IMAGEFILE *ImageFile,UWORD ID,int x,int y,int x0,int y0,int Width,int Height);
-//void (*iV_DrawSemiTransImageDef)(IMAGEDEF *Image,iBitmap *Bmp,UDWORD Modulus,int x,int y,int TransRate);
 
-//void (*iV_DrawStretchImage)(IMAGEFILE *ImageFile,UWORD ID,int x,int y,int Width,int Height);
 
 void (*iV_ppBitmap)(iBitmap *bmp, int x, int y, int w, int h, int ow);
 void (*iV_ppBitmapTrans)(iBitmap *bmp, int x, int y, int w, int h, int ow);
 
 void (*iV_SetTransFilter)(UDWORD rgb,UDWORD tablenumber);
-//void (*iV_DrawColourTransImage)(IMAGEFILE *ImageFile,UWORD ID,int x,int y,UWORD ColourIndex);
 
 void (*iV_UniBitmapDepth)(int texPage, int u, int v, int srcWidth, int srcHeight, 
 						int x, int y, int destWidth, int destHeight, unsigned char brightness, int depth);
 
-//void (*iV_SetGammaValue)(float val);
-//void (*iV_SetFogStatus)(BOOL val);
-//void (*iV_SetFogTable)(UDWORD color, UDWORD zMin, UDWORD zMax);
 void (*iV_SetTransImds)(BOOL trans);
 
 //mapdisplay
@@ -375,17 +348,11 @@ void (*iV_SetTransImds)(BOOL trans);
 void (*iV_tgTriangle)(iVertex *vrt, iTexture *tex);
 void (*iV_tgPolygon)(int num, iVertex *vrt, iTexture *tex);
 
-//void (*iV_DrawImageDef)(IMAGEDEF *Image,iBitmap *Bmp,UDWORD Modulus,int x,int y);
 
 
 //design
-//void (*iV_UploadDisplayBuffer)(UBYTE *DisplayBuffer);
-//void (*iV_ScaleBitmapRGB)(UBYTE *DisplayBuffer,int Width,int Height,int ScaleR,int ScaleG,int ScaleB);
 
 //text
-//void (*iV_BeginTextRender)(SWORD ColourIndex);
-//void (*iV_TextRender)(IMAGEFILE *ImageFile,UWORD ID,int x,int y);
-//void (*iV_TextRender270)(IMAGEFILE *ImageFile,UWORD ID,int x,int y);
 
 //*************************************************************************
 //

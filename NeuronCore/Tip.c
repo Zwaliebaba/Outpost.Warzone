@@ -76,9 +76,7 @@ void tipStart(WIDGET *psSource, STRING *pNewTip, int NewFontID,
 	ASSERT((PTRVALID(psSource, sizeof(WIDGET)),
 		"tipStart: Invalid widget pointer"));
 //	ASSERT((PTRVALID(pNewTip, WIDG_MAXSTR),
-//		"tipStart: Invalid tip pointer"));
 //	ASSERT((PTRVALID(psNewFont, sizeof(PROP_FONT)),
-//		"tipStart: Invalid font pointer"));
 	ASSERT((PTRVALID(pNewColours, sizeof(UDWORD) * WCOL_MAX),
 		"tipStart: Invalid colours pointer"));
 
@@ -118,7 +116,6 @@ void tipDisplay(void)
 	SDWORD		newMX,newMY;
 	SDWORD		currTime;
 	SDWORD		fw, topGap;
-//	UDWORD		time;
 
 	switch (tipState)
 	{
@@ -184,13 +181,8 @@ void tipDisplay(void)
 		break;
 	case TIP_ACTIVE:
 		/* See if the tip still needs to be displayed */
-//		time = GetTickCount();
 //		if (mousePressed(MOUSE_LMB) ||
 //			((time - startTime) > TIP_TIME))
-//		{
-//			tipState = TIP_NONE;
-//			return;
-//		}
 
 		/* Draw the tool tip */
 		pie_BoxFillIndex(tx,ty, tx+tw, ty+th,(UBYTE)*(pColours + WCOL_TIPBKGRND));
@@ -202,7 +194,6 @@ void tipDisplay(void)
 
 
 		iV_SetFont(FontID);
-//		iV_SetTextColour((UWORD)*(pColours + WCOL_TEXT));
 		iV_SetTextColour((UWORD)TipColour);
 		iV_DrawText(pTip,fx,fy);
 		break;

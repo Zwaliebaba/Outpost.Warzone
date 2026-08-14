@@ -28,7 +28,6 @@ iSprite tilesPCX;
 /* Stores the raw PCX data for the terrain tiles at load file time */
 iBitmap	**tilesRAW;
 /* How many tiles have we loaded */
-//UDWORD	numTiles;
 UDWORD	numPCXTiles;
 /* How many pages have we loaded (hardware)*/
 SDWORD	firstTexturePage;
@@ -203,7 +202,6 @@ iSprite	sprite;
 	sprite.bmp = MALLOC(TEXTURE_PAGE_SIZE);
 	sprite.width = PAGE_WIDTH;
 	sprite.height = PAGE_HEIGHT;
-//	memset(sprite.bmp,0,TEXTURE_PAGE_SIZE);
 	tilesProcessed = 0;
 	tilesAcross = srcWidth/tileWidth;
 	tilesDown = srcHeight/tileHeight;
@@ -225,7 +223,6 @@ iSprite	sprite;
 			/* Have we got all the tiles from the source!? */
 			if((tilesProcessed == tilesPerSource))	// || (tileStorage[0] == 0))//hack probably causes too many texture pages to be used
 			{
-//			   	pie_Download8bitTexturePage(texturePage,PAGE_WIDTH,PAGE_HEIGHT);
 				pageId[pageNumber] = pie_AddBMPtoTexPages( 	&sprite, "terrain", 0, TRUE, FALSE);
 				goto exit;
 			}
@@ -272,12 +269,10 @@ iSprite	sprite;
 	/* Get enough memory to store one tile */
 	pageNumber = 0;
 	tileStorage = MALLOC(tileWidth*tileHeight);
-//	texturePage = MALLOC(TEXTURE_PAGE_SIZE);
 	sprite.width = PAGE_WIDTH;
 	sprite.height = PAGE_HEIGHT;
 
 	sprite.bmp = _TEX_PAGE[pageId[pageNumber]].tex.bmp;
-//	memset(sprite.bmp,0,TEXTURE_PAGE_SIZE);
 	tilesProcessed = 0;
 	tilesAcross = srcWidth/tileWidth;
 	tilesDown = srcHeight/tileHeight;
@@ -322,7 +317,6 @@ iSprite	sprite;
 		src+=( (tileHeight-1) * srcWidth);
 	}
 
-	//check numTexturePages == pageNumber;
 	ASSERT((numTexturePages >= (SDWORD)pageNumber,"New Tertiles too large"));
 
 exit:

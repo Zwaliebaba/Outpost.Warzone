@@ -22,13 +22,10 @@
 /* The stores for the different stats */
 BODY_STATS			*asBodyStats;
 BRAIN_STATS			*asBrainStats;
-//POWER_STATS			*asPowerStats;
 PROPULSION_STATS	*asPropulsionStats;
 SENSOR_STATS		*asSensorStats;
 ECM_STATS			*asECMStats;
-//ARMOUR_STATS		*asArmourStats;
 REPAIR_STATS		*asRepairStats;
-//PROGRAM_STATS		*asProgramStats;
 WEAPON_STATS		*asWeaponStats;
 CONSTRUCT_STATS		*asConstructStats;
 
@@ -51,33 +48,27 @@ BODY_UPGRADE		asBodyUpgrade[MAX_PLAYERS][BODY_TYPE];
 /* The number of different stats stored */
 UDWORD		numBodyStats = 0;
 UDWORD		numBrainStats = 0;
-//UDWORD		numPowerStats = 0;
 UDWORD		numPropulsionStats = 0;
 UDWORD		numSensorStats = 0;
 UDWORD		numECMStats = 0;
-//UDWORD		numArmourStats = 0;
 UDWORD		numRepairStats = 0;
 UDWORD		numProgramStats = 0;
 UDWORD		numWeaponStats = 0;
 UDWORD		numConstructStats = 0;
 
-//UDWORD		numPropulsionTypes = 0;
 UDWORD		numSpecialAbility = 0;
 #else
 /* The number of different stats stored */
 UDWORD		numBodyStats;
 UDWORD		numBrainStats;
-//UDWORD		numPowerStats;
 UDWORD		numPropulsionStats;
 UDWORD		numSensorStats;
 UDWORD		numECMStats;
-//UDWORD		numArmourStats;
 UDWORD		numRepairStats;
 UDWORD		numProgramStats;
 UDWORD		numWeaponStats;
 UDWORD		numConstructStats;
 
-//UDWORD		numPropulsionTypes;
 UDWORD		numSpecialAbility;
 #endif
 
@@ -165,7 +156,6 @@ void statsInitVars(void)
 	asSensorStats = NULL;
 	asECMStats = NULL;
 	asRepairStats = NULL;
-	//asProgramStats = NULL;
 	asWeaponStats = NULL;
 	asConstructStats = NULL;
 	asPropulsionTypes = NULL;
@@ -179,10 +169,8 @@ void statsInitVars(void)
 	numSensorStats = 0;
 	numECMStats = 0;
 	numRepairStats = 0;
-	//numProgramStats = 0;
 	numWeaponStats = 0;
 	numConstructStats = 0;
-//	numPropulsionTypes = 0;
 	numSpecialAbility = 0;
 
 //stores for each players component states - can be either UNAVAILABLE, FOUND or AVAILABLE
@@ -216,7 +204,6 @@ void statsInitVars(void)
 /*Deallocate all the stats assigned from input data*/
 void statsDealloc(COMP_BASE_STATS* pStats, UDWORD listSize, UDWORD structureSize)
 {
-//#ifndef RESOURCE_NAMES
 #if !defined (RESOURCE_NAMES) && !defined(STORE_RESOURCE_ID)
 
 	UDWORD				inc;
@@ -264,7 +251,6 @@ void deallocBodyStats(void)
 	{
 		psStat = &asBodyStats[inc];
 
-//#ifndef RESOURCE_NAMES
 #if !defined (RESOURCE_NAMES) && !defined (STORE_RESOURCE_ID)
 
 		FREE(psStat->pName);
@@ -277,18 +263,13 @@ void deallocBodyStats(void)
 /*Deallocate all the stats assigned from input data*/
 BOOL statsShutDown(void)
 {
-	//statsDeallocWeapons();
 	STATS_DEALLOC(asWeaponStats, numWeaponStats, WEAPON_STATS);
-	//STATS_DEALLOC(asArmourStats, numArmourStats, ARMOUR_STATS);
-	//STATS_DEALLOC(asBodyStats, numBodyStats, BODY_STATS);
 	deallocBodyStats();
 	STATS_DEALLOC(asBrainStats, numBrainStats, BRAIN_STATS);
-	//STATS_DEALLOC(asPowerStats, numPowerStats, POWER_STATS);
 	STATS_DEALLOC(asPropulsionStats, numPropulsionStats, PROPULSION_STATS);
 	STATS_DEALLOC(asSensorStats, numSensorStats, SENSOR_STATS);
 	STATS_DEALLOC(asECMStats, numECMStats, ECM_STATS);
 	STATS_DEALLOC(asRepairStats, numRepairStats, REPAIR_STATS);
-//	STATS_DEALLOC(asProgramStats, numProgramStats, PROGRAM_STATS);
 	STATS_DEALLOC(asConstructStats, numConstructStats, CONSTRUCT_STATS);
 	deallocPropulsionTypes();
 	deallocTerrainTable();
@@ -324,8 +305,6 @@ UDWORD numCR(UBYTE *pFileBuffer, UDWORD fileSize)
 }
 
 /*Load the stats from the Access database*/
-//BOOL loadStats(void)
-//{
 	/*if (!loadWeaponStats())
 	{
 		DBERROR(("Unable to load weapon stats"));
@@ -393,8 +372,6 @@ UDWORD numCR(UBYTE *pFileBuffer, UDWORD fileSize)
 		return FALSE;
 	}*/
 
-//	return TRUE;
-//}
 
 /*******************************************************************************
 *		Allocate stats functions
@@ -405,10 +382,6 @@ BOOL statsAllocWeapons(UDWORD	numStats)
 	ALLOC_STATS(numStats, asWeaponStats, numWeaponStats, WEAPON_STATS);
 }
 /* Allocate Armour Stats */
-/*BOOL statsAllocArmour(UDWORD	numStats)
-{
-	ALLOC_STATS(numStats, asArmourStats, numArmourStats, ARMOUR_STATS);
-}*/
 /* Allocate Body Stats */
 BOOL statsAllocBody(UDWORD	numStats)
 {
@@ -420,10 +393,6 @@ BOOL statsAllocBrain(UDWORD	numStats)
 	ALLOC_STATS(numStats, asBrainStats, numBrainStats, BRAIN_STATS);
 }
 /* Allocate Power Stats */
-/*BOOL statsAllocPower(UDWORD	numStats)
-{
-	ALLOC_STATS(numStats, asPowerStats, numPowerStats, POWER_STATS);
-}*/
 /* Allocate Propulsion Stats */
 BOOL statsAllocPropulsion(UDWORD	numStats)
 {
@@ -447,10 +416,6 @@ BOOL statsAllocRepair(UDWORD	numStats)
 }
 
 /* Allocate Program Stats */
-/*BOOL statsAllocProgram(UDWORD	numStats)
-{
-	ALLOC_STATS(numStats, asProgramStats, numProgramStats, PROGRAM_STATS);
-}*/
 
 /* Allocate Construct Stats */
 BOOL statsAllocConstruct(UDWORD	numStats)
@@ -478,7 +443,6 @@ STRING *getStatName(void * Stat)
 /*Load the weapon stats from the file exported from Access*/
 BOOL loadWeaponStats(SBYTE *pWeaponData, UDWORD bufferSize)
 {
-	//SBYTE			*pData;
 	WEAPON_STATS	sStats, *psStats, *psStartStats;
 	UDWORD			NumWeapons = 0, i, rotate, maxElevation, surfaceToAir;
 	SDWORD			minElevation;
@@ -496,15 +460,8 @@ BOOL loadWeaponStats(SBYTE *pWeaponData, UDWORD bufferSize)
 	char			*StatsName;
 
 	//keep the start so we release it at the end
-	//pData = pWeaponData;
 	
 	psStats = &sStats;
-/*	psStats = (WEAPON_STATS *)MALLOC(sizeof(WEAPON_STATS));
-	if (psStats == NULL)
-	{
-		DBERROR(("Weapon Stats - Out of memory"));
-		return FALSE;
-	}*/
 	//reserve the start of the data
 	psStartStats = psStats;
 
@@ -560,7 +517,6 @@ BOOL loadWeaponStats(SBYTE *pWeaponData, UDWORD bufferSize)
 
 			psStats->numRounds = (UBYTE)numRounds;
 
-//#ifdef DEBUG
 // Hack to get the current stats working... a zero flight speed value will cause an assert in projectile.c line 957
 //  I'm not sure if this should be on debug only...
 //    ... the last thing we want is for a zero value to get through on release (with no asserts!)
@@ -702,7 +658,6 @@ BOOL loadWeaponStats(SBYTE *pWeaponData, UDWORD bufferSize)
 		}
 		else if (!strcmp(weaponClass,"EXPLOSIVE"))
 		{
-			//psStats->weaponClass = WC_EXPLOSIVE;
             psStats->weaponClass = WC_KINETIC;
 		}
 		else if (!strcmp(weaponClass,"HEAT"))
@@ -711,7 +666,6 @@ BOOL loadWeaponStats(SBYTE *pWeaponData, UDWORD bufferSize)
 		}
 		else if (!strcmp(weaponClass,"MISC"))
 		{
-			//psStats->weaponClass = WC_MISC;
             psStats->weaponClass = WC_HEAT;
 		}
 		else
@@ -904,8 +858,6 @@ BOOL loadWeaponStats(SBYTE *pWeaponData, UDWORD bufferSize)
 		//increment the pointer to the start of the next record
 		pWeaponData = (SBYTE*)strchr(pWeaponData,'\n') + 1;
 	}
-//	FREE(pData);
-//	FREE(psStats);
 
 	return TRUE;
 }
@@ -996,7 +948,6 @@ BOOL loadWeaponStats(SBYTE *pWeaponData, UDWORD bufferSize)
 /*Load the Body stats from the file exported from Access*/
 BOOL loadBodyStats(SBYTE *pBodyData, UDWORD bufferSize)
 {
-	//SBYTE			*pData;
 	BODY_STATS		sStats, *psStats, *psStartStats;
 	UDWORD			NumBody = 0,i,designable;
 	STRING			BodyName[MAX_NAME_SIZE], size[MAX_NAME_SIZE], 
@@ -1005,15 +956,8 @@ BOOL loadBodyStats(SBYTE *pBodyData, UDWORD bufferSize)
 
 
 	//keep the start so we can release it at the end
-	//pData = pBodyData;
 	
 	psStats = &sStats;
-/*	psStats = (BODY_STATS *)MALLOC(sizeof(BODY_STATS));
-	if (psStats == NULL)
-	{
-		DBERROR(("Body Stats - Out of memory"));
-		return FALSE;
-	}*/
 	//reserve the start of the data
 	psStartStats = psStats;
 
@@ -1041,20 +985,12 @@ BOOL loadBodyStats(SBYTE *pBodyData, UDWORD bufferSize)
 			&psStats->weaponSlots, &psStats->powerOutput, 
 			&psStats->armourValue[WC_KINETIC], 
 			&psStats->armourValue[WC_HEAT], (char*)&flameIMD, &designable);//, &psStats->armourValue[WC_EXPLOSIVE], 
-			//&psStats->armourValue[WC_MISC]);
 
 #if (MAX_PLAYERS!=4 && MAX_PLAYERS!=8)
 #error Invalid number of players
 #endif
 
 		//allocate storage for the name
-		/*psStats->pName = (STRING *)MALLOC((strlen(BodyName))+1);
-		if (psStats->pName == NULL)
-		{
-			DBERROR(("Body Stats Name - Out of memory"));
-			return FALSE;
-		}	
-		strcpy(psStats->pName,BodyName);*/
 		if (!allocateStatName((BASE_STATS *)psStats, BodyName))
 		{
 			return FALSE;
@@ -1132,30 +1068,20 @@ BOOL loadBodyStats(SBYTE *pBodyData, UDWORD bufferSize)
 		//increment the pointer to the start of the next record
 		pBodyData = (SBYTE*)strchr(pBodyData,'\n') + 1;
 	}
-//	FREE(pData);
-//	FREE(psStats);
 	return TRUE;
 }
 
 /*Load the Brain stats from the file exported from Access*/
 BOOL loadBrainStats(SBYTE *pBrainData, UDWORD bufferSize)
 {
-	//SBYTE		*pData;
 	BRAIN_STATS	sStats, *psStats, *psStartStats;
 	UDWORD		NumBrain = 0,i, incW;
 	STRING		BrainName[MAX_NAME_SIZE], techLevel[MAX_NAME_SIZE],
 				weaponName[MAX_NAME_SIZE];
 
 	//keep the start so we can release it at the end
-	//pData = pBrainData;
 
 	psStats = &sStats;
-/*	psStats = (BRAIN_STATS *)MALLOC(sizeof(BRAIN_STATS));
-	if (psStats == NULL)
-	{
-		DBERROR(("Brain Stats - Out of memory"));
-		return FALSE;
-	}*/
 	//reserve the start of the data
 	psStartStats = psStats;
 
@@ -1236,8 +1162,6 @@ BOOL loadBrainStats(SBYTE *pBrainData, UDWORD bufferSize)
 		//increment the pointer to the start of the next record
 		pBrainData = (SBYTE*)strchr(pBrainData,'\n') + 1;
 	}
-//	FREE(pData);
-//	FREE(psStats);
 	return TRUE;
 }
 
@@ -1370,22 +1294,14 @@ UBYTE	getPropulsionType(STRING *pType)
 /*Load the Propulsion stats from the file exported from Access*/
 BOOL loadPropulsionStats(SBYTE *pPropulsionData, UDWORD bufferSize)
 {
-	//SBYTE				*pData;
 	PROPULSION_STATS	sStats, *psStats, *psStartStats;
 	UDWORD				NumPropulsion = 0,i,designable;
 	STRING				PropulsionName[MAX_NAME_SIZE], imdName[MAX_NAME_SIZE],
 						techLevel[MAX_NAME_SIZE], type[MAX_NAME_SIZE];
 
 	//keep the start so we release it at the end
-	//pData = pPropulsionData;
 	
 	psStats = &sStats;
-/*	psStats = (PROPULSION_STATS *)MALLOC(sizeof(PROPULSION_STATS));
-	if (psStats == NULL)
-	{
-		DBERROR(("Propulsion Stats - Out of memory"));
-		return FALSE;
-	}*/
 	//reserve the start of the data
 	psStartStats = psStats;
 
@@ -1468,15 +1384,12 @@ BOOL loadPropulsionStats(SBYTE *pPropulsionData, UDWORD bufferSize)
         if (psStats->design)
         {
             setMaxPropulsionSpeed(psStats->maxSpeed);
-            //setMaxComponentWeight(psStats->weight);
         }
 		
 		psStats = psStartStats;
 		//increment the pointer to the start of the next record
 		pPropulsionData = (SBYTE*)strchr(pPropulsionData,'\n') + 1;
 	}
-//	FREE(pData);
-//	FREE(psStats);
 
     /*since propulsion weight is a multiple of body weight we may need to 
     adjust the max component weight value*/
@@ -1510,7 +1423,6 @@ BOOL loadPropulsionStats(SBYTE *pPropulsionData, UDWORD bufferSize)
 /*Load the Sensor stats from the file exported from Access*/
 BOOL loadSensorStats(SBYTE *pSensorData, UDWORD bufferSize)
 {
-	//SBYTE			*pData;
 	SENSOR_STATS	sStats, *psStats, *psStartStats;
 	UDWORD			NumSensor = 0,i,designable;
 	STRING			SensorName[MAX_NAME_SIZE], location[MAX_NAME_SIZE], 
@@ -1518,15 +1430,8 @@ BOOL loadSensorStats(SBYTE *pSensorData, UDWORD bufferSize)
 	STRING			mountGfx[MAX_NAME_SIZE], techLevel[MAX_NAME_SIZE];
 
 	//keep the start so we release it at the end
-	//pData = pSensorData;
 	
 	psStats = &sStats;
-/*	psStats = (SENSOR_STATS *)MALLOC(sizeof(SENSOR_STATS));
-	if (psStats == NULL)
-	{
-		DBERROR(("Sensor Stats - Out of memory"));
-		return FALSE;
-	}*/
 	//reserve the start of the data
 	psStartStats = psStats;
 
@@ -1666,15 +1571,12 @@ BOOL loadSensorStats(SBYTE *pSensorData, UDWORD bufferSize)
 		//increment the pointer to the start of the next record
 		pSensorData = (SBYTE*)strchr(pSensorData,'\n') + 1;
 	}
-//	FREE(pData);
-//	FREE(psStats);
 	return TRUE;
 }
 
 /*Load the ECM stats from the file exported from Access*/
 BOOL loadECMStats(SBYTE *pECMData, UDWORD bufferSize)
 {
-	//SBYTE		*pData;
 	ECM_STATS	sStats, *psStats, *psStartStats;
 	UDWORD		NumECM = 0,i,designable;
 	STRING		ECMName[MAX_NAME_SIZE], location[MAX_NAME_SIZE], 
@@ -1683,15 +1585,8 @@ BOOL loadECMStats(SBYTE *pECMData, UDWORD bufferSize)
 
 
 	//keep the start so we release it at the end
-	//pData = pECMData;
 	
 	psStats = &sStats;
-/*	psStats = (ECM_STATS *)MALLOC(sizeof(ECM_STATS));
-	if (psStats == NULL)
-	{
-		DBERROR(("ECM Stats - Out of memory"));
-		return FALSE;
-	}*/
 	//reserve the start of the data
 	psStartStats = psStats;
 
@@ -1806,30 +1701,20 @@ BOOL loadECMStats(SBYTE *pECMData, UDWORD bufferSize)
 		//increment the pointer to the start of the next record
 		pECMData = (SBYTE*)strchr(pECMData,'\n') + 1;
 	}
-//	FREE(pData);
-//	FREE(psStats);
 	return TRUE;
 }
 
 /*Load the Repair stats from the file exported from Access*/
 BOOL loadRepairStats(SBYTE *pRepairData, UDWORD bufferSize)
 {
-	//SBYTE			*pData;
 	REPAIR_STATS	sStats, *psStats, *psStartStats;
 	UDWORD			NumRepair = 0,i,designable;
 	STRING			RepairName[MAX_NAME_SIZE], techLevel[MAX_NAME_SIZE],
 					GfxFile[MAX_NAME_SIZE],	mountGfx[MAX_NAME_SIZE],
 					location[MAX_NAME_SIZE];
 	//keep the start so we can release it at the end
-	//pData = pRepairData;
 
 	psStats = &sStats;
-/*	psStats = (REPAIR_STATS *)MALLOC(sizeof(REPAIR_STATS));
-	if (psStats == NULL)
-	{
-		DBERROR(("Repair Stats - Out of memory"));
-		return FALSE;
-	}*/
 	//reserve the start of the data
 	psStartStats = psStats;
 
@@ -1949,29 +1834,19 @@ BOOL loadRepairStats(SBYTE *pRepairData, UDWORD bufferSize)
 		//increment the pointer to the start of the next record
 		pRepairData = (SBYTE*)strchr(pRepairData,'\n') + 1;
 	}
-//	FREE(pData);
-//	FREE(psStats);
 	return TRUE;
 }
 
 /*Load the Program stats from the file exported from Access*/
 /*BOOL loadProgramStats(SBYTE *pProgramData, UDWORD bufferSize)
 {
-	//SBYTE			*pData;
 	PROGRAM_STATS	sStats, *psStats, *psStartStats;
 	UDWORD			NumProgram = 0,i;
 	STRING			ProgramName[MAX_NAME_SIZE], techLevel[MAX_NAME_SIZE];
 
 	//keep the start so we can release it at the end
-	//pData = pProgramData;
 
 	psStats = &sStats;
-//	psStats = (PROGRAM_STATS *)MALLOC(sizeof(PROGRAM_STATS));
-//	if (psStats == NULL)
-//	{
-//		DBERROR(("Program Stats - Out of memory"));
-//		return FALSE;
-//	}
 	//reserve the start of the data
 	psStartStats = psStats;
 
@@ -2012,30 +1887,20 @@ BOOL loadRepairStats(SBYTE *pRepairData, UDWORD bufferSize)
 		//increment the pointer to the start of the next record
 		pProgramData = strchr(pProgramData,'\n') + 1;
 	}
-//	FREE(pData);  
-//	FREE(psStats);
 	return TRUE;
 }*/
 
 /*Load the Construct stats from the file exported from Access*/
 BOOL loadConstructStats(SBYTE *pConstructData, UDWORD bufferSize)
 {
-	//SBYTE			*pData;
 	CONSTRUCT_STATS	sStats, *psStats, *psStartStats;
 	UDWORD			NumConstruct = 0,i,designable;
 	STRING			ConstructName[MAX_NAME_SIZE], GfxFile[MAX_NAME_SIZE];
 	STRING			mountGfx[MAX_NAME_SIZE], techLevel[MAX_NAME_SIZE];
 
 	//keep the start so we release it at the end
-	//pData = pConstructData;
 
 	psStats = &sStats;
-/*	psStats = (CONSTRUCT_STATS *)MALLOC(sizeof(CONSTRUCT_STATS));
-	if (psStats == NULL)
-	{
-		DBERROR(("Construct Stats - Out of memory"));
-		return FALSE;
-	}*/
 	//reserve the start of the data
 	psStartStats = psStats;
 
@@ -2132,8 +1997,6 @@ BOOL loadConstructStats(SBYTE *pConstructData, UDWORD bufferSize)
 		//increment the pointer to the start of the next record
 		pConstructData = (SBYTE*)strchr(pConstructData,'\n') + 1;
 	}
-//	FREE(pData);
-//	FREE(psStats);
 	return TRUE;
 }
 
@@ -2141,7 +2004,6 @@ BOOL loadConstructStats(SBYTE *pConstructData, UDWORD bufferSize)
 /*Load the Propulsion Types from the file exported from Access*/
 BOOL loadPropulsionTypes(SBYTE *pPropTypeData, UDWORD bufferSize)
 {
-	//SBYTE				*pData;
 	PROPULSION_TYPES	*pPropType;
 	UDWORD				NumTypes = 0, i, multiplier, type;
 	STRING				PropulsionName[MAX_NAME_SIZE], flightName[MAX_NAME_SIZE];
@@ -2149,9 +2011,7 @@ BOOL loadPropulsionTypes(SBYTE *pPropTypeData, UDWORD bufferSize)
 	UNUSEDPARAMETER(bufferSize);
 
 	//keep the start so we can release it at the end
-	//pData = pPropTypeData;
 
-	//NumTypes = numCR((UBYTE *)pPropTypeData, bufferSize);
 	NumTypes = NUM_PROP_TYPES;
 
 	//allocate storage for the stats
@@ -2162,7 +2022,6 @@ BOOL loadPropulsionTypes(SBYTE *pPropTypeData, UDWORD bufferSize)
 		return FALSE;
 	}
 
-//	numPropulsionTypes = NumTypes;
 
 	memset(asPropulsionTypes, 0, (sizeof(PROPULSION_TYPES)*NumTypes));
 	
@@ -2173,18 +2032,6 @@ BOOL loadPropulsionTypes(SBYTE *pPropTypeData, UDWORD bufferSize)
 			(char*)&PropulsionName, (char*)&flightName, &multiplier);
 
 		//allocate storage for the name
-/*#ifdef HASH_NAMES
-		asPropulsionTypes->NameHash=HashString(PropulsionName);
-#else
-		asPropulsionTypes->pName = (STRING *)MALLOC((strlen(PropulsionName))+1);
-		if (asPropulsionTypes->pName == NULL)
-		{
-			DBERROR(("Propulsion Type Name - Out of memory"));
-			return FALSE;
-		}	
-		strcpy(asPropulsionTypes->pName,PropulsionName);
-#endif
-*/
 		//set the pointer for this record based on the name
 		type = getPropulsionType(PropulsionName);
 		if (type == INVALID_PROP_TYPE)
@@ -2230,7 +2077,6 @@ BOOL loadPropulsionTypes(SBYTE *pPropTypeData, UDWORD bufferSize)
 		//increment the pointer to the start of the next record
 		pPropTypeData = (SBYTE*)strchr(pPropTypeData,'\n') + 1;
 	}
-//	FREE(pData);
 
 	return TRUE;
 }
@@ -2239,19 +2085,16 @@ BOOL loadPropulsionTypes(SBYTE *pPropTypeData, UDWORD bufferSize)
 /*Load the Terrain Table from the file exported from Access*/
 BOOL loadTerrainTable(SBYTE *pTerrainTableData, UDWORD bufferSize)
 {
-	//SBYTE			*pData;
 	TERRAIN_TABLE	*pTerrainTable;
 	UDWORD			NumEntries = 0,i,j;
 	UDWORD			terrainType, propulsionType, speedFactor;
 
 
-	//pData = pTerrainTableData;
 
 	NumEntries = numCR((UBYTE *)pTerrainTableData, bufferSize);
 
 	//allocate storage for the stats
 	asTerrainTable = (TERRAIN_TABLE *)MALLOC(sizeof(TERRAIN_TABLE) * 
-		//numPropulsionTypes * TERRAIN_TYPES);
 		NUM_PROP_TYPES * TERRAIN_TYPES);
 	
 	if (asTerrainTable == NULL)
@@ -2262,7 +2105,6 @@ BOOL loadTerrainTable(SBYTE *pTerrainTableData, UDWORD bufferSize)
 
 	//initialise the storage to 100
 	//memset(asTerrainTable, 0, (sizeof(TERRAIN_TABLE) * numPropulsionTypes 
-		//* TERRAIN_TYPES));
 	for (i=0; i < TERRAIN_TYPES; i++)
 	{
 		for (j=0; j < NUM_PROP_TYPES; j++)
@@ -2273,7 +2115,6 @@ BOOL loadTerrainTable(SBYTE *pTerrainTableData, UDWORD bufferSize)
 	}
 	
 	//copy the start location
-	//pTerrainTable = asTerrainTable;
 
 	for (i=0; i < NumEntries; i++)
 	{
@@ -2285,7 +2126,6 @@ BOOL loadTerrainTable(SBYTE *pTerrainTableData, UDWORD bufferSize)
 		//increment the pointer to the start of the next record
 		pTerrainTableData = (SBYTE*)strchr(pTerrainTableData,'\n') + 1;
 	}
-//	FREE(pData);
 
 	//check that none of the entries are 0 otherwise this will stop a droid dead in its tracks
 	//and it will not be able to move again!
@@ -2308,13 +2148,11 @@ BOOL loadTerrainTable(SBYTE *pTerrainTableData, UDWORD bufferSize)
 /*Load the Special Ability stats from the file exported from Access*/
 BOOL loadSpecialAbility(SBYTE *pSAbilityData, UDWORD bufferSize)
 {
-	//SBYTE			*pData;
 	SPECIAL_ABILITY *pSAbility;
 	UDWORD			NumTypes = 0, i, accessID;
 	STRING			SAbilityName[MAX_NAME_SIZE];
 
 	//keep the start so we can release it at the end
-	//pData = pSAbilityData;
 
 	NumTypes = numCR((UBYTE *)pSAbilityData, bufferSize);
 
@@ -2357,7 +2195,6 @@ BOOL loadSpecialAbility(SBYTE *pSAbilityData, UDWORD bufferSize)
 		pSAbilityData = (SBYTE*)strchr(pSAbilityData,'\n') + 1;
 		asSpecialAbility++;
 	}
-//	FREE(pData);
 
 	//reset the pointer to the start of the special ability stats
 	asSpecialAbility = pSAbility;
@@ -2367,7 +2204,6 @@ BOOL loadSpecialAbility(SBYTE *pSAbilityData, UDWORD bufferSize)
 /* load the IMDs to use for each body-propulsion combination */
 BOOL loadBodyPropulsionIMDs(SBYTE *pData, UDWORD bufferSize)
 {
-//	SBYTE				*pStartData;
 	BODY_STATS			*psBodyStat;
 	PROPULSION_STATS	*psPropulsionStat;
 	UDWORD				NumTypes = 0, i, numStats;
@@ -2402,7 +2238,6 @@ BOOL loadBodyPropulsionIMDs(SBYTE *pData, UDWORD bufferSize)
 	}
 
 	//keep the start so we can release it at the end
-	//pStartData = pData;
 
 
 
@@ -2519,7 +2354,6 @@ BOOL loadBodyPropulsionIMDs(SBYTE *pData, UDWORD bufferSize)
 		//increment the pointer to the start of the next record
 		pData = (SBYTE*)strchr(pData,'\n') + 1;
 	}
-//	FREE(pStartData);
 	return(TRUE);
 	
 }
@@ -2556,11 +2390,7 @@ statsGetAudioIDFromString( STRING *szStatName, STRING *szWavName, SDWORD *piWavI
 /*Load the weapon sounds from the file exported from Access*/
 BOOL loadWeaponSounds(SBYTE *pSoundData, UDWORD bufferSize)
 {
-//#ifdef PSX
 //#warning "loadWeaponSounds : NOT IMPLEMENTED ON PSX"
-//	return TRUE;
-//#else
-	//SBYTE			*pData;
 	SDWORD			NumRecords = 0, i, weaponSoundID, explosionSoundID, inc, iDum;
 	STRING			WeaponName[MAX_NAME_SIZE];
 	STRING			szWeaponWav[MAX_NAME_SIZE],	szExplosionWav[MAX_NAME_SIZE];
@@ -2620,15 +2450,12 @@ BOOL loadWeaponSounds(SBYTE *pSoundData, UDWORD bufferSize)
 		{
 			DBERROR(("loadWeaponSounds: Weapon stat not found - %s", WeaponName));
 			Ok = FALSE;
-//			return FALSE;
 		}
 		//increment the pointer to the start of the next record
 		pSoundData = (SBYTE*)strchr(pSoundData,'\n') + 1;
 	}
 
-//	return Ok;
 	return TRUE;
-//#endif
 }
 
 /*Load the Weapon Effect Modifiers from the file exported from Access*/
@@ -2639,7 +2466,6 @@ BOOL loadWeaponModifiers(SBYTE *pWeapModData, UDWORD bufferSize)
 	UDWORD				NumRecords = 0, i, j, modifier;
 	STRING				weaponEffectName[MAX_NAME_SIZE], propulsionName[MAX_NAME_SIZE];
 
-	//memset(asWeaponModifier, 0, (sizeof(WEAPON_MODIFIER)*WE_NUMEFFECTS*NUM_PROP_TYPES));
 	//initialise to 100%
 	for (i=0; i < WE_NUMEFFECTS; i++)
 	{
@@ -2774,10 +2600,6 @@ void statsSetWeapon(WEAPON_STATS	*psStats, UDWORD index)
 	SET_STATS(psStats, asWeaponStats, index, WEAPON_STATS, REF_WEAPON_START);
 }
 /* Set the stats for a particular armour type */
-/*void statsSetArmour(ARMOUR_STATS	*psStats, UDWORD index)
-{
-	SET_STATS(psStats, asArmourStats, index, ARMOUR_STATS, REF_ARMOUR_START);
-}*/
 /* Set the stats for a particular body type */
 void statsSetBody(BODY_STATS	*psStats, UDWORD index)
 {
@@ -2789,10 +2611,6 @@ void statsSetBrain(BRAIN_STATS	*psStats, UDWORD index)
 	SET_STATS(psStats, asBrainStats, index, BRAIN_STATS, REF_BRAIN_START);
 }
 /* Set the stats for a particular power type */
-/*void statsSetPower(POWER_STATS	*psStats, UDWORD index)
-{
-	SET_STATS(psStats, asPowerStats, index, POWER_STATS, REF_POWER_START);
-}*/
 /* Set the stats for a particular power type */
 void statsSetPropulsion(PROPULSION_STATS	*psStats, UDWORD index)
 {
@@ -2815,10 +2633,6 @@ void statsSetRepair(REPAIR_STATS	*psStats, UDWORD index)
 	SET_STATS(psStats, asRepairStats, index, REPAIR_STATS, REF_REPAIR_START);
 }
 /* Set the stats for a particular program type */
-/*void statsSetProgram(PROGRAM_STATS	*psStats, UDWORD index)
-{
-	SET_STATS(psStats, asProgramStats, index, PROGRAM_STATS, REF_PROGRAM_START);
-}*/
 /* Set the stats for a particular construct type */
 void statsSetConstruct(CONSTRUCT_STATS	*psStats, UDWORD index)
 {
@@ -3019,15 +2833,7 @@ CONSTRUCT_STATS *statsGetConstruct(UDWORD ref)
 //Deallocate the storage assigned for the Propulsion Types table
 void deallocPropulsionTypes(void)
 {
-	//UBYTE inc;
-//	PROPULSION_TYPES* pList = asPropulsionTypes;
 
-/*#ifndef HASH_NAMES
-	for (inc=0; inc < numPropulsionTypes; inc++, pList++)
-	{
-		FREE(pList->pName);
-	}
-#endif*/
 	FREE (asPropulsionTypes);
 }
 
@@ -3059,7 +2865,6 @@ void storeSpeedFactor(UDWORD terrainType, UDWORD propulsionType, UDWORD speedFac
 	ASSERT((propulsionType < NUM_PROP_TYPES, 
 		"The propulsion type is too large"));
 
-	//pTerrainTable += terrainType*numPropulsionTypes + propulsionType;
 	pTerrainTable += (terrainType * NUM_PROP_TYPES + propulsionType);
 	pTerrainTable->speedFactor = speedFactor;
 }
@@ -3067,7 +2872,6 @@ void storeSpeedFactor(UDWORD terrainType, UDWORD propulsionType, UDWORD speedFac
 //get the speed factor for a given terrain type and propulsion type
 UDWORD getSpeedFactor(UDWORD type, UDWORD propulsionType)
 {
-//	UBYTE	type;
 	TERRAIN_TABLE *pTerrainTable = asTerrainTable;
 
 	//ASSERT((propulsionType < numPropulsionTypes, 
@@ -3102,7 +2906,6 @@ UDWORD getSpeedFactor(UDWORD type, UDWORD propulsionType)
 			return 0;
 		}
 	 }*/
-	//pTerrainTable += type*numPropulsionTypes + propulsionType;
 	
 	pTerrainTable += (type * NUM_PROP_TYPES + propulsionType);
 
@@ -3304,7 +3107,6 @@ BOOL compareYes(STRING *strToCompare, STRING *strOwner)
 	else
 	{
 		//set default to FALSE but continue
-		//DBERROR(("Invalid yes/no for record %s", strOwner));
 		DBERROR(("Invalid yes/no for record %s", getName(strOwner)));
 		return FALSE;
 	}
@@ -3393,7 +3195,6 @@ SDWORD	getCompFromName(UDWORD compType, STRING *pName)
 {
 	BASE_STATS	*psStats = NULL;
 	UDWORD		numStats = 0, count, statSize = 0;
-//	DBPRINTF(("getcompfromname type=%d name=[%s]\n",compType,pName));
 
 
 	getStatsDetails(compType, &psStats,&numStats,&statSize);
@@ -3402,15 +3203,12 @@ SDWORD	getCompFromName(UDWORD compType, STRING *pName)
 
 	for(count = 0; count < numStats; count++)
 	{
-	//DBPRINTF(("%x ",psStats->NameHash);
 		if (!strcmp(pName, psStats->pName))
 		{
-//			DBPRINTF(("found at %d\n",count));
 			return count;
 		}
 		psStats = (BASE_STATS *)((UDWORD)psStats + statSize);
 	}
-//	DBPRINTF(("not found\n"));
 	//return -1 if record not found or an invalid component type is passed in
 	return -1;
 }
@@ -3432,19 +3230,15 @@ SDWORD	getCompFromHash(UDWORD compType, UDWORD HashedName)
 
 	//find the stat with the same name
 	
-//	DBPRINTF(("hunting %d stats for hash %x\n",numStats,HashedName);
 
 	for(count = 0; count < numStats; count++)
 	{
-//	DBPRINTF(("%x ",psStats->NameHash);
 		if (HashedName==psStats->NameHash)
 		{
-//			DBPRINTF(("found at %d\n",count);
 			return count;
 		}
 		psStats = (BASE_STATS *)((UDWORD)psStats + statSize);
 	}
-//	DBPRINTF(("not found\n");
 	//return -1 if record not found or an invalid component type is passed in
 	return -1;
 }

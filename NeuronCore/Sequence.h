@@ -75,6 +75,5 @@ extern BOOL	seq_GetFrameSize(SDWORD *pWidth, SDWORD* pHeight);
 extern int	seq_GetCurrentFrame(void);
 extern int	seq_GetFrameTimeInClicks(void);
 extern int	seq_GetTotalFrames(void);
-//extern int	seq_ResetMovie(void);
 
 #endif // _sequence_h

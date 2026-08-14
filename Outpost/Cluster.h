@@ -11,7 +11,6 @@
 #define CLUSTER_MAX		UBYTE_MAX
 
 // distance between units for them to be in the same cluster
-//#define CLUSTER_DIST	(TILE_UNITS*4)
 
 // cluster information flags
 #define CLUSTER_PLAYER_MASK		0x07

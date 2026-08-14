@@ -101,7 +101,6 @@ UDWORD	i,numWith;
 		lastCameraMove = gameTime;
 		/* The bones */
 		findSomethingInteresting();
-	  //	player.r.x = DEG(-90);
 
 	}
 	/* Otherwise, just send a droid off to war */
@@ -255,8 +254,6 @@ PROPULSION_STATS	*psPropStats;
 	gotNewTarget = FALSE;
 
 	/* Keep going until we get one */
-//	while(!gotNewTarget)
-//	{
 		/* Are we only to seek locations? */
 		if(bSeekOnlyLocations)
 		{
@@ -309,10 +306,8 @@ PROPULSION_STATS	*psPropStats;
 			  	selectedPlayer = player;
 				psLastDroid = psDroid;	
 			  //	if(orderState(psDroid,DORDER_ATTACK) == FALSE)
-			  //	{
 		 	 		orderDroidLoc(psDroid,DORDER_MOVE,
 					apsStructLists[otherPlayer]->x, apsStructLists[otherPlayer]->y);
-			  //	}
 
 				if(!getWarCamStatus())
 				{
@@ -345,7 +340,6 @@ PROPULSION_STATS	*psPropStats;
 		default:
 			break;
 		}
-//	}
 }
 
 // -------------------------------------------------------------------------

@@ -18,7 +18,6 @@
 #define FRAME_LIB_INCLUDE
 
 /* The input buffer printf's */
-//#define DEBUG_GROUP1
 #include "Types.h"
 #include "Debug.h"
 #include "Input.h"
@@ -304,16 +303,6 @@ void inputProcessMessages(UINT message, WPARAM wParam, LPARAM lParam)
 				mouseXPos = MAKEINT(divX*screenWidth);
 				mouseYPos = MAKEINT(divY*screenHeight);
 			}
-			/*
-			if(mouseXPos>=screenWidth)
-			{
-				mouseXPos = screenWidth-1;
-			}
-			if(mouseYPos >= screenHeight)
-			{
-				mouseYPos = screenHeight-1;
-			}
-			*/
 
 			/* now see if a drag has started */
 			if ((aMouseState[dragKey] == KEY_PRESSED ||
@@ -321,7 +310,6 @@ void inputProcessMessages(UINT message, WPARAM wParam, LPARAM lParam)
 				(ABSDIF(dragX,mouseXPos) > DRAG_THRESHOLD ||
 				 ABSDIF(dragY,mouseYPos) > DRAG_THRESHOLD))
 			{
-	//		DBPRINTF(("dragging\n"));
 				aMouseState[dragKey] = KEY_DRAG;
 			}
 		}

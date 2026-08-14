@@ -8,9 +8,7 @@
 #include <stdio.h>
 
 /* Grab box printf's */
-//#define DEBUG_GROUP2
 /* Selection flip and rotate printf's */
-//#define DEBUG_GROUP3
 #include "Frame.h"
 #include "FrameInt.h"
 
@@ -25,13 +23,11 @@
 BOOL			showTerrain = FALSE;
 
 /* Which terrain type to use for painting */
-//static TERRAIN_TYPE	currTerrain = TER_SANDYBRUSH;
 
 /* Which tile is to be used for painting */
 static UDWORD	currTile=0;
 
 /* The default mapping between terrain type and texture type */
-//static TERRAIN_TYPE		*aDefaultType;
 
 /* The possible states of the mouse */
 typedef enum _mouse_state
@@ -175,7 +171,6 @@ void ed2dShutDown(void)
 		FREE(sUndoBox.psTiles);
 	}
 
-//	FREE(aDefaultType);
 
 }
 
@@ -312,12 +307,10 @@ BOOL ed2dProcessInput(void)
 			disp2DToWorld(mouseX(), mouseY(), &worldX,&worldY);
 			if (showTerrain)
 			{
-//				mapTile(worldX >> TILE_SHIFT, worldY >> TILE_SHIFT)->type = currTerrain;
 			}
 			else
 			{
 				mapTile(worldX >> TILE_SHIFT, worldY >> TILE_SHIFT)->texture = (UWORD)currTile;
-//				mapTile(worldX >> TILE_SHIFT, worldY >> TILE_SHIFT)->type = currTerrain;
 			}
 		}
 		break;
@@ -414,7 +407,6 @@ BOOL ed2dProcessInput(void)
 				for (mx = selSX; mx <= selEX; mx++)
 				{
 					mapTile(mx,my)->texture = (UWORD)currTile;
-//					mapTile(mx,my)->type = currTerrain;
 				}
 			}
 
@@ -586,7 +578,6 @@ BOOL ed2dProcessInput(void)
 			{
 				currTile = (currTile & TILE_NUMMASK) - 1;
 			}
-//			currTerrain = aDefaultType[currTile];
 		}
 		if (keyPressed(KEY_EQUALS))
 		{
@@ -594,7 +585,6 @@ BOOL ed2dProcessInput(void)
 			{
 				currTile = (currTile & TILE_NUMMASK) + 1;
 			}
-//			currTerrain = aDefaultType[currTile];
 		}
 		if (keyPressed(KEY_X))
 		{
@@ -739,7 +729,6 @@ void ed2dDisplay(void)
 		sDestRect.top = 5 * TILE_SIZE2D / 2;
 		sDestRect.bottom = 7 *TILE_SIZE2D / 2;
 		blitTile(&sDestRect, &sSrcRect, currTile);
-//	}
 
 	screenSetTextColour(0,0,0);
 	disp2DToWorld(mouseX(), mouseY(), &worldX,&worldY);
@@ -804,7 +793,6 @@ static void putBox(PASTE_BOX *psBox, UDWORD x, UDWORD y)
 		for(mx = x; mx < x + psBox->width; mx ++)
 		{
 			mapTile(mx,my)->texture = psCurr->texture;
-//			mapTile(mx,my)->type = psCurr->type;
 			psCurr ++;
 		}
 	}

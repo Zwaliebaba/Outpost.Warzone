@@ -199,9 +199,6 @@ sound_ShutdownLibrary( void )
 void
 sound_Update( void )
 {
-#if 0
-	QSOUND(Pump());
-#endif
 }
 
 /***************************************************************************/
@@ -529,9 +526,6 @@ sound_Play3DSample( TRACK * psTrack, AUDIO_SAMPLE * psSample )
 	sound_SetObjectPosition( psSample->iSample,
 								psSample->x, psSample->y, psSample->z );
 
-#if 0
-DBPRINTF( ("sound_Play3DSample: playing channel %i\n", psSample->iSample ) );
-#endif
 
 	sound_SetSampleVol( psSample, AUDIO_VOL_MAX, TRUE );
 
@@ -550,7 +544,6 @@ playError:
 
 	g_iError = QSOUND(GetLastError());
 	QSOUND(GetErrorText( g_iError, g_szErrMsg, MAX_STR ));
-//	DBPRINTF( ("sound_Play3DSample: %s\n", g_szErrMsg) );
 	return FALSE;
 }
 

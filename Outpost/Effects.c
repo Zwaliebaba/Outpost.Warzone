@@ -44,7 +44,6 @@
 #include "MultiPlay.h"
 
 #include "Game.h"
-//#define COUNTOFFSCREEN
 
 #define DOLIGHTS
 
@@ -156,7 +155,6 @@ static void	effectSetupSmoke		( EFFECT *psEffect );
 static void	effectSetupGraviton		( EFFECT *psEffect );
 static void	effectSetupExplosion	( EFFECT *psEffect );
 static void	effectSetupConstruction ( EFFECT *psEffect );
-//static void	effectSetupDust			( EFFECT *psEffect );
 static void	effectSetupWayPoint		( EFFECT *psEffect );
 static void	effectSetupBlood		( EFFECT *psEffect );
 static void effectSetupDestruction  ( EFFECT *psEffect );
@@ -438,14 +436,8 @@ BOOL	bSmoke;
 	{
 		/* We're specifying what the imd is - override */
 		asEffectsList[freeEffect].imd = imd;
-//		if(type == EXPLOSION_TYPE_SPECIFIED_FIXME)
-//		{
-//			asEffectsList[freeEffect].size = EXPLOSION_SIZE;
-//		}
 //		else
-//		{
 		asEffectsList[freeEffect].size =(UWORD) specifiedSize;
-//		}
 	}
 	
 	/* Do all the effect type specific stuff */
@@ -461,7 +453,6 @@ BOOL	bSmoke;
 			effectSetupExplosion(&asEffectsList[freeEffect]);
 			break;
 		case EFFECT_CONSTRUCTION:
-//			effectSetupDust(&asEffectsList[freeEffect]);
 			effectSetupConstruction(&asEffectsList[freeEffect]);
 			break;
 		case EFFECT_WAYPOINT:
@@ -710,8 +701,6 @@ UDWORD	drop;
 			addEffect(&dv,EFFECT_EXPLOSION,EXPLOSION_TYPE_MEDIUM,FALSE,NULL,0);
 			audio_PlayStaticTrack( MAKEINT(psEffect->position.x), MAKEINT(psEffect->position.z), ID_SOUND_EXPLOSION );
 
-//			stepHeight = psEffect->radius/15;
-//			stepAngle = psEffect->radius/15;
 			for(dif =0; dif < (psEffect->radius*2); dif+=20)
 			{
 				if(dif<psEffect->radius)
@@ -751,10 +740,7 @@ UDWORD	drop;
 					effectGiveAuxVar(100);
    					addEffect(&dv,EFFECT_FIREWORK, FIREWORK_TYPE_STARBURST,FALSE,NULL,0);
 
-					//   			dv.x = dv.x - (2*xDif); 
 	//   			dv.z = dv.z - (2*yDif);	// buildings are level!
-	//			effectGiveAuxVar(100);
-	//   			addEffect(&dv,EFFECT_FIREWORK, FIREWORK_TYPE_STARBURST,FALSE,NULL,0);
 				}
 			}
 			KILL_EFFECT(psEffect);
@@ -837,7 +823,6 @@ LIGHT	light;
 
 		pie = getImdFromIndex(MI_FLAME);
 
-//printf("%d %d : %d %d : %p\n",xPos,yPos,startHeight,endHeight,pie);
 		/* Add some big explosions....! */
 
 		for(i=0; i<16; i++)
@@ -892,7 +877,6 @@ LIGHT	light;
 		}
 	}
 	
-//printf("%d %d\n",gameTime,psEffect->birthTime);
 	if(gameTime-psEffect->birthTime < 1000)
 	{
   		light.position.x = xPos;
@@ -940,29 +924,15 @@ FRACT	scaling;
 		}
  
 		range = percent;
-//#ifdef DOLIGHTS
 		light.position.x = MAKEINT(psEffect->position.x);
 		light.position.y = MAKEINT(psEffect->position.y);
 		light.position.z = MAKEINT(psEffect->position.z);
 		light.range = (3*range)/2;
 		light.colour = LIGHT_RED;
 		processLight(&light);
-//#endif
 	}
 
 #ifdef DOLIGHTS
-/*
-	if(psEffect->type == EXPLOSION_TYPE_LAND_LIGHT)
-	{
-		light.position.x = MAKEINT(psEffect->position.x);
-		light.position.y = MAKEINT(psEffect->position.y);
-		light.position.z = MAKEINT(psEffect->position.z);
-		light.range = getTimeValueRange(1024,512);
-		if(light.range>256) light.range = 512-light.range;
-		light.colour = LIGHT_RED;
-		processLight(&light);
-	}
-*/
 #endif
 	
 	if(psEffect->type == EXPLOSION_TYPE_SHOCKWAVE)
@@ -1217,9 +1187,7 @@ LIGHT	light;
 			{
 				psEffect->specific++;
 				/* Half it's velocity */
-//				psEffect->velocity.x/=(FRACT)(2);
 				psEffect->velocity.y/=(FRACT)(-2); // only y gets flipped
-//				psEffect->velocity.z/=(FRACT)(2);
 				/* Set it at ground level - may have gone through */
 				psEffect->position.y = MAKEFRACT(groundHeight);
 			}
@@ -1396,7 +1364,6 @@ UDWORD	height;
 		case 10:
 			if(psEffect->type == DESTRUCTION_TYPE_STRUCTURE)
 			{
-//				addEffect(&pos,EFFECT_GRAVITON,GRAVITON_TYPE_EMITTING_ST,TRUE,debrisImds[rand()%MAX_DEBRIS],0);
 				addEffect(&pos,EFFECT_GRAVITON,GRAVITON_TYPE_EMITTING_ST,TRUE,getRandomDebrisImd(),0);
 			}
 			else
@@ -1517,9 +1484,6 @@ UDWORD	percent;
 		}
 
 
-//		pos.x = (MAKEINT(psEffect->position.x) + ((rand()%psEffect->radius) - (rand()%(2*psEffect->radius))));
-//		pos.z = (MAKEINT(psEffect->position.z) + ((rand()%psEffect->radius) - (rand()%(2*psEffect->radius))));
-//		pos.y = map_Height(pos.x,pos.z);
 		if(psEffect->type == FIRE_TYPE_SMOKY OR psEffect->type == FIRE_TYPE_SMOKY_BLUE)
 		{
 			pos.x = (MAKEINT(psEffect->position.x) + ((rand()%psEffect->radius/2) - (rand()%(2*psEffect->radius/2))));
@@ -1535,14 +1499,6 @@ UDWORD	percent;
 			addEffect(&pos,EFFECT_EXPLOSION,EXPLOSION_TYPE_SMALL,FALSE,NULL,0);
 		}
 
-		/*
-		pos.x = MAKEINT(psEffect->position.x);
-		pos.y = MAKEINT(psEffect->position.y);
-		pos.z = MAKEINT(psEffect->position.z);
-
-		scatter.x = psEffect->radius; scatter.y = 0; scatter.z = psEffect->radius;
-		addMultiEffect(&pos,&scatter,EFFECT_EXPLOSION,EXPLOSION_TYPE_SMALL,FALSE,NULL,2,0,0);
-		*/
 
 	}
 
@@ -1620,7 +1576,6 @@ void	renderWaypointEffect(EFFECT *psEffect)
 iVector		dv;
 SDWORD		rx,rz;
 UDWORD brightness, specular;
-//SDWORD centreX, centreZ;
 
 	dv.x = ((UDWORD)MAKEINT(psEffect->position.x) - player.p.x) - terrainMidX * TILE_UNITS;
 	dv.y = (UDWORD)MAKEINT(psEffect->position.y);
@@ -1632,12 +1587,9 @@ UDWORD brightness, specular;
 	iV_TRANSLATE(rx,0,-rz);						/* Translate */
 
 	// set up lighting
-//	centreX = ( player.p.x + ((visibleXTiles/2)<<TILE_SHIFT) );
-//	centreZ = ( player.p.z + ((visibleYTiles/2)<<TILE_SHIFT) );
 	brightness = lightDoFogAndIllumination(pie_MAX_BRIGHT_LEVEL,getCentreX() - MAKEINT(psEffect->position.x),getCentreZ() - MAKEINT(psEffect->position.z), &specular);
 
 	pie_Draw3DShape(psEffect->imd, 0, 0, brightness, specular, 0, 0);
-//	pie_Draw3DShape(psEffect->imd, 0, 0, pie_MAX_BRIGHT_LEVEL, 0, pie_NO_BILINEAR, 0);
 	iV_MatrixEnd();
 }
 
@@ -1647,7 +1599,6 @@ void	renderFirework(EFFECT *psEffect)
 iVector		dv;
 SDWORD		rx,rz;
 UDWORD brightness, specular;
-//SDWORD centreX, centreZ;
 
 	/* these don't get rendered */
 	if(psEffect->type == FIREWORK_TYPE_LAUNCHER)
@@ -1669,8 +1620,6 @@ UDWORD brightness, specular;
 	iV_MatrixRotateX(-player.r.x);
 
    
-  //	centreX = ( player.p.x + ((visibleXTiles/2)<<TILE_SHIFT) );
-  //	centreZ = ( player.p.z + ((visibleYTiles/2)<<TILE_SHIFT) );
 	brightness = lightDoFogAndIllumination(pie_MAX_BRIGHT_LEVEL,getCentreX() - MAKEINT(psEffect->position.x),getCentreZ() - MAKEINT(psEffect->position.z), &specular);
 
 	scaleMatrix(psEffect->size);
@@ -1685,7 +1634,6 @@ void	renderBloodEffect(EFFECT *psEffect)
 iVector		dv;
 SDWORD		rx,rz;
 UDWORD brightness, specular;
-//SDWORD centreX, centreZ;
 
 	dv.x = ((UDWORD)MAKEINT(psEffect->position.x) - player.p.x) - terrainMidX * TILE_UNITS;
 	dv.y = (UDWORD)MAKEINT(psEffect->position.y);
@@ -1700,8 +1648,6 @@ UDWORD brightness, specular;
 	scaleMatrix(psEffect->size);
 
 	// set up lighting
-  //	centreX = ( player.p.x + ((visibleXTiles/2)<<TILE_SHIFT) );
-  //	centreZ = ( player.p.z + ((visibleYTiles/2)<<TILE_SHIFT) );
 	brightness = lightDoFogAndIllumination(pie_MAX_BRIGHT_LEVEL,getCentreX() - MAKEINT(psEffect->position.x),getCentreZ() - MAKEINT(psEffect->position.z), &specular);
 
 	pie_Draw3DShape(getImdFromIndex(MI_BLOOD), psEffect->frameNumber, 0, brightness, specular, pie_TRANSLUCENT, EFFECT_BLOOD_TRANSPARENCY);
@@ -1717,7 +1663,6 @@ iVector	dv;
 SDWORD	rx,rz;
 FRACT	div;
 SDWORD	percent;
-//SDWORD	centreX,centreZ;
 UDWORD	brightness,specular;
 
 	if(psEffect->type!=DESTRUCTION_TYPE_SKYSCRAPER)
@@ -1743,8 +1688,6 @@ UDWORD	brightness,specular;
 	}
 
 	//get fog value
-   //	centreX = ( player.p.x + ((visibleXTiles/2)<<TILE_SHIFT) );
-  //	centreZ = ( player.p.z + ((visibleYTiles/2)<<TILE_SHIFT) );
 	brightness = lightDoFogAndIllumination(pie_MAX_BRIGHT_LEVEL,
 		getCentreX() - MAKEINT(psEffect->position.x),getCentreZ() - MAKEINT(psEffect->position.z), &specular);
    
@@ -1795,7 +1738,6 @@ void	renderExplosionEffect(EFFECT *psEffect)
 	SDWORD		rx,rz;
 	SDWORD	percent;
 	UDWORD brightness, specular;
-//	SDWORD centreX, centreZ;
 	UDWORD	timeSlice;
 
 	if(psEffect->type == EXPLOSION_TYPE_LAND_LIGHT)
@@ -1841,8 +1783,6 @@ void	renderExplosionEffect(EFFECT *psEffect)
 		scaleMatrix(psEffect->size);
 	}
 	//get fog value
-//	centreX = ( player.p.x + ((visibleXTiles/2)<<TILE_SHIFT) );
-//	centreZ = ( player.p.z + ((visibleYTiles/2)<<TILE_SHIFT) );
 	brightness = lightDoFogAndIllumination(pie_MAX_BRIGHT_LEVEL,getCentreX() - MAKEINT(psEffect->position.x),getCentreZ() - MAKEINT(psEffect->position.z), &specular);
 
 	if(psEffect->type == EXPLOSION_TYPE_PLASMA)
@@ -1868,9 +1808,6 @@ void	renderGravitonEffect(EFFECT *psEffect)
 iVector	vec;
 SDWORD	rx,rz;
 UDWORD  brightness, specular;
-//SDWORD	centreX,centreZ;
-  //	centreX = ( player.p.x + ((visibleXTiles/2)<<TILE_SHIFT) );
-  //	centreZ = ( player.p.z + ((visibleYTiles/2)<<TILE_SHIFT) );
 
 	/* Establish world position */
 	vec.x = ((UDWORD)MAKEINT(psEffect->position.x) - player.p.x) - terrainMidX * TILE_UNITS;
@@ -1925,7 +1862,6 @@ SDWORD	percent;
 UDWORD	translucency;
 UDWORD	size;
 UDWORD brightness, specular;
-//SDWORD centreX, centreZ;
 
 	/* No rotation about arbitrary axis */
 	null.x = null.y = null.z = 0;
@@ -1975,12 +1911,8 @@ UDWORD brightness, specular;
 	scaleMatrix(size);
 
 	// set up lighting
-//	centreX = ( player.p.x + ((visibleXTiles/2)<<TILE_SHIFT) );
-//	centreZ = ( player.p.z + ((visibleYTiles/2)<<TILE_SHIFT) );
 	brightness = lightDoFogAndIllumination(pie_MAX_BRIGHT_LEVEL,getCentreX() - MAKEINT(psEffect->position.x),getCentreZ() - MAKEINT(psEffect->position.z), &specular);
 	pie_Draw3DShape(psEffect->imd, psEffect->frameNumber, 0, brightness, specular, pie_TRANSLUCENT, (UBYTE)(translucency));
-//	pie_Draw3DShape(psEffect->imd, psEffect->frameNumber, 0, pie_MAX_BRIGHT_LEVEL, 0, pie_TRANSLUCENT, (UBYTE)(40+percent));
-//	pie_Draw3DShape(psEffect->imd, psEffect->frameNumber, 0, pie_MAX_BRIGHT_LEVEL, 0, pie_TRANSLUCENT, (UBYTE)(130-percent));
 
 	/* Pop the matrix */
 	iV_MatrixEnd();
@@ -1998,7 +1930,6 @@ UDWORD	transparency;
 iVector	vec;
 SDWORD	rx,rz;
 UDWORD brightness, specular;
-//SDWORD centreX, centreZ;
 
 	/* Establish world position */
 	vec.x = ((UDWORD)MAKEINT(psEffect->position.x) - player.p.x) - terrainMidX * TILE_UNITS;
@@ -2029,7 +1960,6 @@ UDWORD brightness, specular;
 
 
 	/* Small smoke - used for the droids */
-//		if(psEffect->type == SMOKE_TYPE_DRIFTING_SMALL OR psEffect->type == SMOKE_TYPE_TRAIL)
 
 	if(TEST_SCALED(psEffect))
 	{
@@ -2053,8 +1983,6 @@ UDWORD brightness, specular;
 	}
 
    	// set up lighting
-//	centreX = ( player.p.x + ((visibleXTiles/2)<<TILE_SHIFT) );
-//	centreZ = ( player.p.z + ((visibleYTiles/2)<<TILE_SHIFT) );
 	brightness = lightDoFogAndIllumination(pie_MAX_BRIGHT_LEVEL,getCentreX() - MAKEINT(psEffect->position.x),getCentreZ() - MAKEINT(psEffect->position.z), &specular);
 
 	transparency = (transparency*3)/2;//JPS smoke strength increased for d3d 12 may 99
@@ -2674,7 +2602,6 @@ SDWORD	xBehind,yBehind;
 						pos.x = psDroid->x - xBehind;
 						pos.z = psDroid->y - yBehind;
 						pos.y = map_Height(pos.x,pos.z);
-//						addEffect(&pos,EFFECT_SMOKE,SMOKE_TYPE_TRAIL,FALSE,NULL);
 					}
 				}
 			}
@@ -2751,10 +2678,6 @@ BOOL		active;
 								eventPos.y = psStructure->z;
 							}
 							capacity = psPowerGen->capacity;
-							/*if(capacity)
-							{
-								eventPos.y = psStructure->z + 48;
-							}*/
 							/* Add an effect over the central spire - if 
 							connected to Res Extractor and it is active*/
 							//look through the list to see if any connected Res Extr
@@ -2774,7 +2697,6 @@ BOOL		active;
 								psStructure->pFunctionality)->apResExtractors[0]->
 								pFunctionality)->active)
 							*/
-							//if (active)
 							{
 								eventPos.y = psStructure->z + 48;
 								addEffect(&eventPos,EFFECT_EXPLOSION,
@@ -2787,7 +2709,6 @@ BOOL		active;
 							/*	Work out how many spires it has. This is a particularly unpleasant
 								hack and I'm not proud of it, but it needs to done. Honest. AM
 							*/
-							//if(capacity)
 						}
 					}
 				}

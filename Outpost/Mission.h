@@ -35,14 +35,12 @@ extern void releaseMission(void);
 /*on the PC - sets the countdown played flag*/
 extern void setMissionCountDown(void);
 
-//extern BOOL startMission(MISSION_TYPE missionType, STRING *pGame);
 extern BOOL startMission(UDWORD missionType, STRING *pGame);
 extern void endMission(void);
 // initialise the mission stuff for a save game
 extern BOOL startMissionSave(SDWORD missionType);
 
 //sets up the game to start a new mission
-//extern BOOL setUpMission(MISSION_TYPE type);
 extern BOOL setUpMission(UDWORD type);
 //this causes the new mission data to be loaded up
 extern void launchMission(void);
@@ -151,7 +149,6 @@ extern void missionGetTransporterExit( SDWORD iPlayer, UWORD *iX, UWORD *iY );
 //access functions for droidsToSafety flag
 extern void setDroidsToSafetyFlag(BOOL set);
 extern BOOL getDroidsToSafetyFlag(void);
-//checks to see if the player has any droids (except Transporters left)
 extern BOOL missionDroidsRemaining(UDWORD player);
 /*called when a Transporter gets to the edge of the world and the droids are 
 being flown to safety. The droids inside the Transporter are placed into the 

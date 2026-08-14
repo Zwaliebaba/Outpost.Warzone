@@ -21,7 +21,6 @@
 
 /** local definitions **/
 
-//#define	PRIMCATALOG		// define this if we want to use the primative buffer to store the wdg catalogs - frees up 29k (!)
 
 
 
@@ -207,7 +206,6 @@ BOOL WDG_SetCurrentWDG(char *filename)
 	assert(NumberOfWRFfiles<=MAXWRFINWDG);	// make sure that we don't have too many wrf's
 
 
-//	prnt(1,"Setcurrentwdg\n",0,0);
 
 	// now we read in the catalog of all the WRF files in this WDG
 #ifdef PRIMCATALOG
@@ -259,9 +257,6 @@ static BOOL CheckCurrentWDGforWRF(char *wrfname,WDGINFO ** WRFentry)
 
 	for (WRF=0;WRF<NumberOfWRFfiles;WRF++)
 	{
-//		char t[256];
-//		sprintf(t,"wrf %d) %s %x - %x\n",WRF,wrfname,WRFHash,CurrentWRF->WRFname);
-//		prnt(1,t,0,0);
 
 		if (WRFHash==CurrentWRF->WRFname)		// match the hash
 		{
@@ -279,11 +274,8 @@ BOOL LoadWRFCatalog(WDGINFO *CurrentWRF, FILE *pFileHandle)
 	UDWORD BytesRead;
 
 
-//	UBYTE string[64];
-//	sprintf(string,"loadwrf [%x]\n",CurrentWRF->offset);
 	// now load the directory of the wrf
 
-//	prnt(1,string,0,0);
 
 	// okay, the file exsists (because we succsesfully opened it), now read in the WDG header
 	// CurrentWRF->filecount		// contains the number of files in the WRF
@@ -299,7 +291,6 @@ BOOL LoadWRFCatalog(WDGINFO *CurrentWRF, FILE *pFileHandle)
 
 // only reload when needed
 // what the hell it's the PC so do it all the time ...
-//	if (LastCatalogLoadedOffset!=CurrentWRF->offset)
 	{
 
 		BytesRead=DISK_ReadPos(CurrentWRF->offset,(UBYTE *)WRFfilesCatalog,sizeof(WRFINFO)*CurrentWRF->filecount,pFileHandle);
@@ -361,8 +352,6 @@ BOOL WDG_ProcessWRF(char *WRFname,BOOL UseDataFromWDG )
 
 
 // THIS WORKS !!!!!!
-//	prnt(1,"hello\n",0,0);
-//	prnt(1,WRFname,0,0);
 
 	// First check that we have a valid WDG open
 	if (NumberOfWRFfiles==0)		// = indicates that we have not initialisied a WDG
@@ -397,12 +386,10 @@ BOOL WDG_ProcessWRF(char *WRFname,BOOL UseDataFromWDG )
 	// if the cache has become invalid then reload it
 	//
 	// The cache also holds the wrf/wdg catalog infomation ... this needs to be reloaded before we can continue to load a wrf
-//	prnt(1,"CHECK\n",0,0);
 
 #ifdef PRIMCATALOG			// if not primcatalog we always must restore
 	if ( FILE_IsCatalogValid()==FALSE)
 	{
-//		prnt(1,"a)RELOADING CATALOG INFOMATION !! \n",0,0);
 		FILE_RestoreCache();
 	}
 #endif
@@ -413,11 +400,6 @@ BOOL WDG_ProcessWRF(char *WRFname,BOOL UseDataFromWDG )
 	// If the wrf is not in the wdg lets shout and scream and moan about it...
 	if (FoundWRF==FALSE)
 	{
-//#ifdef PSX
-//		char t[32];
-//		sprintf(t,"bad wrf %s\n",wrfentryname);
-//		prnt(1,t,0,0);
-//#endif
 
 
  		DBPRINTF(("Unable to find %s in WDG\n",wrfentryname));
@@ -488,13 +470,7 @@ BOOL WDG_ProcessWRF(char *WRFname,BOOL UseDataFromWDG )
 			pRetreivedFile=FILE_Retrieve(pFileHandle,FileOffset,CurrentFile->filesize);	// Somehow get from the wdg the required data and return a pointer to it
 		}
 
-//		DBPRINTF(("%d) %p\n",File,pRetreivedFile));
 
-//		{
-//			char t[32];
-//			sprintf(t,"%d) %p\n",File,pRetreivedFile);
-//			prnt(1,t,0,0);
-//		}
 
 
 		SetLastFnameExtra(CurrentFile->SoftwareFlag, CurrentFile->TexturePage);
@@ -558,20 +534,10 @@ BOOL FILE_ShutdownCache(void)
 
 
 
-//static UDWORD CacheInvalidCounter=0;
 
 // Call this when you are zapping the primative buffer mem. so that next time it tries to load from a wdg it reloads the cache.
 void FILE_InvalidateCache(void)
 {
-//	prnt(1,"cache invalidated1!\n",0,0);
-//	DBPRINTF(("Cache invalidated !!!"));
-//	{
-//		UBYTE buf[32];
-//		sprintf(buf,"cache invalid\n");
-//#ifdef PSX
-//		prnt(1,buf,0,0);
-//#endif
-//	}
 	Cache.IsCacheDataValid=FALSE;	// This is the actual data in the cache 
 #ifdef PRIMCATALOG
 	PrimBufferCatalog=NULL;			// invalidate the wrf/wdg catalogs in the primative buffer
@@ -594,15 +560,9 @@ BOOL FILE_IsCatalogValid(void)
 	{
 		if (PrimBufferCatalog->Check1==CHECK1 && PrimBufferCatalog->Check2==CHECK2)
 		{
-//#ifdef PSX
-//			prnt(1,"CataValid\n",0,0);
-//#endif
 			return TRUE;
 		}
 	}
-//#ifdef PSX	
-//	prnt(1,"CataInvalid\n",0,0);
-//#endif
 	return FALSE;
 #else
 	return TRUE;
@@ -715,7 +675,6 @@ UBYTE *FILE_Retrieve(FILE *pFileHandle, UDWORD offsetInWDG, UDWORD filesize)
 	UDWORD BytesRead;
 	// Check to see if the file we want is in the cache 
 
-//DBPRINTF(("\n\n\n\n\n\n\nfile_ret  - cache size = %d\n\n\n\n\n\n\n\n",Cache.BufferSize));
 
 	if (Cache.pBufferStart!=NULL)
 	{
@@ -735,7 +694,6 @@ UBYTE *FILE_Retrieve(FILE *pFileHandle, UDWORD offsetInWDG, UDWORD filesize)
 		// if its not then fill up the cache with data from the start of the requested WDG
 
 
-//		DBPRINTF(("filesize=%d cachesize=%d\n",filesize,Cache.BufferSize));
 
 
 
@@ -749,7 +707,6 @@ UBYTE *FILE_Retrieve(FILE *pFileHandle, UDWORD offsetInWDG, UDWORD filesize)
 		if (filesize > Cache.BufferSize)
 		{
 			// we can't load all of the file into the cache at once
-			// see we load what we can and the rest is loaded via a FILE_RetreivePending();
 
 			DataPendingSize=filesize-Cache.BufferSize;		// amount pending
 			DataPendingOffset=offsetInWDG+Cache.BufferSize;	// start of pending data
@@ -958,21 +915,14 @@ MemAllocationMode can be ...
 	WDG_RETURNCACHE		// new  - just returns as much of the file as we can in the cache
 
 */
-//BOOL loadFileFromWDG(STRING *pFileName, UBYTE **ppFileData, UDWORD *pFileSize, BOOL AllocateMem)
 BOOL loadFileFromWDGCache(WDG_FINDFILE *psFindFile, UBYTE **ppFileData, UDWORD *pFileSize, UBYTE MemAllocationMode)
 {
 	WDGINFO *CurrentWRF;
-//	BOOL FoundWRF;
-//	BOOL CatalogLoadedOK;
-//	BOOL FoundFileInWRF;
 	WRFINFO	*CurrentFile;  //=WRFfilesCatalog;
 	FILE *pFileHandle;
-//	UDWORD RequiredFileHash,File;
 	UDWORD FileOffset;
 	UBYTE *pRetreivedFile;
 	UDWORD CurrentWRF_HeaderSize;
-//	char name[32];
-//	UDWORD pos;
 
 /*	THIS IS ALL DONE BY THE MULTIWDG STUFF NOW - JOHN
 
@@ -980,7 +930,6 @@ BOOL loadFileFromWDGCache(WDG_FINDFILE *psFindFile, UBYTE **ppFileData, UDWORD *
 
 	DBPRINTF(("loadfilefromwdg = %s %d\n",pFileName,MemAllocationMode));
 
-//	prnt(1,pFileName,0,0);
 
 	// if the cache has become invalid then reload it
 	//
@@ -988,8 +937,6 @@ BOOL loadFileFromWDGCache(WDG_FINDFILE *psFindFile, UBYTE **ppFileData, UDWORD *
 	if ( FILE_IsCatalogValid()==FALSE)
 	{
 ////#ifdef PSX
-//		prnt(1,"RELOADING CATALOG INFOMATION !! \n",0,0);
-//#endif
 		FILE_RestoreCache();
 	}
 
@@ -1077,7 +1024,6 @@ BOOL loadFileFromWDGCache(WDG_FINDFILE *psFindFile, UBYTE **ppFileData, UDWORD *
 	
 	if (pRetreivedFile==NULL)
 	{
-		// Unable to load the file in (perhaps to big for the cache?)
 		DISK_Close(pFileHandle);
 		return FALSE;
 

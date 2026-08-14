@@ -122,7 +122,6 @@ typedef struct _const_symbol
 	BOOL			bval;
 	SDWORD			ival;
 	void			*oval;
-//	float			fval;
 } CONST_SYMBOL;
 
 /* The chunk of code used to reference an object variable */

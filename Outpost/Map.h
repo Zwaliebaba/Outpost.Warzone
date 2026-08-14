@@ -71,23 +71,12 @@ extern UDWORD	relativeSpeeds[TERRAIN_TYPES][MARKER];
 #define BITS_STRUCTURE	0x1
 #define BITS_FEATURE	0x2
 #define BITS_NODRAWTILE	0x4
-//#define	BITS_TILE_HIGHLIGHT 0x8
 #define BITS_SMALLSTRUCTURE	0x8			// show small structures - tank traps / bunkers
 #define BITS_FPATHBLOCK	0x10		// bit set temporarily by find path to mark a blocking tile
 #define BITS_WALL		0x20
 #define BITS_GATEWAY	0x40		// bit set to show a gateway on the tile
 #define BITS_TALLSTRUCTURE 0x80		// bit set to show a tall structure which camera needs to avoid.
 
-/*#ifdef WIN32	// Extra tile info bits.... WIN32 only
-#define	EXTRA_BITS_SENSOR	0x1
-#define	EXTRA_BITS_2		0x2
-#define	EXTRA_BITS_3		0x4
-#define	EXTRA_BITS_4		0x8
-#define	EXTRA_BITS_5		0x10
-#define	EXTRA_BITS_6		0x20
-#define	EXTRA_BITS_7		0x40
-#define	EXTRA_BITS_8		0x80
-#endif*/
 
 #define BITS_STRUCTURE_MASK	0xfe
 #define BITS_FEATURE_MASK	0xfd 
@@ -101,23 +90,10 @@ extern UDWORD	relativeSpeeds[TERRAIN_TYPES][MARKER];
 #define TILE_HAS_STRUCTURE(x)	(x->tileInfoBits & BITS_STRUCTURE)
 #define TILE_HAS_FEATURE(x)		(x->tileInfoBits & BITS_FEATURE)
 #define TILE_DRAW(x)			(!((x)->tileInfoBits & BITS_NODRAWTILE))
-//#define TILE_HIGHLIGHT(x)		(x->tileInfoBits & BITS_TILE_HIGHLIGHT)
 #define TILE_HIGHLIGHT(x)		(x->texture & TILE_HILIGHT)
 #define TILE_HAS_TALLSTRUCTURE(x)	(x->tileInfoBits & BITS_TALLSTRUCTURE)
 #define TILE_HAS_SMALLSTRUCTURE(x)	(x->tileInfoBits & BITS_SMALLSTRUCTURE)
 
-/*
-#ifdef WIN32		// I've even set them up for you...:-)
-#define TILE_IN_SENSORRANGE(x)	(x->tileExtraBits & EXTRA_BITS_SENSOR)
-#define TILE_EXTRA_BIT2_SET(x)	(x->tileExtraBits & EXTRA_BITS_2)
-#define TILE_EXTRA_BIT3_SET(x)	(x->tileExtraBits & EXTRA_BITS_3)
-#define TILE_EXTRA_BIT4_SET(x)	(x->tileExtraBits & EXTRA_BITS_4)
-#define TILE_EXTRA_BIT5_SET(x)	(x->tileExtraBits & EXTRA_BITS_5)
-#define TILE_EXTRA_BIT6_SET(x)	(x->tileExtraBits & EXTRA_BITS_6)
-#define TILE_EXTRA_BIT7_SET(x)	(x->tileExtraBits & EXTRA_BITS_7)
-#define TILE_EXTRA_BIT8_SET(x)	(x->tileExtraBits & EXTRA_BITS_8)
-#endif
-*/
 #define SET_TILE_NOTBLOCKING(x)	(x->texture |= TILE_NOTBLOCKING)
 #define CLEAR_TILE_NOTBLOCKING(x)	(x->texture &= ~TILE_NOTBLOCKING)
 
@@ -133,26 +109,6 @@ extern UDWORD	relativeSpeeds[TERRAIN_TYPES][MARKER];
 #define SET_TILE_SMALLSTRUCTURE(x)	(x->tileInfoBits = (UBYTE)((x)->tileInfoBits | BITS_SMALLSTRUCTURE))
 #define CLEAR_TILE_SMALLSTRUCTURE(x)	(x->tileInfoBits = (UBYTE)((x)->tileInfoBits & (~BITS_SMALLSTRUCTURE)))
 
-/*
-#ifdef WIN32	// again, done for you again!
-#define SET_TILE_SENSOR(x)	(x->tileExtraBits = (UBYTE)((x)->tileExtraBits | EXTRA_BITS_SENSOR))
-#define CLEAR_TILE_SENSOR(x)	(x->tileExtraBits = (UBYTE)((x)->tileExtraBits & (~EXTRA_BITS_SENSOR)))
-#define SET_TILE_BIT2(x)	(x->tileExtraBits = (UBYTE)((x)->tileExtraBits | EXTRA_BITS_2))
-#define CLEAR_TILE_BIT2(x)	(x->tileExtraBits = (UBYTE)((x)->tileExtraBits & (~EXTRA_BITS_2)))
-#define SET_TILE_BIT3(x)	(x->tileExtraBits = (UBYTE)((x)->tileExtraBits | EXTRA_BITS_3))
-#define CLEAR_TILE_BIT3(x)	(x->tileExtraBits = (UBYTE)((x)->tileExtraBits & (~EXTRA_BITS_3)))
-#define SET_TILE_BIT4(x)	(x->tileExtraBits = (UBYTE)((x)->tileExtraBits | EXTRA_BITS_4))
-#define CLEAR_TILE_BIT4(x)	(x->tileExtraBits = (UBYTE)((x)->tileExtraBits & (~EXTRA_BITS_4)))
-#define SET_TILE_BIT5(x)	(x->tileExtraBits = (UBYTE)((x)->tileExtraBits | EXTRA_BITS_5))
-#define CLEAR_TILE_BIT5(x)	(x->tileExtraBits = (UBYTE)((x)->tileExtraBits & (~EXTRA_BITS_5)))
-#define SET_TILE_BIT6(x)	(x->tileExtraBits = (UBYTE)((x)->tileExtraBits | EXTRA_BITS_6))
-#define CLEAR_TILE_BIT6(x)	(x->tileExtraBits = (UBYTE)((x)->tileExtraBits & (~EXTRA_BITS_6)))
-#define SET_TILE_BIT7(x)	(x->tileExtraBits = (UBYTE)((x)->tileExtraBits | EXTRA_BITS_7))
-#define CLEAR_TILE_BIT7(x)	(x->tileExtraBits = (UBYTE)((x)->tileExtraBits & (~EXTRA_BITS_7)))
-#define SET_TILE_BIT8(x)	(x->tileExtraBits = (UBYTE)((x)->tileExtraBits | EXTRA_BITS_8))
-#define CLEAR_TILE_BIT8(x)	(x->tileExtraBits = (UBYTE)((x)->tileExtraBits & (~EXTRA_BITS_8)))
-#endif
-*/
 // Multiplier for the tile height
 #define	ELEVATION_SCALE	2
 
@@ -286,7 +242,6 @@ FUNCINLINE MAPTILE *mapTile(UDWORD x, UDWORD y)
 }
 
 /* Return height of tile at x,y */
-//FUNCINLINE SDWORD map_TileHeight(UDWORD x, UDWORD y)
 FUNCINLINE SWORD map_TileHeight(UDWORD x, UDWORD y)
 {
     x = x >= (mapWidth) ? (mapWidth-1) : x;
@@ -312,16 +267,8 @@ FUNCINLINE void setTileHeight(UDWORD x, UDWORD y, UDWORD height)
 }
 
 /*increases the tile height by one */
-/*FUNCINLINE void incTileHeight(UDWORD x, UDWORD y)
-{
-	psMapTiles[x + (y << mapShift)].height++;
-}*/
 
 /*decreases the tile height by one */
-/*FUNCINLINE void decTileHeight(UDWORD x, UDWORD y)
-{
-	psMapTiles[x + (y << mapShift)].height--;
-}*/
 
 /* Return whether a tile coordinate is on the map */
 FUNCINLINE BOOL tileOnMap(SDWORD x, SDWORD y)
@@ -360,7 +307,6 @@ extern void mapCalcAALine(SDWORD X1, SDWORD Y1,
 				   UDWORD *pNumPoints);
 
 /* Return height of x,y */
-//extern SDWORD map_Height(UDWORD x, UDWORD y);
 extern SWORD map_Height(UDWORD x, UDWORD y);
 
 /* returns TRUE if object is above ground */

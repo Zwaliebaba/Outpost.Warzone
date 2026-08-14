@@ -17,7 +17,6 @@
     <ClCompile Include="AudioID.c" />
     <ClCompile Include="Bridge.c" />
     <ClCompile Include="Bucket3D.c" />
-    <ClCompile Include="BuildPos.c" />
     <ClCompile Include="CDAudio.c" />
     <ClCompile Include="CDSpan.c" />
     <ClCompile Include="Cheat.c" />
@@ -125,7 +124,6 @@
     <ClCompile Include="Visibility.c" />
     <ClCompile Include="WarCAM.c" />
     <ClCompile Include="WarzoneConfig.c" />
-    <ClCompile Include="Water.c" />
     <ClCompile Include="WinMain.c" />
     <ClCompile Include="Wrappers.c" />
   </ItemGroup>
@@ -142,7 +140,6 @@
     <ClInclude Include="Base.h" />
     <ClInclude Include="Bridge.h" />
     <ClInclude Include="Bucket3D.h" />
-    <ClInclude Include="BuildPos.h" />
     <ClInclude Include="Bullet.h" />
     <ClInclude Include="BulletDef.h" />
     <ClInclude Include="CDAudio.h" />

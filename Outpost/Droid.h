@@ -20,7 +20,6 @@
 
 /*defines the % to decrease the illumination of a tile when building - gets set 
 back when building is destroyed*/
-//#define FOUNDATION_ILLUMIN		50
 
 #define DROID_RESISTANCE_FACTOR     30
 
@@ -73,7 +72,6 @@ extern void droidGetNaybors(DROID *psDroid);
 
 extern BOOL loadDroidTemplates(SBYTE *pDroidData, UDWORD bufferSize);
 extern BOOL loadDroidWeapons(SBYTE *pWeaponData, UDWORD bufferSize);
-//extern BOOL loadDroidPrograms(SBYTE *pProgramData, UDWORD bufferSize);
 
 /*initialise the template build and power points */
 extern void initTemplatePoints(void);
@@ -110,7 +108,6 @@ extern UDWORD calcDroidSpeed(UDWORD baseSpeed, UDWORD terrainType, UDWORD propIn
 extern UDWORD calcTemplateBuild(DROID_TEMPLATE *psTemplate);
 
 /* Calculate the points required to build the droid */
-//UDWORD calcDroidBuild(DROID *psDroid);
 
 /* Calculate the power points required to build/maintain the droid */			
 extern UDWORD	calcTemplatePower(DROID_TEMPLATE *psTemplate);
@@ -170,7 +167,6 @@ extern BOOL droidStartRestore( DROID *psDroid );
 /*continue restoring a structure*/
 extern BOOL droidUpdateRestore( DROID *psDroid );
 
-// recycle a droid (retain it's experience and some of it's cost)
 extern void recycleDroid(DROID *psDel);
 
 /* Release all resources associated with a droid */
@@ -328,7 +324,6 @@ extern UWORD   getNumAttackRuns(DROID *psDroid);
 extern void assignVTOLPad(DROID *psNewDroid, STRUCTURE *psReArmPad);
 //don't use this function any more - the droid checks each frame for this to have died
 //look through all droids to see if any are associated with the ReArming Pad
-//extern void releaseVTOLPad(STRUCTURE *psReArmPad);
 // true if a vtol is waiting to be rearmed by a particular rearm pad
 extern BOOL vtolReadyToRearm(DROID *psDroid, STRUCTURE *psStruct);
 // true if a vtol droid currently returning to be rearmed

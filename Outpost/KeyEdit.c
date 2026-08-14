@@ -70,23 +70,10 @@ extern char	buildTime[8];
 
 static BOOL pushedKeyMap(UDWORD key)
 {
-//	UDWORD count =0;
 //	id-KM_START
-//	for(selectedKeyMap = keyMappings;
-//		selectedKeyMap->status != KEYMAP_ASSIGNABLE;
-//		(selectedKeyMap->status= KEYMAP__DEBUG) && (selectedKeyMap->status==KEYMAP___HIDE);
 //		
-//		selectedKeyMap = selectedKeyMap->psNext);
 //
-//	while(count!=key)
-//	{
-//		selectedKeyMap = selectedKeyMap->psNext;
 //		if((selectedKeyMap->status!=KEYMAP__DEBUG)&&(selectedKeyMap->status!=KEYMAP___HIDE))		// if it's not a debug mapping..
-//		if(selectedKeyMap->status == KEYMAP_ASSIGNABLE)
-//		{
-//			count++;
-//		}	
-//	}
 	selectedKeyMap = widgGetFromID(psWScreen,key)->pUserData;
 	if(selectedKeyMap && selectedKeyMap->status != KEYMAP_ASSIGNABLE)
 	{
@@ -106,10 +93,6 @@ static BOOL pushedKeyCombo(UDWORD subkey)
 	KEY_MAPPING	*pExist;
    	KEY_MAPPING	*psMapping;
 	KEY_CODE	alt;
-   //	void (*function)(void);
-   //	KEY_ACTION	action;
-   //	KEY_STATUS	status;
-   //	STRING	name[255];
 
 	// check for
 	// alt
@@ -167,24 +150,16 @@ static BOOL pushedKeyCombo(UDWORD subkey)
 
 
 	// unbind old mapping with this combo.
-//	function = selectedKeyMap->function;
-//	action = selectedKeyMap->action;
-//	status = selectedKeyMap->status;
-//	strcpy(name,selectedKeyMap->pName);
-//	keyRemoveMappingPt(selectedKeyMap);
 
 	keyAddMapping(status,metakey,subkey,action,function,name);
 					
 	// add new binding.
-//	keyReAssignMapping( selectedKeyMap->metaKeyCode, selectedKeyMap->subKeyCode, metakey, subkey);
   //	keyAddMapping(
 
 	selectedKeyMap->metaKeyCode = metakey;
 	selectedKeyMap->subKeyCode = subkey;
 
 // readd the widgets.
-//	widgDelete(psWScreen,FRONTEND_BACKDROP);
-//	startKeyMapEditor(FALSE);
 
 	*/
 	selectedKeyMap = NULL;	// unhighlght selected .

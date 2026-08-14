@@ -238,7 +238,6 @@ int iV_TexLoad( char *path, char *filename, int type,
 	int				i;
 	char			buffer[MAX_FILE_PATH], fname[MAX_FILE_PATH];
 	iSprite			s;
-//	iPalette		pal, *pPal;
 
 	// ensure upper case for tex file names
 	ASSERT ((strlen(filename)<MAX_FILE_PATH,"Texture file path too long"));
@@ -299,7 +298,6 @@ int iV_TexLoad( char *path, char *filename, int type,
 //
 // Called from the resource loading stuff
 //
-//  currently only for PSX but would make sense for the PC (?)
 //
 BOOL GenerateTEXPAGE(char *Filename, RECT *VramArea, UDWORD Mode, UWORD Clut)
 {

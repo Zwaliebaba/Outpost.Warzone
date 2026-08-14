@@ -187,7 +187,6 @@ BOOL loadConfig(BOOL bResourceAvailable)
 	else
 	{
 		barMode = BAR_FULL;
-//		setDifficultyLevel(DL_NORMAL);
 		setWarzoneKeyNumeric("barmode",BAR_FULL);
 	}
 
@@ -470,23 +469,9 @@ BOOL loadRenderMode()
 			}
 
 //			if(getWarzoneKeyNumeric("d3dTrans",&val))
-//			{
-//				switch(val)
-//				{
 //				case 0:
-//					war_SetTranslucent(FALSE);
-//					war_SetAdditive(FALSE);
-//					break;
 //				case 1:
-//					war_SetTranslucent(TRUE);
-//					war_SetAdditive(FALSE);
-//					break;
 //				default:
-//					war_SetTranslucent(TRUE);
-//					war_SetAdditive(TRUE);
-//					break;
-//				}
-//			}
 
 		}
 	}
@@ -498,17 +483,7 @@ BOOL loadRenderMode()
 				setWarzoneKeyNumeric("d3dFog",war_GetFog());
 
 //				if (war_GetAdditive())
-//				{
-//					setWarzoneKeyNumeric("d3dTrans",2);
-//				}
-//				else if (war_GetTranslucent())
-//				{
-//					setWarzoneKeyNumeric("d3dTrans",1);
-//				}
 //				else
-//				{
-//					setWarzoneKeyNumeric("d3dTrans",0);
-//				}
 
 		}
 	}
@@ -617,17 +592,7 @@ BOOL saveConfig()
 			setWarzoneKeyNumeric("d3dFog",war_GetFog());
 
 //			if (war_GetAdditive())
-//			{
-//				setWarzoneKeyNumeric("d3dTrans",2);
-//			}
-//			else if (war_GetTranslucent())
-//			{
-//				setWarzoneKeyNumeric("d3dTrans",1);
-//			}
 //			else
-//			{
-//				setWarzoneKeyNumeric("d3dTrans",0);
-//			}
 
 	}
 
@@ -733,7 +698,6 @@ BOOL getWarzoneKeyNumeric	(STRING *pName,DWORD *val)
 	// check guid exists
 	if(RegQueryValueEx(ghWarzoneKey,pName,NULL, &type, (UCHAR*)&result,&resultsize)	!=  ERROR_SUCCESS)
 	{
-//		RegCloseKey(ghWarzoneKey);
 		return FALSE;
 	}
 	if (type == REG_DWORD)
@@ -757,7 +721,6 @@ BOOL getWarzoneKeyString	(STRING *pName,STRING *pString)
 	// check guid exists
 	if(RegQueryValueEx(ghWarzoneKey,pName,NULL, &type, (UCHAR*)&result,&resultsize)	!=  ERROR_SUCCESS)
 	{
-	//	RegCloseKey(ghWarzoneKey);
 		return FALSE;
 	}
 	if(type == REG_SZ)
@@ -781,7 +744,6 @@ BOOL getWarzoneKeyBinary	(STRING *pName,UCHAR *pData,UDWORD *pSize)
 	// check guid exists
 	if(RegQueryValueEx(ghWarzoneKey,pName,NULL, &type, (UCHAR*)&result,&resultsize)	!=  ERROR_SUCCESS)
 	{
-	//	RegCloseKey(ghWarzoneKey);
 		*pSize =0;
 		return FALSE;
 	}

@@ -91,7 +91,6 @@ BOOL	renderBridgeSection(STRUCTURE *psStructure)
 {
 	SDWORD			structX,structY,structZ;	
 	SDWORD			rx,rz;
-	//iIMDShape		*imd;
 	iVector			dv;
 
 			/* Bomb out if it's not visible and there's no active god mode */
@@ -232,7 +231,6 @@ iVector	dv;
 		   		dv.z = ((i*128)+64);
 				dv.y = bridge.bridgeHeight;
 				addEffect(&dv,EFFECT_SMOKE,SMOKE_TYPE_DRIFTING,FALSE,NULL,0);
-//				addExplosion(&dv,TYPE_EXPLOSION_SMOKE_CLOUD,NULL);
 			}
 		}
 		else
@@ -243,7 +241,6 @@ iVector	dv;
 		   		dv.z = ((bridge.startY*128)+64);
 				dv.y = bridge.bridgeHeight;
 				addEffect(&dv,EFFECT_SMOKE,SMOKE_TYPE_DRIFTING,FALSE,NULL,0);
-//				addExplosion(&dv,TYPE_EXPLOSION_SMOKE_CLOUD,NULL);
 			}
 		}
 			/* Flatten the start tile */
@@ -269,7 +266,6 @@ iVector	dv;
 		   		dv.z = ((i*128)+64);
 				dv.y = bridge.bridgeHeight;
 				addEffect(&dv,EFFECT_EXPLOSION,EXPLOSION_TYPE_SMALL,FALSE,NULL,0);
-//				addExplosion(&dv,TYPE_EXPLOSION_MED,NULL);
 			}
 		}
 		else
@@ -280,7 +276,6 @@ iVector	dv;
 		   		dv.z = ((bridge.startY*128)+64);
 				dv.y = bridge.bridgeHeight;
 				addEffect(&dv,EFFECT_EXPLOSION,EXPLOSION_TYPE_SMALL,FALSE,NULL,0);
-//				addExplosion(&dv,TYPE_EXPLOSION_MED,NULL);
 			}
 		}
 	

@@ -32,8 +32,6 @@ the number of Proximity Messages for a mission*/
 //max number of text strings or sequences for viewdata
 #define MAX_DATA		4
 
-//VIEWDATA			*asViewData;
-//UDWORD			numViewData;
 
 //array of pointers for the view data
 VIEWDATA_LIST			*apsViewData;
@@ -59,7 +57,6 @@ PROXIMITY_DISPLAY *apsProxDisp[MAX_PLAYERS];
 
 /* The current tutorial message - there is only ever one at a time. They are displayed 
 when called by the script. They are not to be re-displayed*/
-//MESSAGE		tutorialMessage;
 
 /* The IMD to use for the proximity messages */
 iIMDShape	*pProximityMsgIMD;
@@ -67,7 +64,6 @@ iIMDShape	*pProximityMsgIMD;
 //function declarations
 static void addProximityDisplay(MESSAGE *psMessage, BOOL proxPos, UDWORD player);
 static void removeProxDisp(MESSAGE *psMessage, UDWORD player);
-//static void checkMessages(VIEWDATA *psViewData);
 static void checkMessages(MSG_VIEWDATA *psViewData);
 
 
@@ -311,13 +307,11 @@ void viewDataHeapShutDown(void)
 		 return NULL;
 	 }
 	 //then add to the players' list
-	 //ADD_MSG(apsMessages, psMsgToAdd, player);
      add_msg(apsMessages, psMsgToAdd, player);
 
 	 //initialise the message data
 	 psMsgToAdd->player = player;
 	 psMsgToAdd->pViewData = NULL;
-	 //psMsgToAdd->frameNumber = 0;
 	 psMsgToAdd->read = FALSE;
 
 	 //add a proximity display
@@ -326,17 +320,7 @@ void viewDataHeapShutDown(void)
 		 addProximityDisplay(psMsgToAdd, proxPos, player);
 	 }
 //	 else
-//	 {
 //		 //make the reticule button flash as long as not prox msg or multiplayer game.
-//#ifdef WIN32
-//		if (player == selectedPlayer && !bMultiPlayer)
-//#else
-//		if (player == selectedPlayer )
-//#endif
-//		{
-//			flashReticuleButton(IDRET_INTEL_MAP);
-//		}
-//	 }
 
 	 return psMsgToAdd;
 }
@@ -440,7 +424,6 @@ void releaseAllProxDisp(void)
 	 		psNext = psCurr->psNext;
 			//remove message associated with this display
 			removeMessage(psCurr->psMessage, player);
-			//HEAP_FREE(psProxDispHeap, psCurr);
 		}
 		apsProxDisp[player] = NULL;
 	}
@@ -464,12 +447,6 @@ BOOL initMessage(void)
 	}
 
 	//initialise the tutorial message - only used by scripts
-	/*tutorialMessage.id = msgID;
-	tutorialMessage.type = MSG_TUTORIAL;
-	tutorialMessage.pViewData = NULL;
-	tutorialMessage.read = FALSE;
-	tutorialMessage.player = MAX_PLAYERS + 1;
-	tutorialMessage.psNext = NULL;*/
 
 	if (!HEAP_CREATE(&psMsgHeap, sizeof(MESSAGE), MESSAGE_INIT, MESSAGE_EXT))
 	{
@@ -520,7 +497,6 @@ BOOL addToViewDataList(VIEWDATA *psViewData, UBYTE numData)
 /*load the view data for the messages from the file */
 VIEWDATA *loadViewData(SBYTE *pViewMsgData, UDWORD bufferSize)
 {
-	//SBYTE				*pData;
 	UDWORD				i, id, dataInc, seqInc, numFrames, numData, count, count2;
 	VIEWDATA			*psViewData, *pData;
 	VIEW_RESEARCH		*psViewRes;
@@ -532,7 +508,6 @@ VIEWDATA *loadViewData(SBYTE *pViewMsgData, UDWORD bufferSize)
 	SDWORD				LocX,LocY,LocZ, proxType, audioID;
 
 	//keep the start so we release it at the end
-	//pData = pViewMsgData;
 
 	numData = numCR((UBYTE *)pViewMsgData, bufferSize);
 	if (numData > UBYTE_MAX)
@@ -552,7 +527,6 @@ VIEWDATA *loadViewData(SBYTE *pViewMsgData, UDWORD bufferSize)
 	//add to array list
 	addToViewDataList(psViewData, (UBYTE)numData);
 
-	//psViewData = asViewData;
 	//save so can pass the value back
 	pData = psViewData;
 
@@ -595,7 +569,6 @@ VIEWDATA *loadViewData(SBYTE *pViewMsgData, UDWORD bufferSize)
 		for (dataInc = 0; dataInc < psViewData->numText; dataInc++)
 		{
 			name[0] = '\0';
-			//sscanf(pViewMsgData,"%[^',']", &name);
 			sscanf1(&pViewMsgData,"%[^','],",&name);
 
 			//get the ID for the string
@@ -608,7 +581,6 @@ VIEWDATA *loadViewData(SBYTE *pViewMsgData, UDWORD bufferSize)
 			psViewData->ppTextMsg[dataInc] = strresGetString(psStringRes, id);
 		}
 
-		//sscanf(pViewMsgData,"%d", &psViewData->type);
 		sscanf1(&pViewMsgData,"%d,", &psViewData->type);
 
 		//allocate data according to type
@@ -626,7 +598,6 @@ VIEWDATA *loadViewData(SBYTE *pViewMsgData, UDWORD bufferSize)
 			string[0] = '\0';
 			audioName[0] = '\0';
 			//sscanf(pViewMsgData, "%[^','],%[^','],%[^','],%[^','],%d", 
-			//	&imdName, &imdName2, &string, &audioName, &numFrames);
 			sscanf1(&pViewMsgData,"%[^','],%[^','],%[^','],%[^','],%d,", 
 				&imdName, &imdName2, &string, &audioName, &numFrames);
 			psViewRes = (VIEW_RESEARCH *)psViewData->pData;
@@ -682,7 +653,6 @@ VIEWDATA *loadViewData(SBYTE *pViewMsgData, UDWORD bufferSize)
 			psViewReplay = (VIEW_REPLAY *)psViewData->pData;
 
 			//read in number of sequences for this message
-			//sscanf(pViewMsgData, "%d", &psViewReplay->numSeq);
 			sscanf1(&pViewMsgData, "%d,", &count);
 
 			if (count > MAX_DATA)
@@ -849,7 +819,6 @@ VIEWDATA *loadViewData(SBYTE *pViewMsgData, UDWORD bufferSize)
 
 			if (proxType > PROX_TYPES)
 			{
-//printf("proxType %d > %d\n",proxType,PROX_TYPES);
 				ASSERT((FALSE, "Invalid proximity message sub type - %s", name));
 				return NULL;
 			}
@@ -864,18 +833,14 @@ VIEWDATA *loadViewData(SBYTE *pViewMsgData, UDWORD bufferSize)
 		//increment the list to the start of the next storage block
 		psViewData++;
 	}
-//	FREE(pData);
 	
-	//return TRUE;
 	return pData;
 }
 
 /*get the view data identified by the name */
 VIEWDATA * getViewData(STRING *pName)
 {
-	//VIEWDATA		*psViewData;// = asViewData;
 	VIEWDATA_LIST	*psList;
-	//UDWORD			i;
 	UBYTE			i;
 
 	ASSERT((strlen(pName)< MAX_STR_SIZE,"getViewData: verbose message name"));
@@ -887,7 +852,6 @@ VIEWDATA * getViewData(STRING *pName)
 			//compare the strings
 			if (!strcmp(psList->psViewData[i].pName, pName))
 			{
-				//return psViewData;
 				return &psList->psViewData[i];
 			}
 		}
@@ -911,8 +875,6 @@ BOOL messageShutdown(void)
 void viewDataShutDown(VIEWDATA *psViewData)
 {
 	VIEWDATA_LIST	*psList, *psPrev;
-	//VIEWDATA		*psData;// = asViewData;
-	//UDWORD		inc, numData;
 	UDWORD			seqInc;
 	VIEW_REPLAY		*psViewReplay;
 	VIEW_RESEARCH	*psViewRes;
@@ -1093,7 +1055,6 @@ PROXIMITY_DISPLAY * getProximityDisplay(MESSAGE *psMessage)
 }
 
 //check for any messages using this viewdata and remove them
-//void checkMessages(VIEWDATA *psViewData)
 void checkMessages(MSG_VIEWDATA *psViewData)
 {
 	MESSAGE			*psCurr, *psNext;

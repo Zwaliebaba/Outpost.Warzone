@@ -69,7 +69,6 @@ typedef struct _view_replay
 {
 	UBYTE		numSeq;
 	SEQ_DISPLAY *pSeqList;
-	//STRING		**ppSeqName;
 	//UBYTE		numText;	//the number of textmessages associated with this sequence
 	//STRING		**ppTextMsg;	//Pointer to text messages - if any
 } VIEW_REPLAY;

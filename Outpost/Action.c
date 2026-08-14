@@ -6,15 +6,10 @@
  */
 
 // action state printfs
-//#define DEBUG_GROUP0
 // tim's bloody printf's :-)
-//#define DEBUG_GROUP1
 // structure building printf's
-//#define DEBUG_GROUP2
 // action received printf's
-//#define DEBUG_GROUP3
 // VTOL rearming printf's
-//#define DEBUG_GROUP4
 #include "Frame.h"
 #include "Objects.h"
 #include "Action.h"
@@ -53,8 +48,6 @@
 
 // time to pause before a droid blows up
 #define  ACTION_DESTRUCT_TIME	2000
-//#define PITCH_UPPER_LIMIT	60
-//#define PITCH_LOWER_LIMIT	-15
 
 
 #define ACTION_TURRET_ROTATION_RATE 180
@@ -107,7 +100,6 @@ BOOL actionInAttackRange(DROID *psDroid, BASE_OBJECT *psObj)
 	SDWORD			dx, dy, dz, radSq, rangeSq, longRange, state;
 	WEAPON_STATS	*psStats;
 
-	//if (psDroid->numWeaps == 0)
     if (psDroid->asWeaps[0].nStat == 0)
 	{
 		return FALSE;
@@ -133,7 +125,6 @@ BOOL actionInAttackRange(DROID *psDroid, BASE_OBJECT *psObj)
 		switch (psDroid->secondaryOrder & DSS_ARANGE_MASK)
 		{
 		case DSS_ARANGE_DEFAULT:
-			//if (psStats->shortHit > psStats->longHit)
 			if (weaponShortHit(psStats, psDroid->player) > weaponLongHit(psStats, psDroid->player))
 			{
 				rangeSq = psStats->shortRange * psStats->shortRange;
@@ -184,7 +175,6 @@ BOOL actionInRange(DROID *psDroid, BASE_OBJECT *psObj)
 	SDWORD			dx, dy, dz, radSq, rangeSq, longRange;
 	WEAPON_STATS	*psStats;
 
-	//if (psDroid->numWeaps == 0)
     if (psDroid->asWeaps[0].nStat == 0)
 	{
 		return FALSE;
@@ -227,7 +217,6 @@ BOOL actionInsideMinRange(DROID *psDroid, BASE_OBJECT *psObj)
 	SDWORD			dx, dy, dz, radSq, rangeSq, minRange;
 	WEAPON_STATS	*psStats;
 
-	//if (psDroid->numWeaps == 0)
     if (psDroid->asWeaps[0].nStat == 0)
 	{
 		return FALSE;
@@ -258,7 +247,6 @@ BOOL actionInsideMinRange(DROID *psDroid, BASE_OBJECT *psObj)
 /* Find a new location by a structure when building */
 /*static BOOL actionNewBuildPos(DROID *psDroid, UDWORD *pX, UDWORD *pY)
 {
-	//STRUCTURE_STATS		*psStructStats;
 	BASE_STATS				*psStats;
 
 	// get the structure stats
@@ -268,14 +256,12 @@ BOOL actionInsideMinRange(DROID *psDroid, BASE_OBJECT *psObj)
 	case DACTION_FOUNDATION_WANDER:
 		if ( psDroid->order == DORDER_BUILD || psDroid->order == DORDER_LINEBUILD )
 		{
-			//psStructStats = (STRUCTURE_STATS *)psDroid->psTarStats;
 			psStats = psDroid->psTarStats;
 		}
 		else
 		{
 			ASSERT((psDroid->order == DORDER_HELPBUILD,
 				"actionNewBuildPos: invalid order"));
-			//psStructStats = ((STRUCTURE *)psDroid->psTarget)->pStructureType;
 			psStats = (BASE_STATS *)((STRUCTURE *)psDroid->psTarget)->pStructureType;
 		}
 		break;
@@ -284,7 +270,6 @@ BOOL actionInsideMinRange(DROID *psDroid, BASE_OBJECT *psObj)
 	case DACTION_MOVETODEMOLISH:
 	//case DACTION_MOVETOREPAIR:
 	case DACTION_MOVETORESTORE:
-		//psStructStats = ((STRUCTURE *)psDroid->psTarget)->pStructureType;
 		psStats = (BASE_STATS *)((STRUCTURE *)psDroid->psTarget)->pStructureType;
 		break;
 	case DACTION_MOVETOREPAIR:
@@ -301,7 +286,6 @@ BOOL actionInsideMinRange(DROID *psDroid, BASE_OBJECT *psObj)
 		break;
 	}
 	//ASSERT((PTRVALID(psStructStats, sizeof(STRUCTURE_STATS)),
-	//	"actionNewBuildPos: invalid structure stats pointer"));
 
 	// find a new destination
 	//if (getDroidDestination(psStructStats, psDroid->orderX, psDroid->orderY,pX,pY))
@@ -333,7 +317,6 @@ void actionAlignTurret(BASE_OBJECT *psObj)
 	UWORD				tRot, tPitch, nearest;
 	//get the maximum rotation this frame
 
-	//rotation = (psDroid->turretRotRate * frameTime) / (4 * GAME_TICKS_PER_SEC);
     rotation = (ACTION_TURRET_ROTATION_RATE * frameTime) / (4 * GAME_TICKS_PER_SEC);
 	if (rotation == 0)
 	{
@@ -361,9 +344,7 @@ void actionAlignTurret(BASE_OBJECT *psObj)
 	}
 
 
-//	DBP1(("rotrate=%d framTime=%d rotation=%d\n",psDroid->turretRotRate,frameTime,rotation));
 
-	//DBP1(("droid=%x turret=%x\n",psDroid,psDroid->turretRotation));
     DBP1(("unit=%x turret=%x\n",psDroid,ACTION_TURRET_ROTATION_RATE));
 
 
@@ -459,7 +440,6 @@ BOOL actionTargetTurret(BASE_OBJECT *psAttacker, BASE_OBJECT *psTarget, UWORD *p
 	FRACT	fR;
 	SDWORD	pitchLowerLimit, pitchUpperLimit;
 	DROID	*psDroid;
-//	iVector	muzzle;
 
     //these are constants now and can be set up at the start of the function
     rotRate = ACTION_TURRET_ROTATION_RATE;
@@ -541,7 +521,6 @@ BOOL actionTargetTurret(BASE_OBJECT *psAttacker, BASE_OBJECT *psTarget, UWORD *p
 	//and point the turret at target
 	targetRotation = calcDirection(psAttacker->x, psAttacker->y, psTarget->x, psTarget->y);
 
-	//DBP1(("att: rotrate=%d framTime=%d rotation=%d target=%d   startrot=%d ",psAttacker->turretRotRate,frameTime,rotation,targetRotation,tRotation));
     DBP1(("att: rotrate=%d framTime=%d rotation=%d target=%d   startrot=%d ",
         ACTION_TURRET_ROTATION_RATE,frameTime,rotation,targetRotation,tRotation));
 
@@ -606,7 +585,6 @@ BOOL actionTargetTurret(BASE_OBJECT *psAttacker, BASE_OBJECT *psTarget, UWORD *p
 	}
 
 	/* set muzzle pitch if direct fire */
-//	if ( asWeaponStats[psAttacker->asWeaps->nStat].direct == TRUE )
 	if ( psWeapStats != NULL &&
 		 ( proj_Direct( psWeapStats ) ||
 		 ( (psAttacker->type == OBJ_DROID) &&
@@ -615,17 +593,14 @@ BOOL actionTargetTurret(BASE_OBJECT *psAttacker, BASE_OBJECT *psTarget, UWORD *p
 	{
 // difference between muzzle position and droid origin is unlikely to affect aiming
 // particularly as target origin is used
-//		calcDroidMuzzleLocation( psAttacker, &muzzle); 
 		dx = psTarget->x - psAttacker->x;//muzzle.x;
 		dy = psTarget->y - psAttacker->y;//muzzle.y;
-//		dz = map_Height(psTarget->x, psTarget->y) - psAttacker->z;//muzzle.z;
 		dz = psTarget->z - psAttacker->z;//muzzle.z;
 
 		/* get target distance */
 		fR = trigIntSqrt( dx*dx + dy*dy );
 
 		targetPitch = (SDWORD)( RAD_TO_DEG(atan2(dz, fR)));
-		//tPitch = tPitch;
 		if (tPitch > 180)
 		{
 			tPitch -=360;
@@ -696,7 +671,6 @@ BOOL actionVisibleTarget(DROID *psDroid, BASE_OBJECT *psTarget)
 {
 	WEAPON_STATS	*psStats;
 
-	//if (psDroid->numWeaps == 0)
     if ((psDroid->asWeaps[0].nStat == 0) ||
 		vtolDroid(psDroid))
 	{
@@ -739,9 +713,6 @@ void actionAddVtolAttackRun( DROID *psDroid )
 	FRACT_D		fA;
 	SDWORD		iVNx, iVNy, iA, iX, iY;
 	BASE_OBJECT	*psTarget;
-#if 0
-	SDWORD		iVx, iVy;
-#endif
 
 	if ( psDroid->psActionTarget != NULL )
 	{
@@ -764,24 +735,10 @@ void actionAddVtolAttackRun( DROID *psDroid )
 	fA = trigIntSqrt( iVNx*iVNx + iVNy*iVNy );
 	iA = MAKEINT(fA);
 
-#if 0
-	/* get left perpendicular to normal vector:
-	 * swap normal vector elements and negate y:
-	 * scale to attack ellipse width
-	 */
-	iVx =  iVNy * VTOL_ATTACK_WIDTH / iA;
-	iVy = -iVNx * VTOL_ATTACK_WIDTH / iA;
-
-	/* add waypoint left perpendicular to target*/
-	iX = psTarget->x + iVx;
-	iY = psTarget->y + iVy;
-//	orderAddWayPoint( psDroid, iX, iY );
-#endif
 
 	/* add waypoint behind target attack length away*/
 	iX = psTarget->x + (iVNx * VTOL_ATTACK_LENGTH / iA);
 	iY = psTarget->y + (iVNy * VTOL_ATTACK_LENGTH / iA);
-//	orderAddWayPoint( psDroid, iX, iY );
 
 	if ( iX<=0 || iY<=0 ||
 		 iX>(SDWORD)(GetWidthOfMap()<<TILE_SHIFT) ||
@@ -795,7 +752,6 @@ void actionAddVtolAttackRun( DROID *psDroid )
 	}
 
 	/* update attack run count - done in projectile.c now every time a bullet is fired*/
-	//psDroid->sMove.iAttackRuns++;
 }
 
 void actionUpdateVtolAttack( DROID *psDroid )
@@ -808,7 +764,6 @@ void actionUpdateVtolAttack( DROID *psDroid )
 		return;
 	}
 
-	//if (psDroid->numWeaps > 0)
     if (psDroid->asWeaps[0].nStat > 0)
 	{
 		psWeapStats = asWeaponStats + psDroid->asWeaps[0].nStat;
@@ -819,7 +774,6 @@ void actionUpdateVtolAttack( DROID *psDroid )
 	/* order back to base after fixed number of attack runs */
 	if ( psWeapStats != NULL )
 	{
-		//if ( psDroid->sMove.iAttackRuns >= psWeapStats->vtolAttackRuns )
         if (vtolEmpty(psDroid))
 		{
 			moveToRearm(psDroid);
@@ -854,7 +808,6 @@ void actionUpdateTransporter( DROID *psDroid )
     }
 
     	/* check for weapon */
-	//if ( psDroid->numWeaps > 0 )
     if (psDroid->asWeaps[0].nStat > 0)
     {
 	    if (psDroid->psActionTarget == NULL)
@@ -1086,7 +1039,6 @@ done:
 // Update the action state for a droid 
 void actionUpdateDroid(DROID *psDroid)
 {
-//	UDWORD				structX,structY;
 	UDWORD				droidX,droidY;
 	UDWORD				tlx,tly;
 	STRUCTURE			*psStruct;
@@ -1161,7 +1113,6 @@ void actionUpdateDroid(DROID *psDroid)
     }
 
 
-	//if (psDroid->numWeaps > 0)
     if (psDroid->asWeaps[0].nStat > 0)
 	{
 		psWeapStats = asWeaponStats + psDroid->asWeaps[0].nStat;
@@ -1389,7 +1340,6 @@ void actionUpdateDroid(DROID *psDroid)
 
         //check its a VTOL unit since adding Transporter's into multiPlayer
 		/* check vtol attack runs */
-		//if ( psPropStats->propulsionType == LIFT )
         if (vtolDroid(psDroid))
 		{
 			actionUpdateVtolAttack( psDroid );
@@ -1526,7 +1476,6 @@ void actionUpdateDroid(DROID *psDroid)
 		}*/
 
 		/* check vtol attack runs */
-//		actionUpdateVtolAttack( psDroid );
 
 		/* circle around target if hovering and not cyborg */
 		if (DROID_STOPPED(psDroid))
@@ -1550,7 +1499,6 @@ void actionUpdateDroid(DROID *psDroid)
 				}
 			}
 			// if the vtol is far enough away head for the target again
-//			else if (rangeSq > (VTOL_ATTACK_RETURNDIST*VTOL_ATTACK_RETURNDIST))
 			else if (rangeSq > (SDWORD)(psWeapStats->longRange*psWeapStats->longRange))
 			{
 				// don't do another attack run if already heading for the target
@@ -1599,7 +1547,6 @@ void actionUpdateDroid(DROID *psDroid)
 				    /*actionTargetTurret((BASE_OBJECT*)psDroid, psDroid->psActionTarget,
 										    &(psDroid->turretRotation), &(psDroid->turretPitch),
 										    psDroid->turretRotRate, (SWORD)(psDroid->turretRotRate/2),
-										    //asWeaponStats[psDroid->asWeaps->nStat].direct);
 										    proj_Direct(&asWeaponStats[psDroid->asWeaps->nStat]),
 										    bInvert);*/
 				    actionTargetTurret((BASE_OBJECT*)psDroid, psDroid->psActionTarget,
@@ -1623,14 +1570,11 @@ void actionUpdateDroid(DROID *psDroid)
 		    	{
 			    	/* Stop the droid moving any closer */
 //				    ASSERT((psDroid->x != 0 && psDroid->y != 0,
-//						"moveUpdateUnit: Unit at (0,0)"));
 
     				/* init vtol attack runs count if necessary */
 	    			if ( psPropStats->propulsionType == LIFT )
 		    		{
 			    		psDroid->action = DACTION_VTOLATTACK;
-				    	//actionAddVtolAttackRun( psDroid );
-					    //actionUpdateVtolAttack( psDroid );
     				}
 	    			else
 		    		{
@@ -1771,8 +1715,6 @@ void actionUpdateDroid(DROID *psDroid)
 					// calculate the top left of the structure
 					tlx = (SDWORD)psDroid->orderX - (SDWORD)(psStructStats->baseWidth * TILE_UNITS)/2;
 					tly = (SDWORD)psDroid->orderY - (SDWORD)(psStructStats->baseBreadth * TILE_UNITS)/2;
-//					tlx = tlx >> TILE_UNITS;
-//					tly = tly >> TILE_UNITS;
 
 					//need to check if something has already started building here?
 					//unless its a module!
@@ -1891,7 +1833,6 @@ void actionUpdateDroid(DROID *psDroid)
 
 				if (bDoHelpBuild)
 				{
-					// continuing a partially built structure (order = helpBuild)
 					if (droidStartBuild(psDroid))
 					{
 						DBP2(("DACTION_MOVETOBUILD: starting help build\n"));
@@ -1932,7 +1873,6 @@ void actionUpdateDroid(DROID *psDroid)
 			!actionReachedBuildPos(psDroid,
 						(SDWORD)psDroid->orderX,(SDWORD)psDroid->orderY, psDroid->psTarStats))
 		{
-//			psDroid->action = DACTION_MOVETOBUILD;
 			moveDroidToNoFormation(psDroid, psDroid->actionX,psDroid->actionY);
 		}
 		else if (!DROID_STOPPED(psDroid) &&
@@ -2169,7 +2109,6 @@ void actionUpdateDroid(DROID *psDroid)
 			
 				//add one to current quantity for this player - done in droidStartBuild()
 				//asStructLimits[psDroid->player][(STRUCTURE_STATS *)psDroid->
-					//psTarStats - asStructureStats].currentQuantity++;
 			}
 			else
 			{
@@ -2197,7 +2136,6 @@ void actionUpdateDroid(DROID *psDroid)
 			xdiff = (SDWORD)psDroid->x - (SDWORD)psDroid->psActionTarget->x;
 			ydiff = (SDWORD)psDroid->y - (SDWORD)psDroid->psActionTarget->y;
 			//if change this back - change in MOVETOOBSERVE as well
-			//rangeSq = 2 * (SDWORD)psDroid->sensorRange / 3;
 			rangeSq = (SDWORD)psDroid->sensorRange;
 			rangeSq = rangeSq * rangeSq;
 			if (!visibleObject((BASE_OBJECT *)psDroid, psDroid->psActionTarget) ||
@@ -2227,7 +2165,6 @@ void actionUpdateDroid(DROID *psDroid)
 			xdiff = (SDWORD)psDroid->x - (SDWORD)psDroid->psActionTarget->x;
 			ydiff = (SDWORD)psDroid->y - (SDWORD)psDroid->psActionTarget->y;
             //if change this back - change in OBSERVE as well
-			//rangeSq = 2 * (SDWORD)psDroid->sensorRange / 3;
             rangeSq = (SDWORD)psDroid->sensorRange;
 			rangeSq = rangeSq * rangeSq;
 			if ((xdiff*xdiff + ydiff*ydiff < rangeSq) &&
@@ -2266,7 +2203,6 @@ void actionUpdateDroid(DROID *psDroid)
 		{*/
 		//Move droids attached to structures and droids now...AB 13/10/98
 		//move (indirect weapon)droids attached to a sensor
-		//if (psDroid->psTarget->type == OBJ_DROID)
 		{
             //don't move VTOL's
 			// also don't move closer to sensor towers
@@ -2277,7 +2213,6 @@ void actionUpdateDroid(DROID *psDroid)
 			    xdiff = (SDWORD)psDroid->x - (SDWORD)psDroid->psTarget->x;
 			    ydiff = (SDWORD)psDroid->y - (SDWORD)psDroid->psTarget->y;
 			    // make sure the weapon droid is within 2/3 weapon range of the sensor
-			    //rangeSq = 2 * proj_GetLongRange(asWeaponStats + psDroid->asWeaps[0].nStat, 0) / 3;
 			    rangeSq = asWeaponStats[psDroid->asWeaps[0].nStat].shortRange;
 			    rangeSq = rangeSq * rangeSq;
 			    if (xdiff*xdiff + ydiff*ydiff < rangeSq)
@@ -2391,15 +2326,6 @@ void actionUpdateDroid(DROID *psDroid)
 		{
 			/*once started - don't allow the Repair droid to follow the 
 			damaged droid for too long*/
-			/*if (psDroid->actionPoints)
-			{
-				if (gameTime - psDroid->actionStarted > KEEP_TRYING_REPAIR)
-				{
-					addConsoleMessage("Repair Droid has given up!",DEFAULT_JUSTIFY);
-					psDroid->action = DACTION_NONE;
-					break;
-				}
-			}*/
 			// damaged droid has moved off - follow!
 			psDroid->actionX = psDroid->psActionTarget->x;
 			psDroid->actionY = psDroid->psActionTarget->y;
@@ -2582,7 +2508,6 @@ static void actionDroidBase(DROID *psDroid, DROID_ACTION_DATA *psAction)
 	{
 	case DACTION_NONE:
 		// Clear up what ever the droid was doing before if necessary
-//		if(!driveModeActive() || !psDroid->selected) {
 			if (!DROID_STOPPED(psDroid))
 			{
 				moveStopDroid(psDroid);
@@ -2592,15 +2517,8 @@ static void actionDroidBase(DROID *psDroid, DROID_ACTION_DATA *psAction)
 			psDroid->actionY = 0;
 			psDroid->actionStarted = 0;
 			psDroid->actionPoints = 0;
-			//psDroid->actionHeight = 0;
             psDroid->powerAccrued = 0;
 			psDroid->psActionTarget = NULL;
-//		} //else {
-//			if(psDroid->player == 0)
-//			{
-//				DBPRINTF(("DACTION_NONE %p\n",psDroid);
-//			}
-//		}
 		break;
 
 	case DACTION_TRANSPORTWAITTOFLYIN:
@@ -2646,8 +2564,6 @@ static void actionDroidBase(DROID *psDroid, DROID_ACTION_DATA *psAction)
         
 
 
-//		psDroid->actionX = psAction->psObj->x;
-//		psDroid->actionY = psAction->psObj->y;
 		// note the droid's current pos so that scout & patrol orders know how far the
 		// droid has gone during an attack
 		// slightly strange place to store this I know, but I didn't want to add any more to the droid
@@ -2776,7 +2692,6 @@ static void actionDroidBase(DROID *psDroid, DROID_ACTION_DATA *psAction)
 		break;
 	case DACTION_REPAIR:
 		//ASSERT((psDroid->order == DORDER_REPAIR,
-		//	"actionDroidBase: cannot start repair action without a repair order"));
 		psDroid->action = DACTION_MOVETOREPAIR;
 		psDroid->actionX = psAction->x;
 		psDroid->actionY = psAction->y;
@@ -2856,7 +2771,6 @@ static void actionDroidBase(DROID *psDroid, DROID_ACTION_DATA *psAction)
 		break;
 	case DACTION_DROIDREPAIR:
 //		ASSERT((psDroid->order == DORDER_DROIDREPAIR,
-//			"actionDroidBase: cannot start droid repair action without a repair order"));
 		psDroid->action = DACTION_MOVETODROIDREPAIR;
 		psDroid->actionX = psAction->x;
 		psDroid->actionY = psAction->y;
@@ -3040,11 +2954,8 @@ BOOL actionVTOLLandingPos(DROID *psDroid, UDWORD *px, UDWORD *py)
 	BOOL	result;
 
 //	ASSERT(((psDroid->psActionTarget != NULL),
-//		"actionVTOLLandingPos: no rearm pad set for the VTOL"));
 
 	/* Initial box dimensions and set iteration count to zero */
-//	startX = endX = (SDWORD)psDroid->psActionTarget->x >> TILE_SHIFT;
-//	startY = endY = (SDWORD)psDroid->psActionTarget->y >> TILE_SHIFT;
 	startX = endX = (SDWORD)*px >> TILE_SHIFT;
 	startY = endY = (SDWORD)*py >> TILE_SHIFT;
 	passes = 0;

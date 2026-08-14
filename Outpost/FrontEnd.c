@@ -43,7 +43,6 @@
 #include "Component.h"
 #include "LoadSave.h"
 #include "CSnap.h"
-//#include "Wrappers.h"				// for bUsingKeyboard.
 #include "Frend.h"
 #include "Game.h"
 #include "Init.h"
@@ -81,15 +80,12 @@ STRING	strTrans[MAX_STR_LENGTH];
 // Local Definitions
 // iPalette			titlePalette;
 int				FEFont;
-//int				FEBigFont;
 #ifndef NON_INTERACT
 char			pLevelName[MAX_LEVEL_NAME_SIZE+1];	//256];			// vital! the wrf file to use.
 #else
 char			pLevelName[]="ROCKIES";
 #endif
-//#ifdef PSX
 //STRING			saveGameName[256];			//the name of the save game to load from the front end
-//#endif
 BOOL			bForceEditorLoaded = FALSE;
 BOOL			bUsingKeyboard = FALSE;		// to disable mouse pointer when using keys.
 BOOL			bUsingSlider   = FALSE;
@@ -124,8 +120,6 @@ BOOL		startTitleMenu			(VOID);
 BOOL		runTitleMenu			(VOID);
 VOID		startSinglePlayerMenu	(VOID);
 BOOL		runSinglePlayerMenu		(VOID);
-//BOOL		runDemoMenu				(VOID);
-//BOOL		startDemoMenu			(VOID);
 BOOL		startTutorialMenu		(VOID);
 BOOL		runTutorialMenu			(VOID);
 BOOL		startMultiPlayerMenu	(VOID);
@@ -136,10 +130,6 @@ BOOL		startGameOptionsMenu	(VOID);
 BOOL		runGameOptionsMenu		(VOID);
 BOOL		startGameOptions2Menu	(VOID);
 BOOL		runGameOptions2Menu		(VOID);
-//BOOL		startVideoOptionsMenu	(VOID);
-//BOOL		runVideoOptionsMenu		(VOID);
-//BOOL		startGraphicsOptionsMenu(VOID);
-//BOOL		runGraphicsptionsMenu	(VOID);
 
 VOID		addTopForm				(VOID);
 VOID		removeTopForm			(VOID);
@@ -268,19 +258,13 @@ VOID changeTitleMode(tMode mode)
 		startTutorialMenu();
 		break;
 	case OPTIONS:
-//#ifdef WIN32
 		startOptionsMenu();
-//#else
-//		startGameOptionsMenu();
-//#endif
 		break;
 	case TITLE:
 		startTitleMenu();
 		break;
 
 //	case GRAPHICS:
-//		startGraphicsOptionsMenu();
-//		break;
 	case CREDITS:
 		startCreditsScreen(FALSE);
 		break;
@@ -570,14 +554,6 @@ void frontEndNewGame( void )
 			strcpy(pLevelName,DEFAULT_LEVEL);
 			seq_ClearSeqList();
 			seq_AddSeqToList("CAM1\\c001.rpl",NULL,"CAM1\\c001.txa",FALSE,0);
-			/*
-			seq_AddTextForVideo("Dawn, July 4th, 2066", 20, 432, 0, 299);
-			seq_AddTextForVideo("Project HQ.", 0, 0, 0, 299);
-			seq_AddTextForVideo("A New Era", 0, 0, 0, 299);
-			seq_AddTextForVideo("Morning, July 4th, 2066", 20, 432, 399, 699);
-			seq_AddTextForVideo("In-flight to Western Sector", 0, 0, 399, 699);
-			seq_AddTextForVideo("Team Alpha nears its destination", 0, 0, 399, 699);
-			*/
 			seq_StartNextFullScreenVideo();
             break;
 		
@@ -643,11 +619,9 @@ BOOL runSinglePlayerMenu(VOID)
 				break;
 
 
-//#ifdef WIN32		// ffs tc
 			case FRONTEND_LOADGAME:
 				addLoadSave(LOAD_FRONTEND,"savegame\\","gam",strresGetString(psStringRes,STR_MR_LOAD_GAME));	// change mode when loadsave returns
 				break;
-//#endif
 
 			case FRONTEND_QUIT:
 				changeTitleMode(TITLE);
@@ -730,12 +704,7 @@ BOOL runDemoMenu(VOID)
 	id = widgRunScreen(psWScreen);						// Run the current set of widgets 
 	switch(id)
 	{
-//#ifdef PSX
 //	case FRONTEND_DEMO1:
-//		strcpy(pLevelName,"FASTPLAY");
-//		changeTitleMode(STARTGAME);
-//		break;
-//#else
 	case FRONTEND_DEMO1:
 		strcpy(pLevelName,"DEMO1");
 		changeTitleMode(STARTGAME);
@@ -756,7 +725,6 @@ BOOL runDemoMenu(VOID)
 		strcpy(pLevelName,"DEMO5");
 		changeTitleMode(STARTGAME);
 		break;
-//#endif
 	case FRONTEND_QUIT:
 		changeTitleMode(TITLE);
 		break;
@@ -808,7 +776,6 @@ BOOL startMultiPlayerMenu(VOID)
 BOOL runMultiPlayerMenu(VOID)
 {
 	UDWORD id;
-//	PLAYERSTATS	nullStats;
 	processFrontendSnap(TRUE);
 
 	id = widgRunScreen(psWScreen);						// Run the current set of widgets 
@@ -862,8 +829,6 @@ BOOL runMultiPlayerMenu(VOID)
 		NETuseNetwork(FALSE);						// pretend its a multiplayer.
 
 //		strcpy(sPlayer,"LastUsed");					// initialize name string.
-//		loadMultiStats(sPlayer,&nullStats);
-//		NETchangePlayerName(1,sPlayer);
 
 		changeTitleMode(MULTIOPTION);
 		break;
@@ -927,11 +892,7 @@ BOOL runOptionsMenu(VOID)
 		changeTitleMode(GAME2);
 		break;
 //	case FRONTEND_VIDEO:
-//		changeTitleMode(VIDEO);
-//		break;
 //	case FRONTEND_GRAPHICS:
-//		changeTitleMode(GRAPHICS);
-//		break;
 	case FRONTEND_KEYMAP:
 		changeTitleMode(KEYMAP);
 		break;
@@ -970,7 +931,6 @@ BOOL startGraphicsOptionsMenu(VOID)
 	addTopForm();
 	addBottomForm();
 
-//	addSideText	 (FRONTEND_SIDETEXT ,	FRONTEND_SIDEX,FRONTEND_SIDEY,strresGetString(psStringRes, STR_FE_SIDEMULTI));
 
 
 	addTextButton(FRONTEND_TEXTURES,FRONTEND_POS3X,FRONTEND_POS3Y, strresGetString(psStringRes, STR_FE_TEXTURE),TRUE,TRUE);
@@ -1035,7 +995,6 @@ BOOL runGraphicsOptionsMenu(VOID)
 			war_SetFog(TRUE);
 			widgSetString(psWScreen,FRONTEND_FOG_R,"on");
 		}
-//changeTitleMode(GRAPHICS);
 
 		break;
 	case FRONTEND_TRANSPARENCY:
@@ -1060,7 +1019,6 @@ BOOL runGraphicsOptionsMenu(VOID)
 			war_SetAdditive(FALSE);
 			widgSetString(psWScreen,FRONTEND_TRANSPARENCY_R,"off compatible");
 		}
-//		changeTitleMode(GRAPHICS);
 		break;
 
 	case FRONTEND_QUIT:
@@ -1401,24 +1359,7 @@ BOOL runGameOptions2Menu(VOID)
 //	case FRONTEND_TRANSPARENCY:
 //	case FRONTEND_TRANSPARENCY_R:
 //		if (!war_GetTranslucent())
-//		{
-//			war_SetTranslucent(TRUE);
-//			war_SetAdditive(FALSE);
-//			widgSetString(psWScreen,FRONTEND_TRANSPARENCY_R, strresGetString(psStringRes,STR_COMPATIBLE));
-//		}
-//		else if (!war_GetAdditive())
-//		{
-//			war_SetTranslucent(TRUE);
-//			war_SetAdditive(TRUE);
-//			widgSetString(psWScreen,FRONTEND_TRANSPARENCY_R,strresGetString(psStringRes,STR_FE_ON));
-//		}
 //		else
-//		{
-//			war_SetTranslucent(FALSE);
-//			war_SetAdditive(FALSE);
-//			widgSetString(psWScreen,FRONTEND_TRANSPARENCY_R,strresGetString(psStringRes,STR_FE_OFF));
-//		}
-//		break;
 	case FRONTEND_SEQUENCE:
 	case FRONTEND_SEQUENCE_R:
 		if( war_GetSeqMode() == SEQ_FULL )
@@ -1510,9 +1451,6 @@ BOOL startGameOptionsMenu(VOID)
 	w = 	iV_GetImageWidth(FrontImages,IMAGE_PLAYER0);
 	h = 	iV_GetImageHeight(FrontImages,IMAGE_PLAYER0);
 	addMultiBut(psWScreen,FRONTEND_BOTFORM,FE_P0, FRONTEND_POS7M+(0*(w+6)),FRONTEND_POS7Y,w,h,0,IMAGE_PLAYER0	,IMAGE_PLAYERX,TRUE);
-//	addMultiBut(psWScreen,FRONTEND_BOTFORM,FE_P1, FRONTEND_POS6M-(3*(w+4)),FRONTEND_POS6Y,w,h,0,IMAGE_PLAYER1	,IMAGE_HI34,TRUE);
-//	addMultiBut(psWScreen,FRONTEND_BOTFORM,FE_P2, FRONTEND_POS6M-(2*(w+4)),FRONTEND_POS6Y,w,h,0,IMAGE_PLAYER2	,IMAGE_HI34,TRUE);
-//	addMultiBut(psWScreen,FRONTEND_BOTFORM,FE_P3, FRONTEND_POS6M-(1*(w+4)),FRONTEND_POS6Y,w,h,0,IMAGE_PLAYER3	,IMAGE_HI34,TRUE);
 	addMultiBut(psWScreen,FRONTEND_BOTFORM,FE_P4, FRONTEND_POS7M+(1*(w+6)),FRONTEND_POS7Y,w,h,0,IMAGE_PLAYER4	,IMAGE_PLAYERX,TRUE);
 	addMultiBut(psWScreen,FRONTEND_BOTFORM,FE_P5, FRONTEND_POS7M+(2*(w+6)),FRONTEND_POS7Y,w,h,0,IMAGE_PLAYER5	,IMAGE_PLAYERX,TRUE);
 	addMultiBut(psWScreen,FRONTEND_BOTFORM,FE_P6, FRONTEND_POS7M+(3*(w+6)),FRONTEND_POS7Y,w,h,0,IMAGE_PLAYER6	,IMAGE_PLAYERX,TRUE);
@@ -1607,22 +1545,14 @@ BOOL runGameOptionsMenu(VOID)
 		break;
 
 	case FRONTEND_QUIT:
-//#ifdef PSX
-//		cdAudio_StopTrack();
-//#endif
 
 		changeTitleMode(OPTIONS);
 		break;
 
 //	case FRONTEND_VIDEO:
-//		changeTitleMode(VIDEO);
-//		break;
 
 	case FE_P0:
 		widgSetButtonState(psWScreen, FE_P0, WBUT_LOCK);		
-//		widgSetButtonState(psWScreen, FE_P1, 0);		
-//		widgSetButtonState(psWScreen, FE_P2, 0);		
-//		widgSetButtonState(psWScreen, FE_P3, 0);		
 		widgSetButtonState(psWScreen, FE_P4, 0);		
 		widgSetButtonState(psWScreen, FE_P5, 0);		
 		widgSetButtonState(psWScreen, FE_P6, 0);		
@@ -1631,9 +1561,6 @@ BOOL runGameOptionsMenu(VOID)
 		break;
 	case FE_P4:
 		widgSetButtonState(psWScreen, FE_P0, 0);		
-	//	widgSetButtonState(psWScreen, FE_P1, 0);		
-	//	widgSetButtonState(psWScreen, FE_P2, 0);		
-	//	widgSetButtonState(psWScreen, FE_P3, 0);		
 		widgSetButtonState(psWScreen, FE_P4, WBUT_LOCK);		
 		widgSetButtonState(psWScreen, FE_P5, 0);		
 		widgSetButtonState(psWScreen, FE_P6, 0);		
@@ -1642,9 +1569,6 @@ BOOL runGameOptionsMenu(VOID)
 		break;
 	case FE_P5:
 		widgSetButtonState(psWScreen, FE_P0, 0);		
-	//	widgSetButtonState(psWScreen, FE_P1, 0);		
-	//	widgSetButtonState(psWScreen, FE_P2, 0);		
-	//	widgSetButtonState(psWScreen, FE_P3, 0);		
 		widgSetButtonState(psWScreen, FE_P4, 0);		
 		widgSetButtonState(psWScreen, FE_P5, WBUT_LOCK);		
 		widgSetButtonState(psWScreen, FE_P6, 0);		
@@ -1653,9 +1577,6 @@ BOOL runGameOptionsMenu(VOID)
 		break;
 	case FE_P6:
 		widgSetButtonState(psWScreen, FE_P0, 0);		
-	//	widgSetButtonState(psWScreen, FE_P1, 0);		
-	//	widgSetButtonState(psWScreen, FE_P2, 0);		
-	//	widgSetButtonState(psWScreen, FE_P3, 0);		
 		widgSetButtonState(psWScreen, FE_P4, 0);		
 		widgSetButtonState(psWScreen, FE_P5, 0);		
 		widgSetButtonState(psWScreen, FE_P6, WBUT_LOCK);		
@@ -1664,9 +1585,6 @@ BOOL runGameOptionsMenu(VOID)
 		break;
 	case FE_P7:
 		widgSetButtonState(psWScreen, FE_P0, 0);		
-	//	widgSetButtonState(psWScreen, FE_P1, 0);		
-	//	widgSetButtonState(psWScreen, FE_P2, 0);		
-	//	widgSetButtonState(psWScreen, FE_P3, 0);		
 		widgSetButtonState(psWScreen, FE_P4, 0);		
 		widgSetButtonState(psWScreen, FE_P5, 0);		
 		widgSetButtonState(psWScreen, FE_P6, 0);		
@@ -1978,10 +1896,7 @@ VOID displayTextOption(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset,
 		if(hilight)													// hilight
 		{	
 			iV_SetTextColour(PIE_TEXT_WHITE);
-//#ifdef PSX
 //			displayHilightPulseBox( fx-4,fy+iV_GetTextAboveBase()-iV_GetTextBelowBase(),
-//									fx+fw,fy+iV_GetTextBelowBase());
-//#endif
 		}
 		else														// dont highlight
 		{
@@ -1994,12 +1909,9 @@ VOID displayTextOption(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset,
 
 	if(!greyOut)													// dont snap to unavailable buttons.
 	{
-//		AddCursorSnap(&InterfaceSnap, (SWORD)(fx+10) ,(short) fy,psWidget->formID,psWidget->id,NULL);
 		if (psWidget->style & WBUT_TXTCENTRE) {							//check for centering, calculate offset.
-//			DBPRINTF(("%d : %s\n",fx+fw/2,psBut->pText);
 			AddCursorSnap(&InterfaceSnap, (SWORD)(fx+fw/2) ,(short) fy,psWidget->formID,psWidget->id,&FrontendBias);
 		} else {
-//			DBPRINTF(("%d : %s\n",fx+10,psBut->pText);
 			AddCursorSnap(&InterfaceSnap, (SWORD)(fx+10) ,(short) fy,psWidget->formID,psWidget->id,&FrontendBias);
 		}
 	}
@@ -2070,7 +1982,6 @@ BOOL addIGTextButton(UDWORD id,UWORD y,UDWORD StringID,UDWORD Style)
 	sButInit.formID		= INTINGAMEOP;
 	sButInit.id			= id;
 	sButInit.style		= Style;
-//	SetTextButtonExt(&sButInit,INTINGAMEOP_1_X,y,StringID);
 	sButInit.x			= INTINGAMEOP_1_X;
 	sButInit.y			= y;
 	sButInit.width		= INTINGAMEOP_OP_W;

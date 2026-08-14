@@ -54,7 +54,6 @@ void setMatrix(iVector *Position,iVector *Rotation,iVector *CameraPos,BOOL RotXY
 
 UDWORD	droidScale = 100;
 void displayComponentTemplate(DROID_TEMPLATE *psTemplate);
-//void displayComponentObject(BASE_OBJECT *psObj);
 static void displayCompObj(BASE_OBJECT *psObj,iVector *mountRotation, BOOL bButton);
 static iIMDShape *getLeftPropulsionIMD(DROID *psDroid);
 static iIMDShape *getRightPropulsionIMD(DROID *psDroid);
@@ -130,10 +129,8 @@ void setMatrix(iVector *Position,iVector *Rotation,iVector *CameraPos,BOOL RotXY
 	Camera.pitch=-45;
 	Camera.yaw=0;
 
-//	Rotation->y=0;
 
 	GetRealCameraPos(&Camera,Position->z,&BSPCameraPos);
-//	SetBSPCameraPos(BSPCameraPos.x,BSPCameraPos.y,BSPCameraPos.z);	
 	// Fixes BSP drawing in buttons. eg Player HQ.
 	SetBSPCameraPos(BSPCameraPos.x,500,BSPCameraPos.z);	
 	SetBSPObjectPos(0,0,0);			// For imd button the bsp is sourced at 0,0,0
@@ -193,7 +190,6 @@ UDWORD getComponentRadius(BASE_STATS *psComponent)
 	compID = StatIsComponent(psComponent);
 	if (compID > 0)	{
 		StatGetComponentIMD(psComponent, compID,&ComponentIMD, &MountIMD);
-//		ComponentIMD = StatGetComponentIMD(psComponent, compID);
 		if(ComponentIMD)
 		{
 			return GetRadius(ComponentIMD);
@@ -204,7 +200,6 @@ UDWORD getComponentRadius(BASE_STATS *psComponent)
 		}
 	}
 
-//	DBERROR(("Not a valid component"));
 	/* VTOL bombs are only stats allowed to have NULL ComponentIMD */
 	if ( (StatIsComponent(psComponent) != COMP_WEAPON) ||
 		  ((WEAPON_STATS *)psComponent)->weaponSubClass != WSC_BOMB )
@@ -224,14 +219,12 @@ UDWORD getResearchRadius(BASE_STATS *Stat)
 		return GetRadius(ResearchIMD);
 	}
 
-//	DBERROR(("Null IMD in getResearchRadius()"));
 	DBPRINTF(("ResearchPIE == NULL : File : %s Line : %d\n",__FILE__,__LINE__));
 
 	return 100;
 }
 
 
-//#ifdef WIN32
 UDWORD getStructureSize(STRUCTURE *psStructure)
 {
 	UDWORD size;
@@ -244,7 +237,6 @@ UDWORD getStructureSize(STRUCTURE *psStructure)
 	}
 	return (size);
 }
-//#else
 UDWORD getStructureRadius(STRUCTURE *psStructure)
 {
 	iIMDShape *baseImd;
@@ -259,10 +251,8 @@ UDWORD getStructureRadius(STRUCTURE *psStructure)
 
 	return Radius;
 }
-//#endif
 
 
-//#ifdef WIN32
 UDWORD getStructureStatSize(STRUCTURE_STATS *Stats)
 {
 	UDWORD size;
@@ -275,7 +265,6 @@ UDWORD getStructureStatSize(STRUCTURE_STATS *Stats)
 	}
 	return (size);
 }
-//#else
 UDWORD getStructureStatRadius(STRUCTURE_STATS *Stats,UDWORD Player)
 {
 	iIMDShape *baseImd;
@@ -292,7 +281,6 @@ UDWORD getStructureStatRadius(STRUCTURE_STATS *Stats,UDWORD Player)
 
 	return Radius;
 }
-//#endif
 
 UDWORD getStructureHeight(STRUCTURE *psStructure)
 {
@@ -360,7 +348,6 @@ void displayStructureButton(STRUCTURE *psStructure,
 		strImd = psStructure->sDisplay.imd;
 		//get an imd to draw on the connector priority is weapon, ECM, sensor
 		//check for weapon
-		//if (psStructure->numWeaps > 0)
 		if (psStructure->asWeaps[0].nStat > 0)
 		{
 			nWeaponStat = psStructure->asWeaps[0].nStat;
@@ -416,7 +403,6 @@ void displayStructureStatButton(STRUCTURE_STATS *Stats,UDWORD Player,
 {
 	iIMDShape		*baseImd,*strImd,*mountImd,*weaponImd;
 	iVector TmpCamPos = {0,0,0};
-	//UDWORD			nWeaponStat;
 
 	UNUSEDPARAMETER(Player);
 
@@ -448,13 +434,9 @@ void displayStructureStatButton(STRUCTURE_STATS *Stats,UDWORD Player,
 		strImd = Stats->pIMD;
 		//get an imd to draw on the connector priority is weapon, ECM, sensor
 		//check for weapon
-		//if (Stats->numWeaps > 0)
         //can only have the one
         if (Stats->psWeapStat != NULL)
 		{
-			/*nWeaponStat = Stats->defaultWeap;
-			weaponImd =  Stats->asWeapList[nWeaponStat]->pIMD;
-			mountImd =  Stats->asWeapList[nWeaponStat]->pMountGraphic;*/
             weaponImd = Stats->psWeapStat->pIMD;
             mountImd = Stats->psWeapStat->pMountGraphic;
 		}
@@ -521,7 +503,6 @@ void displayComponentButton(BASE_STATS *Stat, iVector *Rotation,iVector *Positio
 	compID = StatIsComponent(Stat);
 	if (compID > 0)	{
 		StatGetComponentIMD(Stat, compID,&ComponentIMD, &MountIMD);
-//		ComponentIMD = StatGetComponentIMD(Stat, compID);
 	}
 	else
 	{
@@ -535,7 +516,6 @@ void displayComponentButton(BASE_STATS *Stat, iVector *Rotation,iVector *Positio
 		  ((WEAPON_STATS *)Stat)->weaponSubClass != WSC_BOMB) )
 	{
 		DBPRINTF(("ComponentPIE == NULL : File : %s Line : %d\n",__FILE__,__LINE__));
-//		DBERROR(("ComponentIMD == NULL"));
 	}
 
 
@@ -576,7 +556,6 @@ void displayResearchButton(BASE_STATS *Stat,
 		unsetMatrix();
 	}
 
-//	DBERROR(("Null IMD in displayResearchButton()"));
 }
 
 
@@ -660,10 +639,7 @@ void displayComponentButtonObject(DROID *psDroid,
 void displayComponentObject(BASE_OBJECT *psObj)
 {
 DROID		*psDroid;
-//iIMDShape	*psShape;
 iVector		position,rotation,mountRotation;	//,null;
-//iPoint		screenCoords;
-//SDWORD		dummyZ;
 int32		xShift,zShift;
 UDWORD		worldAngle;
 SDWORD		difference;
@@ -703,10 +679,6 @@ MAPTILE	*psTile;
 	position.z = terrainMidY*TILE_UNITS - (psDroid->y - player.p.z);
 	position.y = psDroid->z;
 
-	//{
-	//	position.y += bobTransporterHeight();
-	//}
-	//if(psPropStats->propulsionType == LIFT)
 	if(psDroid->droidType == DROID_TRANSPORTER)
 	{
 		position.y += bobTransporterHeight();
@@ -771,7 +743,6 @@ MAPTILE	*psTile;
 			{
 			   	frame = gameTime/BLIP_ANIM_DURATION + psDroid->id; //visible[selectedPlayer];
 			   	pie_Draw3DShape(getImdFromIndex(MI_BLIP), frame, 0, pie_MAX_BRIGHT_LEVEL, 0, pie_ADDITIVE, (psDroid->visible[selectedPlayer]/2));
-			// 	pie_Draw3DShape(blipImd, frame, 0, pie_MAX_BRIGHT_LEVEL, 0, pie_TRANSLUCENT, 128);
 				/* set up all the screen coords stuff - need to REMOVE FROM THIS LOOP */
 			}
 		}
@@ -794,7 +765,6 @@ void displayCompObj(BASE_OBJECT *psObj,iVector *mountRotation, BOOL bButton)
 	SDWORD				frame;
 	SDWORD				pieFlag, iPieData;
 	UDWORD				brightness, specular;
-//	SDWORD				centreX,centreZ;
 	UDWORD				colour;
 	UDWORD				bDarkSide = FALSE;
 	
@@ -822,8 +792,6 @@ void displayCompObj(BASE_OBJECT *psObj,iVector *mountRotation, BOOL bButton)
 
 	if(!pieFlag)
 	{
-   //		centreX = ( player.p.x + ((visibleXTiles/2)<<TILE_SHIFT) );
-   //		centreZ = ( player.p.z + ((visibleYTiles/2)<<TILE_SHIFT) );
 		brightness = lightDoFogAndIllumination(psDroid->illumination,getCentreX() - psDroid->x,getCentreZ() - psDroid->y, &specular);
 	}
 	else
@@ -858,7 +826,6 @@ void displayCompObj(BASE_OBJECT *psObj,iVector *mountRotation, BOOL bButton)
 		}
 	}
 */
-//	scaleMatrix(droidScale);
 
 	/* set default components transparent */
 	if ( psDroid->asBits[COMP_PROPULSION].nStat == 0 )
@@ -904,7 +871,6 @@ void displayCompObj(BASE_OBJECT *psObj,iVector *mountRotation, BOOL bButton)
 				pie_Draw3DShape(psShape, 0, psDroid->player-6, brightness, specular, pieFlag, iPieData);
 			}
 		}
-		//else if( psDroid->droidType == DROID_CYBORG)
         else if (cyborgDroid(psDroid))
 		{
 			/* draw body if cyborg not animating */
@@ -994,7 +960,6 @@ void displayCompObj(BASE_OBJECT *psObj,iVector *mountRotation, BOOL bButton)
 			/* Rotate the turret */
 			pie_MatRotY(DEG(mountRotation->y));
 			//dont pitch the turret
-//			pie_MatRotZ(DEG(mountRotation->z));
 	
 			/* vtol weapons inverted */
 			if ( iConnector == 1 )
@@ -1006,7 +971,6 @@ void displayCompObj(BASE_OBJECT *psObj,iVector *mountRotation, BOOL bButton)
 		/*	Get the mounting graphic - we've already moved to the right position 
 			Allegedly - all droids will have a mount graphic so this shouldn't
 			fall on it's arse......*/
-		//psShape = MOUNT_IMD(psDroid,psDroid->player);
 		/* Draw it */
 			switch(psDroid->droidType)
 			{
@@ -1020,7 +984,6 @@ void displayCompObj(BASE_OBJECT *psObj,iVector *mountRotation, BOOL bButton)
 				Allegedly - all droids will have a mount graphic so this shouldn't
 				fall on it's arse......*/
 				/* Double check that the weapon droid actually has any */
-				//if(psDroid->numWeaps)
                 if(psDroid->asWeaps[0].nStat > 0 OR psDroid->droidType == DROID_DEFAULT)
 				{
 					psShape = WEAPON_MOUNT_IMD(psDroid,psDroid->player);
@@ -1110,8 +1073,6 @@ void displayCompObj(BASE_OBJECT *psObj,iVector *mountRotation, BOOL bButton)
 				/* Draw it */
 				if(psShape)
 				{
-//					pie_MatRotY(DEG(getStaticTimeValueRange(7920,360)));
-//					pie_MatRotY(DEG(psDroid->turretRotation));
 					pie_Draw3DShape(psShape, 0,colour/*getPlayerColour( psDroid->player)*/, brightness, specular, pieFlag, iPieData);
 				}
 				
@@ -1120,8 +1081,6 @@ void displayCompObj(BASE_OBJECT *psObj,iVector *mountRotation, BOOL bButton)
 				/* Draw it */
 				if(psShape)
 				{
-//					pie_MatRotY(DEG(getStaticTimeValueRange(7920,360)));
-//					pie_MatRotY(DEG(psDroid->turretRotation));
 					pie_Draw3DShape(psShape, 0,colour/*getPlayerColour( psDroid->player)*/, brightness, specular, pieFlag, iPieData);
 				}
 				break;
@@ -1309,19 +1268,16 @@ iVector	pos;
             case DROID_CYBORG_REPAIR:
 			case DROID_WEAPON:
 			case DROID_COMMAND:	   
-				//if(psDroid->numWeaps)
 				if(psDroid->asWeaps[0].nStat > 0)
                 {
 					psImd = WEAPON_MOUNT_IMD(psDroid,psDroid->player);
 				}
 				else
 				{
-//					psImd = debrisImds[rand()%MAX_DEBRIS];
 					psImd = getRandomDebrisImd();
 				}
 				break;
 			default:
-//				psImd = debrisImds[rand()%MAX_DEBRIS];
 				psImd = getRandomDebrisImd();
 				break;
 			}
@@ -1336,19 +1292,16 @@ iVector	pos;
             case DROID_CYBORG_REPAIR:
 			case DROID_WEAPON:
 			case DROID_COMMAND:	   
-				//if(psDroid->numWeaps)
                 if(psDroid->asWeaps[0].nStat > 0)
 				{
 					psImd = WEAPON_IMD(psDroid,psDroid->player);
 				}
 				else
 				{
-//					psImd = debrisImds[rand()%MAX_DEBRIS];
 					psImd = getRandomDebrisImd();
 				}
 				break;
 			default:
-//				psImd = debrisImds[rand()%MAX_DEBRIS];
 				psImd = getRandomDebrisImd();
 				break;
 			}
@@ -1356,7 +1309,6 @@ iVector	pos;
 		case 2:
 		case 3:
 		case 4:
-//			psImd = debrisImds[rand()%MAX_DEBRIS];
 			psImd = getRandomDebrisImd();
 			break;
 		}
@@ -1366,20 +1318,12 @@ iVector	pos;
 		}
 		else
 		{
-//			addEffect(&pos,EFFECT_GRAVITON,GRAVITON_TYPE_EMITTING_DR,TRUE,debrisImds[rand()%MAX_DEBRIS],0);
 			addEffect(&pos,EFFECT_GRAVITON,GRAVITON_TYPE_EMITTING_DR,TRUE,getRandomDebrisImd(),0);
 		}
 	}
 }
 
 
-//void addBodyPartEffect(iVector *position,iIMDShape *psShape)
-//{
-//	velocity.x = 1-rand()%3;
-//	velocity.z = 1-rand()%3;
-//	velocity.y = 4+rand()%7; 
-//	addEffect(position,EFFECT_GRAVITON,GRAVITON_TYPE_GIBLET,TRUE,psShape,0);
-//}
 
 
 void	compPersonToBits(DROID *psDroid)
@@ -1395,7 +1339,6 @@ void	compPersonToBits(DROID *psDroid)
 		return;
 	}
 	/* get bits pointers according to whether baba or cyborg*/
-	//if ( psDroid->droidType == DROID_CYBORG )
     if (cyborgDroid(psDroid))
 	{
 		headImd = getImdFromIndex(MI_CYBORG_HEAD);

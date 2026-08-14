@@ -81,7 +81,6 @@ typedef struct _treap
 extern void treapSetCallPos(STRING *pFileName, SDWORD lineNumber);
 
 /* Function type for object equality */
-//typedef BOOL (*TREAP_EQUAL)(void *pObj1, void *pObj2);
 
 /* Function to create a treap
  * Pass in key comparison function

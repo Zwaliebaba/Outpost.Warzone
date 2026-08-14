@@ -25,13 +25,6 @@ UDWORD	avCalculated;
 UDWORD	avIgnored;
 
 // ------------------------------------------------------------------------------------
-/*
-#ifdef ALEXM
-static	bRevealActive = TRUE;
-#else
-static	bRevealActive = FALSE;
-#endif
-*/
 BOOL	bRevealActive = FALSE;
 // ------------------------------------------------------------------------------------
 void	avInformOfChange(SDWORD x, SDWORD y);
@@ -200,7 +193,6 @@ void	preProcessVisibility( void )
 UDWORD		i,j;
 MAPTILE		*psTile;
 STRUCTURE	*psStruct;
-//FEATURE		*psFeature;
 
 	for(i=0; i<mapWidth;i++)
 	{

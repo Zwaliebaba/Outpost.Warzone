@@ -9,7 +9,6 @@
 // event tracing printf's
 #define DEBUG_GROUP0
 // display tested triggers
-//#define DEBUG_GROUP1
 #include "Frame.h"
 #include "Interp.h"
 #include "Script.h"
@@ -897,7 +896,6 @@ void eventFireCallbackTrigger(TRIGGER_TYPE callback)
 	}
 
 	//this can be called from eventProcessTriggers and so will wipe out all the current added ones
-	//psAddedTriggers = NULL;
 	psPrev = NULL;
 	for(psCurr = psCallbackList; psCurr && psCurr->type <= callback;
 		psCurr = psNext)
@@ -1002,7 +1000,6 @@ void eventFireCallbackTrigger(TRIGGER_TYPE callback)
 // Run a trigger
 static BOOL eventFireTrigger(ACTIVE_TRIGGER *psTrigger)
 {
-//	TRIGGER_DATA	*psTrigData;
 	BOOL			fired;
 	INTERP_VAL		sResult;
 
