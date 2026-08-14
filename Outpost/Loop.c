@@ -14,7 +14,6 @@
 #include "rendmode.h"
 #include "pieState.h" //ivis render code
 #include "pieMode.h"
-#include "vid.h" //ivis render code
 #include "Objects.h"
 #include "Display.h"
 #include "Map.h"
@@ -34,7 +33,6 @@
 #include "Message.h"
 #include "bucket3d.h"
 #include "Display3d.h"
-#include "3dfxFunc.h"
 #include "MultiPlay.h" //ajl
 #include "Script.h"
 #include "ScriptTabs.h"
@@ -88,7 +86,6 @@ static BOOL paused=FALSE;
 static BOOL video=FALSE;
 static BOOL bQuitVideo=FALSE;
 static	SDWORD clearCount = 0;
-static BOOL bSoftVideoPalette = FALSE;
 
 //holds which pause is valid at any one time
 typedef struct _pause_state
@@ -608,22 +605,11 @@ GAMECODE gameLoop(void)
 			//quitting from the game to the front end
 			//so get a new backdrop
 			quitting = TRUE;
-			if (pie_GetRenderEngine() == ENGINE_GLIDE)
-			{
 #ifdef COVERMOUNT
-				pie_LoadBackDrop(SCREEN_COVERMOUNT,TRUE);
+			pie_LoadBackDrop(SCREEN_COVERMOUNT,FALSE);
 #else
-				pie_LoadBackDrop(SCREEN_RANDOMBDROP,TRUE);
+			pie_LoadBackDrop(SCREEN_RANDOMBDROP,FALSE);
 #endif
-			}
-			else
-			{
-#ifdef COVERMOUNT
-				pie_LoadBackDrop(SCREEN_COVERMOUNT,FALSE);
-#else
-				pie_LoadBackDrop(SCREEN_RANDOMBDROP,FALSE);
-#endif
-			}
 		}
 		else //if in video mode esc kill video
 		{
@@ -720,23 +706,6 @@ GAMECODE gameLoop(void)
 			pie_SetFogStatus(TRUE);
 //			}
 
-			if(pie_GetRenderEngine() == ENGINE_GLIDE)
-			{
-				if(!driveModeActive()) {
-					pie_SetDepthBufferStatus(DEPTH_CMP_ALWAYS_WRT_ON);
-					pie_SetFogStatus(FALSE);
-					pie_DrawMouse(mouseX(),mouseY());
-					pie_SetDepthBufferStatus(DEPTH_CMP_LEQ_WRT_ON);
-					pie_SetFogStatus(TRUE);
-				} else {
-					// If were in driving mode then put the cursor over the current target.
-					BASE_OBJECT *psObj = targetGetCurrent();
-					if(psObj != NULL) {
-						SetMousePos(0,psObj->sDisplay.screenX,psObj->sDisplay.screenY);
-						pie_DrawMouse(psObj->sDisplay.screenX,psObj->sDisplay.screenY);
-					}
-				}
-			}
 	//#endif
 		}										   
 		/*else if (!quitting)
@@ -835,7 +804,7 @@ GAMECODE gameLoop(void)
 		{
 			/* Check for toggling display mode */
 			if ((keyDown(KEY_LALT) || keyDown(KEY_RALT)) &&
-				keyPressed(KEY_RETURN) AND pie_GetRenderEngine()!=ENGINE_GLIDE)
+				keyPressed(KEY_RETURN))
 			{
 				screenToggleMode();
 		#ifdef DISP2D
@@ -903,7 +872,7 @@ GAMECODE gameLoop(void)
 		{
 			/* Check for toggling display mode */
 			if ((keyDown(KEY_LALT) || keyDown(KEY_RALT)) &&
-				keyPressed(KEY_RETURN) AND pie_GetRenderEngine()!=ENGINE_GLIDE)
+				keyPressed(KEY_RETURN))
 			{
 				screenToggleMode();
 		#ifdef DISP2D
@@ -927,7 +896,7 @@ GAMECODE gameLoop(void)
 		{
 			/* Check for toggling display mode */
 			if ((keyDown(KEY_LALT) || keyDown(KEY_RALT)) &&
-				keyPressed(KEY_RETURN) AND pie_GetRenderEngine()!=ENGINE_GLIDE)
+				keyPressed(KEY_RETURN))
 			{
 				screenToggleMode();
 		#ifdef DISP2D
@@ -1009,10 +978,6 @@ static BOOL bActiveBackDrop = FALSE;
 #endif
 //		clearCount = 0;
 		pie_ScreenFlip(CLEAR_BLACK);// videoloopflip extra mar10
-		if(pie_GetRenderEngine() == ENGINE_GLIDE)
-		{
-			pie_ScreenFlip(CLEAR_BLACK);// videoloopflip extra mar10
-		}
 		if (bActiveBackDrop)
 		{
  			screen_RestartBackDrop();
@@ -1034,10 +999,6 @@ static BOOL bActiveBackDrop = FALSE;
 		if (seq_AnySeqLeft())
 		{
 			pie_ScreenFlip(CLEAR_BLACK);// videoloopflip extra mar10
-			if(pie_GetRenderEngine() == ENGINE_GLIDE)
-			{
-				pie_ScreenFlip(CLEAR_BLACK);// videoloopflip extra mar10
-			}
 			if (bActiveBackDrop)
 			{
 				screen_RestartBackDrop();
@@ -1066,10 +1027,6 @@ static BOOL bActiveBackDrop = FALSE;
 #endif
 //		    clearCount = 0;
 			pie_ScreenFlip(CLEAR_BLACK);// videoloopflip extra mar10
-			if(pie_GetRenderEngine() == ENGINE_GLIDE)
-			{
-				pie_ScreenFlip(CLEAR_BLACK);// videoloopflip extra mar10
-			}
     		if (bActiveBackDrop)
 	    	{
 		    	screen_RestartBackDrop();
@@ -1128,15 +1085,6 @@ void loop_SetVideoPlaybackMode(void)
 	gameTimeStop();
 	pie_SetFogStatus(FALSE);
 	audio_StopAll();
-	if(!pie_Hardware())
-	{
-		screenToggleVideoPlaybackMode();
-		if (!bSoftVideoPalette)
-		{
-			pal_Make16BitPalette();//now we are in 16bit mode
-			bSoftVideoPalette = TRUE;
-		}
-	}
 }
 
 void loop_ClearVideoPlaybackMode(void)
@@ -1146,10 +1094,6 @@ void loop_ClearVideoPlaybackMode(void)
 	video = FALSE;
 	gameTimeStart();
 //	pie_SetFogStatus(TRUE);
-	if(!pie_Hardware())
-	{
-		screenToggleVideoPlaybackMode();
-	}
 	cdAudio_Resume();
 	ASSERT((videoMode == 0,"loop_ClearVideoPlaybackMode: out of sync."));
 }

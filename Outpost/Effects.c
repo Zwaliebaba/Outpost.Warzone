@@ -916,8 +916,6 @@ UDWORD	percent;
 UDWORD	range;
 FRACT	scaling;
 
-if (pie_Hardware())//pc only on hardware, always on PSX
-{
 	if(TEST_LIT(psEffect))
 	{
 		if(psEffect->lifeSpan) 
@@ -950,7 +948,6 @@ if (pie_Hardware())//pc only on hardware, always on PSX
 		processLight(&light);
 //#endif
 	}
-}
 
 #ifdef DOLIGHTS
 /*
@@ -1109,8 +1106,6 @@ iVector	dv;
 UDWORD	groundHeight;
 MAPTILE	*psTile;
 
-if (pie_Hardware())//pc only on hardware, always on PSX
-{
 LIGHT	light;
 #ifdef DOLIGHTS
 	if(psEffect->type!=GRAVITON_TYPE_GIBLET)
@@ -1123,7 +1118,6 @@ LIGHT	light;
 		processLight(&light);
 	}
 #endif
-}
 
 	if(gamePaused())
 	{
@@ -1263,8 +1257,6 @@ UDWORD	range;
 FRACT	div;
 UDWORD	height;
 
-if (pie_Hardware())//pc only on hardware, always on PSX
-{
 	percent = PERCENT(gameTime-psEffect->birthTime,psEffect->lifeSpan);
 	if(percent > 100)  
 	{
@@ -1294,7 +1286,6 @@ if (pie_Hardware())//pc only on hardware, always on PSX
 	}
 	processLight(&light);
 #endif
-}
 
 
 	if(gameTime > (psEffect->birthTime + psEffect->lifeSpan))
@@ -1492,8 +1483,6 @@ iVector	pos;
 LIGHT	light;
 UDWORD	percent;
 
-if (pie_Hardware())//pc only on hardware, always on PSX
-{
 	percent = PERCENT(gameTime-psEffect->birthTime,psEffect->lifeSpan);
 	if(percent > 100)  
 	{
@@ -1507,7 +1496,6 @@ if (pie_Hardware())//pc only on hardware, always on PSX
 	light.colour = LIGHT_RED;
 	processLight(&light);
 #endif
-}
 	
 
 	/* Time to update the frame number on the construction sprite */
@@ -1684,23 +1672,9 @@ UDWORD brightness, specular;
   //	centreZ = ( player.p.z + ((visibleYTiles/2)<<TILE_SHIFT) );
 	brightness = lightDoFogAndIllumination(pie_MAX_BRIGHT_LEVEL,getCentreX() - MAKEINT(psEffect->position.x),getCentreZ() - MAKEINT(psEffect->position.z), &specular);
 
-	/* Dither on software */
-	if(pie_GetRenderEngine() == ENGINE_4101)
-	{
-		pie_SetDitherStatus(TRUE);
-	}
-
-
 	scaleMatrix(psEffect->size);
  	pie_Draw3DShape(psEffect->imd, psEffect->frameNumber, 0, brightness, 0, pie_ADDITIVE, EFFECT_EXPLOSION_ADDITIVE);
  	iV_MatrixEnd();
-
-	/* Dither on software OFF */
-	if(pie_GetRenderEngine() == ENGINE_4101)
-	{
-		pie_SetDitherStatus(FALSE);
-	}
-
 
 }
 // ----------------------------------------------------------------------------------------
@@ -1870,13 +1844,6 @@ void	renderExplosionEffect(EFFECT *psEffect)
 //	centreZ = ( player.p.z + ((visibleYTiles/2)<<TILE_SHIFT) );
 	brightness = lightDoFogAndIllumination(pie_MAX_BRIGHT_LEVEL,getCentreX() - MAKEINT(psEffect->position.x),getCentreZ() - MAKEINT(psEffect->position.z), &specular);
 
-	/* Dither on software */
-	if(pie_GetRenderEngine() == ENGINE_4101)
-	{
-		pie_SetDitherStatus(TRUE);
-	}
-
-
 	if(psEffect->type == EXPLOSION_TYPE_PLASMA)
 	{
 		pie_Draw3DShape(psEffect->imd, psEffect->frameNumber, 0, brightness, 0, pie_ADDITIVE, EFFECT_PLASMA_ADDITIVE);
@@ -1891,13 +1858,6 @@ void	renderExplosionEffect(EFFECT *psEffect)
 		pie_Draw3DShape(psEffect->imd, psEffect->frameNumber, 0, brightness, 0, pie_ADDITIVE, EFFECT_EXPLOSION_ADDITIVE);
 	}
 	
-	/* Dither on software OFF */
-	if(pie_GetRenderEngine() == ENGINE_4101)
-	{
-		pie_SetDitherStatus(FALSE);
-	}
-
-
 	iV_MatrixEnd();
 }
 
@@ -2017,21 +1977,9 @@ UDWORD brightness, specular;
 //	centreX = ( player.p.x + ((visibleXTiles/2)<<TILE_SHIFT) );
 //	centreZ = ( player.p.z + ((visibleYTiles/2)<<TILE_SHIFT) );
 	brightness = lightDoFogAndIllumination(pie_MAX_BRIGHT_LEVEL,getCentreX() - MAKEINT(psEffect->position.x),getCentreZ() - MAKEINT(psEffect->position.z), &specular);
-  /* Dither on software */
-	if(pie_GetRenderEngine() == ENGINE_4101)
-	{
-		pie_SetDitherStatus(TRUE);
-	}
-
 	pie_Draw3DShape(psEffect->imd, psEffect->frameNumber, 0, brightness, specular, pie_TRANSLUCENT, (UBYTE)(translucency));
 //	pie_Draw3DShape(psEffect->imd, psEffect->frameNumber, 0, pie_MAX_BRIGHT_LEVEL, 0, pie_TRANSLUCENT, (UBYTE)(40+percent));
 //	pie_Draw3DShape(psEffect->imd, psEffect->frameNumber, 0, pie_MAX_BRIGHT_LEVEL, 0, pie_TRANSLUCENT, (UBYTE)(130-percent));
-
-/* Dither on software */
-	if(pie_GetRenderEngine() == ENGINE_4101)
-	{
-		pie_SetDitherStatus(FALSE);
-	}
 
 	/* Pop the matrix */
 	iV_MatrixEnd();
@@ -2084,32 +2032,23 @@ UDWORD brightness, specular;
 
 	if(TEST_SCALED(psEffect))
 	{
-		if (pie_Hardware())
-		{
 #ifdef HARDWARE_TEST//test additive
-			percent = (MAKEINT(PERCENT((gameTime - psEffect->birthTime),psEffect->lifeSpan)));
-			if(percent<10 AND psEffect->type == SMOKE_TYPE_TRAIL)
-			{
-				scaleMatrix((3 * percent/10 * psEffect->baseScale)/100);
-				transparency = (EFFECT_SMOKE_ADDITIVE * (100 - 10))/100;
-			}
-			else
-			{
-				scaleMatrix((4 * percent * psEffect->baseScale)/100);
-				transparency = (EFFECT_SMOKE_ADDITIVE * (100 - percent))/100;
-			}
-#else//Constant alpha
-			percent = (MAKEINT(PERCENT((gameTime - psEffect->birthTime),psEffect->lifeSpan)));
-			scaleMatrix(percent + psEffect->baseScale);
-			transparency = (EFFECT_SMOKE_TRANSPARENCY * (100 - percent))/100;
-#endif
+		percent = (MAKEINT(PERCENT((gameTime - psEffect->birthTime),psEffect->lifeSpan)));
+		if(percent<10 AND psEffect->type == SMOKE_TYPE_TRAIL)
+		{
+			scaleMatrix((3 * percent/10 * psEffect->baseScale)/100);
+			transparency = (EFFECT_SMOKE_ADDITIVE * (100 - 10))/100;
 		}
 		else
-		{//software
-			percent = (MAKEINT(PERCENT((gameTime - psEffect->birthTime),psEffect->lifeSpan)))/2;
-			scaleMatrix(percent + psEffect->baseScale);
-			transparency = (EFFECT_SMOKE_TRANSPARENCY * (100 - percent))/100;
+		{
+			scaleMatrix((4 * percent * psEffect->baseScale)/100);
+			transparency = (EFFECT_SMOKE_ADDITIVE * (100 - percent))/100;
 		}
+#else//Constant alpha
+		percent = (MAKEINT(PERCENT((gameTime - psEffect->birthTime),psEffect->lifeSpan)));
+		scaleMatrix(percent + psEffect->baseScale);
+		transparency = (EFFECT_SMOKE_TRANSPARENCY * (100 - percent))/100;
+#endif
 	}
 
    	// set up lighting
@@ -2117,15 +2056,7 @@ UDWORD brightness, specular;
 //	centreZ = ( player.p.z + ((visibleYTiles/2)<<TILE_SHIFT) );
 	brightness = lightDoFogAndIllumination(pie_MAX_BRIGHT_LEVEL,getCentreX() - MAKEINT(psEffect->position.x),getCentreZ() - MAKEINT(psEffect->position.z), &specular);
 
-	/* Dither on software */
-	if(pie_GetRenderEngine() == ENGINE_4101)
-	{
-		pie_SetDitherStatus(TRUE);
-	}
-	else if(pie_GetRenderEngine() == ENGINE_D3D)//JPS smoke strength increased for d3d 12 may 99
-	{
-		transparency = (transparency*3)/2;
-	}
+	transparency = (transparency*3)/2;//JPS smoke strength increased for d3d 12 may 99
 
 	/* Make imds be transparent on 3dfx */
 	if(psEffect->type==SMOKE_TYPE_STEAM)
@@ -2142,11 +2073,6 @@ UDWORD brightness, specular;
 		{
 			pie_Draw3DShape(psEffect->imd, psEffect->frameNumber, 0, brightness, specular, pie_TRANSLUCENT, (UBYTE)(transparency)/2);
 		}
-	}
-	/* Dither on software OFF */
-	if(pie_GetRenderEngine() == ENGINE_4101)
-	{
-		pie_SetDitherStatus(FALSE);
 	}
 
 	/* Pop the matrix */
