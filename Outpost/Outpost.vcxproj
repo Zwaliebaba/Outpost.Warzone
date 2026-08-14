@@ -334,6 +334,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)..\DX9\Lib;$(MSBuildThisFileDirectory)..\NeuronCore;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <AdditionalDependencies>ddraw.lib;dxguid.lib;dsound.lib;dinput.lib;dplayx.lib;winmm.lib;ole32.lib;wsock32.lib;comdlg32.lib;QMixer.lib;Mplayer.lib;WINSTR.LIB;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
@@ -359,6 +360,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)..\DX9\Lib;$(MSBuildThisFileDirectory)..\NeuronCore;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <AdditionalDependencies>ddraw.lib;dxguid.lib;dsound.lib;dinput.lib;dplayx.lib;winmm.lib;ole32.lib;wsock32.lib;comdlg32.lib;QMixer.lib;Mplayer.lib;WINSTR.LIB;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
