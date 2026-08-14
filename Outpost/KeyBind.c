@@ -30,7 +30,6 @@
 #include "multiplay.h"
 #include "multimenu.h"
 #include "Atmos.h"
-#include "dGlide.h"
 #include "RayCast.h"
 #include "AdvVis.h"
 #include "game.h"
@@ -296,50 +295,15 @@ void	kf_SetToughUnitsLevel( void )
 void	kf_FrameRate( void )
 {
 
-	if (pie_GetRenderEngine() == ENGINE_GLIDE)
+	if(weHave3DNow())
 	{
-		if(weHave3DNow())
-		{
-		CONPRINTF(ConsoleString,(ConsoleString,"GLIDE (With AMD 3DNow!) fps - %d; PIEs - %d; polys - %d; Terr. polys - %d; States %d",
-				frameGetFrameRate(),loopPieCount,loopPolyCount,loopTileCount,loopStateChanges));
-		}
-		else
-		{
- 	 	 	CONPRINTF(ConsoleString,(ConsoleString,"GLIDE fps - %d; PIEs - %d; polys - %d; Terr. polys - %d; States %d",
-				frameGetFrameRate(),loopPieCount,loopPolyCount,loopTileCount,loopStateChanges));
-		}
-//		ASSERT((war_GetFog(),"Fog is Disabled"));
-//		ASSERT((war_GetTranslucent(),"Transparency is Disabled"));
-//		ASSERT((war_GetAdditive(),"Additive Transpaency is Disabled"));
-		DBPRINTF(("GLIDE fps - %d; PIEs - %d; polys - %d; Terr. polys - %d; States %d;",
+		CONPRINTF(ConsoleString,(ConsoleString,"DIRECT3D (With AMD 3DNow!) fps %d; PIEs %d; polys %d; Terr. polys %d; States %d",
 			frameGetFrameRate(),loopPieCount,loopPolyCount,loopTileCount,loopStateChanges));
 	}
-	else if (pie_GetRenderEngine() == ENGINE_D3D)
-	{
-		if(weHave3DNow())
-		{
-			CONPRINTF(ConsoleString,(ConsoleString,"DIRECT3D (With AMD 3DNow!) fps %d; PIEs %d; polys %d; Terr. polys %d; States %d",
-				frameGetFrameRate(),loopPieCount,loopPolyCount,loopTileCount,loopStateChanges));
-		}
-		else
-		{
- 	 	   	CONPRINTF(ConsoleString,(ConsoleString,"DIRECT3D fps %d; PIEs %d; polys %d; Terr. polys %d; States %d",
-				frameGetFrameRate(),loopPieCount,loopPolyCount,loopTileCount,loopStateChanges));
-		}
-
-	}
 	else
-	{	
-		if(weHave3DNow())
-		{
-			CONPRINTF(ConsoleString,(ConsoleString,"SOFTWARE (With AMD 3DNow!) fps - %d; pie's - %d; polys - %d; Terr. polys - %d;",
-				frameGetFrameRate(),loopPieCount,loopPolyCount,loopTileCount));
-		}
-		else
-		{
-			CONPRINTF(ConsoleString,(ConsoleString,"SOFTWARE fps - %d; pie's - %d; polys - %d; Terr. polys - %d;",
-				frameGetFrameRate(),loopPieCount,loopPolyCount,loopTileCount));
-		}
+	{
+ 	   	CONPRINTF(ConsoleString,(ConsoleString,"DIRECT3D fps %d; PIEs %d; polys %d; Terr. polys %d; States %d",
+			frameGetFrameRate(),loopPieCount,loopPolyCount,loopTileCount,loopStateChanges));
 	}
 		if (bMultiPlayer)
 		{
@@ -456,18 +420,15 @@ void	kf_RecalcLighting( void )
 /* Raises the 3dfx gamma value */
 void	kf_RaiseGamma( void )
 {
-	if (pie_GetRenderEngine() == ENGINE_GLIDE)
+	if(gamma<(float)5.0)
 	{
-		if(gamma<(float)5.0)
-		{
-			gamma = gamma+(float)0.1;
-			pie_SetGammaValue(gamma);
-			addConsoleMessage("Gamma correction altered",DEFAULT_JUSTIFY);
-		}
-		else
-		{
-			gamma = (float)0.2;
-		}
+		gamma = gamma+(float)0.1;
+		pie_SetGammaValue(gamma);
+		addConsoleMessage("Gamma correction altered",DEFAULT_JUSTIFY);
+	}
+	else
+	{
+		gamma = (float)0.2;
 	}
 }
 
@@ -476,18 +437,15 @@ void	kf_RaiseGamma( void )
 /* Lowers the threedfx gamma value */
 void	kf_LowerGamma( void )
 {
-	if (pie_GetRenderEngine() == ENGINE_GLIDE)
+	if(gamma>(float)0.2)
 	{
-		if(gamma>(float)0.2)
-		{
-			gamma = gamma-(float)0.1;
-			pie_SetGammaValue(gamma);
-			addConsoleMessage("Gamma correction lowered",DEFAULT_JUSTIFY);
-		}
-		else
-		{
-			addConsoleMessage("Gamma correction at MINIMUM",DEFAULT_JUSTIFY);
-		}
+		gamma = gamma-(float)0.1;
+		pie_SetGammaValue(gamma);
+		addConsoleMessage("Gamma correction lowered",DEFAULT_JUSTIFY);
+	}
+	else
+	{
+		addConsoleMessage("Gamma correction at MINIMUM",DEFAULT_JUSTIFY);
 	}
 }	
 
@@ -496,14 +454,7 @@ void	kf_LowerGamma( void )
 /* Sends the 3dfx screen buffer to disk */
 void	kf_ScreenDump( void )
 {
-	if(pie_GetRenderEngine() == ENGINE_GLIDE)
-	{
-		CONPRINTF(ConsoleString,(ConsoleString,"3dfx 24 bit raw screen dump written to working directory : %s",iV_ScreenDumpToDisk()));
-	}
-	else
-	{
-		CONPRINTF(ConsoleString,(ConsoleString,"Screen dump function presently only works on 3dfx based cards."));
-	}
+	CONPRINTF(ConsoleString,(ConsoleString,"Screen dump function presently only works on 3dfx based cards."));
 }
 
 // --------------------------------------------------------------------------
@@ -746,11 +697,6 @@ void	kf_LowerTile( void )
 /* Quick game exit */
 void	kf_SystemClose( void )
 {
-	if(pie_GetRenderEngine() == ENGINE_GLIDE)
-	{
-		grSstControl(GR_CONTROL_DEACTIVATE);
-	}
-
 //	ExitProcess(4);
 	loopFastExit();
 }

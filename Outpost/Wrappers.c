@@ -37,8 +37,6 @@
 
 #include "keyedit.h"
 #include "SeqDisp.h"
-#include "3dfxfunc.h"
-#include "vid.h"
 #include "config.h"
 #include "resource.h"
 #include "netPlay.h"	// multiplayer 
@@ -296,20 +294,13 @@ TITLECODE titleLoop(void)
 
 	audio_Update();
 
-	if (pie_GetRenderEngine() == ENGINE_GLIDE)
-	{
-		if(!bUsingKeyboard)
-		{
-			pie_DrawMouse(mouseX(),mouseY());  //iV_DrawMousePointer(mouseX(),mouseY());
-		}
-	}
 	pie_GlobalRenderEnd(TRUE);//force to black
 	pie_SetFogStatus(FALSE);
 	pie_ScreenFlip(CLEAR_BLACK);//title loop
 
 //#ifdef WIN32
 	if ((keyDown(KEY_LALT) || keyDown(KEY_RALT)) &&	/* Check for toggling display mode */
-		keyPressed(KEY_RETURN) AND pie_GetRenderEngine()!=ENGINE_GLIDE)
+		keyPressed(KEY_RETURN))
 	{
 		screenToggleMode();
 	}
@@ -345,10 +336,7 @@ void loadingScreenCallback(void)
 	lastTick = GetTickCount();
 	pie_GlobalRenderBegin();
 	DrawBegin();
-  	if(pie_GetRenderEngine() == ENGINE_D3D)
-	{
-		pie_UniTransBoxFill(1,1,2,2,0x00010101, 32);
-	}
+  	pie_UniTransBoxFill(1,1,2,2,0x00010101, 32);
 	/* Draw the black rectangle at the bottom */
 
 	topX = 10+D_W;
@@ -356,14 +344,7 @@ void loadingScreenCallback(void)
 	botX = 630+D_W;
 	botY = 470+D_H+1;
 //	pie_BoxFillIndex(10+D_W,450+D_H-1,630+D_W,470+D_H+1,COL_BLACK);
-	if (pie_Hardware())
-	{
-		pie_UniTransBoxFill(topX,topY,botX,botY,0x00010101, 24);
-	}
-	else
-	{
-		pie_BoxFillIndex(topX,topY,botX,botY,COL_BLACK);
-	}
+	pie_UniTransBoxFill(topX,topY,botX,botY,0x00010101, 24);
 
 
 	for(i=1; i<19; i++)
@@ -376,14 +357,7 @@ void loadingScreenCallback(void)
 		{
 			stars[i].xPos = (UWORD)(stars[i].xPos + stars[i].speed);
 		}
-		if (pie_Hardware())
-		{
-			pie_UniTransBoxFill(10+stars[i].xPos+D_W,450+i+D_H,10+stars[i].xPos+(2*stars[i].speed)+D_W,450+i+2+D_H,0x00ffffff, 255);
-		}
-		else
-		{
-	   	  	pie_BoxFillIndex(10+stars[i].xPos+D_W,450+i+D_H,10+stars[i].xPos+2+D_W,450+i+2+D_H,COL_WHITE);
-		}
+		pie_UniTransBoxFill(10+stars[i].xPos+D_W,450+i+D_H,10+stars[i].xPos+(2*stars[i].speed)+D_W,450+i+2+D_H,0x00ffffff, 255);
 
    	}
 	
@@ -444,14 +418,7 @@ void startCreditsScreen( BOOL bRenderActive)
 
 	lastChange = gameTime;
 	// fill buffers
-	if (pie_GetRenderEngine() == ENGINE_GLIDE)
-	{
-		pie_LoadBackDrop(screen,TRUE);
-	}
-	else
-	{
-		pie_LoadBackDrop(screen,FALSE);
-	}
+	pie_LoadBackDrop(screen,FALSE);
 
 	if (bRenderActive)
 	{
@@ -509,14 +476,7 @@ void	runCreditsScreen( void )
 			return;
 			break;
 		}		
-		if (pie_GetRenderEngine() == ENGINE_GLIDE)
-		{
-			pie_LoadBackDrop(screen,TRUE);
-		}
-		else
-		{
-			pie_LoadBackDrop(screen,FALSE);
-		}
+		pie_LoadBackDrop(screen,FALSE);
 		pie_SetFogStatus(FALSE);
 		pie_ScreenFlip(CLEAR_BLACK);//flip to set back buffer
 		pie_ScreenFlip(CLEAR_BLACK);//init loading
