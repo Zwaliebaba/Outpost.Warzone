@@ -210,6 +210,10 @@ project.
 is dropped. Audio moves to **XAudio2**, and QMixer and the CD audio features
 are removed outright.
 
+The implementation plan for this phase — measured file sizes, the live
+interface surface, the step order and the decisions still open — is in
+[Phase4Plan.md](Phase4Plan.md).
+
 This is well contained because `TrackLib.h` is already a clean ~80-line
 interface: `QSTrack.cpp` (849 lines) is simply its QMixer implementation. The
 port replaces that implementation behind the existing interface.
