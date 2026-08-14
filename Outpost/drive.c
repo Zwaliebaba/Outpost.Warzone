@@ -9,7 +9,6 @@
 #include <stdio.h>
 #include <Math.h>
 #include "imd.h"
-#include "vid.h"
 #include "Frame.h"
 #include "Objects.h"
 #include "Move.h"

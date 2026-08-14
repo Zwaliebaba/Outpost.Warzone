@@ -21,7 +21,15 @@ jobs:
       - name: Add MSBuild to PATH
         uses: microsoft/setup-msbuild@v2
 
-      # The projects target v145; the hosted runners ship VS 2022, so the
-      # toolset is overridden here rather than downgraded in the projects.
       - name: Build
-        run: msbuild Outpost\Outpost.vcxproj /p:Configuration=${{ matrix.configuration }} /p:Platform=Win32 /p:PlatformToolset=v143 /m /v:normal /nologo
+        run: msbuild Outpost\Outpost.vcxproj /p:Configuration=${{ matrix.configuration }} /p:Platform=Win32 /m /v:normal /nologo /flp:LogFile=build.log;Verbosity=normal
+
+      # The tail of a failed build is dominated by the error summary, which
+      # omits which translation unit each error came from.
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log-${{ matrix.configuration }}
+          path: build.log
+          if-no-files-found: ignore

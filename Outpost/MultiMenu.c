@@ -10,7 +10,6 @@
 #include "Display3d.h"
 #include "intDisplay.h"
 #include "text.h"
-#include "vid.h"
 #include "piedef.h"
 #include "gtime.h"
 #include "geo.h"

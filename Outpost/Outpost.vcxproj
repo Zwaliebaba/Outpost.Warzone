@@ -322,16 +322,17 @@
   <PropertyGroup Label="UserMacros" />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
+      <UseStructuredOutput>false</UseStructuredOutput>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;DIRECTINPUT_VERSION=0x0700;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\NeuronCore;$(SolutionDir)DX9\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\NeuronCore;$(MSBuildThisFileDirectory)..\DX9\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)DX9\Lib;$(SolutionDir)NeuronCore;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)..\DX9\Lib;$(MSBuildThisFileDirectory)..\NeuronCore;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>ddraw.lib;dxguid.lib;dsound.lib;dinput.lib;dplayx.lib;winmm.lib;ole32.lib;wsock32.lib;comdlg32.lib;QMixer.lib;Mplayer.lib;WINSTR.LIB;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
@@ -340,18 +341,19 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
+      <UseStructuredOutput>false</UseStructuredOutput>
       <WarningLevel>Level3</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;DIRECTINPUT_VERSION=0x0700;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\NeuronCore;$(SolutionDir)DX9\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\NeuronCore;$(MSBuildThisFileDirectory)..\DX9\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)DX9\Lib;$(SolutionDir)NeuronCore;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)..\DX9\Lib;$(MSBuildThisFileDirectory)..\NeuronCore;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>ddraw.lib;dxguid.lib;dsound.lib;dinput.lib;dplayx.lib;winmm.lib;ole32.lib;wsock32.lib;comdlg32.lib;QMixer.lib;Mplayer.lib;WINSTR.LIB;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>

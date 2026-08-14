@@ -2,8 +2,6 @@
 #ifndef _rendmode_h_
 #define _rendmode_h_
 #include "ivisdef.h"
-#include "v4101.h"
-#include "vsr.h"
 #include "pieBlitFunc.h"
 //#include "ivid3d.h"
 #include "BitImage.h"

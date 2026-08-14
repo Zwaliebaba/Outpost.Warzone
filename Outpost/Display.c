@@ -18,7 +18,6 @@
 #include "piedef.h"
 #include "pieState.h"
 
-#include "vid.h"
 //#include "ivisheap.h"//make a call for this
 
 #include "tex.h"//make a call for this

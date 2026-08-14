@@ -21,7 +21,6 @@
 
 #include "geo.h"
 #include "imd.h"
-#include "vid.h"
 
 
 #include "target.h"

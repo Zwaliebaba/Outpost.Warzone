@@ -24,7 +24,6 @@
 #include "keyedit.h"
 #include "pieFunc.h"
 #include "warzoneConfig.h"
-#include "vid.h"
 
 #include "display3d.h"
 #include "intdisplay.h"

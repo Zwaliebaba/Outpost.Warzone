@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <dos.h>
 #include "ivisdef.h"
 #include "pieState.h"
 #include "rendmode.h"
