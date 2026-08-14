@@ -169,7 +169,7 @@ FRACT trigIntSqrt(UDWORD val)
     val <<= SQRT_ACCBITS - 1 - exp;
 
   // now generate the fractional part for the lookup table
-  ASSERT((val < SQRT_ACCURACY, "trigIntSqrt: aargh - table index out of range"));
+  DEBUG_ASSERT_TEXT(val < SQRT_ACCURACY, "trigIntSqrt: aargh - table index out of range");
   return aSqrt[val] * static_cast<FRACT>((UDWORD)1 << ((UDWORD)exp / 2));
 }
 

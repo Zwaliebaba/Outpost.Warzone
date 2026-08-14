@@ -198,7 +198,7 @@ UDWORD pie_GetResScalingFactor(void)
   case 1280:
     return (200);
     break;
-  default: ASSERT((FALSE,"Unsupported resolution"));
+  default: DEBUG_ASSERT_TEXT(FALSE, "Unsupported resolution");
     return (100); // default to 640
     break;
   }

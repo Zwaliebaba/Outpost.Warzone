@@ -50,14 +50,14 @@ void grpJoin(DROID_GROUP* psGroup, DROID* psDroid)
 {
   psGroup->refCount += 1;
 
-  ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)), "grpJoin: invalid group pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psGroup, sizeof(DROID_GROUP)), "grpJoin: invalid group pointer");
 
   // if psDroid == NULL just increase the refcount don't add anything to the list
   if (psDroid != nullptr)
   {
     if (psGroup->psList && psDroid->player != psGroup->psList->player)
     {
-      ASSERT((FALSE,"grpJoin: Cannot have more than one players droids in a group"));
+      DEBUG_ASSERT_TEXT(FALSE, "grpJoin: Cannot have more than one players droids in a group");
       return;
     }
 
@@ -68,14 +68,14 @@ void grpJoin(DROID_GROUP* psGroup, DROID* psDroid)
 
     if (psDroid->droidType == DROID_TRANSPORTER)
     {
-      ASSERT(((psGroup->type == GT_NORMAL), "grpJoin: Cannot have two transporters in a group"));
+      DEBUG_ASSERT_TEXT((psGroup->type == GT_NORMAL), "grpJoin: Cannot have two transporters in a group");
       psGroup->type = GT_TRANSPORTER;
       psDroid->psGrpNext = psGroup->psList;
       psGroup->psList = psDroid;
     }
     else if ((psDroid->droidType == DROID_COMMAND) && (psGroup->type != GT_TRANSPORTER))
     {
-      ASSERT(((psGroup->type == GT_NORMAL) && (psGroup->psCommander == NULL), "grpJoin: Cannot have two command droids in a group"));
+      DEBUG_ASSERT_TEXT((psGroup->type == GT_NORMAL) && (psGroup->psCommander == NULL), "grpJoin: Cannot have two command droids in a group");
       psGroup->type = GT_COMMAND;
       psGroup->psCommander = psDroid;
     }
@@ -94,14 +94,14 @@ void grpJoinEnd(DROID_GROUP* psGroup, DROID* psDroid)
 
   psGroup->refCount += 1;
 
-  ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)), "grpJoin: invalid group pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psGroup, sizeof(DROID_GROUP)), "grpJoin: invalid group pointer");
 
   // if psDroid == NULL just increase the refcount don't add anything to the list
   if (psDroid != nullptr)
   {
     if (psGroup->psList && psDroid->player != psGroup->psList->player)
     {
-      ASSERT((FALSE,"grpJoin: Cannot have more than one players droids in a group"));
+      DEBUG_ASSERT_TEXT(FALSE, "grpJoin: Cannot have more than one players droids in a group");
       return;
     }
 
@@ -112,7 +112,7 @@ void grpJoinEnd(DROID_GROUP* psGroup, DROID* psDroid)
 
     if (psDroid->droidType == DROID_COMMAND)
     {
-      ASSERT(((psGroup->type == GT_NORMAL) && (psGroup->psCommander == NULL), "grpJoin: Cannot have two command droids in a group"));
+      DEBUG_ASSERT_TEXT((psGroup->type == GT_NORMAL) && (psGroup->psCommander == NULL), "grpJoin: Cannot have two command droids in a group");
       psGroup->type = GT_COMMAND;
       psGroup->psCommander = psDroid;
     }
@@ -136,11 +136,11 @@ void grpLeave(DROID_GROUP* psGroup, DROID* psDroid)
 {
   DROID *psPrev, *psCurr;
 
-  ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)), "grpLeave: invalid group pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psGroup, sizeof(DROID_GROUP)), "grpLeave: invalid group pointer");
 
   if ((psDroid != nullptr) && (psDroid->psGroup != psGroup))
   {
-    ASSERT((FALSE, "grpLeave: droid group does not match"));
+    DEBUG_ASSERT_TEXT(FALSE, "grpLeave: droid group does not match");
     return;
   }
 
@@ -156,7 +156,7 @@ void grpLeave(DROID_GROUP* psGroup, DROID* psDroid)
         break;
       psPrev = psCurr;
     }
-    ASSERT((psCurr != NULL, "grpLeave: droid not found"));
+    DEBUG_ASSERT_TEXT(psCurr != NULL, "grpLeave: droid not found");
     if (psCurr != nullptr)
     {
       if (psPrev)
@@ -191,7 +191,7 @@ SDWORD grpNumMembers(DROID_GROUP* psGroup)
   DROID* psCurr;
   SDWORD num;
 
-  ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)), "grpNumMembers: invalid droid group"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psGroup, sizeof(DROID_GROUP)), "grpNumMembers: invalid droid group");
 
   num = 0;
   for (psCurr = psGroup->psList; psCurr; psCurr = psCurr->psGrpNext)
@@ -205,7 +205,7 @@ void grpReset(DROID_GROUP* psGroup)
 {
   DROID *psCurr, *psNext;
 
-  ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)), "grpReset: invalid droid group"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psGroup, sizeof(DROID_GROUP)), "grpReset: invalid droid group");
 
   for (psCurr = psGroup->psList; psCurr; psCurr = psNext)
   {
@@ -227,7 +227,7 @@ void orderGroup(DROID_GROUP* psGroup, DROID_ORDER order)
 {
   DROID* psCurr;
 
-  ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)), "orderGroup: invalid droid group"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psGroup, sizeof(DROID_GROUP)), "orderGroup: invalid droid group");
 
   for (psCurr = psGroup->psList; psCurr; psCurr = psCurr->psGrpNext)
     orderDroid(psCurr, order);
@@ -238,7 +238,7 @@ void orderGroupLoc(DROID_GROUP* psGroup, DROID_ORDER order, UDWORD x, UDWORD y)
 {
   DROID* psCurr;
 
-  ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)), "orderGroupLoc: invalid droid group"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psGroup, sizeof(DROID_GROUP)), "orderGroupLoc: invalid droid group");
 
   if (bMultiPlayer)
   {
@@ -262,7 +262,7 @@ void orderGroupObj(DROID_GROUP* psGroup, DROID_ORDER order, BASE_OBJECT* psObj)
 {
   DROID* psCurr;
 
-  ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)), "orderGroupObj: invalid droid group"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psGroup, sizeof(DROID_GROUP)), "orderGroupObj: invalid droid group");
 
   if (bMultiPlayer)
   {
@@ -286,7 +286,7 @@ void grpSetSecondary(DROID_GROUP* psGroup, SECONDARY_ORDER sec, SECONDARY_STATE 
 {
   DROID* psCurr;
 
-  ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)), "grpSetSecondary: invalid droid group"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psGroup, sizeof(DROID_GROUP)), "grpSetSecondary: invalid droid group");
 
   for (psCurr = psGroup->psList; psCurr; psCurr = psCurr->psGrpNext)
     secondarySetState(psCurr, sec, state);

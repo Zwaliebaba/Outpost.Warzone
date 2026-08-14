@@ -2495,7 +2495,7 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
   //if user save game then reset the time - THIS SETS BOTH TIMERS - BEWARE IF YOU USE IT
   if ((gameType == GTYPE_SAVE_START) || (gameType == GTYPE_SAVE_MIDMISSION))
   {
-    ASSERT((gameTime == savedGameTime,"loadGame; game time modified during load"));
+    DEBUG_ASSERT_TEXT(gameTime == savedGameTime, "loadGame; game time modified during load");
     gameTimeReset(savedGameTime); //added 14 may 98 JPS to solve kev's problem with no firing droids
     //need to reset the event timer too - AB 14/01/99
     eventTimeReset(savedGameTime / SCR_TICKRATE);
@@ -3252,7 +3252,7 @@ BOOL gameLoadV(UBYTE* pFileData, UDWORD filesize, UDWORD version)
       validityKey = validityKey | VALIDITYKEY_VERSION;
 
     strcpy(date,__DATE__);
-    ASSERT((strlen(date)<MAX_STR_LENGTH,"BuildDate; String error"));
+    DEBUG_ASSERT_TEXT(strlen(date)<MAX_STR_LENGTH, "BuildDate; String error");
     if (strcmp(psSaveGame->buildDate, date) != 0)
     {
       DBPRINTF(("saveGame build date differs;/nsavegame %s/n build    %s/n",psSaveGame->buildDate,date));
@@ -3428,7 +3428,7 @@ BOOL writeGameFile(STRING* pFileName, SDWORD saveType)
   LANDING_ZONE* psLandingZone;
   char date[MAX_STR_SIZE];
 
-  ASSERT((saveType == GTYPE_SAVE_START || saveType == GTYPE_SAVE_MIDMISSION, "writeGameFile: invalid save type"));
+  DEBUG_ASSERT_TEXT(saveType == GTYPE_SAVE_START || saveType == GTYPE_SAVE_MIDMISSION, "writeGameFile: invalid save type");
 
   /* Allocate the data buffer */
   fileSize = GAME_HEADER_SIZE + sizeof(SAVE_GAME);
@@ -3474,7 +3474,7 @@ BOOL writeGameFile(STRING* pFileName, SDWORD saveType)
   //save the current level so we can load up the STARTING point of the mission
   if (strlen(pLevelName) > MAX_LEVEL_SIZE)
   {
-    ASSERT((FALSE, "writeGameFile:Unable to save level name - too long (max20) - %s", pLevelName));
+    DEBUG_ASSERT_TEXT(FALSE, "writeGameFile:Unable to save level name - too long (max20) - {}", pLevelName);
     goto error;
   }
   strcpy(psSaveGame->levelName, pLevelName);
@@ -3537,7 +3537,7 @@ BOOL writeGameFile(STRING* pFileName, SDWORD saveType)
 
   //version 18
   strcpy(date,__DATE__);
-  ASSERT((strlen(date)<MAX_STR_LENGTH,"BuildDate; String error"));
+  DEBUG_ASSERT_TEXT(strlen(date)<MAX_STR_LENGTH, "BuildDate; String error");
   strcpy(psSaveGame->buildDate, date);
   psSaveGame->oldestVersion = oldestSaveGameVersion;
   psSaveGame->validityKey = validityKey;
@@ -3681,7 +3681,7 @@ BOOL loadSaveDroidInitV2(UBYTE* pFileData, UDWORD filesize, UDWORD quantity)
     }
     else
     {
-      ASSERT((PTRVALID(psTemplate, sizeof(DROID_TEMPLATE)), "loadSaveUnitInitV2: Invalid template pointer"));
+      DEBUG_ASSERT_TEXT(PTRVALID(psTemplate, sizeof(DROID_TEMPLATE)), "loadSaveUnitInitV2: Invalid template pointer");
 
       // Need to set apCompList[pDroidInit->player][componenttype][compid] = AVAILABLE for each droid.
 
@@ -3948,7 +3948,7 @@ DROID* buildDroidFromSaveDroidV19(SAVE_DROID_V18* psSaveDroid, UDWORD version)
   if (!found)
   {
     //ignore this record
-    ASSERT((found,"buildUnitFromSavedUnit; failed to find weapon"));
+    DEBUG_ASSERT_TEXT(found, "buildUnitFromSavedUnit; failed to find weapon");
     return nullptr;
   }
   psTemplate->numWeaps = psSaveDroid->numWeaps;
@@ -3966,7 +3966,7 @@ DROID* buildDroidFromSaveDroidV19(SAVE_DROID_V18* psSaveDroid, UDWORD version)
   if (!found)
   {
     //ignore this record
-    ASSERT((found,"buildUnitFromSavedUnit; failed to find weapon"));
+    DEBUG_ASSERT_TEXT(found, "buildUnitFromSavedUnit; failed to find weapon");
     return nullptr;
   }
 
@@ -3985,7 +3985,7 @@ DROID* buildDroidFromSaveDroidV19(SAVE_DROID_V18* psSaveDroid, UDWORD version)
 
   if (psDroid == nullptr)
   {
-    ASSERT((FALSE,"buildUnitFromSavedUnit; failed to build unit"));
+    DEBUG_ASSERT_TEXT(FALSE, "buildUnitFromSavedUnit; failed to build unit");
     return nullptr;
   }
 
@@ -4060,7 +4060,7 @@ DROID* buildDroidFromSaveDroidV19(SAVE_DROID_V18* psSaveDroid, UDWORD version)
         psDroid->psTarStats = (BASE_STATS*)&asStructureStats[id];
       else
       {
-        ASSERT((FALSE,"loadUnit TargetStat not found"));
+        DEBUG_ASSERT_TEXT(FALSE, "loadUnit TargetStat not found");
         psDroid->psTarStats = nullptr;
         orderDroid(psDroid, DORDER_STOP);
       }
@@ -4088,7 +4088,7 @@ DROID* buildDroidFromSaveDroidV19(SAVE_DROID_V18* psSaveDroid, UDWORD version)
         psDroid->psTarStats = (BASE_STATS*)&asStructureStats[id];
       else
       {
-        ASSERT((FALSE,"loadUnit TargetStat not found"));
+        DEBUG_ASSERT_TEXT(FALSE, "loadUnit TargetStat not found");
         psDroid->psTarStats = nullptr;
       }
     }
@@ -4156,7 +4156,7 @@ DROID* buildDroidFromSaveDroid(SAVE_DROID* psSaveDroid, UDWORD version)
   if (!found)
   {
     //ignore this record
-    ASSERT((found,"buildUnitFromSavedUnit; failed to find weapon"));
+    DEBUG_ASSERT_TEXT(found, "buildUnitFromSavedUnit; failed to find weapon");
     return nullptr;
   }
   psTemplate->numWeaps = psSaveDroid->numWeaps;
@@ -4174,7 +4174,7 @@ DROID* buildDroidFromSaveDroid(SAVE_DROID* psSaveDroid, UDWORD version)
   if (!found)
   {
     //ignore this record
-    ASSERT((found,"buildUnitFromSavedUnit; failed to find weapon"));
+    DEBUG_ASSERT_TEXT(found, "buildUnitFromSavedUnit; failed to find weapon");
     return nullptr;
   }
 
@@ -4195,7 +4195,7 @@ DROID* buildDroidFromSaveDroid(SAVE_DROID* psSaveDroid, UDWORD version)
 
   if (psDroid == nullptr)
   {
-    ASSERT((FALSE,"buildUnitFromSavedUnit; failed to build unit"));
+    DEBUG_ASSERT_TEXT(FALSE, "buildUnitFromSavedUnit; failed to build unit");
     return nullptr;
   }
 
@@ -4262,7 +4262,7 @@ DROID* buildDroidFromSaveDroid(SAVE_DROID* psSaveDroid, UDWORD version)
       psDroid->psTarStats = (BASE_STATS*)&asStructureStats[id];
     else
     {
-      ASSERT((FALSE,"loadUnit TargetStat not found"));
+      DEBUG_ASSERT_TEXT(FALSE, "loadUnit TargetStat not found");
       psDroid->psTarStats = nullptr;
     }
   }
@@ -4341,11 +4341,11 @@ BOOL loadDroidSetPointers(void)
       {
         //Target rebuild the object pointer from the ID
         id = (UDWORD)(psDroid->psTarget);
-        ASSERT((id != 0xdddddddd,"LoadUnit found freed target"));
+        DEBUG_ASSERT_TEXT(id != 0xdddddddd, "LoadUnit found freed target");
         if (id != UDWORD_MAX)
         {
           psDroid->psTarget = getBaseObjFromId(id);
-          ASSERT((psDroid->psTarget != NULL,"Saved Droid psTarget getBaseObjFromId() failed"));
+          DEBUG_ASSERT_TEXT(psDroid->psTarget != NULL, "Saved Droid psTarget getBaseObjFromId() failed");
           if (psDroid->psTarget == nullptr)
             psDroid->order = DORDER_NONE;
         }
@@ -4353,11 +4353,11 @@ BOOL loadDroidSetPointers(void)
           psDroid->psTarget = nullptr; //psSaveDroid->targetID		
         //ActionTarget rebuild the object pointer from the ID
         id = (UDWORD)(psDroid->psActionTarget);
-        ASSERT((id != 0xdddddddd,"LoadUnit found freed action target"));
+        DEBUG_ASSERT_TEXT(id != 0xdddddddd, "LoadUnit found freed action target");
         if (id != UDWORD_MAX)
         {
           psDroid->psActionTarget = getBaseObjFromId(id);
-          ASSERT((psDroid->psActionTarget != NULL,"Saved Droid psActionTarget getBaseObjFromId() failed"));
+          DEBUG_ASSERT_TEXT(psDroid->psActionTarget != NULL, "Saved Droid psActionTarget getBaseObjFromId() failed");
           if (psDroid->psActionTarget == nullptr)
             psDroid->action = DACTION_NONE;
         }
@@ -4365,11 +4365,11 @@ BOOL loadDroidSetPointers(void)
           psDroid->psActionTarget = nullptr; //psSaveDroid->targetID		
         //BaseStruct rebuild the object pointer from the ID
         id = (UDWORD)(psDroid->psBaseStruct);
-        ASSERT((id != 0xdddddddd,"LoadUnit found freed baseStruct"));
+        DEBUG_ASSERT_TEXT(id != 0xdddddddd, "LoadUnit found freed baseStruct");
         if (id != UDWORD_MAX)
         {
           psDroid->psBaseStruct = (STRUCTURE*)getBaseObjFromId(id);
-          ASSERT((psDroid->psBaseStruct != NULL,"Saved Droid psBaseStruct getBaseObjFromId() failed"));
+          DEBUG_ASSERT_TEXT(psDroid->psBaseStruct != NULL, "Saved Droid psBaseStruct getBaseObjFromId() failed");
           if (psDroid->psBaseStruct == nullptr)
             psDroid->action = DACTION_NONE;
         }
@@ -4383,11 +4383,11 @@ BOOL loadDroidSetPointers(void)
             id = (UDWORD)(psDroid->psGroup);
             psDroid->psGroup = nullptr;
             psDroid->psGrpNext = nullptr;
-            ASSERT((id != 0xdddddddd,"LoadUnit found freed commander"));
+            DEBUG_ASSERT_TEXT(id != 0xdddddddd, "LoadUnit found freed commander");
             if (id != UDWORD_MAX)
             {
               psCommander = (DROID*)getBaseObjFromId(id);
-              ASSERT((psCommander != NULL,"Saved Droid psCommander getBaseObjFromId() failed"));
+              DEBUG_ASSERT_TEXT(psCommander != NULL, "Saved Droid psCommander getBaseObjFromId() failed");
               if (psCommander != nullptr)
                 cmdDroidAddDroid(psCommander, psDroid);
             }
@@ -4482,7 +4482,7 @@ BOOL loadSaveDroidV11(UBYTE* pFileData, UDWORD filesize, UDWORD numDroids, UDWOR
       psDroid->psTarget = nullptr;
       psDroid->psActionTarget = nullptr;
       psDroid->psBaseStruct = nullptr;
-      ASSERT((psCurrentTransGroup != NULL,"loadSaveUnitV9; Transporter unit without group "));
+      DEBUG_ASSERT_TEXT(psCurrentTransGroup != NULL, "loadSaveUnitV9; Transporter unit without group ");
       grpJoin(psCurrentTransGroup, psDroid);
     }
     else
@@ -4564,7 +4564,7 @@ BOOL loadSaveDroidV19(UBYTE* pFileData, UDWORD filesize, UDWORD numDroids, UDWOR
     psDroid = buildDroidFromSaveDroidV19(psSaveDroid, version);
 
     if (psDroid == nullptr)
-      ASSERT((psDroid != NULL,"unitLoad: Failed to build new unit\n"));
+      DEBUG_ASSERT_TEXT(psDroid != NULL, "unitLoad: Failed to build new unit\n");
     else if (psSaveDroid->saveType == DROID_ON_TRANSPORT)
     {
       //add the droid to the list
@@ -4574,7 +4574,7 @@ BOOL loadSaveDroidV19(UBYTE* pFileData, UDWORD filesize, UDWORD numDroids, UDWOR
       psDroid->psActionTarget = nullptr;
       psDroid->psBaseStruct = nullptr;
       //add the droid to the list
-      ASSERT((psCurrentTransGroup != NULL,"loadSaveUnitV9; Transporter unit without group "));
+      DEBUG_ASSERT_TEXT(psCurrentTransGroup != NULL, "loadSaveUnitV9; Transporter unit without group ");
       grpJoin(psCurrentTransGroup, psDroid);
     }
     else
@@ -4651,7 +4651,7 @@ BOOL loadSaveDroidV(UBYTE* pFileData, UDWORD filesize, UDWORD numDroids, UDWORD 
     psDroid = buildDroidFromSaveDroid(psSaveDroid, version);
 
     if (psDroid == nullptr)
-      ASSERT((psDroid != NULL,"unitLoad: Failed to build new unit\n"));
+      DEBUG_ASSERT_TEXT(psDroid != NULL, "unitLoad: Failed to build new unit\n");
     else if (psSaveDroid->saveType == DROID_ON_TRANSPORT)
     {
       //add the droid to the list
@@ -4663,7 +4663,7 @@ BOOL loadSaveDroidV(UBYTE* pFileData, UDWORD filesize, UDWORD numDroids, UDWORD 
       //add the droid to the list
       psDroid->psGroup = nullptr;
       psDroid->psGrpNext = nullptr;
-      ASSERT((psCurrentTransGroup != NULL,"loadSaveUnitV9; Transporter unit without group "));
+      DEBUG_ASSERT_TEXT(psCurrentTransGroup != NULL, "loadSaveUnitV9; Transporter unit without group ");
       grpJoin(psCurrentTransGroup, psDroid);
     }
     else if (psDroid->droidType == DROID_TRANSPORTER)
@@ -4778,7 +4778,7 @@ BOOL buildSaveDroidFromDroid(SAVE_DROID* psSaveDroid, DROID* psCurr, DROID_SAVE_
   psSaveDroid->timeLastHit = psCurr->timeLastHit;
   if (psCurr->psTarget != nullptr)
   {
-    ASSERT((psCurr->psTarget->id != 0xdddddddd,"SaveUnit found freed target"));
+    DEBUG_ASSERT_TEXT(psCurr->psTarget->id != 0xdddddddd, "SaveUnit found freed target");
     if (psCurr->psTarget->died <= 1)
     {
       psSaveDroid->targetID = psCurr->psTarget->id;
@@ -4796,7 +4796,7 @@ BOOL buildSaveDroidFromDroid(SAVE_DROID* psSaveDroid, DROID* psCurr, DROID_SAVE_
   psSaveDroid->actionY = psCurr->actionY;
   if (psCurr->psActionTarget != nullptr)
   {
-    ASSERT((psCurr->psActionTarget->id != 0xdddddddd,"SaveUnit found freed action target"));
+    DEBUG_ASSERT_TEXT(psCurr->psActionTarget->id != 0xdddddddd, "SaveUnit found freed action target");
     if (psCurr->psActionTarget->died <= 1)
     {
       psSaveDroid->actionTargetID = psCurr->psActionTarget->id;
@@ -4816,7 +4816,7 @@ BOOL buildSaveDroidFromDroid(SAVE_DROID* psSaveDroid, DROID* psCurr, DROID_SAVE_
   //version 14
   if (psCurr->psTarStats != nullptr)
   {
-    ASSERT((strlen(psCurr->psTarStats->pName) < MAX_NAME_SIZE,"writeUnitFile; psTarStat pName Error"));
+    DEBUG_ASSERT_TEXT(strlen(psCurr->psTarStats->pName) < MAX_NAME_SIZE, "writeUnitFile; psTarStat pName Error");
     strcpy(psSaveDroid->tarStatName, psCurr->psTarStats->pName);
   }
   else
@@ -4849,12 +4849,12 @@ BOOL buildSaveDroidFromDroid(SAVE_DROID* psSaveDroid, DROID* psCurr, DROID_SAVE_
       if (psCurr->psGroup->psCommander->died <= 1)
       {
         psSaveDroid->commandId = psCurr->psGroup->psCommander->id;
-        ASSERT((checkValidId(psSaveDroid->commandId),"SaveUnit pcCommander not found"));
+        DEBUG_ASSERT_TEXT(checkValidId(psSaveDroid->commandId), "SaveUnit pcCommander not found");
       }
       else
       {
         psSaveDroid->commandId = UDWORD_MAX;
-        ASSERT((FALSE,"SaveUnit pcCommander died"));
+        DEBUG_ASSERT_TEXT(FALSE, "SaveUnit pcCommander died");
       }
     }
     else
@@ -5185,7 +5185,7 @@ BOOL loadSaveStructureV7(UBYTE* pFileData, UDWORD filesize, UDWORD numStructures
     psStructure = buildStructure(psStats, psSaveStructure->x, psSaveStructure->y, psSaveStructure->player,TRUE);
     if (!psStructure)
     {
-      ASSERT((FALSE, "loadSaveStructure:Unable to create structure"));
+      DEBUG_ASSERT_TEXT(FALSE, "loadSaveStructure:Unable to create structure");
       return FALSE;
     }
 
@@ -5377,7 +5377,7 @@ BOOL loadSaveStructureV19(UBYTE* pFileData, UDWORD filesize, UDWORD numStructure
     psStructure = buildStructure(psStats, psSaveStructure->x, psSaveStructure->y, psSaveStructure->player,TRUE);
     if (!psStructure)
     {
-      ASSERT((FALSE, "loadSaveStructure:Unable to create structure"));
+      DEBUG_ASSERT_TEXT(FALSE, "loadSaveStructure:Unable to create structure");
       return FALSE;
     }
 
@@ -5727,7 +5727,7 @@ BOOL loadSaveStructureV(UBYTE* pFileData, UDWORD filesize, UDWORD numStructures,
     psStructure = buildStructure(psStats, psSaveStructure->x, psSaveStructure->y, psSaveStructure->player,TRUE);
     if (!psStructure)
     {
-      ASSERT((FALSE, "loadSaveStructure:Unable to create structure"));
+      DEBUG_ASSERT_TEXT(FALSE, "loadSaveStructure:Unable to create structure");
       return FALSE;
     }
 
@@ -6105,7 +6105,7 @@ BOOL writeStructFile(STRING* pFileName)
           {
             psSaveStruct->subjectInc = 0;
             researchId = ((RESEARCH_FACILITY*)psCurr->pFunctionality)->psSubject->ref - REF_RESEARCH_START;
-            ASSERT((strlen(asResearch[researchId].pName)<MAX_NAME_SIZE,"writeStructData: research name too long"));
+            DEBUG_ASSERT_TEXT(strlen(asResearch[researchId].pName)<MAX_NAME_SIZE, "writeStructData: research name too long");
             strcpy(psSaveStruct->researchName, asResearch[researchId].pName);
             psSaveStruct->timeStarted = ((RESEARCH_FACILITY*)psCurr->pFunctionality)->timeStarted;
           }
@@ -6151,7 +6151,7 @@ BOOL writeStructFile(STRING* pFileName)
             psSaveStruct->subjectInc = UDWORD_MAX;
           break;
         default: //CODE THIS SOMETIME
-          ASSERT((FALSE,"Structure facility not saved"));
+          DEBUG_ASSERT_TEXT(FALSE, "Structure facility not saved");
           break;
         }
       }
@@ -6220,7 +6220,7 @@ BOOL loadStructSetPointers(void)
             {
               psCommander = (DROID*)getBaseObjFromId((UDWORD)psFactory->psCommander);
               psFactory->psCommander = nullptr;
-              ASSERT((psCommander != NULL,"loadStructSetPointers psCommander getBaseObjFromId() failed"));
+              DEBUG_ASSERT_TEXT(psCommander != NULL, "loadStructSetPointers psCommander getBaseObjFromId() failed");
               if (psCommander == nullptr)
                 psFactory->psCommander = nullptr;
               else
@@ -6384,7 +6384,7 @@ BOOL loadSaveFeatureV2(UBYTE* pFileData, UDWORD filesize, UDWORD numFeatures)
     //will be added to the top of the linked list
     if (!pFeature)
     {
-      ASSERT((FALSE, "loadSaveFeature:Unable to create feature"));
+      DEBUG_ASSERT_TEXT(FALSE, "loadSaveFeature:Unable to create feature");
       return FALSE;
     }
 
@@ -6456,7 +6456,7 @@ BOOL loadSaveFeatureV14(UBYTE* pFileData, UDWORD filesize, UDWORD numFeatures, U
     //will be added to the top of the linked list
     if (!pFeature)
     {
-      ASSERT((FALSE, "loadSaveFeature:Unable to create feature"));
+      DEBUG_ASSERT_TEXT(FALSE, "loadSaveFeature:Unable to create feature");
       return FALSE;
     }
     //restore values
@@ -6535,7 +6535,7 @@ BOOL loadSaveFeatureV(UBYTE* pFileData, UDWORD filesize, UDWORD numFeatures, UDW
     //will be added to the top of the linked list
     if (!pFeature)
     {
-      ASSERT((FALSE, "loadSaveFeature:Unable to create feature"));
+      DEBUG_ASSERT_TEXT(FALSE, "loadSaveFeature:Unable to create feature");
       return FALSE;
     }
     //restore values
@@ -8165,14 +8165,14 @@ static BOOL writeMessageFile(STRING* pFileName)
           if (psProx->psMessage == psMessage)
             break;
         }
-        ASSERT((psProx != NULL,"Save message; proximity display not found for message"));
+        DEBUG_ASSERT_TEXT(psProx != NULL, "Save message; proximity display not found for message");
 
         if (psProx->type == POS_PROXDATA)
         {
           //message has viewdata so store the name
           psSaveMessage->bObj = FALSE;
           pViewData = (VIEWDATA*)psMessage->pViewData;
-          ASSERT((strlen(pViewData->pName) < MAX_STR_SIZE,"writeMessageFile; viewdata pName Error"));
+          DEBUG_ASSERT_TEXT(strlen(pViewData->pName) < MAX_STR_SIZE, "writeMessageFile; viewdata pName Error");
           strcpy(psSaveMessage->name, pViewData->pName); //Pointer to view data - if any - should be some!
         }
         else
@@ -8187,7 +8187,7 @@ static BOOL writeMessageFile(STRING* pFileName)
       {
         psSaveMessage->bObj = FALSE;
         pViewData = (VIEWDATA*)psMessage->pViewData;
-        ASSERT((strlen(pViewData->pName) < MAX_STR_SIZE,"writeMessageFile; viewdata pName Error"));
+        DEBUG_ASSERT_TEXT(strlen(pViewData->pName) < MAX_STR_SIZE, "writeMessageFile; viewdata pName Error");
         strcpy(psSaveMessage->name, pViewData->pName); //Pointer to view data - if any - should be some!
       }
       psSaveMessage->read = psMessage->read; //flag to indicate whether message has been read
@@ -8404,7 +8404,7 @@ BOOL loadSaveFlagV(UBYTE* pFileData, UDWORD filesize, UDWORD numflags, UDWORD ve
       else if (psflag->factoryType == REPAIR_FLAG)
         factoryToFind = REF_REPAIR_FACILITY;
       else
-        ASSERT((FALSE,"loadSaveFlagV delivery flag type not recognised?"));
+        DEBUG_ASSERT_TEXT(FALSE, "loadSaveFlagV delivery flag type not recognised?");
 
       if (factoryToFind == REF_REPAIR_FACILITY)
       {
@@ -8414,7 +8414,7 @@ BOOL loadSaveFlagV(UBYTE* pFileData, UDWORD filesize, UDWORD numflags, UDWORD ve
           if (psStruct != nullptr)
           {
             if (psStruct->type != OBJ_STRUCTURE)
-              ASSERT((FALSE,"loadFlag found duplicate Id for repair facility"));
+              DEBUG_ASSERT_TEXT(FALSE, "loadFlag found duplicate Id for repair facility");
             else if (psStruct->pStructureType->type == REF_REPAIR_FACILITY)
             {
               if (psStruct->pFunctionality != nullptr)

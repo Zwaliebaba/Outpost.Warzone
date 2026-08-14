@@ -126,7 +126,7 @@ void featureType(FEATURE_STATS* psFeature, char* pType)
     psFeature->subType = FEAT_SKYSCRAPER;
     return;
   }
-  ASSERT((FALSE, "Unknown Feature Type"));
+  DEBUG_ASSERT_TEXT(FALSE, "Unknown Feature Type");
 }
 
 /* Load the feature stats */
@@ -600,7 +600,7 @@ BOOL featureDamage(FEATURE* psFeature, UDWORD damage, UDWORD weaponClass, UDWORD
   /* this is ignored for features */
   UNUSEDPARAMETER(weaponClass);
 
-  ASSERT((PTRVALID(psFeature, sizeof(FEATURE)), "featureDamage: Invalid feature pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psFeature, sizeof(FEATURE)), "featureDamage: Invalid feature pointer");
 
   DBP1(("featureDamage(%d): body %d armour %d damage: %d\n", psFeature->id, psFeature->body, psFeature->psStats->armour, damage));
 
@@ -770,14 +770,12 @@ FEATURE* buildFeature(FEATURE_STATS* psStats, UDWORD x, UDWORD y, BOOL FromSave)
     for (breadth = 0; breadth <= psStats->baseBreadth; breadth++)
     {
       //check not outside of map - for load save game
-      ASSERT(((mapX+width) < mapWidth, "x coord bigger than map width - %s, id = %d", getName(psFeature->psStats->pName), psFeature->id));
-      ASSERT(((mapY+breadth) < mapHeight,
-        "y coord bigger than map height - %s, id = %d", getName(psFeature->psStats->pName), psFeature->id));
+      DEBUG_ASSERT_TEXT((mapX+width) < mapWidth, "x coord bigger than map width - {}, id = {}", getName(psFeature->psStats->pName), psFeature->id);
+      DEBUG_ASSERT_TEXT((mapY+breadth) < mapHeight, "y coord bigger than map height - {}, id = {}", getName(psFeature->psStats->pName), psFeature->id);
       psTile = mapTile(mapX + width, mapY + breadth);
       if (width != psStats->baseWidth && breadth != psStats->baseBreadth)
       {
-        ASSERT((!(TILE_HAS_FEATURE(mapTile(mapX+width,mapY+breadth))),
-          "buildFeature - feature- %d already found at %d, %d", psFeature->id, mapX+width,mapY+breadth));
+        DEBUG_ASSERT_TEXT(!(TILE_HAS_FEATURE(mapTile(mapX+width,mapY+breadth))), "buildFeature - feature- {} already found at {}, {}", psFeature->id, mapX+width,mapY+breadth);
 
         SET_TILE_FEATURE(psTile);
         // if it's a tall feature then flag it in the map.
@@ -841,12 +839,12 @@ void removeFeature(FEATURE* psDel)
   MESSAGE* psMessage;
   iVector pos;
 
-  ASSERT((PTRVALID(psDel, sizeof(FEATURE)), "removeFeature: invalid feature pointer\n"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psDel, sizeof(FEATURE)), "removeFeature: invalid feature pointer\n");
 
   if (psDel->died)
   {
     // feature has already been killed, quit
-    ASSERT((FALSE, "removeFeature: feature already dead"));
+    DEBUG_ASSERT_TEXT(FALSE, "removeFeature: feature already dead");
     return;
   }
 
@@ -928,7 +926,7 @@ void destroyFeature(FEATURE* psDel)
   MAPTILE* psTile;
   UDWORD texture;
 
-  ASSERT((PTRVALID(psDel, sizeof(FEATURE)), "destroyFeature: invalid feature pointer\n"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psDel, sizeof(FEATURE)), "destroyFeature: invalid feature pointer\n");
 
   //---------------------------------------------------------------------------------------
   /* Only add if visible and damageable*/

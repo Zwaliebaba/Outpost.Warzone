@@ -48,7 +48,7 @@ void cpPrintType(INTERP_TYPE type)
         }
       }
     }
-    ASSERT((FALSE, "cpPrintType: Unknown type"));
+    DEBUG_ASSERT_TEXT(FALSE, "cpPrintType: Unknown type");
     break;
   }
 
@@ -97,7 +97,7 @@ void cpPrintVal(INTERP_VAL* psVal)
         }
       }
     }
-    ASSERT((FALSE, "cpPrintVal: Unknown value type"));
+    DEBUG_ASSERT_TEXT(FALSE, "cpPrintVal: Unknown value type");
     break;
   }
 }
@@ -144,7 +144,7 @@ void cpPrintPackedVal(UDWORD* ip)
         }
       }
     }
-    ASSERT((FALSE, "cpPrintVal: Unknown value type"));
+    DEBUG_ASSERT_TEXT(FALSE, "cpPrintVal: Unknown value type");
     break;
   }
 }
@@ -182,7 +182,7 @@ void cpPrintMathsOp(UDWORD opcode)
     break;
   case OP_LESS: DBPRINTF(("LESS        "));
     break;
-  default: ASSERT((FALSE, "cpPrintMathsOp: unknown operator"));
+  default: DEBUG_ASSERT_TEXT(FALSE, "cpPrintMathsOp: unknown operator");
     break;
   }
 }
@@ -298,7 +298,7 @@ void cpPrintProgram(SCRIPT_CODE* psProg)
   ARRAY_DATA* psCurrArray;
   ARRAY_DEBUG* psCurrArrayDebug;
 
-  ASSERT((PTRVALID(psProg, sizeof(SCRIPT_CODE)), "cpPrintProgram: Invalid program pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psProg, sizeof(SCRIPT_CODE)), "cpPrintProgram: Invalid program pointer");
 
   debugInfo = psProg->psDebug != nullptr;
 
@@ -470,11 +470,11 @@ void cpPrintProgram(SCRIPT_CODE* psProg)
     case OP_PAUSE: DBPRINTF(("PAUSE       %d\n", data));
       ip += aOpSize[opcode];
       break;
-    default: ASSERT((FALSE,"cpPrintProgram: Unknown opcode: %x", *ip));
+    default: DEBUG_ASSERT_TEXT(FALSE, "cpPrintProgram: Unknown opcode: {:x}", *ip);
       break;
     }
 
-    ASSERT(((ip <= end) || PTRVALID(ip, sizeof(UDWORD)), "cpPrintProgram: instruction pointer no longer valid"));
+    DEBUG_ASSERT_TEXT((ip <= end) || PTRVALID(ip, sizeof(UDWORD)), "cpPrintProgram: instruction pointer no longer valid");
 
     opcode = (*ip) >> OPCODE_SHIFT;
     data = (*ip) & OPCODE_DATAMASK;

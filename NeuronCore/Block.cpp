@@ -37,7 +37,7 @@ static BLOCK_HEAP* psBlockList = nullptr;
 // initialise the block system
 BOOL blkInitialise(void)
 {
-  ASSERT((psBlockList==NULL, "blkInitialise: Blocks already initialised")); // blkShutDown() needs to be called
+  DEBUG_ASSERT_TEXT(psBlockList==NULL, "blkInitialise: Blocks already initialised"); // blkShutDown() needs to be called
 
   LIST_INIT(psBlockList);
 
@@ -224,7 +224,7 @@ void* blkAlloc(BLOCK_HEAP* psHeap, SDWORD size)
   // can't allocate 0 bytes
   if (size <= 0)
   {
-    ASSERT((FALSE, "blkAlloc: cannot allocate 0 bytes"));
+    DEBUG_ASSERT_TEXT(FALSE, "blkAlloc: cannot allocate 0 bytes");
     return nullptr;
   }
 
@@ -262,7 +262,7 @@ void* blkAlloc(BLOCK_HEAP* psHeap, SDWORD size)
     psNew = static_cast<BLOCK_HEAP_MEM*>(RMALLOC(sizeof(BLOCK_HEAP_MEM)));
     if (!psNew)
     {
-      ASSERT((FALSE, "blkAlloc: warning out of memory"));
+      DEBUG_ASSERT_TEXT(FALSE, "blkAlloc: warning out of memory");
       // Out of memory
       return nullptr;
     }
@@ -280,7 +280,7 @@ void* blkAlloc(BLOCK_HEAP* psHeap, SDWORD size)
     {
       // Out of memory
       RFREE(psNew);
-      ASSERT((FALSE, "blkAlloc: warning out of memory"));
+      DEBUG_ASSERT_TEXT(FALSE, "blkAlloc: warning out of memory");
       return nullptr;
     }
     psNew->psNext = nullptr;
@@ -297,7 +297,7 @@ void* blkAlloc(BLOCK_HEAP* psHeap, SDWORD size)
   if (!pAlloc)
   {
     // failed to allocate the memory
-    ASSERT((FALSE, "Warning: malloc returning NULL - [%s - %d] %d bytes",pCallFileName,callLine, size));
+    DEBUG_ASSERT_TEXT(FALSE, "Warning: malloc returning NULL - [{} - {}] {} bytes",pCallFileName,callLine, size);
     return nullptr;
   }
 
@@ -361,8 +361,7 @@ void blkFree(BLOCK_HEAP* psHeap, void* pMemToFree)
 
   /* Get the node for the memory block */
   psDeleted = (MEM_NODE*)treapDelRec((TREAP_NODE**)&psHeap->psMemTreap, (UDWORD)&sNode, memBlockCmp);
-  ASSERT((psDeleted != NULL,
-    "Invalid pointer passed to mem_Free by:\n" "File: %s\nLine: %d\n\n" "Attempt to free already freed pointer?", pCallFileName, callLine));
+  DEBUG_ASSERT_TEXT(psDeleted != NULL, "Invalid pointer passed to mem_Free by:\n" "File: {}\nLine: {}\n\n" "Attempt to free already freed pointer?", pCallFileName, callLine);
   if (psDeleted)
   {
     /* The pointer is valid, check the buffer zones */
@@ -375,11 +374,10 @@ void blkFree(BLOCK_HEAP* psHeap, void* pMemToFree)
       if (pMemBase[i + psDeleted->size + SAFETY_ZONE_SIZE] != SAFETY_ZONE_BYTE)
         InvalidTop++;
     }
-    ASSERT(( !InvalidBottom && !InvalidTop,
-      "Safety zone on memory overwritten.\n" "%d Invalid bytes (of %d) found below memory buffer.\n"
-      "%d Invalid bytes (of %d) found above memory buffer.\n\n" "Memory allocated by:\nFile: %s\nLine: %d\n"
-      "Memory freed by:\nFile: %s\nLine: %d\n", InvalidBottom, SAFETY_ZONE_SIZE, InvalidTop, SAFETY_ZONE_SIZE, psDeleted->pFile, psDeleted->
-      line, pCallFileName, callLine));
+    DEBUG_ASSERT_TEXT(!InvalidBottom && !InvalidTop, "Safety zone on memory overwritten.\n" "{} Invalid bytes (of {}) found below memory buffer.\n"
+      "{} Invalid bytes (of {}) found above memory buffer.\n\n" "Memory allocated by:\nFile: {}\nLine: {}\n"
+      "Memory freed by:\nFile: {}\nLine: {}\n", InvalidBottom, SAFETY_ZONE_SIZE, InvalidTop, SAFETY_ZONE_SIZE, psDeleted->pFile, psDeleted->
+      line, pCallFileName, callLine);
 
     /* Trash the memory before it is freed */
 #if MEMORY_SET
@@ -473,7 +471,7 @@ BOOL blkPointerValid(BLOCK_HEAP* psHeap, void* pData, SDWORD size)
   MEM_NODE sNode;
   void* Tmp;
 
-  ASSERT((size, "blkPointerValid: cannot check a pointer with zero size"));
+  DEBUG_ASSERT_TEXT(size, "blkPointerValid: cannot check a pointer with zero size");
 
   if (pData == nullptr)
     return FALSE;
@@ -519,7 +517,7 @@ BLOCK_HEAP* psSuspendedHeap = nullptr;
 // if a block is already suspended then an assertion will occur.
 void blockSuspendUsage(void)
 {
-  ASSERT((psSuspendedHeap==NULL, "a memory block is already suspended"));
+  DEBUG_ASSERT_TEXT(psSuspendedHeap==NULL, "a memory block is already suspended");
 
   psSuspendedHeap = memGetBlockHeap();
   memSetBlockHeap(nullptr);

@@ -116,8 +116,8 @@ void* memMalloc(STRING* pFileName, SDWORD LineNumber, size_t Size)
   void* pMemBase;
   MEM_NODE* psNode;
 
-  ASSERT(((pFileName != NULL), "No filename passed to mem_Malloc"));
-  ASSERT((Size != 0, "Cannot allocate 0 bytes of memory."));
+  DEBUG_ASSERT_TEXT((pFileName != NULL), "No filename passed to mem_Malloc");
+  DEBUG_ASSERT_TEXT(Size != 0, "Cannot allocate 0 bytes of memory.");
 
   if (psCurrBlockHeap != nullptr)
   {
@@ -129,7 +129,7 @@ void* memMalloc(STRING* pFileName, SDWORD LineNumber, size_t Size)
   pMemBase = RMALLOC(Size + sizeof(MEM_NODE) + 2 * SAFETY_ZONE_SIZE);
   if (!pMemBase)
   {
-    ASSERT((FALSE, "Warning: malloc returning NULL - [%s - %d]",pFileName,LineNumber));
+    DEBUG_ASSERT_TEXT(FALSE, "Warning: malloc returning NULL - [{} - {}]",pFileName,LineNumber);
     DBPRINTF(("[%s - %d] %d bytes\n",pFileName,LineNumber,Size));
     return nullptr;
   }
@@ -218,8 +218,8 @@ void memFree(STRING* pFileName, SDWORD LineNumber, void* pMemToFree)
   (void)LineNumber;
   (void)pFileName;
 
-  ASSERT(((pFileName != NULL), "No filename passed to mem_Free"));
-  ASSERT(((pMemToFree != NULL), "Attempt to free NULL pointer, called by:\n" "File: %s\nLine: %d", pFileName, LineNumber));
+  DEBUG_ASSERT_TEXT((pFileName != NULL), "No filename passed to mem_Free");
+  DEBUG_ASSERT_TEXT((pMemToFree != NULL), "Attempt to free NULL pointer, called by:\n" "File: {}\nLine: {}", pFileName, LineNumber);
 
   // see if the pointer was allocated in a block
   psBlock = blkFind(pMemToFree);
@@ -239,8 +239,7 @@ void memFree(STRING* pFileName, SDWORD LineNumber, void* pMemToFree)
   /* Get the node for the memory block */
   psDeleted = (MEM_NODE*)treapDelRec((TREAP_NODE**)&psMemRoot, (UDWORD)&sNode, memBlockCmp);
 
-  ASSERT((psDeleted != NULL,
-    "Invalid pointer passed to mem_Free by:\n" "File: %s\nLine: %d\n\n" "Attempt to free already freed pointer?", pFileName, LineNumber));
+  DEBUG_ASSERT_TEXT(psDeleted != NULL, "Invalid pointer passed to mem_Free by:\n" "File: {}\nLine: {}\n\n" "Attempt to free already freed pointer?", pFileName, LineNumber);
   if (psDeleted)
   {
     /* The pointer is valid, check the buffer zones */
@@ -254,11 +253,10 @@ void memFree(STRING* pFileName, SDWORD LineNumber, void* pMemToFree)
         InvalidTop++;
     }
 
-    ASSERT(( !InvalidBottom && !InvalidTop,
-      "Safety zone on memory overwritten.\n" "%d Invalid bytes (of %d) found below memory buffer.\n"
-      "%d Invalid bytes (of %d) found above memory buffer.\n\n" "Memory allocated by:\nFile: %s\nLine: %d\n"
-      "Memory freed by:\nFile: %s\nLine: %d\n", InvalidBottom, SAFETY_ZONE_SIZE, InvalidTop, SAFETY_ZONE_SIZE, psDeleted->pFile, psDeleted->
-      line, pFileName, LineNumber));
+    DEBUG_ASSERT_TEXT(!InvalidBottom && !InvalidTop, "Safety zone on memory overwritten.\n" "{} Invalid bytes (of {}) found below memory buffer.\n"
+      "{} Invalid bytes (of {}) found above memory buffer.\n\n" "Memory allocated by:\nFile: {}\nLine: {}\n"
+      "Memory freed by:\nFile: {}\nLine: {}\n", InvalidBottom, SAFETY_ZONE_SIZE, InvalidTop, SAFETY_ZONE_SIZE, psDeleted->pFile, psDeleted->
+      line, pFileName, LineNumber);
 
     /* Trash the memory before it is freed (The PC already does this) */
 #if MEMORY_SET
@@ -298,7 +296,7 @@ BOOL memPointerValid(void* pPtr, size_t size)
 {
   MEM_NODE sNode;
 
-  ASSERT((size, "memPointerValid: cannot check a pointer with zero size"));
+  DEBUG_ASSERT_TEXT(size, "memPointerValid: cannot check a pointer with zero size");
 
   if (pPtr == nullptr)
     return FALSE;

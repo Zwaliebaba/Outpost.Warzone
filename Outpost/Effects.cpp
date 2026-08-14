@@ -426,7 +426,7 @@ void addEffect(iVector* pos, EFFECT_GROUP group, EFFECT_TYPE type, BOOL specifie
   case EFFECT_FIREWORK:
     effectSetUpFirework(&asEffectsList[freeEffect]);
     break;
-  default: ASSERT((FALSE,"Weirdy group type for an effect"));
+  default: DEBUG_ASSERT_TEXT(FALSE, "Weirdy group type for an effect");
     break;
   }
 
@@ -445,7 +445,7 @@ void addEffect(iVector* pos, EFFECT_GROUP group, EFFECT_TYPE type, BOOL specifie
 
 #ifdef DEBUG
   if (validatePie(group, type, asEffectsList[freeEffect].imd) == FALSE)
-    ASSERT((FALSE,"No PIE found or specified for an effect"));
+    DEBUG_ASSERT_TEXT(FALSE, "No PIE found or specified for an effect");
 #endif
 
   /* No more slots available? */
@@ -1217,7 +1217,7 @@ void updateDestruction(EFFECT* psEffect)
       breadthScatter = TILE_UNITS / 6;
       heightScatter = TILE_UNITS / 6;
       break;
-    default: ASSERT((FALSE,"Weirdy destruction type effect"));
+    default: DEBUG_ASSERT_TEXT(FALSE, "Weirdy destruction type effect");
       break;
     }
 
@@ -1983,7 +1983,7 @@ void effectSetupSmoke(EFFECT* psEffect)
     psEffect->velocity.y = MAKEFRACT((5+rand()%10));
     psEffect->baseScale = 25;
     break;
-  default: ASSERT((FALSE,"Weird smoke type"));
+  default: DEBUG_ASSERT_TEXT(FALSE, "Weird smoke type");
     break;
   }
 
@@ -2026,7 +2026,7 @@ void effectSetupGraviton(EFFECT* psEffect)
     psEffect->velocity.z = GRAVITON_INIT_VEL_Z / 2;
     psEffect->velocity.y = GRAVITON_INIT_VEL_Y;
     break;
-  default: ASSERT((FALSE,"Weirdy type of graviton"));
+  default: DEBUG_ASSERT_TEXT(FALSE, "Weirdy type of graviton");
     break;
   }
 

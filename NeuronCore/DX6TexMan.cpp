@@ -126,13 +126,13 @@ BOOL dtm_Initialise(void)
 
   if (hResult != D3D_OK)
   {
-    ASSERT((FALSE,"dtm_Initialise: EnumTextureFormats failed\n%s",DDErrorToString(hResult)));
+    DEBUG_ASSERT_TEXT(FALSE, "dtm_Initialise: EnumTextureFormats failed\n{}",DDErrorToString(hResult));
     return FALSE;
   }
 
   if (!texInfo.bFoundGoodFormat)
   {
-    ASSERT((FALSE,"dtm_Initialise: RGB texture mode not found\n%s",DDErrorToString(hResult)));
+    DEBUG_ASSERT_TEXT(FALSE, "dtm_Initialise: RGB texture mode not found\n{}",DDErrorToString(hResult));
     return FALSE;
   }
 
@@ -142,7 +142,7 @@ BOOL dtm_Initialise(void)
   hResult = pDD4->lpVtbl->GetAvailableVidMem(pDD4, &ddsCaps2, (LPDWORD)&totalVideoMemory, (LPDWORD)&freeVideoMemory);
   if (hResult != D3D_OK)
   {
-    ASSERT((FALSE,"dtm_Initialise: GetAvailableVidMem failed\n%s",DDErrorToString(hResult)));
+    DEBUG_ASSERT_TEXT(FALSE, "dtm_Initialise: GetAvailableVidMem failed\n{}",DDErrorToString(hResult));
     return FALSE;
   }
 
@@ -623,16 +623,16 @@ void dx6_SetBilinear(BOOL bBilinearOn)
   if (bBilinearOn)
   {
     hResult = pd3dDevice3->lpVtbl->SetTextureStageState(pd3dDevice3, 0, D3DTSS_MINFILTER, D3DTFN_LINEAR);
-    ASSERT(( hResult == D3D_OK,"dx6_SetBilinear: bilinear SetRenderState failed\n%s",DDErrorToString(hResult) ));
+    DEBUG_ASSERT_TEXT(hResult == D3D_OK, "dx6_SetBilinear: bilinear SetRenderState failed\n{}",DDErrorToString(hResult));
     hResult = pd3dDevice3->lpVtbl->SetTextureStageState(pd3dDevice3, 0, D3DTSS_MAGFILTER, D3DTFG_LINEAR);
-    ASSERT(( hResult == D3D_OK,"dx6_SetBilinear: bilinear SetRenderState failed\n%s",DDErrorToString(hResult) ));
+    DEBUG_ASSERT_TEXT(hResult == D3D_OK, "dx6_SetBilinear: bilinear SetRenderState failed\n{}",DDErrorToString(hResult));
   }
   else
   {
     hResult = pd3dDevice3->lpVtbl->SetTextureStageState(pd3dDevice3, 0, D3DTSS_MINFILTER, D3DTFN_POINT);
-    ASSERT(( hResult == D3D_OK,"dx6_SetBilinear: bilinear SetRenderState failed\n%s",DDErrorToString(hResult) ));
+    DEBUG_ASSERT_TEXT(hResult == D3D_OK, "dx6_SetBilinear: bilinear SetRenderState failed\n{}",DDErrorToString(hResult));
     hResult = pd3dDevice3->lpVtbl->SetTextureStageState(pd3dDevice3, 0, D3DTSS_MAGFILTER, D3DTFG_POINT);
-    ASSERT(( hResult == D3D_OK,"dx6_SetBilinear: bilinear SetRenderState failed\n%s",DDErrorToString(hResult) ));
+    DEBUG_ASSERT_TEXT(hResult == D3D_OK, "dx6_SetBilinear: bilinear SetRenderState failed\n{}",DDErrorToString(hResult));
   }
 }
 
@@ -645,7 +645,7 @@ void SetMaterial(void)
   hResult = pd3d3->lpVtbl->CreateMaterial(pd3d3, &psMtrl3, nullptr);
   if (hResult != DD_OK)
   {
-    ASSERT((FALSE,"dtm SetMaterial: CreateMaterial failed\n%s",DDErrorToString(hResult)));
+    DEBUG_ASSERT_TEXT(FALSE, "dtm SetMaterial: CreateMaterial failed\n{}",DDErrorToString(hResult));
     return;
   }
   ZeroMemory(&mtrl, sizeof(D3DMATERIAL));
@@ -677,7 +677,7 @@ void dtm_SetSurfaceAlpha(LPDIRECTDRAWSURFACE4 psSurf4)
   hResult = psSurf4->lpVtbl->GetSurfaceDesc(psSurf4, &ddsd);
   if (hResult != DD_OK)
   {
-    ASSERT((FALSE,"dtm_SetSurfaceAlpha: GetSurfaceDesc failed\n%s", DDErrorToString(hResult)));
+    DEBUG_ASSERT_TEXT(FALSE, "dtm_SetSurfaceAlpha: GetSurfaceDesc failed\n{}", DDErrorToString(hResult));
     return;
   }
 
@@ -732,7 +732,7 @@ BOOL dtm_LoadTexSurface(iTexture* psIvisTex, SDWORD index)
     psSurf4 = psImage256Surface4;
   if (!surfLoadFrom8Bit(psSurf4, psIvisTex->width, psIvisTex->height, psIvisTex->bmp, pie_GetWinPal()))
   {
-    ASSERT((FALSE,"dtm SetMaterial: CreateMaterial failed."));
+    DEBUG_ASSERT_TEXT(FALSE, "dtm SetMaterial: CreateMaterial failed.");
     return FALSE;
   }
 
@@ -766,7 +766,7 @@ BOOL dtm_LoadRadarSurface(BYTE* radarBuffer)
 
   if (!dtm_surfLoadFrom8Bit(psRadarSurf4, 128, 128, radarBuffer, (texSize == FULL_8BIT)))
   {
-    ASSERT((FALSE,"dtm SetMaterial: CreateMaterial failed."));
+    DEBUG_ASSERT_TEXT(FALSE, "dtm SetMaterial: CreateMaterial failed.");
     return FALSE;
   }
   return dtm_BLTRadarToTex();
@@ -835,7 +835,7 @@ BOOL dtm_Build16BitTexturePalette(DDPIXELFORMAT* DDPixelFormat)
   // Cannot convert iof not 16bit mode 
   */
 
-  ASSERT((DDPixelFormat->dwRGBBitCount == 16, "dtm_Build16BitTexturePalette RGB bit count not 16"));
+  DEBUG_ASSERT_TEXT(DDPixelFormat->dwRGBBitCount == 16, "dtm_Build16BitTexturePalette RGB bit count not 16");
 
   psPal = pie_GetGamePal();
 

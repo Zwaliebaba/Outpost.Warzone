@@ -35,18 +35,18 @@ BOOL scrGroupAddDroid(void)
   if (!stackPopParams(2, ST_GROUP, &psGroup, ST_DROID, &psDroid))
     return FALSE;
 
-  ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)), "scrGroupAdd: Invalid group pointer"));
-  ASSERT((PTRVALID(psDroid, sizeof(DROID)), "scrGroupAdd: Invalid droid pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psGroup, sizeof(DROID_GROUP)), "scrGroupAdd: Invalid group pointer");
+  DEBUG_ASSERT_TEXT(PTRVALID(psDroid, sizeof(DROID)), "scrGroupAdd: Invalid droid pointer");
   if (psDroid == nullptr)
     return FALSE;
   if (psDroid->droidType == DROID_COMMAND)
   {
-    ASSERT((FALSE, "scrGroupAdd: cannot add a command droid to a group"));
+    DEBUG_ASSERT_TEXT(FALSE, "scrGroupAdd: cannot add a command droid to a group");
     return FALSE;
   }
   if (psDroid->droidType == DROID_TRANSPORTER)
   {
-    ASSERT((FALSE, "scrGroupAdd: cannot add a transporter to a group"));
+    DEBUG_ASSERT_TEXT(FALSE, "scrGroupAdd: cannot add a transporter to a group");
     return FALSE;
   }
 
@@ -65,11 +65,11 @@ BOOL scrGroupAddArea(void)
   if (!stackPopParams(6, ST_GROUP, &psGroup, VAL_INT, &player, VAL_INT, &x1, VAL_INT, &y1, VAL_INT, &x2, VAL_INT, &y2))
     return FALSE;
 
-  ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)), "scrGroupAdd: Invalid group pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psGroup, sizeof(DROID_GROUP)), "scrGroupAdd: Invalid group pointer");
 
   if (player < 0 || player >= MAX_PLAYERS)
   {
-    ASSERT((FALSE, "scrGroupAddArea: invalid player"));
+    DEBUG_ASSERT_TEXT(FALSE, "scrGroupAddArea: invalid player");
     return FALSE;
   }
 
@@ -96,11 +96,11 @@ BOOL scrGroupAddAreaNoGroup(void)
   if (!stackPopParams(6, ST_GROUP, &psGroup, VAL_INT, &player, VAL_INT, &x1, VAL_INT, &y1, VAL_INT, &x2, VAL_INT, &y2))
     return FALSE;
 
-  ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)), "scrGroupAddNoGroup: Invalid group pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psGroup, sizeof(DROID_GROUP)), "scrGroupAddNoGroup: Invalid group pointer");
 
   if (player < 0 || player >= MAX_PLAYERS)
   {
-    ASSERT((FALSE, "scrGroupAddAreaNoGroup: invalid player"));
+    DEBUG_ASSERT_TEXT(FALSE, "scrGroupAddAreaNoGroup: invalid player");
     return FALSE;
   }
 
@@ -125,8 +125,8 @@ BOOL scrGroupAddGroup(void)
   if (!stackPopParams(2, ST_GROUP, &psTo, ST_GROUP, &psFrom))
     return FALSE;
 
-  ASSERT((PTRVALID(psTo, sizeof(DROID_GROUP)), "scrGroupAddGroup: Invalid group pointer"));
-  ASSERT((PTRVALID(psFrom, sizeof(DROID_GROUP)), "scrGroupAddGroup: Invalid group pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psTo, sizeof(DROID_GROUP)), "scrGroupAddGroup: Invalid group pointer");
+  DEBUG_ASSERT_TEXT(PTRVALID(psFrom, sizeof(DROID_GROUP)), "scrGroupAddGroup: Invalid group pointer");
 
   for (psDroid = psFrom->psList; psDroid; psDroid = psNext)
   {
@@ -147,8 +147,8 @@ BOOL scrGroupMember(void)
   if (!stackPopParams(2, ST_GROUP, &psGroup, ST_DROID, &psDroid))
     return FALSE;
 
-  ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)), "scrGroupMember: Invalid group pointer"));
-  ASSERT((PTRVALID(psDroid, sizeof(DROID)), "scrGroupMember: Invalid droid pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psGroup, sizeof(DROID_GROUP)), "scrGroupMember: Invalid group pointer");
+  DEBUG_ASSERT_TEXT(PTRVALID(psDroid, sizeof(DROID)), "scrGroupMember: Invalid droid pointer");
   if (psDroid == nullptr)
     return FALSE;
 
@@ -173,7 +173,7 @@ BOOL scrIdleGroup(void)
   if (!stackPopParams(1, ST_GROUP, &psGroup))
     return FALSE;
 
-  ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)), "scrIdleGroup: invalid group pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psGroup, sizeof(DROID_GROUP)), "scrIdleGroup: invalid group pointer");
 
   for (psDroid = psGroup->psList; psDroid; psDroid = psDroid->psGrpNext)
   {
@@ -198,7 +198,7 @@ BOOL scrInitIterateGroup(void)
   if (!stackPopParams(1, ST_GROUP, &psGroup))
     return FALSE;
 
-  ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)), "scrInitGroupIterate: invalid group pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psGroup, sizeof(DROID_GROUP)), "scrInitGroupIterate: invalid group pointer");
 
   psScrIterateGroup = psGroup;
   psScrIterateGroupDroid = psGroup->psList;
@@ -217,7 +217,7 @@ BOOL scrIterateGroup(void)
 
   if (psGroup != psScrIterateGroup)
   {
-    ASSERT((FALSE, "scrIterateGroup: invalid group, InitGroupIterate not called?"));
+    DEBUG_ASSERT_TEXT(FALSE, "scrIterateGroup: invalid group, InitGroupIterate not called?");
     return FALSE;
   }
 
@@ -284,12 +284,12 @@ BOOL scrOrderGroup(void)
   if (!stackPopParams(2, ST_GROUP, &psGroup, VAL_INT, &order))
     return FALSE;
 
-  ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)), "scrOrderGroup: Invalid group pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psGroup, sizeof(DROID_GROUP)), "scrOrderGroup: Invalid group pointer");
 
   if (order != DORDER_STOP && order != DORDER_RETREAT && order != DORDER_DESTRUCT && order != DORDER_RTR && order != DORDER_RTB && order !=
     DORDER_RUN)
   {
-    ASSERT((FALSE, "scrOrderGroup: Invalid order"));
+    DEBUG_ASSERT_TEXT(FALSE, "scrOrderGroup: Invalid order");
     return FALSE;
   }
 
@@ -308,16 +308,16 @@ BOOL scrOrderGroupLoc(void)
   if (!stackPopParams(4, ST_GROUP, &psGroup, VAL_INT, &order, VAL_INT, &x, VAL_INT, &y))
     return FALSE;
 
-  ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)), "scrOrderGroupLoc: Invalid group pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psGroup, sizeof(DROID_GROUP)), "scrOrderGroupLoc: Invalid group pointer");
 
   if (order != DORDER_MOVE && order != DORDER_SCOUT)
   {
-    ASSERT((FALSE, "scrOrderGroupLoc: Invalid order"));
+    DEBUG_ASSERT_TEXT(FALSE, "scrOrderGroupLoc: Invalid order");
     return FALSE;
   }
   if (x < 0 || x > static_cast<SDWORD>(mapWidth << TILE_SHIFT) || y < 0 || y > static_cast<SDWORD>(mapHeight << TILE_SHIFT))
   {
-    ASSERT((FALSE, "scrOrderGroupLoc: Invalid location"));
+    DEBUG_ASSERT_TEXT(FALSE, "scrOrderGroupLoc: Invalid location");
     return FALSE;
   }
 
@@ -337,13 +337,13 @@ BOOL scrOrderGroupObj(void)
   if (!stackPopParams(3, ST_GROUP, &psGroup, VAL_INT, &order, ST_BASEOBJECT, &psObj))
     return FALSE;
 
-  ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)), "scrOrderGroupObj: Invalid group pointer"));
-  ASSERT((PTRVALID(psObj, sizeof(BASE_OBJECT)), "scrOrderGroupObj: Invalid object pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psGroup, sizeof(DROID_GROUP)), "scrOrderGroupObj: Invalid group pointer");
+  DEBUG_ASSERT_TEXT(PTRVALID(psObj, sizeof(BASE_OBJECT)), "scrOrderGroupObj: Invalid object pointer");
 
   if (order != DORDER_ATTACK && order != DORDER_HELPBUILD && order != DORDER_DEMOLISH && order != DORDER_REPAIR && order != DORDER_OBSERVE
     && order != DORDER_EMBARK && order != DORDER_FIRESUPPORT)
   {
-    ASSERT((FALSE, "scrOrderGroupObj: Invalid order"));
+    DEBUG_ASSERT_TEXT(FALSE, "scrOrderGroupObj: Invalid order");
     return FALSE;
   }
 
@@ -363,14 +363,14 @@ BOOL scrOrderDroid(void)
   if (!stackPopParams(2, ST_DROID, &psDroid, VAL_INT, &order))
     return FALSE;
 
-  ASSERT((PTRVALID(psDroid, sizeof(DROID)), "scrOrderUnit: Invalid unit pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psDroid, sizeof(DROID)), "scrOrderUnit: Invalid unit pointer");
   if (psDroid == nullptr)
     return FALSE;
 
   if (order != DORDER_STOP && order != DORDER_RETREAT && order != DORDER_DESTRUCT && order != DORDER_RTR && order != DORDER_RTB && order !=
     DORDER_RUN)
   {
-    ASSERT((FALSE, "scrOrderUnit: Invalid order"));
+    DEBUG_ASSERT_TEXT(FALSE, "scrOrderUnit: Invalid order");
     return FALSE;
   }
 
@@ -388,18 +388,18 @@ BOOL scrOrderDroidLoc(void)
   if (!stackPopParams(4, ST_DROID, &psDroid, VAL_INT, &order, VAL_INT, &x, VAL_INT, &y))
     return FALSE;
 
-  ASSERT((PTRVALID(psDroid, sizeof(DROID)), "scrOrderUnitLoc: Invalid unit pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psDroid, sizeof(DROID)), "scrOrderUnitLoc: Invalid unit pointer");
   if (psDroid == nullptr)
     return FALSE;
 
   if (order != DORDER_MOVE && order != DORDER_SCOUT)
   {
-    ASSERT((FALSE, "scrOrderUnitLoc: Invalid order"));
+    DEBUG_ASSERT_TEXT(FALSE, "scrOrderUnitLoc: Invalid order");
     return FALSE;
   }
   if (x < 0 || x > static_cast<SDWORD>(mapWidth << TILE_SHIFT) || y < 0 || y > static_cast<SDWORD>(mapHeight << TILE_SHIFT))
   {
-    ASSERT((FALSE, "scrOrderUnitLoc: Invalid location"));
+    DEBUG_ASSERT_TEXT(FALSE, "scrOrderUnitLoc: Invalid location");
     return FALSE;
   }
 
@@ -418,15 +418,15 @@ BOOL scrOrderDroidObj(void)
   if (!stackPopParams(3, ST_DROID, &psDroid, VAL_INT, &order, ST_BASEOBJECT, &psObj))
     return FALSE;
 
-  ASSERT((PTRVALID(psDroid, sizeof(DROID)), "scrOrderUnitObj: Invalid unit pointer"));
-  ASSERT((PTRVALID(psObj, sizeof(BASE_OBJECT)), "scrOrderUnitObj: Invalid object pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psDroid, sizeof(DROID)), "scrOrderUnitObj: Invalid unit pointer");
+  DEBUG_ASSERT_TEXT(PTRVALID(psObj, sizeof(BASE_OBJECT)), "scrOrderUnitObj: Invalid object pointer");
   if (psDroid == nullptr || psObj == nullptr)
     return FALSE;
 
   if (order != DORDER_ATTACK && order != DORDER_HELPBUILD && order != DORDER_DEMOLISH && order != DORDER_REPAIR && order != DORDER_OBSERVE
     && order != DORDER_EMBARK && order != DORDER_FIRESUPPORT)
   {
-    ASSERT((FALSE, "scrOrderUnitObj: Invalid order"));
+    DEBUG_ASSERT_TEXT(FALSE, "scrOrderUnitObj: Invalid order");
     return FALSE;
   }
 
@@ -447,25 +447,25 @@ BOOL scrOrderDroidStatsLoc(void)
 
   if (statIndex < 0 || statIndex >= static_cast<SDWORD>(numStructureStats))
   {
-    ASSERT((FALSE, "scrOrderUnitStatsLoc: invalid structure stat"));
+    DEBUG_ASSERT_TEXT(FALSE, "scrOrderUnitStatsLoc: invalid structure stat");
     return FALSE;
   }
   psStats = (BASE_STATS*)(asStructureStats + statIndex);
 
-  ASSERT((PTRVALID(psDroid, sizeof(DROID)), "scrOrderUnitStatsLoc: Invalid Unit pointer"));
-  ASSERT((PTRVALID(psStats, sizeof(BASE_STATS)), "scrOrderUnitStatsLoc: Invalid object pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psDroid, sizeof(DROID)), "scrOrderUnitStatsLoc: Invalid Unit pointer");
+  DEBUG_ASSERT_TEXT(PTRVALID(psStats, sizeof(BASE_STATS)), "scrOrderUnitStatsLoc: Invalid object pointer");
   if (psDroid == nullptr)
     return FALSE;
 
   if ((x < 0) || (x > static_cast<SDWORD>(mapWidth) * TILE_UNITS) || (y < 0) || (y > static_cast<SDWORD>(mapHeight) * TILE_UNITS))
   {
-    ASSERT((FALSE, "scrOrderUnitStatsLoc: Invalid location"));
+    DEBUG_ASSERT_TEXT(FALSE, "scrOrderUnitStatsLoc: Invalid location");
     return FALSE;
   }
 
   if (order != DORDER_BUILD)
   {
-    ASSERT((FALSE, "scrOrderUnitStatsLoc: Invalid order"));
+    DEBUG_ASSERT_TEXT(FALSE, "scrOrderUnitStatsLoc: Invalid order");
     return FALSE;
   }
 
@@ -486,7 +486,7 @@ BOOL scrSetDroidSecondary(void)
   if (!stackPopParams(3, ST_DROID, &psDroid, VAL_INT, &sec, VAL_INT, &state))
     return FALSE;
 
-  ASSERT((PTRVALID(psDroid, sizeof(DROID)), "scrSetUnitSecondary: invalid unit pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psDroid, sizeof(DROID)), "scrSetUnitSecondary: invalid unit pointer");
   if (psDroid == nullptr)
     return FALSE;
 
@@ -504,7 +504,7 @@ BOOL scrSetGroupSecondary(void)
   if (!stackPopParams(3, ST_GROUP, &psGroup, VAL_INT, &sec, VAL_INT, &state))
     return FALSE;
 
-  ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)), "scrSetGroupSecondary: invalid group pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psGroup, sizeof(DROID_GROUP)), "scrSetGroupSecondary: invalid group pointer");
 
   grpSetSecondary(psGroup, static_cast<SECONDARY_ORDER>(sec), state);
 
@@ -554,11 +554,10 @@ BOOL scrSetStructTarPref(void)
   if (!stackPopParams(1, VAL_INT, &pref))
     return FALSE;
 
-  ASSERT(
-  ( (SCR_ST_HQ == pref) || (SCR_ST_FACTORY == pref) || (SCR_ST_POWER_GEN == pref) || (SCR_ST_RESOURCE_EXTRACTOR == pref) || (SCR_ST_WALL
+  DEBUG_ASSERT_TEXT((SCR_ST_HQ == pref) || (SCR_ST_FACTORY == pref) || (SCR_ST_POWER_GEN == pref) || (SCR_ST_RESOURCE_EXTRACTOR == pref) || (SCR_ST_WALL
     == pref) || (SCR_ST_RESEARCH == pref) || (SCR_ST_REPAIR_FACILITY == pref) || (SCR_ST_COMMAND_CONTROL == pref) || (SCR_ST_CYBORG_FACTORY
     == pref) || (SCR_ST_VTOL_FACTORY == pref) || (SCR_ST_REARM_PAD == pref) || (SCR_ST_SENSOR == pref) || (SCR_ST_DEF_GROUND == pref) || (
-    SCR_ST_DEF_AIR == pref) || (SCR_ST_DEF_IDF == pref) || (SCR_ST_DEF_ALL == pref) , "scrSetStructTarPref: unknown target preference"));
+    SCR_ST_DEF_AIR == pref) || (SCR_ST_DEF_IDF == pref) || (SCR_ST_DEF_ALL == pref), "scrSetStructTarPref: unknown target preference");
 
   scrStructPref |= pref;
 
@@ -573,11 +572,10 @@ BOOL scrSetStructTarIgnore(void)
   if (!stackPopParams(1, VAL_INT, &pref))
     return FALSE;
 
-  ASSERT(
-  ( (SCR_ST_HQ == pref) || (SCR_ST_FACTORY == pref) || (SCR_ST_POWER_GEN == pref) || (SCR_ST_RESOURCE_EXTRACTOR == pref) || (SCR_ST_WALL
+  DEBUG_ASSERT_TEXT((SCR_ST_HQ == pref) || (SCR_ST_FACTORY == pref) || (SCR_ST_POWER_GEN == pref) || (SCR_ST_RESOURCE_EXTRACTOR == pref) || (SCR_ST_WALL
     == pref) || (SCR_ST_RESEARCH == pref) || (SCR_ST_REPAIR_FACILITY == pref) || (SCR_ST_COMMAND_CONTROL == pref) || (SCR_ST_CYBORG_FACTORY
     == pref) || (SCR_ST_VTOL_FACTORY == pref) || (SCR_ST_REARM_PAD == pref) || (SCR_ST_SENSOR == pref) || (SCR_ST_DEF_GROUND == pref) || (
-    SCR_ST_DEF_AIR == pref) || (SCR_ST_DEF_IDF == pref) || (SCR_ST_DEF_ALL == pref) , "scrSetStructTarIgnore: unknown ignore target"));
+    SCR_ST_DEF_AIR == pref) || (SCR_ST_DEF_IDF == pref) || (SCR_ST_DEF_ALL == pref), "scrSetStructTarIgnore: unknown ignore target");
 
   scrStructIgnore |= pref;
 
@@ -592,14 +590,12 @@ BOOL scrSetDroidTarPref(void)
   if (!stackPopParams(1, VAL_INT, &pref))
     return FALSE;
 
-  ASSERT(
-  ( (SCR_DT_COMMAND == pref) || (SCR_DT_SENSOR == pref) || (SCR_DT_CONSTRUCT == pref) || (SCR_DT_REPAIR == pref) || (SCR_DT_WEAP_GROUND ==
+  DEBUG_ASSERT_TEXT((SCR_DT_COMMAND == pref) || (SCR_DT_SENSOR == pref) || (SCR_DT_CONSTRUCT == pref) || (SCR_DT_REPAIR == pref) || (SCR_DT_WEAP_GROUND ==
       pref) || (SCR_DT_WEAP_AIR == pref) || (SCR_DT_WEAP_IDF == pref) || (SCR_DT_WEAP_ALL == pref) || (SCR_DT_LIGHT == pref) || (
       SCR_DT_MEDIUM
       == pref) || (SCR_DT_HEAVY == pref) || (SCR_DT_SUPER_HEAVY == pref) || (SCR_DT_TRACK == pref) || (SCR_DT_HTRACK == pref) || (
       SCR_DT_WHEEL
-      == pref) || (SCR_DT_LEGS == pref) || (SCR_DT_GROUND == pref) || (SCR_DT_VTOL == pref) || (SCR_DT_HOVER == pref) ,
-    "scrSetUnitTarPref: unknown target preference"));
+      == pref) || (SCR_DT_LEGS == pref) || (SCR_DT_GROUND == pref) || (SCR_DT_VTOL == pref) || (SCR_DT_HOVER == pref), "scrSetUnitTarPref: unknown target preference");
 
   scrDroidPref |= pref;
 
@@ -614,14 +610,12 @@ BOOL scrSetDroidTarIgnore(void)
   if (!stackPopParams(1, VAL_INT, &pref))
     return FALSE;
 
-  ASSERT(
-  ( (SCR_DT_COMMAND == pref) || (SCR_DT_SENSOR == pref) || (SCR_DT_CONSTRUCT == pref) || (SCR_DT_REPAIR == pref) || (SCR_DT_WEAP_GROUND ==
+  DEBUG_ASSERT_TEXT((SCR_DT_COMMAND == pref) || (SCR_DT_SENSOR == pref) || (SCR_DT_CONSTRUCT == pref) || (SCR_DT_REPAIR == pref) || (SCR_DT_WEAP_GROUND ==
       pref) || (SCR_DT_WEAP_AIR == pref) || (SCR_DT_WEAP_IDF == pref) || (SCR_DT_WEAP_ALL == pref) || (SCR_DT_LIGHT == pref) || (
       SCR_DT_MEDIUM
       == pref) || (SCR_DT_HEAVY == pref) || (SCR_DT_SUPER_HEAVY == pref) || (SCR_DT_TRACK == pref) || (SCR_DT_HTRACK == pref) || (
       SCR_DT_WHEEL
-      == pref) || (SCR_DT_LEGS == pref) || (SCR_DT_GROUND == pref) || (SCR_DT_VTOL == pref) || (SCR_DT_HOVER == pref) ,
-    "scrSetUnitTarIgnore: unknown ignore target"));
+      == pref) || (SCR_DT_LEGS == pref) || (SCR_DT_GROUND == pref) || (SCR_DT_VTOL == pref) || (SCR_DT_HOVER == pref), "scrSetUnitTarIgnore: unknown ignore target");
 
   scrDroidIgnore |= pref;
 
@@ -696,7 +690,7 @@ UDWORD scrStructTargetMask(STRUCTURE* psStruct)
   case REF_LAB:
   case REF_BRIDGE:
   case REF_DEMOLISH:
-  case REF_BLASTDOOR: default: ASSERT((FALSE, "scrStructTargetMask: unknown or invalid target structure type"));
+  case REF_BLASTDOOR: default: DEBUG_ASSERT_TEXT(FALSE, "scrStructTargetMask: unknown or invalid target structure type");
     mask = 0;
     break;
   }
@@ -757,7 +751,7 @@ UDWORD scrDroidTargetMask(DROID* psDroid)
   case DROID_TRANSPORTER:
     break;
   case DROID_DEFAULT:
-  case DROID_ANY: default: ASSERT((FALSE, "scrUnitTargetMask: unknown or invalid target unit type"));
+  case DROID_ANY: default: DEBUG_ASSERT_TEXT(FALSE, "scrUnitTargetMask: unknown or invalid target unit type");
     break;
   }
 
@@ -777,7 +771,7 @@ UDWORD scrDroidTargetMask(DROID* psDroid)
   case SIZE_SUPER_HEAVY:
     mask |= SCR_DT_SUPER_HEAVY;
     break;
-  default: ASSERT((FALSE, "scrUnitTargetMask: unknown or invalid target body size"));
+  default: DEBUG_ASSERT_TEXT(FALSE, "scrUnitTargetMask: unknown or invalid target body size");
     break;
   }
 
@@ -805,7 +799,7 @@ UDWORD scrDroidTargetMask(DROID* psDroid)
     mask |= SCR_DT_HTRACK;
     break;
   case PROPELLOR:
-  case SKI: default: ASSERT((FALSE, "scrUnitTargetMask: unknown or invalid target unit propulsion type"));
+  case SKI: default: DEBUG_ASSERT_TEXT(FALSE, "scrUnitTargetMask: unknown or invalid target unit propulsion type");
     break;
   }
 
@@ -848,7 +842,7 @@ BASE_OBJECT* scrTargetInArea(SDWORD tarPlayer, SDWORD visPlayer, SDWORD tarType,
 
   if (tarPlayer < 0 || tarPlayer >= MAX_PLAYERS)
   {
-    ASSERT((FALSE, "scrTargetInArea: invalid target player number"));
+    DEBUG_ASSERT_TEXT(FALSE, "scrTargetInArea: invalid target player number");
     return nullptr;
   }
 
@@ -889,7 +883,7 @@ BASE_OBJECT* scrTargetInArea(SDWORD tarPlayer, SDWORD visPlayer, SDWORD tarType,
     ignore = scrDroidIgnore;
     psCurr = (BASE_OBJECT*)apsDroidLists[tarPlayer];
     break;
-  default: ASSERT((FALSE, "scrTargetInArea: invalid target type"));
+  default: DEBUG_ASSERT_TEXT(FALSE, "scrTargetInArea: invalid target type");
     return nullptr;
   }
 
@@ -1002,7 +996,7 @@ BOOL scrTargetInCluster(void)
 
   if (clusterID < 0 || clusterID >= CLUSTER_MAX)
   {
-    ASSERT((FALSE, "scrTargetInCluster: invalid clusterID"));
+    DEBUG_ASSERT_TEXT(FALSE, "scrTargetInCluster: invalid clusterID");
     return FALSE;
   }
 
@@ -1380,7 +1374,7 @@ BOOL scrSkDefenseLocation(void)
 
   if (player >= MAX_PLAYERS)
   {
-    ASSERT((FALSE, "scrSkDefenseLocation:player number is too high"));
+    DEBUG_ASSERT_TEXT(FALSE, "scrSkDefenseLocation:player number is too high");
     return FALSE;
   }
 

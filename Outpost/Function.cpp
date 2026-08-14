@@ -351,7 +351,7 @@ BOOL loadProduction(SBYTE* pData)
 
   if (!getBodySize(bodySize, (UBYTE*)&psFunction->capacity))
   {
-    ASSERT((FALSE, "loadProduction: unknown body size for %s",psFunction->pName));
+    DEBUG_ASSERT_TEXT(FALSE, "loadProduction: unknown body size for {}",psFunction->pName);
     return FALSE;
   }
 
@@ -360,7 +360,7 @@ BOOL loadProduction(SBYTE* pData)
     psFunction->productionOutput = static_cast<UWORD>(productionOutput);
   else
   {
-    ASSERT((FALSE, "loadProduction: production Output too big for %s",psFunction->pName));
+    DEBUG_ASSERT_TEXT(FALSE, "loadProduction: production Output too big for {}",psFunction->pName);
     psFunction->productionOutput = 0;
   }
 
@@ -574,7 +574,7 @@ BOOL loadUpgradeFunction(SBYTE* pData, UBYTE type)
 
   if (modifier > UWORD_MAX)
   {
-    ASSERT((FALSE, "loadUpgradeFunction: modifier too great for %s", functionName));
+    DEBUG_ASSERT_TEXT(FALSE, "loadUpgradeFunction: modifier too great for {}", functionName);
     return FALSE;
   }
 
@@ -617,7 +617,7 @@ BOOL loadDroidBodyUpgradeFunction(SBYTE* pData)
 
   if (modifier > UWORD_MAX OR armourKinetic > UWORD_MAX OR armourHeat > UWORD_MAX OR body > UWORD_MAX)
   {
-    ASSERT((FALSE, "loadUnitBodyUpgradeFunction: one or more modifiers too great"));
+    DEBUG_ASSERT_TEXT(FALSE, "loadUnitBodyUpgradeFunction: one or more modifiers too great");
     return FALSE;
   }
 
@@ -671,7 +671,7 @@ BOOL loadDroidSensorUpgradeFunction(SBYTE* pData)
 
   if (modifier > UWORD_MAX OR range > UWORD_MAX)
   {
-    ASSERT((FALSE, "loadUnitSensorUpgradeFunction: one or more modifiers too great"));
+    DEBUG_ASSERT_TEXT(FALSE, "loadUnitSensorUpgradeFunction: one or more modifiers too great");
     return FALSE;
   }
 
@@ -1546,16 +1546,16 @@ void structureProductionUpgrade(STRUCTURE* psBuilding)
   case REF_VTOL_FACTORY:
     type = VTOL_FLAG;
     break;
-  default: ASSERT((FALSE, "structureProductionUpgrade: Invalid factory type"));
+  default: DEBUG_ASSERT_TEXT(FALSE, "structureProductionUpgrade: Invalid factory type");
     return;
   }
 
   //upgrade the Output
   pFact = (FACTORY*)psBuilding->pFunctionality;
-  ASSERT((PTRVALID(pFact, sizeof(FACTORY)), "structureProductionUpgrade: invalid Factory pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(pFact, sizeof(FACTORY)), "structureProductionUpgrade: invalid Factory pointer");
 
   pFactFunc = (PRODUCTION_FUNCTION*)psBuilding->pStructureType->asFuncList[0];
-  ASSERT((PTRVALID(pFactFunc, sizeof(PRODUCTION_FUNCTION)), "structureProductionUpgrade: invalid Function pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(pFactFunc, sizeof(PRODUCTION_FUNCTION)), "structureProductionUpgrade: invalid Function pointer");
 
   //current base value depends on whether there are modules attached to the structure
   baseOutput = pFactFunc->productionOutput;
@@ -1579,10 +1579,10 @@ void structureResearchUpgrade(STRUCTURE* psBuilding)
 
   //upgrade the research points
   pRes = (RESEARCH_FACILITY*)psBuilding->pFunctionality;
-  ASSERT((PTRVALID(pRes, sizeof(RESEARCH_FACILITY)), "structureResearchUpgrade: invalid Research pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(pRes, sizeof(RESEARCH_FACILITY)), "structureResearchUpgrade: invalid Research pointer");
 
   pResFunc = (RESEARCH_FUNCTION*)psBuilding->pStructureType->asFuncList[0];
-  ASSERT((PTRVALID(pResFunc, sizeof(RESEARCH_FUNCTION)), "structureResearchUpgrade: invalid Function pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(pResFunc, sizeof(RESEARCH_FUNCTION)), "structureResearchUpgrade: invalid Function pointer");
 
   //current base value depends on whether there are modules attached to the structure
   baseOutput = pResFunc->researchPoints;
@@ -1602,10 +1602,10 @@ void structureReArmUpgrade(STRUCTURE* psBuilding)
 
   //upgrade the reArm points
   pPad = (REARM_PAD*)psBuilding->pFunctionality;
-  ASSERT((PTRVALID(pPad, sizeof(REARM_PAD)), "structureReArmUpgrade: invalid ReArm pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(pPad, sizeof(REARM_PAD)), "structureReArmUpgrade: invalid ReArm pointer");
 
   pPadFunc = (REARM_FUNCTION*)psBuilding->pStructureType->asFuncList[0];
-  ASSERT((PTRVALID(pPadFunc, sizeof(REARM_FUNCTION)), "structureReArmUpgrade: invalid Function pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(pPadFunc, sizeof(REARM_FUNCTION)), "structureReArmUpgrade: invalid Function pointer");
 
   pPad->reArmPoints = pPadFunc->reArmPoints + (pPadFunc->reArmPoints * asReArmUpgrade[psBuilding->player].modifier) / 100;
 }
@@ -1619,10 +1619,10 @@ void structurePowerUpgrade(STRUCTURE* psBuilding)
 
   //upgrade the research points
   pPowerGen = (POWER_GEN*)psBuilding->pFunctionality;
-  ASSERT((PTRVALID(pPowerGen, sizeof(POWER_GEN)), "structurePowerUpgrade: invalid Power Gen pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(pPowerGen, sizeof(POWER_GEN)), "structurePowerUpgrade: invalid Power Gen pointer");
 
   pPGFunc = (POWER_GEN_FUNCTION*)psBuilding->pStructureType->asFuncList[0];
-  ASSERT((PTRVALID(pPGFunc, sizeof(POWER_GEN_FUNCTION)), "structurePowerUpgrade: invalid Function pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(pPGFunc, sizeof(POWER_GEN_FUNCTION)), "structurePowerUpgrade: invalid Function pointer");
 
   //current base value depends on whether there are modules attached to the structure
   baseOutput = pPGFunc->powerMultiplier;
@@ -1642,10 +1642,10 @@ void structureRepairUpgrade(STRUCTURE* psBuilding)
 
   //upgrade the research points
   pRepair = (REPAIR_FACILITY*)psBuilding->pFunctionality;
-  ASSERT((PTRVALID(pRepair, sizeof(REPAIR_FACILITY)), "structureRepairUpgrade: invalid Repair pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(pRepair, sizeof(REPAIR_FACILITY)), "structureRepairUpgrade: invalid Repair pointer");
 
   pRepairFunc = (REPAIR_DROID_FUNCTION*)psBuilding->pStructureType->asFuncList[0];
-  ASSERT((PTRVALID(pRepairFunc, sizeof(REPAIR_DROID_FUNCTION)), "structureRepairUpgrade: invalid Function pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(pRepairFunc, sizeof(REPAIR_DROID_FUNCTION)), "structureRepairUpgrade: invalid Function pointer");
 
   pRepair->power = pRepairFunc->repairPoints + (pRepairFunc->repairPoints * asRepairFacUpgrade[psBuilding->player].modifier) / 100;
 }
@@ -1918,7 +1918,7 @@ void upgradeTransporterDroids(DROID* psTransporter, void (*pUpgradeFunction)(DRO
 {
   DROID* psCurr;
 
-  ASSERT((psTransporter->droidType == DROID_TRANSPORTER, "upgradeTransporterUnits: invalid unit type"));
+  DEBUG_ASSERT_TEXT(psTransporter->droidType == DROID_TRANSPORTER, "upgradeTransporterUnits: invalid unit type");
 
   //loop thru' each unit in the Transporter
   for (psCurr = psTransporter->psGroup->psList; psCurr != nullptr; psCurr = psCurr->psGrpNext)
@@ -2048,5 +2048,5 @@ UDWORD functionType(char* pType)
     return HQ_TYPE;
   }*/
 
-  ASSERT((FALSE, "Unknown Function Type"));
+  DEBUG_ASSERT_TEXT(FALSE, "Unknown Function Type");
 }

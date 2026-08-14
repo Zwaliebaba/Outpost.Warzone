@@ -88,7 +88,7 @@ static void animObj_HashFreeElementFunc(void* psElement)
 {
   auto psObj = static_cast<ANIM_OBJECT*>(psElement);
 
-  ASSERT((PTRVALID(psObj, sizeof(ANIM_OBJECT)), "animObj_HashFreeElementFunc: object pointer invalid\n"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psObj, sizeof(ANIM_OBJECT)), "animObj_HashFreeElementFunc: object pointer invalid\n");
 }
 
 /***************************************************************************/
@@ -149,7 +149,7 @@ ANIM_OBJECT* animObj_Add(void* pParentObj, int iAnimID, UDWORD udwStartDelay, UW
   BASEANIM* psAnim = anim_GetAnim(static_cast<UWORD>(iAnimID));
   UWORD i, uwObj;
 
-  ASSERT((psAnim != NULL, "anim_AddAnimObject: anim id %i not found\n", iAnimID ));
+  DEBUG_ASSERT_TEXT(psAnim != NULL, "anim_AddAnimObject: anim id {} not found\n", iAnimID);
 
   /* get object from table */
   psObj = static_cast<ANIM_OBJECT*>(hashTable_GetElement(g_pAnimObjTable));
@@ -218,7 +218,7 @@ ANIM_OBJECT* animObj_GetFirst(void)
 
   psObj = static_cast<ANIM_OBJECT*>(hashTable_GetFirst(g_pAnimObjTable));
 
-  ASSERT((psObj == NULL || PTRVALID(psObj, sizeof(ANIM_OBJECT)), "animObj_GetFirst: object pointer not valid\n"));
+  DEBUG_ASSERT_TEXT(psObj == NULL || PTRVALID(psObj, sizeof(ANIM_OBJECT)), "animObj_GetFirst: object pointer not valid\n");
 
   return psObj;
 }

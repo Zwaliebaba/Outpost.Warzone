@@ -366,12 +366,12 @@ KEY_MAPPING* keyAddMapping(KEY_STATUS status, KEY_CODE metaCode, KEY_CODE subCod
   /* Get some memory for our binding */
   newMapping = static_cast<KEY_MAPPING*>(MALLOC(sizeof(KEY_MAPPING)));
 
-  ASSERT(((int)newMapping,"Couldn't allocate memory for a key mapping"));
+  DEBUG_ASSERT_TEXT((int)newMapping, "Couldn't allocate memory for a key mapping");
 
   /* Plus one for the terminator */
 
   newMapping->pName = static_cast<STRING*>(MALLOC(strlen(name)+1));
-  ASSERT(((int)newMapping->pName,"Couldn't allocate the memory for the string in a mapping"));
+  DEBUG_ASSERT_TEXT((int)newMapping->pName, "Couldn't allocate the memory for the string in a mapping");
 
   memSetBlockHeap(psHeap);
 

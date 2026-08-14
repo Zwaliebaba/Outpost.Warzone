@@ -187,7 +187,7 @@ BOOL scriptSaveProg(SCRIPT_CODE* psProg, UDWORD* pSize, UBYTE** ppData)
   pPos = (UBYTE*)((((UDWORD)pPos) + 3) & (~3)); // align up me landlord !
 
   // Save the code
-  ASSERT(((pPos - *ppData) % 4 == 0, "scriptSaveProg: data not DWORD aligned"));
+  DEBUG_ASSERT_TEXT((pPos - *ppData) % 4 == 0, "scriptSaveProg: data not DWORD aligned");
   memcpy(pPos, psProg->pCode, psProg->size);
 
   // Now search the code for function pointers and replace
@@ -230,7 +230,7 @@ BOOL scriptSaveProg(SCRIPT_CODE* psProg, UDWORD* pSize, UBYTE** ppData)
           }
         }
       }
-      ASSERT((MatchFound==TRUE,"scriptSaveProg: No Function match"));
+      DEBUG_ASSERT_TEXT(MatchFound==TRUE, "scriptSaveProg: No Function match");
       *(ip + 1) = saveFunc;
       break;
     case OP_VARCALL:
@@ -271,7 +271,7 @@ BOOL scriptSaveProg(SCRIPT_CODE* psProg, UDWORD* pSize, UBYTE** ppData)
           break;
         }
       }
-      ASSERT((MatchFound==TRUE,"scriptSaveProg: No var match"));
+      DEBUG_ASSERT_TEXT(MatchFound==TRUE, "scriptSaveProg: No var match");
       *(ip + 1) = saveFunc;
       break;
     default:
@@ -479,7 +479,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE* pData, SCRIPT_CODE** ppsProg)
   pPos = (UBYTE*)((((UDWORD)pPos) + 3) & (~3)); // align up me landlord !
 
   // Load the code
-  ASSERT(((pPos - pData) % 4 == 0, "scriptLoadProg: data not DWORD aligned"));
+  DEBUG_ASSERT_TEXT((pPos - pData) % 4 == 0, "scriptLoadProg: data not DWORD aligned");
 
   psProg->pCode = static_cast<UDWORD*>(MALLOC(psProg->size));
   if (!psProg->pCode)

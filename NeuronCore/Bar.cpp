@@ -15,24 +15,24 @@ BOOL barGraphCreate(W_BARGRAPH** ppsWidget, W_BARINIT* psInit)
 {
   if (psInit->style & ~(WBAR_PLAIN | WBAR_TROUGH | WBAR_DOUBLE | WIDG_HIDDEN))
   {
-    ASSERT((FALSE, "Unknown bar graph style"));
+    DEBUG_ASSERT_TEXT(FALSE, "Unknown bar graph style");
     return FALSE;
   }
 
   if (psInit->orientation < WBAR_LEFT || psInit->orientation > WBAR_BOTTOM)
   {
-    ASSERT((FALSE, "barGraphCreate: Unknown orientation"));
+    DEBUG_ASSERT_TEXT(FALSE, "barGraphCreate: Unknown orientation");
     return FALSE;
   }
 
   if (psInit->size > WBAR_SCALE)
   {
-    ASSERT((FALSE, "barGraphCreate: Bar size out of range"));
+    DEBUG_ASSERT_TEXT(FALSE, "barGraphCreate: Bar size out of range");
     return FALSE;
   }
   if ((psInit->style & WBAR_DOUBLE) && (psInit->minorSize > WBAR_SCALE))
   {
-    ASSERT((FALSE, "barGraphCreate: Minor bar size out of range"));
+    DEBUG_ASSERT_TEXT(FALSE, "barGraphCreate: Minor bar size out of range");
     return FALSE;
   }
 
@@ -43,7 +43,7 @@ BOOL barGraphCreate(W_BARGRAPH** ppsWidget, W_BARINIT* psInit)
   if (!HEAP_ALLOC(psBarHeap, ppsWidget))
 #endif
   {
-    ASSERT((FALSE, "barGraphCreate: Out of memory"));
+    DEBUG_ASSERT_TEXT(FALSE, "barGraphCreate: Out of memory");
     return FALSE;
   }
   /* Allocate the memory for the tip and copy it if necessary */
@@ -53,7 +53,7 @@ BOOL barGraphCreate(W_BARGRAPH** ppsWidget, W_BARINIT* psInit)
     if (!widgAllocCopyString(&(*ppsWidget)->pTip, psInit->pTip))
     {
       /* Out of memory - just carry on without the tip */
-      ASSERT((FALSE, "barGraphCreate: Out of memory"));
+      DEBUG_ASSERT_TEXT(FALSE, "barGraphCreate: Out of memory");
       (*ppsWidget)->pTip = NULL;
     }
 #else
@@ -108,7 +108,7 @@ BOOL barGraphCreate(W_BARGRAPH** ppsWidget, W_BARINIT* psInit)
 /* Free the memory used by a barGraph */
 void barGraphFree(W_BARGRAPH* psWidget)
 {
-  ASSERT((PTRVALID(psWidget, sizeof(W_BARGRAPH)), "barGraphFree: Invalid widget pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psWidget, sizeof(W_BARGRAPH)), "barGraphFree: Invalid widget pointer");
 
 #if W_USE_STRHEAP
   if (psWidget->pTip) { widgFreeString(psWidget->pTip); }
@@ -130,12 +130,12 @@ void widgSetBarSize(W_SCREEN* psScreen, UDWORD id, UDWORD iValue)
   W_BARGRAPH* psBGraph;
   UDWORD size;
 
-  ASSERT((PTRVALID(psScreen, sizeof(W_SCREEN)), "widgSetBarSize: Invalid screen pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psScreen, sizeof(W_SCREEN)), "widgSetBarSize: Invalid screen pointer");
 
   psBGraph = (W_BARGRAPH*)widgGetFromID(psScreen, id);
   if (psBGraph == nullptr || psBGraph->type != WIDG_BARGRAPH)
   {
-    ASSERT((FALSE, "widgSetBarSize: Couldn't find widget from id"));
+    DEBUG_ASSERT_TEXT(FALSE, "widgSetBarSize: Couldn't find widget from id");
     return;
   }
 
@@ -155,12 +155,12 @@ void widgSetMinorBarSize(W_SCREEN* psScreen, UDWORD id, UDWORD iValue)
   W_BARGRAPH* psBGraph;
   UDWORD size;
 
-  ASSERT((PTRVALID(psScreen, sizeof(W_SCREEN)), "widgSetBarSize: Invalid screen pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psScreen, sizeof(W_SCREEN)), "widgSetBarSize: Invalid screen pointer");
 
   psBGraph = (W_BARGRAPH*)widgGetFromID(psScreen, id);
   if (psBGraph == nullptr || psBGraph->type != WIDG_BARGRAPH)
   {
-    ASSERT((FALSE, "widgSetBarSize: Couldn't find widget from id"));
+    DEBUG_ASSERT_TEXT(FALSE, "widgSetBarSize: Couldn't find widget from id");
     return;
   }
 

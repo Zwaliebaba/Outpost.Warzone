@@ -326,7 +326,7 @@ void deleteSaveGame(char* saveGameName)
   WIN32_FIND_DATA found;
   HANDLE dir;
 
-  ASSERT((strlen(saveGameName) < MAX_STR_LENGTH,"deleteSaveGame; save game name too long"));
+  DEBUG_ASSERT_TEXT(strlen(saveGameName) < MAX_STR_LENGTH, "deleteSaveGame; save game name too long");
 
   DeleteFile(saveGameName); // remove old file.
 

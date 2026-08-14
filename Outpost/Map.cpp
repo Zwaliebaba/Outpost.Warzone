@@ -350,7 +350,7 @@ BOOL mapLoadV3(UBYTE* pFileData, UDWORD fileSize)
   psGateHeader = (GATEWAY_SAVEHEADER*)psTileData;
   psGate = (GATEWAY_SAVE*)(psGateHeader + 1);
 
-  ASSERT((psGateHeader->version == 1,"Invalid gateway version"));
+  DEBUG_ASSERT_TEXT(psGateHeader->version == 1, "Invalid gateway version");
 
   for (i = 0; i < psGateHeader->numGateways; i++)
   {
@@ -368,7 +368,7 @@ BOOL mapLoadV3(UBYTE* pFileData, UDWORD fileSize)
   //		!gwGenerateLinkGates())
   psZoneHeader = (ZONEMAP_SAVEHEADER*)psGate;
 
-  ASSERT(( (psZoneHeader->version == 1) || (psZoneHeader->version == 2), "Invalid zone map version"));
+  DEBUG_ASSERT_TEXT((psZoneHeader->version == 1) || (psZoneHeader->version == 2), "Invalid zone map version");
 
   if (!gwNewZoneMap())
     return FALSE;
@@ -699,7 +699,7 @@ BOOL mapSave(UBYTE** ppFileData, UDWORD* pFileSize)
     }
   }
 
-  ASSERT(( ( ((UDWORD)psLastZone) - ((UDWORD)*ppFileData) ) < *pFileSize,"Buffer overflow saving map"));
+  DEBUG_ASSERT_TEXT(( ((UDWORD)psLastZone) - ((UDWORD)*ppFileData) ) < *pFileSize, "Buffer overflow saving map");
 
   return TRUE;
 }
@@ -779,10 +779,10 @@ extern SWORD map_Height(UDWORD x, UDWORD y)
 
   tileYOffset = (tileY * mapWidth);
 
-  ASSERT((ox < TILE_UNITS, "mapHeight: x offset too big"));
-  ASSERT((oy < TILE_UNITS, "mapHeight: y offset too big"));
-  ASSERT((ox >= 0, "mapHeight: x offset too small"));
-  ASSERT((oy >= 0, "mapHeight: y offset too small"));
+  DEBUG_ASSERT_TEXT(ox < TILE_UNITS, "mapHeight: x offset too big");
+  DEBUG_ASSERT_TEXT(oy < TILE_UNITS, "mapHeight: y offset too big");
+  DEBUG_ASSERT_TEXT(ox >= 0, "mapHeight: x offset too small");
+  DEBUG_ASSERT_TEXT(oy >= 0, "mapHeight: y offset too small");
 
   //different code for 4 different triangle cases
   if (psMapTiles[tileX + tileYOffset].texture & TILE_TRIFLIP)
@@ -805,7 +805,7 @@ extern SWORD map_Height(UDWORD x, UDWORD y)
       dy = ((hx - hxy) * oy) / TILE_UNITS;
 
       retVal = (hxy + dx + dy) * ELEVATION_SCALE;
-      ASSERT((retVal<MAX_HEIGHT,"Map height's gone weird!!!"));
+      DEBUG_ASSERT_TEXT(retVal<MAX_HEIGHT, "Map height's gone weird!!!");
       return static_cast<SWORD>(retVal);
     }
     //tile split top right to bottom left object if in top left half
@@ -823,7 +823,7 @@ extern SWORD map_Height(UDWORD x, UDWORD y)
     dy = ((hy - h0) * oy) / TILE_UNITS;
 
     retVal = (h0 + dx + dy) * ELEVATION_SCALE;
-    ASSERT((retVal<MAX_HEIGHT,"Map height's gone weird!!!"));
+    DEBUG_ASSERT_TEXT(retVal<MAX_HEIGHT, "Map height's gone weird!!!");
     return static_cast<SWORD>(retVal);
   }
   if (ox > oy) //tile split topleft to bottom right object if in top right half
@@ -841,7 +841,7 @@ extern SWORD map_Height(UDWORD x, UDWORD y)
     dx = ((hx - h0) * ox) / TILE_UNITS;
     dy = ((hxy - hx) * oy) / TILE_UNITS;
     retVal = (h0 + dx + dy) * ELEVATION_SCALE;
-    ASSERT((retVal<MAX_HEIGHT,"Map height's gone weird!!!"));
+    DEBUG_ASSERT_TEXT(retVal<MAX_HEIGHT, "Map height's gone weird!!!");
     return static_cast<SWORD>(retVal);
   }
   //tile split topleft to bottom right object if in bottom left half
@@ -859,7 +859,7 @@ extern SWORD map_Height(UDWORD x, UDWORD y)
   dy = ((hy - h0) * oy) / TILE_UNITS;
 
   retVal = (h0 + dx + dy) * ELEVATION_SCALE;
-  ASSERT((retVal<MAX_HEIGHT,"Map height's gone weird!!!"));
+  DEBUG_ASSERT_TEXT(retVal<MAX_HEIGHT, "Map height's gone weird!!!");
   return static_cast<SWORD>(retVal);
   return 0;
 }

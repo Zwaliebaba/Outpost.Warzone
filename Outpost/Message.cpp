@@ -86,8 +86,8 @@ extern UDWORD selectedPlayer;
  * Order is now CAMPAIGN, MISSION, RESEARCH/PROXIMITY
  */
 #define ADD_MSG(list, msg, player) \
-	ASSERT((PTRVALID((msg), sizeof(MESSAGE)), \
-		"addMessage: Invalid message pointer")); \
+	DEBUG_ASSERT_TEXT(PTRVALID((msg), sizeof(MESSAGE)),  \
+		"addMessage: Invalid message pointer"); \
 	if (list[player] == NULL) \
 	{ \
 		list[player] = msg; \
@@ -132,7 +132,7 @@ extern UDWORD selectedPlayer;
 
 void add_msg(MESSAGE* list[MAX_PLAYERS], MESSAGE* msg, UDWORD player)
 {
-  ASSERT((PTRVALID((msg), sizeof(MESSAGE)), "addMessage: Invalid message pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID((msg), sizeof(MESSAGE)), "addMessage: Invalid message pointer");
   if (list[player] == nullptr)
   {
     list[player] = msg;
@@ -203,8 +203,8 @@ void add_msg(MESSAGE* list[MAX_PLAYERS], MESSAGE* msg, UDWORD player)
  * del is a pointer to the message to remove
 */
 #define REMOVEMSG(list, heap, del, player) \
-	ASSERT((PTRVALID(del, sizeof(MESSAGE)), \
-		"removeMessage: Invalid message pointer")); \
+	DEBUG_ASSERT_TEXT(PTRVALID(del, sizeof(MESSAGE)),  \
+		"removeMessage: Invalid message pointer"); \
 	if (list[player] == del) \
 	{ \
 		list[player] = list[player]->psNext; \
@@ -218,8 +218,8 @@ void add_msg(MESSAGE* list[MAX_PLAYERS], MESSAGE* msg, UDWORD player)
 		{ \
 			psPrev = psCurr; \
 		} \
-		ASSERT((psCurr != NULL, \
-			"removeMessage: message not found")); \
+		DEBUG_ASSERT_TEXT(psCurr != NULL,  \
+			"removeMessage: message not found"); \
 		if (psCurr != NULL) \
 		{ \
 			psPrev->psNext = psCurr->psNext; \
@@ -672,7 +672,7 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
         //get the audio text string
         sscanf1(&pViewMsgData, "%[^','], %d,", &audioName, &count);
 
-        ASSERT((count < UWORD_MAX, "loadViewData: numFrames too high for ", name));
+        DEBUG_ASSERT_TEXT(count < UWORD_MAX, "loadViewData: numFrames too high for {}", name);
 
         psViewReplay->pSeqList[dataInc].numFrames = static_cast<UWORD>(count);
 
@@ -726,26 +726,26 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
 
       if (LocX < 0)
       {
-        ASSERT((FALSE, "loadViewData: Negative X coord for prox message - %s",name));
+        DEBUG_ASSERT_TEXT(FALSE, "loadViewData: Negative X coord for prox message - {}",name);
         return nullptr;
       }
       static_cast<VIEW_PROXIMITY*>(psViewData->pData)->x = static_cast<UDWORD>(LocX);
       if (LocY < 0)
       {
-        ASSERT((FALSE, "loadViewData: Negative Y coord for prox message - %s",name));
+        DEBUG_ASSERT_TEXT(FALSE, "loadViewData: Negative Y coord for prox message - {}",name);
         return nullptr;
       }
       static_cast<VIEW_PROXIMITY*>(psViewData->pData)->y = static_cast<UDWORD>(LocY);
       if (LocZ < 0)
       {
-        ASSERT((FALSE, "loadViewData: Negative Z coord for prox message - %s",name));
+        DEBUG_ASSERT_TEXT(FALSE, "loadViewData: Negative Z coord for prox message - {}",name);
         return nullptr;
       }
       static_cast<VIEW_PROXIMITY*>(psViewData->pData)->z = static_cast<UDWORD>(LocZ);
 
       if (proxType > PROX_TYPES)
       {
-        ASSERT((FALSE, "Invalid proximity message sub type - %s", name));
+        DEBUG_ASSERT_TEXT(FALSE, "Invalid proximity message sub type - {}", name);
         return nullptr;
       }
       static_cast<VIEW_PROXIMITY*>(psViewData->pData)->proxType = static_cast<PROX_TYPE>(proxType);
@@ -768,7 +768,7 @@ VIEWDATA* getViewData(STRING* pName)
   VIEWDATA_LIST* psList;
   UBYTE i;
 
-  ASSERT((strlen(pName)< MAX_STR_SIZE,"getViewData: verbose message name"));
+  DEBUG_ASSERT_TEXT(strlen(pName)< MAX_STR_SIZE, "getViewData: verbose message name");
 
   for (psList = apsViewData; psList != nullptr; psList = psList->psNext)
   {
@@ -897,7 +897,7 @@ void displayProximityMessage(PROXIMITY_DISPLAY* psProxDisp)
   }
   else if (psProxDisp->type == POS_PROXOBJ)
   {
-    ASSERT(( ((BASE_OBJECT *)psProxDisp->psMessage->pViewData)->type == OBJ_FEATURE, "displayProximityMessage: invalid feature" ));
+    DEBUG_ASSERT_TEXT(((BASE_OBJECT *)psProxDisp->psMessage->pViewData)->type == OBJ_FEATURE, "displayProximityMessage: invalid feature");
 
     psFeature = (FEATURE*)psProxDisp->psMessage->pViewData;
     if (psFeature->psStats->subType == FEAT_OIL_RESOURCE)

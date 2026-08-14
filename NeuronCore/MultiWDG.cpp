@@ -24,7 +24,7 @@ BOOL wdgLoadCompleteCatalog(char* pWDGName);
 
 BOOL wdgMultiInit(void)
 {
-  ASSERT((psWDGCache == NULL, "wdgMultiInit: the WDG cache has not been reset"));
+  DEBUG_ASSERT_TEXT(psWDGCache == NULL, "wdgMultiInit: the WDG cache has not been reset");
   psWDGCache = nullptr;
   psWDGCacheRev = nullptr;
   psWDGCacheStore = nullptr;
@@ -75,7 +75,7 @@ void wdgDisableAddonWDG(void)
     return;
   }
 
-  ASSERT(( strcmp(psWDGCacheRev->aName, "warzone") == 0, "wdgDisableAddonWDG: cannot find warzone.wdg"));
+  DEBUG_ASSERT_TEXT(strcmp(psWDGCacheRev->aName, "warzone") == 0, "wdgDisableAddonWDG: cannot find warzone.wdg");
 
   psWDGCacheStore = psWDGCache;
   psWDGCacheStoreRev = psWDGCacheRev->psPrev;

@@ -107,7 +107,7 @@ BOOL stackPop(INTERP_VAL* psVal)
 {
   if ((psCurrChunk->psPrev == nullptr) && (currEntry == 0))
   {
-    ASSERT((FALSE, "stackPop: stack empty"));
+    DEBUG_ASSERT_TEXT(FALSE, "stackPop: stack empty");
     return FALSE;
   }
 
@@ -134,7 +134,7 @@ BOOL stackPopType(INTERP_VAL* psVal)
 
   if ((psCurrChunk->psPrev == nullptr) && (currEntry == 0))
   {
-    ASSERT((FALSE, "stackPopType: stack empty"));
+    DEBUG_ASSERT_TEXT(FALSE, "stackPopType: stack empty");
     return FALSE;
   }
 
@@ -151,7 +151,7 @@ BOOL stackPopType(INTERP_VAL* psVal)
   psTop = psCurrChunk->aVals + currEntry;
   if (!interpCheckEquiv(psVal->type, psTop->type))
   {
-    ASSERT((FALSE, "stackPopType: type mismatch"));
+    DEBUG_ASSERT_TEXT(FALSE, "stackPopType: type mismatch");
     return FALSE;
   }
 
@@ -203,7 +203,7 @@ BOOL stackPopParams(SDWORD numParams, ...)
   }
   if (!psCurr)
   {
-    ASSERT((FALSE, "stackPopParams: not enough parameters on stack"));
+    DEBUG_ASSERT_TEXT(FALSE, "stackPopParams: not enough parameters on stack");
     return FALSE;
   }
 
@@ -217,7 +217,7 @@ BOOL stackPopParams(SDWORD numParams, ...)
     psVal = psCurr->aVals + index;
     if (!interpCheckEquiv(type, psVal->type))
     {
-      ASSERT((FALSE, "stackPopParams: type mismatch"));
+      DEBUG_ASSERT_TEXT(FALSE, "stackPopParams: type mismatch");
       va_end(args);
       return FALSE;
     }
@@ -286,7 +286,7 @@ BOOL stackPeek(INTERP_VAL* psVal, UDWORD index)
   }
 
   /* If we got here the index is off the bottom of the stack */
-  ASSERT((FALSE, "stackPeek: index too large"));
+  DEBUG_ASSERT_TEXT(FALSE, "stackPeek: index too large");
   return FALSE;
 }
 
@@ -313,7 +313,7 @@ BOOL stackBinaryOp(OPCODE opcode)
   // Get the parameters
   if (psCurrChunk->psPrev == nullptr && currEntry < 2)
   {
-    ASSERT((FALSE, "stackBinaryOp: not enough entries on stack"));
+    DEBUG_ASSERT_TEXT(FALSE, "stackBinaryOp: not enough entries on stack");
     return FALSE;
   }
 
@@ -342,7 +342,7 @@ BOOL stackBinaryOp(OPCODE opcode)
 
   if (!interpCheckEquiv(psV1->type, psV2->type))
   {
-    ASSERT((FALSE, "stackBinaryOp: type mismatch"));
+    DEBUG_ASSERT_TEXT(FALSE, "stackBinaryOp: type mismatch");
     return FALSE;
   }
 
@@ -391,7 +391,7 @@ BOOL stackBinaryOp(OPCODE opcode)
     psV1->type = VAL_BOOL;
     psV1->v.bval = psV1->v.ival < psV2->v.ival;
     break;
-  default: ASSERT((FALSE, "stackBinaryOp: unknown opcode"));
+  default: DEBUG_ASSERT_TEXT(FALSE, "stackBinaryOp: unknown opcode");
     return FALSE;
     break;
   }
@@ -410,7 +410,7 @@ BOOL stackUnaryOp(OPCODE opcode)
   // Get the value
   if (psCurrChunk->psPrev == nullptr && currEntry == 0)
   {
-    ASSERT((FALSE, "stackUnaryOp: not enough entries on stack"));
+    DEBUG_ASSERT_TEXT(FALSE, "stackUnaryOp: not enough entries on stack");
     return FALSE;
   }
 
@@ -432,7 +432,7 @@ BOOL stackUnaryOp(OPCODE opcode)
     case VAL_INT:
       psVal->v.ival = -psVal->v.ival;
       break;
-    default: ASSERT((FALSE, "stackUnaryOp: invalid type for negation"));
+    default: DEBUG_ASSERT_TEXT(FALSE, "stackUnaryOp: invalid type for negation");
       break;
     }
     break;
@@ -442,11 +442,11 @@ BOOL stackUnaryOp(OPCODE opcode)
     case VAL_BOOL:
       psVal->v.bval = !psVal->v.bval;
       break;
-    default: ASSERT((FALSE, "stackUnaryOp: invalid type for NOT"));
+    default: DEBUG_ASSERT_TEXT(FALSE, "stackUnaryOp: invalid type for NOT");
       break;
     }
     break;
-  default: ASSERT((FALSE, "stackUnaryOp: unknown opcode"));
+  default: DEBUG_ASSERT_TEXT(FALSE, "stackUnaryOp: unknown opcode");
     break;
   }
 
@@ -498,7 +498,7 @@ void stackShutDown(void)
 /* Reset the stack to an empty state */
 void stackReset(void)
 {
-  ASSERT(( ((psCurrChunk == psStackBase) && (currEntry == 0)), "stackReset: stack is not empty"));
+  DEBUG_ASSERT_TEXT(((psCurrChunk == psStackBase) && (currEntry == 0)), "stackReset: stack is not empty");
 
   psCurrChunk = psStackBase;
   currEntry = 0;

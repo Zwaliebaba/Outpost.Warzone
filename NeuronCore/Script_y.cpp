@@ -734,10 +734,10 @@ CODE_ERROR scriptCodeFunction(FUNC_SYMBOL* psFSymbol, // The function being call
   BOOL typeError = FALSE;
   STRING aErrorString[255];
 
-  ASSERT((psFSymbol != NULL, "ais_CodeFunction: Invalid function symbol pointer"));
-  ASSERT((PTRVALID(psPBlock, sizeof(PARAM_BLOCK)), "scriptCodeFunction: Invalid param block pointer"));
-  ASSERT(((psPBlock->size == 0) || PTRVALID(psPBlock->pCode, psPBlock->size), "scriptCodeFunction: Invalid parameter code pointer"));
-  ASSERT((ppsCBlock != NULL, "scriptCodeFunction: Invalid generated code block pointer"));
+  DEBUG_ASSERT_TEXT(psFSymbol != NULL, "ais_CodeFunction: Invalid function symbol pointer");
+  DEBUG_ASSERT_TEXT(PTRVALID(psPBlock, sizeof(PARAM_BLOCK)), "scriptCodeFunction: Invalid param block pointer");
+  DEBUG_ASSERT_TEXT((psPBlock->size == 0) || PTRVALID(psPBlock->pCode, psPBlock->size), "scriptCodeFunction: Invalid parameter code pointer");
+  DEBUG_ASSERT_TEXT(ppsCBlock != NULL, "scriptCodeFunction: Invalid generated code block pointer");
 
   /* Check the parameter types match what the function needs */
   for (i = 0; (i < psFSymbol->numParams) && (i < psPBlock->numParams); i++)
@@ -814,10 +814,10 @@ CODE_ERROR scriptCodeCallbackParams(CALLBACK_SYMBOL* psCBSymbol, // The callback
   BOOL typeError = FALSE;
   STRING aErrorString[255];
 
-  ASSERT((PTRVALID(psPBlock, sizeof(PARAM_BLOCK)), "scriptCodeCallbackParams: Invalid param block pointer"));
-  ASSERT(((psPBlock->size == 0) || PTRVALID(psPBlock->pCode, psPBlock->size), "scriptCodeCallbackParams: Invalid parameter code pointer"));
-  ASSERT((ppsTDecl != NULL, "scriptCodeCallbackParams: Invalid generated code block pointer"));
-  ASSERT((psCBSymbol->pFunc != NULL, "scriptCodeCallbackParams: Expected function pointer for callback symbol"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psPBlock, sizeof(PARAM_BLOCK)), "scriptCodeCallbackParams: Invalid param block pointer");
+  DEBUG_ASSERT_TEXT((psPBlock->size == 0) || PTRVALID(psPBlock->pCode, psPBlock->size), "scriptCodeCallbackParams: Invalid parameter code pointer");
+  DEBUG_ASSERT_TEXT(ppsTDecl != NULL, "scriptCodeCallbackParams: Invalid generated code block pointer");
+  DEBUG_ASSERT_TEXT(psCBSymbol->pFunc != NULL, "scriptCodeCallbackParams: Expected function pointer for callback symbol");
 
   /* Check the parameter types match what the function needs */
   for (i = 0; (i < psCBSymbol->numParams) && (i < psPBlock->numParams); i++)
@@ -876,10 +876,10 @@ CODE_ERROR scriptCodeAssignment(VAR_SYMBOL* psVariable, // The variable to assig
 {
   SDWORD size;
 
-  ASSERT((psVariable != NULL, "scriptCodeAssignment: Invalid variable symbol pointer"));
-  ASSERT((PTRVALID(psValue, sizeof(CODE_BLOCK)), "scriptCodeAssignment: Invalid value code block pointer"));
-  ASSERT((PTRVALID(psValue->pCode, psValue->size), "scriptCodeAssignment: Invalid value code pointer"));
-  ASSERT((ppsBlock != NULL, "scriptCodeAssignment: Invalid generated code block pointer"));
+  DEBUG_ASSERT_TEXT(psVariable != NULL, "scriptCodeAssignment: Invalid variable symbol pointer");
+  DEBUG_ASSERT_TEXT(PTRVALID(psValue, sizeof(CODE_BLOCK)), "scriptCodeAssignment: Invalid value code block pointer");
+  DEBUG_ASSERT_TEXT(PTRVALID(psValue->pCode, psValue->size), "scriptCodeAssignment: Invalid value code pointer");
+  DEBUG_ASSERT_TEXT(ppsBlock != NULL, "scriptCodeAssignment: Invalid generated code block pointer");
 
   size = psValue->size + sizeof(OPCODE);
   if (psVariable->storage == ST_EXTERN)
@@ -927,12 +927,12 @@ CODE_ERROR scriptCodeObjAssignment(OBJVAR_BLOCK* psVariable, // The variable to 
                                    // assign
                                    CODE_BLOCK** ppsBlock) // Generated code
 {
-  ASSERT((PTRVALID(psVariable, sizeof(OBJVAR_BLOCK)), "scriptCodeObjAssignment: Invalid object variable block pointer"));
-  ASSERT((PTRVALID(psVariable->pCode, psVariable->size), "scriptCodeObjAssignment: Invalid object variable code pointer"));
-  ASSERT((psVariable->psObjVar != NULL, "scriptCodeObjAssignment: Invalid object variable symbol pointer"));
-  ASSERT((PTRVALID(psValue, sizeof(CODE_BLOCK)), "scriptCodeObjAssignment: Invalid value code block pointer"));
-  ASSERT((PTRVALID(psValue->pCode, psValue->size), "scriptCodeObjAssignment: Invalid value code pointer"));
-  ASSERT((ppsBlock != NULL, "scriptCodeObjAssignment: Invalid generated code block pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psVariable, sizeof(OBJVAR_BLOCK)), "scriptCodeObjAssignment: Invalid object variable block pointer");
+  DEBUG_ASSERT_TEXT(PTRVALID(psVariable->pCode, psVariable->size), "scriptCodeObjAssignment: Invalid object variable code pointer");
+  DEBUG_ASSERT_TEXT(psVariable->psObjVar != NULL, "scriptCodeObjAssignment: Invalid object variable symbol pointer");
+  DEBUG_ASSERT_TEXT(PTRVALID(psValue, sizeof(CODE_BLOCK)), "scriptCodeObjAssignment: Invalid value code block pointer");
+  DEBUG_ASSERT_TEXT(PTRVALID(psValue->pCode, psValue->size), "scriptCodeObjAssignment: Invalid value code pointer");
+  DEBUG_ASSERT_TEXT(ppsBlock != NULL, "scriptCodeObjAssignment: Invalid generated code block pointer");
 
   // Check there is an access function for the variable
   if (psVariable->psObjVar->set == nullptr)
@@ -965,10 +965,10 @@ CODE_ERROR scriptCodeObjAssignment(OBJVAR_BLOCK* psVariable, // The variable to 
 CODE_ERROR scriptCodeObjGet(OBJVAR_BLOCK* psVariable, // The variable to get from
                             CODE_BLOCK** ppsBlock) // Generated code
 {
-  ASSERT((PTRVALID(psVariable, sizeof(OBJVAR_BLOCK)), "scriptCodeObjAssignment: Invalid object variable block pointer"));
-  ASSERT((PTRVALID(psVariable->pCode, psVariable->size), "scriptCodeObjAssignment: Invalid object variable code pointer"));
-  ASSERT((psVariable->psObjVar != NULL, "scriptCodeObjAssignment: Invalid object variable symbol pointer"));
-  ASSERT((ppsBlock != NULL, "scriptCodeObjAssignment: Invalid generated code block pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psVariable, sizeof(OBJVAR_BLOCK)), "scriptCodeObjAssignment: Invalid object variable block pointer");
+  DEBUG_ASSERT_TEXT(PTRVALID(psVariable->pCode, psVariable->size), "scriptCodeObjAssignment: Invalid object variable code pointer");
+  DEBUG_ASSERT_TEXT(psVariable->psObjVar != NULL, "scriptCodeObjAssignment: Invalid object variable symbol pointer");
+  DEBUG_ASSERT_TEXT(ppsBlock != NULL, "scriptCodeObjAssignment: Invalid generated code block pointer");
 
   // Check there is an access function for the variable
   if (psVariable->psObjVar->get == nullptr)
@@ -1003,12 +1003,12 @@ CODE_ERROR scriptCodeArrayAssignment(ARRAY_BLOCK* psVariable, // The variable to
   //	SDWORD		elementDWords, i;
   //	UBYTE		*pElement;
 
-  ASSERT((PTRVALID(psVariable, sizeof(ARRAY_BLOCK)), "scriptCodeObjAssignment: Invalid object variable block pointer"));
-  ASSERT((PTRVALID(psVariable->pCode, psVariable->size), "scriptCodeObjAssignment: Invalid object variable code pointer"));
-  ASSERT((psVariable->psArrayVar != NULL, "scriptCodeObjAssignment: Invalid object variable symbol pointer"));
-  ASSERT((PTRVALID(psValue, sizeof(CODE_BLOCK)), "scriptCodeObjAssignment: Invalid value code block pointer"));
-  ASSERT((PTRVALID(psValue->pCode, psValue->size), "scriptCodeObjAssignment: Invalid value code pointer"));
-  ASSERT((ppsBlock != NULL, "scriptCodeObjAssignment: Invalid generated code block pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psVariable, sizeof(ARRAY_BLOCK)), "scriptCodeObjAssignment: Invalid object variable block pointer");
+  DEBUG_ASSERT_TEXT(PTRVALID(psVariable->pCode, psVariable->size), "scriptCodeObjAssignment: Invalid object variable code pointer");
+  DEBUG_ASSERT_TEXT(psVariable->psArrayVar != NULL, "scriptCodeObjAssignment: Invalid object variable symbol pointer");
+  DEBUG_ASSERT_TEXT(PTRVALID(psValue, sizeof(CODE_BLOCK)), "scriptCodeObjAssignment: Invalid value code block pointer");
+  DEBUG_ASSERT_TEXT(PTRVALID(psValue->pCode, psValue->size), "scriptCodeObjAssignment: Invalid value code pointer");
+  DEBUG_ASSERT_TEXT(ppsBlock != NULL, "scriptCodeObjAssignment: Invalid generated code block pointer");
 
   // Check this is an array
   if (psVariable->psArrayVar->dimensions == 0)
@@ -1057,10 +1057,10 @@ CODE_ERROR scriptCodeArrayGet(ARRAY_BLOCK* psVariable, // The variable to get fr
   //	SDWORD		elementDWords, i;
   //	UBYTE		*pElement;
 
-  ASSERT((PTRVALID(psVariable, sizeof(ARRAY_BLOCK)), "scriptCodeObjAssignment: Invalid object variable block pointer"));
-  ASSERT((PTRVALID(psVariable->pCode, psVariable->size), "scriptCodeObjAssignment: Invalid object variable code pointer"));
-  ASSERT((psVariable->psArrayVar != NULL, "scriptCodeObjAssignment: Invalid object variable symbol pointer"));
-  ASSERT((ppsBlock != NULL, "scriptCodeObjAssignment: Invalid generated code block pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psVariable, sizeof(ARRAY_BLOCK)), "scriptCodeObjAssignment: Invalid object variable block pointer");
+  DEBUG_ASSERT_TEXT(PTRVALID(psVariable->pCode, psVariable->size), "scriptCodeObjAssignment: Invalid object variable code pointer");
+  DEBUG_ASSERT_TEXT(psVariable->psArrayVar != NULL, "scriptCodeObjAssignment: Invalid object variable symbol pointer");
+  DEBUG_ASSERT_TEXT(ppsBlock != NULL, "scriptCodeObjAssignment: Invalid generated code block pointer");
 
   // Check this is an array
   if (psVariable->psArrayVar->dimensions == 0)
@@ -1105,9 +1105,9 @@ CODE_ERROR scriptCodeConditional(COND_BLOCK* psCondBlock, // The intermediate co
 {
   UDWORD i;
 
-  ASSERT((PTRVALID(psCondBlock, sizeof(CODE_BLOCK)), "scriptCodeConditional: Invalid conditional code block pointer"));
-  ASSERT((PTRVALID(psCondBlock->pCode, psCondBlock->size), "scriptCodeConditional: Invalid conditional code pointer"));
-  ASSERT((ppsBlock != NULL, "scriptCodeConditional: Invalid generated code block pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psCondBlock, sizeof(CODE_BLOCK)), "scriptCodeConditional: Invalid conditional code block pointer");
+  DEBUG_ASSERT_TEXT(PTRVALID(psCondBlock->pCode, psCondBlock->size), "scriptCodeConditional: Invalid conditional code pointer");
+  DEBUG_ASSERT_TEXT(ppsBlock != NULL, "scriptCodeConditional: Invalid generated code block pointer");
 
   /* Allocate the final block */
   ALLOC_BLOCK(*ppsBlock, psCondBlock->size);
@@ -1140,9 +1140,9 @@ CODE_ERROR scriptCodeParameter(CODE_BLOCK* psParam, // Code for the parameter
                                INTERP_TYPE type, // Parameter type
                                PARAM_BLOCK** ppsBlock) // Generated code
 {
-  ASSERT((PTRVALID(psParam, sizeof(CODE_BLOCK)), "scriptCodeParameter: Invalid parameter code block pointer"));
-  ASSERT((PTRVALID(psParam->pCode, psParam->size), "scriptCodeParameter: Invalid parameter code pointer"));
-  ASSERT((ppsBlock != NULL, "scriptCodeParameter: Invalid generated code block pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psParam, sizeof(CODE_BLOCK)), "scriptCodeParameter: Invalid parameter code block pointer");
+  DEBUG_ASSERT_TEXT(PTRVALID(psParam->pCode, psParam->size), "scriptCodeParameter: Invalid parameter code pointer");
+  DEBUG_ASSERT_TEXT(ppsBlock != NULL, "scriptCodeParameter: Invalid generated code block pointer");
 
   ALLOC_PBLOCK(*ppsBlock, psParam->size, 1);
   ip = (*ppsBlock)->pCode;
@@ -1187,10 +1187,10 @@ CODE_ERROR scriptCodeObjectVariable(CODE_BLOCK* psObjCode, // Code for the objec
                                     VAR_SYMBOL* psVar, // The object variable symbol
                                     OBJVAR_BLOCK** ppsBlock) // Generated code
 {
-  ASSERT((PTRVALID(psObjCode, sizeof(CODE_BLOCK)), "scriptCodeObjectVariable: Invalid object code block pointer"));
-  ASSERT((PTRVALID(psObjCode->pCode, psObjCode->size), "scriptCodeObjectVariable: Invalid object code pointer"));
-  ASSERT((psVar != NULL, "scriptCodeObjectVariable: Invalid variable symbol pointer"));
-  ASSERT((ppsBlock != NULL, "scriptCodeObjectVariable: Invalid generated code block pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psObjCode, sizeof(CODE_BLOCK)), "scriptCodeObjectVariable: Invalid object code block pointer");
+  DEBUG_ASSERT_TEXT(PTRVALID(psObjCode->pCode, psObjCode->size), "scriptCodeObjectVariable: Invalid object code pointer");
+  DEBUG_ASSERT_TEXT(psVar != NULL, "scriptCodeObjectVariable: Invalid variable symbol pointer");
+  DEBUG_ASSERT_TEXT(ppsBlock != NULL, "scriptCodeObjectVariable: Invalid generated code block pointer");
 
   ALLOC_OBJVARBLOCK(*ppsBlock, psObjCode->size, psVar);
   ip = (*ppsBlock)->pCode;
@@ -1217,10 +1217,10 @@ CODE_ERROR scriptCodeArrayVariable(ARRAY_BLOCK* psArrayCode, // Code for the arr
                                    VAR_SYMBOL* psVar, // The array variable symbol
                                    ARRAY_BLOCK** ppsBlock) // Generated code
 {
-  ASSERT((PTRVALID(psArrayCode, sizeof(CODE_BLOCK)), "scriptCodeObjectVariable: Invalid object code block pointer"));
-  ASSERT((PTRVALID(psArrayCode->pCode, psArrayCode->size), "scriptCodeObjectVariable: Invalid object code pointer"));
-  ASSERT((psVar != NULL, "scriptCodeObjectVariable: Invalid variable symbol pointer"));
-  ASSERT((ppsBlock != NULL, "scriptCodeObjectVariable: Invalid generated code block pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psArrayCode, sizeof(CODE_BLOCK)), "scriptCodeObjectVariable: Invalid object code block pointer");
+  DEBUG_ASSERT_TEXT(PTRVALID(psArrayCode->pCode, psArrayCode->size), "scriptCodeObjectVariable: Invalid object code pointer");
+  DEBUG_ASSERT_TEXT(psVar != NULL, "scriptCodeObjectVariable: Invalid variable symbol pointer");
+  DEBUG_ASSERT_TEXT(ppsBlock != NULL, "scriptCodeObjectVariable: Invalid generated code block pointer");
 
   /*	ALLOC_ARRAYBLOCK(*ppsBlock, psArrayCode->size, psVar);
     ip = (*ppsBlock)->pCode;
@@ -1246,8 +1246,8 @@ CODE_ERROR scriptCodeArrayVariable(ARRAY_BLOCK* psArrayCode, // Code for the arr
 CODE_ERROR scriptCodeConstant(CONST_SYMBOL* psConst, // The object variable symbol
                               CODE_BLOCK** ppsBlock) // Generated code
 {
-  ASSERT((psConst != NULL, "scriptCodeConstant: Invalid constant symbol pointer"));
-  ASSERT((ppsBlock != NULL, "scriptCodeConstant: Invalid generated code block pointer"));
+  DEBUG_ASSERT_TEXT(psConst != NULL, "scriptCodeConstant: Invalid constant symbol pointer");
+  DEBUG_ASSERT_TEXT(ppsBlock != NULL, "scriptCodeConstant: Invalid generated code block pointer");
 
   ALLOC_BLOCK(*ppsBlock, sizeof(OPCODE) + sizeof(UDWORD));
   ip = (*ppsBlock)->pCode;
@@ -2160,7 +2160,7 @@ void scr_error(char* pMessage, ...)
   va_end(args);
   scriptGetErrorData(&line, &text);
 #ifdef DEBUG
-  ASSERT((FALSE, "script parse error:\n%s at line %d\nToken: %d, Text: '%s'\n", aBuff, line, scr_char, text));
+  DEBUG_ASSERT_TEXT(FALSE, "script parse error:\n{} at line {}\nToken: {}, Text: '{}'\n", aBuff, line, scr_char, text);
 #else
   DBERROR(("script parse error:\n%s at line %d\nToken: %d, Text: '%s'\n", pMessage, line, scr_char, text));
 #endif
@@ -2580,7 +2580,7 @@ void scriptSetTypeTab(TYPE_SYMBOL* psTypeTab)
 
   for (i = 0, type = VAL_USERTYPESTART; psTypeTab[i].typeID != 0; i++)
   {
-    ASSERT((psTypeTab[i].typeID == type, "scriptSetTypeTab: ID's must be >= VAL_USERTYPESTART and sequential"));
+    DEBUG_ASSERT_TEXT(psTypeTab[i].typeID == type, "scriptSetTypeTab: ID's must be >= VAL_USERTYPESTART and sequential");
     type += 1;
   }
 #endif
@@ -2609,7 +2609,7 @@ void scriptSetCallbackTab(CALLBACK_SYMBOL* psCallTab)
 
   for (i = 0, type = TR_CALLBACKSTART; psCallTab[i].type != 0; i++)
   {
-    ASSERT((psCallTab[i].type == type, "scriptSetCallbackTab: ID's must be >= VAL_CALLBACKSTART and sequential"));
+    DEBUG_ASSERT_TEXT(psCallTab[i].type == type, "scriptSetCallbackTab: ID's must be >= VAL_CALLBACKSTART and sequential");
     type += 1;
   }
 #endif

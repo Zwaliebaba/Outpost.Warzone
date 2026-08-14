@@ -744,7 +744,7 @@ BOOL systemInitialise(void)
     pie_SetDirect3DDeviceName("RGB Emulation");
     if (!pie_Initialise(REND_D3D_RGB))
     {
-      ASSERT((FALSE,"Unable to initialise DirectX RGB Renderer"));
+      DEBUG_ASSERT_TEXT(FALSE, "Unable to initialise DirectX RGB Renderer");
       return FALSE;
     }
     break;
@@ -752,7 +752,7 @@ BOOL systemInitialise(void)
     pie_SetDirect3DDeviceName("Reference Rasterizer");
     if (!pie_Initialise(REND_D3D_REF))
     {
-      ASSERT((FALSE,"Unable to initialise DirectX Reference Renderer"));
+      DEBUG_ASSERT_TEXT(FALSE, "Unable to initialise DirectX Reference Renderer");
       return FALSE;
     }
     break;
@@ -760,7 +760,7 @@ BOOL systemInitialise(void)
     pie_SetDirect3DDeviceName("Direct3D HAL");
     if (!pie_Initialise(REND_D3D_HAL))
     {
-      ASSERT((FALSE,"Unable to initialise DirectX HAL, ensure the correct DirectDraw device is selected"));
+      DEBUG_ASSERT_TEXT(FALSE, "Unable to initialise DirectX HAL, ensure the correct DirectDraw device is selected");
       return FALSE;
     }
     break;
@@ -882,7 +882,7 @@ BOOL init_ObjectDead(void* psObj)
   STRUCTURE* psStructure;
 
   /* check is valid pointer */
-  ASSERT((PTRVALID(psBaseObj, sizeof(BASE_OBJECT)), "init_ObjectDead: game object pointer invalid\n"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psBaseObj, sizeof(BASE_OBJECT)), "init_ObjectDead: game object pointer invalid\n");
 
   if (psBaseObj->died == TRUE)
   {

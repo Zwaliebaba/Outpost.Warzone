@@ -243,7 +243,7 @@ VOID useTheForce(BOOL bAddTempl) //Luke
     y = y1;
 
     if (!pickATileGen(&x, &y,LOOK_FOR_EMPTY_TILE, zonedPAT))
-      ASSERT((FALSE, "UseTheForce: Unable to find a free location"));
+      DEBUG_ASSERT_TEXT(FALSE, "UseTheForce: Unable to find a free location");
     DBPRINTF(("force droid dropping at :%d,%d\n",x,y));
 
     // copy template

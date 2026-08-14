@@ -144,7 +144,7 @@ void gwSeedFill(SDWORD x, SDWORD y, SDWORD nv)
   }
 #else
   //	GODDAM *#!! LOWERCASE assert IS ABSOLUTELY NO %^$## USE ON THE PC
-  ASSERT((FALSE, "gwSeedFill disabled"));
+  DEBUG_ASSERT_TEXT(FALSE, "gwSeedFill disabled");
 #endif
 }
 
@@ -495,7 +495,7 @@ void gwDecompressLine(SDWORD line, UBYTE* pBuffer)
 
     for (store = 0; store < count; store++)
     {
-      ASSERT((bufPos < gwMapWidth(), "gwDecompressLine: Invalid RLE code"));
+      DEBUG_ASSERT_TEXT(bufPos < gwMapWidth(), "gwDecompressLine: Invalid RLE code");
 
       pBuffer[bufPos] = static_cast<UBYTE>(zone);
       bufPos += 1;
@@ -533,7 +533,7 @@ void gwSetZone(SDWORD x, SDWORD y, SDWORD zone)
 {
   UBYTE aBuffer[GW_MAP_MAXWIDTH];
 
-  ASSERT(((x >= 0) && (x < gwMapWidth()) && (y >= 0) && (y < gwMapHeight()), "gwSetZone: invalid coordinates"));
+  DEBUG_ASSERT_TEXT((x >= 0) && (x < gwMapWidth()) && (y >= 0) && (y < gwMapHeight()), "gwSetZone: invalid coordinates");
 
   gwDecompressLine(y, aBuffer);
 

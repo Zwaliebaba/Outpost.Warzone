@@ -285,7 +285,7 @@ BOOL cdIsValid(CD_INDEX cdRequired)
 #endif
 
   /* Make sure it's a good CD */
-  ASSERT((cdRequired == DISC_ONE OR cdRequired == DISC_TWO, "Invalid CD name request for cdIsValid"));
+  DEBUG_ASSERT_TEXT(cdRequired == DISC_ONE OR cdRequired == DISC_TWO, "Invalid CD name request for cdIsValid");
 
   /* Look at what we've got in the drive */
   if (cdspan_CheckCDPresent(cdRequired))

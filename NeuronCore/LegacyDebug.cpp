@@ -68,7 +68,7 @@ void dbg_printf(SBYTE* pFormat, ...)
  */
 void dbg_SetOutputFile(SBYTE* pFilename)
 {
-  ASSERT((pFilename != NULL, "dbg_SetOutputFile passed NULL filename"));
+  DEBUG_ASSERT_TEXT(pFilename != NULL, "dbg_SetOutputFile passed NULL filename");
 
   if (pDebugFile)
     fclose(pDebugFile);

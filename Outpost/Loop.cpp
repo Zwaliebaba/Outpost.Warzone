@@ -476,7 +476,7 @@ GAMECODE gameLoop(void)
                 addConsoleMessage(strresGetString(psStringRes, STR_GAME_SAVED), LEFT_JUSTIFY);
               else
               {
-                ASSERT((FALSE,"Mission Results: saveGame Failed"));
+                DEBUG_ASSERT_TEXT(FALSE, "Mission Results: saveGame Failed");
                 deleteSaveGame(sRequestResult);
               }
             }
@@ -486,12 +486,12 @@ GAMECODE gameLoop(void)
                 addConsoleMessage(strresGetString(psStringRes, STR_GAME_SAVED), LEFT_JUSTIFY);
               else
               {
-                ASSERT((FALSE,"Mid Mission: saveGame Failed"));
+                DEBUG_ASSERT_TEXT(FALSE, "Mid Mission: saveGame Failed");
                 deleteSaveGame(sRequestResult);
               }
             }
             else
-              ASSERT((FALSE, "Attempt to save game with incorrect load/save mode"));
+              DEBUG_ASSERT_TEXT(FALSE, "Attempt to save game with incorrect load/save mode");
           }
         }
       }
@@ -710,7 +710,7 @@ GAMECODE gameLoop(void)
   case LMS_LOADGAME:
     return GAMECODE_LOADGAME;
     break;
-  default: ASSERT((FALSE, "unknown loopMissionState"));
+  default: DEBUG_ASSERT_TEXT(FALSE, "unknown loopMissionState");
     break;
   }
 
@@ -920,7 +920,7 @@ void loop_ClearVideoPlaybackMode(void)
   video = FALSE;
   gameTimeStart();
   cdAudio_Resume();
-  ASSERT((videoMode == 0,"loop_ClearVideoPlaybackMode: out of sync."));
+  DEBUG_ASSERT_TEXT(videoMode == 0, "loop_ClearVideoPlaybackMode: out of sync.");
 }
 
 SDWORD loop_GetVideoMode(void) { return videoMode; }

@@ -34,7 +34,7 @@ BOOL editBoxCreate(W_EDITBOX** ppsWidget, W_EDBINIT* psInit)
 {
   if (psInit->style & ~(WEDB_PLAIN | WIDG_HIDDEN | WEDB_DISABLED))
   {
-    ASSERT((FALSE, "Unknown edit box style"));
+    DEBUG_ASSERT_TEXT(FALSE, "Unknown edit box style");
     return FALSE;
   }
 
@@ -47,7 +47,7 @@ BOOL editBoxCreate(W_EDITBOX** ppsWidget, W_EDBINIT* psInit)
   if (!HEAP_ALLOC(psEdbHeap, ppsWidget))
 #endif
   {
-    ASSERT((FALSE, "Out of memory"));
+    DEBUG_ASSERT_TEXT(FALSE, "Out of memory");
     return FALSE;
   }
 
@@ -97,7 +97,7 @@ void editBoxFree(W_EDITBOX* psWidget)
 /* Initialise an edit box widget */
 void editBoxInitialise(W_EDITBOX* psWidget)
 {
-  ASSERT((PTRVALID(psWidget, sizeof(W_EDITBOX)), "editBoxInitialise: Invalid edit box pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psWidget, sizeof(W_EDITBOX)), "editBoxInitialise: Invalid edit box pointer");
 
   psWidget->state = WEDBS_FIXED;
   psWidget->printStart = 0;
@@ -111,7 +111,7 @@ static void insertChar(STRING* pBuffer, UDWORD* pPos, STRING ch)
   STRING *pSrc, *pDest;
   UDWORD len, count;
 
-  ASSERT((*pPos <= strlen(pBuffer), "insertChar: Invalid insertion point"));
+  DEBUG_ASSERT_TEXT(*pPos <= strlen(pBuffer), "insertChar: Invalid insertion point");
 
   len = strlen(pBuffer);
 
@@ -140,7 +140,7 @@ static void overwriteChar(STRING* pBuffer, UDWORD* pPos, STRING ch)
   STRING* pDest;
   UDWORD len;
 
-  ASSERT((*pPos <= strlen(pBuffer), "insertChar: Invalid insertion point"));
+  DEBUG_ASSERT_TEXT(*pPos <= strlen(pBuffer), "insertChar: Invalid insertion point");
 
   len = strlen(pBuffer);
 
@@ -170,7 +170,7 @@ static void delCharLeft(STRING* pBuffer, UDWORD* pPos)
   STRING *pSrc, *pDest;
   UDWORD len, count;
 
-  ASSERT((*pPos <= strlen(pBuffer), "delCharLeft: Invalid insertion point"));
+  DEBUG_ASSERT_TEXT(*pPos <= strlen(pBuffer), "delCharLeft: Invalid insertion point");
 
   /* Can't delete if we are at the start of the string */
   if (*pPos == 0)
@@ -194,7 +194,7 @@ static void delCharRight(STRING* pBuffer, UDWORD* pPos)
   STRING *pSrc, *pDest;
   UDWORD len, count;
 
-  ASSERT((*pPos <= strlen(pBuffer), "delCharLeft: Invalid insertion point"));
+  DEBUG_ASSERT_TEXT(*pPos <= strlen(pBuffer), "delCharLeft: Invalid insertion point");
 
   len = strlen(pBuffer);
 
@@ -457,7 +457,7 @@ void editBoxRun(W_EDITBOX* psWidget, W_CONTEXT* psContext)
 /* Set the current string for the edit box */
 void editBoxSetString(W_EDITBOX* psWidget, STRING* pText)
 {
-  ASSERT((PTRVALID(psWidget, sizeof(W_EDITBOX)), "editBoxSetString: Invalid edit box pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psWidget, sizeof(W_EDITBOX)), "editBoxSetString: Invalid edit box pointer");
 
   widgCopyString(psWidget->aText, pText);
   psWidget->state = WEDBS_FIXED;
@@ -501,7 +501,7 @@ void editBoxClicked(W_EDITBOX* psWidget, W_CONTEXT* psContext)
 /* Respond to loss of focus */
 void editBoxFocusLost(W_EDITBOX* psWidget)
 {
-  ASSERT(( !(psWidget->state & WEDBS_DISABLE), "editBoxFocusLost: disabled edit box"));
+  DEBUG_ASSERT_TEXT(!(psWidget->state & WEDBS_DISABLE), "editBoxFocusLost: disabled edit box");
 
   /* Stop editing the widget */
   psWidget->state = WEDBS_FIXED;

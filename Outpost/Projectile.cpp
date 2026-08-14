@@ -221,7 +221,7 @@ BOOL proj_SendProjectile(WEAPON* psWeap, BASE_OBJECT* psAttacker, SDWORD player,
   UDWORD heightVariance;
   WEAPON_STATS* psWeapStats = &asWeaponStats[psWeap->nStat];
 
-  ASSERT((PTRVALID(psWeapStats,sizeof(WEAPON_STATS)), "proj_SendProjectile: invalid weapon stats"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psWeapStats,sizeof(WEAPON_STATS)), "proj_SendProjectile: invalid weapon stats");
 
   /* get unused projectile object from hashtable*/
   psObj = static_cast<PROJ_OBJECT*>(hashTable_GetElement(g_pProjObjTable));
@@ -458,10 +458,10 @@ void proj_InFlightDirectFunc(PROJ_OBJECT* psObj)
   SDWORD rad;
   iVector pos;
 
-  ASSERT((PTRVALID(psObj, sizeof(PROJ_OBJECT)), "proj_InFlightDirectFunc: invalid projectile pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psObj, sizeof(PROJ_OBJECT)), "proj_InFlightDirectFunc: invalid projectile pointer");
 
   psStats = psObj->psWStats;
-  ASSERT((PTRVALID(psStats, sizeof(WEAPON_STATS)), "proj_InFlightDirectFunc: Invalid weapon stats pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psStats, sizeof(WEAPON_STATS)), "proj_InFlightDirectFunc: Invalid weapon stats pointer");
 
   timeSoFar = gameTime - psObj->born;
 
@@ -624,10 +624,10 @@ void proj_InFlightIndirectFunc(PROJ_OBJECT* psObj)
   FRACT fVVert;
   BOOL bOver = FALSE;
 
-  ASSERT((PTRVALID(psObj, sizeof(PROJ_OBJECT)), "proj_InFlightIndirectFunc: invalid projectile pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psObj, sizeof(PROJ_OBJECT)), "proj_InFlightIndirectFunc: invalid projectile pointer");
 
   psStats = psObj->psWStats;
-  ASSERT((PTRVALID(psStats, sizeof(WEAPON_STATS)), "proj_InFlightIndirectFunc: Invalid weapon stats pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psStats, sizeof(WEAPON_STATS)), "proj_InFlightIndirectFunc: Invalid weapon stats pointer");
 
   iTime = gameTime - psObj->born;
 
@@ -764,10 +764,10 @@ void proj_ImpactFunc(PROJ_OBJECT* psObj)
   iVector position, scatter;
   UDWORD damage; //optimisation - were all being calculated twice on PC
 
-  ASSERT((PTRVALID(psObj, sizeof(PROJ_OBJECT)), "proj_ImpactFunc: invalid projectile pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psObj, sizeof(PROJ_OBJECT)), "proj_ImpactFunc: invalid projectile pointer");
 
   psStats = psObj->psWStats;
-  ASSERT((PTRVALID(psStats, sizeof(WEAPON_STATS)), "proj_ImpactFunc: Invalid weapon stats pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psStats, sizeof(WEAPON_STATS)), "proj_ImpactFunc: Invalid weapon stats pointer");
 
   /* play impact audio */
   if (gfxVisible(psObj))
@@ -820,7 +820,7 @@ void proj_ImpactFunc(PROJ_OBJECT* psObj)
   bKilled = FALSE;
   if (psObj->psDest != nullptr)
   {
-    ASSERT((PTRVALID(psObj->psDest, sizeof(BASE_OBJECT)), "proj_ImpactFunc: Invalid destination object pointer"));
+    DEBUG_ASSERT_TEXT(PTRVALID(psObj->psDest, sizeof(BASE_OBJECT)), "proj_ImpactFunc: Invalid destination object pointer");
   }
 
   if (psObj->psDest == nullptr)
@@ -1232,10 +1232,10 @@ void proj_PostImpactFunc(PROJ_OBJECT* psObj)
   SDWORD i, age;
   FIRE_BOX flame;
 
-  ASSERT((PTRVALID(psObj, sizeof(PROJ_OBJECT)), "proj_PostImpactFunc: invalid projectile pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psObj, sizeof(PROJ_OBJECT)), "proj_PostImpactFunc: invalid projectile pointer");
 
   psStats = psObj->psWStats;
-  ASSERT((PTRVALID(psStats, sizeof(WEAPON_STATS)), "proj_PostImpactFunc: Invalid weapon stats pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psStats, sizeof(WEAPON_STATS)), "proj_PostImpactFunc: Invalid weapon stats pointer");
 
   age = static_cast<SDWORD>(gameTime) - static_cast<SDWORD>(psObj->born);
 
@@ -1275,7 +1275,7 @@ void proj_PostImpactFunc(PROJ_OBJECT* psObj)
 
 void proj_Update(PROJ_OBJECT* psObj)
 {
-  ASSERT((PTRVALID(psObj, sizeof(PROJ_OBJECT)), "proj_Update: Invalid bullet pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psObj, sizeof(PROJ_OBJECT)), "proj_Update: Invalid bullet pointer");
 
   /* See if any of the stored objects have died
    * since the projectile was created
@@ -1407,7 +1407,7 @@ BOOL proj_Direct(WEAPON_STATS* psStats)
   case MM_HOMINGINDIRECT:
     return FALSE;
     break;
-  default: ASSERT((FALSE,"proj_Direct: unknown movement model"));
+  default: DEBUG_ASSERT_TEXT(FALSE, "proj_Direct: unknown movement model");
     break;
   }
 
@@ -1525,7 +1525,7 @@ BOOL objectDamage(BASE_OBJECT* psObj, UDWORD damage, UDWORD weaponClass, UDWORD 
   case OBJ_FEATURE:
     return featureDamage((FEATURE*)psObj, damage, weaponClass, weaponSubClass);
     break;
-  default: ASSERT((FALSE, "objectDamage - unknown object type"));
+  default: DEBUG_ASSERT_TEXT(FALSE, "objectDamage - unknown object type");
   }
   return FALSE;
 }

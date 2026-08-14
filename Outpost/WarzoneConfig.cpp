@@ -130,7 +130,7 @@ SEQ_MODE war_GetSeqMode(void) { return warGlobs.seqMode; }
 /***************************************************************************/
 void war_SetDirectDrawDeviceName(char* pDDDeviceName)
 {
-  ASSERT((strlen(pDDDeviceName) < 255,"DirectDraw device string exceeds max string length."));
+  DEBUG_ASSERT_TEXT(strlen(pDDDeviceName) < 255, "DirectDraw device string exceeds max string length.");
   if (strlen(pDDDeviceName) >= 255)
     pDDDeviceName[255] = 0;
   strcpy(warGlobs.DDrawDriverName, pDDDeviceName);
@@ -142,7 +142,7 @@ char* war_GetDirectDrawDeviceName(void) { return warGlobs.DDrawDriverName; }
 /***************************************************************************/
 void war_SetDirect3DDeviceName(char* pD3DDeviceName)
 {
-  ASSERT((strlen(pD3DDeviceName) < 255,"Direct3D device string exceeds max string length."));
+  DEBUG_ASSERT_TEXT(strlen(pD3DDeviceName) < 255, "Direct3D device string exceeds max string length.");
   if (strlen(pD3DDeviceName) >= 255)
     pD3DDeviceName[255] = 0;
   strcpy(warGlobs.D3DDriverName, pD3DDeviceName);

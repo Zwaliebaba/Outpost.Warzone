@@ -706,7 +706,7 @@ BOOL accruePower(BASE_OBJECT* psObject)
       break;
     }
     break;
-  default: ASSERT((FALSE, "accruePower: Invalid object type"));
+  default: DEBUG_ASSERT_TEXT(FALSE, "accruePower: Invalid object type");
   }
 
   return bPowerUsed;
@@ -723,7 +723,7 @@ void powerDestroyObject(BASE_OBJECT* psObject)
 /*checks if the Object to be powered next - returns TRUE if power*/
 BOOL getLastPowered(BASE_OBJECT* psObject)
 {
-  ASSERT((psObject != NULL, "getLastPowered - invalid object"));
+  DEBUG_ASSERT_TEXT(psObject != NULL, "getLastPowered - invalid object");
 
   if (asPower[psObject->player]->psLastPowered == nullptr)
     return TRUE;
@@ -767,7 +767,7 @@ BOOL structUsesPower(STRUCTURE* psStruct)
 {
   BOOL bUsesPower = FALSE;
 
-  ASSERT((PTRVALID(psStruct, sizeof(STRUCTURE)), "structUsesPower: Invalid Structure pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psStruct, sizeof(STRUCTURE)), "structUsesPower: Invalid Structure pointer");
 
   switch (psStruct->pStructureType->type)
   {
@@ -791,7 +791,7 @@ BOOL droidUsesPower(DROID* psDroid)
 {
   BOOL bUsesPower = FALSE;
 
-  ASSERT((PTRVALID(psDroid, sizeof(DROID)), "unitUsesPower: Invalid unit pointer"));
+  DEBUG_ASSERT_TEXT(PTRVALID(psDroid, sizeof(DROID)), "unitUsesPower: Invalid unit pointer");
 
   switch (psDroid->droidType)
   {
@@ -832,7 +832,7 @@ void powerCheck(BOOL bBeforePowerUsed, UBYTE player)
     there was some power at the start of the loop to use*/
     if (psLastPowered != nullptr AND psLastPowered == asPower[player]->psLastPowered AND bPowerBefore)
     {
-      ASSERT((FALSE, "powerCheck: trouble at mill!"));
+      DEBUG_ASSERT_TEXT(FALSE, "powerCheck: trouble at mill!");
       //initialise so something can have some power next cycle
       asPower[player]->psLastPowered = nullptr;
     }

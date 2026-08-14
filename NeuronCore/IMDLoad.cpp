@@ -538,8 +538,8 @@ static iBool _imd_load_polys(UBYTE** ppFileData, UBYTE* FileDataEnd, iIMDShape* 
           return FALSE;
         }
 
-        ASSERT((tWidth>0, "_imd_load_polys: texture width = %i", tWidth));
-        ASSERT((tHeight>0, "_imd_load_polys: texture height = %i", tHeight));
+        DEBUG_ASSERT_TEXT(tWidth>0, "_imd_load_polys: texture width = {}", tWidth);
+        DEBUG_ASSERT_TEXT(tHeight>0, "_imd_load_polys: texture height = {}", tHeight);
 
         poly->pTexAnim->nFrames = nFrames;
 

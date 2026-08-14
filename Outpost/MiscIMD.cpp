@@ -77,7 +77,7 @@ BOOL multiLoadMiscImds(void)
     {
       /* Say which one and return FALSE */
       DBERROR(("Can't find misselaneous PIE file : %s",miscImds[i].pName));
-      ASSERT((0,"NULL PIE"));
+      DEBUG_ASSERT_TEXT(0, "NULL PIE");
       return (FALSE);
     }
     /*	If the next one's the end one, then get out now.
@@ -92,7 +92,7 @@ BOOL multiLoadMiscImds(void)
 // Returns a pointer to the imd from a #define number passed in - see above
 iIMDShape* getImdFromIndex(UDWORD index)
 {
-  ASSERT((index<MI_TOO_MANY,"Out of range index in getImdFromIndex"));
+  DEBUG_ASSERT_TEXT(index<MI_TOO_MANY, "Out of range index in getImdFromIndex");
 
   return (miscImds[index].pImd);
 }
@@ -120,7 +120,7 @@ iIMDShape* getRandomDebrisImd(void)
 
   DebrisIMD = getImdFromIndex(MI_DEBRIS0 + rand() % ((MI_DEBRIS4 - MI_DEBRIS0) + 1));
 
-  ASSERT((DebrisIMD != NULL,"getRandomDebrisImd : NULL PIE"));
+  DEBUG_ASSERT_TEXT(DebrisIMD != NULL, "getRandomDebrisImd : NULL PIE");
 
   return DebrisIMD;
 }

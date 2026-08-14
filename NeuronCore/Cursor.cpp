@@ -209,7 +209,7 @@ static DWORD WINAPI cursorThreadUpdate(LPVOID param)
       {
         setRects(&sScreenRect, &sSaveRect, saveX, saveY, CURSOR_SAVEWIDTH, CURSOR_SAVEHEIGHT);
         ddrval = psFront->lpVtbl->Blt(psFront, &sScreenRect, psCursorSave, &sSaveRect, DDBLT_WAIT, nullptr);
-        ASSERT((ddrval == DD_OK, "cursorThread: save buffer restore failed:\n%s", DDErrorToString(ddrval)));
+        DEBUG_ASSERT_TEXT(ddrval == DD_OK, "cursorThread: save buffer restore failed:\n{}", DDErrorToString(ddrval));
       }
 
       LeaveCriticalSection(&sScreenFlipCritical);
@@ -224,7 +224,7 @@ static DWORD WINAPI cursorThreadUpdate(LPVOID param)
     if (sScreenRect.left != sScreenRect.right && sScreenRect.top != sScreenRect.bottom)
     {
       ddrval = psCursorSave->lpVtbl->Blt(psCursorSave, &sSaveRect, psFront, &sScreenRect, DDBLT_WAIT, nullptr);
-      ASSERT((ddrval == DD_OK, "cursorThread: save buffer copy failed:\n%s", DDErrorToString(ddrval)));
+      DEBUG_ASSERT_TEXT(ddrval == DD_OK, "cursorThread: save buffer copy failed:\n{}", DDErrorToString(ddrval));
       saveX = mx;
       saveY = my;
       saveValid = TRUE;
@@ -257,7 +257,7 @@ static DWORD WINAPI cursorThreadUpdate(LPVOID param)
         // Wait for the V-Blank
 
         ddrval = psFront->lpVtbl->Blt(psFront, &sScreenRect, psCursorSurface, &sCursorRect, DDBLT_WAIT | DDBLT_KEYSRCOVERRIDE, &sBltFX);
-        ASSERT((ddrval == DD_OK, "cursorThread: cursor blit failed:\n%s", DDErrorToString(ddrval)));
+        DEBUG_ASSERT_TEXT(ddrval == DD_OK, "cursorThread: cursor blit failed:\n{}", DDErrorToString(ddrval));
       }
     }
     LeaveCriticalSection(&sSurfaceCritical);

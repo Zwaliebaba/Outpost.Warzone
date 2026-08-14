@@ -115,7 +115,7 @@ void initLighting(UDWORD x1, UDWORD y1, UDWORD x2, UDWORD y2)
   //quick check not trying to go off the map - don't need to check for < 0 since UWORD's!!
   if (x1 > mapWidth OR x2 > mapWidth OR y1 > mapHeight OR y2 > mapHeight)
   {
-    ASSERT((FALSE, "initLighting: coords off edge of map"));
+    DEBUG_ASSERT_TEXT(FALSE, "initLighting: coords off edge of map");
     return;
   }
 
@@ -361,7 +361,7 @@ void normalsOnTile(UDWORD tileX, UDWORD tileY, UDWORD quadrant)
       }
     }
     break;
-  default: ASSERT((FALSE,"Invalid quadrant in lighting code"));
+  default: DEBUG_ASSERT_TEXT(FALSE, "Invalid quadrant in lighting code");
   } // end switch
 }
 
@@ -461,10 +461,10 @@ UDWORD calcDistToTile(UDWORD tileX, UDWORD tileY, iVector* pos)
 
 void colourTile(SDWORD xIndex, SDWORD yIndex, LIGHT_COLOUR colour, UBYTE percent)
 {
-  ASSERT((xIndex<LAND_XGRD,"X Colour Value out of range (above) for lighting"));
-  ASSERT((yIndex<LAND_YGRD,"Y Colour Value out of range (above)for lighting"));
-  ASSERT((xIndex>=0,"X Colour Value out of range (below) for lighting"));
-  ASSERT((yIndex>=0,"Y Colour Value out of range (below )for lighting"));
+  DEBUG_ASSERT_TEXT(xIndex<LAND_XGRD, "X Colour Value out of range (above) for lighting");
+  DEBUG_ASSERT_TEXT(yIndex<LAND_YGRD, "Y Colour Value out of range (above)for lighting");
+  DEBUG_ASSERT_TEXT(xIndex>=0, "X Colour Value out of range (below) for lighting");
+  DEBUG_ASSERT_TEXT(yIndex>=0, "Y Colour Value out of range (below )for lighting");
 
   switch (colour)
   {
@@ -517,7 +517,7 @@ void colourTile(SDWORD xIndex, SDWORD yIndex, LIGHT_COLOUR colour, UBYTE percent
       tileScreenInfo[yIndex][xIndex].light.byte.b = 255;
     }
     break;
-  default: ASSERT((FALSE,"Weirdy colour of light attempted"));
+  default: DEBUG_ASSERT_TEXT(FALSE, "Weirdy colour of light attempted");
     break;
   }
 }
