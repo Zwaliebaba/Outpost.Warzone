@@ -127,9 +127,6 @@
     <ClInclude Include="PtrList.h">
       <Filter>Gamelib</Filter>
     </ClInclude>
-    <ClInclude Include="AMD3D.h">
-      <Filter>ivis02</Filter>
-    </ClInclude>
     <ClInclude Include="BitImage.h">
       <Filter>ivis02</Filter>
     </ClInclude>

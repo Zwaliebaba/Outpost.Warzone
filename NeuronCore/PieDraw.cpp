@@ -1,28 +1,14 @@
 #include "pch.h"
-/***************************************************************************/
-/*
- * piedraw.c
- *
- * updated render routines for 3D coloured shaded transparency rendering
- *
- */
-/***************************************************************************/
-
 #include "Frame.h"
-
 #include "IvisDef.h"
-
 #include "IMD.h"
 #include "RendMode.h"
 #include "PieFunc.h"
 #include "PieMatrix.h"
 #include "Tex.h"
-
 #include "PieDef.h"
 #include "PieState.h"
-#include "PieTexture.h"
 #include "PieClip.h"
-
 #include "d3d.h"
 #include "D3DRender.h"
 
@@ -164,8 +150,6 @@ void SetBSPCameraPos(SDWORD x, SDWORD y, SDWORD z)
  * Avoids recalculating vertex projections for every poly 
  ***************************************************************************/
 
-#include "AMD3D.h"
-
 // ---
 // DEV STUDIO 5, 3D NOW and INTEL VERSION.
 #if (_MSC_VER != 1000) && (_MSC_VER != 1020)
@@ -283,161 +267,43 @@ void pie_Draw3DShape(iIMDShape* shape, int frame, int team, UDWORD col, UDWORD s
   pVertices = shape->points;
   pPixels = &scrPoints[0];
 
-  if (weHave3DNow()) // call alex m's AMD detection stuff - uses _emit?!?!?
+  for (i = 0; i < shape->npoints; i++, pVertices++, pPixels++)
   {
-    // Mike Goddard's funky code replacement.
-    _asm {
-      FEMMS
-
-      movd mm2, amd_RAISE // defaults
-      mov eax, pieFlag
-      test eax, pie_RAISE
-      jz no_RAISE
-      movd mm0, pieFlagData
-      pi2fd(m0, m0)
-      movd amd_RAISE, mm0
-      movq mm2, mm0 // for first iteration
-      no_RAISE:
-      movd mm3, amd_HEIGHT_SCALED // defaults
-      test eax, pie_HEIGHT_SCALED
-      jz no_HEIGHT_SCALED
-      movd mm0, pieFlagData
-      movd mm1, amd_pie_RAISE_SCALE
-      pi2fd(m0, m0)
-      pfmul(m0, m1)
-      movd amd_HEIGHT_SCALED, mm0
-      movq mm3, mm0 // for first iteration
-      no_HEIGHT_SCALED:
-
-      mov eax, pVertices
-      mov ebx, psMatrix
-      mov ecx, shape
-      mov edx, pPixels
-      mov ecx, [ecx]iIMDShape.npoints
-      mov edi, psRendSurface
-      test ecx, ecx
-      je tloop_done
-      tloop:
-      movd mm1, [eax+4] // 0 | y
-      ;
-      movd mm0, [eax] // 0 | x
-      ;
-      pi2fd(m1, m1)
-      ;
-      pi2fd(m0, m0)
-      ;
-      pfsub(m1, m2) // 0 | RAISE y
-      movd mm2, [eax+8] // 0 | z
-      movq mm7, [ebx] // b | a
-      punpckldq mm0, mm0 // x | x
-      movq mm6, [ebx+12] // e | d
-      pfmul(m1, m3) // 0 | SCALE y
-      movq mm5, [ebx+24] // h | g
-      punpckldq mm2, mm2 // z | z
-      movd mm4, [ebx+8] // 0 | c
-      punpckldq mm1, mm1 // y | y
-      pi2fd(m2, m2)
-      ;
-      pi2fd(m7, m7)
-      ;
-      pi2fd(m6, m6)
-      ;
-      pi2fd(m5, m5)
-      pfmul(m7, m0) // x*b | x*a
-      pi2fd(m4, m4)
-      pfmul(m6, m1) // y*e | y*d
-      pfmul(m5, m2) // z*h | z*g
-      ;
-      pfadd(m6, m7) // y*e+x*b | y*d+x*a
-      movd mm7, [ebx+20] // 0 | f
-      pfmul(m4, m0) // 0 | x*c
-      ;
-      pi2fd(m7, m7)
-      ;
-      pfadd(m5, m6) // z*h+y*e+x*b | z*g+y*d+x*a
-      movd mm6, [ebx+32] // 0 | i
-      pfmul(m7, m1) // 0 | y*f
-      movq mm0, [ebx+36] // k | j
-      pi2fd(m6, m6)
-      movd mm1, [ebx+44] // 0 | l
-      pfadd(m7, m4) // 0 | y*f+x*c
-      movd mm4, amd_scale
-      pfmul(m6, m2) // 0 | z*i
-      pi2fd(m0, m0)
-      pi2fd(m1, m1)
-      ;
-      pfadd(m6, m7) // 0 | z*i+y*f+x*c
-      ;
-      pfadd(m5, m0) // ry | rx
-      pxor mm0, mm0
-      pfadd(m6, m1) //  0 | rz
-      punpckldq mm0, amd_sign
-      movq mm1, [edi]iSurface.xcentre
-      pxor mm2, mm2
-      pfmul(m6, m4) // 0 | srz
-      movd [edx]PIEPIXEL.d3dz, mm6
-      pxor mm5, mm0
-      pi2fd(m1, m1)
-      pfmax(m6, m2) // chop less than zero to max
-      movd mm2, amd_RAISE // restore
-      ;
-      ;
-      pfrcp(m7, m6) // 1/srz | 1/srz
-      movd mm3, amd_HEIGHT_SCALED // restore
-      ;
-      ;
-      pfmul(m5, m7) // ry/srz | rx/srz
-      add eax, 12
-      add edx, 12
-      dec ecx
-      pfadd(m5, m1)
-      movq [edx-12]PIEPIXEL.d3dx, mm5
-      jne tloop
-      tloop_done:
-      FEMMS
-      }
-  }
-  else // run the intel one
-  {
-    //--
-    for (i = 0; i < shape->npoints; i++, pVertices++, pPixels++)
+    tempY = pVertices->y;
+    if (pieFlag & pie_RAISE)
     {
-      tempY = pVertices->y;
-      if (pieFlag & pie_RAISE)
-      {
-        tempY = pVertices->y - pieFlagData;
-        if (tempY < 0)
-          tempY = 0;
-      }
-      else if (pieFlag & pie_HEIGHT_SCALED)
-      {
-        if (pVertices->y > 0)
-          tempY = (pVertices->y * pieFlagData) / pie_RAISE_SCALE;
-      }
-      rx = pVertices->x * psMatrix->a + tempY * psMatrix->d + pVertices->z * psMatrix->g + psMatrix->j;
-      ry = pVertices->x * psMatrix->b + tempY * psMatrix->e + pVertices->z * psMatrix->h + psMatrix->k;
-      rz = pVertices->x * psMatrix->c + tempY * psMatrix->f + pVertices->z * psMatrix->i + psMatrix->l;
+      tempY = pVertices->y - pieFlagData;
+      if (tempY < 0)
+        tempY = 0;
+    }
+    else if (pieFlag & pie_HEIGHT_SCALED)
+    {
+      if (pVertices->y > 0)
+        tempY = (pVertices->y * pieFlagData) / pie_RAISE_SCALE;
+    }
+    rx = pVertices->x * psMatrix->a + tempY * psMatrix->d + pVertices->z * psMatrix->g + psMatrix->j;
+    ry = pVertices->x * psMatrix->b + tempY * psMatrix->e + pVertices->z * psMatrix->h + psMatrix->k;
+    rz = pVertices->x * psMatrix->c + tempY * psMatrix->f + pVertices->z * psMatrix->i + psMatrix->l;
 
-      pPixels->d3dz = D3DVAL((rz>>STRETCHED_Z_SHIFT));
+    pPixels->d3dz = D3DVAL((rz>>STRETCHED_Z_SHIFT));
 
-      tzx = rz >> psRendSurface->xpshift;
-      tzy = rz >> psRendSurface->ypshift;
+    tzx = rz >> psRendSurface->xpshift;
+    tzy = rz >> psRendSurface->ypshift;
 
-      if ((tzx <= 0) || (tzy <= 0))
-      {
-        pPixels->d3dx = static_cast<float>(LONG_WAY); //just along way off screen
-        pPixels->d3dy = static_cast<float>(LONG_WAY);
-      }
-      else if (pPixels->d3dz < D3DVAL(MIN_STRETCHED_Z))
-      {
-        pPixels->d3dx = static_cast<float>(LONG_WAY); //just along way off screen
-        pPixels->d3dy = static_cast<float>(LONG_WAY);
-      }
-      else
-      {
-        pPixels->d3dx = D3DVAL((psRendSurface->xcentre + (rx / tzx)));
-        pPixels->d3dy = D3DVAL((psRendSurface->ycentre - (ry / tzy)));
-      }
+    if ((tzx <= 0) || (tzy <= 0))
+    {
+      pPixels->d3dx = static_cast<float>(LONG_WAY); //just along way off screen
+      pPixels->d3dy = static_cast<float>(LONG_WAY);
+    }
+    else if (pPixels->d3dz < D3DVAL(MIN_STRETCHED_Z))
+    {
+      pPixels->d3dx = static_cast<float>(LONG_WAY); //just along way off screen
+      pPixels->d3dy = static_cast<float>(LONG_WAY);
+    }
+    else
+    {
+      pPixels->d3dx = D3DVAL((psRendSurface->xcentre + (rx / tzx)));
+      pPixels->d3dy = D3DVAL((psRendSurface->ycentre - (ry / tzy)));
     }
   }
 
