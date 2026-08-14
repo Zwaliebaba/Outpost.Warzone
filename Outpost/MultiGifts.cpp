@@ -506,7 +506,7 @@ VOID technologyGiveAway(STRUCTURE* pS)
     x = (pS->x >> TILE_SHIFT);
     y = (pS->y >> TILE_SHIFT);
     if (!pickATileGen(&x, &y,LOOK_FOR_EMPTY_TILE, zonedPAT))
-      ASSERT_TEXT(FALSE, "technologyGiveAway: Unable to find a free location");
+      DEBUG_ASSERT_TEXT(FALSE, "technologyGiveAway: Unable to find a free location");
 
     for (i = 0; (i < numFeatureStats) && (asFeatureStats[i].subType != FEAT_GEN_ARTE); i++);
     pF = buildFeature((asFeatureStats + i), x << TILE_SHIFT, y << TILE_SHIFT,FALSE);
@@ -584,7 +584,7 @@ void addLoserGifts(void)
       x = apsStructLists[selectedPlayer]->x >> TILE_SHIFT;
       y = apsStructLists[selectedPlayer]->y >> TILE_SHIFT;
       if (!pickATileGen(&x, &y,LOOK_FOR_EMPTY_TILE, zonedPAT))
-        ASSERT_TEXT(FALSE, "addlosergifts: Unable to find a free location");
+        DEBUG_ASSERT_TEXT(FALSE, "addlosergifts: Unable to find a free location");
 
       NETlogEntry("gift", 0, 0);
 
@@ -669,15 +669,15 @@ VOID addMultiPlayerRandomArtifacts(UDWORD quantity, SDWORD type)
 
   for (i = 0; (i < numFeatureStats) && (asFeatureStats[i].subType != type); i++);
 
-  ASSERT_TEXT(mapWidth>20,"map not big enough");
-  ASSERT_TEXT(mapHeight>20,"map not big enough");
+  DEBUG_ASSERT_TEXT(mapWidth>20, "map not big enough");
+  DEBUG_ASSERT_TEXT(mapHeight>20, "map not big enough");
 
   for (count = 0; count < quantity; count++)
   {
     x = (rand() % (mapWidth - 20)) + 10; //( between 10 and mapwidth-10)
     y = (rand() % (mapHeight - 20)) + 10;
     if (!pickATileGen(&x, &y,LOOK_FOR_EMPTY_TILE, zonedPAT))
-      ASSERT_TEXT(FALSE, "addMultiPlayerRandomArtifacts: Unable to find a free location");
+      DEBUG_ASSERT_TEXT(FALSE, "addMultiPlayerRandomArtifacts: Unable to find a free location");
 
     pF = buildFeature((asFeatureStats + i), x << TILE_SHIFT, y << TILE_SHIFT,FALSE);
 

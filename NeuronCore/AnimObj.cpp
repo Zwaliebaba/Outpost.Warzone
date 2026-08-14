@@ -143,7 +143,7 @@ ANIM_OBJECT* animObj_Add(void* pParentObj, int iAnimID, UDWORD udwStartDelay, UW
   BASEANIM* psAnim = anim_GetAnim(static_cast<UWORD>(iAnimID));
   UWORD i, uwObj;
 
-  ASSERT_TEXT(psAnim != NULL, "anim_AddAnimObject: anim id {} not found\n", iAnimID );
+  DEBUG_ASSERT_TEXT(psAnim != NULL, "anim_AddAnimObject: anim id {} not found\n", iAnimID);
 
   /* get object from table */
   psObj = static_cast<ANIM_OBJECT*>(hashTable_GetElement(g_pAnimObjTable));

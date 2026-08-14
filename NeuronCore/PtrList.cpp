@@ -182,7 +182,7 @@ BOOL ptrList_RemoveElement(PTRLIST* ptrList, void* psElement, SDWORD sdwKey)
     bOK = FALSE;
   else
   {
-    ASSERT_TEXT(psCurNode->psElement == psElement,"ptrList_RemoveElement: removing wrong element!\n");
+    DEBUG_ASSERT_TEXT(psCurNode->psElement == psElement, "ptrList_RemoveElement: removing wrong element!\n");
 
     /* remove from list */
     if (psPrevNode == nullptr)
@@ -204,7 +204,7 @@ BOOL ptrList_RemoveElement(PTRLIST* ptrList, void* psElement, SDWORD sdwKey)
         ptrList->psCurNode = psPrevNode;
     }
 
-    ASSERT_TEXT(psCurNode->psElement == psElement, "ptrList_RemoveElement: removing wrong element!\n");
+    DEBUG_ASSERT_TEXT(psCurNode->psElement == psElement, "ptrList_RemoveElement: removing wrong element!\n");
     delete[] static_cast<UBYTE*>(psCurNode->psElement);
 
     delete psCurNode;

@@ -50,7 +50,7 @@ SDWORD calcDirection(UDWORD x0, UDWORD y0, UDWORD x1, UDWORD y1)
   if (angleInt < 0)
     angleInt += 360;
 
-  ASSERT_TEXT(angleInt >= 0 && angleInt < 360, "calcDirection: droid direction out of range");
+  DEBUG_ASSERT_TEXT(angleInt >= 0 && angleInt < 360, "calcDirection: droid direction out of range");
 
   return (angleInt);
 }
@@ -389,7 +389,7 @@ BOOL droidOnScreen(DROID* psDroid, SDWORD tolerance)
 
 void processImpact(UDWORD worldX, UDWORD worldY, UBYTE severity, UDWORD tilesAcross)
 {
-  ASSERT_TEXT(severity<MAX_TILE_DAMAGE,"Damage is too severe");
+  DEBUG_ASSERT_TEXT(severity<MAX_TILE_DAMAGE, "Damage is too severe");
   /* Make sure it's odd */
   if (!(tilesAcross & 0x01))
     tilesAcross -= 1;

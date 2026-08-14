@@ -738,7 +738,7 @@ BOOL recvStructureCheck(NETMSG* m)
 
         default:
           j = 0;
-          ASSERT_TEXT(FALSE,"Unknown Upgrade in structure checking!");
+          DEBUG_ASSERT_TEXT(FALSE, "Unknown Upgrade in structure checking!");
           return TRUE;
           break;
         }

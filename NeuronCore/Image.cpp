@@ -58,9 +58,9 @@ BOOL imageParsePCX(UBYTE* pFileData, // Original file
   PALETTEENTRY* psCurrPal;
   SWORD runlen;
 
-  ASSERT_TEXT(fileSize > 0, "Invalid file size");
-  ASSERT_TEXT(ppImageData != NULL, "Invalid image data pointer");
-  ASSERT_TEXT(ppsPalette != NULL, "Invalide palette data pointer");
+  DEBUG_ASSERT_TEXT(fileSize > 0, "Invalid file size");
+  DEBUG_ASSERT_TEXT(ppImageData != NULL, "Invalid image data pointer");
+  DEBUG_ASSERT_TEXT(ppsPalette != NULL, "Invalide palette data pointer");
 
   /* Get the header information */
   memcpy(&sHeader, pFileData, sizeof(PCXHEADER));

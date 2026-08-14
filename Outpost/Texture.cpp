@@ -112,7 +112,7 @@ int remakeTileTextures(void)
 
   w = tilesPCX.width / TILE_WIDTH;
   h = tilesPCX.height / TILE_HEIGHT;
-  ASSERT_TEXT(numPCXTiles >= w * h,"remakeTileTextures: New Tertiles larger than existing version");
+  DEBUG_ASSERT_TEXT(numPCXTiles >= w * h, "remakeTileTextures: New Tertiles larger than existing version");
 
   //tilesRAW is already set up
   t = 0;
@@ -295,7 +295,7 @@ void remakeTileTexturePages(UDWORD srcWidth, UDWORD srcHeight, UDWORD tileWidth,
     src += ((tileHeight - 1) * srcWidth);
   }
 
-  ASSERT_TEXT(numTexturePages >= static_cast<SDWORD>(pageNumber),"New Tertiles too large");
+  DEBUG_ASSERT_TEXT(numTexturePages >= static_cast<SDWORD>(pageNumber), "New Tertiles too large");
 
 exit: delete[] tileStorage;
   buildTileIndexes();

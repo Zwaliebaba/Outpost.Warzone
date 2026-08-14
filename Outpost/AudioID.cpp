@@ -270,7 +270,7 @@ BOOL audioID_GetIDFromStr(STRING* pWavStr, SDWORD* piID)
   {
     if (stricmp(pWavStr, asAudioID[i].pWavStr) == 0)
     {
-      ASSERT_TEXT(i == asAudioID[i].iID, "audioID_GetIDFromStr: {} stored IDs don't match", pWavStr );
+      DEBUG_ASSERT_TEXT(i == asAudioID[i].iID, "audioID_GetIDFromStr: {} stored IDs don't match", pWavStr);
 
       *piID = asAudioID[i].iID;
       return TRUE;

@@ -1073,7 +1073,7 @@ BOOL recvTemplate(NETMSG* m)
 
   player = static_cast<UBYTE>(m->body[0]);
 
-  ASSERT_TEXT(player<MAX_PLAYERS,"recvtemplate: invalid player size:{}");
+  DEBUG_ASSERT_TEXT(player<MAX_PLAYERS, "recvtemplate: invalid player size:{}", player);
 
   if (m->size < sizeof(DROID_TEMPLATE))
   {

@@ -1,17 +1,9 @@
 #include "pch.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <time.h>
-#include "IvisDef.h"
-#include "PieState.h"
 #include "RendMode.h"
 #include "PieMode.h"
 #include "Bug.h"
-#include "PiePalette.h"
 #include "PieMatrix.h"
 #include "Tex.h"
-#include "IvisPatch.h"
 
 //*************************************************************************
 

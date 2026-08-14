@@ -56,7 +56,7 @@
 		} \
 		psPrev = psCurr; \
 	} \
-	ASSERT_TEXT(psCurr!=NULL, "LIST_REMOVE: " __FILE__ "({}): entry not found", __LINE__); \
+	DEBUG_ASSERT_TEXT(psCurr!=NULL, "LIST_REMOVE: " __FILE__ "({}): entry not found", __LINE__); \
 	if (psPrev == NULL) \
 	{ \
 		(psHead) = (psHead)->psNext; \

@@ -138,7 +138,7 @@ BASE_OBJECT* checkForRepairRange(DROID* psDroid, DROID* psTarget)
   DROID* psCurr;
   SDWORD xdiff, ydiff;
 
-  ASSERT_TEXT(psDroid->droidType == DROID_REPAIR OR psDroid->droidType == DROID_CYBORG_REPAIR, "checkForRepairRange:Invalid droid type");
+  DEBUG_ASSERT_TEXT(psDroid->droidType == DROID_REPAIR OR psDroid->droidType == DROID_CYBORG_REPAIR, "checkForRepairRange:Invalid droid type");
 
   if (psTarget != nullptr && psTarget->died)
     psTarget = nullptr;
@@ -177,7 +177,7 @@ BASE_OBJECT* checkForDamagedStruct(DROID* psDroid, STRUCTURE* psTarget)
   SDWORD xdiff, ydiff;
 
   //ASSERT((psDroid->droidType == DROID_CONSTRUCT, 
-  ASSERT_TEXT(psDroid->droidType == DROID_CONSTRUCT OR psDroid->droidType ==
+  DEBUG_ASSERT_TEXT(psDroid->droidType == DROID_CONSTRUCT OR psDroid->droidType ==
     DROID_CYBORG_CONSTRUCT, "checkForDamagedStruct:Invalid unit type");
 
   if (psTarget != nullptr && psTarget->died)
@@ -729,7 +729,7 @@ void orderUpdateDroid(DROID* psDroid)
       }
       else
       {
-        ASSERT_TEXT(FALSE, "orderUpdateUnit: LINEBUILD order on diagonal line");
+        DEBUG_ASSERT_TEXT(FALSE, "orderUpdateUnit: LINEBUILD order on diagonal line");
         break;
       }
 
@@ -931,7 +931,7 @@ void orderUpdateDroid(DROID* psDroid)
         actionDroidObj(psDroid, DACTION_REPAIR, psObj);
     }
     break;
-  default: ASSERT_TEXT(FALSE, "orderUpdateUnit: unknown order");
+  default: DEBUG_ASSERT_TEXT(FALSE, "orderUpdateUnit: unknown order");
   }
 
   // catch any vtol that is rearming but has finished his order
@@ -1313,7 +1313,7 @@ void orderDroidBase(DROID* psDroid, DROID_ORDER_DATA* psOrder)
       psDroid->orderY = psOrder->psObj->y;
       psDroid->psTarget = nullptr;
       psDroid->psTarStats = (BASE_STATS*)getModuleStat((STRUCTURE*)psOrder->psObj);
-      ASSERT_TEXT(psDroid->psTarStats != NULL, "orderUnitBase: should have found a module stats");
+      DEBUG_ASSERT_TEXT(psDroid->psTarStats != NULL, "orderUnitBase: should have found a module stats");
       actionDroidLoc(psDroid, DACTION_BUILD, psOrder->psObj->x, psOrder->psObj->y);
     }
     break;
@@ -1635,7 +1635,7 @@ void orderDroidBase(DROID* psDroid, DROID_ORDER_DATA* psOrder)
       break;
     if (psOrder->psObj->type != OBJ_STRUCTURE)
     {
-      ASSERT_TEXT(FALSE, "orderDroidBase: invalid object type for Restore order");
+      DEBUG_ASSERT_TEXT(FALSE, "orderDroidBase: invalid object type for Restore order");
       break;
     }
     psDroid->order = DORDER_RESTORE;
@@ -1661,7 +1661,7 @@ void orderDroidBase(DROID* psDroid, DROID_ORDER_DATA* psOrder)
     actionDroidObj(psDroid, DACTION_MOVETOREARM, psOrder->psObj);
     assignVTOLPad(psDroid, (STRUCTURE*)psOrder->psObj);
     break;
-  default: ASSERT_TEXT(FALSE, "orderUnitBase: unknown order");
+  default: DEBUG_ASSERT_TEXT(FALSE, "orderUnitBase: unknown order");
     break;
   }
 
@@ -1673,7 +1673,7 @@ void orderDroid(DROID* psDroid, DROID_ORDER order)
 {
   DROID_ORDER_DATA sOrder;
 
-  ASSERT_TEXT(order == DORDER_NONE ||
+  DEBUG_ASSERT_TEXT(order == DORDER_NONE ||
     order == DORDER_RETREAT || order == DORDER_DESTRUCT || order == DORDER_RTR || order == DORDER_RTB || order == DORDER_RECYCLE || order ==
     DORDER_RUN || order == DORDER_RUNBURN || order == DORDER_TRANSPORTIN || order == DORDER_STOP, // Added this PD.
     "orderUnit: Invalid order");
@@ -1701,7 +1701,7 @@ void orderDroidLoc(DROID* psDroid, DROID_ORDER order, UDWORD x, UDWORD y)
   DROID_ORDER_DATA sOrder;
   //#warning memory report here !!!!!
 
-  ASSERT_TEXT(order == DORDER_NONE ||
+  DEBUG_ASSERT_TEXT(order == DORDER_NONE ||
     order == DORDER_MOVE || order == DORDER_GUARD || order == DORDER_SCOUT || order == DORDER_RUN || order == DORDER_PATROL || order ==
     DORDER_TRANSPORTOUT || order == DORDER_TRANSPORTIN || order == DORDER_TRANSPORTRETURN || order == DORDER_DISEMBARK,
     "orderUnitLoc: Invalid order for location");
@@ -1751,7 +1751,7 @@ void orderDroidObj(DROID* psDroid, DROID_ORDER order, BASE_OBJECT* psObj)
 {
   DROID_ORDER_DATA sOrder;
 
-  ASSERT_TEXT(order == DORDER_NONE ||
+  DEBUG_ASSERT_TEXT(order == DORDER_NONE ||
     order == DORDER_HELPBUILD || order == DORDER_DEMOLISH || order == DORDER_REPAIR || order == DORDER_ATTACK || order == DORDER_FIRESUPPORT
     || order == DORDER_OBSERVE || order == DORDER_ATTACKTARGET || order == DORDER_RTR || order == DORDER_RTR_SPECIFIED || order ==
     DORDER_EMBARK || order == DORDER_GUARD || order == DORDER_DROIDREPAIR || order == DORDER_RESTORE || order == DORDER_BUILDMODULE || order
@@ -1846,7 +1846,7 @@ void orderDroidStatsLoc(DROID* psDroid, DROID_ORDER order, BASE_STATS* psStats, 
 {
   DROID_ORDER_DATA sOrder;
 
-  ASSERT_TEXT(order == DORDER_BUILD, "orderUnitStatsLoc: Invalid order for location");
+  DEBUG_ASSERT_TEXT(order == DORDER_BUILD, "orderUnitStatsLoc: Invalid order for location");
 
   //	Right, now due to some extra special weirdness, we must enusure that the coordinates
   //	are snapped to tile EDGE coordinates, so we need to mask off the bottom 6 bits
@@ -1884,8 +1884,8 @@ void orderDroidStatsTwoLoc(DROID* psDroid, DROID_ORDER order, BASE_STATS* psStat
 {
   DROID_ORDER_DATA sOrder;
 
-  ASSERT_TEXT(order == DORDER_LINEBUILD, "orderUnitStatsTwoLoc: Invalid order for location");
-  ASSERT_TEXT(x1 == x2 || y1 == y2, "orderUnitStatsTwoLoc: Invalid locations for LINEBUILD");
+  DEBUG_ASSERT_TEXT(order == DORDER_LINEBUILD, "orderUnitStatsTwoLoc: Invalid order for location");
+  DEBUG_ASSERT_TEXT(x1 == x2 || y1 == y2, "orderUnitStatsTwoLoc: Invalid locations for LINEBUILD");
 
   memset(&sOrder, 0, sizeof(DROID_ORDER_DATA));
   sOrder.order = order;
@@ -1902,8 +1902,8 @@ void orderDroidStatsTwoLocAdd(DROID* psDroid, DROID_ORDER order, BASE_STATS* psS
 {
   DROID_ORDER_DATA sOrder;
 
-  ASSERT_TEXT(order == DORDER_LINEBUILD, "orderUnitStatsTwoLocAdd: Invalid order for location");
-  ASSERT_TEXT(x1 == x2 || y1 == y2, "orderUnitStatsTwoLocAdd: Invalid locations for LINEBUILD");
+  DEBUG_ASSERT_TEXT(order == DORDER_LINEBUILD, "orderUnitStatsTwoLocAdd: Invalid order for location");
+  DEBUG_ASSERT_TEXT(x1 == x2 || y1 == y2, "orderUnitStatsTwoLocAdd: Invalid locations for LINEBUILD");
 
   memset(&sOrder, 0, sizeof(DROID_ORDER_DATA));
   sOrder.order = order;
@@ -2032,7 +2032,7 @@ BOOL orderDroidList(DROID* psDroid)
       sOrder.psObj = nullptr;
       sOrder.psStats = static_cast<BASE_STATS*>(psDroid->asOrderList[0].psOrderTarget);
       break;
-    default: ASSERT_TEXT(FALSE, "orderDroidList: Invalid order");
+    default: DEBUG_ASSERT_TEXT(FALSE, "orderDroidList: Invalid order");
       return FALSE;
     }
     sOrder.x = psDroid->asOrderList[0].x;
@@ -2592,7 +2592,7 @@ STRUCTURE* FindAFactory(UDWORD player, UDWORD factoryType)
 {
   STRUCTURE* psStruct;
 
-  ASSERT_TEXT(player < MAX_PLAYERS, "FindAFactory: invalid player number");
+  DEBUG_ASSERT_TEXT(player < MAX_PLAYERS, "FindAFactory: invalid player number");
 
   for (psStruct = apsStructLists[player]; psStruct != nullptr; psStruct = psStruct->psNext)
   {
@@ -3520,7 +3520,7 @@ BOOL setFactoryState(STRUCTURE* psStruct, SECONDARY_ORDER sec, SECONDARY_STATE S
 
   if (!StructIsFactory(psStruct))
   {
-    ASSERT_TEXT(FALSE, "setFactoryState: structure is not a factory");
+    DEBUG_ASSERT_TEXT(FALSE, "setFactoryState: structure is not a factory");
     return FALSE;
   }
 
@@ -3582,7 +3582,7 @@ BOOL getFactoryState(STRUCTURE* psStruct, SECONDARY_ORDER sec, SECONDARY_STATE* 
 
   if (!StructIsFactory(psStruct))
   {
-    ASSERT_TEXT(FALSE, "getFactoryState: structure is not a factory");
+    DEBUG_ASSERT_TEXT(FALSE, "getFactoryState: structure is not a factory");
     return FALSE;
   }
 

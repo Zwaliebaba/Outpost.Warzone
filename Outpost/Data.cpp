@@ -886,7 +886,7 @@ BOOL bufferTexPageLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
   {
     // replace the old texture page with the new one
     SDWORD id = pie_ReloadTexPage(texfile, pBuffer);
-    ASSERT_TEXT(id >=0,"pie_ReloadTexPage failed");
+    DEBUG_ASSERT_TEXT(id >=0, "pie_ReloadTexPage failed");
     *ppData = nullptr;
   }
   else

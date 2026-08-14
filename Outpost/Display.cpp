@@ -853,14 +853,14 @@ void processMouseClickInput(void)
   }
 
   selection = establishSelection(selectedPlayer);
-  ASSERT_TEXT(selection<=POSSIBLE_SELECTIONS,"Weirdy selection!");
+  DEBUG_ASSERT_TEXT(selection<=POSSIBLE_SELECTIONS, "Weirdy selection!");
 
   if ((selection != SC_INVALID) && !gamePaused())
   {
     BASE_OBJECT* ObjUnderMouse;
 
     item = itemUnderMouse(&ObjUnderMouse);
-    ASSERT_TEXT(item<POSSIBLE_TARGETS,"Weirdy target!");
+    DEBUG_ASSERT_TEXT(item<POSSIBLE_TARGETS, "Weirdy target!");
 
     // alliance override. If in alli then just use the move icon. - but not if its the same player
     //in single player, the genexp script defaults to setting an alliance between player 0 and selectedPlayer
@@ -966,7 +966,7 @@ void processMouseClickInput(void)
       BASE_OBJECT* ObjUnderMouse;
 
       item = itemUnderMouse(&ObjUnderMouse);
-      ASSERT_TEXT(item<POSSIBLE_TARGETS,"Weirdy target!");
+      DEBUG_ASSERT_TEXT(item<POSSIBLE_TARGETS, "Weirdy target!");
       if (item == MT_ENEMYDROID OR item == MT_ENEMYSTR OR item == MT_DAMFEATURE)
       {
         //display attack cursor
@@ -2099,7 +2099,7 @@ void dealWithLMB(void)
       driveDisableTactical();
     }
     else
-      ASSERT_TEXT(FALSE,"Weirdy selection from LMB?!");
+      DEBUG_ASSERT_TEXT(FALSE, "Weirdy selection from LMB?!");
   }
   else if (!driveModeActive() || driveTacticalActive())
   {
@@ -2131,7 +2131,7 @@ void dealWithLMB(void)
           displayProximityMessage((PROXIMITY_DISPLAY *)psLocation);
         }
         break;*/
-      default: ASSERT_TEXT(FALSE, "Unknown type from checkMouseLoc");
+      default: DEBUG_ASSERT_TEXT(FALSE, "Unknown type from checkMouseLoc");
       }
     }
     else
@@ -2399,7 +2399,7 @@ void dealWithRMB(void)
     } // end if its a structure
     /* And if it's not a feature, then we're in trouble! */
     else if (psClickedOn->type != OBJ_FEATURE)
-      ASSERT_TEXT(FALSE,"Weirdy selection from RMB?!");
+      DEBUG_ASSERT_TEXT(FALSE, "Weirdy selection from RMB?!");
   }
   else
   {
@@ -2418,7 +2418,7 @@ void dealWithRMB(void)
           if (psStructure) { setViewPos(psStructure->x >> TILE_SHIFT, psStructure->y >> TILE_SHIFT,TRUE); }
         }
         break;
-      default: ASSERT_TEXT(FALSE, "Unknown type from checkMouseLoc");
+      default: DEBUG_ASSERT_TEXT(FALSE, "Unknown type from checkMouseLoc");
       }
     }
     else
@@ -2715,7 +2715,7 @@ SELECTION_TYPE establishSelection(UDWORD selectedPlayer)
     // droid types and find the dominant selection.
     if (psDroid->selected)
     {
-      ASSERT_TEXT(psDroid->droidType < NUM_DROID_WEIGHTS, "establishSelection : droidType exceeds NUM_DROID_WEIGHTS");
+      DEBUG_ASSERT_TEXT(psDroid->droidType < NUM_DROID_WEIGHTS, "establishSelection : droidType exceeds NUM_DROID_WEIGHTS");
 
       atLeastOne = TRUE;
       if (DroidSelectionWeights[psDroid->droidType] < CurrWeight)
@@ -2780,7 +2780,7 @@ if ((psDominant->psTarget == NULL AND psDominant->psTarStats ==
       selectionClass = SC_DROID_REPAIR;
       break;
 
-    default: ASSERT_TEXT(FALSE,"Weirdy droid type on what you've clicked on!!!");
+    default: DEBUG_ASSERT_TEXT(FALSE, "Weirdy droid type on what you've clicked on!!!");
       break;
     }
   }

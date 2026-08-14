@@ -232,7 +232,7 @@ BOOL loadResearch(SBYTE* pResearchData, UDWORD bufferSize)
   researchCount = numCR((UBYTE*)pResearchData, bufferSize);
 
   numResearch = researchCount;
-  ASSERT_TEXT((numResearch) <= MAX_RESEARCH, "Too many ResearchStats!! - max allowed {}", MAX_RESEARCH);
+  DEBUG_ASSERT_TEXT((numResearch) <= MAX_RESEARCH, "Too many ResearchStats!! - max allowed {}", MAX_RESEARCH);
 
   //init all the counts
   numResearchPR = numResearchFunc = numResearchArteRed = numResearchArteRes = numResearchArteRep = 0;
@@ -677,7 +677,7 @@ BOOL loadResearchPR(SBYTE* pPRData, UDWORD bufferSize)
   NumToAlloc = numCR((UBYTE*)pPRData, bufferSize);
 
   //check not going to go over max
-  ASSERT_TEXT(NumToAlloc <= MAX_RESEARCH_PR, "loadResearchPR: too many!");
+  DEBUG_ASSERT_TEXT(NumToAlloc <= MAX_RESEARCH_PR, "loadResearchPR: too many!");
   numResearchPR = 0;
 
   for (i = 0; i < NumToAlloc; i++)
@@ -780,10 +780,10 @@ BOOL loadResearchArtefacts(SBYTE* pArteData, UDWORD bufferSize, UDWORD listNumbe
   //check not going to go over max
   switch (listNumber)
   {
-  case RED_LIST: ASSERT_TEXT(NumToAlloc <= MAX_RESEARCH_ARTE_RED, "loadResearchArtefacts: too many Redundant Components");
+  case RED_LIST: DEBUG_ASSERT_TEXT(NumToAlloc <= MAX_RESEARCH_ARTE_RED, "loadResearchArtefacts: too many Redundant Components");
     numResearchArteRed = 0;
     break;
-  case RES_LIST: ASSERT_TEXT(NumToAlloc <= MAX_RESEARCH_ARTE_RES, "loadResearchArtefacts: too many Component Results");
+  case RES_LIST: DEBUG_ASSERT_TEXT(NumToAlloc <= MAX_RESEARCH_ARTE_RES, "loadResearchArtefacts: too many Component Results");
     numResearchArteRes = 0;
     numResearchArteRep = 0;
     break;
@@ -919,17 +919,17 @@ BOOL loadResearchStructures(SBYTE* pStructData, UDWORD bufferSize, UDWORD listNu
   {
   case REQ_LIST:
     //check not going to go over max
-    ASSERT_TEXT(NumToAlloc <= MAX_RESEARCH_STRUCT_PR, "loadResearchStructures: too many Struct PRs");
+    DEBUG_ASSERT_TEXT(NumToAlloc <= MAX_RESEARCH_STRUCT_PR, "loadResearchStructures: too many Struct PRs");
     numResearchStructPR = 0;
     break;
   case RED_LIST:
     //check not going to go over max
-    ASSERT_TEXT(NumToAlloc <= MAX_RESEARCH_STRUCT_RED, "loadResearchStructures: too many redundant structure");
+    DEBUG_ASSERT_TEXT(NumToAlloc <= MAX_RESEARCH_STRUCT_RED, "loadResearchStructures: too many redundant structure");
     numResearchStructRed = 0;
     break;
   case RES_LIST:
     //check not going to go over max
-    ASSERT_TEXT(NumToAlloc <= MAX_RESEARCH_STRUCT_RES, "loadResearchStructures: too many structure results");
+    DEBUG_ASSERT_TEXT(NumToAlloc <= MAX_RESEARCH_STRUCT_RES, "loadResearchStructures: too many structure results");
     numResearchStructRes = 0;
     break;
   }
@@ -1060,7 +1060,7 @@ BOOL loadResearchFunctions(SBYTE* pFunctionData, UDWORD bufferSize)
 
   NumToAlloc = numCR((UBYTE*)pFunctionData, bufferSize);
   //check not going to go over max
-  ASSERT_TEXT(NumToAlloc <= MAX_RESEARCH_FUNC, "loadResearchFunctions: too many");
+  DEBUG_ASSERT_TEXT(NumToAlloc <= MAX_RESEARCH_FUNC, "loadResearchFunctions: too many");
   numResearchFunc = 0;
 
   for (i = 0; i < NumToAlloc; i++)
@@ -1167,7 +1167,7 @@ UWORD fillResearchList(UWORD* plist, UDWORD playerID, UWORD topic, UWORD limit)
   BOOL bPRFound, bStructFound;
 
   //needs to be UWORD sized for Patches
-  ASSERT_TEXT(numResearch < UWORD_MAX, "fillResearchList: only using a UWORD for storage - need more!");
+  DEBUG_ASSERT_TEXT(numResearch < UWORD_MAX, "fillResearchList: only using a UWORD for storage - need more!");
   //ASSERT((numResearch < UBYTE_MAX, 
   for (inc = 0; inc < numResearch; inc++)
   {
@@ -1258,7 +1258,7 @@ void researchResult(UDWORD researchIndex, UBYTE player, BOOL bDisplay)
   MESSAGE* pMessage;
   PLAYER_RESEARCH* pPlayerRes = asPlayerResList[player];
 
-  ASSERT_TEXT(researchIndex < numResearch, "researchResult: invalid research index");
+  DEBUG_ASSERT_TEXT(researchIndex < numResearch, "researchResult: invalid research index");
 
   sendReseachStatus(nullptr, researchIndex, player, FALSE);
 
@@ -1742,7 +1742,7 @@ void researchResult(UDWORD researchIndex, UBYTE player, BOOL bDisplay)
       // message/sound for resistance upgrade
       break;
     }*/
-    default: { ASSERT_TEXT(FALSE,"Invalid function type"); }
+    default: { DEBUG_ASSERT_TEXT(FALSE, "Invalid function type"); }
     } //end of switch
   } //end of function loop
 
@@ -1804,13 +1804,13 @@ void researchResult(UDWORD researchIndex, UBYTE player, BOOL bDisplay)
           compInc++;
         if (compInc >= 32)
         {
-          ASSERT_TEXT(FALSE, "researchResult - more than 32 weapons now available");
+          DEBUG_ASSERT_TEXT(FALSE, "researchResult - more than 32 weapons now available");
           //don't bother checking any more
           break;
         }
         if (vtolCompInc >= 32)
         {
-          ASSERT_TEXT(FALSE, "researchResult - more than 32 vtol weapons now available");
+          DEBUG_ASSERT_TEXT(FALSE, "researchResult - more than 32 vtol weapons now available");
           //don't bother checking any more
           break;
         }
@@ -1934,7 +1934,7 @@ void holdResearch(STRUCTURE* psBuilding)
 {
   RESEARCH_FACILITY* psResFac;
 
-  ASSERT_TEXT(psBuilding->pStructureType->type == REF_RESEARCH, "holdResearch: structure not a research facility");
+  DEBUG_ASSERT_TEXT(psBuilding->pStructureType->type == REF_RESEARCH, "holdResearch: structure not a research facility");
 
   psResFac = (RESEARCH_FACILITY*)psBuilding->pFunctionality;
 
@@ -1953,7 +1953,7 @@ void releaseResearch(STRUCTURE* psBuilding)
 {
   RESEARCH_FACILITY* psResFac;
 
-  ASSERT_TEXT(psBuilding->pStructureType->type == REF_RESEARCH, "releaseResearch: structure not a research facility");
+  DEBUG_ASSERT_TEXT(psBuilding->pStructureType->type == REF_RESEARCH, "releaseResearch: structure not a research facility");
 
   psResFac = (RESEARCH_FACILITY*)psBuilding->pFunctionality;
 
@@ -1996,13 +1996,13 @@ void cancelResearch(STRUCTURE* psBuilding)
   PLAYER_RESEARCH* pPlayerRes;
   RESEARCH_FACILITY* psResFac;
 
-  ASSERT_TEXT(psBuilding->pStructureType->type == REF_RESEARCH, "cancelResearch: structure not a research facility");
+  DEBUG_ASSERT_TEXT(psBuilding->pStructureType->type == REF_RESEARCH, "cancelResearch: structure not a research facility");
 
   psResFac = (RESEARCH_FACILITY*)psBuilding->pFunctionality;
   topicInc = ((RESEARCH*)psResFac->psSubject) - asResearch;
   if (topicInc > numResearch)
   {
-    ASSERT_TEXT(FALSE, "cancelResearch: invalid research topic");
+    DEBUG_ASSERT_TEXT(FALSE, "cancelResearch: invalid research topic");
     return;
   }
   pPlayerRes = asPlayerResList[psBuilding->player] + topicInc;
@@ -2138,7 +2138,7 @@ static UWORD setIconID(STRING* pIconName, STRING* pName)
     return IMAGE_RES_GRPDAM;
 
   //add more names as images are created
-  ASSERT_TEXT(FALSE, "Invalid icon graphic {} for topic {}", pIconName, pName);
+  DEBUG_ASSERT_TEXT(FALSE, "Invalid icon graphic {} for topic {}", pIconName, pName);
 
   return 0; // Should never get here.
 }
@@ -2210,7 +2210,7 @@ SDWORD mapRIDToIcon(UDWORD rid)
     return (IMAGE_RES_GRPDAM);
     break;
 
-  default: ASSERT_TEXT(FALSE,"Weirdy mapping request for RID to icon");
+  default: DEBUG_ASSERT_TEXT(FALSE, "Weirdy mapping request for RID to icon");
     return (-1); //pass back a value that can never have been set up
     break;
   }
@@ -2563,7 +2563,7 @@ static BOOL checkResearchName(RESEARCH* psResearch, UDWORD numStats)
     if (!strcmp(asResearch[inc].pName, pName))
     {
       //oops! found the name
-      ASSERT_TEXT(FALSE, "Research name has already been used - {}", pName);
+      DEBUG_ASSERT_TEXT(FALSE, "Research name has already been used - {}", pName);
       return FALSE;
     }
   }
@@ -2581,7 +2581,7 @@ static BOOL checkResearchName(RESEARCH* psResearch, UDWORD numStats)
     if (asResearch[inc].NameHash == psResearch->NameHash)
     {
       //oops! found the name
-      ASSERT_TEXT(FALSE, "Research name has already been used - {:x}", psResearch->NameHash);
+      DEBUG_ASSERT_TEXT(FALSE, "Research name has already been used - {:x}", psResearch->NameHash);
       return FALSE;
     }
   }
@@ -2602,7 +2602,7 @@ BOOL enableResearch(RESEARCH* psResearch, UDWORD player)
   inc = psResearch - asResearch;
   if (inc > numResearch)
   {
-    ASSERT_TEXT(FALSE, "enableResearch: Invalid research topic - {}", getResearchName(psResearch));
+    DEBUG_ASSERT_TEXT(FALSE, "enableResearch: Invalid research topic - {}", getResearchName(psResearch));
     return FALSE;
   }
 
@@ -2695,7 +2695,7 @@ BOOL checkResearchStats(void)
     {
       if (asResearch[resInc].pPRList != nullptr)
       {
-        ASSERT_TEXT(FALSE, "checkResearchStats: PreReq for topic {} should be NULL", getResearchName(asResearch[resInc]));
+        DEBUG_ASSERT_TEXT(FALSE, "checkResearchStats: PreReq for topic {} should be NULL", getResearchName(asResearch[resInc]));
         return FALSE;
       }
     }
@@ -2705,7 +2705,7 @@ BOOL checkResearchStats(void)
       {
         if (asResearch[resInc].pPRList[inc] > numResearch)
         {
-          ASSERT_TEXT(FALSE, "checkResearchStats: Invalid PreReq for topic {}", getResearchName(asResearch[resInc]));
+          DEBUG_ASSERT_TEXT(FALSE, "checkResearchStats: Invalid PreReq for topic {}", getResearchName(asResearch[resInc]));
           return FALSE;
         }
       }
@@ -2714,7 +2714,7 @@ BOOL checkResearchStats(void)
     {
       if (asResearch[resInc].pStructList != nullptr)
       {
-        ASSERT_TEXT(FALSE, "checkResearchStats: StructureList for topic {} should be NULL", getResearchName(asResearch[resInc]));
+        DEBUG_ASSERT_TEXT(FALSE, "checkResearchStats: StructureList for topic {} should be NULL", getResearchName(asResearch[resInc]));
         return FALSE;
       }
     }
@@ -2724,7 +2724,7 @@ BOOL checkResearchStats(void)
       {
         if (asResearch[resInc].pStructList[inc] > numStructureStats)
         {
-          ASSERT_TEXT(FALSE, "checkResearchStats: Invalid Structure for topic {}", getResearchName(asResearch[resInc]));
+          DEBUG_ASSERT_TEXT(FALSE, "checkResearchStats: Invalid Structure for topic {}", getResearchName(asResearch[resInc]));
           return FALSE;
         }
       }
@@ -2733,7 +2733,7 @@ BOOL checkResearchStats(void)
     {
       if (asResearch[resInc].pFunctionList != nullptr)
       {
-        ASSERT_TEXT(FALSE, "checkResearchStats: FunctionList for topic {} should be NULL", getResearchName(asResearch[resInc]));
+        DEBUG_ASSERT_TEXT(FALSE, "checkResearchStats: FunctionList for topic {} should be NULL", getResearchName(asResearch[resInc]));
         return FALSE;
       }
     }
@@ -2743,7 +2743,7 @@ BOOL checkResearchStats(void)
       {
         if (asResearch[resInc].pFunctionList[inc]->ref - REF_FUNCTION_START > numFunctions)
         {
-          ASSERT_TEXT(FALSE, "checkResearchStats: Invalid function for {}", getResearchName(asResearch[resInc]));
+          DEBUG_ASSERT_TEXT(FALSE, "checkResearchStats: Invalid function for {}", getResearchName(asResearch[resInc]));
         }
       }
     }
@@ -2751,7 +2751,7 @@ BOOL checkResearchStats(void)
     {
       if (asResearch[resInc].pRedStructs != nullptr)
       {
-        ASSERT_TEXT(FALSE, "checkResearchStats: Redundant StructList for topic {} should be NULL", getResearchName(asResearch[resInc]));
+        DEBUG_ASSERT_TEXT(FALSE, "checkResearchStats: Redundant StructList for topic {} should be NULL", getResearchName(asResearch[resInc]));
         return FALSE;
       }
     }
@@ -2761,7 +2761,7 @@ BOOL checkResearchStats(void)
       {
         if (asResearch[resInc].pRedStructs[inc] > numStructureStats)
         {
-          ASSERT_TEXT(FALSE, "checkResearchStats: Invalid Redundant Structure for topic {}", getResearchName(asResearch[resInc]));
+          DEBUG_ASSERT_TEXT(FALSE, "checkResearchStats: Invalid Redundant Structure for topic {}", getResearchName(asResearch[resInc]));
           return FALSE;
         }
       }
@@ -2770,7 +2770,7 @@ BOOL checkResearchStats(void)
     {
       if (asResearch[resInc].pStructureResults != nullptr)
       {
-        ASSERT_TEXT(FALSE, "checkResearchStats: Result StructList for topic {} should be NULL", getResearchName(asResearch[resInc]));
+        DEBUG_ASSERT_TEXT(FALSE, "checkResearchStats: Result StructList for topic {} should be NULL", getResearchName(asResearch[resInc]));
         return FALSE;
       }
     }
@@ -2780,7 +2780,7 @@ BOOL checkResearchStats(void)
       {
         if (asResearch[resInc].pStructureResults[inc] > numStructureStats)
         {
-          ASSERT_TEXT(FALSE, "checkResearchStats: Invalid Result Structure for topic {}", getResearchName(asResearch[resInc]));
+          DEBUG_ASSERT_TEXT(FALSE, "checkResearchStats: Invalid Result Structure for topic {}", getResearchName(asResearch[resInc]));
           return FALSE;
         }
       }
@@ -2789,7 +2789,7 @@ BOOL checkResearchStats(void)
     {
       if (asResearch[resInc].pArtefactResults != nullptr)
       {
-        ASSERT_TEXT(FALSE, "checkResearchStats: CompResultList for topic {} should be NULL", getResearchName(asResearch[resInc]));
+        DEBUG_ASSERT_TEXT(FALSE, "checkResearchStats: CompResultList for topic {} should be NULL", getResearchName(asResearch[resInc]));
         return FALSE;
       }
     }
@@ -2803,7 +2803,7 @@ BOOL checkResearchStats(void)
     {
       if (asResearch[resInc].pRedArtefacts != nullptr)
       {
-        ASSERT_TEXT(FALSE, "checkResearchStats: RedundantCompList for topic {} should be NULL", getResearchName(asResearch[resInc]));
+        DEBUG_ASSERT_TEXT(FALSE, "checkResearchStats: RedundantCompList for topic {} should be NULL", getResearchName(asResearch[resInc]));
         return FALSE;
       }
     }
@@ -2856,7 +2856,7 @@ void replaceTransDroidComponents(DROID* psTransporter, UDWORD oldType, UDWORD ol
 {
   DROID* psCurr;
 
-  ASSERT_TEXT(psTransporter->droidType == DROID_TRANSPORTER, "replaceTransUnitComponents: invalid unit type");
+  DEBUG_ASSERT_TEXT(psTransporter->droidType == DROID_TRANSPORTER, "replaceTransUnitComponents: invalid unit type");
 
   for (psCurr = psTransporter->psGroup->psList; psCurr != nullptr; psCurr = psCurr->psGrpNext)
   {

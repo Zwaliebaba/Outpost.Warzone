@@ -124,7 +124,7 @@ BOOL scrGenExternGet(UDWORD index)
     type = VAL_INT;
     val = game.base;
     break;
-  default: ASSERT_TEXT(FALSE, "scrGenExternGet: unknown variable index");
+  default: DEBUG_ASSERT_TEXT(FALSE, "scrGenExternGet: unknown variable index");
     return FALSE;
     break;
   }
@@ -153,7 +153,7 @@ BOOL scrGenExternSet(UDWORD index)
   case EXTID_GAMELEVEL:
     if (type != VAL_INT)
     {
-      ASSERT_TEXT(FALSE,"invalid type for gameLevel");
+      DEBUG_ASSERT_TEXT(FALSE, "invalid type for gameLevel");
       return FALSE;
     }
     scrGameLevel = val;
@@ -161,7 +161,7 @@ BOOL scrGenExternSet(UDWORD index)
   case EXTID_TUTORIAL:
     if (type != VAL_BOOL)
     {
-      ASSERT_TEXT(FALSE,"invalid type for inTutorial");
+      DEBUG_ASSERT_TEXT(FALSE, "invalid type for inTutorial");
       return FALSE;
     }
     bInTutorial = val;
@@ -169,7 +169,7 @@ BOOL scrGenExternSet(UDWORD index)
   case EXTID_EXTRAVICTORYFLAG:
     if (type != VAL_BOOL)
     {
-      ASSERT_TEXT(FALSE,"invalid type for extraVictoryFlag");
+      DEBUG_ASSERT_TEXT(FALSE, "invalid type for extraVictoryFlag");
       return FALSE;
     }
     bExtraVictoryFlag = val;
@@ -177,12 +177,12 @@ BOOL scrGenExternSet(UDWORD index)
   case EXTID_EXTRAFAILFLAG:
     if (type != VAL_BOOL)
     {
-      ASSERT_TEXT(FALSE,"invalid type for extraFailFlag");
+      DEBUG_ASSERT_TEXT(FALSE, "invalid type for extraFailFlag");
       return FALSE;
     }
     bExtraFailFlag = val;
     break;
-  default: ASSERT_TEXT(FALSE, "scrGenExternSet: unknown variable index");
+  default: DEBUG_ASSERT_TEXT(FALSE, "scrGenExternSet: unknown variable index");
     return FALSE;
     break;
   }

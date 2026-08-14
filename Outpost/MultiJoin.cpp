@@ -273,7 +273,7 @@ BOOL MultiPlayerJoin(DPID dpid)
       if ((player2dpid[i] == dpid) && ingame.JoiningInProgress[i])
         return TRUE;
     }
-    ASSERT_TEXT(NetPlay.playercount<=MAX_PLAYERS,"Too many players!");
+    DEBUG_ASSERT_TEXT(NetPlay.playercount<=MAX_PLAYERS, "Too many players!");
 
     // setup data for this player, then broadcast it to the other players.
 #if 0

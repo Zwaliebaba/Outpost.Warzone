@@ -147,7 +147,7 @@ void fontPrint(SDWORD x, SDWORD y, STRING* pFormat, ...)
   ddrval = psBack->lpVtbl->Lock(psBack, nullptr, &sDDSD, DDLOCK_WAIT, nullptr);
   if (ddrval != DD_OK)
   {
-    ASSERT_TEXT(FALSE, "fontPrint: Couldn't lock back buffer");
+    DEBUG_ASSERT_TEXT(FALSE, "fontPrint: Couldn't lock back buffer");
     return;
   }
 
@@ -211,16 +211,16 @@ void fontPrint(SDWORD x, SDWORD y, STRING* pFormat, ...)
       }
     }
     break;
-  case 24: ASSERT_TEXT(FALSE, "24 bit text output not implemented");
+  case 24: DEBUG_ASSERT_TEXT(FALSE, "24 bit text output not implemented");
     break;
-  case 32: ASSERT_TEXT(FALSE, "32 bit text output not implemented");
+  case 32: DEBUG_ASSERT_TEXT(FALSE, "32 bit text output not implemented");
     break;
-  default: ASSERT_TEXT(FALSE, "Unknown display pixel format");
+  default: DEBUG_ASSERT_TEXT(FALSE, "Unknown display pixel format");
     break;
   }
 
   ddrval = psBack->lpVtbl->Unlock(psBack, static_cast<LPRECT>(sDDSD.lpSurface));
-  if (ddrval != DD_OK) { ASSERT_TEXT(FALSE, "fontPrint: Couldn;t unlock back buffer"); }
+  if (ddrval != DD_OK) { DEBUG_ASSERT_TEXT(FALSE, "fontPrint: Couldn;t unlock back buffer"); }
 }
 
 /* Directly print a single font character from the PROP_CHAR struct */
@@ -245,7 +245,7 @@ void fontPrintChar(SDWORD x, SDWORD y, PROP_CHAR* psChar, UDWORD height)
   ddrval = psBack->lpVtbl->Lock(psBack, nullptr, &sDDSD, DDLOCK_WAIT, nullptr);
   if (ddrval != DD_OK)
   {
-    ASSERT_TEXT(FALSE, "fontPrintChar: Couldn't lock back buffer");
+    DEBUG_ASSERT_TEXT(FALSE, "fontPrintChar: Couldn't lock back buffer");
     return;
   }
 
@@ -286,16 +286,16 @@ void fontPrintChar(SDWORD x, SDWORD y, PROP_CHAR* psChar, UDWORD height)
       }
     }
     break;
-  case 24: ASSERT_TEXT(FALSE, "24 bit text output not implemented");
+  case 24: DEBUG_ASSERT_TEXT(FALSE, "24 bit text output not implemented");
     break;
-  case 32: ASSERT_TEXT(FALSE, "32 bit text output not implemented");
+  case 32: DEBUG_ASSERT_TEXT(FALSE, "32 bit text output not implemented");
     break;
-  default: ASSERT_TEXT(FALSE, "Unknown display pixel format");
+  default: DEBUG_ASSERT_TEXT(FALSE, "Unknown display pixel format");
     break;
   }
 
   ddrval = psBack->lpVtbl->Unlock(psBack, static_cast<LPRECT>(sDDSD.lpSurface));
-  if (ddrval != DD_OK) { ASSERT_TEXT(FALSE, "screenTextOut: Couldn;t unlock back buffer"); }
+  if (ddrval != DD_OK) { DEBUG_ASSERT_TEXT(FALSE, "screenTextOut: Couldn;t unlock back buffer"); }
 }
 
 /* Save font information into a file buffer */
@@ -354,7 +354,7 @@ BOOL fontSave(PROP_FONT* psFont, UBYTE** ppFileData, UDWORD* pFileSize)
     psCurrC++;
   }
 
-  ASSERT_TEXT(pSave == *ppFileData + *pFileSize, "fontSave: Incorrect file size");
+  DEBUG_ASSERT_TEXT(pSave == *ppFileData + *pFileSize, "fontSave: Incorrect file size");
 
   return TRUE;
 }

@@ -39,12 +39,12 @@ BOOL scrGroupAddDroid(void)
     return FALSE;
   if (psDroid->droidType == DROID_COMMAND)
   {
-    ASSERT_TEXT(FALSE, "scrGroupAdd: cannot add a command droid to a group");
+    DEBUG_ASSERT_TEXT(FALSE, "scrGroupAdd: cannot add a command droid to a group");
     return FALSE;
   }
   if (psDroid->droidType == DROID_TRANSPORTER)
   {
-    ASSERT_TEXT(FALSE, "scrGroupAdd: cannot add a transporter to a group");
+    DEBUG_ASSERT_TEXT(FALSE, "scrGroupAdd: cannot add a transporter to a group");
     return FALSE;
   }
 
@@ -65,7 +65,7 @@ BOOL scrGroupAddArea(void)
 
   if (player < 0 || player >= MAX_PLAYERS)
   {
-    ASSERT_TEXT(FALSE, "scrGroupAddArea: invalid player");
+    DEBUG_ASSERT_TEXT(FALSE, "scrGroupAddArea: invalid player");
     return FALSE;
   }
 
@@ -93,7 +93,7 @@ BOOL scrGroupAddAreaNoGroup(void)
 
   if (player < 0 || player >= MAX_PLAYERS)
   {
-    ASSERT_TEXT(FALSE, "scrGroupAddAreaNoGroup: invalid player");
+    DEBUG_ASSERT_TEXT(FALSE, "scrGroupAddAreaNoGroup: invalid player");
     return FALSE;
   }
 
@@ -201,7 +201,7 @@ BOOL scrIterateGroup(void)
 
   if (psGroup != psScrIterateGroup)
   {
-    ASSERT_TEXT(FALSE, "scrIterateGroup: invalid group, InitGroupIterate not called?");
+    DEBUG_ASSERT_TEXT(FALSE, "scrIterateGroup: invalid group, InitGroupIterate not called?");
     return FALSE;
   }
 
@@ -271,7 +271,7 @@ BOOL scrOrderGroup(void)
   if (order != DORDER_STOP && order != DORDER_RETREAT && order != DORDER_DESTRUCT && order != DORDER_RTR && order != DORDER_RTB && order !=
     DORDER_RUN)
   {
-    ASSERT_TEXT(FALSE, "scrOrderGroup: Invalid order");
+    DEBUG_ASSERT_TEXT(FALSE, "scrOrderGroup: Invalid order");
     return FALSE;
   }
 
@@ -291,12 +291,12 @@ BOOL scrOrderGroupLoc(void)
 
   if (order != DORDER_MOVE && order != DORDER_SCOUT)
   {
-    ASSERT_TEXT(FALSE, "scrOrderGroupLoc: Invalid order");
+    DEBUG_ASSERT_TEXT(FALSE, "scrOrderGroupLoc: Invalid order");
     return FALSE;
   }
   if (x < 0 || x > static_cast<SDWORD>(mapWidth << TILE_SHIFT) || y < 0 || y > static_cast<SDWORD>(mapHeight << TILE_SHIFT))
   {
-    ASSERT_TEXT(FALSE, "scrOrderGroupLoc: Invalid location");
+    DEBUG_ASSERT_TEXT(FALSE, "scrOrderGroupLoc: Invalid location");
     return FALSE;
   }
 
@@ -318,7 +318,7 @@ BOOL scrOrderGroupObj(void)
   if (order != DORDER_ATTACK && order != DORDER_HELPBUILD && order != DORDER_DEMOLISH && order != DORDER_REPAIR && order != DORDER_OBSERVE
     && order != DORDER_EMBARK && order != DORDER_FIRESUPPORT)
   {
-    ASSERT_TEXT(FALSE, "scrOrderGroupObj: Invalid order");
+    DEBUG_ASSERT_TEXT(FALSE, "scrOrderGroupObj: Invalid order");
     return FALSE;
   }
 
@@ -342,7 +342,7 @@ BOOL scrOrderDroid(void)
   if (order != DORDER_STOP && order != DORDER_RETREAT && order != DORDER_DESTRUCT && order != DORDER_RTR && order != DORDER_RTB && order !=
     DORDER_RUN)
   {
-    ASSERT_TEXT(FALSE, "scrOrderUnit: Invalid order");
+    DEBUG_ASSERT_TEXT(FALSE, "scrOrderUnit: Invalid order");
     return FALSE;
   }
 
@@ -365,12 +365,12 @@ BOOL scrOrderDroidLoc(void)
 
   if (order != DORDER_MOVE && order != DORDER_SCOUT)
   {
-    ASSERT_TEXT(FALSE, "scrOrderUnitLoc: Invalid order");
+    DEBUG_ASSERT_TEXT(FALSE, "scrOrderUnitLoc: Invalid order");
     return FALSE;
   }
   if (x < 0 || x > static_cast<SDWORD>(mapWidth << TILE_SHIFT) || y < 0 || y > static_cast<SDWORD>(mapHeight << TILE_SHIFT))
   {
-    ASSERT_TEXT(FALSE, "scrOrderUnitLoc: Invalid location");
+    DEBUG_ASSERT_TEXT(FALSE, "scrOrderUnitLoc: Invalid location");
     return FALSE;
   }
 
@@ -395,7 +395,7 @@ BOOL scrOrderDroidObj(void)
   if (order != DORDER_ATTACK && order != DORDER_HELPBUILD && order != DORDER_DEMOLISH && order != DORDER_REPAIR && order != DORDER_OBSERVE
     && order != DORDER_EMBARK && order != DORDER_FIRESUPPORT)
   {
-    ASSERT_TEXT(FALSE, "scrOrderUnitObj: Invalid order");
+    DEBUG_ASSERT_TEXT(FALSE, "scrOrderUnitObj: Invalid order");
     return FALSE;
   }
 
@@ -416,7 +416,7 @@ BOOL scrOrderDroidStatsLoc(void)
 
   if (statIndex < 0 || statIndex >= static_cast<SDWORD>(numStructureStats))
   {
-    ASSERT_TEXT(FALSE, "scrOrderUnitStatsLoc: invalid structure stat");
+    DEBUG_ASSERT_TEXT(FALSE, "scrOrderUnitStatsLoc: invalid structure stat");
     return FALSE;
   }
   psStats = (BASE_STATS*)(asStructureStats + statIndex);
@@ -426,13 +426,13 @@ BOOL scrOrderDroidStatsLoc(void)
 
   if ((x < 0) || (x > static_cast<SDWORD>(mapWidth) * TILE_UNITS) || (y < 0) || (y > static_cast<SDWORD>(mapHeight) * TILE_UNITS))
   {
-    ASSERT_TEXT(FALSE, "scrOrderUnitStatsLoc: Invalid location");
+    DEBUG_ASSERT_TEXT(FALSE, "scrOrderUnitStatsLoc: Invalid location");
     return FALSE;
   }
 
   if (order != DORDER_BUILD)
   {
-    ASSERT_TEXT(FALSE, "scrOrderUnitStatsLoc: Invalid order");
+    DEBUG_ASSERT_TEXT(FALSE, "scrOrderUnitStatsLoc: Invalid order");
     return FALSE;
   }
 
@@ -518,7 +518,7 @@ BOOL scrSetStructTarPref(void)
   if (!stackPopParams(1, VAL_INT, &pref))
     return FALSE;
 
-  ASSERT_TEXT((SCR_ST_HQ == pref) || (SCR_ST_FACTORY == pref) || (SCR_ST_POWER_GEN == pref) || (SCR_ST_RESOURCE_EXTRACTOR == pref) || (SCR_ST_WALL
+  DEBUG_ASSERT_TEXT((SCR_ST_HQ == pref) || (SCR_ST_FACTORY == pref) || (SCR_ST_POWER_GEN == pref) || (SCR_ST_RESOURCE_EXTRACTOR == pref) || (SCR_ST_WALL
     == pref) || (SCR_ST_RESEARCH == pref) || (SCR_ST_REPAIR_FACILITY == pref) || (SCR_ST_COMMAND_CONTROL == pref) || (SCR_ST_CYBORG_FACTORY
     == pref) || (SCR_ST_VTOL_FACTORY == pref) || (SCR_ST_REARM_PAD == pref) || (SCR_ST_SENSOR == pref) || (SCR_ST_DEF_GROUND == pref) || (
     SCR_ST_DEF_AIR == pref) || (SCR_ST_DEF_IDF == pref) || (SCR_ST_DEF_ALL == pref), "scrSetStructTarPref: unknown target preference");
@@ -536,7 +536,7 @@ BOOL scrSetStructTarIgnore(void)
   if (!stackPopParams(1, VAL_INT, &pref))
     return FALSE;
 
-  ASSERT_TEXT((SCR_ST_HQ == pref) || (SCR_ST_FACTORY == pref) || (SCR_ST_POWER_GEN == pref) || (SCR_ST_RESOURCE_EXTRACTOR == pref) || (SCR_ST_WALL
+  DEBUG_ASSERT_TEXT((SCR_ST_HQ == pref) || (SCR_ST_FACTORY == pref) || (SCR_ST_POWER_GEN == pref) || (SCR_ST_RESOURCE_EXTRACTOR == pref) || (SCR_ST_WALL
     == pref) || (SCR_ST_RESEARCH == pref) || (SCR_ST_REPAIR_FACILITY == pref) || (SCR_ST_COMMAND_CONTROL == pref) || (SCR_ST_CYBORG_FACTORY
     == pref) || (SCR_ST_VTOL_FACTORY == pref) || (SCR_ST_REARM_PAD == pref) || (SCR_ST_SENSOR == pref) || (SCR_ST_DEF_GROUND == pref) || (
     SCR_ST_DEF_AIR == pref) || (SCR_ST_DEF_IDF == pref) || (SCR_ST_DEF_ALL == pref), "scrSetStructTarIgnore: unknown ignore target");
@@ -554,13 +554,12 @@ BOOL scrSetDroidTarPref(void)
   if (!stackPopParams(1, VAL_INT, &pref))
     return FALSE;
 
-  ASSERT_TEXT((SCR_DT_COMMAND == pref) || (SCR_DT_SENSOR == pref) || (SCR_DT_CONSTRUCT == pref) || (SCR_DT_REPAIR == pref) || (SCR_DT_WEAP_GROUND ==
+  DEBUG_ASSERT_TEXT((SCR_DT_COMMAND == pref) || (SCR_DT_SENSOR == pref) || (SCR_DT_CONSTRUCT == pref) || (SCR_DT_REPAIR == pref) || (SCR_DT_WEAP_GROUND ==
       pref) || (SCR_DT_WEAP_AIR == pref) || (SCR_DT_WEAP_IDF == pref) || (SCR_DT_WEAP_ALL == pref) || (SCR_DT_LIGHT == pref) || (
       SCR_DT_MEDIUM
       == pref) || (SCR_DT_HEAVY == pref) || (SCR_DT_SUPER_HEAVY == pref) || (SCR_DT_TRACK == pref) || (SCR_DT_HTRACK == pref) || (
       SCR_DT_WHEEL
-      == pref) || (SCR_DT_LEGS == pref) || (SCR_DT_GROUND == pref) || (SCR_DT_VTOL == pref) || (SCR_DT_HOVER == pref),
-    "scrSetUnitTarPref: unknown target preference");
+      == pref) || (SCR_DT_LEGS == pref) || (SCR_DT_GROUND == pref) || (SCR_DT_VTOL == pref) || (SCR_DT_HOVER == pref), "scrSetUnitTarPref: unknown target preference");
 
   scrDroidPref |= pref;
 
@@ -575,13 +574,12 @@ BOOL scrSetDroidTarIgnore(void)
   if (!stackPopParams(1, VAL_INT, &pref))
     return FALSE;
 
-  ASSERT_TEXT((SCR_DT_COMMAND == pref) || (SCR_DT_SENSOR == pref) || (SCR_DT_CONSTRUCT == pref) || (SCR_DT_REPAIR == pref) || (SCR_DT_WEAP_GROUND ==
+  DEBUG_ASSERT_TEXT((SCR_DT_COMMAND == pref) || (SCR_DT_SENSOR == pref) || (SCR_DT_CONSTRUCT == pref) || (SCR_DT_REPAIR == pref) || (SCR_DT_WEAP_GROUND ==
       pref) || (SCR_DT_WEAP_AIR == pref) || (SCR_DT_WEAP_IDF == pref) || (SCR_DT_WEAP_ALL == pref) || (SCR_DT_LIGHT == pref) || (
       SCR_DT_MEDIUM
       == pref) || (SCR_DT_HEAVY == pref) || (SCR_DT_SUPER_HEAVY == pref) || (SCR_DT_TRACK == pref) || (SCR_DT_HTRACK == pref) || (
       SCR_DT_WHEEL
-      == pref) || (SCR_DT_LEGS == pref) || (SCR_DT_GROUND == pref) || (SCR_DT_VTOL == pref) || (SCR_DT_HOVER == pref),
-    "scrSetUnitTarIgnore: unknown ignore target");
+      == pref) || (SCR_DT_LEGS == pref) || (SCR_DT_GROUND == pref) || (SCR_DT_VTOL == pref) || (SCR_DT_HOVER == pref), "scrSetUnitTarIgnore: unknown ignore target");
 
   scrDroidIgnore |= pref;
 
@@ -656,7 +654,7 @@ UDWORD scrStructTargetMask(STRUCTURE* psStruct)
   case REF_LAB:
   case REF_BRIDGE:
   case REF_DEMOLISH:
-  case REF_BLASTDOOR: default: ASSERT_TEXT(FALSE, "scrStructTargetMask: unknown or invalid target structure type");
+  case REF_BLASTDOOR: default: DEBUG_ASSERT_TEXT(FALSE, "scrStructTargetMask: unknown or invalid target structure type");
     mask = 0;
     break;
   }
@@ -717,7 +715,7 @@ UDWORD scrDroidTargetMask(DROID* psDroid)
   case DROID_TRANSPORTER:
     break;
   case DROID_DEFAULT:
-  case DROID_ANY: default: ASSERT_TEXT(FALSE, "scrUnitTargetMask: unknown or invalid target unit type");
+  case DROID_ANY: default: DEBUG_ASSERT_TEXT(FALSE, "scrUnitTargetMask: unknown or invalid target unit type");
     break;
   }
 
@@ -737,7 +735,7 @@ UDWORD scrDroidTargetMask(DROID* psDroid)
   case SIZE_SUPER_HEAVY:
     mask |= SCR_DT_SUPER_HEAVY;
     break;
-  default: ASSERT_TEXT(FALSE, "scrUnitTargetMask: unknown or invalid target body size");
+  default: DEBUG_ASSERT_TEXT(FALSE, "scrUnitTargetMask: unknown or invalid target body size");
     break;
   }
 
@@ -765,7 +763,7 @@ UDWORD scrDroidTargetMask(DROID* psDroid)
     mask |= SCR_DT_HTRACK;
     break;
   case PROPELLOR:
-  case SKI: default: ASSERT_TEXT(FALSE, "scrUnitTargetMask: unknown or invalid target unit propulsion type");
+  case SKI: default: DEBUG_ASSERT_TEXT(FALSE, "scrUnitTargetMask: unknown or invalid target unit propulsion type");
     break;
   }
 
@@ -808,7 +806,7 @@ BASE_OBJECT* scrTargetInArea(SDWORD tarPlayer, SDWORD visPlayer, SDWORD tarType,
 
   if (tarPlayer < 0 || tarPlayer >= MAX_PLAYERS)
   {
-    ASSERT_TEXT(FALSE, "scrTargetInArea: invalid target player number");
+    DEBUG_ASSERT_TEXT(FALSE, "scrTargetInArea: invalid target player number");
     return nullptr;
   }
 
@@ -849,7 +847,7 @@ BASE_OBJECT* scrTargetInArea(SDWORD tarPlayer, SDWORD visPlayer, SDWORD tarType,
     ignore = scrDroidIgnore;
     psCurr = (BASE_OBJECT*)apsDroidLists[tarPlayer];
     break;
-  default: ASSERT_TEXT(FALSE, "scrTargetInArea: invalid target type");
+  default: DEBUG_ASSERT_TEXT(FALSE, "scrTargetInArea: invalid target type");
     return nullptr;
   }
 
@@ -962,7 +960,7 @@ BOOL scrTargetInCluster(void)
 
   if (clusterID < 0 || clusterID >= CLUSTER_MAX)
   {
-    ASSERT_TEXT(FALSE, "scrTargetInCluster: invalid clusterID");
+    DEBUG_ASSERT_TEXT(FALSE, "scrTargetInCluster: invalid clusterID");
     return FALSE;
   }
 
@@ -1340,7 +1338,7 @@ BOOL scrSkDefenseLocation(void)
 
   if (player >= MAX_PLAYERS)
   {
-    ASSERT_TEXT(FALSE, "scrSkDefenseLocation:player number is too high");
+    DEBUG_ASSERT_TEXT(FALSE, "scrSkDefenseLocation:player number is too high");
     return FALSE;
   }
 

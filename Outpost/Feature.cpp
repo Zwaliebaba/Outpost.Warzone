@@ -126,7 +126,7 @@ void featureType(FEATURE_STATS* psFeature, char* pType)
     psFeature->subType = FEAT_SKYSCRAPER;
     return;
   }
-  ASSERT_TEXT(FALSE, "Unknown Feature Type");
+  DEBUG_ASSERT_TEXT(FALSE, "Unknown Feature Type");
 }
 
 /* Load the feature stats */
@@ -763,14 +763,12 @@ FEATURE* buildFeature(FEATURE_STATS* psStats, UDWORD x, UDWORD y, BOOL FromSave)
     for (breadth = 0; breadth <= psStats->baseBreadth; breadth++)
     {
       //check not outside of map - for load save game
-      ASSERT_TEXT((mapX+width) < mapWidth, "x coord bigger than map width - {}, id = {}", getName(psFeature->psStats->pName), psFeature->id);
-      ASSERT_TEXT((mapY+breadth) < mapHeight,
-        "y coord bigger than map height - {}, id = {}", getName(psFeature->psStats->pName), psFeature->id);
+      DEBUG_ASSERT_TEXT((mapX+width) < mapWidth, "x coord bigger than map width - {}, id = {}", getName(psFeature->psStats->pName), psFeature->id);
+      DEBUG_ASSERT_TEXT((mapY+breadth) < mapHeight, "y coord bigger than map height - {}, id = {}", getName(psFeature->psStats->pName), psFeature->id);
       psTile = mapTile(mapX + width, mapY + breadth);
       if (width != psStats->baseWidth && breadth != psStats->baseBreadth)
       {
-        ASSERT_TEXT(!(TILE_HAS_FEATURE(mapTile(mapX+width,mapY+breadth))),
-          "buildFeature - feature- {} already found at {}, {}", psFeature->id, mapX+width,mapY+breadth);
+        DEBUG_ASSERT_TEXT(!(TILE_HAS_FEATURE(mapTile(mapX+width,mapY+breadth))), "buildFeature - feature- {} already found at {}, {}", psFeature->id, mapX+width,mapY+breadth);
 
         SET_TILE_FEATURE(psTile);
         // if it's a tall feature then flag it in the map.
@@ -837,7 +835,7 @@ void removeFeature(FEATURE* psDel)
   if (psDel->died)
   {
     // feature has already been killed, quit
-    ASSERT_TEXT(FALSE, "removeFeature: feature already dead");
+    DEBUG_ASSERT_TEXT(FALSE, "removeFeature: feature already dead");
     return;
   }
 

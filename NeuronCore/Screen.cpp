@@ -244,8 +244,8 @@ static BOOL getWindowsPixelFormat(void)
   DDSURFACEDESC2 ddsd; // Direct Draw surface description
   UDWORD currMask;
 
-  ASSERT_TEXT(psDD != NULL, "getWindowsPixelFormat: NULL Direct Draw object");
-  ASSERT_TEXT((psFront == NULL) && (psBack == NULL) && (psClipper == NULL), "getWindowsPixelFormat: DD objects have not been released");
+  DEBUG_ASSERT_TEXT(psDD != NULL, "getWindowsPixelFormat: NULL Direct Draw object");
+  DEBUG_ASSERT_TEXT((psFront == NULL) && (psBack == NULL) && (psClipper == NULL), "getWindowsPixelFormat: DD objects have not been released");
 
   /* Set the cooperative level - windowed */
   ddrval = psDD->lpVtbl->SetCooperativeLevel(psDD, hWndMain, DDSCL_NORMAL);
@@ -345,8 +345,8 @@ static BOOL createDDWindowed(void)
   DDSURFACEDESC2 ddsd; // Direct Draw surface description
   RECT sWinSize;
 
-  ASSERT_TEXT(psDD != NULL, "createDDWindowed: NULL Direct Draw object");
-  ASSERT_TEXT((psFront == NULL) && (psBack == NULL) && (psClipper == NULL), "createDDWindowed: DD objects have not been released");
+  DEBUG_ASSERT_TEXT(psDD != NULL, "createDDWindowed: NULL Direct Draw object");
+  DEBUG_ASSERT_TEXT((psFront == NULL) && (psBack == NULL) && (psClipper == NULL), "createDDWindowed: DD objects have not been released");
 
   /* Set the cooperative level - windowed */
   ddrval = psDD->lpVtbl->SetCooperativeLevel(psDD, hWndMain, DDSCL_NORMAL);
@@ -544,8 +544,8 @@ static BOOL createDDFullScreen(void)
   DDSCAPS ddscaps;
 #endif
 
-  ASSERT_TEXT(psDD != NULL, "createDDFullScreen: No Direct Draw Object");
-  ASSERT_TEXT((psFront == NULL) && (psBack == NULL) && (psClipper == NULL), "createDDFullScreen: DD objects have not been released");
+  DEBUG_ASSERT_TEXT(psDD != NULL, "createDDFullScreen: No Direct Draw Object");
+  DEBUG_ASSERT_TEXT((psFront == NULL) && (psBack == NULL) && (psClipper == NULL), "createDDFullScreen: DD objects have not been released");
 
   /* Make the app window completely undecorated so GDI is
    * effectively shut out.
@@ -678,8 +678,8 @@ static BOOL releaseDDFullScreen(void)
   if (psDD == nullptr)
     return TRUE;
 
-  ASSERT_TEXT(screenMode == SCREEN_FULLSCREEN, "releaseDDFullScreen: Attempt to release when not in full screen mode");
-  ASSERT_TEXT(psClipper == NULL, "releaseDDFullScreen: Clipper object not released");
+  DEBUG_ASSERT_TEXT(screenMode == SCREEN_FULLSCREEN, "releaseDDFullScreen: Attempt to release when not in full screen mode");
+  DEBUG_ASSERT_TEXT(psClipper == NULL, "releaseDDFullScreen: Clipper object not released");
 
   /* Clear up exclusive mode */
   screenFlipToGDI();
@@ -831,8 +831,8 @@ BOOL screenInitialise(UDWORD width, // Display width
   else
   {
     screenMode = SCREEN_FULLSCREEN;
-    ASSERT_TEXT(psDD != NULL, "createDDFullScreen: No Direct Draw Object");
-    ASSERT_TEXT((psFront == NULL) && (psBack == NULL) && (psClipper == NULL), "createDDFullScreen: DD objects have not been released");
+    DEBUG_ASSERT_TEXT(psDD != NULL, "createDDFullScreen: No Direct Draw Object");
+    DEBUG_ASSERT_TEXT((psFront == NULL) && (psBack == NULL) && (psClipper == NULL), "createDDFullScreen: DD objects have not been released");
 
     /* Make the app window completely undecorated so GDI is
      * effectively shut out.
@@ -1592,7 +1592,7 @@ void screenSetPalette(UDWORD first, UDWORD count, PALETTEENTRY* psEntries)
 {
   HRESULT ddrval;
 
-  ASSERT_TEXT((first+count-1 < PAL_MAX), "screenSetPalette: invalid entry range");
+  DEBUG_ASSERT_TEXT((first+count-1 < PAL_MAX), "screenSetPalette: invalid entry range");
 
   if (count == 0)
     return;
@@ -1657,7 +1657,7 @@ UBYTE screenGetPalEntry(UBYTE red, UBYTE green, UBYTE blue)
   UDWORD redDiff, greenDiff, blueDiff;
   UBYTE colour;
 
-  ASSERT_TEXT(sBackBufferPixelFormat.dwRGBBitCount == 8, "screenSetPalette: not in a palettised mode");
+  DEBUG_ASSERT_TEXT(sBackBufferPixelFormat.dwRGBBitCount == 8, "screenSetPalette: not in a palettised mode");
 
   minDist = 0xff * 0xff * 0xff;
   colour = 0;
@@ -1717,7 +1717,7 @@ void screenSetTextColour(UBYTE red, UBYTE green, UBYTE blue)
     textColour |= (green >> gPalShift) << gShift;
     textColour |= (blue >> bPalShift) << bShift;
     break;
-  default: ASSERT_TEXT(FALSE,"Unknown display pixel format");
+  default: DEBUG_ASSERT_TEXT(FALSE, "Unknown display pixel format");
     break;
   }
 }
@@ -1766,7 +1766,7 @@ void screenTextOut(UDWORD x, UDWORD y, STRING* pFormat, ...)
   ddrval = psBack->lpVtbl->Lock(psBack, nullptr, &sDDSD, DDLOCK_WAIT, nullptr);
   if (ddrval != DD_OK)
   {
-    ASSERT_TEXT(FALSE,"screenTextOut: Couldn't lock back buffer");
+    DEBUG_ASSERT_TEXT(FALSE, "screenTextOut: Couldn't lock back buffer");
     return;
   }
 
@@ -1814,16 +1814,16 @@ void screenTextOut(UDWORD x, UDWORD y, STRING* pFormat, ...)
       }
     }
     break;
-  case 24: ASSERT_TEXT(FALSE,"24 bit text output not implemented");
+  case 24: DEBUG_ASSERT_TEXT(FALSE, "24 bit text output not implemented");
     break;
-  case 32: ASSERT_TEXT(FALSE,"32 bit text output not implemented");
+  case 32: DEBUG_ASSERT_TEXT(FALSE, "32 bit text output not implemented");
     break;
-  default: ASSERT_TEXT(FALSE,"Unknown display pixel format");
+  default: DEBUG_ASSERT_TEXT(FALSE, "Unknown display pixel format");
     break;
   }
 
   ddrval = psBack->lpVtbl->Unlock(psBack, static_cast<LPRECT>(sDDSD.lpSurface));
-  if (ddrval != DD_OK) { ASSERT_TEXT(FALSE,"screenTextOut: Couldn;t unlock back buffer"); }
+  if (ddrval != DD_OK) { DEBUG_ASSERT_TEXT(FALSE, "screenTextOut: Couldn;t unlock back buffer"); }
 }
 
 /* Blit the source rectangle of the surface
@@ -1874,7 +1874,7 @@ void screenBlit(SDWORD destX, SDWORD destY, // The location on screen
     height = static_cast<SDWORD>(screenHeight) - destY;
   }
 
-  ASSERT_TEXT((destX >= 0) && (destX+width <= static_cast<SDWORD>(screenWidth)) &&
+  DEBUG_ASSERT_TEXT((destX >= 0) && (destX+width <= static_cast<SDWORD>(screenWidth)) &&
     (destY >= 0) && (destY+height <= static_cast<SDWORD>(screenHeight)), "screenBlit: Clipping failed");
 
   /* now do the blit */
@@ -1887,7 +1887,7 @@ void screenBlit(SDWORD destX, SDWORD destY, // The location on screen
   ddrval = psBack->lpVtbl->Blt(psBack, &sDestRect, psSurf, &sSrcRect,
                                //						DDBLT_WAIT,
                                DDBLT_WAIT | DDBLT_KEYSRCOVERRIDE, &sBltFX);
-  if (ddrval != DD_OK) { ASSERT_TEXT(FALSE,"Blit failed:\n{}", DDErrorToString(ddrval)); }
+  if (ddrval != DD_OK) { DEBUG_ASSERT_TEXT(FALSE, "Blit failed:\n{}", DDErrorToString(ddrval)); }
 }
 
 /*
@@ -1938,7 +1938,7 @@ void screenScaleBlit(SDWORD destX, SDWORD destY, SDWORD destWidth, SDWORD destHe
     destHeight -= lowShrink + highShrink;
   }
 
-  ASSERT_TEXT((destX >= 0) && (destX + destWidth < static_cast<SDWORD>(screenWidth)) &&
+  DEBUG_ASSERT_TEXT((destX >= 0) && (destX + destWidth < static_cast<SDWORD>(screenWidth)) &&
     (destY >= 0) && (destY + destHeight < static_cast<SDWORD>(screenHeight)), "screenScaleBlit: Clip failed");
 
   /* now do the blit */
@@ -1950,7 +1950,7 @@ void screenScaleBlit(SDWORD destX, SDWORD destY, SDWORD destWidth, SDWORD destHe
   sBltFX.ddckSrcColorkey.dwColorSpaceHighValue = 0;
   ddrval = psBack->lpVtbl->Blt(psBack, &sDestRect, psSurf, &sSrcRect, DDBLT_WAIT | DDBLT_KEYSRCOVERRIDE, &sBltFX);
   if (ddrval != DD_OK)
-    ASSERT_TEXT(FALSE,"scaleBlit failed\n{}", DDErrorToString(ddrval));
+    DEBUG_ASSERT_TEXT(FALSE, "scaleBlit failed\n{}", DDErrorToString(ddrval));
 }
 
 /* Blit a tile (rectangle) from the surface
@@ -1977,7 +1977,7 @@ void screenBlitTile(SDWORD destX, SDWORD destY, // The location on screen
   srcX = (tile % tilesPerLine) * width;
   srcY = (tile / tilesPerLine) * height;
 
-  ASSERT_TEXT(((srcX + width) <= ddsd.dwWidth) && ((srcY + height) <= ddsd.dwHeight), "screenBlitTile: Tile off source surface");
+  DEBUG_ASSERT_TEXT(((srcX + width) <= ddsd.dwWidth) && ((srcY + height) <= ddsd.dwHeight), "screenBlitTile: Tile off source surface");
 
   /* blit the tile */
   screenBlit(destX, destY, psSurf, srcX, srcY, width, height);
@@ -2029,7 +2029,7 @@ UDWORD screenGetCacheColour(UBYTE red, UBYTE green, UBYTE blue)
     colour |= (green >> gPalShift) << gShift;
     colour |= (blue >> bPalShift) << bShift;
     break;
-  default: ASSERT_TEXT(FALSE,"Unknown display pixel format");
+  default: DEBUG_ASSERT_TEXT(FALSE, "Unknown display pixel format");
     break;
   }
 
@@ -2086,7 +2086,9 @@ void screenDrawLine(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1)
   BOOL clipped;
   OUTCODE code0, code1, code;
   float cx, cy;
-  // the assertion below counts with this and runs in release builds too
+  // the clipping loop counter the assertion below reports. Left outside any
+  // DEBUG guard so the function stays correct whether or not that assertion
+  // is compiled in.
   UDWORD loops;
 
   clipped = FALSE;
@@ -2097,7 +2099,7 @@ void screenDrawLine(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1)
   /* Loop until the line is accepted. return if the line is rejected */
   do
   {
-    ASSERT_TEXT(loops++ < 20, "screenDrawLine: clipping loop reached 20 iterations\n" "                 - possible infinite loop ?");
+    DEBUG_ASSERT_TEXT(loops++ < 20, "screenDrawLine: clipping loop reached 20 iterations\n" "                 - possible infinite loop ?");
     if ((code0 == 0) && (code1 == 0))
     {
       /* trivial acceptance */
@@ -2153,7 +2155,7 @@ void screenDrawLine(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1)
   }
   while (!clipped);
 
-  ASSERT_TEXT((x0 >= 0) && (x0 < static_cast<SDWORD>(screenWidth)) &&
+  DEBUG_ASSERT_TEXT((x0 >= 0) && (x0 < static_cast<SDWORD>(screenWidth)) &&
     (x1 >= 0) && (x1 < static_cast<SDWORD>(screenWidth)) && (y0 >= 0) && (y0 < static_cast<SDWORD>(screenHeight)) && (y1 >= 0) && (y1 <
       static_cast<SDWORD>(screenHeight)), "screenDrawLine: Failed to clip to screen");
 
@@ -2163,7 +2165,7 @@ void screenDrawLine(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1)
   ddrval = psBack->lpVtbl->Lock(psBack, nullptr, &ddsd, DDLOCK_WAIT, nullptr);
   if (ddrval != DD_OK)
   {
-    ASSERT_TEXT(FALSE,"Lock failed for line draw:\n{}", DDErrorToString(ddrval));
+    DEBUG_ASSERT_TEXT(FALSE, "Lock failed for line draw:\n{}", DDErrorToString(ddrval));
     return;
   }
 
@@ -2293,16 +2295,16 @@ void screenDrawLine(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1)
       }
     }
     break;
-  case 24: ASSERT_TEXT(FALSE,"24 bit line drawing not implemented");
+  case 24: DEBUG_ASSERT_TEXT(FALSE, "24 bit line drawing not implemented");
     break;
-  case 32: ASSERT_TEXT(FALSE,"32 bit line drawing not implemented");
+  case 32: DEBUG_ASSERT_TEXT(FALSE, "32 bit line drawing not implemented");
     break;
-  default: ASSERT_TEXT(FALSE,"Unknown display pixel format");
+  default: DEBUG_ASSERT_TEXT(FALSE, "Unknown display pixel format");
     break;
   }
 
   ddrval = psBack->lpVtbl->Unlock(psBack, nullptr);
-  if (ddrval != DD_OK) { ASSERT_TEXT(FALSE,"Unlock failed for line draw:\n{}", DDErrorToString(ddrval)); }
+  if (ddrval != DD_OK) { DEBUG_ASSERT_TEXT(FALSE, "Unlock failed for line draw:\n{}", DDErrorToString(ddrval)); }
 }
 
 /* Draw a rectangle (unfilled) */
@@ -2365,7 +2367,7 @@ void screenFillRect(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1)
   sDDBlitFX.dwFillColor = fillColour;
   (void)SetRect(&sDestRect, x0, y0, x1 + 1, y1 + 1);
   ddrval = psBack->lpVtbl->Blt(psBack, &sDestRect, nullptr, nullptr, DDBLT_COLORFILL | DDBLT_WAIT, &sDDBlitFX);
-  if (ddrval != DD_OK) { ASSERT_TEXT(FALSE,"Fill rect failed:\n{}", DDErrorToString(ddrval)); }
+  if (ddrval != DD_OK) { DEBUG_ASSERT_TEXT(FALSE, "Fill rect failed:\n{}", DDErrorToString(ddrval)); }
 }
 
 /* Draw a circle/ellipse */
@@ -2386,7 +2388,7 @@ void screenDrawEllipse(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1)
   if (ddrval != DD_OK)
   {
     /* If not, then report the error */
-    ASSERT_TEXT(FALSE,"Elipse draw failed - couldn't get device context:\n{}", DDErrorToString(ddrval));
+    DEBUG_ASSERT_TEXT(FALSE, "Elipse draw failed - couldn't get device context:\n{}", DDErrorToString(ddrval));
   }
 
   /* Otherwise draw the ellipse */
@@ -2403,7 +2405,7 @@ void screenDrawEllipse(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1)
     if (ddrval != DD_OK)
     {
       /* No -report the error */
-      ASSERT_TEXT(FALSE,"Elipse draw failed - couldn't release context:\n{}", DDErrorToString(ddrval));
+      DEBUG_ASSERT_TEXT(FALSE, "Elipse draw failed - couldn't release context:\n{}", DDErrorToString(ddrval));
     }
 
     DeleteObject(hpen);

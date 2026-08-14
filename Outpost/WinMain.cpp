@@ -530,9 +530,8 @@ UDWORD GetGameMode(void) { return gameStatus; }
 
 void SetGameMode(UDWORD status)
 {
-  ASSERT_TEXT(status == GS_TITLE_SCREEN ||
-    status == GS_MISSION_SCREEN || status == GS_NORMAL || status == GS_VIDEO_MODE || status == GS_SAVEGAMELOAD,
-    "SetGameMode: invalid game mode");
+  DEBUG_ASSERT_TEXT(status == GS_TITLE_SCREEN ||
+    status == GS_MISSION_SCREEN || status == GS_NORMAL || status == GS_VIDEO_MODE || status == GS_SAVEGAMELOAD, "SetGameMode: invalid game mode");
 
   gameStatus = status;
 }

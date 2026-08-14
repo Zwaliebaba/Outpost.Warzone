@@ -191,7 +191,7 @@ static BOOL _addConsoleMessage(STRING* messageText, CONSOLE_TEXT_JUSTIFICATION j
   /* Is the string too long? */
   textLength = strlen(messageText);
 
-  ASSERT_TEXT(textLength<MAX_CONSOLE_STRING_LENGTH, "Attempt to add a message to the console that exceeds MAX_CONSOLE_STRING_LENGTH");
+  DEBUG_ASSERT_TEXT(textLength<MAX_CONSOLE_STRING_LENGTH, "Attempt to add a message to the console that exceeds MAX_CONSOLE_STRING_LENGTH");
 
   /* Are we using a defualt justification? */
   if (jusType == DEFAULT_JUSTIFY)
@@ -618,7 +618,7 @@ BOOL mouseOverConsoleBox(void)
 /* Sets up how many lines are allowed and how many are visible */
 void setConsoleLineInfo(UDWORD vis)
 {
-  ASSERT_TEXT(vis<=MAX_CONSOLE_MESSAGES,"Request for more visible lines in the console than exist");
+  DEBUG_ASSERT_TEXT(vis<=MAX_CONSOLE_MESSAGES, "Request for more visible lines in the console than exist");
   consoleVisibleLines = vis;
 }
 

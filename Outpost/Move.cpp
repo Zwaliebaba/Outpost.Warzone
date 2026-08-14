@@ -478,7 +478,7 @@ BOOL moveDroidToNoFormation(DROID* psDroid, UDWORD x, UDWORD y) { return moveDro
 
 void moveDroidToDirect(DROID* psDroid, UDWORD x, UDWORD y)
 {
-  ASSERT_TEXT(vtolDroid(psDroid), "moveUnitToDirect: only valid for a vtol unit");
+  DEBUG_ASSERT_TEXT(vtolDroid(psDroid), "moveUnitToDirect: only valid for a vtol unit");
 
   fpathSetDirectRoute((BASE_OBJECT*)psDroid, static_cast<SDWORD>(x), static_cast<SDWORD>(y));
   psDroid->sMove.Status = MOVENAVIGATE;
@@ -700,8 +700,8 @@ void updateDroidOrientation(DROID* psDroid)
   SDWORD newPitch, dPitch, pitchLimit;
   double dx, dy;
   double direction, pitch, roll;
-  ASSERT_TEXT(psDroid->x < (mapWidth << TILE_SHIFT), "mapHeight: x coordinate bigger than map width");
-  ASSERT_TEXT(psDroid->y < (mapHeight<< TILE_SHIFT), "mapHeight: y coordinate bigger than map height");
+  DEBUG_ASSERT_TEXT(psDroid->x < (mapWidth << TILE_SHIFT), "mapHeight: x coordinate bigger than map width");
+  DEBUG_ASSERT_TEXT(psDroid->y < (mapHeight<< TILE_SHIFT), "mapHeight: y coordinate bigger than map height");
 
   //if(psDroid->droidType == DROID_PERSON OR psDroid->droidType == DROID_CYBORG OR
   if (psDroid->droidType == DROID_PERSON OR cyborgDroid(psDroid) OR psDroid->droidType == DROID_TRANSPORTER)
@@ -788,13 +788,15 @@ static void angleToVector(SDWORD angle, FRACT* pX, FRACT* pY)
 static void moveCalcTurn(FRACT* pCurr, FRACT target, UDWORD rate)
 {
   FRACT diff, change;
-  // the assertion at the end of the function reports this in release builds too
+  // the branch number the assertion at the end of the function reports. Left
+  // outside any DEBUG guard so the function stays correct whether or not that
+  // assertion is compiled in.
   SDWORD path = 0;
 #define SET_PATH(x) path=x
 
-  ASSERT_TEXT(target < MAKEFRACT(360) && target >= MAKEFRACT(0), "moveCalcTurn: target out of range");
+  DEBUG_ASSERT_TEXT(target < MAKEFRACT(360) && target >= MAKEFRACT(0), "moveCalcTurn: target out of range");
 
-  ASSERT_TEXT((*pCurr) < MAKEFRACT(360) && (*pCurr) >= MAKEFRACT(0), "moveCalcTurn: cur ang out of range");
+  DEBUG_ASSERT_TEXT((*pCurr) < MAKEFRACT(360) && (*pCurr) >= MAKEFRACT(0), "moveCalcTurn: cur ang out of range");
 
   // calculate the difference in the angles
   diff = target - *pCurr;
@@ -851,8 +853,7 @@ static void moveCalcTurn(FRACT* pCurr, FRACT target, UDWORD rate)
     *pCurr -= MKF(TRIG_DEGREES);
 
 
-  ASSERT_TEXT(MAKEINT(*pCurr) < 360 && MAKEINT(*pCurr) >= 0,
-    "moveCalcTurn: angle out of range - path {}\n" "   NOTE - ANYONE WHO SEES THIS PLEASE REMEMBER: path {}", path, path);
+  DEBUG_ASSERT_TEXT(MAKEINT(*pCurr) < 360 && MAKEINT(*pCurr) >= 0, "moveCalcTurn: angle out of range - path {}\n" "   NOTE - ANYONE WHO SEES THIS PLEASE REMEMBER: path {}", path, path);
 }
 
 /* Get the next target point from the route */
@@ -1024,7 +1025,7 @@ static SDWORD moveObjRadius(BASE_OBJECT* psObj)
   case OBJ_FEATURE:
     radius = psObj->sDisplay.imd->radius / 2;
     break;
-  default: ASSERT_TEXT(FALSE,"moveObjRadius: unknown object type");
+  default: DEBUG_ASSERT_TEXT(FALSE, "moveObjRadius: unknown object type");
     radius = 0;
     break;
   }
@@ -1127,7 +1128,7 @@ void moveCheckSquished(DROID* psDroid, FRACT mx, FRACT my)
       continue;
     }
 
-    ASSERT_TEXT(psInfo->psObj->type == OBJ_DROID && ((DROID *)psInfo->psObj)->droidType == DROID_PERSON, "squished - eerk");
+    DEBUG_ASSERT_TEXT(psInfo->psObj->type == OBJ_DROID && ((DROID *)psInfo->psObj)->droidType == DROID_PERSON, "squished - eerk");
 
     objR = moveObjRadius(psInfo->psObj);
     rad = droidR + objR;
@@ -3092,7 +3093,7 @@ void moveUpdatePersonModel(DROID* psDroid, SDWORD speed, SDWORD direction)
       if (psDroid->psCurAnim != nullptr && psDroid->psCurAnim->psAnim->uwID != ID_ANIM_DROIDFIRE)
       {
         bRet = animObj_Remove(&psDroid->psCurAnim, psDroid->psCurAnim->psAnim->uwID);
-        ASSERT_TEXT(bRet == TRUE, "moveUpdatePersonModel: animObj_Remove failed");
+        DEBUG_ASSERT_TEXT(bRet == TRUE, "moveUpdatePersonModel: animObj_Remove failed");
         psDroid->psCurAnim = nullptr;
       }
 
@@ -3154,7 +3155,7 @@ void moveUpdatePersonModel(DROID* psDroid, SDWORD speed, SDWORD direction)
       ID_ANIM_DROIDRUN))
     {
       bRet = animObj_Remove(&psDroid->psCurAnim, psDroid->psCurAnim->psAnim->uwID);
-      ASSERT_TEXT(bRet == TRUE, "moveUpdatePersonModel: animObj_Remove failed");
+      DEBUG_ASSERT_TEXT(bRet == TRUE, "moveUpdatePersonModel: animObj_Remove failed");
       psDroid->psCurAnim = nullptr;
     }
 
@@ -3174,7 +3175,7 @@ void moveUpdatePersonModel(DROID* psDroid, SDWORD speed, SDWORD direction)
       if (!clipXY(psDroid->x, psDroid->y))
       {
         bRet = animObj_Remove(&psDroid->psCurAnim, psDroid->psCurAnim->psAnim->uwID);
-        ASSERT_TEXT(bRet == TRUE, "moveUpdatePersonModel : animObj_Remove failed");
+        DEBUG_ASSERT_TEXT(bRet == TRUE, "moveUpdatePersonModel : animObj_Remove failed");
         psDroid->psCurAnim = nullptr;
         Neuron::DebugTrace("Removed person run anim\n");
       }
@@ -3448,7 +3449,7 @@ void moveUpdateCyborgModel(DROID* psDroid, SDWORD moveSpeed, SDWORD moveDir, UBY
       if (!clipXY(psDroid->x, psDroid->y))
       {
         bRet = animObj_Remove(&psDroid->psCurAnim, psDroid->psCurAnim->psAnim->uwID);
-        ASSERT_TEXT(bRet == TRUE, "moveUpdateCyborgModel : animObj_Remove failed");
+        DEBUG_ASSERT_TEXT(bRet == TRUE, "moveUpdateCyborgModel : animObj_Remove failed");
         psDroid->psCurAnim = nullptr;
       }
     }
@@ -4017,7 +4018,7 @@ void moveUpdateDroid(DROID* psDroid)
   case MOVEDRIVEFOLLOW:
     break;
 
-  default: ASSERT_TEXT(FALSE, "moveUpdateUnit: unknown move state");
+  default: DEBUG_ASSERT_TEXT(FALSE, "moveUpdateUnit: unknown move state");
     break;
   }
 

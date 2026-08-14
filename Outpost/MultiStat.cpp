@@ -245,7 +245,7 @@ VOID useTheForce(BOOL bAddTempl) //Luke
     y = y1;
 
     if (!pickATileGen(&x, &y,LOOK_FOR_EMPTY_TILE, zonedPAT))
-      ASSERT_TEXT(FALSE, "UseTheForce: Unable to find a free location");
+      DEBUG_ASSERT_TEXT(FALSE, "UseTheForce: Unable to find a free location");
     Neuron::DebugTrace("force droid dropping at :{},{}\n",x,y);
 
     // copy template

@@ -72,7 +72,7 @@ BOOL scrCBNewDroid(void)
   if (psScrCBNewDroid == nullptr)
   {
     // eh? got called without setting the new droid
-    ASSERT_TEXT(FALSE, "scrCBNewUnit: no unit has been set");
+    DEBUG_ASSERT_TEXT(FALSE, "scrCBNewUnit: no unit has been set");
     triggered = FALSE;
     *ppsDroid = nullptr;
     *ppsStructure = nullptr;
@@ -103,7 +103,7 @@ BOOL scrCBStructAttacked(void)
 
   if (psLastStructHit == nullptr)
   {
-    ASSERT_TEXT(FALSE, "scrCBStructAttacked: no target has been set");
+    DEBUG_ASSERT_TEXT(FALSE, "scrCBStructAttacked: no target has been set");
     triggered = FALSE;
     *ppsAttacker = nullptr;
     *ppsTarget = nullptr;
@@ -140,7 +140,7 @@ BOOL scrCBDroidAttacked(void)
 
   if (psLastDroidHit == nullptr)
   {
-    ASSERT_TEXT(FALSE, "scrCBUnitAttacked: no target has been set");
+    DEBUG_ASSERT_TEXT(FALSE, "scrCBUnitAttacked: no target has been set");
     triggered = FALSE;
     *ppsAttacker = nullptr;
     *ppsTarget = nullptr;
@@ -177,7 +177,7 @@ BOOL scrCBAttacked(void)
 
   if (psScrCBTarget == nullptr)
   {
-    ASSERT_TEXT(FALSE, "scrCBAttacked: no target has been set");
+    DEBUG_ASSERT_TEXT(FALSE, "scrCBAttacked: no target has been set");
     triggered = FALSE;
     *ppsAttacker = nullptr;
     *ppsTarget = nullptr;
@@ -369,7 +369,7 @@ BOOL scrCBObjectSeen(SDWORD callback)
 
   if (psScrCBObjSeen == nullptr)
   {
-    ASSERT_TEXT(FALSE,"scrCBObjectSeen: no object set");
+    DEBUG_ASSERT_TEXT(FALSE, "scrCBObjectSeen: no object set");
     return FALSE;
   }
 
@@ -502,7 +502,7 @@ BOOL scrCBVtolOffMap(void)
 
   if (psScrCBVtolOffMap == nullptr)
   {
-    ASSERT_TEXT(FALSE, "scrCBVtolAtBase: NULL vtol pointer");
+    DEBUG_ASSERT_TEXT(FALSE, "scrCBVtolAtBase: NULL vtol pointer");
     return FALSE;
   }
 
@@ -531,7 +531,7 @@ BOOL scrCBResCompleted(void)
 
   if (psCBLastResearch == nullptr)
   {
-    ASSERT_TEXT(FALSE, "scrCBResCompleted: no research has been set");
+    DEBUG_ASSERT_TEXT(FALSE, "scrCBResCompleted: no research has been set");
     retVal = FALSE;
     *ppsResearch = nullptr;
   }

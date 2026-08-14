@@ -190,7 +190,7 @@ void frameSetCursor(HCURSOR hNewCursor)
 {
   if (hNewCursor == nullptr)
   {
-    ASSERT_TEXT(FALSE,"frameSetCursor: NULL cursor handle");
+    DEBUG_ASSERT_TEXT(FALSE, "frameSetCursor: NULL cursor handle");
     return;
   }
   hCursor = hNewCursor;
@@ -202,7 +202,7 @@ void frameSetCursorFromRes(WORD resID)
 {
   HCURSOR hNewCursor = nullptr;
 
-  ASSERT_TEXT(resID != 0, "frameSetCursorFromRes: null resource ID");
+  DEBUG_ASSERT_TEXT(resID != 0, "frameSetCursorFromRes: null resource ID");
 
   //If we are already using this cursor then  return
   if (resID != currentCursorResID)
@@ -217,7 +217,7 @@ void frameSetCursorFromRes(WORD resID)
     //if cursor wasnt loaded, load the cursor and add it to array
     if (hNewCursor == nullptr)
     {
-      ASSERT_TEXT(nextCursor < MAX_CURSORS,"frameSetCursorFromRes: Attempting to load too many cursors\n");
+      DEBUG_ASSERT_TEXT(nextCursor < MAX_CURSORS, "frameSetCursorFromRes: Attempting to load too many cursors\n");
 
       if (nextCursor >= MAX_CURSORS)
         nextCursor = MAX_CURSORS - 1;
@@ -231,7 +231,7 @@ void frameSetCursorFromRes(WORD resID)
       }
     }
 
-    ASSERT_TEXT(hNewCursor != NULL, "frameSetCursorFromRes: LoadCursor failed:\n");
+    DEBUG_ASSERT_TEXT(hNewCursor != NULL, "frameSetCursorFromRes: LoadCursor failed:\n");
 
     //if we got a new cursor set it
     if (hNewCursor != nullptr)
@@ -285,7 +285,7 @@ static long FAR PASCAL Wndproc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
           res = ShowCursor(FALSE);
           if (res >= 0)
           {
-            ASSERT_TEXT(FALSE,"WM_SETCURSOR off: cursor count out of sync");
+            DEBUG_ASSERT_TEXT(FALSE, "WM_SETCURSOR off: cursor count out of sync");
             while (ShowCursor(FALSE) >= 0) { ; }
           }
           mouseOn = FALSE;
@@ -300,7 +300,7 @@ static long FAR PASCAL Wndproc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
           res = ShowCursor(TRUE);
           if (res < 0)
           {
-            ASSERT_TEXT(FALSE,"WM_SETCURSOR on: cursor count out of sync");
+            DEBUG_ASSERT_TEXT(FALSE, "WM_SETCURSOR on: cursor count out of sync");
             while (ShowCursor(FALSE) < 0) { ; }
           }
           mouseOn = TRUE;

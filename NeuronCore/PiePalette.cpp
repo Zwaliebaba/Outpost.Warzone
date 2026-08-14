@@ -305,7 +305,7 @@ uint8 pal_GetNearestColour(uint8 r, uint8 g, uint8 b)
   int32 distance_r, distance_g, distance_b, squared_distance;
   int32 best_colour, best_squared_distance;
 
-  ASSERT_TEXT(bPaletteInitialised,"pal_GetNearestColour, palette not initialised.");
+  DEBUG_ASSERT_TEXT(bPaletteInitialised, "pal_GetNearestColour, palette not initialised.");
 
   best_squared_distance = 0x10000;
 
@@ -357,7 +357,7 @@ void pal_BuildAdjustedShadeTable(void)
   int numColours;
   int numShades;
 
-  ASSERT_TEXT(bPaletteInitialised,"pal_BuildAdjustedShadeTable, palette not initialised.");
+  DEBUG_ASSERT_TEXT(bPaletteInitialised, "pal_BuildAdjustedShadeTable, palette not initialised.");
 
   for (numColours = 0; numColours < 255; numColours++)
   {
@@ -386,13 +386,13 @@ void pal_BuildAdjustedShadeTable(void)
 
 iColour* pie_GetGamePal(void)
 {
-  ASSERT_TEXT(bPaletteInitialised,"pie_GetGamePal, palette not initialised");
+  DEBUG_ASSERT_TEXT(bPaletteInitialised, "pie_GetGamePal, palette not initialised");
   return psGamePal;
 }
 
 PALETTEENTRY* pie_GetWinPal(void)
 {
-  ASSERT_TEXT(bPaletteInitialised,"pie_GetWinPal, palette not initialised");
+  DEBUG_ASSERT_TEXT(bPaletteInitialised, "pie_GetWinPal, palette not initialised");
   return psWinPal;
 }
 

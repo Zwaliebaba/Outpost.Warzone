@@ -1018,7 +1018,7 @@ void displayCompObj(BASE_OBJECT* psObj, iVector* mountRotation, BOOL bButton)
       case DROID_PERSON:
         // no extra mounts for people
         break;
-      default: ASSERT_TEXT(FALSE, "Whoa! Weirdy type of droid found in drawComponentObject!!!");
+      default: DEBUG_ASSERT_TEXT(FALSE, "Whoa! Weirdy type of droid found in drawComponentObject!!!");
         break;
       }
     }

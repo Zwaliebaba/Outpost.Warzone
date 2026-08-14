@@ -92,7 +92,7 @@ UWORD NearestPowerOf2(UDWORD i)
   SWORD lShift = 0;
 
   while (i < static_cast<UDWORD>(1 << lShift)) { lShift++; }
-  ASSERT_TEXT((lShift < 11),"NearestPowerOf2: value {} out of bounds\n", i);
+  DEBUG_ASSERT_TEXT((lShift < 11), "NearestPowerOf2: value {} out of bounds\n", i);
   return (1 << lShift);
 }
 
@@ -102,7 +102,7 @@ UWORD NearestPowerOf2withShift(UDWORD i, SWORD* shift)
 
   while (i > static_cast<UDWORD>(1 << lShift)) { lShift++; }
   *shift = lShift;
-  ASSERT_TEXT((lShift < 11),"NearestPowerOf2: value {} out of bounds\n", i);
+  DEBUG_ASSERT_TEXT((lShift < 11), "NearestPowerOf2: value {} out of bounds\n", i);
   return (1 << lShift);
 }
 
@@ -124,7 +124,7 @@ BOOL D3DTexCreateFromIvisTex(TEXPAGE_D3D* psTexPage, iTexture* psIvisTex, iColou
 
   psDD = screenGetDDObject();
 
-  ASSERT_TEXT(psDD != NULL, "surfCreateFromPCX: NULL DD object - framework not initialised?");
+  DEBUG_ASSERT_TEXT(psDD != NULL, "surfCreateFromPCX: NULL DD object - framework not initialised?");
 
   /* get next power of 2 for width and height of surface */
   psTexPage->iWidth = NearestPowerOf2withShift(psIvisTex->width, &(psTexPage->widthShift));

@@ -276,18 +276,7 @@ void kf_SetToughUnitsLevel(void)
 /* Writes out the frame rate */
 void kf_FrameRate(void)
 {
-  if (weHave3DNow())
-  {
-    CONPRINTF(ConsoleString,
-              (ConsoleString,"DIRECT3D (With AMD 3DNow!) fps %d; PIEs %d; polys %d; Terr. polys %d; States %d", frameGetFrameRate(),
-                loopPieCount,loopPolyCount,loopTileCount,loopStateChanges));
-  }
-  else
-  {
-    CONPRINTF(ConsoleString,
-              (ConsoleString,"DIRECT3D fps %d; PIEs %d; polys %d; Terr. polys %d; States %d", frameGetFrameRate(),loopPieCount,loopPolyCount
-                ,loopTileCount,loopStateChanges));
-  }
+  CONPRINTF(ConsoleString, (ConsoleString,"DIRECT3D fps %d; PIEs %d; polys %d; Terr. polys %d; States %d", frameGetFrameRate(),loopPieCount,loopPolyCount ,loopTileCount,loopStateChanges));
   if (bMultiPlayer)
   {
     CONPRINTF(ConsoleString,

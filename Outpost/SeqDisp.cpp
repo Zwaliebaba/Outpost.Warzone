@@ -154,7 +154,7 @@ BOOL seq_RenderVideoToBuffer(iSurface* pSurface, char* sequenceName, int time, i
 
     if (bHardPath) //use this first
     {
-      ASSERT_TEXT((strlen(sequenceName) + strlen(aHardPath))<MAX_STR_LENGTH,"sequence path+name greater than max string");
+      DEBUG_ASSERT_TEXT((strlen(sequenceName) + strlen(aHardPath))<MAX_STR_LENGTH, "sequence path+name greater than max string");
       strcpy(aVideoName, aHardPath);
       strcat(aVideoName, sequenceName);
 
@@ -162,7 +162,7 @@ BOOL seq_RenderVideoToBuffer(iSurface* pSurface, char* sequenceName, int time, i
       pFileHandle = fopen(aVideoName, "rb");
       if (pFileHandle == nullptr && bCDPath)
       {
-        ASSERT_TEXT((strlen(sequenceName) + strlen(aCDPath))<MAX_STR_LENGTH,"sequence path+name greater than max string");
+        DEBUG_ASSERT_TEXT((strlen(sequenceName) + strlen(aCDPath))<MAX_STR_LENGTH, "sequence path+name greater than max string");
         strcpy(aVideoName, aCDPath);
         strcat(aVideoName, sequenceName);
       }
@@ -171,13 +171,13 @@ BOOL seq_RenderVideoToBuffer(iSurface* pSurface, char* sequenceName, int time, i
     }
     else if (bCDPath)
     {
-      ASSERT_TEXT((strlen(sequenceName) + strlen(aCDPath))<MAX_STR_LENGTH,"sequence path+name greater than max string");
+      DEBUG_ASSERT_TEXT((strlen(sequenceName) + strlen(aCDPath))<MAX_STR_LENGTH, "sequence path+name greater than max string");
       strcpy(aVideoName, aCDPath);
       strcat(aVideoName, sequenceName);
     }
     else
     {
-      ASSERT_TEXT(FALSE,"seq_StartFullScreenVideo: sequence path not found");
+      DEBUG_ASSERT_TEXT(FALSE, "seq_StartFullScreenVideo: sequence path not found");
       return FALSE;
     }
 
@@ -202,7 +202,7 @@ BOOL seq_RenderVideoToBuffer(iSurface* pSurface, char* sequenceName, int time, i
       if ((bSeqPlaying = seq_SetSequenceForBuffer("noVideo.rpl", videoMode, nullptr, time, pDDPixelFormat, perfMode)) == TRUE)
         return TRUE;
 #endif
-      ASSERT_TEXT(FALSE,"seq_RenderVideoToBuffer: unable to initialise sequence {}",aVideoName);
+      DEBUG_ASSERT_TEXT(FALSE, "seq_RenderVideoToBuffer: unable to initialise sequence {}",aVideoName);
       return FALSE;
     }
     bSeqPlaying = TRUE;
@@ -389,7 +389,7 @@ BOOL seq_StartFullScreenVideo(char* videoName, char* audioName)
 
   if (bHardPath) //use this first
   {
-    ASSERT_TEXT((strlen(videoName) + strlen(aHardPath))<MAX_STR_LENGTH,"sequence path+name greater than max string");
+    DEBUG_ASSERT_TEXT((strlen(videoName) + strlen(aHardPath))<MAX_STR_LENGTH, "sequence path+name greater than max string");
     strcpy(aVideoName, aHardPath);
     strcat(aVideoName, videoName);
 
@@ -397,7 +397,7 @@ BOOL seq_StartFullScreenVideo(char* videoName, char* audioName)
     pFileHandle = fopen(aVideoName, "rb");
     if (pFileHandle == nullptr && bCDPath)
     {
-      ASSERT_TEXT((strlen(videoName) + strlen(aCDPath))<MAX_STR_LENGTH,"sequence path+name greater than max string");
+      DEBUG_ASSERT_TEXT((strlen(videoName) + strlen(aCDPath))<MAX_STR_LENGTH, "sequence path+name greater than max string");
       strcpy(aVideoName, aCDPath);
       strcat(aVideoName, videoName);
     }
@@ -409,20 +409,20 @@ BOOL seq_StartFullScreenVideo(char* videoName, char* audioName)
   }
   else if (bCDPath)
   {
-    ASSERT_TEXT((strlen(videoName) + strlen(aCDPath))<MAX_STR_LENGTH,"sequence path+name greater than max string");
+    DEBUG_ASSERT_TEXT((strlen(videoName) + strlen(aCDPath))<MAX_STR_LENGTH, "sequence path+name greater than max string");
     strcpy(aVideoName, aCDPath);
     strcat(aVideoName, videoName);
   }
   else
   {
-    ASSERT_TEXT(FALSE,"seq_StartFullScreenVideo: sequence path not found");
+    DEBUG_ASSERT_TEXT(FALSE, "seq_StartFullScreenVideo: sequence path not found");
     return FALSE;
   }
 
   //set audio path
   if (audioName != nullptr)
   {
-    ASSERT_TEXT(strlen(audioName)<244,"sequence path+name greater than max string");
+    DEBUG_ASSERT_TEXT(strlen(audioName)<244, "sequence path+name greater than max string");
     strcpy(aAudioName, "sequenceAudio\\");
     strcat(aAudioName, audioName);
   }
@@ -438,7 +438,7 @@ BOOL seq_StartFullScreenVideo(char* videoName, char* audioName)
 
   if (audioName != nullptr)
   {
-    ASSERT_TEXT(strlen(audioName)<244,"sequence path+name greater than max string");
+    DEBUG_ASSERT_TEXT(strlen(audioName)<244, "sequence path+name greater than max string");
     strcpy(aAudioName, "sequenceAudio\\");
     strcat(aAudioName, audioName);
   }
@@ -477,7 +477,7 @@ BOOL seq_StartFullScreenVideo(char* videoName, char* audioName)
   else
   {
     bAudioPlaying = audio_PlayStream(aAudioName, AUDIO_VOL_MAX, SeqEndCallBack);
-    ASSERT_TEXT(bAudioPlaying == TRUE,"seq_StartFullScreenVideo: unable to initialise sound {}",aAudioName);
+    DEBUG_ASSERT_TEXT(bAudioPlaying == TRUE, "seq_StartFullScreenVideo: unable to initialise sound {}",aAudioName);
   }
 
   return TRUE;
@@ -692,7 +692,7 @@ BOOL seq_AddTextForVideo(UBYTE* pText, SDWORD xOffset, SDWORD yOffset, SDWORD st
 
   iV_SetFont(WFont);
 
-  ASSERT_TEXT(aSeqList[currentSeq].currentText < MAX_TEXT_OVERLAYS, "seq_AddTextForVideo: too many text lines");
+  DEBUG_ASSERT_TEXT(aSeqList[currentSeq].currentText < MAX_TEXT_OVERLAYS, "seq_AddTextForVideo: too many text lines");
 
   sourceLength = strlen((const char*)pText);
   currentLength = sourceLength;
@@ -809,11 +809,11 @@ BOOL seq_AddTextFromFile(STRING* pTextName, BOOL bJustify)
       {
         //get the text
         pText = (UBYTE*)strrchr((const char*)pCurrentLine, '"');
-        ASSERT_TEXT(pText != NULL,"seq_AddTextFromFile error parsing text file");
+        DEBUG_ASSERT_TEXT(pText != NULL, "seq_AddTextFromFile error parsing text file");
         if (pText != nullptr)
           *pText = static_cast<UBYTE>(0);
         pText = (UBYTE*)strchr((const char*)pCurrentLine, '"');
-        ASSERT_TEXT(pText != NULL,"seq_AddTextFromFile error parsing text file");
+        DEBUG_ASSERT_TEXT(pText != NULL, "seq_AddTextFromFile error parsing text file");
         if (pText != nullptr)
           seq_AddTextForVideo(&pText[1], xOffset, yOffset, startFrame, endFrame, bJustify, 0);
       }
@@ -844,7 +844,7 @@ void seq_AddSeqToList(STRING* pSeqName, STRING* pAudioName, STRING* pTextName, B
 
   if ((currentSeq) >= MAX_SEQ_LIST)
   {
-    ASSERT_TEXT(FALSE, "seq_AddSeqToList: too many sequences");
+    DEBUG_ASSERT_TEXT(FALSE, "seq_AddSeqToList: too many sequences");
     return;
   }
 #ifdef SEQ_LOOP
@@ -862,7 +862,7 @@ void seq_AddSeqToList(STRING* pSeqName, STRING* pAudioName, STRING* pTextName, B
   {
     //check for a subtitle file
     strLen = strlen(pSeqName);
-    ASSERT_TEXT(strLen < MAX_STR_LENGTH,"seq_AddSeqToList: sequence name error");
+    DEBUG_ASSERT_TEXT(strLen < MAX_STR_LENGTH, "seq_AddSeqToList: sequence name error");
     strcpy(aSubtitleName, pSeqName);
     aSubtitleName[strLen - 4] = 0;
     strcat(aSubtitleName, ".txt");

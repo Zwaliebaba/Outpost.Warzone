@@ -125,7 +125,7 @@ int iV_TexLoadNew(char* path, char* filename, int type, iBool palkeep, iBool bCo
   }
 
   /* Ensure upper case for tex file names */
-  ASSERT_TEXT(strlen(filename)<MAX_FILE_PATH,"Texture file path too long");
+  DEBUG_ASSERT_TEXT(strlen(filename)<MAX_FILE_PATH, "Texture file path too long");
 
   /* Get a copy of the name */
   // if we convert it to upper case ... the resource loading will not work
@@ -161,7 +161,7 @@ int pie_ReloadTexPage(char* filename, UBYTE* pBuffer)
   iSprite s;
 
   /* Ensure upper case for tex file names */
-  ASSERT_TEXT(strlen(filename)<MAX_FILE_PATH,"Texture file path too long");
+  DEBUG_ASSERT_TEXT(strlen(filename)<MAX_FILE_PATH, "Texture file path too long");
 
   /* Get a copy of the name */
   // if we convert it to upper case ... the resource loading will not work
@@ -202,7 +202,7 @@ int iV_TexLoad(char* path, char* filename, int type, iBool palkeep, iBool bColou
   iSprite s;
 
   // ensure upper case for tex file names
-  ASSERT_TEXT(strlen(filename)<MAX_FILE_PATH,"Texture file path too long");
+  DEBUG_ASSERT_TEXT(strlen(filename)<MAX_FILE_PATH, "Texture file path too long");
 
   for (i = 0; i < static_cast<int>(strlen(filename)); i++)
     fname[i] = filename[i];

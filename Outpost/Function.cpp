@@ -351,7 +351,7 @@ BOOL loadProduction(SBYTE* pData)
 
   if (!getBodySize(bodySize, (UBYTE*)&psFunction->capacity))
   {
-    ASSERT_TEXT(FALSE, "loadProduction: unknown body size for {}",psFunction->pName);
+    DEBUG_ASSERT_TEXT(FALSE, "loadProduction: unknown body size for {}",psFunction->pName);
     return FALSE;
   }
 
@@ -360,7 +360,7 @@ BOOL loadProduction(SBYTE* pData)
     psFunction->productionOutput = static_cast<UWORD>(productionOutput);
   else
   {
-    ASSERT_TEXT(FALSE, "loadProduction: production Output too big for {}",psFunction->pName);
+    DEBUG_ASSERT_TEXT(FALSE, "loadProduction: production Output too big for {}",psFunction->pName);
     psFunction->productionOutput = 0;
   }
 
@@ -574,7 +574,7 @@ BOOL loadUpgradeFunction(SBYTE* pData, UBYTE type)
 
   if (modifier > UWORD_MAX)
   {
-    ASSERT_TEXT(FALSE, "loadUpgradeFunction: modifier too great for {}", functionName);
+    DEBUG_ASSERT_TEXT(FALSE, "loadUpgradeFunction: modifier too great for {}", functionName);
     return FALSE;
   }
 
@@ -617,7 +617,7 @@ BOOL loadDroidBodyUpgradeFunction(SBYTE* pData)
 
   if (modifier > UWORD_MAX OR armourKinetic > UWORD_MAX OR armourHeat > UWORD_MAX OR body > UWORD_MAX)
   {
-    ASSERT_TEXT(FALSE, "loadUnitBodyUpgradeFunction: one or more modifiers too great");
+    DEBUG_ASSERT_TEXT(FALSE, "loadUnitBodyUpgradeFunction: one or more modifiers too great");
     return FALSE;
   }
 
@@ -671,7 +671,7 @@ BOOL loadDroidSensorUpgradeFunction(SBYTE* pData)
 
   if (modifier > UWORD_MAX OR range > UWORD_MAX)
   {
-    ASSERT_TEXT(FALSE, "loadUnitSensorUpgradeFunction: one or more modifiers too great");
+    DEBUG_ASSERT_TEXT(FALSE, "loadUnitSensorUpgradeFunction: one or more modifiers too great");
     return FALSE;
   }
 
@@ -1543,7 +1543,7 @@ void structureProductionUpgrade(STRUCTURE* psBuilding)
   case REF_VTOL_FACTORY:
     type = VTOL_FLAG;
     break;
-  default: ASSERT_TEXT(FALSE, "structureProductionUpgrade: Invalid factory type");
+  default: DEBUG_ASSERT_TEXT(FALSE, "structureProductionUpgrade: Invalid factory type");
     return;
   }
 
@@ -1905,7 +1905,7 @@ void upgradeTransporterDroids(DROID* psTransporter, void (*pUpgradeFunction)(DRO
 {
   DROID* psCurr;
 
-  ASSERT_TEXT(psTransporter->droidType == DROID_TRANSPORTER, "upgradeTransporterUnits: invalid unit type");
+  DEBUG_ASSERT_TEXT(psTransporter->droidType == DROID_TRANSPORTER, "upgradeTransporterUnits: invalid unit type");
 
   //loop thru' each unit in the Transporter
   for (psCurr = psTransporter->psGroup->psList; psCurr != nullptr; psCurr = psCurr->psGrpNext)
@@ -2038,5 +2038,5 @@ UDWORD functionType(char* pType)
     return HQ_TYPE;
   }*/
 
-  ASSERT_TEXT(FALSE, "Unknown Function Type");
+  DEBUG_ASSERT_TEXT(FALSE, "Unknown Function Type");
 }

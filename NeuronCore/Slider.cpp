@@ -13,33 +13,33 @@ BOOL sliderCreate(W_SLIDER** ppsWidget, W_SLDINIT* psInit)
 {
   if (psInit->style & ~(WBAR_PLAIN | WIDG_HIDDEN))
   {
-    ASSERT_TEXT(FALSE, "sliderCreate: Unknown style");
+    DEBUG_ASSERT_TEXT(FALSE, "sliderCreate: Unknown style");
     return FALSE;
   }
 
   if (psInit->orientation < WSLD_LEFT || psInit->orientation > WSLD_BOTTOM)
   {
-    ASSERT_TEXT(FALSE, "sliderCreate: Unknown orientation");
+    DEBUG_ASSERT_TEXT(FALSE, "sliderCreate: Unknown orientation");
     return FALSE;
   }
 
   if (((psInit->orientation == WSLD_LEFT || psInit->orientation == WSLD_RIGHT) && psInit->numStops > (psInit->width - psInit->barSize)) || (
     (psInit->orientation == WSLD_TOP || psInit->orientation == WSLD_BOTTOM) && psInit->numStops > (psInit->height - psInit->barSize)))
   {
-    ASSERT_TEXT(FALSE, "sliderCreate: Too many stops for slider length");
+    DEBUG_ASSERT_TEXT(FALSE, "sliderCreate: Too many stops for slider length");
     return FALSE;
   }
 
   if (psInit->pos > psInit->numStops)
   {
-    ASSERT_TEXT(FALSE, "sliderCreate: slider position greater than stops");
+    DEBUG_ASSERT_TEXT(FALSE, "sliderCreate: slider position greater than stops");
     return FALSE;
   }
 
   if (((psInit->orientation == WSLD_LEFT || psInit->orientation == WSLD_RIGHT) && psInit->barSize > psInit->width) || ((psInit->orientation
     == WSLD_TOP || psInit->orientation == WSLD_BOTTOM) && psInit->barSize > psInit->height))
   {
-    ASSERT_TEXT(FALSE, "sliderCreate: slider bar is larger than slider width");
+    DEBUG_ASSERT_TEXT(FALSE, "sliderCreate: slider bar is larger than slider width");
     return FALSE;
   }
 
@@ -47,7 +47,7 @@ BOOL sliderCreate(W_SLIDER** ppsWidget, W_SLDINIT* psInit)
   *ppsWidget = new (std::nothrow) W_SLIDER;
   if (*ppsWidget == nullptr)
   {
-    ASSERT_TEXT(FALSE, "sliderCreate: Out of memory");
+    DEBUG_ASSERT_TEXT(FALSE, "sliderCreate: Out of memory");
     return FALSE;
   }
   /* Allocate the memory for the tip and copy it if necessary */
@@ -57,7 +57,7 @@ BOOL sliderCreate(W_SLIDER** ppsWidget, W_SLDINIT* psInit)
     if (!widgAllocCopyString(&(*ppsWidget)->pTip, psInit->pTip))
     {
       /* Out of memory - just carry on without the tip */
-      ASSERT_TEXT(FALSE, "sliderCreate: Out of memory");
+      DEBUG_ASSERT_TEXT(FALSE, "sliderCreate: Out of memory");
       (*ppsWidget)->pTip = NULL;
     }
 #else

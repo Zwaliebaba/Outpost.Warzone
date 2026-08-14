@@ -65,7 +65,7 @@ void SetTransFilter(UDWORD rgb, UDWORD tablenumber)
 
 void iV_SetMousePointer(IMAGEFILE* ImageFile, UWORD ImageID)
 {
-  ASSERT_TEXT(ImageID < ImageFile->Header.NumImages,"iV_SetMousePointer : Invalid image id");
+  DEBUG_ASSERT_TEXT(ImageID < ImageFile->Header.NumImages, "iV_SetMousePointer : Invalid image id");
 
   MouseImageFile = ImageFile;
   MouseImageID = ImageID;
@@ -157,7 +157,7 @@ void pie_BuildTransTable(UDWORD tableNo)
 
       break;
 
-    default: ASSERT_TEXT(FALSE,"Invalid transparency filter selection");
+    default: DEBUG_ASSERT_TEXT(FALSE, "Invalid transparency filter selection");
       break;
     }
 

@@ -180,7 +180,7 @@ void scrvReleaseGroup(INTERP_VAL* psVal)
   psGroup = static_cast<DROID_GROUP*>(psVal->v.oval);
   grpReset(psGroup);
 
-  ASSERT_TEXT(psGroup->refCount == 1, "scrvReleaseGroup: ref count is wrong");
+  DEBUG_ASSERT_TEXT(psGroup->refCount == 1, "scrvReleaseGroup: ref count is wrong");
 
   // do a final grpLeave to free the group
   grpLeave(psGroup, nullptr);

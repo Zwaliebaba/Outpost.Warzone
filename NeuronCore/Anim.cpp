@@ -204,10 +204,10 @@ BOOL anim_AddFrameToAnim(int iFrame, VECTOR3D vecPos, VECTOR3D vecRot, VECTOR3D 
   psAnim = g_animGlobals.psAnimList;
 
   /* check current anim valid */
-  ASSERT_TEXT(psAnim != NULL, "anim_AddFrameToAnim: NULL current anim\n");
+  DEBUG_ASSERT_TEXT(psAnim != NULL, "anim_AddFrameToAnim: NULL current anim\n");
 
   /* check frame number in range */
-  ASSERT_TEXT(iFrame<psAnim->uwStates, "anim_AddFrameToAnim: frame number {} > {} frames in imd\n", iFrame, psAnim->uwObj);
+  DEBUG_ASSERT_TEXT(iFrame<psAnim->uwStates, "anim_AddFrameToAnim: frame number {} > {} frames in imd\n", iFrame, psAnim->uwObj);
 
   /* get state */
   uwState = (g_animGlobals.uwCurObj * psAnim->uwStates) + g_animGlobals.uwCurState;
@@ -336,7 +336,7 @@ UWORD anim_GetFrame3D(ANIM3D* psAnim, UWORD uwObj, UDWORD udwGameTime, UDWORD ud
   uwFrame = static_cast<UWORD>((dwTime % psAnim->uwAnimTime) * psAnim->uwFrameRate / 1000);
 
   /* check in range */
-  ASSERT_TEXT(uwFrame<psAnim->uwStates, "anim_GetObjectFrame3D: error in animation calculation\n");
+  DEBUG_ASSERT_TEXT(uwFrame<psAnim->uwStates, "anim_GetObjectFrame3D: error in animation calculation\n");
 
   /* find current state */
   uwState = (uwObj * psAnim->uwStates) + uwFrame;

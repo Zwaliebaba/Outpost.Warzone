@@ -108,7 +108,7 @@ void AddCursorSnap(CURSORSNAP* SnapBuffer, SWORD PosX, SWORD PosY, UDWORD FormID
 
   if (Index < 0)
   {
-    ASSERT_TEXT(SnapBuffer->NumSnaps < SnapBuffer->MaxSnaps,"AddCursorSnap: MAXCURSORSNAPS Exceeded");
+    DEBUG_ASSERT_TEXT(SnapBuffer->NumSnaps < SnapBuffer->MaxSnaps, "AddCursorSnap: MAXCURSORSNAPS Exceeded");
     Index = SnapBuffer->NumSnaps;
     SnapBuffer->NumSnaps++;
   }
@@ -233,7 +233,7 @@ void DisableCursorSnapsExcept(UDWORD FormID) { EnabledFormID = FormID; }
 
 void SetCursorSnap(CURSORSNAP* SnapBuffer, UWORD Index, SWORD PosX, SWORD PosY, UDWORD FormID, UDWORD ID)
 {
-  ASSERT_TEXT(Index < SnapBuffer->NumSnaps,"SetCursorSnap: Index out of range");
+  DEBUG_ASSERT_TEXT(Index < SnapBuffer->NumSnaps, "SetCursorSnap: Index out of range");
 
   SnapBuffer->SnapCoords[Index].SnapX = PosX;
   SnapBuffer->SnapCoords[Index].SnapY = PosY;

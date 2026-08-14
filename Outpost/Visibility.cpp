@@ -126,7 +126,7 @@ static SDWORD visObjRadius(BASE_OBJECT* psObject)
   case OBJ_FEATURE:
     radius = psObject->sDisplay.imd->radius;
     break;
-  default: ASSERT_TEXT(FALSE,"visObjRadius: unknown object type");
+  default: DEBUG_ASSERT_TEXT(FALSE, "visObjRadius: unknown object type");
     radius = 0;
     break;
   }
@@ -149,7 +149,7 @@ static SDWORD visObjHeight(BASE_OBJECT* psObject)
   case OBJ_FEATURE:
     height = psObject->sDisplay.imd->ymax;
     break;
-  default: ASSERT_TEXT(FALSE,"visObjHeight: unknown object type");
+  default: DEBUG_ASSERT_TEXT(FALSE, "visObjHeight: unknown object type");
     height = 0;
     break;
   }
@@ -163,7 +163,7 @@ static BOOL rayTerrainCallback(SDWORD x, SDWORD y, SDWORD dist)
   SDWORD newH, newG; // The new gradient
   MAPTILE* psTile;
 
-  ASSERT_TEXT(x >= 0 && x < (static_cast<SDWORD>(mapWidth) << TILE_SHIFT) &&
+  DEBUG_ASSERT_TEXT(x >= 0 && x < (static_cast<SDWORD>(mapWidth) << TILE_SHIFT) &&
     y >= 0 && y < (static_cast<SDWORD>(mapHeight) << TILE_SHIFT), "rayTerrainCallback: coords off map");
 
   psTile = mapTile(x >> TILE_SHIFT, y >> TILE_SHIFT);
@@ -215,7 +215,7 @@ static BOOL rayLOSCallback(SDWORD x, SDWORD y, SDWORD dist)
   SDWORD tileX, tileY;
   MAPTILE* psTile;
 
-  ASSERT_TEXT(x >= 0 && x < (static_cast<SDWORD>(mapWidth) << TILE_SHIFT) &&
+  DEBUG_ASSERT_TEXT(x >= 0 && x < (static_cast<SDWORD>(mapWidth) << TILE_SHIFT) &&
     y >= 0 && y < (static_cast<SDWORD>(mapHeight) << TILE_SHIFT), "rayLOSCallback: coords off map");
 
   /*	if(dist == 0) {	//Complete hack PD.. John what should happen if dist is 0 ???
@@ -283,7 +283,7 @@ void visTilesUpdateLoadSpread(void) {}
 
 BOOL visTilesPending(BASE_OBJECT* psObj)
 {
-  ASSERT_TEXT(psObj->type == OBJ_DROID,"visTilesPending : Only implemented for droids");
+  DEBUG_ASSERT_TEXT(psObj->type == OBJ_DROID, "visTilesPending : Only implemented for droids");
 
   return (((DROID*)psObj)->updateFlags & DUPF_SCANTERRAIN);
 }
@@ -301,10 +301,10 @@ void visTilesUpdate(BASE_OBJECT* psObj, BOOL SpreadLoad)
     range = ((DROID*)psObj)->sensorRange;
     break;
   case OBJ_STRUCTURE: // Only done when structure initialy built.
-    ASSERT_TEXT(SpreadLoad == FALSE,"visTilesUpdate : Can only spread load for droids"); // can't spread load for structures.
+    DEBUG_ASSERT_TEXT(SpreadLoad == FALSE, "visTilesUpdate : Can only spread load for droids"); // can't spread load for structures.
     range = ((STRUCTURE*)psObj)->sensorRange;
     break;
-  default: ASSERT_TEXT(FALSE, "visTilesUpdate: visibility checking is only implemented for" "units and structures");
+  default: DEBUG_ASSERT_TEXT(FALSE, "visTilesUpdate: visibility checking is only implemented for" "units and structures");
     return;
   }
 
@@ -416,7 +416,7 @@ BOOL visibleObject(BASE_OBJECT* psViewer, BASE_OBJECT* psTarget)
       range = 3 * range / 2;
 
     break;
-  default: ASSERT_TEXT(FALSE, "visibleObject: visibility checking is only implemented for" "units and structures");
+  default: DEBUG_ASSERT_TEXT(FALSE, "visibleObject: visibility checking is only implemented for" "units and structures");
     return FALSE;
     break;
   }
@@ -958,7 +958,7 @@ void visGetRayObjects(SDWORD x1, SDWORD y1, SDWORD x2, SDWORD y2)
         dist = aObjDist[j];
       }
     }
-    ASSERT_TEXT(furthest != -1, "visGetRayObjects: reordering failed");
+    DEBUG_ASSERT_TEXT(furthest != -1, "visGetRayObjects: reordering failed");
 
     apsRayObjects[i] = apsObjs[furthest];
     aRayObjDist[i] = aObjDist[furthest];

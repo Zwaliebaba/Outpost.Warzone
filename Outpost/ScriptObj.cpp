@@ -41,13 +41,13 @@ BOOL scrBaseObjGet(UDWORD index)
   // Check this is a valid pointer
   if (psObj == nullptr)
   {
-    ASSERT_TEXT(FALSE, "scrBaseObjGet: was passed an invalid pointer");
+    DEBUG_ASSERT_TEXT(FALSE, "scrBaseObjGet: was passed an invalid pointer");
     return FALSE;
   }
   // Check this is a valid pointer
   if (psObj->type != OBJ_DROID && psObj->type != OBJ_STRUCTURE && psObj->type != OBJ_FEATURE)
   {
-    ASSERT_TEXT(FALSE, "scrBaseObjGet: invalid object");
+    DEBUG_ASSERT_TEXT(FALSE, "scrBaseObjGet: invalid object");
     return FALSE;
   }
 
@@ -81,7 +81,7 @@ BOOL scrBaseObjGet(UDWORD index)
   case OBJID_ORDER:
     if (psObj->type != OBJ_DROID)
     {
-      ASSERT_TEXT(FALSE,"scrBaseObjGet: order only valid for a droid");
+      DEBUG_ASSERT_TEXT(FALSE, "scrBaseObjGet: order only valid for a droid");
       return FALSE;
     }
     type = VAL_INT;
@@ -92,7 +92,7 @@ BOOL scrBaseObjGet(UDWORD index)
   case OBJID_ORDERX:
     if (psObj->type != OBJ_DROID)
     {
-      ASSERT_TEXT(FALSE,"scrBaseObjGet: order only valid for a droid");
+      DEBUG_ASSERT_TEXT(FALSE, "scrBaseObjGet: order only valid for a droid");
       return FALSE;
     }
     type = VAL_INT;
@@ -101,7 +101,7 @@ BOOL scrBaseObjGet(UDWORD index)
   case OBJID_ORDERY:
     if (psObj->type != OBJ_DROID)
     {
-      ASSERT_TEXT(FALSE,"scrBaseObjGet: order only valid for a droid");
+      DEBUG_ASSERT_TEXT(FALSE, "scrBaseObjGet: order only valid for a droid");
       return FALSE;
     }
     type = VAL_INT;
@@ -110,7 +110,7 @@ BOOL scrBaseObjGet(UDWORD index)
   case OBJID_DROIDTYPE:
     if (psObj->type != OBJ_DROID)
     {
-      ASSERT_TEXT(FALSE,"scrBaseObjGet: droidType only valid for a droid");
+      DEBUG_ASSERT_TEXT(FALSE, "scrBaseObjGet: droidType only valid for a droid");
       return FALSE;
     }
     type = VAL_INT;
@@ -119,7 +119,7 @@ BOOL scrBaseObjGet(UDWORD index)
   case OBJID_CLUSTERID:
     if (psObj->type == OBJ_FEATURE)
     {
-      ASSERT_TEXT(FALSE,"scrBaseObjGet: clusterID not valid for features");
+      DEBUG_ASSERT_TEXT(FALSE, "scrBaseObjGet: clusterID not valid for features");
       return FALSE;
     }
     type = VAL_INT;
@@ -151,7 +151,7 @@ BOOL scrBaseObjGet(UDWORD index)
   case OBJID_BODY:
     if (psObj->type != OBJ_DROID)
     {
-      ASSERT_TEXT(FALSE,"scrBaseObjGet: body only valid for a droid");
+      DEBUG_ASSERT_TEXT(FALSE, "scrBaseObjGet: body only valid for a droid");
       return FALSE;
     }
     type = ST_BODY;
@@ -160,7 +160,7 @@ BOOL scrBaseObjGet(UDWORD index)
   case OBJID_PROPULSION:
     if (psObj->type != OBJ_DROID)
     {
-      ASSERT_TEXT(FALSE,"scrBaseObjGet: propulsion only valid for a droid");
+      DEBUG_ASSERT_TEXT(FALSE, "scrBaseObjGet: propulsion only valid for a droid");
       return FALSE;
     }
     type = ST_PROPULSION;
@@ -169,7 +169,7 @@ BOOL scrBaseObjGet(UDWORD index)
   case OBJID_WEAPON:
     if (psObj->type != OBJ_DROID)
     {
-      ASSERT_TEXT(FALSE,"scrBaseObjGet: weapon only valid for a droid");
+      DEBUG_ASSERT_TEXT(FALSE, "scrBaseObjGet: weapon only valid for a droid");
       return FALSE;
     }
     type = ST_WEAPON;
@@ -182,13 +182,13 @@ BOOL scrBaseObjGet(UDWORD index)
   case OBJID_STRUCTSTAT:
     if (psObj->type != OBJ_STRUCTURE)
     {
-      ASSERT_TEXT(FALSE,"scrBaseObjGet: stat only valid for a structure");
+      DEBUG_ASSERT_TEXT(FALSE, "scrBaseObjGet: stat only valid for a structure");
       return FALSE;
     }
     type = ST_STRUCTURESTAT;
     val = ((STRUCTURE*)psObj)->pStructureType - asStructureStats;
     break;
-  default: ASSERT_TEXT(FALSE, "scrBaseObjGet: unknown variable index");
+  default: DEBUG_ASSERT_TEXT(FALSE, "scrBaseObjGet: unknown variable index");
     return FALSE;
     break;
   }
@@ -321,7 +321,7 @@ BOOL scrGroupObjGet(UDWORD index)
     type = VAL_INT;
     val = lgHealth;
     break;
-  default: ASSERT_TEXT(FALSE, "scrGroupObjGet: unknown variable index");
+  default: DEBUG_ASSERT_TEXT(FALSE, "scrGroupObjGet: unknown variable index");
     return FALSE;
     break;
   }
@@ -435,7 +435,7 @@ BOOL scrValDefSave(INTERP_TYPE type, UDWORD data, UBYTE* pBuffer, UDWORD* pSize)
         *((UDWORD*)pBuffer) = ((BASE_OBJECT*)data)->id;
 #ifdef _DEBUG
         psObj = getBaseObjFromId(((BASE_OBJECT*)data)->id);
-        ASSERT_TEXT(psObj == (BASE_OBJECT *)data,"scrValDefSave failed to find object, continue");
+        DEBUG_ASSERT_TEXT(psObj == (BASE_OBJECT *)data, "scrValDefSave failed to find object, continue");
 #endif
       }
     }
@@ -550,7 +550,7 @@ BOOL scrValDefSave(INTERP_TYPE type, UDWORD data, UBYTE* pBuffer, UDWORD* pSize)
     *pSize = sizeof(UDWORD);
     break;
   case ST_STRUCTUREID:
-  case ST_DROIDID: default: ASSERT_TEXT((type == ST_STRUCTUREID) || (type == ST_DROIDID), "scrValDefSave: unknown script variable type for save");
+  case ST_DROIDID: default: DEBUG_ASSERT_TEXT((type == ST_STRUCTUREID) || (type == ST_DROIDID), "scrValDefSave: unknown script variable type for save");
     // just save the variable contents directly
     if (pBuffer)
       *((UDWORD*)pBuffer) = data;

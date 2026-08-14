@@ -954,7 +954,7 @@ BOOL intAddTemplateButtons(UDWORD formID, UDWORD formWidth, UDWORD formHeight, U
       sButInit.pTip = getTemplateName(psTempl);
 
       BufferID = GetStatBuffer();
-      ASSERT_TEXT(BufferID >= 0,"Unable to aquire stat buffer.");
+      DEBUG_ASSERT_TEXT(BufferID >= 0, "Unable to aquire stat buffer.");
       RENDERBUTTON_INUSE(&StatBuffers[BufferID]);
       StatBuffers[BufferID].Data = static_cast<void*>(psTempl);
       sButInit.pUserData = static_cast<void*>(&StatBuffers[BufferID]);
@@ -969,7 +969,7 @@ BOOL intAddTemplateButtons(UDWORD formID, UDWORD formWidth, UDWORD formHeight, U
         sBarInit.size = WBAR_SCALE;
 
       sprintf(TempString, "%s - %d", strresGetString(psStringRes, STR_DES_POWERUSE), psTempl->powerPoints);
-      ASSERT_TEXT(BufferPos+strlen(TempString)+1 < STRING_BUFFER_SIZE,"String Buffer Overrun");
+      DEBUG_ASSERT_TEXT(BufferPos+strlen(TempString)+1 < STRING_BUFFER_SIZE, "String Buffer Overrun");
       strcpy(&StringBuffer[BufferPos], TempString);
       sBarInit.pTip = &StringBuffer[BufferPos];
       BufferPos += strlen(TempString) + 1;
@@ -2088,7 +2088,7 @@ static BOOL intAddSystemButtons(SDWORD mode)
   case IDES_SYSTEM:
     widgSetButtonState(psWScreen, IDDES_SYSTEMS, WBUT_LOCK);
     break;
-  default: ASSERT_TEXT(FALSE, "intAddSystemButtons: unexpected mode");
+  default: DEBUG_ASSERT_TEXT(FALSE, "intAddSystemButtons: unexpected mode");
     break;
   }
 
@@ -2193,7 +2193,7 @@ static BOOL intAddComponentButtons(COMP_BASE_STATS* psStats, UDWORD size, UBYTE*
     sButInit.pTip = getStatName(psCurrStats);
 
     BufferID = GetObjectBuffer();
-    ASSERT_TEXT(BufferID >= 0,"Unable to acquire Topic buffer.");
+    DEBUG_ASSERT_TEXT(BufferID >= 0, "Unable to acquire Topic buffer.");
     RENDERBUTTON_INUSE(&ObjectBuffers[BufferID]);
     ObjectBuffers[BufferID].Data = psCurrStats;
     sButInit.pUserData = static_cast<void*>(&ObjectBuffers[BufferID]);
@@ -2384,7 +2384,7 @@ static BOOL intAddExtraSystemButtons(UDWORD sensorIndex, UDWORD ecmIndex, UDWORD
       // If we are out of space in the list - stop
       if (numExtraSys >= MAXEXTRASYS)
       {
-        ASSERT_TEXT(FALSE, "intAddExtraSystemButtons: Too many components for the list");
+        DEBUG_ASSERT_TEXT(FALSE, "intAddExtraSystemButtons: Too many components for the list");
         return FALSE;
       }
 
@@ -2404,7 +2404,7 @@ static BOOL intAddExtraSystemButtons(UDWORD sensorIndex, UDWORD ecmIndex, UDWORD
       sButInit.pTip = getStatName(psCurrStats);
 
       BufferID = sButInit.id - IDDES_EXTRASYSSTART;
-      ASSERT_TEXT(BufferID < NUM_OBJECTBUFFERS,"BufferID > NUM_OBJECTBUFFERS");
+      DEBUG_ASSERT_TEXT(BufferID < NUM_OBJECTBUFFERS, "BufferID > NUM_OBJECTBUFFERS");
       /*switch(buttonType) {
         case 0:
           RENDERBUTTON_INUSE(&System0Buffers[BufferID]);
@@ -2574,7 +2574,7 @@ static void intSetSystemShadowStats(COMP_BASE_STATS* psStats)
 /* Set the bar graphs for the sensor stats */
 static void intSetSensorStats(SENSOR_STATS* psStats)
 {
-  ASSERT_TEXT((psStats->ref >= REF_SENSOR_START) &&
+  DEBUG_ASSERT_TEXT((psStats->ref >= REF_SENSOR_START) &&
     (psStats->ref < REF_SENSOR_START + REF_RANGE), "intSetSensorStats: stats ref is out of range");
 
   /* range */
@@ -2588,7 +2588,7 @@ static void intSetSensorStats(SENSOR_STATS* psStats)
 /* Set the shadow bar graphs for the sensor stats */
 static void intSetSensorShadowStats(SENSOR_STATS* psStats)
 {
-  ASSERT_TEXT(psStats == NULL ||
+  DEBUG_ASSERT_TEXT(psStats == NULL ||
     ((psStats->ref >= REF_SENSOR_START) && (psStats->ref < REF_SENSOR_START + REF_RANGE)),
     "intSetSensorShadowStats: stats ref is out of range");
 
@@ -2613,7 +2613,7 @@ static void intSetSensorShadowStats(SENSOR_STATS* psStats)
 /* Set the bar graphs for the ECM stats */
 static void intSetECMStats(ECM_STATS* psStats)
 {
-  ASSERT_TEXT((psStats->ref >= REF_ECM_START) && (psStats->ref < REF_ECM_START + REF_RANGE), "intSetECMStats: stats ref is out of range");
+  DEBUG_ASSERT_TEXT((psStats->ref >= REF_ECM_START) && (psStats->ref < REF_ECM_START + REF_RANGE), "intSetECMStats: stats ref is out of range");
 
   /* power */
   widgSetBarSize(psWScreen, IDDES_ECMPOWER, ecmPower(psStats, static_cast<UBYTE>(selectedPlayer)));
@@ -2624,7 +2624,7 @@ static void intSetECMStats(ECM_STATS* psStats)
 /* Set the shadow bar graphs for the ECM stats */
 static void intSetECMShadowStats(ECM_STATS* psStats)
 {
-  ASSERT_TEXT(psStats == NULL ||
+  DEBUG_ASSERT_TEXT(psStats == NULL ||
     ((psStats->ref >= REF_ECM_START) && (psStats->ref < REF_ECM_START + REF_RANGE)), "intSetECMShadowStats: stats ref is out of range");
 
   if (psStats)
@@ -2645,7 +2645,7 @@ static void intSetECMShadowStats(ECM_STATS* psStats)
 /* Set the bar graphs for the Constructor stats */
 static void intSetConstructStats(CONSTRUCT_STATS* psStats)
 {
-  ASSERT_TEXT((psStats->ref >= REF_CONSTRUCT_START) &&
+  DEBUG_ASSERT_TEXT((psStats->ref >= REF_CONSTRUCT_START) &&
     (psStats->ref < REF_CONSTRUCT_START + REF_RANGE), "intSetConstructStats: stats ref is out of range");
 
   /* power */
@@ -2657,7 +2657,7 @@ static void intSetConstructStats(CONSTRUCT_STATS* psStats)
 /* Set the shadow bar graphs for the Constructor stats */
 static void intSetConstructShadowStats(CONSTRUCT_STATS* psStats)
 {
-  ASSERT_TEXT(psStats == NULL ||
+  DEBUG_ASSERT_TEXT(psStats == NULL ||
     ((psStats->ref >= REF_CONSTRUCT_START) && (psStats->ref < REF_CONSTRUCT_START + REF_RANGE)),
     "intSetConstructShadowStats: stats ref is out of range");
 
@@ -2679,7 +2679,7 @@ static void intSetConstructShadowStats(CONSTRUCT_STATS* psStats)
 /* Set the bar graphs for the Repair stats */
 static void intSetRepairStats(REPAIR_STATS* psStats)
 {
-  ASSERT_TEXT((psStats->ref >= REF_REPAIR_START) &&
+  DEBUG_ASSERT_TEXT((psStats->ref >= REF_REPAIR_START) &&
     (psStats->ref < REF_REPAIR_START + REF_RANGE), "intSetRepairStats: stats ref is out of range");
 
   /* power */
@@ -2691,7 +2691,7 @@ static void intSetRepairStats(REPAIR_STATS* psStats)
 /* Set the shadow bar graphs for the Repair stats */
 static void intSetRepairShadowStats(REPAIR_STATS* psStats)
 {
-  ASSERT_TEXT(psStats == NULL ||
+  DEBUG_ASSERT_TEXT(psStats == NULL ||
     ((psStats->ref >= REF_REPAIR_START) && (psStats->ref < REF_REPAIR_START + REF_RANGE)),
     "intSetRepairShadowStats: stats ref is out of range");
 
@@ -2715,7 +2715,7 @@ static void intSetWeaponStats(WEAPON_STATS* psStats)
 {
   UDWORD size;
 
-  ASSERT_TEXT((psStats->ref >= REF_WEAPON_START) &&
+  DEBUG_ASSERT_TEXT((psStats->ref >= REF_WEAPON_START) &&
     (psStats->ref < REF_WEAPON_START + REF_RANGE), "intSetWeaponStats: stats ref is out of range");
 
   /* range */
@@ -2739,7 +2739,7 @@ static void intSetWeaponShadowStats(WEAPON_STATS* psStats)
 {
   UDWORD size;
 
-  ASSERT_TEXT(psStats == NULL ||
+  DEBUG_ASSERT_TEXT(psStats == NULL ||
     ((psStats->ref >= REF_WEAPON_START) && (psStats->ref < REF_WEAPON_START + REF_RANGE)),
     "intSetWeaponShadowStats: stats ref is out of range");
 
@@ -2775,7 +2775,7 @@ static void intSetBodyStats(BODY_STATS* psStats)
 {
   W_FORM* psForm;
 
-  ASSERT_TEXT((psStats->ref >= REF_BODY_START) && (psStats->ref < REF_BODY_START + REF_RANGE), "intSetBodyStats: stats ref is out of range");
+  DEBUG_ASSERT_TEXT((psStats->ref >= REF_BODY_START) && (psStats->ref < REF_BODY_START + REF_RANGE), "intSetBodyStats: stats ref is out of range");
 
   /* set form tip to stats string */
   widgSetTip(psWScreen, IDDES_BODYFORM, getStatName(psStats));
@@ -2801,7 +2801,7 @@ static void intSetBodyStats(BODY_STATS* psStats)
 /* Set the shadow bar graphs for the Body stats */
 static void intSetBodyShadowStats(BODY_STATS* psStats)
 {
-  ASSERT_TEXT(psStats == NULL ||
+  DEBUG_ASSERT_TEXT(psStats == NULL ||
     ((psStats->ref >= REF_BODY_START) && (psStats->ref < REF_BODY_START + REF_RANGE)), "intSetBodyShadowStats: stats ref is out of range");
 
   if (psStats)
@@ -3005,7 +3005,7 @@ static void intSetPropulsionStats(PROPULSION_STATS* psStats)
   W_FORM* psForm;
   UDWORD weight;
 
-  ASSERT_TEXT((psStats->ref >= REF_PROPULSION_START) &&
+  DEBUG_ASSERT_TEXT((psStats->ref >= REF_PROPULSION_START) &&
     (psStats->ref < REF_PROPULSION_START + REF_RANGE), "intSetPropulsionStats: stats ref is out of range");
 
   /* set form tip to stats string */
@@ -3049,7 +3049,7 @@ static void intSetPropulsionShadowStats(PROPULSION_STATS* psStats)
 {
   UDWORD weight;
 
-  ASSERT_TEXT(psStats == NULL ||
+  DEBUG_ASSERT_TEXT(psStats == NULL ||
     ((psStats->ref >= REF_PROPULSION_START) && (psStats->ref < REF_PROPULSION_START + REF_RANGE)),
     "intSetPropulsionShadowStats: stats ref is out of range");
 
@@ -3276,7 +3276,7 @@ void intSetButtonFlash(UDWORD id, BOOL bFlash)
 #ifdef FLASH_BUTTONS
   WIDGET* psWidget = widgGetFromID(psWScreen, id);
 
-  ASSERT_TEXT(psWidget->type == WIDG_BUTTON,"intSetButtonFlash : Not a button");
+  DEBUG_ASSERT_TEXT(psWidget->type == WIDG_BUTTON, "intSetButtonFlash : Not a button");
 
   if (bFlash == TRUE)
     psWidget->display = intDisplayButtonFlash;
@@ -3363,7 +3363,7 @@ void intProcessDesign(UDWORD id)
         currID++;
       }
 
-      ASSERT_TEXT(psTempl != NULL, "intProcessDesign: template not found!\n");
+      DEBUG_ASSERT_TEXT(psTempl != NULL, "intProcessDesign: template not found!\n");
 
       if (psTempl != nullptr)
       {
@@ -3504,7 +3504,7 @@ void intProcessDesign(UDWORD id)
       if (!intCheckValidWeaponForProp())
       {
         //no way of allocating more than one weapon is there?
-        if (sCurrDesign.numWeaps > 1) { ASSERT_TEXT(FALSE, "designScreen: More than one weapon on droid - how?"); }
+        if (sCurrDesign.numWeaps > 1) { DEBUG_ASSERT_TEXT(FALSE, "designScreen: More than one weapon on droid - how?"); }
         //not valid weapon so initialise the weapon stat
         sCurrDesign.asWeaps[0] = 0;
         //init all other stats as well!

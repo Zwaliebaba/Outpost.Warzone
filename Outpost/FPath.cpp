@@ -116,8 +116,7 @@ BOOL fpathGroundBlockingTile(SDWORD x, SDWORD y)
     }
   }
 
-  ASSERT_TEXT(!(x <1 || y < 1 || x >= static_cast<SDWORD>(mapWidth)-1 || y >= static_cast<SDWORD>(mapHeight)-1),
-    "fpathBlockingTile: off map" );
+  DEBUG_ASSERT_TEXT(!(x <1 || y < 1 || x >= static_cast<SDWORD>(mapWidth)-1 || y >= static_cast<SDWORD>(mapHeight)-1), "fpathBlockingTile: off map");
 
   psTile = mapTile(static_cast<UDWORD>(x), static_cast<UDWORD>(y));
   /*
@@ -164,8 +163,7 @@ BOOL fpathHoverBlockingTile(SDWORD x, SDWORD y)
     return TRUE;
   }
 
-  ASSERT_TEXT(!(x <1 || y < 1 || x >= static_cast<SDWORD>(mapWidth)-1 || y >= static_cast<SDWORD>(mapHeight)-1),
-    "fpathBlockingTile: off map" );
+  DEBUG_ASSERT_TEXT(!(x <1 || y < 1 || x >= static_cast<SDWORD>(mapWidth)-1 || y >= static_cast<SDWORD>(mapHeight)-1), "fpathBlockingTile: off map");
 
   psTile = mapTile(static_cast<UDWORD>(x), static_cast<UDWORD>(y));
 
@@ -201,8 +199,7 @@ BOOL fpathLiftBlockingTile(SDWORD x, SDWORD y)
     return TRUE;
   }
 
-  ASSERT_TEXT(!(x <1 || y < 1 || x >= static_cast<SDWORD>(mapWidth)-1 || y >= static_cast<SDWORD>(mapHeight)-1),
-    "fpathLiftBlockingTile: off map" );
+  DEBUG_ASSERT_TEXT(!(x <1 || y < 1 || x >= static_cast<SDWORD>(mapWidth)-1 || y >= static_cast<SDWORD>(mapHeight)-1), "fpathLiftBlockingTile: off map");
 
   /* no tiles are blocking if returning to rearm */
   if (psDroid->action == DACTION_MOVETOREARM)
@@ -258,8 +255,8 @@ SDWORD fpathDistToTile(SDWORD tileX, SDWORD tileY, SDWORD pointX, SDWORD pointY)
   xdiff = tileX - (pointX >> TILE_SHIFT);
   ydiff = tileY - (pointY >> TILE_SHIFT);
 
-  ASSERT_TEXT((xdiff >= -1 && xdiff <= 1 && ydiff >= -1 && ydiff <= 1), "fpathDistToTile: points are more than one tile apart");
-  ASSERT_TEXT(xdiff != 0 || ydiff != 0, "fpathDistToTile: points are on same tile");
+  DEBUG_ASSERT_TEXT((xdiff >= -1 && xdiff <= 1 && ydiff >= -1 && ydiff <= 1), "fpathDistToTile: points are more than one tile apart");
+  DEBUG_ASSERT_TEXT(xdiff != 0 || ydiff != 0, "fpathDistToTile: points are on same tile");
 
   // not the most elegant solution but it works
   switch (xdiff + ydiff * 10)
@@ -296,7 +293,7 @@ SDWORD fpathDistToTile(SDWORD tileX, SDWORD tileY, SDWORD pointX, SDWORD pointY)
     ty = TILE_UNITS - (pointY & TILE_MASK);
     dist = tx > ty ? tx + ty / 2 : tx / 2 + ty;
     break;
-  default: ASSERT_TEXT(FALSE, "fpathDistToTile: unexpected point relationship");
+  default: DEBUG_ASSERT_TEXT(FALSE, "fpathDistToTile: unexpected point relationship");
     dist = TILE_UNITS;
     break;
   }
@@ -1112,11 +1109,11 @@ FPATH_RETVAL fpathRoute(BASE_OBJECT* psObj, MOVE_CONTROL* psMoveCntl, SDWORD tX,
     }
   }
 
-  ASSERT_TEXT(startX >= 0 && startX < static_cast<SDWORD>(mapWidth)*TILE_UNITS &&
+  DEBUG_ASSERT_TEXT(startX >= 0 && startX < static_cast<SDWORD>(mapWidth)*TILE_UNITS &&
     startY >= 0 && startY < static_cast<SDWORD>(mapHeight)*TILE_UNITS, "fpathRoute: start coords off map");
-  ASSERT_TEXT(targetX >= 0 && targetX < static_cast<SDWORD>(mapWidth)*TILE_UNITS &&
+  DEBUG_ASSERT_TEXT(targetX >= 0 && targetX < static_cast<SDWORD>(mapWidth)*TILE_UNITS &&
     targetY >= 0 && targetY < static_cast<SDWORD>(mapHeight)*TILE_UNITS, "fpathRoute: target coords off map");
-  ASSERT_TEXT(fpathBlockingTile == fpathGroundBlockingTile ||
+  DEBUG_ASSERT_TEXT(fpathBlockingTile == fpathGroundBlockingTile ||
     fpathBlockingTile == fpathHoverBlockingTile || fpathBlockingTile == fpathLiftBlockingTile, "fpathRoute: invalid blocking function");
 
   if (astarInner > FPATH_LOOP_LIMIT)
@@ -1177,7 +1174,7 @@ exit:
     psTile = psMapTiles;
     for (x = 0; x < (SDWORD)(mapWidth * mapHeight); x += 1)
     {
-      if (psTile->tileInfoBits & BITS_FPATHBLOCK) { ASSERT_TEXT(FALSE,"fpathRoute: blocking flags still in the map"); }
+      if (psTile->tileInfoBits & BITS_FPATHBLOCK) { DEBUG_ASSERT_TEXT(FALSE, "fpathRoute: blocking flags still in the map"); }
       psTile += 1;
     }
   }

@@ -221,7 +221,7 @@ TREAP_NODE* treapDelRec(TREAP_NODE** ppsRoot, UDWORD key, TREAP_CMP cmp)
       return treapDelRec(&(*ppsRoot)->psRight, key, cmp);
     }
     break;
-  default: ASSERT_TEXT(FALSE, "treapDelRec: invalid return from comparison");
+  default: DEBUG_ASSERT_TEXT(FALSE, "treapDelRec: invalid return from comparison");
     break;
   }
 }
@@ -264,7 +264,7 @@ void* treapFindRec(TREAP_NODE* psRoot, UDWORD key, TREAP_CMP cmp)
   case 1:
     return treapFindRec(psRoot->psRight, key, cmp);
     break;
-  default: ASSERT_TEXT(FALSE, "treapFindRec: invalid return from comparison");
+  default: DEBUG_ASSERT_TEXT(FALSE, "treapFindRec: invalid return from comparison");
     break;
   }
 }

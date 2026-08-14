@@ -361,7 +361,7 @@ static BOOL intAddMessageForm(BOOL playCurrent)
     }
 
     BufferID = GetObjectBuffer();
-    ASSERT_TEXT(BufferID >= 0,"Unable to acquire object buffer.");
+    DEBUG_ASSERT_TEXT(BufferID >= 0, "Unable to acquire object buffer.");
     RENDERBUTTON_INUSE(&ObjectBuffers[BufferID]);
     ObjectBuffers[BufferID].Data = static_cast<void*>(psMessage);
     sBFormInit.pUserData = static_cast<void*>(&ObjectBuffers[BufferID]);
@@ -387,7 +387,7 @@ static BOOL intAddMessageForm(BOOL playCurrent)
     if (sBFormInit.id > IDINTMAP_MSGEND)
       break;
 
-    ASSERT_TEXT(sBFormInit.id < (IDINTMAP_MSGEND+1),"Too many message buttons");
+    DEBUG_ASSERT_TEXT(sBFormInit.id < (IDINTMAP_MSGEND+1), "Too many message buttons");
 
     sBFormInit.x += OBJ_BUTWIDTH + OBJ_GAP;
     if (sBFormInit.x + OBJ_BUTWIDTH + OBJ_GAP > INTMAP_MSGWIDTH)
@@ -422,7 +422,7 @@ BOOL intAddMessageView(MESSAGE* psMessage)
   BOOL Animate = FALSE;
   RESEARCH* psResearch;
 
-  ASSERT_TEXT(psMessage->type == MSG_RESEARCH, "intAddMessageView: invalid message type");
+  DEBUG_ASSERT_TEXT(psMessage->type == MSG_RESEARCH, "intAddMessageView: invalid message type");
 
   // Is the form already up?
   if (widgGetFromID(psWScreen,IDINTMAP_MSGVIEW) != nullptr)
@@ -527,11 +527,11 @@ BOOL intAddMessageView(MESSAGE* psMessage)
   sLabInit.height = INTMAP_TITLEHEIGHT;
   //print research name in title bar
 
-  ASSERT_TEXT(psMessage->type != MSG_PROXIMITY, "intAddMessageView:Invalid message type for research");
+  DEBUG_ASSERT_TEXT(psMessage->type != MSG_PROXIMITY, "intAddMessageView:Invalid message type for research");
 
   psResearch = getResearchForMsg((VIEWDATA*)psMessage->pViewData);
 
-  ASSERT_TEXT(psResearch!=NULL,"Research not found");
+  DEBUG_ASSERT_TEXT(psResearch!=NULL, "Research not found");
   sLabInit.pText = getStatName(psResearch);
 
   sLabInit.FontID = WFont;
@@ -665,7 +665,7 @@ void _intIntelButtonPressed(BOOL proxMsg, UDWORD id)
 
   UNUSEDPARAMETER(proxMsg);
 
-  ASSERT_TEXT(proxMsg = TRUE, "intIntelButtonPressed: Shouldn't be able to get a proximity message!");
+  DEBUG_ASSERT_TEXT(proxMsg = TRUE, "intIntelButtonPressed: Shouldn't be able to get a proximity message!");
 
   /* message button has been pressed - clear the old button and messageView*/
   if (messageID != 0)
@@ -928,7 +928,7 @@ void intDisplayMessageButton(struct _widget* psWidget, UDWORD xOffset, UDWORD yO
         }
         else
         {
-          ASSERT_TEXT(FALSE, "intDisplayMessageButton: invalid stat");
+          DEBUG_ASSERT_TEXT(FALSE, "intDisplayMessageButton: invalid stat");
           IMDType = IMDTYPE_RESEARCH;
           psResGraphic = (BASE_STATS*)pResearch;
         }
@@ -1025,7 +1025,7 @@ void intDisplayPIEView(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset,
 
     if (((VIEWDATA*)psMessage->pViewData)->type != VIEW_RES)
     {
-      ASSERT_TEXT(FALSE, "intDisplayPIEView: Invalid message type");
+      DEBUG_ASSERT_TEXT(FALSE, "intDisplayPIEView: Invalid message type");
       return;
     }
 
@@ -1072,7 +1072,7 @@ void intDisplayFLICView(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
 
     if (((VIEWDATA*)psMessage->pViewData)->type != VIEW_RES)
     {
-      ASSERT_TEXT(FALSE, "intDisplayFLICView: Invalid message type");
+      DEBUG_ASSERT_TEXT(FALSE, "intDisplayFLICView: Invalid message type");
       return;
     }
     //render a frame of the current movie
@@ -1123,7 +1123,7 @@ void intDisplayTEXTView(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
       //check haven't run out of room first!
       if (i * linePitch > Form->height)
       {
-        ASSERT_TEXT(FALSE, "intDisplayTEXTView: Run out of room!");
+        DEBUG_ASSERT_TEXT(FALSE, "intDisplayTEXTView: Run out of room!");
         return;
       }
       //need to check the string will fit!

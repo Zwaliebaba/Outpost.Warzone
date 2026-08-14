@@ -89,7 +89,6 @@ extern iSurface* iV_SurfaceCreate(uint32 flags, int width, int height, int xp, i
 
 extern int iV_GetDisplayWidth(void);
 extern int iV_GetDisplayHeight(void);
-extern BOOL weHave3DNow(void); // called whenever - returns a boolean
 
 //*************************************************************************
 // vid stuff still to be cut down

@@ -512,7 +512,7 @@ void ed2dDisplay(void)
       sy1 = (SDWORD)viewY + TILES_DOWN;
     }
 
-    ASSERT_TEXT(sx0 >= (SDWORD)viewX && sx1 <= ((SDWORD)viewX + TILES_ACROSS) &&
+    DEBUG_ASSERT_TEXT(sx0 >= (SDWORD)viewX && sx1 <= ((SDWORD)viewX + TILES_ACROSS) &&
       sy0 >= (SDWORD)viewY && sy1 <= ((SDWORD)viewY + TILES_DOWN) && sx1 > sx0 && sy1 > sy0, "paste Box: clipping failed");
 
     /* Display the tiles */
@@ -598,8 +598,8 @@ static BOOL getBox(PASTE_BOX* psBox, UDWORD x, UDWORD y, UDWORD width, UDWORD he
   UDWORD mx, my;
   MAPTILE* psCurr;
 
-  ASSERT_TEXT(x + width <= mapWidth, "getBox: box off map");
-  ASSERT_TEXT(y + height <= mapHeight, "getBox: box off map");
+  DEBUG_ASSERT_TEXT(x + width <= mapWidth, "getBox: box off map");
+  DEBUG_ASSERT_TEXT(y + height <= mapHeight, "getBox: box off map");
 
   /* Allocate the box */
   psBox->x = x;
@@ -633,8 +633,8 @@ static void putBox(PASTE_BOX* psBox, UDWORD x, UDWORD y)
   UDWORD mx, my;
   MAPTILE* psCurr;
 
-  ASSERT_TEXT(x + psBox->width <= mapWidth, "putBox: box off map");
-  ASSERT_TEXT(y + psBox->height <= mapHeight, "putBox: box off map");
+  DEBUG_ASSERT_TEXT(x + psBox->width <= mapWidth, "putBox: box off map");
+  DEBUG_ASSERT_TEXT(y + psBox->height <= mapHeight, "putBox: box off map");
 
   /* Store the terrain type and texture info into the map */
   psCurr = psBox->psTiles;

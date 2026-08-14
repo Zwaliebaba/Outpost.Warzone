@@ -386,7 +386,7 @@ void fpathOpenRemove(FP_NODE* psNode)
       if (comp < 0) { psCurr = psCurr->psLeft; }
       else { psCurr = psCurr->psRight; }
     }
-    ASSERT_TEXT(psCurr != NULL, "fpathOpenRemove: couldn't find node");
+    DEBUG_ASSERT_TEXT(psCurr != NULL, "fpathOpenRemove: couldn't find node");
   }
 
   // Find the node to take the deleted nodes place in the tree
@@ -555,7 +555,7 @@ void fpathOpenRemove(FP_NODE* psNode)
 
   if (psOpen == nullptr)
   {
-    ASSERT_TEXT(FALSE, "fpathOpenRemove: NULL list");
+    DEBUG_ASSERT_TEXT(FALSE, "fpathOpenRemove: NULL list");
     return;
   }
   if (psNode == psOpen)
@@ -571,7 +571,7 @@ void fpathOpenRemove(FP_NODE* psNode)
       psPrev = psCurr;
     if (psCurr)
       psPrev->psOpen = psCurr->psOpen;
-    else { ASSERT_TEXT(FALSE, "fpathOpenRemove: failed to find node"); }
+    else { DEBUG_ASSERT_TEXT(FALSE, "fpathOpenRemove: failed to find node"); }
   }
 }
 
@@ -699,7 +699,7 @@ void fpathOptimise(FP_NODE* psRoute)
   FP_NODE *psCurr, *psSearch, *psTest;
   BOOL los;
 
-  ASSERT_TEXT(psRoute != NULL, "fpathOptimise: NULL route pointer");
+  DEBUG_ASSERT_TEXT(psRoute != NULL, "fpathOptimise: NULL route pointer");
 
   psCurr = psRoute;
   do
@@ -789,7 +789,7 @@ psRoute= NULL;while (psOpen!= NULL)
 
 			// See if this is in the closed list
 			psCFound = fpathHashCondRemove(apsClosed, x,y, currDist);
-			ASSERT_TEXT(!(psOFound && psCFound), "fpathAStarRoute: found point in open and closed lists");
+			DEBUG_ASSERT_TEXT(!(psOFound && psCFound), "fpathAStarRoute: found point in open and closed lists");
 			if (psCFound && psCFound->dist <= currDist)
 			{
 				// already in the closed list by a shorter route
@@ -828,7 +828,7 @@ psRoute= NULL;while (psOpen!= NULL)
 			}
 			else
 			{
-				ASSERT_TEXT(FALSE,"fpathAStarRoute: the open and closed lists are f***ed");
+				DEBUG_ASSERT_TEXT(FALSE, "fpathAStarRoute: the open and closed lists are f***ed");
 			}
 		}
 
@@ -1029,7 +1029,7 @@ SDWORD fpathAStarRoute(SDWORD routeMode, ASTAR_ROUTE* psRoutePoints, SDWORD sx, 
         fpathOpenAdd(psFound);
       }
       else
-        ASSERT_TEXT(FALSE,"fpathAStarRoute: the open and closed lists are f***ed");
+        DEBUG_ASSERT_TEXT(FALSE, "fpathAStarRoute: the open and closed lists are f***ed");
     }
 
     //		ASSERT((fpathValidateTree(psOpen),

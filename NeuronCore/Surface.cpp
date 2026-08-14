@@ -29,7 +29,7 @@ BOOL surfCreate(LPDIRECTDRAWSURFACE4* ppsSurface, // The created surface
 
   psDD = screenGetDDObject();
 
-  ASSERT_TEXT(psDD != NULL, "surfCreate: NULL DD object - framework not initialised?");
+  DEBUG_ASSERT_TEXT(psDD != NULL, "surfCreate: NULL DD object - framework not initialised?");
 
   if ((screenMode == SCREEN_WINDOWED) && (displayMode == MODE_8BITFUDGE))
   {
@@ -93,7 +93,7 @@ void surfRelease(LPDIRECTDRAWSURFACE4 psSurface)
   {
     for (psCurr = psSurfaces; (psCurr != nullptr) && (psCurr->psSurface != psSurface); psCurr = psCurr->psNext)
       psPrev = psCurr;
-    ASSERT_TEXT(psCurr != NULL, "surfRelease: Couldn't find surface");
+    DEBUG_ASSERT_TEXT(psCurr != NULL, "surfRelease: Couldn't find surface");
     if (psCurr != nullptr)
     {
       psPrev->psNext = psCurr->psNext;
@@ -130,7 +130,7 @@ BOOL surfRecreate(LPDIRECTDRAWSURFACE4* ppsSurface)
   ddrval = (*ppsSurface)->lpVtbl->GetSurfaceDesc(*ppsSurface, &ddsd);
   if (ddrval != DD_OK)
   {
-    ASSERT_TEXT(FALSE, "Couldn't get surface description:\n{}", DDErrorToString(ddrval));
+    DEBUG_ASSERT_TEXT(FALSE, "Couldn't get surface description:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
 
@@ -159,7 +159,7 @@ BOOL surfRecreate(LPDIRECTDRAWSURFACE4* ppsSurface)
   ddrval = psDD->lpVtbl->CreateSurface(psDD, &ddsd, ppsSurface, nullptr);
   if (ddrval != DD_OK)
   {
-    ASSERT_TEXT(FALSE, "Create surface failed:\n{}", DDErrorToString(ddrval));
+    DEBUG_ASSERT_TEXT(FALSE, "Create surface failed:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
 
@@ -168,7 +168,7 @@ BOOL surfRecreate(LPDIRECTDRAWSURFACE4* ppsSurface)
   ddrval = (*ppsSurface)->lpVtbl->GetSurfaceDesc(*ppsSurface, &ddsd);
   if (ddrval != DD_OK)
   {
-    ASSERT_TEXT(FALSE, "Couldn't get surface description:\n{}", DDErrorToString(ddrval));
+    DEBUG_ASSERT_TEXT(FALSE, "Couldn't get surface description:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
 #endif
@@ -208,7 +208,7 @@ BOOL surfLoadFromSurface(LPDIRECTDRAWSURFACE4 psDest, // The surface to load to
   ddrval = psDest->lpVtbl->GetSurfaceDesc(psDest, &ddsdDest);
   if (ddrval != DD_OK)
   {
-    ASSERT_TEXT(FALSE, "Couldn't get surface description:\n{}", DDErrorToString(ddrval));
+    DEBUG_ASSERT_TEXT(FALSE, "Couldn't get surface description:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
   sDestRect.left = 0;
@@ -222,7 +222,7 @@ BOOL surfLoadFromSurface(LPDIRECTDRAWSURFACE4 psDest, // The surface to load to
   ddrval = psSrc->lpVtbl->GetSurfaceDesc(psSrc, &ddsdSrc);
   if (ddrval != DD_OK)
   {
-    ASSERT_TEXT(FALSE, "Couldn't get surface description:\n{}", DDErrorToString(ddrval));
+    DEBUG_ASSERT_TEXT(FALSE, "Couldn't get surface description:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
   sSrcRect.left = 0;
@@ -245,7 +245,7 @@ BOOL surfLoadFromSurface(LPDIRECTDRAWSURFACE4 psDest, // The surface to load to
   ddrval = psDest->lpVtbl->Blt(psDest, &sDestRect, psSrc, &sSrcRect, DDBLT_WAIT, nullptr);
   if (ddrval != DD_OK)
   {
-    ASSERT_TEXT(FALSE, "Couldn't do the blit:\n{}", DDErrorToString(ddrval));
+    DEBUG_ASSERT_TEXT(FALSE, "Couldn't do the blit:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
 
@@ -318,12 +318,12 @@ BOOL surfLoadFrom8Bit(LPDIRECTDRAWSURFACE4 psSurf, // The surface to load to
   UWORD r, g, b;
 
   /* Validate the arguments */
-  ASSERT_TEXT(psSurf != NULL, "NULL surface pointer");
+  DEBUG_ASSERT_TEXT(psSurf != NULL, "NULL surface pointer");
 
   /* Get the DD object */
   psDD = screenGetDDObject();
 
-  ASSERT_TEXT(psDD != NULL, "surfLoadFrom8Bit: NULL DD object - framework not initialised?");
+  DEBUG_ASSERT_TEXT(psDD != NULL, "surfLoadFrom8Bit: NULL DD object - framework not initialised?");
 
   /* Get the pixel format for the surface */
   memset(&sPixelFormat, 0, sizeof(DDPIXELFORMAT));
@@ -335,7 +335,7 @@ BOOL surfLoadFrom8Bit(LPDIRECTDRAWSURFACE4 psSurf, // The surface to load to
     return FALSE;
   }
 
-  ASSERT_TEXT(sPixelFormat.dwRGBBitCount >= 8, "surfLoadFrom8Bit: less than 8 bit palettised not yet implemented");
+  DEBUG_ASSERT_TEXT(sPixelFormat.dwRGBBitCount >= 8, "surfLoadFrom8Bit: less than 8 bit palettised not yet implemented");
 
   /* Create a palette for the texture if necessary */
   if (sPixelFormat.dwRGBBitCount <= 8)

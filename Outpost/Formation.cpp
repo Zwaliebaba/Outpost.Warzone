@@ -129,7 +129,7 @@ BOOL formationNew(FORMATION** ppsFormation, FORMATION_TYPE type, SDWORD x, SDWOR
     psNew->asLines[0].dir = static_cast<SWORD>(adjustDirection(dir, 180));
     psNew->asLines[0].member = -1;
     break;
-  default: ASSERT_TEXT(FALSE,"fmNewFormation: unknown formation type");
+  default: DEBUG_ASSERT_TEXT(FALSE, "fmNewFormation: unknown formation type");
     break;
   }
 
@@ -218,7 +218,7 @@ void formationLeave(FORMATION* psFormation, BASE_OBJECT* psObj)
   F_MEMBER* asMembers;
   FORMATION *psCurr, *psPrev;
 
-  ASSERT_TEXT(psFormation->refCount > 0, "formationLeave: refcount is zero");
+  DEBUG_ASSERT_TEXT(psFormation->refCount > 0, "formationLeave: refcount is zero");
 
 
   asMembers = psFormation->asMembers;
@@ -288,7 +288,7 @@ void formationReset(FORMATION* psFormation)
       case OBJ_DROID:
         ((DROID*)psObj)->sMove.psFormation = nullptr;
         break;
-      default: ASSERT_TEXT(FALSE, "formationReset: unknown unit type");
+      default: DEBUG_ASSERT_TEXT(FALSE, "formationReset: unknown unit type");
         break;
       }
     }
@@ -327,7 +327,7 @@ void formationFindFree(FORMATION* psFormation, BASE_OBJECT* psObj, SDWORD* pX, S
 
   if (psFormation->free == -1)
   {
-    ASSERT_TEXT(FALSE, "formationFindFree: no members left to allocate");
+    DEBUG_ASSERT_TEXT(FALSE, "formationFindFree: no members left to allocate");
     *pX = psFormation->x;
     *pY = psFormation->y;
     return;
@@ -352,7 +352,7 @@ void formationFindFree(FORMATION* psFormation, BASE_OBJECT* psObj, SDWORD* pX, S
     found = FALSE;
     while (!found && rank <= MAX_RANK)
     {
-      ASSERT_TEXT(unit < F_MAXMEMBERS, "formationFindFree: unit out of range");
+      DEBUG_ASSERT_TEXT(unit < F_MAXMEMBERS, "formationFindFree: unit out of range");
 
       if (unit != -1)
       {
@@ -764,7 +764,7 @@ SDWORD formationObjRadius(BASE_OBJECT* psObj)
   case OBJ_FEATURE:
     radius = psObj->sDisplay.imd->radius / 2;
     break;
-  default: ASSERT_TEXT(FALSE,"formationObjRadius: unknown object type");
+  default: DEBUG_ASSERT_TEXT(FALSE, "formationObjRadius: unknown object type");
     radius = 0;
     break;
   }

@@ -873,8 +873,8 @@ static void display2DMap(void)
   x = (SDWORD)mapX;
   y = (SDWORD)mapY;
 
-  ASSERT_TEXT(x < (SDWORD)mapWidth, "displayMap: x coord off map");
-  ASSERT_TEXT(y < (SDWORD)mapHeight, "displayMap: y coord off map");
+  DEBUG_ASSERT_TEXT(x < (SDWORD)mapWidth, "displayMap: x coord off map");
+  DEBUG_ASSERT_TEXT(y < (SDWORD)mapHeight, "displayMap: y coord off map");
 
   psBack = screenGetSurface();
 

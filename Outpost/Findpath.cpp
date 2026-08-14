@@ -35,8 +35,7 @@ UDWORD dirDiff(SDWORD start, SDWORD end)
 		}
 	}
 
-	ASSERT_TEXT(retval >=0 && retval <=180,
-		"dirDiff: result out of range");
+	DEBUG_ASSERT_TEXT(retval >=0 && retval <=180, "dirDiff: result out of range");
 
 	return retval;
 }

@@ -125,7 +125,7 @@ void levError(STRING* pError)
   levGetErrorData(&line, &pText);
 
 #ifdef DEBUG
-  ASSERT_TEXT(FALSE, "Level File parse error:\n{} at line {} text {}\n", pError, line, pText);
+  DEBUG_ASSERT_TEXT(FALSE, "Level File parse error:\n{} at line {} text {}\n", pError, line, pText);
 #else
   Neuron::Fatal("Level File parse error:\n{} at line {} text {}\n", pError, line, pText);
 #endif
@@ -226,7 +226,7 @@ BOOL levParse(UBYTE* pBuffer, SDWORD size)
           psDataSet->type = LDS_MKEEP_LIMBO;
           break;
 #endif
-        default: ASSERT_TEXT(FALSE,"eh?");
+        default: DEBUG_ASSERT_TEXT(FALSE, "eh?");
           break;
         }
       }
@@ -686,7 +686,7 @@ BOOL levLoadData(STRING* pName, STRING* pSaveName, SDWORD saveType)
 #endif
   if (psNewLevel->game == -1) //no .gam file to load - BETWEEN missions (for Editor games only)
   {
-    ASSERT_TEXT(psNewLevel->type == LDS_BETWEEN, "levLoadData: only BETWEEN missions do not need a .gam file");
+    DEBUG_ASSERT_TEXT(psNewLevel->type == LDS_BETWEEN, "levLoadData: only BETWEEN missions do not need a .gam file");
     Neuron::DebugTrace("levLoadData: no .gam file for level: BETWEEN mission\n");
     if (pSaveName != nullptr)
     {
@@ -858,7 +858,7 @@ BOOL levLoadData(STRING* pName, STRING* pSaveName, SDWORD saveType)
             return FALSE;
           break;
 #endif
-        default: ASSERT_TEXT(psNewLevel->type >= MULTI_TYPE_START, "levLoadData: Unexpected mission type");
+        default: DEBUG_ASSERT_TEXT(psNewLevel->type >= MULTI_TYPE_START, "levLoadData: Unexpected mission type");
           Neuron::DebugTrace("MULTIPLAYER\n");
           //if (!startMission(MISSION_CAMPSTART, psNewLevel->apDataFiles[i]))
           if (!startMission(LDS_CAMSTART, psNewLevel->apDataFiles[i]))

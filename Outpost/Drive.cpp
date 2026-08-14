@@ -238,7 +238,7 @@ void ChangeDriver(void)
     {
       if ((psDroid->sMove.Status == MOVEDRIVE))
       {
-        ASSERT_TEXT((psDroid->droidType != DROID_TRANSPORTER),"Tried to control a transporter");
+        DEBUG_ASSERT_TEXT((psDroid->droidType != DROID_TRANSPORTER), "Tried to control a transporter");
         secondarySetState(psDroid, DSO_HALTTYPE, DSS_HALT_GUARD);
         psDroid->sMove.Status = MOVEINACTIVE;
       }
@@ -262,7 +262,7 @@ void StopDriverMode(void)
     {
       if ((psDroid->sMove.Status == MOVEDRIVE))
       {
-        ASSERT_TEXT((psDroid->droidType != DROID_TRANSPORTER),"Tried to control a transporter");
+        DEBUG_ASSERT_TEXT((psDroid->droidType != DROID_TRANSPORTER), "Tried to control a transporter");
         secondarySetState(psDroid, DSO_HALTTYPE, DSS_HALT_GUARD);
         psDroid->sMove.Status = MOVEINACTIVE;
       }
@@ -540,7 +540,7 @@ void driveUpdate(void)
         if (psDrivenDroid->sMove.Status != MOVEDRIVE)
         {
           psDrivenDroid->sMove.Status = MOVEDRIVE;
-          ASSERT_TEXT((psDrivenDroid->droidType != DROID_TRANSPORTER),"Tried to control a transporter");
+          DEBUG_ASSERT_TEXT((psDrivenDroid->droidType != DROID_TRANSPORTER), "Tried to control a transporter");
           driveDir = psDrivenDroid->direction % 360;
         }
 

@@ -29,7 +29,7 @@
 		} \
 		psPrev = psCurr; \
 	} \
-	ASSERT_TEXT(psCurr!=NULL, "LIST_REMOVE: entry not found"); \
+	DEBUG_ASSERT_TEXT(psCurr!=NULL, "LIST_REMOVE: entry not found"); \
 	if (psPrev == NULL) \
 	{ \
 		(psHead) = (psHead)->psNext; \
@@ -88,7 +88,7 @@ BOOL gwInitialise(void)
   int i;
 #endif
 
-  ASSERT_TEXT(psGateways == NULL, "gwInitialise: gatway list has not been reset");
+  DEBUG_ASSERT_TEXT(psGateways == NULL, "gwInitialise: gatway list has not been reset");
 
   psGateways = nullptr;
 
@@ -136,7 +136,7 @@ BOOL gwNewGateway(SDWORD x1, SDWORD y1, SDWORD x2, SDWORD y2)
   if ((x1 < 0) || (x1 >= gwMapWidth()) || (y1 < 0) || (y1 >= gwMapHeight()) || (x2 < 0) || (x2 >= gwMapWidth()) || (y2 < 0) || (y2 >=
     gwMapHeight()) || ((x1 != x2) && (y1 != y2)))
   {
-    ASSERT_TEXT(FALSE,"gwNewGateway: invalid coordinates");
+    DEBUG_ASSERT_TEXT(FALSE, "gwNewGateway: invalid coordinates");
     return FALSE;
   }
 
@@ -201,7 +201,7 @@ BOOL gwNewLinkGateway(SDWORD x, SDWORD y)
 
   if ((x < 0) || (x >= gwMapWidth()) || (y < 0) || (y >= gwMapHeight()))
   {
-    ASSERT_TEXT(FALSE,"gwNewLinkGateway: invalid coordinates");
+    DEBUG_ASSERT_TEXT(FALSE, "gwNewLinkGateway: invalid coordinates");
     return FALSE;
   }
 
@@ -330,7 +330,7 @@ static void gwCalcZoneCenter(SDWORD zone, SDWORD* px, SDWORD* py)
     }
   }
 
-  ASSERT_TEXT(numtiles != 0, "gwCalcZoneCenter: zone not found on map");
+  DEBUG_ASSERT_TEXT(numtiles != 0, "gwCalcZoneCenter: zone not found on map");
 
   x = xsum / numtiles;
   y = ysum / numtiles;
@@ -390,7 +390,7 @@ BOOL gwGenerateLinkGates(void)
 {
   SDWORD zone, cx, cy;
 
-  ASSERT_TEXT(apEquivZones != NULL, "gwGenerateLinkGates: no zone equivalence table");
+  DEBUG_ASSERT_TEXT(apEquivZones != NULL, "gwGenerateLinkGates: no zone equivalence table");
 
   Neuron::DebugTrace("Generating water link Gateways....");
 
@@ -535,7 +535,7 @@ SDWORD gwRouteLength(GATEWAY* psStart, GATEWAY* psEnd)
   }
   while (ret == ASR_PARTIAL);
 
-  ASSERT_TEXT(ret != ASR_FAILED, "gwRouteLength: no route between gateways at ({},{}) and ({},{})", sx,sy, ex,ey);
+  DEBUG_ASSERT_TEXT(ret != ASR_FAILED, "gwRouteLength: no route between gateways at ({},{}) and ({},{})", sx,sy, ex,ey);
 
 #ifdef DEBUG
   if (ret == ASR_NEAREST)
@@ -569,8 +569,8 @@ SDWORD gwRouteLength(GATEWAY* psStart, GATEWAY* psEnd)
 }
 
 // check that the initial flood fill tiles are not on a blocking tile.
-// gwLinkGateways asserts on this, and that assertion runs in release builds
-// too, so the check cannot be gated on DEBUG any more.
+// gwLinkGateways asserts on this. Left outside any DEBUG guard so the call
+// resolves whether or not that assertion is compiled in.
 BOOL gwCheckFloodTiles(GATEWAY* psGate)
 {
   SDWORD floodX, floodY;
@@ -655,8 +655,7 @@ BOOL gwLinkGateways(void)
     }
     psCurr->zone2 = static_cast<UBYTE>(gwGetZone(x, y));
 
-    ASSERT_TEXT((psCurr->flags & GWR_WATERLINK) || gwCheckFloodTiles(psCurr),
-      "gwLinkGateways: Gateway at ({},{})->({},{}) is too close to a blocking tile. Zones {}, {}", psCurr->x1,psCurr->y1, psCurr->x2,psCurr
+    DEBUG_ASSERT_TEXT((psCurr->flags & GWR_WATERLINK) || gwCheckFloodTiles(psCurr), "gwLinkGateways: Gateway at ({},{})->({},{}) is too close to a blocking tile. Zones {}, {}", psCurr->x1,psCurr->y1, psCurr->x2,psCurr
       ->y2, psCurr->zone1, psCurr->zone2);
 
     aZoneReachable[psCurr->zone1] = TRUE;
@@ -769,8 +768,8 @@ UDWORD gwZoneLineSize(UDWORD Line)
   UDWORD pos = 0;
   UDWORD x = 0;
 
-  ASSERT_TEXT(Line < static_cast<UDWORD>(gwMapHeight()),"gwNewZoneLine : Invalid line requested");
-  ASSERT_TEXT(apRLEZones != NULL,"gwNewZoneLine : NULL Zone map");
+  DEBUG_ASSERT_TEXT(Line < static_cast<UDWORD>(gwMapHeight()), "gwNewZoneLine : Invalid line requested");
+  DEBUG_ASSERT_TEXT(apRLEZones != NULL, "gwNewZoneLine : NULL Zone map");
 
   pCode = apRLEZones[Line];
 
@@ -809,8 +808,8 @@ BOOL gwNewZoneMap(void)
 //
 UBYTE* gwNewZoneLine(UDWORD Line, UDWORD Size)
 {
-  ASSERT_TEXT(Line < static_cast<UDWORD>(gwMapHeight()),"gwNewZoneLine : Invalid line requested");
-  ASSERT_TEXT(apRLEZones != NULL,"gwNewZoneLine : NULL Zone map");
+  DEBUG_ASSERT_TEXT(Line < static_cast<UDWORD>(gwMapHeight()), "gwNewZoneLine : Invalid line requested");
+  DEBUG_ASSERT_TEXT(apRLEZones != NULL, "gwNewZoneLine : NULL Zone map");
 
   if (apRLEZones[Line] != nullptr) { delete[] apRLEZones[Line]; }
 
@@ -876,7 +875,7 @@ SDWORD gwGetZone(SDWORD x, SDWORD y)
     }
     while (xPos <= x); // xPos is where the next zone starts
   }
-  else { ASSERT_TEXT(FALSE, "gwGetZone: invalid coordinates"); }
+  else { DEBUG_ASSERT_TEXT(FALSE, "gwGetZone: invalid coordinates"); }
 
   return zone;
 }
@@ -889,7 +888,7 @@ BOOL gwNewEquivTable(SDWORD numZones)
 {
   SDWORD i;
 
-  ASSERT_TEXT(numZones < UBYTE_MAX, "gwNewEquivTable: invalid number of zones");
+  DEBUG_ASSERT_TEXT(numZones < UBYTE_MAX, "gwNewEquivTable: invalid number of zones");
 
   gwNumZones = numZones;
   aNumEquiv = new (std::nothrow) UBYTE[numZones];
@@ -933,9 +932,9 @@ BOOL gwSetZoneEquiv(SDWORD zone, SDWORD numEquiv, UBYTE* pEquiv)
 {
   SDWORD i;
 
-  ASSERT_TEXT(aNumEquiv != NULL && apEquivZones != NULL, "gwSetZoneEquiv: equivalence arrays not initialised");
-  ASSERT_TEXT(zone < gwNumZones, "gwSetZoneEquiv: invalid zone");
-  ASSERT_TEXT(numEquiv <= gwNumZones, "gwSetZoneEquiv: invalid number of zone equivalents");
+  DEBUG_ASSERT_TEXT(aNumEquiv != NULL && apEquivZones != NULL, "gwSetZoneEquiv: equivalence arrays not initialised");
+  DEBUG_ASSERT_TEXT(zone < gwNumZones, "gwSetZoneEquiv: invalid zone");
+  DEBUG_ASSERT_TEXT(numEquiv <= gwNumZones, "gwSetZoneEquiv: invalid number of zone equivalents");
 
   apEquivZones[zone] = new (std::nothrow) UBYTE[numEquiv];
   if (apEquivZones[zone] == nullptr)
@@ -985,7 +984,7 @@ BOOL gwTileIsWater(UDWORD x, UDWORD y) { return TERRAIN_TYPE(mapTile(x ,y)) == T
 // see if a zone is reachable
 BOOL gwZoneReachable(SDWORD zone)
 {
-  ASSERT_TEXT(zone >= 0 && zone < gwNumZones, "gwZoneReachable: invalid zone");
+  DEBUG_ASSERT_TEXT(zone >= 0 && zone < gwNumZones, "gwZoneReachable: invalid zone");
 
   return aZoneReachable[zone];
 }

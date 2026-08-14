@@ -1705,9 +1705,6 @@ VOID displayTitleBitmap(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
   switch (war_GetRendMode())
   {
   case REND_MODE_HAL:
-    if (weHave3DNow())
-      sprintf(sTmp, VERSION_STRING " - Build: %s D3D (With AMD 3DNow!)",__DATE__);
-    else
       sprintf(sTmp, VERSION_STRING " - Build: %s D3D",__DATE__);
     break;
   default:

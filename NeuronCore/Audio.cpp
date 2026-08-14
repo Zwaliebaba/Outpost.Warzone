@@ -261,7 +261,7 @@ AUDIO_SAMPLE* audio_QueueSample(SDWORD iTrack)
   if (g_bAudioEnabled == FALSE || g_bAudioPaused == TRUE || g_bStopAll == TRUE)
     return nullptr;
 
-  ASSERT_TEXT(sound_CheckTrack( iTrack ) == TRUE, "audio_QueueSample: track {} outside limits\n", iTrack );
+  DEBUG_ASSERT_TEXT(sound_CheckTrack( iTrack ) == TRUE, "audio_QueueSample: track {} outside limits\n", iTrack);
 
   /* reject track if too many of same ID already in queue */
   if (audio_CheckSameQueueTracksPlaying(iTrack) == FALSE)

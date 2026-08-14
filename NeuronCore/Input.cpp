@@ -71,7 +71,7 @@ void keyScanToString(KEY_CODE code, STRING* ascii, UDWORD maxStringSize)
     strcpy(ascii, "???");
     return;
   }
-  ASSERT_TEXT((code >= 0) && (code <= KEY_MAXSCAN), "Invalid key code: {}", code);
+  DEBUG_ASSERT_TEXT((code >= 0) && (code <= KEY_MAXSCAN), "Invalid key code: {}", static_cast<int>(code));
   GetKeyNameText(static_cast<UDWORD>((UWORD)code << 16), ascii, maxStringSize);
 }
 
@@ -373,21 +373,21 @@ void inputNewFrame(void)
 /* This returns true if the key is currently depressed */
 BOOL keyDown(KEY_CODE code)
 {
-  ASSERT_TEXT((code >= 0) && (code < KEY_MAXSCAN), "Invalid key code: {}", code);
+  DEBUG_ASSERT_TEXT((code >= 0) && (code < KEY_MAXSCAN), "Invalid key code: {}", static_cast<int>(code));
   return (aKeyState[code] != KEY_UP);
 }
 
 /* This returns true if the key went from being up to being down this frame */
 BOOL keyPressed(KEY_CODE code)
 {
-  ASSERT_TEXT((code >= 0) && (code < KEY_MAXSCAN), "Invalid key code: {}", code);
+  DEBUG_ASSERT_TEXT((code >= 0) && (code < KEY_MAXSCAN), "Invalid key code: {}", static_cast<int>(code));
   return ((aKeyState[code] == KEY_PRESSED) || (aKeyState[code] == KEY_PRESSRELEASE));
 }
 
 /* This returns true if the key went from being down to being up this frame */
 BOOL keyReleased(KEY_CODE code)
 {
-  ASSERT_TEXT((code >= 0) && (code < KEY_MAXSCAN), "Invalid key code: {}", code);
+  DEBUG_ASSERT_TEXT((code >= 0) && (code < KEY_MAXSCAN), "Invalid key code: {}", static_cast<int>(code));
   return ((aKeyState[code] == KEY_RELEASED) || (aKeyState[code] == KEY_PRESSRELEASE));
 }
 
@@ -411,35 +411,35 @@ BOOL mouseWheelStatic(void) { return (bMouseWheelStatic); }
 /* This returns true if the mouse key is currently depressed */
 BOOL mouseDown(MOUSE_KEY_CODE code)
 {
-  ASSERT_TEXT((code >= 0) && (code < 3), "Invalid mouse key code: {}", static_cast<int>(code));
+  DEBUG_ASSERT_TEXT((code >= 0) && (code < 3), "Invalid mouse key code: {}", static_cast<int>(code));
   return (aMouseState[code] != KEY_UP);
 }
 
 /* This returns true if the mouse key was double clicked */
 BOOL mouseDClicked(MOUSE_KEY_CODE code)
 {
-  ASSERT_TEXT((code >= 0) && (code < 3), "Invalid mouse key code: {}", static_cast<int>(code));
+  DEBUG_ASSERT_TEXT((code >= 0) && (code < 3), "Invalid mouse key code: {}", static_cast<int>(code));
   return (aMouseState[code] == KEY_DOUBLECLICK);
 }
 
 /* This returns true if the mouse key went from being up to being down this frame */
 BOOL mousePressed(MOUSE_KEY_CODE code)
 {
-  ASSERT_TEXT((code >= 0) && (code < 3), "Invalid mouse key code: {}", static_cast<int>(code));
+  DEBUG_ASSERT_TEXT((code >= 0) && (code < 3), "Invalid mouse key code: {}", static_cast<int>(code));
   return ((aMouseState[code] == KEY_PRESSED) || (aMouseState[code] == KEY_PRESSRELEASE));
 }
 
 /* This returns true if the mouse key went from being down to being up this frame */
 BOOL mouseReleased(MOUSE_KEY_CODE code)
 {
-  ASSERT_TEXT((code >= 0) && (code < 3), "Invalid mouse key code: {}", static_cast<int>(code));
+  DEBUG_ASSERT_TEXT((code >= 0) && (code < 3), "Invalid mouse key code: {}", static_cast<int>(code));
   return ((aMouseState[code] == KEY_RELEASED) || (aMouseState[code] == KEY_DOUBLECLICK) || (aMouseState[code] == KEY_PRESSRELEASE));
 }
 
 /* Check for a mouse drag, return the drag start coords if dragging */
 BOOL mouseDrag(MOUSE_KEY_CODE code, UDWORD* px, UDWORD* py)
 {
-  ASSERT_TEXT((code >= 0) && (code < 3), "Invalid mouse key code: {}", static_cast<int>(code));
+  DEBUG_ASSERT_TEXT((code >= 0) && (code < 3), "Invalid mouse key code: {}", static_cast<int>(code));
   if (aMouseState[code] == KEY_DRAG)
   {
     *px = dragX;

@@ -186,7 +186,7 @@ static void mixer_SetVolume(DWORD dwControlID, DWORD iVolRange, SDWORD iVol)
 
   if (bMixerOK == TRUE)
   {
-    ASSERT_TEXT(iVol>=0 && iVol<=AUDIO_VOL_MAX, "mixer_SetVolume: vol {} out of range 0->100", iVol );
+    DEBUG_ASSERT_TEXT(iVol>=0 && iVol<=AUDIO_VOL_MAX, "mixer_SetVolume: vol {} out of range 0->100", iVol);
 
     /* scale audio 0->AUDIO_VOL_MAX-1 */
     mxCntrlDetUnSigned.dwValue = iVol * iVolRange / AUDIO_VOL_MAX;

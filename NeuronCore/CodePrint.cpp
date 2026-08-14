@@ -48,7 +48,7 @@ void cpPrintType(INTERP_TYPE type)
         }
       }
     }
-    ASSERT_TEXT(FALSE, "cpPrintType: Unknown type");
+    DEBUG_ASSERT_TEXT(FALSE, "cpPrintType: Unknown type");
     break;
   }
 
@@ -97,7 +97,7 @@ void cpPrintVal(INTERP_VAL* psVal)
         }
       }
     }
-    ASSERT_TEXT(FALSE, "cpPrintVal: Unknown value type");
+    DEBUG_ASSERT_TEXT(FALSE, "cpPrintVal: Unknown value type");
     break;
   }
 }
@@ -144,7 +144,7 @@ void cpPrintPackedVal(UDWORD* ip)
         }
       }
     }
-    ASSERT_TEXT(FALSE, "cpPrintVal: Unknown value type");
+    DEBUG_ASSERT_TEXT(FALSE, "cpPrintVal: Unknown value type");
     break;
   }
 }
@@ -182,7 +182,7 @@ void cpPrintMathsOp(UDWORD opcode)
     break;
   case OP_LESS: Neuron::DebugTrace("LESS        ");
     break;
-  default: ASSERT_TEXT(FALSE, "cpPrintMathsOp: unknown operator");
+  default: DEBUG_ASSERT_TEXT(FALSE, "cpPrintMathsOp: unknown operator");
     break;
   }
 }
@@ -468,7 +468,7 @@ void cpPrintProgram(SCRIPT_CODE* psProg)
     case OP_PAUSE: Neuron::DebugTrace("PAUSE       {}\n", data);
       ip += aOpSize[opcode];
       break;
-    default: ASSERT_TEXT(FALSE,"cpPrintProgram: Unknown opcode: {:x}", *ip);
+    default: DEBUG_ASSERT_TEXT(FALSE,"cpPrintProgram: Unknown opcode: {:x}", *ip);
       break;
     }
 

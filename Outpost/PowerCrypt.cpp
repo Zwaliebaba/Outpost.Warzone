@@ -39,7 +39,7 @@ void pwrcSetPlayerCryptPower(UDWORD player, UDWORD power)
 {
   UBYTE* pPower;
 
-  ASSERT_TEXT(player < MAX_PLAYERS, "pwrcSetPlayerCryptPower: invalid player number");
+  DEBUG_ASSERT_TEXT(player < MAX_PLAYERS, "pwrcSetPlayerCryptPower: invalid player number");
 
   asPCrypt[player].pad1 = static_cast<UWORD>(rand());
   asPCrypt[player].key = static_cast<UDWORD>(rand());
@@ -62,7 +62,7 @@ void pwrcSetPlayerCryptPower(UDWORD player, UDWORD power)
 // get the current power value
 UDWORD pwrcGetPlayerCryptPower(UDWORD player)
 {
-  ASSERT_TEXT(player < MAX_PLAYERS, "pwrcGetPlayerCryptPower: invalid player number");
+  DEBUG_ASSERT_TEXT(player < MAX_PLAYERS, "pwrcGetPlayerCryptPower: invalid player number");
 
   return 0;
 }
@@ -74,7 +74,7 @@ BOOL pwrcCheckPlayerCryptPower(UDWORD player, UDWORD power)
   BOOL match;
   UWORD res;
 
-  ASSERT_TEXT(player < MAX_PLAYERS, "pwrcCheckPlayerCryptPower: invalid player number");
+  DEBUG_ASSERT_TEXT(player < MAX_PLAYERS, "pwrcCheckPlayerCryptPower: invalid player number");
 
   if (!bMultiPlayer || !NetPlay.bComms || (player != selectedPlayer))
     return TRUE;

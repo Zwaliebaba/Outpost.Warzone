@@ -140,7 +140,7 @@ void queue_Enqueue(QUEUE* pQueue, void* psElement, int iPriority)
   psNode = pQueue->psNodeQHead;
   while (psNode != nullptr)
   {
-    ASSERT_TEXT(psNode->psElement != psElement, "duplicate element found\n");
+    DEBUG_ASSERT_TEXT(psNode->psElement != psElement, "duplicate element found\n");
 
     psNode = psNode->psNext;
   }
@@ -230,7 +230,7 @@ void* queue_Dequeue(QUEUE* pQueue)
     pQueue->iFreeNodes++;
     pQueue->iQueueNodes--;
 
-    ASSERT_TEXT(pQueue->iQueueNodes >= 0, "queue_Dequeue: queue nodes < 0");
+    DEBUG_ASSERT_TEXT(pQueue->iQueueNodes >= 0, "queue_Dequeue: queue nodes < 0");
   }
 
   return psElement;
@@ -371,7 +371,7 @@ BOOL queue_RemoveNode(QUEUE* pQueue, QUEUE_NODE* psNode)
   pQueue->iFreeNodes++;
   pQueue->iQueueNodes--;
 
-  ASSERT_TEXT(pQueue->iQueueNodes >= 0, "queue_RemoveNode: queue nodes < 0");
+  DEBUG_ASSERT_TEXT(pQueue->iQueueNodes >= 0, "queue_RemoveNode: queue nodes < 0");
 
   return TRUE;
 }

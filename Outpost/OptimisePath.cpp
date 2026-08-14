@@ -65,7 +65,7 @@ UDWORD getBisectingDirectionAway(UDWORD angleA, UDWORD angleB)
 
   /* And make it point the other way - into larger arc */
   retVal = (retVal + 180) % 360;
-  ASSERT_TEXT(retVal<360,"Weird angle found");
+  DEBUG_ASSERT_TEXT(retVal<360, "Weird angle found");
 
   return (retVal);
 }
@@ -82,7 +82,7 @@ UDWORD getStepIndexFromAngle(UDWORD angle)
 
   accA = MAKEFRACT(angle);
 
-  ASSERT_TEXT(angle<360,"Angle's too big!!!");
+  DEBUG_ASSERT_TEXT(angle<360, "Angle's too big!!!");
 
   if (accA <= 22.5 OR accA > 337.0)
     retVal = 0;

@@ -151,7 +151,7 @@ BOOL strresLoadFixedID(STR_RES* psRes, STR_ID* psID, UDWORD numID)
 
   for (i = 0; i < numID; i++)
   {
-    ASSERT_TEXT(psID->id == psRes->nextID, "strresLoadFixedID: id out of sequence");
+    DEBUG_ASSERT_TEXT(psID->id == psRes->nextID, "strresLoadFixedID: id out of sequence");
 
     // Store the ID string
     if (!TREAP_ADD(psRes->psIDTreap, (UDWORD)psID->pIDStr, psID))
@@ -281,12 +281,12 @@ STRING* strresGetString(STR_RES* psRes, UDWORD id)
 
   if (!psBlock)
   {
-    ASSERT_TEXT(FALSE, "strresGetString: String not found");
+    DEBUG_ASSERT_TEXT(FALSE, "strresGetString: String not found");
     // Return the default string
     return psRes->psStrings->apStrings[0];
   }
 
-  ASSERT_TEXT(psBlock->apStrings[id - psBlock->idStart] != NULL, "strresGetString: String not found");
+  DEBUG_ASSERT_TEXT(psBlock->apStrings[id - psBlock->idStart] != NULL, "strresGetString: String not found");
 
 #ifdef DEBUG
   psBlock->aUsage[id - psBlock->idStart] += 1;

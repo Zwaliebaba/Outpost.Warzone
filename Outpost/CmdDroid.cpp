@@ -196,8 +196,8 @@ void cmdSelectSubDroids(DROID* psDroid)
 // set the number of command droids for a player
 void cmdDroidSetAvailable(SDWORD player, SDWORD num)
 {
-  ASSERT_TEXT((player >= 0) && (player < MAX_PLAYERS), "cmdUnitSetAvailable: invalid player number");
-  ASSERT_TEXT((num > 0) && (num < MAX_CMDDROIDS), "cmdUnitSetAvailable: invalid player number");
+  DEBUG_ASSERT_TEXT((player >= 0) && (player < MAX_PLAYERS), "cmdUnitSetAvailable: invalid player number");
+  DEBUG_ASSERT_TEXT((num > 0) && (num < MAX_CMDDROIDS), "cmdUnitSetAvailable: invalid player number");
 
   UNUSEDPARAMETER(player);
   UNUSEDPARAMETER(num);

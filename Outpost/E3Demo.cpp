@@ -334,7 +334,7 @@ void demoProcessTilesIn(void)
       if (TILE_HAS_STRUCTURE(psTile))
       {
         psStructure = getTileStructure(i, j);
-        ASSERT_TEXT(psStructure != NULL, "demoProcessTilesIn: no structure at tile {} {}\n", i, j);
+        DEBUG_ASSERT_TEXT(psStructure != NULL, "demoProcessTilesIn: no structure at tile {} {}\n", i, j);
         if (psStructure)
         {
           pStructureType = psStructure->pStructureType;

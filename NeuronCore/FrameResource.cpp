@@ -57,7 +57,7 @@ VOID resDoResLoadCallback()
 /* Initialise the resource module */
 BOOL resInitialise(void)
 {
-  ASSERT_TEXT(psResTypes == NULL, "resInitialise: resource module hasn't been shut down??");
+  DEBUG_ASSERT_TEXT(psResTypes == NULL, "resInitialise: resource module hasn't been shut down??");
   psResTypes = nullptr;
 
   resBlockID = 0;
@@ -175,7 +175,7 @@ static BOOL resAlloc(STRING* pType, RES_TYPE** ppsFunc)
   // Check for a duplicate type
   for (psT = psResTypes; psT; psT = psT->psNext)
   {
-    ASSERT_TEXT(strcmp(psT->aType, pType) != 0, "resAlloc: Duplicate function for type: {}", pType);
+    DEBUG_ASSERT_TEXT(strcmp(psT->aType, pType) != 0, "resAlloc: Duplicate function for type: {}", pType);
   }
 #endif
 
@@ -577,7 +577,7 @@ void* resGetDataFromHash(STRING* pType, UDWORD HashedID)
   }
   if (psT == nullptr)
   {
-    ASSERT_TEXT(FALSE, "resGetData: Unknown type: {}", pType);
+    DEBUG_ASSERT_TEXT(FALSE, "resGetData: Unknown type: {}", pType);
     return nullptr;
   }
 
@@ -594,7 +594,7 @@ void* resGetDataFromHash(STRING* pType, UDWORD HashedID)
 
   if (psRes == nullptr)
   {
-    ASSERT_TEXT(FALSE, "resGetDataFromHash: Unknown ID:");
+    DEBUG_ASSERT_TEXT(FALSE, "resGetDataFromHash: Unknown ID:");
     return nullptr;
   }
 
@@ -622,7 +622,7 @@ void* resGetData(STRING* pType, STRING* pID)
   }
   if (psT == nullptr)
   {
-    ASSERT_TEXT(FALSE, "resGetData: Unknown type: {}", pType);
+    DEBUG_ASSERT_TEXT(FALSE, "resGetData: Unknown type: {}", pType);
     return nullptr;
   }
 
@@ -640,7 +640,7 @@ void* resGetData(STRING* pType, STRING* pID)
 
   if (psRes == nullptr)
   {
-    ASSERT_TEXT(FALSE, "resGetData: Unknown ID: {}", pID);
+    DEBUG_ASSERT_TEXT(FALSE, "resGetData: Unknown ID: {}", pID);
     return nullptr;
   }
 
@@ -667,7 +667,7 @@ BOOL resGetHashfromData(STRING* pType, void* pData, UDWORD* pHash)
 
   if (psT == nullptr)
   {
-    ASSERT_TEXT(FALSE, "resGetHashfromData: Unknown type: {:x}", HashedType);
+    DEBUG_ASSERT_TEXT(FALSE, "resGetHashfromData: Unknown type: {:x}", HashedType);
     return FALSE;
   }
 
@@ -680,7 +680,7 @@ BOOL resGetHashfromData(STRING* pType, void* pData, UDWORD* pHash)
 
   if (psRes == nullptr)
   {
-    ASSERT_TEXT(FALSE, "resGetHashfromData:: couldn't find data for type {:x}\n", HashedType);
+    DEBUG_ASSERT_TEXT(FALSE, "resGetHashfromData:: couldn't find data for type {:x}\n", HashedType);
     return FALSE;
   }
 
@@ -707,7 +707,7 @@ RES_TYPE* psT; RES_DATA* psRes;
 	}
 	if (psT== NULL)
 	{
-		ASSERT_TEXT(FALSE, "resGetData: Unknown type: {}", pType);
+		DEBUG_ASSERT_TEXT(FALSE, "resGetData: Unknown type: {}", pType);
 		return FALSE;
 	}
 
@@ -721,7 +721,7 @@ RES_TYPE* psT; RES_DATA* psRes;
 
 	if (psRes== NULL)
 	{
-		ASSERT_TEXT(FALSE, "resGetIDfromData: couldn't find data for type {}\n", pType);
+		DEBUG_ASSERT_TEXT(FALSE, "resGetIDfromData: couldn't find data for type {}\n", pType);
 		return FALSE;
 	}
 
@@ -787,7 +787,7 @@ void resReleaseAll(void)
       if (psT->release != nullptr)
         psT->release(resGetResDataPointer(psRes));
       else
-        ASSERT_TEXT(FALSE,"resReleaseAll: NULL release function");
+        DEBUG_ASSERT_TEXT(FALSE, "resReleaseAll: NULL release function");
       psNRes = psRes->psNext;
       delete[] psRes;
       psRes = nullptr;
@@ -811,7 +811,7 @@ void resReleaseBlockData(SDWORD blockID)
     psPRes = nullptr;
     for (psRes = psT->psRes; psRes; psRes = psNRes)
     {
-      ASSERT_TEXT(psRes != NULL,"resReleaseBlockData: null pointer passed into loop");
+      DEBUG_ASSERT_TEXT(psRes != NULL, "resReleaseBlockData: null pointer passed into loop");
 
       if (resGetResBlockID(psRes) == blockID)
       {
@@ -822,7 +822,7 @@ void resReleaseBlockData(SDWORD blockID)
         if (psT->release != nullptr)
           psT->release(resGetResDataPointer(psRes));
         else
-          ASSERT_TEXT(FALSE,"resReleaseAllData: NULL release function");
+          DEBUG_ASSERT_TEXT(FALSE, "resReleaseAllData: NULL release function");
 
         psNRes = psRes->psNext;
         delete[] psRes;
@@ -838,10 +838,10 @@ void resReleaseBlockData(SDWORD blockID)
         psPRes = psRes;
         psNRes = psRes->psNext;
       }
-      ASSERT_TEXT(psNRes != (RES_DATA *)0xdddddddd,"resReleaseBlockData: next data (next pointer) already freed");
+      DEBUG_ASSERT_TEXT(psNRes != (RES_DATA *)0xdddddddd, "resReleaseBlockData: next data (next pointer) already freed");
     }
     psNT = resNextType(psT);
-    ASSERT_TEXT(psNT != (RES_TYPE *)0xdddddddd,"resReleaseBlockData: next data (next pointer) already freed");
+    DEBUG_ASSERT_TEXT(psNT != (RES_TYPE *)0xdddddddd, "resReleaseBlockData: next data (next pointer) already freed");
   }
 }
 
@@ -863,7 +863,7 @@ void resReleaseAllData(void)
       if (psT->release != nullptr)
         psT->release(resGetResDataPointer(psRes));
       else
-        ASSERT_TEXT(FALSE,"resReleaseAllData: NULL release function");
+        DEBUG_ASSERT_TEXT(FALSE, "resReleaseAllData: NULL release function");
 
       psNRes = psRes->psNext;
       delete[] psRes;

@@ -206,8 +206,7 @@ void* hashTable_FindElement(HASHTABLE* psTable, int iKey1, int iKey2)
   udwHashIndex = hashTable_GetHashKey(psTable, iKey1, iKey2);
 
   /* check hash index within bounds */
-  ASSERT_TEXT(udwHashIndex>=0 && udwHashIndex<psTable->udwTableSize,
-    "hashTable_GetElement: hash value {} too large for table size {}\n", udwHashIndex, psTable->udwTableSize);
+  DEBUG_ASSERT_TEXT(udwHashIndex>=0 && udwHashIndex<psTable->udwTableSize, "hashTable_GetElement: hash value {} too large for table size {}\n", udwHashIndex, psTable->udwTableSize);
 
   psNode = psTable->ppsNode[udwHashIndex];
 

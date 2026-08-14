@@ -212,7 +212,7 @@ void BeginSceneD3D(void)
   {
     if (!bFirstError)
     {
-      ASSERT_TEXT(bFirstError,"BeginSceneD3D: BeginScene failed\n{}", DDErrorToString(hResult) );
+      DEBUG_ASSERT_TEXT(bFirstError, "BeginSceneD3D: BeginScene failed\n{}", DDErrorToString(hResult));
       bFirstError = TRUE;
     }
   }
@@ -228,7 +228,7 @@ void EndSceneD3D(void)
   hResult = g_sD3DGlob.psD3DDevice3->lpVtbl->EndScene(g_sD3DGlob.psD3DDevice3);
   if (hResult != D3D_OK)
   {
-    ASSERT_TEXT(bFirstError,"EndSceneD3D: EndScene failed\n{}",DDErrorToString(hResult));
+    DEBUG_ASSERT_TEXT(bFirstError, "EndSceneD3D: EndScene failed\n{}",DDErrorToString(hResult));
     bFirstError = TRUE;
   }
 }
@@ -268,7 +268,7 @@ void D3DDrawPoly(int nVerts, D3DTLVERTEX* psVert)
 
   if (hResult != D3D_OK)
   {
-    ASSERT_TEXT(bFirstError,"DrawTriD3D: DrawPrimitive failed\n{}",DDErrorToString(hResult));
+    DEBUG_ASSERT_TEXT(bFirstError, "DrawTriD3D: DrawPrimitive failed\n{}",DDErrorToString(hResult));
     bFirstError = TRUE;
   }
 }
@@ -808,7 +808,7 @@ DWORD BitsPerPixelToBitDepth(int iBpp)
   }
 
   /* assert if got to here */
-  ASSERT_TEXT(bValFound == TRUE, "BitsPerPixelToBitDepth: Unknown bitsperpixel\n");
+  DEBUG_ASSERT_TEXT(bValFound == TRUE, "BitsPerPixelToBitDepth: Unknown bitsperpixel\n");
 
   return 0;
 }
@@ -1240,7 +1240,7 @@ LPDDPIXELFORMAT d3d_GetCurTexSurfDesc(void)
 {
   if ((g_sD3DGlob.uwNumTextureFormats == 0) || (g_sD3DGlob.uwCurrTextureFormat > g_sD3DGlob.uwNumTextureFormats))
   {
-    ASSERT_TEXT(FALSE,"d3d_GetCurTexSurfDesc, Surface not initialised");
+    DEBUG_ASSERT_TEXT(FALSE, "d3d_GetCurTexSurfDesc, Surface not initialised");
     return nullptr;
   }
   return &g_sD3DGlob.TextureFormat[g_sD3DGlob.uwCurrTextureFormat].ddsd;
@@ -1248,7 +1248,7 @@ LPDDPIXELFORMAT d3d_GetCurTexSurfDesc(void)
 
 LPDIRECT3DDEVICE3 d3d_GetpsD3DDevice3(void)
 {
-  ASSERT_TEXT(g_sD3DGlob.psD3DDevice3 != NULL,"dx6_GetpsD3DDevice3(), Device not set.");
+  DEBUG_ASSERT_TEXT(g_sD3DGlob.psD3DDevice3 != NULL, "dx6_GetpsD3DDevice3(), Device not set.");
   return g_sD3DGlob.psD3DDevice3;
 }
 

@@ -196,7 +196,7 @@ void gridRemoveObject(BASE_OBJECT* psObj)
           {
             if (psCurr->apsObjects[i] == psObj)
             {
-              ASSERT_TEXT(FALSE,"gridRemoveObject: grid out of sync");
+              DEBUG_ASSERT_TEXT(FALSE, "gridRemoveObject: grid out of sync");
               psCurr->apsObjects[i] = nullptr;
             }
           }
@@ -212,7 +212,7 @@ void gridStartIterate(SDWORD x, SDWORD y)
 {
   //	ASSERT(( (x >= 0) && (x < GRID_WIDTH*GRID_UNITS) &&
   //			 (y >= 0) && (y < GRID_WIDTH*GRID_UNITS),
-  ASSERT_TEXT((x >= 0) && (x < gridWidth*GRID_UNITS) && (y >= 0) && (y < gridHeight*GRID_UNITS), "gridStartIterate: coords off grid");
+  DEBUG_ASSERT_TEXT((x >= 0) && (x < gridWidth*GRID_UNITS) && (y >= 0) && (y < gridHeight*GRID_UNITS), "gridStartIterate: coords off grid");
 
   x = x / GRID_UNITS;
   y = y / GRID_UNITS;

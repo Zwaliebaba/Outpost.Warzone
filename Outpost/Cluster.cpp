@@ -51,7 +51,7 @@ void clustInitialise(void)
   STRUCTURE* psStruct;
   SDWORD player;
 
-  ASSERT_TEXT(CLUSTER_MAX <= UBYTE_MAX, "clustInitialse: invalid CLUSTER_MAX, this is a BUILD error");
+  DEBUG_ASSERT_TEXT(CLUSTER_MAX <= UBYTE_MAX, "clustInitialse: invalid CLUSTER_MAX, this is a BUILD error");
 
   memset(aClusterMap, 0, sizeof(UBYTE) * CLUSTER_MAX);
   memset(aClusterEmpty, 0, sizeof(UBYTE) * CLUSTER_MAX);
@@ -95,7 +95,7 @@ void clustValidateUsage()
       {
         if (psDroid->cluster == cluster)
         {
-          ASSERT_TEXT((found == MAX_PLAYERS) || (droidUsage != 0), "clustValidateUsage: cluster has mixed players");
+          DEBUG_ASSERT_TEXT((found == MAX_PLAYERS) || (droidUsage != 0), "clustValidateUsage: cluster has mixed players");
 
           found = player;
           droidUsage += 1;
@@ -105,7 +105,7 @@ void clustValidateUsage()
       {
         if (psStruct->cluster == cluster)
         {
-          ASSERT_TEXT((found == MAX_PLAYERS) || (structUsage != 0), "clustValidateUsage: cluster has mixed players");
+          DEBUG_ASSERT_TEXT((found == MAX_PLAYERS) || (structUsage != 0), "clustValidateUsage: cluster has mixed players");
 
           found = player;
           structUsage += 1;
@@ -114,9 +114,9 @@ void clustValidateUsage()
 
       if (found == player)
       {
-        ASSERT_TEXT((droidUsage == 0) || (structUsage == 0), "clustValidateUsage: cluster contains both droids and structs");
+        DEBUG_ASSERT_TEXT((droidUsage == 0) || (structUsage == 0), "clustValidateUsage: cluster contains both droids and structs");
 
-        ASSERT_TEXT(aClusterUsage[cluster] == droidUsage + structUsage, "clustValidateUsage: invalid cluster usage");
+        DEBUG_ASSERT_TEXT(aClusterUsage[cluster] == droidUsage + structUsage, "clustValidateUsage: invalid cluster usage");
       }
     }
   }
@@ -158,12 +158,12 @@ void clustRemoveObject(BASE_OBJECT* psObj)
 {
   SDWORD i;
 
-  ASSERT_TEXT(psObj->cluster < CLUSTER_MAX, "clustRemoveObject: invalid cluster number");
+  DEBUG_ASSERT_TEXT(psObj->cluster < CLUSTER_MAX, "clustRemoveObject: invalid cluster number");
 
   // update the usage counter
   if (psObj->cluster != 0)
   {
-    ASSERT_TEXT(aClusterUsage[psObj->cluster] > 0, "clustRemoveObject: usage array out of sync");
+    DEBUG_ASSERT_TEXT(aClusterUsage[psObj->cluster] > 0, "clustRemoveObject: usage array out of sync");
     aClusterUsage[psObj->cluster] -= 1;
 
     if (aClusterUsage[psObj->cluster] == 0)
@@ -404,7 +404,7 @@ void clustUpdateObject(BASE_OBJECT* psObj)
   {
     for (i = 0; i < CLUSTER_MAX; i++)
     {
-      ASSERT_TEXT((aClusterMap[i] == 0) || (aClusterUsage[ aClusterMap[i] ] != 0), "clustUpdateObject: cluster map out of sync" );
+      DEBUG_ASSERT_TEXT((aClusterMap[i] == 0) || (aClusterUsage[ aClusterMap[i] ] != 0), "clustUpdateObject: cluster map out of sync");
 
       if (aClusterMap[i] == oldCluster)
       {
@@ -447,7 +447,7 @@ void clustUpdateObject(BASE_OBJECT* psObj)
   case OBJ_STRUCTURE:
     aClusterInfo[newCluster] |= CLUSTER_STRUCTURE;
     break;
-  default: ASSERT_TEXT(FALSE,"clustUpdateObject: invalid object type");
+  default: DEBUG_ASSERT_TEXT(FALSE, "clustUpdateObject: invalid object type");
     break;
   }
 
@@ -459,7 +459,7 @@ void clustUpdateObject(BASE_OBJECT* psObj)
   case OBJ_STRUCTURE:
     clustAddStruct((STRUCTURE*)psObj, newCluster);
     break;
-  default: ASSERT_TEXT(FALSE, "clustUpdateObject: invalid object type");
+  default: DEBUG_ASSERT_TEXT(FALSE, "clustUpdateObject: invalid object type");
     break;
   }
 }
@@ -484,7 +484,7 @@ SDWORD clustGetClusterID(BASE_OBJECT* psObj)
 // get the actual cluster number from a cluster ID
 SDWORD clustGetClusterFromID(SDWORD clusterID)
 {
-  ASSERT_TEXT((clusterID >= 0) && (clusterID < CLUSTER_MAX), "clustGetClusterFromID: invalid cluster ID");
+  DEBUG_ASSERT_TEXT((clusterID >= 0) && (clusterID < CLUSTER_MAX), "clustGetClusterFromID: invalid cluster ID");
 
   return aClusterMap[clusterID];
 }
@@ -546,7 +546,7 @@ void clustGetCenter(BASE_OBJECT* psObj, SDWORD* px, SDWORD* py)
   case OBJ_STRUCTURE:
     psList = (BASE_OBJECT*)apsStructLists[psObj->player];
     break;
-  default: ASSERT_TEXT(FALSE,"clustGetCenter: invalid object type");
+  default: DEBUG_ASSERT_TEXT(FALSE, "clustGetCenter: invalid object type");
     psList = nullptr;
     break;
   }
@@ -603,7 +603,7 @@ void clustObjectSeen(BASE_OBJECT* psObj, BASE_OBJECT* psViewer)
       case OBJ_FEATURE:
         eventFireCallbackTrigger(CALL_FEATURE_SEEN);
         break;
-      default: ASSERT_TEXT(FALSE, "clustObjectSeen: invalid object type");
+      default: DEBUG_ASSERT_TEXT(FALSE, "clustObjectSeen: invalid object type");
         break;
       }
 
@@ -634,7 +634,7 @@ void clustObjectAttacked(BASE_OBJECT* psObj)
       eventFireCallbackTrigger(CALL_STRUCT_ATTACKED);
       psLastStructHit = nullptr;
       break;
-    default: ASSERT_TEXT(FALSE, "clustObjectAttacked: invalid object type");
+    default: DEBUG_ASSERT_TEXT(FALSE, "clustObjectAttacked: invalid object type");
       break;
     }
 
