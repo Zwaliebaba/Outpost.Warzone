@@ -14,21 +14,18 @@
 
 #include "Frame.h"
 
-
 /***************************************************************************/
 /*
  *	Global Definitions
  */
 /***************************************************************************/
-typedef	enum	CLEAR_MODE
-				{
-					CLEAR_OFF,
-					CLEAR_OFF_AND_NO_BUFFER_DOWNLOAD,
-					CLEAR_BLACK,
-					CLEAR_FOG,
-				}
-				CLEAR_MODE;
-
+using CLEAR_MODE = enum CLEAR_MODE
+{
+  CLEAR_OFF,
+  CLEAR_OFF_AND_NO_BUFFER_DOWNLOAD,
+  CLEAR_BLACK,
+  CLEAR_FOG,
+};
 
 /***************************************************************************/
 /*
@@ -36,7 +33,7 @@ typedef	enum	CLEAR_MODE
  */
 /***************************************************************************/
 
-extern int32	_iVPRIM_DIVTABLE[];
+extern int32 _iVPRIM_DIVTABLE[];
 
 /***************************************************************************/
 /*
@@ -51,9 +48,8 @@ extern void pie_GlobalRenderBegin(void);
 extern void pie_GlobalRenderEnd(BOOL bForceClearToBlack);
 extern void pie_LocalRenderBegin(void);
 extern void pie_LocalRenderEnd(void);
-extern UDWORD	pie_GetResScalingFactor( void );
-extern void	pie_SetDitherStatus( BOOL val );
-extern BOOL	pie_GetDitherStatus( void );
-
+extern UDWORD pie_GetResScalingFactor(void);
+extern void pie_SetDitherStatus(BOOL val);
+extern BOOL pie_GetDitherStatus(void);
 
 #endif // 

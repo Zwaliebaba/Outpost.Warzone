@@ -18,18 +18,17 @@
 #define FREE_BYTE			(0xdd)
 
 // memory block header for the treap code
-typedef struct _mem_node
+using MEM_NODE = struct _mem_node
 {
-	TREAP_NODE_BASE;		// The treap data to store the node
-	TREAP_NODE_DEBUG;		// The debug info for the node (file, line).
-	UDWORD		size;		// The memory block size
-} MEM_NODE;
+  TREAP_NODE_BASE; // The treap data to store the node
+  TREAP_NODE_DEBUG; // The debug info for the node (file, line).
+  UDWORD size; // The memory block size
+};
 
 /* compare two memory blocks */
-extern SDWORD	memBlockCmp(UDWORD	key1, UDWORD key2);
+extern SDWORD memBlockCmp(UDWORD key1, UDWORD key2);
 
 /* Recursive function to print out the list of memory blocks */
-extern SDWORD memRecReport(MEM_NODE *psRoot);
+extern SDWORD memRecReport(MEM_NODE* psRoot);
 
 #endif
-

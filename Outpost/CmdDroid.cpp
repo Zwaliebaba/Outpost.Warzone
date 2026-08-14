@@ -17,252 +17,191 @@
 extern UDWORD selectedPlayer;
 
 // the current command droid target designator for IDF structures
-DROID	*apsCmdDesignator[MAX_PLAYERS];
+DROID* apsCmdDesignator[MAX_PLAYERS];
 
 // whether experience should be boosted due to a multi game
 BOOL bMultiExpBoost = FALSE;
 
-
 // Initialise the command droids
 BOOL cmdDroidInit(void)
 {
-	memset(apsCmdDesignator, 0, sizeof(DROID *)*MAX_PLAYERS);
+  memset(apsCmdDesignator, 0, sizeof(DROID*) * MAX_PLAYERS);
 
-	return TRUE;
+  return TRUE;
 }
-
 
 // ShutDown the command droids
-void cmdDroidShutDown(void)
-{
-}
-
+void cmdDroidShutDown(void) {}
 
 // Make new command droids available
-void cmdDroidAvailable(BRAIN_STATS *psBrainStats, SDWORD player)
+void cmdDroidAvailable(BRAIN_STATS* psBrainStats, SDWORD player)
 {
-	UNUSEDPARAMETER(psBrainStats);
-	UNUSEDPARAMETER(player);
-
+  UNUSEDPARAMETER(psBrainStats);
+  UNUSEDPARAMETER(player);
 }
-
 
 // update the command droids
 void cmdDroidUpdate(void)
 {
-	SDWORD	i;
+  SDWORD i;
 
-	for(i=0; i<MAX_PLAYERS; i++)
-	{
-		if (apsCmdDesignator[i] && apsCmdDesignator[i]->died)
-		{
-			apsCmdDesignator[i] = NULL;
-		}
-	}
+  for (i = 0; i < MAX_PLAYERS; i++)
+  {
+    if (apsCmdDesignator[i] && apsCmdDesignator[i]->died)
+      apsCmdDesignator[i] = nullptr;
+  }
 }
 
-
 // add a droid to a command group
-void cmdDroidAddDroid(DROID *psCommander, DROID *psDroid)
+void cmdDroidAddDroid(DROID* psCommander, DROID* psDroid)
 {
-	DROID_GROUP	*psGroup;
+  DROID_GROUP* psGroup;
 
-	if (psCommander->psGroup == NULL)
-	{
-		if (!grpCreate(&psGroup))
-		{
-			return;
-		}
-		grpJoin(psGroup, psCommander);
-		psDroid->group = UBYTE_MAX;
-	}
+  if (psCommander->psGroup == nullptr)
+  {
+    if (!grpCreate(&psGroup))
+      return;
+    grpJoin(psGroup, psCommander);
+    psDroid->group = UBYTE_MAX;
+  }
 
-	if (grpNumMembers(psCommander->psGroup) < cmdDroidMaxGroup(psCommander))
-	{
-		grpJoin(psCommander->psGroup, psDroid);
-		psDroid->group = UBYTE_MAX;
+  if (grpNumMembers(psCommander->psGroup) < cmdDroidMaxGroup(psCommander))
+  {
+    grpJoin(psCommander->psGroup, psDroid);
+    psDroid->group = UBYTE_MAX;
 
-		// set the secondary states for the unit
-		secondarySetState(psDroid, DSO_ATTACK_RANGE, psCommander->secondaryOrder & DSS_ARANGE_MASK);
-		secondarySetState(psDroid, DSO_REPAIR_LEVEL, psCommander->secondaryOrder & DSS_REPLEV_MASK);
-		secondarySetState(psDroid, DSO_ATTACK_LEVEL, psCommander->secondaryOrder & DSS_ALEV_MASK);
-		secondarySetState(psDroid, DSO_HALTTYPE, psCommander->secondaryOrder & DSS_HALT_MASK);
+    // set the secondary states for the unit
+    secondarySetState(psDroid, DSO_ATTACK_RANGE, psCommander->secondaryOrder & DSS_ARANGE_MASK);
+    secondarySetState(psDroid, DSO_REPAIR_LEVEL, psCommander->secondaryOrder & DSS_REPLEV_MASK);
+    secondarySetState(psDroid, DSO_ATTACK_LEVEL, psCommander->secondaryOrder & DSS_ALEV_MASK);
+    secondarySetState(psDroid, DSO_HALTTYPE, psCommander->secondaryOrder & DSS_HALT_MASK);
 
-		orderDroidObj(psDroid, DORDER_GUARD, (BASE_OBJECT *)psCommander);
-	}
+    orderDroidObj(psDroid, DORDER_GUARD, (BASE_OBJECT*)psCommander);
+  }
 
-//	if(bMultiPlayer && myResponsibility(psDroid->player) )
+  //	if(bMultiPlayer && myResponsibility(psDroid->player) )
 }
 
 // return the current target designator for a player
-DROID *cmdDroidGetDesignator(UDWORD player)
+DROID* cmdDroidGetDesignator(UDWORD player) { return apsCmdDesignator[player]; }
+
+// set the current target designator for a player
+void cmdDroidSetDesignator(DROID* psDroid)
 {
-	return apsCmdDesignator[player];
+  if (psDroid->droidType != DROID_COMMAND)
+    return;
+
+  apsCmdDesignator[psDroid->player] = psDroid;
 }
 
 // set the current target designator for a player
-void cmdDroidSetDesignator(DROID *psDroid)
-{
-	if (psDroid->droidType != DROID_COMMAND)
-	{
-		return;
-	}
-
-	apsCmdDesignator[psDroid->player] = psDroid;
-}
-
-// set the current target designator for a player
-void cmdDroidClearDesignator(UDWORD player)
-{
-	apsCmdDesignator[player] = NULL;
-}
+void cmdDroidClearDesignator(UDWORD player) { apsCmdDesignator[player] = nullptr; }
 
 // get the index of the command droid
-SDWORD cmdDroidGetIndex(DROID *psCommander)
+SDWORD cmdDroidGetIndex(DROID* psCommander)
 {
-	SDWORD	index = 1;
-	DROID	*psCurr;
+  SDWORD index = 1;
+  DROID* psCurr;
 
-	if (psCommander->droidType != DROID_COMMAND)
-	{
-		return 0;
-	}
+  if (psCommander->droidType != DROID_COMMAND)
+    return 0;
 
-	for(psCurr=apsDroidLists[psCommander->player]; psCurr; psCurr=psCurr->psNext)
-	{
-		if (psCurr->droidType == DROID_COMMAND &&
-			psCurr->id < psCommander->id)
-		{
-			index += 1;
-		}
-	}
+  for (psCurr = apsDroidLists[psCommander->player]; psCurr; psCurr = psCurr->psNext)
+  {
+    if (psCurr->droidType == DROID_COMMAND && psCurr->id < psCommander->id)
+      index += 1;
+  }
 
-	return index;
+  return index;
 }
-
 
 // note that commander experience should be increased
-void cmdDroidMultiExpBoost(BOOL bDoit)
-{
-	bMultiExpBoost = bDoit;
-}
-
+void cmdDroidMultiExpBoost(BOOL bDoit) { bMultiExpBoost = bDoit; }
 
 // get the experience level of a command droid
-SDWORD cmdDroidGetLevel(DROID *psCommander)
+SDWORD cmdDroidGetLevel(DROID* psCommander)
 {
-	SDWORD	numKills = psCommander->numKills;
+  SDWORD numKills = psCommander->numKills;
 
-	// commanders do not need as much experience in multiplayer
-	if (bMultiExpBoost)
-	{
-		numKills *= 2;
-	}
+  // commanders do not need as much experience in multiplayer
+  if (bMultiExpBoost)
+    numKills *= 2;
 
-	if (numKills > 2047)
-	{
-		return 8;
-	}
-	else if (numKills > 1023)
-	{
-		return 7;
-	}
-	else if (numKills > 511)
-	{
-		return 6;
-	}
-	else if (numKills > 255)
-	{
-		return 5;
-	}
-	else if (numKills > 127)
-	{
-		return 4;
-	}
-	else if (numKills > 63)
-	{
-		return 3;
-	}
-	else if (numKills > 32)
-	{
-		return 2;
-	}
-	else if (numKills > 15)
-	{
-		return 1;
-	}
+  if (numKills > 2047)
+    return 8;
+  if (numKills > 1023)
+    return 7;
+  if (numKills > 511)
+    return 6;
+  if (numKills > 255)
+    return 5;
+  if (numKills > 127)
+    return 4;
+  if (numKills > 63)
+    return 3;
+  if (numKills > 32)
+    return 2;
+  if (numKills > 15)
+    return 1;
 
-	return 0;
+  return 0;
 }
 
 // get the maximum group size for a command droid
-SDWORD cmdDroidMaxGroup(DROID *psCommander)
-{
-	return cmdDroidGetLevel(psCommander) * 2 + 6;
-}
+SDWORD cmdDroidMaxGroup(DROID* psCommander) { return cmdDroidGetLevel(psCommander) * 2 + 6; }
 
 // update the kills of a command droid if psKiller is in a command group
-void cmdDroidUpdateKills(DROID *psKiller)
+void cmdDroidUpdateKills(DROID* psKiller)
 {
-	DROID	*psCommander;
+  DROID* psCommander;
 
-	ASSERT((PTRVALID(psKiller, sizeof(DROID)),
-		"cmdUnitUpdateKills: invalid Unit pointer"));
+  ASSERT((PTRVALID(psKiller, sizeof(DROID)), "cmdUnitUpdateKills: invalid Unit pointer"));
 
-	if ( (psKiller->psGroup != NULL) &&
-		 (psKiller->psGroup->type == GT_COMMAND) )
-	{
-		psCommander = psKiller->psGroup->psCommander;
-		psCommander->numKills += 1;
-	}
+  if ((psKiller->psGroup != nullptr) && (psKiller->psGroup->type == GT_COMMAND))
+  {
+    psCommander = psKiller->psGroup->psCommander;
+    psCommander->numKills += 1;
+  }
 }
 
 // get the level of a droids commander, if any
-SDWORD cmdGetCommanderLevel(DROID *psDroid)
+SDWORD cmdGetCommanderLevel(DROID* psDroid)
 {
-	DROID	*psCommander;
+  DROID* psCommander;
 
-	ASSERT((PTRVALID(psDroid, sizeof(DROID)),
-		"cmdGetCommanderLevel: invalid droid pointer"));
+  ASSERT((PTRVALID(psDroid, sizeof(DROID)), "cmdGetCommanderLevel: invalid droid pointer"));
 
-	if ( (psDroid->psGroup != NULL) &&
-		 (psDroid->psGroup->type == GT_COMMAND) )
-	{
-		psCommander = psDroid->psGroup->psCommander;
+  if ((psDroid->psGroup != nullptr) && (psDroid->psGroup->type == GT_COMMAND))
+  {
+    psCommander = psDroid->psGroup->psCommander;
 
-		return cmdDroidGetLevel(psCommander);
-	}
+    return cmdDroidGetLevel(psCommander);
+  }
 
-	return 0;
+  return 0;
 }
 
 // Selects all droids for a given commander 
-void	cmdSelectSubDroids(DROID *psDroid)
+void cmdSelectSubDroids(DROID* psDroid)
 {
-DROID	*psCurr;
+  DROID* psCurr;
 
-	for (psCurr = apsDroidLists[selectedPlayer]; psCurr; psCurr = psCurr->psNext)
-	{
-		if( (psCurr->psGroup!=NULL) && (psCurr->psGroup->type == GT_COMMAND) )
-		{
-			if(psCurr->psGroup->psCommander == psDroid)
-			{
-				SelectDroid(psCurr);
-			}
-		}
-	}
+  for (psCurr = apsDroidLists[selectedPlayer]; psCurr; psCurr = psCurr->psNext)
+  {
+    if ((psCurr->psGroup != nullptr) && (psCurr->psGroup->type == GT_COMMAND))
+    {
+      if (psCurr->psGroup->psCommander == psDroid)
+        SelectDroid(psCurr);
+    }
+  }
 }
 
 // set the number of command droids for a player
 void cmdDroidSetAvailable(SDWORD player, SDWORD num)
 {
-	ASSERT(((player >= 0) && (player < MAX_PLAYERS),
-		"cmdUnitSetAvailable: invalid player number"));
-	ASSERT(((num > 0) && (num < MAX_CMDDROIDS),
-		"cmdUnitSetAvailable: invalid player number"));
+  ASSERT(((player >= 0) && (player < MAX_PLAYERS), "cmdUnitSetAvailable: invalid player number"));
+  ASSERT(((num > 0) && (num < MAX_CMDDROIDS), "cmdUnitSetAvailable: invalid player number"));
 
-	UNUSEDPARAMETER(player);
-	UNUSEDPARAMETER(num);
+  UNUSEDPARAMETER(player);
+  UNUSEDPARAMETER(num);
 }
-
-

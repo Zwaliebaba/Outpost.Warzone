@@ -11,7 +11,6 @@
 #include "Frame.h"
 #include "Objects.h"
 
-
 #define	TIB_VIS0		=	0x1,	// Visibility bits - can also be accessed as a byte (as a whole).
 #define TIB_VIS1		=	0x2,
 #define TIB_VIS2		=	0x4,
@@ -22,34 +21,33 @@
 #define	TIB_VIS7		=	0x80,
 
 /* The different types of terrain as far as the game is concerned */
-typedef enum _terrain_type
+using TYPE_OF_TERRAIN = enum _terrain_type
 {
-	TER_SAND,
-	TER_SANDYBRUSH,
-	TER_BAKEDEARTH,
-	TER_GREENMUD,
-	TER_REDBRUSH,
-	TER_PINKROCK,
-	TER_ROAD,
-	TER_WATER,
-	TER_CLIFFFACE,
-	TER_RUBBLE,
-	TER_SHEETICE,
-	TER_SLUSH,
-
-	TER_MAX,
-} TYPE_OF_TERRAIN;
+  TER_SAND,
+  TER_SANDYBRUSH,
+  TER_BAKEDEARTH,
+  TER_GREENMUD,
+  TER_REDBRUSH,
+  TER_PINKROCK,
+  TER_ROAD,
+  TER_WATER,
+  TER_CLIFFFACE,
+  TER_RUBBLE,
+  TER_SHEETICE,
+  TER_SLUSH,
+  TER_MAX,
+};
 
 /* change these if you change above - maybe wrap up in enumerate? */
 #define	TERRAIN_TYPES	TER_MAX
 
-typedef enum _tts
+using TYPE_SPEEDS = enum _tts
 {
-TILE_TYPE,		
-SPEED,	   
-MARKER,		
-} TYPE_SPEEDS;
-extern UDWORD	relativeSpeeds[TERRAIN_TYPES][MARKER];
+  TILE_TYPE,
+  SPEED,
+  MARKER,
+};
+extern UDWORD relativeSpeeds[TERRAIN_TYPES][MARKER];
 
 #define TALLOBJECT_YMAX		(200)
 #define TALLOBJECT_ADJUST	(200)
@@ -77,9 +75,8 @@ extern UDWORD	relativeSpeeds[TERRAIN_TYPES][MARKER];
 #define BITS_GATEWAY	0x40		// bit set to show a gateway on the tile
 #define BITS_TALLSTRUCTURE 0x80		// bit set to show a tall structure which camera needs to avoid.
 
-
 #define BITS_STRUCTURE_MASK	0xfe
-#define BITS_FEATURE_MASK	0xfd 
+#define BITS_FEATURE_MASK	0xfd
 #define BITS_OCCUPIED_MASK	0xfc
 
 #define TILE_IS_NOTBLOCKING(x)	(x->texture & TILE_NOTBLOCKING)
@@ -120,7 +117,6 @@ extern UDWORD	relativeSpeeds[TERRAIN_TYPES][MARKER];
 /* Can player number p see tile t? */
 #define TEST_TILE_VISIBLE(p,t)	( (t->tileVisBits) & (1<<p) )
 
-
 /* Set a tile to be visible for a player */
 #define SET_TILE_VISIBLE(p,t) t->tileVisBits = (UBYTE)(t->tileVisBits | (1<<p))
 
@@ -141,50 +137,47 @@ extern UBYTE terrainTypes[MAX_TILE_TEXTURES];
 /* Information stored with each tile */
 // The name is now changed to MAPTILE to allow correct compilation on the PlayStation
 
-typedef struct _maptile
+using MAPTILE = struct _maptile
 {
+  UBYTE tileInfoBits;
+  /*#ifdef WIN32
+    UBYTE			tileExtraBits;	// We've got more than you... We've got more than you..;-)
+  #endif*/
+  UBYTE tileVisBits; // COMPRESSED - bit per player
+  /*#ifdef WIN32
+    UBYTE			tileDoorBits;   // same thing - bit per player
+  #endif*/
+  UBYTE height; // The height at the top left of the tile
+  UBYTE illumination; // How bright is this tile?
+  UWORD texture; // Which graphics texture is on this tile
+  UBYTE bMaxed;
+  UBYTE level;
 
-	UBYTE			tileInfoBits;
-/*#ifdef WIN32
-	UBYTE			tileExtraBits;	// We've got more than you... We've got more than you..;-)
-#endif*/
-	UBYTE			tileVisBits;	// COMPRESSED - bit per player
-/*#ifdef WIN32
-	UBYTE			tileDoorBits;   // same thing - bit per player
-#endif*/
-	UBYTE			height;			// The height at the top left of the tile
-	UBYTE			illumination;	// How bright is this tile?
-	UWORD			texture;		// Which graphics texture is on this tile
-	UBYTE			bMaxed;
-	UBYTE			level;
+  UBYTE inRange; // sensor range display.
 
-	UBYTE			inRange;		// sensor range display.
-
-									// This is also used to store the tile flip flags
-//  What's been removed - 46 bytes per tile so far
-//	BASE_OBJECT		*psObject;		// Any object sitting on the location (e.g. building)
-//	UBYTE			onFire;			// Is tile on fire?
-//	UBYTE			rippleIndex;	// Current value in ripple table?
-//	BOOL			tileVisible[MAX_PLAYERS]; // Which players can see the tile?
-//	BOOL			triangleFlip;	// Is the triangle flipped?
-//	TYPE_OF_TERRAIN	type;			// The terrain type for the tile
-} MAPTILE;
-
-
+  // This is also used to store the tile flip flags
+  //  What's been removed - 46 bytes per tile so far
+  //	BASE_OBJECT		*psObject;		// Any object sitting on the location (e.g. building)
+  //	UBYTE			onFire;			// Is tile on fire?
+  //	UBYTE			rippleIndex;	// Current value in ripple table?
+  //	BOOL			tileVisible[MAX_PLAYERS]; // Which players can see the tile?
+  //	BOOL			triangleFlip;	// Is the triangle flipped?
+  //	TYPE_OF_TERRAIN	type;			// The terrain type for the tile
+};
 
 /* The maximum map size */
 #define MAP_MAXWIDTH	256
 #define MAP_MAXHEIGHT	256
 #define MAP_MAXAREA		(256*256)
-#define TILE_MAX_HEIGHT		(255 * ELEVATION_SCALE) 
+#define TILE_MAX_HEIGHT		(255 * ELEVATION_SCALE)
 #define TILE_MIN_HEIGHT		  0
 
 /* The size and contents of the map */
-extern UDWORD	mapWidth, mapHeight;
-extern MAPTILE *psMapTiles;
+extern UDWORD mapWidth, mapHeight;
+extern MAPTILE* psMapTiles;
 
 /* The shift on the y coord when calculating into the map */
-extern UDWORD	mapShift;
+extern UDWORD mapShift;
 
 #ifdef NECROMANCER
 /* The number of units accross a tile */
@@ -213,10 +206,10 @@ extern BOOL mapShutdown(void);
 extern BOOL mapNew(UDWORD width, UDWORD height);
 
 /* Load the map data */
-extern BOOL mapLoad(UBYTE *pFileData, UDWORD fileSize);
+extern BOOL mapLoad(UBYTE* pFileData, UDWORD fileSize);
 
 /* Save the map data */
-extern BOOL mapSave(UBYTE **ppFileData, UDWORD *pFileSize);
+extern BOOL mapSave(UBYTE** ppFileData, UDWORD* pFileSize);
 
 /* Load map texture info */
 extern void mapLoadTexture(void);
@@ -225,45 +218,38 @@ extern void mapLoadTexture(void);
 extern void mapSaveTexture(void);
 
 /* A post process for the water tiles in map to ensure height integrity */
-extern void	mapWaterProcess( void );
-
+extern void mapWaterProcess(void);
 
 #define FUNCINLINE _inline
 
 /* Return a pointer to the tile structure at x,y */
-FUNCINLINE MAPTILE *mapTile(UDWORD x, UDWORD y)
+FUNCINLINE MAPTILE* mapTile(UDWORD x, UDWORD y)
 {
-	ASSERT((x < mapWidth,
-		"mapTile: x coordinate bigger than map width"));
-	ASSERT((y < mapHeight,
-		"mapTile: y coordinate bigger than map height"));
-	//return psMapTiles + x + (y << mapShift); //width no longer a power of 2
-	return psMapTiles + x + (y * mapWidth); 
+  ASSERT((x < mapWidth, "mapTile: x coordinate bigger than map width"));
+  ASSERT((y < mapHeight, "mapTile: y coordinate bigger than map height"));
+  //return psMapTiles + x + (y << mapShift); //width no longer a power of 2
+  return psMapTiles + x + (y * mapWidth);
 }
 
 /* Return height of tile at x,y */
 FUNCINLINE SWORD map_TileHeight(UDWORD x, UDWORD y)
 {
-    x = x >= (mapWidth) ? (mapWidth-1) : x;
-	y = y >= (mapHeight) ? (mapHeight-1) : y;
-	ASSERT((x < mapWidth,
-		"mapTile: x coordinate bigger than map width"));
-	ASSERT((y < mapHeight,
-		"mapTile: y coordinate bigger than map height"));
+  x = x >= (mapWidth) ? (mapWidth - 1) : x;
+  y = y >= (mapHeight) ? (mapHeight - 1) : y;
+  ASSERT((x < mapWidth, "mapTile: x coordinate bigger than map width"));
+  ASSERT((y < mapHeight, "mapTile: y coordinate bigger than map height"));
 
-//	return ((psMapTiles[x + (y << mapShift)].height) * ELEVATION_SCALE);//width no longer a power of 2
-	return (SWORD)((psMapTiles[x + (y * mapWidth)].height) * ELEVATION_SCALE);
+  //	return ((psMapTiles[x + (y << mapShift)].height) * ELEVATION_SCALE);//width no longer a power of 2
+  return static_cast<SWORD>((psMapTiles[x + (y * mapWidth)].height) * ELEVATION_SCALE);
 }
 
 /*sets the tile height */
 FUNCINLINE void setTileHeight(UDWORD x, UDWORD y, UDWORD height)
 {
-	ASSERT((x < mapWidth,
-		"mapTile: x coordinate bigger than map width"));
-	ASSERT((y < mapHeight,
-		"mapTile: y coordinate bigger than map height"));
-	//psMapTiles[x + (y << mapShift)].height = height;//width no longer a power of 2
-	psMapTiles[x + (y * mapWidth)].height = (UBYTE) (height / ELEVATION_SCALE);
+  ASSERT((x < mapWidth, "mapTile: x coordinate bigger than map width"));
+  ASSERT((y < mapHeight, "mapTile: y coordinate bigger than map height"));
+  //psMapTiles[x + (y << mapShift)].height = height;//width no longer a power of 2
+  psMapTiles[x + (y * mapWidth)].height = static_cast<UBYTE>(height / ELEVATION_SCALE);
 }
 
 /*increases the tile height by one */
@@ -273,59 +259,54 @@ FUNCINLINE void setTileHeight(UDWORD x, UDWORD y, UDWORD height)
 /* Return whether a tile coordinate is on the map */
 FUNCINLINE BOOL tileOnMap(SDWORD x, SDWORD y)
 {
-	return (x >= 0) && (x < (SDWORD)mapWidth) && (y >= 0) && (y < (SDWORD)mapHeight);
+  return (x >= 0) && (x < static_cast<SDWORD>(mapWidth)) && (y >= 0) && (y < static_cast<SDWORD>(mapHeight));
 }
 
 /* Return whether a world coordinate is on the map */
 FUNCINLINE BOOL worldOnMap(SDWORD x, SDWORD y)
 {
-	return (x >= 0) && (x < ((SDWORD)mapWidth << TILE_SHIFT)) &&
-		   (y >= 0) && (y < ((SDWORD)mapHeight << TILE_SHIFT));
+  return (x >= 0) && (x < (static_cast<SDWORD>(mapWidth) << TILE_SHIFT)) && (y >= 0) && (y < (static_cast<SDWORD>(mapHeight) <<
+    TILE_SHIFT));
 }
 
 /* Store a map coordinate and it's associated tile, used by mapCalcLine */
-typedef struct _tile_coord
+using TILE_COORD = struct _tile_coord
 {
-	UDWORD	x,y;
-	MAPTILE	*psTile;
-} TILE_COORD;
+  UDWORD x, y;
+  MAPTILE* psTile;
+};
 
 /* The map tiles generated by map calc line */
-extern TILE_COORD	*aMapLinePoints;
+extern TILE_COORD* aMapLinePoints;
 
 /* work along a line on the map storing the points in aMapLinePoints.
  * pNumPoints is set to the number of points generated.
  * The start and end points are in TILE coordinates.
  */
-extern void mapCalcLine(UDWORD startX, UDWORD startY,
-						UDWORD endX, UDWORD endY,
-						UDWORD *pNumPoints);
+extern void mapCalcLine(UDWORD startX, UDWORD startY, UDWORD endX, UDWORD endY, UDWORD* pNumPoints);
 
 /* Same as mapCalcLine, but does a wider line in the map */
-extern void mapCalcAALine(SDWORD X1, SDWORD Y1,
-				   SDWORD X2, SDWORD Y2,
-				   UDWORD *pNumPoints);
+extern void mapCalcAALine(SDWORD X1, SDWORD Y1, SDWORD X2, SDWORD Y2, UDWORD* pNumPoints);
 
 /* Return height of x,y */
 extern SWORD map_Height(UDWORD x, UDWORD y);
 
 /* returns TRUE if object is above ground */
-extern BOOL mapObjIsAboveGround( BASE_OBJECT *psObj );
+extern BOOL mapObjIsAboveGround(BASE_OBJECT* psObj);
 
 /* returns the max and min height of a tile by looking at the four corners 
    in tile coords */
-extern void getTileMaxMin(UDWORD x, UDWORD y, UDWORD *pMax, UDWORD *pMin);
+extern void getTileMaxMin(UDWORD x, UDWORD y, UDWORD* pMax, UDWORD* pMin);
 
-MAPTILE *GetCurrentMap(void);	// returns a pointer to the current loaded map data
+MAPTILE* GetCurrentMap(void); // returns a pointer to the current loaded map data
 UDWORD GetHeightOfMap(void);
 UDWORD GetWidthOfMap(void);
-extern BOOL	readVisibilityData( UBYTE *pFileData, UDWORD fileSize );
-extern BOOL	writeVisibilityData( STRING *pFileName );
-extern void	mapFreeTilesAndStrips( void );
+extern BOOL readVisibilityData(UBYTE* pFileData, UDWORD fileSize);
+extern BOOL writeVisibilityData(STRING* pFileName);
+extern void mapFreeTilesAndStrips(void);
 
 //scroll min and max values
-extern SDWORD		scrollMinX, scrollMaxX, scrollMinY, scrollMaxY;
-extern BOOL	bDoneWater;
+extern SDWORD scrollMinX, scrollMaxX, scrollMinY, scrollMaxY;
+extern BOOL bDoneWater;
 
 #endif
-

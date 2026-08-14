@@ -8,187 +8,91 @@
 #define strres__nxtmax 1129
 #define YY_LA_SIZE 3
 
-static unsigned int strres__la_act[] = {
- 0, 14, 1, 14, 5, 14, 5, 14, 14, 6, 11, 0, 9, 9, 10, 7,
- 8, 4, 2, 3, 4, 13, 12, 13, 0
-};
+static unsigned int strres__la_act[] = {0, 14, 1, 14, 5, 14, 5, 14, 14, 6, 11, 0, 9, 9, 10, 7, 8, 4, 2, 3, 4, 13, 12, 13, 0};
 
-static unsigned char strres__look[] = {
- 0
-};
+static unsigned char strres__look[] = {0};
 
-static int strres__final[] = {
- 0, 0, 2, 4, 6, 7, 8, 9, 10, 11, 12, 12, 13, 14, 15, 16,
- 17, 18, 19, 20, 21, 22, 23, 24
-};
+static int strres__final[] = {0, 0, 2, 4, 6, 7, 8, 9, 10, 11, 12, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24};
 #ifndef strres__state_t
 #define strres__state_t unsigned char
 #endif
 
-static strres__state_t strres__begin[] = {
- 0, 0, 10, 10, 16, 16, 20, 20, 0
-};
+static strres__state_t strres__begin[] = {0, 0, 10, 10, 16, 16, 20, 20, 0};
 
 static strres__state_t strres__next[] = {
- 6, 6, 6, 6, 6, 6, 6, 6, 6, 3, 4, 6, 6, 3, 6, 6,
- 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
- 3, 6, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 5,
- 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
- 6, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
- 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 6, 6, 6, 6, 6,
- 6, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
- 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 6, 6, 6, 6, 6,
- 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
- 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
- 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
- 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
- 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
- 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
- 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
- 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
- 7, 14, 15, 9, 23, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9,
- 23, 23, 23, 23, 23, 23, 23, 9, 9, 9, 9, 9, 9, 9, 9, 9,
- 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9,
- 9, 23, 23, 23, 23, 9, 23, 9, 9, 9, 9, 9, 9, 9, 9, 9,
- 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9,
- 9, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 13, 12, 12, 12, 12,
- 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
- 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 11, 12, 12, 12, 12,
- 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
- 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
- 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
- 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
- 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
- 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
- 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
- 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
- 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
- 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
- 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
- 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
- 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
- 12, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 18, 19, 19, 19, 19,
- 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19,
- 19, 19, 19, 17, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19,
- 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19,
- 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19,
- 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19,
- 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19,
- 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19,
- 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19,
- 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19,
- 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19,
- 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19,
- 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19,
- 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19,
- 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19,
- 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19,
- 19, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,
- 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 22, 22, 22, 22, 22, 22,
- 22, 22, 22, 22, 21, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22,
- 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22,
- 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22,
- 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22,
- 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22,
- 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22,
- 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22,
- 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22,
- 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22,
- 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22,
- 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22,
- 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22,
- 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22,
- 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22,
- 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22,
- 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 0
+  6, 6, 6, 6, 6, 6, 6, 6, 6, 3, 4, 6, 6, 3, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 3, 6, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+  6, 5, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 6,
+  6, 6, 6, 6, 6, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+  6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+  6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+  6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7, 14, 15, 9, 23, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 23, 23,
+  23, 23, 23, 23, 23, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 23, 23, 23, 23, 9, 23, 9, 9, 9, 9, 9, 9,
+  9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 13, 12, 12, 12, 12, 12, 12, 12, 12,
+  12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 11, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
+  12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
+  12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
+  12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
+  12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
+  12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
+  12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 19,
+  19, 19, 19, 19, 19, 19, 19, 19, 19, 18, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 17,
+  19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19,
+  19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19,
+  19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19,
+  19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19,
+  19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19,
+  19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19,
+  19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,
+  23, 23, 23, 23, 23, 23, 23, 23, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 21, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22,
+  22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22,
+  22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22,
+  22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22,
+  22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22,
+  22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22,
+  22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22,
+  22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 0
 };
 
 static strres__state_t strres__check[] = {
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 5, 11, 14, 1, 22, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
- ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, 1, 1, 1, 1, 1, 1, 1, 1, 1,
- 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
- 1, ~0U, ~0U, ~0U, ~0U, 1, ~0U, 1, 1, 1, 1, 1, 1, 1, 1, 1,
- 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
- 1, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
- 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
- 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
- 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
- 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
- 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
- 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
- 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
- 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
- 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
- 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
- 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
- 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
- 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
- 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
- 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
- 10, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
- 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
- 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
- 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
- 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
- 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
- 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
- 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
- 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
- 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
- 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
- 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
- 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
- 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
- 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
- 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
- 16, 19, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U,
- ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, 19, 20, 20, 20, 20, 20, 20,
- 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
- 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
- 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
- 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
- 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
- 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
- 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
- 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
- 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
- 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
- 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
- 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
- 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
- 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
- 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
- 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 0
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 11, 14, 1, 22, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ~0U, ~0U,
+  ~0U, ~0U, ~0U, ~0U, ~0U, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ~0U, ~0U, ~0U, ~0U, 1, ~0U, 1, 1,
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+  10, 10, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
+  16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
+  16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
+  16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
+  16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
+  16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
+  16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
+  16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 19, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U,
+  ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, 19, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
+  20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
+  20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
+  20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
+  20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
+  20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
+  20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
+  20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 0
 };
 
-static strres__state_t strres__default[] = {
- 23, 23, 23, 23, 23, 23, 23, 23, 23, 1, 23, 23, 23, 23, 23, 23,
- 23, 23, 23, 16, 23, 23, 20, 0
-};
+static strres__state_t strres__default[] = {23, 23, 23, 23, 23, 23, 23, 23, 23, 1, 23, 23, 23, 23, 23, 23, 23, 23, 23, 16, 23, 23, 20, 0};
 
 static int strres__base[] = {
- 0, 214, 1130, 1130, 1130, 214, 1130, 1130, 1130, 1130, 337, 210, 1130, 1130, 248, 1130,
- 593, 1130, 1130, 839, 874, 1130, 250, 1130
+  0, 214, 1130, 1130, 1130, 214, 1130, 1130, 1130, 1130, 337, 210, 1130, 1130, 248, 1130, 593, 1130, 1130, 839, 874, 1130, 250, 1130
 };
 
-
-#line 1 "d:/usr/mks-ly/etc/yylex.c"
 /*
  * Copyright 1988, 1992 by Mortice Kern Systems Inc.  All rights reserved.
  * All rights reserved.
@@ -225,9 +129,9 @@ static int strres__base[] = {
  */
 
 #ifdef STRICT
-extern HINSTANCE hInst;	
+extern HINSTANCE hInst;
 #else
-extern HANDLE hInst;	
+extern HANDLE hInst;
 #endif
 
 #endif	/* LEX_WINDOWS */
@@ -239,7 +143,7 @@ extern HANDLE hInst;
 #ifndef I18N
 #define	m_textmsg(id, str, cls)	(str)
 #else /*I18N*/
-extern	char* m_textmsg YY_ARGS((int id, const char* str, char* cls));
+extern char* m_textmsg YY_ARGS((int id, const char* str, char* cls));
 #endif/*I18N*/
 
 /*
@@ -275,7 +179,7 @@ extern	char* m_textmsg YY_ARGS((int id, const char* str, char* cls));
  * with -DYYTRACE to get input from yt_getc
  */
 #ifdef YYTRACE
-extern int	yt_getc YY_ARGS((void));
+extern int yt_getc YY_ARGS((void));
 #define strres_getc()	yt_getc()
 #else
 #define	strres_getc()	getc(strres_in) 	/* strres_lex input source */
@@ -305,17 +209,16 @@ extern int	yt_getc YY_ARGS((void));
 #define	strres_less(n)	if ((n) < 0 || (n) > strres__end) ; \
 			else { YY_SCANNER; strres_leng = (n); YY_USER; }
 
-YY_DECL	void	strres__reset YY_ARGS((void));
-static	int	input	YY_ARGS((void));
-static	int	unput	YY_ARGS((int c));
+YY_DECL void strres__reset YY_ARGS((void));
+static int input YY_ARGS((void));
+static int unput YY_ARGS((int c));
 
 /* functions defined in libl.lib */
-extern	int	strres_wrap	YY_ARGS((void));
-extern	void	strres_error	YY_ARGS((char *fmt, ...));
-extern	void	strres_comment	YY_ARGS((char *term));
-extern	int	strres_mapch	YY_ARGS((int delim, int escape));
+extern int strres_wrap YY_ARGS((void));
+extern void strres_error YY_ARGS((char *fmt, ...));
+extern void strres_comment YY_ARGS((char *term));
+extern int strres_mapch YY_ARGS((int delim, int escape));
 
-#line 1 "StrRes.l"
 
 /*
  * StrRes.l
@@ -334,10 +237,7 @@ typedef signed int FILE;
 #define stderr 0
 #define stdin  0
 #define stdout 0
-static int fprintf(FILE* f,char* c,...)
-{
-	return 0;
-}
+static int fprintf(FILE* f, char* c, ...) { return 0; }
 #endif
 
 /* Allow frame header files to be singly included */
@@ -363,19 +263,17 @@ static int fprintf(FILE* f,char* c,...)
 
 /* Store for any string values */
 extern STRING aText[TEXT_BUFFERS][YYLMAX];
-static UDWORD currText=0;
+static UDWORD currText = 0;
 
 // Note if in a comment
 static BOOL inComment;
 
 /* Pointer to the input buffer */
-static UBYTE *pInputBuffer = NULL;
-static UBYTE *pEndBuffer = NULL;
+static UBYTE* pInputBuffer = nullptr;
+static UBYTE* pEndBuffer = nullptr;
 
 #undef strres_getc
 #define strres_getc() (pInputBuffer != pEndBuffer ? *(pInputBuffer++) : EOF)
-
-#line 127 "d:/usr/mks-ly/etc/yylex.c"
 
 
 #ifndef YYLMAX
@@ -386,9 +284,7 @@ static UBYTE *pEndBuffer = NULL;
  * If %array is used (or defaulted), strres_text[] contains the token.
  * If %pointer is used, strres_text is a pointer to strres__tbuf[].
  */
-YY_DECL char	strres_text[YYLMAX+1];
-
-
+YY_DECL char strres_text[YYLMAX + 1];
 
 #ifdef	YY_DEBUG
 #undef	YY_DEBUG
@@ -417,17 +313,16 @@ YY_DECL char	strres_text[YYLMAX+1];
  * compiling this file
  */
 #ifndef YY_STATIC_STDIO
-#define YY_STATIC_STDIO	0
+#define YY_STATIC_STDIO	1
 #endif
 
 #if YY_STATIC_STDIO
-YY_DECL	FILE   *strres_in = stdin;
-YY_DECL	FILE   *strres_out = stdout;
+YY_DECL FILE* strres_in = stdin;YY_DECL FILE* strres_out = stdout;
 #else
-YY_DECL	FILE   *strres_in = (FILE *)0;
-YY_DECL	FILE   *strres_out = (FILE *)0;
+YY_DECL auto strres_in = 0;
+YY_DECL auto strres_out = 0;
 #endif
-YY_DECL	int	strres_lineno = 1;		/* line number */
+YY_DECL int strres_lineno = 1; /* line number */
 
 /* strres__sbuf[0:strres_leng-1] contains the states corresponding to strres_text.
  * strres_text[0:strres_leng-1] contains the current token.
@@ -436,18 +331,18 @@ YY_DECL	int	strres_lineno = 1;		/* line number */
  * strres__save contains strres_text[strres_leng], which is set to '\0'.
  * Things are different when YY_PRESERVE is defined. 
  */
-static	strres__state_t strres__sbuf [YYLMAX+1];	/* state buffer */
-static	int	strres__end = 0;		/* end of pushback */
-static	int	strres__start = 0;		/* start state */
-static	int	strres__lastc = YYNEWLINE;	/* previous char */
-YY_DECL	int	strres_leng = 0;		/* strres_text token length */
+static strres__state_t strres__sbuf[YYLMAX + 1]; /* state buffer */
+static int strres__end = 0; /* end of pushback */
+static int strres__start = 0; /* start state */
+static int strres__lastc = YYNEWLINE; /* previous char */
+YY_DECL int strres_leng = 0; /* strres_text token length */
 #ifdef YYEXIT
-static	int strres_LexFatal;
+static int strres_LexFatal;
 #endif /* YYEXIT */
 
 #ifndef YY_PRESERVE	/* the efficient default push-back scheme */
 
-static	char strres__save;	/* saved strres_text[strres_leng] */
+static char strres__save; /* saved strres_text[strres_leng] */
 
 #define	YY_USER	{ /* set up strres_text for user */ \
 		strres__save = strres_text[strres_leng]; \
@@ -459,8 +354,7 @@ static	char strres__save;	/* saved strres_text[strres_leng] */
 
 #else		/* not-so efficient push-back for strres_text mungers */
 
-static	char strres__save [YYLMAX];
-static	char *strres__push = strres__save+YYLMAX;
+static char strres__save[YYLMAX];static char* strres__push = strres__save + YYLMAX;
 
 #define	YY_USER { \
 		size_t n = strres__end - strres_leng; \
@@ -477,7 +371,6 @@ static	char *strres__push = strres__save+YYLMAX;
 	}
 
 #endif
-
 
 #ifdef LEX_WINDOWS
 
@@ -498,93 +391,113 @@ static	char *strres__push = strres__save+YYLMAX;
  * with new input; otherwise old lookaside will get in your way
  * and strres_lex() will die horribly.
  */
-static int win_strres_lex();			/* prototype for windows strres_lex handler */
+static int win_strres_lex(); /* prototype for windows strres_lex handler */
 
-YYDECL {
-	int wReturnValue;
-	HANDLE hRes_table;
-	unsigned short far *old_strres__la_act;	/* remember previous pointer values */
-	short far *old_strres__final;
-	strres__state_t far *old_strres__begin;
-	strres__state_t far *old_strres__next;
-	strres__state_t far *old_strres__check;
-	strres__state_t far *old_strres__default;
-	short far *old_strres__base;
+YYDECL
+{
+  int wReturnValue;
+  HANDLE hRes_table;
+  unsigned short far * old_strres__la_act; /* remember previous pointer values */
+  short far * old_strres__final;
+  strres__state_t far * old_strres__begin;
+  strres__state_t far * old_strres__next;
+  strres__state_t far * old_strres__check;
+  strres__state_t far * old_strres__default;
+  short far * old_strres__base;
 
-	/*
-	 * the following code will load the required
-	 * resources for a Windows based parser.
-	 */
+  /*
+   * the following code will load the required
+   * resources for a Windows based parser.
+   */
 
-	hRes_table = LoadResource (hInst,
-		FindResource (hInst, "UD_RES_strres_LEX", "strres_LEXTBL"));
-	
-	/*
-	 * return an error code if any
-	 * of the resources did not load
-	 */
+  hRes_table = LoadResource(hInst, FindResource(hInst, "UD_RES_strres_LEX", "strres_LEXTBL"));
 
-	if (hRes_table == NULL)
-		return (0);
-	
-	/*
-	 * the following code will lock the resources
-	 * into fixed memory locations for the scanner
-	 * (and remember previous pointer locations)
-	 */
+  /*
+   * return an error code if any
+   * of the resources did not load
+   */
 
-	old_strres__la_act = strres__la_act;
-	old_strres__final = strres__final;
-	old_strres__begin = strres__begin;
-	old_strres__next = strres__next;
-	old_strres__check = strres__check;
-	old_strres__default = strres__default;
-	old_strres__base = strres__base;
+  if (hRes_table == NULL)
+    return (0);
 
-	strres__la_act = (unsigned short far *)LockResource (hRes_table);
-	strres__final = (short far *)(strres__la_act + Sizeof_strres__la_act);
-	strres__begin = (strres__state_t far *)(strres__final + Sizeof_strres__final);
-	strres__next = (strres__state_t far *)(strres__begin + Sizeof_strres__begin);
-	strres__check = (strres__state_t far *)(strres__next + Sizeof_strres__next);
-	strres__default = (strres__state_t far *)(strres__check + Sizeof_strres__check);
-	strres__base = (strres__state_t far *)(strres__default + Sizeof_strres__default);
+  /*
+   * the following code will lock the resources
+   * into fixed memory locations for the scanner
+   * (and remember previous pointer locations)
+   */
 
+  old_strres__la_act = strres__la_act;
+  old_strres__final = strres__final;
+  old_strres__begin = strres__begin;
+  old_strres__next = strres__next;
+  old_strres__check = strres__check;
+  old_strres__default = strres__default;
+  old_strres__base = strres__base;
 
-	/*
-	 * call the standard strres_lex() code
-	 */
+  strres__la_act = (unsigned short
+  far *
+  )
+  LockResource(hRes_table);
+  strres__final = (short
+  far *
+  )
+  (strres__la_act + Sizeof_strres__la_act);
+  strres__begin = (strres__state_t
+  far *
+  )
+  (strres__final + Sizeof_strres__final);
+  strres__next = (strres__state_t
+  far *
+  )
+  (strres__begin + Sizeof_strres__begin);
+  strres__check = (strres__state_t
+  far *
+  )
+  (strres__next + Sizeof_strres__next);
+  strres__default = (strres__state_t
+  far *
+  )
+  (strres__check + Sizeof_strres__check);
+  strres__base = (strres__state_t
+  far *
+  )
+  (strres__default + Sizeof_strres__default);
 
-	wReturnValue = win_strres_lex();
+  /*
+   * call the standard strres_lex() code
+   */
 
-	/*
-	 * unlock the resources
-	 */
+  wReturnValue = win_strres_lex();
 
-	UnlockResource (hRes_table);
+  /*
+   * unlock the resources
+   */
 
-	/*
-	 * and now free the resource
-	 */
+  UnlockResource(hRes_table);
 
-	FreeResource (hRes_table);
+  /*
+   * and now free the resource
+   */
 
-	/*
-	 * restore previously saved pointers
-	 */
+  FreeResource(hRes_table);
 
-	strres__la_act = old_strres__la_act;
-	strres__final = old_strres__final;
-	strres__begin = old_strres__begin;
-	strres__next = old_strres__next;
-	strres__check = old_strres__check;
-	strres__default = old_strres__default;
-	strres__base = old_strres__base;
+  /*
+   * restore previously saved pointers
+   */
 
-	return (wReturnValue);
-}	/* end function */
+  strres__la_act = old_strres__la_act;
+  strres__final = old_strres__final;
+  strres__begin = old_strres__begin;
+  strres__next = old_strres__next;
+  strres__check = old_strres__check;
+  strres__default = old_strres__default;
+  strres__base = old_strres__base;
 
-static int win_strres_lex() {
+  return (wReturnValue);
+} /* end function */
 
+static int win_strres_lex()
+{
 #else /* LEX_WINDOWS */
 
 /*
@@ -593,375 +506,374 @@ static int win_strres_lex() {
  * with new input; otherwise old lookaside will get in your way
  * and strres_lex() will die horribly.
  */
-YYDECL {
-
+YYDECL
+{
 #endif /* LEX_WINDOWS */
 
-	register int c, i, strres_base;
-	unsigned	strres_st;	/* state */
-	int strres_fmin, strres_fmax;	/* strres__la_act indices of final states */
-	int strres_oldi, strres_oleng;	/* base i, strres_leng before look-ahead */
-	int strres_eof;		/* 1 if eof has already been read */
-
-#line 350 "d:/usr/mks-ly/etc/yylex.c"
-
+  register int c, i, strres_base;
+  unsigned strres_st; /* state */
+  int strres_fmin, strres_fmax; /* strres__la_act indices of final states */
+  int strres_oldi, strres_oleng; /* base i, strres_leng before look-ahead */
+  int strres_eof; /* 1 if eof has already been read */
 
 
 #if !YY_STATIC_STDIO
-	if (strres_in == (FILE *)0)
-		strres_in = stdin;
-	if (strres_out == (FILE *)0)
-		strres_out = stdout;
+  if (strres_in == static_cast<FILE*>(nullptr))
+    strres_in = stdin;
+  if (strres_out == static_cast<FILE*>(nullptr))
+    strres_out = stdout;
 #endif
 
 #ifdef YYEXIT
-	strres_LexFatal = 0;
+  strres_LexFatal = 0;
 #endif /* YYEXIT */
 
-	strres_eof = 0;
-	i = strres_leng;
-	YY_SCANNER;
+  strres_eof = 0;
+  i = strres_leng;
+  YY_SCANNER;
 
-  strres__again:
-	strres_leng = i;
-	/* determine previous char. */
-	if (i > 0)
-		strres__lastc = strres_text[i-1];
-	/* scan previously accepted token adjusting strres_lineno */
-	while (i > 0)
-		if (strres_text[--i] == YYNEWLINE)
-			strres_lineno++;
-	/* adjust pushback */
-	strres__end -= strres_leng;
-	if (strres__end > 0)
-		memmove(strres_text, strres_text+strres_leng, (size_t) strres__end);
-	i = 0;
+strres__again:
+  strres_leng = i;
+  /* determine previous char. */
+  if (i > 0)
+    strres__lastc = strres_text[i - 1];
+  /* scan previously accepted token adjusting strres_lineno */
+  while (i > 0)
+  {
+    if (strres_text[--i] == YYNEWLINE)
+      strres_lineno++;
+  }
+  /* adjust pushback */
+  strres__end -= strres_leng;
+  if (strres__end > 0)
+    memmove(strres_text, strres_text + strres_leng, static_cast<size_t>(strres__end));
+  i = 0;
 
-  strres__contin:
-	strres_oldi = i;
+strres__contin:
+  strres_oldi = i;
 
-	/* run the state machine until it jams */
-	strres_st = strres__begin[strres__start + ((strres__lastc == YYNEWLINE) ? 1 : 0)];
-	strres__sbuf[i] = (strres__state_t) strres_st;
-	do {
-		YY_DEBUG(m_textmsg(1547, "<state %d, i = %d>\n", "I num1 num2"), strres_st, i);
-		if (i >= YYLMAX) {
-			YY_FATAL(m_textmsg(1548, "Token buffer overflow", "E"));
+  /* run the state machine until it jams */
+  strres_st = strres__begin[strres__start + ((strres__lastc == YYNEWLINE) ? 1 : 0)];
+  strres__sbuf[i] = static_cast<unsigned char>(strres_st);
+  do
+  {
+    YY_DEBUG(m_textmsg(1547, "<state %d, i = %d>\n", "I num1 num2"), strres_st, i);
+    if (i >= YYLMAX)
+    {
+      YY_FATAL(m_textmsg(1548, "Token buffer overflow", "E"));
 #ifdef YYEXIT
-			if (strres_LexFatal)
-				return -2;
+      if (strres_LexFatal)
+        return -2;
 #endif /* YYEXIT */
-		}	/* endif */
+    } /* endif */
 
-		/* get input char */
-		if (i < strres__end)
-			c = strres_text[i];		/* get pushback char */
-		else if (!strres_eof && (c = strres_getc()) != EOF) {
-			strres__end = i+1;
-			strres_text[i] = (char) c;
-		} else /* c == EOF */ {
-			c = EOF;		/* just to make sure... */
-			if (i == strres_oldi) {	/* no token */
-				strres_eof = 0;
-				if (strres_wrap())
-					return 0;
-				else
-					goto strres__again;
-			} else {
-				strres_eof = 1;	/* don't re-read EOF */
-				break;
-			}
-		}
-		YY_DEBUG(m_textmsg(1549, "<input %d = 0x%02x>\n", "I num hexnum"), c, c);
+    /* get input char */
+    if (i < strres__end)
+      c = strres_text[i]; /* get pushback char */
+    else if (!strres_eof && (c = strres_getc()) != EOF)
+    {
+      strres__end = i + 1;
+      strres_text[i] = static_cast<char>(c);
+    }
+    else /* c == EOF */
+    {
+      c = EOF; /* just to make sure... */
+      if (i == strres_oldi)
+      {
+        /* no token */
+        strres_eof = 0;
+        if (strres_wrap())
+          return 0;
+        goto strres__again;
+      }
+      strres_eof = 1; /* don't re-read EOF */
+      break;
+    }
+    YY_DEBUG(m_textmsg(1549, "<input %d = 0x%02x>\n", "I num hexnum"), c, c);
 
-		/* look up next state */
-		while ((strres_base = strres__base[strres_st]+(unsigned char)c) > strres__nxtmax
-		    || strres__check[strres_base] != (strres__state_t) strres_st) {
-			if (strres_st == strres__endst)
-				goto strres__jammed;
-			strres_st = strres__default[strres_st];
-		}
-		strres_st = strres__next[strres_base];
-	  strres__jammed: ;
-	  strres__sbuf[++i] = (strres__state_t) strres_st;
-	} while (!(strres_st == strres__endst || YY_INTERACTIVE && strres__base[strres_st] > strres__nxtmax && strres__default[strres_st] == strres__endst));
-	YY_DEBUG(m_textmsg(1550, "<stopped %d, i = %d>\n", "I num1 num2"), strres_st, i);
-	if (strres_st != strres__endst)
-		++i;
+    /* look up next state */
+    while ((strres_base = strres__base[strres_st] + static_cast<unsigned char>(c)) > strres__nxtmax || strres__check[strres_base] !=
+      static_cast<unsigned char>(strres_st))
+    {
+      if (strres_st == strres__endst)
+        goto strres__jammed;
+      strres_st = strres__default[strres_st];
+    }
+    strres_st = strres__next[strres_base];
+  strres__jammed: ;
+    strres__sbuf[++i] = static_cast<unsigned char>(strres_st);
+  }
+  while (!(strres_st == strres__endst || YY_INTERACTIVE && strres__base[strres_st] > strres__nxtmax && strres__default[strres_st] ==
+    strres__endst));
+  YY_DEBUG(m_textmsg(1550, "<stopped %d, i = %d>\n", "I num1 num2"), strres_st, i);
+  if (strres_st != strres__endst)
+    ++i;
 
-  strres__search:
-	/* search backward for a final state */
-	while (--i > strres_oldi) {
-		strres_st = strres__sbuf[i];
-		if ((strres_fmin = strres__final[strres_st]) < (strres_fmax = strres__final[strres_st+1]))
-			goto strres__found;	/* found final state(s) */
-	}
-	/* no match, default action */
-	i = strres_oldi + 1;
-	output(strres_text[strres_oldi]);
-	goto strres__again;
+strres__search:
+  /* search backward for a final state */
+  while (--i > strres_oldi)
+  {
+    strres_st = strres__sbuf[i];
+    if ((strres_fmin = strres__final[strres_st]) < (strres_fmax = strres__final[strres_st + 1]))
+      goto strres__found; /* found final state(s) */
+  }
+  /* no match, default action */
+  i = strres_oldi + 1;
+  output(strres_text[strres_oldi]);
+  goto strres__again;
 
-  strres__found:
-	YY_DEBUG(m_textmsg(1551, "<final state %d, i = %d>\n", "I num1 num2"), strres_st, i);
-	strres_oleng = i;		/* save length for REJECT */
-	
-	/* pushback look-ahead RHS */
-	if ((c = (int)(strres__la_act[strres_fmin]>>9) - 1) >= 0) { /* trailing context? */
-		unsigned char *bv = strres__look + c*YY_LA_SIZE;
-		static unsigned char bits [8] = {
-			1<<0, 1<<1, 1<<2, 1<<3, 1<<4, 1<<5, 1<<6, 1<<7
-		};
-		while (1) {
-			if (--i < strres_oldi) {	/* no / */
-				i = strres_oleng;
-				break;
-			}
-			strres_st = strres__sbuf[i];
-			if (bv[(unsigned)strres_st/8] & bits[(unsigned)strres_st%8])
-				break;
-		}
-	}
+strres__found: YY_DEBUG(m_textmsg(1551, "<final state %d, i = %d>\n", "I num1 num2"), strres_st, i);
+  strres_oleng = i; /* save length for REJECT */
 
-	/* perform action */
-	strres_leng = i;
-	YY_USER;
-	switch (strres__la_act[strres_fmin] & 0777) {
-	case 0:
-#line 69 "StrRes.l"
-	{
-								strcpy(aText[currText], strres_text);
-								strres_lval.sval = aText[currText];
-								currText = (currText + 1) % TEXT_BUFFERS;
-								return TEXT;
-							}
-	break;
-	case 1:
-#line 77 "StrRes.l"
-	{ BEGIN QUOTE; }
-	break;
-	case 2:
-#line 78 "StrRes.l"
-	{ BEGIN 0; }
-	break;
-	case 3:
-#line 79 "StrRes.l"
-	{ strres_error("Unexpected end of line in string"); }
-	break;
-	case 4:
-#line 80 "StrRes.l"
-	{
-								strcpy(aText[currText], strres_text);
-								strres_lval.sval = aText[currText];
-								currText = (currText + 1) % TEXT_BUFFERS;
-								return QTEXT;
-							}
-	break;
-	case 5:
-#line 88 "StrRes.l"
-	;
-	break;
-	case 6:
-#line 91 "StrRes.l"
-	{ inComment=TRUE; BEGIN COMMENT; }
-	break;
-	case 7:
-	case 8:
-#line 93 "StrRes.l"
-	{ inComment=FALSE; BEGIN 0; }
-	break;
-	case 9:
-	case 10:
-#line 95 "StrRes.l"
-	;
-	break;
-	case 11:
-#line 98 "StrRes.l"
-	{ BEGIN SLCOMMENT; }
-	break;
-	case 12:
-#line 99 "StrRes.l"
-	{ BEGIN 0; }
-	break;
-	case 13:
-#line 100 "StrRes.l"
-	;
-	break;
-	case 14:
-#line 103 "StrRes.l"
-	return strres_text[0];
-	break;
+  /* pushback look-ahead RHS */
+  if ((c = static_cast<int>(strres__la_act[strres_fmin] >> 9) - 1) >= 0)
+  {
+    /* trailing context? */
+    unsigned char* bv = strres__look + c * YY_LA_SIZE;
+    static unsigned char bits[8] = {1 << 0, 1 << 1, 1 << 2, 1 << 3, 1 << 4, 1 << 5, 1 << 6, 1 << 7};
+    while (true)
+    {
+      if (--i < strres_oldi)
+      {
+        /* no / */
+        i = strres_oleng;
+        break;
+      }
+      strres_st = strres__sbuf[i];
+      if (bv[strres_st / 8] & bits[strres_st % 8])
+        break;
+    }
+  }
 
-#line 472 "d:/usr/mks-ly/etc/yylex.c"
+  /* perform action */
+  strres_leng = i;
+  YY_USER;
+  switch (strres__la_act[strres_fmin] & 0777)
+  {
+  case 0:
+    {
+      strcpy(aText[currText], strres_text);
+      strres_lval.sval = aText[currText];
+      currText = (currText + 1) % TEXT_BUFFERS;
+      return TEXT;
+    }
+    break;
+  case 1:
+    {
+      BEGIN QUOTE;
+    }
+    break;
+  case 2:
+    {
+      BEGIN 0;
+    }
+    break;
+  case 3:
+    {
+      strres_error("Unexpected end of line in string");
+    }
+    break;
+  case 4:
+    {
+      strcpy(aText[currText], strres_text);
+      strres_lval.sval = aText[currText];
+      currText = (currText + 1) % TEXT_BUFFERS;
+      return QTEXT;
+    }
+    break;
+  case 5:
+    ;
+    break;
+  case 6:
+    {
+      inComment = TRUE;
+      BEGIN COMMENT;
+    }
+    break;
+  case 7:
+  case 8:
+    {
+      inComment = FALSE;
+      BEGIN 0;
+    }
+    break;
+  case 9:
+  case 10:
+    ;
+    break;
+  case 11:
+    {
+      BEGIN SLCOMMENT;
+    }
+    break;
+  case 12:
+    {
+      BEGIN 0;
+    }
+    break;
+  case 13:
+    ;
+    break;
+  case 14:
+    return strres_text[0];
+    break;
 
-	}
-	YY_SCANNER;
-	i = strres_leng;
-	goto strres__again;			/* action fell though */
+  }
+  YY_SCANNER;
+  i = strres_leng;
+  goto strres__again; /* action fell though */
 
-  strres__reject:
-	YY_SCANNER;
-	i = strres_oleng;			/* restore original strres_text */
-	if (++strres_fmin < strres_fmax)
-		goto strres__found;		/* another final state, same length */
-	else
-		goto strres__search;		/* try shorter strres_text */
+strres__reject: YY_SCANNER;
+  i = strres_oleng; /* restore original strres_text */
+  if (++strres_fmin < strres_fmax)
+    goto strres__found; /* another final state, same length */
+  else
+    goto strres__search; /* try shorter strres_text */
 
-  strres__more:
-	YY_SCANNER;
-	i = strres_leng;
-	if (i > 0)
-		strres__lastc = strres_text[i-1];
-	goto strres__contin;
+strres__more: YY_SCANNER;
+  i = strres_leng;
+  if (i > 0)
+    strres__lastc = strres_text[i - 1];
+  goto strres__contin;
 }
+
 /*
  * Safely switch input stream underneath LEX
  */
-typedef struct strres__save_block_tag {
-	FILE	* oldfp;
-	int	oldline;
-	int	oldend;
-	int	oldstart;
-	int	oldlastc;
-	int	oldleng;
-	char	savetext[YYLMAX+1];
-	strres__state_t	savestate[YYLMAX+1];
-} YY_SAVED;
-
-YY_SAVED *
-strres_SaveScan(FILE *fp)
+using YY_SAVED = struct strres__save_block_tag
 {
-	YY_SAVED * p;
+  FILE* oldfp;
+  int oldline;
+  int oldend;
+  int oldstart;
+  int oldlastc;
+  int oldleng;
+  char savetext[YYLMAX + 1];
+  strres__state_t savestate[YYLMAX + 1];
+};
 
-	if ((p = (YY_SAVED *) malloc(sizeof(*p))) == NULL)
-		return p;
+YY_SAVED* strres_SaveScan(FILE* fp)
+{
+  YY_SAVED* p;
 
-	p->oldfp = strres_in;
-	p->oldline = strres_lineno;
-	p->oldend = strres__end;
-	p->oldstart = strres__start;
-	p->oldlastc = strres__lastc;
-	p->oldleng = strres_leng;
-	(void) memcpy(p->savetext, strres_text, sizeof strres_text);
-	(void) memcpy((char *) p->savestate, (char *) strres__sbuf,
-		sizeof strres__sbuf);
+  if ((p = static_cast<YY_SAVED*>(malloc(sizeof(*p)))) == nullptr)
+    return p;
 
-	strres_in = fp;
-	strres_lineno = 1;
-	YY_INIT;
+  p->oldfp = strres_in;
+  p->oldline = strres_lineno;
+  p->oldend = strres__end;
+  p->oldstart = strres__start;
+  p->oldlastc = strres__lastc;
+  p->oldleng = strres_leng;
+  (void)memcpy(p->savetext, strres_text, sizeof strres_text);
+  (void)memcpy(p->savestate, strres__sbuf, sizeof strres__sbuf);
 
-	return p;
+  strres_in = fp;
+  strres_lineno = 1;
+  YY_INIT;
+
+  return p;
 }
+
 /*f
  * Restore previous LEX state
  */
-void
-strres_RestoreScan(YY_SAVED *p)
+void strres_RestoreScan(YY_SAVED* p)
 {
-	if (p == NULL)
-		return;
-	strres_in = p->oldfp;
-	strres_lineno = p->oldline;
-	strres__end = p->oldend;
-	strres__start = p->oldstart;
-	strres__lastc = p->oldlastc;
-	strres_leng = p->oldleng;
+  if (p == nullptr)
+    return;
+  strres_in = p->oldfp;
+  strres_lineno = p->oldline;
+  strres__end = p->oldend;
+  strres__start = p->oldstart;
+  strres__lastc = p->oldlastc;
+  strres_leng = p->oldleng;
 
-	(void) memcpy(strres_text, p->savetext, sizeof strres_text);
-	(void) memcpy((char *) strres__sbuf, (char *) p->savestate,
-		sizeof strres__sbuf);
-	free(p);
+  (void)memcpy(strres_text, p->savetext, sizeof strres_text);
+  (void)memcpy(strres__sbuf, p->savestate, sizeof strres__sbuf);
+  free(p);
 }
+
 /*
  * User-callable re-initialization of strres_lex()
  */
-void
-strres__reset()
+void strres__reset()
 {
-	YY_INIT;
-	strres_lineno = 1;		/* line number */
+  YY_INIT;
+  strres_lineno = 1; /* line number */
 }
+
 /* get input char with pushback */
-static int
-input()
+static int input()
 {
-	int c;
+  int c;
 #ifndef YY_PRESERVE
-	if (strres__end > strres_leng) {
-		strres__end--;
-		memmove(strres_text+strres_leng, strres_text+strres_leng+1,
-			(size_t) (strres__end-strres_leng));
-		c = strres__save;
-		YY_USER;
+  if (strres__end > strres_leng)
+  {
+    strres__end--;
+    memmove(strres_text + strres_leng, strres_text + strres_leng + 1, static_cast<size_t>(strres__end - strres_leng));
+    c = strres__save;
+    YY_USER;
 #else
-	if (strres__push < strres__save+YYLMAX) {
-		c = *strres__push++;
+    if (strres__push < strres__save + YYLMAX) { c = *strres__push++;
 #endif
-	} else
-		c = strres_getc();
-	strres__lastc = c;
-	if (c == YYNEWLINE)
-		strres_lineno++;
-	if (c == EOF) /* strres_getc() can set c=EOF vsc4 wants c==EOF to return 0 */
-		return 0;
-	else
-		return c;
+  }
+  else
+    c = strres_getc();
+  strres__lastc = c;
+  if (c == YYNEWLINE)
+    strres_lineno++;
+  if (c == EOF) /* strres_getc() can set c=EOF vsc4 wants c==EOF to return 0 */
+    return 0;
+  return c;
 }
 
 /*f
  * pushback char
  */
-static int
-unput(int c)
+static int unput(int c)
 {
 #ifndef YY_PRESERVE
-	if (strres__end >= YYLMAX) {
-		YY_FATAL(m_textmsg(1552, "Push-back buffer overflow", "E"));
-	} else {
-		if (strres__end > strres_leng) {
-			strres_text[strres_leng] = strres__save;
-			memmove(strres_text+strres_leng+1, strres_text+strres_leng,
-				(size_t) (strres__end-strres_leng));
-			strres_text[strres_leng] = 0;
-		}
-		strres__end++;
-		strres__save = (char) c;
+  if (strres__end >= YYLMAX) { YY_FATAL(m_textmsg(1552, "Push-back buffer overflow", "E")); }
+  if (strres__end > strres_leng)
+  {
+    strres_text[strres_leng] = strres__save;
+    memmove(strres_text + strres_leng + 1, strres_text + strres_leng, static_cast<size_t>(strres__end - strres_leng));
+    strres_text[strres_leng] = 0;
+  }
+  strres__end++;
+  strres__save = static_cast<char>(c);
 #else
-	if (strres__push <= strres__save) {
-		YY_FATAL(m_textmsg(1552, "Push-back buffer overflow", "E"));
-	} else {
-		*--strres__push = c;
+  if (strres__push <= strres__save) { YY_FATAL(m_textmsg(1552, "Push-back buffer overflow", "E")); }
+  else { *--strres__push = c;
 #endif
-		if (c == YYNEWLINE)
-			strres_lineno--;
-	}	/* endif */
-	return c;
+  if (c == YYNEWLINE)
+    strres_lineno--;
+  /* endif */
+  return c;
 }
 
-#line 106 "StrRes.l"
 
 /* Set the current input buffer for the lexer */
-void strresSetInputBuffer(UBYTE *pBuffer, UDWORD size)
+void strresSetInputBuffer(UBYTE* pBuffer, UDWORD size)
 {
-	pInputBuffer = pBuffer;
-	pEndBuffer = pBuffer + size;
+  pInputBuffer = pBuffer;
+  pEndBuffer = pBuffer + size;
 
-	/* Reset the lexer incase it's been used before */
-	strres__reset();
+  /* Reset the lexer incase it's been used before */
+  strres__reset();
 }
 
-void strresGetErrorData(int *pLine, char **ppText)
+void strresGetErrorData(int* pLine, char** ppText)
 {
-	*pLine = strres_lineno;
-	*ppText = strres_text;
+  *pLine = strres_lineno;
+  *ppText = strres_text;
 }
 
 int strres_wrap(void)
 {
-	if (inComment)
-	{
-		DBERROR(("Warning: reched end of file in a comment"));
-	}
+  if (inComment)
+    DBERROR(("Warning: reched end of file in a comment"));
 
-	return 1;
+  return 1;
 }
-

@@ -8,18 +8,15 @@
 #define _oprint_h
 
 // print out information about a base object
-extern void printBaseObjInfo(BASE_OBJECT *psObj);
+extern void printBaseObjInfo(BASE_OBJECT* psObj);
 
 // print out information about a general component
-extern void printComponentInfo(COMP_BASE_STATS *psStats);
+extern void printComponentInfo(COMP_BASE_STATS* psStats);
 
 // print out weapon information
-extern void printWeaponInfo(WEAPON_STATS *psStats);
+extern void printWeaponInfo(WEAPON_STATS* psStats);
 
 // print out information about a droid and it's components
-extern void printDroidInfo(DROID *psDroid);
+extern void printDroidInfo(DROID* psDroid);
 
 #endif
-
-
-

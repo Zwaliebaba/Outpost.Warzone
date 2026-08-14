@@ -5,16 +5,16 @@
  */
 
 // functions	
-extern BOOL intAddInGameOptions			(void);
-extern BOOL intCloseInGameOptions		(BOOL bPutUpLoadSave, BOOL bResetMissionWidgets);
-extern void intCloseInGameOptionsNoAnim	(BOOL bResetMissionWidgets);
-extern BOOL intRunInGameOptions			(void);
-extern void intProcessInGameOptions		(UDWORD);
+extern BOOL intAddInGameOptions(void);
+extern BOOL intCloseInGameOptions(BOOL bPutUpLoadSave, BOOL bResetMissionWidgets);
+extern void intCloseInGameOptionsNoAnim(BOOL bResetMissionWidgets);
+extern BOOL intRunInGameOptions(void);
+extern void intProcessInGameOptions(UDWORD);
 
 // status bools.
-extern BOOL	ClosingInGameOp;
-extern BOOL	InGameOpUp;
-extern BOOL	bSubtitles;
+extern BOOL ClosingInGameOp;
+extern BOOL InGameOpUp;
+extern BOOL bSubtitles;
 
 // ////////////////////////////////////////////////////////////////////////////
 // defines
@@ -29,7 +29,7 @@ extern BOOL	bSubtitles;
 
 // game options
 // initial options
-#define INTINGAMEOP_W			120	 
+#define INTINGAMEOP_W			120
 
 #define INTINGAMEOP_H			124
 #define INTINGAMEOP_HS			88
@@ -48,8 +48,7 @@ extern BOOL	bSubtitles;
 #define INTINGAMEOP3_X			((320-(INTINGAMEOP3_W/2))+D_W)
 #define INTINGAMEOP3_Y			((240-(INTINGAMEOP3_H/2))+D_H)
 
-
- #define PAUSEMESSAGE_YOFFSET (0)
+#define PAUSEMESSAGE_YOFFSET (0)
 
 #define INTINGAMEOP_PAUSEX			RET_X
 #define INTINGAMEOP_PAUSEY			10

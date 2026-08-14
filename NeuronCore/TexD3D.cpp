@@ -16,7 +16,6 @@
  */
 /***************************************************************************/
 
-
 /***************************************************************************/
 /*
  *	Local Variables
@@ -43,25 +42,20 @@
  */
 /***************************************************************************/
 
-HRESULT
-d3dCreateSurface( LPDDSURFACEDESC2 lpDDSurfDesc,
-					LPDIRECTDRAWSURFACE4 FAR *lpDDSurface, BOOL bHardware )
+HRESULT d3dCreateSurface(LPDDSURFACEDESC2 lpDDSurfDesc, LPDIRECTDRAWSURFACE4 FAR * lpDDSurface, BOOL bHardware)
 {
-	LPDIRECTDRAW4	psDD;
-	HRESULT			hRes;
+  LPDIRECTDRAW4 psDD;
+  HRESULT hRes;
 
-	/* get local copy of DirectDraw object pointer from framework */
-	psDD = screenGetDDObject();
+  /* get local copy of DirectDraw object pointer from framework */
+  psDD = screenGetDDObject();
 
-    if ( bHardware )
-	{
-        lpDDSurfDesc->ddsCaps.dwCaps |= DDSCAPS_SYSTEMMEMORY;
-	}
+  if (bHardware)
+    lpDDSurfDesc->ddsCaps.dwCaps |= DDSCAPS_SYSTEMMEMORY;
 
-	hRes = psDD->lpVtbl->CreateSurface( psDD, lpDDSurfDesc,
-											 lpDDSurface, NULL);
+  hRes = psDD->lpVtbl->CreateSurface(psDD, lpDDSurfDesc, lpDDSurface, nullptr);
 
-    return hRes;
+  return hRes;
 }
 
 /***************************************************************************/
@@ -72,16 +66,15 @@ d3dCreateSurface( LPDDSURFACEDESC2 lpDDSurfDesc,
  */
 /***************************************************************************/
 
-HRESULT
-d3dGetSurfDesc(LPDDSURFACEDESC2 lpDDSurfDesc,LPDIRECTDRAWSURFACE4 lpDDSurf)
+HRESULT d3dGetSurfDesc(LPDDSURFACEDESC2 lpDDSurfDesc, LPDIRECTDRAWSURFACE4 lpDDSurf)
 {
-    HRESULT result;
+  HRESULT result;
 
-	memset(lpDDSurfDesc, 0, sizeof(DDSURFACEDESC2));
-    lpDDSurfDesc->dwSize = sizeof(DDSURFACEDESC2);
-    result = lpDDSurf->lpVtbl->GetSurfaceDesc(lpDDSurf, lpDDSurfDesc);
-	
-	return result;
+  memset(lpDDSurfDesc, 0, sizeof(DDSURFACEDESC2));
+  lpDDSurfDesc->dwSize = sizeof(DDSURFACEDESC2);
+  result = lpDDSurf->lpVtbl->GetSurfaceDesc(lpDDSurf, lpDDSurfDesc);
+
+  return result;
 }
 
 /***************************************************************************/
@@ -93,118 +86,94 @@ d3dGetSurfDesc(LPDDSURFACEDESC2 lpDDSurfDesc,LPDIRECTDRAWSURFACE4 lpDDSurf)
  */
 /***************************************************************************/
 
-UWORD
-NearestPowerOf2( UDWORD i)
+UWORD NearestPowerOf2(UDWORD i)
 {
-	SWORD lShift = 0;
+  SWORD lShift = 0;
 
-	while(i < (UDWORD)(1 << lShift))
-	{
-		lShift ++;
-	}
-	ASSERT (((lShift < 11),"NearestPowerOf2: value %i out of bounds\n", i));
-	return (1 << lShift);
+  while (i < static_cast<UDWORD>(1 << lShift)) { lShift++; }
+  ASSERT(((lShift < 11),"NearestPowerOf2: value %i out of bounds\n", i));
+  return (1 << lShift);
 }
 
-UWORD
-NearestPowerOf2withShift( UDWORD i, SWORD *shift)
+UWORD NearestPowerOf2withShift(UDWORD i, SWORD* shift)
 {
-	SWORD lShift = 0;
+  SWORD lShift = 0;
 
-	while(i > (UDWORD)(1 << lShift))
-	{
-		lShift ++;
-	}
-	*shift = lShift;
-	ASSERT (((lShift < 11),"NearestPowerOf2: value %i out of bounds\n", i));
-	return (1 << lShift);
+  while (i > static_cast<UDWORD>(1 << lShift)) { lShift++; }
+  *shift = lShift;
+  ASSERT(((lShift < 11),"NearestPowerOf2: value %i out of bounds\n", i));
+  return (1 << lShift);
 }
 
 /***************************************************************************/
 
-BOOL
-D3DTexCreateFromIvisTex( TEXPAGE_D3D			*psTexPage,
-						 iTexture				*psIvisTex,
-						 iColour				*psIvisPal,
-						 LPDDPIXELFORMAT		pDDSurfDescTexture,
-						 PALETTEENTRY			*psPal,
-						 BOOL					bHardware )
+BOOL D3DTexCreateFromIvisTex(TEXPAGE_D3D* psTexPage, iTexture* psIvisTex, iColour* psIvisPal, LPDDPIXELFORMAT pDDSurfDescTexture,
+                             PALETTEENTRY* psPal, BOOL bHardware)
 {
-	LPDIRECTDRAWSURFACE4		psSurfaceSrc = NULL;
-	LPDIRECT3DTEXTURE2		psTextureSrc = NULL;
-	DWORD					dwCaps;
-	HRESULT					hResult;
-	DDSURFACEDESC2			ddsd;
-	LPDIRECTDRAW4			psDD;
-	DWORD					pcaps;
-	UWORD					i;
-	HDC						hDC;
-	DWORD					dwColourKey;
+  LPDIRECTDRAWSURFACE4 psSurfaceSrc = nullptr;
+  LPDIRECT3DTEXTURE2 psTextureSrc = nullptr;
+  DWORD dwCaps;
+  HRESULT hResult;
+  DDSURFACEDESC2 ddsd;
+  LPDIRECTDRAW4 psDD;
+  DWORD pcaps;
+  UWORD i;
+  HDC hDC;
+  DWORD dwColourKey;
 
-	psDD = screenGetDDObject();
+  psDD = screenGetDDObject();
 
-	ASSERT((psDD != NULL,
-		"surfCreateFromPCX: NULL DD object - framework not initialised?"));
+  ASSERT((psDD != NULL, "surfCreateFromPCX: NULL DD object - framework not initialised?"));
 
-	/* get next power of 2 for width and height of surface */
-	psTexPage->iWidth  = NearestPowerOf2withShift( psIvisTex->width , &(psTexPage->widthShift));
-	psTexPage->iHeight = NearestPowerOf2withShift( psIvisTex->height, &(psTexPage->heightShift));
+  /* get next power of 2 for width and height of surface */
+  psTexPage->iWidth = NearestPowerOf2withShift(psIvisTex->width, &(psTexPage->widthShift));
+  psTexPage->iHeight = NearestPowerOf2withShift(psIvisTex->height, &(psTexPage->heightShift));
 
-	if ( surfCreate( &psSurfaceSrc, psTexPage->iWidth, psTexPage->iHeight,
-					  DDSCAPS_TEXTURE | DDSCAPS_SYSTEMMEMORY,
-					  pDDSurfDescTexture,
-					  psTexPage->bColourKeyed, TRUE ) == FALSE )
-	{
-		DBERROR( ("surfCreateFromPCX: couldn't create sys mem surface.\n") );
-		return FALSE;
-	}
+  if (surfCreate(&psSurfaceSrc, psTexPage->iWidth, psTexPage->iHeight, DDSCAPS_TEXTURE | DDSCAPS_SYSTEMMEMORY, pDDSurfDescTexture,
+                 psTexPage->bColourKeyed, TRUE) == FALSE)
+  {
+    DBERROR(("surfCreateFromPCX: couldn't create sys mem surface.\n"));
+    return FALSE;
+  }
 
-	hDC = GetDC(NULL);
+  hDC = GetDC(nullptr);
 
-	/* Get the current palette */
-	GetSystemPaletteEntries( hDC, 0, (1 << 8), psPal );
-	ReleaseDC( NULL, hDC );
+  /* Get the current palette */
+  GetSystemPaletteEntries(hDC, 0, (1 << 8), psPal);
+  ReleaseDC(nullptr, hDC);
 
-	/*
-	 * Change the flags on the palette entries to allow D3D to change
-	 * some of them.  In the window case, we must not change the top and
-	 * bottom ten (system colors), but in a fullscreen mode we can have
-	 * all but the first and last.
-	 */
-	for ( i=0; i<256; i++ )
-	{
-		psPal[i].peRed   = psIvisPal[i].r;
-		psPal[i].peGreen = psIvisPal[i].g;
-		psPal[i].peBlue  = psIvisPal[i].b;
-		psPal[i].peFlags = D3DPAL_FREE | PC_RESERVED;
-	}
+  /*
+   * Change the flags on the palette entries to allow D3D to change
+   * some of them.  In the window case, we must not change the top and
+   * bottom ten (system colors), but in a fullscreen mode we can have
+   * all but the first and last.
+   */
+  for (i = 0; i < 256; i++)
+  {
+    psPal[i].peRed = psIvisPal[i].r;
+    psPal[i].peGreen = psIvisPal[i].g;
+    psPal[i].peBlue = psIvisPal[i].b;
+    psPal[i].peFlags = D3DPAL_FREE | PC_RESERVED;
+  }
 
-	if (!surfLoadFrom8Bit(psSurfaceSrc, psIvisTex->width,
-		psIvisTex->height, psIvisTex->bmp, psPal))
-	{
-		return FALSE;
-	}
+  if (!surfLoadFrom8Bit(psSurfaceSrc, psIvisTex->width, psIvisTex->height, psIvisTex->bmp, psPal))
+    return FALSE;
 
-    /* Query source surface for a texture interface */
-	hResult = psSurfaceSrc->lpVtbl->QueryInterface( psSurfaceSrc,
-							IID_IDirect3DTexture2,
-							(LPVOID*) &psTextureSrc );
-	if ( hResult != DD_OK )
-	{
-		DBERROR( ("Failed to obtain D3D texture interface for src texture.\n%s",
-			      DDErrorToString(hResult)) );
-		goto exit_with_error;
-	}
+  /* Query source surface for a texture interface */
+  hResult = psSurfaceSrc->lpVtbl->QueryInterface(psSurfaceSrc, IID_IDirect3DTexture2, (LPVOID*)&psTextureSrc);
+  if (hResult != DD_OK)
+  {
+    DBERROR(("Failed to obtain D3D texture interface for src texture.\n%s", DDErrorToString(hResult)));
+    goto exit_with_error;
+  }
 
-	/* set destination caps */
-	dwCaps = DDSCAPS_TEXTURE | DDSCAPS_ALLOCONLOAD;
+  /* set destination caps */
+  dwCaps = DDSCAPS_TEXTURE | DDSCAPS_ALLOCONLOAD;
 
-	if ( !bHardware )
-	{
-		dwCaps |= DDSCAPS_SYSTEMMEMORY;
-	}
+  if (!bHardware)
+    dwCaps |= DDSCAPS_SYSTEMMEMORY;
 
-	/*
+  /*
 	 * Create an empty texture surface to load the source texture into.
 	 * The DDSCAPS_ALLOCONLOAD flag allows the DD driver to wait until the
 	 * load call to allocate the texture in memory because at this point,
@@ -212,171 +181,140 @@ D3DTexCreateFromIvisTex( TEXPAGE_D3D			*psTexPage,
 	 * could be compressed to an unknown size in video memory).
 	 * Make sure SW renderers get textures in system memory
 	 */
-	if ( surfCreate( &psTexPage->psSurface, psTexPage->iWidth,
-					 psTexPage->iHeight, dwCaps,
-					 pDDSurfDescTexture,
-					 psTexPage->bColourKeyed, FALSE ) == FALSE )
-	{
-        DBERROR( ("surfCreateFromPCX: couldn't create surface.\n") );
-		goto exit_with_error;
-	}
+  if (surfCreate(&psTexPage->psSurface, psTexPage->iWidth, psTexPage->iHeight, dwCaps, pDDSurfDescTexture, psTexPage->bColourKeyed, FALSE)
+    == FALSE)
+  {
+    DBERROR(("surfCreateFromPCX: couldn't create surface.\n"));
+    goto exit_with_error;
+  }
 
-    if ( pDDSurfDescTexture->dwFlags & DDPF_PALETTEINDEXED8)
-	{
-		pcaps = DDPCAPS_8BIT | DDPCAPS_ALLOW256;
-    }
-	else if (pDDSurfDescTexture->dwFlags & DDPF_PALETTEINDEXED4)
-	{
-		pcaps = DDPCAPS_4BIT;
-    }
-	else
-	{
-		pcaps = 0;
-    }
+  if (pDDSurfDescTexture->dwFlags & DDPF_PALETTEINDEXED8)
+    pcaps = DDPCAPS_8BIT | DDPCAPS_ALLOW256;
+  else if (pDDSurfDescTexture->dwFlags & DDPF_PALETTEINDEXED4)
+    pcaps = DDPCAPS_4BIT;
+  else
+    pcaps = 0;
 
-	/* copy palette from into dest if necessary */
-    if ( pcaps )
-	{	
-		hResult = psDD->lpVtbl->CreatePalette(psDD, pcaps,
-								psPal, &psTexPage->psPalette, NULL);
-		if (hResult != DD_OK)
-		{
-			DBERROR( ("Failed to create a palette for the destination texture.\n%s",
-					DDErrorToString(hResult)) );
-			goto exit_with_error;
-		}
-
-		/* copy palette entries from src to dest */
-		psTexPage->psPalette->lpVtbl->SetEntries( psTexPage->psPalette, 0, 0, 256, psPal );
-
-		/* set palette to dest surface */
-		hResult = psTexPage->psSurface->lpVtbl->SetPalette(
-						psTexPage->psSurface, psTexPage->psPalette);
-		if (hResult != DD_OK)
-		{
-			DBERROR( ("Failed to set the destination texture's palette.\n%s",
-					  DDErrorToString(hResult)) );
-			goto exit_with_error;
-		}
-    }	
-	
-	/* Query destination surface for a texture interface */
-	hResult = psTexPage->psSurface->lpVtbl->QueryInterface(
-							psTexPage->psSurface,
-							IID_IDirect3DTexture2,
-							(LPVOID*) &psTexPage->psTexture );
-	if ( hResult != DD_OK )
-	{
-		DBERROR( ("Failed to obtain D3D texture interface for a destination texture.\n%s",
-			      DDErrorToString(hResult)) );
-		goto exit_with_error;
-	}
-
-    /*
-     * Load the source texture into the destination.  During this call, a
-     * driver could compress or reformat the texture surface and put it in
-     * video memory.
-     */
-    hResult = psTexPage->psTexture->lpVtbl->Load( psTexPage->psTexture, psTextureSrc );
-	if ( hResult != DD_OK )
-	{
-		DBERROR( ("Could not load a source texture into a destination texture.\n%s",
-			      DDErrorToString( hResult )) );
-		goto exit_with_error;
+  /* copy palette from into dest if necessary */
+  if (pcaps)
+  {
+    hResult = psDD->lpVtbl->CreatePalette(psDD, pcaps, psPal, &psTexPage->psPalette, nullptr);
+    if (hResult != DD_OK)
+    {
+      DBERROR(("Failed to create a palette for the destination texture.\n%s", DDErrorToString(hResult)));
+      goto exit_with_error;
     }
 
-	psTexPage->bColourKeyed = psIvisTex->bColourKeyed;
+    /* copy palette entries from src to dest */
+    psTexPage->psPalette->lpVtbl->SetEntries(psTexPage->psPalette, 0, 0, 256, psPal);
 
-	/* set dest surface colour key */
-	if ( psTexPage->bColourKeyed )
-	{
-		/* set colour key to first entry in palette */
-		dwColourKey = 0;// RGB( psPal[0].peRed, psPal[0].peGreen, psPal[0].peBlue );
-		hResult = DDSetColorKey( psTexPage->psSurface, dwColourKey );
-		if ( hResult != DD_OK )
-		{
-			DBERROR( ("D3DTexCreateFromIvisTex: couldn't set dest colour key.\n%s",
-						DDErrorToString(hResult)) );
-			goto exit_with_error;
-		}
-	}
-
-	/* Did the texture end up in video memory? */
-	hResult = d3dGetSurfDesc(&ddsd, psTexPage->psSurface );
-	if ( hResult != DD_OK )
-	{
-		DBERROR( ("D3DTexCreateFromIvisTex: couldn't get dest surface desc.\n%s",
-					DDErrorToString(hResult)) );
-		goto exit_with_error;
+    /* set palette to dest surface */
+    hResult = psTexPage->psSurface->lpVtbl->SetPalette(psTexPage->psSurface, psTexPage->psPalette);
+    if (hResult != DD_OK)
+    {
+      DBERROR(("Failed to set the destination texture's palette.\n%s", DDErrorToString(hResult)));
+      goto exit_with_error;
     }
+  }
 
-	if ( ddsd.ddsCaps.dwCaps & DDSCAPS_VIDEOMEMORY )
-	{
-		psTexPage->bInVideo = TRUE;
-	}
-	else
-	{
-		psTexPage->bInVideo = FALSE;
-	}
+  /* Query destination surface for a texture interface */
+  hResult = psTexPage->psSurface->lpVtbl->QueryInterface(psTexPage->psSurface, IID_IDirect3DTexture2, (LPVOID*)&psTexPage->psTexture);
+  if (hResult != DD_OK)
+  {
+    DBERROR(("Failed to obtain D3D texture interface for a destination texture.\n%s", DDErrorToString(hResult)));
+    goto exit_with_error;
+  }
 
-	if ( D3DGetAlphaKey() == TRUE )
-	{
-		/* For textures with real alpha (not palettized), set transparent bits */
-		if( ddsd.ddpfPixelFormat.dwRGBAlphaBitMask )
-		{
-			DWORD	dwAlphaMask = ddsd.ddpfPixelFormat.dwRGBAlphaBitMask;
-			DWORD	dwRGBMask   = ( ddsd.ddpfPixelFormat.dwRBitMask |
-									ddsd.ddpfPixelFormat.dwGBitMask |
-									ddsd.ddpfPixelFormat.dwBBitMask );
-			DWORD	dwColorkey  = 0x00000000; // Colorkey on black
-			DWORD	*p32, x, y;
-			WORD	*p16;
+  /*
+   * Load the source texture into the destination.  During this call, a
+   * driver could compress or reformat the texture surface and put it in
+   * video memory.
+   */
+  hResult = psTexPage->psTexture->lpVtbl->Load(psTexPage->psTexture, psTextureSrc);
+  if (hResult != DD_OK)
+  {
+    DBERROR(("Could not load a source texture into a destination texture.\n%s", DDErrorToString( hResult )));
+    goto exit_with_error;
+  }
 
-			// Lock the texture surface
-			while( psTexPage->psSurface->lpVtbl->Lock( psTexPage->psSurface,
-					NULL, &ddsd, 0, NULL ) == DDERR_WASSTILLDRAWING );
-			 
-			// Add an opaque alpha value to each non-colorkeyed pixel
-			for( y=0; y<ddsd.dwHeight; y++ )
-			{
-				p16 =  (WORD*)((BYTE*)ddsd.lpSurface + y*ddsd.lPitch);
-				p32 = (DWORD*)((BYTE*)ddsd.lpSurface + y*ddsd.lPitch);
+  psTexPage->bColourKeyed = psIvisTex->bColourKeyed;
 
-				for( x=0; x<ddsd.dwWidth; x++ )
-				{
-					if( ddsd.ddpfPixelFormat.dwRGBBitCount == 16 )
-					{
-						if( ( *p16 &= dwRGBMask ) != dwColorkey )
-						{
-							*p16 |= dwAlphaMask;
-						}
-						p16++;
-					}
-					if( ddsd.ddpfPixelFormat.dwRGBBitCount == 32 )
-					{
-						if( ( *p32 &= dwRGBMask ) != dwColorkey )
-						{
-							*p32 |= dwAlphaMask;
-						}
-						p32++;
-					}
-				}
-			}
+  /* set dest surface colour key */
+  if (psTexPage->bColourKeyed)
+  {
+    /* set colour key to first entry in palette */
+    dwColourKey = 0; // RGB( psPal[0].peRed, psPal[0].peGreen, psPal[0].peBlue );
+    hResult = DDSetColorKey(psTexPage->psSurface, dwColourKey);
+    if (hResult != DD_OK)
+    {
+      DBERROR(("D3DTexCreateFromIvisTex: couldn't set dest colour key.\n%s", DDErrorToString(hResult)));
+      goto exit_with_error;
+    }
+  }
 
-			psTexPage->psSurface->lpVtbl->Unlock( psTexPage->psSurface, NULL );
-		}
-	}
+  /* Did the texture end up in video memory? */
+  hResult = d3dGetSurfDesc(&ddsd, psTexPage->psSurface);
+  if (hResult != DD_OK)
+  {
+    DBERROR(("D3DTexCreateFromIvisTex: couldn't get dest surface desc.\n%s", DDErrorToString(hResult)));
+    goto exit_with_error;
+  }
 
-	/* done with src */
-	RELEASE( psTextureSrc );
-	surfRelease( psSurfaceSrc );
+  if (ddsd.ddsCaps.dwCaps & DDSCAPS_VIDEOMEMORY)
+    psTexPage->bInVideo = TRUE;
+  else
+    psTexPage->bInVideo = FALSE;
 
-	return TRUE;
+  if (D3DGetAlphaKey() == TRUE)
+  {
+    /* For textures with real alpha (not palettized), set transparent bits */
+    if (ddsd.ddpfPixelFormat.dwRGBAlphaBitMask)
+    {
+      DWORD dwAlphaMask = ddsd.ddpfPixelFormat.dwRGBAlphaBitMask;
+      DWORD dwRGBMask = (ddsd.ddpfPixelFormat.dwRBitMask | ddsd.ddpfPixelFormat.dwGBitMask | ddsd.ddpfPixelFormat.dwBBitMask);
+      DWORD dwColorkey = 0x00000000; // Colorkey on black
+      DWORD *p32, x, y;
+      WORD* p16;
+
+      // Lock the texture surface
+      while (psTexPage->psSurface->lpVtbl->Lock(psTexPage->psSurface, nullptr, &ddsd, 0, nullptr) == DDERR_WASSTILLDRAWING) { ; }
+
+      // Add an opaque alpha value to each non-colorkeyed pixel
+      for (y = 0; y < ddsd.dwHeight; y++)
+      {
+        p16 = (WORD*)(static_cast<BYTE*>(ddsd.lpSurface) + y * ddsd.lPitch);
+        p32 = (DWORD*)(static_cast<BYTE*>(ddsd.lpSurface) + y * ddsd.lPitch);
+
+        for (x = 0; x < ddsd.dwWidth; x++)
+        {
+          if (ddsd.ddpfPixelFormat.dwRGBBitCount == 16)
+          {
+            if ((*p16 &= dwRGBMask) != dwColorkey)
+              *p16 |= dwAlphaMask;
+            p16++;
+          }
+          if (ddsd.ddpfPixelFormat.dwRGBBitCount == 32)
+          {
+            if ((*p32 &= dwRGBMask) != dwColorkey)
+              *p32 |= dwAlphaMask;
+            p32++;
+          }
+        }
+      }
+
+      psTexPage->psSurface->lpVtbl->Unlock(psTexPage->psSurface, nullptr);
+    }
+  }
+
+  /* done with src */
+  RELEASE(psTextureSrc);
+  surfRelease(psSurfaceSrc);
+
+  return TRUE;
 
 exit_with_error:
 
-	surfRelease( psSurfaceSrc );
+  surfRelease(psSurfaceSrc);
 
-	return FALSE;
+  return FALSE;
 }
-

@@ -28,7 +28,6 @@
 #define	MONO_REVERSED				(0x70)
 #define	MONO_BLINK_REVERSED			(0xF0)
 
-
 /*
 *****************************************************************************************
 *	monochrome screen dimensions
@@ -37,15 +36,14 @@
 #define	MONO_SCREEN_WIDTH			(80)
 #define	MONO_SCREEN_HEIGHT			(25)
 
-
 /*
 *****************************************************************************************
 *	library function prototypes
 *****************************************************************************************
 */
-extern void		 dbg_MONO_ClearRectangle(SDWORD, SDWORD, SDWORD, SDWORD);
-extern void		 dbg_MONO_ClearScreen(void);
-extern void		 dbg_MONO_PrintString(SDWORD, SDWORD, SBYTE *, ...);
+extern void dbg_MONO_ClearRectangle(SDWORD, SDWORD, SDWORD, SDWORD);
+extern void dbg_MONO_ClearScreen(void);
+extern void dbg_MONO_PrintString(SDWORD, SDWORD, SBYTE*, ...);
 
 /* Tell lint that PrintString takes printf like arguments */
 /*lint -printf(3,dbg_MONO_PrintString) */

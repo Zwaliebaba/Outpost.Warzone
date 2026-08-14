@@ -23,200 +23,207 @@
 //used to get a location next to a droid - withinh one tile
 #define LOOK_NEXT_TO_DROID		8
 
-
 /* The different types of droid */
 // NOTE, if you add to, or change this list then you'll need
 // to update the DroidSelectionWeights lookup table in Display.c
-typedef enum _droid_type
+using DROID_TYPE = enum _droid_type
 {
-	DROID_WEAPON,		// Weapon droid
-	DROID_SENSOR,		// Sensor droid
-	DROID_ECM,			// ECM droid
-	DROID_CONSTRUCT,	// Constructor droid
-	DROID_PERSON,		// person
-	DROID_CYBORG,		// cyborg-type thang
-	DROID_TRANSPORTER,	// guess what this is!
-	DROID_COMMAND,		// Command droid
-	DROID_REPAIR,		// Repair droid
-	DROID_DEFAULT,		// Default droid
-    DROID_CYBORG_CONSTRUCT, //cyborg constructor droid - new for update 28/5/99
-    DROID_CYBORG_REPAIR,    //cyborg repair droid - new for update 28/5/99
-    DROID_CYBORG_SUPER,		//cyborg repair droid - new for update 7/6/99
-	DROID_ANY,			// Any droid, Only used as a parameter for intGotoNextDroidType(droidtype).
-} DROID_TYPE;
+  DROID_WEAPON,
+  // Weapon droid
+  DROID_SENSOR,
+  // Sensor droid
+  DROID_ECM,
+  // ECM droid
+  DROID_CONSTRUCT,
+  // Constructor droid
+  DROID_PERSON,
+  // person
+  DROID_CYBORG,
+  // cyborg-type thang
+  DROID_TRANSPORTER,
+  // guess what this is!
+  DROID_COMMAND,
+  // Command droid
+  DROID_REPAIR,
+  // Repair droid
+  DROID_DEFAULT,
+  // Default droid
+  DROID_CYBORG_CONSTRUCT,
+  //cyborg constructor droid - new for update 28/5/99
+  DROID_CYBORG_REPAIR,
+  //cyborg repair droid - new for update 28/5/99
+  DROID_CYBORG_SUPER,
+  //cyborg repair droid - new for update 7/6/99
+  DROID_ANY,
+  // Any droid, Only used as a parameter for intGotoNextDroidType(droidtype).
+};
 
 #define MAX_STATS (255)
 
-typedef struct _component
+using COMPONENT = struct _component
 {
-	UBYTE			nStat;				// Allowing a maximum of 255 stats per file
-	//UDWORD					hitPoints; NOT USED?
+  UBYTE nStat; // Allowing a maximum of 255 stats per file
+  //UDWORD					hitPoints; NOT USED?
 
-	/* Possibly a set of function pointers here to be called when
-	 * damage is done to a component, power is low ...
-	 */
-} COMPONENT;
+  /* Possibly a set of function pointers here to be called when
+   * damage is done to a component, power is low ...
+   */
+};
 
-typedef struct _program
+using PROGRAM = struct _program
 {
-	struct _program_stats	*psStats;
-} PROGRAM;
-
+  struct _program_stats* psStats;
+};
 
 // maximum number of queued orders
 #define ORDER_LIST_MAX		10
 
-typedef struct _order_list
+using ORDER_LIST = struct _order_list
 {
-	SDWORD				order;
-    void                *psOrderTarget; //this needs to cope with objects and stats
-	UWORD				x,y,x2,y2;      //line build requires two sets of coords
-} ORDER_LIST;
+  SDWORD order;
+  void* psOrderTarget; //this needs to cope with objects and stats
+  UWORD x, y, x2, y2; //line build requires two sets of coords
+};
 
 // maximum number of characters in a droid name
 #define DROID_MAXNAME	MAX_NAME_SIZE
 
-typedef struct _droid_template
+using DROID_TEMPLATE = struct _droid_template
 {
-	// FOR DROID TEMPLATES
-	// On the PC the pName entry in STATS_BASE is redundant and can be assumed to be NULL, 
-	// on the PSX the NameHash entry is used. If it is database generated template, the hashed version of the short name of the template is stored. If it is a user generated template NULL is stored.
-	STATS_BASE;						/* basic stats */ 
+  // FOR DROID TEMPLATES
+  // On the PC the pName entry in STATS_BASE is redundant and can be assumed to be NULL, 
+  // on the PSX the NameHash entry is used. If it is database generated template, the hashed version of the short name of the template is stored. If it is a user generated template NULL is stored.
+  STATS_BASE; /* basic stats */
 
-	// on the PC this contains the full editable ascii name of the template
-	// on the PSX this is not used, the full name is NON-EDITABLE and is generated from the template components e.g. Viper Mk I
-	STRING			aName[DROID_MAXNAME];	 
-	UBYTE 			NameVersion;			// Version number used in name (e.g. Viper Mk "I" would be stored as 1 - Viper Mk "X" as 10)  - copied to droid structure
+  // on the PC this contains the full editable ascii name of the template
+  // on the PSX this is not used, the full name is NON-EDITABLE and is generated from the template components e.g. Viper Mk I
+  STRING aName[DROID_MAXNAME];
+  UBYTE NameVersion;
+  // Version number used in name (e.g. Viper Mk "I" would be stored as 1 - Viper Mk "X" as 10)  - copied to droid structure
 
-	/* The droid components.  This array is indexed by COMPONENT_TYPE
-	 * so the ECM would be accessed using asParts[COMP_ECM].
-	 * COMP_BRAIN is an index into the asCommandDroids array NOT asBrainStats
-	 */
-	SDWORD			asParts[DROID_MAXCOMP];
+  /* The droid components.  This array is indexed by COMPONENT_TYPE
+   * so the ECM would be accessed using asParts[COMP_ECM].
+   * COMP_BRAIN is an index into the asCommandDroids array NOT asBrainStats
+   */
+  SDWORD asParts[DROID_MAXCOMP];
 
-	UDWORD			buildPoints;				/*total build points required to manufacture 
+  UDWORD buildPoints; /*total build points required to manufacture 
 												  the droid*/
-	UDWORD			powerPoints;				/*total power points required to build/maintain
+  UDWORD powerPoints; /*total power points required to build/maintain
 												  the droid */
-	UDWORD			storeCount;					/*used to load in weaps and progs*/
-	/* The weapon systems */
-	UDWORD			numWeaps;					/* Number of weapons*/
-	UDWORD			asWeaps[DROID_MAXWEAPS];	/* weapon indices */
-	
-	/* The programs */
-	//UDWORD			numProgs;					/* Number of programs*/
-	//UDWORD			asProgs[DROID_MAXPROGS];	/* program indices*/
+  UDWORD storeCount; /*used to load in weaps and progs*/
+  /* The weapon systems */
+  UDWORD numWeaps; /* Number of weapons*/
+  UDWORD asWeaps[DROID_MAXWEAPS]; /* weapon indices */
 
-	DROID_TYPE		droidType;					// The type of droid
-	UDWORD			multiPlayerID;				// multiplayer unique descriptor(cant use id's for templates)
-												// used for save games as well now - AB 29/10/98
-	struct _droid_template	*psNext;			/* Pointer to next template*/
+  /* The programs */
+  //UDWORD			numProgs;					/* Number of programs*/
+  //UDWORD			asProgs[DROID_MAXPROGS];	/* program indices*/
 
-} DROID_TEMPLATE;
+  DROID_TYPE droidType; // The type of droid
+  UDWORD multiPlayerID; // multiplayer unique descriptor(cant use id's for templates)
+  // used for save games as well now - AB 29/10/98
+  struct _droid_template* psNext; /* Pointer to next template*/
+};
 
-
-typedef struct _droid
+using DROID = struct _droid
 {
-	/* The common structure elements for all objects */
-	BASE_ELEMENTS(struct _droid);
+  /* The common structure elements for all objects */
+  BASE_ELEMENTS(struct _droid);
 
-	//Ascii name of the droid - This is generated from the droid template and can not be changed by the game player after creation.
-	STRING		aName[DROID_MAXNAME];			
-//	UBYTE 		NameVersion;			// Version number used for generating on-the-fly names (e.g. Viper Mk "I" would be stored as 1 - Viper Mk "X" as 10)  - copied from droid template
+  //Ascii name of the droid - This is generated from the droid template and can not be changed by the game player after creation.
+  STRING aName[DROID_MAXNAME];
+  //	UBYTE 		NameVersion;			// Version number used for generating on-the-fly names (e.g. Viper Mk "I" would be stored as 1 - Viper Mk "X" as 10)  - copied from droid template
 
+  DROID_TYPE droidType; // The type of droid
 
-	DROID_TYPE	droidType;			// The type of droid
+  /* Possibly a set of function pointers here to be called when
+   * damage is done to a component, power is low ...
+   */
 
-	/* Possibly a set of function pointers here to be called when
-	 * damage is done to a component, power is low ...
-	 */
+  //	DROID_TEMPLATE	*pTemplate;		//defines the droids components
 
-//	DROID_TEMPLATE	*pTemplate;		//defines the droids components
+  /* Holds the specifics for the component parts - allows damage
+   * per part to be calculated. Indexed by COMPONENT_TYPE.
+   * Weapons and Programs need to be dealt with separately.
+   * COMP_BRAIN is an index into the asCommandDroids array NOT asBrainStats
+   */
+  COMPONENT asBits[DROID_MAXCOMP];
 
-	/* Holds the specifics for the component parts - allows damage
-	 * per part to be calculated. Indexed by COMPONENT_TYPE.
-	 * Weapons and Programs need to be dealt with separately.
-	 * COMP_BRAIN is an index into the asCommandDroids array NOT asBrainStats
-	 */
-	COMPONENT		asBits[DROID_MAXCOMP];
-	
-	/* The other droid data.  These are all derived from the components
-	 * but stored here for easy access
-	 */
-	UDWORD		weight;
-	UDWORD		baseSpeed;		//the base speed dependant on propulsion type
-	UDWORD		sensorRange;
-	UDWORD		sensorPower;
-	UDWORD		ECMMod;
-	UDWORD		originalBody;		//the original body points
-	UDWORD		body;				// the current body points
-	UDWORD		armour[NUM_WEAPON_CLASS];
-	UWORD		numKills;
-	//UWORD		turretRotRate; THIS IS A CONSTANT
-	UWORD		turretRotation;
-	UWORD		turretPitch;	//*
-	UBYTE 		NameVersion;			// Version number used for generating on-the-fly names (e.g. Viper Mk "I" would be stored as 1 - Viper Mk "X" as 10)  - copied from droid template
-	UBYTE		currRayAng;
+  /* The other droid data.  These are all derived from the components
+   * but stored here for easy access
+   */
+  UDWORD weight;
+  UDWORD baseSpeed; //the base speed dependant on propulsion type
+  UDWORD sensorRange;
+  UDWORD sensorPower;
+  UDWORD ECMMod;
+  UDWORD originalBody; //the original body points
+  UDWORD body; // the current body points
+  UDWORD armour[NUM_WEAPON_CLASS];
+  UWORD numKills;
+  //UWORD		turretRotRate; THIS IS A CONSTANT
+  UWORD turretRotation;
+  UWORD turretPitch; //*
+  UBYTE NameVersion;
+  // Version number used for generating on-the-fly names (e.g. Viper Mk "I" would be stored as 1 - Viper Mk "X" as 10)  - copied from droid template
+  UBYTE currRayAng;
 
-    SWORD       resistance;             //used in Electronic Warfare
+  SWORD resistance; //used in Electronic Warfare
 
-//	SDWORD		activeWeapon;		// The currently selected weapon
-	WEAPON		asWeaps[DROID_MAXWEAPS];
+  //	SDWORD		activeWeapon;		// The currently selected weapon
+  WEAPON asWeaps[DROID_MAXWEAPS];
 
-	//SDWORD		activeProg;			// The currently running program
+  //SDWORD		activeProg;			// The currently running program
 
-	// The group the droid belongs to
-	struct		_droid_group	*psGroup;
-	struct		_droid			*psGrpNext;
+  // The group the droid belongs to
+  struct _droid_group* psGroup;
+  struct _droid* psGrpNext;
 
-    struct      _structure      *psBaseStruct;      //a structure that this droid might be associated with
-                                                    //for vtols its the rearming pad
+  struct _structure* psBaseStruct; //a structure that this droid might be associated with
+  //for vtols its the rearming pad
 
-	// queued orders
-	SDWORD			listSize;
-	ORDER_LIST		asOrderList[ORDER_LIST_MAX];
+  // queued orders
+  SDWORD listSize;
+  ORDER_LIST asOrderList[ORDER_LIST_MAX];
 
+  /* Order data */
+  SDWORD order;
+  UWORD orderX, orderY;
+  UWORD orderX2, orderY2;
+  UDWORD lastHitWeapon;
+  UDWORD timeLastHit;
+  BOOL bTargetted;
 
-	/* Order data */
-	SDWORD				order;
-	UWORD				orderX,orderY;
-	UWORD				orderX2,orderY2;
-	UDWORD				lastHitWeapon;
-	UDWORD				timeLastHit;
-	BOOL				bTargetted;
+  BASE_OBJECT* psTarget;
+  struct _base_stats* psTarStats;
 
-	BASE_OBJECT	*psTarget;
-	struct _base_stats	*psTarStats;
+  // secondary order data
+  UDWORD secondaryOrder;
 
-	// secondary order data
-	UDWORD				secondaryOrder;
+  UDWORD lastSync; // multiplayer synchronisation value.
 
-	UDWORD				lastSync;			// multiplayer synchronisation value.
+  /* Action data */
+  SDWORD action;
+  UDWORD actionX, actionY;
+  BASE_OBJECT* psActionTarget; // Action target object
+  UDWORD actionStarted; // Game time action started
+  UDWORD actionPoints; // number of points done by action since start
+  //UWORD				actionHeight;		// height to level the ground to for foundation, 
+  // possibly use it for other data as well? Yup! - powerAccrued!
+  UWORD powerAccrued; // renamed the above variable since this is what its used for now!
+  //UBYTE				tileNumber;			// tile number for foundation NOT USED ANYMORE
 
-	/* Action data */
-	SDWORD				action;
-	UDWORD				actionX,actionY;
-	BASE_OBJECT	*psActionTarget;	// Action target object
-	UDWORD				actionStarted;		// Game time action started
-	UDWORD				actionPoints;		// number of points done by action since start
-	//UWORD				actionHeight;		// height to level the ground to for foundation, 
-											// possibly use it for other data as well? Yup! - powerAccrued!
-    UWORD               powerAccrued;       // renamed the above variable since this is what its used for now!
-	//UBYTE				tileNumber;			// tile number for foundation NOT USED ANYMORE
+  UBYTE illumination;
+  UBYTE updateFlags;
 
-	UBYTE				illumination;
-	UBYTE				updateFlags;
+  /* Movement control data */
+  MOVE_CONTROL sMove;
+  /* AI data */
+  /* anim data */
+  ANIM_OBJECT* psCurAnim;
 
-	
-	/* Movement control data */
-	MOVE_CONTROL		sMove;	
-	/* AI data */
-	/* anim data */
-	ANIM_OBJECT			*psCurAnim;			
-
-	SDWORD				iAudioID;
-}
-DROID;
-
+  SDWORD iAudioID;
+};
 
 #endif

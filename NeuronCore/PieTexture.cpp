@@ -14,18 +14,17 @@
 #include "DX6TexMan.h"
 #include "Tex.h"
 
-
 /***************************************************************************/
 /*
  *	Local Definitions
  */
 /***************************************************************************/
 
-typedef struct _textureState
+using TEXTURE_STATE = struct _textureState
 {
-	UDWORD	lastPageDownloaded;
-	UDWORD	texPage;
-} TEXTURE_STATE;
+  UDWORD lastPageDownloaded;
+  UDWORD texPage;
+};
 
 /***************************************************************************/
 /*
@@ -33,7 +32,7 @@ typedef struct _textureState
  */
 /***************************************************************************/
 
-TEXTURE_STATE	textureStates;
+TEXTURE_STATE textureStates;
 
 /***************************************************************************/
 /*
@@ -47,17 +46,8 @@ TEXTURE_STATE	textureStates;
  */
 /***************************************************************************/
 
-BOOL pie_Download8bitTexturePage(void* bitmap,UWORD Width,UWORD Height)
-{
-	return TRUE;
-}
+BOOL pie_Download8bitTexturePage(void* bitmap, UWORD Width, UWORD Height) { return TRUE; }
 
-BOOL pie_Reload8bitTexturePage(void* bitmap,UWORD Width,UWORD Height, SDWORD index)
-{
-	return dtm_ReLoadTexture(index);
-}
+BOOL pie_Reload8bitTexturePage(void* bitmap, UWORD Width, UWORD Height, SDWORD index) { return dtm_ReLoadTexture(index); }
 
-UDWORD pie_GetLastPageDownloaded(void)
-{
-	return _TEX_INDEX;
-}
+UDWORD pie_GetLastPageDownloaded(void) { return _TEX_INDEX; }

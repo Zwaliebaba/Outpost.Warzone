@@ -16,17 +16,15 @@
 #endif
 
 /* Recursive function to add an object to a tree */
-extern void treapAddNode(TREAP_NODE **ppsRoot, TREAP_NODE *psNew, TREAP_CMP cmp);
+extern void treapAddNode(TREAP_NODE** ppsRoot, TREAP_NODE* psNew, TREAP_CMP cmp);
 
 /* Recursively find and remove a node from the tree */
-extern TREAP_NODE *treapDelRec(TREAP_NODE **ppsRoot, UDWORD key,
-							   TREAP_CMP cmp);
+extern TREAP_NODE* treapDelRec(TREAP_NODE** ppsRoot, UDWORD key, TREAP_CMP cmp);
 
 /* Recurisvely find an object in a treap */
-extern void *treapFindRec(TREAP_NODE *psRoot, UDWORD key, TREAP_CMP cmp);
+extern void* treapFindRec(TREAP_NODE* psRoot, UDWORD key, TREAP_CMP cmp);
 
 /* Recursively display the treap structure */
-extern void treapDisplayRec(TREAP_NODE *psRoot, UDWORD indent);
+extern void treapDisplayRec(TREAP_NODE* psRoot, UDWORD indent);
 
 #endif
-

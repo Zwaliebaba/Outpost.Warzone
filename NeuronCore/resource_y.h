@@ -1,6 +1,7 @@
-typedef union {
-	STRING  *sval;
-} YYSTYPE;
+using YYSTYPE = union
+{
+  STRING* sval;
+};
 #define TEXT	257
 #define QTEXT	258
 #define DIRECTORY	259

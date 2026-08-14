@@ -12,7 +12,7 @@
 #define iV_SWAP(a,b)			{ (a) ^= (b); (b) ^= (a); (a) ^= (b); }
 
 #ifdef iV_DDX
-	#define iV_DDX_ERROR		0x1000000
+#define iV_DDX_ERROR		0x1000000
 #endif
 
 #define iV_DIVSHIFT			15
@@ -20,9 +20,14 @@
 #define iV_DIVMULTP_2		(1<<(iV_DIVSHIFT-1))
 
 // Simple derived types
-typedef union {uint32 *dp; uint8 *bp; uint16 *wp;} iPointer;
+using iPointer = union
+{
+  uint32* dp;
+  uint8* bp;
+  uint16* wp;
+};
 
-extern void iV_Error(long n, char *msge, ...);
+extern void iV_Error(long n, char* msge, ...);
 
 // If its a final build we need to undefine iv_error so that it doesn't generate any code !
 #ifdef FINALBUILD
@@ -57,10 +62,8 @@ extern void iV_Error(long n, char *msge, ...);
 #define  iV_POLY_TEXT0 (3)
 #define  iV_POLY_GOUR (4)
 
-
-
 #ifdef iV_DDX
-	#define iV_DDX_ERROR		0x1000000
+#define iV_DDX_ERROR		0x1000000
 #endif
 
 /***************************************************************************/
@@ -68,25 +71,28 @@ extern void iV_Error(long n, char *msge, ...);
  *	Global Type Definitions
  */
 /***************************************************************************/
-typedef unsigned char uchar;
-typedef uint32 ufixed;
-typedef struct {int32 w, x, y, z;} iQuat;
-typedef struct {int x0, y0, x1, y1;} iBox;
-
+using uchar = unsigned char;
+using ufixed = uint32;
+using iQuat = struct
+{
+  int32 w, x, y, z;
+};
+using iBox = struct
+{
+  int x0, y0, x1, y1;
+};
 
 //*************************************************************************
 
-extern iError	_iVERROR;
+extern iError _iVERROR;
 
 //*************************************************************************
 
-extern void iV_Reset(int bResetPal );
+extern void iV_Reset(int bResetPal);
 extern void iV_ShutDown(void);
-extern void iV_Stop(char *string, ...);
-extern void iV_Abort(char *string, ...);
+extern void iV_Stop(char* string, ...);
+extern void iV_Abort(char* string, ...);
 extern void iV_DisplayLogFile(void);
-
-
 
 //*************************************************************************
 

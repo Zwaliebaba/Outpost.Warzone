@@ -19,96 +19,80 @@
 #include "Cluster.h"
 #include "Aud.h"
 #include "AudioID.h"
+#include "Findpath.h"
 
 /***************************************************************************/
 
-extern BOOL		display3D;
-extern UDWORD	mapX;
-extern UDWORD	mapY;
-extern iView	player;
-extern UDWORD	distance;
+extern BOOL display3D;
+extern UDWORD mapX;
+extern UDWORD mapY;
+extern iView player;
+extern UDWORD distance;
 
 /* Map Position of top right hand corner of the screen */
-extern UDWORD	viewX;
-extern UDWORD	viewY;
+extern UDWORD viewX;
+extern UDWORD viewY;
 
 /***************************************************************************/
 
-BOOL
-audio_ObjectDead( void * psObj )
+BOOL audio_ObjectDead(void* psObj)
 {
-	SIMPLE_OBJECT	*psSimpleObj = (SIMPLE_OBJECT *) psObj;
-	BASE_OBJECT		*psBaseObj;
-	PROJ_OBJECT		*psProj;
+  auto psSimpleObj = static_cast<SIMPLE_OBJECT*>(psObj);
+  BASE_OBJECT* psBaseObj;
+  PROJ_OBJECT* psProj;
 
-	/* check is valid simple object pointer */
-	if ( !PTRVALID(psSimpleObj, sizeof(SIMPLE_OBJECT)) )
-	{
-		DBPRINTF( ("audio_ObjectDead: simple object pointer invalid\n") );
-		return TRUE;
-	}
+  /* check is valid simple object pointer */
+  if (!PTRVALID(psSimpleObj, sizeof(SIMPLE_OBJECT)))
+  {
+    DBPRINTF(("audio_ObjectDead: simple object pointer invalid\n"));
+    return TRUE;
+  }
 
-	/* check projectiles */
-	if ( psSimpleObj->type == OBJ_BULLET )
-	{
-		psProj = (PROJ_OBJECT *) psSimpleObj;
-		if ( !PTRVALID(psProj, sizeof(PROJ_OBJECT)) )
-		{
-			DBPRINTF( ("audio_ObjectDead: projectile object pointer invalid\n") );
-			return TRUE;
-		}
-		else
-		{
-			if ( psProj->state == PROJ_POSTIMPACT )
-			{
-				return TRUE;
-			}
-			else
-			{
-				return FALSE;
-			}
-		}
-	}
-	else
-	{
-		/* check base object */
-		psBaseObj = (BASE_OBJECT *) psObj;
+  /* check projectiles */
+  if (psSimpleObj->type == OBJ_BULLET)
+  {
+    psProj = (PROJ_OBJECT*)psSimpleObj;
+    if (!PTRVALID(psProj, sizeof(PROJ_OBJECT)))
+    {
+      DBPRINTF(("audio_ObjectDead: projectile object pointer invalid\n"));
+      return TRUE;
+    }
+    if (psProj->state == PROJ_POSTIMPACT)
+      return TRUE;
+    return FALSE;
+  }
+  /* check base object */
+  psBaseObj = static_cast<BASE_OBJECT*>(psObj);
 
-		/* check is valid pointer */
-		if ( !PTRVALID(psBaseObj, sizeof(BASE_OBJECT)) )
-		{
-			DBPRINTF( ("audio_ObjectDead: base object pointer invalid\n") );
-			return TRUE;
-		}
-		else
-		{
-			return psBaseObj->died;
-		}
-	}
+  /* check is valid pointer */
+  if (!PTRVALID(psBaseObj, sizeof(BASE_OBJECT)))
+  {
+    DBPRINTF(("audio_ObjectDead: base object pointer invalid\n"));
+    return TRUE;
+  }
+  return psBaseObj->died;
 }
 
 /***************************************************************************/
 
-void
-audio_Get2DPlayerPos( SDWORD *piX, SDWORD *piY, SDWORD *piZ )
+void audio_Get2DPlayerPos(SDWORD* piX, SDWORD* piY, SDWORD* piZ)
 {
-	*piX = mapX << TILE_SHIFT;
-	*piY = mapY << TILE_SHIFT;
-	*piZ = 0;
+  *piX = mapX << TILE_SHIFT;
+  *piY = mapY << TILE_SHIFT;
+  *piZ = 0;
 }
 
 /***************************************************************************/
 
-void
-audio_Get3DPlayerPos( SDWORD *piX, SDWORD *piY, SDWORD *piZ )
+void audio_Get3DPlayerPos(SDWORD* piX, SDWORD* piY, SDWORD* piZ)
 {
-	/* player's y and z interchanged */
-	*piX = player.p.x + ((visibleXTiles/2) << TILE_SHIFT);
-	*piY = player.p.z + ((visibleYTiles/2) << TILE_SHIFT);
-	*piZ = player.p.y;
+  /* player's y and z interchanged */
+  *piX = player.p.x + ((visibleXTiles / 2) << TILE_SHIFT);
+  *piY = player.p.z + ((visibleYTiles / 2) << TILE_SHIFT);
+  *piZ = player.p.y;
 
-	/* invert y to match QSOUND axes */
-	*piY = (GetHeightOfMap() << TILE_SHIFT) - *piY;
+  /* invert y to match QSOUND axes */
+  *piY = (GetHeightOfMap() << TILE_SHIFT) - *piY;
 }
 
 /***************************************************************************/
@@ -117,11 +101,7 @@ audio_Get3DPlayerPos( SDWORD *piX, SDWORD *piY, SDWORD *piZ )
  */
 /***************************************************************************/
 
-void
-audio_Get2DPlayerRotAboutVerticalAxis( SDWORD *piA )
-{
-	*piA = (SWORD) 0;
-}
+void audio_Get2DPlayerRotAboutVerticalAxis(SDWORD* piA) { *piA = static_cast<SWORD>(0); }
 
 /***************************************************************************/
 /*
@@ -129,19 +109,11 @@ audio_Get2DPlayerRotAboutVerticalAxis( SDWORD *piA )
  */
 /***************************************************************************/
 
-void
-audio_Get3DPlayerRotAboutVerticalAxis( SDWORD *piA )
-{
-	*piA = player.r.y / DEG_1;
-}
+void audio_Get3DPlayerRotAboutVerticalAxis(SDWORD* piA) { *piA = player.r.y / DEG_1; }
 
 /***************************************************************************/
 
-BOOL
-audio_Display3D( void )
-{
-	return display3D;
-}
+BOOL audio_Display3D(void) { return display3D; }
 
 /***************************************************************************/
 /*
@@ -151,43 +123,33 @@ audio_Display3D( void )
  */
 /***************************************************************************/
 
-void
-audio_GetStaticPos( SDWORD iWorldX, SDWORD iWorldY,
-					SDWORD *piX, SDWORD *piY, SDWORD *piZ )
+void audio_GetStaticPos(SDWORD iWorldX, SDWORD iWorldY, SDWORD* piX, SDWORD* piY, SDWORD* piZ)
 {
-	*piX = iWorldX;
-	*piZ = map_TileHeight( iWorldX >> TILE_SHIFT,
-						   iWorldY >> TILE_SHIFT );
-	/* invert y to match QSOUND axes */
-	*piY = (GetHeightOfMap() << TILE_SHIFT) - iWorldY;
+  *piX = iWorldX;
+  *piZ = map_TileHeight(iWorldX >> TILE_SHIFT, iWorldY >> TILE_SHIFT);
+  /* invert y to match QSOUND axes */
+  *piY = (GetHeightOfMap() << TILE_SHIFT) - iWorldY;
 }
 
 /***************************************************************************/
 
-void
-audio_GetObjectPos( void *psObj, SDWORD *piX, SDWORD *piY, SDWORD *piZ )
+void audio_GetObjectPos(void* psObj, SDWORD* piX, SDWORD* piY, SDWORD* piZ)
 {
-	BASE_OBJECT	*psBaseObj = (BASE_OBJECT *) psObj;
+  auto psBaseObj = static_cast<BASE_OBJECT*>(psObj);
 
-	/* check is valid pointer */
-	ASSERT( (PTRVALID(psBaseObj, sizeof(BASE_OBJECT)),
-			"audio_GetObjectPos: game object pointer invalid\n") );
+  /* check is valid pointer */
+  ASSERT((PTRVALID(psBaseObj, sizeof(BASE_OBJECT)), "audio_GetObjectPos: game object pointer invalid\n"));
 
-	*piX = psBaseObj->x;
-	*piZ = map_TileHeight( psBaseObj->x >> TILE_SHIFT,
-						   psBaseObj->y >> TILE_SHIFT );
+  *piX = psBaseObj->x;
+  *piZ = map_TileHeight(psBaseObj->x >> TILE_SHIFT, psBaseObj->y >> TILE_SHIFT);
 
-	/* invert y to match QSOUND axes */
-	*piY = (GetHeightOfMap() << TILE_SHIFT) - psBaseObj->y;
+  /* invert y to match QSOUND axes */
+  *piY = (GetHeightOfMap() << TILE_SHIFT) - psBaseObj->y;
 }
 
 /***************************************************************************/
 
-UWORD
-audio_GetScreenWidth( void )
-{
-	return (UWORD) DISP_WIDTH;
-}
+UWORD audio_GetScreenWidth(void) { return static_cast<UWORD>(DISP_WIDTH); }
 
 /***************************************************************************/
 /*
@@ -197,56 +159,51 @@ audio_GetScreenWidth( void )
  */
 /***************************************************************************/
 
-BOOL
-audio_GetClusterCentre( void *psClusterObj, SDWORD *piX, SDWORD *piY, SDWORD *piZ )
+BOOL audio_GetClusterCentre(void* psClusterObj, SDWORD* piX, SDWORD* piY, SDWORD* piZ)
 {
-	SDWORD	iClusterID, iNumObj;
-	DROID	*psDroid = (DROID *) psClusterObj;
-	BOOL	bDroidInClusterMoving = FALSE;
+  SDWORD iClusterID, iNumObj;
+  auto psDroid = static_cast<DROID*>(psClusterObj);
+  BOOL bDroidInClusterMoving = FALSE;
 
-	/* check valid pointer */
-	ASSERT( (PTRVALID(psDroid, sizeof(DROID)),
-			"audio_GetClusterCentre: game object pointer invalid\n") );
+  /* check valid pointer */
+  ASSERT((PTRVALID(psDroid, sizeof(DROID)), "audio_GetClusterCentre: game object pointer invalid\n"));
 
-	iNumObj = *piX = *piY = *piZ = 0;
+  iNumObj = *piX = *piY = *piZ = 0;
 
-	/* clustGetClusterID returns 0 if cluster is empty or no droids moving */
-	iClusterID = clustGetClusterID( (BASE_OBJECT *)psClusterObj );
-	if ( iClusterID == 0 )
-	{
-		DBPRINTF( ("audio_GetClusterCentre: empty cluster!\n") );
-		return FALSE;
-	}
-	else
-	{
-		clustInitIterate( iClusterID );
-		do
-		{
-			psDroid = (DROID *) clustIterate();
-			if ( psDroid != NULL && psDroid->sMove.Status != MOVEINACTIVE )
-			{
-				iNumObj++;
-				*piX += psDroid->x;
-				*piY += psDroid->y;
-				*piZ += psDroid->z;
-				bDroidInClusterMoving = TRUE;
-			}
-		}
-		while ( psDroid != NULL );
-	
-		/* get average */
-		if ( bDroidInClusterMoving == TRUE )
-		{
-			*piX /= iNumObj;
-			*piY /= iNumObj;
-			*piZ /= iNumObj;
+  /* clustGetClusterID returns 0 if cluster is empty or no droids moving */
+  iClusterID = clustGetClusterID(static_cast<BASE_OBJECT*>(psClusterObj));
+  if (iClusterID == 0)
+  {
+    DBPRINTF(("audio_GetClusterCentre: empty cluster!\n"));
+    return FALSE;
+  }
+  clustInitIterate(iClusterID);
+  do
+  {
+    psDroid = (DROID*)clustIterate();
+    if (psDroid != nullptr && psDroid->sMove.Status != MOVEINACTIVE)
+    {
+      iNumObj++;
+      *piX += psDroid->x;
+      *piY += psDroid->y;
+      *piZ += psDroid->z;
+      bDroidInClusterMoving = TRUE;
+    }
+  }
+  while (psDroid != nullptr);
 
-			/* invert y to match QSOUND axes */
-			*piY = (GetHeightOfMap() << TILE_SHIFT) - *piY;
-		}
-	}
+  /* get average */
+  if (bDroidInClusterMoving == TRUE)
+  {
+    *piX /= iNumObj;
+    *piY /= iNumObj;
+    *piZ /= iNumObj;
 
-	return bDroidInClusterMoving;
+    /* invert y to match QSOUND axes */
+    *piY = (GetHeightOfMap() << TILE_SHIFT) - *piY;
+  }
+
+  return bDroidInClusterMoving;
 }
 
 /***************************************************************************/
@@ -257,83 +214,58 @@ audio_GetClusterCentre( void *psClusterObj, SDWORD *piX, SDWORD *piY, SDWORD *pi
  */
 /***************************************************************************/
 
-BOOL
-audio_GetNewClusterObject( void **psClusterObj, SDWORD iClusterID )
+BOOL audio_GetNewClusterObject(void** psClusterObj, SDWORD iClusterID)
 {
-	DROID	*psDroid = (DROID *) *psClusterObj;
+  auto psDroid = static_cast<DROID*>(*psClusterObj);
 
-	/* check valid pointer */
-	ASSERT( (PTRVALID(psDroid, sizeof(DROID)),
-			"audio_GetNewClusterObject: game object pointer invalid\n") );
+  /* check valid pointer */
+  ASSERT((PTRVALID(psDroid, sizeof(DROID)), "audio_GetNewClusterObject: game object pointer invalid\n"));
 
-	/* return if droid not dead */
-	if ( !psDroid->died )
-	{
-		return FALSE;
-	}
+  /* return if droid not dead */
+  if (!psDroid->died)
+    return FALSE;
 
-	if ( iClusterID == 0 )
-	{
-		DBPRINTF( ("audio_GetNewClusterObject: empty cluster!\n") );
-		return FALSE;;
-	}
-	else
-	{
-		/* find next undying droid in cluster */
-		clustInitIterate( iClusterID );
-		do
-		{
-			psDroid = (DROID *) clustIterate();
-			if ( psDroid != NULL && !psDroid->died )
-			{
-				*psClusterObj = psDroid;
-				return TRUE;
-			}
-		}
-		while ( psDroid != NULL );
-	}
+  if (iClusterID == 0)
+  {
+    DBPRINTF(("audio_GetNewClusterObject: empty cluster!\n"));
+    return FALSE;
+  }
+  /* find next undying droid in cluster */
+  clustInitIterate(iClusterID);
+  do
+  {
+    psDroid = (DROID*)clustIterate();
+    if (psDroid != nullptr && !psDroid->died)
+    {
+      *psClusterObj = psDroid;
+      return TRUE;
+    }
+  }
+  while (psDroid != nullptr);
 
-	return FALSE;
+  return FALSE;
 }
 
 /***************************************************************************/
 
-BOOL
-audio_ClusterEmpty( void * psClusterObj )
+BOOL audio_ClusterEmpty(void* psClusterObj)
 {
-	/* clustGetClusterID returns 0 if cluster is empty */
-	if ( clustGetClusterID( (BASE_OBJECT *)psClusterObj ) == 0 )
-	{
-		return TRUE;
-	}
-	else
-	{
-		return FALSE;
-	}
+  /* clustGetClusterID returns 0 if cluster is empty */
+  if (clustGetClusterID(static_cast<BASE_OBJECT*>(psClusterObj)) == 0)
+    return TRUE;
+  return FALSE;
 }
 
 /***************************************************************************/
 
-SDWORD
-audio_GetClusterIDFromObj( void *psClusterObj )
-{
-	return clustGetClusterID( (BASE_OBJECT *)psClusterObj );
-}
+SDWORD audio_GetClusterIDFromObj(void* psClusterObj) { return clustGetClusterID(static_cast<BASE_OBJECT*>(psClusterObj)); }
 
 /***************************************************************************/
 
-BOOL
-audio_GetIDFromStr( STRING *pWavStr, SDWORD *piID )
-{
-	return audioID_GetIDFromStr( pWavStr, piID );
-}
+BOOL audio_GetIDFromStr(STRING* pWavStr, SDWORD* piID) { return audioID_GetIDFromStr(pWavStr, piID); }
 
 /***************************************************************************/
 
-UDWORD
-sound_GetGameTime( void )
-{
-	return gameTime;
-}
+UDWORD sound_GetGameTime(void) { return gameTime; }
 
 /***************************************************************************/

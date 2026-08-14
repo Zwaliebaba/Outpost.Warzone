@@ -10,32 +10,29 @@
 // Typedefs
 
 /* The types of CD we can use and make sure ye bloody use 'em!! */
-typedef enum
+using CD_INDEX = enum
 {
-DISC_ONE,
-DISC_TWO,
-DISC_EITHER,
-DISC_INVALID
-}CD_INDEX;
+  DISC_ONE,
+  DISC_TWO,
+  DISC_EITHER,
+  DISC_INVALID
+};
 
 /* callback func to call after CD validated */
-typedef void (* CDSPAN_CALLBACK) ( void );
+using CDSPAN_CALLBACK = void(*)(void);
 
-extern	BOOL		cdspan_CheckCDPresent( CD_INDEX cdIndex );
-extern	BOOL		showChangeCDBox( W_SCREEN *psCurWScreen,
-						CD_INDEX CDrequired,
-						CDSPAN_CALLBACK fpOKCallback,
-						CDSPAN_CALLBACK fpCancelCallback );
-extern	BOOL		cdIsValid( CD_INDEX cdRequired );
-extern	CD_INDEX	getCDForCampaign( UDWORD camNumber );
-extern	void		cdspan_RemoveChangeCDBox( void );
-extern	BOOL		cdspan_ProcessCDChange( UDWORD iID );
-extern	BOOL		cdspan_initialCDcheck();
-extern	BOOL		cdspan_DontTest( void );
-extern	STRING *	cdspan_GetDiskLabel( CD_INDEX cdIndex );
+extern BOOL cdspan_CheckCDPresent(CD_INDEX cdIndex);
+extern BOOL showChangeCDBox(W_SCREEN* psCurWScreen, CD_INDEX CDrequired, CDSPAN_CALLBACK fpOKCallback, CDSPAN_CALLBACK fpCancelCallback);
+extern BOOL cdIsValid(CD_INDEX cdRequired);
+extern CD_INDEX getCDForCampaign(UDWORD camNumber);
+extern void cdspan_RemoveChangeCDBox(void);
+extern BOOL cdspan_ProcessCDChange(UDWORD iID);
+extern BOOL cdspan_initialCDcheck();
+extern BOOL cdspan_DontTest(void);
+extern STRING* cdspan_GetDiskLabel(CD_INDEX cdIndex);
 
-extern	void		cdspan_PlayInGameAudio( char szFileName[], SDWORD iVol );
-extern	BOOL		cdspan_GetCDLetter( char szDriveName[], CD_INDEX index );
-extern	BOOL		cdspan_CheckCDAvailable( void );
+extern void cdspan_PlayInGameAudio(char szFileName[], SDWORD iVol);
+extern BOOL cdspan_GetCDLetter(char szDriveName[], CD_INDEX index);
+extern BOOL cdspan_CheckCDAvailable(void);
 
 #endif

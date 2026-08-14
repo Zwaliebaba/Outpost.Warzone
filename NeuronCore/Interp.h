@@ -18,105 +18,123 @@
    on, is unchanged. */
 enum
 {
-	// Basic types
-	VAL_BOOL,
-	VAL_INT,
-//	VAL_FLOAT,
-	VAL_STRING,
+  // Basic types
+  VAL_BOOL,
+  VAL_INT,
+  //	VAL_FLOAT,
+  VAL_STRING,
 
-	// events and triggers
-	VAL_TRIGGER,
-	VAL_EVENT,
+  // events and triggers
+  VAL_TRIGGER,
+  VAL_EVENT,
 
-	/* Type used by the compiler for functions that do not return a value */
-	VAL_VOID,
-
-	VAL_USERTYPESTART,		// user defined types should start with this id
+  /* Type used by the compiler for functions that do not return a value */
+  VAL_VOID,
+  VAL_USERTYPESTART,
+  // user defined types should start with this id
 };
-typedef SDWORD INTERP_TYPE;
+
+using INTERP_TYPE = SDWORD;
 
 // flag to specify a variable reference rather than simple value
 #define VAL_REF		0x00100000
 
 /* A value consists of its type and value */
-typedef struct _interp_val
+using INTERP_VAL = struct _interp_val
 {
-	INTERP_TYPE		type;
-	union
-	{
-		BOOL		bval;		// VAL_BOOL
-		SDWORD		ival;		// VAL_INT
-//		float		fval;		// VAL_FLOAT
-		STRING		*sval;		// VAL_STRING
-		void		*oval;		// VAL_OBJECT
-		void		*pVoid;		// VAL_VOIDPTR
-	} v;
-} INTERP_VAL;
+  INTERP_TYPE type;
 
+  union
+  {
+    BOOL bval; // VAL_BOOL
+    SDWORD ival; // VAL_INT
+    //		float		fval;		// VAL_FLOAT
+    STRING* sval; // VAL_STRING
+    void* oval; // VAL_OBJECT
+    void* pVoid; // VAL_VOIDPTR
+  } v;
+};
 
 // maximum number of equivalent types for a type
 #define INTERP_MAXEQUIV		10
 
 // type equivalences
-typedef struct _interp_typeequiv
+using TYPE_EQUIV = struct _interp_typeequiv
 {
-	INTERP_TYPE		base;		// the type that the others are equivalent to
-	SDWORD			numEquiv;	// number of equivalent types
-	INTERP_TYPE		aEquivTypes[INTERP_MAXEQUIV];
-								// the equivalent types
-} TYPE_EQUIV;
+  INTERP_TYPE base; // the type that the others are equivalent to
+  SDWORD numEquiv; // number of equivalent types
+  INTERP_TYPE aEquivTypes[INTERP_MAXEQUIV];
+  // the equivalent types
+};
 
 /* Opcodes for the script interpreter */
 /* Script opcodes are unpacked from a word by shifting, so the type has to
    accept a computed value, not only the listed constants. */
 enum
 {
-	OP_PUSH,		// Push value onto stack
-	OP_PUSHREF,		// Push a pointer to a variable onto the stack
-	OP_POP,			// Pop value from stack
+  OP_PUSH,
+  // Push value onto stack
+  OP_PUSHREF,
+  // Push a pointer to a variable onto the stack
+  OP_POP,
+  // Pop value from stack
 
-	OP_PUSHGLOBAL,	// Push the value of a global variable onto the stack
-	OP_POPGLOBAL,	// Pop a value from the stack into a global variable
+  OP_PUSHGLOBAL,
+  // Push the value of a global variable onto the stack
+  OP_POPGLOBAL,
+  // Pop a value from the stack into a global variable
 
-	OP_PUSHARRAYGLOBAL,	// Push the value of a global array variable onto the stack
-	OP_POPARRAYGLOBAL,	// Pop a value from the stack into a global array variable
+  OP_PUSHARRAYGLOBAL,
+  // Push the value of a global array variable onto the stack
+  OP_POPARRAYGLOBAL,
+  // Pop a value from the stack into a global array variable
 
-	OP_CALL,		// Call the 'C' function pointed to by the next value
-	OP_VARCALL,		// Call the variable access 'C' function pointed to by the next value
+  OP_CALL,
+  // Call the 'C' function pointed to by the next value
+  OP_VARCALL,
+  // Call the variable access 'C' function pointed to by the next value
 
-	OP_JUMP,		// Jump to a different location in the script
-	OP_JUMPTRUE,	// Jump if the top stack value is true
-	OP_JUMPFALSE,	// Jump if the top stack value is false
+  OP_JUMP,
+  // Jump to a different location in the script
+  OP_JUMPTRUE,
+  // Jump if the top stack value is true
+  OP_JUMPFALSE,
+  // Jump if the top stack value is false
 
-	OP_BINARYOP,	// Call a binary maths/boolean operator
-	OP_UNARYOP,		// Call a unary maths/boolean operator
+  OP_BINARYOP,
+  // Call a binary maths/boolean operator
+  OP_UNARYOP,
+  // Call a unary maths/boolean operator
 
-	OP_EXIT,			// End the program
-	OP_PAUSE,			// temporarily pause the current event
+  OP_EXIT,
+  // End the program
+  OP_PAUSE,
+  // temporarily pause the current event
 
-	// The following operations are secondary data to OP_BINARYOP and OP_UNARYOP
+  // The following operations are secondary data to OP_BINARYOP and OP_UNARYOP
 
-	// Maths operators
-	OP_ADD,
-	OP_SUB,
-	OP_MUL,
-	OP_DIV,
-	OP_NEG,
+  // Maths operators
+  OP_ADD,
+  OP_SUB,
+  OP_MUL,
+  OP_DIV,
+  OP_NEG,
 
-	// Boolean operators
-	OP_AND,
-	OP_OR,
-	OP_NOT,
+  // Boolean operators
+  OP_AND,
+  OP_OR,
+  OP_NOT,
 
-	// Comparison operators
-	OP_EQUAL,
-	OP_NOTEQUAL,
-	OP_GREATEREQUAL,
-	OP_LESSEQUAL,
-	OP_GREATER,
-	OP_LESS,
+  // Comparison operators
+  OP_EQUAL,
+  OP_NOTEQUAL,
+  OP_GREATEREQUAL,
+  OP_LESSEQUAL,
+  OP_GREATER,
+  OP_LESS,
 };
-typedef SDWORD OPCODE;
+
+using OPCODE = SDWORD;
 
 /* How far the opcode is shifted up a UDWORD to allow other data to be
  * stored in the same UDWORD
@@ -134,110 +152,121 @@ typedef SDWORD OPCODE;
 #define ARRAY_DIMENSION_MASK	0x00f00000
 
 /* The type of function called by an OP_CALL */
-typedef BOOL (*SCRIPT_FUNC)(void);
+using SCRIPT_FUNC = BOOL(*)(void);
 
 /* The type of function called to access an object or in-game variable */
-typedef BOOL (*SCRIPT_VARFUNC)(UDWORD index);
+using SCRIPT_VARFUNC = BOOL(*)(UDWORD index);
 
 /* The possible storage types for a variable */
-typedef enum _storage_type
+using enum_STORAGE_TYPE = enum _storage_type
 {
-	ST_PUBLIC,		// Public variable
-	ST_PRIVATE,		// Private variable
-	ST_OBJECT,		// A value stored in an objects data space.
-	ST_EXTERN,		// An external value accessed by function call
-} enum_STORAGE_TYPE;
+  ST_PUBLIC,
+  // Public variable
+  ST_PRIVATE,
+  // Private variable
+  ST_OBJECT,
+  // A value stored in an objects data space.
+  ST_EXTERN,
+  // An external value accessed by function call
+};
 
-typedef UBYTE STORAGE_TYPE;
+using STORAGE_TYPE = UBYTE;
 
 /* Variable debugging info for a script */
-typedef struct _var_debug
+using VAR_DEBUG = struct _var_debug
 {
-	STRING			*pIdent;
-	STORAGE_TYPE	storage;
-} VAR_DEBUG;
+  STRING* pIdent;
+  STORAGE_TYPE storage;
+};
 
 /* Array info for a script */
-typedef struct _array_data
+using ARRAY_DATA = struct _array_data
 {
-	UDWORD			base;			// the base index of the array values
-	UBYTE			type;			// the array data type
-	UBYTE			dimensions;
-	UBYTE			elements[VAR_MAX_DIMENSIONS];
-} ARRAY_DATA;
+  UDWORD base; // the base index of the array values
+  UBYTE type; // the array data type
+  UBYTE dimensions;
+  UBYTE elements[VAR_MAX_DIMENSIONS];
+};
 
 /* Array debug info for a script */
-typedef struct _array_debug
+using ARRAY_DEBUG = struct _array_debug
 {
-	STRING			*pIdent;
-	UBYTE			storage;
-} ARRAY_DEBUG;
+  STRING* pIdent;
+  UBYTE storage;
+};
 
 /* Line debugging information for a script */
-typedef struct _script_debug
+using SCRIPT_DEBUG = struct _script_debug
 {
-	UDWORD	offset;		// Offset in the compiled script that corresponds to
-	UDWORD	line;		// this line in the original script.
-	STRING	*pLabel;	// the trigger/event that starts at this line
-} SCRIPT_DEBUG;
+  UDWORD offset; // Offset in the compiled script that corresponds to
+  UDWORD line; // this line in the original script.
+  STRING* pLabel; // the trigger/event that starts at this line
+};
 
 /* Different types of triggers.  Open ended in the same way as INTERP_TYPE
    above: the game's callback triggers continue from TR_CALLBACKSTART, so the
    type is an integer typedef and the constants live in an anonymous enum. */
 enum
 {
-	TR_INIT,		// Trigger fires when the script is first run
-	TR_CODE,		// Trigger uses script code
-	TR_WAIT,		// Trigger after a time pause
-	TR_EVERY,		// Trigger at repeated intervals
-	TR_PAUSE,		// Event has paused for an interval and will restart in the middle of it's code
+  TR_INIT,
+  // Trigger fires when the script is first run
+  TR_CODE,
+  // Trigger uses script code
+  TR_WAIT,
+  // Trigger after a time pause
+  TR_EVERY,
+  // Trigger at repeated intervals
+  TR_PAUSE,
+  // Event has paused for an interval and will restart in the middle of it's code
 
-	TR_CALLBACKSTART,	// The user defined callback triggers should start with this id
+  TR_CALLBACKSTART,
+  // The user defined callback triggers should start with this id
 };
-typedef SDWORD TRIGGER_TYPE;
+
+using TRIGGER_TYPE = SDWORD;
 
 /* Description of a trigger for the SCRIPT_CODE */
-typedef struct _trigger_data
+using TRIGGER_DATA = struct _trigger_data
 {
-	UWORD			type;		// Type of trigger
-	UWORD			code;		// BOOL - is there code with this trigger
-	UDWORD			time;		// How often to check the trigger
-} TRIGGER_DATA;
+  UWORD type; // Type of trigger
+  UWORD code; // BOOL - is there code with this trigger
+  UDWORD time; // How often to check the trigger
+};
 
 /* A compiled script and its associated data */
-typedef struct _script_code
+using SCRIPT_CODE = struct _script_code
 {
-	UDWORD			size;			// The size (in bytes) of the compiled code
-	UDWORD			*pCode;			// Pointer to the compiled code
+  UDWORD size; // The size (in bytes) of the compiled code
+  UDWORD* pCode; // Pointer to the compiled code
 
-	UWORD			numTriggers;	// The number of triggers
-	UWORD			numEvents;		// The number of events
-	UWORD			*pTriggerTab;	// The table of trigger offsets
-	TRIGGER_DATA	*psTriggerData;	// The extra info for each trigger
-	UWORD			*pEventTab;		// The table of event offsets
-	SWORD			*pEventLinks;	// The original trigger/event linkage
-									// -1 for no link
+  UWORD numTriggers; // The number of triggers
+  UWORD numEvents; // The number of events
+  UWORD* pTriggerTab; // The table of trigger offsets
+  TRIGGER_DATA* psTriggerData; // The extra info for each trigger
+  UWORD* pEventTab; // The table of event offsets
+  SWORD* pEventLinks; // The original trigger/event linkage
+  // -1 for no link
 
-	UWORD			numGlobals;		// The number of global variables
-	UWORD			numArrays;		// the number of arrays in the program
-	UDWORD			arraySize;		// the number of elements in all the defined arrays
-	INTERP_TYPE		*pGlobals;		// Types of the global variables
-	VAR_DEBUG		*psVarDebug;	// The names and storage types of variables
-	ARRAY_DATA		*psArrayInfo;	// The sizes of the program arrays
-	ARRAY_DEBUG		*psArrayDebug;	// Debug info for the arrays
+  UWORD numGlobals; // The number of global variables
+  UWORD numArrays; // the number of arrays in the program
+  UDWORD arraySize; // the number of elements in all the defined arrays
+  INTERP_TYPE* pGlobals; // Types of the global variables
+  VAR_DEBUG* psVarDebug; // The names and storage types of variables
+  ARRAY_DATA* psArrayInfo; // The sizes of the program arrays
+  ARRAY_DEBUG* psArrayDebug; // Debug info for the arrays
 
-	UWORD			debugEntries;	// Number of entries in psDebug
-	SCRIPT_DEBUG	*psDebug;		// Debugging info for the script
-} SCRIPT_CODE;
-
+  UWORD debugEntries; // Number of entries in psDebug
+  SCRIPT_DEBUG* psDebug; // Debugging info for the script
+};
 
 /* What type of code should be run by the interpreter */
-typedef enum _interp_runtype
+using INTERP_RUNTYPE = enum _interp_runtype
 {
-	IRT_TRIGGER,					// Run trigger code
-	IRT_EVENT,						// Run event code
-} INTERP_RUNTYPE;
-
+  IRT_TRIGGER,
+  // Run trigger code
+  IRT_EVENT,
+  // Run event code
+};
 
 /* The size of each opcode */
 extern SDWORD aOpSize[];
@@ -252,4 +281,3 @@ extern BOOL interpInitialise(void);
 extern BOOL interpProcessorActive(void);
 
 #endif
-

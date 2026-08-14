@@ -14,7 +14,6 @@
 
 #include "Frame.h"
 
-
 /***************************************************************************/
 /*
  *	Global Definitions
@@ -38,9 +37,9 @@ extern BOOL dtm_RestoreTextures(void);
 extern BOOL dtm_ReloadAllTextures(void);
 extern BOOL dtm_ReLoadTexture(SDWORD i);
 extern void dtm_SetTexturePage(SDWORD i);
-extern BOOL dtm_LoadTexSurface( iTexture *psIvisTex, SDWORD index );
+extern BOOL dtm_LoadTexSurface(iTexture* psIvisTex, SDWORD index);
 extern BOOL dtm_LoadRadarSurface(BYTE* radarBuffer);
 extern SDWORD dtm_GetRadarTexImageSize(void);
 
-extern void dx6_SetBilinear( BOOL bBilinearOn );
+extern void dx6_SetBilinear(BOOL bBilinearOn);
 #endif // 

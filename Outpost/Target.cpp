@@ -1,4 +1,3 @@
-
 // Screen coordinate based targeting system. Maintains a list of on screen objects
 // and provides various functions for aquiring targets from this list.
 //
@@ -23,7 +22,6 @@
 #include "IMD.h"
 #include "RendMode.h"
 
-
 #include "Target.h"
 
 extern UDWORD selectedPlayer;
@@ -33,10 +31,11 @@ extern UDWORD selectedPlayer;
 
 #define MAX_TARGETS	32
 
-typedef struct {
-	UWORD	Type;
-	BASE_OBJECT *psObj;
-} TARGET;
+using TARGET = struct
+{
+  UWORD Type;
+  BASE_OBJECT* psObj;
+};
 
 static BOOL FoundCurrent;
 static UWORD NumTargets;
@@ -44,7 +43,7 @@ static UWORD TargetCurrent;
 static UDWORD TargetCurrentID;
 static TARGET TargetList[MAX_TARGETS];
 static UDWORD TargetEndTime;
-static BASE_OBJECT *TargetingObject;
+static BASE_OBJECT* TargetingObject;
 static UWORD TargetingType;
 
 extern UDWORD currentGameFrame;
@@ -53,27 +52,20 @@ extern UDWORD currentGameFrame;
 //
 void targetInitialise(void)
 {
-	TargetCurrent = 0;
-	TargetCurrentID = UDWORD_MAX;
+  TargetCurrent = 0;
+  TargetCurrentID = UDWORD_MAX;
 }
-
 
 // Reset the target list, call once per frame.
 //
-void targetOpenList(BASE_OBJECT *psTargeting)
+void targetOpenList(BASE_OBJECT* psTargeting)
 {
-	NumTargets = 0;
-	FoundCurrent = FALSE;
-	TargetingObject = psTargeting;
+  NumTargets = 0;
+  FoundCurrent = FALSE;
+  TargetingObject = psTargeting;
 }
 
-
-void targetCloseList(void)
-{
-	if(!FoundCurrent) {
-	}
-}
-
+void targetCloseList(void) { if (!FoundCurrent) {} }
 
 //// Aquire a new target.
 ////
@@ -115,25 +107,14 @@ void targetCloseList(void)
 
 // Tell the targeting system what type of droid is doing the targeting.
 //
-void targetSetTargetable(UWORD DroidType)
-{
-	TargetingType = DroidType;
-}
+void targetSetTargetable(UWORD DroidType) { TargetingType = DroidType; }
 
-
-void	targetAdd(BASE_OBJECT *psObj)
-{
-	UNUSEDPARAMETER(psObj);
-}
+void targetAdd(BASE_OBJECT* psObj) { UNUSEDPARAMETER(psObj); }
 
 // Call whenever an object is removed. probably don't need this as
 // the list is rebuilt every frame any way.
 //
-void targetKilledObject(BASE_OBJECT *psObj)
-{
-	UNUSEDPARAMETER(psObj);
-}
-
+void targetKilledObject(BASE_OBJECT* psObj) { UNUSEDPARAMETER(psObj); }
 
 //// Aquire the target nearest to the specified screen coords.
 ////
@@ -172,46 +153,48 @@ void targetKilledObject(BASE_OBJECT *psObj)
 //	return NearestObj;
 //}
 
-
 // Aquire the target nearest the vector from x,y to the top of the screen.
 //
-BASE_OBJECT *targetAquireNearestView(SWORD x,SWORD y,UWORD TargetType)
+BASE_OBJECT* targetAquireNearestView(SWORD x, SWORD y, UWORD TargetType)
 {
-	UWORD i;
-	UWORD Nearesti = 0;
-	UDWORD NearestDx = UDWORD_MAX;
-	UDWORD dx,dy;
-	BASE_OBJECT *NearestObj = NULL;
-	BASE_OBJECT *psObj;
+  UWORD i;
+  UWORD Nearesti = 0;
+  UDWORD NearestDx = UDWORD_MAX;
+  UDWORD dx, dy;
+  BASE_OBJECT* NearestObj = nullptr;
+  BASE_OBJECT* psObj;
 
-	for(i=0; i<NumTargets; i++) {
-		psObj = TargetList[i].psObj;
-		dx = abs((SDWORD)(psObj->sDisplay.screenX - x));
-		dy = abs((SDWORD)(psObj->sDisplay.screenY - y));
-		dx += dy/2;
-		if(dx < NearestDx) {
-			if(TargetList[i].Type & TargetType) {
-				NearestDx = dx;
-				Nearesti = i;
-				NearestObj = psObj;
-			}
-		}
+  for (i = 0; i < NumTargets; i++)
+  {
+    psObj = TargetList[i].psObj;
+    dx = abs(static_cast<SDWORD>(psObj->sDisplay.screenX - x));
+    dy = abs(static_cast<SDWORD>(psObj->sDisplay.screenY - y));
+    dx += dy / 2;
+    if (dx < NearestDx)
+    {
+      if (TargetList[i].Type & TargetType)
+      {
+        NearestDx = dx;
+        Nearesti = i;
+        NearestObj = psObj;
+      }
+    }
+  }
 
-	}
+  if (NearestObj != nullptr)
+  {
+    TargetCurrent = Nearesti;
+    if (TargetCurrentID != NearestObj->id)
+    {
+      TargetCurrentID = NearestObj->id;
+      targetStartAnim();
+    }
+  }
+  else
+    TargetCurrentID = UDWORD_MAX;
 
-	if(NearestObj != NULL) {
-		TargetCurrent = Nearesti;
-		if(TargetCurrentID != NearestObj->id) {
-			TargetCurrentID = NearestObj->id;
-			targetStartAnim();
-		}
-	} else {
-		TargetCurrentID = UDWORD_MAX;
-	}
-
-	return NearestObj;
+  return NearestObj;
 }
-
 
 //// Aquire the target nearest to the specified object.
 ////
@@ -224,20 +207,16 @@ BASE_OBJECT *targetAquireNearestView(SWORD x,SWORD y,UWORD TargetType)
 //	}
 //}
 
-
 // Aquire the target nearest to the specified object.
 //
-BASE_OBJECT *targetAquireNearestObjView(BASE_OBJECT *psObj,UWORD TargetType)
+BASE_OBJECT* targetAquireNearestObjView(BASE_OBJECT* psObj, UWORD TargetType)
 {
-	if(psObj != NULL) {
-		return targetAquireNearestView((SWORD)(psObj->sDisplay.screenX),
-										(SWORD)(psObj->sDisplay.screenY)
-										,TargetType);
-	} else {
-		return NULL;
-	}
+  if (psObj != nullptr)
+  {
+    return targetAquireNearestView(static_cast<SWORD>(psObj->sDisplay.screenX), static_cast<SWORD>(psObj->sDisplay.screenY), TargetType);
+  }
+  return nullptr;
 }
-
 
 //// Aquire the next target in the target list.
 ////
@@ -288,66 +267,54 @@ BASE_OBJECT *targetAquireNearestObjView(BASE_OBJECT *psObj,UWORD TargetType)
 //	return Target;
 //}
 
-
 // Get the currently targeted object.
 //
-BASE_OBJECT *targetGetCurrent(void)
+BASE_OBJECT* targetGetCurrent(void)
 {
-	if(TargetCurrentID != UDWORD_MAX) {
-		return TargetList[TargetCurrent].psObj;
-	}
+  if (TargetCurrentID != UDWORD_MAX)
+    return TargetList[TargetCurrent].psObj;
 
-	return NULL;
+  return nullptr;
 }
-
 
 // Start the box zoom animation.
 //
-void targetStartAnim(void)
-{
-	TargetEndTime = gameTime+GAME_TICKS_PER_SEC/2;
-}
-
+void targetStartAnim(void) { TargetEndTime = gameTime + GAME_TICKS_PER_SEC / 2; }
 
 // Display a marker over the current target.
 //
 void targetMarkCurrent(void)
 {
-	SWORD x,y;
-	SWORD Offset;
-	SWORD x0,y0,x1,y1;
+  SWORD x, y;
+  SWORD Offset;
+  SWORD x0, y0, x1, y1;
 
-	if(TargetCurrentID == UDWORD_MAX) {
-		return;
-	}
+  if (TargetCurrentID == UDWORD_MAX)
+    return;
 
-	x = (SWORD)(TargetList[TargetCurrent].psObj->sDisplay.screenX);
-	y = (SWORD)(TargetList[TargetCurrent].psObj->sDisplay.screenY);
+  x = static_cast<SWORD>(TargetList[TargetCurrent].psObj->sDisplay.screenX);
+  y = static_cast<SWORD>(TargetList[TargetCurrent].psObj->sDisplay.screenY);
 
-	// Make it zoom in.
-	if(TargetEndTime > gameTime) {
-		Offset =(SWORD)(16+(TargetEndTime-gameTime)/2);
-	} else {
-		Offset = 16;
-	}
+  // Make it zoom in.
+  if (TargetEndTime > gameTime)
+    Offset = static_cast<SWORD>(16 + (TargetEndTime - gameTime) / 2);
+  else
+    Offset = 16;
 
+  x0 = static_cast<SWORD>(x - Offset);
+  y0 = static_cast<SWORD>(y - Offset);
+  x1 = static_cast<SWORD>(x + Offset);
+  y1 = static_cast<SWORD>(y + Offset);
 
-	x0 = (SWORD)(x-Offset);
-	y0 = (SWORD)(y-Offset);
-	x1 = (SWORD)(x+Offset);
-	y1 = (SWORD)(y+Offset);
+  iV_Line(x0, y0, x0 + 8, y0,COL_YELLOW);
+  iV_Line(x0, y0, x0, y0 + 8,COL_YELLOW);
 
-	iV_Line(x0,y0,x0+8,y0,COL_YELLOW);
-	iV_Line(x0,y0,x0,y0+8,COL_YELLOW);
+  iV_Line(x1, y0, x1 - 8, y0,COL_YELLOW);
+  iV_Line(x1, y0, x1, y0 + 8,COL_YELLOW);
 
-	iV_Line(x1,y0,x1-8,y0,COL_YELLOW);
-	iV_Line(x1,y0,x1,y0+8,COL_YELLOW);
+  iV_Line(x1, y1, x1 - 8, y1,COL_YELLOW);
+  iV_Line(x1, y1, x1, y1 - 8,COL_YELLOW);
 
-	iV_Line(x1,y1,x1-8,y1,COL_YELLOW);
-	iV_Line(x1,y1,x1,y1-8,COL_YELLOW);
-
-	iV_Line(x0,y1,x0+8,y1,COL_YELLOW);
-	iV_Line(x0,y1,x0,y1-8,COL_YELLOW);
+  iV_Line(x0, y1, x0 + 8, y1,COL_YELLOW);
+  iV_Line(x0, y1, x0, y1 - 8,COL_YELLOW);
 }
-
-

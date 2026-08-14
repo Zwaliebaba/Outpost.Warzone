@@ -40,7 +40,6 @@
 #ifndef _debug_h
 #define _debug_h
 
-
 /* Check the header files have been included from frame.h if they
  * are used outside of the framework library.
  */
@@ -92,16 +91,16 @@
  * Function prototypes from debug.c
  *
  */
-extern void dbg_printf(SBYTE *pFormat, ...);
-extern void dbg_SetOutputFile(SBYTE *pFilename);
+extern void dbg_printf(SBYTE* pFormat, ...);
+extern void dbg_SetOutputFile(SBYTE* pFilename);
 extern void dbg_NoOutputFile(void);
 extern void dbg_SetOutputString(void);
 extern void dbg_NoOutputString(void);
-extern void dbg_MessageBox(SBYTE *pFormat, ...);
-extern void dbg_ErrorPosition(SBYTE *pFile, UDWORD Line);
-extern void dbg_ErrorBox(SBYTE *pFormat, ...);
-extern void dbg_AssertPosition(SBYTE *pFile, UDWORD Line);
-extern void dbg_Assert(BOOL Expression, SBYTE *pFormat, ...);
+extern void dbg_MessageBox(SBYTE* pFormat, ...);
+extern void dbg_ErrorPosition(SBYTE* pFile, UDWORD Line);
+extern void dbg_ErrorBox(SBYTE* pFormat, ...);
+extern void dbg_AssertPosition(SBYTE* pFile, UDWORD Line);
+extern void dbg_Assert(BOOL Expression, SBYTE* pFormat, ...);
 
 /*****************************************************************************************
  *
@@ -109,17 +108,22 @@ extern void dbg_Assert(BOOL Expression, SBYTE *pFormat, ...);
  *
  */
 
-typedef enum _db_mbretval
+using DB_MBRETVAL = enum _db_mbretval
 {
-	DBR_USE_WINDOWS_MB,		// display the windows MB after the callback
-	DBR_YES,				// yes button pressed
-	DBR_NO,					// no button pressed
-	DBR_OK,					// ok button pressed
-	DBR_CANCEL,				// cancel button pressed
-} DB_MBRETVAL;
+  DBR_USE_WINDOWS_MB,
+  // display the windows MB after the callback
+  DBR_YES,
+  // yes button pressed
+  DBR_NO,
+  // no button pressed
+  DBR_OK,
+  // ok button pressed
+  DBR_CANCEL,
+  // cancel button pressed
+};
 
 // message box callback function
-typedef DB_MBRETVAL (*DB_MBCALLBACK)(SBYTE *pBuffer);
+using DB_MBCALLBACK = DB_MBRETVAL(*)(SBYTE* pBuffer);
 
 // Set the message box callback
 extern void dbg_SetMessageBoxCallback(DB_MBCALLBACK callback);
@@ -133,7 +137,6 @@ extern void dbg_SetAssertCallback(DB_MBCALLBACK callback);
 /* Get PCLint to check the printf args of these functions */
 /*lint -printf(1,dbg_printf,dbg_MessageBox,dbg_ErrorBox) */
 /*lint -printf(2,dbg_Assert) */
-
 
 #ifdef DEBUG
 /* Debugging output required */
@@ -429,10 +432,7 @@ extern void dbg_SetAssertCallback(DB_MBCALLBACK callback);
 #define ASSERT(x)
 #endif
 
-
-
 #define DBERROR(x)	dbg_ErrorBox x
-
 
 #define DBMONOPRINTF(x)
 #define DBMONOCLEAR()

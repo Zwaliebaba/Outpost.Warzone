@@ -7,35 +7,51 @@
 #ifndef _scriptobj_h
 #define _scriptobh_h
 
-
 // id's for object variables
 enum _objids
 {
-	OBJID_POSX,			// Position of a base object
-	OBJID_POSY,
-	OBJID_POSZ,
-	OBJID_ID,			// id of a base object
-	OBJID_PLAYER,		// player of a base object
-	OBJID_TYPE,			// type of a base object
-	OBJID_ORDER,		// current droid order
-	OBJID_DROIDTYPE,	// what type of droid
-	OBJID_CLUSTERID,	// which cluster the object is a member of
-	OBJID_HEALTH,		// %age damage level
-	OBJID_BODY,			// the body component
-	OBJID_PROPULSION,	// the propulsion component
-	OBJID_WEAPON,		// the weapon component
-	OBJID_STRUCTSTAT,	// the stat of a structure
-	OBJID_ORDERX,		// order coords.106
-	OBJID_ORDERY,
+  OBJID_POSX,
+  // Position of a base object
+  OBJID_POSY,
+  OBJID_POSZ,
+  OBJID_ID,
+  // id of a base object
+  OBJID_PLAYER,
+  // player of a base object
+  OBJID_TYPE,
+  // type of a base object
+  OBJID_ORDER,
+  // current droid order
+  OBJID_DROIDTYPE,
+  // what type of droid
+  OBJID_CLUSTERID,
+  // which cluster the object is a member of
+  OBJID_HEALTH,
+  // %age damage level
+  OBJID_BODY,
+  // the body component
+  OBJID_PROPULSION,
+  // the propulsion component
+  OBJID_WEAPON,
+  // the weapon component
+  OBJID_STRUCTSTAT,
+  // the stat of a structure
+  OBJID_ORDERX,
+  // order coords.106
+  OBJID_ORDERY,
 };
 
 // id's for group variables
 enum _groupids
 {
-	GROUPID_POSX,		// average x of a group
-	GROUPID_POSY,		// average y of a group
-	GROUPID_MEMBERS,	// number of units in a group
-	GROUPID_HEALTH,		// average health of a group
+  GROUPID_POSX,
+  // average x of a group
+  GROUPID_POSY,
+  // average y of a group
+  GROUPID_MEMBERS,
+  // number of units in a group
+  GROUPID_HEALTH,
+  // average health of a group
 };
 
 // Get values from a base object
@@ -57,11 +73,9 @@ extern BOOL scrObjToFeature(void);
 extern BOOL scrGroupObjGet(UDWORD index);
 
 // default value save routine
-extern BOOL scrValDefSave(INTERP_TYPE type, UDWORD data, UBYTE *pBuffer, UDWORD *pSize);
+extern BOOL scrValDefSave(INTERP_TYPE type, UDWORD data, UBYTE* pBuffer, UDWORD* pSize);
 
 // default value load routine
-extern BOOL scrValDefLoad(SDWORD version, INTERP_TYPE type, UBYTE *pBuffer, UDWORD size, UDWORD *pData);
-
+extern BOOL scrValDefLoad(SDWORD version, INTERP_TYPE type, UBYTE* pBuffer, UDWORD size, UDWORD* pData);
 
 #endif
-

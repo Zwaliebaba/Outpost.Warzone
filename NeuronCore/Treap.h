@@ -24,14 +24,12 @@
 #define DEBUG_TREAP FALSE
 #endif
 
-
 /* Function type for the object compare
  * return -1 for less
  *         1 for more
  *         0 for equal
  */
-typedef SDWORD (*TREAP_CMP)(UDWORD key1, UDWORD key2);
-
+using TREAP_CMP = SDWORD(*)(UDWORD key1, UDWORD key2);
 
 /* The basic elements in the treap node.
  * These are done as macros so that the memory system
@@ -48,37 +46,35 @@ typedef SDWORD (*TREAP_CMP)(UDWORD key1, UDWORD key2);
 	STRING				*pFile;	/* file the node was created in */ \
 	SDWORD				line	/* line the node was created at */
 
-typedef struct _treap_node
+using TREAP_NODE = struct _treap_node
 {
-	TREAP_NODE_BASE;
+  TREAP_NODE_BASE;
 
 #if DEBUG_TREAP
-	TREAP_NODE_DEBUG;
+  TREAP_NODE_DEBUG;
 #endif
-
-} TREAP_NODE;
+};
 
 /* Treap data structure */
-typedef struct _treap
+using TREAP = struct _treap
 {
-	TREAP_CMP		cmp;		// comparison function
-	OBJ_HEAP		*psNodes;	// node heap
-	TREAP_NODE		*psRoot;	// root of the tree
+  TREAP_CMP cmp; // comparison function
+  OBJ_HEAP* psNodes; // node heap
+  TREAP_NODE* psRoot; // root of the tree
 
 #if DEBUG_TREAP
-	STRING			*pFile;		// file the treap was created in
-	SDWORD			line;		// line the treap was created at
+  STRING* pFile; // file the treap was created in
+  SDWORD line; // line the treap was created at
 #endif
-} TREAP;
+};
 
 /****************************************************************************************/
 /*                           Function Protoypes                                         */
 /*                                                                                      */
 /*      These should not be called directly - use the macros below                      */
 
-
 /* Store the location in C code at which a call to the heap was made */
-extern void treapSetCallPos(STRING *pFileName, SDWORD lineNumber);
+extern void treapSetCallPos(STRING* pFileName, SDWORD lineNumber);
 
 /* Function type for object equality */
 
@@ -87,32 +83,32 @@ extern void treapSetCallPos(STRING *pFileName, SDWORD lineNumber);
  * Initial number of nodes to allocate
  * Number of additional nodes to allocate when extending
  */
-extern BOOL treapCreate(TREAP **ppsTreap, TREAP_CMP cmp, UDWORD init, UDWORD ext);
+extern BOOL treapCreate(TREAP** ppsTreap, TREAP_CMP cmp, UDWORD init, UDWORD ext);
 
 /* Add an object to a treap
  */
-extern BOOL treapAdd(TREAP *psTreap, UDWORD key, void *pObj);
+extern BOOL treapAdd(TREAP* psTreap, UDWORD key, void* pObj);
 
 /* Remove an object from the treap */
-extern BOOL treapDel(TREAP *psTreap, UDWORD key);
+extern BOOL treapDel(TREAP* psTreap, UDWORD key);
 
 /* Find an object in a treap */
-extern void *treapFind(TREAP *psTreap, UDWORD key);
+extern void* treapFind(TREAP* psTreap, UDWORD key);
 
 /* Release all the nodes in the treap */
-extern void treapReset(TREAP *psTreap);
+extern void treapReset(TREAP* psTreap);
 
 /* Destroy a treap and release all the memory associated with it */
-extern void treapDestroy(TREAP *psTreap);
+extern void treapDestroy(TREAP* psTreap);
 
 /* Display the treap structure using DBPRINTF */
-extern void treapDisplay(TREAP *psTreap);
+extern void treapDisplay(TREAP* psTreap);
 
 /* Return the object with the smallest key in the treap
  * This is useful if the objects in the treap need to be
  * deallocated.  i.e. getSmallest, delete from treap, free memory
  */
-extern void *treapGetSmallest(TREAP *psTreap);
+extern void* treapGetSmallest(TREAP* psTreap);
 
 /****************************************************************************************/
 /*                            Comparison Functions                                      */
@@ -179,6 +175,5 @@ extern SDWORD treapStringCmp(UDWORD key1, UDWORD key2);
 	treapGetSmallest(psTreap)
 
 #endif
-
 
 #endif

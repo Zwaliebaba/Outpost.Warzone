@@ -26,7 +26,12 @@
 
 /***************************************************************************/
 
-enum{ ANIM_2D, ANIM_3D_FRAMES, ANIM_3D_TRANS };
+enum
+{
+  ANIM_2D,
+  ANIM_3D_FRAMES,
+  ANIM_3D_TRANS
+};
 
 /***************************************************************************/
 
@@ -59,75 +64,61 @@ struct BASEANIM;
 
 /***************************************************************************/
 
-typedef struct VECTOR3D
+using VECTOR3D = struct VECTOR3D
 {
-	SDWORD	x, y, z;
-}
-VECTOR3D;
+  SDWORD x, y, z;
+};
 
-typedef struct ANIM_STATE
+using ANIM_STATE = struct ANIM_STATE
 {
-	UWORD				uwFrame;		/* frame to play           */
-	VECTOR3D			vecPos;
-	VECTOR3D			vecAngle;
-	VECTOR3D			vecScale;
-}
-ANIM_STATE;
+  UWORD uwFrame; /* frame to play           */
+  VECTOR3D vecPos;
+  VECTOR3D vecAngle;
+  VECTOR3D vecScale;
+};
 
-typedef struct BASEANIM
+using BASEANIM = struct BASEANIM
 {
-	ANIM_BASE_ELEMENTS
-}
-BASEANIM;
+  ANIM_BASE_ELEMENTS
+};
 
-typedef struct ANIM2D
+using ANIM2D = struct ANIM2D
 {
-	ANIM_2D_ELEMENTS
-}
-ANIM2D;
+  ANIM_2D_ELEMENTS
+};
 
-typedef struct ANIM3D
+using ANIM3D = struct ANIM3D
 {
-	ANIM_3D_ELEMENTS
-}
-ANIM3D;
-
+  ANIM_3D_ELEMENTS
+};
 
 /***************************************************************************/
 
-typedef void * (* GETSHAPEFUNC) ( STRING *pStr );
+using GETSHAPEFUNC = void* (*)(STRING* pStr);
 
-typedef struct ANIMGLOBALS
+using ANIMGLOBALS = struct ANIMGLOBALS
 {
-	BASEANIM		*psAnimList;
-	UWORD			uwCurObj, uwCurState;
-	GETSHAPEFUNC	pGetShapeFunc;
-}
-ANIMGLOBALS;
-
-
+  BASEANIM* psAnimList;
+  UWORD uwCurObj, uwCurState;
+  GETSHAPEFUNC pGetShapeFunc;
+};
 
 /***************************************************************************/
 
-BOOL		anim_Init( GETSHAPEFUNC  );
-BOOL		anim_Shutdown( void );
-BASEANIM *	anim_LoadFromBuffer( UBYTE *pBuffer, UDWORD size );
-void		anim_ReleaseAnim( BASEANIM *psAnim );
-BOOL		anim_Create3D( char szPieFileName[], UWORD uwFrames,
-							UWORD uwFrameRate, UWORD uwObj,
-							UBYTE ubType, UWORD uwID );
-void		anim_BeginScript( void );
-BOOL		anim_EndScript( void );
-BOOL		anim_AddFrameToAnim( int iFrame, VECTOR3D vecPos,
-									VECTOR3D vecRot, VECTOR3D vecScale );
-BASEANIM *	anim_GetAnim( UWORD uwAnimID );
-UWORD		anim_GetAnimID( char *szName );
-iIMDShape *	anim_GetShapeFromID( UWORD uwID );
-UWORD		anim_GetFrame3D( ANIM3D *psAnim, UWORD uwObj, UDWORD udwGameTime,
-								UDWORD udwStartTime, UDWORD udwStartDelay,
-								VECTOR3D *psVecPos, VECTOR3D *psVecRot,
-								VECTOR3D *psVecScale );
-void		anim_SetVals( char szFileName[], UWORD uwAnimID );
+BOOL anim_Init(GETSHAPEFUNC);
+BOOL anim_Shutdown(void);
+BASEANIM* anim_LoadFromBuffer(UBYTE* pBuffer, UDWORD size);
+void anim_ReleaseAnim(BASEANIM* psAnim);
+BOOL anim_Create3D(char szPieFileName[], UWORD uwFrames, UWORD uwFrameRate, UWORD uwObj, UBYTE ubType, UWORD uwID);
+void anim_BeginScript(void);
+BOOL anim_EndScript(void);
+BOOL anim_AddFrameToAnim(int iFrame, VECTOR3D vecPos, VECTOR3D vecRot, VECTOR3D vecScale);
+BASEANIM* anim_GetAnim(UWORD uwAnimID);
+UWORD anim_GetAnimID(char* szName);
+iIMDShape* anim_GetShapeFromID(UWORD uwID);
+UWORD anim_GetFrame3D(ANIM3D* psAnim, UWORD uwObj, UDWORD udwGameTime, UDWORD udwStartTime, UDWORD udwStartDelay, VECTOR3D* psVecPos,
+                      VECTOR3D* psVecRot, VECTOR3D* psVecScale);
+void anim_SetVals(char szFileName[], UWORD uwAnimID);
 
 /***************************************************************************/
 

@@ -26,17 +26,16 @@
 
 #include "MultiPlay.h"
 
-
 //used to calc the research power
 #define RESEARCH_FACTOR		32//16
 #define RESEARCH_MAX_POWER  450
 
 // The stores for the research stats
-RESEARCH                *asResearch;
-UDWORD					numResearch;
+RESEARCH* asResearch;
+UDWORD numResearch;
 
 //used for Callbacks to say which topic was last researched
-RESEARCH                *psCBLastResearch;
+RESEARCH* psCBLastResearch;
 
 //research is now loaded per campaign - this hopefully is the max there will be in any one campaign!
 //changing above a UBYTE size will require changes throughout research - put the designers off if you can!
@@ -55,1216 +54,1090 @@ RESEARCH                *psCBLastResearch;
 #define MAX_RESEARCH_STRUCT_RES     (84 + 5)
 #define MAX_RESEARCH_ARTE_RES       (125 + 5)
 
-
-
 //need corresponding arrays for the above 
 //needs to be a UWORD* for the Patches
-UWORD               *pResearchPR;
-UWORD               *pResearchStructPR;
-FUNCTION            **pResearchFunc;
-UWORD               *pResearchStructRed;
-COMP_BASE_STATS	    **pResearchArteRed;
-UWORD               *pResearchStructRes;
-COMP_BASE_STATS	    **pResearchArteRes;
-COMP_BASE_STATS	    **pResearchArteRep;
+UWORD* pResearchPR;
+UWORD* pResearchStructPR;
+FUNCTION** pResearchFunc;
+UWORD* pResearchStructRed;
+COMP_BASE_STATS** pResearchArteRed;
+UWORD* pResearchStructRes;
+COMP_BASE_STATS** pResearchArteRes;
+COMP_BASE_STATS** pResearchArteRep;
 
-UWORD               numResearchPR;
+UWORD numResearchPR;
 
-UWORD               numResearchStructPR;
-UBYTE               numResearchFunc;
-UWORD               numResearchStructRed;
-UBYTE               numResearchArteRed;
-UWORD               numResearchStructRes;
-UBYTE               numResearchArteRes;
-UBYTE               numResearchArteRep;
+UWORD numResearchStructPR;
+UBYTE numResearchFunc;
+UWORD numResearchStructRed;
+UBYTE numResearchArteRed;
+UWORD numResearchStructRes;
+UBYTE numResearchArteRes;
+UBYTE numResearchArteRep;
 
 //List of pointers to arrays of PLAYER_RESEARCH[numResearch] for each player
-PLAYER_RESEARCH*		asPlayerResList[MAX_PLAYERS];
+PLAYER_RESEARCH* asPlayerResList[MAX_PLAYERS];
 
 /* Default level of sensor, Repair and ECM */
-UDWORD					aDefaultSensor[MAX_PLAYERS];
-UDWORD					aDefaultECM[MAX_PLAYERS];
-UDWORD					aDefaultRepair[MAX_PLAYERS];
+UDWORD aDefaultSensor[MAX_PLAYERS];
+UDWORD aDefaultECM[MAX_PLAYERS];
+UDWORD aDefaultRepair[MAX_PLAYERS];
 
 #ifdef HASH_NAMES
-static UWORD setIconIDFromHashedName(STRING *pIconName, UDWORD NameHash);
+static UWORD setIconIDFromHashedName(STRING* pIconName, UDWORD NameHash);
 #else
 //set the iconID based on the name read in in the stats
-static UWORD setIconID(STRING *pIconName, STRING *pName);
+static UWORD setIconID(STRING* pIconName, STRING* pName);
 #endif
 
-static COMP_BASE_STATS * getComponentDetails(STRING *pName, STRING *pCompName);
-static void replaceComponent(COMP_BASE_STATS *pNewComponent, COMP_BASE_STATS *pOldComponent,
-					  UBYTE player);
-static BOOL checkResearchName(RESEARCH *psRes, UDWORD numStats);
+static COMP_BASE_STATS* getComponentDetails(STRING* pName, STRING* pCompName);
+static void replaceComponent(COMP_BASE_STATS* pNewComponent, COMP_BASE_STATS* pOldComponent, UBYTE player);
+static BOOL checkResearchName(RESEARCH* psRes, UDWORD numStats);
 
-char *getResearchName(RESEARCH *pResearch)
+char* getResearchName(RESEARCH* pResearch)
 {
 #ifdef HASH_NAMES
-	return(strresGetString(NULL,pResearch->NameHash));
+  return (strresGetString(NULL, pResearch->NameHash));
 #else
-	return(getName(pResearch->pName));
+  return (getName(pResearch->pName));
 #endif
 }
 
 //flag that indicates whether the player can self repair
 static UBYTE bSelfRepair[MAX_PLAYERS];
-static void replaceDroidComponent(DROID *pList, UDWORD oldType, UDWORD oldCompInc, 
-                      UDWORD newCompInc);
-static void replaceStructureComponent(STRUCTURE *pList, UDWORD oldType, UDWORD oldCompInc, 
-                      UDWORD newCompInc, UBYTE player);
-static void switchComponent(DROID *psDroid,UDWORD oldType, UDWORD oldCompInc, 
-                     UDWORD newCompInc);
-static void replaceTransDroidComponents(DROID *psTransporter, UDWORD oldType, 
-                                 UDWORD oldCompInc, UDWORD newCompInc);
-
+static void replaceDroidComponent(DROID* pList, UDWORD oldType, UDWORD oldCompInc, UDWORD newCompInc);
+static void replaceStructureComponent(STRUCTURE* pList, UDWORD oldType, UDWORD oldCompInc, UDWORD newCompInc, UBYTE player);
+static void switchComponent(DROID* psDroid, UDWORD oldType, UDWORD oldCompInc, UDWORD newCompInc);
+static void replaceTransDroidComponents(DROID* psTransporter, UDWORD oldType, UDWORD oldCompInc, UDWORD newCompInc);
 
 BOOL researchInitVars(void)
 {
-	int i;
+  int i;
 
-    psCBLastResearch = NULL;
-	asResearch = NULL;
-    //research is a pre-defined size now
-	asResearch = (RESEARCH *)MALLOC(sizeof(RESEARCH)* MAX_RESEARCH);
-	if (asResearch == NULL)
-	{
-		DBERROR(("Research Stats - Out of memory"));
-		return FALSE;
-	}
-    memset(asResearch, 0, (MAX_RESEARCH * sizeof(RESEARCH)));
+  psCBLastResearch = nullptr;
+  asResearch = nullptr;
+  //research is a pre-defined size now
+  asResearch = static_cast<RESEARCH*>(MALLOC(sizeof(RESEARCH)* MAX_RESEARCH));
+  if (asResearch == nullptr)
+  {
+    DBERROR(("Research Stats - Out of memory"));
+    return FALSE;
+  }
+  memset(asResearch, 0, (MAX_RESEARCH * sizeof(RESEARCH)));
 
-    //create the PLAYER_RESEARCH arrays
-	for (i=0; i < MAX_PLAYERS; i++)
-	{
-		asPlayerResList[i] = (PLAYER_RESEARCH*)MALLOC(MAX_RESEARCH * 
-			sizeof(PLAYER_RESEARCH));
-		if (asPlayerResList[i] == NULL)
-		{
-			DBERROR(("Out of memory assigning Player_Research"));
-			return FALSE;
-		}
-		memset(asPlayerResList[i], 0, (MAX_RESEARCH * sizeof(PLAYER_RESEARCH)));
-	}
-
-	numResearch = 0;
-
-    //and deal with all the other arrays for research
-    //needs to be UWORD sized for the Patches
-    pResearchPR = (UWORD *) MALLOC(sizeof(UWORD) * MAX_RESEARCH_PR);
-	if (pResearchPR == NULL)
-	{
-		DBERROR(("Research Stats - Out of memory"));
-		return FALSE;
-	}
-    //needs to be UWORD sized for the Patches
-    memset(pResearchPR, 0, (MAX_RESEARCH_PR * sizeof(UWORD)));
-
-    pResearchStructPR = (UWORD *) MALLOC(sizeof(UWORD) * MAX_RESEARCH_STRUCT_PR);
-	if (pResearchStructPR == NULL)
-	{
-		DBERROR(("Research Stats - Out of memory"));
-		return FALSE;
-	}
-    memset(pResearchStructPR, 0, (MAX_RESEARCH_STRUCT_PR * sizeof(UWORD)));
-
-    pResearchFunc = (FUNCTION **) MALLOC(sizeof(FUNCTION *) * MAX_RESEARCH_FUNC);
-	if (pResearchFunc == NULL)
-	{
-		DBERROR(("Research Stats - Out of memory"));
-		return FALSE;
-	}
-    memset(pResearchFunc, 0, (MAX_RESEARCH_FUNC * sizeof(FUNCTION *)));
-
-    pResearchStructRed = (UWORD *) MALLOC(sizeof(UWORD) * MAX_RESEARCH_STRUCT_RED);
-	if (pResearchStructRed == NULL)
-	{
-		DBERROR(("Research Stats - Out of memory"));
-		return FALSE;
-	}
-    memset(pResearchStructRed, 0, (MAX_RESEARCH_STRUCT_RED * sizeof(UWORD)));
-
-    pResearchArteRed = (COMP_BASE_STATS **) MALLOC(sizeof(COMP_BASE_STATS *) * MAX_RESEARCH_ARTE_RED);
-	if (pResearchArteRed == NULL)
-	{
-		DBERROR(("Research Stats - Out of memory"));
-		return FALSE;
-	}
-    memset(pResearchArteRed, 0, (MAX_RESEARCH_ARTE_RED * sizeof(COMP_BASE_STATS *)));
-
-    pResearchStructRes = (UWORD *) MALLOC(sizeof(UWORD) * MAX_RESEARCH_STRUCT_RES);
-	if (pResearchStructRes == NULL)
-	{
-		DBERROR(("Research Stats - Out of memory"));
-		return FALSE;
-	}
-    memset(pResearchStructRes, 0, (MAX_RESEARCH_STRUCT_RES * sizeof(UWORD)));
-
-    pResearchArteRes = (COMP_BASE_STATS **) MALLOC(sizeof(COMP_BASE_STATS *) * MAX_RESEARCH_ARTE_RES);
-	if (pResearchArteRes == NULL)
-	{
-		DBERROR(("Research Stats - Out of memory"));
-		return FALSE;
-	}
-    memset(pResearchArteRes, 0, (MAX_RESEARCH_ARTE_RES * sizeof(COMP_BASE_STATS *)));
-
-    pResearchArteRep = (COMP_BASE_STATS **) MALLOC(sizeof(COMP_BASE_STATS *) * MAX_RESEARCH_ARTE_RES);
-	if (pResearchArteRep == NULL)
-	{
-		DBERROR(("Research Stats - Out of memory"));
-		return FALSE;
-	}
-    memset(pResearchArteRep, 0, (MAX_RESEARCH_ARTE_RES * sizeof(COMP_BASE_STATS *)));
-
-	for(i=0; i<MAX_PLAYERS; i++) 
+  //create the PLAYER_RESEARCH arrays
+  for (i = 0; i < MAX_PLAYERS; i++)
+  {
+    asPlayerResList[i] = static_cast<PLAYER_RESEARCH*>(MALLOC(MAX_RESEARCH * sizeof(PLAYER_RESEARCH)));
+    if (asPlayerResList[i] == nullptr)
     {
-		bSelfRepair[i] = FALSE;
-	}
+      DBERROR(("Out of memory assigning Player_Research"));
+      return FALSE;
+    }
+    memset(asPlayerResList[i], 0, (MAX_RESEARCH * sizeof(PLAYER_RESEARCH)));
+  }
 
-	return TRUE;
+  numResearch = 0;
+
+  //and deal with all the other arrays for research
+  //needs to be UWORD sized for the Patches
+  pResearchPR = static_cast<UWORD*>(MALLOC(sizeof(UWORD) * MAX_RESEARCH_PR));
+  if (pResearchPR == nullptr)
+  {
+    DBERROR(("Research Stats - Out of memory"));
+    return FALSE;
+  }
+  //needs to be UWORD sized for the Patches
+  memset(pResearchPR, 0, (MAX_RESEARCH_PR * sizeof(UWORD)));
+
+  pResearchStructPR = static_cast<UWORD*>(MALLOC(sizeof(UWORD) * MAX_RESEARCH_STRUCT_PR));
+  if (pResearchStructPR == nullptr)
+  {
+    DBERROR(("Research Stats - Out of memory"));
+    return FALSE;
+  }
+  memset(pResearchStructPR, 0, (MAX_RESEARCH_STRUCT_PR * sizeof(UWORD)));
+
+  pResearchFunc = static_cast<FUNCTION**>(MALLOC(sizeof(FUNCTION *) * MAX_RESEARCH_FUNC));
+  if (pResearchFunc == nullptr)
+  {
+    DBERROR(("Research Stats - Out of memory"));
+    return FALSE;
+  }
+  memset(pResearchFunc, 0, (MAX_RESEARCH_FUNC * sizeof(FUNCTION*)));
+
+  pResearchStructRed = static_cast<UWORD*>(MALLOC(sizeof(UWORD) * MAX_RESEARCH_STRUCT_RED));
+  if (pResearchStructRed == nullptr)
+  {
+    DBERROR(("Research Stats - Out of memory"));
+    return FALSE;
+  }
+  memset(pResearchStructRed, 0, (MAX_RESEARCH_STRUCT_RED * sizeof(UWORD)));
+
+  pResearchArteRed = static_cast<COMP_BASE_STATS**>(MALLOC(sizeof(COMP_BASE_STATS *) * MAX_RESEARCH_ARTE_RED));
+  if (pResearchArteRed == nullptr)
+  {
+    DBERROR(("Research Stats - Out of memory"));
+    return FALSE;
+  }
+  memset(pResearchArteRed, 0, (MAX_RESEARCH_ARTE_RED * sizeof(COMP_BASE_STATS*)));
+
+  pResearchStructRes = static_cast<UWORD*>(MALLOC(sizeof(UWORD) * MAX_RESEARCH_STRUCT_RES));
+  if (pResearchStructRes == nullptr)
+  {
+    DBERROR(("Research Stats - Out of memory"));
+    return FALSE;
+  }
+  memset(pResearchStructRes, 0, (MAX_RESEARCH_STRUCT_RES * sizeof(UWORD)));
+
+  pResearchArteRes = static_cast<COMP_BASE_STATS**>(MALLOC(sizeof(COMP_BASE_STATS *) * MAX_RESEARCH_ARTE_RES));
+  if (pResearchArteRes == nullptr)
+  {
+    DBERROR(("Research Stats - Out of memory"));
+    return FALSE;
+  }
+  memset(pResearchArteRes, 0, (MAX_RESEARCH_ARTE_RES * sizeof(COMP_BASE_STATS*)));
+
+  pResearchArteRep = static_cast<COMP_BASE_STATS**>(MALLOC(sizeof(COMP_BASE_STATS *) * MAX_RESEARCH_ARTE_RES));
+  if (pResearchArteRep == nullptr)
+  {
+    DBERROR(("Research Stats - Out of memory"));
+    return FALSE;
+  }
+  memset(pResearchArteRep, 0, (MAX_RESEARCH_ARTE_RES * sizeof(COMP_BASE_STATS*)));
+
+  for (i = 0; i < MAX_PLAYERS; i++)
+    bSelfRepair[i] = FALSE;
+
+  return TRUE;
 }
-
 
 /*Load the research stats from the file exported from Access*/
-BOOL loadResearch(SBYTE *pResearchData, UDWORD bufferSize)
+BOOL loadResearch(SBYTE* pResearchData, UDWORD bufferSize)
 {
-	SBYTE		        *pStartResearchData;
-	RESEARCH	        *pResearch;
-    COMP_BASE_STATS     *psComp;
-	SDWORD				structID;
-	UDWORD		        researchCount = 0,i,keyTopic, techCode, resPoints;
-	STRING		        ResearchName[MAX_NAME_SIZE];
-	STRING		        msgName[MAX_STR_SIZE], iconID[MAX_NAME_SIZE];
-	STRING		        imdName[MAX_NAME_SIZE],	imdName2[MAX_NAME_SIZE];
-	STRING		        structName[MAX_NAME_SIZE], compName[MAX_NAME_SIZE], 
-                        compType[MAX_STR_SIZE];
+  SBYTE* pStartResearchData;
+  RESEARCH* pResearch;
+  COMP_BASE_STATS* psComp;
+  SDWORD structID;
+  UDWORD researchCount = 0, i, keyTopic, techCode, resPoints;
+  STRING ResearchName[MAX_NAME_SIZE];
+  STRING msgName[MAX_STR_SIZE], iconID[MAX_NAME_SIZE];
+  STRING imdName[MAX_NAME_SIZE], imdName2[MAX_NAME_SIZE];
+  STRING structName[MAX_NAME_SIZE], compName[MAX_NAME_SIZE], compType[MAX_STR_SIZE];
 
-	//reserve the start of the data
-	pStartResearchData = pResearchData;
+  //reserve the start of the data
+  pStartResearchData = pResearchData;
 
-	researchCount = numCR((UBYTE *)pResearchData, bufferSize);
+  researchCount = numCR((UBYTE*)pResearchData, bufferSize);
 
-	numResearch = researchCount;
-    ASSERT(((numResearch) <= MAX_RESEARCH, 
-        "Too many ResearchStats!! - max allowed %d", MAX_RESEARCH));
+  numResearch = researchCount;
+  ASSERT(((numResearch) <= MAX_RESEARCH, "Too many ResearchStats!! - max allowed %d", MAX_RESEARCH));
 
-    //init all the counts
-    numResearchPR = numResearchFunc = numResearchArteRed = numResearchArteRes = 
-        numResearchArteRep = 0;
-    numResearchStructPR = numResearchStructRed = numResearchStructRes = 0;
+  //init all the counts
+  numResearchPR = numResearchFunc = numResearchArteRed = numResearchArteRes = numResearchArteRep = 0;
+  numResearchStructPR = numResearchStructRed = numResearchStructRes = 0;
 
-	//get the start of the research storage
-	pResearch = asResearch;
-	
-	for (i=0; i < researchCount; i++)
-	{
-		memset(pResearch, 0, sizeof(RESEARCH));
+  //get the start of the research storage
+  pResearch = asResearch;
 
-		//read the data into the storage - the data is delimeted using comma's
-		ResearchName[0] = '\0';
-		sscanf(pResearchData,"%[^','],", &ResearchName);
-		//allocate storage for the name
+  for (i = 0; i < researchCount; i++)
+  {
+    memset(pResearch, 0, sizeof(RESEARCH));
 
+    //read the data into the storage - the data is delimeted using comma's
+    ResearchName[0] = '\0';
+    sscanf(pResearchData, "%[^','],", &ResearchName);
+    //allocate storage for the name
 
 #ifdef HASH_NAMES
-		pResearch->NameHash=HashString(ResearchName);
+    pResearch->NameHash = HashString(ResearchName);
 #else
-		if (!allocateName(&pResearch->pName, ResearchName))
-		{
-			return FALSE;
-		}
+    if (!allocateName(&pResearch->pName, ResearchName))
+      return FALSE;
 #endif
 
-		//check the name hasn't been used already
-		if (!checkResearchName(pResearch, i))
-		{
-			return FALSE;
-		}
+    //check the name hasn't been used already
+    if (!checkResearchName(pResearch, i))
+      return FALSE;
 
-		pResearchData += (strlen(ResearchName)+1);
+    pResearchData += (strlen(ResearchName) + 1);
 
-		pResearch->ref = REF_RESEARCH_START + i;
+    pResearch->ref = REF_RESEARCH_START + i;
 
-		//determine the tech level
-		ResearchName[0] = '\0';
-		sscanf(pResearchData,"%[^','],", &ResearchName);
-		if (!setTechLevel((BASE_STATS *)pResearch, ResearchName))
-		{
-			return FALSE;
-		}
+    //determine the tech level
+    ResearchName[0] = '\0';
+    sscanf(pResearchData, "%[^','],", &ResearchName);
+    if (!setTechLevel((BASE_STATS*)pResearch, ResearchName))
+      return FALSE;
 
-		pResearchData += (strlen(ResearchName)+1);
+    pResearchData += (strlen(ResearchName) + 1);
 
-		ResearchName[0] = '\0';
-		sscanf(pResearchData,"%[^','],", &ResearchName);
-		
-        //subGroup value now holds which category the research comes under for yet another icon!
-		// store subgroup. may differ from tech level at some point?
-		/*if(strcmp(ResearchName,"Sub Group One") == 0)
-		{
-			pResearch->subGroup	= 1;
-		}
-		else if(strcmp(ResearchName,"Sub Group Two") == 0)
-		{
-			pResearch->subGroup	= 2;
-		}
-		else if(strcmp(ResearchName,"Sub Group Three") == 0)
-		{
-			pResearch->subGroup	= 3;
-		}
-		// now support for future 'add on packs' (hey I can be hopeful).
-		else if(strcmp(ResearchName,"Sub Group Four") == 0)
-		{
-			pResearch->subGroup	= 4;
-		}
-		else if(strcmp(ResearchName,"Sub Group Five") == 0)
-		{
-			pResearch->subGroup	= 5;
-		}
-		else if(strcmp(ResearchName,"Sub Group Six") == 0)
-		{
-			pResearch->subGroup	= 6;
-		}
-		else if(strcmp(ResearchName,"Sub Group Seven") == 0)
-		{
-			pResearch->subGroup	= 7;
-		}
-		else if(strcmp(ResearchName,"Sub Group Eight") == 0)
-		{
-			pResearch->subGroup	= 8;
-		}
-		else if(strcmp(ResearchName,"Sub Group Nine") == 0)
-		{
-			pResearch->subGroup	= 9;
-		}
-		else
-		{
-			DBERROR(("Unknown Research Subgroup."));
-		}*/
-		if (strcmp(ResearchName, "0"))
-		{
+    ResearchName[0] = '\0';
+    sscanf(pResearchData, "%[^','],", &ResearchName);
+
+    //subGroup value now holds which category the research comes under for yet another icon!
+    // store subgroup. may differ from tech level at some point?
+    /*if(strcmp(ResearchName,"Sub Group One") == 0)
+    {
+      pResearch->subGroup	= 1;
+    }
+    else if(strcmp(ResearchName,"Sub Group Two") == 0)
+    {
+      pResearch->subGroup	= 2;
+    }
+    else if(strcmp(ResearchName,"Sub Group Three") == 0)
+    {
+      pResearch->subGroup	= 3;
+    }
+    // now support for future 'add on packs' (hey I can be hopeful).
+    else if(strcmp(ResearchName,"Sub Group Four") == 0)
+    {
+      pResearch->subGroup	= 4;
+    }
+    else if(strcmp(ResearchName,"Sub Group Five") == 0)
+    {
+      pResearch->subGroup	= 5;
+    }
+    else if(strcmp(ResearchName,"Sub Group Six") == 0)
+    {
+      pResearch->subGroup	= 6;
+    }
+    else if(strcmp(ResearchName,"Sub Group Seven") == 0)
+    {
+      pResearch->subGroup	= 7;
+    }
+    else if(strcmp(ResearchName,"Sub Group Eight") == 0)
+    {
+      pResearch->subGroup	= 8;
+    }
+    else if(strcmp(ResearchName,"Sub Group Nine") == 0)
+    {
+      pResearch->subGroup	= 9;
+    }
+    else
+    {
+      DBERROR(("Unknown Research Subgroup."));
+    }*/
+    if (strcmp(ResearchName, "0"))
+    {
 #ifdef HASH_NAMES
-			pResearch->subGroup = setIconIDFromHashedName(ResearchName, pResearch->NameHash);
+      pResearch->subGroup = setIconIDFromHashedName(ResearchName, pResearch->NameHash);
 #else
-			pResearch->subGroup = setIconID(ResearchName, pResearch->pName);
+      pResearch->subGroup = setIconID(ResearchName, pResearch->pName);
 #endif
-		}
-		else
-		{
-			pResearch->subGroup = NO_RESEARCH_ICON;
-		}
+    }
+    else
+      pResearch->subGroup = NO_RESEARCH_ICON;
 
-		pResearchData += (strlen(ResearchName)+1);
+    pResearchData += (strlen(ResearchName) + 1);
 
-		iconID[0] = '\0';
-		imdName[0] = '\0';
-		imdName2[0] = '\0';
-		msgName[0] = '\0';
-		structName[0] = '\0';
-		compName[0] = '\0';
-        compType[0] = '\0';
+    iconID[0] = '\0';
+    imdName[0] = '\0';
+    imdName2[0] = '\0';
+    msgName[0] = '\0';
+    structName[0] = '\0';
+    compName[0] = '\0';
+    compType[0] = '\0';
 
-		{
-			UDWORD numPRRequired;
-			UDWORD numFunctions;
-			UDWORD numStructures;
-			UDWORD numRedStructs;
-			UDWORD numStructResults;
-			UDWORD numRedArtefacts;
-			UDWORD numArteResults;
+    {
+      UDWORD numPRRequired;
+      UDWORD numFunctions;
+      UDWORD numStructures;
+      UDWORD numRedStructs;
+      UDWORD numStructResults;
+      UDWORD numRedArtefacts;
+      UDWORD numArteResults;
 
-			sscanf(pResearchData,"%d,%[^','],%[^','],%[^','],%[^','],%[^','], \
-                %[^','],%[^','],%d,%d,%d,%d,%d,%d,%d,%d,%d",
-				&techCode, &iconID, &imdName, &imdName2, &msgName, 
-                &structName, &compName, &compType,
-				&resPoints, &keyTopic, &numPRRequired, 
-				&numFunctions, &numStructures, 
-				&numRedStructs, &numStructResults, 
-				&numRedArtefacts, &numArteResults);
+      sscanf(pResearchData, "%d,%[^','],%[^','],%[^','],%[^','],%[^','], \
+                %[^','],%[^','],%d,%d,%d,%d,%d,%d,%d,%d,%d", &techCode, &iconID, &imdName, &imdName2, &msgName, &structName, &compName,
+             &compType, &resPoints, &keyTopic, &numPRRequired, &numFunctions, &numStructures, &numRedStructs, &numStructResults,
+             &numRedArtefacts, &numArteResults);
 
-			pResearch->numPRRequired=(UBYTE)numPRRequired;
-			pResearch->numFunctions=(UBYTE)numFunctions;
-			pResearch->numStructures=(UBYTE)numStructures;
-			pResearch->numRedStructs=(UBYTE)numRedStructs;
+      pResearch->numPRRequired = static_cast<UBYTE>(numPRRequired);
+      pResearch->numFunctions = static_cast<UBYTE>(numFunctions);
+      pResearch->numStructures = static_cast<UBYTE>(numStructures);
+      pResearch->numRedStructs = static_cast<UBYTE>(numRedStructs);
 
-			pResearch->numStructResults=(UBYTE)numStructResults;
-			pResearch->numRedArtefacts=(UBYTE)numRedArtefacts;
-			pResearch->numArteResults=(UBYTE)numArteResults;
+      pResearch->numStructResults = static_cast<UBYTE>(numStructResults);
+      pResearch->numRedArtefacts = static_cast<UBYTE>(numRedArtefacts);
+      pResearch->numArteResults = static_cast<UBYTE>(numArteResults);
+    }
 
-		}
+    //set keytopic flag
+    if (keyTopic)
+      pResearch->keyTopic = TRUE;
+    else
+      pResearch->keyTopic = FALSE;
 
-		//set keytopic flag
-		if (keyTopic)
-		{
-			pResearch->keyTopic = TRUE;
-		}
-		else
-		{
-			pResearch->keyTopic = FALSE;
-		}
+    //check the tech code is valid
+    if (techCode > 1)
+    {
+      DBERROR(("Invalid tech code for research topic - %s ", getResearchName(pResearch)));
+      return FALSE;
+    }
+    if (techCode == 0)
+      pResearch->techCode = TC_MAJOR;
+    else
+      pResearch->techCode = TC_MINOR;
 
-		//check the tech code is valid
-        if (techCode > 1)
-		{
-			DBERROR(("Invalid tech code for research topic - %s ", getResearchName(pResearch)));
-			return FALSE;
-		}
-        if (techCode == 0)
-        {
-            pResearch->techCode = TC_MAJOR;
-        }
-        else
-        {
-            pResearch->techCode = TC_MINOR;
-        }
-
-		//set the iconID
-		if (strcmp(iconID, "0"))
-		{
+    //set the iconID
+    if (strcmp(iconID, "0"))
+    {
 #ifdef HASH_NAMES
-			pResearch->iconID = setIconIDFromHashedName(iconID, pResearch->NameHash);
+      pResearch->iconID = setIconIDFromHashedName(iconID, pResearch->NameHash);
 #else
-			pResearch->iconID = setIconID(iconID, pResearch->pName);
+      pResearch->iconID = setIconID(iconID, pResearch->pName);
 #endif
-		}
-		else
-		{
-			pResearch->iconID = NO_RESEARCH_ICON;
-		}
+    }
+    else
+      pResearch->iconID = NO_RESEARCH_ICON;
 
+    //get the IMDs used in the interface
+    if (strcmp(structName, "0"))
+    {
+      //find the structure stat
+      structID = getStructStatFromName(structName);
+      if (structID >= 0)
+        pResearch->psStat = (BASE_STATS*)(asStructureStats + structID);
+      else
+      {
+        DBERROR(("Cannot find the structure Stat for Research %s", getResearchName(pResearch)));
+        return FALSE;
+      }
+    }
+    else if (strcmp(compName, "0"))
+    {
+      //find the component stat
+      psComp = getComponentDetails(compType, compName);
+      if (psComp != nullptr)
+        pResearch->psStat = (BASE_STATS*)psComp;
+      else
+      {
+        DBERROR(("Cannot find the component Stat for Research %s", getResearchName(pResearch)));
+        return FALSE;
+      }
+    }
+    else
+      pResearch->psStat = nullptr;
+    if (strcmp(imdName, "0"))
+    {
+      pResearch->pIMD = static_cast<iIMDShape*>(resGetData("IMD", imdName));
+      if (pResearch->pIMD == nullptr)
+      {
+        DBERROR(("Cannot find the research PIE for record %s", getResearchName(pResearch)));
+        return FALSE;
+      }
+    }
+    else
+      pResearch->pIMD = nullptr;
 
-		//get the IMDs used in the interface
-		if (strcmp(structName, "0"))
-		{
-            //find the structure stat
-            structID = getStructStatFromName(structName);
-            if (structID >= 0)
-            {
-                pResearch->psStat = (BASE_STATS *)(asStructureStats + structID);
-            }
-            else
-            {
-                DBERROR(("Cannot find the structure Stat for Research %s", 
-                    getResearchName(pResearch)));
-                return FALSE;
-            }
-        }
-        else if (strcmp(compName, "0"))
-		{
-            //find the component stat
-            psComp = getComponentDetails(compType, compName);
-	        if (psComp != NULL)
-	        {
-		        pResearch->psStat = (BASE_STATS *)psComp;
-	        }
-            else
-            {
-                DBERROR(("Cannot find the component Stat for Research %s", 
-                    getResearchName(pResearch)));
-                return FALSE;
-            }
-        }
-        else
+    if (strcmp(imdName2, "0"))
+    {
+      pResearch->pIMD2 = static_cast<iIMDShape*>(resGetData("IMD", imdName2));
+      if (pResearch->pIMD2 == nullptr)
+      {
+        DBERROR(("Cannot find the 2nd research PIE for record %s", getResearchName(pResearch)));
+        return FALSE;
+      }
+    }
+    else
+      pResearch->pIMD2 = nullptr;
+
+    //get the message viewdata - if any
+    if (strcmp(msgName, "0"))
+    {
+      //check its a major tech code
+      if (pResearch->techCode != TC_MAJOR)
+        DBERROR(
+        ("This research should not have a message associated with it, %s the message will be ignored!", getResearchName(pResearch)));
+      else
+        pResearch->pViewData = getViewData(msgName);
+    }
+
+    //redundancies - artefacts
+    if (pResearch->numRedArtefacts > 0)
+    {
+      /*pResearch->pRedArtefacts = (COMP_BASE_STATS **) MALLOC(pResearch->
+        numRedArtefacts*sizeof(COMP_BASE_STATS *));
+        if (pResearch->pRedArtefacts == NULL)
         {
-            pResearch->psStat = NULL;
-        }
-		if (strcmp(imdName, "0"))
-		{
-			pResearch->pIMD = (iIMDShape *) resGetData("IMD", imdName);
-			if (pResearch->pIMD == NULL)
-			{
-				DBERROR(("Cannot find the research PIE for record %s", getResearchName(pResearch)));
-				return FALSE;
-			}
-		}
-		else
-		{
-			pResearch->pIMD = NULL;
-		}
+           DBERROR(("Out of memory assigning research artefacts - redundancies"));
+          return FALSE;
+      }*/
+      if (numResearchArteRed >= MAX_RESEARCH_ARTE_RED)
+      {
+        DBERROR(("Out of memory assigning research artefacts - redundancies"));
+        return FALSE;
+      }
+      //don't MALLOC - get them from the pre-defined arrays
+      pResearch->pRedArtefacts = pResearchArteRed + numResearchArteRed;
+      //keep track on how many are being allocated
+      numResearchArteRed = static_cast<UBYTE>(numResearchArteRed + pResearch->numRedArtefacts);
+    }
+    //results
+    if (pResearch->numArteResults > 0)
+    {
+      /*pResearch->pArtefactResults = (COMP_BASE_STATS **) MALLOC(pResearch->
+        numArteResults*sizeof(COMP_BASE_STATS *));
+      if (pResearch->pArtefactResults == NULL)
+      {
+        DBERROR(("Out of memory assigning research artefacts - results"));
+        return FALSE;
+      }*/
+      if (numResearchArteRed >= MAX_RESEARCH_ARTE_RES)
+      {
+        DBERROR(("Out of memory assigning research artefacts - results"));
+        return FALSE;
+      }
+      //don't MALLOC - get them from the pre-defined arrays
+      pResearch->pArtefactResults = pResearchArteRes + numResearchArteRes;
+      //keep track on how many are being allocated
+      numResearchArteRes = static_cast<UBYTE>(numResearchArteRes + pResearch->numArteResults);
+    }
 
-		if (strcmp(imdName2, "0"))
-		{
-			pResearch->pIMD2 = (iIMDShape *) resGetData("IMD", imdName2);
-			if (pResearch->pIMD2 == NULL)
-			{
-				DBERROR(("Cannot find the 2nd research PIE for record %s", getResearchName(pResearch)));
-				return FALSE;
-			}
-		}
-		else
-		{
-			pResearch->pIMD2 = NULL;
-		}
+    //replacements
+    if (pResearch->numArteResults > 0)
+    {
+      /*pResearch->pReplacedArtefacts = (COMP_BASE_STATS **) MALLOC(pResearch->
+        numArteResults*sizeof(COMP_BASE_STATS *));
+      if (pResearch->pReplacedArtefacts == NULL)
+      {
+        DBERROR(("Out of memory assigning research artefacts - replacements"));
+        return FALSE;
+      }*/
+      if (numResearchArteRep >= MAX_RESEARCH_ARTE_RES)
+      {
+        DBERROR(("Out of memory assigning research artefacts - replacements"));
+        return FALSE;
+      }
+      //don't MALLOC - get them from the pre-defined arrays
+      pResearch->pReplacedArtefacts = pResearchArteRep + numResearchArteRep;
+      //keep track on how many are being allocated
+      numResearchArteRep = static_cast<UBYTE>(numResearchArteRep + pResearch->numArteResults);
+    }
 
-		//get the message viewdata - if any
-		if (strcmp(msgName, "0"))
-		{
-			//check its a major tech code
-			if (pResearch->techCode != TC_MAJOR)
-			{
-				DBERROR(("This research should not have a message associated with it, %s the message will be ignored!", getResearchName(pResearch)));
-			}
-			else
-			{
-				pResearch->pViewData = getViewData(msgName);
-			}
-		}
+    //allocate storage for the functions
+    if (pResearch->numFunctions > 0)
+    {
+      /*pResearch->pFunctionList = (FUNCTION**)MALLOC(pResearch->
+        numFunctions*sizeof(FUNCTION*));
+      if (pResearch->pFunctionList == NULL)
+      {
+        DBERROR(("Out of memory assigning research functions"));
+        return FALSE;
+      }*/
+      if (numResearchFunc >= MAX_RESEARCH_FUNC)
+      {
+        DBERROR(("Out of memory assigning research functions"));
+        return FALSE;
+      }
+      //don't MALLOC - get them from the pre-defined arrays
+      pResearch->pFunctionList = pResearchFunc + numResearchFunc;
+      //keep track on how many are being allocated
+      numResearchFunc = static_cast<UBYTE>(numResearchFunc + pResearch->numFunctions);
+    }
 
-		//redundancies - artefacts
-		if (pResearch->numRedArtefacts > 0)
-		{
-			/*pResearch->pRedArtefacts = (COMP_BASE_STATS **) MALLOC(pResearch->
-				numRedArtefacts*sizeof(COMP_BASE_STATS *));
-	    	if (pResearch->pRedArtefacts == NULL)
-		    {
-			   	DBERROR(("Out of memory assigning research artefacts - redundancies"));
-			    return FALSE;
-			}*/
-            if (numResearchArteRed >= MAX_RESEARCH_ARTE_RED)
-            {
-                DBERROR(("Out of memory assigning research artefacts - redundancies"));
-                return FALSE;
-            }
-            //don't MALLOC - get them from the pre-defined arrays
-            pResearch->pRedArtefacts = pResearchArteRed + numResearchArteRed;
-            //keep track on how many are being allocated
-            numResearchArteRed = (UBYTE)(numResearchArteRed + pResearch->numRedArtefacts);
-		}
-		//results
-		if (pResearch->numArteResults > 0)
-		{
-			/*pResearch->pArtefactResults = (COMP_BASE_STATS **) MALLOC(pResearch->
-				numArteResults*sizeof(COMP_BASE_STATS *));
-			if (pResearch->pArtefactResults == NULL)
-			{
-				DBERROR(("Out of memory assigning research artefacts - results"));
-				return FALSE;
-			}*/
-            if (numResearchArteRed >= MAX_RESEARCH_ARTE_RES)
-            {
-                DBERROR(("Out of memory assigning research artefacts - results"));
-                return FALSE;
-            }
-            //don't MALLOC - get them from the pre-defined arrays
-            pResearch->pArtefactResults = pResearchArteRes + numResearchArteRes;
-            //keep track on how many are being allocated
-            numResearchArteRes = (UBYTE)(numResearchArteRes + pResearch->numArteResults);
-		}
+    //allocate storage for the pre-requisities
+    if (pResearch->numPRRequired > 0)
+    {
+      /*pResearch->pPRList = (UDWORD*)MALLOC(pResearch->
+        numPRRequired*sizeof(UDWORD));
+      if (pResearch->pPRList == NULL)
+      {
+        DBERROR(("Out of memory assigning research pre-requisities"));
+        return FALSE;
+      }*/
+      if (numResearchPR >= MAX_RESEARCH_PR)
+      {
+        DBERROR(("Out of memory assigning research pre-requisities"));
+        return FALSE;
+      }
+      //don't MALLOC - get them from the pre-defined arrays
+      pResearch->pPRList = pResearchPR + numResearchPR;
+      //keep track on how many are being allocated
+      numResearchPR = static_cast<UWORD>(numResearchPR + pResearch->numPRRequired);
+    }
 
-		//replacements
-		if (pResearch->numArteResults > 0)
-		{
-			/*pResearch->pReplacedArtefacts = (COMP_BASE_STATS **) MALLOC(pResearch->
-				numArteResults*sizeof(COMP_BASE_STATS *));
-			if (pResearch->pReplacedArtefacts == NULL)
-			{
-				DBERROR(("Out of memory assigning research artefacts - replacements"));
-				return FALSE;
-			}*/
-            if (numResearchArteRep >= MAX_RESEARCH_ARTE_RES)
-            {
-                DBERROR(("Out of memory assigning research artefacts - replacements"));
-                return FALSE;
-            }
-            //don't MALLOC - get them from the pre-defined arrays
-            pResearch->pReplacedArtefacts = pResearchArteRep + numResearchArteRep;
-            //keep track on how many are being allocated
-            numResearchArteRep = (UBYTE)(numResearchArteRep + pResearch->numArteResults);
-		}
+    //allocate storage for the structures
+    //requirements
+    if (pResearch->numStructures > 0)
+    {
+      /*pResearch->pStructList = (UDWORD *) MALLOC(pResearch->
+        numStructures*sizeof(UDWORD));
+      if (pResearch->pStructList == NULL)
+      {
+        DBERROR(("Out of memory assigning research structures - requirements"));
+        return FALSE;
+      }*/
+      if (numResearchStructPR >= MAX_RESEARCH_STRUCT_PR)
+      {
+        DBERROR(("Out of memory assigning research structures - requirements"));
+        return FALSE;
+      }
+      //don't MALLOC - get them from the pre-defined arrays
+      pResearch->pStructList = pResearchStructPR + numResearchStructPR;
+      //keep track on how many are being allocated
+      numResearchStructPR = static_cast<UBYTE>(numResearchStructPR + pResearch->numStructures);
+    }
 
-		//allocate storage for the functions
-		if (pResearch->numFunctions > 0)
-		{
-			/*pResearch->pFunctionList = (FUNCTION**)MALLOC(pResearch->
-				numFunctions*sizeof(FUNCTION*));
-			if (pResearch->pFunctionList == NULL)
-			{
-				DBERROR(("Out of memory assigning research functions"));
-				return FALSE;
-			}*/
-            if (numResearchFunc >= MAX_RESEARCH_FUNC)
-            {
-                DBERROR(("Out of memory assigning research functions"));
-                return FALSE;
-            }
-            //don't MALLOC - get them from the pre-defined arrays
-            pResearch->pFunctionList = pResearchFunc + numResearchFunc;
-            //keep track on how many are being allocated
-            numResearchFunc = (UBYTE)(numResearchFunc + pResearch->numFunctions);
-		}
+    //redundancies
+    if (pResearch->numRedStructs > 0)
+    {
+      /*pResearch->pRedStructs = (UDWORD *) MALLOC(pResearch->
+        numRedStructs*sizeof(UDWORD));
+      if (pResearch->pRedStructs == NULL)
+      {
+        DBERROR(("Out of memory assigning research structures - redundancies"));
+        return FALSE;
+      }*/
+      if (numResearchStructRed >= MAX_RESEARCH_STRUCT_RED)
+      {
+        DBERROR(("Out of memory assigning research structures - redundancies"));
+        return FALSE;
+      }
+      //don't MALLOC - get them from the pre-defined arrays
+      pResearch->pRedStructs = pResearchStructRed + numResearchStructRed;
+      //keep track on how many are being allocated
+      numResearchStructRed = static_cast<UBYTE>(numResearchStructRed + pResearch->numRedStructs);
+    }
+    //results
+    if (pResearch->numStructResults > 0)
+    {
+      /*pResearch->pStructureResults = (UDWORD *) MALLOC(pResearch->
+        numStructResults*sizeof(UDWORD));
+      if (pResearch->pStructureResults == NULL)
+      {
+        DBERROR(("Out of memory assigning research structures - results"));
+        return FALSE;
+      }*/
+      if (numResearchStructRes >= MAX_RESEARCH_STRUCT_RES)
+      {
+        DBERROR(("Out of memory assigning research structures - results"));
+        return FALSE;
+      }
+      //don't MALLOC - get them from the pre-defined arrays
+      pResearch->pStructureResults = pResearchStructRes + numResearchStructRes;
+      //keep track on how many are being allocated
+      numResearchStructRes = static_cast<UBYTE>(numResearchStructRes + pResearch->numStructResults);
+    }
 
-		//allocate storage for the pre-requisities
-		if (pResearch->numPRRequired > 0)
-		{
-			/*pResearch->pPRList = (UDWORD*)MALLOC(pResearch->
-				numPRRequired*sizeof(UDWORD));
-			if (pResearch->pPRList == NULL)
-			{
-				DBERROR(("Out of memory assigning research pre-requisities"));
-				return FALSE;
-			}*/
-            if (numResearchPR >= MAX_RESEARCH_PR)
-            {
-                DBERROR(("Out of memory assigning research pre-requisities"));
-                return FALSE;
-            }
-            //don't MALLOC - get them from the pre-defined arrays
-            pResearch->pPRList = pResearchPR + numResearchPR;
-            //keep track on how many are being allocated
-            numResearchPR = (UWORD)(numResearchPR + pResearch->numPRRequired);
-		}
+    //set the researchPoints
+    if (resPoints > UWORD_MAX)
+    {
+      DBERROR(("Research Points too high for research topic - %s ", getResearchName(pResearch)));
+      return FALSE;
+    }
+    pResearch->researchPoints = static_cast<UWORD>(resPoints);
 
-		//allocate storage for the structures
-		//requirements
-		if (pResearch->numStructures > 0)
-		{
-			/*pResearch->pStructList = (UDWORD *) MALLOC(pResearch->
-				numStructures*sizeof(UDWORD));
-			if (pResearch->pStructList == NULL)
-			{
-				DBERROR(("Out of memory assigning research structures - requirements"));
-				return FALSE;
-			}*/
-            if (numResearchStructPR >= MAX_RESEARCH_STRUCT_PR)
-            {
-                DBERROR(("Out of memory assigning research structures - requirements"));
-                return FALSE;
-            }
-            //don't MALLOC - get them from the pre-defined arrays
-            pResearch->pStructList = pResearchStructPR + numResearchStructPR;
-            //keep track on how many are being allocated
-            numResearchStructPR = (UBYTE)(numResearchStructPR + pResearch->numStructures);
-		}
+    //set the research power
+    pResearch->researchPower = pResearch->researchPoints / RESEARCH_FACTOR;
+    if (pResearch->researchPower > RESEARCH_MAX_POWER)
+      pResearch->researchPower = RESEARCH_MAX_POWER;
 
-        //redundancies
-		if (pResearch->numRedStructs > 0)
-		{
-			/*pResearch->pRedStructs = (UDWORD *) MALLOC(pResearch->
-				numRedStructs*sizeof(UDWORD));
-			if (pResearch->pRedStructs == NULL)
-			{
-				DBERROR(("Out of memory assigning research structures - redundancies"));
-				return FALSE;
-			}*/
-            if (numResearchStructRed >= MAX_RESEARCH_STRUCT_RED)
-            {
-                DBERROR(("Out of memory assigning research structures - redundancies"));
-                return FALSE;
-            }
-            //don't MALLOC - get them from the pre-defined arrays
-            pResearch->pRedStructs = pResearchStructRed + numResearchStructRed;
-            //keep track on how many are being allocated
-            numResearchStructRed = (UBYTE)(numResearchStructRed + pResearch->numRedStructs);
-		}
-		//results
-		if (pResearch->numStructResults > 0)
-		{
-			/*pResearch->pStructureResults = (UDWORD *) MALLOC(pResearch->
-				numStructResults*sizeof(UDWORD));
-			if (pResearch->pStructureResults == NULL)
-			{
-				DBERROR(("Out of memory assigning research structures - results"));
-				return FALSE;
-			}*/
-            if (numResearchStructRes >= MAX_RESEARCH_STRUCT_RES)
-            {
-                DBERROR(("Out of memory assigning research structures - results"));
-                return FALSE;
-            }
-            //don't MALLOC - get them from the pre-defined arrays
-            pResearch->pStructureResults = pResearchStructRes + numResearchStructRes;
-            //keep track on how many are being allocated
-            numResearchStructRes = (UBYTE)(numResearchStructRes + pResearch->numStructResults);
-		}
+    //increment the pointer to the start of the next record
+    pResearchData = strchr(pResearchData, '\n') + 1;
+    //increment the list to the start of the next storage block
+    pResearch++;
+  }
 
-        //set the researchPoints
-        if (resPoints > UWORD_MAX)
-        {
-			DBERROR(("Research Points too high for research topic - %s ", 
-                getResearchName(pResearch)));
-			return FALSE;
-        }
-        pResearch->researchPoints = (UWORD)resPoints;
+  //Do this in initResearch now since there is a Max Research
+  //now we know how many research topics there are we can create the 
+  //PLAYER_RESEARCH arrays
+  /*for (i=0; i < MAX_PLAYERS; i++)
+  {
+    asPlayerResList[i] = (PLAYER_RESEARCH*)MALLOC(numResearch * 
+      sizeof(PLAYER_RESEARCH));
+    if (asPlayerResList[i] == NULL)
+    {
+      DBERROR(("Out of memory assigning Player_Research"));
+      return FALSE;
+    }
+    memset(asPlayerResList[i], 0, (numResearch * sizeof(PLAYER_RESEARCH)));
+  }*/
 
-		//set the research power
-		pResearch->researchPower = pResearch->researchPoints / RESEARCH_FACTOR;
-		if (pResearch->researchPower > RESEARCH_MAX_POWER)
-		{
-			pResearch->researchPower = RESEARCH_MAX_POWER;
-		}
-
-		//increment the pointer to the start of the next record
-		pResearchData = strchr(pResearchData,'\n') + 1;
-		//increment the list to the start of the next storage block
-		pResearch++;
-	}
-
-    //Do this in initResearch now since there is a Max Research
-	//now we know how many research topics there are we can create the 
-	//PLAYER_RESEARCH arrays
-	/*for (i=0; i < MAX_PLAYERS; i++)
-	{
-		asPlayerResList[i] = (PLAYER_RESEARCH*)MALLOC(numResearch * 
-			sizeof(PLAYER_RESEARCH));
-		if (asPlayerResList[i] == NULL)
-		{
-			DBERROR(("Out of memory assigning Player_Research"));
-			return FALSE;
-		}
-		memset(asPlayerResList[i], 0, (numResearch * sizeof(PLAYER_RESEARCH)));
-	}*/
-
-	return TRUE;
+  return TRUE;
 }
 
-
 //Load the pre-requisites for a research list
-BOOL loadResearchPR(SBYTE *pPRData, UDWORD bufferSize)
+BOOL loadResearchPR(SBYTE* pPRData, UDWORD bufferSize)
 {
-	SBYTE				*pStartPRData;
-	UDWORD				NumToAlloc = 0, i;
-	STRING				ResearchName[MAX_NAME_SIZE], PRName[MAX_NAME_SIZE];
-    UWORD				incR, incPR;
-	RESEARCH			*pResearch = asResearch, *pPRResearch = asResearch;
-	BOOL				recFound;
-
+  SBYTE* pStartPRData;
+  UDWORD NumToAlloc = 0, i;
+  STRING ResearchName[MAX_NAME_SIZE], PRName[MAX_NAME_SIZE];
+  UWORD incR, incPR;
+  RESEARCH *pResearch = asResearch, *pPRResearch = asResearch;
+  BOOL recFound;
 
 #ifdef HASH_NAMES
-	UDWORD				HashedResearchName;
-	UDWORD				HashedPRName;
+  UDWORD HashedResearchName; UDWORD HashedPRName;
 #endif
 
-	pStartPRData = pPRData;
+  pStartPRData = pPRData;
 
-	NumToAlloc = numCR((UBYTE *)pPRData, bufferSize);
+  NumToAlloc = numCR((UBYTE*)pPRData, bufferSize);
 
-    //check not going to go over max
-    ASSERT((NumToAlloc <= MAX_RESEARCH_PR, "loadResearchPR: too many!"));
-    numResearchPR = 0;
+  //check not going to go over max
+  ASSERT((NumToAlloc <= MAX_RESEARCH_PR, "loadResearchPR: too many!"));
+  numResearchPR = 0;
 
-	for (i=0; i < NumToAlloc; i++)
-	{
-		recFound = FALSE;
-		//read the data into the storage - the data is delimited using comma's
-		ResearchName[0] = '\0';
-		PRName[0] = '\0';
-		sscanf(pPRData,"%[^','],%[^','],%*d", &ResearchName, &PRName);
+  for (i = 0; i < NumToAlloc; i++)
+  {
+    recFound = FALSE;
+    //read the data into the storage - the data is delimited using comma's
+    ResearchName[0] = '\0';
+    PRName[0] = '\0';
+    sscanf(pPRData, "%[^','],%[^','],%*d", &ResearchName, &PRName);
 
-		if (!getResourceName(ResearchName))
-		{
-			return FALSE;
-		}
-		if (!getResourceName(PRName))
-		{
-			return FALSE;
-		}
+    if (!getResourceName(ResearchName))
+      return FALSE;
+    if (!getResourceName(PRName))
+      return FALSE;
 #ifdef HASH_NAMES
-		HashedResearchName=HashString(ResearchName);
-		HashedPRName=HashString(PRName);
+    HashedResearchName = HashString(ResearchName); HashedPRName = HashString(PRName);
 #endif
 
-		//loop through each Research to compare the name
-		for (incR=0; incR < numResearch; incR++)
-		{
-
+    //loop through each Research to compare the name
+    for (incR = 0; incR < numResearch; incR++)
+    {
 #ifdef HASH_NAMES
-			if ( pResearch[incR].NameHash == HashedResearchName)
+      if (pResearch[incR].NameHash == HashedResearchName)
 #else
-			if (!(strcmp(ResearchName, pResearch[incR].pName)))
+      if (!(strcmp(ResearchName, pResearch[incR].pName)))
 #endif
-			{
-				//Research found
-				for (incPR=0; incPR < numResearch; incPR++)
-				{
-#ifdef HASH_NAMES
-					if ( pPRResearch[incPR].NameHash == HashedPRName )
-#else
-					if (!(strcmp(PRName, pPRResearch[incPR].pName)))
-#endif
-					{
-						//check not allocating more than allowed
-						if ((pResearch[incR].storeCount + 1) > 
-										(SDWORD)pResearch[incR].numPRRequired)
-						{
-							DBERROR(("Trying to allocate more pre-requisites than allowed for research %s", 
-                                getResearchName(pResearch)));
-							return FALSE;
-						}
-						//PRresearch found alloc this to the current Research
-						pResearch[incR].pPRList[pResearch[incR].
-							storeCount] = incPR;
-                        //keep tab on how many we have loaded in
-                        numResearchPR++;
-						pResearch[incR].storeCount++;
-						recFound = TRUE;
-						break;
-					}
-				}
-				//if pre-requisite not found - error
-				if (!recFound)
-				{
-					DBERROR(("Unable to find Pre-requisite %s for research %s", PRName, ResearchName ));
-					return FALSE;
-				}
-				else
-				{
-					break;
-				}
-			}
-		}
-		//if Research not found - error
-		if (!recFound)
-		{
-			DBERROR(("Unable to find Research %s", ResearchName));
-			return FALSE;
-		}
-        //quick check that haven't reached maxPR
-        if (numResearchPR >= MAX_RESEARCH_PR)
+      {
+        //Research found
+        for (incPR = 0; incPR < numResearch; incPR++)
         {
-            //don't load any more since will write over memory!
+#ifdef HASH_NAMES
+          if (pPRResearch[incPR].NameHash == HashedPRName)
+#else
+          if (!(strcmp(PRName, pPRResearch[incPR].pName)))
+#endif
+          {
+            //check not allocating more than allowed
+            if ((pResearch[incR].storeCount + 1) > static_cast<SDWORD>(pResearch[incR].numPRRequired))
+            {
+              DBERROR(("Trying to allocate more pre-requisites than allowed for research %s", getResearchName(pResearch)));
+              return FALSE;
+            }
+            //PRresearch found alloc this to the current Research
+            pResearch[incR].pPRList[pResearch[incR].storeCount] = incPR;
+            //keep tab on how many we have loaded in
+            numResearchPR++;
+            pResearch[incR].storeCount++;
+            recFound = TRUE;
             break;
+          }
         }
-		//increment the pointer to the start of the next record
-		pPRData = strchr(pPRData,'\n') + 1;
-	}
-	return TRUE;
+        //if pre-requisite not found - error
+        if (!recFound)
+        {
+          DBERROR(("Unable to find Pre-requisite %s for research %s", PRName, ResearchName ));
+          return FALSE;
+        }
+        break;
+      }
+    }
+    //if Research not found - error
+    if (!recFound)
+    {
+      DBERROR(("Unable to find Research %s", ResearchName));
+      return FALSE;
+    }
+    //quick check that haven't reached maxPR
+    if (numResearchPR >= MAX_RESEARCH_PR)
+    {
+      //don't load any more since will write over memory!
+      break;
+    }
+    //increment the pointer to the start of the next record
+    pPRData = strchr(pPRData, '\n') + 1;
+  }
+  return TRUE;
 }
 
 //Load the artefacts for a research list
-BOOL loadResearchArtefacts(SBYTE *pArteData, UDWORD bufferSize, UDWORD listNumber)
+BOOL loadResearchArtefacts(SBYTE* pArteData, UDWORD bufferSize, UDWORD listNumber)
 {
-	SBYTE				*pStartArteData;
-	UDWORD				NumToAlloc = 0, i;
-	STRING				ResearchName[MAX_NAME_SIZE], ArteName[MAX_NAME_SIZE], 
-						TypeName[MAX_NAME_SIZE];
-	UDWORD				incR;
-	RESEARCH			*pResearch = asResearch;
-	COMP_BASE_STATS		*pArtefact;
-	UDWORD				newType;
-	UBYTE				maxArtefacts;
+  SBYTE* pStartArteData;
+  UDWORD NumToAlloc = 0, i;
+  STRING ResearchName[MAX_NAME_SIZE], ArteName[MAX_NAME_SIZE], TypeName[MAX_NAME_SIZE];
+  UDWORD incR;
+  RESEARCH* pResearch = asResearch;
+  COMP_BASE_STATS* pArtefact;
+  UDWORD newType;
+  UBYTE maxArtefacts;
 
-	//initialise the storage flags
-	for (incR = 0; incR < numResearch; incR++)
-	{
-		pResearch[incR].storeCount = 0;
-	}
-	pResearch = asResearch;
-	
-	pStartArteData = pArteData;
+  //initialise the storage flags
+  for (incR = 0; incR < numResearch; incR++)
+    pResearch[incR].storeCount = 0;
+  pResearch = asResearch;
 
-	NumToAlloc = numCR((UBYTE *)pArteData, bufferSize);
+  pStartArteData = pArteData;
 
-    //check not going to go over max
-	switch (listNumber)
-	{
-	case RED_LIST:
-        ASSERT((NumToAlloc <= MAX_RESEARCH_ARTE_RED, 
-            "loadResearchArtefacts: too many Redundant Components"));
-        numResearchArteRed = 0;
-        break;
-	case RES_LIST:
-        ASSERT((NumToAlloc <= MAX_RESEARCH_ARTE_RES,
-            "loadResearchArtefacts: too many Component Results"));
-        numResearchArteRes = 0;
-        numResearchArteRep = 0;
-        break;
+  NumToAlloc = numCR((UBYTE*)pArteData, bufferSize);
+
+  //check not going to go over max
+  switch (listNumber)
+  {
+  case RED_LIST: ASSERT((NumToAlloc <= MAX_RESEARCH_ARTE_RED, "loadResearchArtefacts: too many Redundant Components"));
+    numResearchArteRed = 0;
+    break;
+  case RES_LIST: ASSERT((NumToAlloc <= MAX_RESEARCH_ARTE_RES, "loadResearchArtefacts: too many Component Results"));
+    numResearchArteRes = 0;
+    numResearchArteRep = 0;
+    break;
+  }
+
+  for (i = 0; i < NumToAlloc; i++)
+  {
+    //read the data into the storage - the data is delimited using comma's
+    ResearchName[0] = '\0';
+    ArteName[0] = '\0';
+    TypeName[0] = '\0';
+    sscanf(pArteData, "%[^','],%[^','],%[^',']", &ResearchName, &ArteName, &TypeName);
+
+    //increment the data pointer
+    pArteData += (strlen(ResearchName) + 1 + strlen(ArteName) + 1 + strlen(TypeName) + 1);
+
+    if (!getResourceName(ResearchName))
+      return FALSE;
+    if (!getResourceName(ArteName))
+      return FALSE;
+
+    pArtefact = getComponentDetails(TypeName, ArteName);
+    if (pArtefact == nullptr)
+      return FALSE;
+    //get the type for comparison later
+    newType = statType(pArtefact->ref);
+
+    pResearch = getResearch(ResearchName, FALSE);
+    if (pResearch == nullptr)
+      return FALSE;
+
+    //ArtefactResearch found - alloc the artefact to the current Research topic
+    switch (listNumber)
+    {
+    case RED_LIST:
+      *(pResearch->pRedArtefacts + pResearch->storeCount) = pArtefact;
+      //keep tab on how many we have loaded in
+      numResearchArteRed++;
+      maxArtefacts = pResearch->numRedArtefacts;
+      break;
+    case RES_LIST:
+      *(pResearch->pArtefactResults + pResearch->storeCount) = pArtefact;
+      //keep tab on how many we have loaded in
+      numResearchArteRes++;
+      maxArtefacts = pResearch->numArteResults;
+      break;
+    default: DBERROR(("Unknown research list"));
+      return FALSE;
+    }
+    //deal with extra data
+    switch (listNumber)
+    {
+    case RED_LIST:
+      //ignore the last character
+      sscanf(pArteData, ",%*d");
+      break;
+    case RES_LIST:
+      ArteName[0] = '\0';
+      TypeName[0] = '\0';
+      sscanf(pArteData, "%[^','],%[^','],%*d", &ArteName, &TypeName);
+      if (!strcmp(ArteName, "0"))
+        *(pResearch->pReplacedArtefacts + pResearch->storeCount) = nullptr;
+      else
+      {
+        if (!getResourceName(ArteName))
+          return FALSE;
+        pArtefact = getComponentDetails(TypeName, ArteName);
+        if (pArtefact == nullptr)
+          return FALSE;
+        //check the old and new types are the same
+        if (statType(pArtefact->ref) != newType)
+        {
+          DBERROR(("You are trying to replace one type of component with \
+						a different type for research %s in ResultComponents.txt", ResearchName));
+          return FALSE;
+        }
+        //ArtefactResearch found - alloc the artefact to the current Research topic
+        *(pResearch->pReplacedArtefacts + pResearch->storeCount) = pArtefact;
+        numResearchArteRep++;
+      }
+      break;
+    default: DBERROR(("Unknown research list"));
+      return FALSE;
     }
 
-	for (i=0; i < NumToAlloc; i++)
-	{
-		//read the data into the storage - the data is delimited using comma's
-		ResearchName[0] = '\0';
-		ArteName[0] = '\0';
-		TypeName[0] = '\0';
-		sscanf(pArteData,"%[^','],%[^','],%[^',']", &ResearchName, &ArteName, &TypeName);
+    //check not allocating more than allowed
+    if (pResearch->storeCount > maxArtefacts)
+    {
+      DBERROR(("Trying to allocate more artefacts than allowed for research %s", getResearchName(pResearch)));
+      return FALSE;
+    }
+    pResearch->storeCount++;
 
-		//increment the data pointer
-		pArteData += (strlen(ResearchName)+1+strlen(ArteName)+1+strlen(TypeName)+1);
-
-		if (!getResourceName(ResearchName))
-		{
-			return FALSE;
-		}
-		if (!getResourceName(ArteName))
-		{
-			return FALSE;
-		}
-
-		pArtefact = getComponentDetails(TypeName, ArteName);
-		if (pArtefact == NULL)
-		{
-			return FALSE;
-		}
-		//get the type for comparison later
-		newType = statType(pArtefact->ref);
-
-		pResearch = getResearch(ResearchName, FALSE);
-		if (pResearch == NULL)
-		{
-			return FALSE;
-		}
-
-		//ArtefactResearch found - alloc the artefact to the current Research topic
-		switch (listNumber)
-		{
-		case RED_LIST:
-			*(pResearch->pRedArtefacts + pResearch->storeCount) = pArtefact;
-            //keep tab on how many we have loaded in
-            numResearchArteRed++;
-			maxArtefacts = pResearch->numRedArtefacts;
-			break;
-		case RES_LIST:
-			*(pResearch->pArtefactResults + pResearch->storeCount) = pArtefact ;
-            //keep tab on how many we have loaded in
-            numResearchArteRes++;
-			maxArtefacts = pResearch->numArteResults;
-			break;
-		default:
-			DBERROR(("Unknown research list"));
-			return FALSE;
-		}
-		//deal with extra data
-		switch (listNumber)
-		{
-		case RED_LIST:
-			//ignore the last character
-			sscanf(pArteData,",%*d");
-			break;
-		case RES_LIST:
-			ArteName[0] = '\0';
-			TypeName[0] = '\0';
-			sscanf(pArteData, "%[^','],%[^','],%*d", &ArteName, &TypeName);
-			if (!strcmp(ArteName, "0"))
-			{
-				*(pResearch->pReplacedArtefacts + pResearch->storeCount) =  NULL;
-			}
-			else
-			{
-				if (!getResourceName(ArteName))
-				{
-					return FALSE;
-				}
-				pArtefact = getComponentDetails(TypeName, ArteName);
-				if (pArtefact == NULL)
-				{
-					return FALSE;
-				}
-				//check the old and new types are the same
-				if (statType(pArtefact->ref) != newType)
-				{
-					DBERROR(("You are trying to replace one type of component with \
-						a different type for research %s in ResultComponents.txt", ResearchName));
-					return FALSE;
-				}
-				//ArtefactResearch found - alloc the artefact to the current Research topic
-				*(pResearch->pReplacedArtefacts + pResearch->storeCount) = pArtefact;
-                numResearchArteRep++;
-			}
-			break;
-		default:
-			DBERROR(("Unknown research list"));
-			return FALSE;
-		}
-
-		//check not allocating more than allowed
-		if (pResearch->storeCount > maxArtefacts)
-		{
-			DBERROR(("Trying to allocate more artefacts than allowed for research %s",
-                getResearchName(pResearch)));
-			return FALSE;
-		}
-		pResearch->storeCount++;
-
-        //quick check that haven't reached maxArtes
-        if (numResearchArteRed >= MAX_RESEARCH_ARTE_RED OR numResearchArteRes >= 
-            MAX_RESEARCH_ARTE_RES OR numResearchArteRep > MAX_RESEARCH_ARTE_RES)
-        {
-            //don't load any more since will write over memory!
-            break;
-        }
-        //increment the pointer to the start of the next record
-		pArteData = strchr(pArteData,'\n') + 1;
-	}
-	return TRUE;
+    //quick check that haven't reached maxArtes
+    if (numResearchArteRed >= MAX_RESEARCH_ARTE_RED OR numResearchArteRes >= MAX_RESEARCH_ARTE_RES OR numResearchArteRep >
+      MAX_RESEARCH_ARTE_RES)
+    {
+      //don't load any more since will write over memory!
+      break;
+    }
+    //increment the pointer to the start of the next record
+    pArteData = strchr(pArteData, '\n') + 1;
+  }
+  return TRUE;
 }
 
 //Load the Structures for a research list
-BOOL loadResearchStructures(SBYTE *pStructData, UDWORD bufferSize,UDWORD listNumber)
+BOOL loadResearchStructures(SBYTE* pStructData, UDWORD bufferSize, UDWORD listNumber)
 {
-	SBYTE				*pStartStructData;
-	UDWORD				NumToAlloc = 0, i;
-	STRING				ResearchName[MAX_NAME_SIZE], StructureName[MAX_NAME_SIZE];
-    UWORD				incR;
-    UWORD               incS;
-	RESEARCH			*pResearch = asResearch;
-	STRUCTURE_STATS		*pStructure = asStructureStats;
-	BOOL				recFound;
-	UDWORD				numToFind;
+  SBYTE* pStartStructData;
+  UDWORD NumToAlloc = 0, i;
+  STRING ResearchName[MAX_NAME_SIZE], StructureName[MAX_NAME_SIZE];
+  UWORD incR;
+  UWORD incS;
+  RESEARCH* pResearch = asResearch;
+  STRUCTURE_STATS* pStructure = asStructureStats;
+  BOOL recFound;
+  UDWORD numToFind;
 
 #ifdef HASH_NAMES
-	UDWORD				HashedResearchName;
-	UDWORD				HashedStructureName;
+  UDWORD HashedResearchName; UDWORD HashedStructureName;
 #endif
 
-	//initialise the storage flags
-	for (incR = 0; incR < numResearch; incR++)
-	{
-		pResearch[incR].storeCount = 0;
-	}
-	pResearch = asResearch;
+  //initialise the storage flags
+  for (incR = 0; incR < numResearch; incR++)
+    pResearch[incR].storeCount = 0;
+  pResearch = asResearch;
 
-	pStartStructData = pStructData;
+  pStartStructData = pStructData;
 
-	NumToAlloc = numCR((UBYTE *)pStructData, bufferSize);
-	switch (listNumber)
-	{
-	case REQ_LIST:
-        //check not going to go over max
-        ASSERT((NumToAlloc <= MAX_RESEARCH_STRUCT_PR, "loadResearchStructures: too many Struct PRs"));
-        numResearchStructPR = 0;
-		break;
-	case RED_LIST:
-        //check not going to go over max
-        ASSERT((NumToAlloc <= MAX_RESEARCH_STRUCT_RED, "loadResearchStructures: too many redundant structure"));
-        numResearchStructRed = 0;
-    	break;
-	case RES_LIST:
-        //check not going to go over max
-        ASSERT((NumToAlloc <= MAX_RESEARCH_STRUCT_RES, "loadResearchStructures: too many structure results"));
-        numResearchStructRes = 0;
+  NumToAlloc = numCR((UBYTE*)pStructData, bufferSize);
+  switch (listNumber)
+  {
+  case REQ_LIST:
+    //check not going to go over max
+    ASSERT((NumToAlloc <= MAX_RESEARCH_STRUCT_PR, "loadResearchStructures: too many Struct PRs"));
+    numResearchStructPR = 0;
+    break;
+  case RED_LIST:
+    //check not going to go over max
+    ASSERT((NumToAlloc <= MAX_RESEARCH_STRUCT_RED, "loadResearchStructures: too many redundant structure"));
+    numResearchStructRed = 0;
+    break;
+  case RES_LIST:
+    //check not going to go over max
+    ASSERT((NumToAlloc <= MAX_RESEARCH_STRUCT_RES, "loadResearchStructures: too many structure results"));
+    numResearchStructRes = 0;
+    break;
+  }
+
+  for (i = 0; i < NumToAlloc; i++)
+  {
+    recFound = FALSE;
+    numToFind = 0;
+
+    //read the data into the storage - the data is delimited using comma's
+    ResearchName[0] = '\0';
+    StructureName[0] = '\0';
+    sscanf(pStructData, "%[^','],%[^','],%*d,%*d", &ResearchName, &StructureName);
+
+    if (!getResourceName(ResearchName))
+      return FALSE;
+    if (!getResourceName(StructureName))
+      return FALSE;
+
+#ifdef HASH_NAMES
+    HashedResearchName = HashString(ResearchName); HashedStructureName = HashString(StructureName);
+#endif
+
+    //loop through each Research to compare the name
+    for (incR = 0; incR < numResearch; incR++)
+    {
+#ifdef HASH_NAMES
+      if (pResearch[incR].NameHash == HashedResearchName)
+#else
+      if (!(strcmp(ResearchName, pResearch[incR].pName)))
+#endif
+      {
+        //Research found
+        for (incS = 0; incS < numStructureStats; incS++)
+        {
+#ifdef HASH_NAMES
+          if (pStructure[incS].NameHash == HashedStructureName)
+#else
+          if (!(strcmp(StructureName, pStructure[incS].pName)))
+#endif
+          {
+            //Structure found - alloc this to the current Research
+            switch (listNumber)
+            {
+            case REQ_LIST:
+              pResearch[incR].pStructList[pResearch[incR].storeCount] = incS;
+              //keep tab on how many we have loaded in
+              numResearchStructPR++;
+              numToFind = pResearch[incR].numStructures;
+              break;
+            case RED_LIST:
+              pResearch[incR].pRedStructs[pResearch[incR].storeCount] = incS;
+              //keep tab on how many we have loaded in
+              numResearchStructRed++;
+              numToFind = pResearch[incR].numRedStructs;
+              break;
+            case RES_LIST:
+              pResearch[incR].pStructureResults[pResearch[incR].storeCount] = incS;
+              //keep tab on how many we have loaded in
+              numResearchStructRes++;
+              numToFind = pResearch[incR].numStructResults;
+              break;
+            default:
+              /* NO DEFAULT CASE? Alex.... Here ya go - just for you...*/
+              DBERROR(("Unknown research list"));
+              return FALSE;
+            }
+            recFound = TRUE;
+            //check not allocating more than allowed
+            if (pResearch[incR].storeCount > static_cast<SDWORD>(numToFind))
+            {
+              DBERROR(("Trying to allocate more Structures than allowed for research %s",getResearchName(pResearch)));
+              return FALSE;
+            }
+            pResearch[incR].storeCount++;
+            break;
+          }
+        }
+        //if Structure not found - error
+        if (!recFound)
+        {
+          DBERROR(("Unable to find Structure %s for research %s", StructureName, ResearchName));
+          return FALSE;
+        }
         break;
+      }
+    }
+    //if Research not found - error
+    if (!recFound)
+    {
+      DBERROR(("Unable to allocate all Research Structures for %s", ResearchName));
+      return FALSE;
     }
 
-	for (i=0; i < NumToAlloc; i++)
-	{
-		recFound = FALSE;
-		numToFind = 0;
-
-		//read the data into the storage - the data is delimited using comma's
-		ResearchName[0] = '\0';
-		StructureName[0] = '\0';
-		sscanf(pStructData,"%[^','],%[^','],%*d,%*d", &ResearchName, &StructureName);
-
-		if (!getResourceName(ResearchName))
-		{
-			return FALSE;
-		}
-		if (!getResourceName(StructureName))
-		{
-			return FALSE;
-		}
-
-#ifdef HASH_NAMES
-		HashedResearchName=HashString(ResearchName);
-		HashedStructureName=HashString(StructureName);
-#endif
-
-		//loop through each Research to compare the name
-		for (incR=0; incR < numResearch; incR++)
-		{
-#ifdef HASH_NAMES
-			if (pResearch[incR].NameHash==HashedResearchName)
-#else
-			if (!(strcmp(ResearchName, pResearch[incR].pName)))
-#endif
-			{
-				//Research found
-				for (incS=0; incS < numStructureStats; incS++)
-				{
-#ifdef HASH_NAMES
-					if (pStructure[incS].NameHash==HashedStructureName)
-#else
-					if (!(strcmp(StructureName, pStructure[incS].pName)))
-#endif
-					{
-						//Structure found - alloc this to the current Research
-						switch (listNumber)
-						{
-							case REQ_LIST:
-								pResearch[incR].pStructList[pResearch[incR].
-									storeCount] = incS;
-                                //keep tab on how many we have loaded in
-                                numResearchStructPR++;
-                                numToFind = pResearch[incR].numStructures;
-								break;
-							case RED_LIST:
-								pResearch[incR].pRedStructs[pResearch[incR].
-									storeCount] = incS;
-                                //keep tab on how many we have loaded in
-                                numResearchStructRed++;
-								numToFind = pResearch[incR].numRedStructs;
-								break;
-							case RES_LIST:
-								pResearch[incR].pStructureResults[pResearch[incR].
-									storeCount] = incS;
-                                //keep tab on how many we have loaded in
-                                numResearchStructRes++;
-								numToFind = pResearch[incR].numStructResults;
-								break;
-							default:
-								/* NO DEFAULT CASE? Alex.... Here ya go - just for you...*/
-								DBERROR(("Unknown research list"));
-								return FALSE;
-						}
-						recFound = TRUE;
-						//check not allocating more than allowed
-						if (pResearch[incR].storeCount > 
-										(SDWORD)numToFind)
-						{
-							DBERROR(("Trying to allocate more Structures than allowed for research %s",getResearchName(pResearch)));
-							return FALSE;
-						}
-						pResearch[incR].storeCount++;
-						break;
-					}
-				}
-				//if Structure not found - error
-				if (!recFound)
-				{
-					DBERROR(("Unable to find Structure %s for research %s",
-						StructureName, ResearchName));
-					return FALSE;
-				}
-				else
-				{
-					break;
-				}
-			}
-		}
-		//if Research not found - error
-		if (!recFound)
-		{
-			DBERROR(("Unable to allocate all Research Structures for %s", ResearchName));
-			return FALSE;
-		}
-
-        //quick check that haven't reached max structs
-        if (numResearchStructPR >= MAX_RESEARCH_STRUCT_PR OR
-            numResearchStructRes >= MAX_RESEARCH_STRUCT_RES OR
-            numResearchStructRed >= MAX_RESEARCH_STRUCT_RED)
-        {
-            //don't load any more since will write over memory!
-            break;
-        }
-		//increment the pointer to the start of the next record
-		pStructData = strchr(pStructData,'\n') + 1;
-	}
-	return TRUE;
+    //quick check that haven't reached max structs
+    if (numResearchStructPR >= MAX_RESEARCH_STRUCT_PR OR numResearchStructRes >= MAX_RESEARCH_STRUCT_RES OR numResearchStructRed >=
+      MAX_RESEARCH_STRUCT_RED)
+    {
+      //don't load any more since will write over memory!
+      break;
+    }
+    //increment the pointer to the start of the next record
+    pStructData = strchr(pStructData, '\n') + 1;
+  }
+  return TRUE;
 }
 
 //Load the pre-requisites for a research list
-BOOL loadResearchFunctions(SBYTE *pFunctionData, UDWORD bufferSize)
+BOOL loadResearchFunctions(SBYTE* pFunctionData, UDWORD bufferSize)
 {
-	SBYTE				*pStartFunctionData;
-	UDWORD				NumToAlloc = 0, i;
-	STRING				ResearchName[MAX_NAME_SIZE], FunctionName[MAX_NAME_SIZE];
-	UDWORD				incR, incF;
-	RESEARCH			*pResearch = asResearch;
-	FUNCTION			**pFunction = asFunctions;
-	BOOL				recFound;
+  SBYTE* pStartFunctionData;
+  UDWORD NumToAlloc = 0, i;
+  STRING ResearchName[MAX_NAME_SIZE], FunctionName[MAX_NAME_SIZE];
+  UDWORD incR, incF;
+  RESEARCH* pResearch = asResearch;
+  FUNCTION** pFunction = asFunctions;
+  BOOL recFound;
 #ifdef HASH_NAMES
-	UDWORD				HashedResearchName;
-	UDWORD				HashedFunctionName;
+  UDWORD HashedResearchName; UDWORD HashedFunctionName;
 #endif
 
-	//initialise the storage flags
-	for (incR = 0; incR < numResearch; incR++)
-	{
-		pResearch[incR].storeCount = 0;
-	}
-	pResearch = asResearch;
+  //initialise the storage flags
+  for (incR = 0; incR < numResearch; incR++)
+    pResearch[incR].storeCount = 0;
+  pResearch = asResearch;
 
-	pStartFunctionData = pFunctionData;
+  pStartFunctionData = pFunctionData;
 
-	NumToAlloc = numCR((UBYTE *)pFunctionData, bufferSize);
-    //check not going to go over max
-    ASSERT((NumToAlloc <= MAX_RESEARCH_FUNC, "loadResearchFunctions: too many"));
-    numResearchFunc = 0;
+  NumToAlloc = numCR((UBYTE*)pFunctionData, bufferSize);
+  //check not going to go over max
+  ASSERT((NumToAlloc <= MAX_RESEARCH_FUNC, "loadResearchFunctions: too many"));
+  numResearchFunc = 0;
 
-	for (i=0; i < NumToAlloc; i++)
-	{
-		recFound = FALSE;
-		//read the data into the storage - the data is delimited using comma's
-		ResearchName[0] = '\0';
-		FunctionName[0] = '\0';
-		sscanf(pFunctionData,"%[^','],%[^','],%*d", &ResearchName, &FunctionName);
-	
-		if (!getResourceName(ResearchName))
-		{
-			return FALSE;
-		}
+  for (i = 0; i < NumToAlloc; i++)
+  {
+    recFound = FALSE;
+    //read the data into the storage - the data is delimited using comma's
+    ResearchName[0] = '\0';
+    FunctionName[0] = '\0';
+    sscanf(pFunctionData, "%[^','],%[^','],%*d", &ResearchName, &FunctionName);
+
+    if (!getResourceName(ResearchName))
+      return FALSE;
 
 #ifdef HASH_NAMES
-		HashedResearchName=HashString(ResearchName);
-		HashedFunctionName=HashString(FunctionName);
+    HashedResearchName = HashString(ResearchName); HashedFunctionName = HashString(FunctionName);
 #endif
 
-		//loop through each Research to compare the name
-		for (incR=0; incR < numResearch; incR++)
-		{
+    //loop through each Research to compare the name
+    for (incR = 0; incR < numResearch; incR++)
+    {
 #ifdef HASH_NAMES
-			if (pResearch[incR].NameHash==HashedResearchName)
+      if (pResearch[incR].NameHash == HashedResearchName)
 #else
-			if (!(strcmp(ResearchName, pResearch[incR].pName)))
+      if (!(strcmp(ResearchName, pResearch[incR].pName)))
 #endif
-			{
-				//Research found
-				for (incF=0; incF < numFunctions; incF++)
-				{
-#ifdef HASH_NAMES
-					if ((*pFunction[incF]).NameHash==HashedFunctionName)
-#else
-					if (!(strcmp(FunctionName, (*pFunction[incF]).pName)))
-#endif
-					{
-						//Function found alloc this to the current Research
-						pResearch[incR].pFunctionList[pResearch[incR].
-							storeCount] = pFunction[incF];
-                        //keep tab on how many we have loaded in
-                        numResearchFunc++;
-
-						recFound = TRUE;
-						//check not allocating more than allowed
-						if (pResearch[incR].storeCount > 
-										(SDWORD)pResearch[incR].numFunctions)
-						{
-							DBERROR(("Trying to allocate more Functions than allowed \
-								for research %s", ResearchName));
-							return FALSE;
-						}
-						pResearch[incR].storeCount++;
-						break;
-					}
-				}
-				//if Function not found - error
-				if (!recFound)
-				{
-					DBERROR(("Unable to find Function %s for research %s", 
-						FunctionName, ResearchName));
-					return FALSE;
-				}
-				else
-				{
-					break;
-				}
-			}
-		}
-		//if Research not found - error
-		if (!recFound)
-		{
-			DBERROR(("Unable to allocate all research Functions for %s", ResearchName));
-			return FALSE;
-		}
-        //quick check that haven't reached maxPR
-        if (numResearchFunc >= MAX_RESEARCH_FUNC)
+      {
+        //Research found
+        for (incF = 0; incF < numFunctions; incF++)
         {
-            //don't load any more since will write over memory!
+#ifdef HASH_NAMES
+          if ((*pFunction[incF]).NameHash == HashedFunctionName)
+#else
+          if (!(strcmp(FunctionName, pFunction[incF]->pName)))
+#endif
+          {
+            //Function found alloc this to the current Research
+            pResearch[incR].pFunctionList[pResearch[incR].storeCount] = pFunction[incF];
+            //keep tab on how many we have loaded in
+            numResearchFunc++;
+
+            recFound = TRUE;
+            //check not allocating more than allowed
+            if (pResearch[incR].storeCount > static_cast<SDWORD>(pResearch[incR].numFunctions))
+            {
+              DBERROR(("Trying to allocate more Functions than allowed \
+								for research %s", ResearchName));
+              return FALSE;
+            }
+            pResearch[incR].storeCount++;
             break;
+          }
         }
-		//increment the pointer to the start of the next record
-		pFunctionData = strchr(pFunctionData,'\n') + 1;
-	}
-	return TRUE;
+        //if Function not found - error
+        if (!recFound)
+        {
+          DBERROR(("Unable to find Function %s for research %s", FunctionName, ResearchName));
+          return FALSE;
+        }
+        break;
+      }
+    }
+    //if Research not found - error
+    if (!recFound)
+    {
+      DBERROR(("Unable to allocate all research Functions for %s", ResearchName));
+      return FALSE;
+    }
+    //quick check that haven't reached maxPR
+    if (numResearchFunc >= MAX_RESEARCH_FUNC)
+    {
+      //don't load any more since will write over memory!
+      break;
+    }
+    //increment the pointer to the start of the next record
+    pFunctionData = strchr(pFunctionData, '\n') + 1;
+  }
+  return TRUE;
 }
 
 /*
@@ -1286,917 +1159,801 @@ There can only be 'limit' number of entries
 
 // NOTE by AJL may 99 - skirmish now has it's own version of this, skTopicAvail.
 
-UWORD fillResearchList(UWORD *plist, UDWORD playerID, UWORD topic, UWORD limit)
+UWORD fillResearchList(UWORD* plist, UDWORD playerID, UWORD topic, UWORD limit)
 {
-    UWORD				inc, count=0;
-	UDWORD				incPR, incS;
-	PLAYER_RESEARCH		*pPlayerRes = asPlayerResList[playerID]; 
-	BOOL				bPRFound, bStructFound;
+  UWORD inc, count = 0;
+  UDWORD incPR, incS;
+  PLAYER_RESEARCH* pPlayerRes = asPlayerResList[playerID];
+  BOOL bPRFound, bStructFound;
 
-    //needs to be UWORD sized for Patches
-	ASSERT((numResearch < UWORD_MAX, 
-		"fillResearchList: only using a UWORD for storage - need more!"));
-	//ASSERT((numResearch < UBYTE_MAX, 
-	for (inc=0; inc < numResearch; inc++)
-	{
-		//if the inc matches the 'topic' - automatically add to the list
-		if (inc == topic)
-		{
-			goto add_research;
-		}
-		//if its a cancelled topic - add to list
-		if (IsResearchCancelled(&pPlayerRes[inc]))
-		{
-			goto add_research;
-		}
-		//if the topic is possible and has not already been researched - add to list
-		if ((IsResearchPossible(&pPlayerRes[inc])))
-		{
-			if ((IsResearchCompleted(&pPlayerRes[inc])==FALSE) && (IsResearchStarted(&pPlayerRes[inc])==FALSE))
-			{
-				goto add_research;
-			}
-		}
+  //needs to be UWORD sized for Patches
+  ASSERT((numResearch < UWORD_MAX, "fillResearchList: only using a UWORD for storage - need more!"));
+  //ASSERT((numResearch < UBYTE_MAX, 
+  for (inc = 0; inc < numResearch; inc++)
+  {
+    //if the inc matches the 'topic' - automatically add to the list
+    if (inc == topic)
+      goto add_research;
+    //if its a cancelled topic - add to list
+    if (IsResearchCancelled(&pPlayerRes[inc]))
+      goto add_research;
+    //if the topic is possible and has not already been researched - add to list
+    if ((IsResearchPossible(&pPlayerRes[inc])))
+    {
+      if ((IsResearchCompleted(&pPlayerRes[inc]) == FALSE) && (IsResearchStarted(&pPlayerRes[inc]) == FALSE))
+        goto add_research;
+    }
 
-		//if single player mode and key topic, then ignore cos can't do it!
-		if (!bMultiPlayer)
-		{
-			if (asResearch[inc].keyTopic)
-			{
-				continue;
-			}
-		}
+    //if single player mode and key topic, then ignore cos can't do it!
+    if (!bMultiPlayer)
+    {
+      if (asResearch[inc].keyTopic)
+        continue;
+    }
 
-		// make sure that the research is not completed  or started by another researchfac 
-		if ((IsResearchCompleted(&pPlayerRes[inc])==FALSE) && (IsResearchStarted(&pPlayerRes[inc])==FALSE))
-		{
-			// Research is not completed  ... also  it has not been started by another researchfac
-			
-			//if there aren't any PR's - go to next topic
-			if (!asResearch[inc].numPRRequired)
-			{
-				continue;
-			}
+    // make sure that the research is not completed  or started by another researchfac 
+    if ((IsResearchCompleted(&pPlayerRes[inc]) == FALSE) && (IsResearchStarted(&pPlayerRes[inc]) == FALSE))
+    {
+      // Research is not completed  ... also  it has not been started by another researchfac
 
-			//check for pre-requisites
-			bPRFound = TRUE;
-			for (incPR = 0; incPR < asResearch[inc].numPRRequired; incPR++)
-			{
-				if (IsResearchCompleted(&(pPlayerRes[asResearch[inc].pPRList[incPR]]))==0)
-				{
-					//if haven't pre-requisite - quit checking rest
-					bPRFound = FALSE;
-					break;
-				}
-			}
-			if (!bPRFound)
-			{
-				//if haven't pre-requisites, skip the rest of the checks
-				continue;
-			}
+      //if there aren't any PR's - go to next topic
+      if (!asResearch[inc].numPRRequired)
+        continue;
 
-			//check for structure effects
-			bStructFound = TRUE;
-			for (incS = 0; incS < asResearch[inc].numStructures; incS++)
-			{	
-				//if (!checkStructureStatus(asStructureStats + asResearch[inc].
-				//	pStructList[incS], playerID, SS_BUILT))
-				if (!checkSpecificStructExists(asResearch[inc].pStructList[incS],
-					playerID))
-				{
-					//if not built, quit checking
-					bStructFound = FALSE;
-					break;
-				}
-			}
-			if (!bStructFound)
-			{
-				//if haven't all structs built, skip to next topic
-				continue;
-			}
+      //check for pre-requisites
+      bPRFound = TRUE;
+      for (incPR = 0; incPR < asResearch[inc].numPRRequired; incPR++)
+      {
+        if (IsResearchCompleted(&(pPlayerRes[asResearch[inc].pPRList[incPR]])) == 0)
+        {
+          //if haven't pre-requisite - quit checking rest
+          bPRFound = FALSE;
+          break;
+        }
+      }
+      if (!bPRFound)
+      {
+        //if haven't pre-requisites, skip the rest of the checks
+        continue;
+      }
 
-add_research: //if passed all the tests - add it to the list
-			*plist++ = inc;
-			count++;
-			if (count == limit)
-			{
-				return count;
-			}
-		}
-	}
-	return count;
+      //check for structure effects
+      bStructFound = TRUE;
+      for (incS = 0; incS < asResearch[inc].numStructures; incS++)
+      {
+        //if (!checkStructureStatus(asStructureStats + asResearch[inc].
+        //	pStructList[incS], playerID, SS_BUILT))
+        if (!checkSpecificStructExists(asResearch[inc].pStructList[incS], playerID))
+        {
+          //if not built, quit checking
+          bStructFound = FALSE;
+          break;
+        }
+      }
+      if (!bStructFound)
+      {
+        //if haven't all structs built, skip to next topic
+        continue;
+      }
+
+    add_research: //if passed all the tests - add it to the list
+      *plist++ = inc;
+      count++;
+      if (count == limit)
+        return count;
+    }
+  }
+  return count;
 }
-
 
 /* process the results of a completed research topic */
 void researchResult(UDWORD researchIndex, UBYTE player, BOOL bDisplay)
 {
-	RESEARCH					*pResearch = asResearch + researchIndex;
-	UDWORD						type, inc;//, upgrade;
-	STRUCTURE					*psCurr;
-	DROID						*psDroid;
-	FUNCTION					*pFunction;
-	UDWORD						compInc;
-	MESSAGE						*pMessage;
-	PLAYER_RESEARCH				*pPlayerRes = asPlayerResList[player];
+  RESEARCH* pResearch = asResearch + researchIndex;
+  UDWORD type, inc; //, upgrade;
+  STRUCTURE* psCurr;
+  DROID* psDroid;
+  FUNCTION* pFunction;
+  UDWORD compInc;
+  MESSAGE* pMessage;
+  PLAYER_RESEARCH* pPlayerRes = asPlayerResList[player];
 
-	ASSERT((researchIndex < numResearch, "researchResult: invalid research index"));
+  ASSERT((researchIndex < numResearch, "researchResult: invalid research index"));
 
-	sendReseachStatus(NULL, researchIndex, player, FALSE);
+  sendReseachStatus(nullptr, researchIndex, player, FALSE);
 
-	MakeResearchCompleted(&pPlayerRes[researchIndex]);
+  MakeResearchCompleted(&pPlayerRes[researchIndex]);
 
-	//check for structures to be made available
-	for (inc = 0; inc < pResearch->numStructResults; inc++)
-	{
-		apStructTypeLists[player][pResearch->pStructureResults[inc]] = AVAILABLE;
-	}
+  //check for structures to be made available
+  for (inc = 0; inc < pResearch->numStructResults; inc++)
+    apStructTypeLists[player][pResearch->pStructureResults[inc]] = AVAILABLE;
 
-	//check for structures to be made redundant
-	for (inc = 0; inc < pResearch->numRedStructs; inc++)
-	{
-		apStructTypeLists[player][pResearch->pRedStructs[inc]] = UNAVAILABLE;
-	}
+  //check for structures to be made redundant
+  for (inc = 0; inc < pResearch->numRedStructs; inc++)
+    apStructTypeLists[player][pResearch->pRedStructs[inc]] = UNAVAILABLE;
 
-	//check for artefacts to be made available
-	for (inc = 0; inc < pResearch->numArteResults; inc++)
-	{
-		//determine the type of artefact
-		type = statType(pResearch->pArtefactResults[inc]->ref);
-		//set the component state to AVAILABLE
-		compInc = pResearch->pArtefactResults[inc]->ref - statRefStart(type);
-		apCompLists[player][type][compInc] = AVAILABLE;
-		//check for default sensor
-		if (type == COMP_SENSOR)
-		{
-			if ((asSensorStats + compInc)->location == LOC_DEFAULT)
-			{
-				aDefaultSensor[player] = compInc;
-			}
-		}
-		//check for default ECM
-		if (type == COMP_ECM)
-		{
-			if ((asECMStats + compInc)->location == LOC_DEFAULT)
-			{
-				aDefaultECM[player] = compInc;
-			}
-		}
-		//check for default Repair
-		if (type == COMP_REPAIRUNIT)
-		{
-			if ((asRepairStats + compInc)->location == LOC_DEFAULT)
-			{
-				aDefaultRepair[player] = compInc;
-			}
-		}
-		//check if this component replaces an 'older' component
-		if (pResearch->pReplacedArtefacts[inc] != NULL)
-		{
-			replaceComponent(pResearch->pArtefactResults[inc], pResearch->
-				pReplacedArtefacts[inc], player);
-			//set the 'old' component to unavailable
-			type = statType(pResearch->pReplacedArtefacts[inc]->ref);
-			//set the component state to AVAILABLE
-			compInc = pResearch->pReplacedArtefacts[inc]->ref - statRefStart(type);
-			apCompLists[player][type][compInc] = UNAVAILABLE;
-		}
-		//check if the component is a brain
-		if (type == COMP_BRAIN)
-		{
-			cmdDroidAvailable(asBrainStats + compInc, player);
-		}
-		//check if self repair has come on line
-		if (type == COMP_REPAIRUNIT)
-		{
-			if (asRepairStats[compInc].location == LOC_DEFAULT)
-			{
-				enableSelfRepair(player);
-			}
-		}
-	}
-
-	//check for artefacts to be made redundant
-	for (inc = 0; inc < pResearch->numRedArtefacts; inc++)
-	{
-		//determine the type of artefact
-		type = statType(pResearch->pRedArtefacts[inc]->ref);
-		//set the component state to UNAVAILABLE
-		apCompLists[player][type][pResearch->pRedArtefacts[inc]->ref - 
-			statRefStart(type)] = UNAVAILABLE;
-	}
-
-	//check for technology effects
-	for (inc = 0; inc < pResearch->numFunctions; inc++)
-	{
-		pFunction = pResearch->pFunctionList[inc];
-		
-		switch (pFunction->type)
-		{
-			case(PRODUCTION_UPGRADE_TYPE):
-			{
-				productionUpgrade(pFunction, player);
-
-				//search the list of players structures for a Factory
-				for (psCurr = apsStructLists[player]; psCurr != NULL; psCurr = 
-					psCurr->psNext)
-				{
-					/*if (psCurr->pStructureType->type == REF_FACTORY OR
-						psCurr->pStructureType->type == REF_CYBORG_FACTORY OR
-						psCurr->pStructureType->type == REF_VTOL_FACTORY)
-					{
-						//upgrade the Output
-						productionUpgrade(pFunction, psCurr);
-					}*/
-					if ((psCurr->pStructureType->type == REF_FACTORY AND
-						((PRODUCTION_UPGRADE_FUNCTION *)pFunction)->factory) OR
-						(psCurr->pStructureType->type == REF_CYBORG_FACTORY AND
-						((PRODUCTION_UPGRADE_FUNCTION *)pFunction)->cyborgFactory) OR
-						(psCurr->pStructureType->type == REF_VTOL_FACTORY AND
-						((PRODUCTION_UPGRADE_FUNCTION *)pFunction)->vtolFactory))
-					{
-						//upgrade the Output for the structure
-						structureProductionUpgrade(psCurr);
-					}
-	
-					//set the function upgrade flag for future factories being built
-					/*for (upgrade = 0; upgrade < numProductionUpgrades; upgrade++)
-					{
-						if (apProductionUpgrades[player][upgrade].functionInc == pFunction->
-							ref - REF_FUNCTION_START)
-						{
-							apProductionUpgrades[player][upgrade].available = TRUE;
-							break;
-						}
-					}*/
-				}
-                //and the mission structures
-				for (psCurr = mission.apsStructLists[player]; psCurr != NULL; psCurr = 
-					psCurr->psNext)
-				{
-					if ((psCurr->pStructureType->type == REF_FACTORY AND
-						((PRODUCTION_UPGRADE_FUNCTION *)pFunction)->factory) OR
-						(psCurr->pStructureType->type == REF_CYBORG_FACTORY AND
-						((PRODUCTION_UPGRADE_FUNCTION *)pFunction)->cyborgFactory) OR
-						(psCurr->pStructureType->type == REF_VTOL_FACTORY AND
-						((PRODUCTION_UPGRADE_FUNCTION *)pFunction)->vtolFactory))
-					{
-						//upgrade the Output for the structure
-						structureProductionUpgrade(psCurr);
-    				}
-    			}
-
-			   	// message/sound in here for production boost
-				break;
-			}
-	 		case(RESEARCH_UPGRADE_TYPE):
-			{
-				researchUpgrade(pFunction, player);
-				//search the list of players structures for a Research Facility
-				for (psCurr = apsStructLists[player]; psCurr != NULL; psCurr = 
-					psCurr->psNext)
-				{
-					if (psCurr->pStructureType->type == REF_RESEARCH)
-					{
-						//upgrade the research points
-						structureResearchUpgrade(psCurr);
-					}
-					//set the function upgrade flag for future factories being built
-					/*for (upgrade = 0; upgrade < numResearchUpgrades; upgrade++)
-					{
-						if (apResearchUpgrades[player][upgrade].functionInc == pFunction->
-							ref - REF_FUNCTION_START)
-						{
-							apResearchUpgrades[player][upgrade].available = TRUE;
-							break;
-						}
-					}*/
-				}
-                //and the mission structures
-				for (psCurr = mission.apsStructLists[player]; psCurr != NULL; psCurr = 
-					psCurr->psNext)
-				{
-					if (psCurr->pStructureType->type == REF_RESEARCH)
-					{
-						//upgrade the research points
-						structureResearchUpgrade(psCurr);
-					}
-				}
-				// Stuff a message in here/sound whatever for research boost.
-				break;
-			}
-	 		case(POWER_UPGRADE_TYPE):
-			{
-				powerUpgrade(pFunction, player);
-				//search the list of players structures for a Power Gens
-				for (psCurr = apsStructLists[player]; psCurr != NULL; psCurr = 
-					psCurr->psNext)
-				{
-					if (psCurr->pStructureType->type == REF_POWER_GEN)
-					{
-						//upgrade the power points
-						structurePowerUpgrade(psCurr);
-					}
-				}
-                //and the mission structure
-				for (psCurr = mission.apsStructLists[player]; psCurr != NULL; psCurr = 
-					psCurr->psNext)
-				{
-					if (psCurr->pStructureType->type == REF_POWER_GEN)
-					{
-						//upgrade the power points
-						structurePowerUpgrade(psCurr);
-					}
-				}
-				break;
-			}
-	 		case(REARM_UPGRADE_TYPE):
-			{
-				reArmUpgrade(pFunction, player);
-				//search the list of players structures for a ReArm pad
-				for (psCurr = apsStructLists[player]; psCurr != NULL; psCurr = 
-					psCurr->psNext)
-				{
-					if (psCurr->pStructureType->type == REF_REARM_PAD)
-					{
-						//upgrade the rearm points
-						structureReArmUpgrade(psCurr);
-					}
-				}
-                //and the mission structure
-				for (psCurr = mission.apsStructLists[player]; psCurr != NULL; psCurr = 
-					psCurr->psNext)
-				{
-					if (psCurr->pStructureType->type == REF_REARM_PAD)
-					{
-						//upgrade the rearm points
-						structureReArmUpgrade(psCurr);
-					}
-				}
-				break;
-			}
-	 		case(REPAIR_UPGRADE_TYPE):
-			{
-				repairFacUpgrade(pFunction, player);
-				//search the list of players structures for a Power Gens
-				for (psCurr = apsStructLists[player]; psCurr != NULL; psCurr = 
-					psCurr->psNext)
-				{
-					if (psCurr->pStructureType->type == REF_REPAIR_FACILITY)
-					{
-						//upgrade the repair points
-						structureRepairUpgrade(psCurr);
-					}
-				}
-                //and the mission structure
-				for (psCurr = mission.apsStructLists[player]; psCurr != NULL; psCurr = 
-					psCurr->psNext)
-				{
-					if (psCurr->pStructureType->type == REF_REPAIR_FACILITY)
-					{
-						//upgrade the repair points
-						structureRepairUpgrade(psCurr);
-					}
-				}
-				break;
-			}
-			case(WEAPON_UPGRADE_TYPE):
-			{
-				//for the current player, upgrade the weapon stats
-				weaponUpgrade(pFunction, player);
-				// message/sound for weapon upgrade
-				break;
-			}
-			case(DROIDSENSOR_UPGRADE_TYPE):
-			{
-				//for the current player, upgrade the sensor stats
-				sensorUpgrade(pFunction, player);
-				//for each structure in the player's list, upgrade the sensor stat
-				for (psCurr = apsStructLists[player]; psCurr != NULL; psCurr =
-					psCurr->psNext)
-				{
-					structureSensorUpgrade(psCurr);
-				}
-				for (psCurr = mission.apsStructLists[player]; psCurr != NULL; psCurr =
-					psCurr->psNext)
-				{
-					structureSensorUpgrade(psCurr);
-				}
-				//for each droid in the player's list, upgrade the sensor stat
-				for (psDroid = apsDroidLists[player]; psDroid != NULL; psDroid =
-					psDroid->psNext)
-				{
-					droidSensorUpgrade(psDroid);
-                    if (psDroid->droidType == DROID_TRANSPORTER)
-                    {
-                        upgradeTransporterDroids(psDroid, droidSensorUpgrade);
-                    }
-				}
-				for (psDroid = mission.apsDroidLists[player]; psDroid != NULL; psDroid =
-					psDroid->psNext)
-				{
-					droidSensorUpgrade(psDroid);
-                    if (psDroid->droidType == DROID_TRANSPORTER)
-                    {
-                        upgradeTransporterDroids(psDroid, droidSensorUpgrade);
-                    }
-				}
-				for (psDroid = apsLimboDroids[player]; psDroid != NULL; psDroid =
-					psDroid->psNext)
-				{
-					droidSensorUpgrade(psDroid);
-                    if (psDroid->droidType == DROID_TRANSPORTER)
-                    {
-                        upgradeTransporterDroids(psDroid, droidSensorUpgrade);
-                    }
-				}
-				// message/sound for sensor upgrade
-				break;
-			}
-			case(DROIDECM_UPGRADE_TYPE):
-			{
-				//for the current player, upgrade the ecm stats
-				ecmUpgrade(pFunction, player);
-				//for each structure in the player's list, upgrade the ecm stat
-				for (psCurr = apsStructLists[player]; psCurr != NULL; psCurr =
-					psCurr->psNext)
-				{
-					structureECMUpgrade(psCurr);
-				}
-				for (psCurr = mission.apsStructLists[player]; psCurr != NULL; psCurr =
-					psCurr->psNext)
-				{
-					structureECMUpgrade(psCurr);
-				}
-				//for each droid in the player's list, upgrade the ecm stat
-				for (psDroid = apsDroidLists[player]; psDroid != NULL; psDroid =
-					psDroid->psNext)
-				{
-					droidECMUpgrade(psDroid);
-                    if (psDroid->droidType == DROID_TRANSPORTER)
-                    {
-                        upgradeTransporterDroids(psDroid, droidECMUpgrade);
-                    }
-				}
-				for (psDroid = mission.apsDroidLists[player]; psDroid != NULL; psDroid =
-					psDroid->psNext)
-				{
-					droidECMUpgrade(psDroid);
-                    if (psDroid->droidType == DROID_TRANSPORTER)
-                    {
-                        upgradeTransporterDroids(psDroid, droidECMUpgrade);
-                    }
-				}
-				for (psDroid = apsLimboDroids[player]; psDroid != NULL; psDroid =
-					psDroid->psNext)
-				{
-					droidECMUpgrade(psDroid);
-                    if (psDroid->droidType == DROID_TRANSPORTER)
-                    {
-                        upgradeTransporterDroids(psDroid, droidECMUpgrade);
-                    }
-				}
-				// message/sound for ecm upgrade
-				break;
-			}
-			case(DROIDREPAIR_UPGRADE_TYPE):
-			{
-				//for the current player, upgrade the repair stats
-				repairUpgrade(pFunction, player);
-				// message/sound for repair upgrade
-				break;
-			}
-			case(DROIDCONST_UPGRADE_TYPE):
-			{
-				//for the current player, upgrade the constructor stats
-				constructorUpgrade(pFunction, player);
-				// message/sound for constructor upgrade
-				break;
-			}
-			case(DROIDBODY_UPGRADE_TYPE):
-			{
-				//for each droid in the player's list, upgrade the body points
-				for (psDroid = apsDroidLists[player]; psDroid != NULL; psDroid =
-					psDroid->psNext)
-				{
-					droidBodyUpgrade(pFunction, psDroid);
-				}
-				for (psDroid = mission.apsDroidLists[player]; psDroid != NULL; psDroid =
-					psDroid->psNext)
-				{
-					droidBodyUpgrade(pFunction, psDroid);
-                    if (psDroid->droidType == DROID_TRANSPORTER)
-                    {
-                        upgradeTransporterDroids(psDroid, droidSensorUpgrade);
-                    }
-				}
-				for (psDroid = apsLimboDroids[player]; psDroid != NULL; psDroid =
-					psDroid->psNext)
-				{
-					droidBodyUpgrade(pFunction, psDroid);
-                    if (psDroid->droidType == DROID_TRANSPORTER)
-                    {
-                        upgradeTransporterDroids(psDroid, droidSensorUpgrade);
-                    }
-				}
-				//DO THIS AFTER so above calculations can use the previous upgrade values
-				//for the current player, upgrade the body stats
-				bodyUpgrade(pFunction, player);
-
-				// message/sound for body upgrade
-				break;
-			}
-			case(STRUCTURE_UPGRADE_TYPE):
-			{
-				//for each structure in the player's list, upgrade the stats
-				for (psCurr = apsStructLists[player]; psCurr != NULL; psCurr =
-					psCurr->psNext)
-				{
-					//do this for none wallDefense structs
-					if (!wallDefenceStruct(psCurr->pStructureType))
-					{
-						structureBodyUpgrade(pFunction, psCurr);
-						structureArmourUpgrade(pFunction, psCurr);
-						structureResistanceUpgrade(pFunction, psCurr);
-					}
-                    //defense type can have resistance upgrade now - AB 19/02/99
-                    if (psCurr->pStructureType->type == REF_DEFENSE)
-                    {
-                        structureResistanceUpgrade(pFunction, psCurr);
-                    }
-				}
-				for (psCurr = mission.apsStructLists[player]; psCurr != NULL; psCurr =
-					psCurr->psNext)
-				{
-					//do this for none wallDefense structs
-					if (!wallDefenceStruct(psCurr->pStructureType))
-					{
-						structureBodyUpgrade(pFunction, psCurr);
-						structureArmourUpgrade(pFunction, psCurr);
-						structureResistanceUpgrade(pFunction, psCurr);
-					}
-                    //defense type can have resistance upgrade now - AB 19/02/99
-                    if (psCurr->pStructureType->type == REF_DEFENSE)
-                    {
-                        structureResistanceUpgrade(pFunction, psCurr);
-                    }
-				}
-				//DO THIS AFTER so above calculations can use the previous upgrade values
-				//for the current player, upgrade the structure stats
-				structureUpgrade(pFunction, player);
-
-				// message/sound for structure upgrade
-				break;
-			}
-			case(WALLDEFENCE_UPGRADE_TYPE):
-			{
-				//for each structure in the player's list, upgrade the stats
-				for (psCurr = apsStructLists[player]; psCurr != NULL; psCurr =
-					psCurr->psNext)
-				{
-					//do this for wallDefense structs
-					if (wallDefenceStruct(psCurr->pStructureType))
-					{
-						structureBodyUpgrade(pFunction, psCurr);
-						structureArmourUpgrade(pFunction, psCurr);
-					}
-				}
-				for (psCurr = mission.apsStructLists[player]; psCurr != NULL; psCurr =
-					psCurr->psNext)
-				{
-					//do this for wallDefense structs
-					if (wallDefenceStruct(psCurr->pStructureType))
-					{
-						structureBodyUpgrade(pFunction, psCurr);
-						structureArmourUpgrade(pFunction, psCurr);
-					}
-				}
-				//DO THIS AFTER so above calculations can use the previous upgrade values
-				//for the current player, upgrade the wall/defence structure stats
-				wallDefenceUpgrade(pFunction, player);
-
-				// message/sound for wall/defence structure upgrade
-				break;
-			}
-
-			/*case(ARMOUR_UPGRADE_TYPE):
-			{
-				//for each structure in the player's list, upgrade the armour type
-				for (psCurr = apsStructLists[player]; psCurr != NULL; psCurr =
-					psCurr->psNext)
-				{
-					armourUpgrade(pFunction, psCurr);
-				}
-				//set the function upgrade flag for future factories being built
-				for (upgrade = 0; upgrade < numArmourUpgrades; upgrade++)
-				{
-					if (apArmourUpgrades[player][upgrade].functionInc == pFunction->
-						ref - REF_FUNCTION_START)
-					{
-						apArmourUpgrades[player][upgrade].available = TRUE;
-						break;
-					}
-				}
-				// message/sound in here for armour upgrade
-				break;
-			}*/
-			/*case(REPAIR_UPGRADE_TYPE):
-			{
-				//for each structure in the player's list, upgrade the armour type
-				for (psCurr = apsStructLists[player]; psCurr != NULL; psCurr =
-					psCurr->psNext)
-				{
-					repairUpgrade(pFunction, psCurr);
-				}
-				//set the function upgrade flag for future factories being built
-				for (upgrade = 0; upgrade < numRepairUpgrades; upgrade++)
-				{
-					if (apRepairUpgrades[player][upgrade].functionInc == pFunction->
-						ref - REF_FUNCTION_START)
-					{
-						apRepairUpgrades[player][upgrade].available = TRUE;
-						break;
-					}
-				}
-			   	//message/sound in here for repair points upgraded
-				break;
-			}*/
-			/*case(BODY_UPGRADE_TYPE):
-			{
-				//for each structure in the player's list, upgrade the armour type
-				for (psCurr = apsStructLists[player]; psCurr != NULL; psCurr =
-					psCurr->psNext)
-				{
-					bodyUpgrade(pFunction, psCurr);
-				}
-				//set the function upgrade flag for future factories being built
-				for (upgrade = 0; upgrade < numBodyUpgrades; upgrade++)
-				{
-					if (apBodyUpgrades[player][upgrade].functionInc == pFunction->
-						ref - REF_FUNCTION_START)
-					{
-						apBodyUpgrades[player][upgrade].available = TRUE;
-						break;
-					}
-				}
-			   	// message/sound in here for body points upgrade
-				break;
-			}*/
-			/*case(RESISTANCE_UPGRADE_TYPE):
-			{
-				//for each structure in the player's list, upgrade the armour type
-				for (psCurr = apsStructLists[player]; psCurr != NULL; psCurr =
-					psCurr->psNext)
-				{
-					resistanceUpgrade(pFunction, psCurr);
-				}
-				//set the function upgrade flag for future factories being built
-				for (upgrade = 0; upgrade < numResistanceUpgrades; upgrade++)
-				{
-					if (apResistanceUpgrades[player][upgrade].functionInc == pFunction->
-						ref - REF_FUNCTION_START)
-					{
-						apResistanceUpgrades[player][upgrade].available = TRUE;
-						break;
-					}
-				}
-				// message/sound for resistance upgrade
-				break;
-			}*/
-			default:
-			{
-				ASSERT((FALSE,"Invalid function type"));
-			}
-		}//end of switch
-	}//end of function loop
-
-	//Add message to player's list if Major Topic
-	if ((pResearch->techCode == TC_MAJOR) && bDisplay)
-	{
-		//only play sound if major topic
-		if (player == selectedPlayer)
-		{
-			audio_QueueTrack(ID_SOUND_MAJOR_RESEARCH);
-			//add console text message
-            addConsoleMessage(strresGetString(psStringRes, STR_INT_RESCOMPLETED), LEFT_JUSTIFY);
-		}
-
-		//check there is viewdata for the research topic - just don't add message if not!
-		if (pResearch->pViewData != NULL)
-		{
-			pMessage = addMessage(MSG_RESEARCH, FALSE, player);
-			if (pMessage != NULL)
-			{
-				pMessage->pViewData = (MSG_VIEWDATA *)pResearch->pViewData;
-			}
-		}
-	}
-	else
-	{	
-		if ((player == selectedPlayer) && bDisplay)
-		{
-			audio_QueueTrack(ID_SOUND_RESEARCH_COMPLETED);
-			//add console text message
-            addConsoleMessage(strresGetString(psStringRes, STR_INT_RESCOMPLETED), LEFT_JUSTIFY);
-		}
-	}
-
-#ifdef SCRIPTS
-    if ((player == selectedPlayer) && bDisplay)
+  //check for artefacts to be made available
+  for (inc = 0; inc < pResearch->numArteResults; inc++)
+  {
+    //determine the type of artefact
+    type = statType(pResearch->pArtefactResults[inc]->ref);
+    //set the component state to AVAILABLE
+    compInc = pResearch->pArtefactResults[inc]->ref - statRefStart(type);
+    apCompLists[player][type][compInc] = AVAILABLE;
+    //check for default sensor
+    if (type == COMP_SENSOR)
     {
-        psCBLastResearch = pResearch;
-	    eventFireCallbackTrigger(CALL_RESEARCHCOMPLETED);
-        psCBLastResearch = NULL;
+      if ((asSensorStats + compInc)->location == LOC_DEFAULT)
+        aDefaultSensor[player] = compInc;
     }
-#endif
+    //check for default ECM
+    if (type == COMP_ECM)
+    {
+      if ((asECMStats + compInc)->location == LOC_DEFAULT)
+        aDefaultECM[player] = compInc;
+    }
+    //check for default Repair
+    if (type == COMP_REPAIRUNIT)
+    {
+      if ((asRepairStats + compInc)->location == LOC_DEFAULT)
+        aDefaultRepair[player] = compInc;
+    }
+    //check if this component replaces an 'older' component
+    if (pResearch->pReplacedArtefacts[inc] != nullptr)
+    {
+      replaceComponent(pResearch->pArtefactResults[inc], pResearch->pReplacedArtefacts[inc], player);
+      //set the 'old' component to unavailable
+      type = statType(pResearch->pReplacedArtefacts[inc]->ref);
+      //set the component state to AVAILABLE
+      compInc = pResearch->pReplacedArtefacts[inc]->ref - statRefStart(type);
+      apCompLists[player][type][compInc] = UNAVAILABLE;
+    }
+    //check if the component is a brain
+    if (type == COMP_BRAIN)
+      cmdDroidAvailable(asBrainStats + compInc, player);
+    //check if self repair has come on line
+    if (type == COMP_REPAIRUNIT)
+    {
+      if (asRepairStats[compInc].location == LOC_DEFAULT)
+        enableSelfRepair(player);
+    }
+  }
 
-//just a debug check...
-#ifdef DEBUG
-    /*this just checks that there are not more than 32 weapons now available for
-    the design screen - it'll give us grief in the design screen (which we may HAVE TO fix)!*/
-    //only check if selectedPlayer has done the research
+  //check for artefacts to be made redundant
+  for (inc = 0; inc < pResearch->numRedArtefacts; inc++)
+  {
+    //determine the type of artefact
+    type = statType(pResearch->pRedArtefacts[inc]->ref);
+    //set the component state to UNAVAILABLE
+    apCompLists[player][type][pResearch->pRedArtefacts[inc]->ref - statRefStart(type)] = UNAVAILABLE;
+  }
+
+  //check for technology effects
+  for (inc = 0; inc < pResearch->numFunctions; inc++)
+  {
+    pFunction = pResearch->pFunctionList[inc];
+
+    switch (pFunction->type)
+    {
+    case(PRODUCTION_UPGRADE_TYPE):
+      {
+        productionUpgrade(pFunction, player);
+
+        //search the list of players structures for a Factory
+        for (psCurr = apsStructLists[player]; psCurr != nullptr; psCurr = psCurr->psNext)
+        {
+          /*if (psCurr->pStructureType->type == REF_FACTORY OR
+            psCurr->pStructureType->type == REF_CYBORG_FACTORY OR
+            psCurr->pStructureType->type == REF_VTOL_FACTORY)
+          {
+            //upgrade the Output
+            productionUpgrade(pFunction, psCurr);
+          }*/
+          if ((psCurr->pStructureType->type == REF_FACTORY AND ((PRODUCTION_UPGRADE_FUNCTION*)pFunction)->factory) OR (psCurr->
+            pStructureType->type == REF_CYBORG_FACTORY AND ((PRODUCTION_UPGRADE_FUNCTION*)pFunction)->cyborgFactory) OR (psCurr->
+            pStructureType->type == REF_VTOL_FACTORY AND ((PRODUCTION_UPGRADE_FUNCTION*)pFunction)->vtolFactory))
+          {
+            //upgrade the Output for the structure
+            structureProductionUpgrade(psCurr);
+          }
+
+          //set the function upgrade flag for future factories being built
+          /*for (upgrade = 0; upgrade < numProductionUpgrades; upgrade++)
+          {
+            if (apProductionUpgrades[player][upgrade].functionInc == pFunction->
+              ref - REF_FUNCTION_START)
+            {
+              apProductionUpgrades[player][upgrade].available = TRUE;
+              break;
+            }
+          }*/
+        }
+        //and the mission structures
+        for (psCurr = mission.apsStructLists[player]; psCurr != nullptr; psCurr = psCurr->psNext)
+        {
+          if ((psCurr->pStructureType->type == REF_FACTORY AND ((PRODUCTION_UPGRADE_FUNCTION*)pFunction)->factory) OR (psCurr->
+            pStructureType->type == REF_CYBORG_FACTORY AND ((PRODUCTION_UPGRADE_FUNCTION*)pFunction)->cyborgFactory) OR (psCurr->
+            pStructureType->type == REF_VTOL_FACTORY AND ((PRODUCTION_UPGRADE_FUNCTION*)pFunction)->vtolFactory))
+          {
+            //upgrade the Output for the structure
+            structureProductionUpgrade(psCurr);
+          }
+        }
+
+        // message/sound in here for production boost
+        break;
+      }
+    case(RESEARCH_UPGRADE_TYPE):
+      {
+        researchUpgrade(pFunction, player);
+        //search the list of players structures for a Research Facility
+        for (psCurr = apsStructLists[player]; psCurr != nullptr; psCurr = psCurr->psNext)
+        {
+          if (psCurr->pStructureType->type == REF_RESEARCH)
+          {
+            //upgrade the research points
+            structureResearchUpgrade(psCurr);
+          }
+          //set the function upgrade flag for future factories being built
+          /*for (upgrade = 0; upgrade < numResearchUpgrades; upgrade++)
+          {
+            if (apResearchUpgrades[player][upgrade].functionInc == pFunction->
+              ref - REF_FUNCTION_START)
+            {
+              apResearchUpgrades[player][upgrade].available = TRUE;
+              break;
+            }
+          }*/
+        }
+        //and the mission structures
+        for (psCurr = mission.apsStructLists[player]; psCurr != nullptr; psCurr = psCurr->psNext)
+        {
+          if (psCurr->pStructureType->type == REF_RESEARCH)
+          {
+            //upgrade the research points
+            structureResearchUpgrade(psCurr);
+          }
+        }
+        // Stuff a message in here/sound whatever for research boost.
+        break;
+      }
+    case(POWER_UPGRADE_TYPE):
+      {
+        powerUpgrade(pFunction, player);
+        //search the list of players structures for a Power Gens
+        for (psCurr = apsStructLists[player]; psCurr != nullptr; psCurr = psCurr->psNext)
+        {
+          if (psCurr->pStructureType->type == REF_POWER_GEN)
+          {
+            //upgrade the power points
+            structurePowerUpgrade(psCurr);
+          }
+        }
+        //and the mission structure
+        for (psCurr = mission.apsStructLists[player]; psCurr != nullptr; psCurr = psCurr->psNext)
+        {
+          if (psCurr->pStructureType->type == REF_POWER_GEN)
+          {
+            //upgrade the power points
+            structurePowerUpgrade(psCurr);
+          }
+        }
+        break;
+      }
+    case(REARM_UPGRADE_TYPE):
+      {
+        reArmUpgrade(pFunction, player);
+        //search the list of players structures for a ReArm pad
+        for (psCurr = apsStructLists[player]; psCurr != nullptr; psCurr = psCurr->psNext)
+        {
+          if (psCurr->pStructureType->type == REF_REARM_PAD)
+          {
+            //upgrade the rearm points
+            structureReArmUpgrade(psCurr);
+          }
+        }
+        //and the mission structure
+        for (psCurr = mission.apsStructLists[player]; psCurr != nullptr; psCurr = psCurr->psNext)
+        {
+          if (psCurr->pStructureType->type == REF_REARM_PAD)
+          {
+            //upgrade the rearm points
+            structureReArmUpgrade(psCurr);
+          }
+        }
+        break;
+      }
+    case(REPAIR_UPGRADE_TYPE):
+      {
+        repairFacUpgrade(pFunction, player);
+        //search the list of players structures for a Power Gens
+        for (psCurr = apsStructLists[player]; psCurr != nullptr; psCurr = psCurr->psNext)
+        {
+          if (psCurr->pStructureType->type == REF_REPAIR_FACILITY)
+          {
+            //upgrade the repair points
+            structureRepairUpgrade(psCurr);
+          }
+        }
+        //and the mission structure
+        for (psCurr = mission.apsStructLists[player]; psCurr != nullptr; psCurr = psCurr->psNext)
+        {
+          if (psCurr->pStructureType->type == REF_REPAIR_FACILITY)
+          {
+            //upgrade the repair points
+            structureRepairUpgrade(psCurr);
+          }
+        }
+        break;
+      }
+    case(WEAPON_UPGRADE_TYPE):
+      {
+        //for the current player, upgrade the weapon stats
+        weaponUpgrade(pFunction, player);
+        // message/sound for weapon upgrade
+        break;
+      }
+    case(DROIDSENSOR_UPGRADE_TYPE):
+      {
+        //for the current player, upgrade the sensor stats
+        sensorUpgrade(pFunction, player);
+        //for each structure in the player's list, upgrade the sensor stat
+        for (psCurr = apsStructLists[player]; psCurr != nullptr; psCurr = psCurr->psNext)
+          structureSensorUpgrade(psCurr);
+        for (psCurr = mission.apsStructLists[player]; psCurr != nullptr; psCurr = psCurr->psNext)
+          structureSensorUpgrade(psCurr);
+        //for each droid in the player's list, upgrade the sensor stat
+        for (psDroid = apsDroidLists[player]; psDroid != nullptr; psDroid = psDroid->psNext)
+        {
+          droidSensorUpgrade(psDroid);
+          if (psDroid->droidType == DROID_TRANSPORTER)
+            upgradeTransporterDroids(psDroid, droidSensorUpgrade);
+        }
+        for (psDroid = mission.apsDroidLists[player]; psDroid != nullptr; psDroid = psDroid->psNext)
+        {
+          droidSensorUpgrade(psDroid);
+          if (psDroid->droidType == DROID_TRANSPORTER)
+            upgradeTransporterDroids(psDroid, droidSensorUpgrade);
+        }
+        for (psDroid = apsLimboDroids[player]; psDroid != nullptr; psDroid = psDroid->psNext)
+        {
+          droidSensorUpgrade(psDroid);
+          if (psDroid->droidType == DROID_TRANSPORTER)
+            upgradeTransporterDroids(psDroid, droidSensorUpgrade);
+        }
+        // message/sound for sensor upgrade
+        break;
+      }
+    case(DROIDECM_UPGRADE_TYPE):
+      {
+        //for the current player, upgrade the ecm stats
+        ecmUpgrade(pFunction, player);
+        //for each structure in the player's list, upgrade the ecm stat
+        for (psCurr = apsStructLists[player]; psCurr != nullptr; psCurr = psCurr->psNext)
+          structureECMUpgrade(psCurr);
+        for (psCurr = mission.apsStructLists[player]; psCurr != nullptr; psCurr = psCurr->psNext)
+          structureECMUpgrade(psCurr);
+        //for each droid in the player's list, upgrade the ecm stat
+        for (psDroid = apsDroidLists[player]; psDroid != nullptr; psDroid = psDroid->psNext)
+        {
+          droidECMUpgrade(psDroid);
+          if (psDroid->droidType == DROID_TRANSPORTER)
+            upgradeTransporterDroids(psDroid, droidECMUpgrade);
+        }
+        for (psDroid = mission.apsDroidLists[player]; psDroid != nullptr; psDroid = psDroid->psNext)
+        {
+          droidECMUpgrade(psDroid);
+          if (psDroid->droidType == DROID_TRANSPORTER)
+            upgradeTransporterDroids(psDroid, droidECMUpgrade);
+        }
+        for (psDroid = apsLimboDroids[player]; psDroid != nullptr; psDroid = psDroid->psNext)
+        {
+          droidECMUpgrade(psDroid);
+          if (psDroid->droidType == DROID_TRANSPORTER)
+            upgradeTransporterDroids(psDroid, droidECMUpgrade);
+        }
+        // message/sound for ecm upgrade
+        break;
+      }
+    case(DROIDREPAIR_UPGRADE_TYPE):
+      {
+        //for the current player, upgrade the repair stats
+        repairUpgrade(pFunction, player);
+        // message/sound for repair upgrade
+        break;
+      }
+    case(DROIDCONST_UPGRADE_TYPE):
+      {
+        //for the current player, upgrade the constructor stats
+        constructorUpgrade(pFunction, player);
+        // message/sound for constructor upgrade
+        break;
+      }
+    case(DROIDBODY_UPGRADE_TYPE):
+      {
+        //for each droid in the player's list, upgrade the body points
+        for (psDroid = apsDroidLists[player]; psDroid != nullptr; psDroid = psDroid->psNext)
+          droidBodyUpgrade(pFunction, psDroid);
+        for (psDroid = mission.apsDroidLists[player]; psDroid != nullptr; psDroid = psDroid->psNext)
+        {
+          droidBodyUpgrade(pFunction, psDroid);
+          if (psDroid->droidType == DROID_TRANSPORTER)
+            upgradeTransporterDroids(psDroid, droidSensorUpgrade);
+        }
+        for (psDroid = apsLimboDroids[player]; psDroid != nullptr; psDroid = psDroid->psNext)
+        {
+          droidBodyUpgrade(pFunction, psDroid);
+          if (psDroid->droidType == DROID_TRANSPORTER)
+            upgradeTransporterDroids(psDroid, droidSensorUpgrade);
+        }
+        //DO THIS AFTER so above calculations can use the previous upgrade values
+        //for the current player, upgrade the body stats
+        bodyUpgrade(pFunction, player);
+
+        // message/sound for body upgrade
+        break;
+      }
+    case(STRUCTURE_UPGRADE_TYPE):
+      {
+        //for each structure in the player's list, upgrade the stats
+        for (psCurr = apsStructLists[player]; psCurr != nullptr; psCurr = psCurr->psNext)
+        {
+          //do this for none wallDefense structs
+          if (!wallDefenceStruct(psCurr->pStructureType))
+          {
+            structureBodyUpgrade(pFunction, psCurr);
+            structureArmourUpgrade(pFunction, psCurr);
+            structureResistanceUpgrade(pFunction, psCurr);
+          }
+          //defense type can have resistance upgrade now - AB 19/02/99
+          if (psCurr->pStructureType->type == REF_DEFENSE)
+            structureResistanceUpgrade(pFunction, psCurr);
+        }
+        for (psCurr = mission.apsStructLists[player]; psCurr != nullptr; psCurr = psCurr->psNext)
+        {
+          //do this for none wallDefense structs
+          if (!wallDefenceStruct(psCurr->pStructureType))
+          {
+            structureBodyUpgrade(pFunction, psCurr);
+            structureArmourUpgrade(pFunction, psCurr);
+            structureResistanceUpgrade(pFunction, psCurr);
+          }
+          //defense type can have resistance upgrade now - AB 19/02/99
+          if (psCurr->pStructureType->type == REF_DEFENSE)
+            structureResistanceUpgrade(pFunction, psCurr);
+        }
+        //DO THIS AFTER so above calculations can use the previous upgrade values
+        //for the current player, upgrade the structure stats
+        structureUpgrade(pFunction, player);
+
+        // message/sound for structure upgrade
+        break;
+      }
+    case(WALLDEFENCE_UPGRADE_TYPE):
+      {
+        //for each structure in the player's list, upgrade the stats
+        for (psCurr = apsStructLists[player]; psCurr != nullptr; psCurr = psCurr->psNext)
+        {
+          //do this for wallDefense structs
+          if (wallDefenceStruct(psCurr->pStructureType))
+          {
+            structureBodyUpgrade(pFunction, psCurr);
+            structureArmourUpgrade(pFunction, psCurr);
+          }
+        }
+        for (psCurr = mission.apsStructLists[player]; psCurr != nullptr; psCurr = psCurr->psNext)
+        {
+          //do this for wallDefense structs
+          if (wallDefenceStruct(psCurr->pStructureType))
+          {
+            structureBodyUpgrade(pFunction, psCurr);
+            structureArmourUpgrade(pFunction, psCurr);
+          }
+        }
+        //DO THIS AFTER so above calculations can use the previous upgrade values
+        //for the current player, upgrade the wall/defence structure stats
+        wallDefenceUpgrade(pFunction, player);
+
+        // message/sound for wall/defence structure upgrade
+        break;
+      }
+
+    /*case(ARMOUR_UPGRADE_TYPE):
+    {
+      //for each structure in the player's list, upgrade the armour type
+      for (psCurr = apsStructLists[player]; psCurr != NULL; psCurr =
+        psCurr->psNext)
+      {
+        armourUpgrade(pFunction, psCurr);
+      }
+      //set the function upgrade flag for future factories being built
+      for (upgrade = 0; upgrade < numArmourUpgrades; upgrade++)
+      {
+        if (apArmourUpgrades[player][upgrade].functionInc == pFunction->
+          ref - REF_FUNCTION_START)
+        {
+          apArmourUpgrades[player][upgrade].available = TRUE;
+          break;
+        }
+      }
+      // message/sound in here for armour upgrade
+      break;
+    }*/
+    /*case(REPAIR_UPGRADE_TYPE):
+    {
+      //for each structure in the player's list, upgrade the armour type
+      for (psCurr = apsStructLists[player]; psCurr != NULL; psCurr =
+        psCurr->psNext)
+      {
+        repairUpgrade(pFunction, psCurr);
+      }
+      //set the function upgrade flag for future factories being built
+      for (upgrade = 0; upgrade < numRepairUpgrades; upgrade++)
+      {
+        if (apRepairUpgrades[player][upgrade].functionInc == pFunction->
+          ref - REF_FUNCTION_START)
+        {
+          apRepairUpgrades[player][upgrade].available = TRUE;
+          break;
+        }
+      }
+         //message/sound in here for repair points upgraded
+      break;
+    }*/
+    /*case(BODY_UPGRADE_TYPE):
+    {
+      //for each structure in the player's list, upgrade the armour type
+      for (psCurr = apsStructLists[player]; psCurr != NULL; psCurr =
+        psCurr->psNext)
+      {
+        bodyUpgrade(pFunction, psCurr);
+      }
+      //set the function upgrade flag for future factories being built
+      for (upgrade = 0; upgrade < numBodyUpgrades; upgrade++)
+      {
+        if (apBodyUpgrades[player][upgrade].functionInc == pFunction->
+          ref - REF_FUNCTION_START)
+        {
+          apBodyUpgrades[player][upgrade].available = TRUE;
+          break;
+        }
+      }
+         // message/sound in here for body points upgrade
+      break;
+    }*/
+    /*case(RESISTANCE_UPGRADE_TYPE):
+    {
+      //for each structure in the player's list, upgrade the armour type
+      for (psCurr = apsStructLists[player]; psCurr != NULL; psCurr =
+        psCurr->psNext)
+      {
+        resistanceUpgrade(pFunction, psCurr);
+      }
+      //set the function upgrade flag for future factories being built
+      for (upgrade = 0; upgrade < numResistanceUpgrades; upgrade++)
+      {
+        if (apResistanceUpgrades[player][upgrade].functionInc == pFunction->
+          ref - REF_FUNCTION_START)
+        {
+          apResistanceUpgrades[player][upgrade].available = TRUE;
+          break;
+        }
+      }
+      // message/sound for resistance upgrade
+      break;
+    }*/
+    default: { ASSERT((FALSE,"Invalid function type")); }
+    } //end of switch
+  } //end of function loop
+
+  //Add message to player's list if Major Topic
+  if ((pResearch->techCode == TC_MAJOR) && bDisplay)
+  {
+    //only play sound if major topic
     if (player == selectedPlayer)
     {
-        UDWORD    vtolCompInc;
-    
-        compInc = vtolCompInc =0;
-	    for (inc = 0; inc < numWeaponStats; inc++)
-	    {
-		    if (apCompLists[selectedPlayer][COMP_WEAPON][inc] == AVAILABLE AND
-                asWeaponStats[inc].design)
-            {
-                if (asWeaponStats[inc].vtolAttackRuns)
-                {
-                    vtolCompInc++;
-                }
-                else
-                {
-                    compInc++;
-                }
-                if (compInc >= 32)
-                {
-                    ASSERT((FALSE, "researchResult - more than 32 weapons now available"));
-                    //don't bother checking any more
-                    break;
-                }
-                if (vtolCompInc >= 32)
-                {
-                    ASSERT((FALSE, "researchResult - more than 32 vtol weapons now available"));
-                    //don't bother checking any more
-                    break;
-                }
-            }
-	    }
+      audio_QueueTrack(ID_SOUND_MAJOR_RESEARCH);
+      //add console text message
+      addConsoleMessage(strresGetString(psStringRes, STR_INT_RESCOMPLETED), LEFT_JUSTIFY);
     }
+
+    //check there is viewdata for the research topic - just don't add message if not!
+    if (pResearch->pViewData != nullptr)
+    {
+      pMessage = addMessage(MSG_RESEARCH, FALSE, player);
+      if (pMessage != nullptr)
+        pMessage->pViewData = (MSG_VIEWDATA*)pResearch->pViewData;
+    }
+  }
+  else
+  {
+    if ((player == selectedPlayer) && bDisplay)
+    {
+      audio_QueueTrack(ID_SOUND_RESEARCH_COMPLETED);
+      //add console text message
+      addConsoleMessage(strresGetString(psStringRes, STR_INT_RESCOMPLETED), LEFT_JUSTIFY);
+    }
+  }
+
+#ifdef SCRIPTS
+  if ((player == selectedPlayer) && bDisplay)
+  {
+    psCBLastResearch = pResearch;
+    eventFireCallbackTrigger(CALL_RESEARCHCOMPLETED);
+    psCBLastResearch = nullptr;
+  }
+#endif
+
+  //just a debug check...
+#ifdef DEBUG
+  /*this just checks that there are not more than 32 weapons now available for
+  the design screen - it'll give us grief in the design screen (which we may HAVE TO fix)!*/
+  //only check if selectedPlayer has done the research
+  if (player == selectedPlayer)
+  {
+    UDWORD vtolCompInc;
+
+    compInc = vtolCompInc = 0;
+    for (inc = 0; inc < numWeaponStats; inc++)
+    {
+      if (apCompLists[selectedPlayer][COMP_WEAPON][inc] == AVAILABLE AND asWeaponStats[inc].design)
+      {
+        if (asWeaponStats[inc].vtolAttackRuns)
+          vtolCompInc++;
+        else
+          compInc++;
+        if (compInc >= 32)
+        {
+          ASSERT((FALSE, "researchResult - more than 32 weapons now available"));
+          //don't bother checking any more
+          break;
+        }
+        if (vtolCompInc >= 32)
+        {
+          ASSERT((FALSE, "researchResult - more than 32 vtol weapons now available"));
+          //don't bother checking any more
+          break;
+        }
+      }
+    }
+  }
 #endif
 }
 
 /*This function is called when the research files are reloaded*/
 BOOL ResearchShutDown(void)
 {
-    //we don't malloc these anymore this way - 10/12/98
-	/*UDWORD inc;
-	RESEARCH* pList = asResearch;
+  //we don't malloc these anymore this way - 10/12/98
+  /*UDWORD inc;
+  RESEARCH* pList = asResearch;
 
-	for (inc=0; inc < numResearch; inc++)
-	{
+  for (inc=0; inc < numResearch; inc++)
+  {
 #if !defined (RESOURCE_NAMES) && !defined (STORE_RESOURCE_ID)
-		FREE(pList->pName);
+    FREE(pList->pName);
 #endif
-		if (pList->numRedArtefacts > 0)
-		{
-			FREE(pList->pRedArtefacts);
-		}
-		if (pList->numArteResults > 0)
-		{
-			FREE(pList->pArtefactResults);
-			FREE(pList->pReplacedArtefacts);
-		}
-		if (pList->numPRRequired > 0)
-		{
-			FREE(pList->pPRList);
-		}
-		if (pList->numStructures > 0)
-		{
-			FREE(pList->pStructList);
-		}
-		if (pList->numRedStructs > 0)
-		{
-			FREE(pList->pRedStructs);
-		}
-		if (pList->numStructResults > 0)
-		{
-			FREE(pList->pStructureResults);
-		}
-		if (pList->numFunctions > 0)
-		{
-			FREE(pList->pFunctionList);
-		}
-		pList++;
-	}
-
-	if(numResearch) {
-		FREE (asResearch);
-	}
-
-	//free up the lists for each player
-	for (inc = 0; inc < MAX_PLAYERS; inc++)
-	{
-		if(asPlayerResList[inc]) {
-			FREE (asPlayerResList[inc]);
-		}
-	}*/
-
-    UBYTE   i;
-
-    //don't allocate the memory now - done in initResearch, so just initialise it
-    memset(asResearch, 0, (MAX_RESEARCH * sizeof(RESEARCH)));
-
-	for (i=0; i < MAX_PLAYERS; i++)
-	{
-   		memset(asPlayerResList[i], 0, (MAX_RESEARCH * sizeof(PLAYER_RESEARCH)));
+    if (pList->numRedArtefacts > 0)
+    {
+      FREE(pList->pRedArtefacts);
     }
-    
-    //and init all the other arrays used
-    //needs to be UWORD sized for the Patches
-    memset(pResearchPR, 0, (MAX_RESEARCH_PR * sizeof(UWORD)));
-    memset(pResearchStructPR, 0, (MAX_RESEARCH_STRUCT_PR * sizeof(UWORD)));
-    memset(pResearchFunc, 0, (MAX_RESEARCH_FUNC * sizeof(FUNCTION *)));
-    memset(pResearchStructRed, 0, (MAX_RESEARCH_STRUCT_RED * sizeof(UWORD)));
-    memset(pResearchArteRed, 0, (MAX_RESEARCH_ARTE_RED * sizeof(COMP_BASE_STATS *)));
-    memset(pResearchStructRes, 0, (MAX_RESEARCH_STRUCT_RES * sizeof(UWORD)));
-    memset(pResearchArteRes, 0, (MAX_RESEARCH_ARTE_RES * sizeof(COMP_BASE_STATS *)));
-    memset(pResearchArteRep, 0, (MAX_RESEARCH_ARTE_RES * sizeof(COMP_BASE_STATS *)));
+    if (pList->numArteResults > 0)
+    {
+      FREE(pList->pArtefactResults);
+      FREE(pList->pReplacedArtefacts);
+    }
+    if (pList->numPRRequired > 0)
+    {
+      FREE(pList->pPRList);
+    }
+    if (pList->numStructures > 0)
+    {
+      FREE(pList->pStructList);
+    }
+    if (pList->numRedStructs > 0)
+    {
+      FREE(pList->pRedStructs);
+    }
+    if (pList->numStructResults > 0)
+    {
+      FREE(pList->pStructureResults);
+    }
+    if (pList->numFunctions > 0)
+    {
+      FREE(pList->pFunctionList);
+    }
+    pList++;
+  }
 
-    return TRUE;
+  if(numResearch) {
+    FREE (asResearch);
+  }
+
+  //free up the lists for each player
+  for (inc = 0; inc < MAX_PLAYERS; inc++)
+  {
+    if(asPlayerResList[inc]) {
+      FREE (asPlayerResList[inc]);
+    }
+  }*/
+
+  UBYTE i;
+
+  //don't allocate the memory now - done in initResearch, so just initialise it
+  memset(asResearch, 0, (MAX_RESEARCH * sizeof(RESEARCH)));
+
+  for (i = 0; i < MAX_PLAYERS; i++)
+    memset(asPlayerResList[i], 0, (MAX_RESEARCH * sizeof(PLAYER_RESEARCH)));
+
+  //and init all the other arrays used
+  //needs to be UWORD sized for the Patches
+  memset(pResearchPR, 0, (MAX_RESEARCH_PR * sizeof(UWORD)));
+  memset(pResearchStructPR, 0, (MAX_RESEARCH_STRUCT_PR * sizeof(UWORD)));
+  memset(pResearchFunc, 0, (MAX_RESEARCH_FUNC * sizeof(FUNCTION*)));
+  memset(pResearchStructRed, 0, (MAX_RESEARCH_STRUCT_RED * sizeof(UWORD)));
+  memset(pResearchArteRed, 0, (MAX_RESEARCH_ARTE_RED * sizeof(COMP_BASE_STATS*)));
+  memset(pResearchStructRes, 0, (MAX_RESEARCH_STRUCT_RES * sizeof(UWORD)));
+  memset(pResearchArteRes, 0, (MAX_RESEARCH_ARTE_RES * sizeof(COMP_BASE_STATS*)));
+  memset(pResearchArteRep, 0, (MAX_RESEARCH_ARTE_RES * sizeof(COMP_BASE_STATS*)));
+
+  return TRUE;
 }
 
 /*This function is called when a game finishes*/
 BOOL ResearchRelease(void)
 {
-    UBYTE   i;
+  UBYTE i;
 
-    //free all the pre-defined arrays for research
-    FREE(asResearch);
-	for (i=0; i < MAX_PLAYERS; i++)
-	{
-        FREE(asPlayerResList[i]);
-    }
-    FREE(pResearchPR);
-    FREE(pResearchStructPR);
-    FREE(pResearchFunc);
-    FREE(pResearchStructRed);
-    FREE(pResearchArteRed);
-    FREE(pResearchStructRes);
-    FREE(pResearchArteRes);
-    FREE(pResearchArteRep);
+  //free all the pre-defined arrays for research
+  FREE(asResearch);
+  for (i = 0; i < MAX_PLAYERS; i++) { FREE(asPlayerResList[i]); }
+  FREE(pResearchPR);
+  FREE(pResearchStructPR);
+  FREE(pResearchFunc);
+  FREE(pResearchStructRed);
+  FREE(pResearchArteRed);
+  FREE(pResearchStructRes);
+  FREE(pResearchArteRes);
+  FREE(pResearchArteRep);
 
-	return TRUE;
+  return TRUE;
 }
 
 /*puts research facility on hold*/
-void holdResearch(STRUCTURE *psBuilding)
+void holdResearch(STRUCTURE* psBuilding)
 {
-	RESEARCH_FACILITY		*psResFac;
+  RESEARCH_FACILITY* psResFac;
 
-	ASSERT((psBuilding->pStructureType->type == REF_RESEARCH, 
-		"holdResearch: structure not a research facility"));
+  ASSERT((psBuilding->pStructureType->type == REF_RESEARCH, "holdResearch: structure not a research facility"));
 
-	psResFac = (RESEARCH_FACILITY *)psBuilding->pFunctionality;
+  psResFac = (RESEARCH_FACILITY*)psBuilding->pFunctionality;
 
-	if (psResFac->psSubject)
-	{
-		//set the time the research facilty was put on hold
-		psResFac->timeStartHold = gameTime;
-		//play audio to indicate on hold
-		if (psBuilding->player == selectedPlayer)
-		{
-			audio_PlayTrack(ID_SOUND_WINDOWCLOSE);
-		}
-	}
+  if (psResFac->psSubject)
+  {
+    //set the time the research facilty was put on hold
+    psResFac->timeStartHold = gameTime;
+    //play audio to indicate on hold
+    if (psBuilding->player == selectedPlayer)
+      audio_PlayTrack(ID_SOUND_WINDOWCLOSE);
+  }
 }
 
 /*release a research facility from hold*/
-void releaseResearch(STRUCTURE *psBuilding)
+void releaseResearch(STRUCTURE* psBuilding)
 {
-	RESEARCH_FACILITY		*psResFac;
+  RESEARCH_FACILITY* psResFac;
 
-	ASSERT((psBuilding->pStructureType->type == REF_RESEARCH, 
-		"releaseResearch: structure not a research facility"));
+  ASSERT((psBuilding->pStructureType->type == REF_RESEARCH, "releaseResearch: structure not a research facility"));
 
-	psResFac = (RESEARCH_FACILITY *)psBuilding->pFunctionality;
+  psResFac = (RESEARCH_FACILITY*)psBuilding->pFunctionality;
 
-	if (psResFac->psSubject AND psResFac->timeStartHold)
-	{
-		//adjust the start time for the current subject
-		if (psResFac->timeStarted != ACTION_START_TIME)
-		{
-			psResFac->timeStarted += (gameTime - psResFac->timeStartHold);
-		}
-		psResFac->timeStartHold = 0;
-	}
+  if (psResFac->psSubject AND psResFac->timeStartHold)
+  {
+    //adjust the start time for the current subject
+    if (psResFac->timeStarted != ACTION_START_TIME)
+      psResFac->timeStarted += (gameTime - psResFac->timeStartHold);
+    psResFac->timeStartHold = 0;
+  }
 }
-
 
 /*
 
@@ -2205,791 +1962,710 @@ void releaseResearch(STRUCTURE *psBuilding)
 */
 void CancelAllResearch(UDWORD pl)
 {
-	STRUCTURE	*psCurr;
+  STRUCTURE* psCurr;
 
-	for (psCurr=apsStructLists[pl]; psCurr != NULL; psCurr = psCurr->psNext)
-	{
-		if (psCurr->pStructureType->type == REF_RESEARCH)
-		{
-			if (    
-				 ( ((RESEARCH_FACILITY *)psCurr->pFunctionality)!=NULL )
-			 &&  ( ((RESEARCH_FACILITY *)psCurr->pFunctionality)->psSubject !=NULL )
-			   )
-			{
-				DBPRINTF(("canceling research for %p\n",psCurr));
-				cancelResearch(psCurr);
-			}
-		}
-		
-	}
+  for (psCurr = apsStructLists[pl]; psCurr != nullptr; psCurr = psCurr->psNext)
+  {
+    if (psCurr->pStructureType->type == REF_RESEARCH)
+    {
+      if ((((RESEARCH_FACILITY*)psCurr->pFunctionality) != nullptr) && (((RESEARCH_FACILITY*)psCurr->pFunctionality)->psSubject != nullptr))
+      {
+        DBPRINTF(("canceling research for %p\n",psCurr));
+        cancelResearch(psCurr);
+      }
+    }
+  }
 }
 
 /* sets the status of the topic to cancelled and stores the current research
    points accquired */
-void cancelResearch(STRUCTURE *psBuilding)
+void cancelResearch(STRUCTURE* psBuilding)
 {
-    UDWORD              topicInc;
-	PLAYER_RESEARCH	    *pPlayerRes;
-	RESEARCH_FACILITY	*psResFac;
+  UDWORD topicInc;
+  PLAYER_RESEARCH* pPlayerRes;
+  RESEARCH_FACILITY* psResFac;
 
-	ASSERT((psBuilding->pStructureType->type == REF_RESEARCH, 
-		"cancelResearch: structure not a research facility"));
+  ASSERT((psBuilding->pStructureType->type == REF_RESEARCH, "cancelResearch: structure not a research facility"));
 
-	psResFac = (RESEARCH_FACILITY *)psBuilding->pFunctionality;
-    topicInc = ((RESEARCH *)psResFac->psSubject) - asResearch;
-    if (topicInc > numResearch)
+  psResFac = (RESEARCH_FACILITY*)psBuilding->pFunctionality;
+  topicInc = ((RESEARCH*)psResFac->psSubject) - asResearch;
+  if (topicInc > numResearch)
+  {
+    ASSERT((FALSE, "cancelResearch: invalid research topic"));
+    return;
+  }
+  pPlayerRes = asPlayerResList[psBuilding->player] + topicInc;
+
+  if (psBuilding->pStructureType->type == REF_RESEARCH)
+  {
+    //check if waiting to accrue power
+    if (psResFac->timeStarted == ACTION_START_TIME)
     {
-        ASSERT((FALSE, "cancelResearch: invalid research topic"));
-        return;
+      //return the power
+      addPower(psBuilding->player, psResFac->powerAccrued);
+      psResFac->powerAccrued = 0;
+      //reset this topic as not having been researched
+      ResetResearchStatus(pPlayerRes);
     }
-    pPlayerRes = asPlayerResList[psBuilding->player] + topicInc;
+    else
+    {
+      /*store the points - need to keep this so can add points after the topic 
+      has been cancelled and restarted*/
+      pPlayerRes->currentPoints += (psResFac->researchPoints * (gameTime - psResFac->timeStarted)) / GAME_TICKS_PER_SEC;
 
-	if (psBuilding->pStructureType->type == REF_RESEARCH)
-	{
-		//check if waiting to accrue power
-		if (psResFac->timeStarted == ACTION_START_TIME)
-		{
-			//return the power
-			addPower(psBuilding->player, psResFac->powerAccrued);
-			psResFac->powerAccrued = 0;
-            //reset this topic as not having been researched
-			ResetResearchStatus(pPlayerRes);
-        }
-		else
-		{
-			/*store the points - need to keep this so can add points after the topic 
-			has been cancelled and restarted*/
-			pPlayerRes->currentPoints += (psResFac->researchPoints * (gameTime - 
-                psResFac->timeStarted)) / GAME_TICKS_PER_SEC;
+      //set the researched flag
+      MakeResearchCancelled(pPlayerRes);
+    }
 
-            //set the researched flag
-			MakeResearchCancelled(pPlayerRes);
-		}
+    sendReseachStatus(psBuilding, topicInc, psBuilding->player, FALSE);
 
-		 sendReseachStatus(psBuilding, topicInc, psBuilding->player, FALSE);
+    //initialise the research facility's subject
+    psResFac->psSubject = nullptr;
 
-        //initialise the research facility's subject
-        psResFac->psSubject = NULL;
-
-		//set the researched flag - only set the flag to cancelled if it got past the accruePower stage
-	}
+    //set the researched flag - only set the flag to cancelled if it got past the accruePower stage
+  }
 }
 
 /* For a given view data get the research this is related to */
-RESEARCH * getResearchForMsg(VIEWDATA *pViewData)
+RESEARCH* getResearchForMsg(VIEWDATA* pViewData)
 {
-	UDWORD		inc;
-	RESEARCH	*psResearch;
+  UDWORD inc;
+  RESEARCH* psResearch;
 
-	for (inc = 0; inc < numResearch; inc++)
-	{
-		psResearch = asResearch + inc;
-		//compare the pointer
-		if (psResearch->pViewData == pViewData)
-		{ 
-			return psResearch;
-		}
-	}
-	return NULL;
+  for (inc = 0; inc < numResearch; inc++)
+  {
+    psResearch = asResearch + inc;
+    //compare the pointer
+    if (psResearch->pViewData == pViewData)
+      return psResearch;
+  }
+  return nullptr;
 }
 
 #ifdef HASH_NAMES
 
-static UWORD setIconIDFromHashedName(STRING *pIconName, UDWORD NameHash)
+static UWORD setIconIDFromHashedName(STRING* pIconName, UDWORD NameHash)
 {
-	IMAGEDEF *Image;
-	UWORD i;
-	UDWORD IconHash = HashString(pIconName);
-  	IMAGEFILE *Images = (IMAGEFILE*)resGetData("IMG","intfac.img");
+  IMAGEDEF* Image;
+  UWORD i;
+  UDWORD IconHash = HashString(pIconName);
+  IMAGEFILE* Images = (IMAGEFILE*)resGetData("IMG", "intfac.img");
 
-	Image = Images->ImageDefs;
-	for(i=0; i<Images->Header.NumImages; i++) {
-		if(IconHash == Image->HashValue) {
-			return i;
-		}
+  Image = Images->ImageDefs;
+  for (i = 0; i < Images->Header.NumImages; i++)
+  {
+    if (IconHash == Image->HashValue) { return i; }
 
-		Image++;
-	}
+    Image++;
+  }
 
-    //add more names as images are created
-	DBPRINTF(("Failed to matched research icon  %s #%d\n",pIconName,IconHash));
+  //add more names as images are created
+  DBPRINTF(("Failed to matched research icon  %s #%d\n",pIconName,IconHash));
 
-	return 0;	// Should never get here.
+  return 0; // Should never get here.
 }
 
 #else
 
 //set the iconID based on the name read in in the stats
-static UWORD setIconID(STRING *pIconName, STRING *pName)
+static UWORD setIconID(STRING* pIconName, STRING* pName)
 {
-	//compare the names with those created in 'Framer'
-	if (!strcmp(pIconName, "IMAGE_ROCKET"))
-	{
-		return IMAGE_ROCKET;
-	}
-	if (!strcmp(pIconName, "IMAGE_CANNON"))
-	{
-		return IMAGE_CANNON;
-	}
-	if (!strcmp(pIconName, "IMAGE_HOVERCRAFT"))
-	{
-		return IMAGE_HOVERCRAFT;
-	}
-	if (!strcmp(pIconName, "IMAGE_ECM"))
-	{
-		return IMAGE_ECM;
-	}
-	if (!strcmp(pIconName, "IMAGE_PLASCRETE"))
-	{
-		return IMAGE_PLASCRETE;
-	}
-	if (!strcmp(pIconName, "IMAGE_TRACKS"))
-	{
-		return IMAGE_TRACKS;
-	}
+  //compare the names with those created in 'Framer'
+  if (!strcmp(pIconName, "IMAGE_ROCKET"))
+    return IMAGE_ROCKET;
+  if (!strcmp(pIconName, "IMAGE_CANNON"))
+    return IMAGE_CANNON;
+  if (!strcmp(pIconName, "IMAGE_HOVERCRAFT"))
+    return IMAGE_HOVERCRAFT;
+  if (!strcmp(pIconName, "IMAGE_ECM"))
+    return IMAGE_ECM;
+  if (!strcmp(pIconName, "IMAGE_PLASCRETE"))
+    return IMAGE_PLASCRETE;
+  if (!strcmp(pIconName, "IMAGE_TRACKS"))
+    return IMAGE_TRACKS;
 
-	if (!strcmp(pIconName, "IMAGE_RES_DROIDTECH"))
-	{
-		return IMAGE_RES_DROIDTECH;
-	}
+  if (!strcmp(pIconName, "IMAGE_RES_DROIDTECH"))
+    return IMAGE_RES_DROIDTECH;
 
-	if (!strcmp(pIconName,"IMAGE_RES_WEAPONTECH"))
-	{
-		return IMAGE_RES_WEAPONTECH;
-	}
+  if (!strcmp(pIconName, "IMAGE_RES_WEAPONTECH"))
+    return IMAGE_RES_WEAPONTECH;
 
-	if (!strcmp(pIconName,"IMAGE_RES_COMPUTERTECH"))
-	{
-		return IMAGE_RES_COMPUTERTECH;
-	}
+  if (!strcmp(pIconName, "IMAGE_RES_COMPUTERTECH"))
+    return IMAGE_RES_COMPUTERTECH;
 
-	if (!strcmp(pIconName,"IMAGE_RES_POWERTECH"))
-	{
-		return IMAGE_RES_POWERTECH;
-	}
+  if (!strcmp(pIconName, "IMAGE_RES_POWERTECH"))
+    return IMAGE_RES_POWERTECH;
 
-	if (!strcmp(pIconName,"IMAGE_RES_SYSTEMTECH"))
-	{
-		return IMAGE_RES_SYSTEMTECH;
-	}
+  if (!strcmp(pIconName, "IMAGE_RES_SYSTEMTECH"))
+    return IMAGE_RES_SYSTEMTECH;
 
-	if (!strcmp(pIconName,"IMAGE_RES_STRUCTURETECH"))
-	{
-		return IMAGE_RES_STRUCTURETECH;
-	}
+  if (!strcmp(pIconName, "IMAGE_RES_STRUCTURETECH"))
+    return IMAGE_RES_STRUCTURETECH;
 
-	if (!strcmp(pIconName,"IMAGE_RES_CYBORGTECH"))
-	{
-		return IMAGE_RES_CYBORGTECH;
-	}
+  if (!strcmp(pIconName, "IMAGE_RES_CYBORGTECH"))
+    return IMAGE_RES_CYBORGTECH;
 
-    if (!strcmp(pIconName,"IMAGE_RES_DEFENCE"))
-	{
-		return IMAGE_RES_DEFENCE;
-	}
+  if (!strcmp(pIconName, "IMAGE_RES_DEFENCE"))
+    return IMAGE_RES_DEFENCE;
 
-    if (!strcmp(pIconName,"IMAGE_RES_QUESTIONMARK"))
-	{
-		return IMAGE_RES_QUESTIONMARK;
-	}
-    
-    if (!strcmp(pIconName,"IMAGE_RES_GRPACC"))
-	{
-		return IMAGE_RES_GRPACC;
-	}
-    
-    if (!strcmp(pIconName,"IMAGE_RES_GRPUPG"))
-    {
-		return IMAGE_RES_GRPUPG;
-	}
+  if (!strcmp(pIconName, "IMAGE_RES_QUESTIONMARK"))
+    return IMAGE_RES_QUESTIONMARK;
 
-    if (!strcmp(pIconName,"IMAGE_RES_GRPREP"))
-	{
-		return IMAGE_RES_GRPREP;
-	}
-    
-    if (!strcmp(pIconName,"IMAGE_RES_GRPROF"))
-	{
-		return IMAGE_RES_GRPROF;
-	}
+  if (!strcmp(pIconName, "IMAGE_RES_GRPACC"))
+    return IMAGE_RES_GRPACC;
 
-    if (!strcmp(pIconName,"IMAGE_RES_GRPDAM"))
-	{
-		return IMAGE_RES_GRPDAM;
-	}
+  if (!strcmp(pIconName, "IMAGE_RES_GRPUPG"))
+    return IMAGE_RES_GRPUPG;
 
-    //add more names as images are created
-	ASSERT((FALSE, "Invalid icon graphic %s for topic %s", pIconName, pName));
+  if (!strcmp(pIconName, "IMAGE_RES_GRPREP"))
+    return IMAGE_RES_GRPREP;
 
-	return 0;	// Should never get here.
+  if (!strcmp(pIconName, "IMAGE_RES_GRPROF"))
+    return IMAGE_RES_GRPROF;
+
+  if (!strcmp(pIconName, "IMAGE_RES_GRPDAM"))
+    return IMAGE_RES_GRPDAM;
+
+  //add more names as images are created
+  ASSERT((FALSE, "Invalid icon graphic %s for topic %s", pIconName, pName));
+
+  return 0; // Should never get here.
 }
 
 #endif
 
-
-SDWORD	mapRIDToIcon( UDWORD rid )
+SDWORD mapRIDToIcon(UDWORD rid)
 {
-	switch(rid)
-	{
-	case RID_ROCKET:			
-		return(IMAGE_ROCKET);
-		break;
-	case RID_CANNON:			
-		return(IMAGE_CANNON);
-		break;
-	case RID_HOVERCRAFT:		
-		return(IMAGE_HOVERCRAFT);
-		break;
-	case RID_ECM:				
-		return(IMAGE_ECM);
-		break;
-	case RID_PLASCRETE:	  
-		return(IMAGE_PLASCRETE);
-		break;
-	case RID_TRACKS:			
-		return(IMAGE_TRACKS);
-		break;
-	case RID_DROIDTECH:		
-		return(IMAGE_RES_DROIDTECH);
-		break;
-	case RID_WEAPONTECH:		
-		return(IMAGE_RES_WEAPONTECH);
-		break;
-	case RID_COMPUTERTECH:	
-		return(IMAGE_RES_COMPUTERTECH);
-		break;
-	case RID_POWERTECH:		
-		return(IMAGE_RES_POWERTECH);
-		break;
-	case RID_SYSTEMTECH:		
-		return(IMAGE_RES_SYSTEMTECH);
-		break;
-	case RID_STRUCTURETECH:	
-		return(IMAGE_RES_STRUCTURETECH);
-		break;
-	case RID_CYBORGTECH:	
-		return(IMAGE_RES_CYBORGTECH);
-		break;
-	case RID_DEFENCE:	
-		return(IMAGE_RES_DEFENCE);
-		break;
-	case RID_QUESTIONMARK:
-		return(IMAGE_RES_QUESTIONMARK);
-		break;
-	case RID_GRPACC:
-		return(IMAGE_RES_GRPACC);
-		break;
-    case RID_GRPUPG:
-		return(IMAGE_RES_GRPUPG);
-		break;	
-    case RID_GRPREP:
-		return(IMAGE_RES_GRPREP);
-		break;	
-    case RID_GRPROF:
-		return(IMAGE_RES_GRPROF);
-		break;    
-    case RID_GRPDAM:
-		return(IMAGE_RES_GRPDAM);
-		break;    
+  switch (rid)
+  {
+  case RID_ROCKET:
+    return (IMAGE_ROCKET);
+    break;
+  case RID_CANNON:
+    return (IMAGE_CANNON);
+    break;
+  case RID_HOVERCRAFT:
+    return (IMAGE_HOVERCRAFT);
+    break;
+  case RID_ECM:
+    return (IMAGE_ECM);
+    break;
+  case RID_PLASCRETE:
+    return (IMAGE_PLASCRETE);
+    break;
+  case RID_TRACKS:
+    return (IMAGE_TRACKS);
+    break;
+  case RID_DROIDTECH:
+    return (IMAGE_RES_DROIDTECH);
+    break;
+  case RID_WEAPONTECH:
+    return (IMAGE_RES_WEAPONTECH);
+    break;
+  case RID_COMPUTERTECH:
+    return (IMAGE_RES_COMPUTERTECH);
+    break;
+  case RID_POWERTECH:
+    return (IMAGE_RES_POWERTECH);
+    break;
+  case RID_SYSTEMTECH:
+    return (IMAGE_RES_SYSTEMTECH);
+    break;
+  case RID_STRUCTURETECH:
+    return (IMAGE_RES_STRUCTURETECH);
+    break;
+  case RID_CYBORGTECH:
+    return (IMAGE_RES_CYBORGTECH);
+    break;
+  case RID_DEFENCE:
+    return (IMAGE_RES_DEFENCE);
+    break;
+  case RID_QUESTIONMARK:
+    return (IMAGE_RES_QUESTIONMARK);
+    break;
+  case RID_GRPACC:
+    return (IMAGE_RES_GRPACC);
+    break;
+  case RID_GRPUPG:
+    return (IMAGE_RES_GRPUPG);
+    break;
+  case RID_GRPREP:
+    return (IMAGE_RES_GRPREP);
+    break;
+  case RID_GRPROF:
+    return (IMAGE_RES_GRPROF);
+    break;
+  case RID_GRPDAM:
+    return (IMAGE_RES_GRPDAM);
+    break;
 
-	default:
-		ASSERT((FALSE,"Weirdy mapping request for RID to icon"));
-		return(-1); //pass back a value that can never have been set up
-		break;
-	}
+  default: ASSERT((FALSE,"Weirdy mapping request for RID to icon"));
+    return (-1); //pass back a value that can never have been set up
+    break;
+  }
 }
 
-SDWORD	mapIconToRID(UDWORD iconID)
+SDWORD mapIconToRID(UDWORD iconID)
 {
-	switch(iconID)
-	{
-	case IMAGE_ROCKET:			
-		return(RID_ROCKET);
-		break;
-	case IMAGE_CANNON:			
-		return(RID_CANNON);
-		break;
-	case IMAGE_HOVERCRAFT:		
-		return(RID_HOVERCRAFT);
-		break;
-	case IMAGE_ECM:				
-		return(RID_ECM);
-		break;
-	case IMAGE_PLASCRETE:	  
-		return(RID_PLASCRETE);
-		break;
-	case IMAGE_TRACKS:			
-		return(RID_TRACKS);
-		break;
-	case IMAGE_RES_DROIDTECH:		
-		return(RID_DROIDTECH);
-		break;
-	case IMAGE_RES_WEAPONTECH:		
-		return(RID_WEAPONTECH);
-		break;
-	case IMAGE_RES_COMPUTERTECH:	
-		return(RID_COMPUTERTECH);
-		break;
-	case IMAGE_RES_POWERTECH:		
-		return(RID_POWERTECH);
-		break;
-	case IMAGE_RES_SYSTEMTECH:		
-		return(RID_SYSTEMTECH);
-		break;
-	case IMAGE_RES_STRUCTURETECH:	
-		return(RID_STRUCTURETECH);
-		break;
-	case IMAGE_RES_CYBORGTECH:	
-		return(RID_CYBORGTECH);
-		break;
-	case IMAGE_RES_DEFENCE:	
-		return(RID_DEFENCE);
-		break;
-	case IMAGE_RES_QUESTIONMARK:
-		return(RID_QUESTIONMARK);
-		break;
-	case IMAGE_RES_GRPACC:
-		return(RID_GRPACC);
-		break;
-	case IMAGE_RES_GRPUPG:
-		return(RID_GRPUPG);
-		break;
-	case IMAGE_RES_GRPREP:
-		return(RID_GRPREP);
-		break;
-	case IMAGE_RES_GRPROF:
-		return(RID_GRPROF);
-		break;
-	case IMAGE_RES_GRPDAM:
-		return(RID_GRPDAM);
-		break;
-	default:
-		return(-1); //pass back a value that can never have been set up
-		break;
-	}
+  switch (iconID)
+  {
+  case IMAGE_ROCKET:
+    return (RID_ROCKET);
+    break;
+  case IMAGE_CANNON:
+    return (RID_CANNON);
+    break;
+  case IMAGE_HOVERCRAFT:
+    return (RID_HOVERCRAFT);
+    break;
+  case IMAGE_ECM:
+    return (RID_ECM);
+    break;
+  case IMAGE_PLASCRETE:
+    return (RID_PLASCRETE);
+    break;
+  case IMAGE_TRACKS:
+    return (RID_TRACKS);
+    break;
+  case IMAGE_RES_DROIDTECH:
+    return (RID_DROIDTECH);
+    break;
+  case IMAGE_RES_WEAPONTECH:
+    return (RID_WEAPONTECH);
+    break;
+  case IMAGE_RES_COMPUTERTECH:
+    return (RID_COMPUTERTECH);
+    break;
+  case IMAGE_RES_POWERTECH:
+    return (RID_POWERTECH);
+    break;
+  case IMAGE_RES_SYSTEMTECH:
+    return (RID_SYSTEMTECH);
+    break;
+  case IMAGE_RES_STRUCTURETECH:
+    return (RID_STRUCTURETECH);
+    break;
+  case IMAGE_RES_CYBORGTECH:
+    return (RID_CYBORGTECH);
+    break;
+  case IMAGE_RES_DEFENCE:
+    return (RID_DEFENCE);
+    break;
+  case IMAGE_RES_QUESTIONMARK:
+    return (RID_QUESTIONMARK);
+    break;
+  case IMAGE_RES_GRPACC:
+    return (RID_GRPACC);
+    break;
+  case IMAGE_RES_GRPUPG:
+    return (RID_GRPUPG);
+    break;
+  case IMAGE_RES_GRPREP:
+    return (RID_GRPREP);
+    break;
+  case IMAGE_RES_GRPROF:
+    return (RID_GRPROF);
+    break;
+  case IMAGE_RES_GRPDAM:
+    return (RID_GRPDAM);
+    break;
+  default:
+    return (-1); //pass back a value that can never have been set up
+    break;
+  }
 }
-
 
 /* returns a pointer to a component based on the name - used to load in the research */
-COMP_BASE_STATS * getComponentDetails(STRING *pName, STRING *pCompName)
+COMP_BASE_STATS* getComponentDetails(STRING* pName, STRING* pCompName)
 {
-	UDWORD				stat, size, quantity, address, inc;
-	COMP_BASE_STATS		*pArtefact;
+  UDWORD stat, size, quantity, address, inc;
+  COMP_BASE_STATS* pArtefact;
 #ifdef HASH_NAMES
-	UDWORD				HashedName;
+  UDWORD HashedName;
 #endif
 
-	stat = componentType(pName);
-	//get the stat list
-	switch (stat)
-	{
-		case COMP_BODY:
-		{
-			pArtefact = (COMP_BASE_STATS*)asBodyStats;
-			size = sizeof(BODY_STATS);
-			quantity = numBodyStats;
-			break;
-		}
-		case COMP_BRAIN:
-		{
-			pArtefact = (COMP_BASE_STATS*)asBrainStats;
-			size = sizeof(BRAIN_STATS);
-			quantity = numBrainStats;
-			break;
-		}
-		case COMP_PROPULSION:
-		{
-			pArtefact = (COMP_BASE_STATS*)asPropulsionStats;
-			size = sizeof(PROPULSION_STATS);
-			quantity = numPropulsionStats;
-			break;
-		}
-		case COMP_REPAIRUNIT:
-		{
-			pArtefact = (COMP_BASE_STATS*)asRepairStats;
-			size = sizeof(REPAIR_STATS);
-			quantity = numRepairStats;
-			break;
-		}
-		case COMP_ECM:
-		{
-			pArtefact = (COMP_BASE_STATS*)asECMStats;
-			size = sizeof(ECM_STATS);
-			quantity = numECMStats;
-			break;
-		}
-		case COMP_SENSOR:
-		{
-			pArtefact = (COMP_BASE_STATS*)asSensorStats;
-			size = sizeof(SENSOR_STATS);
-			quantity = numSensorStats;
-			break;
-		}
-		/*case COMP_PROGRAM:
-		{
-			pArtefact = (COMP_BASE_STATS*)asProgramStats;
-			size = sizeof(PROGRAM_STATS);
-			quantity = numProgramStats;
-			break;
-		}*/
-		case COMP_WEAPON:
-		{
-			pArtefact = (COMP_BASE_STATS*)asWeaponStats;
-			size = sizeof(WEAPON_STATS);
-			quantity = numWeaponStats;
-			break;
-		}
-		case COMP_CONSTRUCT:
-		{
-			pArtefact = (COMP_BASE_STATS*)asConstructStats;
-			size = sizeof(CONSTRUCT_STATS);
-			quantity = numConstructStats;
-			break;
-		}
-		default:
-		{
-			//COMP_UNKNOWN should be an error
-			DBERROR(("Unknown artefact type  - %s",pName));
-			return FALSE;
-		}
-	}
-	address = (UDWORD)pArtefact;
+  stat = componentType(pName);
+  //get the stat list
+  switch (stat)
+  {
+  case COMP_BODY:
+    {
+      pArtefact = (COMP_BASE_STATS*)asBodyStats;
+      size = sizeof(BODY_STATS);
+      quantity = numBodyStats;
+      break;
+    }
+  case COMP_BRAIN:
+    {
+      pArtefact = (COMP_BASE_STATS*)asBrainStats;
+      size = sizeof(BRAIN_STATS);
+      quantity = numBrainStats;
+      break;
+    }
+  case COMP_PROPULSION:
+    {
+      pArtefact = (COMP_BASE_STATS*)asPropulsionStats;
+      size = sizeof(PROPULSION_STATS);
+      quantity = numPropulsionStats;
+      break;
+    }
+  case COMP_REPAIRUNIT:
+    {
+      pArtefact = (COMP_BASE_STATS*)asRepairStats;
+      size = sizeof(REPAIR_STATS);
+      quantity = numRepairStats;
+      break;
+    }
+  case COMP_ECM:
+    {
+      pArtefact = (COMP_BASE_STATS*)asECMStats;
+      size = sizeof(ECM_STATS);
+      quantity = numECMStats;
+      break;
+    }
+  case COMP_SENSOR:
+    {
+      pArtefact = (COMP_BASE_STATS*)asSensorStats;
+      size = sizeof(SENSOR_STATS);
+      quantity = numSensorStats;
+      break;
+    }
+  /*case COMP_PROGRAM:
+  {
+    pArtefact = (COMP_BASE_STATS*)asProgramStats;
+    size = sizeof(PROGRAM_STATS);
+    quantity = numProgramStats;
+    break;
+  }*/
+  case COMP_WEAPON:
+    {
+      pArtefact = (COMP_BASE_STATS*)asWeaponStats;
+      size = sizeof(WEAPON_STATS);
+      quantity = numWeaponStats;
+      break;
+    }
+  case COMP_CONSTRUCT:
+    {
+      pArtefact = (COMP_BASE_STATS*)asConstructStats;
+      size = sizeof(CONSTRUCT_STATS);
+      quantity = numConstructStats;
+      break;
+    }
+  default:
+    {
+      //COMP_UNKNOWN should be an error
+      DBERROR(("Unknown artefact type  - %s",pName));
+      return FALSE;
+    }
+  }
+  address = (UDWORD)pArtefact;
 
 #ifdef HASH_NAMES
-	HashedName=HashString(pCompName);
+  HashedName = HashString(pCompName);
 #endif
 
-	for (inc = 0; inc < quantity; inc++)
-	{
+  for (inc = 0; inc < quantity; inc++)
+  {
 #ifdef HASH_NAMES
-		if (pArtefact->NameHash==HashedName)
+    if (pArtefact->NameHash == HashedName)
 #else
-		if (!strcmp(pArtefact->pName, pCompName))
+    if (!strcmp(pArtefact->pName, pCompName))
 #endif
-		{
-			return pArtefact;
-		}
-		address += size;
-		pArtefact = (COMP_BASE_STATS*)address;
-	}
+      return pArtefact;
+    address += size;
+    pArtefact = (COMP_BASE_STATS*)address;
+  }
 
-	DBERROR(("Cannot find component %s",pCompName));
-	return NULL;
+  DBERROR(("Cannot find component %s",pCompName));
+  return nullptr;
 }
 
 //return a pointer to a research topic based on the name
-RESEARCH * getResearch(STRING *pName, BOOL resName)
+RESEARCH* getResearch(STRING* pName, BOOL resName)
 {
-	UDWORD inc;
+  UDWORD inc;
 
 #ifdef HASH_NAMES
-	UDWORD	HashedName=HashString(pName);
+  UDWORD HashedName = HashString(pName);
 #endif
-	//need to get the in game name if a resource name has been passed in
-	if (resName)
-	{
-		if (!getResourceName(pName))
-		{
-			return NULL;
-		}
-	}
+  //need to get the in game name if a resource name has been passed in
+  if (resName)
+  {
+    if (!getResourceName(pName))
+      return nullptr;
+  }
 
-	for (inc=0; inc < numResearch; inc++)
-	{
+  for (inc = 0; inc < numResearch; inc++)
+  {
 #ifdef HASH_NAMES
-		if (asResearch[inc].NameHash==HashedName)
+    if (asResearch[inc].NameHash == HashedName)
 #else
-		if (!strcmp(asResearch[inc].pName, pName))
+    if (!strcmp(asResearch[inc].pName, pName))
 #endif
-		{
-			return &asResearch[inc];
-		}
-	}
+      return &asResearch[inc];
+  }
 
-	DBERROR(("Unknown research - %s", pName));
-	return NULL;
+  DBERROR(("Unknown research - %s", pName));
+  return nullptr;
 }
 
 /* looks through the players lists of structures and droids to see if any are using
  the old component - if any then replaces them with the new component */
-void replaceComponent(COMP_BASE_STATS *pNewComponent, COMP_BASE_STATS *pOldComponent,
-					  UBYTE player)
+void replaceComponent(COMP_BASE_STATS* pNewComponent, COMP_BASE_STATS* pOldComponent, UBYTE player)
 {
-	DROID_TEMPLATE	*psTemplates;
-	UDWORD			inc, oldType, newType, oldCompInc, newCompInc;
+  DROID_TEMPLATE* psTemplates;
+  UDWORD inc, oldType, newType, oldCompInc, newCompInc;
 
+  //get the type and index of the old component
+  oldType = statType(pOldComponent->ref);
+  oldCompInc = pOldComponent->ref - statRefStart(oldType);
+  //get the type and index of the new component
+  newType = statType(pNewComponent->ref);
+  newCompInc = pNewComponent->ref - statRefStart(newType);
 
-	//get the type and index of the old component
-	oldType = statType(pOldComponent->ref);
-	oldCompInc = pOldComponent->ref - statRefStart(oldType);
-	//get the type and index of the new component
-	newType = statType(pNewComponent->ref);
-	newCompInc = pNewComponent->ref - statRefStart(newType);
+  //check old and new type are the same
+  if (oldType != newType)
+    return;
 
-	//check old and new type are the same
-	if (oldType != newType)
-	{
-		return;
-	}
-
-    replaceDroidComponent(apsDroidLists[player], oldType, oldCompInc, newCompInc);
-    replaceDroidComponent(mission.apsDroidLists[player], oldType, oldCompInc, newCompInc);
-    replaceDroidComponent(apsLimboDroids[player], oldType, oldCompInc, newCompInc);
-	//check thru the droids
-	/*for (psDroid = apsDroidLists[player]; psDroid != NULL; psDroid = psDroid->psNext)
-	{
-		switch(oldType)
-		{
-			case COMP_BODY:
-			case COMP_BRAIN:
-			case COMP_PROPULSION:
-			case COMP_REPAIRUNIT:
-			case COMP_ECM:
-			case COMP_SENSOR:
-			case COMP_CONSTRUCT:
-				if (psDroid->asBits[oldType].nStat == oldCompInc)
-				{
-					psDroid->asBits[oldType].nStat = (UBYTE)newCompInc;
-				}
-				break;
-			//case COMP_PROGRAM:
-			//		if ((psDroid->asProgs[inc].psStats->ref - REF_PROGRAM_START) == 
-			//			oldCompInc)
-			case COMP_WEAPON:
+  replaceDroidComponent(apsDroidLists[player], oldType, oldCompInc, newCompInc);
+  replaceDroidComponent(mission.apsDroidLists[player], oldType, oldCompInc, newCompInc);
+  replaceDroidComponent(apsLimboDroids[player], oldType, oldCompInc, newCompInc);
+  //check thru the droids
+  /*for (psDroid = apsDroidLists[player]; psDroid != NULL; psDroid = psDroid->psNext)
+  {
+    switch(oldType)
+    {
+      case COMP_BODY:
+      case COMP_BRAIN:
+      case COMP_PROPULSION:
+      case COMP_REPAIRUNIT:
+      case COMP_ECM:
+      case COMP_SENSOR:
+      case COMP_CONSTRUCT:
+        if (psDroid->asBits[oldType].nStat == oldCompInc)
+        {
+          psDroid->asBits[oldType].nStat = (UBYTE)newCompInc;
+        }
+        break;
+      //case COMP_PROGRAM:
+      //		if ((psDroid->asProgs[inc].psStats->ref - REF_PROGRAM_START) == 
+      //			oldCompInc)
+      case COMP_WEAPON:
                 //can only be one weapon now
                 if (psDroid->asWeaps[0].nStat > 0)
-				{
+        {
                     if (psDroid->asWeaps[0].nStat == oldCompInc)
-					{
+          {
                         psDroid->asWeaps[0].nStat = newCompInc;
-					}
-				}
-				break;
-			default:
-				//unknown comp type
-				DBERROR(("Unknown component type - invalid droid"));
-				return;
-		}
-	}*/
+          }
+        }
+        break;
+      default:
+        //unknown comp type
+        DBERROR(("Unknown component type - invalid droid"));
+        return;
+    }
+  }*/
 
-    //check thru the templates
-	for (psTemplates = apsDroidTemplates[player]; psTemplates != NULL; 
-		psTemplates = psTemplates->psNext)
-	{
-		switch(oldType)
-		{
-			case COMP_BODY:
-			case COMP_BRAIN:
-			case COMP_PROPULSION:
-			case COMP_REPAIRUNIT:
-			case COMP_ECM:
-			case COMP_SENSOR:
-			case COMP_CONSTRUCT:
-				if (psTemplates->asParts[oldType] == (SDWORD)oldCompInc)
-				{
-					psTemplates->asParts[oldType] = newCompInc;
-				}
-				break;
-			//case COMP_PROGRAM:
-			case COMP_WEAPON:
-				for (inc=0; inc < psTemplates->numWeaps; inc++)
-				{
-					if (psTemplates->asWeaps[inc] == oldCompInc)
-					{
-						psTemplates->asWeaps[inc] = newCompInc;
-					}
-				}
-				break;
-			default:
-				//unknown comp type
-				DBERROR(("Unknown component type - invalid Template"));
-				return;
-		}
-	}
+  //check thru the templates
+  for (psTemplates = apsDroidTemplates[player]; psTemplates != nullptr; psTemplates = psTemplates->psNext)
+  {
+    switch (oldType)
+    {
+    case COMP_BODY:
+    case COMP_BRAIN:
+    case COMP_PROPULSION:
+    case COMP_REPAIRUNIT:
+    case COMP_ECM:
+    case COMP_SENSOR:
+    case COMP_CONSTRUCT:
+      if (psTemplates->asParts[oldType] == static_cast<SDWORD>(oldCompInc))
+        psTemplates->asParts[oldType] = newCompInc;
+      break;
+    //case COMP_PROGRAM:
+    case COMP_WEAPON:
+      for (inc = 0; inc < psTemplates->numWeaps; inc++)
+      {
+        if (psTemplates->asWeaps[inc] == oldCompInc)
+          psTemplates->asWeaps[inc] = newCompInc;
+      }
+      break;
+    default:
+      //unknown comp type
+      DBERROR(("Unknown component type - invalid Template"));
+      return;
+    }
+  }
 
-    replaceStructureComponent(apsStructLists[player], oldType, oldCompInc, 
-        newCompInc, player);
-    replaceStructureComponent(mission.apsStructLists[player], oldType, 
-        oldCompInc, newCompInc, player);
+  replaceStructureComponent(apsStructLists[player], oldType, oldCompInc, newCompInc, player);
+  replaceStructureComponent(mission.apsStructLists[player], oldType, oldCompInc, newCompInc, player);
 
-	//check thru the structures
-	/*for (psStructure = apsStructLists[player]; psStructure != NULL; psStructure = 
-		psStructure->psNext)
-	{
-		switch (oldType)
-		{
-			case COMP_ECM:
-				if (psStructure->pStructureType->pECM == (asECMStats + oldCompInc))
-				{
-					psStructure->ecmPower = (UWORD)(asECMStats + newCompInc)->power;
-				}
-				break;
-			case COMP_SENSOR:
-				if (psStructure->pStructureType->pSensor == (asSensorStats + oldCompInc))
-				{
-					psStructure->sensorPower = (UWORD)sensorPower(asSensorStats + 
-						newCompInc,player);
-					psStructure->sensorRange = (UWORD)sensorRange(asSensorStats + 
-						newCompInc,player);
-				}
-				break;
-			case COMP_WEAPON:
+  //check thru the structures
+  /*for (psStructure = apsStructLists[player]; psStructure != NULL; psStructure = 
+    psStructure->psNext)
+  {
+    switch (oldType)
+    {
+      case COMP_ECM:
+        if (psStructure->pStructureType->pECM == (asECMStats + oldCompInc))
+        {
+          psStructure->ecmPower = (UWORD)(asECMStats + newCompInc)->power;
+        }
+        break;
+      case COMP_SENSOR:
+        if (psStructure->pStructureType->pSensor == (asSensorStats + oldCompInc))
+        {
+          psStructure->sensorPower = (UWORD)sensorPower(asSensorStats + 
+            newCompInc,player);
+          psStructure->sensorRange = (UWORD)sensorRange(asSensorStats + 
+            newCompInc,player);
+        }
+        break;
+      case COMP_WEAPON:
                 //can only be one weapon now
                 if (psStructure->asWeaps[0].nStat > 0)
-				{
-					if (psStructure->asWeaps[0].nStat == oldCompInc)
-					{
-						psStructure->asWeaps[0].nStat = newCompInc;
-					}
-				}
-				break;
-			default:
-				//ignore all other component types
-				break;
-		}
-	}*/
+        {
+          if (psStructure->asWeaps[0].nStat == oldCompInc)
+          {
+            psStructure->asWeaps[0].nStat = newCompInc;
+          }
+        }
+        break;
+      default:
+        //ignore all other component types
+        break;
+    }
+  }*/
 }
 
 /*Looks through all the currently allocated stats to check the name is not 
 a duplicate*/
 #ifndef HASH_NAMES
-static BOOL checkResearchName(RESEARCH *psResearch, UDWORD numStats)
+static BOOL checkResearchName(RESEARCH* psResearch, UDWORD numStats)
 {
-	UDWORD inc;
+  UDWORD inc;
 
+  char* pName = psResearch->pName;
 
-	char *pName=psResearch->pName;	
-
-	for (inc = 0; inc < numStats; inc++)
-	{
-
-		if (!strcmp(asResearch[inc].pName, pName))
-		{
-			//oops! found the name
-			ASSERT((FALSE, "Research name has already been used - %s", pName));
-			return FALSE;
-		}
-	}
-	return TRUE;
+  for (inc = 0; inc < numStats; inc++)
+  {
+    if (!strcmp(asResearch[inc].pName, pName))
+    {
+      //oops! found the name
+      ASSERT((FALSE, "Research name has already been used - %s", pName));
+      return FALSE;
+    }
+  }
+  return TRUE;
 }
 
 #else
 
-static BOOL checkResearchName(RESEARCH *psResearch, UDWORD numStats)
+static BOOL checkResearchName(RESEARCH* psResearch, UDWORD numStats)
 {
-	UDWORD inc;
+  UDWORD inc;
 
-	for (inc = 0; inc < numStats; inc++)
-	{
-		if (asResearch[inc].NameHash==psResearch->NameHash)		
-		{
-			//oops! found the name
-			ASSERT((FALSE, "Research name has already been used - %x", psResearch->NameHash));
-			return FALSE;
-		}
-	}
-	return TRUE;
+  for (inc = 0; inc < numStats; inc++)
+  {
+    if (asResearch[inc].NameHash == psResearch->NameHash)
+    {
+      //oops! found the name
+      ASSERT((FALSE, "Research name has already been used - %x", psResearch->NameHash));
+      return FALSE;
+    }
+  }
+  return TRUE;
 }
 
 #endif
 
 /* Sets the 'possible' flag for a player's research so the topic will appear in 
 the research list next time the Research Facilty is selected */
-BOOL enableResearch(RESEARCH *psResearch, UDWORD player)
+BOOL enableResearch(RESEARCH* psResearch, UDWORD player)
 {
-	UDWORD				inc;
-	PLAYER_RESEARCH		*pPlayerRes = asPlayerResList[player]; 
-	STRUCTURE			*psStruct;
-	BOOL				resFree = FALSE;
+  UDWORD inc;
+  PLAYER_RESEARCH* pPlayerRes = asPlayerResList[player];
+  STRUCTURE* psStruct;
+  BOOL resFree = FALSE;
 
+  inc = psResearch - asResearch;
+  if (inc > numResearch)
+  {
+    ASSERT((FALSE, "enableResearch: Invalid research topic - %s", getResearchName(psResearch)));
+    return FALSE;
+  }
 
-	inc = psResearch - asResearch;
-	if (inc > numResearch)
-	{
-		ASSERT((FALSE, "enableResearch: Invalid research topic - %s", getResearchName(psResearch)));
-		return FALSE;
-	}
+  //found, so set the flag
+  MakeResearchPossible(&pPlayerRes[inc]);
 
-	//found, so set the flag
-	MakeResearchPossible(&pPlayerRes[inc]);
+  if (player == selectedPlayer)
+  {
+    //set the research reticule button to flash if research facility is free
+    for (psStruct = apsStructLists[selectedPlayer]; psStruct != nullptr; psStruct = psStruct->psNext)
+    {
+      if (psStruct->pStructureType->type == REF_RESEARCH AND psStruct->status == SS_BUILT AND ((RESEARCH_FACILITY*)psStruct->pFunctionality)
+        ->psSubject == nullptr)
+      {
+        resFree = TRUE;
+        break;
+      }
+    }
+    if (resFree)
+      flashReticuleButton(IDRET_RESEARCH);
+  }
 
-	if(player == selectedPlayer)
-	{
-		//set the research reticule button to flash if research facility is free
-		for (psStruct = apsStructLists[selectedPlayer]; psStruct != NULL; psStruct=psStruct->psNext)
-		{
-			if (psStruct->pStructureType->type == REF_RESEARCH AND
-                psStruct->status == SS_BUILT AND
-				((RESEARCH_FACILITY *)psStruct->pFunctionality)->psSubject == NULL)
-			{
-				resFree = TRUE;
-				break;
-			}
-		}
-		if (resFree)
-		{
-			flashReticuleButton(IDRET_RESEARCH);
-		}
-
-	}
-
-	return TRUE;
+  return TRUE;
 }
 
 /*find the last research topic of importance that the losing player did and 
 'give' the results to the reward player*/
 void researchReward(UBYTE losingPlayer, UBYTE rewardPlayer)
 {
-	UDWORD				topicIndex, researchPoints, rewardID;
-	STRUCTURE			*psStruct;
-	RESEARCH_FACILITY	*psFacility;
+  UDWORD topicIndex, researchPoints, rewardID;
+  STRUCTURE* psStruct;
+  RESEARCH_FACILITY* psFacility;
 
-	topicIndex = researchPoints = rewardID = 0;
-	//look through the losing players structures to find a research facility
-	for (psStruct = apsStructLists[losingPlayer]; psStruct != NULL; psStruct = 
-		psStruct->psNext)
-	{
-		if (psStruct->pStructureType->type == REF_RESEARCH)
-		{
-			psFacility = (RESEARCH_FACILITY *)psStruct->pFunctionality;
-			if (psFacility->psBestTopic)
-			{
-				topicIndex = ((RESEARCH *)psFacility->psBestTopic)->ref - 
-					REF_RESEARCH_START;
-				if (topicIndex)
-				{
-					//if it cost more - it is better (or should be)
-					if (researchPoints < asResearch[topicIndex].researchPoints)
-					{
-						//store the 'best' topic
-						researchPoints = asResearch[topicIndex].researchPoints;
-						rewardID = topicIndex;
-					}
-				}
-			}
-		}
-	}
+  topicIndex = researchPoints = rewardID = 0;
+  //look through the losing players structures to find a research facility
+  for (psStruct = apsStructLists[losingPlayer]; psStruct != nullptr; psStruct = psStruct->psNext)
+  {
+    if (psStruct->pStructureType->type == REF_RESEARCH)
+    {
+      psFacility = (RESEARCH_FACILITY*)psStruct->pFunctionality;
+      if (psFacility->psBestTopic)
+      {
+        topicIndex = ((RESEARCH*)psFacility->psBestTopic)->ref - REF_RESEARCH_START;
+        if (topicIndex)
+        {
+          //if it cost more - it is better (or should be)
+          if (researchPoints < asResearch[topicIndex].researchPoints)
+          {
+            //store the 'best' topic
+            researchPoints = asResearch[topicIndex].researchPoints;
+            rewardID = topicIndex;
+          }
+        }
+      }
+    }
+  }
 
-	//if a topic was found give the reward player the results of that research
-	if (rewardID)
-	{
-		researchResult(rewardID, rewardPlayer, TRUE);
-		if (rewardPlayer == selectedPlayer)
-		{
-            //name the actual reward
-           	CONPRINTF(ConsoleString,(ConsoleString,"%s :- %s",
-        	    strresGetString(psStringRes,STR_GAM_RESREWARD), 
-                getName(asResearch[rewardID].pName)));
-		}
-	}
-	/* Not worth mentioning if nothing useful to gain?
+  //if a topic was found give the reward player the results of that research
+  if (rewardID)
+  {
+    researchResult(rewardID, rewardPlayer, TRUE);
     if (rewardPlayer == selectedPlayer)
-	{
-		addConsoleMessage(strresGetString(psStringRes,STR_GAM_RESREWARD), DEFAULT_JUSTIFY);
-	}*/
+    {
+      //name the actual reward
+      CONPRINTF(ConsoleString,
+                (ConsoleString,"%s :- %s", strresGetString(psStringRes,STR_GAM_RESREWARD), getName(asResearch[rewardID].pName)));
+    }
+  }
+  /* Not worth mentioning if nothing useful to gain?
+    if (rewardPlayer == selectedPlayer)
+  {
+    addConsoleMessage(strresGetString(psStringRes,STR_GAM_RESREWARD), DEFAULT_JUSTIFY);
+  }*/
 }
-
-
 
 #ifdef HASH_NAMES
 #define	getResearchName(res) (strresGetString(NULL,res.NameHash))
@@ -2997,338 +2673,267 @@ void researchReward(UBYTE losingPlayer, UBYTE rewardPlayer)
 #define	getResearchName(res) (res.pName)
 #endif
 
-
 /*checks that the research has loaded up as expected - must be done after 
 all research parts have been loaded*/
 BOOL checkResearchStats(void)
 {
-	UDWORD	resInc, inc;
-	for (resInc=0; resInc < numResearch; resInc++)
-	{
-		if (asResearch[resInc].numPRRequired == 0)
-		{
-			if (asResearch[resInc].pPRList != NULL)
-			{
-				ASSERT((FALSE, 
-					"checkResearchStats: PreReq for topic %s should be NULL", 
-					getResearchName(asResearch[resInc])));
-				return FALSE;
-			}
-		}
-		else
-		{
-			for (inc=0; inc < asResearch[resInc].numPRRequired; inc++)
-			{
-				if (asResearch[resInc].pPRList[inc] > numResearch)
-				{
-					ASSERT((FALSE,
-						"checkResearchStats: Invalid PreReq for topic %s", 
-					getResearchName(asResearch[resInc])));
-					return FALSE;
-				}
-
-			}
-		}
-		if (asResearch[resInc].numStructures == 0)
-		{
-			if (asResearch[resInc].pStructList != NULL)
-			{
-				ASSERT((FALSE, 
-					"checkResearchStats: StructureList for topic %s should be NULL", 
-					getResearchName(asResearch[resInc])));
-				return FALSE;
-			}
-		}
-		else
-		{
-			for (inc=0; inc < asResearch[resInc].numStructures; inc++)
-			{
-				if (asResearch[resInc].pStructList[inc] > numStructureStats)
-				{
-					ASSERT((FALSE,
-						"checkResearchStats: Invalid Structure for topic %s", 
-					getResearchName(asResearch[resInc])));
-					return FALSE;
-				}
-			}
-		}
-		if (asResearch[resInc].numFunctions == 0)
-		{
-			if (asResearch[resInc].pFunctionList != NULL)
-			{
-				ASSERT((FALSE, 
-					"checkResearchStats: FunctionList for topic %s should be NULL", 
-					getResearchName(asResearch[resInc])));
-				return FALSE;
-			}
-		}
-		else
-		{
-			for (inc=0; inc < asResearch[resInc].numFunctions; inc++)
-			{
-				if (asResearch[resInc].pFunctionList[inc]->ref - 
-					REF_FUNCTION_START > numFunctions)
-				{
-					ASSERT((FALSE, "checkResearchStats: Invalid function for %s",
-					getResearchName(asResearch[resInc])));
-				}
-			}
-		}
-		if (asResearch[resInc].numRedStructs == 0)
-		{
-			if (asResearch[resInc].pRedStructs != NULL)
-			{
-				ASSERT((FALSE, 
-					"checkResearchStats: Redundant StructList for topic %s should be NULL", 
-					getResearchName(asResearch[resInc])));
-				return FALSE;
-			}
-		}
-		else
-		{
-			for (inc=0; inc < asResearch[resInc].numRedStructs; inc++)
-			{
-				if (asResearch[resInc].pRedStructs[inc] > numStructureStats)
-				{
-					ASSERT((FALSE,
-						"checkResearchStats: Invalid Redundant Structure for topic %s", 
-						getResearchName(asResearch[resInc])));
-					return FALSE;
-				}
-			}
-		}
-		if (asResearch[resInc].numStructResults == 0)
-		{
-			if (asResearch[resInc].pStructureResults != NULL)
-			{
-				ASSERT((FALSE, 
-					"checkResearchStats: Result StructList for topic %s should be NULL", 
-					getResearchName(asResearch[resInc])));
-				return FALSE;
-			}
-		}
-		else
-		{
-			for (inc=0; inc < asResearch[resInc].numStructResults; inc++)
-			{
-				if (asResearch[resInc].pStructureResults[inc] > numStructureStats)
-				{
-					ASSERT((FALSE,
-						"checkResearchStats: Invalid Result Structure for topic %s", 
-					getResearchName(asResearch[resInc])));
-					return FALSE;
-				}
-			}
-		}
-		if (asResearch[resInc].numArteResults == 0)
-		{
-			if (asResearch[resInc].pArtefactResults != NULL)
-			{
-				ASSERT((FALSE, 
-					"checkResearchStats: CompResultList for topic %s should be NULL", 
-					getResearchName(asResearch[resInc])));
-				return FALSE;
-			}
-		}
-		else
-		{
-			for (inc=0; inc < asResearch[resInc].numArteResults; inc++)
-			{
-				ASSERT((PTRVALID(asResearch[resInc].pArtefactResults[inc], 
-					sizeof(COMP_BASE_STATS*)),
-					"checkResearchStats: Invalid Comp Result for topic %s", 
-					getResearchName(asResearch[resInc])));
-			}
-		}
-		if (asResearch[resInc].numRedArtefacts == 0)
-		{
-			if (asResearch[resInc].pRedArtefacts != NULL)
-			{
-				ASSERT((FALSE, 
-					"checkResearchStats: RedundantCompList for topic %s should be NULL", 
-					getResearchName(asResearch[resInc])));
-				return FALSE;
-			}
-		}
-		else
-		{
-			for (inc=0; inc < asResearch[resInc].numRedArtefacts; inc++)
-			{
-				ASSERT((PTRVALID(asResearch[resInc].pRedArtefacts[inc], 
-					sizeof(COMP_BASE_STATS*)),
-					"checkResearchStats: Invalid Redundant Comp for topic %s", 
-					getResearchName(asResearch[resInc])));
-			}
-		}
-	}
-	return TRUE;
+  UDWORD resInc, inc;
+  for (resInc = 0; resInc < numResearch; resInc++)
+  {
+    if (asResearch[resInc].numPRRequired == 0)
+    {
+      if (asResearch[resInc].pPRList != nullptr)
+      {
+        ASSERT((FALSE, "checkResearchStats: PreReq for topic %s should be NULL", getResearchName(asResearch[resInc])));
+        return FALSE;
+      }
+    }
+    else
+    {
+      for (inc = 0; inc < asResearch[resInc].numPRRequired; inc++)
+      {
+        if (asResearch[resInc].pPRList[inc] > numResearch)
+        {
+          ASSERT((FALSE, "checkResearchStats: Invalid PreReq for topic %s", getResearchName(asResearch[resInc])));
+          return FALSE;
+        }
+      }
+    }
+    if (asResearch[resInc].numStructures == 0)
+    {
+      if (asResearch[resInc].pStructList != nullptr)
+      {
+        ASSERT((FALSE, "checkResearchStats: StructureList for topic %s should be NULL", getResearchName(asResearch[resInc])));
+        return FALSE;
+      }
+    }
+    else
+    {
+      for (inc = 0; inc < asResearch[resInc].numStructures; inc++)
+      {
+        if (asResearch[resInc].pStructList[inc] > numStructureStats)
+        {
+          ASSERT((FALSE, "checkResearchStats: Invalid Structure for topic %s", getResearchName(asResearch[resInc])));
+          return FALSE;
+        }
+      }
+    }
+    if (asResearch[resInc].numFunctions == 0)
+    {
+      if (asResearch[resInc].pFunctionList != nullptr)
+      {
+        ASSERT((FALSE, "checkResearchStats: FunctionList for topic %s should be NULL", getResearchName(asResearch[resInc])));
+        return FALSE;
+      }
+    }
+    else
+    {
+      for (inc = 0; inc < asResearch[resInc].numFunctions; inc++)
+      {
+        if (asResearch[resInc].pFunctionList[inc]->ref - REF_FUNCTION_START > numFunctions)
+        {
+          ASSERT((FALSE, "checkResearchStats: Invalid function for %s", getResearchName(asResearch[resInc])));
+        }
+      }
+    }
+    if (asResearch[resInc].numRedStructs == 0)
+    {
+      if (asResearch[resInc].pRedStructs != nullptr)
+      {
+        ASSERT((FALSE, "checkResearchStats: Redundant StructList for topic %s should be NULL", getResearchName(asResearch[resInc])));
+        return FALSE;
+      }
+    }
+    else
+    {
+      for (inc = 0; inc < asResearch[resInc].numRedStructs; inc++)
+      {
+        if (asResearch[resInc].pRedStructs[inc] > numStructureStats)
+        {
+          ASSERT((FALSE, "checkResearchStats: Invalid Redundant Structure for topic %s", getResearchName(asResearch[resInc])));
+          return FALSE;
+        }
+      }
+    }
+    if (asResearch[resInc].numStructResults == 0)
+    {
+      if (asResearch[resInc].pStructureResults != nullptr)
+      {
+        ASSERT((FALSE, "checkResearchStats: Result StructList for topic %s should be NULL", getResearchName(asResearch[resInc])));
+        return FALSE;
+      }
+    }
+    else
+    {
+      for (inc = 0; inc < asResearch[resInc].numStructResults; inc++)
+      {
+        if (asResearch[resInc].pStructureResults[inc] > numStructureStats)
+        {
+          ASSERT((FALSE, "checkResearchStats: Invalid Result Structure for topic %s", getResearchName(asResearch[resInc])));
+          return FALSE;
+        }
+      }
+    }
+    if (asResearch[resInc].numArteResults == 0)
+    {
+      if (asResearch[resInc].pArtefactResults != nullptr)
+      {
+        ASSERT((FALSE, "checkResearchStats: CompResultList for topic %s should be NULL", getResearchName(asResearch[resInc])));
+        return FALSE;
+      }
+    }
+    else
+    {
+      for (inc = 0; inc < asResearch[resInc].numArteResults; inc++)
+      {
+        ASSERT((PTRVALID(asResearch[resInc].pArtefactResults[inc],
+          sizeof(COMP_BASE_STATS*)), "checkResearchStats: Invalid Comp Result for topic %s", getResearchName(asResearch[resInc])));
+      }
+    }
+    if (asResearch[resInc].numRedArtefacts == 0)
+    {
+      if (asResearch[resInc].pRedArtefacts != nullptr)
+      {
+        ASSERT((FALSE, "checkResearchStats: RedundantCompList for topic %s should be NULL", getResearchName(asResearch[resInc])));
+        return FALSE;
+      }
+    }
+    else
+    {
+      for (inc = 0; inc < asResearch[resInc].numRedArtefacts; inc++)
+      {
+        ASSERT((PTRVALID(asResearch[resInc].pRedArtefacts[inc],
+          sizeof(COMP_BASE_STATS*)), "checkResearchStats: Invalid Redundant Comp for topic %s", getResearchName(asResearch[resInc])));
+      }
+    }
+  }
+  return TRUE;
 }
 
 /*flag self repair so droids can start when idle*/
-void enableSelfRepair(UBYTE player)
-{
-	bSelfRepair[player] = TRUE;
-}
+void enableSelfRepair(UBYTE player) { bSelfRepair[player] = TRUE; }
 
 /*check to see if any research has been completed that enables self repair*/
 BOOL selfRepairEnabled(UBYTE player)
 {
-	if (bSelfRepair[player])
-	{
-		return TRUE;
-	}
-	else
-	{
-		return FALSE;
-	}
+  if (bSelfRepair[player])
+    return TRUE;
+  return FALSE;
 }
 
 /*checks the stat to see if its of type wall or defence*/
-BOOL wallDefenceStruct(STRUCTURE_STATS *psStats)
+BOOL wallDefenceStruct(STRUCTURE_STATS* psStats)
 {
-	if (psStats->type == REF_DEFENSE OR 
-		psStats->type == REF_WALL OR 
-		psStats->type == REF_WALLCORNER OR
-        psStats->type == REF_BLASTDOOR)
-	{
-		return TRUE;
-	}
-	else
-	{
-		return FALSE;
-	}
+  if (psStats->type == REF_DEFENSE OR psStats->type == REF_WALL OR psStats->type == REF_WALLCORNER OR psStats->type == REF_BLASTDOOR)
+    return TRUE;
+  return FALSE;
 }
 
 /*for a given list of droids, replace the old component if exists*/
-void replaceDroidComponent(DROID *pList, UDWORD oldType, UDWORD oldCompInc, 
-                      UDWORD newCompInc)
+void replaceDroidComponent(DROID* pList, UDWORD oldType, UDWORD oldCompInc, UDWORD newCompInc)
 {
-    DROID   *psDroid;
+  DROID* psDroid;
 
-	//check thru the droids
-	for (psDroid = pList; psDroid != NULL; psDroid = psDroid->psNext)
-	{
-        switchComponent(psDroid, oldType, oldCompInc, newCompInc);
-        //need to replace the units inside the transporter
-        if (psDroid->droidType == DROID_TRANSPORTER)
-        {
-            replaceTransDroidComponents(psDroid, oldType, oldCompInc, newCompInc);
-        }
-	}
+  //check thru the droids
+  for (psDroid = pList; psDroid != nullptr; psDroid = psDroid->psNext)
+  {
+    switchComponent(psDroid, oldType, oldCompInc, newCompInc);
+    //need to replace the units inside the transporter
+    if (psDroid->droidType == DROID_TRANSPORTER)
+      replaceTransDroidComponents(psDroid, oldType, oldCompInc, newCompInc);
+  }
 }
 
 /*replaces any components necessary for units that are inside a transporter*/
-void replaceTransDroidComponents(DROID *psTransporter, UDWORD oldType, 
-                                 UDWORD oldCompInc, UDWORD newCompInc)
+void replaceTransDroidComponents(DROID* psTransporter, UDWORD oldType, UDWORD oldCompInc, UDWORD newCompInc)
 {
-    DROID       *psCurr;
+  DROID* psCurr;
 
-    ASSERT((psTransporter->droidType == DROID_TRANSPORTER,
-        "replaceTransUnitComponents: invalid unit type"));
+  ASSERT((psTransporter->droidType == DROID_TRANSPORTER, "replaceTransUnitComponents: invalid unit type"));
 
-    for (psCurr = psTransporter->psGroup->psList; psCurr != NULL; psCurr = 
-        psCurr->psGrpNext)
-    {
-        if (psCurr != psTransporter)
-        {
-            switchComponent(psCurr, oldType, oldCompInc, newCompInc);
-        }
-    }
+  for (psCurr = psTransporter->psGroup->psList; psCurr != nullptr; psCurr = psCurr->psGrpNext)
+  {
+    if (psCurr != psTransporter)
+      switchComponent(psCurr, oldType, oldCompInc, newCompInc);
+  }
 }
 
-void replaceStructureComponent(STRUCTURE *pList, UDWORD oldType, UDWORD oldCompInc, 
-                      UDWORD newCompInc, UBYTE player)
+void replaceStructureComponent(STRUCTURE* pList, UDWORD oldType, UDWORD oldCompInc, UDWORD newCompInc, UBYTE player)
 {
-    STRUCTURE   *psStructure;
+  STRUCTURE* psStructure;
 
-    //if the type is not one we are interested in, then don't bother checking
-    if (!(oldType == COMP_ECM OR oldType == COMP_SENSOR OR oldType == COMP_WEAPON))
+  //if the type is not one we are interested in, then don't bother checking
+  if (!(oldType == COMP_ECM OR oldType == COMP_SENSOR OR oldType == COMP_WEAPON))
+    return;
+
+  //check thru the structures
+  for (psStructure = pList; psStructure != nullptr; psStructure = psStructure->psNext)
+  {
+    switch (oldType)
     {
-        return;
+    case COMP_ECM:
+      if (psStructure->pStructureType->pECM == (asECMStats + oldCompInc))
+        psStructure->ecmPower = static_cast<UWORD>((asECMStats + newCompInc)->power);
+      break;
+    case COMP_SENSOR:
+      if (psStructure->pStructureType->pSensor == (asSensorStats + oldCompInc))
+      {
+        psStructure->sensorPower = static_cast<UWORD>(sensorPower(asSensorStats + newCompInc, player));
+        psStructure->sensorRange = static_cast<UWORD>(sensorRange(asSensorStats + newCompInc, player));
+      }
+      break;
+    case COMP_WEAPON:
+      //can only be one weapon now
+      if (psStructure->asWeaps[0].nStat > 0)
+      {
+        if (psStructure->asWeaps[0].nStat == oldCompInc)
+          psStructure->asWeaps[0].nStat = newCompInc;
+      }
+      break;
+    default:
+      //ignore all other component types
+      break;
     }
-
-	//check thru the structures
-	for (psStructure = pList; psStructure != NULL; psStructure = psStructure->psNext)
-	{
-		switch (oldType)
-		{
-			case COMP_ECM:
-				if (psStructure->pStructureType->pECM == (asECMStats + oldCompInc))
-				{
-					psStructure->ecmPower = (UWORD)(asECMStats + newCompInc)->power;
-				}
-				break;
-			case COMP_SENSOR:
-				if (psStructure->pStructureType->pSensor == (asSensorStats + oldCompInc))
-				{
-					psStructure->sensorPower = (UWORD)sensorPower(asSensorStats + 
-						newCompInc,player);
-					psStructure->sensorRange = (UWORD)sensorRange(asSensorStats + 
-						newCompInc,player);
-				}
-				break;
-			case COMP_WEAPON:
-                //can only be one weapon now
-                if (psStructure->asWeaps[0].nStat > 0)
-				{
-					if (psStructure->asWeaps[0].nStat == oldCompInc)
-					{
-						psStructure->asWeaps[0].nStat = newCompInc;
-					}
-				}
-				break;
-			default:
-				//ignore all other component types
-				break;
-		}
-	}
+  }
 }
 
 /*swaps the old component for the new one for a specific droid*/
-void switchComponent(DROID *psDroid, UDWORD oldType, UDWORD oldCompInc, 
-                     UDWORD newCompInc)
+void switchComponent(DROID* psDroid, UDWORD oldType, UDWORD oldCompInc, UDWORD newCompInc)
 {
+  ASSERT((PTRVALID(psDroid, sizeof(DROID)), "switchComponent:invalid droid pointer"));
 
-    ASSERT((PTRVALID(psDroid, sizeof(DROID)), 
-        "switchComponent:invalid droid pointer"));
-
-	switch(oldType)
-	{
-		case COMP_BODY:
-		case COMP_BRAIN:
-		case COMP_PROPULSION:
-		case COMP_REPAIRUNIT:
-		case COMP_ECM:
-		case COMP_SENSOR:
-		case COMP_CONSTRUCT:
-			if (psDroid->asBits[oldType].nStat == oldCompInc)
-			{
-				psDroid->asBits[oldType].nStat = (UBYTE)newCompInc;
-			}
-			break;
-		/*case COMP_PROGRAM:
-			for (inc=0; inc < psDroid->numProgs; inc++)
-			{
-				if ((psDroid->asProgs[inc].psStats->ref - REF_PROGRAM_START) == 
-					oldCompInc)
-				{
-					psDroid->asProgs[inc].psStats = (asProgramStats + newCompInc);
-				}
-			}
-			break;*/
-		case COMP_WEAPON:
-            //can only be one weapon now
-            if (psDroid->asWeaps[0].nStat > 0)
-			{
-                if (psDroid->asWeaps[0].nStat == oldCompInc)
-				{
-                    psDroid->asWeaps[0].nStat = newCompInc;
-				}
-			}
-			break;
-		default:
-			//unknown comp type
-			DBERROR(("Unknown component type - invalid droid"));
-			return;
-	}
+  switch (oldType)
+  {
+  case COMP_BODY:
+  case COMP_BRAIN:
+  case COMP_PROPULSION:
+  case COMP_REPAIRUNIT:
+  case COMP_ECM:
+  case COMP_SENSOR:
+  case COMP_CONSTRUCT:
+    if (psDroid->asBits[oldType].nStat == oldCompInc)
+      psDroid->asBits[oldType].nStat = static_cast<UBYTE>(newCompInc);
+    break;
+  /*case COMP_PROGRAM:
+    for (inc=0; inc < psDroid->numProgs; inc++)
+    {
+      if ((psDroid->asProgs[inc].psStats->ref - REF_PROGRAM_START) == 
+        oldCompInc)
+      {
+        psDroid->asProgs[inc].psStats = (asProgramStats + newCompInc);
+      }
+    }
+    break;*/
+  case COMP_WEAPON:
+    //can only be one weapon now
+    if (psDroid->asWeaps[0].nStat > 0)
+    {
+      if (psDroid->asWeaps[0].nStat == oldCompInc)
+        psDroid->asWeaps[0].nStat = newCompInc;
+    }
+    break;
+  default:
+    //unknown comp type
+    DBERROR(("Unknown component type - invalid droid"));
+  }
 }

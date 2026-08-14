@@ -6,34 +6,31 @@
 #define _wdg_h
 
 // list of all wrfs in the wdg
-typedef struct
+using WDGINFO = struct
 {
-	UDWORD WRFname;	// Hashed wrf name
-	UDWORD offset;	// offset to start of wrf info
-	UDWORD filecount; // Number of files in wrf
-} WDGINFO;
+  UDWORD WRFname; // Hashed wrf name
+  UDWORD offset; // offset to start of wrf info
+  UDWORD filecount; // Number of files in wrf
+};
 
 #define TPAGE_SOFTWARE (1)
 #define TPAGE_HARDWARE (2)
 
 // List of files in a wrf
-typedef struct
+using WRFINFO = struct
 {
-	UDWORD type;		// Hashed type 
-	UDWORD name;		// hashed file name
-	UDWORD offset;		// offset from start of this wrf data
-	UDWORD filesize;	// size of file in bytes
-	// Extra info stored depending on type
-	// - TEXPAGE info
-	UBYTE SoftwareFlag;	// is texpage for software/hardware specifically TPAGE_xxx
-	SBYTE TexturePage;	// what texture page slot is it for (-1 for none specified)
-} WRFINFO;
-
+  UDWORD type; // Hashed type 
+  UDWORD name; // hashed file name
+  UDWORD offset; // offset from start of this wrf data
+  UDWORD filesize; // size of file in bytes
+  // Extra info stored depending on type
+  // - TEXPAGE info
+  UBYTE SoftwareFlag; // is texpage for software/hardware specifically TPAGE_xxx
+  SBYTE TexturePage; // what texture page slot is it for (-1 for none specified)
+};
 
 #define MAXFILESINWRF (900)
 #define MAXWRFINWDG (128)
-
-
 
 /* Structures for .WDG data files */
 
@@ -50,47 +47,45 @@ typedef struct
 	UDWORD		sequence;	/* WDG sequence number */ \
 	UDWORD		numDep		/* Number of WDG dependancies */
 
-typedef struct
+using WDG_HEADER = struct
 {
-	WDG4_HEADER;
-} WDG_HEADER;
+  WDG4_HEADER;
+};
 
-typedef struct
+using WDG_HEADER_V5 = struct
 {
-	WDG5_HEADER;
-} WDG_HEADER_V5;
+  WDG5_HEADER;
+};
 
 // WDG dependancies
-typedef struct
+using WDG_DEP = struct
 {
-	STRING		aName[WDG_NAMEMAX];
-	UDWORD		sequence;
-} WDG_DEP;
+  STRING aName[WDG_NAMEMAX];
+  UDWORD sequence;
+};
 
-
-typedef struct
+using CACHE = struct
 {
-	UBYTE	*pBufferStart;		// start of the memory buffer for the cache
-	UDWORD	BufferSize;			// size of the cache
-	UDWORD	OffsetInWDG;		// the start of the cache contains data from this offset in the WDG
-	BOOL	IsCacheDataValid;
-	BOOL 	IsCacheDataMalloced;	// has the data been malloced or is it using some non-allocated buffer somewhere (display buffer)
-} CACHE;
+  UBYTE* pBufferStart; // start of the memory buffer for the cache
+  UDWORD BufferSize; // size of the cache
+  UDWORD OffsetInWDG; // the start of the cache contains data from this offset in the WDG
+  BOOL IsCacheDataValid;
+  BOOL IsCacheDataMalloced; // has the data been malloced or is it using some non-allocated buffer somewhere (display buffer)
+};
 
-BOOL WDG_SetCurrentWDG(char *filename);
-BOOL loadFileFromWDG(STRING *pFileName, UBYTE **ppFileData, UDWORD *pFileSize, UBYTE MemAllocationMode);
+BOOL WDG_SetCurrentWDG(char* filename);
+BOOL loadFileFromWDG(STRING* pFileName, UBYTE** ppFileData, UDWORD* pFileSize, UBYTE MemAllocationMode);
 struct _wdg_findfile;
-BOOL loadFileFromWDGCache(struct _wdg_findfile *psFindFile, UBYTE **ppFileData, UDWORD *pFileSize, UBYTE MemAllocationMode);
-BOOL LoadWRFCatalog(WDGINFO *CurrentWRF, FILE *pFileHandle);
-BOOL WDG_ProcessWRF(char *WRFname,BOOL UseDataFromWDG );
+BOOL loadFileFromWDGCache(struct _wdg_findfile* psFindFile, UBYTE** ppFileData, UDWORD* pFileSize, UBYTE MemAllocationMode);
+BOOL LoadWRFCatalog(WDGINFO* CurrentWRF, FILE* pFileHandle);
+BOOL WDG_ProcessWRF(char* WRFname, BOOL UseDataFromWDG);
 BOOL FILE_InitialiseCache(SDWORD CacheSize);
 BOOL FILE_ShutdownCache(void);
 void FILE_InvalidateCache(void);
 BOOL WDG_AllowWRFs(void);
 BOOL WDG_AllowWDGs(void);
-UBYTE *FILE_Retrieve(FILE *pFileHandle, UDWORD offsetInWDG, UDWORD filesize);
-UBYTE *FILE_RetrieveSingle(FILE *pFileHandle, UDWORD offsetInWDG, UDWORD filesize);
-
+UBYTE* FILE_Retrieve(FILE* pFileHandle, UDWORD offsetInWDG, UDWORD filesize);
+UBYTE* FILE_RetrieveSingle(FILE* pFileHandle, UDWORD offsetInWDG, UDWORD filesize);
 
 // MemAllocationMode can be ....
 #define	WDG_ALLOCATEMEM	(0)	// was TRUE - indicates that we allocate the memory for the file and return the size in pFileSize
@@ -98,15 +93,15 @@ UBYTE *FILE_RetrieveSingle(FILE *pFileHandle, UDWORD offsetInWDG, UDWORD filesiz
 #define	WDG_RETURNCACHE	(2)	// new  - just returns as much of the file as we can in the cache
 
 // set the current WDG and it's catalogs
-void WDG_SetCurrentWDGCatalog(char *filename, UDWORD numWRF, WDGINFO *psWRFCatalog);
+void WDG_SetCurrentWDGCatalog(char* filename, UDWORD numWRF, WDGINFO* psWRFCatalog);
 
 // set the current WRF file catalog
-void WDG_SetCurrentWRFFileCatalog(UDWORD catOffset, WRFINFO *psFileCatalog);
+void WDG_SetCurrentWRFFileCatalog(UDWORD catOffset, WRFINFO* psFileCatalog);
 
 // get the current WDG and it's catalogs
-void WDG_GetCurrentWDGCatalog(char **ppFileName, UDWORD *pNumWRF, WDGINFO **ppsWRFCatalog);
+void WDG_GetCurrentWDGCatalog(char** ppFileName, UDWORD* pNumWRF, WDGINFO** ppsWRFCatalog);
 
 // get the current WRF file catalog
-void WDG_GetCurrentWFRFileCatalog(UDWORD *pCatOffset, WRFINFO **ppsFileCatalog);
+void WDG_GetCurrentWFRFileCatalog(UDWORD* pCatOffset, WRFINFO** ppsFileCatalog);
 
 #endif

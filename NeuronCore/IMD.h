@@ -1,15 +1,12 @@
 #ifndef _imd_
 #define _imd_
 
-
 #include "IvisDef.h"
 
 #define IMD_NAME				"IMD"
 #define PIE_NAME				"PIE"  // Pumpkin image export data file
 #define IMD_VER				1
 #define PIE_VER				2
-
-
 
 #ifdef BSPIMD
 
@@ -30,7 +27,6 @@
 //*************************************************************************
 
 // polygon flags	b0..b7: col, b24..b31: anim index
-
 
 #define iV_IMD_TEX			0x00000200
 #define iV_IMD_TEXANIM		0x00004000	// iV_IMD_TEX must be set also
@@ -70,18 +66,17 @@
 #define iV_IMDX_ZGRID		0x00000080
 #define iV_IMDX_GRID			(iV_IMDX_XGRID | iV_IMDX_YGRID | iV_IMDX_ZGRID)
 
-
 //*************************************************************************
 
-extern BOOL iV_setImagePath(char *path);
-extern iIMDShape *iV_IMDLoad(char *filename, iBool palkeep);
-extern iIMDShape *iV_ProcessIMD(UBYTE **ppFileData, UBYTE *FileDataEnd, UBYTE *IMDpath, UBYTE *PCXpath,iBool palkeep);
-iIMDShape *iV_ProcessBPIE(iIMDShape *, UDWORD size);
+extern BOOL iV_setImagePath(char* path);
+extern iIMDShape* iV_IMDLoad(char* filename, iBool palkeep);
+extern iIMDShape* iV_ProcessIMD(UBYTE** ppFileData, UBYTE* FileDataEnd, UBYTE* IMDpath, UBYTE* PCXpath, iBool palkeep);
+iIMDShape* iV_ProcessBPIE(iIMDShape*, UDWORD size);
 
-extern iBool iV_IMDSave(char *filename, iIMDShape *s, BOOL PieIMD);
-extern void iV_IMDDebug(iIMDShape *s);
+extern iBool iV_IMDSave(char* filename, iIMDShape* s, BOOL PieIMD);
+extern void iV_IMDDebug(iIMDShape* s);
 
-extern void iV_IMDRelease(iIMDShape *s);
+extern void iV_IMDRelease(iIMDShape* s);
 
 // How high up do we want to stop looking 
 #define DROID_VIS_UPPER	100
@@ -112,10 +107,9 @@ extern void iV_IMDDrawTexturedShade(iIMDShape *shape, int lightLevel);
    calls tpInit and tpAddPIE; C let those calls stand without a visible
    declaration, C++ does not. */
 extern void tpInit(void);
-extern void tpAddPIE(char *FileName, iIMDShape *pIMD);
+extern void tpAddPIE(char* FileName, iIMDShape* pIMD);
 extern int tpGetNumPIEs(void);
-extern iIMDShape *tpGetPIE(int Index);
-extern char *tpGetPIEName(int Index);
-
+extern iIMDShape* tpGetPIE(int Index);
+extern char* tpGetPIEName(int Index);
 
 #endif

@@ -12,54 +12,51 @@
 
 /***************************************************************************/
 
-typedef enum PROJ_STATE
+using PROJ_STATE = enum PROJ_STATE
 {
-	PROJ_INFLIGHT,
-	PROJ_IMPACT,
-	PROJ_POSTIMPACT
-}
-PROJ_STATE;
+  PROJ_INFLIGHT,
+  PROJ_IMPACT,
+  PROJ_POSTIMPACT
+};
 
 /***************************************************************************/
 
 struct PROJ_OBJECT;
 
-typedef void (* PROJECTILE_FUNC) ( struct PROJ_OBJECT *psObj );
+using PROJECTILE_FUNC = void(*)(struct PROJ_OBJECT* psObj);
 
-typedef struct PROJECTILE
+using PROJECTILE = struct PROJECTILE
 {
-	struct PROJECTILE	*psNext;
-}
-PROJECTILE;
+  struct PROJECTILE* psNext;
+};
 
-typedef struct PROJ_OBJECT
+using PROJ_OBJECT = struct PROJ_OBJECT
 {
-	/* Use only simple object elements */
-	SIMPLE_ELEMENTS( struct PROJ_OBJECT );
+  /* Use only simple object elements */
+  SIMPLE_ELEMENTS(struct PROJ_OBJECT);
 
-	UBYTE			state;			/* current projectile state */
-	UBYTE			airTarget;		/* whether the projectile was fired at an airborn target */
-	
-	UBYTE			player;			/* needed because damage and radDamage vary 
+  UBYTE state; /* current projectile state */
+  UBYTE airTarget; /* whether the projectile was fired at an airborn target */
+
+  UBYTE player; /* needed because damage and radDamage vary 
 									from base stat per player because of upgrades*/
-	UBYTE			bVisible;		// whether the selected player should see the projectile
+  UBYTE bVisible; // whether the selected player should see the projectile
 
-	WEAPON_STATS	*psWStats;		/* firing weapon stats */
-	
-	BASE_OBJECT		*psSource;		/* what fired the projectile */
-	BASE_OBJECT		*psDest;		/* projectile target */
+  WEAPON_STATS* psWStats; /* firing weapon stats */
 
-	UDWORD			startX,startY;	/* Where projectile started */
-	UDWORD			tarX,tarY;		/* The target coordinates */
-	SDWORD			vXY, vZ;		/* axis velocities */
-	UDWORD			srcHeight;		/* Height of origin */
-	SDWORD			altChange;		/* Change in altitude */
-	UDWORD			born;
-	UDWORD			targetRadius;	// needed to backtrack the projectiles.. Apologies to psx..:-(
-	
-	PROJECTILE_FUNC	pInFlightFunc;
-}
-PROJ_OBJECT;
+  BASE_OBJECT* psSource; /* what fired the projectile */
+  BASE_OBJECT* psDest; /* projectile target */
+
+  UDWORD startX, startY; /* Where projectile started */
+  UDWORD tarX, tarY; /* The target coordinates */
+  SDWORD vXY, vZ; /* axis velocities */
+  UDWORD srcHeight; /* Height of origin */
+  SDWORD altChange; /* Change in altitude */
+  UDWORD born;
+  UDWORD targetRadius; // needed to backtrack the projectiles.. Apologies to psx..:-(
+
+  PROJECTILE_FUNC pInFlightFunc;
+};
 
 /***************************************************************************/
 

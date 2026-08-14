@@ -43,33 +43,33 @@ extern void memShutDown(void);
 
 /* Set a block heap to use for all memory allocation rather than standard malloc/free */
 struct _block_heap;
-extern void memSetBlockHeap(struct _block_heap *psHeap);
+extern void memSetBlockHeap(struct _block_heap* psHeap);
 /* Get the current block heap */
-extern struct _block_heap *memGetBlockHeap(void);
+extern struct _block_heap* memGetBlockHeap(void);
 
 /* malloc replacements */
-extern void *memMalloc(STRING *pFileName, SDWORD LineNumber, size_t Size);
-extern void *memMallocRelease(size_t Size);
+extern void* memMalloc(STRING* pFileName, SDWORD LineNumber, size_t Size);
+extern void* memMallocRelease(size_t Size);
 
 /* free replacements */
-extern void memFree(STRING *pFileName, SDWORD LineNumber, void *pMemToFree);
-extern void memFreeRelease(void *pMemToFree);
+extern void memFree(STRING* pFileName, SDWORD LineNumber, void* pMemToFree);
+extern void memFreeRelease(void* pMemToFree);
 
 /* Check a pointer refers to a valid block of memory */
-extern BOOL memPointerValid(void *pPtr, size_t Size);
+extern BOOL memPointerValid(void* pPtr, size_t Size);
 
 /* Report on currently allocated memory */
-extern void memMemoryReport(STRING *pFileName);
+extern void memMemoryReport(STRING* pFileName);
 
 /* Display the memory treap */
-extern void memDisplayTreap(STRING *pFileName);
+extern void memDisplayTreap(STRING* pFileName);
 
 #if DEBUG_MALLOC
 
 #define MALLOC(size)		memMalloc(__FILE__, __LINE__, size)
 #define FREE(ptr)			memFree(__FILE__, __LINE__, ptr); ptr = NULL
 #ifndef NO_PTRVALID
-#define PTRVALID(ptr, size)	memPointerValid(ptr, size) 
+#define PTRVALID(ptr, size)	memPointerValid(ptr, size)
 #else
 #define PTRVALID(ptr, size)	(((ptr)==NULL)?FALSE:TRUE)
 #endif
@@ -85,8 +85,5 @@ extern void memDisplayTreap(STRING *pFileName);
 #define MEMORYTREAP(file)	memDisplayTreap(file)
 
 #endif // DEBUG_MALLOC
-
-
-
 
 #endif

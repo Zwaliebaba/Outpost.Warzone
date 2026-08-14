@@ -7,7 +7,7 @@
 /* defines */
 
 #ifndef MAX_STR
-	#define	MAX_STR			255
+#define	MAX_STR			255
 #endif
 
 #define	MIN_PITCH				0
@@ -32,7 +32,6 @@
 /***************************************************************************/
 /* enums */
 
-
 /***************************************************************************/
 /* forward definitions
  */
@@ -43,94 +42,89 @@ struct AUDIO_SAMPLE;
 /* typedefs
  */
 
-typedef BOOL (* SAMPLEVALIDFUNC) ( struct AUDIO_SAMPLE *psSample );
-typedef BOOL (* AUDIO_CALLBACK)  ( struct AUDIO_SAMPLE *psSample );
+using SAMPLEVALIDFUNC = BOOL(*)(struct AUDIO_SAMPLE* psSample);
+using AUDIO_CALLBACK = BOOL(*)(struct AUDIO_SAMPLE* psSample);
 
 /***************************************************************************/
 /* structs */
 
-typedef struct AUDIO_SAMPLE
+using AUDIO_SAMPLE = struct AUDIO_SAMPLE
 {
-	SDWORD				iTrack;
-	SDWORD				iSample;
-	SDWORD				x, y, z;
-	SDWORD				iLoops;
-	BOOL				bRemove;
-	AUDIO_CALLBACK		pCallback;
-	void				*psObj;
-	struct AUDIO_SAMPLE	*psPrev;
-	struct AUDIO_SAMPLE	*psNext;
-}
-AUDIO_SAMPLE;
+  SDWORD iTrack;
+  SDWORD iSample;
+  SDWORD x, y, z;
+  SDWORD iLoops;
+  BOOL bRemove;
+  AUDIO_CALLBACK pCallback;
+  void* psObj;
+  struct AUDIO_SAMPLE* psPrev;
+  struct AUDIO_SAMPLE* psNext;
+};
 
-typedef struct TRACK
+using TRACK = struct TRACK
 {
-	BOOL		bLoop;
-	SDWORD		iVol;
-	SDWORD		iPriority;
-	SDWORD		iAudibleRadius;
-	SDWORD		iTime;					/* duration in milliseconds */
-	UDWORD		iTimeLastFinished;		/* time last finished in ms */
-	UDWORD		iNumPlaying;
-	BOOL		bMemBuffer;				/* memory buffer flag       */
-	BOOL		bCompressed;			/* compression data flag    */
-	void *		pMem;					/* pointer to audio data    */
-	STRING		*pName;					// resource name of the track
-	UDWORD		resID;					// hashed name of the WAV
-}
-TRACK;
+  BOOL bLoop;
+  SDWORD iVol;
+  SDWORD iPriority;
+  SDWORD iAudibleRadius;
+  SDWORD iTime; /* duration in milliseconds */
+  UDWORD iTimeLastFinished; /* time last finished in ms */
+  UDWORD iNumPlaying;
+  BOOL bMemBuffer; /* memory buffer flag       */
+  BOOL bCompressed; /* compression data flag    */
+  void* pMem; /* pointer to audio data    */
+  STRING* pName; // resource name of the track
+  UDWORD resID; // hashed name of the WAV
+};
 
 /***************************************************************************/
 /* functions
  */
 
-BOOL	sound_Init( HWND hWnd, SDWORD iMaxSameSamples );
-BOOL	sound_Shutdown();
+BOOL sound_Init(HWND hWnd, SDWORD iMaxSameSamples);
+BOOL sound_Shutdown();
 
-BOOL	sound_LoadTrackFromFile( char szFileName[] );
-void *	sound_LoadTrackFromBuffer( UBYTE *pBuffer, UDWORD udwSize );
-BOOL	sound_SetTrackVals( TRACK *psTrack, BOOL bLoop, SDWORD iTrack,
-			SDWORD iVol, SDWORD iPriority, SDWORD iAudibleRadius,
-			SDWORD VagID );
-BOOL	sound_ReleaseTrack( TRACK * psTrack );
+BOOL sound_LoadTrackFromFile(char szFileName[]);
+void* sound_LoadTrackFromBuffer(UBYTE* pBuffer, UDWORD udwSize);
+BOOL sound_SetTrackVals(TRACK* psTrack, BOOL bLoop, SDWORD iTrack, SDWORD iVol, SDWORD iPriority, SDWORD iAudibleRadius, SDWORD VagID);
+BOOL sound_ReleaseTrack(TRACK* psTrack);
 
-void	sound_StopTrack( AUDIO_SAMPLE *psSample );
-void	sound_PauseTrack( AUDIO_SAMPLE *psSample );
-void	sound_UpdateSample( AUDIO_SAMPLE *psSample );
-void	sound_CheckSample( AUDIO_SAMPLE *psSample );
-void	sound_CheckAllUnloaded( void );
+void sound_StopTrack(AUDIO_SAMPLE* psSample);
+void sound_PauseTrack(AUDIO_SAMPLE* psSample);
+void sound_UpdateSample(AUDIO_SAMPLE* psSample);
+void sound_CheckSample(AUDIO_SAMPLE* psSample);
+void sound_CheckAllUnloaded(void);
 
-BOOL	sound_CheckTrack( SDWORD iTrack );
+BOOL sound_CheckTrack(SDWORD iTrack);
 
-SDWORD	sound_GetTrackTime( SDWORD iTrack );
-SDWORD	sound_GetTrackPriority( SDWORD iTrack );
-SDWORD	sound_GetTrackAudibleRadius( SDWORD iTrack );
-SDWORD	sound_GetTrackVolume( SDWORD iTrack );
-char *	sound_GetTrackName( SDWORD iTrack );
-UDWORD	sound_GetTrackHashName( SDWORD iTrack );
+SDWORD sound_GetTrackTime(SDWORD iTrack);
+SDWORD sound_GetTrackPriority(SDWORD iTrack);
+SDWORD sound_GetTrackAudibleRadius(SDWORD iTrack);
+SDWORD sound_GetTrackVolume(SDWORD iTrack);
+char* sound_GetTrackName(SDWORD iTrack);
+UDWORD sound_GetTrackHashName(SDWORD iTrack);
 
-BOOL	sound_TrackLooped( SDWORD iTrack );
-SDWORD	sound_TrackAudibleRadius( SDWORD iTrack );
-void	sound_SetCallbackFunction( void * fn );
+BOOL sound_TrackLooped(SDWORD iTrack);
+SDWORD sound_TrackAudibleRadius(SDWORD iTrack);
+void sound_SetCallbackFunction(void* fn);
 
-BOOL	sound_Play2DTrack( AUDIO_SAMPLE *psSample, BOOL bQueued );
-BOOL	sound_Play3DTrack( AUDIO_SAMPLE *psSample );
-void	sound_PlayWithCallback( AUDIO_SAMPLE *psSample, SDWORD iCurTime,
-									AUDIO_CALLBACK pDoneFunc );
-void	sound_FinishedCallback( AUDIO_SAMPLE *psSample );
+BOOL sound_Play2DTrack(AUDIO_SAMPLE* psSample, BOOL bQueued);
+BOOL sound_Play3DTrack(AUDIO_SAMPLE* psSample);
+void sound_PlayWithCallback(AUDIO_SAMPLE* psSample, SDWORD iCurTime, AUDIO_CALLBACK pDoneFunc);
+void sound_FinishedCallback(AUDIO_SAMPLE* psSample);
 
-BOOL	sound_GetSystemActive( void );
-SDWORD	sound_GetTrackID( TRACK *psTrack );
-SDWORD	sound_GetAvailableID( void );
-SDWORD	sound_GetNumPlaying( SDWORD iTrack );
+BOOL sound_GetSystemActive(void);
+SDWORD sound_GetTrackID(TRACK* psTrack);
+SDWORD sound_GetAvailableID(void);
+SDWORD sound_GetNumPlaying(SDWORD iTrack);
 
-SDWORD	sound_GetGlobalVolume( void );
-void	sound_SetGlobalVolume( SDWORD iVol );
+SDWORD sound_GetGlobalVolume(void);
+void sound_SetGlobalVolume(SDWORD iVol);
 
-void	sound_SetStoppedCallback( AUDIO_CALLBACK pStopTrackCallback );
+void sound_SetStoppedCallback(AUDIO_CALLBACK pStopTrackCallback);
 
-UDWORD	sound_GetTrackTimeLastFinished( SDWORD iTrack );
-void	sound_SetTrackTimeLastFinished( SDWORD iTrack, UDWORD iTime );
+UDWORD sound_GetTrackTimeLastFinished(SDWORD iTrack);
+void sound_SetTrackTimeLastFinished(SDWORD iTrack, UDWORD iTime);
 
 /***************************************************************************/
 

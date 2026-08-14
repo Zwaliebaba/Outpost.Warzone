@@ -1,187 +1,164 @@
 /*
  * Net join.
  * join related stuff
- */ 
+ */
 
 #include "Frame.h"
 #include "NetPlay.h"
 #include "NetSupp.h"
 
+BOOL NEThaltJoining(VOID);
+BOOL FAR PASCAL NETfindGameCallback(LPCDPSESSIONDESC2 lpSessionDesc, LPDWORD lpdwTimeOut, DWORD dwFlags, LPVOID lpContext);
+BOOL NETfindGame(BOOL async);
+BOOL NETjoinGame(GUID guidSessionInstance, LPSTR playername);
+BOOL NEThostGame(LPSTR SessionName, LPSTR PlayerName, DWORD one, DWORD two, DWORD three, DWORD four, UDWORD plyrs);
+HRESULT NETclose(VOID);
+DWORD NETgetGameFlags(UDWORD flag);
+DWORD NETgetGameFlagsUnjoined(UDWORD gameid, UDWORD flag);
+BOOL NETsetGameFlags(UDWORD flag, DWORD value);
 
-BOOL			NEThaltJoining		(VOID);
-BOOL FAR PASCAL NETfindGameCallback	(LPCDPSESSIONDESC2 lpSessionDesc,LPDWORD lpdwTimeOut,DWORD dwFlags,LPVOID lpContext);
-BOOL			NETfindGame			(BOOL async);
-BOOL			NETjoinGame			(GUID guidSessionInstance, LPSTR playername);
-BOOL			NEThostGame			(LPSTR SessionName, LPSTR PlayerName,DWORD one,DWORD two,DWORD three,DWORD four,UDWORD plyrs);
-HRESULT			NETclose			(VOID);
-DWORD			NETgetGameFlags		(UDWORD flag);
-DWORD			NETgetGameFlagsUnjoined(UDWORD gameid, UDWORD flag);
-BOOL			NETsetGameFlags		(UDWORD flag,DWORD value);		
-
-static UDWORD		gamecount	= 0;
-
+static UDWORD gamecount = 0;
 
 // Description Info. Used to remove ingame mallocs in netplay..
-LPVOID		lpPermDescription=NULL;
-UDWORD		descriptionSize=0;
+LPVOID lpPermDescription = nullptr;
+UDWORD descriptionSize = 0;
 
 VOID freePermMalloc(void)
 {
-	FREE(lpPermDescription);
-	descriptionSize = 0;
-	lpPermDescription = NULL;
+  FREE(lpPermDescription);
+  descriptionSize = 0;
+  lpPermDescription = nullptr;
 
-	DBPRINTF(("NETPLAY: permalloc freed \n"));
+  DBPRINTF(("NETPLAY: permalloc freed \n"));
 }
 
 VOID permMalloc(UDWORD size)
 {
-	if(descriptionSize < size)	// sort the buffer out.
-	{
-		DBPRINTF(("NETPLAY: permalloc changed from %d bytes to %d bytes \n",descriptionSize,size));
-		if(descriptionSize !=0)	// get rid of old one.
-		{
-			freePermMalloc();
-		}	
+  if (descriptionSize < size) // sort the buffer out.
+  {
+    DBPRINTF(("NETPLAY: permalloc changed from %d bytes to %d bytes \n",descriptionSize,size));
+    if (descriptionSize != 0) // get rid of old one.
+      freePermMalloc();
 
-		memSetBlockHeap(NULL);
-		lpPermDescription	= MALLOC(size);
-		descriptionSize		= size;
-	}
+    memSetBlockHeap(nullptr);
+    lpPermDescription = MALLOC(size);
+    descriptionSize = size;
+  }
 }
 
 // ////////////////////////////////////////////////////////////////////////
 // Stop the dplay interface from accepting more players.
 BOOL NEThaltJoining(VOID)
 {
-	LPDPSESSIONDESC2	sessionDesc;							// template to find. 
-	LPDPLCONNECTION		lobDesc;
-	DWORD				size=1;
-	HRESULT				hr;
-	LPVOID				mempointer;
+  LPDPSESSIONDESC2 sessionDesc; // template to find. 
+  LPDPLCONNECTION lobDesc;
+  DWORD size = 1;
+  HRESULT hr;
+  LPVOID mempointer;
 
-	if (NetPlay.bLobbyLaunched)														//Lobby version.
-	{
-		hr = IDirectPlayLobby_GetConnectionSettings(glpDPL, 0, NULL, &size);// get size
-		mempointer = MALLOC(size);											// alloc space
-		hr = IDirectPlayLobby_GetConnectionSettings(glpDPL, 0, mempointer, &size);
-		lobDesc = (LPDPLCONNECTION)mempointer;
+  if (NetPlay.bLobbyLaunched) //Lobby version.
+  {
+    hr = IDirectPlayLobby_GetConnectionSettings(glpDPL, 0, NULL, &size); // get size
+    mempointer = MALLOC(size); // alloc space
+    hr = IDirectPlayLobby_GetConnectionSettings(glpDPL, 0, mempointer, &size);
+    lobDesc = static_cast<LPDPLCONNECTION>(mempointer);
 
-		lobDesc->lpSessionDesc->dwFlags = lobDesc->lpSessionDesc->dwFlags | DPSESSION_JOINDISABLED;	// set the flags.
+    lobDesc->lpSessionDesc->dwFlags = lobDesc->lpSessionDesc->dwFlags | DPSESSION_JOINDISABLED; // set the flags.
 
-		hr = IDirectPlayLobby_SetConnectionSettings(glpDPL, 0, 0, lobDesc);	//write it back
-	}
-	else																	// ordinary version
-	{
-		hr=IDirectPlayX_GetSessionDesc(glpDP, NULL, &size );				// get size
-		mempointer = MALLOC(size);											// alloc
-		hr=IDirectPlayX_GetSessionDesc(glpDP, mempointer, &size );			// get desc.
-		sessionDesc = (LPDPSESSIONDESC2)mempointer;
+    hr = IDirectPlayLobby_SetConnectionSettings(glpDPL, 0, 0, lobDesc); //write it back
+  }
+  else // ordinary version
+  {
+    hr = IDirectPlayX_GetSessionDesc(glpDP, NULL, &size); // get size
+    mempointer = MALLOC(size); // alloc
+    hr = IDirectPlayX_GetSessionDesc(glpDP, mempointer, &size); // get desc.
+    sessionDesc = static_cast<LPDPSESSIONDESC2>(mempointer);
 
-		sessionDesc->dwFlags = sessionDesc->dwFlags | DPSESSION_JOINDISABLED;// set the flags.
+    sessionDesc->dwFlags = sessionDesc->dwFlags | DPSESSION_JOINDISABLED; // set the flags.
 
-		hr= IDirectPlayX_SetSessionDesc(glpDP,sessionDesc,0);				// write it back
-	}
+    hr = IDirectPlayX_SetSessionDesc(glpDP, sessionDesc, 0); // write it back
+  }
 
-	if(PTRVALID(mempointer,size))	
-	{
-		FREE(mempointer);
-	}
-	return TRUE;
+  if (PTRVALID(mempointer, size)) { FREE(mempointer); }
+  return TRUE;
 }
-
-
 
 // ////////////////////////////////////////////////////////////////////////
 // ////////////////////////////////////////////////////////////////////////
 // routines to find games currently running on the chosen protocol
 
-BOOL FAR PASCAL NETfindGameCallback(LPCDPSESSIONDESC2 lpSessionDesc,LPDWORD lpdwTimeOut,DWORD dwFlags,LPVOID lpContext)
-{					
+BOOL FAR PASCAL NETfindGameCallback(LPCDPSESSIONDESC2 lpSessionDesc, LPDWORD lpdwTimeOut, DWORD dwFlags, LPVOID lpContext)
+{
+  if (dwFlags == DPESC_TIMEDOUT)
+    return (FALSE);
+  if (gamecount >= MaxGames)
+  {
+    DBPRINTF(("NETPLAY:Maximum number of available games exceeded. terminating search\n"));
+    return (FALSE);
+  }
+  strcpy(NetPlay.games[gamecount].name, (char*)(lpSessionDesc->lpszSessionName));
+  memcpy(&NetPlay.games[gamecount].desc, lpSessionDesc, sizeof(DPSESSIONDESC2));
+  gamecount = gamecount + 1;
 
-	if (dwFlags == DPESC_TIMEDOUT )
-	{
-		return (FALSE);
-	}
-	if(gamecount >= MaxGames)
-	{
-		DBPRINTF(("NETPLAY:Maximum number of available games exceeded. terminating search\n"));
-		return (FALSE);
-	}
-	strcpy(NetPlay.games[gamecount].name, (char*)( lpSessionDesc->lpszSessionName));
-	memcpy(&NetPlay.games[gamecount].desc,lpSessionDesc,sizeof(DPSESSIONDESC2));
-	gamecount=gamecount+1;
-
-	return (TRUE);
+  return (TRUE);
 }
 
 // ////////////////////////////////////////////////////////////////////////
 // find games on open connection, option to do this asynchronously 
 // since it can sometimes take a while.
 
-BOOL NETfindGame(BOOL async)										/// may (not) want to use async here...
+BOOL NETfindGame(BOOL async) /// may (not) want to use async here...
 {
-	HRESULT				hr;
-	DPSESSIONDESC2		sessionDesc;								// template to find. 
-	GUID				guidSessionInstance;
-	DWORD				size;
-	LPDPSESSIONDESC2	lpSessionDesc;								// template to find. 
+  HRESULT hr;
+  DPSESSIONDESC2 sessionDesc; // template to find. 
+  GUID guidSessionInstance;
+  DWORD size;
+  LPDPSESSIONDESC2 lpSessionDesc; // template to find. 
 
+  guidSessionInstance = GUID_NULL; // get guid of currently selected session
+  ZeroMemory(&sessionDesc, sizeof(DPSESSIONDESC2)); // add sessions to session list
+  sessionDesc.dwSize = sizeof(DPSESSIONDESC2);
+  sessionDesc.guidApplication = GAME_GUID;
+  size = sizeof(DPSESSIONDESC2);
 
-	guidSessionInstance			= GUID_NULL;						// get guid of currently selected session
-	ZeroMemory(&sessionDesc, sizeof(DPSESSIONDESC2));				// add sessions to session list
-	sessionDesc.dwSize			= sizeof(DPSESSIONDESC2);
-    sessionDesc.guidApplication = GAME_GUID;
-	size						= sizeof(DPSESSIONDESC2);
+  gamecount = 0;
+  ZeroMemory(NetPlay.games, (MaxGames*sizeof(DPSESSIONDESC2)));
 
-	gamecount=0;
-	ZeroMemory(NetPlay.games,(MaxGames*sizeof(DPSESSIONDESC2)));
+  if (async == TRUE)
+  {
+    hr = IDirectPlayX_EnumSessions(glpDP, &sessionDesc, 0, NETfindGameCallback, NULL,
+                                   DPENUMSESSIONS_ALL | DPENUMSESSIONS_ASYNC | DPENUMSESSIONS_RETURNSTATUS);
+  }
+  else
+  {
+    hr = IDirectPlayX_EnumSessions(glpDP, &sessionDesc, 0, NETfindGameCallback, NULL, DPENUMSESSIONS_ALL | DPENUMSESSIONS_RETURNSTATUS);
+  }
 
-	if (async == TRUE)
-	{
-		hr = IDirectPlayX_EnumSessions(glpDP,&sessionDesc, 0, NETfindGameCallback,
-									  NULL, DPENUMSESSIONS_ALL | DPENUMSESSIONS_ASYNC | DPENUMSESSIONS_RETURNSTATUS );
-	}
-	else
-	{
-		hr = IDirectPlayX_EnumSessions(glpDP,&sessionDesc, 0, NETfindGameCallback,
-									  NULL, DPENUMSESSIONS_ALL | DPENUMSESSIONS_RETURNSTATUS );
-	}
+  if (hr == DPERR_GENERIC)
+  {
+    hr = IDirectPlayX_GetSessionDesc(glpDP, NULL, &size);
+    if (hr == DPERR_BUFFERTOOSMALL) // we are already connected. add this game.
+    {
+      permMalloc(size);
+      hr = IDirectPlayX_GetSessionDesc(glpDP, lpPermDescription, &size); // get desc.
 
-	if( hr == DPERR_GENERIC)									
-	{
+      if (!FAILED(hr))
+      {
+        lpSessionDesc = static_cast<LPDPSESSIONDESC2>(lpPermDescription);
 
-		hr=IDirectPlayX_GetSessionDesc(glpDP, NULL, &size );
-		if(hr == DPERR_BUFFERTOOSMALL)							// we are already connected. add this game.
-		{
-			permMalloc(size);
-			hr=IDirectPlayX_GetSessionDesc(glpDP, lpPermDescription, &size );	// get desc.
-		
-			if(!FAILED(hr))
-			{
-				lpSessionDesc = (LPDPSESSIONDESC2)lpPermDescription;
+        strcpy(NetPlay.games[0].name, (char*)(lpSessionDesc->lpszSessionName));
+        memcpy(&NetPlay.games[0].desc, lpSessionDesc, sizeof(DPSESSIONDESC2));
+        gamecount = 1;
+      }
+    }
+  }
+  else if (hr == DPERR_CONNECTING) // still connecting, so thats ok.
+    return (TRUE);
+  else if (hr != DP_OK) // failed.
+    return (FALSE);
 
-				strcpy(NetPlay.games[0].name, (char*)(lpSessionDesc->lpszSessionName));	
-				memcpy(&NetPlay.games[0].desc,lpSessionDesc,sizeof(DPSESSIONDESC2));
-				gamecount=1;
-			}
-		}
-
-	}
-	else if ( hr == DPERR_CONNECTING)								// still connecting, so thats ok.
-	{
-		return (TRUE);
-	}
-	else if ( hr != DP_OK )											// failed.
-	{
-		return (FALSE);
-	}
-
-	return (TRUE);
+  return (TRUE);
 }
-
-
-
 
 // ////////////////////////////////////////////////////////////////////////
 // ////////////////////////////////////////////////////////////////////////
@@ -189,258 +166,240 @@ BOOL NETfindGame(BOOL async)										/// may (not) want to use async here...
 
 BOOL NETjoinGame(GUID guidSessionInstance, LPSTR playername)
 {
-	HRESULT hr;
-			
-	hr = JoinSession(glpDP, &guidSessionInstance, playername, &NetPlay);		// join this session
-	if FAILED(hr)
-	{
-		DBPRINTF(("NETPLAY:Failed to Join Game\n"));
-		return (FALSE);
-	}
-	
-	return (TRUE);
+  HRESULT hr;
+
+  hr = JoinSession(glpDP, &guidSessionInstance, playername, &NetPlay); // join this session
+  if FAILED(hr)
+  {
+    DBPRINTF(("NETPLAY:Failed to Join Game\n"));
+    return (FALSE);
+  }
+
+  return (TRUE);
 }
 
 // ////////////////////////////////////////////////////////////////////////
 // Host a game with a given name and player name. & 4 user game flags
-BOOL NEThostGame(LPSTR SessionName, LPSTR PlayerName,	DWORD one,		// flags.
-														DWORD two,
-														DWORD three,
-														DWORD four,
-														UDWORD plyrs)	// # of players.
+BOOL NEThostGame(LPSTR SessionName, LPSTR PlayerName, DWORD one, // flags.
+                 DWORD two, DWORD three, DWORD four, UDWORD plyrs) // # of players.
 {
-	HRESULT	hr;
+  HRESULT hr;
 
-	if(!NetPlay.bComms)
-	{
-		NetPlay.dpidPlayer		= 1;
-		NetPlay.bHost			= TRUE;
-		return TRUE;
-	}
+  if (!NetPlay.bComms)
+  {
+    NetPlay.dpidPlayer = 1;
+    NetPlay.bHost = TRUE;
+    return TRUE;
+  }
 
-	hr = HostSession(glpDP,SessionName,PlayerName,&NetPlay,one,two,three,four,plyrs);
-	if FAILED(hr)
-	{
-		DBERROR(("failed to host game"));
-		return (FALSE);
-	}
-	return (TRUE);
+  hr = HostSession(glpDP, SessionName, PlayerName, &NetPlay, one, two, three, four, plyrs);
+  if FAILED(hr)
+  {
+    DBERROR(("failed to host game"));
+    return (FALSE);
+  }
+  return (TRUE);
 }
-
-
 
 // ////////////////////////////////////////////////////////////////////////
 //close the open game..
 HRESULT NETclose(VOID)
 {
-	IDirectPlayX_DestroyPlayer(glpDP,NetPlay.dpidPlayer);
-	NetPlay.dpidPlayer = 0;
-	if(glpDP)
-	{
-		IDirectPlayX_Close(glpDP);
-	}
-	return (DP_OK);
+  IDirectPlayX_DestroyPlayer(glpDP, NetPlay.dpidPlayer);
+  NetPlay.dpidPlayer = 0;
+  if (glpDP)
+    IDirectPlayX_Close(glpDP);
+  return (DP_OK);
 }
-
 
 // ////////////////////////////////////////////////////////////////////////
 // return one of the four user flags in the current sessiondescription.
 DWORD NETgetGameFlags(UDWORD flag)
-{		
-	LPDPSESSIONDESC2	sessionDesc;							// template to find. 
-	DWORD				size=1;
-	HRESULT				hr;
-	DWORD				result;
-	LPDPLCONNECTION		lobDesc;
+{
+  LPDPSESSIONDESC2 sessionDesc; // template to find. 
+  DWORD size = 1;
+  HRESULT hr;
+  DWORD result;
+  LPDPLCONNECTION lobDesc;
 
-	if(NetPlay.bLobbyLaunched)
-	{
-		hr = IDirectPlayLobby_GetConnectionSettings(glpDPL, 0, NULL, &size);		// get the size 
-	
-		permMalloc(size);
+  if (NetPlay.bLobbyLaunched)
+  {
+    hr = IDirectPlayLobby_GetConnectionSettings(glpDPL, 0, NULL, &size); // get the size 
 
-		hr = IDirectPlayLobby_GetConnectionSettings(glpDPL, 0, lpPermDescription, &size);// get it.
+    permMalloc(size);
 
-		if (hr != DP_OK)
-		{
-			DBPRINTF(("NETPLAY:  couldn't get lobby game flags.\n"));
-			return 0;
-		}
+    hr = IDirectPlayLobby_GetConnectionSettings(glpDPL, 0, lpPermDescription, &size); // get it.
 
-		lobDesc = (LPDPLCONNECTION)lpPermDescription;
+    if (hr != DP_OK)
+    {
+      DBPRINTF(("NETPLAY:  couldn't get lobby game flags.\n"));
+      return 0;
+    }
 
-		switch(flag)
-		{
-		case 1:
-			result = lobDesc->lpSessionDesc->dwUser1;
-			break;
-		case 2:
-			result = lobDesc->lpSessionDesc->dwUser2;	
-			break;
-		case 3:
-			result =lobDesc->lpSessionDesc->dwUser3;
-			break;
-		case 4:	
-			result = lobDesc->lpSessionDesc->dwUser4;
-			break;
-		default:
-			DBERROR(("Invalid flag for getgameflags in netplay lib"));
-			break;
-		}
-	}
-	else
-	{
-		hr=IDirectPlayX_GetSessionDesc(glpDP, NULL, &size );
-		permMalloc(size);
-		hr=IDirectPlayX_GetSessionDesc(glpDP, lpPermDescription, &size );
-		
-		if (hr != DP_OK)
-		{
-			DBPRINTF(("NETPLAY: couldn't get game flags\n"));
-			return 0;
-		}
+    lobDesc = static_cast<LPDPLCONNECTION>(lpPermDescription);
 
-		sessionDesc = (LPDPSESSIONDESC2)lpPermDescription;
+    switch (flag)
+    {
+    case 1:
+      result = lobDesc->lpSessionDesc->dwUser1;
+      break;
+    case 2:
+      result = lobDesc->lpSessionDesc->dwUser2;
+      break;
+    case 3:
+      result = lobDesc->lpSessionDesc->dwUser3;
+      break;
+    case 4:
+      result = lobDesc->lpSessionDesc->dwUser4;
+      break;
+    default: DBERROR(("Invalid flag for getgameflags in netplay lib"));
+      break;
+    }
+  }
+  else
+  {
+    hr = IDirectPlayX_GetSessionDesc(glpDP, NULL, &size);
+    permMalloc(size);
+    hr = IDirectPlayX_GetSessionDesc(glpDP, lpPermDescription, &size);
 
-		switch(flag)
-		{
-		case 1:
-			result = sessionDesc->dwUser1;
-			break;
-		case 2:
-			result = sessionDesc->dwUser2;	
-			break;
-		case 3:
-			result =sessionDesc->dwUser3;
-			break;
-		case 4:	
-			result = sessionDesc->dwUser4;
-			break;
-		default:
-			DBERROR(("Invalid flag for getgameflags in netplay lib"));
-			break;
-		}
-	}
-	return result;
+    if (hr != DP_OK)
+    {
+      DBPRINTF(("NETPLAY: couldn't get game flags\n"));
+      return 0;
+    }
+
+    sessionDesc = static_cast<LPDPSESSIONDESC2>(lpPermDescription);
+
+    switch (flag)
+    {
+    case 1:
+      result = sessionDesc->dwUser1;
+      break;
+    case 2:
+      result = sessionDesc->dwUser2;
+      break;
+    case 3:
+      result = sessionDesc->dwUser3;
+      break;
+    case 4:
+      result = sessionDesc->dwUser4;
+      break;
+    default: DBERROR(("Invalid flag for getgameflags in netplay lib"));
+      break;
+    }
+  }
+  return result;
 }
 
 DWORD NETgetGameFlagsUnjoined(UDWORD gameid, UDWORD flag)
 {
-	switch(flag)
-	{
-	case 1:
-		return NetPlay.games[gameid].desc.dwUser1;
-		break;
-	case 2:
-		return NetPlay.games[gameid].desc.dwUser2;	
-		break;
-	case 3:
-	    return NetPlay.games[gameid].desc.dwUser3;
-		break;
-	case 4:	
-		return NetPlay.games[gameid].desc.dwUser4;
-		break;
-	default:
-		DBERROR(("Invalid flag for getgameflagsunjoined in netplay lib"));
-		return 0;
-		break;
-	}
+  switch (flag)
+  {
+  case 1:
+    return NetPlay.games[gameid].desc.dwUser1;
+    break;
+  case 2:
+    return NetPlay.games[gameid].desc.dwUser2;
+    break;
+  case 3:
+    return NetPlay.games[gameid].desc.dwUser3;
+    break;
+  case 4:
+    return NetPlay.games[gameid].desc.dwUser4;
+    break;
+  default: DBERROR(("Invalid flag for getgameflagsunjoined in netplay lib"));
+    return 0;
+    break;
+  }
 }
 
 // ////////////////////////////////////////////////////////////////////////
 // Set a game flag
-BOOL NETsetGameFlags(UDWORD flag,DWORD value)
-{		
-	LPDPSESSIONDESC2	sessionDesc;
-	DWORD				size=1;
-	HRESULT				hr;
-	LPDPLCONNECTION		lobDesc;
+BOOL NETsetGameFlags(UDWORD flag, DWORD value)
+{
+  LPDPSESSIONDESC2 sessionDesc;
+  DWORD size = 1;
+  HRESULT hr;
+  LPDPLCONNECTION lobDesc;
 
+  if (!NetPlay.bComms)
+    return TRUE;
 
-	if(!NetPlay.bComms)
-	{
-		return TRUE;
-	}
+  if (NetPlay.bLobbyLaunched) // LOBBY VERSION
+  {
+    hr = IDirectPlayLobby_GetConnectionSettings(glpDPL, 0, NULL, &size); // get the size 
 
-	if (NetPlay.bLobbyLaunched)															// LOBBY VERSION
-	{
-		hr = IDirectPlayLobby_GetConnectionSettings(glpDPL, 0, NULL, &size);		// get the size 
+    permMalloc(size);
 
-		permMalloc(size);
-		
-		hr = IDirectPlayLobby_GetConnectionSettings(glpDPL, 0, lpPermDescription, &size);	// get it.
-		if(hr != DP_OK)
-		{
-			DBPRINTF(("NETPLAY: couldn't set lobby game flags \n"));
-			return FALSE;
-		}
+    hr = IDirectPlayLobby_GetConnectionSettings(glpDPL, 0, lpPermDescription, &size); // get it.
+    if (hr != DP_OK)
+    {
+      DBPRINTF(("NETPLAY: couldn't set lobby game flags \n"));
+      return FALSE;
+    }
 
-		lobDesc = (LPDPLCONNECTION)lpPermDescription;		
-	
-		switch(flag)																//mod it
-		{	
-		case 1:
-			lobDesc->lpSessionDesc->dwUser1 = value;
-			break;
-		case 2:
-			lobDesc->lpSessionDesc->dwUser2 =value;
-			break;
-		case 3:
-			lobDesc->lpSessionDesc->dwUser3 = value;
-			break;
-		case 4:	
-			lobDesc->lpSessionDesc->dwUser4 = value;
-			break;
-		default:
-			DBERROR(("Invalid flag for setgameflags in netplay lib"));
-			break;
-		}
-		hr = IDirectPlayLobby_SetConnectionSettings(glpDPL, 0, 0, lobDesc);			//write it back
-		if(hr != DP_OK)
-		{
-			DBPRINTF(("NETPLAY: couldn't set lobby game flags 2\n"));
-		}
-	}
-	else																	// NON LOBBY VERSION
-	{
-		hr=IDirectPlayX_GetSessionDesc(glpDP, NULL, &size );				//get size
-		permMalloc(size);
-		hr=IDirectPlayX_GetSessionDesc(glpDP, lpPermDescription, &size );	//get it
+    lobDesc = static_cast<LPDPLCONNECTION>(lpPermDescription);
 
-		if (hr != DP_OK)
-		{
-			DBPRINTF(("NETPLAY: couldn't set game flags \n"));
-			return FALSE;
-		}
+    switch (flag) //mod it
+    {
+    case 1:
+      lobDesc->lpSessionDesc->dwUser1 = value;
+      break;
+    case 2:
+      lobDesc->lpSessionDesc->dwUser2 = value;
+      break;
+    case 3:
+      lobDesc->lpSessionDesc->dwUser3 = value;
+      break;
+    case 4:
+      lobDesc->lpSessionDesc->dwUser4 = value;
+      break;
+    default: DBERROR(("Invalid flag for setgameflags in netplay lib"));
+      break;
+    }
+    hr = IDirectPlayLobby_SetConnectionSettings(glpDPL, 0, 0, lobDesc); //write it back
+    if (hr != DP_OK)
+      DBPRINTF(("NETPLAY: couldn't set lobby game flags 2\n"));
+  }
+  else // NON LOBBY VERSION
+  {
+    hr = IDirectPlayX_GetSessionDesc(glpDP, NULL, &size); //get size
+    permMalloc(size);
+    hr = IDirectPlayX_GetSessionDesc(glpDP, lpPermDescription, &size); //get it
 
-		sessionDesc = (LPDPSESSIONDESC2)lpPermDescription;
+    if (hr != DP_OK)
+    {
+      DBPRINTF(("NETPLAY: couldn't set game flags \n"));
+      return FALSE;
+    }
 
-		switch(flag)														//mod it
-		{
-		case 1:
-			sessionDesc->dwUser1 = value;
-			break;
-		case 2:
-			sessionDesc->dwUser2 =value;
-			break;
-		case 3:
-			sessionDesc->dwUser3 = value;
-			break;
-		case 4:	
-			sessionDesc->dwUser4 = value;
-			break;
-		default:
-			DBERROR(("Invalid flag for setgameflags in netplay lib"));
-			break;
-		}
+    sessionDesc = static_cast<LPDPSESSIONDESC2>(lpPermDescription);
 
-		hr= IDirectPlayX_SetSessionDesc(glpDP,sessionDesc,0);				// write it back
+    switch (flag) //mod it
+    {
+    case 1:
+      sessionDesc->dwUser1 = value;
+      break;
+    case 2:
+      sessionDesc->dwUser2 = value;
+      break;
+    case 3:
+      sessionDesc->dwUser3 = value;
+      break;
+    case 4:
+      sessionDesc->dwUser4 = value;
+      break;
+    default: DBERROR(("Invalid flag for setgameflags in netplay lib"));
+      break;
+    }
 
-		if(hr != DP_OK)
-		{
-			DBPRINTF(("NETPLAY: couldn't set lobby game flags \n"));
-			return FALSE;
-		}
-	}
-	return TRUE;
+    hr = IDirectPlayX_SetSessionDesc(glpDP, sessionDesc, 0); // write it back
+
+    if (hr != DP_OK)
+    {
+      DBPRINTF(("NETPLAY: couldn't set lobby game flags \n"));
+      return FALSE;
+    }
+  }
+  return TRUE;
 }

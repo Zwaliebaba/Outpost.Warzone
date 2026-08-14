@@ -1,4 +1,3 @@
-
 // Routines to provide simple maths functions that work on both PSX & PC
 
 // Use the type "FRACT" instead of FLOAT
@@ -18,15 +17,11 @@
 // Also PERCENT(int,int);	// returns a int value 0->100 of the percentage of the first param over the second
 //
 
-
 // This file used to be in the deliverance src directory. But Jeremy quite correctly
 // pointed out to me that it should be library based not deliverance based, and hence
 // has now been moved to the lib\framework directory
 //
 // If you are reading this file from the deliverance source directory, please delete it now
-
-
-
 
 // To multiply a FRACT by a integer just use the normal operator 
 //
@@ -46,8 +41,8 @@
 
 #ifdef DEBUG
 
-SDWORD PercentFunc(char *File,UDWORD Line,SDWORD a,SDWORD b);
-SDWORD PerNumFunc(char *File,UDWORD Line,SDWORD range,SDWORD a,SDWORD b);
+SDWORD PercentFunc(char* File, UDWORD Line, SDWORD a, SDWORD b);
+SDWORD PerNumFunc(char* File, UDWORD Line, SDWORD range, SDWORD a, SDWORD b);
 
 #define PERCENT(a,b) PercentFunc(__FILE__,__LINE__,a,b)
 #define PERNUM(range,a,b) PerNumFunc(__FILE__,__LINE__,range,a,b)
@@ -59,11 +54,10 @@ SDWORD PerNumFunc(char *File,UDWORD Line,SDWORD range,SDWORD a,SDWORD b);
 
 #endif
 
-
 #include <math.h>
 
-typedef float FRACT;
-typedef float FRACT_D;
+using FRACT = float;
+using FRACT_D = float;
 
 #define ROUND(x) ((x)>=0 ? (SDWORD)((x) + 0.5) : (SDWORD)((x) - 0.5))
 
@@ -81,7 +75,6 @@ typedef float FRACT_D;
 // Jeremy ... the usual leg breaking rule aplies if you remove this again
 #define iSQRT(x) ((FRACT)sqrt(x))
 
-
 #define FRACTCONST(a,b) (((float)(a)) / ((float)(b)))
 #define FRACTabs(a) ((float)fabs(a))
 
@@ -90,23 +83,22 @@ typedef float FRACT_D;
 #define FRACTdiv_D(x,y) ((x)/(y))
 #define fSQRT_D(x) ((FRACT)sqrt(x))
 
-__inline SDWORD MAKEINT_D (float f)
+__inline SDWORD MAKEINT_D(float f)
 {
-	SDWORD i;
-	__asm fld f;
-	__asm fistp i;
-	return i;
+  SDWORD i;
+  __asm fld f;
+  __asm fistp i;
+  return i;
 }
 
 //changed definitions
-__inline SDWORD MAKEINT (float f)
+__inline SDWORD MAKEINT(float f)
 {
-	SDWORD i;
-	__asm fld f;
-	__asm fistp i;
-	return i;
+  SDWORD i;
+  __asm fld f;
+  __asm fistp i;
+  return i;
 }
-
 
 #define fastRoot(x,y) ((abs(x) > abs(y)) ? (abs(x) + abs(y)/2) : (abs(y) + abs(x)/2))
 
@@ -136,9 +128,6 @@ __inline SDWORD MAKEINT (float f)
 
 #define fastRoot(x,y) (sqrt(x * x + y * y))
 
-
 #endif
-
-
 
 #endif

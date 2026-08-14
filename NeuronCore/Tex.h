@@ -5,9 +5,7 @@
 
 //*************************************************************************
 
-
 #define iV_TEX_MAX		48
-
 
 //*************************************************************************
 
@@ -21,38 +19,34 @@
 
 //*************************************************************************
 
-typedef struct
+using iTexPage = struct
 {
-	iTexture	tex;
-	uint8		type;
-	char		name[80];
-	int			bResource;		// Was page provided by resource handler?
-}
-iTexPage;
+  iTexture tex;
+  uint8 type;
+  char name[80];
+  int bResource; // Was page provided by resource handler?
+};
 
 //*************************************************************************
 extern int _TEX_INDEX;
-extern iTexPage	_TEX_PAGE[iV_TEX_MAX];
+extern iTexPage _TEX_PAGE[iV_TEX_MAX];
 
 //*************************************************************************
 
-extern int iV_TexLoad( char *path, char *filename, int type,
-						iBool palkeep, iBool bColourKeyed );
-extern int iV_TexLoadNew( char *path, char *filename, int type,
-					iBool palkeep, iBool bColourKeyed );
-extern int pie_ReloadTexPage(char *filename,UBYTE *pBuffer);
-extern int pie_AddBMPtoTexPages( 	iSprite* s, char* filename, int type, iBool bColourKeyed, iBool bResource);
+extern int iV_TexLoad(char* path, char* filename, int type, iBool palkeep, iBool bColourKeyed);
+extern int iV_TexLoadNew(char* path, char* filename, int type, iBool palkeep, iBool bColourKeyed);
+extern int pie_ReloadTexPage(char* filename, UBYTE* pBuffer);
+extern int pie_AddBMPtoTexPages(iSprite* s, char* filename, int type, iBool bColourKeyed, iBool bResource);
 extern void pie_TexInit(void);
 
 //*************************************************************************
 
 extern void pie_TexShutDown(void);
 
-extern BOOL iV_TexSizeIsLegal(UDWORD Width,UDWORD Height);
+extern BOOL iV_TexSizeIsLegal(UDWORD Width, UDWORD Height);
 extern BOOL iV_IsPower2(UDWORD Value);
 
-
-BOOL GenerateTEXPAGE(char *Filename, RECT *VramArea, UDWORD Mode, UWORD Clut);
-BOOL FindTextureNumber(UDWORD TexNum,int* TexPage);
+BOOL GenerateTEXPAGE(char* Filename, RECT* VramArea, UDWORD Mode, UWORD Clut);
+BOOL FindTextureNumber(UDWORD TexNum, int* TexPage);
 
 #endif

@@ -16,7 +16,7 @@
 #include "TextDraw.h"
 #include "BitImage.h"
 
-extern	void	pie_DrawTextNew(unsigned char *string, int x, int y);
+extern void pie_DrawTextNew(unsigned char* string, int x, int y);
 extern SDWORD DisplayXFactor;
 #ifndef PIETOOL	// if we are in the pie tool then don't compile any of this
 
@@ -30,10 +30,10 @@ extern SDWORD DisplayXFactor;
  *	Globally Imported Variables (well dodgy)
  */
 /***************************************************************************/
-extern UBYTE		aTransTable[256];//from rendfunc
-extern UBYTE		aTransTable2[256];//from rendfunc
-extern UBYTE		aTransTable3[256];//from rendfunc
-extern UBYTE		aTransTable4[256];//from rendfunc
+extern UBYTE aTransTable[256]; //from rendfunc
+extern UBYTE aTransTable2[256]; //from rendfunc
+extern UBYTE aTransTable3[256]; //from rendfunc
+extern UBYTE aTransTable4[256]; //from rendfunc
 
 /***************************************************************************/
 /*
@@ -43,17 +43,18 @@ extern UBYTE		aTransTable4[256];//from rendfunc
 
 #define MAX_IVIS_FONTS	8
 
-typedef struct {
-	IMAGEFILE *FontFile;	// The image data that contains the font.
-//	UWORD FontStartID;		// The image ID of character ASCII 33.
-//	UWORD FontEndID;		// The image ID of last character in the font.
-	int FontAbove;			// Max pixels above the base line.
-	int FontBelow;			// Max pixels below the base line.
-	int FontLineSize;		// Pixel spacing used for new lines.
-	int FontSpaceSize;		// Pixel spacing used for spaces.
-	SWORD FontColourIndex;	// The colour index to use.
-	UWORD *AsciiTable;
-} IVIS_FONT;
+using IVIS_FONT = struct
+{
+  IMAGEFILE* FontFile; // The image data that contains the font.
+  //	UWORD FontStartID;		// The image ID of character ASCII 33.
+  //	UWORD FontEndID;		// The image ID of last character in the font.
+  int FontAbove; // Max pixels above the base line.
+  int FontBelow; // Max pixels below the base line.
+  int FontLineSize; // Pixel spacing used for new lines.
+  int FontSpaceSize; // Pixel spacing used for spaces.
+  SWORD FontColourIndex; // The colour index to use.
+  UWORD* AsciiTable;
+};
 
 /***************************************************************************/
 /*
@@ -72,8 +73,8 @@ static IVIS_FONT iVFonts[MAX_IVIS_FONTS];
  */
 /***************************************************************************/
 void pie_BeginTextRender(SWORD ColourIndex);
-void pie_TextRender(IMAGEFILE *ImageFile,UWORD ID,int x,int y);
-void pie_TextRender270(IMAGEFILE *ImageFile, UWORD ImageID,int x,int y);//prototype
+void pie_TextRender(IMAGEFILE* ImageFile, UWORD ID, int x, int y);
+void pie_TextRender270(IMAGEFILE* ImageFile, UWORD ImageID, int x, int y); //prototype
 
 /***************************************************************************/
 /*
@@ -83,8 +84,8 @@ void pie_TextRender270(IMAGEFILE *ImageFile, UWORD ImageID,int x,int y);//protot
 
 void iV_ClearFonts(void)
 {
-	NumFonts = 0;
-	ActiveFontID = -1;
+  NumFonts = 0;
+  ActiveFontID = -1;
 }
 
 // Create a font using an ascii lookup table.
@@ -93,168 +94,155 @@ void iV_ClearFonts(void)
 // UWORD *AsciiTable		Array of 256 Ascii to ImageID lookups.
 // int SpaceSize			Pixel size of a space.
 //
-int iV_CreateFontIndirect(IMAGEFILE *ImageFile,UWORD *AsciiTable,int SpaceSize)
+int iV_CreateFontIndirect(IMAGEFILE* ImageFile, UWORD* AsciiTable, int SpaceSize)
 {
-	int Above,Below;
-	int Height;
-	UWORD Index,c;
-	IVIS_FONT *Font;
+  int Above, Below;
+  int Height;
+  UWORD Index, c;
+  IVIS_FONT* Font;
 
-	assert(NumFonts < MAX_IVIS_FONTS-1);
-	
-	Font = &iVFonts[NumFonts];
+  assert(NumFonts < MAX_IVIS_FONTS-1);
 
-	Font->FontFile = ImageFile;
-	Font->AsciiTable = AsciiTable;
-	Font->FontSpaceSize = SpaceSize;
-	Font->FontLineSize = 0;
-	Font->FontAbove = 0;
-	Font->FontBelow = 0;
+  Font = &iVFonts[NumFonts];
 
-	// Initialise the font metrics.
-	for(c=0; c<256; c++) {
-		Index = (UWORD)AsciiTable[c];
-		Above = iV_GetImageYOffset(Font->FontFile,Index);
-		Below = Above + iV_GetImageHeight(Font->FontFile,Index);
-		Height = abs(Above) + abs(Below);
+  Font->FontFile = ImageFile;
+  Font->AsciiTable = AsciiTable;
+  Font->FontSpaceSize = SpaceSize;
+  Font->FontLineSize = 0;
+  Font->FontAbove = 0;
+  Font->FontBelow = 0;
 
-		if(Above  < Font->FontAbove) {
-			Font->FontAbove = Above;
-		}
+  // Initialise the font metrics.
+  for (c = 0; c < 256; c++)
+  {
+    Index = AsciiTable[c];
+    Above = iV_GetImageYOffset(Font->FontFile, Index);
+    Below = Above + iV_GetImageHeight(Font->FontFile, Index);
+    Height = abs(Above) + abs(Below);
 
-		if(Below  > Font->FontBelow) {
-			Font->FontBelow = Below;
-		}
+    if (Above < Font->FontAbove)
+      Font->FontAbove = Above;
 
-		if(Height > Font->FontLineSize) {
-			Font->FontLineSize = Height;
-		}
-	}
+    if (Below > Font->FontBelow)
+      Font->FontBelow = Below;
 
-	ActiveFontID = NumFonts;
+    if (Height > Font->FontLineSize)
+      Font->FontLineSize = Height;
+  }
 
-	NumFonts++;
+  ActiveFontID = NumFonts;
 
-	return NumFonts-1;
+  NumFonts++;
+
+  return NumFonts - 1;
 }
-
 
 void iV_SetFont(int FontID)
 {
-	assert(FontID < NumFonts);
-	ActiveFontID = FontID;
+  assert(FontID < NumFonts);
+  ActiveFontID = FontID;
 }
-
 
 int iV_GetTextLineSize(void)
 {
-	IVIS_FONT *Font = &iVFonts[ActiveFontID];
-	return abs(Font->FontAbove) + abs(Font->FontBelow);
+  IVIS_FONT* Font = &iVFonts[ActiveFontID];
+  return abs(Font->FontAbove) + abs(Font->FontBelow);
 }
 
 int iV_GetTextAboveBase(void)
 {
-	IVIS_FONT *Font = &iVFonts[ActiveFontID];
-	return Font->FontAbove;
+  IVIS_FONT* Font = &iVFonts[ActiveFontID];
+  return Font->FontAbove;
 }
 
 int iV_GetTextBelowBase(void)
 {
-	IVIS_FONT *Font = &iVFonts[ActiveFontID];
-	return Font->FontBelow;
+  IVIS_FONT* Font = &iVFonts[ActiveFontID];
+  return Font->FontBelow;
 }
 
-
-
-int iV_GetTextWidth(unsigned char *String)
+int iV_GetTextWidth(unsigned char* String)
 {
-	int Index;
-	int MaxX = 0;
-	UWORD ImageID;
-	IVIS_FONT *Font = &iVFonts[ActiveFontID];
+  int Index;
+  int MaxX = 0;
+  UWORD ImageID;
+  IVIS_FONT* Font = &iVFonts[ActiveFontID];
 
-	while (*String!=0) {
-		Index = *String;
+  while (*String != 0)
+  {
+    Index = *String;
 
-		if(Index != ASCII_COLOURMODE) {
-			if(Index != ASCII_SPACE) {
-				ImageID = (UWORD)Font->AsciiTable[Index];
-				MaxX += iV_GetImageWidth(Font->FontFile,ImageID) + 1;
+    if (Index != ASCII_COLOURMODE)
+    {
+      if (Index != ASCII_SPACE)
+      {
+        ImageID = Font->AsciiTable[Index];
+        MaxX += iV_GetImageWidth(Font->FontFile, ImageID) + 1;
+      }
+      else
+        MaxX += Font->FontSpaceSize;
+    }
 
-			} else {
+    String++;
+  }
 
-				MaxX += Font->FontSpaceSize;
-			}
-		}
-
-		String++;
-	}
-
-	return MaxX;
+  return MaxX;
 }
 
-
-BOOL iV_GetTextDetails(unsigned char Char, UWORD *Width, UWORD *Height, SWORD *YOffset, UBYTE *U, UBYTE *V, UWORD *TpageID)
+BOOL iV_GetTextDetails(unsigned char Char, UWORD* Width, UWORD* Height, SWORD* YOffset, UBYTE* U, UBYTE* V, UWORD* TpageID)
 {
+  int Index;
+  UWORD ImageID;
+  IVIS_FONT* Font = &iVFonts[ActiveFontID];
 
+  Index = Char;
 
-	int Index;
-	UWORD ImageID;
-	IVIS_FONT *Font = &iVFonts[ActiveFontID];
+  if (Index != ASCII_COLOURMODE)
+  {
+    if (Index != ASCII_SPACE)
+    {
+      ImageID = Font->AsciiTable[Index];
 
-	Index = Char;
+      *Width = iV_GetImageWidth(Font->FontFile, ImageID);
+      *Height = iV_GetImageHeight(Font->FontFile, ImageID);
+      *YOffset = iV_GetImageYOffset(Font->FontFile, ImageID);
+      return TRUE;
+    }
+    *Width = Font->FontSpaceSize;
+    *Height = 0;
+    *YOffset = 0;
+    return TRUE;
+  }
+  *Width = 0;
+  *Height = 0;
+  *YOffset = 0;
 
-	if(Index != ASCII_COLOURMODE) {
-		if(Index != ASCII_SPACE) {
-			ImageID = (UWORD)Font->AsciiTable[Index];
-
-			*Width = iV_GetImageWidth(Font->FontFile,ImageID) ;
-			*Height = iV_GetImageHeight(Font->FontFile,ImageID);
-			*YOffset = iV_GetImageYOffset(Font->FontFile,ImageID);
-			return TRUE;
-		}
-		else 
-		{
-			*Width = Font->FontSpaceSize;
-			*Height=0;
-			*YOffset=0;
-			return TRUE;
-		}
-	}
-	*Width=0;
-	*Height=0;
-	*YOffset=0;
-
-	return TRUE;
-
-	
+  return TRUE;
 }
-
 
 int iV_GetCharWidth(unsigned char Char)
 {
-	int Index;
-	UWORD ImageID;
-	int Width = 0;
-	IVIS_FONT *Font = &iVFonts[ActiveFontID];
+  int Index;
+  UWORD ImageID;
+  int Width = 0;
+  IVIS_FONT* Font = &iVFonts[ActiveFontID];
 
-	Index = Char;
+  Index = Char;
 
-	if(Index != ASCII_COLOURMODE) {
-		if(Index != ASCII_SPACE) {
-			ImageID = (UWORD)Font->AsciiTable[Index];
+  if (Index != ASCII_COLOURMODE)
+  {
+    if (Index != ASCII_SPACE)
+    {
+      ImageID = Font->AsciiTable[Index];
 
-			Width = iV_GetImageWidth(Font->FontFile,ImageID) + 1;
-		} else {
+      Width = iV_GetImageWidth(Font->FontFile, ImageID) + 1;
+    }
+    else
+      Width = Font->FontSpaceSize;
+  }
 
-
-		   Width = Font->FontSpaceSize;
-		}
-	}
-
-	return Width;
+  return Width;
 }
-
 
 /*
 void iV_GetTextExtents(char *String,int *Width,int *y0,int *y1)
@@ -302,63 +290,56 @@ void iV_GetTextExtents(char *String,int *Width,int *y0,int *y1)
 
 void iV_SetTextColour(SWORD Index)
 {
-	IVIS_FONT *Font = &iVFonts[ActiveFontID];
-	Font->FontColourIndex = Index;
+  IVIS_FONT* Font = &iVFonts[ActiveFontID];
+  Font->FontColourIndex = Index;
 }
 
-
 // --------------------------------------------------------------------------
-
 
 #if(0)
 
 void pie_TestFormattedText(void)
 {
-	int ty = 32;
+  int ty = 32;
 
-	iV_SetTextColour(-1);
+  iV_SetTextColour(-1);
 
-	// Start recording text extents.
-	pie_StartTextExtents();
+  // Start recording text extents.
+  pie_StartTextExtents();
 
-	// Draw some left justified text.
-	ty = pie_DrawFormattedText(
-		(UBYTE*)"Establish a base, then search for a Pre-Collapse structure.",
-		16,ty,640-32,FTEXT_LEFTJUSTIFY,TRUE);
+  // Draw some left justified text.
+  ty = pie_DrawFormattedText((UBYTE*)"Establish a base, then search for a Pre-Collapse structure.", 16, ty, 640 - 32, FTEXT_LEFTJUSTIFY,
+                             TRUE);
 
-	// Draw some left justified appended to the last print.
-	ty = pie_DrawFormattedText(
-		(UBYTE*)"�This st�ru�cture contains technology vital for the success of the Project.",
-		16,ty,640-32,FTEXT_LEFTJUSTIFYAPPEND,TRUE);
+  // Draw some left justified appended to the last print.
+  ty = pie_DrawFormattedText((UBYTE*)"�This st�ru�cture contains technology vital for the success of the Project.", 16, ty, 640 - 32,
+                             FTEXT_LEFTJUSTIFYAPPEND,TRUE);
 
-	// Draw some centre justified text.
-	ty = pie_DrawFormattedText(
-		(UBYTE*)"Establish a base, then search for a Pre-Collapse structure.",
-		16,ty,640-32,FTEXT_CENTRE,TRUE);
+  // Draw some centre justified text.
+  ty = pie_DrawFormattedText((UBYTE*)"Establish a base, then search for a Pre-Collapse structure.", 16, ty, 640 - 32, FTEXT_CENTRE,TRUE);
 
-	// Draw some right justified text.
-	ty = pie_DrawFormattedText(
-		(UBYTE*)"Establish a base, then search for a Pre-Collapse structure.",
-		16,ty,640-32,FTEXT_RIGHTJUSTIFY,TRUE);
+  // Draw some right justified text.
+  ty = pie_DrawFormattedText((UBYTE*)"Establish a base, then search for a Pre-Collapse structure.", 16, ty, 640 - 32, FTEXT_RIGHTJUSTIFY,
+                             TRUE);
 
-	// Draw a filled box using the text extents.
-	pie_FillTextExtents(0,	16,16,128,	TRUE);
+  // Draw a filled box using the text extents.
+  pie_FillTextExtents(0, 16, 16, 128, TRUE);
 }
 
 #endif
 
-
-enum {
-	EXTENTS_NONE,
-	EXTENTS_START,
-	EXTENTS_END
+enum
+{
+  EXTENTS_NONE,
+  EXTENTS_START,
+  EXTENTS_END
 };
 
-static UBYTE FString[256];		// Must do something about these wastefull static arrays.
+static UBYTE FString[256]; // Must do something about these wastefull static arrays.
 static UBYTE FWord[256];
-static int LastX;				// Cursor position after last draw.
+static int LastX; // Cursor position after last draw.
 static int LastY;
-static int LastTWidth;			// Pixel width of the last string draw.
+static int LastTWidth; // Pixel width of the last string draw.
 static UDWORD FFlags = FTEXTF_SKIP_TRAILING_SPACES | FTEXTF_INSERT_SPACE_ON_APPEND;
 static int RecordExtents = EXTENTS_NONE;
 static int ExtentsStartX;
@@ -366,52 +347,24 @@ static int ExtentsStartY;
 static int ExtentsEndX;
 static int ExtentsEndY;
 
+void pie_SetFormattedTextFlags(UDWORD Flags) { FFlags = Flags; }
 
-void pie_SetFormattedTextFlags(UDWORD Flags)
-{
-	FFlags = Flags;
-}
+UDWORD pie_GetFormattedTextFlags(void) { return FFlags; }
 
+static RENDERTEXT_CALLBACK Indirect_pie_DrawText = pie_DrawText;
 
-UDWORD pie_GetFormattedTextFlags(void)
-{
-	return FFlags;
-}
+void SetIndirectDrawTextCallback(RENDERTEXT_CALLBACK routine) { Indirect_pie_DrawText = routine; }
 
-
-
-
-static RENDERTEXT_CALLBACK Indirect_pie_DrawText=pie_DrawText;
-
-
-void SetIndirectDrawTextCallback( RENDERTEXT_CALLBACK routine)
-{
-	Indirect_pie_DrawText=routine;	
-}
-
-RENDERTEXT_CALLBACK GetIndirectDrawTextCallback( void)
-{
-	return(Indirect_pie_DrawText);
-}
-		  
+RENDERTEXT_CALLBACK GetIndirectDrawTextCallback(void) { return (Indirect_pie_DrawText); }
 
 #define EXTENTS_USEMAXWIDTH (0)
 #define EXTENTS_USELASTX (1)
 
-UBYTE ExtentsMode=EXTENTS_USEMAXWIDTH;
+UBYTE ExtentsMode = EXTENTS_USEMAXWIDTH;
 
+void SetExtentsMode_USELAST(void) { ExtentsMode = EXTENTS_USELASTX; }
 
-void SetExtentsMode_USELAST(void)
-{
-	ExtentsMode=EXTENTS_USELASTX;
-}
-
-
-void SetExtentsMode_USEMAX(void)
-{
-	ExtentsMode=EXTENTS_USEMAXWIDTH;
-}
-
+void SetExtentsMode_USEMAX(void) { ExtentsMode = EXTENTS_USEMAXWIDTH; }
 
 // Draws formatted text with word wrap, long word splitting, embedded
 // newlines ( uses @ rather than \n ) and colour mode toggle ( # ) which enables
@@ -434,291 +387,297 @@ void SetExtentsMode_USEMAX(void)
 //
 // Returns y coord of next text line.
 //
-UDWORD pie_DrawFormattedText(UBYTE *String,UDWORD x,UDWORD y,UDWORD Width,UDWORD Justify,BOOL DrawBack)
+UDWORD pie_DrawFormattedText(UBYTE* String, UDWORD x, UDWORD y, UDWORD Width, UDWORD Justify, BOOL DrawBack)
 {
-	int i,si,osi;
-	int Len = strlen((char*)String);
-	int jx = x;		// Default to left justify.
-	int jy = y;
-	int WWidth;
-	BOOL GotSpace;
-	BOOL NewLine;
-	BOOL AddLeadingSpace;
-	int t;
-	int TWidth;
+  int i, si, osi;
+  int Len = strlen((char*)String);
+  int jx = x; // Default to left justify.
+  int jy = y;
+  int WWidth;
+  BOOL GotSpace;
+  BOOL NewLine;
+  BOOL AddLeadingSpace;
+  int t;
+  int TWidth;
 
-	si = 0;
-	
+  si = 0;
 
-														
-	while(si < Len) {
-		// Remove leading spaces, usefull when doing centre justify.
-		if(FFlags & FTEXTF_SKIP_LEADING_SPACES) {
-			while( (si < strlen((char*)String)) && (String[si] == ' ') ) {
-				si++;
-			}
-		}
+  while (si < Len)
+  {
+    // Remove leading spaces, usefull when doing centre justify.
+    if (FFlags & FTEXTF_SKIP_LEADING_SPACES) { while ((si < strlen((char*)String)) && (String[si] == ' ')) { si++; } }
 
-		FString[0] = 0;
+    FString[0] = 0;
 
-		if(Justify == FTEXT_LEFTJUSTIFYAPPEND) {
-			WWidth = LastTWidth;
-			if(FFlags & FTEXTF_INSERT_SPACE_ON_APPEND) {
-				AddLeadingSpace = TRUE;
-			}
-		} else {
-			WWidth = 0;
-			AddLeadingSpace = FALSE;
-		}
+    if (Justify == FTEXT_LEFTJUSTIFYAPPEND)
+    {
+      WWidth = LastTWidth;
+      if (FFlags & FTEXTF_INSERT_SPACE_ON_APPEND)
+        AddLeadingSpace = TRUE;
+    }
+    else
+    {
+      WWidth = 0;
+      AddLeadingSpace = FALSE;
+    }
 
-		GotSpace = FALSE;
-		NewLine = FALSE;
+    GotSpace = FALSE;
+    NewLine = FALSE;
 
-		// Parse through the string, adding words until width is achieved.
-		while( (si < strlen((char*)String)) && (WWidth <= Width) && (!NewLine)) {
-			osi = si;
+    // Parse through the string, adding words until width is achieved.
+    while ((si < strlen((char*)String)) && (WWidth <= Width) && (!NewLine))
+    {
+      osi = si;
 
-			// Get the next word.
-   			i = 0;
+      // Get the next word.
+      i = 0;
 #ifdef TESTBED
-			memset(FWord,0,256);
+      memset(FWord, 0, 256);
 #endif
-			if(AddLeadingSpace) {
-   				WWidth += iV_GetCharWidth(' ');
-   				if(WWidth <= Width) {
-					FWord[i] = ' ';
-					i++;
-					GotSpace = TRUE;
-					AddLeadingSpace = FALSE;
-				}
-			}
+      if (AddLeadingSpace)
+      {
+        WWidth += iV_GetCharWidth(' ');
+        if (WWidth <= Width)
+        {
+          FWord[i] = ' ';
+          i++;
+          GotSpace = TRUE;
+          AddLeadingSpace = FALSE;
+        }
+      }
 
-			while( (String[si] != 0) && (String[si] != ' ') && (WWidth <= Width)) {
-				// Check for new line character.
-				if(String[si] == ASCII_COLOURMODE) {	// If it's a colour mode toggle char then just add it to the word.
-					FWord[i] = String[si];
-   					i++;
-   					si++;
-				} else {
-					// Update this lines pixel width.
-					WWidth += iV_GetCharWidth(String[si]);
+      while ((String[si] != 0) && (String[si] != ' ') && (WWidth <= Width))
+      {
+        // Check for new line character.
+        if (String[si] == ASCII_COLOURMODE)
+        {
+          // If it's a colour mode toggle char then just add it to the word.
+          FWord[i] = String[si];
+          i++;
+          si++;
+        }
+        else
+        {
+          // Update this lines pixel width.
+          WWidth += iV_GetCharWidth(String[si]);
 
-					// If width ok then add this character to the current word.
-					if(WWidth <= Width) {
-						FWord[i] = String[si];
-	   					i++;
-	   					si++;
-					}
-				}
-   			}
+          // If width ok then add this character to the current word.
+          if (WWidth <= Width)
+          {
+            FWord[i] = String[si];
+            i++;
+            si++;
+          }
+        }
+      }
 
-   			// Don't forget the space.
-   			if(String[si] == ' ') {
-   				WWidth += iV_GetCharWidth(' ');
-   				if(WWidth <= Width) {
-					FWord[i] = ' ';
-					i++;
-					si++;
-					GotSpace = TRUE;
-				}
-			}
+      // Don't forget the space.
+      if (String[si] == ' ')
+      {
+        WWidth += iV_GetCharWidth(' ');
+        if (WWidth <= Width)
+        {
+          FWord[i] = ' ';
+          i++;
+          si++;
+          GotSpace = TRUE;
+        }
+      }
 
-			// If we've passed a space and the word goes past the width then rewind
-			// to that space and finish this line.
-			if(GotSpace) {
-				if( (WWidth >= Width) ) {
-					if(FWord[i-1] == ' ') {
-						FWord[i] = 0;
-					} else {
-						si = osi;
-						break;
-					}
-				}
-			}
+      // If we've passed a space and the word goes past the width then rewind
+      // to that space and finish this line.
+      if (GotSpace)
+      {
+        if ((WWidth >= Width))
+        {
+          if (FWord[i - 1] == ' ')
+            FWord[i] = 0;
+          else
+          {
+            si = osi;
+            break;
+          }
+        }
+      }
 
-			// Terminate the word.
-			FWord[i] = 0;
+      // Terminate the word.
+      FWord[i] = 0;
 
-			// And add it to the output string.
-			strcat((char*)FString,(char*)FWord);
-   		}
+      // And add it to the output string.
+      strcat((char*)FString, (char*)FWord);
+    }
 
-
-		// Remove trailing spaces, usefull when doing centre justify.
-		if(FFlags & FTEXTF_SKIP_TRAILING_SPACES) {
-			for(t=strlen((char*)FString)-1; t >= 0; t--) {
-				if(FString[t] != ' ') {
-					break;
-				}
-				FString[t] = 0;
-			}
-		}
+    // Remove trailing spaces, usefull when doing centre justify.
+    if (FFlags & FTEXTF_SKIP_TRAILING_SPACES)
+    {
+      for (t = strlen((char*)FString) - 1; t >= 0; t--)
+      {
+        if (FString[t] != ' ')
+          break;
+        FString[t] = 0;
+      }
+    }
 
 #ifdef _TESTBED
-		// Replace spaces with ~.
-		for(t=0; t<strlen((char*)FString); t++) {
-			if(FString[t] == ' ') FString[t] = '~';
-		}
+    // Replace spaces with ~.
+    for (t = 0; t < strlen((char*)FString); t++)
+    {
+      if (FString[t] == ' ')
+        FString[t] = '~';
+    }
 #endif
 
+    TWidth = iV_GetTextWidth(FString);
 
+    // Do justify.
+    switch (Justify)
+    {
+    case FTEXT_CENTRE:
+      jx = x + (Width - TWidth) / 2;
+      break;
 
-		TWidth = iV_GetTextWidth(FString);
+    case FTEXT_RIGHTJUSTIFY:
 
+      jx = x + Width - TWidth;
+      break;
 
+    case FTEXT_LEFTJUSTIFY:
+      jx = x;
+      break;
 
-		// Do justify.
-		switch(Justify) {
-			case	FTEXT_CENTRE:
-				jx = x + (Width-TWidth)/2;
-				break;
+    case FTEXT_LEFTJUSTIFYAPPEND:
+      jx = LastX;
+      jy = LastY;
+      Justify = FTEXT_LEFTJUSTIFY;
+      break;
+    }
 
-			case	FTEXT_RIGHTJUSTIFY:
+    // draw the text.
+    // This is an indirect routine
+    if (Indirect_pie_DrawText)
+      Indirect_pie_DrawText(FString, jx, jy);
 
-				jx = x + Width-TWidth;
-				break;
+    /* callback type for resload display callback*/
+    // remember where we were..
+    LastX = jx + TWidth;
+    LastY = jy;
+    LastTWidth = TWidth;
 
-			case	FTEXT_LEFTJUSTIFY:
-				jx = x;
-				break;
+    if (ExtentsMode == EXTENTS_USELASTX)
+    {
+      if (RecordExtents == EXTENTS_START)
+      {
+        // 
+        ExtentsStartY = y + iV_GetTextAboveBase();
+        ExtentsEndY = jy - iV_GetTextLineSize() + iV_GetTextBelowBase();
 
-			case	FTEXT_LEFTJUSTIFYAPPEND:
-				jx = LastX;
-				jy = LastY;
-				Justify = FTEXT_LEFTJUSTIFY;
-				break;
-		}
+        RecordExtents = EXTENTS_END;
+        ExtentsStartX = jx;
+        ExtentsEndX = LastX;
+      }
+      else
+      {
+        if (jx < ExtentsStartX)
+          ExtentsStartX = jx;
 
-		// draw the text.
-		// This is an indirect routine
-		if (Indirect_pie_DrawText)
-			Indirect_pie_DrawText(FString,jx,jy);
+        if (LastX > ExtentsEndX)
+          ExtentsEndX = LastX;
+      }
+    }
 
+    // and move down a line.
+    jy += iV_GetTextLineSize();
+  }
 
+  if (RecordExtents == EXTENTS_START)
+  {
+    RecordExtents = EXTENTS_END;
 
-/* callback type for resload display callback*/
-		// remember where we were..
-		LastX = jx + TWidth;
-		LastY = jy;
-		LastTWidth = TWidth;
+    ExtentsStartY = y + iV_GetTextAboveBase();
+    ExtentsEndY = jy - iV_GetTextLineSize() + iV_GetTextBelowBase();
 
+    if (ExtentsMode == EXTENTS_USEMAXWIDTH)
+    {
+      ExtentsStartX = x; // Was jx, but this broke the console centre justified text background.
+      ExtentsEndX = x + Width;
+    }
+    else
+    {
+      if (jx < ExtentsStartX)
+        ExtentsStartX = jx;
+      if (LastX > ExtentsEndX)
+        ExtentsEndX = LastX;
+    }
+  }
+  else if (RecordExtents == EXTENTS_END)
+  {
+    ExtentsEndY = jy - iV_GetTextLineSize() + iV_GetTextBelowBase();
 
-		if (ExtentsMode==EXTENTS_USELASTX)
-		{
-			if (RecordExtents==EXTENTS_START)
-			{
-// 
-				ExtentsStartY = y + iV_GetTextAboveBase();
-				ExtentsEndY = jy - iV_GetTextLineSize()+iV_GetTextBelowBase();
+    if (ExtentsMode == EXTENTS_USEMAXWIDTH)
+      ExtentsEndX = x + Width;
+  }
 
-				RecordExtents = EXTENTS_END;
-				ExtentsStartX=jx;
-				ExtentsEndX=LastX;
-			}
-			else
-			{
-				if (jx<ExtentsStartX) ExtentsStartX=jx;
+  //	// Need to take	FTEXT_LEFTJUSTIFYAPPEND into account here.
+  //		// Move y up to the top of the text.
+  //
+  //		// and draw a transparent box behind the text.
+  //		TransBoxFillRGB_psx(x,y, x+Width,
+  //							jy-iV_GetTextLineSize()+iV_GetTextBelowBase(),
 
-				if (LastX>ExtentsEndX) ExtentsEndX=LastX;
-			}
-
-		}
-
-
-		// and move down a line.
-		jy += iV_GetTextLineSize();
-	}
-
-	if(RecordExtents == EXTENTS_START) {
-		RecordExtents = EXTENTS_END;
-
-		ExtentsStartY = y + iV_GetTextAboveBase();
-		ExtentsEndY = jy - iV_GetTextLineSize()+iV_GetTextBelowBase();
-
-		if (ExtentsMode==EXTENTS_USEMAXWIDTH)
-		{
-			ExtentsStartX = x;	// Was jx, but this broke the console centre justified text background.
-			ExtentsEndX = x + Width;
-
-		}
-		else
-		{
-			if (jx<ExtentsStartX) ExtentsStartX=jx;
-			if (LastX>ExtentsEndX) ExtentsEndX=LastX;
-
-		}
-
-
-	} else if(RecordExtents == EXTENTS_END) {
-		ExtentsEndY = jy - iV_GetTextLineSize()+iV_GetTextBelowBase();
-
-		if (ExtentsMode==EXTENTS_USEMAXWIDTH)
-		{
-			ExtentsEndX = x + Width;
-		}
-
-	}
-
-
-//	// Need to take	FTEXT_LEFTJUSTIFYAPPEND into account here.
-//		// Move y up to the top of the text.
-//
-//		// and draw a transparent box behind the text.
-//		TransBoxFillRGB_psx(x,y, x+Width,
-//							jy-iV_GetTextLineSize()+iV_GetTextBelowBase(),
-
-	return jy;
+  return jy;
 }
-
-
 
 static SWORD OldTextColourIndex = -1;
 
-void pie_DrawText(unsigned char *string, UDWORD x, UDWORD y)
+void pie_DrawText(unsigned char* string, UDWORD x, UDWORD y)
 {
-	int Index;
-	UWORD ImageID;
-	IVIS_FONT *Font = &iVFonts[ActiveFontID];
+  int Index;
+  UWORD ImageID;
+  IVIS_FONT* Font = &iVFonts[ActiveFontID];
 
-	/* Colour selection */
-	pie_BeginTextRender(Font->FontColourIndex);
+  /* Colour selection */
+  pie_BeginTextRender(Font->FontColourIndex);
 
-	while (*string!=0) {
+  while (*string != 0)
+  {
+    Index = *string;
 
-		Index = *string;
+    // Toggle colour mode?
+    if (Index == ASCII_COLOURMODE)
+    {
+      if (TextColourIndex >= 0)
+      {
+        OldTextColourIndex = TextColourIndex;
+        TextColourIndex = -1;
+      }
+      else
+      {
+        if (OldTextColourIndex >= 0)
+          TextColourIndex = OldTextColourIndex;
+      }
+    }
+    else if (Index == ASCII_SPACE)
+      x += Font->FontSpaceSize;
+    else
+    {
+      ImageID = Font->AsciiTable[Index];
+      pie_TextRender(Font->FontFile, ImageID, x, y);
 
-		// Toggle colour mode?
-		if(Index == ASCII_COLOURMODE) {
-			if(TextColourIndex >= 0) {
-				OldTextColourIndex = TextColourIndex;
-				TextColourIndex = -1;
-			} else {
-				if(OldTextColourIndex >= 0) {
-					TextColourIndex = OldTextColourIndex;
-				}
-			}
-		} else if(Index == ASCII_SPACE) {
-			x += Font->FontSpaceSize;
-		} else {
-			ImageID = (UWORD)Font->AsciiTable[Index];
-			pie_TextRender(Font->FontFile,ImageID,x,y);
+      x += iV_GetImageWidth(Font->FontFile, ImageID) + 1;
+    }
 
-			x += iV_GetImageWidth(Font->FontFile,ImageID) + 1;
-		}
-
-// Don't use this any more, If the text needs to wrap then use
-// pie_DrawFormattedText() defined above.
-		/* New bit to make text wrap */
-		if(x > (pie_GetVideoBufferWidth() - Font->FontSpaceSize) )
-		{
-			/* Drop it to the next line if we hit screen edge */
-			x = 0;
-			y += iV_GetTextLineSize();
-		}
-		string++;
-	}
+    // Don't use this any more, If the text needs to wrap then use
+    // pie_DrawFormattedText() defined above.
+    /* New bit to make text wrap */
+    if (x > (pie_GetVideoBufferWidth() - Font->FontSpaceSize))
+    {
+      /* Drop it to the next line if we hit screen edge */
+      x = 0;
+      y += iV_GetTextLineSize();
+    }
+    string++;
+  }
 }
-
 
 ///* New foreign character capable text printer - AlexM */
 //void	pie_DrawText(unsigned char *string, UDWORD x, UDWORD y)
@@ -846,203 +805,180 @@ void pie_DrawText(unsigned char *String,int XPos,int YPos)
 }
 */
 
-
-
 //draw Blue tinted bitmap
-void pie_RenderBlueTintedBitmap(iBitmap *bmp, int x, int y, int w, int h, int ow)
+void pie_RenderBlueTintedBitmap(iBitmap* bmp, int x, int y, int w, int h, int ow)
 {
-	int i, j, lineSkip;
-	uint8 *bp;
-	uint8 present;
+  int i, j, lineSkip;
+  uint8* bp;
+  uint8 present;
 
+  bp = psRendSurface->buffer + x + psRendSurface->scantable[y];
 
-	bp = (uint8 *) psRendSurface->buffer + x + psRendSurface->scantable[y];
-
-	lineSkip = psRendSurface->width - w;
-	for (i=0; i<h; i++)
-	{
-		for (j=0; j<w; j++)
-		{
-			present = *bmp++;
-			if(present)
-			{
-				*bp = aTransTable3[present];			// Write in the new version (blue tinted)
-			}
-			bp++;
-		}
-		bmp += (ow - w);
-		bp += lineSkip;
-	}
+  lineSkip = psRendSurface->width - w;
+  for (i = 0; i < h; i++)
+  {
+    for (j = 0; j < w; j++)
+    {
+      present = *bmp++;
+      if (present)
+        *bp = aTransTable3[present]; // Write in the new version (blue tinted)
+      bp++;
+    }
+    bmp += (ow - w);
+    bp += lineSkip;
+  }
 }
 
-void pie_RenderDeepBlueTintedBitmap(iBitmap *bmp, int x, int y, int w, int h, int ow)
+void pie_RenderDeepBlueTintedBitmap(iBitmap* bmp, int x, int y, int w, int h, int ow)
 {
-	int i, j, lineSkip;
-	uint8 *bp;
-	uint8 present;
+  int i, j, lineSkip;
+  uint8* bp;
+  uint8 present;
 
+  bp = psRendSurface->buffer + x + psRendSurface->scantable[y];
 
-	bp = (uint8 *) psRendSurface->buffer + x + psRendSurface->scantable[y];
-
-	lineSkip = psRendSurface->width - w;
-	for (i=0; i<h; i++)
-	{
-		for (j=0; j<w; j++)
-		{
-			present = *bmp++;
-			if(present)
-			{
-				*bp = aTransTable4[present];			// Write in the new version (blue tinted)
-			}
-			bp++;
-		}
-		bmp += (ow - w);
-		bp += lineSkip;
-	}
+  lineSkip = psRendSurface->width - w;
+  for (i = 0; i < h; i++)
+  {
+    for (j = 0; j < w; j++)
+    {
+      present = *bmp++;
+      if (present)
+        *bp = aTransTable4[present]; // Write in the new version (blue tinted)
+      bp++;
+    }
+    bmp += (ow - w);
+    bp += lineSkip;
+  }
 }
 
-
-
-void pie_RenderCharToSurface(UDWORD *lpSurface, SDWORD pitch, IMAGEFILE *ImageFile, UWORD ID, int x, int y, UWORD colour)
+void pie_RenderCharToSurface(UDWORD* lpSurface, SDWORD pitch, IMAGEFILE* ImageFile, UWORD ID, int x, int y, UWORD colour)
 {
-	IMAGEDEF *Image;
-	iBitmap *bmp;
-	UDWORD Modulus;
-	int w;
-	int h;
-	int ow;
-	int i, j, lineb_w;
-	UWORD *bp;
+  IMAGEDEF* Image;
+  iBitmap* bmp;
+  UDWORD Modulus;
+  int w;
+  int h;
+  int ow;
+  int i, j, lineb_w;
+  UWORD* bp;
 
-	assert(ID < ImageFile->Header.NumImages);
-	Image = &ImageFile->ImageDefs[ID];
+  assert(ID < ImageFile->Header.NumImages);
+  Image = &ImageFile->ImageDefs[ID];
 
-	Modulus = ImageFile->TexturePages[Image->TPageID].width;
-	bmp = ImageFile->TexturePages[Image->TPageID].bmp;
+  Modulus = ImageFile->TexturePages[Image->TPageID].width;
+  bmp = ImageFile->TexturePages[Image->TPageID].bmp;
 
-	bmp += ((UDWORD)Image->Tu) + ((UDWORD)Image->Tv) * Modulus;
-			   	
-	x = x+Image->XOffset;
-	y = y+Image->YOffset;
-	w = Image->Width;
-	h = Image->Height;
-	ow = Modulus;
+  bmp += static_cast<UDWORD>(Image->Tu) + static_cast<UDWORD>(Image->Tv) * Modulus;
 
-	//word pitch
-	pitch /= 2;
+  x = x + Image->XOffset;
+  y = y + Image->YOffset;
+  w = Image->Width;
+  h = Image->Height;
+  ow = Modulus;
 
-	bp = (UWORD *) lpSurface + x + y * pitch;
+  //word pitch
+  pitch /= 2;
 
-	lineb_w = pitch - w;
-	for (i=0; i<h; i++)
-	{
-		for (j=0; j<w; j++)
-		{
-			if(*bmp)
-			{
-				*bp = palette16Bit[*bmp];
-			}
-			bmp++;
-			bp++;
-		}
-		bmp += (ow - w);
-		bp += lineb_w;
-	}
+  bp = (UWORD*)lpSurface + x + y * pitch;
+
+  lineb_w = pitch - w;
+  for (i = 0; i < h; i++)
+  {
+    for (j = 0; j < w; j++)
+    {
+      if (*bmp)
+        *bp = palette16Bit[*bmp];
+      bmp++;
+      bp++;
+    }
+    bmp += (ow - w);
+    bp += lineb_w;
+  }
 }
 
-void pie_DrawTextToSurface(LPDIRECTDRAWSURFACE4	lpDDSF, unsigned char *String, int XPos, int YPos)
+void pie_DrawTextToSurface(LPDIRECTDRAWSURFACE4 lpDDSF, unsigned char* String, int XPos, int YPos)
 {
-	int Index;
-	UWORD ImageID;
-	IVIS_FONT *Font = &iVFonts[ActiveFontID];
-	UDWORD* lpSurface;
-	DDSURFACEDESC2	DD_sd; 
-	HRESULT			hRes;
+  int Index;
+  UWORD ImageID;
+  IVIS_FONT* Font = &iVFonts[ActiveFontID];
+  UDWORD* lpSurface;
+  DDSURFACEDESC2 DD_sd;
+  HRESULT hRes;
 
-	// We lock the surface before blitting video to it.
-	DD_sd.dwSize = sizeof( DD_sd );
-	if ( lpDDSF->lpVtbl->GetSurfaceDesc(lpDDSF, &DD_sd ) != DD_OK )
-	{
-		DBERROR(("Sequence player text GetSurfaceDesc failed:"));
-		return;
-	}
+  // We lock the surface before blitting video to it.
+  DD_sd.dwSize = sizeof(DD_sd);
+  if (lpDDSF->lpVtbl->GetSurfaceDesc(lpDDSF, &DD_sd) != DD_OK)
+  {
+    DBERROR(("Sequence player text GetSurfaceDesc failed:"));
+    return;
+  }
 
-	hRes = lpDDSF->lpVtbl->Lock(lpDDSF, NULL, &DD_sd,DDLOCK_WAIT, NULL);
-	if (hRes != DD_OK)
-	{
-		DBERROR(("Sequence player text draw buffer lock failed:\n%s", DDErrorToString(hRes)));
-		return;
-	}
+  hRes = lpDDSF->lpVtbl->Lock(lpDDSF, nullptr, &DD_sd,DDLOCK_WAIT, nullptr);
+  if (hRes != DD_OK)
+  {
+    DBERROR(("Sequence player text draw buffer lock failed:\n%s", DDErrorToString(hRes)));
+    return;
+  }
 
-	if (DD_sd.ddpfPixelFormat.dwRGBBitCount != 16)
-	{
-		// We can unlock the suurface now as we have finished with it, 
-		// until the next decode is required
-		lpDDSF->lpVtbl->Unlock(lpDDSF, (LPRECT)DD_sd.lpSurface );
-		return;
-	}
+  if (DD_sd.ddpfPixelFormat.dwRGBBitCount != 16)
+  {
+    // We can unlock the suurface now as we have finished with it, 
+    // until the next decode is required
+    lpDDSF->lpVtbl->Unlock(lpDDSF, static_cast<LPRECT>(DD_sd.lpSurface));
+    return;
+  }
 
-	lpSurface = (UDWORD*)DD_sd.lpSurface; 
-	
-	while (*String!=0) 
-	{
-		Index = *String;
-		if(Index!=ASCII_SPACE)
-		{
-			ImageID = (UWORD)Font->AsciiTable[Index];
-			pie_RenderCharToSurface(lpSurface, DD_sd.lPitch, Font->FontFile, ImageID, XPos, YPos, 0xffff);
-			XPos += iV_GetImageWidth(Font->FontFile,ImageID) + 1;
-		}
-		else
-		{
-			XPos += Font->FontSpaceSize;
-		}
-	
-		String++;
+  lpSurface = static_cast<UDWORD*>(DD_sd.lpSurface);
 
-	//	if((Index >= 0) && (Index <= Font->FontEndID - Font->FontStartID))
+  while (*String != 0)
+  {
+    Index = *String;
+    if (Index != ASCII_SPACE)
+    {
+      ImageID = Font->AsciiTable[Index];
+      pie_RenderCharToSurface(lpSurface, DD_sd.lPitch, Font->FontFile, ImageID, XPos, YPos, 0xffff);
+      XPos += iV_GetImageWidth(Font->FontFile, ImageID) + 1;
+    }
+    else
+      XPos += Font->FontSpaceSize;
 
+    String++;
 
-
-
-	}
-	// We can unlock the suurface now as we have finished with it, 
-	// until the next decode is required
-	lpDDSF->lpVtbl->Unlock(lpDDSF, (LPRECT)DD_sd.lpSurface );
+    //	if((Index >= 0) && (Index <= Font->FontEndID - Font->FontStartID))
+  }
+  // We can unlock the suurface now as we have finished with it, 
+  // until the next decode is required
+  lpDDSF->lpVtbl->Unlock(lpDDSF, static_cast<LPRECT>(DD_sd.lpSurface));
 }
 
-
-
-void pie_DrawText270(unsigned char *String,int XPos,int YPos)
+void pie_DrawText270(unsigned char* String, int XPos, int YPos)
 {
-	int Index;
-	UWORD ImageID;
-	IVIS_FONT *Font = &iVFonts[ActiveFontID];
+  int Index;
+  UWORD ImageID;
+  IVIS_FONT* Font = &iVFonts[ActiveFontID];
 
-	if (pie_Hardware())
-	{
-		YPos += iV_GetImageWidth(Font->FontFile,(UWORD)Font->AsciiTable[33]) + 1;
-	}
+  if (pie_Hardware())
+    YPos += iV_GetImageWidth(Font->FontFile, Font->AsciiTable[33]) + 1;
 
-	pie_BeginTextRender(Font->FontColourIndex);
-					
-	while (*String!=0)	
-	{
-		Index = *String;
+  pie_BeginTextRender(Font->FontColourIndex);
 
-		if(Index != ASCII_SPACE) {
-			ImageID = (UWORD)Font->AsciiTable[Index];
-			pie_TextRender270(Font->FontFile,ImageID,XPos,YPos);
+  while (*String != 0)
+  {
+    Index = *String;
 
-			YPos -= (iV_GetImageWidth(Font->FontFile,ImageID) +1) ;
+    if (Index != ASCII_SPACE)
+    {
+      ImageID = Font->AsciiTable[Index];
+      pie_TextRender270(Font->FontFile, ImageID, XPos, YPos);
 
-		} else {
-			YPos -= (Font->FontSpaceSize);
-		}
-		String++;
-	}
+      YPos -= (iV_GetImageWidth(Font->FontFile, ImageID) + 1);
+    }
+    else
+      YPos -= (Font->FontSpaceSize);
+    String++;
+  }
 }
-
 
 //
 //	if (pie_Hardware())
@@ -1058,108 +994,88 @@ void pie_DrawText270(unsigned char *String,int XPos,int YPos)
 
 void pie_BeginTextRender(SWORD ColourIndex)
 {
-	TextColourIndex = ColourIndex;
-	pie_SetRendMode(REND_TEXT);
-	pie_SetBilinear(FALSE);
+  TextColourIndex = ColourIndex;
+  pie_SetRendMode(REND_TEXT);
+  pie_SetBilinear(FALSE);
 }
 
-void pie_TextRender(IMAGEFILE *ImageFile,UWORD ID,int x,int y)
+void pie_TextRender(IMAGEFILE* ImageFile, UWORD ID, int x, int y)
 {
-	UDWORD Red;
-	UDWORD Green;
-	UDWORD Blue;
-	UDWORD Alpha = MAX_UB_LIGHT;
-	iColour* psPalette;
+  UDWORD Red;
+  UDWORD Green;
+  UDWORD Blue;
+  UDWORD Alpha = MAX_UB_LIGHT;
+  iColour* psPalette;
 
-
-	if	((TextColourIndex == PIE_TEXT_WHITE) || (TextColourIndex == 255))
-	{
-		pie_SetColour(MAX_LIGHT);
-		pie_SetColourKeyedBlack(TRUE);
-		pie_DrawImageFileID(ImageFile,ID,x,y);
-	}
-	else
-	{
-		if (TextColourIndex == PIE_TEXT_WHITE)
-		{
-			pie_SetColour(PIE_TEXT_WHITE_COLOUR);
-		}
-		else if (TextColourIndex == PIE_TEXT_LIGHTBLUE)
-		{
-			pie_SetColour(PIE_TEXT_LIGHTBLUE_COLOUR);
-		}
-		else if (TextColourIndex == PIE_TEXT_DARKBLUE)
-		{
-			pie_SetColour(PIE_TEXT_DARKBLUE_COLOUR);
-		}
-		else
-		{
-			psPalette = pie_GetGamePal();
-			Red  = psPalette[TextColourIndex].r;
-			Green= psPalette[TextColourIndex].g;
-			Blue = psPalette[TextColourIndex].b;
-			pie_SetColour(((Alpha<<24) | (Red<<16) | (Green<<8) | Blue));
-		}
-		pie_SetColourKeyedBlack(TRUE);
-		pie_DrawImageFileID(ImageFile,ID,x,y);
-	}
+  if ((TextColourIndex == PIE_TEXT_WHITE) || (TextColourIndex == 255))
+  {
+    pie_SetColour(MAX_LIGHT);
+    pie_SetColourKeyedBlack(TRUE);
+    pie_DrawImageFileID(ImageFile, ID, x, y);
+  }
+  else
+  {
+    if (TextColourIndex == PIE_TEXT_WHITE)
+      pie_SetColour(PIE_TEXT_WHITE_COLOUR);
+    else if (TextColourIndex == PIE_TEXT_LIGHTBLUE)
+      pie_SetColour(PIE_TEXT_LIGHTBLUE_COLOUR);
+    else if (TextColourIndex == PIE_TEXT_DARKBLUE)
+      pie_SetColour(PIE_TEXT_DARKBLUE_COLOUR);
+    else
+    {
+      psPalette = pie_GetGamePal();
+      Red = psPalette[TextColourIndex].r;
+      Green = psPalette[TextColourIndex].g;
+      Blue = psPalette[TextColourIndex].b;
+      pie_SetColour(((Alpha << 24) | (Red << 16) | (Green << 8) | Blue));
+    }
+    pie_SetColourKeyedBlack(TRUE);
+    pie_DrawImageFileID(ImageFile, ID, x, y);
+  }
 }
 
-
-
-
-void pie_TextRender270(IMAGEFILE *ImageFile, UWORD ImageID,int x,int y)
+void pie_TextRender270(IMAGEFILE* ImageFile, UWORD ImageID, int x, int y)
 {
-	UDWORD Red;
-	UDWORD Green;
-	UDWORD Blue;
-	UDWORD Alpha = MAX_UB_LIGHT;
-	IMAGEDEF *Image;
-	PIEIMAGE pieImage;
-	PIERECT dest;
-	PIESTYLE	rendStyle;
-	iColour* psPalette;
+  UDWORD Red;
+  UDWORD Green;
+  UDWORD Blue;
+  UDWORD Alpha = MAX_UB_LIGHT;
+  IMAGEDEF* Image;
+  PIEIMAGE pieImage;
+  PIERECT dest;
+  PIESTYLE rendStyle;
+  iColour* psPalette;
 
-	Image = &(ImageFile->ImageDefs[ImageID]);
-	//not coloured yet
-	if (TextColourIndex == PIE_TEXT_WHITE)
-	{
-		pie_SetColour(PIE_TEXT_WHITE_COLOUR & 0x80ffffff);//special case semi transparent for rotated text
-		pie_SetRendMode(REND_ALPHA_TEXT);
-	}
-	else if (TextColourIndex == PIE_TEXT_LIGHTBLUE)
-	{
-		pie_SetColour(PIE_TEXT_LIGHTBLUE_COLOUR);
-	}
-	else if (TextColourIndex == PIE_TEXT_DARKBLUE)
-	{
-		pie_SetColour(PIE_TEXT_DARKBLUE_COLOUR);
-	}
-	else
-	{
-		psPalette = pie_GetGamePal();
-		Red  = psPalette[TextColourIndex].r;
-		Green= psPalette[TextColourIndex].g;
-		Blue = psPalette[TextColourIndex].b;
-		pie_SetColour(((Alpha<<24) | (Red<<16) | (Green<<8) | Blue));
-	}
-	pie_SetColourKeyedBlack(TRUE);
-	pieImage.texPage = ImageFile->TPageIDs[Image->TPageID];
-	pieImage.tu = Image->Tu;
-	pieImage.tv = Image->Tv;
-	pieImage.tw = Image->Width;
-	pieImage.th = Image->Height;
-	dest.x = x+Image->YOffset;
-	dest.y = y+Image->XOffset - Image->Width;
-	dest.w = Image->Width;
-	dest.h = Image->Height;
-	pie_DrawImage270(&pieImage, &dest, &rendStyle);
-
+  Image = &(ImageFile->ImageDefs[ImageID]);
+  //not coloured yet
+  if (TextColourIndex == PIE_TEXT_WHITE)
+  {
+    pie_SetColour(PIE_TEXT_WHITE_COLOUR & 0x80ffffff); //special case semi transparent for rotated text
+    pie_SetRendMode(REND_ALPHA_TEXT);
+  }
+  else if (TextColourIndex == PIE_TEXT_LIGHTBLUE)
+    pie_SetColour(PIE_TEXT_LIGHTBLUE_COLOUR);
+  else if (TextColourIndex == PIE_TEXT_DARKBLUE)
+    pie_SetColour(PIE_TEXT_DARKBLUE_COLOUR);
+  else
+  {
+    psPalette = pie_GetGamePal();
+    Red = psPalette[TextColourIndex].r;
+    Green = psPalette[TextColourIndex].g;
+    Blue = psPalette[TextColourIndex].b;
+    pie_SetColour(((Alpha << 24) | (Red << 16) | (Green << 8) | Blue));
+  }
+  pie_SetColourKeyedBlack(TRUE);
+  pieImage.texPage = ImageFile->TPageIDs[Image->TPageID];
+  pieImage.tu = Image->Tu;
+  pieImage.tv = Image->Tv;
+  pieImage.tw = Image->Width;
+  pieImage.th = Image->Height;
+  dest.x = x + Image->YOffset;
+  dest.y = y + Image->XOffset - Image->Width;
+  dest.w = Image->Width;
+  dest.h = Image->Height;
+  pie_DrawImage270(&pieImage, &dest, &rendStyle);
 }
-
-
 
 #endif
-
-
-

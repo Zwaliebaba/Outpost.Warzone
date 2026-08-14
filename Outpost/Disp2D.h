@@ -23,7 +23,7 @@ extern UDWORD tilesPerLine;
 extern UDWORD maxTexTile;
 
 /* Map Position of top right hand corner of the screen */
-extern UDWORD viewX,viewY;
+extern UDWORD viewX, viewY;
 
 /* Initialise the display system */
 extern BOOL disp2DInitialise(void);
@@ -38,7 +38,7 @@ extern BOOL disp2DModeChange(void);
 extern BOOL process2DInput(void);
 
 /* Display a texture tile in 2D */
-extern void blitTile(RECT *psDestRect, RECT *psSrcRect, UDWORD texture);
+extern void blitTile(RECT* psDestRect, RECT* psSrcRect, UDWORD texture);
 
 /* Display the terrain type as a coloured block */
 void dispTerrain(UDWORD x, UDWORD y, TYPE_OF_TERRAIN type);
@@ -47,30 +47,23 @@ void dispTerrain(UDWORD x, UDWORD y, TYPE_OF_TERRAIN type);
 extern void display2DWorld(void);
 
 /* Return the world coords of a screen coordinate */
-extern void disp2DToWorld(UDWORD scrX, UDWORD scrY, UDWORD *pWorldX, UDWORD *pWorldY);
+extern void disp2DToWorld(UDWORD scrX, UDWORD scrY, UDWORD* pWorldX, UDWORD* pWorldY);
 
 /* Return the world coords of a screen coordinate */
-extern void disp2DFromWorld(UDWORD worldX, UDWORD worldY, SDWORD *pScrX, SDWORD *pScrY);
+extern void disp2DFromWorld(UDWORD worldX, UDWORD worldY, SDWORD* pScrX, SDWORD* pScrY);
 
 /* Start looking for a structure location */
-extern void disp2DStartStructPosition(BASE_STATS *psStats);
+extern void disp2DStartStructPosition(BASE_STATS* psStats);
 
 /* Stop looking for a structure location */
 extern void disp2DStopStructPosition(void);
 
 /* See if a structure location has been found */
-extern BOOL disp2DGetStructPosition(UDWORD *pX, UDWORD *pY);
-
-
-extern void showGameStats(void);
+extern BOOL disp2DGetStructPosition(UDWORD* pX, UDWORD* pY);extern void showGameStats(void);
 
 /* Draws an ellipse to show the range of the droids sensors */
-extern void	showDroidRange(DROID *psDroid);
-
-extern BOOL wanderAbout;
-extern UDWORD	selectedPlayer;
+extern void showDroidRange(DROID* psDroid);extern BOOL wanderAbout;extern UDWORD selectedPlayer;
 
 #endif
 
 #endif
-

@@ -19,47 +19,42 @@
 /* structs
  */
 
-typedef struct LISTNODE
+using LISTNODE = struct LISTNODE
 {
-	void				*psElement;
-	SDWORD				sdwKey;
-	struct LISTNODE		*psNext;
-}
-LISTNODE;
+  void* psElement;
+  SDWORD sdwKey;
+  struct LISTNODE* psNext;
+};
 
-typedef struct sPTRLIST
+using PTRLIST = struct sPTRLIST
 {
-	OBJ_HEAP		*psNodeHeap;
-	OBJ_HEAP		*psElementHeap;
-	LISTNODE		*psNode;
-	LISTNODE		*psCurNode;
-	UDWORD			udwTableSize;
-	UDWORD			udwElements;
-	UDWORD			udwExtElements;
-	UDWORD			udwElementSize;
-	UDWORD			sdwCurIndex;
-	BOOL			bDontGetNext;
-}
-PTRLIST;
+  OBJ_HEAP* psNodeHeap;
+  OBJ_HEAP* psElementHeap;
+  LISTNODE* psNode;
+  LISTNODE* psCurNode;
+  UDWORD udwTableSize;
+  UDWORD udwElements;
+  UDWORD udwExtElements;
+  UDWORD udwElementSize;
+  UDWORD sdwCurIndex;
+  BOOL bDontGetNext;
+};
 
 /***************************************************************************/
 /* functions
  */
 
-BOOL	ptrList_Create( PTRLIST **pptrList, UDWORD udwInitElements,
-						UDWORD udwExtElements, UDWORD udwElementSize );
-void	ptrList_Destroy( PTRLIST *ptrList );
-void	ptrList_Clear( PTRLIST *ptrList );
+BOOL ptrList_Create(PTRLIST** pptrList, UDWORD udwInitElements, UDWORD udwExtElements, UDWORD udwElementSize);
+void ptrList_Destroy(PTRLIST* ptrList);
+void ptrList_Clear(PTRLIST* ptrList);
 
-void *	ptrList_GetElement( PTRLIST *ptrList );
-void	ptrList_FreeElement( PTRLIST *ptrList, void *psElement );
-void	ptrList_InsertElement( PTRLIST *ptrList, void *psElement,
-								SDWORD sdwKey );
-BOOL	ptrList_RemoveElement( PTRLIST *ptrList, void *psElement,
-								SDWORD sdwKey );
+void* ptrList_GetElement(PTRLIST* ptrList);
+void ptrList_FreeElement(PTRLIST* ptrList, void* psElement);
+void ptrList_InsertElement(PTRLIST* ptrList, void* psElement, SDWORD sdwKey);
+BOOL ptrList_RemoveElement(PTRLIST* ptrList, void* psElement, SDWORD sdwKey);
 
-void *	ptrList_GetFirst( PTRLIST *ptrList );
-void *	ptrList_GetNext(  PTRLIST *ptrList );
+void* ptrList_GetFirst(PTRLIST* ptrList);
+void* ptrList_GetNext(PTRLIST* ptrList);
 
 /***************************************************************************/
 

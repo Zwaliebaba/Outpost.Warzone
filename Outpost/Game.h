@@ -44,7 +44,6 @@
 #define VERSION_32              32              //factory secondary order saved
 #define VERSION_33              33              //skirmish save 
 
-
 #ifdef SAVE_TEST
 #define	CURRENT_VERSION_NUM		VERSION_33
 #else
@@ -61,37 +60,39 @@
 #define VALIDITYKEY_CHEAT_MODE	0x08
 #define VALIDITYKEY_MID_GAME	0x10
 
-enum {
-	GTYPE_SCENARIO_START,	// Initial scenario state.
-	GTYPE_SCENARIO_EXPAND,	// Scenario scroll area expansion.
-	GTYPE_MISSION,			// Stand alone mission.
-	GTYPE_SAVE_START,		// User saved game - at the start of a level.
-	GTYPE_SAVE_MIDMISSION,	// User saved game - in the middle of a level
+enum
+{
+  GTYPE_SCENARIO_START,
+  // Initial scenario state.
+  GTYPE_SCENARIO_EXPAND,
+  // Scenario scroll area expansion.
+  GTYPE_MISSION,
+  // Stand alone mission.
+  GTYPE_SAVE_START,
+  // User saved game - at the start of a level.
+  GTYPE_SAVE_MIDMISSION,
+  // User saved game - in the middle of a level
 };
 
-
-
-typedef struct _vis_save_header
+using VIS_SAVEHEADER = struct _vis_save_header
 {
-	STRING		aFileType[4];
-	UDWORD		version;
-}VIS_SAVEHEADER;
+  STRING aFileType[4];
+  UDWORD version;
+};
 
-typedef struct _fx_save_header
+using FX_SAVEHEADER = struct _fx_save_header
 {
-	STRING		aFileType[4];
-	UDWORD		version;
-	UDWORD		entries;
+  STRING aFileType[4];
+  UDWORD version;
+  UDWORD entries;
+};
 
-}FX_SAVEHEADER;
-
-typedef struct _score_save_header
+using SCORE_SAVEHEADER = struct _score_save_header
 {
-	STRING		aFileType[4];
-	UDWORD		version;
-	UDWORD		entries;	// should always be one for this?
-
-}SCORE_SAVEHEADER;
+  STRING aFileType[4];
+  UDWORD version;
+  UDWORD entries; // should always be one for this?
+};
 
 /***************************************************************************/
 /*
@@ -99,26 +100,27 @@ typedef struct _score_save_header
  */
 /***************************************************************************/
 
-extern BOOL loadGame(STRING *pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSaveGame);	// UserSaveGame is TRUE when the save game is not a new level (User Save Game)
+extern BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSaveGame);
+// UserSaveGame is TRUE when the save game is not a new level (User Save Game)
 /*This just loads up the .gam file to determine which level data to set up - split up
 so can be called in levLoadData when starting a game from a load save game*/
-extern BOOL loadGameInit(STRING *pGameToLoad,BOOL GameIsLevelStart);
+extern BOOL loadGameInit(STRING* pGameToLoad, BOOL GameIsLevelStart);
 
-extern BOOL loadMissionExtras(STRING *pGameToLoad, SWORD levelType);
+extern BOOL loadMissionExtras(STRING* pGameToLoad, SWORD levelType);
 
 // load the script state given a .gam name
-extern BOOL loadScriptState(STRING *pFileName);
+extern BOOL loadScriptState(STRING* pFileName);
 
 //direct access for forceloader
-extern BOOL gameLoad(UBYTE *pFileData, UDWORD filesize);
+extern BOOL gameLoad(UBYTE* pFileData, UDWORD filesize);
 
-extern BOOL saveGame(STRING *aFileName, SDWORD saveType);
+extern BOOL saveGame(STRING* aFileName, SDWORD saveType);
 
 // Get the campaign number for loadGameInit game
-extern UDWORD getCampaign(STRING *pGameToLoad, BOOL *bSkipCDCheck);
+extern UDWORD getCampaign(STRING* pGameToLoad, BOOL* bSkipCDCheck);
 
 /*calls windows find file tree*/
-extern BOOL getSaveGameName(STRING *pName);
+extern BOOL getSaveGameName(STRING* pName);
 
 /*set validty keys for save game debugging*/
 extern void game_SetValidityKey(UDWORD keys);
@@ -128,6 +130,4 @@ extern UDWORD getSaveGameType(void);
 
 UDWORD RemapPlayerNumber(UDWORD OldNumber);
 
-
 #endif
-

@@ -14,47 +14,47 @@
  */
 
 /* The stores for the different stats */
-extern BODY_STATS			*asBodyStats;
-extern BRAIN_STATS			*asBrainStats;
-extern PROPULSION_STATS		*asPropulsionStats;
-extern SENSOR_STATS			*asSensorStats;
-extern ECM_STATS			*asECMStats;
-extern REPAIR_STATS			*asRepairStats;
-extern WEAPON_STATS			*asWeaponStats;
-extern CONSTRUCT_STATS		*asConstructStats;
+extern BODY_STATS* asBodyStats;
+extern BRAIN_STATS* asBrainStats;
+extern PROPULSION_STATS* asPropulsionStats;
+extern SENSOR_STATS* asSensorStats;
+extern ECM_STATS* asECMStats;
+extern REPAIR_STATS* asRepairStats;
+extern WEAPON_STATS* asWeaponStats;
+extern CONSTRUCT_STATS* asConstructStats;
 
-extern PROPULSION_TYPES		*asPropulsionTypes;
-extern TERRAIN_TABLE		*asTerrainTable;
-extern SPECIAL_ABILITY		*asSpecialAbility;
+extern PROPULSION_TYPES* asPropulsionTypes;
+extern TERRAIN_TABLE* asTerrainTable;
+extern SPECIAL_ABILITY* asSpecialAbility;
 
 //used to hold the modifiers cross refd by weapon effect and propulsion type
-extern WEAPON_MODIFIER		asWeaponModifier[WE_NUMEFFECTS][NUM_PROP_TYPES];
+extern WEAPON_MODIFIER asWeaponModifier[WE_NUMEFFECTS][NUM_PROP_TYPES];
 
 //used to hold the current upgrade level per player per weapon subclass
-extern WEAPON_UPGRADE		asWeaponUpgrade[MAX_PLAYERS][NUM_WEAPON_SUBCLASS];
-extern SENSOR_UPGRADE		asSensorUpgrade[MAX_PLAYERS];
-extern ECM_UPGRADE			asECMUpgrade[MAX_PLAYERS];
-extern REPAIR_UPGRADE		asRepairUpgrade[MAX_PLAYERS];
-extern CONSTRUCTOR_UPGRADE	asConstUpgrade[MAX_PLAYERS];
+extern WEAPON_UPGRADE asWeaponUpgrade[MAX_PLAYERS][NUM_WEAPON_SUBCLASS];
+extern SENSOR_UPGRADE asSensorUpgrade[MAX_PLAYERS];
+extern ECM_UPGRADE asECMUpgrade[MAX_PLAYERS];
+extern REPAIR_UPGRADE asRepairUpgrade[MAX_PLAYERS];
+extern CONSTRUCTOR_UPGRADE asConstUpgrade[MAX_PLAYERS];
 //body upgrades are possible for droids and/or cyborgs
 #define		DROID_BODY_UPGRADE	0
 #define		CYBORG_BODY_UPGRADE	1
 #define		BODY_TYPE		2
-extern BODY_UPGRADE			asBodyUpgrade[MAX_PLAYERS][BODY_TYPE];
+extern BODY_UPGRADE asBodyUpgrade[MAX_PLAYERS][BODY_TYPE];
 
 /* The number of different stats stored */
-extern UDWORD		numBodyStats;
-extern UDWORD		numBrainStats;
-extern UDWORD		numPropulsionStats;
-extern UDWORD		numSensorStats;
-extern UDWORD		numECMStats;
-extern UDWORD		numRepairStats;
-extern UDWORD		numProgramStats;
-extern UDWORD		numWeaponStats;
-extern UDWORD		numConstructStats;
+extern UDWORD numBodyStats;
+extern UDWORD numBrainStats;
+extern UDWORD numPropulsionStats;
+extern UDWORD numSensorStats;
+extern UDWORD numECMStats;
+extern UDWORD numRepairStats;
+extern UDWORD numProgramStats;
+extern UDWORD numWeaponStats;
+extern UDWORD numConstructStats;
 
-extern UDWORD		numTerrainTypes;
-extern UDWORD		numSpecialAbility;
+extern UDWORD numTerrainTypes;
+extern UDWORD numSpecialAbility;
 
 /* What number the ref numbers start at for each type of stat */
 #define REF_BODY_START			0x010000
@@ -74,12 +74,11 @@ extern UDWORD		numSpecialAbility;
 /* The maximum number of refs for a type of stat */
 #define REF_RANGE				0x010000
 
-
 //stores for each players component states - see below
-extern UBYTE		*apCompLists[MAX_PLAYERS][COMP_NUMCOMPONENTS];
+extern UBYTE* apCompLists[MAX_PLAYERS][COMP_NUMCOMPONENTS];
 
 //store for each players Structure states
-extern UBYTE		*apStructTypeLists[MAX_PLAYERS];
+extern UBYTE* apStructTypeLists[MAX_PLAYERS];
 
 //flags to fill apCompLists and apStructTypeLists
 #define AVAILABLE				0x01		//this item can be used to design droids
@@ -124,59 +123,59 @@ extern BOOL statsAllocConstruct(UDWORD numEntries);
 *		Load stats functions
 *******************************************************************************/
 /* Return the number of newlines in a file buffer */
-extern UDWORD numCR(UBYTE *pFileBuffer, UDWORD fileSize);
+extern UDWORD numCR(UBYTE* pFileBuffer, UDWORD fileSize);
 
 /*Load the weapon stats from the file exported from Access*/
-extern BOOL loadWeaponStats(SBYTE *pWeaponData, UDWORD bufferSize);
+extern BOOL loadWeaponStats(SBYTE* pWeaponData, UDWORD bufferSize);
 
 /*Load the armour stats from the file exported from Access*/
 
 /*Load the body stats from the file exported from Access*/
-extern BOOL loadBodyStats(SBYTE *pBodyData, UDWORD bufferSize);
+extern BOOL loadBodyStats(SBYTE* pBodyData, UDWORD bufferSize);
 
 /*Load the brain stats from the file exported from Access*/
-extern BOOL loadBrainStats(SBYTE *pBrainData, UDWORD bufferSize);
+extern BOOL loadBrainStats(SBYTE* pBrainData, UDWORD bufferSize);
 
 /*Load the power stats from the file exported from Access*/
 
 /*Load the propulsion stats from the file exported from Access*/
-extern BOOL loadPropulsionStats(SBYTE *pPropulsionData, UDWORD bufferSize);
+extern BOOL loadPropulsionStats(SBYTE* pPropulsionData, UDWORD bufferSize);
 
 /*Load the sensor stats from the file exported from Access*/
-extern BOOL loadSensorStats(SBYTE *pSensorData, UDWORD bufferSize);
+extern BOOL loadSensorStats(SBYTE* pSensorData, UDWORD bufferSize);
 
 /*Load the ecm stats from the file exported from Access*/
-extern BOOL loadECMStats(SBYTE *pECMData, UDWORD bufferSize);
+extern BOOL loadECMStats(SBYTE* pECMData, UDWORD bufferSize);
 
 /*Load the repair stats from the file exported from Access*/
-extern BOOL loadRepairStats(SBYTE *pRepairData, UDWORD bufferSize);
+extern BOOL loadRepairStats(SBYTE* pRepairData, UDWORD bufferSize);
 
 /*Load the program stats from the file exported from Access*/
-extern BOOL loadProgramStats(SBYTE *pProgramData, UDWORD bufferSize);
+extern BOOL loadProgramStats(SBYTE* pProgramData, UDWORD bufferSize);
 
 /*Load the construct stats from the file exported from Access*/
-extern BOOL loadConstructStats(SBYTE *pConstructData, UDWORD bufferSize);
+extern BOOL loadConstructStats(SBYTE* pConstructData, UDWORD bufferSize);
 
 /*Load the Propulsion Types from the file exported from Access*/
-extern BOOL loadPropulsionTypes(SBYTE *pPropTypeData, UDWORD bufferSize);
+extern BOOL loadPropulsionTypes(SBYTE* pPropTypeData, UDWORD bufferSize);
 
 /*Load the propulsion sounds from the file exported from Access*/
-extern BOOL loadPropulsionSounds(SBYTE *pSoundData, UDWORD bufferSize);
+extern BOOL loadPropulsionSounds(SBYTE* pSoundData, UDWORD bufferSize);
 
 /*Load the Terrain Table from the file exported from Access*/
-extern BOOL loadTerrainTable(SBYTE *pTerrainTableData, UDWORD bufferSize);
+extern BOOL loadTerrainTable(SBYTE* pTerrainTableData, UDWORD bufferSize);
 
 /*Load the Special Ability stats from the file exported from Access*/
-extern BOOL loadSpecialAbility(SBYTE *pSAbilityData, UDWORD bufferSize);
+extern BOOL loadSpecialAbility(SBYTE* pSAbilityData, UDWORD bufferSize);
 
 /* load the IMDs to use for each body-propulsion combination */
-extern BOOL loadBodyPropulsionIMDs(SBYTE *pData, UDWORD bufferSize);
+extern BOOL loadBodyPropulsionIMDs(SBYTE* pData, UDWORD bufferSize);
 
 /*Load the weapon sounds from the file exported from Access*/
-extern BOOL loadWeaponSounds(SBYTE *pSoundData, UDWORD bufferSize);
+extern BOOL loadWeaponSounds(SBYTE* pSoundData, UDWORD bufferSize);
 
 /*Load the Weapon Effect Modifiers from the file exported from Access*/
-extern BOOL loadWeaponModifiers(SBYTE *pWeapModData, UDWORD bufferSize);
+extern BOOL loadWeaponModifiers(SBYTE* pWeapModData, UDWORD bufferSize);
 /*******************************************************************************
 *		Set stats functions
 *******************************************************************************/
@@ -184,46 +183,46 @@ extern BOOL loadWeaponModifiers(SBYTE *pWeapModData, UDWORD bufferSize);
  * The function uses the ref number in the stats structure to
  * index the correct array entry
  */
-extern void statsSetWeapon(WEAPON_STATS	*psStats, UDWORD index);
+extern void statsSetWeapon(WEAPON_STATS* psStats, UDWORD index);
 
 /*Set the stats for a particular armour type*/
 
 /*Set the stats for a particular body type*/
-extern void statsSetBody(BODY_STATS	*psStats, UDWORD index);
+extern void statsSetBody(BODY_STATS* psStats, UDWORD index);
 
 /*Set the stats for a particular brain type*/
-extern void statsSetBrain(BRAIN_STATS	*psStats, UDWORD index);
+extern void statsSetBrain(BRAIN_STATS* psStats, UDWORD index);
 
 /*Set the stats for a particular power type*/
 
 /*Set the stats for a particular propulsion type*/
-extern void statsSetPropulsion(PROPULSION_STATS	*psStats, UDWORD index);
+extern void statsSetPropulsion(PROPULSION_STATS* psStats, UDWORD index);
 
 /*Set the stats for a particular sensor type*/
-extern void statsSetSensor(SENSOR_STATS	*psStats, UDWORD index);
+extern void statsSetSensor(SENSOR_STATS* psStats, UDWORD index);
 
 /*Set the stats for a particular ecm type*/
-extern void statsSetECM(ECM_STATS	*psStats, UDWORD index);
+extern void statsSetECM(ECM_STATS* psStats, UDWORD index);
 
 /*Set the stats for a particular repair type*/
-extern void statsSetRepair(REPAIR_STATS	*psStats, UDWORD index);
+extern void statsSetRepair(REPAIR_STATS* psStats, UDWORD index);
 
 /*Set the stats for a particular program type*/
 
 /*Set the stats for a particular construct type*/
-extern void statsSetConstruct(CONSTRUCT_STATS	*psStats, UDWORD index);
+extern void statsSetConstruct(CONSTRUCT_STATS* psStats, UDWORD index);
 
 /*******************************************************************************
 *		Get stats functions
 *******************************************************************************/
-extern WEAPON_STATS *statsGetWeapon(UDWORD ref);
-extern BODY_STATS *statsGetBody(UDWORD ref);
-extern BRAIN_STATS *statsGetBrain(UDWORD ref);
-extern PROPULSION_STATS *statsGetPropulsion(UDWORD ref);
-extern SENSOR_STATS *statsGetSensor(UDWORD ref);
-extern ECM_STATS *statsGetECM(UDWORD ref);
-extern REPAIR_STATS *statsGetRepair(UDWORD ref);
-extern CONSTRUCT_STATS *statsGetConstruct(UDWORD ref);
+extern WEAPON_STATS* statsGetWeapon(UDWORD ref);
+extern BODY_STATS* statsGetBody(UDWORD ref);
+extern BRAIN_STATS* statsGetBrain(UDWORD ref);
+extern PROPULSION_STATS* statsGetPropulsion(UDWORD ref);
+extern SENSOR_STATS* statsGetSensor(UDWORD ref);
+extern ECM_STATS* statsGetECM(UDWORD ref);
+extern REPAIR_STATS* statsGetRepair(UDWORD ref);
+extern CONSTRUCT_STATS* statsGetConstruct(UDWORD ref);
 
 /*******************************************************************************
 *		Generic stats functions
@@ -234,8 +233,7 @@ extern CONSTRUCT_STATS *statsGetConstruct(UDWORD ref);
 extern BOOL statsShutDown(void);
 
 /*Deallocate the stats passed in as parameter */
-extern void statsDealloc(COMP_BASE_STATS* pStats, UDWORD listSize, 
-						 UDWORD structureSize);
+extern void statsDealloc(COMP_BASE_STATS* pStats, UDWORD listSize, UDWORD structureSize);
 
 extern void deallocPropulsionTypes(void);
 extern void deallocTerrainTypes(void);
@@ -251,53 +249,52 @@ extern UDWORD statRefStart(UDWORD stat);
 /*Returns the component type based on the string - used for reading in data */
 extern UDWORD componentType(char* pType);
 //get the component Inc for a stat based on the name
-extern SDWORD	getCompFromName(UDWORD compType, STRING *pName);
+extern SDWORD getCompFromName(UDWORD compType, STRING* pName);
 //get the component Inc for a stat based on the Resource name held in Names.txt
-extern SDWORD	getCompFromResName(UDWORD compType, STRING *pName);
+extern SDWORD getCompFromResName(UDWORD compType, STRING* pName);
 /*sets the tech level for the stat passed in */
-extern BOOL setTechLevel(BASE_STATS *psStats, STRING *pLevel);
+extern BOOL setTechLevel(BASE_STATS* psStats, STRING* pLevel);
 /*returns the weapon sub class based on the string name passed in */
-extern SDWORD	getWeaponSubClass(STRING *pSubClass);
+extern SDWORD getWeaponSubClass(STRING* pSubClass);
 /*either gets the name associated with the resource (if one) or allocates space and copies pName*/
-extern BOOL allocateName(STRING **ppStore, STRING *pName);
-extern BOOL getResourceName(STRING *pName);
+extern BOOL allocateName(STRING** ppStore, STRING* pName);
+extern BOOL getResourceName(STRING* pName);
 /*return the name to display for the interface - valid for OBJECTS and STATS*/
-extern STRING* getName(STRING *pNameID);
+extern STRING* getName(STRING* pNameID);
 /*sets the store to the body size based on the name passed in - returns FALSE 
 if doesn't compare with any*/
-extern BOOL getBodySize(STRING *pSize, UBYTE *pStore);
+extern BOOL getBodySize(STRING* pSize, UBYTE* pStore);
 
 // Pass in a stat and get its name
-extern STRING* getStatName(void * pStat);
+extern STRING* getStatName(void* pStat);
 
 /*returns the propulsion type based on the string name passed in */
-extern UBYTE	getPropulsionType(STRING *pType);
+extern UBYTE getPropulsionType(STRING* pType);
 /*returns the weapon effect based on the string name passed in */
-extern UBYTE	getWeaponEffect(STRING *pWeaponEffect);
+extern UBYTE getWeaponEffect(STRING* pWeaponEffect);
 
 /*Access functions for the upgradeable stats of a weapon*/
-extern UDWORD	weaponFirePause(WEAPON_STATS *psStats, UBYTE player);
-extern UDWORD	weaponShortHit(WEAPON_STATS *psStats, UBYTE player);
-extern UDWORD	weaponLongHit(WEAPON_STATS *psStats, UBYTE player);
-extern UDWORD	weaponDamage(WEAPON_STATS *psStats, UBYTE player);
-extern UDWORD	weaponRadDamage(WEAPON_STATS *psStats, UBYTE player);
-extern UDWORD	weaponIncenDamage(WEAPON_STATS *psStats, UBYTE player);
-extern UDWORD	weaponRadiusHit(WEAPON_STATS *psStats, UBYTE player);
+extern UDWORD weaponFirePause(WEAPON_STATS* psStats, UBYTE player);
+extern UDWORD weaponShortHit(WEAPON_STATS* psStats, UBYTE player);
+extern UDWORD weaponLongHit(WEAPON_STATS* psStats, UBYTE player);
+extern UDWORD weaponDamage(WEAPON_STATS* psStats, UBYTE player);
+extern UDWORD weaponRadDamage(WEAPON_STATS* psStats, UBYTE player);
+extern UDWORD weaponIncenDamage(WEAPON_STATS* psStats, UBYTE player);
+extern UDWORD weaponRadiusHit(WEAPON_STATS* psStats, UBYTE player);
 /*Access functions for the upgradeable stats of a sensor*/
-extern UDWORD	sensorPower(SENSOR_STATS *psStats, UBYTE player);
-extern UDWORD	sensorRange(SENSOR_STATS *psStats, UBYTE player);
+extern UDWORD sensorPower(SENSOR_STATS* psStats, UBYTE player);
+extern UDWORD sensorRange(SENSOR_STATS* psStats, UBYTE player);
 /*Access functions for the upgradeable stats of a ECM*/
-extern UDWORD	ecmPower(ECM_STATS *psStats, UBYTE player);
+extern UDWORD ecmPower(ECM_STATS* psStats, UBYTE player);
 /*Access functions for the upgradeable stats of a repair*/
-extern UDWORD	repairPoints(REPAIR_STATS *psStats, UBYTE player);
+extern UDWORD repairPoints(REPAIR_STATS* psStats, UBYTE player);
 /*Access functions for the upgradeable stats of a constructor*/
-extern UDWORD	constructorPoints(CONSTRUCT_STATS *psStats, UBYTE player);
+extern UDWORD constructorPoints(CONSTRUCT_STATS* psStats, UBYTE player);
 /*Access functions for the upgradeable stats of a body*/
-extern UDWORD	bodyPower(BODY_STATS *psStats, UBYTE player, UBYTE bodyType);
-extern UDWORD	bodyArmour(BODY_STATS *psStats, UBYTE player, UBYTE bodyType, 
-				   WEAPON_CLASS weaponClass);
+extern UDWORD bodyPower(BODY_STATS* psStats, UBYTE player, UBYTE bodyType);
+extern UDWORD bodyArmour(BODY_STATS* psStats, UBYTE player, UBYTE bodyType, WEAPON_CLASS weaponClass);
 /*dummy function for John*/
-extern void brainAvailable(BRAIN_STATS *psStat);
+extern void brainAvailable(BRAIN_STATS* psStat);
 
 //Access functions for the max values to be used in the Design Screen
 extern UDWORD getMaxComponentWeight(void);
@@ -313,8 +310,6 @@ extern UDWORD getMaxWeaponRange(void);
 extern UDWORD getMaxWeaponDamage(void);
 extern UDWORD getMaxPropulsionSpeed(void);
 
-
 extern void adjustMaxDesignStats(void);
 
 #endif
-

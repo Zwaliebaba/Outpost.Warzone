@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClInclude Include="pch.h" />
     <ClInclude Include="Block.h">
       <Filter>Framework</Filter>
     </ClInclude>
@@ -57,9 +56,6 @@
       <Filter>Framework</Filter>
     </ClInclude>
     <ClInclude Include="ResLY.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="Resource.h">
       <Filter>Framework</Filter>
     </ClInclude>
     <ClInclude Include="resource_y.h">
@@ -130,15 +126,6 @@
     </ClInclude>
     <ClInclude Include="PtrList.h">
       <Filter>Gamelib</Filter>
-    </ClInclude>
-    <ClInclude Include="3dfxFunc.h">
-      <Filter>ivis02</Filter>
-    </ClInclude>
-    <ClInclude Include="3dfxmode.h">
-      <Filter>ivis02</Filter>
-    </ClInclude>
-    <ClInclude Include="3dfxText.h">
-      <Filter>ivis02</Filter>
     </ClInclude>
     <ClInclude Include="AMD3D.h">
       <Filter>ivis02</Filter>
@@ -230,15 +217,6 @@
     <ClInclude Include="TextDraw.h">
       <Filter>ivis02</Filter>
     </ClInclude>
-    <ClInclude Include="v4101.h">
-      <Filter>ivis02</Filter>
-    </ClInclude>
-    <ClInclude Include="vid.h">
-      <Filter>ivis02</Filter>
-    </ClInclude>
-    <ClInclude Include="vsr.h">
-      <Filter>ivis02</Filter>
-    </ClInclude>
     <ClInclude Include="NetLobby.h">
       <Filter>NetPlay</Filter>
     </ClInclude>
@@ -317,9 +295,6 @@
     <ClInclude Include="Audio.h">
       <Filter>Sound</Filter>
     </ClInclude>
-    <ClInclude Include="EAX.H">
-      <Filter>Sound</Filter>
-    </ClInclude>
     <ClInclude Include="Mixer.h">
       <Filter>Sound</Filter>
     </ClInclude>
@@ -334,288 +309,204 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="pch.cpp" />
-    <ClCompile Include="Block.c">
+    <ClCompile Include="BitImage.cpp" />
+    <ClCompile Include="BSPIMD.cpp" />
+    <ClCompile Include="Bug.cpp" />
+    <ClCompile Include="D3DMode.cpp" />
+    <ClCompile Include="D3DRender.cpp" />
+    <ClCompile Include="DX6TexMan.cpp" />
+    <ClCompile Include="Fbf.cpp" />
+    <ClCompile Include="IMD.cpp" />
+    <ClCompile Include="IMDLoad.cpp" />
+    <ClCompile Include="Ivi.cpp" />
+    <ClCompile Include="Pcx.cpp" />
+    <ClCompile Include="PieBlitFunc.cpp" />
+    <ClCompile Include="PieClip.cpp" />
+    <ClCompile Include="PieDraw.cpp" />
+    <ClCompile Include="PieFunc.cpp" />
+    <ClCompile Include="PieMatrix.cpp" />
+    <ClCompile Include="PieMode.cpp" />
+    <ClCompile Include="PiePalette.cpp" />
+    <ClCompile Include="PieState.cpp" />
+    <ClCompile Include="PieTexture.cpp" />
+    <ClCompile Include="PQueue.cpp" />
+    <ClCompile Include="PtrList.cpp" />
+    <ClCompile Include="QSTrack.cpp" />
+    <ClCompile Include="RendFunc.cpp" />
+    <ClCompile Include="RendMode.cpp" />
+    <ClCompile Include="Screen.cpp" />
+    <ClCompile Include="Stack.cpp" />
+    <ClCompile Include="Tex.cpp" />
+    <ClCompile Include="TexD3D.cpp" />
+    <ClCompile Include="TextDraw.cpp" />
+    <ClCompile Include="WDG.cpp" />
+    <ClCompile Include="Block.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
-    <ClCompile Include="Cursor.c">
+    <ClCompile Include="Cursor.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
-    <ClCompile Include="Dderror.c">
+    <ClCompile Include="Dderror.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
-    <ClCompile Include="Debug.c">
+    <ClCompile Include="Debug.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
-    <ClCompile Include="DXInput.c">
+    <ClCompile Include="DXInput.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
-    <ClCompile Include="Font.c">
+    <ClCompile Include="Font.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
-    <ClCompile Include="Frame.c">
+    <ClCompile Include="Frame.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
-    <ClCompile Include="FrameResource.c">
+    <ClCompile Include="Heap.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
-    <ClCompile Include="Heap.c">
+    <ClCompile Include="Image.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
-    <ClCompile Include="Image.c">
+    <ClCompile Include="FrameResource.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
-    <ClCompile Include="Input.c">
+    <ClCompile Include="Input.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
-    <ClCompile Include="Mem.c">
+    <ClCompile Include="MultiWDG.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
-    <ClCompile Include="Mono.c">
+    <ClCompile Include="Mono.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
-    <ClCompile Include="MultiWDG.c">
+    <ClCompile Include="Mem.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
-    <ClCompile Include="resource_l.c">
+    <ClCompile Include="resource_l.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
-    <ClCompile Include="resource_y.c">
+    <ClCompile Include="resource_y.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
-    <ClCompile Include="Screen.c">
+    <ClCompile Include="Trig.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
-    <ClCompile Include="StrRes.c">
+    <ClCompile Include="W95Trace.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
-    <ClCompile Include="StrRes_l.c">
+    <ClCompile Include="Treap.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
-    <ClCompile Include="StrRes_y.c">
+    <ClCompile Include="StrRes.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
-    <ClCompile Include="Surface.c">
+    <ClCompile Include="StrRes_l.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
-    <ClCompile Include="Treap.c">
+    <ClCompile Include="StrRes_y.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
-    <ClCompile Include="Trig.c">
+    <ClCompile Include="Surface.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
-    <ClCompile Include="W95Trace.c">
-      <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="WDG.c">
-      <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="Anim.c">
-      <Filter>Gamelib</Filter>
-    </ClCompile>
-    <ClCompile Include="AnimObj.c">
-      <Filter>Gamelib</Filter>
-    </ClCompile>
-    <ClCompile Include="GTime.c">
-      <Filter>Gamelib</Filter>
-    </ClCompile>
-    <ClCompile Include="HashTabl.c">
-      <Filter>Gamelib</Filter>
-    </ClCompile>
-    <ClCompile Include="parser_l.c">
-      <Filter>Gamelib</Filter>
-    </ClCompile>
-    <ClCompile Include="parser_y.c">
-      <Filter>Gamelib</Filter>
-    </ClCompile>
-    <ClCompile Include="PQueue.c">
-      <Filter>Gamelib</Filter>
-    </ClCompile>
-    <ClCompile Include="PtrList.c">
-      <Filter>Gamelib</Filter>
-    </ClCompile>
-    <ClCompile Include="3dfxdyn.c">
-      <Filter>ivis02</Filter>
-    </ClCompile>
-    <ClCompile Include="3dfxFunc.c">
-      <Filter>ivis02</Filter>
-    </ClCompile>
-    <ClCompile Include="3dfxmode.c">
-      <Filter>ivis02</Filter>
-    </ClCompile>
-    <ClCompile Include="3dfxtext.c">
-      <Filter>ivis02</Filter>
-    </ClCompile>
-    <ClCompile Include="BitImage.c">
-      <Filter>ivis02</Filter>
-    </ClCompile>
-    <ClCompile Include="BSPIMD.c">
-      <Filter>ivis02</Filter>
-    </ClCompile>
-    <ClCompile Include="Bug.c">
-      <Filter>ivis02</Filter>
-    </ClCompile>
-    <ClCompile Include="D3DMode.c">
-      <Filter>ivis02</Filter>
-    </ClCompile>
-    <ClCompile Include="D3DRender.c">
-      <Filter>ivis02</Filter>
-    </ClCompile>
-    <ClCompile Include="DX6TexMan.c">
-      <Filter>ivis02</Filter>
-    </ClCompile>
-    <ClCompile Include="Fbf.c">
-      <Filter>ivis02</Filter>
-    </ClCompile>
-    <ClCompile Include="GetDXVer.cpp">
-      <Filter>ivis02</Filter>
-    </ClCompile>
-    <ClCompile Include="IMD.c">
-      <Filter>ivis02</Filter>
-    </ClCompile>
-    <ClCompile Include="IMDLoad.c">
-      <Filter>ivis02</Filter>
-    </ClCompile>
-    <ClCompile Include="Ivi.c">
-      <Filter>ivis02</Filter>
-    </ClCompile>
-    <ClCompile Include="Pcx.c">
-      <Filter>ivis02</Filter>
-    </ClCompile>
-    <ClCompile Include="PieBlitFunc.c">
-      <Filter>ivis02</Filter>
-    </ClCompile>
-    <ClCompile Include="PieClip.c">
-      <Filter>ivis02</Filter>
-    </ClCompile>
-    <ClCompile Include="PieDraw.c">
-      <Filter>ivis02</Filter>
-    </ClCompile>
-    <ClCompile Include="PieFunc.c">
-      <Filter>ivis02</Filter>
-    </ClCompile>
-    <ClCompile Include="PieMatrix.c">
-      <Filter>ivis02</Filter>
-    </ClCompile>
-    <ClCompile Include="PieMode.c">
-      <Filter>ivis02</Filter>
-    </ClCompile>
-    <ClCompile Include="PiePalette.c">
-      <Filter>ivis02</Filter>
-    </ClCompile>
-    <ClCompile Include="PieState.c">
-      <Filter>ivis02</Filter>
-    </ClCompile>
-    <ClCompile Include="PieTexture.c">
-      <Filter>ivis02</Filter>
-    </ClCompile>
-    <ClCompile Include="RendFunc.c">
-      <Filter>ivis02</Filter>
-    </ClCompile>
-    <ClCompile Include="RendMode.c">
-      <Filter>ivis02</Filter>
-    </ClCompile>
-    <ClCompile Include="Tex.c">
-      <Filter>ivis02</Filter>
-    </ClCompile>
-    <ClCompile Include="TexD3D.c">
-      <Filter>ivis02</Filter>
-    </ClCompile>
-    <ClCompile Include="TextDraw.c">
-      <Filter>ivis02</Filter>
-    </ClCompile>
-    <ClCompile Include="V4101.c">
-      <Filter>ivis02</Filter>
-    </ClCompile>
-    <ClCompile Include="Vsr.c">
-      <Filter>ivis02</Filter>
-    </ClCompile>
-    <ClCompile Include="NetAudio.c">
-      <Filter>NetPlay</Filter>
-    </ClCompile>
-    <ClCompile Include="NetCrypt.c">
-      <Filter>NetPlay</Filter>
-    </ClCompile>
-    <ClCompile Include="NetJoin.c">
-      <Filter>NetPlay</Filter>
-    </ClCompile>
-    <ClCompile Include="NetLobby.c">
-      <Filter>NetPlay</Filter>
-    </ClCompile>
-    <ClCompile Include="NetPlay.c">
-      <Filter>NetPlay</Filter>
-    </ClCompile>
-    <ClCompile Include="NetProv.c">
-      <Filter>NetPlay</Filter>
-    </ClCompile>
-    <ClCompile Include="NetSupp.c">
-      <Filter>NetPlay</Filter>
-    </ClCompile>
-    <ClCompile Include="NetUsers.c">
-      <Filter>NetPlay</Filter>
-    </ClCompile>
-    <ClCompile Include="Bar.c">
+    <ClCompile Include="Bar.cpp">
       <Filter>Widget</Filter>
     </ClCompile>
-    <ClCompile Include="Button.c">
+    <ClCompile Include="Button.cpp">
       <Filter>Widget</Filter>
     </ClCompile>
-    <ClCompile Include="EditBox.c">
+    <ClCompile Include="EditBox.cpp">
       <Filter>Widget</Filter>
     </ClCompile>
-    <ClCompile Include="Form.c">
+    <ClCompile Include="Form.cpp">
       <Filter>Widget</Filter>
     </ClCompile>
-    <ClCompile Include="Label.c">
+    <ClCompile Include="Label.cpp">
       <Filter>Widget</Filter>
     </ClCompile>
-    <ClCompile Include="Slider.c">
+    <ClCompile Include="Slider.cpp">
       <Filter>Widget</Filter>
     </ClCompile>
-    <ClCompile Include="Tip.c">
+    <ClCompile Include="Tip.cpp">
       <Filter>Widget</Filter>
     </ClCompile>
-    <ClCompile Include="Widget.c">
+    <ClCompile Include="Widget.cpp">
       <Filter>Widget</Filter>
     </ClCompile>
-    <ClCompile Include="CodePrint.c">
-      <Filter>Script</Filter>
+    <ClCompile Include="Audio.cpp">
+      <Filter>Sound</Filter>
     </ClCompile>
-    <ClCompile Include="Event.c">
-      <Filter>Script</Filter>
+    <ClCompile Include="Track.cpp">
+      <Filter>Sound</Filter>
     </ClCompile>
-    <ClCompile Include="EvntSave.c">
-      <Filter>Script</Filter>
-    </ClCompile>
-    <ClCompile Include="Interp.c">
-      <Filter>Script</Filter>
-    </ClCompile>
-    <ClCompile Include="Script.c">
-      <Filter>Script</Filter>
-    </ClCompile>
-    <ClCompile Include="Script_l.c">
-      <Filter>Script</Filter>
-    </ClCompile>
-    <ClCompile Include="Script_y.c">
-      <Filter>Script</Filter>
-    </ClCompile>
-    <ClCompile Include="Stack.c">
-      <Filter>Script</Filter>
-    </ClCompile>
-    <ClCompile Include="Sequence.c">
+    <ClCompile Include="Sequence.cpp">
       <Filter>Sequence</Filter>
     </ClCompile>
-    <ClCompile Include="Audio.c">
+    <ClCompile Include="CodePrint.cpp">
+      <Filter>Script</Filter>
+    </ClCompile>
+    <ClCompile Include="Event.cpp">
+      <Filter>Script</Filter>
+    </ClCompile>
+    <ClCompile Include="EvntSave.cpp">
+      <Filter>Script</Filter>
+    </ClCompile>
+    <ClCompile Include="Interp.cpp">
+      <Filter>Script</Filter>
+    </ClCompile>
+    <ClCompile Include="Script.cpp">
+      <Filter>Script</Filter>
+    </ClCompile>
+    <ClCompile Include="Script_l.cpp">
+      <Filter>Script</Filter>
+    </ClCompile>
+    <ClCompile Include="Script_y.cpp">
+      <Filter>Script</Filter>
+    </ClCompile>
+    <ClCompile Include="NetAudio.cpp">
+      <Filter>NetPlay</Filter>
+    </ClCompile>
+    <ClCompile Include="NetCrypt.cpp">
+      <Filter>NetPlay</Filter>
+    </ClCompile>
+    <ClCompile Include="NetJoin.cpp">
+      <Filter>NetPlay</Filter>
+    </ClCompile>
+    <ClCompile Include="NetLobby.cpp">
+      <Filter>NetPlay</Filter>
+    </ClCompile>
+    <ClCompile Include="NetPlay.cpp">
+      <Filter>NetPlay</Filter>
+    </ClCompile>
+    <ClCompile Include="NetProv.cpp">
+      <Filter>NetPlay</Filter>
+    </ClCompile>
+    <ClCompile Include="NetSupp.cpp">
+      <Filter>NetPlay</Filter>
+    </ClCompile>
+    <ClCompile Include="NetUsers.cpp">
+      <Filter>NetPlay</Filter>
+    </ClCompile>
+    <ClCompile Include="Mixer.cpp">
       <Filter>Sound</Filter>
     </ClCompile>
-    <ClCompile Include="Mixer.c">
-      <Filter>Sound</Filter>
+    <ClCompile Include="parser_l.cpp">
+      <Filter>Gamelib</Filter>
     </ClCompile>
-    <ClCompile Include="QSTrack.c">
-      <Filter>Sound</Filter>
+    <ClCompile Include="parser_y.cpp">
+      <Filter>Gamelib</Filter>
     </ClCompile>
-    <ClCompile Include="Track.c">
-      <Filter>Sound</Filter>
+    <ClCompile Include="Anim.cpp">
+      <Filter>Gamelib</Filter>
+    </ClCompile>
+    <ClCompile Include="AnimObj.cpp">
+      <Filter>Gamelib</Filter>
+    </ClCompile>
+    <ClCompile Include="GTime.cpp">
+      <Filter>Gamelib</Filter>
+    </ClCompile>
+    <ClCompile Include="HashTabl.cpp">
+      <Filter>Gamelib</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -669,16 +560,5 @@
     <None Include="script.l">
       <Filter>Script</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="Mplayer.lib">
-      <Filter>NetPlay</Filter>
-    </Library>
-    <Library Include="WINSTR.LIB">
-      <Filter>Sequence</Filter>
-    </Library>
-    <Library Include="QMixer.lib">
-      <Filter>Sound</Filter>
-    </Library>
   </ItemGroup>
 </Project>

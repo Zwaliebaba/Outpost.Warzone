@@ -8,11 +8,8 @@
 #define _clparse_h
 
 // whether to start windowed
-extern BOOL	clStartWindowed;
+extern BOOL clStartWindowed;
 // parse the commandline
-extern BOOL ParseCommandLine( LPSTR psCmdLine);
-
+extern BOOL ParseCommandLine(LPSTR psCmdLine);
 
 #endif
-
-

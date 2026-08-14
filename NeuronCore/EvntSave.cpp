@@ -9,677 +9,624 @@
 #include "Script.h"
 #include "EvntSave.h"
 
-
 // the event save file header
-typedef struct _event_save_header
+using EVENT_SAVE_HDR = struct _event_save_header
 {
-	STRING		aFileType[4];
-	UDWORD		version;
-} EVENT_SAVE_HDR;
-
+  STRING aFileType[4];
+  UDWORD version;
+};
 
 // save the context information for the script system
-static BOOL eventSaveContext(UBYTE *pBuffer, UDWORD *pSize)
+static BOOL eventSaveContext(UBYTE* pBuffer, UDWORD* pSize)
 {
-	UDWORD				size, valSize;
-	SDWORD				numVars, i, numContext;
-	SCRIPT_CONTEXT		*psCCont;
-	VAL_CHUNK			*psCVals;
-	INTERP_VAL			*psVal;
-	SCR_VAL_SAVE		saveFunc;
-	UBYTE				*pPos;
-	UDWORD				hashedName;
-	UWORD				*pValSize;
+  UDWORD size, valSize;
+  SDWORD numVars, i, numContext;
+  SCRIPT_CONTEXT* psCCont;
+  VAL_CHUNK* psCVals;
+  INTERP_VAL* psVal;
+  SCR_VAL_SAVE saveFunc;
+  UBYTE* pPos;
+  UDWORD hashedName;
+  UWORD* pValSize;
 
+  size = 0;
+  numContext = 0;
+  pPos = pBuffer;
 
-	size = 0;
-	numContext = 0;
-	pPos = pBuffer;
+  // reserve space to store how many contexts are saved
+  if (pBuffer != nullptr)
+    pPos += sizeof(SWORD);
+  size += sizeof(SWORD);
 
-	// reserve space to store how many contexts are saved
-	if (pBuffer != NULL)
-	{
-		pPos += sizeof(SWORD);
-	}
-	size += sizeof(SWORD);
+  // go through the context list
+  for (psCCont = psContList; psCCont != nullptr; psCCont = psCCont->psNext)
+  {
+    numContext += 1;
 
-	// go through the context list
-	for(psCCont = psContList; psCCont != NULL; psCCont = psCCont->psNext)
-	{
-		numContext += 1;
+    // save the context info
+    if (!resGetHashfromData("SCRIPT", psCCont->psCode, &hashedName))
+    {
+      DBERROR(("eventSaveContext: couldn't find script resource id"));
+      return FALSE;
+    }
+    numVars = psCCont->psCode->numGlobals + psCCont->psCode->arraySize;
 
-		// save the context info
-		if (!resGetHashfromData("SCRIPT", psCCont->psCode, &hashedName))
-		{
-			DBERROR(("eventSaveContext: couldn't find script resource id"));
-			return FALSE;
-		}
-		numVars = psCCont->psCode->numGlobals + psCCont->psCode->arraySize;
+    if (pBuffer != nullptr)
+    {
+      *((UDWORD*)pPos) = hashedName;
+      pPos += sizeof(UDWORD);
 
-		if (pBuffer != NULL)
-		{
-			*((UDWORD*)pPos) = (UDWORD)hashedName;
-			pPos += sizeof(UDWORD);
+      *((SWORD*)pPos) = static_cast<SWORD>(numVars);
+      pPos += sizeof(SWORD);
 
-			*((SWORD*)pPos) = (SWORD)numVars;
-			pPos += sizeof(SWORD);
+      *pPos = static_cast<UBYTE>(psCCont->release);
+      pPos += sizeof(UBYTE);
+    }
 
-			*pPos = (UBYTE)psCCont->release;
-			pPos += sizeof(UBYTE);
-		}
+    size += sizeof(UDWORD) + sizeof(SWORD) + sizeof(UBYTE);
 
-		size += sizeof(UDWORD) + sizeof(SWORD) + sizeof(UBYTE);
+    // save the context variables
+    for (psCVals = psCCont->psGlobals; psCVals != nullptr; psCVals = psCVals->psNext)
+    {
+      for (i = 0; i < CONTEXT_VALS; i += 1)
+      {
+        psVal = psCVals->asVals + i;
 
-		// save the context variables
-		for(psCVals = psCCont->psGlobals; psCVals != NULL; psCVals = psCVals->psNext)
-		{
-			for(i=0; i < CONTEXT_VALS; i+= 1)
-			{
-				psVal = psCVals->asVals + i;
+        // store the variable type
+        if (pBuffer != nullptr)
+        {
+          ASSERT((psVal->type < SWORD_MAX, "eventSaveContext: variable type number too big"));
+          *((SWORD*)pPos) = static_cast<SWORD>(psVal->type);
+          pPos += sizeof(SWORD);
+        }
+        size += sizeof(SWORD);
 
-				// store the variable type
-				if (pBuffer != NULL)
-				{
-					ASSERT((psVal->type < SWORD_MAX,
-						"eventSaveContext: variable type number too big"));
-					*((SWORD*)pPos) = (SWORD)psVal->type;
-					pPos += sizeof(SWORD);
-				}
-				size += sizeof(SWORD);
+        // store the variable value
+        if (psVal->type < VAL_USERTYPESTART)
+        {
+          // internal type - just store the DWORD value
+          if (pBuffer != nullptr)
+          {
+            *((UDWORD*)pPos) = static_cast<UDWORD>(psVal->v.ival);
+            pPos += sizeof(UDWORD);
+          }
 
-				// store the variable value
-				if (psVal->type < VAL_USERTYPESTART)
-				{
-					// internal type - just store the DWORD value
-					if (pBuffer != NULL)
-					{
-						*((UDWORD *)pPos) = (UDWORD)psVal->v.ival;
-						pPos += sizeof(UDWORD);
-					}
+          size += sizeof(UDWORD);
+        }
+        else
+        {
+          // user defined type
+          saveFunc = asScrTypeTab[psVal->type - VAL_USERTYPESTART].saveFunc;
 
-					size += sizeof(UDWORD);
-				}
-				else
-				{
-					// user defined type
-					saveFunc = asScrTypeTab[psVal->type - VAL_USERTYPESTART].saveFunc;
+          ASSERT((saveFunc != NULL, "eventSaveContext: no save function for type %d\n", psVal->type));
 
-					ASSERT((saveFunc != NULL,
-						"eventSaveContext: no save function for type %d\n", psVal->type));
+          // reserve some space to store how many bytes the value uses
+          if (pBuffer != nullptr)
+          {
+            pValSize = (UWORD*)pPos;
+            pPos += sizeof(UWORD);
+          }
+          size += sizeof(UWORD);
 
-					// reserve some space to store how many bytes the value uses
-					if (pBuffer != NULL)
-					{
-						pValSize = (UWORD *)pPos;
-						pPos += sizeof(UWORD);
-					}
-					size += sizeof(UWORD);
+          if (!saveFunc(psVal->type, static_cast<UDWORD>(psVal->v.ival), pPos, &valSize))
+          {
+            DBERROR(("eventSaveContext: couldn't get variable value size"));
+            return FALSE;
+          }
 
-					if (!saveFunc(psVal->type, (UDWORD)psVal->v.ival, pPos, &valSize))
-					{
-						DBERROR(("eventSaveContext: couldn't get variable value size"));
-						return FALSE;
-					}
+          if (pBuffer != nullptr)
+          {
+            *pValSize = static_cast<UWORD>(valSize);
+            pPos += valSize;
+          }
+          size += valSize;
+        }
 
-					if (pBuffer != NULL)
-					{
-						*pValSize = (UWORD)valSize;
-						pPos += valSize;
-					}
-					size += valSize;
-				}
+        numVars -= 1;
+        if (numVars <= 0)
+        {
+          // done all the variables
+          ASSERT((psCVals->psNext == NULL, "eventSaveContext: number of context variables does not match the script code"));
+          break;
+        }
+      }
+    }
+    ASSERT((numVars == 0, "eventSaveContext: number of context variables does not match the script code"));
+  }
 
-				numVars -=1;
-				if (numVars <= 0)
-				{
-					// done all the variables
-					ASSERT((psCVals->psNext == NULL,
-						"eventSaveContext: number of context variables does not match the script code"));
-					break;
-				}
-			}
-		}
-		ASSERT((numVars == 0,
-			"eventSaveContext: number of context variables does not match the script code"));
-	}
+  // actually store how many contexts have been saved
+  if (pBuffer != nullptr)
+    *((SWORD*)pBuffer) = static_cast<SWORD>(numContext);
+  *pSize = size;
 
-	// actually store how many contexts have been saved
-	if (pBuffer != NULL)
-	{
-		*((SWORD *)pBuffer) = (SWORD)numContext;
-	}
-	*pSize = size;
-
-	return TRUE;
+  return TRUE;
 }
 
 // load the context information for the script system
-static BOOL eventLoadContext(SDWORD version, UBYTE *pBuffer, UDWORD *pSize)
+static BOOL eventLoadContext(SDWORD version, UBYTE* pBuffer, UDWORD* pSize)
 {
-	UDWORD				size, valSize, data;
-	SDWORD				numVars, i, numContext, context;
-	SCRIPT_CONTEXT		*psCCont;
-	INTERP_TYPE			type;
-	SCR_VAL_LOAD		loadFunc;
-	UBYTE				*pPos;
-	STRING				*pScriptID;
-	SCRIPT_CODE			*psCode;
-	SWORD				release;
-	INTERP_VAL			*psVal;
+  UDWORD size, valSize, data;
+  SDWORD numVars, i, numContext, context;
+  SCRIPT_CONTEXT* psCCont;
+  INTERP_TYPE type;
+  SCR_VAL_LOAD loadFunc;
+  UBYTE* pPos;
+  STRING* pScriptID;
+  SCRIPT_CODE* psCode;
+  SWORD release;
+  INTERP_VAL* psVal;
 
-	size = 0;
-	pPos = pBuffer;
+  size = 0;
+  pPos = pBuffer;
 
-	// get the number of contexts in the save file
-	numContext = *((SWORD *)pPos);
-	pPos += sizeof(SWORD);
-	size += sizeof(SWORD);
+  // get the number of contexts in the save file
+  numContext = *((SWORD*)pPos);
+  pPos += sizeof(SWORD);
+  size += sizeof(SWORD);
 
-	// go through the contexts
-	for(context=0; context < numContext; context += 1)
-	{
-		// get the script code
-		pScriptID = (STRING *)pPos;
-		psCode = (SCRIPT_CODE *)resGetData("SCRIPT", pScriptID);
-		pPos += strlen(pScriptID) + 1;
+  // go through the contexts
+  for (context = 0; context < numContext; context += 1)
+  {
+    // get the script code
+    pScriptID = (STRING*)pPos;
+    psCode = static_cast<SCRIPT_CODE*>(resGetData("SCRIPT", pScriptID));
+    pPos += strlen(pScriptID) + 1;
 
-		// check the number of variables
-		numVars = psCode->numGlobals + psCode->arraySize;
-		if (numVars != *((SWORD*)pPos))
-		{
-			DBERROR(("eventLoadContext: number of context variables does not match the script code"));
-			return FALSE;
-		}
-		pPos += sizeof(SWORD);
+    // check the number of variables
+    numVars = psCode->numGlobals + psCode->arraySize;
+    if (numVars != *((SWORD*)pPos))
+    {
+      DBERROR(("eventLoadContext: number of context variables does not match the script code"));
+      return FALSE;
+    }
+    pPos += sizeof(SWORD);
 
-		release = *pPos;
-		pPos += sizeof(UBYTE);
+    release = *pPos;
+    pPos += sizeof(UBYTE);
 
-		// create the context
-		if (!eventNewContext(psCode, (CONTEXT_RELEASE)release, &psCCont))
-		{
-			return FALSE;
-		}
+    // create the context
+    if (!eventNewContext(psCode, static_cast<CONTEXT_RELEASE>(release), &psCCont))
+      return FALSE;
 
-		// bit of a hack this - note the id of the context to link it to the triggers
-		psContList->id = (SWORD)context;
+    // bit of a hack this - note the id of the context to link it to the triggers
+    psContList->id = static_cast<SWORD>(context);
 
-		size += strlen(pScriptID) + 1 + sizeof(SWORD) + sizeof(UBYTE);
+    size += strlen(pScriptID) + 1 + sizeof(SWORD) + sizeof(UBYTE);
 
-		// set the context variables
-		for(i=0; i < numVars; i+= 1)
-		{
-			// get the variable type
-			type = *((SWORD*)pPos);
-			pPos += sizeof(SWORD);
-			size += sizeof(SWORD);
+    // set the context variables
+    for (i = 0; i < numVars; i += 1)
+    {
+      // get the variable type
+      type = *((SWORD*)pPos);
+      pPos += sizeof(SWORD);
+      size += sizeof(SWORD);
 
-			// get the variable value
-			if (type < VAL_USERTYPESTART)
-			{
-				// internal type - just get the DWORD value
-				data = *((UDWORD *)pPos);
-				pPos += sizeof(UDWORD);
-				size += sizeof(UDWORD);
+      // get the variable value
+      if (type < VAL_USERTYPESTART)
+      {
+        // internal type - just get the DWORD value
+        data = *((UDWORD*)pPos);
+        pPos += sizeof(UDWORD);
+        size += sizeof(UDWORD);
 
-				// set the value in the context
-				if (!eventSetContextVar(psCCont, (UDWORD)i, type, data))
-				{
-					DBERROR(("eventLoadContext: couldn't set variable value"));
-					return FALSE;
-				}
-			}
-			else
-			{
-				// user defined type
-				loadFunc = asScrTypeTab[type - VAL_USERTYPESTART].loadFunc;
+        // set the value in the context
+        if (!eventSetContextVar(psCCont, static_cast<UDWORD>(i), type, data))
+        {
+          DBERROR(("eventLoadContext: couldn't set variable value"));
+          return FALSE;
+        }
+      }
+      else
+      {
+        // user defined type
+        loadFunc = asScrTypeTab[type - VAL_USERTYPESTART].loadFunc;
 
-				ASSERT((loadFunc != NULL,
-					"eventLoadContext: no load function for type %d\n", type));
+        ASSERT((loadFunc != NULL, "eventLoadContext: no load function for type %d\n", type));
 
-				valSize = *((UWORD *)pPos);
-				pPos += sizeof(UWORD);
-				size += sizeof(UWORD);
+        valSize = *((UWORD*)pPos);
+        pPos += sizeof(UWORD);
+        size += sizeof(UWORD);
 
-				// get the value pointer so that the loadFunc can write directly
-				// into the variables data space.
-				if (!eventGetContextVal(psCCont, (UDWORD)i, &psVal))
-				{
-					DBERROR(("eventLoadContext: couldn't find variable in context"));
-					return FALSE;
-				}
+        // get the value pointer so that the loadFunc can write directly
+        // into the variables data space.
+        if (!eventGetContextVal(psCCont, static_cast<UDWORD>(i), &psVal))
+        {
+          DBERROR(("eventLoadContext: couldn't find variable in context"));
+          return FALSE;
+        }
 
-				if (!loadFunc(version, type, pPos, valSize, (UDWORD *)&(psVal->v.ival)))
-				{
-					DBERROR(("eventLoadContext: couldn't get variable value"));
-					return FALSE;
-				}
+        if (!loadFunc(version, type, pPos, valSize, (UDWORD*)&(psVal->v.ival)))
+        {
+          DBERROR(("eventLoadContext: couldn't get variable value"));
+          return FALSE;
+        }
 
-				pPos += valSize;
-				size += valSize;
-			}
-		}
-	}
+        pPos += valSize;
+        size += valSize;
+      }
+    }
+  }
 
-	*pSize = size;
+  *pSize = size;
 
-	return TRUE;
+  return TRUE;
 }
 
 // load the context information for the script system
-static BOOL eventLoadContextHashed(SDWORD version, UBYTE *pBuffer, UDWORD *pSize)
+static BOOL eventLoadContextHashed(SDWORD version, UBYTE* pBuffer, UDWORD* pSize)
 {
-	UDWORD				size, valSize, data;
-	SDWORD				numVars, i, numContext, context;
-	SCRIPT_CONTEXT		*psCCont;
-	INTERP_TYPE			type;
-	SCR_VAL_LOAD		loadFunc;
-	UBYTE				*pPos;
-	UDWORD				hashedName;
-	SCRIPT_CODE			*psCode;
-	SWORD				release;
-	INTERP_VAL			*psVal;
+  UDWORD size, valSize, data;
+  SDWORD numVars, i, numContext, context;
+  SCRIPT_CONTEXT* psCCont;
+  INTERP_TYPE type;
+  SCR_VAL_LOAD loadFunc;
+  UBYTE* pPos;
+  UDWORD hashedName;
+  SCRIPT_CODE* psCode;
+  SWORD release;
+  INTERP_VAL* psVal;
 
-	size = 0;
-	pPos = pBuffer;
+  size = 0;
+  pPos = pBuffer;
 
-	// get the number of contexts in the save file
-	numContext = *((SWORD *)pPos);
-	pPos += sizeof(SWORD);
-	size += sizeof(SWORD);
+  // get the number of contexts in the save file
+  numContext = *((SWORD*)pPos);
+  pPos += sizeof(SWORD);
+  size += sizeof(SWORD);
 
-	// go through the contexts
-	for(context=0; context < numContext; context += 1)
-	{
-		// get the script code
-		hashedName = *((UDWORD*)pPos);
-		pPos += sizeof(UDWORD);
-		psCode = (SCRIPT_CODE *)resGetDataFromHash("SCRIPT", hashedName);
-		
+  // go through the contexts
+  for (context = 0; context < numContext; context += 1)
+  {
+    // get the script code
+    hashedName = *((UDWORD*)pPos);
+    pPos += sizeof(UDWORD);
+    psCode = static_cast<SCRIPT_CODE*>(resGetDataFromHash("SCRIPT", hashedName));
 
-		// check the number of variables
-		numVars = psCode->numGlobals + psCode->arraySize;
-		if (numVars != *((SWORD*)pPos))
-		{
-			DBERROR(("eventLoadContext: number of context variables does not match the script code"));
-			return FALSE;
-		}
-		pPos += sizeof(SWORD);
+    // check the number of variables
+    numVars = psCode->numGlobals + psCode->arraySize;
+    if (numVars != *((SWORD*)pPos))
+    {
+      DBERROR(("eventLoadContext: number of context variables does not match the script code"));
+      return FALSE;
+    }
+    pPos += sizeof(SWORD);
 
-		release = *pPos;
-		pPos += sizeof(UBYTE);
+    release = *pPos;
+    pPos += sizeof(UBYTE);
 
-		// create the context
-		if (!eventNewContext(psCode, (CONTEXT_RELEASE)release, &psCCont))
-		{
-			return FALSE;
-		}
+    // create the context
+    if (!eventNewContext(psCode, static_cast<CONTEXT_RELEASE>(release), &psCCont))
+      return FALSE;
 
-		// bit of a hack this - note the id of the context to link it to the triggers
-		psContList->id = (SWORD)context;
+    // bit of a hack this - note the id of the context to link it to the triggers
+    psContList->id = static_cast<SWORD>(context);
 
-		size += sizeof(UDWORD) + sizeof(SWORD) + sizeof(UBYTE);
+    size += sizeof(UDWORD) + sizeof(SWORD) + sizeof(UBYTE);
 
-		// set the context variables
-		for(i=0; i < numVars; i+= 1)
-		{
-			// get the variable type
-			type = *((SWORD*)pPos);
-			pPos += sizeof(SWORD);
-			size += sizeof(SWORD);
+    // set the context variables
+    for (i = 0; i < numVars; i += 1)
+    {
+      // get the variable type
+      type = *((SWORD*)pPos);
+      pPos += sizeof(SWORD);
+      size += sizeof(SWORD);
 
-			// get the variable value
-			if (type < VAL_USERTYPESTART)
-			{
-				// internal type - just get the DWORD value
-				data = *((UDWORD *)pPos);
-				pPos += sizeof(UDWORD);
-				size += sizeof(UDWORD);
+      // get the variable value
+      if (type < VAL_USERTYPESTART)
+      {
+        // internal type - just get the DWORD value
+        data = *((UDWORD*)pPos);
+        pPos += sizeof(UDWORD);
+        size += sizeof(UDWORD);
 
-				// set the value in the context
-				if (!eventSetContextVar(psCCont, (UDWORD)i, type, data))
-				{
-					DBERROR(("eventLoadContext: couldn't set variable value"));
-					return FALSE;
-				}
-			}
-			else
-			{
-				// user defined type
-				loadFunc = asScrTypeTab[type - VAL_USERTYPESTART].loadFunc;
+        // set the value in the context
+        if (!eventSetContextVar(psCCont, static_cast<UDWORD>(i), type, data))
+        {
+          DBERROR(("eventLoadContext: couldn't set variable value"));
+          return FALSE;
+        }
+      }
+      else
+      {
+        // user defined type
+        loadFunc = asScrTypeTab[type - VAL_USERTYPESTART].loadFunc;
 
-				ASSERT((loadFunc != NULL,
-					"eventLoadContext: no load function for type %d\n", type));
+        ASSERT((loadFunc != NULL, "eventLoadContext: no load function for type %d\n", type));
 
-				valSize = *((UWORD *)pPos);
-				pPos += sizeof(UWORD);
-				size += sizeof(UWORD);
+        valSize = *((UWORD*)pPos);
+        pPos += sizeof(UWORD);
+        size += sizeof(UWORD);
 
-				// get the value pointer so that the loadFunc can write directly
-				// into the variables data space.
-				if (!eventGetContextVal(psCCont, (UDWORD)i, &psVal))
-				{
-					DBERROR(("eventLoadContext: couldn't find variable in context"));
-					return FALSE;
-				}
+        // get the value pointer so that the loadFunc can write directly
+        // into the variables data space.
+        if (!eventGetContextVal(psCCont, static_cast<UDWORD>(i), &psVal))
+        {
+          DBERROR(("eventLoadContext: couldn't find variable in context"));
+          return FALSE;
+        }
 
-				if (!loadFunc(version, type, pPos, valSize, (UDWORD *)&(psVal->v.ival)))
-				{
-					DBERROR(("eventLoadContext: couldn't get variable value"));
-					return FALSE;
-				}
+        if (!loadFunc(version, type, pPos, valSize, (UDWORD*)&(psVal->v.ival)))
+        {
+          DBERROR(("eventLoadContext: couldn't get variable value"));
+          return FALSE;
+        }
 
-				pPos += valSize;
-				size += valSize;
-			}
-		}
-	}
+        pPos += valSize;
+        size += valSize;
+      }
+    }
+  }
 
-	*pSize = size;
+  *pSize = size;
 
-	return TRUE;
+  return TRUE;
 }
 
 // return the index of a context
-BOOL eventGetContextIndex(SCRIPT_CONTEXT *psContext, SDWORD *pIndex)
+BOOL eventGetContextIndex(SCRIPT_CONTEXT* psContext, SDWORD* pIndex)
 {
-	SCRIPT_CONTEXT	*psCurr;
-	SDWORD			index;
+  SCRIPT_CONTEXT* psCurr;
+  SDWORD index;
 
-	index = 0;
-	for(psCurr=psContList; psCurr!= NULL; psCurr=psCurr->psNext)
-	{
-		if (psCurr == psContext)
-		{
-			*pIndex = index;
-			return TRUE;
-		}
-		index += 1;
-	}
+  index = 0;
+  for (psCurr = psContList; psCurr != nullptr; psCurr = psCurr->psNext)
+  {
+    if (psCurr == psContext)
+    {
+      *pIndex = index;
+      return TRUE;
+    }
+    index += 1;
+  }
 
-	return FALSE;
+  return FALSE;
 }
 
 // find a context from it's id number
-BOOL eventFindContext(SDWORD id, SCRIPT_CONTEXT **ppsContext)
+BOOL eventFindContext(SDWORD id, SCRIPT_CONTEXT** ppsContext)
 {
-	SCRIPT_CONTEXT	*psCurr;
+  SCRIPT_CONTEXT* psCurr;
 
-	for(psCurr=psContList; psCurr!= NULL; psCurr=psCurr->psNext)
-	{
-		if (psCurr->id == id)
-		{
-			*ppsContext = psCurr;
-			return TRUE;
-		}
-	}
+  for (psCurr = psContList; psCurr != nullptr; psCurr = psCurr->psNext)
+  {
+    if (psCurr->id == id)
+    {
+      *ppsContext = psCurr;
+      return TRUE;
+    }
+  }
 
-	return FALSE;
+  return FALSE;
 }
 
 // save a list of triggers
-BOOL eventSaveTriggerList(ACTIVE_TRIGGER *psList, UBYTE *pBuffer, UDWORD *pSize)
+BOOL eventSaveTriggerList(ACTIVE_TRIGGER* psList, UBYTE* pBuffer, UDWORD* pSize)
 {
-	ACTIVE_TRIGGER		*psCurr;
-	UDWORD				size;
-	UBYTE				*pPos;
-	SDWORD				numTriggers, context;
-	
-	size = 0;
-	pPos = pBuffer;
+  ACTIVE_TRIGGER* psCurr;
+  UDWORD size;
+  UBYTE* pPos;
+  SDWORD numTriggers, context;
 
-	// reserve some space for the number of triggers
-	if (pBuffer != NULL)
-	{
-		pPos += sizeof(SDWORD);
-	}
-	size += sizeof(SDWORD);
+  size = 0;
+  pPos = pBuffer;
 
-	numTriggers = 0;
-	for(psCurr = psList; psCurr != NULL; psCurr = psCurr->psNext)
-	{
-		numTriggers += 1;
+  // reserve some space for the number of triggers
+  if (pBuffer != nullptr)
+    pPos += sizeof(SDWORD);
+  size += sizeof(SDWORD);
 
-		if (pBuffer != NULL)
-		{
-			*((UDWORD*)pPos) = psCurr->testTime;
-			pPos += sizeof(UDWORD);
-			if (!eventGetContextIndex(psCurr->psContext, &context))
-			{
-				DBERROR(("eventSaveTriggerList: couldn't find context"));
-				return FALSE;
-			}
-			*((SWORD*)pPos) = (SWORD)context;
-			pPos += sizeof(SWORD);
-			*((SWORD*)pPos) = psCurr->type;
-			pPos += sizeof(SWORD);
-			*((SWORD*)pPos) = psCurr->trigger;
-			pPos += sizeof(SWORD);
-			*((UWORD*)pPos) = psCurr->event;
-			pPos += sizeof(UWORD);
-			*((UWORD*)pPos) = psCurr->offset;
-			pPos += sizeof(UWORD);
-		}
-		size += sizeof(UDWORD) + sizeof(SWORD)*3 + sizeof(UWORD)*2;
-	}
-	if (pBuffer != NULL)
-	{
-		*((SDWORD*)pBuffer) = numTriggers;
-	}
+  numTriggers = 0;
+  for (psCurr = psList; psCurr != nullptr; psCurr = psCurr->psNext)
+  {
+    numTriggers += 1;
 
-	*pSize = size;
+    if (pBuffer != nullptr)
+    {
+      *((UDWORD*)pPos) = psCurr->testTime;
+      pPos += sizeof(UDWORD);
+      if (!eventGetContextIndex(psCurr->psContext, &context))
+      {
+        DBERROR(("eventSaveTriggerList: couldn't find context"));
+        return FALSE;
+      }
+      *((SWORD*)pPos) = static_cast<SWORD>(context);
+      pPos += sizeof(SWORD);
+      *((SWORD*)pPos) = psCurr->type;
+      pPos += sizeof(SWORD);
+      *((SWORD*)pPos) = psCurr->trigger;
+      pPos += sizeof(SWORD);
+      *((UWORD*)pPos) = psCurr->event;
+      pPos += sizeof(UWORD);
+      *((UWORD*)pPos) = psCurr->offset;
+      pPos += sizeof(UWORD);
+    }
+    size += sizeof(UDWORD) + sizeof(SWORD) * 3 + sizeof(UWORD) * 2;
+  }
+  if (pBuffer != nullptr)
+    *((SDWORD*)pBuffer) = numTriggers;
 
-	return TRUE;
+  *pSize = size;
+
+  return TRUE;
 }
-
 
 // load a list of triggers
-BOOL eventLoadTriggerList(SDWORD version, UBYTE *pBuffer, UDWORD *pSize)
+BOOL eventLoadTriggerList(SDWORD version, UBYTE* pBuffer, UDWORD* pSize)
 {
-	UDWORD				size, event, offset, time;
-	UBYTE				*pPos;
-	SDWORD				numTriggers, context, type, trigger, i;
-	SCRIPT_CONTEXT		*psContext;
+  UDWORD size, event, offset, time;
+  UBYTE* pPos;
+  SDWORD numTriggers, context, type, trigger, i;
+  SCRIPT_CONTEXT* psContext;
 
-	version = version;
-	
-	size = 0;
-	pPos = pBuffer;
+  version = version;
 
-	// get the number of triggers
-	numTriggers = *((SDWORD*)pPos);
-	pPos += sizeof(SDWORD);
-	size += sizeof(SDWORD);
+  size = 0;
+  pPos = pBuffer;
 
-	for(i=0; i<numTriggers; i+= 1)
-	{
-		time = *((UDWORD*)pPos);
-		pPos += sizeof(UDWORD);
+  // get the number of triggers
+  numTriggers = *((SDWORD*)pPos);
+  pPos += sizeof(SDWORD);
+  size += sizeof(SDWORD);
 
-		context = *((SWORD*)pPos);
-		pPos += sizeof(SWORD);
-		if (!eventFindContext(context, &psContext))
-		{
-			DBERROR(("eventLoadTriggerList: couldn't find context"));
-			return FALSE;
-		}
+  for (i = 0; i < numTriggers; i += 1)
+  {
+    time = *((UDWORD*)pPos);
+    pPos += sizeof(UDWORD);
 
-		type = *((SWORD*)pPos);
-		pPos += sizeof(SWORD);
+    context = *((SWORD*)pPos);
+    pPos += sizeof(SWORD);
+    if (!eventFindContext(context, &psContext))
+    {
+      DBERROR(("eventLoadTriggerList: couldn't find context"));
+      return FALSE;
+    }
 
-		trigger = *((SWORD*)pPos);
-		pPos += sizeof(SWORD);
+    type = *((SWORD*)pPos);
+    pPos += sizeof(SWORD);
 
-		event = *((UWORD*)pPos);
-		pPos += sizeof(UWORD);
+    trigger = *((SWORD*)pPos);
+    pPos += sizeof(SWORD);
 
-		offset = *((UWORD*)pPos);
-		pPos += sizeof(UWORD);
+    event = *((UWORD*)pPos);
+    pPos += sizeof(UWORD);
 
-		size += sizeof(UDWORD) + sizeof(SWORD)*3 + sizeof(UWORD)*2;
+    offset = *((UWORD*)pPos);
+    pPos += sizeof(UWORD);
 
-		if (!eventLoadTrigger(time, psContext, type, trigger, event, offset))
-		{
-			return FALSE;
-		}
-	}
+    size += sizeof(UDWORD) + sizeof(SWORD) * 3 + sizeof(UWORD) * 2;
 
-	*pSize = size;
+    if (!eventLoadTrigger(time, psContext, type, trigger, event, offset))
+      return FALSE;
+  }
 
-	return TRUE;
+  *pSize = size;
+
+  return TRUE;
 }
-
 
 // Save the state of the event system
-BOOL eventSaveState(SDWORD version, UBYTE **ppBuffer, UDWORD *pFileSize)
+BOOL eventSaveState(SDWORD version, UBYTE** ppBuffer, UDWORD* pFileSize)
 {
-	UDWORD			size, totalSize;
-	UBYTE			*pBuffer, *pPos;
-	EVENT_SAVE_HDR	*psHdr;
+  UDWORD size, totalSize;
+  UBYTE *pBuffer, *pPos;
+  EVENT_SAVE_HDR* psHdr;
 
-	totalSize = sizeof(EVENT_SAVE_HDR);
+  totalSize = sizeof(EVENT_SAVE_HDR);
 
-	// find the size of the context save
-	if (!eventSaveContext(NULL, &size))
-	{
-		return FALSE;
-	}
-	totalSize += size;
+  // find the size of the context save
+  if (!eventSaveContext(nullptr, &size))
+    return FALSE;
+  totalSize += size;
 
-	// find the size of the trigger save
-	if (!eventSaveTriggerList(psTrigList, NULL, &size))
-	{
-		return FALSE;
-	}
-	totalSize += size;
+  // find the size of the trigger save
+  if (!eventSaveTriggerList(psTrigList, nullptr, &size))
+    return FALSE;
+  totalSize += size;
 
-	// find the size of the callback trigger save
-	if (!eventSaveTriggerList(psCallbackList, NULL, &size))
-	{
-		return FALSE;
-	}
-	totalSize += size;
+  // find the size of the callback trigger save
+  if (!eventSaveTriggerList(psCallbackList, nullptr, &size))
+    return FALSE;
+  totalSize += size;
 
+  // Allocate the buffer to save to
+  pBuffer = static_cast<UBYTE*>(MALLOC(totalSize));
+  if (pBuffer == nullptr)
+  {
+    DBERROR(("eventSaveState: out of memory"));
+    return FALSE;
+  }
+  pPos = pBuffer;
 
-	
-	// Allocate the buffer to save to
-	pBuffer = (UBYTE *)MALLOC(totalSize);
-	if (pBuffer == NULL)
-	{
-		DBERROR(("eventSaveState: out of memory"));
-		return FALSE;
-	}
-	pPos = pBuffer;
+  // set the header
+  psHdr = (EVENT_SAVE_HDR*)pPos;
+  psHdr->aFileType[0] = 'e';
+  psHdr->aFileType[1] = 'v';
+  psHdr->aFileType[2] = 'n';
+  psHdr->aFileType[3] = 't';
+  psHdr->version = version;
 
+  pPos += sizeof(EVENT_SAVE_HDR);
 
-	// set the header
-	psHdr = (EVENT_SAVE_HDR *)pPos;
-	psHdr->aFileType[0] = 'e';
-	psHdr->aFileType[1] = 'v';
-	psHdr->aFileType[2] = 'n';
-	psHdr->aFileType[3] = 't';
-	psHdr->version = version;
+  // save the contexts
+  if (!eventSaveContext(pPos, &size))
+    return FALSE;
+  pPos += size;
 
-	pPos += sizeof(EVENT_SAVE_HDR);
+  // save the triggers
+  if (!eventSaveTriggerList(psTrigList, pPos, &size))
+    return FALSE;
+  pPos += size;
 
+  // save the callback triggers
+  if (!eventSaveTriggerList(psCallbackList, pPos, &size))
+    return FALSE;
+  pPos += size;
 
-	// save the contexts
-	if (!eventSaveContext(pPos, &size))
-	{
-		return FALSE;
-	}
-	pPos += size;
+  *ppBuffer = pBuffer;
+  *pFileSize = totalSize;
 
-	// save the triggers
-	if (!eventSaveTriggerList(psTrigList, pPos, &size))
-	{
-		return FALSE;
-	}
-	pPos += size;
-
-	// save the callback triggers
-	if (!eventSaveTriggerList(psCallbackList, pPos, &size))
-	{
-		return FALSE;
-	}
-	pPos += size;
-
-	*ppBuffer = pBuffer;
-	*pFileSize = totalSize;
-
-	return TRUE;
+  return TRUE;
 }
 
-
 // Load the state of the event system
-BOOL eventLoadState(UBYTE *pBuffer, UDWORD fileSize, BOOL bHashed)
+BOOL eventLoadState(UBYTE* pBuffer, UDWORD fileSize, BOOL bHashed)
 {
-	UDWORD			size, totalSize, version;
-	UBYTE			*pPos;
-	EVENT_SAVE_HDR	*psHdr;
+  UDWORD size, totalSize, version;
+  UBYTE* pPos;
+  EVENT_SAVE_HDR* psHdr;
 
+  pPos = pBuffer;
+  totalSize = 0;
 
-	pPos = pBuffer;
-	totalSize = 0;
+  // Get the header
+  psHdr = (EVENT_SAVE_HDR*)pPos;
+  if (strncmp(psHdr->aFileType, "evnt", 4) != 0)
+  {
+    DBERROR(("eventLoadState: invalid file header"));
+    return FALSE;
+  }
+  /*	if ((psHdr->version != 1) &&
+      (psHdr->version != 2))
+    {
+      DBERROR(("eventLoadState: invalid file version"));
+      return FALSE;
+    }*/
+  version = psHdr->version;
+  pPos += sizeof(EVENT_SAVE_HDR);
+  totalSize += sizeof(EVENT_SAVE_HDR);
 
-	// Get the header
-	psHdr = (EVENT_SAVE_HDR *)pPos;
-	if (strncmp(psHdr->aFileType, "evnt", 4) != 0)
-	{
-		DBERROR(("eventLoadState: invalid file header"));
-		return FALSE;
-	}
-/*	if ((psHdr->version != 1) &&
-		(psHdr->version != 2))
-	{
-		DBERROR(("eventLoadState: invalid file version"));
-		return FALSE;
-	}*/
-	version = psHdr->version;
-	pPos += sizeof(EVENT_SAVE_HDR);
-	totalSize += sizeof(EVENT_SAVE_HDR);
+  // load the event contexts
+  if (bHashed)
+  {
+    if (!eventLoadContextHashed(version, pPos, &size))
+      return FALSE;
+  }
+  else
+  {
+    if (!eventLoadContext(version, pPos, &size))
+      return FALSE;
+  }
 
+  pPos += size;
+  totalSize += size;
 
-	// load the event contexts
-	if (bHashed)
-	{
-		if (!eventLoadContextHashed(version, pPos, &size))
-		{
-			return FALSE;
-		}
-	}
-	else
-	{
-		if (!eventLoadContext(version, pPos, &size))
-		{
-			return FALSE;
-		}
-	}
+  // load the normal triggers
+  if (!eventLoadTriggerList(version, pPos, &size))
+    return FALSE;
+  pPos += size;
+  totalSize += size;
 
-	pPos += size;
-	totalSize += size;
+  // load the callback triggers
+  if (!eventLoadTriggerList(version, pPos, &size))
+    return FALSE;
+  pPos += size;
+  totalSize += size;
 
-	// load the normal triggers
-	if (!eventLoadTriggerList(version, pPos, &size))
-	{
-		return FALSE;
-	}
-	pPos += size;
-	totalSize += size;
+  if (totalSize != fileSize)
+  {
+    DBERROR(("eventLoadState: corrupt save file"));
+    return FALSE;
+  }
 
-	// load the callback triggers
-	if (!eventLoadTriggerList(version, pPos, &size))
-	{
-		return FALSE;
-	}
-	pPos += size;
-	totalSize += size;
-
-	if (totalSize != fileSize)
-	{
-		DBERROR(("eventLoadState: corrupt save file"));
-		return FALSE;
-	}
-
-	return TRUE;
+  return TRUE;
 }

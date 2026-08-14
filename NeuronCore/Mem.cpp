@@ -38,98 +38,80 @@
 #define RFREE		free
 
 /* The root of the memory treap */
-static MEM_NODE		*psMemRoot = NULL;
+static MEM_NODE* psMemRoot = nullptr;
 
 /* The current block heap to use instead of MALLOC */
-static BLOCK_HEAP	*psCurrBlockHeap;
-void memMemoryDump(MEM_NODE *Node);
+static BLOCK_HEAP* psCurrBlockHeap;
+void memMemoryDump(MEM_NODE* Node);
 
 /* Initialise the memory system */
 BOOL memInitialise(void)
 {
-	if (psMemRoot != NULL)
-	{
-		DBPRINTF(("memInitialise: *** WARNING *** : memory still allocated??\n"));
-	}
-	psMemRoot = NULL;
+  if (psMemRoot != nullptr)
+    DBPRINTF(("memInitialise: *** WARNING *** : memory still allocated??\n"));
+  psMemRoot = nullptr;
 
-	psCurrBlockHeap = NULL;
+  psCurrBlockHeap = nullptr;
 
-	return TRUE;
+  return TRUE;
 }
-
 
 /* Release the memory treap */
-static void memTreapDestroy(TREAP_NODE *psRoot)
+static void memTreapDestroy(TREAP_NODE* psRoot)
 {
-	if (psRoot)
-	{
-		// Destroy the sub trees
-		memTreapDestroy(psRoot->psLeft);
-		memTreapDestroy(psRoot->psRight);
+  if (psRoot)
+  {
+    // Destroy the sub trees
+    memTreapDestroy(psRoot->psLeft);
+    memTreapDestroy(psRoot->psRight);
 
-		// Free the root
-		RFREE(psRoot);
-	}
+    // Free the root
+    RFREE(psRoot);
+  }
 }
-
 
 /* Shutdown the memory system */
 void memShutDown(void)
 {
-	// Report any memory still allocated
-	memMemoryReport(NULL);
+  // Report any memory still allocated
+  memMemoryReport(nullptr);
 
-	// Free up the allocated memory
-	memTreapDestroy((TREAP_NODE *)psMemRoot);
+  // Free up the allocated memory
+  memTreapDestroy((TREAP_NODE*)psMemRoot);
 }
-
 
 /* Set a block heap to use for all memory allocation rather than standard malloc/free */
-void memSetBlockHeap(BLOCK_HEAP *psHeap)
-{
-
-	psCurrBlockHeap = psHeap;
-}
-
+void memSetBlockHeap(BLOCK_HEAP* psHeap) { psCurrBlockHeap = psHeap; }
 
 /* Get the current block heap */
-BLOCK_HEAP *memGetBlockHeap(void)
-{
-	return psCurrBlockHeap;
-}
-
+BLOCK_HEAP* memGetBlockHeap(void) { return psCurrBlockHeap; }
 
 /* compare two memory blocks
  * NOTE: key1 is always the block passed into the treap code
  *       and therefore not necessarily to be trusted
  */
-SDWORD	memBlockCmp(UDWORD	key1, UDWORD key2)
+SDWORD memBlockCmp(UDWORD key1, UDWORD key2)
 {
-	UDWORD	start1,start2, end1,end2;
+  UDWORD start1, start2, end1, end2;
 
-	// Calculate the edges of the memory blocks
-	start1 = (UDWORD)((UBYTE *)((MEM_NODE *)key1)->pObj + sizeof(MEM_NODE)
-						+ SAFETY_ZONE_SIZE);
-	start2 = (UDWORD)((UBYTE *)((MEM_NODE *)key2)->pObj + sizeof(MEM_NODE)
-						+ SAFETY_ZONE_SIZE);
-	end1 = start1 + ((MEM_NODE *)key1)->size;
-	end2 = start2 + ((MEM_NODE *)key2)->size;
+  // Calculate the edges of the memory blocks
+  start1 = (UDWORD)(static_cast<UBYTE*>(((MEM_NODE*)key1)->pObj) + sizeof(MEM_NODE) + SAFETY_ZONE_SIZE);
+  start2 = (UDWORD)(static_cast<UBYTE*>(((MEM_NODE*)key2)->pObj) + sizeof(MEM_NODE) + SAFETY_ZONE_SIZE);
+  end1 = start1 + ((MEM_NODE*)key1)->size;
+  end2 = start2 + ((MEM_NODE*)key2)->size;
 
-	// see if one block is inside another
-	if ((start1 >= start2 && end1 <= end2))// ||		// block 1 inside block 2
-//		(start2 >= start1 && end2 <= end1))			// block 2 inside block 1
-	{
-		return 0;
-	}
-	else if (start1 < start2)
-	{
-		// less than
-		return -1;
-	}
+  // see if one block is inside another
+  if ((start1 >= start2 && end1 <= end2)) // ||		// block 1 inside block 2
+    //		(start2 >= start1 && end2 <= end1))			// block 2 inside block 1
+    return 0;
+  if (start1 < start2)
+  {
+    // less than
+    return -1;
+  }
 
-	// greater than
-	return 1;
+  // greater than
+  return 1;
 }
 
 #if DEBUG_MALLOC
@@ -139,96 +121,87 @@ SDWORD	memBlockCmp(UDWORD	key1, UDWORD key2)
  * A buffer is also allocated at the top and bottom of the memory to check for
  * overwrites.
  */
-void *memMalloc(STRING *pFileName, SDWORD LineNumber, size_t Size)
+void* memMalloc(STRING* pFileName, SDWORD LineNumber, size_t Size)
 {
-	void		*pMemBase;
-	MEM_NODE	*psNode;
+  void* pMemBase;
+  MEM_NODE* psNode;
 
-	ASSERT(((pFileName != NULL), "No filename passed to mem_Malloc"));
-	ASSERT((Size != 0, "Cannot allocate 0 bytes of memory."));
+  ASSERT(((pFileName != NULL), "No filename passed to mem_Malloc"));
+  ASSERT((Size != 0, "Cannot allocate 0 bytes of memory."));
 
-	if (psCurrBlockHeap != NULL)
-	{
-		// use a block heap rather than normal malloc
-		blkCallPos(pFileName, LineNumber);
-		return blkAlloc(psCurrBlockHeap, Size);
-	}
+  if (psCurrBlockHeap != nullptr)
+  {
+    // use a block heap rather than normal malloc
+    blkCallPos(pFileName, LineNumber);
+    return blkAlloc(psCurrBlockHeap, Size);
+  }
 
-	pMemBase = RMALLOC( Size + sizeof(MEM_NODE) + 2 * SAFETY_ZONE_SIZE );
-	if (!pMemBase)
-	{
+  pMemBase = RMALLOC(Size + sizeof(MEM_NODE) + 2 * SAFETY_ZONE_SIZE);
+  if (!pMemBase)
+  {
+    ASSERT((FALSE, "Warning: malloc returning NULL - [%s - %d]",pFileName,LineNumber));
+    DBPRINTF(("[%s - %d] %d bytes\n",pFileName,LineNumber,Size));
+    return nullptr;
+  }
 
+  /* Got the main bit of memory - set up the node entry */
+  psNode = static_cast<MEM_NODE*>(pMemBase);
+  psNode->pFile = static_cast<STRING*>(RMALLOC(strlen(pFileName) + 1));
+  if (!psNode->pFile)
+  {
+    RFREE(pMemBase);
+    DBMB(("Warning: malloc returning NULL"));
+    return nullptr;
+  }
+  strcpy(psNode->pFile, pFileName);
+  psNode->line = LineNumber;
+  psNode->size = Size;
 
-		ASSERT((FALSE, "Warning: malloc returning NULL - [%s - %d]",pFileName,LineNumber));
-		DBPRINTF(("[%s - %d] %d bytes\n",pFileName,LineNumber,Size));
-		return NULL;
-	}
+  /* Store the new entry in the memory treap */
+  psNode->priority = static_cast<UDWORD>(rand());
+  psNode->key = (UDWORD)psNode;
+  psNode->pObj = psNode;
+  psNode->psLeft = nullptr;
+  psNode->psRight = nullptr;
+  treapAddNode((TREAP_NODE**)&psMemRoot, (TREAP_NODE*)psNode, memBlockCmp);
 
-	/* Got the main bit of memory - set up the node entry */
-	psNode = (MEM_NODE *)pMemBase;
-	psNode->pFile = (STRING *)RMALLOC( strlen(pFileName)+1 );
-	if (!psNode->pFile)
-	{
-		RFREE(pMemBase);
-		DBMB(("Warning: malloc returning NULL"));
-		return NULL;
-	}
-	strcpy(psNode->pFile, pFileName);
-	psNode->line = LineNumber;
-	psNode->size = Size;
-	
-	/* Store the new entry in the memory treap */
-	psNode->priority = (UDWORD)rand();
-	psNode->key = (UDWORD)psNode;
-	psNode->pObj = psNode;
-	psNode->psLeft = NULL;
-	psNode->psRight = NULL;
-	treapAddNode((TREAP_NODE **)&psMemRoot, (TREAP_NODE *)psNode, memBlockCmp);
-
-	/* Now initialise the memory - try to catch unitialised variables */
-	memset((UBYTE *)(pMemBase) + sizeof(MEM_NODE),
-			SAFETY_ZONE_BYTE, SAFETY_ZONE_SIZE);
-	memset((UBYTE *)(pMemBase) + sizeof(MEM_NODE) + SAFETY_ZONE_SIZE + Size,
-			SAFETY_ZONE_BYTE, SAFETY_ZONE_SIZE);
+  /* Now initialise the memory - try to catch unitialised variables */
+  memset(static_cast<UBYTE*>(pMemBase) + sizeof(MEM_NODE), SAFETY_ZONE_BYTE, SAFETY_ZONE_SIZE);
+  memset(static_cast<UBYTE*>(pMemBase) + sizeof(MEM_NODE) + SAFETY_ZONE_SIZE + Size, SAFETY_ZONE_BYTE, SAFETY_ZONE_SIZE);
 #if MEMORY_SET
-	/* The PC initialises malloc'ed memory already, no need to do it again */
-	memset((UBYTE *)(pMemBase) + sizeof(MEM_NODE) + SAFETY_ZONE_SIZE,
-			INITIALISE_BYTE, Size);
+  /* The PC initialises malloc'ed memory already, no need to do it again */
+  memset(static_cast<UBYTE*>(pMemBase) + sizeof(MEM_NODE) + SAFETY_ZONE_SIZE, INITIALISE_BYTE, Size);
 #endif
 
-	return ((UBYTE *)(pMemBase) + sizeof(MEM_NODE) + SAFETY_ZONE_SIZE);
+  return (static_cast<UBYTE*>(pMemBase) + sizeof(MEM_NODE) + SAFETY_ZONE_SIZE);
 }
 #endif
 
 /* Replacement for malloc for release builds. */
-void *memMallocRelease(size_t Size)
+void* memMallocRelease(size_t Size)
 {
-	if (psCurrBlockHeap != NULL)
-	{
-		// use a block heap rather than normal malloc
-		return blkAlloc(psCurrBlockHeap, Size);
-	}
+  if (psCurrBlockHeap != nullptr)
+  {
+    // use a block heap rather than normal malloc
+    return blkAlloc(psCurrBlockHeap, Size);
+  }
 
 #if (1)
-	return RMALLOC(Size);
+  return RMALLOC(Size);
 #else
-// psx version that prints a message if the malloc fails
-{
-	void *t;
-	{
-		char str[16];
-		sprintf(str,"ALLOC %d\n",Size);
-		prnt(1,str,0,0);
-	}
-	t=RMALLOC(Size);
-	if (t==0)
-	{
-		prnt(1,"NOMEM",0,0);
-	}
-	return(t);
-}
+  // psx version that prints a message if the malloc fails
+  {
+    void* t;
+    {
+      char str[16];
+      sprintf(str, "ALLOC %d\n", Size);
+      prnt(1, str, 0, 0);
+    }
+    t = RMALLOC(Size);
+    if (t == 0) { prnt(1, "NOMEM", 0, 0); }
+    return (t);
+  }
 #endif
-
 }
 
 #if DEBUG_MALLOC
@@ -242,172 +215,145 @@ void *memMallocRelease(size_t Size)
  * All memory is reset to FREE_BYTE before freeing to avoid using
  * freed memory.
  */
-void memFree(STRING *pFileName, SDWORD LineNumber, void *pMemToFree)
+void memFree(STRING* pFileName, SDWORD LineNumber, void* pMemToFree)
 {
-	MEM_NODE	sNode, *psDeleted;
-	SDWORD		i, InvalidBottom, InvalidTop;
-	UBYTE		*pMemBase;
-	BLOCK_HEAP	*psBlock;
+  MEM_NODE sNode, *psDeleted;
+  SDWORD i, InvalidBottom, InvalidTop;
+  UBYTE* pMemBase;
+  BLOCK_HEAP* psBlock;
 #if MEMORY_SET
-	SDWORD		Size;
+  SDWORD Size;
 #endif
 
-	(void)LineNumber;
-	(void)pFileName;
+  (void)LineNumber;
+  (void)pFileName;
 
-	ASSERT(((pFileName != NULL), "No filename passed to mem_Free"));
-	ASSERT(((pMemToFree != NULL), "Attempt to free NULL pointer, called by:\n"
-								  "File: %s\nLine: %d", pFileName, LineNumber));
+  ASSERT(((pFileName != NULL), "No filename passed to mem_Free"));
+  ASSERT(((pMemToFree != NULL), "Attempt to free NULL pointer, called by:\n" "File: %s\nLine: %d", pFileName, LineNumber));
 
-	// see if the pointer was allocated in a block
-	psBlock = blkFind(pMemToFree);
-	if (psBlock != NULL)
-	{
-		// use a block heap rather than normal free
-		blkCallPos(pFileName, LineNumber);
-		blkFree(psBlock, pMemToFree);
-		return;
-	}
+  // see if the pointer was allocated in a block
+  psBlock = blkFind(pMemToFree);
+  if (psBlock != nullptr)
+  {
+    // use a block heap rather than normal free
+    blkCallPos(pFileName, LineNumber);
+    blkFree(psBlock, pMemToFree);
+    return;
+  }
 
-	// Create a dummy node for the search
-	// This is only looked at by memBlockCmp so only need to set the object and size
-	sNode.pObj = ((UBYTE *)pMemToFree) - sizeof(MEM_NODE) - SAFETY_ZONE_SIZE;
-	sNode.size = 1;
+  // Create a dummy node for the search
+  // This is only looked at by memBlockCmp so only need to set the object and size
+  sNode.pObj = static_cast<UBYTE*>(pMemToFree) - sizeof(MEM_NODE) - SAFETY_ZONE_SIZE;
+  sNode.size = 1;
 
-	/* Get the node for the memory block */
-	psDeleted = (MEM_NODE *)treapDelRec((TREAP_NODE **)&psMemRoot,
-										(UDWORD)&sNode, memBlockCmp);
+  /* Get the node for the memory block */
+  psDeleted = (MEM_NODE*)treapDelRec((TREAP_NODE**)&psMemRoot, (UDWORD)&sNode, memBlockCmp);
 
-	ASSERT((psDeleted != NULL,
-			"Invalid pointer passed to mem_Free by:\n"
-			"File: %s\nLine: %d\n\n"
-			"Attempt to free already freed pointer?",
-			pFileName, LineNumber));
-	if (psDeleted)
-	{
-		/* The pointer is valid, check the buffer zones */
-		pMemBase = (UBYTE *)(pMemToFree) - SAFETY_ZONE_SIZE;
-		InvalidBottom = InvalidTop = 0;
-		for(i=0; i<SAFETY_ZONE_SIZE; i++)
-		{
-			if (pMemBase[i] != SAFETY_ZONE_BYTE)
-			{
-				InvalidBottom++;
-			}
-			if (pMemBase[i + psDeleted->size + SAFETY_ZONE_SIZE] != SAFETY_ZONE_BYTE)
-			{
-				InvalidTop++;
-			}
-		}
+  ASSERT((psDeleted != NULL,
+    "Invalid pointer passed to mem_Free by:\n" "File: %s\nLine: %d\n\n" "Attempt to free already freed pointer?", pFileName, LineNumber));
+  if (psDeleted)
+  {
+    /* The pointer is valid, check the buffer zones */
+    pMemBase = static_cast<UBYTE*>(pMemToFree) - SAFETY_ZONE_SIZE;
+    InvalidBottom = InvalidTop = 0;
+    for (i = 0; i < SAFETY_ZONE_SIZE; i++)
+    {
+      if (pMemBase[i] != SAFETY_ZONE_BYTE)
+        InvalidBottom++;
+      if (pMemBase[i + psDeleted->size + SAFETY_ZONE_SIZE] != SAFETY_ZONE_BYTE)
+        InvalidTop++;
+    }
 
-		ASSERT(( !InvalidBottom && !InvalidTop,
-				"Safety zone on memory overwritten.\n"
-				"%d Invalid bytes (of %d) found below memory buffer.\n"
-				"%d Invalid bytes (of %d) found above memory buffer.\n\n"
-				"Memory allocated by:\nFile: %s\nLine: %d\n"
-				"Memory freed by:\nFile: %s\nLine: %d\n",
-				InvalidBottom, SAFETY_ZONE_SIZE, InvalidTop, SAFETY_ZONE_SIZE,
-				psDeleted->pFile, psDeleted->line,
-				pFileName, LineNumber));
+    ASSERT(( !InvalidBottom && !InvalidTop,
+      "Safety zone on memory overwritten.\n" "%d Invalid bytes (of %d) found below memory buffer.\n"
+      "%d Invalid bytes (of %d) found above memory buffer.\n\n" "Memory allocated by:\nFile: %s\nLine: %d\n"
+      "Memory freed by:\nFile: %s\nLine: %d\n", InvalidBottom, SAFETY_ZONE_SIZE, InvalidTop, SAFETY_ZONE_SIZE, psDeleted->pFile, psDeleted->
+      line, pFileName, LineNumber));
 
-		/* Trash the memory before it is freed (The PC already does this) */
+    /* Trash the memory before it is freed (The PC already does this) */
 #if MEMORY_SET
-		Size = psDeleted->size;
-		memset(pMemToFree, FREE_BYTE, Size);
+    Size = psDeleted->size;
+    memset(pMemToFree, FREE_BYTE, Size);
 #endif
 
-		/* Now free the memory */
+    /* Now free the memory */
 
-		RFREE(psDeleted->pFile);
-		RFREE(psDeleted);
-	}
-
+    RFREE(psDeleted->pFile);
+    RFREE(psDeleted);
+  }
 }
 #endif
 
 /* Replacement for Free for release builds */
-void memFreeRelease(void *pMemToFree)
+void memFreeRelease(void* pMemToFree)
 {
-	BLOCK_HEAP	*psBlock;
+  BLOCK_HEAP* psBlock;
 
-	// see if the pointer was allocated in a block
-	psBlock = blkFind(pMemToFree);
-	if (psBlock != NULL)
-	{
-		// use a block heap rather than normal free
-		blkFree(psBlock, pMemToFree);
-		return;
-	}
+  // see if the pointer was allocated in a block
+  psBlock = blkFind(pMemToFree);
+  if (psBlock != nullptr)
+  {
+    // use a block heap rather than normal free
+    blkFree(psBlock, pMemToFree);
+    return;
+  }
 
-
-	RFREE(pMemToFree);
+  RFREE(pMemToFree);
 }
-
 
 /* Checks whether the memory buffer pointed to by pPtr of size Size
  * is contained in any of the memory blocks allocated.
  */
-BOOL memPointerValid(void *pPtr, size_t size)
+BOOL memPointerValid(void* pPtr, size_t size)
 {
-	MEM_NODE	sNode;
+  MEM_NODE sNode;
 
-	ASSERT((size, "memPointerValid: cannot check a pointer with zero size"));
+  ASSERT((size, "memPointerValid: cannot check a pointer with zero size"));
 
-	if (pPtr == NULL)
-	{
-		return FALSE;
-	}
+  if (pPtr == nullptr)
+    return FALSE;
 
-	// Create a dummy node for the search
-	// This is only looked at by memBlockCmp so only need to set the object and size
-	sNode.pObj = ((UBYTE *)pPtr) - sizeof(MEM_NODE) - SAFETY_ZONE_SIZE;
-	sNode.size = size;
+  // Create a dummy node for the search
+  // This is only looked at by memBlockCmp so only need to set the object and size
+  sNode.pObj = static_cast<UBYTE*>(pPtr) - sizeof(MEM_NODE) - SAFETY_ZONE_SIZE;
+  sNode.size = size;
 
-	// See if the block is in the treap
-	if (treapFindRec((TREAP_NODE *)psMemRoot, (UDWORD)&sNode, memBlockCmp))
-	{
-		return TRUE;
-	}
+  // See if the block is in the treap
+  if (treapFindRec((TREAP_NODE*)psMemRoot, (UDWORD)&sNode, memBlockCmp))
+    return TRUE;
 
 #ifdef DEBUG_BLOCK
-	return blkPointerValidAll(pPtr, size);
+  return blkPointerValidAll(pPtr, size);
 #else
-	return FALSE;
+  return FALSE;
 #endif
 }
 
-
 /* Recursive function to print out the list of memory blocks */
-SDWORD memRecReport(MEM_NODE *psRoot)
+SDWORD memRecReport(MEM_NODE* psRoot)
 {
 #if DEBUG_MALLOC
-	if (psRoot)
-	{
-		DBPRINTF(("%s, line %d : \t", psRoot->pFile, psRoot->line));
-		if (psRoot->size < SHOW_KB_LIMIT)
-		{
-			DBPRINTF(("%d Bytes\n", psRoot->size));
-		}
-		else
-		{
-			DBPRINTF(("%d Kb\n", (int)(psRoot->size/1024)));
-		}
+  if (psRoot)
+  {
+    DBPRINTF(("%s, line %d : \t", psRoot->pFile, psRoot->line));
+    if (psRoot->size < SHOW_KB_LIMIT)
+      DBPRINTF(("%d Bytes\n", psRoot->size));
+    else
+      DBPRINTF(("%d Kb\n", static_cast<int>(psRoot->size / 1024)));
 
-		return memRecReport((MEM_NODE *)psRoot->psLeft) +
-			   memRecReport((MEM_NODE *)psRoot->psRight) +
-			   psRoot->size;
-	}
+    return memRecReport((MEM_NODE*)psRoot->psLeft) + memRecReport((MEM_NODE*)psRoot->psRight) + psRoot->size;
+  }
 #endif
 }
 
 #if DEBUG_MALLOC
 #define MAXMODULES (32)
-typedef struct
+using MEMMOD = struct
 {
-	char pFile[128];	
-	int Count;
-	int Total;
-} MEMMOD;
+  char pFile[128];
+  int Count;
+  int Total;
+};
 static MEMMOD MemModuleInfo[MAXMODULES];
 
 static UDWORD MemTotalEntries;
@@ -416,132 +362,114 @@ static UDWORD MemTotalAllocated;
 #endif
 
 /* Recursive function to total up the amount of mem allocated */
-void memSummary(MEM_NODE *psRoot)
+void memSummary(MEM_NODE* psRoot)
 {
 #if DEBUG_MALLOC
 
-						// bsort
-	if (psRoot)
-	{
-	int i;
-	BOOL FoundModule;
+  // bsort
+  if (psRoot)
+  {
+    int i;
+    BOOL FoundModule;
 
-		MemTotalEntries++;
-		MemTotalAllocated+=psRoot->size;
+    MemTotalEntries++;
+    MemTotalAllocated += psRoot->size;
 
-		FoundModule=FALSE;
-		for (i=0;i<(SDWORD)MemTotalModules;i++)
-		{
-			if (strcmp(psRoot->pFile,MemModuleInfo[i].pFile)==0)
-			{
-				MemModuleInfo[i].Count++;
-				MemModuleInfo[i].Total+=psRoot->size;
-				FoundModule=TRUE;
-			}
-		}
-		if (FoundModule==FALSE)
-		{
-			if (MemTotalModules <MAXMODULES)
-			{
-				strcpy(MemModuleInfo[MemTotalModules].pFile,psRoot->pFile);
-				MemModuleInfo[MemTotalModules].Count=1;
-				MemModuleInfo[MemTotalModules].Total=psRoot->size;
-				MemTotalModules++;
-			}
+    FoundModule = FALSE;
+    for (i = 0; i < static_cast<SDWORD>(MemTotalModules); i++)
+    {
+      if (strcmp(psRoot->pFile, MemModuleInfo[i].pFile) == 0)
+      {
+        MemModuleInfo[i].Count++;
+        MemModuleInfo[i].Total += psRoot->size;
+        FoundModule = TRUE;
+      }
+    }
+    if (FoundModule == FALSE)
+    {
+      if (MemTotalModules < MAXMODULES)
+      {
+        strcpy(MemModuleInfo[MemTotalModules].pFile, psRoot->pFile);
+        MemModuleInfo[MemTotalModules].Count = 1;
+        MemModuleInfo[MemTotalModules].Total = psRoot->size;
+        MemTotalModules++;
+      }
+    }
 
-		}
-
-
-
-		memSummary((MEM_NODE *)psRoot->psLeft);
-		memSummary((MEM_NODE *)psRoot->psRight);
-	}
-	return ;
+    memSummary((MEM_NODE*)psRoot->psLeft);
+    memSummary((MEM_NODE*)psRoot->psRight);
+  }
 #endif
 }
 
-void memMemorySummary(void)
-{
-	memMemoryDump(psMemRoot);
-}
+void memMemorySummary(void) { memMemoryDump(psMemRoot); }
 
-void memMemoryDump(MEM_NODE *Node)
+void memMemoryDump(MEM_NODE* Node)
 {
 #if DEBUG_MALLOC
 
-	int i;
+  int i;
 
-	MemTotalEntries=0;
-	MemTotalModules=0;
-	MemTotalAllocated=0;
-	memSummary(Node);	
+  MemTotalEntries = 0;
+  MemTotalModules = 0;
+  MemTotalAllocated = 0;
+  memSummary(Node);
 
-	DBPRINTF(("----------------\nMemory Summary\n%d Bytes allocated in %d handy size chunks\n\n", MemTotalAllocated,MemTotalEntries));
-	for (i=0;i<(SDWORD)MemTotalModules;i++)
-	{
-		DBPRINTF(("%d) [%s] %ld allocations totalling %ld bytes\n",i,MemModuleInfo[i].pFile,MemModuleInfo[i].Count,MemModuleInfo[i].Total));
-	}
+  DBPRINTF(("----------------\nMemory Summary\n%d Bytes allocated in %d handy size chunks\n\n", MemTotalAllocated,MemTotalEntries));
+  for (i = 0; i < static_cast<SDWORD>(MemTotalModules); i++)
+    DBPRINTF(("%d) [%s] %ld allocations totalling %ld bytes\n",i,MemModuleInfo[i].pFile,MemModuleInfo[i].Count,MemModuleInfo[i].Total));
 #endif
-
 }
 
 /* Report on currently allocated memory.
  * If pFileName is not NULL send the report to the specified file.
  * If pFileName is NULL the report goes to DBPRINTF
  */
-void memMemoryReport(STRING *pFileName)
+void memMemoryReport(STRING* pFileName)
 {
 #if DEBUG_MALLOC
-	SDWORD		TotMem;
+  SDWORD TotMem;
 
-	if (pFileName)
-	{
-		DBOUTPUTFILE(pFileName);
-		DBNOOUTPUTSTRING();
-	}
+  if (pFileName)
+  {
+    DBOUTPUTFILE(pFileName);
+    DBNOOUTPUTSTRING();
+  }
 
-	DBPRINTF(("\nMemory Allocation Report\n\n"));
-	if (!psMemRoot)
-	{
-		DBPRINTF(("No memory Allocated\n\n"));
-	}
-	else
-	{
-		TotMem = memRecReport(psMemRoot);
+  DBPRINTF(("\nMemory Allocation Report\n\n"));
+  if (!psMemRoot)
+    DBPRINTF(("No memory Allocated\n\n"));
+  else
+  {
+    TotMem = memRecReport(psMemRoot);
 
-		DBPRINTF(("\nTotal memory allocated : "));
-		if (TotMem < SHOW_KB_LIMIT)
-		{
-			DBPRINTF(("%d Bytes\n\n", TotMem));
-		}
-		else
-		{
-			DBPRINTF(("%d Kb\n\n", (int)(TotMem/1024)));
-		}
+    DBPRINTF(("\nTotal memory allocated : "));
+    if (TotMem < SHOW_KB_LIMIT)
+      DBPRINTF(("%d Bytes\n\n", TotMem));
+    else
+      DBPRINTF(("%d Kb\n\n", static_cast<int>(TotMem / 1024)));
+  }
 
-	}
-
-	DBNOOUTPUTFILE();
-	DBSETOUTPUTSTRING();
+  DBNOOUTPUTFILE();
+  DBSETOUTPUTSTRING();
 #endif
 }
 
-
 /* Display the memory treap */
-void memDisplayTreap(STRING *pFileName)
+void memDisplayTreap(STRING* pFileName)
 {
 #if DEBUG_MALLOC
-	if (pFileName)
-	{
-		DBOUTPUTFILE(pFileName);
-		DBNOOUTPUTSTRING();
-	}
+  if (pFileName)
+  {
+    DBOUTPUTFILE(pFileName);
+    DBNOOUTPUTSTRING();
+  }
 
-	DBPRINTF(("\nMemory Allocation Treap\n\n"));
+  DBPRINTF(("\nMemory Allocation Treap\n\n"));
 
-	treapDisplayRec((TREAP_NODE *)psMemRoot, 0);
+  treapDisplayRec((TREAP_NODE*)psMemRoot, 0);
 
-	DBNOOUTPUTFILE();
-	DBSETOUTPUTSTRING();
+  DBNOOUTPUTFILE();
+  DBSETOUTPUTSTRING();
 #endif
 }

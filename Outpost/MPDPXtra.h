@@ -5,7 +5,7 @@
 #define	MPDPXTRAERR_OK						0
 #define mpcdecl cdecl
 #define REG_KEY_MPLAYER         "Software\\Mpath\\Mplayer"      // in HKEY_LOCAL_MACHINE
-typedef unsigned long MPPLAYERID;
+using MPPLAYERID = unsigned long;
 
 /*----------------------------------------------------------------------------
 
@@ -160,7 +160,6 @@ typedef unsigned long MPPLAYERID;
 #define MP_LOAD_DLL_DYNAMICALLY
 #endif
 
-
 #ifdef __BORLANDC
 #pragma option -a.					// Pack on compiler defined byte boundaries (like pack pop!)
 #endif
@@ -170,490 +169,490 @@ extern "C"
 {
 #endif
 
-/****** MPDPXTRA TYPEDEFS ******/
+  /****** MPDPXTRA TYPEDEFS ******/
 
-typedef void SERVER_GAME_DATA_CBF(int	reserved,		// Reserved for Mplayer use
-								  UINT	key,			// Identifies the opaque server data block
-								  void	*context,		// Context passed by the subscriber 
-								  void	*pData,			// Pointer to the opaque server data block
-								  UINT	dataLen);		// Length of opaque server data block received
+  using SERVER_GAME_DATA_CBF = void(int reserved, // Reserved for Mplayer use
+                                    UINT key, // Identifies the opaque server data block
+                                    void* context, // Context passed by the subscriber 
+                                    void* pData, // Pointer to the opaque server data block
+                                    UINT dataLen); // Length of opaque server data block received
 
-/****** MPDPXTRA ERROR CODES ******/
+  /****** MPDPXTRA ERROR CODES ******/
 
-typedef	int	MPDPXTRAERR;
+  using MPDPXTRAERR = int;
 
-/********** MPDPXTRA INITIALIZATION ERRORS **********/
+  /********** MPDPXTRA INITIALIZATION ERRORS **********/
 
-// Indicates success
+  // Indicates success
 #define	MPDPXTRAERR_OK												0
-// The Mplayer DirectPlay Extras Library contained in DPMPLAY.DLL could
-// not be loaded. Either Dpmplay.dll could not be located or one of the
-// DLL's that it makes use of could not be loaded.
+  // The Mplayer DirectPlay Extras Library contained in DPMPLAY.DLL could
+  // not be loaded. Either Dpmplay.dll could not be located or one of the
+  // DLL's that it makes use of could not be loaded.
 #define	MPDPXTRAERR_UNABLE_TO_LOAD_MPDPXTRA_LIBRARY					-1
-// The Mplayer DirectPlay Extras Library contained in DPMPLAY.DLL is not
-// currently loaded. This return code may occur if the library was not
-// loaded as indicated by an error returned by MPDPXTRA_Init or a previous
-// call to MPDPXTRA_Destroy already decremented the reference count to zero
-// and released	the library.
+  // The Mplayer DirectPlay Extras Library contained in DPMPLAY.DLL is not
+  // currently loaded. This return code may occur if the library was not
+  // loaded as indicated by an error returned by MPDPXTRA_Init or a previous
+  // call to MPDPXTRA_Destroy already decremented the reference count to zero
+  // and released	the library.
 #define	MPDPXTRAERR_MPDPXTRA_LIBRARY_NOT_LOADED						-2
-// Multiple calls have been made to MPDPXTRA_Init and the reference count for
-// the library has not yet reached zero .
+  // Multiple calls have been made to MPDPXTRA_Init and the reference count for
+  // the library has not yet reached zero .
 #define MPDPXTRAERR_MPDPXTRA_LIBRARY_REFERENCE_COUNT_NOT_ZERO		-3
-// The library function called could not be dynamically linked. If MPDPXTRA_Init
-// returns a successful code of MPDPXTRAERR_OK, this error should never occur. If
-// it does, there is a serious error with the Windows system such as an extremely
-// low memory condition.
+  // The library function called could not be dynamically linked. If MPDPXTRA_Init
+  // returns a successful code of MPDPXTRAERR_OK, this error should never occur. If
+  // it does, there is a serious error with the Windows system such as an extremely
+  // low memory condition.
 #define MPDPXTRAERR_UNABLE_TO_LOCATE_FUNCTION_IN_MPDPXTRA_LIBRARY	-4
 
-/********** MPDPXTRA NETWORK ERRORS **********/
+  /********** MPDPXTRA NETWORK ERRORS **********/
 
-// The Mplayer network could not be initialized. This error can occur when the
-// Mplayer network is unavailable due to technical difficulties.
+  // The Mplayer network could not be initialized. This error can occur when the
+  // Mplayer network is unavailable due to technical difficulties.
 #define MPDPXTRAERR_UNABLE_TO_INITIALIZE_MPLAYER_NETWORK			-10
-// A connection to the Mplayer network could not be established. This error
-// can occur when the Mplayer network is unavailable due to technical difficulties.
+  // A connection to the Mplayer network could not be established. This error
+  // can occur when the Mplayer network is unavailable due to technical difficulties.
 #define MPDPXTRAERR_UNABLE_TO_CONNECT_TO_MPLAYER_NETWORK			-11
-// A connection to the Mplayer network has not been established.
+  // A connection to the Mplayer network has not been established.
 #define MPDPXTRAERR_NOT_CONNECTED_TO_MPLAYER_NETWORK				-12
-// A serious internal Mplayer network error has occurred. The current connection to
-// Mplayer can no longer be deemed reliable and the Mplayer DirectPlay Extras Library
-// can no longer be used reliably. The library should be shut down with a call to
-// MPDPXTRA_Destroy. This error can occur when the Mplayer network has experienced
-// a network outage.
+  // A serious internal Mplayer network error has occurred. The current connection to
+  // Mplayer can no longer be deemed reliable and the Mplayer DirectPlay Extras Library
+  // can no longer be used reliably. The library should be shut down with a call to
+  // MPDPXTRA_Destroy. This error can occur when the Mplayer network has experienced
+  // a network outage.
 #define MPDPXTRAERR_SERIOUS_MPLAYER_ERROR							-13
 
-/********** MPDPXTRA LOBBY STATUS REPORTING ERRORS **********/
+  /********** MPDPXTRA LOBBY STATUS REPORTING ERRORS **********/
 
-// The lobby data sent via MPDPXTRA_PostLobbyData could not be sent because the object
-// ID passed was invalid.
-#define MPDPXTRAERR_BAD_LOBBY_DATA_OBJECT_ID						-20 
-// The lobby data sent via MPDPXTRA_PostLobbyData could not be sent due to an internal
-// Mplayer network error. This error can occur when the Mplayer network is flooded with
-// too much outgoing data.
+  // The lobby data sent via MPDPXTRA_PostLobbyData could not be sent because the object
+  // ID passed was invalid.
+#define MPDPXTRAERR_BAD_LOBBY_DATA_OBJECT_ID						-20
+  // The lobby data sent via MPDPXTRA_PostLobbyData could not be sent due to an internal
+  // Mplayer network error. This error can occur when the Mplayer network is flooded with
+  // too much outgoing data.
 #define MPDPXTRAERR_UNABLE_TO_SEND_LOBBY_DATA						-21
 
-/********** MPDPXTRA SCORE REPORTING ERRORS **********/
+  /********** MPDPXTRA SCORE REPORTING ERRORS **********/
 
-// Unable to allocate memory needed to queue the score result.
+  // Unable to allocate memory needed to queue the score result.
 #define MPDPXTRAERR_UNABLE_ALLOCATE_MEMORY_FOR_RESULT				-30
-// The lobby data sent via MPDPXTRA_SendResults could not be sent due to an internal
-// Mplayer network error. This error can occur when the Mplayer network is flooded with
-// too much outgoing data or the Mplayer network is unavailable due to technical dif-
-// ficulties.
+  // The lobby data sent via MPDPXTRA_SendResults could not be sent due to an internal
+  // Mplayer network error. This error can occur when the Mplayer network is flooded with
+  // too much outgoing data or the Mplayer network is unavailable due to technical dif-
+  // ficulties.
 #define MPDPXTRAERR_UNABLE_TO_SEND_SCORE_RESULTS					-31
-// An invalid player DPID was passed to the MPDPXTRA_AddScoreResult function.
+  // An invalid player DPID was passed to the MPDPXTRA_AddScoreResult function.
 #define MPDPXTRAERR_INVALID_PLAYER_ID								-32
 
-/********** MPDPXTRA SERVER GAME DATA ERRORS **********/
+  /********** MPDPXTRA SERVER GAME DATA ERRORS **********/
 
-// An invalid server game data key was specified. Valid values are 0-0x7FFFFFFF.
+  // An invalid server game data key was specified. Valid values are 0-0x7FFFFFFF.
 #define MPDPXTRAERR_SERVER_GAME_DATA_INVALID_KEY					-40
-// The pointer specified to post server game data was NULL.
+  // The pointer specified to post server game data was NULL.
 #define MPDPXTRAERR_SERVER_GAME_DATA_INVALID_POINTER				-41
-// The callback specified to was NULL.
+  // The callback specified to was NULL.
 #define MPDPXTRAERR_SERVER_GAME_DATA_INVALID_CALLBACK				-42
-// The data length specified to post server game data was too big. The maximum
-// size if 256K.
+  // The data length specified to post server game data was too big. The maximum
+  // size if 256K.
 #define MPDPXTRAERR_SERVER_GAME_DATA_SIZE_TOO_BIG					-43
-// The size of the buffer specified when fetching server game daya is too small.
+  // The size of the buffer specified when fetching server game daya is too small.
 #define MPDPXTRAERR_SERVER_GAME_DATA_SIZE_TOO_SMALL					-44
-// A network error occurred attempting to post server game data.
+  // A network error occurred attempting to post server game data.
 #define MPDPXTRAERR_UNABLE_TO_SEND_SERVER_GAME_DATA					-45
-// Unable to allocate memory required for a server game data operation.
+  // Unable to allocate memory required for a server game data operation.
 #define MPDPXTRAERR_UNABLE_TO_ALLOCATE_MEMORY_FOR_SERVER_GAME_DATA	-46
-// No data has been posted on the server for the specified key.
+  // No data has been posted on the server for the specified key.
 #define MPDPXTRAERR_NO_SERVER_GAME_DATA_ASSOCIATED_WITH_KEY			-47
 
-/****** MPDPXTRA FUNCTION PROTOTYPES ******/
-
-/*-----------------------------------------------------------------------------------
-
-	MPDPXTRA_Init
-
-	Initializes the Mplayer DirectPlay Extras Library. This function must be called
-	before using any of the other functions available in the library. If called,
-	multiple time within a single process, the library will only be loaded once and
-	a reference count will be incremented for each call after the first. Each call
-	to MPDPXTRA_Init must have a matching call to MPDPXTRA_Destroy which decrements
-	the reference count. The library will be unloaded when the refence count reaches
-	zero.
-
-	Inputs:
-
-		None.
-
-	Outputs:
-
-		None.
-
-	Return Codes:
-
-	MPDPXTRAERR_OK
-	MPDPXTRAERR_UNABLE_TO_LOAD_MPDPXTRA_DLL
-	MPDPXTRAERR_UNABLE_TO_LOCATE_FUNCTION_IN_MPDPXTRA_DLL
-	MPDPXTRAERR_UNABLE_TO_LOAD_MPLAYER_DLL
-	MPDPXTRAERR_UNABLE_TO_LOCATE_FUNCTION_IN_MPLAYER_DLL
-	MPDPXTRAERR_UNABLE_TO_INITIALIZE_MPLAYER_NETWORK
-	MPDPXTRAERR_UNABLE_TO_CONNECT_TO_MPLAYER_NETWORK
-
------------------------------------------------------------------------------------*/
-
-MPDPXTRAERR		MPDPXTRA_Init(void);
-
-/*-----------------------------------------------------------------------------------
-
-	MPDPXTRA_Destroy
-
-	Decrements the reference count for the Mplayer DirectPlay Extras Library and
-	releases the library and all associate resources if it reaches zero.
-
-	Inputs:
-
-		None.
-
-	Outputs:
-
-		None.
-
-	Return Codes:
-
-	MPDPXTRAERR_OK
-	MPDPXTRAERR_DLL_NOT_LOADED
-	MPDPXTRAERR_UNABLE_TO_LOCATE_FUNCTION_IN_MPDPXTRA_DLL
-	MPDPXTRAERR_DLL_REFERENCE_COUNT_NOT_ZERO
-
------------------------------------------------------------------------------------*/
-
-MPDPXTRAERR		MPDPXTRA_Destroy(void);
-
-/*-----------------------------------------------------------------------------------
-
-  MPDPXTRA_DPIDToMPPLAYERID
-
-	The Mplayer DirectPlay Extras Library may need to translate DPID's to
-	MPPLAYERID's for use with the score reporting API. This function
-	performss a translation by requesting the MPPLAYERID from the local
-	player data for the specified DPID.
-	
------------------------------------------------------------------------------------*/
-
-MPDPXTRAERR		MPDPXTRA_DPIDToMPPLAYERID(DPID dpid,MPPLAYERID *mpPlayerID);
-
-/*-----------------------------------------------------------------------------------
-	
-	MPDPXTRA_PostLobbyData
- 
-	Send an opaque chunk of data to clients in the lobby.  Their Game Extension DLLs
-	will then interpret the object and display relevant information about the running
-	game instance.
-
-	The general purpose of this API is to allow a running game instance to report
-	significant events to the lobby, for the general edification and entertainment
-	of people outside the game.
-
-	The actual objects sent should be small, and infrequent.
-
-	Valid LobbyData objects ID's are:
-
-
-	Inputs:
-
-		objectID	-	A LobbyData object ID. Valid LobbyData objects ID's are:
-
-						MP_LOBBYDATA_COMMENT			0	// Replace room Comment
-						MP_LOBBYDATA_SHORT_STATUS		1	// Opaque data for GED (simple score)
-						MP_LOBBYDATA_LONG_STATUS		2	// Opaque data for GED (game state)
-		
-		pObjectData	-	A pointer to the object data. Object data should be comprised
-						of the following information based on the object ID:
-		
-						MP_LOBBYDATA_COMMENT		- A pointer to the string to replace the 
-													  lobby's room comment with.
-						MP_LOBBYDATA_SHORT_STATUS	- Opaque data for the game's extension DLL
-													  representing small and simple updates such as
-													  simple scores.
-						MP_LOBBYDATA_LONG_STATUS	- Opaque data for the game's extension DLL
-													  representing larger updates such as a game's 
-													  current state
-
-		objectDataLen - The length of the data block. For string's make sure that this value is
-						one greater than the value returned by strlen so that the end of string
-						character is included.
-
-	Outputs:
-
-		None.
-
-	Return Codes:
-
-		MPDPXTRAERR_OK
-		MPDPXTRAERR_DLL_NOT_LOADED
-		MPDPXTRAERR_UNABLE_TO_LOCATE_FUNCTION_IN_MPDPXTRA_DLL
-		MPDPXTRAERR_NOT_CONNECTED_TO_MPLAYER_NETWORK
-		MPDPXTRAERR_SERIOUS_MPLAYER_ERROR
-		MPDPXTRAERR_BAD_LOBBY_DATA_OBJECT_ID
-		MPDPXTRAERR_UNABLE_TO_SEND_LOBBY_DATA
-
------------------------------------------------------------------------------------*/
-
-MPDPXTRAERR		MPDPXTRA_PostLobbyData(UINT	objectID,void *pObjectData,UINT	objectDataLen);
-
-/*-----------------------------------------------------------------------------------
-	
-	MPDPXTRA_AddScoreResult
-
-	Queues a score result on the local client to be uploaded to the Mplayer network
-	at a later time using MPDPXTRA_SaveScoreResults.
-
-	Inputs:
-
-		srcId -			Originating player's DPID
-		dstId -			Target player's DPID, if any (use 0 for none)
-		key -			Key value for the score result
-		value -			Value of the score result
-
-	Outputs:
-
-		None.
-
-	Return Codes:
-
-		MPDPXTRAERR_OK
-		MPDPXTRAERR_MPDPXTRA_DLL_NOT_LOADED
-		MPDPXTRAERR_UNABLE_TO_LOCATE_FUNCTION_IN_MPDPXTRA_DLL
-		MPDPXTRAERR_NOT_CONNECTED_TO_MPLAYER_NETWORK
-		MPDPXTRAERR_SERIOUS_MPLAYER_ERROR
-		MPDPXTRAERR_UNABLE_ALLOCATE_MEMORY_FOR_RESULT
-		MPDPXTRAERR_INVALID_PLAYER_ID
-
------------------------------------------------------------------------------------*/
-
-MPDPXTRAERR		MPDPXTRA_AddScoreResult(DPID srcId,DPID dstId,u_long key,long value);
-
-/*-----------------------------------------------------------------------------------
-	
-	MPDPXTRA_AddScoreResultEx
-
-	Queues a score result on the local client to be uploaded to the Mplayer network
-	at a later time using MPDPXTRA_SaveScoreResults.
-
-	Inputs:
-
-		srcId -			Originating player's MPLAYERID
-		dstId -			Target player's MPLAYERID, if any (use 0 for none)
-		key -			Key value for the score result
-		value -			Value of the score result
-
-	Outputs:
-
-		None.
-
-	Return Codes:
-
-		MPERR_ADDRESULT_OK
-		MPDPXTRAERR_NOT_CONNECTED_TO_MPLAYER_NETWORK
-		MPDPXTRAERR_SERIOUS_MPLAYER_ERROR
-		MPDPXTRAERR_UNABLE_ALLOCATE_MEMORY_FOR_RESULT
-		MPDPXTRAERR_INVALID_PLAYER_ID
-
------------------------------------------------------------------------------------*/
-
-MPDPXTRAERR		MPDPXTRA_AddScoreResultEx(MPPLAYERID srcId,MPPLAYERID dstId,u_long key,long value);
-
-/*-----------------------------------------------------------------------------------
-	
-	MPDPXTRA_SaveScoreResults
-
-	Sends all results accumulated with MPDPXTRA_AddScoreResult to the Mplayer
-	network.
-
-	Inputs:
-
-		None.
-
-	Outputs:
-
-		None.
-
-	Return Codes:
-
-		MPDPXTRAERR_OK
-		MPDPXTRAERR_MPDPXTRA_DLL_NOT_LOADED
-		MPDPXTRAERR_UNABLE_TO_LOCATE_FUNCTION_IN_MPDPXTRA_DLL
-		MPDPXTRAERR_NOT_CONNECTED_TO_MPLAYER_NETWORK
-		MPDPXTRAERR_SERIOUS_MPLAYER_ERROR
-		MPDPXTRAERR_UNABLE_ALLOCATE_MEMORY_FOR_RESULT
-		MPDPXTRAERR_UNABLE_TO_SEND_SCORE_RESULTS
-
------------------------------------------------------------------------------------*/
-
-MPDPXTRAERR		MPDPXTRA_SaveScoreResults(void);
-
-/*-----------------------------------------------------------------------------------
-	
-	MPDPXTRA_PostServerGameData
-
-	Posts an opaque data block up to 256K bytes in size to the game server
-	so that it can be shared with others attached to the same game session.
-	The data can be retrieved from the server either synchronously via the blocking
-	function MPDPXTRA_FetchSharedGameData or asynchronously using the non-blocking
-	function MPDPXTRA_SubscribeSharedGameData.
-
-	Note that this post function is non-blocking.
-
-	Inputs:
-
-		key -			Key value for the opaque data block between 0 and 0x7FFFFFFF.
-						This key is game specific so developers are free to choose any
-						key they wish.
-		pData -			A pointer to opaque data block to be saved on the game server.
-		dataLen -		The size of the opaque data block.
-
-	Outputs:
-
-		None.
-
-	Return Codes:
-
-		MPDPXTRAERR_OK
-		MPDPXTRAERR_NOT_CONNECTED_TO_MPLAYER_NETWORK
-		MPDPXTRAERR_SERIOUS_MPLAYER_ERROR
-		MPDPXTRAERR_SERVER_GAME_DATA_INVALID_KEY
-		MPDPXTRAERR_SERVER_GAME_DATA_INVALID_POINTER
-		MPDPXTRAERR_SERVER_GAME_DATA_SIZE_TOO_BIG
-		MPDPXTRAERR_UNABLE_TO_ALLOCATE_MEMORY_FOR_SERVER_GAME_DATA
-		MPDPXTRAERR_UNABLE_TO_SEND_SERVER_GAME_DATA
-
------------------------------------------------------------------------------------*/
-
-MPDPXTRAERR		MPDPXTRA_PostServerGameData(UINT key,void *pData,UINT dataLen);
-
-/*-----------------------------------------------------------------------------------
-	
-	MPDPXTRA_FetchServerGameData
-
-	Fetches an opaque data block up to 256K bytes in size from the game server
-	in a synchronous, blocking manner (i.e. the function won't return until
-	the complete block has been received or an error has occurred).
-
-	This function should really only be used for VERY small blocks (< 4K or so)
-	of data where the user won't be aware that data transfer is occurring. The
-	reason for this is that the game's user interface might block waiting for this
-	call. For large blocks, it is recommended that developers use the
-	MPDPXTRA_SubscribeServerGameData function.
-
-	In order to get the size of the server game data block, 0 can be specified for
-	for the dataLen. The function will return an error of
-	MPDPXTRAERR_SERVER_GAME_DATA_SIZE_TOO_SMALL but the dataLen will be set to the
-	correct size. A buffer can then be allocated and the function can be called again
-	with the buffer passed as the pData variable.
-
-	Inputs:
-
-		key -			Key value for the opaque data block between 0 and 0x7FFFFFFF.
-						This key is game specific so developers are free to choose any
-						key they wish.
-		pData -			A pointer to a buffer to be filled with the opaque server game
-						data block.
-		pDataLen -		A pointer to the size of the opaque data block which will be
-						filled in.
-
-	Outputs:
-
-		None.
-
-	Return Codes:
-
-		MPDPXTRAERR_OK
-		MPDPXTRAERR_NOT_CONNECTED_TO_MPLAYER_NETWORK
-		MPDPXTRAERR_SERIOUS_MPLAYER_ERROR
-		MPDPXTRAERR_SERVER_GAME_DATA_INVALID_KEY
-		MPDPXTRAERR_SERVER_GAME_DATA_SIZE_TOO_SMALL
-		MPDPXTRAERR_UNABLE_TO_ALLOCATE_MEMORY_FOR_SERVER_GAME_DATA
-		MPDPXTRAERR_NO_SERVER_GAME_DATA_ASSOCIATED_WITH_KEY
-
------------------------------------------------------------------------------------*/
-
-MPDPXTRAERR		MPDPXTRA_FetchServerGameData(UINT key,void *pData,UINT *pDataLen);
-
-/*-----------------------------------------------------------------------------------
-	
-	MPDPXTRA_SubscribeServerGameData
-
-	Subscribes to receive updates of game data blocks stored on the game server.
-	Updates will be received in an asynchronous fashion with the passed in
-	callback function getting called when a complete update has been received.
-
-	The first time this function is called, the server will be checked for the
-	specified key. If there is an opqaue data block associated with the specified
-	key stored on the server, an asynchronous transfer will begin and the callback
-	function will be called when the complete block as been received. Subsequent
-	updates to the opaque data block on the server via the MPDPXTRA_PostServerGameData
-	function will cause the subscribed block to be asynchronously transmitted to
-	all current subscribers with the callback function getting called when the
-	complete block has been received by the subscriber.
-
-	It is possible to subscribe to a data block with the same key but with different
-	callback functions and different contexts. Each unique pair of callback function
-	pointer and context will be treated a a separate "subscriber."
-
-	Inputs:
-
-		key -			Key value for the opaque data block between 0 and 0x7FFFFFFF.
-						This key is game specific so developers are free to choose any
-						key they wish.
-		cbf -			A pointer to a callback function of type SERVER_GAME_DATA_CBF.
-		context -		A game specified pointer to a context that will be passed to the
-						callback function.
-
-	Outputs:
-
-		None.
-
-	Return Codes:
-
-		MPDPXTRAERR_OK
-		MPDPXTRAERR_NOT_CONNECTED_TO_MPLAYER_NETWORK
-		MPDPXTRAERR_SERIOUS_MPLAYER_ERROR
-		MPDPXTRAERR_INVALID_SERVER_GAME_DATA_KEY
-		MPDPXTRAERR_INVALID_SERVER_GAME_DATA_CALLBACK
-		MPDPXTRAERR_UNABLE_TO_SUBSCRIBE_TO_SERVER_GAME_DATA
-
------------------------------------------------------------------------------------*/
-
-MPDPXTRAERR		MPDPXTRA_SubscribeServerGameData(UINT key,SERVER_GAME_DATA_CBF *cbf,void *context);
-
-/*-----------------------------------------------------------------------------------
-	
-	MPDPXTRA_UnsubscribeServerGameData
-
-	Unsubscribes from updates of server game data blocks associated with the specified
-	key, callback function, and context.
-
-	Inputs:
-
-		key -			Key value for the opaque data block between 0 and 0x7FFFFFFF.
-						This key is game specific so developers are free to choose any
-						key they wish.
-		cbf -			A pointer to a callback function of type SERVER_GAME_DATA_CBF.
-		context -		A game specified pointer to a context that will be passed to the
-						callback function.
-
-	Outputs:
-
-		None.
-
-	Return Codes:
-
-		MPDPXTRAERR_OK
-		MPDPXTRAERR_NOT_CONNECTED_TO_MPLAYER_NETWORK
-		MPDPXTRAERR_SERIOUS_MPLAYER_ERROR
-		MPDPXTRAERR_INVALID_SERVER_GAME_DATA_KEY
-		MPDPXTRAERR_INVALID_SERVER_GAME_DATA_CALLBACK
-
------------------------------------------------------------------------------------*/
-
-MPDPXTRAERR	mpcdecl MPDPXTRA_UnsubscribeServerGameData(UINT key,SERVER_GAME_DATA_CBF *cbf,void *context);
+  /****** MPDPXTRA FUNCTION PROTOTYPES ******/
+
+  /*-----------------------------------------------------------------------------------
+  
+    MPDPXTRA_Init
+  
+    Initializes the Mplayer DirectPlay Extras Library. This function must be called
+    before using any of the other functions available in the library. If called,
+    multiple time within a single process, the library will only be loaded once and
+    a reference count will be incremented for each call after the first. Each call
+    to MPDPXTRA_Init must have a matching call to MPDPXTRA_Destroy which decrements
+    the reference count. The library will be unloaded when the refence count reaches
+    zero.
+  
+    Inputs:
+  
+      None.
+  
+    Outputs:
+  
+      None.
+  
+    Return Codes:
+  
+    MPDPXTRAERR_OK
+    MPDPXTRAERR_UNABLE_TO_LOAD_MPDPXTRA_DLL
+    MPDPXTRAERR_UNABLE_TO_LOCATE_FUNCTION_IN_MPDPXTRA_DLL
+    MPDPXTRAERR_UNABLE_TO_LOAD_MPLAYER_DLL
+    MPDPXTRAERR_UNABLE_TO_LOCATE_FUNCTION_IN_MPLAYER_DLL
+    MPDPXTRAERR_UNABLE_TO_INITIALIZE_MPLAYER_NETWORK
+    MPDPXTRAERR_UNABLE_TO_CONNECT_TO_MPLAYER_NETWORK
+  
+  -----------------------------------------------------------------------------------*/
+
+  MPDPXTRAERR MPDPXTRA_Init(void);
+
+  /*-----------------------------------------------------------------------------------
+  
+    MPDPXTRA_Destroy
+  
+    Decrements the reference count for the Mplayer DirectPlay Extras Library and
+    releases the library and all associate resources if it reaches zero.
+  
+    Inputs:
+  
+      None.
+  
+    Outputs:
+  
+      None.
+  
+    Return Codes:
+  
+    MPDPXTRAERR_OK
+    MPDPXTRAERR_DLL_NOT_LOADED
+    MPDPXTRAERR_UNABLE_TO_LOCATE_FUNCTION_IN_MPDPXTRA_DLL
+    MPDPXTRAERR_DLL_REFERENCE_COUNT_NOT_ZERO
+  
+  -----------------------------------------------------------------------------------*/
+
+  MPDPXTRAERR MPDPXTRA_Destroy(void);
+
+  /*-----------------------------------------------------------------------------------
+  
+    MPDPXTRA_DPIDToMPPLAYERID
+  
+    The Mplayer DirectPlay Extras Library may need to translate DPID's to
+    MPPLAYERID's for use with the score reporting API. This function
+    performss a translation by requesting the MPPLAYERID from the local
+    player data for the specified DPID.
+    
+  -----------------------------------------------------------------------------------*/
+
+  MPDPXTRAERR MPDPXTRA_DPIDToMPPLAYERID(DPID dpid, MPPLAYERID* mpPlayerID);
+
+  /*-----------------------------------------------------------------------------------
+    
+    MPDPXTRA_PostLobbyData
+   
+    Send an opaque chunk of data to clients in the lobby.  Their Game Extension DLLs
+    will then interpret the object and display relevant information about the running
+    game instance.
+  
+    The general purpose of this API is to allow a running game instance to report
+    significant events to the lobby, for the general edification and entertainment
+    of people outside the game.
+  
+    The actual objects sent should be small, and infrequent.
+  
+    Valid LobbyData objects ID's are:
+  
+  
+    Inputs:
+  
+      objectID	-	A LobbyData object ID. Valid LobbyData objects ID's are:
+  
+              MP_LOBBYDATA_COMMENT			0	// Replace room Comment
+              MP_LOBBYDATA_SHORT_STATUS		1	// Opaque data for GED (simple score)
+              MP_LOBBYDATA_LONG_STATUS		2	// Opaque data for GED (game state)
+      
+      pObjectData	-	A pointer to the object data. Object data should be comprised
+              of the following information based on the object ID:
+      
+              MP_LOBBYDATA_COMMENT		- A pointer to the string to replace the 
+                              lobby's room comment with.
+              MP_LOBBYDATA_SHORT_STATUS	- Opaque data for the game's extension DLL
+                              representing small and simple updates such as
+                              simple scores.
+              MP_LOBBYDATA_LONG_STATUS	- Opaque data for the game's extension DLL
+                              representing larger updates such as a game's 
+                              current state
+  
+      objectDataLen - The length of the data block. For string's make sure that this value is
+              one greater than the value returned by strlen so that the end of string
+              character is included.
+  
+    Outputs:
+  
+      None.
+  
+    Return Codes:
+  
+      MPDPXTRAERR_OK
+      MPDPXTRAERR_DLL_NOT_LOADED
+      MPDPXTRAERR_UNABLE_TO_LOCATE_FUNCTION_IN_MPDPXTRA_DLL
+      MPDPXTRAERR_NOT_CONNECTED_TO_MPLAYER_NETWORK
+      MPDPXTRAERR_SERIOUS_MPLAYER_ERROR
+      MPDPXTRAERR_BAD_LOBBY_DATA_OBJECT_ID
+      MPDPXTRAERR_UNABLE_TO_SEND_LOBBY_DATA
+  
+  -----------------------------------------------------------------------------------*/
+
+  MPDPXTRAERR MPDPXTRA_PostLobbyData(UINT objectID, void* pObjectData, UINT objectDataLen);
+
+  /*-----------------------------------------------------------------------------------
+    
+    MPDPXTRA_AddScoreResult
+  
+    Queues a score result on the local client to be uploaded to the Mplayer network
+    at a later time using MPDPXTRA_SaveScoreResults.
+  
+    Inputs:
+  
+      srcId -			Originating player's DPID
+      dstId -			Target player's DPID, if any (use 0 for none)
+      key -			Key value for the score result
+      value -			Value of the score result
+  
+    Outputs:
+  
+      None.
+  
+    Return Codes:
+  
+      MPDPXTRAERR_OK
+      MPDPXTRAERR_MPDPXTRA_DLL_NOT_LOADED
+      MPDPXTRAERR_UNABLE_TO_LOCATE_FUNCTION_IN_MPDPXTRA_DLL
+      MPDPXTRAERR_NOT_CONNECTED_TO_MPLAYER_NETWORK
+      MPDPXTRAERR_SERIOUS_MPLAYER_ERROR
+      MPDPXTRAERR_UNABLE_ALLOCATE_MEMORY_FOR_RESULT
+      MPDPXTRAERR_INVALID_PLAYER_ID
+  
+  -----------------------------------------------------------------------------------*/
+
+  MPDPXTRAERR MPDPXTRA_AddScoreResult(DPID srcId, DPID dstId, u_long key, long value);
+
+  /*-----------------------------------------------------------------------------------
+    
+    MPDPXTRA_AddScoreResultEx
+  
+    Queues a score result on the local client to be uploaded to the Mplayer network
+    at a later time using MPDPXTRA_SaveScoreResults.
+  
+    Inputs:
+  
+      srcId -			Originating player's MPLAYERID
+      dstId -			Target player's MPLAYERID, if any (use 0 for none)
+      key -			Key value for the score result
+      value -			Value of the score result
+  
+    Outputs:
+  
+      None.
+  
+    Return Codes:
+  
+      MPERR_ADDRESULT_OK
+      MPDPXTRAERR_NOT_CONNECTED_TO_MPLAYER_NETWORK
+      MPDPXTRAERR_SERIOUS_MPLAYER_ERROR
+      MPDPXTRAERR_UNABLE_ALLOCATE_MEMORY_FOR_RESULT
+      MPDPXTRAERR_INVALID_PLAYER_ID
+  
+  -----------------------------------------------------------------------------------*/
+
+  MPDPXTRAERR MPDPXTRA_AddScoreResultEx(MPPLAYERID srcId, MPPLAYERID dstId, u_long key, long value);
+
+  /*-----------------------------------------------------------------------------------
+    
+    MPDPXTRA_SaveScoreResults
+  
+    Sends all results accumulated with MPDPXTRA_AddScoreResult to the Mplayer
+    network.
+  
+    Inputs:
+  
+      None.
+  
+    Outputs:
+  
+      None.
+  
+    Return Codes:
+  
+      MPDPXTRAERR_OK
+      MPDPXTRAERR_MPDPXTRA_DLL_NOT_LOADED
+      MPDPXTRAERR_UNABLE_TO_LOCATE_FUNCTION_IN_MPDPXTRA_DLL
+      MPDPXTRAERR_NOT_CONNECTED_TO_MPLAYER_NETWORK
+      MPDPXTRAERR_SERIOUS_MPLAYER_ERROR
+      MPDPXTRAERR_UNABLE_ALLOCATE_MEMORY_FOR_RESULT
+      MPDPXTRAERR_UNABLE_TO_SEND_SCORE_RESULTS
+  
+  -----------------------------------------------------------------------------------*/
+
+  MPDPXTRAERR MPDPXTRA_SaveScoreResults(void);
+
+  /*-----------------------------------------------------------------------------------
+    
+    MPDPXTRA_PostServerGameData
+  
+    Posts an opaque data block up to 256K bytes in size to the game server
+    so that it can be shared with others attached to the same game session.
+    The data can be retrieved from the server either synchronously via the blocking
+    function MPDPXTRA_FetchSharedGameData or asynchronously using the non-blocking
+    function MPDPXTRA_SubscribeSharedGameData.
+  
+    Note that this post function is non-blocking.
+  
+    Inputs:
+  
+      key -			Key value for the opaque data block between 0 and 0x7FFFFFFF.
+              This key is game specific so developers are free to choose any
+              key they wish.
+      pData -			A pointer to opaque data block to be saved on the game server.
+      dataLen -		The size of the opaque data block.
+  
+    Outputs:
+  
+      None.
+  
+    Return Codes:
+  
+      MPDPXTRAERR_OK
+      MPDPXTRAERR_NOT_CONNECTED_TO_MPLAYER_NETWORK
+      MPDPXTRAERR_SERIOUS_MPLAYER_ERROR
+      MPDPXTRAERR_SERVER_GAME_DATA_INVALID_KEY
+      MPDPXTRAERR_SERVER_GAME_DATA_INVALID_POINTER
+      MPDPXTRAERR_SERVER_GAME_DATA_SIZE_TOO_BIG
+      MPDPXTRAERR_UNABLE_TO_ALLOCATE_MEMORY_FOR_SERVER_GAME_DATA
+      MPDPXTRAERR_UNABLE_TO_SEND_SERVER_GAME_DATA
+  
+  -----------------------------------------------------------------------------------*/
+
+  MPDPXTRAERR MPDPXTRA_PostServerGameData(UINT key, void* pData, UINT dataLen);
+
+  /*-----------------------------------------------------------------------------------
+    
+    MPDPXTRA_FetchServerGameData
+  
+    Fetches an opaque data block up to 256K bytes in size from the game server
+    in a synchronous, blocking manner (i.e. the function won't return until
+    the complete block has been received or an error has occurred).
+  
+    This function should really only be used for VERY small blocks (< 4K or so)
+    of data where the user won't be aware that data transfer is occurring. The
+    reason for this is that the game's user interface might block waiting for this
+    call. For large blocks, it is recommended that developers use the
+    MPDPXTRA_SubscribeServerGameData function.
+  
+    In order to get the size of the server game data block, 0 can be specified for
+    for the dataLen. The function will return an error of
+    MPDPXTRAERR_SERVER_GAME_DATA_SIZE_TOO_SMALL but the dataLen will be set to the
+    correct size. A buffer can then be allocated and the function can be called again
+    with the buffer passed as the pData variable.
+  
+    Inputs:
+  
+      key -			Key value for the opaque data block between 0 and 0x7FFFFFFF.
+              This key is game specific so developers are free to choose any
+              key they wish.
+      pData -			A pointer to a buffer to be filled with the opaque server game
+              data block.
+      pDataLen -		A pointer to the size of the opaque data block which will be
+              filled in.
+  
+    Outputs:
+  
+      None.
+  
+    Return Codes:
+  
+      MPDPXTRAERR_OK
+      MPDPXTRAERR_NOT_CONNECTED_TO_MPLAYER_NETWORK
+      MPDPXTRAERR_SERIOUS_MPLAYER_ERROR
+      MPDPXTRAERR_SERVER_GAME_DATA_INVALID_KEY
+      MPDPXTRAERR_SERVER_GAME_DATA_SIZE_TOO_SMALL
+      MPDPXTRAERR_UNABLE_TO_ALLOCATE_MEMORY_FOR_SERVER_GAME_DATA
+      MPDPXTRAERR_NO_SERVER_GAME_DATA_ASSOCIATED_WITH_KEY
+  
+  -----------------------------------------------------------------------------------*/
+
+  MPDPXTRAERR MPDPXTRA_FetchServerGameData(UINT key, void* pData, UINT* pDataLen);
+
+  /*-----------------------------------------------------------------------------------
+    
+    MPDPXTRA_SubscribeServerGameData
+  
+    Subscribes to receive updates of game data blocks stored on the game server.
+    Updates will be received in an asynchronous fashion with the passed in
+    callback function getting called when a complete update has been received.
+  
+    The first time this function is called, the server will be checked for the
+    specified key. If there is an opqaue data block associated with the specified
+    key stored on the server, an asynchronous transfer will begin and the callback
+    function will be called when the complete block as been received. Subsequent
+    updates to the opaque data block on the server via the MPDPXTRA_PostServerGameData
+    function will cause the subscribed block to be asynchronously transmitted to
+    all current subscribers with the callback function getting called when the
+    complete block has been received by the subscriber.
+  
+    It is possible to subscribe to a data block with the same key but with different
+    callback functions and different contexts. Each unique pair of callback function
+    pointer and context will be treated a a separate "subscriber."
+  
+    Inputs:
+  
+      key -			Key value for the opaque data block between 0 and 0x7FFFFFFF.
+              This key is game specific so developers are free to choose any
+              key they wish.
+      cbf -			A pointer to a callback function of type SERVER_GAME_DATA_CBF.
+      context -		A game specified pointer to a context that will be passed to the
+              callback function.
+  
+    Outputs:
+  
+      None.
+  
+    Return Codes:
+  
+      MPDPXTRAERR_OK
+      MPDPXTRAERR_NOT_CONNECTED_TO_MPLAYER_NETWORK
+      MPDPXTRAERR_SERIOUS_MPLAYER_ERROR
+      MPDPXTRAERR_INVALID_SERVER_GAME_DATA_KEY
+      MPDPXTRAERR_INVALID_SERVER_GAME_DATA_CALLBACK
+      MPDPXTRAERR_UNABLE_TO_SUBSCRIBE_TO_SERVER_GAME_DATA
+  
+  -----------------------------------------------------------------------------------*/
+
+  MPDPXTRAERR MPDPXTRA_SubscribeServerGameData(UINT key, SERVER_GAME_DATA_CBF* cbf, void* context);
+
+  /*-----------------------------------------------------------------------------------
+    
+    MPDPXTRA_UnsubscribeServerGameData
+  
+    Unsubscribes from updates of server game data blocks associated with the specified
+    key, callback function, and context.
+  
+    Inputs:
+  
+      key -			Key value for the opaque data block between 0 and 0x7FFFFFFF.
+              This key is game specific so developers are free to choose any
+              key they wish.
+      cbf -			A pointer to a callback function of type SERVER_GAME_DATA_CBF.
+      context -		A game specified pointer to a context that will be passed to the
+              callback function.
+  
+    Outputs:
+  
+      None.
+  
+    Return Codes:
+  
+      MPDPXTRAERR_OK
+      MPDPXTRAERR_NOT_CONNECTED_TO_MPLAYER_NETWORK
+      MPDPXTRAERR_SERIOUS_MPLAYER_ERROR
+      MPDPXTRAERR_INVALID_SERVER_GAME_DATA_KEY
+      MPDPXTRAERR_INVALID_SERVER_GAME_DATA_CALLBACK
+  
+  -----------------------------------------------------------------------------------*/
+
+  MPDPXTRAERR mpcdecl MPDPXTRA_UnsubscribeServerGameData(UINT key, SERVER_GAME_DATA_CBF* cbf, void* context);
 
 #ifdef __cplusplus
 }

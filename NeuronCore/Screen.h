@@ -28,7 +28,6 @@
 #undef RELEASE
 #define RELEASE(x) if ((x) != NULL) {(void)(x)->lpVtbl->Release(x); (x) = NULL;}
 
-
 /* Return a pointer to the Direct Draw objects */
 extern LPDIRECTDRAW4 screenGetDDObject(void);
 
@@ -36,10 +35,10 @@ extern LPDIRECTDRAW4 screenGetDDObject(void);
 extern LPDIRECTDRAWSURFACE4 screenGetSurface(void);
 
 /* Return a pointer to the front buffer pixel format */
-extern DDPIXELFORMAT *screenGetFrontBufferPixelFormat(void);
+extern DDPIXELFORMAT* screenGetFrontBufferPixelFormat(void);
 
 /* Return a pointer to the back buffer pixel format */
-extern DDPIXELFORMAT *screenGetBackBufferPixelFormat(void);
+extern DDPIXELFORMAT* screenGetBackBufferPixelFormat(void);
 
 /* Flip back and front buffers */
 extern void screenFlip(BOOL clearBackBuffer);
@@ -56,32 +55,32 @@ extern void screen_Upload(UWORD* newBackDropBmp);
 void screen_SetFogColour(UDWORD newFogColour);
 
 /* Toggle the display between full screen or windowed */
-extern void	screenToggleMode(void);
+extern void screenToggleMode(void);
 
 /* Toggle the display between 8 bit and 16 bit */
-extern BOOL	screenToggleVideoPlaybackMode(void);
+extern BOOL screenToggleVideoPlaybackMode(void);
 
-typedef enum _screen_mode
+using SCREEN_MODE = enum _screen_mode
 {
-	SCREEN_FULLSCREEN,
-	SCREEN_WINDOWED,
-	SCREEN_FULLSCREEN_VIDEO
-} SCREEN_MODE;
+  SCREEN_FULLSCREEN,
+  SCREEN_WINDOWED,
+  SCREEN_FULLSCREEN_VIDEO
+};
 
 /* get screen window handle */
-extern HWND screenGetHWnd( void );
+extern HWND screenGetHWnd(void);
 
 /* Set whether the display is windowed or full screen */
 extern void screenSetMode(SCREEN_MODE mode);
 
 /* Get display mode (windowed or full screen) */
-extern SCREEN_MODE screenGetMode( void );
+extern SCREEN_MODE screenGetMode(void);
 
 /* Set palette entries for the display buffer
  * first specifies the first palette entry. count the number of entries
  * The psPalette should have at least first + count entries in it.
  */
-extern void screenSetPalette(UDWORD first, UDWORD count, PALETTEENTRY *psPalette);
+extern void screenSetPalette(UDWORD first, UDWORD count, PALETTEENTRY* psPalette);
 
 /* Return the best colour match when in a palettised mode */
 extern UBYTE screenGetPalEntry(UBYTE red, UBYTE green, UBYTE blue);
@@ -92,27 +91,23 @@ extern void screenSetTextColour(UBYTE red, UBYTE green, UBYTE blue);
 /* Output text to the display screen at location x,y.
  * The remaining arguments are as printf.
  */
-extern void screenTextOut(UDWORD x, UDWORD y, STRING *pFormat, ...);
+extern void screenTextOut(UDWORD x, UDWORD y, STRING* pFormat, ...);
 
 /* Blit the source rectangle of the surface
  * to the back buffer at the given location.
  * The blit is clipped to the screen size.
  */
-extern void screenBlit(SDWORD destX, SDWORD destY,		// The location on screen
-				LPDIRECTDRAWSURFACE4 psSurf,		// The surface to blit from
-				UDWORD	srcX, UDWORD srcY,
-				UDWORD	width, UDWORD height);	// The source rectangle from the surface
+extern void screenBlit(SDWORD destX, SDWORD destY, // The location on screen
+                       LPDIRECTDRAWSURFACE4 psSurf, // The surface to blit from
+                       UDWORD srcX, UDWORD srcY, UDWORD width, UDWORD height); // The source rectangle from the surface
 
 /*
  * Blit the source rectangle to the back buffer scaling it to
  * the size of the destination rectangle.
  * This clips to the size of the back buffer.
  */
-extern void screenScaleBlit(SDWORD destX, SDWORD destY,
-					 SDWORD destWidth, SDWORD destHeight,
-					 LPDIRECTDRAWSURFACE4 psSurf,
-					 SDWORD srcX, SDWORD srcY,
-					 SDWORD srcWidth, SDWORD srcHeight);
+extern void screenScaleBlit(SDWORD destX, SDWORD destY, SDWORD destWidth, SDWORD destHeight, LPDIRECTDRAWSURFACE4 psSurf, SDWORD srcX,
+                            SDWORD srcY, SDWORD srcWidth, SDWORD srcHeight);
 
 /* Blit a tile (rectangle) from the surface
  * to the back buffer at the given location.
@@ -120,10 +115,10 @@ extern void screenScaleBlit(SDWORD destX, SDWORD destY,
  * across from top left to bottom right.
  * The blit is clipped to the screen size.
  */
-extern void screenBlitTile(SDWORD destX, SDWORD destY,	// The location on screen
-				LPDIRECTDRAWSURFACE4 psSurf,		// The surface to blit from
-				UDWORD	width, UDWORD height,	// The size of the tile
-				UDWORD  tile);					// The tile number
+extern void screenBlitTile(SDWORD destX, SDWORD destY, // The location on screen
+                           LPDIRECTDRAWSURFACE4 psSurf, // The surface to blit from
+                           UDWORD width, UDWORD height, // The size of the tile
+                           UDWORD tile); // The tile number
 
 /* Return the actual value that will be poked into screen memory
  * given an RGB value.  The value is padded with zeros up to a
@@ -165,7 +160,6 @@ extern void screenFillRect(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1);
 /* x0,y0 - top left, x1,y1 - bottom right */
 extern void screenDrawEllipse(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1);
 
-extern BOOL screenReInit( void );
+extern BOOL screenReInit(void);
 
 #endif
-

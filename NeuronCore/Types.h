@@ -15,22 +15,21 @@
 #error Framework header files MUST be included from Frame.h ONLY.
 #endif
 
-
 /* Basic numeric types */
-typedef unsigned	char	UBYTE;
+using UBYTE = unsigned char;
 /* SBYTE and STRING are both plain char rather than signed char.  Much of the
    codebase uses them for text, and a string literal is a char array: signed
    char is a distinct type from char in C++, so those calls will not compile
    otherwise.  MSVC's default char is signed, so this is identical in
    representation to the signed char they used to be. */
-typedef				char	SBYTE;
-typedef				char	STRING;
-typedef	unsigned	short	UWORD;
-typedef	signed		short	SWORD;
-typedef	unsigned	int		UDWORD;
-typedef	signed		int		SDWORD;
+using SBYTE = char;
+using STRING = char;
+using UWORD = unsigned short;
+using SWORD = signed short;
+using UDWORD = unsigned int;
+using SDWORD = signed int;
 
-typedef	int	BOOL;
+using BOOL = int;
 
 /* Numeric size defines */
 #define UBYTE_MAX	0xff
@@ -61,8 +60,6 @@ typedef	int	BOOL;
 #define FAST                    register
 #define IMPORT                  extern
 #define VOID                    void
-
-
 
 /* defines for ONEINX - use 
    
@@ -98,7 +95,6 @@ typedef	int	BOOL;
 #define ONEINHUNDREDTHOUSAND	rand()%100000==0
 #define ONEINMILLION			rand()%1000000==0
 
-
 #define	ABSDIF(a,b) ((a)>(b) ? (a)-(b) : (b)-(a))
 #define CAT(a,b) a##b
 
@@ -113,6 +109,5 @@ typedef	int	BOOL;
 /* Break loop construct */
 
 #define FOREVER for (;;)
-
 
 #endif

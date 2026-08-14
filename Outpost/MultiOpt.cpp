@@ -37,317 +37,290 @@
 
 //old guid {7B706E40-5A7E-11d1-94F6-006097B8260B}"
 
-DEFINE_GUID(WARZONEGUID,0x48ab0b01,0xfec0,0x11d1,0x98,0xc,0x0,0xa0,0x24,0x38,0x70,0xa8);
+DEFINE_GUID(WARZONEGUID, 0x48ab0b01, 0xfec0, 0x11d1, 0x98, 0xc, 0x0, 0xa0, 0x24, 0x38, 0x70, 0xa8);
 // also change S_WARZONEGUID in multiplay.h
-
 
 // ////////////////////////////////////////////////////////////////////////////
 // External Variables
 
-extern char	buildTime[8];
+extern char buildTime[8];
 extern BOOL mplayerSubmit(void);
-extern VOID	stopJoining(void);
+extern VOID stopJoining(void);
 
 // ////////////////////////////////////////////////////////////////////////////
 // Local Functions
 
-VOID		sendOptions			(DPID dest,UDWORD player);
-VOID		recvOptions			(NETMSG *pMsg);
-static BOOL dMatchInit			(VOID);
-static BOOL campInit			(VOID);
-BOOL		hostCampaign		(STRING *sGame,		STRING *sPlayer);
-BOOL		joinCampaign		(UDWORD gameNumber, STRING *playername);
-BOOL		LobbyLaunched		(VOID);
-VOID		playerResponding	(VOID);
-BOOL		multiInitialise		(VOID);		//only once.
-BOOL		lobbyInitialise		(VOID);		//only once.
-BOOL		sendLeavingMsg		(VOID);
-BOOL		multiShutdown		(VOID);
-BOOL		addTemplate			(UDWORD player, DROID_TEMPLATE *psNew);
-BOOL		addTemplateSet		(UDWORD from,UDWORD to);
-BOOL		copyTemplateSet		(UDWORD from,UDWORD to);
-BOOL		multiGameInit		(VOID);		// every game
-BOOL		multiGameShutdown	(VOID);
+VOID sendOptions(DPID dest, UDWORD player);
+VOID recvOptions(NETMSG* pMsg);
+static BOOL dMatchInit(VOID);
+static BOOL campInit(VOID);
+BOOL hostCampaign(STRING* sGame, STRING* sPlayer);
+BOOL joinCampaign(UDWORD gameNumber, STRING* playername);
+BOOL LobbyLaunched(VOID);
+VOID playerResponding(VOID);
+BOOL multiInitialise(VOID); //only once.
+BOOL lobbyInitialise(VOID); //only once.
+BOOL sendLeavingMsg(VOID);
+BOOL multiShutdown(VOID);
+BOOL addTemplate(UDWORD player, DROID_TEMPLATE* psNew);
+BOOL addTemplateSet(UDWORD from, UDWORD to);
+BOOL copyTemplateSet(UDWORD from, UDWORD to);
+BOOL multiGameInit(VOID); // every game
+BOOL multiGameShutdown(VOID);
 
 // ////////////////////////////////////////////////////////////////////////////
 // ////////////////////////////////////////////////////////////////////////////
 
 // send complete game info set!
 // dpid == 0 for no new players.
-VOID sendOptions(DPID dest,UDWORD play)
+VOID sendOptions(DPID dest, UDWORD play)
 {
-	NETMSG m;
-	UBYTE checkval;
+  NETMSG m;
+  UBYTE checkval;
 
-	NetAdd(m,0,game);				
-	m.size = sizeof(game);
+  NetAdd(m, 0, game);
+  m.size = sizeof(game);
 
-	NetAdd(m,m.size,player2dpid);			//add dpid array
-	m.size += sizeof(player2dpid);
-	
-	NetAdd(m,m.size,ingame.JoiningInProgress);	
-	m.size += sizeof(ingame.JoiningInProgress);
+  NetAdd(m, m.size, player2dpid); //add dpid array
+  m.size += sizeof(player2dpid);
 
-	checkval = NEThashVal(NetPlay.cryptKey[0]);	// exe's hash val. DONT SEND THE VAL ITSELF!
-	NetAdd(m,m.size,checkval);	
-	m.size += sizeof(checkval);
+  NetAdd(m, m.size, ingame.JoiningInProgress);
+  m.size += sizeof(ingame.JoiningInProgress);
 
-	NetAdd(m,m.size,dest);
-	m.size += sizeof(dest);
-	
-	NetAdd(m,m.size,play);
-	m.size += sizeof(play);
+  checkval = NEThashVal(NetPlay.cryptKey[0]); // exe's hash val. DONT SEND THE VAL ITSELF!
+  NetAdd(m, m.size, checkval);
+  m.size += sizeof(checkval);
 
-	NetAdd(m,m.size,PlayerColour);
-	m.size += sizeof(PlayerColour);
+  NetAdd(m, m.size, dest);
+  m.size += sizeof(dest);
 
-	NetAdd(m,m.size,alliances);
-	m.size += sizeof(alliances);
+  NetAdd(m, m.size, play);
+  m.size += sizeof(play);
 
-	NetAdd(m,m.size,ingame.numStructureLimits);
-	m.size += sizeof(ingame.numStructureLimits);
-	if(ingame.numStructureLimits)
-	{
-		memcpy(&(m.body[m.size]),ingame.pStructureLimits, ingame.numStructureLimits * (sizeof(UBYTE)+sizeof(UDWORD)) );
-		m.size = (UWORD)(m.size + ingame.numStructureLimits * (sizeof(UBYTE)+sizeof(UDWORD)) );
-	}
-	
-	//
-	// now add the wdg files that are being used.
-	//
-	
-	m.type = NET_OPTIONS;				// send it.
-	NETbcast(&m,TRUE);		
+  NetAdd(m, m.size, PlayerColour);
+  m.size += sizeof(PlayerColour);
 
+  NetAdd(m, m.size, alliances);
+  m.size += sizeof(alliances);
+
+  NetAdd(m, m.size, ingame.numStructureLimits);
+  m.size += sizeof(ingame.numStructureLimits);
+  if (ingame.numStructureLimits)
+  {
+    memcpy(&(m.body[m.size]), ingame.pStructureLimits, ingame.numStructureLimits * (sizeof(UBYTE) + sizeof(UDWORD)));
+    m.size = static_cast<UWORD>(m.size + ingame.numStructureLimits * (sizeof(UBYTE) + sizeof(UDWORD)));
+  }
+
+  //
+  // now add the wdg files that are being used.
+  //
+
+  m.type = NET_OPTIONS; // send it.
+  NETbcast(&m,TRUE);
 }
 
 // ////////////////////////////////////////////////////////////////////////////
-BOOL checkGameWdg(CHAR *nm)
+BOOL checkGameWdg(CHAR* nm)
 {
-	LEVEL_DATASET *lev;
+  LEVEL_DATASET* lev;
 
-	//
-	// now check the wdg files that are being used.
-	//
+  //
+  // now check the wdg files that are being used.
+  //
 
-	// game.map must be available in xxx list.
+  // game.map must be available in xxx list.
 
-	lev = psLevels;
-	while(lev)
-	{
-		if( strcmp(lev->pName, nm) == 0)
-		{
-			return TRUE;
-		}
-		lev=lev->psNext;
-	}
+  lev = psLevels;
+  while (lev)
+  {
+    if (strcmp(lev->pName, nm) == 0)
+      return TRUE;
+    lev = lev->psNext;
+  }
 
-	return FALSE;
+  return FALSE;
 }
 
 // ////////////////////////////////////////////////////////////////////////////
 // options for a game. (usually recvd in frontend)
-void recvOptions(NETMSG *pMsg)
+void recvOptions(NETMSG* pMsg)
 {
-	UDWORD	pos=0,play,id;
-	DPID	newPl;
-	UBYTE	checkval;
+  UDWORD pos = 0, play, id;
+  DPID newPl;
+  UBYTE checkval;
 
-
-	NetGet(pMsg,0,game);									// get details.
-	pos += sizeof(game);
-	if(strncmp((CHAR*)game.version,buildTime,8) != 0)
-	{
+  NetGet(pMsg, 0, game); // get details.
+  pos += sizeof(game);
+  if (strncmp((CHAR*)game.version, buildTime, 8) != 0)
+  {
 #ifndef DEBUG
-		DBERROR(("Host is running a different version of Warzone2100."));
+    DBERROR(("Host is running a different version of Warzone2100."));
 #endif
 #ifdef COVERMOUNT
-		DBERROR(("Warzone 2100 Demo is not compatible with the release version"));
-		ExitProcess(4);
+    DBERROR(("Warzone 2100 Demo is not compatible with the release version")); ExitProcess(4);
 #endif
-	}
-	if(ingame.numStructureLimits)							// free old limits.
-	{
-			ingame.numStructureLimits = 0;
-			FREE(ingame.pStructureLimits);
-	}
+  }
+  if (ingame.numStructureLimits) // free old limits.
+  {
+    ingame.numStructureLimits = 0;
+    FREE(ingame.pStructureLimits);
+  }
 
-	NetGet(pMsg,pos,player2dpid);			
-	pos += sizeof(player2dpid);
+  NetGet(pMsg, pos, player2dpid);
+  pos += sizeof(player2dpid);
 
-	NetGet(pMsg,pos,ingame.JoiningInProgress);
-	pos += sizeof(ingame.JoiningInProgress);
+  NetGet(pMsg, pos, ingame.JoiningInProgress);
+  pos += sizeof(ingame.JoiningInProgress);
 
-	NetGet(pMsg,pos,checkval);
-	pos += sizeof(checkval);
-	if(checkval != NEThashVal(NetPlay.cryptKey[0]))
-	{	
-		DBERROR(("Host Binary is different from this one. Cheating?"));
+  NetGet(pMsg, pos, checkval);
+  pos += sizeof(checkval);
+  if (checkval != NEThashVal(NetPlay.cryptKey[0]))
+  {
+    DBERROR(("Host Binary is different from this one. Cheating?"));
 #ifdef COVERMOUNT
-		DBERROR(("Warzone 2100 Demo is not compatible with the release version"));
-		ExitProcess(4);
+    DBERROR(("Warzone 2100 Demo is not compatible with the release version")); ExitProcess(4);
 #endif
-	}
+  }
 
-	NetGet(pMsg,pos,newPl);
-	pos += sizeof(newPl);
+  NetGet(pMsg, pos, newPl);
+  pos += sizeof(newPl);
 
-	NetGet(pMsg,pos,play);
-	pos += sizeof(play);
+  NetGet(pMsg, pos, play);
+  pos += sizeof(play);
 
-	NetGet(pMsg,pos,PlayerColour);
-	pos += sizeof(PlayerColour);
+  NetGet(pMsg, pos, PlayerColour);
+  pos += sizeof(PlayerColour);
 
-	NetGet(pMsg,pos,alliances);
-	pos += sizeof(alliances);
+  NetGet(pMsg, pos, alliances);
+  pos += sizeof(alliances);
 
-	NetGet(pMsg,pos,ingame.numStructureLimits);
-	pos += sizeof(ingame.numStructureLimits);
-	if(ingame.numStructureLimits)
-	{
-		ingame.pStructureLimits = (UBYTE *)MALLOC(ingame.numStructureLimits*(sizeof(UDWORD)+sizeof(UBYTE)));	// malloc some room
-		memcpy(ingame.pStructureLimits, &(pMsg->body[pos]) ,ingame.numStructureLimits*(sizeof(UDWORD)+sizeof(UBYTE)));	
-	}
+  NetGet(pMsg, pos, ingame.numStructureLimits);
+  pos += sizeof(ingame.numStructureLimits);
+  if (ingame.numStructureLimits)
+  {
+    ingame.pStructureLimits = static_cast<UBYTE*>(MALLOC(ingame.numStructureLimits*(sizeof(UDWORD)+sizeof(UBYTE)))); // malloc some room
+    memcpy(ingame.pStructureLimits, &(pMsg->body[pos]), ingame.numStructureLimits * (sizeof(UDWORD) + sizeof(UBYTE)));
+  }
 
-	// process
-	if(newPl != 0)
-	{
-		if(newPl == NetPlay.dpidPlayer)
-		{
-			// it's us thats new
-			selectedPlayer = play;							// select player
-			NETplayerInfo(NULL);							// get player info	
-			powerCalculated = FALSE;						// turn off any power requirements.
-		}
-		else
-		{
-			// someone else is joining.
-			setupNewPlayer( newPl, play);
-		}
-	}
+  // process
+  if (newPl != 0)
+  {
+    if (newPl == NetPlay.dpidPlayer)
+    {
+      // it's us thats new
+      selectedPlayer = play; // select player
+      NETplayerInfo(nullptr); // get player info	
+      powerCalculated = FALSE; // turn off any power requirements.
+    }
+    else
+    {
+      // someone else is joining.
+      setupNewPlayer(newPl, play);
+    }
+  }
 
+  // do the skirmish slider settings if they are up,
+  for (id = 0; id < MAX_PLAYERS; id++)
+  {
+    if (widgGetFromID(psWScreen,MULTIOP_SKSLIDE + id))
+      widgSetSliderPos(psWScreen,MULTIOP_SKSLIDE + id, game.skDiff[id]);
+  }
 
-	// do the skirmish slider settings if they are up,
-	for(id=0;id<MAX_PLAYERS;id++)
-	{
-		if(widgGetFromID(psWScreen,MULTIOP_SKSLIDE+id))
-		{
-			widgSetSliderPos(psWScreen,MULTIOP_SKSLIDE+id,game.skDiff[id]);
-		}
-	}
-
-	if(!checkGameWdg(game.map) )
-	{	
-		// request the map from the host. NET_REQUESTMAP
-		{
-			NETMSG m;
-			NetAdd(m,0,NetPlay.dpidPlayer);
-			m.type = NET_REQUESTMAP;
-			m.size =4;
-			NETbcast(&m,TRUE);
-			addConsoleMessage("MAP REQUESTED!",DEFAULT_JUSTIFY);
-		}
-	}
-	else
-	{
-		loadMapPreview();
-	}
-
+  if (!checkGameWdg(game.map))
+  {
+    // request the map from the host. NET_REQUESTMAP
+    {
+      NETMSG m;
+      NetAdd(m, 0, NetPlay.dpidPlayer);
+      m.type = NET_REQUESTMAP;
+      m.size = 4;
+      NETbcast(&m,TRUE);
+      addConsoleMessage("MAP REQUESTED!", DEFAULT_JUSTIFY);
+    }
+  }
+  else
+    loadMapPreview();
 }
-
-
-
-
-
 
 // ////////////////////////////////////////////////////////////////////////////
 // Host Campaign.
-BOOL hostCampaign(STRING *sGame, STRING *sPlayer)
+BOOL hostCampaign(STRING* sGame, STRING* sPlayer)
 {
-	PLAYERSTATS playerStats;
-	UDWORD		pl,numpl,i,j;
+  PLAYERSTATS playerStats;
+  UDWORD pl, numpl, i, j;
 
-	freeMessages();		
-	if(!NetPlay.bLobbyLaunched)
-	{
-		NEThostGame(sGame,sPlayer,game.type,0,0,0,game.maxPlayers); // temporary stuff  	
-	}
-	else
-	{
-		NETsetGameFlags(1,game.type);
-		// 2 is average ping
-		NETsetGameFlags(3,0);
-		NETsetGameFlags(4,0);
-	}
+  freeMessages();
+  if (!NetPlay.bLobbyLaunched)
+    NEThostGame(sGame, sPlayer, game.type, 0, 0, 0, game.maxPlayers); // temporary stuff  	
+  else
+  {
+    NETsetGameFlags(1, game.type);
+    // 2 is average ping
+    NETsetGameFlags(3, 0);
+    NETsetGameFlags(4, 0);
+  }
 
-	for(i=0;i<MAX_PLAYERS;i++)
-	{
-		player2dpid[i] =0;
-	}
-	
+  for (i = 0; i < MAX_PLAYERS; i++)
+    player2dpid[i] = 0;
 
-	pl = rand()%game.maxPlayers;						//pick a player
+  pl = rand() % game.maxPlayers; //pick a player
 
-	player2dpid[pl] = NetPlay.dpidPlayer;				// add ourselves to the array.
-	selectedPlayer = pl;
+  player2dpid[pl] = NetPlay.dpidPlayer; // add ourselves to the array.
+  selectedPlayer = pl;
 
-	ingame.localJoiningInProgress = TRUE;
-	ingame.JoiningInProgress[selectedPlayer] = TRUE;
-	bMultiPlayer = TRUE;								// enable messages
-	
-	loadMultiStats(sPlayer,&playerStats);				// stats stuff
-	setMultiStats(NetPlay.dpidPlayer,playerStats,FALSE);
-	setMultiStats(NetPlay.dpidPlayer,playerStats,TRUE);
+  ingame.localJoiningInProgress = TRUE;
+  ingame.JoiningInProgress[selectedPlayer] = TRUE;
+  bMultiPlayer = TRUE; // enable messages
 
-	if(!NetPlay.bComms)
-	{
-		NETplayerInfo(NULL);
-		strcpy(NetPlay.players[0].name,sPlayer);
-		numpl = 1;
-	}
-	else
-	{
-		numpl = NETplayerInfo(NULL);	
-	}
+  loadMultiStats(sPlayer, &playerStats); // stats stuff
+  setMultiStats(NetPlay.dpidPlayer, playerStats,FALSE);
+  setMultiStats(NetPlay.dpidPlayer, playerStats,TRUE);
 
-	// may be more than one player already. check and resolve!
-	if(numpl >1)
-	{
-		for(j = 0;j<MAX_PLAYERS;j++)
-		{
-			if(NetPlay.players[j].dpid && (NetPlay.players[j].dpid != NetPlay.dpidPlayer))
-			{
-				for(i = 0;player2dpid[i] != 0;i++);
-				player2dpid[i] = NetPlay.players[j].dpid;
-			}
-		}
-	}
-	return TRUE;
+  if (!NetPlay.bComms)
+  {
+    NETplayerInfo(nullptr);
+    strcpy(NetPlay.players[0].name, sPlayer);
+    numpl = 1;
+  }
+  else
+    numpl = NETplayerInfo(nullptr);
+
+  // may be more than one player already. check and resolve!
+  if (numpl > 1)
+  {
+    for (j = 0; j < MAX_PLAYERS; j++)
+    {
+      if (NetPlay.players[j].dpid && (NetPlay.players[j].dpid != NetPlay.dpidPlayer))
+      {
+        for (i = 0; player2dpid[i] != 0; i++);
+        player2dpid[i] = NetPlay.players[j].dpid;
+      }
+    }
+  }
+  return TRUE;
 }
 
 // ////////////////////////////////////////////////////////////////////////////
 // Join Campaign 
 
-BOOL joinCampaign(UDWORD gameNumber, STRING *sPlayer)
+BOOL joinCampaign(UDWORD gameNumber, STRING* sPlayer)
 {
-	PLAYERSTATS	playerStats;
+  PLAYERSTATS playerStats;
 
-	if(!ingame.localJoiningInProgress)
-	{
-		if(!NetPlay.bLobbyLaunched)
-		{
-			NETjoinGame(NetPlay.games[gameNumber].desc.guidInstance,sPlayer);	// join 
-		}
-		ingame.localJoiningInProgress	= TRUE;
+  if (!ingame.localJoiningInProgress)
+  {
+    if (!NetPlay.bLobbyLaunched)
+      NETjoinGame(NetPlay.games[gameNumber].desc.guidInstance, sPlayer); // join 
+    ingame.localJoiningInProgress = TRUE;
 
-		loadMultiStats(sPlayer,&playerStats);
-		setMultiStats(NetPlay.dpidPlayer,playerStats,FALSE);
-		setMultiStats(NetPlay.dpidPlayer,playerStats,TRUE);
-		return FALSE;
-	}
+    loadMultiStats(sPlayer, &playerStats);
+    setMultiStats(NetPlay.dpidPlayer, playerStats,FALSE);
+    setMultiStats(NetPlay.dpidPlayer, playerStats,TRUE);
+    return FALSE;
+  }
 
-	bMultiPlayer = TRUE;
-	return TRUE;
+  bMultiPlayer = TRUE;
+  return TRUE;
 }
 
 // ////////////////////////////////////////////////////////////////////////////
@@ -446,421 +419,376 @@ BOOL joinArena(UDWORD gameNumber, STRING *playerName)
 // Lobby launched. fires the correct routine when the game was lobby launched.
 BOOL LobbyLaunched(VOID)
 {
-	UDWORD			i;
-	PLAYERSTATS		pl={0};
-	
-	// set the player info as soon as possible to avoid screwy scores appearing elsewhere.
-	NETplayerInfo(NULL);		
-	NETfindGame(TRUE);
+  UDWORD i;
+  PLAYERSTATS pl = {0};
 
-	for(i = 0; (i< MAX_PLAYERS)&& (NetPlay.players[i].dpid != NetPlay.dpidPlayer);i++);
-	
-	if(!loadMultiStats(NetPlay.players[i].name,&pl) )
-	{
-		return FALSE;									// cheating was detected, so fail.
-	}
-	
-	setMultiStats(NetPlay.dpidPlayer,pl,FALSE);
-	setMultiStats(NetPlay.dpidPlayer,pl,TRUE);
+  // set the player info as soon as possible to avoid screwy scores appearing elsewhere.
+  NETplayerInfo(nullptr);
+  NETfindGame(TRUE);
 
-	// setup text boxes on multiplay screen.
-	strcpy((STRING*) sPlayer,	NetPlay.players[i].name); 
-	strcpy((STRING*) game.name, NetPlay.games[0].name);
+  for (i = 0; (i < MAX_PLAYERS) && (NetPlay.players[i].dpid != NetPlay.dpidPlayer); i++);
 
-	return TRUE;
+  if (!loadMultiStats(NetPlay.players[i].name, &pl))
+    return FALSE; // cheating was detected, so fail.
+
+  setMultiStats(NetPlay.dpidPlayer, pl,FALSE);
+  setMultiStats(NetPlay.dpidPlayer, pl,TRUE);
+
+  // setup text boxes on multiplay screen.
+  strcpy((STRING*)sPlayer, NetPlay.players[i].name);
+  strcpy(game.name, NetPlay.games[0].name);
+
+  return TRUE;
 }
 
 // ////////////////////////////////////////////////////////////////////////////
 // Init and shutdown routines 
 BOOL lobbyInitialise(VOID)
 {
+  if (!NETinit(WARZONEGUID,TRUE)) // initialise, may change guid.
+    return FALSE;
 
-	if(!NETinit(WARZONEGUID,TRUE))								// initialise, may change guid.
-	{
-		return FALSE;
-	}
+#ifndef COVERMOUNT
+  // setup the encryption key 
 
-#ifndef COVERMOUNT 
-	// setup the encryption key 
-
-	// hash the file to get the key.and catch out the exe patchers.
+  // hash the file to get the key.and catch out the exe patchers.
 #ifdef DEBUG
-	NETsetKey( 0xdaf456 ,0xb72a5, 0x114d0, 0x2a17);
+  NETsetKey(0xdaf456, 0xb72a5, 0x114d0, 0x2a17);
 #else
-	NETsetKey(NEThashFile("warzone.exe"), 0xb72a5, 0x114d0, 0x2a7);
+  NETsetKey(NEThashFile("warzone.exe"), 0xb72a5, 0x114d0, 0x2a7);
 #endif
 
 #else
-	// hash the file to get the key.and catch out the exe patchers.
-	NETsetKey(NEThashFile("wzdemo.exe"), 0xb72a5, 0x114d0, 0x2a7);
+  // hash the file to get the key.and catch out the exe patchers.
+  NETsetKey(NEThashFile("wzdemo.exe"), 0xb72a5, 0x114d0, 0x2a7);
 #endif
 
-	if(NetPlay.bLobbyLaunched)									// now check for lobby launching..
-	{
-
-// DISABLE LOBBIES HERE
-//dont play lobby games from this covermount.
+  if (NetPlay.bLobbyLaunched) // now check for lobby launching..
+  {
+    // DISABLE LOBBIES HERE
+    //dont play lobby games from this covermount.
 
 #ifndef MULTIDEMO
-#ifdef COVERMOUNT								
-		return FALSE;
+#ifdef COVERMOUNT
+    return FALSE;
 #endif
 #endif
-		if(!LobbyLaunched())
-		{
-			return FALSE;
-		}
-	}
-	return TRUE;
+    if (!LobbyLaunched())
+      return FALSE;
+  }
+  return TRUE;
 }
 
 BOOL multiInitialise(VOID)
 {
-	// NET AUDIO CAPTURE 
-	NETinitAudioCapture();
-	NETinitPlaybackBuffer(audio_GetDirectSoundObj());			// pass in a dsound pointer to use.
+  // NET AUDIO CAPTURE 
+  NETinitAudioCapture();
+  NETinitPlaybackBuffer(audio_GetDirectSoundObj()); // pass in a dsound pointer to use.
 
-	return TRUE;  // use the menus dumbass.
+  return TRUE; // use the menus dumbass.
 }
-
-
 
 // ////////////////////////////////////////////////////////////////////////////
 // say goodbye to everyone else
 BOOL sendLeavingMsg(VOID)
-{	
-	NETMSG m;
-	// send a leaving message, This resolves a problem with tcpip which
-	// occasionally doesn't automatically notice a player leaving.
-	NetAdd(m,0,player2dpid[selectedPlayer]);
-	NetAddType(m,4,UBYTE,NetPlay.bHost);
-	m.size = 5;
-	m.type = NET_LEAVING ;
-	NETbcast(&m,TRUE);
+{
+  NETMSG m;
+  // send a leaving message, This resolves a problem with tcpip which
+  // occasionally doesn't automatically notice a player leaving.
+  NetAdd(m, 0, player2dpid[selectedPlayer]);
+  NetAddType(m, 4, UBYTE, NetPlay.bHost);
+  m.size = 5;
+  m.type = NET_LEAVING;
+  NETbcast(&m,TRUE);
 
-	return TRUE;
+  return TRUE;
 }
-	
+
 // ////////////////////////////////////////////////////////////////////////////
 // called in Init.c to shutdown the whole netgame gubbins.
 BOOL multiShutdown(VOID)
 {
-	FORCE_MEMBER *pF;
-	
-	NETshutdownAudioCapture();
-	NETshutdownAudioPlayback();
-  	NETshutdown();												// shut down netplay lib.
+  FORCE_MEMBER* pF;
 
-	while(Force.pMembers)										// clear any force we may have.
-	{
-		pF = Force.pMembers;
-		Force.pMembers = pF->psNext;
-		FREE(pF);
-	}
+  NETshutdownAudioCapture();
+  NETshutdownAudioPlayback();
+  NETshutdown(); // shut down netplay lib.
 
-	if(ingame.numStructureLimits)
-	{
-		ingame.numStructureLimits = 0;
-		FREE(ingame.pStructureLimits);
-	}
+  while (Force.pMembers) // clear any force we may have.
+  {
+    pF = Force.pMembers;
+    Force.pMembers = pF->psNext;
+    FREE(pF);
+  }
 
-	return TRUE;
-} 
+  if (ingame.numStructureLimits)
+  {
+    ingame.numStructureLimits = 0;
+    FREE(ingame.pStructureLimits);
+  }
+
+  return TRUE;
+}
 
 // ////////////////////////////////////////////////////////////////////////////
 // copy tempates from one player to another.
 
-
-BOOL addTemplate(UDWORD player, DROID_TEMPLATE *psNew)
+BOOL addTemplate(UDWORD player, DROID_TEMPLATE* psNew)
 {
-	DROID_TEMPLATE	*psTempl;
+  DROID_TEMPLATE* psTempl;
 
-	if (!HEAP_ALLOC(psTemplateHeap, &psTempl))
-	{
-		return FALSE;
-	}
-	memcpy(psTempl, psNew, sizeof(DROID_TEMPLATE));
+  if (!HEAP_ALLOC(psTemplateHeap, &psTempl))
+    return FALSE;
+  memcpy(psTempl, psNew, sizeof(DROID_TEMPLATE));
 
-	psTempl->pName = (CHAR*)&psTempl->aName;
-	strncpy(psTempl->aName, psNew->aName,DROID_MAXNAME);	
-	psTempl->pName[DROID_MAXNAME-1]=0;
+  psTempl->pName = (CHAR*)&psTempl->aName;
+  strncpy(psTempl->aName, psNew->aName,DROID_MAXNAME);
+  psTempl->pName[DROID_MAXNAME - 1] = 0;
 
+  psTempl->psNext = apsDroidTemplates[player];
+  apsDroidTemplates[player] = psTempl;
 
-	psTempl->psNext = apsDroidTemplates[player];
-	apsDroidTemplates[player] = psTempl;
-
-	return TRUE;
+  return TRUE;
 }
 
-BOOL addTemplateSet(UDWORD from,UDWORD to)
+BOOL addTemplateSet(UDWORD from, UDWORD to)
 {
-	DROID_TEMPLATE	*psCurr;
+  DROID_TEMPLATE* psCurr;
 
-	if(from == to)
-	{
-		return TRUE;
-	}
+  if (from == to)
+    return TRUE;
 
-	for(psCurr = apsDroidTemplates[from];psCurr;psCurr= psCurr->psNext)
-	{
-		addTemplate(to, psCurr);
-	}
+  for (psCurr = apsDroidTemplates[from]; psCurr; psCurr = psCurr->psNext)
+    addTemplate(to, psCurr);
 
-	return TRUE;
+  return TRUE;
 }
 
-BOOL copyTemplateSet(UDWORD from,UDWORD to)
+BOOL copyTemplateSet(UDWORD from, UDWORD to)
 {
-	DROID_TEMPLATE	*psTempl;
+  DROID_TEMPLATE* psTempl;
 
-	if(from == to)
-	{
-		return TRUE;
-	}
+  if (from == to)
+    return TRUE;
 
-	while(apsDroidTemplates[to])				// clear the old template out.
-	{
-		psTempl = apsDroidTemplates[to]->psNext;
-		HEAP_FREE(psTemplateHeap, apsDroidTemplates[to]);
-		apsDroidTemplates[to] = psTempl;
-	}
+  while (apsDroidTemplates[to]) // clear the old template out.
+  {
+    psTempl = apsDroidTemplates[to]->psNext;
+    HEAP_FREE(psTemplateHeap, apsDroidTemplates[to]);
+    apsDroidTemplates[to] = psTempl;
+  }
 
-	return 	addTemplateSet(from,to);
+  return addTemplateSet(from, to);
 }
 
 // ////////////////////////////////////////////////////////////////////////////
 // setup templates
 BOOL multiTemplateSetup()
 {
-	UDWORD player,pcPlayer;
-	CHAR			sTemp[256];
+  UDWORD player, pcPlayer;
+  CHAR sTemp[256];
 
+  if (game.type == CAMPAIGN && game.base == CAMP_WALLS)
+  {
+    strcpy(sTemp, "multiplay\\Forces\\");
+    strcat(sTemp, sForceName);
+    strcat(sTemp, ".For");
 
-	if(game.type == CAMPAIGN && game.base == CAMP_WALLS)
-	{
-		strcpy(sTemp, "multiplay\\Forces\\");			
-		strcat(sTemp, sForceName);	
-		strcat(sTemp,".For");	
-	
-		loadForce(sTemp);
-	}
+    loadForce(sTemp);
+  }
 
+  switch (game.type)
+  {
+  //	case DMATCH:
 
-	switch (game.type)
-	{
-//	case DMATCH:
+  case TEAMPLAY:
+  case CAMPAIGN:
+    for (player = 0; player < game.maxPlayers; player++)
+      copyTemplateSet(CAMPAIGNTEMPLATES, player);
+    break;
 
-	case TEAMPLAY:
-	case CAMPAIGN:
-		for(player=0;player<game.maxPlayers;player++)
-		{
-			copyTemplateSet(CAMPAIGNTEMPLATES,player);		
-		}
-		break;
-	
-	case SKIRMISH:
-		// create the pc player list in deathmatch set.
-		addTemplateSet(CAMPAIGNTEMPLATES,DEATHMATCHTEMPLATES);
-		addTemplateSet(6,DEATHMATCHTEMPLATES);
-		addTemplateSet(2,DEATHMATCHTEMPLATES);
+  case SKIRMISH:
+    // create the pc player list in deathmatch set.
+    addTemplateSet(CAMPAIGNTEMPLATES,DEATHMATCHTEMPLATES);
+    addTemplateSet(6,DEATHMATCHTEMPLATES);
+    addTemplateSet(2,DEATHMATCHTEMPLATES);
 
-		//choose which way to do this.
-		if(isHumanPlayer(CAMPAIGNTEMPLATES))
-		{
-			//pc first
-			for(player=0;player<game.maxPlayers;player++)
-			{
-				if(!isHumanPlayer(player))
-				{
-					copyTemplateSet(DEATHMATCHTEMPLATES,player);	
-				}
-			}
-			//now players.
-			for(player=0;player<game.maxPlayers;player++)
-			{
-				if(isHumanPlayer(player))
-				{
-					copyTemplateSet(CAMPAIGNTEMPLATES,player);	
-				}
-			}
-		}
-		else
-		{		
-			// ensure a copy of pc templates to a pc player.
-			if(isHumanPlayer(DEATHMATCHTEMPLATES))
-			{
-				
-				for(player=0;player<MAX_PLAYERS && isHumanPlayer(player);player++);
-				if(!isHumanPlayer(player))
-				{
-					pcPlayer = player;
-					copyTemplateSet(DEATHMATCHTEMPLATES,pcPlayer);
-				}
-			}
-			else
-			{
-				pcPlayer = DEATHMATCHTEMPLATES;
-			}
-			//players first
-			for(player=0;player<game.maxPlayers;player++)
-			{
-				if(isHumanPlayer(player))
-				{
-					copyTemplateSet(CAMPAIGNTEMPLATES,player);	
-				}
-			}
-			//now pc
-			for(player=0;player<game.maxPlayers;player++)
-			{
-				if(!isHumanPlayer(player))
-				{
-					copyTemplateSet(pcPlayer,player);	
-				}
-			}
-		}		
-		break;
-	
-	default:
-		break;
-	}
+    //choose which way to do this.
+    if (isHumanPlayer(CAMPAIGNTEMPLATES))
+    {
+      //pc first
+      for (player = 0; player < game.maxPlayers; player++)
+      {
+        if (!isHumanPlayer(player))
+          copyTemplateSet(DEATHMATCHTEMPLATES, player);
+      }
+      //now players.
+      for (player = 0; player < game.maxPlayers; player++)
+      {
+        if (isHumanPlayer(player))
+          copyTemplateSet(CAMPAIGNTEMPLATES, player);
+      }
+    }
+    else
+    {
+      // ensure a copy of pc templates to a pc player.
+      if (isHumanPlayer(DEATHMATCHTEMPLATES))
+      {
+        for (player = 0; player < MAX_PLAYERS && isHumanPlayer(player); player++);
+        if (!isHumanPlayer(player))
+        {
+          pcPlayer = player;
+          copyTemplateSet(DEATHMATCHTEMPLATES, pcPlayer);
+        }
+      }
+      else
+        pcPlayer = DEATHMATCHTEMPLATES;
+      //players first
+      for (player = 0; player < game.maxPlayers; player++)
+      {
+        if (isHumanPlayer(player))
+          copyTemplateSet(CAMPAIGNTEMPLATES, player);
+      }
+      //now pc
+      for (player = 0; player < game.maxPlayers; player++)
+      {
+        if (!isHumanPlayer(player))
+          copyTemplateSet(pcPlayer, player);
+      }
+    }
+    break;
 
-	return TRUE;
+  default:
+    break;
+  }
+
+  return TRUE;
 }
-
-
 
 // ////////////////////////////////////////////////////////////////////////////
 // remove structures from map before campaign play.
 BOOL cleanMap(UDWORD player)
 {
-	DROID		*psD,*psD2;
-	STRUCTURE	*psStruct;
-	BOOL		firstFact,firstRes;
+  DROID *psD, *psD2;
+  STRUCTURE* psStruct;
+  BOOL firstFact, firstRes;
 
-	bMultiPlayer = FALSE;
+  bMultiPlayer = FALSE;
 
-	firstFact = TRUE;
-	firstRes = TRUE;
+  firstFact = TRUE;
+  firstRes = TRUE;
 
-	// reverse so we always remove the last object. re-reverse afterwards.
+  // reverse so we always remove the last object. re-reverse afterwards.
 
+  switch (game.base)
+  {
+  case CAMP_CLEAN: //clean map		
+    while (apsStructLists[player]) //strip away structures.
+    {
+      removeStruct(apsStructLists[player], TRUE);
+    }
+    psD = apsDroidLists[player]; // remove all but construction droids.
+    while (psD)
+    {
+      psD2 = psD->psNext;
+      if (!(psD->droidType == DROID_CONSTRUCT OR psD->droidType == DROID_CYBORG_CONSTRUCT))
+        killDroid(psD);
+      psD = psD2;
+    }
+    break;
 
-	switch(game.base)							
-	{
-	case CAMP_CLEAN:									//clean map		
-		while(apsStructLists[player])					//strip away structures.
-		{
-			removeStruct(apsStructLists[player], TRUE);	
-		}
-		psD = apsDroidLists[player];					// remove all but construction droids.
-		while(psD)
-		{
-			psD2=psD->psNext;
-            if (!(psD->droidType == DROID_CONSTRUCT OR
-                psD->droidType == DROID_CYBORG_CONSTRUCT))
-			{
-				killDroid(psD);
-			}
-			psD = psD2;
-		}
-		break;
+  case CAMP_BASE: //just structs, no walls
+    psStruct = apsStructLists[player];
+    while (psStruct)
+    {
+      if ((psStruct->pStructureType->type == REF_WALL) || (psStruct->pStructureType->type == REF_WALLCORNER) || (psStruct->pStructureType->
+          type == REF_DEFENSE) || (psStruct->pStructureType->type == REF_BLASTDOOR) || (psStruct->pStructureType->type ==
+          REF_CYBORG_FACTORY)
+        || (psStruct->pStructureType->type == REF_COMMAND_CONTROL))
+      {
+        removeStruct(psStruct, TRUE);
+        psStruct = apsStructLists[player]; //restart,(list may have changed).
+      }
 
-	case CAMP_BASE:												//just structs, no walls
-		psStruct = apsStructLists[player];
-		while(psStruct)
-		{
-			if ( (psStruct->pStructureType->type == REF_WALL)
-			   ||(psStruct->pStructureType->type == REF_WALLCORNER) 
-			   ||(psStruct->pStructureType->type == REF_DEFENSE)
-			   ||(psStruct->pStructureType->type == REF_BLASTDOOR)
-			   ||(psStruct->pStructureType->type == REF_CYBORG_FACTORY)
-			   ||(psStruct->pStructureType->type == REF_COMMAND_CONTROL)
-			   )
-			{
-				removeStruct(psStruct, TRUE);
-				psStruct= apsStructLists[player];			//restart,(list may have changed).
-			}
+      else if ((psStruct->pStructureType->type == REF_FACTORY) || (psStruct->pStructureType->type == REF_RESEARCH) || (psStruct->
+        pStructureType->type == REF_POWER_GEN))
+      {
+        if (psStruct->pStructureType->type == REF_FACTORY)
+        {
+          if (firstFact == TRUE)
+          {
+            firstFact = FALSE;
+            removeStruct(psStruct, TRUE);
+            psStruct = apsStructLists[player];
+          }
+          else // don't delete, just rejig!
+          {
+            if (((FACTORY*)psStruct->pFunctionality)->capacity != 0)
+            {
+              ((FACTORY*)psStruct->pFunctionality)->capacity = 0;
+              ((FACTORY*)psStruct->pFunctionality)->productionOutput = static_cast<UBYTE>(((PRODUCTION_FUNCTION*)psStruct->pStructureType->
+                asFuncList[0])->productionOutput);
 
-			else if( (psStruct->pStructureType->type == REF_FACTORY)
-				   ||(psStruct->pStructureType->type == REF_RESEARCH)
-				   ||(psStruct->pStructureType->type == REF_POWER_GEN))
-			{
-				if(psStruct->pStructureType->type == REF_FACTORY )
-				{
-					if(firstFact == TRUE)
-					{
-						firstFact = FALSE;
-						removeStruct(psStruct, TRUE);
-						psStruct= apsStructLists[player];	
-					}
-					else	// don't delete, just rejig!
-					{
-						if(((FACTORY*)psStruct->pFunctionality)->capacity != 0)
-						{
-							((FACTORY*)psStruct->pFunctionality)->capacity = 0;
-							((FACTORY*)psStruct->pFunctionality)->productionOutput = (UBYTE)((PRODUCTION_FUNCTION*)psStruct->pStructureType->asFuncList[0])->productionOutput;
+              psStruct->sDisplay.imd = psStruct->pStructureType->pIMD;
+              psStruct->body = static_cast<UWORD>(structureBody(psStruct));
+            }
+            psStruct = psStruct->psNext;
+          }
+        }
+        else if (psStruct->pStructureType->type == REF_RESEARCH)
+        {
+          if (firstRes == TRUE)
+          {
+            firstRes = FALSE;
+            removeStruct(psStruct, TRUE);
+            psStruct = apsStructLists[player];
+          }
+          else
+          {
+            if (((RESEARCH_FACILITY*)psStruct->pFunctionality)->capacity != 0)
+            {
+              // downgrade research
+              ((RESEARCH_FACILITY*)psStruct->pFunctionality)->capacity = 0;
+              ((RESEARCH_FACILITY*)psStruct->pFunctionality)->researchPoints = ((RESEARCH_FUNCTION*)psStruct->pStructureType->asFuncList[0])
+                ->researchPoints;
+              psStruct->sDisplay.imd = psStruct->pStructureType->pIMD;
+              psStruct->body = static_cast<UWORD>(structureBody(psStruct));
+            }
+            psStruct = psStruct->psNext;
+          }
+        }
+        else if (psStruct->pStructureType->type == REF_POWER_GEN)
+        {
+          if (((POWER_GEN*)psStruct->pFunctionality)->capacity != 0)
+          {
+            // downgrade powergen.
+            ((POWER_GEN*)psStruct->pFunctionality)->capacity = 0;
+            ((POWER_GEN*)psStruct->pFunctionality)->power = ((POWER_GEN_FUNCTION*)psStruct->pStructureType->asFuncList[0])->powerOutput;
+            ((POWER_GEN*)psStruct->pFunctionality)->multiplier += ((POWER_GEN_FUNCTION*)psStruct->pStructureType->asFuncList[0])->
+              powerMultiplier;
 
-							psStruct->sDisplay.imd	= psStruct->pStructureType->pIMD;
-							psStruct->body			= (UWORD)(structureBody(psStruct));
-						
-						}
-						psStruct				= psStruct->psNext;
-					}
-				}
-				else if(psStruct->pStructureType->type == REF_RESEARCH) 								
-				{
-					if(firstRes == TRUE)
-					{
-						firstRes = FALSE;
-						removeStruct(psStruct, TRUE);
-						psStruct= apsStructLists[player];	
-					}
-					else	
-					{
-						if(((RESEARCH_FACILITY*)psStruct->pFunctionality)->capacity != 0)
-						{	// downgrade research
-							((RESEARCH_FACILITY*)psStruct->pFunctionality)->capacity = 0;
-							((RESEARCH_FACILITY*)psStruct->pFunctionality)->researchPoints = ((RESEARCH_FUNCTION*)psStruct->pStructureType->asFuncList[0])->researchPoints;
-							psStruct->sDisplay.imd	= psStruct->pStructureType->pIMD;
-							psStruct->body			= (UWORD)(structureBody(psStruct));
-						}
-						psStruct=psStruct->psNext;
-					}
-				}
-				else if(psStruct->pStructureType->type == REF_POWER_GEN) 
-				{				
-						if(((POWER_GEN*)psStruct->pFunctionality)->capacity != 0)
-						{	// downgrade powergen.
-							((POWER_GEN*)psStruct->pFunctionality)->capacity = 0;
-							((POWER_GEN*)psStruct->pFunctionality)->power = ((POWER_GEN_FUNCTION*)psStruct->pStructureType->asFuncList[0])->powerOutput;
-							((POWER_GEN*)psStruct->pFunctionality)->multiplier += ((POWER_GEN_FUNCTION*)psStruct->pStructureType->asFuncList[0])->powerMultiplier;
+            psStruct->sDisplay.imd = psStruct->pStructureType->pIMD;
+            psStruct->body = static_cast<UWORD>(structureBody(psStruct));
+          }
+          psStruct = psStruct->psNext;
+        }
+      }
 
-							psStruct->sDisplay.imd	= psStruct->pStructureType->pIMD;
-							psStruct->body			= (UWORD)(structureBody(psStruct));
-						}
-						psStruct=psStruct->psNext;
-				}
-			}
-	
-			else
-			{		
-				psStruct=psStruct->psNext;
-			}
-		}		
-		break;
+      else
+        psStruct = psStruct->psNext;
+    }
+    break;
 
+  case CAMP_WALLS: //everything.
+    break;
+  default: DBERROR(("Unknown Campaign Style"));
+    break;
+  }
 
-	case CAMP_WALLS:												//everything.
-		break;
-	default:
-		DBERROR(("Unknown Campaign Style"));
-		break;
-	}		
+  // rerev list to get back to normal.
 
-	// rerev list to get back to normal.
-
-	bMultiPlayer = TRUE;
-	return TRUE;
+  bMultiPlayer = TRUE;
+  return TRUE;
 }
 
 // ////////////////////////////////////////////////////////////////////////////
@@ -936,171 +864,154 @@ static BOOL dMatchInit()
 // setup a campaign game
 static BOOL campInit()
 {
-	UDWORD			player;
-	UBYTE		newPlayerArray[MAX_PLAYERS];
-	UDWORD		i,j;
+  UDWORD player;
+  UBYTE newPlayerArray[MAX_PLAYERS];
+  UDWORD i, j;
 
-// if this is from a savegame, stop here!
-	if((getSaveGameType() == GTYPE_SAVE_START)
-	|| (getSaveGameType() == GTYPE_SAVE_MIDMISSION)	)
-	{
-		// these two lines are the biggest hack in the world.
-		// the reticule seems to get detached from 'reticuleup'
-		// this forces it back in sync...
-		intRemoveReticule();
-		intAddReticule();
+  // if this is from a savegame, stop here!
+  if ((getSaveGameType() == GTYPE_SAVE_START) || (getSaveGameType() == GTYPE_SAVE_MIDMISSION))
+  {
+    // these two lines are the biggest hack in the world.
+    // the reticule seems to get detached from 'reticuleup'
+    // this forces it back in sync...
+    intRemoveReticule();
+    intAddReticule();
 
-		return TRUE;
-	}
+    return TRUE;
+  }
 
+  // for each player, if it's a skirmish then assign a player or clear it off.
+  if (game.type == SKIRMISH)
+  {
+    memset(newPlayerArray, 1,MAX_PLAYERS);
+    j = 0;
+    for (i = 0; i < MAX_PLAYERS; i++)
+    {
+      if (game.skDiff[i] == 0) // no player.
+      {
+        // find a non human player and strip the lot.
+        for (; isHumanPlayer(j) && j < MAX_PLAYERS; j++);
+        if (j != MAX_PLAYERS)
+        {
+          clearPlayer(j,TRUE,FALSE);
+          newPlayerArray[j] = 0;
+          j++; // dont do this one again.
+        }
+      }
+      else if (game.skDiff[i] == UBYTE_MAX) // human player.
+      {
+        // do nothing.
+      }
+      else
+      {
+        newPlayerArray[j] = game.skDiff[i]; // skirmish player.
+        j++;
+      }
+    }
+    memcpy(game.skDiff, newPlayerArray,MAX_PLAYERS);
+  }
 
+  for (player = 0; player < game.maxPlayers; player++) // clean up only to the player limit for this map..
+  {
+    if ((!isHumanPlayer(player)) && game.type != SKIRMISH) // strip away unused players
+      clearPlayer(player,TRUE,TRUE);
 
-	// for each player, if it's a skirmish then assign a player or clear it off.
-	if(game.type == SKIRMISH)
-	{
-		memset(newPlayerArray,1,MAX_PLAYERS);
-		j=0;
-		for(i=0;i<MAX_PLAYERS;i++)
-		{
-			if(game.skDiff[i] == 0)						// no player.
-			{
-				// find a non human player and strip the lot.
-				for(;isHumanPlayer(j) && j<MAX_PLAYERS;j++);
-				if(j != MAX_PLAYERS)
-				{
-					clearPlayer(j,TRUE,FALSE);
-					newPlayerArray[j] = 0;
-					j++; // dont do this one again.
-				}
-			}
-			else if(game.skDiff[i] == UBYTE_MAX)		// human player.
-			{
-				// do nothing.
-			}
-			else
-			{
-				newPlayerArray[j] = game.skDiff[i];		// skirmish player.
-				j++;
-			}
-		}
-		memcpy(game.skDiff,newPlayerArray,MAX_PLAYERS);
-	}
+    cleanMap(player);
+  }
 
+  // optionally remove other computer players.
+  if (((game.type == TEAMPLAY || game.type == CAMPAIGN) && !game.bComputerPlayers) || (game.type == SKIRMISH))
+  {
+    for (player = game.maxPlayers; player < MAX_PLAYERS; player++)
+      clearPlayer(player,TRUE,FALSE);
+  }
 
-	for(player = 0;player<game.maxPlayers;player++)			// clean up only to the player limit for this map..
-	{	
-		if( (!isHumanPlayer(player)) && game.type != SKIRMISH)	// strip away unused players
-		{
-			clearPlayer(player,TRUE,TRUE);
-		}
-	
-		cleanMap(player);
-	}
+  // add free research gifts..
+  if (NetPlay.bHost)
+    addOilDrum(NetPlay.playercount * 2); // add some free power.
 
-	// optionally remove other computer players.
-	if(  ( (game.type == TEAMPLAY || game.type == CAMPAIGN) && !game.bComputerPlayers )
-	   ||  (game.type == SKIRMISH)
-	  )
-	{
-		for(player=game.maxPlayers;player<MAX_PLAYERS;player++)	
-		{
-			clearPlayer(player,TRUE,FALSE);
-		}
-	}
+  playerResponding(); // say howdy!
 
-	// add free research gifts..
-	if(NetPlay.bHost)
-	{
-		addOilDrum( NetPlay.playercount*2 );		// add some free power.
-	}
+  if (game.type == CAMPAIGN && game.base == CAMP_WALLS)
+    useTheForce(TRUE);
 
-	playerResponding();			// say howdy!
-
-	if(game.type == CAMPAIGN && game.base == CAMP_WALLS)
-	{
-		useTheForce(TRUE);	
-	}
-
-	return TRUE;
+  return TRUE;
 }
 
 // ////////////////////////////////////////////////////////////////////////////
 // say hi to everyone else....
 VOID playerResponding(VOID)
 {
-	NETMSG	msg;
-	UDWORD	i;
+  NETMSG msg;
+  UDWORD i;
 
-	ingame.startTime = gameTime;
-	ingame.localJoiningInProgress = FALSE;				// no longer joining. 
-	ingame.JoiningInProgress[selectedPlayer] = FALSE;	
-//	arenaPlayersReceived	= 0;						// clear rcvd list.
+  ingame.startTime = gameTime;
+  ingame.localJoiningInProgress = FALSE; // no longer joining. 
+  ingame.JoiningInProgress[selectedPlayer] = FALSE;
+  //	arenaPlayersReceived	= 0;						// clear rcvd list.
 
-	cameraToHome(selectedPlayer,FALSE);						// home the camera to the player.
+  cameraToHome(selectedPlayer,FALSE); // home the camera to the player.
 
-	NetAdd(msg,0,selectedPlayer);						// tell the world we're here.
-	msg.size = sizeof(UDWORD);
-	msg.type = NET_PLAYERRESPONDING;
-	NETbcast(&msg,TRUE);
+  NetAdd(msg, 0, selectedPlayer); // tell the world we're here.
+  msg.size = sizeof(UDWORD);
+  msg.type = NET_PLAYERRESPONDING;
+  NETbcast(&msg,TRUE);
 
-	// set the key from the lowest available dpid.
-	for(i=0; !player2dpid[i] && i<MAX_PLAYERS;i++);
-	NETsetKey(0,0,0,player2dpid[i]);
-	
-	NetPlay.bEncryptAllPackets = TRUE;
+  // set the key from the lowest available dpid.
+  for (i = 0; !player2dpid[i] && i < MAX_PLAYERS; i++);
+  NETsetKey(0, 0, 0, player2dpid[i]);
+
+  NetPlay.bEncryptAllPackets = TRUE;
 }
 
 // ////////////////////////////////////////////////////////////////////////////
 //called when the game finally gets fired up.
 BOOL multiGameInit(VOID)
 {
-	UDWORD player;
+  UDWORD player;
 
-	for(player=0;player<MAX_PLAYERS;player++)
-	{
-		openchannels[player] =TRUE;								//open comms to this player.
-	}
+  for (player = 0; player < MAX_PLAYERS; player++)
+    openchannels[player] = TRUE; //open comms to this player.
 
-//			addDMatchDroid(1);							// each player adds a newdroid point.
-//			playerResponding();							// say hi, only if host, clients wait until all info recvd.
-//	else		
-		campInit();
+  //			addDMatchDroid(1);							// each player adds a newdroid point.
+  //			playerResponding();							// say hi, only if host, clients wait until all info recvd.
+  //	else		
+  campInit();
 
-	return TRUE;
+  return TRUE;
 }
-
 
 ////////////////////////////////
 // at the end of every game.
 BOOL multiGameShutdown(VOID)
 {
-	PLAYERSTATS	st;
+  PLAYERSTATS st;
 
-	sendLeavingMsg();							// say goodbye
-	updateMultiStatsGames();					// update games played.
+  sendLeavingMsg(); // say goodbye
+  updateMultiStatsGames(); // update games played.
 
-	st = getMultiStats(selectedPlayer,TRUE);	// save stats
+  st = getMultiStats(selectedPlayer,TRUE); // save stats
 
-	saveMultiStats(getPlayerName(selectedPlayer),getPlayerName(selectedPlayer),&st); 	
-	mplayerSubmit();
+  saveMultiStats(getPlayerName(selectedPlayer), getPlayerName(selectedPlayer), &st);
+  mplayerSubmit();
 
-	NETclose();									// close game.
+  NETclose(); // close game.
 
-	if(ingame.numStructureLimits)
-	{
-		ingame.numStructureLimits = 0;
-		FREE(ingame.pStructureLimits);
-	}
+  if (ingame.numStructureLimits)
+  {
+    ingame.numStructureLimits = 0;
+    FREE(ingame.pStructureLimits);
+  }
 
-	ingame.localJoiningInProgress   = FALSE;	// clean up
-	ingame.localOptionsReceived		= FALSE;
-	ingame.bHostSetup				= FALSE;	//dont attempt a host
-	NetPlay.bLobbyLaunched			= FALSE;	//revert back to main menu, not multioptions.
-	NetPlay.bHost					= FALSE;
-	bMultiPlayer					= FALSE;	//back to single player mode	
-	selectedPlayer					= 0;		//back to use player 0 (single player friendly)
-	bForceEditorLoaded				= FALSE;
+  ingame.localJoiningInProgress = FALSE; // clean up
+  ingame.localOptionsReceived = FALSE;
+  ingame.bHostSetup = FALSE; //dont attempt a host
+  NetPlay.bLobbyLaunched = FALSE; //revert back to main menu, not multioptions.
+  NetPlay.bHost = FALSE;
+  bMultiPlayer = FALSE; //back to single player mode	
+  selectedPlayer = 0; //back to use player 0 (single player friendly)
+  bForceEditorLoaded = FALSE;
 
-	NetPlay.bEncryptAllPackets		= FALSE;	// pull security.
-	return TRUE;
+  NetPlay.bEncryptAllPackets = FALSE; // pull security.
+  return TRUE;
 }

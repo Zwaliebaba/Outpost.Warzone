@@ -9,18 +9,16 @@
 #ifndef _mapgrid_h
 #define _mapgrid_h
 
-
 // Number of Objects in each chunk of the grid array
 #define MAX_GRID_ARRAY_CHUNK 32
 
 // Objects are stored in an extensible array for each grid
-typedef struct _grid_array
+using GRID_ARRAY = struct _grid_array
 {
-	BASE_OBJECT *apsObjects[MAX_GRID_ARRAY_CHUNK];
+  BASE_OBJECT* apsObjects[MAX_GRID_ARRAY_CHUNK];
 
-	struct _grid_array *psNext;
-} GRID_ARRAY;
-
+  struct _grid_array* psNext;
+};
 
 // The number of tiles per grid
 #define GRID_SIZE	8
@@ -30,7 +28,6 @@ typedef struct _grid_array
 // The size of the grid
 
 // The map grid 
-
 
 // initialise the grid system
 extern BOOL gridInitialise(void);
@@ -45,27 +42,26 @@ extern void gridClear(void);
 extern void gridReset(void);
 
 // add an object to the grid system
-extern void gridAddObject(BASE_OBJECT *psObj);
+extern void gridAddObject(BASE_OBJECT* psObj);
 
 // move an object within the grid
 // oldX,oldY are the old position of the object in world coords
-extern void gridMoveObject(BASE_OBJECT *psObj, SDWORD oldX, SDWORD oldY);
+extern void gridMoveObject(BASE_OBJECT* psObj, SDWORD oldX, SDWORD oldY);
 
 // remove an object from the grid system
-extern void gridRemoveObject(BASE_OBJECT *psObj);
+extern void gridRemoveObject(BASE_OBJECT* psObj);
 
 // compact some of the grid arrays
 extern void gridGarbageCollect(void);
 
 // Display all the grid's an object is a member of
-extern void gridDisplayCoverage(BASE_OBJECT *psObj);
+extern void gridDisplayCoverage(BASE_OBJECT* psObj);
 
 // initialise the grid system to start iterating through units that
 extern void gridStartIterate(SDWORD x, SDWORD y);
 
 // get the next object that could affect a location,
 // should only be called after gridStartIterate
-extern BASE_OBJECT *gridIterate(void);
+extern BASE_OBJECT* gridIterate(void);
 
 #endif
-

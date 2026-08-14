@@ -1,29 +1,30 @@
-typedef union {
-	/* Types returned by the lexer */
-	BOOL			bval;
-	/*	float			fval; */
-	SDWORD			ival;
-	STRING			*sval;
-	INTERP_TYPE		tval;
-	STORAGE_TYPE	stype;
-	VAR_SYMBOL		*vSymbol;
-	CONST_SYMBOL	*cSymbol;
-	FUNC_SYMBOL		*fSymbol;
-	TRIGGER_SYMBOL	*tSymbol;
-	EVENT_SYMBOL	*eSymbol;
-	CALLBACK_SYMBOL	*cbSymbol;
+using YYSTYPE = union
+{
+  /* Types returned by the lexer */
+  BOOL bval;
+  /*	float			fval; */
+  SDWORD ival;
+  STRING* sval;
+  INTERP_TYPE tval;
+  STORAGE_TYPE stype;
+  VAR_SYMBOL* vSymbol;
+  CONST_SYMBOL* cSymbol;
+  FUNC_SYMBOL* fSymbol;
+  TRIGGER_SYMBOL* tSymbol;
+  EVENT_SYMBOL* eSymbol;
+  CALLBACK_SYMBOL* cbSymbol;
 
-	/* Types only returned by rules */
-	CODE_BLOCK		*cblock;
-	COND_BLOCK		*condBlock;
-	OBJVAR_BLOCK	*objVarBlock;
-	ARRAY_BLOCK		*arrayBlock;
-	PARAM_BLOCK		*pblock;
-	PARAM_DECL		*pdecl;
-	TRIGGER_DECL	*tdecl;
-	VAR_DECL		*vdecl;
-	VAR_IDENT_DECL	*videcl;
-} YYSTYPE;
+  /* Types only returned by rules */
+  CODE_BLOCK* cblock;
+  COND_BLOCK* condBlock;
+  OBJVAR_BLOCK* objVarBlock;
+  ARRAY_BLOCK* arrayBlock;
+  PARAM_BLOCK* pblock;
+  PARAM_DECL* pdecl;
+  TRIGGER_DECL* tdecl;
+  VAR_DECL* vdecl;
+  VAR_IDENT_DECL* videcl;
+};
 #define FUNCTION	257
 #define TRIGGER	258
 #define EVENT	259

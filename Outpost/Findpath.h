@@ -28,24 +28,21 @@
 #define MOVEWAITROUTE		11
 #define MOVESHUFFLE			12
 #define MOVEROUTESHUFFLE	13
+#include "Base.h"
+#include "MoveDef.h"
 
 //bit operators for map movement
 
 extern BOOL blockingTile(UDWORD x, UDWORD y, UDWORD mask);
 
-extern void FindPath (SDWORD StartX, SDWORD StartY, SDWORD DestinationX, 
-					  SDWORD DestinationY, MOVE_CONTROL *MoveData,	
-					  UBYTE Mask);
-extern SDWORD WallHug (PATH_POINT *WallPoints, SBYTE DirectionAdjustment,
-				SDWORD StartX, SDWORD StartY, SDWORD EndX, SDWORD EndY, SDWORD Direction,
-				UBYTE Mask);
-extern BOOL LineOfSight (SDWORD StartX, SDWORD StartY, SDWORD EndX, SDWORD EndY, 
-						 UBYTE Mask);
-extern BOOL MovementUpdate(BASE_OBJECT *Obj, MOVE_CONTROL *MoveData);
-extern BOOL NewMovementUpdate(BASE_OBJECT *Obj, MOVE_CONTROL *MoveData);
+extern void FindPath(SDWORD StartX, SDWORD StartY, SDWORD DestinationX, SDWORD DestinationY, MOVE_CONTROL* MoveData, UBYTE Mask);
+extern SDWORD WallHug(PATH_POINT* WallPoints, SBYTE DirectionAdjustment, SDWORD StartX, SDWORD StartY, SDWORD EndX, SDWORD EndY,
+                      SDWORD Direction, UBYTE Mask);
+extern BOOL LineOfSight(SDWORD StartX, SDWORD StartY, SDWORD EndX, SDWORD EndY, UBYTE Mask);
+extern BOOL MovementUpdate(BASE_OBJECT* Obj, MOVE_CONTROL* MoveData);
+extern BOOL NewMovementUpdate(BASE_OBJECT* Obj, MOVE_CONTROL* MoveData);
 /* Turn towards a target */
-extern void TurnToTarget(BASE_OBJECT *Obj, MOVE_CONTROL *MoveData,
-						 UDWORD tarX, UDWORD tarY);
+extern void TurnToTarget(BASE_OBJECT* Obj, MOVE_CONTROL* MoveData, UDWORD tarX, UDWORD tarY);
 /* Return the difference in directions */
 extern UDWORD dirDiff(SDWORD start, SDWORD end);
 

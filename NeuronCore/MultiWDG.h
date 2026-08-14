@@ -16,24 +16,23 @@
 #define WDG_MAXDEP		20
 
 // store the catalog info for a WDG
-typedef struct _wdgcache
+using WDGCACHE = struct _wdgcache
 {
-	STRING		aFileName[WDG_FILEMAX];
-	STRING		aName[WDG_NAMEMAX];
-	UDWORD		sequence;
+  STRING aFileName[WDG_FILEMAX];
+  STRING aName[WDG_NAMEMAX];
+  UDWORD sequence;
 
-	UDWORD		numWRF;
-	WDGINFO		*asWRFCatalog;
-	WRFINFO		**apsWRFFileCatalog;
+  UDWORD numWRF;
+  WDGINFO* asWRFCatalog;
+  WRFINFO** apsWRFFileCatalog;
 
-	// store the dependancies
-	UDWORD		numDep;
-	WDG_DEP		asDep[WDG_MAXDEP];
+  // store the dependancies
+  UDWORD numDep;
+  WDG_DEP asDep[WDG_MAXDEP];
 
-	struct _wdgcache *psNext;
-	struct _wdgcache *psPrev;
-} WDGCACHE;
-
+  struct _wdgcache* psNext;
+  struct _wdgcache* psPrev;
+};
 
 // function prototypes
 BOOL wdgMultiInit(void);
@@ -51,51 +50,48 @@ void wdgEnableAddonWDG(void);
 	WDGCACHE	*psCurrCache; \
 	UDWORD		currWRFIndex
 
-typedef struct _wdg_findwrf
+using WDG_FINDWRF = struct _wdg_findwrf
 {
-	WDG_FINDWRF_BASE;
-} WDG_FINDWRF;
+  WDG_FINDWRF_BASE;
+};
 
-
-typedef struct _wdg_findfile
+using WDG_FINDFILE = struct _wdg_findfile
 {
-	WDG_FINDWRF_BASE;
+  WDG_FINDWRF_BASE;
 
-	// the file that is being searched for
-	UDWORD		FileType;
-	UDWORD		FileNameHash;
+  // the file that is being searched for
+  UDWORD FileType;
+  UDWORD FileNameHash;
 
-	// the index of a found file
-	UDWORD		currFileIndex;
-} WDG_FINDFILE;
-
+  // the index of a found file
+  UDWORD currFileIndex;
+};
 
 // Find the first instance of a WRF in the WDG catalogs
-BOOL wdgFindFirstWRF(UDWORD WRFName, WDG_FINDWRF *psFindData);
+BOOL wdgFindFirstWRF(UDWORD WRFName, WDG_FINDWRF* psFindData);
 // Find the next instance of a WRF in WDG catalogs
-BOOL wdgFindNextWRF(WDG_FINDWRF *psFindData);
+BOOL wdgFindNextWRF(WDG_FINDWRF* psFindData);
 
 // Find the first instance of a file in a WRF
-BOOL wdgFindFirstFile(UDWORD WRFName, UDWORD type, UDWORD FileName, WDG_FINDFILE *psFindData);
+BOOL wdgFindFirstFile(UDWORD WRFName, UDWORD type, UDWORD FileName, WDG_FINDFILE* psFindData);
 // Find the next instance of a file in a WRF
-BOOL wdgFindNextFile(WDG_FINDFILE *psFindData);
+BOOL wdgFindNextFile(WDG_FINDFILE* psFindData);
 
 // set the current WDG based on the found WRF
-void wdgSetCurrentWDGFromFind(WDG_FINDWRF *psFindData);
+void wdgSetCurrentWDGFromFind(WDG_FINDWRF* psFindData);
 
 // load a file that is not stored in the current WDG
-BOOL wdgGetFileFromOtherWDG(UDWORD WRFname, UDWORD type, UDWORD FileName,
-							WRFINFO **ppsNewFile, UBYTE **ppFileBuf);
+BOOL wdgGetFileFromOtherWDG(UDWORD WRFname, UDWORD type, UDWORD FileName, WRFINFO** ppsNewFile, UBYTE** ppFileBuf);
 
 // Rev versions of these functions all search from the end to the begining
 
 // Find the first instance of a WRF in the WDG catalogs
-BOOL wdgFindFirstWRFRev(UDWORD WRFName, WDG_FINDWRF *psFindData);
+BOOL wdgFindFirstWRFRev(UDWORD WRFName, WDG_FINDWRF* psFindData);
 // Find the next instance of a WRF in WDG catalogs
-BOOL wdgFindNextWRFRev(WDG_FINDWRF *psFindData);
+BOOL wdgFindNextWRFRev(WDG_FINDWRF* psFindData);
 // Find the first instance of a file in a WRF
-BOOL wdgFindFirstFileRev(UDWORD WRFName, UDWORD type, UDWORD FileName, WDG_FINDFILE *psFindData);
+BOOL wdgFindFirstFileRev(UDWORD WRFName, UDWORD type, UDWORD FileName, WDG_FINDFILE* psFindData);
 // Find the next instance of a file in a WRF
-BOOL wdgFindNextFileRev(WDG_FINDFILE *psFindData);
+BOOL wdgFindNextFileRev(WDG_FINDFILE* psFindData);
 
 #endif

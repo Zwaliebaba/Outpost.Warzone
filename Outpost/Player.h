@@ -21,7 +21,7 @@ extern void playerShutDown(void);
 extern void playerUpdate(UDWORD player);
 
 /* deal with a new droid being built by a factory */
-extern void playerNewDroid(DROID *psDroid);
+extern void playerNewDroid(DROID* psDroid);
 
 /* Get a player to start manufacturing droids */
 
@@ -31,4 +31,3 @@ extern void playerNewDroid(DROID *psDroid);
 extern void attackLocation(UDWORD x, UDWORD y, UDWORD player);
 
 #endif
-

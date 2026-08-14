@@ -14,7 +14,6 @@
 // store the objects that are being used for the object bar
 #define			MAX_OBJECTS		15//10 we need at least 15 for the 3 different types of factory
 
-
 #define	BASE_COORDS_X	(640)
 #define	BASE_COORDS_Y	(480)
 
@@ -39,9 +38,7 @@
 #define IDPOW_POWERBAR_T		102		// power bar - trough
 #define	IDTRANTIMER_BUTTON		11012	//transporter button on timer display
 
-
-
-/* Object screen IDs */	 
+/* Object screen IDs */
 
 #define IDOBJ_FORM			3000		// The object back form for build/manufacture/research
 #define IDOBJ_CLOSE			3001		// The form for the close button
@@ -64,7 +61,6 @@
 #define IDOBJ_CMDFACEND		3799		// The last ID for factory number labels
 #define IDOBJ_CMDVTOLFACSTART	3800	// The first ID for VTOL factory number labels
 #define IDOBJ_CMDVTOLFACEND		3849	// The last ID for VTOL factory number labels
-
 
 #define IDSTAT_FORM				4000		// The stats form for structure/droid/research type
 #define IDSTAT_TITLEFORM		4001		// The form for the close box
@@ -93,7 +89,7 @@
 
 // Reticule position.
 #define RET_X				23
-#define RET_Y				(324+E_H) 
+#define RET_Y				(324+E_H)
 #define RET_FORMWIDTH		132
 #define RET_FORMHEIGHT		132
 
@@ -135,7 +131,7 @@
 #define POW_CLICKBARMAJORBLUE	0
 
 //tab details
-#define OBJ_TABWIDTH	26	
+#define OBJ_TABWIDTH	26
 #define OBJ_TABHEIGHT	11
 #define	OBJ_TABOFFSET	2
 
@@ -154,10 +150,9 @@
 #define STAT_TABFORMX		0	// Offset of the tab form within the main form.
 #define STAT_TABFORMY		18	// Offset of the tab form within the main form.
 
-
 // 2 16 bit values packed into a DWORD.
 #define PACKDWORD(a,b)	( ( (a)<<16 ) | (b) )
-#define UNPACKDWORD_HI(a) ( (a)>>16 )					
+#define UNPACKDWORD_HI(a) ( (a)>>16 )
 #define UNPACKDWORD_LOW(a) ( (a) & 0xffff)
 
 // 3 10 bit values packed into a DWORD.
@@ -172,7 +167,6 @@
 #define UNPACKDWORD_QUAD_B(a) ( ((a)>>16) & 0xff )
 #define UNPACKDWORD_QUAD_C(a) ( ((a)>>8) & 0xff )
 #define UNPACKDWORD_QUAD_D(a) ( (a) & 0xff)
-
 
 #define POWERPOINTS_DROIDDIV	5 //3 
 
@@ -216,26 +210,42 @@
 #define	MAXCOMPONENT	40
 #define	MAXEXTRASYS		40
 
-typedef enum {
-	INT_NORMAL,		// Standard mode (just the reticule)
-	INT_OPTION,		// Option screen
-	INT_EDIT,		// Edit mode
-	INT_EDITSTAT,	// Stat screen up for placing objects
-	INT_OBJECT,		// Object screen
-	INT_STAT,		// Object screen with stat screen
-	INT_CMDORDER,	// Object screen with command droids and orders screen
-	INT_DESIGN,		// Design screen
-	INT_INTELMAP,	// Intelligence Map
-	INT_ORDER,
-	INT_INGAMEOP,	// in game options.
-	//INT_TUTORIAL,	// Tutorial mode - message display
-	INT_TRANSPORTER, //Loading/unloading a Transporter
-	INT_MISSIONRES,	// Results of a mission display.
-	INT_MULTIMENU,	// multiplayer only, player stats etc...
-	INT_CDCHANGE,		// CD Change message box 
+using INTMODE = enum
+{
+  INT_NORMAL,
+  // Standard mode (just the reticule)
+  INT_OPTION,
+  // Option screen
+  INT_EDIT,
+  // Edit mode
+  INT_EDITSTAT,
+  // Stat screen up for placing objects
+  INT_OBJECT,
+  // Object screen
+  INT_STAT,
+  // Object screen with stat screen
+  INT_CMDORDER,
+  // Object screen with command droids and orders screen
+  INT_DESIGN,
+  // Design screen
+  INT_INTELMAP,
+  // Intelligence Map
+  INT_ORDER,
+  INT_INGAMEOP,
+  // in game options.
+  //INT_TUTORIAL,	// Tutorial mode - message display
+  INT_TRANSPORTER,
+  //Loading/unloading a Transporter
+  INT_MISSIONRES,
+  // Results of a mission display.
+  INT_MULTIMENU,
+  // multiplayer only, player stats etc...
+  INT_CDCHANGE,
+  // CD Change message box 
 
-    INT_MAXMODE,   //leave as last so we can start the objMode at this value
-} INTMODE;
+  INT_MAXMODE,
+  //leave as last so we can start the objMode at this value
+};
 
 //NOT ANYMORE! 10/08/98 AB
 
@@ -244,57 +254,57 @@ typedef enum {
 extern INTMODE intMode;
 
 /* The widget screen */
-extern W_SCREEN		*psWScreen;
+extern W_SCREEN* psWScreen;
 
 /* the widget font */
 extern int WFont;
 extern int SmallWFont;
 
 /* Which is the currently selected player */
-extern UDWORD			selectedPlayer;
+extern UDWORD selectedPlayer;
 
 // The last widget ID from widgRunScreen
-extern UDWORD			intLastWidget;
+extern UDWORD intLastWidget;
 
 /* The button ID of the objects stat when the stat screen is displayed */
-extern UDWORD			objStatID;
+extern UDWORD objStatID;
 
 /* The flag to specify if the Intelligence screen is up */
 
 /* The current template for the design screen to start with*/
-extern DROID_TEMPLATE	*psCurrTemplate;
-extern DROID_TEMPLATE	**apsTemplateList;
+extern DROID_TEMPLATE* psCurrTemplate;
+extern DROID_TEMPLATE** apsTemplateList;
 
 //two colours used for drawing the footprint outline for objects in 2D
-extern UDWORD	outlineOK;
-extern UDWORD	outlineNotOK;
+extern UDWORD outlineOK;
+extern UDWORD outlineNotOK;
 
 //two colours used for drawing the footprint outline for objects in 3D
 #define			outlineOK3D		255
 #define			outlineNotOK3D	 14		//arbitary value!
 
 //value gets set to colour used for drawing
-extern UDWORD	outlineColour;
-extern UDWORD	outlineColour3D;
+extern UDWORD outlineColour;
+extern UDWORD outlineColour3D;
 
 //Buffer to hold the 3D view for the Intelligence Screen
-extern iSurface *pIntelMapSurface;
+extern iSurface* pIntelMapSurface;
 /*Message View Buffer width and height - MAXIMUM Sizes! - only need to be 
 as big as Pie View in Research Msg now*/
 #define	MSG_BUFFER_WIDTH		INTMAP_PIEWIDTH//DISP_WIDTH//640
 #define	MSG_BUFFER_HEIGHT		INTMAP_PIEHEIGHT//DISP_HEIGHT//480
 
 /* pointer to hold the imd to use for a new template in the design screen */
-extern iIMDShape	*pNewDesignIMD;
+extern iIMDShape* pNewDesignIMD;
 
-extern UBYTE	*DisplayBuffer;
-extern SDWORD	displayBufferSize;
+extern UBYTE* DisplayBuffer;
+extern SDWORD displayBufferSize;
 
 extern BOOL ClosingMessageView;
 extern BOOL ClosingIntelMap;
-extern BOOL	ClosingTrans;
-extern BOOL	ClosingTransCont;
-extern BOOL	ClosingTransDroids;
+extern BOOL ClosingTrans;
+extern BOOL ClosingTransCont;
+extern BOOL ClosingTransDroids;
 
 /* Initialise the in game interface */
 extern BOOL intInitialise(void);
@@ -303,18 +313,22 @@ extern BOOL intInitialise(void);
 extern void intShutDown(void);
 
 /* Return codes for the widget interface */
-typedef enum _int_retval
+using INT_RETVAL = enum _int_retval
 {
-	INT_NONE,		// no key clicks have been intercepted
-	INT_INTERCEPT,	// key clicks have been intercepted
-	//INT_FULLSCREENPAUSE,	// The widget interface is full screen and
-							// the rest of the game should pause
-	//INT_INTELPAUSE,			// The Intelligence Map is up and all update 
-							// routines should pause - hopefully!
-	INT_INTELNOSCROLL,		//The 3DView of the intelligence screen is up
-							// and we don't want scroll (or update!)
-	INT_QUIT,		// The game should quit
-} INT_RETVAL;
+  INT_NONE,
+  // no key clicks have been intercepted
+  INT_INTERCEPT,
+  // key clicks have been intercepted
+  //INT_FULLSCREENPAUSE,	// The widget interface is full screen and
+  // the rest of the game should pause
+  //INT_INTELPAUSE,			// The Intelligence Map is up and all update 
+  // routines should pause - hopefully!
+  INT_INTELNOSCROLL,
+  //The 3DView of the intelligence screen is up
+  // and we don't want scroll (or update!)
+  INT_QUIT,
+  // The game should quit
+};
 
 /* Run the widgets for the in game interface */
 extern INT_RETVAL intRunWidgets(void);
@@ -335,28 +349,28 @@ extern void intSetMapPos(UDWORD x, UDWORD y);
 /* Tell the interface when an object is created
  * - it may have to be added to a screen
  */
-extern void intNewObj(BASE_OBJECT *psObj);
+extern void intNewObj(BASE_OBJECT* psObj);
 
 /* Tell the interface a construction droid has finished building */
-extern void intBuildFinished(DROID *psDroid);
+extern void intBuildFinished(DROID* psDroid);
 /* Tell the interface a construction droid has started building*/
-extern void intBuildStarted(DROID *psDroid);
+extern void intBuildStarted(DROID* psDroid);
 /* Tell the interface a research facility has completed a topic */
-extern void intResearchFinished(STRUCTURE *psBuilding);
+extern void intResearchFinished(STRUCTURE* psBuilding);
 /* Tell the interface a factory has completed building ALL droids */
-extern void intManufactureFinished(STRUCTURE *psBuilding);
+extern void intManufactureFinished(STRUCTURE* psBuilding);
 
 /* Sync the interface to an object */
-extern void intObjectSelected(BASE_OBJECT *psObj);
+extern void intObjectSelected(BASE_OBJECT* psObj);
 
 // add the construction interface if a constructor droid is selected
-extern void intConstructorSelected(DROID *psDroid);
+extern void intConstructorSelected(DROID* psDroid);
 extern BOOL intBuildSelectMode(void);
 extern BOOL intDemolishSelectMode(void);
 extern BOOL intBuildMode(void);
 
 // add the construction interface if a constructor droid is selected
-void intCommanderSelected(DROID *psDroid);
+void intCommanderSelected(DROID* psDroid);
 
 extern UWORD numForms(UDWORD total, UDWORD perForm);
 
@@ -385,11 +399,10 @@ extern void intRemoveStatsNoAnim(void);
 extern STRUCTURE* interfaceStructList(void);
 
 //sets up the Transporter Screen as far as the interface is concerned
-extern void addTransporterInterface(DROID *psSelected, BOOL onMission);
+extern void addTransporterInterface(DROID* psSelected, BOOL onMission);
 
 /* CD change box */
-extern void addCDChangeInterface( CD_INDEX CDrequired,
-		CDSPAN_CALLBACK fpOKCallback, CDSPAN_CALLBACK fpCancelCallback );
+extern void addCDChangeInterface(CD_INDEX CDrequired, CDSPAN_CALLBACK fpOKCallback, CDSPAN_CALLBACK fpCancelCallback);
 
 /*causes a reticule button to start flashing*/
 extern void flashReticuleButton(UDWORD buttonID);
@@ -409,18 +422,17 @@ extern void intShowPowerBar(void);
 extern void forceHidePowerBar(void);
 
 /* Add the Proximity message buttons */
-extern BOOL intAddProximityButton(PROXIMITY_DISPLAY *psProxDisp, UDWORD inc);
+extern BOOL intAddProximityButton(PROXIMITY_DISPLAY* psProxDisp, UDWORD inc);
 
 /*Remove a Proximity Button - when the message is deleted*/
-extern void intRemoveProximityButton(PROXIMITY_DISPLAY *psProxDisp);
+extern void intRemoveProximityButton(PROXIMITY_DISPLAY* psProxDisp);
 
 /* Allows us to fool the widgets with a keypress */
-void	setKeyButtonMapping( UDWORD	val );
+void setKeyButtonMapping(UDWORD val);
 
-
-STRUCTURE *intFindAStructure(void);
-STRUCTURE* intGotoNextStructureType(UDWORD structType,BOOL JumpTo,BOOL CancelDrive);
-DROID *intGotoNextDroidType(DROID *CurrDroid,UDWORD droidType,BOOL AllowGroup);
+STRUCTURE* intFindAStructure(void);
+STRUCTURE* intGotoNextStructureType(UDWORD structType, BOOL JumpTo, BOOL CancelDrive);
+DROID* intGotoNextDroidType(DROID* CurrDroid, UDWORD droidType, BOOL AllowGroup);
 
 /*Checks to see if there are any research topics to do and flashes the button*/
 extern void intCheckResearchButton(void);
@@ -429,7 +441,7 @@ extern void intCheckResearchButton(void);
 extern BOOL intCheckReticuleButEnabled(UDWORD id);
 
 //access function for selected object in the interface
-extern BASE_OBJECT * getCurrentSelected(void);
+extern BASE_OBJECT* getCurrentSelected(void);
 
 //initialise all the previous obj - particularly useful for when go Off world!
 extern void intResetPreviousObj(void);
@@ -444,4 +456,3 @@ BOOL intGetReopenBuild(void);
 extern void intDemolishCancel(void);
 
 #endif
-

@@ -9,96 +9,94 @@
 #include "ObjectDef.h"
 #include "Message.h"
 
-extern BOOL	xInOrder,yInOrder,yBeforeX,spinScene;
+extern BOOL xInOrder, yInOrder, yBeforeX, spinScene;
 
-extern UDWORD	mapX,mapY;
-extern void	setViewAngle(SDWORD angle);
+extern UDWORD mapX, mapY;
+extern void setViewAngle(SDWORD angle);
 extern UDWORD getViewDistance(void);
-extern void	setViewDistance(UDWORD dist);
-extern BOOL	radarOnScreen;
-extern void	scaleMatrix( UDWORD percent );
-extern void setViewPos( UDWORD x, UDWORD y, BOOL Pan);
-extern void getPlayerPos(SDWORD *px, SDWORD *py);
+extern void setViewDistance(UDWORD dist);
+extern BOOL radarOnScreen;
+extern void scaleMatrix(UDWORD percent);
+extern void setViewPos(UDWORD x, UDWORD y, BOOL Pan);
+extern void getPlayerPos(SDWORD* px, SDWORD* py);
 extern void setPlayerPos(SDWORD x, SDWORD y);
-extern void disp3d_setView(iView *newView);
-extern void disp3d_getView(iView *newView);
+extern void disp3d_setView(iView* newView);
+extern void disp3d_getView(iView* newView);
 
-extern void draw3DScene (void);
-extern void	renderDroid					( DROID *psDroid );
-extern void	renderStructure				( STRUCTURE *psStructure );
-extern void	renderFeature				( FEATURE *psFeature );
-extern void	renderProximityMsg			( PROXIMITY_DISPLAY	*psProxDisp);
-extern void	drawTerrainTile				( UDWORD i, UDWORD j );	//fast version - optimised
+extern void draw3DScene(void);
+extern void renderDroid(DROID* psDroid);
+extern void renderStructure(STRUCTURE* psStructure);
+extern void renderFeature(FEATURE* psFeature);
+extern void renderProximityMsg(PROXIMITY_DISPLAY* psProxDisp);
+extern void drawTerrainTile(UDWORD i, UDWORD j); //fast version - optimised
 void drawTerrainWaterTile(UDWORD i, UDWORD j);
-extern void	drawTexturedTile			( UDWORD	i, UDWORD j );
-extern void	renderProjectile			( PROJ_OBJECT *psCurr);
-extern void	renderAnimComponent			( COMPONENT_OBJECT *psObj );
-extern void	renderDeliveryPoint			( FLAG_POSITION *psPosition );
-extern void debugToggleSensorDisplay	( void );
+extern void drawTexturedTile(UDWORD i, UDWORD j);
+extern void renderProjectile(PROJ_OBJECT* psCurr);
+extern void renderAnimComponent(COMPONENT_OBJECT* psObj);
+extern void renderDeliveryPoint(FLAG_POSITION* psPosition);
+extern void debugToggleSensorDisplay(void);
 
-extern void displayFeatures( void );
-extern void	displayStaticObjects( void );
-extern void	displayDynamicObjects( void );
-extern void displayProximityMsgs( void );
-extern void displayDelivPoints(void); 
-extern void	calcScreenCoords(DROID *psDroid);
-extern void	toggleReloadBarDisplay( void );
-extern void	toggleEnergyBars( void );
+extern void displayFeatures(void);
+extern void displayStaticObjects(void);
+extern void displayDynamicObjects(void);
+extern void displayProximityMsgs(void);
+extern void displayDelivPoints(void);
+extern void calcScreenCoords(DROID* psDroid);
+extern void toggleReloadBarDisplay(void);
+extern void toggleEnergyBars(void);
 
-extern BOOL	doWeDrawRadarBlips( void );
-extern BOOL	doWeDrawProximitys( void );
-extern void	setBlipDraw(BOOL val);
-extern void	setProximityDraw(BOOL val);
-extern void renderShadow( DROID *psDroid, iIMDShape *psShadowIMD );
+extern BOOL doWeDrawRadarBlips(void);
+extern BOOL doWeDrawProximitys(void);
+extern void setBlipDraw(BOOL val);
+extern void setProximityDraw(BOOL val);
+extern void renderShadow(DROID* psDroid, iIMDShape* psShadowIMD);
 
+extern UDWORD getSuggestedPitch(void);
 
-extern UDWORD	getSuggestedPitch			( void );
-
-extern BOOL	clipXY ( SDWORD x, SDWORD y);
+extern BOOL clipXY(SDWORD x, SDWORD y);
 
 extern int init3DView(void);
 extern void initViewPosition(void);
-extern iView player,camera;
-extern iVector	imdRot;
-extern UDWORD	distance;
-extern UDWORD  terrainOutline;
+extern iView player, camera;
+extern iVector imdRot;
+extern UDWORD distance;
+extern UDWORD terrainOutline;
 extern SDWORD mouseTileX;
 extern SDWORD mouseTileY;
-extern UDWORD xOffset,yOffset;
-extern BOOL	selectAttempt;
+extern UDWORD xOffset, yOffset;
+extern BOOL selectAttempt;
 extern BOOL draggingTile;
-extern struct iIMDShape *g_imd;
+extern struct iIMDShape* g_imd;
 extern UDWORD cursor3D;
-extern BOOL	droidSelected;
-extern UDWORD terrainMidX,terrainMidY;
+extern BOOL droidSelected;
+extern UDWORD terrainMidX, terrainMidY;
 extern int32 playerXTile, playerZTile, rx, rz;
 
 extern SDWORD scrollSpeed;
-extern BOOL	gouraudShading;
-extern iBitmap	**tilesRAW;
+extern BOOL gouraudShading;
+extern iBitmap** tilesRAW;
 extern UDWORD worldAngle;
-extern UDWORD	stepIndex;
-extern iPalette	gamePal;
-extern void	assignSensorTarget( BASE_OBJECT *psObj );
-extern void	assignDestTarget( void );
-extern void	processSensorTarget( void );
-extern void	setEnergyBarDisplay( BOOL val );
-extern UDWORD getWaterTileNum( void);
-extern void	setUnderwaterTile(UDWORD num);
-extern UDWORD	getRubbleTileNum( void );
-extern void	setRubbleTile(UDWORD num);
+extern UDWORD stepIndex;
+extern iPalette gamePal;
+extern void assignSensorTarget(BASE_OBJECT* psObj);
+extern void assignDestTarget(void);
+extern void processSensorTarget(void);
+extern void setEnergyBarDisplay(BOOL val);
+extern UDWORD getWaterTileNum(void);
+extern void setUnderwaterTile(UDWORD num);
+extern UDWORD getRubbleTileNum(void);
+extern void setRubbleTile(UDWORD num);
 
-extern SDWORD	getCentreX( void );
-extern SDWORD	getCentreZ( void );
+extern SDWORD getCentreX(void);
+extern SDWORD getCentreZ(void);
 
-
-extern SDWORD	mouseTileX,mouseTileY;
-extern BOOL	yBeforeX;
+extern SDWORD mouseTileX, mouseTileY;
+extern BOOL yBeforeX;
 extern UDWORD numDroidsSelected;
-extern UDWORD	intensity1,intensity2,intensity3;
-extern UDWORD	lightLevel;
-extern UDWORD	demoTextPage;
-extern BOOL		updateVideoCard;
+extern UDWORD intensity1, intensity2, intensity3;
+extern UDWORD lightLevel;
+extern UDWORD demoTextPage;
+extern BOOL updateVideoCard;
 
 #define	INITIAL_DESIRED_PITCH		(325)
 #define INITIAL_STARTING_PITCH		(-75)
@@ -110,14 +108,18 @@ extern UDWORD visibleXTiles;
 extern UDWORD visibleYTiles;
 
 // Expanded PIEVERTEX.
-typedef struct {
-	// PIEVERTEX.
-	SDWORD sx, sy, sz; UWORD tu, tv; PIELIGHT light, specular;
-	// Extra data for water.
-	SDWORD wx, wy, wz; PIELIGHT wlight;
-	UBYTE	drawInfo;
-	UBYTE	bWater;
-} SVMESH;
+using SVMESH = struct
+{
+  // PIEVERTEX.
+  SDWORD sx, sy, sz;
+  UWORD tu, tv;
+  PIELIGHT light, specular;
+  // Extra data for water.
+  SDWORD wx, wy, wz;
+  PIELIGHT wlight;
+  UBYTE drawInfo;
+  UBYTE bWater;
+};
 
 extern SVMESH tileScreenInfo[LAND_YGRD][LAND_XGRD];
 
@@ -125,8 +127,7 @@ extern SVMESH tileScreenInfo[LAND_YGRD][LAND_XGRD];
 extern BOOL loadExtraIMDs(void);
 
 /*returns the graphic ID for a droid rank*/
-extern UDWORD  getDroidRankGraphic(DROID *psDroid);
-
+extern UDWORD getDroidRankGraphic(DROID* psDroid);
 
 #define	BASE_MUZZLE_FLASH_DURATION	(GAME_TICKS_PER_SEC/10)
 #define	EFFECT_MUZZLE_ADDITIVE		128
@@ -144,8 +145,8 @@ extern UDWORD  getDroidRankGraphic(DROID *psDroid);
 #define BAR_BASIC	1
 #define BAR_DOT		2
 
-extern UDWORD	barMode;
+extern UDWORD barMode;
 
-extern UDWORD	geoOffset;
-extern UDWORD	texPage;
+extern UDWORD geoOffset;
+extern UDWORD texPage;
 #endif

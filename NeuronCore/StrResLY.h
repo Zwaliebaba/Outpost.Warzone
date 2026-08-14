@@ -13,19 +13,18 @@
 #define TEXT_BUFFERS	10
 
 /* The string resource currently being loaded */
-extern STR_RES	*psCurrRes;
+extern STR_RES* psCurrRes;
 
 /* Set the current input buffer for the lexer - used by strresLoad */
-extern void strresSetInputBuffer(UBYTE *pBuffer, UDWORD size);
+extern void strresSetInputBuffer(UBYTE* pBuffer, UDWORD size);
 
 /* Give access to the line number and current text for error messages */
-extern void strresGetErrorData(int *pLine, char **ppText);
+extern void strresGetErrorData(int* pLine, char** ppText);
 
 /* Call the yacc parser */
 extern int strres_parse(void);
 
 /* Store a string */
-extern BOOL strresStoreString(STR_RES *psRes, STRING *pID, STRING *pString);
+extern BOOL strresStoreString(STR_RES* psRes, STRING* pID, STRING* pString);
 
 #endif
-

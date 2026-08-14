@@ -18,13 +18,11 @@
 #include <ddraw.h>
 #define SEQUENCE_SOUND
 #ifdef SEQUENCE_SOUND
-	#include <dsound.h>
+#include <dsound.h>
 #endif
 
- 
 // ESCAPE include file
 #include "STREAMER.H"
-
 
 /***************************************************************************/
 /*
@@ -32,15 +30,14 @@
  */
 /***************************************************************************/
 
-typedef struct _aStruct
+using A_STRUCT = struct _aStruct
 {
-	BOOL	bBool;
-} A_STRUCT;
+  BOOL bBool;
+};
 
 #define TEXT_BOXES
 #define VIDEO_WIDTH 640
 #define VIDEO_HEIGHT 480
-
 
 /***************************************************************************/
 /*
@@ -54,28 +51,28 @@ typedef struct _aStruct
 	function. 
 */
 
-int					LastUpdated;
-LPMOVIEHANDLE		mhandle = NULL;
-LPVIDEOHANDLE		vhandle = NULL;
-LPSOUNDHANDLE		shandle = NULL;
-LPBYTE				localBuffer;
-int					movieWidth, movieHeight;
+int LastUpdated;
+LPMOVIEHANDLE mhandle = nullptr;
+LPVIDEOHANDLE vhandle = nullptr;
+LPSOUNDHANDLE shandle = nullptr;
+LPBYTE localBuffer;
+int movieWidth, movieHeight;
 
-LPDIRECTSOUNDBUFFER	lpDSSB = NULL;
-LPBYTE				soundbuffer1 = NULL;
-LPBYTE				soundbuffer2 = NULL;
-ULONG				temp;
-UDWORD				lowBitMask;
-BOOL				bPlayerOn;
-BOOL				bSmallVideo = FALSE;
-BOOL				bTextBoxes = FALSE;
+LPDIRECTSOUNDBUFFER lpDSSB = nullptr;
+LPBYTE soundbuffer1 = nullptr;
+LPBYTE soundbuffer2 = nullptr;
+ULONG temp;
+UDWORD lowBitMask;
+BOOL bPlayerOn;
+BOOL bSmallVideo = FALSE;
+BOOL bTextBoxes = FALSE;
 /***************************************************************************/
 /*
  *	Local ProtoTypes
  */
 /***************************************************************************/
 
-void SoundCallBackFunc( LPSOUNDHANDLE shandle );
+void SoundCallBackFunc(LPSOUNDHANDLE shandle);
 
 /***************************************************************************/
 /*
@@ -87,265 +84,222 @@ void SoundCallBackFunc( LPSOUNDHANDLE shandle );
 // D3D_WINDOWED video size 16bit uses screen pixel mode
 // 3DFX_WINDOWED video size 16bit BGR 565 mode
 // 3DFX_FULLSCREEN 640 * 480 BGR 565 mode
-BOOL seq_SetSequenceForBuffer(char* filename, VIDEO_MODE mode, LPDIRECTSOUND lpDS, int startTime, DDPIXELFORMAT	*DDPixelFormat, PERF_MODE perfMode)
+BOOL seq_SetSequenceForBuffer(char* filename, VIDEO_MODE mode, LPDIRECTSOUND lpDS, int startTime, DDPIXELFORMAT* DDPixelFormat,
+                              PERF_MODE perfMode)
 {
-	long				width, height;
-	long				pixelBitDepth = 16;
-	long				precision, channels;
-	long				compression;
-	BOOL				bCompression;
-	DSBUFFERDESC		DS_bd;
-	WAVEFORMATEX		pcmwf;
-	BYTE				ap = 0,	ac = 0, rp = 0,	rc = 0, gp = 0,	gc = 0, bp = 0, bc = 0;
-	ULONG				mask;
+  long width, height;
+  long pixelBitDepth = 16;
+  long precision, channels;
+  long compression;
+  BOOL bCompression;
+  DSBUFFERDESC DS_bd;
+  WAVEFORMATEX pcmwf;
+  BYTE ap = 0, ac = 0, rp = 0, rc = 0, gp = 0, gc = 0, bp = 0, bc = 0;
+  ULONG mask;
 
-	mhandle = NULL;
-	vhandle = NULL;
-	shandle = NULL;
-	lpDSSB = NULL;
+  mhandle = nullptr;
+  vhandle = nullptr;
+  shandle = nullptr;
+  lpDSSB = nullptr;
 
-	if (perfMode == VIDEO_PERF_FULLSCREEN)
-	{
-		bSmallVideo = FALSE;
-	}
-	else
-	{
-		bSmallVideo = TRUE;
-	}
+  if (perfMode == VIDEO_PERF_FULLSCREEN)
+    bSmallVideo = FALSE;
+  else
+    bSmallVideo = TRUE;
 
-	/*
+  /*
 	// Initialise the movie with a 2MB buffersize
 	*/
-	if ( Streamer_InitMovie(	&mhandle,
-								NULL,
-								0,
-								filename,
-								2<<20,
-								SIM_NONE) != STREAMER_OK ) return FALSE;
+  if (Streamer_InitMovie(&mhandle, nullptr, 0, filename, 2 << 20, SIM_NONE) != STREAMER_OK)
+    return FALSE;
 
-	movieWidth = Movie_GetXSize( mhandle );
-	movieHeight = Movie_GetYSize( mhandle );
+  movieWidth = Movie_GetXSize(mhandle);
+  movieHeight = Movie_GetYSize(mhandle);
 
-	/*
-	// Initialise the video playback environment
-	*/
+  /*
+  // Initialise the video playback environment
+  */
 
-	if ( Streamer_InitVideo(	&vhandle,
-								mhandle,
-								movieWidth,
-								movieHeight,
-								0,
-								0,
-								0,
-								0,
-								0,
-								0,
-								DFLAG_INVIEWPORT,// | DFLAG_DOUBLED, | DFLAG_CLEAROUTPUT | //DFLAG_DOUBLED | 
-								&width,
-								&height ) != STREAMER_OK ) return FALSE;
-	Streamer_SetVideoPitch(vhandle,movieWidth,movieHeight);
-
+  if (Streamer_InitVideo(&vhandle, mhandle, movieWidth, movieHeight, 0, 0, 0, 0, 0, 0, DFLAG_INVIEWPORT,
+                         // | DFLAG_DOUBLED, | DFLAG_CLEAROUTPUT | //DFLAG_DOUBLED | 
+                         &width, &height) != STREAMER_OK)
+    return FALSE;
+  Streamer_SetVideoPitch(vhandle, movieWidth, movieHeight);
 
 #ifdef SEQUENCE_SOUND
-	// check for the presence of audio within the rpl file
-	if (	Movie_GetSoundChannels( mhandle ) &&
-			Movie_GetSoundPrecision( mhandle ) &&
-			Movie_GetSoundRate( mhandle ) &&
-			(lpDS != NULL))
-	{
-		//if so initialise Direct sound playback
-		precision = Movie_GetSoundPrecision( mhandle);
-		channels = Movie_GetSoundChannels( mhandle );
-		if (precision == 4)
-		{
-			compression = 4;
-			bCompression = FALSE;
-		}
-		else
-		{
-			compression = 1;
-			bCompression = TRUE;
-		}
+  // check for the presence of audio within the rpl file
+  if (Movie_GetSoundChannels(mhandle) && Movie_GetSoundPrecision(mhandle) && Movie_GetSoundRate(mhandle) && (lpDS != nullptr))
+  {
+    //if so initialise Direct sound playback
+    precision = Movie_GetSoundPrecision(mhandle);
+    channels = Movie_GetSoundChannels(mhandle);
+    if (precision == 4)
+    {
+      compression = 4;
+      bCompression = FALSE;
+    }
+    else
+    {
+      compression = 1;
+      bCompression = TRUE;
+    }
 
-		if ( Streamer_InitSound(	SoundCallBackFunc,
-									&shandle,
-									16384,
-									compression,
-									bCompression,
-									4096,
-									channels ) != STREAMER_OK ) return FALSE;
-		// Attempt to create an instance of direct sound - 
-		// for information on DirectSound refer to Microsoft documentation
+    if (Streamer_InitSound(SoundCallBackFunc, &shandle, 16384, compression, bCompression, 4096, channels) != STREAMER_OK)
+      return FALSE;
+    // Attempt to create an instance of direct sound - 
+    // for information on DirectSound refer to Microsoft documentation
 
-		memset( &pcmwf, 0, sizeof(pcmwf));
+    memset(&pcmwf, 0, sizeof(pcmwf));
 
-		pcmwf.wFormatTag = WAVE_FORMAT_PCM;
-		pcmwf.nChannels = (WORD) Movie_GetSoundChannels( mhandle );
-		pcmwf.nSamplesPerSec = Movie_GetSoundRate( mhandle );
-		pcmwf.wBitsPerSample = 16;					// there are always 16 bits after ADPCM is decompressed or if its raw PCM
-		pcmwf.nBlockAlign = (pcmwf.nChannels * pcmwf.wBitsPerSample)/8;
-		pcmwf.nAvgBytesPerSec = pcmwf.nSamplesPerSec * pcmwf.nBlockAlign;
-		pcmwf.cbSize = 0;
+    pcmwf.wFormatTag = WAVE_FORMAT_PCM;
+    pcmwf.nChannels = static_cast<WORD>(Movie_GetSoundChannels(mhandle));
+    pcmwf.nSamplesPerSec = Movie_GetSoundRate(mhandle);
+    pcmwf.wBitsPerSample = 16; // there are always 16 bits after ADPCM is decompressed or if its raw PCM
+    pcmwf.nBlockAlign = (pcmwf.nChannels * pcmwf.wBitsPerSample) / 8;
+    pcmwf.nAvgBytesPerSec = pcmwf.nSamplesPerSec * pcmwf.nBlockAlign;
+    pcmwf.cbSize = 0;
 
-		memset( &DS_bd, 0, sizeof( DS_bd ));
-		DS_bd.dwSize = sizeof ( DS_bd );
-		DS_bd.dwFlags = DSBCAPS_CTRLFREQUENCY| DSBCAPS_CTRLPAN | DSBCAPS_CTRLVOLUME; //DSBCAPS_CTRLDEFAULT;
-		DS_bd.dwBufferBytes = 32768;
-		DS_bd.lpwfxFormat = &pcmwf;
+    memset(&DS_bd, 0, sizeof(DS_bd));
+    DS_bd.dwSize = sizeof (DS_bd);
+    DS_bd.dwFlags = DSBCAPS_CTRLFREQUENCY | DSBCAPS_CTRLPAN | DSBCAPS_CTRLVOLUME; //DSBCAPS_CTRLDEFAULT;
+    DS_bd.dwBufferBytes = 32768;
+    DS_bd.lpwfxFormat = &pcmwf;
 
-		if ( lpDS->lpVtbl->CreateSoundBuffer(lpDS,
-										&DS_bd,
-										&lpDSSB,
-										NULL ) != DS_OK) return FALSE;
+    if (lpDS->lpVtbl->CreateSoundBuffer(lpDS, &DS_bd, &lpDSSB, nullptr) != DS_OK)
+      return FALSE;
 
-		if ( lpDSSB->lpVtbl->Lock(lpDSSB,
-									0,
-									16384,
-									(void**)&soundbuffer1,
-									&temp,
-									NULL,
-									0,
-									0 ) != DS_OK ) return FALSE;
+    if (lpDSSB->lpVtbl->Lock(lpDSSB, 0, 16384, (void**)&soundbuffer1, &temp, nullptr, nullptr, 0) != DS_OK)
+      return FALSE;
 
-		soundbuffer2 = soundbuffer1+16384;
+    soundbuffer2 = soundbuffer1 + 16384;
 
-		Streamer_SetSoundBuffer( shandle, 0, soundbuffer1 );
-		Streamer_SetSoundBuffer( shandle, 1, soundbuffer2 );
-	}
+    Streamer_SetSoundBuffer(shandle, 0, soundbuffer1);
+    Streamer_SetSoundBuffer(shandle, 1, soundbuffer2);
+  }
 #endif //SEQUENCE_SOUND
-	
 
-	/*
-	// This does the preload of movie data from the file and fills the audio double buffers (which
-	//  is why they were locked)
-	*/
-	if ( Streamer_InitStreaming(	mhandle,
-									vhandle,
-									shandle ) != STREAMER_OK ) return FALSE;
-	
+  /*
+  // This does the preload of movie data from the file and fills the audio double buffers (which
+  //  is why they were locked)
+  */
+  if (Streamer_InitStreaming(mhandle, vhandle, shandle) != STREAMER_OK)
+    return FALSE;
 
 #ifdef SEQUENCE_SOUND
-	if ( shandle )
-	{
-		lpDSSB->lpVtbl->Unlock(lpDSSB,
-						soundbuffer1,
-						16384,
-						NULL,
-						0 );
+  if (shandle)
+  {
+    lpDSSB->lpVtbl->Unlock(lpDSSB, soundbuffer1, 16384, nullptr, 0);
 
-		Streamer_SetSoundDecodeMode( shandle, SSDM_IDLE	);	
-	}
-	LastUpdated = SSDM_SECONDBUFFER;
+    Streamer_SetSoundDecodeMode(shandle, SSDM_IDLE);
+  }
+  LastUpdated = SSDM_SECONDBUFFER;
 #endif //SEQUENCE_SOUND
 
-	/*
-	// Cannot playback if not 16bit mode 
-	*/
-	if( DDPixelFormat->dwRGBBitCount == 16 )
-	{
-		/*
-		// Find out the RGB type of the surface and tell the codec...
-		*/
-		mask = DDPixelFormat->dwRGBAlphaBitMask;
+  /*
+  // Cannot playback if not 16bit mode 
+  */
+  if (DDPixelFormat->dwRGBBitCount == 16)
+  {
+    /*
+    // Find out the RGB type of the surface and tell the codec...
+    */
+    mask = DDPixelFormat->dwRGBAlphaBitMask;
 
-		if(mask!=0)
-		{
-			while(!(mask & 1))
-			{
-				mask>>=1;
-				ap++;
-			}
-		}
+    if (mask != 0)
+    {
+      while (!(mask & 1))
+      {
+        mask >>= 1;
+        ap++;
+      }
+    }
 
-		while((mask & 1))
-		{
-			mask>>=1;
-			ac++;
-		}
+    while ((mask & 1))
+    {
+      mask >>= 1;
+      ac++;
+    }
 
-		mask = DDPixelFormat->dwRBitMask;
+    mask = DDPixelFormat->dwRBitMask;
 
-		if(mask!=0)
-		{
-			while(!(mask & 1))
-			{
-				mask>>=1;
-				rp++;
-			}
-		}
+    if (mask != 0)
+    {
+      while (!(mask & 1))
+      {
+        mask >>= 1;
+        rp++;
+      }
+    }
 
-		while((mask & 1))
-		{
-			mask>>=1;
-			rc++;
-		}
+    while ((mask & 1))
+    {
+      mask >>= 1;
+      rc++;
+    }
 
-		mask = DDPixelFormat->dwGBitMask;
+    mask = DDPixelFormat->dwGBitMask;
 
-		if(mask!=0)
-		{
-			while(!(mask & 1))
-			{
-				mask>>=1;
-				gp++;
-			}
-		}
+    if (mask != 0)
+    {
+      while (!(mask & 1))
+      {
+        mask >>= 1;
+        gp++;
+      }
+    }
 
-		while((mask & 1))
-		{
-			mask>>=1;
-			gc++;
-		}
+    while ((mask & 1))
+    {
+      mask >>= 1;
+      gc++;
+    }
 
-		mask = DDPixelFormat->dwBBitMask;
+    mask = DDPixelFormat->dwBBitMask;
 
-		if(mask!=0)
-		{
-			while(!(mask & 1))
-			{
-				mask>>=1;
-				bp++;
-			}
-		}
+    if (mask != 0)
+    {
+      while (!(mask & 1))
+      {
+        mask >>= 1;
+        bp++;
+      }
+    }
 
-		while((mask & 1))
-		{
-			mask>>=1;
-			bc++;
-		}
-	}
-	else
-	{
-		//assume 555
-		ap = 15;
-		ac = 1;
-		rp = 10;
-		rc = 5;
-		gp = 5;
-		gc = 5;
-		bp = 0;
-		bc = 5;
-	}
-	lowBitMask = 0xffff - (1<<bp) - (1<<gp) - (1<<rp);
-	if (ac)
-	{
-		lowBitMask -= (1<<ap);
-	}
-	// Set the video pixel RGB format
-	if ( Streamer_SetPixelFormat( vhandle, SPF_BPP16, ap, ac, rp, rc, gp, gc, bp, bc ) != STREAMER_OK )
-		return FALSE;
+    while ((mask & 1))
+    {
+      mask >>= 1;
+      bc++;
+    }
+  }
+  else
+  {
+    //assume 555
+    ap = 15;
+    ac = 1;
+    rp = 10;
+    rc = 5;
+    gp = 5;
+    gc = 5;
+    bp = 0;
+    bc = 5;
+  }
+  lowBitMask = 0xffff - (1 << bp) - (1 << gp) - (1 << rp);
+  if (ac)
+    lowBitMask -= (1 << ap);
+  // Set the video pixel RGB format
+  if (Streamer_SetPixelFormat(vhandle, SPF_BPP16, ap, ac, rp, rc, gp, gc, bp, bc) != STREAMER_OK)
+    return FALSE;
 
 #ifdef SEQUENCE_SOUND
-	if ( shandle )
-	{
-		// Begin sound playback
-		if ( lpDSSB->lpVtbl->Play(lpDSSB, 0, 0, DSBPLAY_LOOPING) != DS_OK )
-				return VIDEO_SOUND_ERROR;
-	}
+  if (shandle)
+  {
+    // Begin sound playback
+    if (lpDSSB->lpVtbl->Play(lpDSSB, 0, 0, DSBPLAY_LOOPING) != DS_OK)
+      return VIDEO_SOUND_ERROR;
+  }
 #endif //SEQUENCE_SOUND
 
-	return TRUE;
-
+  return TRUE;
 }
 
 /*
@@ -354,316 +308,264 @@ BOOL seq_SetSequenceForBuffer(char* filename, VIDEO_MODE mode, LPDIRECTSOUND lpD
  */
 BOOL seq_SetSequence(char* filename, LPDIRECTDRAWSURFACE4 lpDDSF, LPDIRECTSOUND lpDS, int startTime, char* lpBF, PERF_MODE perfMode)
 {
-	long				width, height;
-	long				pixelBitDepth;
-	long				precision, channels;
-	long				compression;
-	BOOL				bCompression;
+  long width, height;
+  long pixelBitDepth;
+  long precision, channels;
+  long compression;
+  BOOL bCompression;
 
-	DDSURFACEDESC2		DD_sd;
-	DDPIXELFORMAT		DDPixelFormat;
-	ULONG				mask;
-	BYTE				ap = 0,	ac = 0, rp = 0,	rc = 0, gp = 0,	gc = 0, bp = 0, bc = 0;
+  DDSURFACEDESC2 DD_sd;
+  DDPIXELFORMAT DDPixelFormat;
+  ULONG mask;
+  BYTE ap = 0, ac = 0, rp = 0, rc = 0, gp = 0, gc = 0, bp = 0, bc = 0;
 
-	DSBUFFERDESC		DS_bd;
-	WAVEFORMATEX		pcmwf;
+  DSBUFFERDESC DS_bd;
+  WAVEFORMATEX pcmwf;
 
-	mhandle = NULL;
-	vhandle = NULL;
-	shandle = NULL;
-	lpDSSB == NULL;
+  mhandle = nullptr;
+  vhandle = nullptr;
+  shandle = nullptr;
+  lpDSSB == nullptr;
 
-	if (perfMode == VIDEO_PERF_FULLSCREEN)
-	{
-		bSmallVideo = FALSE;
-	}
-	else
-	{
-		bSmallVideo = TRUE;
-	}
+  if (perfMode == VIDEO_PERF_FULLSCREEN)
+    bSmallVideo = FALSE;
+  else
+    bSmallVideo = TRUE;
 
+  //get display mode	
+  DD_sd.dwSize = sizeof(DD_sd);
+  if (lpDDSF->lpVtbl->GetSurfaceDesc(lpDDSF, &DD_sd) != DD_OK)
+    return FALSE;
+  pixelBitDepth = DD_sd.ddpfPixelFormat.dwRGBBitCount;
+  /*
+  // Initialise the movie with a 2MB buffersize
+  */
+  if (Streamer_InitMovie(&mhandle, nullptr, 0, filename, 2 << 20, SIM_NONE) != STREAMER_OK)
+    return FALSE;
 
-		//get display mode	
-		DD_sd.dwSize = sizeof( DD_sd );
-		if ( lpDDSF->lpVtbl->GetSurfaceDesc(lpDDSF, &DD_sd ) != DD_OK )
-			return FALSE;
-		pixelBitDepth = DD_sd.ddpfPixelFormat.dwRGBBitCount;
-		/*
-		// Initialise the movie with a 2MB buffersize
-		*/
-		if ( Streamer_InitMovie(	&mhandle,
-									NULL,
-									0,
-									filename,
-									2<<20,
-									SIM_NONE) != STREAMER_OK ) return FALSE;
+  movieWidth = Movie_GetXSize(mhandle);
+  movieHeight = Movie_GetYSize(mhandle);
 
-		movieWidth = Movie_GetXSize( mhandle );
-		movieHeight = Movie_GetYSize( mhandle );
-
-		//malloc a buffer for video playback
-		localBuffer = (LPBYTE)lpBF;//always 16bit
-		memset(localBuffer, 0, VIDEO_WIDTH * VIDEO_HEIGHT * sizeof(WORD));
-		/*
-		// Initialise the video playback environment
-		*/
-		if (((movieWidth <= (VIDEO_WIDTH/2)) && (movieHeight <= (VIDEO_HEIGHT/2))) && !bSmallVideo)//render doubled
-		{
-			if ( Streamer_InitVideo(	&vhandle,
-										mhandle,
-										movieWidth,
-										movieHeight,
-										0,
-										0,
-										0,
-										0,
-										0,
-										0,
-										DFLAG_INVIEWPORT | DFLAG_DOUBLED,// | DFLAG_CLEAROUTPUT | //DFLAG_DOUBLED | 
-										&width,
-										&height ) != STREAMER_OK ) return FALSE;
-			movieWidth *= 2;
-			movieHeight *= 2;
-		}
-		else
-		{
-			if ( Streamer_InitVideo(	&vhandle,
-										mhandle,
-										movieWidth,
-										movieHeight,
-										0,
-										0,
-										0,
-										0,
-										0,
-										0,
-										DFLAG_INVIEWPORT,// | DFLAG_CLEAROUTPUT | //DFLAG_DOUBLED | 
-										&width,
-										&height ) != STREAMER_OK ) return FALSE;
-		}
-		if ( Streamer_SetVideoPitch(vhandle,movieWidth,movieHeight) != STREAMER_OK) return FALSE;
+  //malloc a buffer for video playback
+  localBuffer = (LPBYTE)lpBF; //always 16bit
+  memset(localBuffer, 0, VIDEO_WIDTH * VIDEO_HEIGHT * sizeof(WORD));
+  /*
+  // Initialise the video playback environment
+  */
+  if (((movieWidth <= (VIDEO_WIDTH / 2)) && (movieHeight <= (VIDEO_HEIGHT / 2))) && !bSmallVideo) //render doubled
+  {
+    if (Streamer_InitVideo(&vhandle, mhandle, movieWidth, movieHeight, 0, 0, 0, 0, 0, 0, DFLAG_INVIEWPORT | DFLAG_DOUBLED,
+                           // | DFLAG_CLEAROUTPUT | //DFLAG_DOUBLED | 
+                           &width, &height) != STREAMER_OK)
+      return FALSE;
+    movieWidth *= 2;
+    movieHeight *= 2;
+  }
+  else
+  {
+    if (Streamer_InitVideo(&vhandle, mhandle, movieWidth, movieHeight, 0, 0, 0, 0, 0, 0, DFLAG_INVIEWPORT,
+                           // | DFLAG_CLEAROUTPUT | //DFLAG_DOUBLED | 
+                           &width, &height) != STREAMER_OK)
+      return FALSE;
+  }
+  if (Streamer_SetVideoPitch(vhandle, movieWidth, movieHeight) != STREAMER_OK)
+    return FALSE;
 
 #ifdef SEQUENCE_SOUND
-	// check for the presence of audio
-	if (	Movie_GetSoundChannels( mhandle ) &&
-			Movie_GetSoundPrecision( mhandle ) &&
-			Movie_GetSoundRate( mhandle ) &&
-			(lpDS != NULL))
-	{
-		//if so initialise Direct sound playback
-		precision = Movie_GetSoundPrecision( mhandle);
-		channels = Movie_GetSoundChannels( mhandle );
-		if (precision == 4)
-		{
-			compression = 4;
-			bCompression = FALSE;
-		}
-		else
-		{
-			compression = 1;
-			bCompression = TRUE;
-		}
+  // check for the presence of audio
+  if (Movie_GetSoundChannels(mhandle) && Movie_GetSoundPrecision(mhandle) && Movie_GetSoundRate(mhandle) && (lpDS != nullptr))
+  {
+    //if so initialise Direct sound playback
+    precision = Movie_GetSoundPrecision(mhandle);
+    channels = Movie_GetSoundChannels(mhandle);
+    if (precision == 4)
+    {
+      compression = 4;
+      bCompression = FALSE;
+    }
+    else
+    {
+      compression = 1;
+      bCompression = TRUE;
+    }
 
-		if ( Streamer_InitSound(	SoundCallBackFunc,
-									&shandle,
-									16384,
-									compression,
-									bCompression,
-									4096,
-									channels ) != STREAMER_OK ) return FALSE;
-		// Attempt to create an instance of direct sound - 
-		// for information on DirectSound refer to Microsoft documentation
+    if (Streamer_InitSound(SoundCallBackFunc, &shandle, 16384, compression, bCompression, 4096, channels) != STREAMER_OK)
+      return FALSE;
+    // Attempt to create an instance of direct sound - 
+    // for information on DirectSound refer to Microsoft documentation
 
-		memset( &pcmwf, 0, sizeof(pcmwf));
+    memset(&pcmwf, 0, sizeof(pcmwf));
 
-		pcmwf.wFormatTag = WAVE_FORMAT_PCM;
-		pcmwf.nChannels = (WORD) Movie_GetSoundChannels( mhandle );
-		pcmwf.nSamplesPerSec = Movie_GetSoundRate( mhandle );
-		pcmwf.wBitsPerSample = 16;					// there are always 16 bits after ADPCM is decompressed or if its raw PCM
-		pcmwf.nBlockAlign = (pcmwf.nChannels * pcmwf.wBitsPerSample)/8;
-		pcmwf.nAvgBytesPerSec = pcmwf.nSamplesPerSec * pcmwf.nBlockAlign;
-		pcmwf.cbSize = 0;
+    pcmwf.wFormatTag = WAVE_FORMAT_PCM;
+    pcmwf.nChannels = static_cast<WORD>(Movie_GetSoundChannels(mhandle));
+    pcmwf.nSamplesPerSec = Movie_GetSoundRate(mhandle);
+    pcmwf.wBitsPerSample = 16; // there are always 16 bits after ADPCM is decompressed or if its raw PCM
+    pcmwf.nBlockAlign = (pcmwf.nChannels * pcmwf.wBitsPerSample) / 8;
+    pcmwf.nAvgBytesPerSec = pcmwf.nSamplesPerSec * pcmwf.nBlockAlign;
+    pcmwf.cbSize = 0;
 
-		memset( &DS_bd, 0, sizeof( DS_bd ));
-		DS_bd.dwSize = sizeof ( DS_bd );
-		DS_bd.dwFlags = DSBCAPS_CTRLFREQUENCY| DSBCAPS_CTRLPAN | DSBCAPS_CTRLVOLUME; //DSBCAPS_CTRLDEFAULT;
-		DS_bd.dwBufferBytes = 32768;
-		DS_bd.lpwfxFormat = &pcmwf;
+    memset(&DS_bd, 0, sizeof(DS_bd));
+    DS_bd.dwSize = sizeof (DS_bd);
+    DS_bd.dwFlags = DSBCAPS_CTRLFREQUENCY | DSBCAPS_CTRLPAN | DSBCAPS_CTRLVOLUME; //DSBCAPS_CTRLDEFAULT;
+    DS_bd.dwBufferBytes = 32768;
+    DS_bd.lpwfxFormat = &pcmwf;
 
-		bPlayerOn = FALSE;
-		
-		if ( lpDS->lpVtbl->CreateSoundBuffer(lpDS,
-										&DS_bd,
-										&lpDSSB,
-										NULL ) != DS_OK) return FALSE;
+    bPlayerOn = FALSE;
 
+    if (lpDS->lpVtbl->CreateSoundBuffer(lpDS, &DS_bd, &lpDSSB, nullptr) != DS_OK)
+      return FALSE;
 
-		if ( lpDSSB->lpVtbl->Lock(lpDSSB,
-							0,
-							32768,
-							(void**)&soundbuffer1,
-							&temp,
-							NULL,
-							0,
-							0 ) != DS_OK ) return FALSE;
+    if (lpDSSB->lpVtbl->Lock(lpDSSB, 0, 32768, (void**)&soundbuffer1, &temp, nullptr, nullptr, 0) != DS_OK)
+      return FALSE;
 
-		soundbuffer2 = soundbuffer1+16384;
+    soundbuffer2 = soundbuffer1 + 16384;
 
-		Streamer_SetSoundBuffer( shandle, 0, soundbuffer1 );
-		Streamer_SetSoundBuffer( shandle, 1, soundbuffer2 );
-	}
+    Streamer_SetSoundBuffer(shandle, 0, soundbuffer1);
+    Streamer_SetSoundBuffer(shandle, 1, soundbuffer2);
+  }
 #endif //SEQUENCE_SOUND
 
-		/*
-		// This does the preload of movie data from the file and fills the audio double buffers (which
-		//  is why they were locked)
-		*/
-		if ( Streamer_InitStreaming(	mhandle,
-										vhandle,
-										shandle ) != STREAMER_OK ) return FALSE;
-		
+  /*
+  // This does the preload of movie data from the file and fills the audio double buffers (which
+  //  is why they were locked)
+  */
+  if (Streamer_InitStreaming(mhandle, vhandle, shandle) != STREAMER_OK)
+    return FALSE;
 
 #ifdef SEQUENCE_SOUND
-	if ( shandle )
-	{
-		lpDSSB->lpVtbl->Unlock(lpDSSB,
-						soundbuffer1,
-						16384,
-						NULL,
-						0 );
+  if (shandle)
+  {
+    lpDSSB->lpVtbl->Unlock(lpDSSB, soundbuffer1, 16384, nullptr, 0);
 
-		Streamer_SetSoundDecodeMode( shandle, SSDM_IDLE );	
-	}
-	LastUpdated = SSDM_SECONDBUFFER;
+    Streamer_SetSoundDecodeMode(shandle, SSDM_IDLE);
+  }
+  LastUpdated = SSDM_SECONDBUFFER;
 #endif //SEQUENCE_SOUND
-		
-		DDPixelFormat.dwSize = sizeof(DDPIXELFORMAT);
-		if ( lpDDSF->lpVtbl->GetPixelFormat(lpDDSF, &DDPixelFormat ) != DD_OK ) return FALSE;
 
-		/*
-		// Cannot playback if not 16bit mode 
-		*/
-		if( DDPixelFormat.dwRGBBitCount == 16 )
-		{
-			/*
-			// Find out the RGB type of the surface and tell the codec...
-			*/
-			mask = DDPixelFormat.dwRGBAlphaBitMask;
+  DDPixelFormat.dwSize = sizeof(DDPIXELFORMAT);
+  if (lpDDSF->lpVtbl->GetPixelFormat(lpDDSF, &DDPixelFormat) != DD_OK)
+    return FALSE;
 
-			if(mask!=0)
-			{
-				while(!(mask & 1))
-				{
-					mask>>=1;
-					ap++;
-				}
-			}
+  /*
+  // Cannot playback if not 16bit mode 
+  */
+  if (DDPixelFormat.dwRGBBitCount == 16)
+  {
+    /*
+    // Find out the RGB type of the surface and tell the codec...
+    */
+    mask = DDPixelFormat.dwRGBAlphaBitMask;
 
-			while((mask & 1))
-			{
-				mask>>=1;
-				ac++;
-			}
+    if (mask != 0)
+    {
+      while (!(mask & 1))
+      {
+        mask >>= 1;
+        ap++;
+      }
+    }
 
-			mask = DDPixelFormat.dwRBitMask;
+    while ((mask & 1))
+    {
+      mask >>= 1;
+      ac++;
+    }
 
-			if(mask!=0)
-			{
-				while(!(mask & 1))
-				{
-					mask>>=1;
-					rp++;
-				}
-			}
+    mask = DDPixelFormat.dwRBitMask;
 
-			while((mask & 1))
-			{
-				mask>>=1;
-				rc++;
-			}
+    if (mask != 0)
+    {
+      while (!(mask & 1))
+      {
+        mask >>= 1;
+        rp++;
+      }
+    }
 
-			mask = DDPixelFormat.dwGBitMask;
+    while ((mask & 1))
+    {
+      mask >>= 1;
+      rc++;
+    }
 
-			if(mask!=0)
-			{
-				while(!(mask & 1))
-				{
-					mask>>=1;
-					gp++;
-				}
-			}
+    mask = DDPixelFormat.dwGBitMask;
 
-			while((mask & 1))
-			{
-				mask>>=1;
-				gc++;
-			}
+    if (mask != 0)
+    {
+      while (!(mask & 1))
+      {
+        mask >>= 1;
+        gp++;
+      }
+    }
 
-			mask = DDPixelFormat.dwBBitMask;
+    while ((mask & 1))
+    {
+      mask >>= 1;
+      gc++;
+    }
 
-			if(mask!=0)
-			{
-				while(!(mask & 1))
-				{
-					mask>>=1;
-					bp++;
-				}
-			}
+    mask = DDPixelFormat.dwBBitMask;
 
-			while((mask & 1))
-			{
-				mask>>=1;
-				bc++;
-			}
-		}
-		else
-		{
-			//assume 555
-			ap = 15;
-			ac = 1;
-			rp = 10;
-			rc = 5;
-			gp = 5;
-			gc = 5;
-			bp = 0;
-			bc = 5;
-		}
-		lowBitMask = 0xffff - (1<<bp) - (1<<gp) - (1<<rp);
-		if (ac)
-		{
-			lowBitMask -= (1<<ap);
-		}
-		/*
+    if (mask != 0)
+    {
+      while (!(mask & 1))
+      {
+        mask >>= 1;
+        bp++;
+      }
+    }
+
+    while ((mask & 1))
+    {
+      mask >>= 1;
+      bc++;
+    }
+  }
+  else
+  {
+    //assume 555
+    ap = 15;
+    ac = 1;
+    rp = 10;
+    rc = 5;
+    gp = 5;
+    gc = 5;
+    bp = 0;
+    bc = 5;
+  }
+  lowBitMask = 0xffff - (1 << bp) - (1 << gp) - (1 << rp);
+  if (ac)
+    lowBitMask -= (1 << ap);
+  /*
 		// Set the video pixel RGB format
 		*/
-		if ( Streamer_SetPixelFormat( vhandle, SPF_BPP16, ap, ac, rp, rc, gp, gc, bp, bc ) != STREAMER_OK )
-			return FALSE;
+  if (Streamer_SetPixelFormat(vhandle, SPF_BPP16, ap, ac, rp, rc, gp, gc, bp, bc) != STREAMER_OK)
+    return FALSE;
 
 #ifdef SEQUENCE_SOUND
-		if ( shandle )
-		{
-			// Begin sound playback
-			if ( lpDSSB->lpVtbl->Play(lpDSSB, 0, 0, DSBPLAY_LOOPING) != DS_OK )
-					return VIDEO_SOUND_ERROR;
-		}
+  if (shandle)
+  {
+    // Begin sound playback
+    if (lpDSSB->lpVtbl->Play(lpDSSB, 0, 0, DSBPLAY_LOOPING) != DS_OK)
+      return VIDEO_SOUND_ERROR;
+  }
 #endif //SEQUENCE_SOUND
 
-	return TRUE;
-
+  return TRUE;
 }
 
 int seq_ClearMovie(void)
 {
-	/* Shutdown Sound, Video and Movie*/
-	Streamer_ShutDownSound(	&shandle );
-	Streamer_ShutDownVideo(	&vhandle );
-	Streamer_ShutDownMovie(	&mhandle );
-	shandle == NULL;
-	vhandle == NULL;
-	mhandle == NULL;
-	return TRUE;
+  /* Shutdown Sound, Video and Movie*/
+  Streamer_ShutDownSound(&shandle);
+  Streamer_ShutDownVideo(&vhandle);
+  Streamer_ShutDownMovie(&mhandle);
+  shandle == nullptr;
+  vhandle == nullptr;
+  mhandle == nullptr;
+  return TRUE;
 }
-
 
 /*
  * buffer render for software_window 3DFX_window and 3DFX_fullscreen modes
@@ -671,551 +573,398 @@ int seq_ClearMovie(void)
  * 3DFX_WINDOWED video size 16bit BGR 565 mode
  * 3DFX_FULLSCREEN 640 * 480 BGR 565 mode
  */
-int	seq_RenderOneFrameToBuffer(char *lpSF, int skip, SDWORD subMin, SDWORD subMax)
+int seq_RenderOneFrameToBuffer(char* lpSF, int skip, SDWORD subMin, SDWORD subMax)
 {
-	STRESULT			sRes	= STREAMER_OK;
-	int					frame;
-	DWORD	CurrentPos, CurrentWritePos;
-	WORD	*blitSrc;
-	SDWORD	i, j;
-	SDWORD	subYstart, subYend, subXstart, subXend;
-	WORD	pixel;
+  STRESULT sRes = STREAMER_OK;
+  int frame;
+  DWORD CurrentPos, CurrentWritePos;
+  WORD* blitSrc;
+  SDWORD i, j;
+  SDWORD subYstart, subYend, subXstart, subXend;
+  WORD pixel;
 
-	if ((mhandle == NULL) || (vhandle == NULL))
-	{
-		return VIDEO_FRAME_ERROR;
-	}
+  if ((mhandle == nullptr) || (vhandle == nullptr))
+    return VIDEO_FRAME_ERROR;
 
-	bTextBoxes = FALSE;
+  bTextBoxes = FALSE;
 #ifdef TEXT_BOXES
-	if ((!bSmallVideo) && (subMin <= subMax))
-	{
-		bTextBoxes = TRUE;
-	}
+  if ((!bSmallVideo) && (subMin <= subMax))
+    bTextBoxes = TRUE;
 #endif
 
-	/*
-	// Calculate how far through the movie we should be based on the time elasped since playback started
-	// If we are not going to decode audio and video then call Streamer_Stream() with a frames to play setting of 0
-	// this will replenish the cyclic buffer if it is needed.
-	*/
-	/*
-	// Stream one frame of video to the surface
-	*/
-	sRes = Streamer_Stream(	mhandle,
-							vhandle,
-							shandle,
-							NULL,
-							skip,
-							(LPBYTE)lpSF,
-							NULL,
-							NULL,
-							0 );
+  /*
+  // Calculate how far through the movie we should be based on the time elasped since playback started
+  // If we are not going to decode audio and video then call Streamer_Stream() with a frames to play setting of 0
+  // this will replenish the cyclic buffer if it is needed.
+  */
+  /*
+  // Stream one frame of video to the surface
+  */
+  sRes = Streamer_Stream(mhandle, vhandle, shandle, nullptr, skip, (LPBYTE)lpSF, nullptr, nullptr, 0);
 
-	frame = Movie_GetCurrentFrame(mhandle);
+  frame = Movie_GetCurrentFrame(mhandle);
 
-#ifdef TEXT_BOXES	
-	//fade region for sequences
-	if (bTextBoxes)
-	{
-		subYstart = subMin - 10;
-		subYend = subMax + 6;
-		subXstart = 14;
-		subXend = 624;
+#ifdef TEXT_BOXES
+  //fade region for sequences
+  if (bTextBoxes)
+  {
+    subYstart = subMin - 10;
+    subYend = subMax + 6;
+    subXstart = 14;
+    subXend = 624;
 
-		if (subYstart < 0)
-		{
-			subYstart = 0;
-		}
-		if (subYend > VIDEO_HEIGHT)
-		{
-			subYend = VIDEO_HEIGHT;
-		}
+    if (subYstart < 0)
+      subYstart = 0;
+    if (subYend > VIDEO_HEIGHT)
+      subYend = VIDEO_HEIGHT;
 
-		
-		blitSrc = (WORD*)lpSF + movieWidth * subYstart;
-		for (j = subYstart;j < subYend;j++)
-		{
-			for (i = 0;i <  movieWidth;i++)
-			{
-				pixel = blitSrc[i];
-				if ((i > subXstart) && (i < subXend))
-				{
-					pixel &=lowBitMask;
-					pixel >>= 1;
-					pixel += 0x2;
-				}
-				blitSrc[i] = pixel; 
-			}
-			blitSrc += movieWidth;
-		}
-	}	
+    blitSrc = (WORD*)lpSF + movieWidth * subYstart;
+    for (j = subYstart; j < subYend; j++)
+    {
+      for (i = 0; i < movieWidth; i++)
+      {
+        pixel = blitSrc[i];
+        if ((i > subXstart) && (i < subXend))
+        {
+          pixel &= lowBitMask;
+          pixel >>= 1;
+          pixel += 0x2;
+        }
+        blitSrc[i] = pixel;
+      }
+      blitSrc += movieWidth;
+    }
+  }
 #endif
-
 
 #ifdef SEQUENCE_SOUND
-	if ( shandle )
-	{
-		
-		if ( Streamer_GetSoundDecodeMode( shandle ) == SSDM_IDLE )
-		{
-			
-			if (lpDSSB->lpVtbl->GetCurrentPosition(lpDSSB, &CurrentPos, &CurrentWritePos ) != DS_OK)		
-				return VIDEO_SOUND_ERROR;
+  if (shandle)
+  {
+    if (Streamer_GetSoundDecodeMode(shandle) == SSDM_IDLE)
+    {
+      if (lpDSSB->lpVtbl->GetCurrentPosition(lpDSSB, &CurrentPos, &CurrentWritePos) != DS_OK)
+        return VIDEO_SOUND_ERROR;
 
-			if(( LastUpdated==SSDM_SECONDBUFFER )&&( CurrentPos > 16384 ))
-			{
-				Streamer_SetSoundDecodeMode( shandle, SSDM_FIRSTBUFFER );
+      if ((LastUpdated == SSDM_SECONDBUFFER) && (CurrentPos > 16384))
+      {
+        Streamer_SetSoundDecodeMode(shandle, SSDM_FIRSTBUFFER);
 
-				lpDSSB->lpVtbl->Lock(lpDSSB,
-								0,
-								16384,
-								(void**)&soundbuffer1,
-								&temp,
-								NULL,
-								0,
-								0 );
-			}
-			else if(( LastUpdated==SSDM_FIRSTBUFFER )&&( CurrentPos < 16384 ))
-			{
-				Streamer_SetSoundDecodeMode( shandle, SSDM_SECONDBUFFER );
+        lpDSSB->lpVtbl->Lock(lpDSSB, 0, 16384, (void**)&soundbuffer1, &temp, nullptr, nullptr, 0);
+      }
+      else if ((LastUpdated == SSDM_FIRSTBUFFER) && (CurrentPos < 16384))
+      {
+        Streamer_SetSoundDecodeMode(shandle, SSDM_SECONDBUFFER);
 
-				lpDSSB->lpVtbl->Lock(lpDSSB,
-								16384,
-								16384,
-								(void**)&soundbuffer2,
-								&temp,
-								NULL,
-								0,
-								0 );
-			}
-		}
-	}
+        lpDSSB->lpVtbl->Lock(lpDSSB, 16384, 16384, (void**)&soundbuffer2, &temp, nullptr, nullptr, 0);
+      }
+    }
+  }
 #endif //SEQUENCE_SOUND
 
-	if (sRes == STREAMER_OK)
-	{
-		return frame;
-	}
-	else
-	{
-		return VIDEO_FINISHED;
-	}
+  if (sRes == STREAMER_OK)
+    return frame;
+  return VIDEO_FINISHED;
 }
-
 
 /*
  * render one frame to a direct draw surface (normally the back buffer)
  * directX 640 * 480 16bit rgb mode render through local buffer to back buffer
  */
-int	seq_RenderOneFrame(LPDIRECTDRAWSURFACE4	lpDDSF, int skip, SDWORD subMin, SDWORD subMax)
+int seq_RenderOneFrame(LPDIRECTDRAWSURFACE4 lpDDSF, int skip, SDWORD subMin, SDWORD subMax)
 {
-	DDSURFACEDESC2	DD_sd; 
-	HRESULT			hRes;
-	STRESULT		sRes = STREAMER_OK;
-	WORD	*blitDest, *blitSrc;
-	int		i, j;
-	WORD	pixel;
-	BOOL	bDoubled;
-	int		frame;
-	DWORD	CurrentPos, CurrentWritePos;
-	SDWORD	borderX, borderY;
-	SDWORD	subYstart, subYend, subXstart, subXend;
+  DDSURFACEDESC2 DD_sd;
+  HRESULT hRes;
+  STRESULT sRes = STREAMER_OK;
+  WORD *blitDest, *blitSrc;
+  int i, j;
+  WORD pixel;
+  BOOL bDoubled;
+  int frame;
+  DWORD CurrentPos, CurrentWritePos;
+  SDWORD borderX, borderY;
+  SDWORD subYstart, subYend, subXstart, subXend;
 
-	if ((mhandle == NULL) || (vhandle == NULL))
-	{
-		return VIDEO_FRAME_ERROR;
-	}
+  if ((mhandle == nullptr) || (vhandle == nullptr))
+    return VIDEO_FRAME_ERROR;
 
-	
-	if (bPlayerOn == FALSE)
-	{
-		bPlayerOn = TRUE;
-	}
+  if (bPlayerOn == FALSE)
+    bPlayerOn = TRUE;
 
-	bTextBoxes = FALSE;
+  bTextBoxes = FALSE;
 #ifdef TEXT_BOXES
-	if ((!bSmallVideo) && (subMin <= subMax))
-	{
-		bTextBoxes = TRUE;
-	}
+  if ((!bSmallVideo) && (subMin <= subMax))
+    bTextBoxes = TRUE;
 #endif
 
-	// Calculate how far through the movie we should be based on the time elasped since playback started
-	// If we are not going to decode audio and video then call Streamer_Stream() with a frames to play setting of 0
-	// this will replenish the cyclic buffer if it is needed.
+  // Calculate how far through the movie we should be based on the time elasped since playback started
+  // If we are not going to decode audio and video then call Streamer_Stream() with a frames to play setting of 0
+  // this will replenish the cyclic buffer if it is needed.
 
-	sRes = Streamer_Stream(	mhandle,
-							vhandle,
-							shandle,
-							NULL,
-							skip,
-							localBuffer,
-							NULL,
-							NULL,
-							0 );
+  sRes = Streamer_Stream(mhandle, vhandle, shandle, nullptr, skip, localBuffer, nullptr, nullptr, 0);
 
-	frame = Movie_GetCurrentFrame(mhandle);
-	if (sRes == STREAMER_FINISHEDAUDIO)
-	{
-		DBPRINTF(("STREAMER_FINISHEDAUDIO %d\n",sRes));
-		shandle = NULL;
-		sRes = STREAMER_OK;
-	}
-	else if (sRes != STREAMER_OK)
-	{
-		DBPRINTF(("STREAMER_STREAM ERROR %d %d\n",sRes,frame));
-	}
+  frame = Movie_GetCurrentFrame(mhandle);
+  if (sRes == STREAMER_FINISHEDAUDIO)
+  {
+    DBPRINTF(("STREAMER_FINISHEDAUDIO %d\n",sRes));
+    shandle = nullptr;
+    sRes = STREAMER_OK;
+  }
+  else if (sRes != STREAMER_OK)
+    DBPRINTF(("STREAMER_STREAM ERROR %d %d\n",sRes,frame));
 
-	// We lock the surface before blitting video to it.
-	DD_sd.dwSize = sizeof( DD_sd );
-	if ( lpDDSF->lpVtbl->GetSurfaceDesc(lpDDSF, &DD_sd ) != DD_OK )
-	return FALSE;
-	
-	hRes = lpDDSF->lpVtbl->Lock(lpDDSF, NULL, &DD_sd,DDLOCK_WAIT, NULL);
-	if (hRes != DD_OK)
-	{
-		DBERROR(("Sequence player back  buffer lock failed:\n%s", DDErrorToString(hRes)));
-		return VIDEO_SURFACE_ERROR;
-	}
+  // We lock the surface before blitting video to it.
+  DD_sd.dwSize = sizeof(DD_sd);
+  if (lpDDSF->lpVtbl->GetSurfaceDesc(lpDDSF, &DD_sd) != DD_OK)
+    return FALSE;
 
-	if (hRes == DD_OK)
-	{
-		if (!bSmallVideo)
-		{
-			borderX = ((SDWORD)DD_sd.dwWidth - VIDEO_WIDTH)/2;
-			borderY = ((SDWORD)DD_sd.dwHeight - VIDEO_HEIGHT)/4;
-		}
-		else
-		{
-			borderX = ((SDWORD)DD_sd.dwWidth - VIDEO_WIDTH/2)/2;
-			borderY = ((SDWORD)DD_sd.dwHeight - VIDEO_HEIGHT/2)/4;
-		}
-		
-		blitDest = (WORD*)DD_sd.lpSurface + borderX + borderY * DD_sd.lPitch; 
-		bDoubled = FALSE;
-		if ((movieWidth * 2) <= (int)DD_sd.dwWidth)
-		{
-			if ((movieHeight * 2) <= (int)DD_sd.dwHeight)
-			{
-				if (DD_sd.ddpfPixelFormat.dwRGBBitCount == 16)
-				{
-					if (!bSmallVideo)
-					{
-						bDoubled = TRUE;
-					}
-				}
-			}
-		}
-		blitSrc = (WORD*)localBuffer;
+  hRes = lpDDSF->lpVtbl->Lock(lpDDSF, nullptr, &DD_sd,DDLOCK_WAIT, nullptr);
+  if (hRes != DD_OK)
+  {
+    DBERROR(("Sequence player back  buffer lock failed:\n%s", DDErrorToString(hRes)));
+    return VIDEO_SURFACE_ERROR;
+  }
 
-		if (bTextBoxes)
-		{
-			subYstart = subMin - 10;//only ever in fullscreen mode
-			subYend = subMax + 6;
-			subXstart = 14;
-			subXend = 624;
-			
-			if (subYstart < 0)
-			{
-				subYstart = 0;
-			}
-			if (subYend > VIDEO_HEIGHT)
-			{
-				subYend = VIDEO_HEIGHT;
-			}
-		}
-		else
-		{
-			subYstart = movieHeight;
-			subYend = movieHeight;
-			subXstart = movieWidth;
-			subXend = movieWidth;
-		}
+  if (hRes == DD_OK)
+  {
+    if (!bSmallVideo)
+    {
+      borderX = (static_cast<SDWORD>(DD_sd.dwWidth) - VIDEO_WIDTH) / 2;
+      borderY = (static_cast<SDWORD>(DD_sd.dwHeight) - VIDEO_HEIGHT) / 4;
+    }
+    else
+    {
+      borderX = (static_cast<SDWORD>(DD_sd.dwWidth) - VIDEO_WIDTH / 2) / 2;
+      borderY = (static_cast<SDWORD>(DD_sd.dwHeight) - VIDEO_HEIGHT / 2) / 4;
+    }
 
+    blitDest = static_cast<WORD*>(DD_sd.lpSurface) + borderX + borderY * DD_sd.lPitch;
+    bDoubled = FALSE;
+    if ((movieWidth * 2) <= static_cast<int>(DD_sd.dwWidth))
+    {
+      if ((movieHeight * 2) <= static_cast<int>(DD_sd.dwHeight))
+      {
+        if (DD_sd.ddpfPixelFormat.dwRGBBitCount == 16)
+        {
+          if (!bSmallVideo)
+            bDoubled = TRUE;
+        }
+      }
+    }
+    blitSrc = (WORD*)localBuffer;
 
-		//blit videoBuffer to ddSurface
-		for (j = 0;j <  subYstart;j++)
-		{
-			for (i = 0;i <  movieWidth;i++)
-			{
-				pixel = blitSrc[i]; 
-				blitDest[i] = pixel; 
-			}
-			blitSrc += movieWidth;
-			blitDest = (WORD *)((LPBYTE)blitDest + DD_sd.lPitch);
-		}
-		if (bTextBoxes)
-		{	
-			for (j = subYstart;j < subYend;j++)
-			{
-				for (i = 0;i <  movieWidth;i++)
-				{
-					pixel = blitSrc[i];
-					if ((i > subXstart) && (i < subXend))
-					{
-						pixel &=lowBitMask;
-						pixel >>= 1;
-						pixel += 0x2;
-					}
-					blitDest[i] = pixel; 
-				}
-				blitSrc += movieWidth;
-				blitDest = (WORD *)((LPBYTE)blitDest + DD_sd.lPitch);
-			}
-			for (j = subYend;j <  movieHeight;j++)
-			{
-				for (i = 0;i <  movieWidth;i++)
-				{
-					pixel = blitSrc[i]; 
-					blitDest[i] = pixel; 
-				}
-				blitSrc += movieWidth;
-				blitDest = (WORD *)((LPBYTE)blitDest + DD_sd.lPitch);
-			}
-		}
-	}
+    if (bTextBoxes)
+    {
+      subYstart = subMin - 10; //only ever in fullscreen mode
+      subYend = subMax + 6;
+      subXstart = 14;
+      subXend = 624;
 
-	// We can unlock the suurface now as we have finished with it, 
-	// until the next decode is required
-	lpDDSF->lpVtbl->Unlock(lpDDSF, (LPRECT)DD_sd.lpSurface );
-	
+      if (subYstart < 0)
+        subYstart = 0;
+      if (subYend > VIDEO_HEIGHT)
+        subYend = VIDEO_HEIGHT;
+    }
+    else
+    {
+      subYstart = movieHeight;
+      subYend = movieHeight;
+      subXstart = movieWidth;
+      subXend = movieWidth;
+    }
+
+    //blit videoBuffer to ddSurface
+    for (j = 0; j < subYstart; j++)
+    {
+      for (i = 0; i < movieWidth; i++)
+      {
+        pixel = blitSrc[i];
+        blitDest[i] = pixel;
+      }
+      blitSrc += movieWidth;
+      blitDest = (WORD*)((LPBYTE)blitDest + DD_sd.lPitch);
+    }
+    if (bTextBoxes)
+    {
+      for (j = subYstart; j < subYend; j++)
+      {
+        for (i = 0; i < movieWidth; i++)
+        {
+          pixel = blitSrc[i];
+          if ((i > subXstart) && (i < subXend))
+          {
+            pixel &= lowBitMask;
+            pixel >>= 1;
+            pixel += 0x2;
+          }
+          blitDest[i] = pixel;
+        }
+        blitSrc += movieWidth;
+        blitDest = (WORD*)((LPBYTE)blitDest + DD_sd.lPitch);
+      }
+      for (j = subYend; j < movieHeight; j++)
+      {
+        for (i = 0; i < movieWidth; i++)
+        {
+          pixel = blitSrc[i];
+          blitDest[i] = pixel;
+        }
+        blitSrc += movieWidth;
+        blitDest = (WORD*)((LPBYTE)blitDest + DD_sd.lPitch);
+      }
+    }
+  }
+
+  // We can unlock the suurface now as we have finished with it, 
+  // until the next decode is required
+  lpDDSF->lpVtbl->Unlock(lpDDSF, static_cast<LPRECT>(DD_sd.lpSurface));
 
 #ifdef SEQUENCE_SOUND
-	if ( shandle )
-	{
-		
-		if ( Streamer_GetSoundDecodeMode( shandle ) == SSDM_IDLE )
-		{
-			
-			if (lpDSSB->lpVtbl->GetCurrentPosition(lpDSSB, &CurrentPos, &CurrentWritePos ) != DS_OK)		
-				return VIDEO_SOUND_ERROR;
+  if (shandle)
+  {
+    if (Streamer_GetSoundDecodeMode(shandle) == SSDM_IDLE)
+    {
+      if (lpDSSB->lpVtbl->GetCurrentPosition(lpDSSB, &CurrentPos, &CurrentWritePos) != DS_OK)
+        return VIDEO_SOUND_ERROR;
 
-			if(( LastUpdated==SSDM_SECONDBUFFER )&&( CurrentPos > 16384 ))
-			{
-				Streamer_SetSoundDecodeMode( shandle, SSDM_FIRSTBUFFER );
+      if ((LastUpdated == SSDM_SECONDBUFFER) && (CurrentPos > 16384))
+      {
+        Streamer_SetSoundDecodeMode(shandle, SSDM_FIRSTBUFFER);
 
-				lpDSSB->lpVtbl->Lock(lpDSSB,
-								0,
-								16384,
-								(void**)&soundbuffer1,
-								&temp,
-								NULL,
-								0,
-								0 );
-			}
-			else if(( LastUpdated==SSDM_FIRSTBUFFER )&&( CurrentPos < 16384 ))
-			{
-				Streamer_SetSoundDecodeMode( shandle, SSDM_SECONDBUFFER );
+        lpDSSB->lpVtbl->Lock(lpDSSB, 0, 16384, (void**)&soundbuffer1, &temp, nullptr, nullptr, 0);
+      }
+      else if ((LastUpdated == SSDM_FIRSTBUFFER) && (CurrentPos < 16384))
+      {
+        Streamer_SetSoundDecodeMode(shandle, SSDM_SECONDBUFFER);
 
-				lpDSSB->lpVtbl->Lock(lpDSSB,
-								16384,
-								16384,
-								(void**)&soundbuffer2,
-								&temp,
-								NULL,
-								0,
-								0 );
-			}
-		}
-	}
+        lpDSSB->lpVtbl->Lock(lpDSSB, 16384, 16384, (void**)&soundbuffer2, &temp, nullptr, nullptr, 0);
+      }
+    }
+  }
 #endif //SEQUENCE_SOUND
 
-	if (sRes == STREAMER_OK)
-	{
-		return frame;
-	}
-	else
-	{
-		return VIDEO_FINISHED;
-	}
+  if (sRes == STREAMER_OK)
+    return frame;
+  return VIDEO_FINISHED;
 }
 
-BOOL	seq_RefreshVideoBuffers(void)
+BOOL seq_RefreshVideoBuffers(void)
 {
-	STRESULT		sRes;
-	int		badDataCount;
-	DWORD	CurrentPos, CurrentWritePos;
+  STRESULT sRes;
+  int badDataCount;
+  DWORD CurrentPos, CurrentWritePos;
 
-	if ((mhandle == NULL) || (vhandle == NULL))
-	{
-		return FALSE;
-	}
+  if ((mhandle == nullptr) || (vhandle == nullptr))
+    return FALSE;
 
-	// Here we attempt to replenish the cyclic buffer but asking 
-	//   streamer_stream() to stream zero frames,  this should be 
-	//   done when it is not yet time to decode more video 
-	/* This ensures that there is sufficient data in the buffer
-	   to satisfy the streamer */
-	/* keep trying until the bad data rate problem disappears,
-	   through sufficient data in buffer */
-	badDataCount = 0;
-	do
-	{
-		sRes = Streamer_Stream(	mhandle,
-								vhandle,
-								shandle,
-								NULL,
-								0,
-								NULL, 
-								NULL,
-								NULL,
-								0 );
-		badDataCount++;
-	}
-	while (( sRes == STREAMER_BADDATARATE ) && (badDataCount < MAX_BAD_DATA));
+  // Here we attempt to replenish the cyclic buffer but asking 
+  //   streamer_stream() to stream zero frames,  this should be 
+  //   done when it is not yet time to decode more video 
+  /* This ensures that there is sufficient data in the buffer
+     to satisfy the streamer */
+  /* keep trying until the bad data rate problem disappears,
+     through sufficient data in buffer */
+  badDataCount = 0;
+  do
+  {
+    sRes = Streamer_Stream(mhandle, vhandle, shandle, nullptr, 0, nullptr, nullptr, nullptr, 0);
+    badDataCount++;
+  }
+  while ((sRes == STREAMER_BADDATARATE) && (badDataCount < MAX_BAD_DATA));
 
 #ifdef SEQUENCE_SOUND
-	if ( shandle )
-	{
-		
-		if ( Streamer_GetSoundDecodeMode( shandle ) == SSDM_IDLE )
-		{
-			
-			if (lpDSSB->lpVtbl->GetCurrentPosition(lpDSSB, &CurrentPos, &CurrentWritePos ) != DS_OK)		
-				return VIDEO_SOUND_ERROR;
+  if (shandle)
+  {
+    if (Streamer_GetSoundDecodeMode(shandle) == SSDM_IDLE)
+    {
+      if (lpDSSB->lpVtbl->GetCurrentPosition(lpDSSB, &CurrentPos, &CurrentWritePos) != DS_OK)
+        return VIDEO_SOUND_ERROR;
 
-			if(( LastUpdated==SSDM_SECONDBUFFER )&&( CurrentPos > 16384 ))
-			{
-				Streamer_SetSoundDecodeMode( shandle, SSDM_FIRSTBUFFER );
+      if ((LastUpdated == SSDM_SECONDBUFFER) && (CurrentPos > 16384))
+      {
+        Streamer_SetSoundDecodeMode(shandle, SSDM_FIRSTBUFFER);
 
-				lpDSSB->lpVtbl->Lock(lpDSSB,
-								0,
-								16384,
-								(void**)&soundbuffer1,
-								&temp,
-								NULL,
-								0,
-								0 );
-			}
-			else if(( LastUpdated==SSDM_FIRSTBUFFER )&&( CurrentPos < 16384 ))
-			{
-				Streamer_SetSoundDecodeMode( shandle, SSDM_SECONDBUFFER );
+        lpDSSB->lpVtbl->Lock(lpDSSB, 0, 16384, (void**)&soundbuffer1, &temp, nullptr, nullptr, 0);
+      }
+      else if ((LastUpdated == SSDM_FIRSTBUFFER) && (CurrentPos < 16384))
+      {
+        Streamer_SetSoundDecodeMode(shandle, SSDM_SECONDBUFFER);
 
-				lpDSSB->lpVtbl->Lock(lpDSSB,
-								16384,
-								16384,
-								(void**)&soundbuffer2,
-								&temp,
-								NULL,
-								0,
-								0 );
-			}
-		}
-	}
+        lpDSSB->lpVtbl->Lock(lpDSSB, 16384, 16384, (void**)&soundbuffer2, &temp, nullptr, nullptr, 0);
+      }
+    }
+  }
 #endif //SEQUENCE_SOUND
 
-	
-	
-	if (sRes == STREAMER_OK)
-	{
-		return TRUE;
-	}
-	else
-	{
-		return FALSE;
-	}
+  if (sRes == STREAMER_OK)
+    return TRUE;
+  return FALSE;
 }
 
-BOOL	seq_ShutDown(void)
+BOOL seq_ShutDown(void)
 {
-	if ( lpDSSB	)
-	{
-		lpDSSB->lpVtbl->Stop(lpDSSB);
-		lpDSSB->lpVtbl->Release(lpDSSB);	
-	}
-	/* Shutdown Sound, Video and Movie*/
-	Streamer_ShutDownSound(	&shandle );
-	Streamer_ShutDownVideo(	&vhandle );
-	Streamer_ShutDownMovie(	&mhandle );
-	lpDSSB = NULL;
-	shandle == NULL;
-	vhandle == NULL;
-	mhandle == NULL;
-	return TRUE;
+  if (lpDSSB)
+  {
+    lpDSSB->lpVtbl->Stop(lpDSSB);
+    lpDSSB->lpVtbl->Release(lpDSSB);
+  }
+  /* Shutdown Sound, Video and Movie*/
+  Streamer_ShutDownSound(&shandle);
+  Streamer_ShutDownVideo(&vhandle);
+  Streamer_ShutDownMovie(&mhandle);
+  lpDSSB = nullptr;
+  shandle == nullptr;
+  vhandle == nullptr;
+  mhandle == nullptr;
+  return TRUE;
 }
 
-void SoundCallBackFunc( LPSOUNDHANDLE shandle )
+void SoundCallBackFunc(LPSOUNDHANDLE shandle)
 {
-	long		state;
+  long state;
 
-	state = Streamer_GetSoundDecodeMode( shandle );
+  state = Streamer_GetSoundDecodeMode(shandle);
 
-	if ( state == SSDM_FIRSTBUFFER )
-	{
-		lpDSSB->lpVtbl->Unlock(lpDSSB,
-						soundbuffer1,
-						16384,
-						NULL,
-						0 );
-	}
-	else if ( state == SSDM_SECONDBUFFER )
-	{
-		lpDSSB->lpVtbl->Unlock(lpDSSB,
-						soundbuffer2,
-						16384,
-						NULL,
-						0 );
-	}
-	
-	Streamer_SetSoundDecodeMode( shandle, SSDM_IDLE );
-	LastUpdated = state;
-	return;
+  if (state == SSDM_FIRSTBUFFER) { lpDSSB->lpVtbl->Unlock(lpDSSB, soundbuffer1, 16384, nullptr, 0); }
+  else if (state == SSDM_SECONDBUFFER) { lpDSSB->lpVtbl->Unlock(lpDSSB, soundbuffer2, 16384, nullptr, 0); }
+
+  Streamer_SetSoundDecodeMode(shandle, SSDM_IDLE);
+  LastUpdated = state;
 }
 
-
-BOOL	seq_GetFrameSize(SDWORD *pWidth, SDWORD* pHeight)
+BOOL seq_GetFrameSize(SDWORD* pWidth, SDWORD* pHeight)
 {
-	if (mhandle)
-	{
-		*pWidth = movieWidth;
-		*pHeight = movieHeight;
-		return TRUE;
-	}
-	else
-	{
-		*pWidth = 0;
-		*pHeight = 0;
-		return FALSE;
-	}
+  if (mhandle)
+  {
+    *pWidth = movieWidth;
+    *pHeight = movieHeight;
+    return TRUE;
+  }
+  *pWidth = 0;
+  *pHeight = 0;
+  return FALSE;
 }
 
 int seq_GetCurrentFrame(void)
 {
-	if (mhandle)
-	{
-		return Movie_GetCurrentFrame(mhandle);
-	}
-	else
-	{
-		return -1;
-	}
+  if (mhandle)
+    return Movie_GetCurrentFrame(mhandle);
+  return -1;
 }
 
 int seq_GetFrameTimeInClicks(void)
 {
-	float	frameTime;
-	if (mhandle)
-	{
-		frameTime = 1000.0f/Movie_GetFrameRate(mhandle);
-		return (int)frameTime;
-	}
-	else
-	{
-		return 40;
-	}
-
+  float frameTime;
+  if (mhandle)
+  {
+    frameTime = 1000.0f / Movie_GetFrameRate(mhandle);
+    return static_cast<int>(frameTime);
+  }
+  return 40;
 }
 
 int seq_GetTotalFrames(void)
 {
-	if (mhandle)
-	{
-		return Movie_GetTotalFrames(mhandle);
-	}
-	else
-	{
-		return -1;
-	}
+  if (mhandle)
+    return Movie_GetTotalFrames(mhandle);
+  return -1;
 }
-

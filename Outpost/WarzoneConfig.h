@@ -10,7 +10,6 @@
 #ifndef _warzoneConfig_h
 #define _warzoneConfig_h
 
-
 /***************************************************************************/
 
 #include "Frame.h"
@@ -20,14 +19,13 @@
  *	Global Definitions
  */
 /***************************************************************************/
-typedef	enum	WAR_REND_MODE
-				{
-					REND_MODE_RGB,
-					REND_MODE_HAL,
-					REND_MODE_HAL2,
-					REND_MODE_REF,
-				}
-				WAR_REND_MODE;
+using WAR_REND_MODE = enum WAR_REND_MODE
+{
+  REND_MODE_RGB,
+  REND_MODE_HAL,
+  REND_MODE_HAL2,
+  REND_MODE_REF,
+};
 
 /*
 typedef	enum	TEX_MODE
@@ -40,13 +38,12 @@ typedef	enum	TEX_MODE
 				TEX_MODE;
 */
 
-typedef	enum	SEQ_MODE
-				{
-					SEQ_FULL,
-					SEQ_SMALL,
-					SEQ_SKIP
-				}
-				SEQ_MODE;
+using SEQ_MODE = enum SEQ_MODE
+{
+  SEQ_FULL,
+  SEQ_SMALL,
+  SEQ_SKIP
+};
 /***************************************************************************/
 /*
  *	Global Variables
@@ -59,7 +56,7 @@ typedef	enum	SEQ_MODE
 /***************************************************************************/
 extern void war_SetRendMode(WAR_REND_MODE mode);
 extern WAR_REND_MODE war_GetRendMode(void);
-extern void	war_SetDefaultStates(void);
+extern void war_SetDefaultStates(void);
 extern void war_SetFog(BOOL val);
 extern BOOL war_GetFog(void);
 extern void war_SetTranslucent(BOOL val);

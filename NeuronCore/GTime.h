@@ -11,7 +11,7 @@
 #define GAME_TICKS_PER_SEC		1000
 
 // changed to /6 by ajl. if this needs to go back to ticks/10 then tell me. 
-#define GTIME_MAXFRAME	(GAME_TICKS_PER_SEC/6)		
+#define GTIME_MAXFRAME	(GAME_TICKS_PER_SEC/6)
 
 /* The current time in the game world */
 extern UDWORD gameTime;
@@ -20,10 +20,10 @@ extern UDWORD gameTime;
 extern UDWORD frameTime;
 
 /* The current time in the game world */
-extern UDWORD gameTime2;	// Never stops.
+extern UDWORD gameTime2; // Never stops.
 
 /* The time for the last frame */
-extern UDWORD frameTime2;	// Never stops.
+extern UDWORD frameTime2; // Never stops.
 
 /* Initialise the game clock */
 extern BOOL gameTimeInit(void);
@@ -43,17 +43,15 @@ extern void gameTimeStart(void);
 /*Call this to reset the game timer*/
 extern void gameTimeReset(UDWORD time);
 
-
 // reset the game time modifiers
 void gameTimeResetMod(void);
 // set the time modifier
 void gameTimeSetMod(FRACT mod);
 // get the current time modifier
-void gameTimeGetMod(FRACT *pMod);
-
+void gameTimeGetMod(FRACT* pMod);
 
 // get the current time modifier
-void gameTimeGetModifier(UDWORD *pMod, UDWORD *pFactor);
+void gameTimeGetModifier(UDWORD* pMod, UDWORD* pFactor);
 
 /* Useful for periodical stuff */
 /* Will return a number that climbs over tickFrequency game ticks and ends up in the required range. */
@@ -62,10 +60,9 @@ void gameTimeGetModifier(UDWORD *pMod, UDWORD *pFactor);
 	the values 0..256 every 4.096 seconds...
 	Ensure that the first is an integer multiple of the second 
 */
-extern UDWORD	getTimeValueRange(UDWORD tickFrequency, UDWORD requiredRange);
-extern	UDWORD	getStaticTimeValueRange(UDWORD tickFrequency, UDWORD requiredRange);
+extern UDWORD getTimeValueRange(UDWORD tickFrequency, UDWORD requiredRange);
+extern UDWORD getStaticTimeValueRange(UDWORD tickFrequency, UDWORD requiredRange);
 
-extern void	getTimeComponents(UDWORD time, UDWORD *hours, UDWORD *minutes, UDWORD *seconds);
+extern void getTimeComponents(UDWORD time, UDWORD* hours, UDWORD* minutes, UDWORD* seconds);
 
 #endif
-

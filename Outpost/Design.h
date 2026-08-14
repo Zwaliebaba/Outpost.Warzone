@@ -102,29 +102,24 @@
 #define	IDDES_BODYBUTTON		5901		// Body button
 #define	IDDES_PROPBUTTON		5902		// Propulsion button
 
-extern BOOL intAddDesign( BOOL bShowCentreScreen );
+extern BOOL intAddDesign(BOOL bShowCentreScreen);
 extern void intRemoveDesign(void);
 extern void intProcessDesign(UDWORD id);
 extern void intRunDesign(void);
 
-extern void intDisplayComponentForm(struct _widget *psWidget, UDWORD xOffset, 
-									UDWORD yOffset, UDWORD *pColours);
+extern void intDisplayComponentForm(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pColours);
 
-extern void intDisplayDesignForm(struct _widget *psWidget, UDWORD xOffset,
-									UDWORD yOffset, UDWORD *pColours);
+extern void intDisplayDesignForm(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pColours);
 
+extern void intDisplayViewForm(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pColours);
 
-extern void intDisplayViewForm(struct _widget *psWidget, UDWORD xOffset,
-									UDWORD yOffset, UDWORD *pColours);
-
-extern void SetDesignWidgetName(char *Name);
+extern void SetDesignWidgetName(char* Name);
 
 /*sets which states need to be paused when the design screen is up*/
 extern void setDesignPauseState(void);
 /*resets the pause states */
 extern void resetDesignPauseState(void);
 
-extern void reverseTemplateList(DROID_TEMPLATE **ppsList);
-
+extern void reverseTemplateList(DROID_TEMPLATE** ppsList);
 
 #endif

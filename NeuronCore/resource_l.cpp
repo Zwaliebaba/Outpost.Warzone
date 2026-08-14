@@ -9,126 +9,72 @@
 #define YY_LA_SIZE 5
 
 static unsigned int res__la_act[] = {
- 2, 17, 2, 17, 2, 17, 3, 17, 8, 17, 8, 17, 17, 9, 14, 7,
- 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 0, 2, 12, 12,
- 13, 10, 11, 6, 4, 5, 6, 16, 15, 16, 0
+  2, 17, 2, 17, 2, 17, 3, 17, 8, 17, 8, 17, 17, 9, 14, 7, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 0, 2, 12, 12, 13, 10, 11, 6, 4, 5, 6, 16, 15,
+  16, 0
 };
 
-static unsigned char res__look[] = {
- 0
-};
+static unsigned char res__look[] = {0};
 
 static int res__final[] = {
- 0, 0, 2, 4, 6, 8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
- 21, 22, 23, 24, 25, 26, 27, 28, 30, 30, 31, 32, 33, 34, 35, 36,
- 37, 38, 39, 40, 41, 42
+  0, 0, 2, 4, 6, 8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 22, 23, 24, 25, 26, 27, 28, 30, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
+  41, 42
 };
 #ifndef res__state_t
 #define res__state_t unsigned char
 #endif
 
-static res__state_t res__begin[] = {
- 0, 0, 24, 24, 30, 30, 34, 34, 0
-};
+static res__state_t res__begin[] = {0, 0, 24, 24, 30, 30, 34, 34, 0};
 
 static res__state_t res__next[] = {
- 8, 8, 8, 8, 8, 8, 8, 8, 8, 5, 6, 8, 8, 5, 8, 8,
- 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
- 5, 8, 4, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7,
- 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
- 8, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
- 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 8, 8, 8, 8, 8,
- 8, 3, 3, 3, 1, 3, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3,
- 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 8, 8, 8, 8, 8,
- 9, 11, 13, 12, 14, 10, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
- 15, 16, 17, 18, 19, 20, 21, 12, 12, 12, 12, 12, 12, 12, 12, 12,
- 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
- 12, 22, 23, 28, 29, 12, 37, 12, 12, 12, 12, 12, 12, 12, 12, 12,
- 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
- 12, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 27, 26, 26, 26, 26,
- 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26,
- 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 25, 26, 26, 26, 26,
- 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26,
- 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26,
- 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26,
- 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26,
- 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26,
- 26, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 32, 33, 33, 33, 33,
- 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33,
- 33, 33, 33, 31, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33,
- 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33,
- 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33,
- 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33,
- 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33,
- 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33,
- 33, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37,
- 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 36, 36, 36, 36, 36, 36,
- 36, 36, 36, 36, 35, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36,
- 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36,
- 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36,
- 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36,
- 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36,
- 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36,
- 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36,
- 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 0
+  8, 8, 8, 8, 8, 8, 8, 8, 8, 5, 6, 8, 8, 5, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 5, 8, 4, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+  8, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 8,
+  8, 8, 8, 8, 8, 3, 3, 3, 1, 3, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 8, 8, 8, 8, 8, 9, 11, 13, 12, 14, 10, 12, 12,
+  12, 12, 12, 12, 12, 12, 12, 12, 15, 16, 17, 18, 19, 20, 21, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
+  12, 12, 12, 12, 12, 12, 12, 22, 23, 28, 29, 12, 37, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
+  12, 12, 12, 12, 12, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 27, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26,
+  26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 25, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26,
+  26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26,
+  26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 33, 33, 33,
+  33, 33, 33, 33, 33, 33, 33, 32, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 31, 33, 33,
+  33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33,
+  33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33,
+  33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37,
+  37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 35, 36, 36, 36, 36, 36, 36, 36, 36, 36,
+  36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36,
+  36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36,
+  36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36,
+  36, 36, 36, 36, 36, 36, 0
 };
 
 static res__state_t res__check[] = {
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 7, 4, 2, 3, 13, 7, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
- 14, 1, 16, 17, 18, 19, 20, 3, 3, 3, 3, 3, 3, 3, 3, 3,
- 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
- 3, 21, 22, 25, 28, 3, 36, 3, 3, 3, 3, 3, 3, 3, 3, 3,
- 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
- 3, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24,
- 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24,
- 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24,
- 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24,
- 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24,
- 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24,
- 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24,
- 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24,
- 24, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
- 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
- 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
- 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
- 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
- 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
- 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
- 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
- 30, 33, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U,
- ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, 33, 34, 34, 34, 34, 34, 34,
- 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34,
- 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34,
- 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34,
- 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34,
- 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34,
- 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34,
- 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34,
- 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 0
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 4, 2, 3, 13, 7, 3, 3, 3, 3,
+  3, 3, 3, 3, 3, 3, 14, 1, 16, 17, 18, 19, 20, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 21, 22, 25, 28,
+  3, 36, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24,
+  24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24,
+  24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24,
+  24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24,
+  24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
+  30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
+  30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
+  30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
+  30, 30, 30, 30, 30, 33, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U,
+  33, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34,
+  34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34,
+  34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34,
+  34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 0
 };
 
 static res__state_t res__default[] = {
- 37, 3, 3, 37, 37, 37, 37, 37, 37, 37, 37, 37, 3, 3, 3, 3,
- 3, 3, 3, 3, 3, 3, 3, 3, 37, 37, 37, 37, 37, 37, 37, 37,
- 37, 30, 37, 37, 34, 0
+  37, 3, 3, 37, 37, 37, 37, 37, 37, 37, 37, 37, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 37, 37, 37, 37, 37, 37, 37, 37, 37, 30, 37, 37, 34, 0
 };
 
 static int res__base[] = {
- 0, 40, 25, 86, 95, 618, 618, 86, 618, 618, 618, 618, 618, 24, 43, 618,
- 32, 46, 49, 33, 39, 63, 57, 618, 209, 132, 618, 618, 170, 618, 337, 618,
- 618, 455, 490, 618, 172, 618
+  0, 40, 25, 86, 95, 618, 618, 86, 618, 618, 618, 618, 618, 24, 43, 618, 32, 46, 49, 33, 39, 63, 57, 618, 209, 132, 618, 618, 170, 618, 337,
+  618, 618, 455, 490, 618, 172, 618
 };
 
-
-#line 1 "d:/usr/mks-ly/etc/yylex.c"
 /*
  * Copyright 1988, 1992 by Mortice Kern Systems Inc.  All rights reserved.
  * All rights reserved.
@@ -165,9 +111,9 @@ static int res__base[] = {
  */
 
 #ifdef STRICT
-extern HINSTANCE hInst;	
+extern HINSTANCE hInst;
 #else
-extern HANDLE hInst;	
+extern HANDLE hInst;
 #endif
 
 #endif	/* LEX_WINDOWS */
@@ -179,7 +125,7 @@ extern HANDLE hInst;
 #ifndef I18N
 #define	m_textmsg(id, str, cls)	(str)
 #else /*I18N*/
-extern	char* m_textmsg YY_ARGS((int id, const char* str, char* cls));
+extern char* m_textmsg YY_ARGS((int id, const char* str, char* cls));
 #endif/*I18N*/
 
 /*
@@ -215,7 +161,7 @@ extern	char* m_textmsg YY_ARGS((int id, const char* str, char* cls));
  * with -DYYTRACE to get input from yt_getc
  */
 #ifdef YYTRACE
-extern int	yt_getc YY_ARGS((void));
+extern int yt_getc YY_ARGS((void));
 #define res_getc()	yt_getc()
 #else
 #define	res_getc()	getc(res_in) 	/* res_lex input source */
@@ -245,17 +191,16 @@ extern int	yt_getc YY_ARGS((void));
 #define	res_less(n)	if ((n) < 0 || (n) > res__end) ; \
 			else { YY_SCANNER; res_leng = (n); YY_USER; }
 
-YY_DECL	void	res__reset YY_ARGS((void));
-static	int	input	YY_ARGS((void));
-static	int	unput	YY_ARGS((int c));
+YY_DECL void res__reset YY_ARGS((void));
+static int input YY_ARGS((void));
+static int unput YY_ARGS((int c));
 
 /* functions defined in libl.lib */
-extern	int	res_wrap	YY_ARGS((void));
-extern	void	res_error	YY_ARGS((char *fmt, ...));
-extern	void	res_comment	YY_ARGS((char *term));
-extern	int	res_mapch	YY_ARGS((int delim, int escape));
+extern int res_wrap YY_ARGS((void));
+extern void res_error YY_ARGS((char *fmt, ...));
+extern void res_comment YY_ARGS((char *term));
+extern int res_mapch YY_ARGS((int delim, int escape));
 
-#line 1 "Resource.l"
 
 /*
  * resource.l
@@ -274,10 +219,7 @@ typedef signed int FILE;
 #define stderr 0
 #define stdin  0
 #define stdout 0
-static int fprintf(FILE* f,char* c,...)
-{
-	return 0;
-}
+static int fprintf(FILE* f, char* c, ...) { return 0; }
 #endif
 
 /* Allow frame header files to be singly included */
@@ -298,20 +240,18 @@ static int fprintf(FILE* f,char* c,...)
 #define YYLMAX	255
 
 /* Store for any string values */
-STRING aText[TEXT_BUFFERS][YYLMAX];		// No longer static ... lets use this area globally
-static UDWORD currText=0;
+STRING aText[TEXT_BUFFERS][YYLMAX]; // No longer static ... lets use this area globally
+static UDWORD currText = 0;
 
 // Note if we are in a comment
 static BOOL inComment = FALSE;
 
 /* Pointer to the input buffer */
-static UBYTE *pInputBuffer = NULL;
-static UBYTE *pEndBuffer = NULL;
+static UBYTE* pInputBuffer = nullptr;
+static UBYTE* pEndBuffer = nullptr;
 
 #undef res_getc
 #define res_getc() (pInputBuffer != pEndBuffer ? *(pInputBuffer++) : EOF)
-
-#line 127 "d:/usr/mks-ly/etc/yylex.c"
 
 
 #ifndef YYLMAX
@@ -322,9 +262,7 @@ static UBYTE *pEndBuffer = NULL;
  * If %array is used (or defaulted), res_text[] contains the token.
  * If %pointer is used, res_text is a pointer to res__tbuf[].
  */
-YY_DECL char	res_text[YYLMAX+1];
-
-
+YY_DECL char res_text[YYLMAX + 1];
 
 #ifdef	YY_DEBUG
 #undef	YY_DEBUG
@@ -353,17 +291,16 @@ YY_DECL char	res_text[YYLMAX+1];
  * compiling this file
  */
 #ifndef YY_STATIC_STDIO
-#define YY_STATIC_STDIO	0
+#define YY_STATIC_STDIO	1
 #endif
 
 #if YY_STATIC_STDIO
-YY_DECL	FILE   *res_in = stdin;
-YY_DECL	FILE   *res_out = stdout;
+YY_DECL FILE* res_in = stdin;YY_DECL FILE* res_out = stdout;
 #else
-YY_DECL	FILE   *res_in = (FILE *)0;
-YY_DECL	FILE   *res_out = (FILE *)0;
+YY_DECL auto res_in = 0;
+YY_DECL auto res_out = 0;
 #endif
-YY_DECL	int	res_lineno = 1;		/* line number */
+YY_DECL int res_lineno = 1; /* line number */
 
 /* res__sbuf[0:res_leng-1] contains the states corresponding to res_text.
  * res_text[0:res_leng-1] contains the current token.
@@ -372,18 +309,18 @@ YY_DECL	int	res_lineno = 1;		/* line number */
  * res__save contains res_text[res_leng], which is set to '\0'.
  * Things are different when YY_PRESERVE is defined. 
  */
-static	res__state_t res__sbuf [YYLMAX+1];	/* state buffer */
-static	int	res__end = 0;		/* end of pushback */
-static	int	res__start = 0;		/* start state */
-static	int	res__lastc = YYNEWLINE;	/* previous char */
-YY_DECL	int	res_leng = 0;		/* res_text token length */
+static res__state_t res__sbuf[YYLMAX + 1]; /* state buffer */
+static int res__end = 0; /* end of pushback */
+static int res__start = 0; /* start state */
+static int res__lastc = YYNEWLINE; /* previous char */
+YY_DECL int res_leng = 0; /* res_text token length */
 #ifdef YYEXIT
-static	int res_LexFatal;
+static int res_LexFatal;
 #endif /* YYEXIT */
 
 #ifndef YY_PRESERVE	/* the efficient default push-back scheme */
 
-static	char res__save;	/* saved res_text[res_leng] */
+static char res__save; /* saved res_text[res_leng] */
 
 #define	YY_USER	{ /* set up res_text for user */ \
 		res__save = res_text[res_leng]; \
@@ -395,8 +332,7 @@ static	char res__save;	/* saved res_text[res_leng] */
 
 #else		/* not-so efficient push-back for res_text mungers */
 
-static	char res__save [YYLMAX];
-static	char *res__push = res__save+YYLMAX;
+static char res__save[YYLMAX];static char* res__push = res__save + YYLMAX;
 
 #define	YY_USER { \
 		size_t n = res__end - res_leng; \
@@ -413,7 +349,6 @@ static	char *res__push = res__save+YYLMAX;
 	}
 
 #endif
-
 
 #ifdef LEX_WINDOWS
 
@@ -434,93 +369,113 @@ static	char *res__push = res__save+YYLMAX;
  * with new input; otherwise old lookaside will get in your way
  * and res_lex() will die horribly.
  */
-static int win_res_lex();			/* prototype for windows res_lex handler */
+static int win_res_lex(); /* prototype for windows res_lex handler */
 
-YYDECL {
-	int wReturnValue;
-	HANDLE hRes_table;
-	unsigned short far *old_res__la_act;	/* remember previous pointer values */
-	short far *old_res__final;
-	res__state_t far *old_res__begin;
-	res__state_t far *old_res__next;
-	res__state_t far *old_res__check;
-	res__state_t far *old_res__default;
-	short far *old_res__base;
+YYDECL
+{
+  int wReturnValue;
+  HANDLE hRes_table;
+  unsigned short far * old_res__la_act; /* remember previous pointer values */
+  short far * old_res__final;
+  res__state_t far * old_res__begin;
+  res__state_t far * old_res__next;
+  res__state_t far * old_res__check;
+  res__state_t far * old_res__default;
+  short far * old_res__base;
 
-	/*
-	 * the following code will load the required
-	 * resources for a Windows based parser.
-	 */
+  /*
+   * the following code will load the required
+   * resources for a Windows based parser.
+   */
 
-	hRes_table = LoadResource (hInst,
-		FindResource (hInst, "UD_RES_res_LEX", "res_LEXTBL"));
-	
-	/*
-	 * return an error code if any
-	 * of the resources did not load
-	 */
+  hRes_table = LoadResource(hInst, FindResource(hInst, "UD_RES_res_LEX", "res_LEXTBL"));
 
-	if (hRes_table == NULL)
-		return (0);
-	
-	/*
-	 * the following code will lock the resources
-	 * into fixed memory locations for the scanner
-	 * (and remember previous pointer locations)
-	 */
+  /*
+   * return an error code if any
+   * of the resources did not load
+   */
 
-	old_res__la_act = res__la_act;
-	old_res__final = res__final;
-	old_res__begin = res__begin;
-	old_res__next = res__next;
-	old_res__check = res__check;
-	old_res__default = res__default;
-	old_res__base = res__base;
+  if (hRes_table == NULL)
+    return (0);
 
-	res__la_act = (unsigned short far *)LockResource (hRes_table);
-	res__final = (short far *)(res__la_act + Sizeof_res__la_act);
-	res__begin = (res__state_t far *)(res__final + Sizeof_res__final);
-	res__next = (res__state_t far *)(res__begin + Sizeof_res__begin);
-	res__check = (res__state_t far *)(res__next + Sizeof_res__next);
-	res__default = (res__state_t far *)(res__check + Sizeof_res__check);
-	res__base = (res__state_t far *)(res__default + Sizeof_res__default);
+  /*
+   * the following code will lock the resources
+   * into fixed memory locations for the scanner
+   * (and remember previous pointer locations)
+   */
 
+  old_res__la_act = res__la_act;
+  old_res__final = res__final;
+  old_res__begin = res__begin;
+  old_res__next = res__next;
+  old_res__check = res__check;
+  old_res__default = res__default;
+  old_res__base = res__base;
 
-	/*
-	 * call the standard res_lex() code
-	 */
+  res__la_act = (unsigned short
+  far *
+  )
+  LockResource(hRes_table);
+  res__final = (short
+  far *
+  )
+  (res__la_act + Sizeof_res__la_act);
+  res__begin = (res__state_t
+  far *
+  )
+  (res__final + Sizeof_res__final);
+  res__next = (res__state_t
+  far *
+  )
+  (res__begin + Sizeof_res__begin);
+  res__check = (res__state_t
+  far *
+  )
+  (res__next + Sizeof_res__next);
+  res__default = (res__state_t
+  far *
+  )
+  (res__check + Sizeof_res__check);
+  res__base = (res__state_t
+  far *
+  )
+  (res__default + Sizeof_res__default);
 
-	wReturnValue = win_res_lex();
+  /*
+   * call the standard res_lex() code
+   */
 
-	/*
-	 * unlock the resources
-	 */
+  wReturnValue = win_res_lex();
 
-	UnlockResource (hRes_table);
+  /*
+   * unlock the resources
+   */
 
-	/*
-	 * and now free the resource
-	 */
+  UnlockResource(hRes_table);
 
-	FreeResource (hRes_table);
+  /*
+   * and now free the resource
+   */
 
-	/*
-	 * restore previously saved pointers
-	 */
+  FreeResource(hRes_table);
 
-	res__la_act = old_res__la_act;
-	res__final = old_res__final;
-	res__begin = old_res__begin;
-	res__next = old_res__next;
-	res__check = old_res__check;
-	res__default = old_res__default;
-	res__base = old_res__base;
+  /*
+   * restore previously saved pointers
+   */
 
-	return (wReturnValue);
-}	/* end function */
+  res__la_act = old_res__la_act;
+  res__final = old_res__final;
+  res__begin = old_res__begin;
+  res__next = old_res__next;
+  res__check = old_res__check;
+  res__default = old_res__default;
+  res__base = old_res__base;
 
-static int win_res_lex() {
+  return (wReturnValue);
+} /* end function */
 
+static int win_res_lex()
+{
 #else /* LEX_WINDOWS */
 
 /*
@@ -529,393 +484,392 @@ static int win_res_lex() {
  * with new input; otherwise old lookaside will get in your way
  * and res_lex() will die horribly.
  */
-YYDECL {
-
+YYDECL
+{
 #endif /* LEX_WINDOWS */
 
-	register int c, i, res_base;
-	unsigned	res_st;	/* state */
-	int res_fmin, res_fmax;	/* res__la_act indices of final states */
-	int res_oldi, res_oleng;	/* base i, res_leng before look-ahead */
-	int res_eof;		/* 1 if eof has already been read */
-
-#line 350 "d:/usr/mks-ly/etc/yylex.c"
-
+  register int c, i, res_base;
+  unsigned res_st; /* state */
+  int res_fmin, res_fmax; /* res__la_act indices of final states */
+  int res_oldi, res_oleng; /* base i, res_leng before look-ahead */
+  int res_eof; /* 1 if eof has already been read */
 
 
 #if !YY_STATIC_STDIO
-	if (res_in == (FILE *)0)
-		res_in = stdin;
-	if (res_out == (FILE *)0)
-		res_out = stdout;
+  if (res_in == static_cast<FILE*>(nullptr))
+    res_in = stdin;
+  if (res_out == static_cast<FILE*>(nullptr))
+    res_out = stdout;
 #endif
 
 #ifdef YYEXIT
-	res_LexFatal = 0;
+  res_LexFatal = 0;
 #endif /* YYEXIT */
 
-	res_eof = 0;
-	i = res_leng;
-	YY_SCANNER;
+  res_eof = 0;
+  i = res_leng;
+  YY_SCANNER;
 
-  res__again:
-	res_leng = i;
-	/* determine previous char. */
-	if (i > 0)
-		res__lastc = res_text[i-1];
-	/* scan previously accepted token adjusting res_lineno */
-	while (i > 0)
-		if (res_text[--i] == YYNEWLINE)
-			res_lineno++;
-	/* adjust pushback */
-	res__end -= res_leng;
-	if (res__end > 0)
-		memmove(res_text, res_text+res_leng, (size_t) res__end);
-	i = 0;
+res__again:
+  res_leng = i;
+  /* determine previous char. */
+  if (i > 0)
+    res__lastc = res_text[i - 1];
+  /* scan previously accepted token adjusting res_lineno */
+  while (i > 0)
+  {
+    if (res_text[--i] == YYNEWLINE)
+      res_lineno++;
+  }
+  /* adjust pushback */
+  res__end -= res_leng;
+  if (res__end > 0)
+    memmove(res_text, res_text + res_leng, static_cast<size_t>(res__end));
+  i = 0;
 
-  res__contin:
-	res_oldi = i;
+res__contin:
+  res_oldi = i;
 
-	/* run the state machine until it jams */
-	res_st = res__begin[res__start + ((res__lastc == YYNEWLINE) ? 1 : 0)];
-	res__sbuf[i] = (res__state_t) res_st;
-	do {
-		YY_DEBUG(m_textmsg(1547, "<state %d, i = %d>\n", "I num1 num2"), res_st, i);
-		if (i >= YYLMAX) {
-			YY_FATAL(m_textmsg(1548, "Token buffer overflow", "E"));
+  /* run the state machine until it jams */
+  res_st = res__begin[res__start + ((res__lastc == YYNEWLINE) ? 1 : 0)];
+  res__sbuf[i] = static_cast<unsigned char>(res_st);
+  do
+  {
+    YY_DEBUG(m_textmsg(1547, "<state %d, i = %d>\n", "I num1 num2"), res_st, i);
+    if (i >= YYLMAX)
+    {
+      YY_FATAL(m_textmsg(1548, "Token buffer overflow", "E"));
 #ifdef YYEXIT
-			if (res_LexFatal)
-				return -2;
+      if (res_LexFatal)
+        return -2;
 #endif /* YYEXIT */
-		}	/* endif */
+    } /* endif */
 
-		/* get input char */
-		if (i < res__end)
-			c = res_text[i];		/* get pushback char */
-		else if (!res_eof && (c = res_getc()) != EOF) {
-			res__end = i+1;
-			res_text[i] = (char) c;
-		} else /* c == EOF */ {
-			c = EOF;		/* just to make sure... */
-			if (i == res_oldi) {	/* no token */
-				res_eof = 0;
-				if (res_wrap())
-					return 0;
-				else
-					goto res__again;
-			} else {
-				res_eof = 1;	/* don't re-read EOF */
-				break;
-			}
-		}
-		YY_DEBUG(m_textmsg(1549, "<input %d = 0x%02x>\n", "I num hexnum"), c, c);
+    /* get input char */
+    if (i < res__end)
+      c = res_text[i]; /* get pushback char */
+    else if (!res_eof && (c = res_getc()) != EOF)
+    {
+      res__end = i + 1;
+      res_text[i] = static_cast<char>(c);
+    }
+    else /* c == EOF */
+    {
+      c = EOF; /* just to make sure... */
+      if (i == res_oldi)
+      {
+        /* no token */
+        res_eof = 0;
+        if (res_wrap())
+          return 0;
+        goto res__again;
+      }
+      res_eof = 1; /* don't re-read EOF */
+      break;
+    }
+    YY_DEBUG(m_textmsg(1549, "<input %d = 0x%02x>\n", "I num hexnum"), c, c);
 
-		/* look up next state */
-		while ((res_base = res__base[res_st]+(unsigned char)c) > res__nxtmax
-		    || res__check[res_base] != (res__state_t) res_st) {
-			if (res_st == res__endst)
-				goto res__jammed;
-			res_st = res__default[res_st];
-		}
-		res_st = res__next[res_base];
-	  res__jammed: ;
-	  res__sbuf[++i] = (res__state_t) res_st;
-	} while (!(res_st == res__endst || YY_INTERACTIVE && res__base[res_st] > res__nxtmax && res__default[res_st] == res__endst));
-	YY_DEBUG(m_textmsg(1550, "<stopped %d, i = %d>\n", "I num1 num2"), res_st, i);
-	if (res_st != res__endst)
-		++i;
+    /* look up next state */
+    while ((res_base = res__base[res_st] + static_cast<unsigned char>(c)) > res__nxtmax || res__check[res_base] != static_cast<unsigned
+      char>(res_st))
+    {
+      if (res_st == res__endst)
+        goto res__jammed;
+      res_st = res__default[res_st];
+    }
+    res_st = res__next[res_base];
+  res__jammed: ;
+    res__sbuf[++i] = static_cast<unsigned char>(res_st);
+  }
+  while (!(res_st == res__endst || YY_INTERACTIVE && res__base[res_st] > res__nxtmax && res__default[res_st] == res__endst));
+  YY_DEBUG(m_textmsg(1550, "<stopped %d, i = %d>\n", "I num1 num2"), res_st, i);
+  if (res_st != res__endst)
+    ++i;
 
-  res__search:
-	/* search backward for a final state */
-	while (--i > res_oldi) {
-		res_st = res__sbuf[i];
-		if ((res_fmin = res__final[res_st]) < (res_fmax = res__final[res_st+1]))
-			goto res__found;	/* found final state(s) */
-	}
-	/* no match, default action */
-	i = res_oldi + 1;
-	output(res_text[res_oldi]);
-	goto res__again;
+res__search:
+  /* search backward for a final state */
+  while (--i > res_oldi)
+  {
+    res_st = res__sbuf[i];
+    if ((res_fmin = res__final[res_st]) < (res_fmax = res__final[res_st + 1]))
+      goto res__found; /* found final state(s) */
+  }
+  /* no match, default action */
+  i = res_oldi + 1;
+  output(res_text[res_oldi]);
+  goto res__again;
 
-  res__found:
-	YY_DEBUG(m_textmsg(1551, "<final state %d, i = %d>\n", "I num1 num2"), res_st, i);
-	res_oleng = i;		/* save length for REJECT */
-	
-	/* pushback look-ahead RHS */
-	if ((c = (int)(res__la_act[res_fmin]>>9) - 1) >= 0) { /* trailing context? */
-		unsigned char *bv = res__look + c*YY_LA_SIZE;
-		static unsigned char bits [8] = {
-			1<<0, 1<<1, 1<<2, 1<<3, 1<<4, 1<<5, 1<<6, 1<<7
-		};
-		while (1) {
-			if (--i < res_oldi) {	/* no / */
-				i = res_oleng;
-				break;
-			}
-			res_st = res__sbuf[i];
-			if (bv[(unsigned)res_st/8] & bits[(unsigned)res_st%8])
-				break;
-		}
-	}
+res__found: YY_DEBUG(m_textmsg(1551, "<final state %d, i = %d>\n", "I num1 num2"), res_st, i);
+  res_oleng = i; /* save length for REJECT */
 
-	/* perform action */
-	res_leng = i;
-	YY_USER;
-	switch (res__la_act[res_fmin] & 0777) {
-	case 0:
-#line 64 "Resource.l"
-	{ return DIRECTORY; }
-	break;
-	case 1:
-#line 65 "Resource.l"
-	{ return FILETOKEN; }
-	break;
-	case 2:
-#line 68 "Resource.l"
-	{
-								strcpy(aText[currText], res_text);
-								res_lval.sval = aText[currText];
-								currText = (currText + 1) % TEXT_BUFFERS;
-								return TEXT;
-							}
-	break;
-	case 3:
-#line 76 "Resource.l"
-	{ BEGIN QUOTE; }
-	break;
-	case 4:
-#line 77 "Resource.l"
-	{ BEGIN 0; }
-	break;
-	case 5:
-#line 78 "Resource.l"
-	{ res_error("Unexpected end of line in string"); }
-	break;
-	case 6:
-#line 79 "Resource.l"
-	{
-								strcpy(aText[currText], res_text);
-								res_lval.sval = aText[currText];
-								currText = (currText + 1) % TEXT_BUFFERS;
-								return QTEXT;
-							}
-	break;
-	case 7:
-#line 85 "Resource.l"
-	{
-								aText[currText][0] = '\0';
-								aText[currText][1] = '\0';
-								res_lval.sval = aText[currText];
-								currText = (currText + 1) % TEXT_BUFFERS;
-								return QTEXT;
-							}
-	break;
-	case 8:
-#line 94 "Resource.l"
-	;
-	break;
-	case 9:
-#line 97 "Resource.l"
-	{ inComment=TRUE; BEGIN COMMENT; }
-	break;
-	case 10:
-	case 11:
-#line 99 "Resource.l"
-	{ inComment=FALSE; BEGIN 0; }
-	break;
-	case 12:
-	case 13:
-#line 101 "Resource.l"
-	;
-	break;
-	case 14:
-#line 104 "Resource.l"
-	{ BEGIN SLCOMMENT; }
-	break;
-	case 15:
-#line 105 "Resource.l"
-	{ BEGIN 0; }
-	break;
-	case 16:
-#line 106 "Resource.l"
-	;
-	break;
-	case 17:
-#line 109 "Resource.l"
-	return res_text[0];
-	break;
+  /* pushback look-ahead RHS */
+  if ((c = static_cast<int>(res__la_act[res_fmin] >> 9) - 1) >= 0)
+  {
+    /* trailing context? */
+    unsigned char* bv = res__look + c * YY_LA_SIZE;
+    static unsigned char bits[8] = {1 << 0, 1 << 1, 1 << 2, 1 << 3, 1 << 4, 1 << 5, 1 << 6, 1 << 7};
+    while (true)
+    {
+      if (--i < res_oldi)
+      {
+        /* no / */
+        i = res_oleng;
+        break;
+      }
+      res_st = res__sbuf[i];
+      if (bv[res_st / 8] & bits[res_st % 8])
+        break;
+    }
+  }
 
-#line 472 "d:/usr/mks-ly/etc/yylex.c"
+  /* perform action */
+  res_leng = i;
+  YY_USER;
+  switch (res__la_act[res_fmin] & 0777)
+  {
+  case 0:
+    {
+      return DIRECTORY;
+    }
+    break;
+  case 1:
+    {
+      return FILETOKEN;
+    }
+    break;
+  case 2:
+    {
+      strcpy(aText[currText], res_text);
+      res_lval.sval = aText[currText];
+      currText = (currText + 1) % TEXT_BUFFERS;
+      return TEXT;
+    }
+    break;
+  case 3:
+    {
+      BEGIN QUOTE;
+    }
+    break;
+  case 4:
+    {
+      BEGIN 0;
+    }
+    break;
+  case 5:
+    {
+      res_error("Unexpected end of line in string");
+    }
+    break;
+  case 6:
+    {
+      strcpy(aText[currText], res_text);
+      res_lval.sval = aText[currText];
+      currText = (currText + 1) % TEXT_BUFFERS;
+      return QTEXT;
+    }
+    break;
+  case 7:
+    {
+      aText[currText][0] = '\0';
+      aText[currText][1] = '\0';
+      res_lval.sval = aText[currText];
+      currText = (currText + 1) % TEXT_BUFFERS;
+      return QTEXT;
+    }
+    break;
+  case 8:
+    ;
+    break;
+  case 9:
+    {
+      inComment = TRUE;
+      BEGIN COMMENT;
+    }
+    break;
+  case 10:
+  case 11:
+    {
+      inComment = FALSE;
+      BEGIN 0;
+    }
+    break;
+  case 12:
+  case 13:
+    ;
+    break;
+  case 14:
+    {
+      BEGIN SLCOMMENT;
+    }
+    break;
+  case 15:
+    {
+      BEGIN 0;
+    }
+    break;
+  case 16:
+    ;
+    break;
+  case 17:
+    return res_text[0];
+    break;
 
-	}
-	YY_SCANNER;
-	i = res_leng;
-	goto res__again;			/* action fell though */
+  }
+  YY_SCANNER;
+  i = res_leng;
+  goto res__again; /* action fell though */
 
-  res__reject:
-	YY_SCANNER;
-	i = res_oleng;			/* restore original res_text */
-	if (++res_fmin < res_fmax)
-		goto res__found;		/* another final state, same length */
-	else
-		goto res__search;		/* try shorter res_text */
+res__reject: YY_SCANNER;
+  i = res_oleng; /* restore original res_text */
+  if (++res_fmin < res_fmax)
+    goto res__found; /* another final state, same length */
+  else
+    goto res__search; /* try shorter res_text */
 
-  res__more:
-	YY_SCANNER;
-	i = res_leng;
-	if (i > 0)
-		res__lastc = res_text[i-1];
-	goto res__contin;
+res__more: YY_SCANNER;
+  i = res_leng;
+  if (i > 0)
+    res__lastc = res_text[i - 1];
+  goto res__contin;
 }
+
 /*
  * Safely switch input stream underneath LEX
  */
-typedef struct res__save_block_tag {
-	FILE	* oldfp;
-	int	oldline;
-	int	oldend;
-	int	oldstart;
-	int	oldlastc;
-	int	oldleng;
-	char	savetext[YYLMAX+1];
-	res__state_t	savestate[YYLMAX+1];
-} YY_SAVED;
-
-YY_SAVED *
-res_SaveScan(FILE *fp)
+using YY_SAVED = struct res__save_block_tag
 {
-	YY_SAVED * p;
+  FILE* oldfp;
+  int oldline;
+  int oldend;
+  int oldstart;
+  int oldlastc;
+  int oldleng;
+  char savetext[YYLMAX + 1];
+  res__state_t savestate[YYLMAX + 1];
+};
 
-	if ((p = (YY_SAVED *) malloc(sizeof(*p))) == NULL)
-		return p;
+YY_SAVED* res_SaveScan(FILE* fp)
+{
+  YY_SAVED* p;
 
-	p->oldfp = res_in;
-	p->oldline = res_lineno;
-	p->oldend = res__end;
-	p->oldstart = res__start;
-	p->oldlastc = res__lastc;
-	p->oldleng = res_leng;
-	(void) memcpy(p->savetext, res_text, sizeof res_text);
-	(void) memcpy((char *) p->savestate, (char *) res__sbuf,
-		sizeof res__sbuf);
+  if ((p = static_cast<YY_SAVED*>(malloc(sizeof(*p)))) == nullptr)
+    return p;
 
-	res_in = fp;
-	res_lineno = 1;
-	YY_INIT;
+  p->oldfp = res_in;
+  p->oldline = res_lineno;
+  p->oldend = res__end;
+  p->oldstart = res__start;
+  p->oldlastc = res__lastc;
+  p->oldleng = res_leng;
+  (void)memcpy(p->savetext, res_text, sizeof res_text);
+  (void)memcpy(p->savestate, res__sbuf, sizeof res__sbuf);
 
-	return p;
+  res_in = fp;
+  res_lineno = 1;
+  YY_INIT;
+
+  return p;
 }
+
 /*f
  * Restore previous LEX state
  */
-void
-res_RestoreScan(YY_SAVED *p)
+void res_RestoreScan(YY_SAVED* p)
 {
-	if (p == NULL)
-		return;
-	res_in = p->oldfp;
-	res_lineno = p->oldline;
-	res__end = p->oldend;
-	res__start = p->oldstart;
-	res__lastc = p->oldlastc;
-	res_leng = p->oldleng;
+  if (p == nullptr)
+    return;
+  res_in = p->oldfp;
+  res_lineno = p->oldline;
+  res__end = p->oldend;
+  res__start = p->oldstart;
+  res__lastc = p->oldlastc;
+  res_leng = p->oldleng;
 
-	(void) memcpy(res_text, p->savetext, sizeof res_text);
-	(void) memcpy((char *) res__sbuf, (char *) p->savestate,
-		sizeof res__sbuf);
-	free(p);
+  (void)memcpy(res_text, p->savetext, sizeof res_text);
+  (void)memcpy(res__sbuf, p->savestate, sizeof res__sbuf);
+  free(p);
 }
+
 /*
  * User-callable re-initialization of res_lex()
  */
-void
-res__reset()
+void res__reset()
 {
-	YY_INIT;
-	res_lineno = 1;		/* line number */
+  YY_INIT;
+  res_lineno = 1; /* line number */
 }
+
 /* get input char with pushback */
-static int
-input()
+static int input()
 {
-	int c;
+  int c;
 #ifndef YY_PRESERVE
-	if (res__end > res_leng) {
-		res__end--;
-		memmove(res_text+res_leng, res_text+res_leng+1,
-			(size_t) (res__end-res_leng));
-		c = res__save;
-		YY_USER;
+  if (res__end > res_leng)
+  {
+    res__end--;
+    memmove(res_text + res_leng, res_text + res_leng + 1, static_cast<size_t>(res__end - res_leng));
+    c = res__save;
+    YY_USER;
 #else
-	if (res__push < res__save+YYLMAX) {
-		c = *res__push++;
+    if (res__push < res__save + YYLMAX) { c = *res__push++;
 #endif
-	} else
-		c = res_getc();
-	res__lastc = c;
-	if (c == YYNEWLINE)
-		res_lineno++;
-	if (c == EOF) /* res_getc() can set c=EOF vsc4 wants c==EOF to return 0 */
-		return 0;
-	else
-		return c;
+  }
+  else
+    c = res_getc();
+  res__lastc = c;
+  if (c == YYNEWLINE)
+    res_lineno++;
+  if (c == EOF) /* res_getc() can set c=EOF vsc4 wants c==EOF to return 0 */
+    return 0;
+  return c;
 }
 
 /*f
  * pushback char
  */
-static int
-unput(int c)
+static int unput(int c)
 {
 #ifndef YY_PRESERVE
-	if (res__end >= YYLMAX) {
-		YY_FATAL(m_textmsg(1552, "Push-back buffer overflow", "E"));
-	} else {
-		if (res__end > res_leng) {
-			res_text[res_leng] = res__save;
-			memmove(res_text+res_leng+1, res_text+res_leng,
-				(size_t) (res__end-res_leng));
-			res_text[res_leng] = 0;
-		}
-		res__end++;
-		res__save = (char) c;
+  if (res__end >= YYLMAX) { YY_FATAL(m_textmsg(1552, "Push-back buffer overflow", "E")); }
+  if (res__end > res_leng)
+  {
+    res_text[res_leng] = res__save;
+    memmove(res_text + res_leng + 1, res_text + res_leng, static_cast<size_t>(res__end - res_leng));
+    res_text[res_leng] = 0;
+  }
+  res__end++;
+  res__save = static_cast<char>(c);
 #else
-	if (res__push <= res__save) {
-		YY_FATAL(m_textmsg(1552, "Push-back buffer overflow", "E"));
-	} else {
-		*--res__push = c;
+  if (res__push <= res__save) { YY_FATAL(m_textmsg(1552, "Push-back buffer overflow", "E")); }
+  else { *--res__push = c;
 #endif
-		if (c == YYNEWLINE)
-			res_lineno--;
-	}	/* endif */
-	return c;
+  if (c == YYNEWLINE)
+    res_lineno--;
+  /* endif */
+  return c;
 }
 
-#line 112 "Resource.l"
 
 /* Set the current input buffer for the lexer */
-void resSetInputBuffer(UBYTE *pBuffer, UDWORD size)
+void resSetInputBuffer(UBYTE* pBuffer, UDWORD size)
 {
-	pInputBuffer = pBuffer;
-	pEndBuffer = pBuffer + size;
+  pInputBuffer = pBuffer;
+  pEndBuffer = pBuffer + size;
 
-	/* Reset the lexer incase it's been used before */
-	res__reset();
-	inComment = FALSE;
+  /* Reset the lexer incase it's been used before */
+  res__reset();
+  inComment = FALSE;
 }
 
-void resGetErrorData(int *pLine, char **ppText)
+void resGetErrorData(int* pLine, char** ppText)
 {
-	*pLine = res_lineno;
-	*ppText = res_text;
+  *pLine = res_lineno;
+  *ppText = res_text;
 }
 
 int res_wrap(void)
 {
-	if (inComment)
-	{
-		DBERROR(("Warning: reched end of file in a comment"));
-	}
-	return 1;
+  if (inComment)
+    DBERROR(("Warning: reched end of file in a comment"));
+  return 1;
 }
-

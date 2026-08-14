@@ -3,13 +3,13 @@
 
 #include "Base.h"
 
-extern void	avInformOfChange(SDWORD x, SDWORD y);
-extern void	avUpdateTiles( void );
-extern UDWORD avGetObjLightLevel( BASE_OBJECT *psObj, UDWORD origLevel);
-extern void	avGetStats(UDWORD *considered, UDWORD *ignored, UDWORD *calculated);
-extern void	setRevealStatus( BOOL val );
-extern BOOL	getRevealStatus( void );
-extern void	preProcessVisibility( void );
-extern void	avSetStatus(BOOL var);
+extern void avInformOfChange(SDWORD x, SDWORD y);
+extern void avUpdateTiles(void);
+extern UDWORD avGetObjLightLevel(BASE_OBJECT* psObj, UDWORD origLevel);
+extern void avGetStats(UDWORD* considered, UDWORD* ignored, UDWORD* calculated);
+extern void setRevealStatus(BOOL val);
+extern BOOL getRevealStatus(void);
+extern void preProcessVisibility(void);
+extern void avSetStatus(BOOL var);
 
 #endif

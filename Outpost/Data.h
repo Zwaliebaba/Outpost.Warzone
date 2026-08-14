@@ -9,8 +9,8 @@
 /* Pass all the data loading functions to the framework library */
 extern BOOL dataInitLoadFuncs(void);
 
-extern BOOL dataIMGPAGELoad(UBYTE *pBuffer, UDWORD size, void **ppData);
-extern void dataIMGPAGERelease(void *pData);
+extern BOOL dataIMGPAGELoad(UBYTE* pBuffer, UDWORD size, void** ppData);
+extern void dataIMGPAGERelease(void* pData);
 
 extern void dataSetSaveFlag(void);
 extern void dataClearSaveFlag(void);
@@ -25,7 +25,7 @@ extern void dataClearSaveFlag(void);
 #define CHEAT_SREPAIR	6
 #define CHEAT_SBRAIN	7
 #define CHEAT_SPROPTY	8
-#define CHEAT_STERRT	9	
+#define CHEAT_STERRT	9
 #define CHEAT_SWEAPMOD	10
 #define CHEAT_STEMP		11
 #define CHEAT_STEMPWEAP	12
@@ -44,14 +44,12 @@ extern void dataClearSaveFlag(void);
 #define CHEAT_RSTRRES	25
 #define CHEAT_RFUNC		26
 #define CHEAT_SCRIPT	27
-#define CHEAT_SCRIPTVAL	28	
+#define CHEAT_SCRIPTVAL	28
 
-#define CHEAT_MAXCHEAT	29	
+#define CHEAT_MAXCHEAT	29
 
 extern void resetCheatHash();
 
 extern UDWORD cheatHash[CHEAT_MAXCHEAT];
 
-
 #endif
-

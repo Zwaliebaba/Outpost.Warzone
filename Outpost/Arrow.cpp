@@ -12,99 +12,84 @@
 
 /***************************************************************************/
 
-typedef struct ARROW
+using ARROW = struct ARROW
 {
-	iVector			vecBase;
-	iVector			vecHead;
-	UBYTE			iColour;
-	struct ARROW	*psNext;
-}
-ARROW;
+  iVector vecBase;
+  iVector vecHead;
+  UBYTE iColour;
+  struct ARROW* psNext;
+};
 
 /***************************************************************************/
 
+/***************************************************************************/
+
+OBJ_HEAP* g_psArrowHeap;
+ARROW* g_psArrowList = nullptr;
 
 /***************************************************************************/
 
-OBJ_HEAP	*g_psArrowHeap;
-ARROW		*g_psArrowList = NULL;
-
-/***************************************************************************/
-
-BOOL
-arrowInit( void )
+BOOL arrowInit(void)
 {
-	if (!HEAP_CREATE(&g_psArrowHeap, sizeof(ARROW),
-			ARROW_HEAP_INIT, ARROW_HEAP_EXT))
-	{
-		return FALSE;
-	}
+  if (!HEAP_CREATE(&g_psArrowHeap, sizeof(ARROW), ARROW_HEAP_INIT, ARROW_HEAP_EXT))
+    return FALSE;
 
-	return TRUE;
+  return TRUE;
 }
 
 /***************************************************************************/
 
-void
-arrowShutDown( void )
+void arrowShutDown(void) { HEAP_DESTROY(g_psArrowHeap); }
+
+/***************************************************************************/
+
+BOOL arrowAdd(SDWORD iBaseX, SDWORD iBaseY, SDWORD iBaseZ, SDWORD iHeadX, SDWORD iHeadY, SDWORD iHeadZ, UBYTE iColour)
 {
-	HEAP_DESTROY(g_psArrowHeap);
+  ARROW* psArrow;
+
+  if (!HEAP_ALLOC(g_psArrowHeap, &psArrow))
+    return FALSE;
+
+  /* ivis y,z swapped */
+  psArrow->vecBase.x = iBaseX;
+  psArrow->vecBase.y = iBaseZ;
+  psArrow->vecBase.z = iBaseY;
+
+  psArrow->vecHead.x = iHeadX;
+  psArrow->vecHead.y = iHeadZ;
+  psArrow->vecHead.z = iHeadY;
+
+  psArrow->iColour = iColour;
+
+  /* add to list */
+  psArrow->psNext = g_psArrowList;
+  g_psArrowList = psArrow;
 }
 
 /***************************************************************************/
 
-BOOL
-arrowAdd( SDWORD iBaseX, SDWORD iBaseY, SDWORD iBaseZ,
-			SDWORD iHeadX, SDWORD iHeadY, SDWORD iHeadZ, UBYTE iColour )
+void arrowDrawAll(void)
 {
-	ARROW	*psArrow;
+  ARROW *psArrow, *psArrowTemp;
 
-	if ( !HEAP_ALLOC( g_psArrowHeap, &psArrow) )
-	{
-		return FALSE;
-	}
+  pie_SetDepthBufferStatus(DEPTH_CMP_ALWAYS_WRT_ON);
+  pie_SetFogStatus(FALSE);
 
-	/* ivis y,z swapped */
-	psArrow->vecBase.x = iBaseX;
-	psArrow->vecBase.y = iBaseZ;
-	psArrow->vecBase.z = iBaseY;
+  /* draw and clear list */
+  psArrow = g_psArrowList;
 
-	psArrow->vecHead.x = iHeadX;
-	psArrow->vecHead.y = iHeadZ;
-	psArrow->vecHead.z = iHeadY;
+  while (psArrow != nullptr)
+  {
+    draw3dLine(&psArrow->vecHead, &psArrow->vecBase, psArrow->iColour);
+    psArrowTemp = psArrow->psNext;
+    HEAP_FREE(g_psArrowHeap, psArrow);
+    psArrow = psArrowTemp;
+  }
 
-	psArrow->iColour   = iColour;
+  /* reset list */
+  g_psArrowList = nullptr;
 
-	/* add to list */
-	psArrow->psNext = g_psArrowList;
-	g_psArrowList   = psArrow;
-}
-
-/***************************************************************************/
-
-void
-arrowDrawAll( void )
-{
-	ARROW	*psArrow, *psArrowTemp;
-
-	pie_SetDepthBufferStatus(DEPTH_CMP_ALWAYS_WRT_ON);
-	pie_SetFogStatus(FALSE);
-
-	/* draw and clear list */
-	psArrow = g_psArrowList;
-
-	while ( psArrow != NULL )
-	{
-		draw3dLine( &psArrow->vecHead, &psArrow->vecBase, psArrow->iColour );
-		psArrowTemp = psArrow->psNext;
-		HEAP_FREE( g_psArrowHeap, psArrow );
-		psArrow = psArrowTemp;
-	}
-
-	/* reset list */
-	g_psArrowList = NULL;
-
-	pie_SetDepthBufferStatus(DEPTH_CMP_LEQ_WRT_ON);
+  pie_SetDepthBufferStatus(DEPTH_CMP_LEQ_WRT_ON);
 }
 
 /***************************************************************************/

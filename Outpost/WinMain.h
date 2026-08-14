@@ -11,12 +11,12 @@
 #define FILE_PATH "C:\\Deliverance\\data"
 
 //flag to indicate when initialisation is complete
-extern  BOOL	gameInitialised;
-extern  BOOL	frontendInitialised;
-extern	BOOL	reInit;
-extern	BOOL	bDisableLobby;
+extern BOOL gameInitialised;
+extern BOOL frontendInitialised;
+extern BOOL reInit;
+extern BOOL bDisableLobby;
 
-extern	UDWORD GetGameMode(void);
-extern	void SetGameMode(UDWORD status);
+extern UDWORD GetGameMode(void);
+extern void SetGameMode(UDWORD status);
 
 #endif

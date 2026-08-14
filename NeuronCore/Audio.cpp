@@ -27,211 +27,176 @@
 /***************************************************************************/
 /* structs */
 
-typedef struct SDWVEC3D
+using SDWVEC3D = struct SDWVEC3D
 {
-	SDWORD	x, y, z;
-}
-SDWVEC3D;
+  SDWORD x, y, z;
+};
 
 /***************************************************************************/
 /* externs */
 
-
 /***************************************************************************/
 /* static functions */
-
 
 /***************************************************************************/
 /* global variables */
 
-static OBJ_HEAP		*g_psSampleHeap  = NULL;
-static AUDIO_SAMPLE	*g_psSampleList  = NULL;
-static AUDIO_SAMPLE	*g_psSampleQueue = NULL;
+static OBJ_HEAP* g_psSampleHeap = nullptr;
+static AUDIO_SAMPLE* g_psSampleList = nullptr;
+static AUDIO_SAMPLE* g_psSampleQueue = nullptr;
 
-static BOOL		g_bAudioEnabled = FALSE;
-static BOOL		g_bAudioPaused  = FALSE;
-static BOOL		g_bStopAll      = FALSE;
+static BOOL g_bAudioEnabled = FALSE;
+static BOOL g_bAudioPaused = FALSE;
+static BOOL g_bStopAll = FALSE;
 
-static AUDIO_SAMPLE	g_sPreviousSample = { NO_SAMPLE,
-										  SAMPLE_COORD_INVALID,
-										  SAMPLE_COORD_INVALID,
-										  SAMPLE_COORD_INVALID  };
+static AUDIO_SAMPLE g_sPreviousSample = {NO_SAMPLE, SAMPLE_COORD_INVALID, SAMPLE_COORD_INVALID, SAMPLE_COORD_INVALID};
 
-static SDWORD	g_i3DVolume = AUDIO_VOL_MAX;
+static SDWORD g_i3DVolume = AUDIO_VOL_MAX;
 
-static CRITICAL_SECTION		critSecAudio;
+static CRITICAL_SECTION critSecAudio;
 
 /***************************************************************************/
 
-BOOL
-audio_Disabled( void )
+BOOL audio_Disabled(void) { return !g_bAudioEnabled; }
+
+/***************************************************************************/
+
+BOOL audio_Init(HWND hWnd, BOOL bEnabled, AUDIO_CALLBACK pStopTrackCallback)
 {
-	return !g_bAudioEnabled;
+  /* if audio not enabled return TRUE to carry on game without audio */
+  if (bEnabled == FALSE)
+  {
+    g_bAudioEnabled = FALSE;
+    return TRUE;
+  }
+
+  /* init audio system */
+  g_bAudioEnabled = sound_Init(hWnd, MAX_SAME_SAMPLES);
+
+  if (g_bAudioEnabled == TRUE)
+  {
+    /* allocate sample heap */
+    if (!HEAP_CREATE(&g_psSampleHeap, AUDIO_SAMPLE_HEAP_INIT, AUDIO_SAMPLE_HEAP_EXT, sizeof(AUDIO_SAMPLE)))
+    {
+      DBERROR(("audio_Init: couldn't create sample queue\n"));
+      return FALSE;
+    }
+
+    sound_SetStoppedCallback(pStopTrackCallback);
+
+    InitializeCriticalSection(&critSecAudio);
+
+    return TRUE;
+  }
+  return FALSE;
 }
 
 /***************************************************************************/
 
-BOOL
-audio_Init( HWND hWnd, BOOL bEnabled, AUDIO_CALLBACK pStopTrackCallback )
+BOOL audio_Shutdown()
 {
-	/* if audio not enabled return TRUE to carry on game without audio */
-	if ( bEnabled == FALSE )
-	{
-		g_bAudioEnabled = FALSE;
-		return TRUE;
-	}
+  AUDIO_SAMPLE *psSample = nullptr, *psSampleTemp = nullptr;
+  BOOL bOK;
 
-	/* init audio system */
-	g_bAudioEnabled = sound_Init( hWnd, MAX_SAME_SAMPLES );
+  /* if audio not enabled return TRUE to carry on game without audio */
+  if (g_bAudioEnabled == FALSE)
+    return TRUE;
 
-	if ( g_bAudioEnabled == TRUE )
-	{
-		/* allocate sample heap */
-		if ( !HEAP_CREATE( &g_psSampleHeap, AUDIO_SAMPLE_HEAP_INIT,
-							AUDIO_SAMPLE_HEAP_EXT, sizeof(AUDIO_SAMPLE)) )
-		{
-			DBERROR( ("audio_Init: couldn't create sample queue\n") );
-			return FALSE;
-		}
+  sound_StopAll();
 
-		sound_SetStoppedCallback( pStopTrackCallback );
-		
-		InitializeCriticalSection( &critSecAudio );
+  bOK = sound_Shutdown();
 
-		return TRUE;
-	}
-	else
-	{
-		return FALSE;
-	}
+  /* empty sample heap */
+  EnterCriticalSection(&critSecAudio);
+
+  /* empty sample list */
+  psSample = g_psSampleList;
+  while (psSample != nullptr)
+  {
+    psSampleTemp = psSample->psNext;
+    HEAP_FREE(g_psSampleHeap, psSample);
+    psSample = psSampleTemp;
+  }
+
+  /* empty sample queue */
+  psSample = g_psSampleQueue;
+  while (psSample != nullptr)
+  {
+    psSampleTemp = psSample->psNext;
+    HEAP_FREE(g_psSampleHeap, psSample);
+    psSample = psSampleTemp;
+  }
+
+  LeaveCriticalSection(&critSecAudio);
+
+  /* free sample heap */
+  HEAP_DESTROY(g_psSampleHeap);
+  g_psSampleHeap = nullptr;
+  g_psSampleList = nullptr;
+  g_psSampleQueue = nullptr;
+
+  DeleteCriticalSection(&critSecAudio);
+
+  return bOK;
 }
 
 /***************************************************************************/
 
-BOOL
-audio_Shutdown()
+void audio_PlayPreviousQueueTrack(void)
 {
-	AUDIO_SAMPLE	*psSample = NULL, *psSampleTemp = NULL;
-	BOOL			bOK;
-
-	/* if audio not enabled return TRUE to carry on game without audio */
-	if ( g_bAudioEnabled == FALSE )
-	{
-		return TRUE;
-	}
-
-	sound_StopAll();
-
-	bOK = sound_Shutdown();
-
-	/* empty sample heap */
-	EnterCriticalSection( &critSecAudio );
-
-	/* empty sample list */
-	psSample = g_psSampleList;
-	while ( psSample != NULL )
-	{
-		psSampleTemp = psSample->psNext;
-		HEAP_FREE( g_psSampleHeap, psSample );
-		psSample = psSampleTemp;
-	}
-
-	/* empty sample queue */
-	psSample = g_psSampleQueue;
-	while ( psSample != NULL )
-	{
-		psSampleTemp = psSample->psNext;
-		HEAP_FREE( g_psSampleHeap, psSample );
-		psSample = psSampleTemp;
-	}
-
-	LeaveCriticalSection( &critSecAudio );
-
-	/* free sample heap */
-	HEAP_DESTROY( g_psSampleHeap );
-	g_psSampleHeap  = NULL;
-	g_psSampleList  = NULL;
-	g_psSampleQueue = NULL;
-
-	DeleteCriticalSection( &critSecAudio );
-
-	return bOK;
+  if (g_sPreviousSample.iTrack != NO_SAMPLE)
+    audio_PlayTrack(g_sPreviousSample.iTrack);
 }
 
 /***************************************************************************/
 
-void
-audio_PlayPreviousQueueTrack( void )
+BOOL audio_GetPreviousQueueTrackPos(SDWORD* iX, SDWORD* iY, SDWORD* iZ)
 {
-	if ( g_sPreviousSample.iTrack != NO_SAMPLE )
-	{
-		audio_PlayTrack( g_sPreviousSample.iTrack );
-	}
+  if (g_sPreviousSample.x != SAMPLE_COORD_INVALID && g_sPreviousSample.y != SAMPLE_COORD_INVALID && g_sPreviousSample.z !=
+    SAMPLE_COORD_INVALID)
+  {
+    *iX = g_sPreviousSample.x;
+    *iY = g_sPreviousSample.y;
+    *iZ = g_sPreviousSample.z;
+    return TRUE;
+  }
+  *iX = *iY = *iZ;
+  return FALSE;
 }
 
 /***************************************************************************/
 
-BOOL
-audio_GetPreviousQueueTrackPos( SDWORD *iX, SDWORD *iY, SDWORD *iZ )
+static void audio_AddSampleToHead(AUDIO_SAMPLE** ppsSampleList, AUDIO_SAMPLE* psSample)
 {
-	if ( g_sPreviousSample.x != SAMPLE_COORD_INVALID &&
-		 g_sPreviousSample.y != SAMPLE_COORD_INVALID &&
-		 g_sPreviousSample.z != SAMPLE_COORD_INVALID    )
-	{
-		*iX = g_sPreviousSample.x;
-		*iY = g_sPreviousSample.y;
-		*iZ = g_sPreviousSample.z;
-		return TRUE;
-	}
-	else
-	{
-		*iX = *iY = *iZ;
-		return FALSE;
-	}
+  EnterCriticalSection(&critSecAudio);
+  psSample->psNext = (*ppsSampleList);
+  psSample->psPrev = nullptr;
+  if ((*ppsSampleList) != nullptr)
+    (*ppsSampleList)->psPrev = psSample;
+  (*ppsSampleList) = psSample;
+  LeaveCriticalSection(&critSecAudio);
 }
 
 /***************************************************************************/
 
-static void
-audio_AddSampleToHead( AUDIO_SAMPLE **ppsSampleList, AUDIO_SAMPLE *psSample )
+static void audio_AddSampleToTail(AUDIO_SAMPLE** ppsSampleList, AUDIO_SAMPLE* psSample)
 {
-	EnterCriticalSection( &critSecAudio );
-	psSample->psNext = (*ppsSampleList);
-	psSample->psPrev = NULL;
-	if ( (*ppsSampleList) != NULL )
-	{
-		(*ppsSampleList)->psPrev = psSample;
-	}
-	(*ppsSampleList) = psSample;
-	LeaveCriticalSection( &critSecAudio );
-}
+  AUDIO_SAMPLE* psSampleTail = nullptr;
 
-/***************************************************************************/
+  EnterCriticalSection(&critSecAudio);
 
-static void
-audio_AddSampleToTail( AUDIO_SAMPLE **ppsSampleList, AUDIO_SAMPLE *psSample )
-{
-	AUDIO_SAMPLE	*psSampleTail = NULL;
+  if ((*ppsSampleList) == nullptr)
+    (*ppsSampleList) = psSample;
+  else
+  {
+    psSampleTail = (*ppsSampleList);
+    while (psSampleTail->psNext != nullptr) { psSampleTail = psSampleTail->psNext; }
+    psSampleTail->psNext = psSample;
+    psSample->psPrev = psSampleTail;
+    psSample->psNext = nullptr;
+  }
 
-	EnterCriticalSection( &critSecAudio );
-
-	if ( (*ppsSampleList) == NULL )
-	{
-		(*ppsSampleList) = psSample;
-	}
-	else
-	{
-		psSampleTail = (*ppsSampleList);
-		while ( psSampleTail->psNext != NULL )
-		{
-			psSampleTail = psSampleTail->psNext;
-		}
-		psSampleTail->psNext = psSample;
-		psSample->psPrev = psSampleTail;
-		psSample->psNext = NULL;
-	}
-
-	LeaveCriticalSection( &critSecAudio );
+  LeaveCriticalSection(&critSecAudio);
 }
 
 /***************************************************************************/
@@ -242,137 +207,114 @@ audio_AddSampleToTail( AUDIO_SAMPLE **ppsSampleList, AUDIO_SAMPLE *psSample )
  */
 /***************************************************************************/
 
-static void
-audio_RemoveSample( AUDIO_SAMPLE **ppsSampleList, AUDIO_SAMPLE *psSample )
+static void audio_RemoveSample(AUDIO_SAMPLE** ppsSampleList, AUDIO_SAMPLE* psSample)
 {
-	if ( psSample == NULL )
-	{
-		return;
-	}
+  if (psSample == nullptr)
+    return;
 
-	EnterCriticalSection( &critSecAudio );
-	if ( psSample == (*ppsSampleList) )
-	{
-		/* first sample in list */
-		(*ppsSampleList) = psSample->psNext;
-	}
-	else
-	{
-		if ( psSample->psPrev != NULL )
-		{
-			psSample->psPrev->psNext = psSample->psNext;
-		}
-		if ( psSample->psNext != NULL )
-		{
-			psSample->psNext->psPrev = psSample->psPrev;
-		}
-	}
+  EnterCriticalSection(&critSecAudio);
+  if (psSample == (*ppsSampleList))
+  {
+    /* first sample in list */
+    (*ppsSampleList) = psSample->psNext;
+  }
+  else
+  {
+    if (psSample->psPrev != nullptr)
+      psSample->psPrev->psNext = psSample->psNext;
+    if (psSample->psNext != nullptr)
+      psSample->psNext->psPrev = psSample->psPrev;
+  }
 
-	/* set sample pointers NULL for safety */
-	psSample->psPrev = NULL;
-	psSample->psNext = NULL;
+  /* set sample pointers NULL for safety */
+  psSample->psPrev = nullptr;
+  psSample->psNext = nullptr;
 
-	LeaveCriticalSection( &critSecAudio );
+  LeaveCriticalSection(&critSecAudio);
 }
 
 /***************************************************************************/
 
-static BOOL
-audio_CheckSameQueueTracksPlaying( SDWORD iTrack )
+static BOOL audio_CheckSameQueueTracksPlaying(SDWORD iTrack)
 {
-	SDWORD			iCount;
-	AUDIO_SAMPLE	*psSample = NULL;
-	BOOL			bOK = TRUE;
+  SDWORD iCount;
+  AUDIO_SAMPLE* psSample = nullptr;
+  BOOL bOK = TRUE;
 
-	/* return if audio not enabled */
-	if ( g_bAudioEnabled == FALSE || g_bAudioPaused == TRUE )
-	{
-		return TRUE;
-	}
+  /* return if audio not enabled */
+  if (g_bAudioEnabled == FALSE || g_bAudioPaused == TRUE)
+    return TRUE;
 
-	iCount = 0;
+  iCount = 0;
 
-	/* loop through queue sounds and check whether too many already in it */
-	psSample = g_psSampleQueue;
-	while ( psSample != NULL )
-	{
-		if ( psSample->iTrack == iTrack )
-		{
-			iCount++;
-		}
+  /* loop through queue sounds and check whether too many already in it */
+  psSample = g_psSampleQueue;
+  while (psSample != nullptr)
+  {
+    if (psSample->iTrack == iTrack)
+      iCount++;
 
-		if ( iCount > MAX_SAME_SAMPLES )
-		{
-			bOK = FALSE;
-			break;
-		}
+    if (iCount > MAX_SAME_SAMPLES)
+    {
+      bOK = FALSE;
+      break;
+    }
 
-		psSample = psSample->psNext;
-	}
+    psSample = psSample->psNext;
+  }
 
-	return bOK;
+  return bOK;
 }
 
 /***************************************************************************/
 
-AUDIO_SAMPLE *
-audio_QueueSample( SDWORD iTrack )
+AUDIO_SAMPLE* audio_QueueSample(SDWORD iTrack)
 {
-	AUDIO_SAMPLE	*psSample = NULL;
-	SDWORD			iSameSamples = 0;
+  AUDIO_SAMPLE* psSample = nullptr;
+  SDWORD iSameSamples = 0;
 
-	printf("audio_queuesample called - track=%d\n",iTrack);
+  printf("audio_queuesample called - track=%d\n", iTrack);
 
-	/* return if audio not enabled */
-	if ( g_bAudioEnabled == FALSE || g_bAudioPaused == TRUE ||
-		 g_bStopAll == TRUE )
-	{
-		return NULL;
-	}
+  /* return if audio not enabled */
+  if (g_bAudioEnabled == FALSE || g_bAudioPaused == TRUE || g_bStopAll == TRUE)
+    return nullptr;
 
-	ASSERT( ( sound_CheckTrack( iTrack ) == TRUE,
-			"audio_QueueSample: track %i outside limits\n", iTrack ) );
+  ASSERT(( sound_CheckTrack( iTrack ) == TRUE, "audio_QueueSample: track %i outside limits\n", iTrack ));
 
-	/* reject track if too many of same ID already in queue */
-	if ( audio_CheckSameQueueTracksPlaying( iTrack ) == FALSE )
-	{
-		return NULL;
-	}
+  /* reject track if too many of same ID already in queue */
+  if (audio_CheckSameQueueTracksPlaying(iTrack) == FALSE)
+    return nullptr;
 
-	printf("audio_queuetrack called1\n");
-	HEAP_ALLOC( g_psSampleHeap, &psSample );
+  printf("audio_queuetrack called1\n");
+  HEAP_ALLOC(g_psSampleHeap, &psSample);
 
-	if ( psSample != NULL )
-	{
-		memset( psSample, 0, sizeof(AUDIO_SAMPLE) );
-		psSample->iTrack  = iTrack;
-		psSample->x       = SAMPLE_COORD_INVALID;
-		psSample->y       = SAMPLE_COORD_INVALID;
-		psSample->z       = SAMPLE_COORD_INVALID;
-		psSample->bRemove = FALSE;
+  if (psSample != nullptr)
+  {
+    memset(psSample, 0, sizeof(AUDIO_SAMPLE));
+    psSample->iTrack = iTrack;
+    psSample->x = SAMPLE_COORD_INVALID;
+    psSample->y = SAMPLE_COORD_INVALID;
+    psSample->z = SAMPLE_COORD_INVALID;
+    psSample->bRemove = FALSE;
 
-		/* add to queue */
-		audio_AddSampleToTail( &g_psSampleQueue, psSample );
-	}
+    /* add to queue */
+    audio_AddSampleToTail(&g_psSampleQueue, psSample);
+  }
 
-	return psSample;
+  return psSample;
 }
 
 /***************************************************************************/
 
-void
-audio_QueueTrack( SDWORD iTrack )
+void audio_QueueTrack(SDWORD iTrack)
 {
-	AUDIO_SAMPLE	*psSample = NULL;
+  AUDIO_SAMPLE* psSample = nullptr;
 
-	/* return if audio not enabled */
-	if ( g_bAudioEnabled == FALSE || g_bAudioPaused == TRUE ||
-		 g_bStopAll == TRUE )
-	{
-		return;
-	}
+  /* return if audio not enabled */
+  if (g_bAudioEnabled == FALSE || g_bAudioPaused == TRUE || g_bStopAll == TRUE)
+    return;
 
-	psSample = audio_QueueSample( iTrack );
+  psSample = audio_QueueSample(iTrack);
 }
 
 /***************************************************************************/
@@ -383,242 +325,208 @@ audio_QueueTrack( SDWORD iTrack )
  */
 /***************************************************************************/
 
-void
-audio_QueueTrackMinDelay( SDWORD iTrack, UDWORD iMinDelay )
+void audio_QueueTrackMinDelay(SDWORD iTrack, UDWORD iMinDelay)
 {
-	AUDIO_SAMPLE	*psSample = NULL;
-	UDWORD			iDelay;
+  AUDIO_SAMPLE* psSample = nullptr;
+  UDWORD iDelay;
 
-	/* return if audio not enabled */
-	if ( g_bAudioEnabled == FALSE || g_bAudioPaused == TRUE )
-	{
-		return;
-	}
+  /* return if audio not enabled */
+  if (g_bAudioEnabled == FALSE || g_bAudioPaused == TRUE)
+    return;
 
-	iDelay = sound_GetGameTime() - sound_GetTrackTimeLastFinished( iTrack );
+  iDelay = sound_GetGameTime() - sound_GetTrackTimeLastFinished(iTrack);
 
-	if ( iDelay > iMinDelay )
-	{
-		psSample = audio_QueueSample( iTrack );
+  if (iDelay > iMinDelay)
+  {
+    psSample = audio_QueueSample(iTrack);
 
-		if ( psSample != NULL )
-		{
-			sound_SetTrackTimeLastFinished( iTrack, sound_GetGameTime() );
-		}
-	}
+    if (psSample != nullptr)
+      sound_SetTrackTimeLastFinished(iTrack, sound_GetGameTime());
+  }
 }
 
 /***************************************************************************/
 
-void
-audio_QueueTrackMinDelayPos( SDWORD iTrack, UDWORD iMinDelay,
-								SDWORD iX, SDWORD iY, SDWORD iZ )
+void audio_QueueTrackMinDelayPos(SDWORD iTrack, UDWORD iMinDelay, SDWORD iX, SDWORD iY, SDWORD iZ)
 {
-	AUDIO_SAMPLE	*psSample = NULL;
-	UDWORD			iDelay;
+  AUDIO_SAMPLE* psSample = nullptr;
+  UDWORD iDelay;
 
-	/* return if audio not enabled */
-	if ( g_bAudioEnabled == FALSE || g_bAudioPaused == TRUE )
-	{
-		return;
-	}
+  /* return if audio not enabled */
+  if (g_bAudioEnabled == FALSE || g_bAudioPaused == TRUE)
+    return;
 
-	iDelay = sound_GetGameTime() - sound_GetTrackTimeLastFinished( iTrack );
+  iDelay = sound_GetGameTime() - sound_GetTrackTimeLastFinished(iTrack);
 
-	if ( iDelay > iMinDelay )
-	{
-		psSample = audio_QueueSample( iTrack );
+  if (iDelay > iMinDelay)
+  {
+    psSample = audio_QueueSample(iTrack);
 
-		if ( psSample != NULL )
-		{
-			sound_SetTrackTimeLastFinished( iTrack, sound_GetGameTime() );
-			psSample->x = iX;
-			psSample->y = iY;
-			psSample->z = iZ;
-		}
-	}
+    if (psSample != nullptr)
+    {
+      sound_SetTrackTimeLastFinished(iTrack, sound_GetGameTime());
+      psSample->x = iX;
+      psSample->y = iY;
+      psSample->z = iZ;
+    }
+  }
 }
 
 /***************************************************************************/
 
-void
-audio_QueueTrackPos( SDWORD iTrack, SDWORD iX, SDWORD iY, SDWORD iZ )
+void audio_QueueTrackPos(SDWORD iTrack, SDWORD iX, SDWORD iY, SDWORD iZ)
 {
-	AUDIO_SAMPLE	*psSample = NULL;
+  AUDIO_SAMPLE* psSample = nullptr;
 
-	/* return if audio not enabled */
-	if ( g_bAudioEnabled == FALSE || g_bAudioPaused == TRUE )
-	{
-		return;
-	}
+  /* return if audio not enabled */
+  if (g_bAudioEnabled == FALSE || g_bAudioPaused == TRUE)
+    return;
 
-	psSample = audio_QueueSample( iTrack );
-	if ( psSample != NULL )
-	{
-		psSample->x = iX;
-		psSample->y = iY;
-		psSample->z = iZ;
-	}
+  psSample = audio_QueueSample(iTrack);
+  if (psSample != nullptr)
+  {
+    psSample->x = iX;
+    psSample->y = iY;
+    psSample->z = iZ;
+  }
 }
 
 /***************************************************************************/
 
-void
-audio_UpdateQueue( void )
+void audio_UpdateQueue(void)
 {
-	AUDIO_SAMPLE	*psSample = NULL;
+  AUDIO_SAMPLE* psSample = nullptr;
 
-	/* return if audio not enabled */
-	if ( g_bAudioEnabled == FALSE || g_bAudioPaused == TRUE )
-	{
-		return;
-	}
+  /* return if audio not enabled */
+  if (g_bAudioEnabled == FALSE || g_bAudioPaused == TRUE)
+    return;
 
-	if ( sound_QueueSamplePlaying() == TRUE )
-	{
-		/* lower volume whilst playing queue audio */
-		audio_Set3DVolume( LOWERED_VOL );
-	}
-	else
-	{
-		/* set full global volume */
-		audio_Set3DVolume( AUDIO_VOL_MAX );
+  if (sound_QueueSamplePlaying() == TRUE)
+  {
+    /* lower volume whilst playing queue audio */
+    audio_Set3DVolume(LOWERED_VOL);
+  }
+  else
+  {
+    /* set full global volume */
+    audio_Set3DVolume(AUDIO_VOL_MAX);
 
-		/* check queue for members */
-		if ( g_psSampleQueue != NULL )
-		{
-			/* remove queue head */
-			psSample = g_psSampleQueue;
-			audio_RemoveSample( &g_psSampleQueue, psSample );
+    /* check queue for members */
+    if (g_psSampleQueue != nullptr)
+    {
+      /* remove queue head */
+      psSample = g_psSampleQueue;
+      audio_RemoveSample(&g_psSampleQueue, psSample);
 
-			/* add sample to list if able to play */
-			if ( sound_Play2DTrack( psSample, TRUE ) == TRUE )
-			{
-				audio_AddSampleToHead( &g_psSampleList, psSample );
+      /* add sample to list if able to play */
+      if (sound_Play2DTrack(psSample, TRUE) == TRUE)
+      {
+        audio_AddSampleToHead(&g_psSampleList, psSample);
 
-				/* update last queue sound coords */
-				if ( psSample->x != SAMPLE_COORD_INVALID &&
-					 psSample->y != SAMPLE_COORD_INVALID &&
-					 psSample->z != SAMPLE_COORD_INVALID    )
-				{
-					g_sPreviousSample.x = psSample->x;
-					g_sPreviousSample.y = psSample->y;
-					g_sPreviousSample.z = psSample->z;
-				}
-			}
-			else
-			{
-				DBPRINTF( ("audio_UpdateQueue: couldn't play sample\n") );
-				HEAP_FREE( g_psSampleHeap, psSample );
-			}
-		}
-	}
+        /* update last queue sound coords */
+        if (psSample->x != SAMPLE_COORD_INVALID && psSample->y != SAMPLE_COORD_INVALID && psSample->z != SAMPLE_COORD_INVALID)
+        {
+          g_sPreviousSample.x = psSample->x;
+          g_sPreviousSample.y = psSample->y;
+          g_sPreviousSample.z = psSample->z;
+        }
+      }
+      else
+      {
+        DBPRINTF(("audio_UpdateQueue: couldn't play sample\n"));
+        HEAP_FREE(g_psSampleHeap, psSample);
+      }
+    }
+  }
 }
 
 /***************************************************************************/
 
-BOOL
-audio_Update( void )
+BOOL audio_Update(void)
 {
-	SDWVEC3D		vecPlayer;
-	SDWORD			iA;
-	AUDIO_SAMPLE	*psSample, *psSampleTemp;
+  SDWVEC3D vecPlayer;
+  SDWORD iA;
+  AUDIO_SAMPLE *psSample, *psSampleTemp;
 
-	/* if audio not enabled return TRUE to carry on game without audio */
-	if ( g_bAudioEnabled == FALSE )
-	{
-		return TRUE;
-	}
+  /* if audio not enabled return TRUE to carry on game without audio */
+  if (g_bAudioEnabled == FALSE)
+    return TRUE;
 
-	audio_UpdateQueue();
+  audio_UpdateQueue();
 
-	/* get player position */
-	if ( audio_Display3D() == TRUE )
-	{
-		audio_Get3DPlayerPos( &vecPlayer.x, &vecPlayer.y, &vecPlayer.z );
-	}
-	else
-	{
-		audio_Get2DPlayerPos( &vecPlayer.x, &vecPlayer.y, &vecPlayer.z );
-	}
+  /* get player position */
+  if (audio_Display3D() == TRUE)
+    audio_Get3DPlayerPos(&vecPlayer.x, &vecPlayer.y, &vecPlayer.z);
+  else
+    audio_Get2DPlayerPos(&vecPlayer.x, &vecPlayer.y, &vecPlayer.z);
 
-	sound_SetPlayerPos( vecPlayer.x, vecPlayer.y, vecPlayer.z );
-	
-	audio_Get3DPlayerRotAboutVerticalAxis( &iA );
-	sound_SetPlayerOrientation( 0, 0, iA );
+  sound_SetPlayerPos(vecPlayer.x, vecPlayer.y, vecPlayer.z);
 
-	/* loop through 3D sounds and remove if finished or update position */
-	psSample = g_psSampleList;
-	while ( psSample != NULL )
-	{
-		/* remove finished samples from list */
-		if ( psSample->bRemove == TRUE )
-		{
-			audio_RemoveSample( &g_psSampleList, psSample );
-			psSampleTemp = psSample->psNext;
-			HEAP_FREE( g_psSampleHeap, psSample );
-			psSample = psSampleTemp;
-		}
-		/* check looping sound callbacks for finished condition */
-		else
-		{
-			if ( psSample->psObj != NULL )
-			{
-				if ( audio_ObjectDead( psSample->psObj ) ||
-					 ( psSample->pCallback != NULL &&
-				      (psSample->pCallback)(psSample) == FALSE) )
-				{
-					sound_StopTrack( psSample );
-					psSample->psObj = NULL;
-				}
-				else
-				{
-					/* update sample position */
-					{
-						audio_GetObjectPos( psSample->psObj,
-								&psSample->x, &psSample->y, &psSample->z );
-						sound_SetObjectPosition( psSample->iSample,
-								psSample->x, psSample->y, psSample->z );
-					}
-				}
-			}
+  audio_Get3DPlayerRotAboutVerticalAxis(&iA);
+  sound_SetPlayerOrientation(0, 0, iA);
 
-			/* next sample */
-			psSample = psSample->psNext;
-		}
-	}
+  /* loop through 3D sounds and remove if finished or update position */
+  psSample = g_psSampleList;
+  while (psSample != nullptr)
+  {
+    /* remove finished samples from list */
+    if (psSample->bRemove == TRUE)
+    {
+      audio_RemoveSample(&g_psSampleList, psSample);
+      psSampleTemp = psSample->psNext;
+      HEAP_FREE(g_psSampleHeap, psSample);
+      psSample = psSampleTemp;
+    }
+    /* check looping sound callbacks for finished condition */
+    else
+    {
+      if (psSample->psObj != nullptr)
+      {
+        if (audio_ObjectDead(psSample->psObj) || (psSample->pCallback != nullptr && (psSample->pCallback)(psSample) == FALSE))
+        {
+          sound_StopTrack(psSample);
+          psSample->psObj = nullptr;
+        }
+        else
+        {
+          /* update sample position */
+          {
+            audio_GetObjectPos(psSample->psObj, &psSample->x, &psSample->y, &psSample->z);
+            sound_SetObjectPosition(psSample->iSample, psSample->x, psSample->y, psSample->z);
+          }
+        }
+      }
 
-	sound_Update();
+      /* next sample */
+      psSample = psSample->psNext;
+    }
+  }
 
-	return TRUE;
+  sound_Update();
+
+  return TRUE;
 }
 
 /***************************************************************************/
 
-BOOL
-audio_LoadTrackFromFile( char szFileName[] )
+BOOL audio_LoadTrackFromFile(char szFileName[])
 {
-	/* if audio not enabled return TRUE to carry on game without audio */
-	if ( g_bAudioEnabled == FALSE )
-	{
-		return TRUE;
-	}
+  /* if audio not enabled return TRUE to carry on game without audio */
+  if (g_bAudioEnabled == FALSE)
+    return TRUE;
 
-	return sound_LoadTrackFromFile( szFileName );
+  return sound_LoadTrackFromFile(szFileName);
 }
 
 /***************************************************************************/
 
-void *
-audio_LoadTrackFromBuffer( UBYTE *pBuffer, UDWORD udwSize )
+void* audio_LoadTrackFromBuffer(UBYTE* pBuffer, UDWORD udwSize)
 {
-	/* if audio not enabled return TRUE to carry on game without audio */
-	if ( g_bAudioEnabled == FALSE )
-	{
-		return NULL;
-	}
+  /* if audio not enabled return TRUE to carry on game without audio */
+  if (g_bAudioEnabled == FALSE)
+    return nullptr;
 
-	return sound_LoadTrackFromBuffer( pBuffer, udwSize );
+  return sound_LoadTrackFromBuffer(pBuffer, udwSize);
 }
 
 /***************************************************************************/
@@ -635,87 +543,61 @@ audio_LoadTrackFromBuffer( UBYTE *pBuffer, UDWORD udwSize )
 //
 //  
 //
-BOOL
-audio_SetTrackVals( char szFileName[], BOOL bLoop, int *piID, int iVol,
-						int iPriority, int iAudibleRadius, int VagID )
+BOOL audio_SetTrackVals(char szFileName[], BOOL bLoop, int* piID, int iVol, int iPriority, int iAudibleRadius, int VagID)
 {
-	TRACK	*psTrack;
+  TRACK* psTrack;
 
-	/* if audio not enabled return TRUE to carry on game without audio */
-	if ( g_bAudioEnabled == FALSE )
-	{
-		return TRUE;
-	}
+  /* if audio not enabled return TRUE to carry on game without audio */
+  if (g_bAudioEnabled == FALSE)
+    return TRUE;
 
-	/* get track pointer from resource */
-	psTrack = (TRACK *)resGetData( "WAV", szFileName );
+  /* get track pointer from resource */
+  psTrack = static_cast<TRACK*>(resGetData("WAV", szFileName));
 
-	if ( psTrack == NULL )
-	{
-		DBPRINTF( ("audio_SetTrackVals: track %s resource not found\n", szFileName) );
-		return FALSE;
-	}
-	else
-	{
-		/* get current ID or spare one */
-		if ( audio_GetIDFromStr( szFileName, piID ) == FALSE )
-		{
-			*piID = sound_GetAvailableID();
-		}
+  if (psTrack == nullptr)
+  {
+    DBPRINTF(("audio_SetTrackVals: track %s resource not found\n", szFileName));
+    return FALSE;
+  }
+  /* get current ID or spare one */
+  if (audio_GetIDFromStr(szFileName, piID) == FALSE)
+    *piID = sound_GetAvailableID();
 
-		if ( *piID == SAMPLE_NOT_ALLOCATED )
-		{
-			DBPRINTF( ("audio_SetTrackVals: couldn't get spare track ID\n") );
-			return FALSE;
-		}
-		else
-		{
-			return sound_SetTrackVals( psTrack, bLoop, *piID, iVol,
-									iPriority, iAudibleRadius, VagID );
-		}
-	}
+  if (*piID == SAMPLE_NOT_ALLOCATED)
+  {
+    DBPRINTF(("audio_SetTrackVals: couldn't get spare track ID\n"));
+    return FALSE;
+  }
+  return sound_SetTrackVals(psTrack, bLoop, *piID, iVol, iPriority, iAudibleRadius, VagID);
 }
 
 /***************************************************************************/
 
-BOOL
-audio_SetTrackValsHashName( UDWORD hash, BOOL bLoop, int iTrack, int iVol,
-							int iPriority, int iAudibleRadius, int VagID )
+BOOL audio_SetTrackValsHashName(UDWORD hash, BOOL bLoop, int iTrack, int iVol, int iPriority, int iAudibleRadius, int VagID)
 {
-	TRACK	*psTrack;
+  TRACK* psTrack;
 
-	/* if audio not enabled return TRUE to carry on game without audio */
-	if ( g_bAudioEnabled == FALSE )
-	{
-		return TRUE;
-	}
+  /* if audio not enabled return TRUE to carry on game without audio */
+  if (g_bAudioEnabled == FALSE)
+    return TRUE;
 
-	/* get track pointer from resource */
-	psTrack = (TRACK *)resGetDataFromHash( "WAV", hash );
+  /* get track pointer from resource */
+  psTrack = static_cast<TRACK*>(resGetDataFromHash("WAV", hash));
 
-	if ( psTrack == NULL )
-	{
-		return FALSE;
-	}
-	else
-	{
-		return sound_SetTrackVals( psTrack, bLoop, iTrack, iVol,
-								iPriority, iAudibleRadius, VagID );
-	}
+  if (psTrack == nullptr)
+    return FALSE;
+  return sound_SetTrackVals(psTrack, bLoop, iTrack, iVol, iPriority, iAudibleRadius, VagID);
 }
 
 /***************************************************************************/
 
-void
-audio_ReleaseTrack( TRACK *psTrack )
+void audio_ReleaseTrack(TRACK* psTrack)
 {
-	/* return if audio not enabled */
-	if ( g_bAudioEnabled == FALSE )
-	{
-		return;
-	}
+  /* return if audio not enabled */
+  if (g_bAudioEnabled == FALSE)
+    return;
 
-	sound_ReleaseTrack ( psTrack );
+  sound_ReleaseTrack(psTrack);
 }
 
 /***************************************************************************/
@@ -726,237 +608,189 @@ audio_ReleaseTrack( TRACK *psTrack )
  */
 /***************************************************************************/
 
-static BOOL
-audio_CheckSame3DTracksPlaying( SDWORD iTrack, SDWORD iX, SDWORD iY, SDWORD iZ )
+static BOOL audio_CheckSame3DTracksPlaying(SDWORD iTrack, SDWORD iX, SDWORD iY, SDWORD iZ)
 {
-	SDWORD			iCount, iDx, iDy, iDz, iDistSq, iMaxDistSq, iRad;
-	AUDIO_SAMPLE	*psSample = NULL;
-	BOOL			bOK = TRUE;
+  SDWORD iCount, iDx, iDy, iDz, iDistSq, iMaxDistSq, iRad;
+  AUDIO_SAMPLE* psSample = nullptr;
+  BOOL bOK = TRUE;
 
-	/* return if audio not enabled */
-	if ( g_bAudioEnabled == FALSE || g_bAudioPaused == TRUE )
-	{
-		return TRUE;
-	}
+  /* return if audio not enabled */
+  if (g_bAudioEnabled == FALSE || g_bAudioPaused == TRUE)
+    return TRUE;
 
-	iCount = 0;
+  iCount = 0;
 
-	/* loop through 3D sounds and check whether too many already in earshot */
-	psSample = g_psSampleList;
-	while ( psSample != NULL )
-	{
-		if ( psSample->iTrack == iTrack )
-		{
-			iDx = iX - psSample->x;
-			iDy = iY - psSample->y;
-			iDz = iZ - psSample->z;
-			iDistSq = (iDx*iDx) + (iDy*iDy) + (iDz*iDz);
-			iRad = sound_GetTrackAudibleRadius( iTrack );
-			iMaxDistSq = iRad*iRad;
+  /* loop through 3D sounds and check whether too many already in earshot */
+  psSample = g_psSampleList;
+  while (psSample != nullptr)
+  {
+    if (psSample->iTrack == iTrack)
+    {
+      iDx = iX - psSample->x;
+      iDy = iY - psSample->y;
+      iDz = iZ - psSample->z;
+      iDistSq = (iDx * iDx) + (iDy * iDy) + (iDz * iDz);
+      iRad = sound_GetTrackAudibleRadius(iTrack);
+      iMaxDistSq = iRad * iRad;
 
-			if ( iDistSq < iMaxDistSq )
-			{
-				iCount++;
-			}
+      if (iDistSq < iMaxDistSq)
+        iCount++;
 
-			if ( iCount > MAX_SAME_SAMPLES )
-			{
-				bOK = FALSE;
-				break;
-			}
-		}
+      if (iCount > MAX_SAME_SAMPLES)
+      {
+        bOK = FALSE;
+        break;
+      }
+    }
 
-		psSample = psSample->psNext;
-	}
+    psSample = psSample->psNext;
+  }
 
-	return bOK;
+  return bOK;
 }
 
 /***************************************************************************/
 
-static BOOL
-audio_Play3DTrack( SDWORD iX, SDWORD iY, SDWORD iZ, int iTrack,
-						void *psObj, AUDIO_CALLBACK pUserCallback )
+static BOOL audio_Play3DTrack(SDWORD iX, SDWORD iY, SDWORD iZ, int iTrack, void* psObj, AUDIO_CALLBACK pUserCallback)
 {
-	AUDIO_SAMPLE	*psSample;
-	
-	/* if audio not enabled return TRUE to carry on game without audio */
-	if ( g_bAudioEnabled == FALSE || g_bAudioPaused == TRUE ||
-		 g_bStopAll == TRUE)
-	{
-		return FALSE;
-	}
+  AUDIO_SAMPLE* psSample;
 
-	if ( audio_CheckSame3DTracksPlaying( iTrack, iX, iY, iZ ) == FALSE )
-	{
-		return FALSE;
-	}
+  /* if audio not enabled return TRUE to carry on game without audio */
+  if (g_bAudioEnabled == FALSE || g_bAudioPaused == TRUE || g_bStopAll == TRUE)
+    return FALSE;
 
-	HEAP_ALLOC( g_psSampleHeap, &psSample );
-	if ( psSample == NULL )
-	{
-		return FALSE;
-	}
-	else
-	{
-		/* setup sample */
-		memset( psSample, 0, sizeof(AUDIO_SAMPLE) );
-		psSample->iTrack    = iTrack;
-		psSample->x         = iX;
-		psSample->y         = iY;
-		psSample->z         = iZ;
-		psSample->bRemove   = FALSE;
-		psSample->psObj     = psObj;
-		psSample->pCallback = pUserCallback;
+  if (audio_CheckSame3DTracksPlaying(iTrack, iX, iY, iZ) == FALSE)
+    return FALSE;
 
-		/* add sample to list if able to play */
-		if ( sound_Play3DTrack( psSample ) == TRUE )
-		{
-			audio_AddSampleToHead( &g_psSampleList, psSample );
-			return TRUE;
-		}
-		else
-		{
-			DBPRINTF( ("audio_Play3DTrack: couldn't play sample\n") );
-			HEAP_FREE( g_psSampleHeap, psSample );
-			return FALSE;
-		}
-	}
+  HEAP_ALLOC(g_psSampleHeap, &psSample);
+  if (psSample == nullptr)
+    return FALSE;
+  /* setup sample */
+  memset(psSample, 0, sizeof(AUDIO_SAMPLE));
+  psSample->iTrack = iTrack;
+  psSample->x = iX;
+  psSample->y = iY;
+  psSample->z = iZ;
+  psSample->bRemove = FALSE;
+  psSample->psObj = psObj;
+  psSample->pCallback = pUserCallback;
+
+  /* add sample to list if able to play */
+  if (sound_Play3DTrack(psSample) == TRUE)
+  {
+    audio_AddSampleToHead(&g_psSampleList, psSample);
+    return TRUE;
+  }
+  DBPRINTF(("audio_Play3DTrack: couldn't play sample\n"));
+  HEAP_FREE(g_psSampleHeap, psSample);
+  return FALSE;
 }
 
 /***************************************************************************/
 
-BOOL
-audio_PlayStaticTrack( SDWORD iMapX, SDWORD iMapY, int iTrack )
+BOOL audio_PlayStaticTrack(SDWORD iMapX, SDWORD iMapY, int iTrack)
 {
-	SDWORD			iX, iY, iZ;
+  SDWORD iX, iY, iZ;
 
-	/* if audio not enabled return TRUE to carry on game without audio */
-	if ( g_bAudioEnabled == FALSE )
-	{
-		return FALSE;
-	}
+  /* if audio not enabled return TRUE to carry on game without audio */
+  if (g_bAudioEnabled == FALSE)
+    return FALSE;
 
-	audio_GetStaticPos( iMapX, iMapY, &iX, &iY, &iZ );
-	return audio_Play3DTrack( iX, iY, iZ, iTrack, NULL, NULL );
+  audio_GetStaticPos(iMapX, iMapY, &iX, &iY, &iZ);
+  return audio_Play3DTrack(iX, iY, iZ, iTrack, nullptr, nullptr);
 }
 
 /***************************************************************************/
 
-BOOL
-audio_PlayObjStaticTrack( void * psObj, int iTrack )
+BOOL audio_PlayObjStaticTrack(void* psObj, int iTrack)
 {
-	SDWORD			iX, iY, iZ;
+  SDWORD iX, iY, iZ;
 
-	/* if audio not enabled return TRUE to carry on game without audio */
-	if ( g_bAudioEnabled == FALSE )
-	{
-		return FALSE;
-	}
+  /* if audio not enabled return TRUE to carry on game without audio */
+  if (g_bAudioEnabled == FALSE)
+    return FALSE;
 
-	audio_GetObjectPos( psObj, &iX, &iY, &iZ );
-	return audio_Play3DTrack( iX, iY, iZ, iTrack, psObj, NULL );
+  audio_GetObjectPos(psObj, &iX, &iY, &iZ);
+  return audio_Play3DTrack(iX, iY, iZ, iTrack, psObj, nullptr);
 }
 
 /***************************************************************************/
 
-BOOL
-audio_PlayObjStaticTrackCallback( void * psObj, int iTrack,
-									AUDIO_CALLBACK pUserCallback )
+BOOL audio_PlayObjStaticTrackCallback(void* psObj, int iTrack, AUDIO_CALLBACK pUserCallback)
 {
-	SDWORD			iX, iY, iZ;
+  SDWORD iX, iY, iZ;
 
-	/* if audio not enabled return TRUE to carry on game without audio */
-	if ( g_bAudioEnabled == FALSE )
-	{
-		return FALSE;
-	}
+  /* if audio not enabled return TRUE to carry on game without audio */
+  if (g_bAudioEnabled == FALSE)
+    return FALSE;
 
-	audio_GetObjectPos( psObj, &iX, &iY, &iZ );
-	return audio_Play3DTrack( iX, iY, iZ, iTrack, psObj, pUserCallback );
+  audio_GetObjectPos(psObj, &iX, &iY, &iZ);
+  return audio_Play3DTrack(iX, iY, iZ, iTrack, psObj, pUserCallback);
 }
 
 /***************************************************************************/
 
-BOOL
-audio_PlayObjDynamicTrack( void * psObj, int iTrack,
-							AUDIO_CALLBACK pUserCallback )
+BOOL audio_PlayObjDynamicTrack(void* psObj, int iTrack, AUDIO_CALLBACK pUserCallback)
 {
-	SDWORD			iX, iY, iZ;
-	
-	/* if audio not enabled return TRUE to carry on game without audio */
-	if ( g_bAudioEnabled == FALSE )
-	{
-		return FALSE;
-	}
+  SDWORD iX, iY, iZ;
 
-	audio_GetObjectPos( psObj, &iX, &iY, &iZ );
-	return audio_Play3DTrack( iX, iY, iZ, iTrack, psObj, pUserCallback );
+  /* if audio not enabled return TRUE to carry on game without audio */
+  if (g_bAudioEnabled == FALSE)
+    return FALSE;
+
+  audio_GetObjectPos(psObj, &iX, &iY, &iZ);
+  return audio_Play3DTrack(iX, iY, iZ, iTrack, psObj, pUserCallback);
 }
 
 /***************************************************************************/
 
-BOOL
-audio_PlayStream( char szFileName[], SDWORD iVol,
-					AUDIO_CALLBACK pUserCallback )
+BOOL audio_PlayStream(char szFileName[], SDWORD iVol, AUDIO_CALLBACK pUserCallback)
 {
-	AUDIO_SAMPLE	*psSample;
+  AUDIO_SAMPLE* psSample;
 
-	/* if audio not enabled return TRUE to carry on game without audio */
-	if ( g_bAudioEnabled == FALSE )
-	{
-		return FALSE;
-	}
+  /* if audio not enabled return TRUE to carry on game without audio */
+  if (g_bAudioEnabled == FALSE)
+    return FALSE;
 
-	HEAP_ALLOC( g_psSampleHeap, &psSample );
+  HEAP_ALLOC(g_psSampleHeap, &psSample);
 
-	if ( psSample != NULL )
-	{
-		memset( psSample, 0, sizeof(AUDIO_SAMPLE) );
-		psSample->pCallback = pUserCallback;
-		psSample->bRemove   = FALSE;
+  if (psSample != nullptr)
+  {
+    memset(psSample, 0, sizeof(AUDIO_SAMPLE));
+    psSample->pCallback = pUserCallback;
+    psSample->bRemove = FALSE;
 
-		audio_Set3DVolume( AUDIO_VOL_MAX );
-		if ( sound_PlayStream( psSample, szFileName, iVol ) == TRUE )
-		{
-			return TRUE;
-		}
-	}
+    audio_Set3DVolume(AUDIO_VOL_MAX);
+    if (sound_PlayStream(psSample, szFileName, iVol) == TRUE)
+      return TRUE;
+  }
 
-	return FALSE;
-
+  return FALSE;
 }
 
 /***************************************************************************/
 
-void
-audio_StopObjTrack( void * psObj, int iTrack )
+void audio_StopObjTrack(void* psObj, int iTrack)
 {
-	AUDIO_SAMPLE	*psSample;
+  AUDIO_SAMPLE* psSample;
 
-	/* return if audio not enabled */
-	if ( g_bAudioEnabled == FALSE || g_bStopAll == TRUE )
-	{
-		return;
-	}
+  /* return if audio not enabled */
+  if (g_bAudioEnabled == FALSE || g_bStopAll == TRUE)
+    return;
 
-	/* find sample */
-	psSample = g_psSampleList;
-	while ( psSample != NULL )
-	{
-		if ( psSample->psObj == psObj && psSample->iTrack == iTrack )
-		{
-			break;
-		}
+  /* find sample */
+  psSample = g_psSampleList;
+  while (psSample != nullptr)
+  {
+    if (psSample->psObj == psObj && psSample->iTrack == iTrack)
+      break;
 
-		/* get next sample from hash table */
-		psSample = psSample->psNext;
-	}
+    /* get next sample from hash table */
+    psSample = psSample->psNext;
+  }
 
-	if ( psSample != NULL )
-	{
-		sound_StopTrack( psSample );
-	}
+  if (psSample != nullptr)
+    sound_StopTrack(psSample);
 }
 
 /***************************************************************************/
@@ -967,284 +801,213 @@ audio_StopObjTrack( void * psObj, int iTrack )
  */
 /***************************************************************************/
 
-void audio_PlayTrack( int iTrack )
+void audio_PlayTrack(int iTrack)
 {
-	AUDIO_SAMPLE	*psSample;
+  AUDIO_SAMPLE* psSample;
 
-	/* return if audio not enabled */
-	if ( g_bAudioEnabled == FALSE || g_bAudioPaused == TRUE ||
-		 g_bStopAll == TRUE )
-	{
-		return;
-	}
+  /* return if audio not enabled */
+  if (g_bAudioEnabled == FALSE || g_bAudioPaused == TRUE || g_bStopAll == TRUE)
+    return;
 
+  HEAP_ALLOC(g_psSampleHeap, &psSample);
+  if (psSample != nullptr)
+  {
+    /* setup sample */
+    memset(psSample, 0, sizeof(AUDIO_SAMPLE));
+    psSample->iTrack = iTrack;
+    psSample->bRemove = FALSE;
 
-	HEAP_ALLOC( g_psSampleHeap, &psSample );
-	if ( psSample != NULL )
-	{
-		/* setup sample */
-		memset( psSample, 0, sizeof(AUDIO_SAMPLE) );
-		psSample->iTrack  = iTrack;
-		psSample->bRemove = FALSE;
-
-		/* add sample to list if able to play */
-		if ( sound_Play2DTrack( psSample, FALSE ) == TRUE )
-		{
-			audio_AddSampleToHead( &g_psSampleList, psSample );
-		}
-		else
-		{
-			DBPRINTF( ("audio_PlayTrack: couldn't play sample\n") );
-			HEAP_FREE( g_psSampleHeap, psSample );
-		}
-	}
+    /* add sample to list if able to play */
+    if (sound_Play2DTrack(psSample, FALSE) == TRUE)
+      audio_AddSampleToHead(&g_psSampleList, psSample);
+    else
+    {
+      DBPRINTF(("audio_PlayTrack: couldn't play sample\n"));
+      HEAP_FREE(g_psSampleHeap, psSample);
+    }
+  }
 }
 
 /***************************************************************************/
 
-void
-audio_StopTrack( int iTrack )
+void audio_StopTrack(int iTrack)
 {
-	/* return if audio not enabled */
-	if ( g_bAudioEnabled == FALSE )
-	{
-		return;
-	}
+  /* return if audio not enabled */
+  if (g_bAudioEnabled == FALSE)
+    return;
 
-	iTrack;
+  iTrack;
 }
 
 /***************************************************************************/
 
-void
-audio_SetTrackPan( int iTrack, int iPan )
+void audio_SetTrackPan(int iTrack, int iPan)
 {
-	/* return if audio not enabled */
-	if ( g_bAudioEnabled == FALSE )
-	{
-		return;
-	}
+  /* return if audio not enabled */
+  if (g_bAudioEnabled == FALSE)
+    return;
 
-	iTrack;
-	iPan;
+  iTrack;
+  iPan;
 }
 
 /***************************************************************************/
 
-void
-audio_SetTrackVol( int iTrack, int iVol )
+void audio_SetTrackVol(int iTrack, int iVol)
 {
-	/* return if audio not enabled */
-	if ( g_bAudioEnabled == FALSE )
-	{
-		return;
-	}
+  /* return if audio not enabled */
+  if (g_bAudioEnabled == FALSE)
+    return;
 
-	iTrack;
-	iVol;
+  iTrack;
+  iVol;
 }
 
 /***************************************************************************/
 
-void
-audio_SetTrackFreq( int iTrack, int iFreq )
+void audio_SetTrackFreq(int iTrack, int iFreq)
 {
-	/* return if audio not enabled */
-	if ( g_bAudioEnabled == FALSE )
-	{
-		return;
-	}
+  /* return if audio not enabled */
+  if (g_bAudioEnabled == FALSE)
+    return;
 
-	iTrack;
-	iFreq;
+  iTrack;
+  iFreq;
 }
 
 /***************************************************************************/
 
-void
-audio_PauseAll( void )
+void audio_PauseAll(void)
 {
-	/* return if audio not enabled */
-	if ( g_bAudioEnabled == FALSE )
-	{
-		return;
-	}
+  /* return if audio not enabled */
+  if (g_bAudioEnabled == FALSE)
+    return;
 
-	g_bAudioPaused = TRUE;
+  g_bAudioPaused = TRUE;
 
-	sound_PauseAll();
+  sound_PauseAll();
 }
 
 /***************************************************************************/
 
-void
-audio_ResumeAll( void )
+void audio_ResumeAll(void)
 {
-	/* return if audio not enabled */
-	if ( g_bAudioEnabled == FALSE )
-	{
-		return;
-	}
+  /* return if audio not enabled */
+  if (g_bAudioEnabled == FALSE)
+    return;
 
-	g_bAudioPaused = FALSE;
+  g_bAudioPaused = FALSE;
 
-	sound_ResumeAll();
+  sound_ResumeAll();
 }
 
 /***************************************************************************/
 
-void
-audio_StopAll( void )
+void audio_StopAll(void)
 {
-	AUDIO_SAMPLE	*psSample, *psSampleTemp;
+  AUDIO_SAMPLE *psSample, *psSampleTemp;
 
-	/* return if audio not enabled */
-	if ( g_bAudioEnabled == FALSE )
-	{
-		return;
-	}
+  /* return if audio not enabled */
+  if (g_bAudioEnabled == FALSE)
+    return;
 
-	DBPRINTF( ("audio_StopAll called\n") );
+  DBPRINTF(("audio_StopAll called\n"));
 
-	g_bStopAll = TRUE;
+  g_bStopAll = TRUE;
 
-	/* empty list - audio_Update will free samples
-	 * because callbacks have to come in first
-	 */
-	psSample = g_psSampleList;
-	while ( psSample != NULL )
-	{
-		sound_StopTrack( psSample );
-		psSample = psSample->psNext;
-	}
+  /* empty list - audio_Update will free samples
+   * because callbacks have to come in first
+   */
+  psSample = g_psSampleList;
+  while (psSample != nullptr)
+  {
+    sound_StopTrack(psSample);
+    psSample = psSample->psNext;
+  }
 
-	/* empty sample queue */
-	psSample = g_psSampleQueue;
-	while ( psSample != NULL )
-	{
-		psSampleTemp = psSample->psNext;
-		HEAP_FREE( g_psSampleHeap, psSample );
-		psSample = psSampleTemp;
-	}
-	g_psSampleQueue = NULL;
+  /* empty sample queue */
+  psSample = g_psSampleQueue;
+  while (psSample != nullptr)
+  {
+    psSampleTemp = psSample->psNext;
+    HEAP_FREE(g_psSampleHeap, psSample);
+    psSample = psSampleTemp;
+  }
+  g_psSampleQueue = nullptr;
 
-	g_bStopAll = FALSE;
+  g_bStopAll = FALSE;
 
-	DBPRINTF( ("audio_StopAll done\n") );
+  DBPRINTF(("audio_StopAll done\n"));
 }
 
 /***************************************************************************/
 
-void
-audio_CheckAllUnloaded()
+void audio_CheckAllUnloaded() { sound_CheckAllUnloaded(); }
+
+/***************************************************************************/
+
+LPDIRECTSOUND audio_GetDirectSoundObj(void)
 {
-	sound_CheckAllUnloaded();
+  /* return if audio not enabled */
+  if (g_bAudioEnabled == FALSE)
+    return nullptr;
+
+  return sound_GetDirectSoundObj();
 }
 
 /***************************************************************************/
 
-LPDIRECTSOUND
-audio_GetDirectSoundObj( void )
+SDWORD audio_GetTrackID(char szFileName[])
 {
-	/* return if audio not enabled */
-	if ( g_bAudioEnabled == FALSE )
-	{
-		return NULL;
-	}
+  TRACK* psTrack;
+  SDWORD iID;
 
-	return sound_GetDirectSoundObj();
+  /* return if audio not enabled */
+  if (g_bAudioEnabled == FALSE)
+    return SAMPLE_NOT_FOUND;
+  psTrack = static_cast<TRACK*>(resGetData("WAV", szFileName));
+
+  if (psTrack == nullptr)
+    return SAMPLE_NOT_FOUND;
+  iID = sound_GetTrackID(psTrack);
+  return iID;
 }
 
 /***************************************************************************/
 
-SDWORD
-audio_GetTrackID( char szFileName[] )
+SDWORD audio_GetTrackIDFromHash(UDWORD hash)
 {
-	TRACK	*psTrack;
-	SDWORD	iID;
+  TRACK* psTrack;
+  SDWORD iID;
 
-	/* return if audio not enabled */
-	if ( g_bAudioEnabled == FALSE )
-	{
-		return SAMPLE_NOT_FOUND;
-	}
-	else
-	{
-		psTrack = (TRACK *)resGetData( "WAV", szFileName );
+  /* return if audio not enabled */
+  if (g_bAudioEnabled == FALSE)
+    return SAMPLE_NOT_FOUND;
+  psTrack = static_cast<TRACK*>(resGetDataFromHash("WAV", hash));
 
-		if ( psTrack == NULL )
-		{
-			return SAMPLE_NOT_FOUND;
-		}
-		else
-		{
-			iID = sound_GetTrackID( psTrack );
-			return iID;
-		}
-	}
+  if (psTrack == nullptr)
+    return SAMPLE_NOT_FOUND;
+  iID = sound_GetTrackID(psTrack);
+  return iID;
 }
 
 /***************************************************************************/
 
-
-SDWORD
-audio_GetTrackIDFromHash( UDWORD hash )
+SDWORD audio_GetAvailableID(void)
 {
-	TRACK	*psTrack;
-	SDWORD	iID;
-
-	/* return if audio not enabled */
-	if ( g_bAudioEnabled == FALSE )
-	{
-		return SAMPLE_NOT_FOUND;
-	}
-	else
-	{
-		psTrack = (TRACK *)resGetDataFromHash( "WAV", hash );
-
-		if ( psTrack == NULL )
-		{
-			return SAMPLE_NOT_FOUND;
-		}
-		else
-		{
-			iID = sound_GetTrackID( psTrack );
-			return iID;
-		}
-	}
+  /* return if audio not enabled */
+  if (g_bAudioEnabled == FALSE)
+    return 0;
+  return sound_GetAvailableID();
 }
 
 /***************************************************************************/
 
-SDWORD
-audio_GetAvailableID( void )
-{
-	/* return if audio not enabled */
-	if ( g_bAudioEnabled == FALSE )
-	{
-		return 0;
-	}
-	else
-	{
-		return sound_GetAvailableID();
-	}
-}
+SDWORD audio_Get3DVolume(void) { return g_i3DVolume; }
 
 /***************************************************************************/
 
-SDWORD
-audio_Get3DVolume( void )
-{
-	return g_i3DVolume;
-}
-
-/***************************************************************************/
-
-void
-audio_Set3DVolume( SDWORD iVol )
-{
-	g_i3DVolume = iVol;
-}
+void audio_Set3DVolume(SDWORD iVol) { g_i3DVolume = iVol; }
 
 /***************************************************************************/
 /*
@@ -1254,12 +1017,10 @@ audio_Set3DVolume( SDWORD iVol )
  */
 /***************************************************************************/
 
-SDWORD
-audio_GetMixVol( SDWORD iVol )
+SDWORD audio_GetMixVol(SDWORD iVol)
 {
-	SDWORD	iMixVol = (iVol*sound_GetMaxVolume()*audio_Get3DVolume())/
-						(AUDIO_VOL_RANGE*AUDIO_VOL_RANGE);
-	return iMixVol;
+  SDWORD iMixVol = (iVol * sound_GetMaxVolume() * audio_Get3DVolume()) / (AUDIO_VOL_RANGE * AUDIO_VOL_RANGE);
+  return iMixVol;
 }
 
 /***************************************************************************/
@@ -1271,19 +1032,16 @@ audio_GetMixVol( SDWORD iVol )
  */
 /***************************************************************************/
 
-SDWORD
-audio_GetSampleMixVol( AUDIO_SAMPLE * psSample, SDWORD iVol, BOOL bScale3D )
+SDWORD audio_GetSampleMixVol(AUDIO_SAMPLE* psSample, SDWORD iVol, BOOL bScale3D)
 {
-	SDWORD	iMixVol;
-	
-	iMixVol = iVol*sound_GetMaxVolume()/AUDIO_VOL_RANGE;
-	iMixVol = iMixVol*sound_GetTrackVolume(psSample->iTrack)/AUDIO_VOL_RANGE;
-	if ( bScale3D )
-	{
-		iMixVol = iMixVol*audio_Get3DVolume()/AUDIO_VOL_RANGE;
-	}
+  SDWORD iMixVol;
 
-	return iMixVol;
+  iMixVol = iVol * sound_GetMaxVolume() / AUDIO_VOL_RANGE;
+  iMixVol = iMixVol * sound_GetTrackVolume(psSample->iTrack) / AUDIO_VOL_RANGE;
+  if (bScale3D)
+    iMixVol = iMixVol * audio_Get3DVolume() / AUDIO_VOL_RANGE;
+
+  return iMixVol;
 }
 
 /***************************************************************************/

@@ -9,15 +9,15 @@
 #include "Frame.h"
 
 /* The different base types of widget */
-typedef enum _widget_type
+using WIDGET_TYPE = enum _widget_type
 {
-	WIDG_FORM,
-	WIDG_LABEL,
-	WIDG_BUTTON,
-	WIDG_EDITBOX,
-	WIDG_BARGRAPH,
-	WIDG_SLIDER,
-} WIDGET_TYPE;
+  WIDG_FORM,
+  WIDG_LABEL,
+  WIDG_BUTTON,
+  WIDG_EDITBOX,
+  WIDG_BARGRAPH,
+  WIDG_SLIDER,
+};
 
 /* Button colours */
 #define WBUTC_TEXT		0			// Colour for button text
@@ -28,13 +28,13 @@ typedef enum _widget_type
 
 /* The display function prototype */
 struct _widget;
-typedef void (*WIDGET_DISPLAY)(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD *pColours);
+using WIDGET_DISPLAY = void(*)(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pColours);
 
 /* The optional user callback function */
 struct _w_context;
-typedef void (*WIDGET_CALLBACK)(struct _widget *psWidget, struct _w_context *psContext);
+using WIDGET_CALLBACK = void(*)(struct _widget* psWidget, struct _w_context* psContext);
 
-typedef void (*WIDGET_AUDIOCALLBACK)(int AudioID);
+using WIDGET_AUDIOCALLBACK = void(*)(int AudioID);
 
 /* The common widget data */
 #define WIDGET_BASE \
@@ -53,21 +53,19 @@ typedef void (*WIDGET_AUDIOCALLBACK)(int AudioID);
 	struct _widget	*psNext			/* Pointer to the next widget in the screen list */
 
 /* The base widget data type */
-typedef struct _widget
+using WIDGET = struct _widget
 {
-	/* The common widget data */
-	WIDGET_BASE;
-} WIDGET;
-
+  /* The common widget data */
+  WIDGET_BASE;
+};
 
 /* The screen structure which stores all info for a widget screen */
-typedef struct _w_screen
+using W_SCREEN = struct _w_screen
 {
-	WIDGET		*psForm;			// The root form of the screen
-	WIDGET		*psFocus;			// The widget that has keyboard focus
-//	PROP_FONT	*psTipFont;			// The font for tool tips
-	int			TipFontID;			// ID of the IVIS font to use for tool tips.
-} W_SCREEN;
+  WIDGET* psForm; // The root form of the screen
+  WIDGET* psFocus; // The widget that has keyboard focus
+  //	PROP_FONT	*psTipFont;			// The font for tool tips
+  int TipFontID; // ID of the IVIS font to use for tool tips.
+};
 
 #endif
-

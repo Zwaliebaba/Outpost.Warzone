@@ -10,7 +10,6 @@
 #ifndef _piestate_h
 #define _piestate_h
 
-
 /***************************************************************************/
 
 #include "Frame.h"
@@ -22,64 +21,58 @@
  */
 /***************************************************************************/
 
-typedef	enum	REND_ENGINE
-				{
-					ENGINE_UNDEFINED,
-					ENGINE_D3D
-				}
-				REND_ENGINE;
+using REND_ENGINE = enum REND_ENGINE
+{
+  ENGINE_UNDEFINED,
+  ENGINE_D3D
+};
 
-typedef	enum	REND_MODE
-				{
-					REND_GOURAUD_TEX,
-					REND_ALPHA_TEX,
-					REND_ADDITIVE_TEX,
-					REND_TEXT,
-					REND_ALPHA_TEXT,
-					REND_FLAT,
-					REND_ALPHA_FLAT,
-					REND_ALPHA_ITERATED,
-					REND_FILTER_FLAT,
-					REND_FILTER_ITERATED			
-				}
-				REND_MODE;
+using REND_MODE = enum REND_MODE
+{
+  REND_GOURAUD_TEX,
+  REND_ALPHA_TEX,
+  REND_ADDITIVE_TEX,
+  REND_TEXT,
+  REND_ALPHA_TEXT,
+  REND_FLAT,
+  REND_ALPHA_FLAT,
+  REND_ALPHA_ITERATED,
+  REND_FILTER_FLAT,
+  REND_FILTER_ITERATED
+};
 
-typedef	enum	DEPTH_MODE
-				{
-					DEPTH_CMP_LEQ_WRT_ON,
-					DEPTH_CMP_ALWAYS_WRT_ON,
-					DEPTH_CMP_LEQ_WRT_OFF,
-					DEPTH_CMP_ALWAYS_WRT_OFF
-				}
-				DEPTH_MODE;
+using DEPTH_MODE = enum DEPTH_MODE
+{
+  DEPTH_CMP_LEQ_WRT_ON,
+  DEPTH_CMP_ALWAYS_WRT_ON,
+  DEPTH_CMP_LEQ_WRT_OFF,
+  DEPTH_CMP_ALWAYS_WRT_OFF
+};
 
-typedef	enum	TRANSLUCENCY_MODE
-				{
-					TRANS_DECAL,
-					TRANS_DECAL_FOG,
-					TRANS_FILTER,
-					TRANS_ALPHA,
-					TRANS_ADDITIVE
-				}
-				TRANSLUCENCY_MODE;
+using TRANSLUCENCY_MODE = enum TRANSLUCENCY_MODE
+{
+  TRANS_DECAL,
+  TRANS_DECAL_FOG,
+  TRANS_FILTER,
+  TRANS_ALPHA,
+  TRANS_ADDITIVE
+};
 
-typedef	enum	FOG_CAP
-				{
-					FOG_CAP_NO,
-					FOG_CAP_GREY,
-					FOG_CAP_COLOURED,
-					FOG_CAP_UNDEFINED
-				}
-				FOG_CAP;
+using FOG_CAP = enum FOG_CAP
+{
+  FOG_CAP_NO,
+  FOG_CAP_GREY,
+  FOG_CAP_COLOURED,
+  FOG_CAP_UNDEFINED
+};
 
-typedef	enum	TEX_CAP
-				{
-					TEX_CAP_2M,
-					TEX_CAP_8BIT,
-					TEX_CAP_FULL,
-					TEX_CAP_UNDEFINED
-				}
-				TEX_CAP;
+using TEX_CAP = enum TEX_CAP
+{
+  TEX_CAP_2M,
+  TEX_CAP_8BIT,
+  TEX_CAP_FULL,
+  TEX_CAP_UNDEFINED
+};
 
 #define NO_TEXPAGE -1
 #define RADAR_TEXPAGE_D3D 31
@@ -91,18 +84,18 @@ typedef	enum	TEX_CAP
  */
 /***************************************************************************/
 
-extern SDWORD	pieStateCount;
+extern SDWORD pieStateCount;
 
 /***************************************************************************/
 /*
  *	Global ProtoTypes
  */
 /***************************************************************************/
-extern void pie_SetDefaultStates();//Sets all states
+extern void pie_SetDefaultStates(); //Sets all states
 //render engine
 extern void pie_SetRenderEngine(REND_ENGINE rendEngine);
 extern REND_ENGINE pie_GetRenderEngine(void);
-extern BOOL	pie_Hardware(void);
+extern BOOL pie_Hardware(void);
 extern void pie_SetDepthBufferStatus(DEPTH_MODE depthMode);
 extern void pie_SetGammaValue(float val);
 extern void pie_SetDirectDrawDeviceName(char* pDDDeviceName);
@@ -135,13 +128,13 @@ extern void pie_SetRendMode(REND_MODE rendMode);
 extern void pie_SetColour(UDWORD val);
 extern UDWORD pie_GetColour(void);
 //mouse states
-extern void pie_DrawMouse(int x,int y);
-extern void pie_SetMouse(IMAGEFILE *ImageFile,UWORD ImageID);
-extern UDWORD	pie_GetMouseID( void );
-extern BOOL	pie_SwirlyBoxes( void );
-extern void	pie_SetSwirlyBoxes( BOOL val );
-extern BOOL	pie_WaveBlit( void );
-extern void	pie_SetWaveBlit( BOOL val );
-void pie_ResetStates(void);//Sets all states
+extern void pie_DrawMouse(int x, int y);
+extern void pie_SetMouse(IMAGEFILE* ImageFile, UWORD ImageID);
+extern UDWORD pie_GetMouseID(void);
+extern BOOL pie_SwirlyBoxes(void);
+extern void pie_SetSwirlyBoxes(BOOL val);
+extern BOOL pie_WaveBlit(void);
+extern void pie_SetWaveBlit(BOOL val);
+void pie_ResetStates(void); //Sets all states
 
 #endif // _pieState_h

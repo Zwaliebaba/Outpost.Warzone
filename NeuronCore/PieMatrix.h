@@ -17,7 +17,10 @@
  */
 /***************************************************************************/
 
-typedef struct {SDWORD a, b, c,  d, e, f,  g, h, i,  j, k, l;} SDMATRIX;
+using SDMATRIX = struct
+{
+  SDWORD a, b, c, d, e, f, g, h, i, j, k, l;
+};
 
 /***************************************************************************/
 /*
@@ -25,8 +28,8 @@ typedef struct {SDWORD a, b, c,  d, e, f,  g, h, i,  j, k, l;} SDMATRIX;
  */
 /***************************************************************************/
 
-extern SDMATRIX *psMatrix;
-extern SDWORD	aSinTable[];
+extern SDMATRIX* psMatrix;
+extern SDWORD aSinTable[];
 
 //*************************************************************************
 
@@ -108,18 +111,17 @@ extern void pie_MatEnd(void);
 extern void pie_MatRotX(int x);
 extern void pie_MatRotY(int y);
 extern void pie_MatRotZ(int z);
-extern int32 pie_RotProj(iVector *v3d, iPoint *v2d);
+extern int32 pie_RotProj(iVector* v3d, iPoint* v2d);
 
 //*************************************************************************
 
-extern void pie_VectorNormalise(iVector *v);
-extern void pie_VectorInverseRotate0(iVector *v1, iVector *v2);
-extern void pie_SurfaceNormal(iVector *p1, iVector *p2, iVector *p3, iVector *v);
-extern BOOL pie_Clockwise(iVertex *s);
+extern void pie_VectorNormalise(iVector* v);
+extern void pie_VectorInverseRotate0(iVector* v1, iVector* v2);
+extern void pie_SurfaceNormal(iVector* p1, iVector* p2, iVector* p3, iVector* v);
+extern BOOL pie_Clockwise(iVertex* s);
 extern void pie_SetGeometricOffset(int x, int y);
 
 // PIEVERTEX structure contains much infomation that is not required on the playstation ... and hence is not currently used
-extern BOOL pie_PieClockwise(PIEVERTEX *s);	
-
+extern BOOL pie_PieClockwise(PIEVERTEX* s);
 
 #endif

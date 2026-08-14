@@ -9,32 +9,39 @@
 
 #include "Frame.h"
 
-typedef enum {
-	GAMECODE_CONTINUE,
-	GAMECODE_RESTARTGAME,
-	GAMECODE_QUITGAME,
-	GAMECODE_PLAYVIDEO,
-	GAMECODE_NEWLEVEL,
-	GAMECODE_FASTEXIT,
-	GAMECODE_LOADGAME,
-} GAMECODE;
+using GAMECODE = enum
+{
+  GAMECODE_CONTINUE,
+  GAMECODE_RESTARTGAME,
+  GAMECODE_QUITGAME,
+  GAMECODE_PLAYVIDEO,
+  GAMECODE_NEWLEVEL,
+  GAMECODE_FASTEXIT,
+  GAMECODE_LOADGAME,
+};
 
 // the states the loop goes through before starting a new level
-typedef enum
+using LOOP_MISSION_STATE = enum
 {
-	LMS_NORMAL,			// normal state of the loop
-	LMS_SETUPMISSION,	// make the call to set up mission
-	LMS_SAVECONTINUE,	// the save/continue box is up between missions
-	LMS_NEWLEVEL,		// start a new level
-	LMS_LOADGAME,		// load a savegame
-	LMS_CLEAROBJECTS,	// make the call to destroy objects
-} LOOP_MISSION_STATE;
-extern LOOP_MISSION_STATE		loopMissionState;
+  LMS_NORMAL,
+  // normal state of the loop
+  LMS_SETUPMISSION,
+  // make the call to set up mission
+  LMS_SAVECONTINUE,
+  // the save/continue box is up between missions
+  LMS_NEWLEVEL,
+  // start a new level
+  LMS_LOADGAME,
+  // load a savegame
+  LMS_CLEAROBJECTS,
+  // make the call to destroy objects
+};
+extern LOOP_MISSION_STATE loopMissionState;
 
 // this is set by scrStartMission to say what type of new level is to be started
-extern SDWORD	nextMissionType;
+extern SDWORD nextMissionType;
 
-extern BOOL   display3D;
+extern BOOL display3D;
 
 extern SDWORD loopPieCount;
 extern SDWORD loopTileCount;
@@ -47,8 +54,8 @@ extern void loop_SetVideoPlaybackMode(void);
 extern void loop_ClearVideoPlaybackMode(void);
 extern BOOL loop_GetVideoStatus(void);
 extern SDWORD loop_GetVideoMode(void);
-extern BOOL	gamePaused( void );
-extern void	setGamePauseStatus( BOOL val );
+extern BOOL gamePaused(void);
+extern void setGamePauseStatus(BOOL val);
 extern void loopFastExit(void);
 
 extern BOOL gameUpdatePaused(void);
@@ -66,17 +73,16 @@ extern void setConsolePause(BOOL state);
 extern void setAllPauseStates(BOOL state);
 
 // Number of units in the current list.
-extern UDWORD	getNumDroids(UDWORD	player);
+extern UDWORD getNumDroids(UDWORD player);
 // Number of units on transporters.
-extern UDWORD	getNumTransporterDroids(UDWORD player);
+extern UDWORD getNumTransporterDroids(UDWORD player);
 // Number of units in the mission list.
-extern UDWORD	getNumMissionDroids(UDWORD player);
-UDWORD	getNumCommandDroids(UDWORD player);
-UDWORD	getNumConstructorDroids(UDWORD player);
+extern UDWORD getNumMissionDroids(UDWORD player);
+UDWORD getNumCommandDroids(UDWORD player);
+UDWORD getNumConstructorDroids(UDWORD player);
 // increase the droid counts - used by update factory to keep the counts in sync
 void incNumDroids(UDWORD player);
 void incNumCommandDroids(UDWORD player);
 void incNumConstructorDroids(UDWORD player);
 
 #endif
-

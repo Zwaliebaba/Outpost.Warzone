@@ -19,33 +19,32 @@
 /**********************************************************************************/
 /*                    type definitions                                            */
 
-typedef struct _block_heap_mem
+using BLOCK_HEAP_MEM = struct _block_heap_mem
 {
-	SDWORD	size;		// size of block
-	UBYTE	*pFree;		// pointer to the start of the free memory section
-	UBYTE	*pMem;		// pointer to the base of the memory block
-	UBYTE	*pLastAllocated;	// The start of the last allocated block (so that it can be freed by blkSpecialFree
+  SDWORD size; // size of block
+  UBYTE* pFree; // pointer to the start of the free memory section
+  UBYTE* pMem; // pointer to the base of the memory block
+  UBYTE* pLastAllocated; // The start of the last allocated block (so that it can be freed by blkSpecialFree
 
-	struct _block_heap_mem *psNext;
-} BLOCK_HEAP_MEM;
+  struct _block_heap_mem* psNext;
+};
 
-typedef struct _block_heap
+using BLOCK_HEAP = struct _block_heap
 {
-	SDWORD		init, ext;		// initial and extension block sizes
-	BLOCK_HEAP_MEM	*psBlocks;
+  SDWORD init, ext; // initial and extension block sizes
+  BLOCK_HEAP_MEM* psBlocks;
 #ifdef DEBUG_BLOCK
-	STRING		*pFileName;
-	SDWORD		line;
-	MEM_NODE	*psMemTreap;	// treap of the memory blocks
-	BOOL		free;			// whether free has been called for this block
-	STRING		*pFreeFile;		// where the last free was called from
-	SDWORD		freeLine;	
-	UDWORD		TotalAllocated;	// Total amount of bytes used in the block (sum of all alloc's)
+  STRING* pFileName;
+  SDWORD line;
+  MEM_NODE* psMemTreap; // treap of the memory blocks
+  BOOL free; // whether free has been called for this block
+  STRING* pFreeFile; // where the last free was called from
+  SDWORD freeLine;
+  UDWORD TotalAllocated; // Total amount of bytes used in the block (sum of all alloc's)
 #endif
 
-	struct _block_heap	*psNext;
-} BLOCK_HEAP;
-
+  struct _block_heap* psNext;
+};
 
 /**********************************************************************************/
 /*                    function prototypes                                         */
@@ -57,43 +56,41 @@ extern BOOL blkInitialise(void);
 extern void blkShutDown(void);
 
 // Create a new block heap
-extern BOOL blkCreate(BLOCK_HEAP **ppsHeap, SDWORD init, SDWORD ext);
+extern BOOL blkCreate(BLOCK_HEAP** ppsHeap, SDWORD init, SDWORD ext);
 
 // Release a block heap
-extern void blkDestroy(BLOCK_HEAP *psHeap);
+extern void blkDestroy(BLOCK_HEAP* psHeap);
 
 // Allocate some memory from a block heap
-extern void *blkAlloc(BLOCK_HEAP *psHeap, SDWORD size);
+extern void* blkAlloc(BLOCK_HEAP* psHeap, SDWORD size);
 
 // return a chunk of memory to the block
 // this only does anything whith DEBUG_BLOCK defined
-extern void blkFree(BLOCK_HEAP *psHeap, void *pMemToFree);
+extern void blkFree(BLOCK_HEAP* psHeap, void* pMemToFree);
 
 // Reset a block heap
-extern void blkReset(BLOCK_HEAP *psHeap);
+extern void blkReset(BLOCK_HEAP* psHeap);
 
 // Find which block a pointer is from if any
-extern BLOCK_HEAP *blkFind(void *pPtr);
+extern BLOCK_HEAP* blkFind(void* pPtr);
 
 // check if a pointer is valid in a block
-extern BOOL blkPointerValid(BLOCK_HEAP *psHeap, void *pData, SDWORD size);
+extern BOOL blkPointerValid(BLOCK_HEAP* psHeap, void* pData, SDWORD size);
 
 // check if a pointer is valid in any currently allocated block
-extern BOOL blkPointerValidAll(void *pData, SDWORD size);
+extern BOOL blkPointerValidAll(void* pData, SDWORD size);
 
 // Note the call position for a blkAlloc or blkFree
-extern void blkCallPos(STRING *pFileName, SDWORD line);
+extern void blkCallPos(STRING* pFileName, SDWORD line);
 
-void blkPrintDetails(BLOCK_HEAP *psHeap);
+void blkPrintDetails(BLOCK_HEAP* psHeap);
 void blkReport(void);
-BOOL blkSpecialFree(BLOCK_HEAP *psHeap, void *Ptr);
-void  blockSuspendUsage(void);
+BOOL blkSpecialFree(BLOCK_HEAP* psHeap, void* Ptr);
+void blockSuspendUsage(void);
 void blockUnsuspendUsage(void);
-
 
 /**********************************************************************************/
 /*                    macro definitions                                           */
-
 
 #ifdef DEBUG_BLOCK
 
@@ -142,6 +139,4 @@ void blockUnsuspendUsage(void);
 
 #endif
 
-
 #endif
-

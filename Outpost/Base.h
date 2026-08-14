@@ -18,14 +18,19 @@
 #define TURRET_ROTATION_RATE    360
 /***************************************************************************/
 
-typedef enum _object_type
+using OBJECT_TYPE = enum _object_type
 {
-	OBJ_DROID,		// Droids
-	OBJ_STRUCTURE,	// All Buildings
-	OBJ_FEATURE,	// Things like roads, trees, bridges, fires
-	OBJ_BULLET,		// Comes out of guns, stupid :-)
-	OBJ_TARGET,		// for the camera tracking
-} OBJECT_TYPE;
+  OBJ_DROID,
+  // Droids
+  OBJ_STRUCTURE,
+  // All Buildings
+  OBJ_FEATURE,
+  // Things like roads, trees, bridges, fires
+  OBJ_BULLET,
+  // Comes out of guns, stupid :-)
+  OBJ_TARGET,
+  // for the camera tracking
+};
 
 /***************************************************************************/
 
@@ -74,17 +79,15 @@ typedef enum _object_type
 
 /***************************************************************************/
 
-typedef struct BASE_OBJECT
+using BASE_OBJECT = struct BASE_OBJECT
 {
-	BASE_ELEMENTS( struct BASE_OBJECT );
-}
-BASE_OBJECT;
+  BASE_ELEMENTS(struct BASE_OBJECT);
+};
 
-typedef struct SIMPLE_OBJECT
+using SIMPLE_OBJECT = struct SIMPLE_OBJECT
 {
-	SIMPLE_ELEMENTS( struct SIMPLE_OBJECT );
-}
-SIMPLE_OBJECT;
+  SIMPLE_ELEMENTS(struct SIMPLE_OBJECT);
+};
 
 /***************************************************************************/
 

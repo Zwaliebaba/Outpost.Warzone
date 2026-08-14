@@ -8,174 +8,158 @@
 #include "Tex.h"
 #include "IvisPatch.h"
 
-
 #include "BitImage.h"
 
+static BOOL LoadTextureFile(char* FileName, iSprite* TPage, int* TPageID);
 
-
-
-
-static BOOL LoadTextureFile(char *FileName,iSprite *TPage,int *TPageID);
-
-
-UWORD iV_GetImageWidth(IMAGEFILE *ImageFile,UWORD ID)
+UWORD iV_GetImageWidth(IMAGEFILE* ImageFile, UWORD ID)
 {
-	assert(ID < ImageFile->Header.NumImages);
-	return ImageFile->ImageDefs[ID].Width;
+  assert(ID < ImageFile->Header.NumImages);
+  return ImageFile->ImageDefs[ID].Width;
 }
 
-UWORD iV_GetImageHeight(IMAGEFILE *ImageFile,UWORD ID)
+UWORD iV_GetImageHeight(IMAGEFILE* ImageFile, UWORD ID)
 {
-	assert(ID < ImageFile->Header.NumImages);
-	return ImageFile->ImageDefs[ID].Height;
-
+  assert(ID < ImageFile->Header.NumImages);
+  return ImageFile->ImageDefs[ID].Height;
 }
-
 
 // Get image width with no coordinate conversion.
 //
-UWORD iV_GetImageWidthNoCC(IMAGEFILE *ImageFile,UWORD ID)
+UWORD iV_GetImageWidthNoCC(IMAGEFILE* ImageFile, UWORD ID)
 {
-	assert(ID < ImageFile->Header.NumImages);
-	return ImageFile->ImageDefs[ID].Width;
+  assert(ID < ImageFile->Header.NumImages);
+  return ImageFile->ImageDefs[ID].Width;
 }
 
 // Get image height with no coordinate conversion.
 //
-UWORD iV_GetImageHeightNoCC(IMAGEFILE *ImageFile,UWORD ID)
+UWORD iV_GetImageHeightNoCC(IMAGEFILE* ImageFile, UWORD ID)
 {
-	assert(ID < ImageFile->Header.NumImages);
-	return ImageFile->ImageDefs[ID].Height;
+  assert(ID < ImageFile->Header.NumImages);
+  return ImageFile->ImageDefs[ID].Height;
 }
 
-
-SWORD iV_GetImageXOffset(IMAGEFILE *ImageFile,UWORD ID)
+SWORD iV_GetImageXOffset(IMAGEFILE* ImageFile, UWORD ID)
 {
-	assert(ID < ImageFile->Header.NumImages);
-	return ImageFile->ImageDefs[ID].XOffset;
+  assert(ID < ImageFile->Header.NumImages);
+  return ImageFile->ImageDefs[ID].XOffset;
 }
 
-SWORD iV_GetImageYOffset(IMAGEFILE *ImageFile,UWORD ID)
+SWORD iV_GetImageYOffset(IMAGEFILE* ImageFile, UWORD ID)
 {
-	assert(ID < ImageFile->Header.NumImages);
-	return ImageFile->ImageDefs[ID].YOffset;
+  assert(ID < ImageFile->Header.NumImages);
+  return ImageFile->ImageDefs[ID].YOffset;
 }
 
-UWORD iV_GetImageCenterX(IMAGEFILE *ImageFile,UWORD ID)
+UWORD iV_GetImageCenterX(IMAGEFILE* ImageFile, UWORD ID)
 {
-	assert(ID < ImageFile->Header.NumImages);
-	return ImageFile->ImageDefs[ID].XOffset + ImageFile->ImageDefs[ID].Width/2;
+  assert(ID < ImageFile->Header.NumImages);
+  return ImageFile->ImageDefs[ID].XOffset + ImageFile->ImageDefs[ID].Width / 2;
 }
 
-UWORD iV_GetImageCenterY(IMAGEFILE *ImageFile,UWORD ID)
+UWORD iV_GetImageCenterY(IMAGEFILE* ImageFile, UWORD ID)
 {
-	assert(ID < ImageFile->Header.NumImages);
-	return ImageFile->ImageDefs[ID].YOffset + ImageFile->ImageDefs[ID].Height/2;
+  assert(ID < ImageFile->Header.NumImages);
+  return ImageFile->ImageDefs[ID].YOffset + ImageFile->ImageDefs[ID].Height / 2;
 }
 
-
-IMAGEFILE *iV_LoadImageFile(UBYTE *FileData, UDWORD FileSize)
+IMAGEFILE* iV_LoadImageFile(UBYTE* FileData, UDWORD FileSize)
 {
-	UBYTE *Ptr;
-	IMAGEHEADER *Header;
-	IMAGEFILE *ImageFile;
-	IMAGEDEF *ImageDef;
+  UBYTE* Ptr;
+  IMAGEHEADER* Header;
+  IMAGEFILE* ImageFile;
+  IMAGEDEF* ImageDef;
 
-	int i;
+  int i;
 
+  Ptr = FileData;
 
-	Ptr = FileData;
+  Header = (IMAGEHEADER*)Ptr;
+  Ptr += sizeof(IMAGEHEADER);
 
-	Header = (IMAGEHEADER*)Ptr;
-	Ptr += sizeof(IMAGEHEADER);
+  ImageFile = static_cast<IMAGEFILE*>(MALLOC(sizeof(IMAGEFILE)));
+  if (ImageFile == nullptr)
+  {
+    DBERROR(("Out of memory"));
+    return nullptr;
+  }
 
-	ImageFile = (IMAGEFILE *)MALLOC(sizeof(IMAGEFILE));
-	if(ImageFile == NULL) {
-		DBERROR(("Out of memory"));
-		return NULL;
-	}
+  ImageFile->TexturePages = static_cast<iSprite*>(MALLOC(sizeof(iSprite)*Header->NumTPages));
+  if (ImageFile->TexturePages == nullptr)
+  {
+    DBERROR(("Out of memory"));
+    return nullptr;
+  }
 
+  ImageFile->ImageDefs = static_cast<IMAGEDEF*>(MALLOC(sizeof(IMAGEDEF)*Header->NumImages));
+  if (ImageFile->ImageDefs == nullptr)
+  {
+    DBERROR(("Out of memory"));
+    return nullptr;
+  }
 
-	ImageFile->TexturePages = (iSprite *)MALLOC(sizeof(iSprite)*Header->NumTPages);
-	if(ImageFile->TexturePages == NULL) {
-		DBERROR(("Out of memory"));
-		return NULL;
-	}
+  ImageFile->Header = *Header;
 
-	ImageFile->ImageDefs = (IMAGEDEF *)MALLOC(sizeof(IMAGEDEF)*Header->NumImages);
-	if(ImageFile->ImageDefs == NULL) {
-		DBERROR(("Out of memory"));
-		return NULL;
-	}
+  // Load the texture pages.
+  for (i = 0; i < Header->NumTPages; i++)
+    LoadTextureFile((char*)Header->TPageFiles[i], &ImageFile->TexturePages[i], (int*)&ImageFile->TPageIDs[i]);
 
-	ImageFile->Header = *Header;
+  ImageDef = (IMAGEDEF*)Ptr;
+  for (i = 0; i < Header->NumImages; i++)
+  {
+    ImageFile->ImageDefs[i] = *ImageDef;
+    if ((ImageDef->Width <= 0) || (ImageDef->Height <= 0))
+    {
+      DBERROR(("Illegal image size"));
+      return nullptr;
+    }
+    ImageDef++;
+  }
 
-// Load the texture pages.
-	for(i=0; i<Header->NumTPages; i++) {
-		LoadTextureFile((char*)Header->TPageFiles[i],&ImageFile->TexturePages[i],(int*)&ImageFile->TPageIDs[i]);
-	}
-
-	ImageDef = (IMAGEDEF*)Ptr;
-	for(i=0; i<Header->NumImages; i++) {
-		ImageFile->ImageDefs[i] = *ImageDef;
-		if( (ImageDef->Width <= 0) || (ImageDef->Height <= 0) ) {
-			DBERROR(("Illegal image size"));
-			return NULL;
-		}
-		ImageDef++;
-	}
-
-	return ImageFile;
+  return ImageFile;
 }
 
-
-void iV_FreeImageFile(IMAGEFILE *ImageFile)
+void iV_FreeImageFile(IMAGEFILE* ImageFile)
 {
-
-	
-	FREE(ImageFile->TexturePages);
-	FREE(ImageFile->ImageDefs);
-	FREE(ImageFile);
+  FREE(ImageFile->TexturePages);
+  FREE(ImageFile->ImageDefs);
+  FREE(ImageFile);
 }
 
-
-static BOOL LoadTextureFile(char *FileName,iSprite *pSprite,int *texPageID)
+static BOOL LoadTextureFile(char* FileName, iSprite* pSprite, int* texPageID)
 {
-	SDWORD i;
+  SDWORD i;
 
-	DBPRINTF(("ltf) %s\n",FileName));
+  DBPRINTF(("ltf) %s\n",FileName));
 
-	if(!resPresent("IMGPAGE",FileName))
-	{
-		if(!iV_PCXLoad(FileName,pSprite,NULL))
-		{
-			DBERROR(("Unable to load texture file : %s",FileName));
-			return FALSE;
-		}
-	}
-	else
-	{
-		*pSprite = *(iSprite*)resGetData("IMGPAGE",FileName);
-	}
+  if (!resPresent("IMGPAGE", FileName))
+  {
+    if (!iV_PCXLoad(FileName, pSprite, nullptr))
+    {
+      DBERROR(("Unable to load texture file : %s",FileName));
+      return FALSE;
+    }
+  }
+  else
+    *pSprite = *static_cast<iSprite*>(resGetData("IMGPAGE", FileName));
 
-	/* Back to beginning */
-	i = 0;
-	/* Have we already loaded this one then? */
-	while (i<_TEX_INDEX) 
-	{
-		if (stricmp(FileName,_TEX_PAGE[i].name) == 0)
-		{
-			*texPageID = i;
-			return TRUE;
-		}
-		i++;
-	}
+  /* Back to beginning */
+  i = 0;
+  /* Have we already loaded this one then? */
+  while (i < _TEX_INDEX)
+  {
+    if (stricmp(FileName, _TEX_PAGE[i].name) == 0)
+    {
+      *texPageID = i;
+      return TRUE;
+    }
+    i++;
+  }
 #ifdef PIETOOL
-	*texPageID=NULL;
+  *texPageID = NULL;
 #else
-	*texPageID = pie_AddBMPtoTexPages(pSprite, FileName, 1, TRUE, TRUE);
+  *texPageID = pie_AddBMPtoTexPages(pSprite, FileName, 1, TRUE, TRUE);
 #endif
-	return TRUE;
+  return TRUE;
 }
-
-

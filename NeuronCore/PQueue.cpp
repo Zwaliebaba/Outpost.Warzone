@@ -17,108 +17,105 @@
 
 /***************************************************************************/
 
-BOOL
-queue_Init( QUEUE ** ppQueue, int iMaxElements, int iElementSize,
-				QUEUE_CLEAR_FUNC pfClearFunc )
+BOOL queue_Init(QUEUE** ppQueue, int iMaxElements, int iElementSize, QUEUE_CLEAR_FUNC pfClearFunc)
 {
-	int			i;
-	QUEUE_NODE	*psNode;
+  int i;
+  QUEUE_NODE* psNode;
 
-	/* allocate queue */
-	(*ppQueue) = (QUEUE *) MALLOC( sizeof(QUEUE) );
-	
-	if ( (*ppQueue) == NULL )
-	{
-		DBERROR( ("queue_Init: couldn't allocate memory for queue") );
-		return FALSE;
-	}
+  /* allocate queue */
+  (*ppQueue) = static_cast<QUEUE*>(MALLOC(sizeof(QUEUE)));
 
-	/* set up free node list */
-	(*ppQueue)->psFreeNodeList = NULL;
-	for ( i=0; i<iMaxElements; i++ )
-	{
-		/* allocate node */
-		psNode = (QUEUE_NODE *) MALLOC( sizeof(QUEUE_NODE) );
+  if ((*ppQueue) == nullptr)
+  {
+    DBERROR(("queue_Init: couldn't allocate memory for queue"));
+    return FALSE;
+  }
 
-		if ( (*ppQueue) == NULL )
-		{
-			DBERROR( ("queue_Init: couldn't allocate memory for queue node") );
-			return FALSE;
-		}
+  /* set up free node list */
+  (*ppQueue)->psFreeNodeList = nullptr;
+  for (i = 0; i < iMaxElements; i++)
+  {
+    /* allocate node */
+    psNode = static_cast<QUEUE_NODE*>(MALLOC(sizeof(QUEUE_NODE)));
 
-		/* init node */
-		psNode->psElement = NULL;
-		psNode->iPriority  = LOW_PRIORITY;
+    if ((*ppQueue) == nullptr)
+    {
+      DBERROR(("queue_Init: couldn't allocate memory for queue node"));
+      return FALSE;
+    }
 
-		/* add to head of list */
-		psNode->psPrev = NULL;
-		psNode->psNext = (*ppQueue)->psFreeNodeList;
-		(*ppQueue)->psFreeNodeList = psNode;
-	}
+    /* init node */
+    psNode->psElement = nullptr;
+    psNode->iPriority = LOW_PRIORITY;
 
-	/* init node counts */
-	(*ppQueue)->iFreeNodes  = iMaxElements;
-	(*ppQueue)->iQueueNodes = 0;
+    /* add to head of list */
+    psNode->psPrev = nullptr;
+    psNode->psNext = (*ppQueue)->psFreeNodeList;
+    (*ppQueue)->psFreeNodeList = psNode;
+  }
 
-	/* init queue list */
-	(*ppQueue)->psNodeQHead = NULL;
-	(*ppQueue)->psCurNode   = NULL;
+  /* init node counts */
+  (*ppQueue)->iFreeNodes = iMaxElements;
+  (*ppQueue)->iQueueNodes = 0;
 
-	/* init other queue struct members */
-	(*ppQueue)->iElementSize = iElementSize;
-	(*ppQueue)->iMaxElements = iMaxElements;
-	(*ppQueue)->pfClearFunc  = pfClearFunc;
+  /* init queue list */
+  (*ppQueue)->psNodeQHead = nullptr;
+  (*ppQueue)->psCurNode = nullptr;
 
-	return TRUE;
+  /* init other queue struct members */
+  (*ppQueue)->iElementSize = iElementSize;
+  (*ppQueue)->iMaxElements = iMaxElements;
+  (*ppQueue)->pfClearFunc = pfClearFunc;
+
+  return TRUE;
 }
 
 /***************************************************************************/
 
-void
-queue_Destroy( QUEUE * pQueue )
+void queue_Destroy(QUEUE* pQueue)
 {
-	QUEUE_NODE	*psNode;
+  QUEUE_NODE* psNode;
 
-	/* free up free node list */
-	while ( pQueue->psFreeNodeList != NULL )
-	{
-		psNode = pQueue->psFreeNodeList;
-		pQueue->psFreeNodeList = pQueue->psFreeNodeList->psNext;
-		FREE( psNode );
-	}
+  /* free up free node list */
+  while (pQueue->psFreeNodeList != nullptr)
+  {
+    psNode = pQueue->psFreeNodeList;
+    pQueue->psFreeNodeList = pQueue->psFreeNodeList->psNext;
+    FREE(psNode);
+  }
 
-	/* free up node queue */
-	while ( pQueue->psNodeQHead != NULL )
-	{
-		psNode = pQueue->psNodeQHead;
-		pQueue->psNodeQHead = pQueue->psNodeQHead->psNext;
-		FREE( psNode );
-	}
-	FREE( pQueue );
+  /* free up node queue */
+  while (pQueue->psNodeQHead != nullptr)
+  {
+    psNode = pQueue->psNodeQHead;
+    pQueue->psNodeQHead = pQueue->psNodeQHead->psNext;
+    FREE(psNode);
+  }
+  FREE(pQueue);
 }
 
 /***************************************************************************/
 
-void queue_Clear( QUEUE * pQueue )
+void queue_Clear(QUEUE* pQueue)
 {
-	QUEUE_NODE	*psNode;
+  QUEUE_NODE* psNode;
 
-	while ( pQueue->psNodeQHead != NULL )
-	{
-		psNode = pQueue->psNodeQHead;
-		pQueue->psNodeQHead = pQueue->psNodeQHead->psNext;
+  while (pQueue->psNodeQHead != nullptr)
+  {
+    psNode = pQueue->psNodeQHead;
+    pQueue->psNodeQHead = pQueue->psNodeQHead->psNext;
 
-		/* do element callback */
-		(pQueue->pfClearFunc)(psNode->psElement);
+    /* do element callback */
+    (pQueue->pfClearFunc)(psNode->psElement);
 
-		/* return node to free node list */
-		psNode->psNext = pQueue->psFreeNodeList;
-		pQueue->psFreeNodeList = psNode;
+    /* return node to free node list */
+    psNode->psNext = pQueue->psFreeNodeList;
+    pQueue->psFreeNodeList = psNode;
 
-		/* update node counts */
-		pQueue->iFreeNodes++;
-		pQueue->iQueueNodes--;
-	}
+    /* update node counts */
+    pQueue->iFreeNodes++;
+    pQueue->iQueueNodes--;
+  }
 }
 
 /***************************************************************************/
@@ -129,86 +126,74 @@ void queue_Clear( QUEUE * pQueue )
  */
 /***************************************************************************/
 
-void
-queue_Enqueue( QUEUE * pQueue, void * psElement, int iPriority )
+void queue_Enqueue(QUEUE* pQueue, void* psElement, int iPriority)
 {
-	QUEUE_NODE	*psFreeNode, *psNode, *psNodePrev;
+  QUEUE_NODE *psFreeNode, *psNode, *psNodePrev;
 
-	/* check input */
-	ASSERT( (PTRVALID(pQueue,sizeof(QUEUE)),
-			"queue_Enqueue: queue pointer invalid\n") );
-	ASSERT( (PTRVALID(psElement,pQueue->iElementSize),
-			"queue_Enqueue: element pointer invalid\n") );
+  /* check input */
+  ASSERT((PTRVALID(pQueue,sizeof(QUEUE)), "queue_Enqueue: queue pointer invalid\n"));
+  ASSERT((PTRVALID(psElement,pQueue->iElementSize), "queue_Enqueue: element pointer invalid\n"));
 
 #if QUEUE_INSERTION_TEST
-	psNode = pQueue->psNodeQHead;
-	while ( psNode != NULL )
-	{
-		ASSERT( (psNode->psElement != psElement,
-				"duplicate element found\n") );
+  psNode = pQueue->psNodeQHead;
+  while (psNode != nullptr)
+  {
+    ASSERT((psNode->psElement != psElement, "duplicate element found\n"));
 
-		psNode = psNode->psNext;
-	}
+    psNode = psNode->psNext;
+  }
 #endif
 
-	/* check list not empty */
-	if ( pQueue->psFreeNodeList == NULL )
-	{
-		DBPRINTF( ("queue_GetFreeElement: all nodes allocated: flushing queue.\n") );
-		queue_Clear( pQueue );
-	}
+  /* check list not empty */
+  if (pQueue->psFreeNodeList == nullptr)
+  {
+    DBPRINTF(("queue_GetFreeElement: all nodes allocated: flushing queue.\n"));
+    queue_Clear(pQueue);
+  }
 
-	/* get free node from head of list */
-	psFreeNode = pQueue->psFreeNodeList;
-	pQueue->psFreeNodeList = pQueue->psFreeNodeList->psNext;
+  /* get free node from head of list */
+  psFreeNode = pQueue->psFreeNodeList;
+  pQueue->psFreeNodeList = pQueue->psFreeNodeList->psNext;
 
-	/* update node counts */
-	pQueue->iFreeNodes--;
-	pQueue->iQueueNodes++;
+  /* update node counts */
+  pQueue->iFreeNodes--;
+  pQueue->iQueueNodes++;
 
-	/* attach element to node */
-	psFreeNode->psElement = psElement;
+  /* attach element to node */
+  psFreeNode->psElement = psElement;
 
-	/* init pointer to head of queue */
-	psNode = pQueue->psNodeQHead;
-	psNodePrev = NULL;
-	
-	/* init node priority */
-	psFreeNode->iPriority = iPriority;
+  /* init pointer to head of queue */
+  psNode = pQueue->psNodeQHead;
+  psNodePrev = nullptr;
 
-	/* find correct place in queue according to priority */
-	while ( psNode != NULL )
-	{
-		/* break if priority slot found */
-		if ( psNode->iPriority < iPriority )
-		{
-			break;
-		}
+  /* init node priority */
+  psFreeNode->iPriority = iPriority;
 
-		/* update pointers */
-		psNodePrev = psNode;
-		psNode = psNode->psNext;
-	}
+  /* find correct place in queue according to priority */
+  while (psNode != nullptr)
+  {
+    /* break if priority slot found */
+    if (psNode->iPriority < iPriority)
+      break;
 
-	/* insert new node */
-	psFreeNode->psPrev = psNodePrev;
-	psFreeNode->psNext = psNode;
+    /* update pointers */
+    psNodePrev = psNode;
+    psNode = psNode->psNext;
+  }
 
-	/* update previous queue node pointer */
-	if ( psNodePrev == NULL )
-	{
-		pQueue->psNodeQHead = psFreeNode;
-	}
-	else
-	{
-		psNodePrev->psNext = psFreeNode;
-	}
+  /* insert new node */
+  psFreeNode->psPrev = psNodePrev;
+  psFreeNode->psNext = psNode;
 
-	/* update next queue node pointer */
-	if ( psNode != NULL )
-	{
-		psNode->psPrev = psFreeNode;
-	}
+  /* update previous queue node pointer */
+  if (psNodePrev == nullptr)
+    pQueue->psNodeQHead = psFreeNode;
+  else
+    psNodePrev->psNext = psFreeNode;
+
+  /* update next queue node pointer */
+  if (psNode != nullptr)
+    psNode->psPrev = psFreeNode;
 }
 
 /***************************************************************************/
@@ -219,37 +204,35 @@ queue_Enqueue( QUEUE * pQueue, void * psElement, int iPriority )
  */
 /***************************************************************************/
 
-void *
-queue_Dequeue( QUEUE * pQueue )
+void* queue_Dequeue(QUEUE* pQueue)
 {
-	void *			psElement = NULL;
-	QUEUE_NODE *	psNode;
+  void* psElement = nullptr;
+  QUEUE_NODE* psNode;
 
-	/* check input */
-	ASSERT( (PTRVALID(pQueue,sizeof(QUEUE)),
-			"queue_Dequeue: queue pointer invalid\n") );
+  /* check input */
+  ASSERT((PTRVALID(pQueue,sizeof(QUEUE)), "queue_Dequeue: queue pointer invalid\n"));
 
-	if ( pQueue->psNodeQHead != NULL )
-	{
-		/* remove node at head of queue */
-		psNode = pQueue->psNodeQHead;
-		pQueue->psNodeQHead = pQueue->psNodeQHead->psNext;
+  if (pQueue->psNodeQHead != nullptr)
+  {
+    /* remove node at head of queue */
+    psNode = pQueue->psNodeQHead;
+    pQueue->psNodeQHead = pQueue->psNodeQHead->psNext;
 
-		/* copy element from node for return */
-		psElement = psNode->psElement;
+    /* copy element from node for return */
+    psElement = psNode->psElement;
 
-		/* return node to free node list */
-		psNode->psNext = pQueue->psFreeNodeList;
-		pQueue->psFreeNodeList = psNode;
+    /* return node to free node list */
+    psNode->psNext = pQueue->psFreeNodeList;
+    pQueue->psFreeNodeList = psNode;
 
-		/* update node counts */
-		pQueue->iFreeNodes++;
-		pQueue->iQueueNodes--;
+    /* update node counts */
+    pQueue->iFreeNodes++;
+    pQueue->iQueueNodes--;
 
-		ASSERT( (pQueue->iQueueNodes >= 0, "queue_Dequeue: queue nodes < 0") );
-	}
+    ASSERT((pQueue->iQueueNodes >= 0, "queue_Dequeue: queue nodes < 0"));
+  }
 
-	return psElement;
+  return psElement;
 }
 
 /***************************************************************************/
@@ -260,35 +243,30 @@ queue_Dequeue( QUEUE * pQueue )
  */
 /***************************************************************************/
 
-QUEUE_NODE *
-queue_FindElement( QUEUE * pQueue, void * psElement )
+QUEUE_NODE* queue_FindElement(QUEUE* pQueue, void* psElement)
 {
-	QUEUE_NODE	*psNode, *psNodePrev;
+  QUEUE_NODE *psNode, *psNodePrev;
 
-	/* check input */
-	ASSERT( (PTRVALID(pQueue,sizeof(QUEUE)),
-			"queue_FindElement: queue pointer invalid\n") );
-	ASSERT( (PTRVALID(psElement,pQueue->iElementSize),
-			"queue_FindElement: element pointer invalid\n") );
+  /* check input */
+  ASSERT((PTRVALID(pQueue,sizeof(QUEUE)), "queue_FindElement: queue pointer invalid\n"));
+  ASSERT((PTRVALID(psElement,pQueue->iElementSize), "queue_FindElement: element pointer invalid\n"));
 
-	/* init pointers to head of queue */
-	psNodePrev = psNode = pQueue->psNodeQHead;
-	
-	/* find node in queue */
-	while ( psNodePrev != NULL && psNode != NULL )
-	{
-		/* return TRUE if match found */
-		if ( psNode->psElement == psElement )
-		{
-			return psNode;
-		}
+  /* init pointers to head of queue */
+  psNodePrev = psNode = pQueue->psNodeQHead;
 
-		/* update pointers */
-		psNodePrev = psNode;
-		psNode = psNode->psNext;
-	}
+  /* find node in queue */
+  while (psNodePrev != nullptr && psNode != nullptr)
+  {
+    /* return TRUE if match found */
+    if (psNode->psElement == psElement)
+      return psNode;
 
-	return NULL;
+    /* update pointers */
+    psNodePrev = psNode;
+    psNode = psNode->psNext;
+  }
+
+  return nullptr;
 }
 
 /***************************************************************************/
@@ -299,20 +277,14 @@ queue_FindElement( QUEUE * pQueue, void * psElement )
  */
 /***************************************************************************/
 
-void *
-queue_GetHead( QUEUE * pQueue )
+void* queue_GetHead(QUEUE* pQueue)
 {
-	/* set current node to head of queue */
-	pQueue->psCurNode = pQueue->psNodeQHead;
+  /* set current node to head of queue */
+  pQueue->psCurNode = pQueue->psNodeQHead;
 
-	if ( pQueue->psCurNode != NULL )
-	{
-		return pQueue->psCurNode->psElement;
-	}
-	else
-	{
-		return NULL;
-	}
+  if (pQueue->psCurNode != nullptr)
+    return pQueue->psCurNode->psElement;
+  return nullptr;
 }
 
 /***************************************************************************/
@@ -323,24 +295,16 @@ queue_GetHead( QUEUE * pQueue )
  */
 /***************************************************************************/
 
-void *
-queue_GetNext( QUEUE * pQueue )
+void* queue_GetNext(QUEUE* pQueue)
 {
-	/* move to next node */
-	if ( pQueue->psCurNode != NULL )
-	{
-		pQueue->psCurNode = pQueue->psCurNode->psNext;
-	}
+  /* move to next node */
+  if (pQueue->psCurNode != nullptr)
+    pQueue->psCurNode = pQueue->psCurNode->psNext;
 
-	/* return node element */
-	if ( pQueue->psCurNode == NULL )
-	{
-		return NULL;
-	}
-	else
-	{
-		return pQueue->psCurNode->psElement;
-	}
+  /* return node element */
+  if (pQueue->psCurNode == nullptr)
+    return nullptr;
+  return pQueue->psCurNode->psElement;
 }
 
 /***************************************************************************/
@@ -351,11 +315,7 @@ queue_GetNext( QUEUE * pQueue )
  */
 /***************************************************************************/
 
-BOOL
-queue_RemoveCurrent( QUEUE * pQueue )
-{
-	return queue_RemoveNode( pQueue, pQueue->psCurNode );
-}
+BOOL queue_RemoveCurrent(QUEUE* pQueue) { return queue_RemoveNode(pQueue, pQueue->psCurNode); }
 
 /***************************************************************************/
 /*
@@ -365,78 +325,58 @@ queue_RemoveCurrent( QUEUE * pQueue )
  */
 /***************************************************************************/
 
-BOOL
-queue_RemoveNode( QUEUE * pQueue, QUEUE_NODE *psNode )
+BOOL queue_RemoveNode(QUEUE* pQueue, QUEUE_NODE* psNode)
 {
-	/* check input */
-	ASSERT( (PTRVALID(pQueue,sizeof(QUEUE)),
-			"queue_RemoveNode: queue pointer invalid\n") );
-	ASSERT( (PTRVALID(psNode,sizeof(QUEUE_NODE)),
-			"queue_RemoveNode: node pointer invalid\n") );
+  /* check input */
+  ASSERT((PTRVALID(pQueue,sizeof(QUEUE)), "queue_RemoveNode: queue pointer invalid\n"));
+  ASSERT((PTRVALID(psNode,sizeof(QUEUE_NODE)), "queue_RemoveNode: node pointer invalid\n"));
 
-	/* if node valid, remove from queue and return to free node list */
-	if ( psNode == NULL )
-	{
-		return FALSE;
-	}
-	else
-	{
-		/* remove node from queue */
-		if ( psNode->psPrev == NULL && psNode->psNext == NULL )
-		{
-			pQueue->psCurNode = NULL;
-			pQueue->psNodeQHead = NULL;
-		}
-		else
-		{
-			/* make previous node point to next */
-			if ( psNode->psPrev != NULL )
-			{
-				psNode->psPrev->psNext = psNode->psNext;
-			}
+  /* if node valid, remove from queue and return to free node list */
+  if (psNode == nullptr)
+    return FALSE;
+  /* remove node from queue */
+  if (psNode->psPrev == nullptr && psNode->psNext == nullptr)
+  {
+    pQueue->psCurNode = nullptr;
+    pQueue->psNodeQHead = nullptr;
+  }
+  else
+  {
+    /* make previous node point to next */
+    if (psNode->psPrev != nullptr)
+      psNode->psPrev->psNext = psNode->psNext;
 
-			/* make next node point to previous */
-			if ( psNode->psNext != NULL )
-			{
-				psNode->psNext->psPrev = psNode->psPrev;
-			}
+    /* make next node point to previous */
+    if (psNode->psNext != nullptr)
+      psNode->psNext->psPrev = psNode->psPrev;
 
-			/* set current queue node if necessary */
-			if ( pQueue->psCurNode == psNode )
-			{
-				if ( psNode->psPrev != NULL )
-				{
-					pQueue->psCurNode = psNode->psPrev;
-				}
-				else if ( psNode->psNext != NULL )
-				{
-					pQueue->psCurNode = psNode->psNext;
-				}
-				else
-				{
-					pQueue->psCurNode = NULL;
-				}
-			}
+    /* set current queue node if necessary */
+    if (pQueue->psCurNode == psNode)
+    {
+      if (psNode->psPrev != nullptr)
+        pQueue->psCurNode = psNode->psPrev;
+      else if (psNode->psNext != nullptr)
+        pQueue->psCurNode = psNode->psNext;
+      else
+        pQueue->psCurNode = nullptr;
+    }
 
-			/* update queue pointer if neccessary */
-			if ( pQueue->psNodeQHead == psNode )
-			{
-				pQueue->psNodeQHead = psNode->psNext;
-			}
-		}
+    /* update queue pointer if neccessary */
+    if (pQueue->psNodeQHead == psNode)
+      pQueue->psNodeQHead = psNode->psNext;
+  }
 
-		/* return node to free node list */
-		psNode->psNext = pQueue->psFreeNodeList;
-		pQueue->psFreeNodeList = psNode;
+  /* return node to free node list */
+  psNode->psNext = pQueue->psFreeNodeList;
+  pQueue->psFreeNodeList = psNode;
 
-		/* update node counts */
-		pQueue->iFreeNodes++;
-		pQueue->iQueueNodes--;
+  /* update node counts */
+  pQueue->iFreeNodes++;
+  pQueue->iQueueNodes--;
 
-		ASSERT( (pQueue->iQueueNodes >= 0, "queue_RemoveNode: queue nodes < 0") );
+  ASSERT((pQueue->iQueueNodes >= 0, "queue_RemoveNode: queue nodes < 0"));
 
-		return TRUE;
-	}
+  return TRUE;
 }
 
 /***************************************************************************/
@@ -447,26 +387,20 @@ queue_RemoveNode( QUEUE * pQueue, QUEUE_NODE *psNode )
  */
 /***************************************************************************/
 
-BOOL
-queue_RemoveElement( QUEUE * pQueue, void * psElement )
+BOOL queue_RemoveElement(QUEUE* pQueue, void* psElement)
 {
-	QUEUE_NODE *psNode;
+  QUEUE_NODE* psNode;
 
-	/* check input */
-	ASSERT( (PTRVALID(pQueue,sizeof(QUEUE)),
-			"queue_Dequeue: queue pointer invalid\n") );
-	ASSERT( (PTRVALID(psElement,pQueue->iElementSize),
-			"queue_RemoveElement: element pointer invalid\n") );
+  /* check input */
+  ASSERT((PTRVALID(pQueue,sizeof(QUEUE)), "queue_Dequeue: queue pointer invalid\n"));
+  ASSERT((PTRVALID(psElement,pQueue->iElementSize), "queue_RemoveElement: element pointer invalid\n"));
 
-	if ( (psNode = queue_FindElement( pQueue, psElement )) != NULL )
-	{
-		queue_RemoveNode( pQueue, psNode );
-		return TRUE;
-	}
-	else
-	{
-		return FALSE;
-	}
+  if ((psNode = queue_FindElement(pQueue, psElement)) != nullptr)
+  {
+    queue_RemoveNode(pQueue, psNode);
+    return TRUE;
+  }
+  return FALSE;
 }
 
 /***************************************************************************/

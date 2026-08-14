@@ -8,7 +8,7 @@
 #define _scriptfuncs_h
 
 // not used in scripts, but used in code.
-extern  BOOL objectInRange(BASE_OBJECT *psList, SDWORD x, SDWORD y, SDWORD range);
+extern BOOL objectInRange(BASE_OBJECT* psList, SDWORD x, SDWORD y, SDWORD range);
 
 // Check for any player object being within a certain range of a position
 extern BOOL scrObjectInRange(void);
@@ -62,7 +62,7 @@ extern BOOL scrEnableComponent(void);
 extern BOOL scrMakeComponentAvailable(void);
 
 //Enable a structure type to be built
-extern BOOL	scrEnableStructure(void);
+extern BOOL scrEnableStructure(void);
 
 // true if structure is available.
 extern BOOL scrIsStructureAvailable(void);
@@ -94,13 +94,13 @@ extern BOOL scrAddMessage(void);
 extern BOOL scrSelectDroidByID(void);
 
 // for a specified player, set the assembly point droids go to when built
-extern BOOL	scrSetAssemblyPoint(void);
+extern BOOL scrSetAssemblyPoint(void);
 
 // test for structure is idle or not
-extern BOOL	scrStructureIdle(void);
+extern BOOL scrStructureIdle(void);
 
 // sends a players droids to a location to attack
-extern BOOL	scrAttackLocation(void);
+extern BOOL scrAttackLocation(void);
 
 extern BOOL scrInitGetFeature(void);
 extern BOOL scrGetFeature(void);
@@ -191,7 +191,7 @@ extern BOOL scrPlaySoundPos(void);
 extern BOOL scrAddConsoleText(void);
 
 // same as above - but it doesn't clear what's there and isn't permanent
-extern	BOOL scrShowConsoleText(void);
+extern BOOL scrShowConsoleText(void);
 
 /* Adds console text without clearing old */
 extern BOOL scrTagConsoleText(void);
@@ -280,7 +280,7 @@ extern BOOL scrApproxRoot(void);
 extern BOOL scrRefTest(void);
 
 // is <player> human or a computer? (multiplayer)
-extern BOOL	scrIsHumanPlayer(void);
+extern BOOL scrIsHumanPlayer(void);
 
 // Set an alliance between two players
 extern BOOL scrCreateAlliance(void);
@@ -303,7 +303,7 @@ extern BOOL scrPlayerInAlliance(void);
 extern BOOL scrDominatingAlliance(void);
 
 // push true if human player is responsible for 'player'
-extern BOOL	scrMyResponsibility(void);
+extern BOOL scrMyResponsibility(void);
 
 /*checks to see if a structure of the type specified exists within the 
 specified range of an XY location */
@@ -364,31 +364,31 @@ extern BOOL scrFlushConsoleMessages(void);
 extern BOOL scrPickStructLocation(void);
 
 // establish the distance between two points in world coordinates - approximate bounded to 11% out
-extern BOOL scrDistanceTwoPts( void );
+extern BOOL scrDistanceTwoPts(void);
 
 // decides if a base object can see another - you can select whether walls matter to line of sight
-extern BOOL	scrLOSTwoBaseObjects( void );
+extern BOOL scrLOSTwoBaseObjects(void);
 
 // destroys all structures of a certain type within a certain area and gives a gfx effect if you want it
-extern BOOL	scrDestroyStructuresInArea( void );
+extern BOOL scrDestroyStructuresInArea(void);
 
 // Estimates a threat from droids within a certain area
-extern BOOL	scrThreatInArea( void );
+extern BOOL scrThreatInArea(void);
 
 // gets the nearest gateway to a list of points
-extern BOOL scrGetNearestGateway( void );
+extern BOOL scrGetNearestGateway(void);
 
 // Lets the user specify which tile goes under water.
-extern BOOL	scrSetWaterTile(void);
+extern BOOL scrSetWaterTile(void);
 
 // lets the user specify which tile	is used for rubble on skyscraper destruction
-extern BOOL	scrSetRubbleTile(void);
+extern BOOL scrSetRubbleTile(void);
 
 // Tells the game what campaign it's in
-extern BOOL	scrSetCampaignNumber(void);
+extern BOOL scrSetCampaignNumber(void);
 
 // tests whether a structure has a module. If structure is null, then any structure
-extern BOOL	scrTestStructureModule(void);
+extern BOOL scrTestStructureModule(void);
 
 // give a player a template from another player
 extern BOOL scrAddTemplate(void);
@@ -402,23 +402,22 @@ extern BOOL scrFlyTransporterIn(void);
 // Add droid to transporter
 extern BOOL scrAddDroidToTransporter(void);
 
-
-extern	BOOL	scrDestroyUnitsInArea( void );
+extern BOOL scrDestroyUnitsInArea(void);
 
 // Removes a droid from thr world without all the graphical hoo ha.
-extern BOOL	scrRemoveDroid( void );
+extern BOOL scrRemoveDroid(void);
 
 // Sets an object to be a certain percent damaged
-extern BOOL	scrForceDamage( void );
+extern BOOL scrForceDamage(void);
 
 extern BOOL scrGetGameStatus(void);
 
-typedef enum gamestatus
+using GAMESTATUS = enum gamestatus
 {
-	STATUS_ReticuleIsOpen,
-	STATUS_BattleMapViewEnabled,
-	STATUS_DeliveryReposInProgress
-} GAMESTATUS;
+  STATUS_ReticuleIsOpen,
+  STATUS_BattleMapViewEnabled,
+  STATUS_DeliveryReposInProgress
+};
 
 //get the colour number used by a player
 extern BOOL scrGetPlayerColour(void);
@@ -458,7 +457,7 @@ extern BOOL scrFireWeaponAtObj(void);
 // fire a weapon stat at a location
 extern BOOL scrFireWeaponAtLoc(void);
 
-extern BOOL	scrClearConsole(void);
+extern BOOL scrClearConsole(void);
 
 // set the number of kills for a droid
 extern BOOL scrSetDroidKills(void);
@@ -482,5 +481,3 @@ extern BOOL scrResetLimboMission(void);
 extern BOOL scrSkFireLassat(void);
 
 #endif
-
-

@@ -5,7 +5,6 @@
  *
  */
 
-
 #include "Frame.h"
 #include "Script.h"
 #include "Objects.h"
@@ -17,234 +16,217 @@
 #include "Group.h"
 
 // Keep all the loaded script contexts
-typedef struct _scrv_store
+using SCRV_STORE = struct _scrv_store
 {
-	SCRV_TYPE		type;
-	STRING			*pIDString;
-	SCRIPT_CONTEXT	*psContext;
+  SCRV_TYPE type;
+  STRING* pIDString;
+  SCRIPT_CONTEXT* psContext;
 
-	struct _scrv_store *psNext;
-} SCRV_STORE;
+  struct _scrv_store* psNext;
+};
 
 // The list of script contexts
-static SCRV_STORE	*psContextStore=NULL;
+static SCRV_STORE* psContextStore = nullptr;
 
 // keep a note of all base object pointers
 #define MAX_BASEPOINTER		200
-static INTERP_VAL	*asBasePointers[MAX_BASEPOINTER];
+static INTERP_VAL* asBasePointers[MAX_BASEPOINTER];
 
 // Initialise the script value module
 BOOL scrvInitialise(void)
 {
-	psContextStore = NULL;
-	memset(asBasePointers, 0, sizeof(asBasePointers));
+  psContextStore = nullptr;
+  memset(asBasePointers, 0, sizeof(asBasePointers));
 
-	return TRUE;
+  return TRUE;
 }
 
 // Shut down the script value module
 void scrvShutDown(void)
 {
-	SCRV_STORE	*psCurr;
-	while (psContextStore)
-	{
-		psCurr = psContextStore;
-		psContextStore = psContextStore->psNext;
+  SCRV_STORE* psCurr;
+  while (psContextStore)
+  {
+    psCurr = psContextStore;
+    psContextStore = psContextStore->psNext;
 
-		FREE(psCurr->pIDString);
-		FREE(psCurr);
-	}
+    FREE(psCurr->pIDString);
+    FREE(psCurr);
+  }
 }
-
 
 // reset the script value module
 void scrvReset(void)
 {
-	SCRV_STORE	*psCurr;
-	while (psContextStore)
-	{
-		psCurr = psContextStore;
-		psContextStore = psContextStore->psNext;
+  SCRV_STORE* psCurr;
+  while (psContextStore)
+  {
+    psCurr = psContextStore;
+    psContextStore = psContextStore->psNext;
 
-		FREE(psCurr->pIDString);
-		FREE(psCurr);
-	}
+    FREE(psCurr->pIDString);
+    FREE(psCurr);
+  }
 
-	psContextStore = NULL;
-	memset(asBasePointers, 0, sizeof(asBasePointers));
+  psContextStore = nullptr;
+  memset(asBasePointers, 0, sizeof(asBasePointers));
 }
-
 
 // Add a new context to the list
-BOOL scrvAddContext(STRING *pID, SCRIPT_CONTEXT *psContext, SCRV_TYPE type)
+BOOL scrvAddContext(STRING* pID, SCRIPT_CONTEXT* psContext, SCRV_TYPE type)
 {
-	SCRV_STORE		*psNew;
+  SCRV_STORE* psNew;
 
-	psNew = (SCRV_STORE *)MALLOC(sizeof(SCRV_STORE));
-	if (!psNew)
-	{
-		DBERROR(("scrvAddContext: Out of memory"));
-		return FALSE;
-	}
-	psNew->pIDString = (STRING *)MALLOC(strlen(pID) + 1);
-	if (!psNew->pIDString)
-	{
-		DBERROR(("scrvAddContext: Out of memory"));
-		return FALSE;
-	}
-	strcpy(psNew->pIDString, pID);
-	psNew->type = type;
-	psNew->psContext = psContext;
+  psNew = static_cast<SCRV_STORE*>(MALLOC(sizeof(SCRV_STORE)));
+  if (!psNew)
+  {
+    DBERROR(("scrvAddContext: Out of memory"));
+    return FALSE;
+  }
+  psNew->pIDString = static_cast<STRING*>(MALLOC(strlen(pID) + 1));
+  if (!psNew->pIDString)
+  {
+    DBERROR(("scrvAddContext: Out of memory"));
+    return FALSE;
+  }
+  strcpy(psNew->pIDString, pID);
+  psNew->type = type;
+  psNew->psContext = psContext;
 
-	psNew->psNext = psContextStore;
-	psContextStore = psNew;
+  psNew->psNext = psContextStore;
+  psContextStore = psNew;
 
-	return TRUE;
+  return TRUE;
 }
-
 
 // Add a new base pointer variable
-BOOL scrvAddBasePointer(INTERP_VAL *psVal)
+BOOL scrvAddBasePointer(INTERP_VAL* psVal)
 {
-	SDWORD	i;
+  SDWORD i;
 
-	for(i=0; i<MAX_BASEPOINTER; i++)
-	{
-		if (asBasePointers[i] == NULL)
-		{
-			asBasePointers[i] = psVal;
-			return TRUE;
-		}
-	}
+  for (i = 0; i < MAX_BASEPOINTER; i++)
+  {
+    if (asBasePointers[i] == nullptr)
+    {
+      asBasePointers[i] = psVal;
+      return TRUE;
+    }
+  }
 
-	return FALSE;
+  return FALSE;
 }
-
 
 // remove a base pointer from the list
-void scrvReleaseBasePointer(INTERP_VAL *psVal)
+void scrvReleaseBasePointer(INTERP_VAL* psVal)
 {
-	SDWORD	i;
+  SDWORD i;
 
-	for(i=0; i<MAX_BASEPOINTER; i++)
-	{
-		if (asBasePointers[i] == psVal)
-		{
-			asBasePointers[i] = NULL;
-			return;
-		}
-	}
+  for (i = 0; i < MAX_BASEPOINTER; i++)
+  {
+    if (asBasePointers[i] == psVal)
+    {
+      asBasePointers[i] = nullptr;
+      return;
+    }
+  }
 }
-
 
 // Check all the base pointers to see if they have died
 void scrvUpdateBasePointers(void)
 {
-	SDWORD		i;
-	INTERP_VAL	*psVal;
-	BASE_OBJECT	*psObj;
+  SDWORD i;
+  INTERP_VAL* psVal;
+  BASE_OBJECT* psObj;
 
-	for(i=0; i<MAX_BASEPOINTER; i++)
-	{
-		if (asBasePointers[i] != NULL)
-		{
-			psVal = asBasePointers[i];
-			psObj = (BASE_OBJECT *)psVal->v.oval;
+  for (i = 0; i < MAX_BASEPOINTER; i++)
+  {
+    if (asBasePointers[i] != nullptr)
+    {
+      psVal = asBasePointers[i];
+      psObj = static_cast<BASE_OBJECT*>(psVal->v.oval);
 
-			if (psObj && psObj->died && psObj->died != NOT_CURRENT_LIST)
-			{
-				psVal->v.oval = NULL;
-			}
-		}
-	}
+      if (psObj && psObj->died && psObj->died != NOT_CURRENT_LIST)
+        psVal->v.oval = nullptr;
+    }
+  }
 }
-
 
 // create a group structure for a ST_GROUP variable
-BOOL scrvNewGroup(INTERP_VAL *psVal)
+BOOL scrvNewGroup(INTERP_VAL* psVal)
 {
-	DROID_GROUP		*psGroup;
+  DROID_GROUP* psGroup;
 
-	if (!grpCreate(&psGroup))
-	{
-		return FALSE;
-	}
+  if (!grpCreate(&psGroup))
+    return FALSE;
 
-	// increment the refcount so the group doesn't get automatically freed when empty
-	grpJoin(psGroup, NULL);
+  // increment the refcount so the group doesn't get automatically freed when empty
+  grpJoin(psGroup, nullptr);
 
-	psVal->v.oval = psGroup;
+  psVal->v.oval = psGroup;
 
-	return TRUE;
+  return TRUE;
 }
-
 
 // release a ST_GROUP variable
-void scrvReleaseGroup(INTERP_VAL *psVal)
+void scrvReleaseGroup(INTERP_VAL* psVal)
 {
-	DROID_GROUP		*psGroup;
+  DROID_GROUP* psGroup;
 
-	psGroup = (DROID_GROUP *)psVal->v.oval;
-	grpReset(psGroup);
+  psGroup = static_cast<DROID_GROUP*>(psVal->v.oval);
+  grpReset(psGroup);
 
-	ASSERT((psGroup->refCount == 1,
-		"scrvReleaseGroup: ref count is wrong"));
+  ASSERT((psGroup->refCount == 1, "scrvReleaseGroup: ref count is wrong"));
 
-	// do a final grpLeave to free the group
-	grpLeave(psGroup, NULL);
+  // do a final grpLeave to free the group
+  grpLeave(psGroup, nullptr);
 }
-
 
 // Get a context from the list
-BOOL scrvGetContext(STRING *pID, SCRIPT_CONTEXT **ppsContext)
+BOOL scrvGetContext(STRING* pID, SCRIPT_CONTEXT** ppsContext)
 {
-	SCRV_STORE	*psCurr;
+  SCRV_STORE* psCurr;
 
-	for(psCurr=psContextStore; psCurr; psCurr=psCurr->psNext)
-	{
-		if (strcmp(psCurr->pIDString, pID) == 0)
-		{
-			*ppsContext = psCurr->psContext;
-			return TRUE;
-		}
-	}
+  for (psCurr = psContextStore; psCurr; psCurr = psCurr->psNext)
+  {
+    if (strcmp(psCurr->pIDString, pID) == 0)
+    {
+      *ppsContext = psCurr->psContext;
+      return TRUE;
+    }
+  }
 
-	DBERROR(("scrvGetContext: couldn't find context for id: %s", pID));
-	return FALSE;
+  DBERROR(("scrvGetContext: couldn't find context for id: %s", pID));
+  return FALSE;
 }
 
-
 // Find a base object from it's id
-BOOL scrvGetBaseObj(UDWORD id, BASE_OBJECT **ppsObj)
+BOOL scrvGetBaseObj(UDWORD id, BASE_OBJECT** ppsObj)
 {
-	BASE_OBJECT		*psObj;
+  BASE_OBJECT* psObj;
 
-	
-	psObj = getBaseObjFromId(id);
-	*ppsObj = psObj;
+  psObj = getBaseObjFromId(id);
+  *ppsObj = psObj;
 
-	if (psObj == NULL)
-	{
-		return FALSE;
-	}
-	return TRUE;
+  if (psObj == nullptr)
+    return FALSE;
+  return TRUE;
 }
 
 // Find a string from it's (string)id
-BOOL scrvGetString(STRING *pStringID, STRING **ppString)
+BOOL scrvGetString(STRING* pStringID, STRING** ppString)
 {
-	UDWORD			id;
+  UDWORD id;
 
-	//get the ID for the string
-	if (!strresGetIDNum(psStringRes, pStringID, &id))
-	{
-		DBERROR(("Cannot find the string id %s ", pStringID));
-		return FALSE;
-	}
-	//get the string from the id
-	*ppString = strresGetString(psStringRes, id);
+  //get the ID for the string
+  if (!strresGetIDNum(psStringRes, pStringID, &id))
+  {
+    DBERROR(("Cannot find the string id %s ", pStringID));
+    return FALSE;
+  }
+  //get the string from the id
+  *ppString = strresGetString(psStringRes, id);
 
-	return TRUE;
+  return TRUE;
 }
 
 // Link any object types to the actual pointer values
@@ -441,5 +423,3 @@ BOOL scrvGetString(STRING *pStringID, STRING **ppString)
 
 	return TRUE;
 }*/
-
-

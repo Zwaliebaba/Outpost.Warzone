@@ -6,7 +6,7 @@
 
 #include "Frame.h"
 #include "Widget.h"
-#include "ObjMem.h"	
+#include "ObjMem.h"
 #include "Console.h"
 #include "Map.h"
 #include "Research.h"
@@ -17,7 +17,7 @@
 #include "Text.h"
 #include "ScriptFuncs.h"		// for objectinrange.
 #include "GTime.h"
-#include "Effects.h"		
+#include "Effects.h"
 #include "Audio.h"
 #include "AudioID.h"			// for samples.
 #include "Wrappers.h"			// for gameover..
@@ -35,587 +35,506 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-
 #define	ENDFREQUENCY		5000		 // how often to check end game conditions
 #define MAXFRAGS			10000		 // max score in a frag match.
 #define MAXTIME				(5*60*1000) // max time in a time limit dmatch.
 
 ///////////////////////////////////////////////////////////////////////////////
 // prototypes
-BOOL			recvGift						(NETMSG *pMsg);
-BOOL			sendGift						(UDWORD type,UDWORD to);
-static VOID		giftRadar						(UDWORD from, UDWORD to,BOOL send);
-static VOID		recvGiftDroids					(UDWORD from,UDWORD to,NETMSG *pMsg);
-static VOID		sendGiftDroids					(UDWORD from,UDWORD to);
-static VOID		giftResearch					(UDWORD from,UDWORD to,BOOL send);
-VOID			giftPower						(UDWORD from,UDWORD to,BOOL send);
+BOOL recvGift(NETMSG* pMsg);
+BOOL sendGift(UDWORD type, UDWORD to);
+static VOID giftRadar(UDWORD from, UDWORD to, BOOL send);
+static VOID recvGiftDroids(UDWORD from, UDWORD to, NETMSG* pMsg);
+static VOID sendGiftDroids(UDWORD from, UDWORD to);
+static VOID giftResearch(UDWORD from, UDWORD to, BOOL send);
+VOID giftPower(UDWORD from, UDWORD to, BOOL send);
 
-VOID			requestAlliance					(UBYTE from ,UBYTE to,BOOL prop,BOOL allowAudio);
-VOID			breakAlliance					(UBYTE p1, UBYTE p2,BOOL prop,BOOL allowAudio);
-VOID			formAlliance					(UBYTE p1, UBYTE p2,BOOL prop,BOOL allowAudio);
-VOID			sendAlliance					(UBYTE from, UBYTE to, UBYTE state,SDWORD value);
-BOOL			recvAlliance					(NETMSG *pMsg,BOOL allowAudio);
-VOID			technologyGiveAway				(STRUCTURE *pS);
-VOID			addMultiPlayerRandomArtifacts	(UDWORD quantity,SDWORD type);
-VOID			recvMultiPlayerRandomArtifacts	(NETMSG *pMsg);
-VOID			giftArtifact					(UDWORD owner,UDWORD x,UDWORD y);
-VOID			processMultiPlayerArtifacts		(VOID);
-BOOL			addOilDrum						(UDWORD count);
+VOID requestAlliance(UBYTE from, UBYTE to, BOOL prop, BOOL allowAudio);
+VOID breakAlliance(UBYTE p1, UBYTE p2, BOOL prop, BOOL allowAudio);
+VOID formAlliance(UBYTE p1, UBYTE p2, BOOL prop, BOOL allowAudio);
+VOID sendAlliance(UBYTE from, UBYTE to, UBYTE state, SDWORD value);
+BOOL recvAlliance(NETMSG* pMsg, BOOL allowAudio);
+VOID technologyGiveAway(STRUCTURE* pS);
+VOID addMultiPlayerRandomArtifacts(UDWORD quantity, SDWORD type);
+VOID recvMultiPlayerRandomArtifacts(NETMSG* pMsg);
+VOID giftArtifact(UDWORD owner, UDWORD x, UDWORD y);
+VOID processMultiPlayerArtifacts(VOID);
+BOOL addOilDrum(UDWORD count);
 
-VOID			addLoserGifts					(VOID);
-
+VOID addLoserGifts(VOID);
 
 ///////////////////////////////////////////////////////////////////////////////
 // gifts..
 
 // recieve gift
-BOOL recvGift(NETMSG *pMsg)
+BOOL recvGift(NETMSG* pMsg)
 {
-	UDWORD t,from,to;
-	
-	t    = pMsg->body[0];	//decode msg
-	from = pMsg->body[1];
-	to   = pMsg->body[2];
+  UDWORD t, from, to;
 
+  t = pMsg->body[0]; //decode msg
+  from = pMsg->body[1];
+  to = pMsg->body[2];
 
-	switch(t)
-	{
-	case RADAR_GIFT:
-		giftRadar(from,to,FALSE);
-		break;
-	case DROID_GIFT:
-		recvGiftDroids(from,to,pMsg);
-		break;
-	case RESEARCH_GIFT:
-		giftResearch(from,to,FALSE);
-		break;
-	case POWER_GIFT:
-		giftPower(from,to,FALSE);
-		break;
-	default:
-		DBERROR(("Unknown Gift recvd"));
-		return FALSE;
-		break;
-	}
+  switch (t)
+  {
+  case RADAR_GIFT:
+    giftRadar(from, to,FALSE);
+    break;
+  case DROID_GIFT:
+    recvGiftDroids(from, to, pMsg);
+    break;
+  case RESEARCH_GIFT:
+    giftResearch(from, to,FALSE);
+    break;
+  case POWER_GIFT:
+    giftPower(from, to,FALSE);
+    break;
+  default: DBERROR(("Unknown Gift recvd"));
+    return FALSE;
+    break;
+  }
 
-	// play some audio.
-	if(to == selectedPlayer)
-	{
-		audio_QueueTrack(ID_GIFT);
-		switch(t)
-		{
-		case RADAR_GIFT:
-			audio_QueueTrack(ID_SENSOR_DOWNLOAD);
-			break;
-		case DROID_GIFT:
-			audio_QueueTrack(ID_UNITS_TRANSFER );
-			break;
-		case RESEARCH_GIFT:
-			audio_QueueTrack(ID_TECHNOLOGY_TRANSFER);
-			break;
-		case POWER_GIFT:
-			audio_QueueTrack(ID_POWER_TRANSMIT);
-			break;
-		default:
-			break;
-		}
-	}
+  // play some audio.
+  if (to == selectedPlayer)
+  {
+    audio_QueueTrack(ID_GIFT);
+    switch (t)
+    {
+    case RADAR_GIFT:
+      audio_QueueTrack(ID_SENSOR_DOWNLOAD);
+      break;
+    case DROID_GIFT:
+      audio_QueueTrack(ID_UNITS_TRANSFER);
+      break;
+    case RESEARCH_GIFT:
+      audio_QueueTrack(ID_TECHNOLOGY_TRANSFER);
+      break;
+    case POWER_GIFT:
+      audio_QueueTrack(ID_POWER_TRANSMIT);
+      break;
+    default:
+      break;
+    }
+  }
 
-	return TRUE;
+  return TRUE;
 }
 
-
-BOOL sendGift(UDWORD type,UDWORD to)
+BOOL sendGift(UDWORD type, UDWORD to)
 {
-	switch(type)
-	{
-	case RADAR_GIFT:
-		giftRadar(selectedPlayer,to,TRUE);
-		audio_QueueTrack(ID_SENSOR_DOWNLOAD);
-		break;
-	case DROID_GIFT:
-		sendGiftDroids(selectedPlayer,to);
-		audio_QueueTrack(ID_UNITS_TRANSFER );
-		break;
-	case RESEARCH_GIFT:
-		giftResearch(selectedPlayer,to,TRUE);
-		audio_QueueTrack(ID_TECHNOLOGY_TRANSFER);
-		break;
-	case POWER_GIFT:
-		giftPower(selectedPlayer,to,TRUE);
-		audio_QueueTrack(ID_POWER_TRANSMIT);
-		break;
-	default:
-		DBERROR(("Unknown Gift sent"));
-		return FALSE;
-		break;
-	}
-	
-	return TRUE;
+  switch (type)
+  {
+  case RADAR_GIFT:
+    giftRadar(selectedPlayer, to,TRUE);
+    audio_QueueTrack(ID_SENSOR_DOWNLOAD);
+    break;
+  case DROID_GIFT:
+    sendGiftDroids(selectedPlayer, to);
+    audio_QueueTrack(ID_UNITS_TRANSFER);
+    break;
+  case RESEARCH_GIFT:
+    giftResearch(selectedPlayer, to,TRUE);
+    audio_QueueTrack(ID_TECHNOLOGY_TRANSFER);
+    break;
+  case POWER_GIFT:
+    giftPower(selectedPlayer, to,TRUE);
+    audio_QueueTrack(ID_POWER_TRANSMIT);
+    break;
+  default: DBERROR(("Unknown Gift sent"));
+    return FALSE;
+    break;
+  }
+
+  return TRUE;
 }
+
 // ////////////////////////////////////////////////////////////////////////////
 // give radar information
-void giftRadar(UDWORD from, UDWORD to,BOOL send)
+void giftRadar(UDWORD from, UDWORD to, BOOL send)
 {
-	NETMSG m;
+  NETMSG m;
 
-	hqReward((UBYTE)from, (UBYTE)to);
+  hqReward(static_cast<UBYTE>(from), static_cast<UBYTE>(to));
 
-	if(send)
-	{
-		m.body[0] = RADAR_GIFT;
-		m.body[1] = (UBYTE)from;
-		m.body[2] = (UBYTE)to;
-		m.type = NET_GIFT;
-		m.size = 3;
-		NETbcast(&m,TRUE);	//send it
-	}
-	else
-	{
-		if(to == selectedPlayer)
-		{
-			CONPRINTF(ConsoleString,(ConsoleString,strresGetString(psStringRes,
-				STR_GIFT_VIS),getPlayerName(from)));
-		}
-	}
+  if (send)
+  {
+    m.body[0] = RADAR_GIFT;
+    m.body[1] = static_cast<UBYTE>(from);
+    m.body[2] = static_cast<UBYTE>(to);
+    m.type = NET_GIFT;
+    m.size = 3;
+    NETbcast(&m,TRUE); //send it
+  }
+  else
+  {
+    if (to == selectedPlayer) { CONPRINTF(ConsoleString, (ConsoleString,strresGetString(psStringRes, STR_GIFT_VIS),getPlayerName(from))); }
+  }
 }
 
 // ////////////////////////////////////////////////////////////////////////////
 // give a droid - MOVED INTO DROID.C - AB 5/11/98
 
-
-static void recvGiftDroids(UDWORD from,UDWORD to,NETMSG *pMsg)
+static void recvGiftDroids(UDWORD from, UDWORD to, NETMSG* pMsg)
 {
-	
-	UDWORD id,pos=3;
-	DROID *pD;
+  UDWORD id, pos = 3;
+  DROID* pD;
 
-	while(pos < pMsg->size)
-	{
-		NetGet(pMsg,pos,id);
-		pos += sizeof(UDWORD);
-	
-		if(IdToDroid(id,from,&pD))	// find the droid.
-		{	
-			//giftSingleDroid(pD,from,to);	// give it away.
-            (void)giftSingleDroid(pD,to);	// give it away.
-		}
-	}
+  while (pos < pMsg->size)
+  {
+    NetGet(pMsg, pos, id);
+    pos += sizeof(UDWORD);
 
-	if(to == selectedPlayer)
-	{
-		CONPRINTF(ConsoleString,(ConsoleString,strresGetString(psStringRes,STR_GIFT_DRO),getPlayerName(from) ));
-	}
+    if (IdToDroid(id, from, &pD)) // find the droid.
+    {
+      //giftSingleDroid(pD,from,to);	// give it away.
+      (void)giftSingleDroid(pD, to); // give it away.
+    }
+  }
+
+  if (to == selectedPlayer) { CONPRINTF(ConsoleString, (ConsoleString,strresGetString(psStringRes,STR_GIFT_DRO),getPlayerName(from) )); }
 }
-	
-	
-	
 
 // give selected droid
-static void sendGiftDroids(UDWORD from,UDWORD to)
+static void sendGiftDroids(UDWORD from, UDWORD to)
 {
-	DROID	*next, *psD= apsDroidLists[from];
-	NETMSG	m;
-	UDWORD	count;
+  DROID *next, *psD = apsDroidLists[from];
+  NETMSG m;
+  UDWORD count;
 
-	if(!apsDroidLists[from])
-	{
-		return;
-	}
+  if (!apsDroidLists[from])
+    return;
 
-	m.body[0] = DROID_GIFT;
-	m.body[1] = (UBYTE)from;
-	m.body[2] = (UBYTE)to;
-	m.type = NET_GIFT;
-	m.size = 3;
+  m.body[0] = DROID_GIFT;
+  m.body[1] = static_cast<UBYTE>(from);
+  m.body[2] = static_cast<UBYTE>(to);
+  m.type = NET_GIFT;
+  m.size = 3;
 
-	count = 0;
-	do{
-		next = psD->psNext;		// store copy, since droid list may change.
+  count = 0;
+  do
+  {
+    next = psD->psNext; // store copy, since droid list may change.
 
-		if(psD->selected)
-		{
-			// check if recv has too many droids..
-	//		if(! IsPlayerDroidLimitReached(to) )
-			if(getNumDroids(to)+count < getMaxDroids(to) )
-			{
-			   (void)giftSingleDroid(psD,to);
+    if (psD->selected)
+    {
+      // check if recv has too many droids..
+      //		if(! IsPlayerDroidLimitReached(to) )
+      if (getNumDroids(to) + count < getMaxDroids(to))
+      {
+        (void)giftSingleDroid(psD, to);
 
-				NetAdd(m,m.size,psD->id);
-				m.size += sizeof(psD->id);
-				count++;
-			}
-		}
+        NetAdd(m, m.size, psD->id);
+        m.size += sizeof(psD->id);
+        count++;
+      }
+    }
 
-		psD = next;
-	}while (psD);
+    psD = next;
+  }
+  while (psD);
 
-	if(m.size >3)
-	{
-		NETbcast(&m,TRUE);	//send it
-	}
+  if (m.size > 3)
+    NETbcast(&m,TRUE); //send it
 }
-
 
 // ////////////////////////////////////////////////////////////////////////////
 // give technologies.
-static void giftResearch(UDWORD from,UDWORD to,BOOL send)
+static void giftResearch(UDWORD from, UDWORD to, BOOL send)
 {
-	PLAYER_RESEARCH *pR,*pRto;
-	UDWORD i;
-	NETMSG m;
+  PLAYER_RESEARCH *pR, *pRto;
+  UDWORD i;
+  NETMSG m;
 
-	pR	 = asPlayerResList[from];
-	pRto = asPlayerResList[to];
+  pR = asPlayerResList[from];
+  pRto = asPlayerResList[to];
 
-	for(i=0; i<numResearch; i++)								// do for each topic.
-	{
-		if(IsResearchCompleted(&pR[i]) )
-		{
-			if(IsResearchCompleted(&pRto[i])==FALSE)
-			{
-				MakeResearchCompleted(&pRto[i]);
-				researchResult(i,(UBYTE)to,FALSE);
-			}
-		}
-	}
+  for (i = 0; i < numResearch; i++) // do for each topic.
+  {
+    if (IsResearchCompleted(&pR[i]))
+    {
+      if (IsResearchCompleted(&pRto[i]) == FALSE)
+      {
+        MakeResearchCompleted(&pRto[i]);
+        researchResult(i, static_cast<UBYTE>(to),FALSE);
+      }
+    }
+  }
 
-
-/*	pPlayerRes = asPlayerResList[player];		
-	pPlayerRes += index;
-	if(IsResearchCompleted(pPlayerRes)==FALSE)
-	{
-		MakeResearchCompleted(pPlayerRes);
-		rese
-*/
-	if(send)
-	{
-		m.body[0] = RESEARCH_GIFT;
-		m.body[1] = (UBYTE)from;
-		m.body[2] = (UBYTE)to;
-		m.type = NET_GIFT;
-		m.size = 3;
-		NETbcast(&m,TRUE);	//send it
-	}
-	else
-	{
-		if(to == selectedPlayer)
-		{
-			CONPRINTF(ConsoleString,(ConsoleString,strresGetString(psStringRes,STR_GIFT_TEC),getPlayerName(from) ));
-		}
-	}
-
+  /*	pPlayerRes = asPlayerResList[player];		
+    pPlayerRes += index;
+    if(IsResearchCompleted(pPlayerRes)==FALSE)
+    {
+      MakeResearchCompleted(pPlayerRes);
+      rese
+  */
+  if (send)
+  {
+    m.body[0] = RESEARCH_GIFT;
+    m.body[1] = static_cast<UBYTE>(from);
+    m.body[2] = static_cast<UBYTE>(to);
+    m.type = NET_GIFT;
+    m.size = 3;
+    NETbcast(&m,TRUE); //send it
+  }
+  else
+  {
+    if (to == selectedPlayer) { CONPRINTF(ConsoleString, (ConsoleString,strresGetString(psStringRes,STR_GIFT_TEC),getPlayerName(from) )); }
+  }
 }
-
 
 // ////////////////////////////////////////////////////////////////////////////
 // give Power
-void giftPower(UDWORD from,UDWORD to,BOOL send)
+void giftPower(UDWORD from, UDWORD to, BOOL send)
 {
-	UDWORD gifval;
-	NETMSG m;
+  UDWORD gifval;
+  NETMSG m;
 
-	if(from == ANYPLAYER)
-	{
-		gifval = OILDRUM_POWER;
-	}
-	else
-	{
-		gifval = asPower[from]->currentPower /3;
-		usePower(from, gifval);
-	}
+  if (from == ANYPLAYER)
+    gifval = OILDRUM_POWER;
+  else
+  {
+    gifval = asPower[from]->currentPower / 3;
+    usePower(from, gifval);
+  }
 
-	addPower(to,gifval);
+  addPower(to, gifval);
 
-	if(send)
-	{
-		m.body[0] = POWER_GIFT;
-		m.body[1] = (UBYTE)from;
-		m.body[2] = (UBYTE)to;
-		m.type = NET_GIFT;
-		m.size = 3;
-		NETbcast(&m,TRUE);	//send it
-	}
-	else
-	{
-		if(to == selectedPlayer)
-		{
-			CONPRINTF(ConsoleString,(ConsoleString,strresGetString(psStringRes,STR_GIFT_POW),getPlayerName(from) ));
-		}
-	}
+  if (send)
+  {
+    m.body[0] = POWER_GIFT;
+    m.body[1] = static_cast<UBYTE>(from);
+    m.body[2] = static_cast<UBYTE>(to);
+    m.type = NET_GIFT;
+    m.size = 3;
+    NETbcast(&m,TRUE); //send it
+  }
+  else
+  {
+    if (to == selectedPlayer) { CONPRINTF(ConsoleString, (ConsoleString,strresGetString(psStringRes,STR_GIFT_POW),getPlayerName(from) )); }
+  }
 }
 
 // ////////////////////////////////////////////////////////////////////////////
 // ////////////////////////////////////////////////////////////////////////////
 // alliance code......
 
-void requestAlliance(UBYTE from ,UBYTE to,BOOL prop,BOOL allowAudio)
+void requestAlliance(UBYTE from, UBYTE to, BOOL prop, BOOL allowAudio)
 {
-	alliances[from][to] = ALLIANCE_REQUESTED;			// we've asked.
-	alliances[to][from] = ALLIANCE_INVITATION;		// they've been invited.
+  alliances[from][to] = ALLIANCE_REQUESTED; // we've asked.
+  alliances[to][from] = ALLIANCE_INVITATION; // they've been invited.
 
+  CBallFrom = from;
+  CBallTo = to;
+  eventFireCallbackTrigger(CALL_ALLIANCEOFFER);
 
-	CBallFrom = from;
-	CBallTo = to;
-	eventFireCallbackTrigger(CALL_ALLIANCEOFFER);
+  if (to == selectedPlayer)
+  {
+    CONPRINTF(ConsoleString, (ConsoleString,strresGetString(psStringRes,STR_ALLI_REQ),getPlayerName(from) ));
+    if (allowAudio)
+      audio_QueueTrack(ID_ALLIANCE_OFF);
+  }
+  if (from == selectedPlayer)
+  {
+    CONPRINTF(ConsoleString, (ConsoleString,strresGetString(psStringRes,STR_ALLI_OFF),getPlayerName(to) ));
+    if (allowAudio)
+      audio_QueueTrack(ID_ALLIANCE_OFF);
+  }
 
-	if(to == selectedPlayer)
-	{
-		CONPRINTF(ConsoleString,(ConsoleString,strresGetString(psStringRes,STR_ALLI_REQ),getPlayerName(from) ));
-		if(allowAudio)
-		{
-			audio_QueueTrack(ID_ALLIANCE_OFF);
-		}
-	}
-	if(from == selectedPlayer)
-	{
-		CONPRINTF(ConsoleString,(ConsoleString,strresGetString(psStringRes,STR_ALLI_OFF),getPlayerName(to) ));
-		if(allowAudio)
-		{
-			audio_QueueTrack(ID_ALLIANCE_OFF);
-		}
-	}
-
-	if(prop)
-	{
-		sendAlliance(from,to,ALLIANCE_REQUESTED,0);
-	}
+  if (prop)
+    sendAlliance(from, to,ALLIANCE_REQUESTED, 0);
 }
 
-void breakAlliance(UBYTE p1, UBYTE p2,BOOL prop,BOOL allowAudio)
+void breakAlliance(UBYTE p1, UBYTE p2, BOOL prop, BOOL allowAudio)
 {
-	CHAR	tm1[128];
-	if(alliances[p1][p2] == ALLIANCE_FORMED)
-	{	
-		strcpy(tm1,getPlayerName(p1));
-		CONPRINTF(ConsoleString,(ConsoleString,strresGetString(psStringRes,STR_ALLI_BRK),tm1,getPlayerName(p2) ));
-		if(allowAudio && (p1 == selectedPlayer || p2 == selectedPlayer))
-		{		
-			audio_QueueTrack(ID_ALLIANCE_BRO);
-		}
-	}
+  CHAR tm1[128];
+  if (alliances[p1][p2] == ALLIANCE_FORMED)
+  {
+    strcpy(tm1, getPlayerName(p1));
+    CONPRINTF(ConsoleString, (ConsoleString,strresGetString(psStringRes,STR_ALLI_BRK),tm1,getPlayerName(p2) ));
+    if (allowAudio && (p1 == selectedPlayer || p2 == selectedPlayer))
+      audio_QueueTrack(ID_ALLIANCE_BRO);
+  }
 
-	alliances[p1][p2] = ALLIANCE_BROKEN;
-	alliances[p2][p1] = ALLIANCE_BROKEN;
+  alliances[p1][p2] = ALLIANCE_BROKEN;
+  alliances[p2][p1] = ALLIANCE_BROKEN;
 
-	if(prop)
-	{
-		sendAlliance(p1,p2,ALLIANCE_BROKEN,0);
-	}
+  if (prop)
+    sendAlliance(p1, p2,ALLIANCE_BROKEN, 0);
 }
 
-void formAlliance(UBYTE p1, UBYTE p2,BOOL prop,BOOL allowAudio)
+void formAlliance(UBYTE p1, UBYTE p2, BOOL prop, BOOL allowAudio)
 {
-	DROID	*psDroid;
-	CHAR	tm1[128];
-	UBYTE	i;
+  DROID* psDroid;
+  CHAR tm1[128];
+  UBYTE i;
 
-	// dont add message if already allied,
-	if(bMultiPlayer && !(alliances[p1][p2] == ALLIANCE_FORMED) )
-	{
-		strcpy(tm1,getPlayerName(p1));
-		CONPRINTF(ConsoleString,(ConsoleString,strresGetString(psStringRes,STR_ALLI_FRM),tm1,getPlayerName(p2) ));
-	}
+  // dont add message if already allied,
+  if (bMultiPlayer && !(alliances[p1][p2] == ALLIANCE_FORMED))
+  {
+    strcpy(tm1, getPlayerName(p1));
+    CONPRINTF(ConsoleString, (ConsoleString,strresGetString(psStringRes,STR_ALLI_FRM),tm1,getPlayerName(p2) ));
+  }
 
-	alliances[p1][p2] = ALLIANCE_FORMED;
-	alliances[p2][p1] = ALLIANCE_FORMED;
+  alliances[p1][p2] = ALLIANCE_FORMED;
+  alliances[p2][p1] = ALLIANCE_FORMED;
 
+  if (allowAudio && (p1 == selectedPlayer || p2 == selectedPlayer))
+    audio_QueueTrack(ID_ALLIANCE_ACC);
 
-	if(allowAudio && (p1 == selectedPlayer || p2== selectedPlayer))
-	{
-		audio_QueueTrack(ID_ALLIANCE_ACC);
-	}
+  if (bMultiPlayer) //jps 15apr99
+  {
+    if (prop)
+      sendAlliance(p1, p2,ALLIANCE_FORMED, 0);
+  }
 
-	if(bMultiPlayer)//jps 15apr99
-	{	
-		if(prop)
-		{	
-			sendAlliance(p1,p2,ALLIANCE_FORMED,0);
-		}
-	}
+  // teamplay init others vis.
+  if (bMultiPlayer && game.type == TEAMPLAY && (p1 == selectedPlayer || p2 == selectedPlayer))
+  {
+    giftRadar(p1, p2,FALSE);
+    giftRadar(p2, p1,FALSE);
 
-	// teamplay init others vis.
-	if(bMultiPlayer && game.type == TEAMPLAY && (p1 == selectedPlayer || p2== selectedPlayer))
-	{
-		giftRadar(p1,p2,FALSE);
-		giftRadar(p2,p1,FALSE);
+    // THIS BIT ADDED BY AJL 28th april
+    for (i = 0; i < MAX_PLAYERS; i++)
+    {
+      //for each alliance with the selectedPlayer make a new one with the newly allied player
+      if (p2 == selectedPlayer)
+      {
+        if (p1 != i && p2 != i && aiCheckAlliances(p1, i))
+        {
+          if (!aiCheckAlliances(p2, i))
+            formAlliance(p2, i,TRUE,FALSE);
+        }
+      }
+      else { if (p1 != i && p2 != i && aiCheckAlliances(p2, i)) { if (!aiCheckAlliances(p1, i)) { formAlliance(p1, i,TRUE,FALSE); } } }
+    }
+  }
 
-		// THIS BIT ADDED BY AJL 28th april
-		for(i=0;i<MAX_PLAYERS;i++)
-		{
-			//for each alliance with the selectedPlayer make a new one with the newly allied player
-			if(p2 == selectedPlayer)
-			{
-				if ( p1 != i && p2 != i && aiCheckAlliances(p1,i) )
-				{
-					if (!aiCheckAlliances(p2,i))
-					{
-						formAlliance(p2,i,TRUE,FALSE);;
-					}
-				}
-			}
-			else
-			{
-				if( p1 != i && p2 != i && aiCheckAlliances(p2,i) )
-				{
-					if (!aiCheckAlliances(p1,i))
-					{
-						formAlliance(p1,i,TRUE,FALSE);;
-					}
-				}
-			}
-		}
-	}
-
-
-	// clear out any attacking orders.
-	turnOffMultiMsg(TRUE);
-	for(psDroid= apsDroidLists[p1];psDroid;psDroid=psDroid->psNext)	// from -> to
-	{
-		if(psDroid->order == DORDER_ATTACK 
-			&& psDroid->psTarget 
-			&& psDroid->psTarget->player == p2)
-		{
-			orderDroid(psDroid,DORDER_STOP);
-		}
-	}
-	for(psDroid= apsDroidLists[p2];psDroid;psDroid=psDroid->psNext)	// to -> from
-	{
-		if(psDroid->order == DORDER_ATTACK 
-			&& psDroid->psTarget 
-			&& psDroid->psTarget->player == p1)
-		{
-			orderDroid(psDroid,DORDER_STOP);
-		}
-	}
-	turnOffMultiMsg(FALSE);
-
+  // clear out any attacking orders.
+  turnOffMultiMsg(TRUE);
+  for (psDroid = apsDroidLists[p1]; psDroid; psDroid = psDroid->psNext) // from -> to
+  {
+    if (psDroid->order == DORDER_ATTACK && psDroid->psTarget && psDroid->psTarget->player == p2)
+      orderDroid(psDroid, DORDER_STOP);
+  }
+  for (psDroid = apsDroidLists[p2]; psDroid; psDroid = psDroid->psNext) // to -> from
+  {
+    if (psDroid->order == DORDER_ATTACK && psDroid->psTarget && psDroid->psTarget->player == p1)
+      orderDroid(psDroid, DORDER_STOP);
+  }
+  turnOffMultiMsg(FALSE);
 }
 
-
-
-void sendAlliance(UBYTE from, UBYTE to, UBYTE state,SDWORD value)
+void sendAlliance(UBYTE from, UBYTE to, UBYTE state, SDWORD value)
 {
-	NETMSG m;
-		
-	m.size =0;
-	NetAdd(m,m.size,from);
-	m.size+=sizeof(from);
+  NETMSG m;
 
-	NetAdd(m,m.size,to);
-	m.size+=sizeof(to);
+  m.size = 0;
+  NetAdd(m, m.size, from);
+  m.size += sizeof(from);
 
-	NetAdd(m,m.size,state);
-	m.size+=sizeof(state);
+  NetAdd(m, m.size, to);
+  m.size += sizeof(to);
 
-	NetAdd(m,m.size,value);
-	m.size+=sizeof(value);
-	
-	m.type = NET_ALLIANCE;
-	NETbcast(&m,TRUE);
+  NetAdd(m, m.size, state);
+  m.size += sizeof(state);
 
-/*
-	// teamplay init others vis.
-	if(bMultiPlayer && state == ALLIANCE_FORMED && game.type == TEAMPLAY && (from == selectedPlayer || to== selectedPlayer))
-	{
-		giftRadar(from,to,FALSE);
-		giftRadar(to,from,FALSE);
-	}
-*/
+  NetAdd(m, m.size, value);
+  m.size += sizeof(value);
+
+  m.type = NET_ALLIANCE;
+  NETbcast(&m,TRUE);
+
+  /*
+    // teamplay init others vis.
+    if(bMultiPlayer && state == ALLIANCE_FORMED && game.type == TEAMPLAY && (from == selectedPlayer || to== selectedPlayer))
+    {
+      giftRadar(from,to,FALSE);
+      giftRadar(to,from,FALSE);
+    }
+  */
 }
 
-BOOL recvAlliance(NETMSG *pMsg,BOOL allowAudio)
+BOOL recvAlliance(NETMSG* pMsg, BOOL allowAudio)
 {
-	UBYTE to,from,state,pos=0;
-	SDWORD value;
+  UBYTE to, from, state, pos = 0;
+  SDWORD value;
 
-	NetGet(pMsg,pos,from);
-	pos += sizeof(from);
-	
-	NetGet(pMsg,pos,to);
-	pos += sizeof(to);
+  NetGet(pMsg, pos, from);
+  pos += sizeof(from);
 
-	NetGet(pMsg,pos,state);
-	pos += sizeof(state);
+  NetGet(pMsg, pos, to);
+  pos += sizeof(to);
 
-	NetGet(pMsg,pos,value);
+  NetGet(pMsg, pos, state);
+  pos += sizeof(state);
 
-	switch(state)
-	{
-	case ALLIANCE_NULL:
-		break;
-	case ALLIANCE_REQUESTED:
-		requestAlliance(from,to,FALSE,allowAudio);
-		break;
-	case ALLIANCE_FORMED:
-		formAlliance(from,to,FALSE,allowAudio);
-		break;
-	case ALLIANCE_BROKEN:
-		breakAlliance(from,to,FALSE,allowAudio);
-		break;
-	default:
-		DBERROR(("Unknown alliance state recvd."));
-		break;
-	}
+  NetGet(pMsg, pos, value);
 
-	return TRUE;
+  switch (state)
+  {
+  case ALLIANCE_NULL:
+    break;
+  case ALLIANCE_REQUESTED:
+    requestAlliance(from, to,FALSE, allowAudio);
+    break;
+  case ALLIANCE_FORMED:
+    formAlliance(from, to,FALSE, allowAudio);
+    break;
+  case ALLIANCE_BROKEN:
+    breakAlliance(from, to,FALSE, allowAudio);
+    break;
+  default: DBERROR(("Unknown alliance state recvd."));
+    break;
+  }
+
+  return TRUE;
 }
-
 
 // ////////////////////////////////////////////////////////////////////////////
 // add an artifact on destruction if required.
-VOID  technologyGiveAway(STRUCTURE *pS)
+VOID technologyGiveAway(STRUCTURE* pS)
 {
-	UDWORD	i;
-	UDWORD	x,y;
-	FEATURE	*pF=NULL;
-	SDWORD	type = FEAT_GEN_ARTE;
-	NETMSG	m;
+  UDWORD i;
+  UDWORD x, y;
+  FEATURE* pF = nullptr;
+  SDWORD type = FEAT_GEN_ARTE;
+  NETMSG m;
 
-	if(pS->pStructureType->type == REF_FACTORY  &&  myResponsibility(pS->player))
-	{
+  if (pS->pStructureType->type == REF_FACTORY && myResponsibility(pS->player))
+  {
+    x = (pS->x >> TILE_SHIFT);
+    y = (pS->y >> TILE_SHIFT);
+    if (!pickATileGen(&x, &y,LOOK_FOR_EMPTY_TILE, zonedPAT))
+      ASSERT((FALSE, "technologyGiveAway: Unable to find a free location"));
 
-		x = (pS->x >> TILE_SHIFT);
-		y = (pS->y >> TILE_SHIFT); 
-		if (!pickATileGen(&x,&y,LOOK_FOR_EMPTY_TILE,zonedPAT))
-		{
-			ASSERT((FALSE, "technologyGiveAway: Unable to find a free location"));
-		}
-		
-		for(i=0; (i<numFeatureStats) && (asFeatureStats[i].subType != FEAT_GEN_ARTE); i++);
-		pF = buildFeature((asFeatureStats+i),x<<TILE_SHIFT, y<<TILE_SHIFT,FALSE);
-		if(pF)
-		{
-			pF->player = pS->player;
-		}
+    for (i = 0; (i < numFeatureStats) && (asFeatureStats[i].subType != FEAT_GEN_ARTE); i++);
+    pF = buildFeature((asFeatureStats + i), x << TILE_SHIFT, y << TILE_SHIFT,FALSE);
+    if (pF)
+      pF->player = pS->player;
 
-		m.body[0] = (UBYTE) 1;		// note how many
-		m.size	  = 1;
-		
-		// type. 
-		NetAdd(m,m.size,type);
-		m.size += sizeof(type);
+    m.body[0] = static_cast<UBYTE>(1); // note how many
+    m.size = 1;
 
-		NetAddType(m,m.size,UWORD,x);
-		m.size += sizeof(UWORD);
+    // type. 
+    NetAdd(m, m.size, type);
+    m.size += sizeof(type);
 
-		NetAddType(m,m.size,UWORD,y);
-		m.size += sizeof(UWORD);
-		
-		NetAdd(m,m.size,pF->id);
-		m.size += sizeof(pF->id);
-		
-		m.body[m.size] = (UBYTE) pS->player;
-		m.size	+=1;
+    NetAddType(m, m.size, UWORD, x);
+    m.size += sizeof(UWORD);
 
-		m.type  = NET_ARTIFACTS;	// send it.
-		NETbcast(&m,FALSE);		// tell everyone.
+    NetAddType(m, m.size, UWORD, y);
+    m.size += sizeof(UWORD);
 
-	}
-	return;
+    NetAdd(m, m.size, pF->id);
+    m.size += sizeof(pF->id);
+
+    m.body[m.size] = pS->player;
+    m.size += 1;
+
+    m.type = NET_ARTIFACTS; // send it.
+    NETbcast(&m,FALSE); // tell everyone.
+  }
 }
-
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // loooosseeeerrr  gifts
@@ -625,306 +544,285 @@ VOID  technologyGiveAway(STRUCTURE *pS)
 
 void addLoserGifts(void)
 {
-	static UDWORD	lastgift=0;
-	UDWORD			i,x,y,quantity,count;
-	NETMSG			m;
-	FEATURE			*pF;
-	SDWORD			type = FEAT_OIL_DRUM;
-	STRUCTURE		*psStruct;
+  static UDWORD lastgift = 0;
+  UDWORD i, x, y, quantity, count;
+  NETMSG m;
+  FEATURE* pF;
+  SDWORD type = FEAT_OIL_DRUM;
+  STRUCTURE* psStruct;
 
-	if(lastgift>gameTime)lastgift=0;	// might be a restart
+  if (lastgift > gameTime)
+    lastgift = 0; // might be a restart
 
-	// player has no power
-	if(apsStructLists[selectedPlayer] && asPower[selectedPlayer]->currentPower < 10)	// give some oil drums.
-	{
-		// only proceed if it's been a while
-		if(gameTime - lastgift< GIFTFREQ)
-		{
-			return;
-		}
+  // player has no power
+  if (apsStructLists[selectedPlayer] && asPower[selectedPlayer]->currentPower < 10) // give some oil drums.
+  {
+    // only proceed if it's been a while
+    if (gameTime - lastgift < GIFTFREQ)
+      return;
 
-		// only proceed if no powergen.
-		for(psStruct = apsStructLists[selectedPlayer];
-			psStruct && psStruct->pStructureType->type != REF_POWER_GEN;
-			psStruct = psStruct->psNext);
-		if(psStruct)
-		{
-			return;
-		}
+    // only proceed if no powergen.
+    for (psStruct = apsStructLists[selectedPlayer]; psStruct && psStruct->pStructureType->type != REF_POWER_GEN; psStruct = psStruct->
+         psNext);
+    if (psStruct)
+      return;
 
-		lastgift = gameTime;
-		
-		for(i=0; (i<numFeatureStats) && (asFeatureStats[i].subType != FEAT_OIL_DRUM); i++);
-		quantity = rand()%5+1;
+    lastgift = gameTime;
 
-		m.size  = 1;
-		m.body[0] = (UBYTE) quantity;		// note how many
+    for (i = 0; (i < numFeatureStats) && (asFeatureStats[i].subType != FEAT_OIL_DRUM); i++);
+    quantity = rand() % 5 + 1;
 
-		NetAdd(m,m.size,type);
-		m.size += sizeof(type);
+    m.size = 1;
+    m.body[0] = static_cast<UBYTE>(quantity); // note how many
 
-		for(count = 0;count<quantity;count++)
-		{		
-			x = apsStructLists[selectedPlayer]->x >> TILE_SHIFT;	
-			y = apsStructLists[selectedPlayer]->y >> TILE_SHIFT; 
-			if (!pickATileGen(&x,&y,LOOK_FOR_EMPTY_TILE,zonedPAT))
-			{
-				ASSERT((FALSE, "addlosergifts: Unable to find a free location"));
-			}
+    NetAdd(m, m.size, type);
+    m.size += sizeof(type);
 
-			NETlogEntry("gift",0,0);
+    for (count = 0; count < quantity; count++)
+    {
+      x = apsStructLists[selectedPlayer]->x >> TILE_SHIFT;
+      y = apsStructLists[selectedPlayer]->y >> TILE_SHIFT;
+      if (!pickATileGen(&x, &y,LOOK_FOR_EMPTY_TILE, zonedPAT))
+        ASSERT((FALSE, "addlosergifts: Unable to find a free location"));
 
-			pF = buildFeature((asFeatureStats+i),x<<TILE_SHIFT, y<<TILE_SHIFT,FALSE);	
-		
-			NetAddType(m,m.size,UWORD,x);		m.size += sizeof(UWORD);
-			NetAddType(m,m.size,UWORD,y);		m.size += sizeof(UWORD);
-			NetAdd(m,m.size,pF->id);			m.size += sizeof(pF->id);
+      NETlogEntry("gift", 0, 0);
 
-			m.body[m.size]  = ONEPLAYER;
-			m.size +=1;
-			if(pF)
-			{
-				pF->player = ONEPLAYER;		// flag for multiplayer artifacts
-			}
-		}	
-		audio_QueueTrack(ID_GIFT);
-		m.type  = NET_ARTIFACTS;
-		NETbcast(&m,FALSE);		// tell everyone.
-		
-	}
+      pF = buildFeature((asFeatureStats + i), x << TILE_SHIFT, y << TILE_SHIFT,FALSE);
 
-/* removed. too confusing.. con droids all over!	
-	// player has no construction droids
-	for(psD=apsDroidLists[selectedPlayer];(psD != NULL)&&(psD->droidType !=DROID_CONSTRUCT);psD = psD->psNext);
-	if(!psD)
-	{
-		for(psTempl=apsDroidTemplates[selectedPlayer];
-		psTempl && (psTempl->asParts[COMP_CONSTRUCT] == 0);
-		psTempl = psTempl->psNext);
+      NetAddType(m, m.size, UWORD, x);
+      m.size += sizeof(UWORD);
+      NetAddType(m, m.size, UWORD, y);
+      m.size += sizeof(UWORD);
+      NetAdd(m, m.size, pF->id);
+      m.size += sizeof(pF->id);
 
-		if(psTempl)
-		{
-			// give player a construction Droid.right now!
-			if(apsStructLists[selectedPlayer])
-			{
-				x = apsStructLists[selectedPlayer]->x >>TILE_SHIFT;
-				y = apsStructLists[selectedPlayer]->y >>TILE_SHIFT;
-				z = apsStructLists[selectedPlayer]->z >>TILE_SHIFT;
-			
-				pickATileGen(&x,&y,LOOK_FOR_EMPTY_TILE,normalPAT);
+      m.body[m.size] = ONEPLAYER;
+      m.size += 1;
+      if (pF)
+        pF->player = ONEPLAYER; // flag for multiplayer artifacts
+    }
+    audio_QueueTrack(ID_GIFT);
+    m.type = NET_ARTIFACTS;
+    NETbcast(&m,FALSE); // tell everyone.
+  }
 
-				position.x = x<<TILE_SHIFT;				// Add an effect
-				position.z = y<<TILE_SHIFT;	
-				position.y = z<<TILE_SHIFT;
-			
-				if(gameTime - lastgift< GIFTFREQ)
-				{
-					return;
-				}
-				lastgift = gameTime;
-				powerCalc(FALSE);											
-				psD=buildDroid(	psTempl, x<<TILE_SHIFT,  y<<TILE_SHIFT, selectedPlayer, FALSE);
-				if(psD)
-				{	
-					audio_QueueTrack(ID_GIFT);
-					addDroid(psD,apsDroidLists);							// add droid. telling everyone
-					addEffect(&position,EFFECT_EXPLOSION,EXPLOSION_TYPE_DISCOVERY,FALSE,NULL,FALSE);
-				}
-				powerCalc(TRUE);											// power back on.
-			}	
-		}
-	}
-	*/
+  /* removed. too confusing.. con droids all over!	
+    // player has no construction droids
+    for(psD=apsDroidLists[selectedPlayer];(psD != NULL)&&(psD->droidType !=DROID_CONSTRUCT);psD = psD->psNext);
+    if(!psD)
+    {
+      for(psTempl=apsDroidTemplates[selectedPlayer];
+      psTempl && (psTempl->asParts[COMP_CONSTRUCT] == 0);
+      psTempl = psTempl->psNext);
+  
+      if(psTempl)
+      {
+        // give player a construction Droid.right now!
+        if(apsStructLists[selectedPlayer])
+        {
+          x = apsStructLists[selectedPlayer]->x >>TILE_SHIFT;
+          y = apsStructLists[selectedPlayer]->y >>TILE_SHIFT;
+          z = apsStructLists[selectedPlayer]->z >>TILE_SHIFT;
+        
+          pickATileGen(&x,&y,LOOK_FOR_EMPTY_TILE,normalPAT);
+  
+          position.x = x<<TILE_SHIFT;				// Add an effect
+          position.z = y<<TILE_SHIFT;	
+          position.y = z<<TILE_SHIFT;
+        
+          if(gameTime - lastgift< GIFTFREQ)
+          {
+            return;
+          }
+          lastgift = gameTime;
+          powerCalc(FALSE);											
+          psD=buildDroid(	psTempl, x<<TILE_SHIFT,  y<<TILE_SHIFT, selectedPlayer, FALSE);
+          if(psD)
+          {	
+            audio_QueueTrack(ID_GIFT);
+            addDroid(psD,apsDroidLists);							// add droid. telling everyone
+            addEffect(&position,EFFECT_EXPLOSION,EXPLOSION_TYPE_DISCOVERY,FALSE,NULL,FALSE);
+          }
+          powerCalc(TRUE);											// power back on.
+        }	
+      }
+    }
+    */
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // splatter artifact gifts randomly about.
-VOID  addMultiPlayerRandomArtifacts(UDWORD quantity,SDWORD type)
+VOID addMultiPlayerRandomArtifacts(UDWORD quantity, SDWORD type)
 {
-	NETMSG m;
-	FEATURE	*pF;
-	UDWORD i,count;
-	UDWORD	x,y;
+  NETMSG m;
+  FEATURE* pF;
+  UDWORD i, count;
+  UDWORD x, y;
 
-	m.type  = NET_ARTIFACTS;
-	m.size  = 1;
-	m.body[0] = (UBYTE) quantity;		// note how many
+  m.type = NET_ARTIFACTS;
+  m.size = 1;
+  m.body[0] = static_cast<UBYTE>(quantity); // note how many
 
-	NetAdd(m,m.size,type);
-	m.size += sizeof(type);
+  NetAdd(m, m.size, type);
+  m.size += sizeof(type);
 
-	for(i=0; (i<numFeatureStats) && (asFeatureStats[i].subType != type); i++);
+  for (i = 0; (i < numFeatureStats) && (asFeatureStats[i].subType != type); i++);
 
-	ASSERT((mapWidth>20,"map not big enough"));
-	ASSERT((mapHeight>20,"map not big enough"));
+  ASSERT((mapWidth>20,"map not big enough"));
+  ASSERT((mapHeight>20,"map not big enough"));
 
-	for(count = 0;count<quantity;count++)
-	{
-		x = (rand()% (mapWidth-20))+10 ;		//( between 10 and mapwidth-10)
-		y = (rand()% (mapHeight-20))+10 ;
-		if (!pickATileGen(&x,&y,LOOK_FOR_EMPTY_TILE,zonedPAT))
-		{
-			ASSERT((FALSE, "addMultiPlayerRandomArtifacts: Unable to find a free location"));
-		}
+  for (count = 0; count < quantity; count++)
+  {
+    x = (rand() % (mapWidth - 20)) + 10; //( between 10 and mapwidth-10)
+    y = (rand() % (mapHeight - 20)) + 10;
+    if (!pickATileGen(&x, &y,LOOK_FOR_EMPTY_TILE, zonedPAT))
+      ASSERT((FALSE, "addMultiPlayerRandomArtifacts: Unable to find a free location"));
 
-		pF = buildFeature((asFeatureStats+i),x<<TILE_SHIFT, y<<TILE_SHIFT,FALSE);	
-		
-		NetAddType(m,m.size,UWORD,x);
-		m.size += sizeof(UWORD);
-		NetAddType(m,m.size,UWORD,y);
-		m.size += sizeof(UWORD);
+    pF = buildFeature((asFeatureStats + i), x << TILE_SHIFT, y << TILE_SHIFT,FALSE);
 
-		NetAdd(m,m.size,pF->id);
-		m.size += sizeof(pF->id);
-	
-		m.body[m.size]  = ANYPLAYER;
-		m.size +=1;
-		if(pF)
-		{
-			pF->player = ANYPLAYER;		// flag for multiplayer artifacts
-		}
-	}	
+    NetAddType(m, m.size, UWORD, x);
+    m.size += sizeof(UWORD);
+    NetAddType(m, m.size, UWORD, y);
+    m.size += sizeof(UWORD);
 
-	NETbcast(&m,FALSE);		// tell everyone.
+    NetAdd(m, m.size, pF->id);
+    m.size += sizeof(pF->id);
+
+    m.body[m.size] = ANYPLAYER;
+    m.size += 1;
+    if (pF)
+      pF->player = ANYPLAYER; // flag for multiplayer artifacts
+  }
+
+  NETbcast(&m,FALSE); // tell everyone.
 }
 
 // ///////////////////////////////////////////////////////////////
 BOOL addDMatchDroid(UDWORD count)
 {
-	addMultiPlayerRandomArtifacts(count,FEAT_GEN_ARTE);
-	return TRUE;
+  addMultiPlayerRandomArtifacts(count, FEAT_GEN_ARTE);
+  return TRUE;
 }
 
 // ///////////////////////////////////////////////////////////////
 BOOL addOilDrum(UDWORD count)
 {
-	addMultiPlayerRandomArtifacts(count,FEAT_OIL_DRUM);
-	return TRUE;
+  addMultiPlayerRandomArtifacts(count, FEAT_OIL_DRUM);
+  return TRUE;
 }
 
 // ///////////////////////////////////////////////////////////////
 // receive splattered artifacts
-VOID recvMultiPlayerRandomArtifacts(NETMSG *pMsg)
+VOID recvMultiPlayerRandomArtifacts(NETMSG* pMsg)
 {
-	UDWORD index,count,i,quantity,ref;
-	SDWORD type;
-	FEATURE *pF;
-	UWORD	tx,ty;
+  UDWORD index, count, i, quantity, ref;
+  SDWORD type;
+  FEATURE* pF;
+  UWORD tx, ty;
 
-	quantity = (UDWORD) pMsg->body[0];
-	index = 1;
-	
-	NetGet(pMsg,index,type);
-	index += sizeof(type);
+  quantity = static_cast<UDWORD>(pMsg->body[0]);
+  index = 1;
 
-	for(i=0; (i<numFeatureStats) && (asFeatureStats[i].subType != type); i++);
+  NetGet(pMsg, index, type);
+  index += sizeof(type);
 
-	for(count = 0;count<quantity;count++)
-	{
-		NetGet(pMsg,index,tx);
-		index += sizeof(tx);
+  for (i = 0; (i < numFeatureStats) && (asFeatureStats[i].subType != type); i++);
 
-		NetGet(pMsg,index,ty);
-		index += sizeof(ty);
+  for (count = 0; count < quantity; count++)
+  {
+    NetGet(pMsg, index, tx);
+    index += sizeof(tx);
 
-		NetGet(pMsg,index,ref);
-		index += sizeof(ref);
-		pF = buildFeature((asFeatureStats+i),tx<<TILE_SHIFT, ty<<TILE_SHIFT,FALSE);
-		if(pF)
-		{
-			pF->id		= ref;
-			pF->player	= pMsg->body[index];		// flag for multiplayer artifacts
-			index+=1;
-		}
-	}
+    NetGet(pMsg, index, ty);
+    index += sizeof(ty);
+
+    NetGet(pMsg, index, ref);
+    index += sizeof(ref);
+    pF = buildFeature((asFeatureStats + i), tx << TILE_SHIFT, ty << TILE_SHIFT,FALSE);
+    if (pF)
+    {
+      pF->id = ref;
+      pF->player = pMsg->body[index]; // flag for multiplayer artifacts
+      index += 1;
+    }
+  }
 }
 
 // ///////////////////////////////////////////////////////////////
-void giftArtifact(UDWORD owner,UDWORD x,UDWORD y)
+void giftArtifact(UDWORD owner, UDWORD x, UDWORD y)
 {
-	PLAYER_RESEARCH *pO,*pR;
-	UDWORD	topic=0;
-	pR   = asPlayerResList[selectedPlayer];
-	
-	if(owner == ANYPLAYER)
-	{
-	}
-	else if(owner >= MAX_PLAYERS)	//1.04 bodge to stop savegame crash
-	{
-		return;
-	}
-	else	// steal a research topic from owner player.
-	{
-		pO	 = asPlayerResList[owner];
+  PLAYER_RESEARCH *pO, *pR;
+  UDWORD topic = 0;
+  pR = asPlayerResList[selectedPlayer];
 
-		for(topic =numResearch; topic>0; topic--)
-		{
-			if( (IsResearchCompleted(&pO[topic]) ) && (IsResearchPossible(&pR[topic])==FALSE )  )
-			{
-				MakeResearchPossible(&pR[topic]);
-				CONPRINTF(ConsoleString,(ConsoleString,strresGetString(psStringRes,
-					STR_MUL_ARTIF),getName(asResearch[topic].pName)));
-				return;
-			}		
-		}	
-	}
+  if (owner == ANYPLAYER) {}
+  else if (owner >= MAX_PLAYERS) //1.04 bodge to stop savegame crash
+    return;
+  else // steal a research topic from owner player.
+  {
+    pO = asPlayerResList[owner];
+
+    for (topic = numResearch; topic > 0; topic--)
+    {
+      if ((IsResearchCompleted(&pO[topic])) && (IsResearchPossible(&pR[topic]) == FALSE))
+      {
+        MakeResearchPossible(&pR[topic]);
+        CONPRINTF(ConsoleString, (ConsoleString,strresGetString(psStringRes, STR_MUL_ARTIF),getName(asResearch[topic].pName)));
+        return;
+      }
+    }
+  }
 }
 
 // ///////////////////////////////////////////////////////////////
 VOID processMultiPlayerArtifacts(VOID)
 {
-	static UDWORD lastCall;
-	FEATURE	*pF,*pFN;
-	UDWORD	x,y,pl;
-	iVector position; 
-	BOOL	found=FALSE;
+  static UDWORD lastCall;
+  FEATURE *pF, *pFN;
+  UDWORD x, y, pl;
+  iVector position;
+  BOOL found = FALSE;
 
-	// only do this every now and again.
-	if(lastCall > gameTime)lastCall= 0;
-	if ( (gameTime - lastCall) <2000)
-	{	
-		return;
-	}
-	lastCall = gameTime;
-	
-	addLoserGifts();
+  // only do this every now and again.
+  if (lastCall > gameTime)
+    lastCall = 0;
+  if ((gameTime - lastCall) < 2000)
+    return;
+  lastCall = gameTime;
 
-	for(pF = apsFeatureLists[0]; pF ; pF = pFN)
-	{
-		pFN = pF->psNext;
-		// artifacts
-		if(pF->psStats->subType == FEAT_GEN_ARTE)
-		{	
-			found = objectInRange((BASE_OBJECT *)apsDroidLists[selectedPlayer], pF->x,pF->y,(TILE_UNITS+(TILE_UNITS/3))  );
-			if(found)
-			{
-				position.x = pF->x;				// Add an effect
-				position.z = pF->y;	
-				position.y = pF->z;
-				addEffect(&position,EFFECT_EXPLOSION,EXPLOSION_TYPE_DISCOVERY,FALSE,NULL,FALSE);
-							
-//					removeFeature(pF);			// remove artifact+ send info.					
-//				else
-					x = pF->x;
-					y = pF->y;
-					pl= pF->player;
-					removeFeature(pF);			// remove artifact+ send info.
-					giftArtifact(pl,x,y);		// reward player.	
-					pF->player = 0;				
-					audio_QueueTrack( ID_SOUND_ARTIFACT_RECOVERED );
-			}
-		}
+  addLoserGifts();
 
+  for (pF = apsFeatureLists[0]; pF; pF = pFN)
+  {
+    pFN = pF->psNext;
+    // artifacts
+    if (pF->psStats->subType == FEAT_GEN_ARTE)
+    {
+      found = objectInRange((BASE_OBJECT*)apsDroidLists[selectedPlayer], pF->x, pF->y, (TILE_UNITS + (TILE_UNITS / 3)));
+      if (found)
+      {
+        position.x = pF->x; // Add an effect
+        position.z = pF->y;
+        position.y = pF->z;
+        addEffect(&position, EFFECT_EXPLOSION, EXPLOSION_TYPE_DISCOVERY,FALSE, nullptr,FALSE);
 
-		// oil drums
-//				giftPower(ANYPLAYER,selectedPlayer,TRUE);		// give power and tell everyone.
-//				removeFeature(pF);								// remove artifact+ send info.
+        //					removeFeature(pF);			// remove artifact+ send info.					
+        //				else
+        x = pF->x;
+        y = pF->y;
+        pl = pF->player;
+        removeFeature(pF); // remove artifact+ send info.
+        giftArtifact(pl, x, y); // reward player.	
+        pF->player = 0;
+        audio_QueueTrack(ID_SOUND_ARTIFACT_RECOVERED);
+      }
+    }
 
-	}
-
+    // oil drums
+    //				giftPower(ANYPLAYER,selectedPlayer,TRUE);		// give power and tell everyone.
+    //				removeFeature(pF);								// remove artifact+ send info.
+  }
 }
-
 
 /*
 // ///////////////////////////////////////////////////////////////

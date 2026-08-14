@@ -10,18 +10,18 @@
 #include "GatewayDef.h"
 
 // the list of gateways on the current map
-extern GATEWAY		*psGateways;
+extern GATEWAY* psGateways;
 // the RLE map zones for each tile
-extern UBYTE		**apRLEZones;
+extern UBYTE** apRLEZones;
 
 // the number of map zones
-extern SDWORD		gwNumZones;
+extern SDWORD gwNumZones;
 
 // The zone equivalence tables
-extern UBYTE		*aNumEquiv;
-extern UBYTE		**apEquivZones;
+extern UBYTE* aNumEquiv;
+extern UBYTE** apEquivZones;
 
-extern UBYTE		*aZoneReachable;
+extern UBYTE* aZoneReachable;
 
 // Initialise the gateway system
 BOOL gwInitialise(void);
@@ -39,10 +39,10 @@ BOOL gwNewLinkGateway(SDWORD x, SDWORD y);
 BOOL gwGenerateLinkGates(void);
 
 // Release a gateway
-void gwFreeGateway(GATEWAY *psDel);
+void gwFreeGateway(GATEWAY* psDel);
 
 // load a gateway list
-BOOL gwLoadGateways(UBYTE *pFileBuffer, UDWORD fileSize);
+BOOL gwLoadGateways(UBYTE* pFileBuffer, UDWORD fileSize);
 
 // Process the map to create all the map zones
 BOOL gwProcessMap(void);
@@ -65,12 +65,11 @@ void gwSetZone(SDWORD x, SDWORD y, SDWORD zone);
 // Look up the zone for a coordinate
 SDWORD gwGetZone(SDWORD x, SDWORD y);
 
-
 // Create a new empty zone map but don't allocate the actual zones yet.
 BOOL gwNewZoneMap(void);
 
 // Create a new empty zone map line in the zone map.
-UBYTE * gwNewZoneLine(UDWORD Line,UDWORD Size);
+UBYTE* gwNewZoneLine(UDWORD Line, UDWORD Size);
 
 // Create a NULL zone map for when there is no zone info loaded
 BOOL gwCreateNULLZoneMap(void);
@@ -94,7 +93,7 @@ BOOL gwTileIsWater(UDWORD x, UDWORD y);
 UDWORD gwNumGateways(void);
 
 // Get the gateway list.
-GATEWAY *gwGetGateways(void);
+GATEWAY* gwGetGateways(void);
 
 // Get number of zone lines.
 UDWORD gwNumZoneLines(void);
@@ -109,7 +108,7 @@ BOOL gwNewEquivTable(SDWORD numZones);
 void gwFreeEquivTable(void);
 
 // set the zone equivalence for a zone
-BOOL gwSetZoneEquiv(SDWORD zone, SDWORD numEquiv, UBYTE *pEquiv);
+BOOL gwSetZoneEquiv(SDWORD zone, SDWORD numEquiv, UBYTE* pEquiv);
 
 // see if a zone is reachable
 BOOL gwZoneReachable(SDWORD zone);

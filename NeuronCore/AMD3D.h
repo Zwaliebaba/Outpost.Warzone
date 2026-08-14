@@ -465,5 +465,3 @@
    _asm _emit 0x0d				\
    _asm _emit 0x08 | src	\
 }
-
-

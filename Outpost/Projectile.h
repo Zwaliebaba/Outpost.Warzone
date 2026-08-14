@@ -20,9 +20,8 @@
 /***************************************************************************/
 
 // the last unit that did damage - used by script functions
-extern	BASE_OBJECT		*g_pProjLastAttacker;
-extern UDWORD	selectedPlayer;
-
+extern BASE_OBJECT* g_pProjLastAttacker;
+extern UDWORD selectedPlayer;
 
 // whether an object is in a fire
 #define IN_FIRE		0x01
@@ -34,23 +33,22 @@ extern UDWORD	selectedPlayer;
 // how much damaga a second an object takes when it is burning
 #define BURN_DAMAGE	15
 
-BOOL	proj_InitSystem( void );
-void	proj_UpdateAll( void );
-BOOL	proj_Shutdown( void );
+BOOL proj_InitSystem(void);
+void proj_UpdateAll(void);
+BOOL proj_Shutdown(void);
 
-PROJ_OBJECT *	proj_GetFirst( void );
-PROJ_OBJECT *	proj_GetNext( void );
+PROJ_OBJECT* proj_GetFirst(void);
+PROJ_OBJECT* proj_GetNext(void);
 
-void	proj_FreeAllProjectiles( void );
-BOOL	proj_SendProjectile( WEAPON *psWeap, BASE_OBJECT *psAttacker, SDWORD player,
-					 UDWORD tarX, UDWORD tarY, UDWORD tarZ, BASE_OBJECT *psTarget, BOOL bVisible );
+void proj_FreeAllProjectiles(void);
+BOOL proj_SendProjectile(WEAPON* psWeap, BASE_OBJECT* psAttacker, SDWORD player, UDWORD tarX, UDWORD tarY, UDWORD tarZ,
+                         BASE_OBJECT* psTarget, BOOL bVisible);
 
 // return whether a weapon is direct or indirect
-BOOL	proj_Direct(WEAPON_STATS *psStats);
+BOOL proj_Direct(WEAPON_STATS* psStats);
 
 // return the maximum range for a weapon
-SDWORD	proj_GetLongRange(WEAPON_STATS *psStats, SDWORD dz);
-
+SDWORD proj_GetLongRange(WEAPON_STATS* psStats, SDWORD dz);
 
 /*
 // The fattest macro around - change this little bastard at your peril
@@ -86,14 +84,12 @@ SDWORD	proj_GetLongRange(WEAPON_STATS *psStats, SDWORD dz);
 	)													\
 )														
 */
-extern UDWORD calcDamage(UDWORD baseDamage, WEAPON_EFFECT weaponEffect, 
-						 BASE_OBJECT *psTarget);
-extern BOOL gfxVisible(PROJ_OBJECT *psObj);	
+extern UDWORD calcDamage(UDWORD baseDamage, WEAPON_EFFECT weaponEffect, BASE_OBJECT* psTarget);
+extern BOOL gfxVisible(PROJ_OBJECT* psObj);
 
 /***************************************************************************/
-extern BOOL	justBeenHitByEW		( BASE_OBJECT *psObj );
-extern void	objectShimmy	( BASE_OBJECT *psObj );
-
+extern BOOL justBeenHitByEW(BASE_OBJECT* psObj);
+extern void objectShimmy(BASE_OBJECT* psObj);
 
 #endif	/* _PROJECTILE_H_ */
 

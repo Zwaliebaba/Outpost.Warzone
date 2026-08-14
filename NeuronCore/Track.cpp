@@ -18,136 +18,116 @@
 /* static global variables */
 
 /* array of pointers to sound effects */
-static TRACK **	g_apTrack;
+static TRACK** g_apTrack;
 
 /* number of tracks loaded */
-static SDWORD	g_iCurTracks = 0;
+static SDWORD g_iCurTracks = 0;
 
-static SDWORD	g_iSamples = 0;
-static SDWORD	g_iMaxSamples;
-static SDWORD	g_iMaxSameSamples;
+static SDWORD g_iSamples = 0;
+static SDWORD g_iMaxSamples;
+static SDWORD g_iMaxSameSamples;
 
 /* flag set when system is active (for callbacks etc) */
-static BOOL		g_bSystemActive = FALSE;
+static BOOL g_bSystemActive = FALSE;
 
-static BOOL		g_bDevVolume = FALSE;
+static BOOL g_bDevVolume = FALSE;
 
-static AUDIO_CALLBACK g_pStopTrackCallback = NULL;
+static AUDIO_CALLBACK g_pStopTrackCallback = nullptr;
 
 /***************************************************************************/
 
-BOOL
-sound_CheckDevice( void )
+BOOL sound_CheckDevice(void)
 {
-	WAVEOUTCAPS	waveCaps;
-	MMRESULT	mmRes;
+  WAVEOUTCAPS waveCaps;
+  MMRESULT mmRes;
 
-	/* check wave out device(s) present */
-	if ( waveOutGetNumDevs() == 0 )
-	{
-		DBPRINTF( ("sound_CheckDevice: error in waveOutGetNumDevs\n") );
-		return FALSE;
+  /* check wave out device(s) present */
+  if (waveOutGetNumDevs() == 0)
+  {
+    DBPRINTF(("sound_CheckDevice: error in waveOutGetNumDevs\n"));
+    return FALSE;
+  }
 
-	}
+  /* default to using first device: check volume control caps */
+  mmRes = waveOutGetDevCaps(0, &waveCaps, sizeof(WAVEOUTCAPS));
+  if (mmRes != MMSYSERR_NOERROR)
+  {
+    DBPRINTF(("sound_CheckDevice: error in waveOutGetDevCaps\n"));
+    return FALSE;
+  }
 
-	/* default to using first device: check volume control caps */
-	mmRes = waveOutGetDevCaps( 0, (LPWAVEOUTCAPS) &waveCaps,
-								sizeof(WAVEOUTCAPS) );
-	if ( mmRes != MMSYSERR_NOERROR )
-	{
-		DBPRINTF( ("sound_CheckDevice: error in waveOutGetDevCaps\n") );
-		return FALSE;
-	}
-
-	/* verify device supports volume changes */
-	if ( waveCaps.dwSupport & WAVECAPS_VOLUME )
-	{
-		return TRUE;
-	}
-	else
-	{
-		DBPRINTF( ("sound_CheckDevice: wave out device doesn't support volume changes\n") );
-		return FALSE;
-	}
+  /* verify device supports volume changes */
+  if (waveCaps.dwSupport & WAVECAPS_VOLUME)
+    return TRUE;
+  DBPRINTF(("sound_CheckDevice: wave out device doesn't support volume changes\n"));
+  return FALSE;
 }
 
 /***************************************************************************/
 
-BOOL
-sound_Init( HWND hWnd, SDWORD iMaxSameSamples )
+BOOL sound_Init(HWND hWnd, SDWORD iMaxSameSamples)
 {
 #if USE_COMPRESSED_SPEECH
-	LPVOID	lpMsgBuf;
+  LPVOID lpMsgBuf;
 #endif
 
-	SDWORD	i;
+  SDWORD i;
 
-	hWnd;
-	g_iMaxSameSamples = iMaxSameSamples;
+  hWnd;
+  g_iMaxSameSamples = iMaxSameSamples;
 
-	g_iCurTracks = 0;
+  g_iCurTracks = 0;
 
-	g_bDevVolume = sound_CheckDevice();
+  g_bDevVolume = sound_CheckDevice();
 
 #if USE_COMPRESSED_SPEECH
-	if ( !LoadLibrary( "MSACM32.DLL" ) )
-	{
-		FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-			NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-			(LPTSTR) &lpMsgBuf, 0, NULL );
-		DBPRINTF( ("sound_Init: couldn't load compression manager MSACM32.DLL\n") );
-	}
-
-	if ( !LoadLibrary( "MSADP32.ACM" ) )
-	{
-		FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-			NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-			(LPTSTR) &lpMsgBuf, 0, NULL );
-		DBPRINTF( ("sound_Init: couldn't load ADPCM codec MSADP32.ACM\n") );
-	}
+  if (!LoadLibrary("MSACM32.DLL"))
+  {
+    FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(),
+                  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&lpMsgBuf, 0, NULL);
+    DBPRINTF(("sound_Init: couldn't load compression manager MSACM32.DLL\n"));
+  } if (!LoadLibrary("MSADP32.ACM"))
+  {
+    FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(),
+                  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&lpMsgBuf, 0, NULL);
+    DBPRINTF(("sound_Init: couldn't load ADPCM codec MSADP32.ACM\n"));
+  }
 #endif
 
-	if ( sound_InitLibrary() == FALSE )
-	{
-		DBPRINTF( ("Cannot init sound library\n") );
-		return FALSE;
-	}
+  if (sound_InitLibrary() == FALSE)
+  {
+    DBPRINTF(("Cannot init sound library\n"));
+    return FALSE;
+  }
 
-	/* init audio array */
-	g_apTrack = (TRACK **) MALLOC( sizeof(TRACK *) * MAX_TRACKS );
-	for ( i=0; i<MAX_TRACKS; i++ )
-	{
-		g_apTrack[i] = NULL;
-	}
+  /* init audio array */
+  g_apTrack = static_cast<TRACK**>(MALLOC(sizeof(TRACK *) * MAX_TRACKS));
+  for (i = 0; i < MAX_TRACKS; i++)
+    g_apTrack[i] = nullptr;
 
-	/* set system active flag for callbacks */
-	g_bSystemActive = TRUE;
+  /* set system active flag for callbacks */
+  g_bSystemActive = TRUE;
 
-	return TRUE;
+  return TRUE;
 }
 
 /***************************************************************************/
 
-BOOL
-sound_Shutdown()
+BOOL sound_Shutdown()
 {
-	FREE( g_apTrack );
+  FREE(g_apTrack);
 
-	/* set inactive flag to prevent callbacks coming after shutdown */
-	g_bSystemActive = FALSE;
+  /* set inactive flag to prevent callbacks coming after shutdown */
+  g_bSystemActive = FALSE;
 
-	sound_ShutdownLibrary();
+  sound_ShutdownLibrary();
 
-	return TRUE;
+  return TRUE;
 }
 
 /***************************************************************************/
 
-BOOL
-sound_GetSystemActive( void )
-{
-	return g_bSystemActive;
-}
+BOOL sound_GetSystemActive(void) { return g_bSystemActive; }
 
 /***************************************************************************/
 /*
@@ -156,548 +136,450 @@ sound_GetSystemActive( void )
  */
 /***************************************************************************/
 
-BOOL
-sound_SetTrackVals( TRACK *psTrack, BOOL bLoop, SDWORD iTrack, SDWORD iVol,
-	SDWORD iPriority, SDWORD iAudibleRadius, SDWORD VagID )
+BOOL sound_SetTrackVals(TRACK* psTrack, BOOL bLoop, SDWORD iTrack, SDWORD iVol, SDWORD iPriority, SDWORD iAudibleRadius, SDWORD VagID)
 {
-	ASSERT( (iPriority>=LOW_PRIORITY && iPriority<=HIGH_PRIORITY,
-			"sound_CreateTrack: priority %i out of bounds\n", iPriority) );
-	
-	/* add to sound array */
-	if ( iTrack < MAX_TRACKS )
-	{
-		if ( g_apTrack[iTrack] != NULL )
-		{
-			DBERROR( ("sound_SetTrackVals: track %i already set\n", iTrack ) );
-			return FALSE;
-		}
+  ASSERT((iPriority>=LOW_PRIORITY && iPriority<=HIGH_PRIORITY, "sound_CreateTrack: priority %i out of bounds\n", iPriority));
 
-		/* set track members */
-		psTrack->bLoop             = bLoop;
-		psTrack->iVol              = iVol;
-		psTrack->iPriority         = iPriority;
-		psTrack->iAudibleRadius    = iAudibleRadius;
-		psTrack->iTimeLastFinished = 0;
-		psTrack->iNumPlaying       = 0;
+  /* add to sound array */
+  if (iTrack < MAX_TRACKS)
+  {
+    if (g_apTrack[iTrack] != nullptr)
+    {
+      DBERROR(("sound_SetTrackVals: track %i already set\n", iTrack ));
+      return FALSE;
+    }
 
-		VagID;
+    /* set track members */
+    psTrack->bLoop = bLoop;
+    psTrack->iVol = iVol;
+    psTrack->iPriority = iPriority;
+    psTrack->iAudibleRadius = iAudibleRadius;
+    psTrack->iTimeLastFinished = 0;
+    psTrack->iNumPlaying = 0;
 
-		/* set global */
-		g_apTrack[iTrack] = psTrack;
+    VagID;
 
-		/* increment current sound */
-		g_iCurTracks++;
+    /* set global */
+    g_apTrack[iTrack] = psTrack;
 
-		return TRUE;
-	}
+    /* increment current sound */
+    g_iCurTracks++;
 
-	return FALSE;
+    return TRUE;
+  }
+
+  return FALSE;
 }
 
 /***************************************************************************/
 
-BOOL
-sound_AddTrack( TRACK *pTrack )
+BOOL sound_AddTrack(TRACK* pTrack)
 {
-	/* add to sound array */
-	if ( g_iCurTracks < MAX_TRACKS )
-	{
-		/* set pointer in table */
-		g_apTrack[g_iCurTracks] = pTrack;
+  /* add to sound array */
+  if (g_iCurTracks < MAX_TRACKS)
+  {
+    /* set pointer in table */
+    g_apTrack[g_iCurTracks] = pTrack;
 
-		/* increment current sound */
-		g_iCurTracks++;
+    /* increment current sound */
+    g_iCurTracks++;
 
-		return TRUE;
-	}
-	else
-	{
-		DBERROR( ("sound_AddTrack: all tracks used: increase MAX_TRACKS\n") );
-		return FALSE;
-	}
+    return TRUE;
+  }
+  DBERROR(("sound_AddTrack: all tracks used: increase MAX_TRACKS\n"));
+  return FALSE;
 }
 
 /***************************************************************************/
 
-void *
-sound_LoadTrackFromBuffer( UBYTE *pBuffer, UDWORD udwSize )
+void* sound_LoadTrackFromBuffer(UBYTE* pBuffer, UDWORD udwSize)
 {
-	TRACK *	pTrack;
+  TRACK* pTrack;
 
-	/* allocate track */
-	pTrack = (TRACK *) MALLOC( sizeof(TRACK) );
+  /* allocate track */
+  pTrack = static_cast<TRACK*>(MALLOC(sizeof(TRACK)));
 
-	if ( pTrack == NULL )
-	{
-		DBERROR( ("sound_LoadTrackFromBuffer: couldn't allocate memory\n") );
-		return NULL;	}
-	else
-	{
-		pTrack->bMemBuffer = TRUE;
-		pTrack->pName = (STRING *)MALLOC(strlen(GetLastResourceFilename()) + 1);
-		if (pTrack->pName == NULL)
-		{
-			DBERROR(("sound_LoadTrackFromBuffer: couldn't allocate memory\n") );
-			FREE(pTrack);
-			return NULL;
-		}
-		strcpy(pTrack->pName, GetLastResourceFilename());
-		pTrack->resID = GetLastHashName();
+  if (pTrack == nullptr)
+  {
+    DBERROR(("sound_LoadTrackFromBuffer: couldn't allocate memory\n"));
+    return nullptr;
+  }
+  pTrack->bMemBuffer = TRUE;
+  pTrack->pName = static_cast<STRING*>(MALLOC(strlen(GetLastResourceFilename()) + 1));
+  if (pTrack->pName == nullptr)
+  {
+    DBERROR(("sound_LoadTrackFromBuffer: couldn't allocate memory\n"));
+    FREE(pTrack);
+    return nullptr;
+  }
+  strcpy(pTrack->pName, GetLastResourceFilename());
+  pTrack->resID = GetLastHashName();
 
-		if ( sound_ReadTrackFromBuffer( pTrack, pBuffer, udwSize ) == FALSE )
-		{
-			return NULL;
-		}
-		else
-		{
-
+  if (sound_ReadTrackFromBuffer(pTrack, pBuffer, udwSize) == FALSE)
+    return nullptr;
 #if !USE_COMPRESSED_SPEECH
-			/* flag compressed audio load */
-			if ( pTrack->bCompressed == TRUE )
-			{
-				DBPRINTF( ("sound_LoadTrackFromBuffer: %s is compressed!\n",
-							pTrack->pName ) );
-			}
+  /* flag compressed audio load */
+  if (pTrack->bCompressed == TRUE) { DBPRINTF(("sound_LoadTrackFromBuffer: %s is compressed!\n", pTrack->pName )); }
 #endif
-			return pTrack;
-		}
-	}
+  return pTrack;
 }
 
 /***************************************************************************/
 
-BOOL
-sound_LoadTrackFromFile( char szFileName[] )
+BOOL sound_LoadTrackFromFile(char szFileName[])
 {
-	TRACK *	pTrack;
+  TRACK* pTrack;
 
-	/* allocate track */
-	pTrack = (TRACK *) MALLOC( sizeof(TRACK) );
+  /* allocate track */
+  pTrack = static_cast<TRACK*>(MALLOC(sizeof(TRACK)));
 
-	if ( pTrack != NULL )
-	{
-		pTrack->bMemBuffer = FALSE;
-		pTrack->pName = (STRING *)MALLOC(strlen(szFileName)+1);
-		if (pTrack->pName == NULL)
-		{
-			DBERROR(("sound_LoadTrackFromFile: Out of memory"));
-			return FALSE;
-		}
-		strcpy(pTrack->pName, szFileName);
-		pTrack->resID = HashStringIgnoreCase(szFileName);
+  if (pTrack != nullptr)
+  {
+    pTrack->bMemBuffer = FALSE;
+    pTrack->pName = static_cast<STRING*>(MALLOC(strlen(szFileName)+1));
+    if (pTrack->pName == nullptr)
+    {
+      DBERROR(("sound_LoadTrackFromFile: Out of memory"));
+      return FALSE;
+    }
+    strcpy(pTrack->pName, szFileName);
+    pTrack->resID = HashStringIgnoreCase(szFileName);
 
-		if ( sound_ReadTrackFromFile( pTrack, szFileName ) == FALSE )
-		{
-			return FALSE;
-		}
+    if (sound_ReadTrackFromFile(pTrack, szFileName) == FALSE)
+      return FALSE;
 
-		return sound_AddTrack( pTrack );
-	}
+    return sound_AddTrack(pTrack);
+  }
 
-	return FALSE;
+  return FALSE;
 }
 
 /***************************************************************************/
 
-BOOL
-sound_ReleaseTrack( TRACK * psTrack )
+BOOL sound_ReleaseTrack(TRACK* psTrack)
 {
-	SDWORD	iTrack;
+  SDWORD iTrack;
 
-	if (psTrack->pName != NULL)
-	{
-		FREE(psTrack->pName);
-	}
+  if (psTrack->pName != nullptr) { FREE(psTrack->pName); }
 
-	for ( iTrack=0; iTrack<g_iCurTracks; iTrack++ )
-	{
-		if ( g_apTrack[iTrack] == psTrack )
-		{
-			g_apTrack[iTrack] = NULL;
-		}
-	}
+  for (iTrack = 0; iTrack < g_iCurTracks; iTrack++)
+  {
+    if (g_apTrack[iTrack] == psTrack)
+      g_apTrack[iTrack] = nullptr;
+  }
 
-	sound_FreeTrack( psTrack );
+  sound_FreeTrack(psTrack);
 
-	return TRUE;
+  return TRUE;
 }
 
 /***************************************************************************/
 
-void
-sound_CheckAllUnloaded( void )
+void sound_CheckAllUnloaded(void)
 {
-	SDWORD	iTrack;
+  SDWORD iTrack;
 
-	for ( iTrack=0; iTrack<MAX_TRACKS; iTrack++ )
-	{
-		ASSERT( (g_apTrack[iTrack] == NULL,
-			"sound_CheckAllUnloaded: check audio.cfg for duplicate IDs\n") );
-	}
+  for (iTrack = 0; iTrack < MAX_TRACKS; iTrack++)
+  {
+    ASSERT((g_apTrack[iTrack] == NULL, "sound_CheckAllUnloaded: check audio.cfg for duplicate IDs\n"));
+  }
 }
 
 /***************************************************************************/
 
-BOOL
-sound_TrackLooped( SDWORD iTrack )
+BOOL sound_TrackLooped(SDWORD iTrack)
 {
-	sound_CheckTrack( iTrack );
+  sound_CheckTrack(iTrack);
 
-	return g_apTrack[iTrack]->bLoop;
+  return g_apTrack[iTrack]->bLoop;
 }
 
 /***************************************************************************/
 
-SDWORD
-sound_TrackAudibleRadius( SDWORD iTrack )
+SDWORD sound_TrackAudibleRadius(SDWORD iTrack)
 {
-	sound_CheckTrack( iTrack );
+  sound_CheckTrack(iTrack);
 
-	return g_apTrack[iTrack]->iAudibleRadius;
+  return g_apTrack[iTrack]->iAudibleRadius;
 }
 
 /***************************************************************************/
 
-SDWORD
-sound_GetNumPlaying( SDWORD iTrack )
+SDWORD sound_GetNumPlaying(SDWORD iTrack)
 {
-	sound_CheckTrack( iTrack );
+  sound_CheckTrack(iTrack);
 
-	return g_apTrack[iTrack]->iNumPlaying;
+  return g_apTrack[iTrack]->iNumPlaying;
 }
 
 /***************************************************************************/
 
-void
-sound_CheckSample( AUDIO_SAMPLE *psSample )
+void sound_CheckSample(AUDIO_SAMPLE* psSample)
 {
-	ASSERT( (PTRVALID(psSample,sizeof(AUDIO_SAMPLE)),
-			"sound_CheckSample: sample pointer invalid\n") );
+  ASSERT((PTRVALID(psSample,sizeof(AUDIO_SAMPLE)), "sound_CheckSample: sample pointer invalid\n"));
 
-	ASSERT( ( psSample->iSample >=0 ||
-			  psSample->iSample == SAMPLE_NOT_ALLOCATED,
-			  "sound_CheckSample: sample %i out of range\n",
-			  psSample->iSample ) );
+  ASSERT(( psSample->iSample >=0 ||
+    psSample->iSample == SAMPLE_NOT_ALLOCATED, "sound_CheckSample: sample %i out of range\n", psSample->iSample ));
 
-	psSample;
+  psSample;
 }
 
 /***************************************************************************/
 
-BOOL
-sound_CheckTrack( SDWORD iTrack )
+BOOL sound_CheckTrack(SDWORD iTrack)
 {
-	if ( iTrack<0 || iTrack>g_iCurTracks-1 )
-	{
-		DBPRINTF( ("sound_CheckTrack: track number %i outside max %i\n",
-						iTrack, g_iCurTracks) );
-		return FALSE;
-	}
+  if (iTrack < 0 || iTrack > g_iCurTracks - 1)
+  {
+    DBPRINTF(("sound_CheckTrack: track number %i outside max %i\n", iTrack, g_iCurTracks));
+    return FALSE;
+  }
 
-	if ( g_apTrack[iTrack] == NULL )
-	{
-		DBPRINTF( ("sound_CheckTrack: track %i NULL\n", iTrack) );
-		return FALSE;
-	}
+  if (g_apTrack[iTrack] == nullptr)
+  {
+    DBPRINTF(("sound_CheckTrack: track %i NULL\n", iTrack));
+    return FALSE;
+  }
 
-	return TRUE;
+  return TRUE;
 }
 
 /***************************************************************************/
 
-SDWORD
-sound_GetTrackTime( SDWORD iTrack )
+SDWORD sound_GetTrackTime(SDWORD iTrack)
 {
-	sound_CheckTrack( iTrack );
+  sound_CheckTrack(iTrack);
 
-	return g_apTrack[iTrack]->iTime;
+  return g_apTrack[iTrack]->iTime;
 }
 
 /***************************************************************************/
 
-SDWORD
-sound_GetTrackPriority( SDWORD iTrack )
+SDWORD sound_GetTrackPriority(SDWORD iTrack)
 {
-	sound_CheckTrack( iTrack );
+  sound_CheckTrack(iTrack);
 
-	return g_apTrack[iTrack]->iPriority;
+  return g_apTrack[iTrack]->iPriority;
 }
 
 /***************************************************************************/
 
-SDWORD
-sound_GetTrackVolume( SDWORD iTrack )
+SDWORD sound_GetTrackVolume(SDWORD iTrack)
 {
-	sound_CheckTrack( iTrack );
+  sound_CheckTrack(iTrack);
 
-	return g_apTrack[iTrack]->iVol;
+  return g_apTrack[iTrack]->iVol;
 }
 
 /***************************************************************************/
 
-SDWORD
-sound_GetTrackAudibleRadius( SDWORD iTrack )
+SDWORD sound_GetTrackAudibleRadius(SDWORD iTrack)
 {
-	sound_CheckTrack( iTrack );
+  sound_CheckTrack(iTrack);
 
-	return g_apTrack[iTrack]->iAudibleRadius;
+  return g_apTrack[iTrack]->iAudibleRadius;
 }
 
 /***************************************************************************/
 
-char *
-sound_GetTrackName( SDWORD iTrack )
+char* sound_GetTrackName(SDWORD iTrack)
 {
-	ASSERT((g_apTrack[iTrack] != NULL,
-		"sound_GetTrackName: unallocated track"));
-	return g_apTrack[iTrack]->pName;
+  ASSERT((g_apTrack[iTrack] != NULL, "sound_GetTrackName: unallocated track"));
+  return g_apTrack[iTrack]->pName;
 }
 
 /***************************************************************************/
 
-UDWORD
-sound_GetTrackHashName( SDWORD iTrack )
+UDWORD sound_GetTrackHashName(SDWORD iTrack)
 {
-	ASSERT((g_apTrack[iTrack] != NULL,
-		"sound_GetTrackName: unallocated track"));
-	return g_apTrack[iTrack]->resID;
+  ASSERT((g_apTrack[iTrack] != NULL, "sound_GetTrackName: unallocated track"));
+  return g_apTrack[iTrack]->resID;
 }
 
 /***************************************************************************/
 
-BOOL
-sound_Play2DTrack( AUDIO_SAMPLE *psSample, BOOL bQueued )
+BOOL sound_Play2DTrack(AUDIO_SAMPLE* psSample, BOOL bQueued)
 {
-	TRACK	*psTrack;
+  TRACK* psTrack;
 
-	psTrack = g_apTrack[psSample->iTrack];
+  psTrack = g_apTrack[psSample->iTrack];
 
-	/* check only playing compressed audio on queue channel */
+  /* check only playing compressed audio on queue channel */
 #if USE_COMPRESSED_SPEECH
-	if ( bQueued && !psTrack->bCompressed )
-	{
-		DBPRINTF( ("sound_PlayTrack: trying to play uncompressed speech %s!\n",
-					psTrack->pName) );
-		return FALSE;
-	}
-	if ( !bQueued && psTrack->bCompressed )
-	{
-		DBPRINTF( ("sound_PlayTrack: trying to play compressed audio %s!\n",
-					psTrack->pName) );
-		return FALSE;
-	}
+  if (bQueued && !psTrack->bCompressed)
+  {
+    DBPRINTF(("sound_PlayTrack: trying to play uncompressed speech %s!\n", psTrack->pName));
+    return FALSE;
+  } if (!bQueued && psTrack->bCompressed)
+  {
+    DBPRINTF(("sound_PlayTrack: trying to play compressed audio %s!\n", psTrack->pName));
+    return FALSE;
+  }
 #else
-	if ( psTrack->bCompressed )
-	{
-		DBPRINTF( ("sound_PlayTrack: trying to play compressed speech %s!\n",
-					psTrack->pName) );
-		return FALSE;
-	}
+  if (psTrack->bCompressed)
+  {
+    DBPRINTF(("sound_PlayTrack: trying to play compressed speech %s!\n", psTrack->pName));
+    return FALSE;
+  }
 #endif
 
-	return sound_Play2DSample( psTrack, psSample, bQueued );
+  return sound_Play2DSample(psTrack, psSample, bQueued);
 }
 
 /***************************************************************************/
 
-BOOL
-sound_Play3DTrack( AUDIO_SAMPLE *psSample )
+BOOL sound_Play3DTrack(AUDIO_SAMPLE* psSample)
 {
-	TRACK	*psTrack;
+  TRACK* psTrack;
 
-	psTrack = g_apTrack[psSample->iTrack];
+  psTrack = g_apTrack[psSample->iTrack];
 
-	if ( psTrack->bCompressed )
-	{
-		DBPRINTF( ("sound_PlayTrack: trying to play compressed audio %s!\n",
-					psTrack->pName) );
-		return FALSE;
-	}
+  if (psTrack->bCompressed)
+  {
+    DBPRINTF(("sound_PlayTrack: trying to play compressed audio %s!\n", psTrack->pName));
+    return FALSE;
+  }
 
-	return sound_Play3DSample( psTrack, psSample );
+  return sound_Play3DSample(psTrack, psSample);
 }
 
 /***************************************************************************/
 
-void
-sound_StopTrack( AUDIO_SAMPLE *psSample )
+void sound_StopTrack(AUDIO_SAMPLE* psSample)
 {
-	sound_CheckSample( psSample );
+  sound_CheckSample(psSample);
 
-	if ( psSample->iSample != SAMPLE_NOT_ALLOCATED )
-	{
-		sound_StopSample( psSample->iSample );
-	}
+  if (psSample->iSample != SAMPLE_NOT_ALLOCATED)
+    sound_StopSample(psSample->iSample);
 
-	/* do stopped callback */
-	if ( g_pStopTrackCallback != NULL && psSample->psObj != NULL )
-	{
-		(g_pStopTrackCallback)(psSample);
-	}
+  /* do stopped callback */
+  if (g_pStopTrackCallback != nullptr && psSample->psObj != nullptr)
+    (g_pStopTrackCallback)(psSample);
 
-	/* update number of samples playing */
-	g_iSamples--;
+  /* update number of samples playing */
+  g_iSamples--;
 }
 
 /***************************************************************************/
 
-void
-sound_PauseTrack( AUDIO_SAMPLE *psSample )
+void sound_PauseTrack(AUDIO_SAMPLE* psSample)
 {
-	if ( psSample->iSample != SAMPLE_NOT_ALLOCATED )
-	{
-		sound_StopSample( psSample->iSample );
-	}
+  if (psSample->iSample != SAMPLE_NOT_ALLOCATED)
+    sound_StopSample(psSample->iSample);
 }
 
 /***************************************************************************/
 
-void
-sound_FinishedCallback( AUDIO_SAMPLE *psSample )
+void sound_FinishedCallback(AUDIO_SAMPLE* psSample)
 {
-	sound_CheckSample( psSample );
+  sound_CheckSample(psSample);
 
-	if ( g_apTrack[psSample->iTrack] != NULL )
-	{
-		g_apTrack[psSample->iTrack]->iTimeLastFinished = sound_GetGameTime();
-	}
+  if (g_apTrack[psSample->iTrack] != nullptr)
+    g_apTrack[psSample->iTrack]->iTimeLastFinished = sound_GetGameTime();
 
-	/* call user callback if specified */
-	if ( psSample->pCallback != NULL )
-	{
-		(psSample->pCallback) (psSample);
-	}
+  /* call user callback if specified */
+  if (psSample->pCallback != nullptr)
+    (psSample->pCallback)(psSample);
 
-	/* set remove flag */
-	psSample->bRemove = TRUE;
+  /* set remove flag */
+  psSample->bRemove = TRUE;
 }
 
 /***************************************************************************/
 
-SDWORD
-sound_GetTrackID( TRACK *psTrack )
+SDWORD sound_GetTrackID(TRACK* psTrack)
 {
-	SDWORD	i = 0;
+  SDWORD i = 0;
 
-	/* find matching track */
-	for ( i=0; i<MAX_TRACKS; i++ )
-	{
-		if ( (g_apTrack[i] != NULL) && (g_apTrack[i] == psTrack) )
-		{
-			break;
-		}
-	}
+  /* find matching track */
+  for (i = 0; i < MAX_TRACKS; i++)
+  {
+    if ((g_apTrack[i] != nullptr) && (g_apTrack[i] == psTrack))
+      break;
+  }
 
-	/* if matching track found return it else find empty track */
-	if ( i<MAX_TRACKS )
-	{
-		return i;
-	}
-	else
-	{
-		return SAMPLE_NOT_FOUND;
-	}
+  /* if matching track found return it else find empty track */
+  if (i < MAX_TRACKS)
+    return i;
+  return SAMPLE_NOT_FOUND;
 }
 
 /***************************************************************************/
 
-SDWORD
-sound_GetAvailableID( void )
+SDWORD sound_GetAvailableID(void)
 {
-	SDWORD	i;
+  SDWORD i;
 
-	for ( i=0; i<MAX_TRACKS; i++ )
-	{
-		if ( g_apTrack[i] == NULL )
-		{
-			break;
-		}
-	}
+  for (i = 0; i < MAX_TRACKS; i++)
+  {
+    if (g_apTrack[i] == nullptr)
+      break;
+  }
 
-	ASSERT( (i<MAX_TRACKS, "sound_GetTrackID: unused track not found!\n") );
+  ASSERT((i<MAX_TRACKS, "sound_GetTrackID: unused track not found!\n"));
 
-	if ( i<MAX_TRACKS )
-	{
-		return i;
-	}
-	else
-	{
-		return SAMPLE_NOT_ALLOCATED;
-	}
+  if (i < MAX_TRACKS)
+    return i;
+  return SAMPLE_NOT_ALLOCATED;
 }
 
 /***************************************************************************/
 
-SDWORD
-sound_GetGlobalVolume( void )
+SDWORD sound_GetGlobalVolume(void)
 {
-	MMRESULT	mmRes;
-	SDWORD		iVol;
-	SDWORD		iGlobVol = AUDIO_VOL_MAX;
+  MMRESULT mmRes;
+  SDWORD iVol;
+  SDWORD iGlobVol = AUDIO_VOL_MAX;
 
-	if ( g_bDevVolume == TRUE )
-	{
-		mmRes = waveOutGetVolume( 0, (LPDWORD) &iVol );
-		if ( mmRes == MMSYSERR_NOERROR )
-		{
-			iGlobVol = ((SDWORD) LOWORD( iVol )) * AUDIO_VOL_MAX / 0xFFFF;
-		}
-		else
-		{
-			DBPRINTF( ("sound_GetGlobalVolume: waveOutGetVolume failed\n") );
-		}
-	}
+  if (g_bDevVolume == TRUE)
+  {
+    mmRes = waveOutGetVolume(nullptr, (LPDWORD)&iVol);
+    if (mmRes == MMSYSERR_NOERROR)
+      iGlobVol = static_cast<SDWORD>(LOWORD(iVol)) * AUDIO_VOL_MAX / 0xFFFF;
+    else
+      DBPRINTF(("sound_GetGlobalVolume: waveOutGetVolume failed\n"));
+  }
 
-	return iGlobVol;
+  return iGlobVol;
 }
 
 /***************************************************************************/
 
-void
-sound_SetGlobalVolume( SDWORD iVol )
+void sound_SetGlobalVolume(SDWORD iVol)
 {
-	MMRESULT	mmRes;
-	SDWORD		iNewVol, iWinVol;
+  MMRESULT mmRes;
+  SDWORD iNewVol, iWinVol;
 
-	if ( g_bDevVolume == TRUE )
-	{
-		iWinVol = iVol * 0xFFFF / AUDIO_VOL_MAX;
-		iNewVol = (iWinVol << 16) | iWinVol;
+  if (g_bDevVolume == TRUE)
+  {
+    iWinVol = iVol * 0xFFFF / AUDIO_VOL_MAX;
+    iNewVol = (iWinVol << 16) | iWinVol;
 
-		mmRes = waveOutSetVolume( 0, iNewVol );
-		if ( mmRes != MMSYSERR_NOERROR )
-		{
-			DBPRINTF( ("sound_GetGlobalVolume: waveOutSetVolume failed\n") );
-		}
-	}
+    mmRes = waveOutSetVolume(nullptr, iNewVol);
+    if (mmRes != MMSYSERR_NOERROR)
+      DBPRINTF(("sound_GetGlobalVolume: waveOutSetVolume failed\n"));
+  }
 }
 
 /***************************************************************************/
 
-void
-sound_SetStoppedCallback( AUDIO_CALLBACK pStopTrackCallback )
+void sound_SetStoppedCallback(AUDIO_CALLBACK pStopTrackCallback) { g_pStopTrackCallback = pStopTrackCallback; }
+
+/***************************************************************************/
+
+UDWORD sound_GetTrackTimeLastFinished(SDWORD iTrack)
 {
-	g_pStopTrackCallback = pStopTrackCallback;
+  sound_CheckTrack(iTrack);
+
+  return g_apTrack[iTrack]->iTimeLastFinished;
 }
 
 /***************************************************************************/
 
-UDWORD
-sound_GetTrackTimeLastFinished( SDWORD iTrack )
+void sound_SetTrackTimeLastFinished(SDWORD iTrack, UDWORD iTime)
 {
-	sound_CheckTrack( iTrack );
+  sound_CheckTrack(iTrack);
 
-	return g_apTrack[iTrack]->iTimeLastFinished;
-}
-
-/***************************************************************************/
-
-void
-sound_SetTrackTimeLastFinished( SDWORD iTrack, UDWORD iTime )
-{
-	sound_CheckTrack( iTrack );
-
-	g_apTrack[iTrack]->iTimeLastFinished = iTime;
+  g_apTrack[iTrack]->iTimeLastFinished = iTime;
 }
 
 /***************************************************************************/

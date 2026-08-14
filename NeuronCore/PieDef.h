@@ -16,12 +16,7 @@
 #include "IvisDef.h"
 #include "IvisPatch.h"
 
-
-
 #include "d3d.h"
-
-
-
 
 /***************************************************************************/
 /*
@@ -49,8 +44,6 @@
 
 #define TEXTURE_SIZE			(256.0f)
 #define INV_TEX_SIZE			(0.00390625f)
-
-
 
 #define MAX_FILE_PATH		256
 #define pie_MAX_POLY_SIZE	16
@@ -117,13 +110,12 @@
 #define pie_ADDLIGHT(l,x)						\
 (((l)->byte.r > (MAX_UB_LIGHT - (x))) ? ((l)->byte.r = MAX_UB_LIGHT) : ((l)->byte.r +=(x)));		\
 (((l)->byte.g > (MAX_UB_LIGHT - (x))) ? ((l)->byte.g = MAX_UB_LIGHT) : ((l)->byte.g +=(x)));		\
-(((l)->byte.b > (MAX_UB_LIGHT - (x))) ? ((l)->byte.b = MAX_UB_LIGHT) : ((l)->byte.b +=(x)));		
+(((l)->byte.b > (MAX_UB_LIGHT - (x))) ? ((l)->byte.b = MAX_UB_LIGHT) : ((l)->byte.b +=(x)));
 
 #define pie_SUBTRACTLIGHT(l,x)						\
 (((l->byte.r) < (x)) ? ((l->byte.r) = MIN_UB_LIGHT) : ((l->byte.r) -=(x)));		\
 (((l->byte.g) < (x)) ? ((l->byte.g) = MIN_UB_LIGHT) : ((l->byte.g) -=(x)));		\
-(((l->byte.b) < (x)) ? ((l->byte.b) = MIN_UB_LIGHT) : ((l->byte.b) -=(x)));		
-
+(((l->byte.b) < (x)) ? ((l->byte.b) = MIN_UB_LIGHT) : ((l->byte.b) -=(x)));
 
 /***************************************************************************/
 /*
@@ -131,36 +123,72 @@
  */
 /***************************************************************************/
 
-typedef struct {UBYTE b,g,r,a;} PIELIGHTBYTES; //for byte fields in a DWORD
-typedef union  {PIELIGHTBYTES byte; UDWORD argb;} PIELIGHT;
-typedef struct {UBYTE r, g, b, a;} PIEVERTLIGHT; 
-typedef struct {SDWORD sx, sy, sz; UWORD tu, tv; PIELIGHT light, specular;} PIEVERTEX;
-typedef struct {float d3dx, d3dy, d3dz;} PIEPIXEL; 
-typedef struct {SWORD x, y, w, h;} PIERECT; //screen rectangle
-typedef struct {SDWORD texPage; SWORD tu, tv, tw, th;} PIEIMAGE; //an area of texture
-typedef struct {UDWORD pieFlag; PIELIGHT colour, specular; UBYTE light, trans, scale, height;} PIESTYLE; //render style for pie draw functions
-
-typedef struct {long n; char msge[240];} iError;
-typedef int32 fixed;
-
-typedef struct
+using PIELIGHTBYTES = struct
 {
-	iSprite *Texture;
-	iPalette *Palette;
-} TEXTUREPAGE;
+  UBYTE b, g, r, a;
+}; //for byte fields in a DWORD
+using PIELIGHT = union
+{
+  PIELIGHTBYTES byte;
+  UDWORD argb;
+};
+using PIEVERTLIGHT = struct
+{
+  UBYTE r, g, b, a;
+};
+using PIEVERTEX = struct
+{
+  SDWORD sx, sy, sz;
+  UWORD tu, tv;
+  PIELIGHT light, specular;
+};
+using PIEPIXEL = struct
+{
+  float d3dx, d3dy, d3dz;
+};
+using PIERECT = struct
+{
+  SWORD x, y, w, h;
+}; //screen rectangle
+using PIEIMAGE = struct
+{
+  SDWORD texPage;
+  SWORD tu, tv, tw, th;
+}; //an area of texture
+using PIESTYLE = struct
+{
+  UDWORD pieFlag;
+  PIELIGHT colour, specular;
+  UBYTE light, trans, scale, height;
+}; //render style for pie draw functions
 
-	typedef struct {
-		UDWORD flags;
-		SDWORD nVrts;
-		D3DTLVERTEX *pVrts;
-		iTexAnim *pTexAnim;
-	} PIED3DPOLY;
-	typedef struct {
-		UDWORD flags;
-		SDWORD nVrts;
-		PIEVERTEX *pVrts;
-		iTexAnim *pTexAnim;
-	} PIEPOLY;
+using iError = struct
+{
+  long n;
+  char msge[240];
+};
+using fixed = int32;
+
+using TEXTUREPAGE = struct
+{
+  iSprite* Texture;
+  iPalette* Palette;
+};
+
+using PIED3DPOLY = struct
+{
+  UDWORD flags;
+  SDWORD nVrts;
+  D3DTLVERTEX* pVrts;
+  iTexAnim* pTexAnim;
+};
+using PIEPOLY = struct
+{
+  UDWORD flags;
+  SDWORD nVrts;
+  PIEVERTEX* pVrts;
+  iTexAnim* pTexAnim;
+};
 
 /***************************************************************************/
 /*
@@ -173,37 +201,32 @@ typedef struct
  *	Global ProtoTypes
  */
 /***************************************************************************/
-extern void pie_Draw3DShape(iIMDShape *shape, int frame, int team, UDWORD colour, UDWORD specular, int pieFlag, int pieData);
-extern void pie_DrawImage(PIEIMAGE *image, PIERECT *dest, PIESTYLE *style);
-extern void pie_DrawImage270(PIEIMAGE *image, PIERECT *dest, PIESTYLE *style);
+extern void pie_Draw3DShape(iIMDShape* shape, int frame, int team, UDWORD colour, UDWORD specular, int pieFlag, int pieData);
+extern void pie_DrawImage(PIEIMAGE* image, PIERECT* dest, PIESTYLE* style);
+extern void pie_DrawImage270(PIEIMAGE* image, PIERECT* dest, PIESTYLE* style);
 
 //PIEVERTEX line draw for all hardware modes
 extern void pie_DrawLine(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1, UDWORD colour, BOOL bclip);
 //iVetrex triangle draw for software modes
-extern void pie_DrawTriangle(iVertex *pv, iTexture* texPage, UDWORD renderFlags, iPoint *offset);
+extern void pie_DrawTriangle(iVertex* pv, iTexture* texPage, UDWORD renderFlags, iPoint* offset);
 //PIEVERTEX poly draw for all hardware modes
-extern void pie_DrawPoly(SDWORD numVrts, PIEVERTEX *aVrts, SDWORD texPage, void* psEffects);
-extern void	pie_DrawFastTriangle(PIEVERTEX *v1, PIEVERTEX *v2, PIEVERTEX *v3, iTexture* texPage, int pieFlag, int pieFlagData);
+extern void pie_DrawPoly(SDWORD numVrts, PIEVERTEX* aVrts, SDWORD texPage, void* psEffects);
+extern void pie_DrawFastTriangle(PIEVERTEX* v1, PIEVERTEX* v2, PIEVERTEX* v3, iTexture* texPage, int pieFlag, int pieFlagData);
 
 extern void pie_GetResetCounts(SDWORD* pPieCount, SDWORD* pTileCount, SDWORD* pPolyCount, SDWORD* pStateCount);
-extern int pie_Num3dfxBuffersPending( void );
+extern int pie_Num3dfxBuffersPending(void);
 
-extern void SetBSPObjectPos(SDWORD x,SDWORD y,SDWORD z);
+extern void SetBSPObjectPos(SDWORD x, SDWORD y, SDWORD z);
 extern void SetBSPObjectRot(SDWORD Yaw, SDWORD Pitch);
-extern void SetBSPCameraPos(SDWORD x,SDWORD y,SDWORD z);
+extern void SetBSPCameraPos(SDWORD x, SDWORD y, SDWORD z);
 
 //piedraw functions used in piefunc.c 
-extern void pie_D3DPoly(PIED3DPOLY *poly);
-
+extern void pie_D3DPoly(PIED3DPOLY* poly);
 
 //necromancer
-extern void pie_DrawTile(PIEVERTEX *pv0, PIEVERTEX *pv1, PIEVERTEX *pv2, PIEVERTEX *pv3,  SDWORD texPage);
+extern void pie_DrawTile(PIEVERTEX* pv0, PIEVERTEX* pv1, PIEVERTEX* pv2, PIEVERTEX* pv3, SDWORD texPage);
 
 // Special re-mix of sscanf that moves the string pointer along - defined in imdLoad.c
-extern int __cdecl sscanf1 (char **stringPos, const char *format, ...);
-
-
-
-
+extern int __cdecl sscanf1(char** stringPos, const char* format, ...);
 
 #endif // _piedef_h

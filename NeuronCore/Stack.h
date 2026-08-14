@@ -13,19 +13,19 @@ extern BOOL stackInitialise(void);
 extern void stackShutDown(void);
 
 /* Push a value onto the stack */
-extern BOOL stackPush(INTERP_VAL  *psVal);
+extern BOOL stackPush(INTERP_VAL* psVal);
 
 /* Pop a value off the stack */
-extern BOOL stackPop(INTERP_VAL  *psVal);
+extern BOOL stackPop(INTERP_VAL* psVal);
 
 /* Pop a value off the stack, checking that the type matches what is passed in */
-extern BOOL stackPopType(INTERP_VAL  *psVal);
+extern BOOL stackPopType(INTERP_VAL* psVal);
 
 /* Look at a value on the stack without removing it.
  * index is how far down the stack to look.
  * Index 0 is the top entry on the stack.
  */
-extern BOOL stackPeek(INTERP_VAL *psVal, UDWORD index);
+extern BOOL stackPeek(INTERP_VAL* psVal, UDWORD index);
 
 /* Print the top value on the stack */
 extern void stackPrintTop(void);

@@ -33,387 +33,343 @@
 #include "NetPlay.h"
 
 extern CURSORSNAP InterfaceSnap;
-extern void addText(int FontID,UDWORD FormID,UDWORD id,  UDWORD PosX, UDWORD PosY, STRING *txt, UDWORD attachID,BOOL *State);
+extern void addText(int FontID, UDWORD FormID, UDWORD id, UDWORD PosX, UDWORD PosY, STRING* txt, UDWORD attachID, BOOL* State);
 
 //status bools.(for hci.h)
-BOOL	ClosingInGameOp	= FALSE;
-BOOL	InGameOpUp		= FALSE;
+BOOL ClosingInGameOp = FALSE;
+BOOL InGameOpUp = FALSE;
 
 // ////////////////////////////////////////////////////////////////////////////
 // functions
 
 // ////////////////////////////////////////////////////////////////////////////
 
-
-void AddMaxStringWidth(STR_RES *psRes, UDWORD StringID);
+void AddMaxStringWidth(STR_RES* psRes, UDWORD StringID);
 UDWORD GetMaxStringWidth(void);
 void ResetMaxStringWidth(void);
 
-
-
 static BOOL addQuitOptions(VOID)
 {
-	W_FORMINIT		sFormInit;		
-	UWORD WindowWidth;	
+  W_FORMINIT sFormInit;
+  UWORD WindowWidth;
 
-	DisableCursorSnapsExcept(INTINGAMEOP);
+  DisableCursorSnapsExcept(INTINGAMEOP);
 
-	if (widgGetFromID(psWScreen,INTINGAMEOP))
-	{
-		widgDelete(psWScreen, INTINGAMEOP);		// get rid of the old stuff.
-	}
+  if (widgGetFromID(psWScreen,INTINGAMEOP))
+    widgDelete(psWScreen, INTINGAMEOP); // get rid of the old stuff.
 
-	memset(&sFormInit,0, sizeof(W_FORMINIT));	
+  memset(&sFormInit, 0, sizeof(W_FORMINIT));
 
-	sFormInit.width		= INTINGAMEOP3_W;
-	// add form
-	sFormInit.formID	= 0;
-	sFormInit.id		= INTINGAMEOP;
-	sFormInit.style		= WFORM_PLAIN;
-	sFormInit.x			= (SWORD)INTINGAMEOP3_X;
-	sFormInit.y			= (SWORD)INTINGAMEOP3_Y;
-	sFormInit.height	= INTINGAMEOP3_H;
-	sFormInit.pDisplay	= intOpenPlainForm;
-	sFormInit.disableChildren= TRUE;
-	widgAddForm(psWScreen, &sFormInit);
+  sFormInit.width = INTINGAMEOP3_W;
+  // add form
+  sFormInit.formID = 0;
+  sFormInit.id = INTINGAMEOP;
+  sFormInit.style = WFORM_PLAIN;
+  sFormInit.x = static_cast<SWORD>(INTINGAMEOP3_X);
+  sFormInit.y = static_cast<SWORD>(INTINGAMEOP3_Y);
+  sFormInit.height = INTINGAMEOP3_H;
+  sFormInit.pDisplay = intOpenPlainForm;
+  sFormInit.disableChildren = TRUE;
+  widgAddForm(psWScreen, &sFormInit);
 
-	//resume
-	addIGTextButton(INTINGAMEOP_RESUME,INTINGAMEOP_1_Y,STR_GAME_RESUME,OPALIGN);
+  //resume
+  addIGTextButton(INTINGAMEOP_RESUME,INTINGAMEOP_1_Y, STR_GAME_RESUME,OPALIGN);
 
+  SetCurrentSnapID(&InterfaceSnap,INTINGAMEOP_RESUME);
 
-	SetCurrentSnapID(&InterfaceSnap,INTINGAMEOP_RESUME);
+  //  quit
+  addIGTextButton(INTINGAMEOP_QUIT_CONFIRM,INTINGAMEOP_2_Y, STR_GAME_QUIT,OPALIGN);
 
-	//  quit
-	addIGTextButton(INTINGAMEOP_QUIT_CONFIRM,INTINGAMEOP_2_Y,STR_GAME_QUIT,OPALIGN);
-	
-	SetMousePos(0,INTINGAMEOP3_X+INTINGAMEOP_1_X,INTINGAMEOP3_Y+INTINGAMEOP_1_Y); // move mouse to resume.
+  SetMousePos(0,INTINGAMEOP3_X + INTINGAMEOP_1_X,INTINGAMEOP3_Y + INTINGAMEOP_1_Y); // move mouse to resume.
 
-	return TRUE;
+  return TRUE;
 }
-
 
 static BOOL _addSlideOptions()
 {
-	W_FORMINIT		sFormInit;			
-	DisableCursorSnapsExcept(INTINGAMEOP);
+  W_FORMINIT sFormInit;
+  DisableCursorSnapsExcept(INTINGAMEOP);
 
-	if (widgGetFromID(psWScreen,INTINGAMEOP))
-	{
-		widgDelete(psWScreen, INTINGAMEOP);		// get rid of the old stuff.
-	}
+  if (widgGetFromID(psWScreen,INTINGAMEOP))
+    widgDelete(psWScreen, INTINGAMEOP); // get rid of the old stuff.
 
-	memset(&sFormInit,0, sizeof(W_FORMINIT));	
+  memset(&sFormInit, 0, sizeof(W_FORMINIT));
 
-	// add form
-	sFormInit.formID	= 0;
-	sFormInit.id		= INTINGAMEOP;
-	sFormInit.style		= WFORM_PLAIN;
-	sFormInit.x			= (SWORD)INTINGAMEOP2_X;
-	sFormInit.y			= (SWORD)INTINGAMEOP2_Y;
-	sFormInit.width		= INTINGAMEOP2_W;
-	sFormInit.height	= INTINGAMEOP2_H;
-	sFormInit.pDisplay	= intOpenPlainForm;
-	sFormInit.disableChildren= TRUE;
-	widgAddForm(psWScreen, &sFormInit);
+  // add form
+  sFormInit.formID = 0;
+  sFormInit.id = INTINGAMEOP;
+  sFormInit.style = WFORM_PLAIN;
+  sFormInit.x = static_cast<SWORD>(INTINGAMEOP2_X);
+  sFormInit.y = static_cast<SWORD>(INTINGAMEOP2_Y);
+  sFormInit.width = INTINGAMEOP2_W;
+  sFormInit.height = INTINGAMEOP2_H;
+  sFormInit.pDisplay = intOpenPlainForm;
+  sFormInit.disableChildren = TRUE;
+  widgAddForm(psWScreen, &sFormInit);
 
+  addIGTextButton(INTINGAMEOP_RESUME,INTINGAMEOP_3_Y, STR_GAME_RESUME,WBUT_PLAIN);
 
-	addIGTextButton(INTINGAMEOP_RESUME,INTINGAMEOP_3_Y,STR_GAME_RESUME,WBUT_PLAIN);
+  // fx vol
+  addIGTextButton(INTINGAMEOP_FXVOL,INTINGAMEOP_1_Y, STR_FE_FX,WBUT_PLAIN);
+  addFESlider(INTINGAMEOP_FXVOL_S, INTINGAMEOP, INTINGAMEOP_MID, INTINGAMEOP_1_Y - 5, AUDIO_VOL_MAX, sound_GetGlobalVolume(),
+              INTINGAMEOP_FXVOL);
 
-	// fx vol
-	addIGTextButton(INTINGAMEOP_FXVOL,INTINGAMEOP_1_Y,STR_FE_FX,WBUT_PLAIN);
-	addFESlider(INTINGAMEOP_FXVOL_S, INTINGAMEOP , INTINGAMEOP_MID, INTINGAMEOP_1_Y-5,
-				AUDIO_VOL_MAX,sound_GetGlobalVolume(),INTINGAMEOP_FXVOL);
+  // cd vol
+  addIGTextButton(INTINGAMEOP_CDVOL,INTINGAMEOP_2_Y, STR_FE_MUSIC,WBUT_PLAIN);
+  addFESlider(INTINGAMEOP_CDVOL_S,INTINGAMEOP, INTINGAMEOP_MID,INTINGAMEOP_2_Y - 5, AUDIO_VOL_MAX, mixer_GetCDVolume(),INTINGAMEOP_CDVOL);
 
-	// cd vol
-	addIGTextButton(INTINGAMEOP_CDVOL,INTINGAMEOP_2_Y,STR_FE_MUSIC,WBUT_PLAIN);
-	addFESlider(INTINGAMEOP_CDVOL_S,INTINGAMEOP , INTINGAMEOP_MID,INTINGAMEOP_2_Y-5,
-				AUDIO_VOL_MAX,mixer_GetCDVolume(),INTINGAMEOP_CDVOL);
+  SetCurrentSnapID(&InterfaceSnap,INTINGAMEOP_RESUME);
 
-	SetCurrentSnapID(&InterfaceSnap,INTINGAMEOP_RESUME);
-
-
-	/*
+  /*
 #ifdef WIN32
-	// gamma
-	if (pie_GetRenderEngine() == ENGINE_GLIDE)
-	{
-		addIGTextButton(INTINGAMEOP_GAMMA,INTINGAMEOP_3_Y,STR_FE_GAMMA,WBUT_PLAIN);
-		
-		if(gamma>3)	   gamma = (float)2.9;
-		if(gamma<0.5)  gamma = (float).5;
-	
-		addFESlider(INTINGAMEOP_GAMMA_S,INTINGAMEOP , INTINGAMEOP_MID,INTINGAMEOP_3_Y-5,60,(UDWORD)(gamma*25),INTINGAMEOP_GAMMA );
+  // gamma
+  if (pie_GetRenderEngine() == ENGINE_GLIDE)
+  {
+    addIGTextButton(INTINGAMEOP_GAMMA,INTINGAMEOP_3_Y,STR_FE_GAMMA,WBUT_PLAIN);
+    
+    if(gamma>3)	   gamma = (float)2.9;
+    if(gamma<0.5)  gamma = (float).5;
+  
+    addFESlider(INTINGAMEOP_GAMMA_S,INTINGAMEOP , INTINGAMEOP_MID,INTINGAMEOP_3_Y-5,60,(UDWORD)(gamma*25),INTINGAMEOP_GAMMA );
 
-	}
+  }
 #endif
 */
 
-	return TRUE;
+  return TRUE;
 }
 
-
-static BOOL addSlideOptions(void)
-{
-	return _addSlideOptions();
-}
+static BOOL addSlideOptions(void) { return _addSlideOptions(); }
 
 // ////////////////////////////////////////////////////////////////////////////
 
 static UDWORD MaxStringWidth;
 
-void ResetMaxStringWidth(void)
+void ResetMaxStringWidth(void) { MaxStringWidth = 0; }
+
+void AddMaxStringWidth(STR_RES* psRes, UDWORD StringID)
 {
-	MaxStringWidth=0;
+  UDWORD StringWidth;
+  StringWidth = iV_GetTextWidth((unsigned char*)strresGetString(psRes, StringID));
+  if (StringWidth > MaxStringWidth)
+    MaxStringWidth = StringWidth;
 }
 
-void AddMaxStringWidth(STR_RES *psRes, UDWORD StringID)
-{
-	UDWORD StringWidth;
-	StringWidth=iV_GetTextWidth((unsigned char *)strresGetString(psRes,StringID));
-	if (StringWidth>MaxStringWidth) MaxStringWidth=StringWidth;
-
-}
-UDWORD GetMaxStringWidth(void)
-{
-	return MaxStringWidth;	
-}
-
-
+UDWORD GetMaxStringWidth(void) { return MaxStringWidth; }
 
 static BOOL _intAddInGameOptions(void)
 {
-	UWORD WindowWidth;
-	W_FORMINIT		sFormInit;			
+  UWORD WindowWidth;
+  W_FORMINIT sFormInit;
 
-	audio_StopAll();
+  audio_StopAll();
 
-    //clear out any mission widgets - timers etc that may be on the screen
-    clearMissionWidgets();
-	
-	setWidgetsStatus(TRUE);
-	DisableCursorSnapsExcept(INTINGAMEOP);
+  //clear out any mission widgets - timers etc that may be on the screen
+  clearMissionWidgets();
 
-	//if already open, then close!
-	if (widgGetFromID(psWScreen,INTINGAMEOP))
-	{
-		intCloseInGameOptions(FALSE, TRUE);
-		return TRUE;
-	}
+  setWidgetsStatus(TRUE);
+  DisableCursorSnapsExcept(INTINGAMEOP);
 
-	intResetScreen(FALSE);
+  //if already open, then close!
+  if (widgGetFromID(psWScreen,INTINGAMEOP))
+  {
+    intCloseInGameOptions(FALSE, TRUE);
+    return TRUE;
+  }
 
-	// Pause the game.
-	if(!gamePaused())
-	{
-		kf_TogglePauseMode();
-	}
+  intResetScreen(FALSE);
 
-	memset(&sFormInit,0, sizeof(W_FORMINIT));	
+  // Pause the game.
+  if (!gamePaused())
+    kf_TogglePauseMode();
 
+  memset(&sFormInit, 0, sizeof(W_FORMINIT));
 
-	sFormInit.width		= INTINGAMEOP_W;
-	// add form
-	sFormInit.formID	= 0;
-	sFormInit.id		= INTINGAMEOP;
-	sFormInit.style		= WFORM_PLAIN;
-	sFormInit.x			= (SWORD)INTINGAMEOP_X;
-	sFormInit.y			= (SWORD)INTINGAMEOP_Y;
-	sFormInit.height	= INTINGAMEOP_H;
+  sFormInit.width = INTINGAMEOP_W;
+  // add form
+  sFormInit.formID = 0;
+  sFormInit.id = INTINGAMEOP;
+  sFormInit.style = WFORM_PLAIN;
+  sFormInit.x = static_cast<SWORD>(INTINGAMEOP_X);
+  sFormInit.y = static_cast<SWORD>(INTINGAMEOP_Y);
+  sFormInit.height = INTINGAMEOP_H;
 
-    if ( (!bMultiPlayer || (NetPlay.bComms==0) )  && !bInTutorial)
-	{
-	}
-	else
-	{
-		sFormInit.height	= INTINGAMEOP_HS;
-	}
+  if ((!bMultiPlayer || (NetPlay.bComms == 0)) && !bInTutorial) {}
+  else
+    sFormInit.height = INTINGAMEOP_HS;
 
-	sFormInit.pDisplay	= intOpenPlainForm;
-	sFormInit.disableChildren= TRUE;
-	widgAddForm(psWScreen, &sFormInit);
+  sFormInit.pDisplay = intOpenPlainForm;
+  sFormInit.disableChildren = TRUE;
+  widgAddForm(psWScreen, &sFormInit);
 
-	// add 'quit' text
- #if 0
-	addIGTextButton(INTINGAMEOP_QUIT,INTINGAMEOP_3_Y,STR_GAME_QUIT,OPALIGN);
- #else
-    if ( (!bMultiPlayer || (NetPlay.bComms==0) )  && !bInTutorial)
-	{
-		addIGTextButton(INTINGAMEOP_QUIT,INTINGAMEOP_5_Y,STR_GAME_QUIT,OPALIGN);
+  // add 'quit' text
+#if 0
+  addIGTextButton(INTINGAMEOP_QUIT,INTINGAMEOP_3_Y, STR_GAME_QUIT,OPALIGN);
+#else
+  if ((!bMultiPlayer || (NetPlay.bComms == 0)) && !bInTutorial)
+    addIGTextButton(INTINGAMEOP_QUIT,INTINGAMEOP_5_Y, STR_GAME_QUIT,OPALIGN);
+  else
+    addIGTextButton(INTINGAMEOP_QUIT,INTINGAMEOP_3_Y, STR_GAME_QUIT,OPALIGN);
 
-	}
-	else
-	{	
-		addIGTextButton(INTINGAMEOP_QUIT,INTINGAMEOP_3_Y,STR_GAME_QUIT,OPALIGN);
-	}
+#endif
 
- #endif
+  // add 'resume'
+  addIGTextButton(INTINGAMEOP_RESUME,INTINGAMEOP_1_Y, STR_GAME_RESUME,OPALIGN);
 
-	// add 'resume'
-	addIGTextButton(INTINGAMEOP_RESUME,INTINGAMEOP_1_Y,STR_GAME_RESUME,OPALIGN);
+  SetCurrentSnapID(&InterfaceSnap,INTINGAMEOP_RESUME);
 
-	SetCurrentSnapID(&InterfaceSnap,INTINGAMEOP_RESUME);
+  // add 'options'
+  addIGTextButton(INTINGAMEOP_OPTIONS,INTINGAMEOP_2_Y, STR_FE_OPTIONS,OPALIGN);
 
-	// add 'options'
-	addIGTextButton(INTINGAMEOP_OPTIONS,INTINGAMEOP_2_Y,STR_FE_OPTIONS,OPALIGN);
+  if ((!bMultiPlayer || (NetPlay.bComms == 0)) && !bInTutorial)
+  {
+    // add 'load'
+    addIGTextButton(INTINGAMEOP_LOAD,INTINGAMEOP_3_Y, STR_MISC_LOADGAME,OPALIGN);
+    // add 'save'
+    addIGTextButton(INTINGAMEOP_SAVE,INTINGAMEOP_4_Y, STR_MISC_SAVEGAME,OPALIGN);
+  }
 
-	if ( (!bMultiPlayer || (NetPlay.bComms==0) )  && !bInTutorial)
-	{		// add 'load'
-		addIGTextButton(INTINGAMEOP_LOAD,INTINGAMEOP_3_Y,STR_MISC_LOADGAME,OPALIGN);
-		// add 'save'
-		addIGTextButton(INTINGAMEOP_SAVE,INTINGAMEOP_4_Y,STR_MISC_SAVEGAME,OPALIGN);
-	}
+  intMode = INT_INGAMEOP; // change interface mode.
+  InGameOpUp = TRUE; // inform interface.
+  SetMousePos(0,INTINGAMEOP_X + INTINGAMEOP_1_X,INTINGAMEOP_Y + INTINGAMEOP_1_Y); // move mouse to resume.
 
-	intMode		= INT_INGAMEOP;			// change interface mode.
-	InGameOpUp	= TRUE;					// inform interface.
-	SetMousePos(0,INTINGAMEOP_X+INTINGAMEOP_1_X,INTINGAMEOP_Y+INTINGAMEOP_1_Y); // move mouse to resume.
-	
-	pie_SetMouse(IntImages,IMAGE_CURSOR_DEFAULT);			// reset cursor (hw)
-	frameSetCursorFromRes(IDC_DEFAULT);						// reset cursor	(sw)
+  pie_SetMouse(IntImages, IMAGE_CURSOR_DEFAULT); // reset cursor (hw)
+  frameSetCursorFromRes(IDC_DEFAULT); // reset cursor	(sw)
 
-	return TRUE;
+  return TRUE;
 }
 
-
-BOOL intAddInGameOptions(void)
-{
-	return _intAddInGameOptions();
-}
+BOOL intAddInGameOptions(void) { return _intAddInGameOptions(); }
 
 // ////////////////////////////////////////////////////////////////////////////
 
 void ProcessOptionFinished(void)
 {
-	intMode		= INT_NORMAL;
+  intMode = INT_NORMAL;
 
-	//unpause.
-	if(gamePaused())
-	{
-		kf_TogglePauseMode();
-	}
+  //unpause.
+  if (gamePaused())
+    kf_TogglePauseMode();
 
-	EnableAllCursorSnaps();
+  EnableAllCursorSnaps();
 }
 
 void intCloseInGameOptionsNoAnim(BOOL bResetMissionWidgets)
 {
-	widgDelete(psWScreen, INTINGAMEOP);
-	InGameOpUp = FALSE;
+  widgDelete(psWScreen, INTINGAMEOP);
+  InGameOpUp = FALSE;
 
-	ProcessOptionFinished();
+  ProcessOptionFinished();
 
-    //don't add the widgets if the load/save screen is put up or exiting to front end
-    if (bResetMissionWidgets)
-    {
-        //put any widgets back on for the missions
-        resetMissionWidgets();
-    }
+  //don't add the widgets if the load/save screen is put up or exiting to front end
+  if (bResetMissionWidgets)
+  {
+    //put any widgets back on for the missions
+    resetMissionWidgets();
+  }
 }
-
 
 // ////////////////////////////////////////////////////////////////////////////
 BOOL intCloseInGameOptions(BOOL bPutUpLoadSave, BOOL bResetMissionWidgets)
 {
-	W_TABFORM	*Form;
-	WIDGET		*widg;
+  W_TABFORM* Form;
+  WIDGET* widg;
 
-	if(bPutUpLoadSave)
-	{
-		widg = widgGetFromID(psWScreen,INTINGAMEOP);
-		if(widg)
-		{
-			widgDelete(psWScreen,INTINGAMEOP);
-		}
+  if (bPutUpLoadSave)
+  {
+    widg = widgGetFromID(psWScreen,INTINGAMEOP);
+    if (widg)
+      widgDelete(psWScreen,INTINGAMEOP);
 
-		InGameOpUp = FALSE;
-		ClosingInGameOp = TRUE;
-	}
-	else
-	{
-		// close the form.
-		// Start the window close animation.
-		Form = (W_TABFORM*)widgGetFromID(psWScreen,INTINGAMEOP);
-		if(Form) {
-			Form->display		 = intClosePlainForm;
-			Form->pUserData		 = (void*)0;	// Used to signal when the close anim has finished.
-			Form->disableChildren= TRUE;
-			ClosingInGameOp		 = TRUE;		// like orderup/closingorder
-			InGameOpUp			 = FALSE;
-		}
-	}
-
-	ProcessOptionFinished();
-
-    //don't add the widgets if the load/save screen is put up or exiting to front end
-    if (bResetMissionWidgets)
+    InGameOpUp = FALSE;
+    ClosingInGameOp = TRUE;
+  }
+  else
+  {
+    // close the form.
+    // Start the window close animation.
+    Form = (W_TABFORM*)widgGetFromID(psWScreen,INTINGAMEOP);
+    if (Form)
     {
-        //put any widgets back on for the missions
-        resetMissionWidgets();
+      Form->display = intClosePlainForm;
+      Form->pUserData = static_cast<void*>(nullptr); // Used to signal when the close anim has finished.
+      Form->disableChildren = TRUE;
+      ClosingInGameOp = TRUE; // like orderup/closingorder
+      InGameOpUp = FALSE;
     }
-    return TRUE;
+  }
+
+  ProcessOptionFinished();
+
+  //don't add the widgets if the load/save screen is put up or exiting to front end
+  if (bResetMissionWidgets)
+  {
+    //put any widgets back on for the missions
+    resetMissionWidgets();
+  }
+  return TRUE;
 }
 
 // ////////////////////////////////////////////////////////////////////////////
 // In Game Options house keeping stuff.
 BOOL intRunInGameOptions(void)
 {
-	processFrontendSnap(FALSE);
-	return TRUE;
+  processFrontendSnap(FALSE);
+  return TRUE;
 }
 
 // ////////////////////////////////////////////////////////////////////////////
 // process clicks made by user.
 void intProcessInGameOptions(UDWORD id)
 {
+  switch (id)
+  {
+  // NORMAL KEYS
+  case INTINGAMEOP_QUIT: //quit was pressed
+    addQuitOptions();
+    break;
 
-	switch(id)
-	{
-	// NORMAL KEYS
-	case INTINGAMEOP_QUIT:				//quit was pressed
-		addQuitOptions();
-		break;
+  case INTINGAMEOP_QUIT_CONFIRM: //quit was confirmed.
+    intCloseInGameOptions(FALSE, FALSE);
+    break;
 
-	case INTINGAMEOP_QUIT_CONFIRM:		//quit was confirmed.
-		intCloseInGameOptions(FALSE, FALSE);
-		break;
+  case INTINGAMEOP_OPTIONS: //game options  was pressed
+    addSlideOptions();
+    break;
 
-	case INTINGAMEOP_OPTIONS:			//game options  was pressed
-		addSlideOptions();
-		break;
+  case INTINGAMEOP_RESUME: //resume was pressed.
+    intCloseInGameOptions(FALSE, TRUE);
+    break;
 
-	case INTINGAMEOP_RESUME:			//resume was pressed.
-		intCloseInGameOptions(FALSE, TRUE);
-		break;
+  //	case INTINGAMEOP_REPLAY:
+  //		if(0!=strcmp(getLevelName(),"CAM_1A"))
+  case INTINGAMEOP_LOAD:
+    intCloseInGameOptions(TRUE, FALSE);
+    addLoadSave(LOAD_INGAME, "savegame\\", "gam", strresGetString(psStringRes, STR_MR_LOAD_GAME));
+    // change mode when loadsave returns//		if(runLoadSave())// check for file name.
+    break;
+  case INTINGAMEOP_SAVE:
+    intCloseInGameOptions(TRUE, FALSE);
+    addLoadSave(SAVE_INGAME, "savegame\\", "gam", strresGetString(psStringRes, STR_MR_SAVE_GAME));
+    break;
 
-//	case INTINGAMEOP_REPLAY:
-//		if(0!=strcmp(getLevelName(),"CAM_1A"))
-	case INTINGAMEOP_LOAD:
-		intCloseInGameOptions(TRUE, FALSE);
-		addLoadSave(LOAD_INGAME,"savegame\\","gam",strresGetString(psStringRes,STR_MR_LOAD_GAME));	// change mode when loadsave returns//		if(runLoadSave())// check for file name.
-		break;
-	case INTINGAMEOP_SAVE:
-		intCloseInGameOptions(TRUE, FALSE);
-		addLoadSave(SAVE_INGAME,"savegame\\","gam", strresGetString(psStringRes,STR_MR_SAVE_GAME) );
-		break;
+  // GAME OPTIONS KEYS 
+  case INTINGAMEOP_FXVOL:
+  case INTINGAMEOP_CDVOL:
+    //	case INTINGAMEOP_GAMMA:	
+    SetMousePos(0,INTINGAMEOP2_X + INTINGAMEOP_MID + 5, mouseY()); // move mouse
+    break;
 
-	// GAME OPTIONS KEYS 
-	case INTINGAMEOP_FXVOL:	
-	case INTINGAMEOP_CDVOL:	
-//	case INTINGAMEOP_GAMMA:	
-		SetMousePos(0,INTINGAMEOP2_X+INTINGAMEOP_MID+5 ,mouseY());	// move mouse
-		break;
+  case INTINGAMEOP_FXVOL_S:
+    mixer_SetWavVolume(widgGetSliderPos(psWScreen,INTINGAMEOP_FXVOL_S));
+    break;
+  case INTINGAMEOP_CDVOL_S:
+    mixer_SetCDVolume(widgGetSliderPos(psWScreen,INTINGAMEOP_CDVOL_S));
+    break;
 
-	case INTINGAMEOP_FXVOL_S:	
-		mixer_SetWavVolume(widgGetSliderPos(psWScreen,INTINGAMEOP_FXVOL_S));
-		break;
-	case INTINGAMEOP_CDVOL_S:	
-		mixer_SetCDVolume(widgGetSliderPos(psWScreen,INTINGAMEOP_CDVOL_S));
-		break;
-	
-//	case INTINGAMEOP_GAMMA_S:
-	
-	default:
-		break;
-	}
+  //	case INTINGAMEOP_GAMMA_S:
 
+  default:
+    break;
+  }
 }
-

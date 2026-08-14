@@ -9,25 +9,27 @@
 
 // limit the number of iterations for astar
 #define FPATH_MAX_ROUTE_INIT	400
-extern SDWORD	astarMaxRoute;
+extern SDWORD astarMaxRoute;
 #  ifdef DEBUG
 #    define FPATH_LOOP_LIMIT	(astarMaxRoute / 2)
 #  else
 #    define FPATH_LOOP_LIMIT	astarMaxRoute
 #  endif
 
-
 // return values for routing
-typedef enum _fpath_retval
+using FPATH_RETVAL = enum _fpath_retval
 {
-	FPR_OK,				// found a route
-	FPR_FAILED,			// failed to find a route
-	FPR_WAIT,			// route was too long to calculate this frame
-						// routing will continue on succeeding frames
-	FPR_RESCHEDULE,		// didn't try to route because too much time has been
-						// spent routing this frame
-} FPATH_RETVAL;
-
+  FPR_OK,
+  // found a route
+  FPR_FAILED,
+  // failed to find a route
+  FPR_WAIT,
+  // route was too long to calculate this frame
+  // routing will continue on succeeding frames
+  FPR_RESCHEDULE,
+  // didn't try to route because too much time has been
+  // spent routing this frame
+};
 
 // initialise the findpath module
 extern BOOL fpathInitialise(void);
@@ -40,8 +42,7 @@ extern void fpathSetMaxRoute(SDWORD max);
 extern SDWORD fpathGetMaxRoute(void);
 
 // Find a route for an object to a location
-extern FPATH_RETVAL fpathRoute(BASE_OBJECT *psObj, MOVE_CONTROL *psMoveCntl,
-							   SDWORD targetX, SDWORD targetY);
+extern FPATH_RETVAL fpathRoute(BASE_OBJECT* psObj, MOVE_CONTROL* psMoveCntl, SDWORD targetX, SDWORD targetY);
 
 extern BOOL (*fpathBlockingTile)(SDWORD x, SDWORD y);
 
@@ -52,14 +53,13 @@ extern BOOL fpathLiftBlockingTile(SDWORD x, SDWORD y);
 extern BOOL fpathLiftSlideBlockingTile(SDWORD x, SDWORD y);
 
 /* set the correct blocking tile function */
-extern void fpathSetBlockingTile( UBYTE ubPropulsionType );
+extern void fpathSetBlockingTile(UBYTE ubPropulsionType);
 
 /* set pointer for current fpath object - GJ hack */
-extern void fpathSetCurrentObject( BASE_OBJECT *psDroid );
+extern void fpathSetCurrentObject(BASE_OBJECT* psDroid);
 
 /* set direct path to position */
-extern void fpathSetDirectRoute( BASE_OBJECT *psObj,
-							SDWORD targetX, SDWORD targetY );
+extern void fpathSetDirectRoute(BASE_OBJECT* psObj, SDWORD targetX, SDWORD targetY);
 
 /*
 #ifdef WIN32
@@ -108,8 +108,4 @@ FPATH_INLINE BOOL fpathBlockingTile(SDWORD x, SDWORD y)
 }
 */
 
-
-
 #endif
-
-

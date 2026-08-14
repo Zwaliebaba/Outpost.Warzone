@@ -7,11 +7,10 @@
 #ifndef _scriptcb_h
 #define _scriptcb_h
 
-
 // The pointer to the droid that was just built for a CALL_NEWDROID
-extern DROID		*psScrCBDroidTaken;
-extern DROID		*psScrCBNewDroid;
-extern STRUCTURE	*psScrCBNewDroidFact;
+extern DROID* psScrCBDroidTaken;
+extern DROID* psScrCBNewDroid;
+extern STRUCTURE* psScrCBNewDroidFact;
 
 extern BOOL scrCBDroidTaken(void);
 
@@ -19,7 +18,7 @@ extern BOOL scrCBDroidTaken(void);
 extern BOOL scrCBNewDroid(void);
 
 // the attacker and target for a CALL_ATTACKED
-extern BASE_OBJECT	*psScrCBAttacker, *psScrCBTarget;
+extern BASE_OBJECT *psScrCBAttacker, *psScrCBTarget;
 
 // Deal with a CALL_STRUCT_ATTACKED
 extern BOOL scrCBStructAttacked(void);
@@ -34,13 +33,13 @@ extern BOOL scrCBAttacked(void);
 extern BOOL scrCBButtonPressed(void);
 
 // the Droid that was selected for a CALL_DROID_SELECTED
-extern DROID	*psCBSelectedDroid;
+extern DROID* psCBSelectedDroid;
 
 // deal with CALL_DROID_SELECTED
 extern BOOL scrCBDroidSelected(void);
 
 // the object that was last killed for a CALL_OBJ_DESTROYED
-extern BASE_OBJECT *psCBObjDestroyed;
+extern BASE_OBJECT* psCBObjDestroyed;
 
 // deal with a CALL_OBJ_DESTROYED
 extern BOOL scrCBObjDestroyed(void);
@@ -55,10 +54,10 @@ extern BOOL scrCBDroidDestroyed(void);
 extern BOOL scrCBFeatureDestroyed(void);
 
 // the last object to be seen for a CALL_OBJ_SEEN
-extern BASE_OBJECT		*psScrCBObjSeen;
+extern BASE_OBJECT* psScrCBObjSeen;
 
 // the object that saw psScrCBObjSeen for a CALL_OBJ_SEEN
-extern BASE_OBJECT		*psScrCBObjViewer;
+extern BASE_OBJECT* psScrCBObjViewer;
 
 // deal with a CALL_OBJ_SEEN
 extern BOOL scrCBObjSeen(void);
@@ -79,12 +78,12 @@ extern BOOL scrCBTransporterOffMap(void);
 extern BOOL scrCBTransporterLanded(void);
 
 // tell the scripts when a cluster is no longer valid
-extern SDWORD	scrCBEmptyClusterID;
-extern BOOL scrCBClusterEmpty( void );
+extern SDWORD scrCBEmptyClusterID;
+extern BOOL scrCBClusterEmpty(void);
 
 // note when a vtol has finished returning to base - used to vanish
 // vtols when they are attacking from off map
-extern DROID *psScrCBVtolOffMap;
+extern DROID* psScrCBVtolOffMap;
 extern BOOL scrCBVtolOffMap(void);
 
 /*called when selectedPlayer completes some research*/
@@ -95,8 +94,6 @@ extern BOOL scrCBPlayerLeft(void);
 
 // alliance offered.
 extern BOOL scrCBAllianceOffer(void);
-extern UDWORD	CBallFrom,CBallTo;
+extern UDWORD CBallFrom, CBallTo;
 
 #endif
-
-

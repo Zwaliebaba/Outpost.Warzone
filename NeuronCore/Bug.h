@@ -10,7 +10,6 @@
 
 #ifdef iV_DEBUG
 
-
 #define iV_DEBUG0(S)										iV_Debug((S))
 #define iV_DEBUG1(S,A)									iV_Debug((S),(A))
 #define iV_DEBUG2(S,A,B) 								iV_Debug((S),(A),(B))
@@ -26,7 +25,6 @@
 #define iV_DEBUG12(S,A,B,C,D,E,F,G,H,I,J,K,L)	iV_Debug((S),(A),(B),(C),(D),(E),(F),(G),(H),(I),(J),(K),(L))
 #define iV_DEBUG_CREATE_LOG							_debug_create_log()
 #define iV_ASSERT(A)										assert((A))
-
 
 #else
 
@@ -50,7 +48,7 @@
 
 //*************************************************************************
 
-extern void iV_Debug(char *string, ...);
+extern void iV_Debug(char* string, ...);
 extern void iV_DebugDisplayLog(void);
 
 //*************************************************************************

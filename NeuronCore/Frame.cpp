@@ -30,11 +30,11 @@
 
 #define MAX_CURSORS 26
 
-typedef struct _cursor_resource
+using CURSOR_RESOURCE = struct _cursor_resource
 {
   WORD resID;
   HCURSOR hCursor;
-} CURSOR_RESOURCE;
+};
 
 /* Program hInstance */
 HINSTANCE hInstance;
@@ -63,7 +63,7 @@ static DEFWINPROCTYPE frameWinProc;
 /* Stores whether a windows quit message has been received */
 static BOOL winQuit = FALSE;
 
-typedef enum _focus_state
+using FOCUS_STATE = enum _focus_state
 {
   FOCUS_OUT,
   // Window does not have the focus
@@ -73,7 +73,7 @@ typedef enum _focus_state
   // Window has got the focus
   FOCUS_KILL,
   // Just received WM_KILLFOCUS
-} FOCUS_STATE;
+};
 
 FOCUS_STATE focusState, focusLast;
 
@@ -89,72 +89,13 @@ static BOOL displayMouse = TRUE;
 #define DEF_CURSOR_X		0
 #define DEF_CURSOR_Y		0
 static UDWORD aCursorData[DEF_CURSOR_HEIGHT] = {
-  0x00000000,
-  0x00000000,
-  0x00000040,
-  0x00000060,
-  0x00000070,
-  0x00000078,
-  0x0000007C,
-  0x0000007E,
-  0x0000007F,
-  0x0000807F,
-  0x0000007C,
-  0x0000006C,
-  0x00000046,
-  0x00000006,
-  0x00000003,
-  0x00000003,
-  0x00008001,
-  0x00008001,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
+  0x00000000, 0x00000000, 0x00000040, 0x00000060, 0x00000070, 0x00000078, 0x0000007C, 0x0000007E, 0x0000007F, 0x0000807F, 0x0000007C,
+  0x0000006C, 0x00000046, 0x00000006, 0x00000003, 0x00000003, 0x00008001, 0x00008001, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 };
 static UDWORD aCursorMask[DEF_CURSOR_HEIGHT] = {
-  0xffffff7f,
-  0xffffff3f,
-  0xffffff1f,
-  0xffffff0f,
-  0xffffff07,
-  0xffffff03,
-  0xffffff01,
-  0xffffff00,
-  0xffff7f00,
-  0xffff3f00,
-  0xffff1f00,
-  0xffffff01,
-  0xffffff10,
-  0xffffff30,
-  0xffff7f78,
-  0xffff7ff8,
-  0xffff3ffc,
-  0xffff3ffc,
-  0xffff7ffe,
-  0xffffffff,
-  0xffffffff,
-  0xffffffff,
-  0xffffffff,
-  0xffffffff,
-  0xffffffff,
-  0xffffffff,
-  0xffffffff,
-  0xffffffff,
-  0xffffffff,
-  0xffffffff,
-  0xffffffff,
-  0xffffffff,
+  0xffffff7f, 0xffffff3f, 0xffffff1f, 0xffffff0f, 0xffffff07, 0xffffff03, 0xffffff01, 0xffffff00, 0xffff7f00, 0xffff3f00, 0xffff1f00,
+  0xffffff01, 0xffffff10, 0xffffff30, 0xffff7f78, 0xffff7ff8, 0xffff3ffc, 0xffff3ffc, 0xffff7ffe, 0xffffffff, 0xffffffff, 0xffffffff,
+  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
 };
 
 /************************************************************************************
@@ -184,9 +125,7 @@ static SDWORD RecentAverage; // Average frame rate over last TIMSPAN seconds
 static void InitFrameStuff(void)
 {
   for (SDWORD i = 0; i < TIMESPAN; i++)
-  {
     FrameCounts[i] = IN_A_FRAME;
-  }
 
   Frames = 0;
   LastFrames = 0;
@@ -209,15 +148,11 @@ static void MaintainFrameStuff(void)
     LastFrames = Frames;
     FrameCounts[FrameIndex++] = RecentFrames;
     if (FrameIndex >= TIMESPAN)
-    {
       FrameIndex = 0;
-    }
 
     Total = 0;
     for (SDWORD i = 0; i < TIMESPAN; i++)
-    {
       Total += FrameCounts[i];
-    }
     RecentAverage = Total / TIMESPAN;
 
     FrameRate = Frames / PresSeconds;
@@ -226,33 +161,18 @@ static void MaintainFrameStuff(void)
 }
 
 /* Return the current frame rate */
-UDWORD frameGetFrameRate(void)
-{
-  return RecentAverage;
-}
+UDWORD frameGetFrameRate(void) { return RecentAverage; }
 
 /* Return the overall frame rate */
-UDWORD frameGetOverallRate(void)
-{
-  return FrameRate;
-}
+UDWORD frameGetOverallRate(void) { return FrameRate; }
 
 /* Return the frame rate for the last second */
-UDWORD frameGetRecentRate(void)
-{
-  return RecentFrames;
-}
+UDWORD frameGetRecentRate(void) { return RecentFrames; }
 
-UDWORD frameGetFrameNumber(void)
-{
-  return Frames;
-}
+UDWORD frameGetFrameNumber(void) { return Frames; }
 
 /* Return the handle for the application window */
-HWND frameGetWinHandle(void)
-{
-  return hWndMain;
-}
+HWND frameGetWinHandle(void) { return hWndMain; }
 
 // string buffer for windows error string
 static STRING winErrorString[255];
@@ -262,12 +182,12 @@ STRING* winErrorToString(SDWORD error)
 {
   LPVOID lpMsgBuf;
 
-  FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL, error,
-                MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-                (LPTSTR)&lpMsgBuf, 0, NULL);
+  FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, nullptr, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                // Default language
+                (LPTSTR)&lpMsgBuf, 0, nullptr);
 
   // Copy the string.
-  strncpy(winErrorString, (const char *)lpMsgBuf, 254);
+  strncpy(winErrorString, static_cast<const char*>(lpMsgBuf), 254);
   winErrorString[255] = '0';
 
   // Free the buffer.
@@ -279,15 +199,12 @@ STRING* winErrorToString(SDWORD error)
 /* If cursor on is TRUE the windows cursor will be displayed over the game window
  * (and in full screen mode).  If it is FALSE the cursor will not be displayed.
  */
-void frameShowCursor(BOOL cursorOn)
-{
-  displayMouse = cursorOn;
-}
+void frameShowCursor(BOOL cursorOn) { displayMouse = cursorOn; }
 
 /* Set the current cursor from a cursor handle */
 void frameSetCursor(HCURSOR hNewCursor)
 {
-  if (hNewCursor == NULL)
+  if (hNewCursor == nullptr)
   {
     ASSERT((FALSE,"frameSetCursor: NULL cursor handle"));
     return;
@@ -299,7 +216,7 @@ void frameSetCursor(HCURSOR hNewCursor)
 /* Set the current cursor from a Resource ID */
 void frameSetCursorFromRes(WORD resID)
 {
-  HCURSOR hNewCursor = NULL;
+  HCURSOR hNewCursor = nullptr;
 
   ASSERT((resID != 0, "frameSetCursorFromRes: null resource ID"));
 
@@ -307,25 +224,21 @@ void frameSetCursorFromRes(WORD resID)
   if (resID != currentCursorResID)
   {
     //if its loaded then get cursor handle
-    for (SDWORD i = 0; (i < nextCursor && hNewCursor == NULL); i++)
+    for (SDWORD i = 0; (i < nextCursor && hNewCursor == nullptr); i++)
     {
       if (aCursors[i].resID == resID)
-      {
         hNewCursor = aCursors[i].hCursor;
-      }
     }
 
     //if cursor wasnt loaded, load the cursor and add it to array
-    if (hNewCursor == NULL)
+    if (hNewCursor == nullptr)
     {
       ASSERT((nextCursor < MAX_CURSORS,"frameSetCursorFromRes: Attempting to load too many cursors\n"));
 
       if (nextCursor >= MAX_CURSORS)
-      {
         nextCursor = MAX_CURSORS - 1;
-      }
       hNewCursor = LoadCursor(hInstance, MAKEINTRESOURCE(resID));
-      if (hNewCursor != NULL)
+      if (hNewCursor != nullptr)
       {
         //store it
         aCursors[nextCursor].resID = resID;
@@ -337,7 +250,7 @@ void frameSetCursorFromRes(WORD resID)
     ASSERT((hNewCursor != NULL, "frameSetCursorFromRes: LoadCursor failed:\n"));
 
     //if we got a new cursor set it
-    if (hNewCursor != NULL)
+    if (hNewCursor != nullptr)
     {
       frameSetCursor(hNewCursor);
       currentCursorResID = resID;
@@ -359,91 +272,85 @@ static long FAR PASCAL Wndproc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
     inputProcessMessages(message, wParam, lParam);
     return 0;
   }
-  else
+  switch (message)
   {
-    switch (message)
+  case WM_SETFOCUS: DBP1(("WM_SETFOCUS\n"));
+    if (focusState != FOCUS_IN)
     {
-    case WM_SETFOCUS: DBP1(("WM_SETFOCUS\n"));
-      if (focusState != FOCUS_IN)
-      {
-        DBP1(("FOCUS_SET\n"));
-        focusState = FOCUS_SET;
-        DInpMouseAcc(DINP_MOUSEACQUIRE);
-      }
-      return 0;
-    case WM_KILLFOCUS: DBP1(("WM_KILLFOCUS\n"));
-      if (focusState != FOCUS_OUT)
-      {
-        DBP1(("FOCUS_KILL\n"));
-        focusState = FOCUS_KILL;
-        DInpMouseAcc(DINP_MOUSERELEASE);
-      }
-      /* Have to tell the input system that we've lost focus */
-      inputProcessMessages(message, wParam, lParam);
-      return 0;
-
-    case WM_SETCURSOR:
-      {
-        if (LOWORD(lParam) == HTCLIENT)
-        {
-          /* Turn off the cursor if necessary */
-          if (!displayMouse && mouseOn)
-          {
-            res = ShowCursor(FALSE);
-            if (res >= 0)
-            {
-              ASSERT((FALSE,"WM_SETCURSOR off: cursor count out of sync"));
-              while (ShowCursor(FALSE) >= 0);
-            }
-            mouseOn = FALSE;
-          }
-          SetCursor(hCursor);
-          return 0;
-        }
-        if (LOWORD(lParam) == HTCAPTION)
-        {
-          if (!mouseOn)
-          {
-            res = ShowCursor(TRUE);
-            if (res < 0)
-            {
-              ASSERT((FALSE,"WM_SETCURSOR on: cursor count out of sync"));
-              while (ShowCursor(FALSE) < 0);
-            }
-            mouseOn = TRUE;
-          }
-          SetCursor(hInternalCursor);
-          return 0;
-        }
-      }
-      break;
-    case WM_CLOSE:
-      /* Request for the application to end */
-      res = MessageBox(hWndMain, "Do you want to quit?", "Confirmation", MB_ICONQUESTION | MB_YESNO);
-      if (res == IDYES)
-      {
-        winQuit = TRUE;
-      }
-      return 0;
-    case WM_DESTROY:
-      /* Shut down the game and quit */
-      winQuit = TRUE;
-      return 0;
-    case WM_SIZE:
-      /* Just ignore this */
-      return 0;
-    case WM_ERASEBKGND:
-      // Tell windows we have erased the background - cos we will when we draw next.
-      return 1;
-    default: break;
+      DBP1(("FOCUS_SET\n"));
+      focusState = FOCUS_SET;
+      DInpMouseAcc(DINP_MOUSEACQUIRE);
     }
+    return 0;
+  case WM_KILLFOCUS: DBP1(("WM_KILLFOCUS\n"));
+    if (focusState != FOCUS_OUT)
+    {
+      DBP1(("FOCUS_KILL\n"));
+      focusState = FOCUS_KILL;
+      DInpMouseAcc(DINP_MOUSERELEASE);
+    }
+    /* Have to tell the input system that we've lost focus */
+    inputProcessMessages(message, wParam, lParam);
+    return 0;
+
+  case WM_SETCURSOR:
+    {
+      if (LOWORD(lParam) == HTCLIENT)
+      {
+        /* Turn off the cursor if necessary */
+        if (!displayMouse && mouseOn)
+        {
+          res = ShowCursor(FALSE);
+          if (res >= 0)
+          {
+            ASSERT((FALSE,"WM_SETCURSOR off: cursor count out of sync"));
+            while (ShowCursor(FALSE) >= 0) { ; }
+          }
+          mouseOn = FALSE;
+        }
+        SetCursor(hCursor);
+        return 0;
+      }
+      if (LOWORD(lParam) == HTCAPTION)
+      {
+        if (!mouseOn)
+        {
+          res = ShowCursor(TRUE);
+          if (res < 0)
+          {
+            ASSERT((FALSE,"WM_SETCURSOR on: cursor count out of sync"));
+            while (ShowCursor(FALSE) < 0) { ; }
+          }
+          mouseOn = TRUE;
+        }
+        SetCursor(hInternalCursor);
+        return 0;
+      }
+    }
+    break;
+  case WM_CLOSE:
+    /* Request for the application to end */
+    res = MessageBox(hWndMain, "Do you want to quit?", "Confirmation", MB_ICONQUESTION | MB_YESNO);
+    if (res == IDYES)
+      winQuit = TRUE;
+    return 0;
+  case WM_DESTROY:
+    /* Shut down the game and quit */
+    winQuit = TRUE;
+    return 0;
+  case WM_SIZE:
+    /* Just ignore this */
+    return 0;
+  case WM_ERASEBKGND:
+    // Tell windows we have erased the background - cos we will when we draw next.
+    return 1;
+  default:
+    break;
   }
 
   /* Default behaviour for any messages not dealt with above */
   if (frameWinProc)
-  {
     return frameWinProc(hWnd, message, wParam, lParam);
-  }
 
   // No extra window procedure set, use the default one
   return DefWindowProc(hWnd, message, wParam, lParam);
@@ -453,10 +360,7 @@ static long FAR PASCAL Wndproc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
  * This is initially set to the standard DefWindowProc, but can be changed
  * by this function
  */
-extern void frameSetWindowProc(DEFWINPROCTYPE winProc)
-{
-  frameWinProc = winProc;
-}
+extern void frameSetWindowProc(DEFWINPROCTYPE winProc) { frameWinProc = winProc; }
 
 /*
  * winInitApp
@@ -474,13 +378,13 @@ static BOOL winInitApp(HANDLE hInstance, // Instance handle for the program
   STRING* pMsgBuf;
 
   /* Create the default cursor for the app - a simple arrow */
-  hInternalCursor = CreateCursor((HINSTANCE)hInstance, DEF_CURSOR_X, DEF_CURSOR_Y, DEF_CURSOR_WIDTH,DEF_CURSOR_HEIGHT, aCursorMask,
-                                 aCursorData);
-  if (hInternalCursor == NULL)
+  hInternalCursor = CreateCursor(static_cast<HINSTANCE>(hInstance), DEF_CURSOR_X, DEF_CURSOR_Y, DEF_CURSOR_WIDTH,DEF_CURSOR_HEIGHT,
+                                 aCursorMask, aCursorData);
+  if (hInternalCursor == nullptr)
   {
-    FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(),
+    FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, nullptr, GetLastError(),
                   MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-                  (LPTSTR)&pMsgBuf, 0, NULL);
+                  (LPTSTR)&pMsgBuf, 0, nullptr);
     DBERROR(("Create Cursor failed:\n%s", pMsgBuf));
     // Free the message buffer.
     LocalFree(pMsgBuf);
@@ -496,11 +400,11 @@ static BOOL winInitApp(HANDLE hInstance, // Instance handle for the program
   wc.lpfnWndProc = Wndproc;
   wc.cbClsExtra = 0;
   wc.cbWndExtra = 0;
-  wc.hInstance = (HINSTANCE)hInstance;
-  wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-  wc.hCursor = NULL; //hCursor;
-  wc.hbrBackground = (HBRUSH)GetStockObject(NULL_BRUSH); //(COLOR_WINDOW+1); //GetStockObject( WHITE_BRUSH );
-  wc.lpszMenuName = NULL;
+  wc.hInstance = static_cast<HINSTANCE>(hInstance);
+  wc.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
+  wc.hCursor = nullptr; //hCursor;
+  wc.hbrBackground = static_cast<HBRUSH>(GetStockObject(NULL_BRUSH)); //(COLOR_WINDOW+1); //GetStockObject( WHITE_BRUSH );
+  wc.lpszMenuName = nullptr;
   wc.lpszClassName = WINDOW_CLASS_NAME;
 
   BOOL rc = RegisterClass(&wc);
@@ -528,7 +432,7 @@ static BOOL winInitApp(HANDLE hInstance, // Instance handle for the program
                             "Framework", pWindowName, WIN_STYLE, // Window style, defined in WinMain.h
                             0, 0, // Initial window location
                             sWinSize.right, sWinSize.bottom, // Initial window size
-                            NULL, NULL, (HINSTANCE)hInstance, NULL);
+                            nullptr, nullptr, static_cast<HINSTANCE>(hInstance), nullptr);
 
   if (!hWndMain)
   {
@@ -537,7 +441,7 @@ static BOOL winInitApp(HANDLE hInstance, // Instance handle for the program
   }
 
   /* Store the default window procedure */
-  frameWinProc = NULL;
+  frameWinProc = nullptr;
 
   return TRUE;
 }
@@ -558,7 +462,7 @@ BOOL frameInitialise(HANDLE hInst, // The windows application instance
   HWND hWndPrev;
 
   /* exit if existing window with pWindowName name (i.e. only run one version) */
-  if ((hWndPrev = FindWindow(WINDOW_CLASS_NAME, pWindowName)) != NULL)
+  if ((hWndPrev = FindWindow(WINDOW_CLASS_NAME, pWindowName)) != nullptr)
   {
     SetForegroundWindow(hWndPrev);
     return FALSE;
@@ -569,25 +473,19 @@ BOOL frameInitialise(HANDLE hInst, // The windows application instance
   focusLast = FOCUS_IN;
   mouseOn = TRUE;
   displayMouse = TRUE;
-  hInstance = (HINSTANCE)hInst;
+  hInstance = static_cast<HINSTANCE>(hInst);
   bActiveDDraw = TRUE;
 
   /* Initialise the trig stuff */
   if (!trigInitialise())
-  {
     return FALSE;
-  }
   /* Initialise the windows stuff and open a window */
   if (!winInitApp(hInstance, pWindowName, width, height))
-  {
     return FALSE;
-  }
 
   /* Initialise the Direct Draw Buffers */
   if (!screenInitialise(width, height, bitDepth, fullScreen, bVidMem, bActiveDDraw, hWndMain))
-  {
     return FALSE;
-  }
   /* Initialise the input system */
   inputInitialise();
   /* Initialise the frame rate stuff */
@@ -595,13 +493,11 @@ BOOL frameInitialise(HANDLE hInst, // The windows application instance
 
   // Initialise the resource stuff
   if (!resInitialise())
-  {
     return FALSE;
-  }
 
-  dbg_SetMessageBoxCallback(NULL);
-  dbg_SetErrorBoxCallback(NULL);
-  dbg_SetAssertCallback(NULL);
+  dbg_SetMessageBoxCallback(nullptr);
+  dbg_SetErrorBoxCallback(nullptr);
+  dbg_SetAssertCallback(nullptr);
 
   return TRUE;
 }
@@ -622,12 +518,10 @@ FRAME_STATUS frameUpdate(void)
   inputNewFrame();
 
   /* Deal with any windows messages */
-  while (PeekMessage(&sMsg, NULL, 0, 0, PM_REMOVE))
+  while (PeekMessage(&sMsg, nullptr, 0, 0, PM_REMOVE))
   {
     if (sMsg.message == WM_QUIT)
-    {
       break;
-    }
     TranslateMessage(&sMsg);
     (void)DispatchMessage(&sMsg);
   }
@@ -635,9 +529,7 @@ FRAME_STATUS frameUpdate(void)
   /* Now figure out what to return */
   FRAME_STATUS retVal = FRAME_OK;
   if (winQuit)
-  {
     retVal = FRAME_QUIT;
-  }
   else if ((focusState == FOCUS_SET) && (focusLast == FOCUS_OUT))
   {
     DBP1(("Returning SETFOCUS\n"));
@@ -668,9 +560,7 @@ FRAME_STATUS frameUpdate(void)
   {
     /* Restore any surfaces that have been lost */
     if (bActiveDDraw)
-    {
       screenRestoreSurfaces();
-    }
 
     /* Update the frame rate stuff */
     MaintainFrameStuff();
@@ -687,10 +577,7 @@ void frameShutDown(void)
 
     screenShutDown();
   }
-  else
-  {
-    RELEASE(psDD);
-  }
+  else { RELEASE(psDD); }
 
   /* Free the default cursor */
   DestroyCursor(hCursor);
@@ -714,10 +601,7 @@ void frameShutDown(void)
   UnregisterClass(WINDOW_CLASS_NAME, hInstance);
 }
 
-BOOL loadFile(STRING* pFileName, UBYTE** ppFileData, UDWORD* pFileSize)
-{
-  return (loadFile2(pFileName, ppFileData, pFileSize,TRUE));
-}
+BOOL loadFile(STRING* pFileName, UBYTE** ppFileData, UDWORD* pFileSize) { return (loadFile2(pFileName, ppFileData, pFileSize,TRUE)); }
 
 /* Load the file with name pointed to by pFileName into a memory buffer. */
 // if allocate mem is true then the memory is allocated ... else it is already in ppFileData, and the max size is in pFileSize ... this is adjusted to the actual loaded file size
@@ -731,7 +615,8 @@ BOOL loadFile2(STRING* pFileName, UBYTE** ppFileData, UDWORD* pFileSize, BOOL Al
 
   BOOL res = loadFileFromWDG(pFileName, ppFileData, pFileSize,WDG_ALLOCATEMEM);
   // loaded from WDG file, and allocate memory for it
-  if (res == TRUE) return TRUE;
+  if (res == TRUE)
+    return TRUE;
 
   // Not in WDG so we try to load it the old fashion way !
   // This will never work on the final build of the PSX because we can *ONLY* load files
@@ -747,7 +632,7 @@ BOOL loadFile2(STRING* pFileName, UBYTE** ppFileData, UDWORD* pFileSize, BOOL Al
 
   // Not needed in a PSX FINALBUILD.
   pFileHandle = fopen(pFileName, "rb");
-  if (pFileHandle == NULL)
+  if (pFileHandle == nullptr)
   {
     DBERROR(("Couldn't open %s", pFileName));
     return FALSE;
@@ -770,8 +655,8 @@ BOOL loadFile2(STRING* pFileName, UBYTE** ppFileData, UDWORD* pFileSize, BOOL Al
   {
     /* Allocate a buffer to store the data and a terminating zero */
     // we don't want this popping up in the tools (makewdg)
-    *ppFileData = (UBYTE*)MALLOC((FileSize) + 1);
-    if (*ppFileData == NULL)
+    *ppFileData = static_cast<UBYTE*>(MALLOC((FileSize) + 1));
+    if (*ppFileData == nullptr)
     {
       DBERROR(("Out of memory"));
       return FALSE;
@@ -821,8 +706,7 @@ BOOL loadFileToBuffer(STRING* pFileName, UBYTE* pFileBuffer, UDWORD bufferSize, 
   }
 
   // try and open the file
-  HANDLE hFile = CreateFile(pFileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN,
-                            NULL);
+  HANDLE hFile = CreateFile(pFileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, nullptr);
   if (hFile == INVALID_HANDLE_VALUE)
   {
     DBERROR(("Couldn't open %s\n%s", pFileName, winErrorToString(GetLastError())));
@@ -830,15 +714,15 @@ BOOL loadFileToBuffer(STRING* pFileName, UBYTE* pFileBuffer, UDWORD bufferSize, 
   }
 
   // get the size of the file
-  *pSize = GetFileSize(hFile, NULL);
-  if (*pSize >= (UDWORD)bufferSize)
+  *pSize = GetFileSize(hFile, nullptr);
+  if (*pSize >= bufferSize)
   {
     DBERROR(("file too big !!:%s size %d\n", pFileName, *pSize));
     return FALSE;
   }
 
   // load the file into the buffer
-  BOOL retVal = ReadFile(hFile, pFileBuffer, *pSize, &bytesRead, NULL);
+  BOOL retVal = ReadFile(hFile, pFileBuffer, *pSize, &bytesRead, nullptr);
   if (!retVal || *pSize != bytesRead)
   {
     DBERROR(("Couldn't read data from %s\n%s", pFileName, winErrorToString(GetLastError())));
@@ -872,33 +756,24 @@ BOOL loadFileToBufferNoError(STRING* pFileName, UBYTE* pFileBuffer, UDWORD buffe
   }
 
   // try and open the file
-  HANDLE hFile = CreateFile(pFileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN,
-                            NULL);
+  HANDLE hFile = CreateFile(pFileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, nullptr);
   if (hFile == INVALID_HANDLE_VALUE)
-  {
     return FALSE;
-  }
 
   // get the size of the file
-  *pSize = GetFileSize(hFile, NULL);
-  if (*pSize >= (UDWORD)bufferSize)
-  {
+  *pSize = GetFileSize(hFile, nullptr);
+  if (*pSize >= bufferSize)
     return FALSE;
-  }
 
   // load the file into the buffer
-  BOOL retVal = ReadFile(hFile, pFileBuffer, *pSize, &bytesRead, NULL);
+  BOOL retVal = ReadFile(hFile, pFileBuffer, *pSize, &bytesRead, nullptr);
   if (!retVal || *pSize != bytesRead)
-  {
     return FALSE;
-  }
   pFileBuffer[*pSize] = 0;
 
   retVal = CloseHandle(hFile);
   if (!retVal)
-  {
     return FALSE;
-  }
 
   return TRUE;
 }
@@ -929,7 +804,7 @@ BOOL saveFile(STRING* pFileName, UBYTE* pFileData, UDWORD fileSize)
   return TRUE;
 }
 
-static UBYTE* WDGCacheStart = NULL;
+static UBYTE* WDGCacheStart = nullptr;
 static UDWORD WDGCacheSize = 0;
 
 #define MAXWDGDIRSIZE (7300)
@@ -960,7 +835,7 @@ static SDWORD WDGCacheEndPos = -1;
 UINT HashString(char* String)
 {
   UINT iHashValue, i;
-  CHAR* c = (CHAR*)String;
+  auto c = String;
 
   assert(String!=NULL);
   assert(*String!=0x0);
@@ -970,9 +845,7 @@ UINT HashString(char* String)
     iHashValue = (iHashValue << ONE_EIGHTH) + *c;
 
     if ((i = iHashValue & HIGH_BITS) != 0)
-    {
       iHashValue = (iHashValue ^ (i >> THREE_QUARTERS)) & ~HIGH_BITS;
-    }
   }
 
   return iHashValue;
@@ -981,7 +854,7 @@ UINT HashString(char* String)
 UINT HashStringIgnoreCase(char* String)
 {
   UINT iHashValue, i;
-  CHAR* c = (CHAR*)String;
+  auto c = String;
 
   assert(String!=NULL);
   assert(*String!=0x0);
@@ -991,9 +864,7 @@ UINT HashStringIgnoreCase(char* String)
     iHashValue = (iHashValue << ONE_EIGHTH) + ((*c) & (0xdf));
 
     if ((i = iHashValue & HIGH_BITS) != 0)
-    {
       iHashValue = (iHashValue ^ (i >> THREE_QUARTERS)) & ~HIGH_BITS;
-    }
   }
 
   return iHashValue;
@@ -1030,9 +901,11 @@ void ScanFilename(char* Fullname, int* PosOfDot, int* PosOfSlash)
     }
   }
 
-  if (PosOfDot != NULL) *PosOfDot = DotPos;
+  if (PosOfDot != nullptr)
+    *PosOfDot = DotPos;
 
-  if (PosOfSlash != NULL) *PosOfSlash = SlashPos;
+  if (PosOfSlash != nullptr)
+    *PosOfSlash = SlashPos;
 }
 
 #ifdef DEBUG
@@ -1040,9 +913,7 @@ void ScanFilename(char* Fullname, int* PosOfDot, int* PosOfSlash)
 SDWORD PercentFunc(char* File, UDWORD Line, SDWORD a, SDWORD b)
 {
   if (b)
-  {
     return (a * 100) / b;
-  }
   DBPRINTF(("Divide by 0 (PERCENT) in %s,line %d\n",File,Line));
 
   return 100;
@@ -1051,9 +922,7 @@ SDWORD PercentFunc(char* File, UDWORD Line, SDWORD a, SDWORD b)
 SDWORD PerNumFunc(char* File, UDWORD Line, SDWORD range, SDWORD a, SDWORD b)
 {
   if (b)
-  {
     return (a * range) / b;
-  }
 
   DBPRINTF(("Divide by 0 (PERNUM) in %s,line %d\n",File,Line));
 

@@ -6,7 +6,6 @@
 
 // This file used to be called resource.h but that clashed with resource.h that was in the main source directory
 
-
 #ifndef _resource_h
 #define _resource_h
 
@@ -17,68 +16,57 @@
 #define RESID_MAXCHAR		40
 
 /* Function pointer for a function that loads from a memory buffer */
-typedef BOOL (*RES_BUFFERLOAD)(UBYTE *pBuffer, UDWORD size, void **pData);
+using RES_BUFFERLOAD = BOOL(*)(UBYTE* pBuffer, UDWORD size, void** pData);
 /* Function pointer for a function that loads from a filename */
-typedef BOOL (*RES_FILELOAD)(STRING *pFile, void **pData);
+using RES_FILELOAD = BOOL(*)(STRING* pFile, void** pData);
 
 /* Function pointer for releasing a resource loaded by the above functions */
-typedef void (*RES_FREE)(void *pData);
+using RES_FREE = void(*)(void* pData);
 
 /* callback type for resload display callback*/
-typedef void (*RESLOAD_CALLBACK)(void);
+using RESLOAD_CALLBACK = void(*)(void);
 
-
-
-
-typedef struct res_data
+using RES_DATA = struct res_data
 {
-	// aID[]  is not initialised ... but for debug reasons it should be valid for PC WRF loading .... PLEASE WRITE THE CODE SOON !!!!
-	// This is for debug use only !!!!!!!!!!
+  // aID[]  is not initialised ... but for debug reasons it should be valid for PC WRF loading .... PLEASE WRITE THE CODE SOON !!!!
+  // This is for debug use only !!!!!!!!!!
 #ifdef DEBUG
-	STRING		aID[RESID_MAXCHAR];	// ID of the resource - filename from the .wrf - e.g. "TRON.PIE"
+  STRING aID[RESID_MAXCHAR]; // ID of the resource - filename from the .wrf - e.g. "TRON.PIE"
 #endif
-	void		*pData;				// pointer to the acutal data
-	SDWORD		blockID;			// which of the blocks is it in (so we can clear some of them...)
-	UDWORD	HashedID;				// hashed version of the name of the id
-	struct	res_data *psNext;		// next entry - most likely to be following on!
+  void* pData; // pointer to the acutal data
+  SDWORD blockID; // which of the blocks is it in (so we can clear some of them...)
+  UDWORD HashedID; // hashed version of the name of the id
+  struct res_data* psNext; // next entry - most likely to be following on!
 #ifdef DEBUG
-	UDWORD		usage;			
+  UDWORD usage;
 #endif
-} RES_DATA;
-
+};
 
 // New reduced resource type ... specially for PSX
 // These types  are statically defined in data.c
-typedef struct _res_type
+using RES_TYPE = struct _res_type
 {
+  // type is still needed on psx ... strings are defined in source - data.c (yak!)
+  STRING aType[RESTYPE_MAXCHAR]; // type string (e.g. "PIE"	 - just for debug use only, only aplicable when loading from wrf (not wdg)
 
-	// type is still needed on psx ... strings are defined in source - data.c (yak!)
-	STRING			aType[RESTYPE_MAXCHAR];		// type string (e.g. "PIE"	 - just for debug use only, only aplicable when loading from wrf (not wdg)
+  RES_BUFFERLOAD buffLoad; // routine to process the data for this type 
+  RES_FREE release; // routine to release the data (NULL indicates none)
 
-	RES_BUFFERLOAD buffLoad;	// routine to process the data for this type 
-	RES_FREE release;			// routine to release the data (NULL indicates none)
-
-
-	// we must have a pointer to the data here so that we can do a resGetData();
-	RES_DATA		*psRes;		// Linked list of data items of this type
-	UDWORD	HashedType;				// hashed version of the name of the id - // a null hashedtype indicates end of list
-	RES_FILELOAD	fileLoad;		// This isn't really used any more ?
-	struct _res_type	*psNext;
-} RES_TYPE;
-
-
+  // we must have a pointer to the data here so that we can do a resGetData();
+  RES_DATA* psRes; // Linked list of data items of this type
+  UDWORD HashedType; // hashed version of the name of the id - // a null hashedtype indicates end of list
+  RES_FILELOAD fileLoad; // This isn't really used any more ?
+  struct _res_type* psNext;
+};
 
 /* set the function to call when loading files with resloadfile*/
 extern VOID resSetLoadCallback(RESLOAD_CALLBACK funcToCall);
 
-
 /* callback type for res pre-load callback*/
-typedef BOOL (*RESPRELOAD_CALLBACK)(char *type, char *name, char *directory);
+using RESPRELOAD_CALLBACK = BOOL(*)(char* type, char* name, char* directory);
 
 /* set the function to call when loading files with resloadfile*/
 extern VOID resSetPreLoadCallback(RESPRELOAD_CALLBACK funcToCall);
-
-
 
 /* Initialise the resource module */
 extern BOOL resInitialise(void);
@@ -87,13 +75,11 @@ extern BOOL resInitialise(void);
 extern void resShutDown(void);
 
 // set the base resource directory
-extern void resSetBaseDir(STRING *pResDir);
+extern void resSetBaseDir(STRING* pResDir);
 
 /* Parse the res file */
 struct _block_heap;
-extern BOOL resLoad(STRING *pResFile, SDWORD blockID,
-			 UBYTE *pLoadBuffer, SDWORD bufferSize,
-			 struct _block_heap *psMemHeap);
+extern BOOL resLoad(STRING* pResFile, SDWORD blockID, UBYTE* pLoadBuffer, SDWORD bufferSize, struct _block_heap* psMemHeap);
 
 /* Release all the resources currently loaded and the resource load functions */
 extern void resReleaseAll(void);
@@ -105,52 +91,47 @@ extern void resReleaseBlockData(SDWORD blockID);
 extern void resReleaseAllData(void);
 
 /* Add a buffer load and release function for a file type */
-extern BOOL	resAddBufferLoad(STRING *pType, RES_BUFFERLOAD buffLoad,
-							 RES_FREE release);
+extern BOOL resAddBufferLoad(STRING* pType, RES_BUFFERLOAD buffLoad, RES_FREE release);
 
 /* Add a file name load and release function for a file type */
-extern BOOL	resAddFileLoad(STRING *pType, RES_FILELOAD fileLoad,
-						   RES_FREE release);
+extern BOOL resAddFileLoad(STRING* pType, RES_FILELOAD fileLoad, RES_FREE release);
 
 /* Call the load function for a file */
-extern BOOL resLoadFile(STRING *pType, STRING *pFile);
+extern BOOL resLoadFile(STRING* pType, STRING* pFile);
 
 // Add data to the resource system
-extern BOOL resAddData(STRING *pType, STRING *pID, void *pData);
+extern BOOL resAddData(STRING* pType, STRING* pID, void* pData);
 
 /* Return the resource for a type and ID */
-extern void *resGetDataFromHash(STRING *pType, UDWORD HashedID);
-extern void *resGetData(STRING *pType, STRING *pID);
-extern BOOL resPresent(STRING *pType, STRING *pID);
-void resToLower(STRING *pStr);
+extern void* resGetDataFromHash(STRING* pType, UDWORD HashedID);
+extern void* resGetData(STRING* pType, STRING* pID);
+extern BOOL resPresent(STRING* pType, STRING* pID);
+void resToLower(STRING* pStr);
 
 // return the ID string for a piece of data
 //extern BOOL resGetIDfromData(STRING *pType, void *pData, STRING **ppID); // no longer valid use the function below
 
 // return the HashedID string for a piece of data
-extern BOOL resGetHashfromData(STRING *pType, void *pData, UDWORD *pHash);
+extern BOOL resGetHashfromData(STRING* pType, void* pData, UDWORD* pHash);
 
 VOID resDoResLoadCallback();
 
 //return last imd resource
-char *GetLastResourceFilename(void);
+char* GetLastResourceFilename(void);
 // Set the resource name of the last resource file loaded
-void SetLastResourceFilename(char *pName);
+void SetLastResourceFilename(char* pName);
 
 // Returns the filename of the last resource file loaded
 UDWORD GetLastHashName(void);
 // Set the resource name of the last resource file loaded
 void SetLastHashName(UDWORD HashName);
 
-BOOL LoadWRF(char *pResFile, UBYTE **pBuffer, UDWORD *size);
-UDWORD ReadWDGData(UDWORD WDGoffset, UBYTE *DestinationAddress, UDWORD BytesToLoad);
-BOOL OpenWDG(char *WDGname);
+BOOL LoadWRF(char* pResFile, UBYTE** pBuffer, UDWORD* size);
+UDWORD ReadWDGData(UDWORD WDGoffset, UBYTE* DestinationAddress, UDWORD BytesToLoad);
+BOOL OpenWDG(char* WDGname);
 BOOL IsWDGopen(void);
 void CloseWDG(void);
 
-
-
-extern void SetLastResourceHash(char *fname);
+extern void SetLastResourceHash(char* fname);
 
 #endif
-

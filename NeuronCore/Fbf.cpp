@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <io.h>
 
-
 #include "Fbf.h"
 #include "IvisPatch.h"
 #include "Frame.h"
@@ -13,14 +12,15 @@
 
 //*************************************************************************
 
-static struct {
-	int	open;
-	int	mode;
-	int8 	*buffer;
-	int8	*b;
-	int 	n;
-	FILE 	*fp;
-	int 	buffersize;
+static struct
+{
+  int open;
+  int mode;
+  int8* buffer;
+  int8* b;
+  int n;
+  FILE* fp;
+  int buffersize;
 } fbf[MAXBUFFERS];
 
 //*************************************************************************
@@ -34,13 +34,15 @@ static struct {
 static int _fbf_getslot(void)
 
 {
-	int i;
+  int i;
 
-	for (i=0; i<MAXBUFFERS; i++)
-		if (!fbf[i].open)
-			return (i);
+  for (i = 0; i < MAXBUFFERS; i++)
+  {
+    if (!fbf[i].open)
+      return (i);
+  }
 
-	return (-1);
+  return (-1);
 }
 
 //*************************************************************************
@@ -58,52 +60,49 @@ static int _fbf_getslot(void)
 //*						iV_FBF_OUTOFMEMORY - could not claim buffer
 //******
 
-int iV_FileOpen(char *fname, int mode, int buffersize)
+int iV_FileOpen(char* fname, int mode, int buffersize)
 
 {
+  int s;
+  FILE* fp;
 
-	int s;
-	FILE *fp;
+  if ((s = _fbf_getslot()) == -1)
+    return (iV_FBF_TOOMANYOPEN);
 
+  switch (mode)
+  {
+  case iV_FBF_MODE_R:
+    if ((fp = fopen(fname, "rb")) == nullptr)
+      return (iV_FBF_OPENFAILED);
+    break;
 
-	if ((s = _fbf_getslot()) == -1)
-		return (iV_FBF_TOOMANYOPEN);
+  case iV_FBF_MODE_W:
+    if ((fp = fopen(fname, "wb")) == nullptr)
+      return (iV_FBF_OPENFAILED);
+    break;
 
+  default:
+    return (iV_FBF_UNKNOWNMODE);
+  }
 
-	switch (mode) {
-		case iV_FBF_MODE_R:
-			if ((fp = fopen(fname,"rb")) == NULL)
-				return (iV_FBF_OPENFAILED);
-			break;
+  if (buffersize < 0)
+    buffersize = BUFFERSIZE;
 
-		case iV_FBF_MODE_W:
-			if ((fp = fopen(fname,"wb")) == NULL)
-				return (iV_FBF_OPENFAILED);
-			break;
+  if ((fbf[s].buffer = static_cast<int8*>(iV_HeapAlloc(buffersize))) == nullptr)
+  {
+    fclose(fp);
+    return (iV_FBF_OUTOFMEMORY);
+  }
 
-		default:
-			return (iV_FBF_UNKNOWNMODE);
-	}
+  fbf[s].open = 1;
+  fbf[s].fp = fp;
+  fbf[s].b = fbf[s].buffer;
+  fbf[s].n = 0;
+  fbf[s].mode = mode;
+  fbf[s].buffersize = buffersize;
 
-
-	if (buffersize<0)
-		buffersize = BUFFERSIZE;
-
-	if ((fbf[s].buffer = ((int8 *) iV_HeapAlloc(buffersize))) == NULL) {
-		fclose(fp);
-		return (iV_FBF_OUTOFMEMORY);
-	}
-
-	fbf[s].open = 1;
-	fbf[s].fp = fp;
-	fbf[s].b = fbf[s].buffer;
-	fbf[s].n = 0;
-	fbf[s].mode = mode;
-	fbf[s].buffersize = buffersize;
-
-	return (s);
+  return (s);
 }
-
 
 //*************************************************************************
 //*** read one char from file
@@ -118,13 +117,13 @@ int iV_FileOpen(char *fname, int mode, int buffersize)
 int iV_FileGet(int fd)
 
 {
+  if (fbf[fd].n == 0)
+  {
+    fbf[fd].n = fread(fbf[fd].buffer, sizeof(int8), fbf[fd].buffersize, fbf[fd].fp);
+    fbf[fd].b = fbf[fd].buffer;
+  }
 
-	if (fbf[fd].n == 0) {
-		fbf[fd].n = fread(fbf[fd].buffer,sizeof(int8),fbf[fd].buffersize,fbf[fd].fp);
-		fbf[fd].b = fbf[fd].buffer;
-	}
-
-	return (( --fbf[fd].n>= 0) ? (*fbf[fd].b++ & CMASK) : EOF);
+  return ((--fbf[fd].n >= 0) ? (*fbf[fd].b++ & CMASK) : EOF);
 }
 
 //*************************************************************************
@@ -136,24 +135,23 @@ int iV_FileGet(int fd)
 //******
 
 void iV_FileClose(int fd)
-
 {
+  if (fbf[fd].open)
+  {
+    if ((fbf[fd].mode == iV_FBF_MODE_W) && (fbf[fd].n > 0))
+      fwrite(fbf[fd].buffer, sizeof(int8), fbf[fd].n, fbf[fd].fp);
 
-	if (fbf[fd].open) {
+    if (fbf[fd].buffer)
+    {
+      iV_HeapFree(fbf[fd].buffer, fbf[fd].buffersize);
+      fbf[fd].buffer = nullptr;
+    }
 
-		if ((fbf[fd].mode == iV_FBF_MODE_W) && (fbf[fd].n > 0))
-			fwrite(fbf[fd].buffer,sizeof(int8),fbf[fd].n,fbf[fd].fp);
+    if (fbf[fd].fp)
+      fclose(fbf[fd].fp);
 
-		if (fbf[fd].buffer) {
-			iV_HeapFree(fbf[fd].buffer,fbf[fd].buffersize);
-			fbf[fd].buffer = NULL;
-		}
-
-		if (fbf[fd].fp)
-			fclose(fbf[fd].fp);
-
-		fbf[fd].open = 0;
-	}
+    fbf[fd].open = 0;
+  }
 }
 
 //*************************************************************************
@@ -170,19 +168,19 @@ void iV_FileClose(int fd)
 int iV_FilePut(int fd, int8 c)
 
 {
+  int i = 1;
 
-	int i = 1;
+  if (fbf[fd].n == fbf[fd].buffersize)
+  {
+    i = fwrite(fbf[fd].buffer, sizeof(int8), fbf[fd].buffersize, fbf[fd].fp);
+    fbf[fd].n = 0;
+    fbf[fd].b = fbf[fd].buffer;
+  }
 
-	if (fbf[fd].n == fbf[fd].buffersize) {
-		i = fwrite(fbf[fd].buffer,sizeof(int8),fbf[fd].buffersize,fbf[fd].fp);
-		fbf[fd].n = 0;
-		fbf[fd].b = fbf[fd].buffer;
-	}
+  *fbf[fd].b++ = c;
+  fbf[fd].n++;
 
-	*fbf[fd].b++ = c;
-	fbf[fd].n++;
-
-	return (i);
+  return (i);
 }
 
 //*************************************************************************
@@ -200,9 +198,9 @@ int iV_FilePut(int fd, int8 c)
 int iV_FileSeek(int fd, int where, int seek)
 
 {
-	fbf[fd].n = 0;
+  fbf[fd].n = 0;
 
-	return (fseek(fbf[fd].fp,where,seek));
+  return (fseek(fbf[fd].fp, where, seek));
 }
 
 //*************************************************************************
@@ -218,23 +216,24 @@ int iV_FileSeek(int fd, int where, int seek)
 int32 iV_FileSizeOpen(int fd)
 
 {
-	int32 pos, size;
-	FILE *fp;
+  int32 pos, size;
+  FILE* fp;
 
-	size = -1;
+  size = -1;
 
+  if (fbf[fd].open)
+  {
+    fp = fbf[fd].fp;
+    if (fp)
+    {
+      pos = ftell(fp);
+      fseek(fp, 0,SEEK_END);
+      size = ftell(fp);
+      fseek(fp, pos,SEEK_SET);
+    }
+  }
 
-	if (fbf[fd].open) {
-		fp = fbf[fd].fp;
-		if (fp) {
-			pos = ftell(fp);
-			fseek(fp,0,SEEK_END);
-			size = ftell(fp);
-			fseek(fp,pos,SEEK_SET);
-		}
-	}
-
-	return (size);
+  return (size);
 }
 
 //*************************************************************************
@@ -246,23 +245,22 @@ int32 iV_FileSizeOpen(int fd)
 //* returns		size of file or -1 if error
 //******
 
-int32 iV_FileSize(char *filename)
+int32 iV_FileSize(char* filename)
 
 {
-	int fd;
-	int32 size;
+  int fd;
+  int32 size;
 
+  size = -1;
 
-	size = -1;
+  if (fd = iV_FileOpen(filename,iV_FBF_MODE_R,iV_FBF_DEFAULT_BUFFER) < 0)
+    return -1;
 
-	if (fd = iV_FileOpen(filename,iV_FBF_MODE_R,iV_FBF_DEFAULT_BUFFER) < 0)
-		return -1;
+  size = iV_FileSizeOpen(fd);
 
-	size = iV_FileSizeOpen(fd);
+  iV_FileClose(fd);
 
-	iV_FileClose(fd);
-
-	return (size);
+  return (size);
 }
 
 //*************************************************************************
@@ -275,21 +273,19 @@ int32 iV_FileSize(char *filename)
 //* returns		TRUE if saved ok else FALSE
 //******
 
-iBool iV_FileSave(char *filename, uint8 *data, int32 size)
-
+iBool iV_FileSave(char* filename, uint8* data, int32 size)
 
 {
-	FILE *fp;
+  FILE* fp;
 
+  if ((fp = fopen(filename, "wb")) == nullptr)
+    return FALSE;
 
-	if ((fp = fopen(filename,"wb")) == NULL)
-		return FALSE;
+  fwrite(data, sizeof(uint8), size, fp);
 
-	fwrite(data,sizeof(uint8),size,fp);
+  fclose(fp);
 
-	fclose(fp);
-
-	return TRUE;
+  return TRUE;
 }
 
 //*************************************************************************
@@ -301,22 +297,22 @@ iBool iV_FileSave(char *filename, uint8 *data, int32 size)
 //* returns		TRUE if loaded ok else FALSE
 //******
 
-iBool iV_FileLoad(char *filename, uint8 *data)
+iBool iV_FileLoad(char* filename, uint8* data)
 
 {
-	FILE *fp;
-	int32 size;
+  FILE* fp;
+  int32 size;
 
+  size = iV_FileSize(filename);
 
-	size = iV_FileSize(filename);
+  if ((fp = fopen(filename, "rb")) == nullptr)
+    return FALSE;
 
-	if ((fp = fopen(filename,"rb")) == NULL)
-		return FALSE;
+  if (static_cast<int32>(fread(data, sizeof(uint8), size, fp)) != size)
+  {
+    fclose(fp);
+    return FALSE;
+  }
 
-	if ((int32)fread(data,sizeof(uint8),size,fp) != size) {
-		fclose(fp);
-		return FALSE;
-	}
-
-	return TRUE;
+  return TRUE;
 }

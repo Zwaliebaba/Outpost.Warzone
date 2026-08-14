@@ -14,5 +14,3 @@ BOOL pwrcCheckPlayerCryptPower(UDWORD player, UDWORD power);
 void pwrcUpdate(void);
 
 #endif
-
-

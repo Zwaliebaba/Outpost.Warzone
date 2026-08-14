@@ -32,38 +32,90 @@
  *	Global Type Definitions
  */
 /***************************************************************************/
-typedef signed char int8;
-typedef signed short int16;
-typedef int int32;
-typedef unsigned char uint8;
-typedef unsigned short uint16;
-typedef unsigned int uint32;
+using int8 = signed char;
+using int16 = signed short;
+using int32 = int;
+using uint8 = unsigned char;
+using uint16 = unsigned short;
+using uint32 = unsigned int;
 
 //*************************************************************************
 //
 // Simple derived types
 //
 //*************************************************************************
-typedef struct {int left, top, right, bottom;} iClip;
-typedef uint8 iBitmap;
-typedef struct {uint8 r, g, b;} iColour;
-typedef int iBool;
-typedef struct {int32 x, y;} iPoint;
-typedef struct {int width, height; iBitmap *bmp;} iSprite;
-typedef iColour iPalette[256];
-typedef struct {uint8 r, g, b, p;} iRGB8;
-typedef struct {uint16 r, g, b, p;} iRGB16;
-typedef struct {uint32 r, g, b, p;} iRGB32;
-typedef struct {int8 x, y;} iPoint8;
-typedef struct {int16 x, y;} iPoint16;
-typedef struct {int32 x, y;} iPoint32;
+using iClip = struct
+{
+  int left, top, right, bottom;
+};
+using iBitmap = uint8;
+using iColour = struct
+{
+  uint8 r, g, b;
+};
+using iBool = int;
+using iPoint = struct
+{
+  int32 x, y;
+};
+using iSprite = struct
+{
+  int width, height;
+  iBitmap* bmp;
+};
+using iPalette = iColour[256];
+using iRGB8 = struct
+{
+  uint8 r, g, b, p;
+};
+using iRGB16 = struct
+{
+  uint16 r, g, b, p;
+};
+using iRGB32 = struct
+{
+  uint32 r, g, b, p;
+};
+using iPoint8 = struct
+{
+  int8 x, y;
+};
+using iPoint16 = struct
+{
+  int16 x, y;
+};
+using iPoint32 = struct
+{
+  int32 x, y;
+};
 
-	typedef struct {int32 x, y, z;} iVector;
-	typedef struct {double x, y, z;} iVectorf;
-	typedef struct {int xshift, width, height; iBitmap *bmp;
-					iColour *pPal; iBool bColourKeyed; } iTexture;
-	typedef struct {int32 x, y, z, u, v; uint8 g;} iVertex; 
-typedef struct {FRACT x,y,z;} PIEVECTORF;
-typedef struct {iVector p, r;} iView;
+using iVector = struct
+{
+  int32 x, y, z;
+};
+using iVectorf = struct
+{
+  double x, y, z;
+};
+using iTexture = struct
+{
+  int xshift, width, height;
+  iBitmap* bmp;
+  iColour* pPal;
+  iBool bColourKeyed;
+};
+using iVertex = struct
+{
+  int32 x, y, z, u, v;
+  uint8 g;
+};
+using PIEVECTORF = struct
+{
+  FRACT x, y, z;
+};
+using iView = struct
+{
+  iVector p, r;
+};
 
 #endif // _pieTypes_h

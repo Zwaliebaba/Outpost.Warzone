@@ -29,11 +29,10 @@ extern BOOL combInitialise(void);
 extern BOOL combShutdown(void);
 
 /* Fire a weapon at something */
-extern void combFire(WEAPON *psWeap, BASE_OBJECT *psAttacker, BASE_OBJECT *psTarget);
+extern void combFire(WEAPON* psWeap, BASE_OBJECT* psAttacker, BASE_OBJECT* psTarget);
 
 /*checks through the target players list of structures and droids to see 
 if any support a counter battery sensor*/
-extern void counterBatteryFire(BASE_OBJECT *psAttacker, BASE_OBJECT *psTarget);
+extern void counterBatteryFire(BASE_OBJECT* psAttacker, BASE_OBJECT* psTarget);
 
 #endif
-

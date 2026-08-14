@@ -12,11 +12,11 @@
 
 #define iV_RenderBegin			pie_LocalRenderBegin
 #define iV_RenderEnd			pie_LocalRenderEnd
-#define	iV_Line					pie_Line	
-#define	iV_Box					pie_Box	
+#define	iV_Line					pie_Line
+#define	iV_Box					pie_Box
 #define	iV_BoxFill				pie_BoxFillIndex
-#define	iV_TransBoxFill			pie_TransBoxFill		
-#define	iV_UniTransBoxFill		pie_UniTransBoxFill		
+#define	iV_TransBoxFill			pie_TransBoxFill
+#define	iV_UniTransBoxFill		pie_UniTransBoxFill
 #define	iV_DrawImage			pie_ImageFileID
 #define	iV_DrawImageRect		pie_ImageFileIDTile
 #define	iV_DrawTransImage		pie_ImageFileID
@@ -58,7 +58,6 @@
 #define REND_SURFACE_SCREEN		1
 #define REND_SURFACE_USR		2
 
-
 #define REND_MAX_X			pie_GetVideoBufferWidth()
 #define iV_SCREEN_Y_MAX		pie_GetVideoBufferHeight()
 #define iV_SCREEN_SIZE_MAX	(iV_SCREEN_X_MAX * iV_SCREEN_Y_MAX)
@@ -68,11 +67,10 @@
 
 //*************************************************************************
 
-extern iSurface	rendSurface;
-extern iSurface	*psRendSurface;
+extern iSurface rendSurface;
+extern iSurface* psRendSurface;
 
 //*************************************************************************
-
 
 //*************************************************************************
 
@@ -80,20 +78,18 @@ extern int32 iV_VideoMemorySize(int mode);
 extern iBool iV_VideoMemoryLock(int mode);
 extern void iV_VideoMemoryFree(void);
 extern void iV_VideoMemoryUnlock(void);
-extern uint8 *iV_VideoMemoryAlloc(int mode);
+extern uint8* iV_VideoMemoryAlloc(int mode);
 extern void rend_AssignScreen(void);
-extern void rend_Assign(int mode, iSurface *s);
-extern void iV_RenderAssign(int mode, iSurface *s);
-extern void iV_SurfaceDestroy(iSurface *s);
-extern iSurface *iV_SurfaceCreate(uint32 flags, int width, int height, int xp, int yp, uint8 *buffer);
+extern void rend_Assign(int mode, iSurface* s);
+extern void iV_RenderAssign(int mode, iSurface* s);
+extern void iV_SurfaceDestroy(iSurface* s);
+extern iSurface* iV_SurfaceCreate(uint32 flags, int width, int height, int xp, int yp, uint8* buffer);
 
 //*************************************************************************
 
 extern int iV_GetDisplayWidth(void);
 extern int iV_GetDisplayHeight(void);
-extern BOOL	weHave3DNow( void );	// called whenever - returns a boolean
-
-
+extern BOOL weHave3DNow(void); // called whenever - returns a boolean
 
 //*************************************************************************
 // vid stuff still to be cut down
@@ -102,40 +98,32 @@ extern BOOL	weHave3DNow( void );	// called whenever - returns a boolean
 extern void (*iV_VSync)(void);
 
 extern void (*iV_pLine)(int x0, int y0, int x1, int y1, uint32 colour);
-extern void (*iV_TransTriangle)(iVertex *vrt);
+extern void (*iV_TransTriangle)(iVertex* vrt);
 
 extern char* (*iV_ScreenDumpToDisk)(void);
 
+extern void (*iV_ppBitmap)(iBitmap* bmp, int x, int y, int w, int h, int ow);
+extern void (*iV_ppBitmapTrans)(iBitmap* bmp, int x, int y, int w, int h, int ow);
 
+extern void (*iV_SetTransFilter)(UDWORD rgb, UDWORD tablenumber);
 
-
-
-extern void (*iV_ppBitmap)(iBitmap *bmp, int x, int y, int w, int h, int ow);
-extern void (*iV_ppBitmapTrans)(iBitmap *bmp, int x, int y, int w, int h, int ow);
-
-
-extern void (*iV_SetTransFilter)(UDWORD rgb,UDWORD tablenumber);
-
-extern void (*iV_UniBitmapDepth)(int texPage, int u, int v, int srcWidth, int srcHeight, 
-							int x, int y, int destWidth, int destHeight, unsigned char brightness, int depth);
+extern void (*iV_UniBitmapDepth)(int texPage, int u, int v, int srcWidth, int srcHeight, int x, int y, int destWidth, int destHeight,
+                                 unsigned char brightness, int depth);
 
 extern void (*iV_SetTransImds)(BOOL trans);
 
 //mapdisplay
 
-extern void (*iV_tgTriangle)(iVertex *vrt, iTexture *tex);
-extern void (*iV_tgPolygon)(int num, iVertex *vrt, iTexture *tex);
-
-
+extern void (*iV_tgTriangle)(iVertex* vrt, iTexture* tex);
+extern void (*iV_tgPolygon)(int num, iVertex* vrt, iTexture* tex);
 
 //design
 
-
 /* Blit a transparent rectangle to the back buffer */
-extern void	iVBlitTransRect(UDWORD x0, UDWORD x1, UDWORD y0, UDWORD y1);
+extern void iVBlitTransRect(UDWORD x0, UDWORD x1, UDWORD y0, UDWORD y1);
 
 /* Optimised DWORD read/write to memory */
-extern void	iVFBlitTransRect(UDWORD x0, UDWORD y0, UDWORD x1, UDWORD y1);
+extern void iVFBlitTransRect(UDWORD x0, UDWORD y0, UDWORD x1, UDWORD y1);
 
 /* Possible filter colours for the transparency rectangle blit */
 #define TINT_BLUE	0
@@ -144,10 +132,8 @@ extern void	iVFBlitTransRect(UDWORD x0, UDWORD y0, UDWORD x1, UDWORD y1);
 #define TRANS_BRITE	3
 #define TINT_DEEPBLUE	4
 
-
-
-extern void iV_DrawMousePointer(int x,int y);
-extern void iV_SetMousePointer(IMAGEFILE *ImageFile,UWORD ImageID);
+extern void iV_DrawMousePointer(int x, int y);
+extern void iV_SetMousePointer(IMAGEFILE* ImageFile, UWORD ImageID);
 //*************************************************************************
-extern void (*iV_ppBitmapColourTrans)(iBitmap *bmp, int x, int y, int w, int h, int ow,int ColourIndex);
+extern void (*iV_ppBitmapColourTrans)(iBitmap* bmp, int x, int y, int w, int h, int ow, int ColourIndex);
 #endif

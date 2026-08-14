@@ -26,40 +26,39 @@
 
 #include "MPDPXtra.h"
 
-
 /******** DEFINITIONS ********/
 
 #define MPDPXTRA_DLL_NAME	"DPMPLAY.DLL"
 
 /******** DYNAMIC FUNCTION PROTOTYPES ********/
-typedef MPDPXTRAERR mpcdecl	(*MPDPXTRA_DPIDToMPPLAYERID_TYPE)			(DPID dpid,MPPLAYERID *mpPlayerID);
+using MPDPXTRA_DPIDToMPPLAYERID_TYPE = MPDPXTRAERR(*)(DPID dpid, MPPLAYERID* mpPlayerID);
 
-typedef MPDPXTRAERR	mpcdecl (*MPDPXTRA_AddScoreResult_TYPE)				(DPID srcId,DPID dstId,u_long key,long value);
-typedef MPDPXTRAERR	mpcdecl (*MPDPXTRA_AddScoreResultEx_TYPE)			(MPPLAYERID srcId,MPPLAYERID dstId,u_long key,long value);
-typedef MPDPXTRAERR	mpcdecl (*MPDPXTRA_FetchServerGameData_TYPE)		(UINT key,void *pData,UINT *pDataLen);
-typedef MPDPXTRAERR	mpcdecl (*MPDPXTRA_PostLobbyData_TYPE)				(UINT objectID,void *pObjectData,UINT objectDataLen);
-typedef MPDPXTRAERR	mpcdecl (*MPDPXTRA_PostServerGameData_TYPE)			(UINT key,void *pData,UINT dataLen);
-typedef MPDPXTRAERR	mpcdecl (*MPDPXTRA_SaveScoreResults_TYPE)			(void);
-typedef MPDPXTRAERR	mpcdecl (*MPDPXTRA_SubscribeServerGameData_TYPE)	(UINT key,SERVER_GAME_DATA_CBF *cbf,void *context);
-typedef MPDPXTRAERR	mpcdecl (*MPDPXTRA_UnsubscribeServerGameData_TYPE)	(UINT key,SERVER_GAME_DATA_CBF *cbf,void *context);
+using MPDPXTRA_AddScoreResult_TYPE = MPDPXTRAERR(*)(DPID srcId, DPID dstId, u_long key, long value);
+using MPDPXTRA_AddScoreResultEx_TYPE = MPDPXTRAERR(*)(MPPLAYERID srcId, MPPLAYERID dstId, u_long key, long value);
+using MPDPXTRA_FetchServerGameData_TYPE = MPDPXTRAERR(*)(UINT key, void* pData, UINT* pDataLen);
+using MPDPXTRA_PostLobbyData_TYPE = MPDPXTRAERR(*)(UINT objectID, void* pObjectData, UINT objectDataLen);
+using MPDPXTRA_PostServerGameData_TYPE = MPDPXTRAERR(*)(UINT key, void* pData, UINT dataLen);
+using MPDPXTRA_SaveScoreResults_TYPE = MPDPXTRAERR(*)(void);
+using MPDPXTRA_SubscribeServerGameData_TYPE = MPDPXTRAERR(*)(UINT key, SERVER_GAME_DATA_CBF* cbf, void* context);
+using MPDPXTRA_UnsubscribeServerGameData_TYPE = MPDPXTRAERR(*)(UINT key, SERVER_GAME_DATA_CBF* cbf, void* context);
 
 /******** DYNAMIC FUNCTION POINTERS ********/
-MPDPXTRA_DPIDToMPPLAYERID_TYPE			MPDPXTRA_DPIDToMPPLAYERID_InDLL				= NULL;
+MPDPXTRA_DPIDToMPPLAYERID_TYPE MPDPXTRA_DPIDToMPPLAYERID_InDLL = nullptr;
 
-MPDPXTRA_AddScoreResult_TYPE			MPDPXTRA_AddScoreResult_InDLL				= NULL;
-MPDPXTRA_AddScoreResultEx_TYPE			MPDPXTRA_AddScoreResultEx_InDLL				= NULL;
-MPDPXTRA_FetchServerGameData_TYPE		MPDPXTRA_FetchServerGameData_InDLL			= NULL;
-MPDPXTRA_PostLobbyData_TYPE				MPDPXTRA_PostLobbyData_InDLL				= NULL;
-MPDPXTRA_PostServerGameData_TYPE		MPDPXTRA_PostServerGameData_InDLL			= NULL;
-MPDPXTRA_SaveScoreResults_TYPE			MPDPXTRA_SaveScoreResults_InDLL				= NULL;
-MPDPXTRA_SubscribeServerGameData_TYPE	MPDPXTRA_SubscribeServerGameData_InDLL		= NULL;
-MPDPXTRA_UnsubscribeServerGameData_TYPE	MPDPXTRA_UnsubscribeServerGameData_InDLL	= NULL;
+MPDPXTRA_AddScoreResult_TYPE MPDPXTRA_AddScoreResult_InDLL = nullptr;
+MPDPXTRA_AddScoreResultEx_TYPE MPDPXTRA_AddScoreResultEx_InDLL = nullptr;
+MPDPXTRA_FetchServerGameData_TYPE MPDPXTRA_FetchServerGameData_InDLL = nullptr;
+MPDPXTRA_PostLobbyData_TYPE MPDPXTRA_PostLobbyData_InDLL = nullptr;
+MPDPXTRA_PostServerGameData_TYPE MPDPXTRA_PostServerGameData_InDLL = nullptr;
+MPDPXTRA_SaveScoreResults_TYPE MPDPXTRA_SaveScoreResults_InDLL = nullptr;
+MPDPXTRA_SubscribeServerGameData_TYPE MPDPXTRA_SubscribeServerGameData_InDLL = nullptr;
+MPDPXTRA_UnsubscribeServerGameData_TYPE MPDPXTRA_UnsubscribeServerGameData_InDLL = nullptr;
 
 /******** GLOBAL VARIABLES ********/
 
-HINSTANCE	gMPDPXTRALibHndl			= NULL;
-int			gMPDPXTRALibUseCount		= 0;
-BOOL		gMPDPXTRALibDisplayErrors	= FALSE;
+HINSTANCE gMPDPXTRALibHndl = nullptr;
+int gMPDPXTRALibUseCount = 0;
+BOOL gMPDPXTRALibDisplayErrors = FALSE;
 
 /**************************************************************************************
 
@@ -67,75 +66,72 @@ BOOL		gMPDPXTRALibDisplayErrors	= FALSE;
 
 **************************************************************************************/
 
-
-FARPROC		MPDPXTRA_GetProcAddress(HMODULE hModule,LPCSTR lpProcName)
+FARPROC MPDPXTRA_GetProcAddress(HMODULE hModule, LPCSTR lpProcName)
 {
-	FARPROC retVal = GetProcAddress(hModule,lpProcName);
+  FARPROC retVal = GetProcAddress(hModule, lpProcName);
 
-	if (retVal == NULL && gMPDPXTRALibDisplayErrors)
-	{
-		char msg[255];
+  if (retVal == nullptr && gMPDPXTRALibDisplayErrors)
+  {
+    char msg[255];
 
-		wsprintf(msg,"Unable to load function %s from %s",lpProcName,MPDPXTRA_DLL_NAME);
-		MessageBox(0,msg,"Warning",MB_OK);
-	}
+    wsprintf(msg, "Unable to load function %s from %s", lpProcName,MPDPXTRA_DLL_NAME);
+    MessageBox(nullptr, msg, "Warning",MB_OK);
+  }
 
-    return retVal;
+  return retVal;
 }
 
-
-HINSTANCE	MPDPXTRA_LoadLibrary()
+HINSTANCE MPDPXTRA_LoadLibrary()
 {
-	HINSTANCE	hInst;
+  HINSTANCE hInst;
 
-	// Dynamically link to Mpdpxtra.dll and initialize all function pointers.
-	//.......................................................................
+  // Dynamically link to Mpdpxtra.dll and initialize all function pointers.
+  //.......................................................................
 
-    if (NULL != (hInst = LoadLibrary(MPDPXTRA_DLL_NAME)))
-	{
-		MPDPXTRA_DPIDToMPPLAYERID_InDLL			= (MPDPXTRA_DPIDToMPPLAYERID_TYPE)			MPDPXTRA_GetProcAddress(hInst,"MPDPXTRA_DPIDToMPPLAYERID");
-		MPDPXTRA_AddScoreResult_InDLL			= (MPDPXTRA_AddScoreResult_TYPE)			MPDPXTRA_GetProcAddress(hInst,"MPDPXTRA_AddScoreResult");
-		MPDPXTRA_AddScoreResultEx_InDLL			= (MPDPXTRA_AddScoreResultEx_TYPE)			MPDPXTRA_GetProcAddress(hInst,"MPDPXTRA_AddScoreResultEx");
-		MPDPXTRA_FetchServerGameData_InDLL		= (MPDPXTRA_FetchServerGameData_TYPE)		MPDPXTRA_GetProcAddress(hInst,"MPDPXTRA_FetchServerGameData");
-		MPDPXTRA_PostLobbyData_InDLL			= (MPDPXTRA_PostLobbyData_TYPE)				MPDPXTRA_GetProcAddress(hInst,"MPDPXTRA_PostLobbyData");
-		MPDPXTRA_PostServerGameData_InDLL		= (MPDPXTRA_PostServerGameData_TYPE)		MPDPXTRA_GetProcAddress(hInst,"MPDPXTRA_PostServerGameData");
-		MPDPXTRA_SaveScoreResults_InDLL			= (MPDPXTRA_SaveScoreResults_TYPE)			MPDPXTRA_GetProcAddress(hInst,"MPDPXTRA_SaveScoreResults");
-		MPDPXTRA_SubscribeServerGameData_InDLL	= (MPDPXTRA_SubscribeServerGameData_TYPE)	MPDPXTRA_GetProcAddress(hInst,"MPDPXTRA_SubscribeServerGameData");
-		MPDPXTRA_UnsubscribeServerGameData_InDLL= (MPDPXTRA_UnsubscribeServerGameData_TYPE)	MPDPXTRA_GetProcAddress(hInst,"MPDPXTRA_UnsubscribeServerGameData");
-	}
-	else if (gMPDPXTRALibDisplayErrors)
-	{
-		char msg[255];
+  if (nullptr != (hInst = LoadLibrary(MPDPXTRA_DLL_NAME)))
+  {
+    MPDPXTRA_DPIDToMPPLAYERID_InDLL = (MPDPXTRA_DPIDToMPPLAYERID_TYPE)MPDPXTRA_GetProcAddress(hInst, "MPDPXTRA_DPIDToMPPLAYERID");
+    MPDPXTRA_AddScoreResult_InDLL = (MPDPXTRA_AddScoreResult_TYPE)MPDPXTRA_GetProcAddress(hInst, "MPDPXTRA_AddScoreResult");
+    MPDPXTRA_AddScoreResultEx_InDLL = (MPDPXTRA_AddScoreResultEx_TYPE)MPDPXTRA_GetProcAddress(hInst, "MPDPXTRA_AddScoreResultEx");
+    MPDPXTRA_FetchServerGameData_InDLL = (MPDPXTRA_FetchServerGameData_TYPE)MPDPXTRA_GetProcAddress(hInst, "MPDPXTRA_FetchServerGameData");
+    MPDPXTRA_PostLobbyData_InDLL = (MPDPXTRA_PostLobbyData_TYPE)MPDPXTRA_GetProcAddress(hInst, "MPDPXTRA_PostLobbyData");
+    MPDPXTRA_PostServerGameData_InDLL = (MPDPXTRA_PostServerGameData_TYPE)MPDPXTRA_GetProcAddress(hInst, "MPDPXTRA_PostServerGameData");
+    MPDPXTRA_SaveScoreResults_InDLL = (MPDPXTRA_SaveScoreResults_TYPE)MPDPXTRA_GetProcAddress(hInst, "MPDPXTRA_SaveScoreResults");
+    MPDPXTRA_SubscribeServerGameData_InDLL = (MPDPXTRA_SubscribeServerGameData_TYPE)MPDPXTRA_GetProcAddress(
+      hInst, "MPDPXTRA_SubscribeServerGameData");
+    MPDPXTRA_UnsubscribeServerGameData_InDLL = (MPDPXTRA_UnsubscribeServerGameData_TYPE)MPDPXTRA_GetProcAddress(
+      hInst, "MPDPXTRA_UnsubscribeServerGameData");
+  }
+  else if (gMPDPXTRALibDisplayErrors)
+  {
+    char msg[255];
 
-		wsprintf(msg,"Unable to load %s",MPDPXTRA_DLL_NAME);
-		MessageBox(0,msg, "Warning", MB_OK);
-	}
+    wsprintf(msg, "Unable to load %s",MPDPXTRA_DLL_NAME);
+    MessageBox(nullptr, msg, "Warning", MB_OK);
+  }
 
-    return (hInst);
+  return (hInst);
 }
 
-
-void		MPDPXTRA_CheckDisplayErrors()
+void MPDPXTRA_CheckDisplayErrors()
 {
-	HKEY		hKey;
-	BYTE		value[256];
-	DWORD		valueSize = sizeof(value);
+  HKEY hKey;
+  BYTE value[256];
+  DWORD valueSize = sizeof(value);
 
-	if (ERROR_SUCCESS == RegOpenKeyEx(HKEY_LOCAL_MACHINE,REG_KEY_MPLAYER"\\MAIN",0,KEY_QUERY_VALUE,&hKey))
-	{
-		if (ERROR_SUCCESS == RegQueryValueEx(hKey,"DEBUGDYNDLL",NULL,NULL,value,&valueSize))
-		{
-			if (atoi((const char *)value) >= 1)
-				gMPDPXTRALibDisplayErrors = TRUE;
-			else
-				gMPDPXTRALibDisplayErrors = FALSE;
-		}
-		
-		RegCloseKey(hKey);
-	}
+  if (ERROR_SUCCESS == RegOpenKeyEx(HKEY_LOCAL_MACHINE,REG_KEY_MPLAYER"\\MAIN", 0,KEY_QUERY_VALUE, &hKey))
+  {
+    if (ERROR_SUCCESS == RegQueryValueEx(hKey, "DEBUGDYNDLL", nullptr, nullptr, value, &valueSize))
+    {
+      if (atoi((const char*)value) >= 1)
+        gMPDPXTRALibDisplayErrors = TRUE;
+      else
+        gMPDPXTRALibDisplayErrors = FALSE;
+    }
+
+    RegCloseKey(hKey);
+  }
 }
-
-
 
 /**************************************************************************************
 
@@ -170,25 +166,24 @@ void		MPDPXTRA_CheckDisplayErrors()
 
 -----------------------------------------------------------------------------------*/
 
-MPDPXTRAERR		MPDPXTRA_Init()
-{	
-	MPDPXTRAERR		retVal = MPDPXTRAERR_OK;
+MPDPXTRAERR MPDPXTRA_Init()
+{
+  MPDPXTRAERR retVal = MPDPXTRAERR_OK;
 
-	if (gMPDPXTRALibHndl == NULL)
-	{
-		MPDPXTRA_CheckDisplayErrors();
+  if (gMPDPXTRALibHndl == nullptr)
+  {
+    MPDPXTRA_CheckDisplayErrors();
 
-		if (NULL != (gMPDPXTRALibHndl = MPDPXTRA_LoadLibrary()))
-			gMPDPXTRALibUseCount++;
-		else
-			retVal = MPDPXTRAERR_UNABLE_TO_LOAD_MPDPXTRA_LIBRARY;
-	}
-	else
-		gMPDPXTRALibUseCount++;
+    if (nullptr != (gMPDPXTRALibHndl = MPDPXTRA_LoadLibrary()))
+      gMPDPXTRALibUseCount++;
+    else
+      retVal = MPDPXTRAERR_UNABLE_TO_LOAD_MPDPXTRA_LIBRARY;
+  }
+  else
+    gMPDPXTRALibUseCount++;
 
-	return (retVal);
+  return (retVal);
 }
-
 
 /*-----------------------------------------------------------------------------------
 
@@ -213,29 +208,28 @@ MPDPXTRAERR		MPDPXTRA_Init()
 
 -----------------------------------------------------------------------------------*/
 
-MPDPXTRAERR		MPDPXTRA_Destroy()
+MPDPXTRAERR MPDPXTRA_Destroy()
 {
-	MPDPXTRAERR		retVal = MPDPXTRAERR_OK;
+  MPDPXTRAERR retVal = MPDPXTRAERR_OK;
 
-	if (gMPDPXTRALibHndl != NULL)
-	{
-		if (gMPDPXTRALibUseCount == 1)
-		{
-			FreeLibrary(gMPDPXTRALibHndl);
-			gMPDPXTRALibHndl = NULL;
-		}
-		else
-			retVal = MPDPXTRAERR_MPDPXTRA_LIBRARY_REFERENCE_COUNT_NOT_ZERO;
+  if (gMPDPXTRALibHndl != nullptr)
+  {
+    if (gMPDPXTRALibUseCount == 1)
+    {
+      FreeLibrary(gMPDPXTRALibHndl);
+      gMPDPXTRALibHndl = nullptr;
+    }
+    else
+      retVal = MPDPXTRAERR_MPDPXTRA_LIBRARY_REFERENCE_COUNT_NOT_ZERO;
 
-		if (gMPDPXTRALibUseCount > 0)
-			gMPDPXTRALibUseCount--;
-	}
-	else
-		retVal = MPDPXTRAERR_MPDPXTRA_LIBRARY_NOT_LOADED;
+    if (gMPDPXTRALibUseCount > 0)
+      gMPDPXTRALibUseCount--;
+  }
+  else
+    retVal = MPDPXTRAERR_MPDPXTRA_LIBRARY_NOT_LOADED;
 
-	return (retVal);
+  return (retVal);
 }
-
 
 /*-----------------------------------------------------------------------------------
 	
@@ -266,21 +260,21 @@ MPDPXTRAERR		MPDPXTRA_Destroy()
 
 -----------------------------------------------------------------------------------*/
 
-MPDPXTRAERR		MPDPXTRA_DPIDToMPPLAYERID(DPID dpid,MPPLAYERID *mpPlayerID)
+MPDPXTRAERR MPDPXTRA_DPIDToMPPLAYERID(DPID dpid, MPPLAYERID* mpPlayerID)
 {
-	MPDPXTRAERR		retVal = MPDPXTRAERR_OK;
+  MPDPXTRAERR retVal = MPDPXTRAERR_OK;
 
-	if (gMPDPXTRALibHndl != NULL)
-	{
-		if (MPDPXTRA_DPIDToMPPLAYERID_InDLL != NULL)
-			retVal = MPDPXTRA_DPIDToMPPLAYERID_InDLL(dpid,mpPlayerID);
-		else
-			retVal = MPDPXTRAERR_UNABLE_TO_LOCATE_FUNCTION_IN_MPDPXTRA_LIBRARY;
-	}
-	else
-		retVal = MPDPXTRAERR_MPDPXTRA_LIBRARY_NOT_LOADED;
+  if (gMPDPXTRALibHndl != nullptr)
+  {
+    if (MPDPXTRA_DPIDToMPPLAYERID_InDLL != nullptr)
+      retVal = MPDPXTRA_DPIDToMPPLAYERID_InDLL(dpid, mpPlayerID);
+    else
+      retVal = MPDPXTRAERR_UNABLE_TO_LOCATE_FUNCTION_IN_MPDPXTRA_LIBRARY;
+  }
+  else
+    retVal = MPDPXTRAERR_MPDPXTRA_LIBRARY_NOT_LOADED;
 
-	return (retVal);
+  return (retVal);
 }
 
 /*-----------------------------------------------------------------------------------
@@ -340,23 +334,22 @@ MPDPXTRAERR		MPDPXTRA_DPIDToMPPLAYERID(DPID dpid,MPPLAYERID *mpPlayerID)
 
 -----------------------------------------------------------------------------------*/
 
-MPDPXTRAERR		MPDPXTRA_PostLobbyData(UINT objectID,void *pObjectData,UINT objectDataLen)
+MPDPXTRAERR MPDPXTRA_PostLobbyData(UINT objectID, void* pObjectData, UINT objectDataLen)
 {
-	MPDPXTRAERR		retVal = MPDPXTRAERR_OK;
+  MPDPXTRAERR retVal = MPDPXTRAERR_OK;
 
-	if (gMPDPXTRALibHndl != NULL)
-	{
-		if (MPDPXTRA_PostLobbyData_InDLL != NULL)
-			retVal = MPDPXTRA_PostLobbyData_InDLL(objectID,pObjectData,objectDataLen);
-		else
-			retVal = MPDPXTRAERR_UNABLE_TO_LOCATE_FUNCTION_IN_MPDPXTRA_LIBRARY;
-	}
-	else
-		retVal = MPDPXTRAERR_MPDPXTRA_LIBRARY_NOT_LOADED;
+  if (gMPDPXTRALibHndl != nullptr)
+  {
+    if (MPDPXTRA_PostLobbyData_InDLL != nullptr)
+      retVal = MPDPXTRA_PostLobbyData_InDLL(objectID, pObjectData, objectDataLen);
+    else
+      retVal = MPDPXTRAERR_UNABLE_TO_LOCATE_FUNCTION_IN_MPDPXTRA_LIBRARY;
+  }
+  else
+    retVal = MPDPXTRAERR_MPDPXTRA_LIBRARY_NOT_LOADED;
 
-	return (retVal);
+  return (retVal);
 }
-
 
 /*-----------------------------------------------------------------------------------
 	
@@ -388,21 +381,21 @@ MPDPXTRAERR		MPDPXTRA_PostLobbyData(UINT objectID,void *pObjectData,UINT objectD
 
 -----------------------------------------------------------------------------------*/
 
-MPDPXTRAERR		MPDPXTRA_AddScoreResult(DPID srcId,DPID dstId,u_long key,long value)
+MPDPXTRAERR MPDPXTRA_AddScoreResult(DPID srcId, DPID dstId, u_long key, long value)
 {
-	MPDPXTRAERR		retVal = MPDPXTRAERR_OK;
+  MPDPXTRAERR retVal = MPDPXTRAERR_OK;
 
-	if (gMPDPXTRALibHndl != NULL)
-	{
-		if (MPDPXTRA_AddScoreResult_InDLL != NULL)
-			retVal = MPDPXTRA_AddScoreResult_InDLL(srcId,dstId,key,value);
-		else
-			retVal = MPDPXTRAERR_UNABLE_TO_LOCATE_FUNCTION_IN_MPDPXTRA_LIBRARY;
-	}
-	else
-		retVal = MPDPXTRAERR_MPDPXTRA_LIBRARY_NOT_LOADED;
+  if (gMPDPXTRALibHndl != nullptr)
+  {
+    if (MPDPXTRA_AddScoreResult_InDLL != nullptr)
+      retVal = MPDPXTRA_AddScoreResult_InDLL(srcId, dstId, key, value);
+    else
+      retVal = MPDPXTRAERR_UNABLE_TO_LOCATE_FUNCTION_IN_MPDPXTRA_LIBRARY;
+  }
+  else
+    retVal = MPDPXTRAERR_MPDPXTRA_LIBRARY_NOT_LOADED;
 
-	return (retVal);
+  return (retVal);
 }
 
 /*-----------------------------------------------------------------------------------
@@ -435,21 +428,21 @@ MPDPXTRAERR		MPDPXTRA_AddScoreResult(DPID srcId,DPID dstId,u_long key,long value
 
 -----------------------------------------------------------------------------------*/
 
-MPDPXTRAERR		MPDPXTRA_AddScoreResultEx(MPPLAYERID srcId,MPPLAYERID dstId,unsigned long key,long value)
+MPDPXTRAERR MPDPXTRA_AddScoreResultEx(MPPLAYERID srcId, MPPLAYERID dstId, unsigned long key, long value)
 {
-	MPDPXTRAERR		retVal = MPDPXTRAERR_OK;
+  MPDPXTRAERR retVal = MPDPXTRAERR_OK;
 
-	if (gMPDPXTRALibHndl != NULL)
-	{
-		if (MPDPXTRA_AddScoreResultEx_InDLL != NULL)
-			retVal = MPDPXTRA_AddScoreResultEx_InDLL(srcId,dstId,key,value);
-		else
-			retVal = MPDPXTRAERR_UNABLE_TO_LOCATE_FUNCTION_IN_MPDPXTRA_LIBRARY;
-	}
-	else
-		retVal = MPDPXTRAERR_MPDPXTRA_LIBRARY_NOT_LOADED;
+  if (gMPDPXTRALibHndl != nullptr)
+  {
+    if (MPDPXTRA_AddScoreResultEx_InDLL != nullptr)
+      retVal = MPDPXTRA_AddScoreResultEx_InDLL(srcId, dstId, key, value);
+    else
+      retVal = MPDPXTRAERR_UNABLE_TO_LOCATE_FUNCTION_IN_MPDPXTRA_LIBRARY;
+  }
+  else
+    retVal = MPDPXTRAERR_MPDPXTRA_LIBRARY_NOT_LOADED;
 
-	return (retVal);
+  return (retVal);
 }
 
 /*-----------------------------------------------------------------------------------
@@ -479,30 +472,28 @@ MPDPXTRAERR		MPDPXTRA_AddScoreResultEx(MPPLAYERID srcId,MPPLAYERID dstId,unsigne
 
 -----------------------------------------------------------------------------------*/
 
-MPDPXTRAERR		MPDPXTRA_SaveScoreResults(void)
+MPDPXTRAERR MPDPXTRA_SaveScoreResults(void)
 {
-	MPDPXTRAERR		retVal = MPDPXTRAERR_OK;
+  MPDPXTRAERR retVal = MPDPXTRAERR_OK;
 
-	if (gMPDPXTRALibHndl != NULL)
-	{
-		if (MPDPXTRA_SaveScoreResults_InDLL != NULL)
-			retVal = MPDPXTRA_SaveScoreResults_InDLL();
-		else
-			retVal = MPDPXTRAERR_UNABLE_TO_LOCATE_FUNCTION_IN_MPDPXTRA_LIBRARY;
-	}
-	else
-		retVal = MPDPXTRAERR_MPDPXTRA_LIBRARY_NOT_LOADED;
+  if (gMPDPXTRALibHndl != nullptr)
+  {
+    if (MPDPXTRA_SaveScoreResults_InDLL != nullptr)
+      retVal = MPDPXTRA_SaveScoreResults_InDLL();
+    else
+      retVal = MPDPXTRAERR_UNABLE_TO_LOCATE_FUNCTION_IN_MPDPXTRA_LIBRARY;
+  }
+  else
+    retVal = MPDPXTRAERR_MPDPXTRA_LIBRARY_NOT_LOADED;
 
-	return (retVal);
+  return (retVal);
 }
-
 
 /******************************************************************************
 
 					       MPDPXTRA SERVER GAME DATA
 
 ******************************************************************************/
-
 
 /*-----------------------------------------------------------------------------------
 	
@@ -543,23 +534,22 @@ MPDPXTRAERR		MPDPXTRA_SaveScoreResults(void)
 
 -----------------------------------------------------------------------------------*/
 
-MPDPXTRAERR		MPDPXTRA_PostServerGameData(UINT key,void *pData,UINT dataLen)
+MPDPXTRAERR MPDPXTRA_PostServerGameData(UINT key, void* pData, UINT dataLen)
 {
-	MPDPXTRAERR		retVal = MPDPXTRAERR_OK;
+  MPDPXTRAERR retVal = MPDPXTRAERR_OK;
 
-	if (gMPDPXTRALibHndl != NULL)
-	{
-		if (MPDPXTRA_PostServerGameData_InDLL != NULL)
-			retVal = MPDPXTRA_PostServerGameData_InDLL(key,pData,dataLen);
-		else
-			retVal = MPDPXTRAERR_UNABLE_TO_LOCATE_FUNCTION_IN_MPDPXTRA_LIBRARY;
-	}
-	else
-		retVal = MPDPXTRAERR_MPDPXTRA_LIBRARY_NOT_LOADED;
+  if (gMPDPXTRALibHndl != nullptr)
+  {
+    if (MPDPXTRA_PostServerGameData_InDLL != nullptr)
+      retVal = MPDPXTRA_PostServerGameData_InDLL(key, pData, dataLen);
+    else
+      retVal = MPDPXTRAERR_UNABLE_TO_LOCATE_FUNCTION_IN_MPDPXTRA_LIBRARY;
+  }
+  else
+    retVal = MPDPXTRAERR_MPDPXTRA_LIBRARY_NOT_LOADED;
 
-	return (retVal);
+  return (retVal);
 }
-
 
 /*-----------------------------------------------------------------------------------
 	
@@ -609,23 +599,22 @@ MPDPXTRAERR		MPDPXTRA_PostServerGameData(UINT key,void *pData,UINT dataLen)
 
 -----------------------------------------------------------------------------------*/
 
-MPDPXTRAERR		MPDPXTRA_FetchServerGameData(UINT key,void *pData,UINT *pDataLen)
+MPDPXTRAERR MPDPXTRA_FetchServerGameData(UINT key, void* pData, UINT* pDataLen)
 {
-	MPDPXTRAERR		retVal = MPDPXTRAERR_OK;
+  MPDPXTRAERR retVal = MPDPXTRAERR_OK;
 
-	if (gMPDPXTRALibHndl != NULL)
-	{
-		if (MPDPXTRA_FetchServerGameData_InDLL != NULL)
-			retVal = MPDPXTRA_FetchServerGameData_InDLL(key,pData,pDataLen);
-		else
-			retVal = MPDPXTRAERR_UNABLE_TO_LOCATE_FUNCTION_IN_MPDPXTRA_LIBRARY;
-	}
-	else
-		retVal = MPDPXTRAERR_MPDPXTRA_LIBRARY_NOT_LOADED;
+  if (gMPDPXTRALibHndl != nullptr)
+  {
+    if (MPDPXTRA_FetchServerGameData_InDLL != nullptr)
+      retVal = MPDPXTRA_FetchServerGameData_InDLL(key, pData, pDataLen);
+    else
+      retVal = MPDPXTRAERR_UNABLE_TO_LOCATE_FUNCTION_IN_MPDPXTRA_LIBRARY;
+  }
+  else
+    retVal = MPDPXTRAERR_MPDPXTRA_LIBRARY_NOT_LOADED;
 
-	return (retVal);
+  return (retVal);
 }
-
 
 /*-----------------------------------------------------------------------------------
 	
@@ -683,23 +672,22 @@ MPDPXTRAERR		MPDPXTRA_FetchServerGameData(UINT key,void *pData,UINT *pDataLen)
 
 -----------------------------------------------------------------------------------*/
 
-MPDPXTRAERR		MPDPXTRA_SubscribeServerGameData(UINT key,SERVER_GAME_DATA_CBF *cbf,void *context)
+MPDPXTRAERR MPDPXTRA_SubscribeServerGameData(UINT key, SERVER_GAME_DATA_CBF* cbf, void* context)
 {
-	MPDPXTRAERR		retVal = MPDPXTRAERR_OK;
+  MPDPXTRAERR retVal = MPDPXTRAERR_OK;
 
-	if (gMPDPXTRALibHndl != NULL)
-	{
-		if (MPDPXTRA_SubscribeServerGameData_InDLL != NULL)
-			retVal = MPDPXTRA_SubscribeServerGameData_InDLL(key,cbf,context);
-		else
-			retVal = MPDPXTRAERR_UNABLE_TO_LOCATE_FUNCTION_IN_MPDPXTRA_LIBRARY;
-	}
-	else
-		retVal = MPDPXTRAERR_MPDPXTRA_LIBRARY_NOT_LOADED;
+  if (gMPDPXTRALibHndl != nullptr)
+  {
+    if (MPDPXTRA_SubscribeServerGameData_InDLL != nullptr)
+      retVal = MPDPXTRA_SubscribeServerGameData_InDLL(key, cbf, context);
+    else
+      retVal = MPDPXTRAERR_UNABLE_TO_LOCATE_FUNCTION_IN_MPDPXTRA_LIBRARY;
+  }
+  else
+    retVal = MPDPXTRAERR_MPDPXTRA_LIBRARY_NOT_LOADED;
 
-	return (retVal);
+  return (retVal);
 }
-
 
 /*-----------------------------------------------------------------------------------
 	
@@ -733,19 +721,19 @@ MPDPXTRAERR		MPDPXTRA_SubscribeServerGameData(UINT key,SERVER_GAME_DATA_CBF *cbf
 
 -----------------------------------------------------------------------------------*/
 
-MPDPXTRAERR	mpcdecl MPDPXTRA_UnsubscribeServerGameData(UINT key,SERVER_GAME_DATA_CBF *cbf,void *context)
+MPDPXTRAERR mpcdecl MPDPXTRA_UnsubscribeServerGameData(UINT key, SERVER_GAME_DATA_CBF* cbf, void* context)
 {
-	MPDPXTRAERR		retVal = MPDPXTRAERR_OK;
+  MPDPXTRAERR retVal = MPDPXTRAERR_OK;
 
-	if (gMPDPXTRALibHndl != NULL)
-	{
-		if (MPDPXTRA_UnsubscribeServerGameData_InDLL != NULL)
-			retVal = MPDPXTRA_UnsubscribeServerGameData_InDLL(key,cbf,context);
-		else
-			retVal = MPDPXTRAERR_UNABLE_TO_LOCATE_FUNCTION_IN_MPDPXTRA_LIBRARY;
-	}
-	else
-		retVal = MPDPXTRAERR_MPDPXTRA_LIBRARY_NOT_LOADED;
+  if (gMPDPXTRALibHndl != nullptr)
+  {
+    if (MPDPXTRA_UnsubscribeServerGameData_InDLL != nullptr)
+      retVal = MPDPXTRA_UnsubscribeServerGameData_InDLL(key, cbf, context);
+    else
+      retVal = MPDPXTRAERR_UNABLE_TO_LOCATE_FUNCTION_IN_MPDPXTRA_LIBRARY;
+  }
+  else
+    retVal = MPDPXTRAERR_MPDPXTRA_LIBRARY_NOT_LOADED;
 
-	return (retVal);
+  return (retVal);
 }

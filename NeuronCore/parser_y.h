@@ -1,9 +1,10 @@
-typedef union {
-	float		fval;
-	long		ival;
-	signed char	bval;
-	char		sval[100];
-} YYSTYPE;
+using YYSTYPE = union
+{
+  float fval;
+  long ival;
+  signed char bval;
+  char sval[100];
+};
 #define FLOAT	257
 #define INTEGER	258
 #define TEXT	259

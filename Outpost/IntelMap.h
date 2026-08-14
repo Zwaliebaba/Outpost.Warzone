@@ -18,14 +18,14 @@
 #define	INTMAP_TEXTWINDOWHEIGHT	(30)
 
 // The current message being displayed
-extern MESSAGE			*psCurrentMsg;
+extern MESSAGE* psCurrentMsg;
 // The display stats for the current messages' text
-extern TEXT_DISPLAY		currentTextDisplay;
+extern TEXT_DISPLAY currentTextDisplay;
 
 /* Add the Intelligence Map widgets to the widget screen */
 extern BOOL intAddIntelMap(void);
 /*Add the 3D world view for the current message */
-extern BOOL intAddMessageView(MESSAGE *psMessage);
+extern BOOL intAddMessageView(MESSAGE* psMessage);
 /* Remove the Message View from the Intelligence screen */
 extern void intRemoveMessageView(BOOL animated);
 
@@ -55,7 +55,7 @@ extern void setIntelligencePauseState(void);
 extern void resetIntelligencePauseState(void);
 
 // tell the intelligence screen to play this message immediately
-extern void displayImmediateMessage(MESSAGE *psMessage);
+extern void displayImmediateMessage(MESSAGE* psMessage);
 
 // return whether a message is immediate
 extern BOOL messageIsImmediate(void);
@@ -63,5 +63,3 @@ extern BOOL messageIsImmediate(void);
 extern void setMessageImmediate(BOOL state);
 
 #endif	//intelmap.h
-
-

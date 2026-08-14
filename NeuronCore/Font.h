@@ -34,50 +34,50 @@ extern UBYTE aFontData[PRINTABLE_CHARS][FONT_HEIGHT];
 
 // these are file formats ... and hence can not be altered !!!!!
 /* The data for a single proportional font character */
-typedef struct _prop_char
+using PROP_CHAR = struct _prop_char
 {
-	/* The number of pixels across the character */
-	UWORD	width;
-	/* The number of bytes used to store one horizontal line of the character */
-	UWORD	pitch;
+  /* The number of pixels across the character */
+  UWORD width;
+  /* The number of bytes used to store one horizontal line of the character */
+  UWORD pitch;
 
-	/* The pixel data
-	 * This is a square array of bytes wide enough to store width bits
-	 * and the same height as the font.
-	 */
-	UBYTE	*pData;
-} PROP_CHAR;
+  /* The pixel data
+   * This is a square array of bytes wide enough to store width bits
+   * and the same height as the font.
+   */
+  UBYTE* pData;
+};
 
 /* Store ranges of character codes that are printable */
-typedef struct _prop_printable
+using PROP_PRINTABLE = struct _prop_printable
 {
-	UWORD		end;		// End of the character code range covered by this struct
-	UWORD		offset;		// Amount to subtract from char code if this range
-							// is printable
-	BOOL		printable;	// Whether the range is printable
-} PROP_PRINTABLE;
+  UWORD end; // End of the character code range covered by this struct
+  UWORD offset; // Amount to subtract from char code if this range
+  // is printable
+  BOOL printable; // Whether the range is printable
+};
 
 /* The proportional font data */
-typedef struct _prop_font
+using PROP_FONT = struct _prop_font
 {
-	UWORD		height;			// Number of pixels high
-	UWORD		spaceWidth;		// Number of pixels gap to leave for a space
-	UWORD		baseLine;		// Position of bottom of letters with no tail
-								// i.e. where the line on lined paper would be
-								// This is relative to the absolute bottom of all characters.
+  UWORD height; // Number of pixels high
+  UWORD spaceWidth; // Number of pixels gap to leave for a space
+  UWORD baseLine; // Position of bottom of letters with no tail
+  // i.e. where the line on lined paper would be
+  // This is relative to the absolute bottom of all characters.
 
-	UWORD		numOffset;		// Number of PROP_OFFSET stored
-	UWORD		numChars;		// Number of PROP_CHARS stored
+  UWORD numOffset; // Number of PROP_OFFSET stored
+  UWORD numChars; // Number of PROP_CHARS stored
 
-	PROP_PRINTABLE	*psOffset;
-	PROP_CHAR		*psChars;
-} PROP_FONT;
+  PROP_PRINTABLE* psOffset;
+  PROP_CHAR* psChars;
+};
 
 /* Set the current font */
-extern void fontSet(PROP_FONT *psFont);
+extern void fontSet(PROP_FONT* psFont);
 
 /* Get the current font */
-extern PROP_FONT *fontGet(void);
+extern PROP_FONT* fontGet(void);
 
 /* Set the current font colour */
 extern void fontSetColour(UBYTE red, UBYTE green, UBYTE blue);
@@ -88,13 +88,13 @@ extern void fontSetColour(UBYTE red, UBYTE green, UBYTE blue);
 extern void fontSetCacheColour(UDWORD colour);
 
 /* Print text in the current font at location x,y */
-extern void fontPrint(SDWORD x, SDWORD y, STRING *pFormat, ...);
+extern void fontPrint(SDWORD x, SDWORD y, STRING* pFormat, ...);
 
 /* Directly print a single font character from the PROP_CHAR struct */
-extern void fontPrintChar(SDWORD x,SDWORD y, PROP_CHAR *psChar, UDWORD height);
+extern void fontPrintChar(SDWORD x, SDWORD y, PROP_CHAR* psChar, UDWORD height);
 
 /* Return the pixel width of a string */
-extern UDWORD fontPixelWidth(STRING *pString);
+extern UDWORD fontPixelWidth(STRING* pString);
 
 /* Return the index into the PROP_CHAR array for a character code.
  * If the code isn't printable, return 0 (space).
@@ -102,12 +102,12 @@ extern UDWORD fontPixelWidth(STRING *pString);
 extern UWORD fontGetCharIndex(UWORD code);
 
 /* Save font information into a file buffer */
-extern BOOL fontSave(PROP_FONT *psFont, UBYTE **ppFileData, UDWORD *pFileSize);
+extern BOOL fontSave(PROP_FONT* psFont, UBYTE** ppFileData, UDWORD* pFileSize);
 
 /* Load in a font file */
-extern BOOL fontLoad(UBYTE *pFileData, UDWORD fileSize, PROP_FONT **ppsFont);
+extern BOOL fontLoad(UBYTE* pFileData, UDWORD fileSize, PROP_FONT** ppsFont);
 
 /* Release all the memory used by a font */
-extern void fontFree(PROP_FONT *psFont);
+extern void fontFree(PROP_FONT* psFont);
 
 #endif

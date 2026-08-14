@@ -1,11 +1,7 @@
-
-
- #define DRIVEFUNCINLINE _inline
-
-
+#define DRIVEFUNCINLINE _inline
 
 extern BOOL DirectControl;
-extern DROID *psDrivenDroid;
+extern DROID* psDrivenDroid;
 
 //
 //
@@ -13,54 +9,38 @@ extern DROID *psDrivenDroid;
 //
 //
 
-
-DRIVEFUNCINLINE BOOL driveHasDriven(void)
-{
-	return (DirectControl) && (psDrivenDroid != NULL) ? TRUE : FALSE;
-}
-
+DRIVEFUNCINLINE BOOL driveHasDriven(void) { return (DirectControl) && (psDrivenDroid != nullptr) ? TRUE : FALSE; }
 
 // Returns TRUE if drive mode is active.
 //
-DRIVEFUNCINLINE BOOL driveModeActive(void)
-{
-	return DirectControl;
-}
-
+DRIVEFUNCINLINE BOOL driveModeActive(void) { return DirectControl; }
 
 // Return TRUE if the specified droid is the driven droid.
 //
-DRIVEFUNCINLINE BOOL driveIsDriven(DROID *psDroid)
+DRIVEFUNCINLINE BOOL driveIsDriven(DROID* psDroid)
 {
-	return (DirectControl) && (psDrivenDroid != NULL) && (psDroid == psDrivenDroid) ? TRUE : FALSE;
+  return (DirectControl) && (psDrivenDroid != nullptr) && (psDroid == psDrivenDroid) ? TRUE : FALSE;
 }
 
-
-DRIVEFUNCINLINE BOOL driveIsFollower(DROID *psDroid)
+DRIVEFUNCINLINE BOOL driveIsFollower(DROID* psDroid)
 {
-	return (DirectControl) && (psDrivenDroid != NULL) && (psDroid != psDrivenDroid) && psDroid->selected ? TRUE : FALSE;
+  return (DirectControl) && (psDrivenDroid != nullptr) && (psDroid != psDrivenDroid) && psDroid->selected ? TRUE : FALSE;
 }
 
-
-DRIVEFUNCINLINE DROID *driveGetDriven(void)
-{
-	return psDrivenDroid;
-}
-
-
+DRIVEFUNCINLINE DROID* driveGetDriven(void) { return psDrivenDroid; }
 
 void driveInitVars(BOOL Restart);
 
-BOOL StartDriverMode(DROID *psOldDroid);
+BOOL StartDriverMode(DROID* psOldDroid);
 void StopDriverMode(void);
-DROID *driveGetDriven(void);
-BOOL driveDroidKilled(DROID *psDroid);
+DROID* driveGetDriven(void);
+BOOL driveDroidKilled(DROID* psDroid);
 void driveSelectionChanged(void);
 void driveNextDriver(void);
 void driveUpdate(void);
-void driveSetDroidMove(DROID *psDroid);
-void setDrivingStatus( BOOL val );
-BOOL getDrivingStatus( void );
+void driveSetDroidMove(DROID* psDroid);
+void setDrivingStatus(BOOL val);
+BOOL getDrivingStatus(void);
 void driveDisableControl(void);
 void driveEnableControl(void);
 void driveEnableInterface(BOOL AddReticule);
@@ -78,7 +58,7 @@ void driveEnableTactical(void);
 void driveDisableTactical(void);
 BOOL driveTacticalActive(void);
 void driveTacticalSelectionChanged(void);
-void driveProcessRadarInput(int x,int y);
+void driveProcessRadarInput(int x, int y);
 BOOL driveWasDriving(void);
 void driveDisableDriving(void);
 void driveRestoreDriving(void);

@@ -5,12 +5,12 @@
 
 /***************************************************************************/
 
-BOOL	cdAudio_Open( void );
-BOOL	cdAudio_Close( void );
-BOOL	cdAudio_PlayTrack( SDWORD iTrack );
-BOOL	cdAudio_Stop( void );
-BOOL	cdAudio_Pause( void );
-BOOL	cdAudio_Resume( void );
+BOOL cdAudio_Open(void);
+BOOL cdAudio_Close(void);
+BOOL cdAudio_PlayTrack(SDWORD iTrack);
+BOOL cdAudio_Stop(void);
+BOOL cdAudio_Pause(void);
+BOOL cdAudio_Resume(void);
 
 /***************************************************************************/
 

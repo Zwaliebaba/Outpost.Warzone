@@ -36,9 +36,8 @@
 #undef OutputDebugString
 #define OutputDebugString   OutputDebugStringW95
 
-
 // function declarations
-void OutputDebugStringW95( LPCTSTR lpOutputString, ... );
+void OutputDebugStringW95(LPCTSTR lpOutputString, ...);
 
 #endif  //__TRACEW95__
 

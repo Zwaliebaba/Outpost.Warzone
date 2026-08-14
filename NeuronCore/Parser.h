@@ -9,15 +9,15 @@
 
 /***************************************************************************/
 
-extern FILE	*audp_in;
+extern FILE* audp_in;
 
-extern void		IncludeFile( char szFileName[] );
-extern BOOL		ParseFile( char szFileName[] );
-extern void		IncludeFile( char szFileName[] );
-extern void		parserSetInputBuffer( UBYTE *pBuffer, UDWORD size );
-extern BOOL		ParseResourceFile( UBYTE *pData, UDWORD fileSize );
-extern BOOL		ParsingBuffer( void );
-extern void		parseGetErrorData(int *pLine, char **ppText);
+extern void IncludeFile(char szFileName[]);
+extern BOOL ParseFile(char szFileName[]);
+extern void IncludeFile(char szFileName[]);
+extern void parserSetInputBuffer(UBYTE* pBuffer, UDWORD size);
+extern BOOL ParseResourceFile(UBYTE* pData, UDWORD fileSize);
+extern BOOL ParsingBuffer(void);
+extern void parseGetErrorData(int* pLine, char** ppText);
 
 /***************************************************************************/
 

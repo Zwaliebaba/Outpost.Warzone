@@ -1,12 +1,13 @@
-typedef union {
-	BOOL			bval;
-	INTERP_TYPE		tval;
-	STRING			*sval;
-	UDWORD			vindex;
-	SDWORD			ival;
-	VAR_INIT		sInit;
-	ARRAY_INDEXES	*arrayIndex;
-} YYSTYPE;
+using YYSTYPE = union
+{
+  BOOL bval;
+  INTERP_TYPE tval;
+  STRING* sval;
+  UDWORD vindex;
+  SDWORD ival;
+  VAR_INIT sInit;
+  ARRAY_INDEXES* arrayIndex;
+};
 #define BOOLEAN	257
 #define INTEGER	258
 #define IDENT	259

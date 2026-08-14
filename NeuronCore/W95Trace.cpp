@@ -1,4 +1,3 @@
-
 /*
     Implementation of Win95 tracing facility to mimic that of NT
 */
@@ -14,89 +13,83 @@
 
 #include "W95Trace.h"
 
-void OutputDebugStringW95( LPCTSTR lpOutputString, ...)
+void OutputDebugStringW95(LPCTSTR lpOutputString, ...)
 {
+  HANDLE heventDBWIN; /* DBWIN32 synchronization object */
+  HANDLE heventData; /* data passing synch object */
+  HANDLE hSharedFile; /* memory mapped file shared data */
+  LPSTR lpszSharedMem;
+  char achBuffer[500];
 
-    HANDLE heventDBWIN;  /* DBWIN32 synchronization object */
-    HANDLE heventData;   /* data passing synch object */
-    HANDLE hSharedFile;  /* memory mapped file shared data */
-    LPSTR lpszSharedMem;
-    char achBuffer[500];
+  /* create the output buffer */
+  va_list args;
+  va_start(args, lpOutputString);
+  vsprintf(achBuffer, lpOutputString, args);
+  va_end(args);
 
-    /* create the output buffer */
-    va_list args;
-    va_start(args, lpOutputString);
-    vsprintf(achBuffer, lpOutputString, args);
-    va_end(args);
+  /* 
+      Do a regular OutputDebugString so that the output is 
+      still seen in the debugger window if it exists.
 
-    /* 
-        Do a regular OutputDebugString so that the output is 
-        still seen in the debugger window if it exists.
-
-        This ifdef is necessary to avoid infinite recursion 
-        from the inclusion of W95TRACE.H
-    */
+      This ifdef is necessary to avoid infinite recursion 
+      from the inclusion of W95TRACE.H
+  */
 #ifdef _UNICODE
-    OutputDebugStringW(achBuffer);
+  OutputDebugStringW(achBuffer);
 #else
-    OutputDebugStringA(achBuffer);
+  OutputDebugStringA(achBuffer);
 #endif
 
-    /* bail if it's not Win95 */
-    {
-        OSVERSIONINFO VerInfo;
-        VerInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-        GetVersionEx(&VerInfo);
-        if ( VerInfo.dwPlatformId != VER_PLATFORM_WIN32_WINDOWS )
-            return;
-    }
+  /* bail if it's not Win95 */
+  {
+    OSVERSIONINFO VerInfo;
+    VerInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+    GetVersionEx(&VerInfo);
+    if (VerInfo.dwPlatformId != VER_PLATFORM_WIN32_WINDOWS)
+      return;
+  }
 
-    /* make sure DBWIN is open and waiting */
-    heventDBWIN = OpenEvent(EVENT_MODIFY_STATE, FALSE, "DBWIN_BUFFER_READY");
-    if ( !heventDBWIN )
-    {
-        return;            
-    }
-
-    /* get a handle to the data synch object */
-    heventData = OpenEvent(EVENT_MODIFY_STATE, FALSE, "DBWIN_DATA_READY");
-    if ( !heventData )
-    {
-        CloseHandle(heventDBWIN);
-        return;            
-    }
-    
-    hSharedFile = CreateFileMapping((HANDLE)-1, NULL, PAGE_READWRITE, 0, 4096, "DBWIN_BUFFER");
-    if (!hSharedFile) 
-    {
-        CloseHandle(heventDBWIN);
-        CloseHandle(heventData);
-        return;
-    }
-
-    lpszSharedMem = (LPSTR)MapViewOfFile(hSharedFile, FILE_MAP_WRITE, 0, 0, 512);
-    if (!lpszSharedMem) 
-    {
-        CloseHandle(heventDBWIN);
-        CloseHandle(heventData);
-        return;
-    }
-
-    /* wait for buffer event */
-    WaitForSingleObject(heventDBWIN, INFINITE);
-
-    /* write it to the shared memory */
-    *((LPDWORD)lpszSharedMem) = _getpid();
-    wsprintf(lpszSharedMem + sizeof(DWORD), "%s", achBuffer);
-
-    /* signal data ready event */
-    SetEvent(heventData);
-
-    /* clean up handles */
-    CloseHandle(hSharedFile);
-    CloseHandle(heventData);
-    CloseHandle(heventDBWIN);
-
+  /* make sure DBWIN is open and waiting */
+  heventDBWIN = OpenEvent(EVENT_MODIFY_STATE, FALSE, "DBWIN_BUFFER_READY");
+  if (!heventDBWIN)
     return;
-}
 
+  /* get a handle to the data synch object */
+  heventData = OpenEvent(EVENT_MODIFY_STATE, FALSE, "DBWIN_DATA_READY");
+  if (!heventData)
+  {
+    CloseHandle(heventDBWIN);
+    return;
+  }
+
+  hSharedFile = CreateFileMapping((HANDLE)-1, nullptr, PAGE_READWRITE, 0, 4096, "DBWIN_BUFFER");
+  if (!hSharedFile)
+  {
+    CloseHandle(heventDBWIN);
+    CloseHandle(heventData);
+    return;
+  }
+
+  lpszSharedMem = static_cast<LPSTR>(MapViewOfFile(hSharedFile, FILE_MAP_WRITE, 0, 0, 512));
+  if (!lpszSharedMem)
+  {
+    CloseHandle(heventDBWIN);
+    CloseHandle(heventData);
+    return;
+  }
+
+  /* wait for buffer event */
+  WaitForSingleObject(heventDBWIN, INFINITE);
+
+  /* write it to the shared memory */
+  *((LPDWORD)lpszSharedMem) = _getpid();
+  wsprintf(lpszSharedMem + sizeof(DWORD), "%s", achBuffer);
+
+  /* signal data ready event */
+  SetEvent(heventData);
+
+  /* clean up handles */
+  CloseHandle(hSharedFile);
+  CloseHandle(heventData);
+  CloseHandle(heventDBWIN);
+}

@@ -6,16 +6,12 @@
 
 /***************************************************************************/
 
-extern void GetRealCameraPos(OBJPOS *Camera,SDWORD Distance, iVector *CameraLoc);
+extern void GetRealCameraPos(OBJPOS* Camera, SDWORD Distance, iVector* CameraLoc);
 
-
-extern void DrawBSPIMD( iIMDShape *IMDdef,iVector * pPos, iIMDPoly *ScrVertices);
-
+extern void DrawBSPIMD(iIMDShape* IMDdef, iVector* pPos, iIMDPoly* ScrVertices);
 
 extern PSBSPTREENODE InitNode(PSBSPTREENODE psBSPNode);
 
-extern void GetPlane( iIMDShape *s, UDWORD PolygonID, PSPLANE psPlane );
-
+extern void GetPlane(iIMDShape* s, UDWORD PolygonID, PSPLANE psPlane);
 
 #endif
-

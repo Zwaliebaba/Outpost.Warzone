@@ -30,4 +30,3 @@ extern FRACT trigInvCos(FRACT val);
 extern FRACT trigIntSqrt(UDWORD val);
 
 #endif
-

@@ -5,78 +5,96 @@
 #define _frontend_h
 
 // determines which option screen to use. when in GS_TITLE_SCREEN mode.
-typedef enum _title_mode {
-		TITLE,						// 0 intro mode
-		SINGLE,						// 1 single player menu
-		MULTI,						// 2 multiplayer menu
-		OPTIONS,					// 3 options menu	
-		GAME,						// 4
-		TUTORIAL,					// 5  tutorial/fastplay	
-		CREDITS,					// 6  credits
-		PROTOCOL,					// 7  MULTIPLAYER, select proto
-		MULTIOPTION,				// 8 MULTIPLAYER, select game options
-		FORCESELECT,				// 9 MULTIPLAYER, Force design screen
-		GAMEFIND,					// 10 MULTIPLAYER, gamefinder.
-		MULTILIMIT,					// 11 MULTIPLAYER, Limit the multistuff.
-		STARTGAME,					// 12 Fire up the game
-		SHOWINTRO,					// 13 reshow the intro
-		QUIT,						// 14 leaving game
-		LOADSAVEGAME,				// 15 loading a save game
-		KEYMAP,						// 16 keymap editor
-		GAME2,						// 17 second options menu.
-//		GRAPHICS,					// 5
-//		VIDEO,
-//	DEMOMODE,					// demo mode. remove for release?
-} tMode;
+using tMode = enum _title_mode
+{
+  TITLE,
+  // 0 intro mode
+  SINGLE,
+  // 1 single player menu
+  MULTI,
+  // 2 multiplayer menu
+  OPTIONS,
+  // 3 options menu	
+  GAME,
+  // 4
+  TUTORIAL,
+  // 5  tutorial/fastplay	
+  CREDITS,
+  // 6  credits
+  PROTOCOL,
+  // 7  MULTIPLAYER, select proto
+  MULTIOPTION,
+  // 8 MULTIPLAYER, select game options
+  FORCESELECT,
+  // 9 MULTIPLAYER, Force design screen
+  GAMEFIND,
+  // 10 MULTIPLAYER, gamefinder.
+  MULTILIMIT,
+  // 11 MULTIPLAYER, Limit the multistuff.
+  STARTGAME,
+  // 12 Fire up the game
+  SHOWINTRO,
+  // 13 reshow the intro
+  QUIT,
+  // 14 leaving game
+  LOADSAVEGAME,
+  // 15 loading a save game
+  KEYMAP,
+  // 16 keymap editor
+  GAME2,
+  // 17 second options menu.
+  //		GRAPHICS,					// 5
+  //		VIDEO,
+  //	DEMOMODE,					// demo mode. remove for release?
+};
 
 // This dos'nt compile on the PSX.
 //typedef enum _titlemode tMode;	// define the type
 
-extern tMode titleMode;					// the global case
+extern tMode titleMode; // the global case
 
 #define DEFAULT_LEVEL	"CAM_1A"
 #define TUTORIAL_LEVEL	"TUTORIAL3"
 
 #define MAX_LEVEL_NAME_SIZE	(256)
 
-extern char	pLevelName[MAX_LEVEL_NAME_SIZE+1];	//256];			// vital! the wrf file to use.
+extern char pLevelName[MAX_LEVEL_NAME_SIZE + 1]; //256];			// vital! the wrf file to use.
 
-extern BOOL	bUsingKeyboard;	// to disable mouse pointer when using keys.
-extern BOOL	bUsingSlider;
+extern BOOL bUsingKeyboard; // to disable mouse pointer when using keys.
+extern BOOL bUsingSlider;
 
-extern BOOL	bForceEditorLoaded;
+extern BOOL bForceEditorLoaded;
 
+extern VOID changeTitleMode(tMode mode);
+extern BOOL startTitleMenu(VOID);
+extern BOOL runTitleMenu(VOID);
+extern BOOL runSinglePlayerMenu(VOID);
+extern BOOL runMultiPlayerMenu(VOID);
+extern BOOL runGameOptionsMenu(VOID);
+extern BOOL runDemoMenu(VOID);
+extern BOOL runOptionsMenu(VOID);
+extern BOOL runTutorialMenu(VOID);
 
-extern VOID	changeTitleMode			(tMode mode);  
-extern BOOL startTitleMenu			(VOID);
-extern BOOL runTitleMenu			(VOID);
-extern BOOL runSinglePlayerMenu		(VOID);
-extern BOOL runMultiPlayerMenu		(VOID);
-extern BOOL runGameOptionsMenu		(VOID);
-extern BOOL runDemoMenu				(VOID);
-extern BOOL runOptionsMenu			(VOID);
-extern BOOL runTutorialMenu			(VOID);
+extern VOID processFrontendSnap(BOOL bHideCursor);
 
-extern VOID processFrontendSnap		(BOOL bHideCursor);
+extern void addTopForm(VOID);
+extern void addBottomForm(VOID);
+extern void addBackdrop(VOID);
+extern void addTextButton(UDWORD id, UDWORD PosX, UDWORD PosY, STRING* txt, BOOL bAlignLeft, BOOL bGrey);
+extern void addSideText(UDWORD id, UDWORD PosX, UDWORD PosY, STRING* txt);
+extern void addFESlider(UDWORD id, UDWORD parent, UDWORD x, UDWORD y, UDWORD stops, UDWORD pos, UDWORD attachID);
 
-extern void addTopForm				(VOID);
-extern void addBottomForm			(VOID);
-extern void addBackdrop				(VOID);
-extern void	addTextButton			(UDWORD id,  UDWORD PosX, UDWORD PosY, STRING *txt,BOOL bAlignLeft,BOOL bGrey);
-extern void	addSideText				(UDWORD id,  UDWORD PosX, UDWORD PosY, STRING *txt);
-extern void addFESlider				(UDWORD id, UDWORD parent, UDWORD x,UDWORD y,UDWORD stops,UDWORD pos,UDWORD attachID );
+extern void displayLogo(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pColours);
+extern void displayTitleBitmap(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pColours);
+extern void displayTextOption(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pColours);
 
-extern void	displayLogo				(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD *pColours);
-extern void	displayTitleBitmap		(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD *pColours);
-extern void	displayTextOption		(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD *pColours);
-
-extern void loadOK					(void);
-extern BOOL CancelPressed			(VOID);
-BOOL		runGameOptions2Menu		(VOID);
+extern void loadOK(void);
+extern BOOL CancelPressed(VOID);
+BOOL runGameOptions2Menu(VOID);
 
 extern BOOL GetInFastPlay(void);
 
-BOOL addIGTextButton(UDWORD id,UWORD y,UDWORD StringID,UDWORD Style);
+BOOL addIGTextButton(UDWORD id, UWORD y, UDWORD StringID, UDWORD Style);
 
 // ////////////////////////////////////////////////////////////////////////////
 // defines.
@@ -94,7 +112,6 @@ BOOL addIGTextButton(UDWORD id,UWORD y,UDWORD StringID,UDWORD Style);
 #define FRONTEND_TOPFORM_WIDEW	588
 #define FRONTEND_TOPFORM_WIDEH	150
 
-
 #define FRONTEND_BOTFORM		20002
 #define FRONTEND_BOTFORMX		80
 #define FRONTEND_BOTFORMY		170
@@ -108,11 +125,11 @@ BOOL addIGTextButton(UDWORD id,UWORD y,UDWORD StringID,UDWORD Style);
 #define FRONTEND_POS1Y			10
 #define FRONTEND_POS1M			290
 
-#define FRONTEND_POS2X			20			
+#define FRONTEND_POS2X			20
 #define FRONTEND_POS2Y			50
 #define FRONTEND_POS2M			290
 
-#define FRONTEND_POS3X			20		
+#define FRONTEND_POS3X			20
 #define FRONTEND_POS3Y			90
 #define FRONTEND_POS3M			290
 
@@ -132,12 +149,11 @@ BOOL addIGTextButton(UDWORD id,UWORD y,UDWORD StringID,UDWORD Style);
 #define FRONTEND_POS7Y			250
 #define FRONTEND_POS7M			290
 
-
 #define FRONTEND_SINGLEPLAYER	20003		// title screen
 #define FRONTEND_MULTIPLAYER	20004
 #define FRONTEND_QUIT			20005
 #define FRONTEND_OPTIONS		20006
-	
+
 #define FRONTEND_HOST			20007		//multiplayer screen
 #define FRONTEND_JOIN			20008
 #define FRONTEND_FORCEEDIT		20009
@@ -171,7 +187,7 @@ BOOL addIGTextButton(UDWORD id,UWORD y,UDWORD StringID,UDWORD Style);
 #define FE_P1					20032
 #define FE_P2					20033
 #define FE_P3					20034
-#define FE_P4					20035	
+#define FE_P4					20035
 #define FE_P5					20036
 #define FE_P6					20037
 #define FE_P7					20038
@@ -180,7 +196,6 @@ BOOL addIGTextButton(UDWORD id,UWORD y,UDWORD StringID,UDWORD Style);
 #define FRONTEND_VIBRO_BT		20040
 #define FRONTEND_CONTROL		20041
 #define FRONTEND_CONTROL_BT		20042
-
 
 #define FRONTEND_DEMO			20056
 #define FRONTEND_DEMO1			20057

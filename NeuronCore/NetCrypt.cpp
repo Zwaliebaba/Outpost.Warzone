@@ -23,268 +23,241 @@
 
 // ////////////////////////////////////////////////////////////////////////
 // Prototypes
-UDWORD	NEThashFile			(STRING *pFileName);
-UDWORD	NEThashBuffer		(UBYTE *pData, UDWORD size);
+UDWORD NEThashFile(STRING* pFileName);
+UDWORD NEThashBuffer(UBYTE* pData, UDWORD size);
 
-BOOL	NETsetKey			(UDWORD c1,UDWORD c2,UDWORD c3, UDWORD c4);
-NETMSG*	NETmanglePacket		(NETMSG *msg);
-VOID	NETunmanglePacket	(NETMSG *msg);
+BOOL NETsetKey(UDWORD c1, UDWORD c2, UDWORD c3, UDWORD c4);
+NETMSG* NETmanglePacket(NETMSG* msg);
+VOID NETunmanglePacket(NETMSG* msg);
 
-BOOL	NETmangleData		( long *input, long *result, UDWORD dataSize);
-BOOL	NETunmangleData		( long *input, long *result, UDWORD dataSize);
+BOOL NETmangleData(long* input, long* result, UDWORD dataSize);
+BOOL NETunmangleData(long* input, long* result, UDWORD dataSize);
 
 // ////////////////////////////////////////////////////////////////////////
 // make a hash value from an exe name.
-UDWORD	NEThashFile(STRING *pFileName)
+UDWORD NEThashFile(STRING* pFileName)
 {
-	UDWORD	hashval,c,*val;
-	FILE	*pFileHandle;
-	STRING	fileName[255];
-	
-	UBYTE	inBuff[2048];		// must be multiple of 4 bytes.
+  UDWORD hashval, c, *val;
+  FILE* pFileHandle;
+  STRING fileName[255];
 
-	strcpy(fileName,pFileName);
+  UBYTE inBuff[2048]; // must be multiple of 4 bytes.
 
-	hashval =0;
+  strcpy(fileName, pFileName);
 
-	DBPRINTF(("NEThashFile: Hashing File\n"));
+  hashval = 0;
 
-	// open the file.
-	pFileHandle = fopen(fileName, "rb");									// check file exists
-	if (pFileHandle == NULL)
-	{
-		DBPRINTF(("NEThashFile: Failed\n"));
-		return 0;															// failed
-	}
+  DBPRINTF(("NEThashFile: Hashing File\n"));
 
-	// multibyte/buff version
-	while(fread(&inBuff, sizeof(inBuff), 1, pFileHandle) == 1)				// get number of droids in force	
-	{
-		for(c=0;c<2048 ;c+=4)
-		{	val = (UDWORD*)&inBuff[c];
-			hashval = hashval ^ *val;
-		}
+  // open the file.
+  pFileHandle = fopen(fileName, "rb"); // check file exists
+  if (pFileHandle == nullptr)
+  {
+    DBPRINTF(("NEThashFile: Failed\n"));
+    return 0; // failed
+  }
 
-	}
+  // multibyte/buff version
+  while (fread(&inBuff, sizeof(inBuff), 1, pFileHandle) == 1) // get number of droids in force	
+  {
+    for (c = 0; c < 2048; c += 4)
+    {
+      val = (UDWORD*)&inBuff[c];
+      hashval = hashval ^ *val;
+    }
+  }
 
+  DBPRINTF(("NEThashFile: Hash Complete :   *****  %u  ***** is todays magic number.\n",hashval));
 
-	DBPRINTF(("NEThashFile: Hash Complete :   *****  %u  ***** is todays magic number.\n",hashval));
-
-	return hashval;
+  return hashval;
 }
-
 
 // ////////////////////////////////////////////////////////////////////////
 // return a hash from a data buffer.
 
-UDWORD	NEThashBuffer(UBYTE *pData, UDWORD size)
+UDWORD NEThashBuffer(UBYTE* pData, UDWORD size)
 {
-	UDWORD hashval,*val;
-	UDWORD pt;
+  UDWORD hashval, *val;
+  UDWORD pt;
 
-	hashval =0;
-	pt =0;
+  hashval = 0;
+  pt = 0;
 
-	while(pt < size)
-	{
-		val = (UDWORD*)(pData+pt);
-		hashval = hashval ^ *val;
-		pt += 4;
-	}
+  while (pt < size)
+  {
+    val = (UDWORD*)(pData + pt);
+    hashval = hashval ^ *val;
+    pt += 4;
+  }
 
-	return hashval;
+  return hashval;
 }
-
-
 
 // ////////////////////////////////////////////////////////////////////////
 // return a ubyte hash from a UDWORD value.
-UBYTE NEThashVal(UDWORD value)
-{
-	return (value^13416564)%246;
-}
+UBYTE NEThashVal(UDWORD value) { return (value ^ 13416564) % 246; }
 
 // ////////////////////////////////////////////////////////////////////////
 // set the key for the encrypter.
-BOOL NETsetKey(UDWORD c1,UDWORD c2,UDWORD c3, UDWORD c4)
+BOOL NETsetKey(UDWORD c1, UDWORD c2, UDWORD c3, UDWORD c4)
 {
-	if(c1)
-	{
-		NetPlay.cryptKey[0] = c1;
-	}
-	if(c2)
-	{
-		NetPlay.cryptKey[1] = c2;
-	}
-	if(c3)
-	{
-		NetPlay.cryptKey[2] = c3;
-	}
-	if(c4)
-	{
-		NetPlay.cryptKey[3] = c4;
-	}
-	return TRUE;
+  if (c1)
+    NetPlay.cryptKey[0] = c1;
+  if (c2)
+    NetPlay.cryptKey[1] = c2;
+  if (c3)
+    NetPlay.cryptKey[2] = c3;
+  if (c4)
+    NetPlay.cryptKey[3] = c4;
+  return TRUE;
 }
 
 // ////////////////////////////////////////////////////////////////////////
 // encrypt a byte sequence of nibblelength 
-static BOOL mangle	( long *v,  long *w)
+static BOOL mangle(long* v, long* w)
 {
-	unsigned long	y=v[0],
-					z=v[1],
-					sum=0,
-					delta=0x9E3779B9,
-					n=ENCRYPTSTRENGTH;
-	while(n-- > 0)
-	{
-		sum+=delta;
-		y+=(z<<4) + NetPlay.cryptKey[0] ^ z + sum ^ (z>>5) + NetPlay.cryptKey[1];
-		z+=(y<<4) + NetPlay.cryptKey[2] ^ y + sum ^ (y>>5) + NetPlay.cryptKey[3];
-	}
-	w[0] = y;
-	w[1] = z;
-	return TRUE;
+  unsigned long y = v[0], z = v[1], sum = 0, delta = 0x9E3779B9, n = ENCRYPTSTRENGTH;
+  while (n-- > 0)
+  {
+    sum += delta;
+    y += (z << 4) + NetPlay.cryptKey[0] ^ z + sum ^ (z >> 5) + NetPlay.cryptKey[1];
+    z += (y << 4) + NetPlay.cryptKey[2] ^ y + sum ^ (y >> 5) + NetPlay.cryptKey[3];
+  }
+  w[0] = y;
+  w[1] = z;
+  return TRUE;
 }
 
 // ////////////////////////////////////////////////////////////////////////
 // decrypt a byte sequence of nibblelength 
-static BOOL unmangle(long * v, long *w)
+static BOOL unmangle(long* v, long* w)
 {
-	unsigned long	y=v[0],
-					z=v[1],
-					sum,
-					delta=0x9E3779B9,
-					n=ENCRYPTSTRENGTH;
+  unsigned long y = v[0], z = v[1], sum, delta = 0x9E3779B9, n = ENCRYPTSTRENGTH;
 
-	sum = delta * n;/* (generally sum =delta*n )*/
-	while(n-- > 0)
-	{
-		z -= (y << 4) + NetPlay.cryptKey[2] ^ y + sum ^ (y >> 5) + NetPlay.cryptKey[3];
-		y -= (z << 4) + NetPlay.cryptKey[0] ^ z + sum ^ (z >> 5) + NetPlay.cryptKey[1];
-		sum -= delta;
-	}
-	w[0] = y;
-	w[1] = z;
-	return TRUE;
+  sum = delta * n; /* (generally sum =delta*n )*/
+  while (n-- > 0)
+  {
+    z -= (y << 4) + NetPlay.cryptKey[2] ^ y + sum ^ (y >> 5) + NetPlay.cryptKey[3];
+    y -= (z << 4) + NetPlay.cryptKey[0] ^ z + sum ^ (z >> 5) + NetPlay.cryptKey[1];
+    sum -= delta;
+  }
+  w[0] = y;
+  w[1] = z;
+  return TRUE;
 }
-
 
 // ////////////////////////////////////////////////////////////////////////
 // encrypt a netplay packet
 
-NETMSG *NETmanglePacket(NETMSG *msg)
+NETMSG* NETmanglePacket(NETMSG* msg)
 {
-	NETMSG result;
-	UDWORD pos=0;
+  NETMSG result;
+  UDWORD pos = 0;
 
-	
-	if(msg->size > MaxMsgSize-NIBBLELENGTH)
-	{
-		DBERROR(("NETmanglePacket: can't encrypt huge packets. returning unencrypted packet"));
-		return msg;
-	}
-	
-	msg->paddedBytes	= 0;
-	while( msg->size%NIBBLELENGTH != 0)	//need to pad out msg.
-	{
-		msg->body[msg->size] = 0;
-		msg->size++;
-		msg->paddedBytes++;
-	}
-	
-	result.type			= msg->type + ENCRYPTFLAG;
-	result.size			= msg->size;
-	result.paddedBytes	= msg->paddedBytes;
+  if (msg->size > MaxMsgSize - NIBBLELENGTH)
+  {
+    DBERROR(("NETmanglePacket: can't encrypt huge packets. returning unencrypted packet"));
+    return msg;
+  }
 
-	while(msg->size)
-	{
-		mangle((long*)&msg->body[pos],(long*)&result.body[pos]);
-		pos			+=NIBBLELENGTH;
-		msg->size	-=NIBBLELENGTH;
-	}
+  msg->paddedBytes = 0;
+  while (msg->size % NIBBLELENGTH != 0) //need to pad out msg.
+  {
+    msg->body[msg->size] = 0;
+    msg->size++;
+    msg->paddedBytes++;
+  }
 
-	memcpy( msg,&result,sizeof(NETMSG) );
-	return msg;
+  result.type = msg->type + ENCRYPTFLAG;
+  result.size = msg->size;
+  result.paddedBytes = msg->paddedBytes;
+
+  while (msg->size)
+  {
+    mangle((long*)&msg->body[pos], (long*)&result.body[pos]);
+    pos += NIBBLELENGTH;
+    msg->size -= NIBBLELENGTH;
+  }
+
+  memcpy(msg, &result, sizeof(NETMSG));
+  return msg;
 }
 
 // ////////////////////////////////////////////////////////////////////////
 // decrypt a netplay packet
 // messages SHOULD be 8byte multiples, not required tho. will return padded out..
 
-VOID NETunmanglePacket(NETMSG *msg) 
+VOID NETunmanglePacket(NETMSG* msg)
 {
-	NETMSG result;
-	UDWORD pos=0;
+  NETMSG result;
+  UDWORD pos = 0;
 
-	if(msg->size%NIBBLELENGTH !=0)
-	{
-		DBERROR(("NETunmanglePacket: Incoming msg wrong length")); 
-		NETlogEntry("NETunmanglePacket failure",msg->type,msg->size);
-		return;
-	}
+  if (msg->size % NIBBLELENGTH != 0)
+  {
+    DBERROR(("NETunmanglePacket: Incoming msg wrong length"));
+    NETlogEntry("NETunmanglePacket failure", msg->type, msg->size);
+    return;
+  }
 
-	result.type = msg->type - ENCRYPTFLAG;
-	result.size = 0;
-	result.paddedBytes = msg->paddedBytes;
+  result.type = msg->type - ENCRYPTFLAG;
+  result.size = 0;
+  result.paddedBytes = msg->paddedBytes;
 
-	while(msg->size)
-	{
-		unmangle((LONG*)&msg->body[pos],(long*)&result.body[pos]);
-		pos			+=NIBBLELENGTH;
-		msg->size	-=NIBBLELENGTH;
-		result.size	+=NIBBLELENGTH;
-	}
-	result.size -= msg->paddedBytes;
+  while (msg->size)
+  {
+    unmangle((LONG*)&msg->body[pos], (long*)&result.body[pos]);
+    pos += NIBBLELENGTH;
+    msg->size -= NIBBLELENGTH;
+    result.size += NIBBLELENGTH;
+  }
+  result.size -= msg->paddedBytes;
 
-	memcpy(msg,&result,sizeof(NETMSG));
-	return;
+  memcpy(msg, &result, sizeof(NETMSG));
 }
 
 // ////////////////////////////////////////////////////////////////////////
 // encrypt any datastream.
-BOOL NETmangleData(long *input,long *result, UDWORD dataSize) 
+BOOL NETmangleData(long* input, long* result, UDWORD dataSize)
 {
-	long	offset;
-	
-	offset = 0;
+  long offset;
 
-	if(dataSize%8 != 0)		//if message not multiple of 8 bytes,
-	{
-		DBERROR(("NETmangleData: msg not a multiple of 8 bytes"));
-		return FALSE;
-	}
-	
-	//  /4's are long form. since nibblelength is in char form
-	while(offset!=(long)(dataSize/4) )
-	{
-		mangle( (input+offset),(result+offset) );
-		offset		+= NIBBLELENGTH/4 ;	
-	}
-	return TRUE;
+  offset = 0;
+
+  if (dataSize % 8 != 0) //if message not multiple of 8 bytes,
+  {
+    DBERROR(("NETmangleData: msg not a multiple of 8 bytes"));
+    return FALSE;
+  }
+
+  //  /4's are long form. since nibblelength is in char form
+  while (offset != static_cast<long>(dataSize / 4))
+  {
+    mangle((input + offset), (result + offset));
+    offset += NIBBLELENGTH / 4;
+  }
+  return TRUE;
 }
 
 // ////////////////////////////////////////////////////////////////////////
 // decrypt any datastream.
-BOOL NETunmangleData(long *input, long *result, UDWORD dataSize) 
+BOOL NETunmangleData(long* input, long* result, UDWORD dataSize)
 {
-	long	offset;
+  long offset;
 
-	memset(result,0,dataSize);
-	offset = 0;
+  memset(result, 0, dataSize);
+  offset = 0;
 
-	if(dataSize%8 != 0)		//if message not multiple of 8 bytes,
-	{
-		DBERROR(("NETunmangleData: msg not a multiple of 8 bytes"));
-		return FALSE;
-	} 
+  if (dataSize % 8 != 0) //if message not multiple of 8 bytes,
+  {
+    DBERROR(("NETunmangleData: msg not a multiple of 8 bytes"));
+    return FALSE;
+  }
 
-	//  /4's are long form. since nibblelength is in char form
-	while(offset!= (long)(dataSize/4))
-	{
-		unmangle( (input+offset) ,(result+offset));
-		offset	+= NIBBLELENGTH/4;
-	}
-	return TRUE;
+  //  /4's are long form. since nibblelength is in char form
+  while (offset != static_cast<long>(dataSize / 4))
+  {
+    unmangle((input + offset), (result + offset));
+    offset += NIBBLELENGTH / 4;
+  }
+  return TRUE;
 }
-

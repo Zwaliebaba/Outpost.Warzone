@@ -13,53 +13,52 @@
 #define W_USE_STRHEAP	FALSE
 
 /* Context information to pass into the widget functions */
-typedef struct _w_context
+using W_CONTEXT = struct _w_context
 {
-	W_SCREEN	*psScreen;			// Parent screen of the widget
-	struct _w_form	*psForm;			// Parent form of the widget
-	SDWORD		xOffset,yOffset;	// Screen offset of the parent form
-	SDWORD		mx,my;				// mouse position on the form
-} W_CONTEXT;
+  W_SCREEN* psScreen; // Parent screen of the widget
+  struct _w_form* psForm; // Parent form of the widget
+  SDWORD xOffset, yOffset; // Screen offset of the parent form
+  SDWORD mx, my; // mouse position on the form
+};
 
 /* Set the id number for widgRunScreen to return */
-extern void widgSetReturn(WIDGET *psWidget);
+extern void widgSetReturn(WIDGET* psWidget);
 
 /* Find a widget in a screen from its ID number */
-extern WIDGET *widgGetFromID(W_SCREEN *psScreen, UDWORD id);
+extern WIDGET* widgGetFromID(W_SCREEN* psScreen, UDWORD id);
 
 /* Get a string from the string heap */
-extern BOOL widgAllocString(STRING **ppStr);
+extern BOOL widgAllocString(STRING** ppStr);
 
 /* Get a string from the heap and copy in some data.
  * The string to copy will be truncated if it is too long.
  */
-extern BOOL widgAllocCopyString(STRING **ppDest, STRING *pSrc);
+extern BOOL widgAllocCopyString(STRING** ppDest, STRING* pSrc);
 
 /* Copy one string to another
  * The string to copy will be truncated if it is longer than WIDG_MAXSTR.
  */
-extern void widgCopyString(STRING *pDest, STRING *pSrc);
+extern void widgCopyString(STRING* pDest, STRING* pSrc);
 
 /* Return a string to the string heap */
-extern void widgFreeString(STRING *pStr);
+extern void widgFreeString(STRING* pStr);
 
 /* Release a list of widgets */
-extern void widgReleaseWidgetList(WIDGET *psWidgets);
+extern void widgReleaseWidgetList(WIDGET* psWidgets);
 
 /* Call the correct function for mouse over */
-extern void widgHiLite(WIDGET *psWidget, W_CONTEXT *psContext);
+extern void widgHiLite(WIDGET* psWidget, W_CONTEXT* psContext);
 
 /* Call the correct function for mouse moving off */
-extern void widgHiLiteLost(WIDGET *psWidget, W_CONTEXT *psContext);
+extern void widgHiLiteLost(WIDGET* psWidget, W_CONTEXT* psContext);
 
 /* Call the correct function for loss of focus */
-extern void widgFocusLost(WIDGET *psWidget);
+extern void widgFocusLost(WIDGET* psWidget);
 
 /* Set the keyboard focus for the screen */
-extern void screenSetFocus(W_SCREEN *psScreen, WIDGET *psWidget);
+extern void screenSetFocus(W_SCREEN* psScreen, WIDGET* psWidget);
 
 /* Clear the keyboard focus */
-extern void screenClearFocus(W_SCREEN *psScreen);
+extern void screenClearFocus(W_SCREEN* psScreen);
 
 #endif
-

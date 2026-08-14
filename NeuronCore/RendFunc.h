@@ -10,7 +10,6 @@
 #ifndef _rendFunc_h
 #define _rendFunc_h
 
-
 /***************************************************************************/
 
 #include "Frame.h"
@@ -22,13 +21,11 @@
  */
 /***************************************************************************/
 
-
 /***************************************************************************/
 /*
  *	Global Variables
  */
 /***************************************************************************/
-
 
 /***************************************************************************/
 /*
@@ -38,10 +35,9 @@
 //*************************************************************************
 // functions accessed dirtectly from rendmode
 //*************************************************************************
-extern void	SetTransFilter(UDWORD rgb,UDWORD tablenumber);
-extern void iV_SetMousePointer(IMAGEFILE *ImageFile,UWORD ImageID);
-extern void iV_DrawMousePointer(int x,int y);
-
+extern void SetTransFilter(UDWORD rgb, UDWORD tablenumber);
+extern void iV_SetMousePointer(IMAGEFILE* ImageFile, UWORD ImageID);
+extern void iV_DrawMousePointer(int x, int y);
 
 extern UDWORD iV_GetMouseFrame(void);
 
@@ -50,7 +46,6 @@ extern UDWORD iV_GetMouseFrame(void);
 //*************************************************************************
 extern void (*iV_pBox)(int x0, int y0, int x1, int y1, uint32 colour);
 extern void (*iV_pBoxFill)(int x0, int y0, int x1, int y1, uint32 colour);
-
 
 //*************************************************************************
 #endif // _rendFunc_h

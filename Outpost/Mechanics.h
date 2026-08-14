@@ -25,7 +25,7 @@
 extern BOOL mechShutdown(void);
 
 // Allocate the list for a component
-extern BOOL allocComponentList(COMPONENT_TYPE	type, SDWORD number);
+extern BOOL allocComponentList(COMPONENT_TYPE type, SDWORD number);
 
 // release all the component lists
 extern void freeComponentLists(void);
@@ -40,4 +40,3 @@ extern void freeStructureLists(void);
 extern void makeAllAvailable(void);
 
 #endif
-

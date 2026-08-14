@@ -47,340 +47,313 @@
 #define LOADSAVE_BANNER			ID_LOADSAVE+4		// banner.
 
 #define LOADENTRY_START			ID_LOADSAVE+5		// each of the buttons.	
-#define LOADENTRY_END			ID_LOADSAVE+15	
+#define LOADENTRY_END			ID_LOADSAVE+15
 
 #define SAVEENTRY_EDIT			ID_LOADSAVE+16		// save edit box.
 
 // ////////////////////////////////////////////////////////////////////////////
-void drawBlueBox				(UDWORD x,UDWORD y, UDWORD w, UDWORD h);
-BOOL closeLoadSave				();
-BOOL runLoadSave				(BOOL bResetMissionWidgets);
-BOOL displayLoadSave			();
-static BOOL _addLoadSave		(BOOL bLoad,CHAR *sSearchPath,CHAR *sExtension, CHAR *title);
-static BOOL _runLoadSave		(BOOL bResetMissionWidgets);
-static void displayLoadBanner	(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD *pColours);
-static void displayLoadSlot		(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD *pColours);
-static void displayLoadSaveEdit	(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD *pColours);
-void		removeWildcards		(char *pStr);
+void drawBlueBox(UDWORD x, UDWORD y, UDWORD w, UDWORD h);
+BOOL closeLoadSave();
+BOOL runLoadSave(BOOL bResetMissionWidgets);
+BOOL displayLoadSave();
+static BOOL _addLoadSave(BOOL bLoad, CHAR* sSearchPath, CHAR* sExtension, CHAR* title);
+static BOOL _runLoadSave(BOOL bResetMissionWidgets);
+static void displayLoadBanner(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pColours);
+static void displayLoadSlot(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pColours);
+static void displayLoadSaveEdit(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pColours);
+void removeWildcards(char* pStr);
 
-static	W_SCREEN	*psRequestScreen;					// Widget screen for requester
-static	BOOL		mode;
-static	UDWORD		chosenSlotId;
+static W_SCREEN* psRequestScreen; // Widget screen for requester
+static BOOL mode;
+static UDWORD chosenSlotId;
 
-BOOL				bLoadSaveUp = FALSE;						// true when interface is up and should be run.
-STRING				saveGameName[256];			//the name of the save game to load from the front end
-STRING				sRequestResult[255];						// filename returned;
-STRING				sDelete[MAX_STR_LENGTH];
-BOOL				bRequestLoad = FALSE;
-LOADSAVE_MODE		bLoadSaveMode;
+BOOL bLoadSaveUp = FALSE; // true when interface is up and should be run.
+STRING saveGameName[256]; //the name of the save game to load from the front end
+STRING sRequestResult[255]; // filename returned;
+STRING sDelete[MAX_STR_LENGTH];
+BOOL bRequestLoad = FALSE;
+LOADSAVE_MODE bLoadSaveMode;
 
-static CHAR			sPath[255];
-static CHAR			sExt[4];
-
+static CHAR sPath[255];
+static CHAR sExt[4];
 
 // ////////////////////////////////////////////////////////////////////////////
 // return whether the save screen was displayed in the mission results screen
-BOOL saveInMissionRes(void)
-{
-	return bLoadSaveMode == SAVE_MISSIONEND;
-}
+BOOL saveInMissionRes(void) { return bLoadSaveMode == SAVE_MISSIONEND; }
 
 // ////////////////////////////////////////////////////////////////////////////
 // return whether the save screen was displayed in the middle of a mission
-BOOL saveMidMission(void)
-{
-	return bLoadSaveMode == SAVE_INGAME;
-}
+BOOL saveMidMission(void) { return bLoadSaveMode == SAVE_INGAME; }
 
 // ////////////////////////////////////////////////////////////////////////////
-BOOL addLoadSave(LOADSAVE_MODE mode,CHAR *sSearchPath,CHAR *sExtension, CHAR *title)
+BOOL addLoadSave(LOADSAVE_MODE mode, CHAR* sSearchPath, CHAR* sExtension, CHAR* title)
 {
-BOOL bLoad;
+  BOOL bLoad;
 
-	bLoadSaveMode = mode;
+  bLoadSaveMode = mode;
 
-	switch(mode)
-	{
-	case LOAD_FRONTEND:
-	case LOAD_MISSIONEND:
-	case LOAD_INGAME:
-	case LOAD_FORCE:
-		bLoad = TRUE;
-		break;
-	case SAVE_MISSIONEND:
-	case SAVE_INGAME:
-	case SAVE_FORCE:
-	default:
-		bLoad = FALSE;
-		break;
-	}
+  switch (mode)
+  {
+  case LOAD_FRONTEND:
+  case LOAD_MISSIONEND:
+  case LOAD_INGAME:
+  case LOAD_FORCE:
+    bLoad = TRUE;
+    break;
+  case SAVE_MISSIONEND:
+  case SAVE_INGAME:
+  case SAVE_FORCE: default:
+    bLoad = FALSE;
+    break;
+  }
 
-
-	return _addLoadSave(bLoad,sSearchPath,sExtension,title);
+  return _addLoadSave(bLoad, sSearchPath, sExtension, title);
 }
 
-
 // ////////////////////////////////////////////////////
-static BOOL _addLoadSave(BOOL bLoad,CHAR *sSearchPath,CHAR *sExtension, CHAR *title)
+static BOOL _addLoadSave(BOOL bLoad, CHAR* sSearchPath, CHAR* sExtension, CHAR* title)
 {
-	W_FORMINIT		sFormInit;
-	W_BUTINIT		sButInit;
-	W_LABINIT		sLabInit;
-	UDWORD			slotCount;
-	static STRING	sSlots[10][64];
-	STRING			sTemp[255];
+  W_FORMINIT sFormInit;
+  W_BUTINIT sButInit;
+  W_LABINIT sLabInit;
+  UDWORD slotCount;
+  static STRING sSlots[10][64];
+  STRING sTemp[255];
 
-	WIN32_FIND_DATA	found;	
-	HANDLE			dir;
-	
-	mode = bLoad;
+  WIN32_FIND_DATA found;
+  HANDLE dir;
 
-	if(GetCurrentDirectory(255,(char*)&sTemp) == 0)
-	{
-		return FALSE;										// failed, directory probably didn't exist.
-	}
-	
-	if ((bLoadSaveMode == LOAD_INGAME) || (bLoadSaveMode == SAVE_INGAME))
-	{
-		if (!bMultiPlayer || (NetPlay.bComms ==0))
-		{
-			gameTimeStop();
-			if(GetGameMode() == GS_NORMAL)
-			{	
-				BOOL radOnScreen = radarOnScreen;				// Only do this in main game.
-					
-				bRender3DOnly = TRUE;
-				radarOnScreen = FALSE;
-		
-				displayWorld();									// Just display the 3d, no interface
-		
-				pie_UploadDisplayBuffer(DisplayBuffer);			// Upload the current display back buffer into system memory.
-			
-				iV_ScaleBitmapRGB(DisplayBuffer,iV_GetDisplayWidth(),
-								 iV_GetDisplayHeight(),2,2,2);	// Make it darker.
-			
-				radarOnScreen = radOnScreen;
-				bRender3DOnly = FALSE;
-			}
+  mode = bLoad;
 
-			setGamePauseStatus( TRUE );
-			setGameUpdatePause(TRUE);
-			setScriptPause(TRUE);
-			setScrollPause(TRUE);
-			setConsolePause(TRUE);
+  if (GetCurrentDirectory(255, (char*)&sTemp) == 0)
+    return FALSE; // failed, directory probably didn't exist.
 
-		}
+  if ((bLoadSaveMode == LOAD_INGAME) || (bLoadSaveMode == SAVE_INGAME))
+  {
+    if (!bMultiPlayer || (NetPlay.bComms == 0))
+    {
+      gameTimeStop();
+      if (GetGameMode() == GS_NORMAL)
+      {
+        BOOL radOnScreen = radarOnScreen; // Only do this in main game.
 
-		forceHidePowerBar();
-		intRemoveReticule();
-	}
+        bRender3DOnly = TRUE;
+        radarOnScreen = FALSE;
 
-	CreateDirectory(sSearchPath,NULL);			// create the directory required... fails if already there, so no problem.
-	widgCreateScreen(&psRequestScreen);			// init the screen.
-	widgSetTipFont(psRequestScreen,WFont);
+        displayWorld(); // Just display the 3d, no interface
 
-	/* add a form to place the tabbed form on */
-	memset(&sFormInit, 0, sizeof(W_FORMINIT));
-	sFormInit.formID = 0;
-	sFormInit.id = LOADSAVE_FORM;
-	sFormInit.style = WFORM_PLAIN;
-	sFormInit.x = (SWORD)(LOADSAVE_X);
-	sFormInit.y = (SWORD)(LOADSAVE_Y);
-	sFormInit.width = LOADSAVE_W;
-	sFormInit.height = LOADSAVE_H;
-	sFormInit.disableChildren = TRUE;
-	sFormInit.pDisplay = intOpenPlainForm;
-	widgAddForm(psRequestScreen, &sFormInit);
+        pie_UploadDisplayBuffer(DisplayBuffer); // Upload the current display back buffer into system memory.
 
-	// Add Banner
-	sFormInit.formID = LOADSAVE_FORM;
-	sFormInit.id = LOADSAVE_BANNER;
-	sFormInit.x = LOADSAVE_HGAP;
-	sFormInit.y = LOADSAVE_VGAP;
-	sFormInit.width = LOADSAVE_W-(2*LOADSAVE_HGAP);
-	sFormInit.height = LOADSAVE_BANNER_DEPTH;
-	sFormInit.disableChildren = FALSE;
-	sFormInit.pDisplay = displayLoadBanner;
-	sFormInit.pUserData = (VOID *)bLoad;
-	widgAddForm(psRequestScreen, &sFormInit);
+        iV_ScaleBitmapRGB(DisplayBuffer, iV_GetDisplayWidth(), iV_GetDisplayHeight(), 2, 2, 2); // Make it darker.
 
-	// Add Banner Label
-	memset(&sLabInit, 0, sizeof(W_LABINIT));
-	sLabInit.formID = LOADSAVE_BANNER;
-	sLabInit.id		= LOADSAVE_LABEL;
-	sLabInit.style	= WLAB_ALIGNCENTRE;
-	sLabInit.x		= 0;
-	sLabInit.y		= 4;
-	sLabInit.width	= LOADSAVE_W-(2*LOADSAVE_HGAP);	//LOADSAVE_W;
-	sLabInit.height = 20;
-	sLabInit.pText	= title;
-	sLabInit.FontID = WFont;
-	widgAddLabel(psRequestScreen, &sLabInit);
+        radarOnScreen = radOnScreen;
+        bRender3DOnly = FALSE;
+      }
 
+      setGamePauseStatus(TRUE);
+      setGameUpdatePause(TRUE);
+      setScriptPause(TRUE);
+      setScrollPause(TRUE);
+      setConsolePause(TRUE);
+    }
 
-	// add cancel.
-	memset(&sButInit, 0, sizeof(W_BUTINIT));
-	sButInit.formID = LOADSAVE_BANNER;
-	sButInit.x = 4;
-	sButInit.y = 3;
-	sButInit.width		= iV_GetImageWidth(IntImages,IMAGE_NRUTER);
-	sButInit.height		= iV_GetImageHeight(IntImages,IMAGE_NRUTER);
-	sButInit.pUserData	= (void*)PACKDWORD_TRI(0,IMAGE_NRUTER , IMAGE_NRUTER);
-	sButInit.id = LOADSAVE_CANCEL;
-	sButInit.style = WBUT_PLAIN;
-	sButInit.pTip = strresGetString(psStringRes, STR_MISC_CLOSE);
-	sButInit.FontID = WFont;
-	sButInit.pDisplay = intDisplayImageHilight;
-	widgAddButton(psRequestScreen, &sButInit);
+    forceHidePowerBar();
+    intRemoveReticule();
+  }
 
-	// add slots
-	memset(&sButInit, 0, sizeof(W_BUTINIT));
-	sButInit.formID		= LOADSAVE_FORM;
-	sButInit.style		= WBUT_PLAIN;
-	sButInit.width		= LOADENTRY_W;
-	sButInit.height		= LOADENTRY_H;
-	sButInit.pDisplay	= displayLoadSlot;
-	sButInit.FontID		= WFont;
+  CreateDirectory(sSearchPath, nullptr); // create the directory required... fails if already there, so no problem.
+  widgCreateScreen(&psRequestScreen); // init the screen.
+  widgSetTipFont(psRequestScreen, WFont);
 
-	for(slotCount = 0; slotCount< 10 ; slotCount++)
-	{
-		sButInit.id		= slotCount+LOADENTRY_START;
-		
-		if(slotCount<5)
-		{
-			sButInit.x	= LOADSAVE_HGAP;
-			sButInit.y	= (SWORD)((LOADSAVE_BANNER_DEPTH +(2*LOADSAVE_VGAP)) + (
-                slotCount*(LOADSAVE_VGAP+LOADENTRY_H)));
-		}
-		else
-		{
-			sButInit.x	= (2*LOADSAVE_HGAP)+LOADENTRY_W;
-			sButInit.y	= (SWORD)((LOADSAVE_BANNER_DEPTH +(2* LOADSAVE_VGAP)) + (
-                (slotCount-5) *(LOADSAVE_VGAP+LOADENTRY_H)));
-		}
-		widgAddButton(psRequestScreen, &sButInit);
-	}
+  /* add a form to place the tabbed form on */
+  memset(&sFormInit, 0, sizeof(W_FORMINIT));
+  sFormInit.formID = 0;
+  sFormInit.id = LOADSAVE_FORM;
+  sFormInit.style = WFORM_PLAIN;
+  sFormInit.x = static_cast<SWORD>((LOADSAVE_X));
+  sFormInit.y = static_cast<SWORD>((LOADSAVE_Y));
+  sFormInit.width = LOADSAVE_W;
+  sFormInit.height = LOADSAVE_H;
+  sFormInit.disableChildren = TRUE;
+  sFormInit.pDisplay = intOpenPlainForm;
+  widgAddForm(psRequestScreen, &sFormInit);
 
+  // Add Banner
+  sFormInit.formID = LOADSAVE_FORM;
+  sFormInit.id = LOADSAVE_BANNER;
+  sFormInit.x = LOADSAVE_HGAP;
+  sFormInit.y = LOADSAVE_VGAP;
+  sFormInit.width = LOADSAVE_W - (2 * LOADSAVE_HGAP);
+  sFormInit.height = LOADSAVE_BANNER_DEPTH;
+  sFormInit.disableChildren = FALSE;
+  sFormInit.pDisplay = displayLoadBanner;
+  sFormInit.pUserData = (VOID*)bLoad;
+  widgAddForm(psRequestScreen, &sFormInit);
 
-	// fill slots.
-	slotCount = 0;
+  // Add Banner Label
+  memset(&sLabInit, 0, sizeof(W_LABINIT));
+  sLabInit.formID = LOADSAVE_BANNER;
+  sLabInit.id = LOADSAVE_LABEL;
+  sLabInit.style = WLAB_ALIGNCENTRE;
+  sLabInit.x = 0;
+  sLabInit.y = 4;
+  sLabInit.width = LOADSAVE_W - (2 * LOADSAVE_HGAP); //LOADSAVE_W;
+  sLabInit.height = 20;
+  sLabInit.pText = title;
+  sLabInit.FontID = WFont;
+  widgAddLabel(psRequestScreen, &sLabInit);
 
-	sprintf(sTemp,"%s*.%s",sSearchPath,sExtension);		// form search string.
-	strcpy(sPath,sSearchPath);							// setup locals.
-	strcpy(sExt,sExtension);
-	dir =FindFirstFile(sTemp,&found);
-	if(dir != INVALID_HANDLE_VALUE)
-	{
-		while( TRUE ) 
-		{
-			/* Set the tip and add the button */		
-			found.cFileName[strlen(found.cFileName) -4 ] = '\0';			// chop extension
+  // add cancel.
+  memset(&sButInit, 0, sizeof(W_BUTINIT));
+  sButInit.formID = LOADSAVE_BANNER;
+  sButInit.x = 4;
+  sButInit.y = 3;
+  sButInit.width = iV_GetImageWidth(IntImages, IMAGE_NRUTER);
+  sButInit.height = iV_GetImageHeight(IntImages, IMAGE_NRUTER);
+  sButInit.pUserData = (void*)PACKDWORD_TRI(0, IMAGE_NRUTER, IMAGE_NRUTER);
+  sButInit.id = LOADSAVE_CANCEL;
+  sButInit.style = WBUT_PLAIN;
+  sButInit.pTip = strresGetString(psStringRes, STR_MISC_CLOSE);
+  sButInit.FontID = WFont;
+  sButInit.pDisplay = intDisplayImageHilight;
+  widgAddButton(psRequestScreen, &sButInit);
 
-			strcpy(sSlots[slotCount],found.cFileName);		//store it!
-			
-			((W_BUTTON *)widgGetFromID(psRequestScreen,LOADENTRY_START+slotCount))->pTip		= sSlots[slotCount];
-			((W_BUTTON *)widgGetFromID(psRequestScreen,LOADENTRY_START+slotCount))->pText		= sSlots[slotCount];
-				
-			slotCount++;		// goto next but.
-	
-			if(!FindNextFile(dir,&found ) || slotCount == 10 )// only show upto 10 entrys.
-			{
-				break;
-			}
-		}
-	}
-	FindClose(dir);
-	bLoadSaveUp = TRUE;
-	return TRUE;
+  // add slots
+  memset(&sButInit, 0, sizeof(W_BUTINIT));
+  sButInit.formID = LOADSAVE_FORM;
+  sButInit.style = WBUT_PLAIN;
+  sButInit.width = LOADENTRY_W;
+  sButInit.height = LOADENTRY_H;
+  sButInit.pDisplay = displayLoadSlot;
+  sButInit.FontID = WFont;
+
+  for (slotCount = 0; slotCount < 10; slotCount++)
+  {
+    sButInit.id = slotCount + LOADENTRY_START;
+
+    if (slotCount < 5)
+    {
+      sButInit.x = LOADSAVE_HGAP;
+      sButInit.y = static_cast<SWORD>((LOADSAVE_BANNER_DEPTH + (2 * LOADSAVE_VGAP)) + (slotCount * (LOADSAVE_VGAP + LOADENTRY_H)));
+    }
+    else
+    {
+      sButInit.x = (2 * LOADSAVE_HGAP) + LOADENTRY_W;
+      sButInit.y = static_cast<SWORD>((LOADSAVE_BANNER_DEPTH + (2 * LOADSAVE_VGAP)) + ((slotCount - 5) * (LOADSAVE_VGAP + LOADENTRY_H)));
+    }
+    widgAddButton(psRequestScreen, &sButInit);
+  }
+
+  // fill slots.
+  slotCount = 0;
+
+  sprintf(sTemp, "%s*.%s", sSearchPath, sExtension); // form search string.
+  strcpy(sPath, sSearchPath); // setup locals.
+  strcpy(sExt, sExtension);
+  dir = FindFirstFile(sTemp, &found);
+  if (dir != INVALID_HANDLE_VALUE)
+  {
+    while (TRUE)
+    {
+      /* Set the tip and add the button */
+      found.cFileName[strlen(found.cFileName) - 4] = '\0'; // chop extension
+
+      strcpy(sSlots[slotCount], found.cFileName); //store it!
+
+      ((W_BUTTON*)widgGetFromID(psRequestScreen,LOADENTRY_START + slotCount))->pTip = sSlots[slotCount];
+      ((W_BUTTON*)widgGetFromID(psRequestScreen,LOADENTRY_START + slotCount))->pText = sSlots[slotCount];
+
+      slotCount++; // goto next but.
+
+      if (!FindNextFile(dir, &found) || slotCount == 10) // only show upto 10 entrys.
+        break;
+    }
+  }
+  FindClose(dir);
+  bLoadSaveUp = TRUE;
+  return TRUE;
 }
 
 // ////////////////////////////////////////////////////////////////////////////
 BOOL closeLoadSave(void)
 {
-	widgDelete(psRequestScreen,LOADSAVE_FORM);
-	bLoadSaveUp = FALSE;
+  widgDelete(psRequestScreen,LOADSAVE_FORM);
+  bLoadSaveUp = FALSE;
 
-	if ((bLoadSaveMode == LOAD_INGAME) || (bLoadSaveMode == SAVE_INGAME))
-	{
+  if ((bLoadSaveMode == LOAD_INGAME) || (bLoadSaveMode == SAVE_INGAME))
+  {
+    if (!bMultiPlayer || (NetPlay.bComms == 0))
+    {
+      gameTimeStart();
+      setGamePauseStatus(FALSE);
+      setGameUpdatePause(FALSE);
+      setScriptPause(FALSE);
+      setScrollPause(FALSE);
+      setConsolePause(FALSE);
+    }
 
-		if (!bMultiPlayer || (NetPlay.bComms == 0))
-		{
-			gameTimeStart();
-			setGamePauseStatus( FALSE );
-			setGameUpdatePause(FALSE);
-			setScriptPause(FALSE);
-			setScrollPause(FALSE);
-			setConsolePause(FALSE);
-		}
+    intAddReticule();
+    intShowPowerBar();
+  }
+  widgReleaseScreen(psRequestScreen);
 
-		intAddReticule();
-		intShowPowerBar();
-
-	}
-	widgReleaseScreen(psRequestScreen);
-
-	return TRUE;
+  return TRUE;
 }
 
 // ////////////////////////////////////////////////////////////////////////////
-void loadSaveCDOK( void )
+void loadSaveCDOK(void)
 {
-	bRequestLoad = TRUE;
-	closeLoadSave();
-	loadOK();
+  bRequestLoad = TRUE;
+  closeLoadSave();
+  loadOK();
 }
 
 // ////////////////////////////////////////////////////////////////////////////
-void loadSaveCDCancel( void )
+void loadSaveCDCancel(void)
 {
-	bRequestLoad = FALSE;
-	widgReveal(psRequestScreen,LOADSAVE_FORM);
+  bRequestLoad = FALSE;
+  widgReveal(psRequestScreen,LOADSAVE_FORM);
 }
 
 // ////////////////////////////////////////////////////////////////////////////
-BOOL runLoadSave(BOOL bResetMissionWidgets)
-{
-	return _runLoadSave(bResetMissionWidgets);
-}
-
+BOOL runLoadSave(BOOL bResetMissionWidgets) { return _runLoadSave(bResetMissionWidgets); }
 
 // ////////////////////////////////////////////////////////////////////////////
 void deleteSaveGame(char* saveGameName)
 {
-	CHAR			sTemp2[MAX_STR_LENGTH],	sToDel[MAX_STR_LENGTH];
-	WIN32_FIND_DATA	found;	
-	HANDLE			dir;
+  CHAR sTemp2[MAX_STR_LENGTH], sToDel[MAX_STR_LENGTH];
+  WIN32_FIND_DATA found;
+  HANDLE dir;
 
-	ASSERT((strlen(saveGameName) < MAX_STR_LENGTH,"deleteSaveGame; save game name too long"));
+  ASSERT((strlen(saveGameName) < MAX_STR_LENGTH,"deleteSaveGame; save game name too long"));
 
-	DeleteFile(saveGameName);					// remove old file.
+  DeleteFile(saveGameName); // remove old file.
 
-	saveGameName[strlen(saveGameName)-4] = '\0';// strip extension
-	
-	strcat(saveGameName,".es");					// remove script data if it exists.
-	DeleteFile(saveGameName);
-	
-	saveGameName[strlen(saveGameName)-3] = '\0';// strip extension
+  saveGameName[strlen(saveGameName) - 4] = '\0'; // strip extension
 
-	// if it's a save game, delete the other files.
-	// check for a directory and remove that too.
-	sprintf(sTemp2,"%s\\*.*",saveGameName);
+  strcat(saveGameName, ".es"); // remove script data if it exists.
+  DeleteFile(saveGameName);
 
-	dir =FindFirstFile(sTemp2,&found);			// remove other files
-	if(dir != INVALID_HANDLE_VALUE)
-	{
-		sprintf(sToDel,"%s\\%s",saveGameName,found.cFileName);
-		DeleteFile(sToDel);
-		while( FindNextFile(dir,&found ) ) 
-		{
-			sprintf(sToDel,"%s\\%s",saveGameName,found.cFileName);
-			DeleteFile(sToDel);
-		}
-	}
-	FindClose(dir);	
+  saveGameName[strlen(saveGameName) - 3] = '\0'; // strip extension
 
-	RemoveDirectory(saveGameName);
-	return;
+  // if it's a save game, delete the other files.
+  // check for a directory and remove that too.
+  sprintf(sTemp2, "%s\\*.*", saveGameName);
+
+  dir = FindFirstFile(sTemp2, &found); // remove other files
+  if (dir != INVALID_HANDLE_VALUE)
+  {
+    sprintf(sToDel, "%s\\%s", saveGameName, found.cFileName);
+    DeleteFile(sToDel);
+    while (FindNextFile(dir, &found))
+    {
+      sprintf(sToDel, "%s\\%s", saveGameName, found.cFileName);
+      DeleteFile(sToDel);
+    }
+  }
+  FindClose(dir);
+
+  RemoveDirectory(saveGameName);
 }
 
 // ////////////////////////////////////////////////////////////////////////////
@@ -389,241 +362,191 @@ void deleteSaveGame(char* saveGameName)
 // slot was selected otherwise cancel was selected..
 static BOOL _runLoadSave(BOOL bResetMissionWidgets)
 {
-	UDWORD		id=0;
-	W_EDBINIT	sEdInit;
-	CHAR		sTemp[MAX_STR_LENGTH];
-	CD_INDEX	CDrequired;
-	UDWORD		iCampaign,i;
-	W_CONTEXT		context;
-	BOOL		bSkipCD = FALSE;
+  UDWORD id = 0;
+  W_EDBINIT sEdInit;
+  CHAR sTemp[MAX_STR_LENGTH];
+  CD_INDEX CDrequired;
+  UDWORD iCampaign, i;
+  W_CONTEXT context;
+  BOOL bSkipCD = FALSE;
 
-	id = widgRunScreen(psRequestScreen);
+  id = widgRunScreen(psRequestScreen);
 
-	if ( cdspan_ProcessCDChange(id) )
-	{
-		return bRequestLoad;
-	}
+  if (cdspan_ProcessCDChange(id))
+    return bRequestLoad;
 
-	strcpy(sRequestResult,"");					// set returned filename to null;
+  strcpy(sRequestResult, ""); // set returned filename to null;
 
-	// cancel this operation...
-	if(id == LOADSAVE_CANCEL || CancelPressed() )
-	{
-		goto failure;
-	}
+  // cancel this operation...
+  if (id == LOADSAVE_CANCEL || CancelPressed())
+    goto failure;
 
-	// clicked a load entry
-	if( id >= LOADENTRY_START  &&  id <= LOADENTRY_END )
-	{
+  // clicked a load entry
+  if (id >= LOADENTRY_START && id <= LOADENTRY_END)
+  {
+    if (mode) // Loading, return that entry.
+    {
+      if (((W_BUTTON*)widgGetFromID(psRequestScreen, id))->pText)
+        sprintf(sRequestResult, "%s%s.%s", sPath, ((W_BUTTON*)widgGetFromID(psRequestScreen, id))->pText, sExt);
+      else
+        goto failure; // clicked on an empty box
 
-		if(mode)								// Loading, return that entry.
-		{
-			if( ((W_BUTTON *)widgGetFromID(psRequestScreen,id))->pText )
-			{
-				sprintf(sRequestResult,"%s%s.%s",sPath,	((W_BUTTON *)widgGetFromID(psRequestScreen,id))->pText ,sExt);
-			}
-			else
-			{
-				goto failure;				// clicked on an empty box
-			}
-		
-			if( bLoadSaveMode == LOAD_FORCE || bLoadSaveMode ==SAVE_FORCE )
-			{	
-				goto successforce;				// it's a force, dont check the cd.
-			}
+      if (bLoadSaveMode == LOAD_FORCE || bLoadSaveMode == SAVE_FORCE)
+        goto successforce; // it's a force, dont check the cd.
 
-			/* check correct CD in drive */
-			iCampaign = getCampaign(sRequestResult,&bSkipCD);
-			if ( iCampaign == 0 OR bSkipCD )
-			{
-				DBPRINTF( ("getCampaign returned 0 or we're loading a skirmish game: assuming correct CD in drive\n") );
-			}
-			CDrequired = getCDForCampaign( iCampaign );
-			if ( (iCampaign == 0) || cdspan_CheckCDPresent( CDrequired ) OR bSkipCD)
-			{
-				goto success;
-			}
-			else
-			{
-				bRequestLoad = FALSE;
-				widgHide(psRequestScreen,LOADSAVE_FORM);
-				showChangeCDBox( psRequestScreen, CDrequired,
-									loadSaveCDOK, loadSaveCDCancel );
-				return FALSE;
-			}
-		}
-		else //  SAVING!add edit box at that position.
-		{
+      /* check correct CD in drive */
+      iCampaign = getCampaign(sRequestResult, &bSkipCD);
+      if (iCampaign == 0 OR bSkipCD)
+        DBPRINTF(("getCampaign returned 0 or we're loading a skirmish game: assuming correct CD in drive\n"));
+      CDrequired = getCDForCampaign(iCampaign);
+      if ((iCampaign == 0) || cdspan_CheckCDPresent(CDrequired) OR bSkipCD)
+        goto success;
+      bRequestLoad = FALSE;
+      widgHide(psRequestScreen,LOADSAVE_FORM);
+      showChangeCDBox(psRequestScreen, CDrequired, loadSaveCDOK, loadSaveCDCancel);
+      return FALSE;
+    }
+    //  SAVING!add edit box at that position.
+    if (!widgGetFromID(psRequestScreen,SAVEENTRY_EDIT))
+    {
+      // add blank box.
+      memset(&sEdInit, 0, sizeof(W_EDBINIT));
+      sEdInit.formID = LOADSAVE_FORM;
+      sEdInit.id = SAVEENTRY_EDIT;
+      sEdInit.style = WEDB_PLAIN;
+      sEdInit.x = widgGetFromID(psRequestScreen, id)->x;
+      sEdInit.y = widgGetFromID(psRequestScreen, id)->y;
+      sEdInit.width = widgGetFromID(psRequestScreen, id)->width;
+      sEdInit.height = widgGetFromID(psRequestScreen, id)->height;
+      sEdInit.pText = ((W_BUTTON*)widgGetFromID(psRequestScreen, id))->pText;
+      sEdInit.FontID = WFont;
+      sEdInit.pBoxDisplay = displayLoadSaveEdit;
+      widgAddEditBox(psRequestScreen, &sEdInit);
 
-			if( ! widgGetFromID(psRequestScreen,SAVEENTRY_EDIT))
-			{
-				// add blank box.
-				memset(&sEdInit, 0, sizeof(W_EDBINIT));
-				sEdInit.formID= LOADSAVE_FORM;
-				sEdInit.id    = SAVEENTRY_EDIT;
-				sEdInit.style = WEDB_PLAIN;
-				sEdInit.x	  =	widgGetFromID(psRequestScreen,id)->x;
-				sEdInit.y     =	widgGetFromID(psRequestScreen,id)->y;
-				sEdInit.width = widgGetFromID(psRequestScreen,id)->width;
-				sEdInit.height= widgGetFromID(psRequestScreen,id)->height;
-				sEdInit.pText = ((W_BUTTON *)widgGetFromID(psRequestScreen,id))->pText; 
-				sEdInit.FontID= WFont;
-				sEdInit.pBoxDisplay = displayLoadSaveEdit;
-				widgAddEditBox(psRequestScreen, &sEdInit);
-				
-				sprintf(sTemp,"%s%s.%s",
-						sPath,
-						((W_BUTTON *)widgGetFromID(psRequestScreen,id))->pText ,
-						sExt);
+      sprintf(sTemp, "%s%s.%s", sPath, ((W_BUTTON*)widgGetFromID(psRequestScreen, id))->pText, sExt);
 
-				widgHide(psRequestScreen,id);		// hide the old button
-				chosenSlotId = id; 
+      widgHide(psRequestScreen, id); // hide the old button
+      chosenSlotId = id;
 
-				strcpy(sDelete,sTemp);				// prepare the savegame name.
-				sTemp[strlen(sTemp)-4] = '\0';		// strip extension
-	
-				// auto click in the edit box we just made.
-				context.psScreen	= psRequestScreen;
-				context.psForm		= (W_FORM *)psRequestScreen->psForm;
-				context.xOffset		= 0;
-				context.yOffset		= 0;
-				context.mx			= mouseX();
-				context.my			= mouseY();
-				editBoxClicked((W_EDITBOX*)widgGetFromID(psRequestScreen,SAVEENTRY_EDIT), &context);
-			}
-			else
-			{
-				// clicked in a different box. shouldnt be possible!(since we autoclicked in editbox)
-			}
-		}
-	}
+      strcpy(sDelete, sTemp); // prepare the savegame name.
+      sTemp[strlen(sTemp) - 4] = '\0'; // strip extension
 
-	// finished entering a name.
-	if( id == SAVEENTRY_EDIT) 
-	{
-		if(!keyPressed(KEY_RETURN))						// enter was not pushed, so not a vaild entry.	
-		{
-			widgDelete(psRequestScreen,SAVEENTRY_EDIT);	//unselect this box, and go back ..
-			widgReveal(psRequestScreen,chosenSlotId);
-			return TRUE;
-		}
+      // auto click in the edit box we just made.
+      context.psScreen = psRequestScreen;
+      context.psForm = (W_FORM*)psRequestScreen->psForm;
+      context.xOffset = 0;
+      context.yOffset = 0;
+      context.mx = mouseX();
+      context.my = mouseY();
+      editBoxClicked((W_EDITBOX*)widgGetFromID(psRequestScreen,SAVEENTRY_EDIT), &context);
+    }
+    else
+    {
+      // clicked in a different box. shouldnt be possible!(since we autoclicked in editbox)
+    }
+  }
 
+  // finished entering a name.
+  if (id == SAVEENTRY_EDIT)
+  {
+    if (!keyPressed(KEY_RETURN)) // enter was not pushed, so not a vaild entry.	
+    {
+      widgDelete(psRequestScreen,SAVEENTRY_EDIT); //unselect this box, and go back ..
+      widgReveal(psRequestScreen, chosenSlotId);
+      return TRUE;
+    }
 
-		// scan to see if that game exists in another slot, if
-		// so then fail.
-		strcpy(sTemp,((W_EDITBOX *)widgGetFromID(psRequestScreen,id))->aText);
+    // scan to see if that game exists in another slot, if
+    // so then fail.
+    strcpy(sTemp, ((W_EDITBOX*)widgGetFromID(psRequestScreen, id))->aText);
 
-		for(i=LOADENTRY_START;i<LOADENTRY_END;i++)
-		{
-			if( i != chosenSlotId)
-			{
-				
-				if( ((W_BUTTON *)widgGetFromID(psRequestScreen,i))->pText 
-					&& strcmp( sTemp,	((W_BUTTON *)widgGetFromID(psRequestScreen,i))->pText ) ==0)
-				{	
-					widgDelete(psRequestScreen,SAVEENTRY_EDIT);	//unselect this box, and go back ..
-					widgReveal(psRequestScreen,chosenSlotId);
-				// move mouse to same box..
-					audio_PlayTrack(ID_SOUND_BUILD_FAIL);
-					return TRUE;
-				}
-			}
-		}
-
-
-		// return with this name, as we've edited it.
-		if (strlen(((W_EDITBOX *)widgGetFromID(psRequestScreen,id))->aText))
-		{
-			strcpy(sTemp,((W_EDITBOX *)widgGetFromID(psRequestScreen,id))->aText);
-			removeWildcards(sTemp);
-			sprintf(sRequestResult,"%s%s.%s",
-					sPath,
-	  				sTemp,
-					sExt);
-			deleteSaveGame(sDelete);	//only delete game if a new game fills the slot
-		}
-		else
-		{
-			goto failure;				// we entered a blank name..
-		}
-	
-		// we're done. saving.
-		closeLoadSave();
-		bRequestLoad = FALSE;
-        if (bResetMissionWidgets AND widgGetFromID(psWScreen,IDMISSIONRES_FORM) == NULL)
+    for (i = LOADENTRY_START; i < LOADENTRY_END; i++)
+    {
+      if (i != chosenSlotId)
+      {
+        if (((W_BUTTON*)widgGetFromID(psRequestScreen, i))->pText && strcmp(sTemp, ((W_BUTTON*)widgGetFromID(psRequestScreen, i))->pText) ==
+          0)
         {
-            resetMissionWidgets();			//reset the mission widgets here if necessary
+          widgDelete(psRequestScreen,SAVEENTRY_EDIT); //unselect this box, and go back ..
+          widgReveal(psRequestScreen, chosenSlotId);
+          // move mouse to same box..
+          audio_PlayTrack(ID_SOUND_BUILD_FAIL);
+          return TRUE;
         }
-		return TRUE;
-	}
+      }
+    }
 
-	return FALSE;
+    // return with this name, as we've edited it.
+    if (strlen(((W_EDITBOX*)widgGetFromID(psRequestScreen, id))->aText))
+    {
+      strcpy(sTemp, ((W_EDITBOX*)widgGetFromID(psRequestScreen, id))->aText);
+      removeWildcards(sTemp);
+      sprintf(sRequestResult, "%s%s.%s", sPath, sTemp, sExt);
+      deleteSaveGame(sDelete); //only delete game if a new game fills the slot
+    }
+    else
+      goto failure; // we entered a blank name..
 
-// failed and/or cancelled..
-failure:
-	closeLoadSave();
-	bRequestLoad = FALSE;
-    if (bResetMissionWidgets AND widgGetFromID(psWScreen,IDMISSIONRES_FORM) == NULL)
-	{
-		resetMissionWidgets();
-	}
+    // we're done. saving.
+    closeLoadSave();
+    bRequestLoad = FALSE;
+    if (bResetMissionWidgets AND widgGetFromID(psWScreen,IDMISSIONRES_FORM) == nullptr)
+      resetMissionWidgets(); //reset the mission widgets here if necessary
     return TRUE;
+  }
 
-// success on load.
+  return FALSE;
+
+  // failed and/or cancelled..
+failure:
+  closeLoadSave();
+  bRequestLoad = FALSE;
+  if (bResetMissionWidgets AND widgGetFromID(psWScreen,IDMISSIONRES_FORM) == nullptr)
+    resetMissionWidgets();
+  return TRUE;
+
+  // success on load.
 success:
-	setCampaignNumber( getCampaign(sRequestResult,&bSkipCD) );
+  setCampaignNumber(getCampaign(sRequestResult, &bSkipCD));
 successforce:
-	closeLoadSave();		
-	bRequestLoad = TRUE;
-	return TRUE;
+  closeLoadSave();
+  bRequestLoad = TRUE;
+  return TRUE;
 }
 
 // ////////////////////////////////////////////////////////////////////////////
 // should be done when drawing the other widgets.
 BOOL displayLoadSave(void)
 {
-	widgDisplayScreen(psRequestScreen);	// display widgets.
-	return TRUE;
+  widgDisplayScreen(psRequestScreen); // display widgets.
+  return TRUE;
 }
-
 
 // ////////////////////////////////////////////////////////////////////////////
 // STRING HANDLER, replaces dos wildcards in a string with harmless chars.
-void removeWildcards(char *pStr)
+void removeWildcards(char* pStr)
 {
-	UDWORD i;
+  UDWORD i;
 
-	for(i=0;i<strlen(pStr);i++)
-	{
-/*	if(   pStr[i] == '?' 
-		   || pStr[i] == '*'
-		   || pStr[i] == '"'
-		   || pStr[i] == '.' 
-		   || pStr[i] == '/' 
-		   || pStr[i] == '\\'
-		   || pStr[i] == '|' )
-		{
-			pStr[i] = '_';
-		}
-*/
-		if( !isalnum(pStr[i]) 
- 		 && pStr[i] != ' '
-		 && pStr[i] != '-'
-		 && pStr[i] != '+'
-  		 && pStr[i] != '!'
-		 )
-		{
-			pStr[i] = '_';
-		}
-			
-	}
+  for (i = 0; i < strlen(pStr); i++)
+  {
+    /*	if(   pStr[i] == '?' 
+           || pStr[i] == '*'
+           || pStr[i] == '"'
+           || pStr[i] == '.' 
+           || pStr[i] == '/' 
+           || pStr[i] == '\\'
+           || pStr[i] == '|' )
+        {
+          pStr[i] = '_';
+        }
+    */
+    if (!isalnum(pStr[i]) && pStr[i] != ' ' && pStr[i] != '-' && pStr[i] != '+' && pStr[i] != '!')
+      pStr[i] = '_';
+  }
 
-	if (strlen(pStr) >= MAX_SAVE_NAME)
-	{
-		pStr[MAX_SAVE_NAME - 1] = 0;
-	}
-
-	return;
+  if (strlen(pStr) >= MAX_SAVE_NAME)
+    pStr[MAX_SAVE_NAME - 1] = 0;
 }
 
 // ////////////////////////////////////////////////////////////////////////////
@@ -631,77 +554,68 @@ void removeWildcards(char *pStr)
 // ////////////////////////////////////////////////////////////////////////////
 // DISPLAY FUNCTIONS
 
-static void displayLoadBanner(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD *pColours)
+static void displayLoadBanner(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pColours)
 {
-    UBYTE   col;
-	UDWORD	x = xOffset+psWidget->x;
-	UDWORD	y = yOffset+psWidget->y;
+  UBYTE col;
+  UDWORD x = xOffset + psWidget->x;
+  UDWORD y = yOffset + psWidget->y;
 
-	UNUSEDPARAMETER(pColours);
+  UNUSEDPARAMETER(pColours);
 
-	if(psWidget->pUserData)
-	{
-		col = COL_GREEN;
-	}
-	else
-	{
-		col = COL_RED;
-	}
+  if (psWidget->pUserData)
+    col = COL_GREEN;
+  else
+    col = COL_RED;
 
-	iV_BoxFill(x,y,x+psWidget->width,y+psWidget->height,col);
-	iV_BoxFill(x+2,y+2,x+psWidget->width-2,y+psWidget->height-2,COL_BLUE);
-
-}
-// ////////////////////////////////////////////////////////////////////////////
-static void displayLoadSlot(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD *pColours)
-{
-	
-	UDWORD	x = xOffset+psWidget->x;
-	UDWORD	y = yOffset+psWidget->y;
-	UWORD	im = (UWORD)UNPACKDWORD_TRI_B((UDWORD)psWidget->pUserData);
-	UWORD	im2= (UWORD)(UNPACKDWORD_TRI_C((UDWORD)psWidget->pUserData));
-	STRING  butString[64];
-
-	UNUSEDPARAMETER(pColours);
-	drawBlueBox(x,y,psWidget->width,psWidget->height);	//draw box
-	if(((W_BUTTON *)psWidget)->pTip )
-	{
-		strcpy(butString,((W_BUTTON *)psWidget)->pTip);
-		
-		iV_SetFont(WFont);									// font
-		iV_SetTextColour(-1);								//colour
-
-		while(iV_GetTextWidth((unsigned char *)butString) > psWidget->width)
-		{
-			butString[strlen(butString)-1]='\0';
-		}
-
-		//draw text								
-		iV_DrawText( (unsigned char *)butString, x+4, y+17);
-
-	}
-}
-// ////////////////////////////////////////////////////////////////////////////
-static void displayLoadSaveEdit(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD *pColours)
-{
-	UDWORD	x = xOffset+psWidget->x;
-	UDWORD	y = yOffset+psWidget->y;
-	UDWORD	w = psWidget->width;
-	UDWORD  h = psWidget->height;
-	UNUSEDPARAMETER(pColours);
-
-	iV_BoxFill(x,y,x+w,y+h,COL_RED);
-	iV_BoxFill(x+1,y+1,x+w-1,y+h-1,COL_BLUE);
-
+  iV_BoxFill(x, y, x + psWidget->width, y + psWidget->height, col);
+  iV_BoxFill(x + 2, y + 2, x + psWidget->width - 2, y + psWidget->height - 2,COL_BLUE);
 }
 
 // ////////////////////////////////////////////////////////////////////////////
-void drawBlueBox(UDWORD x,UDWORD y, UDWORD w, UDWORD h)
+static void displayLoadSlot(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pColours)
 {
-    UBYTE       dark = COL_BLUE;
-    UBYTE       light = COL_LIGHTBLUE;
+  UDWORD x = xOffset + psWidget->x;
+  UDWORD y = yOffset + psWidget->y;
+  UWORD im = static_cast<UWORD>(UNPACKDWORD_TRI_B((UDWORD)psWidget->pUserData));
+  UWORD im2 = static_cast<UWORD>((UNPACKDWORD_TRI_C((UDWORD)psWidget->pUserData)));
+  STRING butString[64];
 
-	// box
-	pie_BoxFillIndex(x-1,y-1,x+w+1,y+h+1,light);	
-	pie_BoxFillIndex(x,y,x+w,y+h,dark);
+  UNUSEDPARAMETER(pColours);
+  drawBlueBox(x, y, psWidget->width, psWidget->height); //draw box
+  if (((W_BUTTON*)psWidget)->pTip)
+  {
+    strcpy(butString, ((W_BUTTON*)psWidget)->pTip);
+
+    iV_SetFont(WFont); // font
+    iV_SetTextColour(-1); //colour
+
+    while (iV_GetTextWidth((unsigned char*)butString) > psWidget->width) { butString[strlen(butString) - 1] = '\0'; }
+
+    //draw text								
+    iV_DrawText((unsigned char*)butString, x + 4, y + 17);
+  }
+}
+
+// ////////////////////////////////////////////////////////////////////////////
+static void displayLoadSaveEdit(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pColours)
+{
+  UDWORD x = xOffset + psWidget->x;
+  UDWORD y = yOffset + psWidget->y;
+  UDWORD w = psWidget->width;
+  UDWORD h = psWidget->height;
+  UNUSEDPARAMETER(pColours);
+
+  iV_BoxFill(x, y, x + w, y + h,COL_RED);
+  iV_BoxFill(x + 1, y + 1, x + w - 1, y + h - 1,COL_BLUE);
+}
+
+// ////////////////////////////////////////////////////////////////////////////
+void drawBlueBox(UDWORD x, UDWORD y, UDWORD w, UDWORD h)
+{
+  UBYTE dark = COL_BLUE;
+  UBYTE light = COL_LIGHTBLUE;
+
+  // box
+  pie_BoxFillIndex(x - 1, y - 1, x + w + 1, y + h + 1, light);
+  pie_BoxFillIndex(x, y, x + w, y + h, dark);
 }

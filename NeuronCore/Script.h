@@ -13,22 +13,21 @@
 #include "Event.h"
 #include "EvntSave.h"
 
-
 /* Whether to include debug info when compiling */
-typedef enum _scr_debugtype
+using SCR_DEBUGTYPE = enum _scr_debugtype
 {
-	SCR_DEBUGINFO,		// Generate debug info
-	SCR_NODEBUG,		// Do not generate debug info
-} SCR_DEBUGTYPE;
-
+  SCR_DEBUGINFO,
+  // Generate debug info
+  SCR_NODEBUG,
+  // Do not generate debug info
+};
 
 // If this is defined we save out the compiled scripts
 
 #define SCRIPTTYPE SCR_DEBUGINFO
 
-
 // Initialise the script library
-extern BOOL scriptInitialise(EVENT_INIT *psInit);
+extern BOOL scriptInitialise(EVENT_INIT* psInit);
 
 // Shutdown the script library
 extern void scriptShutDown(void);
@@ -39,25 +38,25 @@ extern void scriptShutDown(void);
  */
 
 /* Set the type table */
-extern void scriptSetTypeTab(TYPE_SYMBOL *psTypeTab);
+extern void scriptSetTypeTab(TYPE_SYMBOL* psTypeTab);
 
 /* Set the function table */
-extern void scriptSetFuncTab(FUNC_SYMBOL *psFuncTab);
+extern void scriptSetFuncTab(FUNC_SYMBOL* psFuncTab);
 
 /* Set the external variable table */
-extern void scriptSetExternalTab(VAR_SYMBOL *psExtTab);
+extern void scriptSetExternalTab(VAR_SYMBOL* psExtTab);
 
 /* Set the object variable table */
-extern void scriptSetObjectTab(VAR_SYMBOL *psObjTab);
+extern void scriptSetObjectTab(VAR_SYMBOL* psObjTab);
 
 /* Set the constant table */
-extern void scriptSetConstTab(CONST_SYMBOL *psConstTab);
+extern void scriptSetConstTab(CONST_SYMBOL* psConstTab);
 
 /* Set the callback table */
-extern void scriptSetCallbackTab(CALLBACK_SYMBOL *psCallTab);
+extern void scriptSetCallbackTab(CALLBACK_SYMBOL* psCallTab);
 
 /* Set the type equivalence table */
-extern void scriptSetTypeEquiv(TYPE_EQUIV *psTypeTab);
+extern void scriptSetTypeEquiv(TYPE_EQUIV* psTypeTab);
 
 /***********************************************************************************
  *
@@ -65,28 +64,25 @@ extern void scriptSetTypeEquiv(TYPE_EQUIV *psTypeTab);
  */
 
 /* Compile a script program */
-extern BOOL scriptCompile(UBYTE *pData, UDWORD fileSize,
-						  SCRIPT_CODE **ppsProg, SCR_DEBUGTYPE debugType);
+extern BOOL scriptCompile(UBYTE* pData, UDWORD fileSize, SCRIPT_CODE** ppsProg, SCR_DEBUGTYPE debugType);
 
 /* Free a SCRIPT_CODE structure */
-extern void scriptFreeCode(SCRIPT_CODE *psCode);
+extern void scriptFreeCode(SCRIPT_CODE* psCode);
 
 /* Display the contents of a program in readable form */
-extern void cpPrintProgram(SCRIPT_CODE *psProg);
+extern void cpPrintProgram(SCRIPT_CODE* psProg);
 
 // Save a binary version of a program
-extern BOOL scriptSaveProg(SCRIPT_CODE *psProg, UDWORD *pSize, UBYTE **ppData);
+extern BOOL scriptSaveProg(SCRIPT_CODE* psProg, UDWORD* pSize, UBYTE** ppData);
 
 // Load a binary version of a program
-extern BOOL scriptLoadProg(UDWORD size, UBYTE *pData, SCRIPT_CODE **ppsProg);
+extern BOOL scriptLoadProg(UDWORD size, UBYTE* pData, SCRIPT_CODE** ppsProg);
 
 /* Lookup a script variable */
-extern BOOL scriptGetVarIndex(SCRIPT_CODE *psCode, STRING *pID, UDWORD *pIndex);
+extern BOOL scriptGetVarIndex(SCRIPT_CODE* psCode, STRING* pID, UDWORD* pIndex);
 
 /* Run a compiled script */
-extern BOOL interpRunScript(SCRIPT_CONTEXT *psContext, INTERP_RUNTYPE runType,
-							UDWORD index, UDWORD offset);
-
+extern BOOL interpRunScript(SCRIPT_CONTEXT* psContext, INTERP_RUNTYPE runType, UDWORD index, UDWORD offset);
 
 /***********************************************************************************
  *
@@ -94,11 +90,13 @@ extern BOOL interpRunScript(SCRIPT_CONTEXT *psContext, INTERP_RUNTYPE runType,
  */
 
 // Whether a context is released when there are no active triggers for it
-typedef enum _context_release
+using CONTEXT_RELEASE = enum _context_release
 {
-	CR_RELEASE,		// release the context
-	CR_NORELEASE,	// do not release the context
-} CONTEXT_RELEASE;
+  CR_RELEASE,
+  // release the context
+  CR_NORELEASE,
+  // do not release the context
+};
 
 // reset the event system
 extern void eventReset(void);
@@ -107,10 +105,10 @@ extern void eventReset(void);
 extern BOOL eventInitValueFuncs(SDWORD maxType);
 
 // a create function for data stored in an INTERP_VAL
-typedef BOOL (*VAL_CREATE_FUNC)(INTERP_VAL *psVal);
+using VAL_CREATE_FUNC = BOOL(*)(INTERP_VAL* psVal);
 
 // a release function for data stored in an INTERP_VAL
-typedef void (*VAL_RELEASE_FUNC)(INTERP_VAL *psVal);
+using VAL_RELEASE_FUNC = void(*)(INTERP_VAL* psVal);
 
 // Add a new value create function
 extern BOOL eventAddValueCreate(INTERP_TYPE type, VAL_CREATE_FUNC create);
@@ -119,26 +117,23 @@ extern BOOL eventAddValueCreate(INTERP_TYPE type, VAL_CREATE_FUNC create);
 extern BOOL eventAddValueRelease(INTERP_TYPE type, VAL_RELEASE_FUNC release);
 
 // Create a new context for a script
-extern BOOL eventNewContext(SCRIPT_CODE *psCode,
-							CONTEXT_RELEASE release, SCRIPT_CONTEXT **ppsContext);
+extern BOOL eventNewContext(SCRIPT_CODE* psCode, CONTEXT_RELEASE release, SCRIPT_CONTEXT** ppsContext);
 
 // Copy a context, including variable values
-extern BOOL eventCopyContext(SCRIPT_CONTEXT *psContext, SCRIPT_CONTEXT **ppsNew);
+extern BOOL eventCopyContext(SCRIPT_CONTEXT* psContext, SCRIPT_CONTEXT** ppsNew);
 
 // Add a new object to the trigger system
 // Time is the application time at which all the triggers are to be started
-extern BOOL eventRunContext(SCRIPT_CONTEXT *psContext, UDWORD time);
+extern BOOL eventRunContext(SCRIPT_CONTEXT* psContext, UDWORD time);
 
 // Remove a context from the event system
-extern void eventRemoveContext(SCRIPT_CONTEXT *psContext);
+extern void eventRemoveContext(SCRIPT_CONTEXT* psContext);
 
 // Set a global variable value for a context
-extern BOOL eventSetContextVar(SCRIPT_CONTEXT *psContext, UDWORD index,
-							   INTERP_TYPE type, UDWORD data);
+extern BOOL eventSetContextVar(SCRIPT_CONTEXT* psContext, UDWORD index, INTERP_TYPE type, UDWORD data);
 
 // Get the value pointer for a variable index
-extern BOOL eventGetContextVal(SCRIPT_CONTEXT *psContext, UDWORD index,
-							   INTERP_VAL **ppsVal);
+extern BOOL eventGetContextVal(SCRIPT_CONTEXT* psContext, UDWORD index, INTERP_VAL** ppsVal);
 
 // Process all the currently active triggers
 // Time is the application time at which all the triggers are to be processed
@@ -197,4 +192,3 @@ extern BOOL eventSetTrigger(void);
 extern BOOL eventSetTraceLevel(void);
 
 #endif
-

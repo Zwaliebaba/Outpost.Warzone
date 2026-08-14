@@ -13,16 +13,16 @@
  */
 /***************************************************************************/
 
-typedef enum _loadsave_mode
+using LOADSAVE_MODE = enum _loadsave_mode
 {
-LOAD_FRONTEND,
-LOAD_MISSIONEND,
-SAVE_MISSIONEND,
-LOAD_INGAME,
-SAVE_INGAME,
-LOAD_FORCE,
-SAVE_FORCE
-}LOADSAVE_MODE;
+  LOAD_FRONTEND,
+  LOAD_MISSIONEND,
+  SAVE_MISSIONEND,
+  LOAD_INGAME,
+  SAVE_INGAME,
+  LOAD_FORCE,
+  SAVE_FORCE
+};
 
 /***************************************************************************/
 /*
@@ -30,11 +30,11 @@ SAVE_FORCE
  */
 /***************************************************************************/
 
-extern BOOL		bLoadSaveUp;							// true when interface is up and should be run.
+extern BOOL bLoadSaveUp; // true when interface is up and should be run.
 //the name of the save game to load from the front end
 extern STRING saveGameName[256];
-extern STRING	sRequestResult[255];		
-extern BOOL		bRequestLoad;
+extern STRING sRequestResult[255];
+extern BOOL bRequestLoad;
 
 /***************************************************************************/
 /*
@@ -42,14 +42,14 @@ extern BOOL		bRequestLoad;
  */
 /***************************************************************************/
 
-extern void		drawBlueBox		(UDWORD x,UDWORD y, UDWORD w, UDWORD h);
+extern void drawBlueBox(UDWORD x, UDWORD y, UDWORD w, UDWORD h);
 
-extern BOOL		addLoadSave		(LOADSAVE_MODE mode, CHAR *defaultdir,CHAR *extension,CHAR *title);
-extern BOOL		closeLoadSave	(VOID);
-extern BOOL		runLoadSave		(BOOL bResetMissionWidgets);
-extern BOOL		displayLoadSave	(VOID);
+extern BOOL addLoadSave(LOADSAVE_MODE mode, CHAR* defaultdir, CHAR* extension, CHAR* title);
+extern BOOL closeLoadSave(VOID);
+extern BOOL runLoadSave(BOOL bResetMissionWidgets);
+extern BOOL displayLoadSave(VOID);
 
-extern void		removeWildcards	(char *pStr);
+extern void removeWildcards(char* pStr);
 
 // return whether the save screen was displayed in the mission results screen
 BOOL saveInMissionRes(void);

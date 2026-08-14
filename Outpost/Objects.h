@@ -27,8 +27,6 @@ extern BOOL objShutdown(void);
 
 /*goes thru' the list passed in reversing the order so the first entry becomes 
 the last and the last entry becomes the first!*/
-extern void reverseObjectList(BASE_OBJECT **ppsList);
+extern void reverseObjectList(BASE_OBJECT** ppsList);
 
 #endif
-
-

@@ -5,7 +5,6 @@
  *
  */
 
-
 #include <math.h>
 #include <stdio.h>
 
@@ -32,16 +31,16 @@
 #define RAY_CLIP	1
 
 // ray point
-typedef struct _ray_point
+using RAY_POINT = struct _ray_point
 {
-	SDWORD	x,y;
-} RAY_POINT;
+  SDWORD x, y;
+};
 
 /* x and y increments for each ray angle */
-static SDWORD	rayDX[NUM_RAYS], rayDY[NUM_RAYS];
-static SDWORD	rayHDist[NUM_RAYS], rayVDist[NUM_RAYS];
-static SDWORD	rayFPTan[NUM_RAYS], rayFPInvTan[NUM_RAYS];
-static SDWORD	rayFPInvCos[NUM_RAYS], rayFPInvSin[NUM_RAYS];
+static SDWORD rayDX[NUM_RAYS], rayDY[NUM_RAYS];
+static SDWORD rayHDist[NUM_RAYS], rayVDist[NUM_RAYS];
+static SDWORD rayFPTan[NUM_RAYS], rayFPInvTan[NUM_RAYS];
+static SDWORD rayFPInvCos[NUM_RAYS], rayFPInvSin[NUM_RAYS];
 
 #define MAX_FRACT (0x7fffffff)
 #define angle_PSX2WORLD(ang) ((((ang)%4096)*360)/4096)
@@ -49,72 +48,55 @@ static SDWORD	rayFPInvCos[NUM_RAYS], rayFPInvSin[NUM_RAYS];
 /* Initialise the ray tables */
 BOOL rayInitialise(void)
 {
-	SDWORD	i;
-	FRACT	angle = MAKEFRACT(0);
-	FRACT	val;
+  SDWORD i;
+  FRACT angle = MAKEFRACT(0);
+  FRACT val;
 
-	for(i=0; i<NUM_RAYS; i++)
-	{
-		// Set up the fixed offset tables for calculating the intersection points
-		val = (float)tan(angle);
+  for (i = 0; i < NUM_RAYS; i++)
+  {
+    // Set up the fixed offset tables for calculating the intersection points
+    val = static_cast<float>(tan(angle));
 
-		rayDX[i] = (SDWORD)(TILE_UNITS * RAY_ACCMUL * val);
+    rayDX[i] = static_cast<SDWORD>((TILE_UNITS * RAY_ACCMUL * val));
 
-		if (i <= NUM_RAYS/4 ||
-			(i >= 3*NUM_RAYS/4))
-		{
-			rayDX[i] = -rayDX[i];
-		}
+    if (i <= NUM_RAYS / 4 || (i >= 3 * NUM_RAYS / 4))
+      rayDX[i] = -rayDX[i];
 
-		if(val == 0) {
-			val = (FRACT)1;	// Horrible hack to avoid divide by zero.
-		}
+    if (val == 0)
+      val = static_cast<FRACT>(1); // Horrible hack to avoid divide by zero.
 
-		rayDY[i] = (SDWORD)(TILE_UNITS * RAY_ACCMUL / val);
-		if (i >= NUM_RAYS/2)
-		{
-			rayDY[i] = -rayDY[i];
-		}
+    rayDY[i] = static_cast<SDWORD>((TILE_UNITS * RAY_ACCMUL / val));
+    if (i >= NUM_RAYS / 2)
+      rayDY[i] = -rayDY[i];
 
-		// These are used to calculate the initial intersection
-		rayFPTan[i] = MAKEINT(FRACTmul(val, MAKEFRACT(RAY_ACCMUL)));
-		rayFPInvTan[i] = MAKEINT(FRACTdiv(MAKEFRACT(RAY_ACCMUL), val));
+    // These are used to calculate the initial intersection
+    rayFPTan[i] = MAKEINT(FRACTmul(val, MAKEFRACT(RAY_ACCMUL)));
+    rayFPInvTan[i] = MAKEINT(FRACTdiv(MAKEFRACT(RAY_ACCMUL), val));
 
-		// Set up the trig tables for calculating the offset distances
-		val = (float)sin(angle);
-		if(val == 0) {
-			val = (FRACT)1;
-		}
-		rayFPInvSin[i] = MAKEINT(FRACTdiv(MAKEFRACT(RAY_ACCMUL), val));
-		if (i >= NUM_RAYS/2)
-		{
-			rayVDist[i] = MAKEINT(FRACTdiv(MAKEFRACT(-TILE_UNITS), val));
-		}
-		else
-		{
-			rayVDist[i] = MAKEINT(FRACTdiv(MAKEFRACT(TILE_UNITS), val));
-		}
+    // Set up the trig tables for calculating the offset distances
+    val = static_cast<float>(sin(angle));
+    if (val == 0)
+      val = static_cast<FRACT>(1);
+    rayFPInvSin[i] = MAKEINT(FRACTdiv(MAKEFRACT(RAY_ACCMUL), val));
+    if (i >= NUM_RAYS / 2)
+      rayVDist[i] = MAKEINT(FRACTdiv(MAKEFRACT(-TILE_UNITS), val));
+    else
+      rayVDist[i] = MAKEINT(FRACTdiv(MAKEFRACT(TILE_UNITS), val));
 
-		val = (float)cos(angle);
-		if(val == 0) {
-			val = (FRACT)1;
-		}
-		rayFPInvCos[i] = MAKEINT(FRACTdiv(MAKEFRACT(RAY_ACCMUL), val));
-		if (i < NUM_RAYS/4 || i > 3*NUM_RAYS/4)
-		{
-			rayHDist[i] = MAKEINT(FRACTdiv(MAKEFRACT(TILE_UNITS), val));
-		}
-		else
-		{
-			rayHDist[i] = MAKEINT(FRACTdiv(MAKEFRACT(-TILE_UNITS), val));
-		}
+    val = static_cast<float>(cos(angle));
+    if (val == 0)
+      val = static_cast<FRACT>(1);
+    rayFPInvCos[i] = MAKEINT(FRACTdiv(MAKEFRACT(RAY_ACCMUL), val));
+    if (i < NUM_RAYS / 4 || i > 3 * NUM_RAYS / 4)
+      rayHDist[i] = MAKEINT(FRACTdiv(MAKEFRACT(TILE_UNITS), val));
+    else
+      rayHDist[i] = MAKEINT(FRACTdiv(MAKEFRACT(-TILE_UNITS), val));
 
-		angle += RAY_ANGLE;
-	}
+    angle += RAY_ANGLE;
+  }
 
-	return TRUE;
+  return TRUE;
 }
-
 
 //
 ////#ifdef WIN32
@@ -134,434 +116,382 @@ BOOL rayInitialise(void)
  */
 void rayCast(UDWORD x, UDWORD y, UDWORD ray, UDWORD length, RAY_CALLBACK callback)
 {
-	SDWORD		hdInc=0, vdInc=0;		// increases in x and y distance per intersection
-	SDWORD		hDist, vDist;		// distance to current horizontal and vertical intersections
-	RAY_POINT	sVert, sHoriz;
-	SDWORD		vdx=0, hdy=0;			// vertical x increment, horiz y inc
+  SDWORD hdInc = 0, vdInc = 0; // increases in x and y distance per intersection
+  SDWORD hDist, vDist; // distance to current horizontal and vertical intersections
+  RAY_POINT sVert, sHoriz;
+  SDWORD vdx = 0, hdy = 0; // vertical x increment, horiz y inc
 #if RAY_CLIP == 0
-	SDWORD		newLen, clipLen;	// ray length after clipping
+  SDWORD newLen, clipLen; // ray length after clipping
 #endif
 
-	// Clipping is done with the position offset by TILE_UNITS/4 to account 
-	// for the rounding errors when the intersection length is calculated.
-	// Bit of a hack but I'm pretty sure it doesn't let through anything
-	// that should be clippped.
+  // Clipping is done with the position offset by TILE_UNITS/4 to account 
+  // for the rounding errors when the intersection length is calculated.
+  // Bit of a hack but I'm pretty sure it doesn't let through anything
+  // that should be clippped.
 
 #if RAY_CLIP == 0
-	// Initial clip length is just the length of the ray
-	clipLen = (SDWORD)length;
+  // Initial clip length is just the length of the ray
+  clipLen = (SDWORD)length;
 #endif
 
-	// initialise the horizontal intersection calculations
-	// and clip to the top and bottom of the map
-	// (no horizontal intersection for a horizontal ray)
-	if (ray != NUM_RAYS/4 && ray != 3*NUM_RAYS/4)
-	{
-		if (ray < NUM_RAYS/4 || ray > 3*NUM_RAYS/4)
-		{
-			// intersection
-			sHoriz.y = (y & ~TILE_MASK) + TILE_UNITS;
-			hdy = TILE_UNITS;
+  // initialise the horizontal intersection calculations
+  // and clip to the top and bottom of the map
+  // (no horizontal intersection for a horizontal ray)
+  if (ray != NUM_RAYS / 4 && ray != 3 * NUM_RAYS / 4)
+  {
+    if (ray < NUM_RAYS / 4 || ray > 3 * NUM_RAYS / 4)
+    {
+      // intersection
+      sHoriz.y = (y & ~TILE_MASK) + TILE_UNITS;
+      hdy = TILE_UNITS;
 
 #if RAY_CLIP == 0
-			// clipping
-			newLen = (((mapHeight << TILE_SHIFT) - ((SDWORD)y + TILE_UNITS/4))
-						* rayFPInvCos[ray])	>> RAY_ACC;
-			if (newLen < clipLen)
-			{
-				clipLen = newLen;
-			}
+      // clipping
+      newLen = (((mapHeight << TILE_SHIFT) - ((SDWORD)y + TILE_UNITS / 4)) * rayFPInvCos[ray]) >> RAY_ACC; if (newLen < clipLen)
+      {
+        clipLen = newLen;
+      }
 #endif
-		}
-		else
-		{
-			// intersection
-			sHoriz.y = (y & ~TILE_MASK) - 1;
-			hdy = -TILE_UNITS;
+    }
+    else
+    {
+      // intersection
+      sHoriz.y = (y & ~TILE_MASK) - 1;
+      hdy = -TILE_UNITS;
 
 #if RAY_CLIP == 0
-			// clipping
-			newLen = ((TILE_UNITS/4 - (SDWORD)y) * rayFPInvCos[ray]) >> RAY_ACC;
-			if (newLen < clipLen)
-			{
-				clipLen = newLen;
-			}
+      // clipping
+      newLen = ((TILE_UNITS / 4 - (SDWORD)y) * rayFPInvCos[ray]) >> RAY_ACC; if (newLen < clipLen) { clipLen = newLen; }
 #endif
-		}
+    }
 
-		// Horizontal x is kept in fixed point form until passed to the callback
-		// to avoid rounding errors
-		// Horizontal y is in integer form all the time
-		sHoriz.x = (x << RAY_ACC) + (((SDWORD)y-sHoriz.y) * rayFPTan[ray]);
+    // Horizontal x is kept in fixed point form until passed to the callback
+    // to avoid rounding errors
+    // Horizontal y is in integer form all the time
+    sHoriz.x = (x << RAY_ACC) + ((static_cast<SDWORD>(y) - sHoriz.y) * rayFPTan[ray]);
 
-		// Set up the distance calculations
-		hDist = ((sHoriz.y - (SDWORD)y) * rayFPInvCos[ray]) >> RAY_ACC;
-		hdInc = rayHDist[ray];
-	}
-	else
-	{
-		// ensure no horizontal intersections are calculated
-		hDist = length;
-	}
+    // Set up the distance calculations
+    hDist = ((sHoriz.y - static_cast<SDWORD>(y)) * rayFPInvCos[ray]) >> RAY_ACC;
+    hdInc = rayHDist[ray];
+  }
+  else
+  {
+    // ensure no horizontal intersections are calculated
+    hDist = length;
+  }
 
-	// initialise the vertical intersection calculations
-	// and clip to the left and right of the map
-	// (no vertical intersection for a vertical ray)
-	if (ray != 0 && ray != NUM_RAYS/2)
-	{
-		if (ray >= NUM_RAYS/2)
-		{
-			// intersection
-			sVert.x = (x & ~TILE_MASK) + TILE_UNITS;
-			vdx = TILE_UNITS;
+  // initialise the vertical intersection calculations
+  // and clip to the left and right of the map
+  // (no vertical intersection for a vertical ray)
+  if (ray != 0 && ray != NUM_RAYS / 2)
+  {
+    if (ray >= NUM_RAYS / 2)
+    {
+      // intersection
+      sVert.x = (x & ~TILE_MASK) + TILE_UNITS;
+      vdx = TILE_UNITS;
 
 #if RAY_CLIP == 0
-			// clipping
-			newLen = ((((SDWORD)x + TILE_UNITS/4) - (mapWidth << TILE_SHIFT))
-						* rayFPInvSin[ray])	>> RAY_ACC;
-			if (newLen < clipLen)
-			{
-				clipLen = newLen;
-			}
+      // clipping
+      newLen = ((((SDWORD)x + TILE_UNITS / 4) - (mapWidth << TILE_SHIFT)) * rayFPInvSin[ray]) >> RAY_ACC; if (newLen < clipLen)
+      {
+        clipLen = newLen;
+      }
 #endif
-		}
-		else
-		{
-			// intersection
-			sVert.x = (x & ~TILE_MASK) - 1;
-			vdx = -TILE_UNITS;
+    }
+    else
+    {
+      // intersection
+      sVert.x = (x & ~TILE_MASK) - 1;
+      vdx = -TILE_UNITS;
 
 #if RAY_CLIP == 0
-			// clipping
-			newLen = (((SDWORD)x - TILE_UNITS/4) * rayFPInvSin[ray]) >> RAY_ACC;
-			if (newLen < clipLen)
-			{
-				clipLen = newLen;
-			}
+      // clipping
+      newLen = (((SDWORD)x - TILE_UNITS / 4) * rayFPInvSin[ray]) >> RAY_ACC; if (newLen < clipLen) { clipLen = newLen; }
 #endif
-		}
+    }
 
-		// Vertical y is kept in fixed point form until passed to the callback
-		// to avoid rounding errors
-		// Vertical x is in integer form all the time
-		sVert.y = (y << RAY_ACC) + ((SDWORD)x-sVert.x) * rayFPInvTan[ray];
+    // Vertical y is kept in fixed point form until passed to the callback
+    // to avoid rounding errors
+    // Vertical x is in integer form all the time
+    sVert.y = (y << RAY_ACC) + (static_cast<SDWORD>(x) - sVert.x) * rayFPInvTan[ray];
 
-		// Set up the distance calculations
-		vDist = (((SDWORD)x - sVert.x) * rayFPInvSin[ray]) >> RAY_ACC;
-		vdInc = rayVDist[ray];
-	}
-	else
-	{
-		// ensure no vertical intersections are calculated
-		vDist = length;
-	}
+    // Set up the distance calculations
+    vDist = ((static_cast<SDWORD>(x) - sVert.x) * rayFPInvSin[ray]) >> RAY_ACC;
+    vdInc = rayVDist[ray];
+  }
+  else
+  {
+    // ensure no vertical intersections are calculated
+    vDist = length;
+  }
 
-	ASSERT((hDist != 0 && vDist != 0,
-		"rayCast: zero distance"));
-	ASSERT(((hDist == (SDWORD)length || hdInc > 0) &&
-			(vDist == (SDWORD)length || vdInc > 0),
-		"rayCast: negative (or 0) distance increment"));
+  ASSERT((hDist != 0 && vDist != 0, "rayCast: zero distance"));
+  ASSERT(((hDist == static_cast<SDWORD>(length) || hdInc > 0) &&
+    (vDist == static_cast<SDWORD>(length) || vdInc > 0), "rayCast: negative (or 0) distance increment"));
 
 #if RAY_CLIP == 0
-	while(hDist < clipLen ||
-		  vDist < clipLen)
-	{
-		// choose the next closest intersection
-		if (hDist < vDist)
-		{
-			// pass through the current intersection, converting x from fixed point
-			if (!callback( sHoriz.x >> RAY_ACC,sHoriz.y, hDist))
-			{
-				// callback doesn't want any more points so return
-				return;
-			}
+  while (hDist < clipLen || vDist < clipLen)
+  {
+    // choose the next closest intersection
+    if (hDist < vDist)
+    {
+      // pass through the current intersection, converting x from fixed point
+      if (!callback(sHoriz.x >> RAY_ACC, sHoriz.y, hDist))
+      {
+        // callback doesn't want any more points so return
+        return;
+      }
 
-			// update for the next intersection
-			sHoriz.x += rayDX[ray];
-			sHoriz.y += hdy;
-			hDist += hdInc;
-		}
-		else
-		{
-			// pass through the current intersection, converting y from fixed point
-			if (!callback( sVert.x,sVert.y >> RAY_ACC, vDist))
-			{
-				// callback doesn't want any more points so return
-				return;
-			}
+      // update for the next intersection
+      sHoriz.x += rayDX[ray];
+      sHoriz.y += hdy;
+      hDist += hdInc;
+    }
+    else
+    {
+      // pass through the current intersection, converting y from fixed point
+      if (!callback(sVert.x, sVert.y >> RAY_ACC, vDist))
+      {
+        // callback doesn't want any more points so return
+        return;
+      }
 
-			// update for the next intersection
-			sVert.x += vdx;
-			sVert.y += rayDY[ray];
-			vDist += vdInc;
-		}
-		ASSERT((hDist != 0 && vDist != 0,
-			"rayCast: zero distance"));
-	}
+      // update for the next intersection
+      sVert.x += vdx;
+      sVert.y += rayDY[ray];
+      vDist += vdInc;
+    }
+    ASSERT((hDist != 0 && vDist != 0, "rayCast: zero distance"));
+  }
 #elif RAY_CLIP == 1
-	while(hDist < (SDWORD)length ||
-		  vDist < (SDWORD)length)
-	{
-		// choose the next closest intersection
-		if (hDist < vDist)
-		{
-			// clip to the edge of the map
-			if (sHoriz.x < 0 || (sHoriz.x >> RAY_ACC) >= (SDWORD)(mapWidth << TILE_SHIFT) ||
-				sHoriz.y < 0 || sHoriz.y >= (SDWORD)(mapHeight << TILE_SHIFT))
-			{
-				return;
-			}
+  while (hDist < static_cast<SDWORD>(length) || vDist < static_cast<SDWORD>(length))
+  {
+    // choose the next closest intersection
+    if (hDist < vDist)
+    {
+      // clip to the edge of the map
+      if (sHoriz.x < 0 || (sHoriz.x >> RAY_ACC) >= static_cast<SDWORD>(mapWidth << TILE_SHIFT) || sHoriz.y < 0 || sHoriz.y >= static_cast<
+        SDWORD>(mapHeight << TILE_SHIFT))
+        return;
 
-			// pass through the current intersection, converting x from fixed point
-			if (!callback( sHoriz.x >> RAY_ACC,sHoriz.y, hDist))
-			{
-				// callback doesn't want any more points so return
-				return;
-			}
+      // pass through the current intersection, converting x from fixed point
+      if (!callback(sHoriz.x >> RAY_ACC, sHoriz.y, hDist))
+      {
+        // callback doesn't want any more points so return
+        return;
+      }
 
-			// update for the next intersection
-			sHoriz.x += rayDX[ray];
-			sHoriz.y += hdy;
-			hDist += hdInc;
-		}
-		else
-		{
-			// clip to the edge of the map
-			if (sVert.x < 0 || sVert.x >= (SDWORD)(mapWidth << TILE_SHIFT) ||
-				sVert.y < 0 || (sVert.y >> RAY_ACC) >= (SDWORD)(mapHeight << TILE_SHIFT))
-			{
-				return;
-			}
+      // update for the next intersection
+      sHoriz.x += rayDX[ray];
+      sHoriz.y += hdy;
+      hDist += hdInc;
+    }
+    else
+    {
+      // clip to the edge of the map
+      if (sVert.x < 0 || sVert.x >= static_cast<SDWORD>(mapWidth << TILE_SHIFT) || sVert.y < 0 || (sVert.y >> RAY_ACC) >= static_cast<
+        SDWORD>(mapHeight << TILE_SHIFT))
+        return;
 
-			// pass through the current intersection, converting y from fixed point
-			if (!callback( sVert.x,sVert.y >> RAY_ACC, vDist))
-			{
-				// callback doesn't want any more points so return
-				return;
-			}
+      // pass through the current intersection, converting y from fixed point
+      if (!callback(sVert.x, sVert.y >> RAY_ACC, vDist))
+      {
+        // callback doesn't want any more points so return
+        return;
+      }
 
-			// update for the next intersection
-			sVert.x += vdx;
-			sVert.y += rayDY[ray];
-			vDist += vdInc;
-		}
-		ASSERT((hDist != 0 && vDist != 0,
-			"rayCast: zero distance"));
-	}
+      // update for the next intersection
+      sVert.x += vdx;
+      sVert.y += rayDY[ray];
+      vDist += vdInc;
+    }
+    ASSERT((hDist != 0 && vDist != 0, "rayCast: zero distance"));
+  }
 #endif
 }
-
 
 // Calculate the angle to cast a ray between two points
-UDWORD rayPointsToAngle(SDWORD x1,SDWORD y1, SDWORD x2,SDWORD y2)
+UDWORD rayPointsToAngle(SDWORD x1, SDWORD y1, SDWORD x2, SDWORD y2)
 {
-	SDWORD		xdiff, ydiff;
-	SDWORD		angle;
-	
-	xdiff = x2 - x1;
-	ydiff = y1 - y2;
+  SDWORD xdiff, ydiff;
+  SDWORD angle;
 
-	angle = (SDWORD)((NUM_RAYS/2) * atan2(xdiff, ydiff) / PI);
+  xdiff = x2 - x1;
+  ydiff = y1 - y2;
 
-	angle += NUM_RAYS/2;
-	angle = angle % NUM_RAYS;
+  angle = static_cast<SDWORD>((NUM_RAYS / 2) * atan2(xdiff, ydiff) / PI);
 
-	ASSERT((angle >= 0 && angle < NUM_RAYS,
-		"rayPointsToAngle: angle out of range"));
+  angle += NUM_RAYS / 2;
+  angle = angle % NUM_RAYS;
 
-	return (UDWORD)angle;
+  ASSERT((angle >= 0 && angle < NUM_RAYS, "rayPointsToAngle: angle out of range"));
+
+  return static_cast<UDWORD>(angle);
 }
-
 
 /* Distance of a point from a line.
  * NOTE: This is not 100% accurate - it approximates to get the square root
  *
  * This is based on Graphics Gems II setion 1.3
  */
-SDWORD rayPointDist(SDWORD x1,SDWORD y1, SDWORD x2,SDWORD y2,
-					   SDWORD px,SDWORD py)
+SDWORD rayPointDist(SDWORD x1, SDWORD y1, SDWORD x2, SDWORD y2, SDWORD px, SDWORD py)
 {
-	SDWORD	a, lxd,lyd, dist;
+  SDWORD a, lxd, lyd, dist;
 
-	lxd = x2 - x1;
-	lyd = y2 - y1;
+  lxd = x2 - x1;
+  lyd = y2 - y1;
 
-	a = (py - y1)*lxd - (px - x1)*lyd;
-	if (a < 0)
-	{
-		a = -a;
-	}
-	if (lxd < 0)
-	{
-		lxd = -lxd;
-	}
-	if (lyd < 0)
-	{
-		lyd = -lyd;
-	}
+  a = (py - y1) * lxd - (px - x1) * lyd;
+  if (a < 0)
+    a = -a;
+  if (lxd < 0)
+    lxd = -lxd;
+  if (lyd < 0)
+    lyd = -lyd;
 
-	if (lxd < lyd)
-	{
-		dist = a / (lxd + lyd - lxd/2);
-	}
-	else
-	{
-		dist = a / (lxd + lyd - lyd/2);
-	}
+  if (lxd < lyd)
+    dist = a / (lxd + lyd - lxd / 2);
+  else
+    dist = a / (lxd + lyd - lyd / 2);
 
-	return dist;
+  return dist;
 }
-
 
 //-----------------------------------------------------------------------------------
 /*	Gets the maximum terrain height along a certain direction to the edge of the grid
 	from wherever you specify, as well as the distance away 
 */
 
-
 /* Nasty global vars - put into a structure? */
 //-----------------------------------------------------------------------------------
-SDWORD	gHeight;
-FRACT	gPitch;
-UDWORD	gStartTileX;
-UDWORD	gStartTileY;
+SDWORD gHeight;
+FRACT gPitch;
+UDWORD gStartTileX;
+UDWORD gStartTileY;
 
-SDWORD	gHighestHeight,gHOrigHeight;
-SDWORD	gHMinDist;
-FRACT	gHPitch;
-
+SDWORD gHighestHeight, gHOrigHeight;
+SDWORD gHMinDist;
+FRACT gHPitch;
 
 //-----------------------------------------------------------------------------------
 UDWORD getTileTallObj(UDWORD x, UDWORD y)
 {
-	UDWORD	i, j;
-	UDWORD	TallObj = 0;
+  UDWORD i, j;
+  UDWORD TallObj = 0;
 
-	x = x >> TILE_SHIFT;
-	y = y >> TILE_SHIFT;
+  x = x >> TILE_SHIFT;
+  y = y >> TILE_SHIFT;
 
-	for (j=y; j < y+2; j++)
-	{
-		for (i=x; i < x+2; i++)
-		{
-			TallObj |= TILE_HAS_TALLSTRUCTURE(mapTile(i,j));
-		}
-	}
+  for (j = y; j < y + 2; j++)
+  {
+    for (i = x; i < x + 2; i++)
+      TallObj |= TILE_HAS_TALLSTRUCTURE(mapTile(i,j));
+  }
 
-	return TallObj;
+  return TallObj;
 }
 
 //-----------------------------------------------------------------------------------
-static BOOL	getTileHighestCallback(SDWORD x, SDWORD y, SDWORD dist)
+static BOOL getTileHighestCallback(SDWORD x, SDWORD y, SDWORD dist)
 {
-SDWORD	heightDif;
-UDWORD	height;
-	if(clipXY(x,y))
-	{
-		height = map_Height(x,y);
-		if( (height > gHighestHeight) AND (dist >= gHMinDist) )
-		{
-			heightDif = height - gHOrigHeight;
-			gHPitch = RAD_TO_DEG(atan2(MAKEFRACT(heightDif),
-				MAKEFRACT(6*TILE_UNITS)));//MAKEFRACT(dist-(TILE_UNITS*3))));
-			gHighestHeight = height;
-  		}
-	}
-	else
-	{
-		return(FALSE);
-	}
+  SDWORD heightDif;
+  UDWORD height;
+  if (clipXY(x, y))
+  {
+    height = map_Height(x, y);
+    if ((height > gHighestHeight) AND (dist >= gHMinDist))
+    {
+      heightDif = height - gHOrigHeight;
+      gHPitch = RAD_TO_DEG(atan2(MAKEFRACT(heightDif), MAKEFRACT(6*TILE_UNITS))); //MAKEFRACT(dist-(TILE_UNITS*3))));
+      gHighestHeight = height;
+    }
+  }
+  else
+    return (FALSE);
 
-	return(TRUE);
-
+  return (TRUE);
 }
+
 //-----------------------------------------------------------------------------------
 /* Will return false when we've hit the edge of the grid */
-static BOOL	getTileHeightCallback(SDWORD x, SDWORD y, SDWORD dist)
+static BOOL getTileHeightCallback(SDWORD x, SDWORD y, SDWORD dist)
 {
-SDWORD	height,heightDif;
-FRACT	newPitch;
-BOOL HasTallStructure = FALSE;
+  SDWORD height, heightDif;
+  FRACT newPitch;
+  BOOL HasTallStructure = FALSE;
 #ifdef TEST_RAY
-iVector	pos;
+  iVector pos;
 #endif
 
-	/* Are we still on the grid? */
-   	if(clipXY(x,y))
-	{
-		HasTallStructure = TILE_HAS_TALLSTRUCTURE(mapTile(x>>TILE_SHIFT,y>>TILE_SHIFT));
+  /* Are we still on the grid? */
+  if (clipXY(x, y))
+  {
+    HasTallStructure = TILE_HAS_TALLSTRUCTURE(mapTile(x>>TILE_SHIFT,y>>TILE_SHIFT));
 
-		if( (dist>TILE_UNITS) || HasTallStructure)
-		{
-		// Only do it the current tile is > TILE_UNITS away from the starting tile. Or..
-		// there is a tall structure  on the current tile and the current tile is not the starting tile.
-//		if( (dist>TILE_UNITS) ||
-//			( (HasTallStructure = TILE_HAS_TALLSTRUCTURE(mapTile(x>>TILE_SHIFT,y>>TILE_SHIFT))) &&
-			/* Get height at this intersection point */
-			height = map_Height(x,y);
+    if ((dist > TILE_UNITS) || HasTallStructure)
+    {
+      // Only do it the current tile is > TILE_UNITS away from the starting tile. Or..
+      // there is a tall structure  on the current tile and the current tile is not the starting tile.
+      //		if( (dist>TILE_UNITS) ||
+      //			( (HasTallStructure = TILE_HAS_TALLSTRUCTURE(mapTile(x>>TILE_SHIFT,y>>TILE_SHIFT))) &&
+      /* Get height at this intersection point */
+      height = map_Height(x, y);
 
-			if(HasTallStructure) {
-				height += 300;	//TALLOBJECT_ADJUST;
-			}
+      if (HasTallStructure)
+        height += 300; //TALLOBJECT_ADJUST;
 
-			if(height<=gHeight)
-			{
-				heightDif = 0;
-			}
-			else
-			{
-				heightDif = height-gHeight;
-			}
+      if (height <= gHeight)
+        heightDif = 0;
+      else
+        heightDif = height - gHeight;
 
-			/* Work out the angle to this point from start point */
-			newPitch = RAD_TO_DEG(atan2(MAKEFRACT(heightDif),MAKEFRACT(dist)));
+      /* Work out the angle to this point from start point */
+      newPitch = RAD_TO_DEG(atan2(MAKEFRACT(heightDif),MAKEFRACT(dist)));
 
-			/* Is this the steepest we've found? */
-			if(newPitch>gPitch)
-			{
-				/* Yes, then keep a record of it */
-				gPitch = newPitch;
-			}
-			//---
+      /* Is this the steepest we've found? */
+      if (newPitch > gPitch)
+      {
+        /* Yes, then keep a record of it */
+        gPitch = newPitch;
+      }
+      //---
 
 #ifdef TEST_RAY
-			pos.x = x;
-			pos.y = height;
-			pos.z = y;
-			addEffect(&pos,EFFECT_EXPLOSION,EXPLOSION_TYPE_SMALL,FALSE,NULL,0);
+      pos.x = x; pos.y = height; pos.z = y; addEffect(&pos, EFFECT_EXPLOSION, EXPLOSION_TYPE_SMALL,FALSE,NULL, 0);
 #endif
-		}
-	}
-	else
-	{
-		/* We've hit edge of grid - so exit!! */
-		return(FALSE);
-	}
+    }
+  }
+  else
+  {
+    /* We've hit edge of grid - so exit!! */
+    return (FALSE);
+  }
 
-	/* Not at edge yet - so exit */
-	return(TRUE);
+  /* Not at edge yet - so exit */
+  return (TRUE);
 }
 
-void	getBestPitchToEdgeOfGrid(UDWORD x, UDWORD y, UDWORD direction, SDWORD *pitch)
+void getBestPitchToEdgeOfGrid(UDWORD x, UDWORD y, UDWORD direction, SDWORD* pitch)
 {
-	/* Set global var to clear */
-	gPitch = MAKEFRACT(0);
-	gHeight = map_Height(x,y);
-	gStartTileX = x >> TILE_SHIFT;
-	gStartTileY = y >> TILE_SHIFT;
-	rayCast(x,y, direction%360,5430,getTileHeightCallback);
-	*pitch = MAKEINT(gPitch);
+  /* Set global var to clear */
+  gPitch = MAKEFRACT(0);
+  gHeight = map_Height(x, y);
+  gStartTileX = x >> TILE_SHIFT;
+  gStartTileY = y >> TILE_SHIFT;
+  rayCast(x, y, direction % 360, 5430, getTileHeightCallback);
+  *pitch = MAKEINT(gPitch);
 }
 
 //-----------------------------------------------------------------------------------
-void	getPitchToHighestPoint( UDWORD x, UDWORD y, UDWORD direction, 
-							   UDWORD thresholdDistance, SDWORD *pitch)
+void getPitchToHighestPoint(UDWORD x, UDWORD y, UDWORD direction, UDWORD thresholdDistance, SDWORD* pitch)
 {
-	gHPitch = MAKEFRACT(0);
-	gHOrigHeight = map_Height(x,y);
-	gHighestHeight = map_Height(x,y);
-	gHMinDist = thresholdDistance;
-	rayCast(x,y,direction%360,3000,getTileHighestCallback);
-	*pitch = MAKEINT(gHPitch);
+  gHPitch = MAKEFRACT(0);
+  gHOrigHeight = map_Height(x, y);
+  gHighestHeight = map_Height(x, y);
+  gHMinDist = thresholdDistance;
+  rayCast(x, y, direction % 360, 3000, getTileHighestCallback);
+  *pitch = MAKEINT(gHPitch);
 }
+
 //-----------------------------------------------------------------------------------

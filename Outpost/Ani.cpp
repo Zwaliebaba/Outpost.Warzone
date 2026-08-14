@@ -12,10 +12,6 @@
 
 /***************************************************************************/
 
-void *
-anim_GetShapeFunc( STRING * pStr )
-{
-	return resGetData( "IMD", pStr );
-}
+void* anim_GetShapeFunc(STRING* pStr) { return resGetData("IMD", pStr); }
 
 /***************************************************************************/
