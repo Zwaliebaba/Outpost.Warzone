@@ -10,7 +10,6 @@
 #include "Frame.h"
 #include "Widget.h"
 #include "Deliverance.h"
-#include "Fractions.h"
 
 #include "PieState.h"
 #include "PieClip.h"

@@ -50,8 +50,8 @@ static SDWORD rayFPInvCos[NUM_RAYS], rayFPInvSin[NUM_RAYS];
 BOOL rayInitialise(void)
 {
   SDWORD i;
-  FRACT angle = MAKEFRACT(0);
-  FRACT val;
+  float angle = 0.0f;
+  float val;
 
   for (i = 0; i < NUM_RAYS; i++)
   {
@@ -64,34 +64,34 @@ BOOL rayInitialise(void)
       rayDX[i] = -rayDX[i];
 
     if (val == 0)
-      val = static_cast<FRACT>(1); // Horrible hack to avoid divide by zero.
+      val = static_cast<float>(1); // Horrible hack to avoid divide by zero.
 
     rayDY[i] = static_cast<SDWORD>((TILE_UNITS * RAY_ACCMUL / val));
     if (i >= NUM_RAYS / 2)
       rayDY[i] = -rayDY[i];
 
     // These are used to calculate the initial intersection
-    rayFPTan[i] = MAKEINT(FRACTmul(val, MAKEFRACT(RAY_ACCMUL)));
-    rayFPInvTan[i] = MAKEINT(FRACTdiv(MAKEFRACT(RAY_ACCMUL), val));
+    rayFPTan[i] = std::lrintf(val * static_cast<float>(RAY_ACCMUL));
+    rayFPInvTan[i] = std::lrintf(static_cast<float>(RAY_ACCMUL) / val);
 
     // Set up the trig tables for calculating the offset distances
     val = static_cast<float>(sin(angle));
     if (val == 0)
-      val = static_cast<FRACT>(1);
-    rayFPInvSin[i] = MAKEINT(FRACTdiv(MAKEFRACT(RAY_ACCMUL), val));
+      val = static_cast<float>(1);
+    rayFPInvSin[i] = std::lrintf(static_cast<float>(RAY_ACCMUL) / val);
     if (i >= NUM_RAYS / 2)
-      rayVDist[i] = MAKEINT(FRACTdiv(MAKEFRACT(-TILE_UNITS), val));
+      rayVDist[i] = std::lrintf(static_cast<float>(-TILE_UNITS) / val);
     else
-      rayVDist[i] = MAKEINT(FRACTdiv(MAKEFRACT(TILE_UNITS), val));
+      rayVDist[i] = std::lrintf(static_cast<float>(TILE_UNITS) / val);
 
     val = static_cast<float>(cos(angle));
     if (val == 0)
-      val = static_cast<FRACT>(1);
-    rayFPInvCos[i] = MAKEINT(FRACTdiv(MAKEFRACT(RAY_ACCMUL), val));
+      val = static_cast<float>(1);
+    rayFPInvCos[i] = std::lrintf(static_cast<float>(RAY_ACCMUL) / val);
     if (i < NUM_RAYS / 4 || i > 3 * NUM_RAYS / 4)
-      rayHDist[i] = MAKEINT(FRACTdiv(MAKEFRACT(TILE_UNITS), val));
+      rayHDist[i] = std::lrintf(static_cast<float>(TILE_UNITS) / val);
     else
-      rayHDist[i] = MAKEINT(FRACTdiv(MAKEFRACT(-TILE_UNITS), val));
+      rayHDist[i] = std::lrintf(static_cast<float>(-TILE_UNITS) / val);
 
     angle += RAY_ANGLE;
   }
@@ -367,13 +367,13 @@ SDWORD rayPointDist(SDWORD x1, SDWORD y1, SDWORD x2, SDWORD y2, SDWORD px, SDWOR
 /* Nasty global vars - put into a structure? */
 //-----------------------------------------------------------------------------------
 SDWORD gHeight;
-FRACT gPitch;
+float gPitch;
 UDWORD gStartTileX;
 UDWORD gStartTileY;
 
 SDWORD gHighestHeight, gHOrigHeight;
 SDWORD gHMinDist;
-FRACT gHPitch;
+float gHPitch;
 
 //-----------------------------------------------------------------------------------
 UDWORD getTileTallObj(UDWORD x, UDWORD y)
@@ -404,7 +404,7 @@ static BOOL getTileHighestCallback(SDWORD x, SDWORD y, SDWORD dist)
     if ((height > gHighestHeight) AND (dist >= gHMinDist))
     {
       heightDif = height - gHOrigHeight;
-      gHPitch = RAD_TO_DEG(atan2(MAKEFRACT(heightDif), MAKEFRACT(6*TILE_UNITS))); //MAKEFRACT(dist-(TILE_UNITS*3))));
+      gHPitch = RAD_TO_DEG(atan2(static_cast<float>(heightDif), static_cast<float>(6*TILE_UNITS))); //MAKEFRACT(dist-(TILE_UNITS*3))));
       gHighestHeight = height;
     }
   }
@@ -419,7 +419,7 @@ static BOOL getTileHighestCallback(SDWORD x, SDWORD y, SDWORD dist)
 static BOOL getTileHeightCallback(SDWORD x, SDWORD y, SDWORD dist)
 {
   SDWORD height, heightDif;
-  FRACT newPitch;
+  float newPitch;
   BOOL HasTallStructure = FALSE;
 #ifdef TEST_RAY
   iVector pos;
@@ -448,7 +448,7 @@ static BOOL getTileHeightCallback(SDWORD x, SDWORD y, SDWORD dist)
         heightDif = height - gHeight;
 
       /* Work out the angle to this point from start point */
-      newPitch = RAD_TO_DEG(atan2(MAKEFRACT(heightDif),MAKEFRACT(dist)));
+      newPitch = RAD_TO_DEG(atan2(static_cast<float>(heightDif),static_cast<float>(dist)));
 
       /* Is this the steepest we've found? */
       if (newPitch > gPitch)
@@ -476,23 +476,23 @@ static BOOL getTileHeightCallback(SDWORD x, SDWORD y, SDWORD dist)
 void getBestPitchToEdgeOfGrid(UDWORD x, UDWORD y, UDWORD direction, SDWORD* pitch)
 {
   /* Set global var to clear */
-  gPitch = MAKEFRACT(0);
+  gPitch = 0.0f;
   gHeight = map_Height(x, y);
   gStartTileX = x >> TILE_SHIFT;
   gStartTileY = y >> TILE_SHIFT;
   rayCast(x, y, direction % 360, 5430, getTileHeightCallback);
-  *pitch = MAKEINT(gPitch);
+  *pitch = std::lrintf(gPitch);
 }
 
 //-----------------------------------------------------------------------------------
 void getPitchToHighestPoint(UDWORD x, UDWORD y, UDWORD direction, UDWORD thresholdDistance, SDWORD* pitch)
 {
-  gHPitch = MAKEFRACT(0);
+  gHPitch = 0.0f;
   gHOrigHeight = map_Height(x, y);
   gHighestHeight = map_Height(x, y);
   gHMinDist = thresholdDistance;
   rayCast(x, y, direction % 360, 3000, getTileHighestCallback);
-  *pitch = MAKEINT(gHPitch);
+  *pitch = std::lrintf(gHPitch);
 }
 
 //-----------------------------------------------------------------------------------

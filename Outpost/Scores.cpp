@@ -260,19 +260,19 @@ void drawStatBars(void)
       if (((gameTime2 - dispST) > infoBars[index].queTime))
       {
         /* Now draw amount filled */
-        FRACT length = MAKEFRACT(infoBars[index].percent) / MAKEFRACT(100);
-        length = length * MAKEFRACT(infoBars[index].width);
+        float length = static_cast<float>(infoBars[index].percent) / 100.0f;
+        length = length * static_cast<float>(infoBars[index].width);
         UDWORD div = PERCENT(gameTime2-dispST, BAR_CRAWL_TIME);
         if (div > 100)
           div = 100;
-        FRACT mul = MAKEFRACT(div) / 100;
+        float mul = static_cast<float>(div) / 100;
         length = length * mul;
-        if (MAKEINT(length) > 4)
+        if (std::lrintf(length) > 4)
         {
           /* Black shadow */
-          iV_BoxFill(x + 1, y + 3, x + MAKEINT(length) - 1, y + height - 1, 1);
+          iV_BoxFill(x + 1, y + 3, x + std::lrintf(length) - 1, y + height - 1, 1);
           /* Solid coloured bit */
-          iV_BoxFill(x + 1, y + 2, x + MAKEINT(length) - 4, y + height - 4, static_cast<UBYTE>(infoBars[index].colour));
+          iV_BoxFill(x + 1, y + 2, x + std::lrintf(length) - 4, y + height - 4, static_cast<UBYTE>(infoBars[index].colour));
         }
       }
       /* Now render the text by the bar */
@@ -317,7 +317,7 @@ void fillUpStats(void)
 {
   UDWORD i;
   UDWORD maxi;
-  FRACT scaleFactor;
+  float scaleFactor;
   UDWORD length;
   UDWORD numUnits;
   DROID* psDroid;
@@ -332,14 +332,14 @@ void fillUpStats(void)
 
   /* Make sure we got something */
   if (maxi == 0)
-    scaleFactor = MAKEFRACT(0);
+    scaleFactor = 0.0f;
   else
-    scaleFactor = (MAKEFRACT(RANK_BAR_WIDTH) / maxi);
+    scaleFactor = (static_cast<float>(RANK_BAR_WIDTH) / maxi);
 
   /* Scale for percent */
   for (i = 0; i < DROID_LEVELS; i++)
   {
-    length = MAKEINT((scaleFactor * getNumDroidsForLevel(i)));
+    length = std::lrintf(scaleFactor * getNumDroidsForLevel(i));
     infoBars[STAT_ROOKIE + i].percent = PERCENT(length, RANK_BAR_WIDTH);
     infoBars[STAT_ROOKIE + i].number = getNumDroidsForLevel(i);
   }
@@ -350,11 +350,11 @@ void fillUpStats(void)
   if (maxi == 0)
     scaleFactor = 0;
   else
-    scaleFactor = (MAKEFRACT(STAT_BAR_WIDTH) / maxi);
+    scaleFactor = (static_cast<float>(STAT_BAR_WIDTH) / maxi);
 
-  length = MAKEINT(scaleFactor * missionData.unitsLost);
+  length = std::lrintf(scaleFactor * missionData.unitsLost);
   infoBars[STAT_UNIT_LOST].percent = PERCENT(length, STAT_BAR_WIDTH);
-  length = MAKEINT(scaleFactor * missionData.unitsKilled);
+  length = std::lrintf(scaleFactor * missionData.unitsKilled);
   infoBars[STAT_UNIT_KILLED].percent = PERCENT(length, STAT_BAR_WIDTH);
 
   /* Now do the structure losses */
@@ -362,11 +362,11 @@ void fillUpStats(void)
   if (maxi == 0)
     scaleFactor = 0;
   else
-    scaleFactor = (MAKEFRACT(STAT_BAR_WIDTH) / maxi);
+    scaleFactor = (static_cast<float>(STAT_BAR_WIDTH) / maxi);
 
-  length = MAKEINT(scaleFactor * missionData.strLost);
+  length = std::lrintf(scaleFactor * missionData.strLost);
   infoBars[STAT_STR_LOST].percent = PERCENT(length, STAT_BAR_WIDTH);
-  length = MAKEINT(scaleFactor * missionData.strKilled);
+  length = std::lrintf(scaleFactor * missionData.strKilled);
   infoBars[STAT_STR_BLOWN_UP].percent = PERCENT(length, STAT_BAR_WIDTH);
 
   /* Finally the force information - need amount of droids as well*/
@@ -380,13 +380,13 @@ void fillUpStats(void)
   if (maxi == 0)
     scaleFactor = 0;
   else
-    scaleFactor = (MAKEFRACT(STAT_BAR_WIDTH) / maxi);
+    scaleFactor = (static_cast<float>(STAT_BAR_WIDTH) / maxi);
 
-  length = MAKEINT(scaleFactor * missionData.unitsBuilt);
+  length = std::lrintf(scaleFactor * missionData.unitsBuilt);
   infoBars[STAT_UNITS_BUILT].percent = PERCENT(length, STAT_BAR_WIDTH);
-  length = MAKEINT(scaleFactor * numUnits);
+  length = std::lrintf(scaleFactor * numUnits);
   infoBars[STAT_UNITS_NOW].percent = PERCENT(length, STAT_BAR_WIDTH);
-  length = MAKEINT(scaleFactor * missionData.strBuilt);
+  length = std::lrintf(scaleFactor * missionData.strBuilt);
   infoBars[STAT_STR_BUILT].percent = PERCENT(length, STAT_BAR_WIDTH);
 
   /* Finally the numbers themselves */

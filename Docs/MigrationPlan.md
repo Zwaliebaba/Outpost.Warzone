@@ -469,10 +469,10 @@ build baseline is not available there. Instead, every translation unit is
 syntax-checked with **mingw-w64** against a shadow copy of the tree, using the
 include paths and preprocessor definitions taken from the `.vcxproj` files.
 `tools/crosscheck.py` is the harness. The shadow neutralises the Windows-only
-things GCC cannot process: the MSVC inline-assembly sites (`Fractions.h`,
-`AMD3D.h`, `RendMode.cpp`, `PieDraw.cpp`), includes whose case does not match
-the real filename, the Concurrency Runtime headers `NeuronCore.h` includes but
-never uses, and `std::exception(const char *)`.
+things GCC cannot process: includes whose case does not match the real
+filename, and the Concurrency Runtime headers `NeuronCore.h` includes but
+never uses. The inline-assembly handling has gone with the last `__asm` in the
+tree.
 
 This is a **proxy, not MSVC**. GCC is stricter in some places, MSVC under
 `/permissive` is more lenient in others, and the harness cannot link (QMixer,

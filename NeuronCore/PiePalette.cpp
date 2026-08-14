@@ -6,7 +6,6 @@
 #include "PiePalette.h"
 #include "RendMode.h"
 #include "Bug.h"
-#include "Fractions.h"
 
 #define RED_CHROMATICITY	1
 #define GREEN_CHROMATICITY	1

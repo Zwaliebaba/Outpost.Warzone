@@ -304,14 +304,14 @@ void formationCalcPos(FORMATION* psFormation, SDWORD line, SDWORD dist, SDWORD* 
 
   // calculate the offset of the line based on the rank
   dir = static_cast<SDWORD>(adjustDirection(psFormation->dir, 180));
-  xoffset = MAKEINT(FRACTmul(trigSin(dir), MAKEFRACT(psFormation->rankDist * rank))) + psFormation->asLines[line].xoffset;
-  yoffset = MAKEINT(FRACTmul(trigCos(dir), MAKEFRACT(psFormation->rankDist * rank))) + psFormation->asLines[line].yoffset;
+  xoffset = std::lrintf(trigSin(dir) * static_cast<float>(psFormation->rankDist * rank)) + psFormation->asLines[line].xoffset;
+  yoffset = std::lrintf(trigCos(dir) * static_cast<float>(psFormation->rankDist * rank)) + psFormation->asLines[line].yoffset;
 
   // calculate the position of the gap
   dir = psFormation->asLines[line].dir;
   dist -= psFormation->size * rank;
-  *pX = MAKEINT(FRACTmul(trigSin(dir), MAKEFRACT(dist))) + xoffset + psFormation->x;
-  *pY = MAKEINT(FRACTmul(trigCos(dir), MAKEFRACT(dist))) + yoffset + psFormation->y;
+  *pX = std::lrintf(trigSin(dir) * static_cast<float>(dist)) + xoffset + psFormation->x;
+  *pY = std::lrintf(trigCos(dir) * static_cast<float>(dist)) + yoffset + psFormation->y;
 }
 
 // assign a unit to a free spot in the formation

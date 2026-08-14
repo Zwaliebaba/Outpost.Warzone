@@ -2141,14 +2141,14 @@ void screenDrawLine(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1)
       /* calculated intesection point get ready for next pass */
       if (code == code0)
       {
-        x0 = ROUND(cx);
-        y0 = ROUND(cy);
+        x0 = std::lround(cx);
+        y0 = std::lround(cy);
         compOutCode(x0, y0, &code0);
       }
       else
       {
-        x1 = ROUND(cx);
-        y1 = ROUND(cy);
+        x1 = std::lround(cx);
+        y1 = std::lround(cy);
         compOutCode(x1, y1, &code1);
       }
     }

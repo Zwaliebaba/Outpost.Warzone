@@ -545,10 +545,10 @@ using SAVE_MOVE_CONTROL = struct _save_move_control
   SDWORD srcX, srcY, targetX, targetY;
 
   /* Stuff for John's movement update */
-  FRACT fx, fy; // droid location as a fract
+  float fx, fy; // droid location as a fract
   //	FRACT	dx,dy;						// x and y change for current direction
   // NOTE: this is supposed to replace Speed
-  FRACT speed; // Speed of motion
+  float speed; // Speed of motion
   SWORD boundX, boundY; // Vector for the end of path boundary
   SWORD dir; // direction of motion (not the direction the droid is facing)
 
@@ -4281,7 +4281,7 @@ DROID* buildDroidFromSaveDroid(SAVE_DROID* psSaveDroid, UDWORD version)
   {
     psDroid->resistance = static_cast<SWORD>(psSaveDroid->resistance);
     memcpy(&psDroid->sMove, &psSaveDroid->sMove, sizeof(SAVE_MOVE_CONTROL));
-    psDroid->sMove.fz = static_cast<FRACT>(psDroid->z);
+    psDroid->sMove.fz = static_cast<float>(psDroid->z);
     if (psDroid->sMove.psFormation != nullptr)
     {
       psDroid->sMove.psFormation = nullptr;

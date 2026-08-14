@@ -8,7 +8,6 @@
 #include "FrameInt.h"
 #include "WDG.h"
 
-#include "Fractions.h"
 
 #include <assert.h>
 

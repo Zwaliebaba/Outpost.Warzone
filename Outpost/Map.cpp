@@ -30,7 +30,6 @@
 #include "Gateway.h"
 #include "Wrappers.h"
 
-#include "Fractions.h"
 
 BOOL bDoneWater = FALSE;
 BOOL nearLand(UDWORD x, UDWORD y);

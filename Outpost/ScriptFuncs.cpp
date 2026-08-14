@@ -4327,7 +4327,7 @@ BOOL scrForceDamage(void)
   FEATURE* psFeature;
   BASE_OBJECT* psObj;
   UDWORD damagePercent;
-  FRACT divisor;
+  float divisor;
   UDWORD newVal;
 
   /* OK - let's get the vars */
@@ -4346,19 +4346,19 @@ BOOL scrForceDamage(void)
   }
 
   /* Get percentage in range [0.1] */
-  divisor = MAKEFRACT(damagePercent) / 100;
+  divisor = static_cast<float>(damagePercent) / 100;
 
   /* See what we're dealing with */
   switch (psObj->type)
   {
   case OBJ_DROID:
     psDroid = (DROID*)psObj;
-    newVal = MAKEINT((divisor * psDroid->originalBody));
+    newVal = std::lrintf(divisor * psDroid->originalBody);
     psDroid->body = newVal;
     break;
   case OBJ_STRUCTURE:
     psStructure = (STRUCTURE*)psObj;
-    newVal = MAKEINT((divisor * structureBody(psStructure)));
+    newVal = std::lrintf(divisor * structureBody(psStructure));
     psStructure->body = static_cast<UWORD>(newVal);
     break;
   case OBJ_FEATURE:
@@ -4366,7 +4366,7 @@ BOOL scrForceDamage(void)
     /* Some features cannot be damaged */
     if (psFeature->psStats->damageable)
     {
-      newVal = MAKEINT((divisor * psFeature->psStats->body));
+      newVal = std::lrintf(divisor * psFeature->psStats->body);
       psFeature->body = newVal;
     }
     break;

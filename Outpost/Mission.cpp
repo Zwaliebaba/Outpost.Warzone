@@ -660,7 +660,7 @@ void missionFlyTransportersIn(SDWORD iPlayer, BOOL bTrackTransporter)
   DROID *psTransporter, *psNext;
   UWORD iX, iY, iZ;
   SDWORD iLandX, iLandY, iDx, iDy;
-  FRACT_D fR;
+  float fR;
 
   bTrackingTransporter = bTrackTransporter;
 
@@ -695,9 +695,9 @@ void missionFlyTransportersIn(SDWORD iPlayer, BOOL bTrackTransporter)
         iDx = iLandX - iX;
         iDy = iLandY - iY;
 
-        fR = static_cast<FRACT_D>(atan2(iDx, iDy));
+        fR = static_cast<float>(atan2(iDx, iDy));
         if (fR < 0.0)
-          fR += static_cast<FRACT_D>(2 * PI);
+          fR += static_cast<float>(2 * PI);
         psTransporter->direction = static_cast<UWORD>((RAD_TO_DEG(fR)));
 
         // Camera track requested and it's the selected player.

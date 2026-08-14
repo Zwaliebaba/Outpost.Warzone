@@ -15,7 +15,6 @@
 #include "Input.h"
 #include "Screen.h"
 #include "FrameInt.h"
-#include "Fractions.h"
 #include "Frame.h"
 
 /* The possible states for keys */
@@ -152,7 +151,7 @@ UDWORD inputGetKey(void)
 void inputProcessMessages(UINT message, WPARAM wParam, LPARAM lParam)
 {
   UDWORD code, i, repeat, vk;
-  FRACT divX, divY;
+  float divX, divY;
   UDWORD scrX, scrY;
 
   /* Loose the warning message */

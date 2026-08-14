@@ -114,7 +114,6 @@
     <ClInclude Include="Fbf.h" />
     <ClInclude Include="Font.h" />
     <ClInclude Include="Form.h" />
-    <ClInclude Include="Fractions.h" />
     <ClInclude Include="Frame.h" />
     <ClInclude Include="FrameInt.h" />
     <ClInclude Include="FrameResource.h" />

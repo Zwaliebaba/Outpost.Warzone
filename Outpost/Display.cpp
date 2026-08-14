@@ -32,7 +32,6 @@
 #include "Radar.h"
 #include "MiscIMD.h"
 #include "Lighting.h"
-#include "Fractions.h"
 #include "Console.h"
 #include "Order.h"
 #include "Wrappers.h"
@@ -1161,9 +1160,9 @@ void scroll(void)
   sine = static_cast<float>(sin(radians));
 
   /* Get x component of movement */
-  xDif = ROUND(cosine * scrollStepLeftRight + sine * scrollStepUpDown);
+  xDif = std::lround(cosine * scrollStepLeftRight + sine * scrollStepUpDown);
   /* Get y component of movement */
-  yDif = ROUND(sine * scrollStepLeftRight - cosine * scrollStepUpDown);
+  yDif = std::lround(sine * scrollStepLeftRight - cosine * scrollStepUpDown);
 
   /* Adjust player's position by these components */
 #ifdef VISIBLE_SCROLL

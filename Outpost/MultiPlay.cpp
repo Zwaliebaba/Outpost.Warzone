@@ -140,8 +140,8 @@ BOOL multiplayerWinSequence(BOOL firstCall)
   static iVector pos;
   iVector pos2;
   static UDWORD last = 0;
-  FRACT fraction;
-  FRACT rotAmount;
+  float fraction;
+  float rotAmount;
   STRUCTURE* psStruct;
 
   if (firstCall)
@@ -166,9 +166,9 @@ BOOL multiplayerWinSequence(BOOL firstCall)
   // rotate world
   if (!getWarCamStatus())
   {
-    fraction = MAKEFRACT(frameTime) / GAME_TICKS_PER_SEC;
+    fraction = static_cast<float>(frameTime) / GAME_TICKS_PER_SEC;
     rotAmount = fraction * MAP_SPIN_RATE / 12;
-    player.r.y += MAKEINT(rotAmount);
+    player.r.y += std::lrintf(rotAmount);
   }
 
   if (last > gameTime)

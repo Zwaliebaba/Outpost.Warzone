@@ -590,12 +590,12 @@ void kf_SystemClose(void) { loopFastExit(); }
 /* Zooms out from display */
 void kf_ZoomOut(void)
 {
-  FRACT fraction;
-  FRACT zoomInterval;
+  float fraction;
+  float zoomInterval;
 
-  fraction = MAKEFRACT(frameTime2) / GAME_TICKS_PER_SEC;
+  fraction = static_cast<float>(frameTime2) / GAME_TICKS_PER_SEC;
   zoomInterval = fraction * MAP_ZOOM_RATE;
-  distance += MAKEINT(zoomInterval);
+  distance += std::lrintf(zoomInterval);
   /* If we're debugging, limit to a bit more */
 
 #ifndef JOHN
@@ -637,12 +637,12 @@ void kf_RadarZoomOut(void)
 /* Zooms in the map */
 void kf_ZoomIn(void)
 {
-  FRACT fraction;
-  FRACT zoomInterval;
+  float fraction;
+  float zoomInterval;
 
-  fraction = MAKEFRACT(frameTime2) / GAME_TICKS_PER_SEC;
+  fraction = static_cast<float>(frameTime2) / GAME_TICKS_PER_SEC;
   zoomInterval = fraction * MAP_ZOOM_RATE;
-  distance -= MAKEINT(zoomInterval);
+  distance -= std::lrintf(zoomInterval);
 
   if (distance < MINDISTANCE)
     distance = MINDISTANCE;
@@ -679,24 +679,24 @@ void	kf_ShrinkScreen( void )
 /* Spins the world round left */
 void kf_RotateLeft(void)
 {
-  FRACT fraction;
-  FRACT rotAmount;
+  float fraction;
+  float rotAmount;
 
-  fraction = MAKEFRACT(frameTime2) / GAME_TICKS_PER_SEC;
+  fraction = static_cast<float>(frameTime2) / GAME_TICKS_PER_SEC;
   rotAmount = fraction * MAP_SPIN_RATE;
-  player.r.y += MAKEINT(rotAmount);
+  player.r.y += std::lrintf(rotAmount);
 }
 
 // --------------------------------------------------------------------------
 /* Spins the world right */
 void kf_RotateRight(void)
 {
-  FRACT fraction;
-  FRACT rotAmount;
+  float fraction;
+  float rotAmount;
 
-  fraction = MAKEFRACT(frameTime2) / GAME_TICKS_PER_SEC;
+  fraction = static_cast<float>(frameTime2) / GAME_TICKS_PER_SEC;
   rotAmount = fraction * MAP_SPIN_RATE;
-  player.r.y -= MAKEINT(rotAmount);
+  player.r.y -= std::lrintf(rotAmount);
   if (player.r.y < 0)
     player.r.y += DEG(360);
 }
@@ -705,15 +705,15 @@ void kf_RotateRight(void)
 /* Pitches camera back */
 void kf_PitchBack(void)
 {
-  FRACT fraction;
-  FRACT pitchAmount;
+  float fraction;
+  float pitchAmount;
 
-  fraction = MAKEFRACT(frameTime2) / GAME_TICKS_PER_SEC;
+  fraction = static_cast<float>(frameTime2) / GAME_TICKS_PER_SEC;
   pitchAmount = fraction * MAP_PITCH_RATE;
 
   //
 
-  player.r.x += MAKEINT(pitchAmount);
+  player.r.x += std::lrintf(pitchAmount);
 
   //	if(getDebugMappingStatus() == FALSE)
 
@@ -726,12 +726,12 @@ void kf_PitchBack(void)
 /* Pitches camera foward */
 void kf_PitchForward(void)
 {
-  FRACT fraction;
-  FRACT pitchAmount;
+  float fraction;
+  float pitchAmount;
 
-  fraction = MAKEFRACT(frameTime2) / GAME_TICKS_PER_SEC;
+  fraction = static_cast<float>(frameTime2) / GAME_TICKS_PER_SEC;
   pitchAmount = fraction * MAP_PITCH_RATE;
-  player.r.x -= MAKEINT(pitchAmount);
+  player.r.x -= std::lrintf(pitchAmount);
   //	if(getDebugMappingStatus() == FALSE)
   if (player.r.x < DEG(360+MIN_PLAYER_X_ANGLE))
     player.r.x = DEG(360+MIN_PLAYER_X_ANGLE);
@@ -1833,17 +1833,17 @@ void kf_ToggleShakeStatus(void)
 
 void kf_SpeedUp(void)
 {
-  FRACT mod, fast1, fast2;
+  float mod, fast1, fast2;
 
   if (getDebugMappingStatus())
   {
-    fast1 = FRACTCONST(3, 2);
-    fast2 = FRACTCONST(2, 1);
+    fast1 = (3.0f / 2.0f);
+    fast2 = 2.0f;
   }
   else
   {
-    fast1 = FRACTCONST(5, 4);
-    fast2 = FRACTCONST(3, 2);
+    fast1 = (5.0f / 4.0f);
+    fast2 = (3.0f / 2.0f);
   }
 
   if ((!bMultiPlayer || (NetPlay.bComms == 0)) && !bInTutorial)
@@ -1852,15 +1852,15 @@ void kf_SpeedUp(void)
     gameTimeGetMod(&mod);
 
     // increase it
-    if (mod < FRACTCONST(1, 2))
+    if (mod < (1.0f / 2.0f))
     {
-      CONPRINTF(ConsoleString, (ConsoleString,strresGetString(psStringRes,STR_GAM_SPEED_UP),FRACTCONST(1,2)));
-      mod = FRACTCONST(1, 2);
+      CONPRINTF(ConsoleString, (ConsoleString,strresGetString(psStringRes,STR_GAM_SPEED_UP),(1.0f / 2.0f)));
+      mod = (1.0f / 2.0f);
     }
-    else if (mod < FRACTCONST(1, 1))
+    else if (mod < 1.0f)
     {
       CONPRINTF(ConsoleString, (ConsoleString,strresGetString(psStringRes,STR_GAM_NORMAL_SPEED)));
-      mod = FRACTCONST(1, 1);
+      mod = 1.0f;
     }
     else if (mod < fast1)
     {
@@ -1878,17 +1878,17 @@ void kf_SpeedUp(void)
 
 void kf_SlowDown(void)
 {
-  FRACT mod, fast1, fast2;
+  float mod, fast1, fast2;
 
   if (getDebugMappingStatus())
   {
-    fast1 = FRACTCONST(3, 2);
-    fast2 = FRACTCONST(2, 1);
+    fast1 = (3.0f / 2.0f);
+    fast2 = 2.0f;
   }
   else
   {
-    fast1 = FRACTCONST(5, 4);
-    fast2 = FRACTCONST(3, 2);
+    fast1 = (5.0f / 4.0f);
+    fast2 = (3.0f / 2.0f);
   }
 
   if ((!bMultiPlayer || (NetPlay.bComms == 0)) && !bInTutorial)
@@ -1902,20 +1902,20 @@ void kf_SlowDown(void)
       CONPRINTF(ConsoleString, (ConsoleString,strresGetString(psStringRes,STR_GAM_SLOW_DOWN),fast1));
       mod = fast1;
     }
-    else if (mod > FRACTCONST(1, 1))
+    else if (mod > 1.0f)
     {
       CONPRINTF(ConsoleString, (ConsoleString,strresGetString(psStringRes,STR_GAM_NORMAL_SPEED)));
-      mod = FRACTCONST(1, 1);
+      mod = 1.0f;
     }
-    else if (mod > FRACTCONST(1, 2))
+    else if (mod > (1.0f / 2.0f))
     {
-      CONPRINTF(ConsoleString, (ConsoleString,strresGetString(psStringRes,STR_GAM_SLOW_DOWN),FRACTCONST(1,2)));
-      mod = FRACTCONST(1, 2);
+      CONPRINTF(ConsoleString, (ConsoleString,strresGetString(psStringRes,STR_GAM_SLOW_DOWN),(1.0f / 2.0f)));
+      mod = (1.0f / 2.0f);
     }
-    else if (mod > FRACTCONST(1, 3))
+    else if (mod > (1.0f / 3.0f))
     {
-      CONPRINTF(ConsoleString, (ConsoleString,strresGetString(psStringRes,STR_GAM_SLOW_DOWN),FRACTCONST(1,3)));
-      mod = FRACTCONST(1, 3);
+      CONPRINTF(ConsoleString, (ConsoleString,strresGetString(psStringRes,STR_GAM_SLOW_DOWN),(1.0f / 3.0f)));
+      mod = (1.0f / 3.0f);
     }
     gameTimeSetMod(mod);
   }

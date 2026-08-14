@@ -29,7 +29,6 @@
 #include "Audio.h"
 #include "AudioID.h"
 #include "Stats.h"
-#include "Fractions.h"
 #include "Edit3D.h"
 #include "AnimID.h"
 #include "Anim.h"
@@ -4212,7 +4211,7 @@ void structureUpdate(STRUCTURE* psBuilding)
         pointIndex = rand() % (psBuilding->sDisplay.imd->npoints - 1);
         point = &(psBuilding->sDisplay.imd->points[pointIndex]);
         position.x = psBuilding->x + point->x;
-        realY = MAKEINT((structHeightScale(psBuilding) * point->y));
+        realY = std::lrintf(structHeightScale(psBuilding) * point->y);
         position.y = psBuilding->z + realY;
         position.z = psBuilding->y - point->z;
 
@@ -7482,10 +7481,10 @@ void checkResExtractorsActive(void)
 }
 
 /*Used for determining how much of the structure to draw as being built or demolished*/
-FRACT structHeightScale(STRUCTURE* psStruct)
+float structHeightScale(STRUCTURE* psStruct)
 {
-  FRACT retVal;
-  retVal = (MAKEFRACT(psStruct->currentBuildPts) / psStruct->pStructureType->buildPoints);
+  float retVal;
+  retVal = (static_cast<float>(psStruct->currentBuildPts) / psStruct->pStructureType->buildPoints);
   if (retVal < 0.05f)
     retVal = 0.05f;
   return (retVal);
@@ -7891,7 +7890,7 @@ void structUpdateRecoil(STRUCTURE* psStruct)
 {
   UDWORD percent;
   UDWORD recoil;
-  FRACT fraction;
+  float fraction;
 
   /* Check it's actually got a weapon */
   if (psStruct->asWeaps[0].nStat == 0)
@@ -7915,9 +7914,9 @@ void structUpdateRecoil(STRUCTURE* psStruct)
   else
     recoil = percent / 5;
 
-  fraction = MAKEFRACT(asWeaponStats[psStruct->asWeaps[0].nStat].recoilValue) / (MAKEFRACT(100));
+  fraction = static_cast<float>(asWeaponStats[psStruct->asWeaps[0].nStat].recoilValue) / (100.0f);
 
-  recoil = MAKEINT(MAKEFRACT(recoil) * fraction);
+  recoil = std::lrintf(static_cast<float>(recoil) * fraction);
 
   /* Put it into the weapon data */
   psStruct->asWeaps[0].recoilValue = recoil;

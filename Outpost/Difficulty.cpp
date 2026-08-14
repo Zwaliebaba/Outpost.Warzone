@@ -12,16 +12,16 @@
 #include "Difficulty.h"
 // ------------------------------------------------------------------------------------
 DIFFICULTY_LEVEL presDifLevel = DL_NORMAL;
-FRACT fDifPlayerModifier;
-FRACT fDifEnemyModifier;
+float fDifPlayerModifier;
+float fDifEnemyModifier;
 
-void getModifiers(FRACT* Player, FRACT* Enemy)
+void getModifiers(float* Player, float* Enemy)
 {
   *Player = fDifPlayerModifier;
   *Enemy = fDifEnemyModifier;
 }
 
-void setModifiers(FRACT Player, FRACT Enemy)
+void setModifiers(float Player, float Enemy)
 {
   fDifPlayerModifier = Player;
   fDifEnemyModifier = Enemy;
@@ -34,24 +34,24 @@ void setDifficultyLevel(DIFFICULTY_LEVEL lev)
   switch (lev)
   {
   case DL_EASY:
-    fDifPlayerModifier = FRACTCONST(120, 100);
-    fDifEnemyModifier = FRACTCONST(100, 100);
+    fDifPlayerModifier = (120.0f / 100.0f);
+    fDifEnemyModifier = (100.0f / 100.0f);
     break;
   case DL_NORMAL:
-    fDifPlayerModifier = FRACTCONST(100, 100);
-    fDifEnemyModifier = FRACTCONST(100, 100);
+    fDifPlayerModifier = (100.0f / 100.0f);
+    fDifEnemyModifier = (100.0f / 100.0f);
     break;
   case DL_HARD:
-    fDifPlayerModifier = FRACTCONST(80, 100);
-    fDifEnemyModifier = FRACTCONST(100, 100);
+    fDifPlayerModifier = (80.0f / 100.0f);
+    fDifEnemyModifier = (100.0f / 100.0f);
     break;
   case DL_KILLER:
-    fDifPlayerModifier = FRACTCONST(999, 100); // 10 times
-    fDifEnemyModifier = FRACTCONST(1, 100); // almost nothing
+    fDifPlayerModifier = (999.0f / 100.0f); // 10 times
+    fDifEnemyModifier = (1.0f / 100.0f); // almost nothing
     break;
   case DL_TOUGH:
-    fDifPlayerModifier = FRACTCONST(100, 100);
-    fDifEnemyModifier = FRACTCONST(50, 100); // they do less damage!
+    fDifPlayerModifier = (100.0f / 100.0f);
+    fDifEnemyModifier = (50.0f / 100.0f); // they do less damage!
     break;
   default: Neuron::Fatal("Invalid difficulty level selected - forcing NORMAL");
     break;
@@ -74,9 +74,9 @@ SDWORD modifyForDifficultyLevel(SDWORD basicVal, BOOL IsPlayer)
   //	if(getDifficultyLevel() == DL_NORMAL)
 
   if (IsPlayer)
-    retVal = ROUND(basicVal*fDifPlayerModifier);
+    retVal = std::lround(basicVal*fDifPlayerModifier);
   else
-    retVal = ROUND(basicVal*fDifEnemyModifier);
+    retVal = std::lround(basicVal*fDifEnemyModifier);
 
   return retVal;
 }

@@ -366,7 +366,7 @@ BOOL actionTargetTurret(BASE_OBJECT* psAttacker, BASE_OBJECT* psTarget, UWORD* p
   SDWORD pitchError;
   SDWORD rotationError, dx, dy, dz;
   BOOL onTarget = FALSE;
-  FRACT fR;
+  float fR;
   SDWORD pitchLowerLimit, pitchUpperLimit;
   DROID* psDroid;
 
@@ -579,7 +579,7 @@ BOOL actionVisibleTarget(DROID* psDroid, BASE_OBJECT* psTarget)
 
 void actionAddVtolAttackRun(DROID* psDroid)
 {
-  FRACT_D fA;
+  float fA;
   SDWORD iVNx, iVNy, iA, iX, iY;
   BASE_OBJECT* psTarget;
 
@@ -596,7 +596,7 @@ void actionAddVtolAttackRun(DROID* psDroid)
 
   /* get magnitude of normal vector */
   fA = trigIntSqrt(iVNx * iVNx + iVNy * iVNy);
-  iA = MAKEINT(fA);
+  iA = std::lrintf(fA);
 
   /* add waypoint behind target attack length away*/
   iX = psTarget->x + (iVNx * VTOL_ATTACK_LENGTH / iA);
@@ -696,7 +696,7 @@ void actionCalcPullBackPoint(BASE_OBJECT* psObj, BASE_OBJECT* psTarget, SDWORD* 
   // get the vector from the target to the object
   xdiff = static_cast<SDWORD>(psObj->x) - static_cast<SDWORD>(psTarget->x);
   ydiff = static_cast<SDWORD>(psObj->y) - static_cast<SDWORD>(psTarget->y);
-  len = static_cast<SDWORD>(iSQRT(xdiff*xdiff + ydiff*ydiff));
+  len = static_cast<SDWORD>(static_cast<float>(std::sqrt(xdiff*xdiff + ydiff*ydiff)));
 
   if (len == 0)
   {

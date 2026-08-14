@@ -20,7 +20,7 @@ UDWORD gameTime2;
 UDWORD frameTime2;
 
 // the current clock modifier
-static FRACT modifier;
+static float modifier;
 
 // the amount of game time before the last time clock speed was set
 static UDWORD timeOffset;
@@ -49,7 +49,7 @@ BOOL gameTimeInit(void)
   timeOffset2 = 0;
   baseTime2 = baseTime;
 
-  modifier = FRACTCONST(1, 1);
+  modifier = 1.0f;
 
   stopCount = 0;
 
@@ -101,7 +101,7 @@ void gameTimeUpdate(void)
     newTime = currTime - baseTime;
 
     // convert the modifier to fixed point cos we loose accuracy
-    fpMod = MAKEINT(FRACTmul(modifier, FRACTCONST(1000,1)));
+    fpMod = std::lrintf(modifier * 1000.0f);
 
     newTime = newTime * fpMod / 1000;
 
@@ -158,18 +158,18 @@ void gameTimeResetMod(void)
   baseTime = GetTickCount();
   baseTime2 = GetTickCount();
 
-  modifier = FRACTCONST(1, 1);
+  modifier = 1.0f;
 }
 
 // set the time modifier
-void gameTimeSetMod(FRACT mod)
+void gameTimeSetMod(float mod)
 {
   gameTimeResetMod();
   modifier = mod;
 }
 
 // get the current time modifier
-void gameTimeGetMod(FRACT* pMod) { *pMod = modifier; }
+void gameTimeGetMod(float* pMod) { *pMod = modifier; }
 
 BOOL gameTimeIsStopped(void) { return (stopCount != 0); }
 
@@ -210,7 +210,7 @@ void gameTimeReset(UDWORD time)
   baseTime = GetTickCount(); //used from save game only so GetTickCount is as valid as anything
   baseTime2 = GetTickCount();
 
-  modifier = FRACTCONST(1, 1);
+  modifier = 1.0f;
 }
 
 void getTimeComponents(UDWORD time, UDWORD* hours, UDWORD* minutes, UDWORD* seconds)

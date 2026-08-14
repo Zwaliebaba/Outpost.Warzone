@@ -39,7 +39,6 @@
 #include "Power.h"
 #include "Audio.h"
 #include "AudioID.h"
-#include "Fractions.h"
 #include "Order.h"
 #include "FrontEnd.h"
 #include "IntImage.h"

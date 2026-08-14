@@ -552,13 +552,13 @@ SDWORD gwRouteLength(GATEWAY* psStart, GATEWAY* psEnd)
   {
     xdiff = sx - sRoute.asPos[i].x;
     ydiff = sy - sRoute.asPos[i].y;
-    dist += static_cast<SDWORD>(iSQRT(xdiff*xdiff + ydiff*ydiff));
+    dist += static_cast<SDWORD>(static_cast<float>(std::sqrt(xdiff*xdiff + ydiff*ydiff)));
     sx = sRoute.asPos[i].x;
     sy = sRoute.asPos[i].y;
   }
   xdiff = sx - ex;
   ydiff = sy - ey;
-  dist += static_cast<SDWORD>(iSQRT(xdiff*xdiff + ydiff*ydiff));
+  dist += static_cast<SDWORD>(static_cast<float>(std::sqrt(xdiff*xdiff + ydiff*ydiff)));
 
   fpathBlockingTile = fpathGroundBlockingTile;
 

@@ -42,7 +42,6 @@
 #include "Button.h"
 #include "EditBox.h"
 #include "Slider.h"
-#include "Fractions.h"
 #include "Order.h"
 #include "Action.h"
 #include "IntImage.h"

@@ -98,8 +98,6 @@ using BOOL = int;
 #define	ABSDIF(a,b) ((a)>(b) ? (a)-(b) : (b)-(a))
 #define CAT(a,b) a##b
 
-// now in fractions.h #define ROUND(x) ((x)>=0 ? (SDWORD)((x) + 0.5) : (SDWORD)((x) - 0.5))
-
 /* Boolean operators */
 
 #define	AND &&

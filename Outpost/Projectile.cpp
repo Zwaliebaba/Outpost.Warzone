@@ -215,7 +215,7 @@ BOOL proj_SendProjectile(WEAPON* psWeap, BASE_OBJECT* psAttacker, SDWORD player,
   PROJ_OBJECT* psObj;
   SDWORD tarHeight, srcHeight, iMinSq;
   SDWORD altChange, dx, dy, dz, iVelSq, iVel;
-  FRACT_D fR, fA, fS, fT, fC; // 52.12 fixed point on PSX, float on PC.
+  float fR, fA, fS, fT, fC; // 52.12 fixed point on PSX, float on PC.
   iVector muzzle;
   SDWORD iRadSq, iPitchLow, iPitchHigh, iTemp;
   UDWORD heightVariance;
@@ -307,9 +307,9 @@ BOOL proj_SendProjectile(WEAPON* psWeap, BASE_OBJECT* psAttacker, SDWORD player,
   /* roll never set */
   psObj->roll = 0;
 
-  fR = static_cast<FRACT_D>(atan2(dx, dy));
+  fR = static_cast<float>(atan2(dx, dy));
   if (fR < 0.0)
-    fR += static_cast<FRACT_D>(2 * PI);
+    fR += static_cast<float>(2 * PI);
   psObj->direction = static_cast<UWORD>((RAD_TO_DEG(fR)));
 
   /* get target distance */
@@ -319,9 +319,9 @@ BOOL proj_SendProjectile(WEAPON* psWeap, BASE_OBJECT* psAttacker, SDWORD player,
 
   if (proj_Direct(psObj->psWStats) || (!proj_Direct(psWeapStats) && (iRadSq <= iMinSq)))
   {
-    fR = static_cast<FRACT_D>(atan2(dz, fR));
+    fR = static_cast<float>(atan2(dz, fR));
     if (fR < 0.0)
-      fR += static_cast<FRACT_D>(2 * PI);
+      fR += static_cast<float>(2 * PI);
     psObj->pitch = static_cast<SWORD>((RAD_TO_DEG(fR)));
 
     /* set function pointer */
@@ -332,12 +332,12 @@ BOOL proj_SendProjectile(WEAPON* psWeap, BASE_OBJECT* psAttacker, SDWORD player,
     /* indirect */
     iVelSq = psObj->psWStats->flightSpeed * psObj->psWStats->flightSpeed;
 
-    fA = ACC_GRAVITY * MAKEFRACT_D(iRadSq) / (2 * iVelSq);
-    fC = 4 * fA * (MAKEFRACT_D(dz) + fA);
-    fS = MAKEFRACT_D(iRadSq) - fC;
+    fA = ACC_GRAVITY * static_cast<float>(iRadSq) / (2 * iVelSq);
+    fC = 4 * fA * (static_cast<float>(dz) + fA);
+    fS = static_cast<float>(iRadSq) - fC;
 
     /* target out of range - increase velocity to hit target */
-    if (fS < MAKEFRACT_D(0))
+    if (fS < 0.0f)
     {
       /* set optimal pitch */
       psObj->pitch = PROJ_MAX_PITCH;
@@ -346,13 +346,13 @@ BOOL proj_SendProjectile(WEAPON* psWeap, BASE_OBJECT* psAttacker, SDWORD player,
 
       fS = trigSin(PROJ_MAX_PITCH);
       fC = trigCos(PROJ_MAX_PITCH);
-      fT = FRACTdiv_D(fS, fC);
-      fS = ACC_GRAVITY * (MAKEFRACT_D(1) + FRACTmul_D(fT, fT));
-      fS = FRACTdiv_D(fS, (2 * (FRACTmul_D(fR,fT) - MAKEFRACT_D(dz))));
+      fT = (fS / fC);
+      fS = ACC_GRAVITY * (1.0f + (fT * fT));
+      fS = (fS / (2 * ((fR * fT) - static_cast<float>(dz))));
       {
-        FRACT_D Tmp;
-        Tmp = FRACTmul_D(fR, fR);
-        iVel = MAKEINT_D(trigIntSqrt(MAKEINT_D(FRACTmul_D(fS, Tmp))));
+        float Tmp;
+        Tmp = (fR * fR);
+        iVel = std::lrintf(trigIntSqrt(std::lrintf(fS * Tmp)));
       }
     }
     else
@@ -361,19 +361,19 @@ BOOL proj_SendProjectile(WEAPON* psWeap, BASE_OBJECT* psAttacker, SDWORD player,
       iVel = psObj->psWStats->flightSpeed;
 
       /* get floating point square root */
-      fS = trigIntSqrt(MAKEINT_D(fS));
+      fS = trigIntSqrt(std::lrintf(fS));
 
-      fT = static_cast<FRACT_D>(atan2(fR + fS, 2 * fA));
+      fT = static_cast<float>(atan2(fR + fS, 2 * fA));
       /* make sure angle positive */
       if (fT < 0)
-        fT += static_cast<FRACT_D>(2 * PI);
-      iPitchLow = MAKEINT_D(RAD_TO_DEG(fT));
+        fT += static_cast<float>(2 * PI);
+      iPitchLow = std::lrintf(RAD_TO_DEG(fT));
 
-      fT = static_cast<FRACT_D>(atan2(fR - fS, 2 * fA));
+      fT = static_cast<float>(atan2(fR - fS, 2 * fA));
       /* make sure angle positive */
       if (fT < 0)
-        fT += static_cast<FRACT_D>(2 * PI);
-      iPitchHigh = MAKEINT_D(RAD_TO_DEG(fT));
+        fT += static_cast<float>(2 * PI);
+      iPitchHigh = std::lrintf(RAD_TO_DEG(fT));
       /* swap pitches if wrong way round */
       if (iPitchLow > iPitchHigh)
       {
@@ -398,8 +398,8 @@ BOOL proj_SendProjectile(WEAPON* psWeap, BASE_OBJECT* psAttacker, SDWORD player,
         ((STRUCTURE*)psAttacker)->turretPitch = psObj->pitch;
     }
 
-    psObj->vXY = MAKEINT_D(iVel * trigCos(psObj->pitch));
-    psObj->vZ = MAKEINT_D(iVel * trigSin(psObj->pitch));
+    psObj->vXY = std::lrintf(iVel * trigCos(psObj->pitch));
+    psObj->vZ = std::lrintf(iVel * trigSin(psObj->pitch));
 
     /* set function pointer */
     psObj->pInFlightFunc = proj_InFlightIndirectFunc;
@@ -499,7 +499,7 @@ void proj_InFlightDirectFunc(PROJ_OBJECT* psObj)
     dz = static_cast<SDWORD>(psObj->srcHeight + psObj->altChange) - static_cast<SDWORD>(psObj->srcHeight);
   }
 
-  rad = static_cast<SDWORD>(iSQRT(dx*dx + dy*dy));
+  rad = static_cast<SDWORD>(static_cast<float>(std::sqrt(dx*dx + dy*dy)));
 
   if (rad == 0)
     rad = 1;
@@ -616,7 +616,7 @@ void proj_InFlightIndirectFunc(PROJ_OBJECT* psObj)
   WEAPON_STATS* psStats;
   SDWORD iTime, iRad, iDist, dx, dy, dz, iX, iY;
   iVector pos;
-  FRACT fVVert;
+  float fVVert;
   BOOL bOver = FALSE;
 
   psStats = psObj->psWStats;
@@ -626,7 +626,12 @@ void proj_InFlightIndirectFunc(PROJ_OBJECT* psObj)
   dx = static_cast<SDWORD>(psObj->tarX) - static_cast<SDWORD>(psObj->startX);
   dy = static_cast<SDWORD>(psObj->tarY) - static_cast<SDWORD>(psObj->startY);
 
-  iRad = fastRoot(dx, dy);
+  // was fastRoot(dx, dy): the larger magnitude plus half the smaller, which is
+  // a rough hypotenuse and deliberately not std::hypot - the trajectory below
+  // is tuned to this approximation
+  iRad = (std::abs(dx) > std::abs(dy))
+           ? (std::abs(dx) + std::abs(dy) / 2)
+           : (std::abs(dy) + std::abs(dx) / 2);
 
   iDist = iTime * psObj->vXY / GAME_TICKS_PER_SEC;
 
@@ -646,7 +651,7 @@ void proj_InFlightIndirectFunc(PROJ_OBJECT* psObj)
   dz = (psObj->vZ - (iTime * ACC_GRAVITY / GAME_TICKS_PER_SEC / 2)) * iTime / GAME_TICKS_PER_SEC;
   psObj->z = static_cast<UWORD>(psObj->srcHeight + dz);
 
-  fVVert = MAKEFRACT(psObj->vZ - (iTime*ACC_GRAVITY/GAME_TICKS_PER_SEC));
+  fVVert = static_cast<float>(psObj->vZ - (iTime*ACC_GRAVITY/GAME_TICKS_PER_SEC));
   psObj->pitch = static_cast<SWORD>((RAD_TO_DEG(atan2(fVVert, psObj->vXY))));
 
   if (psStats->weaponSubClass == WSC_FLAME)

@@ -48,7 +48,7 @@ using AP_STATUS = enum
 };
 
 ATPART asAtmosParts[MAX_ATMOS_PARTICLES];
-static FRACT fraction;
+static float fraction;
 static UDWORD freeParticle;
 static UDWORD weather;
 
@@ -91,7 +91,7 @@ void atmosUpdateSystem(void)
   iVector pos;
 
   /* Establish how long the last game frame took */
-  fraction = MAKEFRACT(frameTime) / GAME_TICKS_PER_SEC;
+  fraction = static_cast<float>(frameTime) / GAME_TICKS_PER_SEC;
 
   for (i = 0; i < MAX_ATMOS_PARTICLES; i++)
   {
@@ -169,22 +169,22 @@ void processParticle(ATPART* psPart)
     if (psPart->position.y < 255 * ELEVATION_SCALE)
     {
       /* Get ground height */
-      groundHeight = map_Height(static_cast<UDWORD>(MAKEINT(psPart->position.x)), static_cast<UDWORD>(MAKEINT(psPart->position.z)));
+      groundHeight = map_Height(static_cast<UDWORD>(std::lrintf(psPart->position.x)), static_cast<UDWORD>(std::lrintf(psPart->position.z)));
 
       /* Are we below ground? */
-      if ((MAKEINT(psPart->position.y) < groundHeight) OR (psPart->position.y < 0.0f))
+      if ((std::lrintf(psPart->position.y) < groundHeight) OR (psPart->position.y < 0.0f))
       {
         /* Kill it and return */
         psPart->status = APS_INACTIVE;
         if (psPart->type == AP_RAIN)
         {
-          x = (MAKEINT(psPart->position.x)) >> TILE_SHIFT;
-          y = (MAKEINT(psPart->position.z)) >> TILE_SHIFT;
+          x = (std::lrintf(psPart->position.x)) >> TILE_SHIFT;
+          y = (std::lrintf(psPart->position.z)) >> TILE_SHIFT;
           psTile = mapTile(x, y);
           if (TERRAIN_TYPE(psTile) == TER_WATER AND TEST_TILE_VISIBLE(selectedPlayer, psTile))
           {
-            pos.x = MAKEINT(psPart->position.x);
-            pos.z = MAKEINT(psPart->position.z);
+            pos.x = std::lrintf(psPart->position.x);
+            pos.z = std::lrintf(psPart->position.z);
             pos.y = groundHeight;
             effectSetSize(60);
             addEffect(&pos, EFFECT_EXPLOSION, EXPLOSION_TYPE_SPECIFIED,TRUE, getImdFromIndex(MI_SPLASH), 0);
@@ -196,9 +196,9 @@ void processParticle(ATPART* psPart)
     if (psPart->type == AP_SNOW)
     {
       if (rand() % 30 == 1)
-        psPart->velocity.z = MAKEFRACT(SNOW_SPEED_DRIFT);
+        psPart->velocity.z = static_cast<float>(SNOW_SPEED_DRIFT);
       if (rand() % 30 == 1)
-        psPart->velocity.x = MAKEFRACT(SNOW_SPEED_DRIFT);
+        psPart->velocity.x = static_cast<float>(SNOW_SPEED_DRIFT);
     }
   }
 }
@@ -251,22 +251,22 @@ void atmosAddParticle(iVector* pos, AP_TYPE type)
   }
 
   /* Setup position */
-  asAtmosParts[freeParticle].position.x = MAKEFRACT(pos->x);
-  asAtmosParts[freeParticle].position.y = MAKEFRACT(pos->y);
-  asAtmosParts[freeParticle].position.z = MAKEFRACT(pos->z);
+  asAtmosParts[freeParticle].position.x = static_cast<float>(pos->x);
+  asAtmosParts[freeParticle].position.y = static_cast<float>(pos->y);
+  asAtmosParts[freeParticle].position.z = static_cast<float>(pos->z);
 
   /* Setup its velocity */
   if (type == AP_RAIN)
   {
-    asAtmosParts[freeParticle].velocity.x = MAKEFRACT(RAIN_SPEED_DRIFT);
-    asAtmosParts[freeParticle].velocity.y = MAKEFRACT(RAIN_SPEED_FALL);
-    asAtmosParts[freeParticle].velocity.z = MAKEFRACT(RAIN_SPEED_DRIFT);
+    asAtmosParts[freeParticle].velocity.x = static_cast<float>(RAIN_SPEED_DRIFT);
+    asAtmosParts[freeParticle].velocity.y = static_cast<float>(RAIN_SPEED_FALL);
+    asAtmosParts[freeParticle].velocity.z = static_cast<float>(RAIN_SPEED_DRIFT);
   }
   else
   {
-    asAtmosParts[freeParticle].velocity.x = MAKEFRACT(SNOW_SPEED_DRIFT);
-    asAtmosParts[freeParticle].velocity.y = MAKEFRACT(SNOW_SPEED_FALL);
-    asAtmosParts[freeParticle].velocity.z = MAKEFRACT(SNOW_SPEED_DRIFT);
+    asAtmosParts[freeParticle].velocity.x = static_cast<float>(SNOW_SPEED_DRIFT);
+    asAtmosParts[freeParticle].velocity.y = static_cast<float>(SNOW_SPEED_FALL);
+    asAtmosParts[freeParticle].velocity.z = static_cast<float>(SNOW_SPEED_DRIFT);
   }
 }
 
@@ -285,7 +285,7 @@ void atmosDrawParticles(void)
     if (asAtmosParts[i].status == APS_ACTIVE)
     {
       /* Is it on the grid */
-      if (clipXY(static_cast<UDWORD>(MAKEINT(asAtmosParts[i].position.x)), static_cast<UDWORD>(MAKEINT(asAtmosParts[i].position.z))))
+      if (clipXY(static_cast<UDWORD>(std::lrintf(asAtmosParts[i].position.x)), static_cast<UDWORD>(std::lrintf(asAtmosParts[i].position.z))))
       {
 #ifndef BUCKET
         /* Draw it right now */
@@ -307,9 +307,9 @@ void renderParticle(ATPART* psPart)
   SDWORD centreX, centreZ;
   SDWORD x, y, z;
 
-  x = MAKEINT(psPart->position.x);
-  y = MAKEINT(psPart->position.y);
-  z = MAKEINT(psPart->position.z);
+  x = std::lrintf(psPart->position.x);
+  y = std::lrintf(psPart->position.y);
+  z = std::lrintf(psPart->position.z);
   /* Transform it */
   dv.x = (static_cast<UDWORD>(x) - player.p.x) - terrainMidX * TILE_UNITS;
   dv.y = static_cast<UDWORD>(y);

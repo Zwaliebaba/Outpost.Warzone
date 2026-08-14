@@ -34,7 +34,6 @@
 #include "MapGrid.h"
 #include "Display.h"	// needed for widgetsOn flag.
 #include "Effects.h"
-#include "Fractions.h"
 #include "HCI.h"
 #include "WarCAM.h"
 #include "Radar.h"

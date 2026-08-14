@@ -111,7 +111,7 @@ using iVertex = struct
 };
 using PIEVECTORF = struct
 {
-  FRACT x, y, z;
+  float x, y, z;
 };
 using iView = struct
 {

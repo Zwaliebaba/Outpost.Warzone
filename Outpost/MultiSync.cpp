@@ -54,11 +54,11 @@ static void highLevelDroidUpdate(DROID* psDroid, UDWORD x, UDWORD y, UDWORD stat
 
 static void onscreenUpdate(DROID* pDroid, UDWORD dam, // the droid and its damage
                            UDWORD x, UDWORD y, // the ideal position
-                           FRACT fx, FRACT fy, // the ideal fractional position
+                           float fx, float fy, // the ideal fractional position
                            UWORD dir, // direction it should facing
                            DROID_ORDER order); // what it should be doing
 
-static void offscreenUpdate(DROID* pDroid, UDWORD dam, UDWORD x, UDWORD y, FRACT fx, FRACT fy, UWORD dir, DROID_ORDER order);
+static void offscreenUpdate(DROID* pDroid, UDWORD dam, UDWORD x, UDWORD y, float fx, float fy, UWORD dir, DROID_ORDER order);
 
 // ////////////////////////////////////////////////////////////////////////////
 // Defined numeric values
@@ -258,7 +258,7 @@ static void packageCheck(UDWORD i, NETMSG* pMsg, DROID* pD)
 // receive a check and update the local world state accordingly
 BOOL recvDroidCheck(NETMSG* m)
 {
-  FRACT fx, fy;
+  float fx, fy;
   UDWORD ref, player, x, y, bod, target = 0; //,dir;
   UWORD dir, numkills;
   DROID_ORDER ord;
@@ -394,7 +394,7 @@ static void highLevelDroidUpdate(DROID* psDroid, UDWORD x, UDWORD y,
 
 // ////////////////////////////////////////////////////////////////////////////
 // droid on screen needs modifying
-static void onscreenUpdate(DROID* psDroid, UDWORD dam, UDWORD x, UDWORD y, FRACT fx, FRACT fy, UWORD dir, DROID_ORDER order)
+static void onscreenUpdate(DROID* psDroid, UDWORD dam, UDWORD x, UDWORD y, float fx, float fy, UWORD dir, DROID_ORDER order)
 {
   BASE_OBJECT* psClickedOn;
   BOOL bMouseOver = FALSE;
@@ -422,7 +422,7 @@ static void onscreenUpdate(DROID* psDroid, UDWORD dam, UDWORD x, UDWORD y, FRACT
 
 // ////////////////////////////////////////////////////////////////////////////
 // droid offscreen needs modyfying.
-static void offscreenUpdate(DROID* psDroid, UDWORD dam, UDWORD x, UDWORD y, FRACT fx, FRACT fy, UWORD dir, DROID_ORDER order)
+static void offscreenUpdate(DROID* psDroid, UDWORD dam, UDWORD x, UDWORD y, float fx, float fy, UWORD dir, DROID_ORDER order)
 {
   UDWORD oldx, oldy;
   PROPULSION_STATS* psPropStats;

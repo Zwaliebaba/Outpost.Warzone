@@ -6,10 +6,9 @@ catches the portable C++ errors, which is most of them. It is not a build --
 it cannot link, and MSVC disagrees with GCC in both directions. The Windows
 CI build remains the authority.
 
-The shadow neutralises the things GCC cannot process:
-
-  * the MSVC inline assembly in Fractions.h, RendMode.cpp, PieDraw.cpp
-  * includes whose case does not match the real filename
+The shadow neutralises the things GCC cannot process: includes whose case
+does not match the real filename, and the MSVC-only headers NeuronCore.h
+pulls in but never uses.
 
 Usage:  tools/crosscheck.py [-j N] [file.cpp ...]
 """
@@ -30,12 +29,6 @@ DEFS = ['WIN32', 'NDEBUG' if RELEASE else '_DEBUG',
         # an MSVC intrinsic, and the release half of Debug.h is built on it
         '__noop(...)=((void)0)']
 
-# Sources whose bodies are MSVC inline asm. GCC cannot parse Intel-syntax
-# __asm blocks at all, so the shadow empties them; they are not what this
-# check is looking at.
-ASM_FILES = {'NeuronCore/PieDraw.cpp', 'NeuronCore/RendMode.cpp',
-             'NeuronCore/Fractions.h', 'NeuronCore/AMD3D.h'}
-
 SKIP = re.compile(r'^(DX9|GameData|Docs|tools)/')
 
 # MSVC-only headers that ship with the Concurrency Runtime. NeuronCore.h
@@ -54,7 +47,7 @@ def sources():
 
 
 def build_shadow(dst):
-    """Copy the tree, then apply the three neutralisations."""
+    """Copy the tree, then apply the neutralisations."""
     real = {}
     for proj in ('NeuronCore', 'Outpost', 'DX9/Include', 'DX9/Include/DShowIDL'):
         src = os.path.join(ROOT, proj)
@@ -93,14 +86,6 @@ def build_shadow(dst):
                 continue
             orig = t
 
-            # AMD3D.h is nothing but 3DNow! opcode macros spelled as _asm
-            # _emit inside #defines. Once the asm blocks that use them are
-            # gone the macros are unreferenced, so the shadow empties it.
-            if rel == 'NeuronCore/AMD3D.h':
-                t = '#pragma once\n'
-            elif rel in ASM_FILES:
-                t = strip_asm(t)
-
             # Include case: MSVC resolves case-insensitively, the shadow is on
             # a case-sensitive filesystem, so rewrite to the real name.
             def fix(m):
@@ -112,15 +97,6 @@ def build_shadow(dst):
                 return m.group(0)
 
             t = re.sub(r'(#\s*include\s*")([^"]+)(")', fix, t)
-
-            # MSVC's headers reach _getpid transitively; mingw's do not.
-            if rel == 'NeuronCore/W95Trace.cpp':
-                t = t.replace('#include "pch.h"', '#include "pch.h"\n#include <process.h>', 1)
-
-            # std::exception(const char *) is an MSVC extension.
-            if rel == 'NeuronCore/Debug.h':
-                t = t.replace('std::exception("Fatal Error")',
-                              'std::runtime_error("Fatal Error")')
 
             if t != orig:
                 open(p, 'w', encoding='utf-8', errors='surrogateescape').write(t)
@@ -137,40 +113,6 @@ def system_includes(dst):
                 t = open(os.path.join(d, f), encoding='utf-8', errors='surrogateescape').read()
                 names.update(m.group(1) for m in pat.finditer(t))
     return {n.rsplit('/', 1)[-1] for n in names}
-
-
-def strip_asm(t):
-    """Replace __asm/_asm blocks and _emit macro bodies with nothing."""
-    out, i, n = [], 0, len(t)
-    while i < n:
-        m = re.compile(r'\b(__asm|_asm)\b').search(t, i)
-        if not m:
-            out.append(t[i:])
-            break
-        out.append(t[i:m.start()])
-        j = m.end()
-        while j < n and t[j] in ' \t\r\n':
-            j += 1
-        if j < n and t[j] == '{':
-            depth, j = 0, j
-            while j < n:
-                if t[j] == '{':
-                    depth += 1
-                elif t[j] == '}':
-                    depth -= 1
-                    if depth == 0:
-                        j += 1
-                        break
-                j += 1
-            out.append('{}')
-        else:                                    # single-instruction form
-            while j < n and t[j] not in ';\n':
-                j += 1
-            out.append(';' if j < n and t[j] == ';' else '')
-            if j < n and t[j] == ';':
-                j += 1
-        i = j
-    return ''.join(out)
 
 
 def check(shadow, rel):

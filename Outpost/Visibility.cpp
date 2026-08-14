@@ -50,7 +50,7 @@ static SDWORD currObj;
 #define VIS_LEVEL_INC		(255*2)
 #define VIS_LEVEL_DEC		50
 // fractional accumulator of how much to change visibility this frame
-static FRACT visLevelIncAcc, visLevelDecAcc;
+static float visLevelIncAcc, visLevelDecAcc;
 // integer amount to change visiblility this turn
 static SDWORD visLevelInc, visLevelDec;
 
@@ -91,8 +91,8 @@ static SDWORD wallX, wallY; // the position of a wall if it is on the LOS
 // initialise the visibility stuff
 BOOL visInitialise(void)
 {
-  visLevelIncAcc = MAKEFRACT(0);
-  visLevelDecAcc = MAKEFRACT(0);
+  visLevelIncAcc = 0.0f;
+  visLevelDecAcc = 0.0f;
   visLevelInc = 0;
   visLevelDec = 0;
 
@@ -102,12 +102,12 @@ BOOL visInitialise(void)
 // update the visibility change levels
 void visUpdateLevel(void)
 {
-  visLevelIncAcc += FRACTmul(MAKEFRACT(frameTime), FRACTCONST(VIS_LEVEL_INC,GAME_TICKS_PER_SEC));
-  visLevelInc = MAKEINT(visLevelIncAcc);
-  visLevelIncAcc -= MAKEFRACT(visLevelInc);
-  visLevelDecAcc += FRACTmul(MAKEFRACT(frameTime), FRACTCONST(VIS_LEVEL_DEC,GAME_TICKS_PER_SEC));
-  visLevelDec = MAKEINT(visLevelDecAcc);
-  visLevelDecAcc -= MAKEFRACT(visLevelDec);
+  visLevelIncAcc += (static_cast<float>(frameTime) * (static_cast<float>(VIS_LEVEL_INC) / static_cast<float>(GAME_TICKS_PER_SEC)));
+  visLevelInc = std::lrintf(visLevelIncAcc);
+  visLevelIncAcc -= static_cast<float>(visLevelInc);
+  visLevelDecAcc += (static_cast<float>(frameTime) * (static_cast<float>(VIS_LEVEL_DEC) / static_cast<float>(GAME_TICKS_PER_SEC)));
+  visLevelDec = std::lrintf(visLevelDecAcc);
+  visLevelDecAcc -= static_cast<float>(visLevelDec);
 }
 
 /* Return the radius a base object covers on the map */

@@ -26,7 +26,6 @@
 #include "AudioID.h"
 #include "Action.h"
 #include "Order.h"
-#include "Fractions.h"
 #include "Move.h"
 #include "Geo.h"
 #include "AnimID.h"
@@ -1890,7 +1889,7 @@ void droidUpdateRecoil(DROID* psDroid)
 {
   UDWORD percent;
   UDWORD recoil;
-  FRACT fraction;
+  float fraction;
 
   /* Check it's actually got a weapon */
   if (psDroid->asWeaps[0].nStat == 0)
@@ -1914,9 +1913,9 @@ void droidUpdateRecoil(DROID* psDroid)
   else
     recoil = percent / 5;
 
-  fraction = MAKEFRACT(asWeaponStats[psDroid->asWeaps[0].nStat].recoilValue) / (MAKEFRACT(100));
+  fraction = static_cast<float>(asWeaponStats[psDroid->asWeaps[0].nStat].recoilValue) / (100.0f);
 
-  recoil = MAKEINT(MAKEFRACT(recoil) * fraction);
+  recoil = std::lrintf(static_cast<float>(recoil) * fraction);
 
   /* Put it into the weapon data */
   psDroid->asWeaps[0].recoilValue = recoil;
@@ -3449,9 +3448,9 @@ void initDroidMovement(DROID* psDroid)
 {
   memset(&psDroid->sMove, 0, sizeof(MOVE_CONTROL));
 
-  psDroid->sMove.fx = MAKEFRACT(psDroid->x);
-  psDroid->sMove.fy = MAKEFRACT(psDroid->y);
-  psDroid->sMove.fz = MAKEFRACT(psDroid->z);
+  psDroid->sMove.fx = static_cast<float>(psDroid->x);
+  psDroid->sMove.fy = static_cast<float>(psDroid->y);
+  psDroid->sMove.fz = static_cast<float>(psDroid->z);
 }
 
 // Set the asBits in a DROID structure given it's template.

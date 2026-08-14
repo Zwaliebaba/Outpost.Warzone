@@ -70,7 +70,7 @@ BOOL pie_Initialise(SDWORD mode)
   _iVPRIM_DIVTABLE[0] = iV_DIVMULTP;
 
   for (i = 1; i < DIVIDE_TABLE_SIZE; i++)
-    _iVPRIM_DIVTABLE[i - 0] = MAKEINT(FRACTdiv(MAKEFRACT(1), MAKEFRACT(i)) * iV_DIVMULTP);
+    _iVPRIM_DIVTABLE[i - 0] = std::lrintf((1.0f / static_cast<float>(i)) * iV_DIVMULTP);
 
   pie_MatInit();
   _TEX_INDEX = 0;

@@ -18,10 +18,10 @@
 
 #define CAM_ALL	(X_UPDATE + Y_UPDATE + Z_UPDATE)
 
-#define ACCEL_CONSTANT			FRACTCONST(64,10)	//((float)6.4)
-#define VELOCITY_CONSTANT		FRACTCONST(4,1)		//((float)4.0)
-#define ROT_ACCEL_CONSTANT		FRACTCONST(4,1)		//((float)5.0)
-#define ROT_VELOCITY_CONSTANT	FRACTCONST(4,1)		//((float)4.0)
+#define ACCEL_CONSTANT			(64.0f / 10.0f)	//((float)6.4)
+#define VELOCITY_CONSTANT		4.0f		//((float)4.0)
+#define ROT_ACCEL_CONSTANT		4.0f		//((float)5.0)
+#define ROT_VELOCITY_CONSTANT	4.0f		//((float)4.0)
 
 #define CAM_X_SHIFT	((VISIBLE_XTILES/2)*128)
 #define CAM_Z_SHIFT	((VISIBLE_YTILES/2)*128)
@@ -83,7 +83,7 @@ extern SDWORD getPresAngle(void);
 extern UDWORD getNumDroidsSelected(void);
 extern void camAllignWithTarget(BASE_OBJECT* psTarget);
 
-extern FRACT accelConstant, velocityConstant, rotAccelConstant, rotVelocityConstant;
+extern float accelConstant, velocityConstant, rotAccelConstant, rotVelocityConstant;
 extern UDWORD getTestAngle(void);
 void updateTestAngle(void);
 #define BEHIND_DROID_DIRECTION(d)	  (360-((d->direction+180)%360))
