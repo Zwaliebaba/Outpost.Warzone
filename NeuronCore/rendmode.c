@@ -3,9 +3,7 @@
 #include "rendmode.h"
 #include "pieClip.h"
 #include "d3dmode.h"
-#include "v4101.h"
 #include "rendFunc.h"
-#include "vsr.h"
 #include "bug.h"
 #include "piePalette.h"
 #include "ivispatch.h"
@@ -117,11 +115,9 @@ int32 iV_VideoMemorySize(int mode)
 
 
 	switch (mode) {
-		case iV_MODE_4101:
 		case REND_D3D_RGB:
 		case REND_D3D_HAL:
 		case REND_D3D_REF:
-		case REND_GLIDE_3DFX:
 								size = pie_GetVideoBufferWidth() * pie_GetVideoBufferHeight(); break;
 		default:
 			size = 0;
@@ -406,321 +402,28 @@ void iV_RenderAssign(int mode, iSurface *s)
 	psRendSurface = s;
 
 	bHas3DNow = cpuHas3DNow();	// do some funky stuff to see if we have an AMD
-	/* Force to 3dfx if glide included */
-/*#ifdef INC_GLIDE
-	mode = REND_GLIDE_3DFX;
-//	if(iV_Line == gl_Line)
-//	{
-//		// Don't reassign if it's already done
-//		return;
-//	}
-//
-#endif
-*/
 
 	g_mode = mode;
 
 	switch (mode) {
 
-		case iV_MODE_SURFACE:
-			_clear_sr(0);
-//			pie_Draw3DShape				= pie_Draw3DIntelShape;
-//setup
-//			pie_VideoShutDown 				= _close_sr;
-			iV_VSync 					= _vsync_sr;
-//			iV_Clear 					= _clear_sr;
-//			iV_RenderEnd 				= _bank_on_sr;
-//			iV_RenderBegin 			= _bank_off_sr;
-//			iV_Palette 					= _palette_sr;
-
-			iV_SetTransFilter  			= SetTransFilter;
-//rend	
-			iV_pLine 					= _line_sr;
-//			iV_Line 					= line;
-//			iV_Polygon					= iV_pPolygon;
-//			iV_Triangle					= iV_pTriangle;
-
-//box
-//			iV_Box 						= box;
-//			iV_BoxFill 					= boxf;
-//			iV_TransBoxFill	   			= TransBoxFill;
-//blit	
-			iV_ppBitmap 				= _bitmap_sr;
-			iV_ppBitmapTrans			= _tbitmap_sr;
-//			iV_DrawImageDef			= DrawImageDef;
-//			iV_DrawSemiTransImageDef = DrawSemiTransImageDef;
-//			iV_DrawImage			= DrawImage;
-//			iV_DrawImageRect		= DrawImageRect;
-//			iV_DrawTransImage		= DrawTransImage;
-//			iV_DrawTransImageRect	= DrawTransImageRect;
-//			iV_DrawColourTransImage	= DrawTransColourImage;
-//			iV_DrawStretchImage		= NULL;
-//			iV_ScaleBitmapRGB		= ScaleBitmapRGB;
-//text
-//			iV_BeginTextRender		= BeginTextRender;
-//			iV_TextRender			= TextRender;
-//			iV_TextRender270		= TextRender270;
-//			iV_EndTextRender		= EndTextRender;
-//buffer
-//			pie_DownLoadRadar		= DownLoadRadar;
-//			iV_UploadDisplayBuffer	= UploadDisplayBuffer;
-//			iV_DownloadDisplayBuffer = DownloadDisplayBuffer;
-
-
-// indirect
-			
-			iV_pBox 						= _box_sr;
-//			iV_pPolygon 	  			= _polygon_sr;
-//			iV_pTriangle 				= _triangle_sr;
-
-//			iV_pPixel 					= _pixel_sr;
-//			iV_pHLine 					= _hline_sr;
-//			iV_pVLine 					= _vline_sr;
-//			iV_pCircle 					= _circle_sr;
-//			iV_pCircleFill 			= _circlef_sr;
-//			iV_pQuad						= _quad_sr;
-//			iV_pBoxFill 				= _boxf_sr;
-//			iV_ppBitmapColour			= _bitmapcolour_sr;
-//			iV_ppBitmapColourTrans		= _tbitmapcolour_sr;
-//			iV_pBitmap					= pbitmap;
-//			iV_pBitmapResize 			= _rbitmap_sr;
-//			iV_pBitmapResizeRot90	= _rbitmapr90_sr;
-//			iV_pBitmapResizeRot180	= _rbitmapr180_sr;
-//			iV_pBitmapResizeRot270	= _rbitmapr270_sr;
-//			iV_pBitmapGet 				= _gbitmap_sr;
-//			iV_pBitmapTrans			= ptbitmap;
-//			iV_ppBitmapShadow			= _sbitmap_sr;
-//			iV_pBitmapShadow			= psbitmap;
-//			iV_ppBitmapRot90			= _bitmapr90_sr;
-//			iV_pBitmapRot90			= pbitmapr90;
-//   		iV_ppBitmapRot180			= _bitmapr180_sr;
-//			iV_pBitmapRot180			= pbitmapr180;
-//   		iV_ppBitmapRot270			= _bitmapr270_sr;
-//			iV_pBitmapRot270			= pbitmapr270;
-//			iV_HLine 					= hline;
-//			iV_VLine 		  			= vline;
-//			iV_Circle 		  			= circle;
-//			iV_CircleFill 				= circlef;
-//			iV_Quad						= ivquad;
-
-//			iV_Bitmap 					= bitmap;
-//			iV_BitmapResize 			= rbitmap;
-//			iV_BitmapResizeRot90		= rbitmapr90;
-//			iV_BitmapResizeRot180	= rbitmapr180;
-//			iV_BitmapResizeRot270 	= rbitmapr270;
-//			iV_BitmapGet 				= gbitmap;
-//			iV_BitmapTrans				= tbitmap;
-//			iV_BitmapShadow			= sbitmap;
-//			iV_BitmapRot90				= bitmapr90;
-//			iV_BitmapRot180			= bitmapr180;
-//			iV_BitmapRot270			= bitmapr270;
-//			iV_DrawColourImage		= DrawColourImage;
-/*
-			iV_pPolygon3D 		= _p_polygon3d;
-			iV_pLine3D 			= _p_line3d;
-			iV_pPixel3D 		= _p_pixel3d;
-			iV_pTriangle3D 	= _p_triangle3d;
-
-			iV_Polygon3D 		= _polygon3d;
-			iV_Line3D 			= _line3d;
-			iV_Pixel3D 			= _pixel3d;
-			iV_Triangle3D 		= _triangle3d;
-*/
-			break;
-
-
-		case iV_MODE_4101:
-//			pie_Draw3DShape				= pie_Draw3DIntelShape;
-//			pie_VideoShutDown 		 		= _close_4101;
-			iV_VSync 			 		= _vsync_4101;
-//			iV_Clear 			 		= _clear_4101;
-//			iV_RenderEnd 				= _bank_on_4101;
-//			iV_RenderBegin 			= _bank_off_4101;
-//			iV_Palette 			 		= _palette_4101;
-//			iV_Pixel 			 		= _pixel_4101;
-//			iV_pPixel 			 		= _pixel_4101;
-			iV_pLine 			 		= _line_4101;
-//			iV_pHLine 			 		= _hline_4101;
-//			iV_pVLine 			 		= _vline_4101;
-//			iV_pCircle 			 		= _circle_4101;
-//			iV_pCircleFill 	 		= _circlef_4101;
-//			iV_pPolygon 		 		= _polygon_4101;
-//			iV_pQuad				 		= _quad_4101;
-//			iV_pTriangle 		 		= _triangle_4101;
-//			iV_tTriangle				=  _ttriangle_4101;
-			iV_tgTriangle				= _tgtriangle_4101;
-//			iV_tPolygon					= _tpolygon_4101;
-			iV_tgPolygon				= _tgpolygon_4101;
-			iV_pBox 				 		= _box_4101;
-			iV_pBoxFill 		 		= _boxf_4101;
-			iV_ppBitmap 		 		= _bitmap_4101;
-//			iV_ppBitmapColour			= _bitmapcolour_4101;
-			iV_ppBitmapColourTrans		= _tbitmapcolour_4101;
-//			iV_pBitmap			 		= pbitmap;
-//			iV_pBitmapResize 	 		= _rbitmap_4101;
-//			iV_pBitmapResizeRot90 	= _rbitmapr90_4101;
-//			iV_pBitmapResizeRot180	= _rbitmapr180_4101;
-//			iV_pBitmapResizeRot270	= _rbitmapr270_4101;
-//			iV_pBitmapGet 				= _gbitmap_4101;
-			iV_ppBitmapTrans			= _tbitmap_4101;
-//			iV_pBitmapTrans			= ptbitmap;
-//			iV_ppBitmapShadow			= _sbitmap_4101;
-//			iV_pBitmapShadow			= psbitmap;
-//			iV_ppBitmapRot90			= _bitmapr90_4101;
-//			iV_pBitmapRot90			= pbitmapr90;
-//			iV_ppBitmapRot180			= _bitmapr180_4101;
-//			iV_pBitmapRot180			= pbitmapr180;
-//			iV_ppBitmapRot270			= _bitmapr270_4101;
-//			iV_pBitmapRot270			= pbitmapr270;
-
-//			iV_Line 					= line;
-//			iV_HLine 					= hline;
-//			iV_VLine 					= vline;
-//			iV_Circle 					= circle;
-//			iV_CircleFill 				= circlef;
-//			iV_Polygon 					= iV_pPolygon;
-//			iV_Quad						= ivquad;
-//			iV_Triangle 				= iV_pTriangle;
-//			iV_Box 						= box;
-//			iV_BoxFill 					= boxf;
-//			iV_Bitmap 					= bitmap;
-//			iV_BitmapResize 			= rbitmap;
-//			iV_BitmapResizeRot90		= rbitmapr90;
-//			iV_BitmapResizeRot180		= rbitmapr180;
-//			iV_BitmapResizeRot270 		= rbitmapr270;
-//			iV_BitmapGet 				= gbitmap;
-//			iV_BitmapTrans				= tbitmap;
-//			iV_BitmapShadow				= sbitmap;
-//			iV_BitmapRot90				= bitmapr90;
-//			iV_BitmapRot180				= bitmapr180;
-//			iV_BitmapRot270				= bitmapr270;
-			iV_SetTransFilter  			= SetTransFilter;
-//			iV_TransBoxFill	   			= TransBoxFill;
-
-//			iV_DrawImageDef			= DrawImageDef;
-//			iV_DrawSemiTransImageDef = DrawSemiTransImageDef;
-//			iV_DrawImage			= DrawImage;
-//			iV_DrawImageRect		= DrawImageRect;
-//			iV_DrawTransImage		= DrawTransImage;
-//			iV_DrawTransImageRect	= DrawTransImageRect;
-//			iV_DrawColourImage		= DrawColourImage;
-//			iV_DrawColourTransImage	= DrawTransColourImage;
-//			iV_DrawStretchImage		= NULL;
-
-//			iV_BeginTextRender		= BeginTextRender;
-//			iV_TextRender			= TextRender;
-//			iV_TextRender270		= TextRender270;
-//			iV_EndTextRender		= EndTextRender;
-
-//			pie_DownLoadRadar		= DownLoadRadar;
-
-//			iV_UploadDisplayBuffer	= UploadDisplayBuffer;
-//			iV_DownloadDisplayBuffer = DownloadDisplayBuffer;
-//			iV_ScaleBitmapRGB		= ScaleBitmapRGB;
-
-/*
-			iV_pPolygon3D 		= _p_polygon3d;
-			iV_pLine3D 			= _p_line3d;
-			iV_pPixel3D 		= _p_pixel3d;
-			iV_pTriangle3D 	= _p_triangle3d;
-
-			iV_Polygon3D 		= _polygon3d;
-			iV_Line3D 			= _line3d;
-			iV_Pixel3D 			= _pixel3d;
-			iV_Triangle3D 		= _triangle3d;
-*/
-			break;
-
-
 		case REND_D3D_RGB:
 		case REND_D3D_HAL:
 		case REND_D3D_REF:
-//			pie_Draw3DShape				= pie_Draw3DIntelShape;
-//			pie_VideoShutDown 		 	= _close_D3D;
-//			iV_RenderBegin				= _renderBegin_D3D;
-//			iV_RenderEnd 				= _renderEnd_D3D;
-//			iV_pPolygon 		 		= _polygon_D3D;
-//			iV_pQuad			 		= _quad_D3D;
-//			iV_pTriangle 		 		= _triangle_D3D;
-			iV_VSync 			 		= _vsync_4101;
-//			iV_Clear 			 		= _clear_4101;
-//			iV_Palette 			 		= _palette_D3D;
-//			iV_Pixel 			 		= _dummyFunc1_D3D;
-//			iV_pPixel 			 		= _dummyFunc1_D3D;
+			iV_VSync			 		= _vsync_D3D;
 			iV_pLine 			 		= _dummyFunc2_D3D;
-//			iV_pHLine 			 		= _dummyFunc3_D3D;
-//			iV_pVLine 			 		= _dummyFunc3_D3D;
-//			iV_pCircle 			 		= _dummyFunc3_D3D;
-//			iV_pCircleFill 		 		= _dummyFunc3_D3D;
 			iV_pBox 			 		= _dummyFunc2_D3D;
 			iV_pBoxFill 		 		= _dummyFunc2_D3D;
 			iV_ppBitmap 		 		= _dummyFunc5_D3D;
-//			iV_ppBitmapColour			= _dummyFunc6_D3D;
 			iV_ppBitmapColourTrans		= _dummyFunc6_D3D;
-//			iV_pBitmap			 		= _dummyFunc4_D3D;
-//			iV_pBitmapResize 	 		= _dummyFunc6_D3D;
-//			iV_pBitmapResizeRot90		= _dummyFunc6_D3D;
-//			iV_pBitmapResizeRot180		= _dummyFunc6_D3D;
-//			iV_pBitmapResizeRot270		= _dummyFunc6_D3D;
-//			iV_pBitmapGet 				= _dummyFunc4_D3D;
 			iV_ppBitmapTrans			= _dummyFunc5_D3D;
-//			iV_pBitmapTrans				= _dummyFunc4_D3D;
-//			iV_ppBitmapShadow			= _dummyFunc5_D3D;
-//			iV_pBitmapShadow			= _dummyFunc4_D3D;
-//			iV_ppBitmapRot90			= _dummyFunc5_D3D;
-//			iV_pBitmapRot90				= _dummyFunc4_D3D;
-//			iV_ppBitmapRot180			= _dummyFunc5_D3D;
-//			iV_pBitmapRot180			= _dummyFunc4_D3D;
-//			iV_ppBitmapRot270			= _dummyFunc5_D3D;
-//			iV_pBitmapRot270			= _dummyFunc4_D3D;
-
-//			iV_Line 					= _dummyFunc2_D3D;
-//			iV_HLine 					= _dummyFunc3_D3D;
-//			iV_VLine 					= _dummyFunc3_D3D;
-//			iV_Circle 					= _dummyFunc3_D3D;
-//			iV_CircleFill 				= _dummyFunc3_D3D;
-//			iV_Polygon 					= iV_pPolygon;
-//			iV_Quad						= _dummyFunc8_D3D;
-//			iV_Triangle 				= iV_pTriangle;
-//			iV_Box 						= _dummyFunc2_D3D;
-//			iV_BoxFill 					= _dummyFunc2_D3D;
-//			iV_Bitmap 					= _dummyFunc4_D3D;
-//			iV_BitmapResize 			= _dummyFunc6_D3D;
-//			iV_BitmapResizeRot90		= _dummyFunc6_D3D;
-//			iV_BitmapResizeRot180		= _dummyFunc6_D3D;
-//			iV_BitmapResizeRot270 		= _dummyFunc6_D3D;
-//			iV_BitmapGet 				= _dummyFunc4_D3D;
-//			iV_BitmapTrans				= _dummyFunc4_D3D;
-//			iV_BitmapShadow				= _dummyFunc4_D3D;
-//			iV_BitmapRot90				= _dummyFunc4_D3D;
-//			iV_BitmapRot180				= _dummyFunc4_D3D;
-//			iV_BitmapRot270				= _dummyFunc4_D3D;
 			iV_SetTransFilter  			= SetTransFilter_D3D;
-//			iV_TransBoxFill	   			= TransBoxFill_D3D;
-
-//			iV_DrawImageDef			= _dummyFunc4_D3D;//DrawImageDef;
-//			iV_DrawSemiTransImageDef = _dummyFunc4_D3D;//DrawSemiTransImageDef;
-//			iV_DrawImage			= _dummyFunc4_D3D;//DrawImage;
-//			iV_DrawImageRect		= _dummyFunc4_D3D;//DrawImageRect;
-//			iV_DrawTransImage		= _dummyFunc4_D3D;//DrawTransImage;
-//			iV_DrawTransImageRect	= _dummyFunc4_D3D;//DrawTransImageRect;
-//			iV_DrawStretchImage		= NULL;
-
-//			iV_BeginTextRender		= _dummyFunc4_D3D;//BeginTextRender;
-//			iV_TextRender270		= _dummyFunc4_D3D;//TextRender270;
-//			iV_TextRender			= _dummyFunc4_D3D;//TextRender;
-//			iV_EndTextRender		= _dummyFunc4_D3D;//EndTextRender;
-
-//			pie_DownLoadRadar		= _dummyFunc4_D3D;//DownLoadRadar;
-
-//			iV_UploadDisplayBuffer	= _dummyFunc1_D3D;
-//			iV_DownloadDisplayBuffer = _dummyFunc1_D3D;
-//			iV_ScaleBitmapRGB		= _dummyFunc4_D3D;
-
 			break;
 
+		default:
+			iV_DEBUG1("vid[RenderAssign] = unsupported render mode %d\n", mode);
+			break;
 	}
-
 
 	iV_DEBUG0("vid[RenderAssign] = assigned renderer :\n");
 	iV_DEBUG5("usr %d\nflags %x\nxcentre, ycentre %d\nbuffer %p\n",

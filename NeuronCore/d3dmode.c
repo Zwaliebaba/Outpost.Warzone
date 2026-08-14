@@ -156,6 +156,10 @@ _palette_D3D( int i, int r, int g, int b )
 
 /***************************************************************************/
 
+void _vsync_D3D(void)
+{
+}
+
 void
 _dummyFunc1_D3D(int i,int j,unsigned int k)
 {

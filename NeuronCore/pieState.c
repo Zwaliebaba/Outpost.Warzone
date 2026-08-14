@@ -195,14 +195,7 @@ void pie_ResetStates(void) //Sets all states
 void pie_SetRenderEngine(REND_ENGINE rendEngine)
 {
     rendStates.rendEngine = rendEngine;
-    if ((rendEngine == ENGINE_GLIDE) || (rendEngine == ENGINE_D3D))
-    {
-        rendStates.bHardware = TRUE;
-    }
-    else
-    {
-        rendStates.bHardware = FALSE;
-    }
+    rendStates.bHardware = (rendEngine == ENGINE_D3D);
 }
 
 REND_ENGINE pie_GetRenderEngine(void)

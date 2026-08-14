@@ -17,6 +17,7 @@ void	_renderEnd_D3D( void );
 void	_palette_D3D( int i, int r, int g, int b );
 void	_dummyFunc_D3D( void );
 
+void	_vsync_D3D(void);
 void	_dummyFunc1_D3D(int ,int ,unsigned int );
 void	_dummyFunc2_D3D(int ,int ,int ,int ,unsigned int );
 void	_dummyFunc3_D3D(int ,int ,int ,unsigned int );

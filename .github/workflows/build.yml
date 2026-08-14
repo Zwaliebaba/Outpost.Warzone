@@ -1,0 +1,27 @@
+name: Build
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: ${{ matrix.configuration }}|Win32
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        configuration: [Debug, Release]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v2
+
+      # The projects target v145; the hosted runners ship VS 2022, so the
+      # toolset is overridden here rather than downgraded in the projects.
+      - name: Build
+        run: msbuild Outpost\Outpost.vcxproj /p:Configuration=${{ matrix.configuration }} /p:Platform=Win32 /p:PlatformToolset=v143 /m /v:normal /nologo
