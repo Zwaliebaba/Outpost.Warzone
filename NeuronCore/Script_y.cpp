@@ -61,7 +61,6 @@ typedef struct yyNamedType_tag
 
 #endif
 
-
 /*
  * script.y
  *
@@ -213,13 +212,13 @@ CALLBACK_SYMBOL* asScrCallbackTab;
 
 /* Macro to allocate a program structure */
 #define ALLOC_PROG(psProg, codeSize, pAICode, numGlobs, numArys, numTrigs, numEvnts) \
-	(psProg) = (SCRIPT_CODE *)MALLOC(sizeof(SCRIPT_CODE)); \
+	(psProg) = new (std::nothrow) SCRIPT_CODE[1]; \
 	if ((psProg) == NULL) \
 	{ \
 		scr_error("Out of memory"); \
 		ALLOC_ERROR_ACTION; \
 	} \
-	(psProg)->pCode = (UDWORD *)MALLOC(codeSize); \
+	(psProg)->pCode = new (std::nothrow) UDWORD[(codeSize) / sizeof(UDWORD)]; \
 	if ((psProg)->pCode == NULL) \
 	{ \
 		scr_error("Out of memory"); \
@@ -227,7 +226,7 @@ CALLBACK_SYMBOL* asScrCallbackTab;
 	} \
 	if (numGlobs > 0) \
 	{ \
-		(psProg)->pGlobals = (INTERP_TYPE *)MALLOC(sizeof(INTERP_TYPE) * (numGlobs)); \
+		(psProg)->pGlobals = new (std::nothrow) INTERP_TYPE[(numGlobs)]; \
 		if ((psProg)->pGlobals == NULL) \
 		{ \
 			scr_error("Out of memory"); \
@@ -240,7 +239,7 @@ CALLBACK_SYMBOL* asScrCallbackTab;
 	} \
 	if (numArys > 0) \
 	{ \
-		(psProg)->psArrayInfo = (ARRAY_DATA *)MALLOC(sizeof(ARRAY_DATA) * (numArys)); \
+		(psProg)->psArrayInfo = new (std::nothrow) ARRAY_DATA[(numArys)]; \
 		if ((psProg)->psArrayInfo == NULL) \
 		{ \
 			scr_error("Out of memory"); \
@@ -254,13 +253,13 @@ CALLBACK_SYMBOL* asScrCallbackTab;
 	(psProg)->numArrays = (UWORD)(numArys); \
 	if ((numTrigs) > 0) \
 	{ \
-		(psProg)->pTriggerTab = (UWORD *)MALLOC(sizeof(UWORD) * ((numTrigs) + 1)); \
+		(psProg)->pTriggerTab = new (std::nothrow) UWORD[((numTrigs) + 1)]; \
 		if ((psProg)->pTriggerTab == NULL) \
 		{ \
 			scr_error("Out of memory"); \
 			ALLOC_ERROR_ACTION; \
 		} \
-		(psProg)->psTriggerData = (TRIGGER_DATA *)MALLOC(sizeof(TRIGGER_DATA) * (numTrigs)); \
+		(psProg)->psTriggerData = new (std::nothrow) TRIGGER_DATA[(numTrigs)]; \
 		if ((psProg)->psTriggerData == NULL) \
 		{ \
 			scr_error("Out of memory"); \
@@ -272,13 +271,13 @@ CALLBACK_SYMBOL* asScrCallbackTab;
 		(psProg)->pTriggerTab = NULL; \
 		(psProg)->psTriggerData = NULL; \
 	} \
-	(psProg)->pEventTab = (UWORD *)MALLOC(sizeof(UWORD) * ((numEvnts) + 1)); \
+	(psProg)->pEventTab = new (std::nothrow) UWORD[((numEvnts) + 1)]; \
 	if ((psProg)->pEventTab == NULL) \
 	{ \
 		scr_error("Out of memory"); \
 		ALLOC_ERROR_ACTION; \
 	} \
-	(psProg)->pEventLinks = (SWORD *)MALLOC(sizeof(SWORD) * (numEvnts)); \
+	(psProg)->pEventLinks = new (std::nothrow) SWORD[(numEvnts)]; \
 	if ((psProg)->pEventLinks == NULL) \
 	{ \
 		scr_error("Out of memory"); \
@@ -291,47 +290,47 @@ CALLBACK_SYMBOL* asScrCallbackTab;
 
 /* Macro to allocate a code block */
 #define ALLOC_BLOCK(psBlock, blockSize) \
-	(psBlock) = (CODE_BLOCK *)MALLOC(sizeof(CODE_BLOCK)); \
+	(psBlock) = new (std::nothrow) CODE_BLOCK[1]; \
 	if ((psBlock) == NULL) \
 	{ \
 		scr_error("Out of memory"); \
 		ALLOC_ERROR_ACTION; \
 	} \
-	(psBlock)->pCode = (UDWORD *)MALLOC(blockSize); \
+	(psBlock)->pCode = new (std::nothrow) UDWORD[(blockSize) / sizeof(UDWORD)]; \
 	if ((psBlock)->pCode == NULL) \
 	{ \
 		scr_error("Out of memory"); \
-		FREE((psBlock)); \
+		delete[] (psBlock); \
 		ALLOC_ERROR_ACTION; \
 	} \
 	(psBlock)->size = blockSize
 
 /* Macro to free a code block */
 #define FREE_BLOCK(psBlock) \
-	FREE((psBlock)->pCode); \
-	FREE((psBlock))
+	delete[] (psBlock)->pCode; \
+	delete[] (psBlock)
 
 /* Macro to allocate a parameter block */
 #define ALLOC_PBLOCK(psBlock, codeSize, paramSize) \
-	(psBlock) = (PARAM_BLOCK *)MALLOC(sizeof(PARAM_BLOCK)); \
+	(psBlock) = new (std::nothrow) PARAM_BLOCK[1]; \
 	if ((psBlock) == NULL) \
 	{ \
 		scr_error("Out of memory"); \
 		ALLOC_ERROR_ACTION; \
 	} \
-	(psBlock)->pCode = (UDWORD *)MALLOC(codeSize); \
+	(psBlock)->pCode = new (std::nothrow) UDWORD[(codeSize) / sizeof(UDWORD)]; \
 	if ((psBlock)->pCode == NULL) \
 	{ \
 		scr_error("Out of memory"); \
-		FREE((psBlock)); \
+		delete[] (psBlock); \
 		ALLOC_ERROR_ACTION; \
 	} \
-	(psBlock)->aParams = (INTERP_TYPE *)MALLOC(sizeof(INTERP_TYPE) * (paramSize)); \
+	(psBlock)->aParams = new (std::nothrow) INTERP_TYPE[(paramSize)]; \
 	if ((psBlock)->aParams == NULL) \
 	{ \
 		scr_error("Out of memory"); \
-		FREE((psBlock)->pCode); \
-		FREE((psBlock)); \
+		delete[] (psBlock)->pCode; \
+		delete[] (psBlock); \
 		ALLOC_ERROR_ACTION; \
 	} \
 	(psBlock)->size = (codeSize); \
@@ -339,19 +338,19 @@ CALLBACK_SYMBOL* asScrCallbackTab;
 
 /* Macro to free a parameter block */
 #define FREE_PBLOCK(psBlock) \
-	FREE((psBlock)->pCode); \
-	FREE((psBlock)->aParams); \
-	FREE((psBlock))
+	delete[] (psBlock)->pCode; \
+	delete[] (psBlock)->aParams; \
+	delete[] (psBlock)
 
 /* Macro to allocate a parameter declaration block */
 #define ALLOC_PARAMDECL(psPDecl, num) \
-	(psPDecl) = (PARAM_DECL *)MALLOC(sizeof(PARAM_DECL)); \
+	(psPDecl) = new (std::nothrow) PARAM_DECL[1]; \
 	if ((psPDecl) == NULL) \
 	{ \
 		scr_error("Out of memory"); \
 		ALLOC_ERROR_ACTION; \
 	} \
-	(psPDecl)->aParams = (INTERP_TYPE *)MALLOC(sizeof(INTERP_TYPE) * (num)); \
+	(psPDecl)->aParams = new (std::nothrow) INTERP_TYPE[(num)]; \
 	if ((psPDecl)->aParams == NULL) \
 	{ \
 		scr_error("Out of memory"); \
@@ -361,24 +360,24 @@ CALLBACK_SYMBOL* asScrCallbackTab;
 
 /* Macro to free a parameter declaration block */
 #define FREE_PARAMDECL(psPDecl) \
-	FREE((psPDecl)->aParams); \
-	FREE((psPDecl))
+	delete[] (psPDecl)->aParams; \
+	delete[] (psPDecl)
 
 /* Macro to allocate a conditional block */
 #define ALLOC_CONDBLOCK(psCB, num, blockSize) \
-	(psCB) = (COND_BLOCK *)MALLOC(sizeof(COND_BLOCK)); \
+	(psCB) = new (std::nothrow) COND_BLOCK[1]; \
 	if ((psCB) == NULL) \
 	{ \
 		scr_error("Out of memory"); \
 		ALLOC_ERROR_ACTION; \
 	} \
-	(psCB)->aOffsets = (UDWORD *)MALLOC(sizeof(SDWORD) * (num)); \
+	(psCB)->aOffsets = new (std::nothrow) UDWORD[(num)]; \
 	if ((psCB)->aOffsets == NULL) \
 	{ \
 		scr_error("Out of memory"); \
 		ALLOC_ERROR_ACTION; \
 	} \
-	(psCB)->pCode = (UDWORD *)MALLOC(blockSize); \
+	(psCB)->pCode = new (std::nothrow) UDWORD[(blockSize) / sizeof(UDWORD)]; \
 	if ((psCB)->pCode == NULL) \
 	{ \
 		scr_error("Out of memory"); \
@@ -389,41 +388,41 @@ CALLBACK_SYMBOL* asScrCallbackTab;
 
 /* Macro to free a conditional block */
 #define FREE_CONDBLOCK(psCB) \
-	FREE((psCB)->aOffsets); \
-	FREE((psCB)->pCode); \
-	FREE(psCB)
+	delete[] (psCB)->aOffsets; \
+	delete[] (psCB)->pCode; \
+	delete[] psCB
 
 /* Macro to allocate a code block */
 #define ALLOC_USERBLOCK(psBlock, blockSize) \
-	(psBlock) = (USER_BLOCK *)MALLOC(sizeof(USER_BLOCK)); \
+	(psBlock) = new (std::nothrow) USER_BLOCK[1]; \
 	if ((psBlock) == NULL) \
 	{ \
 		scr_error("Out of memory"); \
 		ALLOC_ERROR_ACTION; \
 	} \
-	(psBlock)->pCode = (UDWORD *)MALLOC(blockSize); \
+	(psBlock)->pCode = new (std::nothrow) UDWORD[(blockSize) / sizeof(UDWORD)]; \
 	if ((psBlock)->pCode == NULL) \
 	{ \
 		scr_error("Out of memory"); \
-		FREE((psBlock)); \
+		delete[] (psBlock); \
 		ALLOC_ERROR_ACTION; \
 	} \
 	(psBlock)->size = blockSize
 
 /* Macro to free a code block */
 #define FREE_USERBLOCK(psBlock) \
-	FREE((psBlock)->pCode); \
-	FREE((psBlock))
+	delete[] (psBlock)->pCode; \
+	delete[] (psBlock)
 
 /* Macro to allocate an object variable block */
 #define ALLOC_OBJVARBLOCK(psOV, blockSize, psVar) \
-	(psOV) = (OBJVAR_BLOCK *)MALLOC(sizeof(OBJVAR_BLOCK)); \
+	(psOV) = new (std::nothrow) OBJVAR_BLOCK[1]; \
 	if ((psOV) == NULL) \
 	{ \
 		scr_error("Out of memory"); \
 		ALLOC_ERROR_ACTION; \
 	} \
-	(psOV)->pCode = (UDWORD *)MALLOC(blockSize); \
+	(psOV)->pCode = new (std::nothrow) UDWORD[(blockSize) / sizeof(UDWORD)]; \
 	if ((psOV)->pCode == NULL) \
 	{ \
 		scr_error("Out of memory"); \
@@ -434,18 +433,18 @@ CALLBACK_SYMBOL* asScrCallbackTab;
 
 /* Macro to free an object variable block */
 #define FREE_OBJVARBLOCK(psOV) \
-	FREE((psOV)->pCode); \
-	FREE(psOV)
+	delete[] (psOV)->pCode; \
+	delete[] psOV
 
 /* Macro to allocate an array variable block */
 #define ALLOC_ARRAYBLOCK(psAV, blockSize, psVar) \
-	(psAV) = (ARRAY_BLOCK *)MALLOC(sizeof(ARRAY_BLOCK)); \
+	(psAV) = new (std::nothrow) ARRAY_BLOCK[1]; \
 	if ((psAV) == NULL) \
 	{ \
 		scr_error("Out of memory"); \
 		ALLOC_ERROR_ACTION; \
 	} \
-	(psAV)->pCode = (UDWORD *)MALLOC(blockSize); \
+	(psAV)->pCode = new (std::nothrow) UDWORD[(blockSize) / sizeof(UDWORD)]; \
 	if ((psAV)->pCode == NULL) \
 	{ \
 		scr_error("Out of memory"); \
@@ -457,12 +456,12 @@ CALLBACK_SYMBOL* asScrCallbackTab;
 
 /* Macro to free an object variable block */
 #define FREE_ARRAYBLOCK(psAV) \
-	FREE((psAV)->pCode); \
-	FREE(psAV)
+	delete[] (psAV)->pCode; \
+	delete[] psAV
 
 /* Allocate a trigger subdecl */
 #define ALLOC_TSUBDECL(psTSub, blockType, blockSize, blockTime) \
-	(psTSub) = (TRIGGER_DECL *)MALLOC(sizeof(TRIGGER_DECL)); \
+	(psTSub) = new (std::nothrow) TRIGGER_DECL[1]; \
 	if ((psTSub) == NULL) \
 	{ \
 		scr_error("Out of memory"); \
@@ -472,7 +471,7 @@ CALLBACK_SYMBOL* asScrCallbackTab;
 	(psTSub)->time = (blockTime); \
 	if ((blockSize) > 0) \
 	{ \
-		(psTSub)->pCode = (UDWORD *)MALLOC(blockSize); \
+		(psTSub)->pCode = new (std::nothrow) UDWORD[(blockSize) / sizeof(UDWORD)]; \
 		if ((psTSub)->pCode == NULL) \
 		{ \
 			scr_error("Out of memory"); \
@@ -490,13 +489,13 @@ CALLBACK_SYMBOL* asScrCallbackTab;
 #define FREE_TSUBDECL(psTSub) \
 	if ((psTSub)->pCode) \
 	{ \
-		FREE((psTSub)->pCode); \
+		delete[] (psTSub)->pCode; \
 	} \
-	FREE(psTSub)
+	delete[] psTSub
 
 /* Allocate a variable declaration block */
 #define ALLOC_VARDECL(psDcl) \
-	(psDcl)= (VAR_DECL *)MALLOC(sizeof(VAR_DECL)); \
+	(psDcl)= new (std::nothrow) VAR_DECL[1]; \
 	if ((psDcl) == NULL) \
 	{ \
 		scr_error("Out of memory"); \
@@ -505,11 +504,11 @@ CALLBACK_SYMBOL* asScrCallbackTab;
 
 /* Free a variable declaration block */
 #define FREE_VARDECL(psDcl) \
-	FREE(psDcl)
+	delete[] psDcl
 
 /* Allocate a variable declaration block */
 #define ALLOC_VARIDENTDECL(psDcl, ident, dim) \
-	(psDcl)= (VAR_IDENT_DECL *)MALLOC(sizeof(VAR_IDENT_DECL)); \
+	(psDcl)= new (std::nothrow) VAR_IDENT_DECL[1]; \
 	if ((psDcl) == NULL) \
 	{ \
 		scr_error("Out of memory"); \
@@ -517,7 +516,7 @@ CALLBACK_SYMBOL* asScrCallbackTab;
 	} \
 	if ((ident) != NULL) \
 	{ \
-		(psDcl)->pIdent=(STRING *)MALLOC(strlen(ident)+1); \
+		(psDcl)->pIdent=new (std::nothrow) STRING[strlen(ident)+1]; \
 		if ((psDcl)->pIdent == NULL) \
 		{ \
 			scr_error("Out of memory"); \
@@ -533,7 +532,7 @@ CALLBACK_SYMBOL* asScrCallbackTab;
 
 /* Free a variable declaration block */
 #define FREE_VARIDENTDECL(psDcl) \
-	FREE(psDcl)
+	delete[] psDcl
 
 /****************************************************************************************
  *
@@ -626,7 +625,7 @@ CALLBACK_SYMBOL* asScrCallbackTab;
 #define ALLOC_DEBUG(psBlock, num) \
 	if (genDebugInfo) \
 	{ \
-		(psBlock)->psDebug = (SCRIPT_DEBUG *)MALLOC(sizeof(SCRIPT_DEBUG) * (num)); \
+		(psBlock)->psDebug = new (std::nothrow) SCRIPT_DEBUG[(num)]; \
 		if ((psBlock)->psDebug == NULL) \
 		{ \
 			scr_error("Out of memory"); \
@@ -644,7 +643,7 @@ CALLBACK_SYMBOL* asScrCallbackTab;
 /* Macro to free debugging info */
 #define FREE_DEBUG(psBlock) \
 	if (genDebugInfo) \
-		FREE((psBlock)->psDebug)
+		delete[] (psBlock)->psDebug
 
 /* Macro to copy the debugging information from one block to another */
 #define PUT_DEBUG(psFinal, psBlock) \
@@ -692,7 +691,7 @@ static UDWORD _baseOffset;
 #define DEBUG_LABEL(psBlock, offset, pString) \
 	if (genDebugInfo) \
 	{ \
-		(psBlock)->psDebug[offset].pLabel = (STRING *)MALLOC(strlen(pString)+1); \
+		(psBlock)->psDebug[offset].pLabel = new (std::nothrow) STRING[strlen(pString)+1]; \
 		if (!(psBlock)->psDebug[offset].pLabel) \
 		{ \
 			scr_error("Out of memory"); \
@@ -735,8 +734,6 @@ CODE_ERROR scriptCodeFunction(FUNC_SYMBOL* psFSymbol, // The function being call
   STRING aErrorString[255];
 
   DEBUG_ASSERT_TEXT(psFSymbol != NULL, "ais_CodeFunction: Invalid function symbol pointer");
-  DEBUG_ASSERT_TEXT(PTRVALID(psPBlock, sizeof(PARAM_BLOCK)), "scriptCodeFunction: Invalid param block pointer");
-  DEBUG_ASSERT_TEXT((psPBlock->size == 0) || PTRVALID(psPBlock->pCode, psPBlock->size), "scriptCodeFunction: Invalid parameter code pointer");
   DEBUG_ASSERT_TEXT(ppsCBlock != NULL, "scriptCodeFunction: Invalid generated code block pointer");
 
   /* Check the parameter types match what the function needs */
@@ -814,8 +811,6 @@ CODE_ERROR scriptCodeCallbackParams(CALLBACK_SYMBOL* psCBSymbol, // The callback
   BOOL typeError = FALSE;
   STRING aErrorString[255];
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psPBlock, sizeof(PARAM_BLOCK)), "scriptCodeCallbackParams: Invalid param block pointer");
-  DEBUG_ASSERT_TEXT((psPBlock->size == 0) || PTRVALID(psPBlock->pCode, psPBlock->size), "scriptCodeCallbackParams: Invalid parameter code pointer");
   DEBUG_ASSERT_TEXT(ppsTDecl != NULL, "scriptCodeCallbackParams: Invalid generated code block pointer");
   DEBUG_ASSERT_TEXT(psCBSymbol->pFunc != NULL, "scriptCodeCallbackParams: Expected function pointer for callback symbol");
 
@@ -877,8 +872,6 @@ CODE_ERROR scriptCodeAssignment(VAR_SYMBOL* psVariable, // The variable to assig
   SDWORD size;
 
   DEBUG_ASSERT_TEXT(psVariable != NULL, "scriptCodeAssignment: Invalid variable symbol pointer");
-  DEBUG_ASSERT_TEXT(PTRVALID(psValue, sizeof(CODE_BLOCK)), "scriptCodeAssignment: Invalid value code block pointer");
-  DEBUG_ASSERT_TEXT(PTRVALID(psValue->pCode, psValue->size), "scriptCodeAssignment: Invalid value code pointer");
   DEBUG_ASSERT_TEXT(ppsBlock != NULL, "scriptCodeAssignment: Invalid generated code block pointer");
 
   size = psValue->size + sizeof(OPCODE);
@@ -927,11 +920,7 @@ CODE_ERROR scriptCodeObjAssignment(OBJVAR_BLOCK* psVariable, // The variable to 
                                    // assign
                                    CODE_BLOCK** ppsBlock) // Generated code
 {
-  DEBUG_ASSERT_TEXT(PTRVALID(psVariable, sizeof(OBJVAR_BLOCK)), "scriptCodeObjAssignment: Invalid object variable block pointer");
-  DEBUG_ASSERT_TEXT(PTRVALID(psVariable->pCode, psVariable->size), "scriptCodeObjAssignment: Invalid object variable code pointer");
   DEBUG_ASSERT_TEXT(psVariable->psObjVar != NULL, "scriptCodeObjAssignment: Invalid object variable symbol pointer");
-  DEBUG_ASSERT_TEXT(PTRVALID(psValue, sizeof(CODE_BLOCK)), "scriptCodeObjAssignment: Invalid value code block pointer");
-  DEBUG_ASSERT_TEXT(PTRVALID(psValue->pCode, psValue->size), "scriptCodeObjAssignment: Invalid value code pointer");
   DEBUG_ASSERT_TEXT(ppsBlock != NULL, "scriptCodeObjAssignment: Invalid generated code block pointer");
 
   // Check there is an access function for the variable
@@ -965,8 +954,6 @@ CODE_ERROR scriptCodeObjAssignment(OBJVAR_BLOCK* psVariable, // The variable to 
 CODE_ERROR scriptCodeObjGet(OBJVAR_BLOCK* psVariable, // The variable to get from
                             CODE_BLOCK** ppsBlock) // Generated code
 {
-  DEBUG_ASSERT_TEXT(PTRVALID(psVariable, sizeof(OBJVAR_BLOCK)), "scriptCodeObjAssignment: Invalid object variable block pointer");
-  DEBUG_ASSERT_TEXT(PTRVALID(psVariable->pCode, psVariable->size), "scriptCodeObjAssignment: Invalid object variable code pointer");
   DEBUG_ASSERT_TEXT(psVariable->psObjVar != NULL, "scriptCodeObjAssignment: Invalid object variable symbol pointer");
   DEBUG_ASSERT_TEXT(ppsBlock != NULL, "scriptCodeObjAssignment: Invalid generated code block pointer");
 
@@ -1003,11 +990,7 @@ CODE_ERROR scriptCodeArrayAssignment(ARRAY_BLOCK* psVariable, // The variable to
   //	SDWORD		elementDWords, i;
   //	UBYTE		*pElement;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psVariable, sizeof(ARRAY_BLOCK)), "scriptCodeObjAssignment: Invalid object variable block pointer");
-  DEBUG_ASSERT_TEXT(PTRVALID(psVariable->pCode, psVariable->size), "scriptCodeObjAssignment: Invalid object variable code pointer");
   DEBUG_ASSERT_TEXT(psVariable->psArrayVar != NULL, "scriptCodeObjAssignment: Invalid object variable symbol pointer");
-  DEBUG_ASSERT_TEXT(PTRVALID(psValue, sizeof(CODE_BLOCK)), "scriptCodeObjAssignment: Invalid value code block pointer");
-  DEBUG_ASSERT_TEXT(PTRVALID(psValue->pCode, psValue->size), "scriptCodeObjAssignment: Invalid value code pointer");
   DEBUG_ASSERT_TEXT(ppsBlock != NULL, "scriptCodeObjAssignment: Invalid generated code block pointer");
 
   // Check this is an array
@@ -1057,8 +1040,6 @@ CODE_ERROR scriptCodeArrayGet(ARRAY_BLOCK* psVariable, // The variable to get fr
   //	SDWORD		elementDWords, i;
   //	UBYTE		*pElement;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psVariable, sizeof(ARRAY_BLOCK)), "scriptCodeObjAssignment: Invalid object variable block pointer");
-  DEBUG_ASSERT_TEXT(PTRVALID(psVariable->pCode, psVariable->size), "scriptCodeObjAssignment: Invalid object variable code pointer");
   DEBUG_ASSERT_TEXT(psVariable->psArrayVar != NULL, "scriptCodeObjAssignment: Invalid object variable symbol pointer");
   DEBUG_ASSERT_TEXT(ppsBlock != NULL, "scriptCodeObjAssignment: Invalid generated code block pointer");
 
@@ -1105,8 +1086,6 @@ CODE_ERROR scriptCodeConditional(COND_BLOCK* psCondBlock, // The intermediate co
 {
   UDWORD i;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psCondBlock, sizeof(CODE_BLOCK)), "scriptCodeConditional: Invalid conditional code block pointer");
-  DEBUG_ASSERT_TEXT(PTRVALID(psCondBlock->pCode, psCondBlock->size), "scriptCodeConditional: Invalid conditional code pointer");
   DEBUG_ASSERT_TEXT(ppsBlock != NULL, "scriptCodeConditional: Invalid generated code block pointer");
 
   /* Allocate the final block */
@@ -1140,8 +1119,6 @@ CODE_ERROR scriptCodeParameter(CODE_BLOCK* psParam, // Code for the parameter
                                INTERP_TYPE type, // Parameter type
                                PARAM_BLOCK** ppsBlock) // Generated code
 {
-  DEBUG_ASSERT_TEXT(PTRVALID(psParam, sizeof(CODE_BLOCK)), "scriptCodeParameter: Invalid parameter code block pointer");
-  DEBUG_ASSERT_TEXT(PTRVALID(psParam->pCode, psParam->size), "scriptCodeParameter: Invalid parameter code pointer");
   DEBUG_ASSERT_TEXT(ppsBlock != NULL, "scriptCodeParameter: Invalid generated code block pointer");
 
   ALLOC_PBLOCK(*ppsBlock, psParam->size, 1);
@@ -1187,8 +1164,6 @@ CODE_ERROR scriptCodeObjectVariable(CODE_BLOCK* psObjCode, // Code for the objec
                                     VAR_SYMBOL* psVar, // The object variable symbol
                                     OBJVAR_BLOCK** ppsBlock) // Generated code
 {
-  DEBUG_ASSERT_TEXT(PTRVALID(psObjCode, sizeof(CODE_BLOCK)), "scriptCodeObjectVariable: Invalid object code block pointer");
-  DEBUG_ASSERT_TEXT(PTRVALID(psObjCode->pCode, psObjCode->size), "scriptCodeObjectVariable: Invalid object code pointer");
   DEBUG_ASSERT_TEXT(psVar != NULL, "scriptCodeObjectVariable: Invalid variable symbol pointer");
   DEBUG_ASSERT_TEXT(ppsBlock != NULL, "scriptCodeObjectVariable: Invalid generated code block pointer");
 
@@ -1217,8 +1192,6 @@ CODE_ERROR scriptCodeArrayVariable(ARRAY_BLOCK* psArrayCode, // Code for the arr
                                    VAR_SYMBOL* psVar, // The array variable symbol
                                    ARRAY_BLOCK** ppsBlock) // Generated code
 {
-  DEBUG_ASSERT_TEXT(PTRVALID(psArrayCode, sizeof(CODE_BLOCK)), "scriptCodeObjectVariable: Invalid object code block pointer");
-  DEBUG_ASSERT_TEXT(PTRVALID(psArrayCode->pCode, psArrayCode->size), "scriptCodeObjectVariable: Invalid object code pointer");
   DEBUG_ASSERT_TEXT(psVar != NULL, "scriptCodeObjectVariable: Invalid variable symbol pointer");
   DEBUG_ASSERT_TEXT(ppsBlock != NULL, "scriptCodeObjectVariable: Invalid generated code block pointer");
 
@@ -1893,7 +1866,6 @@ typedef struct yyTraceItems_tag
 } yyTraceItems;
 #endif
 
-
 /*
  * Copyright 1985, 1990 by Mortice Kern Systems Inc.  All rights reserved.
  * 
@@ -2074,8 +2046,10 @@ static void scriptResetTables(void)
   for (psCurr = psGlobalVars; psCurr != nullptr; psCurr = psNext)
   {
     psNext = psCurr->psNext;
-    FREE(psCurr->pIdent);
-    FREE(psCurr);
+    delete[] psCurr->pIdent;
+    psCurr->pIdent = nullptr;
+    delete[] psCurr;
+    psCurr = nullptr;
   }
   psGlobalVars = nullptr;
 
@@ -2083,8 +2057,10 @@ static void scriptResetTables(void)
   for (psCurr = psGlobalArrays; psCurr != nullptr; psCurr = psNext)
   {
     psNext = psCurr->psNext;
-    FREE(psCurr->pIdent);
-    FREE(psCurr);
+    delete[] psCurr->pIdent;
+    psCurr->pIdent = nullptr;
+    delete[] psCurr;
+    psCurr = nullptr;
   }
   psGlobalArrays = nullptr;
 
@@ -2092,10 +2068,12 @@ static void scriptResetTables(void)
   for (psTCurr = psTriggers; psTCurr; psTCurr = psTNext)
   {
     psTNext = psTCurr->psNext;
-    if (psTCurr->psDebug) { FREE(psTCurr->psDebug); }
-    if (psTCurr->pCode) { FREE(psTCurr->pCode); }
-    FREE(psTCurr->pIdent);
-    FREE(psTCurr);
+    if (psTCurr->psDebug) { delete[] psTCurr->psDebug; }
+    if (psTCurr->pCode) { delete[] psTCurr->pCode; }
+    delete[] psTCurr->pIdent;
+    psTCurr->pIdent = nullptr;
+    delete[] psTCurr;
+    psTCurr = nullptr;
   }
   psTriggers = nullptr;
   numTriggers = 0;
@@ -2104,10 +2082,13 @@ static void scriptResetTables(void)
   for (psECurr = psEvents; psECurr; psECurr = psENext)
   {
     psENext = psECurr->psNext;
-    if (psECurr->psDebug) { FREE(psECurr->psDebug); }
-    FREE(psECurr->pIdent);
-    FREE(psECurr->pCode);
-    FREE(psECurr);
+    if (psECurr->psDebug) { delete[] psECurr->psDebug; }
+    delete[] psECurr->pIdent;
+    psECurr->pIdent = nullptr;
+    delete[] psECurr->pCode;
+    psECurr->pCode = nullptr;
+    delete[] psECurr;
+    psECurr = nullptr;
   }
   psEvents = nullptr;
   numEvents = 0;
@@ -2117,9 +2098,12 @@ static void scriptResetTables(void)
   {
     psFNext = psFCurr->psNext;
     FREE_DEBUG(psFCurr);
-    FREE(psFCurr->pIdent);
-    FREE(psFCurr->pCode);
-    FREE(psFCurr);
+    delete[] psFCurr->pIdent;
+    psFCurr->pIdent = nullptr;
+    delete[] psFCurr->pCode;
+    psFCurr->pCode = nullptr;
+    delete[] psFCurr;
+    psFCurr = nullptr;
   }
   psFunctions = nullptr;
 }
@@ -2162,7 +2146,7 @@ void scr_error(char* pMessage, ...)
 #ifdef DEBUG
   DEBUG_ASSERT_TEXT(FALSE, "script parse error:\n{} at line {}\nToken: {}, Text: '{}'\n", aBuff, line, scr_char, text);
 #else
-  DBERROR(("script parse error:\n%s at line %d\nToken: %d, Text: '%s'\n", pMessage, line, scr_char, text));
+  Neuron::Fatal("script parse error:\n{} at line {}\nToken: {}, Text: '{}'\n", pMessage, line, scr_char, text);
 #endif
 }
 
@@ -2194,8 +2178,10 @@ void scriptClearLocalVariables(void)
   for (psCurr = psLocalVars; psCurr != nullptr; psCurr = psNext)
   {
     psNext = psCurr->psNext;
-    FREE(psCurr->pIdent);
-    FREE(psCurr);
+    delete[] psCurr->pIdent;
+    psCurr->pIdent = nullptr;
+    delete[] psCurr;
+    psCurr = nullptr;
   }
 }
 
@@ -2210,7 +2196,7 @@ BOOL scriptAddVariable(VAR_DECL* psStorage, VAR_IDENT_DECL* psVarIdent)
   SDWORD i; //, size;
 
   /* Allocate the memory for the symbol structure */
-  psNew = static_cast<VAR_SYMBOL*>(MALLOC(sizeof(VAR_SYMBOL)));
+  psNew = new (std::nothrow) VAR_SYMBOL[1];
   if (psNew == nullptr)
   {
     scr_error("Out of memory");
@@ -2331,13 +2317,13 @@ BOOL scriptAddTrigger(STRING* pIdent, TRIGGER_DECL* psDecl, UDWORD line)
   TRIGGER_SYMBOL *psTrigger, *psCurr, *psPrev;
 
   // Allocate the trigger
-  psTrigger = static_cast<TRIGGER_SYMBOL*>(MALLOC(sizeof(TRIGGER_SYMBOL)));
+  psTrigger = new (std::nothrow) TRIGGER_SYMBOL[1];
   if (!psTrigger)
   {
     scr_error("Out of memory");
     return FALSE;
   }
-  psTrigger->pIdent = static_cast<STRING*>(MALLOC(strlen(pIdent) + 1));
+  psTrigger->pIdent = new (std::nothrow) STRING[strlen(pIdent) + 1];
   if (!psTrigger->pIdent)
   {
     scr_error("Out of memory");
@@ -2346,7 +2332,7 @@ BOOL scriptAddTrigger(STRING* pIdent, TRIGGER_DECL* psDecl, UDWORD line)
   strcpy(psTrigger->pIdent, pIdent);
   if (psDecl->size > 0)
   {
-    psTrigger->pCode = static_cast<UDWORD*>(MALLOC(psDecl->size));
+    psTrigger->pCode = new (std::nothrow) UDWORD[(psDecl->size) / sizeof(UDWORD)];
     if (!psTrigger->pCode)
     {
       scr_error("Out of memory");
@@ -2365,7 +2351,7 @@ BOOL scriptAddTrigger(STRING* pIdent, TRIGGER_DECL* psDecl, UDWORD line)
   // Add debug info
   if (genDebugInfo)
   {
-    psTrigger->psDebug = static_cast<SCRIPT_DEBUG*>(MALLOC(sizeof(SCRIPT_DEBUG)));
+    psTrigger->psDebug = new (std::nothrow) SCRIPT_DEBUG[1];
     psTrigger->psDebug[0].offset = 0;
     psTrigger->psDebug[0].line = line;
     psTrigger->debugEntries = 1;
@@ -2430,13 +2416,13 @@ BOOL scriptDeclareEvent(STRING* pIdent, EVENT_SYMBOL** ppsEvent)
   EVENT_SYMBOL *psEvent, *psCurr, *psPrev;
 
   // Allocate the event
-  psEvent = static_cast<EVENT_SYMBOL*>(MALLOC(sizeof(EVENT_SYMBOL)));
+  psEvent = new (std::nothrow) EVENT_SYMBOL[1];
   if (!psEvent)
   {
     scr_error("Out of memory");
     return FALSE;
   }
-  psEvent->pIdent = static_cast<STRING*>(MALLOC(strlen(pIdent) + 1));
+  psEvent->pIdent = new (std::nothrow) STRING[strlen(pIdent) + 1];
   if (!psEvent->pIdent)
   {
     scr_error("Out of memory");
@@ -2468,7 +2454,7 @@ BOOL scriptDeclareEvent(STRING* pIdent, EVENT_SYMBOL** ppsEvent)
 BOOL scriptDefineEvent(EVENT_SYMBOL* psEvent, CODE_BLOCK* psCode, SDWORD trigger)
 {
   // Store the event code
-  psEvent->pCode = static_cast<UDWORD*>(MALLOC(psCode->size));
+  psEvent->pCode = new (std::nothrow) UDWORD[(psCode->size) / sizeof(UDWORD)];
   if (!psEvent->pCode)
   {
     scr_error("Out of memory");
@@ -2481,7 +2467,7 @@ BOOL scriptDefineEvent(EVENT_SYMBOL* psEvent, CODE_BLOCK* psCode, SDWORD trigger
   // Add debug info
   if (genDebugInfo)
   {
-    psEvent->psDebug = static_cast<SCRIPT_DEBUG*>(MALLOC(sizeof(SCRIPT_DEBUG) * psCode->debugEntries));
+    psEvent->psDebug = new (std::nothrow) SCRIPT_DEBUG[psCode->debugEntries];
     if (!psEvent->psDebug)
     {
       scr_error("Out of memory");
@@ -3055,7 +3041,7 @@ yyEncore:
       {
         if (numVars > 0)
         {
-          psFinalProg->psVarDebug = static_cast<VAR_DEBUG*>(MALLOC(sizeof(VAR_DEBUG) * numVars));
+          psFinalProg->psVarDebug = new (std::nothrow) VAR_DEBUG[numVars];
           if (psFinalProg->psVarDebug == nullptr)
           {
             scr_error("Out of memory");
@@ -3066,7 +3052,7 @@ yyEncore:
           psFinalProg->psVarDebug = nullptr;
         if (numArrays > 0)
         {
-          psFinalProg->psArrayDebug = static_cast<ARRAY_DEBUG*>(MALLOC(sizeof(ARRAY_DEBUG) * numArrays));
+          psFinalProg->psArrayDebug = new (std::nothrow) ARRAY_DEBUG[numArrays];
           if (psFinalProg->psArrayDebug == nullptr)
           {
             scr_error("Out of memory");
@@ -3089,7 +3075,7 @@ yyEncore:
 
         if (genDebugInfo)
         {
-          psFinalProg->psVarDebug[i].pIdent = static_cast<STRING*>(MALLOC(strlen(psCurr->pIdent) + 1));
+          psFinalProg->psVarDebug[i].pIdent = new (std::nothrow) STRING[strlen(psCurr->pIdent) + 1];
           if (psFinalProg->psVarDebug[i].pIdent == nullptr)
           {
             scr_error("Out of memory");
@@ -3112,7 +3098,7 @@ yyEncore:
 
         if (genDebugInfo)
         {
-          psFinalProg->psArrayDebug[i].pIdent = static_cast<STRING*>(MALLOC(strlen(psCurr->pIdent) + 1));
+          psFinalProg->psArrayDebug[i].pIdent = new (std::nothrow) STRING[strlen(psCurr->pIdent) + 1];
           if (psFinalProg->psArrayDebug[i].pIdent == nullptr)
           {
             scr_error("Out of memory");
@@ -3262,7 +3248,7 @@ yyEncore:
     {
       /* variable_ident :  IDENT array_sub_decl_list */
 
-      yypvt[0].videcl->pIdent = static_cast<STRING*>(MALLOC(strlen(yypvt[-1].sval)+1));
+      yypvt[0].videcl->pIdent = new (std::nothrow) STRING[strlen(yypvt[-1].sval)+1];
       if (yypvt[0].videcl->pIdent == nullptr)
       {
         scr_error("Out of memory");
@@ -3514,7 +3500,6 @@ yyEncore:
       UDWORD line;
       STRING* pDummy;
 
-      DBP0(("[compile] func_call\n"));
 
       if (genDebugInfo)
       {
@@ -3765,7 +3750,6 @@ yyEncore:
     {
       /* func_call :  NUM_FUNC '(' param_list ')' */
 
-      DBP0(("[compile] NUM_FUNC\n"));
 
       codeRet = scriptCodeFunction(yypvt[-3].fSymbol, yypvt[-1].pblock, FALSE, &psCurrBlock);
       CHECK_CODE_ERROR(codeRet);
@@ -3778,7 +3762,6 @@ yyEncore:
     {
       /* func_call :  BOOL_FUNC '(' param_list ')' */
 
-      DBP0(("[compile] BOOL_FUNC\n"));
 
       codeRet = scriptCodeFunction(yypvt[-3].fSymbol, yypvt[-1].pblock, FALSE, &psCurrBlock);
       CHECK_CODE_ERROR(codeRet);
@@ -3791,7 +3774,6 @@ yyEncore:
     {
       /* func_call :  USER_FUNC '(' param_list ')' */
 
-      DBP0(("[compile] USER_FUNC\n"));
 
       codeRet = scriptCodeFunction(yypvt[-3].fSymbol, yypvt[-1].pblock, FALSE, &psCurrBlock);
       CHECK_CODE_ERROR(codeRet);
@@ -3804,7 +3786,6 @@ yyEncore:
     {
       /* func_call :  OBJ_FUNC '(' param_list ')' */
 
-      DBP0(("[compile] OBJ_FUNC\n"));
 
       codeRet = scriptCodeFunction(yypvt[-3].fSymbol, yypvt[-1].pblock, FALSE, &psCurrBlock);
       CHECK_CODE_ERROR(codeRet);
@@ -3817,7 +3798,6 @@ yyEncore:
     {
       /* func_call :  FUNC '(' param_list ')' */
 
-      DBP0(("[compile] FUNC\n"));
 
       codeRet = scriptCodeFunction(yypvt[-3].fSymbol, yypvt[-1].pblock, FALSE, &psCurrBlock);
       CHECK_CODE_ERROR(codeRet);
@@ -3842,7 +3822,6 @@ yyEncore:
     {
       /* param_list :  parameter */
 
-      DBP0(("[compile] parameter\n"));
       yyval.pblock = yypvt[0].pblock;
     }
     break;
@@ -3851,7 +3830,6 @@ yyEncore:
     {
       /* param_list :  param_list ',' parameter */
 
-      DBP0(("[compile] param_list , parameter\n"));
 
       ALLOC_PBLOCK(psCurrPBlock, yypvt[-2].pblock->size + yypvt[0].pblock->size, yypvt[-2].pblock->numParams + yypvt[0].pblock->numParams);
       ip = psCurrPBlock->pCode;

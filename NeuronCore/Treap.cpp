@@ -4,9 +4,6 @@
 #define FRAME_LIB_INCLUDE
 
 #include "Types.h"
-#include "LegacyDebug.h"
-#include "Mem.h"
-#include "Heap.h"
 #include "Treap.h"
 
 /* Position of the last call */
@@ -14,12 +11,11 @@ static SDWORD cLine;
 static STRING* pCFile;
 static STRING pCFileNone[] = "None";
 
-/* Store the location in C code at which a call to the heap was made */
 void treapSetCallPos(STRING* pFileName, SDWORD lineNumber)
 {
   cLine = lineNumber;
 
-  pCFile = static_cast<STRING*>(MALLOC(strlen(pFileName) + 1));
+  pCFile = new (std::nothrow) STRING[strlen(pFileName) + 1];
   if (pCFile)
     strcpy(pCFile, pFileName);
   else
@@ -59,17 +55,10 @@ SDWORD treapStringCmp(UDWORD key1, UDWORD key2)
  */
 BOOL treapCreate(TREAP** ppsTreap, TREAP_CMP cmp, UDWORD init, UDWORD ext)
 {
-  *ppsTreap = static_cast<TREAP*>(MALLOC(sizeof(TREAP)));
+  *ppsTreap = new (std::nothrow) TREAP[1];
   if (!(*ppsTreap))
   {
-    DBERROR(("treapCreate: Out of memory"));
-    return FALSE;
-  }
-
-  if (!HEAP_CREATE(&((*ppsTreap)->psNodes), sizeof(TREAP_NODE), init, ext))
-  {
-    DBERROR(("treapCreate: Out of memory"));
-    FREE(*ppsTreap);
+    Neuron::Fatal("treapCreate: Out of memory");
     return FALSE;
   }
 
@@ -155,7 +144,8 @@ BOOL treapAdd(TREAP* psTreap, UDWORD key, void* pObj)
 {
   TREAP_NODE* psNew;
 
-  if (!HEAP_ALLOC(psTreap->psNodes, &psNew))
+  psNew = new (std::nothrow) TREAP_NODE;
+  if (psNew == nullptr)
     return FALSE;
   psNew->priority = static_cast<UDWORD>(rand());
   psNew->key = key;
@@ -248,9 +238,10 @@ BOOL treapDel(TREAP* psTreap, UDWORD key)
 
   // Release the node
 #ifdef DEBUG
-  FREE(psDel->pFile);
+  delete[] psDel->pFile;
+  psDel->pFile = nullptr;
 #endif
-  HEAP_FREE(psTreap->psNodes, psDel);
+  delete psDel;
 
   return TRUE;
 }
@@ -287,7 +278,7 @@ static void treapReportRec(TREAP_NODE* psRoot)
 {
   if (psRoot)
   {
-    DBPRINTF(("   %s, line %d\n", psRoot->pFile, psRoot->line));
+    Neuron::DebugTrace("   {}, line {}\n", psRoot->pFile, psRoot->line);
     treapReportRec(psRoot->psLeft);
     treapReportRec(psRoot->psRight);
   }
@@ -295,23 +286,23 @@ static void treapReportRec(TREAP_NODE* psRoot)
 #endif
 
 /* Recursively free a treap */
-static void treapDestroyRec(TREAP_NODE* psRoot, OBJ_HEAP* psHeap)
+static void treapDestroyRec(TREAP_NODE* psRoot)
 {
   if (psRoot == nullptr)
     return;
 
   // free the sub branches
-  treapDestroyRec(psRoot->psLeft, psHeap);
-  treapDestroyRec(psRoot->psRight, psHeap);
+  treapDestroyRec(psRoot->psLeft);
+  treapDestroyRec(psRoot->psRight);
 
   // free the root
-  HEAP_FREE(psHeap, psRoot);
+  delete psRoot;
 }
 
 /* Release all the nodes in the treap */
 void treapReset(TREAP* psTreap)
 {
-  treapDestroyRec(psTreap->psRoot, psTreap->psNodes);
+  treapDestroyRec(psTreap->psRoot);
   psTreap->psRoot = nullptr;
 }
 
@@ -321,15 +312,16 @@ void treapDestroy(TREAP* psTreap)
 #if DEBUG_TREAP
   if (psTreap->psRoot)
   {
-    DBPRINTF(("treapDestroy: %s, line %d : nodes still in the tree\n", psTreap->pFile, psTreap->line));
+    Neuron::DebugTrace("treapDestroy: {}, line {} : nodes still in the tree\n", psTreap->pFile, psTreap->line);
     treapReportRec(psTreap->psRoot);
   }
-  FREE(psTreap->pFile);
+  delete[] psTreap->pFile;
+  psTreap->pFile = nullptr;
 #endif
 
-  treapDestroyRec(psTreap->psRoot, psTreap->psNodes);
-  HEAP_DESTROY(psTreap->psNodes);
-  FREE(psTreap);
+  treapDestroyRec(psTreap->psRoot);
+  delete[] psTreap;
+  psTreap = nullptr;
 }
 
 /* Recursively display the treap structure */
@@ -339,17 +331,17 @@ void treapDisplayRec(TREAP_NODE* psRoot, UDWORD indent)
 
   // Display the root
 #if DEBUG_TREAP
-  DBPRINTF(("%s, line %d : %d,%d\n", psRoot->pFile, psRoot->line, psRoot->key, psRoot->priority));
+  Neuron::DebugTrace("{}, line {} : {},{}\n", psRoot->pFile, psRoot->line, psRoot->key, psRoot->priority);
 #else
-  DBPRINTF(("%d,%d\n", psRoot->key, psRoot->priority));
+  Neuron::DebugTrace("{},{}\n", psRoot->key, psRoot->priority);
 #endif
 
   // Display the left of the tree
   if (psRoot->psLeft)
   {
     for (i = 0; i < indent; i++)
-      DBPRINTF(("   "));
-    DBPRINTF(("L "));
+      Neuron::DebugTrace("   ");
+    Neuron::DebugTrace("L ");
     treapDisplayRec(psRoot->psLeft, indent + 1);
   }
 
@@ -357,8 +349,8 @@ void treapDisplayRec(TREAP_NODE* psRoot, UDWORD indent)
   if (psRoot->psRight)
   {
     for (i = 0; i < indent; i++)
-      DBPRINTF(("   "));
-    DBPRINTF(("R "));
+      Neuron::DebugTrace("   ");
+    Neuron::DebugTrace("R ");
     treapDisplayRec(psRoot->psRight, indent + 1);
   }
 }

@@ -73,7 +73,7 @@ static BOOL sendAudioBuffer(BOOL bNow)
   if (size > MaxMsgSize)
   {
     size = MaxMsgSize;
-    DBPRINTF(("NETPLAY:lost some audio\n"));
+    Neuron::DebugTrace("NETPLAY:lost some audio\n");
   }
 
   // lock an area
@@ -134,13 +134,13 @@ BOOL NETinitAudioCapture(VOID)
   hr = DirectSoundCaptureCreate(nullptr, &lpDirectSoundCapture, nullptr);
   if (hr != DS_OK)
   {
-    DBPRINTF(("NETPLAY:Failed to create capture interface."));
+    Neuron::DebugTrace("NETPLAY:Failed to create capture interface.");
     if (hr == DSERR_NOAGGREGATION)
-      DBPRINTF(("DSERR_NOAGGREGATION"));
+      Neuron::DebugTrace("DSERR_NOAGGREGATION");
     if (hr == DSERR_OUTOFMEMORY)
-      DBPRINTF(("DSERR_OUTOFMEMORY"));
+      Neuron::DebugTrace("DSERR_OUTOFMEMORY");
     if (hr == DSERR_INVALIDPARAM)
-      DBPRINTF(("DSERR_INVALIDPARAM"));
+      Neuron::DebugTrace("DSERR_INVALIDPARAM");
     return FALSE;
   }
 
@@ -164,17 +164,17 @@ BOOL NETinitAudioCapture(VOID)
   if (hr != DS_OK)
   {
     if (hr == DSERR_INVALIDPARAM)
-      DBPRINTF(("NETPLAY:no capturebuffer,inv param"));
+      Neuron::DebugTrace("NETPLAY:no capturebuffer,inv param");
     if (hr == DSERR_BADFORMAT)
-      DBPRINTF(("NETPLAY:no capturebuffer,badformat"));
+      Neuron::DebugTrace("NETPLAY:no capturebuffer,badformat");
     if (hr == DSERR_GENERIC)
-      DBPRINTF(("NETPLAY:no capturebuffer,generic"));
+      Neuron::DebugTrace("NETPLAY:no capturebuffer,generic");
     if (hr == DSERR_NODRIVER)
-      DBPRINTF(("NETPLAY:no capturebuffer,nodriver"));
+      Neuron::DebugTrace("NETPLAY:no capturebuffer,nodriver");
     if (hr == DSERR_OUTOFMEMORY)
-      DBPRINTF(("NETPLAY:no capturebuffer,memory"));
+      Neuron::DebugTrace("NETPLAY:no capturebuffer,memory");
     if (hr == DSERR_UNINITIALIZED)
-      DBPRINTF(("NETPLAY:no capturebuffer,uninit"));
+      Neuron::DebugTrace("NETPLAY:no capturebuffer,uninit");
     return FALSE;
   }
 
@@ -261,14 +261,14 @@ static BOOL setupSoundPlay(VOID)
   hr = DirectSoundCreate(nullptr, &lpDirectSound, nullptr); // create dsound object
   if (hr != DS_OK)
   {
-    DBPRINTF(("NETPLAY Failed to create dsound interface.\n"));
+    Neuron::DebugTrace("NETPLAY Failed to create dsound interface.\n");
     return (FALSE);
   }
 
   hr = IDirectSound_SetCooperativeLevel(lpDirectSound, hwnd, DSSCL_PRIORITY); // Set coop level
   if (hr != DS_OK)
   {
-    DBPRINTF(("NETPLAY Failed to create playback buffer..\n"));
+    Neuron::DebugTrace("NETPLAY Failed to create playback buffer..\n");
     return (FALSE);
   }
 
@@ -303,7 +303,7 @@ static BOOL setupPlayBuffer(VOID)
 
   if (hr != DS_OK)
   {
-    DBPRINTF(("NETPLAY: Failed to create playback buffer.\n"));
+    Neuron::DebugTrace("NETPLAY: Failed to create playback buffer.\n");
     lpDirectSoundBuffer = nullptr; // Failed. 
     return FALSE;
   }
@@ -407,7 +407,7 @@ BOOL NETqueueIncomingAudio(LPBYTE lpbSoundData, DWORD dwSoundBytes, BOOL bStream
       IDirectSoundBuffer_Play(lpDirectSoundBuffer, 0, 0, 0); //DSBPLAY_LOOPING );								// now play the sound         
       if (hr == DS_OK)
         return TRUE;
-      DBERROR(("NETPLAY: failed to play incoming sample"));
+      Neuron::Fatal("NETPLAY: failed to play incoming sample");
     }
   }
   return FALSE;

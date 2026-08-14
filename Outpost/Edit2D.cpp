@@ -164,8 +164,8 @@ BOOL ed2dInitialise(void)
 /* ShutDown the 2D editing module */
 void ed2dShutDown(void)
 {
-  if (sPasteBox.psTiles != NULL) { FREE(sPasteBox.psTiles); }
-  if (sUndoBox.psTiles != NULL) { FREE(sUndoBox.psTiles); }
+  if (sPasteBox.psTiles != NULL) { delete[] sPasteBox.psTiles; }
+  if (sUndoBox.psTiles != NULL) { delete[] sUndoBox.psTiles; }
 }
 
 /* Process input for 2D editing */
@@ -193,20 +193,17 @@ BOOL ed2dProcessInput(void)
   if ((keyDown(KEY_LCTRL) || keyDown(KEY_RCTRL)) && keyPressed(KEY_Z))
   {
     putBox(&sUndoBox, sUndoBox.x, sUndoBox.y);
-    DBP2(("MS_GAME\n"));
     mState = MS_GAME;
   }
 
   /* Copy the grab area */
   if (mState == MS_GRABBED && (keyDown(KEY_LCTRL) || keyDown(KEY_RCTRL)) && keyPressed(KEY_C))
   {
-    if (sPasteBox.psTiles != NULL) { FREE(sPasteBox.psTiles); }
+    if (sPasteBox.psTiles != NULL) { delete[] sPasteBox.psTiles; }
     if (getBox(&sPasteBox, selSX, selSY, selEX - selSX + 1, selEY - selSY + 1))
     {
-      DBP2(("MS_GAME\n"));
       mState = MS_GAME;
     }
-    DBP3(("Copy area: (%d,%d) %d x %d\n", sPasteBox.x, sPasteBox.y, sPasteBox.width, sPasteBox.height));
   }
 
   disp2DToWorld(mouseX(), mouseY(), &worldX, &worldY);
@@ -219,10 +216,8 @@ BOOL ed2dProcessInput(void)
     selEX = selSX + sPasteBox.width - 1;
     selEY = selSY + sPasteBox.height - 1;
 
-    DBP2(("MS_PASTE\n"));
     mState = MS_PASTE;
 
-    DBP3(("Paste area: (%d,%d) %d x %d\n", selSX, selSY, sPasteBox.width, sPasteBox.height));
   }
 
   /* Process mouse clicks, dependant on mouse mode */
@@ -237,13 +232,11 @@ BOOL ed2dProcessInput(void)
       disp2DToWorld(mouseX(), mouseY(), &dragSX, &dragSY);
       dragSX = dragSX >> TILE_SHIFT;
       dragSY = dragSY >> TILE_SHIFT;
-      DBP2(("MS_GRABSTART\n"));
     }
 
     /* Clear the grab start if the mouse button has gone up */
     if ((mouseReleased(MOUSE_LMB) || !mouseDown(MOUSE_LMB)) && mState != MS_GAME)
     {
-      DBP2(("MS_GAME\n"));
       mState = MS_GAME;
     }
 
@@ -253,7 +246,6 @@ BOOL ed2dProcessInput(void)
       mState = MS_GRAB;
       selSX = selEX = dragEX = dragSX;
       selSY = selEY = dragEY = dragSY;
-      DBP2(("MS_GRAB\n"));
       break;
     }
     else if (mouseDown(MOUSE_RMB))
@@ -297,7 +289,6 @@ BOOL ed2dProcessInput(void)
   case MS_PASTESTART:
     if (!mouseDown(MOUSE_LMB) && mState != MS_GRABBED)
     {
-      DBP2(("MS_GRABBED\n"));
       mState = MS_GRABBED;
     }
     tileX = worldX >> TILE_SHIFT;
@@ -309,11 +300,9 @@ BOOL ed2dProcessInput(void)
       if (tileX < selSX || tileX > selEX || tileY < selSY || tileY > selEY)
       {
         /* Clear the selection */
-        DBP2(("MS_GAME\n"));
         mState = MS_GAME;
         break;
       }
-      DBP2(("MS_PASTESTART\n"));
       mState = MS_PASTESTART;
       dragSX = tileX;
       dragSY = tileY;
@@ -322,8 +311,8 @@ BOOL ed2dProcessInput(void)
     if (mouseDown(MOUSE_LMB) && mState == MS_PASTESTART && dragSX != tileX && dragSY != tileY)
     {
       /* Free any old undo and paste buffer */
-      if (sPasteBox.psTiles != NULL) { FREE(sPasteBox.psTiles); }
-      if (sUndoBox.psTiles != NULL) { FREE(sUndoBox.psTiles); }
+      if (sPasteBox.psTiles != NULL) { delete[] sPasteBox.psTiles; }
+      if (sUndoBox.psTiles != NULL) { delete[] sUndoBox.psTiles; }
 
       /* Get the paste and undo boxes */
       if (!getBox(&sPasteBox, selSX, selSY, selEX - selSX + 1, selEY - selSY + 1))
@@ -333,7 +322,7 @@ BOOL ed2dProcessInput(void)
       }
       if (!getBox(&sUndoBox, selSX, selSY, selEX - selSX + 1, selEY - selSY + 1))
       {
-        FREE(sPasteBox.psTiles);
+        delete[] sPasteBox.psTiles;
         sPasteBox.psTiles = NULL;
         mState = MS_GAME;
         break;
@@ -342,7 +331,6 @@ BOOL ed2dProcessInput(void)
       /* Fill the removed area with the current fill tile */
       for (my = selSY; my <= selEY; my++) { for (mx = selSX; mx <= selEX; mx++) { mapTile(mx, my)->texture = (UWORD)currTile; } }
 
-      DBP2(("MS_PASTE\n"));
       mState = MS_PASTE;
     }
     break;
@@ -354,16 +342,15 @@ BOOL ed2dProcessInput(void)
     if (mousePressed(MOUSE_LMB) && (tileX < selSX || tileX > selEX || tileY < selSY || tileY > selEY))
     {
       /* Free the old undo data */
-      if (sUndoBox.psTiles != NULL) { FREE(sUndoBox.psTiles); }
+      if (sUndoBox.psTiles != NULL) { delete[] sUndoBox.psTiles; }
       /* Get the new undo data */
       if (!getBox(&sUndoBox, selSX, selSY, sPasteBox.width, sPasteBox.height))
       {
-        DBERROR(("Out of memory"));
+        Neuron::Fatal("Out of memory");
         break;
       }
 
       putBox(&sPasteBox, selSX, selSY);
-      DBP2(("MS_GAME\n"));
       mState = MS_GAME;
       break;
     }
@@ -401,26 +388,26 @@ BOOL ed2dProcessInput(void)
     /* Flip on X axis */
     if (keyPressed(KEY_X) && getBox(&sGrabBox, selSX, selSY, selEX - selSX + 1, selEY - selSY + 1))
     {
-      DBP3(("flip box X: (%d,%d) %d x %d\n", sGrabBox.x, sGrabBox.y, sGrabBox.width, sGrabBox.height));
       flipBoxX(&sGrabBox);
       putBox(&sGrabBox, selSX, selSY);
-      FREE(sGrabBox.psTiles);
+      delete[] sGrabBox.psTiles;
+      sGrabBox.psTiles = nullptr;
     }
     /* Flip on Y axis */
     if (keyPressed(KEY_Y) && getBox(&sGrabBox, selSX, selSY, selEX - selSX + 1, selEY - selSY + 1))
     {
-      DBP3(("flip box Y: (%d,%d) %d x %d\n", sGrabBox.x, sGrabBox.y, sGrabBox.width, sGrabBox.height));
       flipBoxY(&sGrabBox);
       putBox(&sGrabBox, selSX, selSY);
-      FREE(sGrabBox.psTiles);
+      delete[] sGrabBox.psTiles;
+      sGrabBox.psTiles = nullptr;
     }
     /* Rotate */
     if (keyPressed(KEY_Z) && selEX - selSX == selEY - selSY && getBox(&sGrabBox, selSX, selSY, selEX - selSX + 1, selEY - selSY + 1))
     {
-      DBP3(("rotate box: (%d,%d) %d x %d\n", sGrabBox.x, sGrabBox.y, sGrabBox.width, sGrabBox.height));
       rotBox(&sGrabBox);
       putBox(&sGrabBox, selSX, selSY);
-      FREE(sGrabBox.psTiles);
+      delete[] sGrabBox.psTiles;
+      sGrabBox.psTiles = nullptr;
     }
   }
   else if (mState == MS_PASTE)
@@ -619,10 +606,10 @@ static BOOL getBox(PASTE_BOX* psBox, UDWORD x, UDWORD y, UDWORD width, UDWORD he
   psBox->y = y;
   psBox->width = width;
   psBox->height = height;
-  psBox->psTiles = (MAPTILE*)MALLOC(sizeof(MAPTILE) * psBox->width * psBox->height);
+  psBox->psTiles = new (std::nothrow) MAPTILE[psBox->width * psBox->height];
   if (psBox->psTiles == NULL)
   {
-    DBERROR(("Out of memory"));
+    Neuron::Fatal("Out of memory");
     return FALSE;
   }
 
@@ -669,10 +656,10 @@ static void flipBoxX(PASTE_BOX* psBox)
   UDWORD tex1, tex2;
 
   /* Allocate a buffer for the flipped version */
-  psNew = (MAPTILE*)MALLOC(sizeof(MAPTILE) * psBox->width * psBox->height);
+  psNew = new (std::nothrow) MAPTILE[psBox->width * psBox->height];
   if (psNew == NULL)
   {
-    DBERROR(("Out of memory, couldn't do flip\n"));
+    Neuron::Fatal("Out of memory, couldn't do flip\n");
     return;
   }
 
@@ -705,7 +692,7 @@ static void flipBoxX(PASTE_BOX* psBox)
     }
   }
 
-  FREE(psBox->psTiles);
+  delete[] psBox->psTiles;
   psBox->psTiles = psNew;
 }
 
@@ -717,10 +704,10 @@ static void flipBoxY(PASTE_BOX* psBox)
   UDWORD tex1, tex2;
 
   /* Allocate a buffer for the flipped version */
-  psNew = (MAPTILE*)MALLOC(sizeof(MAPTILE) * psBox->width * psBox->height);
+  psNew = new (std::nothrow) MAPTILE[psBox->width * psBox->height];
   if (psNew == NULL)
   {
-    DBERROR(("Out of memory, couldn't do flip\n"));
+    Neuron::Fatal("Out of memory, couldn't do flip\n");
     return;
   }
 
@@ -753,7 +740,7 @@ static void flipBoxY(PASTE_BOX* psBox)
     }
   }
 
-  FREE(psBox->psTiles);
+  delete[] psBox->psTiles;
   psBox->psTiles = psNew;
 }
 
@@ -767,10 +754,10 @@ static void rotBox(PASTE_BOX* psBox)
   MAPTILE *psNew, *psSrc, *psDest;
 
   /* Allocate the new tile buffer */
-  psNew = (MAPTILE*)MALLOC(sizeof(MAPTILE) * psBox->width * psBox->height);
+  psNew = new (std::nothrow) MAPTILE[psBox->width * psBox->height];
   if (psNew == NULL)
   {
-    DBERROR(("Out of memory"));
+    Neuron::Fatal("Out of memory");
     return;
   }
 
@@ -790,7 +777,7 @@ static void rotBox(PASTE_BOX* psBox)
   }
 
   /* Store the new tiles into the box */
-  FREE(psBox->psTiles);
+  delete[] psBox->psTiles;
   psBox->psTiles = psNew;
   x = psBox->width;
   psBox->width = psBox->height;
@@ -826,7 +813,8 @@ BOOL ed2dLoadMapFile(void)
   /* Load the data into the map - 
      don't check the return code as we do the same thing either way */
   (void)mapLoad(pFileData, fileSize);
-  FREE(pFileData);
+  delete[] pFileData;
+  pFileData = nullptr;
 
   /* Start the game clock */
   gameTimeStart();

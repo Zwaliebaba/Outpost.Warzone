@@ -210,7 +210,7 @@ STRING* cdspan_GetCDStrFromIndex(CD_INDEX index)
     return LABEL1;
   if (index == DISC_TWO)
     return LABEL2;
-  DBPRINTF(("cdspan_GetCDStrFromIndex: invalid cd index\n"));
+  Neuron::DebugTrace("cdspan_GetCDStrFromIndex: invalid cd index\n");
   return nullptr;
 }
 
@@ -222,7 +222,7 @@ CD_INDEX cdspan_GetCDIndexFromStr(STRING* pStr)
     return DISC_ONE;
   if (stricmp(pStr, LABEL2) == 0)
     return DISC_TWO;
-  DBPRINTF(("cdspan_GetCDIndexFromStr: invalid cd string\n"));
+  Neuron::DebugTrace("cdspan_GetCDIndexFromStr: invalid cd string\n");
   return DISC_INVALID;
 }
 

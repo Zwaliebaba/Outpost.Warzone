@@ -117,12 +117,12 @@ static char NotUsedString[50]; // Dummy area for scanf
 
 /* Macro to allocate memory for a set of stats */
 #define ALLOC_STATS(numEntries, list, listSize, type) \
-	DEBUG_ASSERT_TEXT((numEntries) < REF_RANGE,  \
-	"allocStats: number of stats entries too large for " #type);\
-	(list) = (type *)MALLOC(sizeof(type) * (numEntries)); \
+	DEBUG_ASSERT_TEXT((numEntries) < REF_RANGE, \
+	"allocStats: number of stats entries too large for " #type );\
+	(list) = new (std::nothrow) type[(numEntries)]; \
 	if ((list) == NULL) \
 	{ \
-		DBERROR(("Out of memory")); \
+		Neuron::Fatal("Out of memory"); \
 		return FALSE; \
 	} \
 	(listSize) = (numEntries); \
@@ -189,7 +189,8 @@ void statsDealloc(COMP_BASE_STATS* pStats, UDWORD listSize, UDWORD structureSize
 
   UDWORD inc; COMP_BASE_STATS* pStatList = pStats; UDWORD address = (UDWORD)pStats; for (inc = 0; inc < listSize; inc++)
   {
-    FREE(pStatList->pName);
+    delete[] pStatList->pName;
+    pStatList->pName = nullptr;
     address += structureSize;
     pStatList = (COMP_BASE_STATS*)address;
   }
@@ -201,7 +202,8 @@ void statsDealloc(COMP_BASE_STATS* pStats, UDWORD listSize, UDWORD structureSize
 
 #endif
 
-  FREE(pStats);
+  delete[] pStats;
+  pStats = nullptr;
 }
 
 static BOOL allocateStatName(BASE_STATS* pStat, char* Name)
@@ -225,11 +227,14 @@ void deallocBodyStats(void)
 
 #if !defined (RESOURCE_NAMES) && !defined (STORE_RESOURCE_ID)
 
-    FREE(psStat->pName);
+    delete[] psStat->pName;
+    psStat->pName = nullptr;
 #endif
-    FREE(psStat->ppIMDList);
+    delete[] psStat->ppIMDList;
+    psStat->ppIMDList = nullptr;
   }
-  FREE(asBodyStats);
+  delete[] asBodyStats;
+  asBodyStats = nullptr;
 }
 
 /*Deallocate all the stats assigned from input data*/
@@ -453,7 +458,7 @@ BOOL loadWeaponStats(SBYTE* pWeaponData, UDWORD bufferSize)
 #define DEFAULT_FLIGHTSPEED (500)
     if (psStats->flightSpeed == 0)
     {
-      DBPRINTF(("STATS: Zero Flightspeed for %s - using default of %d\n",WeaponName,DEFAULT_FLIGHTSPEED));
+      Neuron::DebugTrace("STATS: Zero Flightspeed for {} - using default of {}\n",WeaponName,DEFAULT_FLIGHTSPEED);
       psStats->flightSpeed = DEFAULT_FLIGHTSPEED;
     }
 
@@ -479,7 +484,7 @@ BOOL loadWeaponStats(SBYTE* pWeaponData, UDWORD bufferSize)
       psStats->pIMD = static_cast<iIMDShape*>(resGetData("IMD", GfxFile));
       if (psStats->pIMD == nullptr)
       {
-        DBERROR(("Cannot find the weapon PIE for record %s", getStatName(psStats)));
+        Neuron::Fatal("Cannot find the weapon PIE for record {}", getStatName(psStats));
         return FALSE;
       }
     }
@@ -491,7 +496,7 @@ BOOL loadWeaponStats(SBYTE* pWeaponData, UDWORD bufferSize)
       psStats->pMountGraphic = static_cast<iIMDShape*>(resGetData("IMD", mountGfx));
       if (psStats->pMountGraphic == nullptr)
       {
-        DBERROR(("Cannot find the mount PIE for record %s", getStatName(psStats)));
+        Neuron::Fatal("Cannot find the mount PIE for record {}", getStatName(psStats));
         return FALSE;
       }
     }
@@ -503,35 +508,35 @@ BOOL loadWeaponStats(SBYTE* pWeaponData, UDWORD bufferSize)
       psStats->pMuzzleGraphic = static_cast<iIMDShape*>(resGetData("IMD", muzzleGfx));
       if (psStats->pMuzzleGraphic == nullptr)
       {
-        DBERROR(("Cannot find the muzzle PIE for record %s", getStatName(psStats)));
+        Neuron::Fatal("Cannot find the muzzle PIE for record {}", getStatName(psStats));
         return FALSE;
       }
 
       psStats->pInFlightGraphic = static_cast<iIMDShape*>(resGetData("IMD", flightGfx));
       if (psStats->pInFlightGraphic == nullptr)
       {
-        DBERROR(("Cannot find the flight PIE for record %s", getStatName(psStats)));
+        Neuron::Fatal("Cannot find the flight PIE for record {}", getStatName(psStats));
         return FALSE;
       }
 
       psStats->pTargetHitGraphic = static_cast<iIMDShape*>(resGetData("IMD", hitGfx));
       if (psStats->pTargetHitGraphic == nullptr)
       {
-        DBERROR(("Cannot find the target hit PIE for record %s", getStatName(psStats)));
+        Neuron::Fatal("Cannot find the target hit PIE for record {}", getStatName(psStats));
         return FALSE;
       }
 
       psStats->pTargetMissGraphic = static_cast<iIMDShape*>(resGetData("IMD", missGfx));
       if (psStats->pTargetMissGraphic == nullptr)
       {
-        DBERROR(("Cannot find the target miss PIE for record %s", getStatName(psStats)));
+        Neuron::Fatal("Cannot find the target miss PIE for record {}", getStatName(psStats));
         return FALSE;
       }
 
       psStats->pWaterHitGraphic = static_cast<iIMDShape*>(resGetData("IMD", waterGfx));
       if (psStats->pWaterHitGraphic == nullptr)
       {
-        DBERROR(("Cannot find the water hit PIE for record %s", getStatName(psStats)));
+        Neuron::Fatal("Cannot find the water hit PIE for record {}", getStatName(psStats));
         return FALSE;
       }
       //trail graphic can be null
@@ -540,7 +545,7 @@ BOOL loadWeaponStats(SBYTE* pWeaponData, UDWORD bufferSize)
         psStats->pTrailGraphic = static_cast<iIMDShape*>(resGetData("IMD", trailGfx));
         if (psStats->pTrailGraphic == nullptr)
         {
-          DBERROR(("Cannot find the trail PIE for record %s", getStatName(psStats)));
+          Neuron::Fatal("Cannot find the trail PIE for record {}", getStatName(psStats));
           return FALSE;
         }
       }
@@ -557,7 +562,7 @@ BOOL loadWeaponStats(SBYTE* pWeaponData, UDWORD bufferSize)
       psStats->fireOnMove = FOM_YES;
     else
     {
-      DBERROR(("Invalid fire on move flag for weapon %s", getStatName(psStats)));
+      Neuron::Fatal("Invalid fire on move flag for weapon {}", getStatName(psStats));
       return FALSE;
     }
 
@@ -572,7 +577,7 @@ BOOL loadWeaponStats(SBYTE* pWeaponData, UDWORD bufferSize)
       psStats->weaponClass = WC_HEAT;
     else
     {
-      DBERROR(("Invalid weapon class for weapon %s", getStatName(psStats)));
+      Neuron::Fatal("Invalid weapon class for weapon {}", getStatName(psStats));
       return FALSE;
     }
 
@@ -590,7 +595,7 @@ BOOL loadWeaponStats(SBYTE* pWeaponData, UDWORD bufferSize)
     psStats->weaponEffect = static_cast<WEAPON_EFFECT>(getWeaponEffect(weaponEffect));
     if (psStats->weaponEffect == INVALID_WEAPON_EFFECT)
     {
-      DBERROR(("loadWepaonStats: Invalid weapon effect for weapon %s", getStatName(psStats)));
+      Neuron::Fatal("loadWepaonStats: Invalid weapon effect for weapon {}", getStatName(psStats));
       return FALSE;
     }
 
@@ -695,11 +700,11 @@ BOOL loadWeaponStats(SBYTE* pWeaponData, UDWORD bufferSize)
       longRange = UDWORD_MAX;
     if (psStats->shortRange > longRange)
     {
-      DBPRINTF(("%s, flight speed is too low to reach short range (max range %d)\n", WeaponName, longRange));
+      Neuron::DebugTrace("{}, flight speed is too low to reach short range (max range {})\n", WeaponName, longRange);
     }
     else if (psStats->longRange > longRange)
     {
-      DBPRINTF(("%s, flight speed is too low to reach long range (max range %d)\n", WeaponName, longRange));
+      Neuron::DebugTrace("{}, flight speed is too low to reach long range (max range {})\n", WeaponName, longRange);
     }
 
     //set the weapon sounds to default value
@@ -874,7 +879,7 @@ BOOL loadBodyStats(SBYTE* pBodyData, UDWORD bufferSize)
       psStats->pIMD = static_cast<iIMDShape*>(resGetData("IMD", GfxFile));
       if (psStats->pIMD == nullptr)
       {
-        DBERROR(("Cannot find the body PIE for record %s", getStatName(psStats)));
+        Neuron::Fatal("Cannot find the body PIE for record {}", getStatName(psStats));
         return FALSE;
       }
     }
@@ -887,7 +892,7 @@ BOOL loadBodyStats(SBYTE* pBodyData, UDWORD bufferSize)
       psStats->pFlameIMD = static_cast<iIMDShape*>(resGetData("IMD", flameIMD));
       if (psStats->pFlameIMD == nullptr)
       {
-        DBERROR(("Cannot find the flame PIE for record %s", getStatName(psStats)));
+        Neuron::Fatal("Cannot find the flame PIE for record {}", getStatName(psStats));
         return FALSE;
       }
     }
@@ -965,7 +970,7 @@ BOOL loadBrainStats(SBYTE* pBrainData, UDWORD bufferSize)
       //if weapon not found - error
       if (incW == -1)
       {
-        DBERROR(("Unable to find Weapon %s for brain %s", weaponName, BrainName));
+        Neuron::Fatal("Unable to find Weapon {} for brain {}", weaponName, BrainName);
         return FALSE;
       }
       //Weapon found, alloc this to the brain
@@ -1151,7 +1156,7 @@ BOOL loadPropulsionStats(SBYTE* pPropulsionData, UDWORD bufferSize)
       psStats->pIMD = static_cast<iIMDShape*>(resGetData("IMD", imdName));
       if (psStats->pIMD == nullptr)
       {
-        DBERROR(("Cannot find the propulsion PIE for record %s", getStatName(psStats)));
+        Neuron::Fatal("Cannot find the propulsion PIE for record {}", getStatName(psStats));
         return FALSE;
       }
     }
@@ -1162,7 +1167,7 @@ BOOL loadPropulsionStats(SBYTE* pPropulsionData, UDWORD bufferSize)
     psStats->propulsionType = getPropulsionType(type);
     if (psStats->propulsionType == INVALID_PROP_TYPE)
     {
-      DBERROR(("loadPropulsionStats: Invalid Propulsion type for %s", getStatName(psStats)));
+      Neuron::Fatal("loadPropulsionStats: Invalid Propulsion type for {}", getStatName(psStats));
       return FALSE;
     }
 
@@ -1287,7 +1292,7 @@ BOOL loadSensorStats(SBYTE* pSensorData, UDWORD bufferSize)
       psStats->pIMD = static_cast<iIMDShape*>(resGetData("IMD", GfxFile));
       if (psStats->pIMD == nullptr)
       {
-        DBERROR(("Cannot find the sensor PIE for record %s", getStatName(psStats)));
+        Neuron::Fatal("Cannot find the sensor PIE for record {}", getStatName(psStats));
         return FALSE;
       }
     }
@@ -1299,7 +1304,7 @@ BOOL loadSensorStats(SBYTE* pSensorData, UDWORD bufferSize)
       psStats->pMountGraphic = static_cast<iIMDShape*>(resGetData("IMD", mountGfx));
       if (psStats->pMountGraphic == nullptr)
       {
-        DBERROR(("Cannot find the mount PIE for record %s", getStatName(psStats)));
+        Neuron::Fatal("Cannot find the mount PIE for record {}", getStatName(psStats));
         return FALSE;
       }
     }
@@ -1393,7 +1398,7 @@ BOOL loadECMStats(SBYTE* pECMData, UDWORD bufferSize)
       psStats->pIMD = static_cast<iIMDShape*>(resGetData("IMD", GfxFile));
       if (psStats->pIMD == nullptr)
       {
-        DBERROR(("Cannot find the ECM PIE for record %s", getStatName(psStats)));
+        Neuron::Fatal("Cannot find the ECM PIE for record {}", getStatName(psStats));
         return FALSE;
       }
     }
@@ -1405,7 +1410,7 @@ BOOL loadECMStats(SBYTE* pECMData, UDWORD bufferSize)
       psStats->pMountGraphic = static_cast<iIMDShape*>(resGetData("IMD", mountGfx));
       if (psStats->pMountGraphic == nullptr)
       {
-        DBERROR(("Cannot find the mount PIE for record %s", getStatName(psStats)));
+        Neuron::Fatal("Cannot find the mount PIE for record {}", getStatName(psStats));
         return FALSE;
       }
     }
@@ -1503,7 +1508,7 @@ BOOL loadRepairStats(SBYTE* pRepairData, UDWORD bufferSize)
       psStats->pIMD = static_cast<iIMDShape*>(resGetData("IMD", GfxFile));
       if (psStats->pIMD == nullptr)
       {
-        DBERROR(("Cannot find the Repair PIE for record %s", getStatName(psStats)));
+        Neuron::Fatal("Cannot find the Repair PIE for record {}", getStatName(psStats));
         return FALSE;
       }
     }
@@ -1515,7 +1520,7 @@ BOOL loadRepairStats(SBYTE* pRepairData, UDWORD bufferSize)
       psStats->pMountGraphic = static_cast<iIMDShape*>(resGetData("IMD", mountGfx));
       if (psStats->pMountGraphic == nullptr)
       {
-        DBERROR(("Cannot find the Repair mount PIE for record %s", getStatName(psStats)));
+        Neuron::Fatal("Cannot find the Repair mount PIE for record {}", getStatName(psStats));
         return FALSE;
       }
     }
@@ -1652,7 +1657,7 @@ BOOL loadConstructStats(SBYTE* pConstructData, UDWORD bufferSize)
       psStats->pIMD = static_cast<iIMDShape*>(resGetData("IMD", GfxFile));
       if (psStats->pIMD == nullptr)
       {
-        DBERROR(("Cannot find the constructor PIE for record %s", getStatName(psStats)));
+        Neuron::Fatal("Cannot find the constructor PIE for record {}", getStatName(psStats));
         return FALSE;
       }
     }
@@ -1664,7 +1669,7 @@ BOOL loadConstructStats(SBYTE* pConstructData, UDWORD bufferSize)
       psStats->pMountGraphic = static_cast<iIMDShape*>(resGetData("IMD", mountGfx));
       if (psStats->pMountGraphic == nullptr)
       {
-        DBERROR(("Cannot find the mount PIE for record %s", getStatName(psStats)));
+        Neuron::Fatal("Cannot find the mount PIE for record {}", getStatName(psStats));
         return FALSE;
       }
     }
@@ -1705,10 +1710,10 @@ BOOL loadPropulsionTypes(SBYTE* pPropTypeData, UDWORD bufferSize)
   NumTypes = NUM_PROP_TYPES;
 
   //allocate storage for the stats
-  asPropulsionTypes = static_cast<PROPULSION_TYPES*>(MALLOC(sizeof(PROPULSION_TYPES)*NumTypes));
+  asPropulsionTypes = new (std::nothrow) PROPULSION_TYPES[NumTypes];
   if (asPropulsionTypes == nullptr)
   {
-    DBERROR(("PropulsionTypes - Out of memory"));
+    Neuron::Fatal("PropulsionTypes - Out of memory");
     return FALSE;
   }
 
@@ -1724,7 +1729,7 @@ BOOL loadPropulsionTypes(SBYTE* pPropTypeData, UDWORD bufferSize)
     type = getPropulsionType(PropulsionName);
     if (type == INVALID_PROP_TYPE)
     {
-      DBERROR(("loadPropulsionTypes: Invalid Propulsion type - %s", PropulsionName));
+      Neuron::Fatal("loadPropulsionTypes: Invalid Propulsion type - {}", PropulsionName);
       return FALSE;
     }
 
@@ -1772,11 +1777,11 @@ BOOL loadTerrainTable(SBYTE* pTerrainTableData, UDWORD bufferSize)
   NumEntries = numCR((UBYTE*)pTerrainTableData, bufferSize);
 
   //allocate storage for the stats
-  asTerrainTable = static_cast<TERRAIN_TABLE*>(MALLOC(sizeof(TERRAIN_TABLE) * NUM_PROP_TYPES * TERRAIN_TYPES));
+  asTerrainTable = new (std::nothrow) TERRAIN_TABLE[NUM_PROP_TYPES * TERRAIN_TYPES];
 
   if (asTerrainTable == nullptr)
   {
-    DBERROR(("Terrain Types - Out of memory"));
+    Neuron::Fatal("Terrain Types - Out of memory");
     return FALSE;
   }
 
@@ -1812,7 +1817,7 @@ BOOL loadTerrainTable(SBYTE* pTerrainTableData, UDWORD bufferSize)
       pTerrainTable = asTerrainTable + (i * NUM_PROP_TYPES + j);
       if (pTerrainTable->speedFactor == 0)
       {
-        DBERROR(("loadTerrainTable: Invalid propulsion/terrain table entry"));
+        Neuron::Fatal("loadTerrainTable: Invalid propulsion/terrain table entry");
         return FALSE;
       }
     }
@@ -1833,11 +1838,11 @@ BOOL loadSpecialAbility(SBYTE* pSAbilityData, UDWORD bufferSize)
   NumTypes = numCR((UBYTE*)pSAbilityData, bufferSize);
 
   //allocate storage for the stats
-  asSpecialAbility = static_cast<SPECIAL_ABILITY*>(MALLOC(sizeof(SPECIAL_ABILITY)*NumTypes));
+  asSpecialAbility = new (std::nothrow) SPECIAL_ABILITY[NumTypes];
 
   if (asSpecialAbility == nullptr)
   {
-    DBERROR(("SpecialAbility - Out of memory"));
+    Neuron::Fatal("SpecialAbility - Out of memory");
     return FALSE;
   }
 
@@ -1855,14 +1860,14 @@ BOOL loadSpecialAbility(SBYTE* pSAbilityData, UDWORD bufferSize)
     //check that the data is ordered in the way it will be stored
     if (accessID != i)
     {
-      DBERROR(("The Special Ability sequence is invalid"));
+      Neuron::Fatal("The Special Ability sequence is invalid");
       return FALSE;
     }
     //allocate storage for the name
-    asSpecialAbility->pName = static_cast<STRING*>(MALLOC((strlen(SAbilityName))+1));
+    asSpecialAbility->pName = new (std::nothrow) STRING[(strlen(SAbilityName))+1];
     if (asSpecialAbility->pName == nullptr)
     {
-      DBERROR(("Special Ability Name - Out of memory"));
+      Neuron::Fatal("Special Ability Name - Out of memory");
       return FALSE;
     }
     strcpy(asSpecialAbility->pName, SAbilityName);
@@ -1901,9 +1906,9 @@ BOOL loadBodyPropulsionIMDs(SBYTE* pData, UDWORD bufferSize)
   for (numStats = 0; numStats < numBodyStats; numStats++)
   {
     psBodyStat = &asBodyStats[numStats];
-    psBodyStat->ppIMDList = static_cast<iIMDShape**>(MALLOC(numPropulsionStats * NUM_PROP_SIDES * sizeof(iIMDShape *)));
+    psBodyStat->ppIMDList = new (std::nothrow) iIMDShape*[numPropulsionStats * NUM_PROP_SIDES];
     if (psBodyStat->ppIMDList == nullptr)
-      DBERROR(("Out of memory"));
+      Neuron::Fatal("Out of memory");
     //initialise the pointer space
     memset(psBodyStat->ppIMDList, 0, (numPropulsionStats * NUM_PROP_SIDES * sizeof(iIMDShape*)));
   }
@@ -1946,7 +1951,7 @@ BOOL loadBodyPropulsionIMDs(SBYTE* pData, UDWORD bufferSize)
     }
     if (!found)
     {
-      DBERROR(("loadBodyPropulsionPIEs: Invalid body name %s", bodyName));
+      Neuron::Fatal("loadBodyPropulsionPIEs: Invalid body name {}", bodyName);
       return FALSE;
     }
 
@@ -1974,7 +1979,7 @@ BOOL loadBodyPropulsionIMDs(SBYTE* pData, UDWORD bufferSize)
     }
     if (!found)
     {
-      DBERROR(("Invalid propulsion name %s", propulsionName));
+      Neuron::Fatal("Invalid propulsion name {}", propulsionName);
       return FALSE;
     }
 
@@ -1986,7 +1991,7 @@ BOOL loadBodyPropulsionIMDs(SBYTE* pData, UDWORD bufferSize)
       *psBodyStat->ppIMDList = static_cast<iIMDShape*>(resGetData("IMD", leftIMD));
       if (*psBodyStat->ppIMDList == nullptr)
       {
-        DBERROR(("Cannot find the left propulsion PIE for body %s", bodyName));
+        Neuron::Fatal("Cannot find the left propulsion PIE for body {}", bodyName);
         return FALSE;
       }
     }
@@ -2000,7 +2005,7 @@ BOOL loadBodyPropulsionIMDs(SBYTE* pData, UDWORD bufferSize)
       *psBodyStat->ppIMDList = static_cast<iIMDShape*>(resGetData("IMD", rightIMD));
       if (*psBodyStat->ppIMDList == nullptr)
       {
-        DBERROR(("Cannot find the right propulsion PIE for body %s", bodyName));
+        Neuron::Fatal("Cannot find the right propulsion PIE for body {}", bodyName);
         return FALSE;
       }
     }
@@ -2024,13 +2029,13 @@ static BOOL statsGetAudioIDFromString(STRING* szStatName, STRING* szWavName, SDW
   {
     if (audioID_GetIDFromStr(szWavName, piWavID) == FALSE)
     {
-      DBERROR(("statsGetAudioIDFromString: couldn't get ID %d for sound %s", *piWavID, szWavName));
+      Neuron::Fatal("statsGetAudioIDFromString: couldn't get ID {} for sound {}", *piWavID, szWavName);
       return FALSE;
     }
   }
   if (((*piWavID < 0) || (*piWavID >= ID_MAX_SOUND)) && (*piWavID != NO_SOUND))
   {
-    DBERROR(("statsGetAudioIDFromString: Invalid ID - %d for sound %s", *piWavID, szStatName));
+    Neuron::Fatal("statsGetAudioIDFromString: Invalid ID - {} for sound {}", *piWavID, szStatName);
     return FALSE;
   }
 
@@ -2090,7 +2095,7 @@ BOOL loadWeaponSounds(SBYTE* pSoundData, UDWORD bufferSize)
     }
     if (inc == static_cast<SDWORD>(numWeaponStats))
     {
-      DBERROR(("loadWeaponSounds: Weapon stat not found - %s", WeaponName));
+      Neuron::Fatal("loadWeaponSounds: Weapon stat not found - {}", WeaponName);
       Ok = FALSE;
     }
     //increment the pointer to the start of the next record
@@ -2126,20 +2131,20 @@ BOOL loadWeaponModifiers(SBYTE* pWeapModData, UDWORD bufferSize)
     effectInc = static_cast<WEAPON_EFFECT>(getWeaponEffect(weaponEffectName));
     if (effectInc == INVALID_WEAPON_EFFECT)
     {
-      DBERROR(("loadWeaponModifiers: Invalid Weapon Effect - %s", weaponEffectName));
+      Neuron::Fatal("loadWeaponModifiers: Invalid Weapon Effect - {}", weaponEffectName);
       return FALSE;
     }
     //get the propulsion inc
     propInc = static_cast<PROPULSION_TYPE>(getPropulsionType(propulsionName));
     if (propInc == INVALID_PROP_TYPE)
     {
-      DBERROR(("loadWeaponModifiers: Invalid Propulsion type - %s", propulsionName));
+      Neuron::Fatal("loadWeaponModifiers: Invalid Propulsion type - {}", propulsionName);
       return FALSE;
     }
 
     if (modifier > UWORD_MAX)
     {
-      DBERROR(("loadWeaponModifiers: modifier for effect %s, prop type %s is too large", weaponEffectName, propulsionName));
+      Neuron::Fatal("loadWeaponModifiers: modifier for effect {}, prop type {} is too large", weaponEffectName, propulsionName);
       return FALSE;
     }
     //store in the appropriate index
@@ -2192,7 +2197,7 @@ BOOL loadPropulsionSounds(SBYTE* pPropSoundData, UDWORD bufferSize)
     type = getPropulsionType(propulsionName);
     if (type == INVALID_PROP_TYPE)
     {
-      DBERROR(("loadPropulsionSounds: Invalid Propulsion type - %s", propulsionName));
+      Neuron::Fatal("loadPropulsionSounds: Invalid Propulsion type - {}", propulsionName);
       return FALSE;
     }
     pPropType = asPropulsionTypes + type;
@@ -2408,10 +2413,10 @@ CONSTRUCT_STATS* statsGetConstruct(UDWORD ref)
 *	Dealloc the extra storage tables
 ***********************************************************************************/
 //Deallocate the storage assigned for the Propulsion Types table
-void deallocPropulsionTypes(void) { FREE(asPropulsionTypes); }
+void deallocPropulsionTypes(void) { delete[] asPropulsionTypes; }
 
 //dealloc the storage assigned for the terrain table
-void deallocTerrainTable(void) { FREE(asTerrainTable); }
+void deallocTerrainTable(void) { delete[] asTerrainTable; }
 
 //dealloc the storage assigned for the Special Ability stats
 void deallocSpecialAbility(void)
@@ -2419,8 +2424,9 @@ void deallocSpecialAbility(void)
   UBYTE inc;
   SPECIAL_ABILITY* pList = asSpecialAbility;
 
-  for (inc = 0; inc < numSpecialAbility; inc++, pList++) { FREE(pList->pName); }
-  FREE(asSpecialAbility);
+  for (inc = 0; inc < numSpecialAbility; inc++, pList++) { delete[] pList->pName; }
+  delete[] asSpecialAbility;
+  asSpecialAbility = nullptr;
 }
 
 //store the speed Factor in the terrain table
@@ -2581,7 +2587,7 @@ UDWORD statRefStart(UDWORD stat)
   default:
     {
       //COMP_UNKNOWN should be an error
-      DBERROR(("Invalid stat type"));
+      Neuron::Fatal("Invalid stat type");
       start = 0;
     }
   }
@@ -2624,7 +2630,7 @@ BOOL compareYes(STRING* strToCompare, STRING* strOwner)
   if (!strcmp(strToCompare, "NO"))
     return FALSE;
   //set default to FALSE but continue
-  DBERROR(("Invalid yes/no for record %s", getName(strOwner)));
+  Neuron::Fatal("Invalid yes/no for record {}", getName(strOwner));
   return FALSE;
 }
 
@@ -2691,7 +2697,7 @@ void getStatsDetails(UDWORD compType, BASE_STATS** ppsStats, UDWORD* pnumStats, 
     break;
   default:
     //COMP_UNKNOWN should be an error
-    DBERROR(("Invalid component type - game.c"));
+    Neuron::Fatal("Invalid component type - game.c");
   }
 }
 
@@ -2748,7 +2754,7 @@ BOOL getResourceName(STRING* pName)
   //see if the name has a resource associated with it by trying to get the ID for the string
   if (!strresGetIDNum(psStringRes, pName, &id))
   {
-    DBERROR(("Unable to find string resource for %s", pName));
+    Neuron::Fatal("Unable to find string resource for {}", pName);
     return FALSE;
   }
   //get the string from the id
@@ -2781,7 +2787,7 @@ STRING* getName(STRING* pNameID)
   the ID for the string*/
   if (!strresGetIDNum(psStringRes, pNameID, &id))
   {
-    DBERROR(("Unable to find string resource for %s", pNameID));
+    Neuron::Fatal("Unable to find string resource for {}", pNameID);
     return Unknown;
   }
   //get the string from the id
@@ -2962,7 +2968,7 @@ BOOL allocateName(STRING** ppStore, STRING* pName)
   //see if the name has a resource associated with it by trying to get the ID for the string
   if (!strresGetIDNum(psStringRes, pName, &id))
   {
-    DBERROR(("Unable to find string resource for %s", pName));
+    Neuron::Fatal("Unable to find string resource for {}", pName);
     return FALSE;
   }
 
@@ -2973,16 +2979,16 @@ BOOL allocateName(STRING** ppStore, STRING* pName)
   //checks the name has been loaded as a resource and gets the storage pointer
   if (!strresGetIDString(psStringRes, pName, ppStore))
   {
-    DBERROR(("Unable to find string resource for %s", pName));
+    Neuron::Fatal("Unable to find string resource for {}", pName);
     return FALSE;
   }
   return TRUE;
 
 #else
   //need to allocate space for the name
-  *ppStore = (STRING*)MALLOC((strlen(pName))+1); if (ppStore == NULL)
+  *ppStore = new (std::nothrow) STRING[(strlen(pName))+1]; if (ppStore == NULL)
   {
-    DBERROR(("Name - Out of memory"));
+    Neuron::Fatal("Name - Out of memory");
     return FALSE;
   } strcpy(*ppStore, pName); return TRUE;
 

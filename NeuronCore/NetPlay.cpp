@@ -68,7 +68,7 @@ BOOL NETinit(GUID g, BOOL bFirstCall)
 
   if (bFirstCall)
   {
-    DBPRINTF(("NETPLAY: Init called, MORNIN' \n "));
+    Neuron::DebugTrace("NETPLAY: Init called, MORNIN' \n ");
 
     NetPlay.bLobbyLaunched = FALSE; // clean up 
     NetPlay.lpDirectPlay4A = nullptr;
@@ -101,7 +101,7 @@ BOOL NETinit(GUID g, BOOL bFirstCall)
   {
     // we were lobby launched.	
     // dont need to do anymore, we are connected.
-    DBPRINTF(("NETPLAY: LobbyLaunched\n"));
+    Neuron::DebugTrace("NETPLAY: LobbyLaunched\n");
   }
   else
   {
@@ -119,7 +119,7 @@ BOOL NETinit(GUID g, BOOL bFirstCall)
   if (FAILED(hr))
     return FALSE;
 
-  DBPRINTF(("NETPLAY: init success\n "));
+  Neuron::DebugTrace("NETPLAY: init success\n ");
   return TRUE;
 }
 
@@ -135,7 +135,8 @@ HRESULT NETshutdown(VOID)
 
   if (userDataSize) // free player data store.
   {
-    FREE(pSingleUserData);
+    delete[] static_cast<UBYTE*>(pSingleUserData);
+    pSingleUserData = nullptr;
     userDataSize = 0;
   }
 
@@ -152,7 +153,7 @@ HRESULT NETshutdown(VOID)
   }
 
   NETstopLogging();
-  DBPRINTF(("NETPLAY: shutdown success\n"));
+  Neuron::DebugTrace("NETPLAY: shutdown success\n");
   return (DP_OK);
 }
 
@@ -239,7 +240,7 @@ BOOL NETsend(NETMSG* msg, DPID player, BOOL guarantee)
     return TRUE;
 
   if (msg->size > MaxMsgSize)
-    DBERROR(("NETPLAY: Message too large passed to NETsend"));
+    Neuron::Fatal("NETPLAY: Message too large passed to NETsend");
 
   if (NetPlay.bEncryptAllPackets && (msg->type != AUDIOMSG) && (msg->type != FILEMSG)) // optionally encrypt all packets.
     NETmanglePacket(msg);
@@ -276,7 +277,7 @@ BOOL NETbcast(NETMSG* msg, BOOL guarantee)
     return TRUE;
 
   if (msg->size > MaxMsgSize)
-    DBERROR(("NETPLAY: Message Too large passed to NETbcast"));
+    Neuron::Fatal("NETPLAY: Message Too large passed to NETbcast");
 
   if (NetPlay.bEncryptAllPackets && (msg->type != AUDIOMSG) && (msg->type != FILEMSG)) // optionally encrypt all packets.
     NETmanglePacket(msg);
@@ -322,7 +323,7 @@ BOOL NETrecv(NETMSG* pMsg)
 
   if (hr != DP_OK)
   {
-    DBPRINTF(("NETPLAY: failed to recv on NETrecv\n"));
+    Neuron::DebugTrace("NETPLAY: failed to recv on NETrecv\n");
     return (FALSE);
   }
 
@@ -356,39 +357,39 @@ BOOL NETselectProtocol(LPVOID lpConnection)
   hr = IDirectPlayX_InitializeConnection(glpDP, lpConnection, 0); // initialize the connection
   if (hr == DP_OK)
   {
-    DBPRINTF(("NETPLAY: Protocol initialised\n"));
+    Neuron::DebugTrace("NETPLAY: Protocol initialised\n");
     return TRUE;
   }
   if (hr == DPERR_ALREADYINITIALIZED)
   {
     if (NetPlay.bLobbyLaunched) // lobby shouldn't disconnect in this way.
     {
-      DBPRINTF(("NETPLAY: attempted a reconnect in a lobby, ignoring since already connected.\n"));
+      Neuron::DebugTrace("NETPLAY: attempted a reconnect in a lobby, ignoring since already connected.\n");
       return TRUE;
     }
 
-    DBPRINTF(("NETPLAY: Protocol Already Initialised trying restart\n"));
+    Neuron::DebugTrace("NETPLAY: Protocol Already Initialised trying restart\n");
 
     NETshutdown(); // try restart
     NETinit(GAME_GUID,FALSE);
     hr = IDirectPlayX_InitializeConnection(glpDP, lpConnection, 0); // initialize the connection
     if (hr == DP_OK)
     {
-      DBPRINTF(("NETPLAY: protocol restart OK\n"));
+      Neuron::DebugTrace("NETPLAY: protocol restart OK\n");
       return TRUE;
     }
-    DBPRINTF(("NETPLAY: failed to restart protocol \n"));
+    Neuron::DebugTrace("NETPLAY: failed to restart protocol \n");
     return FALSE;
   }
   if (hr == DPERR_INVALIDFLAGS)
-    DBPRINTF(("NETPLAY: Bad Flags.\n"));
+    Neuron::DebugTrace("NETPLAY: Bad Flags.\n");
   else if (hr == DPERR_INVALIDPARAMS)
-    DBPRINTF(("NETPLAY: Invalid Parameters. for initconnection\n"));
+    Neuron::DebugTrace("NETPLAY: Invalid Parameters. for initconnection\n");
 
   else if (hr == DPERR_UNAVAILABLE)
-    DBPRINTF(("NETPLAY: protocol Unavailable.\n"));
+    Neuron::DebugTrace("NETPLAY: protocol Unavailable.\n");
   else
-    DBPRINTF(("NETPLAY:Can't select desired protocol. UNKNOWN ERROR\n"));
+    Neuron::DebugTrace("NETPLAY:Can't select desired protocol. UNKNOWN ERROR\n");
   // Couldn't init this connection.
 
   return (FALSE);
@@ -399,7 +400,7 @@ BOOL FAR PASCAL NETfindProtocolCallback(LPCGUID lpguidSP, LPVOID lpConnection, D
 {
   if (protocount >= MaxProtocols)
   {
-    DBPRINTF(("NETPLAY:Maximum number of protocols exceeded.terminating search\n"));
+    Neuron::DebugTrace("NETPLAY:Maximum number of protocols exceeded.terminating search\n");
     return (FALSE);
   }
 
@@ -429,7 +430,7 @@ BOOL NETfindProtocol(BOOL Lob)
 
   if (hr != DP_OK)
   {
-    DBPRINTF(("NETPLAY: Find Protocol failed\n"));
+    Neuron::DebugTrace("NETPLAY: Find Protocol failed\n");
     return (FALSE);
   }
   return (TRUE);
@@ -455,7 +456,7 @@ UBYTE NETsendFile(BOOL newFile, CHAR* fileName, DPID player)
     pFileHandle = fopen(fileName, "rb"); // check file exists
     if (pFileHandle == nullptr)
     {
-      DBPRINTF(("NETsendFile: Failed\n"));
+      Neuron::DebugTrace("NETsendFile: Failed\n");
       return 0; // failed
     }
     // get the file's size.

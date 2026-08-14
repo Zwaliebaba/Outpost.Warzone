@@ -124,7 +124,7 @@ void gwShutDown(void)
   gwFreeZoneMap();
   gwFreeEquivTable();
 
-  if (aZoneReachable != nullptr) { FREE(aZoneReachable); }
+  if (aZoneReachable != nullptr) { delete[] aZoneReachable; }
 }
 
 // Add a gateway to the system
@@ -140,10 +140,10 @@ BOOL gwNewGateway(SDWORD x1, SDWORD y1, SDWORD x2, SDWORD y2)
     return FALSE;
   }
 
-  psNew = static_cast<GATEWAY*>(MALLOC(sizeof(GATEWAY)));
+  psNew = new (std::nothrow) GATEWAY[1];
   if (!psNew)
   {
-    DBERROR(("gwNewGateway: out of memory"));
+    Neuron::Fatal("gwNewGateway: out of memory");
     return FALSE;
   }
 
@@ -205,10 +205,10 @@ BOOL gwNewLinkGateway(SDWORD x, SDWORD y)
     return FALSE;
   }
 
-  psNew = static_cast<GATEWAY*>(MALLOC(sizeof(GATEWAY)));
+  psNew = new (std::nothrow) GATEWAY[1];
   if (!psNew)
   {
-    DBERROR(("gwNewGateway: out of memory"));
+    Neuron::Fatal("gwNewGateway: out of memory");
     return FALSE;
   }
 
@@ -379,7 +379,7 @@ void gwCheckZoneSizes(void)
 
       if (inzone > FPATH_NODEINIT)
       {
-        DBPRINTF(("gwCheckZoneSizes: warning zone %d at (%d,%d) is too large %d tiles (max %d)\n", zone, cx,cy, inzone, FPATH_NODEINIT));
+        Neuron::DebugTrace("gwCheckZoneSizes: warning zone {} at ({},{}) is too large {} tiles (max {})\n", zone, cx,cy, inzone, FPATH_NODEINIT);
       }
     }
   }
@@ -392,7 +392,7 @@ BOOL gwGenerateLinkGates(void)
 
   DEBUG_ASSERT_TEXT(apEquivZones != NULL, "gwGenerateLinkGates: no zone equivalence table");
 
-  DBPRINTF(("Generating water link Gateways...."));
+  Neuron::DebugTrace("Generating water link Gateways....");
 
   for (zone = 1; zone < gwNumZones; zone += 1)
   {
@@ -406,11 +406,10 @@ BOOL gwGenerateLinkGates(void)
       gwCalcZoneCenter(zone, &cx, &cy);
       if (!gwNewLinkGateway(cx, cy))
         return FALSE;
-      DBP1(("\nnew water link gateway at (%d,%d) for zone %d ", cx,cy, zone));
     }
   }
 
-  DBPRINTF(("Done\n"));
+  Neuron::DebugTrace("Done\n");
 
   return TRUE;
 }
@@ -453,8 +452,9 @@ void gwFreeGateway(GATEWAY* psDel)
     }
   }
 
-  if (psDel->psLinks != nullptr) { FREE(psDel->psLinks); }
-  FREE(psDel);
+  if (psDel->psLinks != nullptr) { delete[] psDel->psLinks; }
+  delete[] psDel;
+  psDel = nullptr;
 }
 
 // load a gateway list
@@ -541,8 +541,8 @@ SDWORD gwRouteLength(GATEWAY* psStart, GATEWAY* psEnd)
   if (ret == ASR_NEAREST)
   {
     zone = (psStart->zone1 == psEnd->zone1) || (psStart->zone1 == psEnd->zone2) ? psStart->zone1 : psStart->zone2;
-    DBPRINTF(("gwRouteLength: warning only partial route between gateways at %s(%d,%d) and %s(%d,%d) zone %d\n",
-      psStart->flags & GWR_WATERLINK ? "W" : "", sx,sy, psStart->flags & GWR_WATERLINK ? "W" : "", ex,ey, zone));
+    Neuron::DebugTrace("gwRouteLength: warning only partial route between gateways at {}({},{}) and {}({},{}) zone {}\n",
+      psStart->flags & GWR_WATERLINK ? "W" : "", sx,sy, psStart->flags & GWR_WATERLINK ? "W" : "", ex,ey, zone);
   }
 #endif
 
@@ -552,13 +552,13 @@ SDWORD gwRouteLength(GATEWAY* psStart, GATEWAY* psEnd)
   {
     xdiff = sx - sRoute.asPos[i].x;
     ydiff = sy - sRoute.asPos[i].y;
-    dist += static_cast<SDWORD>(iSQRT(xdiff*xdiff + ydiff*ydiff));
+    dist += static_cast<SDWORD>(static_cast<float>(std::sqrt(xdiff*xdiff + ydiff*ydiff)));
     sx = sRoute.asPos[i].x;
     sy = sRoute.asPos[i].y;
   }
   xdiff = sx - ex;
   ydiff = sy - ey;
-  dist += static_cast<SDWORD>(iSQRT(xdiff*xdiff + ydiff*ydiff));
+  dist += static_cast<SDWORD>(static_cast<float>(std::sqrt(xdiff*xdiff + ydiff*ydiff)));
 
   fpathBlockingTile = fpathGroundBlockingTile;
 
@@ -568,8 +568,9 @@ SDWORD gwRouteLength(GATEWAY* psStart, GATEWAY* psEnd)
 #endif
 }
 
-#ifdef DEBUG
-// check that the initial flood fill tiles are not on a blocking tile
+// check that the initial flood fill tiles are not on a blocking tile.
+// gwLinkGateways asserts on this. Left outside any DEBUG guard so the call
+// resolves whether or not that assertion is compiled in.
 BOOL gwCheckFloodTiles(GATEWAY* psGate)
 {
   SDWORD floodX, floodY;
@@ -610,7 +611,6 @@ BOOL gwCheckFloodTiles(GATEWAY* psGate)
 
   return TRUE;
 }
-#endif
 
 // link all the gateways together
 BOOL gwLinkGateways(void)
@@ -621,10 +621,10 @@ BOOL gwLinkGateways(void)
   BOOL bZone1, bAddLink;
 
   // note which zones have a gateway
-  aZoneReachable = static_cast<UBYTE*>(MALLOC(sizeof(UBYTE) * gwNumZones));
+  aZoneReachable = new (std::nothrow) UBYTE[gwNumZones];
   if (aZoneReachable == nullptr)
   {
-    DBERROR(("gwLinkGateways: out of memory"));
+    Neuron::Fatal("gwLinkGateways: out of memory");
     return FALSE;
   }
   memset(aZoneReachable, 0, sizeof(UBYTE) * gwNumZones);
@@ -697,10 +697,10 @@ BOOL gwLinkGateways(void)
     }
     if (zone1Links + zone2Links > 0)
     {
-      psCurr->psLinks = static_cast<GATEWAY_LINK*>(MALLOC(sizeof(GATEWAY_LINK) * (zone1Links+zone2Links)));
+      psCurr->psLinks = new (std::nothrow) GATEWAY_LINK[(zone1Links+zone2Links)];
       if (psCurr->psLinks == nullptr)
       {
-        DBERROR(("gwLinkGateways: out of memory"));
+        Neuron::Fatal("gwLinkGateways: out of memory");
         return FALSE;
       }
     }
@@ -737,8 +737,6 @@ BOOL gwLinkGateways(void)
 
         if (bAddLink)
         {
-          DBP0(("Linking %sgateway (%d,%d)->(%d,%d) through %s to gateway (%d,%d)->(%d,%d)\n", (psCurr->flags & GWR_WATERLINK) ? "water " :
-            "", psCurr->x1,psCurr->y1, psCurr->x2,psCurr->y2, bZone1 ? "zone1" : "zone2", psLink->x1,psLink->y1, psLink->x2,psLink->y2));
           psCurr->psLinks[link].psGateway = psLink;
           psCurr->psLinks[link].flags = 0;
           psCurr->psLinks[link].dist = static_cast<SWORD>(gwRouteLength(psCurr, psLink));
@@ -793,10 +791,10 @@ BOOL gwNewZoneMap(void)
   if (apRLEZones != nullptr)
     gwFreeZoneMap();
 
-  apRLEZones = static_cast<UBYTE**>(MALLOC(sizeof(UBYTE *) * gwMapHeight()));
+  apRLEZones = new (std::nothrow) UBYTE*[gwMapHeight()];
   if (apRLEZones == nullptr)
   {
-    DBERROR(("gwNewZoneMap: Out of memory"));
+    Neuron::Fatal("gwNewZoneMap: Out of memory");
     return FALSE;
   }
 
@@ -813,12 +811,12 @@ UBYTE* gwNewZoneLine(UDWORD Line, UDWORD Size)
   DEBUG_ASSERT_TEXT(Line < static_cast<UDWORD>(gwMapHeight()), "gwNewZoneLine : Invalid line requested");
   DEBUG_ASSERT_TEXT(apRLEZones != NULL, "gwNewZoneLine : NULL Zone map");
 
-  if (apRLEZones[Line] != nullptr) { FREE(apRLEZones[Line]); }
+  if (apRLEZones[Line] != nullptr) { delete[] apRLEZones[Line]; }
 
-  apRLEZones[Line] = static_cast<UBYTE*>(MALLOC(Size));
+  apRLEZones[Line] = new (std::nothrow) UBYTE[Size];
   if (apRLEZones[Line] == nullptr)
   {
-    DBERROR(("gwNewZoneLine: Out of memory"));
+    Neuron::Fatal("gwNewZoneLine: Out of memory");
     return nullptr;
   }
 
@@ -853,8 +851,9 @@ void gwFreeZoneMap(void)
 
   if (apRLEZones)
   {
-    for (i = 0; i < gwMapHeight(); i++) { FREE(apRLEZones[i]); }
-    FREE(apRLEZones);
+    for (i = 0; i < gwMapHeight(); i++) { delete[] apRLEZones[i]; }
+    delete[] apRLEZones;
+    apRLEZones = nullptr;
   }
 }
 
@@ -892,19 +891,19 @@ BOOL gwNewEquivTable(SDWORD numZones)
   DEBUG_ASSERT_TEXT(numZones < UBYTE_MAX, "gwNewEquivTable: invalid number of zones");
 
   gwNumZones = numZones;
-  aNumEquiv = static_cast<UBYTE*>(MALLOC(sizeof(UBYTE) * numZones));
+  aNumEquiv = new (std::nothrow) UBYTE[numZones];
   if (aNumEquiv == nullptr)
   {
-    DBERROR(("gwNewEquivTable: out of memory"));
+    Neuron::Fatal("gwNewEquivTable: out of memory");
     return FALSE;
   }
   for (i = 0; i < numZones; i += 1)
     aNumEquiv[i] = 0;
 
-  apEquivZones = static_cast<UBYTE**>(MALLOC(sizeof(UBYTE *) * numZones));
+  apEquivZones = new (std::nothrow) UBYTE*[numZones];
   if (apEquivZones == nullptr)
   {
-    DBERROR(("gwNewEquivTable: out of memory"));
+    Neuron::Fatal("gwNewEquivTable: out of memory");
     return FALSE;
   }
   for (i = 0; i < numZones; i += 1)
@@ -918,11 +917,12 @@ void gwFreeEquivTable(void)
 {
   SDWORD i;
 
-  if (aNumEquiv) { FREE(aNumEquiv); }
+  if (aNumEquiv) { delete[] aNumEquiv; }
   if (apEquivZones)
   {
-    for (i = 0; i < gwNumZones; i += 1) { if (apEquivZones[i]) { FREE(apEquivZones[i]); } }
-    FREE(apEquivZones);
+    for (i = 0; i < gwNumZones; i += 1) { if (apEquivZones[i]) { delete[] apEquivZones[i]; } }
+    delete[] apEquivZones;
+    apEquivZones = nullptr;
   }
   gwNumZones = 0;
 }
@@ -936,10 +936,10 @@ BOOL gwSetZoneEquiv(SDWORD zone, SDWORD numEquiv, UBYTE* pEquiv)
   DEBUG_ASSERT_TEXT(zone < gwNumZones, "gwSetZoneEquiv: invalid zone");
   DEBUG_ASSERT_TEXT(numEquiv <= gwNumZones, "gwSetZoneEquiv: invalid number of zone equivalents");
 
-  apEquivZones[zone] = static_cast<UBYTE*>(MALLOC(sizeof(UBYTE) * numEquiv));
+  apEquivZones[zone] = new (std::nothrow) UBYTE[numEquiv];
   if (apEquivZones[zone] == nullptr)
   {
-    DBERROR(("gwSetZoneEquiv: out of memory"));
+    Neuron::Fatal("gwSetZoneEquiv: out of memory");
     return FALSE;
   }
 

@@ -541,7 +541,7 @@ void calcDroidIllumination(DROID* psDroid)
   float fraction, adjust;
 
   /* Establish how long the last game frame took */
-  fraction = MAKEFRACT(frameTime) / GAME_TICKS_PER_SEC;
+  fraction = static_cast<float>(frameTime) / GAME_TICKS_PER_SEC;
 
   /* See if the droid's at the edge of the map */
   tileX = psDroid->x / TILE_UNITS;
@@ -567,9 +567,9 @@ void calcDroidIllumination(DROID* psDroid)
   if (lightVal > 255)
     lightVal = 255;
   presVal = psDroid->illumination;
-  adjust = MAKEFRACT(lightVal) - MAKEFRACT(presVal);
+  adjust = static_cast<float>(lightVal) - static_cast<float>(presVal);
   adjust *= (fraction * DROID_SEEK_LIGHT_SPEED);
-  retVal = presVal + MAKEINT(adjust);
+  retVal = presVal + std::lrintf(adjust);
   if (retVal > 255)
     retVal = 255;
   psDroid->illumination = static_cast<UBYTE>(retVal);

@@ -13,13 +13,6 @@ static VAL_CREATE_FUNC* asCreateFuncs;
 static VAL_RELEASE_FUNC* asReleaseFuncs;
 static SDWORD numFuncs;
 
-// Heap for value chunks
-static OBJ_HEAP* psValHeap;
-// Heap for active triggers
-static OBJ_HEAP* psTrigHeap;
-// Heap for contexts
-static OBJ_HEAP* psContHeap;
-
 // The list of currently active triggers
 ACTIVE_TRIGGER* psTrigList;
 
@@ -53,7 +46,7 @@ static SDWORD eventTraceLevel = 3;
 #ifdef DEBUG
 #define DB_TRACE(x, level) \
 	if (eventTraceLevel >= (level)) \
-		DBPRINTF(x)
+		Neuron::DebugTrace x
 #else
 #define DB_TRACE(x,level)
 #endif
@@ -73,16 +66,6 @@ void eventTimeReset(UDWORD initTime) { updateTime = initTime; }
 /* Initialise the event system */
 BOOL eventInitialise(EVENT_INIT* psInit)
 {
-  // Create the value heap
-  if (!HEAP_CREATE(&psValHeap, sizeof(VAL_CHUNK), psInit->valInit, psInit->valExt))
-    return FALSE;
-  // Create the trigger heap
-  if (!HEAP_CREATE(&psTrigHeap, sizeof(ACTIVE_TRIGGER), psInit->trigInit, psInit->trigExt))
-    return FALSE;
-  // Create the context heap
-  if (!HEAP_CREATE(&psContHeap, sizeof(SCRIPT_CONTEXT), psInit->contInit, psInit->contExt))
-    return FALSE;
-
   psTrigList = nullptr;
   psCallbackList = nullptr;
   psContList = nullptr;
@@ -111,7 +94,7 @@ void eventReset(void)
       count += 1;
 #endif
     eventRemoveContext(psCurr->psContext);
-    HEAP_FREE(psTrigHeap, psCurr);
+    delete psCurr;
   }
   // Free any active callback triggers and their context's
   while (psCallbackList)
@@ -123,7 +106,7 @@ void eventReset(void)
       count += 1;
 #endif
     eventRemoveContext(psCurr->psContext);
-    HEAP_FREE(psTrigHeap, psCurr);
+    delete psCurr;
   }
 
   // Now free any context's that are left
@@ -138,7 +121,7 @@ void eventReset(void)
 
 #ifdef DEBUG
   if (count > 0)
-    DBPRINTF(("eventReset: %d contexts still allocated at shutdown\n", count));
+    Neuron::DebugTrace("eventReset: {} contexts still allocated at shutdown\n", count);
 #endif
 }
 
@@ -147,12 +130,8 @@ void eventShutDown(void)
 {
   eventReset();
 
-  HEAP_DESTROY(psValHeap);
-  HEAP_DESTROY(psTrigHeap);
-  HEAP_DESTROY(psContHeap);
-
-  if (asCreateFuncs) { FREE(asCreateFuncs); }
-  if (asReleaseFuncs) { FREE(asReleaseFuncs); }
+  if (asCreateFuncs) { delete[] asCreateFuncs; }
+  if (asReleaseFuncs) { delete[] asReleaseFuncs; }
 }
 
 // get the trigger id string
@@ -249,9 +228,9 @@ void eventPrintTriggerInfo(ACTIVE_TRIGGER* psTrigger)
   // find the debug info for the event
   pEventLab = eventGetEventID(psCode, psTrigger->event);
 
-  DBPRINTF(("trigger %s at %d -> %s", pTrigLab, psTrigger->testTime, pEventLab));
+  Neuron::DebugTrace("trigger {} at {} -> {}", pTrigLab, psTrigger->testTime, pEventLab);
   if (psTrigger->offset != 0)
-    DBPRINTF((" %d", psTrigger->offset));
+    Neuron::DebugTrace(" {}", psTrigger->offset);
 }
 
 // Initialise the create/release function array - specify the maximum value type
@@ -259,16 +238,16 @@ BOOL eventInitValueFuncs(SDWORD maxType)
 {
   DEBUG_ASSERT_TEXT(asReleaseFuncs == NULL, "eventInitValueFuncs: array already initialised");
 
-  asCreateFuncs = static_cast<VAL_CREATE_FUNC*>(MALLOC(sizeof(VAL_CREATE_FUNC) * maxType));
+  asCreateFuncs = new (std::nothrow) VAL_CREATE_FUNC[maxType];
   if (!asCreateFuncs)
   {
-    DBERROR(("eventInitValueFuncs: Out of memory"));
+    Neuron::Fatal("eventInitValueFuncs: Out of memory");
     return FALSE;
   }
-  asReleaseFuncs = static_cast<VAL_RELEASE_FUNC*>(MALLOC(sizeof(VAL_RELEASE_FUNC) * maxType));
+  asReleaseFuncs = new (std::nothrow) VAL_RELEASE_FUNC[maxType];
   if (!asReleaseFuncs)
   {
-    DBERROR(("eventInitValueFuncs: Out of memory"));
+    Neuron::Fatal("eventInitValueFuncs: Out of memory");
     return FALSE;
   }
 
@@ -284,7 +263,7 @@ BOOL eventAddValueCreate(INTERP_TYPE type, VAL_CREATE_FUNC create)
 {
   if (type >= numFuncs)
   {
-    DBERROR(("eventAddValueCreate: type out of range"));
+    Neuron::Fatal("eventAddValueCreate: type out of range");
     return FALSE;
   }
 
@@ -298,7 +277,7 @@ BOOL eventAddValueRelease(INTERP_TYPE type, VAL_RELEASE_FUNC release)
 {
   if (type >= numFuncs)
   {
-    DBERROR(("eventAddValueRelease: type out of range"));
+    Neuron::Fatal("eventAddValueRelease: type out of range");
     return FALSE;
   }
 
@@ -314,10 +293,9 @@ BOOL eventNewContext(SCRIPT_CODE* psCode, CONTEXT_RELEASE release, SCRIPT_CONTEX
   SDWORD val, storeIndex, type, arrayNum, i, arraySize;
   VAL_CHUNK *psNewChunk, *psNextChunk;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psCode, sizeof(SCRIPT_CODE)), "eventNewContext: Invalid code pointer");
-
   // Get a new context
-  if (!HEAP_ALLOC(psContHeap, &psContext))
+  psContext = new (std::nothrow) SCRIPT_CONTEXT;
+  if (psContext == nullptr)
     return FALSE;
 
   // Initialise the context
@@ -336,14 +314,15 @@ BOOL eventNewContext(SCRIPT_CODE* psCode, CONTEXT_RELEASE release, SCRIPT_CONTEX
   }
   while (val >= 0)
   {
-    if (!HEAP_ALLOC(psValHeap, &psNewChunk))
+    psNewChunk = new (std::nothrow) VAL_CHUNK;
+    if (psNewChunk == nullptr)
     {
       for (psNewChunk = psContext->psGlobals; psNewChunk; psNewChunk = psNextChunk)
       {
         psNextChunk = psNewChunk->psNext;
-        HEAP_FREE(psValHeap, psNewChunk);
+        delete psNewChunk;
       }
-      HEAP_FREE(psContHeap, psContext);
+      delete psContext;
       return FALSE;
     }
 
@@ -361,13 +340,13 @@ BOOL eventNewContext(SCRIPT_CODE* psCode, CONTEXT_RELEASE release, SCRIPT_CONTEX
       {
         if (!asCreateFuncs[type](psNewChunk->asVals + storeIndex))
         {
-          HEAP_FREE(psValHeap, psNewChunk);
+          delete psNewChunk;
           for (psNewChunk = psContext->psGlobals; psNewChunk; psNewChunk = psNextChunk)
           {
             psNextChunk = psNewChunk->psNext;
-            HEAP_FREE(psValHeap, psNewChunk);
+            delete psNewChunk;
           }
-          HEAP_FREE(psContHeap, psContext);
+          delete psContext;
           return FALSE;
         }
       }
@@ -405,8 +384,6 @@ BOOL eventCopyContext(SCRIPT_CONTEXT* psContext, SCRIPT_CONTEXT** ppsNew)
   SDWORD val;
   VAL_CHUNK *psChunk, *psOChunk;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psContext, sizeof(SCRIPT_CONTEXT)), "eventCopyContext: Invalid context pointer");
-
   // Get a new context
   if (!eventNewContext(psContext->psCode, static_cast<CONTEXT_RELEASE>(psContext->release), &psNew))
     return FALSE;
@@ -435,8 +412,6 @@ BOOL eventRunContext(SCRIPT_CONTEXT* psContext, UDWORD time)
   ACTIVE_TRIGGER* psTrigger;
   TRIGGER_DATA* psData;
   SCRIPT_CODE* psCode;
-
-  DEBUG_ASSERT_TEXT(PTRVALID(psContext, sizeof(SCRIPT_CONTEXT)), "eventNewObject: Invalid context pointer");
 
   // Now setup all the triggers
   psContext->triggerCount = 0;
@@ -536,7 +511,7 @@ void eventRemoveContext(SCRIPT_CONTEXT* psContext)
   for (psCChunk = psContext->psGlobals; psCChunk; psCChunk = psNChunk)
   {
     psNChunk = psCChunk->psNext;
-    HEAP_FREE(psValHeap, psCChunk);
+    delete psCChunk;
   }
 
   // Remove it from the context list
@@ -544,7 +519,7 @@ void eventRemoveContext(SCRIPT_CONTEXT* psContext)
   {
     psCCont = psContList;
     psContList = psContList->psNext;
-    HEAP_FREE(psContHeap, psCCont);
+    delete psCCont;
   }
   else
   {
@@ -553,7 +528,7 @@ void eventRemoveContext(SCRIPT_CONTEXT* psContext)
     if (psCCont)
     {
       psPCont->psNext = psCCont->psNext;
-      HEAP_FREE(psContHeap, psContext);
+      delete psContext;
     }
     else
       DEBUG_ASSERT_TEXT(FALSE, "eventRemoveContext: context not found");
@@ -662,7 +637,8 @@ static BOOL eventInitTrigger(ACTIVE_TRIGGER** ppsTrigger, SCRIPT_CONTEXT* psCont
     return FALSE;
 
   // Get a trigger object
-  if (!HEAP_ALLOC(psTrigHeap, &psNewTrig))
+  psNewTrig = new (std::nothrow) ACTIVE_TRIGGER;
+  if (psNewTrig == nullptr)
     return FALSE;
 
   // Initialise the trigger
@@ -691,9 +667,10 @@ BOOL eventLoadTrigger(UDWORD time, SCRIPT_CONTEXT* psContext, SDWORD type, SDWOR
   DEBUG_ASSERT_TEXT(trigger < psContext->psCode->numTriggers, "eventLoadTrigger: Trigger out of range");
 
   // Get a trigger object
-  if (!HEAP_ALLOC(psTrigHeap, &psNewTrig))
+  psNewTrig = new (std::nothrow) ACTIVE_TRIGGER;
+  if (psNewTrig == nullptr)
   {
-    DBERROR(("eventLoadTrigger: out of memory"));
+    Neuron::Fatal("eventLoadTrigger: out of memory");
     return FALSE;
   }
 
@@ -721,7 +698,8 @@ BOOL eventAddPauseTrigger(SCRIPT_CONTEXT* psContext, UDWORD event, UDWORD offset
   DEBUG_ASSERT_TEXT(event < psContext->psCode->numEvents, "eventAddTrigger: Event out of range");
 
   // Get a trigger object
-  if (!HEAP_ALLOC(psTrigHeap, &psNewTrig))
+  psNewTrig = new (std::nothrow) ACTIVE_TRIGGER;
+  if (psNewTrig == nullptr)
     return FALSE;
 
   // figure out what type of trigger will go into the system when the pause
@@ -769,7 +747,7 @@ static void eventFreeTrigger(ACTIVE_TRIGGER* psTrigger)
     // Free the context as well
     eventRemoveContext(psTrigger->psContext);
   }
-  HEAP_FREE(psTrigHeap, psTrigger);
+  delete psTrigger;
 }
 
 // Activate a callback trigger
@@ -1001,7 +979,7 @@ void eventRemoveTriggerFromList(ACTIVE_TRIGGER** ppsList, SCRIPT_CONTEXT* psCont
     {
       psCurr = *ppsList;
       *ppsList = (*ppsList)->psNext;
-      HEAP_FREE(psTrigHeap, psCurr);
+      delete psCurr;
     }
   }
   else
@@ -1022,7 +1000,7 @@ void eventRemoveTriggerFromList(ACTIVE_TRIGGER** ppsList, SCRIPT_CONTEXT* psCont
     else if (psCurr)
     {
       psPrev->psNext = psCurr->psNext;
-      HEAP_FREE(psTrigHeap, psCurr);
+      delete psCurr;
     }
   }
 }
@@ -1067,7 +1045,7 @@ BOOL eventSetTrigger(void)
           {
             psCurr = psTrigList;
             psTrigList = psTrigList->psNext;
-            HEAP_FREE(psTrigHeap, psCurr);
+            delete psCurr;
           }
         }
         else
@@ -1091,7 +1069,7 @@ BOOL eventSetTrigger(void)
           else if (psCurr)
           {
             psPrev->psNext = psCurr->psNext;
-            HEAP_FREE(psTrigHeap, psCurr);
+            delete psCurr;
           }
         }
         // Remove any old callback trigger from the list
@@ -1100,7 +1078,7 @@ BOOL eventSetTrigger(void)
         {
           psCurr = psCallbackList;
           psCallbackList = psCallbackList->psNext;
-          HEAP_FREE(psTrigHeap, psCurr);
+          delete psCurr;
         }
         else
         {
@@ -1116,7 +1094,7 @@ BOOL eventSetTrigger(void)
           if (psCurr)
           {
             psPrev->psNext = psCurr->psNext;
-            HEAP_FREE(psTrigHeap, psCurr);
+            delete psCurr;
           }
         }*/
   }

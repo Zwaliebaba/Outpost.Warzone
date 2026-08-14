@@ -217,7 +217,7 @@ static BOOL _addConsoleMessage(STRING* messageText, CONSOLE_TEXT_JUSTIFICATION j
     consoleStorage[messageIndex].JustifyType = FTEXT_CENTRE;
     break;
   /* Gone tits up by the looks of it */
-  default: DBERROR(("Weirdy type of text justification for console print"));
+  default: Neuron::Fatal("Weirdy type of text justification for console print");
     break;
   }
 
@@ -569,7 +569,7 @@ void setDefaultConsoleJust(CONSOLE_TEXT_JUSTIFICATION defJ)
   case CENTRE_JUSTIFY:
     defJustification = defJ;
     break;
-  default: DBERROR(("Weird default text justification for console"));
+  default: Neuron::Fatal("Weird default text justification for console");
     break;
   }
 }

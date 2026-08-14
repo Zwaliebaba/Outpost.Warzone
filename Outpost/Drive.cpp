@@ -34,7 +34,6 @@
 #include "MapGrid.h"
 #include "Display.h"	// needed for widgetsOn flag.
 #include "Effects.h"
-#include "Fractions.h"
 #include "HCI.h"
 #include "WarCAM.h"
 #include "Radar.h"
@@ -111,7 +110,7 @@ void driveInitVars(BOOL Restart)
 {
   if (WasDriving && !Restart)
   {
-    DBPRINTF(("driveInitVars: WasDriving\n"));
+    Neuron::DebugTrace("driveInitVars: WasDriving\n");
     DrivingAudioTrack = -1;
     psDrivenDroid = nullptr;
     DoFollowRangeCheck = TRUE;
@@ -125,7 +124,7 @@ void driveInitVars(BOOL Restart)
   }
   else
   {
-    DBPRINTF(("driveInitVars: Driving\n"));
+    Neuron::DebugTrace("driveInitVars: Driving\n");
     DrivingAudioTrack = -1;
     psDrivenDroid = nullptr;
     DoFollowRangeCheck = TRUE;
@@ -170,7 +169,7 @@ BOOL StartDriverMode(DROID* psOldDroid)
         // The first droid found becomes the driven droid.
         if (!(DroidIsBuilding(psDroid) || DroidGoingToBuild(psDroid))) {}
         psDrivenDroid = psDroid;
-        DBPRINTF(("New driven droid\n"));
+        Neuron::DebugTrace("New driven droid\n");
       }
       else if (psDroid != psDrivenDroid)
       {
@@ -206,7 +205,7 @@ BOOL StartDriverMode(DROID* psOldDroid)
 
     if (DriveInterfaceEnabled)
     {
-      DBPRINTF(("Interface enabled1 ! Disabling drive control\n"));
+      Neuron::DebugTrace("Interface enabled1 ! Disabling drive control\n");
       DriveControlEnabled = FALSE;
     }
     else
@@ -214,7 +213,7 @@ BOOL StartDriverMode(DROID* psOldDroid)
 
     if (psLastDriven != psDrivenDroid)
     {
-      DBPRINTF(("camAllignWithTarget\n"));
+      Neuron::DebugTrace("camAllignWithTarget\n");
       camAllignWithTarget((BASE_OBJECT*)psDrivenDroid);
     }
 
@@ -232,7 +231,7 @@ void ChangeDriver(void)
 
   if (psDrivenDroid != nullptr)
   {
-    DBPRINTF(("Driver Changed\n"));
+    Neuron::DebugTrace("Driver Changed\n");
 
     for (psDroid = apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext)
     {
@@ -254,7 +253,7 @@ void StopDriverMode(void)
 
   if (psDrivenDroid != nullptr)
   {
-    DBPRINTF(("Drive mode canceled\n"));
+    Neuron::DebugTrace("Drive mode canceled\n");
 
     psDrivenDroid = nullptr;
 
@@ -680,7 +679,7 @@ void driveEnableTactical(void)
 {
   StartTacticalScroll(TRUE);
   TacticalActive = TRUE;
-  DBPRINTF(("Tactical Mode Activated\n"));
+  Neuron::DebugTrace("Tactical Mode Activated\n");
 }
 
 // Disable Tactical order mode.
@@ -691,7 +690,7 @@ void driveDisableTactical(void)
   {
     CancelTacticalScroll();
     TacticalActive = FALSE;
-    DBPRINTF(("Tactical Mode Canceled\n"));
+    Neuron::DebugTrace("Tactical Mode Canceled\n");
   }
 }
 
@@ -704,7 +703,7 @@ void driveTacticalSelectionChanged(void)
   if (TacticalActive && psDrivenDroid)
   {
     StartTacticalScrollObj(TRUE, (BASE_OBJECT*)psDrivenDroid);
-    DBPRINTF(("driveTacticalSelectionChanged\n"));
+    Neuron::DebugTrace("driveTacticalSelectionChanged\n");
   }
 }
 

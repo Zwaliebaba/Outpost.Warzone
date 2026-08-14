@@ -76,8 +76,8 @@ BOOL multiLoadMiscImds(void)
     if (!miscImds[i].pImd)
     {
       /* Say which one and return FALSE */
-      DBERROR(("Can't find misselaneous PIE file : %s",miscImds[i].pName));
-      DEBUG_ASSERT_TEXT(0, "NULL PIE");
+      Neuron::Fatal("Can't find misselaneous PIE file : {}",miscImds[i].pName);
+      DEBUG_ASSERT_TEXT(0,"NULL PIE");
       return (FALSE);
     }
     /*	If the next one's the end one, then get out now.
@@ -148,27 +148,27 @@ BOOL initMiscImds(void)
     pAssemblyPointIMDs[FACTORY_FLAG][i] = static_cast<iIMDShape*>(resGetData("IMD", facName));
     if (!pAssemblyPointIMDs[FACTORY_FLAG][i])
     {
-      DBERROR(("Can't find assembly point graphic for factory"));
+      Neuron::Fatal("Can't find assembly point graphic for factory");
       return (FALSE);
     }
     cybName[6] = *pieNum;
     pAssemblyPointIMDs[CYBORG_FLAG][i] = static_cast<iIMDShape*>(resGetData("IMD", cybName));
     if (!pAssemblyPointIMDs[CYBORG_FLAG][i])
     {
-      DBERROR(("Can't find assembly point graphic for cyborg factory"));
+      Neuron::Fatal("Can't find assembly point graphic for cyborg factory");
       return (FALSE);
     }
     vtolName[6] = *pieNum;
     pAssemblyPointIMDs[VTOL_FLAG][i] = static_cast<iIMDShape*>(resGetData("IMD", vtolName));
     if (!pAssemblyPointIMDs[VTOL_FLAG][i])
     {
-      DBERROR(("Can't find assembly point graphic for vtol factory"));
+      Neuron::Fatal("Can't find assembly point graphic for vtol factory");
       return (FALSE);
     }
     pAssemblyPointIMDs[REPAIR_FLAG][i] = static_cast<iIMDShape*>(resGetData("IMD", "mirnum1.pie"));
     if (!pAssemblyPointIMDs[REPAIR_FLAG][i])
     {
-      DBERROR(("Can't find assembly point graphic for repair facility"));
+      Neuron::Fatal("Can't find assembly point graphic for repair facility");
       return (FALSE);
     }
   }

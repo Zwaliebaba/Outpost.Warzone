@@ -21,23 +21,23 @@ UDWORD descriptionSize = 0;
 
 VOID freePermMalloc(void)
 {
-  FREE(lpPermDescription);
+  delete[] static_cast<UBYTE*>(lpPermDescription);
+  lpPermDescription = nullptr;
   descriptionSize = 0;
   lpPermDescription = nullptr;
 
-  DBPRINTF(("NETPLAY: permalloc freed \n"));
+  Neuron::DebugTrace("NETPLAY: permalloc freed \n");
 }
 
 VOID permMalloc(UDWORD size)
 {
   if (descriptionSize < size) // sort the buffer out.
   {
-    DBPRINTF(("NETPLAY: permalloc changed from %d bytes to %d bytes \n",descriptionSize,size));
+    Neuron::DebugTrace("NETPLAY: permalloc changed from {} bytes to {} bytes \n",descriptionSize,size);
     if (descriptionSize != 0) // get rid of old one.
       freePermMalloc();
 
-    memSetBlockHeap(nullptr);
-    lpPermDescription = MALLOC(size);
+    lpPermDescription = new (std::nothrow) UBYTE[size];
     descriptionSize = size;
   }
 }
@@ -55,7 +55,7 @@ BOOL NEThaltJoining(VOID)
   if (NetPlay.bLobbyLaunched) //Lobby version.
   {
     hr = IDirectPlayLobby_GetConnectionSettings(glpDPL, 0, NULL, &size); // get size
-    mempointer = MALLOC(size); // alloc space
+    mempointer = new (std::nothrow) UBYTE[size]; // alloc space
     hr = IDirectPlayLobby_GetConnectionSettings(glpDPL, 0, mempointer, &size);
     lobDesc = static_cast<LPDPLCONNECTION>(mempointer);
 
@@ -66,7 +66,7 @@ BOOL NEThaltJoining(VOID)
   else // ordinary version
   {
     hr = IDirectPlayX_GetSessionDesc(glpDP, NULL, &size); // get size
-    mempointer = MALLOC(size); // alloc
+    mempointer = new (std::nothrow) UBYTE[size]; // alloc
     hr = IDirectPlayX_GetSessionDesc(glpDP, mempointer, &size); // get desc.
     sessionDesc = static_cast<LPDPSESSIONDESC2>(mempointer);
 
@@ -75,7 +75,7 @@ BOOL NEThaltJoining(VOID)
     hr = IDirectPlayX_SetSessionDesc(glpDP, sessionDesc, 0); // write it back
   }
 
-  if (PTRVALID(mempointer, size)) { FREE(mempointer); }
+  if (mempointer) { delete[] static_cast<UBYTE*>(mempointer); }
   return TRUE;
 }
 
@@ -89,7 +89,7 @@ BOOL FAR PASCAL NETfindGameCallback(LPCDPSESSIONDESC2 lpSessionDesc, LPDWORD lpd
     return (FALSE);
   if (gamecount >= MaxGames)
   {
-    DBPRINTF(("NETPLAY:Maximum number of available games exceeded. terminating search\n"));
+    Neuron::DebugTrace("NETPLAY:Maximum number of available games exceeded. terminating search\n");
     return (FALSE);
   }
   strcpy(NetPlay.games[gamecount].name, (char*)(lpSessionDesc->lpszSessionName));
@@ -167,7 +167,7 @@ BOOL NETjoinGame(GUID guidSessionInstance, LPSTR playername)
   hr = JoinSession(glpDP, &guidSessionInstance, playername, &NetPlay); // join this session
   if FAILED(hr)
   {
-    DBPRINTF(("NETPLAY:Failed to Join Game\n"));
+    Neuron::DebugTrace("NETPLAY:Failed to Join Game\n");
     return (FALSE);
   }
 
@@ -191,7 +191,7 @@ BOOL NEThostGame(LPSTR SessionName, LPSTR PlayerName, DWORD one, // flags.
   hr = HostSession(glpDP, SessionName, PlayerName, &NetPlay, one, two, three, four, plyrs);
   if FAILED(hr)
   {
-    DBERROR(("failed to host game"));
+    Neuron::Fatal("failed to host game");
     return (FALSE);
   }
   return (TRUE);
@@ -228,7 +228,7 @@ DWORD NETgetGameFlags(UDWORD flag)
 
     if (hr != DP_OK)
     {
-      DBPRINTF(("NETPLAY:  couldn't get lobby game flags.\n"));
+      Neuron::DebugTrace("NETPLAY:  couldn't get lobby game flags.\n");
       return 0;
     }
 
@@ -248,7 +248,7 @@ DWORD NETgetGameFlags(UDWORD flag)
     case 4:
       result = lobDesc->lpSessionDesc->dwUser4;
       break;
-    default: DBERROR(("Invalid flag for getgameflags in netplay lib"));
+    default: Neuron::Fatal("Invalid flag for getgameflags in netplay lib");
       break;
     }
   }
@@ -260,7 +260,7 @@ DWORD NETgetGameFlags(UDWORD flag)
 
     if (hr != DP_OK)
     {
-      DBPRINTF(("NETPLAY: couldn't get game flags\n"));
+      Neuron::DebugTrace("NETPLAY: couldn't get game flags\n");
       return 0;
     }
 
@@ -280,7 +280,7 @@ DWORD NETgetGameFlags(UDWORD flag)
     case 4:
       result = sessionDesc->dwUser4;
       break;
-    default: DBERROR(("Invalid flag for getgameflags in netplay lib"));
+    default: Neuron::Fatal("Invalid flag for getgameflags in netplay lib");
       break;
     }
   }
@@ -303,7 +303,7 @@ DWORD NETgetGameFlagsUnjoined(UDWORD gameid, UDWORD flag)
   case 4:
     return NetPlay.games[gameid].desc.dwUser4;
     break;
-  default: DBERROR(("Invalid flag for getgameflagsunjoined in netplay lib"));
+  default: Neuron::Fatal("Invalid flag for getgameflagsunjoined in netplay lib");
     return 0;
     break;
   }
@@ -330,7 +330,7 @@ BOOL NETsetGameFlags(UDWORD flag, DWORD value)
     hr = IDirectPlayLobby_GetConnectionSettings(glpDPL, 0, lpPermDescription, &size); // get it.
     if (hr != DP_OK)
     {
-      DBPRINTF(("NETPLAY: couldn't set lobby game flags \n"));
+      Neuron::DebugTrace("NETPLAY: couldn't set lobby game flags \n");
       return FALSE;
     }
 
@@ -350,12 +350,12 @@ BOOL NETsetGameFlags(UDWORD flag, DWORD value)
     case 4:
       lobDesc->lpSessionDesc->dwUser4 = value;
       break;
-    default: DBERROR(("Invalid flag for setgameflags in netplay lib"));
+    default: Neuron::Fatal("Invalid flag for setgameflags in netplay lib");
       break;
     }
     hr = IDirectPlayLobby_SetConnectionSettings(glpDPL, 0, 0, lobDesc); //write it back
     if (hr != DP_OK)
-      DBPRINTF(("NETPLAY: couldn't set lobby game flags 2\n"));
+      Neuron::DebugTrace("NETPLAY: couldn't set lobby game flags 2\n");
   }
   else // NON LOBBY VERSION
   {
@@ -365,7 +365,7 @@ BOOL NETsetGameFlags(UDWORD flag, DWORD value)
 
     if (hr != DP_OK)
     {
-      DBPRINTF(("NETPLAY: couldn't set game flags \n"));
+      Neuron::DebugTrace("NETPLAY: couldn't set game flags \n");
       return FALSE;
     }
 
@@ -385,7 +385,7 @@ BOOL NETsetGameFlags(UDWORD flag, DWORD value)
     case 4:
       sessionDesc->dwUser4 = value;
       break;
-    default: DBERROR(("Invalid flag for setgameflags in netplay lib"));
+    default: Neuron::Fatal("Invalid flag for setgameflags in netplay lib");
       break;
     }
 
@@ -393,7 +393,7 @@ BOOL NETsetGameFlags(UDWORD flag, DWORD value)
 
     if (hr != DP_OK)
     {
-      DBPRINTF(("NETPLAY: couldn't set lobby game flags \n"));
+      Neuron::DebugTrace("NETPLAY: couldn't set lobby game flags \n");
       return FALSE;
     }
   }

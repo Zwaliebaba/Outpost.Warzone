@@ -176,9 +176,6 @@ void clustRemoveObject(BASE_OBJECT* psObj)
           aClusterMap[i] = 0;
           if (i != 0)
           {
-            DBP0(("Cluster %d empty: ", i));
-            DBP0(("%s ", (psObj->type == OBJ_DROID) ? "Unit" : ((psObj->type == OBJ_STRUCTURE) ? "Struct" : "Feat") ));
-            DBP0(("id %d player %d\n", psObj->id, psObj->player));
             aClusterEmpty[i] = TRUE;
           }
         }

@@ -5,9 +5,6 @@
 
 // Report unused strings
 #include "Types.h"
-#include "LegacyDebug.h"
-#include "Mem.h"
-#include "Heap.h"
 #include "Treap.h"
 #include "StrRes.h"
 #include "StrResLY.h"
@@ -21,24 +18,24 @@ STR_RES* psCurrRes;
 /* Allocate a string block */
 static BOOL strresAllocBlock(STR_BLOCK** ppsBlock, UDWORD size)
 {
-  *ppsBlock = static_cast<STR_BLOCK*>(MALLOC(sizeof(STR_BLOCK)));
+  *ppsBlock = new (std::nothrow) STR_BLOCK[1];
   if (!*ppsBlock)
   {
-    DBERROR(("strresAllocBlock: Out of memory - 1"));
+    Neuron::Fatal("strresAllocBlock: Out of memory - 1");
     return FALSE;
   }
 
-  (*ppsBlock)->apStrings = static_cast<STRING**>(MALLOC(sizeof(STRING *) * size));
+  (*ppsBlock)->apStrings = new (std::nothrow) STRING*[size];
   if (!(*ppsBlock)->apStrings)
   {
-    DBERROR(("strresAllocBlock: Out of memory - 2"));
-    FREE(*ppsBlock);
+    Neuron::Fatal("strresAllocBlock: Out of memory - 2");
+    delete[] *ppsBlock;
     return FALSE;
   }
   memset((*ppsBlock)->apStrings, 0, sizeof(STRING*) * size);
 
 #ifdef DEBUG
-  (*ppsBlock)->aUsage = static_cast<UDWORD*>(MALLOC(sizeof(UDWORD) * size));
+  (*ppsBlock)->aUsage = new (std::nothrow) UDWORD[size];
   memset((*ppsBlock)->aUsage, 0, sizeof(UDWORD) * size);
 #endif
 
@@ -50,10 +47,10 @@ BOOL strresCreate(STR_RES** ppsRes, UDWORD init, UDWORD ext)
 {
   STR_RES* psRes;
 
-  psRes = static_cast<STR_RES*>(MALLOC(sizeof(STR_RES)));
+  psRes = new (std::nothrow) STR_RES[1];
   if (!psRes)
   {
-    DBERROR(("strresCreate: Out of memory"));
+    Neuron::Fatal("strresCreate: Out of memory");
     return FALSE;
   }
   psRes->init = init;
@@ -62,15 +59,17 @@ BOOL strresCreate(STR_RES** ppsRes, UDWORD init, UDWORD ext)
 
   if (!TREAP_CREATE(&psRes->psIDTreap, treapStringCmp, init, ext))
   {
-    DBERROR(("strresCreate: Out of memory"));
-    FREE(psRes);
+    Neuron::Fatal("strresCreate: Out of memory");
+    delete[] psRes;
+    psRes = nullptr;
     return FALSE;
   }
 
   if (!strresAllocBlock(&psRes->psStrings, init))
   {
     TREAP_DESTROY(psRes->psIDTreap);
-    FREE(psRes);
+    delete[] psRes;
+    psRes = nullptr;
     return FALSE;
   }
   psRes->psStrings->psNext = nullptr;
@@ -89,16 +88,16 @@ void strresReleaseIDStrings(STR_RES* psRes)
 {
   STR_ID* psID;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psRes, sizeof(STR_RES)), "strresLoadFixedID: Invalid string res pointer");
-
   for (psID = static_cast<STR_ID*>(TREAP_GETSMALLEST(psRes->psIDTreap)); psID; psID = static_cast<STR_ID*>(
          TREAP_GETSMALLEST(psRes->psIDTreap)))
   {
     TREAP_DEL(psRes->psIDTreap, (UDWORD)psID->pIDStr);
     if (psID->id & ID_ALLOC)
     {
-      FREE(psID->pIDStr);
-      FREE(psID);
+      delete[] psID->pIDStr;
+      psID->pIDStr = nullptr;
+      delete[] psID;
+      psID = nullptr;
     }
   }
 }
@@ -108,8 +107,6 @@ void strresDestroy(STR_RES* psRes)
 {
   STR_BLOCK *psBlock, *psNext = nullptr;
   UDWORD i;
-
-  DEBUG_ASSERT_TEXT(PTRVALID(psRes, sizeof(STR_RES)), "strresLoadFixedID: Invalid string res pointer");
 
   // Free the string id's
   strresReleaseIDStrings(psRes);
@@ -122,34 +119,35 @@ void strresDestroy(STR_RES* psRes)
 #ifdef DEBUG_GROUP0
       if (psBlock->aUsage[i - psBlock->idStart] == 0 && i != 0 && i < psRes->nextID)
       {
-        DBP0(("strresDestroy: String id %d not used:\n" "               \"%s\"\n", i, psBlock->apStrings[i - psBlock->idStart]));
       }
 #endif
-      if (psBlock->apStrings[i - psBlock->idStart]) { FREE(psBlock->apStrings[i - psBlock->idStart]); }
+      if (psBlock->apStrings[i - psBlock->idStart]) { delete[] psBlock->apStrings[i - psBlock->idStart]; }
 #ifdef DEBUG
       else if (i < psRes->nextID)
-        DBPRINTF(("strresDestroy: No string loaded for id %d\n", i));
+        Neuron::DebugTrace("strresDestroy: No string loaded for id {}\n", i);
 #endif
     }
     psNext = psBlock->psNext;
-    FREE(psBlock->apStrings);
+    delete[] psBlock->apStrings;
+    psBlock->apStrings = nullptr;
 #ifdef DEBUG
-    FREE(psBlock->aUsage);
+    delete[] psBlock->aUsage;
+    psBlock->aUsage = nullptr;
 #endif
-    FREE(psBlock);
+    delete[] psBlock;
+    psBlock = nullptr;
   }
 
   // Release the treap and free the final memory
   TREAP_DESTROY(psRes->psIDTreap);
-  FREE(psRes);
+  delete[] psRes;
+  psRes = nullptr;
 }
 
 /* Load a list of string ID's from a memory buffer */
 BOOL strresLoadFixedID(STR_RES* psRes, STR_ID* psID, UDWORD numID)
 {
   UDWORD i;
-
-  DEBUG_ASSERT_TEXT(PTRVALID(psRes, sizeof(STR_RES)), "strresLoadFixedID: Invalid string res pointer");
 
   for (i = 0; i < numID; i++)
   {
@@ -158,7 +156,7 @@ BOOL strresLoadFixedID(STR_RES* psRes, STR_ID* psID, UDWORD numID)
     // Store the ID string
     if (!TREAP_ADD(psRes->psIDTreap, (UDWORD)psID->pIDStr, psID))
     {
-      DBERROR(("strresLoadFixedID: Out of memory"));
+      Neuron::Fatal("strresLoadFixedID: Out of memory");
       return FALSE;
     }
 
@@ -173,8 +171,6 @@ BOOL strresLoadFixedID(STR_RES* psRes, STR_ID* psID, UDWORD numID)
 BOOL strresGetIDNum(STR_RES* psRes, STRING* pIDStr, UDWORD* pIDNum)
 {
   STR_ID* psID;
-
-  DEBUG_ASSERT_TEXT(PTRVALID(psRes, sizeof(STR_RES)), "strresLoadFixedID: Invalid string res pointer");
 
   psID = static_cast<STR_ID*>(TREAP_FIND(psRes->psIDTreap, (UDWORD)pIDStr));
   if (!psID)
@@ -194,8 +190,6 @@ BOOL strresGetIDNum(STR_RES* psRes, STRING* pIDStr, UDWORD* pIDNum)
 BOOL strresGetIDString(STR_RES* psRes, STRING* pIDStr, STRING** ppStoredID)
 {
   STR_ID* psID;
-
-  DEBUG_ASSERT_TEXT(PTRVALID(psRes, sizeof(STR_RES)), "strresLoadFixedID: Invalid string res pointer");
 
   psID = static_cast<STR_ID*>(TREAP_FIND(psRes->psIDTreap, (UDWORD)pIDStr));
   if (!psID)
@@ -217,24 +211,23 @@ BOOL strresStoreString(STR_RES* psRes, STRING* pID, STRING* pString)
   STR_BLOCK* psBlock;
   UDWORD id;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psRes, sizeof(STR_RES)), "strresLoadFixedID: Invalid string res pointer");
-
   // Find the id for the string
   psID = static_cast<STR_ID*>(TREAP_FIND(psRes->psIDTreap, (UDWORD)pID));
   if (!psID)
   {
     // No ID yet so generate a new one
-    psID = static_cast<STR_ID*>(MALLOC(sizeof(STR_ID)));
+    psID = new (std::nothrow) STR_ID[1];
     if (!psID)
     {
-      DBERROR(("strresStoreString: Out of memory"));
+      Neuron::Fatal("strresStoreString: Out of memory");
       return FALSE;
     }
-    psID->pIDStr = static_cast<STRING*>(MALLOC(sizeof(STRING) * (stringLen(pID) + 1)));
+    psID->pIDStr = new (std::nothrow) STRING[(stringLen(pID) + 1)];
     if (!psID->pIDStr)
     {
-      DBERROR(("strresStoreString: Out of memory"));
-      FREE(psID);
+      Neuron::Fatal("strresStoreString: Out of memory");
+      delete[] psID;
+      psID = nullptr;
       return FALSE;
     }
     stringCpy(psID->pIDStr, pID);
@@ -261,15 +254,15 @@ BOOL strresStoreString(STR_RES* psRes, STRING* pID, STRING* pString)
   // Put the new string in the string block
   if (psBlock->apStrings[psID->id - psBlock->idStart] != nullptr)
   {
-    DBERROR(("strresStoreString: Duplicate string for id: %s", psID->pIDStr));
+    Neuron::Fatal("strresStoreString: Duplicate string for id: {}", psID->pIDStr);
     return FALSE;
   }
 
   // Allocate a copy of the string
-  pNew = static_cast<STRING*>(MALLOC(sizeof(STRING) * (stringLen(pString) + 1)));
+  pNew = new (std::nothrow) STRING[(stringLen(pString) + 1)];
   if (!pNew)
   {
-    DBERROR(("strresStoreString: Out of memory"));
+    Neuron::Fatal("strresStoreString: Out of memory");
     return FALSE;
   }
   stringCpy(pNew, pString);
@@ -282,8 +275,6 @@ BOOL strresStoreString(STR_RES* psRes, STRING* pID, STRING* pString)
 STRING* strresGetString(STR_RES* psRes, UDWORD id)
 {
   STR_BLOCK* psBlock;
-
-  DEBUG_ASSERT_TEXT(PTRVALID(psRes, sizeof(STR_RES)), "strresLoadFixedID: Invalid string res pointer");
 
   // find the block the string is in
   for (psBlock = psRes->psStrings; psBlock && psBlock->idEnd < id; psBlock = psBlock->psNext);
@@ -343,8 +334,6 @@ UDWORD strresGetIDfromString(STR_RES* psRes, STRING* pString)
 {
   STR_BLOCK *psBlock, *psNext = nullptr;
   UDWORD i;
-
-  DEBUG_ASSERT_TEXT(PTRVALID(psRes, sizeof(STR_RES)), "strresGetID: Invalid string res pointer");
 
   // Search through all the blocks to find the string
   for (psBlock = psRes->psStrings; psBlock; psBlock = psNext)

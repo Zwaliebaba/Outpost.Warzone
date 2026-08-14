@@ -120,7 +120,7 @@ int iV_TexLoadNew(char* path, char* filename, int type, iBool palkeep, iBool bCo
   /* If it's not a resource - use old way!  - PSX does not need this check because it MUST have been loaded allready by the resource loader */
   if (!resPresent("TEXPAGE", filename))
   {
-    DBERROR(("Texture not in resources; %s.\n", filename));
+    Neuron::Fatal("Texture not in resources; {}.\n", filename);
     return (iV_TexLoad(path, filename, type, palkeep, bColourKeyed));
   }
 
@@ -178,7 +178,7 @@ int pie_ReloadTexPage(char* filename, UBYTE* pBuffer)
     i++;
     if (i >= _TEX_INDEX)
     {
-      DBERROR(("Texture not in resources\n",filename));
+      Neuron::Fatal("Texture not in resources\n",filename);
       return -1;
     }
   }
@@ -308,7 +308,7 @@ void pie_TexShutDown(void)
     i++;
   }
 
-  DBPRINTF(("pie_TexShutDown successful - freed %d texture pages\n",j));
+  Neuron::DebugTrace("pie_TexShutDown successful - freed {} texture pages\n",j);
 }
 
 void pie_TexInit(void)

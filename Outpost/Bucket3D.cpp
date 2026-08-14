@@ -297,9 +297,9 @@ SDWORD bucketCalculateZ(RENDER_TYPE objectType, void* pObject)
     /* Translate */
     iV_TRANSLATE(px, 0, -pz);
 
-    position.x = static_cast<UDWORD>(MAKEINT(((ATPART*)pObject)->position.x));
-    position.y = static_cast<UDWORD>(MAKEINT(((ATPART*)pObject)->position.y));
-    position.z = static_cast<UDWORD>(MAKEINT(((ATPART*)pObject)->position.z));
+    position.x = static_cast<UDWORD>(std::lrintf(((ATPART*)pObject)->position.x));
+    position.y = static_cast<UDWORD>(std::lrintf(((ATPART*)pObject)->position.y));
+    position.z = static_cast<UDWORD>(std::lrintf(((ATPART*)pObject)->position.z));
 
     position.x = position.x - player.p.x - terrainMidX * TILE_UNITS;
     position.z = static_cast<SDWORD>(terrainMidY * TILE_UNITS - (position.z - player.p.z));

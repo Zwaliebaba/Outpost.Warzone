@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cmath>
 #include <concurrent_queue.h>
 #include <concurrent_unordered_map.h>
 #include <cstddef>
@@ -22,6 +23,7 @@
 #include <map>
 #include <mdspan>
 #include <memory>
+#include <new>
 #include <queue>
 #include <ranges>
 #include <set>

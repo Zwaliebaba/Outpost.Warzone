@@ -695,12 +695,12 @@ int seq_RenderOneFrame(LPDIRECTDRAWSURFACE4 lpDDSF, int skip, SDWORD subMin, SDW
   frame = Movie_GetCurrentFrame(mhandle);
   if (sRes == STREAMER_FINISHEDAUDIO)
   {
-    DBPRINTF(("STREAMER_FINISHEDAUDIO %d\n",sRes));
+    Neuron::DebugTrace("STREAMER_FINISHEDAUDIO {}\n",sRes);
     shandle = nullptr;
     sRes = STREAMER_OK;
   }
   else if (sRes != STREAMER_OK)
-    DBPRINTF(("STREAMER_STREAM ERROR %d %d\n",sRes,frame));
+    Neuron::DebugTrace("STREAMER_STREAM ERROR {} {}\n",sRes,frame);
 
   // We lock the surface before blitting video to it.
   DD_sd.dwSize = sizeof(DD_sd);
@@ -710,7 +710,7 @@ int seq_RenderOneFrame(LPDIRECTDRAWSURFACE4 lpDDSF, int skip, SDWORD subMin, SDW
   hRes = lpDDSF->lpVtbl->Lock(lpDDSF, nullptr, &DD_sd,DDLOCK_WAIT, nullptr);
   if (hRes != DD_OK)
   {
-    DBERROR(("Sequence player back  buffer lock failed:\n%s", DDErrorToString(hRes)));
+    Neuron::Fatal("Sequence player back  buffer lock failed:\n{}", DDErrorToString(hRes));
     return VIDEO_SURFACE_ERROR;
   }
 

@@ -58,10 +58,10 @@ BOOL allocPlayerPower(void)
   //allocate the space for the structure
   for (player = 0; player < MAX_PLAYERS; player++)
   {
-    asPower[player] = static_cast<PLAYER_POWER*>(MALLOC(sizeof(PLAYER_POWER)));
+    asPower[player] = new (std::nothrow) PLAYER_POWER[1];
     if (asPower[player] == nullptr)
     {
-      DBERROR(("Out of memory"));
+      Neuron::Fatal("Out of memory");
       return FALSE;
     }
   }
@@ -93,7 +93,7 @@ void releasePlayerPower(void)
   //check power has been allocated!
   if (asPower[0] == nullptr)
     return;
-  for (player = 0; player < MAX_PLAYERS; player++) { if (asPower[player]) { FREE(asPower[player]); } }
+  for (player = 0; player < MAX_PLAYERS; player++) { if (asPower[player]) { delete[] asPower[player]; } }
 }
 
 /*check the current power - if enough return true, else return false */
@@ -767,8 +767,6 @@ BOOL structUsesPower(STRUCTURE* psStruct)
 {
   BOOL bUsesPower = FALSE;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psStruct, sizeof(STRUCTURE)), "structUsesPower: Invalid Structure pointer");
-
   switch (psStruct->pStructureType->type)
   {
   case REF_FACTORY:
@@ -790,8 +788,6 @@ BOOL structUsesPower(STRUCTURE* psStruct)
 BOOL droidUsesPower(DROID* psDroid)
 {
   BOOL bUsesPower = FALSE;
-
-  DEBUG_ASSERT_TEXT(PTRVALID(psDroid, sizeof(DROID)), "unitUsesPower: Invalid unit pointer");
 
   switch (psDroid->droidType)
   {
@@ -1098,7 +1094,6 @@ void powerCheck(BOOL bBeforePowerUsed, UBYTE player)
 {
 	STRUCTURE	*psBuilding;
 	UDWORD		usedPower;
-
 
 	asPower[player]->extractedPower = 0;
 	asPower[player]->capacity = 0;

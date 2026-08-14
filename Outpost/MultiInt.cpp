@@ -198,10 +198,10 @@ void loadMapPreview(void)
 
   pFileData = DisplayBuffer;
   if (!loadFileToBuffer(aFileName, pFileData, displayBufferSize, &fileSize))
-    DBPRINTF(("loadgame: Fail5\n"));
+    Neuron::DebugTrace("loadgame: Fail5\n");
   if (!mapLoad(pFileData, fileSize))
   {
-    DBPRINTF(("loadgame: Fail7\n"));
+    Neuron::DebugTrace("loadgame: Fail7\n");
     return;
   }
   gwShutDown();
@@ -744,7 +744,7 @@ VOID runConnectionScreen(void)
     case 1:
       game.bytesPerSec = MODEMBYTESPERSEC;
       game.packetsPerSec = MODEMPACKETS;
-      DBPRINTF(("using modem %d\n",ingame.modem));
+      Neuron::DebugTrace("using modem {}\n",ingame.modem);
       NETsetupModem(&finalconnection, telno, ingame.modem); //modem
       break;
     case 2:
@@ -789,11 +789,12 @@ VOID runConnectionScreen(void)
       if (chosenproto == 1 || chosenproto == 2 || chosenproto == 4) // this hack fixes the 
       {
         // memory leak in netplay
-        FREE(finalconnection); // cant do it in the lib, since requires protochosen!
+        delete[] finalconnection; // cant do it in the lib, since requires protochosen!
+        finalconnection = nullptr;
       }
     }
     else
-      DBPRINTF(("Protocol Init Failed."));
+      Neuron::DebugTrace("Protocol Init Failed.");
   }
 
   StartCursorSnap(&InterfaceSnap);
@@ -2527,7 +2528,8 @@ BOOL startMultiOptions(BOOL bReenter)
     if (ingame.numStructureLimits)
     {
       ingame.numStructureLimits = 0;
-      FREE(ingame.pStructureLimits);
+      delete[] ingame.pStructureLimits;
+      ingame.pStructureLimits = nullptr;
     }
 
     // check the registry for setup entries and set game options.
@@ -2778,7 +2780,7 @@ VOID runForceSelect(VOID)
     {
       if (strlen(sRequestResult))
       {
-        DBPRINTF(("Returned %s",sRequestResult));
+        Neuron::DebugTrace("Returned {}",sRequestResult);
         if (bRequestLoad)
         {
           loadForce(sRequestResult);
@@ -2914,7 +2916,7 @@ BOOL startForceSelect(VOID)
 
   strcpy(dir, "multiplay\\Forces\\default.FOR"); // start with default force.
   if (!loadForce(dir))
-    DBPRINTF(("Error Loading Force"));
+    Neuron::DebugTrace("Error Loading Force");
 
   addBackdrop();
   addTopForm();

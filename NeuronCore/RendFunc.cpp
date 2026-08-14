@@ -7,7 +7,6 @@
 #include "Bug.h"
 #include "PiePalette.h"
 #include "IvisPatch.h"
-#include "Fractions.h"
 #include "PieClip.h"
 
 #ifndef PIETOOL

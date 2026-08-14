@@ -105,7 +105,7 @@ void resetRadarRedraw(void) { RadarRedraw = TRUE; }
 
 BOOL InitRadar(void)
 {
-  radarBuffer = static_cast<UBYTE*>(MALLOC(RADWIDTH*RADHEIGHT));
+  radarBuffer = new (std::nothrow) UBYTE[RADWIDTH*RADHEIGHT];
   if (radarBuffer == nullptr)
     return FALSE;
   memset(radarBuffer, 0,RADWIDTH * RADHEIGHT);
@@ -133,7 +133,8 @@ BOOL InitRadar(void)
 BOOL ShutdownRadar(void)
 {
   pie_ShutdownRadar();
-  FREE(radarBuffer);
+  delete[] radarBuffer;
+  radarBuffer = nullptr;
 
   return TRUE;
 }

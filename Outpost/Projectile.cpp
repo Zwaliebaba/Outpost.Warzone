@@ -215,13 +215,11 @@ BOOL proj_SendProjectile(WEAPON* psWeap, BASE_OBJECT* psAttacker, SDWORD player,
   PROJ_OBJECT* psObj;
   SDWORD tarHeight, srcHeight, iMinSq;
   SDWORD altChange, dx, dy, dz, iVelSq, iVel;
-  FRACT_D fR, fA, fS, fT, fC; // 52.12 fixed point on PSX, float on PC.
+  float fR, fA, fS, fT, fC; // 52.12 fixed point on PSX, float on PC.
   iVector muzzle;
   SDWORD iRadSq, iPitchLow, iPitchHigh, iTemp;
   UDWORD heightVariance;
   WEAPON_STATS* psWeapStats = &asWeaponStats[psWeap->nStat];
-
-  DEBUG_ASSERT_TEXT(PTRVALID(psWeapStats,sizeof(WEAPON_STATS)), "proj_SendProjectile: invalid weapon stats");
 
   /* get unused projectile object from hashtable*/
   psObj = static_cast<PROJ_OBJECT*>(hashTable_GetElement(g_pProjObjTable));
@@ -309,9 +307,9 @@ BOOL proj_SendProjectile(WEAPON* psWeap, BASE_OBJECT* psAttacker, SDWORD player,
   /* roll never set */
   psObj->roll = 0;
 
-  fR = static_cast<FRACT_D>(atan2(dx, dy));
+  fR = static_cast<float>(atan2(dx, dy));
   if (fR < 0.0)
-    fR += static_cast<FRACT_D>(2 * PI);
+    fR += static_cast<float>(2 * PI);
   psObj->direction = static_cast<UWORD>((RAD_TO_DEG(fR)));
 
   /* get target distance */
@@ -321,9 +319,9 @@ BOOL proj_SendProjectile(WEAPON* psWeap, BASE_OBJECT* psAttacker, SDWORD player,
 
   if (proj_Direct(psObj->psWStats) || (!proj_Direct(psWeapStats) && (iRadSq <= iMinSq)))
   {
-    fR = static_cast<FRACT_D>(atan2(dz, fR));
+    fR = static_cast<float>(atan2(dz, fR));
     if (fR < 0.0)
-      fR += static_cast<FRACT_D>(2 * PI);
+      fR += static_cast<float>(2 * PI);
     psObj->pitch = static_cast<SWORD>((RAD_TO_DEG(fR)));
 
     /* set function pointer */
@@ -334,12 +332,12 @@ BOOL proj_SendProjectile(WEAPON* psWeap, BASE_OBJECT* psAttacker, SDWORD player,
     /* indirect */
     iVelSq = psObj->psWStats->flightSpeed * psObj->psWStats->flightSpeed;
 
-    fA = ACC_GRAVITY * MAKEFRACT_D(iRadSq) / (2 * iVelSq);
-    fC = 4 * fA * (MAKEFRACT_D(dz) + fA);
-    fS = MAKEFRACT_D(iRadSq) - fC;
+    fA = ACC_GRAVITY * static_cast<float>(iRadSq) / (2 * iVelSq);
+    fC = 4 * fA * (static_cast<float>(dz) + fA);
+    fS = static_cast<float>(iRadSq) - fC;
 
     /* target out of range - increase velocity to hit target */
-    if (fS < MAKEFRACT_D(0))
+    if (fS < 0.0f)
     {
       /* set optimal pitch */
       psObj->pitch = PROJ_MAX_PITCH;
@@ -348,13 +346,13 @@ BOOL proj_SendProjectile(WEAPON* psWeap, BASE_OBJECT* psAttacker, SDWORD player,
 
       fS = trigSin(PROJ_MAX_PITCH);
       fC = trigCos(PROJ_MAX_PITCH);
-      fT = FRACTdiv_D(fS, fC);
-      fS = ACC_GRAVITY * (MAKEFRACT_D(1) + FRACTmul_D(fT, fT));
-      fS = FRACTdiv_D(fS, (2 * (FRACTmul_D(fR,fT) - MAKEFRACT_D(dz))));
+      fT = (fS / fC);
+      fS = ACC_GRAVITY * (1.0f + (fT * fT));
+      fS = (fS / (2 * ((fR * fT) - static_cast<float>(dz))));
       {
-        FRACT_D Tmp;
-        Tmp = FRACTmul_D(fR, fR);
-        iVel = MAKEINT_D(trigIntSqrt(MAKEINT_D(FRACTmul_D(fS, Tmp))));
+        float Tmp;
+        Tmp = (fR * fR);
+        iVel = std::lrintf(trigIntSqrt(std::lrintf(fS * Tmp)));
       }
     }
     else
@@ -363,19 +361,19 @@ BOOL proj_SendProjectile(WEAPON* psWeap, BASE_OBJECT* psAttacker, SDWORD player,
       iVel = psObj->psWStats->flightSpeed;
 
       /* get floating point square root */
-      fS = trigIntSqrt(MAKEINT_D(fS));
+      fS = trigIntSqrt(std::lrintf(fS));
 
-      fT = static_cast<FRACT_D>(atan2(fR + fS, 2 * fA));
+      fT = static_cast<float>(atan2(fR + fS, 2 * fA));
       /* make sure angle positive */
       if (fT < 0)
-        fT += static_cast<FRACT_D>(2 * PI);
-      iPitchLow = MAKEINT_D(RAD_TO_DEG(fT));
+        fT += static_cast<float>(2 * PI);
+      iPitchLow = std::lrintf(RAD_TO_DEG(fT));
 
-      fT = static_cast<FRACT_D>(atan2(fR - fS, 2 * fA));
+      fT = static_cast<float>(atan2(fR - fS, 2 * fA));
       /* make sure angle positive */
       if (fT < 0)
-        fT += static_cast<FRACT_D>(2 * PI);
-      iPitchHigh = MAKEINT_D(RAD_TO_DEG(fT));
+        fT += static_cast<float>(2 * PI);
+      iPitchHigh = std::lrintf(RAD_TO_DEG(fT));
       /* swap pitches if wrong way round */
       if (iPitchLow > iPitchHigh)
       {
@@ -400,8 +398,8 @@ BOOL proj_SendProjectile(WEAPON* psWeap, BASE_OBJECT* psAttacker, SDWORD player,
         ((STRUCTURE*)psAttacker)->turretPitch = psObj->pitch;
     }
 
-    psObj->vXY = MAKEINT_D(iVel * trigCos(psObj->pitch));
-    psObj->vZ = MAKEINT_D(iVel * trigSin(psObj->pitch));
+    psObj->vXY = std::lrintf(iVel * trigCos(psObj->pitch));
+    psObj->vZ = std::lrintf(iVel * trigSin(psObj->pitch));
 
     /* set function pointer */
     psObj->pInFlightFunc = proj_InFlightIndirectFunc;
@@ -458,10 +456,7 @@ void proj_InFlightDirectFunc(PROJ_OBJECT* psObj)
   SDWORD rad;
   iVector pos;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psObj, sizeof(PROJ_OBJECT)), "proj_InFlightDirectFunc: invalid projectile pointer");
-
   psStats = psObj->psWStats;
-  DEBUG_ASSERT_TEXT(PTRVALID(psStats, sizeof(WEAPON_STATS)), "proj_InFlightDirectFunc: Invalid weapon stats pointer");
 
   timeSoFar = gameTime - psObj->born;
 
@@ -504,7 +499,7 @@ void proj_InFlightDirectFunc(PROJ_OBJECT* psObj)
     dz = static_cast<SDWORD>(psObj->srcHeight + psObj->altChange) - static_cast<SDWORD>(psObj->srcHeight);
   }
 
-  rad = static_cast<SDWORD>(iSQRT(dx*dx + dy*dy));
+  rad = static_cast<SDWORD>(static_cast<float>(std::sqrt(dx*dx + dy*dy)));
 
   if (rad == 0)
     rad = 1;
@@ -518,7 +513,7 @@ void proj_InFlightDirectFunc(PROJ_OBJECT* psObj)
   if (worldOnMap(iX, iY) == FALSE)
   {
     psObj->state = PROJ_IMPACT;
-    DBPRINTF(("**** projectile off map - removed ****\n"));
+    Neuron::DebugTrace("**** projectile off map - removed ****\n");
     return;
   }
   psObj->x = static_cast<UWORD>(iX);
@@ -621,20 +616,22 @@ void proj_InFlightIndirectFunc(PROJ_OBJECT* psObj)
   WEAPON_STATS* psStats;
   SDWORD iTime, iRad, iDist, dx, dy, dz, iX, iY;
   iVector pos;
-  FRACT fVVert;
+  float fVVert;
   BOOL bOver = FALSE;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psObj, sizeof(PROJ_OBJECT)), "proj_InFlightIndirectFunc: invalid projectile pointer");
-
   psStats = psObj->psWStats;
-  DEBUG_ASSERT_TEXT(PTRVALID(psStats, sizeof(WEAPON_STATS)), "proj_InFlightIndirectFunc: Invalid weapon stats pointer");
 
   iTime = gameTime - psObj->born;
 
   dx = static_cast<SDWORD>(psObj->tarX) - static_cast<SDWORD>(psObj->startX);
   dy = static_cast<SDWORD>(psObj->tarY) - static_cast<SDWORD>(psObj->startY);
 
-  iRad = fastRoot(dx, dy);
+  // was fastRoot(dx, dy): the larger magnitude plus half the smaller, which is
+  // a rough hypotenuse and deliberately not std::hypot - the trajectory below
+  // is tuned to this approximation
+  iRad = (std::abs(dx) > std::abs(dy))
+           ? (std::abs(dx) + std::abs(dy) / 2)
+           : (std::abs(dy) + std::abs(dx) / 2);
 
   iDist = iTime * psObj->vXY / GAME_TICKS_PER_SEC;
 
@@ -645,7 +642,7 @@ void proj_InFlightIndirectFunc(PROJ_OBJECT* psObj)
   if (worldOnMap(iX, iY) == FALSE)
   {
     psObj->state = PROJ_IMPACT;
-    DBPRINTF(("**** projectile off map - removed ****\n"));
+    Neuron::DebugTrace("**** projectile off map - removed ****\n");
     return;
   }
   psObj->x = static_cast<UWORD>(iX);
@@ -654,7 +651,7 @@ void proj_InFlightIndirectFunc(PROJ_OBJECT* psObj)
   dz = (psObj->vZ - (iTime * ACC_GRAVITY / GAME_TICKS_PER_SEC / 2)) * iTime / GAME_TICKS_PER_SEC;
   psObj->z = static_cast<UWORD>(psObj->srcHeight + dz);
 
-  fVVert = MAKEFRACT(psObj->vZ - (iTime*ACC_GRAVITY/GAME_TICKS_PER_SEC));
+  fVVert = static_cast<float>(psObj->vZ - (iTime*ACC_GRAVITY/GAME_TICKS_PER_SEC));
   psObj->pitch = static_cast<SWORD>((RAD_TO_DEG(atan2(fVVert, psObj->vXY))));
 
   if (psStats->weaponSubClass == WSC_FLAME)
@@ -764,10 +761,7 @@ void proj_ImpactFunc(PROJ_OBJECT* psObj)
   iVector position, scatter;
   UDWORD damage; //optimisation - were all being calculated twice on PC
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psObj, sizeof(PROJ_OBJECT)), "proj_ImpactFunc: invalid projectile pointer");
-
   psStats = psObj->psWStats;
-  DEBUG_ASSERT_TEXT(PTRVALID(psStats, sizeof(WEAPON_STATS)), "proj_ImpactFunc: Invalid weapon stats pointer");
 
   /* play impact audio */
   if (gfxVisible(psObj))
@@ -820,7 +814,6 @@ void proj_ImpactFunc(PROJ_OBJECT* psObj)
   bKilled = FALSE;
   if (psObj->psDest != nullptr)
   {
-    DEBUG_ASSERT_TEXT(PTRVALID(psObj->psDest, sizeof(BASE_OBJECT)), "proj_ImpactFunc: Invalid destination object pointer");
   }
 
   if (psObj->psDest == nullptr)
@@ -958,7 +951,6 @@ void proj_ImpactFunc(PROJ_OBJECT* psObj)
             updateMultiStatsDamage(psObj->psSource->player, psObj->psDest->player, damage);
         }
         //			else
-        DBP1(("Damage to object %d, player %d\n", psObj->psDest->id, psObj->psDest->player));
         /*the damage depends on the weapon effect and the target propulsion type or structure strength*/
         bKilled = objectDamage(psObj->psDest, damage, psStats->weaponClass, psStats->weaponSubClass);
 
@@ -996,7 +988,6 @@ void proj_ImpactFunc(PROJ_OBJECT* psObj)
         }
         //				else
 
-        DBP1(("Damage to object %d, player %d\n", psObj->psDest->id, psObj->psDest->player));
         /*bKilled = psObj->psDest->damage(psObj->psDest, calcDamage(
           //psStats->damage, psStats->weaponEffect, psObj->psDest),
           weaponDamage(psStats,psObj->player), psStats->
@@ -1056,7 +1047,7 @@ void proj_ImpactFunc(PROJ_OBJECT* psObj)
 
     /* This was just a simple bullet - release it and return */
     if (hashTable_RemoveElement(g_pProjObjTable, psObj, (int)psObj, UNUSED_KEY) == FALSE)
-      DBPRINTF(("proj_ImpactFunc: couldn't remove projectile from table\n"));
+      Neuron::DebugTrace("proj_ImpactFunc: couldn't remove projectile from table\n");
     return;
   }
 
@@ -1103,7 +1094,6 @@ void proj_ImpactFunc(PROJ_OBJECT* psObj)
             HIT_ROLL(dice);
             if (dice < weaponRadiusHit(psStats, psObj->player))
             {
-              DBP1(("Damage to object %d, player %d\n", psCurrD->id, psCurrD->player));
               damage = calcDamage(weaponRadDamage(psStats, psObj->player), psStats->weaponEffect, (BASE_OBJECT*)psCurrD);
               if (bMultiPlayer)
               {
@@ -1197,7 +1187,6 @@ void proj_ImpactFunc(PROJ_OBJECT* psObj)
           HIT_ROLL(dice);
           if (dice < weaponRadiusHit(psStats, psObj->player))
           {
-            DBP1(("Damage to object %d, player %d\n", psCurrF->id, psCurrF->player));
             //(void)psCurrF->damage(psCurrF, calcDamage(psStats->radiusDamage, 
             /*(void)psCurrF->damage(psCurrF, calcDamage(weaponRadDamage(
               psStats, psObj->player), psStats->weaponEffect, 
@@ -1232,10 +1221,7 @@ void proj_PostImpactFunc(PROJ_OBJECT* psObj)
   SDWORD i, age;
   FIRE_BOX flame;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psObj, sizeof(PROJ_OBJECT)), "proj_PostImpactFunc: invalid projectile pointer");
-
   psStats = psObj->psWStats;
-  DEBUG_ASSERT_TEXT(PTRVALID(psStats, sizeof(WEAPON_STATS)), "proj_PostImpactFunc: Invalid weapon stats pointer");
 
   age = static_cast<SDWORD>(gameTime) - static_cast<SDWORD>(psObj->born);
 
@@ -1243,7 +1229,7 @@ void proj_PostImpactFunc(PROJ_OBJECT* psObj)
   if (age > static_cast<SDWORD>(psStats->radiusLife) && age > static_cast<SDWORD>(psStats->incenTime))
   {
     if (hashTable_RemoveElement(g_pProjObjTable, psObj, (int)psObj, UNUSED_KEY) == FALSE)
-      DBPRINTF(("proj_PostImpactFunc: couldn't remove projectile from table\n"));
+      Neuron::DebugTrace("proj_PostImpactFunc: couldn't remove projectile from table\n");
     return;
   }
 
@@ -1275,8 +1261,6 @@ void proj_PostImpactFunc(PROJ_OBJECT* psObj)
 
 void proj_Update(PROJ_OBJECT* psObj)
 {
-  DEBUG_ASSERT_TEXT(PTRVALID(psObj, sizeof(PROJ_OBJECT)), "proj_Update: Invalid bullet pointer");
-
   /* See if any of the stored objects have died
    * since the projectile was created
    */
@@ -1371,7 +1355,6 @@ void proj_checkBurnDamage(BASE_OBJECT* apsList, PROJ_OBJECT* psProj, FIRE_BOX* p
           damageToDo = static_cast<SDWORD>(damageSoFar) - static_cast<SDWORD>(psCurr->burnDamage);
           if (damageToDo > 0)
           {
-            DBP1(("Burn damage of %d to object %d, player %d\n", damageToDo, psCurr->id, psCurr->player));
 
             //						else
 
@@ -1503,7 +1486,7 @@ UDWORD calcDamage(UDWORD baseDamage, WEAPON_EFFECT weaponEffect, BASE_OBJECT* ps
 
       damage1 = baseDamage * Mod / 100;
 
-      DBPRINTF(("damage1=%d damage=%d baseDamage=%d mod=%d (weaponEffect=%d proptype=%d) \n", damage1, damage, baseDamage, Mod, weaponEffect
+      Neuron::DebugTrace("damage1={} damage={} baseDamage={} mod={} (weaponEffect={} proptype={}) \n", damage1, damage, baseDamage, Mod, weaponEffect
         , PropType);
     }
 #endif
@@ -1557,7 +1540,7 @@ BOOL justBeenHitByEW(BASE_OBJECT* psObj)
     if ((gameTime - psStructure->timeLastHit) < HIT_THRESHOLD AND psStructure->lastHitWeapon == WSC_ELECTRONIC)
       return (TRUE);
     break;
-  default: DBERROR(("Weird object type in justBeenHitByEW"));
+  default: Neuron::Fatal("Weird object type in justBeenHitByEW");
     break;
   }
 

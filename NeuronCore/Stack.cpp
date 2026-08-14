@@ -35,17 +35,12 @@ static STACK_CHUNK* psCurrChunk = nullptr;
 /* The current free entry on the current stack chunk */
 static UDWORD currEntry = 0;
 
-/* The block heap the stack was created in */
-static BLOCK_HEAP* psStackBlock;
-
 /* Check if the stack is empty */
 BOOL stackEmpty(void) { return psCurrChunk == psStackBase && currEntry == 0; }
 
 /* Allocate a new chunk for the stack */
 static BOOL stackNewChunk(UDWORD size)
 {
-  BLOCK_HEAP* psHeap;
-
   /* see if a chunk has already been alocated */
   if (psCurrChunk->psNext != nullptr)
   {
@@ -54,17 +49,15 @@ static BOOL stackNewChunk(UDWORD size)
   }
   else
   {
-    psHeap = memGetBlockHeap();
-    memSetBlockHeap(psStackBlock);
-
     /* Allocate a new chunk */
-    psCurrChunk->psNext = static_cast<STACK_CHUNK*>(MALLOC(sizeof(STACK_CHUNK)));
+    psCurrChunk->psNext = new (std::nothrow) STACK_CHUNK[1];
     if (!psCurrChunk->psNext)
       return FALSE;
-    psCurrChunk->psNext->aVals = static_cast<INTERP_VAL*>(MALLOC(sizeof(INTERP_VAL) * size));
+    psCurrChunk->psNext->aVals = new (std::nothrow) INTERP_VAL[size];
     if (!psCurrChunk->psNext->aVals)
     {
-      FREE(psCurrChunk->psNext);
+      delete[] psCurrChunk->psNext;
+      psCurrChunk->psNext = nullptr;
       return FALSE;
     }
 
@@ -73,8 +66,6 @@ static BOOL stackNewChunk(UDWORD size)
     psCurrChunk->psNext->psNext = nullptr;
     psCurrChunk = psCurrChunk->psNext;
     currEntry = 0;
-
-    memSetBlockHeap(psHeap);
   }
 
   return TRUE;
@@ -298,7 +289,7 @@ void stackPrintTop(void)
   if (stackPeek(&sVal, 0))
     cpPrintVal(&sVal);
   else
-    DBPRINTF(("STACK EMPTY"));
+    Neuron::DebugTrace("STACK EMPTY");
 #endif
 }
 
@@ -456,18 +447,16 @@ BOOL stackUnaryOp(OPCODE opcode)
 /* Initialise the stack */
 BOOL stackInitialise(void)
 {
-  psStackBlock = memGetBlockHeap();
-
-  psStackBase = static_cast<STACK_CHUNK*>(MALLOC(sizeof(STACK_CHUNK)));
+  psStackBase = new (std::nothrow) STACK_CHUNK[1];
   if (psStackBase == nullptr)
   {
-    DBERROR(("Out of memory"));
+    Neuron::Fatal("Out of memory");
     return FALSE;
   }
-  psStackBase->aVals = static_cast<INTERP_VAL*>(MALLOC(sizeof(INTERP_VAL) * INIT_SIZE));
+  psStackBase->aVals = new (std::nothrow) INTERP_VAL[INIT_SIZE];
   if (!psStackBase->aVals)
   {
-    DBERROR(("Out of memory"));
+    Neuron::Fatal("Out of memory");
     return FALSE;
   }
 
@@ -485,13 +474,15 @@ void stackShutDown(void)
   STACK_CHUNK *psCurr, *psNext;
 
   if ((psCurrChunk != psStackBase) && (currEntry != 0))
-    DBPRINTF(("stackShutDown: stack is not empty on shutdown"));
+    Neuron::DebugTrace("stackShutDown: stack is not empty on shutdown");
 
   for (psCurr = psStackBase; psCurr != nullptr; psCurr = psNext)
   {
     psNext = psCurr->psNext;
-    FREE(psCurr->aVals);
-    FREE(psCurr);
+    delete[] psCurr->aVals;
+    psCurr->aVals = nullptr;
+    delete[] psCurr;
+    psCurr = nullptr;
   }
 }
 

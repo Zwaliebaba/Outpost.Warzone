@@ -64,10 +64,10 @@ BOOL loadFunctionStats(SBYTE* pFunctionData, UDWORD bufferSize)
   totalFunctions = numCR((UBYTE*)pFunctionData, bufferSize);
 
   //allocate storage for the Function pointer array
-  asFunctions = static_cast<FUNCTION**>(MALLOC(totalFunctions*sizeof(FUNCTION*)));
+  asFunctions = new (std::nothrow) FUNCTION*[totalFunctions];
   if (!asFunctions)
   {
-    DBERROR(("Out of memory"));
+    Neuron::Fatal("Out of memory");
     return FALSE;
   }
   pStartList = asFunctions;
@@ -235,10 +235,10 @@ BOOL storeName(FUNCTION* pFunction, STRING* pNameToStore)
 #ifdef HASH_NAMES
   pFunction->NameHash = HashString(pNameToStore);
 #else
-  pFunction->pName = static_cast<STRING*>(MALLOC(strlen(pNameToStore)+1));
+  pFunction->pName = new (std::nothrow) STRING[strlen(pNameToStore)+1];
   if (pFunction->pName == nullptr)
   {
-    DBERROR(("Function Name - Out of memory"));
+    Neuron::Fatal("Function Name - Out of memory");
     return FALSE;
   }
   strcpy(pFunction->pName, pNameToStore);
@@ -296,10 +296,10 @@ BOOL loadProduction(SBYTE* pData)
   STRING functionName[MAX_NAME_SIZE], bodySize[MAX_NAME_SIZE];
   UDWORD productionOutput;
   //allocate storage
-  psFunction = static_cast<PRODUCTION_FUNCTION*>(MALLOC(sizeof(PRODUCTION_FUNCTION)));
+  psFunction = new (std::nothrow) PRODUCTION_FUNCTION[1];
   if (psFunction == nullptr)
   {
-    DBERROR(("Production Function - Out of memory"));
+    Neuron::Fatal("Production Function - Out of memory");
     return FALSE;
   }
   memset(psFunction, 0, sizeof(PRODUCTION_FUNCTION));
@@ -375,10 +375,10 @@ BOOL loadProductionUpgradeFunction(SBYTE* pData)
   UDWORD outputModifier;
 
   //allocate storage
-  psFunction = static_cast<PRODUCTION_UPGRADE_FUNCTION*>(MALLOC(sizeof (PRODUCTION_UPGRADE_FUNCTION)));
+  psFunction = new (std::nothrow) PRODUCTION_UPGRADE_FUNCTION[1];
   if (psFunction == nullptr)
   {
-    DBERROR(("Production Upgrade Function - Out of memory"));
+    Neuron::Fatal("Production Upgrade Function - Out of memory");
     return FALSE;
   }
   memset(psFunction, 0, sizeof(PRODUCTION_UPGRADE_FUNCTION));
@@ -424,10 +424,10 @@ BOOL loadResearchFunction(SBYTE* pData)
   STRING functionName[MAX_NAME_SIZE];
 
   //allocate storage
-  psFunction = static_cast<RESEARCH_FUNCTION*>(MALLOC(sizeof(RESEARCH_FUNCTION)));
+  psFunction = new (std::nothrow) RESEARCH_FUNCTION[1];
   if (psFunction == nullptr)
   {
-    DBERROR(("Research Function - Out of memory"));
+    Neuron::Fatal("Research Function - Out of memory");
     return FALSE;
   }
   memset(psFunction, 0, sizeof(RESEARCH_FUNCTION));
@@ -457,10 +457,10 @@ BOOL loadReArmFunction(SBYTE* pData)
   STRING functionName[MAX_NAME_SIZE];
 
   //allocate storage
-  psFunction = static_cast<REARM_FUNCTION*>(MALLOC(sizeof(REARM_FUNCTION)));
+  psFunction = new (std::nothrow) REARM_FUNCTION[1];
   if (psFunction == nullptr)
   {
-    DBERROR(("ReArm Function - Out of memory"));
+    Neuron::Fatal("ReArm Function - Out of memory");
     return FALSE;
   }
   memset(psFunction, 0, sizeof(REARM_FUNCTION));
@@ -548,10 +548,10 @@ BOOL loadUpgradeFunction(SBYTE* pData, UBYTE type)
   UPGRADE_FUNCTION* psFunction;
 
   //allocate storage
-  psFunction = static_cast<UPGRADE_FUNCTION*>(MALLOC(sizeof(UPGRADE_FUNCTION)));
+  psFunction = new (std::nothrow) UPGRADE_FUNCTION[1];
   if (psFunction == nullptr)
   {
-    DBERROR(("Upgrade Function - Out of memory"));
+    Neuron::Fatal("Upgrade Function - Out of memory");
     return FALSE;
   }
   memset(psFunction, 0, sizeof(UPGRADE_FUNCTION));
@@ -591,10 +591,10 @@ BOOL loadDroidBodyUpgradeFunction(SBYTE* pData)
   UDWORD modifier, armourKinetic, armourHeat, body, droid, cyborg;
 
   //allocate storage
-  psFunction = static_cast<DROIDBODY_UPGRADE_FUNCTION*>(MALLOC(sizeof(DROIDBODY_UPGRADE_FUNCTION)));
+  psFunction = new (std::nothrow) DROIDBODY_UPGRADE_FUNCTION[1];
   if (psFunction == nullptr)
   {
-    DBERROR(("UnitBody Upgrade Function - Out of memory"));
+    Neuron::Fatal("UnitBody Upgrade Function - Out of memory");
     return FALSE;
   }
   memset(psFunction, 0, sizeof(DROIDBODY_UPGRADE_FUNCTION));
@@ -645,10 +645,10 @@ BOOL loadDroidSensorUpgradeFunction(SBYTE* pData)
   UDWORD modifier, range;
 
   //allocate storage
-  psFunction = static_cast<DROIDSENSOR_UPGRADE_FUNCTION*>(MALLOC(sizeof(DROIDSENSOR_UPGRADE_FUNCTION)));
+  psFunction = new (std::nothrow) DROIDSENSOR_UPGRADE_FUNCTION[1];
   if (psFunction == nullptr)
   {
-    DBERROR(("UnitSensor Upgrade Function - Out of memory"));
+    Neuron::Fatal("UnitSensor Upgrade Function - Out of memory");
     return FALSE;
   }
   memset(psFunction, 0, sizeof(DROIDSENSOR_UPGRADE_FUNCTION));
@@ -689,10 +689,10 @@ BOOL loadWeaponUpgradeFunction(SBYTE* pData)
   UDWORD firePause, shortHit, longHit, damage, radiusDamage, incenDamage, radiusHit;
 
   //allocate storage
-  psFunction = static_cast<WEAPON_UPGRADE_FUNCTION*>(MALLOC(sizeof (WEAPON_UPGRADE_FUNCTION)));
+  psFunction = new (std::nothrow) WEAPON_UPGRADE_FUNCTION[1];
   if (psFunction == nullptr)
   {
-    DBERROR(("Weapon Upgrade Function - Out of memory"));
+    Neuron::Fatal("Weapon Upgrade Function - Out of memory");
     return FALSE;
   }
   memset(psFunction, 0, sizeof(WEAPON_UPGRADE_FUNCTION));
@@ -723,7 +723,7 @@ BOOL loadWeaponUpgradeFunction(SBYTE* pData)
   if (firePause > UBYTE_MAX OR shortHit > UWORD_MAX OR longHit > UWORD_MAX OR damage > UWORD_MAX OR radiusDamage > UWORD_MAX OR incenDamage
     > UWORD_MAX OR radiusHit > UWORD_MAX)
   {
-    DBERROR(("A percentage increase for Weapon Upgrade function is too large"));
+    Neuron::Fatal("A percentage increase for Weapon Upgrade function is too large");
     return FALSE;
   }
 
@@ -748,10 +748,10 @@ BOOL loadStructureUpgradeFunction(SBYTE* pData)
   UDWORD armour, body, resistance;
 
   //allocate storage
-  psFunction = static_cast<STRUCTURE_UPGRADE_FUNCTION*>(MALLOC(sizeof (STRUCTURE_UPGRADE_FUNCTION)));
+  psFunction = new (std::nothrow) STRUCTURE_UPGRADE_FUNCTION[1];
   if (psFunction == nullptr)
   {
-    DBERROR(("Structure Upgrade Function - Out of memory"));
+    Neuron::Fatal("Structure Upgrade Function - Out of memory");
     return FALSE;
   }
   memset(psFunction, 0, sizeof(STRUCTURE_UPGRADE_FUNCTION));
@@ -775,7 +775,7 @@ BOOL loadStructureUpgradeFunction(SBYTE* pData)
   //check none of the %increases are over UWORD max
   if (armour > UWORD_MAX OR body > UWORD_MAX OR resistance > UWORD_MAX)
   {
-    DBERROR(("A percentage increase for Structure Upgrade function is too large"));
+    Neuron::Fatal("A percentage increase for Structure Upgrade function is too large");
     return FALSE;
   }
 
@@ -794,10 +794,10 @@ BOOL loadWallDefenceUpgradeFunction(SBYTE* pData)
   UDWORD armour, body;
 
   //allocate storage
-  psFunction = static_cast<WALLDEFENCE_UPGRADE_FUNCTION*>(MALLOC(sizeof (WALLDEFENCE_UPGRADE_FUNCTION)));
+  psFunction = new (std::nothrow) WALLDEFENCE_UPGRADE_FUNCTION[1];
   if (psFunction == nullptr)
   {
-    DBERROR(("WallDefence Upgrade Function - Out of memory"));
+    Neuron::Fatal("WallDefence Upgrade Function - Out of memory");
     return FALSE;
   }
   memset(psFunction, 0, sizeof(WALLDEFENCE_UPGRADE_FUNCTION));
@@ -821,7 +821,7 @@ BOOL loadWallDefenceUpgradeFunction(SBYTE* pData)
   //check none of the %increases are over UWORD max
   if (armour > UWORD_MAX OR body > UWORD_MAX)
   {
-    DBERROR(("A percentage increase for WallDefence Upgrade function is too large"));
+    Neuron::Fatal("A percentage increase for WallDefence Upgrade function is too large");
     return FALSE;
   }
 
@@ -908,10 +908,10 @@ BOOL loadPowerGenFunction(SBYTE* pData)
   STRING functionName[MAX_NAME_SIZE];
 
   //allocate storage
-  psFunction = static_cast<POWER_GEN_FUNCTION*>(MALLOC(sizeof (POWER_GEN_FUNCTION)));
+  psFunction = new (std::nothrow) POWER_GEN_FUNCTION[1];
   if (psFunction == nullptr)
   {
-    DBERROR(("Power Gen Function - Out of memory"));
+    Neuron::Fatal("Power Gen Function - Out of memory");
     return FALSE;
   }
   memset(psFunction, 0, sizeof(POWER_GEN_FUNCTION));
@@ -946,10 +946,10 @@ BOOL loadResourceFunction(SBYTE* pData)
   STRING functionName[MAX_NAME_SIZE];
 
   //allocate storage
-  psFunction = static_cast<RESOURCE_FUNCTION*>(MALLOC(sizeof (RESOURCE_FUNCTION)));
+  psFunction = new (std::nothrow) RESOURCE_FUNCTION[1];
   if (psFunction == nullptr)
   {
-    DBERROR(("Resource Function - Out of memory"));
+    Neuron::Fatal("Resource Function - Out of memory");
     return FALSE;
   }
   memset(psFunction, 0, sizeof(RESOURCE_FUNCTION));
@@ -1000,7 +1000,6 @@ BOOL loadResourceFunction(SBYTE* pData)
 	functionName[0] = '\0';
 	sscanf(pData, "%[^','],%d", &functionName, &psFunction->maxPower);
 
-
 	//allocate storage for the name
 	storeName((FUNCTION *)psFunction, functionName);
 
@@ -1047,10 +1046,10 @@ BOOL loadRepairDroidFunction(SBYTE* pData)
   STRING functionName[MAX_NAME_SIZE];
 
   //allocate storage
-  psFunction = static_cast<REPAIR_DROID_FUNCTION*>(MALLOC(sizeof (REPAIR_DROID_FUNCTION)));
+  psFunction = new (std::nothrow) REPAIR_DROID_FUNCTION[1];
   if (psFunction == nullptr)
   {
-    DBERROR(("Repair Droid Function - Out of memory"));
+    Neuron::Fatal("Repair Droid Function - Out of memory");
     return FALSE;
   }
   memset(psFunction, 0, sizeof(REPAIR_DROID_FUNCTION));
@@ -1268,14 +1267,12 @@ BOOL loadRepairDroidFunction(SBYTE* pData)
 		return FALSE;
 	}
 
-
 	//get the repair stats pointer
 	pRepairType = asRepairStats;
 	psFunction->pRepair = NULL;
 #ifdef HASH_NAMES
 	HashedName=HashString(repairType);
 #endif
-
 
 	for (i=0; i < numRepairStats; i++)
 	{
@@ -1348,10 +1345,10 @@ BOOL loadWallFunction(SBYTE* pData)
   STRING structureName[MAX_NAME_SIZE];
 
   //allocate storage
-  psFunction = static_cast<WALL_FUNCTION*>(MALLOC(sizeof(WALL_FUNCTION)));
+  psFunction = new (std::nothrow) WALL_FUNCTION[1];
   if (psFunction == nullptr)
   {
-    DBERROR(("Wall Function - Out of memory"));
+    Neuron::Fatal("Wall Function - Out of memory");
     return FALSE;
   }
   memset(psFunction, 0, sizeof(WALL_FUNCTION));
@@ -1380,7 +1377,7 @@ BOOL loadWallFunction(SBYTE* pData)
 #else
   if (!allocateName(&psFunction->pStructName, structureName))
   {
-    DBERROR(("Structure Stats Invalid for function - %s", functionName));
+    Neuron::Fatal("Structure Stats Invalid for function - {}", functionName);
     return FALSE;
   }
 #endif
@@ -1552,10 +1549,8 @@ void structureProductionUpgrade(STRUCTURE* psBuilding)
 
   //upgrade the Output
   pFact = (FACTORY*)psBuilding->pFunctionality;
-  DEBUG_ASSERT_TEXT(PTRVALID(pFact, sizeof(FACTORY)), "structureProductionUpgrade: invalid Factory pointer");
 
   pFactFunc = (PRODUCTION_FUNCTION*)psBuilding->pStructureType->asFuncList[0];
-  DEBUG_ASSERT_TEXT(PTRVALID(pFactFunc, sizeof(PRODUCTION_FUNCTION)), "structureProductionUpgrade: invalid Function pointer");
 
   //current base value depends on whether there are modules attached to the structure
   baseOutput = pFactFunc->productionOutput;
@@ -1579,10 +1574,8 @@ void structureResearchUpgrade(STRUCTURE* psBuilding)
 
   //upgrade the research points
   pRes = (RESEARCH_FACILITY*)psBuilding->pFunctionality;
-  DEBUG_ASSERT_TEXT(PTRVALID(pRes, sizeof(RESEARCH_FACILITY)), "structureResearchUpgrade: invalid Research pointer");
 
   pResFunc = (RESEARCH_FUNCTION*)psBuilding->pStructureType->asFuncList[0];
-  DEBUG_ASSERT_TEXT(PTRVALID(pResFunc, sizeof(RESEARCH_FUNCTION)), "structureResearchUpgrade: invalid Function pointer");
 
   //current base value depends on whether there are modules attached to the structure
   baseOutput = pResFunc->researchPoints;
@@ -1602,10 +1595,8 @@ void structureReArmUpgrade(STRUCTURE* psBuilding)
 
   //upgrade the reArm points
   pPad = (REARM_PAD*)psBuilding->pFunctionality;
-  DEBUG_ASSERT_TEXT(PTRVALID(pPad, sizeof(REARM_PAD)), "structureReArmUpgrade: invalid ReArm pointer");
 
   pPadFunc = (REARM_FUNCTION*)psBuilding->pStructureType->asFuncList[0];
-  DEBUG_ASSERT_TEXT(PTRVALID(pPadFunc, sizeof(REARM_FUNCTION)), "structureReArmUpgrade: invalid Function pointer");
 
   pPad->reArmPoints = pPadFunc->reArmPoints + (pPadFunc->reArmPoints * asReArmUpgrade[psBuilding->player].modifier) / 100;
 }
@@ -1619,10 +1610,8 @@ void structurePowerUpgrade(STRUCTURE* psBuilding)
 
   //upgrade the research points
   pPowerGen = (POWER_GEN*)psBuilding->pFunctionality;
-  DEBUG_ASSERT_TEXT(PTRVALID(pPowerGen, sizeof(POWER_GEN)), "structurePowerUpgrade: invalid Power Gen pointer");
 
   pPGFunc = (POWER_GEN_FUNCTION*)psBuilding->pStructureType->asFuncList[0];
-  DEBUG_ASSERT_TEXT(PTRVALID(pPGFunc, sizeof(POWER_GEN_FUNCTION)), "structurePowerUpgrade: invalid Function pointer");
 
   //current base value depends on whether there are modules attached to the structure
   baseOutput = pPGFunc->powerMultiplier;
@@ -1642,10 +1631,8 @@ void structureRepairUpgrade(STRUCTURE* psBuilding)
 
   //upgrade the research points
   pRepair = (REPAIR_FACILITY*)psBuilding->pFunctionality;
-  DEBUG_ASSERT_TEXT(PTRVALID(pRepair, sizeof(REPAIR_FACILITY)), "structureRepairUpgrade: invalid Repair pointer");
 
   pRepairFunc = (REPAIR_DROID_FUNCTION*)psBuilding->pStructureType->asFuncList[0];
-  DEBUG_ASSERT_TEXT(PTRVALID(pRepairFunc, sizeof(REPAIR_DROID_FUNCTION)), "structureRepairUpgrade: invalid Function pointer");
 
   pRepair->power = pRepairFunc->repairPoints + (pRepairFunc->repairPoints * asRepairFacUpgrade[psBuilding->player].modifier) / 100;
 }
@@ -1940,16 +1927,19 @@ BOOL FunctionShutDown()
   {
     pFunction = *asFunctions;
 #ifndef HASH_NAMES
-    FREE(pFunction->pName);
+    delete[] pFunction->pName;
+    pFunction->pName = nullptr;
 #endif
 
 #if !defined (RESOURCE_NAMES) && !defined(STORE_RESOURCE_ID)
-    if (pFunction->type == WALL_TYPE) { FREE(((WALL_FUNCTION *)pFunction)->pStructName); }
+    if (pFunction->type == WALL_TYPE) { delete[] ((WALL_FUNCTION *)pFunction)->pStructName; }
 #endif
-    FREE(pFunction);
+    delete[] pFunction;
+    pFunction = nullptr;
     asFunctions++;
   }
-  FREE(pStartList);
+  delete[] pStartList;
+  pStartList = nullptr;
 
   //free the Upgrade lists
   return TRUE;

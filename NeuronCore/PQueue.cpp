@@ -24,11 +24,11 @@ BOOL queue_Init(QUEUE** ppQueue, int iMaxElements, int iElementSize, QUEUE_CLEAR
   QUEUE_NODE* psNode;
 
   /* allocate queue */
-  (*ppQueue) = static_cast<QUEUE*>(MALLOC(sizeof(QUEUE)));
+  (*ppQueue) = new (std::nothrow) QUEUE[1];
 
   if ((*ppQueue) == nullptr)
   {
-    DBERROR(("queue_Init: couldn't allocate memory for queue"));
+    Neuron::Fatal("queue_Init: couldn't allocate memory for queue");
     return FALSE;
   }
 
@@ -37,11 +37,11 @@ BOOL queue_Init(QUEUE** ppQueue, int iMaxElements, int iElementSize, QUEUE_CLEAR
   for (i = 0; i < iMaxElements; i++)
   {
     /* allocate node */
-    psNode = static_cast<QUEUE_NODE*>(MALLOC(sizeof(QUEUE_NODE)));
+    psNode = new (std::nothrow) QUEUE_NODE[1];
 
     if ((*ppQueue) == nullptr)
     {
-      DBERROR(("queue_Init: couldn't allocate memory for queue node"));
+      Neuron::Fatal("queue_Init: couldn't allocate memory for queue node");
       return FALSE;
     }
 
@@ -82,7 +82,8 @@ void queue_Destroy(QUEUE* pQueue)
   {
     psNode = pQueue->psFreeNodeList;
     pQueue->psFreeNodeList = pQueue->psFreeNodeList->psNext;
-    FREE(psNode);
+    delete[] psNode;
+    psNode = nullptr;
   }
 
   /* free up node queue */
@@ -90,9 +91,11 @@ void queue_Destroy(QUEUE* pQueue)
   {
     psNode = pQueue->psNodeQHead;
     pQueue->psNodeQHead = pQueue->psNodeQHead->psNext;
-    FREE(psNode);
+    delete[] psNode;
+    psNode = nullptr;
   }
-  FREE(pQueue);
+  delete[] pQueue;
+  pQueue = nullptr;
 }
 
 /***************************************************************************/
@@ -132,8 +135,6 @@ void queue_Enqueue(QUEUE* pQueue, void* psElement, int iPriority)
   QUEUE_NODE *psFreeNode, *psNode, *psNodePrev;
 
   /* check input */
-  DEBUG_ASSERT_TEXT(PTRVALID(pQueue,sizeof(QUEUE)), "queue_Enqueue: queue pointer invalid\n");
-  DEBUG_ASSERT_TEXT(PTRVALID(psElement,pQueue->iElementSize), "queue_Enqueue: element pointer invalid\n");
 
 #if QUEUE_INSERTION_TEST
   psNode = pQueue->psNodeQHead;
@@ -148,7 +149,7 @@ void queue_Enqueue(QUEUE* pQueue, void* psElement, int iPriority)
   /* check list not empty */
   if (pQueue->psFreeNodeList == nullptr)
   {
-    DBPRINTF(("queue_GetFreeElement: all nodes allocated: flushing queue.\n"));
+    Neuron::DebugTrace("queue_GetFreeElement: all nodes allocated: flushing queue.\n");
     queue_Clear(pQueue);
   }
 
@@ -211,7 +212,6 @@ void* queue_Dequeue(QUEUE* pQueue)
   QUEUE_NODE* psNode;
 
   /* check input */
-  DEBUG_ASSERT_TEXT(PTRVALID(pQueue,sizeof(QUEUE)), "queue_Dequeue: queue pointer invalid\n");
 
   if (pQueue->psNodeQHead != nullptr)
   {
@@ -249,8 +249,6 @@ QUEUE_NODE* queue_FindElement(QUEUE* pQueue, void* psElement)
   QUEUE_NODE *psNode, *psNodePrev;
 
   /* check input */
-  DEBUG_ASSERT_TEXT(PTRVALID(pQueue,sizeof(QUEUE)), "queue_FindElement: queue pointer invalid\n");
-  DEBUG_ASSERT_TEXT(PTRVALID(psElement,pQueue->iElementSize), "queue_FindElement: element pointer invalid\n");
 
   /* init pointers to head of queue */
   psNodePrev = psNode = pQueue->psNodeQHead;
@@ -329,8 +327,6 @@ BOOL queue_RemoveCurrent(QUEUE* pQueue) { return queue_RemoveNode(pQueue, pQueue
 BOOL queue_RemoveNode(QUEUE* pQueue, QUEUE_NODE* psNode)
 {
   /* check input */
-  DEBUG_ASSERT_TEXT(PTRVALID(pQueue,sizeof(QUEUE)), "queue_RemoveNode: queue pointer invalid\n");
-  DEBUG_ASSERT_TEXT(PTRVALID(psNode,sizeof(QUEUE_NODE)), "queue_RemoveNode: node pointer invalid\n");
 
   /* if node valid, remove from queue and return to free node list */
   if (psNode == nullptr)
@@ -393,8 +389,6 @@ BOOL queue_RemoveElement(QUEUE* pQueue, void* psElement)
   QUEUE_NODE* psNode;
 
   /* check input */
-  DEBUG_ASSERT_TEXT(PTRVALID(pQueue,sizeof(QUEUE)), "queue_Dequeue: queue pointer invalid\n");
-  DEBUG_ASSERT_TEXT(PTRVALID(psElement,pQueue->iElementSize), "queue_RemoveElement: element pointer invalid\n");
 
   if ((psNode = queue_FindElement(pQueue, psElement)) != nullptr)
   {

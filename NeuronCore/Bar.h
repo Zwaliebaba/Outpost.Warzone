@@ -7,7 +7,6 @@
 #define _bar_h
 
 /* The widget heap */
-extern OBJ_HEAP* psBarHeap;
 
 using W_BARGRAPH = struct _w_bargraph
 {

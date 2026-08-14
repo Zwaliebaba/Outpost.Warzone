@@ -296,7 +296,7 @@ VOID changeTitleMode(tMode mode)
   case SHOWINTRO:
     break;
 
-  default: DBERROR(("Unknown title mode requested"));
+  default: Neuron::Fatal("Unknown title mode requested");
     break;
   }
 }
@@ -627,7 +627,6 @@ BOOL startDemoMenu(VOID)
 	addTextButton(FRONTEND_DEMO5,	FRONTEND_POS6X,FRONTEND_POS6Y, "Empty",FALSE,FALSE);
 #endif
 
-
 #ifdef WIN32
 	addMultiBut(psWScreen,FRONTEND_BOTFORM,FRONTEND_QUIT,10,10,30,29, STR_FE_RETURN,IMAGE_RETURN,IMAGE_RETURN_HI,TRUE);
 #else
@@ -736,17 +735,16 @@ BOOL runMultiPlayerMenu(VOID)
     {
       initLoadingScreen(TRUE, TRUE);
       /*			if (!resLoad("wrf\\forcedit.wrf", 500,
-                   DisplayBuffer, displayBufferSize,
-                   psGameHeap))				//need the object heaps to have been set up before loading 
+                   DisplayBuffer, displayBufferSize))				//need the object heaps to have been set up before loading 
             {
               return FALSE;
             }
       */
-      if (!resLoad("wrf\\piestats.wrf", 501, DisplayBuffer, displayBufferSize, psGameHeap))
+      if (!resLoad("wrf\\piestats.wrf", 501, DisplayBuffer, displayBufferSize))
         //need the object heaps to have been set up before loading 
         return FALSE;
 
-      if (!resLoad("wrf\\forcedit2.wrf", 502, DisplayBuffer, displayBufferSize, psGameHeap))
+      if (!resLoad("wrf\\forcedit2.wrf", 502, DisplayBuffer, displayBufferSize))
         //need the object heaps to have been set up before loading 
         return FALSE;
 
@@ -853,8 +851,6 @@ BOOL startGraphicsOptionsMenu(VOID)
 	addTopForm();
 	addBottomForm();
 
-
-
 	addTextButton(FRONTEND_TEXTURES,FRONTEND_POS3X,FRONTEND_POS3Y, strresGetString(psStringRes, STR_FE_TEXTURE),TRUE,TRUE);
 	addTextButton(FRONTEND_EFFECTS,	FRONTEND_POS4X,FRONTEND_POS4Y, strresGetString(psStringRes, STR_FE_EFFECTS),TRUE,TRUE);
 
@@ -933,7 +929,6 @@ BOOL runGraphicsOptionsMenu(VOID)
 			war_SetTranslucent(TRUE);
 			war_SetAdditive(TRUE);
 			widgSetString(psWScreen,FRONTEND_TRANSPARENCY_R,"on default");
-
 		}
 		else
 		{
@@ -973,7 +968,6 @@ BOOL startVideoOptionsMenu(VOID)
 	addBackdrop();
 	addTopForm();
 	addBottomForm();
-
 
 	addTextButton(FRONTEND_SOFTWARE,FRONTEND_POS2X,FRONTEND_POS2Y, strresGetString(psStringRes, STR_FE_SOFTWARE),FALSE,FALSE);
 	addTextButton(FRONTEND_DIRECTX,	FRONTEND_POS3X,FRONTEND_POS3Y, strresGetString(psStringRes, STR_FE_DIRECTX),FALSE,FALSE);
@@ -1675,7 +1669,7 @@ VOID addText(int FontID, UDWORD FormID, UDWORD id, UDWORD PosX, UDWORD PosY, STR
 {
   W_LABINIT sLabInit;
 
-  DBPRINTF(("addText : %s\n",txt));
+  Neuron::DebugTrace("addText : {}\n",txt);
   memset(&sLabInit, 0, sizeof(W_LABINIT));
   sLabInit.formID = FormID;
   sLabInit.id = id;

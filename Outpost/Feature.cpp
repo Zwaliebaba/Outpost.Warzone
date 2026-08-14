@@ -142,11 +142,11 @@ BOOL loadFeatureStats(SBYTE* pFeatureData, UDWORD bufferSize)
 
   numFeatureStats = numCR((UBYTE*)pFeatureData, bufferSize);
 
-  asFeatureStats = static_cast<FEATURE_STATS*>(MALLOC(sizeof(FEATURE_STATS)* numFeatureStats));
+  asFeatureStats = new (std::nothrow) FEATURE_STATS[numFeatureStats];
 
   if (asFeatureStats == nullptr)
   {
-    DBERROR(("Feature Stats - Out of memory"));
+    Neuron::Fatal("Feature Stats - Out of memory");
     return FALSE;
   }
 
@@ -201,9 +201,9 @@ BOOL loadFeatureStats(SBYTE* pFeatureData, UDWORD bufferSize)
     if (psFeature->psImd == nullptr)
     {
 #ifdef HASH_NAMES
-      DBERROR(("Cannot find the feature PIE for record %s", strresGetString(NULL,psFeature->NameHash)));
+      Neuron::Fatal("Cannot find the feature PIE for record {}", strresGetString(NULL,psFeature->NameHash));
 #else
-      DBERROR(("Cannot find the feature PIE for record %s", getName(psFeature->pName)));
+      Neuron::Fatal("Cannot find the feature PIE for record {}", getName(psFeature->pName));
 #endif
       return FALSE;
     }
@@ -585,11 +585,11 @@ void featureStatsShutDown(void)
 
 #if !defined(RESOURCE_NAMES) && !defined(STORE_RESOURCE_ID)
 
-  UDWORD inc; for (inc = 0; inc < numFeatureStats; inc++, psFeature++) { FREE(psFeature->pName); }
+  UDWORD inc; for (inc = 0; inc < numFeatureStats; inc++, psFeature++) { delete[] psFeature->pName; }
 
 #endif
 
-  if (numFeatureStats) { FREE(asFeatureStats); }
+  if (numFeatureStats) { delete[] asFeatureStats; }
 }
 
 /* Deal with damage to a feature */
@@ -600,9 +600,6 @@ BOOL featureDamage(FEATURE* psFeature, UDWORD damage, UDWORD weaponClass, UDWORD
   /* this is ignored for features */
   UNUSEDPARAMETER(weaponClass);
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psFeature, sizeof(FEATURE)), "featureDamage: Invalid feature pointer");
-
-  DBP1(("featureDamage(%d): body %d armour %d damage: %d\n", psFeature->id, psFeature->body, psFeature->psStats->armour, damage));
 
   //EMP cannons do not work on Features
   if (weaponSubClass == WSC_EMP)
@@ -612,11 +609,9 @@ BOOL featureDamage(FEATURE* psFeature, UDWORD damage, UDWORD weaponClass, UDWORD
   {
     /* Damage has penetrated - reduce body points */
     penDamage = damage - psFeature->psStats->armour;
-    DBP1(("        penetrated: %d\n", penDamage));
     if (penDamage >= psFeature->body)
     {
       /* feature destroyed */
-      DBP1(("        DESTROYED\n"));
       destroyFeature(psFeature);
       return TRUE;
     }
@@ -625,11 +620,9 @@ BOOL featureDamage(FEATURE* psFeature, UDWORD damage, UDWORD weaponClass, UDWORD
   else
   {
     /* Do one point of damage to body */
-    DBP1(("        not penetrated - 1 point damage\n"));
     if (psFeature->body == 1)
     {
       destroyFeature(psFeature);
-      DBP1(("        DESTROYED\n"));
       return TRUE;
     }
     psFeature->body -= 1;
@@ -694,7 +687,7 @@ FEATURE* buildFeature(FEATURE_STATS* psStats, UDWORD x, UDWORD y, BOOL FromSave)
 
   // check you can reach an oil resource
   if ((psStats->subType == FEAT_OIL_RESOURCE) && !gwZoneReachable(gwGetZone(startX, startY)))
-    DBPRINTF(("Oil resource at (%d,%d) is unreachable", startX,startY));
+    Neuron::DebugTrace("Oil resource at ({},{}) is unreachable", startX,startY);
 
   if (FromSave == TRUE)
   {
@@ -839,8 +832,6 @@ void removeFeature(FEATURE* psDel)
   MESSAGE* psMessage;
   iVector pos;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psDel, sizeof(FEATURE)), "removeFeature: invalid feature pointer\n");
-
   if (psDel->died)
   {
     // feature has already been killed, quit
@@ -925,8 +916,6 @@ void destroyFeature(FEATURE* psDel)
   UDWORD mapX, mapY;
   MAPTILE* psTile;
   UDWORD texture;
-
-  DEBUG_ASSERT_TEXT(PTRVALID(psDel, sizeof(FEATURE)), "destroyFeature: invalid feature pointer\n");
 
   //---------------------------------------------------------------------------------------
   /* Only add if visible and damageable*/

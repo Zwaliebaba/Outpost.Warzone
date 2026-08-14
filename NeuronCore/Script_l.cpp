@@ -905,46 +905,38 @@ scr__found: YY_DEBUG(m_textmsg(1551, "<final state %d, i = %d>\n", "I num1 num2"
       /* See if this identifier has been defined as a type */
       if (scriptLookUpType(scr_text, &scr_lval.tval))
       {
-        DBP0(("[lex] TYPE\n"));
         return TYPE;
       }
       /* See if this identifier has been defined as a variable */
       if (scriptLookUpVariable(scr_text, &scr_lval.vSymbol))
       {
-        DBP0(("[lex] variable\n"));
         return scriptGetVarToken(scr_lval.vSymbol);
       }
       /* See if this identifier has been defined as a constant */
       if (scriptLookUpConstant(scr_text, &scr_lval.cSymbol))
       {
-        DBP0(("[lex] constant\n"));
         return scriptGetConstToken(scr_lval.cSymbol);
       }
       /* See if this identifier has been defined as a function */
       if (scriptLookUpFunction(scr_text, &scr_lval.fSymbol))
       {
-        DBP0(("[lex] func\n"));
         return scriptGetFuncToken(scr_lval.fSymbol);
       }
       if (scriptLookUpTrigger(scr_text, &scr_lval.tSymbol))
       {
-        DBP0(("[lex] TRIG_SYM\n"));
         return TRIG_SYM;
       }
       if (scriptLookUpEvent(scr_text, &scr_lval.eSymbol))
       {
-        DBP0(("[lex] EVENT_SYM\n"));
         return EVENT_SYM;
       }
       if (scriptLookUpCallback(scr_text, &scr_lval.cbSymbol))
       {
-        DBP0(("[lex] CALLBACK_SYM\n"));
         return CALLBACK_SYM;
       }
       strcpy(aText[currText], scr_text);
       scr_lval.sval = aText[currText];
       currText = (currText + 1) % TEXT_BUFFERS;
-      DBP0(("[lex] IDENT\n"));
       return IDENT;
     }
     break;
@@ -1158,6 +1150,6 @@ void scriptGetErrorData(int* pLine, char** ppText)
 int scr_wrap(void)
 {
   if (inComment)
-    DBERROR(("Warning: reched end of file in a comment"));
+    Neuron::Fatal("Warning: reched end of file in a comment");
   return 1;
 }

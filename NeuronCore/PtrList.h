@@ -28,8 +28,6 @@ using LISTNODE = struct LISTNODE
 
 using PTRLIST = struct sPTRLIST
 {
-  OBJ_HEAP* psNodeHeap;
-  OBJ_HEAP* psElementHeap;
   LISTNODE* psNode;
   LISTNODE* psCurNode;
   UDWORD udwTableSize;

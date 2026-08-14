@@ -39,7 +39,6 @@
 #include "Power.h"
 #include "Audio.h"
 #include "AudioID.h"
-#include "Fractions.h"
 #include "Order.h"
 #include "FrontEnd.h"
 #include "IntImage.h"
@@ -405,14 +404,15 @@ void intAddFactoryInc(struct _widget* psWidget, struct _w_context* psContext)
   psObj = static_cast<BASE_OBJECT*>(Label->pUserData);
   if (psObj != nullptr)
   {
-    DEBUG_ASSERT_TEXT(PTRVALID(psObj, sizeof(STRUCTURE)) && psObj->type == OBJ_STRUCTURE, "intAddFactoryInc: invalid structure pointer");
+    DEBUG_ASSERT_TEXT(psObj->type == OBJ_STRUCTURE, "intAddFactoryInc: invalid structure pointer");
 
-    DEBUG_ASSERT_TEXT(!psObj->died, "intAddFactoryInc: object is dead");
+    DEBUG_ASSERT_TEXT(!psObj->died,"intAddFactoryInc: object is dead");
 
     Structure = (STRUCTURE*)psObj;
 
     DEBUG_ASSERT_TEXT((Structure->pStructureType->type == REF_FACTORY OR
-        Structure->pStructureType->type == REF_CYBORG_FACTORY OR Structure->pStructureType->type == REF_VTOL_FACTORY), "intAddFactoryInc: structure is not a factory");
+        Structure->pStructureType->type == REF_CYBORG_FACTORY OR Structure->pStructureType->type == REF_VTOL_FACTORY),
+      "intAddFactoryInc: structure is not a factory");
 
     Label->aText[0] = static_cast<UBYTE>('0' + (((FACTORY*)Structure->pFunctionality)->psAssemblyPoint->factoryInc + 1));
     Label->aText[1] = static_cast<UBYTE>('\0');
@@ -441,8 +441,6 @@ void intAddProdQuantity(struct _widget* psWidget, struct _w_context* psContext)
   psStat = static_cast<BASE_STATS*>(Label->pUserData);
   if (psStat != nullptr)
   {
-    DEBUG_ASSERT_TEXT(PTRVALID(psStat, sizeof(DROID_TEMPLATE)), "intAddProdQuantity: invalid template pointer");
-
     psTemplate = (DROID_TEMPLATE*)psStat;
 
     psObj = getCurrentSelected();
@@ -523,9 +521,9 @@ void intUpdateCommandSize(struct _widget* psWidget, struct _w_context* psContext
   psObj = static_cast<BASE_OBJECT*>(Label->pUserData);
   if (psObj != nullptr)
   {
-    DEBUG_ASSERT_TEXT(PTRVALID(psObj, sizeof(DROID)) && psObj->type == OBJ_DROID, "intUpdateCommandSize: invalid droid pointer");
+    DEBUG_ASSERT_TEXT(psObj->type == OBJ_DROID, "intUpdateCommandSize: invalid droid pointer");
 
-    DEBUG_ASSERT_TEXT(!psObj->died, "intUpdateCommandSize: droid has died");
+    DEBUG_ASSERT_TEXT(!psObj->died,"intUpdateCommandSize: droid has died");
 
     psDroid = (DROID*)psObj;
 
@@ -555,9 +553,9 @@ void intUpdateCommandExp(struct _widget* psWidget, struct _w_context* psContext)
   psObj = static_cast<BASE_OBJECT*>(Label->pUserData);
   if (psObj != nullptr)
   {
-    DEBUG_ASSERT_TEXT(PTRVALID(psObj, sizeof(DROID)) && psObj->type == OBJ_DROID, "intUpdateCommandSize: invalid droid pointer");
+    DEBUG_ASSERT_TEXT(psObj->type == OBJ_DROID, "intUpdateCommandSize: invalid droid pointer");
 
-    DEBUG_ASSERT_TEXT(!psObj->died, "intUpdateCommandSize: droid has died");
+    DEBUG_ASSERT_TEXT(!psObj->died,"intUpdateCommandSize: droid has died");
 
     psDroid = (DROID*)psObj;
 
@@ -591,9 +589,9 @@ void intUpdateCommandFact(struct _widget* psWidget, struct _w_context* psContext
   psObj = static_cast<BASE_OBJECT*>(Label->pUserData);
   if (psObj != nullptr)
   {
-    DEBUG_ASSERT_TEXT(PTRVALID(psObj, sizeof(DROID)) && psObj->type == OBJ_DROID, "intUpdateCommandSize: invalid droid pointer");
+    DEBUG_ASSERT_TEXT(psObj->type == OBJ_DROID, "intUpdateCommandSize: invalid droid pointer");
 
-    DEBUG_ASSERT_TEXT(!psObj->died, "intUpdateCommandSize: droid has died");
+    DEBUG_ASSERT_TEXT(!psObj->died,"intUpdateCommandSize: droid has died");
 
     psDroid = (DROID*)psObj;
 
@@ -1925,10 +1923,10 @@ void InitialiseButtonData(void)
 
   for (i = 0; i < NUM_OBJECTSURFACES; i++)
   {
-    ObjectSurfaces[i].Buffer = static_cast<uint8*>(MALLOC(Width*Height));
-    DEBUG_ASSERT_TEXT(ObjectSurfaces[i].Buffer!=NULL, "intInitialise : Failed to allocate Object surface");
+    ObjectSurfaces[i].Buffer = new (std::nothrow) uint8[Width*Height];
+    DEBUG_ASSERT_TEXT(ObjectSurfaces[i].Buffer!=NULL,"intInitialise : Failed to allocate Object surface");
     ObjectSurfaces[i].Surface = iV_SurfaceCreate(REND_SURFACE_USR, Width, Height, 10, 10, ObjectSurfaces[i].Buffer);
-    DEBUG_ASSERT_TEXT(ObjectSurfaces[i].Surface!=NULL, "intInitialise : Failed to create Object surface");
+    DEBUG_ASSERT_TEXT(ObjectSurfaces[i].Surface!=NULL,"intInitialise : Failed to create Object surface");
   }
 
   for (i = 0; i < NUM_OBJECTBUFFERS; i++)
@@ -1939,10 +1937,10 @@ void InitialiseButtonData(void)
 
   for (i = 0; i < NUM_SYSTEM0SURFACES; i++)
   {
-    System0Surfaces[i].Buffer = static_cast<uint8*>(MALLOC(Width*Height));
-    DEBUG_ASSERT_TEXT(System0Surfaces[i].Buffer!=NULL, "intInitialise : Failed to allocate System0 surface");
+    System0Surfaces[i].Buffer = new (std::nothrow) uint8[Width*Height];
+    DEBUG_ASSERT_TEXT(System0Surfaces[i].Buffer!=NULL,"intInitialise : Failed to allocate System0 surface");
     System0Surfaces[i].Surface = iV_SurfaceCreate(REND_SURFACE_USR, Width, Height, 10, 10, System0Surfaces[i].Buffer);
-    DEBUG_ASSERT_TEXT(System0Surfaces[i].Surface!=NULL, "intInitialise : Failed to create System0 surface");
+    DEBUG_ASSERT_TEXT(System0Surfaces[i].Surface!=NULL,"intInitialise : Failed to create System0 surface");
   }
 
   for (i = 0; i < NUM_SYSTEM0BUFFERS; i++)
@@ -1953,10 +1951,10 @@ void InitialiseButtonData(void)
 
   for (i = 0; i < NUM_TOPICSURFACES; i++)
   {
-    TopicSurfaces[i].Buffer = static_cast<uint8*>(MALLOC(WidthTopic*HeightTopic));
-    DEBUG_ASSERT_TEXT(TopicSurfaces[i].Buffer!=NULL, "intInitialise : Failed to allocate Topic surface");
+    TopicSurfaces[i].Buffer = new (std::nothrow) uint8[WidthTopic*HeightTopic];
+    DEBUG_ASSERT_TEXT(TopicSurfaces[i].Buffer!=NULL,"intInitialise : Failed to allocate Topic surface");
     TopicSurfaces[i].Surface = iV_SurfaceCreate(REND_SURFACE_USR, WidthTopic, HeightTopic, 10, 10, TopicSurfaces[i].Buffer);
-    DEBUG_ASSERT_TEXT(TopicSurfaces[i].Surface!=NULL, "intInitialise : Failed to create Topic surface");
+    DEBUG_ASSERT_TEXT(TopicSurfaces[i].Surface!=NULL,"intInitialise : Failed to create Topic surface");
   }
 
   for (i = 0; i < NUM_TOPICBUFFERS; i++)
@@ -1967,10 +1965,10 @@ void InitialiseButtonData(void)
 
   for (i = 0; i < NUM_STATSURFACES; i++)
   {
-    StatSurfaces[i].Buffer = static_cast<uint8*>(MALLOC(Width*Height));
-    DEBUG_ASSERT_TEXT(StatSurfaces[i].Buffer!=NULL, "intInitialise : Failed to allocate Stats surface");
+    StatSurfaces[i].Buffer = new (std::nothrow) uint8[Width*Height];
+    DEBUG_ASSERT_TEXT(StatSurfaces[i].Buffer!=NULL,"intInitialise : Failed to allocate Stats surface");
     StatSurfaces[i].Surface = iV_SurfaceCreate(REND_SURFACE_USR, Width, Height, 10, 10, StatSurfaces[i].Buffer);
-    DEBUG_ASSERT_TEXT(StatSurfaces[i].Surface!=NULL, "intInitialise : Failed to create Stat surface");
+    DEBUG_ASSERT_TEXT(StatSurfaces[i].Surface!=NULL,"intInitialise : Failed to create Stat surface");
   }
 
   for (i = 0; i < NUM_STATBUFFERS; i++)
@@ -2137,25 +2135,29 @@ void DeleteButtonData(void)
   UDWORD i;
   for (i = 0; i < NUM_OBJECTSURFACES; i++)
   {
-    FREE(ObjectSurfaces[i].Buffer);
+    delete[] ObjectSurfaces[i].Buffer;
+    ObjectSurfaces[i].Buffer = nullptr;
     iV_SurfaceDestroy(ObjectSurfaces[i].Surface);
   }
 
   for (i = 0; i < NUM_TOPICSURFACES; i++)
   {
-    FREE(TopicSurfaces[i].Buffer);
+    delete[] TopicSurfaces[i].Buffer;
+    TopicSurfaces[i].Buffer = nullptr;
     iV_SurfaceDestroy(TopicSurfaces[i].Surface);
   }
 
   for (i = 0; i < NUM_STATSURFACES; i++)
   {
-    FREE(StatSurfaces[i].Buffer);
+    delete[] StatSurfaces[i].Buffer;
+    StatSurfaces[i].Buffer = nullptr;
     iV_SurfaceDestroy(StatSurfaces[i].Surface);
   }
 
   for (i = 0; i < NUM_SYSTEM0SURFACES; i++)
   {
-    FREE(System0Surfaces[i].Buffer);
+    delete[] System0Surfaces[i].Buffer;
+    System0Surfaces[i].Buffer = nullptr;
     iV_SurfaceDestroy(System0Surfaces[i].Surface);
   }
 }
@@ -2994,7 +2996,6 @@ void intDisplayTransportButton(struct _widget* psWidget, UDWORD xOffset, UDWORD 
   //allocate this outside of the if so the rank icons are always draw
   psDroid = static_cast<DROID*>(Buffer->Data);
   //there should always be a droid associated with the button
-  DEBUG_ASSERT_TEXT(PTRVALID(psDroid, sizeof(DROID)), "intDisplayTransportButton: invalid droid pointer");
 
   Hilight = Form->state & WCLICK_HILITE;
 
@@ -3006,7 +3007,6 @@ void intDisplayTransportButton(struct _widget* psWidget, UDWORD xOffset, UDWORD 
   Buffer->State = Form->state;
 
   //there should always be a droid associated with the button
-  //ASSERT((PTRVALID(psDroid, sizeof(DROID)),
 
   if (psDroid)
     RenderToButton(nullptr, 0, psDroid, psDroid->player, Buffer, Down, IMDTYPE_DROID,TOPBUTTON);

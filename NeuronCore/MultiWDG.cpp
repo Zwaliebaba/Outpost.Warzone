@@ -47,12 +47,15 @@ void wdgMultiShutdown(void)
     psNext = psWDGCache->psNext;
 
     // free the file catalogs
-    for (i = 0; i < psWDGCache->numWRF; i++) { if (psWDGCache->apsWRFFileCatalog[i]) { FREE(psWDGCache->apsWRFFileCatalog[i]); } }
-    FREE(psWDGCache->apsWRFFileCatalog);
+    for (i = 0; i < psWDGCache->numWRF; i++) { if (psWDGCache->apsWRFFileCatalog[i]) { delete[] psWDGCache->apsWRFFileCatalog[i]; } }
+    delete[] psWDGCache->apsWRFFileCatalog;
+    psWDGCache->apsWRFFileCatalog = nullptr;
 
     // free the WRF catalog
-    FREE(psWDGCache->asWRFCatalog);
-    FREE(psWDGCache);
+    delete[] psWDGCache->asWRFCatalog;
+    psWDGCache->asWRFCatalog = nullptr;
+    delete[] psWDGCache;
+    psWDGCache = nullptr;
 
     psWDGCache = psNext;
   }
@@ -122,7 +125,7 @@ BOOL wdgCheckDependancies(void)
         sprintf(aText, "%s requires the following .wdg to load:\n\n", psCheck->aFileName);
         for (i = 0; i < psCheck->numDep; i++)
           sprintf(aText + strlen(aText), "    %s.wdg\n", psCheck->asDep[i].aName);
-        DBERROR((aText));
+        Neuron::Fatal(aText);
         return FALSE;
       }
     }
@@ -170,14 +173,14 @@ BOOL wdgLoadAdditionalHeader(FILE* pFileHandle, WDGCACHE* psCache)
   BytesRead = DISK_ReadPos(0, &Header, sizeof(WDG_HEADER_V5), pFileHandle);
   if (BytesRead != sizeof(WDG_HEADER_V5))
   {
-    DBERROR(("wdgLoadAdditionalHeader unable to read from %s\n",psCache->aFileName));
+    Neuron::Fatal("wdgLoadAdditionalHeader unable to read from {}\n",psCache->aFileName);
     return FALSE;
   }
 
   // right, we read in the header now check the values to make sure its okay
   if (Header.WDGid[0] != 'W' || Header.WDGid[1] != 'D' || Header.WDGid[2] != 'G')
   {
-    DBERROR(("wdgLoadAdditionalHeader bad type of wdg file - %s\n",psCache->aFileName));
+    Neuron::Fatal("wdgLoadAdditionalHeader bad type of wdg file - {}\n",psCache->aFileName);
     return FALSE;
   }
 
@@ -197,7 +200,7 @@ BOOL wdgLoadAdditionalHeader(FILE* pFileHandle, WDGCACHE* psCache)
   BytesRead = DISK_ReadPos(sizeof(WDG_HEADER_V5), psCache->asDep, sizeof(WDG_DEP)*Header.numDep, pFileHandle);
   if (BytesRead != sizeof(WDG_DEP) * Header.numDep)
   {
-    DBERROR(("wdgLoadAdditionalHeader unable to read from %s\n",psCache->aFileName));
+    Neuron::Fatal("wdgLoadAdditionalHeader unable to read from {}\n",psCache->aFileName);
     return FALSE;
   }
 
@@ -215,10 +218,10 @@ BOOL wdgLoadCompleteCatalog(char* pWDGName)
   FILE* pFileHandle;
 
   // allocate the cache structure
-  psNew = static_cast<WDGCACHE*>(MALLOC(sizeof(WDGCACHE)));
+  psNew = new (std::nothrow) WDGCACHE[1];
   if (psNew == nullptr)
   {
-    DBERROR(("wdgLoadCompleteCatalog: out of memory"));
+    Neuron::Fatal("wdgLoadCompleteCatalog: out of memory");
     return FALSE;
   }
   strcpy(psNew->aFileName, pWDGName);
@@ -226,24 +229,24 @@ BOOL wdgLoadCompleteCatalog(char* pWDGName)
   // load the WDGINFO
   if (!WDG_SetCurrentWDG(pWDGName))
   {
-    DBERROR(("wdgLoadCompleteCatalog: could not set %s as Current WDG", pWDGName));
+    Neuron::Fatal("wdgLoadCompleteCatalog: could not set {} as Current WDG", pWDGName);
     return FALSE;
   }
 
   // get the WRF catalog
   WDG_GetCurrentWDGCatalog(&pWDGName, &numWRF, &psCat);
   psNew->numWRF = numWRF;
-  psNew->asWRFCatalog = static_cast<WDGINFO*>(MALLOC(sizeof(WDGINFO) * numWRF));
+  psNew->asWRFCatalog = new (std::nothrow) WDGINFO[numWRF];
   if (psNew->asWRFCatalog == nullptr)
   {
-    DBERROR(("wdgLoadCompleteCatalog: out of memory"));
+    Neuron::Fatal("wdgLoadCompleteCatalog: out of memory");
     return FALSE;
   }
   memcpy(psNew->asWRFCatalog, psCat, sizeof(WDGINFO) * numWRF);
-  psNew->apsWRFFileCatalog = static_cast<WRFINFO**>(MALLOC(sizeof(WRFINFO *) * numWRF));
+  psNew->apsWRFFileCatalog = new (std::nothrow) WRFINFO*[numWRF];
   if (psNew->apsWRFFileCatalog == nullptr)
   {
-    DBERROR(("wdgLoadCompleteCatalog: out of memory"));
+    Neuron::Fatal("wdgLoadCompleteCatalog: out of memory");
     return FALSE;
   }
   memset(psNew->apsWRFFileCatalog, 0, sizeof(WRFINFO*) * numWRF);
@@ -252,7 +255,7 @@ BOOL wdgLoadCompleteCatalog(char* pWDGName)
   pFileHandle = fopen(pWDGName, "rb");
   if (pFileHandle == nullptr)
   {
-    DBERROR(("wdgLoadCompleteCatalog: could not open %s", pWDGName));
+    Neuron::Fatal("wdgLoadCompleteCatalog: could not open {}", pWDGName);
     return FALSE;
   }
   if (!wdgLoadAdditionalHeader(pFileHandle, psNew))
@@ -269,14 +272,14 @@ BOOL wdgLoadCompleteCatalog(char* pWDGName)
 
     if (!LoadWRFCatalog(psCat + i, pFileHandle))
     {
-      DBERROR(("wdgLoadCompleteCatalog: could not read file catalog for WRF number %d", i));
+      Neuron::Fatal("wdgLoadCompleteCatalog: could not read file catalog for WRF number {}", i);
       fclose(pFileHandle);
       return FALSE;
     }
-    psNew->apsWRFFileCatalog[i] = static_cast<WRFINFO*>(MALLOC(sizeof(WRFINFO) * psCat[i].filecount));
+    psNew->apsWRFFileCatalog[i] = new (std::nothrow) WRFINFO[psCat[i].filecount];
     if (psNew->apsWRFFileCatalog[i] == nullptr)
     {
-      DBERROR(("wdgLoadCompleteCatalog: out of memory"));
+      Neuron::Fatal("wdgLoadCompleteCatalog: out of memory");
       fclose(pFileHandle);
       return FALSE;
     }
@@ -287,7 +290,7 @@ BOOL wdgLoadCompleteCatalog(char* pWDGName)
 
   if (fclose(pFileHandle) != 0)
   {
-    DBERROR(("wdgLoadCompleteCatalog: failed to close WDG %s", pWDGName));
+    Neuron::Fatal("wdgLoadCompleteCatalog: failed to close WDG {}", pWDGName);
     fclose(pFileHandle);
     return FALSE;
   }
@@ -490,7 +493,7 @@ BOOL wdgGetFileFromOtherWDG(UDWORD WRFname, UDWORD type, UDWORD FileName, WRFINF
   pOtherWDG = fopen(sFindFile.psCurrCache->aFileName, "rb");
   if (pOtherWDG == nullptr)
   {
-    DBERROR(("wdgGetFileFromOtherWDG: unable to open %s\n",sFindFile.psCurrCache->aFileName));
+    Neuron::Fatal("wdgGetFileFromOtherWDG: unable to open {}\n",sFindFile.psCurrCache->aFileName);
     return FALSE;
   }
 

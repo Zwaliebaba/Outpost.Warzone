@@ -149,7 +149,7 @@ initError:
 
   g_iError = QSOUND(GetLastError());
   QSOUND(GetErrorText( g_iError, g_szErrMsg, MAX_STR ));
-  DBPRINTF(("sound_InitLibrary: %s", g_szErrMsg));
+  Neuron::DebugTrace("sound_InitLibrary: {}", g_szErrMsg);
   return FALSE;
 }
 
@@ -161,7 +161,7 @@ void sound_ShutdownLibrary(void)
   {
     g_iError = QSOUND(GetLastError());
     QSOUND(GetErrorText( g_iError, g_szErrMsg, MAX_STR ));
-    DBPRINTF(("sound_ShutdownLibrary: %s", g_szErrMsg));
+    Neuron::DebugTrace("sound_ShutdownLibrary: {}", g_szErrMsg);
   }
 }
 
@@ -182,7 +182,7 @@ static void sound_SaveTrackData(TRACK* psTrack, QMIXWAVEPARAMS* psQMixParams, LP
   psTrack->iTime = psMixWave->wh.dwBufferLength * 1000 / g_qMixConfig.dwSamplingRate + 1;
 
   /* add to riff data list */
-  psRiffData = static_cast<RIFFDATA*>(MALLOC(sizeof(RIFFDATA)));
+  psRiffData = new (std::nothrow) RIFFDATA[1];
   psRiffData->pWaveFormat = (WAVEFORMATEX*)psQMixParams->Resident.Format;
   psRiffData->pubData = (UBYTE*)psQMixParams->Resident.Data;
   psRiffData->psMixWave = psMixWave;
@@ -209,7 +209,7 @@ BOOL sound_ReadTrackFromFile(TRACK* psTrack, char szFileName[])
   }
   g_iError = QSOUND(GetLastError());
   QSOUND(GetErrorText( g_iError, g_szErrMsg, MAX_STR ));
-  DBERROR(("sound_LoadTrackFromFile: %s", g_szErrMsg));
+  Neuron::Fatal("sound_LoadTrackFromFile: {}", g_szErrMsg);
   return FALSE;
 }
 
@@ -258,7 +258,8 @@ static BOOL sound_ReadRiffMemResFile(QMIXWAVEPARAMS* pQMixParams, void* pBuffer,
   if (mmioDescend(hmmio, &formatChunk, &waveChunk, MMIO_FINDCHUNK))
     return FALSE;
 
-  pQMixParams->Resident.Format = static_cast<WAVEFORMATEX*>(MALLOC(formatChunk.cksize));
+  // the format chunk is WAVEFORMATEX plus a variable tail, so it is read as bytes
+  pQMixParams->Resident.Format = (WAVEFORMATEX*)new (std::nothrow) UBYTE[formatChunk.cksize];
   if (mmioRead(hmmio, (char*)pQMixParams->Resident.Format, formatChunk.cksize) != static_cast<LONG>(formatChunk.cksize))
     return FALSE;
 
@@ -272,7 +273,7 @@ static BOOL sound_ReadRiffMemResFile(QMIXWAVEPARAMS* pQMixParams, void* pBuffer,
     return FALSE;
 
   pQMixParams->Resident.Bytes = dataChunk.cksize;
-  pQMixParams->Resident.Data = static_cast<HPSTR>(MALLOC(dataChunk.cksize));
+  pQMixParams->Resident.Data = (HPSTR)new (std::nothrow) UBYTE[dataChunk.cksize];
 
   if (mmioRead(hmmio, pQMixParams->Resident.Data, dataChunk.cksize) != static_cast<LONG>(dataChunk.cksize))
     return FALSE;
@@ -303,7 +304,7 @@ BOOL sound_ReadTrackFromBuffer(TRACK* psTrack, void* pBuffer, UDWORD udwSize)
   }
   g_iError = QSOUND(GetLastError());
   QSOUND(GetErrorText( g_iError, g_szErrMsg, MAX_STR ));
-  DBERROR(("sound_ReadTrackFromBuffer: %s", g_szErrMsg));
+  Neuron::Fatal("sound_ReadTrackFromBuffer: {}", g_szErrMsg);
   return FALSE;
 }
 
@@ -313,9 +314,9 @@ void sound_FreeTrack(TRACK* psTrack)
 {
   auto psRiffData = static_cast<RIFFDATA*>(psTrack->pMem);
 
-  if (!PTRVALID(psRiffData, sizeof(RIFFDATA)))
+  if (psRiffData == nullptr)
   {
-    DBPRINTF(("sound_FreeTrack: invalid data pointer"));
+    Neuron::DebugTrace("sound_FreeTrack: invalid data pointer");
     return;
   }
 
@@ -324,14 +325,15 @@ void sound_FreeTrack(TRACK* psTrack)
   {
     g_iError = QSOUND(GetLastError());
     QSOUND(GetErrorText( g_iError, g_szErrMsg, MAX_STR ));
-    DBPRINTF(("sound_FreeTrack: %s", g_szErrMsg));
+    Neuron::DebugTrace("sound_FreeTrack: {}", g_szErrMsg);
   }
 
-  if (psRiffData->pWaveFormat != nullptr) { FREE(psRiffData->pWaveFormat); }
+  if (psRiffData->pWaveFormat != nullptr) { delete[] (UBYTE*)psRiffData->pWaveFormat; }
 
-  if (psRiffData->pubData != nullptr) { FREE(psRiffData->pubData); }
+  if (psRiffData->pubData != nullptr) { delete[] psRiffData->pubData; }
 
-  FREE(psRiffData);
+  delete[] psRiffData;
+  psRiffData = nullptr;
 }
 
 /***************************************************************************/
@@ -396,7 +398,7 @@ playError:
 
   g_iError = QSOUND(GetLastError());
   QSOUND(GetErrorText( g_iError, g_szErrMsg, MAX_STR ));
-  DBPRINTF(("sound_Play2DSample: %s", g_szErrMsg));
+  Neuron::DebugTrace("sound_Play2DSample: {}", g_szErrMsg);
   return FALSE;
 }
 
@@ -478,7 +480,7 @@ streamError:
 
   g_iError = QSOUND(GetLastError());
   QSOUND(GetErrorText( g_iError, g_szErrMsg, MAX_STR ));
-  DBPRINTF(("sound_PlayStream: %s", g_szErrMsg));
+  Neuron::DebugTrace("sound_PlayStream: {}", g_szErrMsg);
   return FALSE;
 }
 
@@ -492,7 +494,7 @@ void sound_StopSample(SDWORD iSample)
   {
     g_iError = QSOUND(GetLastError());
     QSOUND(GetErrorText( g_iError, g_szErrMsg, MAX_STR ));
-    DBPRINTF(("sound_StopSample: %s", g_szErrMsg));
+    Neuron::DebugTrace("sound_StopSample: {}", g_szErrMsg);
   }
 }
 
@@ -506,7 +508,7 @@ void sound_SetSamplePan(AUDIO_SAMPLE* psSample, int iPan)
   {
     g_iError = QSOUND(GetLastError());
     QSOUND(GetErrorText( g_iError, g_szErrMsg, MAX_STR ));
-    DBPRINTF(("sound_SetSamplePan: %s", g_szErrMsg));
+    Neuron::DebugTrace("sound_SetSamplePan: {}", g_szErrMsg);
   }
 }
 
@@ -519,7 +521,7 @@ void sound_SetSampleVol(AUDIO_SAMPLE* psSample, SDWORD iVol, BOOL bScale3D)
   {
     g_iError = QSOUND(GetLastError());
     QSOUND(GetErrorText( g_iError, g_szErrMsg, MAX_STR ));
-    DBPRINTF(("sound_SetSampleVol: sample %i %s\n", psSample->iSample, g_szErrMsg));
+    Neuron::DebugTrace("sound_SetSampleVol: sample {} {}\n", psSample->iSample, g_szErrMsg);
   }
 }
 
@@ -532,7 +534,7 @@ void sound_SetSampleVolAll(int iVol)
   {
     g_iError = QSOUND(GetLastError());
     QSOUND(GetErrorText( g_iError, g_szErrMsg, MAX_STR ));
-    DBPRINTF(("sound_SetSampleVolAll: %s", g_szErrMsg));
+    Neuron::DebugTrace("sound_SetSampleVolAll: {}", g_szErrMsg);
   }
 }
 
@@ -551,7 +553,7 @@ void sound_SetPlayerPos(SDWORD iX, SDWORD iY, SDWORD iZ)
   {
     g_iError = QSOUND(GetLastError());
     QSOUND(GetErrorText( g_iError, g_szErrMsg, MAX_STR ));
-    DBPRINTF(("sound_SetPlayerPos: %s", g_szErrMsg));
+    Neuron::DebugTrace("sound_SetPlayerPos: {}", g_szErrMsg);
   }
 }
 
@@ -576,7 +578,7 @@ void sound_SetPlayerOrientation(SDWORD iX, SDWORD iY, SDWORD iZ)
   {
     g_iError = QSOUND(GetLastError());
     QSOUND(GetErrorText( g_iError, g_szErrMsg, MAX_STR ));
-    DBPRINTF(("sound_SetPlayerOrientation: %s", g_szErrMsg));
+    Neuron::DebugTrace("sound_SetPlayerOrientation: {}", g_szErrMsg);
   }
 }
 
@@ -595,7 +597,7 @@ void sound_SetObjectPosition(SDWORD iSample, SDWORD iX, SDWORD iY, SDWORD iZ)
   {
     g_iError = QSOUND(GetLastError());
     QSOUND(GetErrorText( g_iError, g_szErrMsg, MAX_STR ));
-    DBPRINTF(("sound_SetObjectPosition: sample %i %s\n", iSample, g_szErrMsg));
+    Neuron::DebugTrace("sound_SetObjectPosition: sample {} {}\n", iSample, g_szErrMsg);
   }
 }
 
@@ -609,7 +611,7 @@ void sound_PauseSample(AUDIO_SAMPLE* psSample)
   {
     g_iError = QSOUND(GetLastError());
     QSOUND(GetErrorText( g_iError, g_szErrMsg, MAX_STR ));
-    DBPRINTF(("sound_PauseSample: %s", g_szErrMsg));
+    Neuron::DebugTrace("sound_PauseSample: {}", g_szErrMsg);
   }
 }
 
@@ -623,7 +625,7 @@ void sound_ResumeSample(AUDIO_SAMPLE* psSample)
   {
     g_iError = QSOUND(GetLastError());
     QSOUND(GetErrorText( g_iError, g_szErrMsg, MAX_STR ));
-    DBPRINTF(("sound_ResumeSample: %s", g_szErrMsg));
+    Neuron::DebugTrace("sound_ResumeSample: {}", g_szErrMsg);
   }
 }
 
@@ -636,7 +638,7 @@ void sound_PauseAll(void)
   {
     g_iError = QSOUND(GetLastError());
     QSOUND(GetErrorText( g_iError, g_szErrMsg, MAX_STR ));
-    DBPRINTF(("sound_PauseAll: %s", g_szErrMsg));
+    Neuron::DebugTrace("sound_PauseAll: {}", g_szErrMsg);
   }
 
   /* don't pause streaming channel */
@@ -645,7 +647,7 @@ void sound_PauseAll(void)
   {
     g_iError = QSOUND(GetLastError());
     QSOUND(GetErrorText( g_iError, g_szErrMsg, MAX_STR ));
-    DBPRINTF(("sound_PauseAll: %s", g_szErrMsg));
+    Neuron::DebugTrace("sound_PauseAll: {}", g_szErrMsg);
   }
 }
 
@@ -658,7 +660,7 @@ void sound_ResumeAll(void)
   {
     g_iError = QSOUND(GetLastError());
     QSOUND(GetErrorText( g_iError, g_szErrMsg, MAX_STR ));
-    DBPRINTF(("sound_ResumeAll: %s", g_szErrMsg));
+    Neuron::DebugTrace("sound_ResumeAll: {}", g_szErrMsg);
   }
 }
 
@@ -672,7 +674,7 @@ void sound_StopAll(void)
   {
     g_iError = QSOUND(GetLastError());
     QSOUND(GetErrorText( g_iError, g_szErrMsg, MAX_STR ));
-    DBPRINTF(("sound_StopAll: %s", g_szErrMsg));
+    Neuron::DebugTrace("sound_StopAll: {}", g_szErrMsg);
   }
 }
 
@@ -697,7 +699,7 @@ LPDIRECTSOUND sound_GetDirectSoundObj(void)
   {
     g_iError = QSOUND(GetLastError());
     QSOUND(GetErrorText( g_iError, g_szErrMsg, MAX_STR ));
-    DBPRINTF(("sound_GetDirectSoundObj: %s", g_szErrMsg));
+    Neuron::DebugTrace("sound_GetDirectSoundObj: {}", g_szErrMsg);
     return nullptr;
   }
   return pDirectSound;

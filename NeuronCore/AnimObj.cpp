@@ -19,10 +19,6 @@
  */
 #define	ANIM_HASH_TABLE_SIZE	499
 
-/* Allocation sizes for the anim heap */
-#define ANIM_INIT				10
-#define ANIM_EXT				5
-
 /***************************************************************************/
 /* global variables */
 
@@ -86,9 +82,7 @@ static UINT animObj_HashFunction(int iKey1, int iKey2) { return (iKey1 + iKey2) 
 
 static void animObj_HashFreeElementFunc(void* psElement)
 {
-  auto psObj = static_cast<ANIM_OBJECT*>(psElement);
-
-  DEBUG_ASSERT_TEXT(PTRVALID(psObj, sizeof(ANIM_OBJECT)), "animObj_HashFreeElementFunc: object pointer invalid\n");
+  (void)psElement;
 }
 
 /***************************************************************************/
@@ -128,7 +122,7 @@ void animObj_Update(void)
     if (bRemove == TRUE)
     {
       if (hashTable_RemoveElement(g_pAnimObjTable, psObj, (int)psObj->psParent, psObj->psAnim->uwID) == FALSE)
-        DBERROR(("animObj_Update: couldn't remove anim obj\n"));
+        Neuron::Fatal("animObj_Update: couldn't remove anim obj\n");
     }
 
     psObj = static_cast<ANIM_OBJECT*>(hashTable_GetNext(g_pAnimObjTable));
@@ -156,7 +150,7 @@ ANIM_OBJECT* animObj_Add(void* pParentObj, int iAnimID, UDWORD udwStartDelay, UW
 
   if (psObj == nullptr)
   {
-    DBERROR(("animObj_Add: No room in hash table\n"));
+    Neuron::Fatal("animObj_Add: No room in hash table\n");
     return (nullptr);
   }
 
@@ -177,7 +171,7 @@ ANIM_OBJECT* animObj_Add(void* pParentObj, int iAnimID, UDWORD udwStartDelay, UW
     uwObj = psAnim->uwStates;
 
   if (uwObj > ANIM_MAX_COMPONENTS)
-    DBERROR(("animObj_Add: number of components too small\n"));
+    Neuron::Fatal("animObj_Add: number of components too small\n");
 
   /* set parent pointer and shape pointer */
   for (i = 0; i < uwObj; i++)
@@ -217,8 +211,6 @@ ANIM_OBJECT* animObj_GetFirst(void)
   ANIM_OBJECT* psObj;
 
   psObj = static_cast<ANIM_OBJECT*>(hashTable_GetFirst(g_pAnimObjTable));
-
-  DEBUG_ASSERT_TEXT(psObj == NULL || PTRVALID(psObj, sizeof(ANIM_OBJECT)), "animObj_GetFirst: object pointer not valid\n");
 
   return psObj;
 }

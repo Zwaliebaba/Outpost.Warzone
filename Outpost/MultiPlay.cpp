@@ -115,7 +115,7 @@ BOOL turnOffMultiMsg(BOOL bDoit)
   if (bDoit) // turn off msgs.
   {
     if (bTemp == TRUE)
-      DBPRINTF(("\nturnoffmultimsg: multiple calls to turn off msging. \n"));
+      Neuron::DebugTrace("\nturnoffmultimsg: multiple calls to turn off msging. \n");
     if (bMultiPlayer)
     {
       bMultiPlayer = FALSE;
@@ -140,8 +140,8 @@ BOOL multiplayerWinSequence(BOOL firstCall)
   static iVector pos;
   iVector pos2;
   static UDWORD last = 0;
-  FRACT fraction;
-  FRACT rotAmount;
+  float fraction;
+  float rotAmount;
   STRUCTURE* psStruct;
 
   if (firstCall)
@@ -166,9 +166,9 @@ BOOL multiplayerWinSequence(BOOL firstCall)
   // rotate world
   if (!getWarCamStatus())
   {
-    fraction = MAKEFRACT(frameTime) / GAME_TICKS_PER_SEC;
+    fraction = static_cast<float>(frameTime) / GAME_TICKS_PER_SEC;
     rotAmount = fraction * MAP_SPIN_RATE / 12;
-    player.r.y += MAKEINT(rotAmount);
+    player.r.y += std::lrintf(rotAmount);
   }
 
   if (last > gameTime)
@@ -345,7 +345,7 @@ DROID_TEMPLATE* IdToTemplate(UDWORD tempId, UDWORD player)
   else
   {
     // REALLY DANGEROUS!!! ID's are NOT assumed to be unique for TEMPLATES.
-    DBPRINTF(("Really Dodgy Check performed for a template"));
+    Neuron::DebugTrace("Really Dodgy Check performed for a template");
     for (i = 0; i < MAX_PLAYERS; i++)
     {
       for (psTempl = apsDroidTemplates[i]; // follow templates
@@ -481,7 +481,7 @@ UDWORD whosResponsible(UDWORD player)
     }
   }
   if (c == ANYPLAYER)
-    DBPRINTF(("failed to find a player for %d \n",player));
+    Neuron::DebugTrace("failed to find a player for {} \n",player);
   return c;
 }
 
@@ -1052,7 +1052,7 @@ BOOL sendTemplate(DROID_TEMPLATE* pTempl)
   if (pTempl == nullptr)
   {
 #ifdef DEBUG
-    DBERROR(("sendTemplate: TELL ALEXL NOW!!!THIS IS THE BUG THAT ISNT FIXED!!!"));
+    Neuron::Fatal("sendTemplate: TELL ALEXL NOW!!!THIS IS THE BUG THAT ISNT FIXED!!!");
 #endif
     return TRUE;
   }
@@ -1078,7 +1078,7 @@ BOOL recvTemplate(NETMSG* m)
   if (m->size < sizeof(DROID_TEMPLATE))
   {
 #ifdef DEBUG
-    DBERROR(("recvTemplate: invalid template recvd. THIS IS THE BUG THAT ISNT FIXED!!!"));
+    Neuron::Fatal("recvTemplate: invalid template recvd. THIS IS THE BUG THAT ISNT FIXED!!!");
 #endif
     return TRUE;
   }
@@ -1163,7 +1163,7 @@ BOOL recvDestroyTemplate(NETMSG* m)
       psTempPrev->psNext = psTempl->psNext; // It's down the list somewhere ?
     else
       apsDroidTemplates[player] = psTempl->psNext; // It's at the root ?	
-    HEAP_FREE(psTemplateHeap, psTempl); // Delete the template.
+    delete psTempl; // Delete the template.
   }
   return (TRUE);
 }
@@ -1376,7 +1376,8 @@ BOOL recvMapFileData(NETMSG* pMsg)
         return FALSE;
       if (!levParse(pBuffer, size))
         return FALSE;
-      FREE(pBuffer);
+      delete[] pBuffer;
+      pBuffer = nullptr;
       wdgFindFirstFileRev(HashStringIgnoreCase("MISCDATA"), HashString("MISCDATA"), HashStringIgnoreCase("addon.lev"), &sFindFile);
 
       while (sFindFile.psCurrCache != nullptr)
@@ -1385,7 +1386,8 @@ BOOL recvMapFileData(NETMSG* pMsg)
           return FALSE;
         if (!levParse(pBuffer, size))
           return FALSE;
-        FREE(pBuffer);
+        delete[] pBuffer;
+        pBuffer = nullptr;
 
         wdgFindNextFileRev(&sFindFile);
       }

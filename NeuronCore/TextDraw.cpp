@@ -911,14 +911,14 @@ void pie_DrawTextToSurface(LPDIRECTDRAWSURFACE4 lpDDSF, unsigned char* String, i
   DD_sd.dwSize = sizeof(DD_sd);
   if (lpDDSF->lpVtbl->GetSurfaceDesc(lpDDSF, &DD_sd) != DD_OK)
   {
-    DBERROR(("Sequence player text GetSurfaceDesc failed:"));
+    Neuron::Fatal("Sequence player text GetSurfaceDesc failed:");
     return;
   }
 
   hRes = lpDDSF->lpVtbl->Lock(lpDDSF, nullptr, &DD_sd,DDLOCK_WAIT, nullptr);
   if (hRes != DD_OK)
   {
-    DBERROR(("Sequence player text draw buffer lock failed:\n%s", DDErrorToString(hRes)));
+    Neuron::Fatal("Sequence player text draw buffer lock failed:\n{}", DDErrorToString(hRes));
     return;
   }
 

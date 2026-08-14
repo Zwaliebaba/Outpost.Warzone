@@ -13,9 +13,6 @@
 #define _treap_h
 
 #include "Types.h"
-#include "LegacyDebug.h"
-#include "Mem.h"
-#include "Heap.h"
 
 /* Turn on and off the treap debugging */
 #ifdef DEBUG
@@ -59,7 +56,6 @@ using TREAP_NODE = struct _treap_node
 using TREAP = struct _treap
 {
   TREAP_CMP cmp; // comparison function
-  OBJ_HEAP* psNodes; // node heap
   TREAP_NODE* psRoot; // root of the tree
 
 #if DEBUG_TREAP
@@ -73,7 +69,7 @@ using TREAP = struct _treap
 /*                                                                                      */
 /*      These should not be called directly - use the macros below                      */
 
-/* Store the location in C code at which a call to the heap was made */
+/* Store the location in C code at which a call to the treap was made */
 extern void treapSetCallPos(STRING* pFileName, SDWORD lineNumber);
 
 /* Function type for object equality */

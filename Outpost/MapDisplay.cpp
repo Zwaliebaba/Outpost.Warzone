@@ -106,7 +106,7 @@ iSurface* setUpMapSurface(UDWORD width, UDWORD height)
     before resetting the game back to init/close */
 
   /* Get the required memory for the render surface */
-  bufSpace = MALLOC(width*height);
+  bufSpace = new (std::nothrow) UBYTE[width*height];
 
   //initialise the buffer
   memset(bufSpace, 0, (width * height));
@@ -133,8 +133,9 @@ void releaseMapSurface(iSurface* pSurface)
   if (pSurface != nullptr)
   {
     /* Free up old buffer if necessary */
-    if (pSurface->buffer != nullptr) { FREE(pSurface->buffer); }
-    FREE(pSurface);
+    if (pSurface->buffer != nullptr) { delete[] pSurface->buffer; }
+    delete[] pSurface;
+    pSurface = nullptr;
   }
 }
 

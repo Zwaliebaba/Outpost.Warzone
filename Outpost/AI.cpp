@@ -572,8 +572,6 @@ void aiUpdateDroid(DROID* psDroid)
   SDWORD state;
   BOOL lookForTarget;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psDroid, sizeof(DROID)), "updateUnitAI: invalid Unit pointer");
-
   lookForTarget = TRUE;
   // don't look for a target if sulking
   if (psDroid->action == DACTION_SULK)
@@ -631,7 +629,6 @@ void aiUpdateDroid(DROID* psDroid)
       orderDroidObj(psDroid, DORDER_OBSERVE, psTarget);
     else
       orderDroidObj(psDroid, DORDER_ATTACKTARGET, psTarget);
-    DBP1(("Unit(%s) attacking : %d\n", psDroid->pName, psTarget->id));
     turnOffMultiMsg(FALSE);
   }
 }

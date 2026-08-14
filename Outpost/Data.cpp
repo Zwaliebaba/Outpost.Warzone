@@ -366,7 +366,6 @@ BOOL bufferSTEMPWEAPLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
 		return FALSE;
 	}
 
-
 	//not interested in this value
 	*ppData = NULL;
 	return TRUE;
@@ -534,7 +533,6 @@ BOOL bufferRPREREQLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
 		return FALSE;
 	}
 
-
 	//not interested in this value
 	*ppData = NULL;
 	return TRUE;
@@ -639,7 +637,7 @@ BOOL dataIMDLoad(STRING* pFile, void** ppData)
   iIMDShape* psIMD = iV_IMDLoad(pFile,FALSE);
   if (psIMD == nullptr)
   {
-    DBERROR(("Please check that both file %s and it's texture file are present", pFile));
+    Neuron::Fatal("Please check that both file {} and it's texture file are present", pFile);
     return FALSE;
   }
 
@@ -677,7 +675,7 @@ BOOL dataIMDBufferLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
 #endif
     if (psIMD == nullptr)
     {
-      DBERROR(("IMD load failed - %s", GetLastResourceFilename()));
+      Neuron::Fatal("IMD load failed - {}", GetLastResourceFilename());
       return FALSE;
     }
   }
@@ -689,7 +687,7 @@ BOOL dataIMDBufferLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
 #endif
     if (psIMD == nullptr)
     {
-      DBERROR(("BinaryPIE load failed - %s",GetLastResourceFilename() ));
+      Neuron::Fatal("BinaryPIE load failed - {}",GetLastResourceFilename() );
       return (FALSE);
     }
   }
@@ -704,14 +702,15 @@ BOOL dataIMGPAGELoad(UBYTE* pBuffer, UDWORD size, void** ppData)
 {
   UNUSEDPARAMETER(size);
 
-  auto psSprite = static_cast<iSprite*>(MALLOC(sizeof(iSprite)));
+  auto psSprite = new (std::nothrow) iSprite[1];
   if (!psSprite)
     return FALSE;
 
   if (!iV_PCXLoadMem((int8*)(SBYTE*)pBuffer, psSprite, nullptr))
   {
-    DBERROR(("IMGPAGE load failed"));
-    FREE(psSprite);
+    Neuron::Fatal("IMGPAGE load failed");
+    delete[] psSprite;
+    psSprite = nullptr;
     return FALSE;
   }
 
@@ -723,8 +722,10 @@ BOOL dataIMGPAGELoad(UBYTE* pBuffer, UDWORD size, void** ppData)
 void dataIMGPAGERelease(void* pData)
 {
   auto psSprite = static_cast<iSprite*>(pData);
-  FREE(psSprite->bmp);
-  FREE(psSprite);
+  delete[] psSprite->bmp;
+  psSprite->bmp = nullptr;
+  delete[] psSprite;
+  psSprite = nullptr;
 }
 
 // Tertiles loader. This version for software renderer.
@@ -741,7 +742,8 @@ void dataTERTILESRelease(void* pData)
   auto psSprite = static_cast<iSprite*>(pData);
 
   freeTileTextures();
-  FREE(psSprite->bmp);
+  delete[] psSprite->bmp;
+  psSprite->bmp = nullptr;
   bTilesPCXLoaded = FALSE;
 }
 
@@ -753,20 +755,20 @@ BOOL dataHWTERTILESLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
   // tile loader.
   if (bTilesPCXLoaded)
   {
-    DBPRINTF(("Reloading terrain tiles\n"));
+    Neuron::DebugTrace("Reloading terrain tiles\n");
 
     if (!pie_PCXLoadMemToBuffer((int8*)(SBYTE*)pBuffer, &tilesPCX, nullptr))
     {
-      DBERROR(("HWTERTILES reload failed"));
+      Neuron::Fatal("HWTERTILES reload failed");
       return FALSE;
     }
   }
   else
   {
-    DBPRINTF(("Loading terrain tiles\n"));
+    Neuron::DebugTrace("Loading terrain tiles\n");
     if (!iV_PCXLoadMem((int8*)(SBYTE*)pBuffer, &tilesPCX, nullptr))
     {
-      DBERROR(("HWTERTILES load failed"));
+      Neuron::Fatal("HWTERTILES load failed");
       return FALSE;
     }
   }
@@ -790,7 +792,7 @@ BOOL dataHWTERTILESLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
     bTilesPCXLoaded = TRUE;
     *ppData = &tilesPCX;
   }
-  DBPRINTF(("HW Tiles loaded\n"));
+  Neuron::DebugTrace("HW Tiles loaded\n");
   return TRUE;
 }
 
@@ -799,7 +801,8 @@ void dataHWTERTILESRelease(void* pData)
   auto psSprite = static_cast<iSprite*>(pData);
 
   freeTileTextures();
-  FREE(psSprite->bmp);
+  delete[] psSprite->bmp;
+  psSprite->bmp = nullptr;
   bTilesPCXLoaded = FALSE;
   pie_TexShutDown();
 }
@@ -841,7 +844,7 @@ BOOL bufferTexPageLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
   texfile[254] = 0;
   resToLower(texfile);
 
-  DBPRINTF(("%s texturepage ...\n",texfile));
+  Neuron::DebugTrace("{} texturepage ...\n",texfile);
 
   if (war_GetAdditive()) //(war_GetTranslucent())
   {
@@ -876,7 +879,7 @@ BOOL bufferTexPageLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
   SetLastResourceFilename(texfile);
   SetLastResourceHash(texfile);
 
-  DBPRINTF(("%s texturepage added (len=%d)\n",texfile,strlen(texfile)));
+  Neuron::DebugTrace("{} texturepage added (len={})\n",texfile,strlen(texfile));
 
   // see if this texture page has already been loaded
   if (resPresent("TEXPAGE", texfile))
@@ -888,24 +891,25 @@ BOOL bufferTexPageLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
   }
   else
   {
-    auto NewTexturePage = static_cast<TEXTUREPAGE*>(MALLOC(sizeof(TEXTUREPAGE)));
+    auto NewTexturePage = new (std::nothrow) TEXTUREPAGE[1];
     if (!NewTexturePage)
       return FALSE;
 
     NewTexturePage->Texture = nullptr;
     NewTexturePage->Palette = nullptr;
 
-    auto psPal = static_cast<iPalette*>(MALLOC(sizeof(iPalette)));
+    auto psPal = new (std::nothrow) iPalette[1];
     if (!psPal)
       return FALSE;
 
-    auto psSprite = static_cast<iSprite*>(MALLOC(sizeof(iSprite)));
+    auto psSprite = new (std::nothrow) iSprite[1];
     if (!psSprite)
       return FALSE;
 
     if (!iV_PCXLoadMem((int8*)(SBYTE*)pBuffer, psSprite, nullptr))
     {
-      FREE(psSprite);
+      delete[] psSprite;
+      psSprite = nullptr;
       return FALSE;
     }
 
@@ -955,8 +959,10 @@ void dataISpriteRelease(void* pData)
 {
   auto psSprite = static_cast<iSprite*>(pData);
 
-  FREE(psSprite->bmp);
-  FREE(psSprite);
+  delete[] psSprite->bmp;
+  psSprite->bmp = nullptr;
+  delete[] psSprite;
+  psSprite = nullptr;
 }
 
 /* Release a texPage */
@@ -971,13 +977,21 @@ void dataTexPageRelease(void* pData)
   if (Tpage->Texture != nullptr)
   {
     if (Tpage->Texture->bmp != nullptr)
-    FREE(Tpage->Texture->bmp);
-    FREE(Tpage->Texture);
+    {
+      delete[] Tpage->Texture->bmp;
+      Tpage->Texture->bmp = nullptr;
+    }
+    delete[] Tpage->Texture;
+    Tpage->Texture = nullptr;
   }
   if (Tpage->Palette != nullptr)
-  FREE(Tpage->Palette);
+  {
+    delete[] Tpage->Palette;
+    Tpage->Palette = nullptr;
+  }
 
-  FREE(pData);
+  delete[] pData;
+  pData = nullptr;
 }
 
 /* Load an audio file */
@@ -1007,10 +1021,9 @@ void dataAudioRelease(void* pData)
   {
     auto psTrack = static_cast<TRACK*>(pData);
 
-    DEBUG_ASSERT_TEXT(PTRVALID(psTrack, sizeof(TRACK)), "dataAudioRelease: invalid track pointer");
-
     audio_ReleaseTrack(psTrack);
-    FREE(psTrack);
+    delete[] psTrack;
+    psTrack = nullptr;
   }
 }
 
@@ -1086,23 +1099,19 @@ void dataStrResRelease(void* pData)
 BOOL dataScriptLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
 {
   SCRIPT_CODE* psProg = nullptr;
-  BLOCK_HEAP* psHeap;
   BOOL printHack = FALSE;
 
   calcCheatHash(pBuffer, size,CHEAT_SCRIPT);
 
 #ifndef NOSCRIPT
-  DBPRINTF(("COMPILING SCRIPT ...%s\n",GetLastResourceFilename()));
+  Neuron::DebugTrace("COMPILING SCRIPT ...{}\n",GetLastResourceFilename());
   // make sure the memory system uses normal malloc for a compile
-  psHeap = memGetBlockHeap();
-  memSetBlockHeap(nullptr);
 
   if (!scriptCompile(pBuffer, size, &psProg, SCRIPTTYPE)) // see script.h
   {
-    DBERROR(("Script %s did not compile", GetLastResourceFilename()));
+    Neuron::Fatal("Script {} did not compile", GetLastResourceFilename());
     return FALSE;
   }
-  memSetBlockHeap(psHeap);
 
   if (printHack)
     cpPrintProgram(psProg);
@@ -1123,7 +1132,7 @@ BOOL dataScriptLoadVals(UBYTE* pBuffer, UDWORD size, void** ppData)
   if (saveFlag)
     return TRUE;
 
-  DBPRINTF(("Loading script data %s\n",GetLastResourceFilename()));
+  Neuron::DebugTrace("Loading script data {}\n",GetLastResourceFilename());
 
   if (!scrvLoad(pBuffer, size))
     return FALSE;

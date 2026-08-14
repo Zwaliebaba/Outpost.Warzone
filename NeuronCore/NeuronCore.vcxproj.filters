@@ -1,25 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClInclude Include="Block.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
     <ClInclude Include="Cursor.h">
       <Filter>Framework</Filter>
     </ClInclude>
     <ClInclude Include="Dderror.h">
       <Filter>Framework</Filter>
     </ClInclude>
-    <ClInclude Include="LegacyDebug.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
     <ClInclude Include="DXInput.h">
       <Filter>Framework</Filter>
     </ClInclude>
     <ClInclude Include="Font.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="Fractions.h">
       <Filter>Framework</Filter>
     </ClInclude>
     <ClInclude Include="Frame.h">
@@ -31,9 +22,6 @@
     <ClInclude Include="FrameResource.h">
       <Filter>Framework</Filter>
     </ClInclude>
-    <ClInclude Include="Heap.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
     <ClInclude Include="Image.h">
       <Filter>Framework</Filter>
     </ClInclude>
@@ -41,15 +29,6 @@
       <Filter>Framework</Filter>
     </ClInclude>
     <ClInclude Include="ListMacs.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="Mem.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="MemInt.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="Mono.h">
       <Filter>Framework</Filter>
     </ClInclude>
     <ClInclude Include="MultiWDG.h">
@@ -86,9 +65,6 @@
       <Filter>Framework</Filter>
     </ClInclude>
     <ClInclude Include="Types.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="W95Trace.h">
       <Filter>Framework</Filter>
     </ClInclude>
     <ClInclude Include="WDG.h">
@@ -309,16 +285,10 @@
     <ClInclude Include="NeuronCore.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Block.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
     <ClCompile Include="Cursor.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
     <ClCompile Include="Dderror.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="LegacyDebug.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
     <ClCompile Include="DXInput.cpp">
@@ -328,9 +298,6 @@
       <Filter>Framework</Filter>
     </ClCompile>
     <ClCompile Include="Frame.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="Heap.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
     <ClCompile Include="Image.cpp">
@@ -345,12 +312,6 @@
     <ClCompile Include="MultiWDG.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
-    <ClCompile Include="Mono.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="Mem.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
     <ClCompile Include="resource_l.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
@@ -358,9 +319,6 @@
       <Filter>Framework</Filter>
     </ClCompile>
     <ClCompile Include="Trig.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="W95Trace.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
     <ClCompile Include="Treap.cpp">

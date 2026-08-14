@@ -155,16 +155,17 @@ void recvOptions(NETMSG* pMsg)
   if (strncmp((CHAR*)game.version, buildTime, 8) != 0)
   {
 #ifndef DEBUG
-    DBERROR(("Host is running a different version of Warzone2100."));
+    Neuron::Fatal("Host is running a different version of Warzone2100.");
 #endif
 #ifdef COVERMOUNT
-    DBERROR(("Warzone 2100 Demo is not compatible with the release version")); ExitProcess(4);
+    Neuron::Fatal("Warzone 2100 Demo is not compatible with the release version"); ExitProcess(4);
 #endif
   }
   if (ingame.numStructureLimits) // free old limits.
   {
     ingame.numStructureLimits = 0;
-    FREE(ingame.pStructureLimits);
+    delete[] ingame.pStructureLimits;
+    ingame.pStructureLimits = nullptr;
   }
 
   NetGet(pMsg, pos, player2dpid);
@@ -177,9 +178,9 @@ void recvOptions(NETMSG* pMsg)
   pos += sizeof(checkval);
   if (checkval != NEThashVal(NetPlay.cryptKey[0]))
   {
-    DBERROR(("Host Binary is different from this one. Cheating?"));
+    Neuron::Fatal("Host Binary is different from this one. Cheating?");
 #ifdef COVERMOUNT
-    DBERROR(("Warzone 2100 Demo is not compatible with the release version")); ExitProcess(4);
+    Neuron::Fatal("Warzone 2100 Demo is not compatible with the release version"); ExitProcess(4);
 #endif
   }
 
@@ -199,7 +200,7 @@ void recvOptions(NETMSG* pMsg)
   pos += sizeof(ingame.numStructureLimits);
   if (ingame.numStructureLimits)
   {
-    ingame.pStructureLimits = static_cast<UBYTE*>(MALLOC(ingame.numStructureLimits*(sizeof(UDWORD)+sizeof(UBYTE)))); // malloc some room
+    ingame.pStructureLimits = new (std::nothrow) UBYTE[ingame.numStructureLimits*(sizeof(UDWORD)+sizeof(UBYTE))]; // malloc some room
     memcpy(ingame.pStructureLimits, &(pMsg->body[pos]), ingame.numStructureLimits * (sizeof(UDWORD) + sizeof(UBYTE)));
   }
 
@@ -519,13 +520,15 @@ BOOL multiShutdown(VOID)
   {
     pF = Force.pMembers;
     Force.pMembers = pF->psNext;
-    FREE(pF);
+    delete[] pF;
+    pF = nullptr;
   }
 
   if (ingame.numStructureLimits)
   {
     ingame.numStructureLimits = 0;
-    FREE(ingame.pStructureLimits);
+    delete[] ingame.pStructureLimits;
+    ingame.pStructureLimits = nullptr;
   }
 
   return TRUE;
@@ -538,7 +541,8 @@ BOOL addTemplate(UDWORD player, DROID_TEMPLATE* psNew)
 {
   DROID_TEMPLATE* psTempl;
 
-  if (!HEAP_ALLOC(psTemplateHeap, &psTempl))
+  psTempl = new (std::nothrow) DROID_TEMPLATE;
+  if (psTempl == nullptr)
     return FALSE;
   memcpy(psTempl, psNew, sizeof(DROID_TEMPLATE));
 
@@ -575,7 +579,7 @@ BOOL copyTemplateSet(UDWORD from, UDWORD to)
   while (apsDroidTemplates[to]) // clear the old template out.
   {
     psTempl = apsDroidTemplates[to]->psNext;
-    HEAP_FREE(psTemplateHeap, apsDroidTemplates[to]);
+    delete apsDroidTemplates[to];
     apsDroidTemplates[to] = psTempl;
   }
 
@@ -782,7 +786,7 @@ BOOL cleanMap(UDWORD player)
 
   case CAMP_WALLS: //everything.
     break;
-  default: DBERROR(("Unknown Campaign Style"));
+  default: Neuron::Fatal("Unknown Campaign Style");
     break;
   }
 
@@ -820,7 +824,6 @@ static BOOL dMatchInit()
 
 	if(NetPlay.bHost)								// it's new.
 	{	
-
 	}
 	else
 	{
@@ -841,7 +844,6 @@ static BOOL dMatchInit()
 				removeStruct(apsStructLists[player]);
 			}
 		}
-
 	}
 	turnOffMultiMsg(FALSE);
 
@@ -1001,7 +1003,8 @@ BOOL multiGameShutdown(VOID)
   if (ingame.numStructureLimits)
   {
     ingame.numStructureLimits = 0;
-    FREE(ingame.pStructureLimits);
+    delete[] ingame.pStructureLimits;
+    ingame.pStructureLimits = nullptr;
   }
 
   ingame.localJoiningInProgress = FALSE; // clean up

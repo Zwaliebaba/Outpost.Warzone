@@ -28,13 +28,4 @@ extern BOOL campaignReset(void);
 // Reset the game when loading a save game
 extern BOOL saveGameReset(void);
 
-// the block heap for the game data
-extern BLOCK_HEAP* psGameHeap;
-
-// the block heap for the campaign map
-extern BLOCK_HEAP* psMapHeap;
-
-// the block heap for the pre WRF data
-extern BLOCK_HEAP* psMissionHeap;
-
 #endif

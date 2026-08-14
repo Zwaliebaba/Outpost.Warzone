@@ -49,13 +49,13 @@ UDWORD NEThashFile(STRING* pFileName)
 
   hashval = 0;
 
-  DBPRINTF(("NEThashFile: Hashing File\n"));
+  Neuron::DebugTrace("NEThashFile: Hashing File\n");
 
   // open the file.
   pFileHandle = fopen(fileName, "rb"); // check file exists
   if (pFileHandle == nullptr)
   {
-    DBPRINTF(("NEThashFile: Failed\n"));
+    Neuron::DebugTrace("NEThashFile: Failed\n");
     return 0; // failed
   }
 
@@ -69,7 +69,7 @@ UDWORD NEThashFile(STRING* pFileName)
     }
   }
 
-  DBPRINTF(("NEThashFile: Hash Complete :   *****  %u  ***** is todays magic number.\n",hashval));
+  Neuron::DebugTrace("NEThashFile: Hash Complete :   *****  {}  ***** is todays magic number.\n",hashval);
 
   return hashval;
 }
@@ -158,7 +158,7 @@ NETMSG* NETmanglePacket(NETMSG* msg)
 
   if (msg->size > MaxMsgSize - NIBBLELENGTH)
   {
-    DBERROR(("NETmanglePacket: can't encrypt huge packets. returning unencrypted packet"));
+    Neuron::Fatal("NETmanglePacket: can't encrypt huge packets. returning unencrypted packet");
     return msg;
   }
 
@@ -196,7 +196,7 @@ VOID NETunmanglePacket(NETMSG* msg)
 
   if (msg->size % NIBBLELENGTH != 0)
   {
-    DBERROR(("NETunmanglePacket: Incoming msg wrong length"));
+    Neuron::Fatal("NETunmanglePacket: Incoming msg wrong length");
     NETlogEntry("NETunmanglePacket failure", msg->type, msg->size);
     return;
   }
@@ -227,7 +227,7 @@ BOOL NETmangleData(long* input, long* result, UDWORD dataSize)
 
   if (dataSize % 8 != 0) //if message not multiple of 8 bytes,
   {
-    DBERROR(("NETmangleData: msg not a multiple of 8 bytes"));
+    Neuron::Fatal("NETmangleData: msg not a multiple of 8 bytes");
     return FALSE;
   }
 
@@ -251,7 +251,7 @@ BOOL NETunmangleData(long* input, long* result, UDWORD dataSize)
 
   if (dataSize % 8 != 0) //if message not multiple of 8 bytes,
   {
-    DBERROR(("NETunmangleData: msg not a multiple of 8 bytes"));
+    Neuron::Fatal("NETunmangleData: msg not a multiple of 8 bytes");
     return FALSE;
   }
 

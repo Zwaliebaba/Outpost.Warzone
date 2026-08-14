@@ -97,17 +97,16 @@ BOOL startLimitScreen(void)
   {
     initLoadingScreen(TRUE, TRUE); //changed by jeremy mar8
     /*		if (!resLoad("wrf\\forcedit.wrf", 500,
-               DisplayBuffer, displayBufferSize,
-               psGameHeap))				//need the object heaps to have been set up before loading 
+               DisplayBuffer, displayBufferSize))				//need the object heaps to have been set up before loading 
         {
           return FALSE;
         }
     */
-    if (!resLoad("wrf\\piestats.wrf", 501, DisplayBuffer, displayBufferSize, psGameHeap))
+    if (!resLoad("wrf\\piestats.wrf", 501, DisplayBuffer, displayBufferSize))
       //need the object heaps to have been set up before loading 
       return FALSE;
 
-    if (!resLoad("wrf\\forcedit2.wrf", 502, DisplayBuffer, displayBufferSize, psGameHeap))
+    if (!resLoad("wrf\\forcedit2.wrf", 502, DisplayBuffer, displayBufferSize))
       //need the object heaps to have been set up before loading 
       return FALSE;
 
@@ -285,7 +284,8 @@ VOID createLimitSet(VOID)
   if (ingame.numStructureLimits) // free the old set if required.
   {
     ingame.numStructureLimits = 0;
-    FREE(ingame.pStructureLimits);
+    delete[] ingame.pStructureLimits;
+    ingame.pStructureLimits = nullptr;
   }
 
   numchanges = 0; // count number of changes
@@ -296,7 +296,7 @@ VOID createLimitSet(VOID)
   }
 
   //close your eyes now
-  pChanges = MALLOC(numchanges*(sizeof(UDWORD)+sizeof(UBYTE))); // allocate some mem for this.
+  pChanges = new (std::nothrow) UBYTE[numchanges*(sizeof(UDWORD)+sizeof(UBYTE))]; // allocate some mem for this.
   pEntry = static_cast<UBYTE*>(pChanges);
 
   for (i = 0; i < numStructureStats; i++) // prepare chunk.
@@ -354,7 +354,8 @@ VOID applyLimitSet(VOID)
   // free.
   if (ingame.numStructureLimits)
   {
-    FREE(ingame.pStructureLimits);
+    delete[] ingame.pStructureLimits;
+    ingame.pStructureLimits = nullptr;
     ingame.numStructureLimits = 0;
   }
 }

@@ -7,7 +7,6 @@
 #define _button_h
 
 /* The widget heap */
-extern OBJ_HEAP* psButHeap;
 
 /* Button states */
 #define WBUTS_NORMAL	0x0000

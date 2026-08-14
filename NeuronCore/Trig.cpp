@@ -5,9 +5,6 @@
 
 #include <assert.h>
 #include "Types.h"
-#include "LegacyDebug.h"
-#include "Mem.h"
-#include "Fractions.h"
 #include "Trig.h"
 
 #define PI 3.141592654
@@ -21,67 +18,67 @@
 #define SQRT_ACCBITS	12
 
 /* The trig functions */
-#define SINFUNC		(FRACT)sin
-#define COSFUNC		(FRACT)cos
-#define ASINFUNC	(FRACT)asin
-#define ACOSFUNC	(FRACT)acos
+#define SINFUNC		(float)sin
+#define COSFUNC		(float)cos
+#define ASINFUNC	(float)asin
+#define ACOSFUNC	(float)acos
 
-static FRACT* aSin;
-static FRACT* aCos;
-static FRACT* aInvCos;
+static float* aSin;
+static float* aCos;
+static float* aInvCos;
 /* Square root table - not needed on PSX cos there is a fast hardware sqrt */
-static FRACT* aSqrt;
-static FRACT* aInvSin;
+static float* aSqrt;
+static float* aInvSin;
 
 /* Initialise the Trig tables */
 BOOL trigInitialise(void)
 {
-  FRACT val, inc;
+  float val, inc;
   UDWORD count;
 
   // Allocate the tables
-  aSin = static_cast<FRACT*>(MALLOC(sizeof(FRACT) * TRIG_DEGREES));
+  aSin = new (std::nothrow) float[TRIG_DEGREES];
   if (!aSin)
     return FALSE;
-  aCos = static_cast<FRACT*>(MALLOC(sizeof(FRACT) * TRIG_DEGREES));
+  aCos = new (std::nothrow) float[TRIG_DEGREES];
   if (!aCos)
     return FALSE;
-  aInvSin = static_cast<FRACT*>(MALLOC(sizeof(FRACT) * TRIG_ACCURACY));
+  aInvSin = new (std::nothrow) float[TRIG_ACCURACY];
   if (!aInvSin)
     return FALSE;
 
-  aInvCos = static_cast<FRACT*>(MALLOC(sizeof(FRACT) * TRIG_ACCURACY));
+  aInvCos = new (std::nothrow) float[TRIG_ACCURACY];
   if (!aInvCos)
     return FALSE;
 
-  aSqrt = static_cast<FRACT*>(MALLOC(sizeof(FRACT) * SQRT_ACCURACY));
+  aSqrt = new (std::nothrow) float[SQRT_ACCURACY];
   if (!aSqrt)
     return FALSE;
 
   // Initialise the tables
   // inc = 2*PI/TRIG_DEGREES
-  inc = FRACTmul(FRACTCONST(2,1), FRACTCONST(PI,TRIG_DEGREES));
-  val = FRACTCONST(0, 1);
+  inc = (2.0f * (static_cast<float>(PI) / static_cast<float>(TRIG_DEGREES)));
+  val = 0.0f;
   for (count = 0; count < TRIG_DEGREES; count++)
   {
     aSin[count] = SINFUNC(val);
     aCos[count] = COSFUNC(val);
     val += inc;
   }
-  inc = FRACTCONST(2, TRIG_ACCURACY-1);
-  val = FRACTCONST(-1, 1);
+  inc = (static_cast<float>(2) / static_cast<float>(TRIG_ACCURACY-1));
+  val = -1.0f;
   for (count = 0; count < TRIG_ACCURACY; count++)
   {
-    aInvSin[count] = FRACTmul(ASINFUNC(val), FRACTCONST(TRIG_DEGREES/2, PI));
-    aInvCos[count] = FRACTmul(ACOSFUNC(val), FRACTCONST(TRIG_DEGREES/2, PI));
+    aInvSin[count] = (ASINFUNC(val) * (static_cast<float>(TRIG_DEGREES/2) / static_cast<float>(PI)));
+    aInvCos[count] = (ACOSFUNC(val) * (static_cast<float>(TRIG_DEGREES/2) / static_cast<float>(PI)));
     val += inc;
   }
 
   // Build the sqrt table
   for (count = 0; count < SQRT_ACCURACY; count++)
   {
-    val = static_cast<FRACT>(count) / static_cast<FRACT>((SQRT_ACCURACY / 2));
-    aSqrt[count] = static_cast<FRACT>(sqrt(val));
+    val = static_cast<float>(count) / static_cast<float>((SQRT_ACCURACY / 2));
+    aSqrt[count] = static_cast<float>(sqrt(val));
   }
 
   return TRUE;
@@ -90,15 +87,20 @@ BOOL trigInitialise(void)
 /* Shutdown the trig tables */
 void trigShutDown(void)
 {
-  FREE(aSin);
-  FREE(aCos);
-  FREE(aInvSin);
-  FREE(aInvCos);
-  FREE(aSqrt);
+  delete[] aSin;
+  aSin = nullptr;
+  delete[] aCos;
+  aCos = nullptr;
+  delete[] aInvSin;
+  aInvSin = nullptr;
+  delete[] aInvCos;
+  aInvCos = nullptr;
+  delete[] aSqrt;
+  aSqrt = nullptr;
 }
 
 /* Access the trig tables */
-FRACT trigSin(SDWORD angle)
+float trigSin(SDWORD angle)
 {
   if (angle < 0)
   {
@@ -110,7 +112,7 @@ FRACT trigSin(SDWORD angle)
   return aSin[angle % TRIG_DEGREES];
 }
 
-FRACT trigCos(SDWORD angle)
+float trigCos(SDWORD angle)
 {
   if (angle < 0)
   {
@@ -122,31 +124,31 @@ FRACT trigCos(SDWORD angle)
   return aCos[angle % TRIG_DEGREES];
 }
 
-FRACT trigInvSin(FRACT val)
+float trigInvSin(float val)
 {
   SDWORD index;
 
-  index = MAKEINT(FRACTmul(val, MAKEFRACT((TRIG_ACCURACY-1)/2))) + (TRIG_ACCURACY - 1) / 2;
+  index = std::lrintf(val * static_cast<float>((TRIG_ACCURACY-1)/2)) + (TRIG_ACCURACY - 1) / 2;
 
   return aInvSin[index & TRIG_ACCMASK];
 }
 
-FRACT trigInvCos(FRACT val)
+float trigInvCos(float val)
 {
   SDWORD index;
 
-  index = MAKEINT(FRACTmul(val, MAKEFRACT((TRIG_ACCURACY-1)/2))) + (TRIG_ACCURACY - 1) / 2;
+  index = std::lrintf(val * static_cast<float>((TRIG_ACCURACY-1)/2)) + (TRIG_ACCURACY - 1) / 2;
 
   return aInvCos[index & TRIG_ACCMASK];
 }
 
 /* Fast lookup sqrt */
-FRACT trigIntSqrt(UDWORD val)
+float trigIntSqrt(UDWORD val)
 {
   UDWORD exp, mask;
 
   if (val == 0)
-    return FRACTCONST(0, 1);
+    return 0.0f;
 
   // find the exponent of the number
   mask = 0x80000000; // set the msb in the mask
@@ -170,7 +172,7 @@ FRACT trigIntSqrt(UDWORD val)
 
   // now generate the fractional part for the lookup table
   DEBUG_ASSERT_TEXT(val < SQRT_ACCURACY, "trigIntSqrt: aargh - table index out of range");
-  return aSqrt[val] * static_cast<FRACT>((UDWORD)1 << ((UDWORD)exp / 2));
+  return aSqrt[val] * static_cast<float>((UDWORD)1 << ((UDWORD)exp / 2));
 }
 
 #define DIVCNT (32)

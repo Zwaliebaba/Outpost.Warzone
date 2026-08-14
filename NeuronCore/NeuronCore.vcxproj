@@ -77,6 +77,7 @@
       <ConformanceMode>false</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\DX9\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -95,7 +96,6 @@
     <ClInclude Include="Audio.h" />
     <ClInclude Include="Bar.h" />
     <ClInclude Include="BitImage.h" />
-    <ClInclude Include="Block.h" />
     <ClInclude Include="BSPFunc.h" />
     <ClInclude Include="BSPIMD.h" />
     <ClInclude Include="Bug.h" />
@@ -106,7 +106,6 @@
     <ClInclude Include="D3DRender.h" />
     <ClInclude Include="Dderror.h" />
     <ClInclude Include="Debug.h" />
-    <ClInclude Include="LegacyDebug.h" />
     <ClInclude Include="DX6TexMan.h" />
     <ClInclude Include="DXInput.h" />
     <ClInclude Include="EditBox.h" />
@@ -115,14 +114,12 @@
     <ClInclude Include="Fbf.h" />
     <ClInclude Include="Font.h" />
     <ClInclude Include="Form.h" />
-    <ClInclude Include="Fractions.h" />
     <ClInclude Include="Frame.h" />
     <ClInclude Include="FrameInt.h" />
     <ClInclude Include="FrameResource.h" />
     <ClInclude Include="Geo.h" />
     <ClInclude Include="GTime.h" />
     <ClInclude Include="HashTabl.h" />
-    <ClInclude Include="Heap.h" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="IMD.h" />
     <ClInclude Include="Input.h" />
@@ -133,10 +130,7 @@
     <ClInclude Include="Label.h" />
     <ClInclude Include="ListMacs.h" />
     <ClInclude Include="MaxPiDef.h" />
-    <ClInclude Include="Mem.h" />
-    <ClInclude Include="MemInt.h" />
     <ClInclude Include="Mixer.h" />
-    <ClInclude Include="Mono.h" />
     <ClInclude Include="MultiWDG.h" />
     <ClInclude Include="NetLobby.h" />
     <ClInclude Include="NetPlay.h" />
@@ -187,7 +181,6 @@
     <ClInclude Include="TreapInt.h" />
     <ClInclude Include="Trig.h" />
     <ClInclude Include="Types.h" />
-    <ClInclude Include="W95Trace.h" />
     <ClInclude Include="WDG.h" />
     <ClInclude Include="WidgBase.h" />
     <ClInclude Include="Widget.h" />
@@ -199,7 +192,6 @@
     <ClCompile Include="Audio.cpp" />
     <ClCompile Include="Bar.cpp" />
     <ClCompile Include="BitImage.cpp" />
-    <ClCompile Include="Block.cpp" />
     <ClCompile Include="BSPIMD.cpp" />
     <ClCompile Include="Bug.cpp" />
     <ClCompile Include="Button.cpp" />
@@ -208,7 +200,6 @@
     <ClCompile Include="D3DMode.cpp" />
     <ClCompile Include="D3DRender.cpp" />
     <ClCompile Include="Dderror.cpp" />
-    <ClCompile Include="LegacyDebug.cpp" />
     <ClCompile Include="DX6TexMan.cpp" />
     <ClCompile Include="DXInput.cpp" />
     <ClCompile Include="EditBox.cpp" />
@@ -221,7 +212,6 @@
     <ClCompile Include="FrameResource.cpp" />
     <ClCompile Include="GTime.cpp" />
     <ClCompile Include="HashTabl.cpp" />
-    <ClCompile Include="Heap.cpp" />
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="IMD.cpp" />
     <ClCompile Include="IMDLoad.cpp" />
@@ -229,9 +219,7 @@
     <ClCompile Include="Interp.cpp" />
     <ClCompile Include="Ivi.cpp" />
     <ClCompile Include="Label.cpp" />
-    <ClCompile Include="Mem.cpp" />
     <ClCompile Include="Mixer.cpp" />
-    <ClCompile Include="Mono.cpp" />
     <ClCompile Include="MultiWDG.cpp" />
     <ClCompile Include="NetAudio.cpp" />
     <ClCompile Include="NetCrypt.cpp" />
@@ -281,7 +269,6 @@
     <ClCompile Include="Track.cpp" />
     <ClCompile Include="Treap.cpp" />
     <ClCompile Include="Trig.cpp" />
-    <ClCompile Include="W95Trace.cpp" />
     <ClCompile Include="WDG.cpp" />
     <ClCompile Include="Widget.cpp" />
   </ItemGroup>

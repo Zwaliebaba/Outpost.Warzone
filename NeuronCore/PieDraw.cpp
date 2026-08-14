@@ -85,8 +85,8 @@ void DrawTriangleList(BSPPOLYID PolygonNumber)
     imdPoly.flags = pPolys->flags;
     for (n = 0; n < pPolys->npnts; n++, index++)
     {
-      imdVrts[n].x = MAKEINT(scrPoints[*index].d3dx);
-      imdVrts[n].y = MAKEINT(scrPoints[*index].d3dy);
+      imdVrts[n].x = std::lrintf(scrPoints[*index].d3dx);
+      imdVrts[n].y = std::lrintf(scrPoints[*index].d3dy);
       imdVrts[n].z = 0;
 
       //cull triangles with off screen points
@@ -321,12 +321,12 @@ void pie_Draw3DShape(iIMDShape* shape, int frame, int team, UDWORD col, UDWORD s
       piePoly.flags &= (0xffffffff - PIE_COLOURKEYED); //dont treat additive images as colour keyed
     for (n = 0; n < pPolys->npnts; n++, index++)
     {
-      pieVrts[n].sx = MAKEINT(scrPoints[*index].d3dx);
-      pieVrts[n].sy = MAKEINT(scrPoints[*index].d3dy);
+      pieVrts[n].sx = std::lrintf(scrPoints[*index].d3dx);
+      pieVrts[n].sy = std::lrintf(scrPoints[*index].d3dy);
       //cull triangles with off screen points
       if (scrPoints[*index].d3dy > static_cast<float>(LONG_TEST))
         piePoly.flags = 0;
-      pieVrts[n].sz = MAKEINT(scrPoints[*index].d3dz);
+      pieVrts[n].sz = std::lrintf(scrPoints[*index].d3dz);
       pieVrts[n].tu = pPolys->vrt[n].u;
       pieVrts[n].tv = pPolys->vrt[n].v;
       pieVrts[n].light.argb = colour.argb;
@@ -497,11 +497,11 @@ void pie_Draw3DShape(iIMDShape* shape, int frame, int team, UDWORD col, UDWORD s
     }
     for (n = 0; n < pPolys->npnts; n++, index++)
     {
-      pieVrts[n].sx = MAKEINT(scrPoints[*index].d3dx);
-      pieVrts[n].sy = MAKEINT(scrPoints[*index].d3dy);
+      pieVrts[n].sx = std::lrintf(scrPoints[*index].d3dx);
+      pieVrts[n].sy = std::lrintf(scrPoints[*index].d3dy);
       //cull triangles with off screen points
       if (scrPoints[*index].d3dy > (float)LONG_TEST) { piePoly.flags = 0; }
-      pieVrts[n].sz = MAKEINT(scrPoints[*index].d3dz);
+      pieVrts[n].sz = std::lrintf(scrPoints[*index].d3dz);
       pieVrts[n].tu = pPolys->vrt[n].u;
       pieVrts[n].tv = pPolys->vrt[n].v;
       pieVrts[n].light.argb = colour.argb;

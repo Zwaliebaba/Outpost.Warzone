@@ -22,9 +22,6 @@
 /* Number of characters to jump the edit box text when moving the cursor */
 #define WEDB_CHARJUMP		6
 
-/* The widget heap */
-OBJ_HEAP* psEdbHeap;
-
 // the other states
 /* Calculate how much of the start of a string can fit into the edit box */
 static void fitStringStart(STRING* pBuffer, UDWORD boxWidth, UWORD* pCount, UWORD* pCharWidth);
@@ -38,14 +35,9 @@ BOOL editBoxCreate(W_EDITBOX** ppsWidget, W_EDBINIT* psInit)
     return FALSE;
   }
 
-  //	ASSERT((PTRVALID(psInit->psFont, sizeof(PROP_FONT)),
-
   /* Allocate the required memory */
-#if W_USE_MALLOC
-  *ppsWidget = (W_EDITBOX*)MALLOC(sizeof(W_EDITBOX)); if (*ppsWidget == NULL)
-#else
-  if (!HEAP_ALLOC(psEdbHeap, ppsWidget))
-#endif
+  *ppsWidget = new (std::nothrow) W_EDITBOX;
+  if (*ppsWidget == nullptr)
   {
     DEBUG_ASSERT_TEXT(FALSE, "Out of memory");
     return FALSE;
@@ -87,18 +79,12 @@ BOOL editBoxCreate(W_EDITBOX** ppsWidget, W_EDBINIT* psInit)
 /* Free the memory used by an edit box */
 void editBoxFree(W_EDITBOX* psWidget)
 {
-#if W_USE_MALLOC
-  FREE(psWidget);
-#else
-  HEAP_FREE(psEdbHeap, psWidget);
-#endif
+  delete psWidget;
 }
 
 /* Initialise an edit box widget */
 void editBoxInitialise(W_EDITBOX* psWidget)
 {
-  DEBUG_ASSERT_TEXT(PTRVALID(psWidget, sizeof(W_EDITBOX)), "editBoxInitialise: Invalid edit box pointer");
-
   psWidget->state = WEDBS_FIXED;
   psWidget->printStart = 0;
   iV_SetFont(psWidget->FontID);
@@ -457,8 +443,6 @@ void editBoxRun(W_EDITBOX* psWidget, W_CONTEXT* psContext)
 /* Set the current string for the edit box */
 void editBoxSetString(W_EDITBOX* psWidget, STRING* pText)
 {
-  DEBUG_ASSERT_TEXT(PTRVALID(psWidget, sizeof(W_EDITBOX)), "editBoxSetString: Invalid edit box pointer");
-
   widgCopyString(psWidget->aText, pText);
   psWidget->state = WEDBS_FIXED;
   psWidget->printStart = 0;

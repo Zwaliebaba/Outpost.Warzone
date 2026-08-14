@@ -35,8 +35,6 @@ using HASHNODE = struct HASHNODE
 
 using HASHTABLE = struct HASHTABLE
 {
-  OBJ_HEAP* psNodeHeap;
-  OBJ_HEAP* psElementHeap;
   HASHNODE** ppsNode;
   HASHNODE* psNextNode;
   HASHFUNC pHashFunc;

@@ -1383,8 +1383,6 @@ BOOL checkTransporterSpace(DROID* psTransporter, DROID* psAssigned)
   DROID *psDroid, *psNext;
   UDWORD capacity;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psTransporter, sizeof(DROID)), "checkTransporterSpace: Invalid droid pointer");
-  DEBUG_ASSERT_TEXT(PTRVALID(psAssigned, sizeof(DROID)), "checkTransporterSpace: Invalid droid pointer");
   DEBUG_ASSERT_TEXT(psTransporter->droidType == DROID_TRANSPORTER, "checkTransporterSpace: Droid is not a Transporter");
   DEBUG_ASSERT_TEXT(psTransporter->psGroup != NULL, "checkTransporterSpace: tranporter doesn't have a group");
 
@@ -1493,8 +1491,6 @@ BOOL launchTransporter(DROID* psTransporter)
 have arrived - returns TRUE when there*/
 BOOL updateTransporter(DROID* psTransporter)
 {
-  DEBUG_ASSERT_TEXT(PTRVALID(psTransporter, sizeof(DROID)), "updateTransporter: Invalid droid pointer");
-
   if (psTransporter->droidType != DROID_TRANSPORTER)
   {
     DEBUG_ASSERT_TEXT(FALSE, "updateTransporter: Invalid droid type");
@@ -1696,7 +1692,6 @@ void resetTransporter(DROID* psTransporter)
 /*checks the order of the droid to see if its currently flying*/
 BOOL transporterFlying(DROID* psTransporter)
 {
-  DEBUG_ASSERT_TEXT(PTRVALID(psTransporter, sizeof(DROID)), "transporterFlying: Invalid droid pointer");
   DEBUG_ASSERT_TEXT(psTransporter->droidType == DROID_TRANSPORTER, "transporterFlying: Droid is not a Transporter");
 
   if (psTransporter->order == DORDER_TRANSPORTOUT OR psTransporter->order == DORDER_TRANSPORTIN OR psTransporter->order ==

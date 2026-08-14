@@ -64,8 +64,9 @@
 #define iV_COS						COS
 
 //heap crash
-#define iV_HeapAlloc(size) MALLOC(size)
-#define iV_HeapFree(pointer,size) FREE(pointer)
+// these hand out untyped bytes, so there is no type for new to allocate
+#define iV_HeapAlloc(size) malloc(size)
+#define iV_HeapFree(pointer,size) free(pointer)
 
 /***************************************************************************/
 /*

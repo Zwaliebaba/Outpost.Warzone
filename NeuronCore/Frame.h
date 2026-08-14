@@ -11,9 +11,10 @@
 #include <windows.h>
 #pragma warning (default : 4201 4214 4115)
 
+// Mem.h used to pull this in for everything that includes Frame.h
+#include <stdlib.h>
+
 #include "Types.h"
-#include "LegacyDebug.h"
-#include "Mem.h"
 #include "Screen.h"
 #include "ddraw.h"
 #include "Dderror.h"
@@ -21,16 +22,31 @@
 #include "Surface.h"
 #include "Image.h"
 #include "Font.h"
-#include "Heap.h"
 #include "Treap.h"
-#include "W95Trace.h"
-#include "Fractions.h"
 #include "Trig.h"
 #include "FrameResource.h"
 #include "StrRes.h"
 #include "DXInput.h"
-#include "Block.h"
 #include "ListMacs.h"
+
+/* Integer percentages. These lived in Fractions.h, which has gone - they were
+ * never fraction arithmetic, and the functions they call in debug builds to
+ * report a divide by zero are in Frame.cpp.
+ */
+#ifdef DEBUG
+
+SDWORD PercentFunc(char* File, UDWORD Line, SDWORD a, SDWORD b);
+SDWORD PerNumFunc(char* File, UDWORD Line, SDWORD range, SDWORD a, SDWORD b);
+
+#define PERCENT(a,b)       PercentFunc(__FILE__,__LINE__,a,b)
+#define PERNUM(range,a,b)  PerNumFunc(__FILE__,__LINE__,range,a,b)
+
+#else
+
+#define PERCENT(a,b)       (((a)*100)/(b))
+#define PERNUM(range,a,b)  (((a)*range)/(b))
+
+#endif
 
 /* Initialise the frame work library */
 extern BOOL frameInitialise(HANDLE hInstance, // The windows application instance

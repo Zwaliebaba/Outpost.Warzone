@@ -398,7 +398,7 @@ static BOOL _runLoadSave(BOOL bResetMissionWidgets)
       /* check correct CD in drive */
       iCampaign = getCampaign(sRequestResult, &bSkipCD);
       if (iCampaign == 0 OR bSkipCD)
-        DBPRINTF(("getCampaign returned 0 or we're loading a skirmish game: assuming correct CD in drive\n"));
+        Neuron::DebugTrace("getCampaign returned 0 or we're loading a skirmish game: assuming correct CD in drive\n");
       CDrequired = getCDForCampaign(iCampaign);
       if ((iCampaign == 0) || cdspan_CheckCDPresent(CDrequired) OR bSkipCD)
         goto success;

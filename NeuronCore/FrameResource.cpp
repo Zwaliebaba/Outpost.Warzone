@@ -86,7 +86,6 @@ BOOL resInitialise(void)
 	{
 		// if you allocate the cache to a size of zero then it will use the default area for the cache
 
-
 		// on the PSX this will be the primative buffer
 
 		FILE_InitialiseCache(2*1024*1024);		// set the cache to be 2meg for the time being ...!
@@ -105,7 +104,7 @@ void resShutDown(void)
 
   if (psResTypes != nullptr)
   {
-    DBPRINTF(("resShutDown: warning resources still allocated"));
+    Neuron::DebugTrace("resShutDown: warning resources still allocated");
     resReleaseAll();
   }
 }
@@ -114,11 +113,10 @@ void resShutDown(void)
 void resSetBaseDir(STRING* pResDir) { strncpy(aResDir, pResDir, FILE_MAXCHAR - 1); }
 
 /* Parse the res file */
-BOOL resLoad(STRING* pResFile, SDWORD blockID, UBYTE* pLoadBuffer, SDWORD bufferSize, BLOCK_HEAP* psMemHeap)
+BOOL resLoad(STRING* pResFile, SDWORD blockID, UBYTE* pLoadBuffer, SDWORD bufferSize)
 {
   UBYTE* pBuffer;
   UDWORD size;
-  BLOCK_HEAP* psOldHeap;
   BOOL bAllowWRFProcessing;
 
   strcpy(aCurrResDir, aResDir);
@@ -136,14 +134,8 @@ BOOL resLoad(STRING* pResFile, SDWORD blockID, UBYTE* pLoadBuffer, SDWORD buffer
   {
     BOOL bResult;
 
-    psOldHeap = memGetBlockHeap();
-
-    memSetBlockHeap(psMemHeap);
-
     bResult = WDG_ProcessWRF(pResFile, TRUE);
     // we might need to return a little more than just a TRUE or FALSE here ... so that we know if the failed finding a wdg or at a later stage
-
-    memSetBlockHeap(psOldHeap);
 
     // We we got all the files from the WDG we don't need to even consider the WRF
     if (bResult == TRUE)
@@ -153,16 +145,10 @@ BOOL resLoad(STRING* pResFile, SDWORD blockID, UBYTE* pLoadBuffer, SDWORD buffer
   if (bAllowWRFProcessing == TRUE)
   {
 #ifndef FINALBUILD		// don't allow wrf's on final build
-    // make sure the WRF doesn't get loaded into a block heap
-    psOldHeap = memGetBlockHeap();
-    memSetBlockHeap(nullptr);
 
     // Load the RES file
     if (!LoadWRF(pResFile, &pBuffer, &size))
       return FALSE;
-
-    // now set the memory system to use the block heap
-    memSetBlockHeap(psMemHeap);
 
     // and parse it
     resSetInputBuffer(pBuffer, size);
@@ -170,7 +156,6 @@ BOOL resLoad(STRING* pResFile, SDWORD blockID, UBYTE* pLoadBuffer, SDWORD buffer
       return FALSE;
 
     // reset the memory system
-    memSetBlockHeap(psOldHeap);
 
     ReleaseWRF(&pBuffer);
 #else
@@ -195,10 +180,10 @@ static BOOL resAlloc(STRING* pType, RES_TYPE** ppsFunc)
 #endif
 
   // Allocate the memory
-  psT = static_cast<RES_TYPE*>(MALLOC(sizeof(RES_TYPE)));
+  psT = new (std::nothrow) RES_TYPE[1];
   if (!psT)
   {
-    DBERROR(("resAlloc: Out of memory"));
+    Neuron::Fatal("resAlloc: Out of memory");
     return FALSE;
   }
 
@@ -295,7 +280,7 @@ BOOL resLoadFromDisk(STRING* pFileName, UBYTE** ppBuffer, UDWORD* pSize)
   hFile = CreateFile(pFileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, nullptr);
   if (hFile == INVALID_HANDLE_VALUE)
   {
-    DBERROR(("Couldn't open %s\n%s", pFileName, winErrorToString(GetLastError())));
+    Neuron::Fatal("Couldn't open {}\n{}", pFileName, winErrorToString(GetLastError()));
     return FALSE;
   }
 
@@ -303,7 +288,7 @@ BOOL resLoadFromDisk(STRING* pFileName, UBYTE** ppBuffer, UDWORD* pSize)
   *pSize = GetFileSize(hFile, nullptr);
   if (*pSize >= static_cast<UDWORD>(fileBufferSize))
   {
-    DBERROR(("file too big !!:%s size %d\n", pFileName, *pSize));
+    Neuron::Fatal("file too big !!:{} size {}\n", pFileName, *pSize);
     return FALSE;
   }
 
@@ -311,7 +296,7 @@ BOOL resLoadFromDisk(STRING* pFileName, UBYTE** ppBuffer, UDWORD* pSize)
   retVal = ReadFile(hFile, pFileBuffer, *pSize, &bytesRead, nullptr);
   if (!retVal || *pSize != bytesRead)
   {
-    DBERROR(("Couldn't read data from %s\n%s", pFileName, winErrorToString(GetLastError())));
+    Neuron::Fatal("Couldn't read data from {}\n{}", pFileName, winErrorToString(GetLastError()));
     return FALSE;
   }
   pFileBuffer[*pSize] = 0;
@@ -319,7 +304,7 @@ BOOL resLoadFromDisk(STRING* pFileName, UBYTE** ppBuffer, UDWORD* pSize)
   retVal = CloseHandle(hFile);
   if (!retVal)
   {
-    DBERROR(("Couldn't close %s\n%s", pFileName, winErrorToString(GetLastError())));
+    Neuron::Fatal("Couldn't close {}\n{}", pFileName, winErrorToString(GetLastError()));
     return FALSE;
   }
 
@@ -386,13 +371,9 @@ BOOL RetreiveResourceFile(char* ResourceName, RESOURCEFILE** NewResource)
     return (TRUE);
   }
 
-  blockSuspendUsage();
-
   // This is needed for files that do not fit in the WDG cache ... (VAB file for example)
   if (!loadFile(ResourceName, &pBuffer, &size))
     return FALSE;
-
-  blockUnsuspendUsage();
 
   ResData->type = RESFILETYPE_LOADED;
   ResData->size = size;
@@ -405,7 +386,7 @@ void FreeResourceFile(RESOURCEFILE* OldResource)
 {
   switch (OldResource->type)
   {
-  case RESFILETYPE_LOADED: FREE(OldResource->pBuffer);
+  case RESFILETYPE_LOADED: delete[] OldResource->pBuffer;
 
     break;
   }
@@ -482,7 +463,7 @@ BOOL resLoadFile(STRING* pType, STRING* pFile)
 
     if (psT == nullptr)
     {
-      DBERROR(("resLoadFile: Unknown type: %s", pType));
+      Neuron::Fatal("resLoadFile: Unknown type: {}", pType);
       return FALSE;
     }
 
@@ -492,7 +473,7 @@ BOOL resLoadFile(STRING* pType, STRING* pFile)
       {
         if (psRes->HashedID == HashedName)
         {
-          DBPRINTF(("resLoadFile: Duplicate file name: %s (hash %x) for type %s",pFile, HashedName, psT->aType));
+          Neuron::DebugTrace("resLoadFile: Duplicate file name: {} (hash {:x}) for type {}",pFile, HashedName, psT->aType);
 
           // assume that they are actually both the same and silently fail
           // lovely little hack to allow some files to be loaded from disk (believe it or not!).
@@ -504,7 +485,7 @@ BOOL resLoadFile(STRING* pType, STRING* pFile)
     // Create the file name
     if (strlen(aCurrResDir) + strlen(pFile) + 1 >= FILE_MAXCHAR)
     {
-      DBERROR(("resLoadFile: Filename too long!!\n%s%s", aCurrResDir, pFile));
+      Neuron::Fatal("resLoadFile: Filename too long!!\n{}{}", aCurrResDir, pFile);
       return FALSE;
     }
     strcpy(aFileName, aCurrResDir);
@@ -537,7 +518,7 @@ BOOL resLoadFile(STRING* pType, STRING* pFile)
       Result = RetreiveResourceFile(aFileName, &Resource);
       if (Result == FALSE)
       {
-        DBERROR(("resLoadFile: Unable to retreive resource - %d",aFileName));
+        Neuron::Fatal("resLoadFile: Unable to retreive resource - {}",aFileName);
         return (FALSE);
       }
 
@@ -554,17 +535,17 @@ BOOL resLoadFile(STRING* pType, STRING* pFile)
 #endif
     else
     {
-      DBERROR(("resLoadFile:  No load functions for this type (%s)\n",pType));
+      Neuron::Fatal("resLoadFile:  No load functions for this type ({})\n",pType);
       return FALSE;
     }
 
     // Set up the resource structure if there is something to store
     if (pData != nullptr)
     {
-      psRes = static_cast<RES_DATA*>(MALLOC(sizeof(RES_DATA)));
+      psRes = new (std::nothrow) RES_DATA[1];
       if (!psRes)
       {
-        DBERROR(("resLoadFile: Out of memory"));
+        Neuron::Fatal("resLoadFile: Out of memory");
         psT->release(pData);
         return FALSE;
       }
@@ -730,10 +711,8 @@ RES_TYPE* psT; RES_DATA* psRes;
 		return FALSE;
 	}
 
-
 // Find the resourcefor(psRes = psT->psRes; psRes; psRes= psRes->psNext)
 	{
-
 		if (resGetResDataPointer(psRes) == pData)
 		{
 			break;
@@ -803,17 +782,19 @@ void resReleaseAll(void)
     {
 #ifdef DEBUG
       if (psRes->usage == 0)
-        DBPRINTF(("%s resource: %s(%04x) not used\n", psT->aType, psRes->aID,psRes->HashedID));
+        Neuron::DebugTrace("{} resource: {}({:04x}) not used\n", psT->aType, psRes->aID,psRes->HashedID);
 #endif
       if (psT->release != nullptr)
         psT->release(resGetResDataPointer(psRes));
       else
         DEBUG_ASSERT_TEXT(FALSE, "resReleaseAll: NULL release function");
       psNRes = psRes->psNext;
-      FREE(psRes);
+      delete[] psRes;
+      psRes = nullptr;
     }
     psNT = resNextType(psT);
-    FREE(psT);
+    delete[] psT;
+    psT = nullptr;
   }
 
   psResTypes = nullptr;
@@ -836,7 +817,7 @@ void resReleaseBlockData(SDWORD blockID)
       {
 #ifdef DEBUG
         if (psRes->usage == 0)
-          DBPRINTF(("%s resource: %x not used\n", psT->aType, psRes->HashedID));
+          Neuron::DebugTrace("{} resource: {:x} not used\n", psT->aType, psRes->HashedID);
 #endif
         if (psT->release != nullptr)
           psT->release(resGetResDataPointer(psRes));
@@ -844,7 +825,8 @@ void resReleaseBlockData(SDWORD blockID)
           DEBUG_ASSERT_TEXT(FALSE, "resReleaseAllData: NULL release function");
 
         psNRes = psRes->psNext;
-        FREE(psRes);
+        delete[] psRes;
+        psRes = nullptr;
 
         if (psPRes == nullptr)
           psT->psRes = psNRes;
@@ -875,7 +857,7 @@ void resReleaseAllData(void)
     {
 #ifdef DEBUG
       if (psRes->usage == 0)
-        DBPRINTF(("%s resource: %x not used\n", psT->aType, psRes->HashedID));
+        Neuron::DebugTrace("{} resource: {:x} not used\n", psT->aType, psRes->HashedID);
 #endif
 
       if (psT->release != nullptr)
@@ -884,7 +866,8 @@ void resReleaseAllData(void)
         DEBUG_ASSERT_TEXT(FALSE, "resReleaseAllData: NULL release function");
 
       psNRes = psRes->psNext;
-      FREE(psRes);
+      delete[] psRes;
+      psRes = nullptr;
     }
     psT->psRes = nullptr;
     psNT = resNextType(psT);
@@ -915,7 +898,7 @@ static void ReleaseWRF(UBYTE** pBuffer)
   // this is here for when we free up a old wrf
 
   // now free up the memory for the .wrf file
-  FREE(*pBuffer);
+  delete[] *pBuffer;
 
 #endif
 }
@@ -953,7 +936,7 @@ BOOL FILE_ProcessFile(WRFINFO* CurrentFile, UBYTE* pRetreivedFile)
   }
   if (psT == nullptr) // none found then error and panic
   {
-    DBPRINTF(("Unknown resource type %x\n",CurrentFile->type));
+    Neuron::DebugTrace("Unknown resource type {:x}\n",CurrentFile->type);
     return FALSE;
   }
 
@@ -965,7 +948,7 @@ BOOL FILE_ProcessFile(WRFINFO* CurrentFile, UBYTE* pRetreivedFile)
   // Now process the buffer data by calling the relevant buffer command
   if (!psT->buffLoad(pRetreivedFile, CurrentFile->filesize, &pData))
   {
-    DBPRINTF(("No buffer command for this type %s\n",psT->aType));
+    Neuron::DebugTrace("No buffer command for this type {}\n",psT->aType);
     return FALSE;
   }
 
@@ -973,10 +956,10 @@ BOOL FILE_ProcessFile(WRFINFO* CurrentFile, UBYTE* pRetreivedFile)
   {
     RES_DATA* psRes;
 
-    psRes = static_cast<RES_DATA*>(MALLOC(sizeof(RES_DATA)));
+    psRes = new (std::nothrow) RES_DATA[1];
     if (!psRes)
     {
-      DBERROR(("resLoadFile: Out of memory"));
+      Neuron::Fatal("resLoadFile: Out of memory");
       psT->release(pData);
       return FALSE;
     }

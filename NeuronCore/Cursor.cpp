@@ -11,8 +11,6 @@
 #define FRAME_LIB_INCLUDE
 
 #include "Types.h"
-#include "LegacyDebug.h"
-#include "Mem.h"
 #include "Surface.h"
 #include "Screen.h"
 #include "Input.h"
@@ -62,7 +60,7 @@ BOOL cursorInitialise(SDWORD width, SDWORD height)
   if (!surfCreate(&psCursorSurface, width, height, DDSCAPS_OFFSCREENPLAIN | DDSCAPS_VIDEOMEMORY, screenGetBackBufferPixelFormat(), FALSE,
                   TRUE))
   {
-    DBERROR(("cursorInitialise: couldn't create surface"));
+    Neuron::Fatal("cursorInitialise: couldn't create surface");
     return FALSE;
   }
 
@@ -70,7 +68,7 @@ BOOL cursorInitialise(SDWORD width, SDWORD height)
   if (!surfCreate(&psCursorSave, CURSOR_SAVEWIDTH, CURSOR_SAVEHEIGHT, DDSCAPS_OFFSCREENPLAIN | DDSCAPS_VIDEOMEMORY,
                   screenGetBackBufferPixelFormat(), FALSE, TRUE))
   {
-    DBERROR(("cursorInitialise: couldn't create surface"));
+    Neuron::Fatal("cursorInitialise: couldn't create surface");
     return FALSE;
   }
 
@@ -88,12 +86,12 @@ BOOL cursorInitialise(SDWORD width, SDWORD height)
                                &cursorThreadID);
   if (hCursorThread == nullptr)
   {
-    DBERROR(("cursorInitialise: couldn't create thread"));
+    Neuron::Fatal("cursorInitialise: couldn't create thread");
     return FALSE;
   }
   if (!SetThreadPriority(hCursorThread, THREAD_PRIORITY_TIME_CRITICAL))
   {
-    DBERROR(("cursorInitialise: couldn't set thread priority"));
+    Neuron::Fatal("cursorInitialise: couldn't set thread priority");
     return FALSE;
   }
 

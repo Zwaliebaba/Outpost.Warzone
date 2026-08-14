@@ -100,25 +100,6 @@ extern void featureInitVars(void);
 extern void radarInitVars(void);
 extern void initMiscVars(void);
 
-// the sizes for the game block heap
-#define GAMEBLOCK_INIT		(2*1024*1024)
-#define GAMEBLOCK_EXT		(1024*1024)
-// the sizes for the campaign map block heap
-#define MAPBLOCK_INIT		(1024*1024)
-#define MAPBLOCK_EXT		(32*1024)
-// the sizes for the mission block heap
-#define MISSIONBLOCK_INIT		(2*1024*1024)
-#define MISSIONBLOCK_EXT		(512*1024)
-
-// the block heap for the game data
-BLOCK_HEAP* psGameHeap;
-
-// the block heap for the campaign map
-BLOCK_HEAP* psMapHeap;
-
-// the block heap for the pre WRF data
-BLOCK_HEAP* psMissionHeap;
-
 // the block id for the game data
 #define GAME_BLOCKID	100
 
@@ -685,29 +666,10 @@ BOOL InitialiseGlobals(void)
 //
 BOOL systemInitialise(void)
 {
-  W_HEAPINIT sWInit;
   UBYTE* pBuffer;
   UDWORD size;
 
-  // Setup the sizes of the widget heaps , using code to setup a structure that calls a routine that tells a library how much memory it should allocate (hmmm...)
-  memset(&sWInit, 0, sizeof(sWInit));
-  sWInit.barInit = 40;
-  sWInit.barExt = 5;
-  sWInit.butInit = 50; // was 30 ... but what about the virtual keyboard
-  sWInit.butExt = 5;
-  sWInit.edbInit = 2;
-  sWInit.edbExt = 1;
-  sWInit.formInit = 10;
-  sWInit.formExt = 2;
-  sWInit.cFormInit = 50;
-  sWInit.cFormExt = 5;
-  sWInit.tFormInit = 3;
-  sWInit.tFormExt = 2;
-  sWInit.labInit = 15;
-  sWInit.labExt = 3;
-  sWInit.sldInit = 2;
-  sWInit.sldExt = 1;
-  if (!widgInitialise(&sWInit))
+  if (!widgInitialise())
     return FALSE;
 
   // load up the level discription file
@@ -721,7 +683,8 @@ BOOL systemInitialise(void)
       return FALSE;
     if (!levParse(pBuffer, size))
       return FALSE;
-    FREE(pBuffer);
+    delete[] pBuffer;
+    pBuffer = nullptr;
 
     wdgFindFirstFileRev(HashStringIgnoreCase("MISCDATA"), HashString("MISCDATA"), HashStringIgnoreCase("addon.lev"), &sFindFile);
 
@@ -731,7 +694,8 @@ BOOL systemInitialise(void)
         return FALSE;
       if (!levParse(pBuffer, size))
         return FALSE;
-      FREE(pBuffer);
+      delete[] pBuffer;
+      pBuffer = nullptr;
 
       wdgFindNextFileRev(&sFindFile);
     }
@@ -772,10 +736,10 @@ BOOL systemInitialise(void)
   displayBufferSize = DISP_WIDTH * DISP_HEIGHT * 2;
   if (displayBufferSize < 1500000)
     displayBufferSize = 1500000;
-  DisplayBuffer = static_cast<UBYTE*>(MALLOC(displayBufferSize));
+  DisplayBuffer = new (std::nothrow) UBYTE[displayBufferSize];
   if (DisplayBuffer == nullptr)
   {
-    DBERROR(("Unable to allocate memory for display buffer"));
+    Neuron::Fatal("Unable to allocate memory for display buffer");
     return FALSE;
   }
 
@@ -784,7 +748,7 @@ BOOL systemInitialise(void)
 #else
   if (!audio_Init(frameGetWinHandle(), TRUE, droidAudioTrackStopped))
 #endif
-    DBERROR(("Couldn't initialise audio system: continuing without audio\n"));
+    Neuron::Fatal("Couldn't initialise audio system: continuing without audio\n");
 
 #if !defined(I_LIKE_LISTENING_TO_CDS)
   cdAudio_Open();
@@ -806,18 +770,6 @@ BOOL systemInitialise(void)
     return FALSE;
 
   loadConfig(FALSE); // get favourite settings from the registry
-
-  // create a block heap for the game data
-  if (!BLOCK_CREATE(&psGameHeap, GAMEBLOCK_INIT, GAMEBLOCK_EXT))
-    return FALSE;
-
-  // create a block heap for the campaign map
-  if (!BLOCK_CREATE(&psMapHeap, MAPBLOCK_INIT, MAPBLOCK_EXT))
-    return FALSE;
-
-  // create a block heap for the pre WRF data
-  if (!BLOCK_CREATE(&psMissionHeap, MISSIONBLOCK_INIT, MISSIONBLOCK_EXT))
-    return FALSE;
 
 #ifdef ARROWS
   arrowInit();
@@ -845,11 +797,6 @@ BOOL systemShutdown(void)
   // free up all the load functions (all the data should already have been freed)
   resReleaseAll();
 
-  // release the block heaps
-  BLOCK_DESTROY(psGameHeap);
-  BLOCK_DESTROY(psMapHeap);
-  BLOCK_DESTROY(psMissionHeap);
-
   if (!bDisableLobby && !multiShutdown()) // ajl. init net stuff
     return FALSE;
 
@@ -862,7 +809,8 @@ BOOL systemShutdown(void)
   mixer_Close();
 #endif
 
-  FREE(DisplayBuffer);
+  delete[] DisplayBuffer;
+  DisplayBuffer = nullptr;
 
   iV_ShutDown();
 
@@ -882,7 +830,6 @@ BOOL init_ObjectDead(void* psObj)
   STRUCTURE* psStructure;
 
   /* check is valid pointer */
-  DEBUG_ASSERT_TEXT(PTRVALID(psBaseObj, sizeof(BASE_OBJECT)), "init_ObjectDead: game object pointer invalid\n");
 
   if (psBaseObj->died == TRUE)
   {
@@ -898,7 +845,7 @@ BOOL init_ObjectDead(void* psObj)
       psStructure->psCurAnim = nullptr;
       break;
 
-    default: DBERROR(("init_ObjectAnimRemoved: unrecognised object type"));
+    default: Neuron::Fatal("init_ObjectAnimRemoved: unrecognised object type");
     }
   }
 
@@ -910,10 +857,7 @@ BOOL init_ObjectDead(void* psObj)
 // WIN32 Version. Called At Frontend Startup.
 BOOL frontendInitialise(char* ResourceFile)
 {
-  DBPRINTF(("Initialising frontend : %s\n",ResourceFile));
-
-  // allocate memory from the pre data heap
-  memSetBlockHeap(psGameHeap);
+  Neuron::DebugTrace("Initialising frontend : {}\n",ResourceFile);
 
   // reset the multiple wdg stuff
   wdgEnableAddonWDG();
@@ -941,9 +885,8 @@ BOOL frontendInitialise(char* ResourceFile)
   if (!allocPlayerPower()) //set up the PlayerPower for each player - this should only be done ONCE now
     return FALSE;
 
-  DBPRINTF(("frontEndInitialise: loading resource file ....."));
-  if (!resLoad(ResourceFile, 0, DisplayBuffer, displayBufferSize, psGameHeap))
-    //need the object heaps to have been set up before loading in the save game
+  Neuron::DebugTrace("frontEndInitialise: loading resource file .....");
+  if (!resLoad(ResourceFile, 0, DisplayBuffer, displayBufferSize))
     return FALSE;
 
   if (!dispInitialise()) // Initialise the display system 
@@ -978,8 +921,6 @@ BOOL frontendInitialise(char* ResourceFile)
 
   SetFormAudioIDs(-1, ID_SOUND_WINDOWCLOSE); // disable the open noise since distorted in 3dfx builds.
 
-  memSetBlockHeap(nullptr);
-
   initMiscVars();
 
   gameTimeInit();
@@ -996,7 +937,7 @@ BOOL frontendInitialise(char* ResourceFile)
 //
 BOOL frontendShutdown(void)
 {
-  DBPRINTF(("Shuting down frontend\n"));
+  Neuron::DebugTrace("Shuting down frontend\n");
 
   saveConfig(); // save settings to registry.
 
@@ -1032,9 +973,6 @@ BOOL frontendShutdown(void)
 */
   pie_TexShutDown();
 
-  // reset the block heap
-  BLOCK_RESET(psGameHeap);
-
   return TRUE;
 }
 
@@ -1043,9 +981,7 @@ BOOL frontendShutdown(void)
 
 BOOL stageOneInitialise(void)
 {
-  BLOCK_HEAP* psHeap;
-
-  DBPRINTF(("stageOneInitalise\n"));
+  Neuron::DebugTrace("stageOneInitalise\n");
 
 #ifndef FINALBUILD
   tpInit();
@@ -1076,12 +1012,9 @@ BOOL stageOneInitialise(void)
     return FALSE;
 
   // debug mode only so use normal MALLOC
-  psHeap = memGetBlockHeap();
-  memSetBlockHeap(nullptr);
 #ifdef DISP2D
   if (!disp2DInitialise()) { return FALSE; }
 #endif
-  memSetBlockHeap(psHeap);
 
   if (!anim_Init(anim_GetShapeFunc))
     return FALSE;
@@ -1138,7 +1071,7 @@ BOOL stageOneInitialise(void)
 
 BOOL stageOneShutDown(void)
 {
-  DBPRINTF(("stageOneShutDown\n"));
+  Neuron::DebugTrace("stageOneShutDown\n");
 
   //do this before shutting down the iV library
 
@@ -1201,7 +1134,7 @@ BOOL stageOneShutDown(void)
 
 BOOL stageTwoInitialise(void)
 {
-  DBPRINTF(("stageTwoInitalise\n"));
+  Neuron::DebugTrace("stageTwoInitalise\n");
 
   if (bMultiPlayer)
   {
@@ -1222,7 +1155,7 @@ BOOL stageTwoInitialise(void)
   if (!initMiscImds()) /* Set up the explosions */
   {
     iV_ShutDown();
-    DBERROR(("Can't find all the explosions PCX's"));
+    Neuron::Fatal("Can't find all the explosions PCX's");
     return FALSE;
   }
 
@@ -1281,7 +1214,7 @@ BOOL stageTwoInitialise(void)
   //	if (!loadGame("final.gam"))
   //	if (!loadGame("savetest.gam"))
 
-  DBPRINTF(("stageTwoInitialise: done\n"));
+  Neuron::DebugTrace("stageTwoInitialise: done\n");
 
   return TRUE;
 }
@@ -1292,7 +1225,7 @@ BOOL stageTwoInitialise(void)
 //
 BOOL stageTwoShutDown(void)
 {
-  DBPRINTF(("stageTwoShutDown\n"));
+  Neuron::DebugTrace("stageTwoShutDown\n");
 
 #if !defined(I_LIKE_LISTENING_TO_CDS)
   cdAudio_Stop();
@@ -1377,7 +1310,7 @@ BOOL stageThreeInitialise(void)
 {
   STRUCTURE* psStr;
 
-  DBPRINTF(("stageThreeInitalise\n"));
+  Neuron::DebugTrace("stageThreeInitalise\n");
 
   bTrackingTransporter = FALSE;
 
@@ -1448,7 +1381,7 @@ BOOL stageThreeInitialise(void)
 
 BOOL stageThreeShutDown(void)
 {
-  DBPRINTF(("stageThreeShutDown\n"));
+  Neuron::DebugTrace("stageThreeShutDown\n");
 
   // make sure any button tips are gone.
   widgReset();
@@ -1505,7 +1438,7 @@ BOOL stageThreeShutDown(void)
 //
 BOOL gameReset(void)
 {
-  DBPRINTF(("gameReset\n"));
+  Neuron::DebugTrace("gameReset\n");
 
   return TRUE;
 }
@@ -1513,7 +1446,7 @@ BOOL gameReset(void)
 // Reset the game between campaigns
 BOOL campaignReset(void)
 {
-  DBPRINTF(("campaignReset\n"));
+  Neuron::DebugTrace("campaignReset\n");
   gwShutDown();
   mapShutdown();
   return TRUE;
@@ -1522,7 +1455,7 @@ BOOL campaignReset(void)
 // Reset the game when loading a save game
 BOOL saveGameReset(void)
 {
-  DBPRINTF(("saveGameReset\n"));
+  Neuron::DebugTrace("saveGameReset\n");
 
 #if !defined(I_LIKE_LISTENING_TO_CDS)
   cdAudio_Stop();
@@ -1556,7 +1489,7 @@ BOOL saveGameReset(void)
 
 BOOL newMapInitialise(void)
 {
-  DBPRINTF(("newMapInitialise\n"));
+  Neuron::DebugTrace("newMapInitialise\n");
 
   //NEW_SAVE removed for V11 Save removed for all versions
 

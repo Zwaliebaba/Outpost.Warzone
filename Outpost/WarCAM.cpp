@@ -110,7 +110,7 @@ UDWORD getNumDroidsSelected(void);
 /*	These used to be #defines but they're variable now as it may be necessary
 	to allow the player	to customise tracking speed? Jim? 
 */
-FRACT accelConstant, velocityConstant, rotAccelConstant, rotVelocityConstant;
+float accelConstant, velocityConstant, rotAccelConstant, rotVelocityConstant;
 
 /* How much info do you want when tracking a droid - this toggles full stat info */
 static BOOL bFullInfo = FALSE;
@@ -119,14 +119,14 @@ static BOOL bFullInfo = FALSE;
 static BOOL bRadarTrackingRequested = FALSE;
 
 /* World coordinates for a radar track/jump */
-static FRACT radarX, radarY;
+static float radarX, radarY;
 
 /*	Where we were up to (pos and rot) last update - allows us to see whether
 	we are sufficently near our target to disable further tracking */
 static iVector oldPosition, oldRotation;
 
 /* The fraction of a second that the last game frame took */
-static FRACT fraction;
+static float fraction;
 
 static BOOL OldViewValid;
 
@@ -178,7 +178,7 @@ BOOL processWarCam(void)
     return (TRUE);
 
   /* Calculate fraction of a second for last game frame */
-  fraction = (MAKEFRACT(frameTime2) / MAKEFRACT(GAME_TICKS_PER_SEC));
+  fraction = (static_cast<float>(frameTime2) / static_cast<float>(GAME_TICKS_PER_SEC));
 
   /* Ensure that the camera only ever flips state within this routine! */
   switch (trackingCamera.status)
@@ -232,7 +232,7 @@ BOOL processWarCam(void)
     trackingCamera.status = CAM_INACTIVE;
     Status = FALSE;
     break;
-  default: DBERROR(("Weirdy status for tracking Camera"));
+  default: Neuron::Fatal("Weirdy status for tracking Camera");
     break;
   }
   /* TBR
@@ -256,7 +256,7 @@ BOOL processWarCam(void)
 /* Flips states for camera active */
 void setWarCamActive(BOOL status)
 {
-  DBPRINTF(("setWarCamActive(%d)\n",status));
+  Neuron::DebugTrace("setWarCamActive({})\n",status);
 
   /* We're trying to switch it on */
   if (status == TRUE)
@@ -342,23 +342,23 @@ void camAllignWithTarget(BASE_OBJECT* psTarget)
   trackingCamera.target = psTarget;
 
   /* Save away all the view angles */
-  trackingCamera.oldView.r.x = trackingCamera.rotation.x = MAKEFRACT(player.r.x);
-  trackingCamera.oldView.r.y = trackingCamera.rotation.y = MAKEFRACT(player.r.y);
-  trackingCamera.oldView.r.z = trackingCamera.rotation.z = MAKEFRACT(player.r.z);
+  trackingCamera.oldView.r.x = trackingCamera.rotation.x = static_cast<float>(player.r.x);
+  trackingCamera.oldView.r.y = trackingCamera.rotation.y = static_cast<float>(player.r.y);
+  trackingCamera.oldView.r.z = trackingCamera.rotation.z = static_cast<float>(player.r.z);
 
   /* Store away the old positions and set the start position too */
-  trackingCamera.oldView.p.x = trackingCamera.position.x = MAKEFRACT(player.p.x);
-  trackingCamera.oldView.p.y = trackingCamera.position.y = MAKEFRACT(player.p.y);
-  trackingCamera.oldView.p.z = trackingCamera.position.z = MAKEFRACT(player.p.z);
+  trackingCamera.oldView.p.x = trackingCamera.position.x = static_cast<float>(player.p.x);
+  trackingCamera.oldView.p.y = trackingCamera.position.y = static_cast<float>(player.p.y);
+  trackingCamera.oldView.p.z = trackingCamera.position.z = static_cast<float>(player.p.z);
 
   /* No initial velocity for moving */
-  trackingCamera.velocity.x = trackingCamera.velocity.y = trackingCamera.velocity.z = MAKEFRACT(0);
+  trackingCamera.velocity.x = trackingCamera.velocity.y = trackingCamera.velocity.z = 0.0f;
   /* Nor for rotation */
-  trackingCamera.rotVel.x = trackingCamera.rotVel.y = trackingCamera.rotVel.z = MAKEFRACT(0);
+  trackingCamera.rotVel.x = trackingCamera.rotVel.y = trackingCamera.rotVel.z = 0.0f;
   /* No initial acceleration for moving */
-  trackingCamera.acceleration.x = trackingCamera.acceleration.y = trackingCamera.acceleration.z = MAKEFRACT(0);
+  trackingCamera.acceleration.x = trackingCamera.acceleration.y = trackingCamera.acceleration.z = 0.0f;
   /* Nor for rotation */
-  trackingCamera.rotAccel.x = trackingCamera.rotAccel.y = trackingCamera.rotAccel.z = MAKEFRACT(0);
+  trackingCamera.rotAccel.x = trackingCamera.rotAccel.y = trackingCamera.rotAccel.z = 0.0f;
 
   /* Sote the old distance */
   trackingCamera.oldDistance = getViewDistance(); //distance;
@@ -416,7 +416,7 @@ in the case of location and degrees of arc in the case of rotation.
 
 void updateCameraAcceleration(UBYTE update)
 {
-  FRACT separation;
+  float separation;
   SDWORD realPos;
   SDWORD xConcern, yConcern, zConcern;
   SDWORD xBehind, yBehind;
@@ -530,14 +530,14 @@ void updateCameraAcceleration(UBYTE update)
 
 void updateCameraVelocity(UBYTE update)
 {
-  FRACT fraction;
+  float fraction;
 
   /*	Get the time fraction of a second - the next two lines are present in 4
     of the next six functions. All 4 of these functions are called every frame, so
     it may be an idea to calculate these higher up and store them in a static but 
     I've left them in for clarity for now */
 
-  fraction = (MAKEFRACT(frameTime2) / static_cast<FRACT>(GAME_TICKS_PER_SEC));
+  fraction = (static_cast<float>(frameTime2) / static_cast<float>(GAME_TICKS_PER_SEC));
 
   if (update & X_UPDATE)
     trackingCamera.velocity.x += (trackingCamera.acceleration.x * fraction);
@@ -554,7 +554,7 @@ void updateCameraVelocity(UBYTE update)
 void updateCameraPosition(UBYTE update)
 {
   BOOL bFlying;
-  FRACT fraction;
+  float fraction;
   DROID* psDroid;
   PROPULSION_STATS* psPropStats;
 
@@ -567,7 +567,7 @@ void updateCameraPosition(UBYTE update)
       bFlying = TRUE;
   }
   /* See above */
-  fraction = (MAKEFRACT(frameTime2) / static_cast<FRACT>(GAME_TICKS_PER_SEC));
+  fraction = (static_cast<float>(frameTime2) / static_cast<float>(GAME_TICKS_PER_SEC));
 
   if (update & X_UPDATE)
   {
@@ -594,7 +594,7 @@ void updateCameraPosition(UBYTE update)
 void updateCameraRotationAcceleration(UBYTE update)
 {
   SDWORD worldAngle;
-  FRACT separation;
+  float separation;
   SDWORD xConcern, yConcern, zConcern;
   BOOL bTooLow;
   DROID* psDroid;
@@ -639,7 +639,7 @@ void updateCameraRotationAcceleration(UBYTE update)
 
     /* Which way are we facing? */
     worldAngle = trackingCamera.rotation.y;
-    separation = static_cast<FRACT>((yConcern - worldAngle));
+    separation = static_cast<float>((yConcern - worldAngle));
     if (separation < DEG(-180))
       separation += DEG(360);
     else if (separation > DEG(180))
@@ -672,7 +672,7 @@ void updateCameraRotationAcceleration(UBYTE update)
     //	if(xConcern>DEG(MINCAMROTX))
     while (trackingCamera.rotation.x < 0) { trackingCamera.rotation.x += DEG(360); }
     worldAngle = trackingCamera.rotation.x;
-    separation = static_cast<FRACT>((xConcern - worldAngle));
+    separation = static_cast<float>((xConcern - worldAngle));
 
     MODFRACT(separation, DEG(360));
 
@@ -696,7 +696,7 @@ void updateCameraRotationAcceleration(UBYTE update)
       zConcern = DEG(trackingCamera.target->roll);
     while (trackingCamera.rotation.z < 0) { trackingCamera.rotation.z += DEG(360); }
     worldAngle = trackingCamera.rotation.z;
-    separation = static_cast<FRACT>((zConcern - worldAngle));
+    separation = static_cast<float>((zConcern - worldAngle));
     if (separation < DEG(-180))
       separation += DEG(360);
     else if (separation > DEG(180))
@@ -714,9 +714,9 @@ void updateCameraRotationAcceleration(UBYTE update)
 	calculated acceleration */
 void updateCameraRotationVelocity(UBYTE update)
 {
-  FRACT fraction;
+  float fraction;
 
-  fraction = (MAKEFRACT(frameTime2) / static_cast<FRACT>(GAME_TICKS_PER_SEC));
+  fraction = (static_cast<float>(frameTime2) / static_cast<float>(GAME_TICKS_PER_SEC));
 
   if (update & Y_UPDATE)
     trackingCamera.rotVel.y += (trackingCamera.rotAccel.y * fraction);
@@ -730,9 +730,9 @@ void updateCameraRotationVelocity(UBYTE update)
 /* Move the camera around by adding the velocity */
 void updateCameraRotationPosition(UBYTE update)
 {
-  FRACT fraction;
+  float fraction;
 
-  fraction = (MAKEFRACT(frameTime2) / static_cast<FRACT>(GAME_TICKS_PER_SEC));
+  fraction = (static_cast<float>(frameTime2) / static_cast<float>(GAME_TICKS_PER_SEC));
 
   if (update & Y_UPDATE)
     trackingCamera.rotation.y += (trackingCamera.rotVel.y * fraction);
@@ -1026,9 +1026,9 @@ DROID* getTrackingDroid(void)
 SDWORD getGroupAverageTrackAngle(UDWORD groupNumber, BOOL bCheckOnScreen)
 {
   DROID* psDroid;
-  FRACT xShift, yShift;
-  FRACT xTotal, yTotal;
-  FRACT averageAngleFloat;
+  float xShift, yShift;
+  float xTotal, yTotal;
+  float averageAngleFloat;
   SDWORD droidCount, averageAngle;
   SDWORD retVal;
 
@@ -1088,7 +1088,7 @@ SDWORD getGroupAverageTrackAngle(UDWORD groupNumber, BOOL bCheckOnScreen)
   }
   else
     retVal = 0;
-  presAvAngle = MAKEINT(averageAngleFloat); //retVal;
+  presAvAngle = std::lrintf(averageAngleFloat); //retVal;
   return (presAvAngle);
 }
 
@@ -1096,9 +1096,9 @@ SDWORD getGroupAverageTrackAngle(UDWORD groupNumber, BOOL bCheckOnScreen)
 SDWORD getAverageTrackAngle(BOOL bCheckOnScreen)
 {
   DROID* psDroid;
-  FRACT xShift, yShift;
-  FRACT xTotal, yTotal;
-  FRACT averageAngleFloat;
+  float xShift, yShift;
+  float xTotal, yTotal;
+  float averageAngleFloat;
   SDWORD droidCount, averageAngle;
   SDWORD retVal;
 
@@ -1158,7 +1158,7 @@ SDWORD getAverageTrackAngle(BOOL bCheckOnScreen)
   }
   else
     retVal = 0;
-  presAvAngle = MAKEINT(averageAngleFloat); //retVal;
+  presAvAngle = std::lrintf(averageAngleFloat); //retVal;
   return (presAvAngle);
 }
 

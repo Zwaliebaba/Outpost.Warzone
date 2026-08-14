@@ -847,7 +847,7 @@ BOOL ParseFile(char szFileName[])
   /* open input file */
   if ((fp = fopen(szFileName, "rt")) == nullptr)
   {
-    DBERROR(("ParseFile: file not found\n"));
+    Neuron::Fatal("ParseFile: file not found\n");
     return FALSE;
   }
 
@@ -877,7 +877,7 @@ void IncludeFile(char szFileName[])
     g_bParsingSubFile = TRUE;
   }
   else
-    DBERROR(("Included file %s not found\n", szFileName));
+    Neuron::Fatal("Included file {} not found\n", szFileName);
 }
 
 /***************************************************************************/

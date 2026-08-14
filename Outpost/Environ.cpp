@@ -39,9 +39,9 @@ using ENVIRON_DATA = struct environ_data
 {
   UBYTE bProcess;
   UBYTE type;
-  FRACT val;
+  float val;
   UBYTE data;
-  FRACT vec;
+  float vec;
 };
 
 // -------------------------------------------------------------------------------
@@ -63,10 +63,10 @@ BOOL waterOnMap(void) { return (bWaterOnMap); }
 //this function just allocates the memory now for MaxMapWidth, MaxMapHeight
 BOOL environInit(void)
 {
-  pEnvironData = static_cast<ENVIRON_DATA*>(MALLOC(sizeof(struct environ_data) * MAP_MAXWIDTH * MAP_MAXHEIGHT));
+  pEnvironData = new (std::nothrow) ENVIRON_DATA[MAP_MAXWIDTH * MAP_MAXHEIGHT];
   if (!pEnvironData)
   {
-    DBERROR(("Can't get memory for the environment data"));
+    Neuron::Fatal("Can't get memory for the environment data");
     return FALSE;
   }
   return TRUE;
@@ -92,19 +92,19 @@ void environReset(void)
       {
         bWaterOnMap = TRUE;
         pEnvironData[index].type = ET_WATER;
-        pEnvironData[index].val = MAKEFRACT(ENVIRON_WATER_INIT_VALUE);
+        pEnvironData[index].val = static_cast<float>(ENVIRON_WATER_INIT_VALUE);
         pEnvironData[index].data = ENVIRON_WATER_DATA_VALUE;
         pEnvironData[index].bProcess = BYTE_TRUE;
       }
       else
       {
         pEnvironData[index].type = ET_LAND;
-        pEnvironData[index].val = MAKEFRACT(0); //ENVIRON_LAND_INIT_VALUE;
+        pEnvironData[index].val = 0.0f; //ENVIRON_LAND_INIT_VALUE;
         pEnvironData[index].data = ENVIRON_LAND_DATA_VALUE;
         pEnvironData[index].bProcess = BYTE_FALSE;
       }
 
-      pEnvironData[index].vec = MAKEFRACT(RANDOMLY_ONE_OR_MINUS_ONE);
+      pEnvironData[index].vec = static_cast<float>(RANDOMLY_ONE_OR_MINUS_ONE);
     }
   }
 }
@@ -114,12 +114,12 @@ void environUpdate(void)
 {
   UDWORD i, j;
   UDWORD index;
-  FRACT value, newValue;
-  FRACT increment;
-  FRACT lowest;
-  FRACT highest;
+  float value, newValue;
+  float increment;
+  float lowest;
+  float highest;
   SDWORD startX, startY, endX, endY;
-  FRACT fraction;
+  float fraction;
 
   //at the moment this function is getting called between levels and so crashes - quick check here for now
   if (pEnvironData == nullptr)
@@ -150,7 +150,7 @@ void environUpdate(void)
     endY = mapHeight - 1;
 
   /* Find frame interval */
-  fraction = MAKEFRACT(frameTime) / GAME_TICKS_PER_SEC;
+  fraction = static_cast<float>(frameTime) / GAME_TICKS_PER_SEC;
 
   /* Go through the grid */
   for (i = startY; i < endY; i++)
@@ -172,14 +172,14 @@ void environUpdate(void)
         case ET_WATER:
           lowest = ENVIRON_WATER_LOWEST;
           highest = ENVIRON_WATER_HIGHEST;
-          increment = ((MAKEFRACT(ENVIRON_WATER_SPEED) * pEnvironData[index].vec) * fraction);
+          increment = ((static_cast<float>(ENVIRON_WATER_SPEED) * pEnvironData[index].vec) * fraction);
           break;
         case ET_LAND:
           lowest = ENVIRON_LAND_LOWEST;
           highest = ENVIRON_LAND_HIGHEST;
-          increment = ((MAKEFRACT(ENVIRON_LAND_SPEED) * pEnvironData[index].vec) * fraction);
+          increment = ((static_cast<float>(ENVIRON_LAND_SPEED) * pEnvironData[index].vec) * fraction);
           break;
-        default: DBERROR(("Weird environment type found"));
+        default: Neuron::Fatal("Weird environment type found");
           break;
         }
 
@@ -214,7 +214,7 @@ UDWORD environGetValue(UDWORD x, UDWORD y)
 {
   SDWORD retVal;
 
-  retVal = MAKEINT(pEnvironData[(y * mapWidth) + x].val);
+  retVal = std::lrintf(pEnvironData[(y * mapWidth) + x].val);
   if (retVal < 0)
     retVal = 0;
   return (retVal);
@@ -274,9 +274,9 @@ extern UDWORD map_MistValue(UDWORD x, UDWORD y)
     {
       ox = TILE_UNITS - ox;
       oy = TILE_UNITS - oy;
-      hy = MAKEINT(pEnvironData[tileX + tileYOffset + mapWidth].val);
-      hx = MAKEINT(pEnvironData[tileX + 1 + tileYOffset].val);
-      hxy = MAKEINT(pEnvironData[tileX + 1 + tileYOffset + mapWidth].val);
+      hy = std::lrintf(pEnvironData[tileX + tileYOffset + mapWidth].val);
+      hx = std::lrintf(pEnvironData[tileX + 1 + tileYOffset].val);
+      hxy = std::lrintf(pEnvironData[tileX + 1 + tileYOffset + mapWidth].val);
 
       dx = ((hy - hxy) * ox) / TILE_UNITS;
       dy = ((hx - hxy) * oy) / TILE_UNITS;
@@ -285,9 +285,9 @@ extern UDWORD map_MistValue(UDWORD x, UDWORD y)
       return (retVal * 4);
     }
     //tile split top right to bottom left object if in top left half
-    h0 = MAKEINT(pEnvironData[tileX + tileYOffset].val);
-    hy = MAKEINT(pEnvironData[tileX + tileYOffset + mapWidth].val);
-    hx = MAKEINT(pEnvironData[tileX + 1 + tileYOffset].val);
+    h0 = std::lrintf(pEnvironData[tileX + tileYOffset].val);
+    hy = std::lrintf(pEnvironData[tileX + tileYOffset + mapWidth].val);
+    hx = std::lrintf(pEnvironData[tileX + 1 + tileYOffset].val);
 
     dx = ((hx - h0) * ox) / TILE_UNITS;
     dy = ((hy - h0) * oy) / TILE_UNITS;
@@ -297,9 +297,9 @@ extern UDWORD map_MistValue(UDWORD x, UDWORD y)
   }
   if (ox > oy) //tile split topleft to bottom right object if in top right half
   {
-    h0 = MAKEINT(pEnvironData[tileX + tileYOffset].val);
-    hx = MAKEINT(pEnvironData[tileX + 1 + tileYOffset].val);
-    hxy = MAKEINT(pEnvironData[tileX + 1 + tileYOffset + mapWidth].val);
+    h0 = std::lrintf(pEnvironData[tileX + tileYOffset].val);
+    hx = std::lrintf(pEnvironData[tileX + 1 + tileYOffset].val);
+    hxy = std::lrintf(pEnvironData[tileX + 1 + tileYOffset + mapWidth].val);
 
     dx = ((hx - h0) * ox) / TILE_UNITS;
     dy = ((hxy - hx) * oy) / TILE_UNITS;
@@ -307,9 +307,9 @@ extern UDWORD map_MistValue(UDWORD x, UDWORD y)
     return (retVal * 4);
   }
   //tile split topleft to bottom right object if in bottom left half
-  h0 = MAKEINT(pEnvironData[tileX + tileYOffset].val);
-  hy = MAKEINT(pEnvironData[tileX + tileYOffset + mapWidth].val);
-  hxy = MAKEINT(pEnvironData[tileX + 1 + tileYOffset + mapWidth].val);
+  h0 = std::lrintf(pEnvironData[tileX + tileYOffset].val);
+  hy = std::lrintf(pEnvironData[tileX + tileYOffset + mapWidth].val);
+  hxy = std::lrintf(pEnvironData[tileX + 1 + tileYOffset + mapWidth].val);
 
   dx = ((hxy - hy) * ox) / TILE_UNITS;
   dy = ((hy - h0) * oy) / TILE_UNITS;
@@ -327,8 +327,8 @@ FUNCINLINE UDWORD map_TileMistValue(UDWORD x, UDWORD y)
   y = y >= (mapHeight) ? (mapHeight - 1) : y;
   DEBUG_ASSERT_TEXT(x < mapWidth, "mapTile: x coordinate bigger than map width");
   DEBUG_ASSERT_TEXT(y < mapHeight, "mapTile: y coordinate bigger than map height");
-  return (MAKEINT(pEnvironData[x + (y * mapWidth)].val) * 4);
+  return (std::lrintf(pEnvironData[x + (y * mapWidth)].val) * 4);
 }
 
 // -------------------------------------------------------------------------------
-void environShutDown(void) { if (pEnvironData) { FREE(pEnvironData); } }
+void environShutDown(void) { if (pEnvironData) { delete[] pEnvironData; } }

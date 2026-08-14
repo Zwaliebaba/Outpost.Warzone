@@ -30,7 +30,6 @@
 #include "Gateway.h"
 #include "Wrappers.h"
 
-#include "Fractions.h"
 
 BOOL bDoneWater = FALSE;
 BOOL nearLand(UDWORD x, UDWORD y);
@@ -189,14 +188,15 @@ BOOL mapNew(UDWORD width, UDWORD height)
     freeAllStructs();
     freeAllFeatures();
     proj_FreeAllProjectiles();
-    FREE(aMapLinePoints);
+    delete[] aMapLinePoints;
+    aMapLinePoints = nullptr;
     psMapTiles = nullptr;
     aMapLinePoints = nullptr;
   }
 
   if (width * height > MAP_MAXAREA)
   {
-    DBERROR(("mapNew: map too large : %d %d\n",width,height));
+    Neuron::Fatal("mapNew: map too large : {} {}\n",width,height);
     return FALSE;
   }
 
@@ -221,10 +221,10 @@ BOOL mapNew(UDWORD width, UDWORD height)
   }
   */
 
-  psMapTiles = static_cast<MAPTILE*>(MALLOC(sizeof(MAPTILE) * width*height));
+  psMapTiles = new (std::nothrow) MAPTILE[width*height];
   if (psMapTiles == nullptr)
   {
-    DBERROR(("mapNew: Out of memory"));
+    Neuron::Fatal("mapNew: Out of memory");
     return FALSE;
   }
   memset(psMapTiles, 0, sizeof(MAPTILE) * width * height);
@@ -279,7 +279,7 @@ BOOL mapLoadV1(UBYTE* pFileData, UDWORD fileSize)
   }
   if (((UBYTE*)psTileData) - pFileData > static_cast<SDWORD>(fileSize))
   {
-    DBERROR(("mapLoad: unexpected end of file"));
+    Neuron::Fatal("mapLoad: unexpected end of file");
     return FALSE;
   }
 
@@ -311,7 +311,7 @@ BOOL mapLoadV2(UBYTE* pFileData, UDWORD fileSize)
 
   if (((UBYTE*)psTileData) - pFileData > static_cast<SDWORD>(fileSize))
   {
-    DBERROR(("mapLoad: unexpected end of file"));
+    Neuron::Fatal("mapLoad: unexpected end of file");
     return FALSE;
   }
 
@@ -356,7 +356,7 @@ BOOL mapLoadV3(UBYTE* pFileData, UDWORD fileSize)
   {
     if (!gwNewGateway(psGate->x0, psGate->y0, psGate->x1, psGate->y1))
     {
-      DBERROR(("mapLoadV3: Unable to add gateway"));
+      Neuron::Fatal("mapLoadV3: Unable to add gateway");
       return FALSE;
     }
     psGate++;
@@ -408,7 +408,7 @@ BOOL mapLoadV3(UBYTE* pFileData, UDWORD fileSize)
       // Load in the zone equivelance lists.
       if (!gwNewEquivTable(psZoneHeader->numEquivZones))
       {
-        DBERROR(("gwNewEquivTable failed"));
+        Neuron::Fatal("gwNewEquivTable failed");
         return FALSE;
       }
 
@@ -418,7 +418,7 @@ BOOL mapLoadV3(UBYTE* pFileData, UDWORD fileSize)
         {
           if (!gwSetZoneEquiv(i, *pZone, pZone + 1))
           {
-            DBERROR(("gwSetZoneEquiv failed"));
+            Neuron::Fatal("gwSetZoneEquiv failed");
             return FALSE;
           }
         }
@@ -429,7 +429,7 @@ BOOL mapLoadV3(UBYTE* pFileData, UDWORD fileSize)
 
   if (pZone - pFileData > static_cast<SDWORD>(fileSize))
   {
-    DBERROR(("mapLoadV3: unexpected end of file"));
+    Neuron::Fatal("mapLoadV3: unexpected end of file");
     return FALSE;
   }
 
@@ -464,8 +464,9 @@ BOOL mapLoad(UBYTE* pFileData, UDWORD fileSize)
   psHeader = (MAP_SAVEHEADER*)pFileData;
   if (psHeader->aFileType[0] != 'm' || psHeader->aFileType[1] != 'a' || psHeader->aFileType[2] != 'p' || psHeader->aFileType[3] != ' ')
   {
-    DBERROR(("mapLoad: Incorrect file type"));
-    FREE(pFileData);
+    Neuron::Fatal("mapLoad: Incorrect file type");
+    delete[] pFileData;
+    pFileData = nullptr;
     return FALSE;
   }
 
@@ -473,8 +474,9 @@ BOOL mapLoad(UBYTE* pFileData, UDWORD fileSize)
   /* Check the file version */
   if (psHeader->version < VERSION_7)
   {
-    DBERROR(("MapLoad: unsupported save format version %d",psHeader->version));
-    FREE(pFileData);
+    Neuron::Fatal("MapLoad: unsupported save format version {}",psHeader->version);
+    delete[] pFileData;
+    pFileData = nullptr;
     return FALSE;
   }
   if (psHeader->version <= VERSION_9)
@@ -483,8 +485,9 @@ BOOL mapLoad(UBYTE* pFileData, UDWORD fileSize)
     pLoadMapFunc = mapLoadV3; // Includes gateway data for routing.
   else
   {
-    DBERROR(("MapLoad: undefined save format version %d",psHeader->version));
-    FREE(pFileData);
+    Neuron::Fatal("MapLoad: undefined save format version {}",psHeader->version);
+    delete[] pFileData;
+    pFileData = nullptr;
     return FALSE;
   }
 
@@ -494,7 +497,7 @@ BOOL mapLoad(UBYTE* pFileData, UDWORD fileSize)
 
   if (width * height > MAP_MAXAREA)
   {
-    DBERROR(("mapLoad: map too large : %d %d\n",width,height));
+    Neuron::Fatal("mapLoad: map too large : {} {}\n",width,height);
     return FALSE;
   }
 
@@ -532,7 +535,8 @@ BOOL mapLoad(UBYTE* pFileData, UDWORD fileSize)
       freeAllStructs();
       freeAllFeatures();
       proj_FreeAllProjectiles();
-      FREE(aMapLinePoints);
+      delete[] aMapLinePoints;
+      aMapLinePoints = nullptr;
       psMapTiles = nullptr;
       aMapLinePoints = nullptr;
     }
@@ -541,10 +545,10 @@ BOOL mapLoad(UBYTE* pFileData, UDWORD fileSize)
   /* Allocate the memory for the map */
   if (mapAlloc)
   {
-    psMapTiles = static_cast<MAPTILE*>(MALLOC(sizeof(MAPTILE) * width*height));
+    psMapTiles = new (std::nothrow) MAPTILE[width*height];
     if (psMapTiles == nullptr)
     {
-      DBERROR(("mapLoad: Out of memory"));
+      Neuron::Fatal("mapLoad: Out of memory");
       return FALSE;
     }
     memset(psMapTiles, 0, sizeof(MAPTILE) * width * height);
@@ -614,10 +618,10 @@ BOOL mapSave(UBYTE** ppFileData, UDWORD* pFileSize)
   for (i = 0; i < static_cast<UDWORD>(gwNumZones); i++)
     *pFileSize += 1 + aNumEquiv[i];
 
-  *ppFileData = static_cast<UBYTE*>(MALLOC(*pFileSize));
+  *ppFileData = new (std::nothrow) UBYTE[*pFileSize];
   if (*ppFileData == nullptr)
   {
-    DBERROR(("Out of memory"));
+    Neuron::Fatal("Out of memory");
     return FALSE;
   }
 
@@ -707,7 +711,7 @@ BOOL mapSave(UBYTE** ppFileData, UDWORD* pFileSize)
 /* Shutdown the map module */
 BOOL mapShutdown(void)
 {
-  if (psMapTiles) { FREE(psMapTiles); }
+  if (psMapTiles) { delete[] psMapTiles; }
   psMapTiles = nullptr;
   mapWidth = mapHeight = 0;
 
@@ -931,13 +935,13 @@ BOOL writeVisibilityData(STRING* pFileName)
   fileSize = (sizeof(struct _vis_save_header) + (mapEntries * sizeof(UBYTE)));
 
   /* Try and allocate it - freed up in same function */
-  pFileData = static_cast<UBYTE*>(MALLOC(fileSize));
+  pFileData = new (std::nothrow) UBYTE[fileSize];
 
   /* Did we get it? */
   if (!pFileData)
   {
     /* Nope, so do one */
-    DBERROR(("Saving visibility data : Cannot get the memory! (%d)",fileSize));
+    Neuron::Fatal("Saving visibility data : Cannot get the memory! ({})",fileSize);
     return (FALSE);
   }
 
@@ -961,26 +965,26 @@ BOOL writeVisibilityData(STRING* pFileName)
   pFile = fopen(pFileName, "wb");
   if (!pFile)
   {
-    DBERROR(("Saving visibility data : couldn't open file %s", pFileName));
+    Neuron::Fatal("Saving visibility data : couldn't open file {}", pFileName);
     return (FALSE);
   }
 
   /* Now, try and write it out */
   if (fwrite(pFileData, 1, fileSize, pFile) != fileSize)
   {
-    DBERROR(("Saving visibility data : write failed for %s", pFileName));
+    Neuron::Fatal("Saving visibility data : write failed for {}", pFileName);
     return (FALSE);
   }
 
   /* Finally, try and close it */
   if (fclose(pFile) != 0)
   {
-    DBERROR(("Saving visibility data : couldn't close %s", pFileName));
+    Neuron::Fatal("Saving visibility data : couldn't close {}", pFileName);
     return (FALSE);
   }
 
   /* And free up the memory we used */
-  if (pFileData != nullptr) { FREE(pFileData); }
+  if (pFileData != nullptr) { delete[] pFileData; }
   /* Everything is just fine! */
   return TRUE;
 }
@@ -999,8 +1003,8 @@ BOOL readVisibilityData(UBYTE* pFileData, UDWORD fileSize)
   psHeader = (VIS_SAVEHEADER*)pFileData;
   if (psHeader->aFileType[0] != 'v' || psHeader->aFileType[1] != 'i' || psHeader->aFileType[2] != 's' || psHeader->aFileType[3] != 'd')
   {
-    DBERROR(("Read visibility data : Weird file type found? Has header letters \
-				  - %s %s %s %s", psHeader->aFileType[0],psHeader->aFileType[1], psHeader->aFileType[2],psHeader->aFileType[3]));
+    Neuron::Fatal("Read visibility data : Weird file type found? Has header letters \
+				  - %s %s %s %s", psHeader->aFileType[0],psHeader->aFileType[1], psHeader->aFileType[2],psHeader->aFileType[3]);
     return FALSE;
   }
 
@@ -1012,7 +1016,7 @@ BOOL readVisibilityData(UBYTE* pFileData, UDWORD fileSize)
   if (fileSize != expectedFileSize)
   {
     /* No, so bomb out */
-    DBERROR(("Read visibility data : Weird file size for %d by %d sized map?", mapWidth,mapHeight));
+    Neuron::Fatal("Read visibility data : Weird file size for {} by {} sized map?", mapWidth,mapHeight);
     return (FALSE);
   }
 

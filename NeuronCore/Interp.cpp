@@ -50,7 +50,7 @@ BOOL interpTrace;
 /* Print out trace info if tracing is turned on */
 #define TRCPRINTF(x) \
 	if (interpTrace) \
-		DBPRINTF(x)
+		Neuron::DebugTrace x
 
 #ifndef NOSCRIPT
 
@@ -153,10 +153,10 @@ BOOL interpGetArrayVarData(UDWORD** pip, VAL_CHUNK* psGlobals, SCRIPT_CODE* psPr
   // print out the debug trace
   if (interpTrace)
   {
-    DBPRINTF(("%d->", base));
+    Neuron::DebugTrace("{}->", base);
     for (i = 0; i < dimensions; i += 1)
-      DBPRINTF(("[%d/%d]", vals[i], elements[i]));
-    DBPRINTF(("(%d) ", index));
+      Neuron::DebugTrace("[{}/{}]", vals[i], elements[i]);
+    Neuron::DebugTrace("({}) ", index);
   }
 
   // check the index is valid
@@ -198,13 +198,12 @@ BOOL interpRunScript(SCRIPT_CONTEXT* psContext, INTERP_RUNTYPE runType, UDWORD i
   SCRIPT_CODE* psProg;
   SDWORD instructionCount = 0;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psContext, sizeof(SCRIPT_CONTEXT)), "interpRunScript: invalid context pointer");
   psProg = psContext->psCode;
-  DEBUG_ASSERT_TEXT(PTRVALID(psProg, sizeof(SCRIPT_CODE)), "interpRunScript: invalid script code pointer");
 
   if (bInterpRunning)
   {
-    DEBUG_ASSERT_TEXT(FALSE, "interpRunScript: interpreter already running" "                 - callback being called from within a script function?");
+    DEBUG_ASSERT_TEXT(FALSE,
+      "interpRunScript: interpreter already running" "                 - callback being called from within a script function?");
     goto exit_with_error;
   }
 

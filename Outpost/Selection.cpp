@@ -145,7 +145,6 @@ UDWORD selSelectAllSameProp(UDWORD player, PROPULSION_TYPE propType, BOOL bOnScr
     {
       /* Get the propulsion type */
       psPropStats = asPropulsionStats + psDroid->asBits[COMP_PROPULSION].nStat;
-      DEBUG_ASSERT_TEXT(PTRVALID(psPropStats, sizeof(PROPULSION_STATS)), "moveUpdateUnit: invalid propulsion stats pointer");
       /* Same as that asked for - don't want Transporters*/
       if (psPropStats->propulsionType == propType AND psDroid->droidType != DROID_TRANSPORTER)
       {

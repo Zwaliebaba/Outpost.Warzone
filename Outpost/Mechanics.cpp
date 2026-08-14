@@ -106,17 +106,17 @@ BOOL mechShutdown(void)
           FREE(((DROID *)psObj)->asProgs);
         }*/
       droidRelease((DROID*)psObj);
-      heapFree(psDroidHeap, psObj);
+      delete (DROID*)psObj;
     }
     if (psObj->type == OBJ_STRUCTURE)
     {
       structureRelease((STRUCTURE*)psObj);
-      heapFree(psStructHeap, psObj);
+      delete (STRUCTURE*)psObj;
     }
     if (psObj->type == OBJ_FEATURE)
     {
       featureRelease((FEATURE*)psObj);
-      heapFree(psFeatureHeap, psObj);
+      delete (FEATURE*)psObj;
     }
   }
   psDestroyedObj = nullptr;
@@ -134,10 +134,10 @@ BOOL allocComponentList(COMPONENT_TYPE type, SDWORD number)
   //allocate the space for the Players' component lists
   for (inc = 0; inc < MAX_PLAYERS; inc++)
   {
-    apCompLists[inc][type] = static_cast<UBYTE*>(MALLOC(sizeof(UBYTE) * number));
+    apCompLists[inc][type] = new (std::nothrow) UBYTE[number];
     if (apCompLists[inc][type] == nullptr)
     {
-      DBERROR(("Out of memory assigning Player Component Lists"));
+      Neuron::Fatal("Out of memory assigning Player Component Lists");
       return FALSE;
     }
 
@@ -157,14 +157,22 @@ void freeComponentLists(void)
   for (inc = 0; inc < MAX_PLAYERS; inc++)
   {
     //free the component lists
-    FREE(apCompLists[inc][COMP_BODY]);
-    FREE(apCompLists[inc][COMP_BRAIN]);
-    FREE(apCompLists[inc][COMP_PROPULSION]);
-    FREE(apCompLists[inc][COMP_SENSOR]);
-    FREE(apCompLists[inc][COMP_ECM]);
-    FREE(apCompLists[inc][COMP_REPAIRUNIT]);
-    FREE(apCompLists[inc][COMP_CONSTRUCT]);
-    FREE(apCompLists[inc][COMP_WEAPON]);
+    delete[] apCompLists[inc][COMP_BODY];
+    apCompLists[inc][COMP_BODY] = nullptr;
+    delete[] apCompLists[inc][COMP_BRAIN];
+    apCompLists[inc][COMP_BRAIN] = nullptr;
+    delete[] apCompLists[inc][COMP_PROPULSION];
+    apCompLists[inc][COMP_PROPULSION] = nullptr;
+    delete[] apCompLists[inc][COMP_SENSOR];
+    apCompLists[inc][COMP_SENSOR] = nullptr;
+    delete[] apCompLists[inc][COMP_ECM];
+    apCompLists[inc][COMP_ECM] = nullptr;
+    delete[] apCompLists[inc][COMP_REPAIRUNIT];
+    apCompLists[inc][COMP_REPAIRUNIT] = nullptr;
+    delete[] apCompLists[inc][COMP_CONSTRUCT];
+    apCompLists[inc][COMP_CONSTRUCT] = nullptr;
+    delete[] apCompLists[inc][COMP_WEAPON];
+    apCompLists[inc][COMP_WEAPON] = nullptr;
   }
 }
 
@@ -177,10 +185,10 @@ BOOL allocStructLists(void)
   {
     if (numStructureStats)
     {
-      apStructTypeLists[inc] = static_cast<UBYTE*>(MALLOC(sizeof(UBYTE) * numStructureStats));
+      apStructTypeLists[inc] = new (std::nothrow) UBYTE[numStructureStats];
       if (apStructTypeLists[inc] == nullptr)
       {
-        DBERROR(("Out of memory assigning Player Structure Lists"));
+        Neuron::Fatal("Out of memory assigning Player Structure Lists");
         return FALSE;
       }
       for (stat = 0; stat < static_cast<SDWORD>(numStructureStats); stat++)
@@ -201,7 +209,7 @@ void freeStructureLists(void)
   for (inc = 0; inc < MAX_PLAYERS; inc++)
   {
     //free the structure lists
-    if (apStructTypeLists[inc]) { FREE(apStructTypeLists[inc]); }
+    if (apStructTypeLists[inc]) { delete[] apStructTypeLists[inc]; }
   }
 }
 
@@ -495,17 +503,25 @@ void gameStatEnd(void)
   for (inc = 0; inc < MAX_PLAYERS; inc++)
   {
     //free the component lists
-    FREE(apCompLists[inc][COMP_BODY]);
-    FREE(apCompLists[inc][COMP_BRAIN]);
-    FREE(apCompLists[inc][COMP_PROPULSION]);
-    FREE(apCompLists[inc][COMP_SENSOR]);
-    FREE(apCompLists[inc][COMP_ECM]);
-    FREE(apCompLists[inc][COMP_REPAIRUNIT]);
-    FREE(apCompLists[inc][COMP_CONSTRUCT]);
-    FREE(apCompLists[inc][COMP_WEAPON]);
+    delete[] apCompLists[inc][COMP_BODY];
+    apCompLists[inc][COMP_BODY] = nullptr;
+    delete[] apCompLists[inc][COMP_BRAIN];
+    apCompLists[inc][COMP_BRAIN] = nullptr;
+    delete[] apCompLists[inc][COMP_PROPULSION];
+    apCompLists[inc][COMP_PROPULSION] = nullptr;
+    delete[] apCompLists[inc][COMP_SENSOR];
+    apCompLists[inc][COMP_SENSOR] = nullptr;
+    delete[] apCompLists[inc][COMP_ECM];
+    apCompLists[inc][COMP_ECM] = nullptr;
+    delete[] apCompLists[inc][COMP_REPAIRUNIT];
+    apCompLists[inc][COMP_REPAIRUNIT] = nullptr;
+    delete[] apCompLists[inc][COMP_CONSTRUCT];
+    apCompLists[inc][COMP_CONSTRUCT] = nullptr;
+    delete[] apCompLists[inc][COMP_WEAPON];
+    apCompLists[inc][COMP_WEAPON] = nullptr;
 
     //free the structure lists
-    if (apStructTypeLists[inc]) { FREE(apStructTypeLists[inc]); }
+    if (apStructTypeLists[inc]) { delete[] apStructTypeLists[inc]; }
   }
 }
 

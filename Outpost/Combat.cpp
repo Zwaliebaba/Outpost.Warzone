@@ -81,10 +81,6 @@ void combFire(WEAPON* psWeap, BASE_OBJECT* psAttacker, BASE_OBJECT* psTarget)
   SDWORD level, cmdLevel;
   BOOL bMissVisible;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psWeap, sizeof(WEAPON)), "combFire: Invalid weapon pointer");
-  DEBUG_ASSERT_TEXT(PTRVALID(psAttacker, sizeof(BASE_OBJECT)), "combFire: Invalid attacker pointer");
-  DEBUG_ASSERT_TEXT(PTRVALID(psTarget, sizeof(BASE_OBJECT)), "combFire: Invalid target pointer");
-
   /* Get the stats for the weapon */
   psStats = asWeaponStats + psWeap->nStat;
 
@@ -141,7 +137,6 @@ void combFire(WEAPON* psWeap, BASE_OBJECT* psAttacker, BASE_OBJECT* psTarget)
     if (!visibleObjWallBlock(psAttacker, psTarget))
     {
       // Can't see the target - can't hit it with direct fire 
-      DBP3(("directLOS failed\n"));
       return;
     }
   }
@@ -151,7 +146,6 @@ void combFire(WEAPON* psWeap, BASE_OBJECT* psAttacker, BASE_OBJECT* psTarget)
     if (!visibleObjWallBlock(psAttacker, psTarget))
     {
       // Can't see the target - can't hit it with direct fire 
-      DBP3(("directLOS failed\n"));
       return;
     }
   }
@@ -160,7 +154,6 @@ void combFire(WEAPON* psWeap, BASE_OBJECT* psAttacker, BASE_OBJECT* psTarget)
     if (!visibleObject(psAttacker, psTarget))
     {
       // Can't see the target - can't hit it with direct fire 
-      DBP3(("directLOS failed\n"));
       return;
     }
   }
@@ -169,7 +162,6 @@ void combFire(WEAPON* psWeap, BASE_OBJECT* psAttacker, BASE_OBJECT* psTarget)
     if (!psTarget->visible[psAttacker->player])
     {
       // Can't get an indirect LOS - can't hit it with the weapon 
-      DBP3(("indirectLOS failed\n"));
       return;
     }
   }
@@ -275,7 +267,6 @@ void combFire(WEAPON* psWeap, BASE_OBJECT* psAttacker, BASE_OBJECT* psTarget)
   if (psTarget->visible[psAttacker->player] < VIS_ATTACK_MOD_LEVEL)
     hitMod = 50 * hitMod / 100;
 
-  DBP3(("%s Hit mod %d : ", psStats->pName, hitMod));
 
   /* Now see if the target is in range  - also check not too near*/
   xDiff = abs(psAttacker->x - psTarget->x);
@@ -298,11 +289,9 @@ void combFire(WEAPON* psWeap, BASE_OBJECT* psAttacker, BASE_OBJECT* psTarget)
     if (dice <= (weaponShortHit(psStats, psAttacker->player) * hitMod / 100) + hitInc)
     {
       /* Kerrrbaaang !!!!! a hit */
-      DBP3(("Shot hit (%d)\n", dice));
       if (!proj_SendProjectile(psWeap, psAttacker, psAttacker->player, psTarget->x, psTarget->y, psTarget->z, psTarget, FALSE))
       {
         /* Out of memory - we can safely ignore this */
-        DBP3(("Out of memory"));
         return;
       }
     }
@@ -326,11 +315,9 @@ void combFire(WEAPON* psWeap, BASE_OBJECT* psAttacker, BASE_OBJECT* psTarget)
     if (dice <= (weaponLongHit(psStats, psAttacker->player) * hitMod / 100) + hitInc)
     {
       /* Kerrrbaaang !!!!! a hit */
-      DBP3(("Shot hit (%d)\n", dice));
       if (!proj_SendProjectile(psWeap, psAttacker, psAttacker->player, psTarget->x, psTarget->y, psTarget->z, psTarget, FALSE))
       {
         /* Out of memory - we can safely ignore this */
-        DBP3(("Out of memory"));
         return;
       }
     }
@@ -340,7 +327,6 @@ void combFire(WEAPON* psWeap, BASE_OBJECT* psAttacker, BASE_OBJECT* psTarget)
   else
   {
     /* Out of range */
-    DBP3(("Out of range\n"));
     return;
   }
 
@@ -348,7 +334,6 @@ void combFire(WEAPON* psWeap, BASE_OBJECT* psAttacker, BASE_OBJECT* psTarget)
 
 missed:
   /* Deal with a missed shot */
-  DBP3(("Missed shot (%d)\n", dice));
 
   // Approximate the distance between the attacker and target
   xDiff = ABSDIF(psAttacker->x, psTarget->x);
@@ -362,7 +347,6 @@ missed:
   missDir = rand() % BUL_MAXSCATTERDIR;
   missX = aScatterDir[missDir].x * (rand() % missDist) + psTarget->x;
   missY = aScatterDir[missDir].y * (rand() % missDist) + psTarget->y;
-  DBP3(("Miss Loc: w(%4d,%4d), t(%3d,%3d)\n", missX, missY, missX>>TILE_SHIFT, missY>>TILE_SHIFT));
 
   // decide if a miss is visible
   bMissVisible = FALSE;
@@ -373,7 +357,6 @@ missed:
   if (!proj_SendProjectile(psWeap, psAttacker, psAttacker->player, missX, missY, psTarget->z, nullptr, bMissVisible))
   {
     /* Out of memory */
-    DBP3(("Out of memory"));
     return;
   }
 }

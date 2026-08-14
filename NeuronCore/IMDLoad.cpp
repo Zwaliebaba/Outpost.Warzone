@@ -174,7 +174,8 @@ iIMDShape* iV_IMDLoad(char* filename, iBool palkeep)
     //         'BPIE'
     if (tt == 0x45495042)
     {
-      FREE(pFileData); // free the file up
+      delete[] pFileData; // free the file up
+      pFileData = nullptr;
       return nullptr;
     }
   }
@@ -182,7 +183,8 @@ iIMDShape* iV_IMDLoad(char* filename, iBool palkeep)
   pFileDataStart = pFileData;
   pIMD = iV_ProcessIMD(&pFileData, pFileData + FileSize, path, (UBYTE*)imagePath, palkeep);
 
-  FREE(pFileDataStart); // free the file up
+  delete[] pFileDataStart; // free the file up
+  pFileDataStart = nullptr;
 
   return (pIMD);
 }
@@ -196,11 +198,11 @@ static UDWORD IMDConnectors = 0;
 
 void DumpIMDInfo(void)
 {
-  DBPRINTF(("imds loaded    =%d - using %d bytes\n",IMDcount,IMDcount*sizeof(iIMDShape)));
-  DBPRINTF(("polys loaded   =%d - using %d bytes\n",IMDPolycount,IMDPolycount*sizeof(iIMDPoly)));
-  DBPRINTF(("vertices loaded=%d - using %d bytes\n",IMDVertexcount,IMDVertexcount*(sizeof(VERTEXID)+sizeof(iVertex))));
-  DBPRINTF(("points loaded  =%d - using %d bytes\n",IMDPoints,IMDPoints*sizeof(iVector)));
-  DBPRINTF(("connectors     =%d - using %d bytes\n",IMDConnectors,IMDConnectors*sizeof(iVector) ));
+  Neuron::DebugTrace("imds loaded    ={} - using {} bytes\n",IMDcount,IMDcount*sizeof(iIMDShape));
+  Neuron::DebugTrace("polys loaded   ={} - using {} bytes\n",IMDPolycount,IMDPolycount*sizeof(iIMDPoly));
+  Neuron::DebugTrace("vertices loaded={} - using {} bytes\n",IMDVertexcount,IMDVertexcount*(sizeof(VERTEXID)+sizeof(iVertex)));
+  Neuron::DebugTrace("points loaded  ={} - using {} bytes\n",IMDPoints,IMDPoints*sizeof(iVector));
+  Neuron::DebugTrace("connectors     ={} - using {} bytes\n",IMDConnectors,IMDConnectors*sizeof(iVector) );
 }
 
 static char texfile[64]; //Last loaded texture page filename
@@ -230,7 +232,7 @@ iIMDShape* iV_ProcessIMD(UBYTE** ppFileData, UBYTE* FileDataEnd, UBYTE* IMDpath,
 
   if ((strcmp(IMD_NAME, buffer) != 0) && (strcmp(PIE_NAME, buffer) != 0))
   {
-    DBPRINTF(("(%s %d)\n",buffer,_IMD_VER));
+    Neuron::DebugTrace("({} {})\n",buffer,_IMD_VER);
     iV_Error(0xff, "(IMDLoad) not an IMD file!");
     return nullptr;
   }
@@ -489,7 +491,7 @@ static iBool _imd_load_polys(UBYTE** ppFileData, UBYTE* FileDataEnd, iIMDShape* 
 
           if (sscanf1((char**)ppFileData, "%d", &NewID) != 1)
           {
-            DBPRINTF(("failed poly %d. point %d [%s]\n",i,j,_IMD_NAME));
+            Neuron::DebugTrace("failed poly {}. point {} [{}]\n",i,j,_IMD_NAME);
 
             iV_Error(0xff, "(_load_polys) [poly %d] error reading poly indices", i);
             return FALSE;
@@ -601,7 +603,7 @@ static iBool _imd_load_bsp(UBYTE** ppFileData, UBYTE* FileDataEnd, iIMDShape* s,
     iV_Error(0xff, "(_imd_load_bsp) Too many polygons in IMD for BSP to handle");
 
   // Build table of nodes - we sort out the links later 
-  NodeList = static_cast<PSBSPTREENODE>(MALLOC((sizeof(BSPTREENODE))*BSPNodeCount)); // Allocate the entire node tree
+  NodeList = new (std::nothrow) BSPTREENODE[BSPNodeCount]; // Allocate the entire node tree
 
   memset(NodeList, 0, (sizeof(BSPTREENODE)) * BSPNodeCount); // Zero it out ... we need to make all pointers NULL
 

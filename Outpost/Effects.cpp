@@ -167,7 +167,7 @@ UDWORD EffectGetNumFrames(EFFECT* psEffect);
 UDWORD IMDGetNumFrames(iIMDShape* Shape);
 
 /* The fraction of a second that the last game frame took */
-static FRACT fraction;
+static float fraction;
 
 // ----------------------------------------------------------------------------------------
 BOOL essentialEffect(EFFECT_GROUP group, EFFECT_TYPE type)
@@ -357,9 +357,9 @@ void addEffect(iVector* pos, EFFECT_GROUP group, EFFECT_TYPE type, BOOL specifie
   freeEffect = i;
 
   /* Store away it's position - into FRACTS */
-  asEffectsList[freeEffect].position.x = MAKEFRACT(pos->x);
-  asEffectsList[freeEffect].position.y = MAKEFRACT(pos->y);
-  asEffectsList[freeEffect].position.z = MAKEFRACT(pos->z);
+  asEffectsList[freeEffect].position.x = static_cast<float>(pos->x);
+  asEffectsList[freeEffect].position.y = static_cast<float>(pos->y);
+  asEffectsList[freeEffect].position.z = static_cast<float>(pos->z);
 
   /* Now, note group and type */
   asEffectsList[freeEffect].group = static_cast<UBYTE>(group);
@@ -482,7 +482,7 @@ void processEffects(void)
   UDWORD num;
 
   /* Establish how long the last game frame took */
-  fraction = MAKEFRACT(frameTime) / GAME_TICKS_PER_SEC;
+  fraction = static_cast<float>(frameTime) / GAME_TICKS_PER_SEC;
   num = 0;
   missCount = 0;
 
@@ -537,7 +537,7 @@ void drawEffects(void)
       /* One more is active */
       numEffects++;
       /* Is it on the grid */
-      if (clipXY(static_cast<UDWORD>(MAKEINT(asEffectsList[i].position.x)), static_cast<UDWORD>(MAKEINT(asEffectsList[i].position.z))))
+      if (clipXY(static_cast<UDWORD>(std::lrintf(asEffectsList[i].position.x)), static_cast<UDWORD>(std::lrintf(asEffectsList[i].position.z))))
       {
 #ifndef BUCKET
         /* Draw it right now */
@@ -608,7 +608,7 @@ void updateEffect(EFFECT* psEffect)
     if (!gamePaused())
       updateFirework(psEffect);
     break;
-  default: DBERROR(("Weirdy class of effect passed to updateEffect"));
+  default: Neuron::Fatal("Weirdy class of effect passed to updateEffect");
     break;
   }
 }
@@ -638,14 +638,14 @@ void updateFirework(EFFECT* psEffect)
 
   if (psEffect->type == FIREWORK_TYPE_LAUNCHER)
   {
-    height = MAKEINT(psEffect->position.y);
+    height = std::lrintf(psEffect->position.y);
     if (height > psEffect->size)
     {
-      dv.x = MAKEINT(psEffect->position.x);
-      dv.z = MAKEINT(psEffect->position.z);
-      dv.y = MAKEINT(psEffect->position.y) + (psEffect->radius / 2);
+      dv.x = std::lrintf(psEffect->position.x);
+      dv.z = std::lrintf(psEffect->position.z);
+      dv.y = std::lrintf(psEffect->position.y) + (psEffect->radius / 2);
       addEffect(&dv, EFFECT_EXPLOSION, EXPLOSION_TYPE_MEDIUM,FALSE, nullptr, 0);
-      audio_PlayStaticTrack(MAKEINT(psEffect->position.x), MAKEINT(psEffect->position.z), ID_SOUND_EXPLOSION);
+      audio_PlayStaticTrack(std::lrintf(psEffect->position.x), std::lrintf(psEffect->position.z), ID_SOUND_EXPLOSION);
 
       for (dif = 0; dif < (psEffect->radius * 2); dif += 20)
       {
@@ -661,24 +661,24 @@ void updateFirework(EFFECT* psEffect)
           yDif = radius * (COS(DEG(val)));
           xDif = xDif / 4096; // cos it's fixed point
           yDif = yDif / 4096;
-          dv.x = MAKEINT(psEffect->position.x) + xDif;
-          dv.z = MAKEINT(psEffect->position.z) + yDif;
-          dv.y = MAKEINT(psEffect->position.y) + dif;
+          dv.x = std::lrintf(psEffect->position.x) + xDif;
+          dv.z = std::lrintf(psEffect->position.z) + yDif;
+          dv.y = std::lrintf(psEffect->position.y) + dif;
           effectGiveAuxVar(100);
           addEffect(&dv, EFFECT_FIREWORK, FIREWORK_TYPE_STARBURST,FALSE, nullptr, 0);
-          dv.x = MAKEINT(psEffect->position.x) - xDif;
-          dv.z = MAKEINT(psEffect->position.z) - yDif;
-          dv.y = MAKEINT(psEffect->position.y) + dif;
+          dv.x = std::lrintf(psEffect->position.x) - xDif;
+          dv.z = std::lrintf(psEffect->position.z) - yDif;
+          dv.y = std::lrintf(psEffect->position.y) + dif;
           effectGiveAuxVar(100);
           addEffect(&dv, EFFECT_FIREWORK, FIREWORK_TYPE_STARBURST,FALSE, nullptr, 0);
-          dv.x = MAKEINT(psEffect->position.x) + xDif;
-          dv.z = MAKEINT(psEffect->position.z) - yDif;
-          dv.y = MAKEINT(psEffect->position.y) + dif;
+          dv.x = std::lrintf(psEffect->position.x) + xDif;
+          dv.z = std::lrintf(psEffect->position.z) - yDif;
+          dv.y = std::lrintf(psEffect->position.y) + dif;
           effectGiveAuxVar(100);
           addEffect(&dv, EFFECT_FIREWORK, FIREWORK_TYPE_STARBURST,FALSE, nullptr, 0);
-          dv.x = MAKEINT(psEffect->position.x) - xDif;
-          dv.z = MAKEINT(psEffect->position.z) + yDif;
-          dv.y = MAKEINT(psEffect->position.y) + dif;
+          dv.x = std::lrintf(psEffect->position.x) - xDif;
+          dv.z = std::lrintf(psEffect->position.z) + yDif;
+          dv.y = std::lrintf(psEffect->position.y) + dif;
           effectGiveAuxVar(100);
           addEffect(&dv, EFFECT_FIREWORK, FIREWORK_TYPE_STARBURST,FALSE, nullptr, 0);
 
@@ -690,9 +690,9 @@ void updateFirework(EFFECT* psEffect)
     else
     {
       /* Add an effect at the firework's position */
-      dv.x = MAKEINT(psEffect->position.x);
-      dv.y = MAKEINT(psEffect->position.y);
-      dv.z = MAKEINT(psEffect->position.z);
+      dv.x = std::lrintf(psEffect->position.x);
+      dv.y = std::lrintf(psEffect->position.y);
+      dv.z = std::lrintf(psEffect->position.z);
 
       /* Add a trail graphic */
       addEffect(&dv, EFFECT_SMOKE, SMOKE_TYPE_TRAIL,FALSE, nullptr, 0);
@@ -748,10 +748,10 @@ void updateSatLaser(EFFECT* psEffect)
   LIGHT light;
 
   // Do these here cause there used by the lighting code below this if.
-  xPos = MAKEINT(psEffect->position.x);
-  startHeight = MAKEINT(psEffect->position.y);
+  xPos = std::lrintf(psEffect->position.x);
+  startHeight = std::lrintf(psEffect->position.y);
   endHeight = startHeight + 1064;
-  yPos = MAKEINT(psEffect->position.z);
+  yPos = std::lrintf(psEffect->position.z);
 
   if (psEffect->baseScale)
   {
@@ -769,7 +769,7 @@ void updateSatLaser(EFFECT* psEffect)
       addEffect(&dv, EFFECT_EXPLOSION, EXPLOSION_TYPE_MEDIUM,FALSE, nullptr, 0);
     }
     /* Add a sound effect */
-    audio_PlayStaticTrack(MAKEINT(psEffect->position.x), MAKEINT(psEffect->position.z), ID_SOUND_EXPLOSION);
+    audio_PlayStaticTrack(std::lrintf(psEffect->position.x), std::lrintf(psEffect->position.z), ID_SOUND_EXPLOSION);
 
     /* Add a shockwave */
     dv.x = xPos;
@@ -831,7 +831,7 @@ void updateExplosion(EFFECT* psEffect)
   LIGHT light;
   UDWORD percent;
   UDWORD range;
-  FRACT scaling;
+  float scaling;
 
   if (TEST_LIT(psEffect))
   {
@@ -850,9 +850,9 @@ void updateExplosion(EFFECT* psEffect)
       percent = 100;
 
     range = percent;
-    light.position.x = MAKEINT(psEffect->position.x);
-    light.position.y = MAKEINT(psEffect->position.y);
-    light.position.z = MAKEINT(psEffect->position.z);
+    light.position.x = std::lrintf(psEffect->position.x);
+    light.position.y = std::lrintf(psEffect->position.y);
+    light.position.z = std::lrintf(psEffect->position.z);
     light.range = (3 * range) / 2;
     light.colour = LIGHT_RED;
     processLight(&light);
@@ -863,13 +863,13 @@ void updateExplosion(EFFECT* psEffect)
 
   if (psEffect->type == EXPLOSION_TYPE_SHOCKWAVE)
   {
-    psEffect->size += MAKEINT((fraction * SHOCKWAVE_SPEED));
-    scaling = MAKEFRACT(psEffect->size) / MAX_SHOCKWAVE_SIZE;
-    psEffect->frameNumber = MAKEINT(scaling * EffectGetNumFrames(psEffect));
+    psEffect->size += std::lrintf(fraction * SHOCKWAVE_SPEED);
+    scaling = static_cast<float>(psEffect->size) / MAX_SHOCKWAVE_SIZE;
+    psEffect->frameNumber = std::lrintf(scaling * EffectGetNumFrames(psEffect));
 #ifdef DOLIGHTS
-    light.position.x = MAKEINT(psEffect->position.x);
-    light.position.y = MAKEINT(psEffect->position.y);
-    light.position.z = MAKEINT(psEffect->position.z);
+    light.position.x = std::lrintf(psEffect->position.x);
+    light.position.y = std::lrintf(psEffect->position.y);
+    light.position.z = std::lrintf(psEffect->position.z);
     light.range = psEffect->size + 200;
     light.colour = LIGHT_YELLOW;
     processLight(&light);
@@ -904,7 +904,7 @@ void updateExplosion(EFFECT* psEffect)
   {
     /* Tesla explosions are the only ones that rise, or indeed move */
     if (psEffect->type == EXPLOSION_TYPE_TESLA)
-      psEffect->position.y += (MAKEINT(psEffect->velocity.y) * fraction);
+      psEffect->position.y += (std::lrintf(psEffect->velocity.y) * fraction);
   }
 }
 
@@ -951,9 +951,9 @@ void updatePolySmoke(EFFECT* psEffect)
         if (psEffect->type == SMOKE_TYPE_DRIFTING)
         {
           /* Make it change direction */
-          psEffect->velocity.x = MAKEFRACT((rand()%20));
-          psEffect->velocity.z = MAKEFRACT((10-rand()%20));
-          psEffect->velocity.y = MAKEFRACT((10+rand()%20));
+          psEffect->velocity.x = static_cast<float>(rand()%20);
+          psEffect->velocity.z = static_cast<float>(10-rand()%20);
+          psEffect->velocity.y = static_cast<float>(10+rand()%20);
         }
         /* Reset the frame */
         psEffect->frameNumber = 0;
@@ -991,7 +991,7 @@ void updatePolySmoke(EFFECT* psEffect)
 */
 void updateGraviton(EFFECT* psEffect)
 {
-  FRACT accel;
+  float accel;
   iVector dv;
   UDWORD groundHeight;
   MAPTILE* psTile;
@@ -1000,9 +1000,9 @@ void updateGraviton(EFFECT* psEffect)
 #ifdef DOLIGHTS
   if (psEffect->type != GRAVITON_TYPE_GIBLET)
   {
-    light.position.x = MAKEINT(psEffect->position.x);
-    light.position.y = MAKEINT(psEffect->position.y);
-    light.position.z = MAKEINT(psEffect->position.z);
+    light.position.x = std::lrintf(psEffect->position.x);
+    light.position.y = std::lrintf(psEffect->position.y);
+    light.position.z = std::lrintf(psEffect->position.z);
     light.range = 128;
     light.colour = LIGHT_YELLOW;
     processLight(&light);
@@ -1019,17 +1019,17 @@ void updateGraviton(EFFECT* psEffect)
   psEffect->position.y += (psEffect->velocity.y * fraction);
   psEffect->position.z += (psEffect->velocity.z * fraction);
   /* If it's bounced/drifted off the map then kill it */
-  if ((static_cast<UDWORD>(MAKEINT(psEffect->position.x)) / TILE_UNITS >= mapWidth) OR static_cast<UDWORD>(MAKEINT(psEffect->position.z)) /
+  if ((static_cast<UDWORD>(std::lrintf(psEffect->position.x)) / TILE_UNITS >= mapWidth) OR static_cast<UDWORD>(std::lrintf(psEffect->position.z)) /
     TILE_UNITS >= mapHeight)
   {
     KILL_EFFECT(psEffect);
     return;
   }
 
-  groundHeight = map_Height(static_cast<UDWORD>(MAKEINT(psEffect->position.x)), static_cast<UDWORD>(MAKEINT(psEffect->position.z)));
+  groundHeight = map_Height(static_cast<UDWORD>(std::lrintf(psEffect->position.x)), static_cast<UDWORD>(std::lrintf(psEffect->position.z)));
 
   /* If it's going up and it's still under the landscape, then remove it... */
-  if (psEffect->position.y < groundHeight AND MAKEINT(psEffect->velocity.y) > 0)
+  if (psEffect->position.y < groundHeight AND std::lrintf(psEffect->velocity.y) > 0)
   {
     KILL_EFFECT(psEffect);
     return;
@@ -1046,9 +1046,9 @@ void updateGraviton(EFFECT* psEffect)
       psEffect->lastFrame = gameTime;
 
       /* Add an effect at the gravitons's position */
-      dv.x = MAKEINT(psEffect->position.x);
-      dv.y = MAKEINT(psEffect->position.y);
-      dv.z = MAKEINT(psEffect->position.z);
+      dv.x = std::lrintf(psEffect->position.x);
+      dv.y = std::lrintf(psEffect->position.y);
+      dv.z = std::lrintf(psEffect->position.z);
 
       /* Add a trail graphic */
       addEffect(&dv, EFFECT_SMOKE, SMOKE_TYPE_TRAIL,FALSE, nullptr, 0);
@@ -1064,49 +1064,49 @@ void updateGraviton(EFFECT* psEffect)
       psEffect->lastFrame = gameTime;
 
       /* Add an effect at the gravitons's position */
-      dv.x = MAKEINT(psEffect->position.x);
-      dv.y = MAKEINT(psEffect->position.y);
-      dv.z = MAKEINT(psEffect->position.z);
+      dv.x = std::lrintf(psEffect->position.x);
+      dv.y = std::lrintf(psEffect->position.y);
+      dv.z = std::lrintf(psEffect->position.z);
       addEffect(&dv, EFFECT_BLOOD, BLOOD_TYPE_NORMAL,FALSE, nullptr, 0);
     }
   }
 
   /* Spin it round a bit */
-  psEffect->rotation.x += MAKEINT(static_cast<FRACT>(psEffect->spin.x) * fraction);
-  psEffect->rotation.y += MAKEINT(static_cast<FRACT>(psEffect->spin.y) * fraction);
-  psEffect->rotation.z += MAKEINT(static_cast<FRACT>(psEffect->spin.z) * fraction);
+  psEffect->rotation.x += std::lrintf(static_cast<float>(psEffect->spin.x) * fraction);
+  psEffect->rotation.y += std::lrintf(static_cast<float>(psEffect->spin.y) * fraction);
+  psEffect->rotation.z += std::lrintf(static_cast<float>(psEffect->spin.z) * fraction);
 
   /* Update velocity (and retarding of descent) according to present frame rate */
   accel = (GRAVITON_GRAVITY * fraction);
   psEffect->velocity.y += accel;
 
   /* If it's bounced/drifted off the map then kill it */
-  if ((MAKEINT(psEffect->position.x) <= TILE_UNITS) OR MAKEINT(psEffect->position.z) <= TILE_UNITS)
+  if ((std::lrintf(psEffect->position.x) <= TILE_UNITS) OR std::lrintf(psEffect->position.z) <= TILE_UNITS)
   {
     KILL_EFFECT(psEffect);
     return;
   }
 
   /* Are we below it? - Hit the ground? */
-  if ((MAKEINT(psEffect->position.y) < static_cast<SDWORD>(groundHeight)))
+  if ((std::lrintf(psEffect->position.y) < static_cast<SDWORD>(groundHeight)))
   {
-    psTile = mapTile((MAKEINT(psEffect->position.x)) >> TILE_SHIFT, (MAKEINT(psEffect->position.z)) >> TILE_SHIFT);
+    psTile = mapTile((std::lrintf(psEffect->position.x)) >> TILE_SHIFT, (std::lrintf(psEffect->position.z)) >> TILE_SHIFT);
     if (TERRAIN_TYPE(psTile) == TER_WATER)
     {
       KILL_EFFECT(psEffect);
       return;
     }
     /* Are we falling - rather than rising? */
-    if (MAKEINT(psEffect->velocity.y) < 0)
+    if (std::lrintf(psEffect->velocity.y) < 0)
     {
       /* Has it sufficient energy to keep bouncing? */
-      if (abs(MAKEINT(psEffect->velocity.y)) > 16 AND psEffect->specific <= 2)
+      if (abs(std::lrintf(psEffect->velocity.y)) > 16 AND psEffect->specific <= 2)
       {
         psEffect->specific++;
         /* Half it's velocity */
-        psEffect->velocity.y /= static_cast<FRACT>(-2); // only y gets flipped
+        psEffect->velocity.y /= static_cast<float>(-2); // only y gets flipped
         /* Set it at ground level - may have gone through */
-        psEffect->position.y = MAKEFRACT(groundHeight);
+        psEffect->position.y = static_cast<float>(groundHeight);
       }
       else
       {
@@ -1114,9 +1114,9 @@ void updateGraviton(EFFECT* psEffect)
         if (psEffect->type != GRAVITON_TYPE_GIBLET)
         {
           /* Remove the graviton and add an explosion */
-          dv.x = MAKEINT(psEffect->position.x);
-          dv.y = MAKEINT(psEffect->position.y + 10);
-          dv.z = MAKEINT(psEffect->position.z);
+          dv.x = std::lrintf(psEffect->position.x);
+          dv.y = std::lrintf(psEffect->position.y + 10);
+          dv.z = std::lrintf(psEffect->position.z);
           addEffect(&dv, EFFECT_EXPLOSION, EXPLOSION_TYPE_VERY_SMALL,FALSE, nullptr, 0);
         }
         KILL_EFFECT(psEffect);
@@ -1138,7 +1138,7 @@ void updateDestruction(EFFECT* psEffect)
   LIGHT light;
   UDWORD percent;
   UDWORD range;
-  FRACT div;
+  float div;
   UDWORD height;
 
   percent = PERCENT(gameTime-psEffect->birthTime, psEffect->lifeSpan);
@@ -1146,9 +1146,9 @@ void updateDestruction(EFFECT* psEffect)
     percent = 100;
   range = 50 - abs(static_cast<SDWORD>(50 - percent));
 #ifdef DOLIGHTS
-  light.position.x = MAKEINT(psEffect->position.x);
-  light.position.y = MAKEINT(psEffect->position.y);
-  light.position.z = MAKEINT(psEffect->position.z);
+  light.position.x = std::lrintf(psEffect->position.x);
+  light.position.y = std::lrintf(psEffect->position.y);
+  light.position.z = std::lrintf(psEffect->position.z);
   if (psEffect->type == DESTRUCTION_TYPE_STRUCTURE)
     light.range = range * 10;
   else
@@ -1174,19 +1174,19 @@ void updateDestruction(EFFECT* psEffect)
   {
     if ((gameTime - psEffect->birthTime) > ((9 * psEffect->lifeSpan) / 10))
     {
-      pos.x = MAKEINT(psEffect->position.x);
-      pos.z = MAKEINT(psEffect->position.z);
-      pos.y = MAKEINT(psEffect->position.y);
+      pos.x = std::lrintf(psEffect->position.x);
+      pos.z = std::lrintf(psEffect->position.z);
+      pos.y = std::lrintf(psEffect->position.y);
       addEffect(&pos, EFFECT_EXPLOSION, EXPLOSION_TYPE_LARGE,FALSE, nullptr, 0);
       KILL_EFFECT(psEffect);
       return;
     }
 
-    div = MAKEFRACT(gameTime - psEffect->birthTime) / psEffect->lifeSpan;
-    if (div > MAKEFRACT(1))
-      div = MAKEFRACT(1);
-    div = MAKEFRACT(1) - div;
-    height = MAKEINT(div * psEffect->imd->ymax);
+    div = static_cast<float>(gameTime - psEffect->birthTime) / psEffect->lifeSpan;
+    if (div > 1.0f)
+      div = 1.0f;
+    div = 1.0f - div;
+    height = std::lrintf(div * psEffect->imd->ymax);
   }
   else
     height = 16;
@@ -1222,12 +1222,12 @@ void updateDestruction(EFFECT* psEffect)
     }
 
     /* Find a position to dump it at */
-    pos.x = MAKEINT(psEffect->position.x) + widthScatter - rand() % (2 * widthScatter);
-    pos.z = MAKEINT(psEffect->position.z) + breadthScatter - rand() % (2 * breadthScatter);
-    pos.y = MAKEINT(psEffect->position.y) + height + rand() % heightScatter;
+    pos.x = std::lrintf(psEffect->position.x) + widthScatter - rand() % (2 * widthScatter);
+    pos.z = std::lrintf(psEffect->position.z) + breadthScatter - rand() % (2 * breadthScatter);
+    pos.y = std::lrintf(psEffect->position.y) + height + rand() % heightScatter;
 
     if (psEffect->type == DESTRUCTION_TYPE_SKYSCRAPER)
-      pos.y = MAKEINT(psEffect->position.y) + height;
+      pos.y = std::lrintf(psEffect->position.y) + height;
 
     /* Choose an effect */
     effectType = rand() % 15;
@@ -1270,8 +1270,8 @@ void updateDestruction(EFFECT* psEffect)
       /* Add sound effect, but only if we're less than 3/4 of the way thru' destruction */
       if (gameTime < ((3 * (psEffect->birthTime + psEffect->lifeSpan) / 4)))
       {
-        iX = MAKEINT(psEffect->position.x);
-        iY = MAKEINT(psEffect->position.z);
+        iX = std::lrintf(psEffect->position.x);
+        iY = std::lrintf(psEffect->position.z);
         audio_PlayStaticTrack(iX, iY, ID_SOUND_EXPLOSION);
       }
       break;
@@ -1313,8 +1313,8 @@ void updateConstruction(EFFECT* psEffect)
   if (TEST_CYCLIC(psEffect))
   {
     /* Has it hit the ground */
-    if (static_cast<UDWORD>(MAKEINT(psEffect->position.y)) <= map_Height(static_cast<UDWORD>(MAKEINT(psEffect->position.x)),
-                                                                         static_cast<UDWORD>(MAKEINT(psEffect->position.z))))
+    if (static_cast<UDWORD>(std::lrintf(psEffect->position.y)) <= map_Height(static_cast<UDWORD>(std::lrintf(psEffect->position.x)),
+                                                                         static_cast<UDWORD>(std::lrintf(psEffect->position.z))))
     {
       KILL_EFFECT(psEffect);
       return;
@@ -1336,9 +1336,9 @@ void updateFire(EFFECT* psEffect)
   if (percent > 100)
     percent = 100;
 #ifdef DOLIGHTS
-  light.position.x = MAKEINT(psEffect->position.x);
-  light.position.y = MAKEINT(psEffect->position.y);
-  light.position.z = MAKEINT(psEffect->position.z);
+  light.position.x = std::lrintf(psEffect->position.x);
+  light.position.y = std::lrintf(psEffect->position.y);
+  light.position.z = std::lrintf(psEffect->position.z);
   light.range = (percent * psEffect->radius * 3) / 100;
   light.colour = LIGHT_RED;
   processLight(&light);
@@ -1348,8 +1348,8 @@ void updateFire(EFFECT* psEffect)
   if (gameTime - psEffect->lastFrame > psEffect->frameDelay)
   {
     psEffect->lastFrame = gameTime;
-    pos.x = (MAKEINT(psEffect->position.x) + ((rand() % psEffect->radius) - (rand() % (2 * psEffect->radius))));
-    pos.z = (MAKEINT(psEffect->position.z) + ((rand() % psEffect->radius) - (rand() % (2 * psEffect->radius))));
+    pos.x = (std::lrintf(psEffect->position.x) + ((rand() % psEffect->radius) - (rand() % (2 * psEffect->radius))));
+    pos.z = (std::lrintf(psEffect->position.z) + ((rand() % psEffect->radius) - (rand() % (2 * psEffect->radius))));
     pos.y = map_Height(pos.x, pos.z);
 
     if (psEffect->type == FIRE_TYPE_SMOKY_BLUE)
@@ -1359,15 +1359,15 @@ void updateFire(EFFECT* psEffect)
 
     if (psEffect->type == FIRE_TYPE_SMOKY OR psEffect->type == FIRE_TYPE_SMOKY_BLUE)
     {
-      pos.x = (MAKEINT(psEffect->position.x) + ((rand() % psEffect->radius / 2) - (rand() % (2 * psEffect->radius / 2))));
-      pos.z = (MAKEINT(psEffect->position.z) + ((rand() % psEffect->radius / 2) - (rand() % (2 * psEffect->radius / 2))));
+      pos.x = (std::lrintf(psEffect->position.x) + ((rand() % psEffect->radius / 2) - (rand() % (2 * psEffect->radius / 2))));
+      pos.z = (std::lrintf(psEffect->position.z) + ((rand() % psEffect->radius / 2) - (rand() % (2 * psEffect->radius / 2))));
       pos.y = map_Height(pos.x, pos.z);
       addEffect(&pos, EFFECT_SMOKE, SMOKE_TYPE_DRIFTING_HIGH,FALSE, nullptr, 0);
     }
     else
     {
-      pos.x = (MAKEINT(psEffect->position.x) + ((rand() % psEffect->radius) - (rand() % (2 * psEffect->radius))));
-      pos.z = (MAKEINT(psEffect->position.z) + ((rand() % psEffect->radius) - (rand() % (2 * psEffect->radius))));
+      pos.x = (std::lrintf(psEffect->position.x) + ((rand() % psEffect->radius) - (rand() % (2 * psEffect->radius))));
+      pos.z = (std::lrintf(psEffect->position.z) + ((rand() % psEffect->radius) - (rand() % (2 * psEffect->radius))));
       pos.y = map_Height(pos.x, pos.z);
       addEffect(&pos, EFFECT_EXPLOSION, EXPLOSION_TYPE_SMALL,FALSE, nullptr, 0);
     }
@@ -1429,7 +1429,7 @@ void renderEffect(EFFECT* psEffect)
   case EFFECT_FIREWORK:
     renderFirework(psEffect);
     break;
-  default: DBERROR(("Weirdy class of effect passed to renderEffect"));
+  default: Neuron::Fatal("Weirdy class of effect passed to renderEffect");
     break;
   }
 }
@@ -1442,9 +1442,9 @@ void renderWaypointEffect(EFFECT* psEffect)
   SDWORD rx, rz;
   UDWORD brightness, specular;
 
-  dv.x = (static_cast<UDWORD>(MAKEINT(psEffect->position.x)) - player.p.x) - terrainMidX * TILE_UNITS;
-  dv.y = static_cast<UDWORD>(MAKEINT(psEffect->position.y));
-  dv.z = terrainMidY * TILE_UNITS - (static_cast<UDWORD>(MAKEINT(psEffect->position.z)) - player.p.z);
+  dv.x = (static_cast<UDWORD>(std::lrintf(psEffect->position.x)) - player.p.x) - terrainMidX * TILE_UNITS;
+  dv.y = static_cast<UDWORD>(std::lrintf(psEffect->position.y));
+  dv.z = terrainMidY * TILE_UNITS - (static_cast<UDWORD>(std::lrintf(psEffect->position.z)) - player.p.z);
   iV_MatrixBegin(); /* Push the indentity matrix */
   iV_TRANSLATE(dv.x, dv.y, dv.z);
   rx = player.p.x & (TILE_UNITS - 1); /* Get the x,z translation components */
@@ -1452,8 +1452,8 @@ void renderWaypointEffect(EFFECT* psEffect)
   iV_TRANSLATE(rx, 0, -rz); /* Translate */
 
   // set up lighting
-  brightness = lightDoFogAndIllumination(pie_MAX_BRIGHT_LEVEL, getCentreX() - MAKEINT(psEffect->position.x),
-                                         getCentreZ() - MAKEINT(psEffect->position.z), &specular);
+  brightness = lightDoFogAndIllumination(pie_MAX_BRIGHT_LEVEL, getCentreX() - std::lrintf(psEffect->position.x),
+                                         getCentreZ() - std::lrintf(psEffect->position.z), &specular);
 
   pie_Draw3DShape(psEffect->imd, 0, 0, brightness, specular, 0, 0);
   iV_MatrixEnd();
@@ -1470,9 +1470,9 @@ void renderFirework(EFFECT* psEffect)
   if (psEffect->type == FIREWORK_TYPE_LAUNCHER)
     return;
 
-  dv.x = (static_cast<UDWORD>(MAKEINT(psEffect->position.x)) - player.p.x) - terrainMidX * TILE_UNITS;
-  dv.y = static_cast<UDWORD>(MAKEINT(psEffect->position.y));
-  dv.z = terrainMidY * TILE_UNITS - (static_cast<UDWORD>(MAKEINT(psEffect->position.z)) - player.p.z);
+  dv.x = (static_cast<UDWORD>(std::lrintf(psEffect->position.x)) - player.p.x) - terrainMidX * TILE_UNITS;
+  dv.y = static_cast<UDWORD>(std::lrintf(psEffect->position.y));
+  dv.z = terrainMidY * TILE_UNITS - (static_cast<UDWORD>(std::lrintf(psEffect->position.z)) - player.p.z);
   iV_MatrixBegin(); /* Push the indentity matrix */
   iV_TRANSLATE(dv.x, dv.y, dv.z);
   rx = player.p.x & (TILE_UNITS - 1); /* Get the x,z translation components */
@@ -1482,8 +1482,8 @@ void renderFirework(EFFECT* psEffect)
   iV_MatrixRotateY(-player.r.y);
   iV_MatrixRotateX(-player.r.x);
 
-  brightness = lightDoFogAndIllumination(pie_MAX_BRIGHT_LEVEL, getCentreX() - MAKEINT(psEffect->position.x),
-                                         getCentreZ() - MAKEINT(psEffect->position.z), &specular);
+  brightness = lightDoFogAndIllumination(pie_MAX_BRIGHT_LEVEL, getCentreX() - std::lrintf(psEffect->position.x),
+                                         getCentreZ() - std::lrintf(psEffect->position.z), &specular);
 
   scaleMatrix(psEffect->size);
   pie_Draw3DShape(psEffect->imd, psEffect->frameNumber, 0, brightness, 0, pie_ADDITIVE, EFFECT_EXPLOSION_ADDITIVE);
@@ -1498,9 +1498,9 @@ void renderBloodEffect(EFFECT* psEffect)
   SDWORD rx, rz;
   UDWORD brightness, specular;
 
-  dv.x = (static_cast<UDWORD>(MAKEINT(psEffect->position.x)) - player.p.x) - terrainMidX * TILE_UNITS;
-  dv.y = static_cast<UDWORD>(MAKEINT(psEffect->position.y));
-  dv.z = terrainMidY * TILE_UNITS - (static_cast<UDWORD>(MAKEINT(psEffect->position.z)) - player.p.z);
+  dv.x = (static_cast<UDWORD>(std::lrintf(psEffect->position.x)) - player.p.x) - terrainMidX * TILE_UNITS;
+  dv.y = static_cast<UDWORD>(std::lrintf(psEffect->position.y));
+  dv.z = terrainMidY * TILE_UNITS - (static_cast<UDWORD>(std::lrintf(psEffect->position.z)) - player.p.z);
   iV_MatrixBegin(); /* Push the indentity matrix */
   iV_TRANSLATE(dv.x, dv.y, dv.z);
   rx = player.p.x & (TILE_UNITS - 1); /* Get the x,z translation components */
@@ -1511,8 +1511,8 @@ void renderBloodEffect(EFFECT* psEffect)
   scaleMatrix(psEffect->size);
 
   // set up lighting
-  brightness = lightDoFogAndIllumination(pie_MAX_BRIGHT_LEVEL, getCentreX() - MAKEINT(psEffect->position.x),
-                                         getCentreZ() - MAKEINT(psEffect->position.z), &specular);
+  brightness = lightDoFogAndIllumination(pie_MAX_BRIGHT_LEVEL, getCentreX() - std::lrintf(psEffect->position.x),
+                                         getCentreZ() - std::lrintf(psEffect->position.z), &specular);
 
   pie_Draw3DShape(getImdFromIndex(MI_BLOOD), psEffect->frameNumber, 0, brightness, specular, pie_TRANSLUCENT, EFFECT_BLOOD_TRANSPARENCY);
   iV_MatrixEnd();
@@ -1523,23 +1523,23 @@ void renderDestructionEffect(EFFECT* psEffect)
 {
   iVector dv;
   SDWORD rx, rz;
-  FRACT div;
+  float div;
   SDWORD percent;
   UDWORD brightness, specular;
 
   if (psEffect->type != DESTRUCTION_TYPE_SKYSCRAPER)
     return;
 
-  dv.x = (static_cast<UDWORD>(MAKEINT(psEffect->position.x)) - player.p.x) - terrainMidX * TILE_UNITS;
-  dv.y = static_cast<UDWORD>(MAKEINT(psEffect->position.y));
-  dv.z = terrainMidY * TILE_UNITS - (static_cast<UDWORD>(MAKEINT(psEffect->position.z)) - player.p.z);
+  dv.x = (static_cast<UDWORD>(std::lrintf(psEffect->position.x)) - player.p.x) - terrainMidX * TILE_UNITS;
+  dv.y = static_cast<UDWORD>(std::lrintf(psEffect->position.y));
+  dv.z = terrainMidY * TILE_UNITS - (static_cast<UDWORD>(std::lrintf(psEffect->position.z)) - player.p.z);
   iV_MatrixBegin(); /* Push the indentity matrix */
   iV_TRANSLATE(dv.x, dv.y, dv.z);
   rx = player.p.x & (TILE_UNITS - 1); /* Get the x,z translation components */
   rz = player.p.z & (TILE_UNITS - 1);
   iV_TRANSLATE(rx, 0, -rz); /* Translate */
 
-  div = MAKEFRACT(gameTime - psEffect->birthTime) / psEffect->lifeSpan;
+  div = static_cast<float>(gameTime - psEffect->birthTime) / psEffect->lifeSpan;
   if (div > 1.0)
     div = 1.0; //temporary!
   {
@@ -1548,8 +1548,8 @@ void renderDestructionEffect(EFFECT* psEffect)
   }
 
   //get fog value
-  brightness = lightDoFogAndIllumination(pie_MAX_BRIGHT_LEVEL, getCentreX() - MAKEINT(psEffect->position.x),
-                                         getCentreZ() - MAKEINT(psEffect->position.z), &specular);
+  brightness = lightDoFogAndIllumination(pie_MAX_BRIGHT_LEVEL, getCentreX() - std::lrintf(psEffect->position.x),
+                                         getCentreZ() - std::lrintf(psEffect->position.z), &specular);
 
   if (!gamePaused())
   {
@@ -1613,9 +1613,9 @@ void renderExplosionEffect(EFFECT* psEffect)
       return;
   }
 
-  dv.x = (static_cast<UDWORD>(MAKEINT(psEffect->position.x)) - player.p.x) - terrainMidX * TILE_UNITS;
-  dv.y = static_cast<UDWORD>(MAKEINT(psEffect->position.y));
-  dv.z = terrainMidY * TILE_UNITS - (static_cast<UDWORD>(MAKEINT(psEffect->position.z)) - player.p.z);
+  dv.x = (static_cast<UDWORD>(std::lrintf(psEffect->position.x)) - player.p.x) - terrainMidX * TILE_UNITS;
+  dv.y = static_cast<UDWORD>(std::lrintf(psEffect->position.y));
+  dv.z = terrainMidY * TILE_UNITS - (static_cast<UDWORD>(std::lrintf(psEffect->position.z)) - player.p.z);
   iV_MatrixBegin(); /* Push the indentity matrix */
   iV_TRANSLATE(dv.x, dv.y, dv.z);
   rx = player.p.x & (TILE_UNITS - 1); /* Get the x,z translation components */
@@ -1635,7 +1635,7 @@ void renderExplosionEffect(EFFECT* psEffect)
   /* Tesla explosions diminish in size */
   if (psEffect->type == EXPLOSION_TYPE_TESLA)
   {
-    percent = MAKEINT(PERCENT((gameTime - psEffect->birthTime), psEffect->lifeSpan));
+    percent = std::lrintf(PERCENT((gameTime - psEffect->birthTime), psEffect->lifeSpan));
     if (percent < 0)
       percent = 0;
     if (percent > 45)
@@ -1644,14 +1644,14 @@ void renderExplosionEffect(EFFECT* psEffect)
   }
   else if (psEffect->type == EXPLOSION_TYPE_PLASMA)
   {
-    percent = (MAKEINT(PERCENT((gameTime - psEffect->birthTime), psEffect->lifeSpan))) / 3;
+    percent = (std::lrintf(PERCENT((gameTime - psEffect->birthTime), psEffect->lifeSpan))) / 3;
     scaleMatrix(BASE_PLASMA_SIZE + percent);
   }
   else
     scaleMatrix(psEffect->size);
   //get fog value
-  brightness = lightDoFogAndIllumination(pie_MAX_BRIGHT_LEVEL, getCentreX() - MAKEINT(psEffect->position.x),
-                                         getCentreZ() - MAKEINT(psEffect->position.z), &specular);
+  brightness = lightDoFogAndIllumination(pie_MAX_BRIGHT_LEVEL, getCentreX() - std::lrintf(psEffect->position.x),
+                                         getCentreZ() - std::lrintf(psEffect->position.z), &specular);
 
   if (psEffect->type == EXPLOSION_TYPE_PLASMA)
     pie_Draw3DShape(psEffect->imd, psEffect->frameNumber, 0, brightness, 0, pie_ADDITIVE, EFFECT_PLASMA_ADDITIVE);
@@ -1674,9 +1674,9 @@ void renderGravitonEffect(EFFECT* psEffect)
   UDWORD brightness, specular;
 
   /* Establish world position */
-  vec.x = (static_cast<UDWORD>(MAKEINT(psEffect->position.x)) - player.p.x) - terrainMidX * TILE_UNITS;
-  vec.y = static_cast<UDWORD>(MAKEINT(psEffect->position.y));
-  vec.z = terrainMidY * TILE_UNITS - (static_cast<UDWORD>(MAKEINT(psEffect->position.z)) - player.p.z);
+  vec.x = (static_cast<UDWORD>(std::lrintf(psEffect->position.x)) - player.p.x) - terrainMidX * TILE_UNITS;
+  vec.y = static_cast<UDWORD>(std::lrintf(psEffect->position.y));
+  vec.z = terrainMidY * TILE_UNITS - (static_cast<UDWORD>(std::lrintf(psEffect->position.z)) - player.p.z);
 
   /* Push matrix */
   iV_MatrixBegin();
@@ -1703,8 +1703,8 @@ void renderGravitonEffect(EFFECT* psEffect)
   }
   else
     scaleMatrix(100);
-  brightness = lightDoFogAndIllumination(pie_MAX_BRIGHT_LEVEL, getCentreX() - MAKEINT(psEffect->position.x),
-                                         getCentreZ() - MAKEINT(psEffect->position.z), &specular);
+  brightness = lightDoFogAndIllumination(pie_MAX_BRIGHT_LEVEL, getCentreX() - std::lrintf(psEffect->position.x),
+                                         getCentreZ() - std::lrintf(psEffect->position.z), &specular);
 
   pie_Draw3DShape(psEffect->imd, psEffect->frameNumber, 0, brightness, specular, 0, 0);
 
@@ -1729,9 +1729,9 @@ void renderConstructionEffect(EFFECT* psEffect)
   null.x = null.y = null.z = 0;
 
   /* Establish world position */
-  vec.x = (static_cast<UDWORD>(MAKEINT(psEffect->position.x)) - player.p.x) - terrainMidX * TILE_UNITS;
-  vec.y = static_cast<UDWORD>(MAKEINT(psEffect->position.y));
-  vec.z = terrainMidY * TILE_UNITS - (static_cast<UDWORD>(MAKEINT(psEffect->position.z)) - player.p.z);
+  vec.x = (static_cast<UDWORD>(std::lrintf(psEffect->position.x)) - player.p.x) - terrainMidX * TILE_UNITS;
+  vec.y = static_cast<UDWORD>(std::lrintf(psEffect->position.y));
+  vec.z = terrainMidY * TILE_UNITS - (static_cast<UDWORD>(std::lrintf(psEffect->position.z)) - player.p.z);
 
   /* Push matrix */
   iV_MatrixBegin();
@@ -1756,7 +1756,7 @@ void renderConstructionEffect(EFFECT* psEffect)
   }
 
   /* Scale size according to age */
-  percent = MAKEINT(PERCENT((gameTime - psEffect->birthTime), psEffect->lifeSpan));
+  percent = std::lrintf(PERCENT((gameTime - psEffect->birthTime), psEffect->lifeSpan));
   if (percent < 0)
     percent = 0;
   if (percent > 100)
@@ -1774,8 +1774,8 @@ void renderConstructionEffect(EFFECT* psEffect)
   scaleMatrix(size);
 
   // set up lighting
-  brightness = lightDoFogAndIllumination(pie_MAX_BRIGHT_LEVEL, getCentreX() - MAKEINT(psEffect->position.x),
-                                         getCentreZ() - MAKEINT(psEffect->position.z), &specular);
+  brightness = lightDoFogAndIllumination(pie_MAX_BRIGHT_LEVEL, getCentreX() - std::lrintf(psEffect->position.x),
+                                         getCentreZ() - std::lrintf(psEffect->position.z), &specular);
   pie_Draw3DShape(psEffect->imd, psEffect->frameNumber, 0, brightness, specular, pie_TRANSLUCENT, static_cast<UBYTE>(translucency));
 
   /* Pop the matrix */
@@ -1796,9 +1796,9 @@ void renderSmokeEffect(EFFECT* psEffect)
   UDWORD brightness, specular;
 
   /* Establish world position */
-  vec.x = (static_cast<UDWORD>(MAKEINT(psEffect->position.x)) - player.p.x) - terrainMidX * TILE_UNITS;
-  vec.y = static_cast<UDWORD>(MAKEINT(psEffect->position.y));
-  vec.z = terrainMidY * TILE_UNITS - (static_cast<UDWORD>(MAKEINT(psEffect->position.z)) - player.p.z);
+  vec.x = (static_cast<UDWORD>(std::lrintf(psEffect->position.x)) - player.p.x) - terrainMidX * TILE_UNITS;
+  vec.y = static_cast<UDWORD>(std::lrintf(psEffect->position.y));
+  vec.z = terrainMidY * TILE_UNITS - (static_cast<UDWORD>(std::lrintf(psEffect->position.z)) - player.p.z);
 
   /* Push matrix */
   iV_MatrixBegin();
@@ -1828,7 +1828,7 @@ void renderSmokeEffect(EFFECT* psEffect)
   if (TEST_SCALED(psEffect))
   {
 #ifdef HARDWARE_TEST//test additive
-    percent = (MAKEINT(PERCENT((gameTime - psEffect->birthTime), psEffect->lifeSpan))); if (percent < 10 AND psEffect->type ==
+    percent = (std::lrintf(PERCENT((gameTime - psEffect->birthTime), psEffect->lifeSpan))); if (percent < 10 AND psEffect->type ==
       SMOKE_TYPE_TRAIL)
     {
       scaleMatrix((3 * percent / 10 * psEffect->baseScale) / 100);
@@ -1840,15 +1840,15 @@ void renderSmokeEffect(EFFECT* psEffect)
       transparency = (EFFECT_SMOKE_ADDITIVE * (100 - percent)) / 100;
     }
 #else//Constant alpha
-    percent = (MAKEINT(PERCENT((gameTime - psEffect->birthTime), psEffect->lifeSpan)));
+    percent = (std::lrintf(PERCENT((gameTime - psEffect->birthTime), psEffect->lifeSpan)));
     scaleMatrix(percent + psEffect->baseScale);
     transparency = (EFFECT_SMOKE_TRANSPARENCY * (100 - percent)) / 100;
 #endif
   }
 
   // set up lighting
-  brightness = lightDoFogAndIllumination(pie_MAX_BRIGHT_LEVEL, getCentreX() - MAKEINT(psEffect->position.x),
-                                         getCentreZ() - MAKEINT(psEffect->position.z), &specular);
+  brightness = lightDoFogAndIllumination(pie_MAX_BRIGHT_LEVEL, getCentreX() - std::lrintf(psEffect->position.x),
+                                         getCentreZ() - std::lrintf(psEffect->position.z), &specular);
 
   transparency = (transparency * 3) / 2; //JPS smoke strength increased for d3d 12 may 99
 
@@ -1926,18 +1926,18 @@ void effectSetupSmoke(EFFECT* psEffect)
   if (psEffect->type == SMOKE_TYPE_STEAM)
   {
     /* Only upwards */
-    psEffect->velocity.x = MAKEFRACT(0);
-    psEffect->velocity.z = MAKEFRACT(0);
+    psEffect->velocity.x = 0.0f;
+    psEffect->velocity.z = 0.0f;
   }
   else if (psEffect->type == SMOKE_TYPE_BILLOW)
   {
-    psEffect->velocity.x = MAKEFRACT((10-rand()%20));
-    psEffect->velocity.z = MAKEFRACT((10-rand()%20));
+    psEffect->velocity.x = static_cast<float>(10-rand()%20);
+    psEffect->velocity.z = static_cast<float>(10-rand()%20);
   }
   else
   {
-    psEffect->velocity.x = MAKEFRACT((rand()%20));
-    psEffect->velocity.z = MAKEFRACT((10-rand()%20));
+    psEffect->velocity.x = static_cast<float>(rand()%20);
+    psEffect->velocity.z = static_cast<float>(10-rand()%20);
   }
 
   /* Steam isn't cyclic  - it doesn't grow with time either */
@@ -1952,35 +1952,35 @@ void effectSetupSmoke(EFFECT* psEffect)
   case SMOKE_TYPE_DRIFTING:
     psEffect->imd = getImdFromIndex(MI_SMALL_SMOKE);
     psEffect->lifeSpan = static_cast<UWORD>(NORMAL_SMOKE_LIFESPAN);
-    psEffect->velocity.y = MAKEFRACT((35+rand()%30));
+    psEffect->velocity.y = static_cast<float>(35+rand()%30);
     psEffect->baseScale = 40;
     break;
   case SMOKE_TYPE_DRIFTING_HIGH:
     psEffect->imd = getImdFromIndex(MI_SMALL_SMOKE);
     psEffect->lifeSpan = static_cast<UWORD>(NORMAL_SMOKE_LIFESPAN);
-    psEffect->velocity.y = MAKEFRACT((40+rand()%45));
+    psEffect->velocity.y = static_cast<float>(40+rand()%45);
     psEffect->baseScale = 25;
     break;
   case SMOKE_TYPE_DRIFTING_SMALL:
     psEffect->imd = getImdFromIndex(MI_SMALL_SMOKE);
     psEffect->lifeSpan = static_cast<UWORD>(SMALL_SMOKE_LIFESPAN);
-    psEffect->velocity.y = MAKEFRACT((25+rand()%35));
+    psEffect->velocity.y = static_cast<float>(25+rand()%35);
     psEffect->baseScale = 17;
     break;
   case SMOKE_TYPE_BILLOW:
     psEffect->imd = getImdFromIndex(MI_SMALL_SMOKE);
     psEffect->lifeSpan = static_cast<UWORD>(SMALL_SMOKE_LIFESPAN);
-    psEffect->velocity.y = MAKEFRACT((10+rand()%20));
+    psEffect->velocity.y = static_cast<float>(10+rand()%20);
     psEffect->baseScale = 80;
     break;
   case SMOKE_TYPE_STEAM:
     psEffect->imd = getImdFromIndex(MI_SMALL_STEAM);
-    psEffect->velocity.y = MAKEFRACT((rand()%5));
+    psEffect->velocity.y = static_cast<float>(rand()%5);
     break;
   case SMOKE_TYPE_TRAIL:
     psEffect->imd = getImdFromIndex(MI_TRAIL);
     psEffect->lifeSpan = TRAIL_SMOKE_LIFESPAN;
-    psEffect->velocity.y = MAKEFRACT((5+rand()%10));
+    psEffect->velocity.y = static_cast<float>(5+rand()%10);
     psEffect->baseScale = 25;
     break;
   default: DEBUG_ASSERT_TEXT(FALSE, "Weird smoke type");
@@ -2090,7 +2090,7 @@ void effectSetupExplosion(EFFECT* psEffect)
     case EXPLOSION_TYPE_TESLA:
       psEffect->imd = getImdFromIndex(MI_TESLA);
       psEffect->size = TESLA_SIZE;
-      psEffect->velocity.y = MAKEFRACT(TESLA_SPEED);
+      psEffect->velocity.y = static_cast<float>(TESLA_SPEED);
       break;
     case EXPLOSION_TYPE_KICKUP:
       psEffect->imd = getImdFromIndex(MI_KICK);
@@ -2149,9 +2149,9 @@ void effectSetupExplosion(EFFECT* psEffect)
 // ----------------------------------------------------------------------------------------
 void effectSetupConstruction(EFFECT* psEffect)
 {
-  psEffect->velocity.x = MAKEFRACT(0); //(1-rand()%3);
-  psEffect->velocity.z = MAKEFRACT(0); //(1-rand()%3);
-  psEffect->velocity.y = MAKEFRACT((0-rand()%3));
+  psEffect->velocity.x = 0.0f; //(1-rand()%3);
+  psEffect->velocity.z = 0.0f; //(1-rand()%3);
+  psEffect->velocity.y = static_cast<float>(0-rand()%3);
   psEffect->frameDelay = static_cast<UWORD>(CONSTRUCTION_FRAME_DELAY);
   psEffect->imd = getImdFromIndex(MI_CONSTRUCTION);
   psEffect->lifeSpan = CONSTRUCTION_LIFESPAN;
@@ -2173,9 +2173,9 @@ void effectSetupConstruction(EFFECT* psEffect)
 #if (0)
 void effectSetupDust(EFFECT* psEffect)
 {
-  psEffect->velocity.x = MAKEFRACT(0); //(1-rand()%3);
-  psEffect->velocity.z = MAKEFRACT(0); //(1-rand()%3);
-  psEffect->velocity.y = MAKEFRACT((0-rand()%3));
+  psEffect->velocity.x = 0.0f; //(1-rand()%3);
+  psEffect->velocity.z = 0.0f; //(1-rand()%3);
+  psEffect->velocity.y = static_cast<float>(0-rand()%3);
   psEffect->frameDelay = (UWORD)CONSTRUCTION_FRAME_DELAY;
   psEffect->imd = getImdFromIndex(MI_BLOOD);
   psEffect->lifeSpan = CONSTRUCTION_LIFESPAN;
@@ -2214,7 +2214,7 @@ void effectSetupWayPoint(EFFECT* psEffect)
 void effectSetupBlood(EFFECT* psEffect)
 {
   psEffect->frameDelay = BLOOD_FRAME_DELAY;
-  psEffect->velocity.y = MAKEFRACT(BLOOD_FALL_SPEED);
+  psEffect->velocity.y = static_cast<float>(BLOOD_FALL_SPEED);
   psEffect->imd = getImdFromIndex(MI_BLOOD);
   psEffect->size = static_cast<UBYTE>(BLOOD_SIZE);
 }
@@ -2505,8 +2505,8 @@ BOOL fireOnLocation(UDWORD x, UDWORD y)
   {
     if ((asEffectsList[i].status == ES_ACTIVE) AND asEffectsList[i].group == EFFECT_FIRE)
     {
-      posX = MAKEINT(asEffectsList[i].position.x);
-      posY = MAKEINT(asEffectsList[i].position.z);
+      posX = std::lrintf(asEffectsList[i].position.x);
+      posY = std::lrintf(asEffectsList[i].position.z);
       if ((posX == x) AND (posY == y))
         bOnFire = TRUE;
     }
@@ -2539,13 +2539,13 @@ BOOL writeFXData(STRING* pFileName)
   fileSize = (sizeof(struct _fx_save_header) + (fxEntries * sizeof(struct _effect_def)));
 
   /* Try and allocate it - freed up in same function */
-  pFileData = static_cast<UBYTE*>(MALLOC(fileSize));
+  pFileData = new (std::nothrow) UBYTE[fileSize];
 
   /* Did we get it? */
   if (!pFileData)
   {
     /* Nope, so do one */
-    DBERROR(("Saving FX data : Cannot get the memory! (%d)",fileSize));
+    Neuron::Fatal("Saving FX data : Cannot get the memory! ({})",fileSize);
     return (FALSE);
   }
 
@@ -2600,26 +2600,26 @@ BOOL writeFXData(STRING* pFileName)
   pFile = fopen(pFileName, "wb");
   if (!pFile)
   {
-    DBERROR(("Saving FX data : couldn't open file %s", pFileName));
+    Neuron::Fatal("Saving FX data : couldn't open file {}", pFileName);
     return (FALSE);
   }
 
   /* Now, try and write it out */
   if (fwrite(pFileData, 1, fileSize, pFile) != fileSize)
   {
-    DBERROR(("Saving FX data : write failed for %s", pFileName));
+    Neuron::Fatal("Saving FX data : write failed for {}", pFileName);
     return (FALSE);
   }
 
   /* Finally, try and close it */
   if (fclose(pFile) != 0)
   {
-    DBERROR(("Saving FX data : couldn't close %s", pFileName));
+    Neuron::Fatal("Saving FX data : couldn't close {}", pFileName);
     return (FALSE);
   }
 
   /* And free up the memory we used */
-  if (pFileData != nullptr) { FREE(pFileData); }
+  if (pFileData != nullptr) { delete[] pFileData; }
   /* Everything is just fine! */
   return TRUE;
 }
@@ -2637,8 +2637,8 @@ BOOL readFXData(UBYTE* pFileData, UDWORD fileSize)
   psHeader = (FX_SAVEHEADER*)pFileData;
   if (psHeader->aFileType[0] != 'f' || psHeader->aFileType[1] != 'x' || psHeader->aFileType[2] != 'd' || psHeader->aFileType[3] != 'a')
   {
-    DBERROR(("Read FX data : Weird file type found? Has header letters \
-				  - %s %s %s %s", psHeader->aFileType[0],psHeader->aFileType[1], psHeader->aFileType[2],psHeader->aFileType[3]));
+    Neuron::Fatal("Read FX data : Weird file type found? Has header letters \
+				  - %s %s %s %s", psHeader->aFileType[0],psHeader->aFileType[1], psHeader->aFileType[2],psHeader->aFileType[3]);
     return FALSE;
   }
 
@@ -2649,7 +2649,7 @@ BOOL readFXData(UBYTE* pFileData, UDWORD fileSize)
   if (fileSize != expectedFileSize)
   {
     /* No, so bomb out */
-    DBERROR(("Read FX data : Weird file size!"));
+    Neuron::Fatal("Read FX data : Weird file size!");
     return (FALSE);
   }
 

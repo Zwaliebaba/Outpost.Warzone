@@ -32,7 +32,6 @@
 #include "Radar.h"
 #include "MiscIMD.h"
 #include "Lighting.h"
-#include "Fractions.h"
 #include "Console.h"
 #include "Order.h"
 #include "Wrappers.h"
@@ -662,7 +661,7 @@ void CheckStartWallDrag(void)
         wallDrag.x1 = wallDrag.x2 = mouseTileX;
         wallDrag.y1 = wallDrag.y2 = mouseTileY;
         wallDrag.status = DRAG_PLACING;
-        DBPRINTF(("Start Wall Drag\n"));
+        Neuron::DebugTrace("Start Wall Drag\n");
       }
     }
     else if (intBuildSelectMode()) //if we were in build select mode
@@ -701,7 +700,7 @@ BOOL CheckFinishedFindPosition(void)
 
         wallDrag.status = DRAG_RELEASED;
       }
-      DBPRINTF(("BUILD3D_FINISHED\n"));
+      Neuron::DebugTrace("BUILD3D_FINISHED\n");
       buildState = BUILD3D_FINISHED;
       return TRUE;
     } //uhoh no place to build here
@@ -1161,9 +1160,9 @@ void scroll(void)
   sine = static_cast<float>(sin(radians));
 
   /* Get x component of movement */
-  xDif = ROUND(cosine * scrollStepLeftRight + sine * scrollStepUpDown);
+  xDif = std::lround(cosine * scrollStepLeftRight + sine * scrollStepUpDown);
   /* Get y component of movement */
-  yDif = ROUND(sine * scrollStepLeftRight - cosine * scrollStepUpDown);
+  yDif = std::lround(sine * scrollStepLeftRight - cosine * scrollStepUpDown);
 
   /* Adjust player's position by these components */
 #ifdef VISIBLE_SCROLL

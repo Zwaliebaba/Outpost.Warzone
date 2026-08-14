@@ -15,8 +15,8 @@ provide. Everything below assumes that target.
 
 | | |
 |---|---|
-| Source files | 207 `.cpp`, 382 `.h` (~486k lines) |
-| Translation units | 207 (87 NeuronCore, 120 Outpost) |
+| Source files | 206 `.cpp`, 378 `.h` |
+| Translation units | 206 (85 NeuronCore, 121 Outpost) |
 | Toolset | MSVC v145, Win32 (x86) only |
 | Projects | `NeuronCore` (engine static lib), `Outpost` (game exe) |
 
@@ -362,15 +362,117 @@ Two constraints: any struct serialised into save files must stay
 byte-identical, and this should proceed module by module indefinitely rather
 than as a big bang.
 
+### The legacy debug system is gone
+
+**Done, out of order.** `LegacyDebug.cpp`, `W95Trace.cpp` and `Mono.cpp` have
+been removed along with their headers, and the roughly 3,000 call sites now use
+the calls in `Debug.h`.
+
+| was | now |
+|---|---|
+| `ASSERT((cond, "msg", a))` | `ASSERT_TEXT(cond, "msg", a)` |
+| `DBERROR(("msg", a))` | `Neuron::Fatal("msg", a)` |
+| `DBPRINTF(("msg", a))`, `DBMB` | `Neuron::DebugTrace("msg", a)` |
+| `DBPn(("msg", a))` | `Neuron::DebugTrace`, or deleted where the group was off |
+
+`W95Trace.cpp` was a Win95 stack-trace helper and `Mono.cpp` drove a second
+monochrome monitor over an MDA card; both had no callers left. The file-output
+and mono macros - `DBOUTPUTFILE`, `DBMONOPRINTF` and their siblings - were
+already at zero uses.
+
+`DBERROR` reported an error and continued, and `Debug.h` has no non-fatal
+equivalent, so those sites now terminate. Most of them were followed by a
+`return FALSE` that is consequently unreachable; the builds do not use `/WX`,
+so the unreachable-code warnings do not break them.
+
+`dbg_printf` took printf conversions and `std::format` takes replacement
+fields, so about a thousand format strings were rewritten as well - `%s` and
+`%d` to `{}`, `%04x` to `{:04x}`, `%-6d` to `{:<6}`. This is the part that
+needed the compiler rather than review: `std::format` refuses to format an
+enum, a `UBYTE *` or a typed pointer, all of which printf accepted silently,
+and each one is a compile error until it is cast.
+
+Four things needed more than a substitution:
+
+- **`DEBUG` moved into `Debug.h`.** `LegacyDebug.h` defined it, and it gates
+  80-odd blocks, several in headers where it changes a struct's layout - so
+  every translation unit has to agree on it.
+- **`FPath.cpp`, `Move.cpp` and `GatewayRoute.cpp` redefine `DBPn`** to
+  something gated on a runtime flag. Their calls are live where the same macro
+  is dead elsewhere, and they now use their own `FPATH_TRACE`, `MOVE_TRACE` and
+  `GWR_TRACE` macros, which keep the flag.
+- **Seven `DBERROR((FALSE, "msg"))` sites** passed `FALSE` where
+  `dbg_ErrorBox` expected the format string, having been written as though they
+  were assertions. Reaching one would have handed `vsprintf` a null format.
+  They pass the message now.
+- **`Debug.h` itself.** `vformat` was unqualified, `Fatal` formatted a message
+  and then threw it away, and `DEBUG_WARNING` called an unqualified
+  `DebugTrace`. `Fatal` is the release-visible error path now, so it outputs
+  the message before breaking.
+
+### The custom allocators are gone
+
+**Done, out of order.** `Mem.cpp`, `Heap.cpp` and `Block.cpp` were three
+allocators layered over `malloc`, and all three have been removed along with
+`Mem.h`, `MemInt.h`, `Heap.h`, `Block.h` and the `PTRVALID` pointer checks.
+They came out early because they sat underneath everything else and made every
+other module harder to reason about.
+
+- **`Mem.cpp`** wrapped `malloc` with a treap of live blocks, 32-byte guard
+  bands and fill patterns — a debug heap, and a slow one. It only did any of
+  that under `DEBUG_MALLOC`; release builds paid for the indirection and got
+  nothing. `MALLOC`/`FREE` became typed `new`/`delete[]`.
+- **`Heap.cpp`** was a free-list pool per object type. Each of the thirty-odd
+  heaps held exactly one type, so `HEAP_ALLOC` maps onto `new` of that type
+  with nothing lost but the pooling.
+- **`Block.cpp`** was a bump allocator that `MALLOC` diverted into while a
+  block was "current"; `blkFree` did nothing and memory came back wholesale on
+  `BLOCK_RESET`. Level data is now released through the resource system's own
+  per-type release functions, which `resReleaseBlockData` already called on
+  every level change.
+
+`new (std::nothrow)` is used throughout rather than plain `new`, so allocation
+failure still returns null the way `malloc` did and the existing out-of-memory
+checks keep working instead of becoming dead code behind an uncaught
+`bad_alloc`.
+
+Allocations take the array form (`new T[n]`, and `new T[1]` for a single
+object) wherever the allocation and its release are not visibly paired, which
+is most of them: buffers are handed out through out-parameters, aliased into
+locals under another name, and freed through a base type that shares only a
+layout prefix. With one deallocation form the two ends cannot disagree. On a
+trivially-destructible type `new T[1]` allocates exactly `sizeof(T)` with no
+cookie, so the cost is how it reads, not what it does.
+
+Three things need watching, and they are all consequences of the C-style
+object model rather than of the change itself:
+
+- **Deleting through a C-style base is wrong.** `BASE_OBJECT`, `SIMPLE_OBJECT`
+  and `BASEANIM` are built from the same `*_ELEMENTS` macros as the types that
+  "derive" from them, but they are unrelated types that merely start the same
+  way. `delete` through one passes the wrong size to `operator delete`, so
+  those sites cast to the real type first.
+- **Double frees used to be survivable and no longer are.** Freeing block-heap
+  memory twice hit `blkFree`, which did nothing. Both frees are now real.
+- **What only `BLOCK_RESET` reclaimed now leaks.** Anything allocated into a
+  block heap and never explicitly freed relied on the wholesale reset. The
+  resource system covers the level data; anything else will show up as growth
+  across level changes.
+
+`iV_HeapAlloc`/`iV_HeapFree` in `IvisPatch.h` stay on `malloc`/`free`: they
+hand out untyped bytes, so there is no type for `new` to allocate.
+
 ## Verification
 
 There is no MSVC or Windows SDK in the Linux development container, so a real
 build baseline is not available there. Instead, every translation unit is
 syntax-checked with **mingw-w64** against a shadow copy of the tree, using the
-include paths and preprocessor definitions taken from the `.vcxproj` files. The
-shadow neutralises two Windows-only things that GCC cannot process: the two
-MSVC inline-assembly sites (`Fractions.h`, `RendMode.cpp`, `PieDraw.cpp`) and
-includes whose case does not match the real filename.
+include paths and preprocessor definitions taken from the `.vcxproj` files.
+`tools/crosscheck.py` is the harness. The shadow neutralises the Windows-only
+things GCC cannot process: includes whose case does not match the real
+filename, and the Concurrency Runtime headers `NeuronCore.h` includes but
+never uses. The inline-assembly handling has gone with the last `__asm` in the
+tree.
 
 This is a **proxy, not MSVC**. GCC is stricter in some places, MSVC under
 `/permissive` is more lenient in others, and the harness cannot link (QMixer,
@@ -378,12 +480,7 @@ Mplayer and WINSTR are 32-bit MSVC binaries). It reliably catches the portable
 C++ issues, which is what Phase 1 is about, but a real `msbuild` remains the
 final word.
 
-mingw's libstdc++ undefines the Windows `min`/`max` macros in C++ via
-`c++config.h`, while MSVC's `windef.h` defines them regardless of language.
-The shadow re-defines them in `Frame.h`, which every unit includes and which
-comes after the system headers, so the cross-check matches MSVC.
-
-Current state: **207 of 207 units clean under the cross-check**, and both
+Current state: **206 of 206 units clean under the cross-check**, and both
 Win32 CI builds green. Treat the cross-check as a fast first pass, not a
 verdict: it is a different compiler, it cannot link, and the section above
 lists what that costs. The CI builds remain the authority.

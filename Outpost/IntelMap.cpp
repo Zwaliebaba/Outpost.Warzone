@@ -605,8 +605,6 @@ void StartMessageSequences(MESSAGE* psMessage, BOOL Start)
   if (psMessage->type == MSG_PROXIMITY)
     return;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psMessage->pViewData, sizeof(VIEWDATA)), "StartMessageSequences: invalid ViewData pointer");
-
   if (((VIEWDATA*)psMessage->pViewData)->type == VIEW_RPL)
   {
     VIEW_REPLAY* psViewReplay;
@@ -626,7 +624,7 @@ void StartMessageSequences(MESSAGE* psMessage, BOOL Start)
 
       seq_AddSeqToList(psViewReplay->pSeqList[Sequence].sequenceName, psViewReplay->pSeqList[Sequence].pAudio, nullptr, bLoop, Sequence);
 
-      DBPRINTF(("sequence=%d\n",Sequence));
+      Neuron::DebugTrace("sequence={}\n",Sequence);
       addVideoText(&psViewReplay->pSeqList[Sequence], Sequence);
     }
     //play first full screen video
@@ -951,7 +949,7 @@ void intDisplayMessageButton(struct _widget* psWidget, UDWORD xOffset, UDWORD yO
     image = IMAGE_INTEL_MISSION;
     MovieButton = TRUE;
     break;
-  default: DBERROR(("Unknown message type"));
+  default: Neuron::Fatal("Unknown message type");
     return;
   }
 
@@ -1142,7 +1140,7 @@ void addVideoText(SEQ_DISPLAY* psSeqDisplay, UDWORD sequence)
 
   if (psSeqDisplay->numText > 0)
   {
-    DBPRINTF(("avt seq=%d [%s]\n",sequence,psSeqDisplay->ppTextMsg[0]));
+    Neuron::DebugTrace("avt seq={} [{}]\n",sequence,psSeqDisplay->ppTextMsg[0]);
     //add each message, first at the top
     x = VIDEO_TEXT_TOP_X;
     y = VIDEO_TEXT_TOP_Y;
@@ -1221,7 +1219,6 @@ appropriate sized image for the view*/
 {
 	UDWORD	x1, x2, y, indent = 10;
 
-
 	x1 = INTMAP_TEXTX;
 	x2 = INTMAP_TEXTX + INTMAP_TEXTWIDTH;
 	y = INTMAP_TEXTY + INTMAP_TEXTHEIGHT + indent;
@@ -1253,7 +1250,6 @@ appropriate sized image for the view*/
 #ifdef PSX
 	DisplayControlDiag();
 #endif
-
 
 #ifdef PSX	
 	setConsoleSizePos(x1+2,y-32-iV_GetTextLineSize()*2,(x2-x1)-4);
@@ -1624,7 +1620,7 @@ void _displayImmediateMessage(MESSAGE* psMessage)
 
   */
 
-  DBPRINTF(("\n\n\n\n\n\nDisplayImmedMessage\n\n\n\n\n"));
+  Neuron::DebugTrace("\n\n\n\n\n\nDisplayImmedMessage\n\n\n\n\n");
 
   // Need to unload the research strings because the movies need the memory.
 

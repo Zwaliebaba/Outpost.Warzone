@@ -12,11 +12,9 @@
 
 /* The input buffer printf's */
 #include "Types.h"
-#include "LegacyDebug.h"
 #include "Input.h"
 #include "Screen.h"
 #include "FrameInt.h"
-#include "Fractions.h"
 #include "Frame.h"
 
 /* The possible states for keys */
@@ -153,7 +151,7 @@ UDWORD inputGetKey(void)
 void inputProcessMessages(UINT message, WPARAM wParam, LPARAM lParam)
 {
   UDWORD code, i, repeat, vk;
-  FRACT divX, divY;
+  float divX, divY;
   UDWORD scrX, scrY;
 
   /* Loose the warning message */
@@ -207,7 +205,6 @@ void inputProcessMessages(UINT message, WPARAM wParam, LPARAM lParam)
     }
     if (repeat > 0)
     {
-      DBP1(("Code: %x\n", vk));
       inputAddBuffer(vk, repeat);
     }
 
@@ -334,7 +331,7 @@ case WM_MOUSEWHEEL:	// not defined in non-NT.....bugger.
         aMouseState[i] = KEY_RELEASED;
     }
     break;
-  case WM_CHAR: DBP1(("Code: %d\n", wParam));
+  case WM_CHAR: 
     /* Get the repeat count */
     repeat = lParam & 0xf;
     /* Store the repeat count number of characters

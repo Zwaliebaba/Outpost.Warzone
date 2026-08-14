@@ -19,31 +19,6 @@
 #include "ScriptCB.h"
 #include "Mission.h"
 
-/* Allocation sizes for the droid, structure and feature heaps */
-
-#define DROID_INIT		400
-#define STRUCTURE_INIT	200
-
-#define DROID_EXT		15
-#define STRUCTURE_EXT	15
-#define STRUCTFUNC_INIT	50
-#define STRUCTFUNC_EXT	5
-#define FEATURE_INIT	145		// Surely this can be reduced.
-#define FEATURE_EXT		15
-#define FLAGPOS_INIT	20
-#define FLAGPOS_EXT		5
-#define TEMPLATE_INIT	120		// was 40 but this there is 116 templates in template.txt alone ... Arse ... 84 bytes each as well ... arse ...
-#define TEMPLATE_EXT	10
-
-/* The memory heaps for the different object types */
-OBJ_HEAP *psDroidHeap, *psStructHeap, *psFeatureHeap;
-/*Heap for structure functionality*/
-OBJ_HEAP* psStructFuncHeap;
-/* The memory heap for the Flag Postions */
-OBJ_HEAP* psFlagPosHeap;
-// the memory heap for templates
-OBJ_HEAP* psTemplateHeap;
-
 SDWORD factoryDeliveryPointCheck[MAX_PLAYERS][NUM_FLAG_TYPES][MAX_FACTORY];
 // the initial value for the object ID
 #define OBJ_ID_INIT		20000
@@ -143,27 +118,8 @@ void embalm(BASE_OBJECT* psDead)
 
 void objListIntegCheck(void);
 
-/* Initialise the object heaps */
 BOOL objmemInitialise(void)
 {
-  if (!HEAP_CREATE(&psDroidHeap, sizeof(DROID), DROID_INIT, DROID_EXT))
-    return FALSE;
-
-  if (!HEAP_CREATE(&psStructHeap, sizeof(STRUCTURE), STRUCTURE_INIT, STRUCTURE_EXT))
-    return FALSE;
-
-  if (!HEAP_CREATE(&psStructFuncHeap, sizeof(FUNCTIONALITY), STRUCTFUNC_INIT, STRUCTFUNC_EXT))
-    return FALSE;
-
-  if (!HEAP_CREATE(&psFeatureHeap, sizeof(FEATURE), FEATURE_INIT, FEATURE_EXT))
-    return FALSE;
-
-  if (!HEAP_CREATE(&psFlagPosHeap, sizeof(FLAG_POSITION), FLAGPOS_INIT, FLAGPOS_EXT))
-    return FALSE;
-
-  if (!HEAP_CREATE(&psTemplateHeap, sizeof(DROID_TEMPLATE), TEMPLATE_INIT, TEMPLATE_EXT))
-    return FALSE;
-
   // reset the object ID number
   objID = OBJ_ID_INIT;
 
@@ -172,15 +128,8 @@ BOOL objmemInitialise(void)
   return TRUE;
 }
 
-/* Release the object heaps */
 void objmemShutdown(void)
 {
-  HEAP_DESTROY(psDroidHeap);
-  HEAP_DESTROY(psStructHeap);
-  HEAP_DESTROY(psStructFuncHeap);
-  HEAP_DESTROY(psFeatureHeap);
-  HEAP_DESTROY(psFlagPosHeap);
-  HEAP_DESTROY(psTemplateHeap);
 }
 
 /* General housekeeping for the object system */
@@ -204,17 +153,17 @@ void objmemUpdate(void)
 
     switch (psDestroyedObj->type)
     {
-    case OBJ_DROID: DBP1(("objmemUpdate: freeing droid\n"));
+    case OBJ_DROID: 
       droidRelease((DROID*)psDestroyedObj);
-      HEAP_FREE(psDroidHeap, psDestroyedObj);
+      delete (DROID*)psDestroyedObj;
       break;
-    case OBJ_STRUCTURE: DBP1(("objmemUpdate: freeing structure\n"));
+    case OBJ_STRUCTURE: 
       structureRelease((STRUCTURE*)psDestroyedObj);
-      HEAP_FREE(psStructHeap, psDestroyedObj);
+      delete (STRUCTURE*)psDestroyedObj;
       break;
     case OBJ_FEATURE:
       featureRelease((FEATURE*)psDestroyedObj);
-      HEAP_FREE(psFeatureHeap, psDestroyedObj);
+      delete (FEATURE*)psDestroyedObj;
       break;
     default: DEBUG_ASSERT_TEXT(FALSE, "objmemUpdate: unknown object type in destroyed list");
     }
@@ -234,15 +183,15 @@ void objmemUpdate(void)
       {
       case OBJ_DROID:
         droidRelease((DROID*)psCurr);
-        HEAP_FREE(psDroidHeap, psCurr);
+        delete (DROID*)psCurr;
         break;
       case OBJ_STRUCTURE:
         structureRelease((STRUCTURE*)psCurr);
-        HEAP_FREE(psStructHeap, psCurr);
+        delete (STRUCTURE*)psCurr;
         break;
       case OBJ_FEATURE:
         featureRelease((FEATURE*)psDestroyedObj);
-        HEAP_FREE(psFeatureHeap, psCurr);
+        delete (FEATURE*)psCurr;
         break;
       default: DEBUG_ASSERT_TEXT(FALSE, "objmemUpdate: unknown object type in destroyed list");
       }
@@ -288,25 +237,25 @@ void objmemUpdate(void)
 
 // ajl modified for netplaying..
 
-#define CREATE(plyr, heap, new, objType, structType) \
+#define CREATE(plyr, ppNew, objType, structType) \
 	DEBUG_ASSERT_TEXT(plyr<MAX_PLAYERS, "addObject: invalid player number"); \
-	if (!HEAP_ALLOC(heap, new)) \
+	*(ppNew) = new (std::nothrow) structType; \
+	if (*(ppNew) == NULL) \
 	{ \
 		return FALSE; \
 	} \
-	(*(new))->type = objType; \
-	(*(new))->id = ((objID<<3)|plyr); \
+	(*(ppNew))->type = objType; \
+	(*(ppNew))->id = ((objID<<3)|plyr); \
 	objID++; \
-	(*(new))->player = (UBYTE)plyr; \
-	(*(new))->died = 0; \
+	(*(ppNew))->player = (UBYTE)plyr; \
+	(*(ppNew))->died = 0; \
 	return TRUE
 
 /* Add the object to its list
  * list is a pointer to the object list
  */
 #define ADD(list, objType, type) \
-	DEBUG_ASSERT_TEXT(PTRVALID((objType), sizeof(type)),  \
-		"addObject: Invalid " #type " pointer"); \
+	 \
 	(objType)->psNext = list[(objType)->player]; \
 	list[(objType)->player] = (objType)
 
@@ -316,8 +265,7 @@ void objmemUpdate(void)
  * type is the type of the object
  */
 #define _DESTROY(list, del, type) \
-	DEBUG_ASSERT_TEXT(PTRVALID((del), sizeof(type)),  \
-		"destroyObject: Invalid " #type " pointer"); \
+	 \
 	if (list[(del)->player] == (del)) \
 	{ \
 		list[(del)->player] = list[(del)->player]->psNext; \
@@ -360,8 +308,7 @@ void objmemUpdate(void)
  * type is the type of the object
  */
 #define REMOVE(list, remove, type) \
-	DEBUG_ASSERT_TEXT(PTRVALID((remove), sizeof(type)),  \
-		"removeObject: Invalid " #type " pointer"); \
+	 \
 	if (list[(remove)->player] == (remove)) \
 	{ \
 		list[(remove)->player] = list[(remove)->player]->psNext; \
@@ -395,7 +342,7 @@ void objmemUpdate(void)
 		return NULL; \
 	}
 
-#define RELEASEALL(list, heap, freeFunc, type) \
+#define RELEASEALL(list, freeFunc, type) \
 	{ \
 		UDWORD	i; \
 		type	*psCurr, *psNext; \
@@ -405,7 +352,7 @@ void objmemUpdate(void)
 			{ \
 		 		psNext = psCurr->psNext; \
 				freeFunc(psCurr); \
-				HEAP_FREE(heap, psCurr); \
+				delete psCurr; \
 			} \
 			list[i] = NULL; \
 		} \
@@ -419,7 +366,7 @@ void objmemUpdate(void)
 /***************************  DROID  *********************************/
 
 /* Create a new droid */
-BOOL createDroid(UDWORD player, DROID** ppsNew) { CREATE(player, psDroidHeap, ppsNew, OBJ_DROID, DROID); }
+BOOL createDroid(UDWORD player, DROID** ppsNew) { CREATE(player, ppsNew, OBJ_DROID, DROID); }
 
 /* add the droid to the Droid Lists */
 void addDroid(DROID* psDroidToAdd, DROID* pList[MAX_PLAYERS])
@@ -453,7 +400,7 @@ void killDroid(DROID* psDel)
 }
 
 /* Remove all droids */
-void freeAllDroids(void) { RELEASEALL(apsDroidLists, psDroidHeap, droidRelease, DROID); }
+void freeAllDroids(void) { RELEASEALL(apsDroidLists, droidRelease, DROID); }
 
 /*Remove a single Droid from a list*/
 void removeDroid(DROID* psDroidToRemove, DROID* pList[MAX_PLAYERS])
@@ -470,15 +417,15 @@ void removeDroid(DROID* psDroidToRemove, DROID* pList[MAX_PLAYERS])
 }
 
 /*Removes all droids that may be stored in the mission lists*/
-void freeAllMissionDroids(void) { RELEASEALL(mission.apsDroidLists, psDroidHeap, droidRelease, DROID); }
+void freeAllMissionDroids(void) { RELEASEALL(mission.apsDroidLists, droidRelease, DROID); }
 
 /*Removes all droids that may be stored in the limbo lists*/
-void freeAllLimboDroids(void) { RELEASEALL(apsLimboDroids, psDroidHeap, droidRelease, DROID); }
+void freeAllLimboDroids(void) { RELEASEALL(apsLimboDroids, droidRelease, DROID); }
 
 /**************************  STRUCTURE  *******************************/
 
 /* Create a new structure */
-BOOL createStruct(UDWORD player, STRUCTURE** ppsNew) { CREATE(player, psStructHeap, ppsNew, OBJ_STRUCTURE, STRUCTURE); }
+BOOL createStruct(UDWORD player, STRUCTURE** ppsNew) { CREATE(player, ppsNew, OBJ_STRUCTURE, STRUCTURE); }
 
 /* add the structure to the Structure Lists */
 void addStructure(STRUCTURE* psStructToAdd) { ADD(apsStructLists, psStructToAdd, STRUCTURE); }
@@ -491,8 +438,7 @@ void killStruct(STRUCTURE* psDel)
   DESTROY(apsStructLists, psDel, STRUCTURE);
 }
 
-/* Remove heapall structures */
-void freeAllStructs(void) { RELEASEALL(apsStructLists, psStructHeap, structureRelease, STRUCTURE); }
+void freeAllStructs(void) { RELEASEALL(apsStructLists, structureRelease, STRUCTURE); }
 
 /*Remove a single Structure from a list*/
 void removeStructureFromList(STRUCTURE* psStructToRemove, STRUCTURE* pList[MAX_PLAYERS])
@@ -505,7 +451,7 @@ void removeStructureFromList(STRUCTURE* psStructToRemove, STRUCTURE* pList[MAX_P
 /**************************  FEATURE  *********************************/
 
 /* Create a new Feature */
-BOOL createFeature(FEATURE** ppsNew) { CREATE(0, psFeatureHeap, ppsNew, OBJ_FEATURE, FEATURE); }
+BOOL createFeature(FEATURE** ppsNew) { CREATE(0, ppsNew, OBJ_FEATURE, FEATURE); }
 
 /* add the feature to the Feature Lists */
 void addFeature(FEATURE* psFeatureToAdd) { ADD(apsFeatureLists, psFeatureToAdd, FEATURE); }
@@ -521,7 +467,7 @@ void killFeature(FEATURE* psDel)
 }
 
 /* Remove all features */
-void freeAllFeatures(void) { RELEASEALL(apsFeatureLists, psFeatureHeap, featureRelease, FEATURE); }
+void freeAllFeatures(void) { RELEASEALL(apsFeatureLists, featureRelease, FEATURE); }
 
 /**************************  FLAG_POSITION ********************************/
 
@@ -530,7 +476,8 @@ BOOL createFlagPosition(FLAG_POSITION** ppsNew, UDWORD player)
 {
   DEBUG_ASSERT_TEXT(player<MAX_PLAYERS, "createFlagPosition: invalid player number");
 
-  if (!HEAP_ALLOC(psFlagPosHeap, ppsNew))
+  *ppsNew = new (std::nothrow) FLAG_POSITION;
+  if (*ppsNew == nullptr)
     return FALSE;
   (*ppsNew)->type = POS_DELIVERY;
   (*ppsNew)->player = player;
@@ -542,8 +489,6 @@ BOOL createFlagPosition(FLAG_POSITION** ppsNew, UDWORD player)
 /* add the Flag Position to the Flag Position Lists */
 void addFlagPosition(FLAG_POSITION* psFlagPosToAdd)
 {
-  DEBUG_ASSERT_TEXT(PTRVALID((psFlagPosToAdd), sizeof(FLAG_POSITION)), "addFlagPosition: Invalid FlagPosition pointer");
-
   psFlagPosToAdd->psNext = apsFlagPosLists[psFlagPosToAdd->player];
   apsFlagPosLists[psFlagPosToAdd->player] = psFlagPosToAdd;
 }
@@ -553,12 +498,10 @@ void removeFlagPosition(FLAG_POSITION* psDel)
 {
   FLAG_POSITION *psPrev = nullptr, *psCurr;
 
-  DEBUG_ASSERT_TEXT(PTRVALID((psDel), sizeof(FLAG_POSITION)), "removeFlagPosition: Invalid Flag Positionpointer");
-
   if (apsFlagPosLists[psDel->player] == psDel)
   {
     apsFlagPosLists[psDel->player] = apsFlagPosLists[psDel->player]->psNext;
-    HEAP_FREE(psFlagPosHeap, psDel);
+    delete psDel;
   }
   else
   {
@@ -567,7 +510,7 @@ void removeFlagPosition(FLAG_POSITION* psDel)
     DEBUG_ASSERT_TEXT(psCurr != NULL, "removeFlagPosition:object not found");
     if (psCurr != nullptr)
       psPrev->psNext = psCurr->psNext;
-    HEAP_FREE(psFlagPosHeap, psCurr);
+    delete psCurr;
   }
 }
 
@@ -582,7 +525,7 @@ void freeAllFlagPositions(void)
     while (apsFlagPosLists[player])
     {
       psNext = apsFlagPosLists[player]->psNext;
-      HEAP_FREE(psFlagPosHeap, apsFlagPosLists[player]);
+      delete apsFlagPosLists[player];
       apsFlagPosLists[player] = psNext;
     }
   }
@@ -630,13 +573,16 @@ void checkFactoryFlags(void)
 /* Create a new Structure Functionality*/
 BOOL createStructFunc(FUNCTIONALITY** ppsNew)
 {
-  if (!HEAP_ALLOC(psStructFuncHeap, (void**)ppsNew))
+  // FUNCTIONALITY is UBYTE[MAX_FUNCTIONALITY_SIZE], so the pointer this hands
+  // back has to be a pointer to the whole array, not to its first byte.
+  *ppsNew = new (std::nothrow) FUNCTIONALITY[1];
+  if (*ppsNew == nullptr)
     return FALSE;
   return TRUE;
 }
 
-/*remove a structure Functionality from the heap*/
-void removeStructFunc(FUNCTIONALITY* psDel) { HEAP_FREE(psStructFuncHeap, psDel); }
+/*remove a structure Functionality*/
+void removeStructFunc(FUNCTIONALITY* psDel) { delete[] psDel; }
 
 /**************************  OBJECT ACCESS FUNCTIONALITY ********************************/
 

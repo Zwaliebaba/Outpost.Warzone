@@ -484,7 +484,6 @@ static BOOL fpathWallHug(SDWORD sx, SDWORD sy, // start pos
     if (!fpathNextHugDir(x, y, &dir, hugDir))
     {
       // we are in a location totally surrounded by blocking tiles
-      DBP0(("wallHug: surrounded location\n"));
       goto exit_error;
     }
 
@@ -497,7 +496,6 @@ static BOOL fpathWallHug(SDWORD sx, SDWORD sy, // start pos
     // there might be a dead end one tile wide
     if (x == sx && y == sy)
     {
-      DBP0(("wallHug: revisited start\n"));
       goto exit_error;
     }
     /*		for(i=0; i<numPoints; i++)
@@ -522,7 +520,6 @@ static BOOL fpathWallHug(SDWORD sx, SDWORD sy, // start pos
     }
     else
     {
-      DBP0(("wallHug: out of points\n"));
       goto exit_error;
     }
 

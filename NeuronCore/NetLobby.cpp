@@ -68,7 +68,7 @@ BOOL NETcheckRegistryEntries(char* name, char* guid)
   // check app exists in registry
   if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, basekey, 0,KEY_ALL_ACCESS, &key) != ERROR_SUCCESS)
   {
-    DBERROR(("NETPLAY: DirectPlay Registry Key Does Not Exist. No Lobby Support"));
+    Neuron::Fatal("NETPLAY: DirectPlay Registry Key Does Not Exist. No Lobby Support");
     RegCloseKey(key);
     return FALSE;
   }
@@ -77,7 +77,7 @@ BOOL NETcheckRegistryEntries(char* name, char* guid)
   resultsize = 256;
   if (RegQueryValueEx(key, "Guid", nullptr, &type, (LPBYTE)(char*)&result, &resultsize) != ERROR_SUCCESS)
   {
-    DBERROR(("NETPLAY: DirectPlay Registry Key Does Not Have Guid Entry. No Lobby Support"));
+    Neuron::Fatal("NETPLAY: DirectPlay Registry Key Does Not Have Guid Entry. No Lobby Support");
     RegCloseKey(key);
     return FALSE;
   }
@@ -85,7 +85,7 @@ BOOL NETcheckRegistryEntries(char* name, char* guid)
   // check guid matches.
   if (strcmp(guid, result) != 0)
   {
-    DBERROR(("NETPLAY: DirectPlay guid does not match game guid. No Lobby Support"));
+    Neuron::Fatal("NETPLAY: DirectPlay guid does not match game guid. No Lobby Support");
     RegCloseKey(key);
     return FALSE;
   }
@@ -94,7 +94,7 @@ BOOL NETcheckRegistryEntries(char* name, char* guid)
   resultsize = 256;
   if (RegQueryValueEx(key, "Path", nullptr, &type, (LPBYTE)(char*)&result, &resultsize) != ERROR_SUCCESS)
   {
-    DBERROR(("NETPLAY: DirectPlay Registry Key Does Not Have An Path Entry. No Lobby Support"));
+    Neuron::Fatal("NETPLAY: DirectPlay Registry Key Does Not Have An Path Entry. No Lobby Support");
     RegCloseKey(key);
     return FALSE;
   }
@@ -102,7 +102,7 @@ BOOL NETcheckRegistryEntries(char* name, char* guid)
   resultsize = 256;
   if (RegQueryValueEx(key, "File", nullptr, &type, (LPBYTE)(char*)&result, &resultsize) != ERROR_SUCCESS)
   {
-    DBERROR(("NETPLAY: DirectPlay Registry Key Does Not Have An File Entry. No Lobby Support"));
+    Neuron::Fatal("NETPLAY: DirectPlay Registry Key Does Not Have An File Entry. No Lobby Support");
     RegCloseKey(key);
     return FALSE;
   }
@@ -111,7 +111,7 @@ BOOL NETcheckRegistryEntries(char* name, char* guid)
   pFileHandle = fopen(path, "rb");
   if (pFileHandle == nullptr) // doesn't exist..
   {
-    DBERROR(("NETPLAY: DirectPlay Registry FileName Does Not Match Your Game Installation. No Lobby Support"));
+    Neuron::Fatal("NETPLAY: DirectPlay Registry FileName Does Not Match Your Game Installation. No Lobby Support");
     RegCloseKey(key);
     return FALSE;
   }
@@ -138,7 +138,7 @@ BOOL NETconnectToLobby(LPNETPLAY lpNetPlay)
   hr = DirectPlayLobbyCreate(nullptr, &lpDPlob, nullptr, nullptr, 0); //create lobby interface
   if FAILED(hr)
   {
-    DBPRINTF(("NETPLAY:no lobby device\n"));
+    Neuron::DebugTrace("NETPLAY:no lobby device\n");
     goto FAILURE;
   }
   hr = IDirectPlayLobby_GetConnectionSettings(lpDPlob, 0, NULL, &dwSize); // get settings size
@@ -155,7 +155,7 @@ BOOL NETconnectToLobby(LPNETPLAY lpNetPlay)
 
   if (DPERR_BUFFERTOOSMALL != hr)
   {
-    DBPRINTF(("NETPLAY:buf to small\n"));
+    Neuron::DebugTrace("NETPLAY:buf to small\n");
     goto FAILURE;
   }
 
@@ -163,14 +163,14 @@ BOOL NETconnectToLobby(LPNETPLAY lpNetPlay)
   if (nullptr == lpConnSettings)
   {
     hr = DPERR_OUTOFMEMORY;
-    DBPRINTF(("NETPLAY:out of mem\n"));
+    Neuron::DebugTrace("NETPLAY:out of mem\n");
     goto FAILURE;
   }
 
   hr = IDirectPlayLobby_GetConnectionSettings(lpDPlob, 0, lpConnSettings, &dwSize); // get the connection settings
   if FAILED(hr)
   {
-    DBPRINTF(("NETPLAY:didnt get settings\n"));
+    Neuron::DebugTrace("NETPLAY:didnt get settings\n");
     goto FAILURE;
   }
 
@@ -185,26 +185,26 @@ BOOL NETconnectToLobby(LPNETPLAY lpNetPlay)
   hr = IDirectPlayLobby_SetConnectionSettings(lpDPlob, 0, 0, lpConnSettings); // store the updated  settings
   if FAILED(hr)
   {
-    DBPRINTF(("NETPLAY:didnt set settings\n"));
+    Neuron::DebugTrace("NETPLAY:didnt set settings\n");
     goto FAILURE;
   }
   hr = IDirectPlayLobby_Connect(lpDPlob, 0, &lpDirectPlay2A, NULL); // connect. returns IDirectPlay2A interface
   if FAILED(hr)
   {
-    DBPRINTF(("NETPLAY:didnt connect\n"));
+    Neuron::DebugTrace("NETPLAY:didnt connect\n");
     goto FAILURE;
   }
   hr = IDirectPlay2_QueryInterface(lpDirectPlay2A, IID_IDirectPlay4A, (LPVOID *) &lpDirectPlay4A); // Obtain IDirectPlay4A interface
   if FAILED(hr)
   {
-    DBPRINTF(("NETPLAY:didnt query\n"));
+    Neuron::DebugTrace("NETPLAY:didnt query\n");
     goto FAILURE;
   }
   hr = IDirectPlayX_CreatePlayer(lpDirectPlay4A, &dpidPlayer, // create a player
                                  lpConnSettings->lpPlayerName, lpNetPlay->hPlayerEvent, NULL, 0, 0);
   if FAILED(hr)
   {
-    DBPRINTF(("NETPLAY:didnt create player\n"));
+    Neuron::DebugTrace("NETPLAY:didnt create player\n");
     goto FAILURE;
   }
   lpNetPlay->lpDirectPlay4A = lpDirectPlay4A; // setup connection info
@@ -221,7 +221,7 @@ BOOL NETconnectToLobby(LPNETPLAY lpNetPlay)
   lpDPlob = nullptr;
   goto SUCCESS;
 
-FAILURE: DBPRINTF(("NETPLAY:lobby connect failed\n"));
+FAILURE: Neuron::DebugTrace("NETPLAY:lobby connect failed\n");
   if (lpDirectPlay2A)
     IDirectPlay2_Release(lpDirectPlay2A);
   if (lpDirectPlay4A)

@@ -36,8 +36,6 @@ static UDWORD fontColour;
 /* Set the current font */
 void fontSet(PROP_FONT* psFont)
 {
-  DEBUG_ASSERT_TEXT(PTRVALID(psFont, sizeof(PROP_FONT)), "fontSet: Invalid font pointer");
-
   psCurrFont = psFont;
 }
 
@@ -59,8 +57,6 @@ UWORD fontGetCharIndex(UWORD code)
 {
   UDWORD i;
   PROP_PRINTABLE* psOffset;
-
-  DEBUG_ASSERT_TEXT(PTRVALID(psCurrFont, sizeof(PROP_FONT)), "fontGetCharIndex: Invalid font pointer");
 
   /* If there is no offset data return the code */
   if (psCurrFont->numOffset == 0)
@@ -89,8 +85,6 @@ UDWORD fontPixelWidth(STRING* pString)
   STRING* pCurr;
   UDWORD width;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psCurrFont, sizeof(PROP_FONT)), "fontPixelWidth: Invalid font pointer");
-
   width = 0;
   for (pCurr = pString; *pCurr != '\0'; pCurr++)
     width += psCurrFont->psChars[fontGetCharIndex(*pCurr)].width;
@@ -113,8 +107,6 @@ void fontPrint(SDWORD x, SDWORD y, STRING* pFormat, ...)
 
   va_start(pArgs, pFormat);
   vsprintf(aTxtBuff, pFormat, pArgs);
-
-  DEBUG_ASSERT_TEXT(PTRVALID(psCurrFont, sizeof(PROP_FONT)), "fontPrint: Invalid font pointer");
 
   /* See if the string is offscreen */
   if ((y < 0) || (y >= static_cast<SDWORD>(screenHeight) - static_cast<SDWORD>(psCurrFont->height)))
@@ -240,9 +232,7 @@ void fontPrintChar(SDWORD x, SDWORD y, PROP_CHAR* psChar, UDWORD height)
   UWORD* p16Dest;
   UDWORD px, py, bit;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psChar, sizeof(PROP_CHAR)), "fontPrintChar: Invalid character pointer");
   /* The data buffer may well be bigger than this, but the test is easier this way */
-  DEBUG_ASSERT_TEXT(PTRVALID(psChar->pData, height), "fontPrintChar: Invalid character data pointer");
 
   /* See if the character is on screen */
   if (x + psChar->width < 0 || x >= static_cast<SDWORD>(screenWidth))
@@ -317,16 +307,12 @@ BOOL fontSave(PROP_FONT* psFont, UBYTE** ppFileData, UDWORD* pFileSize)
   PROP_CHAR *psCurrC, *psSaveC;
   UBYTE *pData, *pSave;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psFont, sizeof(PROP_FONT)), "fontSave: Invalid font pointer");
-  DEBUG_ASSERT_TEXT(PTRVALID(psFont->psOffset, sizeof(PROP_PRINTABLE)*psFont->numOffset), "fontSave: Invalid offset data");
-  DEBUG_ASSERT_TEXT(PTRVALID(psFont->psChars, sizeof(PROP_CHAR) * psFont->numChars), "fontSave: Invalid character data");
-
   /* First off calculate the size of the font file */
   *pFileSize = sizeof(FONT_SAVEHDR);
   *pFileSize += sizeof(PROP_PRINTABLE) * psFont->numOffset;
   for (i = 0; i < psFont->numChars; i++)
     *pFileSize += sizeof(FONT_SAVECHAR) + psFont->psChars[i].pitch * psFont->height;
-  *ppFileData = static_cast<UBYTE*>(MALLOC(*pFileSize));
+  *ppFileData = new (std::nothrow) UBYTE[*pFileSize];
   if (!*ppFileData)
     return FALSE;
 
@@ -383,7 +369,6 @@ BOOL fontLoad(UBYTE* pFileData, UDWORD fileSize, PROP_FONT** ppsFont)
   UBYTE *pData, *pLoad;
 
   (void)fileSize;
-  DEBUG_ASSERT_TEXT(PTRVALID(pFileData, fileSize), "fontLoad: Invalid file data pointer");
 
   *ppsFont = nullptr;
 
@@ -391,20 +376,20 @@ BOOL fontLoad(UBYTE* pFileData, UDWORD fileSize, PROP_FONT** ppsFont)
   psHdr = (FONT_SAVEHDR*)pFileData;
   if (!(psHdr->aFileType[0] == 'f' && psHdr->aFileType[1] == 'o' && psHdr->aFileType[2] == 'n' && psHdr->aFileType[3] == 't'))
   {
-    DBERROR(("fontLoad: incorrect file type"));
+    Neuron::Fatal("fontLoad: incorrect file type");
     goto error;
   }
 
   if (psHdr->version != 1)
   {
-    DBERROR(("fontLoad: incorrect file version"));
+    Neuron::Fatal("fontLoad: incorrect file version");
     goto error;
   }
 
-  *ppsFont = static_cast<PROP_FONT*>(MALLOC(sizeof(PROP_FONT)));
+  *ppsFont = new (std::nothrow) PROP_FONT[1];
   if (!*ppsFont)
   {
-    DBERROR(("fontLoad: Out of memory"));
+    Neuron::Fatal("fontLoad: Out of memory");
     goto error;
   }
 
@@ -416,16 +401,16 @@ BOOL fontLoad(UBYTE* pFileData, UDWORD fileSize, PROP_FONT** ppsFont)
   (*ppsFont)->numChars = psHdr->numChars;
 
   /* Allocate the offset and character buffers */
-  (*ppsFont)->psOffset = static_cast<PROP_PRINTABLE*>(MALLOC(sizeof(PROP_PRINTABLE) * psHdr->numOffset));
+  (*ppsFont)->psOffset = new (std::nothrow) PROP_PRINTABLE[psHdr->numOffset];
   if (!(*ppsFont)->psOffset)
   {
-    DBERROR(("fontLoad Out of memory"));
+    Neuron::Fatal("fontLoad Out of memory");
     goto error;
   }
-  (*ppsFont)->psChars = static_cast<PROP_CHAR*>(MALLOC(sizeof(PROP_PRINTABLE) * psHdr->numChars));
+  (*ppsFont)->psChars = new (std::nothrow) PROP_CHAR[psHdr->numChars];
   if (!(*ppsFont)->psChars)
   {
-    DBERROR(("fontLoad Out of memory"));
+    Neuron::Fatal("fontLoad Out of memory");
     goto error;
   }
   memset((*ppsFont)->psChars, 0, sizeof(PROP_PRINTABLE) * psHdr->numChars);
@@ -449,10 +434,10 @@ BOOL fontLoad(UBYTE* pFileData, UDWORD fileSize, PROP_FONT** ppsFont)
     psCurrC->width = psLoadC->width;
     psCurrC->pitch = psLoadC->pitch;
 
-    psCurrC->pData = static_cast<UBYTE*>(MALLOC((*ppsFont)->height * psCurrC->pitch));
+    psCurrC->pData = new (std::nothrow) UBYTE[(*ppsFont)->height * psCurrC->pitch];
     if (!psCurrC->pData)
     {
-      DBERROR(("fontLoad: Out of memory (char)"));
+      Neuron::Fatal("fontLoad: Out of memory (char)");
       goto error;
     }
 
@@ -470,13 +455,13 @@ BOOL fontLoad(UBYTE* pFileData, UDWORD fileSize, PROP_FONT** ppsFont)
 error:
   if (*ppsFont)
   {
-    if ((*ppsFont)->psOffset) { FREE((*ppsFont)->psOffset); }
+    if ((*ppsFont)->psOffset) { delete[] (*ppsFont)->psOffset; }
     if ((*ppsFont)->psChars)
     {
-      for (i = 0; i < (*ppsFont)->numChars; i++) { if ((*ppsFont)->psChars[i].pData) { FREE((*ppsFont)->psChars[i].pData); } }
-      FREE((*ppsFont)->psChars);
+      for (i = 0; i < (*ppsFont)->numChars; i++) { if ((*ppsFont)->psChars[i].pData) { delete[] (*ppsFont)->psChars[i].pData; } }
+      delete[] (*ppsFont)->psChars;
     }
-    FREE(*ppsFont);
+    delete[] *ppsFont;
   }
   *ppsFont = nullptr;
 
@@ -492,12 +477,14 @@ void fontFree(PROP_FONT* psFont)
   psChar = psFont->psChars;
   for (i = 0; i < psFont->numChars; i++)
   {
-    FREE(psChar->pData);
+    delete[] psChar->pData;
+    psChar->pData = nullptr;
     psChar++;
   }
-  if (psFont->psChars) { FREE(psFont->psChars); }
-  if (psFont->psOffset) { FREE(psFont->psOffset); }
-  FREE(psFont);
+  if (psFont->psChars) { delete[] psFont->psChars; }
+  if (psFont->psOffset) { delete[] psFont->psOffset; }
+  delete[] psFont;
+  psFont = nullptr;
 }
 
 UBYTE aFontData[PRINTABLE_CHARS][FONT_HEIGHT] = {

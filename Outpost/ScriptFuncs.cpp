@@ -744,13 +744,11 @@ BOOL scrAddDroidToMissionList(void)
     return FALSE;
   }
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psTemplate, sizeof(DROID_TEMPLATE)), "scrAddUnitToMissionList: Invalid template pointer");
-
 #ifdef SCRIPT_CHECK_MAX_UNITS
   // Don't build a new droid if player limit reached, unless it's a transporter.
   if (IsPlayerDroidLimitReached(player) && (psTemplate->droidType != DROID_TRANSPORTER))
   {
-    DBPRINTF(("scrAddUnit : Max units reached ,player %d\n",player));
+    Neuron::DebugTrace("scrAddUnit : Max units reached ,player {}\n",player);
     psDroid = nullptr;
   }
   else
@@ -790,13 +788,11 @@ BOOL scrAddDroid(void)
     return FALSE;
   }
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psTemplate, sizeof(DROID_TEMPLATE)), "scrAddUnit: Invalid template pointer");
-
 #ifdef SCRIPT_CHECK_MAX_UNITS
   // Don't build a new droid if player limit reached, unless it's a transporter.
   if (IsPlayerDroidLimitReached(player) && (psTemplate->droidType != DROID_TRANSPORTER))
   {
-    DBPRINTF(("scrAddUnit : Max units reached ,player %d\n",player));
+    Neuron::DebugTrace("scrAddUnit : Max units reached ,player {}\n",player);
     psDroid = nullptr;
   }
   else
@@ -837,8 +833,6 @@ BOOL scrAddDroidToTransporter(void)
     return TRUE;
   }
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psTransporter, sizeof(DROID)), "scrAddUnitToTransporter: invalid transporter pointer");
-  DEBUG_ASSERT_TEXT(PTRVALID(psDroid, sizeof(DROID)), "scrAddUnitToTransporter: invalid unit pointer");
   DEBUG_ASSERT_TEXT(psTransporter->droidType == DROID_TRANSPORTER, "scrAddUnitToTransporter: invalid transporter type");
 
   /* check for space */
@@ -995,7 +989,7 @@ BOOL scrNumMB(void)
   if (!stackPopParams(1, VAL_INT, &val))
     return FALSE;
 
-  DBPRINTF(("scrNumMB: called by script with value: %d\n", val));
+  Neuron::DebugTrace("scrNumMB: called by script with value: {}\n", val);
 
   return TRUE;
 }
@@ -1208,7 +1202,6 @@ BOOL scrRemoveMessage(void)
 	SDWORD			player;
 	VIEWDATA		*psViewData;
 
-
 	if (!stackPopParams(2, ST_INTMESSAGE, &psViewData , VAL_INT, &player))
 	{
 		return FALSE;
@@ -1261,10 +1254,9 @@ BOOL scrBuildDroid(void)
     return FALSE;
   }
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psFactory, sizeof(STRUCTURE)), "scrBuildUnit: Invalid structure pointer");
   DEBUG_ASSERT_TEXT((psFactory->pStructureType->type == REF_FACTORY OR
-      psFactory->pStructureType->type == REF_CYBORG_FACTORY OR psFactory->pStructureType->type == REF_VTOL_FACTORY), "scrBuildUnit: structure is not a factory");
-  DEBUG_ASSERT_TEXT(PTRVALID(psTemplate, sizeof(DROID_TEMPLATE)), "scrBuildUnit: Invalid template pointer");
+      psFactory->pStructureType->type == REF_CYBORG_FACTORY OR psFactory->pStructureType->type == REF_VTOL_FACTORY),
+    "scrBuildUnit: structure is not a factory");
 
   //check building the right sort of droid for the factory
   if (!validTemplateForFactory(psTemplate, psFactory))
@@ -1362,7 +1354,7 @@ BOOL scrDestroyFeature(void)
   if (!stackPopParams(1, ST_FEATURE, &psFeature))
     return FALSE;
 
-  if (psFeature == nullptr) { DEBUG_ASSERT_TEXT(PTRVALID(psFeature, sizeof(FEATURE)), "scrDestroyFeature: Invalid feature pointer"); }
+  if (psFeature == nullptr) {  }
 
   removeFeature(psFeature);
 
@@ -1419,7 +1411,7 @@ BOOL scrGetFeature(void)
   // check to see if badly called 
   if (psFeatureStatToFind[bucket] == nullptr)
   {
-    DBPRINTF(("invalid feature to find. possibly due to save game\n"));
+    Neuron::DebugTrace("invalid feature to find. possibly due to save game\n");
     if (!stackPushResult(ST_FEATURE,NULL))
       return FALSE;
     return TRUE;
@@ -1501,8 +1493,6 @@ BOOL scrAddFeature(void)
 
   psStat = asFeatureStats + iFeat;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psStat, sizeof(FEATURE_STATS)), "scrAddFeature: Invalid feature pointer");
-
   if (psStat != nullptr)
   {
     iMapX = iX >> TILE_SHIFT;
@@ -1548,8 +1538,6 @@ BOOL scrAddStructure(void)
     return FALSE;
 
   psStat = asStructureStats + iStruct;
-
-  DEBUG_ASSERT_TEXT(PTRVALID(psStat, sizeof(STRUCTURE_STATS)), "scrAddStructure: Invalid feature pointer");
 
   if (psStat != nullptr)
   {
@@ -1604,7 +1592,7 @@ BOOL scrDestroyStructure(void)
   if (!stackPopParams(1, ST_STRUCTURE, &psStruct))
     return FALSE;
 
-  if (psStruct == nullptr) { DEBUG_ASSERT_TEXT(PTRVALID(psStruct, sizeof(STRUCTURE)), "scrDestroyStructure: Invalid structure pointer"); }
+  if (psStruct == nullptr) {  }
 
   removeStruct(psStruct, TRUE);
 
@@ -2959,7 +2947,7 @@ BOOL scrStartMission(void)
   // find the level dataset
   if (!levFindDataSet(pGame, &psNewLevel))
   {
-    DBERROR(("scrStartMission: couldn't find level data"));
+    Neuron::Fatal("scrStartMission: couldn't find level data");
     return FALSE;
   }
 
@@ -3178,7 +3166,7 @@ BOOL scrRefTest(void)
     return FALSE;
   }
 
-  DBPRINTF(("scrRefTest: num: %d \n", Num));
+  Neuron::DebugTrace("scrRefTest: num: {} \n", Num);
 
   return TRUE;
 }
@@ -4339,7 +4327,7 @@ BOOL scrForceDamage(void)
   FEATURE* psFeature;
   BASE_OBJECT* psObj;
   UDWORD damagePercent;
-  FRACT divisor;
+  float divisor;
   UDWORD newVal;
 
   /* OK - let's get the vars */
@@ -4358,19 +4346,19 @@ BOOL scrForceDamage(void)
   }
 
   /* Get percentage in range [0.1] */
-  divisor = MAKEFRACT(damagePercent) / 100;
+  divisor = static_cast<float>(damagePercent) / 100;
 
   /* See what we're dealing with */
   switch (psObj->type)
   {
   case OBJ_DROID:
     psDroid = (DROID*)psObj;
-    newVal = MAKEINT((divisor * psDroid->originalBody));
+    newVal = std::lrintf(divisor * psDroid->originalBody);
     psDroid->body = newVal;
     break;
   case OBJ_STRUCTURE:
     psStructure = (STRUCTURE*)psObj;
-    newVal = MAKEINT((divisor * structureBody(psStructure)));
+    newVal = std::lrintf(divisor * structureBody(psStructure));
     psStructure->body = static_cast<UWORD>(newVal);
     break;
   case OBJ_FEATURE:
@@ -4378,7 +4366,7 @@ BOOL scrForceDamage(void)
     /* Some features cannot be damaged */
     if (psFeature->psStats->damageable)
     {
-      newVal = MAKEINT((divisor * psFeature->psStats->body));
+      newVal = std::lrintf(divisor * psFeature->psStats->body);
       psFeature->body = newVal;
     }
     break;
@@ -4511,8 +4499,6 @@ BOOL scrAddTemplate(void)
     DEBUG_ASSERT_TEXT(FALSE, "scrAddTemplate:player number is too high");
     return FALSE;
   }
-
-  DEBUG_ASSERT_TEXT(PTRVALID(psTemplate, sizeof(DROID_TEMPLATE)), "scrAddTemplate: Invalid template pointer");
 
   if (addTemplate(player, psTemplate))
   {
@@ -4762,9 +4748,9 @@ BOOL scrGetGameStatus(void)
   case STATUS_BattleMapViewEnabled:
 
     if (result == TRUE)
-      DBPRINTF(("battle map active"));
+      Neuron::DebugTrace("battle map active");
     else
-      DBPRINTF(("battle map notactive"));
+      Neuron::DebugTrace("battle map notactive");
 
     break;
   case STATUS_DeliveryReposInProgress:
@@ -4908,8 +4894,6 @@ BOOL scrTakeOverSingleDroid(void)
     return FALSE;
   }
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psDroidToTake, sizeof(DROID)), "scrTakeOverSingleUnit: Invalid unit pointer");
-
   psNewDroid = giftSingleDroid(psDroidToTake, playerToGain);
 
   if (!stackPushResult(ST_DROID, (SDWORD)psNewDroid))
@@ -5005,13 +4989,11 @@ BOOL scrTakeOverSingleStructure(void)
     return FALSE;
   }
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psStructToTake, sizeof(STRUCTURE)), "scrTakeOverSingleStructure: Invalid structure pointer");
-
   structureInc = psStructToTake->pStructureType->ref - REF_STRUCTURE_START;
   if (playerToGain == static_cast<SDWORD>(selectedPlayer) AND StructIsFactory(psStructToTake) AND asStructLimits[playerToGain][structureInc]
     .currentQuantity >= MAX_FACTORY)
   {
-    DBPRINTF(("scrTakeOverSingleStructure - factory ignored for selectedPlayer\n"));
+    Neuron::DebugTrace("scrTakeOverSingleStructure - factory ignored for selectedPlayer\n");
     psNewStruct = nullptr;
   }
   else
@@ -5088,7 +5070,7 @@ BOOL scrTakeOverStructsInArea(void)
       structureInc = psStruct->pStructureType->ref - REF_STRUCTURE_START;
       if (toPlayer == static_cast<SDWORD>(selectedPlayer) AND StructIsFactory(psStruct) AND asStructLimits[toPlayer][structureInc].
         currentQuantity >= MAX_FACTORY)
-        DBPRINTF(("scrTakeOverStructsInArea - factory ignored for selectedPlayer\n"));
+        Neuron::DebugTrace("scrTakeOverStructsInArea - factory ignored for selectedPlayer\n");
       else
       {
         //give the structure away
@@ -5323,7 +5305,7 @@ BOOL scrTutorialTemplates(void)
   strcpy(pName, "ViperLtMGWheels");
   if (!getResourceName(pName))
   {
-    DBERROR(("tutorial template setup failed"));
+    Neuron::Fatal("tutorial template setup failed");
     return FALSE;
   }
 
@@ -5345,10 +5327,13 @@ BOOL scrTutorialTemplates(void)
 
   // Delete the template.
   if (psCurr)
-    HEAP_FREE(psTemplateHeap, psCurr);
+    {
+      delete psCurr;
+      psCurr = nullptr;
+    }
   else
   {
-    DBERROR(("tutorial template setup failed"));
+    Neuron::Fatal("tutorial template setup failed");
     return FALSE;
   }
   return TRUE;

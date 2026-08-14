@@ -10,7 +10,6 @@
 #include "Frame.h"
 #include "Widget.h"
 #include "Deliverance.h"
-#include "Fractions.h"
 
 #include "PieState.h"
 #include "PieClip.h"
@@ -80,7 +79,7 @@ void SetMousePos(UDWORD nowt, UDWORD x, UDWORD y)
 
 void AllocateSnapBuffer(CURSORSNAP* SnapBuffer, UWORD MaxSnaps)
 {
-  SnapBuffer->SnapCoords = static_cast<SNAPCOORD*>(MALLOC(sizeof(CURSORSNAP)*MaxSnaps));
+  SnapBuffer->SnapCoords = new (std::nothrow) SNAPCOORD[MaxSnaps];
   SnapBuffer->MaxSnaps = MaxSnaps;
   SnapBuffer->NumSnaps = 0;
   SnapBuffer->CurrentSnap = 0;
@@ -88,7 +87,7 @@ void AllocateSnapBuffer(CURSORSNAP* SnapBuffer, UWORD MaxSnaps)
   SnapBuffer->NewCurrentID = 0;
 }
 
-void ReleaseSnapBuffer(CURSORSNAP* SnapBuffer) { FREE(SnapBuffer->SnapCoords); }
+void ReleaseSnapBuffer(CURSORSNAP* SnapBuffer) { delete[] SnapBuffer->SnapCoords; }
 
 void StartCursorSnap(CURSORSNAP* SnapBuffer) { SnapBuffer->NumSnaps = 0; }
 

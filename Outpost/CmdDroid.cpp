@@ -156,8 +156,6 @@ void cmdDroidUpdateKills(DROID* psKiller)
 {
   DROID* psCommander;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psKiller, sizeof(DROID)), "cmdUnitUpdateKills: invalid Unit pointer");
-
   if ((psKiller->psGroup != nullptr) && (psKiller->psGroup->type == GT_COMMAND))
   {
     psCommander = psKiller->psGroup->psCommander;
@@ -169,8 +167,6 @@ void cmdDroidUpdateKills(DROID* psKiller)
 SDWORD cmdGetCommanderLevel(DROID* psDroid)
 {
   DROID* psCommander;
-
-  DEBUG_ASSERT_TEXT(PTRVALID(psDroid, sizeof(DROID)), "cmdGetCommanderLevel: invalid droid pointer");
 
   if ((psDroid->psGroup != nullptr) && (psDroid->psGroup->type == GT_COMMAND))
   {

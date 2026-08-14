@@ -46,9 +46,9 @@ extern void gameTimeReset(UDWORD time);
 // reset the game time modifiers
 void gameTimeResetMod(void);
 // set the time modifier
-void gameTimeSetMod(FRACT mod);
+void gameTimeSetMod(float mod);
 // get the current time modifier
-void gameTimeGetMod(FRACT* pMod);
+void gameTimeGetMod(float* pMod);
 
 // get the current time modifier
 void gameTimeGetModifier(UDWORD* pMod, UDWORD* pFactor);

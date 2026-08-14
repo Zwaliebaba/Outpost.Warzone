@@ -19,29 +19,12 @@
 #include "ObjMem.h"
 #include "Map.h"
 #include "MultiPlay.h"
-/* Allocation sizes for the message heaps */
-#define MESSAGE_INIT		20
-#define MESSAGE_EXT			5
-#define VIEWDATA_INIT		5		// was 2 ... but that wasn't enough
-#define VIEWDATA_EXT		1
-
-/* Allocation sizes for the proximity display heaps - this should coincide with 
-the number of Proximity Messages for a mission*/
-#define PROXDISP_INIT		10
-#define PROXDISP_EXT		5
 
 //max number of text strings or sequences for viewdata
 #define MAX_DATA		4
 
 //array of pointers for the view data
 VIEWDATA_LIST* apsViewData;
-
-/* The memory heaps for the messages and viewData*/
-OBJ_HEAP* psMsgHeap;
-OBJ_HEAP* psViewDataHeap;
-
-/* The memory heap for the proximity displays */
-OBJ_HEAP* psProxDispHeap;
 
 /* The id number for the next message allocated
  * Each message will have a unique id number irrespective of type
@@ -73,11 +56,12 @@ static void checkMessages(MSG_VIEWDATA* psViewData);
 // ajl modified for netgames
 extern UDWORD selectedPlayer;
 
-#define CREATE_MSG(heap, new, msgType) \
-	if (HEAP_ALLOC(heap, (new))) \
+#define CREATE_MSG(ppNew, msgType) \
+	*(ppNew) = new (std::nothrow) MESSAGE; \
+	if (*(ppNew) != NULL) \
 	{ \
-		(*(new))->type = msgType; \
-		(*(new))->id = (msgID<<3)|selectedPlayer; \
+		(*(ppNew))->type = msgType; \
+		(*(ppNew))->id = (msgID<<3)|selectedPlayer; \
 		msgID++; \
 	}
 
@@ -86,8 +70,7 @@ extern UDWORD selectedPlayer;
  * Order is now CAMPAIGN, MISSION, RESEARCH/PROXIMITY
  */
 #define ADD_MSG(list, msg, player) \
-	DEBUG_ASSERT_TEXT(PTRVALID((msg), sizeof(MESSAGE)),  \
-		"addMessage: Invalid message pointer"); \
+	 \
 	if (list[player] == NULL) \
 	{ \
 		list[player] = msg; \
@@ -132,7 +115,6 @@ extern UDWORD selectedPlayer;
 
 void add_msg(MESSAGE* list[MAX_PLAYERS], MESSAGE* msg, UDWORD player)
 {
-  DEBUG_ASSERT_TEXT(PTRVALID((msg), sizeof(MESSAGE)), "addMessage: Invalid message pointer");
   if (list[player] == nullptr)
   {
     list[player] = msg;
@@ -202,13 +184,12 @@ void add_msg(MESSAGE* list[MAX_PLAYERS], MESSAGE* msg, UDWORD player)
  * list is a pointer to the message list
  * del is a pointer to the message to remove
 */
-#define REMOVEMSG(list, heap, del, player) \
-	DEBUG_ASSERT_TEXT(PTRVALID(del, sizeof(MESSAGE)),  \
-		"removeMessage: Invalid message pointer"); \
+#define REMOVEMSG(list, del, player) \
+	 \
 	if (list[player] == del) \
 	{ \
 		list[player] = list[player]->psNext; \
-		HEAP_FREE(heap, del); \
+		delete del; \
 	} \
 	else \
 	{ \
@@ -223,11 +204,11 @@ void add_msg(MESSAGE* list[MAX_PLAYERS], MESSAGE* msg, UDWORD player)
 		if (psCurr != NULL) \
 		{ \
 			psPrev->psNext = psCurr->psNext; \
-			HEAP_FREE(heap, del); \
+			delete del; \
 		} \
 	}
 
-#define RELEASEALLMSG(list, heap) \
+#define RELEASEALLMSG(list) \
 	{ \
 		UDWORD	i; \
 		MESSAGE	*psCurr, *psNext; \
@@ -236,7 +217,7 @@ void add_msg(MESSAGE* list[MAX_PLAYERS], MESSAGE* msg, UDWORD player)
 			for(psCurr = list[i]; psCurr != NULL; psCurr = psNext) \
 			{ \
 		 		psNext = psCurr->psNext; \
-				HEAP_FREE(heap, psCurr); \
+				delete psCurr; \
 			} \
 			list[i] = NULL; \
 		} \
@@ -246,9 +227,6 @@ BOOL messageInitVars(void)
 {
   int i;
 
-  psMsgHeap = nullptr;
-  psProxDispHeap = nullptr;
-  psViewDataHeap = nullptr;
   msgID = 0;
   currentNumProxDisplays = 0;
 
@@ -263,17 +241,13 @@ BOOL messageInitVars(void)
   return TRUE;
 }
 
-//allocates the viewdata heap
 BOOL initViewData(void)
 {
-  //initialise the viewData heap - needs to be done before the data is loaded
-  if (!HEAP_CREATE(&psViewDataHeap, sizeof(VIEWDATA), VIEWDATA_INIT, VIEWDATA_EXT))
-    return FALSE;
   return TRUE;
 }
 
 //destroys the viewdata heap
-void viewDataHeapShutDown(void) { HEAP_DESTROY(psViewDataHeap); }
+void viewDataHeapShutDown(void) {  }
 
 /*Add a message to the list */
 MESSAGE* addMessage(UDWORD msgType, BOOL proxPos, UDWORD player)
@@ -281,7 +255,7 @@ MESSAGE* addMessage(UDWORD msgType, BOOL proxPos, UDWORD player)
   MESSAGE* psMsgToAdd = nullptr;
 
   //first create a message of the required type
-  CREATE_MSG(psMsgHeap, &psMsgToAdd, static_cast<MESSAGE_TYPE>(msgType));
+  CREATE_MSG(&psMsgToAdd, static_cast<MESSAGE_TYPE>(msgType));
   if (!psMsgToAdd)
     return nullptr;
   //then add to the players' list
@@ -308,7 +282,8 @@ void addProximityDisplay(MESSAGE* psMessage, BOOL proxPos, UDWORD player)
   PROXIMITY_DISPLAY* psToAdd;
 
   //create the proximity display
-  if (HEAP_ALLOC(psProxDispHeap, &psToAdd))
+  psToAdd = new (std::nothrow) PROXIMITY_DISPLAY;
+  if (psToAdd != nullptr)
   {
     if (proxPos)
       psToAdd->type = POS_PROXOBJ;
@@ -339,7 +314,7 @@ void removeMessage(MESSAGE* psDel, UDWORD player)
 {
   if (psDel->type == MSG_PROXIMITY)
     removeProxDisp(psDel, player);
-  REMOVEMSG(apsMessages, psMsgHeap, psDel, player);
+  REMOVEMSG(apsMessages, psDel, player);
 }
 
 /* remove a proximity display */
@@ -353,7 +328,7 @@ void removeProxDisp(MESSAGE* psMessage, UDWORD player)
     psCurr = apsProxDisp[player];
     apsProxDisp[player] = apsProxDisp[player]->psNext;
     intRemoveProximityButton(psCurr);
-    HEAP_FREE(psProxDispHeap, psCurr);
+    delete psCurr;
   }
   else
   {
@@ -365,7 +340,7 @@ void removeProxDisp(MESSAGE* psMessage, UDWORD player)
       {
         psPrev->psNext = psCurr->psNext;
         intRemoveProximityButton(psCurr);
-        HEAP_FREE(psProxDispHeap, psCurr);
+        delete psCurr;
         break;
       }
       psPrev = psCurr;
@@ -377,7 +352,7 @@ void removeProxDisp(MESSAGE* psMessage, UDWORD player)
 void freeMessages(void)
 {
   releaseAllProxDisp();
-  RELEASEALLMSG(apsMessages, psMsgHeap);
+  RELEASEALLMSG(apsMessages);
 }
 
 /* removes all the proximity displays */
@@ -400,7 +375,6 @@ void releaseAllProxDisp(void)
   currentNumProxDisplays = 0;
 }
 
-/* Initialise the message heaps */
 BOOL initMessage(void)
 {
 #ifdef VIDEO_TEST
@@ -411,18 +385,11 @@ BOOL initMessage(void)
   pProximityMsgIMD = static_cast<iIMDShape*>(resGetData("IMD", "arrow.pie"));
   if (pProximityMsgIMD == nullptr)
   {
-    DBERROR(("Unable to load Proximity Message PIE"));
+    Neuron::Fatal("Unable to load Proximity Message PIE");
     return FALSE;
   }
 
   //initialise the tutorial message - only used by scripts
-
-  if (!HEAP_CREATE(&psMsgHeap, sizeof(MESSAGE), MESSAGE_INIT, MESSAGE_EXT))
-    return FALSE;
-
-  //initialise the proximity display heap
-  if (!HEAP_CREATE(&psProxDispHeap, sizeof(PROXIMITY_DISPLAY), PROXDISP_INIT, PROXDISP_EXT))
-    return FALSE;
 
   //JPS add message to get on screen video
 #ifdef VIDEO_TEST
@@ -439,7 +406,8 @@ BOOL addToViewDataList(VIEWDATA* psViewData, UBYTE numData)
 {
   VIEWDATA_LIST* psAdd;
 
-  if (HEAP_ALLOC(psViewDataHeap, (void**)&psAdd))
+  psAdd = new (std::nothrow) VIEWDATA_LIST;
+  if (psAdd != nullptr)
   {
     psAdd->psViewData = psViewData;
     psAdd->numViewData = numData;
@@ -467,15 +435,15 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
   numData = numCR((UBYTE*)pViewMsgData, bufferSize);
   if (numData > UBYTE_MAX)
   {
-    DBERROR(("loadViewData: Didn't expect 256 viewData messages!"));
+    Neuron::Fatal("loadViewData: Didn't expect 256 viewData messages!");
     return nullptr;
   }
 
   //allocate space for the data
-  psViewData = static_cast<VIEWDATA*>(MALLOC(numData * sizeof(VIEWDATA)));
+  psViewData = new (std::nothrow) VIEWDATA[numData];
   if (psViewData == nullptr)
   {
-    DBERROR(("Unable to allocate memory for viewdata"));
+    Neuron::Fatal("Unable to allocate memory for viewdata");
     return nullptr;
   }
 
@@ -499,22 +467,22 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
     //check not loading up too many text strings
     if (numText > MAX_DATA)
     {
-      DBERROR(("loadViewData: too many text strings for %s", psViewData->pName));
+      Neuron::Fatal("loadViewData: too many text strings for {}", psViewData->pName);
       return nullptr;
     }
     psViewData->numText = static_cast<UBYTE>(numText);
 
     //allocate storage for the name
-    psViewData->pName = static_cast<STRING*>(MALLOC((strlen(name))+1));
+    psViewData->pName = new (std::nothrow) STRING[(strlen(name))+1];
     if (psViewData->pName == nullptr)
     {
-      DBERROR(("ViewData Name - Out of memory"));
+      Neuron::Fatal("ViewData Name - Out of memory");
       return nullptr;
     }
     strcpy(psViewData->pName, name);
 
     //allocate space for text strings
-    if (psViewData->numText) { psViewData->ppTextMsg = static_cast<STRING**>(MALLOC(psViewData->numText * sizeof(STRING *))); }
+    if (psViewData->numText) { psViewData->ppTextMsg = new (std::nothrow) STRING*[psViewData->numText]; }
 
     //read in the data for the text strings
     for (dataInc = 0; dataInc < psViewData->numText; dataInc++)
@@ -525,7 +493,7 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
       //get the ID for the string
       if (!strresGetIDNum(psStringRes, name, &id))
       {
-        DBERROR(("Cannot find the view data string id %s ", name));
+        Neuron::Fatal("Cannot find the view data string id {} ", name);
         return nullptr;
       }
       //get the string from the id
@@ -538,10 +506,10 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
     switch (psViewData->type)
     {
     case VIEW_RES:
-      psViewData->pData = static_cast<VIEW_RESEARCH*>(MALLOC(sizeof(VIEW_RESEARCH)));
+      psViewData->pData = new (std::nothrow) VIEW_RESEARCH[1];
       if (psViewData->pData == nullptr)
       {
-        DBERROR(("Unable to allocate memory"));
+        Neuron::Fatal("Unable to allocate memory");
         return nullptr;
       }
       imdName[0] = '\0';
@@ -554,7 +522,7 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
       psViewRes->pIMD = static_cast<iIMDShape*>(resGetData("IMD", imdName));
       if (psViewRes->pIMD == nullptr)
       {
-        DBERROR(("Cannot find the PIE for message %s", name));
+        Neuron::Fatal("Cannot find the PIE for message {}", name);
         return nullptr;
       }
       if (strcmp(imdName2, "0"))
@@ -562,7 +530,7 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
         psViewRes->pIMD2 = static_cast<iIMDShape*>(resGetData("IMD", imdName2));
         if (psViewRes->pIMD2 == nullptr)
         {
-          DBERROR(("Cannot find the 2nd PIE for message %s", name));
+          Neuron::Fatal("Cannot find the 2nd PIE for message {}", name);
           return nullptr;
         }
       }
@@ -573,10 +541,10 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
       if (strcmp(audioName, "0"))
       {
         //allocate space
-        psViewRes->pAudio = static_cast<STRING*>(MALLOC(strlen(audioName) + 1));
+        psViewRes->pAudio = new (std::nothrow) STRING[strlen(audioName) + 1];
         if (psViewRes->pAudio == nullptr)
         {
-          DBERROR(("loadViewData - Out of memory"));
+          Neuron::Fatal("loadViewData - Out of memory");
           return nullptr;
         }
         strcpy(psViewRes->pAudio, audioName);
@@ -590,10 +558,10 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
     case VIEW_RPLX:
       // This is now also used for the stream playing on the PSX 
       // NOTE: on the psx the last entry (audioID) is used as the number of frames in the stream
-      psViewData->pData = static_cast<VIEW_REPLAY*>(MALLOC(sizeof(VIEW_REPLAY)));
+      psViewData->pData = new (std::nothrow) VIEW_REPLAY[1];
       if (psViewData->pData == nullptr)
       {
-        DBERROR(("Unable to allocate memory"));
+        Neuron::Fatal("Unable to allocate memory");
         return nullptr;
       }
       psViewReplay = static_cast<VIEW_REPLAY*>(psViewData->pData);
@@ -603,14 +571,14 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
 
       if (count > MAX_DATA)
       {
-        DBERROR(("loadViewData: too many sequence for %s", psViewData->pName));
+        Neuron::Fatal("loadViewData: too many sequence for {}", psViewData->pName);
         return nullptr;
       }
 
       psViewReplay->numSeq = static_cast<UBYTE>(count);
 
       //allocate space for the sequences
-      psViewReplay->pSeqList = static_cast<SEQ_DISPLAY*>(MALLOC(psViewReplay->numSeq * sizeof(SEQ_DISPLAY)));
+      psViewReplay->pSeqList = new (std::nothrow) SEQ_DISPLAY[psViewReplay->numSeq];
 
       //read in the data for the sequences
       for (dataInc = 0; dataInc < psViewReplay->numSeq; dataInc++)
@@ -622,7 +590,7 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
           sscanf1(&pViewMsgData, "%[^','],%d,", &name, &count);
           if (count > MAX_DATA)
           {
-            DBERROR(("loadViewData: too many strings for %s", psViewData->pName));
+            Neuron::Fatal("loadViewData: too many strings for {}", psViewData->pName);
             return nullptr;
           }
           psViewReplay->pSeqList[dataInc].numText = static_cast<UBYTE>(count);
@@ -634,14 +602,14 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
           sscanf1(&pViewMsgData, "%[^','],%d,%d,", &name, &count, &count2);
           if (count > MAX_DATA)
           {
-            DBERROR(("loadViewData: invalid video playback flag %s", psViewData->pName));
+            Neuron::Fatal("loadViewData: invalid video playback flag {}", psViewData->pName);
             return nullptr;
           }
           psViewReplay->pSeqList[dataInc].flag = static_cast<UBYTE>(count);
           //check not loading up too many text strings
           if (count2 > MAX_DATA)
           {
-            DBERROR(("loadViewData: too many text strings for seq for %s", psViewData->pName));
+            Neuron::Fatal("loadViewData: too many text strings for seq for {}", psViewData->pName);
             return nullptr;
           }
           psViewReplay->pSeqList[dataInc].numText = static_cast<UBYTE>(count2);
@@ -652,8 +620,7 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
         //allocate space for text strings
         if (psViewReplay->pSeqList[dataInc].numText)
         {
-          psViewReplay->pSeqList[dataInc].ppTextMsg = static_cast<STRING**>(MALLOC(
-            psViewReplay->pSeqList[dataInc].numText * sizeof(STRING *)));
+          psViewReplay->pSeqList[dataInc].ppTextMsg = new (std::nothrow) STRING*[psViewReplay->pSeqList[dataInc].numText];
         }
         //read in the data for the text strings
         for (seqInc = 0; seqInc < psViewReplay->pSeqList[dataInc].numText; seqInc++)
@@ -663,7 +630,7 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
           //get the ID for the string
           if (!strresGetIDNum(psStringRes, name, &id))
           {
-            DBERROR(("Cannot find the view data string id %s ", name));
+            Neuron::Fatal("Cannot find the view data string id {} ", name);
             return nullptr;
           }
           //get the string from the id
@@ -679,10 +646,10 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
         if (strcmp(audioName, "0"))
         {
           //allocate space
-          psViewReplay->pSeqList[dataInc].pAudio = static_cast<STRING*>(MALLOC(strlen(audioName) + 1));
+          psViewReplay->pSeqList[dataInc].pAudio = new (std::nothrow) STRING[strlen(audioName) + 1];
           if (psViewReplay->pSeqList[dataInc].pAudio == nullptr)
           {
-            DBERROR(("loadViewData - Out of memory"));
+            Neuron::Fatal("loadViewData - Out of memory");
             return nullptr;
           }
           strcpy(psViewReplay->pSeqList[dataInc].pAudio, audioName);
@@ -694,10 +661,10 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
       break;
 
     case VIEW_PROX:
-      psViewData->pData = static_cast<VIEW_PROXIMITY*>(MALLOC(sizeof(VIEW_PROXIMITY)));
+      psViewData->pData = new (std::nothrow) VIEW_PROXIMITY[1];
       if (psViewData->pData == nullptr)
       {
-        DBERROR(("Unable to allocate memory"));
+        Neuron::Fatal("Unable to allocate memory");
         return nullptr;
       }
 
@@ -711,13 +678,13 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
       {
         if (audioID_GetIDFromStr(audioName, &audioID) == FALSE)
         {
-          DBERROR(("loadViewData: couldn't get ID %d for weapon sound %s", audioID, audioName));
+          Neuron::Fatal("loadViewData: couldn't get ID {} for weapon sound {}", audioID, audioName);
           return FALSE;
         }
 
         if (((audioID < 0) || (audioID >= ID_MAX_SOUND)) && (audioID != NO_SOUND))
         {
-          DBERROR(("Invalid Weapon Sound ID - %d for weapon %s", audioID, audioName));
+          Neuron::Fatal("Invalid Weapon Sound ID - {} for weapon {}", audioID, audioName);
           return FALSE;
         }
       }
@@ -750,7 +717,7 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
       }
       static_cast<VIEW_PROXIMITY*>(psViewData->pData)->proxType = static_cast<PROX_TYPE>(proxType);
       break;
-    default: DBERROR(("Unknown ViewData type"));
+    default: Neuron::Fatal("Unknown ViewData type");
       return nullptr;
     }
     //increment the pointer to the start of the next record
@@ -780,16 +747,13 @@ VIEWDATA* getViewData(STRING* pName)
     }
   }
 
-  DBERROR(("Unable to find viewdata for message %s", pName));
+  Neuron::Fatal("Unable to find viewdata for message {}", pName);
   return nullptr;
 }
 
-/* Release the message heaps */
 BOOL messageShutdown(void)
 {
   freeMessages();
-  HEAP_DESTROY(psMsgHeap);
-  HEAP_DESTROY(psProxDispHeap);
 
   return TRUE;
 }
@@ -816,9 +780,10 @@ void viewDataShutDown(VIEWDATA* psViewData)
         //check for any messages using this viewdata
         checkMessages((MSG_VIEWDATA*)psViewData);
 
-        FREE(psViewData->pName);
+        delete[] psViewData->pName;
+        psViewData->pName = nullptr;
         //free the space allocated for the text messages
-        if (psViewData->numText) { FREE(psViewData->ppTextMsg); }
+        if (psViewData->numText) { delete[] psViewData->ppTextMsg; }
 
         //free the space allocated for multiple sequences
         if (psViewData->type == VIEW_RPL)
@@ -829,30 +794,32 @@ void viewDataShutDown(VIEWDATA* psViewData)
             for (seqInc = 0; seqInc < psViewReplay->numSeq; seqInc++)
             {
               //free the space allocated for the text messages
-              if (psViewReplay->pSeqList[seqInc].numText) { FREE(psViewReplay->pSeqList[seqInc].ppTextMsg); }
-              if (psViewReplay->pSeqList[seqInc].pAudio) { FREE(psViewReplay->pSeqList[seqInc].pAudio); }
+              if (psViewReplay->pSeqList[seqInc].numText) { delete[] psViewReplay->pSeqList[seqInc].ppTextMsg; }
+              if (psViewReplay->pSeqList[seqInc].pAudio) { delete[] psViewReplay->pSeqList[seqInc].pAudio; }
             }
-            FREE(psViewReplay->pSeqList);
+            delete[] psViewReplay->pSeqList;
+            psViewReplay->pSeqList = nullptr;
           }
         }
         else if (psViewData->type == VIEW_RES)
         {
           psViewRes = static_cast<VIEW_RESEARCH*>(psViewData->pData);
-          if (psViewRes->pAudio) { FREE(psViewRes->pAudio); }
+          if (psViewRes->pAudio) { delete[] psViewRes->pAudio; }
         }
-        FREE(psViewData->pData);
+        delete[] psViewData->pData;
+        psViewData->pData = nullptr;
       }
-      FREE(psList->psViewData);
-      //remove viewData list from the heap
+      delete[] psList->psViewData;
+      psList->psViewData = nullptr;
       if (psList == apsViewData)
       {
         apsViewData = psList->psNext;
-        HEAP_FREE(psViewDataHeap, psList);
+        delete psList;
       }
       else
       {
         psPrev->psNext = psList->psNext;
-        HEAP_FREE(psViewDataHeap, psList);
+        delete psList;
       }
       break;
     }

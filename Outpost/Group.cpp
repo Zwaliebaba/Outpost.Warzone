@@ -11,29 +11,21 @@
 #include "Group.h"
 #include "OrderDef.h"
 #include "MultiPlay.h"
-// sizes for the group heap
-#define GRP_HEAP_INIT	45
-#define GRP_HEAP_EXT	15
-
-// heap for the droid group structure
-OBJ_HEAP* psGrpHeap;
 
 // initialise the group system
 BOOL grpInitialise(void)
 {
-  if (!HEAP_CREATE(&psGrpHeap, sizeof(DROID_GROUP), GRP_HEAP_INIT, GRP_HEAP_EXT))
-    return FALSE;
-
   return TRUE;
 }
 
 // shutdown the group system
-void grpShutDown(void) { HEAP_DESTROY(psGrpHeap); }
+void grpShutDown(void) {  }
 
 // create a new group
 BOOL grpCreate(DROID_GROUP** ppsGroup)
 {
-  if (!HEAP_ALLOC(psGrpHeap, ppsGroup))
+  *ppsGroup = new (std::nothrow) DROID_GROUP;
+  if (*ppsGroup == nullptr)
     return FALSE;
 
   (*ppsGroup)->type = GT_NORMAL;
@@ -49,8 +41,6 @@ BOOL grpCreate(DROID_GROUP** ppsGroup)
 void grpJoin(DROID_GROUP* psGroup, DROID* psDroid)
 {
   psGroup->refCount += 1;
-
-  DEBUG_ASSERT_TEXT(PTRVALID(psGroup, sizeof(DROID_GROUP)), "grpJoin: invalid group pointer");
 
   // if psDroid == NULL just increase the refcount don't add anything to the list
   if (psDroid != nullptr)
@@ -94,8 +84,6 @@ void grpJoinEnd(DROID_GROUP* psGroup, DROID* psDroid)
 
   psGroup->refCount += 1;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psGroup, sizeof(DROID_GROUP)), "grpJoin: invalid group pointer");
-
   // if psDroid == NULL just increase the refcount don't add anything to the list
   if (psDroid != nullptr)
   {
@@ -135,8 +123,6 @@ void grpJoinEnd(DROID_GROUP* psGroup, DROID* psDroid)
 void grpLeave(DROID_GROUP* psGroup, DROID* psDroid)
 {
   DROID *psPrev, *psCurr;
-
-  DEBUG_ASSERT_TEXT(PTRVALID(psGroup, sizeof(DROID_GROUP)), "grpLeave: invalid group pointer");
 
   if ((psDroid != nullptr) && (psDroid->psGroup != psGroup))
   {
@@ -182,7 +168,7 @@ void grpLeave(DROID_GROUP* psGroup, DROID* psDroid)
 
   // free the group structure if necessary
   if (psGroup->refCount <= 0)
-    HEAP_FREE(psGrpHeap, psGroup);
+    delete psGroup;
 }
 
 // count the members of a group
@@ -190,8 +176,6 @@ SDWORD grpNumMembers(DROID_GROUP* psGroup)
 {
   DROID* psCurr;
   SDWORD num;
-
-  DEBUG_ASSERT_TEXT(PTRVALID(psGroup, sizeof(DROID_GROUP)), "grpNumMembers: invalid droid group");
 
   num = 0;
   for (psCurr = psGroup->psList; psCurr; psCurr = psCurr->psGrpNext)
@@ -205,8 +189,6 @@ void grpReset(DROID_GROUP* psGroup)
 {
   DROID *psCurr, *psNext;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psGroup, sizeof(DROID_GROUP)), "grpReset: invalid droid group");
-
   for (psCurr = psGroup->psList; psCurr; psCurr = psNext)
   {
     psNext = psCurr->psGrpNext;
@@ -216,7 +198,6 @@ void grpReset(DROID_GROUP* psGroup)
 
 /* Give a group an order */
 
-//	ASSERT((PTRVALID(psGroup, sizeof(DROID_GROUP)),
 //
 //	if (bMultiPlayer && SendGroupOrder(	psGroup, psData->x,	psData->y,	psData->psObj) )
 //	{	// turn off multiplay messages,since we've send a group one instead.
@@ -227,8 +208,6 @@ void orderGroup(DROID_GROUP* psGroup, DROID_ORDER order)
 {
   DROID* psCurr;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psGroup, sizeof(DROID_GROUP)), "orderGroup: invalid droid group");
-
   for (psCurr = psGroup->psList; psCurr; psCurr = psCurr->psGrpNext)
     orderDroid(psCurr, order);
 }
@@ -237,8 +216,6 @@ void orderGroup(DROID_GROUP* psGroup, DROID_ORDER order)
 void orderGroupLoc(DROID_GROUP* psGroup, DROID_ORDER order, UDWORD x, UDWORD y)
 {
   DROID* psCurr;
-
-  DEBUG_ASSERT_TEXT(PTRVALID(psGroup, sizeof(DROID_GROUP)), "orderGroupLoc: invalid droid group");
 
   if (bMultiPlayer)
   {
@@ -262,8 +239,6 @@ void orderGroupObj(DROID_GROUP* psGroup, DROID_ORDER order, BASE_OBJECT* psObj)
 {
   DROID* psCurr;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psGroup, sizeof(DROID_GROUP)), "orderGroupObj: invalid droid group");
-
   if (bMultiPlayer)
   {
     SendGroupOrderGroup(psGroup, order, 0, 0, psObj);
@@ -285,8 +260,6 @@ void orderGroupObj(DROID_GROUP* psGroup, DROID_ORDER order, BASE_OBJECT* psObj)
 void grpSetSecondary(DROID_GROUP* psGroup, SECONDARY_ORDER sec, SECONDARY_STATE state)
 {
   DROID* psCurr;
-
-  DEBUG_ASSERT_TEXT(PTRVALID(psGroup, sizeof(DROID_GROUP)), "grpSetSecondary: invalid droid group");
 
   for (psCurr = psGroup->psList; psCurr; psCurr = psCurr->psGrpNext)
     secondarySetState(psCurr, sec, state);

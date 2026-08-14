@@ -19,10 +19,6 @@
 // radius for the different body sizes
 static SDWORD fmLtRad = 80, fmMedRad = 100, fmHvyRad = 110;
 
-// heap sizes
-#define F_HEAPINIT		10
-#define F_HEAPEXT		5
-
 // default length of a formation line
 #define F_DEFLENGTH		(4*fmLtRad)
 //(3 * TILE_UNITS / 1)
@@ -42,9 +38,6 @@ static SDWORD fmLtRad = 80, fmMedRad = 100, fmHvyRad = 110;
 
 #define FORMATION_SPEED_INIT	100000L
 
-// The heap of formations
-OBJ_HEAP* psFHeap;
-
 // The list of allocated formations
 FORMATION* psFormationList;
 
@@ -53,9 +46,6 @@ SDWORD formationObjRadius(BASE_OBJECT* psObj);
 // Initialise the formation system
 BOOL formationInitialise(void)
 {
-  if (!HEAP_CREATE(&psFHeap, sizeof(FORMATION), F_HEAPINIT, F_HEAPEXT))
-    return FALSE;
-
   psFormationList = nullptr;
 
   return TRUE;
@@ -68,13 +58,11 @@ void formationShutDown(void)
 
   while (psFormationList)
   {
-    DBPRINTF(("formation with %d units still attached\n",psFormationList->refCount));
+    Neuron::DebugTrace("formation with {} units still attached\n",psFormationList->refCount);
     psNext = psFormationList->psNext;
-    HEAP_FREE(psFHeap, psFormationList);
+    delete psFormationList;
     psFormationList = psNext;
   }
-
-  HEAP_DESTROY(psFHeap);
 }
 
 #ifdef TEST_BED
@@ -98,11 +86,10 @@ BOOL formationNew(FORMATION** ppsFormation, FORMATION_TYPE type, SDWORD x, SDWOR
   FORMATION* psNew;
   SDWORD i;
 
-  // get a heap structure
-  if (!HEAP_ALLOC(psFHeap, &psNew))
+  psNew = new (std::nothrow) FORMATION;
+  if (psNew == nullptr)
     return FALSE;
 
-  DBP0(("formationNew: type %d, at (%d,%d), dir %d\n", type, x,y, dir));
 
   // initialise it
   psNew->refCount = 0;
@@ -208,9 +195,6 @@ void formationJoin(FORMATION* psFormation, BASE_OBJECT* psObj)
 
   UNUSEDPARAMETER(psObj);
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psFormation, sizeof(FORMATION)), "formationJoin: invalid formation");
-
-  DBP0(("formationJoin: %p, obj %d\n", psFormation, psObj->id));
 
   psFormation->refCount += 1;
 
@@ -234,10 +218,8 @@ void formationLeave(FORMATION* psFormation, BASE_OBJECT* psObj)
   F_MEMBER* asMembers;
   FORMATION *psCurr, *psPrev;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psFormation, sizeof(FORMATION)), "formationLeave: invalid formation");
   DEBUG_ASSERT_TEXT(psFormation->refCount > 0, "formationLeave: refcount is zero");
 
-  DBP0(("formationLeave: %p, obj %d\n", psFormation, psObj->id));
 
   asMembers = psFormation->asMembers;
 
@@ -285,7 +267,7 @@ void formationLeave(FORMATION* psFormation, BASE_OBJECT* psObj)
         psPrev = psCurr;
       psPrev->psNext = psFormation->psNext;
     }
-    HEAP_FREE(psFHeap, psFormation);
+    delete psFormation;
   }
 }
 
@@ -322,14 +304,14 @@ void formationCalcPos(FORMATION* psFormation, SDWORD line, SDWORD dist, SDWORD* 
 
   // calculate the offset of the line based on the rank
   dir = static_cast<SDWORD>(adjustDirection(psFormation->dir, 180));
-  xoffset = MAKEINT(FRACTmul(trigSin(dir), MAKEFRACT(psFormation->rankDist * rank))) + psFormation->asLines[line].xoffset;
-  yoffset = MAKEINT(FRACTmul(trigCos(dir), MAKEFRACT(psFormation->rankDist * rank))) + psFormation->asLines[line].yoffset;
+  xoffset = std::lrintf(trigSin(dir) * static_cast<float>(psFormation->rankDist * rank)) + psFormation->asLines[line].xoffset;
+  yoffset = std::lrintf(trigCos(dir) * static_cast<float>(psFormation->rankDist * rank)) + psFormation->asLines[line].yoffset;
 
   // calculate the position of the gap
   dir = psFormation->asLines[line].dir;
   dist -= psFormation->size * rank;
-  *pX = MAKEINT(FRACTmul(trigSin(dir), MAKEFRACT(dist))) + xoffset + psFormation->x;
-  *pY = MAKEINT(FRACTmul(trigCos(dir), MAKEFRACT(dist))) + yoffset + psFormation->y;
+  *pX = std::lrintf(trigSin(dir) * static_cast<float>(dist)) + xoffset + psFormation->x;
+  *pY = std::lrintf(trigCos(dir) * static_cast<float>(dist)) + yoffset + psFormation->y;
 }
 
 // assign a unit to a free spot in the formation
@@ -671,8 +653,6 @@ BOOL formationGetPos(FORMATION* psFormation, BASE_OBJECT* psObj, SDWORD* pX, SDW
   SDWORD xdiff, ydiff, distSq; //,rangeSq;
   SDWORD member, x, y;
   F_MEMBER* asMembers;
-
-  DEBUG_ASSERT_TEXT(PTRVALID(psFormation, sizeof(FORMATION)), "formationGetPos: invalid formation pointer");
 
   /*	if (psFormation->refCount == 1)
     {

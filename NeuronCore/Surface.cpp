@@ -53,17 +53,17 @@ BOOL surfCreate(LPDIRECTDRAWSURFACE4* ppsSurface, // The created surface
   ddrval = psDD->lpVtbl->CreateSurface(psDD, &ddsd, ppsSurface, nullptr);
   if (ddrval != DD_OK)
   {
-    DBERROR(("Create surface failed:\n%s", DDErrorToString(ddrval)));
+    Neuron::Fatal("Create surface failed:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
 
   if (bAddToList)
   {
     /* Create a new surface list entry */
-    psNew = static_cast<SURFACE_LIST*>(MALLOC(sizeof(SURFACE_LIST)));
+    psNew = new (std::nothrow) SURFACE_LIST[1];
     if (psNew == nullptr)
     {
-      DBERROR(("Out of memory"));
+      Neuron::Fatal("Out of memory");
       return FALSE;
     }
 
@@ -86,7 +86,8 @@ void surfRelease(LPDIRECTDRAWSURFACE4 psSurface)
     psCurr = psSurfaces;
     psSurfaces = psSurfaces->psNext;
     RELEASE(psCurr->psSurface);
-    FREE(psCurr);
+    delete[] psCurr;
+    psCurr = nullptr;
   }
   else
   {
@@ -97,7 +98,8 @@ void surfRelease(LPDIRECTDRAWSURFACE4 psSurface)
     {
       psPrev->psNext = psCurr->psNext;
       RELEASE(psCurr->psSurface);
-      FREE(psCurr);
+      delete[] psCurr;
+      psCurr = nullptr;
     }
   }
 }
@@ -118,7 +120,7 @@ BOOL surfRecreate(LPDIRECTDRAWSURFACE4* ppsSurface)
 
   if (psCurr == nullptr)
   {
-    DBERROR(("Couldn't find surface"));
+    Neuron::Fatal("Couldn't find surface");
     return FALSE;
   }
 
@@ -149,7 +151,6 @@ BOOL surfRecreate(LPDIRECTDRAWSURFACE4* ppsSurface)
     ddsd.ddpfPixelFormat.dwRGBBitCount = 8;
   }
 
-  DBP1(("Recreating surface with %d bpp\nSurf %p", ddsd.ddpfPixelFormat.dwRGBBitCount, *ppsSurface));
 
   /* Release the old surface */
   RELEASE(*ppsSurface);
@@ -162,7 +163,6 @@ BOOL surfRecreate(LPDIRECTDRAWSURFACE4* ppsSurface)
     return FALSE;
   }
 
-  DBP1(("to %p\n", *ppsSurface));
 
 #ifdef DEBUG
   ddrval = (*ppsSurface)->lpVtbl->GetSurfaceDesc(*ppsSurface, &ddsd);
@@ -171,7 +171,6 @@ BOOL surfRecreate(LPDIRECTDRAWSURFACE4* ppsSurface)
     DEBUG_ASSERT_TEXT(FALSE, "Couldn't get surface description:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
-  DBP1(("New bpp for surface : %d\n", ddsd.ddpfPixelFormat.dwRGBBitCount));
 #endif
 
   psCurr->psSurface = *ppsSurface;
@@ -187,7 +186,8 @@ void surfShutDown(void)
     psNext = psCurr->psNext;
     /* The DD surface might have been released elsewhere */
     if (psCurr->psSurface->lpVtbl != nullptr) { RELEASE(psCurr->psSurface); }
-    FREE(psCurr);
+    delete[] psCurr;
+    psCurr = nullptr;
   }
 }
 
@@ -319,8 +319,6 @@ BOOL surfLoadFrom8Bit(LPDIRECTDRAWSURFACE4 psSurf, // The surface to load to
 
   /* Validate the arguments */
   DEBUG_ASSERT_TEXT(psSurf != NULL, "NULL surface pointer");
-  DEBUG_ASSERT_TEXT(PTRVALID(pImageData, width*height), "Invalid image data pointer.");
-  DEBUG_ASSERT_TEXT(PTRVALID(psPalette, NUM_8BIT_PAL_ENTRIES*sizeof(PALETTEENTRY)), "Invalid palette pointer.");
 
   /* Get the DD object */
   psDD = screenGetDDObject();
@@ -333,7 +331,7 @@ BOOL surfLoadFrom8Bit(LPDIRECTDRAWSURFACE4 psSurf, // The surface to load to
   ddrval = psSurf->lpVtbl->GetPixelFormat(psSurf, &sPixelFormat);
   if (ddrval != DD_OK)
   {
-    DBERROR(("Couldn't get pixel format for surface load:\n%s", DDErrorToString(ddrval)));
+    Neuron::Fatal("Couldn't get pixel format for surface load:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
 
@@ -365,7 +363,7 @@ BOOL surfLoadFrom8Bit(LPDIRECTDRAWSURFACE4 psSurf, // The surface to load to
     case 1:
       if (coloursUsed > 2)
       {
-        DBERROR(("Too many colours to load image into surface"));
+        Neuron::Fatal("Too many colours to load image into surface");
         return FALSE;
       }
       palFlags = DDPCAPS_1BIT;
@@ -373,7 +371,7 @@ BOOL surfLoadFrom8Bit(LPDIRECTDRAWSURFACE4 psSurf, // The surface to load to
     case 2:
       if (coloursUsed > 4)
       {
-        DBERROR(("Too many colours to load image into surface"));
+        Neuron::Fatal("Too many colours to load image into surface");
         return FALSE;
       }
       palFlags = DDPCAPS_2BIT;
@@ -381,7 +379,7 @@ BOOL surfLoadFrom8Bit(LPDIRECTDRAWSURFACE4 psSurf, // The surface to load to
     case 4:
       if (coloursUsed > 16)
       {
-        DBERROR(("Too many colours to load image into surface"));
+        Neuron::Fatal("Too many colours to load image into surface");
         return FALSE;
       }
       palFlags = DDPCAPS_4BIT;
@@ -393,14 +391,14 @@ BOOL surfLoadFrom8Bit(LPDIRECTDRAWSURFACE4 psSurf, // The surface to load to
     ddrval = psDD->lpVtbl->CreatePalette(psDD, palFlags, psPalette, &psPal, nullptr);
     if (ddrval != DD_OK)
     {
-      DBERROR(("CreatePalette failed for image surface:\n%s", DDErrorToString(ddrval)));
+      Neuron::Fatal("CreatePalette failed for image surface:\n{}", DDErrorToString(ddrval));
       goto exit_with_error;
     }
     /* Set the palette on the texture surface */
     ddrval = psSurf->lpVtbl->SetPalette(psSurf, psPal);
     if (ddrval != DD_OK)
     {
-      DBERROR(("SetPalette failed for image surface:\n%s", DDErrorToString(ddrval)));
+      Neuron::Fatal("SetPalette failed for image surface:\n{}", DDErrorToString(ddrval));
       goto exit_with_error;
     }
   }
@@ -411,7 +409,7 @@ BOOL surfLoadFrom8Bit(LPDIRECTDRAWSURFACE4 psSurf, // The surface to load to
   ddrval = psSurf->lpVtbl->Lock(psSurf, nullptr, &ddsd, 0, nullptr);
   if (ddrval != DD_OK)
   {
-    DBERROR(("Lock failed for surface image load:\n%s", DDErrorToString(ddrval)));
+    Neuron::Fatal("Lock failed for surface image load:\n{}", DDErrorToString(ddrval));
     goto exit_with_error;
   }
 
@@ -443,7 +441,7 @@ BOOL surfLoadFrom8Bit(LPDIRECTDRAWSURFACE4 psSurf, // The surface to load to
     }
     else
     {
-      DBERROR(("Unknown surface format : Palettised with BitCount >= 16 ?!?"));
+      Neuron::Fatal("Unknown surface format : Palettised with BitCount >= 16 ?!?");
       goto exit_with_error;
     }
     if (sPixelFormat.dwRGBAlphaBitMask > 0)
@@ -560,14 +558,14 @@ BOOL surfLoadFrom8Bit(LPDIRECTDRAWSURFACE4 psSurf, // The surface to load to
       }
     }
     break;
-  default: DBERROR(("Unsupported surface pixel format"));
+  default: Neuron::Fatal("Unsupported surface pixel format");
     goto exit_with_error;
   }
 
   ddrval = psSurf->lpVtbl->Unlock(psSurf, nullptr);
   if (ddrval != DD_OK)
   {
-    DBERROR(("Unlock failed for texture page load:\n%s", DDErrorToString(ddrval)));
+    Neuron::Fatal("Unlock failed for texture page load:\n{}", DDErrorToString(ddrval));
     goto exit_with_error;
   }
 
@@ -596,16 +594,19 @@ BOOL surfCreateFromBMP(STRING* pFileName, // The BMP file
 
   if (!imageParseBMP(pImageFile, imageFileSize, &width, &height, &pImageData, &psImagePalette))
   {
-    FREE(pImageFile);
+    delete[] pImageFile;
+    pImageFile = nullptr;
     return FALSE;
   }
 
-  FREE(pImageFile);
+  delete[] pImageFile;
+  pImageFile = nullptr;
 
   if (!surfCreate(ppsSurface, width, height, DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY, screenGetBackBufferPixelFormat(), FALSE, TRUE))
   {
-    FREE(pImageData);
-    if (psImagePalette) { FREE(psImagePalette); }
+    delete[] pImageData;
+    pImageData = nullptr;
+    if (psImagePalette) { delete[] psImagePalette; }
     return FALSE;
   }
 
@@ -613,17 +614,22 @@ BOOL surfCreateFromBMP(STRING* pFileName, // The BMP file
   {
     if (!surfLoadFrom8Bit(*ppsSurface, width, height, pImageData, psImagePalette))
     {
-      FREE(pImageData);
-      FREE(psImagePalette);
+      delete[] pImageData;
+      pImageData = nullptr;
+      delete[] psImagePalette;
+      psImagePalette = nullptr;
       return FALSE;
     }
-    FREE(pImageData);
-    FREE(psImagePalette);
+    delete[] pImageData;
+    pImageData = nullptr;
+    delete[] psImagePalette;
+    psImagePalette = nullptr;
   }
   else
   {
-    DBERROR(("Surface loading from true colour images not implemented"));
-    FREE(pImageData);
+    Neuron::Fatal("Surface loading from true colour images not implemented");
+    delete[] pImageData;
+    pImageData = nullptr;
     return FALSE;
   }
 

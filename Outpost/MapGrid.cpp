@@ -16,14 +16,7 @@
 // The number of world units per grid
 #define GRID_UNITS	(GRID_SIZE * TILE_UNITS)
 
-// Initial and extension sizes for the grid heap
-#define GRID_HEAPINIT	(GRID_MAXAREA)
-#define GRID_HEAPEXT	4
-
 UDWORD gridWidth, gridHeight;
-
-// The heap for the grid arrays
-OBJ_HEAP* psGridHeap;
 
 // The map grid 
 GRID_ARRAY* apsMapGrid[GRID_MAXAREA];
@@ -53,9 +46,6 @@ SDWORD gridObjRange(BASE_OBJECT* psObj);
 // initialise the grid system
 BOOL gridInitialise(void)
 {
-  if (!HEAP_CREATE(&psGridHeap, sizeof(GRID_ARRAY), GRID_HEAPINIT, GRID_HEAPEXT))
-    return FALSE;
-
   memset(apsMapGrid, 0, sizeof(GRID_ARRAY*) * GRID_MAXAREA);
 
   garbageX = 0;
@@ -73,7 +63,7 @@ void gridClear(void)
   GRID_ARRAY *psCurr, *psNext;
   SDWORD x, y;
 
-  DBPRINTF(("gridClear %d %d\n",gridWidth,gridHeight));
+  Neuron::DebugTrace("gridClear {} {}\n",gridWidth,gridHeight);
   for (x = 0; x < gridWidth; x += 1)
   {
     for (y = 0; y < gridHeight; y += 1)
@@ -81,7 +71,7 @@ void gridClear(void)
       for (psCurr = apsMapGrid[GridIndex(x, y)]; psCurr; psCurr = psNext)
       {
         psNext = psCurr->psNext;
-        HEAP_FREE(psGridHeap, psCurr);
+        delete psCurr;
       }
       apsMapGrid[GridIndex(x, y)] = nullptr;
     }
@@ -118,8 +108,6 @@ void gridReset(void)
 void gridShutDown(void)
 {
   gridClear();
-
-  HEAP_DESTROY(psGridHeap);
 }
 
 // find the grid's that are covered by the object and either
@@ -310,9 +298,10 @@ void gridAddArrayObject(SDWORD x, SDWORD y, BASE_OBJECT* psObj)
   }
 
   // allocate a new array chunk
-  if (!HEAP_ALLOC(psGridHeap, &psNew))
+  psNew = new (std::nothrow) GRID_ARRAY;
+  if (psNew == nullptr)
   {
-    DBPRINTF(("help - %d\n", psObj->id));
+    Neuron::DebugTrace("help - {}\n", psObj->id);
     return;
   }
 
@@ -397,7 +386,7 @@ void gridCompactArray(SDWORD x, SDWORD y)
   while (psDone)
   {
     psNext = psDone->psNext;
-    HEAP_FREE(psGridHeap, psDone);
+    delete psDone;
     psDone = psNext;
   }
 }
@@ -411,7 +400,7 @@ void gridDisplayCoverage(BASE_OBJECT* psObj)
     SDWORD x, y, i;
     GRID_ARRAY* psCurr;
 
-    DBPRINTF(("Grid coverage for object %d (%d,%d) - range %d\n", psObj->id, psObj->x,psObj->y, gridObjRange(psObj)));
+    Neuron::DebugTrace("Grid coverage for object {} ({},{}) - range {}\n", psObj->id, psObj->x,psObj->y, gridObjRange(psObj));
     for (x = 0; x < gridWidth; x++)
     {
       for (y = 0; y < gridHeight; y++)
@@ -422,7 +411,7 @@ void gridDisplayCoverage(BASE_OBJECT* psObj)
         {
           if (psCurr->apsObjects[i] == psObj)
           {
-            DBPRINTF(("    %d,%d  [ %d,%d -> %d,%d ]\n", x,y, x*GRID_UNITS,y*GRID_UNITS, (x+1)*GRID_UNITS,(y+1)*GRID_UNITS));
+            Neuron::DebugTrace("    {},{}  [ {},{} -> {},{} ]\n", x,y, x*GRID_UNITS,y*GRID_UNITS, (x+1)*GRID_UNITS,(y+1)*GRID_UNITS);
           }
 
           i += 1;

@@ -116,7 +116,7 @@ void avUpdateTiles(void)
 // ------------------------------------------------------------------------------------
 void processAVTile(UDWORD x, UDWORD y)
 {
-  FRACT time;
+  float time;
   MAPTILE* psTile;
   UDWORD newLevel;
 
@@ -124,8 +124,8 @@ void processAVTile(UDWORD x, UDWORD y)
   if (psTile->level == UBYTE_MAX OR psTile->bMaxed)
     return;
 
-  time = (MAKEFRACT(frameTime) / GAME_TICKS_PER_SEC);
-  newLevel = MAKEINT(psTile->level + (time * FADE_IN_TIME));
+  time = (static_cast<float>(frameTime) / GAME_TICKS_PER_SEC);
+  newLevel = std::lrintf(psTile->level + (time * FADE_IN_TIME));
   if (newLevel >= psTile->illumination)
   {
     psTile->level = psTile->illumination;
@@ -138,10 +138,10 @@ void processAVTile(UDWORD x, UDWORD y)
 // ------------------------------------------------------------------------------------
 UDWORD avGetObjLightLevel(BASE_OBJECT* psObj, UDWORD origLevel)
 {
-  FRACT div;
+  float div;
   UDWORD lowest, newLevel;
 
-  div = MAKEFRACT(psObj->visible[selectedPlayer]) / 255;
+  div = static_cast<float>(psObj->visible[selectedPlayer]) / 255;
   lowest = origLevel / START_DIVIDE;
   newLevel = static_cast<UDWORD>(div * origLevel);
   if (newLevel < lowest)

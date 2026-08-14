@@ -31,7 +31,7 @@ BOOL anim_Init(GETSHAPEFUNC pGetShapeFunc)
 
   /* ensure ANIM2D and ANIM3D structs same size */
   if (iSizeAnim2D != iSizeAnim3D)
-    DBERROR(("anim_Init: ANIM2D and ANIM3D structs not same size in anim.h!"));
+    Neuron::Fatal("anim_Init: ANIM2D and ANIM3D structs not same size in anim.h!");
 
   /* init globals */
   g_animGlobals.psAnimList = nullptr;
@@ -52,16 +52,21 @@ void anim_ReleaseAnim(BASEANIM* psAnim)
   LIST_REMOVE(g_animGlobals.psAnimList, psAnim, BASEANIM);
 
   /* free anim scripts */
-  FREE(psAnim->psStates);
+  delete[] psAnim->psStates;
+  psAnim->psStates = nullptr;
 
   /* free anim shape */
   if (psAnim->animType == ANIM_3D_FRAMES || psAnim->animType == ANIM_3D_TRANS)
   {
     psAnim3D = (ANIM3D*)psAnim;
-    FREE(psAnim3D->apFrame);
+    delete[] psAnim3D->apFrame;
+    psAnim3D->apFrame = nullptr;
   }
 
-  FREE(psAnim);
+  // BASEANIM only shares a layout prefix with ANIM3D, so it has to go back as
+  // the type it was allocated as
+  delete[] (ANIM3D*)psAnim;
+  psAnim = nullptr;
 }
 
 /***************************************************************************/
@@ -71,7 +76,7 @@ BOOL anim_Shutdown(void)
   BASEANIM *psAnim, *psAnimTmp;
 
   if (g_animGlobals.psAnimList != nullptr)
-    DBPRINTF(("anim_Shutdown: warning anims still allocated"));
+    Neuron::DebugTrace("anim_Shutdown: warning anims still allocated");
 
   /* empty anim list */
   psAnim = g_animGlobals.psAnimList;
@@ -97,7 +102,7 @@ static void anim_InitBaseMembers(BASEANIM* psAnim, UWORD uwStates, UWORD uwFrame
   psAnim->uwAnimTime = static_cast<UWORD>(uwStates * 1000 / psAnim->uwFrameRate);
 
   /* allocate frames */
-  psAnim->psStates = static_cast<ANIM_STATE*>(MALLOC(uwObj*psAnim->uwStates*sizeof(ANIM_STATE)));
+  psAnim->psStates = new (std::nothrow) ANIM_STATE[uwObj*psAnim->uwStates];
 }
 
 /***************************************************************************/
@@ -109,7 +114,7 @@ BOOL anim_Create3D(char szPieFileName[], UWORD uwStates, UWORD uwFrameRate, UWOR
   UWORD uwFrames, i;
 
   /* allocate anim */
-  if ((psAnim3D = static_cast<ANIM3D*>(MALLOC(sizeof(ANIM3D)))) == nullptr)
+  if ((psAnim3D = new (std::nothrow) ANIM3D[1]) == nullptr)
     return FALSE;
 
   /* get local pointer to shape */
@@ -131,12 +136,12 @@ BOOL anim_Create3D(char szPieFileName[], UWORD uwStates, UWORD uwFrameRate, UWOR
   /* check frame count matches script */
   if (ubType == ANIM_3D_TRANS && uwObj != uwFrames)
   {
-    DBERROR(("anim_Create3D: frames in pie %s != script objects %i\n", szPieFileName, uwObj ));
+    Neuron::Fatal("anim_Create3D: frames in pie {} != script objects {}\n", szPieFileName, uwObj );
     return FALSE;
   }
 
   /* get pointers to individual frames */
-  psAnim3D->apFrame = static_cast<iIMDShape**>(MALLOC(uwFrames*sizeof(iIMDShape *)));
+  psAnim3D->apFrame = new (std::nothrow) iIMDShape*[uwFrames];
   psFrames = psAnim3D->psFrames;
   for (i = 0; i < uwFrames; i++)
   {
@@ -177,7 +182,7 @@ BOOL anim_EndScript(void)
 
   if (g_animGlobals.uwCurState != psAnim->uwStates)
   {
-    DBERROR(("anim_End3D: states in current anim not consistent with header\n"));
+    Neuron::Fatal("anim_End3D: states in current anim not consistent with header\n");
     return FALSE;
   }
 
@@ -251,7 +256,7 @@ void anim_SetVals(char szFileName[], UWORD uwAnimID)
   auto psAnim = static_cast<BASEANIM*>(resGetData("ANI", szFileName));
 
   if (psAnim == nullptr)
-    DBERROR(("anim_SetVals: can't find anim %s\n", szFileName));
+    Neuron::Fatal("anim_SetVals: can't find anim {}\n", szFileName);
 
   /* set anim vals */
   psAnim->uwID = uwAnimID;
@@ -264,7 +269,7 @@ BASEANIM* anim_LoadFromBuffer(UBYTE* pBuffer, UDWORD size)
 {
   if (ParseResourceFile(pBuffer, size) == FALSE)
   {
-    DBERROR(("anim_LoadFromBuffer: couldn't parse file\n"));
+    Neuron::Fatal("anim_LoadFromBuffer: couldn't parse file\n");
     return nullptr;
   }
 
@@ -281,7 +286,7 @@ UWORD anim_GetAnimID(char* szName)
 
   if (cPos == nullptr)
   {
-    DBERROR(("anim_GetAnimID: %s isn't .ani file\n"));
+    Neuron::Fatal("anim_GetAnimID: {} isn't .ani file\n");
     return NO_ANIM;
   }
 
@@ -308,8 +313,6 @@ iIMDShape* anim_GetShapeFromID(UWORD uwID)
   if (psAnim == nullptr)
     return nullptr;
   psAnim3D = (ANIM3D*)psAnim;
-
-  DEBUG_ASSERT_TEXT(PTRVALID( psAnim3D, sizeof(ANIM3D)), "anim_GetShapeFromID: invalid anim pointer\n");
 
   return psAnim3D->psFrames;
 }

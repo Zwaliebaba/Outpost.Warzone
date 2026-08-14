@@ -7,9 +7,6 @@
 #include "RendMode.h"
 #include "PiePalette.h"
 
-/* The widget heap */
-OBJ_HEAP* psBarHeap;
-
 /* Create a barGraph widget data structure */
 BOOL barGraphCreate(W_BARGRAPH** ppsWidget, W_BARINIT* psInit)
 {
@@ -37,11 +34,8 @@ BOOL barGraphCreate(W_BARGRAPH** ppsWidget, W_BARINIT* psInit)
   }
 
   /* Allocate the required memory */
-#if W_USE_MALLOC
-  *ppsWidget = (W_BARGRAPH*)MALLOC(sizeof(W_BARGRAPH)); if (*ppsWidget == NULL)
-#else
-  if (!HEAP_ALLOC(psBarHeap, ppsWidget))
-#endif
+  *ppsWidget = new (std::nothrow) W_BARGRAPH;
+  if (*ppsWidget == nullptr)
   {
     DEBUG_ASSERT_TEXT(FALSE, "barGraphCreate: Out of memory");
     return FALSE;
@@ -108,17 +102,11 @@ BOOL barGraphCreate(W_BARGRAPH** ppsWidget, W_BARINIT* psInit)
 /* Free the memory used by a barGraph */
 void barGraphFree(W_BARGRAPH* psWidget)
 {
-  DEBUG_ASSERT_TEXT(PTRVALID(psWidget, sizeof(W_BARGRAPH)), "barGraphFree: Invalid widget pointer");
-
 #if W_USE_STRHEAP
   if (psWidget->pTip) { widgFreeString(psWidget->pTip); }
 #endif
 
-#if W_USE_MALLOC
-  FREE(psWidget);
-#else
-  HEAP_FREE(psBarHeap, psWidget);
-#endif
+  delete psWidget;
 }
 
 /* Initialise a barGraph widget before running it */
@@ -129,8 +117,6 @@ void widgSetBarSize(W_SCREEN* psScreen, UDWORD id, UDWORD iValue)
 {
   W_BARGRAPH* psBGraph;
   UDWORD size;
-
-  DEBUG_ASSERT_TEXT(PTRVALID(psScreen, sizeof(W_SCREEN)), "widgSetBarSize: Invalid screen pointer");
 
   psBGraph = (W_BARGRAPH*)widgGetFromID(psScreen, id);
   if (psBGraph == nullptr || psBGraph->type != WIDG_BARGRAPH)
@@ -154,8 +140,6 @@ void widgSetMinorBarSize(W_SCREEN* psScreen, UDWORD id, UDWORD iValue)
 {
   W_BARGRAPH* psBGraph;
   UDWORD size;
-
-  DEBUG_ASSERT_TEXT(PTRVALID(psScreen, sizeof(W_SCREEN)), "widgSetBarSize: Invalid screen pointer");
 
   psBGraph = (W_BARGRAPH*)widgGetFromID(psScreen, id);
   if (psBGraph == nullptr || psBGraph->type != WIDG_BARGRAPH)

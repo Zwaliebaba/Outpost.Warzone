@@ -49,8 +49,8 @@ void optimisePathForDroid(DROID* psDroid) { UNUSEDPARAMETER(psDroid); }
 */
 UDWORD getBisectingDirectionAway(UDWORD angleA, UDWORD angleB)
 {
-  FRACT xVec, yVec;
-  FRACT angle;
+  float xVec, yVec;
+  float angle;
   UDWORD retVal;
 
   /* Get the component vectors */
@@ -61,7 +61,7 @@ UDWORD getBisectingDirectionAway(UDWORD angleA, UDWORD angleB)
   angle = RAD_TO_DEG(atan2(xVec,yVec));
   angle += 360;
   /* Get it as an integer */
-  retVal = (MAKEINT(angle)) % 360;
+  retVal = (std::lrintf(angle)) % 360;
 
   /* And make it point the other way - into larger arc */
   retVal = (retVal + 180) % 360;
@@ -77,10 +77,10 @@ UDWORD getBisectingDirectionAway(UDWORD angleA, UDWORD angleB)
 */
 UDWORD getStepIndexFromAngle(UDWORD angle)
 {
-  FRACT accA;
+  float accA;
   UDWORD retVal;
 
-  accA = MAKEFRACT(angle);
+  accA = static_cast<float>(angle);
 
   DEBUG_ASSERT_TEXT(angle<360, "Angle's too big!!!");
 

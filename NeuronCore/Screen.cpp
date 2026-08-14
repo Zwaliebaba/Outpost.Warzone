@@ -151,7 +151,7 @@ BOOL WINAPI DDEnumCallbackEx(GUID* pGUID, LPSTR pDescription, LPSTR pName, LPVOI
   hRet = DirectDrawCreate(pGUID, &pDD, nullptr);
   if (hRet != DD_OK)
   {
-    DBERROR(("DDEnumCallbackEx Create failed:\n%s", DDErrorToString(hRet)));
+    Neuron::Fatal("DDEnumCallbackEx Create failed:\n{}", DDErrorToString(hRet));
     return DDENUMRET_CANCEL;
   }
 
@@ -251,7 +251,7 @@ static BOOL getWindowsPixelFormat(void)
   ddrval = psDD->lpVtbl->SetCooperativeLevel(psDD, hWndMain, DDSCL_NORMAL);
   if (ddrval != DD_OK)
   {
-    DBERROR(("Set cooperative level failed:\n%s", DDErrorToString(ddrval)));
+    Neuron::Fatal("Set cooperative level failed:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
 
@@ -263,7 +263,7 @@ static BOOL getWindowsPixelFormat(void)
   ddrval = psDD->lpVtbl->CreateSurface(psDD, &ddsd, &psFront, nullptr);
   if (ddrval != DD_OK)
   {
-    DBERROR(("Create Primary Surface failed:\n%s", DDErrorToString(ddrval)));
+    Neuron::Fatal("Create Primary Surface failed:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
 
@@ -273,7 +273,7 @@ static BOOL getWindowsPixelFormat(void)
   ddrval = psFront->lpVtbl->GetPixelFormat(psFront, &sFrontBufferPixelFormat);
   if (ddrval != DD_OK)
   {
-    DBERROR(("Couldn't get pixel format:\n%s", DDErrorToString(ddrval)));
+    Neuron::Fatal("Couldn't get pixel format:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
 
@@ -281,7 +281,7 @@ static BOOL getWindowsPixelFormat(void)
   ddrval = psFront->lpVtbl->GetSurfaceDesc(psFront, &ddsd);
   if (ddrval != DD_OK)
   {
-    DBERROR(("Couldn't get primary surface description:\n%s", DDErrorToString(ddrval)));
+    Neuron::Fatal("Couldn't get primary surface description:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
 
@@ -291,7 +291,7 @@ static BOOL getWindowsPixelFormat(void)
   ddrval = psFront->lpVtbl->GetPixelFormat(psFront, &sWinPixelFormat);
   if (ddrval != DD_OK)
   {
-    DBERROR(("Couldn't get pixel format:\n%s", DDErrorToString(ddrval)));
+    Neuron::Fatal("Couldn't get pixel format:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
 
@@ -352,7 +352,7 @@ static BOOL createDDWindowed(void)
   ddrval = psDD->lpVtbl->SetCooperativeLevel(psDD, hWndMain, DDSCL_NORMAL);
   if (ddrval != DD_OK)
   {
-    DBERROR(("Set cooperative level failed:\n%s", DDErrorToString(ddrval)));
+    Neuron::Fatal("Set cooperative level failed:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
 
@@ -367,7 +367,7 @@ static BOOL createDDWindowed(void)
   ddrval = psDD->lpVtbl->CreateSurface(psDD, &ddsd, &psFront, nullptr);
   if (ddrval != DD_OK)
   {
-    DBERROR(("Create Primary Surface failed:\n%s", DDErrorToString(ddrval)));
+    Neuron::Fatal("Create Primary Surface failed:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
 
@@ -377,7 +377,7 @@ static BOOL createDDWindowed(void)
   ddrval = psFront->lpVtbl->GetPixelFormat(psFront, &sFrontBufferPixelFormat);
   if (ddrval != DD_OK)
   {
-    DBERROR(("Couldn't get pixel format:\n%s", DDErrorToString(ddrval)));
+    Neuron::Fatal("Couldn't get pixel format:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
 
@@ -387,7 +387,7 @@ static BOOL createDDWindowed(void)
   ddrval = psFront->lpVtbl->GetPixelFormat(psFront, &sWinPixelFormat);
   if (ddrval != DD_OK)
   {
-    DBERROR(("Couldn't get pixel format:\n%s", DDErrorToString(ddrval)));
+    Neuron::Fatal("Couldn't get pixel format:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
 
@@ -401,7 +401,7 @@ static BOOL createDDWindowed(void)
   }
   else if (sWinPixelFormat.dwRGBBitCount != screenDepth)
   {
-    DBERROR(("Windows bit depth is not set to the required format.\n" "Application switching to full screen mode."));
+    Neuron::Fatal("Windows bit depth is not set to the required format.\n" "Application switching to full screen mode.");
     displayMode = MODE_FULLSCREEN;
     RELEASE(psFront);
     return FALSE;
@@ -426,7 +426,7 @@ static BOOL createDDWindowed(void)
     ddrval = psDD->lpVtbl->CreateSurface(psDD, &ddsd, &psBack, nullptr);
     if (ddrval != DD_OK)
     {
-      DBERROR(("Create Back surface failed:\n%s", DDErrorToString(ddrval)));
+      Neuron::Fatal("Create Back surface failed:\n{}", DDErrorToString(ddrval));
       return FALSE;
     }
   }
@@ -448,7 +448,7 @@ static BOOL createDDWindowed(void)
     ddrval = psDD->lpVtbl->CreateSurface(psDD, &ddsd, &psBack, nullptr);
     if (ddrval != DD_OK)
     {
-      DBERROR(("Create Back surface failed:\n%s", DDErrorToString(ddrval)));
+      Neuron::Fatal("Create Back surface failed:\n{}", DDErrorToString(ddrval));
       return FALSE;
     }
   }
@@ -457,19 +457,19 @@ static BOOL createDDWindowed(void)
   ddrval = psDD->lpVtbl->CreateClipper(psDD, 0, &psClipper, nullptr);
   if (ddrval != DD_OK)
   {
-    DBERROR(("Failed to create clipper:\n%s", DDErrorToString(ddrval)));
+    Neuron::Fatal("Failed to create clipper:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
   ddrval = psClipper->lpVtbl->SetHWnd(psClipper, 0, hWndMain);
   if (ddrval != DD_OK)
   {
-    DBERROR(("SetHWnd failed for clipper:\n%s", DDErrorToString(ddrval)));
+    Neuron::Fatal("SetHWnd failed for clipper:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
   ddrval = psFront->lpVtbl->SetClipper(psFront, psClipper);
   if (ddrval != DD_OK)
   {
-    DBERROR(("Failed to set clipper for front buffer:\n%s", DDErrorToString(ddrval)));
+    Neuron::Fatal("Failed to set clipper for front buffer:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
 
@@ -480,7 +480,7 @@ static BOOL createDDWindowed(void)
     ddrval = psDD->lpVtbl->CreatePalette(psDD, DDPCAPS_8BIT, asPalEntries, &psPalette, nullptr);
     if (ddrval != DD_OK)
     {
-      DBERROR(("Failed to create palette:\n%s", DDErrorToString(ddrval)));
+      Neuron::Fatal("Failed to create palette:\n{}", DDErrorToString(ddrval));
       return FALSE;
     }
 
@@ -488,12 +488,12 @@ static BOOL createDDWindowed(void)
     if (displayMode != MODE_8BITFUDGE)
     {
       ddrval = psFront->lpVtbl->SetPalette(psFront, psPalette);
-      if (ddrval != DD_OK) { DBERROR(("Couldn't set palette for front buffer:\n%s", DDErrorToString(ddrval))); }
+      if (ddrval != DD_OK) { Neuron::Fatal("Couldn't set palette for front buffer:\n{}", DDErrorToString(ddrval)); }
     }
 
     /* Assign the palette to the back buffer */
     ddrval = psBack->lpVtbl->SetPalette(psBack, psPalette);
-    if (ddrval != DD_OK) { DBERROR(("Couldn't set palette for back buffer:\n%s", DDErrorToString(ddrval))); }
+    if (ddrval != DD_OK) { Neuron::Fatal("Couldn't set palette for back buffer:\n{}", DDErrorToString(ddrval)); }
   }
 
   /* Reset the style of the window to have title bars, etc. */
@@ -557,7 +557,7 @@ static BOOL createDDFullScreen(void)
   ddrval = psDD->lpVtbl->SetCooperativeLevel(psDD, hWndMain, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN);
   if (ddrval != DD_OK)
   {
-    DBERROR(("Set cooperative level failed:\n%s", DDErrorToString(ddrval)));
+    Neuron::Fatal("Set cooperative level failed:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
 
@@ -565,7 +565,7 @@ static BOOL createDDFullScreen(void)
   ddrval = psDD->lpVtbl->SetDisplayMode(psDD, screenWidth, screenHeight, screenDepth, 0, 0); // Set these so the DD1 version is used
   if (ddrval != DD_OK)
   {
-    DBERROR(("Set display mode failed:\n%s", DDErrorToString(ddrval)));
+    Neuron::Fatal("Set display mode failed:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
 
@@ -578,7 +578,7 @@ static BOOL createDDFullScreen(void)
   ddrval = psDD->lpVtbl->CreateSurface(psDD, &ddsd, &psFront, nullptr);
   if (ddrval != DD_OK)
   {
-    DBERROR(("Create Primary Surface failed:\n%s", DDErrorToString(ddrval)));
+    Neuron::Fatal("Create Primary Surface failed:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
 
@@ -588,7 +588,7 @@ static BOOL createDDFullScreen(void)
   ddrval = psFront->lpVtbl->GetPixelFormat(psFront, &sFrontBufferPixelFormat);
   if (ddrval != DD_OK)
   {
-    DBERROR(("Couldn't get pixel format:\n%s", DDErrorToString(ddrval)));
+    Neuron::Fatal("Couldn't get pixel format:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
 
@@ -605,7 +605,7 @@ static BOOL createDDFullScreen(void)
   ddrval = psDD->lpVtbl->CreateSurface(psDD, &ddsd, &psBack, nullptr);
   if (ddrval != DD_OK)
   {
-    DBERROR(("Create Back surface failed:\n%s", DDErrorToString(ddrval)));
+    Neuron::Fatal("Create Back surface failed:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
 #else
@@ -616,7 +616,7 @@ static BOOL createDDFullScreen(void)
 
   ddrval = psDD->lpVtbl->CreateSurface(psDD, &ddsd, &psFront, NULL); if (ddrval != DD_OK)
   {
-    DBERROR(("Create Primary Surface failed:\n%s", DDErrorToString(ddrval)));
+    Neuron::Fatal("Create Primary Surface failed:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
 
@@ -624,7 +624,7 @@ static BOOL createDDFullScreen(void)
   memset(&sFrontBufferPixelFormat, 0, sizeof(DDPIXELFORMAT)); sFrontBufferPixelFormat.dwSize = sizeof(DDPIXELFORMAT); ddrval = psFront->
     lpVtbl->GetPixelFormat(psFront, &sFrontBufferPixelFormat); if (ddrval != DD_OK)
   {
-    DBERROR(("Couldn't get pixel format:\n%s", DDErrorToString(ddrval)));
+    Neuron::Fatal("Couldn't get pixel format:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
 
@@ -632,7 +632,7 @@ static BOOL createDDFullScreen(void)
   memset(&ddscaps, 0, sizeof(DDSCAPS)); ddscaps.dwCaps = DDSCAPS_BACKBUFFER; ddrval = psFront->lpVtbl->
     GetAttachedSurface(psFront, &ddscaps, &psBack); if (ddrval != DD_OK)
   {
-    DBERROR(("Get Back surface failed:\n%s", DDErrorToString(ddrval)));
+    Neuron::Fatal("Get Back surface failed:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
 #endif
@@ -643,7 +643,7 @@ static BOOL createDDFullScreen(void)
   ddrval = psFront->lpVtbl->GetPixelFormat(psFront, &sWinPixelFormat);
   if (ddrval != DD_OK)
   {
-    DBERROR(("Couldn't get pixel format:\n%s", DDErrorToString(ddrval)));
+    Neuron::Fatal("Couldn't get pixel format:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
 
@@ -654,17 +654,17 @@ static BOOL createDDFullScreen(void)
     ddrval = psDD->lpVtbl->CreatePalette(psDD, DDPCAPS_8BIT, asPalEntries, &psPalette, nullptr);
     if (ddrval != DD_OK)
     {
-      DBERROR(("Failed to create palette:\n%s", DDErrorToString(ddrval)));
+      Neuron::Fatal("Failed to create palette:\n{}", DDErrorToString(ddrval));
       return FALSE;
     }
 
     /* Assign the palette to the front buffer */
     ddrval = psFront->lpVtbl->SetPalette(psFront, psPalette);
-    if (ddrval != DD_OK) { DBERROR(("Couldn't set palette for front buffer:\n%s", DDErrorToString(ddrval))); }
+    if (ddrval != DD_OK) { Neuron::Fatal("Couldn't set palette for front buffer:\n{}", DDErrorToString(ddrval)); }
 
     /* Assign the palette to the back buffer */
     ddrval = psFront->lpVtbl->SetPalette(psBack, psPalette);
-    if (ddrval != DD_OK) { DBERROR(("Couldn't set palette for back buffer:\n%s", DDErrorToString(ddrval))); }
+    if (ddrval != DD_OK) { Neuron::Fatal("Couldn't set palette for back buffer:\n{}", DDErrorToString(ddrval)); }
   }
 
   return TRUE;
@@ -686,7 +686,7 @@ static BOOL releaseDDFullScreen(void)
   ddrval = psDD->lpVtbl->RestoreDisplayMode(psDD);
   if (ddrval != DD_OK)
   {
-    DBERROR(("RestoreDisplayMode failed:\n%s", DDErrorToString(ddrval)));
+    Neuron::Fatal("RestoreDisplayMode failed:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
 
@@ -694,7 +694,7 @@ static BOOL releaseDDFullScreen(void)
   ddrval = psDD->lpVtbl->SetCooperativeLevel(psDD, hWndMain, DDSCL_NORMAL);
   if (ddrval != DD_OK)
   {
-    DBERROR(("Set cooperative level failed:\n%s", DDErrorToString(ddrval)));
+    Neuron::Fatal("Set cooperative level failed:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
 
@@ -741,7 +741,7 @@ BOOL screenInitialise(UDWORD width, // Display width
   ddrval = DirectDrawCreate(nullptr, &psDD1, nullptr);
   if (ddrval != DD_OK)
   {
-    DBERROR(("Create DD object failed:\n%s", DDErrorToString(ddrval)));
+    Neuron::Fatal("Create DD object failed:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
 
@@ -749,7 +749,7 @@ BOOL screenInitialise(UDWORD width, // Display width
   ddrval = psDD1->lpVtbl->QueryInterface(psDD1, IID_IDirectDraw4, (LPVOID*)&psDD);
   if (ddrval != DD_OK)
   {
-    DBERROR(("Create DD2 object failed:\n%s", DDErrorToString(ddrval)));
+    Neuron::Fatal("Create DD2 object failed:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
   /* Get the pixel format for the current windows display.
@@ -844,14 +844,14 @@ BOOL screenInitialise(UDWORD width, // Display width
     ddrval = psDD->lpVtbl->SetCooperativeLevel(psDD, hWndMain, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN);
     if (ddrval != DD_OK)
     {
-      DBERROR(("Set cooperative level failed:\n%s", DDErrorToString(ddrval)));
+      Neuron::Fatal("Set cooperative level failed:\n{}", DDErrorToString(ddrval));
       return FALSE;
     }
     /* Set the display mode */
     ddrval = psDD->lpVtbl->SetDisplayMode(psDD, screenWidth, screenHeight, screenDepth, 0, 0); // Set these so the DD1 version is used
     if (ddrval != DD_OK)
     {
-      DBERROR(("Set display mode failed:\n%s", DDErrorToString(ddrval)));
+      Neuron::Fatal("Set display mode failed:\n{}", DDErrorToString(ddrval));
       return FALSE;
     }
   }
@@ -864,7 +864,7 @@ BOOL screenInitialise(UDWORD width, // Display width
     ddrval = psBack->lpVtbl->GetPixelFormat(psBack, &sBackBufferPixelFormat);
     if (ddrval != DD_OK)
     {
-      DBERROR(("Couldn't get pixel format:\n%s", DDErrorToString(ddrval)));
+      Neuron::Fatal("Couldn't get pixel format:\n{}", DDErrorToString(ddrval));
       return FALSE;
     }
 
@@ -873,7 +873,7 @@ BOOL screenInitialise(UDWORD width, // Display width
     hScreenFlipSemaphore = CreateSemaphore(nullptr, 0, 1, nullptr);
     if (hScreenFlipSemaphore == nullptr)
     {
-      DBERROR(("Couldn't create flip semaphore"));
+      Neuron::Fatal("Couldn't create flip semaphore");
       return FALSE;
     }
   }
@@ -949,7 +949,7 @@ void screenRestoreSurfaces(void)
     ddrval = psFront->lpVtbl->Restore(psFront);
     if (ddrval != DD_OK)
     {
-      DBERROR(("Couldn't restore front buffer:\n%s", DDErrorToString(ddrval)));
+      Neuron::Fatal("Couldn't restore front buffer:\n{}", DDErrorToString(ddrval));
       frameShutDown();
     }
   }
@@ -959,7 +959,7 @@ void screenRestoreSurfaces(void)
     ddrval = psBack->lpVtbl->Restore(psBack);
     if (ddrval != DD_OK)
     {
-      DBERROR(("Couldn't restore back buffer:\n%s", DDErrorToString(ddrval)));
+      Neuron::Fatal("Couldn't restore back buffer:\n{}", DDErrorToString(ddrval));
       frameShutDown();
     }
   }
@@ -972,7 +972,7 @@ void screenRestoreSurfaces(void)
       ddrval = psCurr->psSurface->lpVtbl->Restore(psCurr->psSurface);
       if ((ddrval != DD_OK) && (ddrval != DDERR_WRONGMODE))
       {
-        DBERROR(("Couldn't restore surface:\n%s", DDErrorToString(ddrval)));
+        Neuron::Fatal("Couldn't restore surface:\n{}", DDErrorToString(ddrval));
         frameShutDown();
       }
     }
@@ -1023,7 +1023,7 @@ void screen_Upload(UWORD* newBackDropBmp)
   ddrval = psBack->lpVtbl->Lock(psBack, nullptr, &ddsdBack, DDLOCK_WAIT, nullptr);
   if (ddrval != DD_OK)
   {
-    DBERROR(("Back buffer lock failed:\n%s", DDErrorToString(ddrval)));
+    Neuron::Fatal("Back buffer lock failed:\n{}", DDErrorToString(ddrval));
     return;
   }
 
@@ -1051,12 +1051,12 @@ void screen_Upload(UWORD* newBackDropBmp)
     }
     break;
   case 24:
-  case 32: default: DBPRINTF(("Upload not implemented for this bit depth"));
+  case 32: default: Neuron::DebugTrace("Upload not implemented for this bit depth");
     break;
   }
   /* Unlock the back buffer */
   ddrval = psBack->lpVtbl->Unlock(psBack, static_cast<LPRECT>(ddsdBack.lpSurface));
-  if (ddrval != DD_OK) { DBERROR(("Back buffer unlock failed:\n%s", DDErrorToString(ddrval))); }
+  if (ddrval != DD_OK) { Neuron::Fatal("Back buffer unlock failed:\n{}", DDErrorToString(ddrval)); }
 }
 
 void screen_SetFogColour(UDWORD newFogColour)
@@ -1124,7 +1124,7 @@ void screenFlip(BOOL clearBackBuffer)
     sWinOrigin.x = sWinOrigin.y = 0;
     if (!ClientToScreen(hWndMain, &sWinOrigin))
     {
-      DBERROR(("Couldn't get window screen coords\n"));
+      Neuron::Fatal("Couldn't get window screen coords\n");
       return;
     }
 
@@ -1146,7 +1146,7 @@ void screenFlip(BOOL clearBackBuffer)
     ddrval = psBack->lpVtbl->Lock(psBack, nullptr, &ddsdBack, DDLOCK_WAIT, nullptr);
     if (ddrval != DD_OK)
     {
-      DBERROR(("Back buffer lock failed:\n%s", DDErrorToString(ddrval)));
+      Neuron::Fatal("Back buffer lock failed:\n{}", DDErrorToString(ddrval));
       return;
     }
 
@@ -1155,7 +1155,7 @@ void screenFlip(BOOL clearBackBuffer)
     ddrval = psFront->lpVtbl->Lock(psFront, nullptr, &ddsdFront, DDLOCK_WAIT, nullptr);
     if (ddrval != DD_OK)
     {
-      DBERROR(("Front buffer lock failed:\n%s", DDErrorToString(ddrval)));
+      Neuron::Fatal("Front buffer lock failed:\n{}", DDErrorToString(ddrval));
       return;
     }
 
@@ -1194,7 +1194,7 @@ void screenFlip(BOOL clearBackBuffer)
           *p32Dest++ = aWinPalette[*p8Src++];
       }
       break;
-    default: DBPRINTF(("8Bit fudge mode not implemented for this bit depth"));
+    default: Neuron::DebugTrace("8Bit fudge mode not implemented for this bit depth");
       break;
     }
 
@@ -1202,7 +1202,7 @@ void screenFlip(BOOL clearBackBuffer)
     ddrval = psFront->lpVtbl->Unlock(psFront, static_cast<LPRECT>(ddsdFront.lpSurface));
     if (ddrval != DD_OK)
     {
-      DBERROR(("Front buffer unlock failed:\n%s", DDErrorToString(ddrval)));
+      Neuron::Fatal("Front buffer unlock failed:\n{}", DDErrorToString(ddrval));
       return;
     }
 
@@ -1210,7 +1210,7 @@ void screenFlip(BOOL clearBackBuffer)
     ddrval = psBack->lpVtbl->Unlock(psBack, static_cast<LPRECT>(ddsdBack.lpSurface));
     if (ddrval != DD_OK)
     {
-      DBERROR(("Back buffer unlock failed:\n%s", DDErrorToString(ddrval)));
+      Neuron::Fatal("Back buffer unlock failed:\n{}", DDErrorToString(ddrval));
       return;
     }
 
@@ -1222,13 +1222,13 @@ void screenFlip(BOOL clearBackBuffer)
     /* Wait for the VBlank */
     ddrval = psDD->lpVtbl->WaitForVerticalBlank(psDD, DDWAITVB_BLOCKBEGIN, nullptr);
     if ((ddrval != DD_OK) && (ddrval != DDERR_UNSUPPORTED))
-      DBERROR(("Wait for VBlank failed:\n%s", DDErrorToString(ddrval)));
+      Neuron::Fatal("Wait for VBlank failed:\n{}", DDErrorToString(ddrval));
 
     /* Get the screen coords of the window */
     sWinOrigin.x = sWinOrigin.y = 0;
     if (!ClientToScreen(hWndMain, &sWinOrigin))
     {
-      DBERROR(("Couldn't get window screen coords\n"));
+      Neuron::Fatal("Couldn't get window screen coords\n");
       return;
     }
     (void)SetRect(&sDestRect, sWinOrigin.x, sWinOrigin.y, sWinOrigin.x + screenWidth, sWinOrigin.y + screenHeight);
@@ -1243,7 +1243,7 @@ void screenFlip(BOOL clearBackBuffer)
     }
     if (ddrval != DD_OK)
     {
-      DBERROR(("Page flip (blit) failed:\n%s", DDErrorToString(ddrval)));
+      Neuron::Fatal("Page flip (blit) failed:\n{}", DDErrorToString(ddrval));
       return;
     }
   }
@@ -1253,7 +1253,7 @@ void screenFlip(BOOL clearBackBuffer)
     /* Wait for the VBlank */
     ddrval = psDD->lpVtbl->WaitForVerticalBlank(psDD, DDWAITVB_BLOCKBEGIN, nullptr);
     if ((ddrval != DD_OK) && (ddrval != DDERR_UNSUPPORTED))
-      DBERROR(("Wait for VBlank failed:\n%s", DDErrorToString(ddrval)));
+      Neuron::Fatal("Wait for VBlank failed:\n{}", DDErrorToString(ddrval));
 
     (void)SetRect(&sSrcRect, 0, 0, screenWidth, screenHeight);
     ddrval = psFront->lpVtbl->Blt(psFront, &sSrcRect, psBack, &sSrcRect, DDBLT_WAIT, nullptr);
@@ -1267,7 +1267,7 @@ void screenFlip(BOOL clearBackBuffer)
         }*/
     if (ddrval != DD_OK)
     {
-      DBERROR(("Page flip (blit) failed:\n%s", DDErrorToString(ddrval)));
+      Neuron::Fatal("Page flip (blit) failed:\n{}", DDErrorToString(ddrval));
       return;
     }
 #else
@@ -1283,7 +1283,7 @@ void screenFlip(BOOL clearBackBuffer)
         }*/
     if (ddrval != DD_OK)
     {
-      DBERROR(("Page flip failed:\n%s", DDErrorToString(ddrval)));
+      Neuron::Fatal("Page flip failed:\n{}", DDErrorToString(ddrval));
       return;
     }
 #endif
@@ -1303,7 +1303,7 @@ void screenFlip(BOOL clearBackBuffer)
       ddrval = psBack->lpVtbl->Blt(psBack, &sDestRect, nullptr, nullptr, DDBLT_COLORFILL | DDBLT_WAIT, &sDDBlitFX);
       if (ddrval != DD_OK)
       {
-        DBERROR(("Clear back buffer failed:\n%s", DDErrorToString(ddrval)));
+        Neuron::Fatal("Clear back buffer failed:\n{}", DDErrorToString(ddrval));
         return;
       }
     }
@@ -1313,7 +1313,7 @@ void screenFlip(BOOL clearBackBuffer)
     ddrval = psBack->lpVtbl->Lock(psBack, nullptr, &ddsdBack, DDLOCK_WAIT, nullptr);
     if (ddrval != DD_OK)
     {
-      DBERROR(("Back buffer lock failed:\n%s", DDErrorToString(ddrval)));
+      Neuron::Fatal("Back buffer lock failed:\n{}", DDErrorToString(ddrval));
       return;
     }
 
@@ -1342,7 +1342,7 @@ void screenFlip(BOOL clearBackBuffer)
       }
       break;
     case 24:
-    case 32: default: DBPRINTF(("BackDrop not implemented for this bit depth"));
+    case 32: default: Neuron::DebugTrace("BackDrop not implemented for this bit depth");
       break;
     }
 
@@ -1350,7 +1350,7 @@ void screenFlip(BOOL clearBackBuffer)
     ddrval = psBack->lpVtbl->Unlock(psBack, static_cast<LPRECT>(ddsdBack.lpSurface));
     if (ddrval != DD_OK)
     {
-      DBERROR(("Back buffer unlock failed:\n%s", DDErrorToString(ddrval)));
+      Neuron::Fatal("Back buffer unlock failed:\n{}", DDErrorToString(ddrval));
       return;
     }
   }
@@ -1363,7 +1363,7 @@ void screenFlip(BOOL clearBackBuffer)
     ddrval = psBack->lpVtbl->Blt(psBack, &sDestRect, nullptr, nullptr, DDBLT_COLORFILL | DDBLT_WAIT, &sDDBlitFX);
     if (ddrval != DD_OK)
     {
-      DBERROR(("Clear back buffer failed:\n%s", DDErrorToString(ddrval)));
+      Neuron::Fatal("Clear back buffer failed:\n{}", DDErrorToString(ddrval));
       return;
     }
   }
@@ -1452,7 +1452,7 @@ BOOL screenToggleVideoPlaybackMode(void)
   ddrval = psDD->lpVtbl->SetDisplayMode(psDD, screenWidth, screenHeight, screenDepth, 0, 0); // Set these so the DD1 version is used
   if (ddrval != DD_OK)
   {
-    DBERROR(("Set display mode failed:\n%s", DDErrorToString(ddrval)));
+    Neuron::Fatal("Set display mode failed:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
 
@@ -1465,7 +1465,7 @@ BOOL screenToggleVideoPlaybackMode(void)
   ddrval = psDD->lpVtbl->CreateSurface(psDD, &ddsd, &psFront, nullptr);
   if (ddrval != DD_OK)
   {
-    DBERROR(("Create Primary Surface failed:\n%s", DDErrorToString(ddrval)));
+    Neuron::Fatal("Create Primary Surface failed:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
 
@@ -1475,7 +1475,7 @@ BOOL screenToggleVideoPlaybackMode(void)
   ddrval = psFront->lpVtbl->GetPixelFormat(psFront, &sFrontBufferPixelFormat);
   if (ddrval != DD_OK)
   {
-    DBERROR(("Couldn't get pixel format:\n%s", DDErrorToString(ddrval)));
+    Neuron::Fatal("Couldn't get pixel format:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
 
@@ -1492,7 +1492,7 @@ BOOL screenToggleVideoPlaybackMode(void)
   ddrval = psDD->lpVtbl->CreateSurface(psDD, &ddsd, &psBack, nullptr);
   if (ddrval != DD_OK)
   {
-    DBERROR(("Create Back surface failed:\n%s", DDErrorToString(ddrval)));
+    Neuron::Fatal("Create Back surface failed:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
 #else
@@ -1503,7 +1503,7 @@ BOOL screenToggleVideoPlaybackMode(void)
 
   ddrval = psDD->lpVtbl->CreateSurface(psDD, &ddsd, &psFront, NULL); if (ddrval != DD_OK)
   {
-    DBERROR(("Create Primary Surface failed:\n%s", DDErrorToString(ddrval)));
+    Neuron::Fatal("Create Primary Surface failed:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
 
@@ -1511,7 +1511,7 @@ BOOL screenToggleVideoPlaybackMode(void)
   memset(&sFrontBufferPixelFormat, 0, sizeof(DDPIXELFORMAT)); sFrontBufferPixelFormat.dwSize = sizeof(DDPIXELFORMAT); ddrval = psFront->
     lpVtbl->GetPixelFormat(psFront, &sFrontBufferPixelFormat); if (ddrval != DD_OK)
   {
-    DBERROR(("Couldn't get pixel format:\n%s", DDErrorToString(ddrval)));
+    Neuron::Fatal("Couldn't get pixel format:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
 
@@ -1519,7 +1519,7 @@ BOOL screenToggleVideoPlaybackMode(void)
   memset(&ddscaps, 0, sizeof(DDSCAPS)); ddscaps.dwCaps = DDSCAPS_BACKBUFFER; ddrval = psFront->lpVtbl->
     GetAttachedSurface(psFront, &ddscaps, &psBack); if (ddrval != DD_OK)
   {
-    DBERROR(("Get Back surface failed:\n%s", DDErrorToString(ddrval)));
+    Neuron::Fatal("Get Back surface failed:\n{}", DDErrorToString(ddrval));
     return FALSE;
   }
 #endif
@@ -1530,17 +1530,17 @@ BOOL screenToggleVideoPlaybackMode(void)
     ddrval = psDD->lpVtbl->CreatePalette(psDD, DDPCAPS_8BIT, asPalEntries, &psPalette, nullptr);
     if (ddrval != DD_OK)
     {
-      DBERROR(("Failed to create palette:\n%s", DDErrorToString(ddrval)));
+      Neuron::Fatal("Failed to create palette:\n{}", DDErrorToString(ddrval));
       return FALSE;
     }
 
     /* Assign the palette to the front buffer */
     ddrval = psFront->lpVtbl->SetPalette(psFront, psPalette);
-    if (ddrval != DD_OK) { DBERROR(("Couldn't set palette for front buffer:\n%s", DDErrorToString(ddrval))); }
+    if (ddrval != DD_OK) { Neuron::Fatal("Couldn't set palette for front buffer:\n{}", DDErrorToString(ddrval)); }
 
     /* Assign the palette to the back buffer */
     ddrval = psFront->lpVtbl->SetPalette(psBack, psPalette);
-    if (ddrval != DD_OK) { DBERROR(("Couldn't set palette for back buffer:\n%s", DDErrorToString(ddrval))); }
+    if (ddrval != DD_OK) { Neuron::Fatal("Couldn't set palette for back buffer:\n{}", DDErrorToString(ddrval)); }
   }
 
   return TRUE;
@@ -1578,7 +1578,7 @@ void screenFlipToGDI(void)
       /* Can't use a message box here as this function gets called by
        * the message box routine.
        */
-      DBPRINTF(("Flip to GDI failed:\n%s", DDErrorToString(ddrval)));
+      Neuron::DebugTrace("Flip to GDI failed:\n{}", DDErrorToString(ddrval));
     }
   }
 #endif
@@ -1615,7 +1615,7 @@ void screenSetPalette(UDWORD first, UDWORD count, PALETTEENTRY* psEntries)
   {
     ddrval = psPalette->lpVtbl->SetEntries(psPalette, 0, 0,PAL_MAX, asPalEntries);
     if (ddrval != DD_OK)
-      DBERROR(("Couldn't set palette entries:\n%s", DDErrorToString(ddrval)));
+      Neuron::Fatal("Couldn't set palette entries:\n{}", DDErrorToString(ddrval));
 
     /* Update the true colour version of the palette for the windowed display */
     updateWindowsPalette(first, count);
@@ -2086,16 +2086,15 @@ void screenDrawLine(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1)
   BOOL clipped;
   OUTCODE code0, code1, code;
   float cx, cy;
-#ifdef DEBUG
+  // the clipping loop counter the assertion below reports. Left outside any
+  // DEBUG guard so the function stays correct whether or not that assertion
+  // is compiled in.
   UDWORD loops;
-#endif
 
   clipped = FALSE;
   compOutCode(x0, y0, &code0);
   compOutCode(x1, y1, &code1);
-#ifdef DEBUG
   loops = 0;
-#endif
 
   /* Loop until the line is accepted. return if the line is rejected */
   do
@@ -2142,14 +2141,14 @@ void screenDrawLine(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1)
       /* calculated intesection point get ready for next pass */
       if (code == code0)
       {
-        x0 = ROUND(cx);
-        y0 = ROUND(cy);
+        x0 = std::lround(cx);
+        y0 = std::lround(cy);
         compOutCode(x0, y0, &code0);
       }
       else
       {
-        x1 = ROUND(cx);
-        y1 = ROUND(cy);
+        x1 = std::lround(cx);
+        y1 = std::lround(cy);
         compOutCode(x1, y1, &code1);
       }
     }

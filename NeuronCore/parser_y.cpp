@@ -388,7 +388,7 @@ void audp_error(char* pMessage, ...)
 
   vsprintf(aTxtBuf, pMessage, args);
   parseGetErrorData(&line, &pText);
-  DBERROR(("RES file parse error:\n%s at line %d\nToken: %d, Text: '%s'\n", aTxtBuf, line, audp_char, pText));
+  Neuron::Fatal("RES file parse error:\n{} at line {}\nToken: {}, Text: '{}'\n", aTxtBuf, line, audp_char, pText);
 
   va_end(args);
 }

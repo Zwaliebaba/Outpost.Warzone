@@ -27,35 +27,35 @@ BOOL DInpInitialise(void)
   hr = DirectInputCreate(hInstance, DIRECTINPUT_VERSION, &psDI, nullptr);
   if (FAILED(hr))
   {
-    DBERROR(("DXInpInitialise: couldn't create DI object"));
+    Neuron::Fatal("DXInpInitialise: couldn't create DI object");
     return FALSE;
   }
 
   hr = psDI->lpVtbl->CreateDevice(psDI, GUID_SysMouse, &psDIMouse, nullptr);
   if (FAILED(hr))
   {
-    DBERROR(("DXInpInitialise: couldn't create mouse object"));
+    Neuron::Fatal("DXInpInitialise: couldn't create mouse object");
     return FALSE;
   }
 
   hr = psDIMouse->lpVtbl->SetDataFormat(psDIMouse, &c_dfDIMouse); //&sDataFormat);
   if (FAILED(hr))
   {
-    DBERROR(("DXInpInitialise: couldn't set mouse format"));
+    Neuron::Fatal("DXInpInitialise: couldn't set mouse format");
     return FALSE;
   }
 
   hr = psDIMouse->lpVtbl->SetCooperativeLevel(psDIMouse, hWndMain, DISCL_EXCLUSIVE | DISCL_FOREGROUND);
   if (FAILED(hr))
   {
-    DBERROR(("DXInpInitialise: couldn't set mouse cooperative level"));
+    Neuron::Fatal("DXInpInitialise: couldn't set mouse cooperative level");
     return FALSE;
   }
 
   DIMouseAcquired = FALSE;
   if (!DInpMouseAcc(DINP_MOUSEACQUIRE))
   {
-    DBERROR(("DXInpInitialise: couldn't acquire mouse"));
+    Neuron::Fatal("DXInpInitialise: couldn't acquire mouse");
     return FALSE;
   }
 

@@ -54,10 +54,10 @@ typedef struct BNODE
 typedef struct PLANE
 {
   // These 1st three entries can NOT NOW be cast into a iVectorf *   (iVectorf on PC are doubles)
-  FRACT a; // these values form the plane equation ax+by+cz=d
-  FRACT b;
-  FRACT c;
-  FRACT d;
+  float a; // these values form the plane equation ax+by+cz=d
+  float b;
+  float c;
+  float d;
   iVector vP; // a point on the plane - in normal non-fract format
 } PLANE, *PSPLANE;
 

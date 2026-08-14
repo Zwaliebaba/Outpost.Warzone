@@ -503,7 +503,7 @@ BOOL loadRenderMode()
 // ////////////////////////////////////////////////////////////////////////////
 BOOL saveConfig()
 {
-  DBPRINTF(("Writing prefs to registry\n"));
+  Neuron::DebugTrace("Writing prefs to registry\n");
 
   if (!openWarzoneKey())
     return FALSE;
@@ -546,7 +546,7 @@ BOOL saveConfig()
     setWarzoneKeyNumeric("colour", getPlayerColour(0)); // favourite colour.
   else
   {
-    DBPRINTF(("Writing multiplay prefs to registry\n"));
+    Neuron::DebugTrace("Writing multiplay prefs to registry\n");
     if (NetPlay.bHost && ingame.localJoiningInProgress)
       setWarzoneKeyString("gameName", game.name); //  last hosted game
     setWarzoneKeyString("mapName", game.map); //  map name	

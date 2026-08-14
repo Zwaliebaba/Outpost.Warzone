@@ -559,7 +559,7 @@ BOOL recvDroid(NETMSG* m)
   if (!pT)
   {
     NETlogEntry("Couldn't find template to build recvd droid. val = player", 0, player);
-    DBPRINTF(("Couldn't find template to build recvd droid" ));
+    Neuron::DebugTrace("Couldn't find template to build recvd droid" );
     sendRequestDroid(id); // request the droid instead.
     return FALSE;
   }
@@ -917,10 +917,10 @@ static VOID ProcessDroidOrder(DROID* psDroid, DROID_ORDER order, UDWORD x, UDWOR
       break;
 
     case OBJ_BULLET: // shouldn't be getting this! 
-      DBERROR(("multibot: order specified destination as a bullet. what am i to do??"));
+      Neuron::Fatal("multibot: order specified destination as a bullet. what am i to do??");
       break;
 
-    default: DBERROR(("unknown object type"));
+    default: Neuron::Fatal("unknown object type");
     }
 
     if (!psObj) // failed to find it;
@@ -1179,7 +1179,7 @@ BOOL receiveWholeDroid(NETMSG* m)
     sizecount += sizeof(pD->psTarStats); //later!
 
     //store the droid for later.
-    tempDroid = static_cast<DROIDSTORE*>(MALLOC(sizeof(DROIDSTORE)));
+    tempDroid = new (std::nothrow) DROIDSTORE[1];
     tempDroid->psDroid = pD;
     tempDroid->psNext = tempDroidList;
     tempDroidList = tempDroid;
@@ -1214,7 +1214,7 @@ BOOL sendRequestDroid(UDWORD droidId)
   NetAdd(msg, 0, droidId);
   NetAdd(msg, 4, player2dpid[selectedPlayer]);
 
-  DBPRINTF(("multibot: unknown droid %d, requesting info\n"));
+  Neuron::DebugTrace("multibot: unknown droid {}, requesting info\n");
 
   msg.type = NET_REQUESTDROID;
   msg.size = sizeof(DPID) + sizeof(UDWORD);

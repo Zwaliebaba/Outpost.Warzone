@@ -73,7 +73,7 @@ int makeTileTextures(void)
   h = tilesPCX.height / TILE_HEIGHT;
   numPCXTiles = w * h;
 
-  tilesRAW = static_cast<iBitmap**>(MALLOC(sizeof(iBitmap *) * numPCXTiles));
+  tilesRAW = new (std::nothrow) iBitmap*[numPCXTiles];
 
   for (i = 0; i < numPCXTiles; tilesRAW[i++] = nullptr); /* NOP */
 
@@ -85,7 +85,7 @@ int makeTileTextures(void)
       for (j = 0; j < w; j++)
       {
         b = tilesPCX.bmp + j * TILE_WIDTH + i * tilesPCX.width * TILE_HEIGHT;
-        saved = s = tilesRAW[t++] = static_cast<iBitmap*>(MALLOC(sizeof(iBitmap) * TILE_SIZE));
+        saved = s = tilesRAW[t++] = new (std::nothrow) iBitmap[TILE_SIZE];
         if (s)
         {
           for (y = 0; y < TILE_HEIGHT; y++)
@@ -178,8 +178,8 @@ void makeTileTexturePages(UDWORD srcWidth, UDWORD srcHeight, UDWORD tileWidth, U
 
   /* Get enough memory to store one tile */
   pageNumber = 0;
-  tileStorage = static_cast<unsigned char*>(MALLOC(tileWidth*tileHeight));
-  sprite.bmp = static_cast<iBitmap*>(MALLOC(TEXTURE_PAGE_SIZE));
+  tileStorage = new (std::nothrow) unsigned char[tileWidth*tileHeight];
+  sprite.bmp = new (std::nothrow) iBitmap[TEXTURE_PAGE_SIZE];
   sprite.width = PAGE_WIDTH;
   sprite.height = PAGE_HEIGHT;
   tilesProcessed = 0;
@@ -212,7 +212,7 @@ void makeTileTexturePages(UDWORD srcWidth, UDWORD srcHeight, UDWORD tileWidth, U
       {
         /* If so, download this one and reset to start again */
         pageId[pageNumber] = pie_AddBMPtoTexPages(&sprite, "terrain", 0, TRUE, FALSE);
-        sprite.bmp = static_cast<iBitmap*>(MALLOC(TEXTURE_PAGE_SIZE));
+        sprite.bmp = new (std::nothrow) iBitmap[TEXTURE_PAGE_SIZE];
         pageNumber++;
         presentLoc = sprite.bmp;
       }
@@ -228,7 +228,7 @@ void makeTileTexturePages(UDWORD srcWidth, UDWORD srcHeight, UDWORD tileWidth, U
 
   numTexturePages = pageNumber;
 
-exit: FREE(tileStorage);
+exit: delete[] tileStorage;
   buildTileIndexes();
 }
 
@@ -246,7 +246,7 @@ void remakeTileTexturePages(UDWORD srcWidth, UDWORD srcHeight, UDWORD tileWidth,
 
   /* Get enough memory to store one tile */
   pageNumber = 0;
-  tileStorage = static_cast<unsigned char*>(MALLOC(tileWidth*tileHeight));
+  tileStorage = new (std::nothrow) unsigned char[tileWidth*tileHeight];
   sprite.width = PAGE_WIDTH;
   sprite.height = PAGE_HEIGHT;
 
@@ -297,7 +297,7 @@ void remakeTileTexturePages(UDWORD srcWidth, UDWORD srcHeight, UDWORD tileWidth,
 
   DEBUG_ASSERT_TEXT(numTexturePages >= static_cast<SDWORD>(pageNumber), "New Tertiles too large");
 
-exit: FREE(tileStorage);
+exit: delete[] tileStorage;
   buildTileIndexes();
 }
 
@@ -339,7 +339,7 @@ BOOL getTileRadarColours(void)
 void freeTileTextures(void)
 {
   UDWORD i;
-  for (i = 0; i < static_cast<UDWORD>(numTexturePages); i++) { FREE(_TEX_PAGE[(firstTexturePage+i)].tex.bmp); }
+  for (i = 0; i < static_cast<UDWORD>(numTexturePages); i++) { delete[] _TEX_PAGE[(firstTexturePage+i)].tex.bmp; }
 }
 
 UDWORD getTileXIndex(UDWORD tileNumber)

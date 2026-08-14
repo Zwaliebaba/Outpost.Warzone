@@ -7,11 +7,6 @@
 #include "RendMode.h"
 #include "PiePalette.h"
 
-/* The widget heaps */
-OBJ_HEAP* psFormHeap;
-OBJ_HEAP* psCFormHeap;
-OBJ_HEAP* psTFormHeap;
-
 /* Control whether single tabs are displayed */
 #define NO_DISPLAY_SINGLE_TABS 1
 
@@ -80,11 +75,8 @@ static void formSetDefaultColours(W_FORM* psForm)
 static BOOL formCreatePlain(W_FORM** ppsWidget, W_FORMINIT* psInit)
 {
   /* Allocate the required memory */
-#if W_USE_MALLOC
-  *ppsWidget = (W_FORM*)MALLOC(sizeof(W_FORM)); if (*ppsWidget == NULL)
-#else
-  if (!HEAP_ALLOC(psFormHeap, ppsWidget))
-#endif
+  *ppsWidget = new (std::nothrow) W_FORM;
+  if (*ppsWidget == nullptr)
   {
     DEBUG_ASSERT_TEXT(FALSE, "formCreatePlain: Out of memory");
     return FALSE;
@@ -121,25 +113,16 @@ static BOOL formCreatePlain(W_FORM** ppsWidget, W_FORMINIT* psInit)
 /* Free a plain form widget */
 static void formFreePlain(W_FORM* psWidget)
 {
-  DEBUG_ASSERT_TEXT(PTRVALID(psWidget, sizeof(W_FORM)), "formFreePlain: Invalid form pointer");
-
   widgReleaseWidgetList(psWidget->psWidgets);
-#if W_USE_MALLOC
-  FREE(psWidget);
-#else
-  HEAP_FREE(psFormHeap, psWidget);
-#endif
+  delete psWidget;
 }
 
 /* Create a plain form widget */
 static BOOL formCreateClickable(W_CLICKFORM** ppsWidget, W_FORMINIT* psInit)
 {
   /* Allocate the required memory */
-#if W_USE_MALLOC
-  *ppsWidget = (W_CLICKFORM*)MALLOC(sizeof(W_CLICKFORM)); if (*ppsWidget == NULL)
-#else
-  if (!HEAP_ALLOC(psCFormHeap, ppsWidget))
-#endif
+  *ppsWidget = new (std::nothrow) W_CLICKFORM;
+  if (*ppsWidget == nullptr)
   {
     DEBUG_ASSERT_TEXT(FALSE, "formCreateClickable: Out of memory");
     return FALSE;
@@ -174,11 +157,7 @@ static BOOL formCreateClickable(W_CLICKFORM** ppsWidget, W_FORMINIT* psInit)
   {
 #if W_USE_STRHEAP
     if (!widgAllocCopyString(&(*ppsWidget)->pTip, psInit->pTip)) { DEBUG_ASSERT_TEXT(FALSE, "formCreateClickable: Out of string memory");
-#if W_USE_MALLOC
-    FREE(*ppsWidget);
-#else
-    HEAP_FREE(psCFormHeap, *ppsWidget);
-#endif
+    delete *ppsWidget;
     return FALSE;
 		}
 #endif
@@ -196,18 +175,12 @@ static BOOL formCreateClickable(W_CLICKFORM** ppsWidget, W_FORMINIT* psInit)
 /* Free a plain form widget */
 static void formFreeClickable(W_CLICKFORM* psWidget)
 {
-  DEBUG_ASSERT_TEXT(PTRVALID(psWidget, sizeof(W_FORM)), "formFreePlain: Invalid form pointer");
-
   widgReleaseWidgetList(psWidget->psWidgets);
 #if W_USE_STRHEAP
   if (psWidget->pTip) { widgFreeString(psWidget->pTip); }
 #endif
 
-#if W_USE_MALLOC
-  FREE(psWidget);
-#else
-  HEAP_FREE(psCFormHeap, psWidget);
-#endif
+  delete psWidget;
 }
 
 /* Create a tabbed form widget */
@@ -246,11 +219,8 @@ static BOOL formCreateTabbed(W_TABFORM** ppsWidget, W_FORMINIT* psInit)
   }
 
   /* Allocate the required memory */
-#if W_USE_MALLOC
-  *ppsWidget = (W_TABFORM*)MALLOC(sizeof(W_TABFORM)); if (*ppsWidget == NULL)
-#else
-  if (!HEAP_ALLOC(psTFormHeap, ppsWidget))
-#endif
+  *ppsWidget = new (std::nothrow) W_TABFORM;
+  if (*ppsWidget == nullptr)
   {
     DEBUG_ASSERT_TEXT(FALSE, "formCreateTabbed: Out of memory");
     return FALSE;
@@ -356,8 +326,6 @@ static void formFreeTabbed(W_TABFORM* psWidget)
   WIDGET* psCurr;
   W_FORMGETALL sGetAll;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psWidget, sizeof(W_TABFORM)), "formFreeTabbed: Invalid form pointer");
-
   formFreeTips(psWidget);
 
   formInitGetAllWidgets((W_FORM*)psWidget, &sGetAll);
@@ -367,11 +335,7 @@ static void formFreeTabbed(W_TABFORM* psWidget)
     widgReleaseWidgetList(psCurr);
     psCurr = formGetAllWidgets(&sGetAll);
   }
-#if W_USE_MALLOC
-  FREE(psWidget);
-#else
-  HEAP_FREE(psTFormHeap, psWidget);
-#endif
+  delete psWidget;
 }
 
 /* Create a form widget data structure */
@@ -428,11 +392,8 @@ BOOL formAddWidget(W_FORM* psForm, WIDGET* psWidget, W_INIT* psInit)
   WIDGET** ppsList;
   W_MAJORTAB* psMajor;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psWidget, sizeof(WIDGET)), "formAddWidget: Invalid widget pointer");
-
   if (psForm->style & WFORM_TABBED)
   {
-    DEBUG_ASSERT_TEXT(PTRVALID(psForm, sizeof(W_TABFORM)), "formAddWidget: Invalid tab form pointer");
     psTabForm = (W_TABFORM*)psForm;
     if (psInit->majorID >= psTabForm->numMajor)
     {
@@ -451,7 +412,6 @@ BOOL formAddWidget(W_FORM* psForm, WIDGET* psWidget, W_INIT* psInit)
   }
   else
   {
-    DEBUG_ASSERT_TEXT(PTRVALID(psForm, sizeof(W_FORM)), "formAddWidget: Invalid form pointer");
     psWidget->psNext = psForm->psWidgets;
     psForm->psWidgets = psWidget;
   }
@@ -569,10 +529,9 @@ void widgSetTabs(W_SCREEN* psScreen, UDWORD id, UWORD major, UWORD minor)
   psForm = (W_TABFORM*)widgGetFromID(psScreen, id);
   if (psForm == nullptr || !(psForm->style & WFORM_TABBED))
   {
-    DEBUG_ASSERT_TEXT(FALSE, "widgSetTabs: couldn't find tabbed form from id");
+    DEBUG_ASSERT_TEXT(FALSE,"widgSetTabs: couldn't find tabbed form from id");
     return;
   }
-  DEBUG_ASSERT_TEXT(PTRVALID(psForm, sizeof(W_TABFORM)), "widgSetTabs: Invalid tab form pointer");
 
   if (major >= psForm->numMajor || minor >= psForm->asMajor[major].numMinor)
   {
@@ -593,10 +552,9 @@ void widgGetTabs(W_SCREEN* psScreen, UDWORD id, UWORD* pMajor, UWORD* pMinor)
   psForm = (W_TABFORM*)widgGetFromID(psScreen, id);
   if (psForm == nullptr || psForm->type != WIDG_FORM || !(psForm->style & WFORM_TABBED))
   {
-    DEBUG_ASSERT_TEXT(FALSE, "widgGetTabs: couldn't find tabbed form from id");
+    DEBUG_ASSERT_TEXT(FALSE,"widgGetTabs: couldn't find tabbed form from id");
     return;
   }
-  DEBUG_ASSERT_TEXT(PTRVALID(psForm, sizeof(W_TABFORM)), "widgGetTabs: Invalid tab form pointer");
 
   *pMajor = psForm->majorT;
   *pMinor = psForm->minorT;
@@ -610,10 +568,9 @@ void widgSetColour(W_SCREEN* psScreen, UDWORD id, UDWORD colour, UBYTE red, UBYT
   psForm = (W_TABFORM*)widgGetFromID(psScreen, id);
   if (psForm == nullptr || psForm->type != WIDG_FORM)
   {
-    DEBUG_ASSERT_TEXT(FALSE, "widgSetColour: couldn't find form from id");
+    DEBUG_ASSERT_TEXT(FALSE,"widgSetColour: couldn't find form from id");
     return;
   }
-  DEBUG_ASSERT_TEXT(PTRVALID(psForm, sizeof(W_FORM)), "widgSetColour: Invalid tab form pointer");
 
   if (colour >= WCOL_MAX)
   {
@@ -627,8 +584,6 @@ void widgSetColour(W_SCREEN* psScreen, UDWORD id, UDWORD colour, UBYTE red, UBYT
 void formGetOrigin(W_FORM* psWidget, SDWORD* pXOrigin, SDWORD* pYOrigin)
 {
   W_TABFORM* psTabForm;
-
-  DEBUG_ASSERT_TEXT(PTRVALID(psWidget, sizeof(W_FORM)), "formGetOrigin: Invalid form pointer");
 
   if (psWidget->style & WFORM_TABBED)
   {
@@ -668,7 +623,6 @@ void formInitialise(W_FORM* psWidget)
 
   if (psWidget->style & WFORM_TABBED)
   {
-    DEBUG_ASSERT_TEXT(PTRVALID(psWidget, sizeof(W_TABFORM)), "formInitialise: invalid tab form pointer");
     psTabForm = (W_TABFORM*)psWidget;
     psTabForm->majorT = 0;
     psTabForm->minorT = 0;
@@ -678,11 +632,9 @@ void formInitialise(W_FORM* psWidget)
   }
   else if (psWidget->style & WFORM_CLICKABLE)
   {
-    DEBUG_ASSERT_TEXT(PTRVALID(psWidget, sizeof(W_CLICKFORM)), "formInitialise: invalid clickable form pointer");
     psClickForm = (W_CLICKFORM*)psWidget;
     psClickForm->state = WCLICK_NORMAL;
   }
-  else { DEBUG_ASSERT_TEXT(PTRVALID(psWidget, sizeof(W_FORM)), "formInitialise: invalid form pointer"); }
 
   psWidget->psLastHiLite = nullptr;
 }

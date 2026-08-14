@@ -343,7 +343,7 @@ UDWORD getTileOwner(UDWORD x, UDWORD y)
 
   /* Check it has a structure - cannot have owner otherwise */
   if (!TILE_HAS_STRUCTURE(mapTile(x,y)))
-    DBERROR(("Asking for the owner of a tile with no structure on it!!!"));
+    Neuron::Fatal("Asking for the owner of a tile with no structure on it!!!");
   else
   {
     /* Get a pointer to the structure */

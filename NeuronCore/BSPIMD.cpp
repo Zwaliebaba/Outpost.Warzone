@@ -52,23 +52,22 @@ extern BOOL NoCullBSP; // Oh yes... a global externaly referenced variable....
 _inline int IsPointOnPlane(PSPLANE psPlane, iVector* vP)
 {
   iVectorf vecP;
-  FRACT Dot;
+  float Dot;
 
   /* validate input */
 #ifdef BSP_MAXDEBUG
-  DEBUG_ASSERT_TEXT(PTRVALID(psPlane,sizeof(PLANE)), "IsPointOnPlane: invalid plane\n");
 #endif
 
   /* subtract point on plane from input point to get position vector */
-  vecP.x = MAKEFRACT(vP->x - psPlane->vP.x);
-  vecP.y = MAKEFRACT(vP->y - psPlane->vP.y);
-  vecP.z = MAKEFRACT(vP->z - psPlane->vP.z);
+  vecP.x = static_cast<float>(vP->x - psPlane->vP.x);
+  vecP.y = static_cast<float>(vP->y - psPlane->vP.y);
+  vecP.z = static_cast<float>(vP->z - psPlane->vP.z);
 
   /* get dot product of result with plane normal (a,b,c of plane) */
-  Dot = static_cast<FRACT>((FRACTmul(vecP.x, psPlane->a) + FRACTmul(vecP.y, psPlane->b) + FRACTmul(vecP.z, psPlane->c)));
+  Dot = static_cast<float>(((vecP.x * psPlane->a) + (vecP.y * psPlane->b) + (vecP.z * psPlane->c)));
 
   /* if result is -ve, return -1 */
-  if ((abs(static_cast<int>(Dot))) < FRACTCONST(1, 100))
+  if ((abs(static_cast<int>(Dot))) < (1.0f / 100.0f))
     return IN_PLANE;
   if (Dot < 0)
     return OPPOSITE_SIDE;
@@ -131,7 +130,7 @@ static iVectorf* iCrossProduct(iVectorf* psD, iVectorf* psA, iVectorf* psB);
 static void GetTriangleNormal(PSTRIANGLE psTri, iVectorf* psN, int pA, int pB, int pC);
 PSBSPTREENODE InitNode(PSBSPTREENODE psBSPNode);
 
-static FRACT GetDist(PSTRIANGLE psTri, int pA, int pB);
+static float GetDist(PSTRIANGLE psTri, int pA, int pB);
 
 // little routine for getting an imd vector structure in the IMD from the vertex ID
 static _inline iVector* IMDvec(int Vertex)
@@ -155,7 +154,6 @@ void GetPlane(iIMDShape* s, UDWORD PolygonID, PSPLANE psPlane)
   iVectorf Result;
   iIMDPoly* psTri;
   /* validate input */
-  DEBUG_ASSERT_TEXT(PTRVALID(psPlane,sizeof(PLANE)), "GetPlane: invalid plane\n");
 
   psTri = &(s->polys[PolygonID]);
   CurrentVertexList = s->points;
@@ -166,9 +164,9 @@ void GetPlane(iIMDShape* s, UDWORD PolygonID, PSPLANE psPlane)
   if (psTri->npnts == 4)
   {
     int pA, pB, pC;
-    FRACT ShortDist, Dist;
+    float ShortDist, Dist;
 
-    ShortDist = MAKEFRACT(999);
+    ShortDist = 999.0f;
     pA = 0;
     pB = 1;
     pC = 2;
@@ -239,9 +237,9 @@ void GetPlane(iIMDShape* s, UDWORD PolygonID, PSPLANE psPlane)
   //
   //  This is because on a playstation we are casting from FRACT->FRACT (so no conversion is needed)
   //    ... and on a PC we are converting from DOUBLE->FLOAT  (so a cast is needed)
-  psPlane->a = static_cast<FRACT>(Result.x);
-  psPlane->b = static_cast<FRACT>(Result.y);
-  psPlane->c = static_cast<FRACT>(Result.z);
+  psPlane->a = static_cast<float>(Result.x);
+  psPlane->b = static_cast<float>(Result.y);
+  psPlane->c = static_cast<float>(Result.z);
   /* since plane eqn is ax + by + cz + d = 0,
    * d = -(ax + by + cz).
    */
@@ -264,24 +262,24 @@ void GetPlane(iIMDShape* s, UDWORD PolygonID, PSPLANE psPlane)
 
 static iVectorf* iCrossProduct(iVectorf* psD, iVectorf* psA, iVectorf* psB)
 {
-  psD->x = FRACTmul(psA->y, psB->z) - FRACTmul(psA->z, psB->y);
-  psD->y = FRACTmul(psA->z, psB->x) - FRACTmul(psA->x, psB->z);
-  psD->z = FRACTmul(psA->x, psB->y) - FRACTmul(psA->y, psB->x);
+  psD->x = (psA->y * psB->z) - (psA->z * psB->y);
+  psD->y = (psA->z * psB->x) - (psA->x * psB->z);
+  psD->z = (psA->x * psB->y) - (psA->y * psB->x);
 
   return psD;
 }
 
-static FRACT GetDist(PSTRIANGLE psTri, int pA, int pB)
+static float GetDist(PSTRIANGLE psTri, int pA, int pB)
 {
-  FRACT vx, vy, vz;
-  FRACT sum_square, dist;
+  float vx, vy, vz;
+  float sum_square, dist;
 
-  vx = MAKEFRACT(IMDvec(psTri->pindex[pA])->x - IMDvec(psTri->pindex[pB])->x);
-  vy = MAKEFRACT(IMDvec(psTri->pindex[pA])->y - IMDvec(psTri->pindex[pB])->y);
-  vz = MAKEFRACT(IMDvec(psTri->pindex[pA])->z - IMDvec(psTri->pindex[pB])->z);
+  vx = static_cast<float>(IMDvec(psTri->pindex[pA])->x - IMDvec(psTri->pindex[pB])->x);
+  vy = static_cast<float>(IMDvec(psTri->pindex[pA])->y - IMDvec(psTri->pindex[pB])->y);
+  vz = static_cast<float>(IMDvec(psTri->pindex[pA])->z - IMDvec(psTri->pindex[pB])->z);
 
-  sum_square = (FRACTmul(vx, vx) + FRACTmul(vy, vy) + FRACTmul(vz, vz));
-  dist = fSQRT(sum_square);
+  sum_square = ((vx * vx) + (vy * vy) + (vz * vz));
+  dist = static_cast<float>(std::sqrt(sum_square));
   return dist;
 }
 
@@ -290,16 +288,15 @@ static void GetTriangleNormal(PSTRIANGLE psTri, iVectorf* psN, int pA, int pB, i
   iVectorf vecA, vecB;
 
   /* validate input */
-  DEBUG_ASSERT_TEXT(PTRVALID(psTri,sizeof(iIMDPoly)), "GetTriangleNormal: invalid triangle\n");
 
   /* get triangle edge vectors */
-  vecA.x = MAKEFRACT(IMDvec(psTri->pindex[pA])->x - IMDvec(psTri->pindex[pB])->x);
-  vecA.y = MAKEFRACT(IMDvec(psTri->pindex[pA])->y - IMDvec(psTri->pindex[pB])->y);
-  vecA.z = MAKEFRACT(IMDvec(psTri->pindex[pA])->z - IMDvec(psTri->pindex[pB])->z);
+  vecA.x = static_cast<float>(IMDvec(psTri->pindex[pA])->x - IMDvec(psTri->pindex[pB])->x);
+  vecA.y = static_cast<float>(IMDvec(psTri->pindex[pA])->y - IMDvec(psTri->pindex[pB])->y);
+  vecA.z = static_cast<float>(IMDvec(psTri->pindex[pA])->z - IMDvec(psTri->pindex[pB])->z);
 
-  vecB.x = MAKEFRACT(IMDvec(psTri->pindex[pA])->x - IMDvec(psTri->pindex[pC])->x);
-  vecB.y = MAKEFRACT(IMDvec(psTri->pindex[pA])->y - IMDvec(psTri->pindex[pC])->y);
-  vecB.z = MAKEFRACT(IMDvec(psTri->pindex[pA])->z - IMDvec(psTri->pindex[pC])->z);
+  vecB.x = static_cast<float>(IMDvec(psTri->pindex[pA])->x - IMDvec(psTri->pindex[pC])->x);
+  vecB.y = static_cast<float>(IMDvec(psTri->pindex[pA])->y - IMDvec(psTri->pindex[pC])->y);
+  vecB.z = static_cast<float>(IMDvec(psTri->pindex[pA])->z - IMDvec(psTri->pindex[pC])->z);
 
   /* normal is cross product */
   iCrossProduct(psN, &vecA, &vecB);
@@ -313,21 +310,21 @@ static void GetTriangleNormal(PSTRIANGLE psTri, iVectorf* psN, int pA, int pB, i
 
 static iVectorf* iNormalise(iVectorf* v)
 {
-  FRACT vx, vy, vz, mod, sum_square;
+  float vx, vy, vz, mod, sum_square;
 
-  vx = static_cast<FRACT>(v->x);
-  vy = static_cast<FRACT>(v->y);
-  vz = static_cast<FRACT>(v->z);
+  vx = static_cast<float>(v->x);
+  vy = static_cast<float>(v->y);
+  vz = static_cast<float>(v->z);
 
   if ((vx == 0) && (vy == 0) && (vz == 0))
     return v;
 
-  sum_square = (FRACTmul(vx, vx) + FRACTmul(vy, vy) + FRACTmul(vz, vz));
-  mod = fSQRT(sum_square);
+  sum_square = ((vx * vx) + (vy * vy) + (vz * vz));
+  mod = static_cast<float>(std::sqrt(sum_square));
 
-  v->x = FRACTdiv(vx, mod);
-  v->y = FRACTdiv(vy, mod);
-  v->z = FRACTdiv(vz, mod);
+  v->x = (vx / mod);
+  v->y = (vy / mod);
+  v->z = (vz / mod);
 
   return v;
 }

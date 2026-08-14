@@ -42,7 +42,6 @@
 #include "Button.h"
 #include "EditBox.h"
 #include "Slider.h"
-#include "Fractions.h"
 #include "Order.h"
 #include "Action.h"
 #include "IntImage.h"
@@ -615,42 +614,42 @@ BOOL intInitialise(void)
     WidgSetAudio(WidgetAudioCallback, -1, ID_SOUND_SELECT);
 
   /* Create storage for Structures that can be built */
-  apsStructStatsList = static_cast<STRUCTURE_STATS**>(MALLOC(sizeof(STRUCTURE_STATS *) * MAXSTRUCTURES));
+  apsStructStatsList = new (std::nothrow) STRUCTURE_STATS*[MAXSTRUCTURES];
   if (!apsStructStatsList)
   {
-    DBERROR(("Out of memory"));
+    Neuron::Fatal("Out of memory");
     return FALSE;
   }
 
   //create the storage for Research topics - max possible size
-  ppResearchList = static_cast<RESEARCH**>(MALLOC(sizeof(RESEARCH *) * MAXRESEARCH));
+  ppResearchList = new (std::nothrow) RESEARCH*[MAXRESEARCH];
   if (ppResearchList == nullptr)
   {
-    DBERROR(("Unable to allocate memory for research list"));
+    Neuron::Fatal("Unable to allocate memory for research list");
     return FALSE;
   }
 
   //create the list for the selected player
   //needs to be UWORD sized for Patches
-  pList = static_cast<UWORD*>(MALLOC(sizeof (UWORD) * MAXRESEARCH));
-  pSList = static_cast<UWORD*>(MALLOC(sizeof (UWORD) * MAXRESEARCH));
+  pList = new (std::nothrow) UWORD[MAXRESEARCH];
+  pSList = new (std::nothrow) UWORD[MAXRESEARCH];
 
   if (pList == nullptr)
   {
-    DBERROR(("Unable to allocate memory for research list"));
+    Neuron::Fatal("Unable to allocate memory for research list");
     return FALSE;
   }
   if (pSList == nullptr)
   {
-    DBERROR(("Unable to allocate memory for sorted research list"));
+    Neuron::Fatal("Unable to allocate memory for sorted research list");
     return FALSE;
   }
 
   /* Create storage for Templates that can be built */
-  apsTemplateList = static_cast<DROID_TEMPLATE**>(MALLOC(sizeof(DROID_TEMPLATE*) * MAXTEMPLATES));
+  apsTemplateList = new (std::nothrow) DROID_TEMPLATE*[MAXTEMPLATES];
   if (apsTemplateList == nullptr)
   {
-    DBERROR(("Unable to allocate memory for template list"));
+    Neuron::Fatal("Unable to allocate memory for template list");
     return FALSE;
   }
 
@@ -663,42 +662,42 @@ BOOL intInitialise(void)
   }
 
   /* Create storage for the feature list */
-  apsFeatureList = static_cast<FEATURE_STATS**>(MALLOC(sizeof(FEATURE_STATS *) * MAXFEATURES));
+  apsFeatureList = new (std::nothrow) FEATURE_STATS*[MAXFEATURES];
   if (apsFeatureList == nullptr)
   {
-    DBERROR(("Unable to allocate memory for feature list"));
+    Neuron::Fatal("Unable to allocate memory for feature list");
     return FALSE;
   }
 
   /* Create storage for the component list */
-  apsComponentList = static_cast<COMP_BASE_STATS**>(MALLOC(sizeof(COMP_BASE_STATS *) * MAXCOMPONENT));
+  apsComponentList = new (std::nothrow) COMP_BASE_STATS*[MAXCOMPONENT];
   if (apsComponentList == nullptr)
   {
-    DBERROR(("Unable to allocate memory for component list"));
+    Neuron::Fatal("Unable to allocate memory for component list");
     return FALSE;
   }
 
   /* Create storage for the extra systems list */
-  apsExtraSysList = static_cast<COMP_BASE_STATS**>(MALLOC(sizeof(COMP_BASE_STATS *) * MAXEXTRASYS));
+  apsExtraSysList = new (std::nothrow) COMP_BASE_STATS*[MAXEXTRASYS];
   if (apsExtraSysList == nullptr)
   {
-    DBERROR(("Unable to allocate memory for extra systems list"));
+    Neuron::Fatal("Unable to allocate memory for extra systems list");
     return FALSE;
   }
 
   // allocate the object list
-  apsObjectList = static_cast<BASE_OBJECT**>(MALLOC(sizeof(BASE_OBJECT *) * MAX_OBJECTS));
+  apsObjectList = new (std::nothrow) BASE_OBJECT*[MAX_OBJECTS];
   if (!apsObjectList)
   {
-    DBERROR(("Out of memory"));
+    Neuron::Fatal("Out of memory");
     return FALSE;
   }
 
   //allocate the order list - ONLY SIZED FOR FACTORIES AT PRESENT!!
-  apsListToOrder = static_cast<BASE_OBJECT**>(MALLOC(sizeof(BASE_OBJECT *) * ORDERED_LIST_SIZE));
+  apsListToOrder = new (std::nothrow) BASE_OBJECT*[ORDERED_LIST_SIZE];
   if (!apsListToOrder)
   {
-    DBERROR(("Out of memory"));
+    Neuron::Fatal("Out of memory");
     return FALSE;
   }
 
@@ -721,7 +720,7 @@ BOOL intInitialise(void)
 
   if (!widgCreateScreen(&psWScreen))
   {
-    DBERROR(("intInitialise: Couldn't create widget screen (Out of memory ?)"));
+    Neuron::Fatal("intInitialise: Couldn't create widget screen (Out of memory ?)");
     return FALSE;
   }
 
@@ -731,12 +730,12 @@ BOOL intInitialise(void)
   {
     if (!intAddReticule())
     {
-      DBERROR(("intInitialise: Couldn't create reticule widgets (Out of memory ?)"));
+      Neuron::Fatal("intInitialise: Couldn't create reticule widgets (Out of memory ?)");
       return FALSE;
     }
     if (!intAddPower())
     {
-      DBERROR(("intInitialise: Couldn't create power Bar widget(Out of memory ?)"));
+      Neuron::Fatal("intInitialise: Couldn't create power Bar widget(Out of memory ?)");
       return FALSE;
     }
   }
@@ -772,7 +771,7 @@ BOOL intInitialise(void)
   /*Initialise the video playback buffer*/
   if (!seq_SetupVideoBuffers())
   {
-    DBERROR(("intInitialise: Unable to initialise video playback buffer"));
+    Neuron::Fatal("intInitialise: Unable to initialise video playback buffer");
     return FALSE;
   }
 
@@ -825,16 +824,26 @@ void intShutDown(void)
 
   ReleaseSnapBuffer(&InterfaceSnap);
 
-  FREE(apsStructStatsList);
-  FREE(ppResearchList);
-  FREE(pList);
-  FREE(pSList);
-  FREE(apsTemplateList);
-  FREE(apsFeatureList);
-  FREE(apsComponentList);
-  FREE(apsExtraSysList);
-  FREE(apsObjectList);
-  FREE(apsListToOrder);
+  delete[] apsStructStatsList;
+  apsStructStatsList = nullptr;
+  delete[] ppResearchList;
+  ppResearchList = nullptr;
+  delete[] pList;
+  pList = nullptr;
+  delete[] pSList;
+  pSList = nullptr;
+  delete[] apsTemplateList;
+  apsTemplateList = nullptr;
+  delete[] apsFeatureList;
+  apsFeatureList = nullptr;
+  delete[] apsComponentList;
+  apsComponentList = nullptr;
+  delete[] apsExtraSysList;
+  apsExtraSysList = nullptr;
+  delete[] apsObjectList;
+  apsObjectList = nullptr;
+  delete[] apsListToOrder;
+  apsListToOrder = nullptr;
 
   //release the message buffer
   releaseMapSurface(pIntelMapSurface);
@@ -1288,7 +1297,7 @@ INT_RETVAL intRunWidgets(void)
     {
       if (strlen(sRequestResult))
       {
-        DBPRINTF(("Returned %s",sRequestResult));
+        Neuron::DebugTrace("Returned {}",sRequestResult);
         if (bRequestLoad)
         {
           loopMissionState = LMS_LOADGAME;
@@ -1460,7 +1469,7 @@ INT_RETVAL intRunWidgets(void)
   case IDMISSIONRES_QUIT: // mission quit
   case INTINGAMEOP_QUIT_CONFIRM: // esc quit confrim
   case IDOPT_QUIT: // options screen quit  
-    DBPRINTF(("HCI Quit %d\n",retID));
+    Neuron::DebugTrace("HCI Quit {}\n",retID);
     intResetScreen(FALSE);
     quitting = TRUE;
     break;
@@ -1710,7 +1719,7 @@ INT_RETVAL intRunWidgets(void)
   retCode = INT_NONE;
   if (quitting)
   {
-    DBPRINTF(("INT_QUIT 1\n"));
+    Neuron::DebugTrace("INT_QUIT 1\n");
     retCode = INT_QUIT;
   }
   //the return code has been superceded by the different pause states
@@ -1731,7 +1740,7 @@ INT_RETVAL intRunWidgets(void)
   if ((testPlayerHasLost() OR (testPlayerHasWon() AND !bMultiPlayer)) AND // yeah yeah yeah - I know....
     (intMode != INT_MISSIONRES) AND !getDebugMappingStatus())
   {
-    DBPRINTF(("PlayerHasLost Or Won\n"));
+    Neuron::DebugTrace("PlayerHasLost Or Won\n");
     intResetScreen(TRUE);
     retCode = INT_QUIT;
     quitting = TRUE;
@@ -2521,8 +2530,6 @@ static void intProcessStats(UDWORD id)
       {
         //get the stats
         psStats = ppsStatsList[id - IDSTAT_START];
-        DEBUG_ASSERT_TEXT(PTRVALID(psObjSelected, sizeof(STRUCTURE)), "intProcessStats: Invalid structure pointer");
-        DEBUG_ASSERT_TEXT(PTRVALID(psStats, sizeof(DROID_TEMPLATE)), "intProcessStats: Invalid template pointer");
         if (productionPlayer == static_cast<SBYTE>(selectedPlayer))
         {
           auto psFactory = (FACTORY*)((STRUCTURE*)psObjSelected)->pFunctionality;
@@ -3024,8 +3031,6 @@ void intBuildFinished(DROID* psDroid)
   UDWORD droidID;
   DROID* psCurr;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psDroid, sizeof(DROID)), "intBuildFinished: Invalid droid pointer");
-
   if ((intMode == INT_OBJECT || intMode == INT_STAT) &&
     //(objMode == IOBJ_BUILDSEL || objMode == IOBJ_BUILD))
     objMode == IOBJ_BUILD)
@@ -3052,8 +3057,6 @@ void intBuildStarted(DROID* psDroid)
 {
   UDWORD droidID;
   DROID* psCurr;
-
-  DEBUG_ASSERT_TEXT(PTRVALID(psDroid, sizeof(DROID)), "intBuildStarted: Invalid droid pointer");
 
   if ((intMode == INT_OBJECT || intMode == INT_STAT) &&
     //(objMode == IOBJ_BUILDSEL || objMode == IOBJ_BUILD))
@@ -3116,8 +3119,6 @@ void intManufactureFinished(STRUCTURE* psBuilding)
   STRUCTURE* psCurr;
   BASE_OBJECT* psObj;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psBuilding, sizeof(STRUCTURE)), "intManufactureFinished: Invalid structure pointer");
-
   if ((intMode == INT_OBJECT || intMode == INT_STAT) && (objMode == IOBJ_MANUFACTURE))
   {
     /* Find which button the structure is on and clear it's stats */
@@ -3158,8 +3159,6 @@ void intManufactureFinished(STRUCTURE* psBuilding)
 /* Tell the interface a research facility has completed a topic */
 void intResearchFinished(STRUCTURE* psBuilding)
 {
-  DEBUG_ASSERT_TEXT(PTRVALID(psBuilding, sizeof(STRUCTURE)), "intResearchFinished: Invalid structure pointer");
-
   // just do a screen refresh
   intRefreshScreen();
 
@@ -3674,8 +3673,6 @@ static BOOL _intAddObjectWindow(BASE_OBJECT* psObjects, BASE_OBJECT* psSelected,
   BOOL IsFactory;
   BOOL Animate = TRUE;
   UWORD FormX, FormY;
-
-  DEBUG_ASSERT_TEXT(psSelected == NULL || PTRVALID(psSelected, sizeof(BASE_OBJECT)), "intAddObject: Invalid object pointer");
 
   //// Is the stats form up?
 
@@ -4243,11 +4240,10 @@ static BOOL _intAddObjectWindow(BASE_OBJECT* psObjects, BASE_OBJECT* psSelected,
       if (sBFormInit.id > IDOBJ_OBJEND)
       {
         //can't fit any more on the screen!
-        DBMB(("This is just a Warning!\n Max buttons have been allocated"));
+        Neuron::DebugTrace("This is just a Warning!\n Max buttons have been allocated");
         break;
       }
     }
-    else {}
   }
 
   widgSetTabs(psWScreen, IDOBJ_TABFORM, static_cast<UWORD>(displayForm), 0);
@@ -4299,7 +4295,7 @@ static BOOL _intAddObjectWindow(BASE_OBJECT* psObjects, BASE_OBJECT* psSelected,
   //	if ((objMode==IOBJ_RESEARCH) && bInTutorial)
   if (bInTutorial)
   {
-    DBPRINTF(("Go with object open callback!\n"));
+    Neuron::DebugTrace("Go with object open callback!\n");
     eventFireCallbackTrigger(CALL_OBJECTOPEN);
   }
 
@@ -4359,7 +4355,7 @@ void intRemoveObject(void)
 
   if (bInTutorial)
   {
-    DBPRINTF(("Go with object close callback!\n"));
+    Neuron::DebugTrace("Go with object close callback!\n");
     eventFireCallbackTrigger(CALL_OBJECTCLOSE);
   }
 }
@@ -5050,7 +5046,7 @@ static BOOL _intAddStats(BASE_STATS** ppsStatsList, UDWORD numStats, BASE_STATS*
     if (sBFormInit.id > IDSTAT_END)
     {
       //can't fit any more on the screen!
-      DBMB(("This is just a Warning!\n Max buttons have been allocated"));
+      Neuron::DebugTrace("This is just a Warning!\n Max buttons have been allocated");
       break;
     }
 
@@ -5232,7 +5228,7 @@ static BOOL selectCommand(BASE_OBJECT* psObj)
 {
   DROID* psDroid;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psObj, sizeof(DROID)) && psObj->type == OBJ_DROID, "selectConstruction: invalid droid pointer");
+  DEBUG_ASSERT_TEXT(psObj->type == OBJ_DROID, "selectConstruction: invalid droid pointer");
   psDroid = (DROID*)psObj;
 
   //check the droid type
@@ -5264,7 +5260,7 @@ static BOOL selectConstruction(BASE_OBJECT* psObj)
 {
   DROID* psDroid;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psObj, sizeof(DROID)) && psObj->type == OBJ_DROID, "selectConstruction: invalid droid pointer");
+  DEBUG_ASSERT_TEXT(psObj->type == OBJ_DROID, "selectConstruction: invalid droid pointer");
   psDroid = (DROID*)psObj;
 
   //check the droid type
@@ -5283,7 +5279,7 @@ static BASE_STATS* getConstructionStats(BASE_OBJECT* psObj)
   STRUCTURE* Structure;
   UDWORD x, y;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psObj, sizeof(DROID)) && psObj->type == OBJ_DROID, "getConstructionStats: invalid droid pointer");
+  DEBUG_ASSERT_TEXT(psObj->type == OBJ_DROID, "getConstructionStats: invalid droid pointer");
   psDroid = (DROID*)psObj;
 
   if (!(droidType(psDroid) == DROID_CONSTRUCT OR droidType(psDroid) == DROID_CYBORG_CONSTRUCT))
@@ -5317,9 +5313,8 @@ static BOOL setConstructionStats(BASE_OBJECT* psObj, BASE_STATS* psStats)
   STRUCTURE_STATS* psSStats;
   DROID* psDroid;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psObj, sizeof(DROID)) && psObj->type == OBJ_DROID, "setConstructionStats: invalid droid pointer");
+  DEBUG_ASSERT_TEXT(psObj->type == OBJ_DROID, "setConstructionStats: invalid droid pointer");
   /* psStats might be NULL if the operation is canceled in the middle */
-  DEBUG_ASSERT_TEXT(psStats == NULL || PTRVALID(psStats, sizeof(STRUCTURE_STATS)), "setConstructionStats: invalid stats pointer");
 
   if (psStats != nullptr)
   {
@@ -5393,7 +5388,7 @@ static BOOL selectResearch(BASE_OBJECT* psObj)
 {
   STRUCTURE* psResFacility;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psObj, sizeof(STRUCTURE)) && psObj->type == OBJ_STRUCTURE, "selectResearch: invalid Structure pointer");
+  DEBUG_ASSERT_TEXT(psObj->type == OBJ_STRUCTURE, "selectResearch: invalid Structure pointer");
 
   psResFacility = (STRUCTURE*)psObj;
 
@@ -5409,7 +5404,7 @@ static BASE_STATS* getResearchStats(BASE_OBJECT* psObj)
 {
   STRUCTURE* psBuilding;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psObj, sizeof(STRUCTURE)) && psObj->type == OBJ_STRUCTURE, "getResearchTip: invalid Structure pointer");
+  DEBUG_ASSERT_TEXT(psObj->type == OBJ_STRUCTURE, "getResearchTip: invalid Structure pointer");
   psBuilding = (STRUCTURE*)psObj;
 
   return ((RESEARCH_FACILITY*)psBuilding->pFunctionality)->psSubject;
@@ -5424,9 +5419,8 @@ static BOOL setResearchStats(BASE_OBJECT* psObj, BASE_STATS* psStats)
   UDWORD count;
   RESEARCH_FACILITY* psResFacilty;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psObj, sizeof(STRUCTURE)) && psObj->type == OBJ_STRUCTURE, "setResearchStats: invalid Structure pointer");
+  DEBUG_ASSERT_TEXT(psObj->type == OBJ_STRUCTURE, "setResearchStats: invalid Structure pointer");
   /* psStats might be NULL if the operation is canceled in the middle */
-  DEBUG_ASSERT_TEXT(psStats == NULL || PTRVALID(psStats, sizeof(RESEARCH)), "setResearchStats: invalid stats pointer");
   psBuilding = (STRUCTURE*)psObj;
 
   psResFacilty = (RESEARCH_FACILITY*)psBuilding->pFunctionality;
@@ -5487,7 +5481,7 @@ static BOOL selectManufacture(BASE_OBJECT* psObj)
 {
   STRUCTURE* psBuilding;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psObj, sizeof(STRUCTURE)) && psObj->type == OBJ_STRUCTURE, "selectManufacture: invalid Structure pointer");
+  DEBUG_ASSERT_TEXT(psObj->type == OBJ_STRUCTURE, "selectManufacture: invalid Structure pointer");
   psBuilding = (STRUCTURE*)psObj;
 
   /* A Structure is a Factory if its type = REF_FACTORY or REF_CYBORG_FACTORY or
@@ -5504,7 +5498,7 @@ static BASE_STATS* getManufactureStats(BASE_OBJECT* psObj)
 {
   STRUCTURE* psBuilding;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psObj, sizeof(STRUCTURE)) && psObj->type == OBJ_STRUCTURE, "getManufactureTip: invalid Structure pointer");
+  DEBUG_ASSERT_TEXT(psObj->type == OBJ_STRUCTURE, "getManufactureTip: invalid Structure pointer");
   psBuilding = (STRUCTURE*)psObj;
 
   return ((FACTORY*)psBuilding->pFunctionality)->psSubject;
@@ -5515,9 +5509,8 @@ static BOOL setManufactureStats(BASE_OBJECT* psObj, BASE_STATS* psStats)
 {
   STRUCTURE* Structure;
 
-  DEBUG_ASSERT_TEXT(PTRVALID(psObj, sizeof(STRUCTURE)) && psObj->type == OBJ_STRUCTURE, "setManufactureStats: invalid Structure pointer");
+  DEBUG_ASSERT_TEXT(psObj->type == OBJ_STRUCTURE, "setManufactureStats: invalid Structure pointer");
   /* psStats might be NULL if the operation is canceled in the middle */
-  DEBUG_ASSERT_TEXT(psStats == NULL || PTRVALID(psStats, sizeof(DROID_TEMPLATE)), "setManufactureStats: invalid stats pointer");
 
 #ifdef INCLUDE_FACTORYLISTS
   Structure = (STRUCTURE*)psObj;
@@ -5771,8 +5764,6 @@ static void intStatsRMBPressed(UDWORD id)
     //this now causes the production run to be decreased by one
 #ifdef INCLUDE_FACTORYLISTS
 
-    DEBUG_ASSERT_TEXT(PTRVALID(psObjSelected, sizeof(STRUCTURE)), "intStatsRMBPressed: Invalid structure pointer");
-    DEBUG_ASSERT_TEXT(PTRVALID(psStats, sizeof(DROID_TEMPLATE)), "intStatsRMBPressed: Invalid template pointer");
     if (productionPlayer == static_cast<SBYTE>(selectedPlayer))
     {
       auto psFactory = (FACTORY*)((STRUCTURE*)psObjSelected)->pFunctionality;
@@ -6677,7 +6668,7 @@ BOOL intSelectDroidsInDroidCluster(DROID* psCurDroid)
   for (i = 0; i < NumSelected; i++)
     SelectDroid(NearDroids[i].psDroid);
 
-  DBPRINTF(("Selected %d droids\n",NumSelected));
+  Neuron::DebugTrace("Selected {} droids\n",NumSelected);
 
   return TRUE;
 }
@@ -7016,7 +7007,7 @@ void orderDroids(void)
   SDWORD i, j;
   BASE_OBJECT* psTemp;
 
-  DBPRINTF(("orderUnit\n"));
+  Neuron::DebugTrace("orderUnit\n");
 
   // bubble sort on the ID - first built will always be first in the list
   for (i = 0; i < MAX_OBJECTS; i++)

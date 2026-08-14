@@ -90,7 +90,7 @@ BOOL recvGift(NETMSG* pMsg)
   case POWER_GIFT:
     giftPower(from, to,FALSE);
     break;
-  default: DBERROR(("Unknown Gift recvd"));
+  default: Neuron::Fatal("Unknown Gift recvd");
     return FALSE;
     break;
   }
@@ -141,7 +141,7 @@ BOOL sendGift(UDWORD type, UDWORD to)
     giftPower(selectedPlayer, to,TRUE);
     audio_QueueTrack(ID_POWER_TRANSMIT);
     break;
-  default: DBERROR(("Unknown Gift sent"));
+  default: Neuron::Fatal("Unknown Gift sent");
     return FALSE;
     break;
   }
@@ -484,7 +484,7 @@ BOOL recvAlliance(NETMSG* pMsg, BOOL allowAudio)
   case ALLIANCE_BROKEN:
     breakAlliance(from, to,FALSE, allowAudio);
     break;
-  default: DBERROR(("Unknown alliance state recvd."));
+  default: Neuron::Fatal("Unknown alliance state recvd.");
     break;
   }
 

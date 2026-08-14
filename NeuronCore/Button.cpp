@@ -8,9 +8,6 @@
 #include "Tip.h"
 #include "RendMode.h"
 
-/* The widget heap */
-OBJ_HEAP* psButHeap;
-
 /* Initialise the button module */
 BOOL buttonStartUp(void) { return TRUE; }
 
@@ -23,14 +20,9 @@ BOOL buttonCreate(W_BUTTON** ppsWidget, W_BUTINIT* psInit)
     return FALSE;
   }
 
-  //		ASSERT((PTRVALID(psInit->psFont, sizeof(PROP_FONT)),
-
   /* Allocate the required memory */
-#if W_USE_MALLOC
-  *ppsWidget = (W_BUTTON*)MALLOC(sizeof(W_BUTTON)); if (*ppsWidget == NULL)
-#else
-  if (!HEAP_ALLOC(psButHeap, ppsWidget))
-#endif
+  *ppsWidget = new (std::nothrow) W_BUTTON;
+  if (*ppsWidget == nullptr)
   {
     DEBUG_ASSERT_TEXT(FALSE, "buttonCreate: Out of memory");
     return FALSE;
@@ -40,11 +32,7 @@ BOOL buttonCreate(W_BUTTON** ppsWidget, W_BUTINIT* psInit)
   {
 #if W_USE_STRHEAP
     if (!widgAllocCopyString(&(*ppsWidget)->pText, psInit->pText)) { DEBUG_ASSERT_TEXT(FALSE, "buttonCreate: Out of memory");
-#if W_USE_MALLOC
-    FREE(*ppsWidget);
-#else
-    HEAP_FREE(psButHeap, *ppsWidget);
-#endif
+    delete *ppsWidget;
     return FALSE;
 		}
 #else
@@ -100,24 +88,16 @@ BOOL buttonCreate(W_BUTTON** ppsWidget, W_BUTINIT* psInit)
 /* Free the memory used by a button */
 void buttonFree(W_BUTTON* psWidget)
 {
-  DEBUG_ASSERT_TEXT(PTRVALID(psWidget, sizeof(W_BUTTON)), "buttonFree: invalid button pointer");
-
 #if W_USE_STRHEAP
   if (psWidget->pText) { widgFreeString(psWidget->pText); } if (psWidget->pTip) { widgFreeString(psWidget->pTip); }
 #endif
 
-#if W_USE_MALLOC
-  FREE(psWidget);
-#else
-  HEAP_FREE(psButHeap, psWidget);
-#endif
+  delete psWidget;
 }
 
 /* Initialise a button widget before it is run */
 void buttonInitialise(W_BUTTON* psWidget)
 {
-  DEBUG_ASSERT_TEXT(PTRVALID(psWidget, sizeof(W_BUTTON)), "buttonDisplay: Invalid widget pointer");
-
   psWidget->state = WBUTS_NORMAL;
 }
 
@@ -248,8 +228,6 @@ void buttonDisplay(WIDGET* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pCo
   W_BUTTON* psButton;
   SDWORD x0, y0, x1, y1, fx, fy, fw;
   int CurrFontID;
-
-  DEBUG_ASSERT_TEXT(PTRVALID(psWidget, sizeof(W_BUTTON)), "buttonDisplay: Invalid widget pointer");
 
   psButton = (W_BUTTON*)psWidget;
   CurrFontID = psButton->FontID;

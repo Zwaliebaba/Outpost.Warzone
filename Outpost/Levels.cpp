@@ -107,10 +107,11 @@ void levShutDown(void)
 
   while (psLevels)
   {
-    FREE(psLevels->pName);
-    for (i = 0; i < LEVEL_MAXFILES; i++) { if (psLevels->apDataFiles[i] != nullptr) { FREE(psLevels->apDataFiles[i]); } }
+    delete[] psLevels->pName;
+    psLevels->pName = nullptr;
+    for (i = 0; i < LEVEL_MAXFILES; i++) { if (psLevels->apDataFiles[i] != nullptr) { delete[] psLevels->apDataFiles[i]; } }
     psNext = psLevels->psNext;
-    FREE(psLevels);
+    delete[] psLevels;
     psLevels = psNext;
   }
 }
@@ -126,7 +127,7 @@ void levError(STRING* pError)
 #ifdef DEBUG
   DEBUG_ASSERT_TEXT(FALSE, "Level File parse error:\n{} at line {} text {}\n", pError, line, pText);
 #else
-  DBERROR(("Level File parse error:\n%s at line %d text %s\n", pError, line, pText));
+  Neuron::Fatal("Level File parse error:\n{} at line {} text {}\n", pError, line, pText);
 #endif
 }
 
@@ -178,7 +179,7 @@ BOOL levParse(UBYTE* pBuffer, SDWORD size)
       if (state == LP_START || state == LP_WAITDATA)
       {
         // start a new level data set
-        psDataSet = static_cast<LEVEL_DATASET*>(MALLOC(sizeof(LEVEL_DATASET)));
+        psDataSet = new (std::nothrow) LEVEL_DATASET[1];
         if (!psDataSet)
         {
           levError("Out of memory");
@@ -337,7 +338,7 @@ BOOL levParse(UBYTE* pBuffer, SDWORD size)
         }
 #endif
         // store the level name
-        psDataSet->pName = static_cast<STRING*>(MALLOC(strlen(pLevToken) + 1));
+        psDataSet->pName = new (std::nothrow) STRING[strlen(pLevToken) + 1];
         if (!psDataSet->pName)
         {
           levError("Out of memory");
@@ -376,7 +377,7 @@ BOOL levParse(UBYTE* pBuffer, SDWORD size)
           psDataSet->game = static_cast<SWORD>(currData);
 
         // store the data name
-        psDataSet->apDataFiles[currData] = static_cast<STRING*>(MALLOC(strlen(pLevToken) + 1));
+        psDataSet->apDataFiles[currData] = new (std::nothrow) STRING[strlen(pLevToken) + 1];
         if (!psDataSet->apDataFiles[currData])
         {
           levError("Out of memory");
@@ -423,17 +424,11 @@ BOOL levReleaseMissionData(void)
     if (!stageThreeShutDown())
       return FALSE;
 
-    if ((psCurrLevel->type == LDS_COMPLETE || psCurrLevel->type >= MULTI_TYPE_START) && psCurrLevel->game == -1)
-    {
-      BLOCK_RESET(psMissionHeap);
-    }
-
     // free up the old data
     for (i = LEVEL_MAXFILES - 1; i >= 0; i--)
     {
       if (i == psCurrLevel->game)
       {
-        BLOCK_RESET(psMissionHeap);
         if (psCurrLevel->psBaseData == nullptr)
         {
           if (!stageTwoShutDown())
@@ -443,7 +438,6 @@ BOOL levReleaseMissionData(void)
       else // if (psCurrLevel->apDataFiles[i])
         resReleaseBlockData(i + CURRENT_DATAID);
     }
-    if (psCurrLevel->type == LDS_BETWEEN) { BLOCK_RESET(psMissionHeap); }
   }
 
   return TRUE;
@@ -478,8 +472,6 @@ BOOL levReleaseAll(void)
 
     if (!stageOneShutDown())
       return FALSE;
-
-    BLOCK_RESET(psGameHeap);
   }
 
   psCurrLevel = nullptr;
@@ -500,15 +492,10 @@ BOOL levLoadSingleWRF(STRING* pName)
   // load up the WRF
   if (!stageOneInitialise())
     return FALSE;
-  BLOCK_RESET(psGameHeap);
-  memSetBlockHeap(psGameHeap);
   // load the data
-  DBPRINTF(("Loading %s ...\n", pName));
-  if (!resLoad(pName, 0, DisplayBuffer, displayBufferSize, psGameHeap))
+  Neuron::DebugTrace("Loading {} ...\n", pName);
+  if (!resLoad(pName, 0, DisplayBuffer, displayBufferSize))
     return FALSE;
-
-  BLOCK_RESET(psMissionHeap);
-  memSetBlockHeap(psMissionHeap);
 
   if (!stageThreeInitialise())
     return FALSE;
@@ -523,12 +510,12 @@ BOOL levLoadBaseData(STRING* pName)
   LEVEL_DATASET *psNewLevel, *psBaseData;
   SDWORD i;
 
-  DBPRINTF(("Loading base data for level %s\n", pName));
+  Neuron::DebugTrace("Loading base data for level {}\n", pName);
 
   // find the level dataset
   if (!levFindDataSet(pName, &psNewLevel))
   {
-    DBERROR(("levLoadBaseData: couldn't find level data"));
+    Neuron::Fatal("levLoadBaseData: couldn't find level data");
     return FALSE;
   }
 
@@ -539,18 +526,14 @@ BOOL levLoadBaseData(STRING* pName)
 #endif
   )
   {
-    DBERROR(("levLoadBaseData: incorect level type"));
+    Neuron::Fatal("levLoadBaseData: incorect level type");
     return FALSE;
   }
 
   // clear all the old data
   levReleaseAll();
 
-  // basic game data is loaded in the game heap
-  memSetBlockHeap(psGameHeap);
-
   // initialise
-  BLOCK_RESET(psGameHeap);
   if (!stageOneInitialise())
     return FALSE;
 
@@ -561,8 +544,8 @@ BOOL levLoadBaseData(STRING* pName)
     if (psBaseData->apDataFiles[i])
     {
       // load the data
-      DBPRINTF(("Loading %s ...\n", psBaseData->apDataFiles[i]));
-      if (!resLoad(psBaseData->apDataFiles[i], i, DisplayBuffer, displayBufferSize, psGameHeap))
+      Neuron::DebugTrace("Loading {} ...\n", psBaseData->apDataFiles[i]);
+      if (!resLoad(psBaseData->apDataFiles[i], i, DisplayBuffer, displayBufferSize))
         return FALSE;
     }
   }
@@ -579,10 +562,9 @@ BOOL levLoadData(STRING* pName, STRING* pSaveName, SDWORD saveType)
 {
   LEVEL_DATASET *psNewLevel, *psBaseData, *psChangeLevel;
   SDWORD i;
-  BLOCK_HEAP* psCurrHeap;
   BOOL bCamChangeSaveGame;
 
-  DBPRINTF(("Loading level %s\n", pName));
+  Neuron::DebugTrace("Loading level {}\n", pName);
 
   // reset fog
   //	pie_EnableFog(FALSE);//removed, always set by script or save game
@@ -592,7 +574,7 @@ BOOL levLoadData(STRING* pName, STRING* pSaveName, SDWORD saveType)
   // find the level dataset
   if (!levFindDataSet(pName, &psNewLevel))
   {
-    DBMB(("levLoadData: dataset %s not found - trying to load as WRF", pName));
+    Neuron::DebugTrace("levLoadData: dataset {} not found - trying to load as WRF", pName);
     return levLoadSingleWRF(pName);
   }
 
@@ -611,7 +593,7 @@ BOOL levLoadData(STRING* pName, STRING* pSaveName, SDWORD saveType)
   if (((psNewLevel->psChange != nullptr) && (psCurrLevel != nullptr)) OR bCamChangeSaveGame)
   {
     //store the level name
-    DBP0(("levLoadData: Found CAMCHANGE dataset\n"));
+    Neuron::DebugTrace("levLoadData: Found CAMCHANGE dataset\n");
     psChangeLevel = psNewLevel;
     psNewLevel = psNewLevel->psChange;
   }
@@ -619,7 +601,7 @@ BOOL levLoadData(STRING* pName, STRING* pSaveName, SDWORD saveType)
   // ensure the correct dataset is loaded
   if (psNewLevel->type == LDS_CAMPAIGN)
   {
-    DBERROR(("levLoadData: Cannot load a campaign dataset (%s)", psNewLevel->pName));
+    Neuron::Fatal("levLoadData: Cannot load a campaign dataset ({})", psNewLevel->pName);
     return FALSE;
   }
   if (psCurrLevel != nullptr)
@@ -628,7 +610,7 @@ BOOL levLoadData(STRING* pName, STRING* pSaveName, SDWORD saveType)
       psCurrLevel->type >= LDS_NONE && psNewLevel->type < LDS_NONE))
     {
       // there is a dataset loaded but it isn't the correct one
-      DBP0(("levLoadData: Incorrect base dataset loaded - levReleaseAll()\n"));
+      Neuron::DebugTrace("levLoadData: Incorrect base dataset loaded - levReleaseAll()\n");
       levReleaseAll(); // this sets psCurrLevel to NULL
     }
   }
@@ -638,13 +620,13 @@ BOOL levLoadData(STRING* pName, STRING* pSaveName, SDWORD saveType)
   {
 #ifdef DEBUG_GROUP0
     if (psNewLevel->psBaseData != nullptr)
-      DBP0(("levLoadData: Setting base dataset to load: %s\n", psNewLevel->psBaseData->pName));
+      Neuron::DebugTrace("levLoadData: Setting base dataset to load: {}\n", psNewLevel->psBaseData->pName);
 #endif
     psBaseData = psNewLevel->psBaseData;
   }
   else
   {
-    DBP0(("levLoadData: No base dataset to load\n"));
+    Neuron::DebugTrace("levLoadData: No base dataset to load\n");
     psBaseData = nullptr;
   }
 
@@ -655,7 +637,7 @@ BOOL levLoadData(STRING* pName, STRING* pSaveName, SDWORD saveType)
   // reset the old mission data if necessary
   if (psCurrLevel != nullptr)
   {
-    DBP0(("levLoadData: reseting old mission data\n"));
+    Neuron::DebugTrace("levLoadData: reseting old mission data\n");
     if (!gameReset())
       return FALSE;
     if (!levReleaseMissionData())
@@ -669,16 +651,13 @@ BOOL levLoadData(STRING* pName, STRING* pSaveName, SDWORD saveType)
       return FALSE;
   }
 
-  // basic game data is loaded in the game heap
-  DBP0(("levLoadData: Setting game heap\n"));
-  memSetBlockHeap(psGameHeap);
+  Neuron::DebugTrace("levLoadData: Setting game heap\n");
 
   // initialise if necessary
   if (psNewLevel->type == LDS_COMPLETE || //psNewLevel->type >= MULTI_TYPE_START ||
     psBaseData != nullptr)
   {
-    DBP0(("levLoadData: reset game heap\n"));
-    BLOCK_RESET(psGameHeap);
+    Neuron::DebugTrace("levLoadData: reset game heap\n");
     if (!stageOneInitialise())
       return FALSE;
   }
@@ -686,14 +665,14 @@ BOOL levLoadData(STRING* pName, STRING* pSaveName, SDWORD saveType)
   // load up a base dataset if necessary
   if (psBaseData != nullptr)
   {
-    DBP0(("levLoadData: loading base dataset %s\n", psBaseData->pName));
+    Neuron::DebugTrace("levLoadData: loading base dataset {}\n", psBaseData->pName);
     for (i = 0; i < LEVEL_MAXFILES; i++)
     {
       if (psBaseData->apDataFiles[i])
       {
         // load the data
-        DBPRINTF(("Loading %s ...\n", psBaseData->apDataFiles[i]));
-        if (!resLoad(psBaseData->apDataFiles[i], i, DisplayBuffer, displayBufferSize, psGameHeap))
+        Neuron::DebugTrace("Loading {} ...\n", psBaseData->apDataFiles[i]);
+        if (!resLoad(psBaseData->apDataFiles[i], i, DisplayBuffer, displayBufferSize))
           return FALSE;
       }
     }
@@ -708,7 +687,7 @@ BOOL levLoadData(STRING* pName, STRING* pSaveName, SDWORD saveType)
   if (psNewLevel->game == -1) //no .gam file to load - BETWEEN missions (for Editor games only)
   {
     DEBUG_ASSERT_TEXT(psNewLevel->type == LDS_BETWEEN, "levLoadData: only BETWEEN missions do not need a .gam file");
-    DBP0(("levLoadData: no .gam file for level: BETWEEN mission\n"));
+    Neuron::DebugTrace("levLoadData: no .gam file for level: BETWEEN mission\n");
     if (pSaveName != nullptr)
     {
       if (psBaseData != nullptr)
@@ -717,22 +696,20 @@ BOOL levLoadData(STRING* pName, STRING* pSaveName, SDWORD saveType)
           return FALSE;
       }
 
-      DBP0(("levLoadData: setting map heap\n"));
-      BLOCK_RESET(psMapHeap);
-      memSetBlockHeap(psMapHeap);
+      Neuron::DebugTrace("levLoadData: setting map heap\n");
 
       //set the mission type before the saveGame data is loaded
       if (saveType == GTYPE_SAVE_MIDMISSION)
       {
-        DBP0(("levLoadData: init mission stuff\n"));
+        Neuron::DebugTrace("levLoadData: init mission stuff\n");
         if (!startMissionSave(psNewLevel->type))
           return FALSE;
 
-        DBP0(("levLoadData: dataSetSaveFlag\n"));
+        Neuron::DebugTrace("levLoadData: dataSetSaveFlag\n");
         dataSetSaveFlag();
       }
 
-      DBP0(("levLoadData: loading savegame: %s\n", pSaveName));
+      Neuron::DebugTrace("levLoadData: loading savegame: {}\n", pSaveName);
       if (!loadGame(pSaveName, FALSE, TRUE,TRUE))
         return FALSE;
 
@@ -742,20 +719,18 @@ BOOL levLoadData(STRING* pName, STRING* pSaveName, SDWORD saveType)
 
     if ((pSaveName == nullptr) || (saveType == GTYPE_SAVE_START))
     {
-      DBP0(("levLoadData: start mission - no .gam\n"));
+      Neuron::DebugTrace("levLoadData: start mission - no .gam\n");
       if (!startMission(psNewLevel->type, nullptr))
         return FALSE;
     }
 
-    DBP0(("levLoadData: setting mission heap\n"));
-    BLOCK_RESET(psMissionHeap);
-    memSetBlockHeap(psMissionHeap);
+    Neuron::DebugTrace("levLoadData: setting mission heap\n");
   }
 
   //we need to load up the save game data here for a camchange
   if (bCamChangeSaveGame)
   {
-    DBP0(("levLoadData: no .gam file for level: BETWEEN mission\n"));
+    Neuron::DebugTrace("levLoadData: no .gam file for level: BETWEEN mission\n");
     if (pSaveName != nullptr)
     {
       if (psBaseData != nullptr)
@@ -764,11 +739,9 @@ BOOL levLoadData(STRING* pName, STRING* pSaveName, SDWORD saveType)
           return FALSE;
       }
 
-      DBP0(("levLoadData: setting map heap\n"));
-      BLOCK_RESET(psMapHeap);
-      memSetBlockHeap(psMapHeap);
+      Neuron::DebugTrace("levLoadData: setting map heap\n");
 
-      DBP0(("levLoadData: loading savegame: %s\n", pSaveName));
+      Neuron::DebugTrace("levLoadData: loading savegame: {}\n", pSaveName);
       if (!loadGame(pSaveName, FALSE, TRUE,TRUE))
         return FALSE;
 
@@ -783,8 +756,7 @@ BOOL levLoadData(STRING* pName, STRING* pSaveName, SDWORD saveType)
   }
 
   // load the new data
-  DBP0(("levLoadData: loading mission dataset: %s\n", psNewLevel->pName));
-  psCurrHeap = memGetBlockHeap();
+  Neuron::DebugTrace("levLoadData: loading mission dataset: {}\n", psNewLevel->pName);
   for (i = 0; i < LEVEL_MAXFILES; i++)
   {
     if (psNewLevel->game == i)
@@ -796,46 +768,35 @@ BOOL levLoadData(STRING* pName, STRING* pSaveName, SDWORD saveType)
         if (!stageTwoInitialise())
           return FALSE;
 
-        DBP0(("levLoadData: setting map heap\n"));
-        BLOCK_RESET(psMapHeap);
-        memSetBlockHeap(psMapHeap);
-        psCurrHeap = psMapHeap;
+        Neuron::DebugTrace("levLoadData: setting map heap\n");
       }
 
-      // missions with a seperate map have to use the mission heap now
       if ((psNewLevel->type == LDS_MKEEP
 #ifndef COVERMOUNT
         || psNewLevel->type == LDS_MCLEAR || psNewLevel->type == LDS_MKEEP_LIMBO
 #endif
       ) && pSaveName == nullptr)
       {
-        DBP0(("levLoadData: setting mission heap\n"));
-        BLOCK_RESET(psMissionHeap);
-        memSetBlockHeap(psMissionHeap);
-        psCurrHeap = psMissionHeap;
+        Neuron::DebugTrace("levLoadData: setting mission heap\n");
       }
 
       // load a savegame if there is one - but not if already done so
       if (pSaveName != nullptr AND !bCamChangeSaveGame)
       {
-        // make sure the map gets loaded into the right heap
-        DBP0(("levLoadData: setting map heap\n"));
-        BLOCK_RESET(psMapHeap);
-        memSetBlockHeap(psMapHeap);
-        psCurrHeap = psMapHeap;
+        Neuron::DebugTrace("levLoadData: setting map heap\n");
 
         //set the mission type before the saveGame data is loaded
         if (saveType == GTYPE_SAVE_MIDMISSION)
         {
-          DBP0(("levLoadData: init mission stuff\n"));
+          Neuron::DebugTrace("levLoadData: init mission stuff\n");
           if (!startMissionSave(psNewLevel->type))
             return FALSE;
 
-          DBP0(("levLoadData: dataSetSaveFlag\n"));
+          Neuron::DebugTrace("levLoadData: dataSetSaveFlag\n");
           dataSetSaveFlag();
         }
 
-        DBP0(("levLoadData: loading save game %s\n", pSaveName));
+        Neuron::DebugTrace("levLoadData: loading save game {}\n", pSaveName);
         if (!loadGame(pSaveName, FALSE, TRUE,TRUE))
           return FALSE;
 
@@ -849,56 +810,56 @@ BOOL levLoadData(STRING* pName, STRING* pSaveName, SDWORD saveType)
       if ((pSaveName == nullptr) || (saveType == GTYPE_SAVE_START))
       {
         // load the game
-        DBPRINTF(("Loading scenario file %s ...", psNewLevel->apDataFiles[i]));
+        Neuron::DebugTrace("Loading scenario file {} ...", psNewLevel->apDataFiles[i]);
         switch (psNewLevel->type)
         {
         case LDS_COMPLETE:
-        case LDS_CAMSTART: DBPRINTF(("COMPLETE / CAMSTART\n"));
+        case LDS_CAMSTART: Neuron::DebugTrace("COMPLETE / CAMSTART\n");
           //if (!startMission(MISSION_CAMPSTART, psNewLevel->apDataFiles[i]))
           if (!startMission(LDS_CAMSTART, psNewLevel->apDataFiles[i]))
             return FALSE;
           break;
-        case LDS_BETWEEN: DBPRINTF(("BETWEEN\n"));
+        case LDS_BETWEEN: Neuron::DebugTrace("BETWEEN\n");
           if (!startMission(LDS_BETWEEN, psNewLevel->apDataFiles[i]))
             return FALSE;
           break;
 
-        case LDS_MKEEP: DBPRINTF(("MKEEP\n"));
+        case LDS_MKEEP: Neuron::DebugTrace("MKEEP\n");
           //if (!startMission(MISSION_OFFKEEP, psNewLevel->apDataFiles[i]))
           if (!startMission(LDS_MKEEP, psNewLevel->apDataFiles[i]))
             return FALSE;
           break;
 #ifndef COVERMOUNT
-        case LDS_CAMCHANGE: DBPRINTF(("CAMCHANGE\n"));
+        case LDS_CAMCHANGE: Neuron::DebugTrace("CAMCHANGE\n");
           //if (!startMission(MISSION_CAMPSTART, psNewLevel->apDataFiles[i]))
           if (!startMission(LDS_CAMCHANGE, psNewLevel->apDataFiles[i]))
             return FALSE;
           break;
 
-        case LDS_EXPAND: DBPRINTF(("EXPAND\n"));
+        case LDS_EXPAND: Neuron::DebugTrace("EXPAND\n");
           //if (!startMission(MISSION_CAMPEXPAND, psNewLevel->apDataFiles[i]))
           if (!startMission(LDS_EXPAND, psNewLevel->apDataFiles[i]))
             return FALSE;
           break;
-        case LDS_EXPAND_LIMBO: DBPRINTF(("EXPAND_LIMBO\n"));
+        case LDS_EXPAND_LIMBO: Neuron::DebugTrace("EXPAND_LIMBO\n");
           //if (!startMission(MISSION_CAMPEXPAND, psNewLevel->apDataFiles[i]))
           if (!startMission(LDS_EXPAND_LIMBO, psNewLevel->apDataFiles[i]))
             return FALSE;
           break;
 
-        case LDS_MCLEAR: DBPRINTF(("MCLEAR\n"));
+        case LDS_MCLEAR: Neuron::DebugTrace("MCLEAR\n");
           //if (!startMission(MISSION_OFFCLEAR, psNewLevel->apDataFiles[i]))
           if (!startMission(LDS_MCLEAR, psNewLevel->apDataFiles[i]))
             return FALSE;
           break;
-        case LDS_MKEEP_LIMBO: DBPRINTF(("MKEEP_LIMBO\n"));
+        case LDS_MKEEP_LIMBO: Neuron::DebugTrace("MKEEP_LIMBO\n");
           //if (!startMission(MISSION_OFFKEEP, psNewLevel->apDataFiles[i]))
           if (!startMission(LDS_MKEEP_LIMBO, psNewLevel->apDataFiles[i]))
             return FALSE;
           break;
 #endif
         default: DEBUG_ASSERT_TEXT(psNewLevel->type >= MULTI_TYPE_START, "levLoadData: Unexpected mission type");
-          DBPRINTF(("MULTIPLAYER\n"));
+          Neuron::DebugTrace("MULTIPLAYER\n");
           //if (!startMission(MISSION_CAMPSTART, psNewLevel->apDataFiles[i]))
           if (!startMission(LDS_CAMSTART, psNewLevel->apDataFiles[i]))
             return FALSE;
@@ -916,35 +877,17 @@ BOOL levLoadData(STRING* pName, STRING* pSaveName, SDWORD saveType)
         if (!newMapInitialise())
           return FALSE;
       }
-
-      // set the mission heap now if it isn't already being used
-      if (memGetBlockHeap() != psMissionHeap)
-      {
-        DBP0(("levLoadData: setting mission heap\n"));
-        BLOCK_RESET(psMissionHeap);
-        memSetBlockHeap(psMissionHeap);
-      }
-      psCurrHeap = psMissionHeap;
     }
     else if (psNewLevel->apDataFiles[i])
     {
       // load the data
-      DBPRINTF(("Loading %s ...\n", psNewLevel->apDataFiles[i]));
-      if (!resLoad(psNewLevel->apDataFiles[i], i + CURRENT_DATAID, DisplayBuffer, displayBufferSize, psCurrHeap))
+      Neuron::DebugTrace("Loading {} ...\n", psNewLevel->apDataFiles[i]);
+      if (!resLoad(psNewLevel->apDataFiles[i], i + CURRENT_DATAID, DisplayBuffer, displayBufferSize))
         return FALSE;
     }
   }
 
   dataClearSaveFlag();
-
-  // set the mission heap now if it isn't already being used
-  if (memGetBlockHeap() != psMissionHeap)
-  {
-    DBP0(("levLoadData: setting mission heap\n"));
-    BLOCK_RESET(psMissionHeap);
-    memSetBlockHeap(psMissionHeap);
-    psCurrHeap = psMissionHeap;
-  }
 
   if (pSaveName != nullptr)
   {
@@ -957,7 +900,7 @@ BOOL levLoadData(STRING* pName, STRING* pSaveName, SDWORD saveType)
   {
     //load script stuff
     // load the event system state here for a save game
-    DBP0(("levLoadData: loading script system state\n"));
+    Neuron::DebugTrace("levLoadData: loading script system state\n");
     if (!loadScriptState(pSaveName))
       return FALSE;
   }

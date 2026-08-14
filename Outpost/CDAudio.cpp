@@ -54,7 +54,7 @@ BOOL cdAudio_Open(void)
     mciSetParms.dwTimeFormat = MCI_FORMAT_TMSF;
     if ((dwReturn = mciSendCommand(g_wDeviceID, MCI_SET, MCI_SET_TIME_FORMAT, (DWORD)static_cast<LPVOID>(&mciSetParms))) != 0)
     {
-      DBPRINTF(("cdAudio_Open: set time format failed\n "));
+      Neuron::DebugTrace("cdAudio_Open: set time format failed\n ");
       mciSendCommand(g_wDeviceID, MCI_CLOSE, 0, (DWORD)&mciParams);
       return FALSE;
     }
@@ -102,7 +102,7 @@ BOOL cdAudio_PlayTrack(SDWORD iTrack)
   mciStatusParams.dwItem = MCI_STATUS_NUMBER_OF_TRACKS;
   if ((dwReturn = mciSendCommand(g_wDeviceID, MCI_STATUS, MCI_WAIT | MCI_STATUS_ITEM, (DWORD)static_cast<LPVOID>(&mciStatusParams))) != 0)
   {
-    DBPRINTF(("cdAudio_Play: get status failed\n "));
+    Neuron::DebugTrace("cdAudio_Play: get status failed\n ");
     goto CDPlayError;
   }
 
@@ -122,7 +122,7 @@ BOOL cdAudio_PlayTrack(SDWORD iTrack)
   mciPlayParms.dwCallback = MAKELONG(GetActiveWindow(), 0);
   if ((dwReturn = mciSendCommand(g_wDeviceID, MCI_PLAY, g_dwPlayFlags, (DWORD)static_cast<LPVOID>(&mciPlayParms))) != 0)
   {
-    DBPRINTF(("cdAudio_Play: play failed\n "));
+    Neuron::DebugTrace("cdAudio_Play: play failed\n ");
     goto CDPlayError;
   }
 
@@ -167,7 +167,7 @@ BOOL cdAudio_Pause(void)
   mciStatusParams.dwItem = MCI_STATUS_POSITION;
   if ((dwReturn = mciSendCommand(g_wDeviceID, MCI_STATUS, MCI_WAIT | MCI_STATUS_ITEM, (DWORD)static_cast<LPVOID>(&mciStatusParams))) != 0)
   {
-    DBPRINTF(("cdAudio_Pause: get position failed\n "));
+    Neuron::DebugTrace("cdAudio_Pause: get position failed\n ");
     return FALSE;
   }
 
@@ -191,7 +191,7 @@ BOOL cdAudio_Resume(void)
   dwReturn = mciSendCommand(g_wDeviceID, MCI_PLAY, 0, (DWORD)&mciPlayParams);
   if (dwReturn != 0)
   {
-    DBPRINTF(("cdAudio_Resume: unable to resume\n "));
+    Neuron::DebugTrace("cdAudio_Resume: unable to resume\n ");
     if (g_iCurTrack != CD_NO_TRACK_SELECTED)
       cdAudio_PlayTrack(g_iCurTrack);
   }

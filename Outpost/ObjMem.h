@@ -12,12 +12,6 @@
 //the died flag for a droid is set to this when it gets added to the non-current list
 #define     NOT_CURRENT_LIST        1
 
-/* The memory heaps for the different object types */
-extern OBJ_HEAP *psDroidHeap, *psStructHeap, *psFeatureHeap;
-
-// the memory heap for templates
-extern OBJ_HEAP* psTemplateHeap;
-
 /* The lists of objects allocated */
 extern DROID* apsDroidLists[MAX_PLAYERS];
 extern STRUCTURE* apsStructLists[MAX_PLAYERS];
@@ -27,10 +21,10 @@ extern FLAG_POSITION* apsFlagPosLists[MAX_PLAYERS];
 /* The list of destroyed objects */
 extern BASE_OBJECT* psDestroyedObj;
 
-/* Initialise the object heaps */
+/* Initialise the object system */
 extern BOOL objmemInitialise(void);
 
-/* Release the object heaps */
+/* Shut the object system down */
 extern void objmemShutdown(void);
 
 /* General housekeeping for the object system */
@@ -96,7 +90,7 @@ extern void freeAllAssemblyPoints(void);
 
 /* Create a new Structure Functionality*/
 extern BOOL createStructFunc(FUNCTIONALITY** ppsNew);
-/*remove a structure Functionality from the heap*/
+/* Release a Structure Functionality */
 extern void removeStructFunc(FUNCTIONALITY* psDel);
 
 // Find a base object from it's id

@@ -49,7 +49,6 @@
 #include "IntDisplay.h"
 #include "Radar.h"
 #include "Display3D.h"
-#include "Fractions.h"
 #include "Lighting.h"
 #include "Console.h"
 #include "AnimObj.h"
@@ -114,15 +113,15 @@
 
 static UWORD WaterTileID = WATER_TILE;
 static UWORD RiverBedTileID = BED_TILE;
-static FRACT waterRealValue = static_cast<FRACT>(0);
+static float waterRealValue = static_cast<float>(0);
 static SDWORD waterAlphaValue = 168; //jps 15Apr99 for d3d only
 #define WAVE_SPEED 4
 static SWORD vOffset = 1;
 #define	MAX_FIRE_STAGE	32
-static FRACT separation = static_cast<FRACT>(0);
+static float separation = static_cast<float>(0);
 static SDWORD acceleration = 0;
 static SDWORD heightSpeed = 0;
-static FRACT aSep;
+static float aSep;
 static SDWORD aAccel = 0;
 static SDWORD aSpeed = 0;
 
@@ -607,13 +606,13 @@ void drawTiles(iView* camera, iView* player)
 
   if (!gamePaused())
   {
-    FRACT fraction = MAKEFRACT(frameTime2) / GAME_TICKS_PER_SEC;
+    float fraction = static_cast<float>(frameTime2) / GAME_TICKS_PER_SEC;
     waterRealValue += (fraction * WAVE_SPEED);
-    vOffset = static_cast<SWORD>(MAKEINT(waterRealValue));
+    vOffset = static_cast<SWORD>(std::lrintf(waterRealValue));
     if (vOffset >= 64 / 2)
     {
       vOffset = 0;
-      waterRealValue = static_cast<FRACT>(0);
+      waterRealValue = static_cast<float>(0);
     }
   }
   /* Is the scene spinning? - showcase demo stuff */
@@ -1194,8 +1193,6 @@ void renderAnimComponent(COMPONENT_OBJECT* psObj)
   SDWORD iPlayer;
   auto psParentObj = static_cast<BASE_OBJECT*>(psObj->psParent);
   UDWORD brightness, specular;
-
-  DEBUG_ASSERT_TEXT(PTRVALID(psParentObj, sizeof(SIMPLE_OBJECT)), "renderAnimComponent: invalid parent object pointer");
 
   /* only draw visible bits */
   if ((psParentObj->type == OBJ_DROID) AND !godMode AND !demoGetStatus())
@@ -2786,8 +2783,6 @@ void renderDroid(DROID* psDroid)
 {
   //	ASSERT((psDroid->x != 0 && psDroid->y != 0,
 
-  //	ASSERT( (PTRVALID(psPropStats, sizeof(PROPULSION_STATS)),
-
   displayComponentObject((BASE_OBJECT*)psDroid);
   targetAdd((BASE_OBJECT*)psDroid);
 } // end Fn
@@ -2826,7 +2821,7 @@ void drawWeaponReloadBar(BASE_OBJECT* psObj, WEAPON* psWeap)
 
   /* ****************/
   // display unit resistance instead of reload!
-  FRACT mulH;
+  float mulH;
 
   if (ctrlShiftDown() && (psObj->type == OBJ_DROID))
   {
@@ -2837,10 +2832,10 @@ void drawWeaponReloadBar(BASE_OBJECT* psObj, WEAPON* psWeap)
     scrY += scrR + 2;
 
     if (psDroid->resistance)
-      mulH = MAKEFRACT(psDroid->resistance) / MAKEFRACT(droidResistance(psDroid));
+      mulH = static_cast<float>(psDroid->resistance) / static_cast<float>(droidResistance(psDroid));
     else
       mulH = 100;
-    firingStage = MAKEINT(mulH);
+    firingStage = std::lrintf(mulH);
     firingStage = ((((2 * scrR) * 10000) / 100) * firingStage) / 10000;
     if (firingStage >= static_cast<UDWORD>(2 * scrR))
       firingStage = (2 * scrR) - 1;
@@ -2935,7 +2930,7 @@ void drawStructureSelections(void)
   UDWORD scale;
   BOOL bMouseOverStructure = FALSE;
   BOOL bMouseOverOwnStructure = FALSE;
-  FRACT mulH;
+  float mulH;
 
   BASE_OBJECT* psClickedOn = mouseTarget();
   if (psClickedOn != nullptr AND psClickedOn->type == OBJ_STRUCTURE)
@@ -2986,9 +2981,9 @@ void drawStructureSelections(void)
           longPowerCol = 0x00ffff00; //yellow
         else
           longPowerCol = 0x00ff0000; //red
-        mulH = MAKEFRACT(health) / 100;
-        mulH *= MAKEFRACT(width);
-        health = MAKEINT(mulH);
+        mulH = static_cast<float>(health) / 100;
+        mulH *= static_cast<float>(width);
+        health = std::lrintf(mulH);
         if (health > width)
           health = width;
         health *= 2;
@@ -3010,9 +3005,9 @@ void drawStructureSelections(void)
           if (health >= 100)
             health = 100; // belt and braces
           powerCol = COL_YELLOW;
-          mulH = MAKEFRACT(health) / 100;
-          mulH *= MAKEFRACT(width);
-          health = MAKEINT(mulH);
+          mulH = static_cast<float>(health) / 100;
+          mulH *= static_cast<float>(width);
+          health = std::lrintf(mulH);
           if (health > width)
             health = width;
           health *= 2;
@@ -3207,7 +3202,7 @@ void drawDroidSelections(void)
   UDWORD longBoxCol;
   BOOL bMouseOverDroid = FALSE;
   BOOL bMouseOverOwnDroid = FALSE;
-  FRACT mulH;
+  float mulH;
 
   BASE_OBJECT* psClickedOn = mouseTarget();
   if (psClickedOn != nullptr AND psClickedOn->type == OBJ_DROID)
@@ -3261,8 +3256,8 @@ void drawDroidSelections(void)
       //            if (ctrlShiftDown())
       //                else
       //            else
-      mulH = MAKEFRACT(psDroid->body) / MAKEFRACT(psDroid->originalBody);
-      damage = MAKEINT(mulH * MAKEFRACT(psDroid->sDisplay.screenR)); // (((psDroid->sDisplay.screenR*10000)/100)*damage)/10000;
+      mulH = static_cast<float>(psDroid->body) / static_cast<float>(psDroid->originalBody);
+      damage = std::lrintf(mulH * static_cast<float>(psDroid->sDisplay.screenR)); // (((psDroid->sDisplay.screenR*10000)/100)*damage)/10000;
       if (damage > psDroid->sDisplay.screenR)
         damage = psDroid->sDisplay.screenR;
 
@@ -3361,13 +3356,13 @@ void drawDroidSelections(void)
         if (ctrlShiftDown())
         {
           if (psDroid->resistance)
-            mulH = MAKEFRACT(psDroid->resistance) / MAKEFRACT(droidResistance(psDroid));
+            mulH = static_cast<float>(psDroid->resistance) / static_cast<float>(droidResistance(psDroid));
           else
             mulH = 100;
         }
         else
-          mulH = MAKEFRACT(psDroid->body) / MAKEFRACT(psDroid->originalBody);
-        damage = MAKEINT(mulH * MAKEFRACT(psDroid->sDisplay.screenR)); // (((psDroid->sDisplay.screenR*10000)/100)*damage)/10000;
+          mulH = static_cast<float>(psDroid->body) / static_cast<float>(psDroid->originalBody);
+        damage = std::lrintf(mulH * static_cast<float>(psDroid->sDisplay.screenR)); // (((psDroid->sDisplay.screenR*10000)/100)*damage)/10000;
         if (damage > psDroid->sDisplay.screenR)
           damage = psDroid->sDisplay.screenR;
         damage *= 2;
@@ -4046,7 +4041,7 @@ iIMDShape* flattenImd(iIMDShape* imd, UDWORD structX, UDWORD structY, UDWORD dir
     }
     break;
 
-  default: DBERROR((FALSE,"Weirdy direction for a structure in renderWall"));
+  default: Neuron::Fatal("Weirdy direction for a structure in renderWall");
     break;
   }
   /*
@@ -4555,19 +4550,19 @@ void trackHeight(SDWORD desiredHeight)
   SDWORD angConcern;
 
   /* What fraction of a second did last game loop take */
-  FRACT fraction = (MAKEFRACT(frameTime2) / static_cast<FRACT>(GAME_TICKS_PER_SEC));
+  float fraction = (static_cast<float>(frameTime2) / static_cast<float>(GAME_TICKS_PER_SEC));
 
   /* How far are we from desired hieght? */
-  separation = static_cast<FRACT>(desiredHeight - player.p.y);
+  separation = static_cast<float>(desiredHeight - player.p.y);
 
   /* Work out accelertion... */
-  acceleration = MAKEINT(((ACCEL_CONSTANT * 2) * separation - (VELOCITY_CONSTANT) * static_cast<FRACT>(heightSpeed)));
+  acceleration = std::lrintf((ACCEL_CONSTANT * 2) * separation - (VELOCITY_CONSTANT) * static_cast<float>(heightSpeed));
 
   /* ...and now speed */
-  heightSpeed += MAKEINT((static_cast<FRACT>(acceleration) * fraction));
+  heightSpeed += std::lrintf(static_cast<float>(acceleration) * fraction);
 
   /* Adjust the height accordingly */
-  player.p.y += MAKEINT((static_cast<FRACT>(heightSpeed) * fraction));
+  player.p.y += std::lrintf(static_cast<float>(heightSpeed) * fraction);
 
   /* Now do auto pitch as well, but only if we're not using mouselook and not tracking */
   if (!getWarCamStatus() AND !getRotActive())
@@ -4594,19 +4589,19 @@ void trackHeight(SDWORD desiredHeight)
     else if (pitch > desPitch)
     {
       angConcern = DEG(360-pitch);
-      aSep = static_cast<FRACT>(angConcern - player.r.x);
-      aAccel = MAKEINT((((ACCEL_CONSTANT)) * aSep - (VELOCITY_CONSTANT) * static_cast<FRACT>(aSpeed)));
-      aSpeed += MAKEINT((static_cast<FRACT>(aAccel) * fraction));
-      player.r.x += MAKEINT((static_cast<FRACT>(aSpeed) * fraction));
+      aSep = static_cast<float>(angConcern - player.r.x);
+      aAccel = std::lrintf(((ACCEL_CONSTANT)) * aSep - (VELOCITY_CONSTANT) * static_cast<float>(aSpeed));
+      aSpeed += std::lrintf(static_cast<float>(aAccel) * fraction);
+      player.r.x += std::lrintf(static_cast<float>(aSpeed) * fraction);
     }
     else
     {
       /* Else, move towards player's last selected pitch */
       angConcern = DEG(360-desPitch);
-      aSep = static_cast<FRACT>(angConcern - player.r.x);
-      aAccel = MAKEINT((((ACCEL_CONSTANT)) * aSep - (VELOCITY_CONSTANT) * static_cast<FRACT>(aSpeed)));
-      aSpeed += MAKEINT((static_cast<FRACT>(aAccel) * fraction));
-      player.r.x += MAKEINT((static_cast<FRACT>(aSpeed) * fraction));
+      aSep = static_cast<float>(angConcern - player.r.x);
+      aAccel = std::lrintf(((ACCEL_CONSTANT)) * aSep - (VELOCITY_CONSTANT) * static_cast<float>(aSpeed));
+      aSpeed += std::lrintf(static_cast<float>(aAccel) * fraction);
+      player.r.x += std::lrintf(static_cast<float>(aSpeed) * fraction);
     }
   }
 }
@@ -5135,7 +5130,7 @@ static void addConstructionLine(DROID* psDroid, STRUCTURE* psStructure)
   iVector* point = &(psStructure->sDisplay.imd->points[pointIndex]);
 
   each.x = psStructure->x + point->x;
-  SDWORD realY = MAKEINT((structHeightScale(psStructure) * point->y));
+  SDWORD realY = std::lrintf(structHeightScale(psStructure) * point->y);
   each.y = psStructure->z + realY;
   each.z = psStructure->y - point->z;
 
@@ -5164,7 +5159,7 @@ static void addConstructionLine(DROID* psDroid, STRUCTURE* psStructure)
   point = &(psStructure->sDisplay.imd->points[pointIndex]);
 
   each.x = psStructure->x + point->x;
-  realY = MAKEINT((structHeightScale(psStructure) * point->y));
+  realY = std::lrintf(structHeightScale(psStructure) * point->y);
   each.y = psStructure->z + realY;
   each.z = psStructure->y - point->z;
 

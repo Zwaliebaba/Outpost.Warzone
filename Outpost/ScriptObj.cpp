@@ -387,7 +387,7 @@ STRING* scrGetStatName(INTERP_TYPE type, UDWORD data)
   }
 
   if (pName == nullptr)
-    DBERROR(("scrGetStatName: cannot get name for a base stat"));
+    Neuron::Fatal("scrGetStatName: cannot get name for a base stat");
 
   return pName;
 }
@@ -592,7 +592,7 @@ BOOL scrValDefLoad(SDWORD version, INTERP_TYPE type, UBYTE* pBuffer, UDWORD size
     else
     {
       if (!scrvGetBaseObj(*((UDWORD*)pBuffer), (BASE_OBJECT**)pData))
-        DBERROR(("scrValDefLoad: couldn't find object id %d", *((UDWORD*)pBuffer)));
+        Neuron::Fatal("scrValDefLoad: couldn't find object id {}", *((UDWORD*)pBuffer));
     }
     break;
   case ST_BASESTATS:
@@ -602,7 +602,7 @@ BOOL scrValDefLoad(SDWORD version, INTERP_TYPE type, UBYTE* pBuffer, UDWORD size
     index = getStructStatFromName((char*)pBuffer);
     if (index == -1)
     {
-      DBERROR(("scrValDefLoad: couldn't find structure stat %s", pBuffer));
+      Neuron::Fatal("scrValDefLoad: couldn't find structure stat {}", (char*)pBuffer);
       index = 0;
     }
     *pData = static_cast<UDWORD>(index);
@@ -611,7 +611,7 @@ BOOL scrValDefLoad(SDWORD version, INTERP_TYPE type, UBYTE* pBuffer, UDWORD size
     index = getFeatureStatFromName((char*)pBuffer);
     if (index == -1)
     {
-      DBERROR(("scrValDefLoad: couldn't find feature stat %s", pBuffer));
+      Neuron::Fatal("scrValDefLoad: couldn't find feature stat {}", (char*)pBuffer);
       index = 0;
     }
     *pData = static_cast<UDWORD>(index);
@@ -620,7 +620,7 @@ BOOL scrValDefLoad(SDWORD version, INTERP_TYPE type, UBYTE* pBuffer, UDWORD size
     index = getCompFromResName(COMP_BODY, (char*)pBuffer);
     if (index == -1)
     {
-      DBERROR(("scrValDefLoad: couldn't find body component %s", pBuffer));
+      Neuron::Fatal("scrValDefLoad: couldn't find body component {}", (char*)pBuffer);
       index = 0;
     }
     *pData = static_cast<UDWORD>(index);
@@ -629,7 +629,7 @@ BOOL scrValDefLoad(SDWORD version, INTERP_TYPE type, UBYTE* pBuffer, UDWORD size
     index = getCompFromResName(COMP_PROPULSION, (char*)pBuffer);
     if (index == -1)
     {
-      DBERROR(("scrValDefLoad: couldn't find propulsion component %s", pBuffer));
+      Neuron::Fatal("scrValDefLoad: couldn't find propulsion component {}", (char*)pBuffer);
       index = 0;
     }
     *pData = static_cast<UDWORD>(index);
@@ -638,7 +638,7 @@ BOOL scrValDefLoad(SDWORD version, INTERP_TYPE type, UBYTE* pBuffer, UDWORD size
     index = getCompFromResName(COMP_ECM, (char*)pBuffer);
     if (index == -1)
     {
-      DBERROR(("scrValDefLoad: couldn't find ECM component %s", pBuffer));
+      Neuron::Fatal("scrValDefLoad: couldn't find ECM component {}", (char*)pBuffer);
       index = 0;
     }
     *pData = static_cast<UDWORD>(index);
@@ -647,7 +647,7 @@ BOOL scrValDefLoad(SDWORD version, INTERP_TYPE type, UBYTE* pBuffer, UDWORD size
     index = getCompFromResName(COMP_SENSOR, (char*)pBuffer);
     if (index == -1)
     {
-      DBERROR(("scrValDefLoad: couldn't find sensor component %s", pBuffer));
+      Neuron::Fatal("scrValDefLoad: couldn't find sensor component {}", (char*)pBuffer);
       index = 0;
     }
     *pData = static_cast<UDWORD>(index);
@@ -656,7 +656,7 @@ BOOL scrValDefLoad(SDWORD version, INTERP_TYPE type, UBYTE* pBuffer, UDWORD size
     index = getCompFromResName(COMP_CONSTRUCT, (char*)pBuffer);
     if (index == -1)
     {
-      DBERROR(("scrValDefLoad: couldn't find constructor component %s", pBuffer));
+      Neuron::Fatal("scrValDefLoad: couldn't find constructor component {}", (char*)pBuffer);
       index = 0;
     }
     *pData = static_cast<UDWORD>(index);
@@ -665,7 +665,7 @@ BOOL scrValDefLoad(SDWORD version, INTERP_TYPE type, UBYTE* pBuffer, UDWORD size
     index = getCompFromResName(COMP_WEAPON, (char*)pBuffer);
     if (index == -1)
     {
-      DBERROR(("scrValDefLoad: couldn't find weapon %s", pBuffer));
+      Neuron::Fatal("scrValDefLoad: couldn't find weapon {}", (char*)pBuffer);
       index = 0;
     }
     *pData = static_cast<UDWORD>(index);
@@ -674,7 +674,7 @@ BOOL scrValDefLoad(SDWORD version, INTERP_TYPE type, UBYTE* pBuffer, UDWORD size
     index = getCompFromResName(COMP_REPAIRUNIT, (char*)pBuffer);
     if (index == -1)
     {
-      DBERROR(("scrValDefLoad: couldn't find repair component %s", pBuffer));
+      Neuron::Fatal("scrValDefLoad: couldn't find repair component {}", (char*)pBuffer);
       index = 0;
     }
     *pData = static_cast<UDWORD>(index);
@@ -683,7 +683,7 @@ BOOL scrValDefLoad(SDWORD version, INTERP_TYPE type, UBYTE* pBuffer, UDWORD size
     index = getCompFromResName(COMP_BRAIN, (char*)pBuffer);
     if (index == -1)
     {
-      DBERROR(("scrValDefLoad: couldn't find repair brain %s", pBuffer));
+      Neuron::Fatal("scrValDefLoad: couldn't find repair brain {}", (char*)pBuffer);
       index = 0;
     }
     *pData = static_cast<UDWORD>(index);
@@ -696,7 +696,7 @@ BOOL scrValDefLoad(SDWORD version, INTERP_TYPE type, UBYTE* pBuffer, UDWORD size
     {
       *((DROID_TEMPLATE**)pData) = IdToTemplate(id, ANYPLAYER);
       if (*pData == 0)
-        DBERROR(("scrValDefLoad: couldn't find template id %d", *((UDWORD *)pBuffer)));
+        Neuron::Fatal("scrValDefLoad: couldn't find template id {}", *((UDWORD *)pBuffer));
     }
     break;
   case ST_TEXTSTRING:
@@ -711,7 +711,7 @@ BOOL scrValDefLoad(SDWORD version, INTERP_TYPE type, UBYTE* pBuffer, UDWORD size
     else
     {
       if (!levFindDataSet((char*)pBuffer, &psLevel))
-        DBERROR(("scrValDefLoad: couldn't find level dataset %s", pBuffer));
+        Neuron::Fatal("scrValDefLoad: couldn't find level dataset {}", (char*)pBuffer);
       *((STRING**)pData) = psLevel->pName;
     }
     break;
@@ -722,7 +722,7 @@ BOOL scrValDefLoad(SDWORD version, INTERP_TYPE type, UBYTE* pBuffer, UDWORD size
     {
       *pData = (UDWORD)getResearch((char*)pBuffer, TRUE);
       if (*pData == 0)
-        DBERROR(("scrValDefLoad: couldn't find research %s", pBuffer));
+        Neuron::Fatal("scrValDefLoad: couldn't find research {}", (char*)pBuffer);
     }
     break;
   case ST_GROUP:
@@ -730,7 +730,7 @@ BOOL scrValDefLoad(SDWORD version, INTERP_TYPE type, UBYTE* pBuffer, UDWORD size
     {
       if (!grpCreate((DROID_GROUP**)pData))
       {
-        DBERROR(("scrValDefLoad: out of memory"));
+        Neuron::Fatal("scrValDefLoad: out of memory");
         break;
       }
       grpJoin(*((DROID_GROUP**)pData), nullptr);
@@ -780,7 +780,7 @@ BOOL scrValDefLoad(SDWORD version, INTERP_TYPE type, UBYTE* pBuffer, UDWORD size
     while (members > 0)
     {
       if (!scrvGetBaseObj(*((UDWORD*)pPos), (BASE_OBJECT**)&psCDroid))
-        DBERROR(("scrValDefLoad: couldn't find object id %d", *((UDWORD*)pBuffer)));
+        Neuron::Fatal("scrValDefLoad: couldn't find object id {}", *((UDWORD*)pBuffer));
       else
         grpJoin(*((DROID_GROUP**)pData), psCDroid);
 
@@ -797,7 +797,7 @@ BOOL scrValDefLoad(SDWORD version, INTERP_TYPE type, UBYTE* pBuffer, UDWORD size
       index = audio_GetAvailableID();
       if (index == SAMPLE_NOT_ALLOCATED)
       {
-        DBERROR(("Sound ID not available %s not found", pBuffer));
+        Neuron::Fatal("Sound ID not available {} not found", (char*)pBuffer);
         break;
       }
       // set track vals

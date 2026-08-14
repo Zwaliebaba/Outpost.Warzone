@@ -4,8 +4,6 @@
 #include "Slider.h"
 #include "RendMode.h"
 
-/* The widget heaps */
-OBJ_HEAP* psSldHeap;
 BOOL DragEnabled = TRUE;
 
 void sliderEnableDrag(BOOL Enable) { DragEnabled = Enable; }
@@ -46,11 +44,8 @@ BOOL sliderCreate(W_SLIDER** ppsWidget, W_SLDINIT* psInit)
   }
 
   /* Allocate the required memory */
-#if W_USE_MALLOC
-  *ppsWidget = (W_SLIDER*)MALLOC(sizeof(W_SLIDER)); if (*ppsWidget == NULL)
-#else
-  if (!HEAP_ALLOC(psSldHeap, ppsWidget))
-#endif
+  *ppsWidget = new (std::nothrow) W_SLIDER;
+  if (*ppsWidget == nullptr)
   {
     DEBUG_ASSERT_TEXT(FALSE, "sliderCreate: Out of memory");
     return FALSE;
@@ -102,24 +97,16 @@ BOOL sliderCreate(W_SLIDER** ppsWidget, W_SLDINIT* psInit)
 /* Free the memory used by a slider */
 void sliderFree(W_SLIDER* psWidget)
 {
-  DEBUG_ASSERT_TEXT(PTRVALID(psWidget, sizeof(W_SLIDER)), "sliderFree: Invalid widget pointer");
-
 #if W_USE_STRHEAP
   if (psWidget->pTip) { widgFreeString(psWidget->pTip); }
 #endif
 
-#if W_USE_MALLOC
-  FREE(psWidget);
-#else
-  HEAP_FREE(psSldHeap, psWidget);
-#endif
+  delete psWidget;
 }
 
 /* Initialise a slider widget before running it */
 void sliderInitialise(W_SLIDER* psWidget)
 {
-  DEBUG_ASSERT_TEXT(PTRVALID(psWidget, sizeof(W_SLIDER)), "sliderInitialise: Invalid slider pointer");
-
   psWidget->state = 0;
   psWidget->pos = 0;
 }
@@ -130,7 +117,6 @@ UDWORD widgGetSliderPos(W_SCREEN* psScreen, UDWORD id)
   WIDGET* psWidget;
 
   psWidget = widgGetFromID(psScreen, id);
-  DEBUG_ASSERT_TEXT(PTRVALID(psWidget, sizeof(W_SLIDER)), "widgGetSliderPos: couldn't find widget from id");
   if (psWidget)
     return ((W_SLIDER*)psWidget)->pos;
 
@@ -143,7 +129,6 @@ void widgSetSliderPos(W_SCREEN* psScreen, UDWORD id, UWORD pos)
   WIDGET* psWidget;
 
   psWidget = widgGetFromID(psScreen, id);
-  DEBUG_ASSERT_TEXT(PTRVALID(psWidget, sizeof(W_SLIDER)), "widgGetSliderPos: couldn't find widget from id");
   if (psWidget)
   {
     if (pos > ((W_SLIDER*)psWidget)->numStops)
