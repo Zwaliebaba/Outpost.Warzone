@@ -190,13 +190,13 @@ CALLBACK_SYMBOL	*asScrCallbackTab;
 	(psProg)->numArrays = (UWORD)(numArys); \
 	if ((numTrigs) > 0) \
 	{ \
-		(psProg)->pTriggerTab = MALLOC(sizeof(UWORD) * ((numTrigs) + 1)); \
+		(psProg)->pTriggerTab = (UWORD *)MALLOC(sizeof(UWORD) * ((numTrigs) + 1)); \
 		if ((psProg)->pTriggerTab == NULL) \
 		{ \
 			scr_error("Out of memory"); \
 			ALLOC_ERROR_ACTION; \
 		} \
-		(psProg)->psTriggerData = MALLOC(sizeof(TRIGGER_DATA) * (numTrigs)); \
+		(psProg)->psTriggerData = (TRIGGER_DATA *)MALLOC(sizeof(TRIGGER_DATA) * (numTrigs)); \
 		if ((psProg)->psTriggerData == NULL) \
 		{ \
 			scr_error("Out of memory"); \
@@ -208,13 +208,13 @@ CALLBACK_SYMBOL	*asScrCallbackTab;
 		(psProg)->pTriggerTab = NULL; \
 		(psProg)->psTriggerData = NULL; \
 	} \
-	(psProg)->pEventTab = MALLOC(sizeof(UWORD) * ((numEvnts) + 1)); \
+	(psProg)->pEventTab = (UWORD *)MALLOC(sizeof(UWORD) * ((numEvnts) + 1)); \
 	if ((psProg)->pEventTab == NULL) \
 	{ \
 		scr_error("Out of memory"); \
 		ALLOC_ERROR_ACTION; \
 	} \
-	(psProg)->pEventLinks = MALLOC(sizeof(SWORD) * (numEvnts)); \
+	(psProg)->pEventLinks = (SWORD *)MALLOC(sizeof(SWORD) * (numEvnts)); \
 	if ((psProg)->pEventLinks == NULL) \
 	{ \
 		scr_error("Out of memory"); \
@@ -398,7 +398,7 @@ CALLBACK_SYMBOL	*asScrCallbackTab;
 
 /* Allocate a trigger subdecl */
 #define ALLOC_TSUBDECL(psTSub, blockType, blockSize, blockTime) \
-	(psTSub) = MALLOC(sizeof(TRIGGER_DECL)); \
+	(psTSub) = (TRIGGER_DECL *)MALLOC(sizeof(TRIGGER_DECL)); \
 	if ((psTSub) == NULL) \
 	{ \
 		scr_error("Out of memory"); \
@@ -408,7 +408,7 @@ CALLBACK_SYMBOL	*asScrCallbackTab;
 	(psTSub)->time = (blockTime); \
 	if ((blockSize) > 0) \
 	{ \
-		(psTSub)->pCode = MALLOC(blockSize); \
+		(psTSub)->pCode = (UDWORD *)MALLOC(blockSize); \
 		if ((psTSub)->pCode == NULL) \
 		{ \
 			scr_error("Out of memory"); \
@@ -432,7 +432,7 @@ CALLBACK_SYMBOL	*asScrCallbackTab;
 
 /* Allocate a variable declaration block */
 #define ALLOC_VARDECL(psDcl) \
-	(psDcl)=MALLOC(sizeof(VAR_DECL)); \
+	(psDcl)= (VAR_DECL *)MALLOC(sizeof(VAR_DECL)); \
 	if ((psDcl) == NULL) \
 	{ \
 		scr_error("Out of memory"); \
@@ -445,7 +445,7 @@ CALLBACK_SYMBOL	*asScrCallbackTab;
 
 /* Allocate a variable declaration block */
 #define ALLOC_VARIDENTDECL(psDcl, ident, dim) \
-	(psDcl)=MALLOC(sizeof(VAR_IDENT_DECL)); \
+	(psDcl)= (VAR_IDENT_DECL *)MALLOC(sizeof(VAR_IDENT_DECL)); \
 	if ((psDcl) == NULL) \
 	{ \
 		scr_error("Out of memory"); \
@@ -453,7 +453,7 @@ CALLBACK_SYMBOL	*asScrCallbackTab;
 	} \
 	if ((ident) != NULL) \
 	{ \
-		(psDcl)->pIdent=MALLOC(strlen(ident)+1); \
+		(psDcl)->pIdent=(STRING *)MALLOC(strlen(ident)+1); \
 		if ((psDcl)->pIdent == NULL) \
 		{ \
 			scr_error("Out of memory"); \
@@ -631,7 +631,7 @@ static UDWORD		_baseOffset;
 #define DEBUG_LABEL(psBlock, offset, pString) \
 	if (genDebugInfo) \
 	{ \
-		(psBlock)->psDebug[offset].pLabel = MALLOC(strlen(pString)+1); \
+		(psBlock)->psDebug[offset].pLabel = (STRING *)MALLOC(strlen(pString)+1); \
 		if (!(psBlock)->psDebug[offset].pLabel) \
 		{ \
 			scr_error("Out of memory"); \
@@ -1735,7 +1735,7 @@ script:			header var_list
 					{
 						if (numVars > 0)
 						{
-							psFinalProg->psVarDebug = MALLOC(sizeof(VAR_DEBUG) * numVars);
+							psFinalProg->psVarDebug = (VAR_DEBUG *)MALLOC(sizeof(VAR_DEBUG) * numVars);
 							if (psFinalProg->psVarDebug == NULL)
 							{
 								scr_error("Out of memory");
@@ -1748,7 +1748,7 @@ script:			header var_list
 						}
 						if (numArrays > 0)
 						{
-							psFinalProg->psArrayDebug = MALLOC(sizeof(ARRAY_DEBUG) * numArrays);
+							psFinalProg->psArrayDebug = (ARRAY_DEBUG *)MALLOC(sizeof(ARRAY_DEBUG) * numArrays);
 							if (psFinalProg->psArrayDebug == NULL)
 							{
 								scr_error("Out of memory");
@@ -1775,7 +1775,7 @@ script:			header var_list
 						if (genDebugInfo)
 						{
 							psFinalProg->psVarDebug[i].pIdent =
-										MALLOC(strlen(psCurr->pIdent) + 1);
+										(STRING *)MALLOC(strlen(psCurr->pIdent) + 1);
 							if (psFinalProg->psVarDebug[i].pIdent == NULL)
 							{
 								scr_error("Out of memory");
@@ -1802,7 +1802,7 @@ script:			header var_list
 						if (genDebugInfo)
 						{
 							psFinalProg->psArrayDebug[i].pIdent =
-										MALLOC(strlen(psCurr->pIdent) + 1);
+										(STRING *)MALLOC(strlen(psCurr->pIdent) + 1);
 							if (psFinalProg->psArrayDebug[i].pIdent == NULL)
 							{
 								scr_error("Out of memory");
@@ -1941,7 +1941,7 @@ variable_ident:		IDENT
 			|
 					IDENT array_sub_decl_list
 					{
-						$2->pIdent = MALLOC(strlen($1)+1);
+						$2->pIdent = (STRING *)MALLOC(strlen($1)+1);
 						if ($2->pIdent == NULL)
 						{
 							scr_error("Out of memory");
@@ -3707,13 +3707,13 @@ BOOL scriptAddTrigger(STRING *pIdent, TRIGGER_DECL *psDecl, UDWORD line)
 	TRIGGER_SYMBOL		*psTrigger, *psCurr, *psPrev;
 
 	// Allocate the trigger
-	psTrigger = MALLOC(sizeof(TRIGGER_SYMBOL));
+	psTrigger = (TRIGGER_SYMBOL *)MALLOC(sizeof(TRIGGER_SYMBOL));
 	if (!psTrigger)
 	{
 		scr_error("Out of memory");
 		return FALSE;
 	}
-	psTrigger->pIdent = MALLOC(strlen(pIdent) + 1);
+	psTrigger->pIdent = (STRING *)MALLOC(strlen(pIdent) + 1);
 	if (!psTrigger->pIdent)
 	{
 		scr_error("Out of memory");
@@ -3722,7 +3722,7 @@ BOOL scriptAddTrigger(STRING *pIdent, TRIGGER_DECL *psDecl, UDWORD line)
 	strcpy(psTrigger->pIdent, pIdent);
 	if (psDecl->size > 0)
 	{
-		psTrigger->pCode = MALLOC(psDecl->size);
+		psTrigger->pCode = (UDWORD *)MALLOC(psDecl->size);
 		if (!psTrigger->pCode)
 		{
 			scr_error("Out of memory");
@@ -3743,7 +3743,7 @@ BOOL scriptAddTrigger(STRING *pIdent, TRIGGER_DECL *psDecl, UDWORD line)
 	// Add debug info
 	if (genDebugInfo)
 	{
-		psTrigger->psDebug = MALLOC(sizeof(SCRIPT_DEBUG));
+		psTrigger->psDebug = (SCRIPT_DEBUG *)MALLOC(sizeof(SCRIPT_DEBUG));
 		psTrigger->psDebug[0].offset = 0;
 		psTrigger->psDebug[0].line = line;
 		psTrigger->debugEntries = 1;
@@ -3819,13 +3819,13 @@ BOOL scriptDeclareEvent(STRING *pIdent, EVENT_SYMBOL **ppsEvent)
 	EVENT_SYMBOL		*psEvent, *psCurr, *psPrev;
 
 	// Allocate the event
-	psEvent = MALLOC(sizeof(EVENT_SYMBOL));
+	psEvent = (EVENT_SYMBOL *)MALLOC(sizeof(EVENT_SYMBOL));
 	if (!psEvent)
 	{
 		scr_error("Out of memory");
 		return FALSE;
 	}
-	psEvent->pIdent = MALLOC(strlen(pIdent) + 1);
+	psEvent->pIdent = (STRING *)MALLOC(strlen(pIdent) + 1);
 	if (!psEvent->pIdent)
 	{
 		scr_error("Out of memory");
@@ -3863,7 +3863,7 @@ BOOL scriptDeclareEvent(STRING *pIdent, EVENT_SYMBOL **ppsEvent)
 BOOL scriptDefineEvent(EVENT_SYMBOL *psEvent, CODE_BLOCK *psCode, SDWORD trigger)
 {
 	// Store the event code
-	psEvent->pCode = MALLOC(psCode->size);
+	psEvent->pCode = (UDWORD *)MALLOC(psCode->size);
 	if (!psEvent->pCode)
 	{
 		scr_error("Out of memory");
@@ -3876,7 +3876,7 @@ BOOL scriptDefineEvent(EVENT_SYMBOL *psEvent, CODE_BLOCK *psCode, SDWORD trigger
 	// Add debug info
 	if (genDebugInfo)
 	{
-		psEvent->psDebug = MALLOC(sizeof(SCRIPT_DEBUG) * psCode->debugEntries);
+		psEvent->psDebug = (SCRIPT_DEBUG *)MALLOC(sizeof(SCRIPT_DEBUG) * psCode->debugEntries);
 		if (!psEvent->psDebug)
 		{
 			scr_error("Out of memory");

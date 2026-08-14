@@ -124,4 +124,7 @@ extern BOOL wallDefenceStruct(STRUCTURE_STATS *psStats);
 
 extern void enableSelfRepair(UBYTE player);
 
+
+extern void CancelAllResearch(UDWORD pl);
+
 #endif //research.h

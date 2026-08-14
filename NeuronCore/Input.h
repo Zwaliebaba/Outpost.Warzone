@@ -16,7 +16,12 @@
 #include "Types.h"
 
 /* The defines for all the key codes */
-typedef enum _key_code
+/* DirectInput scan codes.  The value space is open: KeyMap.h defines
+   KEY_IGNORE (5190) outside this list and passes it where a KEY_CODE is
+   expected, and key bindings compute codes arithmetically.  As with
+   INTERP_TYPE, the constants live in an anonymous enum and the type is an
+   integer typedef, so base and out-of-list values share one type. */
+enum
 {
 	KEY_ESC         =0x01,
 	KEY_1           =0x02,
@@ -120,7 +125,8 @@ typedef enum _key_code
 /*	KEY_PAUSE           =E1 10 45,
 	KEY_PRINTSCR        =E0 2A E037*/
  
-} KEY_CODE;
+};
+typedef SDWORD KEY_CODE;
 
 /* The largest possible scan code (probably a lot less than this but ...) */
 //      but ...    it's not as if it's got to fit into 2meg of mem or anything is it ...

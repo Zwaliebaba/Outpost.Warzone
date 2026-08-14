@@ -18,8 +18,13 @@
 
 /* Basic numeric types */
 typedef unsigned	char	UBYTE;
-typedef	signed		char	SBYTE;
-typedef signed		char	STRING;
+/* SBYTE and STRING are both plain char rather than signed char.  Much of the
+   codebase uses them for text, and a string literal is a char array: signed
+   char is a distinct type from char in C++, so those calls will not compile
+   otherwise.  MSVC's default char is signed, so this is identical in
+   representation to the signed char they used to be. */
+typedef				char	SBYTE;
+typedef				char	STRING;
 typedef	unsigned	short	UWORD;
 typedef	signed		short	SWORD;
 typedef	unsigned	int		UDWORD;

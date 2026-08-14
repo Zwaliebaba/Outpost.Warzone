@@ -108,7 +108,7 @@ void heapReport(void);
 
 #define HEAP_ALLOC(psHeap, ppObject) \
 	(heapSetCallPos(__FILE__, __LINE__), \
-	 heapAlloc(psHeap, ppObject))
+	 heapAlloc(psHeap, (void **)(ppObject)))
 
 #else
 
@@ -116,7 +116,7 @@ void heapReport(void);
 	heapCreate(ppsHeap, size, init, ext)
 
 #define HEAP_ALLOC(psHeap, ppObject) \
-	heapAlloc(psHeap, ppObject)
+	heapAlloc(psHeap, (void **)(ppObject))
 
 #endif
 

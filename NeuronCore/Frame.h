@@ -92,7 +92,7 @@ extern UDWORD frameGetOverallRate(void);
 extern UDWORD frameGetRecentRate(void);
 
 /* The handle for the application window */
-extern HANDLE	frameGetWinHandle(void);
+extern HWND	frameGetWinHandle(void);
 
 //enumerate all available direct draw devices
 extern BOOL frameDDEnumerate(void);

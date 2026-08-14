@@ -6,8 +6,17 @@
 #ifndef _interp_h
 #define _interp_h
 
-/* The possible value types for scripts */
-typedef enum _interp_type
+/* The possible value types for scripts.
+
+   This id space is deliberately open ended: VAL_USERTYPESTART is an extension
+   point, and the game adds its own ids beyond it (see SCR_USER_TYPES in
+   ScriptTabs.h).  INTERP_TYPE is therefore an integer typedef rather than an
+   enum type, so base and extended ids share one type -- in C++ two enums are
+   distinct types and cannot be mixed.  The constants stay in an anonymous
+   enum, which keeps them usable as case labels.  SDWORD matches the int MSVC
+   gives an enum, so sizeof(INTERP_TYPE), which script serialisation depends
+   on, is unchanged. */
+enum
 {
 	// Basic types
 	VAL_BOOL,
@@ -23,7 +32,8 @@ typedef enum _interp_type
 	VAL_VOID,
 
 	VAL_USERTYPESTART,		// user defined types should start with this id
-} INTERP_TYPE;
+};
+typedef SDWORD INTERP_TYPE;
 
 // flag to specify a variable reference rather than simple value
 #define VAL_REF		0x00100000
@@ -57,7 +67,9 @@ typedef struct _interp_typeequiv
 } TYPE_EQUIV;
 
 /* Opcodes for the script interpreter */
-typedef enum _op_code
+/* Script opcodes are unpacked from a word by shifting, so the type has to
+   accept a computed value, not only the listed constants. */
+enum
 {
 	OP_PUSH,		// Push value onto stack
 	OP_PUSHREF,		// Push a pointer to a variable onto the stack
@@ -103,7 +115,8 @@ typedef enum _op_code
 	OP_LESSEQUAL,
 	OP_GREATER,
 	OP_LESS,
-} OPCODE;
+};
+typedef SDWORD OPCODE;
 
 /* How far the opcode is shifted up a UDWORD to allow other data to be
  * stored in the same UDWORD
@@ -168,8 +181,10 @@ typedef struct _script_debug
 	STRING	*pLabel;	// the trigger/event that starts at this line
 } SCRIPT_DEBUG;
 
-/* Different types of triggers */
-typedef enum _trigger_type
+/* Different types of triggers.  Open ended in the same way as INTERP_TYPE
+   above: the game's callback triggers continue from TR_CALLBACKSTART, so the
+   type is an integer typedef and the constants live in an anonymous enum. */
+enum
 {
 	TR_INIT,		// Trigger fires when the script is first run
 	TR_CODE,		// Trigger uses script code
@@ -178,7 +193,8 @@ typedef enum _trigger_type
 	TR_PAUSE,		// Event has paused for an interval and will restart in the middle of it's code
 
 	TR_CALLBACKSTART,	// The user defined callback triggers should start with this id
-} TRIGGER_TYPE;
+};
+typedef SDWORD TRIGGER_TYPE;
 
 /* Description of a trigger for the SCRIPT_CODE */
 typedef struct _trigger_data

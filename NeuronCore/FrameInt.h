@@ -31,7 +31,7 @@
 extern HINSTANCE	hInstance;
 
 /* Handle for the main window */
-extern HANDLE		hWndMain;
+extern HWND		hWndMain;
 
 /* Initialise the double buffered display */
 

@@ -4,6 +4,8 @@
  * Alex Lee, pumpkin studios, 
  * multijoin caters for all the player comings and goings of each player
  */
+#include "NetPlay.h"							// NETMSG, DPID
+
 extern BOOL sendVersionCheck			();
 extern BOOL recvVersionCheck			(NETMSG *pMsg);
 extern BOOL intDisplayMultiJoiningStatus(UBYTE joinCount);

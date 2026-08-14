@@ -89,6 +89,9 @@ extern SDWORD getLevelLoadType(void);
 
 extern	UBYTE	*getLevelName( void );
 
+
+extern BOOL levInitialise(void);
+
 #endif
 
 

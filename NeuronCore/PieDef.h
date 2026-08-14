@@ -189,6 +189,7 @@ extern void pie_GetResetCounts(SDWORD* pPieCount, SDWORD* pTileCount, SDWORD* pP
 extern int pie_Num3dfxBuffersPending( void );
 
 extern void SetBSPObjectPos(SDWORD x,SDWORD y,SDWORD z);
+extern void SetBSPObjectRot(SDWORD Yaw, SDWORD Pitch);
 extern void SetBSPCameraPos(SDWORD x,SDWORD y,SDWORD z);
 
 //piedraw functions used in piefunc.c 

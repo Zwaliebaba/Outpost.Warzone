@@ -108,5 +108,14 @@ extern void iV_IMDDrawTextureRaise(iIMDShape *shape, float scale);
 extern void iV_IMDDrawTexturedShade(iIMDShape *shape, int lightLevel);
 */
 
+/* PIE registry, implemented in IMDLoad.c.  Declared here because the game
+   calls tpInit and tpAddPIE; C let those calls stand without a visible
+   declaration, C++ does not. */
+extern void tpInit(void);
+extern void tpAddPIE(char *FileName, iIMDShape *pIMD);
+extern int tpGetNumPIEs(void);
+extern iIMDShape *tpGetPIE(int Index);
+extern char *tpGetPIEName(int Index);
+
 
 #endif
