@@ -86,7 +86,6 @@ BOOL resInitialise(void)
 	{
 		// if you allocate the cache to a size of zero then it will use the default area for the cache
 
-
 		// on the PSX this will be the primative buffer
 
 		FILE_InitialiseCache(2*1024*1024);		// set the cache to be 2meg for the time being ...!
@@ -114,11 +113,10 @@ void resShutDown(void)
 void resSetBaseDir(STRING* pResDir) { strncpy(aResDir, pResDir, FILE_MAXCHAR - 1); }
 
 /* Parse the res file */
-BOOL resLoad(STRING* pResFile, SDWORD blockID, UBYTE* pLoadBuffer, SDWORD bufferSize, BLOCK_HEAP* psMemHeap)
+BOOL resLoad(STRING* pResFile, SDWORD blockID, UBYTE* pLoadBuffer, SDWORD bufferSize)
 {
   UBYTE* pBuffer;
   UDWORD size;
-  BLOCK_HEAP* psOldHeap;
   BOOL bAllowWRFProcessing;
 
   strcpy(aCurrResDir, aResDir);
@@ -136,14 +134,8 @@ BOOL resLoad(STRING* pResFile, SDWORD blockID, UBYTE* pLoadBuffer, SDWORD buffer
   {
     BOOL bResult;
 
-    psOldHeap = memGetBlockHeap();
-
-    memSetBlockHeap(psMemHeap);
-
     bResult = WDG_ProcessWRF(pResFile, TRUE);
     // we might need to return a little more than just a TRUE or FALSE here ... so that we know if the failed finding a wdg or at a later stage
-
-    memSetBlockHeap(psOldHeap);
 
     // We we got all the files from the WDG we don't need to even consider the WRF
     if (bResult == TRUE)
@@ -154,15 +146,12 @@ BOOL resLoad(STRING* pResFile, SDWORD blockID, UBYTE* pLoadBuffer, SDWORD buffer
   {
 #ifndef FINALBUILD		// don't allow wrf's on final build
     // make sure the WRF doesn't get loaded into a block heap
-    psOldHeap = memGetBlockHeap();
-    memSetBlockHeap(nullptr);
 
     // Load the RES file
     if (!LoadWRF(pResFile, &pBuffer, &size))
       return FALSE;
 
     // now set the memory system to use the block heap
-    memSetBlockHeap(psMemHeap);
 
     // and parse it
     resSetInputBuffer(pBuffer, size);
@@ -170,7 +159,6 @@ BOOL resLoad(STRING* pResFile, SDWORD blockID, UBYTE* pLoadBuffer, SDWORD buffer
       return FALSE;
 
     // reset the memory system
-    memSetBlockHeap(psOldHeap);
 
     ReleaseWRF(&pBuffer);
 #else
@@ -386,13 +374,9 @@ BOOL RetreiveResourceFile(char* ResourceName, RESOURCEFILE** NewResource)
     return (TRUE);
   }
 
-  blockSuspendUsage();
-
   // This is needed for files that do not fit in the WDG cache ... (VAB file for example)
   if (!loadFile(ResourceName, &pBuffer, &size))
     return FALSE;
-
-  blockUnsuspendUsage();
 
   ResData->type = RESFILETYPE_LOADED;
   ResData->size = size;
@@ -730,10 +714,8 @@ RES_TYPE* psT; RES_DATA* psRes;
 		return FALSE;
 	}
 
-
 // Find the resourcefor(psRes = psT->psRes; psRes; psRes= psRes->psNext)
 	{
-
 		if (resGetResDataPointer(psRes) == pData)
 		{
 			break;

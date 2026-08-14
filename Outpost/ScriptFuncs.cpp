@@ -5327,7 +5327,7 @@ BOOL scrTutorialTemplates(void)
 
   // Delete the template.
   if (psCurr)
-    HEAP_FREE(psTemplateHeap, psCurr);
+    delete psCurr;
   else
   {
     DBERROR(("tutorial template setup failed"));

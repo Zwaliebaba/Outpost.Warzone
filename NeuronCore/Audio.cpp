@@ -39,7 +39,6 @@ using SDWVEC3D = struct SDWVEC3D
 /***************************************************************************/
 /* global variables */
 
-static OBJ_HEAP* g_psSampleHeap = nullptr;
 static AUDIO_SAMPLE* g_psSampleList = nullptr;
 static AUDIO_SAMPLE* g_psSampleQueue = nullptr;
 
@@ -73,13 +72,6 @@ BOOL audio_Init(HWND hWnd, BOOL bEnabled, AUDIO_CALLBACK pStopTrackCallback)
 
   if (g_bAudioEnabled == TRUE)
   {
-    /* allocate sample heap */
-    if (!HEAP_CREATE(&g_psSampleHeap, AUDIO_SAMPLE_HEAP_INIT, AUDIO_SAMPLE_HEAP_EXT, sizeof(AUDIO_SAMPLE)))
-    {
-      DBERROR(("audio_Init: couldn't create sample queue\n"));
-      return FALSE;
-    }
-
     sound_SetStoppedCallback(pStopTrackCallback);
 
     InitializeCriticalSection(&critSecAudio);
@@ -112,7 +104,7 @@ BOOL audio_Shutdown()
   while (psSample != nullptr)
   {
     psSampleTemp = psSample->psNext;
-    HEAP_FREE(g_psSampleHeap, psSample);
+    delete psSample;
     psSample = psSampleTemp;
   }
 
@@ -121,15 +113,13 @@ BOOL audio_Shutdown()
   while (psSample != nullptr)
   {
     psSampleTemp = psSample->psNext;
-    HEAP_FREE(g_psSampleHeap, psSample);
+    delete psSample;
     psSample = psSampleTemp;
   }
 
   LeaveCriticalSection(&critSecAudio);
 
   /* free sample heap */
-  HEAP_DESTROY(g_psSampleHeap);
-  g_psSampleHeap = nullptr;
   g_psSampleList = nullptr;
   g_psSampleQueue = nullptr;
 
@@ -284,7 +274,7 @@ AUDIO_SAMPLE* audio_QueueSample(SDWORD iTrack)
     return nullptr;
 
   printf("audio_queuetrack called1\n");
-  HEAP_ALLOC(g_psSampleHeap, &psSample);
+  psSample = new (std::nothrow) AUDIO_SAMPLE;
 
   if (psSample != nullptr)
   {
@@ -432,7 +422,7 @@ void audio_UpdateQueue(void)
       else
       {
         DBPRINTF(("audio_UpdateQueue: couldn't play sample\n"));
-        HEAP_FREE(g_psSampleHeap, psSample);
+        delete psSample;
       }
     }
   }
@@ -472,7 +462,7 @@ BOOL audio_Update(void)
     {
       audio_RemoveSample(&g_psSampleList, psSample);
       psSampleTemp = psSample->psNext;
-      HEAP_FREE(g_psSampleHeap, psSample);
+      delete psSample;
       psSample = psSampleTemp;
     }
     /* check looping sound callbacks for finished condition */
@@ -660,7 +650,7 @@ static BOOL audio_Play3DTrack(SDWORD iX, SDWORD iY, SDWORD iZ, int iTrack, void*
   if (audio_CheckSame3DTracksPlaying(iTrack, iX, iY, iZ) == FALSE)
     return FALSE;
 
-  HEAP_ALLOC(g_psSampleHeap, &psSample);
+  psSample = new (std::nothrow) AUDIO_SAMPLE;
   if (psSample == nullptr)
     return FALSE;
   /* setup sample */
@@ -680,7 +670,7 @@ static BOOL audio_Play3DTrack(SDWORD iX, SDWORD iY, SDWORD iZ, int iTrack, void*
     return TRUE;
   }
   DBPRINTF(("audio_Play3DTrack: couldn't play sample\n"));
-  HEAP_FREE(g_psSampleHeap, psSample);
+  delete psSample;
   return FALSE;
 }
 
@@ -750,7 +740,7 @@ BOOL audio_PlayStream(char szFileName[], SDWORD iVol, AUDIO_CALLBACK pUserCallba
   if (g_bAudioEnabled == FALSE)
     return FALSE;
 
-  HEAP_ALLOC(g_psSampleHeap, &psSample);
+  psSample = new (std::nothrow) AUDIO_SAMPLE;
 
   if (psSample != nullptr)
   {
@@ -807,7 +797,7 @@ void audio_PlayTrack(int iTrack)
   if (g_bAudioEnabled == FALSE || g_bAudioPaused == TRUE || g_bStopAll == TRUE)
     return;
 
-  HEAP_ALLOC(g_psSampleHeap, &psSample);
+  psSample = new (std::nothrow) AUDIO_SAMPLE;
   if (psSample != nullptr)
   {
     /* setup sample */
@@ -821,7 +811,7 @@ void audio_PlayTrack(int iTrack)
     else
     {
       DBPRINTF(("audio_PlayTrack: couldn't play sample\n"));
-      HEAP_FREE(g_psSampleHeap, psSample);
+      delete psSample;
     }
   }
 }
@@ -928,7 +918,7 @@ void audio_StopAll(void)
   while (psSample != nullptr)
   {
     psSampleTemp = psSample->psNext;
-    HEAP_FREE(g_psSampleHeap, psSample);
+    delete psSample;
     psSample = psSampleTemp;
   }
   g_psSampleQueue = nullptr;

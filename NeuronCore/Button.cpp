@@ -9,7 +9,6 @@
 #include "RendMode.h"
 
 /* The widget heap */
-OBJ_HEAP* psButHeap;
 
 /* Initialise the button module */
 BOOL buttonStartUp(void) { return TRUE; }
@@ -27,7 +26,8 @@ BOOL buttonCreate(W_BUTTON** ppsWidget, W_BUTINIT* psInit)
 #if W_USE_MALLOC
   *ppsWidget = (W_BUTTON*)MALLOC(sizeof(W_BUTTON)); if (*ppsWidget == NULL)
 #else
-  if (!HEAP_ALLOC(psButHeap, ppsWidget))
+  *ppsWidget = new (std::nothrow) W_BUTTON;
+  if (*ppsWidget == nullptr)
 #endif
   {
     ASSERT((FALSE, "buttonCreate: Out of memory"));
@@ -41,7 +41,7 @@ BOOL buttonCreate(W_BUTTON** ppsWidget, W_BUTINIT* psInit)
 #if W_USE_MALLOC
     FREE(*ppsWidget);
 #else
-    HEAP_FREE(psButHeap, *ppsWidget);
+    delete *ppsWidget;
 #endif
     return FALSE;
 		}
@@ -105,7 +105,7 @@ void buttonFree(W_BUTTON* psWidget)
 #if W_USE_MALLOC
   FREE(psWidget);
 #else
-  HEAP_FREE(psButHeap, psWidget);
+  delete psWidget;
 #endif
 }
 

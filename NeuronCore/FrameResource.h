@@ -79,7 +79,7 @@ extern void resSetBaseDir(STRING* pResDir);
 
 /* Parse the res file */
 struct _block_heap;
-extern BOOL resLoad(STRING* pResFile, SDWORD blockID, UBYTE* pLoadBuffer, SDWORD bufferSize, struct _block_heap* psMemHeap);
+extern BOOL resLoad(STRING* pResFile, SDWORD blockID, UBYTE* pLoadBuffer, SDWORD bufferSize);
 
 /* Release all the resources currently loaded and the resource load functions */
 extern void resReleaseAll(void);

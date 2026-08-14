@@ -538,7 +538,8 @@ BOOL addTemplate(UDWORD player, DROID_TEMPLATE* psNew)
 {
   DROID_TEMPLATE* psTempl;
 
-  if (!HEAP_ALLOC(psTemplateHeap, &psTempl))
+  psTempl = new (std::nothrow) DROID_TEMPLATE;
+  if (psTempl == nullptr)
     return FALSE;
   memcpy(psTempl, psNew, sizeof(DROID_TEMPLATE));
 
@@ -575,7 +576,7 @@ BOOL copyTemplateSet(UDWORD from, UDWORD to)
   while (apsDroidTemplates[to]) // clear the old template out.
   {
     psTempl = apsDroidTemplates[to]->psNext;
-    HEAP_FREE(psTemplateHeap, apsDroidTemplates[to]);
+    delete apsDroidTemplates[to];
     apsDroidTemplates[to] = psTempl;
   }
 
@@ -820,7 +821,6 @@ static BOOL dMatchInit()
 
 	if(NetPlay.bHost)								// it's new.
 	{	
-
 	}
 	else
 	{
@@ -841,7 +841,6 @@ static BOOL dMatchInit()
 				removeStruct(apsStructLists[player]);
 			}
 		}
-
 	}
 	turnOffMultiMsg(FALSE);
 

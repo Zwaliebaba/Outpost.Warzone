@@ -319,7 +319,7 @@ void droidRelease(DROID* psDroid)
       {
         psNext = psCurr->psGrpNext;
         droidRelease(psCurr);
-        HEAP_FREE(psDroidHeap, psCurr);
+        delete psCurr;
       }
     }
   }
@@ -2109,7 +2109,8 @@ BOOL loadDroidTemplates(SBYTE* pDroidData, UDWORD bufferSize)
 
   for (i = 0; i < NumDroids; i++)
   {
-    if (!HEAP_ALLOC(psTemplateHeap, &pDroidDesign))
+    pDroidDesign = new (std::nothrow) DROID_TEMPLATE;
+    if (pDroidDesign == nullptr)
     {
       DBERROR(("Out of memory - Droid Templates"));
       return FALSE;
@@ -2522,7 +2523,7 @@ BOOL loadDroidTemplates(SBYTE* pDroidData, UDWORD bufferSize)
     if (pDroidDesign->droidType == DROID_DEFAULT)
     {
       memcpy(&sDefaultDesignTemplate, pDroidDesign, sizeof(DROID_TEMPLATE));
-      HEAP_FREE(psTemplateHeap, pDroidDesign);
+      delete pDroidDesign;
     }
     else
     {
@@ -2878,7 +2879,6 @@ BOOL loadDroidWeapons(SBYTE* pWeaponData, UDWORD bufferSize)
 				DBERROR(("Unable to allocate all Template programs"));
 				return FALSE;
 			}
-
 		}
 		else
 		{
@@ -2908,7 +2908,7 @@ BOOL droidTemplateShutDown()
     for (pTemplate = apsDroidTemplates[player]; pTemplate != nullptr; pTemplate = pNext)
     {
       pNext = pTemplate->psNext;
-      HEAP_FREE(psTemplateHeap, pTemplate);
+      delete pTemplate;
     }
     apsDroidTemplates[player] = nullptr;
   }
@@ -3211,7 +3211,7 @@ DROID* buildDroid(DROID_TEMPLATE* pTemplate, UDWORD x, UDWORD y, UDWORD player, 
     {
       addConsoleMessage("Droid build: No Power",DEFAULT_JUSTIFY);
     }
-    HEAP_FREE(psDroidHeap, psDroid);
+    delete psDroid;
     return NULL;
   }*/
 
@@ -3245,7 +3245,7 @@ DROID* buildDroid(DROID_TEMPLATE* pTemplate, UDWORD x, UDWORD y, UDWORD player, 
     {
       DBPRINTF(("unit build: unable to create group\n"));
       ASSERT((FALSE,"Can't create unit because can't create group"));
-      HEAP_FREE(psDroidHeap, psDroid);
+      delete psDroid;
       return nullptr;
     }
     grpJoin(psGrp, psDroid);

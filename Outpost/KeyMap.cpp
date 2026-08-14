@@ -353,7 +353,6 @@ KEY_MAPPING* keyAddMapping(KEY_STATUS status, KEY_CODE metaCode, KEY_CODE subCod
                            STRING* name)
 {
   KEY_MAPPING* newMapping;
-  BLOCK_HEAP* psHeap;
 
 #ifdef COVERMOUNT
 #ifdef NON_INTERACT		// escape key is the only valid mapping
@@ -361,8 +360,6 @@ KEY_MAPPING* keyAddMapping(KEY_STATUS status, KEY_CODE metaCode, KEY_CODE subCod
 #endif
 #endif
 
-  psHeap = memGetBlockHeap();
-  memSetBlockHeap(nullptr);
   /* Get some memory for our binding */
   newMapping = static_cast<KEY_MAPPING*>(MALLOC(sizeof(KEY_MAPPING)));
 
@@ -372,8 +369,6 @@ KEY_MAPPING* keyAddMapping(KEY_STATUS status, KEY_CODE metaCode, KEY_CODE subCod
 
   newMapping->pName = static_cast<STRING*>(MALLOC(strlen(name)+1));
   ASSERT(((int)newMapping->pName,"Couldn't allocate the memory for the string in a mapping"));
-
-  memSetBlockHeap(psHeap);
 
   /* Copy over the name */
   strcpy(newMapping->pName, name);

@@ -1013,7 +1013,6 @@ void saveMissionLimboData(void)
   initDroidMovement(psDroid);
       //make sure the died flag is not set
       psDroid->died = FALSE;
-
   }*/
 
   //any selectedPlayer's factories/research need to be put on holdProduction/holdresearch
@@ -2182,7 +2181,7 @@ void missionResetDroids()
           DBPRINTF(("missionResetDroids: tile occupied\n");
   `				removeDroid(psDroid, apsDroidLists);
           droidRelease(psDroid);
-          HEAP_FREE(psDroidHeap, psDroid);
+          delete psDroid;
         }*/
         //set droid height
         psDroid->z = map_Height(psDroid->x, psDroid->y);

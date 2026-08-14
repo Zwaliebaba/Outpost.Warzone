@@ -36,7 +36,6 @@ VOID permMalloc(UDWORD size)
     if (descriptionSize != 0) // get rid of old one.
       freePermMalloc();
 
-    memSetBlockHeap(nullptr);
     lpPermDescription = MALLOC(size);
     descriptionSize = size;
   }

@@ -23,7 +23,6 @@
 #define WEDB_CHARJUMP		6
 
 /* The widget heap */
-OBJ_HEAP* psEdbHeap;
 
 // the other states
 /* Calculate how much of the start of a string can fit into the edit box */
@@ -42,7 +41,8 @@ BOOL editBoxCreate(W_EDITBOX** ppsWidget, W_EDBINIT* psInit)
 #if W_USE_MALLOC
   *ppsWidget = (W_EDITBOX*)MALLOC(sizeof(W_EDITBOX)); if (*ppsWidget == NULL)
 #else
-  if (!HEAP_ALLOC(psEdbHeap, ppsWidget))
+  *ppsWidget = new (std::nothrow) W_EDITBOX;
+  if (*ppsWidget == nullptr)
 #endif
   {
     ASSERT((FALSE, "Out of memory"));
@@ -88,7 +88,7 @@ void editBoxFree(W_EDITBOX* psWidget)
 #if W_USE_MALLOC
   FREE(psWidget);
 #else
-  HEAP_FREE(psEdbHeap, psWidget);
+  delete psWidget;
 #endif
 }
 

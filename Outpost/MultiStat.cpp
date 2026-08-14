@@ -258,7 +258,8 @@ VOID useTheForce(BOOL bAddTempl) //Luke
 
     /*		if(!psTempl)												// already exists.	
         {	
-          if (HEAP_ALLOC(psTemplateHeap, &psTempl))
+          psTempl = new (std::nothrow) DROID_TEMPLATE;
+          if (psTempl != nullptr)
           {
             memcpy(psTempl, Force.pMembers->pTempl, sizeof(DROID_TEMPLATE));
             psTempl->ref = REF_TEMPLATE_START;					// templates are the odd one out!

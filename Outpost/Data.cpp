@@ -1082,7 +1082,6 @@ void dataStrResRelease(void* pData)
 BOOL dataScriptLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
 {
   SCRIPT_CODE* psProg = nullptr;
-  BLOCK_HEAP* psHeap;
   BOOL printHack = FALSE;
 
   calcCheatHash(pBuffer, size,CHEAT_SCRIPT);
@@ -1090,15 +1089,12 @@ BOOL dataScriptLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
 #ifndef NOSCRIPT
   DBPRINTF(("COMPILING SCRIPT ...%s\n",GetLastResourceFilename()));
   // make sure the memory system uses normal malloc for a compile
-  psHeap = memGetBlockHeap();
-  memSetBlockHeap(nullptr);
 
   if (!scriptCompile(pBuffer, size, &psProg, SCRIPTTYPE)) // see script.h
   {
     DBERROR(("Script %s did not compile", GetLastResourceFilename()));
     return FALSE;
   }
-  memSetBlockHeap(psHeap);
 
   if (printHack)
     cpPrintProgram(psProg);

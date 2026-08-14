@@ -36,13 +36,9 @@
 #define TEMPLATE_EXT	10
 
 /* The memory heaps for the different object types */
-OBJ_HEAP *psDroidHeap, *psStructHeap, *psFeatureHeap;
 /*Heap for structure functionality*/
-OBJ_HEAP* psStructFuncHeap;
 /* The memory heap for the Flag Postions */
-OBJ_HEAP* psFlagPosHeap;
 // the memory heap for templates
-OBJ_HEAP* psTemplateHeap;
 
 SDWORD factoryDeliveryPointCheck[MAX_PLAYERS][NUM_FLAG_TYPES][MAX_FACTORY];
 // the initial value for the object ID
@@ -146,24 +142,6 @@ void objListIntegCheck(void);
 /* Initialise the object heaps */
 BOOL objmemInitialise(void)
 {
-  if (!HEAP_CREATE(&psDroidHeap, sizeof(DROID), DROID_INIT, DROID_EXT))
-    return FALSE;
-
-  if (!HEAP_CREATE(&psStructHeap, sizeof(STRUCTURE), STRUCTURE_INIT, STRUCTURE_EXT))
-    return FALSE;
-
-  if (!HEAP_CREATE(&psStructFuncHeap, sizeof(FUNCTIONALITY), STRUCTFUNC_INIT, STRUCTFUNC_EXT))
-    return FALSE;
-
-  if (!HEAP_CREATE(&psFeatureHeap, sizeof(FEATURE), FEATURE_INIT, FEATURE_EXT))
-    return FALSE;
-
-  if (!HEAP_CREATE(&psFlagPosHeap, sizeof(FLAG_POSITION), FLAGPOS_INIT, FLAGPOS_EXT))
-    return FALSE;
-
-  if (!HEAP_CREATE(&psTemplateHeap, sizeof(DROID_TEMPLATE), TEMPLATE_INIT, TEMPLATE_EXT))
-    return FALSE;
-
   // reset the object ID number
   objID = OBJ_ID_INIT;
 
@@ -175,12 +153,6 @@ BOOL objmemInitialise(void)
 /* Release the object heaps */
 void objmemShutdown(void)
 {
-  HEAP_DESTROY(psDroidHeap);
-  HEAP_DESTROY(psStructHeap);
-  HEAP_DESTROY(psStructFuncHeap);
-  HEAP_DESTROY(psFeatureHeap);
-  HEAP_DESTROY(psFlagPosHeap);
-  HEAP_DESTROY(psTemplateHeap);
 }
 
 /* General housekeeping for the object system */
@@ -206,15 +178,15 @@ void objmemUpdate(void)
     {
     case OBJ_DROID: DBP1(("objmemUpdate: freeing droid\n"));
       droidRelease((DROID*)psDestroyedObj);
-      HEAP_FREE(psDroidHeap, psDestroyedObj);
+      delete (DROID*)psDestroyedObj;
       break;
     case OBJ_STRUCTURE: DBP1(("objmemUpdate: freeing structure\n"));
       structureRelease((STRUCTURE*)psDestroyedObj);
-      HEAP_FREE(psStructHeap, psDestroyedObj);
+      delete (STRUCTURE*)psDestroyedObj;
       break;
     case OBJ_FEATURE:
       featureRelease((FEATURE*)psDestroyedObj);
-      HEAP_FREE(psFeatureHeap, psDestroyedObj);
+      delete (FEATURE*)psDestroyedObj;
       break;
     default: ASSERT((FALSE, "objmemUpdate: unknown object type in destroyed list"));
     }
@@ -234,15 +206,15 @@ void objmemUpdate(void)
       {
       case OBJ_DROID:
         droidRelease((DROID*)psCurr);
-        HEAP_FREE(psDroidHeap, psCurr);
+        delete (DROID*)psCurr;
         break;
       case OBJ_STRUCTURE:
         structureRelease((STRUCTURE*)psCurr);
-        HEAP_FREE(psStructHeap, psCurr);
+        delete (STRUCTURE*)psCurr;
         break;
       case OBJ_FEATURE:
         featureRelease((FEATURE*)psDestroyedObj);
-        HEAP_FREE(psFeatureHeap, psCurr);
+        delete (FEATURE*)psCurr;
         break;
       default: ASSERT((FALSE, "objmemUpdate: unknown object type in destroyed list"));
       }
@@ -288,17 +260,18 @@ void objmemUpdate(void)
 
 // ajl modified for netplaying..
 
-#define CREATE(plyr, heap, new, objType, structType) \
+#define CREATE(plyr, ppNew, objType, structType) \
 	ASSERT((plyr<MAX_PLAYERS, "addObject: invalid player number")); \
-	if (!HEAP_ALLOC(heap, new)) \
+	*(ppNew) = new (std::nothrow) structType; \
+	if (*(ppNew) == NULL) \
 	{ \
 		return FALSE; \
 	} \
-	(*(new))->type = objType; \
-	(*(new))->id = ((objID<<3)|plyr); \
+	(*(ppNew))->type = objType; \
+	(*(ppNew))->id = ((objID<<3)|plyr); \
 	objID++; \
-	(*(new))->player = (UBYTE)plyr; \
-	(*(new))->died = 0; \
+	(*(ppNew))->player = (UBYTE)plyr; \
+	(*(ppNew))->died = 0; \
 	return TRUE
 
 /* Add the object to its list
@@ -392,7 +365,7 @@ void objmemUpdate(void)
 		return NULL; \
 	}
 
-#define RELEASEALL(list, heap, freeFunc, type) \
+#define RELEASEALL(list, freeFunc, type) \
 	{ \
 		UDWORD	i; \
 		type	*psCurr, *psNext; \
@@ -402,7 +375,7 @@ void objmemUpdate(void)
 			{ \
 		 		psNext = psCurr->psNext; \
 				freeFunc(psCurr); \
-				HEAP_FREE(heap, psCurr); \
+				delete psCurr; \
 			} \
 			list[i] = NULL; \
 		} \
@@ -416,7 +389,7 @@ void objmemUpdate(void)
 /***************************  DROID  *********************************/
 
 /* Create a new droid */
-BOOL createDroid(UDWORD player, DROID** ppsNew) { CREATE(player, psDroidHeap, ppsNew, OBJ_DROID, DROID); }
+BOOL createDroid(UDWORD player, DROID** ppsNew) { CREATE(player, ppsNew, OBJ_DROID, DROID); }
 
 /* add the droid to the Droid Lists */
 void addDroid(DROID* psDroidToAdd, DROID* pList[MAX_PLAYERS])
@@ -450,7 +423,7 @@ void killDroid(DROID* psDel)
 }
 
 /* Remove all droids */
-void freeAllDroids(void) { RELEASEALL(apsDroidLists, psDroidHeap, droidRelease, DROID); }
+void freeAllDroids(void) { RELEASEALL(apsDroidLists, droidRelease, DROID); }
 
 /*Remove a single Droid from a list*/
 void removeDroid(DROID* psDroidToRemove, DROID* pList[MAX_PLAYERS])
@@ -467,15 +440,15 @@ void removeDroid(DROID* psDroidToRemove, DROID* pList[MAX_PLAYERS])
 }
 
 /*Removes all droids that may be stored in the mission lists*/
-void freeAllMissionDroids(void) { RELEASEALL(mission.apsDroidLists, psDroidHeap, droidRelease, DROID); }
+void freeAllMissionDroids(void) { RELEASEALL(mission.apsDroidLists, droidRelease, DROID); }
 
 /*Removes all droids that may be stored in the limbo lists*/
-void freeAllLimboDroids(void) { RELEASEALL(apsLimboDroids, psDroidHeap, droidRelease, DROID); }
+void freeAllLimboDroids(void) { RELEASEALL(apsLimboDroids, droidRelease, DROID); }
 
 /**************************  STRUCTURE  *******************************/
 
 /* Create a new structure */
-BOOL createStruct(UDWORD player, STRUCTURE** ppsNew) { CREATE(player, psStructHeap, ppsNew, OBJ_STRUCTURE, STRUCTURE); }
+BOOL createStruct(UDWORD player, STRUCTURE** ppsNew) { CREATE(player, ppsNew, OBJ_STRUCTURE, STRUCTURE); }
 
 /* add the structure to the Structure Lists */
 void addStructure(STRUCTURE* psStructToAdd) { ADD(apsStructLists, psStructToAdd, STRUCTURE); }
@@ -489,7 +462,7 @@ void killStruct(STRUCTURE* psDel)
 }
 
 /* Remove heapall structures */
-void freeAllStructs(void) { RELEASEALL(apsStructLists, psStructHeap, structureRelease, STRUCTURE); }
+void freeAllStructs(void) { RELEASEALL(apsStructLists, structureRelease, STRUCTURE); }
 
 /*Remove a single Structure from a list*/
 void removeStructureFromList(STRUCTURE* psStructToRemove, STRUCTURE* pList[MAX_PLAYERS])
@@ -502,7 +475,7 @@ void removeStructureFromList(STRUCTURE* psStructToRemove, STRUCTURE* pList[MAX_P
 /**************************  FEATURE  *********************************/
 
 /* Create a new Feature */
-BOOL createFeature(FEATURE** ppsNew) { CREATE(0, psFeatureHeap, ppsNew, OBJ_FEATURE, FEATURE); }
+BOOL createFeature(FEATURE** ppsNew) { CREATE(0, ppsNew, OBJ_FEATURE, FEATURE); }
 
 /* add the feature to the Feature Lists */
 void addFeature(FEATURE* psFeatureToAdd) { ADD(apsFeatureLists, psFeatureToAdd, FEATURE); }
@@ -518,7 +491,7 @@ void killFeature(FEATURE* psDel)
 }
 
 /* Remove all features */
-void freeAllFeatures(void) { RELEASEALL(apsFeatureLists, psFeatureHeap, featureRelease, FEATURE); }
+void freeAllFeatures(void) { RELEASEALL(apsFeatureLists, featureRelease, FEATURE); }
 
 /**************************  FLAG_POSITION ********************************/
 
@@ -527,7 +500,8 @@ BOOL createFlagPosition(FLAG_POSITION** ppsNew, UDWORD player)
 {
   ASSERT((player<MAX_PLAYERS, "createFlagPosition: invalid player number"));
 
-  if (!HEAP_ALLOC(psFlagPosHeap, ppsNew))
+  *ppsNew = new (std::nothrow) FLAG_POSITION;
+  if (*ppsNew == nullptr)
     return FALSE;
   (*ppsNew)->type = POS_DELIVERY;
   (*ppsNew)->player = player;
@@ -551,7 +525,7 @@ void removeFlagPosition(FLAG_POSITION* psDel)
   if (apsFlagPosLists[psDel->player] == psDel)
   {
     apsFlagPosLists[psDel->player] = apsFlagPosLists[psDel->player]->psNext;
-    HEAP_FREE(psFlagPosHeap, psDel);
+    delete psDel;
   }
   else
   {
@@ -560,7 +534,7 @@ void removeFlagPosition(FLAG_POSITION* psDel)
     ASSERT((psCurr != NULL, "removeFlagPosition:object not found"));
     if (psCurr != nullptr)
       psPrev->psNext = psCurr->psNext;
-    HEAP_FREE(psFlagPosHeap, psCurr);
+    delete psCurr;
   }
 }
 
@@ -575,7 +549,7 @@ void freeAllFlagPositions(void)
     while (apsFlagPosLists[player])
     {
       psNext = apsFlagPosLists[player]->psNext;
-      HEAP_FREE(psFlagPosHeap, apsFlagPosLists[player]);
+      delete apsFlagPosLists[player];
       apsFlagPosLists[player] = psNext;
     }
   }
@@ -623,13 +597,16 @@ void checkFactoryFlags(void)
 /* Create a new Structure Functionality*/
 BOOL createStructFunc(FUNCTIONALITY** ppsNew)
 {
-  if (!HEAP_ALLOC(psStructFuncHeap, (void**)ppsNew))
+  // FUNCTIONALITY is UBYTE[MAX_FUNCTIONALITY_SIZE], so the pointer this hands
+  // back has to be a pointer to the whole array, not to its first byte.
+  *ppsNew = new (std::nothrow) FUNCTIONALITY[1];
+  if (*ppsNew == nullptr)
     return FALSE;
   return TRUE;
 }
 
-/*remove a structure Functionality from the heap*/
-void removeStructFunc(FUNCTIONALITY* psDel) { HEAP_FREE(psStructFuncHeap, psDel); }
+/*remove a structure Functionality*/
+void removeStructFunc(FUNCTIONALITY* psDel) { delete[] psDel; }
 
 /**************************  OBJECT ACCESS FUNCTIONALITY ********************************/
 

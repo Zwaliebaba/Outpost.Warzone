@@ -27,12 +27,6 @@ BOOL ptrList_Create(PTRLIST** ppsList, UDWORD udwInitElements, UDWORD udwExtElem
   (*ppsList) = static_cast<PTRLIST*>(MALLOC(sizeof(PTRLIST)));
 
   /* allocate heaps */
-  if (!HEAP_CREATE(&(*ppsList)->psNodeHeap, sizeof(LISTNODE), udwInitElements, udwExtElements))
-    return FALSE;
-
-  if (!HEAP_CREATE(&(*ppsList)->psElementHeap, udwElementSize, udwInitElements, udwExtElements))
-    return FALSE;
-
   /* init members */
   (*ppsList)->udwElements = udwInitElements;
   (*ppsList)->udwExtElements = udwExtElements;
@@ -50,8 +44,6 @@ void ptrList_Destroy(PTRLIST* ptrList)
   ptrList_Clear(ptrList);
 
   /* destroy heaps */
-  HEAP_DESTROY(ptrList->psNodeHeap);
-  HEAP_DESTROY(ptrList->psElementHeap);
 
   /* free struct */
   FREE(ptrList);
@@ -86,11 +78,11 @@ void ptrList_Clear(PTRLIST* ptrList)
   while (psNode != nullptr)
   {
     /* return node element to heap */
-    HEAP_FREE(ptrList->psElementHeap, psNode->psElement);
+    delete[] static_cast<UBYTE*>(psNode->psElement);
 
     /* return node to heap */
     psNodeTmp = psNode->psNext;
-    HEAP_FREE(ptrList->psNodeHeap, psNode);
+    delete psNode;
     psNode = psNodeTmp;
   }
 
@@ -109,7 +101,7 @@ void* ptrList_GetElement(PTRLIST* ptrList)
 {
   void* psElement;
 
-  HEAP_ALLOC(ptrList->psElementHeap, &psElement);
+  psElement = new (std::nothrow) UBYTE[ptrList->udwElementSize];
 
   return psElement;
 }
@@ -125,8 +117,8 @@ void* ptrList_GetElement(PTRLIST* ptrList)
 
 void ptrList_FreeElement(PTRLIST* ptrList, void* psElement)
 {
-  if (HEAP_FREE(ptrList->psElementHeap, psElement) == FALSE)
-    DBPRINTF(("ptrList_FreeElement: couldn't free element\n"));
+  (void)ptrList;
+  delete[] static_cast<UBYTE*>(psElement);
 }
 
 /***************************************************************************/
@@ -136,7 +128,7 @@ void ptrList_InsertElement(PTRLIST* ptrList, void* psElement, SDWORD sdwKey)
   LISTNODE *psNode, *psCurNode, *psPrevNode;
 
   /* get node from heap */
-  HEAP_ALLOC(ptrList->psNodeHeap, &psNode);
+  psNode = new (std::nothrow) LISTNODE;
 
   /* set node elements */
   psNode->sdwKey = sdwKey;
@@ -220,10 +212,10 @@ BOOL ptrList_RemoveElement(PTRLIST* ptrList, void* psElement, SDWORD sdwKey)
 
     /* return element to heap */
     ASSERT((psCurNode->psElement == psElement, "ptrList_RemoveElement: removing wrong element!\n"));
-    HEAP_FREE(ptrList->psElementHeap, psCurNode->psElement);
+    delete[] static_cast<UBYTE*>(psCurNode->psElement);
 
     /* return node to heap */
-    HEAP_FREE(ptrList->psNodeHeap, psCurNode);
+    delete psCurNode;
 
     bOK = TRUE;
   }

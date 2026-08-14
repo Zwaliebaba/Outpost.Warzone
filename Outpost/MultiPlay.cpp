@@ -1163,7 +1163,7 @@ BOOL recvDestroyTemplate(NETMSG* m)
       psTempPrev->psNext = psTempl->psNext; // It's down the list somewhere ?
     else
       apsDroidTemplates[player] = psTempl->psNext; // It's at the root ?	
-    HEAP_FREE(psTemplateHeap, psTempl); // Delete the template.
+    delete psTempl; // Delete the template.
   }
   return (TRUE);
 }

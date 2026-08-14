@@ -25,22 +25,18 @@ using ARROW = struct ARROW
 
 /***************************************************************************/
 
-OBJ_HEAP* g_psArrowHeap;
 ARROW* g_psArrowList = nullptr;
 
 /***************************************************************************/
 
 BOOL arrowInit(void)
 {
-  if (!HEAP_CREATE(&g_psArrowHeap, sizeof(ARROW), ARROW_HEAP_INIT, ARROW_HEAP_EXT))
-    return FALSE;
-
   return TRUE;
 }
 
 /***************************************************************************/
 
-void arrowShutDown(void) { HEAP_DESTROY(g_psArrowHeap); }
+void arrowShutDown(void) {  }
 
 /***************************************************************************/
 
@@ -48,7 +44,8 @@ BOOL arrowAdd(SDWORD iBaseX, SDWORD iBaseY, SDWORD iBaseZ, SDWORD iHeadX, SDWORD
 {
   ARROW* psArrow;
 
-  if (!HEAP_ALLOC(g_psArrowHeap, &psArrow))
+  psArrow = new (std::nothrow) ARROW;
+  if (psArrow == nullptr)
     return FALSE;
 
   /* ivis y,z swapped */
@@ -83,7 +80,7 @@ void arrowDrawAll(void)
   {
     draw3dLine(&psArrow->vecHead, &psArrow->vecBase, psArrow->iColour);
     psArrowTemp = psArrow->psNext;
-    HEAP_FREE(g_psArrowHeap, psArrow);
+    delete psArrow;
     psArrow = psArrowTemp;
   }
 

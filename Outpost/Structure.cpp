@@ -1966,7 +1966,7 @@ STRUCTURE* buildStructure(STRUCTURE_STATS* pStructureType, UDWORD x, UDWORD y, U
     if (!setFunctionality(psBuilding, pStructureType->type))
     {
       removeStructFromMap(psBuilding);
-      HEAP_FREE(psStructHeap, psBuilding);
+      delete psBuilding;
       //better reset these if you couldn't build the structure!
       if (FromSave AND player == selectedPlayer AND missionLimboExpand())
       {
@@ -2247,7 +2247,6 @@ void createAssemblyPoint(STRUCTURE* psStruct)
 		getNearestBestValidTile(&x,&y);
 		setAssemblyPoint( psFactory->psAssemblyPoint, x << TILE_SHIFT, 
 			y << TILE_SHIFT );
-
 }
 */
 
@@ -4026,7 +4025,6 @@ if (psRepairFac->powerAccrued < iPower)
             // return a droid to it's command group
             DROID	*psCommander = psDroid->psGroup->psCommander;
             orderDroidLoc(psDroid, DORDER_MOVE, psCommander->x, psCommander->y);
-
           }
           else
           {

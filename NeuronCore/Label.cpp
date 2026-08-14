@@ -8,7 +8,6 @@
 #include "RendMode.h"
 
 /* The widget heaps */
-OBJ_HEAP* psLabHeap;
 
 /* Create a button widget data structure */
 BOOL labelCreate(W_LABEL** ppsWidget, W_LABINIT* psInit)
@@ -24,7 +23,8 @@ BOOL labelCreate(W_LABEL** ppsWidget, W_LABINIT* psInit)
 #if W_USE_MALLOC
   *ppsWidget = (W_LABEL*)MALLOC(sizeof(W_LABEL)); if (*ppsWidget == NULL)
 #else
-  if (!HEAP_ALLOC(psLabHeap, ppsWidget))
+  *ppsWidget = new (std::nothrow) W_LABEL;
+  if (*ppsWidget == nullptr)
 #endif
   {
     ASSERT((FALSE, "Out of memory"));
@@ -83,7 +83,7 @@ void labelFree(W_LABEL* psWidget)
 #if W_USE_MALLOC
   FREE(psWidget);
 #else
-  HEAP_FREE(psLabHeap, psWidget);
+  delete psWidget;
 #endif
 }
 

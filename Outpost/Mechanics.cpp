@@ -106,17 +106,17 @@ BOOL mechShutdown(void)
           FREE(((DROID *)psObj)->asProgs);
         }*/
       droidRelease((DROID*)psObj);
-      heapFree(psDroidHeap, psObj);
+      delete (DROID*)psObj;
     }
     if (psObj->type == OBJ_STRUCTURE)
     {
       structureRelease((STRUCTURE*)psObj);
-      heapFree(psStructHeap, psObj);
+      delete (STRUCTURE*)psObj;
     }
     if (psObj->type == OBJ_FEATURE)
     {
       featureRelease((FEATURE*)psObj);
-      heapFree(psFeatureHeap, psObj);
+      delete (FEATURE*)psObj;
     }
   }
   psDestroyedObj = nullptr;

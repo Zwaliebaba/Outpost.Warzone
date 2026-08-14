@@ -536,7 +536,6 @@ BOOL FILE_InitialiseCache(SDWORD CacheSize)
     return TRUE;
   }
 
-  blockSuspendUsage();
 #ifdef	PRIMCATALOG
   if (PrimBufferCatalog == NULL)
   {
@@ -550,7 +549,6 @@ BOOL FILE_InitialiseCache(SDWORD CacheSize)
   if (CacheBuffer == nullptr)
   {
     DBPRINTF(("No memory for the file cache ... !\n"));
-    blockUnsuspendUsage();
     return FALSE;
   }
 
@@ -559,8 +557,6 @@ BOOL FILE_InitialiseCache(SDWORD CacheSize)
   Cache.OffsetInWDG = 0;
   Cache.IsCacheDataValid = FALSE; // data not yet loaded
   Cache.IsCacheDataMalloced = TRUE;
-
-  blockUnsuspendUsage();
 
   return TRUE;
 }
@@ -762,7 +758,6 @@ void SetLastFnameExtra(UBYTE SoftwareFlag, SBYTE TexturePage)
 	//   ... this is not yet supported
 
 	The filename can contain directories (e.g.   "wrf\cam1\sub1-2\game.map" is valid)
-
 
 	We will look in the current WDG for a MISCDATA section, this is not releated to any particual WRF file (unlike all the other sections)
 	This will hold all the extra data not connected to a .wrf file

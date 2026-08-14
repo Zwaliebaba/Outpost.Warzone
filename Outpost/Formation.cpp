@@ -43,7 +43,6 @@ static SDWORD fmLtRad = 80, fmMedRad = 100, fmHvyRad = 110;
 #define FORMATION_SPEED_INIT	100000L
 
 // The heap of formations
-OBJ_HEAP* psFHeap;
 
 // The list of allocated formations
 FORMATION* psFormationList;
@@ -53,9 +52,6 @@ SDWORD formationObjRadius(BASE_OBJECT* psObj);
 // Initialise the formation system
 BOOL formationInitialise(void)
 {
-  if (!HEAP_CREATE(&psFHeap, sizeof(FORMATION), F_HEAPINIT, F_HEAPEXT))
-    return FALSE;
-
   psFormationList = nullptr;
 
   return TRUE;
@@ -70,11 +66,9 @@ void formationShutDown(void)
   {
     DBPRINTF(("formation with %d units still attached\n",psFormationList->refCount));
     psNext = psFormationList->psNext;
-    HEAP_FREE(psFHeap, psFormationList);
+    delete psFormationList;
     psFormationList = psNext;
   }
-
-  HEAP_DESTROY(psFHeap);
 }
 
 #ifdef TEST_BED
@@ -99,7 +93,8 @@ BOOL formationNew(FORMATION** ppsFormation, FORMATION_TYPE type, SDWORD x, SDWOR
   SDWORD i;
 
   // get a heap structure
-  if (!HEAP_ALLOC(psFHeap, &psNew))
+  psNew = new (std::nothrow) FORMATION;
+  if (psNew == nullptr)
     return FALSE;
 
   DBP0(("formationNew: type %d, at (%d,%d), dir %d\n", type, x,y, dir));
@@ -282,7 +277,7 @@ void formationLeave(FORMATION* psFormation, BASE_OBJECT* psObj)
         psPrev = psCurr;
       psPrev->psNext = psFormation->psNext;
     }
-    HEAP_FREE(psFHeap, psFormation);
+    delete psFormation;
   }
 }
 

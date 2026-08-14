@@ -97,17 +97,16 @@ BOOL startLimitScreen(void)
   {
     initLoadingScreen(TRUE, TRUE); //changed by jeremy mar8
     /*		if (!resLoad("wrf\\forcedit.wrf", 500,
-               DisplayBuffer, displayBufferSize,
-               psGameHeap))				//need the object heaps to have been set up before loading 
+               DisplayBuffer, displayBufferSize))				//need the object heaps to have been set up before loading 
         {
           return FALSE;
         }
     */
-    if (!resLoad("wrf\\piestats.wrf", 501, DisplayBuffer, displayBufferSize, psGameHeap))
+    if (!resLoad("wrf\\piestats.wrf", 501, DisplayBuffer, displayBufferSize))
       //need the object heaps to have been set up before loading 
       return FALSE;
 
-    if (!resLoad("wrf\\forcedit2.wrf", 502, DisplayBuffer, displayBufferSize, psGameHeap))
+    if (!resLoad("wrf\\forcedit2.wrf", 502, DisplayBuffer, displayBufferSize))
       //need the object heaps to have been set up before loading 
       return FALSE;
 

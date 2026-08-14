@@ -16,24 +16,21 @@
 #define GRP_HEAP_EXT	15
 
 // heap for the droid group structure
-OBJ_HEAP* psGrpHeap;
 
 // initialise the group system
 BOOL grpInitialise(void)
 {
-  if (!HEAP_CREATE(&psGrpHeap, sizeof(DROID_GROUP), GRP_HEAP_INIT, GRP_HEAP_EXT))
-    return FALSE;
-
   return TRUE;
 }
 
 // shutdown the group system
-void grpShutDown(void) { HEAP_DESTROY(psGrpHeap); }
+void grpShutDown(void) {  }
 
 // create a new group
 BOOL grpCreate(DROID_GROUP** ppsGroup)
 {
-  if (!HEAP_ALLOC(psGrpHeap, ppsGroup))
+  *ppsGroup = new (std::nothrow) DROID_GROUP;
+  if (*ppsGroup == nullptr)
     return FALSE;
 
   (*ppsGroup)->type = GT_NORMAL;
@@ -176,7 +173,7 @@ void grpLeave(DROID_GROUP* psGroup, DROID* psDroid)
 
   // free the group structure if necessary
   if (psGroup->refCount <= 0)
-    HEAP_FREE(psGrpHeap, psGroup);
+    delete psGroup;
 }
 
 // count the members of a group

@@ -71,7 +71,6 @@ FP_NODE** apsOpen;
 #endif
 
 // object heap to store nodes
-OBJ_HEAP* psFPNodeHeap;
 
 /*#define NUM_DIR		4
 // Convert a direction into an offset
@@ -108,10 +107,6 @@ UDWORD GetApsNodesSize(void) { return (sizeof(FP_NODE*) * FPATH_TABLESIZE); }
 // Initialise the findpath routine
 BOOL astarInitialise(void)
 {
-  // Create the node heap
-  if (!HEAP_CREATE(&psFPNodeHeap, sizeof(FP_NODE), FPATH_NODEINIT, FPATH_NODEEXT))
-    return FALSE;
-
 #if OPEN_LIST == 2
   apsNodes = static_cast<FP_NODE**>(MALLOC(sizeof(FP_NODE *) * FPATH_TABLESIZE));
   if (!apsNodes)
@@ -132,7 +127,6 @@ BOOL astarInitialise(void)
 // Shutdown the findpath routine
 void fpathShutDown(void)
 {
-  HEAP_DESTROY(psFPNodeHeap);
 #if OPEN_LIST == 2
   FREE(apsNodes);
 #else
@@ -283,25 +277,23 @@ void fpathHashReset(void)
     while (apsNodes[i])
     {
       psNext = apsNodes[i]->psNext;
-      HEAP_FREE(psFPNodeHeap, apsNodes[i]);
+      delete apsNodes[i];
       apsNodes[i] = psNext;
     }
 #else
     while (apsOpen[i])
     {
       psNext = apsOpen[i]->psNext;
-      HEAP_FREE(psFPNodeHeap, apsOpen[i]);
+      delete apsOpen[i];
       apsOpen[i] = psNext;
     } while (apsClosed[i])
     {
       psNext = apsClosed[i]->psNext;
-      HEAP_FREE(psFPNodeHeap, apsClosed[i]);
+      delete apsClosed[i];
       apsClosed[i] = psNext;
     }
 #endif
   }
-
-  HEAP_RESET(psFPNodeHeap);
 }
 
 // Compare two nodes
@@ -607,7 +599,8 @@ FP_NODE* fpathNewNode(SDWORD x, SDWORD y, SDWORD dist, FP_NODE* psRoute)
 {
   FP_NODE* psNode;
 
-  if (!HEAP_ALLOC(psFPNodeHeap, &psNode))
+  psNode = new (std::nothrow) FP_NODE;
+  if (psNode == nullptr)
     return nullptr;
 
   psNode->x = static_cast<SWORD>(x);
@@ -927,7 +920,7 @@ DBP2(("openMax: %d\nopenUse: %d\nopenLists %d\n", maxuse, hashUse, hashLists)); 
 			maxuse = count;
 		}
 	}
-DBP2(("closedMax: %d\nclosedUse: %d\nclosedLists %d\nheapMax: %d\n", maxuse, hashUse, hashLists, psFPNodeHeap->maxUsage));
+DBP2(("closedMax: %d\nclosedUse: %d\nclosedLists %d\n", maxuse, hashUse, hashLists));
 #endif
 
 fpathHashReset();return TRUE;exit_error
@@ -1122,7 +1115,7 @@ SDWORD fpathAStarRoute(SDWORD routeMode, ASTAR_ROUTE* psRoutePoints, SDWORD sx, 
     for (psCurr = apsNodes[index]; psCurr; psCurr = psCurr->psNext) { count += 1; }
     hashUse += count;
     if (count > maxuse) { maxuse = count; }
-  } DBP2(("nodesMax: %d\nnodesUse: %d\nnodesLists %d\nheapMax: %d\n", maxuse, hashUse, hashLists, psFPNodeHeap->maxUsage));
+  } DBP2(("nodesMax: %d\nnodesUse: %d\nnodesLists %d\n", maxuse, hashUse, hashLists));
 #endif
 
   fpathHashReset();

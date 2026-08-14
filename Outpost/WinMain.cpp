@@ -120,9 +120,6 @@ init: //jump here from the end if re_initialising
   if (!memInitialise())
     return FALSE;
 
-  if (!blkInitialise())
-    return FALSE;
-
   loadRenderMode(); //get the registry entry for clRendMode
 
   bDisableLobby = FALSE;

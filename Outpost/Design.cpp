@@ -3760,7 +3760,7 @@ void intProcessDesign(UDWORD id)
         // Delete the template.
         //before deleting the template, need to make sure not being used in production
         deleteTemplateFromProduction(psTempl, static_cast<UBYTE>(selectedPlayer));
-        HEAP_FREE(psTemplateHeap, psTempl);
+        delete psTempl;
 
         /* get previous template and set as current */
         psTempl = apsTemplateList[i - 1];
@@ -4201,7 +4201,8 @@ BOOL saveTemplate(void)
     if (psTempl == nullptr)
     {
       /* The design needs a new template in the list */
-      if (!HEAP_ALLOC(psTemplateHeap, &psTempl))
+      psTempl = new (std::nothrow) DROID_TEMPLATE;
+      if (psTempl == nullptr)
       {
         DBPRINTF(("saveTemplate: heap alloc failed\n"));
         return FALSE;

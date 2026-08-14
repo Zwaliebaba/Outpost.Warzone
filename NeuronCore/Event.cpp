@@ -14,11 +14,8 @@ static VAL_RELEASE_FUNC* asReleaseFuncs;
 static SDWORD numFuncs;
 
 // Heap for value chunks
-static OBJ_HEAP* psValHeap;
 // Heap for active triggers
-static OBJ_HEAP* psTrigHeap;
 // Heap for contexts
-static OBJ_HEAP* psContHeap;
 
 // The list of currently active triggers
 ACTIVE_TRIGGER* psTrigList;
@@ -73,16 +70,6 @@ void eventTimeReset(UDWORD initTime) { updateTime = initTime; }
 /* Initialise the event system */
 BOOL eventInitialise(EVENT_INIT* psInit)
 {
-  // Create the value heap
-  if (!HEAP_CREATE(&psValHeap, sizeof(VAL_CHUNK), psInit->valInit, psInit->valExt))
-    return FALSE;
-  // Create the trigger heap
-  if (!HEAP_CREATE(&psTrigHeap, sizeof(ACTIVE_TRIGGER), psInit->trigInit, psInit->trigExt))
-    return FALSE;
-  // Create the context heap
-  if (!HEAP_CREATE(&psContHeap, sizeof(SCRIPT_CONTEXT), psInit->contInit, psInit->contExt))
-    return FALSE;
-
   psTrigList = nullptr;
   psCallbackList = nullptr;
   psContList = nullptr;
@@ -111,7 +98,7 @@ void eventReset(void)
       count += 1;
 #endif
     eventRemoveContext(psCurr->psContext);
-    HEAP_FREE(psTrigHeap, psCurr);
+    delete psCurr;
   }
   // Free any active callback triggers and their context's
   while (psCallbackList)
@@ -123,7 +110,7 @@ void eventReset(void)
       count += 1;
 #endif
     eventRemoveContext(psCurr->psContext);
-    HEAP_FREE(psTrigHeap, psCurr);
+    delete psCurr;
   }
 
   // Now free any context's that are left
@@ -146,10 +133,6 @@ void eventReset(void)
 void eventShutDown(void)
 {
   eventReset();
-
-  HEAP_DESTROY(psValHeap);
-  HEAP_DESTROY(psTrigHeap);
-  HEAP_DESTROY(psContHeap);
 
   if (asCreateFuncs) { FREE(asCreateFuncs); }
   if (asReleaseFuncs) { FREE(asReleaseFuncs); }
@@ -315,7 +298,8 @@ BOOL eventNewContext(SCRIPT_CODE* psCode, CONTEXT_RELEASE release, SCRIPT_CONTEX
   VAL_CHUNK *psNewChunk, *psNextChunk;
 
   // Get a new context
-  if (!HEAP_ALLOC(psContHeap, &psContext))
+  psContext = new (std::nothrow) SCRIPT_CONTEXT;
+  if (psContext == nullptr)
     return FALSE;
 
   // Initialise the context
@@ -334,14 +318,15 @@ BOOL eventNewContext(SCRIPT_CODE* psCode, CONTEXT_RELEASE release, SCRIPT_CONTEX
   }
   while (val >= 0)
   {
-    if (!HEAP_ALLOC(psValHeap, &psNewChunk))
+    psNewChunk = new (std::nothrow) VAL_CHUNK;
+    if (psNewChunk == nullptr)
     {
       for (psNewChunk = psContext->psGlobals; psNewChunk; psNewChunk = psNextChunk)
       {
         psNextChunk = psNewChunk->psNext;
-        HEAP_FREE(psValHeap, psNewChunk);
+        delete psNewChunk;
       }
-      HEAP_FREE(psContHeap, psContext);
+      delete psContext;
       return FALSE;
     }
 
@@ -359,13 +344,13 @@ BOOL eventNewContext(SCRIPT_CODE* psCode, CONTEXT_RELEASE release, SCRIPT_CONTEX
       {
         if (!asCreateFuncs[type](psNewChunk->asVals + storeIndex))
         {
-          HEAP_FREE(psValHeap, psNewChunk);
+          delete psNewChunk;
           for (psNewChunk = psContext->psGlobals; psNewChunk; psNewChunk = psNextChunk)
           {
             psNextChunk = psNewChunk->psNext;
-            HEAP_FREE(psValHeap, psNewChunk);
+            delete psNewChunk;
           }
-          HEAP_FREE(psContHeap, psContext);
+          delete psContext;
           return FALSE;
         }
       }
@@ -530,7 +515,7 @@ void eventRemoveContext(SCRIPT_CONTEXT* psContext)
   for (psCChunk = psContext->psGlobals; psCChunk; psCChunk = psNChunk)
   {
     psNChunk = psCChunk->psNext;
-    HEAP_FREE(psValHeap, psCChunk);
+    delete psCChunk;
   }
 
   // Remove it from the context list
@@ -538,7 +523,7 @@ void eventRemoveContext(SCRIPT_CONTEXT* psContext)
   {
     psCCont = psContList;
     psContList = psContList->psNext;
-    HEAP_FREE(psContHeap, psCCont);
+    delete psCCont;
   }
   else
   {
@@ -547,7 +532,7 @@ void eventRemoveContext(SCRIPT_CONTEXT* psContext)
     if (psCCont)
     {
       psPCont->psNext = psCCont->psNext;
-      HEAP_FREE(psContHeap, psContext);
+      delete psContext;
     }
     else
       ASSERT((FALSE, "eventRemoveContext: context not found"));
@@ -656,7 +641,8 @@ static BOOL eventInitTrigger(ACTIVE_TRIGGER** ppsTrigger, SCRIPT_CONTEXT* psCont
     return FALSE;
 
   // Get a trigger object
-  if (!HEAP_ALLOC(psTrigHeap, &psNewTrig))
+  psNewTrig = new (std::nothrow) ACTIVE_TRIGGER;
+  if (psNewTrig == nullptr)
     return FALSE;
 
   // Initialise the trigger
@@ -685,7 +671,8 @@ BOOL eventLoadTrigger(UDWORD time, SCRIPT_CONTEXT* psContext, SDWORD type, SDWOR
   ASSERT((trigger < psContext->psCode->numTriggers, "eventLoadTrigger: Trigger out of range"));
 
   // Get a trigger object
-  if (!HEAP_ALLOC(psTrigHeap, &psNewTrig))
+  psNewTrig = new (std::nothrow) ACTIVE_TRIGGER;
+  if (psNewTrig == nullptr)
   {
     DBERROR(("eventLoadTrigger: out of memory"));
     return FALSE;
@@ -715,7 +702,8 @@ BOOL eventAddPauseTrigger(SCRIPT_CONTEXT* psContext, UDWORD event, UDWORD offset
   ASSERT((event < psContext->psCode->numEvents, "eventAddTrigger: Event out of range"));
 
   // Get a trigger object
-  if (!HEAP_ALLOC(psTrigHeap, &psNewTrig))
+  psNewTrig = new (std::nothrow) ACTIVE_TRIGGER;
+  if (psNewTrig == nullptr)
     return FALSE;
 
   // figure out what type of trigger will go into the system when the pause
@@ -763,7 +751,7 @@ static void eventFreeTrigger(ACTIVE_TRIGGER* psTrigger)
     // Free the context as well
     eventRemoveContext(psTrigger->psContext);
   }
-  HEAP_FREE(psTrigHeap, psTrigger);
+  delete psTrigger;
 }
 
 // Activate a callback trigger
@@ -995,7 +983,7 @@ void eventRemoveTriggerFromList(ACTIVE_TRIGGER** ppsList, SCRIPT_CONTEXT* psCont
     {
       psCurr = *ppsList;
       *ppsList = (*ppsList)->psNext;
-      HEAP_FREE(psTrigHeap, psCurr);
+      delete psCurr;
     }
   }
   else
@@ -1016,7 +1004,7 @@ void eventRemoveTriggerFromList(ACTIVE_TRIGGER** ppsList, SCRIPT_CONTEXT* psCont
     else if (psCurr)
     {
       psPrev->psNext = psCurr->psNext;
-      HEAP_FREE(psTrigHeap, psCurr);
+      delete psCurr;
     }
   }
 }
@@ -1061,7 +1049,7 @@ BOOL eventSetTrigger(void)
           {
             psCurr = psTrigList;
             psTrigList = psTrigList->psNext;
-            HEAP_FREE(psTrigHeap, psCurr);
+            delete psCurr;
           }
         }
         else
@@ -1085,7 +1073,7 @@ BOOL eventSetTrigger(void)
           else if (psCurr)
           {
             psPrev->psNext = psCurr->psNext;
-            HEAP_FREE(psTrigHeap, psCurr);
+            delete psCurr;
           }
         }
         // Remove any old callback trigger from the list
@@ -1094,7 +1082,7 @@ BOOL eventSetTrigger(void)
         {
           psCurr = psCallbackList;
           psCallbackList = psCallbackList->psNext;
-          HEAP_FREE(psTrigHeap, psCurr);
+          delete psCurr;
         }
         else
         {
@@ -1110,7 +1098,7 @@ BOOL eventSetTrigger(void)
           if (psCurr)
           {
             psPrev->psNext = psCurr->psNext;
-            HEAP_FREE(psTrigHeap, psCurr);
+            delete psCurr;
           }
         }*/
   }

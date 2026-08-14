@@ -5,7 +5,6 @@
 #include "RendMode.h"
 
 /* The widget heaps */
-OBJ_HEAP* psSldHeap;
 BOOL DragEnabled = TRUE;
 
 void sliderEnableDrag(BOOL Enable) { DragEnabled = Enable; }
@@ -49,7 +48,8 @@ BOOL sliderCreate(W_SLIDER** ppsWidget, W_SLDINIT* psInit)
 #if W_USE_MALLOC
   *ppsWidget = (W_SLIDER*)MALLOC(sizeof(W_SLIDER)); if (*ppsWidget == NULL)
 #else
-  if (!HEAP_ALLOC(psSldHeap, ppsWidget))
+  *ppsWidget = new (std::nothrow) W_SLIDER;
+  if (*ppsWidget == nullptr)
 #endif
   {
     ASSERT((FALSE, "sliderCreate: Out of memory"));
@@ -109,7 +109,7 @@ void sliderFree(W_SLIDER* psWidget)
 #if W_USE_MALLOC
   FREE(psWidget);
 #else
-  HEAP_FREE(psSldHeap, psWidget);
+  delete psWidget;
 #endif
 }
 

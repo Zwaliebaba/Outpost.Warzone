@@ -59,7 +59,6 @@ using TREAP_NODE = struct _treap_node
 using TREAP = struct _treap
 {
   TREAP_CMP cmp; // comparison function
-  OBJ_HEAP* psNodes; // node heap
   TREAP_NODE* psRoot; // root of the tree
 
 #if DEBUG_TREAP

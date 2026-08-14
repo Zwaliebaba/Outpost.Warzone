@@ -1595,8 +1595,7 @@ BOOL skAddTemplate(void)
 		return FALSE;
 	}
 	psTempl =(DROID_TEMPLATE *)stempl;
-	HEAP_ALLOC(psTemplateHeap,&psT);
-	if ( !psT)
+	if (!HEAP_ALLOC(psTemplateHeap,&psT))
 	{
 		goto fail;
 	}

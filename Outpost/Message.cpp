@@ -37,11 +37,8 @@ the number of Proximity Messages for a mission*/
 VIEWDATA_LIST* apsViewData;
 
 /* The memory heaps for the messages and viewData*/
-OBJ_HEAP* psMsgHeap;
-OBJ_HEAP* psViewDataHeap;
 
 /* The memory heap for the proximity displays */
-OBJ_HEAP* psProxDispHeap;
 
 /* The id number for the next message allocated
  * Each message will have a unique id number irrespective of type
@@ -73,11 +70,12 @@ static void checkMessages(MSG_VIEWDATA* psViewData);
 // ajl modified for netgames
 extern UDWORD selectedPlayer;
 
-#define CREATE_MSG(heap, new, msgType) \
-	if (HEAP_ALLOC(heap, (new))) \
+#define CREATE_MSG(ppNew, msgType) \
+	*(ppNew) = new (std::nothrow) MESSAGE; \
+	if (*(ppNew) != NULL) \
 	{ \
-		(*(new))->type = msgType; \
-		(*(new))->id = (msgID<<3)|selectedPlayer; \
+		(*(ppNew))->type = msgType; \
+		(*(ppNew))->id = (msgID<<3)|selectedPlayer; \
 		msgID++; \
 	}
 
@@ -200,12 +198,12 @@ void add_msg(MESSAGE* list[MAX_PLAYERS], MESSAGE* msg, UDWORD player)
  * list is a pointer to the message list
  * del is a pointer to the message to remove
 */
-#define REMOVEMSG(list, heap, del, player) \
+#define REMOVEMSG(list, del, player) \
 	 \
 	if (list[player] == del) \
 	{ \
 		list[player] = list[player]->psNext; \
-		HEAP_FREE(heap, del); \
+		delete del; \
 	} \
 	else \
 	{ \
@@ -220,11 +218,11 @@ void add_msg(MESSAGE* list[MAX_PLAYERS], MESSAGE* msg, UDWORD player)
 		if (psCurr != NULL) \
 		{ \
 			psPrev->psNext = psCurr->psNext; \
-			HEAP_FREE(heap, del); \
+			delete del; \
 		} \
 	}
 
-#define RELEASEALLMSG(list, heap) \
+#define RELEASEALLMSG(list) \
 	{ \
 		UDWORD	i; \
 		MESSAGE	*psCurr, *psNext; \
@@ -233,7 +231,7 @@ void add_msg(MESSAGE* list[MAX_PLAYERS], MESSAGE* msg, UDWORD player)
 			for(psCurr = list[i]; psCurr != NULL; psCurr = psNext) \
 			{ \
 		 		psNext = psCurr->psNext; \
-				HEAP_FREE(heap, psCurr); \
+				delete psCurr; \
 			} \
 			list[i] = NULL; \
 		} \
@@ -243,9 +241,6 @@ BOOL messageInitVars(void)
 {
   int i;
 
-  psMsgHeap = nullptr;
-  psProxDispHeap = nullptr;
-  psViewDataHeap = nullptr;
   msgID = 0;
   currentNumProxDisplays = 0;
 
@@ -263,14 +258,11 @@ BOOL messageInitVars(void)
 //allocates the viewdata heap
 BOOL initViewData(void)
 {
-  //initialise the viewData heap - needs to be done before the data is loaded
-  if (!HEAP_CREATE(&psViewDataHeap, sizeof(VIEWDATA), VIEWDATA_INIT, VIEWDATA_EXT))
-    return FALSE;
   return TRUE;
 }
 
 //destroys the viewdata heap
-void viewDataHeapShutDown(void) { HEAP_DESTROY(psViewDataHeap); }
+void viewDataHeapShutDown(void) {  }
 
 /*Add a message to the list */
 MESSAGE* addMessage(UDWORD msgType, BOOL proxPos, UDWORD player)
@@ -278,7 +270,7 @@ MESSAGE* addMessage(UDWORD msgType, BOOL proxPos, UDWORD player)
   MESSAGE* psMsgToAdd = nullptr;
 
   //first create a message of the required type
-  CREATE_MSG(psMsgHeap, &psMsgToAdd, static_cast<MESSAGE_TYPE>(msgType));
+  CREATE_MSG(&psMsgToAdd, static_cast<MESSAGE_TYPE>(msgType));
   if (!psMsgToAdd)
     return nullptr;
   //then add to the players' list
@@ -305,7 +297,8 @@ void addProximityDisplay(MESSAGE* psMessage, BOOL proxPos, UDWORD player)
   PROXIMITY_DISPLAY* psToAdd;
 
   //create the proximity display
-  if (HEAP_ALLOC(psProxDispHeap, &psToAdd))
+  psToAdd = new (std::nothrow) PROXIMITY_DISPLAY;
+  if (psToAdd != nullptr)
   {
     if (proxPos)
       psToAdd->type = POS_PROXOBJ;
@@ -336,7 +329,7 @@ void removeMessage(MESSAGE* psDel, UDWORD player)
 {
   if (psDel->type == MSG_PROXIMITY)
     removeProxDisp(psDel, player);
-  REMOVEMSG(apsMessages, psMsgHeap, psDel, player);
+  REMOVEMSG(apsMessages, psDel, player);
 }
 
 /* remove a proximity display */
@@ -350,7 +343,7 @@ void removeProxDisp(MESSAGE* psMessage, UDWORD player)
     psCurr = apsProxDisp[player];
     apsProxDisp[player] = apsProxDisp[player]->psNext;
     intRemoveProximityButton(psCurr);
-    HEAP_FREE(psProxDispHeap, psCurr);
+    delete psCurr;
   }
   else
   {
@@ -362,7 +355,7 @@ void removeProxDisp(MESSAGE* psMessage, UDWORD player)
       {
         psPrev->psNext = psCurr->psNext;
         intRemoveProximityButton(psCurr);
-        HEAP_FREE(psProxDispHeap, psCurr);
+        delete psCurr;
         break;
       }
       psPrev = psCurr;
@@ -374,7 +367,7 @@ void removeProxDisp(MESSAGE* psMessage, UDWORD player)
 void freeMessages(void)
 {
   releaseAllProxDisp();
-  RELEASEALLMSG(apsMessages, psMsgHeap);
+  RELEASEALLMSG(apsMessages);
 }
 
 /* removes all the proximity displays */
@@ -414,13 +407,6 @@ BOOL initMessage(void)
 
   //initialise the tutorial message - only used by scripts
 
-  if (!HEAP_CREATE(&psMsgHeap, sizeof(MESSAGE), MESSAGE_INIT, MESSAGE_EXT))
-    return FALSE;
-
-  //initialise the proximity display heap
-  if (!HEAP_CREATE(&psProxDispHeap, sizeof(PROXIMITY_DISPLAY), PROXDISP_INIT, PROXDISP_EXT))
-    return FALSE;
-
   //JPS add message to get on screen video
 #ifdef VIDEO_TEST
   //mission
@@ -436,7 +422,8 @@ BOOL addToViewDataList(VIEWDATA* psViewData, UBYTE numData)
 {
   VIEWDATA_LIST* psAdd;
 
-  if (HEAP_ALLOC(psViewDataHeap, (void**)&psAdd))
+  psAdd = new (std::nothrow) VIEWDATA_LIST;
+  if (psAdd != nullptr)
   {
     psAdd->psViewData = psViewData;
     psAdd->numViewData = numData;
@@ -785,8 +772,6 @@ VIEWDATA* getViewData(STRING* pName)
 BOOL messageShutdown(void)
 {
   freeMessages();
-  HEAP_DESTROY(psMsgHeap);
-  HEAP_DESTROY(psProxDispHeap);
 
   return TRUE;
 }
@@ -844,12 +829,12 @@ void viewDataShutDown(VIEWDATA* psViewData)
       if (psList == apsViewData)
       {
         apsViewData = psList->psNext;
-        HEAP_FREE(psViewDataHeap, psList);
+        delete psList;
       }
       else
       {
         psPrev->psNext = psList->psNext;
-        HEAP_FREE(psViewDataHeap, psList);
+        delete psList;
       }
       break;
     }

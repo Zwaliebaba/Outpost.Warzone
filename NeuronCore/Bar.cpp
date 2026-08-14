@@ -8,7 +8,6 @@
 #include "PiePalette.h"
 
 /* The widget heap */
-OBJ_HEAP* psBarHeap;
 
 /* Create a barGraph widget data structure */
 BOOL barGraphCreate(W_BARGRAPH** ppsWidget, W_BARINIT* psInit)
@@ -40,7 +39,8 @@ BOOL barGraphCreate(W_BARGRAPH** ppsWidget, W_BARINIT* psInit)
 #if W_USE_MALLOC
   *ppsWidget = (W_BARGRAPH*)MALLOC(sizeof(W_BARGRAPH)); if (*ppsWidget == NULL)
 #else
-  if (!HEAP_ALLOC(psBarHeap, ppsWidget))
+  *ppsWidget = new (std::nothrow) W_BARGRAPH;
+  if (*ppsWidget == nullptr)
 #endif
   {
     ASSERT((FALSE, "barGraphCreate: Out of memory"));
@@ -115,7 +115,7 @@ void barGraphFree(W_BARGRAPH* psWidget)
 #if W_USE_MALLOC
   FREE(psWidget);
 #else
-  HEAP_FREE(psBarHeap, psWidget);
+  delete psWidget;
 #endif
 }
 

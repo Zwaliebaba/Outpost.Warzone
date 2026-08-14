@@ -1609,11 +1609,9 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
         player2dpid[inc] = saveGameData.sPlayer2dpid[inc];
       if (bMultiPlayer)
       {
-        blockSuspendUsage();
         loadMultiStats(saveGameData.sPName, &playerStats); // stats stuff
         setMultiStats(NetPlay.dpidPlayer, playerStats,FALSE);
         setMultiStats(NetPlay.dpidPlayer, playerStats,TRUE);
-        blockUnsuspendUsage();
       }
     }
   }
@@ -1693,7 +1691,7 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
       for (pTemplate = apsDroidTemplates[0]; pTemplate != nullptr; pTemplate = pNext)
       {
         pNext = pTemplate->psNext;
-        HEAP_FREE(psTemplateHeap, pTemplate);
+        delete pTemplate;
       }
       apsDroidTemplates[0] = nullptr;
     }
@@ -1708,7 +1706,7 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
         {
           DROID_TEMPLATE* psTempl;
           psTempl = apsDroidTemplates[inc]->psNext;
-          HEAP_FREE(psTemplateHeap, apsDroidTemplates[inc]);
+          delete apsDroidTemplates[inc];
           apsDroidTemplates[inc] = psTempl;
         }
       }
@@ -1736,7 +1734,6 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
   if (saveGameOnMission && UserSaveGame)
   {
     LOADBARCALLBACK(); //		loadingScreenCallback();
-    memSetBlockHeap(psMapHeap); //should be set
 
     //the scroll limits for the mission map have already been written
     if (saveGameVersion >= VERSION_29)
@@ -1781,7 +1778,6 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
     }
 
     //set mission heap
-    memSetBlockHeap(psMissionHeap);
 
     // reload the objects that were in the mission list 
     //except droids these are always loaded directly to the mission.apsDroidList
@@ -2589,11 +2585,7 @@ error: DBPRINTF(("loadgame: ERROR\n"));
 BOOL saveGame(STRING* aFileName, SDWORD saveType)
 {
   UDWORD fileExtension;
-  BLOCK_HEAP* psHeap;
   DROID *psDroid, *psNext;
-
-  psHeap = memGetBlockHeap();
-  memSetBlockHeap(nullptr);
 
   fileExtension = strlen(aFileName) - 3;
   gameTimeStop();
@@ -2835,14 +2827,11 @@ BOOL saveGame(STRING* aFileName, SDWORD saveType)
     swapMissionPointers();
   }
 
-  memSetBlockHeap(psHeap);
-
   /* Start the game clock */
   gameTimeStart();
   return TRUE;
 
 error:
-  memSetBlockHeap(psHeap);
   /* Start the game clock */
   gameTimeStart();
 
@@ -3381,11 +3370,9 @@ BOOL gameLoadV(UBYTE* pFileData, UDWORD filesize, UDWORD version)
         player2dpid[inc] = psSaveGame->sPlayer2dpid[inc];
       if (bMultiPlayer)
       {
-        blockSuspendUsage();
         loadMultiStats(psSaveGame->sPName, &playerStats); // stats stuff
         setMultiStats(NetPlay.dpidPlayer, playerStats,FALSE);
         setMultiStats(NetPlay.dpidPlayer, playerStats,TRUE);
-        blockUnsuspendUsage();
       }
     }
   }
@@ -6710,7 +6697,8 @@ BOOL loadSaveTemplateV7(UBYTE* pFileData, UDWORD filesize, UDWORD numTemplates)
     }
 
     //create the Template
-    if (!HEAP_ALLOC(psTemplateHeap, &psTemplate))
+    psTemplate = new (std::nothrow) DROID_TEMPLATE;
+    if (psTemplate == nullptr)
     {
       DBERROR(("Out of memory"));
       goto error;
@@ -6745,7 +6733,7 @@ BOOL loadSaveTemplateV7(UBYTE* pFileData, UDWORD filesize, UDWORD numTemplates)
     if (!found)
     {
       //ignore this record
-      HEAP_FREE(psTemplateHeap, psTemplate);
+      delete psTemplate;
       continue;
     }
     psTemplate->numWeaps = psSaveTemplate->numWeaps;
@@ -6766,7 +6754,7 @@ BOOL loadSaveTemplateV7(UBYTE* pFileData, UDWORD filesize, UDWORD numTemplates)
     if (!found)
     {
       //ignore this record
-      HEAP_FREE(psTemplateHeap, psTemplate);
+      delete psTemplate;
       continue;
     }
 
@@ -6821,7 +6809,8 @@ BOOL loadSaveTemplateV14(UBYTE* pFileData, UDWORD filesize, UDWORD numTemplates)
     }
 
     //create the Template
-    if (!HEAP_ALLOC(psTemplateHeap, &psTemplate))
+    psTemplate = new (std::nothrow) DROID_TEMPLATE;
+    if (psTemplate == nullptr)
     {
       DBERROR(("Out of memory"));
       goto error;
@@ -6857,7 +6846,7 @@ BOOL loadSaveTemplateV14(UBYTE* pFileData, UDWORD filesize, UDWORD numTemplates)
     if (!found)
     {
       //ignore this record
-      HEAP_FREE(psTemplateHeap, psTemplate);
+      delete psTemplate;
       continue;
     }
     psTemplate->numWeaps = psSaveTemplate->numWeaps;
@@ -6878,7 +6867,7 @@ BOOL loadSaveTemplateV14(UBYTE* pFileData, UDWORD filesize, UDWORD numTemplates)
     if (!found)
     {
       //ignore this record
-      HEAP_FREE(psTemplateHeap, psTemplate);
+      delete psTemplate;
       continue;
     }
 
@@ -6958,7 +6947,8 @@ BOOL loadSaveTemplateV(UBYTE* pFileData, UDWORD filesize, UDWORD numTemplates)
     }
 
     //create the Template
-    if (!HEAP_ALLOC(psTemplateHeap, &psTemplate))
+    psTemplate = new (std::nothrow) DROID_TEMPLATE;
+    if (psTemplate == nullptr)
     {
       DBERROR(("Out of memory"));
       goto error;
@@ -7005,7 +6995,7 @@ BOOL loadSaveTemplateV(UBYTE* pFileData, UDWORD filesize, UDWORD numTemplates)
     if (!found)
     {
       //ignore this record
-      HEAP_FREE(psTemplateHeap, psTemplate);
+      delete psTemplate;
       continue;
     }
     psTemplate->numWeaps = psSaveTemplate->numWeaps;
@@ -7026,7 +7016,7 @@ BOOL loadSaveTemplateV(UBYTE* pFileData, UDWORD filesize, UDWORD numTemplates)
     if (!found)
     {
       //ignore this record
-      HEAP_FREE(psTemplateHeap, psTemplate);
+      delete psTemplate;
       continue;
     }
 

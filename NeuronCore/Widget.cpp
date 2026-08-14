@@ -16,10 +16,6 @@
 
 #include <assert.h>
 
-/* The initial and extension number of strings to allocate in the string heap */
-#define WIDG_STRINIT		100
-#define WIDG_STREXT			10
-
 /* the widget to be returned by widgRunScreen */
 static WIDGET* psRetWidget;
 
@@ -42,43 +38,13 @@ static void widgReleased(WIDGET* psWidget, UDWORD key, W_CONTEXT* psContext);
 static void widgRun(WIDGET* psWidget, W_CONTEXT* psContext);
 static void widgDisplayForm(W_FORM* psForm, UDWORD xOffset, UDWORD yOffset);
 
-/* The heap for widget strings */
-static OBJ_HEAP* psStrHeap;
-
 /* Buffer to return strings in */
 static STRING aStringRetBuffer[WIDG_MAXSTR];
 
 /* Initialise the widget module */
-BOOL widgInitialise(W_HEAPINIT* psInit)
+BOOL widgInitialise(void)
 {
-#if W_USE_STRHEAP
-  // Create the string heap
-  if (!HEAP_CREATE(&psStrHeap, WIDG_MAXSTR, WIDG_STRINIT, WIDG_STREXT)) { return FALSE; }
-#endif
-
   tipInitialise();
-
-#if W_USE_MALLOC
-  psInit = psInit;
-#else
-  // Create the widget heaps
-  if (!HEAP_CREATE(&psBarHeap, sizeof(W_BARGRAPH), psInit->barInit, psInit->barExt))
-    return FALSE;
-  if (!HEAP_CREATE(&psButHeap, sizeof(W_BUTTON), psInit->butInit, psInit->butExt))
-    return FALSE;
-  if (!HEAP_CREATE(&psEdbHeap, sizeof(W_EDITBOX), psInit->edbInit, psInit->edbExt))
-    return FALSE;
-  if (!HEAP_CREATE(&psFormHeap, sizeof(W_FORM), psInit->formInit, psInit->formExt))
-    return FALSE;
-  if (!HEAP_CREATE(&psCFormHeap, sizeof(W_CLICKFORM), psInit->cFormInit, psInit->cFormExt))
-    return FALSE;
-  if (!HEAP_CREATE(&psTFormHeap, sizeof(W_TABFORM), psInit->tFormInit, psInit->tFormExt))
-    return FALSE;
-  if (!HEAP_CREATE(&psLabHeap, sizeof(W_LABEL), psInit->labInit, psInit->labExt))
-    return FALSE;
-  if (!HEAP_CREATE(&psSldHeap, sizeof(W_SLIDER), psInit->sldInit, psInit->sldExt))
-    return FALSE;
-#endif
 
   return TRUE;
 }
@@ -88,28 +54,13 @@ BOOL widgInitialise(W_HEAPINIT* psInit)
 void widgReset(void) { tipInitialise(); }
 
 /* Shut down the widget module */
-void widgShutDown(void)
-{
-#if W_USE_STRHEAP
-  HEAP_DESTROY(psStrHeap);
-#endif
-
-#if !W_USE_MALLOC
-  HEAP_DESTROY(psBarHeap);
-  HEAP_DESTROY(psButHeap);
-  HEAP_DESTROY(psEdbHeap);
-  HEAP_DESTROY(psFormHeap);
-  HEAP_DESTROY(psCFormHeap);
-  HEAP_DESTROY(psTFormHeap);
-  HEAP_DESTROY(psLabHeap);
-  HEAP_DESTROY(psSldHeap);
-#endif
-}
+void widgShutDown(void) {}
 
 /* Get a string from the string heap */
 BOOL widgAllocString(STRING** ppStr)
 {
-  if (!HEAP_ALLOC(psStrHeap, ppStr))
+  *ppStr = new (std::nothrow) STRING[WIDG_MAXSTR];
+  if (*ppStr == nullptr)
     return FALSE;
 
   return TRUE;
@@ -135,7 +86,8 @@ void widgCopyString(STRING* pDest, STRING* pSrc)
  */
 BOOL widgAllocCopyString(STRING** ppDest, STRING* pSrc)
 {
-  if (!HEAP_ALLOC(psStrHeap, ppDest))
+  *ppDest = new (std::nothrow) STRING[WIDG_MAXSTR];
+  if (*ppDest == nullptr)
   {
     *ppDest = nullptr;
     return FALSE;
@@ -147,7 +99,7 @@ BOOL widgAllocCopyString(STRING** ppDest, STRING* pSrc)
 }
 
 /* Return a string to the string heap */
-void widgFreeString(STRING* pStr) { HEAP_FREE(psStrHeap, pStr); }
+void widgFreeString(STRING* pStr) { delete[] pStr; }
 
 /* Create an empty widget screen */
 BOOL widgCreateScreen(W_SCREEN** ppsScreen)

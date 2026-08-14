@@ -63,12 +63,6 @@ BOOL hashTable_Create(HASHTABLE** ppsTable, UDWORD udwTableSize, UDWORD udwInitE
   memset((*ppsTable)->ppsNode, 0, udwSize);
 
   /* allocate heaps */
-  if (!HEAP_CREATE(&(*ppsTable)->psNodeHeap, sizeof(HASHNODE), udwInitElements, udwExtElements))
-    return FALSE;
-
-  if (!HEAP_CREATE(&(*ppsTable)->psElementHeap, udwElementSize, udwInitElements, udwExtElements))
-    return FALSE;
-
   /* init members */
   (*ppsTable)->udwTableSize = udwTableSize;
   (*ppsTable)->udwElements = udwInitElements;
@@ -95,8 +89,6 @@ void hashTable_Destroy(HASHTABLE* psTable)
   hashTable_Clear(psTable);
 
   /* destroy heaps */
-  HEAP_DESTROY(psTable->psNodeHeap);
-  HEAP_DESTROY(psTable->psElementHeap);
 
   /* free table */
   FREE(psTable->ppsNode);
@@ -130,11 +122,11 @@ void hashTable_Clear(HASHTABLE* psTable)
         (psTable->pFreeFunc)(psNode->psElement);
 
       /* free element */
-      HEAP_FREE(psTable->psElementHeap, psNode->psElement);
+      delete[] static_cast<UBYTE*>(psNode->psElement);
 
       /* return node to heap */
       psNodeTmp = psNode->psNext;
-      HEAP_FREE(psTable->psNodeHeap, psNode);
+      delete psNode;
       psNode = psNodeTmp;
     }
 
@@ -167,16 +159,8 @@ void hashTable_SetFreeElementFunction(HASHTABLE* psTable, HASHFREEFUNC pFreeFunc
 
 void* hashTable_GetElement(HASHTABLE* psTable)
 {
-  void* psElement;
-  BOOL result;
-
-  result = HEAP_ALLOC(psTable->psElementHeap, &psElement);
-
-  // if the alloc fails then return NULL
-  if (result == FALSE)
-    return nullptr;
-
-  return psElement;
+  // returns NULL if the allocation fails
+  return new (std::nothrow) UBYTE[psTable->udwElementSize];
 }
 
 /***************************************************************************/
@@ -198,7 +182,7 @@ void hashTable_InsertElement(HASHTABLE* psTable, void* psElement, int iKey1, int
   udwHashIndex = hashTable_GetHashKey(psTable, iKey1, iKey2);
 
   /* get node from heap */
-  HEAP_ALLOC(psTable->psNodeHeap, &psNode);
+  psNode = new (std::nothrow) HASHNODE;
 
   /* set node elements */
   psNode->iKey1 = iKey1;
@@ -308,10 +292,10 @@ BOOL hashTable_RemoveElement(HASHTABLE* psTable, void* psElement, int iKey1, int
   hashTable_SetNextNode(psTable, TRUE);
 
   /* return element to heap */
-  HEAP_FREE(psTable->psElementHeap, psNode->psElement);
+  delete[] static_cast<UBYTE*>(psNode->psElement);
 
   /* return node to heap */
-  HEAP_FREE(psTable->psNodeHeap, psNode);
+  delete psNode;
 
   return TRUE;
 }

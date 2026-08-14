@@ -100,25 +100,6 @@ extern void featureInitVars(void);
 extern void radarInitVars(void);
 extern void initMiscVars(void);
 
-// the sizes for the game block heap
-#define GAMEBLOCK_INIT		(2*1024*1024)
-#define GAMEBLOCK_EXT		(1024*1024)
-// the sizes for the campaign map block heap
-#define MAPBLOCK_INIT		(1024*1024)
-#define MAPBLOCK_EXT		(32*1024)
-// the sizes for the mission block heap
-#define MISSIONBLOCK_INIT		(2*1024*1024)
-#define MISSIONBLOCK_EXT		(512*1024)
-
-// the block heap for the game data
-BLOCK_HEAP* psGameHeap;
-
-// the block heap for the campaign map
-BLOCK_HEAP* psMapHeap;
-
-// the block heap for the pre WRF data
-BLOCK_HEAP* psMissionHeap;
-
 // the block id for the game data
 #define GAME_BLOCKID	100
 
@@ -685,29 +666,10 @@ BOOL InitialiseGlobals(void)
 //
 BOOL systemInitialise(void)
 {
-  W_HEAPINIT sWInit;
   UBYTE* pBuffer;
   UDWORD size;
 
-  // Setup the sizes of the widget heaps , using code to setup a structure that calls a routine that tells a library how much memory it should allocate (hmmm...)
-  memset(&sWInit, 0, sizeof(sWInit));
-  sWInit.barInit = 40;
-  sWInit.barExt = 5;
-  sWInit.butInit = 50; // was 30 ... but what about the virtual keyboard
-  sWInit.butExt = 5;
-  sWInit.edbInit = 2;
-  sWInit.edbExt = 1;
-  sWInit.formInit = 10;
-  sWInit.formExt = 2;
-  sWInit.cFormInit = 50;
-  sWInit.cFormExt = 5;
-  sWInit.tFormInit = 3;
-  sWInit.tFormExt = 2;
-  sWInit.labInit = 15;
-  sWInit.labExt = 3;
-  sWInit.sldInit = 2;
-  sWInit.sldExt = 1;
-  if (!widgInitialise(&sWInit))
+  if (!widgInitialise())
     return FALSE;
 
   // load up the level discription file
@@ -807,18 +769,6 @@ BOOL systemInitialise(void)
 
   loadConfig(FALSE); // get favourite settings from the registry
 
-  // create a block heap for the game data
-  if (!BLOCK_CREATE(&psGameHeap, GAMEBLOCK_INIT, GAMEBLOCK_EXT))
-    return FALSE;
-
-  // create a block heap for the campaign map
-  if (!BLOCK_CREATE(&psMapHeap, MAPBLOCK_INIT, MAPBLOCK_EXT))
-    return FALSE;
-
-  // create a block heap for the pre WRF data
-  if (!BLOCK_CREATE(&psMissionHeap, MISSIONBLOCK_INIT, MISSIONBLOCK_EXT))
-    return FALSE;
-
 #ifdef ARROWS
   arrowInit();
 #endif
@@ -846,9 +796,6 @@ BOOL systemShutdown(void)
   resReleaseAll();
 
   // release the block heaps
-  BLOCK_DESTROY(psGameHeap);
-  BLOCK_DESTROY(psMapHeap);
-  BLOCK_DESTROY(psMissionHeap);
 
   if (!bDisableLobby && !multiShutdown()) // ajl. init net stuff
     return FALSE;
@@ -912,7 +859,6 @@ BOOL frontendInitialise(char* ResourceFile)
   DBPRINTF(("Initialising frontend : %s\n",ResourceFile));
 
   // allocate memory from the pre data heap
-  memSetBlockHeap(psGameHeap);
 
   // reset the multiple wdg stuff
   wdgEnableAddonWDG();
@@ -941,7 +887,7 @@ BOOL frontendInitialise(char* ResourceFile)
     return FALSE;
 
   DBPRINTF(("frontEndInitialise: loading resource file ....."));
-  if (!resLoad(ResourceFile, 0, DisplayBuffer, displayBufferSize, psGameHeap))
+  if (!resLoad(ResourceFile, 0, DisplayBuffer, displayBufferSize))
     //need the object heaps to have been set up before loading in the save game
     return FALSE;
 
@@ -976,8 +922,6 @@ BOOL frontendInitialise(char* ResourceFile)
   frameSetCursorFromRes(IDC_DEFAULT);
 
   SetFormAudioIDs(-1, ID_SOUND_WINDOWCLOSE); // disable the open noise since distorted in 3dfx builds.
-
-  memSetBlockHeap(nullptr);
 
   initMiscVars();
 
@@ -1032,7 +976,6 @@ BOOL frontendShutdown(void)
   pie_TexShutDown();
 
   // reset the block heap
-  BLOCK_RESET(psGameHeap);
 
   return TRUE;
 }
@@ -1042,8 +985,6 @@ BOOL frontendShutdown(void)
 
 BOOL stageOneInitialise(void)
 {
-  BLOCK_HEAP* psHeap;
-
   DBPRINTF(("stageOneInitalise\n"));
 
 #ifndef FINALBUILD
@@ -1075,12 +1016,9 @@ BOOL stageOneInitialise(void)
     return FALSE;
 
   // debug mode only so use normal MALLOC
-  psHeap = memGetBlockHeap();
-  memSetBlockHeap(nullptr);
 #ifdef DISP2D
   if (!disp2DInitialise()) { return FALSE; }
 #endif
-  memSetBlockHeap(psHeap);
 
   if (!anim_Init(anim_GetShapeFunc))
     return FALSE;
