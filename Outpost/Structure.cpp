@@ -5741,9 +5741,9 @@ void setFlagPositionInc(void* pFunctionality, UDWORD player, UBYTE factoryType)
   UBYTE mask = 1;
   FACTORY* psFactory;
   REPAIR_FACILITY* psRepair;
-#ifdef DEBUG
+  // the message below is built in release builds too now, so this and the
+  // switch that fills it in cannot be gated on DEBUG any more
   STRING* pType;
-#endif
 
   ASSERT_TEXT(player < MAX_PLAYERS, "setFlagPositionInc: invalid player number");
   //find the first vacant slot
@@ -5757,7 +5757,6 @@ void setFlagPositionInc(void* pFunctionality, UDWORD player, UBYTE factoryType)
   if (inc >= MAX_FACTORY)
   {
     //this may happen now with electronic warfare
-#ifdef DEBUG
     switch (factoryType)
     {
     case FACTORY_FLAG:
@@ -5776,7 +5775,6 @@ void setFlagPositionInc(void* pFunctionality, UDWORD player, UBYTE factoryType)
       pType = "";
       break;
     }
-#endif
     ASSERT_TEXT(FALSE, "Building more than {} {} for player {}", MAX_FACTORY, pType, player);
     inc = 1;
   }

@@ -788,12 +788,9 @@ static void angleToVector(SDWORD angle, FRACT* pX, FRACT* pY)
 static void moveCalcTurn(FRACT* pCurr, FRACT target, UDWORD rate)
 {
   FRACT diff, change;
-#ifdef DEBUG
+  // the assertion at the end of the function reports this in release builds too
   SDWORD path = 0;
 #define SET_PATH(x) path=x
-#else
-#define SET_PATH(x)
-#endif
 
   ASSERT_TEXT(target < MAKEFRACT(360) && target >= MAKEFRACT(0), "moveCalcTurn: target out of range");
 

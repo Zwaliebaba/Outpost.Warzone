@@ -568,8 +568,9 @@ SDWORD gwRouteLength(GATEWAY* psStart, GATEWAY* psEnd)
 #endif
 }
 
-#ifdef DEBUG
-// check that the initial flood fill tiles are not on a blocking tile
+// check that the initial flood fill tiles are not on a blocking tile.
+// gwLinkGateways asserts on this, and that assertion runs in release builds
+// too, so the check cannot be gated on DEBUG any more.
 BOOL gwCheckFloodTiles(GATEWAY* psGate)
 {
   SDWORD floodX, floodY;
@@ -610,7 +611,6 @@ BOOL gwCheckFloodTiles(GATEWAY* psGate)
 
   return TRUE;
 }
-#endif
 
 // link all the gateways together
 BOOL gwLinkGateways(void)

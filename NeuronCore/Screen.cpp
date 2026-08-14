@@ -2086,16 +2086,13 @@ void screenDrawLine(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1)
   BOOL clipped;
   OUTCODE code0, code1, code;
   float cx, cy;
-#ifdef DEBUG
+  // the assertion below counts with this and runs in release builds too
   UDWORD loops;
-#endif
 
   clipped = FALSE;
   compOutCode(x0, y0, &code0);
   compOutCode(x1, y1, &code1);
-#ifdef DEBUG
   loops = 0;
-#endif
 
   /* Loop until the line is accepted. return if the line is rejected */
   do
