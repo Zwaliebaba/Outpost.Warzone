@@ -14,9 +14,6 @@
 #include "piePalette.h"
 #include "bug.h"
 #include "ivispatch.h"
-#ifdef INC_GLIDE
-#include "3dfxText.h"
-#endif
 #include "d3drender.h"
 
 
@@ -70,7 +67,6 @@ static int _tex_get_top_bit(uint32 n)
 
 int pie_AddBMPtoTexPages(iSprite* s, char* filename, int type, iBool bColourKeyed, iBool bResource)
 {
-	int				i3d;
 	int				i;
 	/* Get next available texture page */
 	i = _TEX_INDEX;
@@ -113,33 +109,11 @@ int pie_AddBMPtoTexPages(iSprite* s, char* filename, int type, iBool bColourKeye
 		}
 	}
 
-	/* Now some extra stuff if we're running on a 3dfx? */
-	if(rendSurface.usr == REND_GLIDE_3DFX)
-	{
-		if(iV_TexSizeIsLegal(s->width,s->height)) {
-			/* Bang it down to the card if we're on a 3dfx */
-			i3d = gl_downLoad8bitTexturePage(s->bmp,(UWORD)s->width,(UWORD)s->height);
-			/* Update 'real' texpage number in texpage structure */
-		} else {
-// If it's an illegal texture page size then chuck a message and default to TPage 1.
-			DBERROR(("Illegal size for texture. [%s , (%d,%d)]\n",
-					filename,s->width,s->height));
-			i3d = 1;
-		}
-		_TEX_PAGE[i].textPage3dfx = i3d;
-	}
 	/* Send back the texpage number so we can store it in the IMD */
 
 	_TEX_INDEX++;
 
-	if (pie_GetRenderEngine() == ENGINE_GLIDE)
-	{
-		return(i3d);
-	}
-	else
-	{
-		return (i);
-	}
+	return (i);
 }
 
 
@@ -195,16 +169,7 @@ int iV_TexLoadNew( char *path, char *filename, int type,
 	{
 		if (stricmp(fname,_TEX_PAGE[i].name) == 0)
 		{
-			/* Send back 3dfx texpage number if we're on 3dfx - they're NOT the same */
-		 	if(rendSurface.usr == REND_GLIDE_3DFX)
-			{
-				return(_TEX_PAGE[i].textPage3dfx);
-			}
-			else
-			{
-				/* Otherwise send back the software one */
-				return i;
-			}
+			return i;
 		}
 		i++;
 	}
@@ -258,11 +223,7 @@ int pie_ReloadTexPage(char *filename,UBYTE *pBuffer)
 
 	pie_PCXLoadMemToBuffer(pBuffer,&s,NULL); 
 
- 	if(pie_GetRenderEngine() == ENGINE_GLIDE)
-	{
-		gl_Reload8bitTexturePage(s.bmp,(UWORD)s.width,(UWORD)s.height,_TEX_PAGE[i].textPage3dfx);
-	}
-	else if(pie_GetRenderEngine() == ENGINE_D3D)
+ 	if(pie_GetRenderEngine() == ENGINE_D3D)
 	{
 		dtm_LoadTexSurface(&_TEX_PAGE[i].tex, i);
 	}
@@ -403,11 +364,6 @@ void pie_TexShutDown(void)
 			}
 		}
 		i++;
-	}
-
-	if (pie_GetRenderEngine() == ENGINE_GLIDE)
-	{
-		free3dfxTexMemory();
 	}
 
 

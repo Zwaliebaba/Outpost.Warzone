@@ -17,10 +17,6 @@
 #include "tex.h"
 //#include "pdv.h"
 #include "ivispatch.h"
-#ifdef INC_GLIDE
-	#include "3dfxmode.h"
-	#include "3dfxText.h"
-#endif
 
 //*************************************************************************
 
@@ -35,10 +31,6 @@ iError	_iVERROR;
 // pass in true to reset the palette too.
 void iV_Reset(int bPalReset)
 {
-	if (pie_GetRenderEngine() == ENGINE_GLIDE)
-	{
-		reset3dfx();
-	}
 	_TEX_INDEX = 0;
 	iV_ClearFonts();		// Initialise the IVIS font module.
 }

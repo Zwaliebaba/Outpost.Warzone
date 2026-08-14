@@ -1,20 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <dos.h>
 #include "rendmode.h"
 #include "bug.h"
 #include "piePalette.h"
 #include "pcx.h"
 #include "tex.h"
 #include "ivispatch.h"
-
-
-#ifdef INC_GLIDE
-	#include "tex.h"
-	#include "3dfxText.h"
-	#include "3dfxfunc.h"
-#endif
 
 
 #include "BitImage.h"
@@ -177,19 +169,8 @@ static BOOL LoadTextureFile(char *FileName,iSprite *pSprite,int *texPageID)
 	{
 		if (stricmp(FileName,_TEX_PAGE[i].name) == 0)
 		{
-			/* Send back 3dfx texpage number if we're on 3dfx - they're NOT the same */
-		 	if(rendSurface.usr == REND_GLIDE_3DFX)
-			{
-
-				*texPageID = (_TEX_PAGE[i].textPage3dfx);
-				return TRUE;
-			}
-			else
-			{
-				/* Otherwise send back the software one */
-				*texPageID = i;
-				return TRUE;
-			}
+			*texPageID = i;
+			return TRUE;
 		}
 		i++;
 	}

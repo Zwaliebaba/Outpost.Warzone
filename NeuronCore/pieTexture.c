@@ -13,9 +13,6 @@
 #include "pieState.h"
 #include "dx6TexMan.h"
 #include "tex.h"
-#ifdef INC_GLIDE
-	#include "3dfxText.h"
-#endif
 
 
 /***************************************************************************/
@@ -52,36 +49,15 @@ TEXTURE_STATE	textureStates;
 
 BOOL pie_Download8bitTexturePage(void* bitmap,UWORD Width,UWORD Height)
 {
-	if (pie_GetRenderEngine() == ENGINE_GLIDE)
-	{
-		return gl_downLoad8bitTexturePage(bitmap, Width, Height);
-	}
-	else
-	{
-		return TRUE;
-	}
+	return TRUE;
 }
 
 BOOL pie_Reload8bitTexturePage(void* bitmap,UWORD Width,UWORD Height, SDWORD index)
 {
-	if (pie_GetRenderEngine() == ENGINE_GLIDE)
-	{
-		return gl_Reload8bitTexturePage(bitmap, Width, Height, index);
-	}
-	else
-	{
-		return dtm_ReLoadTexture(index);
-	}
+	return dtm_ReLoadTexture(index);
 }
 
 UDWORD pie_GetLastPageDownloaded(void)
 {
-	if (pie_GetRenderEngine() == ENGINE_GLIDE)
-	{
-		return gl_GetLastPageDownLoaded();
-	}
-	else
-	{
-		return _TEX_INDEX;
-	}
+	return _TEX_INDEX;
 }

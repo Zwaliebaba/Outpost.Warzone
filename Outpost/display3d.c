@@ -278,7 +278,6 @@ UDWORD	stepIndex;
 /* The box used for multiple selection - present screen coordinates */
 /* The game palette */
 iPalette	gamePal;
-BOOL	done3dfxRadar = FALSE;
 UDWORD	currentGameFrame;
 UDWORD	numTiles = 0;
 SDWORD	tileZ = 8000;
@@ -372,16 +371,7 @@ UDWORD	pixelHeight;
 		}
 
 			/* GET RID OF THE MAGIC NUMBERS BELOW */
-		if (pie_GetRenderEngine() == ENGINE_GLIDE)
-		{
-			pie_SetSwirlyBoxes(TRUE);
-			iV_UniTransBoxFill(RET_X+1,474+E_H-pixelHeight,RET_X+1+pixelLength+2,473+E_H,0x000000ff,128);
-			pie_SetSwirlyBoxes(FALSE);
-		}
-		else
-		{
-			iV_TransBoxFill(RET_X+1,474+E_H-pixelHeight,RET_X+1+pixelLength+2,473+E_H);
-		}
+		iV_TransBoxFill(RET_X+1,474+E_H-pixelHeight,RET_X+1+pixelLength+2,473+E_H);
 
 		iV_DrawText(sTextToSend,RET_X+3,469+E_H);
 }
@@ -487,10 +477,7 @@ BOOL		bPlayerHasHQ = FALSE;
 		}
 
 	/* Ensure that any text messages are displayed at bottom of screen */
-		if (pie_Hardware())
-		{
-			pie_SetFogStatus(FALSE);
-		}
+		pie_SetFogStatus(FALSE);
 		displayConsoleMessages();
 //		if(getWarCamStatus())
 //		{
@@ -563,19 +550,6 @@ BOOL		bPlayerHasHQ = FALSE;
 #endif
  	}
 
-	if(pie_GetRenderEngine() == ENGINE_GLIDE)
-	{
-		if(getSelectedGroup()<UBYTE_MAX)
-		{
-	 		sprintf(buildInfo,"%d", getSelectedGroup());
-			iV_DrawText(buildInfo,mX-17,mY+4);
-		}
-		else if(getSelectedCommander()<UBYTE_MAX)
-		{
-	 		sprintf(buildInfo,"*%d", getSelectedCommander());
-			iV_DrawText(buildInfo,mX-25,mY+4);
-		}
-	}
   	while(player.r.y>DEG(360))
 	{
 		player.r.y-=DEG(360);
@@ -664,14 +638,7 @@ void displayTerrain(void)
 	camera.p.x = 0;
 
 	/* SetUpClipping window - to below the backdrop */
-	if (pie_Hardware())
-	{
-  		pie_Set2DClip(xOffset,yOffset,psRendSurface->width-xOffset,psRendSurface->height-yOffset);
-	}
-	else
-	{
-  		pie_Set2DClip(xOffset,yOffset,psRendSurface->width-xOffset-1,psRendSurface->height-yOffset-1);
-	}
+  	pie_Set2DClip(xOffset,yOffset,psRendSurface->width-xOffset,psRendSurface->height-yOffset);
 
 	/* Render the sky here */
 //	if(!bScreenClose)
@@ -834,10 +801,7 @@ void drawTiles(iView *camera, iView *player)
 		/* Go through the x's */
 		for (j=0; j<(SDWORD)visibleXTiles+1; j++) 
 		{
-			if(pie_Hardware())
-			{
-				tileScreenInfo[i][j].bWater = FALSE;
-			}
+			tileScreenInfo[i][j].bWater = FALSE;
 			if( (playerXTile+j < 0) OR 
 				(playerZTile+i < 0)	OR
 				(playerXTile+j > (SDWORD)(mapWidth-1)) OR
@@ -859,16 +823,8 @@ void drawTiles(iView *camera, iView *player)
 			  
 			   	if (pie_GetFogEnabled())
 			  	{
-			  		if(pie_Hardware())
-			  		{
-			  			tileScreenInfo[i][j].light.argb = 0xff030303;
-			  			tileScreenInfo[i][j].specular.argb = pie_GetFogColour();
-			  		}
-			  		else
-					{
-			  			tileScreenInfo[i][j].light.argb = 0x00000003;
-			  			tileScreenInfo[i][j].specular.argb = 0;
-			  		}
+			  		tileScreenInfo[i][j].light.argb = 0xff030303;
+			  		tileScreenInfo[i][j].specular.argb = pie_GetFogColour();
 			  	}
 			  	else
 			  	{
@@ -897,12 +853,9 @@ void drawTiles(iView *camera, iView *player)
 				psTile = mapTile(playerXTile+j,playerZTile+i);
 				/* Get a pointer to the tile at this location */
 				tileXYZ.x = ((j-terrainMidX)<<TILE_SHIFT);
-				if(pie_Hardware())
+				if(TERRAIN_TYPE(psTile)==TER_WATER)
 				{
-					if(TERRAIN_TYPE(psTile)==TER_WATER)
-					{
-						tileScreenInfo[i][j].bWater = TRUE;
-					}
+					tileScreenInfo[i][j].bWater = TRUE;
 				}
 				tileXYZ.y = map_TileHeight(playerXTile+j, playerZTile+i);
 				tileXYZ.z = ((terrainMidY-i)<<TILE_SHIFT);
@@ -944,56 +897,47 @@ void drawTiles(iView *camera, iView *player)
 				}
 
 #ifdef ENABLE_WATER
-				if (pie_Hardware())
+				TextNum = (UWORD)(psTile->texture & TILE_NUMMASK);
+				IsWaterTile = (TERRAIN_TYPE(psTile) == TER_WATER);
+				// If it's the main water tile then..
+				PushedDown = FALSE;
+				if( TextNum == WaterTileID AND !bEdgeTile)
 				{
-					TextNum = (UWORD)(psTile->texture & TILE_NUMMASK);
-					IsWaterTile = (TERRAIN_TYPE(psTile) == TER_WATER);
-					// If it's the main water tile then..
-					PushedDown = FALSE;
-					if( TextNum == WaterTileID AND !bEdgeTile) 
-					{
-						// Push the terrain down for the river bed.
-						PushedDown = TRUE;
-					 	shiftVal = WATER_DEPTH + ((3*environGetData(playerXTile+j,playerZTile+i))/2);
-						altVal = 0;//environGetValue(playerXTile+j,playerZTile+i);
-						tileXYZ.y -= (shiftVal+altVal);
-						// And darken it.
-						TileIllum = (UBYTE)((TileIllum*3)/4);
-					}
+					// Push the terrain down for the river bed.
+					PushedDown = TRUE;
+				 	shiftVal = WATER_DEPTH + ((3*environGetData(playerXTile+j,playerZTile+i))/2);
+					altVal = 0;//environGetValue(playerXTile+j,playerZTile+i);
+					tileXYZ.y -= (shiftVal+altVal);
+					// And darken it.
+					TileIllum = (UBYTE)((TileIllum*3)/4);
 				}
 #endif
 				tileScreenInfo[i][j].sz = pie_RotProj(&tileXYZ,(iPoint *)&tileScreenInfo[i][j].sx);
 
 				tileScreenInfo[i][j].light.argb = lightDoFogAndIllumination(TileIllum,rx-tileXYZ.x,rz - ((i-terrainMidY)<<TILE_SHIFT),&specular);
 
-				if (pie_GetRenderEngine() == ENGINE_D3D)
-			 	{
-					tileScreenInfo[i][j].specular.argb = specular;
-		   		}
+				tileScreenInfo[i][j].specular.argb = specular;
 
 #ifdef ENABLE_WATER
-				if (pie_Hardware())
-				{
-					// If it's any water tile..
-					if(IsWaterTile) {
-						// If it's the main water tile then bring it back up because it was pushed down
-						// for the river bed calc.
-						if(PushedDown) { //TextNum == WaterTileID) {
-							tileXYZ.y += (shiftVal + (2*altVal));
-						}
-
-						// Transform it into the wx,wy mesh members.
-						tileScreenInfo[i][j].wz = pie_RotProj(&tileXYZ,(iPoint *)&tileScreenInfo[i][j].wx);
-						tileScreenInfo[i][j].wlight.argb = lightDoFogAndIllumination(
-							TileIllum, rx-tileXYZ.x,		  // cos altval can go to 20
-							rz - ((i-terrainMidY)<<TILE_SHIFT), &specular);
-					} else {
-						// If it was'nt a water tile then need to ensure wx,wy are valid because
-						// a water tile might be sharing verticies with it.
-						tileScreenInfo[i][j].wx = tileScreenInfo[i][j].sx;
-						tileScreenInfo[i][j].wy = tileScreenInfo[i][j].sy;
-						tileScreenInfo[i][j].wz = tileScreenInfo[i][j].sz;
+				// If it's any water tile..
+				if(IsWaterTile) {
+					// If it's the main water tile then bring it back up because it was pushed down
+					// for the river bed calc.
+					if(PushedDown) { //TextNum == WaterTileID) {
+						tileXYZ.y += (shiftVal + (2*altVal));
 					}
+
+					// Transform it into the wx,wy mesh members.
+					tileScreenInfo[i][j].wz = pie_RotProj(&tileXYZ,(iPoint *)&tileScreenInfo[i][j].wx);
+					tileScreenInfo[i][j].wlight.argb = lightDoFogAndIllumination(
+						TileIllum, rx-tileXYZ.x,		  // cos altval can go to 20
+						rz - ((i-terrainMidY)<<TILE_SHIFT), &specular);
+				} else {
+					// If it was'nt a water tile then need to ensure wx,wy are valid because
+					// a water tile might be sharing verticies with it.
+					tileScreenInfo[i][j].wx = tileScreenInfo[i][j].sx;
+					tileScreenInfo[i][j].wy = tileScreenInfo[i][j].sy;
+					tileScreenInfo[i][j].wz = tileScreenInfo[i][j].sz;
 				}
 #endif
 			}
@@ -1052,10 +996,7 @@ void drawTiles(iView *camera, iView *player)
 					ASSERT((FALSE,"Weirdy tile coords"));
 				}
 				bucketAddTypeToList(RENDER_TILE, &tileIJ[i][j]);
-				if (pie_Hardware()) {
-					bucketAddTypeToList(RENDER_WATERTILE, &tileIJ[i][j]);
-
-				}
+				bucketAddTypeToList(RENDER_WATERTILE, &tileIJ[i][j]);
 			}
 			else
 			{
@@ -1677,14 +1618,7 @@ BOOL	bEdgeTile;
 			{
 				tileNumber = psTile->texture; 
 			}
-			if (pie_Hardware())
-			{
-				pie_SetTexturePage(tileTexInfo[tileNumber & TILE_NUMMASK].texPage);
-			}
-			else
-			{
-				texturePage.bmp = tilesRAW[tileNumber & TILE_NUMMASK];
-			}
+			pie_SetTexturePage(tileTexInfo[tileNumber & TILE_NUMMASK].texPage);
 
 //temp
 //			pie_DrawTile(&tileScreenInfo[0][0],&tileScreenInfo[0][1],&tileScreenInfo[1][0],
@@ -1733,11 +1667,6 @@ BOOL	bEdgeTile;
 			}
 
 			renderFlag = 0;
-		if (pie_GetRenderEngine() == ENGINE_GLIDE)
-		{
-			offset.x = (tileTexInfo[tileNumber & TILE_NUMMASK].xOffset * 64); 
-			offset.y = (tileTexInfo[tileNumber & TILE_NUMMASK].yOffset * 64); 
-		}
 			pie_DrawTriangle(p, &texturePage, renderFlag, &offset);	
 		 
 			if(TRI_FLIPPED(psTile))
@@ -2642,17 +2571,7 @@ REPAIR_FACILITY		*psRepairFac = NULL;
 
 							iV_MatrixRotateY(-player.r.y);         
 							iV_MatrixRotateX(-player.r.x);    
-						   	/* Dither on software */
-							if(pie_GetRenderEngine() == ENGINE_4101)
-							{
-								pie_SetDitherStatus(TRUE);
-							}
 							pie_Draw3DShape(pRepImd, getStaticTimeValueRange(100,pRepImd->numFrames), 0, buildingBrightness, 0, pie_ADDITIVE, 192);
-						   		/* Dither on software */
-							if(pie_GetRenderEngine() == ENGINE_4101)
-							{
-								pie_SetDitherStatus(FALSE);
-							}
 
 					  		iV_MatrixRotateX(player.r.x);   
 					  		iV_MatrixRotateY(player.r.y);         
@@ -3239,14 +3158,7 @@ BOOL	renderWallSection(STRUCTURE *psStructure)
 			temp = imd->points;
 			imd->points = alteredPoints;
 			// Actually render it 
-			if (pie_Hardware())
-			{
-				pie_Draw3DShape(imd, 0, getPlayerColour(psStructure->player), brightness, specular, 0, 0);
-			}
-			else
-			{
-	 			pie_Draw3DShape(imd, 0,getPlayerColour( psStructure->player), brightness, specular, 0, 0);
-			}
+			pie_Draw3DShape(imd, 0, getPlayerColour(psStructure->player), brightness, specular, 0, 0);
 			imd->points = temp;
 		}
 
@@ -3449,16 +3361,8 @@ void drawWeaponReloadBar(BASE_OBJECT *psObj, WEAPON *psWeap)
 		{
 			firingStage = (2*scrR) - 1;
 		}
-		if (pie_Hardware())
-		{
-			pie_BoxFill(scrX - scrR-1, 6+scrY + 0, scrX - scrR +(2*scrR),    6+scrY+3, 0x00020202);
-			pie_BoxFill(scrX - scrR,   6+scrY + 1, scrX - scrR +firingStage, 6+scrY+2, 0x00ffffff);
-		}
-		else
-		{
-			pie_BoxFillIndex(scrX - scrR-1, 6+scrY + 0, scrX - scrR +(2*scrR),   6+scrY+4, 1);
-			pie_BoxFillIndex(scrX - scrR,   6+scrY + 1, scrX - scrR +firingStage,6+scrY+3, 255);
-		}
+		pie_BoxFill(scrX - scrR-1, 6+scrY + 0, scrX - scrR +(2*scrR),    6+scrY+3, 0x00020202);
+		pie_BoxFill(scrX - scrR,   6+scrY + 1, scrX - scrR +firingStage, 6+scrY+2, 0x00ffffff);
 		return;
 	}
 	/* ******** ********/
@@ -3549,18 +3453,9 @@ void drawWeaponReloadBar(BASE_OBJECT *psObj, WEAPON *psWeap)
 			{
 				firingStage = (2*scrR) - 1;
 			}
-			if (pie_Hardware())
-			{
-				/* Power bars */
-				pie_BoxFill(scrX - scrR-1, 6+scrY + 0, scrX - scrR +(2*scrR),    6+scrY+3, 0x00020202);
-				pie_BoxFill(scrX - scrR,   6+scrY + 1, scrX - scrR +firingStage, 6+scrY+2, 0x00ffffff);
-			}
-			else
-			{
-				/* Power bars */
-				pie_BoxFillIndex(scrX - scrR-1, 6+scrY + 0, scrX - scrR +(2*scrR),   6+scrY+4, 1);
-				pie_BoxFillIndex(scrX - scrR,   6+scrY + 1, scrX - scrR +firingStage,6+scrY+3, 255);
-			}
+			/* Power bars */
+			pie_BoxFill(scrX - scrR-1, 6+scrY + 0, scrX - scrR +(2*scrR),    6+scrY+3, 0x00020202);
+			pie_BoxFill(scrX - scrR,   6+scrY + 1, scrX - scrR +firingStage, 6+scrY+2, 0x00ffffff);
 		}
 	}
 }
@@ -3631,34 +3526,17 @@ FRACT		mulH;
                 }
 				if(health>100) health =100;
 
-				if(pie_Hardware())
-				{
-					if(health>REPAIRLEV_HIGH) longPowerCol = 0x0000ff00;//green
-					else if(health>=REPAIRLEV_LOW) longPowerCol = 0x00ffff00;//yellow
-					else longPowerCol = 0x00ff0000;//red
-				}
-				else
-				{
-					if(health>REPAIRLEV_HIGH) powerCol = COL_GREEN;
-					else if(health>REPAIRLEV_LOW) powerCol = COL_YELLOW;
-					else powerCol = COL_RED;
-				}
+				if(health>REPAIRLEV_HIGH) longPowerCol = 0x0000ff00;//green
+				else if(health>=REPAIRLEV_LOW) longPowerCol = 0x00ffff00;//yellow
+				else longPowerCol = 0x00ff0000;//red
 				mulH = MAKEFRACT(health)/100;
 				mulH*=MAKEFRACT(width);
 				health = MAKEINT(mulH);
 //				health = (((width*10000)/100)*health)/10000;
 				if(health>width) health = width;
 				health*=2;
-				if(pie_Hardware())
-				{
-					pie_BoxFill(scrX-scrR-1, scrY-1, scrX+scrR+1, scrY+2, 0x00020202);
-					pie_BoxFill(scrX-scrR, scrY, scrX-scrR+health, scrY+1, longPowerCol);
-				}
-				else
-				{
-					pie_BoxFillIndex(scrX - scrR-1,scrY + scrR+2,scrX + scrR+1,scrY+scrR+6,1);
-					pie_BoxFillIndex(scrX - scrR,scrY + scrR+3,scrX - scrR+health,scrY+scrR+5,powerCol);
-				}
+				pie_BoxFill(scrX-scrR-1, scrY-1, scrX+scrR+1, scrY+2, 0x00020202);
+				pie_BoxFill(scrX-scrR, scrY, scrX-scrR+health, scrY+1, longPowerCol);
 
 				drawWeaponReloadBar((BASE_OBJECT *)psStruct, psStruct->asWeaps);
 			}
@@ -3675,32 +3553,17 @@ FRACT		mulH;
 		   			health =  PERCENT(psStruct->currentBuildPts , 
 						psStruct->pStructureType->buildPoints);
 					if(health>=100) health = 100;	// belt and braces
-						if(pie_GetRenderEngine() == ENGINE_GLIDE)
-						{
-							longPowerCol = 0x00ffff00;
-						}
-						else
-						{
-							powerCol = COL_YELLOW;
-						}
+						powerCol = COL_YELLOW;
 						mulH = MAKEFRACT(health)/100;
 						mulH*=MAKEFRACT(width);
 						health = MAKEINT(mulH);
 //						health = (((width*10000)/100)*health)/10000;
 						if(health>width) health = width;
 						health*=2;
-						if(pie_GetRenderEngine() == ENGINE_GLIDE)
-						{
-							pie_BoxFill(scrX-scrR-1, scrY-1, scrX+scrR+1, scrY+2, 0x00020202);
-							pie_BoxFill(scrX-scrR-1, scrY, scrX-scrR+health, scrY+1, longPowerCol);
-						}
-						else
-						{
-//							pie_BoxFillIndex(scrX - scrR-1,scrY + scrR+2,scrX + scrR+1,scrY+scrR+6,1);
-//							pie_BoxFillIndex(scrX - scrR,scrY + scrR+3,scrX - scrR+health,scrY+scrR+5,powerCol);
-							pie_BoxFillIndex(scrX - scrR-1,scrY-1,scrX + scrR+1,scrY+2,1);
-							pie_BoxFillIndex(scrX - scrR,scrY ,scrX - scrR+health,scrY+1,powerCol);
-						}
+//						pie_BoxFillIndex(scrX - scrR-1,scrY + scrR+2,scrX + scrR+1,scrY+scrR+6,1);
+//						pie_BoxFillIndex(scrX - scrR,scrY + scrR+3,scrX - scrR+health,scrY+scrR+5,powerCol);
+						pie_BoxFillIndex(scrX - scrR-1,scrY-1,scrX + scrR+1,scrY+2,1);
+						pie_BoxFillIndex(scrX - scrR,scrY ,scrX - scrR+health,scrY+1,powerCol);
 					}
 				}
 					//----
@@ -3778,33 +3641,13 @@ FRACT		mulH;
                     //show body points
     				health = PERCENT(psStruct->body, structureBody(psStruct));
                 }
-				if(pie_Hardware())
-				{
-					if(health>REPAIRLEV_HIGH) longPowerCol = 0x0000ff00;//green
-					else if(health>REPAIRLEV_LOW) longPowerCol = 0x00ffff00;//yellow
-					else longPowerCol = 0x00ff0000;//red
-				}
-				else
-				{
-					if(health>REPAIRLEV_HIGH) powerCol = COL_GREEN;
-					else if(health>REPAIRLEV_LOW) powerCol = COL_YELLOW;
-					else powerCol = COL_RED;
-				}
+				if(health>REPAIRLEV_HIGH) longPowerCol = 0x0000ff00;//green
+				else if(health>REPAIRLEV_LOW) longPowerCol = 0x00ffff00;//yellow
+				else longPowerCol = 0x00ff0000;//red
 				health = (((width*10000)/100)*health)/10000;
 				health*=2;
-				if(pie_Hardware())
-				{
-					pie_BoxFill(scrX-scrR-1, scrY-1, scrX+scrR+1, scrY+2, 0x00020202);
-					pie_BoxFill(scrX-scrR, scrY, scrX-scrR+health, scrY+1, longPowerCol);
-				}
-				else
-				{
-//					pie_BoxFillIndex(scrX - scrR-1,scrY + scrR+2,scrX + scrR+1,scrY+scrR+6,1);
-//					pie_BoxFillIndex(scrX - scrR,scrY + scrR+3,scrX - scrR+health,scrY+scrR+5,powerCol);
-					pie_BoxFillIndex(scrX - scrR-1,scrY-1,scrX + scrR+1,scrY+2,1);
-					pie_BoxFillIndex(scrX - scrR,scrY,scrX - scrR+health,scrY+1,powerCol);
-
-				}
+				pie_BoxFill(scrX-scrR-1, scrY-1, scrX+scrR+1, scrY+2, 0x00020202);
+				pie_BoxFill(scrX-scrR, scrY, scrX-scrR+health, scrY+1, longPowerCol);
 
 
 			}
@@ -3817,28 +3660,13 @@ FRACT		mulH;
 				scrR = width;
 //				health = PERCENT(psStruct->body, psStruct->baseBodyPoints);
 			   	health =  PERCENT(psStruct->currentBuildPts , psStruct->pStructureType->buildPoints);
-				if(pie_GetRenderEngine() == ENGINE_GLIDE)
-				{
-					longPowerCol = 0x0000ff00;
-				}
-				else
-				{
-					powerCol = COL_GREEN;
-				}
+				powerCol = COL_GREEN;
 				health = (((width*10000)/100)*health)/10000;
 				health*=2;
-				if(pie_GetRenderEngine() == ENGINE_GLIDE)
-				{
-					pie_BoxFill(scrX-scrR-1, scrY-1, scrX+scrR+1, scrY+2, 0x00020202);
-					pie_BoxFill(scrX-scrR-1, scrY, scrX-scrR+health, scrY+1, longPowerCol);
-				}
-				else
-				{
-//					pie_BoxFillIndex(scrX - scrR-1,scrY + scrR+2,scrX + scrR+1,scrY+scrR+6,1);
-//					pie_BoxFillIndex(scrX - scrR,scrY + scrR+3,scrX - scrR+health,scrY+scrR+5,powerCol);
-					pie_BoxFillIndex(scrX - scrR-1,scrY-1,scrX + scrR+1,scrY+2,1);
-					pie_BoxFillIndex(scrX - scrR-1,scrY,scrX - scrR+health,scrY+1,powerCol);
-				}
+//				pie_BoxFillIndex(scrX - scrR-1,scrY + scrR+2,scrX + scrR+1,scrY+scrR+6,1);
+//				pie_BoxFillIndex(scrX - scrR,scrY + scrR+3,scrX - scrR+health,scrY+scrR+5,powerCol);
+				pie_BoxFillIndex(scrX - scrR-1,scrY-1,scrX + scrR+1,scrY+2,1);
+				pie_BoxFillIndex(scrX - scrR-1,scrY,scrX - scrR+health,scrY+1,powerCol);
 			}
 			//----
 		}
@@ -3958,22 +3786,11 @@ SDWORD			scrX,scrY,scrR;
 			scrX = psDelivPoint->screenX;
 			scrY = psDelivPoint->screenY;
 			scrR = psDelivPoint->screenR;
-			if (pie_Hardware())
+			/* Three DFX clips properly right now - not sure if software does */
+			if((scrX+scrR)>0 AND (scrY+scrR)>0 AND (scrX-scrR)<DISP_WIDTH
+				AND (scrY-scrR)<DISP_HEIGHT)
 			{
-				/* Three DFX clips properly right now - not sure if software does */
-				if((scrX+scrR)>0 AND (scrY+scrR)>0 AND (scrX-scrR)<DISP_WIDTH 
-					AND (scrY-scrR)<DISP_HEIGHT)
-				{
-					iV_Box(scrX - scrR, scrY - scrR, scrX + scrR, scrY + scrR, 110);
-				}
-			}
-			else
-			{
-				if( ((SDWORD)(scrX - scrR) > 0) AND (scrX + scrR < DISP_WIDTH) AND 
-						((SDWORD)(scrY - scrR) > 0) AND (scrY + scrR < DISP_HEIGHT) )
-				{
-					iV_Box(scrX - scrR, scrY - scrR, scrX + scrR, scrY + scrR, 110);
-				}
+				iV_Box(scrX - scrR, scrY - scrR, scrX + scrR, scrY + scrR, 110);
 			}
 		}
 	}
@@ -3984,9 +3801,7 @@ void	drawDroidSelections( void )
 SDWORD			scrX,scrY,scrR;
 DROID			*psDroid;
 UDWORD			damage;
-UBYTE			powerCol;
 UDWORD			longPowerCol;
-UBYTE			boxCol;
 UDWORD			longBoxCol;
 BASE_OBJECT		*psClickedOn;
 BOOL			bMouseOverDroid = FALSE;
@@ -4053,18 +3868,9 @@ FRACT			mulH;
 			    damage = PERCENT(psDroid->body,psDroid->originalBody);
 //            }
 
-			if(pie_Hardware())
-			{
-			 	if(damage>REPAIRLEV_HIGH) longPowerCol = 0x0000ff00;//green
-				else if(damage>REPAIRLEV_LOW) longPowerCol = 0x00ffff00;//yellow
-				else longPowerCol = 0x00ff0000;//red
-			}
-			else
-			{
-				if(damage>REPAIRLEV_HIGH) powerCol = defaultColours.green;
-				else if(damage>REPAIRLEV_LOW) powerCol = defaultColours.yellow;
-				else powerCol = defaultColours.red;
-			}
+		 	if(damage>REPAIRLEV_HIGH) longPowerCol = 0x0000ff00;//green
+			else if(damage>REPAIRLEV_LOW) longPowerCol = 0x00ffff00;//yellow
+			else longPowerCol = 0x00ff0000;//red
 //show resistance values if CTRL/SHIFT depressed(now done in reload bar)
 //            if (ctrlShiftDown())
 //          {
@@ -4095,10 +3901,8 @@ FRACT			mulH;
 //				AND (scrY-scrR)<DISP_HEIGHT)
 			{
 				if(!driveModeActive() || driveIsDriven(psDroid)) {
-					boxCol = defaultColours.white;
 					longBoxCol = 0x00ffffff;
 				} else {
-					boxCol = defaultColours.green;
 					longBoxCol = 0x0000ff00;
 				}
 
@@ -4106,73 +3910,36 @@ FRACT			mulH;
 				{
 
 					/* Selection Lines */
-					if (pie_Hardware())
+					if(bEnergyBars)
 					{
-						if(bEnergyBars)
-						{
-						 	pie_BoxFill(scrX-scrR, scrY+scrR, scrX-scrR+1, scrY+scrR - 7, longBoxCol);
-							pie_BoxFill(scrX-scrR, scrY+scrR, scrX-scrR+7, scrY+scrR+1,longBoxCol);
-							pie_BoxFill(scrX+scrR-7, scrY+scrR, scrX+scrR, scrY+scrR+1,longBoxCol);
-							pie_BoxFill(scrX+scrR, scrY+scrR+1, scrX+scrR+1, scrY+scrR-7,longBoxCol);
-						}
-						else
-						{
-							if(bTinyBars)
-							{
-								pie_BoxFill(scrX-scrR-3, scrY-3, scrX-scrR+3, scrY+3, 0x00010101);
-								pie_BoxFill(scrX-scrR-2, scrY-2, scrX-scrR+2, scrY+2, longPowerCol);
-							}
-							else
-							{
-								pie_BoxFill(scrX-scrR, scrY+scrR, scrX-scrR+1, scrY+scrR - 7, longPowerCol);
-								pie_BoxFill(scrX-scrR, scrY+scrR, scrX-scrR+7, scrY+scrR+1,longPowerCol);
-								pie_BoxFill(scrX+scrR-7, scrY+scrR, scrX+scrR, scrY+scrR+1,longPowerCol);
-								pie_BoxFill(scrX+scrR, scrY+scrR+1, scrX+scrR+1, scrY+scrR-7,longPowerCol);
-							}
-						}
+					 	pie_BoxFill(scrX-scrR, scrY+scrR, scrX-scrR+1, scrY+scrR - 7, longBoxCol);
+						pie_BoxFill(scrX-scrR, scrY+scrR, scrX-scrR+7, scrY+scrR+1,longBoxCol);
+						pie_BoxFill(scrX+scrR-7, scrY+scrR, scrX+scrR, scrY+scrR+1,longBoxCol);
+						pie_BoxFill(scrX+scrR, scrY+scrR+1, scrX+scrR+1, scrY+scrR-7,longBoxCol);
 					}
 					else
 					{
-						if(bEnergyBars)
+						if(bTinyBars)
 						{
-						 	pie_BoxFillIndex(scrX-scrR, scrY+scrR-7, scrX-scrR, scrY+scrR, boxCol);
-							pie_BoxFillIndex(scrX-scrR, scrY+scrR, scrX-scrR+7, scrY+scrR, boxCol);
-							pie_BoxFillIndex(scrX+scrR-7, scrY+scrR, scrX+scrR, scrY+scrR, boxCol);
-							pie_BoxFillIndex(scrX+scrR, scrY+scrR-7, scrX+scrR, scrY+scrR+1, boxCol);
+							pie_BoxFill(scrX-scrR-3, scrY-3, scrX-scrR+3, scrY+3, 0x00010101);
+							pie_BoxFill(scrX-scrR-2, scrY-2, scrX-scrR+2, scrY+2, longPowerCol);
 						}
 						else
 						{
-							if(bTinyBars)
-							{
-								pie_BoxFillIndex(scrX-scrR-3, scrY-3, scrX-scrR+3, scrY+3, 1);
-								pie_BoxFillIndex(scrX-scrR-2, scrY-2, scrX-scrR+2, scrY+2, powerCol);
-							}
-							else
-							{
-								pie_BoxFillIndex(scrX-scrR, scrY+scrR-7, scrX-scrR, scrY+scrR, powerCol);
-								pie_BoxFillIndex(scrX-scrR, scrY+scrR, scrX-scrR+7, scrY+scrR, powerCol);
-								pie_BoxFillIndex(scrX+scrR-7, scrY+scrR, scrX+scrR, scrY+scrR, powerCol);
-								pie_BoxFillIndex(scrX+scrR, scrY+scrR-7, scrX+scrR, scrY+scrR+1, powerCol);
-							}
+							pie_BoxFill(scrX-scrR, scrY+scrR, scrX-scrR+1, scrY+scrR - 7, longPowerCol);
+							pie_BoxFill(scrX-scrR, scrY+scrR, scrX-scrR+7, scrY+scrR+1,longPowerCol);
+							pie_BoxFill(scrX+scrR-7, scrY+scrR, scrX+scrR, scrY+scrR+1,longPowerCol);
+							pie_BoxFill(scrX+scrR, scrY+scrR+1, scrX+scrR+1, scrY+scrR-7,longPowerCol);
 						}
 					}
 				}
 				if(bEnergyBars)
 				{
-					if (pie_Hardware())
-					{
-						/* Power bars */
-						pie_BoxFill(scrX - scrR-1,scrY + scrR+2,scrX + scrR+1,scrY+scrR+5,0x00020202);
-						pie_BoxFill(scrX - scrR,scrY + scrR+3,scrX - scrR+damage,scrY+scrR+4,longPowerCol);
-					}
-					else
-					{
-						/* Power bars */
-						pie_BoxFillIndex(scrX - scrR-1,scrY + scrR+2,scrX + scrR+1,scrY+scrR+5,1);
-						pie_BoxFillIndex(scrX - scrR,scrY + scrR+3,scrX - scrR+damage,scrY+scrR+4,powerCol);
-					}
+					/* Power bars */
+					pie_BoxFill(scrX - scrR-1,scrY + scrR+2,scrX + scrR+1,scrY+scrR+5,0x00020202);
+					pie_BoxFill(scrX - scrR,scrY + scrR+3,scrX - scrR+damage,scrY+scrR+4,longPowerCol);
 				}
-			
+
 				/* Write the droid rank out */
 				if((scrX+scrR)>0 AND (scrY+scrR)>0 AND (scrX-scrR)<DISP_WIDTH
 					AND (scrY-scrR)<DISP_HEIGHT)
@@ -4228,18 +3995,9 @@ FRACT			mulH;
 	    			damage = PERCENT(psDroid->body,psDroid->originalBody);
                 }
     
-				if(pie_Hardware())
-				{
-			 		if(damage>REPAIRLEV_HIGH) longPowerCol = 0x0000ff00;//green
-					else if(damage>REPAIRLEV_LOW) longPowerCol = 0x00ffff00;//yellow
-					else longPowerCol = 0x00ff0000;//red
-				}
-				else
-				{
-					if(damage>REPAIRLEV_HIGH) powerCol = defaultColours.green;
-					else if(damage>REPAIRLEV_LOW) powerCol = defaultColours.yellow;
-					else powerCol = defaultColours.red;
-				}
+		 		if(damage>REPAIRLEV_HIGH) longPowerCol = 0x0000ff00;//green
+				else if(damage>REPAIRLEV_LOW) longPowerCol = 0x00ffff00;//yellow
+				else longPowerCol = 0x00ff0000;//red
 		  	    //show resistance values if CTRL/SHIFT depressed
                 if (ctrlShiftDown())
                 {
@@ -4270,28 +4028,17 @@ FRACT			mulH;
 				if((scrX+scrR)>0 AND (scrY+scrR)>0 AND (scrX-scrR)<DISP_WIDTH AND (scrY-scrR)<DISP_HEIGHT)
 				{
 					if(!driveModeActive() || driveIsDriven(psDroid)) {
-						boxCol = defaultColours.white;
 						longBoxCol = 0x00ffffff;
 					} else {
-						boxCol = defaultColours.green;
 						longBoxCol = 0x0000ff00;
 					}
 
                     //we always want to show the enemy health/resistance as energyBar - AB 18/06/99
 					//if(bEnergyBars)
 					{
-						if (pie_Hardware())
-						{
-							/* Power bars */
-							pie_BoxFill(scrX - scrR-1,scrY + scrR+2,scrX + scrR+1,scrY+scrR+5,0x00020202);
-							pie_BoxFill(scrX - scrR,scrY + scrR+3,scrX - scrR+damage,scrY+scrR+4,longPowerCol);
-						}
-						else
-						{
-							/* Power bars */
-							pie_BoxFillIndex(scrX - scrR-1,scrY + scrR+2,scrX + scrR+1,scrY+scrR+6,1);
-							pie_BoxFillIndex(scrX - scrR,scrY + scrR+3,scrX - scrR+damage,scrY+scrR+5,powerCol);
-						}
+						/* Power bars */
+						pie_BoxFill(scrX - scrR-1,scrY + scrR+2,scrX + scrR+1,scrY+scrR+5,0x00020202);
+						pie_BoxFill(scrX - scrR,scrY + scrR+3,scrX - scrR+damage,scrY+scrR+4,longPowerCol);
 					}
 				}
 			}
@@ -4934,10 +4681,7 @@ void renderSky(void)
 		{
 			width = 256;
 		}
-		if (pie_Hardware())
-		{
-			iV_UniBitmapDepth(texPage,0,0,width,128,index,0,width,192,200,65000);
-		}
+		iV_UniBitmapDepth(texPage,0,0,width,128,index,0,width,192,200,65000);
 		index += 256;
 	}
 
@@ -4958,10 +4702,7 @@ void renderSky(void)
 		{
 			width = 256;
 		}
-		if (pie_Hardware())
-		{
-			iV_UniBitmapDepth(texPage,0,128,width,127,index,0,width,192,200,64000);
-		}
+		iV_UniBitmapDepth(texPage,0,128,width,127,index,0,width,192,200,64000);
 		index += 256;
 	}
 }
@@ -5091,7 +4832,6 @@ SDWORD	actualX,actualY;
 MAPTILE	*psTile;
 BOOL	bOutlined;
 UDWORD	tileNumber;
-UDWORD	renderFlag;
 iPoint	offset;
 PIEVERTEX aVrts[3];
 BYTE	oldColours[4];
@@ -5269,7 +5009,6 @@ SDWORD	zone;
 
 
 	/* set up the texture size info */
-	renderFlag = 0;
 	offset.x = (tileTexInfo[tileNumber & TILE_NUMMASK].xOffset * 64);
 	offset.y = (tileTexInfo[tileNumber & TILE_NUMMASK].yOffset * 64);
 
@@ -5291,73 +5030,33 @@ SDWORD	zone;
 	/* The first triangle */
 	if(TRI_FLIPPED(psTile))
 	{
-		if (pie_GetRenderEngine() == ENGINE_GLIDE)
-		{
-			pie_DrawFastTriangle((PIEVERTEX*)&tileScreenInfo[i+0][j+0],
-								(PIEVERTEX*)&tileScreenInfo[i+0][j+1],
-								(PIEVERTEX*)&tileScreenInfo[i+1][j+0],
-								&texturePage,0,0);
-		}
-		else if (pie_GetRenderEngine() == ENGINE_D3D)
-		{
-			memcpy(&aVrts[0],&tileScreenInfo[i+0][j+0],sizeof(PIEVERTEX));
-			memcpy(&aVrts[1],&tileScreenInfo[i+0][j+1],sizeof(PIEVERTEX));
-			memcpy(&aVrts[2],&tileScreenInfo[i+1][j+0],sizeof(PIEVERTEX));
-			pie_DrawPoly(3, aVrts, tileTexInfo[tileNumber & TILE_NUMMASK].texPage, NULL);
-		}
+		memcpy(&aVrts[0],&tileScreenInfo[i+0][j+0],sizeof(PIEVERTEX));
+		memcpy(&aVrts[1],&tileScreenInfo[i+0][j+1],sizeof(PIEVERTEX));
+		memcpy(&aVrts[2],&tileScreenInfo[i+1][j+0],sizeof(PIEVERTEX));
+		pie_DrawPoly(3, aVrts, tileTexInfo[tileNumber & TILE_NUMMASK].texPage, NULL);
 	}
 	else
 	{
-		if (pie_GetRenderEngine() == ENGINE_GLIDE)
-		{
-			pie_DrawFastTriangle((PIEVERTEX*)&tileScreenInfo[i+0][j+0],
-								(PIEVERTEX*)&tileScreenInfo[i+0][j+1],
-								(PIEVERTEX*)&tileScreenInfo[i+1][j+1],
-				&texturePage,0,0);
-		}
-		else if (pie_GetRenderEngine() == ENGINE_D3D)
-		{
-			memcpy(&aVrts[0],&tileScreenInfo[i+0][j+0],sizeof(PIEVERTEX));
-			memcpy(&aVrts[1],&tileScreenInfo[i+0][j+1],sizeof(PIEVERTEX));
-			memcpy(&aVrts[2],&tileScreenInfo[i+1][j+1],sizeof(PIEVERTEX));
-			pie_DrawPoly(3, aVrts, tileTexInfo[tileNumber & TILE_NUMMASK].texPage, NULL);
-		}
+		memcpy(&aVrts[0],&tileScreenInfo[i+0][j+0],sizeof(PIEVERTEX));
+		memcpy(&aVrts[1],&tileScreenInfo[i+0][j+1],sizeof(PIEVERTEX));
+		memcpy(&aVrts[2],&tileScreenInfo[i+1][j+1],sizeof(PIEVERTEX));
+		pie_DrawPoly(3, aVrts, tileTexInfo[tileNumber & TILE_NUMMASK].texPage, NULL);
 	}
 
 	/* The second triangle */
 	if(TRI_FLIPPED(psTile))
 	{
-		if (pie_GetRenderEngine() == ENGINE_GLIDE)
-		{
-			pie_DrawFastTriangle((PIEVERTEX*)&tileScreenInfo[i+0][j+1],
-								(PIEVERTEX*)&tileScreenInfo[i+1][j+1],
-								(PIEVERTEX*)&tileScreenInfo[i+1][j+0],
-				&texturePage,0,0);
-		}
-		else if (pie_GetRenderEngine() == ENGINE_D3D)
-		{
-			memcpy(&aVrts[0],&tileScreenInfo[i+0][j+1],sizeof(PIEVERTEX));
-			memcpy(&aVrts[1],&tileScreenInfo[i+1][j+1],sizeof(PIEVERTEX));
-			memcpy(&aVrts[2],&tileScreenInfo[i+1][j+0],sizeof(PIEVERTEX));
-			pie_DrawPoly(3, aVrts, tileTexInfo[tileNumber & TILE_NUMMASK].texPage, NULL);
-		}
+		memcpy(&aVrts[0],&tileScreenInfo[i+0][j+1],sizeof(PIEVERTEX));
+		memcpy(&aVrts[1],&tileScreenInfo[i+1][j+1],sizeof(PIEVERTEX));
+		memcpy(&aVrts[2],&tileScreenInfo[i+1][j+0],sizeof(PIEVERTEX));
+		pie_DrawPoly(3, aVrts, tileTexInfo[tileNumber & TILE_NUMMASK].texPage, NULL);
 	}
 	else
 	{
-		if (pie_GetRenderEngine() == ENGINE_GLIDE)
-		{
-			pie_DrawFastTriangle((PIEVERTEX*)&tileScreenInfo[i+0][j+0],
-								(PIEVERTEX*)&tileScreenInfo[i+1][j+1],
-								(PIEVERTEX*)&tileScreenInfo[i+1][j+0],
-				&texturePage,0,0);
-		}
-		else if (pie_GetRenderEngine() == ENGINE_D3D)
-		{
-			memcpy(&aVrts[0],&tileScreenInfo[i+0][j+0],sizeof(PIEVERTEX));
-			memcpy(&aVrts[1],&tileScreenInfo[i+1][j+1],sizeof(PIEVERTEX));
-			memcpy(&aVrts[2],&tileScreenInfo[i+1][j+0],sizeof(PIEVERTEX));
-			pie_DrawPoly(3, aVrts, tileTexInfo[tileNumber & TILE_NUMMASK].texPage, NULL);
-		}
+		memcpy(&aVrts[0],&tileScreenInfo[i+0][j+0],sizeof(PIEVERTEX));
+		memcpy(&aVrts[1],&tileScreenInfo[i+1][j+1],sizeof(PIEVERTEX));
+		memcpy(&aVrts[2],&tileScreenInfo[i+1][j+0],sizeof(PIEVERTEX));
+		pie_DrawPoly(3, aVrts, tileTexInfo[tileNumber & TILE_NUMMASK].texPage, NULL);
 	}
 
 	/* Outline the tile if necessary */
@@ -5410,7 +5109,6 @@ void	drawTerrainWEdgeTile(UDWORD i, UDWORD j)
 	MAPTILE	*psTile;
 	//BOOL	bOutlined;
 	UDWORD	tileNumber;
-	UDWORD	renderFlag;
 	iPoint	offset;
 	PIEVERTEX aVrts[3];
 
@@ -5442,7 +5140,6 @@ void	drawTerrainWEdgeTile(UDWORD i, UDWORD j)
 
 
 	/* set up the texture size info */
-	renderFlag = 0;
 	offset.x = (tileTexInfo[tileNumber & TILE_NUMMASK].xOffset * 64);
 	offset.y = (tileTexInfo[tileNumber & TILE_NUMMASK].yOffset * 64);
 
@@ -5476,15 +5173,7 @@ void	drawTerrainWEdgeTile(UDWORD i, UDWORD j)
    		aVrts[2].sx = tileScreenInfo[i+1][j+0].wx;
    		aVrts[2].sy = tileScreenInfo[i+1][j+0].wy;
    		aVrts[2].sz = tileScreenInfo[i+1][j+0].wz - WATER_EDGE_ZOFFSET;
-		if (pie_GetRenderEngine() == ENGINE_GLIDE)
-		{
-			pie_DrawFastTriangle(&aVrts[0],&aVrts[1],&aVrts[2],
-								&texturePage,0,pie_ADDITIVE);
-		}
-		else if (pie_GetRenderEngine() == ENGINE_D3D)
-		{
-			pie_DrawPoly(3, aVrts, tileTexInfo[tileNumber & TILE_NUMMASK].texPage, NULL);
-		}
+		pie_DrawPoly(3, aVrts, tileTexInfo[tileNumber & TILE_NUMMASK].texPage, NULL);
 	}
 	else
 	{
@@ -5500,15 +5189,7 @@ void	drawTerrainWEdgeTile(UDWORD i, UDWORD j)
    		aVrts[2].sx = tileScreenInfo[i+1][j+1].wx;
    		aVrts[2].sy = tileScreenInfo[i+1][j+1].wy;
    		aVrts[2].sz = tileScreenInfo[i+1][j+1].wz - WATER_EDGE_ZOFFSET;
-		if (pie_GetRenderEngine() == ENGINE_GLIDE)
-		{
-			pie_DrawFastTriangle(&aVrts[0],&aVrts[1],&aVrts[2],
-								&texturePage,0,pie_ADDITIVE);
-		}
-		else if (pie_GetRenderEngine() == ENGINE_D3D)
-		{
-			pie_DrawPoly(3, aVrts, tileTexInfo[tileNumber & TILE_NUMMASK].texPage, NULL);
-		}
+		pie_DrawPoly(3, aVrts, tileTexInfo[tileNumber & TILE_NUMMASK].texPage, NULL);
 	}
 
 	/* The second triangle */
@@ -5526,15 +5207,7 @@ void	drawTerrainWEdgeTile(UDWORD i, UDWORD j)
    		aVrts[2].sx = tileScreenInfo[i+1][j+0].wx;
    		aVrts[2].sy = tileScreenInfo[i+1][j+0].wy;
    		aVrts[2].sz = tileScreenInfo[i+1][j+0].wz - WATER_EDGE_ZOFFSET;
-		if (pie_GetRenderEngine() == ENGINE_GLIDE)
-		{
-			pie_DrawFastTriangle(&aVrts[0],&aVrts[1],&aVrts[2],
-								&texturePage,0,pie_ADDITIVE);
-		}
-		else if (pie_GetRenderEngine() == ENGINE_D3D)
-		{
-			pie_DrawPoly(3, aVrts, tileTexInfo[tileNumber & TILE_NUMMASK].texPage, NULL);
-		}
+		pie_DrawPoly(3, aVrts, tileTexInfo[tileNumber & TILE_NUMMASK].texPage, NULL);
 	}
 	else
 	{
@@ -5550,15 +5223,7 @@ void	drawTerrainWEdgeTile(UDWORD i, UDWORD j)
    		aVrts[2].sx = tileScreenInfo[i+1][j+0].wx;
    		aVrts[2].sy = tileScreenInfo[i+1][j+0].wy;
    		aVrts[2].sz = tileScreenInfo[i+1][j+0].wz - WATER_EDGE_ZOFFSET;
-		if (pie_GetRenderEngine() == ENGINE_GLIDE)
-		{
-			pie_DrawFastTriangle(&aVrts[0],&aVrts[1],&aVrts[2],
-								&texturePage,0,pie_ADDITIVE);
-		}
-		else if (pie_GetRenderEngine() == ENGINE_D3D)
-		{
-			pie_DrawPoly(3, aVrts, tileTexInfo[tileNumber & TILE_NUMMASK].texPage, NULL);
-		}
+		pie_DrawPoly(3, aVrts, tileTexInfo[tileNumber & TILE_NUMMASK].texPage, NULL);
 	}
 }
 
@@ -5641,15 +5306,7 @@ void drawTerrainWaterTile(UDWORD i, UDWORD j)	//hardware only
 		aVrts[2].light.byte.a = pie_ByteScale((UBYTE)WATER_ALPHA_LEVEL,
 			(UBYTE)(255-tileScreenInfo[i+1][j+1].light.byte.a));
 
-		if (pie_GetRenderEngine() == ENGINE_GLIDE)
-		{
-			pie_DrawFastTriangle(&aVrts[0],&aVrts[1],&aVrts[2],
-								&texturePage,WATER_TRANS_MODE,WATER_ALPHA_LEVEL);
-		}
-		else if (pie_GetRenderEngine() == ENGINE_D3D)
-		{
-			pie_DrawPoly(3, aVrts, tileTexInfo[tileNumber & TILE_NUMMASK].texPage, &waterAlphaValue);//jps 15 apr99
-		}
+		pie_DrawPoly(3, aVrts, tileTexInfo[tileNumber & TILE_NUMMASK].texPage, &waterAlphaValue);//jps 15 apr99
 
 
 		memcpy(&aVrts[1],&aVrts[2],sizeof(PIEVERTEX));
@@ -5662,15 +5319,7 @@ void drawTerrainWaterTile(UDWORD i, UDWORD j)	//hardware only
 		aVrts[2].light.byte.a = pie_ByteScale((UBYTE)WATER_ALPHA_LEVEL,
 			(UBYTE)(255-tileScreenInfo[i+1][j+0].light.byte.a));
 
-		if (pie_GetRenderEngine() == ENGINE_GLIDE)
-		{
-			pie_DrawFastTriangle(&aVrts[0],&aVrts[1],&aVrts[2],
-								&texturePage,WATER_TRANS_MODE,WATER_ALPHA_LEVEL);
-		}
-		else if (pie_GetRenderEngine() == ENGINE_D3D)
-		{
-			pie_DrawPoly(3, aVrts, tileTexInfo[tileNumber & TILE_NUMMASK].texPage, &waterAlphaValue);//jps 15 apr99
-		}
+		pie_DrawPoly(3, aVrts, tileTexInfo[tileNumber & TILE_NUMMASK].texPage, &waterAlphaValue);//jps 15 apr99
 
 		if( (psTile->texture & TILE_NUMMASK) != WaterTileID) {
 			drawTerrainWEdgeTile(i,j);
@@ -6080,7 +5729,7 @@ void	testEffect( void )
 	UDWORD	i;
 
 	/* Hardware only effect, and then only if you've got additive! */
-	if((pie_Hardware() AND war_GetAdditive()) )
+	if(war_GetAdditive())
 	{
 		/* Only do for player 0 power stations */
 
@@ -6506,44 +6155,15 @@ UDWORD	trans;
 	colour = UBYTE_MAX;
 	colour = lightDoFogAndIllumination(colour,getCentreX() - psDroid->x, getCentreZ() - psDroid->y,&specular);
 
-	if	(pie_GetRenderEngine() == ENGINE_GLIDE)
+	colour &= 0xff;
+	if (	(psDroid->action == DACTION_DEMOLISH) OR
+	(psDroid->action == DACTION_CLEARWRECK) )
 	{
-		if (war_GetFog())
-		{
-			trans = colour >> 24;//alpha 
-			trans &= 0xff;
-			trans = UBYTE_MAX - trans;
-		}
-		else
-		{
-			trans = colour & 0xff;
-		}
-		trans >>= 1;//divide by 2
-		if (	(psDroid->action == DACTION_DEMOLISH) OR
-			(psDroid->action == DACTION_CLEARWRECK) )
-		{
-			colour = 0x00ff0000;//red
-		}
-		else
-		{
-			colour = 0x000000ff;//blue
-		}
-		pts[0].light.argb = 0x00000000;
-		pts[1].light.argb = 0x00000000;
-		pts[2].light.argb = 0x00000000;
+		colour <<= 16;//red
 	}
-	else
-	{
-		colour &= 0xff;
-		if (	(psDroid->action == DACTION_DEMOLISH) OR
-		(psDroid->action == DACTION_CLEARWRECK) )
-		{
-			colour <<= 16;//red
-		}
-		pts[0].light.argb = 0xff000000;
-		pts[1].light.argb = 0xff000000;
-		pts[2].light.argb = 0xff000000;
-	}
+	pts[0].light.argb = 0xff000000;
+	pts[1].light.argb = 0xff000000;
+	pts[2].light.argb = 0xff000000;
 
 
   	pts[0].sx = pt1.x;

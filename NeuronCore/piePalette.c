@@ -6,9 +6,6 @@
 #include "rendmode.h"
 #include "bug.h"
 #include "fractions.h"
-#ifdef INC_GLIDE
-#include "dGlide.h"
-#endif
 
 #define RED_CHROMATICITY	1
 #define GREEN_CHROMATICITY	1
@@ -195,8 +192,6 @@ BOOL pal_AddNewPalette(iColour *pal)
 // PSX version dos'nt use palettes as such, SetRGBLookup sets up a global palette instead which is generally
 // just used for colour index to RGB conversions.
 	int i, rg;
-	long	entry;
-	long	cardPal[256];
 	iColour *p;
 	PALETTEENTRY *w;
 
@@ -219,27 +214,6 @@ BOOL pal_AddNewPalette(iColour *pal)
 			return FALSE;
 		}	
 	}
-#ifndef   PIETOOL			// ffs
-	/* If we're adding a palette and running on a 3dfx, then bang it down to the card */
-	if (pie_GetRenderEngine() == ENGINE_GLIDE)
-	{
-		for(i=0; i<PALETTE_SIZE; i++)
-		{
-			entry = 0;
-			entry = pal[i].r;
-			entry = entry<<8;
-			entry = entry | (long)pal[i].g;
-			entry = entry<<8;
-			entry = entry | (long)pal[i].b;
-			cardPal[i] = (long)entry;
-		}
-		if (pie_GetRenderEngine() == ENGINE_GLIDE)
-		{
-			/* Make sure we send our palette to the 3dfx card via a glide call */
-			grTexDownloadTable(GR_TMU0, GR_TEXTABLE_PALETTE, &cardPal);
-		}
-	}
-#endif
 	p = psGamePal;
 	w = psWinPal;
 
