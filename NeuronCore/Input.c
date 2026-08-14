@@ -292,17 +292,6 @@ void inputProcessMessages(UINT message, WPARAM wParam, LPARAM lParam)
 			/* store the current mouse position */
 			mouseXPos = LOWORD(lParam);
 			mouseYPos = HIWORD(lParam);
-			if(bRunningUnderGlide)
-			{
-				scrX = GetSystemMetrics(SM_CXFULLSCREEN);
-				scrY = GetSystemMetrics(SM_CYFULLSCREEN);
-
-				divX = MAKEFRACT(mouseXPos) / scrX;
-				divY = MAKEFRACT(mouseYPos) / scrY;
-
-				mouseXPos = MAKEINT(divX*screenWidth);
-				mouseYPos = MAKEINT(divY*screenHeight);
-			}
 
 			/* now see if a drag has started */
 			if ((aMouseState[dragKey] == KEY_PRESSED ||

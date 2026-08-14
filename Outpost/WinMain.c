@@ -112,10 +112,6 @@ int WINAPI WinMain(
 	(void)nShowCmd;
 	(void)hPrevInstance;
 
-	// initialise all the command line states
-	clStartWindowed = FALSE;
-	clIntroVideo = FALSE;
-
 	if (!pie_CheckForDX6())
 	{
 		DBERROR(("Unable to create DirectX 6 interface.\nPlease ensure DirectX 6 or later is installed."));

@@ -451,9 +451,9 @@ BOOL loadWeaponStats(SBYTE *pWeaponData, UDWORD bufferSize)
 					hitGfx[MAX_NAME_SIZE], missGfx[MAX_NAME_SIZE], 
 					waterGfx[MAX_NAME_SIZE], muzzleGfx[MAX_NAME_SIZE],
 					trailGfx[MAX_NAME_SIZE], techLevel[MAX_NAME_SIZE];
-	STRING			fireOnMove[10], weaponClass[15], weaponSubClass[15],
-					weaponEffect[15], movement[15], facePlayer[5],
-					faceInFlight[5],lightWorld[5];
+	STRING			fireOnMove[11], weaponClass[16], weaponSubClass[16],
+					weaponEffect[16], movement[16], facePlayer[6],
+					faceInFlight[6],lightWorld[6];
 	UDWORD			longRange, effectSize, numAttackRuns, designable;
 	UDWORD			numRounds;
 
@@ -495,11 +495,11 @@ BOOL loadWeaponStats(SBYTE *pWeaponData, UDWORD bufferSize)
 
 
 		//read the data into the storage - the data is delimeted using comma's
-		sscanf(pWeaponData,"%[^','],%[^','],%d,%d,%d,%d,%d,%d,%[^','],\
-			%[^','],%[^','],%[^','],%[^','],%[^','],%[^','],%[^','],%d,\
-			%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%[^','],\
-			%[^','],%[^','],%[^','],%[^','],%d,%d,%d,%[^','],%[^','],%d,%d,\
-			%[^','],%d,%d,%d,%d",
+		sscanf(pWeaponData,"%59[^','],%59[^','],%d,%d,%d,%d,%d,%d,%59[^','],\
+			%59[^','],%59[^','],%59[^','],%59[^','],%59[^','],%59[^','],%59[^','],%d,\
+			%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%10[^','],\
+			%15[^','],%15[^','],%15[^','],%15[^','],%d,%d,%d,%5[^','],%5[^','],%d,%d,\
+			%5[^','],%d,%d,%d,%d",
 			(char *)&WeaponName, (char *)&techLevel, &psStats->buildPower,&psStats->buildPoints, 
 			&psStats->weight, &psStats->hitPoints, &psStats->systemPoints,
 			&psStats->body, (char *)&GfxFile, (char *)&mountGfx, (char *)&muzzleGfx, (char *)&flightGfx, 

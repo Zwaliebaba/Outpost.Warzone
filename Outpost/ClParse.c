@@ -30,9 +30,7 @@
 BOOL scanGameSpyFlags(LPSTR gflag,LPSTR value);
 
 // whether to start windowed
-BOOL	clStartWindowed;
-// whether to play the intro video
-BOOL	clIntroVideo;
+BOOL	clStartWindowed = TRUE;
 
 // let the end user into debug mode....
 BOOL	bAllowDebugMode = FALSE;

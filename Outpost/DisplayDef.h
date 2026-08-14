@@ -11,8 +11,8 @@
 #include "PieClip.h"
 #define DISP_WIDTH		(pie_GetVideoBufferWidth()) 
 #define DISP_HEIGHT		(pie_GetVideoBufferHeight())
-#define DISP_HARDBITDEPTH	(16)
-#define DISP_BITDEPTH	(8)
+#define DISP_HARDBITDEPTH	(32)
+#define DISP_BITDEPTH	(32)
 #define	BOUNDARY_X			(16)
 #define BOUNDARY_Y			(16)
 

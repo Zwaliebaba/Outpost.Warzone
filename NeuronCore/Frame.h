@@ -133,7 +133,6 @@ extern BOOL loadFileToBuffer(STRING *pFileName, UBYTE *pFileBuffer, UDWORD buffe
 extern BOOL loadFileToBufferNoError(STRING *pFileName, UBYTE *pFileBuffer, UDWORD bufferSize, UDWORD *pSize);
 
 extern SDWORD ftol(float f);
-extern BOOL	bRunningUnderGlide;
 
 
 UINT HashString( char *String );
