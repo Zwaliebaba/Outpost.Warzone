@@ -1224,16 +1224,14 @@ BOOL fpathTileRoute(MOVE_CONTROL *psMoveCntl,
 		}
 		for(i=0; i<pathPoints; i++)
 		{
-			psMoveCntl->MovementList[i].XCoordinate = asRoutePoints[i].x;
-			psMoveCntl->MovementList[i].YCoordinate = asRoutePoints[i].y;
+			psMoveCntl->asPath[i].x = (UBYTE)asRoutePoints[i].x;
+			psMoveCntl->asPath[i].y = (UBYTE)asRoutePoints[i].y;
 		}
-		psMoveCntl->MovementList[pathPoints].XCoordinate = -1;
-		psMoveCntl->MovementList[pathPoints].YCoordinate = -1;
+		psMoveCntl->numPoints = (UBYTE)pathPoints;
 	}
 	else
 	{
-		psMoveCntl->MovementList[0].XCoordinate = -1;
-		psMoveCntl->MovementList[0].YCoordinate = -1;
+		psMoveCntl->numPoints = 0;
 	}
 
 	return routeState == RS_SUCCESS;
