@@ -112,12 +112,6 @@ int WINAPI WinMain(
 	(void)nShowCmd;
 	(void)hPrevInstance;
 
-	if (!pie_CheckForDX6())
-	{
-		DBERROR(("Unable to create DirectX 6 interface.\nPlease ensure DirectX 6 or later is installed."));
-		return -1;
-	}
-
 	war_SetDefaultStates();
 
 	war_SetRendMode(REND_MODE_HAL);
