@@ -3262,18 +3262,10 @@ void intRemoveTransporterTimer(void)
 void intDisplayMissionBackDrop(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD *pColours)
 {
 	UNUSEDPARAMETER(pColours);
-	if (pie_GetRenderEngine() == ENGINE_GLIDE)
-	{
-		// need to do some funky rejigging of the buffer to get upto 16bit+alpha
-//		pie_DownLoadBufferToScreen( pMissionBackDrop->bmp,psWidget->x+xOffset,psWidget->y+yOffset,psWidget->width, psWidget->height,1280);
-	}
-	else
-	{
-		UNUSEDPARAMETER(yOffset);
-		UNUSEDPARAMETER(xOffset);
-		UNUSEDPARAMETER(psWidget);
-//		iV_DownloadDisplayBuffer(pMissionBackDrop->bmp);
-	}
+	UNUSEDPARAMETER(yOffset);
+	UNUSEDPARAMETER(xOffset);
+	UNUSEDPARAMETER(psWidget);
+//	iV_DownloadDisplayBuffer(pMissionBackDrop->bmp);
 	scoreDataToScreen();
 }
 
@@ -3313,14 +3305,7 @@ static BOOL _intAddMissionResult(BOOL result, BOOL bPlaySuccess)
 	cdAudio_PlayTrack(2);	// 2= frontend music.
 
 
-	if (pie_GetRenderEngine() == ENGINE_GLIDE)
-	{
-		pie_LoadBackDrop(SCREEN_MISSIONEND,TRUE);
-	}
-	else
-	{
-		pie_LoadBackDrop(SCREEN_MISSIONEND,FALSE);
-	}
+	pie_LoadBackDrop(SCREEN_MISSIONEND,FALSE);
 
 
 	sFormInit.formID		= 0;
@@ -3929,10 +3914,7 @@ void setLandingZone(UBYTE x1, UBYTE y1, UBYTE x2, UBYTE y2)
 		sLandingZone[0].y2 = y2;
 	}
 
-		if(pie_Hardware())
-		{
-			addLandingLights(getLandingX(0)+64,getLandingY(0)+64);
-		}
+		addLandingLights(getLandingX(0)+64,getLandingY(0)+64);
 }
 
 //sets the coords for a no go area
@@ -3960,7 +3942,7 @@ void setNoGoArea(UBYTE x1, UBYTE y1, UBYTE x2, UBYTE y2, UBYTE area)
 		sLandingZone[area].y2 = y2;
 	}
 
-		if(area==0 AND pie_Hardware())
+		if(area==0)
 		{
 			addLandingLights(getLandingX(area)+64,getLandingY(area)+64);
 		}

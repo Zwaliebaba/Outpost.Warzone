@@ -20,7 +20,6 @@
 #include "config.h"			// lobby cfg.
 #include "clparse.h"
 #include "piestate.h"
-#include "dGlide.h"
 #include "component.h"
 #include "console.h"
 #include "multiplay.h"
@@ -161,10 +160,6 @@ void recvOptions(NETMSG *pMsg)
 	pos += sizeof(game);
 	if(strncmp((CHAR*)game.version,buildTime,8) != 0)
 	{
-		if (pie_GetRenderEngine() == ENGINE_GLIDE)
-		{
-			grSstControl(GR_CONTROL_DEACTIVATE);
-		}
 #ifndef DEBUG
 		DBERROR(("Host is running a different version of Warzone2100."));
 #endif
@@ -189,10 +184,6 @@ void recvOptions(NETMSG *pMsg)
 	pos += sizeof(checkval);
 	if(checkval != NEThashVal(NetPlay.cryptKey[0]))
 	{	
-		if (pie_GetRenderEngine() == ENGINE_GLIDE)
-		{
-			grSstControl(GR_CONTROL_DEACTIVATE);
-		}
 		DBERROR(("Host Binary is different from this one. Cheating?"));
 #ifdef COVERMOUNT
 		DBERROR(("Warzone 2100 Demo is not compatible with the release version"));

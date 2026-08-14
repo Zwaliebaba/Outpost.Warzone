@@ -901,14 +901,7 @@ void displayCompObj(BASE_OBJECT *psObj,iVector *mountRotation, BOOL bButton)
 			{
 				// FIXME - hideous....!!!!
 				scaleMatrix(75);
-				if(pie_GetRenderEngine()==ENGINE_GLIDE)
-				{
-					pie_Draw3DShape(psShape, 0, psDroid->player-6, brightness, specular, pieFlag | pie_NO_BILINEAR, iPieData);
-				}
-				else
-				{
-					pie_Draw3DShape(psShape, 0, psDroid->player-6, brightness, specular, pieFlag, iPieData);
-				}
+				pie_Draw3DShape(psShape, 0, psDroid->player-6, brightness, specular, pieFlag, iPieData);
 			}
 		}
 		//else if( psDroid->droidType == DROID_CYBORG)
@@ -1226,18 +1219,7 @@ void displayCompObj(BASE_OBJECT *psObj,iVector *mountRotation, BOOL bButton)
 
 						iV_MatrixRotateY(-player.r.y);         
 						iV_MatrixRotateX(-player.r.x);         
-							/* Dither on software */
-						if(pie_GetRenderEngine() == ENGINE_4101)
-						{
-							pie_SetDitherStatus(TRUE);
-						}
-
 					   	pie_Draw3DShape(psShape, getStaticTimeValueRange(100,psShape->numFrames), 0, brightness, 0, pie_ADDITIVE, 140);
-					  		/* Dither off software */
-						if(pie_GetRenderEngine() == ENGINE_4101)
-						{
-							pie_SetDitherStatus(FALSE);
-						}
 
 						iV_MatrixRotateX(player.r.x);     
 						iV_MatrixRotateY(player.r.y);         
