@@ -690,7 +690,7 @@ void editBoxDisplay(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD *pC
 		pInsPoint = psEdBox->aText + psEdBox->insPos;
 		ch = *pInsPoint;
 		*pInsPoint = '\0';
-		cx = x0 + WEDB_XGAP + iV_GetTextWidth(psEdBox->aText + psEdBox->printStart);
+		cx = x0 + WEDB_XGAP + iV_GetTextWidth((unsigned char *)(psEdBox->aText + psEdBox->printStart));
 		*pInsPoint = ch;
 		cy = fy;
 		iV_Line(cx,cy+iV_GetTextAboveBase(), cx,cy+iV_GetTextBelowBase(),*(pColours + WCOL_CURSOR));
@@ -704,7 +704,7 @@ void editBoxDisplay(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD *pC
 		pInsPoint = psEdBox->aText + psEdBox->insPos;
 		ch = *pInsPoint;
 		*pInsPoint = '\0';
-		cx = x0 + WEDB_XGAP + iV_GetTextWidth(psEdBox->aText + psEdBox->printStart);
+		cx = x0 + WEDB_XGAP + iV_GetTextWidth((unsigned char *)(psEdBox->aText + psEdBox->printStart));
 		*pInsPoint = ch;
 	  	cy = fy;
 		iV_Line(cx,cy, cx + WEDB_CURSORSIZE,cy,*(pColours + WCOL_CURSOR));

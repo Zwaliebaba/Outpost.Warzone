@@ -154,26 +154,26 @@ void pie_ResetStates(void) //Sets all states
 
     //depth Buffer on
     temp = rendStates.depthBuffer;
-    rendStates.depthBuffer = -1; //to force reset
+    rendStates.depthBuffer = (DEPTH_MODE)-1; //to force reset
     pie_SetDepthBufferStatus((DEPTH_MODE)temp);
 
     //set render mode
 
     //basic gouraud textured rendering
     temp = rendStates.texCombine;
-    rendStates.texCombine = -1; //to force reset
+    rendStates.texCombine = (TEX_MODE)-1; //to force reset
     pie_SetTexCombine((TEX_MODE)temp);
 
     temp = rendStates.colourCombine;
-    rendStates.colourCombine = -1; //to force reset
+    rendStates.colourCombine = (COLOUR_MODE)-1; //to force reset
     pie_SetColourCombine((COLOUR_MODE)temp);
 
     temp = rendStates.alphaCombine;
-    rendStates.alphaCombine = -1; //to force reset
+    rendStates.alphaCombine = (ALPHA_MODE)-1; //to force reset
     pie_SetAlphaCombine((ALPHA_MODE)temp);
 
     temp = rendStates.transMode;
-    rendStates.transMode = -1; //to force reset
+    rendStates.transMode = (TRANSLUCENCY_MODE)-1; //to force reset
     pie_SetTranslucencyMode((TRANSLUCENCY_MODE)temp);
 
     //chroma keying on black

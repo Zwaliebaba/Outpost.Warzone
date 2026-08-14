@@ -1391,7 +1391,7 @@ void pie_DrawPoly(SDWORD numVrts, PIEVERTEX *aVrts, SDWORD texPage, void* psEffe
 		}
 		else//jps 15apr99 translucent water code
 		{
-			psAlpha = psEffects;
+			psAlpha = (UBYTE *)psEffects;
 //			alpha = pie_ByteScale(alpha, *psAlpha);//scale transparency by fog value
 			alpha = *psAlpha;//dont scale transparency by fog value
 			clippedVrts[i].light.byte.a = alpha;

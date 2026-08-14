@@ -181,27 +181,27 @@ script_name:	SCRIPT QTEXT
 					{
 						if (resPresent("BLO",stringname)==TRUE)
 						{
-							psCurrScript=resGetData("BLO",stringname);				
+							psCurrScript=(SCRIPT_CODE *)resGetData("BLO",stringname);				
 						}
 						else
 						{
 							// change extension to "slo"
 							stringname[extpos]='s';
-							psCurrScript=resGetData("SCRIPT",stringname);				
+							psCurrScript=(SCRIPT_CODE *)resGetData("SCRIPT",stringname);				
 						}
 					}
 					else if (strncmp(&stringname[extpos],"slo",3)==0)
 					{
 						if (resPresent("SCRIPT",stringname)==TRUE)
 						{
-							psCurrScript=resGetData("SCRIPT",stringname);				
+							psCurrScript=(SCRIPT_CODE *)resGetData("SCRIPT",stringname);				
 						}
 #ifdef PSX
 						else
 						{
 							// change extension to "blo"
 							stringname[extpos]='b';
-							psCurrScript=resGetData("BLO",stringname);				
+							psCurrScript=(SCRIPT_CODE *)resGetData("BLO",stringname);				
 						}
 #endif
 					}

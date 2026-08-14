@@ -77,7 +77,7 @@ extern BOOL plotStructurePreview(iSprite *backDropSprite,UBYTE scale,UDWORD offX
 
 BOOL						bHosted			= FALSE;				//we have set up a game
 UBYTE						sPlayer[128];							// player name (to be used)
-UBYTE						buildTime[8]	 = __TIME__ ;
+UBYTE						buildTime[9]	 = __TIME__ ;
 static BOOL					bColourChooserUp= FALSE;
 static SWORD				SettingsUp		= 0;
 static UBYTE				InitialProto	= 0;

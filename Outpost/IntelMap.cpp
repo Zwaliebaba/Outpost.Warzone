@@ -1281,7 +1281,7 @@ void intDisplayTEXTView(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset
 				return;
 			}
 			//need to check the string will fit!
-			iV_DrawText(((VIEWDATA *)psMessage->pViewData)->ppTextMsg[i], x0 + TEXT_XINDENT, 
+			iV_DrawText((unsigned char *)((VIEWDATA *)psMessage->pViewData)->ppTextMsg[i], x0 + TEXT_XINDENT, 
 				(ty + TEXT_YINDENT*3) + (i * linePitch));
 		}
 	}

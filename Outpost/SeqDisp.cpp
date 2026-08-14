@@ -644,7 +644,7 @@ BOOL seq_UpdateFullScreenVideo(CLEAR_MODE* pbClear)
         {
           aSeqList[currentPlaySeq].aText[i].x = 20 + D_W;
         }
-        pie_DrawTextToSurface(lpDDSF, &(aSeqList[currentPlaySeq].aText[i].pText[0]),
+        pie_DrawTextToSurface(lpDDSF, (unsigned char *)&(aSeqList[currentPlaySeq].aText[i].pText[0]),
                               aSeqList[currentPlaySeq].aText[i].x, aSeqList[currentPlaySeq].aText[i].y);
       }
       else if (aSeqList[currentPlaySeq].bSeqLoop) //if its a looped video always draw the text
@@ -654,7 +654,7 @@ BOOL seq_UpdateFullScreenVideo(CLEAR_MODE* pbClear)
         {
           aSeqList[currentPlaySeq].aText[i].x = 20 + D_W;
         }
-        pie_DrawTextToSurface(lpDDSF, &(aSeqList[currentPlaySeq].aText[i].pText[0]),
+        pie_DrawTextToSurface(lpDDSF, (unsigned char *)&(aSeqList[currentPlaySeq].aText[i].pText[0]),
                               aSeqList[currentPlaySeq].aText[i].x, aSeqList[currentPlaySeq].aText[i].y);
       }
     }
@@ -855,7 +855,7 @@ BOOL seq_AddTextFromFile(STRING* pTextName, BOOL bJustify)
   WIN32_FIND_DATA findData;
   BOOL endOfFile = FALSE;
   SDWORD xOffset, yOffset, startFrame, endFrame;
-  UBYTE* seps = "\n";
+  UBYTE* seps = (UBYTE *)"\n";
 
   strcpy(aTextName, "sequenceAudio\\");
   strcat(aTextName, pTextName);

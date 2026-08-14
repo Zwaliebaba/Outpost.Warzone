@@ -148,7 +148,7 @@ anim_Create3D( char szPieFileName[], UWORD uwStates,
 	while ( psFrames != NULL )
 	{
 #ifdef DEBUG
-		if (psFrames==0xcdcdcdcd)
+		if (psFrames==(iIMDShape *)0xcdcdcdcd)
 		{
 			printf("bad pointer in Create 3D !!!!  -[%s]\n", szPieFileName);
 		}

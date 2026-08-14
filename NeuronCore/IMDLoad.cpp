@@ -112,7 +112,7 @@ char GetCh1(UBYTE **data)
 {
 	char Byte;
 	char *pointer;
-	pointer=*data;
+	pointer=(char *)*data;
 	Byte=*pointer++;
 	*data=(UBYTE *)pointer;
 	return Byte;
@@ -816,7 +816,7 @@ static iBool _imd_load_bsp(UBYTE **ppFileData, UBYTE *FileDataEnd, iIMDShape *s,
 		}
 		else
 		{
-			NodeID = psNode->link[LEFT];
+			NodeID = (SDWORD)psNode->link[LEFT];
 			psNode->link[LEFT] = &NodeList[NodeID];
 		}		
 
@@ -827,7 +827,7 @@ static iBool _imd_load_bsp(UBYTE **ppFileData, UBYTE *FileDataEnd, iIMDShape *s,
 		}
 		else
 		{
-			NodeID = psNode->link[RIGHT];
+			NodeID = (SDWORD)psNode->link[RIGHT];
 			psNode->link[RIGHT] = &NodeList[NodeID];
 		}		
 	}
@@ -1303,7 +1303,7 @@ static iIMDShape *_imd_load_level(UBYTE **ppFileData, UBYTE *FileDataEnd, int nl
 			{
 
 
-				if (AtEndOfFile(*ppFileData,(char *)FileDataEnd)==TRUE)
+				if (AtEndOfFile((char *)*ppFileData,(char *)FileDataEnd)==TRUE)
 				{
 					OptionalsCompleted=TRUE;
 					break;
@@ -1507,7 +1507,7 @@ int tpGetNumPIEs(void);
 iIMDShape *tpGetPIE(int Index);
 char *tpGetPIEName(int Index);
 int tpGetNumLevels(int Index);
-int tpGetLevel(int Index,int LevelIndex);
+iIMDShape *tpGetLevel(int Index,int LevelIndex);
 
 void tpInit(void)
 {
@@ -1546,7 +1546,7 @@ int tpGetNumLevels(int Index)
 }
 
 
-int tpGetLevel(int Index,int LevelIndex)
+iIMDShape *tpGetLevel(int Index,int LevelIndex)
 {
 	return tp_PieList[Index].Levels[LevelIndex % tp_PieList[Index].NumLevels];
 }

@@ -476,8 +476,8 @@ BOOL		bPlayerHasHQ = FALSE;
 	{
 		if(!gamePaused)
 		{
-			iV_DrawText("Developed by Pumpkin Studios",RET_X+3,467+E_H);
-			iV_DrawText("Published by EIDOS Interactive",pie_GetVideoBufferWidth()-196,467+E_H);
+			iV_DrawText((unsigned char *)"Developed by Pumpkin Studios",RET_X+3,467+E_H);
+			iV_DrawText((unsigned char *)"Published by EIDOS Interactive",pie_GetVideoBufferWidth()-196,467+E_H);
 		}
 	}
 
@@ -505,7 +505,7 @@ BOOL		bPlayerHasHQ = FALSE;
 //----------------------------------------------------------
  	if(getDebugMappingStatus() AND !demoGetStatus() AND !gamePaused())
  	{
- 		iV_DrawText("DEBUG ",RET_X+134,440+E_H);
+ 		iV_DrawText((unsigned char *)"DEBUG ",RET_X+134,440+E_H);
   	}
  	else
  	{

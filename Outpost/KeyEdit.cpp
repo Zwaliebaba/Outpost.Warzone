@@ -76,7 +76,7 @@ static BOOL pushedKeyMap(UDWORD key)
 //		
 //
 //		if((selectedKeyMap->status!=KEYMAP__DEBUG)&&(selectedKeyMap->status!=KEYMAP___HIDE))		// if it's not a debug mapping..
-	selectedKeyMap = widgGetFromID(psWScreen,key)->pUserData;
+	selectedKeyMap = (KEY_MAPPING *)widgGetFromID(psWScreen,key)->pUserData;
 	if(selectedKeyMap && selectedKeyMap->status != KEYMAP_ASSIGNABLE)
 	{
 		selectedKeyMap = NULL;

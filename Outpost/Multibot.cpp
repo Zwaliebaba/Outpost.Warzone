@@ -805,7 +805,7 @@ BOOL recvGroupOrder(NETMSG *pMsg)
 
 	bCmdOr = pMsg->body[10];
 	
-	order = pMsg->body[12];
+	order = (DROID_ORDER)pMsg->body[12];
 
 	NetGet(pMsg,9,droidcount);
 	if(pMsg->body[8] == 1)											// it's target is an object
@@ -820,7 +820,7 @@ BOOL recvGroupOrder(NETMSG *pMsg)
 		NetGet(pMsg,0,x);											// x coord
 		NetGet(pMsg,4,y);											// y coord
 		destid=0;
-		desttype=0;
+		desttype=(OBJECT_TYPE)0;
 	}
 
 	// for each droid
@@ -930,7 +930,7 @@ BOOL recvDroidInfo(NETMSG *pMsg)
 	{
 		NetGet(pMsg,8,x);											// x coord
 		NetGet(pMsg,12,y);											// y coord
-		ProcessDroidOrder(psDroid,order,x,y,0,0);
+		ProcessDroidOrder(psDroid,order,x,y,(OBJECT_TYPE)0,0);
 	}
 	return TRUE;
 }
