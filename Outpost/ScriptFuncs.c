@@ -62,6 +62,7 @@
 #include "Mission.h"
 #include "Projectile.h"
 #include "Cluster.h"
+#include "Effects.h"                       // fireOnLocation
 
 
 //used in the set nogoArea and LandingZone functions - use the ones defined in Map.h

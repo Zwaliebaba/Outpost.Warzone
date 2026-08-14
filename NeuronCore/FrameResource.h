@@ -149,5 +149,8 @@ BOOL IsWDGopen(void);
 void CloseWDG(void);
 
 
+
+extern void SetLastResourceHash(char *fname);
+
 #endif
 

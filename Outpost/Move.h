@@ -64,5 +64,8 @@ extern BOOL moveCheckDroidMovingAndVisible( AUDIO_SAMPLE *psSample );
 void moveMakeVtolHover( DROID *psDroid );
 
 
+
+extern SDWORD moveCalcDroidSpeed(DROID *psDroid);
+
 #endif
 

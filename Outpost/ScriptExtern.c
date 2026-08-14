@@ -17,6 +17,7 @@
 #include "WinMain.h"
 #include "HCI.h"
 #include "GTime.h"
+#include "RendFunc.h"                      // iV_GetMouseFrame
 
 
 // current game level

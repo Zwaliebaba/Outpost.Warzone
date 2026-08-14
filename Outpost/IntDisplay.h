@@ -310,4 +310,7 @@ extern void intDisplayMissionClock(struct _widget *psWidget, UDWORD xOffset, UDW
 
 extern void intDisplayAllyIcon(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD *pColours);
 
+
+extern BOOL DroidIsDemolishing(DROID *Droid);
+
 #endif

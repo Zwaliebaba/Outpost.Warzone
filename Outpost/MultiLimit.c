@@ -30,6 +30,7 @@
 #include "MultiInt.h"
 #include "MultiLimit.h"
 #include "PieMode.h"
+#include "Script.h"                        // eventReset
 
 // ////////////////////////////////////////////////////////////////////////////
 // externs

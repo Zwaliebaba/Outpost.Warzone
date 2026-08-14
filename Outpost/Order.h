@@ -226,5 +226,10 @@ extern BOOL getFactoryState(STRUCTURE *psStruct, SECONDARY_ORDER sec, SECONDARY_
 //lasSat structure can select a target
 extern void orderStructureObj(UDWORD player, BASE_OBJECT *psObj);
 
+
+extern void orderDroidStatsTwoLocAdd(DROID *psDroid, DROID_ORDER order,
+									 BASE_STATS *psStats, UDWORD x1, UDWORD y1,
+									 UDWORD x2, UDWORD y2);
+
 #endif
 

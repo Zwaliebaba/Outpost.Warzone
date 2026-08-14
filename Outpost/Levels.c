@@ -24,6 +24,7 @@
 
 #include "Script.h"
 #include "ScriptTabs.h"
+#include "Ivi.h"                           // iV_Reset
 
 // semi hack to get the playstation to load resources from the WDG
 

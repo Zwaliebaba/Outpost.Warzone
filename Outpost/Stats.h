@@ -313,5 +313,8 @@ extern UDWORD getMaxWeaponRange(void);
 extern UDWORD getMaxWeaponDamage(void);
 extern UDWORD getMaxPropulsionSpeed(void);
 
+
+extern void adjustMaxDesignStats(void);
+
 #endif
 

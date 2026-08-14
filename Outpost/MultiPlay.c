@@ -40,6 +40,7 @@
 #include "MultiStat.h"
 #include "MultiGifts.h"								// gifts and alliances.
 #include "Levels.h"									// levParse
+#include "Selection.h"                     // selDroidDeselect
 
 
 // ////////////////////////////////////////////////////////////////////////////

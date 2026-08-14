@@ -21,6 +21,7 @@
 #include "IntDisplay.h"
 #include "AudioID.h"
 #include "PieBlitFunc.h"
+#include "MultiInt.h"                      // addMultiBut
 
 // ////////////////////////////////////////////////////////////////////////////
 // defines

@@ -22,6 +22,8 @@
 #include "Research.h"
 #include "Gateway.h"
 #include "MultiPlay.h"
+#include "Power.h"                         // addPower, usePower
+#include "Geometry.h"                      // dirtySqrt
 
 // Add a droid to a group
 BOOL scrGroupAddDroid(void)

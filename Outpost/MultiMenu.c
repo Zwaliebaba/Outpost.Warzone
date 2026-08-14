@@ -31,6 +31,7 @@
 #include "MultiInt.h"
 #include "MultiGifts.h"
 #include "MultiJoin.h"
+#include "Scores.h"                        // getAsciiTime
 
 // ////////////////////////////////////////////////////////////////////////////
 // defines

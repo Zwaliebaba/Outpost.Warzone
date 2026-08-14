@@ -31,6 +31,7 @@
 #include "MultiInt.h"			// for force name.
 #include "MultiMenu.h"			// for multimenu
 #include "MultiStat.h"
+#include "Loop.h"                          // getNumDroids
 
 //////////////////////////////////////////////////////////////////////////////
 

@@ -311,3 +311,6 @@ extern	UBYTE	sPlayer[128];
 
 #define MULTIOP_BUTW			35
 #define MULTIOP_BUTH			24	
+
+extern UDWORD	addPlayerBox			(BOOL bDisplay);
+extern void		loadMapPreview			(void);

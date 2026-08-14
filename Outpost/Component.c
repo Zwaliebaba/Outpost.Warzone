@@ -38,6 +38,8 @@
 #include "E3Demo.h"
 #include "Transporter.h"
 #include "Projectile.h"
+#include "BSPFunc.h"                       // GetRealCameraPos
+#include "Loop.h"                          // gamePaused
 
 void unsetMatrix(void);
 void setMatrix(iVector *Position,iVector *Rotation,iVector *CameraPos,BOOL RotXYZ);
