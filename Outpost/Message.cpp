@@ -199,8 +199,8 @@ void add_msg(MESSAGE* list[MAX_PLAYERS], MESSAGE* msg, UDWORD player)
 		{ \
 			psPrev = psCurr; \
 		} \
-		ASSERT((psCurr != NULL, \
-			"removeMessage: message not found")); \
+		ASSERT_TEXT(psCurr != NULL, \
+			"removeMessage: message not found"); \
 		if (psCurr != NULL) \
 		{ \
 			psPrev->psNext = psCurr->psNext; \
@@ -385,7 +385,7 @@ BOOL initMessage(void)
   pProximityMsgIMD = static_cast<iIMDShape*>(resGetData("IMD", "arrow.pie"));
   if (pProximityMsgIMD == nullptr)
   {
-    DBERROR(("Unable to load Proximity Message PIE"));
+    Neuron::Fatal("Unable to load Proximity Message PIE");
     return FALSE;
   }
 
@@ -435,7 +435,7 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
   numData = numCR((UBYTE*)pViewMsgData, bufferSize);
   if (numData > UBYTE_MAX)
   {
-    DBERROR(("loadViewData: Didn't expect 256 viewData messages!"));
+    Neuron::Fatal("loadViewData: Didn't expect 256 viewData messages!");
     return nullptr;
   }
 
@@ -443,7 +443,7 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
   psViewData = new (std::nothrow) VIEWDATA[numData];
   if (psViewData == nullptr)
   {
-    DBERROR(("Unable to allocate memory for viewdata"));
+    Neuron::Fatal("Unable to allocate memory for viewdata");
     return nullptr;
   }
 
@@ -467,7 +467,7 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
     //check not loading up too many text strings
     if (numText > MAX_DATA)
     {
-      DBERROR(("loadViewData: too many text strings for %s", psViewData->pName));
+      Neuron::Fatal("loadViewData: too many text strings for {}", psViewData->pName);
       return nullptr;
     }
     psViewData->numText = static_cast<UBYTE>(numText);
@@ -476,7 +476,7 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
     psViewData->pName = new (std::nothrow) STRING[(strlen(name))+1];
     if (psViewData->pName == nullptr)
     {
-      DBERROR(("ViewData Name - Out of memory"));
+      Neuron::Fatal("ViewData Name - Out of memory");
       return nullptr;
     }
     strcpy(psViewData->pName, name);
@@ -493,7 +493,7 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
       //get the ID for the string
       if (!strresGetIDNum(psStringRes, name, &id))
       {
-        DBERROR(("Cannot find the view data string id %s ", name));
+        Neuron::Fatal("Cannot find the view data string id {} ", name);
         return nullptr;
       }
       //get the string from the id
@@ -509,7 +509,7 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
       psViewData->pData = new (std::nothrow) VIEW_RESEARCH[1];
       if (psViewData->pData == nullptr)
       {
-        DBERROR(("Unable to allocate memory"));
+        Neuron::Fatal("Unable to allocate memory");
         return nullptr;
       }
       imdName[0] = '\0';
@@ -522,7 +522,7 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
       psViewRes->pIMD = static_cast<iIMDShape*>(resGetData("IMD", imdName));
       if (psViewRes->pIMD == nullptr)
       {
-        DBERROR(("Cannot find the PIE for message %s", name));
+        Neuron::Fatal("Cannot find the PIE for message {}", name);
         return nullptr;
       }
       if (strcmp(imdName2, "0"))
@@ -530,7 +530,7 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
         psViewRes->pIMD2 = static_cast<iIMDShape*>(resGetData("IMD", imdName2));
         if (psViewRes->pIMD2 == nullptr)
         {
-          DBERROR(("Cannot find the 2nd PIE for message %s", name));
+          Neuron::Fatal("Cannot find the 2nd PIE for message {}", name);
           return nullptr;
         }
       }
@@ -544,7 +544,7 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
         psViewRes->pAudio = new (std::nothrow) STRING[strlen(audioName) + 1];
         if (psViewRes->pAudio == nullptr)
         {
-          DBERROR(("loadViewData - Out of memory"));
+          Neuron::Fatal("loadViewData - Out of memory");
           return nullptr;
         }
         strcpy(psViewRes->pAudio, audioName);
@@ -561,7 +561,7 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
       psViewData->pData = new (std::nothrow) VIEW_REPLAY[1];
       if (psViewData->pData == nullptr)
       {
-        DBERROR(("Unable to allocate memory"));
+        Neuron::Fatal("Unable to allocate memory");
         return nullptr;
       }
       psViewReplay = static_cast<VIEW_REPLAY*>(psViewData->pData);
@@ -571,7 +571,7 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
 
       if (count > MAX_DATA)
       {
-        DBERROR(("loadViewData: too many sequence for %s", psViewData->pName));
+        Neuron::Fatal("loadViewData: too many sequence for {}", psViewData->pName);
         return nullptr;
       }
 
@@ -590,7 +590,7 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
           sscanf1(&pViewMsgData, "%[^','],%d,", &name, &count);
           if (count > MAX_DATA)
           {
-            DBERROR(("loadViewData: too many strings for %s", psViewData->pName));
+            Neuron::Fatal("loadViewData: too many strings for {}", psViewData->pName);
             return nullptr;
           }
           psViewReplay->pSeqList[dataInc].numText = static_cast<UBYTE>(count);
@@ -602,14 +602,14 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
           sscanf1(&pViewMsgData, "%[^','],%d,%d,", &name, &count, &count2);
           if (count > MAX_DATA)
           {
-            DBERROR(("loadViewData: invalid video playback flag %s", psViewData->pName));
+            Neuron::Fatal("loadViewData: invalid video playback flag {}", psViewData->pName);
             return nullptr;
           }
           psViewReplay->pSeqList[dataInc].flag = static_cast<UBYTE>(count);
           //check not loading up too many text strings
           if (count2 > MAX_DATA)
           {
-            DBERROR(("loadViewData: too many text strings for seq for %s", psViewData->pName));
+            Neuron::Fatal("loadViewData: too many text strings for seq for {}", psViewData->pName);
             return nullptr;
           }
           psViewReplay->pSeqList[dataInc].numText = static_cast<UBYTE>(count2);
@@ -630,7 +630,7 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
           //get the ID for the string
           if (!strresGetIDNum(psStringRes, name, &id))
           {
-            DBERROR(("Cannot find the view data string id %s ", name));
+            Neuron::Fatal("Cannot find the view data string id {} ", name);
             return nullptr;
           }
           //get the string from the id
@@ -639,7 +639,7 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
         //get the audio text string
         sscanf1(&pViewMsgData, "%[^','], %d,", &audioName, &count);
 
-        ASSERT((count < UWORD_MAX, "loadViewData: numFrames too high for ", name));
+        ASSERT_TEXT(count < UWORD_MAX, "loadViewData: numFrames too high for ", name);
 
         psViewReplay->pSeqList[dataInc].numFrames = static_cast<UWORD>(count);
 
@@ -649,7 +649,7 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
           psViewReplay->pSeqList[dataInc].pAudio = new (std::nothrow) STRING[strlen(audioName) + 1];
           if (psViewReplay->pSeqList[dataInc].pAudio == nullptr)
           {
-            DBERROR(("loadViewData - Out of memory"));
+            Neuron::Fatal("loadViewData - Out of memory");
             return nullptr;
           }
           strcpy(psViewReplay->pSeqList[dataInc].pAudio, audioName);
@@ -664,7 +664,7 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
       psViewData->pData = new (std::nothrow) VIEW_PROXIMITY[1];
       if (psViewData->pData == nullptr)
       {
-        DBERROR(("Unable to allocate memory"));
+        Neuron::Fatal("Unable to allocate memory");
         return nullptr;
       }
 
@@ -678,13 +678,13 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
       {
         if (audioID_GetIDFromStr(audioName, &audioID) == FALSE)
         {
-          DBERROR(("loadViewData: couldn't get ID %d for weapon sound %s", audioID, audioName));
+          Neuron::Fatal("loadViewData: couldn't get ID {} for weapon sound {}", audioID, audioName);
           return FALSE;
         }
 
         if (((audioID < 0) || (audioID >= ID_MAX_SOUND)) && (audioID != NO_SOUND))
         {
-          DBERROR(("Invalid Weapon Sound ID - %d for weapon %s", audioID, audioName));
+          Neuron::Fatal("Invalid Weapon Sound ID - {} for weapon {}", audioID, audioName);
           return FALSE;
         }
       }
@@ -693,31 +693,31 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
 
       if (LocX < 0)
       {
-        ASSERT((FALSE, "loadViewData: Negative X coord for prox message - %s",name));
+        ASSERT_TEXT(FALSE, "loadViewData: Negative X coord for prox message - {}",name);
         return nullptr;
       }
       static_cast<VIEW_PROXIMITY*>(psViewData->pData)->x = static_cast<UDWORD>(LocX);
       if (LocY < 0)
       {
-        ASSERT((FALSE, "loadViewData: Negative Y coord for prox message - %s",name));
+        ASSERT_TEXT(FALSE, "loadViewData: Negative Y coord for prox message - {}",name);
         return nullptr;
       }
       static_cast<VIEW_PROXIMITY*>(psViewData->pData)->y = static_cast<UDWORD>(LocY);
       if (LocZ < 0)
       {
-        ASSERT((FALSE, "loadViewData: Negative Z coord for prox message - %s",name));
+        ASSERT_TEXT(FALSE, "loadViewData: Negative Z coord for prox message - {}",name);
         return nullptr;
       }
       static_cast<VIEW_PROXIMITY*>(psViewData->pData)->z = static_cast<UDWORD>(LocZ);
 
       if (proxType > PROX_TYPES)
       {
-        ASSERT((FALSE, "Invalid proximity message sub type - %s", name));
+        ASSERT_TEXT(FALSE, "Invalid proximity message sub type - {}", name);
         return nullptr;
       }
       static_cast<VIEW_PROXIMITY*>(psViewData->pData)->proxType = static_cast<PROX_TYPE>(proxType);
       break;
-    default: DBERROR(("Unknown ViewData type"));
+    default: Neuron::Fatal("Unknown ViewData type");
       return nullptr;
     }
     //increment the pointer to the start of the next record
@@ -735,7 +735,7 @@ VIEWDATA* getViewData(STRING* pName)
   VIEWDATA_LIST* psList;
   UBYTE i;
 
-  ASSERT((strlen(pName)< MAX_STR_SIZE,"getViewData: verbose message name"));
+  ASSERT_TEXT(strlen(pName)< MAX_STR_SIZE,"getViewData: verbose message name");
 
   for (psList = apsViewData; psList != nullptr; psList = psList->psNext)
   {
@@ -747,7 +747,7 @@ VIEWDATA* getViewData(STRING* pName)
     }
   }
 
-  DBERROR(("Unable to find viewdata for message %s", pName));
+  Neuron::Fatal("Unable to find viewdata for message {}", pName);
   return nullptr;
 }
 
@@ -864,7 +864,7 @@ void displayProximityMessage(PROXIMITY_DISPLAY* psProxDisp)
   }
   else if (psProxDisp->type == POS_PROXOBJ)
   {
-    ASSERT(( ((BASE_OBJECT *)psProxDisp->psMessage->pViewData)->type == OBJ_FEATURE, "displayProximityMessage: invalid feature" ));
+    ASSERT_TEXT(((BASE_OBJECT *)psProxDisp->psMessage->pViewData)->type == OBJ_FEATURE, "displayProximityMessage: invalid feature" );
 
     psFeature = (FEATURE*)psProxDisp->psMessage->pViewData;
     if (psFeature->psStats->subType == FEAT_OIL_RESOURCE)

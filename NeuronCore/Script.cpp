@@ -121,7 +121,7 @@ BOOL scriptSaveProg(SCRIPT_CODE* psProg, UDWORD* pSize, UBYTE** ppData)
   *ppData = new (std::nothrow) UBYTE[*pSize];
   if (!*ppData)
   {
-    DBERROR(("scriptSaveProg: out of memory"));
+    Neuron::Fatal("scriptSaveProg: out of memory");
     return FALSE;
   }
 
@@ -187,7 +187,7 @@ BOOL scriptSaveProg(SCRIPT_CODE* psProg, UDWORD* pSize, UBYTE** ppData)
   pPos = (UBYTE*)((((UDWORD)pPos) + 3) & (~3)); // align up me landlord !
 
   // Save the code
-  ASSERT(((pPos - *ppData) % 4 == 0, "scriptSaveProg: data not DWORD aligned"));
+  ASSERT_TEXT((pPos - *ppData) % 4 == 0, "scriptSaveProg: data not DWORD aligned");
   memcpy(pPos, psProg->pCode, psProg->size);
 
   // Now search the code for function pointers and replace
@@ -230,7 +230,7 @@ BOOL scriptSaveProg(SCRIPT_CODE* psProg, UDWORD* pSize, UBYTE** ppData)
           }
         }
       }
-      ASSERT((MatchFound==TRUE,"scriptSaveProg: No Function match"));
+      ASSERT_TEXT(MatchFound==TRUE,"scriptSaveProg: No Function match");
       *(ip + 1) = saveFunc;
       break;
     case OP_VARCALL:
@@ -271,7 +271,7 @@ BOOL scriptSaveProg(SCRIPT_CODE* psProg, UDWORD* pSize, UBYTE** ppData)
           break;
         }
       }
-      ASSERT((MatchFound==TRUE,"scriptSaveProg: No var match"));
+      ASSERT_TEXT(MatchFound==TRUE,"scriptSaveProg: No var match");
       *(ip + 1) = saveFunc;
       break;
     default:
@@ -353,7 +353,7 @@ BOOL scriptSaveProg(SCRIPT_CODE* psProg, UDWORD* pSize, UBYTE** ppData)
   return TRUE;
 }
 
-#define DBG1() ({DBPRINTF(("DbgSize=%d MemUsed=%d\n",DbgSize,pPos - pData));     })
+#define DBG1() ({Neuron::DebugTrace("DbgSize={} MemUsed={}\n",DbgSize,pPos - pData);     })
 
 // Load a binary version of a program
 BOOL scriptLoadProg(UDWORD size, UBYTE* pData, SCRIPT_CODE** ppsProg)
@@ -372,7 +372,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE* pData, SCRIPT_CODE** ppsProg)
   psProg = new (std::nothrow) SCRIPT_CODE[1];
   if (!psProg)
   {
-    DBERROR(("scriptLoadProg: out of memory"));
+    Neuron::Fatal("scriptLoadProg: out of memory");
     return FALSE;
   }
 
@@ -380,7 +380,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE* pData, SCRIPT_CODE** ppsProg)
   psHdr = (BINARY_HDR*)pData;
   if (psHdr->aType[0] != 'c' || psHdr->aType[1] != 'o' || psHdr->aType[2] != 'd' || psHdr->aType[3] != 'e' || psHdr->version != 0)
   {
-    DBERROR(("scriptLoadProg: invalid file type/version"));
+    Neuron::Fatal("scriptLoadProg: invalid file type/version");
     return FALSE;
   }
   psProg->size = psHdr->size;
@@ -404,7 +404,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE* pData, SCRIPT_CODE** ppsProg)
     psProg->pGlobals = new (std::nothrow) INTERP_TYPE[psProg->numGlobals];
     if (!psProg->pGlobals)
     {
-      DBERROR(("scriptLoadProg: out of memory"));
+      Neuron::Fatal("scriptLoadProg: out of memory");
       return FALSE;
     }
     memcpy(psProg->pGlobals, pPos, sizeof(INTERP_TYPE) * psProg->numGlobals);
@@ -421,7 +421,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE* pData, SCRIPT_CODE** ppsProg)
     psProg->psArrayInfo = new (std::nothrow) ARRAY_DATA[psProg->numArrays];
     if (psProg->psArrayInfo == nullptr)
     {
-      DBERROR(("scriptLoadProg: out of memory"));
+      Neuron::Fatal("scriptLoadProg: out of memory");
       return FALSE;
     }
     memcpy(psProg->psArrayInfo, pPos, sizeof(ARRAY_DATA) * psProg->numArrays);
@@ -434,7 +434,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE* pData, SCRIPT_CODE** ppsProg)
   psProg->psTriggerData = new (std::nothrow) TRIGGER_DATA[psProg->numTriggers];
   if (!psProg->psTriggerData)
   {
-    DBERROR(("scriptLoadProg: out of memory"));
+    Neuron::Fatal("scriptLoadProg: out of memory");
     return FALSE;
   }
   memcpy(psProg->psTriggerData, pPos, sizeof(TRIGGER_DATA) * psProg->numTriggers);
@@ -446,7 +446,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE* pData, SCRIPT_CODE** ppsProg)
   psProg->pTriggerTab = new (std::nothrow) UWORD[(psProg->numTriggers+1)];
   if (!psProg->pTriggerTab)
   {
-    DBERROR(("scriptLoadProg: out of memory"));
+    Neuron::Fatal("scriptLoadProg: out of memory");
     return FALSE;
   }
   memcpy(psProg->pTriggerTab, pPos, sizeof(UWORD) * (psProg->numTriggers + 1));
@@ -457,7 +457,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE* pData, SCRIPT_CODE** ppsProg)
   psProg->pEventTab = new (std::nothrow) UWORD[(psProg->numEvents+1)];
   if (!psProg->pEventTab)
   {
-    DBERROR(("scriptLoadProg: out of memory"));
+    Neuron::Fatal("scriptLoadProg: out of memory");
     return FALSE;
   }
   memcpy(psProg->pEventTab, pPos, sizeof(UWORD) * (psProg->numEvents + 1));
@@ -468,7 +468,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE* pData, SCRIPT_CODE** ppsProg)
   psProg->pEventLinks = new (std::nothrow) SWORD[psProg->numEvents];
   if (!psProg->pEventLinks)
   {
-    DBERROR(("scriptLoadProg: out of memory"));
+    Neuron::Fatal("scriptLoadProg: out of memory");
     return FALSE;
   }
   memcpy(psProg->pEventLinks, pPos, sizeof(SWORD) * psProg->numEvents);
@@ -479,12 +479,12 @@ BOOL scriptLoadProg(UDWORD size, UBYTE* pData, SCRIPT_CODE** ppsProg)
   pPos = (UBYTE*)((((UDWORD)pPos) + 3) & (~3)); // align up me landlord !
 
   // Load the code
-  ASSERT(((pPos - pData) % 4 == 0, "scriptLoadProg: data not DWORD aligned"));
+  ASSERT_TEXT((pPos - pData) % 4 == 0, "scriptLoadProg: data not DWORD aligned");
 
   psProg->pCode = new (std::nothrow) UDWORD[(psProg->size) / sizeof(UDWORD)];
   if (!psProg->pCode)
   {
-    DBERROR(("scriptLoadProg: out of memory"));
+    Neuron::Fatal("scriptLoadProg: out of memory");
     return FALSE;
   }
   memcpy(psProg->pCode, pPos, psProg->size);
@@ -541,7 +541,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE* pData, SCRIPT_CODE** ppsProg)
     psProg->psDebug = new (std::nothrow) SCRIPT_DEBUG[psProg->debugEntries];
     if (!psProg->psDebug)
     {
-      DBERROR(("scriptLoadProg: out of memory"));
+      Neuron::Fatal("scriptLoadProg: out of memory");
       return FALSE;
     }
     memcpy(psProg->psDebug, pPos, sizeof(SCRIPT_DEBUG) * psProg->debugEntries);
@@ -552,7 +552,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE* pData, SCRIPT_CODE** ppsProg)
       psProg->psVarDebug = new (std::nothrow) VAR_DEBUG[psProg->numGlobals];
       if (!psProg->psVarDebug)
       {
-        DBERROR(("scriptLoadProg: out of memory"));
+        Neuron::Fatal("scriptLoadProg: out of memory");
         return FALSE;
       }
     }
@@ -566,7 +566,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE* pData, SCRIPT_CODE** ppsProg)
       psProg->psArrayDebug = new (std::nothrow) ARRAY_DEBUG[psProg->numArrays];
       if (!psProg->psArrayDebug)
       {
-        DBERROR(("scriptLoadProg: out of memory"));
+        Neuron::Fatal("scriptLoadProg: out of memory");
         return FALSE;
       }
     }
@@ -600,7 +600,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE* pData, SCRIPT_CODE** ppsProg)
         psProg->psVarDebug[i].pIdent = new (std::nothrow) STRING[StringSize];
         if (!psProg->psVarDebug[i].pIdent)
         {
-          DBERROR(("scriptLoadProg: out of memory"));
+          Neuron::Fatal("scriptLoadProg: out of memory");
           return FALSE;
         }
         strcpy(psProg->psVarDebug[i].pIdent, (STRING*)pPos);
@@ -632,7 +632,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE* pData, SCRIPT_CODE** ppsProg)
         psProg->psArrayDebug[i].pIdent = new (std::nothrow) STRING[StringSize];
         if (!psProg->psArrayDebug[i].pIdent)
         {
-          DBERROR(("scriptLoadProg: out of memory"));
+          Neuron::Fatal("scriptLoadProg: out of memory");
           return FALSE;
         }
         strcpy(psProg->psArrayDebug[i].pIdent, (STRING*)pPos);
@@ -651,7 +651,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE* pData, SCRIPT_CODE** ppsProg)
 
   if (pPos - pData > static_cast<SDWORD>(size))
   {
-    DBERROR(("ERROR : scriptLoadProg: filesize (%d) does not match data size (%d) - sum=%d",size,pPos-pData,DbgSize));
+    Neuron::Fatal("ERROR : scriptLoadProg: filesize ({}) does not match data size ({}) - sum={}",size,pPos-pData,DbgSize);
     return FALSE;
   }
 

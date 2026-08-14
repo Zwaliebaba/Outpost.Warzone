@@ -200,7 +200,7 @@ void getBridgeInfo(UDWORD startX, UDWORD startY, UDWORD endX, UDWORD endY, BRIDG
     info->bridgeLength = abs(static_cast<SDWORD>(startX - endX));
   }
   else
-    DBERROR(("Weirdy Bridge requested - no axes allignment"));
+    Neuron::Fatal("Weirdy Bridge requested - no axes allignment");
 }
 
 void testBuildBridge(UDWORD startX, UDWORD startY, UDWORD endX, UDWORD endY)

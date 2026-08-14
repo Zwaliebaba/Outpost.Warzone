@@ -79,21 +79,21 @@ IMAGEFILE* iV_LoadImageFile(UBYTE* FileData, UDWORD FileSize)
   ImageFile = new (std::nothrow) IMAGEFILE[1];
   if (ImageFile == nullptr)
   {
-    DBERROR(("Out of memory"));
+    Neuron::Fatal("Out of memory");
     return nullptr;
   }
 
   ImageFile->TexturePages = new (std::nothrow) iSprite[Header->NumTPages];
   if (ImageFile->TexturePages == nullptr)
   {
-    DBERROR(("Out of memory"));
+    Neuron::Fatal("Out of memory");
     return nullptr;
   }
 
   ImageFile->ImageDefs = new (std::nothrow) IMAGEDEF[Header->NumImages];
   if (ImageFile->ImageDefs == nullptr)
   {
-    DBERROR(("Out of memory"));
+    Neuron::Fatal("Out of memory");
     return nullptr;
   }
 
@@ -109,7 +109,7 @@ IMAGEFILE* iV_LoadImageFile(UBYTE* FileData, UDWORD FileSize)
     ImageFile->ImageDefs[i] = *ImageDef;
     if ((ImageDef->Width <= 0) || (ImageDef->Height <= 0))
     {
-      DBERROR(("Illegal image size"));
+      Neuron::Fatal("Illegal image size");
       return nullptr;
     }
     ImageDef++;
@@ -132,13 +132,13 @@ static BOOL LoadTextureFile(char* FileName, iSprite* pSprite, int* texPageID)
 {
   SDWORD i;
 
-  DBPRINTF(("ltf) %s\n",FileName));
+  Neuron::DebugTrace("ltf) {}\n",FileName);
 
   if (!resPresent("IMGPAGE", FileName))
   {
     if (!iV_PCXLoad(FileName, pSprite, nullptr))
     {
-      DBERROR(("Unable to load texture file : %s",FileName));
+      Neuron::Fatal("Unable to load texture file : {}",FileName);
       return FALSE;
     }
   }

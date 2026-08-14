@@ -40,7 +40,7 @@ void iV_DisplayLogFile(void)
 
   if (fp)
   {
-    while ((c = getc(fp)) != EOF) { DBPRINTF(("%c",c)); }
+    while ((c = getc(fp)) != EOF) { Neuron::DebugTrace("{}",c); }
     fclose(fp);
   }
 }

@@ -637,7 +637,7 @@ BOOL dataIMDLoad(STRING* pFile, void** ppData)
   iIMDShape* psIMD = iV_IMDLoad(pFile,FALSE);
   if (psIMD == nullptr)
   {
-    DBERROR(("Please check that both file %s and it's texture file are present", pFile));
+    Neuron::Fatal("Please check that both file {} and it's texture file are present", pFile);
     return FALSE;
   }
 
@@ -675,7 +675,7 @@ BOOL dataIMDBufferLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
 #endif
     if (psIMD == nullptr)
     {
-      DBERROR(("IMD load failed - %s", GetLastResourceFilename()));
+      Neuron::Fatal("IMD load failed - {}", GetLastResourceFilename());
       return FALSE;
     }
   }
@@ -687,7 +687,7 @@ BOOL dataIMDBufferLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
 #endif
     if (psIMD == nullptr)
     {
-      DBERROR(("BinaryPIE load failed - %s",GetLastResourceFilename() ));
+      Neuron::Fatal("BinaryPIE load failed - {}",GetLastResourceFilename() );
       return (FALSE);
     }
   }
@@ -708,7 +708,7 @@ BOOL dataIMGPAGELoad(UBYTE* pBuffer, UDWORD size, void** ppData)
 
   if (!iV_PCXLoadMem((int8*)(SBYTE*)pBuffer, psSprite, nullptr))
   {
-    DBERROR(("IMGPAGE load failed"));
+    Neuron::Fatal("IMGPAGE load failed");
     delete[] psSprite;
     psSprite = nullptr;
     return FALSE;
@@ -755,20 +755,20 @@ BOOL dataHWTERTILESLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
   // tile loader.
   if (bTilesPCXLoaded)
   {
-    DBPRINTF(("Reloading terrain tiles\n"));
+    Neuron::DebugTrace("Reloading terrain tiles\n");
 
     if (!pie_PCXLoadMemToBuffer((int8*)(SBYTE*)pBuffer, &tilesPCX, nullptr))
     {
-      DBERROR(("HWTERTILES reload failed"));
+      Neuron::Fatal("HWTERTILES reload failed");
       return FALSE;
     }
   }
   else
   {
-    DBPRINTF(("Loading terrain tiles\n"));
+    Neuron::DebugTrace("Loading terrain tiles\n");
     if (!iV_PCXLoadMem((int8*)(SBYTE*)pBuffer, &tilesPCX, nullptr))
     {
-      DBERROR(("HWTERTILES load failed"));
+      Neuron::Fatal("HWTERTILES load failed");
       return FALSE;
     }
   }
@@ -792,7 +792,7 @@ BOOL dataHWTERTILESLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
     bTilesPCXLoaded = TRUE;
     *ppData = &tilesPCX;
   }
-  DBPRINTF(("HW Tiles loaded\n"));
+  Neuron::DebugTrace("HW Tiles loaded\n");
   return TRUE;
 }
 
@@ -844,7 +844,7 @@ BOOL bufferTexPageLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
   texfile[254] = 0;
   resToLower(texfile);
 
-  DBPRINTF(("%s texturepage ...\n",texfile));
+  Neuron::DebugTrace("{} texturepage ...\n",texfile);
 
   if (war_GetAdditive()) //(war_GetTranslucent())
   {
@@ -879,14 +879,14 @@ BOOL bufferTexPageLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
   SetLastResourceFilename(texfile);
   SetLastResourceHash(texfile);
 
-  DBPRINTF(("%s texturepage added (len=%d)\n",texfile,strlen(texfile)));
+  Neuron::DebugTrace("{} texturepage added (len={})\n",texfile,strlen(texfile));
 
   // see if this texture page has already been loaded
   if (resPresent("TEXPAGE", texfile))
   {
     // replace the old texture page with the new one
     SDWORD id = pie_ReloadTexPage(texfile, pBuffer);
-    ASSERT((id >=0,"pie_ReloadTexPage failed"));
+    ASSERT_TEXT(id >=0,"pie_ReloadTexPage failed");
     *ppData = nullptr;
   }
   else
@@ -1104,12 +1104,12 @@ BOOL dataScriptLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
   calcCheatHash(pBuffer, size,CHEAT_SCRIPT);
 
 #ifndef NOSCRIPT
-  DBPRINTF(("COMPILING SCRIPT ...%s\n",GetLastResourceFilename()));
+  Neuron::DebugTrace("COMPILING SCRIPT ...{}\n",GetLastResourceFilename());
   // make sure the memory system uses normal malloc for a compile
 
   if (!scriptCompile(pBuffer, size, &psProg, SCRIPTTYPE)) // see script.h
   {
-    DBERROR(("Script %s did not compile", GetLastResourceFilename()));
+    Neuron::Fatal("Script {} did not compile", GetLastResourceFilename());
     return FALSE;
   }
 
@@ -1132,7 +1132,7 @@ BOOL dataScriptLoadVals(UBYTE* pBuffer, UDWORD size, void** ppData)
   if (saveFlag)
     return TRUE;
 
-  DBPRINTF(("Loading script data %s\n",GetLastResourceFilename()));
+  Neuron::DebugTrace("Loading script data {}\n",GetLastResourceFilename());
 
   if (!scrvLoad(pBuffer, size))
     return FALSE;

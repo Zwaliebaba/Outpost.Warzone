@@ -326,7 +326,7 @@ void deleteSaveGame(char* saveGameName)
   WIN32_FIND_DATA found;
   HANDLE dir;
 
-  ASSERT((strlen(saveGameName) < MAX_STR_LENGTH,"deleteSaveGame; save game name too long"));
+  ASSERT_TEXT(strlen(saveGameName) < MAX_STR_LENGTH,"deleteSaveGame; save game name too long");
 
   DeleteFile(saveGameName); // remove old file.
 
@@ -398,7 +398,7 @@ static BOOL _runLoadSave(BOOL bResetMissionWidgets)
       /* check correct CD in drive */
       iCampaign = getCampaign(sRequestResult, &bSkipCD);
       if (iCampaign == 0 OR bSkipCD)
-        DBPRINTF(("getCampaign returned 0 or we're loading a skirmish game: assuming correct CD in drive\n"));
+        Neuron::DebugTrace("getCampaign returned 0 or we're loading a skirmish game: assuming correct CD in drive\n");
       CDrequired = getCDForCampaign(iCampaign);
       if ((iCampaign == 0) || cdspan_CheckCDPresent(CDrequired) OR bSkipCD)
         goto success;

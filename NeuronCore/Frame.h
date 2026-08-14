@@ -15,7 +15,6 @@
 #include <stdlib.h>
 
 #include "Types.h"
-#include "LegacyDebug.h"
 #include "Screen.h"
 #include "ddraw.h"
 #include "Dderror.h"
@@ -24,7 +23,6 @@
 #include "Image.h"
 #include "Font.h"
 #include "Treap.h"
-#include "W95Trace.h"
 #include "Fractions.h"
 #include "Trig.h"
 #include "FrameResource.h"

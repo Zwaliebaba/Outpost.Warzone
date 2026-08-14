@@ -90,7 +90,7 @@ BOOL recvGift(NETMSG* pMsg)
   case POWER_GIFT:
     giftPower(from, to,FALSE);
     break;
-  default: DBERROR(("Unknown Gift recvd"));
+  default: Neuron::Fatal("Unknown Gift recvd");
     return FALSE;
     break;
   }
@@ -141,7 +141,7 @@ BOOL sendGift(UDWORD type, UDWORD to)
     giftPower(selectedPlayer, to,TRUE);
     audio_QueueTrack(ID_POWER_TRANSMIT);
     break;
-  default: DBERROR(("Unknown Gift sent"));
+  default: Neuron::Fatal("Unknown Gift sent");
     return FALSE;
     break;
   }
@@ -484,7 +484,7 @@ BOOL recvAlliance(NETMSG* pMsg, BOOL allowAudio)
   case ALLIANCE_BROKEN:
     breakAlliance(from, to,FALSE, allowAudio);
     break;
-  default: DBERROR(("Unknown alliance state recvd."));
+  default: Neuron::Fatal("Unknown alliance state recvd.");
     break;
   }
 
@@ -506,7 +506,7 @@ VOID technologyGiveAway(STRUCTURE* pS)
     x = (pS->x >> TILE_SHIFT);
     y = (pS->y >> TILE_SHIFT);
     if (!pickATileGen(&x, &y,LOOK_FOR_EMPTY_TILE, zonedPAT))
-      ASSERT((FALSE, "technologyGiveAway: Unable to find a free location"));
+      ASSERT_TEXT(FALSE, "technologyGiveAway: Unable to find a free location");
 
     for (i = 0; (i < numFeatureStats) && (asFeatureStats[i].subType != FEAT_GEN_ARTE); i++);
     pF = buildFeature((asFeatureStats + i), x << TILE_SHIFT, y << TILE_SHIFT,FALSE);
@@ -584,7 +584,7 @@ void addLoserGifts(void)
       x = apsStructLists[selectedPlayer]->x >> TILE_SHIFT;
       y = apsStructLists[selectedPlayer]->y >> TILE_SHIFT;
       if (!pickATileGen(&x, &y,LOOK_FOR_EMPTY_TILE, zonedPAT))
-        ASSERT((FALSE, "addlosergifts: Unable to find a free location"));
+        ASSERT_TEXT(FALSE, "addlosergifts: Unable to find a free location");
 
       NETlogEntry("gift", 0, 0);
 
@@ -669,15 +669,15 @@ VOID addMultiPlayerRandomArtifacts(UDWORD quantity, SDWORD type)
 
   for (i = 0; (i < numFeatureStats) && (asFeatureStats[i].subType != type); i++);
 
-  ASSERT((mapWidth>20,"map not big enough"));
-  ASSERT((mapHeight>20,"map not big enough"));
+  ASSERT_TEXT(mapWidth>20,"map not big enough");
+  ASSERT_TEXT(mapHeight>20,"map not big enough");
 
   for (count = 0; count < quantity; count++)
   {
     x = (rand() % (mapWidth - 20)) + 10; //( between 10 and mapwidth-10)
     y = (rand() % (mapHeight - 20)) + 10;
     if (!pickATileGen(&x, &y,LOOK_FOR_EMPTY_TILE, zonedPAT))
-      ASSERT((FALSE, "addMultiPlayerRandomArtifacts: Unable to find a free location"));
+      ASSERT_TEXT(FALSE, "addMultiPlayerRandomArtifacts: Unable to find a free location");
 
     pF = buildFeature((asFeatureStats + i), x << TILE_SHIFT, y << TILE_SHIFT,FALSE);
 

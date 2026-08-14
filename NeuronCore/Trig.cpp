@@ -5,7 +5,6 @@
 
 #include <assert.h>
 #include "Types.h"
-#include "LegacyDebug.h"
 #include "Fractions.h"
 #include "Trig.h"
 
@@ -173,7 +172,7 @@ FRACT trigIntSqrt(UDWORD val)
     val <<= SQRT_ACCBITS - 1 - exp;
 
   // now generate the fractional part for the lookup table
-  ASSERT((val < SQRT_ACCURACY, "trigIntSqrt: aargh - table index out of range"));
+  ASSERT_TEXT(val < SQRT_ACCURACY, "trigIntSqrt: aargh - table index out of range");
   return aSqrt[val] * static_cast<FRACT>((UDWORD)1 << ((UDWORD)exp / 2));
 }
 

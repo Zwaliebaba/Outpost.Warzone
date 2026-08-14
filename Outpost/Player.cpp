@@ -103,7 +103,7 @@ BOOL playerInitialise(void)
   asPlayerAI = new (std::nothrow) PLAYER_AI[MAX_PLAYERS];
   if (!asPlayerAI)
   {
-    DBERROR(("Out of memory"));
+    Neuron::Fatal("Out of memory");
     return FALSE;
   }
   memset(asPlayerAI, 0, sizeof(PLAYER_AI) * MAX_PLAYERS);

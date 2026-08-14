@@ -442,7 +442,7 @@ void structureType(STRUCTURE_STATS* pStructure, char* pType)
     pStructure->type = REF_SAT_UPLINK;
     return;
   }
-  ASSERT((FALSE, "Unknown Structure Type"));
+  ASSERT_TEXT(FALSE, "Unknown Structure Type");
 }
 
 char* getStructName(STRUCTURE_STATS* psStruct)
@@ -489,7 +489,7 @@ void initModulePIEs(char* PIEName, UDWORD i, STRUCTURE_STATS* psStructure)
       factoryModuleIMDs[module - 1][0] = static_cast<iIMDShape*>(resGetData("IMD", GfxFile));
       if (factoryModuleIMDs[module - 1][0] == nullptr)
       {
-        DBERROR(("Cannot find the PIE for factory module %d - %s", module, GfxFile));
+        Neuron::Fatal("Cannot find the PIE for factory module {} - {}", module, GfxFile);
         return; // FALSE;
       }
     }
@@ -506,7 +506,7 @@ void initModulePIEs(char* PIEName, UDWORD i, STRUCTURE_STATS* psStructure)
       factoryModuleIMDs[module - 1][1] = static_cast<iIMDShape*>(resGetData("IMD", GfxFile));
       if (factoryModuleIMDs[module - 1][1] == nullptr)
       {
-        DBERROR(("Cannot find the PIE for vtol factory module %d - %s", module, GfxFile));
+        Neuron::Fatal("Cannot find the PIE for vtol factory module {} - {}", module, GfxFile);
         return; // FALSE;
       }
     }
@@ -523,7 +523,7 @@ void initModulePIEs(char* PIEName, UDWORD i, STRUCTURE_STATS* psStructure)
       researchModuleIMDs[module - 1] = (iIMDShape*)resGetData("IMD", GfxFile);
       if (researchModuleIMDs[module - 1] == NULL)
       {
-        DBERROR(("Cannot find the PIE for research module %d - %s", module, GfxFile));
+        Neuron::Fatal("Cannot find the PIE for research module {} - {}", module, GfxFile);
         return FALSE;
       }
     }
@@ -536,7 +536,7 @@ void initModulePIEs(char* PIEName, UDWORD i, STRUCTURE_STATS* psStructure)
     researchModuleIMDs[0] = static_cast<iIMDShape*>(resGetData("IMD", GfxFile));
     if (researchModuleIMDs[0] == nullptr)
     {
-      DBERROR(("Cannot find the PIE for research module %d - %s", module, GfxFile));
+      Neuron::Fatal("Cannot find the PIE for research module {} - {}", module, GfxFile);
       return; // FALSE;
     }
 
@@ -560,7 +560,7 @@ void initModulePIEs(char* PIEName, UDWORD i, STRUCTURE_STATS* psStructure)
       powerModuleIMDs[module - 1] = (iIMDShape*)resGetData("IMD", GfxFile);
       if (powerModuleIMDs[module - 1] == NULL)
       {
-        DBERROR(("Cannot find the PIE for power module %d - %s", module, GfxFile));
+        Neuron::Fatal("Cannot find the PIE for power module {} - {}", module, GfxFile);
         return FALSE;
       }
     }
@@ -572,7 +572,7 @@ void initModulePIEs(char* PIEName, UDWORD i, STRUCTURE_STATS* psStructure)
     powerModuleIMDs[0] = static_cast<iIMDShape*>(resGetData("IMD", GfxFile));
     if (powerModuleIMDs[0] == nullptr)
     {
-      DBERROR(("Cannot find the PIE for power module %d - %s", module, GfxFile));
+      Neuron::Fatal("Cannot find the PIE for power module {} - {}", module, GfxFile);
       return; // FALSE;
     }
 
@@ -598,7 +598,7 @@ void initModulePIEsNoMods(char* GfxFile, UDWORD i, STRUCTURE_STATS* psStructure)
     factoryModuleIMDs[0][0] = (iIMDShape*)resGetData("IMD", GfxFile);
     if (factoryModuleIMDs[0][0] == NULL)
     {
-      DBERROR(("Cannot find the PIE for factory module %d - %s",module, GfxFile));
+      Neuron::Fatal("Cannot find the PIE for factory module {} - {}",module, GfxFile);
       return FALSE;
     }
     for (module = 1; module < NUM_FACTORY_MODULES; module++) { factoryModuleIMDs[module][0] = factoryModuleIMDs[0][0]; }
@@ -610,7 +610,7 @@ void initModulePIEsNoMods(char* GfxFile, UDWORD i, STRUCTURE_STATS* psStructure)
     factoryModuleIMDs[0][1] = (iIMDShape*)resGetData("IMD", GfxFile);
     if (factoryModuleIMDs[0][1] == NULL)
     {
-      DBERROR(("Cannot find the PIE for vtol factory module %d - %s", module, GfxFile));
+      Neuron::Fatal("Cannot find the PIE for vtol factory module {} - {}", module, GfxFile);
       return FALSE;
     }
     for (module = 1; module < NUM_FACTORY_MODULES; module++) { factoryModuleIMDs[module][1] = factoryModuleIMDs[0][1]; }
@@ -624,7 +624,7 @@ void initModulePIEsNoMods(char* GfxFile, UDWORD i, STRUCTURE_STATS* psStructure)
     researchModuleIMDs[0] = (iIMDShape*)resGetData("IMD", GfxFile);
     if (researchModuleIMDs[0] == NULL)
     {
-      DBERROR(("Cannot find the PIE for research module %d - %s", module, GfxFile));
+      Neuron::Fatal("Cannot find the PIE for research module {} - {}", module, GfxFile);
       return FALSE;
     }
 
@@ -644,7 +644,7 @@ void initModulePIEsNoMods(char* GfxFile, UDWORD i, STRUCTURE_STATS* psStructure)
     powerModuleIMDs[0] = (iIMDShape*)resGetData("IMD", GfxFile);
     if (powerModuleIMDs[0] == NULL)
     {
-      DBERROR(("Cannot find the PIE for power module %d - %s", module, GfxFile));
+      Neuron::Fatal("Cannot find the PIE for power module {} - {}", module, GfxFile);
       return FALSE;
     }
 
@@ -704,7 +704,7 @@ BOOL loadStructureStats(SBYTE* pStructData, UDWORD bufferSize)
 
   if (asStructureStats == nullptr)
   {
-    DBERROR(("Structure Stats - Out of memory"));
+    Neuron::Fatal("Structure Stats - Out of memory");
     return FALSE;
   }
 
@@ -764,7 +764,7 @@ BOOL loadStructureStats(SBYTE* pStructData, UDWORD bufferSize)
     psStructure->strength = static_cast<STRUCT_STRENGTH>(getStructStrength(strength));
     if (psStructure->strength == INVALID_STRENGTH)
     {
-      DBERROR(("loadStructureStats: Unknown structure strength for %s", getStatName(psStructure))); //->pName));
+      Neuron::Fatal("loadStructureStats: Unknown structure strength for {}", getStatName(psStructure)); //->pName));
       return FALSE;
     }
 
@@ -821,17 +821,17 @@ BOOL loadStructureStats(SBYTE* pStructData, UDWORD bufferSize)
         pSensorType++;
       }
       //check not allocating a turret sensor if have weapons attached
-      ASSERT((psStructure->pSensor != NULL, "loadStructureStats: should have a sensor attached to %s!", StructureName));
+      ASSERT_TEXT(psStructure->pSensor != NULL, "loadStructureStats: should have a sensor attached to {}!", StructureName);
       if (psStructure->pSensor->location == LOC_TURRET AND numWeaps)
-        DBERROR(("loadStructureStats: a Turret Sensor and weapon \
-					have been assigned to %s", StructureName));
+        Neuron::Fatal("loadStructureStats: a Turret Sensor and weapon \
+					have been assigned to %s", StructureName);
     }
 
     //get the IMD for the structure
     psStructure->pIMD = static_cast<iIMDShape*>(resGetData("IMD", GfxFile));
     if (psStructure->pIMD == nullptr)
     {
-      DBERROR(("Cannot find the structure PIE for record %s", getStructName(psStructure) ));
+      Neuron::Fatal("Cannot find the structure PIE for record {}", getStructName(psStructure) );
       return FALSE;
     }
 
@@ -840,7 +840,7 @@ BOOL loadStructureStats(SBYTE* pStructData, UDWORD bufferSize)
       psStructure->pBaseIMD = static_cast<iIMDShape*>(resGetData("IMD", baseIMD));
       if (psStructure->pIMD == nullptr)
       {
-        DBERROR(("Cannot find the structure base PIE for record %s", getStructName(psStructure) ));
+        Neuron::Fatal("Cannot find the structure base PIE for record {}", getStructName(psStructure) );
         return FALSE;
       }
     }
@@ -858,7 +858,7 @@ BOOL loadStructureStats(SBYTE* pStructData, UDWORD bufferSize)
     //Only having one weapon per structure now...AB 24/01/99
     if (weapSlots > STRUCT_MAXWEAPS OR numWeaps > weapSlots)
     {
-      DBERROR(("Allocated more weapons than allowed for Structure"));
+      Neuron::Fatal("Allocated more weapons than allowed for Structure");
       return FALSE;
     }
     //Don't need to allocate space since thereis only one possible pointer now! AB 24/01/99
@@ -880,7 +880,7 @@ BOOL loadStructureStats(SBYTE* pStructData, UDWORD bufferSize)
       psStructure->asFuncList = new (std::nothrow) FUNCTION*[psStructure->numFuncs];
       if (psStructure->asFuncList == nullptr)
       {
-        DBERROR(("Out of memory assigning structure Functions"));
+        Neuron::Fatal("Out of memory assigning structure Functions");
         return FALSE;
       }
     }
@@ -899,7 +899,7 @@ BOOL loadStructureStats(SBYTE* pStructData, UDWORD bufferSize)
       break;
   }
   if (iID > numStructureStats)
-    DBERROR(("intAddObjectStats: destroy structure stat not found\n"));
+    Neuron::Fatal("intAddObjectStats: destroy structure stat not found\n");
   g_psStatDestroyStruct = asStructureStats + iID;
 
   //	if (!demoStructs())
@@ -910,7 +910,7 @@ BOOL loadStructureStats(SBYTE* pStructData, UDWORD bufferSize)
     asStructLimits[player] = new (std::nothrow) STRUCTURE_LIMITS[numStructureStats];
     if (asStructLimits[player] == nullptr)
     {
-      DBERROR(("Unable to allocate structure limits"));
+      Neuron::Fatal("Unable to allocate structure limits");
       return FALSE;
     }
   }
@@ -969,7 +969,7 @@ void setCurrentStructQuantity(BOOL displayError)
         //check quantity never exceeds the limit
         if (psStructLimits[inc].currentQuantity > psStructLimits[inc].limit)
         {
-          ASSERT((FALSE, "There appears to be too many %s on this map!", getStructName(&asStructureStats[inc] )));
+          ASSERT_TEXT(FALSE, "There appears to be too many {} on this map!", getStructName(&asStructureStats[inc] ));
         }
       }
     }
@@ -1057,7 +1057,7 @@ BOOL loadStructureWeapons(SBYTE* pWeaponData, UDWORD bufferSize)
             //see if we have already allocated one
             if (pStructure[incS].psWeapStat != nullptr)
             {
-              DBERROR(("Trying to allocate more weapons than allowed for Structure"));
+              Neuron::Fatal("Trying to allocate more weapons than allowed for Structure");
               return FALSE;
             }
             pStructure[incS].psWeapStat = &pWeapon[incW];
@@ -1067,7 +1067,7 @@ BOOL loadStructureWeapons(SBYTE* pWeaponData, UDWORD bufferSize)
         //if weapon not found - error
         if (!weaponFound)
         {
-          DBERROR(("Unable to find stats for weapon %s for structure %s", WeaponName, StructureName));
+          Neuron::Fatal("Unable to find stats for weapon {} for structure {}", WeaponName, StructureName);
           return FALSE;
         }
       }
@@ -1075,7 +1075,7 @@ BOOL loadStructureWeapons(SBYTE* pWeaponData, UDWORD bufferSize)
     //if structure not found - error
     if (!structureFound)
     {
-      DBERROR(("Unable to find stats for structure %s", StructureName));
+      Neuron::Fatal("Unable to find stats for structure {}", StructureName);
       return FALSE;
     }
     //increment the pointer to the start of the next record
@@ -1146,7 +1146,7 @@ BOOL loadStructureFunctions(SBYTE* pFunctionData, UDWORD bufferSize)
             //check not allocating more than allowed
             if (pStructure[incS].defaultFunc > static_cast<SDWORD>(pStructure[incS].numFuncs))
             {
-              DBERROR(("Trying to allocate more functions than allowed for Structure"));
+              Neuron::Fatal("Trying to allocate more functions than allowed for Structure");
               return FALSE;
             }
             pStructure[incS].asFuncList[pStructure[incS].defaultFunc] = pFunction;
@@ -1157,7 +1157,7 @@ BOOL loadStructureFunctions(SBYTE* pFunctionData, UDWORD bufferSize)
         //if function not found - error
         if (!functionFound)
         {
-          DBERROR(("Unable to find stats for function %s for structure %s", FunctionName, StructureName));
+          Neuron::Fatal("Unable to find stats for function {} for structure {}", FunctionName, StructureName);
           return FALSE;
         }
       }
@@ -1165,7 +1165,7 @@ BOOL loadStructureFunctions(SBYTE* pFunctionData, UDWORD bufferSize)
     //if structure not found - error
     if (!structureFound)
     {
-      DBERROR(("Unable to find stats for structure %s", StructureName));
+      Neuron::Fatal("Unable to find stats for structure {}", StructureName);
       return FALSE;
     }
     //increment the pointer to the start of the next record
@@ -1202,9 +1202,9 @@ BOOL loadStructureFunctions(SBYTE* pFunctionData, UDWORD bufferSize)
       if (!((WALL_FUNCTION*)pFunction)->pCornerStat)
       {
 #ifdef HASH_NAMES
-        DBERROR(("Unknown Corner Wall stat for function %x", pFunction->NameHash));
+        Neuron::Fatal("Unknown Corner Wall stat for function {:x}", pFunction->NameHash);
 #else
-        DBERROR(("Unknown Corner Wall stat for function %s", pFunction->pName));
+        Neuron::Fatal("Unknown Corner Wall stat for function {}", pFunction->pName);
 #endif
         return FALSE;
       }
@@ -1242,20 +1242,20 @@ BOOL loadStructureStrengthModifiers(SBYTE* pStrengthModData, UDWORD bufferSize)
     effectInc = static_cast<WEAPON_EFFECT>(getWeaponEffect(weaponEffectName));
     if (effectInc == INVALID_WEAPON_EFFECT)
     {
-      DBERROR(("loadStructureStrengthModifiers: Invalid Weapon Effect - %s", weaponEffectName));
+      Neuron::Fatal("loadStructureStrengthModifiers: Invalid Weapon Effect - {}", weaponEffectName);
       return FALSE;
     }
     //get the propulsion inc
     strengthInc = static_cast<STRUCT_STRENGTH>(getStructStrength(strengthName));
     if (strengthInc == INVALID_STRENGTH)
     {
-      DBERROR(("loadStructureStrengthModifiers: Invalid Strength type - %s", strengthName));
+      Neuron::Fatal("loadStructureStrengthModifiers: Invalid Strength type - {}", strengthName);
       return FALSE;
     }
 
     if (modifier > UWORD_MAX)
     {
-      DBERROR(("loadStructureStrengthModifiers: modifier for effect %s, strength %s is too large", weaponEffectName, strengthName));
+      Neuron::Fatal("loadStructureStrengthModifiers: modifier for effect {}, strength {} is too large", weaponEffectName, strengthName);
       return FALSE;
     }
     //store in the appropriate index
@@ -1299,7 +1299,6 @@ BOOL structureDamage(STRUCTURE* psStructure, UDWORD damage, UDWORD weaponClass, 
 
   UNUSEDPARAMETER(weaponClass);
 
-  DBP1(("structureDamage(%d): body %d armour %d damage: %d\n", psStructure->id, psStructure->body, psStructure->armour, damage));
 
   //EMP cannons do not work on Structures
   if (weaponSubClass == WSC_EMP)
@@ -1326,11 +1325,9 @@ BOOL structureDamage(STRUCTURE* psStructure, UDWORD damage, UDWORD weaponClass, 
   {
     /* Damage has penetrated - reduce armour and body points */
     penDamage = damage - psStructure->armour;
-    DBP1(("        penetrated: %d\n", penDamage));
     if (penDamage >= psStructure->body)
     {
       /* structure destroyed */
-      DBP1(("        DESTROYED\n"));
       return destroyStruct(psStructure);
     }
     psStructure->body = static_cast<UWORD>(psStructure->body - static_cast<UWORD>(penDamage));
@@ -1344,10 +1341,8 @@ BOOL structureDamage(STRUCTURE* psStructure, UDWORD damage, UDWORD weaponClass, 
     armourDamage = (damage / ARMOUR_DAMAGE_FACTOR) + 1;
 
     /* Do one point of damage to body */
-    DBP1(("        not penetrated - 1 point damage\n"));
     if (psStructure->body == 1)
     {
-      DBP1(("        DESTROYED\n"));
       return destroyStruct(psStructure);
     }
     psStructure->body -= 1;
@@ -1355,7 +1350,6 @@ BOOL structureDamage(STRUCTURE* psStructure, UDWORD damage, UDWORD weaponClass, 
 
   /* Actually reduce the Structure's armour */
 
-  DBP1(("        body left: %d armour left: %d\n", psStructure->body, psStructure->armour));
 
   //only overwrite if the last weapon to hit was not an EMP - need the time value for this
   if (psStructure->lastHitWeapon != WSC_EMP)
@@ -1372,8 +1366,8 @@ BOOL structSetManufacture(STRUCTURE* psStruct, DROID_TEMPLATE* psTempl, UBYTE qu
 {
   FACTORY* psFact;
 
-  ASSERT(( psStruct->type == OBJ_STRUCTURE && (psStruct->pStructureType->type == REF_FACTORY OR psStruct->pStructureType->type == REF_CYBORG_FACTORY OR psStruct->pStructureType->type
-      == REF_VTOL_FACTORY) , "structSetManufacture: invalid Factory pointer"));
+  ASSERT_TEXT(psStruct->type == OBJ_STRUCTURE && (psStruct->pStructureType->type == REF_FACTORY OR psStruct->pStructureType->type == REF_CYBORG_FACTORY OR psStruct->pStructureType->type
+      == REF_VTOL_FACTORY), "structSetManufacture: invalid Factory pointer");
   /* psTempl might be NULL if the build is being cancelled in the middle */
 
   //assign it to the Factory
@@ -1650,7 +1644,7 @@ STRUCTURE* buildStructure(STRUCTURE_STATS* pStructureType, UDWORD x, UDWORD y, U
     max = pStructureType - asStructureStats;
     if (max > numStructureStats)
     {
-      ASSERT((FALSE, "buildStructure:Invalid structure type"));
+      ASSERT_TEXT(FALSE, "buildStructure:Invalid structure type");
       return nullptr;
     }
 
@@ -1662,7 +1656,7 @@ STRUCTURE* buildStructure(STRUCTURE_STATS* pStructureType, UDWORD x, UDWORD y, U
         //NEVER EVER EVER WANT MORE THAN 5 FACTORIES
         if (asStructLimits[selectedPlayer][max].currentQuantity > MAX_FACTORY)
         {
-          ASSERT((FALSE, "buildStructure: trying to build too many factories"));
+          ASSERT_TEXT(FALSE, "buildStructure: trying to build too many factories");
           return nullptr;
         }
       }
@@ -1671,7 +1665,7 @@ STRUCTURE* buildStructure(STRUCTURE_STATS* pStructureType, UDWORD x, UDWORD y, U
         //can only cope with MAX_OBJECTS research facilities
         if (asStructLimits[selectedPlayer][max].currentQuantity > MAX_OBJECTS)
         {
-          ASSERT((FALSE, "buildStructure: trying to build too many research facilities"));
+          ASSERT_TEXT(FALSE, "buildStructure: trying to build too many research facilities");
           return nullptr;
         }
       }
@@ -1683,7 +1677,7 @@ STRUCTURE* buildStructure(STRUCTURE_STATS* pStructureType, UDWORD x, UDWORD y, U
       {
         if (asStructLimits[selectedPlayer][max].currentQuantity > 0)
         {
-          ASSERT((FALSE, "buildStructure: trying to build too many Sat Uplinks"));
+          ASSERT_TEXT(FALSE, "buildStructure: trying to build too many Sat Uplinks");
           return nullptr;
         }
       }
@@ -1696,12 +1690,12 @@ STRUCTURE* buildStructure(STRUCTURE_STATS* pStructureType, UDWORD x, UDWORD y, U
     //check not trying to build too near the edge
     if (((x >> TILE_SHIFT) < TOO_NEAR_EDGE) || ((x >> TILE_SHIFT) > static_cast<SDWORD>(mapWidth - TOO_NEAR_EDGE)))
     {
-      ASSERT((FALSE, "buildStructure: x coord too near edge"));
+      ASSERT_TEXT(FALSE, "buildStructure: x coord too near edge");
       return nullptr;
     }
     if (((y >> TILE_SHIFT) < TOO_NEAR_EDGE) || ((y >> TILE_SHIFT) > static_cast<SDWORD>(mapHeight - TOO_NEAR_EDGE)))
     {
-      ASSERT((FALSE, "buildStructure: y coord too near edge"));
+      ASSERT_TEXT(FALSE, "buildStructure: y coord too near edge");
       return nullptr;
     }
 
@@ -1784,8 +1778,8 @@ STRUCTURE* buildStructure(STRUCTURE_STATS* pStructureType, UDWORD x, UDWORD y, U
         // end of dodgy stuff
         else
         {
-          ASSERT((!(TILE_HAS_STRUCTURE(mapTile(mapX+width,mapY+breadth))),
-            "buildStructure - structure - %d already found at %d, %d", psBuilding->id, mapX+width,mapY+breadth));
+          ASSERT_TEXT(!(TILE_HAS_STRUCTURE(mapTile(mapX+width,mapY+breadth))),
+            "buildStructure - structure - {} already found at {}, {}", psBuilding->id, mapX+width,mapY+breadth);
         }
 
         SET_TILE_STRUCTURE(psTile);
@@ -2055,7 +2049,7 @@ STRUCTURE* buildStructure(STRUCTURE_STATS* pStructureType, UDWORD x, UDWORD y, U
     psBuilding = getTileStructure(x >> TILE_SHIFT, y >> TILE_SHIFT);
     if (psBuilding == nullptr)
     {
-      DBERROR(("No owning structure for this module - %s", getStructName(pStructureType)));
+      Neuron::Fatal("No owning structure for this module - {}", getStructName(pStructureType));
       return FALSE;
     }
     if (pStructureType->type == REF_FACTORY_MODULE)
@@ -2080,9 +2074,9 @@ STRUCTURE* buildStructure(STRUCTURE_STATS* pStructureType, UDWORD x, UDWORD y, U
         holdProduction(psBuilding);
 
         //quick check not trying to add too much
-        ASSERT((((FACTORY*)psBuilding->pFunctionality)->productionOutput +
+        ASSERT_TEXT(((FACTORY*)psBuilding->pFunctionality)->productionOutput +
           ((PRODUCTION_FUNCTION*)pStructureType->asFuncList[0])-> productionOutput < UBYTE_MAX,
-          "building factory module - productionOutput too big"));
+          "building factory module - productionOutput too big");
 
         ((FACTORY*)psBuilding->pFunctionality)->productionOutput += ((PRODUCTION_FUNCTION*)pStructureType->asFuncList[0])->productionOutput;
         //need to change which IMD is used for player 0
@@ -2272,9 +2266,9 @@ BOOL setFunctionality(STRUCTURE* psBuilding, UDWORD functionType)
       if (psBuilding->pStructureType->numFuncs == 0)
       {
 #ifdef HASH_NAMES
-        DBERROR(("There must be a function assigned to this building - %x", psBuilding));
+        Neuron::Fatal("There must be a function assigned to this building - {:x}", psBuilding);
 #else
-        DBERROR(("There must be a function assigned to this building - %s", getName(psBuilding->pStructureType->pName)));
+        Neuron::Fatal("There must be a function assigned to this building - {}", getName(psBuilding->pStructureType->pName));
 #endif
         return FALSE;
       }
@@ -2282,7 +2276,7 @@ BOOL setFunctionality(STRUCTURE* psBuilding, UDWORD functionType)
       //allocate the necessary space
       if (!createStructFunc(&psBuilding->pFunctionality))
       {
-        DBERROR((FALSE, "Out of memory"));
+        Neuron::Fatal("Out of memory");
         return FALSE;
       }
 
@@ -2314,7 +2308,7 @@ BOOL setFunctionality(STRUCTURE* psBuilding, UDWORD functionType)
       case REF_VTOL_FACTORY:
         setFlagPositionInc(psFactory, psBuilding->player, VTOL_FLAG);
         break;
-      default: ASSERT((FALSE, "setFunctionality: Invalid factory type"));
+      default: ASSERT_TEXT(FALSE, "setFunctionality: Invalid factory type");
       }
       //initialise the assembly point position
       x = psBuilding->x + 256 >> TILE_SHIFT;
@@ -2375,9 +2369,9 @@ BOOL setFunctionality(STRUCTURE* psBuilding, UDWORD functionType)
       if (psBuilding->pStructureType->numFuncs == 0)
       {
 #ifdef HASH_NAMES
-        DBERROR(("There must be a function assigned to this building - %s", strresGetString(NULL,psBuilding->pStructureType->NameHash) ));
+        Neuron::Fatal("There must be a function assigned to this building - {}", strresGetString(NULL,psBuilding->pStructureType->NameHash) );
 #else
-        DBERROR(("There must be a function assigned to this building - %s", getName(psBuilding->pStructureType->pName)));
+        Neuron::Fatal("There must be a function assigned to this building - {}", getName(psBuilding->pStructureType->pName));
 #endif
         return FALSE;
       }
@@ -2385,7 +2379,7 @@ BOOL setFunctionality(STRUCTURE* psBuilding, UDWORD functionType)
       //try and create the Structure
       if (!createStructFunc(&psBuilding->pFunctionality))
       {
-        DBERROR((FALSE, "Out of memory"));
+        Neuron::Fatal("Out of memory");
         return FALSE;
       }
       //initialise the memory
@@ -2434,9 +2428,9 @@ BOOL setFunctionality(STRUCTURE* psBuilding, UDWORD functionType)
       if (psBuilding->pStructureType->numFuncs == 0)
       {
 #ifdef HASH_NAMES
-        DBERROR(("There must be a function assigned to this building - %s", strresGetString(NULL,psBuilding->pStructureType->NameHash) ));
+        Neuron::Fatal("There must be a function assigned to this building - {}", strresGetString(NULL,psBuilding->pStructureType->NameHash) );
 #else
-        DBERROR(("There must be a function assigned to this building - %s", getName(psBuilding->pStructureType->pName)));
+        Neuron::Fatal("There must be a function assigned to this building - {}", getName(psBuilding->pStructureType->pName));
 #endif
         return FALSE;
       }
@@ -2444,7 +2438,7 @@ BOOL setFunctionality(STRUCTURE* psBuilding, UDWORD functionType)
       //try and create the Structure
       if (!createStructFunc(&psBuilding->pFunctionality))
       {
-        DBERROR((FALSE, "Out of memory"));
+        Neuron::Fatal("Out of memory");
         return FALSE;
       }
 
@@ -2465,9 +2459,9 @@ BOOL setFunctionality(STRUCTURE* psBuilding, UDWORD functionType)
       if (psBuilding->pStructureType->numFuncs == 0)
       {
 #ifdef HASH_NAMES
-        DBERROR(("There must be a function assigned to this building - %s", strresGetString(NULL,psBuilding->pStructureType->NameHash) ));
+        Neuron::Fatal("There must be a function assigned to this building - {}", strresGetString(NULL,psBuilding->pStructureType->NameHash) );
 #else
-        DBERROR(("There must be a function assigned to this building - %s", getName(psBuilding->pStructureType->pName)));
+        Neuron::Fatal("There must be a function assigned to this building - {}", getName(psBuilding->pStructureType->pName));
 #endif
         return FALSE;
       }
@@ -2475,7 +2469,7 @@ BOOL setFunctionality(STRUCTURE* psBuilding, UDWORD functionType)
       //try and create the Structure
       if (!createStructFunc(&psBuilding->pFunctionality))
       {
-        DBERROR((FALSE, "Out of memory"));
+        Neuron::Fatal("Out of memory");
         return FALSE;
       }
       //initialise the memory
@@ -2498,9 +2492,9 @@ BOOL setFunctionality(STRUCTURE* psBuilding, UDWORD functionType)
       if (psBuilding->pStructureType->numFuncs == 0)
       {
 #ifdef HASH_NAMES
-        DBERROR(("There must be a function assigned to this building - %s", strresGetString(NULL,psBuilding->pStructureType->NameHash) ));
+        Neuron::Fatal("There must be a function assigned to this building - {}", strresGetString(NULL,psBuilding->pStructureType->NameHash) );
 #else
-        DBERROR(("There must be a function assigned to this building - %s", getName(psBuilding->pStructureType->pName)));
+        Neuron::Fatal("There must be a function assigned to this building - {}", getName(psBuilding->pStructureType->pName));
 #endif
         return FALSE;
       }
@@ -2513,9 +2507,9 @@ BOOL setFunctionality(STRUCTURE* psBuilding, UDWORD functionType)
       if (psBuilding->pStructureType->numFuncs == 0)
       {
 #ifdef HASH_NAMES
-        DBERROR(("There must be a function assigned to this building - %s", strresGetString(NULL,psBuilding->pStructureType->NameHash) ));
+        Neuron::Fatal("There must be a function assigned to this building - {}", strresGetString(NULL,psBuilding->pStructureType->NameHash) );
 #else
-        DBERROR(("There must be a function assigned to this building - %s", getName(psBuilding->pStructureType->pName)));
+        Neuron::Fatal("There must be a function assigned to this building - {}", getName(psBuilding->pStructureType->pName));
 #endif
         return FALSE;
       }
@@ -2527,9 +2521,9 @@ BOOL setFunctionality(STRUCTURE* psBuilding, UDWORD functionType)
       if (psBuilding->pStructureType->numFuncs == 0)
       {
 #ifdef HASH_NAMES
-        DBERROR(("There must be a function assigned to this building - %s", strresGetString(NULL,psBuilding->pStructureType->NameHash) ));
+        Neuron::Fatal("There must be a function assigned to this building - {}", strresGetString(NULL,psBuilding->pStructureType->NameHash) );
 #else
-        DBERROR(("There must be a function assigned to this building - %s", getName(psBuilding->pStructureType->pName)));
+        Neuron::Fatal("There must be a function assigned to this building - {}", getName(psBuilding->pStructureType->pName));
 #endif
         return FALSE;
       }
@@ -2538,7 +2532,7 @@ BOOL setFunctionality(STRUCTURE* psBuilding, UDWORD functionType)
       //try and create the Structure
       if (!createStructFunc(&psBuilding->pFunctionality))
       {
-        DBERROR((FALSE, "Out of memory"));
+        Neuron::Fatal("Out of memory");
         return FALSE;
       }
       //initialise the memory
@@ -2550,7 +2544,7 @@ BOOL setFunctionality(STRUCTURE* psBuilding, UDWORD functionType)
       psRepairFac->psObj = nullptr;
 
       if (!grpCreate(&((REPAIR_FACILITY*)psBuilding->pFunctionality)->psGroup))
-        DBPRINTF(("setFunctionality: couldn't create repair facility group"));
+        Neuron::DebugTrace("setFunctionality: couldn't create repair facility group");
       else
       {
         /* add null droid */
@@ -2578,16 +2572,16 @@ BOOL setFunctionality(STRUCTURE* psBuilding, UDWORD functionType)
       if (psBuilding->pStructureType->numFuncs == 0)
       {
 #ifdef HASH_NAMES
-        DBERROR(("There must be a function assigned to this building - %s", strresGetString(NULL,psBuilding->pStructureType->NameHash) ));
+        Neuron::Fatal("There must be a function assigned to this building - {}", strresGetString(NULL,psBuilding->pStructureType->NameHash) );
 #else
-        DBERROR(("There must be a function assigned to this building - %s", getName(psBuilding->pStructureType->pName)));
+        Neuron::Fatal("There must be a function assigned to this building - {}", getName(psBuilding->pStructureType->pName));
 #endif
         return FALSE;
       }
       //try and create the Structure
       if (!createStructFunc(&psBuilding->pFunctionality))
       {
-        DBERROR((FALSE, "Out of memory"));
+        Neuron::Fatal("Out of memory");
         return FALSE;
       }
       //initialise the memory
@@ -2628,7 +2622,7 @@ void assignFactoryCommandDroid(STRUCTURE* psStruct, DROID* psCommander)
   FLAG_POSITION *psFlag, *psNext, *psPrev;
   SDWORD factoryInc, typeFlag;
 
-  ASSERT((StructIsFactory(psStruct),"assignFactoryCommandUnit: structure not a factory"));
+  ASSERT_TEXT(StructIsFactory(psStruct),"assignFactoryCommandUnit: structure not a factory");
 
   psFact = (FACTORY*)psStruct->pFunctionality;
 
@@ -2643,7 +2637,7 @@ void assignFactoryCommandDroid(STRUCTURE* psStruct, DROID* psCommander)
   case REF_CYBORG_FACTORY:
     typeFlag = CYBORG_FLAG;
     break;
-  default: ASSERT((FALSE,"assignfactorycommandUnit: unknown factory type"));
+  default: ASSERT_TEXT(FALSE,"assignfactorycommandUnit: unknown factory type");
     typeFlag = FACTORY_FLAG;
     break;
   }
@@ -2699,7 +2693,7 @@ void assignFactoryCommandDroid(STRUCTURE* psStruct, DROID* psCommander)
           addFlagPosition(psFact->psAssemblyPoint);// add the assembly point back into the list (only temporaryily.)
         }*/
 
-    ASSERT((!missionIsOffworld(), "assignFactoryCommandDroid: cannot assign a commander to a factory when off world"));
+    ASSERT_TEXT(!missionIsOffworld(), "assignFactoryCommandDroid: cannot assign a commander to a factory when off world");
 
     factoryInc = psFact->psAssemblyPoint->factoryInc;
     psPrev = nullptr;
@@ -2767,7 +2761,6 @@ static BOOL structClearTile(UWORD x, UWORD y)
   /* Check for a structure */
   if (fpathBlockingTile(x, y))
   {
-    DBP2(("structClearTile: failed\n"));
     return FALSE;
   }
 
@@ -2778,13 +2771,11 @@ static BOOL structClearTile(UWORD x, UWORD y)
     {
       if (psCurr->x >> TILE_SHIFT == x && psCurr->y >> TILE_SHIFT == y)
       {
-        DBP2(("structClearTile: failed\n"));
         return FALSE;
       }
     }
   }
 
-  DBP2(("structClearTile: succeeded\n"));
   return TRUE;
 }
 
@@ -3271,7 +3262,6 @@ void aiUpdateStructure(STRUCTURE* psStructure)
     {
       if (aiChooseTarget((BASE_OBJECT*)psStructure, &psChosenObj))
       {
-        DBP1(("Struct(%d) attacking : %d\n", psStructure->id, psChosenObj->id));
         psStructure->psTarget = psChosenObj;
       }
       else
@@ -3320,7 +3310,6 @@ void aiUpdateStructure(STRUCTURE* psStructure)
       {
         if (aiChooseSensorTarget((BASE_OBJECT*)psStructure, &psChosenObj))
         {
-          DBP1(("Struct(%d) attacking : %d\n", psStructure->id, psChosenObj->id));
           psStructure->psTarget = psChosenObj;
         }
         else
@@ -3885,7 +3874,7 @@ if (psRepairFac->powerAccrued < iPower)
 
         if (psDroid->body >= psDroid->originalBody)
         {
-          DBPRINTF(("aiUpdateStructure: repair completed\n"));
+          Neuron::DebugTrace("aiUpdateStructure: repair completed\n");
 
           psRepairFac->psObj = nullptr;
 
@@ -3944,7 +3933,7 @@ if (psRepairFac->powerAccrued < iPower)
       psReArmPad = (REARM_PAD*)psStructure->pFunctionality;
 
       psDroid = (DROID*)psChosenObj;
-      ASSERT((vtolDroid(psDroid),"aiUpdateStructure: invalid droid type"));
+      ASSERT_TEXT(vtolDroid(psDroid),"aiUpdateStructure: invalid droid type");
 
       //check hasn't died whilst waiting to be rearmed
       // also clear out any previously repaired droid
@@ -4390,7 +4379,6 @@ UDWORD fillStructureList(STRUCTURE_STATS** ppList, UDWORD selectedPlayer, UDWORD
             continue;
         }
 
-        DBP3(("fillStructureList: adding %s (%x)\n", psBuilding->pName, apStructTypeLists[selectedPlayer][inc]));
         ppList[count++] = psBuilding;
         //check haven't reached limit
         if (count == limit)
@@ -5077,7 +5065,7 @@ BOOL checkWidth(UDWORD maxRange, UDWORD x, UDWORD y, UDWORD* pDroidX, UDWORD* pD
         *pDroidX = (x + side) << TILE_SHIFT;
         *pDroidY = y << TILE_SHIFT;
 
-        ASSERT((worldOnMap(*pDroidX,*pDroidY),"checkWidth : Insane droid position"));
+        ASSERT_TEXT(worldOnMap(*pDroidX,*pDroidY),"checkWidth : Insane droid position");
 
         return TRUE;
       }
@@ -5101,7 +5089,7 @@ BOOL checkLength(UDWORD maxRange, UDWORD x, UDWORD y, UDWORD* pDroidX, UDWORD* p
         *pDroidX = x << TILE_SHIFT;
         *pDroidY = (y + side) << TILE_SHIFT;
 
-        ASSERT((worldOnMap(*pDroidX,*pDroidY),"checkHeight : Insane droid position"));
+        ASSERT_TEXT(worldOnMap(*pDroidX,*pDroidY),"checkHeight : Insane droid position");
 
         return TRUE;
       }
@@ -5577,7 +5565,7 @@ BOOL checkSpecificStructExists(UDWORD structInc, UDWORD player)
   STRUCTURE* psStructure;
   BOOL found = FALSE;
 
-  ASSERT((structInc < numStructureStats, "checkSpecificStructExists: invalid structure inc"));
+  ASSERT_TEXT(structInc < numStructureStats, "checkSpecificStructExists: invalid structure inc");
 
   for (psStructure = apsStructLists[player]; psStructure != nullptr; psStructure = psStructure->psNext)
   {
@@ -5723,7 +5711,7 @@ void findAssemblyPointPosition(UDWORD* pX, UDWORD* pY, UDWORD player)
     return;
   }
   /* If we got this far, then we failed - passed in values will be unchanged */
-  ASSERT((FALSE, "findAssemblyPointPosition: unable to find a valid location!"));
+  ASSERT_TEXT(FALSE, "findAssemblyPointPosition: unable to find a valid location!");
 }
 
 /*sets the point new droids go to - x/y in world coords for a Factory
@@ -5757,7 +5745,7 @@ void setFlagPositionInc(void* pFunctionality, UDWORD player, UBYTE factoryType)
   STRING* pType;
 #endif
 
-  ASSERT((player < MAX_PLAYERS, "setFlagPositionInc: invalid player number"));
+  ASSERT_TEXT(player < MAX_PLAYERS, "setFlagPositionInc: invalid player number");
   //find the first vacant slot
   for (inc = 0; inc < MAX_FACTORY; inc++)
   {
@@ -5789,7 +5777,7 @@ void setFlagPositionInc(void* pFunctionality, UDWORD player, UBYTE factoryType)
       break;
     }
 #endif
-    ASSERT((FALSE, "Building more than %d %s for player %d", MAX_FACTORY, pType, player));
+    ASSERT_TEXT(FALSE, "Building more than {} {} for player {}", MAX_FACTORY, pType, player);
     inc = 1;
   }
 
@@ -5926,7 +5914,7 @@ void structureCompletedCallback(STRUCTURE_STATS* psStructType)
 STRUCTURE_STATS* structGetDemolishStat(void)
 {
   if (g_psStatDestroyStruct == nullptr)
-    DBERROR(("structGetDemolishStat: stat not initialised1\n"));
+    Neuron::Fatal("structGetDemolishStat: stat not initialised1\n");
 
   return g_psStatDestroyStruct;
 }
@@ -6022,7 +6010,7 @@ void checkForResExtractors(STRUCTURE* psBuilding)
 
   if (psBuilding->pStructureType->type != REF_POWER_GEN)
   {
-    ASSERT((FALSE, "checkForResExtractors: invalid structure type"));
+    ASSERT_TEXT(FALSE, "checkForResExtractors: invalid structure type");
     return;
   }
   psPowerGen = (POWER_GEN*)psBuilding->pFunctionality;
@@ -6099,7 +6087,7 @@ void checkForPowerGen(STRUCTURE* psBuilding)
 
   if (psBuilding->pStructureType->type != REF_RESOURCE_EXTRACTOR)
   {
-    ASSERT((FALSE, "checkForPowerGen: invalid structure type"));
+    ASSERT_TEXT(FALSE, "checkForPowerGen: invalid structure type");
     return;
   }
   psRE = (RES_EXTRACTOR*)psBuilding->pFunctionality;
@@ -6151,7 +6139,7 @@ void informPowerGen(STRUCTURE* psStruct)
 
   if (psStruct->pStructureType->type != REF_RESOURCE_EXTRACTOR)
   {
-    ASSERT((FALSE, "informPowerGen: invalid structure type"));
+    ASSERT_TEXT(FALSE, "informPowerGen: invalid structure type");
     return;
   }
 
@@ -6180,7 +6168,7 @@ void releaseResExtractor(STRUCTURE* psRelease)
 
   if (psRelease->pStructureType->type != REF_RESOURCE_EXTRACTOR)
   {
-    ASSERT((FALSE, "releaseResExtractor:Invalid structure type"));
+    ASSERT_TEXT(FALSE, "releaseResExtractor:Invalid structure type");
     return;
   }
 
@@ -6211,7 +6199,7 @@ void releasePowerGen(STRUCTURE* psRelease)
 
   if (psRelease->pStructureType->type != REF_POWER_GEN)
   {
-    ASSERT((FALSE, "releasePowerGen:Invalid structure type"));
+    ASSERT_TEXT(FALSE, "releasePowerGen:Invalid structure type");
     return;
   }
 
@@ -6460,7 +6448,7 @@ BOOL electronicDamage(BASE_OBJECT* psTarget, UDWORD damage, UBYTE attackPlayer)
   iVector pos;
   UDWORD i;
 
-  ASSERT((attackPlayer < MAX_PLAYERS, "electronicDamage: invalid player id"));
+  ASSERT_TEXT(attackPlayer < MAX_PLAYERS, "electronicDamage: invalid player id");
 
   //structure electronic damage
   if (psTarget->type == OBJ_STRUCTURE)
@@ -6468,7 +6456,7 @@ BOOL electronicDamage(BASE_OBJECT* psTarget, UDWORD damage, UBYTE attackPlayer)
     psStructure = (STRUCTURE*)psTarget;
     bCompleted = FALSE;
 
-    ASSERT((psStructure->pStructureType->resistance != 0, "electronicDamage: invalid structure for EW"));
+    ASSERT_TEXT(psStructure->pStructureType->resistance != 0, "electronicDamage: invalid structure for EW");
 
     //if resistance is already less than 0 don't do any more 
     if (psStructure->resistance < 0)
@@ -6510,7 +6498,7 @@ BOOL electronicDamage(BASE_OBJECT* psTarget, UDWORD damage, UBYTE attackPlayer)
     {
       if (psDroid->droidType == DROID_TRANSPORTER)
       {
-        ASSERT((FALSE, "electronicDamage: Cannot attack a Transporter in multiPlayer"));
+        ASSERT_TEXT(FALSE, "electronicDamage: Cannot attack a Transporter in multiPlayer");
         return TRUE;
       }
     }
@@ -7031,7 +7019,7 @@ void cancelProduction(STRUCTURE* psBuilding)
 {
   FACTORY* psFactory;
 
-  ASSERT((StructIsFactory(psBuilding), "cancelProduction: structure not a factory"));
+  ASSERT_TEXT(StructIsFactory(psBuilding), "cancelProduction: structure not a factory");
 
   psFactory = (FACTORY*)psBuilding->pFunctionality;
 
@@ -7057,7 +7045,7 @@ void holdProduction(STRUCTURE* psBuilding)
 {
   FACTORY* psFactory;
 
-  ASSERT((StructIsFactory(psBuilding), "holdProduction: structure not a factory"));
+  ASSERT_TEXT(StructIsFactory(psBuilding), "holdProduction: structure not a factory");
 
   psFactory = (FACTORY*)psBuilding->pFunctionality;
 
@@ -7076,7 +7064,7 @@ void releaseProduction(STRUCTURE* psBuilding)
 {
   FACTORY* psFactory;
 
-  ASSERT((StructIsFactory(psBuilding), "releaseProduction: structure not a factory"));
+  ASSERT_TEXT(StructIsFactory(psBuilding), "releaseProduction: structure not a factory");
 
   psFactory = (FACTORY*)psBuilding->pFunctionality;
 
@@ -7096,7 +7084,7 @@ DROID_TEMPLATE* factoryProdUpdate(STRUCTURE* psStructure, DROID_TEMPLATE* psTemp
   UDWORD inc, factoryType, factoryInc;
   FACTORY* psFactory;
 
-  ASSERT((psStructure->player == productionPlayer, "factoryProdUpdate: called for incorrect player"));
+  ASSERT_TEXT(psStructure->player == productionPlayer, "factoryProdUpdate: called for incorrect player");
 
   psFactory = (FACTORY*)psStructure->pFunctionality;
   factoryType = psFactory->psAssemblyPoint->factoryType;
@@ -7152,7 +7140,7 @@ void factoryProdAdjust(STRUCTURE* psStructure, DROID_TEMPLATE* psTemplate, BOOL 
   FACTORY* psFactory;
   BOOL bAssigned = FALSE, bCheckForCancel = FALSE;
 
-  ASSERT((psStructure->player == productionPlayer, "factoryProdAdjust: called for incorrect player"));
+  ASSERT_TEXT(psStructure->player == productionPlayer, "factoryProdAdjust: called for incorrect player");
 
   psFactory = (FACTORY*)psStructure->pFunctionality;
   factoryType = psFactory->psAssemblyPoint->factoryType;
@@ -7352,7 +7340,7 @@ UWORD countAssignableFactories(UBYTE player, UWORD factoryType)
   UWORD factoryInc;
   UBYTE mask = 1, quantity = 0;
 
-  ASSERT((player == selectedPlayer, "countAssignableFactories: should only be called for selectedPlayer"));
+  ASSERT_TEXT(player == selectedPlayer, "countAssignableFactories: should only be called for selectedPlayer");
 
   for (factoryInc = 0; factoryInc < MAX_FACTORY; factoryInc++)
   {
@@ -7368,8 +7356,8 @@ UWORD countAssignableFactories(UBYTE player, UWORD factoryType)
 // check whether a factory of a certain number and type exists
 BOOL checkFactoryExists(UDWORD player, UDWORD factoryType, UDWORD inc)
 {
-  ASSERT((player < MAX_PLAYERS, "checkFactoryExists: invalid player"));
-  ASSERT((factoryType < NUM_FACTORY_TYPES, "checkFactoryExists: invalid factoryType"));
+  ASSERT_TEXT(player < MAX_PLAYERS, "checkFactoryExists: invalid player");
+  ASSERT_TEXT(factoryType < NUM_FACTORY_TYPES, "checkFactoryExists: invalid factoryType");
 
   return (factoryNumFlag[player][factoryType] & (1 << inc)) != 0;
 }
@@ -7399,7 +7387,7 @@ void checkDeliveryPoints(UDWORD version)
           psFactory = (FACTORY*)psStruct->pFunctionality;
           if (psFactory->psAssemblyPoint == nullptr) //need to add one
           {
-            ASSERT((psFactory->psAssemblyPoint != NULL, "checkDeliveryPoints: no delivery point for factory"));
+            ASSERT_TEXT(psFactory->psAssemblyPoint != NULL, "checkDeliveryPoints: no delivery point for factory");
           }
           else
           {
@@ -7414,13 +7402,13 @@ void checkDeliveryPoints(UDWORD version)
           if (psRepair->psDeliveryPoint == nullptr) //need to add one
           {
             if (version >= VERSION_19)
-              ASSERT((psRepair->psDeliveryPoint != NULL,"checkDeliveryPoints: no delivery point for repair facility"));
+              ASSERT_TEXT(psRepair->psDeliveryPoint != NULL,"checkDeliveryPoints: no delivery point for repair facility");
             else
             {
               // add an assembly point
               if (!createFlagPosition(&psRepair->psDeliveryPoint, psStruct->player))
               {
-                ASSERT((FALSE,"checkDeliveryPoints: unable to create new delivery point for repair facility"));
+                ASSERT_TEXT(FALSE,"checkDeliveryPoints: unable to create new delivery point for repair facility");
                 return;
               }
               addFlagPosition(psRepair->psDeliveryPoint);
@@ -7448,8 +7436,8 @@ void factoryLoopAdjust(STRUCTURE* psStruct, BOOL add)
 {
   FACTORY* psFactory;
 
-  ASSERT((StructIsFactory(psStruct), "factoryLoopAdjust: structure is not a factory"));
-  ASSERT((psStruct->player == selectedPlayer, "factoryLoopAdjust: should only be called for selectedPlayer"));
+  ASSERT_TEXT(StructIsFactory(psStruct), "factoryLoopAdjust: structure is not a factory");
+  ASSERT_TEXT(psStruct->player == selectedPlayer, "factoryLoopAdjust: should only be called for selectedPlayer");
 
   psFactory = (FACTORY*)psStruct->pFunctionality;
 
@@ -7728,7 +7716,7 @@ STRUCTURE* giftSingleStructure(STRUCTURE* psStructure, UBYTE attackPlayer, BOOL 
     //in this version of Warzone, the attack Player can NEVER be the selectedPlayer (unless from the script)
     if (!bFromScript AND selectedPlayer == 0 AND attackPlayer == selectedPlayer)
     {
-      ASSERT((FALSE, "giftSingleStructure: EW attack by selectedPlayer on a structure"));
+      ASSERT_TEXT(FALSE, "giftSingleStructure: EW attack by selectedPlayer on a structure");
       return nullptr;
     }
   }
@@ -7956,7 +7944,7 @@ BOOL checkStructureStats(void)
     {
       if (asStructureStats[structInc].asFuncList != nullptr)
       {
-        ASSERT((FALSE, "checkStructureStats:Invalid functions attached to structure %s", asStructureStats[structInc].pName));
+        ASSERT_TEXT(FALSE, "checkStructureStats:Invalid functions attached to structure {}", asStructureStats[structInc].pName);
         return FALSE;
       }
     }

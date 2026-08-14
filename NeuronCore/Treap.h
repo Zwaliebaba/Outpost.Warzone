@@ -13,7 +13,6 @@
 #define _treap_h
 
 #include "Types.h"
-#include "LegacyDebug.h"
 
 /* Turn on and off the treap debugging */
 #ifdef DEBUG

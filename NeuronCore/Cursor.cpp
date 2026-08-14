@@ -11,7 +11,6 @@
 #define FRAME_LIB_INCLUDE
 
 #include "Types.h"
-#include "LegacyDebug.h"
 #include "Surface.h"
 #include "Screen.h"
 #include "Input.h"
@@ -61,7 +60,7 @@ BOOL cursorInitialise(SDWORD width, SDWORD height)
   if (!surfCreate(&psCursorSurface, width, height, DDSCAPS_OFFSCREENPLAIN | DDSCAPS_VIDEOMEMORY, screenGetBackBufferPixelFormat(), FALSE,
                   TRUE))
   {
-    DBERROR(("cursorInitialise: couldn't create surface"));
+    Neuron::Fatal("cursorInitialise: couldn't create surface");
     return FALSE;
   }
 
@@ -69,7 +68,7 @@ BOOL cursorInitialise(SDWORD width, SDWORD height)
   if (!surfCreate(&psCursorSave, CURSOR_SAVEWIDTH, CURSOR_SAVEHEIGHT, DDSCAPS_OFFSCREENPLAIN | DDSCAPS_VIDEOMEMORY,
                   screenGetBackBufferPixelFormat(), FALSE, TRUE))
   {
-    DBERROR(("cursorInitialise: couldn't create surface"));
+    Neuron::Fatal("cursorInitialise: couldn't create surface");
     return FALSE;
   }
 
@@ -87,12 +86,12 @@ BOOL cursorInitialise(SDWORD width, SDWORD height)
                                &cursorThreadID);
   if (hCursorThread == nullptr)
   {
-    DBERROR(("cursorInitialise: couldn't create thread"));
+    Neuron::Fatal("cursorInitialise: couldn't create thread");
     return FALSE;
   }
   if (!SetThreadPriority(hCursorThread, THREAD_PRIORITY_TIME_CRITICAL))
   {
-    DBERROR(("cursorInitialise: couldn't set thread priority"));
+    Neuron::Fatal("cursorInitialise: couldn't set thread priority");
     return FALSE;
   }
 
@@ -208,7 +207,7 @@ static DWORD WINAPI cursorThreadUpdate(LPVOID param)
       {
         setRects(&sScreenRect, &sSaveRect, saveX, saveY, CURSOR_SAVEWIDTH, CURSOR_SAVEHEIGHT);
         ddrval = psFront->lpVtbl->Blt(psFront, &sScreenRect, psCursorSave, &sSaveRect, DDBLT_WAIT, nullptr);
-        ASSERT((ddrval == DD_OK, "cursorThread: save buffer restore failed:\n%s", DDErrorToString(ddrval)));
+        ASSERT_TEXT(ddrval == DD_OK, "cursorThread: save buffer restore failed:\n{}", DDErrorToString(ddrval));
       }
 
       LeaveCriticalSection(&sScreenFlipCritical);
@@ -223,7 +222,7 @@ static DWORD WINAPI cursorThreadUpdate(LPVOID param)
     if (sScreenRect.left != sScreenRect.right && sScreenRect.top != sScreenRect.bottom)
     {
       ddrval = psCursorSave->lpVtbl->Blt(psCursorSave, &sSaveRect, psFront, &sScreenRect, DDBLT_WAIT, nullptr);
-      ASSERT((ddrval == DD_OK, "cursorThread: save buffer copy failed:\n%s", DDErrorToString(ddrval)));
+      ASSERT_TEXT(ddrval == DD_OK, "cursorThread: save buffer copy failed:\n{}", DDErrorToString(ddrval));
       saveX = mx;
       saveY = my;
       saveValid = TRUE;
@@ -256,7 +255,7 @@ static DWORD WINAPI cursorThreadUpdate(LPVOID param)
         // Wait for the V-Blank
 
         ddrval = psFront->lpVtbl->Blt(psFront, &sScreenRect, psCursorSurface, &sCursorRect, DDBLT_WAIT | DDBLT_KEYSRCOVERRIDE, &sBltFX);
-        ASSERT((ddrval == DD_OK, "cursorThread: cursor blit failed:\n%s", DDErrorToString(ddrval)));
+        ASSERT_TEXT(ddrval == DD_OK, "cursorThread: cursor blit failed:\n{}", DDErrorToString(ddrval));
       }
     }
     LeaveCriticalSection(&sSurfaceCritical);

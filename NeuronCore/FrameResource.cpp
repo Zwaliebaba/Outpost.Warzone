@@ -57,7 +57,7 @@ VOID resDoResLoadCallback()
 /* Initialise the resource module */
 BOOL resInitialise(void)
 {
-  ASSERT((psResTypes == NULL, "resInitialise: resource module hasn't been shut down??"));
+  ASSERT_TEXT(psResTypes == NULL, "resInitialise: resource module hasn't been shut down??");
   psResTypes = nullptr;
 
   resBlockID = 0;
@@ -104,7 +104,7 @@ void resShutDown(void)
 
   if (psResTypes != nullptr)
   {
-    DBPRINTF(("resShutDown: warning resources still allocated"));
+    Neuron::DebugTrace("resShutDown: warning resources still allocated");
     resReleaseAll();
   }
 }
@@ -175,7 +175,7 @@ static BOOL resAlloc(STRING* pType, RES_TYPE** ppsFunc)
   // Check for a duplicate type
   for (psT = psResTypes; psT; psT = psT->psNext)
   {
-    ASSERT((strcmp(psT->aType, pType) != 0, "resAlloc: Duplicate function for type: %s", pType));
+    ASSERT_TEXT(strcmp(psT->aType, pType) != 0, "resAlloc: Duplicate function for type: {}", pType);
   }
 #endif
 
@@ -183,7 +183,7 @@ static BOOL resAlloc(STRING* pType, RES_TYPE** ppsFunc)
   psT = new (std::nothrow) RES_TYPE[1];
   if (!psT)
   {
-    DBERROR(("resAlloc: Out of memory"));
+    Neuron::Fatal("resAlloc: Out of memory");
     return FALSE;
   }
 
@@ -280,7 +280,7 @@ BOOL resLoadFromDisk(STRING* pFileName, UBYTE** ppBuffer, UDWORD* pSize)
   hFile = CreateFile(pFileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, nullptr);
   if (hFile == INVALID_HANDLE_VALUE)
   {
-    DBERROR(("Couldn't open %s\n%s", pFileName, winErrorToString(GetLastError())));
+    Neuron::Fatal("Couldn't open {}\n{}", pFileName, winErrorToString(GetLastError()));
     return FALSE;
   }
 
@@ -288,7 +288,7 @@ BOOL resLoadFromDisk(STRING* pFileName, UBYTE** ppBuffer, UDWORD* pSize)
   *pSize = GetFileSize(hFile, nullptr);
   if (*pSize >= static_cast<UDWORD>(fileBufferSize))
   {
-    DBERROR(("file too big !!:%s size %d\n", pFileName, *pSize));
+    Neuron::Fatal("file too big !!:{} size {}\n", pFileName, *pSize);
     return FALSE;
   }
 
@@ -296,7 +296,7 @@ BOOL resLoadFromDisk(STRING* pFileName, UBYTE** ppBuffer, UDWORD* pSize)
   retVal = ReadFile(hFile, pFileBuffer, *pSize, &bytesRead, nullptr);
   if (!retVal || *pSize != bytesRead)
   {
-    DBERROR(("Couldn't read data from %s\n%s", pFileName, winErrorToString(GetLastError())));
+    Neuron::Fatal("Couldn't read data from {}\n{}", pFileName, winErrorToString(GetLastError()));
     return FALSE;
   }
   pFileBuffer[*pSize] = 0;
@@ -304,7 +304,7 @@ BOOL resLoadFromDisk(STRING* pFileName, UBYTE** ppBuffer, UDWORD* pSize)
   retVal = CloseHandle(hFile);
   if (!retVal)
   {
-    DBERROR(("Couldn't close %s\n%s", pFileName, winErrorToString(GetLastError())));
+    Neuron::Fatal("Couldn't close {}\n{}", pFileName, winErrorToString(GetLastError()));
     return FALSE;
   }
 
@@ -463,7 +463,7 @@ BOOL resLoadFile(STRING* pType, STRING* pFile)
 
     if (psT == nullptr)
     {
-      DBERROR(("resLoadFile: Unknown type: %s", pType));
+      Neuron::Fatal("resLoadFile: Unknown type: {}", pType);
       return FALSE;
     }
 
@@ -473,7 +473,7 @@ BOOL resLoadFile(STRING* pType, STRING* pFile)
       {
         if (psRes->HashedID == HashedName)
         {
-          DBPRINTF(("resLoadFile: Duplicate file name: %s (hash %x) for type %s",pFile, HashedName, psT->aType));
+          Neuron::DebugTrace("resLoadFile: Duplicate file name: {} (hash {:x}) for type {}",pFile, HashedName, psT->aType);
 
           // assume that they are actually both the same and silently fail
           // lovely little hack to allow some files to be loaded from disk (believe it or not!).
@@ -485,7 +485,7 @@ BOOL resLoadFile(STRING* pType, STRING* pFile)
     // Create the file name
     if (strlen(aCurrResDir) + strlen(pFile) + 1 >= FILE_MAXCHAR)
     {
-      DBERROR(("resLoadFile: Filename too long!!\n%s%s", aCurrResDir, pFile));
+      Neuron::Fatal("resLoadFile: Filename too long!!\n{}{}", aCurrResDir, pFile);
       return FALSE;
     }
     strcpy(aFileName, aCurrResDir);
@@ -518,7 +518,7 @@ BOOL resLoadFile(STRING* pType, STRING* pFile)
       Result = RetreiveResourceFile(aFileName, &Resource);
       if (Result == FALSE)
       {
-        DBERROR(("resLoadFile: Unable to retreive resource - %d",aFileName));
+        Neuron::Fatal("resLoadFile: Unable to retreive resource - {}",aFileName);
         return (FALSE);
       }
 
@@ -535,7 +535,7 @@ BOOL resLoadFile(STRING* pType, STRING* pFile)
 #endif
     else
     {
-      DBERROR(("resLoadFile:  No load functions for this type (%s)\n",pType));
+      Neuron::Fatal("resLoadFile:  No load functions for this type ({})\n",pType);
       return FALSE;
     }
 
@@ -545,7 +545,7 @@ BOOL resLoadFile(STRING* pType, STRING* pFile)
       psRes = new (std::nothrow) RES_DATA[1];
       if (!psRes)
       {
-        DBERROR(("resLoadFile: Out of memory"));
+        Neuron::Fatal("resLoadFile: Out of memory");
         psT->release(pData);
         return FALSE;
       }
@@ -577,7 +577,7 @@ void* resGetDataFromHash(STRING* pType, UDWORD HashedID)
   }
   if (psT == nullptr)
   {
-    ASSERT((FALSE, "resGetData: Unknown type: %s", pType));
+    ASSERT_TEXT(FALSE, "resGetData: Unknown type: {}", pType);
     return nullptr;
   }
 
@@ -594,7 +594,7 @@ void* resGetDataFromHash(STRING* pType, UDWORD HashedID)
 
   if (psRes == nullptr)
   {
-    ASSERT((FALSE, "resGetDataFromHash: Unknown ID:"));
+    ASSERT_TEXT(FALSE, "resGetDataFromHash: Unknown ID:");
     return nullptr;
   }
 
@@ -622,7 +622,7 @@ void* resGetData(STRING* pType, STRING* pID)
   }
   if (psT == nullptr)
   {
-    ASSERT((FALSE, "resGetData: Unknown type: %s", pType));
+    ASSERT_TEXT(FALSE, "resGetData: Unknown type: {}", pType);
     return nullptr;
   }
 
@@ -640,7 +640,7 @@ void* resGetData(STRING* pType, STRING* pID)
 
   if (psRes == nullptr)
   {
-    ASSERT((FALSE, "resGetData: Unknown ID: %s", pID));
+    ASSERT_TEXT(FALSE, "resGetData: Unknown ID: {}", pID);
     return nullptr;
   }
 
@@ -667,7 +667,7 @@ BOOL resGetHashfromData(STRING* pType, void* pData, UDWORD* pHash)
 
   if (psT == nullptr)
   {
-    ASSERT((FALSE, "resGetHashfromData: Unknown type: %x", HashedType));
+    ASSERT_TEXT(FALSE, "resGetHashfromData: Unknown type: {:x}", HashedType);
     return FALSE;
   }
 
@@ -680,7 +680,7 @@ BOOL resGetHashfromData(STRING* pType, void* pData, UDWORD* pHash)
 
   if (psRes == nullptr)
   {
-    ASSERT((FALSE, "resGetHashfromData:: couldn't find data for type %x\n", HashedType));
+    ASSERT_TEXT(FALSE, "resGetHashfromData:: couldn't find data for type {:x}\n", HashedType);
     return FALSE;
   }
 
@@ -707,7 +707,7 @@ RES_TYPE* psT; RES_DATA* psRes;
 	}
 	if (psT== NULL)
 	{
-		ASSERT((FALSE, "resGetData: Unknown type: %s", pType));
+		ASSERT_TEXT(FALSE, "resGetData: Unknown type: {}", pType);
 		return FALSE;
 	}
 
@@ -721,7 +721,7 @@ RES_TYPE* psT; RES_DATA* psRes;
 
 	if (psRes== NULL)
 	{
-		ASSERT((FALSE, "resGetIDfromData: couldn't find data for type %s\n", pType));
+		ASSERT_TEXT(FALSE, "resGetIDfromData: couldn't find data for type {}\n", pType);
 		return FALSE;
 	}
 
@@ -782,12 +782,12 @@ void resReleaseAll(void)
     {
 #ifdef DEBUG
       if (psRes->usage == 0)
-        DBPRINTF(("%s resource: %s(%04x) not used\n", psT->aType, psRes->aID,psRes->HashedID));
+        Neuron::DebugTrace("{} resource: {}({:04x}) not used\n", psT->aType, psRes->aID,psRes->HashedID);
 #endif
       if (psT->release != nullptr)
         psT->release(resGetResDataPointer(psRes));
       else
-        ASSERT((FALSE,"resReleaseAll: NULL release function"));
+        ASSERT_TEXT(FALSE,"resReleaseAll: NULL release function");
       psNRes = psRes->psNext;
       delete[] psRes;
       psRes = nullptr;
@@ -811,18 +811,18 @@ void resReleaseBlockData(SDWORD blockID)
     psPRes = nullptr;
     for (psRes = psT->psRes; psRes; psRes = psNRes)
     {
-      ASSERT((psRes != NULL,"resReleaseBlockData: null pointer passed into loop"));
+      ASSERT_TEXT(psRes != NULL,"resReleaseBlockData: null pointer passed into loop");
 
       if (resGetResBlockID(psRes) == blockID)
       {
 #ifdef DEBUG
         if (psRes->usage == 0)
-          DBPRINTF(("%s resource: %x not used\n", psT->aType, psRes->HashedID));
+          Neuron::DebugTrace("{} resource: {:x} not used\n", psT->aType, psRes->HashedID);
 #endif
         if (psT->release != nullptr)
           psT->release(resGetResDataPointer(psRes));
         else
-          ASSERT((FALSE,"resReleaseAllData: NULL release function"));
+          ASSERT_TEXT(FALSE,"resReleaseAllData: NULL release function");
 
         psNRes = psRes->psNext;
         delete[] psRes;
@@ -838,10 +838,10 @@ void resReleaseBlockData(SDWORD blockID)
         psPRes = psRes;
         psNRes = psRes->psNext;
       }
-      ASSERT((psNRes != (RES_DATA *)0xdddddddd,"resReleaseBlockData: next data (next pointer) already freed"));
+      ASSERT_TEXT(psNRes != (RES_DATA *)0xdddddddd,"resReleaseBlockData: next data (next pointer) already freed");
     }
     psNT = resNextType(psT);
-    ASSERT((psNT != (RES_TYPE *)0xdddddddd,"resReleaseBlockData: next data (next pointer) already freed"));
+    ASSERT_TEXT(psNT != (RES_TYPE *)0xdddddddd,"resReleaseBlockData: next data (next pointer) already freed");
   }
 }
 
@@ -857,13 +857,13 @@ void resReleaseAllData(void)
     {
 #ifdef DEBUG
       if (psRes->usage == 0)
-        DBPRINTF(("%s resource: %x not used\n", psT->aType, psRes->HashedID));
+        Neuron::DebugTrace("{} resource: {:x} not used\n", psT->aType, psRes->HashedID);
 #endif
 
       if (psT->release != nullptr)
         psT->release(resGetResDataPointer(psRes));
       else
-        ASSERT((FALSE,"resReleaseAllData: NULL release function"));
+        ASSERT_TEXT(FALSE,"resReleaseAllData: NULL release function");
 
       psNRes = psRes->psNext;
       delete[] psRes;
@@ -936,7 +936,7 @@ BOOL FILE_ProcessFile(WRFINFO* CurrentFile, UBYTE* pRetreivedFile)
   }
   if (psT == nullptr) // none found then error and panic
   {
-    DBPRINTF(("Unknown resource type %x\n",CurrentFile->type));
+    Neuron::DebugTrace("Unknown resource type {:x}\n",CurrentFile->type);
     return FALSE;
   }
 
@@ -948,7 +948,7 @@ BOOL FILE_ProcessFile(WRFINFO* CurrentFile, UBYTE* pRetreivedFile)
   // Now process the buffer data by calling the relevant buffer command
   if (!psT->buffLoad(pRetreivedFile, CurrentFile->filesize, &pData))
   {
-    DBPRINTF(("No buffer command for this type %s\n",psT->aType));
+    Neuron::DebugTrace("No buffer command for this type {}\n",psT->aType);
     return FALSE;
   }
 
@@ -959,7 +959,7 @@ BOOL FILE_ProcessFile(WRFINFO* CurrentFile, UBYTE* pRetreivedFile)
     psRes = new (std::nothrow) RES_DATA[1];
     if (!psRes)
     {
-      DBERROR(("resLoadFile: Out of memory"));
+      Neuron::Fatal("resLoadFile: Out of memory");
       psT->release(pData);
       return FALSE;
     }

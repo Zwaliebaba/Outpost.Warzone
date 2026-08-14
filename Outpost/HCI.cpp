@@ -133,7 +133,7 @@ BUTSTATE ReticuleEnabled[NUMRETBUTS] = {
 //
 void SetReticuleButPos(UWORD ButId, W_BUTINIT* sButInit)
 {
-  ASSERT((ButId < NUMRETBUTS,"SetReticuleButPos : Bad button index"));
+  ASSERT_TEXT(ButId < NUMRETBUTS,"SetReticuleButPos : Bad button index");
 
   sButInit->x = static_cast<SWORD>(ReticuleOffsets[ButId].x + RETXOFFSET);
   sButInit->y = static_cast<SWORD>(ReticuleOffsets[ButId].y + RETYOFFSET);
@@ -618,7 +618,7 @@ BOOL intInitialise(void)
   apsStructStatsList = new (std::nothrow) STRUCTURE_STATS*[MAXSTRUCTURES];
   if (!apsStructStatsList)
   {
-    DBERROR(("Out of memory"));
+    Neuron::Fatal("Out of memory");
     return FALSE;
   }
 
@@ -626,7 +626,7 @@ BOOL intInitialise(void)
   ppResearchList = new (std::nothrow) RESEARCH*[MAXRESEARCH];
   if (ppResearchList == nullptr)
   {
-    DBERROR(("Unable to allocate memory for research list"));
+    Neuron::Fatal("Unable to allocate memory for research list");
     return FALSE;
   }
 
@@ -637,12 +637,12 @@ BOOL intInitialise(void)
 
   if (pList == nullptr)
   {
-    DBERROR(("Unable to allocate memory for research list"));
+    Neuron::Fatal("Unable to allocate memory for research list");
     return FALSE;
   }
   if (pSList == nullptr)
   {
-    DBERROR(("Unable to allocate memory for sorted research list"));
+    Neuron::Fatal("Unable to allocate memory for sorted research list");
     return FALSE;
   }
 
@@ -650,7 +650,7 @@ BOOL intInitialise(void)
   apsTemplateList = new (std::nothrow) DROID_TEMPLATE*[MAXTEMPLATES];
   if (apsTemplateList == nullptr)
   {
-    DBERROR(("Unable to allocate memory for template list"));
+    Neuron::Fatal("Unable to allocate memory for template list");
     return FALSE;
   }
 
@@ -666,7 +666,7 @@ BOOL intInitialise(void)
   apsFeatureList = new (std::nothrow) FEATURE_STATS*[MAXFEATURES];
   if (apsFeatureList == nullptr)
   {
-    DBERROR(("Unable to allocate memory for feature list"));
+    Neuron::Fatal("Unable to allocate memory for feature list");
     return FALSE;
   }
 
@@ -674,7 +674,7 @@ BOOL intInitialise(void)
   apsComponentList = new (std::nothrow) COMP_BASE_STATS*[MAXCOMPONENT];
   if (apsComponentList == nullptr)
   {
-    DBERROR(("Unable to allocate memory for component list"));
+    Neuron::Fatal("Unable to allocate memory for component list");
     return FALSE;
   }
 
@@ -682,7 +682,7 @@ BOOL intInitialise(void)
   apsExtraSysList = new (std::nothrow) COMP_BASE_STATS*[MAXEXTRASYS];
   if (apsExtraSysList == nullptr)
   {
-    DBERROR(("Unable to allocate memory for extra systems list"));
+    Neuron::Fatal("Unable to allocate memory for extra systems list");
     return FALSE;
   }
 
@@ -690,7 +690,7 @@ BOOL intInitialise(void)
   apsObjectList = new (std::nothrow) BASE_OBJECT*[MAX_OBJECTS];
   if (!apsObjectList)
   {
-    DBERROR(("Out of memory"));
+    Neuron::Fatal("Out of memory");
     return FALSE;
   }
 
@@ -698,7 +698,7 @@ BOOL intInitialise(void)
   apsListToOrder = new (std::nothrow) BASE_OBJECT*[ORDERED_LIST_SIZE];
   if (!apsListToOrder)
   {
-    DBERROR(("Out of memory"));
+    Neuron::Fatal("Out of memory");
     return FALSE;
   }
 
@@ -721,7 +721,7 @@ BOOL intInitialise(void)
 
   if (!widgCreateScreen(&psWScreen))
   {
-    DBERROR(("intInitialise: Couldn't create widget screen (Out of memory ?)"));
+    Neuron::Fatal("intInitialise: Couldn't create widget screen (Out of memory ?)");
     return FALSE;
   }
 
@@ -731,12 +731,12 @@ BOOL intInitialise(void)
   {
     if (!intAddReticule())
     {
-      DBERROR(("intInitialise: Couldn't create reticule widgets (Out of memory ?)"));
+      Neuron::Fatal("intInitialise: Couldn't create reticule widgets (Out of memory ?)");
       return FALSE;
     }
     if (!intAddPower())
     {
-      DBERROR(("intInitialise: Couldn't create power Bar widget(Out of memory ?)"));
+      Neuron::Fatal("intInitialise: Couldn't create power Bar widget(Out of memory ?)");
       return FALSE;
     }
   }
@@ -772,7 +772,7 @@ BOOL intInitialise(void)
   /*Initialise the video playback buffer*/
   if (!seq_SetupVideoBuffers())
   {
-    DBERROR(("intInitialise: Unable to initialise video playback buffer"));
+    Neuron::Fatal("intInitialise: Unable to initialise video playback buffer");
     return FALSE;
   }
 
@@ -1246,7 +1246,7 @@ INT_RETVAL intRunWidgets(void)
     /* The objects on the object screen have changed */
     if (intMode == INT_OBJECT)
     {
-      ASSERT((widgGetFromID(psWScreen,IDOBJ_TABFORM) != NULL,"No object form\n"));
+      ASSERT_TEXT(widgGetFromID(psWScreen,IDOBJ_TABFORM) != NULL,"No object form\n");
 
       /* Remove the old screen */
       widgGetTabs(psWScreen, IDOBJ_TABFORM, &objMajor, &objMinor);
@@ -1298,7 +1298,7 @@ INT_RETVAL intRunWidgets(void)
     {
       if (strlen(sRequestResult))
       {
-        DBPRINTF(("Returned %s",sRequestResult));
+        Neuron::DebugTrace("Returned {}",sRequestResult);
         if (bRequestLoad)
         {
           loopMissionState = LMS_LOADGAME;
@@ -1315,7 +1315,7 @@ INT_RETVAL intRunWidgets(void)
           }
           else
           {
-            ASSERT((FALSE,"intRunWidgets: saveGame Failed"));
+            ASSERT_TEXT(FALSE,"intRunWidgets: saveGame Failed");
             deleteSaveGame(sRequestResult);
           }
         }
@@ -1470,7 +1470,7 @@ INT_RETVAL intRunWidgets(void)
   case IDMISSIONRES_QUIT: // mission quit
   case INTINGAMEOP_QUIT_CONFIRM: // esc quit confrim
   case IDOPT_QUIT: // options screen quit  
-    DBPRINTF(("HCI Quit %d\n",retID));
+    Neuron::DebugTrace("HCI Quit {}\n",retID);
     intResetScreen(FALSE);
     quitting = TRUE;
     break;
@@ -1555,7 +1555,7 @@ INT_RETVAL intRunWidgets(void)
       break;
     case INT_NORMAL:
       break;
-    default: ASSERT((FALSE, "intRunWidgets: unknown interface mode"));
+    default: ASSERT_TEXT(FALSE, "intRunWidgets: unknown interface mode");
       break;
     }
     break;
@@ -1720,7 +1720,7 @@ INT_RETVAL intRunWidgets(void)
   retCode = INT_NONE;
   if (quitting)
   {
-    DBPRINTF(("INT_QUIT 1\n"));
+    Neuron::DebugTrace("INT_QUIT 1\n");
     retCode = INT_QUIT;
   }
   //the return code has been superceded by the different pause states
@@ -1741,7 +1741,7 @@ INT_RETVAL intRunWidgets(void)
   if ((testPlayerHasLost() OR (testPlayerHasWon() AND !bMultiPlayer)) AND // yeah yeah yeah - I know....
     (intMode != INT_MISSIONRES) AND !getDebugMappingStatus())
   {
-    DBPRINTF(("PlayerHasLost Or Won\n"));
+    Neuron::DebugTrace("PlayerHasLost Or Won\n");
     intResetScreen(TRUE);
     retCode = INT_QUIT;
     quitting = TRUE;
@@ -2008,7 +2008,7 @@ static void intProcessOptions(UDWORD id)
         widgSetButtonState(psWScreen, IDRET_OPTIONS, 0);
       }*/
       break;
-    default: ASSERT((FALSE, "intProcessOptions: Unknown return code"));
+    default: ASSERT_TEXT(FALSE, "intProcessOptions: Unknown return code");
       break;
     }
   }
@@ -2060,7 +2060,7 @@ static void intProcessEdit(UDWORD id)
   case IDED_FORM:
   case IDED_LABEL:
     break;
-  default: ASSERT((FALSE, "intProcessEdit: Unknown return code"));
+  default: ASSERT_TEXT(FALSE, "intProcessEdit: Unknown return code");
     break;
   }
 }
@@ -2164,10 +2164,10 @@ static void intRunStats(void)
   if (intMode != INT_EDITSTAT && objMode == IOBJ_MANUFACTURE)
   {
     psOwner = static_cast<BASE_OBJECT*>(widgGetUserData(psWScreen, IDSTAT_LOOP_LABEL));
-    ASSERT((psOwner->type == OBJ_STRUCTURE, "intRunStats: Invalid object type"));
+    ASSERT_TEXT(psOwner->type == OBJ_STRUCTURE, "intRunStats: Invalid object type");
 
     psStruct = (STRUCTURE*)psOwner;
-    ASSERT((StructIsFactory(psStruct), "intRunStats: Invalid Structure type"));
+    ASSERT_TEXT(StructIsFactory(psStruct), "intRunStats: Invalid Structure type");
 
     psFactory = (FACTORY*)psStruct->pFunctionality;
     //adjust the loop button if necessary
@@ -2346,7 +2346,7 @@ static void intProcessObject(UDWORD id)
   SDWORD butIndex;
   UDWORD statButID;
 
-  ASSERT((widgGetFromID(psWScreen,IDOBJ_TABFORM) != NULL,"intProcessObject, missing form\n"));
+  ASSERT_TEXT(widgGetFromID(psWScreen,IDOBJ_TABFORM) != NULL,"intProcessObject, missing form\n");
 
   // deal with CRTL clicks
   if (objMode == IOBJ_BUILD && // What..................?
@@ -2513,11 +2513,11 @@ static void intProcessStats(UDWORD id)
   DROID_TEMPLATE* psNext;
 #endif
 
-  ASSERT((widgGetFromID(psWScreen,IDOBJ_TABFORM) != NULL,"intProcessStats, missing form\n"));
+  ASSERT_TEXT(widgGetFromID(psWScreen,IDOBJ_TABFORM) != NULL,"intProcessStats, missing form\n");
 
   if (id >= IDSTAT_START && id <= IDSTAT_END)
   {
-    ASSERT((id - IDSTAT_START < numStatsListEntries, "intProcessStructure: Invalid structure stats id"));
+    ASSERT_TEXT(id - IDSTAT_START < numStatsListEntries, "intProcessStructure: Invalid structure stats id");
 
     /* deal with RMB clicks */
     if (widgGetButtonKey(psWScreen) & WKEY_SECONDARY)
@@ -2752,8 +2752,8 @@ static void intProcessStats(UDWORD id)
   }
   else
   {
-    ASSERT((id == IDSTAT_FORM || id == IDSTAT_TITLEFORM ||
-      id == IDSTAT_LABEL || id == IDSTAT_TABFORM, "intProcessStructure: Unknown widget ID"));
+    ASSERT_TEXT(id == IDSTAT_FORM || id == IDSTAT_TITLEFORM ||
+      id == IDSTAT_LABEL || id == IDSTAT_TABFORM, "intProcessStructure: Unknown widget ID");
   }
 }
 
@@ -3989,7 +3989,7 @@ static BOOL _intAddObjectWindow(BASE_OBJECT* psObjects, BASE_OBJECT* psSelected,
         Droid = (DROID*)psObj;
         if (Droid->droidType == DROID_CONSTRUCT OR Droid->droidType == DROID_CYBORG_CONSTRUCT)
         {
-          ASSERT((Droid->asBits[COMP_CONSTRUCT].nStat,"intUpdateProgressBar: invalid droid type"));
+          ASSERT_TEXT(Droid->asBits[COMP_CONSTRUCT].nStat,"intUpdateProgressBar: invalid droid type");
           psStats = (BASE_STATS*)(asConstructStats + Droid->asBits[COMP_CONSTRUCT].nStat);
           //sBarInit2.size = (UWORD)((CONSTRUCT_STATS*)psStats)->constructPoints;	// Need to scale? YEP!
           sBarInit2.size = static_cast<UWORD>(constructorPoints((CONSTRUCT_STATS*)psStats, Droid->player));
@@ -4021,7 +4021,7 @@ static BOOL _intAddObjectWindow(BASE_OBJECT* psObjects, BASE_OBJECT* psSelected,
             sBarInit2.size = WBAR_SCALE;
           break;
 
-        default: ASSERT((FALSE, "intAddObject: invalid structure type"));
+        default: ASSERT_TEXT(FALSE, "intAddObject: invalid structure type");
         }
 
 #ifdef HASH_NAMES
@@ -4044,7 +4044,7 @@ static BOOL _intAddObjectWindow(BASE_OBJECT* psObjects, BASE_OBJECT* psSelected,
       }
 
       BufferID = sBFormInit.id - IDOBJ_OBJSTART;
-      ASSERT((BufferID < NUM_TOPICBUFFERS,"BufferID > NUM_TOPICBUFFERS"));
+      ASSERT_TEXT(BufferID < NUM_TOPICBUFFERS,"BufferID > NUM_TOPICBUFFERS");
       ClearTopicButtonBuffer(BufferID);
       RENDERBUTTON_INUSE(&TopicBuffers[BufferID]);
       TopicBuffers[BufferID].Data = static_cast<void*>(psObj);
@@ -4112,7 +4112,7 @@ static BOOL _intAddObjectWindow(BASE_OBJECT* psObjects, BASE_OBJECT* psSelected,
         }
 
         BufferID = (sBFormInit2.id - IDOBJ_STATSTART) * 2 + 1;
-        ASSERT((BufferID < NUM_OBJECTBUFFERS,"BufferID > NUM_OBJECTBUFFERS"));
+        ASSERT_TEXT(BufferID < NUM_OBJECTBUFFERS,"BufferID > NUM_OBJECTBUFFERS");
         ClearObjectButtonBuffer(BufferID);
         RENDERBUTTON_INUSE(&ObjectBuffers[BufferID]);
         ObjectBuffers[BufferID].Data = static_cast<void*>(psObj);
@@ -4124,7 +4124,7 @@ static BOOL _intAddObjectWindow(BASE_OBJECT* psObjects, BASE_OBJECT* psSelected,
         sBFormInit2.pTip = nullptr;
 
         BufferID = (sBFormInit2.id - IDOBJ_STATSTART) * 2 + 1;
-        ASSERT((BufferID < NUM_OBJECTBUFFERS,"BufferID > NUM_OBJECTBUFFERS"));
+        ASSERT_TEXT(BufferID < NUM_OBJECTBUFFERS,"BufferID > NUM_OBJECTBUFFERS");
         ClearObjectButtonBuffer(BufferID);
         RENDERBUTTON_INUSE(&ObjectBuffers[BufferID]);
         ObjectBuffers[BufferID].Data = static_cast<void*>(psObj);
@@ -4136,7 +4136,7 @@ static BOOL _intAddObjectWindow(BASE_OBJECT* psObjects, BASE_OBJECT* psSelected,
         sBFormInit2.pTip = nullptr;
 
         BufferID = (sBFormInit2.id - IDOBJ_STATSTART) * 2 + 1;
-        ASSERT((BufferID < NUM_OBJECTBUFFERS,"BufferID > NUM_OBJECTBUFFERS"));
+        ASSERT_TEXT(BufferID < NUM_OBJECTBUFFERS,"BufferID > NUM_OBJECTBUFFERS");
         ClearObjectButtonBuffer(BufferID);
         RENDERBUTTON_INUSE(&ObjectBuffers[BufferID]);
         sBFormInit2.pUserData = static_cast<void*>(&ObjectBuffers[BufferID]);
@@ -4208,7 +4208,7 @@ static BOOL _intAddObjectWindow(BASE_OBJECT* psObjects, BASE_OBJECT* psSelected,
 
       /* Set up the next button (Objects) */
       sBFormInit.id += 1;
-      ASSERT((sBFormInit.id < IDOBJ_OBJEND,"Too many object buttons"));
+      ASSERT_TEXT(sBFormInit.id < IDOBJ_OBJEND,"Too many object buttons");
 
       sBFormInit.x += OBJ_BUTWIDTH + OBJ_GAP;
       if (sBFormInit.x + OBJ_BUTWIDTH + OBJ_GAP > OBJ_WIDTH)
@@ -4223,13 +4223,13 @@ static BOOL _intAddObjectWindow(BASE_OBJECT* psObjects, BASE_OBJECT* psSelected,
       sLabInitCmdFac2.id += 1;
 
       sBarInit.id += 1;
-      ASSERT((sBarInit.id < IDOBJ_PROGBAREND,"Too many progress bars"));
+      ASSERT_TEXT(sBarInit.id < IDOBJ_PROGBAREND,"Too many progress bars");
 
       sBarInit2.id += 1;
-      ASSERT((sBarInit2.id < IDOBJ_POWERBAREND,"Too many power bars"));
+      ASSERT_TEXT(sBarInit2.id < IDOBJ_POWERBAREND,"Too many power bars");
 
       sBFormInit2.id += 1;
-      ASSERT((sBFormInit2.id < IDOBJ_STATEND,"Too many stat buttons"));
+      ASSERT_TEXT(sBFormInit2.id < IDOBJ_STATEND,"Too many stat buttons");
 
       sBFormInit2.x += OBJ_BUTWIDTH + OBJ_GAP;
       if (sBFormInit2.x + OBJ_BUTWIDTH + OBJ_GAP > OBJ_WIDTH)
@@ -4241,7 +4241,7 @@ static BOOL _intAddObjectWindow(BASE_OBJECT* psObjects, BASE_OBJECT* psSelected,
       if (sBFormInit.id > IDOBJ_OBJEND)
       {
         //can't fit any more on the screen!
-        DBMB(("This is just a Warning!\n Max buttons have been allocated"));
+        Neuron::DebugTrace("This is just a Warning!\n Max buttons have been allocated");
         break;
       }
     }
@@ -4296,7 +4296,7 @@ static BOOL _intAddObjectWindow(BASE_OBJECT* psObjects, BASE_OBJECT* psSelected,
   //	if ((objMode==IOBJ_RESEARCH) && bInTutorial)
   if (bInTutorial)
   {
-    DBPRINTF(("Go with object open callback!\n"));
+    Neuron::DebugTrace("Go with object open callback!\n");
     eventFireCallbackTrigger(CALL_OBJECTOPEN);
   }
 
@@ -4356,7 +4356,7 @@ void intRemoveObject(void)
 
   if (bInTutorial)
   {
-    DBPRINTF(("Go with object close callback!\n"));
+    Neuron::DebugTrace("Go with object close callback!\n");
     eventFireCallbackTrigger(CALL_OBJECTCLOSE);
   }
 }
@@ -4598,8 +4598,8 @@ static BASE_OBJECT* intGetObject(UDWORD id)
     id = IDOBJ_OBJSTART + id - IDOBJ_STATSTART;
 
   /* Find the object that the ID refers to */
-  ASSERT(( ( static_cast<SDWORD>(id) - IDOBJ_OBJSTART >= 0 ) &&
-    ( static_cast<SDWORD>(id) - IDOBJ_OBJSTART < numObjects ), "intGetObject: invalid button ID"));
+  ASSERT_TEXT(( static_cast<SDWORD>(id) - IDOBJ_OBJSTART >= 0 ) &&
+    ( static_cast<SDWORD>(id) - IDOBJ_OBJSTART < numObjects ), "intGetObject: invalid button ID");
   psObj = apsObjectList[id - IDOBJ_OBJSTART];
   /*	objID = IDOBJ_OBJSTART;
     for(psObj = psObjList; psObj; psObj = psObj->psNext)
@@ -4696,7 +4696,7 @@ static void _intSetStats(UDWORD id, BASE_STATS* psStats)
     }
 
     BufferID = (sFormInit.id - IDOBJ_STATSTART) * 2 + 1;
-    ASSERT((BufferID < NUM_OBJECTBUFFERS,"BufferID > NUM_OBJECTBUFFERS"));
+    ASSERT_TEXT(BufferID < NUM_OBJECTBUFFERS,"BufferID > NUM_OBJECTBUFFERS");
     ClearObjectButtonBuffer(BufferID);
     RENDERBUTTON_INUSE(&ObjectBuffers[BufferID]);
     ObjectBuffers[BufferID].Data = static_cast<void*>(intGetObject(id));
@@ -4712,7 +4712,7 @@ static void _intSetStats(UDWORD id, BASE_STATS* psStats)
     sFormInit.pTip = nullptr;
 
     BufferID = (sFormInit.id - IDOBJ_STATSTART) * 2 + 1;
-    ASSERT((BufferID < NUM_OBJECTBUFFERS,"BufferID > NUM_OBJECTBUFFERS"));
+    ASSERT_TEXT(BufferID < NUM_OBJECTBUFFERS,"BufferID > NUM_OBJECTBUFFERS");
     ClearObjectButtonBuffer(BufferID);
     RENDERBUTTON_INUSE(&ObjectBuffers[BufferID]);
     sFormInit.pUserData = static_cast<void*>(&ObjectBuffers[BufferID]);
@@ -5047,7 +5047,7 @@ static BOOL _intAddStats(BASE_STATS** ppsStatsList, UDWORD numStats, BASE_STATS*
     if (sBFormInit.id > IDSTAT_END)
     {
       //can't fit any more on the screen!
-      DBMB(("This is just a Warning!\n Max buttons have been allocated"));
+      Neuron::DebugTrace("This is just a Warning!\n Max buttons have been allocated");
       break;
     }
 
@@ -5064,7 +5064,7 @@ static BOOL _intAddStats(BASE_STATS** ppsStatsList, UDWORD numStats, BASE_STATS*
 #endif
     }
     BufferID = i;
-    ASSERT((BufferID < NUM_STATBUFFERS,"BufferID > NUM_STATBUFFERS"));
+    ASSERT_TEXT(BufferID < NUM_STATBUFFERS,"BufferID > NUM_STATBUFFERS");
 
     RENDERBUTTON_INUSE(&StatBuffers[BufferID]);
     StatBuffers[BufferID].Data = static_cast<void*>(ppsStatsList[i]);
@@ -5229,7 +5229,7 @@ static BOOL selectCommand(BASE_OBJECT* psObj)
 {
   DROID* psDroid;
 
-  ASSERT((psObj->type == OBJ_DROID, "selectConstruction: invalid droid pointer"));
+  ASSERT_TEXT(psObj->type == OBJ_DROID, "selectConstruction: invalid droid pointer");
   psDroid = (DROID*)psObj;
 
   //check the droid type
@@ -5261,7 +5261,7 @@ static BOOL selectConstruction(BASE_OBJECT* psObj)
 {
   DROID* psDroid;
 
-  ASSERT((psObj->type == OBJ_DROID, "selectConstruction: invalid droid pointer"));
+  ASSERT_TEXT(psObj->type == OBJ_DROID, "selectConstruction: invalid droid pointer");
   psDroid = (DROID*)psObj;
 
   //check the droid type
@@ -5280,7 +5280,7 @@ static BASE_STATS* getConstructionStats(BASE_OBJECT* psObj)
   STRUCTURE* Structure;
   UDWORD x, y;
 
-  ASSERT((psObj->type == OBJ_DROID, "getConstructionStats: invalid droid pointer"));
+  ASSERT_TEXT(psObj->type == OBJ_DROID, "getConstructionStats: invalid droid pointer");
   psDroid = (DROID*)psObj;
 
   if (!(droidType(psDroid) == DROID_CONSTRUCT OR droidType(psDroid) == DROID_CYBORG_CONSTRUCT))
@@ -5314,7 +5314,7 @@ static BOOL setConstructionStats(BASE_OBJECT* psObj, BASE_STATS* psStats)
   STRUCTURE_STATS* psSStats;
   DROID* psDroid;
 
-  ASSERT((psObj->type == OBJ_DROID, "setConstructionStats: invalid droid pointer"));
+  ASSERT_TEXT(psObj->type == OBJ_DROID, "setConstructionStats: invalid droid pointer");
   /* psStats might be NULL if the operation is canceled in the middle */
 
   if (psStats != nullptr)
@@ -5389,7 +5389,7 @@ static BOOL selectResearch(BASE_OBJECT* psObj)
 {
   STRUCTURE* psResFacility;
 
-  ASSERT((psObj->type == OBJ_STRUCTURE, "selectResearch: invalid Structure pointer"));
+  ASSERT_TEXT(psObj->type == OBJ_STRUCTURE, "selectResearch: invalid Structure pointer");
 
   psResFacility = (STRUCTURE*)psObj;
 
@@ -5405,7 +5405,7 @@ static BASE_STATS* getResearchStats(BASE_OBJECT* psObj)
 {
   STRUCTURE* psBuilding;
 
-  ASSERT((psObj->type == OBJ_STRUCTURE, "getResearchTip: invalid Structure pointer"));
+  ASSERT_TEXT(psObj->type == OBJ_STRUCTURE, "getResearchTip: invalid Structure pointer");
   psBuilding = (STRUCTURE*)psObj;
 
   return ((RESEARCH_FACILITY*)psBuilding->pFunctionality)->psSubject;
@@ -5420,7 +5420,7 @@ static BOOL setResearchStats(BASE_OBJECT* psObj, BASE_STATS* psStats)
   UDWORD count;
   RESEARCH_FACILITY* psResFacilty;
 
-  ASSERT((psObj->type == OBJ_STRUCTURE, "setResearchStats: invalid Structure pointer"));
+  ASSERT_TEXT(psObj->type == OBJ_STRUCTURE, "setResearchStats: invalid Structure pointer");
   /* psStats might be NULL if the operation is canceled in the middle */
   psBuilding = (STRUCTURE*)psObj;
 
@@ -5482,7 +5482,7 @@ static BOOL selectManufacture(BASE_OBJECT* psObj)
 {
   STRUCTURE* psBuilding;
 
-  ASSERT((psObj->type == OBJ_STRUCTURE, "selectManufacture: invalid Structure pointer"));
+  ASSERT_TEXT(psObj->type == OBJ_STRUCTURE, "selectManufacture: invalid Structure pointer");
   psBuilding = (STRUCTURE*)psObj;
 
   /* A Structure is a Factory if its type = REF_FACTORY or REF_CYBORG_FACTORY or
@@ -5499,7 +5499,7 @@ static BASE_STATS* getManufactureStats(BASE_OBJECT* psObj)
 {
   STRUCTURE* psBuilding;
 
-  ASSERT((psObj->type == OBJ_STRUCTURE, "getManufactureTip: invalid Structure pointer"));
+  ASSERT_TEXT(psObj->type == OBJ_STRUCTURE, "getManufactureTip: invalid Structure pointer");
   psBuilding = (STRUCTURE*)psObj;
 
   return ((FACTORY*)psBuilding->pFunctionality)->psSubject;
@@ -5510,7 +5510,7 @@ static BOOL setManufactureStats(BASE_OBJECT* psObj, BASE_STATS* psStats)
 {
   STRUCTURE* Structure;
 
-  ASSERT((psObj->type == OBJ_STRUCTURE, "setManufactureStats: invalid Structure pointer"));
+  ASSERT_TEXT(psObj->type == OBJ_STRUCTURE, "setManufactureStats: invalid Structure pointer");
   /* psStats might be NULL if the operation is canceled in the middle */
 
 #ifdef INCLUDE_FACTORYLISTS
@@ -5756,7 +5756,7 @@ static void intStatsRMBPressed(UDWORD id)
   DROID_TEMPLATE* psNext;
 #endif
 
-  ASSERT((id - IDSTAT_START < numStatsListEntries, "intStatsRMBPressed: Invalid structure stats id"));
+  ASSERT_TEXT(id - IDSTAT_START < numStatsListEntries, "intStatsRMBPressed: Invalid structure stats id");
 
   if (objMode == IOBJ_MANUFACTURE)
   {
@@ -5836,7 +5836,7 @@ static void intObjectRMBPressed(UDWORD id)
   BASE_OBJECT* psObj;
   STRUCTURE* psStructure;
 
-  ASSERT((static_cast<SDWORD>(id) - IDOBJ_OBJSTART < numObjects, "intObjectRMBPressed: Invalid object id"));
+  ASSERT_TEXT(static_cast<SDWORD>(id) - IDOBJ_OBJSTART < numObjects, "intObjectRMBPressed: Invalid object id");
 
   /* Find the object that the ID refers to */
   psObj = intGetObject(id);
@@ -5863,7 +5863,7 @@ static void intObjStatRMBPressed(UDWORD id)
   BASE_OBJECT* psObj;
   STRUCTURE* psStructure;
 
-  ASSERT((static_cast<SDWORD>(id) - IDOBJ_STATSTART < numObjects, "intObjStatRMBPressed: Invalid stat id"));
+  ASSERT_TEXT(static_cast<SDWORD>(id) - IDOBJ_STATSTART < numObjects, "intObjStatRMBPressed: Invalid stat id");
 
   /* Find the object that the ID refers to */
   psObj = intGetObject(id);
@@ -6564,7 +6564,7 @@ UDWORD GetWeaponMajorClass(WEAPON_STATS* psWeapStats)
     break;
   }
 
-  ASSERT((FALSE,"Unknown weapon class"));
+  ASSERT_TEXT(FALSE,"Unknown weapon class");
   return 0;
 }
 
@@ -6669,7 +6669,7 @@ BOOL intSelectDroidsInDroidCluster(DROID* psCurDroid)
   for (i = 0; i < NumSelected; i++)
     SelectDroid(NearDroids[i].psDroid);
 
-  DBPRINTF(("Selected %d droids\n",NumSelected));
+  Neuron::DebugTrace("Selected {} droids\n",NumSelected);
 
   return TRUE;
 }
@@ -6946,7 +6946,7 @@ void orderFactories(void)
   SDWORD entry;
   UDWORD inc, type, objectInc;
 
-  ASSERT((numObjects <= NUM_FACTORY_TYPES * MAX_FACTORY, "orderFactories : too many factories!"));
+  ASSERT_TEXT(numObjects <= NUM_FACTORY_TYPES * MAX_FACTORY, "orderFactories : too many factories!");
 
   //copy the object list into the list to order
   memcpy(apsListToOrder, apsObjectList, sizeof(BASE_OBJECT*) * ORDERED_LIST_SIZE);
@@ -6962,7 +6962,7 @@ void orderFactories(void)
       if (static_cast<SDWORD>(objectInc) >= numObjects)
         psNext = nullptr;
 
-      ASSERT((StructIsFactory(psStruct), "orderFactories: structure is not a factory"));
+      ASSERT_TEXT(StructIsFactory(psStruct), "orderFactories: structure is not a factory");
 
       if (((FACTORY*)psStruct->pFunctionality)->psAssemblyPoint->factoryInc == inc AND ((FACTORY*)psStruct->pFunctionality)->psAssemblyPoint
         ->factoryType == type)
@@ -6971,7 +6971,7 @@ void orderFactories(void)
         //quick check that don't end up with more!
         if (entry > numObjects)
         {
-          ASSERT((FALSE, "orderFactories: too many objects!"));
+          ASSERT_TEXT(FALSE, "orderFactories: too many objects!");
           return;
         }
         break;
@@ -7008,7 +7008,7 @@ void orderDroids(void)
   SDWORD i, j;
   BASE_OBJECT* psTemp;
 
-  DBPRINTF(("orderUnit\n"));
+  Neuron::DebugTrace("orderUnit\n");
 
   // bubble sort on the ID - first built will always be first in the list
   for (i = 0; i < MAX_OBJECTS; i++)

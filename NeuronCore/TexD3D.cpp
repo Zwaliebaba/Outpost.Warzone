@@ -92,7 +92,7 @@ UWORD NearestPowerOf2(UDWORD i)
   SWORD lShift = 0;
 
   while (i < static_cast<UDWORD>(1 << lShift)) { lShift++; }
-  ASSERT(((lShift < 11),"NearestPowerOf2: value %i out of bounds\n", i));
+  ASSERT_TEXT((lShift < 11),"NearestPowerOf2: value {} out of bounds\n", i);
   return (1 << lShift);
 }
 
@@ -102,7 +102,7 @@ UWORD NearestPowerOf2withShift(UDWORD i, SWORD* shift)
 
   while (i > static_cast<UDWORD>(1 << lShift)) { lShift++; }
   *shift = lShift;
-  ASSERT(((lShift < 11),"NearestPowerOf2: value %i out of bounds\n", i));
+  ASSERT_TEXT((lShift < 11),"NearestPowerOf2: value {} out of bounds\n", i);
   return (1 << lShift);
 }
 
@@ -124,7 +124,7 @@ BOOL D3DTexCreateFromIvisTex(TEXPAGE_D3D* psTexPage, iTexture* psIvisTex, iColou
 
   psDD = screenGetDDObject();
 
-  ASSERT((psDD != NULL, "surfCreateFromPCX: NULL DD object - framework not initialised?"));
+  ASSERT_TEXT(psDD != NULL, "surfCreateFromPCX: NULL DD object - framework not initialised?");
 
   /* get next power of 2 for width and height of surface */
   psTexPage->iWidth = NearestPowerOf2withShift(psIvisTex->width, &(psTexPage->widthShift));
@@ -133,7 +133,7 @@ BOOL D3DTexCreateFromIvisTex(TEXPAGE_D3D* psTexPage, iTexture* psIvisTex, iColou
   if (surfCreate(&psSurfaceSrc, psTexPage->iWidth, psTexPage->iHeight, DDSCAPS_TEXTURE | DDSCAPS_SYSTEMMEMORY, pDDSurfDescTexture,
                  psTexPage->bColourKeyed, TRUE) == FALSE)
   {
-    DBERROR(("surfCreateFromPCX: couldn't create sys mem surface.\n"));
+    Neuron::Fatal("surfCreateFromPCX: couldn't create sys mem surface.\n");
     return FALSE;
   }
 
@@ -164,7 +164,7 @@ BOOL D3DTexCreateFromIvisTex(TEXPAGE_D3D* psTexPage, iTexture* psIvisTex, iColou
   hResult = psSurfaceSrc->lpVtbl->QueryInterface(psSurfaceSrc, IID_IDirect3DTexture2, (LPVOID*)&psTextureSrc);
   if (hResult != DD_OK)
   {
-    DBERROR(("Failed to obtain D3D texture interface for src texture.\n%s", DDErrorToString(hResult)));
+    Neuron::Fatal("Failed to obtain D3D texture interface for src texture.\n{}", DDErrorToString(hResult));
     goto exit_with_error;
   }
 
@@ -185,7 +185,7 @@ BOOL D3DTexCreateFromIvisTex(TEXPAGE_D3D* psTexPage, iTexture* psIvisTex, iColou
   if (surfCreate(&psTexPage->psSurface, psTexPage->iWidth, psTexPage->iHeight, dwCaps, pDDSurfDescTexture, psTexPage->bColourKeyed, FALSE)
     == FALSE)
   {
-    DBERROR(("surfCreateFromPCX: couldn't create surface.\n"));
+    Neuron::Fatal("surfCreateFromPCX: couldn't create surface.\n");
     goto exit_with_error;
   }
 
@@ -202,7 +202,7 @@ BOOL D3DTexCreateFromIvisTex(TEXPAGE_D3D* psTexPage, iTexture* psIvisTex, iColou
     hResult = psDD->lpVtbl->CreatePalette(psDD, pcaps, psPal, &psTexPage->psPalette, nullptr);
     if (hResult != DD_OK)
     {
-      DBERROR(("Failed to create a palette for the destination texture.\n%s", DDErrorToString(hResult)));
+      Neuron::Fatal("Failed to create a palette for the destination texture.\n{}", DDErrorToString(hResult));
       goto exit_with_error;
     }
 
@@ -213,7 +213,7 @@ BOOL D3DTexCreateFromIvisTex(TEXPAGE_D3D* psTexPage, iTexture* psIvisTex, iColou
     hResult = psTexPage->psSurface->lpVtbl->SetPalette(psTexPage->psSurface, psTexPage->psPalette);
     if (hResult != DD_OK)
     {
-      DBERROR(("Failed to set the destination texture's palette.\n%s", DDErrorToString(hResult)));
+      Neuron::Fatal("Failed to set the destination texture's palette.\n{}", DDErrorToString(hResult));
       goto exit_with_error;
     }
   }
@@ -222,7 +222,7 @@ BOOL D3DTexCreateFromIvisTex(TEXPAGE_D3D* psTexPage, iTexture* psIvisTex, iColou
   hResult = psTexPage->psSurface->lpVtbl->QueryInterface(psTexPage->psSurface, IID_IDirect3DTexture2, (LPVOID*)&psTexPage->psTexture);
   if (hResult != DD_OK)
   {
-    DBERROR(("Failed to obtain D3D texture interface for a destination texture.\n%s", DDErrorToString(hResult)));
+    Neuron::Fatal("Failed to obtain D3D texture interface for a destination texture.\n{}", DDErrorToString(hResult));
     goto exit_with_error;
   }
 
@@ -234,7 +234,7 @@ BOOL D3DTexCreateFromIvisTex(TEXPAGE_D3D* psTexPage, iTexture* psIvisTex, iColou
   hResult = psTexPage->psTexture->lpVtbl->Load(psTexPage->psTexture, psTextureSrc);
   if (hResult != DD_OK)
   {
-    DBERROR(("Could not load a source texture into a destination texture.\n%s", DDErrorToString( hResult )));
+    Neuron::Fatal("Could not load a source texture into a destination texture.\n{}", DDErrorToString( hResult ));
     goto exit_with_error;
   }
 
@@ -248,7 +248,7 @@ BOOL D3DTexCreateFromIvisTex(TEXPAGE_D3D* psTexPage, iTexture* psIvisTex, iColou
     hResult = DDSetColorKey(psTexPage->psSurface, dwColourKey);
     if (hResult != DD_OK)
     {
-      DBERROR(("D3DTexCreateFromIvisTex: couldn't set dest colour key.\n%s", DDErrorToString(hResult)));
+      Neuron::Fatal("D3DTexCreateFromIvisTex: couldn't set dest colour key.\n{}", DDErrorToString(hResult));
       goto exit_with_error;
     }
   }
@@ -257,7 +257,7 @@ BOOL D3DTexCreateFromIvisTex(TEXPAGE_D3D* psTexPage, iTexture* psIvisTex, iColou
   hResult = d3dGetSurfDesc(&ddsd, psTexPage->psSurface);
   if (hResult != DD_OK)
   {
-    DBERROR(("D3DTexCreateFromIvisTex: couldn't get dest surface desc.\n%s", DDErrorToString(hResult)));
+    Neuron::Fatal("D3DTexCreateFromIvisTex: couldn't get dest surface desc.\n{}", DDErrorToString(hResult));
     goto exit_with_error;
   }
 

@@ -106,7 +106,6 @@
     <ClInclude Include="D3DRender.h" />
     <ClInclude Include="Dderror.h" />
     <ClInclude Include="Debug.h" />
-    <ClInclude Include="LegacyDebug.h" />
     <ClInclude Include="DX6TexMan.h" />
     <ClInclude Include="DXInput.h" />
     <ClInclude Include="EditBox.h" />
@@ -133,7 +132,6 @@
     <ClInclude Include="ListMacs.h" />
     <ClInclude Include="MaxPiDef.h" />
     <ClInclude Include="Mixer.h" />
-    <ClInclude Include="Mono.h" />
     <ClInclude Include="MultiWDG.h" />
     <ClInclude Include="NetLobby.h" />
     <ClInclude Include="NetPlay.h" />
@@ -184,7 +182,6 @@
     <ClInclude Include="TreapInt.h" />
     <ClInclude Include="Trig.h" />
     <ClInclude Include="Types.h" />
-    <ClInclude Include="W95Trace.h" />
     <ClInclude Include="WDG.h" />
     <ClInclude Include="WidgBase.h" />
     <ClInclude Include="Widget.h" />
@@ -204,7 +201,6 @@
     <ClCompile Include="D3DMode.cpp" />
     <ClCompile Include="D3DRender.cpp" />
     <ClCompile Include="Dderror.cpp" />
-    <ClCompile Include="LegacyDebug.cpp" />
     <ClCompile Include="DX6TexMan.cpp" />
     <ClCompile Include="DXInput.cpp" />
     <ClCompile Include="EditBox.cpp" />
@@ -225,7 +221,6 @@
     <ClCompile Include="Ivi.cpp" />
     <ClCompile Include="Label.cpp" />
     <ClCompile Include="Mixer.cpp" />
-    <ClCompile Include="Mono.cpp" />
     <ClCompile Include="MultiWDG.cpp" />
     <ClCompile Include="NetAudio.cpp" />
     <ClCompile Include="NetCrypt.cpp" />
@@ -275,7 +270,6 @@
     <ClCompile Include="Track.cpp" />
     <ClCompile Include="Treap.cpp" />
     <ClCompile Include="Trig.cpp" />
-    <ClCompile Include="W95Trace.cpp" />
     <ClCompile Include="WDG.cpp" />
     <ClCompile Include="Widget.cpp" />
   </ItemGroup>

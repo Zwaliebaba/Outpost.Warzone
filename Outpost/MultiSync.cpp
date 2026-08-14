@@ -305,7 +305,7 @@ BOOL recvDroidCheck(NETMSG* m)
     if (!(IdToDroid(ref, player, &pD))) // find the droid in question
     {
       NETlogEntry("Recvd Unknown droid info. val=player", 0, player);
-      DBPRINTF(("Received Checking Info for an unknown (As yet) droid player:%d ref:%d\n",player,ref));
+      Neuron::DebugTrace("Received Checking Info for an unknown (As yet) droid player:{} ref:{}\n",player,ref);
       return TRUE; //Recvd checking info for an unknown droid
     }
 
@@ -738,7 +738,7 @@ BOOL recvStructureCheck(NETMSG* m)
 
         default:
           j = 0;
-          ASSERT((FALSE,"Unknown Upgrade in structure checking!"));
+          ASSERT_TEXT(FALSE,"Unknown Upgrade in structure checking!");
           return TRUE;
           break;
         }

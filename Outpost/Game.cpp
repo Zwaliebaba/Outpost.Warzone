@@ -1263,18 +1263,18 @@ BOOL loadGameInit(STRING* pGameToLoad, BOOL GameIsLevelStart)
   pFileData = DisplayBuffer;
   if (!loadFileToBuffer(pGameToLoad, pFileData, displayBufferSize, &fileSize))
   {
-    DBPRINTF(("loadgame: Fail2\n"));
+    Neuron::DebugTrace("loadgame: Fail2\n");
     goto error;
   }
 
   if (!gameLoad(pFileData, fileSize))
   {
-    DBPRINTF(("loadgame: Fail4\n"));
+    Neuron::DebugTrace("loadgame: Fail4\n");
     goto error;
   }
   return TRUE;
 
-error: DBPRINTF(("loadgame: ERROR\n"));
+error: Neuron::DebugTrace("loadgame: ERROR\n");
 
   /* Start the game clock */
   gameTimeStart();
@@ -1323,7 +1323,7 @@ BOOL loadMissionExtras(STRING* pGameToLoad, SWORD levelType)
         {
           if (!loadSaveProximity(pFileData, fileSize))
           {
-            DBPRINTF(("loadMissionExtras: Fail 2\n"));
+            Neuron::DebugTrace("loadMissionExtras: Fail 2\n");
             return FALSE;
           }
         }
@@ -1349,7 +1349,7 @@ BOOL loadMissionExtras(STRING* pGameToLoad, SWORD levelType)
         {
           if (!loadSaveMessage(pFileData, fileSize, levelType))
           {
-            DBPRINTF(("loadMissionExtras: Fail 2\n"));
+            Neuron::DebugTrace("loadMissionExtras: Fail 2\n");
             return FALSE;
           }
         }
@@ -1371,7 +1371,7 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
   DROID* psCurr;
   UWORD missionScrollMinX, missionScrollMinY, missionScrollMaxX, missionScrollMaxY;
 
-  DBPRINTF(("loadGame\n"));
+  Neuron::DebugTrace("loadGame\n");
 
   /* Stop the game clock */
   gameTimeStop();
@@ -1661,7 +1661,7 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
     pFileData = DisplayBuffer;
     if (!loadFileToBuffer(aFileName, pFileData, displayBufferSize, &fileSize))
     {
-      DBPRINTF(("loadgame: Fail23\n"));
+      Neuron::DebugTrace("loadgame: Fail23\n");
       goto error;
     }
 
@@ -1670,7 +1670,7 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
     {
       if (!loadTerrainTypeMap(pFileData, fileSize))
       {
-        DBPRINTF(("loadgame: Fail25\n"));
+        Neuron::DebugTrace("loadgame: Fail25\n");
         goto error;
       }
     }
@@ -1720,13 +1720,13 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
     pFileData = DisplayBuffer;
     if (!loadFileToBuffer(aFileName, pFileData, displayBufferSize, &fileSize))
     {
-      DBPRINTF(("loadgame: Fail20\n"));
+      Neuron::DebugTrace("loadgame: Fail20\n");
       goto error;
     }
     //load the data into apsTemplates
     if (!loadSaveTemplate(pFileData, fileSize))
     {
-      DBPRINTF(("loadgame: Fail22\n"));
+      Neuron::DebugTrace("loadgame: Fail22\n");
       goto error;
     }
   }
@@ -1754,7 +1754,7 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
     {
       if (!mapLoad(pFileData, fileSize))
       {
-        DBPRINTF(("loadgame: Fail7\n"));
+        Neuron::DebugTrace("loadgame: Fail7\n");
         return (FALSE);
       }
     }
@@ -1771,7 +1771,7 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
       {
         if (!readVisibilityData(pFileData, fileSize))
         {
-          DBPRINTF(("loadgame: Fail33\n"));
+          Neuron::DebugTrace("loadgame: Fail33\n");
           goto error;
         }
       }
@@ -1787,14 +1787,14 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
     pFileData = DisplayBuffer;
     if (!loadFileToBuffer(aFileName, pFileData, displayBufferSize, &fileSize))
     {
-      DBPRINTF(("loadgame: Fail14\n"));
+      Neuron::DebugTrace("loadgame: Fail14\n");
       goto error;
     }
 
     //load the data into apsFeatureLists
     if (!loadSaveFeature(pFileData, fileSize))
     {
-      DBPRINTF(("loadgame: Fail16\n"));
+      Neuron::DebugTrace("loadgame: Fail16\n");
       goto error;
     }
 
@@ -1805,14 +1805,14 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
     pFileData = DisplayBuffer;
     if (!loadFileToBuffer(aFileName, pFileData, displayBufferSize, &fileSize))
     {
-      DBPRINTF(("loadgame: Fail17\n"));
+      Neuron::DebugTrace("loadgame: Fail17\n");
       goto error;
     }
 
     //load the data into apsStructLists
     if (!loadSaveStructure(pFileData, fileSize))
     {
-      DBPRINTF(("loadgame: Fail19\n"));
+      Neuron::DebugTrace("loadgame: Fail19\n");
       goto error;
     }
 
@@ -1842,7 +1842,7 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
       //load the data into mission.apsDroidLists
       if (!loadSaveDroid(pFileData, fileSize, apsDroidLists))
       {
-        DBPRINTF(("loadgame: Fail12\n"));
+        Neuron::DebugTrace("loadgame: Fail12\n");
         goto error;
       }
     }
@@ -1872,7 +1872,7 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
     pFileData = DisplayBuffer;
     if (!loadFileToBuffer(aFileName, pFileData, displayBufferSize, &fileSize))
     {
-      DBPRINTF(("loadMissionExtras: Fail 3\n"));
+      Neuron::DebugTrace("loadMissionExtras: Fail 3\n");
       return FALSE;
     }
 
@@ -1881,7 +1881,7 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
     {
       if (!loadSaveFlag(pFileData, fileSize))
       {
-        DBPRINTF(("loadMissionExtras: Fail 4\n"));
+        Neuron::DebugTrace("loadMissionExtras: Fail 4\n");
         return FALSE;
       }
     }
@@ -1910,7 +1910,7 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
     pFileData = DisplayBuffer;
     if (!loadFileToBuffer(aFileName, pFileData, displayBufferSize, &fileSize))
     {
-      DBPRINTF(("loadgame: Fail5\n"));
+      Neuron::DebugTrace("loadgame: Fail5\n");
       goto error;
     }
 
@@ -1918,7 +1918,7 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
     // well if it is good enough for the PSX it's good enough for the PC - John.
     if (!mapLoad(pFileData, fileSize))
     {
-      DBPRINTF(("loadgame: Fail7\n"));
+      Neuron::DebugTrace("loadgame: Fail7\n");
       return (FALSE);
     }
 
@@ -1975,7 +1975,7 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
     pFileData = DisplayBuffer;
     if (!loadFileToBuffer(aFileName, pFileData, displayBufferSize, &fileSize))
     {
-      DBPRINTF(("loadgame: Fail32\n"));
+      Neuron::DebugTrace("loadgame: Fail32\n");
       goto error;
     }
 
@@ -1984,7 +1984,7 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
     {
       if (!loadSaveResearch(pFileData, fileSize))
       {
-        DBPRINTF(("loadgame: Fail33\n"));
+        Neuron::DebugTrace("loadgame: Fail33\n");
         goto error;
       }
     }
@@ -2000,13 +2000,13 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
     pFileData = DisplayBuffer;
     if (!loadFileToBuffer(aFileName, pFileData, displayBufferSize, &fileSize))
     {
-      DBPRINTF(("loadgame: Fail8\n"));
+      Neuron::DebugTrace("loadgame: Fail8\n");
       goto error;
     }
 
     if (!loadSaveDroidInit(pFileData, fileSize))
     {
-      DBPRINTF(("loadgame: Fail10\n"));
+      Neuron::DebugTrace("loadgame: Fail10\n");
       goto error;
     }
   }
@@ -2023,14 +2023,14 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
     pFileData = DisplayBuffer;
     if (!loadFileToBuffer(aFileName, pFileData, displayBufferSize, &fileSize))
     {
-      DBPRINTF(("loadgame: Fail11\n"));
+      Neuron::DebugTrace("loadgame: Fail11\n");
       goto error;
     }
 
     //load the data into apsDroidLists
     if (!loadSaveDroid(pFileData, fileSize, apsDroidLists))
     {
-      DBPRINTF(("loadgame: Fail12\n"));
+      Neuron::DebugTrace("loadgame: Fail12\n");
       goto error;
     }
 
@@ -2069,7 +2069,7 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
           //load the data into mission.apsDroidLists
           if (!loadSaveDroid(pFileData, fileSize, mission.apsDroidLists))
           {
-            DBPRINTF(("loadgame: Fail12\n"));
+            Neuron::DebugTrace("loadgame: Fail12\n");
             goto error;
           }
         }
@@ -2091,7 +2091,7 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
       //load the data into apsDroidLists
       if (!loadSaveDroid(pFileData, fileSize, apsLimboDroids))
       {
-        DBPRINTF(("loadgame: Fail12\n"));
+        Neuron::DebugTrace("loadgame: Fail12\n");
         goto error;
       }
     }
@@ -2105,14 +2105,14 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
   pFileData = DisplayBuffer;
   if (!loadFileToBuffer(aFileName, pFileData, displayBufferSize, &fileSize))
   {
-    DBPRINTF(("loadgame: Fail14\n"));
+    Neuron::DebugTrace("loadgame: Fail14\n");
     goto error;
   }
 
   //load the data into apsFeatureLists
   if (!loadSaveFeature(pFileData, fileSize))
   {
-    DBPRINTF(("loadgame: Fail16\n"));
+    Neuron::DebugTrace("loadgame: Fail16\n");
     goto error;
   }
 
@@ -2126,13 +2126,13 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
   pFileData = DisplayBuffer;
   if (!loadFileToBuffer(aFileName, pFileData, displayBufferSize, &fileSize))
   {
-    DBPRINTF(("loadgame: Fail17\n"));
+    Neuron::DebugTrace("loadgame: Fail17\n");
     goto error;
   }
   //load the data into apsStructLists
   if (!loadSaveStructure(pFileData, fileSize))
   {
-    DBPRINTF(("loadgame: Fail19\n"));
+    Neuron::DebugTrace("loadgame: Fail19\n");
     goto error;
   }
 
@@ -2157,7 +2157,7 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
     pFileData = DisplayBuffer;
     if (!loadFileToBuffer(aFileName, pFileData, displayBufferSize, &fileSize))
     {
-      DBPRINTF(("loadgame: Fail26\n"));
+      Neuron::DebugTrace("loadgame: Fail26\n");
       goto error;
     }
 
@@ -2166,7 +2166,7 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
     {
       if (!loadSaveCompList(pFileData, fileSize))
       {
-        DBPRINTF(("loadgame: Fail28\n"));
+        Neuron::DebugTrace("loadgame: Fail28\n");
         goto error;
       }
     }
@@ -2178,7 +2178,7 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
     pFileData = DisplayBuffer;
     if (!loadFileToBuffer(aFileName, pFileData, displayBufferSize, &fileSize))
     {
-      DBPRINTF(("loadgame: Fail29\n"));
+      Neuron::DebugTrace("loadgame: Fail29\n");
       goto error;
     }
 
@@ -2187,7 +2187,7 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
     {
       if (!loadSaveStructTypeList(pFileData, fileSize))
       {
-        DBPRINTF(("loadgame: Fail31\n"));
+        Neuron::DebugTrace("loadgame: Fail31\n");
         goto error;
       }
     }
@@ -2212,7 +2212,7 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
         {
           if (!readVisibilityData(pFileData, fileSize))
           {
-            DBPRINTF(("loadgame: Fail33\n"));
+            Neuron::DebugTrace("loadgame: Fail33\n");
             goto error;
           }
         }
@@ -2239,7 +2239,7 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
         {
           if (!loadSaveProduction(pFileData, fileSize))
           {
-            DBPRINTF(("loadgame: Fail33\n"));
+            Neuron::DebugTrace("loadgame: Fail33\n");
             goto error;
           }
         }
@@ -2265,7 +2265,7 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
         {
           if (!readFXData(pFileData, fileSize))
           {
-            DBPRINTF(("loadgame: Fail33\n"));
+            Neuron::DebugTrace("loadgame: Fail33\n");
             goto error;
           }
         }
@@ -2292,7 +2292,7 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
         {
           if (!readScoreData(pFileData, fileSize))
           {
-            DBPRINTF(("loadgame: Fail33\n"));
+            Neuron::DebugTrace("loadgame: Fail33\n");
             goto error;
           }
         }
@@ -2314,7 +2314,7 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
       pFileData = DisplayBuffer;
       if (!loadFileToBuffer(aFileName, pFileData, displayBufferSize, &fileSize))
       {
-        DBPRINTF(("loadMissionExtras: Fail 3\n"));
+        Neuron::DebugTrace("loadMissionExtras: Fail 3\n");
         return FALSE;
       }
 
@@ -2323,7 +2323,7 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
       {
         if (!loadSaveFlag(pFileData, fileSize))
         {
-          DBPRINTF(("loadMissionExtras: Fail 4\n"));
+          Neuron::DebugTrace("loadMissionExtras: Fail 4\n");
           return FALSE;
         }
       }
@@ -2344,7 +2344,7 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
       pFileData = DisplayBuffer;
       if (!loadFileToBuffer(aFileName, pFileData, displayBufferSize, &fileSize))
       {
-        DBPRINTF(("loadMissionExtras: Fail 5\n"));
+        Neuron::DebugTrace("loadMissionExtras: Fail 5\n");
         return FALSE;
       }
 
@@ -2353,7 +2353,7 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
       {
         if (!loadSaveCommandLists(pFileData, fileSize))
         {
-          DBPRINTF(("loadMissionExtras: Fail 6\n"));
+          Neuron::DebugTrace("loadMissionExtras: Fail 6\n");
           return FALSE;
         }
       }
@@ -2371,14 +2371,14 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
     pFileData = DisplayBuffer;
     if (!loadFileToBuffer(aFileName, pFileData, displayBufferSize, &fileSize))
     {
-      DBPRINTF(("loadgame: Fail17\n"));
+      Neuron::DebugTrace("loadgame: Fail17\n");
       goto error;
     }
 
     //load the data into apsStructLists
     if (!loadSaveStructLimits(pFileData, fileSize))
     {
-      DBPRINTF(("loadgame: Fail19\n"));
+      Neuron::DebugTrace("loadgame: Fail19\n");
       goto error;
     }
 
@@ -2489,7 +2489,7 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
   //if user save game then reset the time - THIS SETS BOTH TIMERS - BEWARE IF YOU USE IT
   if ((gameType == GTYPE_SAVE_START) || (gameType == GTYPE_SAVE_MIDMISSION))
   {
-    ASSERT((gameTime == savedGameTime,"loadGame; game time modified during load"));
+    ASSERT_TEXT(gameTime == savedGameTime,"loadGame; game time modified during load");
     gameTimeReset(savedGameTime); //added 14 may 98 JPS to solve kev's problem with no firing droids
     //need to reset the event timer too - AB 14/01/99
     eventTimeReset(savedGameTime / SCR_TICKRATE);
@@ -2542,11 +2542,11 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
   //put any widgets back on for the missions
   resetMissionWidgets();
 
-  DBPRINTF(("loadGame: done\n"));
+  Neuron::DebugTrace("loadGame: done\n");
 
   return TRUE;
 
-error: DBPRINTF(("loadgame: ERROR\n"));
+error: Neuron::DebugTrace("loadgame: ERROR\n");
 
   /* Clear all the objects off the map and free up the map memory */
   freeAllDroids();
@@ -2851,17 +2851,17 @@ BOOL writeMapFile(STRING* pFileName)
   pFile = fopen(pFileName, "wb");
   if (!pFile)
   {
-    DBERROR(("Couldn't open file %s", pFileName));
+    Neuron::Fatal("Couldn't open file {}", pFileName);
     goto error;
   }
   if (fwrite(pFileData, 1, fileSize, pFile) != fileSize)
   {
-    DBERROR(("Write failed for %s", pFileName));
+    Neuron::Fatal("Write failed for {}", pFileName);
     goto error;
   }
   if (fclose(pFile) != 0)
   {
-    DBERROR(("Couldn't close %s", pFileName));
+    Neuron::Fatal("Couldn't close {}", pFileName);
     goto error;
   }
 
@@ -2884,21 +2884,21 @@ BOOL gameLoad(UBYTE* pFileData, UDWORD filesize)
   psHeader = (GAME_SAVEHEADER*)pFileData;
   if (psHeader->aFileType[0] != 'g' || psHeader->aFileType[1] != 'a' || psHeader->aFileType[2] != 'm' || psHeader->aFileType[3] != 'e')
   {
-    DBERROR(("gameLoad: Incorrect file type"));
+    Neuron::Fatal("gameLoad: Incorrect file type");
     return FALSE;
   }
 
   //increment to the start of the data
   pFileData += GAME_HEADER_SIZE;
 
-  DBPRINTF(("gl .gam file is version %d\n",psHeader->version));
+  Neuron::DebugTrace("gl .gam file is version {}\n",psHeader->version);
   //set main version Id from game file
   saveGameVersion = psHeader->version;
 
   /* Check the file version */
   if (psHeader->version < VERSION_7)
   {
-    DBERROR(("gameLoad: unsupported save format version %d",psHeader->version));
+    Neuron::Fatal("gameLoad: unsupported save format version {}",psHeader->version);
     return FALSE;
   }
   if (psHeader->version < VERSION_9)
@@ -2913,7 +2913,7 @@ BOOL gameLoad(UBYTE* pFileData, UDWORD filesize)
   }
   else
   {
-    DBERROR(("gameLoad: undefined save format version %d",psHeader->version));
+    Neuron::Fatal("gameLoad: undefined save format version {}",psHeader->version);
     return FALSE;
   }
 
@@ -2960,7 +2960,7 @@ BOOL getCampaignV(UBYTE* pFileData, UDWORD filesize, UDWORD version)
 
   if ((sizeOfSaveGame + GAME_HEADER_SIZE) > filesize)
   {
-    DBERROR(("getCampaign: unexpected end of file"));
+    Neuron::Fatal("getCampaign: unexpected end of file");
     return FALSE;
   }
 
@@ -2982,7 +2982,7 @@ UDWORD getCampaign(STRING* pGameToLoad, BOOL* bSkipCDCheck)
   pFileData = DisplayBuffer;
   if (!loadFileToBuffer(pGameToLoad, pFileData, displayBufferSize, &fileSize))
   {
-    DBPRINTF(("loadgame: Fail2\n"));
+    Neuron::DebugTrace("loadgame: Fail2\n");
     return 0;
   }
 
@@ -2991,14 +2991,14 @@ UDWORD getCampaign(STRING* pGameToLoad, BOOL* bSkipCDCheck)
   psHeader = (GAME_SAVEHEADER*)pFileData;
   if (psHeader->aFileType[0] != 'g' || psHeader->aFileType[1] != 'a' || psHeader->aFileType[2] != 'm' || psHeader->aFileType[3] != 'e')
   {
-    DBERROR(("getCampaign: Incorrect file type"));
+    Neuron::Fatal("getCampaign: Incorrect file type");
     return 0;
   }
 
   //increment to the start of the data
   pFileData += GAME_HEADER_SIZE;
 
-  DBPRINTF(("gl .gam file is version %d\n",psHeader->version));
+  Neuron::DebugTrace("gl .gam file is version {}\n",psHeader->version);
   //set main version Id from game file
   saveGameVersion = psHeader->version;
 
@@ -3020,7 +3020,7 @@ UDWORD getCampaign(STRING* pGameToLoad, BOOL* bSkipCDCheck)
 
   if (psHeader->version <= CURRENT_VERSION_NUM)
     return getCampaignV(pFileData, fileSize, psHeader->version);
-  DBERROR(("getCampaign: undefined save format version %d",psHeader->version));
+  Neuron::Fatal("getCampaign: undefined save format version {}",psHeader->version);
   return 0;
 
   return 0;
@@ -3040,7 +3040,7 @@ BOOL gameLoadV7(UBYTE* pFileData, UDWORD filesize)
 
   if ((sizeof(SAVE_GAME_V7) + GAME_HEADER_SIZE) > filesize)
   {
-    DBERROR(("gameLoad: unexpected end of file"));
+    Neuron::Fatal("gameLoad: unexpected end of file");
     return FALSE;
   }
 
@@ -3064,7 +3064,7 @@ BOOL gameLoadV7(UBYTE* pFileData, UDWORD filesize)
     // find the level dataset
     if (!levFindDataSet(pLevelName, &psNewLevel))
     {
-      DBERROR(("gameLoadV6: couldn't find level data"));
+      Neuron::Fatal("gameLoadV6: couldn't find level data");
       return FALSE;
     }
     //check to see whether mission automatically starts
@@ -3138,7 +3138,7 @@ BOOL gameLoadV(UBYTE* pFileData, UDWORD filesize, UDWORD version)
 
   if ((sizeOfSaveGame + GAME_HEADER_SIZE) > filesize)
   {
-    DBERROR(("gameLoad: unexpected end of file"));
+    Neuron::Fatal("gameLoad: unexpected end of file");
     return FALSE;
   }
 
@@ -3239,10 +3239,10 @@ BOOL gameLoadV(UBYTE* pFileData, UDWORD filesize, UDWORD version)
       validityKey = validityKey | VALIDITYKEY_VERSION;
 
     strcpy(date,__DATE__);
-    ASSERT((strlen(date)<MAX_STR_LENGTH,"BuildDate; String error"));
+    ASSERT_TEXT(strlen(date)<MAX_STR_LENGTH,"BuildDate; String error");
     if (strcmp(psSaveGame->buildDate, date) != 0)
     {
-      DBPRINTF(("saveGame build date differs;/nsavegame %s/n build    %s/n",psSaveGame->buildDate,date));
+      Neuron::DebugTrace("saveGame build date differs;/nsavegame {}/n build    {}/n",psSaveGame->buildDate,date);
       validityKey = validityKey | VALIDITYKEY_DATE;
       if (gameType == GTYPE_SAVE_MIDMISSION)
         validityKey = validityKey | VALIDITYKEY_MID_GAME;
@@ -3250,7 +3250,7 @@ BOOL gameLoadV(UBYTE* pFileData, UDWORD filesize, UDWORD version)
   }
   else
   {
-    DBPRINTF(("saveGame build date differs;/nsavegame pre-Version 18/n build    %s/n",psSaveGame->buildDate,date));
+    Neuron::DebugTrace("saveGame build date differs;/nsavegame pre-Version 18/n build    {}/n",psSaveGame->buildDate,date);
     oldestSaveGameVersion = 1;
     validityKey = VALIDITYKEY_DATE;
   }
@@ -3413,14 +3413,14 @@ BOOL writeGameFile(STRING* pFileName, SDWORD saveType)
   LANDING_ZONE* psLandingZone;
   char date[MAX_STR_SIZE];
 
-  ASSERT((saveType == GTYPE_SAVE_START || saveType == GTYPE_SAVE_MIDMISSION, "writeGameFile: invalid save type"));
+  ASSERT_TEXT(saveType == GTYPE_SAVE_START || saveType == GTYPE_SAVE_MIDMISSION, "writeGameFile: invalid save type");
 
   /* Allocate the data buffer */
   fileSize = GAME_HEADER_SIZE + sizeof(SAVE_GAME);
   pFileData = new (std::nothrow) UBYTE[fileSize];
   if (pFileData == nullptr)
   {
-    DBERROR(("Out of memory"));
+    Neuron::Fatal("Out of memory");
     return FALSE;
   }
 
@@ -3459,7 +3459,7 @@ BOOL writeGameFile(STRING* pFileName, SDWORD saveType)
   //save the current level so we can load up the STARTING point of the mission
   if (strlen(pLevelName) > MAX_LEVEL_SIZE)
   {
-    ASSERT((FALSE, "writeGameFile:Unable to save level name - too long (max20) - %s", pLevelName));
+    ASSERT_TEXT(FALSE, "writeGameFile:Unable to save level name - too long (max20) - {}", pLevelName);
     goto error;
   }
   strcpy(psSaveGame->levelName, pLevelName);
@@ -3522,7 +3522,7 @@ BOOL writeGameFile(STRING* pFileName, SDWORD saveType)
 
   //version 18
   strcpy(date,__DATE__);
-  ASSERT((strlen(date)<MAX_STR_LENGTH,"BuildDate; String error"));
+  ASSERT_TEXT(strlen(date)<MAX_STR_LENGTH,"BuildDate; String error");
   strcpy(psSaveGame->buildDate, date);
   psSaveGame->oldestVersion = oldestSaveGameVersion;
   psSaveGame->validityKey = validityKey;
@@ -3570,17 +3570,17 @@ BOOL writeGameFile(STRING* pFileName, SDWORD saveType)
   pFile = fopen(pFileName, "wb");
   if (!pFile)
   {
-    DBERROR(("Couldn't open file %s", pFileName));
+    Neuron::Fatal("Couldn't open file {}", pFileName);
     goto error;
   }
   if (fwrite(pFileData, 1, fileSize, pFile) != fileSize)
   {
-    DBERROR(("Write failed for %s", pFileName));
+    Neuron::Fatal("Write failed for {}", pFileName);
     goto error;
   }
   if (fclose(pFile) != 0)
   {
-    DBERROR(("Couldn't close %s", pFileName));
+    Neuron::Fatal("Couldn't close {}", pFileName);
     goto error;
   }
 
@@ -3604,7 +3604,7 @@ BOOL loadSaveDroidInit(UBYTE* pFileData, UDWORD filesize)
   psHeader = (DROIDINIT_SAVEHEADER*)pFileData;
   if (psHeader->aFileType[0] != 'd' || psHeader->aFileType[1] != 'i' || psHeader->aFileType[2] != 'n' || psHeader->aFileType[3] != 't')
   {
-    DBERROR(("loadSaveUnitInit: Incorrect file type"));
+    Neuron::Fatal("loadSaveUnitInit: Incorrect file type");
     return FALSE;
   }
 
@@ -3614,7 +3614,7 @@ BOOL loadSaveDroidInit(UBYTE* pFileData, UDWORD filesize)
   /* Check the file version */
   if (psHeader->version < VERSION_7)
   {
-    DBERROR(("UnitInit; unsupported save format version %d",psHeader->version));
+    Neuron::Fatal("UnitInit; unsupported save format version {}",psHeader->version);
     return FALSE;
   }
   if (psHeader->version <= CURRENT_VERSION_NUM)
@@ -3624,7 +3624,7 @@ BOOL loadSaveDroidInit(UBYTE* pFileData, UDWORD filesize)
   }
   else
   {
-    DBERROR(("UnitInit: undefined save format version %d",psHeader->version));
+    Neuron::Fatal("UnitInit: undefined save format version {}",psHeader->version);
     return FALSE;
   }
 
@@ -3659,7 +3659,7 @@ BOOL loadSaveDroidInitV2(UBYTE* pFileData, UDWORD filesize, UDWORD quantity)
 
     if (psTemplate == nullptr)
     {
-      DBMB(("loadSaveUnitInitV2:\nUnable to find template for %s player %d", pDroidInit->name,pDroidInit->player));
+      Neuron::DebugTrace("loadSaveUnitInitV2:\nUnable to find template for {} player {}", pDroidInit->name,pDroidInit->player);
 
 #ifdef DEBUG
 #endif
@@ -3679,7 +3679,7 @@ BOOL loadSaveDroidInitV2(UBYTE* pFileData, UDWORD filesize, UDWORD quantity)
           addDroid(psDroid, apsDroidLists);
         }
         else
-          DBERROR(("This droid cannot be built - %s", pDroidInit->name));
+          Neuron::Fatal("This droid cannot be built - {}", pDroidInit->name);
       }
     }
     pDroidInit++;
@@ -3687,7 +3687,7 @@ BOOL loadSaveDroidInitV2(UBYTE* pFileData, UDWORD filesize, UDWORD quantity)
 
   if (NumberOfSkippedDroids)
   {
-    DBERROR(("unitLoad: Bad Player number in %d unit(s)... assigned to the last player!\n", NumberOfSkippedDroids));
+    Neuron::Fatal("unitLoad: Bad Player number in {} unit(s)... assigned to the last player!\n", NumberOfSkippedDroids);
   }
   return TRUE;
 }
@@ -3721,7 +3721,7 @@ DROID_TEMPLATE* FindDroidTemplate(STRING* name, UDWORD player)
   //get the name from the resource associated with it 
   if (!strresGetIDNum(psStringRes, name, &id))
   {
-    DBERROR(("Cannot find resource for template - %s", name));
+    Neuron::Fatal("Cannot find resource for template - {}", name);
     return nullptr;
   }
   //get the string from the id
@@ -3755,7 +3755,7 @@ BOOL loadSaveDroid(UBYTE* pFileData, UDWORD filesize, DROID** ppsCurrentDroidLis
   psHeader = (DROID_SAVEHEADER*)pFileData;
   if (psHeader->aFileType[0] != 'd' || psHeader->aFileType[1] != 'r' || psHeader->aFileType[2] != 'o' || psHeader->aFileType[3] != 'd')
   {
-    DBERROR(("loadSaveUnit: Incorrect file type"));
+    Neuron::Fatal("loadSaveUnit: Incorrect file type");
     return FALSE;
   }
 
@@ -3765,7 +3765,7 @@ BOOL loadSaveDroid(UBYTE* pFileData, UDWORD filesize, DROID** ppsCurrentDroidLis
   /* Check the file version */
   if (psHeader->version < VERSION_9)
   {
-    DBERROR(("UnitLoad; unsupported save format version %d",psHeader->version));
+    Neuron::Fatal("UnitLoad; unsupported save format version {}",psHeader->version);
     return FALSE;
   }
   if (psHeader->version == VERSION_11)
@@ -3785,7 +3785,7 @@ BOOL loadSaveDroid(UBYTE* pFileData, UDWORD filesize, DROID** ppsCurrentDroidLis
   }
   else
   {
-    DBERROR(("UnitLoad: undefined save format version %d",psHeader->version));
+    Neuron::Fatal("UnitLoad: undefined save format version {}",psHeader->version);
     return FALSE;
   }
 
@@ -3816,7 +3816,7 @@ DROID* buildDroidFromSaveDroidV11(SAVE_DROID_V11* psSaveDroid)
     compInc = getCompFromName(i, psSaveDroid->asBits[i].name);
     if (compInc < 0)
     {
-      DBERROR(("This component no longer exists - %s, the droid will be deleted", psSaveDroid->asBits[i].name));
+      Neuron::Fatal("This component no longer exists - {}, the droid will be deleted", psSaveDroid->asBits[i].name);
       found = FALSE;
       break; //continue;
     }
@@ -3835,7 +3835,7 @@ DROID* buildDroidFromSaveDroidV11(SAVE_DROID_V11* psSaveDroid)
 
     if (psTemplate->asWeaps[i] < 0)
     {
-      DBERROR(("This component no longer exists - %s, the droid will be deleted", psSaveDroid->asWeaps[i].name));
+      Neuron::Fatal("This component no longer exists - {}, the droid will be deleted", psSaveDroid->asWeaps[i].name);
       found = FALSE;
       break;
     }
@@ -3921,7 +3921,7 @@ DROID* buildDroidFromSaveDroidV19(SAVE_DROID_V18* psSaveDroid, UDWORD version)
 
     if (compInc < 0)
     {
-      DBERROR(("This component no longer exists - %s, the droid will be deleted", psSaveDroid->asBits[i].name));
+      Neuron::Fatal("This component no longer exists - {}, the droid will be deleted", psSaveDroid->asBits[i].name);
 
       found = FALSE;
       break; //continue;
@@ -3931,7 +3931,7 @@ DROID* buildDroidFromSaveDroidV19(SAVE_DROID_V18* psSaveDroid, UDWORD version)
   if (!found)
   {
     //ignore this record
-    ASSERT((found,"buildUnitFromSavedUnit; failed to find weapon"));
+    ASSERT_TEXT(found,"buildUnitFromSavedUnit; failed to find weapon");
     return nullptr;
   }
   psTemplate->numWeaps = psSaveDroid->numWeaps;
@@ -3942,14 +3942,14 @@ DROID* buildDroidFromSaveDroidV19(SAVE_DROID_V18* psSaveDroid, UDWORD version)
 
     if (psTemplate->asWeaps[0] < 0)
     {
-      DBERROR(("This component no longer exists - %s, the droid will be deleted", psSaveDroid->asWeaps[0].name));
+      Neuron::Fatal("This component no longer exists - {}, the droid will be deleted", psSaveDroid->asWeaps[0].name);
       found = FALSE;
     }
   }
   if (!found)
   {
     //ignore this record
-    ASSERT((found,"buildUnitFromSavedUnit; failed to find weapon"));
+    ASSERT_TEXT(found,"buildUnitFromSavedUnit; failed to find weapon");
     return nullptr;
   }
 
@@ -3968,7 +3968,7 @@ DROID* buildDroidFromSaveDroidV19(SAVE_DROID_V18* psSaveDroid, UDWORD version)
 
   if (psDroid == nullptr)
   {
-    ASSERT((FALSE,"buildUnitFromSavedUnit; failed to build unit"));
+    ASSERT_TEXT(FALSE,"buildUnitFromSavedUnit; failed to build unit");
     return nullptr;
   }
 
@@ -4043,7 +4043,7 @@ DROID* buildDroidFromSaveDroidV19(SAVE_DROID_V18* psSaveDroid, UDWORD version)
         psDroid->psTarStats = (BASE_STATS*)&asStructureStats[id];
       else
       {
-        ASSERT((FALSE,"loadUnit TargetStat not found"));
+        ASSERT_TEXT(FALSE,"loadUnit TargetStat not found");
         psDroid->psTarStats = nullptr;
         orderDroid(psDroid, DORDER_STOP);
       }
@@ -4071,7 +4071,7 @@ DROID* buildDroidFromSaveDroidV19(SAVE_DROID_V18* psSaveDroid, UDWORD version)
         psDroid->psTarStats = (BASE_STATS*)&asStructureStats[id];
       else
       {
-        ASSERT((FALSE,"loadUnit TargetStat not found"));
+        ASSERT_TEXT(FALSE,"loadUnit TargetStat not found");
         psDroid->psTarStats = nullptr;
       }
     }
@@ -4129,7 +4129,7 @@ DROID* buildDroidFromSaveDroid(SAVE_DROID* psSaveDroid, UDWORD version)
     }
     else if (compInc < 0)
     {
-      DBERROR(("This component no longer exists - %s, the droid will be deleted", psSaveDroid->asBits[i].name));
+      Neuron::Fatal("This component no longer exists - {}, the droid will be deleted", psSaveDroid->asBits[i].name);
 
       found = FALSE;
       break; //continue;
@@ -4139,7 +4139,7 @@ DROID* buildDroidFromSaveDroid(SAVE_DROID* psSaveDroid, UDWORD version)
   if (!found)
   {
     //ignore this record
-    ASSERT((found,"buildUnitFromSavedUnit; failed to find weapon"));
+    ASSERT_TEXT(found,"buildUnitFromSavedUnit; failed to find weapon");
     return nullptr;
   }
   psTemplate->numWeaps = psSaveDroid->numWeaps;
@@ -4150,14 +4150,14 @@ DROID* buildDroidFromSaveDroid(SAVE_DROID* psSaveDroid, UDWORD version)
 
     if (psTemplate->asWeaps[0] < 0)
     {
-      DBERROR(("This component no longer exists - %s, the droid will be deleted", psSaveDroid->asWeaps[0].name));
+      Neuron::Fatal("This component no longer exists - {}, the droid will be deleted", psSaveDroid->asWeaps[0].name);
       found = FALSE;
     }
   }
   if (!found)
   {
     //ignore this record
-    ASSERT((found,"buildUnitFromSavedUnit; failed to find weapon"));
+    ASSERT_TEXT(found,"buildUnitFromSavedUnit; failed to find weapon");
     return nullptr;
   }
 
@@ -4178,7 +4178,7 @@ DROID* buildDroidFromSaveDroid(SAVE_DROID* psSaveDroid, UDWORD version)
 
   if (psDroid == nullptr)
   {
-    ASSERT((FALSE,"buildUnitFromSavedUnit; failed to build unit"));
+    ASSERT_TEXT(FALSE,"buildUnitFromSavedUnit; failed to build unit");
     return nullptr;
   }
 
@@ -4245,7 +4245,7 @@ DROID* buildDroidFromSaveDroid(SAVE_DROID* psSaveDroid, UDWORD version)
       psDroid->psTarStats = (BASE_STATS*)&asStructureStats[id];
     else
     {
-      ASSERT((FALSE,"loadUnit TargetStat not found"));
+      ASSERT_TEXT(FALSE,"loadUnit TargetStat not found");
       psDroid->psTarStats = nullptr;
     }
   }
@@ -4316,7 +4316,7 @@ BOOL loadDroidSetPointers(void)
 
   for (list = 0; list < 3; list++)
   {
-    DBPRINTF(("List %d\n",list));
+    Neuron::DebugTrace("List {}\n",list);
     for (player = 0; player < MAX_PLAYERS; player++)
     {
       psDroid = ppsDroidLists[list][player];
@@ -4324,11 +4324,11 @@ BOOL loadDroidSetPointers(void)
       {
         //Target rebuild the object pointer from the ID
         id = (UDWORD)(psDroid->psTarget);
-        ASSERT((id != 0xdddddddd,"LoadUnit found freed target"));
+        ASSERT_TEXT(id != 0xdddddddd,"LoadUnit found freed target");
         if (id != UDWORD_MAX)
         {
           psDroid->psTarget = getBaseObjFromId(id);
-          ASSERT((psDroid->psTarget != NULL,"Saved Droid psTarget getBaseObjFromId() failed"));
+          ASSERT_TEXT(psDroid->psTarget != NULL,"Saved Droid psTarget getBaseObjFromId() failed");
           if (psDroid->psTarget == nullptr)
             psDroid->order = DORDER_NONE;
         }
@@ -4336,11 +4336,11 @@ BOOL loadDroidSetPointers(void)
           psDroid->psTarget = nullptr; //psSaveDroid->targetID		
         //ActionTarget rebuild the object pointer from the ID
         id = (UDWORD)(psDroid->psActionTarget);
-        ASSERT((id != 0xdddddddd,"LoadUnit found freed action target"));
+        ASSERT_TEXT(id != 0xdddddddd,"LoadUnit found freed action target");
         if (id != UDWORD_MAX)
         {
           psDroid->psActionTarget = getBaseObjFromId(id);
-          ASSERT((psDroid->psActionTarget != NULL,"Saved Droid psActionTarget getBaseObjFromId() failed"));
+          ASSERT_TEXT(psDroid->psActionTarget != NULL,"Saved Droid psActionTarget getBaseObjFromId() failed");
           if (psDroid->psActionTarget == nullptr)
             psDroid->action = DACTION_NONE;
         }
@@ -4348,11 +4348,11 @@ BOOL loadDroidSetPointers(void)
           psDroid->psActionTarget = nullptr; //psSaveDroid->targetID		
         //BaseStruct rebuild the object pointer from the ID
         id = (UDWORD)(psDroid->psBaseStruct);
-        ASSERT((id != 0xdddddddd,"LoadUnit found freed baseStruct"));
+        ASSERT_TEXT(id != 0xdddddddd,"LoadUnit found freed baseStruct");
         if (id != UDWORD_MAX)
         {
           psDroid->psBaseStruct = (STRUCTURE*)getBaseObjFromId(id);
-          ASSERT((psDroid->psBaseStruct != NULL,"Saved Droid psBaseStruct getBaseObjFromId() failed"));
+          ASSERT_TEXT(psDroid->psBaseStruct != NULL,"Saved Droid psBaseStruct getBaseObjFromId() failed");
           if (psDroid->psBaseStruct == nullptr)
             psDroid->action = DACTION_NONE;
         }
@@ -4366,11 +4366,11 @@ BOOL loadDroidSetPointers(void)
             id = (UDWORD)(psDroid->psGroup);
             psDroid->psGroup = nullptr;
             psDroid->psGrpNext = nullptr;
-            ASSERT((id != 0xdddddddd,"LoadUnit found freed commander"));
+            ASSERT_TEXT(id != 0xdddddddd,"LoadUnit found freed commander");
             if (id != UDWORD_MAX)
             {
               psCommander = (DROID*)getBaseObjFromId(id);
-              ASSERT((psCommander != NULL,"Saved Droid psCommander getBaseObjFromId() failed"));
+              ASSERT_TEXT(psCommander != NULL,"Saved Droid psCommander getBaseObjFromId() failed");
               if (psCommander != nullptr)
                 cmdDroidAddDroid(psCommander, psDroid);
             }
@@ -4438,7 +4438,7 @@ BOOL loadSaveDroidV11(UBYTE* pFileData, UDWORD filesize, UDWORD numDroids, UDWOR
 
   if ((sizeOfSaveDroid * numDroids + DROID_HEADER_SIZE) > filesize)
   {
-    DBERROR(("unitLoad: unexpected end of file"));
+    Neuron::Fatal("unitLoad: unexpected end of file");
     return FALSE;
   }
 
@@ -4458,14 +4458,14 @@ BOOL loadSaveDroidV11(UBYTE* pFileData, UDWORD filesize, UDWORD numDroids, UDWOR
     psDroid = buildDroidFromSaveDroidV11(psSaveDroid);
 
     if (psDroid == nullptr)
-      DBERROR(("unitLoad: Template not found for unit\n"));
+      Neuron::Fatal("unitLoad: Template not found for unit\n");
     else if (psSaveDroid->saveType == DROID_ON_TRANSPORT)
     {
       //add the droid to the list
       psDroid->psTarget = nullptr;
       psDroid->psActionTarget = nullptr;
       psDroid->psBaseStruct = nullptr;
-      ASSERT((psCurrentTransGroup != NULL,"loadSaveUnitV9; Transporter unit without group "));
+      ASSERT_TEXT(psCurrentTransGroup != NULL,"loadSaveUnitV9; Transporter unit without group ");
       grpJoin(psCurrentTransGroup, psDroid);
     }
     else
@@ -4481,7 +4481,7 @@ BOOL loadSaveDroidV11(UBYTE* pFileData, UDWORD filesize, UDWORD numDroids, UDWOR
         //set current TransPorter group
         if (!grpCreate(&psGrp))
         {
-          DBPRINTF(("unit build: unable to create group\n"));
+          Neuron::DebugTrace("unit build: unable to create group\n");
           return FALSE;
         }
         grpJoin(psGrp, psDroid);
@@ -4491,7 +4491,7 @@ BOOL loadSaveDroidV11(UBYTE* pFileData, UDWORD filesize, UDWORD numDroids, UDWOR
   }
   if (NumberOfSkippedDroids > 0)
   {
-    DBERROR(("unitLoad: Bad Player number in %d unit(s)... assigned to the last player!\n", NumberOfSkippedDroids));
+    Neuron::Fatal("unitLoad: Bad Player number in {} unit(s)... assigned to the last player!\n", NumberOfSkippedDroids);
   }
 
   ppsCurrentDroidLists = nullptr; //ensure it always gets set
@@ -4527,7 +4527,7 @@ BOOL loadSaveDroidV19(UBYTE* pFileData, UDWORD filesize, UDWORD numDroids, UDWOR
 
   if ((sizeOfSaveDroid * numDroids + DROID_HEADER_SIZE) > filesize)
   {
-    DBERROR(("unitLoad: unexpected end of file"));
+    Neuron::Fatal("unitLoad: unexpected end of file");
     return FALSE;
   }
 
@@ -4547,7 +4547,7 @@ BOOL loadSaveDroidV19(UBYTE* pFileData, UDWORD filesize, UDWORD numDroids, UDWOR
     psDroid = buildDroidFromSaveDroidV19(psSaveDroid, version);
 
     if (psDroid == nullptr)
-      ASSERT((psDroid != NULL,"unitLoad: Failed to build new unit\n"));
+      ASSERT_TEXT(psDroid != NULL,"unitLoad: Failed to build new unit\n");
     else if (psSaveDroid->saveType == DROID_ON_TRANSPORT)
     {
       //add the droid to the list
@@ -4557,7 +4557,7 @@ BOOL loadSaveDroidV19(UBYTE* pFileData, UDWORD filesize, UDWORD numDroids, UDWOR
       psDroid->psActionTarget = nullptr;
       psDroid->psBaseStruct = nullptr;
       //add the droid to the list
-      ASSERT((psCurrentTransGroup != NULL,"loadSaveUnitV9; Transporter unit without group "));
+      ASSERT_TEXT(psCurrentTransGroup != NULL,"loadSaveUnitV9; Transporter unit without group ");
       grpJoin(psCurrentTransGroup, psDroid);
     }
     else
@@ -4573,7 +4573,7 @@ BOOL loadSaveDroidV19(UBYTE* pFileData, UDWORD filesize, UDWORD numDroids, UDWOR
         //set current TransPorter group
         if (!grpCreate(&psGrp))
         {
-          DBPRINTF(("unit build: unable to create group\n"));
+          Neuron::DebugTrace("unit build: unable to create group\n");
           return FALSE;
         }
         grpJoin(psGrp, psDroid);
@@ -4583,7 +4583,7 @@ BOOL loadSaveDroidV19(UBYTE* pFileData, UDWORD filesize, UDWORD numDroids, UDWOR
   }
   if (NumberOfSkippedDroids > 0)
   {
-    DBERROR(("unitLoad: Bad Player number in %d unit(s)... assigned to the last player!\n", NumberOfSkippedDroids));
+    Neuron::Fatal("unitLoad: Bad Player number in {} unit(s)... assigned to the last player!\n", NumberOfSkippedDroids);
   }
 
   ppsCurrentDroidLists = nullptr; //ensure it always gets set
@@ -4614,7 +4614,7 @@ BOOL loadSaveDroidV(UBYTE* pFileData, UDWORD filesize, UDWORD numDroids, UDWORD 
 
   if ((sizeOfSaveDroid * numDroids + DROID_HEADER_SIZE) > filesize)
   {
-    DBERROR(("unitLoad: unexpected end of file"));
+    Neuron::Fatal("unitLoad: unexpected end of file");
     return FALSE;
   }
 
@@ -4634,7 +4634,7 @@ BOOL loadSaveDroidV(UBYTE* pFileData, UDWORD filesize, UDWORD numDroids, UDWORD 
     psDroid = buildDroidFromSaveDroid(psSaveDroid, version);
 
     if (psDroid == nullptr)
-      ASSERT((psDroid != NULL,"unitLoad: Failed to build new unit\n"));
+      ASSERT_TEXT(psDroid != NULL,"unitLoad: Failed to build new unit\n");
     else if (psSaveDroid->saveType == DROID_ON_TRANSPORT)
     {
       //add the droid to the list
@@ -4646,7 +4646,7 @@ BOOL loadSaveDroidV(UBYTE* pFileData, UDWORD filesize, UDWORD numDroids, UDWORD 
       //add the droid to the list
       psDroid->psGroup = nullptr;
       psDroid->psGrpNext = nullptr;
-      ASSERT((psCurrentTransGroup != NULL,"loadSaveUnitV9; Transporter unit without group "));
+      ASSERT_TEXT(psCurrentTransGroup != NULL,"loadSaveUnitV9; Transporter unit without group ");
       grpJoin(psCurrentTransGroup, psDroid);
     }
     else if (psDroid->droidType == DROID_TRANSPORTER)
@@ -4672,7 +4672,7 @@ BOOL loadSaveDroidV(UBYTE* pFileData, UDWORD filesize, UDWORD numDroids, UDWORD 
   }
   if (NumberOfSkippedDroids > 0)
   {
-    DBERROR(("unitLoad: Bad Player number in %d unit(s)... assigned to the last player!\n", NumberOfSkippedDroids));
+    Neuron::Fatal("unitLoad: Bad Player number in {} unit(s)... assigned to the last player!\n", NumberOfSkippedDroids);
   }
 
   ppsCurrentDroidLists = nullptr; //ensure it always gets set
@@ -4761,7 +4761,7 @@ BOOL buildSaveDroidFromDroid(SAVE_DROID* psSaveDroid, DROID* psCurr, DROID_SAVE_
   psSaveDroid->timeLastHit = psCurr->timeLastHit;
   if (psCurr->psTarget != nullptr)
   {
-    ASSERT((psCurr->psTarget->id != 0xdddddddd,"SaveUnit found freed target"));
+    ASSERT_TEXT(psCurr->psTarget->id != 0xdddddddd,"SaveUnit found freed target");
     if (psCurr->psTarget->died <= 1)
     {
       psSaveDroid->targetID = psCurr->psTarget->id;
@@ -4779,7 +4779,7 @@ BOOL buildSaveDroidFromDroid(SAVE_DROID* psSaveDroid, DROID* psCurr, DROID_SAVE_
   psSaveDroid->actionY = psCurr->actionY;
   if (psCurr->psActionTarget != nullptr)
   {
-    ASSERT((psCurr->psActionTarget->id != 0xdddddddd,"SaveUnit found freed action target"));
+    ASSERT_TEXT(psCurr->psActionTarget->id != 0xdddddddd,"SaveUnit found freed action target");
     if (psCurr->psActionTarget->died <= 1)
     {
       psSaveDroid->actionTargetID = psCurr->psActionTarget->id;
@@ -4799,7 +4799,7 @@ BOOL buildSaveDroidFromDroid(SAVE_DROID* psSaveDroid, DROID* psCurr, DROID_SAVE_
   //version 14
   if (psCurr->psTarStats != nullptr)
   {
-    ASSERT((strlen(psCurr->psTarStats->pName) < MAX_NAME_SIZE,"writeUnitFile; psTarStat pName Error"));
+    ASSERT_TEXT(strlen(psCurr->psTarStats->pName) < MAX_NAME_SIZE,"writeUnitFile; psTarStat pName Error");
     strcpy(psSaveDroid->tarStatName, psCurr->psTarStats->pName);
   }
   else
@@ -4832,12 +4832,12 @@ BOOL buildSaveDroidFromDroid(SAVE_DROID* psSaveDroid, DROID* psCurr, DROID_SAVE_
       if (psCurr->psGroup->psCommander->died <= 1)
       {
         psSaveDroid->commandId = psCurr->psGroup->psCommander->id;
-        ASSERT((checkValidId(psSaveDroid->commandId),"SaveUnit pcCommander not found"));
+        ASSERT_TEXT(checkValidId(psSaveDroid->commandId),"SaveUnit pcCommander not found");
       }
       else
       {
         psSaveDroid->commandId = UDWORD_MAX;
-        ASSERT((FALSE,"SaveUnit pcCommander died"));
+        ASSERT_TEXT(FALSE,"SaveUnit pcCommander died");
       }
     }
     else
@@ -4938,7 +4938,7 @@ BOOL writeDroidFile(STRING* pFileName, DROID** ppsCurrentDroidLists)
       {
         psTrans = psCurr->psGroup->psList;
         if (((UDWORD)psTrans->psGrpNext) == 0xcdcdcdcd)
-          DBERROR(("transporter ->psGrpNext not reset"));
+          Neuron::Fatal("transporter ->psGrpNext not reset");
         else
         {
           for (psTrans = psTrans->psGrpNext; psTrans != nullptr; psTrans = psTrans->psGrpNext)
@@ -4953,7 +4953,7 @@ BOOL writeDroidFile(STRING* pFileName, DROID** ppsCurrentDroidLists)
   pFileData = new (std::nothrow) UBYTE[fileSize];
   if (pFileData == nullptr)
   {
-    DBERROR(("Out of memory"));
+    Neuron::Fatal("Out of memory");
     return FALSE;
   }
 
@@ -5003,17 +5003,17 @@ BOOL writeDroidFile(STRING* pFileName, DROID** ppsCurrentDroidLists)
   pFile = fopen(pFileName, "wb");
   if (!pFile)
   {
-    DBERROR(("Couldn't open file %s", pFileName));
+    Neuron::Fatal("Couldn't open file {}", pFileName);
     goto error;
   }
   if (fwrite(pFileData, 1, fileSize, pFile) != fileSize)
   {
-    DBERROR(("Write failed for %s", pFileName));
+    Neuron::Fatal("Write failed for {}", pFileName);
     goto error;
   }
   if (fclose(pFile) != 0)
   {
-    DBERROR(("Couldn't close %s", pFileName));
+    Neuron::Fatal("Couldn't close {}", pFileName);
     goto error;
   }
 
@@ -5037,7 +5037,7 @@ BOOL loadSaveStructure(UBYTE* pFileData, UDWORD filesize)
   psHeader = (STRUCT_SAVEHEADER*)pFileData;
   if (psHeader->aFileType[0] != 's' || psHeader->aFileType[1] != 't' || psHeader->aFileType[2] != 'r' || psHeader->aFileType[3] != 'u')
   {
-    DBERROR(("loadSaveStructure: Incorrect file type"));
+    Neuron::Fatal("loadSaveStructure: Incorrect file type");
     return FALSE;
   }
 
@@ -5047,7 +5047,7 @@ BOOL loadSaveStructure(UBYTE* pFileData, UDWORD filesize)
   /* Check the file version */
   if (psHeader->version < VERSION_7)
   {
-    DBERROR(("StructLoad: unsupported save format version %d",psHeader->version));
+    Neuron::Fatal("StructLoad: unsupported save format version {}",psHeader->version);
     return FALSE;
   }
   if (psHeader->version < VERSION_9)
@@ -5067,7 +5067,7 @@ BOOL loadSaveStructure(UBYTE* pFileData, UDWORD filesize)
   }
   else
   {
-    DBERROR(("StructLoad: undefined save format version %d",psHeader->version));
+    Neuron::Fatal("StructLoad: undefined save format version {}",psHeader->version);
     return FALSE;
   }
 
@@ -5091,7 +5091,7 @@ BOOL loadSaveStructureV7(UBYTE* pFileData, UDWORD filesize, UDWORD numStructures
 
   if ((sizeof(SAVE_STRUCTURE_V2) * numStructures + STRUCT_HEADER_SIZE) > filesize)
   {
-    DBERROR(("structureLoad: unexpected end of file"));
+    Neuron::Fatal("structureLoad: unexpected end of file");
     return FALSE;
   }
 
@@ -5127,7 +5127,7 @@ BOOL loadSaveStructureV7(UBYTE* pFileData, UDWORD filesize, UDWORD numStructures
     //if haven't found the structure - ignore this record!
     if (!found)
     {
-      DBERROR(("This structure no longer exists - %s",getSaveStructNameV19((SAVE_STRUCTURE_V17*)psSaveStructure)));
+      Neuron::Fatal("This structure no longer exists - {}",getSaveStructNameV19((SAVE_STRUCTURE_V17*)psSaveStructure));
       continue;
     }
     /*create the Structure */
@@ -5140,8 +5140,8 @@ BOOL loadSaveStructureV7(UBYTE* pFileData, UDWORD filesize, UDWORD numStructures
       psStructure = getTileStructure(psSaveStructure->x >> TILE_SHIFT, psSaveStructure->y >> TILE_SHIFT);
       if (psStructure == nullptr)
       {
-        DBERROR(("No owning structure for module - %s for player - %d",
-          getSaveStructNameV19((SAVE_STRUCTURE_V17*)psSaveStructure), psSaveStructure->player));
+        Neuron::Fatal("No owning structure for module - {} for player - {}",
+          getSaveStructNameV19((SAVE_STRUCTURE_V17*)psSaveStructure), psSaveStructure->player);
         //ignore this module
         continue;
       }
@@ -5153,22 +5153,22 @@ BOOL loadSaveStructureV7(UBYTE* pFileData, UDWORD filesize, UDWORD numStructures
     if (((psSaveStructure->x >> TILE_SHIFT) < TOO_NEAR_EDGE) || ((psSaveStructure->x >> TILE_SHIFT) > static_cast<SDWORD>(mapWidth -
       TOO_NEAR_EDGE)))
     {
-      DBERROR(("Structure %s, x coord too near the edge of the map. id - %d",
-        getSaveStructNameV19((SAVE_STRUCTURE_V17*)psSaveStructure), psSaveStructure->id));
+      Neuron::Fatal("Structure {}, x coord too near the edge of the map. id - {}",
+        getSaveStructNameV19((SAVE_STRUCTURE_V17*)psSaveStructure), psSaveStructure->id);
       continue;
     }
     if (((psSaveStructure->y >> TILE_SHIFT) < TOO_NEAR_EDGE) || ((psSaveStructure->y >> TILE_SHIFT) > static_cast<SDWORD>(mapHeight -
       TOO_NEAR_EDGE)))
     {
-      DBERROR(("Structure %s, y coord too near the edge of the map. id - %d",
-        getSaveStructNameV19((SAVE_STRUCTURE_V17*)psSaveStructure), psSaveStructure->id));
+      Neuron::Fatal("Structure {}, y coord too near the edge of the map. id - {}",
+        getSaveStructNameV19((SAVE_STRUCTURE_V17*)psSaveStructure), psSaveStructure->id);
       continue;
     }
 
     psStructure = buildStructure(psStats, psSaveStructure->x, psSaveStructure->y, psSaveStructure->player,TRUE);
     if (!psStructure)
     {
-      ASSERT((FALSE, "loadSaveStructure:Unable to create structure"));
+      ASSERT_TEXT(FALSE, "loadSaveStructure:Unable to create structure");
       return FALSE;
     }
 
@@ -5235,7 +5235,7 @@ BOOL loadSaveStructureV7(UBYTE* pFileData, UDWORD filesize, UDWORD numStructures
   }
 
   if (NumberOfSkippedStructures > 0)
-    DBERROR(("structureLoad: invalid player number in %d structures ... assigned to the last player!\n\n",NumberOfSkippedStructures));
+    Neuron::Fatal("structureLoad: invalid player number in {} structures ... assigned to the last player!\n\n",NumberOfSkippedStructures);
 
   return TRUE;
 }
@@ -5252,7 +5252,7 @@ UDWORD getResearchIdFromName(STRING* pName)
       return inc;
   }
 
-  DBERROR(("Unknown research - %s", pName));
+  Neuron::Fatal("Unknown research - {}", pName);
   return UDWORD_MAX;
 }
 
@@ -5291,7 +5291,7 @@ BOOL loadSaveStructureV19(UBYTE* pFileData, UDWORD filesize, UDWORD numStructure
 
   if ((sizeOfSaveStruture * numStructures + STRUCT_HEADER_SIZE) > filesize)
   {
-    DBERROR(("structureLoad: unexpected end of file"));
+    Neuron::Fatal("structureLoad: unexpected end of file");
     return FALSE;
   }
 
@@ -5327,7 +5327,7 @@ BOOL loadSaveStructureV19(UBYTE* pFileData, UDWORD filesize, UDWORD numStructure
     //if haven't found the structure - ignore this record!
     if (!found)
     {
-      DBERROR(("This structure no longer exists - %s",getSaveStructNameV19(psSaveStructure)));
+      Neuron::Fatal("This structure no longer exists - {}",getSaveStructNameV19(psSaveStructure));
       continue;
     }
     /*create the Structure */
@@ -5337,7 +5337,7 @@ BOOL loadSaveStructureV19(UBYTE* pFileData, UDWORD filesize, UDWORD numStructure
       psStructure = getTileStructure(psSaveStructure->x >> TILE_SHIFT, psSaveStructure->y >> TILE_SHIFT);
       if (psStructure == nullptr)
       {
-        DBERROR(("No owning structure for module - %s for player - %d", getSaveStructNameV19(psSaveStructure), psSaveStructure->player));
+        Neuron::Fatal("No owning structure for module - {} for player - {}", getSaveStructNameV19(psSaveStructure), psSaveStructure->player);
         //ignore this module
         continue;
       }
@@ -5347,20 +5347,20 @@ BOOL loadSaveStructureV19(UBYTE* pFileData, UDWORD filesize, UDWORD numStructure
     if (((psSaveStructure->x >> TILE_SHIFT) < TOO_NEAR_EDGE) || ((psSaveStructure->x >> TILE_SHIFT) > static_cast<SDWORD>(mapWidth -
       TOO_NEAR_EDGE)))
     {
-      DBERROR(("Structure %s, x coord too near the edge of the map. id - %d", getSaveStructNameV19(psSaveStructure), psSaveStructure->id));
+      Neuron::Fatal("Structure {}, x coord too near the edge of the map. id - {}", getSaveStructNameV19(psSaveStructure), psSaveStructure->id);
       continue;
     }
     if (((psSaveStructure->y >> TILE_SHIFT) < TOO_NEAR_EDGE) || ((psSaveStructure->y >> TILE_SHIFT) > static_cast<SDWORD>(mapHeight -
       TOO_NEAR_EDGE)))
     {
-      DBERROR(("Structure %s, y coord too near the edge of the map. id - %d", getSaveStructNameV19(psSaveStructure), psSaveStructure->id));
+      Neuron::Fatal("Structure {}, y coord too near the edge of the map. id - {}", getSaveStructNameV19(psSaveStructure), psSaveStructure->id);
       continue;
     }
 
     psStructure = buildStructure(psStats, psSaveStructure->x, psSaveStructure->y, psSaveStructure->player,TRUE);
     if (!psStructure)
     {
-      ASSERT((FALSE, "loadSaveStructure:Unable to create structure"));
+      ASSERT_TEXT(FALSE, "loadSaveStructure:Unable to create structure");
       return FALSE;
     }
 
@@ -5606,7 +5606,7 @@ BOOL loadSaveStructureV19(UBYTE* pFileData, UDWORD filesize, UDWORD numStructure
   }
 
   if (NumberOfSkippedStructures > 0)
-    DBERROR(("structureLoad: invalid player number in %d structures ... assigned to the last player!\n\n",NumberOfSkippedStructures));
+    Neuron::Fatal("structureLoad: invalid player number in {} structures ... assigned to the last player!\n\n",NumberOfSkippedStructures);
 
   return TRUE;
 }
@@ -5641,7 +5641,7 @@ BOOL loadSaveStructureV(UBYTE* pFileData, UDWORD filesize, UDWORD numStructures,
 
   if ((sizeOfSaveStruture * numStructures + STRUCT_HEADER_SIZE) > filesize)
   {
-    DBERROR(("structureLoad: unexpected end of file"));
+    Neuron::Fatal("structureLoad: unexpected end of file");
     return FALSE;
   }
 
@@ -5677,7 +5677,7 @@ BOOL loadSaveStructureV(UBYTE* pFileData, UDWORD filesize, UDWORD numStructures,
     //if haven't found the structure - ignore this record!
     if (!found)
     {
-      DBERROR(("This structure no longer exists - %s",getSaveStructNameV(psSaveStructure)));
+      Neuron::Fatal("This structure no longer exists - {}",getSaveStructNameV(psSaveStructure));
       continue;
     }
     /*create the Structure */
@@ -5687,7 +5687,7 @@ BOOL loadSaveStructureV(UBYTE* pFileData, UDWORD filesize, UDWORD numStructures,
       psStructure = getTileStructure(psSaveStructure->x >> TILE_SHIFT, psSaveStructure->y >> TILE_SHIFT);
       if (psStructure == nullptr)
       {
-        DBERROR(("No owning structure for module - %s for player - %d", getSaveStructNameV(psSaveStructure), psSaveStructure->player));
+        Neuron::Fatal("No owning structure for module - {} for player - {}", getSaveStructNameV(psSaveStructure), psSaveStructure->player);
         //ignore this module
         continue;
       }
@@ -5697,20 +5697,20 @@ BOOL loadSaveStructureV(UBYTE* pFileData, UDWORD filesize, UDWORD numStructures,
     if (((psSaveStructure->x >> TILE_SHIFT) < TOO_NEAR_EDGE) || ((psSaveStructure->x >> TILE_SHIFT) > static_cast<SDWORD>(mapWidth -
       TOO_NEAR_EDGE)))
     {
-      DBERROR(("Structure %s, x coord too near the edge of the map. id - %d", getSaveStructNameV(psSaveStructure), psSaveStructure->id));
+      Neuron::Fatal("Structure {}, x coord too near the edge of the map. id - {}", getSaveStructNameV(psSaveStructure), psSaveStructure->id);
       continue;
     }
     if (((psSaveStructure->y >> TILE_SHIFT) < TOO_NEAR_EDGE) || ((psSaveStructure->y >> TILE_SHIFT) > static_cast<SDWORD>(mapHeight -
       TOO_NEAR_EDGE)))
     {
-      DBERROR(("Structure %s, y coord too near the edge of the map. id - %d", getSaveStructNameV(psSaveStructure), psSaveStructure->id));
+      Neuron::Fatal("Structure {}, y coord too near the edge of the map. id - {}", getSaveStructNameV(psSaveStructure), psSaveStructure->id);
       continue;
     }
 
     psStructure = buildStructure(psStats, psSaveStructure->x, psSaveStructure->y, psSaveStructure->player,TRUE);
     if (!psStructure)
     {
-      ASSERT((FALSE, "loadSaveStructure:Unable to create structure"));
+      ASSERT_TEXT(FALSE, "loadSaveStructure:Unable to create structure");
       return FALSE;
     }
 
@@ -5946,7 +5946,7 @@ BOOL loadSaveStructureV(UBYTE* pFileData, UDWORD filesize, UDWORD numStructures,
   }
 
   if (NumberOfSkippedStructures > 0)
-    DBERROR(("structureLoad: invalid player number in %d structures ... assigned to the last player!\n\n",NumberOfSkippedStructures));
+    Neuron::Fatal("structureLoad: invalid player number in {} structures ... assigned to the last player!\n\n",NumberOfSkippedStructures);
 
   return TRUE;
 }
@@ -5983,7 +5983,7 @@ BOOL writeStructFile(STRING* pFileName)
   pFileData = new (std::nothrow) UBYTE[fileSize];
   if (pFileData == nullptr)
   {
-    DBERROR(("Out of memory"));
+    Neuron::Fatal("Out of memory");
     return FALSE;
   }
 
@@ -6088,7 +6088,7 @@ BOOL writeStructFile(STRING* pFileName)
           {
             psSaveStruct->subjectInc = 0;
             researchId = ((RESEARCH_FACILITY*)psCurr->pFunctionality)->psSubject->ref - REF_RESEARCH_START;
-            ASSERT((strlen(asResearch[researchId].pName)<MAX_NAME_SIZE,"writeStructData: research name too long"));
+            ASSERT_TEXT(strlen(asResearch[researchId].pName)<MAX_NAME_SIZE,"writeStructData: research name too long");
             strcpy(psSaveStruct->researchName, asResearch[researchId].pName);
             psSaveStruct->timeStarted = ((RESEARCH_FACILITY*)psCurr->pFunctionality)->timeStarted;
           }
@@ -6134,7 +6134,7 @@ BOOL writeStructFile(STRING* pFileName)
             psSaveStruct->subjectInc = UDWORD_MAX;
           break;
         default: //CODE THIS SOMETIME
-          ASSERT((FALSE,"Structure facility not saved"));
+          ASSERT_TEXT(FALSE,"Structure facility not saved");
           break;
         }
       }
@@ -6146,17 +6146,17 @@ BOOL writeStructFile(STRING* pFileName)
   pFile = fopen(pFileName, "wb");
   if (!pFile)
   {
-    DBERROR(("Couldn't open file %s", pFileName));
+    Neuron::Fatal("Couldn't open file {}", pFileName);
     goto error;
   }
   if (fwrite(pFileData, 1, fileSize, pFile) != fileSize)
   {
-    DBERROR(("Write failed for %s", pFileName));
+    Neuron::Fatal("Write failed for {}", pFileName);
     goto error;
   }
   if (fclose(pFile) != 0)
   {
-    DBERROR(("Couldn't close %s", pFileName));
+    Neuron::Fatal("Couldn't close {}", pFileName);
     goto error;
   }
 
@@ -6203,7 +6203,7 @@ BOOL loadStructSetPointers(void)
             {
               psCommander = (DROID*)getBaseObjFromId((UDWORD)psFactory->psCommander);
               psFactory->psCommander = nullptr;
-              ASSERT((psCommander != NULL,"loadStructSetPointers psCommander getBaseObjFromId() failed"));
+              ASSERT_TEXT(psCommander != NULL,"loadStructSetPointers psCommander getBaseObjFromId() failed");
               if (psCommander == nullptr)
                 psFactory->psCommander = nullptr;
               else
@@ -6266,7 +6266,7 @@ BOOL loadSaveFeature(UBYTE* pFileData, UDWORD filesize)
   psHeader = (FEATURE_SAVEHEADER*)pFileData;
   if (psHeader->aFileType[0] != 'f' || psHeader->aFileType[1] != 'e' || psHeader->aFileType[2] != 'a' || psHeader->aFileType[3] != 't')
   {
-    DBERROR(("loadSaveFeature: Incorrect file type"));
+    Neuron::Fatal("loadSaveFeature: Incorrect file type");
     return FALSE;
   }
 
@@ -6276,7 +6276,7 @@ BOOL loadSaveFeature(UBYTE* pFileData, UDWORD filesize)
   /* Check the file version */
   if (psHeader->version < VERSION_7)
   {
-    DBERROR(("FeatLoad: unsupported save format version %d",psHeader->version));
+    Neuron::Fatal("FeatLoad: unsupported save format version {}",psHeader->version);
     return FALSE;
   }
   if (psHeader->version <= VERSION_19)
@@ -6291,7 +6291,7 @@ BOOL loadSaveFeature(UBYTE* pFileData, UDWORD filesize)
   }
   else
   {
-    DBERROR(("FeatLoad: undefined save format version %d",psHeader->version));
+    Neuron::Fatal("FeatLoad: undefined save format version {}",psHeader->version);
     return FALSE;
   }
 
@@ -6311,7 +6311,7 @@ BOOL loadSaveFeatureV2(UBYTE* pFileData, UDWORD filesize, UDWORD numFeatures)
 
   if ((sizeof(SAVE_FEATURE_V2) * numFeatures + FEATURE_HEADER_SIZE) > filesize)
   {
-    DBERROR(("featureLoad: unexpected end of file"));
+    Neuron::Fatal("featureLoad: unexpected end of file");
     return FALSE;
   }
 
@@ -6327,7 +6327,7 @@ BOOL loadSaveFeatureV2(UBYTE* pFileData, UDWORD filesize, UDWORD numFeatures)
 
       if (statInc < 0 OR statInc > numFeatureStats)
       {
-        DBERROR(("This feature no longer exists - %s, it will be deleted", psSaveFeature->name));
+        Neuron::Fatal("This feature no longer exists - {}, it will be deleted", psSaveFeature->name);
 
         continue;
       }
@@ -6355,7 +6355,7 @@ BOOL loadSaveFeatureV2(UBYTE* pFileData, UDWORD filesize, UDWORD numFeatures)
       //if haven't found the feature - ignore this record!
       if (!found)
       {
-        DBERROR(("This feature no longer exists - %s",psSaveFeature->name));
+        Neuron::Fatal("This feature no longer exists - {}",psSaveFeature->name);
 
         continue;
       }
@@ -6367,7 +6367,7 @@ BOOL loadSaveFeatureV2(UBYTE* pFileData, UDWORD filesize, UDWORD numFeatures)
     //will be added to the top of the linked list
     if (!pFeature)
     {
-      ASSERT((FALSE, "loadSaveFeature:Unable to create feature"));
+      ASSERT_TEXT(FALSE, "loadSaveFeature:Unable to create feature");
       return FALSE;
     }
 
@@ -6400,7 +6400,7 @@ BOOL loadSaveFeatureV14(UBYTE* pFileData, UDWORD filesize, UDWORD numFeatures, U
 
   if ((sizeOfSaveFeature * numFeatures + FEATURE_HEADER_SIZE) > filesize)
   {
-    DBERROR(("featureLoad: unexpected end of file"));
+    Neuron::Fatal("featureLoad: unexpected end of file");
     return FALSE;
   }
 
@@ -6429,7 +6429,7 @@ BOOL loadSaveFeatureV14(UBYTE* pFileData, UDWORD filesize, UDWORD numFeatures, U
     //if haven't found the feature - ignore this record!
     if (!found)
     {
-      DBERROR(("This feature no longer exists - %s",psSaveFeature->name));
+      Neuron::Fatal("This feature no longer exists - {}",psSaveFeature->name);
 
       continue;
     }
@@ -6439,7 +6439,7 @@ BOOL loadSaveFeatureV14(UBYTE* pFileData, UDWORD filesize, UDWORD numFeatures, U
     //will be added to the top of the linked list
     if (!pFeature)
     {
-      ASSERT((FALSE, "loadSaveFeature:Unable to create feature"));
+      ASSERT_TEXT(FALSE, "loadSaveFeature:Unable to create feature");
       return FALSE;
     }
     //restore values
@@ -6479,7 +6479,7 @@ BOOL loadSaveFeatureV(UBYTE* pFileData, UDWORD filesize, UDWORD numFeatures, UDW
 
   if ((sizeOfSaveFeature * numFeatures + FEATURE_HEADER_SIZE) > filesize)
   {
-    DBERROR(("featureLoad: unexpected end of file"));
+    Neuron::Fatal("featureLoad: unexpected end of file");
     return FALSE;
   }
 
@@ -6508,7 +6508,7 @@ BOOL loadSaveFeatureV(UBYTE* pFileData, UDWORD filesize, UDWORD numFeatures, UDW
     //if haven't found the feature - ignore this record!
     if (!found)
     {
-      DBERROR(("This feature no longer exists - %s",psSaveFeature->name));
+      Neuron::Fatal("This feature no longer exists - {}",psSaveFeature->name);
 
       continue;
     }
@@ -6518,7 +6518,7 @@ BOOL loadSaveFeatureV(UBYTE* pFileData, UDWORD filesize, UDWORD numFeatures, UDW
     //will be added to the top of the linked list
     if (!pFeature)
     {
-      ASSERT((FALSE, "loadSaveFeature:Unable to create feature"));
+      ASSERT_TEXT(FALSE, "loadSaveFeature:Unable to create feature");
       return FALSE;
     }
     //restore values
@@ -6559,7 +6559,7 @@ BOOL writeFeatureFile(STRING* pFileName)
   pFileData = new (std::nothrow) UBYTE[fileSize];
   if (pFileData == nullptr)
   {
-    DBERROR(("Out of memory"));
+    Neuron::Fatal("Out of memory");
     return FALSE;
   }
 
@@ -6598,17 +6598,17 @@ BOOL writeFeatureFile(STRING* pFileName)
   pFile = fopen(pFileName, "wb");
   if (!pFile)
   {
-    DBERROR(("Couldn't open file %s", pFileName));
+    Neuron::Fatal("Couldn't open file {}", pFileName);
     goto error;
   }
   if (fwrite(pFileData, 1, fileSize, pFile) != fileSize)
   {
-    DBERROR(("Write failed for %s", pFileName));
+    Neuron::Fatal("Write failed for {}", pFileName);
     goto error;
   }
   if (fclose(pFile) != 0)
   {
-    DBERROR(("Couldn't close %s", pFileName));
+    Neuron::Fatal("Couldn't close {}", pFileName);
     goto error;
   }
 
@@ -6629,7 +6629,7 @@ BOOL loadSaveTemplate(UBYTE* pFileData, UDWORD filesize)
   psHeader = (TEMPLATE_SAVEHEADER*)pFileData;
   if (psHeader->aFileType[0] != 't' || psHeader->aFileType[1] != 'e' || psHeader->aFileType[2] != 'm' || psHeader->aFileType[3] != 'p')
   {
-    DBERROR(("loadSaveTemplate: Incorrect file type"));
+    Neuron::Fatal("loadSaveTemplate: Incorrect file type");
     return FALSE;
   }
 
@@ -6639,7 +6639,7 @@ BOOL loadSaveTemplate(UBYTE* pFileData, UDWORD filesize)
   /* Check the file version */
   if (psHeader->version < VERSION_7)
   {
-    DBERROR(("TemplateLoad: unsupported save format version %d",psHeader->version));
+    Neuron::Fatal("TemplateLoad: unsupported save format version {}",psHeader->version);
     return FALSE;
   }
   if (psHeader->version < VERSION_14)
@@ -6659,7 +6659,7 @@ BOOL loadSaveTemplate(UBYTE* pFileData, UDWORD filesize)
   }
   else
   {
-    DBERROR(("TemplateLoad: undefined save format version %d",psHeader->version));
+    Neuron::Fatal("TemplateLoad: undefined save format version {}",psHeader->version);
     return FALSE;
   }
   return TRUE;
@@ -6679,7 +6679,7 @@ BOOL loadSaveTemplateV7(UBYTE* pFileData, UDWORD filesize, UDWORD numTemplates)
 
   if ((sizeof(SAVE_TEMPLATE_V2) * numTemplates + TEMPLATE_HEADER_SIZE) > filesize)
   {
-    DBERROR(("templateLoad: unexpected end of file"));
+    Neuron::Fatal("templateLoad: unexpected end of file");
     return FALSE;
   }
 
@@ -6698,7 +6698,7 @@ BOOL loadSaveTemplateV7(UBYTE* pFileData, UDWORD filesize, UDWORD numTemplates)
     psTemplate = new (std::nothrow) DROID_TEMPLATE;
     if (psTemplate == nullptr)
     {
-      DBERROR(("Out of memory"));
+      Neuron::Fatal("Out of memory");
       goto error;
     }
     //copy the values across
@@ -6721,7 +6721,7 @@ BOOL loadSaveTemplateV7(UBYTE* pFileData, UDWORD filesize, UDWORD numTemplates)
 
       if (compInc < 0)
       {
-        DBERROR(("This component no longer exists - %s, the template will be deleted",psSaveTemplate->asParts[i]));
+        Neuron::Fatal("This component no longer exists - {}, the template will be deleted",psSaveTemplate->asParts[i]);
 
         found = FALSE;
         break;
@@ -6742,7 +6742,7 @@ BOOL loadSaveTemplateV7(UBYTE* pFileData, UDWORD filesize, UDWORD numTemplates)
 
       if (compInc < 0)
       {
-        DBERROR(("This weapon no longer exists - %s, the template will be deleted", psSaveTemplate->asWeaps[i]));
+        Neuron::Fatal("This weapon no longer exists - {}, the template will be deleted", psSaveTemplate->asWeaps[i]);
 
         found = FALSE;
         break;
@@ -6789,7 +6789,7 @@ BOOL loadSaveTemplateV14(UBYTE* pFileData, UDWORD filesize, UDWORD numTemplates)
 
   if ((sizeof(SAVE_TEMPLATE_V14) * numTemplates + TEMPLATE_HEADER_SIZE) > filesize)
   {
-    DBERROR(("templateLoad: unexpected end of file"));
+    Neuron::Fatal("templateLoad: unexpected end of file");
     return FALSE;
   }
 
@@ -6810,7 +6810,7 @@ BOOL loadSaveTemplateV14(UBYTE* pFileData, UDWORD filesize, UDWORD numTemplates)
     psTemplate = new (std::nothrow) DROID_TEMPLATE;
     if (psTemplate == nullptr)
     {
-      DBERROR(("Out of memory"));
+      Neuron::Fatal("Out of memory");
       goto error;
     }
     //copy the values across
@@ -6834,7 +6834,7 @@ BOOL loadSaveTemplateV14(UBYTE* pFileData, UDWORD filesize, UDWORD numTemplates)
 
       if (compInc < 0)
       {
-        DBERROR(("This component no longer exists - %s, the template will be deleted",psSaveTemplate->asParts[i]));
+        Neuron::Fatal("This component no longer exists - {}, the template will be deleted",psSaveTemplate->asParts[i]);
 
         found = FALSE;
         break;
@@ -6855,7 +6855,7 @@ BOOL loadSaveTemplateV14(UBYTE* pFileData, UDWORD filesize, UDWORD numTemplates)
 
       if (compInc < 0)
       {
-        DBERROR(("This weapon no longer exists - %s, the template will be deleted", psSaveTemplate->asWeaps[i]));
+        Neuron::Fatal("This weapon no longer exists - {}, the template will be deleted", psSaveTemplate->asWeaps[i]);
 
         found = FALSE;
         break;
@@ -6927,7 +6927,7 @@ BOOL loadSaveTemplateV(UBYTE* pFileData, UDWORD filesize, UDWORD numTemplates)
 
   if ((sizeof(SAVE_TEMPLATE) * numTemplates + TEMPLATE_HEADER_SIZE) > filesize)
   {
-    DBERROR(("templateLoad: unexpected end of file"));
+    Neuron::Fatal("templateLoad: unexpected end of file");
     return FALSE;
   }
 
@@ -6948,7 +6948,7 @@ BOOL loadSaveTemplateV(UBYTE* pFileData, UDWORD filesize, UDWORD numTemplates)
     psTemplate = new (std::nothrow) DROID_TEMPLATE;
     if (psTemplate == nullptr)
     {
-      DBERROR(("Out of memory"));
+      Neuron::Fatal("Out of memory");
       goto error;
     }
     //copy the values across
@@ -6983,7 +6983,7 @@ BOOL loadSaveTemplateV(UBYTE* pFileData, UDWORD filesize, UDWORD numTemplates)
       }
       else if (compInc < 0)
       {
-        DBERROR(("This component no longer exists - %s, the template will be deleted",psSaveTemplate->asParts[i]));
+        Neuron::Fatal("This component no longer exists - {}, the template will be deleted",psSaveTemplate->asParts[i]);
 
         found = FALSE;
         break;
@@ -7004,7 +7004,7 @@ BOOL loadSaveTemplateV(UBYTE* pFileData, UDWORD filesize, UDWORD numTemplates)
 
       if (compInc < 0)
       {
-        DBERROR(("This weapon no longer exists - %s, the template will be deleted", psSaveTemplate->asWeaps[i]));
+        Neuron::Fatal("This weapon no longer exists - {}, the template will be deleted", psSaveTemplate->asWeaps[i]);
 
         found = FALSE;
         break;
@@ -7087,7 +7087,7 @@ BOOL writeTemplateFile(STRING* pFileName)
   pFileData = new (std::nothrow) UBYTE[fileSize];
   if (pFileData == nullptr)
   {
-    DBERROR(("Out of memory"));
+    Neuron::Fatal("Out of memory");
     return FALSE;
   }
 
@@ -7141,17 +7141,17 @@ BOOL writeTemplateFile(STRING* pFileName)
   pFile = fopen(pFileName, "wb");
   if (!pFile)
   {
-    DBERROR(("Couldn't open file %s", pFileName));
+    Neuron::Fatal("Couldn't open file {}", pFileName);
     goto error;
   }
   if (fwrite(pFileData, 1, fileSize, pFile) != fileSize)
   {
-    DBERROR(("Write failed for %s", pFileName));
+    Neuron::Fatal("Write failed for {}", pFileName);
     goto error;
   }
   if (fclose(pFile) != 0)
   {
-    DBERROR(("Couldn't close %s", pFileName));
+    Neuron::Fatal("Couldn't close {}", pFileName);
     goto error;
   }
 
@@ -7174,7 +7174,7 @@ BOOL loadTerrainTypeMap(UBYTE* pFileData, UDWORD filesize)
 
   if (filesize < TILETYPE_HEADER_SIZE)
   {
-    DBERROR(("loadTerrainTypeMap: file too small"));
+    Neuron::Fatal("loadTerrainTypeMap: file too small");
     return FALSE;
   }
 
@@ -7182,7 +7182,7 @@ BOOL loadTerrainTypeMap(UBYTE* pFileData, UDWORD filesize)
   psHeader = (TILETYPE_SAVEHEADER*)pFileData;
   if (psHeader->aFileType[0] != 't' || psHeader->aFileType[1] != 't' || psHeader->aFileType[2] != 'y' || psHeader->aFileType[3] != 'p')
   {
-    DBERROR(("loadTerrainTypeMap: Incorrect file type"));
+    Neuron::Fatal("loadTerrainTypeMap: Incorrect file type");
     return FALSE;
   }
   /*	Version doesn't matter for now
@@ -7201,12 +7201,12 @@ BOOL loadTerrainTypeMap(UBYTE* pFileData, UDWORD filesize)
   {
     if (i >= MAX_TILE_TEXTURES)
     {
-      DBERROR(("loadTerrainTypeMap: too many types"));
+      Neuron::Fatal("loadTerrainTypeMap: too many types");
       return FALSE;
     }
     if (*pType > TER_MAX)
     {
-      DBERROR(("loadTerrainTypeMap: terrain type out of range"));
+      Neuron::Fatal("loadTerrainTypeMap: terrain type out of range");
       return FALSE;
     }
 
@@ -7231,7 +7231,7 @@ static BOOL writeTerrainTypeMapFile(STRING* pFileName)
   pFileData = new (std::nothrow) UBYTE[fileSize];
   if (!pFileData)
   {
-    DBERROR(("writeTerrainTypeMapFile: Out of memory"));
+    Neuron::Fatal("writeTerrainTypeMapFile: Out of memory");
     return FALSE;
   }
 
@@ -7269,7 +7269,7 @@ BOOL loadSaveCompList(UBYTE* pFileData, UDWORD filesize)
   psHeader = (COMPLIST_SAVEHEADER*)pFileData;
   if (psHeader->aFileType[0] != 'c' || psHeader->aFileType[1] != 'm' || psHeader->aFileType[2] != 'p' || psHeader->aFileType[3] != 'l')
   {
-    DBERROR(("loadSaveCompList: Incorrect file type"));
+    Neuron::Fatal("loadSaveCompList: Incorrect file type");
     return FALSE;
   }
 
@@ -7279,7 +7279,7 @@ BOOL loadSaveCompList(UBYTE* pFileData, UDWORD filesize)
   /* Check the file version */
   if (psHeader->version < VERSION_7)
   {
-    DBERROR(("CompLoad: unsupported save format version %d", psHeader->version));
+    Neuron::Fatal("CompLoad: unsupported save format version {}", psHeader->version);
     return FALSE;
   }
   if (psHeader->version <= VERSION_19)
@@ -7294,7 +7294,7 @@ BOOL loadSaveCompList(UBYTE* pFileData, UDWORD filesize)
   }
   else
   {
-    DBERROR(("CompLoad: undefined save format version %d",psHeader->version));
+    Neuron::Fatal("CompLoad: undefined save format version {}",psHeader->version);
     return FALSE;
   }
 
@@ -7310,7 +7310,7 @@ BOOL loadSaveCompListV9(UBYTE* pFileData, UDWORD filesize, UDWORD numRecords, UD
 
   if ((sizeof(SAVE_COMPLIST_V6) * numRecords + COMPLIST_HEADER_SIZE) > filesize)
   {
-    DBERROR(("CompListLoad: unexpected end of file"));
+    Neuron::Fatal("CompListLoad: unexpected end of file");
     return FALSE;
   }
 
@@ -7375,7 +7375,7 @@ BOOL loadSaveCompListV(UBYTE* pFileData, UDWORD filesize, UDWORD numRecords, UDW
 
   if ((sizeof(SAVE_COMPLIST) * numRecords + COMPLIST_HEADER_SIZE) > filesize)
   {
-    DBERROR(("CompListLoad: unexpected end of file"));
+    Neuron::Fatal("CompListLoad: unexpected end of file");
     return FALSE;
   }
 
@@ -7432,7 +7432,7 @@ static BOOL writeCompListFile(STRING* pFileName)
   pFileData = new (std::nothrow) UBYTE[fileSize];
   if (!pFileData)
   {
-    DBERROR(("writeCompListFile: Out of memory"));
+    Neuron::Fatal("writeCompListFile: Out of memory");
     return FALSE;
   }
 
@@ -7558,7 +7558,7 @@ BOOL loadSaveStructTypeList(UBYTE* pFileData, UDWORD filesize)
   psHeader = (STRUCTLIST_SAVEHEADER*)pFileData;
   if (psHeader->aFileType[0] != 's' || psHeader->aFileType[1] != 't' || psHeader->aFileType[2] != 'r' || psHeader->aFileType[3] != 'l')
   {
-    DBERROR(("loadSaveStructTypeList: Incorrect file type"));
+    Neuron::Fatal("loadSaveStructTypeList: Incorrect file type");
     return FALSE;
   }
 
@@ -7568,7 +7568,7 @@ BOOL loadSaveStructTypeList(UBYTE* pFileData, UDWORD filesize)
   /* Check the file version */
   if (psHeader->version < VERSION_7)
   {
-    DBERROR(("StructTypeLoad: unsupported save format version %d",psHeader->version));
+    Neuron::Fatal("StructTypeLoad: unsupported save format version {}",psHeader->version);
     return FALSE;
   }
   if (psHeader->version <= VERSION_19)
@@ -7583,7 +7583,7 @@ BOOL loadSaveStructTypeList(UBYTE* pFileData, UDWORD filesize)
   }
   else
   {
-    DBERROR(("StructTypeLoad: undefined save format version %d",psHeader->version));
+    Neuron::Fatal("StructTypeLoad: undefined save format version {}",psHeader->version);
     return FALSE;
   }
 
@@ -7600,7 +7600,7 @@ BOOL loadSaveStructTypeListV7(UBYTE* pFileData, UDWORD filesize, UDWORD numRecor
 
   if ((sizeof(SAVE_STRUCTLIST_V6) * numRecords + STRUCTLIST_HEADER_SIZE) > filesize)
   {
-    DBERROR(("StructListLoad: unexpected end of file"));
+    Neuron::Fatal("StructListLoad: unexpected end of file");
     return FALSE;
   }
 
@@ -7654,7 +7654,7 @@ BOOL loadSaveStructTypeListV(UBYTE* pFileData, UDWORD filesize, UDWORD numRecord
 
   if ((sizeof(SAVE_STRUCTLIST) * numRecords + STRUCTLIST_HEADER_SIZE) > filesize)
   {
-    DBERROR(("StructListLoad: unexpected end of file"));
+    Neuron::Fatal("StructListLoad: unexpected end of file");
     return FALSE;
   }
 
@@ -7715,7 +7715,7 @@ static BOOL writeStructTypeListFile(STRING* pFileName)
   pFileData = new (std::nothrow) UBYTE[fileSize];
   if (!pFileData)
   {
-    DBERROR(("writeStructTypeListFile: Out of memory"));
+    Neuron::Fatal("writeStructTypeListFile: Out of memory");
     return FALSE;
   }
 
@@ -7760,7 +7760,7 @@ BOOL loadSaveResearch(UBYTE* pFileData, UDWORD filesize)
   psHeader = (RESEARCH_SAVEHEADER*)pFileData;
   if (psHeader->aFileType[0] != 'r' || psHeader->aFileType[1] != 'e' || psHeader->aFileType[2] != 's' || psHeader->aFileType[3] != 'h')
   {
-    DBERROR(("loadSaveResearch: Incorrect file type"));
+    Neuron::Fatal("loadSaveResearch: Incorrect file type");
     return FALSE;
   }
 
@@ -7770,7 +7770,7 @@ BOOL loadSaveResearch(UBYTE* pFileData, UDWORD filesize)
   /* Check the file version */
   if (psHeader->version < VERSION_8)
   {
-    DBERROR(("ResearchLoad: unsupported save format version %d",psHeader->version));
+    Neuron::Fatal("ResearchLoad: unsupported save format version {}",psHeader->version);
     return FALSE;
   }
   if (psHeader->version <= VERSION_19)
@@ -7785,7 +7785,7 @@ BOOL loadSaveResearch(UBYTE* pFileData, UDWORD filesize)
   }
   else
   {
-    DBERROR(("ResearchLoad: undefined save format version %d",psHeader->version));
+    Neuron::Fatal("ResearchLoad: undefined save format version {}",psHeader->version);
     return FALSE;
   }
 
@@ -7803,7 +7803,7 @@ BOOL loadSaveResearchV8(UBYTE* pFileData, UDWORD filesize, UDWORD numRecords)
 
   if ((sizeof(SAVE_RESEARCH_V8) * numRecords + RESEARCH_HEADER_SIZE) > filesize)
   {
-    DBERROR(("loadSaveResearch: unexpected end of file"));
+    Neuron::Fatal("loadSaveResearch: unexpected end of file");
     return FALSE;
   }
 
@@ -7875,7 +7875,7 @@ BOOL loadSaveResearchV(UBYTE* pFileData, UDWORD filesize, UDWORD numRecords)
 
   if ((sizeof(SAVE_RESEARCH) * numRecords + RESEARCH_HEADER_SIZE) > filesize)
   {
-    DBERROR(("loadSaveResearch: unexpected end of file"));
+    Neuron::Fatal("loadSaveResearch: unexpected end of file");
     return FALSE;
   }
 
@@ -7943,7 +7943,7 @@ static BOOL writeResearchFile(STRING* pFileName)
   pFileData = new (std::nothrow) UBYTE[fileSize];
   if (!pFileData)
   {
-    DBERROR(("writeResearchFile: Out of memory"));
+    Neuron::Fatal("writeResearchFile: Out of memory");
     return FALSE;
   }
 
@@ -7991,7 +7991,7 @@ BOOL loadSaveMessage(UBYTE* pFileData, UDWORD filesize, SWORD levelType)
   psHeader = (MESSAGE_SAVEHEADER*)pFileData;
   if (psHeader->aFileType[0] != 'm' || psHeader->aFileType[1] != 'e' || psHeader->aFileType[2] != 's' || psHeader->aFileType[3] != 's')
   {
-    DBERROR(("loadSaveMessage: Incorrect file type"));
+    Neuron::Fatal("loadSaveMessage: Incorrect file type");
     return FALSE;
   }
 
@@ -8031,7 +8031,7 @@ BOOL loadSaveMessageV(UBYTE* pFileData, UDWORD filesize, UDWORD numMessages, UDW
   //check file
   if ((sizeof(SAVE_MESSAGE) * numMessages + MESSAGE_HEADER_SIZE) > filesize)
   {
-    DBERROR(("loadSaveMessage: unexpected end of file"));
+    Neuron::Fatal("loadSaveMessage: unexpected end of file");
     return FALSE;
   }
 
@@ -8125,7 +8125,7 @@ static BOOL writeMessageFile(STRING* pFileName)
   pFileData = new (std::nothrow) UBYTE[fileSize];
   if (!pFileData)
   {
-    DBERROR(("writeMessageFile: Out of memory"));
+    Neuron::Fatal("writeMessageFile: Out of memory");
     return FALSE;
   }
 
@@ -8155,14 +8155,14 @@ static BOOL writeMessageFile(STRING* pFileName)
           if (psProx->psMessage == psMessage)
             break;
         }
-        ASSERT((psProx != NULL,"Save message; proximity display not found for message"));
+        ASSERT_TEXT(psProx != NULL,"Save message; proximity display not found for message");
 
         if (psProx->type == POS_PROXDATA)
         {
           //message has viewdata so store the name
           psSaveMessage->bObj = FALSE;
           pViewData = (VIEWDATA*)psMessage->pViewData;
-          ASSERT((strlen(pViewData->pName) < MAX_STR_SIZE,"writeMessageFile; viewdata pName Error"));
+          ASSERT_TEXT(strlen(pViewData->pName) < MAX_STR_SIZE,"writeMessageFile; viewdata pName Error");
           strcpy(psSaveMessage->name, pViewData->pName); //Pointer to view data - if any - should be some!
         }
         else
@@ -8177,7 +8177,7 @@ static BOOL writeMessageFile(STRING* pFileName)
       {
         psSaveMessage->bObj = FALSE;
         pViewData = (VIEWDATA*)psMessage->pViewData;
-        ASSERT((strlen(pViewData->pName) < MAX_STR_SIZE,"writeMessageFile; viewdata pName Error"));
+        ASSERT_TEXT(strlen(pViewData->pName) < MAX_STR_SIZE,"writeMessageFile; viewdata pName Error");
         strcpy(psSaveMessage->name, pViewData->pName); //Pointer to view data - if any - should be some!
       }
       psSaveMessage->read = psMessage->read; //flag to indicate whether message has been read
@@ -8205,7 +8205,7 @@ BOOL loadSaveProximity(UBYTE* pFileData, UDWORD filesize)
   psHeader = (PROXIMITY_SAVEHEADER*)pFileData;
   if (psHeader->aFileType[0] != 'm' || psHeader->aFileType[1] != 'e' || psHeader->aFileType[2] != 's' || psHeader->aFileType[3] != 's')
   {
-    DBERROR(("loadSaveProximity: Incorrect file type"));
+    Neuron::Fatal("loadSaveProximity: Incorrect file type");
     return FALSE;
   }
 
@@ -8232,7 +8232,7 @@ BOOL loadSaveProximityV(UBYTE* pFileData, UDWORD filesize, UDWORD numProximitys,
   //check file
   if ((sizeof(SAVE_PROXIMITY) * numProximitys + PROXIMITY_HEADER_SIZE) > filesize)
   {
-    DBERROR(("loadSaveProximity: unexpected end of file"));
+    Neuron::Fatal("loadSaveProximity: unexpected end of file");
     return FALSE;
   }
 
@@ -8270,7 +8270,7 @@ static BOOL writeProximityFile(STRING* pFileName)
   pFileData = new (std::nothrow) UBYTE[fileSize];
   if (!pFileData)
   {
-    DBERROR(("writeProximityFile: Out of memory"));
+    Neuron::Fatal("writeProximityFile: Out of memory");
     return FALSE;
   }
 
@@ -8327,7 +8327,7 @@ BOOL loadSaveFlag(UBYTE* pFileData, UDWORD filesize)
   psHeader = (FLAG_SAVEHEADER*)pFileData;
   if (psHeader->aFileType[0] != 'f' || psHeader->aFileType[1] != 'l' || psHeader->aFileType[2] != 'a' || psHeader->aFileType[3] != 'g')
   {
-    DBERROR(("loadSaveflag: Incorrect file type"));
+    Neuron::Fatal("loadSaveflag: Incorrect file type");
     return FALSE;
   }
 
@@ -8363,7 +8363,7 @@ BOOL loadSaveFlagV(UBYTE* pFileData, UDWORD filesize, UDWORD numflags, UDWORD ve
 
   if ((sizeOfSaveFlag * numflags + FLAG_HEADER_SIZE) > filesize)
   {
-    DBERROR(("loadSaveflag: unexpected end of file"));
+    Neuron::Fatal("loadSaveflag: unexpected end of file");
     return FALSE;
   }
 
@@ -8384,7 +8384,7 @@ BOOL loadSaveFlagV(UBYTE* pFileData, UDWORD filesize, UDWORD numflags, UDWORD ve
     psflag->factoryType = psSaveflag->factoryType; //indicates whether standard, cyborg or vtol factory
 
     if (psflag->factoryInc == UDWORD_MAX)
-      DBERROR(("loadSaveFlag flag data error"));
+      Neuron::Fatal("loadSaveFlag flag data error");
     else if ((psflag->type == POS_DELIVERY) || (psflag->type == POS_TEMPDELIVERY))
     {
       if (psflag->factoryType == FACTORY_FLAG)
@@ -8396,7 +8396,7 @@ BOOL loadSaveFlagV(UBYTE* pFileData, UDWORD filesize, UDWORD numflags, UDWORD ve
       else if (psflag->factoryType == REPAIR_FLAG)
         factoryToFind = REF_REPAIR_FACILITY;
       else
-        ASSERT((FALSE,"loadSaveFlagV delivery flag type not recognised?"));
+        ASSERT_TEXT(FALSE,"loadSaveFlagV delivery flag type not recognised?");
 
       if (factoryToFind == REF_REPAIR_FACILITY)
       {
@@ -8406,7 +8406,7 @@ BOOL loadSaveFlagV(UBYTE* pFileData, UDWORD filesize, UDWORD numflags, UDWORD ve
           if (psStruct != nullptr)
           {
             if (psStruct->type != OBJ_STRUCTURE)
-              ASSERT((FALSE,"loadFlag found duplicate Id for repair facility"));
+              ASSERT_TEXT(FALSE,"loadFlag found duplicate Id for repair facility");
             else if (psStruct->pStructureType->type == REF_REPAIR_FACILITY)
             {
               if (psStruct->pFunctionality != nullptr)
@@ -8500,7 +8500,7 @@ static BOOL writeFlagFile(STRING* pFileName)
   pFileData = new (std::nothrow) UBYTE[fileSize];
   if (!pFileData)
   {
-    DBERROR(("writeflagFile: Out of memory"));
+    Neuron::Fatal("writeflagFile: Out of memory");
     return FALSE;
   }
 
@@ -8602,7 +8602,7 @@ BOOL loadSaveProduction(UBYTE* pFileData, UDWORD filesize)
   psHeader = (PRODUCTION_SAVEHEADER*)pFileData;
   if (psHeader->aFileType[0] != 'p' || psHeader->aFileType[1] != 'r' || psHeader->aFileType[2] != 'o' || psHeader->aFileType[3] != 'd')
   {
-    DBERROR(("loadSaveProduction: Incorrect file type"));
+    Neuron::Fatal("loadSaveProduction: Incorrect file type");
     return FALSE;
   }
 
@@ -8626,7 +8626,7 @@ BOOL loadSaveProductionV(UBYTE* pFileData, UDWORD filesize, UDWORD version)
   //check file
   if ((sizeof(SAVE_PRODUCTION) * NUM_FACTORY_TYPES * MAX_FACTORY * MAX_PROD_RUN + PRODUCTION_HEADER_SIZE) > filesize)
   {
-    DBERROR(("loadSaveProduction: unexpected end of file"));
+    Neuron::Fatal("loadSaveProduction: unexpected end of file");
     return FALSE;
   }
 
@@ -8670,7 +8670,7 @@ static BOOL writeProductionFile(STRING* pFileName)
   pFileData = new (std::nothrow) UBYTE[fileSize];
   if (!pFileData)
   {
-    DBERROR(("writeProductionFile: Out of memory"));
+    Neuron::Fatal("writeProductionFile: Out of memory");
     return FALSE;
   }
 
@@ -8719,7 +8719,7 @@ BOOL loadSaveStructLimits(UBYTE* pFileData, UDWORD filesize)
   psHeader = (STRUCTLIMITS_SAVEHEADER*)pFileData;
   if (psHeader->aFileType[0] != 'l' || psHeader->aFileType[1] != 'm' || psHeader->aFileType[2] != 't' || psHeader->aFileType[3] != 's')
   {
-    DBERROR(("loadSaveStructLimits: Incorrect file type"));
+    Neuron::Fatal("loadSaveStructLimits: Incorrect file type");
     return FALSE;
   }
 
@@ -8740,7 +8740,7 @@ BOOL loadSaveStructLimits(UBYTE* pFileData, UDWORD filesize)
   else
 #endif
   {
-    DBERROR(("loadSaveStructLimits: Incorrect file format version"));
+    Neuron::Fatal("loadSaveStructLimits: Incorrect file format version");
     return FALSE;
   }
   return TRUE;
@@ -8760,13 +8760,13 @@ BOOL loadSaveStructLimitsV19(UBYTE* pFileData, UDWORD filesize, UDWORD numLimits
   psSaveLimits = new (std::nothrow) SAVE_STRUCTLIMITS_V2[1];
   if (!psSaveLimits)
   {
-    DBERROR(("Out of memory"));
+    Neuron::Fatal("Out of memory");
     return FALSE;
   }
 
   if ((sizeof(SAVE_STRUCTLIMITS_V2) * numLimits + STRUCTLIMITS_HEADER_SIZE) > filesize)
   {
-    DBERROR(("loadSaveStructLimits: unexpected end of file"));
+    Neuron::Fatal("loadSaveStructLimits: unexpected end of file");
     return FALSE;
   }
 
@@ -8790,7 +8790,7 @@ BOOL loadSaveStructLimitsV19(UBYTE* pFileData, UDWORD filesize, UDWORD numLimits
     //if haven't found the structure - ignore this record!
     if (!found)
     {
-      DBERROR(("The structure no longer exists. The limits have not been set! - %s", psSaveLimits->name));
+      Neuron::Fatal("The structure no longer exists. The limits have not been set! - {}", psSaveLimits->name);
       continue;
     }
 
@@ -8801,7 +8801,7 @@ BOOL loadSaveStructLimitsV19(UBYTE* pFileData, UDWORD filesize, UDWORD numLimits
   }
 
   if (SkippedRecords > 0)
-    DBERROR(("Skipped %d records in structure limits due to bad player number\n",SkippedRecords));
+    Neuron::Fatal("Skipped {} records in structure limits due to bad player number\n",SkippedRecords);
   delete[] psSaveLimits;
   psSaveLimits = nullptr;
   return TRUE;
@@ -8819,13 +8819,13 @@ BOOL loadSaveStructLimitsV(UBYTE* pFileData, UDWORD filesize, UDWORD numLimits)
   psSaveLimits = new (std::nothrow) SAVE_STRUCTLIMITS[1];
   if (!psSaveLimits)
   {
-    DBERROR(("Out of memory"));
+    Neuron::Fatal("Out of memory");
     return FALSE;
   }
 
   if ((sizeof(SAVE_STRUCTLIMITS) * numLimits + STRUCTLIMITS_HEADER_SIZE) > filesize)
   {
-    DBERROR(("loadSaveStructLimits: unexpected end of file"));
+    Neuron::Fatal("loadSaveStructLimits: unexpected end of file");
     return FALSE;
   }
 
@@ -8849,7 +8849,7 @@ BOOL loadSaveStructLimitsV(UBYTE* pFileData, UDWORD filesize, UDWORD numLimits)
     //if haven't found the structure - ignore this record!
     if (!found)
     {
-      DBERROR(("The structure no longer exists. The limits have not been set! - %s", psSaveLimits->name));
+      Neuron::Fatal("The structure no longer exists. The limits have not been set! - {}", psSaveLimits->name);
       continue;
     }
 
@@ -8860,7 +8860,7 @@ BOOL loadSaveStructLimitsV(UBYTE* pFileData, UDWORD filesize, UDWORD numLimits)
   }
 
   if (SkippedRecords > 0)
-    DBERROR(("Skipped %d records in structure limits due to bad player number\n",SkippedRecords));
+    Neuron::Fatal("Skipped {} records in structure limits due to bad player number\n",SkippedRecords);
   delete[] psSaveLimits;
   psSaveLimits = nullptr;
   return TRUE;
@@ -8886,7 +8886,7 @@ BOOL writeStructLimitsFile(STRING* pFileName)
   pFileData = new (std::nothrow) UBYTE[fileSize];
   if (pFileData == nullptr)
   {
-    DBERROR(("Out of memory"));
+    Neuron::Fatal("Out of memory");
     return FALSE;
   }
 
@@ -8918,17 +8918,17 @@ BOOL writeStructLimitsFile(STRING* pFileName)
   pFile = fopen(pFileName, "wb");
   if (!pFile)
   {
-    DBERROR(("Couldn't open file %s", pFileName));
+    Neuron::Fatal("Couldn't open file {}", pFileName);
     goto error;
   }
   if (fwrite(pFileData, 1, fileSize, pFile) != fileSize)
   {
-    DBERROR(("Write failed for %s", pFileName));
+    Neuron::Fatal("Write failed for {}", pFileName);
     goto error;
   }
   if (fclose(pFile) != 0)
   {
-    DBERROR(("Couldn't close %s", pFileName));
+    Neuron::Fatal("Couldn't close {}", pFileName);
     goto error;
   }
 
@@ -8948,7 +8948,7 @@ BOOL loadSaveCommandLists(UBYTE* pFileData, UDWORD filesize)
   psHeader = (COMMAND_SAVEHEADER*)pFileData;
   if (psHeader->aFileType[0] != 'c' || psHeader->aFileType[1] != 'm' || psHeader->aFileType[2] != 'n' || psHeader->aFileType[3] != 'd')
   {
-    DBERROR(("loadSaveCommandList: Incorrect file type"));
+    Neuron::Fatal("loadSaveCommandList: Incorrect file type");
     return FALSE;
   }
 
@@ -8963,7 +8963,7 @@ BOOL loadSaveCommandLists(UBYTE* pFileData, UDWORD filesize)
   }
   else
   {
-    DBERROR(("loadSaveCommandLists: Incorrect file format version"));
+    Neuron::Fatal("loadSaveCommandLists: Incorrect file format version");
     return FALSE;
   }
   return TRUE;
@@ -8978,7 +8978,7 @@ BOOL loadSaveCommandListsV(UBYTE* pFileData, UDWORD filesize, UDWORD numDroids)
 
   if ((sizeof(SAVE_COMMAND) * numDroids + COMMAND_HEADER_SIZE) > filesize)
   {
-    DBERROR(("loadSaveCommand: unexpected end of file"));
+    Neuron::Fatal("loadSaveCommand: unexpected end of file");
     return FALSE;
   }
 
@@ -9026,7 +9026,7 @@ BOOL writeCommandLists(STRING* pFileName)
   pFileData = new (std::nothrow) UBYTE[fileSize];
   if (pFileData == nullptr)
   {
-    DBERROR(("Out of memory"));
+    Neuron::Fatal("Out of memory");
     return FALSE;
   }
 
@@ -9063,17 +9063,17 @@ BOOL writeCommandLists(STRING* pFileName)
   pFile = fopen(pFileName, "wb");
   if (!pFile)
   {
-    DBERROR(("Couldn't open file %s", pFileName));
+    Neuron::Fatal("Couldn't open file {}", pFileName);
     goto error;
   }
   if (fwrite(pFileData, 1, fileSize, pFile) != fileSize)
   {
-    DBERROR(("Write failed for %s", pFileName));
+    Neuron::Fatal("Write failed for {}", pFileName);
     goto error;
   }
   if (fclose(pFile) != 0)
   {
-    DBERROR(("Couldn't close %s", pFileName));
+    Neuron::Fatal("Couldn't close {}", pFileName);
     goto error;
   }
 
@@ -9119,7 +9119,7 @@ BOOL loadScriptState(STRING* pFileName)
   pFileData = DisplayBuffer;
   if (!loadFileToBuffer(pFileName, pFileData, displayBufferSize, &fileSize))
   {
-    DBERROR(("loadScriptState: couldn't load %s", pFileName));
+    Neuron::Fatal("loadScriptState: couldn't load {}", pFileName);
     return FALSE;
   }
 
@@ -9153,12 +9153,12 @@ void setMapScroll()
   if (scrollMaxX > static_cast<SDWORD>(mapWidth))
   {
     scrollMaxX = mapWidth;
-    DBMB(("scrollMaxX was too big It has been set to map width"));
+    Neuron::DebugTrace("scrollMaxX was too big It has been set to map width");
   }
   if (scrollMaxY > static_cast<SDWORD>(mapHeight))
   {
     scrollMaxY = mapHeight;
-    DBMB(("scrollMaxY was too big It has been set to map height"));
+    Neuron::DebugTrace("scrollMaxY was too big It has been set to map height");
   }
 }
 
@@ -9175,7 +9175,7 @@ BOOL getSaveObjectName(STRING* pName)
     //see if the name has a resource associated with it by trying to get the ID for the string
     if (!strresGetIDNum(psStringRes, pName, &id))
     {
-      DBERROR(("Cannot find string resource %s", pName));
+      Neuron::Fatal("Cannot find string resource {}", pName);
       return FALSE;
     }
 
@@ -9254,7 +9254,7 @@ SDWORD getCompFromNamePreV7(UDWORD compType, STRING* pName)
     break;
   default:
     //COMP_UNKNOWN should be an error
-    DBERROR(("Invalid component type - game.c"));
+    Neuron::Fatal("Invalid component type - game.c");
   }
 
   //find the stat with the same name
@@ -9263,7 +9263,7 @@ SDWORD getCompFromNamePreV7(UDWORD compType, STRING* pName)
     //get the translated name from the stat
     if (!strresGetIDNum(psStringRes, psStats->pName, &id))
     {
-      DBERROR(("Unable to find string resource for %s", getStatName(psStats) ));
+      Neuron::Fatal("Unable to find string resource for {}", getStatName(psStats) );
       return -1;
     }
     //get the string from the id
@@ -9312,7 +9312,7 @@ SDWORD getStatFromNamePreV7(BOOL isFeature, STRING* pName)
     //get the translated name from the stat
     if (!strresGetIDNum(psStringRes, psStats->pName, &id))
     {
-      DBERROR(("Unable to find string resource for %s", getStatName(psStats) ));
+      Neuron::Fatal("Unable to find string resource for {}", getStatName(psStats) );
       return -1;
     }
 
@@ -9370,7 +9370,7 @@ static BOOL getNameFromComp(UDWORD compType, STRING* pDest, UDWORD compIndex)
   case COMP_WEAPON:
     psStats = (BASE_STATS*)(asWeaponStats + compIndex);
     break;
-  default: DBERROR(("Invalid component type - game.c"));
+  default: Neuron::Fatal("Invalid component type - game.c");
     return FALSE;
   }
 
@@ -9408,13 +9408,13 @@ BOOL plotStructurePreview(iSprite* backDropSprite, UBYTE scale, UDWORD offX, UDW
 
   pFileData = DisplayBuffer;
   if (!loadFileToBuffer(aFileName, pFileData, displayBufferSize, &fileSize))
-    DBPRINTF(("plotStructurePreview: Fail1\n"));
+    Neuron::DebugTrace("plotStructurePreview: Fail1\n");
 
   /* Check the file type */
   psHeader = (STRUCT_SAVEHEADER*)pFileData;
   if (psHeader->aFileType[0] != 's' || psHeader->aFileType[1] != 't' || psHeader->aFileType[2] != 'r' || psHeader->aFileType[3] != 'u')
   {
-    DBERROR(("plotStructurePreview: Incorrect file type"));
+    Neuron::Fatal("plotStructurePreview: Incorrect file type");
     return FALSE;
   }
 

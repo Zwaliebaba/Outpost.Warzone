@@ -155,10 +155,10 @@ void recvOptions(NETMSG* pMsg)
   if (strncmp((CHAR*)game.version, buildTime, 8) != 0)
   {
 #ifndef DEBUG
-    DBERROR(("Host is running a different version of Warzone2100."));
+    Neuron::Fatal("Host is running a different version of Warzone2100.");
 #endif
 #ifdef COVERMOUNT
-    DBERROR(("Warzone 2100 Demo is not compatible with the release version")); ExitProcess(4);
+    Neuron::Fatal("Warzone 2100 Demo is not compatible with the release version"); ExitProcess(4);
 #endif
   }
   if (ingame.numStructureLimits) // free old limits.
@@ -178,9 +178,9 @@ void recvOptions(NETMSG* pMsg)
   pos += sizeof(checkval);
   if (checkval != NEThashVal(NetPlay.cryptKey[0]))
   {
-    DBERROR(("Host Binary is different from this one. Cheating?"));
+    Neuron::Fatal("Host Binary is different from this one. Cheating?");
 #ifdef COVERMOUNT
-    DBERROR(("Warzone 2100 Demo is not compatible with the release version")); ExitProcess(4);
+    Neuron::Fatal("Warzone 2100 Demo is not compatible with the release version"); ExitProcess(4);
 #endif
   }
 
@@ -786,7 +786,7 @@ BOOL cleanMap(UDWORD player)
 
   case CAMP_WALLS: //everything.
     break;
-  default: DBERROR(("Unknown Campaign Style"));
+  default: Neuron::Fatal("Unknown Campaign Style");
     break;
   }
 

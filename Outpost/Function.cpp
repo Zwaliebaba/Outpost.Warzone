@@ -67,7 +67,7 @@ BOOL loadFunctionStats(SBYTE* pFunctionData, UDWORD bufferSize)
   asFunctions = new (std::nothrow) FUNCTION*[totalFunctions];
   if (!asFunctions)
   {
-    DBERROR(("Out of memory"));
+    Neuron::Fatal("Out of memory");
     return FALSE;
   }
   pStartList = asFunctions;
@@ -238,7 +238,7 @@ BOOL storeName(FUNCTION* pFunction, STRING* pNameToStore)
   pFunction->pName = new (std::nothrow) STRING[strlen(pNameToStore)+1];
   if (pFunction->pName == nullptr)
   {
-    DBERROR(("Function Name - Out of memory"));
+    Neuron::Fatal("Function Name - Out of memory");
     return FALSE;
   }
   strcpy(pFunction->pName, pNameToStore);
@@ -299,7 +299,7 @@ BOOL loadProduction(SBYTE* pData)
   psFunction = new (std::nothrow) PRODUCTION_FUNCTION[1];
   if (psFunction == nullptr)
   {
-    DBERROR(("Production Function - Out of memory"));
+    Neuron::Fatal("Production Function - Out of memory");
     return FALSE;
   }
   memset(psFunction, 0, sizeof(PRODUCTION_FUNCTION));
@@ -351,7 +351,7 @@ BOOL loadProduction(SBYTE* pData)
 
   if (!getBodySize(bodySize, (UBYTE*)&psFunction->capacity))
   {
-    ASSERT((FALSE, "loadProduction: unknown body size for %s",psFunction->pName));
+    ASSERT_TEXT(FALSE, "loadProduction: unknown body size for {}",psFunction->pName);
     return FALSE;
   }
 
@@ -360,7 +360,7 @@ BOOL loadProduction(SBYTE* pData)
     psFunction->productionOutput = static_cast<UWORD>(productionOutput);
   else
   {
-    ASSERT((FALSE, "loadProduction: production Output too big for %s",psFunction->pName));
+    ASSERT_TEXT(FALSE, "loadProduction: production Output too big for {}",psFunction->pName);
     psFunction->productionOutput = 0;
   }
 
@@ -378,7 +378,7 @@ BOOL loadProductionUpgradeFunction(SBYTE* pData)
   psFunction = new (std::nothrow) PRODUCTION_UPGRADE_FUNCTION[1];
   if (psFunction == nullptr)
   {
-    DBERROR(("Production Upgrade Function - Out of memory"));
+    Neuron::Fatal("Production Upgrade Function - Out of memory");
     return FALSE;
   }
   memset(psFunction, 0, sizeof(PRODUCTION_UPGRADE_FUNCTION));
@@ -427,7 +427,7 @@ BOOL loadResearchFunction(SBYTE* pData)
   psFunction = new (std::nothrow) RESEARCH_FUNCTION[1];
   if (psFunction == nullptr)
   {
-    DBERROR(("Research Function - Out of memory"));
+    Neuron::Fatal("Research Function - Out of memory");
     return FALSE;
   }
   memset(psFunction, 0, sizeof(RESEARCH_FUNCTION));
@@ -460,7 +460,7 @@ BOOL loadReArmFunction(SBYTE* pData)
   psFunction = new (std::nothrow) REARM_FUNCTION[1];
   if (psFunction == nullptr)
   {
-    DBERROR(("ReArm Function - Out of memory"));
+    Neuron::Fatal("ReArm Function - Out of memory");
     return FALSE;
   }
   memset(psFunction, 0, sizeof(REARM_FUNCTION));
@@ -551,7 +551,7 @@ BOOL loadUpgradeFunction(SBYTE* pData, UBYTE type)
   psFunction = new (std::nothrow) UPGRADE_FUNCTION[1];
   if (psFunction == nullptr)
   {
-    DBERROR(("Upgrade Function - Out of memory"));
+    Neuron::Fatal("Upgrade Function - Out of memory");
     return FALSE;
   }
   memset(psFunction, 0, sizeof(UPGRADE_FUNCTION));
@@ -574,7 +574,7 @@ BOOL loadUpgradeFunction(SBYTE* pData, UBYTE type)
 
   if (modifier > UWORD_MAX)
   {
-    ASSERT((FALSE, "loadUpgradeFunction: modifier too great for %s", functionName));
+    ASSERT_TEXT(FALSE, "loadUpgradeFunction: modifier too great for {}", functionName);
     return FALSE;
   }
 
@@ -594,7 +594,7 @@ BOOL loadDroidBodyUpgradeFunction(SBYTE* pData)
   psFunction = new (std::nothrow) DROIDBODY_UPGRADE_FUNCTION[1];
   if (psFunction == nullptr)
   {
-    DBERROR(("UnitBody Upgrade Function - Out of memory"));
+    Neuron::Fatal("UnitBody Upgrade Function - Out of memory");
     return FALSE;
   }
   memset(psFunction, 0, sizeof(DROIDBODY_UPGRADE_FUNCTION));
@@ -617,7 +617,7 @@ BOOL loadDroidBodyUpgradeFunction(SBYTE* pData)
 
   if (modifier > UWORD_MAX OR armourKinetic > UWORD_MAX OR armourHeat > UWORD_MAX OR body > UWORD_MAX)
   {
-    ASSERT((FALSE, "loadUnitBodyUpgradeFunction: one or more modifiers too great"));
+    ASSERT_TEXT(FALSE, "loadUnitBodyUpgradeFunction: one or more modifiers too great");
     return FALSE;
   }
 
@@ -648,7 +648,7 @@ BOOL loadDroidSensorUpgradeFunction(SBYTE* pData)
   psFunction = new (std::nothrow) DROIDSENSOR_UPGRADE_FUNCTION[1];
   if (psFunction == nullptr)
   {
-    DBERROR(("UnitSensor Upgrade Function - Out of memory"));
+    Neuron::Fatal("UnitSensor Upgrade Function - Out of memory");
     return FALSE;
   }
   memset(psFunction, 0, sizeof(DROIDSENSOR_UPGRADE_FUNCTION));
@@ -671,7 +671,7 @@ BOOL loadDroidSensorUpgradeFunction(SBYTE* pData)
 
   if (modifier > UWORD_MAX OR range > UWORD_MAX)
   {
-    ASSERT((FALSE, "loadUnitSensorUpgradeFunction: one or more modifiers too great"));
+    ASSERT_TEXT(FALSE, "loadUnitSensorUpgradeFunction: one or more modifiers too great");
     return FALSE;
   }
 
@@ -692,7 +692,7 @@ BOOL loadWeaponUpgradeFunction(SBYTE* pData)
   psFunction = new (std::nothrow) WEAPON_UPGRADE_FUNCTION[1];
   if (psFunction == nullptr)
   {
-    DBERROR(("Weapon Upgrade Function - Out of memory"));
+    Neuron::Fatal("Weapon Upgrade Function - Out of memory");
     return FALSE;
   }
   memset(psFunction, 0, sizeof(WEAPON_UPGRADE_FUNCTION));
@@ -723,7 +723,7 @@ BOOL loadWeaponUpgradeFunction(SBYTE* pData)
   if (firePause > UBYTE_MAX OR shortHit > UWORD_MAX OR longHit > UWORD_MAX OR damage > UWORD_MAX OR radiusDamage > UWORD_MAX OR incenDamage
     > UWORD_MAX OR radiusHit > UWORD_MAX)
   {
-    DBERROR(("A percentage increase for Weapon Upgrade function is too large"));
+    Neuron::Fatal("A percentage increase for Weapon Upgrade function is too large");
     return FALSE;
   }
 
@@ -751,7 +751,7 @@ BOOL loadStructureUpgradeFunction(SBYTE* pData)
   psFunction = new (std::nothrow) STRUCTURE_UPGRADE_FUNCTION[1];
   if (psFunction == nullptr)
   {
-    DBERROR(("Structure Upgrade Function - Out of memory"));
+    Neuron::Fatal("Structure Upgrade Function - Out of memory");
     return FALSE;
   }
   memset(psFunction, 0, sizeof(STRUCTURE_UPGRADE_FUNCTION));
@@ -775,7 +775,7 @@ BOOL loadStructureUpgradeFunction(SBYTE* pData)
   //check none of the %increases are over UWORD max
   if (armour > UWORD_MAX OR body > UWORD_MAX OR resistance > UWORD_MAX)
   {
-    DBERROR(("A percentage increase for Structure Upgrade function is too large"));
+    Neuron::Fatal("A percentage increase for Structure Upgrade function is too large");
     return FALSE;
   }
 
@@ -797,7 +797,7 @@ BOOL loadWallDefenceUpgradeFunction(SBYTE* pData)
   psFunction = new (std::nothrow) WALLDEFENCE_UPGRADE_FUNCTION[1];
   if (psFunction == nullptr)
   {
-    DBERROR(("WallDefence Upgrade Function - Out of memory"));
+    Neuron::Fatal("WallDefence Upgrade Function - Out of memory");
     return FALSE;
   }
   memset(psFunction, 0, sizeof(WALLDEFENCE_UPGRADE_FUNCTION));
@@ -821,7 +821,7 @@ BOOL loadWallDefenceUpgradeFunction(SBYTE* pData)
   //check none of the %increases are over UWORD max
   if (armour > UWORD_MAX OR body > UWORD_MAX)
   {
-    DBERROR(("A percentage increase for WallDefence Upgrade function is too large"));
+    Neuron::Fatal("A percentage increase for WallDefence Upgrade function is too large");
     return FALSE;
   }
 
@@ -911,7 +911,7 @@ BOOL loadPowerGenFunction(SBYTE* pData)
   psFunction = new (std::nothrow) POWER_GEN_FUNCTION[1];
   if (psFunction == nullptr)
   {
-    DBERROR(("Power Gen Function - Out of memory"));
+    Neuron::Fatal("Power Gen Function - Out of memory");
     return FALSE;
   }
   memset(psFunction, 0, sizeof(POWER_GEN_FUNCTION));
@@ -949,7 +949,7 @@ BOOL loadResourceFunction(SBYTE* pData)
   psFunction = new (std::nothrow) RESOURCE_FUNCTION[1];
   if (psFunction == nullptr)
   {
-    DBERROR(("Resource Function - Out of memory"));
+    Neuron::Fatal("Resource Function - Out of memory");
     return FALSE;
   }
   memset(psFunction, 0, sizeof(RESOURCE_FUNCTION));
@@ -1049,7 +1049,7 @@ BOOL loadRepairDroidFunction(SBYTE* pData)
   psFunction = new (std::nothrow) REPAIR_DROID_FUNCTION[1];
   if (psFunction == nullptr)
   {
-    DBERROR(("Repair Droid Function - Out of memory"));
+    Neuron::Fatal("Repair Droid Function - Out of memory");
     return FALSE;
   }
   memset(psFunction, 0, sizeof(REPAIR_DROID_FUNCTION));
@@ -1348,7 +1348,7 @@ BOOL loadWallFunction(SBYTE* pData)
   psFunction = new (std::nothrow) WALL_FUNCTION[1];
   if (psFunction == nullptr)
   {
-    DBERROR(("Wall Function - Out of memory"));
+    Neuron::Fatal("Wall Function - Out of memory");
     return FALSE;
   }
   memset(psFunction, 0, sizeof(WALL_FUNCTION));
@@ -1377,7 +1377,7 @@ BOOL loadWallFunction(SBYTE* pData)
 #else
   if (!allocateName(&psFunction->pStructName, structureName))
   {
-    DBERROR(("Structure Stats Invalid for function - %s", functionName));
+    Neuron::Fatal("Structure Stats Invalid for function - {}", functionName);
     return FALSE;
   }
 #endif
@@ -1543,7 +1543,7 @@ void structureProductionUpgrade(STRUCTURE* psBuilding)
   case REF_VTOL_FACTORY:
     type = VTOL_FLAG;
     break;
-  default: ASSERT((FALSE, "structureProductionUpgrade: Invalid factory type"));
+  default: ASSERT_TEXT(FALSE, "structureProductionUpgrade: Invalid factory type");
     return;
   }
 
@@ -1905,7 +1905,7 @@ void upgradeTransporterDroids(DROID* psTransporter, void (*pUpgradeFunction)(DRO
 {
   DROID* psCurr;
 
-  ASSERT((psTransporter->droidType == DROID_TRANSPORTER, "upgradeTransporterUnits: invalid unit type"));
+  ASSERT_TEXT(psTransporter->droidType == DROID_TRANSPORTER, "upgradeTransporterUnits: invalid unit type");
 
   //loop thru' each unit in the Transporter
   for (psCurr = psTransporter->psGroup->psList; psCurr != nullptr; psCurr = psCurr->psGrpNext)
@@ -2038,5 +2038,5 @@ UDWORD functionType(char* pType)
     return HQ_TYPE;
   }*/
 
-  ASSERT((FALSE, "Unknown Function Type"));
+  ASSERT_TEXT(FALSE, "Unknown Function Type");
 }

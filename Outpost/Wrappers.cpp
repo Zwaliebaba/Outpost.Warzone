@@ -252,7 +252,7 @@ TITLECODE titleLoop(void)
     RetCode = TITLECODE_SHOWINTRO;
     break;
 
-  default: DBERROR(("unknown title screen mode "));
+  default: Neuron::Fatal("unknown title screen mode ");
   }
 
   audio_Update();
@@ -285,7 +285,7 @@ void loadingScreenCallback(void)
   if ((currTick - lastTick) > 500)
   {
     currTick -= lastTick;
-    DBPRINTF(("loadingScreenCallback: pause %d\n", currTick));
+    Neuron::DebugTrace("loadingScreenCallback: pause {}\n", currTick);
   }
   lastTick = GetTickCount();
   pie_GlobalRenderBegin();

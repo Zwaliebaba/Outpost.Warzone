@@ -147,7 +147,7 @@ BOOL WDG_SetCurrentWDG(char* filename)
   pFileHandle = DISK_OpenFile(filename); // tries to open the WDG on the HD (pc) or CD  (psx)
   if (pFileHandle == nullptr)
   {
-    DBPRINTF(("WDG_SetCurrentWDG unable to open %s\n",filename));
+    Neuron::DebugTrace("WDG_SetCurrentWDG unable to open {}\n",filename);
     return FALSE;
   }
 
@@ -155,7 +155,7 @@ BOOL WDG_SetCurrentWDG(char* filename)
   BytesRead = DISK_ReadPos(0, (UBYTE *)&NewHeader, sizeof(WDG_HEADER), pFileHandle);
   if (BytesRead != sizeof(WDG_HEADER))
   {
-    DBPRINTF(("WDG_SetCurrentWDG unable to read from %s\n",filename));
+    Neuron::DebugTrace("WDG_SetCurrentWDG unable to read from {}\n",filename);
     DISK_Close(pFileHandle);
     return FALSE;
   }
@@ -163,7 +163,7 @@ BOOL WDG_SetCurrentWDG(char* filename)
   // right, we read in the header now check the values to make sure its okay
   if (NewHeader.WDGid[0] != 'W' || NewHeader.WDGid[1] != 'D' || NewHeader.WDGid[2] != 'G')
   {
-    DBPRINTF(("WDG_SetCurrentWDG bad type of wdg file - %s\n",filename));
+    Neuron::DebugTrace("WDG_SetCurrentWDG bad type of wdg file - {}\n",filename);
     DISK_Close(pFileHandle);
     return FALSE;
   }
@@ -176,7 +176,7 @@ BOOL WDG_SetCurrentWDG(char* filename)
     BytesRead = DISK_ReadPos(0, (UBYTE *)&HeaderV5, sizeof(WDG_HEADER_V5), pFileHandle);
     if (BytesRead != sizeof(WDG_HEADER_V5))
     {
-      DBPRINTF(("WDG_SetCurrentWDG unable to read from %s\n",filename));
+      Neuron::DebugTrace("WDG_SetCurrentWDG unable to read from {}\n",filename);
       DISK_Close(pFileHandle);
       return FALSE;
     }
@@ -200,7 +200,7 @@ BOOL WDG_SetCurrentWDG(char* filename)
   size = sizeof(WDGINFO) * NumberOfWRFfiles;
   if (BytesRead != size)
   {
-    DBPRINTF(("WDG_SetCurrentWDG unable to read from %s\n",filename));
+    Neuron::DebugTrace("WDG_SetCurrentWDG unable to read from {}\n",filename);
     DISK_Close(pFileHandle);
     return FALSE;
   }
@@ -261,7 +261,7 @@ BOOL LoadWRFCatalog(WDGINFO* CurrentWRF, FILE* pFileHandle)
     BytesRead = DISK_ReadPos(CurrentWRF->offset, (UBYTE *)WRFfilesCatalog, sizeof(WRFINFO)*CurrentWRF->filecount, pFileHandle);
     if (BytesRead != sizeof(WRFINFO) * CurrentWRF->filecount)
     {
-      DBPRINTF(("WDG_ProcessWRF unable to read from %s\n",CurrentWDGname));
+      Neuron::DebugTrace("WDG_ProcessWRF unable to read from {}\n",CurrentWDGname);
       return FALSE;
     }
     LastCatalogLoadedOffset = CurrentWRF->offset;
@@ -359,7 +359,7 @@ BOOL WDG_ProcessWRF(char* WRFname, BOOL UseDataFromWDG)
   pFileHandle = DISK_OpenFile(CurrentWDGname); // tries to open the WDG on the HD (pc) or CD  (psx)
   if (pFileHandle == nullptr)
   {
-    DBPRINTF(("WDG_ProcessWRF unable to open %s\n",CurrentWDGname));
+    Neuron::DebugTrace("WDG_ProcessWRF unable to open {}\n",CurrentWDGname);
     return FALSE;
   }
 
@@ -473,7 +473,7 @@ void FILE_InvalidateCache(void)
 
 void FILE_SetupCache(UBYTE* CacheStart, UDWORD CacheSize)
 {
-  DBPRINTF(("\n\n\n\n\n\n\n%dv =  cache size\n\n\n\n\n\n",CacheSize));
+  Neuron::DebugTrace("\n\n\n\n\n\n\n{}v =  cache size\n\n\n\n\n\n",CacheSize);
   Cache.pBufferStart = CacheStart;
   Cache.BufferSize = CacheSize;
   FILE_InvalidateCache(); // setup everything up as invalid
@@ -522,11 +522,11 @@ BOOL FILE_InitialiseCache(SDWORD CacheSize)
 
     PrimBufferCatalog = CacheStart; PrimBufferCatalog->Check1 = CHECK1; // sanity check (even in release - only 8 bytes)
     PrimBufferCatalog->Check2 = CHECK2; CacheStart += sizeof(PRIMBUFFERCATALOG); CacheSize -= sizeof(PRIMBUFFERCATALOG);
-    assert(CacheSize>0); DBPRINTF(("Catalog address = %p\n",PrimBufferCatalog));
+    assert(CacheSize>0); Neuron::DebugTrace("Catalog address = {}\n",PrimBufferCatalog);
 #endif
 
-    DBPRINTF(("\n\n\n\n\n\n\nold cache = %d\n\n\n\n",Cache.BufferSize));
-    DBPRINTF(("adjusted to %p size=%d\n",CacheStart,CacheSize));
+    Neuron::DebugTrace("\n\n\n\n\n\n\nold cache = {}\n\n\n\n",Cache.BufferSize);
+    Neuron::DebugTrace("adjusted to {} size={}\n",static_cast<void*>(CacheStart),CacheSize);
 
     Cache.pBufferStart = CacheStart;
     Cache.BufferSize = CacheSize;
@@ -548,7 +548,7 @@ BOOL FILE_InitialiseCache(SDWORD CacheSize)
   CacheBuffer = new (std::nothrow) UBYTE[CacheSize];
   if (CacheBuffer == nullptr)
   {
-    DBPRINTF(("No memory for the file cache ... !\n"));
+    Neuron::DebugTrace("No memory for the file cache ... !\n");
     return FALSE;
   }
 
@@ -648,7 +648,7 @@ UBYTE* FILE_RetreivePending(UDWORD* SizeLoaded)
   pFileHandle = DISK_OpenFile(CurrentWDGname); // tries to open the WDG on the HD (pc) or CD  (psx)
   if (pFileHandle == nullptr)
   {
-    DBPRINTF(("WDG_ProcessWRF unable to open %s\n",CurrentWDGname));
+    Neuron::DebugTrace("WDG_ProcessWRF unable to open {}\n",CurrentWDGname);
     return FALSE;
   }
 
@@ -660,7 +660,7 @@ UBYTE* FILE_RetreivePending(UDWORD* SizeLoaded)
   Cache.OffsetInWDG = DataPendingOffset; // Set the cache offset position
   DataPendingOffset += BytesRead;
 
-  DBPRINTF(("Bytes read = %d remaining=%d\n",BytesRead,DataPendingSize));
+  Neuron::DebugTrace("Bytes read = {} remaining={}\n",BytesRead,DataPendingSize);
 
   Cache.IsCacheDataValid = TRUE; // Data is now valid !
 
@@ -870,7 +870,7 @@ BOOL loadFileFromWDGCache(WDG_FINDFILE* psFindFile, UBYTE** ppFileData, UDWORD* 
   pFileHandle = DISK_OpenFile(psFindFile->psCurrCache->aFileName); // tries to open the WDG on the HD (pc) or CD  (psx)
   if (pFileHandle == nullptr)
   {
-    DBPRINTF(("WDG_ProcessWRF unable to open %s\n",CurrentWDGname));
+    Neuron::DebugTrace("WDG_ProcessWRF unable to open {}\n",CurrentWDGname);
     return FALSE;
   }
 
@@ -895,7 +895,7 @@ BOOL loadFileFromWDGCache(WDG_FINDFILE* psFindFile, UBYTE** ppFileData, UDWORD* 
     {
       *pFileSize = Cache.BufferSize; // we got all we could but there is still some left
       //prnt(1,"DATA STILL PENDING !! \n",0,0); ffs TC
-      DBPRINTF(("size still pending = %d\n",FILE_AmountPending()));
+      Neuron::DebugTrace("size still pending = {}\n",FILE_AmountPending());
     }
     DISK_Close(pFileHandle);
     return TRUE;
@@ -908,7 +908,7 @@ BOOL loadFileFromWDGCache(WDG_FINDFILE* psFindFile, UBYTE** ppFileData, UDWORD* 
     if (*ppFileData == nullptr)
     {
       // no mem for file
-      DBPRINTF(("alloc failed - no mem for file size %d\n",CurrentFile->filesize));
+      Neuron::DebugTrace("alloc failed - no mem for file size {}\n",CurrentFile->filesize);
       DISK_Close(pFileHandle);
       return FALSE;
     }

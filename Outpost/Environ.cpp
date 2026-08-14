@@ -66,7 +66,7 @@ BOOL environInit(void)
   pEnvironData = new (std::nothrow) ENVIRON_DATA[MAP_MAXWIDTH * MAP_MAXHEIGHT];
   if (!pEnvironData)
   {
-    DBERROR(("Can't get memory for the environment data"));
+    Neuron::Fatal("Can't get memory for the environment data");
     return FALSE;
   }
   return TRUE;
@@ -179,7 +179,7 @@ void environUpdate(void)
           highest = ENVIRON_LAND_HIGHEST;
           increment = ((MAKEFRACT(ENVIRON_LAND_SPEED) * pEnvironData[index].vec) * fraction);
           break;
-        default: DBERROR(("Weird environment type found"));
+        default: Neuron::Fatal("Weird environment type found");
           break;
         }
 
@@ -262,10 +262,10 @@ extern UDWORD map_MistValue(UDWORD x, UDWORD y)
 
   tileYOffset = (tileY * mapWidth);
 
-  ASSERT((ox < TILE_UNITS, "mapHeight: x offset too big"));
-  ASSERT((oy < TILE_UNITS, "mapHeight: y offset too big"));
-  ASSERT((ox >= 0, "mapHeight: x offset too small"));
-  ASSERT((oy >= 0, "mapHeight: y offset too small"));
+  ASSERT_TEXT(ox < TILE_UNITS, "mapHeight: x offset too big");
+  ASSERT_TEXT(oy < TILE_UNITS, "mapHeight: y offset too big");
+  ASSERT_TEXT(ox >= 0, "mapHeight: x offset too small");
+  ASSERT_TEXT(oy >= 0, "mapHeight: y offset too small");
 
   //different code for 4 different triangle cases
   if (psMapTiles[tileX + tileYOffset].texture & TILE_TRIFLIP)
@@ -325,8 +325,8 @@ FUNCINLINE UDWORD map_TileMistValue(UDWORD x, UDWORD y)
 {
   x = x >= (mapWidth) ? (mapWidth - 1) : x;
   y = y >= (mapHeight) ? (mapHeight - 1) : y;
-  ASSERT((x < mapWidth, "mapTile: x coordinate bigger than map width"));
-  ASSERT((y < mapHeight, "mapTile: y coordinate bigger than map height"));
+  ASSERT_TEXT(x < mapWidth, "mapTile: x coordinate bigger than map width");
+  ASSERT_TEXT(y < mapHeight, "mapTile: y coordinate bigger than map height");
   return (MAKEINT(pEnvironData[x + (y * mapWidth)].val) * 4);
 }
 

@@ -121,7 +121,7 @@ BOOL researchInitVars(void)
   asResearch = new (std::nothrow) RESEARCH[MAX_RESEARCH];
   if (asResearch == nullptr)
   {
-    DBERROR(("Research Stats - Out of memory"));
+    Neuron::Fatal("Research Stats - Out of memory");
     return FALSE;
   }
   memset(asResearch, 0, (MAX_RESEARCH * sizeof(RESEARCH)));
@@ -132,7 +132,7 @@ BOOL researchInitVars(void)
     asPlayerResList[i] = new (std::nothrow) PLAYER_RESEARCH[MAX_RESEARCH];
     if (asPlayerResList[i] == nullptr)
     {
-      DBERROR(("Out of memory assigning Player_Research"));
+      Neuron::Fatal("Out of memory assigning Player_Research");
       return FALSE;
     }
     memset(asPlayerResList[i], 0, (MAX_RESEARCH * sizeof(PLAYER_RESEARCH)));
@@ -145,7 +145,7 @@ BOOL researchInitVars(void)
   pResearchPR = new (std::nothrow) UWORD[MAX_RESEARCH_PR];
   if (pResearchPR == nullptr)
   {
-    DBERROR(("Research Stats - Out of memory"));
+    Neuron::Fatal("Research Stats - Out of memory");
     return FALSE;
   }
   //needs to be UWORD sized for the Patches
@@ -154,7 +154,7 @@ BOOL researchInitVars(void)
   pResearchStructPR = new (std::nothrow) UWORD[MAX_RESEARCH_STRUCT_PR];
   if (pResearchStructPR == nullptr)
   {
-    DBERROR(("Research Stats - Out of memory"));
+    Neuron::Fatal("Research Stats - Out of memory");
     return FALSE;
   }
   memset(pResearchStructPR, 0, (MAX_RESEARCH_STRUCT_PR * sizeof(UWORD)));
@@ -162,7 +162,7 @@ BOOL researchInitVars(void)
   pResearchFunc = new (std::nothrow) FUNCTION*[MAX_RESEARCH_FUNC];
   if (pResearchFunc == nullptr)
   {
-    DBERROR(("Research Stats - Out of memory"));
+    Neuron::Fatal("Research Stats - Out of memory");
     return FALSE;
   }
   memset(pResearchFunc, 0, (MAX_RESEARCH_FUNC * sizeof(FUNCTION*)));
@@ -170,7 +170,7 @@ BOOL researchInitVars(void)
   pResearchStructRed = new (std::nothrow) UWORD[MAX_RESEARCH_STRUCT_RED];
   if (pResearchStructRed == nullptr)
   {
-    DBERROR(("Research Stats - Out of memory"));
+    Neuron::Fatal("Research Stats - Out of memory");
     return FALSE;
   }
   memset(pResearchStructRed, 0, (MAX_RESEARCH_STRUCT_RED * sizeof(UWORD)));
@@ -178,7 +178,7 @@ BOOL researchInitVars(void)
   pResearchArteRed = new (std::nothrow) COMP_BASE_STATS*[MAX_RESEARCH_ARTE_RED];
   if (pResearchArteRed == nullptr)
   {
-    DBERROR(("Research Stats - Out of memory"));
+    Neuron::Fatal("Research Stats - Out of memory");
     return FALSE;
   }
   memset(pResearchArteRed, 0, (MAX_RESEARCH_ARTE_RED * sizeof(COMP_BASE_STATS*)));
@@ -186,7 +186,7 @@ BOOL researchInitVars(void)
   pResearchStructRes = new (std::nothrow) UWORD[MAX_RESEARCH_STRUCT_RES];
   if (pResearchStructRes == nullptr)
   {
-    DBERROR(("Research Stats - Out of memory"));
+    Neuron::Fatal("Research Stats - Out of memory");
     return FALSE;
   }
   memset(pResearchStructRes, 0, (MAX_RESEARCH_STRUCT_RES * sizeof(UWORD)));
@@ -194,7 +194,7 @@ BOOL researchInitVars(void)
   pResearchArteRes = new (std::nothrow) COMP_BASE_STATS*[MAX_RESEARCH_ARTE_RES];
   if (pResearchArteRes == nullptr)
   {
-    DBERROR(("Research Stats - Out of memory"));
+    Neuron::Fatal("Research Stats - Out of memory");
     return FALSE;
   }
   memset(pResearchArteRes, 0, (MAX_RESEARCH_ARTE_RES * sizeof(COMP_BASE_STATS*)));
@@ -202,7 +202,7 @@ BOOL researchInitVars(void)
   pResearchArteRep = new (std::nothrow) COMP_BASE_STATS*[MAX_RESEARCH_ARTE_RES];
   if (pResearchArteRep == nullptr)
   {
-    DBERROR(("Research Stats - Out of memory"));
+    Neuron::Fatal("Research Stats - Out of memory");
     return FALSE;
   }
   memset(pResearchArteRep, 0, (MAX_RESEARCH_ARTE_RES * sizeof(COMP_BASE_STATS*)));
@@ -232,7 +232,7 @@ BOOL loadResearch(SBYTE* pResearchData, UDWORD bufferSize)
   researchCount = numCR((UBYTE*)pResearchData, bufferSize);
 
   numResearch = researchCount;
-  ASSERT(((numResearch) <= MAX_RESEARCH, "Too many ResearchStats!! - max allowed %d", MAX_RESEARCH));
+  ASSERT_TEXT((numResearch) <= MAX_RESEARCH, "Too many ResearchStats!! - max allowed {}", MAX_RESEARCH);
 
   //init all the counts
   numResearchPR = numResearchFunc = numResearchArteRed = numResearchArteRes = numResearchArteRep = 0;
@@ -373,7 +373,7 @@ BOOL loadResearch(SBYTE* pResearchData, UDWORD bufferSize)
     //check the tech code is valid
     if (techCode > 1)
     {
-      DBERROR(("Invalid tech code for research topic - %s ", getResearchName(pResearch)));
+      Neuron::Fatal("Invalid tech code for research topic - {} ", getResearchName(pResearch));
       return FALSE;
     }
     if (techCode == 0)
@@ -402,7 +402,7 @@ BOOL loadResearch(SBYTE* pResearchData, UDWORD bufferSize)
         pResearch->psStat = (BASE_STATS*)(asStructureStats + structID);
       else
       {
-        DBERROR(("Cannot find the structure Stat for Research %s", getResearchName(pResearch)));
+        Neuron::Fatal("Cannot find the structure Stat for Research {}", getResearchName(pResearch));
         return FALSE;
       }
     }
@@ -414,7 +414,7 @@ BOOL loadResearch(SBYTE* pResearchData, UDWORD bufferSize)
         pResearch->psStat = (BASE_STATS*)psComp;
       else
       {
-        DBERROR(("Cannot find the component Stat for Research %s", getResearchName(pResearch)));
+        Neuron::Fatal("Cannot find the component Stat for Research {}", getResearchName(pResearch));
         return FALSE;
       }
     }
@@ -425,7 +425,7 @@ BOOL loadResearch(SBYTE* pResearchData, UDWORD bufferSize)
       pResearch->pIMD = static_cast<iIMDShape*>(resGetData("IMD", imdName));
       if (pResearch->pIMD == nullptr)
       {
-        DBERROR(("Cannot find the research PIE for record %s", getResearchName(pResearch)));
+        Neuron::Fatal("Cannot find the research PIE for record {}", getResearchName(pResearch));
         return FALSE;
       }
     }
@@ -437,7 +437,7 @@ BOOL loadResearch(SBYTE* pResearchData, UDWORD bufferSize)
       pResearch->pIMD2 = static_cast<iIMDShape*>(resGetData("IMD", imdName2));
       if (pResearch->pIMD2 == nullptr)
       {
-        DBERROR(("Cannot find the 2nd research PIE for record %s", getResearchName(pResearch)));
+        Neuron::Fatal("Cannot find the 2nd research PIE for record {}", getResearchName(pResearch));
         return FALSE;
       }
     }
@@ -449,8 +449,7 @@ BOOL loadResearch(SBYTE* pResearchData, UDWORD bufferSize)
     {
       //check its a major tech code
       if (pResearch->techCode != TC_MAJOR)
-        DBERROR(
-        ("This research should not have a message associated with it, %s the message will be ignored!", getResearchName(pResearch)));
+        Neuron::Fatal("This research should not have a message associated with it, {} the message will be ignored!", getResearchName(pResearch));
       else
         pResearch->pViewData = getViewData(msgName);
     }
@@ -467,7 +466,7 @@ BOOL loadResearch(SBYTE* pResearchData, UDWORD bufferSize)
       }*/
       if (numResearchArteRed >= MAX_RESEARCH_ARTE_RED)
       {
-        DBERROR(("Out of memory assigning research artefacts - redundancies"));
+        Neuron::Fatal("Out of memory assigning research artefacts - redundancies");
         return FALSE;
       }
       //don't MALLOC - get them from the pre-defined arrays
@@ -487,7 +486,7 @@ BOOL loadResearch(SBYTE* pResearchData, UDWORD bufferSize)
       }*/
       if (numResearchArteRed >= MAX_RESEARCH_ARTE_RES)
       {
-        DBERROR(("Out of memory assigning research artefacts - results"));
+        Neuron::Fatal("Out of memory assigning research artefacts - results");
         return FALSE;
       }
       //don't MALLOC - get them from the pre-defined arrays
@@ -508,7 +507,7 @@ BOOL loadResearch(SBYTE* pResearchData, UDWORD bufferSize)
       }*/
       if (numResearchArteRep >= MAX_RESEARCH_ARTE_RES)
       {
-        DBERROR(("Out of memory assigning research artefacts - replacements"));
+        Neuron::Fatal("Out of memory assigning research artefacts - replacements");
         return FALSE;
       }
       //don't MALLOC - get them from the pre-defined arrays
@@ -529,7 +528,7 @@ BOOL loadResearch(SBYTE* pResearchData, UDWORD bufferSize)
       }*/
       if (numResearchFunc >= MAX_RESEARCH_FUNC)
       {
-        DBERROR(("Out of memory assigning research functions"));
+        Neuron::Fatal("Out of memory assigning research functions");
         return FALSE;
       }
       //don't MALLOC - get them from the pre-defined arrays
@@ -550,7 +549,7 @@ BOOL loadResearch(SBYTE* pResearchData, UDWORD bufferSize)
       }*/
       if (numResearchPR >= MAX_RESEARCH_PR)
       {
-        DBERROR(("Out of memory assigning research pre-requisities"));
+        Neuron::Fatal("Out of memory assigning research pre-requisities");
         return FALSE;
       }
       //don't MALLOC - get them from the pre-defined arrays
@@ -572,7 +571,7 @@ BOOL loadResearch(SBYTE* pResearchData, UDWORD bufferSize)
       }*/
       if (numResearchStructPR >= MAX_RESEARCH_STRUCT_PR)
       {
-        DBERROR(("Out of memory assigning research structures - requirements"));
+        Neuron::Fatal("Out of memory assigning research structures - requirements");
         return FALSE;
       }
       //don't MALLOC - get them from the pre-defined arrays
@@ -593,7 +592,7 @@ BOOL loadResearch(SBYTE* pResearchData, UDWORD bufferSize)
       }*/
       if (numResearchStructRed >= MAX_RESEARCH_STRUCT_RED)
       {
-        DBERROR(("Out of memory assigning research structures - redundancies"));
+        Neuron::Fatal("Out of memory assigning research structures - redundancies");
         return FALSE;
       }
       //don't MALLOC - get them from the pre-defined arrays
@@ -613,7 +612,7 @@ BOOL loadResearch(SBYTE* pResearchData, UDWORD bufferSize)
       }*/
       if (numResearchStructRes >= MAX_RESEARCH_STRUCT_RES)
       {
-        DBERROR(("Out of memory assigning research structures - results"));
+        Neuron::Fatal("Out of memory assigning research structures - results");
         return FALSE;
       }
       //don't MALLOC - get them from the pre-defined arrays
@@ -625,7 +624,7 @@ BOOL loadResearch(SBYTE* pResearchData, UDWORD bufferSize)
     //set the researchPoints
     if (resPoints > UWORD_MAX)
     {
-      DBERROR(("Research Points too high for research topic - %s ", getResearchName(pResearch)));
+      Neuron::Fatal("Research Points too high for research topic - {} ", getResearchName(pResearch));
       return FALSE;
     }
     pResearch->researchPoints = static_cast<UWORD>(resPoints);
@@ -678,7 +677,7 @@ BOOL loadResearchPR(SBYTE* pPRData, UDWORD bufferSize)
   NumToAlloc = numCR((UBYTE*)pPRData, bufferSize);
 
   //check not going to go over max
-  ASSERT((NumToAlloc <= MAX_RESEARCH_PR, "loadResearchPR: too many!"));
+  ASSERT_TEXT(NumToAlloc <= MAX_RESEARCH_PR, "loadResearchPR: too many!");
   numResearchPR = 0;
 
   for (i = 0; i < NumToAlloc; i++)
@@ -718,7 +717,7 @@ BOOL loadResearchPR(SBYTE* pPRData, UDWORD bufferSize)
             //check not allocating more than allowed
             if ((pResearch[incR].storeCount + 1) > static_cast<SDWORD>(pResearch[incR].numPRRequired))
             {
-              DBERROR(("Trying to allocate more pre-requisites than allowed for research %s", getResearchName(pResearch)));
+              Neuron::Fatal("Trying to allocate more pre-requisites than allowed for research {}", getResearchName(pResearch));
               return FALSE;
             }
             //PRresearch found alloc this to the current Research
@@ -733,7 +732,7 @@ BOOL loadResearchPR(SBYTE* pPRData, UDWORD bufferSize)
         //if pre-requisite not found - error
         if (!recFound)
         {
-          DBERROR(("Unable to find Pre-requisite %s for research %s", PRName, ResearchName ));
+          Neuron::Fatal("Unable to find Pre-requisite {} for research {}", PRName, ResearchName );
           return FALSE;
         }
         break;
@@ -742,7 +741,7 @@ BOOL loadResearchPR(SBYTE* pPRData, UDWORD bufferSize)
     //if Research not found - error
     if (!recFound)
     {
-      DBERROR(("Unable to find Research %s", ResearchName));
+      Neuron::Fatal("Unable to find Research {}", ResearchName);
       return FALSE;
     }
     //quick check that haven't reached maxPR
@@ -781,10 +780,10 @@ BOOL loadResearchArtefacts(SBYTE* pArteData, UDWORD bufferSize, UDWORD listNumbe
   //check not going to go over max
   switch (listNumber)
   {
-  case RED_LIST: ASSERT((NumToAlloc <= MAX_RESEARCH_ARTE_RED, "loadResearchArtefacts: too many Redundant Components"));
+  case RED_LIST: ASSERT_TEXT(NumToAlloc <= MAX_RESEARCH_ARTE_RED, "loadResearchArtefacts: too many Redundant Components");
     numResearchArteRed = 0;
     break;
-  case RES_LIST: ASSERT((NumToAlloc <= MAX_RESEARCH_ARTE_RES, "loadResearchArtefacts: too many Component Results"));
+  case RES_LIST: ASSERT_TEXT(NumToAlloc <= MAX_RESEARCH_ARTE_RES, "loadResearchArtefacts: too many Component Results");
     numResearchArteRes = 0;
     numResearchArteRep = 0;
     break;
@@ -831,7 +830,7 @@ BOOL loadResearchArtefacts(SBYTE* pArteData, UDWORD bufferSize, UDWORD listNumbe
       numResearchArteRes++;
       maxArtefacts = pResearch->numArteResults;
       break;
-    default: DBERROR(("Unknown research list"));
+    default: Neuron::Fatal("Unknown research list");
       return FALSE;
     }
     //deal with extra data
@@ -857,8 +856,8 @@ BOOL loadResearchArtefacts(SBYTE* pArteData, UDWORD bufferSize, UDWORD listNumbe
         //check the old and new types are the same
         if (statType(pArtefact->ref) != newType)
         {
-          DBERROR(("You are trying to replace one type of component with \
-						a different type for research %s in ResultComponents.txt", ResearchName));
+          Neuron::Fatal("You are trying to replace one type of component with \
+						a different type for research %s in ResultComponents.txt", ResearchName);
           return FALSE;
         }
         //ArtefactResearch found - alloc the artefact to the current Research topic
@@ -866,14 +865,14 @@ BOOL loadResearchArtefacts(SBYTE* pArteData, UDWORD bufferSize, UDWORD listNumbe
         numResearchArteRep++;
       }
       break;
-    default: DBERROR(("Unknown research list"));
+    default: Neuron::Fatal("Unknown research list");
       return FALSE;
     }
 
     //check not allocating more than allowed
     if (pResearch->storeCount > maxArtefacts)
     {
-      DBERROR(("Trying to allocate more artefacts than allowed for research %s", getResearchName(pResearch)));
+      Neuron::Fatal("Trying to allocate more artefacts than allowed for research {}", getResearchName(pResearch));
       return FALSE;
     }
     pResearch->storeCount++;
@@ -920,17 +919,17 @@ BOOL loadResearchStructures(SBYTE* pStructData, UDWORD bufferSize, UDWORD listNu
   {
   case REQ_LIST:
     //check not going to go over max
-    ASSERT((NumToAlloc <= MAX_RESEARCH_STRUCT_PR, "loadResearchStructures: too many Struct PRs"));
+    ASSERT_TEXT(NumToAlloc <= MAX_RESEARCH_STRUCT_PR, "loadResearchStructures: too many Struct PRs");
     numResearchStructPR = 0;
     break;
   case RED_LIST:
     //check not going to go over max
-    ASSERT((NumToAlloc <= MAX_RESEARCH_STRUCT_RED, "loadResearchStructures: too many redundant structure"));
+    ASSERT_TEXT(NumToAlloc <= MAX_RESEARCH_STRUCT_RED, "loadResearchStructures: too many redundant structure");
     numResearchStructRed = 0;
     break;
   case RES_LIST:
     //check not going to go over max
-    ASSERT((NumToAlloc <= MAX_RESEARCH_STRUCT_RES, "loadResearchStructures: too many structure results"));
+    ASSERT_TEXT(NumToAlloc <= MAX_RESEARCH_STRUCT_RES, "loadResearchStructures: too many structure results");
     numResearchStructRes = 0;
     break;
   }
@@ -995,14 +994,14 @@ BOOL loadResearchStructures(SBYTE* pStructData, UDWORD bufferSize, UDWORD listNu
               break;
             default:
               /* NO DEFAULT CASE? Alex.... Here ya go - just for you...*/
-              DBERROR(("Unknown research list"));
+              Neuron::Fatal("Unknown research list");
               return FALSE;
             }
             recFound = TRUE;
             //check not allocating more than allowed
             if (pResearch[incR].storeCount > static_cast<SDWORD>(numToFind))
             {
-              DBERROR(("Trying to allocate more Structures than allowed for research %s",getResearchName(pResearch)));
+              Neuron::Fatal("Trying to allocate more Structures than allowed for research {}",getResearchName(pResearch));
               return FALSE;
             }
             pResearch[incR].storeCount++;
@@ -1012,7 +1011,7 @@ BOOL loadResearchStructures(SBYTE* pStructData, UDWORD bufferSize, UDWORD listNu
         //if Structure not found - error
         if (!recFound)
         {
-          DBERROR(("Unable to find Structure %s for research %s", StructureName, ResearchName));
+          Neuron::Fatal("Unable to find Structure {} for research {}", StructureName, ResearchName);
           return FALSE;
         }
         break;
@@ -1021,7 +1020,7 @@ BOOL loadResearchStructures(SBYTE* pStructData, UDWORD bufferSize, UDWORD listNu
     //if Research not found - error
     if (!recFound)
     {
-      DBERROR(("Unable to allocate all Research Structures for %s", ResearchName));
+      Neuron::Fatal("Unable to allocate all Research Structures for {}", ResearchName);
       return FALSE;
     }
 
@@ -1061,7 +1060,7 @@ BOOL loadResearchFunctions(SBYTE* pFunctionData, UDWORD bufferSize)
 
   NumToAlloc = numCR((UBYTE*)pFunctionData, bufferSize);
   //check not going to go over max
-  ASSERT((NumToAlloc <= MAX_RESEARCH_FUNC, "loadResearchFunctions: too many"));
+  ASSERT_TEXT(NumToAlloc <= MAX_RESEARCH_FUNC, "loadResearchFunctions: too many");
   numResearchFunc = 0;
 
   for (i = 0; i < NumToAlloc; i++)
@@ -1106,8 +1105,8 @@ BOOL loadResearchFunctions(SBYTE* pFunctionData, UDWORD bufferSize)
             //check not allocating more than allowed
             if (pResearch[incR].storeCount > static_cast<SDWORD>(pResearch[incR].numFunctions))
             {
-              DBERROR(("Trying to allocate more Functions than allowed \
-								for research %s", ResearchName));
+              Neuron::Fatal("Trying to allocate more Functions than allowed \
+								for research %s", ResearchName);
               return FALSE;
             }
             pResearch[incR].storeCount++;
@@ -1117,7 +1116,7 @@ BOOL loadResearchFunctions(SBYTE* pFunctionData, UDWORD bufferSize)
         //if Function not found - error
         if (!recFound)
         {
-          DBERROR(("Unable to find Function %s for research %s", FunctionName, ResearchName));
+          Neuron::Fatal("Unable to find Function {} for research {}", FunctionName, ResearchName);
           return FALSE;
         }
         break;
@@ -1126,7 +1125,7 @@ BOOL loadResearchFunctions(SBYTE* pFunctionData, UDWORD bufferSize)
     //if Research not found - error
     if (!recFound)
     {
-      DBERROR(("Unable to allocate all research Functions for %s", ResearchName));
+      Neuron::Fatal("Unable to allocate all research Functions for {}", ResearchName);
       return FALSE;
     }
     //quick check that haven't reached maxPR
@@ -1168,7 +1167,7 @@ UWORD fillResearchList(UWORD* plist, UDWORD playerID, UWORD topic, UWORD limit)
   BOOL bPRFound, bStructFound;
 
   //needs to be UWORD sized for Patches
-  ASSERT((numResearch < UWORD_MAX, "fillResearchList: only using a UWORD for storage - need more!"));
+  ASSERT_TEXT(numResearch < UWORD_MAX, "fillResearchList: only using a UWORD for storage - need more!");
   //ASSERT((numResearch < UBYTE_MAX, 
   for (inc = 0; inc < numResearch; inc++)
   {
@@ -1259,7 +1258,7 @@ void researchResult(UDWORD researchIndex, UBYTE player, BOOL bDisplay)
   MESSAGE* pMessage;
   PLAYER_RESEARCH* pPlayerRes = asPlayerResList[player];
 
-  ASSERT((researchIndex < numResearch, "researchResult: invalid research index"));
+  ASSERT_TEXT(researchIndex < numResearch, "researchResult: invalid research index");
 
   sendReseachStatus(nullptr, researchIndex, player, FALSE);
 
@@ -1743,7 +1742,7 @@ void researchResult(UDWORD researchIndex, UBYTE player, BOOL bDisplay)
       // message/sound for resistance upgrade
       break;
     }*/
-    default: { ASSERT((FALSE,"Invalid function type")); }
+    default: { ASSERT_TEXT(FALSE,"Invalid function type"); }
     } //end of switch
   } //end of function loop
 
@@ -1805,13 +1804,13 @@ void researchResult(UDWORD researchIndex, UBYTE player, BOOL bDisplay)
           compInc++;
         if (compInc >= 32)
         {
-          ASSERT((FALSE, "researchResult - more than 32 weapons now available"));
+          ASSERT_TEXT(FALSE, "researchResult - more than 32 weapons now available");
           //don't bother checking any more
           break;
         }
         if (vtolCompInc >= 32)
         {
-          ASSERT((FALSE, "researchResult - more than 32 vtol weapons now available"));
+          ASSERT_TEXT(FALSE, "researchResult - more than 32 vtol weapons now available");
           //don't bother checking any more
           break;
         }
@@ -1935,7 +1934,7 @@ void holdResearch(STRUCTURE* psBuilding)
 {
   RESEARCH_FACILITY* psResFac;
 
-  ASSERT((psBuilding->pStructureType->type == REF_RESEARCH, "holdResearch: structure not a research facility"));
+  ASSERT_TEXT(psBuilding->pStructureType->type == REF_RESEARCH, "holdResearch: structure not a research facility");
 
   psResFac = (RESEARCH_FACILITY*)psBuilding->pFunctionality;
 
@@ -1954,7 +1953,7 @@ void releaseResearch(STRUCTURE* psBuilding)
 {
   RESEARCH_FACILITY* psResFac;
 
-  ASSERT((psBuilding->pStructureType->type == REF_RESEARCH, "releaseResearch: structure not a research facility"));
+  ASSERT_TEXT(psBuilding->pStructureType->type == REF_RESEARCH, "releaseResearch: structure not a research facility");
 
   psResFac = (RESEARCH_FACILITY*)psBuilding->pFunctionality;
 
@@ -1982,7 +1981,7 @@ void CancelAllResearch(UDWORD pl)
     {
       if ((((RESEARCH_FACILITY*)psCurr->pFunctionality) != nullptr) && (((RESEARCH_FACILITY*)psCurr->pFunctionality)->psSubject != nullptr))
       {
-        DBPRINTF(("canceling research for %p\n",psCurr));
+        Neuron::DebugTrace("canceling research for {}\n",static_cast<void*>(psCurr));
         cancelResearch(psCurr);
       }
     }
@@ -1997,13 +1996,13 @@ void cancelResearch(STRUCTURE* psBuilding)
   PLAYER_RESEARCH* pPlayerRes;
   RESEARCH_FACILITY* psResFac;
 
-  ASSERT((psBuilding->pStructureType->type == REF_RESEARCH, "cancelResearch: structure not a research facility"));
+  ASSERT_TEXT(psBuilding->pStructureType->type == REF_RESEARCH, "cancelResearch: structure not a research facility");
 
   psResFac = (RESEARCH_FACILITY*)psBuilding->pFunctionality;
   topicInc = ((RESEARCH*)psResFac->psSubject) - asResearch;
   if (topicInc > numResearch)
   {
-    ASSERT((FALSE, "cancelResearch: invalid research topic"));
+    ASSERT_TEXT(FALSE, "cancelResearch: invalid research topic");
     return;
   }
   pPlayerRes = asPlayerResList[psBuilding->player] + topicInc;
@@ -2072,7 +2071,7 @@ static UWORD setIconIDFromHashedName(STRING* pIconName, UDWORD NameHash)
   }
 
   //add more names as images are created
-  DBPRINTF(("Failed to matched research icon  %s #%d\n",pIconName,IconHash));
+  Neuron::DebugTrace("Failed to matched research icon  {} #{}\n",pIconName,IconHash);
 
   return 0; // Should never get here.
 }
@@ -2139,7 +2138,7 @@ static UWORD setIconID(STRING* pIconName, STRING* pName)
     return IMAGE_RES_GRPDAM;
 
   //add more names as images are created
-  ASSERT((FALSE, "Invalid icon graphic %s for topic %s", pIconName, pName));
+  ASSERT_TEXT(FALSE, "Invalid icon graphic {} for topic {}", pIconName, pName);
 
   return 0; // Should never get here.
 }
@@ -2211,7 +2210,7 @@ SDWORD mapRIDToIcon(UDWORD rid)
     return (IMAGE_RES_GRPDAM);
     break;
 
-  default: ASSERT((FALSE,"Weirdy mapping request for RID to icon"));
+  default: ASSERT_TEXT(FALSE,"Weirdy mapping request for RID to icon");
     return (-1); //pass back a value that can never have been set up
     break;
   }
@@ -2366,7 +2365,7 @@ COMP_BASE_STATS* getComponentDetails(STRING* pName, STRING* pCompName)
   default:
     {
       //COMP_UNKNOWN should be an error
-      DBERROR(("Unknown artefact type  - %s",pName));
+      Neuron::Fatal("Unknown artefact type  - {}",pName);
       return FALSE;
     }
   }
@@ -2388,7 +2387,7 @@ COMP_BASE_STATS* getComponentDetails(STRING* pName, STRING* pCompName)
     pArtefact = (COMP_BASE_STATS*)address;
   }
 
-  DBERROR(("Cannot find component %s",pCompName));
+  Neuron::Fatal("Cannot find component {}",pCompName);
   return nullptr;
 }
 
@@ -2417,7 +2416,7 @@ RESEARCH* getResearch(STRING* pName, BOOL resName)
       return &asResearch[inc];
   }
 
-  DBERROR(("Unknown research - %s", pName));
+  Neuron::Fatal("Unknown research - {}", pName);
   return nullptr;
 }
 
@@ -2504,7 +2503,7 @@ void replaceComponent(COMP_BASE_STATS* pNewComponent, COMP_BASE_STATS* pOldCompo
       break;
     default:
       //unknown comp type
-      DBERROR(("Unknown component type - invalid Template"));
+      Neuron::Fatal("Unknown component type - invalid Template");
       return;
     }
   }
@@ -2564,7 +2563,7 @@ static BOOL checkResearchName(RESEARCH* psResearch, UDWORD numStats)
     if (!strcmp(asResearch[inc].pName, pName))
     {
       //oops! found the name
-      ASSERT((FALSE, "Research name has already been used - %s", pName));
+      ASSERT_TEXT(FALSE, "Research name has already been used - {}", pName);
       return FALSE;
     }
   }
@@ -2582,7 +2581,7 @@ static BOOL checkResearchName(RESEARCH* psResearch, UDWORD numStats)
     if (asResearch[inc].NameHash == psResearch->NameHash)
     {
       //oops! found the name
-      ASSERT((FALSE, "Research name has already been used - %x", psResearch->NameHash));
+      ASSERT_TEXT(FALSE, "Research name has already been used - {:x}", psResearch->NameHash);
       return FALSE;
     }
   }
@@ -2603,7 +2602,7 @@ BOOL enableResearch(RESEARCH* psResearch, UDWORD player)
   inc = psResearch - asResearch;
   if (inc > numResearch)
   {
-    ASSERT((FALSE, "enableResearch: Invalid research topic - %s", getResearchName(psResearch)));
+    ASSERT_TEXT(FALSE, "enableResearch: Invalid research topic - {}", getResearchName(psResearch));
     return FALSE;
   }
 
@@ -2696,7 +2695,7 @@ BOOL checkResearchStats(void)
     {
       if (asResearch[resInc].pPRList != nullptr)
       {
-        ASSERT((FALSE, "checkResearchStats: PreReq for topic %s should be NULL", getResearchName(asResearch[resInc])));
+        ASSERT_TEXT(FALSE, "checkResearchStats: PreReq for topic {} should be NULL", getResearchName(asResearch[resInc]));
         return FALSE;
       }
     }
@@ -2706,7 +2705,7 @@ BOOL checkResearchStats(void)
       {
         if (asResearch[resInc].pPRList[inc] > numResearch)
         {
-          ASSERT((FALSE, "checkResearchStats: Invalid PreReq for topic %s", getResearchName(asResearch[resInc])));
+          ASSERT_TEXT(FALSE, "checkResearchStats: Invalid PreReq for topic {}", getResearchName(asResearch[resInc]));
           return FALSE;
         }
       }
@@ -2715,7 +2714,7 @@ BOOL checkResearchStats(void)
     {
       if (asResearch[resInc].pStructList != nullptr)
       {
-        ASSERT((FALSE, "checkResearchStats: StructureList for topic %s should be NULL", getResearchName(asResearch[resInc])));
+        ASSERT_TEXT(FALSE, "checkResearchStats: StructureList for topic {} should be NULL", getResearchName(asResearch[resInc]));
         return FALSE;
       }
     }
@@ -2725,7 +2724,7 @@ BOOL checkResearchStats(void)
       {
         if (asResearch[resInc].pStructList[inc] > numStructureStats)
         {
-          ASSERT((FALSE, "checkResearchStats: Invalid Structure for topic %s", getResearchName(asResearch[resInc])));
+          ASSERT_TEXT(FALSE, "checkResearchStats: Invalid Structure for topic {}", getResearchName(asResearch[resInc]));
           return FALSE;
         }
       }
@@ -2734,7 +2733,7 @@ BOOL checkResearchStats(void)
     {
       if (asResearch[resInc].pFunctionList != nullptr)
       {
-        ASSERT((FALSE, "checkResearchStats: FunctionList for topic %s should be NULL", getResearchName(asResearch[resInc])));
+        ASSERT_TEXT(FALSE, "checkResearchStats: FunctionList for topic {} should be NULL", getResearchName(asResearch[resInc]));
         return FALSE;
       }
     }
@@ -2744,7 +2743,7 @@ BOOL checkResearchStats(void)
       {
         if (asResearch[resInc].pFunctionList[inc]->ref - REF_FUNCTION_START > numFunctions)
         {
-          ASSERT((FALSE, "checkResearchStats: Invalid function for %s", getResearchName(asResearch[resInc])));
+          ASSERT_TEXT(FALSE, "checkResearchStats: Invalid function for {}", getResearchName(asResearch[resInc]));
         }
       }
     }
@@ -2752,7 +2751,7 @@ BOOL checkResearchStats(void)
     {
       if (asResearch[resInc].pRedStructs != nullptr)
       {
-        ASSERT((FALSE, "checkResearchStats: Redundant StructList for topic %s should be NULL", getResearchName(asResearch[resInc])));
+        ASSERT_TEXT(FALSE, "checkResearchStats: Redundant StructList for topic {} should be NULL", getResearchName(asResearch[resInc]));
         return FALSE;
       }
     }
@@ -2762,7 +2761,7 @@ BOOL checkResearchStats(void)
       {
         if (asResearch[resInc].pRedStructs[inc] > numStructureStats)
         {
-          ASSERT((FALSE, "checkResearchStats: Invalid Redundant Structure for topic %s", getResearchName(asResearch[resInc])));
+          ASSERT_TEXT(FALSE, "checkResearchStats: Invalid Redundant Structure for topic {}", getResearchName(asResearch[resInc]));
           return FALSE;
         }
       }
@@ -2771,7 +2770,7 @@ BOOL checkResearchStats(void)
     {
       if (asResearch[resInc].pStructureResults != nullptr)
       {
-        ASSERT((FALSE, "checkResearchStats: Result StructList for topic %s should be NULL", getResearchName(asResearch[resInc])));
+        ASSERT_TEXT(FALSE, "checkResearchStats: Result StructList for topic {} should be NULL", getResearchName(asResearch[resInc]));
         return FALSE;
       }
     }
@@ -2781,7 +2780,7 @@ BOOL checkResearchStats(void)
       {
         if (asResearch[resInc].pStructureResults[inc] > numStructureStats)
         {
-          ASSERT((FALSE, "checkResearchStats: Invalid Result Structure for topic %s", getResearchName(asResearch[resInc])));
+          ASSERT_TEXT(FALSE, "checkResearchStats: Invalid Result Structure for topic {}", getResearchName(asResearch[resInc]));
           return FALSE;
         }
       }
@@ -2790,7 +2789,7 @@ BOOL checkResearchStats(void)
     {
       if (asResearch[resInc].pArtefactResults != nullptr)
       {
-        ASSERT((FALSE, "checkResearchStats: CompResultList for topic %s should be NULL", getResearchName(asResearch[resInc])));
+        ASSERT_TEXT(FALSE, "checkResearchStats: CompResultList for topic {} should be NULL", getResearchName(asResearch[resInc]));
         return FALSE;
       }
     }
@@ -2804,7 +2803,7 @@ BOOL checkResearchStats(void)
     {
       if (asResearch[resInc].pRedArtefacts != nullptr)
       {
-        ASSERT((FALSE, "checkResearchStats: RedundantCompList for topic %s should be NULL", getResearchName(asResearch[resInc])));
+        ASSERT_TEXT(FALSE, "checkResearchStats: RedundantCompList for topic {} should be NULL", getResearchName(asResearch[resInc]));
         return FALSE;
       }
     }
@@ -2857,7 +2856,7 @@ void replaceTransDroidComponents(DROID* psTransporter, UDWORD oldType, UDWORD ol
 {
   DROID* psCurr;
 
-  ASSERT((psTransporter->droidType == DROID_TRANSPORTER, "replaceTransUnitComponents: invalid unit type"));
+  ASSERT_TEXT(psTransporter->droidType == DROID_TRANSPORTER, "replaceTransUnitComponents: invalid unit type");
 
   for (psCurr = psTransporter->psGroup->psList; psCurr != nullptr; psCurr = psCurr->psGrpNext)
   {
@@ -2940,6 +2939,6 @@ void switchComponent(DROID* psDroid, UDWORD oldType, UDWORD oldCompInc, UDWORD n
     break;
   default:
     //unknown comp type
-    DBERROR(("Unknown component type - invalid droid"));
+    Neuron::Fatal("Unknown component type - invalid droid");
   }
 }

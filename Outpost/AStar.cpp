@@ -386,7 +386,7 @@ void fpathOpenRemove(FP_NODE* psNode)
       if (comp < 0) { psCurr = psCurr->psLeft; }
       else { psCurr = psCurr->psRight; }
     }
-    ASSERT((psCurr != NULL, "fpathOpenRemove: couldn't find node"));
+    ASSERT_TEXT(psCurr != NULL, "fpathOpenRemove: couldn't find node");
   }
 
   // Find the node to take the deleted nodes place in the tree
@@ -479,7 +479,6 @@ void fpathOpenAdd(FP_NODE* psNode)
     // Add to start
     psNode->psOpen = psOpen;
     psOpen = psNode;
-    DBP1(("OpenAdd: start\n"));
   }
   else
   {
@@ -488,7 +487,6 @@ void fpathOpenAdd(FP_NODE* psNode)
     for (psCurr = psOpen; psCurr && fpathCompare(psNode, psCurr) >= 0; psCurr = psCurr->psOpen) { psPrev = psCurr; }
     psNode->psOpen = psCurr;
     psPrev->psOpen = psNode;
-    DBP1(("OpenAdd: after %d,%d dist %d\n", psPrev->x,psPrev->y, psPrev->dist));
   }
 }
 
@@ -557,7 +555,7 @@ void fpathOpenRemove(FP_NODE* psNode)
 
   if (psOpen == nullptr)
   {
-    ASSERT((FALSE, "fpathOpenRemove: NULL list"));
+    ASSERT_TEXT(FALSE, "fpathOpenRemove: NULL list");
     return;
   }
   if (psNode == psOpen)
@@ -573,7 +571,7 @@ void fpathOpenRemove(FP_NODE* psNode)
       psPrev = psCurr;
     if (psCurr)
       psPrev->psOpen = psCurr->psOpen;
-    else { ASSERT((FALSE, "fpathOpenRemove: failed to find node")); }
+    else { ASSERT_TEXT(FALSE, "fpathOpenRemove: failed to find node"); }
   }
 }
 
@@ -701,7 +699,7 @@ void fpathOptimise(FP_NODE* psRoute)
   FP_NODE *psCurr, *psSearch, *psTest;
   BOOL los;
 
-  ASSERT((psRoute != NULL, "fpathOptimise: NULL route pointer"));
+  ASSERT_TEXT(psRoute != NULL, "fpathOptimise: NULL route pointer");
 
   psCurr = psRoute;
   do
@@ -751,7 +749,6 @@ psCurr->est= fpathEstimate(psCurr->x, psCurr->y, tileFX, tileFY); psOpen= NULL; 
 psRoute= NULL;while (psOpen!= NULL)
 	{
 		psCurr = fpathOpenGet();
-		DBP0(("\nStart          : %3d,%3d (%d,%d) = %d\n", psCurr->x,psCurr->y, psCurr->dist, psCurr->est, psCurr->dist + psCurr->est));
 
 		if (psCurr->x == tileFX && psCurr->y == tileFY)
 		{
@@ -779,7 +776,6 @@ psRoute= NULL;while (psOpen!= NULL)
 			if (fpathBlockingTile(x,y))
 			{
 				// tile is blocked, skip it
-				DBP0(("blocked          : %3d, %3d\n", x,y));
 				continue;
 			}
 
@@ -788,17 +784,15 @@ psRoute= NULL;while (psOpen!= NULL)
 			if (psOFound && psOFound->dist <= currDist)
 			{
 				// already in the open list by a shorter route
-				DBP0(("blocked open     : %3d, %3d dist %d\n", x,y, currDist));
 				continue;
 			}
 
 			// See if this is in the closed list
 			psCFound = fpathHashCondRemove(apsClosed, x,y, currDist);
-			ASSERT((!(psOFound && psCFound), "fpathAStarRoute: found point in open and closed lists"));
+			ASSERT_TEXT(!(psOFound && psCFound), "fpathAStarRoute: found point in open and closed lists");
 			if (psCFound && psCFound->dist <= currDist)
 			{
 				// already in the closed list by a shorter route
-				DBP0(("blocked closed   : %3d, %3d dist %d\n", x,y, currDist));
 				continue;
 			}
 
@@ -812,7 +806,6 @@ psRoute= NULL;while (psOpen!= NULL)
 				psNew->est = fpathEstimate(x,y, tileFX, tileFY);
 				fpathOpenAdd(psNew);
 				fpathHashAdd(apsOpen, psNew);
-				DBP0(("new              : %3d, %3d (%d,%d) = %d\n", x,y, currDist, psNew->est, currDist + psNew->est));
 			}
 			else if (psOFound && !psCFound)
 			{
@@ -824,7 +817,6 @@ psRoute= NULL;while (psOpen!= NULL)
 				psOFound->psRoute = psCurr;
 				fpathOpenAdd(psOFound);
 				fpathHashAdd(apsOpen, psOFound);
-				DBP0(("replace open     : %3d, %3d dist %d\n", x,y, currDist, psOFound->est, currDist + psOFound->est));
 			}
 			else if (!psOFound && psCFound)
 			{
@@ -833,11 +825,10 @@ psRoute= NULL;while (psOpen!= NULL)
 				psCFound->psRoute = psCurr;
 				fpathOpenAdd(psCFound);
 				fpathHashAdd(apsOpen, psCFound);
-				DBP0(("replace closed   : %3d, %3d dist %d\n", x,y, currDist, psCFound->est, currDist + psCFound->est));
 			}
 			else
 			{
-				ASSERT((FALSE,"fpathAStarRoute: the open and closed lists are f***ed"));
+				ASSERT_TEXT(FALSE,"fpathAStarRoute: the open and closed lists are f***ed");
 			}
 		}
 
@@ -846,7 +837,6 @@ psRoute= NULL;while (psOpen!= NULL)
 		// add the current point to the closed nodes
 		fpathHashRemove(apsOpen, psCurr->x, psCurr->y);
 		fpathHashAdd(apsClosed, psCurr);
-		DBP0(("HashAdd - closed : %3d,%3d (%d,%d) = %d\n", psCurr->x,psCurr->y, psCurr->dist, psCurr->est, psCurr->dist+psCurr->est));
 	}
 
 #ifdef TEST_BED
@@ -901,7 +891,7 @@ maxuse=0; hashUse=0; hashLists=0;for(index=0; index<FPATH_TABLESIZE; index++)
 			maxuse = count;
 		}
 	}
-DBP2(("openMax: %d\nopenUse: %d\nopenLists %d\n", maxuse, hashUse, hashLists)); maxuse=0; hashUse=0; hashLists=0;for(index=0; index<
+ maxuse=0; hashUse=0; hashLists=0;for(index=0; index<
   FPATH_TABLESIZE; index++)
 	{
 		count = 0;
@@ -919,7 +909,6 @@ DBP2(("openMax: %d\nopenUse: %d\nopenLists %d\n", maxuse, hashUse, hashLists)); 
 			maxuse = count;
 		}
 	}
-DBP2(("closedMax: %d\nclosedUse: %d\nclosedLists %d\n", maxuse, hashUse, hashLists));
 #endif
 
 fpathHashReset();return TRUE;exit_error
@@ -969,7 +958,6 @@ SDWORD fpathAStarRoute(SDWORD routeMode, ASTAR_ROUTE* psRoutePoints, SDWORD sx, 
       return ASR_PARTIAL;
 
     psCurr = fpathOpenGet();
-    DBP0(("\nStart          : %3d,%3d (%d,%d) = %d\n", psCurr->x,psCurr->y, psCurr->dist, psCurr->est, psCurr->dist + psCurr->est));
 
     if (psCurr->x == tileFX && psCurr->y == tileFY)
     {
@@ -1000,7 +988,6 @@ SDWORD fpathAStarRoute(SDWORD routeMode, ASTAR_ROUTE* psRoutePoints, SDWORD sx, 
       if (psFound && psFound->dist <= currDist)
       {
         // already visited node by a shorter route
-        DBP0(("blocked (%d)     : %3d, %3d dist %d\n", psFound->type, x,y, currDist));
         continue;
       }
 
@@ -1008,7 +995,6 @@ SDWORD fpathAStarRoute(SDWORD routeMode, ASTAR_ROUTE* psRoutePoints, SDWORD sx, 
       if (!psFound && fpathBlockingTile(x, y))
       {
         // tile is blocked, skip it
-        DBP0(("blocked          : %3d, %3d\n", x,y));
         continue;
       }
 
@@ -1024,7 +1010,6 @@ SDWORD fpathAStarRoute(SDWORD routeMode, ASTAR_ROUTE* psRoutePoints, SDWORD sx, 
           psNew->est = static_cast<SWORD>(fpathEstimate(x, y, tileFX, tileFY));
           fpathOpenAdd(psNew);
           fpathHashAdd(apsNodes, psNew);
-          DBP0(("new              : %3d, %3d (%d,%d) = %d\n", x,y, currDist, psNew->est, currDist + psNew->est));
         }
       }
       else if (psFound->type == NT_OPEN)
@@ -1034,7 +1019,6 @@ SDWORD fpathAStarRoute(SDWORD routeMode, ASTAR_ROUTE* psRoutePoints, SDWORD sx, 
         // already in the open list but this is shorter
         psFound->dist = static_cast<SWORD>(currDist);
         psFound->psRoute = psCurr;
-        DBP0(("replace open     : %3d, %3d dist %d\n", x,y, currDist, psFound->est, currDist + psFound->est));
       }
       else if (psFound->type == NT_CLOSED)
       {
@@ -1043,17 +1027,15 @@ SDWORD fpathAStarRoute(SDWORD routeMode, ASTAR_ROUTE* psRoutePoints, SDWORD sx, 
         psFound->dist = static_cast<SWORD>(currDist);
         psFound->psRoute = psCurr;
         fpathOpenAdd(psFound);
-        DBP0(("replace closed   : %3d, %3d dist %d\n", x,y, currDist, psFound->est, currDist + psFound->est));
       }
       else
-        ASSERT((FALSE,"fpathAStarRoute: the open and closed lists are f***ed"));
+        ASSERT_TEXT(FALSE,"fpathAStarRoute: the open and closed lists are f***ed");
     }
 
     //		ASSERT((fpathValidateTree(psOpen),
 
     // add the current point to the closed nodes
     psCurr->type = NT_CLOSED;
-    DBP0(("HashAdd - closed : %3d,%3d (%d,%d) = %d\n", psCurr->x,psCurr->y, psCurr->dist, psCurr->est, psCurr->dist+psCurr->est));
   }
 
 #ifdef TEST_BED
@@ -1114,7 +1096,7 @@ SDWORD fpathAStarRoute(SDWORD routeMode, ASTAR_ROUTE* psRoutePoints, SDWORD sx, 
     for (psCurr = apsNodes[index]; psCurr; psCurr = psCurr->psNext) { count += 1; }
     hashUse += count;
     if (count > maxuse) { maxuse = count; }
-  } DBP2(("nodesMax: %d\nnodesUse: %d\nnodesLists %d\n", maxuse, hashUse, hashLists));
+  } 
 #endif
 
   fpathHashReset();

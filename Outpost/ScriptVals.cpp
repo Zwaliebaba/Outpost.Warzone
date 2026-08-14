@@ -85,13 +85,13 @@ BOOL scrvAddContext(STRING* pID, SCRIPT_CONTEXT* psContext, SCRV_TYPE type)
   psNew = new (std::nothrow) SCRV_STORE[1];
   if (!psNew)
   {
-    DBERROR(("scrvAddContext: Out of memory"));
+    Neuron::Fatal("scrvAddContext: Out of memory");
     return FALSE;
   }
   psNew->pIDString = new (std::nothrow) STRING[strlen(pID) + 1];
   if (!psNew->pIDString)
   {
-    DBERROR(("scrvAddContext: Out of memory"));
+    Neuron::Fatal("scrvAddContext: Out of memory");
     return FALSE;
   }
   strcpy(psNew->pIDString, pID);
@@ -180,7 +180,7 @@ void scrvReleaseGroup(INTERP_VAL* psVal)
   psGroup = static_cast<DROID_GROUP*>(psVal->v.oval);
   grpReset(psGroup);
 
-  ASSERT((psGroup->refCount == 1, "scrvReleaseGroup: ref count is wrong"));
+  ASSERT_TEXT(psGroup->refCount == 1, "scrvReleaseGroup: ref count is wrong");
 
   // do a final grpLeave to free the group
   grpLeave(psGroup, nullptr);
@@ -200,7 +200,7 @@ BOOL scrvGetContext(STRING* pID, SCRIPT_CONTEXT** ppsContext)
     }
   }
 
-  DBERROR(("scrvGetContext: couldn't find context for id: %s", pID));
+  Neuron::Fatal("scrvGetContext: couldn't find context for id: {}", pID);
   return FALSE;
 }
 
@@ -225,7 +225,7 @@ BOOL scrvGetString(STRING* pStringID, STRING** ppString)
   //get the ID for the string
   if (!strresGetIDNum(psStringRes, pStringID, &id))
   {
-    DBERROR(("Cannot find the string id %s ", pStringID));
+    Neuron::Fatal("Cannot find the string id {} ", pStringID);
     return FALSE;
   }
   //get the string from the id

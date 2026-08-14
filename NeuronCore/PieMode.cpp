@@ -110,7 +110,7 @@ BOOL pie_Initialise(SDWORD mode)
   else
   {
     iV_ShutDown();
-    DBERROR(("Initialise videomode failed"));
+    Neuron::Fatal("Initialise videomode failed");
     return FALSE;
   }
   return TRUE;
@@ -198,7 +198,7 @@ UDWORD pie_GetResScalingFactor(void)
   case 1280:
     return (200);
     break;
-  default: ASSERT((FALSE,"Unsupported resolution"));
+  default: ASSERT_TEXT(FALSE,"Unsupported resolution");
     return (100); // default to 640
     break;
   }

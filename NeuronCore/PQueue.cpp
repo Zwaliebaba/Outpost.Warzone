@@ -28,7 +28,7 @@ BOOL queue_Init(QUEUE** ppQueue, int iMaxElements, int iElementSize, QUEUE_CLEAR
 
   if ((*ppQueue) == nullptr)
   {
-    DBERROR(("queue_Init: couldn't allocate memory for queue"));
+    Neuron::Fatal("queue_Init: couldn't allocate memory for queue");
     return FALSE;
   }
 
@@ -41,7 +41,7 @@ BOOL queue_Init(QUEUE** ppQueue, int iMaxElements, int iElementSize, QUEUE_CLEAR
 
     if ((*ppQueue) == nullptr)
     {
-      DBERROR(("queue_Init: couldn't allocate memory for queue node"));
+      Neuron::Fatal("queue_Init: couldn't allocate memory for queue node");
       return FALSE;
     }
 
@@ -140,7 +140,7 @@ void queue_Enqueue(QUEUE* pQueue, void* psElement, int iPriority)
   psNode = pQueue->psNodeQHead;
   while (psNode != nullptr)
   {
-    ASSERT((psNode->psElement != psElement, "duplicate element found\n"));
+    ASSERT_TEXT(psNode->psElement != psElement, "duplicate element found\n");
 
     psNode = psNode->psNext;
   }
@@ -149,7 +149,7 @@ void queue_Enqueue(QUEUE* pQueue, void* psElement, int iPriority)
   /* check list not empty */
   if (pQueue->psFreeNodeList == nullptr)
   {
-    DBPRINTF(("queue_GetFreeElement: all nodes allocated: flushing queue.\n"));
+    Neuron::DebugTrace("queue_GetFreeElement: all nodes allocated: flushing queue.\n");
     queue_Clear(pQueue);
   }
 
@@ -230,7 +230,7 @@ void* queue_Dequeue(QUEUE* pQueue)
     pQueue->iFreeNodes++;
     pQueue->iQueueNodes--;
 
-    ASSERT((pQueue->iQueueNodes >= 0, "queue_Dequeue: queue nodes < 0"));
+    ASSERT_TEXT(pQueue->iQueueNodes >= 0, "queue_Dequeue: queue nodes < 0");
   }
 
   return psElement;
@@ -371,7 +371,7 @@ BOOL queue_RemoveNode(QUEUE* pQueue, QUEUE_NODE* psNode)
   pQueue->iFreeNodes++;
   pQueue->iQueueNodes--;
 
-  ASSERT((pQueue->iQueueNodes >= 0, "queue_RemoveNode: queue nodes < 0"));
+  ASSERT_TEXT(pQueue->iQueueNodes >= 0, "queue_RemoveNode: queue nodes < 0");
 
   return TRUE;
 }

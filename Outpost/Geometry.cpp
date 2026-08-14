@@ -50,7 +50,7 @@ SDWORD calcDirection(UDWORD x0, UDWORD y0, UDWORD x1, UDWORD y1)
   if (angleInt < 0)
     angleInt += 360;
 
-  ASSERT((angleInt >= 0 && angleInt < 360, "calcDirection: droid direction out of range"));
+  ASSERT_TEXT(angleInt >= 0 && angleInt < 360, "calcDirection: droid direction out of range");
 
   return (angleInt);
 }
@@ -343,7 +343,7 @@ UDWORD getTileOwner(UDWORD x, UDWORD y)
 
   /* Check it has a structure - cannot have owner otherwise */
   if (!TILE_HAS_STRUCTURE(mapTile(x,y)))
-    DBERROR(("Asking for the owner of a tile with no structure on it!!!"));
+    Neuron::Fatal("Asking for the owner of a tile with no structure on it!!!");
   else
   {
     /* Get a pointer to the structure */
@@ -389,7 +389,7 @@ BOOL droidOnScreen(DROID* psDroid, SDWORD tolerance)
 
 void processImpact(UDWORD worldX, UDWORD worldY, UBYTE severity, UDWORD tilesAcross)
 {
-  ASSERT((severity<MAX_TILE_DAMAGE,"Damage is too severe"));
+  ASSERT_TEXT(severity<MAX_TILE_DAMAGE,"Damage is too severe");
   /* Make sure it's odd */
   if (!(tilesAcross & 0x01))
     tilesAcross -= 1;

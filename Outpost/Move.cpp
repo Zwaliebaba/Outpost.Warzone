@@ -19,10 +19,9 @@
 
 #ifdef DEBUG
 BOOL moveDoMessage;
-#undef DBP6
-#define DBP6( x ) \
-	if (moveDoMessage) \
-		DBPRINTF( x )
+#define MOVE_TRACE(...) do { if (moveDoMessage) Neuron::DebugTrace(__VA_ARGS__); } while (0)
+#else
+#define MOVE_TRACE(...) ((void)0)
 #endif
 
 #include "Objects.h"
@@ -314,7 +313,7 @@ void moveUpdateBaseSpeed(void)
   {
     if ((psNextRouteDroid->died) || ((psNextRouteDroid->sMove.Status != MOVEROUTE) && (psNextRouteDroid->sMove.Status != MOVEROUTESHUFFLE)))
     {
-      DBP6(("Waiting droid %d (player %d) reset\n", psNextRouteDroid->id, psNextRouteDroid->player));
+      MOVE_TRACE("Waiting droid {} (player {}) reset\n", psNextRouteDroid->id, psNextRouteDroid->player);
       psNextRouteDroid = nullptr;
     }
   }
@@ -363,7 +362,6 @@ BOOL _moveDroidToBase(DROID* psDroid, UDWORD x, UDWORD y, BOOL bFormation)
   /* check formations */
   if (retVal == FPR_OK)
   {
-    DBP1(("unit(%d): base Speed %d, speed %d\n", psDroid->id, psDroid->baseSpeed, MAKEINT(psDroid->sMove.speed)));
 
     // bit of a hack this - john
     // if astar doesn't have a complete route, it returns a route to the nearest clear tile.
@@ -381,7 +379,7 @@ BOOL _moveDroidToBase(DROID* psDroid, UDWORD x, UDWORD y, BOOL bFormation)
     // reset the next route droid
     if (psDroid == psNextRouteDroid)
     {
-      DBP6(("Waiting droid %d (player %d) got route\n", psDroid->id, psDroid->player));
+      MOVE_TRACE("Waiting droid {} (player {}) got route\n", psDroid->id, psDroid->player);
       psNextRouteDroid = nullptr;
     }
 
@@ -428,7 +426,6 @@ BOOL _moveDroidToBase(DROID* psDroid, UDWORD x, UDWORD y, BOOL bFormation)
   }
   else if (retVal == FPR_RESCHEDULE)
   {
-    DBP4(("reroute: id %d\n", psDroid->id));
 
     // maxed out routing time this frame - do it next time
     psDroid->sMove.DestinationX = x;
@@ -436,7 +433,7 @@ BOOL _moveDroidToBase(DROID* psDroid, UDWORD x, UDWORD y, BOOL bFormation)
 
     if ((psDroid->sMove.Status != MOVEROUTE) && (psDroid->sMove.Status != MOVEROUTESHUFFLE))
     {
-      DBP6(("Unit %d (player %d) started waiting at %d\n", psDroid->id, psDroid->player, gameTime));
+      MOVE_TRACE("Unit {} (player {}) started waiting at {}\n", psDroid->id, psDroid->player, gameTime);
 
       psDroid->sMove.Status = MOVEROUTE;
 
@@ -449,7 +446,7 @@ BOOL _moveDroidToBase(DROID* psDroid, UDWORD x, UDWORD y, BOOL bFormation)
     // reset the next route droid
     if (psDroid == psNextRouteDroid)
     {
-      DBP6(("Waiting droid %d (player %d) got route\n", psDroid->id, psDroid->player));
+      MOVE_TRACE("Waiting droid {} (player {}) got route\n", psDroid->id, psDroid->player);
       psNextRouteDroid = nullptr;
     }
 
@@ -481,7 +478,7 @@ BOOL moveDroidToNoFormation(DROID* psDroid, UDWORD x, UDWORD y) { return moveDro
 
 void moveDroidToDirect(DROID* psDroid, UDWORD x, UDWORD y)
 {
-  ASSERT((vtolDroid(psDroid), "moveUnitToDirect: only valid for a vtol unit"));
+  ASSERT_TEXT(vtolDroid(psDroid), "moveUnitToDirect: only valid for a vtol unit");
 
   fpathSetDirectRoute((BASE_OBJECT*)psDroid, static_cast<SDWORD>(x), static_cast<SDWORD>(y));
   psDroid->sMove.Status = MOVENAVIGATE;
@@ -703,8 +700,8 @@ void updateDroidOrientation(DROID* psDroid)
   SDWORD newPitch, dPitch, pitchLimit;
   double dx, dy;
   double direction, pitch, roll;
-  ASSERT((psDroid->x < (mapWidth << TILE_SHIFT), "mapHeight: x coordinate bigger than map width"));
-  ASSERT((psDroid->y < (mapHeight<< TILE_SHIFT), "mapHeight: y coordinate bigger than map height"));
+  ASSERT_TEXT(psDroid->x < (mapWidth << TILE_SHIFT), "mapHeight: x coordinate bigger than map width");
+  ASSERT_TEXT(psDroid->y < (mapHeight<< TILE_SHIFT), "mapHeight: y coordinate bigger than map height");
 
   //if(psDroid->droidType == DROID_PERSON OR psDroid->droidType == DROID_CYBORG OR
   if (psDroid->droidType == DROID_PERSON OR cyborgDroid(psDroid) OR psDroid->droidType == DROID_TRANSPORTER)
@@ -798,9 +795,9 @@ static void moveCalcTurn(FRACT* pCurr, FRACT target, UDWORD rate)
 #define SET_PATH(x)
 #endif
 
-  ASSERT(( target < MAKEFRACT(360) && target >= MAKEFRACT(0), "moveCalcTurn: target out of range"));
+  ASSERT_TEXT(target < MAKEFRACT(360) && target >= MAKEFRACT(0), "moveCalcTurn: target out of range");
 
-  ASSERT(( (*pCurr) < MAKEFRACT(360) && (*pCurr) >= MAKEFRACT(0), "moveCalcTurn: cur ang out of range"));
+  ASSERT_TEXT((*pCurr) < MAKEFRACT(360) && (*pCurr) >= MAKEFRACT(0), "moveCalcTurn: cur ang out of range");
 
   // calculate the difference in the angles
   diff = target - *pCurr;
@@ -812,7 +809,6 @@ static void moveCalcTurn(FRACT* pCurr, FRACT target, UDWORD rate)
     change = FRACTCONST(1, 1); // HACK to solve issue of when framerate so high
   // that integer angle to turn per frame is less than 1
 
-  DBP2(("change : %f\n", change));
 
   if ((diff >= 0 && diff < change) || (diff < 0 && diff > -change))
   {
@@ -857,10 +853,9 @@ static void moveCalcTurn(FRACT* pCurr, FRACT target, UDWORD rate)
   if (*pCurr >= MKF(TRIG_DEGREES))
     *pCurr -= MKF(TRIG_DEGREES);
 
-  DBP2(("path %d: diff %f\n", path, diff));
 
-  ASSERT(( MAKEINT(*pCurr) < 360 && MAKEINT(*pCurr) >= 0,
-    "moveCalcTurn: angle out of range - path %d\n" "   NOTE - ANYONE WHO SEES THIS PLEASE REMEMBER: path %d", path, path));
+  ASSERT_TEXT(MAKEINT(*pCurr) < 360 && MAKEINT(*pCurr) >= 0,
+    "moveCalcTurn: angle out of range - path {}\n" "   NOTE - ANYONE WHO SEES THIS PLEASE REMEMBER: path {}", path, path);
 }
 
 /* Get the next target point from the route */
@@ -1032,7 +1027,7 @@ static SDWORD moveObjRadius(BASE_OBJECT* psObj)
   case OBJ_FEATURE:
     radius = psObj->sDisplay.imd->radius / 2;
     break;
-  default: ASSERT((FALSE,"moveObjRadius: unknown object type"));
+  default: ASSERT_TEXT(FALSE,"moveObjRadius: unknown object type");
     radius = 0;
     break;
   }
@@ -1135,7 +1130,7 @@ void moveCheckSquished(DROID* psDroid, FRACT mx, FRACT my)
       continue;
     }
 
-    ASSERT((psInfo->psObj->type == OBJ_DROID && ((DROID *)psInfo->psObj)->droidType == DROID_PERSON, "squished - eerk"));
+    ASSERT_TEXT(psInfo->psObj->type == OBJ_DROID && ((DROID *)psInfo->psObj)->droidType == DROID_PERSON, "squished - eerk");
 
     objR = moveObjRadius(psInfo->psObj);
     rad = droidR + objR;
@@ -2028,13 +2023,11 @@ void moveGetObstVector2(DROID* psDroid, FRACT* pX, FRACT* pY)
       // Create the avoid vector
       if (FRACTmul(*pX, normY) + FRACTmul(*pY, -normX) < 0)
       {
-        DBP3(("First perp\n"));
         avoidX = -normY;
         avoidY = normX;
       }
       else
       {
-        DBP3(("Second perp\n"));
         avoidX = normY;
         avoidY = -normX;
       }
@@ -2127,13 +2120,11 @@ void moveGetObstVector3(DROID* psDroid, FRACT* pX, FRACT* pY)
     angleToVector(dirTot, &ox, &oy);
     if (FRACTmul((*pX), oy) + FRACTmul((*pY), -ox) < 0)
     {
-      DBP3(("First perp\n"));
       avoidX = -oy;
       avoidY = ox;
     }
     else
     {
-      DBP3(("Second perp\n"));
       avoidX = oy;
       avoidY = -ox;
     }
@@ -2274,13 +2265,11 @@ void moveGetObstVector4(DROID* psDroid, FRACT* pX, FRACT* pY)
       oy = dirY / omag;
       if (FRACTmul((*pX), oy) + FRACTmul((*pY), -ox) < 0)
       {
-        DBP3(("First perp\n"));
         avoidX = -oy;
         avoidY = ox;
       }
       else
       {
-        DBP3(("Second perp\n"));
         avoidX = oy;
         avoidY = -ox;
       }
@@ -2656,7 +2645,6 @@ void moveCalcBoundary(DROID* psDroid)
     psDroid->sMove.boundY = static_cast<SWORD>(-sumX);
   }
 
-  DBP5(("new boundary: droid %d boundary (%d,%d)\n", psDroid->id, psDroid->sMove.boundX, psDroid->sMove.boundY));
 }
 
 // Check if a droid has got to a way point
@@ -2691,8 +2679,6 @@ BOOL moveReachedWayPoint(DROID* psDroid)
       static_cast<SDWORD>(psDroid->x) >> TILE_UNITS, static_cast<SDWORD>(psDroid->y) >> TILE_UNITS, psDroid->sMove.targetX >> TILE_UNITS,
       psDroid->sMove.targetY >> TILE_UNITS))
     {
-      DBP5(("Next waypoint: droid %d bound (%d,%d) target (%d,%d)\n", psDroid->id, psDroid->sMove.boundX,psDroid->sMove.boundY, droidX,
-        droidY));
 
       return TRUE;
     }
@@ -2798,14 +2784,12 @@ void moveUpdateDroidDirection(DROID* psDroid, SDWORD* pSpeed, SDWORD direction, 
   if (adiff > iSpinAngle)
   {
     // large change in direction, spin on the spot
-    DBP2(("Spin "));
     moveCalcTurn(&temp, MKF(direction), iSpinSpeed);
     *pSpeed = 0;
   }
   else
   {
     // small change in direction, turn while moving
-    DBP2(("Curve "));
     moveCalcTurn(&temp, MKF(direction), iTurnSpeed);
   }
 
@@ -2974,7 +2958,7 @@ void moveUpdateDroidPos(DROID* psDroid, FRACT dx, FRACT dy)
     else
     {
       /* dreadful last-ditch crash-avoiding hack - sort this! - GJ */
-      DBPRINTF(("**** droid about to go off map - fixed ****\n"));
+      Neuron::DebugTrace("**** droid about to go off map - fixed ****\n");
       destroyDroid(psDroid);
     }
   }
@@ -3111,7 +3095,7 @@ void moveUpdatePersonModel(DROID* psDroid, SDWORD speed, SDWORD direction)
       if (psDroid->psCurAnim != nullptr && psDroid->psCurAnim->psAnim->uwID != ID_ANIM_DROIDFIRE)
       {
         bRet = animObj_Remove(&psDroid->psCurAnim, psDroid->psCurAnim->psAnim->uwID);
-        ASSERT((bRet == TRUE, "moveUpdatePersonModel: animObj_Remove failed"));
+        ASSERT_TEXT(bRet == TRUE, "moveUpdatePersonModel: animObj_Remove failed");
         psDroid->psCurAnim = nullptr;
       }
 
@@ -3173,7 +3157,7 @@ void moveUpdatePersonModel(DROID* psDroid, SDWORD speed, SDWORD direction)
       ID_ANIM_DROIDRUN))
     {
       bRet = animObj_Remove(&psDroid->psCurAnim, psDroid->psCurAnim->psAnim->uwID);
-      ASSERT((bRet == TRUE, "moveUpdatePersonModel: animObj_Remove failed"));
+      ASSERT_TEXT(bRet == TRUE, "moveUpdatePersonModel: animObj_Remove failed");
       psDroid->psCurAnim = nullptr;
     }
 
@@ -3183,7 +3167,7 @@ void moveUpdatePersonModel(DROID* psDroid, SDWORD speed, SDWORD direction)
       // Only add the animation if the droid is on screen, saves memory and time.
       if (clipXY(psDroid->x, psDroid->y))
       {
-        DBPRINTF(("Added person run anim\n"));
+        Neuron::DebugTrace("Added person run anim\n");
         psDroid->psCurAnim = animObj_Add(psDroid, ID_ANIM_DROIDRUN, 0, 0);
       }
     }
@@ -3193,9 +3177,9 @@ void moveUpdatePersonModel(DROID* psDroid, SDWORD speed, SDWORD direction)
       if (!clipXY(psDroid->x, psDroid->y))
       {
         bRet = animObj_Remove(&psDroid->psCurAnim, psDroid->psCurAnim->psAnim->uwID);
-        ASSERT((bRet == TRUE, "moveUpdatePersonModel : animObj_Remove failed"));
+        ASSERT_TEXT(bRet == TRUE, "moveUpdatePersonModel : animObj_Remove failed");
         psDroid->psCurAnim = nullptr;
-        DBPRINTF(("Removed person run anim\n"));
+        Neuron::DebugTrace("Removed person run anim\n");
       }
     }
   }
@@ -3411,7 +3395,7 @@ void moveUpdateCyborgModel(DROID* psDroid, SDWORD moveSpeed, SDWORD moveDir, UBY
     if (psDroid->psCurAnim != nullptr)
     {
       if (animObj_Remove(&psDroid->psCurAnim, psDroid->psCurAnim->uwID) == FALSE)
-        DBPRINTF(("moveUpdateCyborgModel: couldn't remove walk anim\n"));
+        Neuron::DebugTrace("moveUpdateCyborgModel: couldn't remove walk anim\n");
       psDroid->psCurAnim = nullptr;
     }
 
@@ -3467,7 +3451,7 @@ void moveUpdateCyborgModel(DROID* psDroid, SDWORD moveSpeed, SDWORD moveDir, UBY
       if (!clipXY(psDroid->x, psDroid->y))
       {
         bRet = animObj_Remove(&psDroid->psCurAnim, psDroid->psCurAnim->psAnim->uwID);
-        ASSERT((bRet == TRUE, "moveUpdateCyborgModel : animObj_Remove failed"));
+        ASSERT_TEXT(bRet == TRUE, "moveUpdateCyborgModel : animObj_Remove failed");
         psDroid->psCurAnim = nullptr;
       }
     }
@@ -3482,7 +3466,7 @@ void moveUpdateCyborgModel(DROID* psDroid, SDWORD moveSpeed, SDWORD moveDir, UBY
     {
       if ((psDroid->psCurAnim->uwID == ID_ANIM_CYBORG_RUN || psDroid->psCurAnim->uwID == ID_ANIM_SUPERCYBORG_RUN || psDroid->psCurAnim->uwID
         == ID_ANIM_CYBORG_PACK_RUN) && (animObj_Remove(&psDroid->psCurAnim, psDroid->psCurAnim->uwID) == FALSE))
-        DBPRINTF(("moveUpdateCyborgModel: couldn't remove walk anim\n"));
+        Neuron::DebugTrace("moveUpdateCyborgModel: couldn't remove walk anim\n");
     }
 
     /* add jumping or landing anim */
@@ -3722,7 +3706,6 @@ void moveUpdateDroid(DROID* psDroid)
 #ifdef DEBUG_GROUP4
   if (psDroid->sMove.Status != MOVEINACTIVE && psDroid->sMove.Status != MOVETURN && psDroid->sMove.Status != MOVEPOINTTOPOINT)
   {
-    DBP4(("status: id %d state %d\n", psDroid->id, psDroid->sMove.Status));
   }
 #endif
 
@@ -3753,28 +3736,28 @@ void moveUpdateDroid(DROID* psDroid)
       // selectedPlayer always gets precidence in single player
       if (psNextRouteDroid == nullptr)
       {
-        DBP6(("Waiting droid set to %d (player %d) started at %d now %d (none waiting)\n", psDroid->id, psDroid->player, psDroid->sMove.
-          bumpTime, gameTime));
+        MOVE_TRACE("Waiting droid set to {} (player {}) started at {} now {} (none waiting)\n", psDroid->id, psDroid->player, psDroid->sMove.
+          bumpTime, gameTime);
         psNextRouteDroid = psDroid;
       }
       else if (bMultiPlayer && (psNextRouteDroid->sMove.bumpTime > psDroid->sMove.bumpTime))
       {
-        DBP6(("Waiting droid set to %d (player %d) started at %d now %d (mulitplayer)\n", psDroid->id, psDroid->player, psDroid->sMove.
-          bumpTime, gameTime));
+        MOVE_TRACE("Waiting droid set to {} (player {}) started at {} now {} (mulitplayer)\n", psDroid->id, psDroid->player, psDroid->sMove.
+          bumpTime, gameTime);
         psNextRouteDroid = psDroid;
       }
       else if ((psDroid->player == selectedPlayer) && ((psNextRouteDroid->player != selectedPlayer) || (psNextRouteDroid->sMove.bumpTime >
         psDroid->sMove.bumpTime)))
       {
-        DBP6(("Waiting droid set to %d (player %d) started at %d now %d (selectedPlayer)\n", psDroid->id, psDroid->player, psDroid->sMove.
-          bumpTime, gameTime));
+        MOVE_TRACE("Waiting droid set to {} (player {}) started at {} now {} (selectedPlayer)\n", psDroid->id, psDroid->player, psDroid->sMove.
+          bumpTime, gameTime);
         psNextRouteDroid = psDroid;
       }
       else if ((psDroid->player != selectedPlayer) && (psNextRouteDroid->player != selectedPlayer) && (psNextRouteDroid->sMove.bumpTime >
         psDroid->sMove.bumpTime))
       {
-        DBP6(("Waiting droid set to %d (player %d) started at %d now %d (non selectedPlayer)\n", psDroid->id, psDroid->player, psDroid->
-          sMove.bumpTime, gameTime));
+        MOVE_TRACE("Waiting droid set to {} (player {}) started at {} now {} (non selectedPlayer)\n", psDroid->id, psDroid->player, psDroid->
+          sMove.bumpTime, gameTime);
         psNextRouteDroid = psDroid;
       }
     }
@@ -3811,7 +3794,7 @@ void moveUpdateDroid(DROID* psDroid)
         tangle = vectorToAngle(tx, ty);
 
         if (psDroid->droidType == DROID_TRANSPORTER)
-          DBPRINTF(("a) dir %d,%d (%d)\n",tx,ty,tangle));
+          Neuron::DebugTrace("a) dir {},{} ({})\n",tx,ty,tangle);
 
         moveSpeed = moveCalcDroidSpeed(psDroid);
         moveDir = MAKEINT(tangle);
@@ -3903,7 +3886,6 @@ void moveUpdateDroid(DROID* psDroid)
           psDroid->sMove.Status = MOVEHOVER;
         else
           psDroid->sMove.Status = MOVETURN;
-        DBP2(("\n"));
         break;
       }
       moveCalcBoundary(psDroid);
@@ -4038,7 +4020,7 @@ void moveUpdateDroid(DROID* psDroid)
   case MOVEDRIVEFOLLOW:
     break;
 
-  default: ASSERT((FALSE, "moveUpdateUnit: unknown move state"));
+  default: ASSERT_TEXT(FALSE, "moveUpdateUnit: unknown move state");
     break;
   }
 
@@ -4068,7 +4050,6 @@ void moveUpdateDroid(DROID* psDroid)
   // See if it's got blocked
   if ((psPropStats->propulsionType != LIFT) && moveBlocked(psDroid))
   {
-    DBP4(("status: id %d blocked\n", psDroid->id));
     psDroid->sMove.Status = MOVETURN;
   }
 

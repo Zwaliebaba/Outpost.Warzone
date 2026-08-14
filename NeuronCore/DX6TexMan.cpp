@@ -126,13 +126,13 @@ BOOL dtm_Initialise(void)
 
   if (hResult != D3D_OK)
   {
-    ASSERT((FALSE,"dtm_Initialise: EnumTextureFormats failed\n%s",DDErrorToString(hResult)));
+    ASSERT_TEXT(FALSE,"dtm_Initialise: EnumTextureFormats failed\n{}",DDErrorToString(hResult));
     return FALSE;
   }
 
   if (!texInfo.bFoundGoodFormat)
   {
-    ASSERT((FALSE,"dtm_Initialise: RGB texture mode not found\n%s",DDErrorToString(hResult)));
+    ASSERT_TEXT(FALSE,"dtm_Initialise: RGB texture mode not found\n{}",DDErrorToString(hResult));
     return FALSE;
   }
 
@@ -142,7 +142,7 @@ BOOL dtm_Initialise(void)
   hResult = pDD4->lpVtbl->GetAvailableVidMem(pDD4, &ddsCaps2, (LPDWORD)&totalVideoMemory, (LPDWORD)&freeVideoMemory);
   if (hResult != D3D_OK)
   {
-    ASSERT((FALSE,"dtm_Initialise: GetAvailableVidMem failed\n%s",DDErrorToString(hResult)));
+    ASSERT_TEXT(FALSE,"dtm_Initialise: GetAvailableVidMem failed\n{}",DDErrorToString(hResult));
     return FALSE;
   }
 
@@ -153,13 +153,13 @@ BOOL dtm_Initialise(void)
       if (freeVideoMemory < MIN_TEX_MEMORY)
       {
         texSize = LOW_16BIT;
-        DBERROR(("DX6 has reported insufficient texture space %d.", freeVideoMemory));
+        Neuron::Fatal("DX6 has reported insufficient texture space {}.", freeVideoMemory);
         return FALSE;
       }
       if (((freeVideoMemory >= REQ_8BIT_TEX_MEMORY) && (freeVideoMemory < REQ_TEX_MEMORY)) && texInfo.b8BPPAvailable)
       {
 #ifdef JEREMY
-        DBPRINTF(("DX6 has reported limited texture space %d.\nSwitching to 8 bit texture mode.", freeVideoMemory));
+        Neuron::DebugTrace("DX6 has reported limited texture space {}.\nSwitching to 8 bit texture mode.", freeVideoMemory);
 #endif
         texSize = FULL_8BIT;
         texInfo.requestedPaletteMode = DDPF_PALETTEINDEXED8;
@@ -171,27 +171,27 @@ BOOL dtm_Initialise(void)
 
         if (hResult != D3D_OK)
         {
-          DBERROR(("DX6 Initialise: EnumTextureFormats failed\n%s",DDErrorToString(hResult)));
+          Neuron::Fatal("DX6 Initialise: EnumTextureFormats failed\n{}",DDErrorToString(hResult));
           return FALSE;
         }
 
         if (!texInfo.bFoundGoodFormat)
         {
-          DBERROR(("DX6 Initialise: RGB texture mode not found\n%s",DDErrorToString(hResult)));
+          Neuron::Fatal("DX6 Initialise: RGB texture mode not found\n{}",DDErrorToString(hResult));
           return FALSE;
         }
 
         hResult = pDD4->lpVtbl->CreatePalette(pDD4, DDPCAPS_8BIT | DDPCAPS_ALLOW256, pie_GetWinPal(), &pDDPal, nullptr);
         if (hResult != DD_OK)
         {
-          DBERROR(("DX6 Initialise: CreatePalette failed for palettised mode.\n%s",DDErrorToString(hResult)));
+          Neuron::Fatal("DX6 Initialise: CreatePalette failed for palettised mode.\n{}",DDErrorToString(hResult));
           return FALSE;
         }
       }
       else if (freeVideoMemory < REQ_TEX_MEMORY)
       {
         texSize = MED_16BIT;
-        DBPRINTF(("DX6 has reported limited texture space %d.\nSwitching to low texture mode.", freeVideoMemory));
+        Neuron::DebugTrace("DX6 has reported limited texture space {}.\nSwitching to low texture mode.", freeVideoMemory);
       }
     }
     break;
@@ -202,7 +202,7 @@ BOOL dtm_Initialise(void)
     if (texInfo.b8BPPAvailable)
     {
 #ifdef JEREMY
-      DBPRINTF(("DX6 has reported limited texture space %d.\nSwitching to 8 bit texture mode.", freeVideoMemory));
+      Neuron::DebugTrace("DX6 has reported limited texture space {}.\nSwitching to 8 bit texture mode.", freeVideoMemory);
 #endif
       texSize = FULL_8BIT;
       texInfo.requestedPaletteMode = DDPF_PALETTEINDEXED8;
@@ -214,20 +214,20 @@ BOOL dtm_Initialise(void)
 
       if (hResult != D3D_OK)
       {
-        DBERROR(("DX6 Initialise: EnumTextureFormats failed\n%s",DDErrorToString(hResult)));
+        Neuron::Fatal("DX6 Initialise: EnumTextureFormats failed\n{}",DDErrorToString(hResult));
         return FALSE;
       }
 
       if (!texInfo.bFoundGoodFormat)
       {
-        DBERROR(("DX6 Initialise: texture mode not found\n%s",DDErrorToString(hResult)));
+        Neuron::Fatal("DX6 Initialise: texture mode not found\n{}",DDErrorToString(hResult));
         return FALSE;
       }
 
       hResult = pDD4->lpVtbl->CreatePalette(pDD4, DDPCAPS_8BIT | DDPCAPS_ALLOW256, pie_GetWinPal(), &pDDPal, nullptr);
       if (hResult != DD_OK)
       {
-        DBERROR(("DX6 Initialise: CreatePalette failed for palettised mode.\n%s",DDErrorToString(hResult)));
+        Neuron::Fatal("DX6 Initialise: CreatePalette failed for palettised mode.\n{}",DDErrorToString(hResult));
         return FALSE;
       }
     }
@@ -258,7 +258,7 @@ BOOL dtm_Initialise(void)
                                                                   (LPVOID*)&aTextures[i].psTexture2);
         if (hResult != D3D_OK)
         {
-          DBERROR(("DX6 Initialise: Query Interfacefailed for Texture Surface\n%s",DDErrorToString(hResult)));
+          Neuron::Fatal("DX6 Initialise: Query Interfacefailed for Texture Surface\n{}",DDErrorToString(hResult));
           return FALSE;
         }
       }
@@ -281,13 +281,13 @@ BOOL dtm_Initialise(void)
 
           if (hResult != D3D_OK)
           {
-            DBERROR(("dtm_Initialise: EnumTextureFormats failed on second pass\n%s",DDErrorToString(hResult)));
+            Neuron::Fatal("dtm_Initialise: EnumTextureFormats failed on second pass\n{}",DDErrorToString(hResult));
             return FALSE;
           }
 
           if (!texInfo.bFoundGoodFormat)
           {
-            DBERROR(("dtm_Initialise: RGB texture mode failed after 8bit fail\n%s",DDErrorToString(hResult)));
+            Neuron::Fatal("dtm_Initialise: RGB texture mode failed after 8bit fail\n{}",DDErrorToString(hResult));
             return FALSE;
           }
         }
@@ -311,7 +311,7 @@ BOOL dtm_Initialise(void)
                                                                   (LPVOID*)&aTextures[i].psTexture2);
         if (hResult != D3D_OK)
         {
-          DBERROR(("DX6 Initialise: Query Interface failed for Texture Surface (2)\n%s",DDErrorToString(hResult)));
+          Neuron::Fatal("DX6 Initialise: Query Interface failed for Texture Surface (2)\n{}",DDErrorToString(hResult));
           return FALSE;
         }
       }
@@ -336,7 +336,7 @@ BOOL dtm_Initialise(void)
                                                                   (LPVOID*)&aTextures[i].psTexture2);
         if (hResult != D3D_OK)
         {
-          DBERROR(("DX6 Initialise: Query Interface failed for Texture Surface (3)\n%s",DDErrorToString(hResult)));
+          Neuron::Fatal("DX6 Initialise: Query Interface failed for Texture Surface (3)\n{}",DDErrorToString(hResult));
           return FALSE;
         }
       }
@@ -352,7 +352,7 @@ BOOL dtm_Initialise(void)
 
   if (texSize == LOW_16BIT)
   {
-    DBERROR(("DX6 has reported insufficient texture space %d.", freeVideoMemory)); //mar10!!jps
+    Neuron::Fatal("DX6 has reported insufficient texture space {}.", freeVideoMemory); //mar10!!jps
     return FALSE; //mar10!!jps
     bSpace = TRUE;
     for (i = 0; ((i < MAX_TEX_PAGES) & bSpace); i++)
@@ -367,7 +367,7 @@ BOOL dtm_Initialise(void)
                                                                   (LPVOID*)&aTextures[i].psTexture2);
         if (hResult != D3D_OK)
         {
-          DBERROR(("DX6 Initialise: Query Interface failed for Texture Surface (4)\n%s",DDErrorToString(hResult)));
+          Neuron::Fatal("DX6 Initialise: Query Interface failed for Texture Surface (4)\n{}",DDErrorToString(hResult));
           return FALSE;
         }
       }
@@ -491,8 +491,8 @@ BOOL dtm_CreateTextureSurface(LPDIRECTDRAWSURFACE4* ppsSurface4, SDWORD size, DW
   hResult = pDD4->lpVtbl->CreateSurface(pDD4, &ddSurfDesc2, ppsSurface4, nullptr);
   if (hResult != DD_OK)
   {
-    DBPRINTF(("dtm_CreateTextureSurface: Create texture surface failed:\n%s", DDErrorToString(hResult)));
-    DBPRINTF(("Unable to allocate sufficient texture space.\nSwitching to low texture mode."));
+    Neuron::DebugTrace("dtm_CreateTextureSurface: Create texture surface failed:\n{}", DDErrorToString(hResult));
+    Neuron::DebugTrace("Unable to allocate sufficient texture space.\nSwitching to low texture mode.");
     return FALSE;
   }
 
@@ -502,7 +502,7 @@ BOOL dtm_CreateTextureSurface(LPDIRECTDRAWSURFACE4* ppsSurface4, SDWORD size, DW
     hResult = (*ppsSurface4)->lpVtbl->SetPalette(*ppsSurface4, pDDPal);
     if (hResult != DD_OK)
     {
-      DBPRINTF(("dtm_CreateTextureSurface: SetPalette failed for texture surface:\n%s",DDErrorToString(hResult)));
+      Neuron::DebugTrace("dtm_CreateTextureSurface: SetPalette failed for texture surface:\n{}",DDErrorToString(hResult));
       return FALSE;
     }
   }
@@ -513,7 +513,7 @@ BOOL dtm_CreateTextureSurface(LPDIRECTDRAWSURFACE4* ppsSurface4, SDWORD size, DW
     hResult = (*ppsSurface4)->lpVtbl->SetColorKey(*ppsSurface4, DDCKEY_SRCBLT, &blackKey);
     if (hResult != DD_OK)
     {
-      DBPRINTF(("dtm_CreateTextureSurface: SetColorKey failed for texture surface:\n%s", DDErrorToString(hResult)));
+      Neuron::DebugTrace("dtm_CreateTextureSurface: SetColorKey failed for texture surface:\n{}", DDErrorToString(hResult));
       return FALSE;
     }
   }
@@ -623,16 +623,16 @@ void dx6_SetBilinear(BOOL bBilinearOn)
   if (bBilinearOn)
   {
     hResult = pd3dDevice3->lpVtbl->SetTextureStageState(pd3dDevice3, 0, D3DTSS_MINFILTER, D3DTFN_LINEAR);
-    ASSERT(( hResult == D3D_OK,"dx6_SetBilinear: bilinear SetRenderState failed\n%s",DDErrorToString(hResult) ));
+    ASSERT_TEXT(hResult == D3D_OK,"dx6_SetBilinear: bilinear SetRenderState failed\n{}",DDErrorToString(hResult) );
     hResult = pd3dDevice3->lpVtbl->SetTextureStageState(pd3dDevice3, 0, D3DTSS_MAGFILTER, D3DTFG_LINEAR);
-    ASSERT(( hResult == D3D_OK,"dx6_SetBilinear: bilinear SetRenderState failed\n%s",DDErrorToString(hResult) ));
+    ASSERT_TEXT(hResult == D3D_OK,"dx6_SetBilinear: bilinear SetRenderState failed\n{}",DDErrorToString(hResult) );
   }
   else
   {
     hResult = pd3dDevice3->lpVtbl->SetTextureStageState(pd3dDevice3, 0, D3DTSS_MINFILTER, D3DTFN_POINT);
-    ASSERT(( hResult == D3D_OK,"dx6_SetBilinear: bilinear SetRenderState failed\n%s",DDErrorToString(hResult) ));
+    ASSERT_TEXT(hResult == D3D_OK,"dx6_SetBilinear: bilinear SetRenderState failed\n{}",DDErrorToString(hResult) );
     hResult = pd3dDevice3->lpVtbl->SetTextureStageState(pd3dDevice3, 0, D3DTSS_MAGFILTER, D3DTFG_POINT);
-    ASSERT(( hResult == D3D_OK,"dx6_SetBilinear: bilinear SetRenderState failed\n%s",DDErrorToString(hResult) ));
+    ASSERT_TEXT(hResult == D3D_OK,"dx6_SetBilinear: bilinear SetRenderState failed\n{}",DDErrorToString(hResult) );
   }
 }
 
@@ -645,7 +645,7 @@ void SetMaterial(void)
   hResult = pd3d3->lpVtbl->CreateMaterial(pd3d3, &psMtrl3, nullptr);
   if (hResult != DD_OK)
   {
-    ASSERT((FALSE,"dtm SetMaterial: CreateMaterial failed\n%s",DDErrorToString(hResult)));
+    ASSERT_TEXT(FALSE,"dtm SetMaterial: CreateMaterial failed\n{}",DDErrorToString(hResult));
     return;
   }
   ZeroMemory(&mtrl, sizeof(D3DMATERIAL));
@@ -677,7 +677,7 @@ void dtm_SetSurfaceAlpha(LPDIRECTDRAWSURFACE4 psSurf4)
   hResult = psSurf4->lpVtbl->GetSurfaceDesc(psSurf4, &ddsd);
   if (hResult != DD_OK)
   {
-    ASSERT((FALSE,"dtm_SetSurfaceAlpha: GetSurfaceDesc failed\n%s", DDErrorToString(hResult)));
+    ASSERT_TEXT(FALSE,"dtm_SetSurfaceAlpha: GetSurfaceDesc failed\n{}", DDErrorToString(hResult));
     return;
   }
 
@@ -732,7 +732,7 @@ BOOL dtm_LoadTexSurface(iTexture* psIvisTex, SDWORD index)
     psSurf4 = psImage256Surface4;
   if (!surfLoadFrom8Bit(psSurf4, psIvisTex->width, psIvisTex->height, psIvisTex->bmp, pie_GetWinPal()))
   {
-    ASSERT((FALSE,"dtm SetMaterial: CreateMaterial failed."));
+    ASSERT_TEXT(FALSE,"dtm SetMaterial: CreateMaterial failed.");
     return FALSE;
   }
 
@@ -766,7 +766,7 @@ BOOL dtm_LoadRadarSurface(BYTE* radarBuffer)
 
   if (!dtm_surfLoadFrom8Bit(psRadarSurf4, 128, 128, radarBuffer, (texSize == FULL_8BIT)))
   {
-    ASSERT((FALSE,"dtm SetMaterial: CreateMaterial failed."));
+    ASSERT_TEXT(FALSE,"dtm SetMaterial: CreateMaterial failed.");
     return FALSE;
   }
   return dtm_BLTRadarToTex();
@@ -835,7 +835,7 @@ BOOL dtm_Build16BitTexturePalette(DDPIXELFORMAT* DDPixelFormat)
   // Cannot convert iof not 16bit mode 
   */
 
-  ASSERT((DDPixelFormat->dwRGBBitCount == 16, "dtm_Build16BitTexturePalette RGB bit count not 16"));
+  ASSERT_TEXT(DDPixelFormat->dwRGBBitCount == 16, "dtm_Build16BitTexturePalette RGB bit count not 16");
 
   psPal = pie_GetGamePal();
 

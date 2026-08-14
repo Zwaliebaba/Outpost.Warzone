@@ -137,7 +137,7 @@ void pie_MatBegin(void)
 {
   _MATRIX_INDEX++;
   if (_MATRIX_INDEX > 3)
-    ASSERT((_MATRIX_INDEX < MATRIX_MAX,"pie_MatBegin past top of the stack"));
+    ASSERT_TEXT(_MATRIX_INDEX < MATRIX_MAX,"pie_MatBegin past top of the stack");
   psMatrix++;
   aMatrixStack[_MATRIX_INDEX] = aMatrixStack[_MATRIX_INDEX - 1];
 }
@@ -151,7 +151,7 @@ void pie_MatEnd(void)
 
 {
   _MATRIX_INDEX--;
-  ASSERT((_MATRIX_INDEX >= 0,"pie_MatEnd of the bottom of the stack"));
+  ASSERT_TEXT(_MATRIX_INDEX >= 0,"pie_MatEnd of the bottom of the stack");
   psMatrix--;
 }
 

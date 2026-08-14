@@ -85,7 +85,6 @@ static int printf(char* c, ...) { return 0; }
 //#define DEBUG_GROUP1
 #include <string.h>
 #include "Types.h"
-#include "LegacyDebug.h"
 #include "ResLY.h"
 #include "FrameResource.h"
 
@@ -337,7 +336,7 @@ void res_error(char* pMessage, ...)
   char* pText;
 
   resGetErrorData(&line, &pText);
-  DBERROR(("RES file parse error:\n%s at line %d\nToken: %d, Text: '%s'\n", pMessage, line, res_char, pText));
+  Neuron::Fatal("RES file parse error:\n{} at line {}\nToken: {}, Text: '{}'\n", pMessage, line, res_char, pText);
 }
 
 #ifdef YACC_WINDOWS
@@ -699,7 +698,7 @@ yyEncore:
       UDWORD len;
 
       // set a new input directory
-      DBP0(("directory: %s\n", yypvt[0].sval));
+      Neuron::DebugTrace("directory: {}\n", yypvt[0].sval);
       if (yypvt[0].sval[1] == ':' || yypvt[0].sval[0] == '\\')
       {
         // the new dir is rooted
@@ -725,7 +724,6 @@ yyEncore:
     {
       /* file_line :  FILETOKEN TEXT QTEXT */
 
-      DBP1(("file: %s %s\n", yypvt[-1].sval, yypvt[0].sval));
       if (!resLoadFile(yypvt[-1].sval, yypvt[0].sval)) { YYABORT; }
     }
     break;

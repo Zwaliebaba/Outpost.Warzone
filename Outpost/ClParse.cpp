@@ -101,7 +101,7 @@ BOOL ParseCommandLine(LPSTR psCmdLine)
       token = strtok(nullptr, seps);
       if (token == nullptr)
       {
-        DBERROR(("Unrecognised -game name\n"));
+        Neuron::Fatal("Unrecognised -game name\n");
         return FALSE;
       }
       strncpy(pLevelName, token, 254);
@@ -113,7 +113,7 @@ BOOL ParseCommandLine(LPSTR psCmdLine)
       token = strtok(nullptr, seps);
       if (token == nullptr)
       {
-        DBERROR(("Unrecognised -savegame name\n"));
+        Neuron::Fatal("Unrecognised -savegame name\n");
         return FALSE;
       }
       strcpy(saveGameName, "savegame\\");
@@ -127,13 +127,13 @@ BOOL ParseCommandLine(LPSTR psCmdLine)
       token = strtok(nullptr, seps);
       if (token == nullptr)
       {
-        DBERROR(("Unrecognised datapath\n"));
+        Neuron::Fatal("Unrecognised datapath\n");
         return FALSE;
       }
       resSetBaseDir(token);
 
       if (_chdir(token) != 0)
-        DBERROR(("Path not found: %s\n", token));
+        Neuron::Fatal("Path not found: {}\n", token);
     }
 
     else if (stricmp(tokenType, cl2) == 0)

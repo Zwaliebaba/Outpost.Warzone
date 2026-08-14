@@ -13,7 +13,7 @@ BOOL labelCreate(W_LABEL** ppsWidget, W_LABINIT* psInit)
   /* Do some validation on the initialisation struct */
   if (psInit->style & ~(WLAB_PLAIN | WLAB_ALIGNLEFT | WLAB_ALIGNRIGHT | WLAB_ALIGNCENTRE | WIDG_HIDDEN))
   {
-    ASSERT((FALSE, "Unknown button style"));
+    ASSERT_TEXT(FALSE, "Unknown button style");
     return FALSE;
   }
 
@@ -21,7 +21,7 @@ BOOL labelCreate(W_LABEL** ppsWidget, W_LABINIT* psInit)
   *ppsWidget = new (std::nothrow) W_LABEL;
   if (*ppsWidget == nullptr)
   {
-    ASSERT((FALSE, "Out of memory"));
+    ASSERT_TEXT(FALSE, "Out of memory");
     return FALSE;
   }
   /* Allocate the memory for the tip and copy it if necessary */
@@ -31,7 +31,7 @@ BOOL labelCreate(W_LABEL** ppsWidget, W_LABINIT* psInit)
     if (!widgAllocCopyString(&(*ppsWidget)->pTip, psInit->pTip))
     {
       /* Out of memory - just carry on without the tip */
-      ASSERT((FALSE, "buttonCreate: Out of memory"));
+      ASSERT_TEXT(FALSE, "buttonCreate: Out of memory");
       (*ppsWidget)->pTip = NULL;
     }
 #else

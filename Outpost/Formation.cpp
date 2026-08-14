@@ -58,7 +58,7 @@ void formationShutDown(void)
 
   while (psFormationList)
   {
-    DBPRINTF(("formation with %d units still attached\n",psFormationList->refCount));
+    Neuron::DebugTrace("formation with {} units still attached\n",psFormationList->refCount);
     psNext = psFormationList->psNext;
     delete psFormationList;
     psFormationList = psNext;
@@ -90,7 +90,6 @@ BOOL formationNew(FORMATION** ppsFormation, FORMATION_TYPE type, SDWORD x, SDWOR
   if (psNew == nullptr)
     return FALSE;
 
-  DBP0(("formationNew: type %d, at (%d,%d), dir %d\n", type, x,y, dir));
 
   // initialise it
   psNew->refCount = 0;
@@ -130,7 +129,7 @@ BOOL formationNew(FORMATION** ppsFormation, FORMATION_TYPE type, SDWORD x, SDWOR
     psNew->asLines[0].dir = static_cast<SWORD>(adjustDirection(dir, 180));
     psNew->asLines[0].member = -1;
     break;
-  default: ASSERT((FALSE,"fmNewFormation: unknown formation type"));
+  default: ASSERT_TEXT(FALSE,"fmNewFormation: unknown formation type");
     break;
   }
 
@@ -196,7 +195,6 @@ void formationJoin(FORMATION* psFormation, BASE_OBJECT* psObj)
 
   UNUSEDPARAMETER(psObj);
 
-  DBP0(("formationJoin: %p, obj %d\n", psFormation, psObj->id));
 
   psFormation->refCount += 1;
 
@@ -220,9 +218,8 @@ void formationLeave(FORMATION* psFormation, BASE_OBJECT* psObj)
   F_MEMBER* asMembers;
   FORMATION *psCurr, *psPrev;
 
-  ASSERT((psFormation->refCount > 0, "formationLeave: refcount is zero"));
+  ASSERT_TEXT(psFormation->refCount > 0, "formationLeave: refcount is zero");
 
-  DBP0(("formationLeave: %p, obj %d\n", psFormation, psObj->id));
 
   asMembers = psFormation->asMembers;
 
@@ -291,7 +288,7 @@ void formationReset(FORMATION* psFormation)
       case OBJ_DROID:
         ((DROID*)psObj)->sMove.psFormation = nullptr;
         break;
-      default: ASSERT((FALSE, "formationReset: unknown unit type"));
+      default: ASSERT_TEXT(FALSE, "formationReset: unknown unit type");
         break;
       }
     }
@@ -330,7 +327,7 @@ void formationFindFree(FORMATION* psFormation, BASE_OBJECT* psObj, SDWORD* pX, S
 
   if (psFormation->free == -1)
   {
-    ASSERT((FALSE, "formationFindFree: no members left to allocate"));
+    ASSERT_TEXT(FALSE, "formationFindFree: no members left to allocate");
     *pX = psFormation->x;
     *pY = psFormation->y;
     return;
@@ -355,7 +352,7 @@ void formationFindFree(FORMATION* psFormation, BASE_OBJECT* psObj, SDWORD* pX, S
     found = FALSE;
     while (!found && rank <= MAX_RANK)
     {
-      ASSERT((unit < F_MAXMEMBERS, "formationFindFree: unit out of range"));
+      ASSERT_TEXT(unit < F_MAXMEMBERS, "formationFindFree: unit out of range");
 
       if (unit != -1)
       {
@@ -767,7 +764,7 @@ SDWORD formationObjRadius(BASE_OBJECT* psObj)
   case OBJ_FEATURE:
     radius = psObj->sDisplay.imd->radius / 2;
     break;
-  default: ASSERT((FALSE,"formationObjRadius: unknown object type"));
+  default: ASSERT_TEXT(FALSE,"formationObjRadius: unknown object type");
     radius = 0;
     break;
   }

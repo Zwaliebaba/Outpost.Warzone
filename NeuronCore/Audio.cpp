@@ -261,7 +261,7 @@ AUDIO_SAMPLE* audio_QueueSample(SDWORD iTrack)
   if (g_bAudioEnabled == FALSE || g_bAudioPaused == TRUE || g_bStopAll == TRUE)
     return nullptr;
 
-  ASSERT(( sound_CheckTrack( iTrack ) == TRUE, "audio_QueueSample: track %i outside limits\n", iTrack ));
+  ASSERT_TEXT(sound_CheckTrack( iTrack ) == TRUE, "audio_QueueSample: track {} outside limits\n", iTrack );
 
   /* reject track if too many of same ID already in queue */
   if (audio_CheckSameQueueTracksPlaying(iTrack) == FALSE)
@@ -415,7 +415,7 @@ void audio_UpdateQueue(void)
       }
       else
       {
-        DBPRINTF(("audio_UpdateQueue: couldn't play sample\n"));
+        Neuron::DebugTrace("audio_UpdateQueue: couldn't play sample\n");
         delete psSample;
       }
     }
@@ -538,7 +538,7 @@ BOOL audio_SetTrackVals(char szFileName[], BOOL bLoop, int* piID, int iVol, int 
 
   if (psTrack == nullptr)
   {
-    DBPRINTF(("audio_SetTrackVals: track %s resource not found\n", szFileName));
+    Neuron::DebugTrace("audio_SetTrackVals: track {} resource not found\n", szFileName);
     return FALSE;
   }
   /* get current ID or spare one */
@@ -547,7 +547,7 @@ BOOL audio_SetTrackVals(char szFileName[], BOOL bLoop, int* piID, int iVol, int 
 
   if (*piID == SAMPLE_NOT_ALLOCATED)
   {
-    DBPRINTF(("audio_SetTrackVals: couldn't get spare track ID\n"));
+    Neuron::DebugTrace("audio_SetTrackVals: couldn't get spare track ID\n");
     return FALSE;
   }
   return sound_SetTrackVals(psTrack, bLoop, *piID, iVol, iPriority, iAudibleRadius, VagID);
@@ -663,7 +663,7 @@ static BOOL audio_Play3DTrack(SDWORD iX, SDWORD iY, SDWORD iZ, int iTrack, void*
     audio_AddSampleToHead(&g_psSampleList, psSample);
     return TRUE;
   }
-  DBPRINTF(("audio_Play3DTrack: couldn't play sample\n"));
+  Neuron::DebugTrace("audio_Play3DTrack: couldn't play sample\n");
   delete psSample;
   return FALSE;
 }
@@ -804,7 +804,7 @@ void audio_PlayTrack(int iTrack)
       audio_AddSampleToHead(&g_psSampleList, psSample);
     else
     {
-      DBPRINTF(("audio_PlayTrack: couldn't play sample\n"));
+      Neuron::DebugTrace("audio_PlayTrack: couldn't play sample\n");
       delete psSample;
     }
   }
@@ -893,7 +893,7 @@ void audio_StopAll(void)
   if (g_bAudioEnabled == FALSE)
     return;
 
-  DBPRINTF(("audio_StopAll called\n"));
+  Neuron::DebugTrace("audio_StopAll called\n");
 
   g_bStopAll = TRUE;
 
@@ -919,7 +919,7 @@ void audio_StopAll(void)
 
   g_bStopAll = FALSE;
 
-  DBPRINTF(("audio_StopAll done\n"));
+  Neuron::DebugTrace("audio_StopAll done\n");
 }
 
 /***************************************************************************/

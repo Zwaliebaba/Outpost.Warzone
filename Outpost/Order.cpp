@@ -138,7 +138,7 @@ BASE_OBJECT* checkForRepairRange(DROID* psDroid, DROID* psTarget)
   DROID* psCurr;
   SDWORD xdiff, ydiff;
 
-  ASSERT((psDroid->droidType == DROID_REPAIR OR psDroid->droidType == DROID_CYBORG_REPAIR, "checkForRepairRange:Invalid droid type"));
+  ASSERT_TEXT(psDroid->droidType == DROID_REPAIR OR psDroid->droidType == DROID_CYBORG_REPAIR, "checkForRepairRange:Invalid droid type");
 
   if (psTarget != nullptr && psTarget->died)
     psTarget = nullptr;
@@ -177,8 +177,8 @@ BASE_OBJECT* checkForDamagedStruct(DROID* psDroid, STRUCTURE* psTarget)
   SDWORD xdiff, ydiff;
 
   //ASSERT((psDroid->droidType == DROID_CONSTRUCT, 
-  ASSERT((psDroid->droidType == DROID_CONSTRUCT OR psDroid->droidType ==
-    DROID_CYBORG_CONSTRUCT, "checkForDamagedStruct:Invalid unit type"));
+  ASSERT_TEXT(psDroid->droidType == DROID_CONSTRUCT OR psDroid->droidType ==
+    DROID_CYBORG_CONSTRUCT, "checkForDamagedStruct:Invalid unit type");
 
   if (psTarget != nullptr && psTarget->died)
     psTarget = nullptr;
@@ -729,7 +729,7 @@ void orderUpdateDroid(DROID* psDroid)
       }
       else
       {
-        ASSERT((FALSE, "orderUpdateUnit: LINEBUILD order on diagonal line"));
+        ASSERT_TEXT(FALSE, "orderUpdateUnit: LINEBUILD order on diagonal line");
         break;
       }
 
@@ -931,7 +931,7 @@ void orderUpdateDroid(DROID* psDroid)
         actionDroidObj(psDroid, DACTION_REPAIR, psObj);
     }
     break;
-  default: ASSERT((FALSE, "orderUpdateUnit: unknown order"));
+  default: ASSERT_TEXT(FALSE, "orderUpdateUnit: unknown order");
   }
 
   // catch any vtol that is rearming but has finished his order
@@ -1122,26 +1122,22 @@ void orderDroidBase(DROID* psDroid, DROID_ORDER_DATA* psOrder)
   if (lastFrame != frameGetFrameNumber())
   {
     lastFrame = frameGetFrameNumber();
-    DBP2(("\nNEW FRAME %d\n\n", lastFrame));
-  } DBP2(
-  ("D %d P %d at (%d,%d) O %d: (%d,%d) (%d,%d)", psDroid->id, psDroid->player, psDroid->x,psDroid->y, psOrder->order, psOrder->x,psOrder->
-    y, psOrder->x2,psOrder->y2)); if (psOrder->psObj != NULL)
+  }  if (psOrder->psObj != NULL)
   {
-    DBP2((" T: "));
     switch (psOrder->psObj->type)
     {
-    case OBJ_DROID: DBP2((" D %d P %d", psOrder->psObj->id, psOrder->psObj->player));
+    case OBJ_DROID: 
       break;
-    case OBJ_STRUCTURE: DBP2((" S %d P %d", psOrder->psObj->id, psOrder->psObj->player));
+    case OBJ_STRUCTURE: 
       break;
-    case OBJ_FEATURE: DBP2((" F %d P %d", psOrder->psObj->id, psOrder->psObj->player));
+    case OBJ_FEATURE: 
       break;
     }
   } if (psOrder->psStats != NULL)
   {
-    if (psOrder->psStats->pName != NULL) { DBP2((" TS: %s", psOrder->psStats->pName)); }
-    else { DBP2((" TS: %d", psOrder->psStats->ref)); }
-  } DBP2(("\n"));
+    if (psOrder->psStats->pName != NULL) {  }
+    else {  }
+  } 
 #endif
 
   // deal with a droid receiving a primary order
@@ -1317,7 +1313,7 @@ void orderDroidBase(DROID* psDroid, DROID_ORDER_DATA* psOrder)
       psDroid->orderY = psOrder->psObj->y;
       psDroid->psTarget = nullptr;
       psDroid->psTarStats = (BASE_STATS*)getModuleStat((STRUCTURE*)psOrder->psObj);
-      ASSERT((psDroid->psTarStats != NULL, "orderUnitBase: should have found a module stats"));
+      ASSERT_TEXT(psDroid->psTarStats != NULL, "orderUnitBase: should have found a module stats");
       actionDroidLoc(psDroid, DACTION_BUILD, psOrder->psObj->x, psOrder->psObj->y);
     }
     break;
@@ -1639,7 +1635,7 @@ void orderDroidBase(DROID* psDroid, DROID_ORDER_DATA* psOrder)
       break;
     if (psOrder->psObj->type != OBJ_STRUCTURE)
     {
-      ASSERT((FALSE, "orderDroidBase: invalid object type for Restore order"));
+      ASSERT_TEXT(FALSE, "orderDroidBase: invalid object type for Restore order");
       break;
     }
     psDroid->order = DORDER_RESTORE;
@@ -1665,7 +1661,7 @@ void orderDroidBase(DROID* psDroid, DROID_ORDER_DATA* psOrder)
     actionDroidObj(psDroid, DACTION_MOVETOREARM, psOrder->psObj);
     assignVTOLPad(psDroid, (STRUCTURE*)psOrder->psObj);
     break;
-  default: ASSERT((FALSE, "orderUnitBase: unknown order"));
+  default: ASSERT_TEXT(FALSE, "orderUnitBase: unknown order");
     break;
   }
 
@@ -1677,10 +1673,10 @@ void orderDroid(DROID* psDroid, DROID_ORDER order)
 {
   DROID_ORDER_DATA sOrder;
 
-  ASSERT((order == DORDER_NONE ||
+  ASSERT_TEXT(order == DORDER_NONE ||
     order == DORDER_RETREAT || order == DORDER_DESTRUCT || order == DORDER_RTR || order == DORDER_RTB || order == DORDER_RECYCLE || order ==
     DORDER_RUN || order == DORDER_RUNBURN || order == DORDER_TRANSPORTIN || order == DORDER_STOP, // Added this PD.
-    "orderUnit: Invalid order"));
+    "orderUnit: Invalid order");
 
   memset(&sOrder, 0, sizeof(DROID_ORDER_DATA));
   sOrder.order = order;
@@ -1705,10 +1701,10 @@ void orderDroidLoc(DROID* psDroid, DROID_ORDER order, UDWORD x, UDWORD y)
   DROID_ORDER_DATA sOrder;
   //#warning memory report here !!!!!
 
-  ASSERT((order == DORDER_NONE ||
+  ASSERT_TEXT(order == DORDER_NONE ||
     order == DORDER_MOVE || order == DORDER_GUARD || order == DORDER_SCOUT || order == DORDER_RUN || order == DORDER_PATROL || order ==
     DORDER_TRANSPORTOUT || order == DORDER_TRANSPORTIN || order == DORDER_TRANSPORTRETURN || order == DORDER_DISEMBARK,
-    "orderUnitLoc: Invalid order for location"));
+    "orderUnitLoc: Invalid order for location");
 
   orderClearDroidList(psDroid);
 
@@ -1755,11 +1751,11 @@ void orderDroidObj(DROID* psDroid, DROID_ORDER order, BASE_OBJECT* psObj)
 {
   DROID_ORDER_DATA sOrder;
 
-  ASSERT((order == DORDER_NONE ||
+  ASSERT_TEXT(order == DORDER_NONE ||
     order == DORDER_HELPBUILD || order == DORDER_DEMOLISH || order == DORDER_REPAIR || order == DORDER_ATTACK || order == DORDER_FIRESUPPORT
     || order == DORDER_OBSERVE || order == DORDER_ATTACKTARGET || order == DORDER_RTR || order == DORDER_RTR_SPECIFIED || order ==
     DORDER_EMBARK || order == DORDER_GUARD || order == DORDER_DROIDREPAIR || order == DORDER_RESTORE || order == DORDER_BUILDMODULE || order
-    == DORDER_REARM || order == DORDER_CLEARWRECK || order == DORDER_RECOVER, "orderUnitObj: Invalid order for object"));
+    == DORDER_REARM || order == DORDER_CLEARWRECK || order == DORDER_RECOVER, "orderUnitObj: Invalid order for object");
 
   orderClearDroidList(psDroid);
 
@@ -1850,7 +1846,7 @@ void orderDroidStatsLoc(DROID* psDroid, DROID_ORDER order, BASE_STATS* psStats, 
 {
   DROID_ORDER_DATA sOrder;
 
-  ASSERT((order == DORDER_BUILD, "orderUnitStatsLoc: Invalid order for location"));
+  ASSERT_TEXT(order == DORDER_BUILD, "orderUnitStatsLoc: Invalid order for location");
 
   //	Right, now due to some extra special weirdness, we must enusure that the coordinates
   //	are snapped to tile EDGE coordinates, so we need to mask off the bottom 6 bits
@@ -1888,8 +1884,8 @@ void orderDroidStatsTwoLoc(DROID* psDroid, DROID_ORDER order, BASE_STATS* psStat
 {
   DROID_ORDER_DATA sOrder;
 
-  ASSERT((order == DORDER_LINEBUILD, "orderUnitStatsTwoLoc: Invalid order for location"));
-  ASSERT((x1 == x2 || y1 == y2, "orderUnitStatsTwoLoc: Invalid locations for LINEBUILD"));
+  ASSERT_TEXT(order == DORDER_LINEBUILD, "orderUnitStatsTwoLoc: Invalid order for location");
+  ASSERT_TEXT(x1 == x2 || y1 == y2, "orderUnitStatsTwoLoc: Invalid locations for LINEBUILD");
 
   memset(&sOrder, 0, sizeof(DROID_ORDER_DATA));
   sOrder.order = order;
@@ -1906,8 +1902,8 @@ void orderDroidStatsTwoLocAdd(DROID* psDroid, DROID_ORDER order, BASE_STATS* psS
 {
   DROID_ORDER_DATA sOrder;
 
-  ASSERT((order == DORDER_LINEBUILD, "orderUnitStatsTwoLocAdd: Invalid order for location"));
-  ASSERT((x1 == x2 || y1 == y2, "orderUnitStatsTwoLocAdd: Invalid locations for LINEBUILD"));
+  ASSERT_TEXT(order == DORDER_LINEBUILD, "orderUnitStatsTwoLocAdd: Invalid order for location");
+  ASSERT_TEXT(x1 == x2 || y1 == y2, "orderUnitStatsTwoLocAdd: Invalid locations for LINEBUILD");
 
   memset(&sOrder, 0, sizeof(DROID_ORDER_DATA));
   sOrder.order = order;
@@ -2036,7 +2032,7 @@ BOOL orderDroidList(DROID* psDroid)
       sOrder.psObj = nullptr;
       sOrder.psStats = static_cast<BASE_STATS*>(psDroid->asOrderList[0].psOrderTarget);
       break;
-    default: ASSERT((FALSE, "orderDroidList: Invalid order"));
+    default: ASSERT_TEXT(FALSE, "orderDroidList: Invalid order");
       return FALSE;
     }
     sOrder.x = psDroid->asOrderList[0].x;
@@ -2596,7 +2592,7 @@ STRUCTURE* FindAFactory(UDWORD player, UDWORD factoryType)
 {
   STRUCTURE* psStruct;
 
-  ASSERT((player < MAX_PLAYERS, "FindAFactory: invalid player number"));
+  ASSERT_TEXT(player < MAX_PLAYERS, "FindAFactory: invalid player number");
 
   for (psStruct = apsStructLists[player]; psStruct != nullptr; psStruct = psStruct->psNext)
   {
@@ -2864,7 +2860,7 @@ BOOL secondarySetState(DROID* psDroid, SECONDARY_ORDER sec, SECONDARY_STATE Stat
 
   case DSO_ASSIGN_PRODUCTION:
   case DSO_ASSIGN_CYBORG_PRODUCTION:
-  case DSO_ASSIGN_VTOL_PRODUCTION: DBP1(("order factories %s\n", secondaryPrintFactories(State)));
+  case DSO_ASSIGN_VTOL_PRODUCTION: 
     if (sec == DSO_ASSIGN_PRODUCTION)
       prodType = REF_FACTORY;
     else if (sec == DSO_ASSIGN_CYBORG_PRODUCTION)
@@ -2903,7 +2899,6 @@ BOOL secondarySetState(DROID* psDroid, SECONDARY_ORDER sec, SECONDARY_STATE Stat
       else
         CurrState &= ~DSS_ASSPROD_VTOL_MASK;
       CurrState |= (State & DSS_ASSPROD_MASK);
-      DBP1(("final factories %s\n", secondaryPrintFactories(CurrState)));
     }
     break;
 
@@ -3316,7 +3311,6 @@ void orderMoralCheck(UDWORD player)
     // too many units, don't run
     return;
   }
-  DBP0(("moral check for player %d\n", player));
 
   // calculate the overall leadership
   leadership = asRunData[player].leadership + 10;
@@ -3337,7 +3331,6 @@ void orderMoralCheck(UDWORD player)
     {
       if (check > personLShip)
       {
-        DBP0(("   DORDER_RUN: droid %d\n", psCurr->id));
         orderDroid(psCurr, DORDER_RUN);
       }
     }
@@ -3345,7 +3338,6 @@ void orderMoralCheck(UDWORD player)
     {
       if (check > leadership)
       {
-        DBP0(("   DORDER_RUN: droid %d\n", psCurr->id));
         orderDroid(psCurr, DORDER_RUN);
       }
     }
@@ -3395,7 +3387,6 @@ void orderGroupMoralCheck(DROID_GROUP* psGroup)
     {
       if (check > personLShip)
       {
-        DBP0(("   DORDER_RUN: droid %d\n", psCurr->id));
         orderDroidLoc(psCurr, DORDER_RUN, psRunData->sPos.x, psRunData->sPos.y);
       }
     }
@@ -3403,7 +3394,6 @@ void orderGroupMoralCheck(DROID_GROUP* psGroup)
     {
       if (check > leadership)
       {
-        DBP0(("   DORDER_RUN: droid %d\n", psCurr->id));
         orderDroidLoc(psCurr, DORDER_RUN, psRunData->sPos.x, psRunData->sPos.y);
       }
     }
@@ -3500,7 +3490,6 @@ void orderHealthCheck(DROID* psDroid)
     if (!(orderState(psDroid, DORDER_RUN) || orderState(psDroid, DORDER_RUNBURN) || orderState(psDroid, DORDER_RETREAT) ||
       orderState(psDroid, DORDER_RTB) || orderState(psDroid, DORDER_RTR) || orderState(psDroid, DORDER_DESTRUCT)))
     {
-      DBP0(("   DORDER_RUN: droid %d\n", psDroid->id));
       orderDroidLoc(psDroid, DORDER_RUN, retreatX, retreatY);
     }
 
@@ -3516,7 +3505,6 @@ void orderHealthCheck(DROID* psDroid)
           continue;
         }
 
-        DBP0(("   DORDER_RUN: droid %d\n", psCurr->id));
         orderDroidLoc(psCurr, DORDER_RUN, retreatX, retreatY);
       }
     }
@@ -3532,7 +3520,7 @@ BOOL setFactoryState(STRUCTURE* psStruct, SECONDARY_ORDER sec, SECONDARY_STATE S
 
   if (!StructIsFactory(psStruct))
   {
-    ASSERT((FALSE, "setFactoryState: structure is not a factory"));
+    ASSERT_TEXT(FALSE, "setFactoryState: structure is not a factory");
     return FALSE;
   }
 
@@ -3594,7 +3582,7 @@ BOOL getFactoryState(STRUCTURE* psStruct, SECONDARY_ORDER sec, SECONDARY_STATE* 
 
   if (!StructIsFactory(psStruct))
   {
-    ASSERT((FALSE, "getFactoryState: structure is not a factory"));
+    ASSERT_TEXT(FALSE, "getFactoryState: structure is not a factory");
     return FALSE;
   }
 

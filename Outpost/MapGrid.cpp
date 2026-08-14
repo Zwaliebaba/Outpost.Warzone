@@ -63,7 +63,7 @@ void gridClear(void)
   GRID_ARRAY *psCurr, *psNext;
   SDWORD x, y;
 
-  DBPRINTF(("gridClear %d %d\n",gridWidth,gridHeight));
+  Neuron::DebugTrace("gridClear {} {}\n",gridWidth,gridHeight);
   for (x = 0; x < gridWidth; x += 1)
   {
     for (y = 0; y < gridHeight; y += 1)
@@ -196,7 +196,7 @@ void gridRemoveObject(BASE_OBJECT* psObj)
           {
             if (psCurr->apsObjects[i] == psObj)
             {
-              ASSERT((FALSE,"gridRemoveObject: grid out of sync"));
+              ASSERT_TEXT(FALSE,"gridRemoveObject: grid out of sync");
               psCurr->apsObjects[i] = nullptr;
             }
           }
@@ -212,7 +212,7 @@ void gridStartIterate(SDWORD x, SDWORD y)
 {
   //	ASSERT(( (x >= 0) && (x < GRID_WIDTH*GRID_UNITS) &&
   //			 (y >= 0) && (y < GRID_WIDTH*GRID_UNITS),
-  ASSERT(( (x >= 0) && (x < gridWidth*GRID_UNITS) && (y >= 0) && (y < gridHeight*GRID_UNITS), "gridStartIterate: coords off grid"));
+  ASSERT_TEXT((x >= 0) && (x < gridWidth*GRID_UNITS) && (y >= 0) && (y < gridHeight*GRID_UNITS), "gridStartIterate: coords off grid");
 
   x = x / GRID_UNITS;
   y = y / GRID_UNITS;
@@ -301,7 +301,7 @@ void gridAddArrayObject(SDWORD x, SDWORD y, BASE_OBJECT* psObj)
   psNew = new (std::nothrow) GRID_ARRAY;
   if (psNew == nullptr)
   {
-    DBPRINTF(("help - %d\n", psObj->id));
+    Neuron::DebugTrace("help - {}\n", psObj->id);
     return;
   }
 
@@ -400,7 +400,7 @@ void gridDisplayCoverage(BASE_OBJECT* psObj)
     SDWORD x, y, i;
     GRID_ARRAY* psCurr;
 
-    DBPRINTF(("Grid coverage for object %d (%d,%d) - range %d\n", psObj->id, psObj->x,psObj->y, gridObjRange(psObj)));
+    Neuron::DebugTrace("Grid coverage for object {} ({},{}) - range {}\n", psObj->id, psObj->x,psObj->y, gridObjRange(psObj));
     for (x = 0; x < gridWidth; x++)
     {
       for (y = 0; y < gridHeight; y++)
@@ -411,7 +411,7 @@ void gridDisplayCoverage(BASE_OBJECT* psObj)
         {
           if (psCurr->apsObjects[i] == psObj)
           {
-            DBPRINTF(("    %d,%d  [ %d,%d -> %d,%d ]\n", x,y, x*GRID_UNITS,y*GRID_UNITS, (x+1)*GRID_UNITS,(y+1)*GRID_UNITS));
+            Neuron::DebugTrace("    {},{}  [ {},{} -> {},{} ]\n", x,y, x*GRID_UNITS,y*GRID_UNITS, (x+1)*GRID_UNITS,(y+1)*GRID_UNITS);
           }
 
           i += 1;

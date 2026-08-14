@@ -224,25 +224,18 @@ BOOL disp2DShutdown(void)
 /* Tidy up after a mode change */
 BOOL disp2DModeChange()
 {
-  DBP2(("VidTiles\n"));
   if (!surfRecreate(&psVidTiles)) { return FALSE; }
   if (!surfLoadFromSurface(psVidTiles, psTiles)) { return FALSE; }
-  DBP2(("VidDroids\n"));
   if (!surfRecreate(&psVidDroids)) { return FALSE; }
   if (!surfLoadFromSurface(psVidDroids, psDroids)) { return FALSE; }
-  DBP2(("VidExp\n"));
   if (!surfRecreate(&psVidExp)) { return FALSE; }
   if (!surfLoadFromSurface(psVidExp, psExp)) { return FALSE; }
-  DBP2(("VidFlash\n"));
   if (!surfRecreate(&psVidFlash)) { return FALSE; }
   if (!surfLoadFromSurface(psVidFlash, psFlash)) { return FALSE; }
-  DBP2(("VidFlame\n"));
   if (!surfRecreate(&psVidFlame)) { return FALSE; }
   if (!surfLoadFromSurface(psVidFlame, psFlame)) { return FALSE; }
-  DBP2(("VidBullet\n"));
   if (!surfRecreate(&psVidBullet)) { return FALSE; }
   if (!surfLoadFromSurface(psVidBullet, psBullet)) { return FALSE; }
-  DBP2(("VidStructures\n"));
   if (!surfRecreate(&psVidStructures)) { return FALSE; }
   if (!surfLoadFromSurface(psVidStructures, psStructures)) { return FALSE; }
   return TRUE;
@@ -661,7 +654,6 @@ void blitTile(RECT* psDestRect, RECT* psSrcRect, UDWORD texture)
     psP2 = psP3;
     psP3 = psPTemp;
   }
-  DBP1(("Rotation : %d\n", (texture & TILE_ROTMASK) >> TILE_ROTSHIFT));
   switch ((texture & TILE_ROTMASK) >> TILE_ROTSHIFT)
   {
   case 1:
@@ -695,7 +687,7 @@ void blitTile(RECT* psDestRect, RECT* psSrcRect, UDWORD texture)
   ddrval = psTiles->lpVtbl->Lock(psTiles, NULL, &sDDSDSrc, DDLOCK_WAIT, NULL);
   if (ddrval != DD_OK)
   {
-    DBERROR(("Lock failed for tile blit:\n%s", DDErrorToString(ddrval)));
+    Neuron::Fatal("Lock failed for tile blit:\n{}", DDErrorToString(ddrval));
     return;
   }
 
@@ -704,7 +696,7 @@ void blitTile(RECT* psDestRect, RECT* psSrcRect, UDWORD texture)
   ddrval = psBack->lpVtbl->Lock(psBack, NULL, &sDDSDDest, DDLOCK_WAIT, NULL);
   if (ddrval != DD_OK)
   {
-    DBERROR(("Lock failed for tile blit:\n%s", DDErrorToString(ddrval)));
+    Neuron::Fatal("Lock failed for tile blit:\n{}", DDErrorToString(ddrval));
     return;
   }
 
@@ -809,14 +801,14 @@ void blitTile(RECT* psDestRect, RECT* psSrcRect, UDWORD texture)
   case 32:
     break;
   default:
-    DBERROR(("blitTile: Unknown pixel format"));
+    Neuron::Fatal("blitTile: Unknown pixel format");
   }
 
   ddrval = psBack->lpVtbl->Unlock(psBack, NULL);
-  if (ddrval != DD_OK) { DBERROR(("Unlock failed for tileBlit:\n%s", DDErrorToString(ddrval))); }
+  if (ddrval != DD_OK) { Neuron::Fatal("Unlock failed for tileBlit:\n{}", DDErrorToString(ddrval)); }
 
   ddrval = psVidTiles->lpVtbl->Unlock(psTiles, NULL);
-  if (ddrval != DD_OK) { DBERROR(("Unlock failed for tileBlit:\n%s", DDErrorToString(ddrval))); }
+  if (ddrval != DD_OK) { Neuron::Fatal("Unlock failed for tileBlit:\n{}", DDErrorToString(ddrval)); }
 }
 
 /* Display the terrain type over the normal tiles */
@@ -881,8 +873,8 @@ static void display2DMap(void)
   x = (SDWORD)mapX;
   y = (SDWORD)mapY;
 
-  ASSERT((x < (SDWORD)mapWidth, "displayMap: x coord off map"));
-  ASSERT((y < (SDWORD)mapHeight, "displayMap: y coord off map"));
+  ASSERT_TEXT(x < (SDWORD)mapWidth, "displayMap: x coord off map");
+  ASSERT_TEXT(y < (SDWORD)mapHeight, "displayMap: y coord off map");
 
   psBack = screenGetSurface();
 

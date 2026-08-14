@@ -53,7 +53,7 @@ void setDifficultyLevel(DIFFICULTY_LEVEL lev)
     fDifPlayerModifier = FRACTCONST(100, 100);
     fDifEnemyModifier = FRACTCONST(50, 100); // they do less damage!
     break;
-  default: DBERROR(("Invalid difficulty level selected - forcing NORMAL"));
+  default: Neuron::Fatal("Invalid difficulty level selected - forcing NORMAL");
     break;
   }
 

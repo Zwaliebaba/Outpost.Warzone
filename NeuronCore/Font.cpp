@@ -147,7 +147,7 @@ void fontPrint(SDWORD x, SDWORD y, STRING* pFormat, ...)
   ddrval = psBack->lpVtbl->Lock(psBack, nullptr, &sDDSD, DDLOCK_WAIT, nullptr);
   if (ddrval != DD_OK)
   {
-    ASSERT((FALSE, "fontPrint: Couldn't lock back buffer"));
+    ASSERT_TEXT(FALSE, "fontPrint: Couldn't lock back buffer");
     return;
   }
 
@@ -211,16 +211,16 @@ void fontPrint(SDWORD x, SDWORD y, STRING* pFormat, ...)
       }
     }
     break;
-  case 24: ASSERT((FALSE, "24 bit text output not implemented"));
+  case 24: ASSERT_TEXT(FALSE, "24 bit text output not implemented");
     break;
-  case 32: ASSERT((FALSE, "32 bit text output not implemented"));
+  case 32: ASSERT_TEXT(FALSE, "32 bit text output not implemented");
     break;
-  default: ASSERT((FALSE, "Unknown display pixel format"));
+  default: ASSERT_TEXT(FALSE, "Unknown display pixel format");
     break;
   }
 
   ddrval = psBack->lpVtbl->Unlock(psBack, static_cast<LPRECT>(sDDSD.lpSurface));
-  if (ddrval != DD_OK) { ASSERT((FALSE, "fontPrint: Couldn;t unlock back buffer")); }
+  if (ddrval != DD_OK) { ASSERT_TEXT(FALSE, "fontPrint: Couldn;t unlock back buffer"); }
 }
 
 /* Directly print a single font character from the PROP_CHAR struct */
@@ -245,7 +245,7 @@ void fontPrintChar(SDWORD x, SDWORD y, PROP_CHAR* psChar, UDWORD height)
   ddrval = psBack->lpVtbl->Lock(psBack, nullptr, &sDDSD, DDLOCK_WAIT, nullptr);
   if (ddrval != DD_OK)
   {
-    ASSERT((FALSE, "fontPrintChar: Couldn't lock back buffer"));
+    ASSERT_TEXT(FALSE, "fontPrintChar: Couldn't lock back buffer");
     return;
   }
 
@@ -286,16 +286,16 @@ void fontPrintChar(SDWORD x, SDWORD y, PROP_CHAR* psChar, UDWORD height)
       }
     }
     break;
-  case 24: ASSERT((FALSE, "24 bit text output not implemented"));
+  case 24: ASSERT_TEXT(FALSE, "24 bit text output not implemented");
     break;
-  case 32: ASSERT((FALSE, "32 bit text output not implemented"));
+  case 32: ASSERT_TEXT(FALSE, "32 bit text output not implemented");
     break;
-  default: ASSERT((FALSE, "Unknown display pixel format"));
+  default: ASSERT_TEXT(FALSE, "Unknown display pixel format");
     break;
   }
 
   ddrval = psBack->lpVtbl->Unlock(psBack, static_cast<LPRECT>(sDDSD.lpSurface));
-  if (ddrval != DD_OK) { ASSERT((FALSE, "screenTextOut: Couldn;t unlock back buffer")); }
+  if (ddrval != DD_OK) { ASSERT_TEXT(FALSE, "screenTextOut: Couldn;t unlock back buffer"); }
 }
 
 /* Save font information into a file buffer */
@@ -354,7 +354,7 @@ BOOL fontSave(PROP_FONT* psFont, UBYTE** ppFileData, UDWORD* pFileSize)
     psCurrC++;
   }
 
-  ASSERT((pSave == *ppFileData + *pFileSize, "fontSave: Incorrect file size"));
+  ASSERT_TEXT(pSave == *ppFileData + *pFileSize, "fontSave: Incorrect file size");
 
   return TRUE;
 }
@@ -376,20 +376,20 @@ BOOL fontLoad(UBYTE* pFileData, UDWORD fileSize, PROP_FONT** ppsFont)
   psHdr = (FONT_SAVEHDR*)pFileData;
   if (!(psHdr->aFileType[0] == 'f' && psHdr->aFileType[1] == 'o' && psHdr->aFileType[2] == 'n' && psHdr->aFileType[3] == 't'))
   {
-    DBERROR(("fontLoad: incorrect file type"));
+    Neuron::Fatal("fontLoad: incorrect file type");
     goto error;
   }
 
   if (psHdr->version != 1)
   {
-    DBERROR(("fontLoad: incorrect file version"));
+    Neuron::Fatal("fontLoad: incorrect file version");
     goto error;
   }
 
   *ppsFont = new (std::nothrow) PROP_FONT[1];
   if (!*ppsFont)
   {
-    DBERROR(("fontLoad: Out of memory"));
+    Neuron::Fatal("fontLoad: Out of memory");
     goto error;
   }
 
@@ -404,13 +404,13 @@ BOOL fontLoad(UBYTE* pFileData, UDWORD fileSize, PROP_FONT** ppsFont)
   (*ppsFont)->psOffset = new (std::nothrow) PROP_PRINTABLE[psHdr->numOffset];
   if (!(*ppsFont)->psOffset)
   {
-    DBERROR(("fontLoad Out of memory"));
+    Neuron::Fatal("fontLoad Out of memory");
     goto error;
   }
   (*ppsFont)->psChars = new (std::nothrow) PROP_CHAR[psHdr->numChars];
   if (!(*ppsFont)->psChars)
   {
-    DBERROR(("fontLoad Out of memory"));
+    Neuron::Fatal("fontLoad Out of memory");
     goto error;
   }
   memset((*ppsFont)->psChars, 0, sizeof(PROP_PRINTABLE) * psHdr->numChars);
@@ -437,7 +437,7 @@ BOOL fontLoad(UBYTE* pFileData, UDWORD fileSize, PROP_FONT** ppsFont)
     psCurrC->pData = new (std::nothrow) UBYTE[(*ppsFont)->height * psCurrC->pitch];
     if (!psCurrC->pData)
     {
-      DBERROR(("fontLoad: Out of memory (char)"));
+      Neuron::Fatal("fontLoad: Out of memory (char)");
       goto error;
     }
 

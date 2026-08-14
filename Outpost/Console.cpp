@@ -191,7 +191,7 @@ static BOOL _addConsoleMessage(STRING* messageText, CONSOLE_TEXT_JUSTIFICATION j
   /* Is the string too long? */
   textLength = strlen(messageText);
 
-  ASSERT(( textLength<MAX_CONSOLE_STRING_LENGTH, "Attempt to add a message to the console that exceeds MAX_CONSOLE_STRING_LENGTH"));
+  ASSERT_TEXT(textLength<MAX_CONSOLE_STRING_LENGTH, "Attempt to add a message to the console that exceeds MAX_CONSOLE_STRING_LENGTH");
 
   /* Are we using a defualt justification? */
   if (jusType == DEFAULT_JUSTIFY)
@@ -217,7 +217,7 @@ static BOOL _addConsoleMessage(STRING* messageText, CONSOLE_TEXT_JUSTIFICATION j
     consoleStorage[messageIndex].JustifyType = FTEXT_CENTRE;
     break;
   /* Gone tits up by the looks of it */
-  default: DBERROR(("Weirdy type of text justification for console print"));
+  default: Neuron::Fatal("Weirdy type of text justification for console print");
     break;
   }
 
@@ -569,7 +569,7 @@ void setDefaultConsoleJust(CONSOLE_TEXT_JUSTIFICATION defJ)
   case CENTRE_JUSTIFY:
     defJustification = defJ;
     break;
-  default: DBERROR(("Weird default text justification for console"));
+  default: Neuron::Fatal("Weird default text justification for console");
     break;
   }
 }
@@ -618,7 +618,7 @@ BOOL mouseOverConsoleBox(void)
 /* Sets up how many lines are allowed and how many are visible */
 void setConsoleLineInfo(UDWORD vis)
 {
-  ASSERT((vis<=MAX_CONSOLE_MESSAGES,"Request for more visible lines in the console than exist"));
+  ASSERT_TEXT(vis<=MAX_CONSOLE_MESSAGES,"Request for more visible lines in the console than exist");
   consoleVisibleLines = vis;
 }
 

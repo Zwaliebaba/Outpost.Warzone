@@ -143,7 +143,7 @@ void scoreUpdateVar(DATA_INDEX var)
   case WD_BARBARIANS_MOWED_DOWN:
     missionData.babasMowedDown++; // Ran over a barbarian
     break;
-  default: DBERROR(("Weirdy variable request from scoreUpdateVar"));
+  default: Neuron::Fatal("Weirdy variable request from scoreUpdateVar");
     break;
   }
 }
@@ -418,7 +418,7 @@ BOOL writeScoreData(STRING* pFileName)
   if (!pFileData)
   {
     /* Nope, so do one */
-    DBERROR(("Saving Score data : Cannot get the memory! (%d)",fileSize));
+    Neuron::Fatal("Saving Score data : Cannot get the memory! ({})",fileSize);
     return (FALSE);
   }
 
@@ -443,21 +443,21 @@ BOOL writeScoreData(STRING* pFileName)
   FILE* pFile = fopen(pFileName, "wb");
   if (!pFile)
   {
-    DBERROR(("Saving Score data : couldn't open file %s", pFileName));
+    Neuron::Fatal("Saving Score data : couldn't open file {}", pFileName);
     return (FALSE);
   }
 
   /* Now, try and write it out */
   if (fwrite(pFileData, 1, fileSize, pFile) != fileSize)
   {
-    DBERROR(("Saving Score data : write failed for %s", pFileName));
+    Neuron::Fatal("Saving Score data : write failed for {}", pFileName);
     return (FALSE);
   }
 
   /* Finally, try and close it */
   if (fclose(pFile) != 0)
   {
-    DBERROR(("Saving Score data : couldn't close %s", pFileName));
+    Neuron::Fatal("Saving Score data : couldn't close {}", pFileName);
     return (FALSE);
   }
 
@@ -475,8 +475,8 @@ BOOL readScoreData(UBYTE* pFileData, UDWORD fileSize)
   SCORE_SAVEHEADER* psHeader = (SCORE_SAVEHEADER*)pFileData;
   if (psHeader->aFileType[0] != 's' || psHeader->aFileType[1] != 'c' || psHeader->aFileType[2] != 'd' || psHeader->aFileType[3] != 'a')
   {
-    DBERROR(("Read Score data : Weird file type found? Has header letters \
-				  - %s %s %s %s", psHeader->aFileType[0],psHeader->aFileType[1], psHeader->aFileType[2],psHeader->aFileType[3]));
+    Neuron::Fatal("Read Score data : Weird file type found? Has header letters \
+				  - %s %s %s %s", psHeader->aFileType[0],psHeader->aFileType[1], psHeader->aFileType[2],psHeader->aFileType[3]);
     return FALSE;
   }
 
@@ -487,7 +487,7 @@ BOOL readScoreData(UBYTE* pFileData, UDWORD fileSize)
   if (fileSize != expectedFileSize)
   {
     /* No, so bomb out */
-    DBERROR(("Read Score data : Weird file size!"));
+    Neuron::Fatal("Read Score data : Weird file size!");
     return (FALSE);
   }
 

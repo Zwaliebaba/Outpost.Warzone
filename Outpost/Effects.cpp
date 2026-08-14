@@ -426,7 +426,7 @@ void addEffect(iVector* pos, EFFECT_GROUP group, EFFECT_TYPE type, BOOL specifie
   case EFFECT_FIREWORK:
     effectSetUpFirework(&asEffectsList[freeEffect]);
     break;
-  default: ASSERT((FALSE,"Weirdy group type for an effect"));
+  default: ASSERT_TEXT(FALSE,"Weirdy group type for an effect");
     break;
   }
 
@@ -445,7 +445,7 @@ void addEffect(iVector* pos, EFFECT_GROUP group, EFFECT_TYPE type, BOOL specifie
 
 #ifdef DEBUG
   if (validatePie(group, type, asEffectsList[freeEffect].imd) == FALSE)
-    ASSERT((FALSE,"No PIE found or specified for an effect"));
+    ASSERT_TEXT(FALSE,"No PIE found or specified for an effect");
 #endif
 
   /* No more slots available? */
@@ -608,7 +608,7 @@ void updateEffect(EFFECT* psEffect)
     if (!gamePaused())
       updateFirework(psEffect);
     break;
-  default: DBERROR(("Weirdy class of effect passed to updateEffect"));
+  default: Neuron::Fatal("Weirdy class of effect passed to updateEffect");
     break;
   }
 }
@@ -1217,7 +1217,7 @@ void updateDestruction(EFFECT* psEffect)
       breadthScatter = TILE_UNITS / 6;
       heightScatter = TILE_UNITS / 6;
       break;
-    default: ASSERT((FALSE,"Weirdy destruction type effect"));
+    default: ASSERT_TEXT(FALSE,"Weirdy destruction type effect");
       break;
     }
 
@@ -1429,7 +1429,7 @@ void renderEffect(EFFECT* psEffect)
   case EFFECT_FIREWORK:
     renderFirework(psEffect);
     break;
-  default: DBERROR(("Weirdy class of effect passed to renderEffect"));
+  default: Neuron::Fatal("Weirdy class of effect passed to renderEffect");
     break;
   }
 }
@@ -1983,7 +1983,7 @@ void effectSetupSmoke(EFFECT* psEffect)
     psEffect->velocity.y = MAKEFRACT((5+rand()%10));
     psEffect->baseScale = 25;
     break;
-  default: ASSERT((FALSE,"Weird smoke type"));
+  default: ASSERT_TEXT(FALSE,"Weird smoke type");
     break;
   }
 
@@ -2026,7 +2026,7 @@ void effectSetupGraviton(EFFECT* psEffect)
     psEffect->velocity.z = GRAVITON_INIT_VEL_Z / 2;
     psEffect->velocity.y = GRAVITON_INIT_VEL_Y;
     break;
-  default: ASSERT((FALSE,"Weirdy type of graviton"));
+  default: ASSERT_TEXT(FALSE,"Weirdy type of graviton");
     break;
   }
 
@@ -2545,7 +2545,7 @@ BOOL writeFXData(STRING* pFileName)
   if (!pFileData)
   {
     /* Nope, so do one */
-    DBERROR(("Saving FX data : Cannot get the memory! (%d)",fileSize));
+    Neuron::Fatal("Saving FX data : Cannot get the memory! ({})",fileSize);
     return (FALSE);
   }
 
@@ -2600,21 +2600,21 @@ BOOL writeFXData(STRING* pFileName)
   pFile = fopen(pFileName, "wb");
   if (!pFile)
   {
-    DBERROR(("Saving FX data : couldn't open file %s", pFileName));
+    Neuron::Fatal("Saving FX data : couldn't open file {}", pFileName);
     return (FALSE);
   }
 
   /* Now, try and write it out */
   if (fwrite(pFileData, 1, fileSize, pFile) != fileSize)
   {
-    DBERROR(("Saving FX data : write failed for %s", pFileName));
+    Neuron::Fatal("Saving FX data : write failed for {}", pFileName);
     return (FALSE);
   }
 
   /* Finally, try and close it */
   if (fclose(pFile) != 0)
   {
-    DBERROR(("Saving FX data : couldn't close %s", pFileName));
+    Neuron::Fatal("Saving FX data : couldn't close {}", pFileName);
     return (FALSE);
   }
 
@@ -2637,8 +2637,8 @@ BOOL readFXData(UBYTE* pFileData, UDWORD fileSize)
   psHeader = (FX_SAVEHEADER*)pFileData;
   if (psHeader->aFileType[0] != 'f' || psHeader->aFileType[1] != 'x' || psHeader->aFileType[2] != 'd' || psHeader->aFileType[3] != 'a')
   {
-    DBERROR(("Read FX data : Weird file type found? Has header letters \
-				  - %s %s %s %s", psHeader->aFileType[0],psHeader->aFileType[1], psHeader->aFileType[2],psHeader->aFileType[3]));
+    Neuron::Fatal("Read FX data : Weird file type found? Has header letters \
+				  - %s %s %s %s", psHeader->aFileType[0],psHeader->aFileType[1], psHeader->aFileType[2],psHeader->aFileType[3]);
     return FALSE;
   }
 
@@ -2649,7 +2649,7 @@ BOOL readFXData(UBYTE* pFileData, UDWORD fileSize)
   if (fileSize != expectedFileSize)
   {
     /* No, so bomb out */
-    DBERROR(("Read FX data : Weird file size!"));
+    Neuron::Fatal("Read FX data : Weird file size!");
     return (FALSE);
   }
 

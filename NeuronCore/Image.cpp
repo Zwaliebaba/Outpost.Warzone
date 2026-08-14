@@ -11,7 +11,6 @@
 #define FRAME_LIB_INCLUDE
 
 #include "Types.h"
-#include "LegacyDebug.h"
 #include "Image.h"
 
 #define WRITEIMAGES
@@ -59,9 +58,9 @@ BOOL imageParsePCX(UBYTE* pFileData, // Original file
   PALETTEENTRY* psCurrPal;
   SWORD runlen;
 
-  ASSERT((fileSize > 0, "Invalid file size"));
-  ASSERT((ppImageData != NULL, "Invalid image data pointer"));
-  ASSERT((ppsPalette != NULL, "Invalide palette data pointer"));
+  ASSERT_TEXT(fileSize > 0, "Invalid file size");
+  ASSERT_TEXT(ppImageData != NULL, "Invalid image data pointer");
+  ASSERT_TEXT(ppsPalette != NULL, "Invalide palette data pointer");
 
   /* Get the header information */
   memcpy(&sHeader, pFileData, sizeof(PCXHEADER));
@@ -73,7 +72,7 @@ BOOL imageParsePCX(UBYTE* pFileData, // Original file
    */
   if (sHeader.encoding != 1 || sHeader.bitsPerPixel != 8 || sHeader.planes != 1)
   {
-    DBERROR(("Unknown PCX format"));
+    Neuron::Fatal("Unknown PCX format");
     return FALSE;
   }
 
@@ -84,7 +83,7 @@ BOOL imageParsePCX(UBYTE* pFileData, // Original file
   *ppImageData = new (std::nothrow) UBYTE[(UDWORD)((*pWidth) * (*pHeight))];
   if (!(*ppImageData))
   {
-    DBERROR(("Out of memory"));
+    Neuron::Fatal("Out of memory");
     return FALSE;
   }
 
@@ -116,7 +115,7 @@ BOOL imageParsePCX(UBYTE* pFileData, // Original file
       {
         /* The image data is corrupt as it decompresses to a 
            bigger image than specified in the header */
-        DBERROR(("Corrupt PCX file data"));
+        Neuron::Fatal("Corrupt PCX file data");
         delete[] *ppImageData;
         return FALSE;
       }
@@ -127,7 +126,7 @@ BOOL imageParsePCX(UBYTE* pFileData, // Original file
   *ppsPalette = new (std::nothrow) PALETTEENTRY[256];
   if (!(*ppsPalette))
   {
-    DBERROR(("Out of memory"));
+    Neuron::Fatal("Out of memory");
     delete[] *ppImageData;
     return FALSE;
   }
@@ -199,7 +198,7 @@ BOOL imageParseBMP(UBYTE* pFileData, // Original file
   /* Check that the first two bytes are ASCII "BM" */
   if (*((UWORD*)pFileData) != 0x4d42)
   {
-    DBERROR(("Invalid BMP file"));
+    Neuron::Fatal("Invalid BMP file");
     return FALSE;
   }
 
@@ -209,15 +208,15 @@ BOOL imageParseBMP(UBYTE* pFileData, // Original file
   if (psInfoHeader->headerSize != 40)
   {
     if (psInfoHeader->headerSize == 12)
-      DBERROR(("OS/2 Bitmaps not implemented"));
+      Neuron::Fatal("OS/2 Bitmaps not implemented");
     else
-      DBERROR(("Unknown BMP format"));
+      Neuron::Fatal("Unknown BMP format");
     return FALSE;
   }
 
   if (psInfoHeader->planes != 1)
   {
-    DBERROR(("Unknown BMP format : more than one plane"));
+    Neuron::Fatal("Unknown BMP format : more than one plane");
     return FALSE;
   }
 
@@ -243,7 +242,7 @@ BOOL imageParseBMP(UBYTE* pFileData, // Original file
       case 8:
         paletteEntries = 256;
         break;
-      default: DBERROR(("Unknown bit depth for BMP: %d", psInfoHeader->bitCount));
+      default: Neuron::Fatal("Unknown bit depth for BMP: {}", psInfoHeader->bitCount);
         return FALSE;
         break;
       }
@@ -255,7 +254,7 @@ BOOL imageParseBMP(UBYTE* pFileData, // Original file
     *ppsPalette = new (std::nothrow) PALETTEENTRY[256];
     if (*ppsPalette == nullptr)
     {
-      DBERROR(("Out of memory"));
+      Neuron::Fatal("Out of memory");
       return FALSE;
     }
 
@@ -276,7 +275,7 @@ BOOL imageParseBMP(UBYTE* pFileData, // Original file
 
   switch (psInfoHeader->bitCount)
   {
-  case 1: DBERROR(("1 Bit BMP not implemented"));
+  case 1: Neuron::Fatal("1 Bit BMP not implemented");
     delete[] *ppsPalette;
     return FALSE;
     break;
@@ -285,7 +284,7 @@ BOOL imageParseBMP(UBYTE* pFileData, // Original file
     *ppImageData = new (std::nothrow) UBYTE[(*pWidth) * (*pHeight) /2];
     if (*ppImageData == nullptr)
     {
-      DBERROR(("Out of memory"));
+      Neuron::Fatal("Out of memory");
       delete[] *ppsPalette;
       return FALSE;
     }
@@ -320,7 +319,7 @@ BOOL imageParseBMP(UBYTE* pFileData, // Original file
     }
     else
     {
-      DBERROR(("Compressed BMP not implemented"));
+      Neuron::Fatal("Compressed BMP not implemented");
       delete[] *ppsPalette;
       return FALSE;
     }
@@ -330,7 +329,7 @@ BOOL imageParseBMP(UBYTE* pFileData, // Original file
     *ppImageData = new (std::nothrow) UBYTE[(*pWidth) * (*pHeight)];
     if (*ppImageData == nullptr)
     {
-      DBERROR(("Out of memory"));
+      Neuron::Fatal("Out of memory");
       delete[] *ppsPalette;
       return FALSE;
     }
@@ -356,15 +355,15 @@ BOOL imageParseBMP(UBYTE* pFileData, // Original file
     }
     else
     {
-      DBERROR(("Compressed BMP not implemented"));
+      Neuron::Fatal("Compressed BMP not implemented");
       delete[] *ppsPalette;
       return FALSE;
     }
     break;
-  case 24: DBERROR(("24 Bit BMP not implemented"));
+  case 24: Neuron::Fatal("24 Bit BMP not implemented");
     return FALSE;
     break;
-  default: DBERROR(("Unknown bit depth for BMP: %d", psInfoHeader->bitCount));
+  default: Neuron::Fatal("Unknown bit depth for BMP: {}", psInfoHeader->bitCount);
     return FALSE;
     break;
   }

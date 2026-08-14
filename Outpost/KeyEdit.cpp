@@ -132,7 +132,7 @@ static BOOL pushedKeyCombo(UDWORD subkey)
   psMapping = keyGetMappingFromFunction((void*)selectedKeyMap->function);
 
   /* Cough if it's not there */
-  ASSERT((psMapping!=NULL,"Trying to patch a non-existant function mapping - whoop whoop!!!"));
+  ASSERT_TEXT(psMapping!=NULL,"Trying to patch a non-existant function mapping - whoop whoop!!!");
 
   /* Now alter it to the new values */
   psMapping->metaKeyCode = metakey;
@@ -421,7 +421,7 @@ BOOL saveKeyMap(void)
   pFileHandle = fopen("keymap.map", "wb"); // open the file
   if (!pFileHandle)
   {
-    DBERROR(("Couldn't open keymap file"));
+    Neuron::Fatal("Couldn't open keymap file");
     return FALSE;
   }
 
@@ -431,14 +431,14 @@ BOOL saveKeyMap(void)
     count++;
   if (fwrite(&count, sizeof(SDWORD), 1, pFileHandle) != 1)
   {
-    DBERROR(("Keymap Write failed"));
+    Neuron::Fatal("Keymap Write failed");
     return FALSE;
   }
 
   // version data
   if (fwrite(&buildTime, 8, 1, pFileHandle) != 1)
   {
-    DBERROR(("version Write failed"));
+    Neuron::Fatal("version Write failed");
     return FALSE;
   }
 
@@ -449,57 +449,57 @@ BOOL saveKeyMap(void)
     strcpy(name, psMapping->pName);
     if (fwrite(&name, 128, 1, pFileHandle) != 1)
     {
-      DBERROR(("Keymap Write failed"));
+      Neuron::Fatal("Keymap Write failed");
       return FALSE;
     }
 
     // status
     if (fwrite(&psMapping->status, sizeof(KEY_STATUS), 1, pFileHandle) != 1)
     {
-      DBERROR(("Keymap Write failed"));
+      Neuron::Fatal("Keymap Write failed");
       return FALSE;
     }
 
     // metakey
     if (fwrite(&psMapping->metaKeyCode, sizeof(KEY_CODE), 1, pFileHandle) != 1)
     {
-      DBERROR(("Keymap Write failed"));
+      Neuron::Fatal("Keymap Write failed");
       return FALSE;
     }
 
     // subkey
     if (fwrite(&psMapping->subKeyCode, sizeof(KEY_CODE), 1, pFileHandle) != 1)
     {
-      DBERROR(("Keymap Write failed"));
+      Neuron::Fatal("Keymap Write failed");
       return FALSE;
     }
 
     // action
     if (fwrite(&psMapping->action, sizeof(KEY_ACTION), 1, pFileHandle) != 1)
     {
-      DBERROR(("Keymap Write failed"));
+      Neuron::Fatal("Keymap Write failed");
       return FALSE;
     }
 
     // function to map to!
     for (count = 0; keyMapSaveTable[count] != nullptr && keyMapSaveTable[count] != psMapping->function; count++);
     if (keyMapSaveTable[count] == nullptr)
-      DBERROR(("can't find keymapped function in the keymap save table!!"));
+      Neuron::Fatal("can't find keymapped function in the keymap save table!!");
 
     if (fwrite(&count, sizeof(UDWORD), 1, pFileHandle) != 1)
     {
-      DBERROR(("Keymap Write failed"));
+      Neuron::Fatal("Keymap Write failed");
       return FALSE;
     }
   }
 
   if (fclose(pFileHandle) != 0)
   {
-    DBERROR(("Close failed for Keymap save"));
+    Neuron::Fatal("Close failed for Keymap save");
     return FALSE;
   }
 
-  DBPRINTF(("Keymap written ok.\n"));
+  Neuron::DebugTrace("Keymap written ok.\n");
   return TRUE; // saved ok.
 }
 
@@ -526,7 +526,7 @@ BOOL loadKeyMap(void)
 
   if (fread(&count, sizeof(UDWORD), 1, pFileHandle) != 1)
   {
-    DBERROR(("Read failed for keymap load"));
+    Neuron::Fatal("Read failed for keymap load");
     fclose(pFileHandle);
     return FALSE;
   }
@@ -549,7 +549,7 @@ BOOL loadKeyMap(void)
     // name
     if (fread(&name, 128, 1, pFileHandle) != 1)
     {
-      DBERROR(("Read failed for keymap load"));
+      Neuron::Fatal("Read failed for keymap load");
       fclose(pFileHandle);
       return FALSE;
     }
@@ -557,35 +557,35 @@ BOOL loadKeyMap(void)
     // status
     if (fread(&status, sizeof(KEY_STATUS), 1, pFileHandle) != 1)
     {
-      DBERROR(("Read failed for keymap load"));
+      Neuron::Fatal("Read failed for keymap load");
       fclose(pFileHandle);
       return FALSE;
     }
     // metakey
     if (fread(&metaCode, sizeof(KEY_CODE), 1, pFileHandle) != 1)
     {
-      DBERROR(("Read failed for keymap load"));
+      Neuron::Fatal("Read failed for keymap load");
       fclose(pFileHandle);
       return FALSE;
     }
     // subkey
     if (fread(&subCode, sizeof(KEY_CODE), 1, pFileHandle) != 1)
     {
-      DBERROR(("Read failed for keymap load"));
+      Neuron::Fatal("Read failed for keymap load");
       fclose(pFileHandle);
       return FALSE;
     }
     // action
     if (fread(&action, sizeof(KEY_ACTION), 1, pFileHandle) != 1)
     {
-      DBERROR(("Read failed for keymap load"));
+      Neuron::Fatal("Read failed for keymap load");
       fclose(pFileHandle);
       return FALSE;
     }
     // function
     if (fread(&funcmap, sizeof(UDWORD), 1, pFileHandle) != 1)
     {
-      DBERROR(("Read failed for keymap load"));
+      Neuron::Fatal("Read failed for keymap load");
       fclose(pFileHandle);
       return FALSE;
     }
@@ -596,7 +596,7 @@ BOOL loadKeyMap(void)
 
   if (fclose(pFileHandle) != 0)
   {
-    DBERROR(("Close failed for load key map."));
+    Neuron::Fatal("Close failed for load key map.");
     return FALSE;
   }
   return TRUE;

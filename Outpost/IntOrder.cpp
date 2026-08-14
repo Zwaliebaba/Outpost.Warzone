@@ -397,7 +397,7 @@ BOOL _intAddOrder(BASE_OBJECT* psObj)
     }
     else
     {
-      ASSERT((FALSE, "_intAddOrder: Invalid object type"));
+      ASSERT_TEXT(FALSE, "_intAddOrder: Invalid object type");
       Droid = nullptr;
       psStructure = nullptr;
     }
@@ -1075,7 +1075,7 @@ static BOOL BuildStructureOrderList(STRUCTURE* psStructure)
 {
   if (!StructIsFactory(psStructure))
   {
-    ASSERT((FALSE, "BuildStructureOrderList: structure is not a factory"));
+    ASSERT_TEXT(FALSE, "BuildStructureOrderList: structure is not a factory");
     return FALSE;
   }
 
@@ -1113,7 +1113,7 @@ static BOOL CheckObjectOrderList(void)
   {
     if (!StructIsFactory(psSelectedFactory))
     {
-      ASSERT((FALSE, "CheckObjectOrderList: structure is not a factory"));
+      ASSERT_TEXT(FALSE, "CheckObjectOrderList: structure is not a factory");
       return FALSE;
     }
 

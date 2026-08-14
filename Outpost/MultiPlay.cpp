@@ -115,7 +115,7 @@ BOOL turnOffMultiMsg(BOOL bDoit)
   if (bDoit) // turn off msgs.
   {
     if (bTemp == TRUE)
-      DBPRINTF(("\nturnoffmultimsg: multiple calls to turn off msging. \n"));
+      Neuron::DebugTrace("\nturnoffmultimsg: multiple calls to turn off msging. \n");
     if (bMultiPlayer)
     {
       bMultiPlayer = FALSE;
@@ -345,7 +345,7 @@ DROID_TEMPLATE* IdToTemplate(UDWORD tempId, UDWORD player)
   else
   {
     // REALLY DANGEROUS!!! ID's are NOT assumed to be unique for TEMPLATES.
-    DBPRINTF(("Really Dodgy Check performed for a template"));
+    Neuron::DebugTrace("Really Dodgy Check performed for a template");
     for (i = 0; i < MAX_PLAYERS; i++)
     {
       for (psTempl = apsDroidTemplates[i]; // follow templates
@@ -481,7 +481,7 @@ UDWORD whosResponsible(UDWORD player)
     }
   }
   if (c == ANYPLAYER)
-    DBPRINTF(("failed to find a player for %d \n",player));
+    Neuron::DebugTrace("failed to find a player for {} \n",player);
   return c;
 }
 
@@ -1052,7 +1052,7 @@ BOOL sendTemplate(DROID_TEMPLATE* pTempl)
   if (pTempl == nullptr)
   {
 #ifdef DEBUG
-    DBERROR(("sendTemplate: TELL ALEXL NOW!!!THIS IS THE BUG THAT ISNT FIXED!!!"));
+    Neuron::Fatal("sendTemplate: TELL ALEXL NOW!!!THIS IS THE BUG THAT ISNT FIXED!!!");
 #endif
     return TRUE;
   }
@@ -1073,12 +1073,12 @@ BOOL recvTemplate(NETMSG* m)
 
   player = static_cast<UBYTE>(m->body[0]);
 
-  ASSERT((player<MAX_PLAYERS,"recvtemplate: invalid player size:%d"));
+  ASSERT_TEXT(player<MAX_PLAYERS,"recvtemplate: invalid player size:{}");
 
   if (m->size < sizeof(DROID_TEMPLATE))
   {
 #ifdef DEBUG
-    DBERROR(("recvTemplate: invalid template recvd. THIS IS THE BUG THAT ISNT FIXED!!!"));
+    Neuron::Fatal("recvTemplate: invalid template recvd. THIS IS THE BUG THAT ISNT FIXED!!!");
 #endif
     return TRUE;
   }

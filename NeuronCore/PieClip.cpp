@@ -59,7 +59,7 @@ BOOL pie_SetVideoBufferWidth(UDWORD width)
   case 1152:
   case 1280:
     break;
-  default: ASSERT((FALSE,"Warning: width not supported"));
+  default: ASSERT_TEXT(FALSE,"Warning: width not supported");
     width = 640;
     videoBufferHeight = 480;
     break;
@@ -80,7 +80,7 @@ BOOL pie_SetVideoBufferHeight(UDWORD height)
   case 864:
   case 1024:
     break;
-  default: ASSERT((FALSE,"Warning: height not supported"));
+  default: ASSERT_TEXT(FALSE,"Warning: height not supported");
     videoBufferWidth = 640;
     height = 480;
     break;

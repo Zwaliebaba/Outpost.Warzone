@@ -126,7 +126,7 @@ void featureType(FEATURE_STATS* psFeature, char* pType)
     psFeature->subType = FEAT_SKYSCRAPER;
     return;
   }
-  ASSERT((FALSE, "Unknown Feature Type"));
+  ASSERT_TEXT(FALSE, "Unknown Feature Type");
 }
 
 /* Load the feature stats */
@@ -146,7 +146,7 @@ BOOL loadFeatureStats(SBYTE* pFeatureData, UDWORD bufferSize)
 
   if (asFeatureStats == nullptr)
   {
-    DBERROR(("Feature Stats - Out of memory"));
+    Neuron::Fatal("Feature Stats - Out of memory");
     return FALSE;
   }
 
@@ -201,9 +201,9 @@ BOOL loadFeatureStats(SBYTE* pFeatureData, UDWORD bufferSize)
     if (psFeature->psImd == nullptr)
     {
 #ifdef HASH_NAMES
-      DBERROR(("Cannot find the feature PIE for record %s", strresGetString(NULL,psFeature->NameHash)));
+      Neuron::Fatal("Cannot find the feature PIE for record {}", strresGetString(NULL,psFeature->NameHash));
 #else
-      DBERROR(("Cannot find the feature PIE for record %s", getName(psFeature->pName)));
+      Neuron::Fatal("Cannot find the feature PIE for record {}", getName(psFeature->pName));
 #endif
       return FALSE;
     }
@@ -600,7 +600,6 @@ BOOL featureDamage(FEATURE* psFeature, UDWORD damage, UDWORD weaponClass, UDWORD
   /* this is ignored for features */
   UNUSEDPARAMETER(weaponClass);
 
-  DBP1(("featureDamage(%d): body %d armour %d damage: %d\n", psFeature->id, psFeature->body, psFeature->psStats->armour, damage));
 
   //EMP cannons do not work on Features
   if (weaponSubClass == WSC_EMP)
@@ -610,11 +609,9 @@ BOOL featureDamage(FEATURE* psFeature, UDWORD damage, UDWORD weaponClass, UDWORD
   {
     /* Damage has penetrated - reduce body points */
     penDamage = damage - psFeature->psStats->armour;
-    DBP1(("        penetrated: %d\n", penDamage));
     if (penDamage >= psFeature->body)
     {
       /* feature destroyed */
-      DBP1(("        DESTROYED\n"));
       destroyFeature(psFeature);
       return TRUE;
     }
@@ -623,11 +620,9 @@ BOOL featureDamage(FEATURE* psFeature, UDWORD damage, UDWORD weaponClass, UDWORD
   else
   {
     /* Do one point of damage to body */
-    DBP1(("        not penetrated - 1 point damage\n"));
     if (psFeature->body == 1)
     {
       destroyFeature(psFeature);
-      DBP1(("        DESTROYED\n"));
       return TRUE;
     }
     psFeature->body -= 1;
@@ -692,7 +687,7 @@ FEATURE* buildFeature(FEATURE_STATS* psStats, UDWORD x, UDWORD y, BOOL FromSave)
 
   // check you can reach an oil resource
   if ((psStats->subType == FEAT_OIL_RESOURCE) && !gwZoneReachable(gwGetZone(startX, startY)))
-    DBPRINTF(("Oil resource at (%d,%d) is unreachable", startX,startY));
+    Neuron::DebugTrace("Oil resource at ({},{}) is unreachable", startX,startY);
 
   if (FromSave == TRUE)
   {
@@ -768,14 +763,14 @@ FEATURE* buildFeature(FEATURE_STATS* psStats, UDWORD x, UDWORD y, BOOL FromSave)
     for (breadth = 0; breadth <= psStats->baseBreadth; breadth++)
     {
       //check not outside of map - for load save game
-      ASSERT(((mapX+width) < mapWidth, "x coord bigger than map width - %s, id = %d", getName(psFeature->psStats->pName), psFeature->id));
-      ASSERT(((mapY+breadth) < mapHeight,
-        "y coord bigger than map height - %s, id = %d", getName(psFeature->psStats->pName), psFeature->id));
+      ASSERT_TEXT((mapX+width) < mapWidth, "x coord bigger than map width - {}, id = {}", getName(psFeature->psStats->pName), psFeature->id);
+      ASSERT_TEXT((mapY+breadth) < mapHeight,
+        "y coord bigger than map height - {}, id = {}", getName(psFeature->psStats->pName), psFeature->id);
       psTile = mapTile(mapX + width, mapY + breadth);
       if (width != psStats->baseWidth && breadth != psStats->baseBreadth)
       {
-        ASSERT((!(TILE_HAS_FEATURE(mapTile(mapX+width,mapY+breadth))),
-          "buildFeature - feature- %d already found at %d, %d", psFeature->id, mapX+width,mapY+breadth));
+        ASSERT_TEXT(!(TILE_HAS_FEATURE(mapTile(mapX+width,mapY+breadth))),
+          "buildFeature - feature- {} already found at {}, {}", psFeature->id, mapX+width,mapY+breadth);
 
         SET_TILE_FEATURE(psTile);
         // if it's a tall feature then flag it in the map.
@@ -842,7 +837,7 @@ void removeFeature(FEATURE* psDel)
   if (psDel->died)
   {
     // feature has already been killed, quit
-    ASSERT((FALSE, "removeFeature: feature already dead"));
+    ASSERT_TEXT(FALSE, "removeFeature: feature already dead");
     return;
   }
 

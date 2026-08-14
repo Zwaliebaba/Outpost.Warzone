@@ -55,13 +55,12 @@ struct Segment
 #define MAX 10000		/* max depth of stack */
 
 #define PUSH(Y, XL, XR, DY)	/* push new segment on stack */ \
-	DBP2(("PUSH y %d x %d->%d dy %d\n", Y, XL, XR, DY)); \
+	 \
     if (sp<stack+MAX) \
     {sp->y = Y; sp->xl = XL; sp->xr = XR; sp->dy = DY; sp++;}
 
 #define POP(Y, XL, XR, DY)	/* pop segment off stack */ \
     {sp--; Y = sp->y+(DY = sp->dy); XL = sp->xl; XR = sp->xr;} \
-	DBP2(("POP  y %d x %d->%d dy %d\n", Y, XL, XR, DY));
 
 // whether the flood fill is running over water
 BOOL bGwWaterFlood = FALSE;;
@@ -107,10 +106,8 @@ void gwSeedFill(SDWORD x, SDWORD y, SDWORD nv)
      * segment of scan line y-dy for x1<=x<=x2 was previously filled,
      * now explore adjacent pixels in scan line y
      */
-    DBP1(("-ve (%d,%d)->", x1,y));
     for (x = x1; !gwFloodBlock(x, y) && (gwGetZone(x, y) == ov); x--)
       gwSetZone(x, y, nv);
-    DBP1(("(%d,%d) %s\n", x+1,y, x<x1?"OK":""));
 
     if (x >= x1)
       goto skip;
@@ -124,10 +121,8 @@ void gwSeedFill(SDWORD x, SDWORD y, SDWORD nv)
 
     do
     {
-      DBP1(("+ve (%d,%d)->", x,y));
       for (; !gwFloodBlock(x, y) && (gwGetZone(x, y) == ov); x++)
         gwSetZone(x, y, nv);
-      DBP1(("(%d,%d) %s\n", x-1,y, (x>l)&&(x>x1+1)?"OK":""));
 
       PUSH(y, l, x-1, dy);
 
@@ -144,7 +139,7 @@ void gwSeedFill(SDWORD x, SDWORD y, SDWORD nv)
   }
 #else
   //	GODDAM *#!! LOWERCASE assert IS ABSOLUTELY NO %^$## USE ON THE PC
-  ASSERT((FALSE, "gwSeedFill disabled"));
+  ASSERT_TEXT(FALSE, "gwSeedFill disabled");
 #endif
 }
 
@@ -210,7 +205,6 @@ BOOL gwProcessMap(void)
   currZone = 1;
   do
   {
-    DBP3(("Processing gateway (%d,%d)->(%d,%d)\n", psCurr->x1,psCurr->y1, psCurr->x2,psCurr->y2));
 
     // do a flood fill from the current gateway
     if (psCurr->zone1 == 0)
@@ -258,7 +252,7 @@ BOOL gwProcessMap(void)
       // check the zones havn't overflowed
       if (currZone > UBYTE_MAX)
       {
-        DBERROR(("gwProcessMap: too many zones\n"));
+        Neuron::Fatal("gwProcessMap: too many zones\n");
         return FALSE;
       }
 
@@ -301,7 +295,7 @@ BOOL gwProcessMap(void)
         // check the zones havn't overflowed
         if (currZone > UBYTE_MAX)
         {
-          DBERROR(("gwProcessMap: too many zones\n"));
+          Neuron::Fatal("gwProcessMap: too many zones\n");
           return FALSE;
         }
 
@@ -315,7 +309,7 @@ BOOL gwProcessMap(void)
         // check the zones havn't overflowed
         if (currZone > UBYTE_MAX)
         {
-          DBERROR(("gwProcessMap: too many zones\n"));
+          Neuron::Fatal("gwProcessMap: too many zones\n");
           return FALSE;
         }
 
@@ -358,8 +352,6 @@ BOOL gwProcessMap(void)
       }
     }
 
-    DBP4(("Gateway Zones : %d\n", currZone));
-    DBP4(("RLE Zone map size: %d\n", size));
   }
 #endif
 
@@ -391,7 +383,6 @@ static void gwCheckNeighbourEquiv(SDWORD zone, SDWORD x, SDWORD y)
   nZone = gwGetZone(x, y);
   if (nZone != zone && !gwFloodBlock(x, y) && !gwEquivZonePresent(apEquivZones[zone], aNumEquiv[zone], nZone))
   {
-    DBP5(("zone %d equivalent to zone %d\n", zone, nZone));
     apEquivZones[zone][aNumEquiv[zone]] = static_cast<UBYTE>(nZone);
     aNumEquiv[zone] += 1;
   }
@@ -456,7 +447,7 @@ BOOL gwCreateBlankZoneMap(void)
   apRLEZones = new (std::nothrow) UBYTE*[gwMapHeight()];
   if (apRLEZones == nullptr)
   {
-    DBERROR(("gwCreateBlankZoneMap: Out of memory"));
+    Neuron::Fatal("gwCreateBlankZoneMap: Out of memory");
     return FALSE;
   }
   for (i = 0; i < gwMapHeight(); i++)
@@ -464,7 +455,7 @@ BOOL gwCreateBlankZoneMap(void)
     apRLEZones[i] = new (std::nothrow) UBYTE[gwMapWidth() * 2];
     if (apRLEZones[i] == nullptr)
     {
-      DBERROR(("gwCreateBlankZoneMap: Out of memory"));
+      Neuron::Fatal("gwCreateBlankZoneMap: Out of memory");
       return FALSE;
     }
   }
@@ -495,7 +486,7 @@ void gwDecompressLine(SDWORD line, UBYTE* pBuffer)
 
     for (store = 0; store < count; store++)
     {
-      ASSERT((bufPos < gwMapWidth(), "gwDecompressLine: Invalid RLE code"));
+      ASSERT_TEXT(bufPos < gwMapWidth(), "gwDecompressLine: Invalid RLE code");
 
       pBuffer[bufPos] = static_cast<UBYTE>(zone);
       bufPos += 1;
@@ -533,7 +524,7 @@ void gwSetZone(SDWORD x, SDWORD y, SDWORD zone)
 {
   UBYTE aBuffer[GW_MAP_MAXWIDTH];
 
-  ASSERT(((x >= 0) && (x < gwMapWidth()) && (y >= 0) && (y < gwMapHeight()), "gwSetZone: invalid coordinates"));
+  ASSERT_TEXT((x >= 0) && (x < gwMapWidth()) && (y >= 0) && (y < gwMapHeight()), "gwSetZone: invalid coordinates");
 
   gwDecompressLine(y, aBuffer);
 

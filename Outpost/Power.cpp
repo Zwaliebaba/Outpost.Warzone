@@ -61,7 +61,7 @@ BOOL allocPlayerPower(void)
     asPower[player] = new (std::nothrow) PLAYER_POWER[1];
     if (asPower[player] == nullptr)
     {
-      DBERROR(("Out of memory"));
+      Neuron::Fatal("Out of memory");
       return FALSE;
     }
   }
@@ -706,7 +706,7 @@ BOOL accruePower(BASE_OBJECT* psObject)
       break;
     }
     break;
-  default: ASSERT((FALSE, "accruePower: Invalid object type"));
+  default: ASSERT_TEXT(FALSE, "accruePower: Invalid object type");
   }
 
   return bPowerUsed;
@@ -723,7 +723,7 @@ void powerDestroyObject(BASE_OBJECT* psObject)
 /*checks if the Object to be powered next - returns TRUE if power*/
 BOOL getLastPowered(BASE_OBJECT* psObject)
 {
-  ASSERT((psObject != NULL, "getLastPowered - invalid object"));
+  ASSERT_TEXT(psObject != NULL, "getLastPowered - invalid object");
 
   if (asPower[psObject->player]->psLastPowered == nullptr)
     return TRUE;
@@ -828,7 +828,7 @@ void powerCheck(BOOL bBeforePowerUsed, UBYTE player)
     there was some power at the start of the loop to use*/
     if (psLastPowered != nullptr AND psLastPowered == asPower[player]->psLastPowered AND bPowerBefore)
     {
-      ASSERT((FALSE, "powerCheck: trouble at mill!"));
+      ASSERT_TEXT(FALSE, "powerCheck: trouble at mill!");
       //initialise so something can have some power next cycle
       asPower[player]->psLastPowered = nullptr;
     }

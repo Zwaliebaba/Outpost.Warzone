@@ -485,7 +485,7 @@ void pie_InitMaths(void)
     {
       bigC = a * b;
       bigC /= UBYTE_MAX;
-      ASSERT((bigC <= UBYTE_MAX,"light_InitMaths; rounding error"));
+      ASSERT_TEXT(bigC <= UBYTE_MAX,"light_InitMaths; rounding error");
       c = static_cast<UBYTE>(bigC);
       aByteScale[a][b] = c;
     }
@@ -538,13 +538,13 @@ void pie_RenderImageToSurface(LPDIRECTDRAWSURFACE4 lpDDS4, SDWORD surfaceOffsetX
   DD_sd.dwSize = sizeof(DD_sd);
   if (lpDDS4->lpVtbl->GetSurfaceDesc(lpDDS4, &DD_sd) != DD_OK)
   {
-    DBERROR(("pie_RenderImageToSurface GetSurfaceDesc failed:\n"));
+    Neuron::Fatal("pie_RenderImageToSurface GetSurfaceDesc failed:\n");
     return;
   }
 
   hRes = lpDDS4->lpVtbl->Lock(lpDDS4, nullptr, &DD_sd,DDLOCK_WAIT, nullptr);
   if (hRes != DD_OK)
-    DBERROR(("pie_RenderImageToSurface buffer lock failed:\n%s", DDErrorToString(hRes)));
+    Neuron::Fatal("pie_RenderImageToSurface buffer lock failed:\n{}", DDErrorToString(hRes));
 
   pSurface = static_cast<WORD*>(DD_sd.lpSurface);
   pSrc = pSrcData;

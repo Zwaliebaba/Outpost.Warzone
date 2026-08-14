@@ -31,7 +31,7 @@ BOOL anim_Init(GETSHAPEFUNC pGetShapeFunc)
 
   /* ensure ANIM2D and ANIM3D structs same size */
   if (iSizeAnim2D != iSizeAnim3D)
-    DBERROR(("anim_Init: ANIM2D and ANIM3D structs not same size in anim.h!"));
+    Neuron::Fatal("anim_Init: ANIM2D and ANIM3D structs not same size in anim.h!");
 
   /* init globals */
   g_animGlobals.psAnimList = nullptr;
@@ -76,7 +76,7 @@ BOOL anim_Shutdown(void)
   BASEANIM *psAnim, *psAnimTmp;
 
   if (g_animGlobals.psAnimList != nullptr)
-    DBPRINTF(("anim_Shutdown: warning anims still allocated"));
+    Neuron::DebugTrace("anim_Shutdown: warning anims still allocated");
 
   /* empty anim list */
   psAnim = g_animGlobals.psAnimList;
@@ -136,7 +136,7 @@ BOOL anim_Create3D(char szPieFileName[], UWORD uwStates, UWORD uwFrameRate, UWOR
   /* check frame count matches script */
   if (ubType == ANIM_3D_TRANS && uwObj != uwFrames)
   {
-    DBERROR(("anim_Create3D: frames in pie %s != script objects %i\n", szPieFileName, uwObj ));
+    Neuron::Fatal("anim_Create3D: frames in pie {} != script objects {}\n", szPieFileName, uwObj );
     return FALSE;
   }
 
@@ -182,7 +182,7 @@ BOOL anim_EndScript(void)
 
   if (g_animGlobals.uwCurState != psAnim->uwStates)
   {
-    DBERROR(("anim_End3D: states in current anim not consistent with header\n"));
+    Neuron::Fatal("anim_End3D: states in current anim not consistent with header\n");
     return FALSE;
   }
 
@@ -204,10 +204,10 @@ BOOL anim_AddFrameToAnim(int iFrame, VECTOR3D vecPos, VECTOR3D vecRot, VECTOR3D 
   psAnim = g_animGlobals.psAnimList;
 
   /* check current anim valid */
-  ASSERT((psAnim != NULL, "anim_AddFrameToAnim: NULL current anim\n"));
+  ASSERT_TEXT(psAnim != NULL, "anim_AddFrameToAnim: NULL current anim\n");
 
   /* check frame number in range */
-  ASSERT((iFrame<psAnim->uwStates, "anim_AddFrameToAnim: frame number %i > %i frames in imd\n", iFrame, psAnim->uwObj));
+  ASSERT_TEXT(iFrame<psAnim->uwStates, "anim_AddFrameToAnim: frame number {} > {} frames in imd\n", iFrame, psAnim->uwObj);
 
   /* get state */
   uwState = (g_animGlobals.uwCurObj * psAnim->uwStates) + g_animGlobals.uwCurState;
@@ -256,7 +256,7 @@ void anim_SetVals(char szFileName[], UWORD uwAnimID)
   auto psAnim = static_cast<BASEANIM*>(resGetData("ANI", szFileName));
 
   if (psAnim == nullptr)
-    DBERROR(("anim_SetVals: can't find anim %s\n", szFileName));
+    Neuron::Fatal("anim_SetVals: can't find anim {}\n", szFileName);
 
   /* set anim vals */
   psAnim->uwID = uwAnimID;
@@ -269,7 +269,7 @@ BASEANIM* anim_LoadFromBuffer(UBYTE* pBuffer, UDWORD size)
 {
   if (ParseResourceFile(pBuffer, size) == FALSE)
   {
-    DBERROR(("anim_LoadFromBuffer: couldn't parse file\n"));
+    Neuron::Fatal("anim_LoadFromBuffer: couldn't parse file\n");
     return nullptr;
   }
 
@@ -286,7 +286,7 @@ UWORD anim_GetAnimID(char* szName)
 
   if (cPos == nullptr)
   {
-    DBERROR(("anim_GetAnimID: %s isn't .ani file\n"));
+    Neuron::Fatal("anim_GetAnimID: {} isn't .ani file\n");
     return NO_ANIM;
   }
 
@@ -336,7 +336,7 @@ UWORD anim_GetFrame3D(ANIM3D* psAnim, UWORD uwObj, UDWORD udwGameTime, UDWORD ud
   uwFrame = static_cast<UWORD>((dwTime % psAnim->uwAnimTime) * psAnim->uwFrameRate / 1000);
 
   /* check in range */
-  ASSERT((uwFrame<psAnim->uwStates, "anim_GetObjectFrame3D: error in animation calculation\n"));
+  ASSERT_TEXT(uwFrame<psAnim->uwStates, "anim_GetObjectFrame3D: error in animation calculation\n");
 
   /* find current state */
   uwState = (uwObj * psAnim->uwStates) + uwFrame;

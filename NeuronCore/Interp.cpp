@@ -50,7 +50,7 @@ BOOL interpTrace;
 /* Print out trace info if tracing is turned on */
 #define TRCPRINTF(x) \
 	if (interpTrace) \
-		DBPRINTF(x)
+		Neuron::DebugTrace x
 
 #ifndef NOSCRIPT
 
@@ -119,12 +119,12 @@ BOOL interpGetArrayVarData(UDWORD** pip, VAL_CHUNK* psGlobals, SCRIPT_CODE* psPr
 
   if (base >= psProg->numArrays)
   {
-    ASSERT((FALSE, "interpGetArrayVarData: array base index out of range"));
+    ASSERT_TEXT(FALSE, "interpGetArrayVarData: array base index out of range");
     return FALSE;
   }
   if (dimensions != psProg->psArrayInfo[base].dimensions)
   {
-    ASSERT((FALSE, "interpGetArrayVarData: dimensions do not match"));
+    ASSERT_TEXT(FALSE, "interpGetArrayVarData: dimensions do not match");
     return FALSE;
   }
 
@@ -141,7 +141,7 @@ BOOL interpGetArrayVarData(UDWORD** pip, VAL_CHUNK* psGlobals, SCRIPT_CODE* psPr
 
     if ((val < 0) || (val >= elements[i]))
     {
-      ASSERT((FALSE, "interpGetArrayVarData: Array index for dimension %d out of range", i));
+      ASSERT_TEXT(FALSE, "interpGetArrayVarData: Array index for dimension {} out of range", i);
       return FALSE;
     }
 
@@ -153,16 +153,16 @@ BOOL interpGetArrayVarData(UDWORD** pip, VAL_CHUNK* psGlobals, SCRIPT_CODE* psPr
   // print out the debug trace
   if (interpTrace)
   {
-    DBPRINTF(("%d->", base));
+    Neuron::DebugTrace("{}->", base);
     for (i = 0; i < dimensions; i += 1)
-      DBPRINTF(("[%d/%d]", vals[i], elements[i]));
-    DBPRINTF(("(%d) ", index));
+      Neuron::DebugTrace("[{}/{}]", vals[i], elements[i]);
+    Neuron::DebugTrace("({}) ", index);
   }
 
   // check the index is valid
   if (index > psProg->arraySize)
   {
-    ASSERT((FALSE, "interpGetArrayVarData: Array indexes out of variable space"));
+    ASSERT_TEXT(FALSE, "interpGetArrayVarData: Array indexes out of variable space");
     return FALSE;
   }
 
@@ -202,8 +202,8 @@ BOOL interpRunScript(SCRIPT_CONTEXT* psContext, INTERP_RUNTYPE runType, UDWORD i
 
   if (bInterpRunning)
   {
-    ASSERT((FALSE,
-      "interpRunScript: interpreter already running" "                 - callback being called from within a script function?"));
+    ASSERT_TEXT(FALSE,
+      "interpRunScript: interpreter already running" "                 - callback being called from within a script function?");
     goto exit_with_error;
   }
 
@@ -226,7 +226,7 @@ BOOL interpRunScript(SCRIPT_CONTEXT* psContext, INTERP_RUNTYPE runType, UDWORD i
   case IRT_TRIGGER:
     if (index > psProg->numTriggers)
     {
-      ASSERT((FALSE, "interpRunScript: trigger index out of range"));
+      ASSERT_TEXT(FALSE, "interpRunScript: trigger index out of range");
       return FALSE;
     }
     pCodeBase = psProg->pCode + psProg->pTriggerTab[index];
@@ -236,14 +236,14 @@ BOOL interpRunScript(SCRIPT_CONTEXT* psContext, INTERP_RUNTYPE runType, UDWORD i
   case IRT_EVENT:
     if (index > psProg->numEvents)
     {
-      ASSERT((FALSE, "interpRunScript: trigger index out of range"));
+      ASSERT_TEXT(FALSE, "interpRunScript: trigger index out of range");
       return FALSE;
     }
     pCodeBase = psProg->pCode + psProg->pEventTab[index];
     pCodeStart = pCodeBase + offset;
     pCodeEnd = psProg->pCode + psProg->pEventTab[index + 1];
     break;
-  default: ASSERT((FALSE, "interpRunScript: unknown run type"));
+  default: ASSERT_TEXT(FALSE, "interpRunScript: unknown run type");
     return FALSE;
   }
 
@@ -257,7 +257,7 @@ BOOL interpRunScript(SCRIPT_CONTEXT* psContext, INTERP_RUNTYPE runType, UDWORD i
   {
     if (instructionCount > INTERP_MAXINSTRUCTIONS)
     {
-      ASSERT((FALSE, "interpRunScript: max instruction count exceeded - infinite loop ?"));
+      ASSERT_TEXT(FALSE, "interpRunScript: max instruction count exceeded - infinite loop ?");
       goto exit_with_error;
     }
     instructionCount += 1;
@@ -320,7 +320,7 @@ BOOL interpRunScript(SCRIPT_CONTEXT* psContext, INTERP_RUNTYPE runType, UDWORD i
     case OP_PUSHGLOBAL: TRCPRINTF(("PUSHGLOBAL  %d\n", data));
       if (data >= numGlobals)
       {
-        ASSERT((FALSE, "interpRunScript: variable index out of range"));
+        ASSERT_TEXT(FALSE, "interpRunScript: variable index out of range");
         goto exit_with_error;
       }
       if (!stackPush(interpGetVarData(psGlobals, data)))
@@ -332,7 +332,7 @@ BOOL interpRunScript(SCRIPT_CONTEXT* psContext, INTERP_RUNTYPE runType, UDWORD i
       TRCPRINTF(("\n"));
       if (data >= numGlobals)
       {
-        ASSERT((FALSE, "interpRunScript: variable index out of range"));
+        ASSERT_TEXT(FALSE, "interpRunScript: variable index out of range");
         goto exit_with_error;
       }
       if (!stackPopType(interpGetVarData(psGlobals, data)))
@@ -393,7 +393,7 @@ BOOL interpRunScript(SCRIPT_CONTEXT* psContext, INTERP_RUNTYPE runType, UDWORD i
         ip += static_cast<SWORD>(data);
         if (ip < pCodeStart || ip > pCodeEnd)
         {
-          ASSERT((FALSE, "interpRunScript: jump out of range"));
+          ASSERT_TEXT(FALSE, "interpRunScript: jump out of range");
           goto exit_with_error;
         }
       }
@@ -408,7 +408,7 @@ BOOL interpRunScript(SCRIPT_CONTEXT* psContext, INTERP_RUNTYPE runType, UDWORD i
       ip += static_cast<SWORD>(data);
       if (ip < pCodeStart || ip > pCodeEnd)
       {
-        ASSERT((FALSE, "interpRunScript: jump out of range"));
+        ASSERT_TEXT(FALSE, "interpRunScript: jump out of range");
         goto exit_with_error;
       }
       break;
@@ -433,7 +433,7 @@ BOOL interpRunScript(SCRIPT_CONTEXT* psContext, INTERP_RUNTYPE runType, UDWORD i
       ip = pCodeEnd;
       break;
     case OP_PAUSE: TRCPRINTF(("PAUSE       %d\n", data));
-      ASSERT((stackEmpty(), "interpRunScript: OP_PAUSE without empty stack"));
+      ASSERT_TEXT(stackEmpty(), "interpRunScript: OP_PAUSE without empty stack");
       ip += aOpSize[opcode];
       // tell the event system to reschedule this event
       if (!eventAddPauseTrigger(psContext, index, ip - pCodeBase, data))
@@ -441,7 +441,7 @@ BOOL interpRunScript(SCRIPT_CONTEXT* psContext, INTERP_RUNTYPE runType, UDWORD i
       // now jump out of the event
       ip = pCodeEnd;
       break;
-    default: ASSERT((FALSE, "interpRunScript: unknown opcode"));
+    default: ASSERT_TEXT(FALSE, "interpRunScript: unknown opcode");
       goto exit_with_error;
       break;
     }
@@ -466,7 +466,7 @@ void scriptSetTypeEquiv(TYPE_EQUIV* psTypeTab)
 
   for (i = 0; psTypeTab[i].base != 0; i++)
   {
-    ASSERT((psTypeTab[i].base >= VAL_USERTYPESTART, "scriptSetTypeEquiv: can only set type equivalence for user types"));
+    ASSERT_TEXT(psTypeTab[i].base >= VAL_USERTYPESTART, "scriptSetTypeEquiv: can only set type equivalence for user types");
   }
 #endif
 

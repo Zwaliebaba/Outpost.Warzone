@@ -41,7 +41,7 @@ static BOOL eventSaveContext(UBYTE* pBuffer, UDWORD* pSize)
     // save the context info
     if (!resGetHashfromData("SCRIPT", psCCont->psCode, &hashedName))
     {
-      DBERROR(("eventSaveContext: couldn't find script resource id"));
+      Neuron::Fatal("eventSaveContext: couldn't find script resource id");
       return FALSE;
     }
     numVars = psCCont->psCode->numGlobals + psCCont->psCode->arraySize;
@@ -70,7 +70,7 @@ static BOOL eventSaveContext(UBYTE* pBuffer, UDWORD* pSize)
         // store the variable type
         if (pBuffer != nullptr)
         {
-          ASSERT((psVal->type < SWORD_MAX, "eventSaveContext: variable type number too big"));
+          ASSERT_TEXT(psVal->type < SWORD_MAX, "eventSaveContext: variable type number too big");
           *((SWORD*)pPos) = static_cast<SWORD>(psVal->type);
           pPos += sizeof(SWORD);
         }
@@ -93,7 +93,7 @@ static BOOL eventSaveContext(UBYTE* pBuffer, UDWORD* pSize)
           // user defined type
           saveFunc = asScrTypeTab[psVal->type - VAL_USERTYPESTART].saveFunc;
 
-          ASSERT((saveFunc != NULL, "eventSaveContext: no save function for type %d\n", psVal->type));
+          ASSERT_TEXT(saveFunc != NULL, "eventSaveContext: no save function for type {}\n", psVal->type);
 
           // reserve some space to store how many bytes the value uses
           if (pBuffer != nullptr)
@@ -105,7 +105,7 @@ static BOOL eventSaveContext(UBYTE* pBuffer, UDWORD* pSize)
 
           if (!saveFunc(psVal->type, static_cast<UDWORD>(psVal->v.ival), pPos, &valSize))
           {
-            DBERROR(("eventSaveContext: couldn't get variable value size"));
+            Neuron::Fatal("eventSaveContext: couldn't get variable value size");
             return FALSE;
           }
 
@@ -121,12 +121,12 @@ static BOOL eventSaveContext(UBYTE* pBuffer, UDWORD* pSize)
         if (numVars <= 0)
         {
           // done all the variables
-          ASSERT((psCVals->psNext == NULL, "eventSaveContext: number of context variables does not match the script code"));
+          ASSERT_TEXT(psCVals->psNext == NULL, "eventSaveContext: number of context variables does not match the script code");
           break;
         }
       }
     }
-    ASSERT((numVars == 0, "eventSaveContext: number of context variables does not match the script code"));
+    ASSERT_TEXT(numVars == 0, "eventSaveContext: number of context variables does not match the script code");
   }
 
   // actually store how many contexts have been saved
@@ -171,7 +171,7 @@ static BOOL eventLoadContext(SDWORD version, UBYTE* pBuffer, UDWORD* pSize)
     numVars = psCode->numGlobals + psCode->arraySize;
     if (numVars != *((SWORD*)pPos))
     {
-      DBERROR(("eventLoadContext: number of context variables does not match the script code"));
+      Neuron::Fatal("eventLoadContext: number of context variables does not match the script code");
       return FALSE;
     }
     pPos += sizeof(SWORD);
@@ -207,7 +207,7 @@ static BOOL eventLoadContext(SDWORD version, UBYTE* pBuffer, UDWORD* pSize)
         // set the value in the context
         if (!eventSetContextVar(psCCont, static_cast<UDWORD>(i), type, data))
         {
-          DBERROR(("eventLoadContext: couldn't set variable value"));
+          Neuron::Fatal("eventLoadContext: couldn't set variable value");
           return FALSE;
         }
       }
@@ -216,7 +216,7 @@ static BOOL eventLoadContext(SDWORD version, UBYTE* pBuffer, UDWORD* pSize)
         // user defined type
         loadFunc = asScrTypeTab[type - VAL_USERTYPESTART].loadFunc;
 
-        ASSERT((loadFunc != NULL, "eventLoadContext: no load function for type %d\n", type));
+        ASSERT_TEXT(loadFunc != NULL, "eventLoadContext: no load function for type {}\n", type);
 
         valSize = *((UWORD*)pPos);
         pPos += sizeof(UWORD);
@@ -226,13 +226,13 @@ static BOOL eventLoadContext(SDWORD version, UBYTE* pBuffer, UDWORD* pSize)
         // into the variables data space.
         if (!eventGetContextVal(psCCont, static_cast<UDWORD>(i), &psVal))
         {
-          DBERROR(("eventLoadContext: couldn't find variable in context"));
+          Neuron::Fatal("eventLoadContext: couldn't find variable in context");
           return FALSE;
         }
 
         if (!loadFunc(version, type, pPos, valSize, (UDWORD*)&(psVal->v.ival)))
         {
-          DBERROR(("eventLoadContext: couldn't get variable value"));
+          Neuron::Fatal("eventLoadContext: couldn't get variable value");
           return FALSE;
         }
 
@@ -281,7 +281,7 @@ static BOOL eventLoadContextHashed(SDWORD version, UBYTE* pBuffer, UDWORD* pSize
     numVars = psCode->numGlobals + psCode->arraySize;
     if (numVars != *((SWORD*)pPos))
     {
-      DBERROR(("eventLoadContext: number of context variables does not match the script code"));
+      Neuron::Fatal("eventLoadContext: number of context variables does not match the script code");
       return FALSE;
     }
     pPos += sizeof(SWORD);
@@ -317,7 +317,7 @@ static BOOL eventLoadContextHashed(SDWORD version, UBYTE* pBuffer, UDWORD* pSize
         // set the value in the context
         if (!eventSetContextVar(psCCont, static_cast<UDWORD>(i), type, data))
         {
-          DBERROR(("eventLoadContext: couldn't set variable value"));
+          Neuron::Fatal("eventLoadContext: couldn't set variable value");
           return FALSE;
         }
       }
@@ -326,7 +326,7 @@ static BOOL eventLoadContextHashed(SDWORD version, UBYTE* pBuffer, UDWORD* pSize
         // user defined type
         loadFunc = asScrTypeTab[type - VAL_USERTYPESTART].loadFunc;
 
-        ASSERT((loadFunc != NULL, "eventLoadContext: no load function for type %d\n", type));
+        ASSERT_TEXT(loadFunc != NULL, "eventLoadContext: no load function for type {}\n", type);
 
         valSize = *((UWORD*)pPos);
         pPos += sizeof(UWORD);
@@ -336,13 +336,13 @@ static BOOL eventLoadContextHashed(SDWORD version, UBYTE* pBuffer, UDWORD* pSize
         // into the variables data space.
         if (!eventGetContextVal(psCCont, static_cast<UDWORD>(i), &psVal))
         {
-          DBERROR(("eventLoadContext: couldn't find variable in context"));
+          Neuron::Fatal("eventLoadContext: couldn't find variable in context");
           return FALSE;
         }
 
         if (!loadFunc(version, type, pPos, valSize, (UDWORD*)&(psVal->v.ival)))
         {
-          DBERROR(("eventLoadContext: couldn't get variable value"));
+          Neuron::Fatal("eventLoadContext: couldn't get variable value");
           return FALSE;
         }
 
@@ -421,7 +421,7 @@ BOOL eventSaveTriggerList(ACTIVE_TRIGGER* psList, UBYTE* pBuffer, UDWORD* pSize)
       pPos += sizeof(UDWORD);
       if (!eventGetContextIndex(psCurr->psContext, &context))
       {
-        DBERROR(("eventSaveTriggerList: couldn't find context"));
+        Neuron::Fatal("eventSaveTriggerList: couldn't find context");
         return FALSE;
       }
       *((SWORD*)pPos) = static_cast<SWORD>(context);
@@ -472,7 +472,7 @@ BOOL eventLoadTriggerList(SDWORD version, UBYTE* pBuffer, UDWORD* pSize)
     pPos += sizeof(SWORD);
     if (!eventFindContext(context, &psContext))
     {
-      DBERROR(("eventLoadTriggerList: couldn't find context"));
+      Neuron::Fatal("eventLoadTriggerList: couldn't find context");
       return FALSE;
     }
 
@@ -527,7 +527,7 @@ BOOL eventSaveState(SDWORD version, UBYTE** ppBuffer, UDWORD* pFileSize)
   pBuffer = new (std::nothrow) UBYTE[totalSize];
   if (pBuffer == nullptr)
   {
-    DBERROR(("eventSaveState: out of memory"));
+    Neuron::Fatal("eventSaveState: out of memory");
     return FALSE;
   }
   pPos = pBuffer;
@@ -577,7 +577,7 @@ BOOL eventLoadState(UBYTE* pBuffer, UDWORD fileSize, BOOL bHashed)
   psHdr = (EVENT_SAVE_HDR*)pPos;
   if (strncmp(psHdr->aFileType, "evnt", 4) != 0)
   {
-    DBERROR(("eventLoadState: invalid file header"));
+    Neuron::Fatal("eventLoadState: invalid file header");
     return FALSE;
   }
   /*	if ((psHdr->version != 1) &&
@@ -619,7 +619,7 @@ BOOL eventLoadState(UBYTE* pBuffer, UDWORD fileSize, BOOL bHashed)
 
   if (totalSize != fileSize)
   {
-    DBERROR(("eventLoadState: corrupt save file"));
+    Neuron::Fatal("eventLoadState: corrupt save file");
     return FALSE;
   }
 

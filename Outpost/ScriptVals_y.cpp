@@ -509,7 +509,7 @@ void scrv_error(char* pMessage, ...)
 
   vsprintf(aTxtBuf, pMessage, args);
   scrvGetErrorData(&line, &pText);
-  DBERROR(("VLO file parse error:\n%s at line %d\nToken: %d, Text: '%s'\n", aTxtBuf, line, scrv_char, pText));
+  Neuron::Fatal("VLO file parse error:\n{} at line {}\nToken: {}, Text: '{}'\n", aTxtBuf, line, scrv_char, pText);
 
   va_end(args);
 }

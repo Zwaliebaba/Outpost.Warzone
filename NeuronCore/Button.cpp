@@ -16,7 +16,7 @@ BOOL buttonCreate(W_BUTTON** ppsWidget, W_BUTINIT* psInit)
 {
   if (psInit->style & ~(WBUT_PLAIN | WIDG_HIDDEN | WFORM_NOCLICKMOVE | WBUT_NOPRIMARY | WBUT_SECONDARY | WBUT_TXTCENTRE))
   {
-    ASSERT((FALSE, "Unknown button style"));
+    ASSERT_TEXT(FALSE, "Unknown button style");
     return FALSE;
   }
 
@@ -24,14 +24,14 @@ BOOL buttonCreate(W_BUTTON** ppsWidget, W_BUTINIT* psInit)
   *ppsWidget = new (std::nothrow) W_BUTTON;
   if (*ppsWidget == nullptr)
   {
-    ASSERT((FALSE, "buttonCreate: Out of memory"));
+    ASSERT_TEXT(FALSE, "buttonCreate: Out of memory");
     return FALSE;
   }
   /* Allocate memory for the text and copy it if necessary */
   if (psInit->pText)
   {
 #if W_USE_STRHEAP
-    if (!widgAllocCopyString(&(*ppsWidget)->pText, psInit->pText)) { ASSERT((FALSE, "buttonCreate: Out of memory"));
+    if (!widgAllocCopyString(&(*ppsWidget)->pText, psInit->pText)) { ASSERT_TEXT(FALSE, "buttonCreate: Out of memory");
     delete *ppsWidget;
     return FALSE;
 		}
@@ -48,7 +48,7 @@ BOOL buttonCreate(W_BUTTON** ppsWidget, W_BUTINIT* psInit)
     if (!widgAllocCopyString(&(*ppsWidget)->pTip, psInit->pTip))
     {
       /* Out of memory - just carry on without the tip */
-      ASSERT((FALSE, "buttonCreate: Out of memory"));
+      ASSERT_TEXT(FALSE, "buttonCreate: Out of memory");
       (*ppsWidget)->pTip = NULL;
     }
 #else
@@ -132,7 +132,7 @@ void buttonClearFlash(W_BUTTON* psButton)
 /* Set a button's state */
 void buttonSetState(W_BUTTON* psButton, UDWORD state)
 {
-  ASSERT((!((state & WBUT_LOCK) && (state & WBUT_CLICKLOCK)), "widgSetButtonState: Cannot have WBUT_LOCK and WBUT_CLICKLOCK"));
+  ASSERT_TEXT(!((state & WBUT_LOCK) && (state & WBUT_CLICKLOCK)), "widgSetButtonState: Cannot have WBUT_LOCK and WBUT_CLICKLOCK");
 
   if (state & WBUT_DISABLE)
     psButton->state |= WBUTS_GREY;

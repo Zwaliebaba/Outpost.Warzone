@@ -80,7 +80,6 @@ static int printf(char* c, ...) { return 0; }
 #define FRAME_LIB_INCLUDE
 
 #include "Types.h"
-#include "LegacyDebug.h"
 #include "Treap.h"
 #include "StrRes.h"
 #include "StrResLY.h"
@@ -326,7 +325,7 @@ void strres_error(char* pMessage, ...)
   char* pText;
 
   strresGetErrorData(&line, &pText);
-  DBERROR(("RES file parse error:\n%s at line %d\nToken: %d, Text: '%s'\n", pMessage, line, strres_char, pText));
+  Neuron::Fatal("RES file parse error:\n{} at line {}\nToken: {}, Text: '{}'\n", pMessage, line, strres_char, pText);
 }
 
 #ifdef YACC_WINDOWS

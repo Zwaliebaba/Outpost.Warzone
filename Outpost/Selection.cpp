@@ -88,10 +88,10 @@ UDWORD selDroidSelection(UDWORD player, SELECTION_CLASS droidClass, SELECTIONTYP
     case DST_ALL_SAME:
       retVal = selSelectAllSame(player, bOnScreen);
       break;
-    default: ASSERT((FALSE,"Invalid selection type in uniDroidSelection"));
+    default: ASSERT_TEXT(FALSE,"Invalid selection type in uniDroidSelection");
     }
     break;
-  default: ASSERT((FALSE,"Invalid selection attempt in uniDroidSelection"));
+  default: ASSERT_TEXT(FALSE,"Invalid selection attempt in uniDroidSelection");
     break;
   }
 
@@ -449,7 +449,7 @@ void selNextSpecifiedBuilding(UDWORD structType)
   BOOL bLaterInList;
 
   /* Firstly, start coughing if the type is invalid */
-  ASSERT((structType>=REF_HQ AND structType<=NUM_DIFF_BUILDINGS, "Invalid structure type in selNextSpecifiedBuilding"));
+  ASSERT_TEXT(structType>=REF_HQ AND structType<=NUM_DIFF_BUILDINGS, "Invalid structure type in selNextSpecifiedBuilding");
 
   for (psCurr = apsStructLists[selectedPlayer], psFirst = nullptr, psResult = nullptr, bLaterInList = FALSE; psCurr AND !psResult; psCurr =
        psCurr->psNext)

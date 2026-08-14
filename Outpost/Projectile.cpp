@@ -513,7 +513,7 @@ void proj_InFlightDirectFunc(PROJ_OBJECT* psObj)
   if (worldOnMap(iX, iY) == FALSE)
   {
     psObj->state = PROJ_IMPACT;
-    DBPRINTF(("**** projectile off map - removed ****\n"));
+    Neuron::DebugTrace("**** projectile off map - removed ****\n");
     return;
   }
   psObj->x = static_cast<UWORD>(iX);
@@ -637,7 +637,7 @@ void proj_InFlightIndirectFunc(PROJ_OBJECT* psObj)
   if (worldOnMap(iX, iY) == FALSE)
   {
     psObj->state = PROJ_IMPACT;
-    DBPRINTF(("**** projectile off map - removed ****\n"));
+    Neuron::DebugTrace("**** projectile off map - removed ****\n");
     return;
   }
   psObj->x = static_cast<UWORD>(iX);
@@ -946,7 +946,6 @@ void proj_ImpactFunc(PROJ_OBJECT* psObj)
             updateMultiStatsDamage(psObj->psSource->player, psObj->psDest->player, damage);
         }
         //			else
-        DBP1(("Damage to object %d, player %d\n", psObj->psDest->id, psObj->psDest->player));
         /*the damage depends on the weapon effect and the target propulsion type or structure strength*/
         bKilled = objectDamage(psObj->psDest, damage, psStats->weaponClass, psStats->weaponSubClass);
 
@@ -984,7 +983,6 @@ void proj_ImpactFunc(PROJ_OBJECT* psObj)
         }
         //				else
 
-        DBP1(("Damage to object %d, player %d\n", psObj->psDest->id, psObj->psDest->player));
         /*bKilled = psObj->psDest->damage(psObj->psDest, calcDamage(
           //psStats->damage, psStats->weaponEffect, psObj->psDest),
           weaponDamage(psStats,psObj->player), psStats->
@@ -1044,7 +1042,7 @@ void proj_ImpactFunc(PROJ_OBJECT* psObj)
 
     /* This was just a simple bullet - release it and return */
     if (hashTable_RemoveElement(g_pProjObjTable, psObj, (int)psObj, UNUSED_KEY) == FALSE)
-      DBPRINTF(("proj_ImpactFunc: couldn't remove projectile from table\n"));
+      Neuron::DebugTrace("proj_ImpactFunc: couldn't remove projectile from table\n");
     return;
   }
 
@@ -1091,7 +1089,6 @@ void proj_ImpactFunc(PROJ_OBJECT* psObj)
             HIT_ROLL(dice);
             if (dice < weaponRadiusHit(psStats, psObj->player))
             {
-              DBP1(("Damage to object %d, player %d\n", psCurrD->id, psCurrD->player));
               damage = calcDamage(weaponRadDamage(psStats, psObj->player), psStats->weaponEffect, (BASE_OBJECT*)psCurrD);
               if (bMultiPlayer)
               {
@@ -1185,7 +1182,6 @@ void proj_ImpactFunc(PROJ_OBJECT* psObj)
           HIT_ROLL(dice);
           if (dice < weaponRadiusHit(psStats, psObj->player))
           {
-            DBP1(("Damage to object %d, player %d\n", psCurrF->id, psCurrF->player));
             //(void)psCurrF->damage(psCurrF, calcDamage(psStats->radiusDamage, 
             /*(void)psCurrF->damage(psCurrF, calcDamage(weaponRadDamage(
               psStats, psObj->player), psStats->weaponEffect, 
@@ -1228,7 +1224,7 @@ void proj_PostImpactFunc(PROJ_OBJECT* psObj)
   if (age > static_cast<SDWORD>(psStats->radiusLife) && age > static_cast<SDWORD>(psStats->incenTime))
   {
     if (hashTable_RemoveElement(g_pProjObjTable, psObj, (int)psObj, UNUSED_KEY) == FALSE)
-      DBPRINTF(("proj_PostImpactFunc: couldn't remove projectile from table\n"));
+      Neuron::DebugTrace("proj_PostImpactFunc: couldn't remove projectile from table\n");
     return;
   }
 
@@ -1354,7 +1350,6 @@ void proj_checkBurnDamage(BASE_OBJECT* apsList, PROJ_OBJECT* psProj, FIRE_BOX* p
           damageToDo = static_cast<SDWORD>(damageSoFar) - static_cast<SDWORD>(psCurr->burnDamage);
           if (damageToDo > 0)
           {
-            DBP1(("Burn damage of %d to object %d, player %d\n", damageToDo, psCurr->id, psCurr->player));
 
             //						else
 
@@ -1390,7 +1385,7 @@ BOOL proj_Direct(WEAPON_STATS* psStats)
   case MM_HOMINGINDIRECT:
     return FALSE;
     break;
-  default: ASSERT((FALSE,"proj_Direct: unknown movement model"));
+  default: ASSERT_TEXT(FALSE,"proj_Direct: unknown movement model");
     break;
   }
 
@@ -1486,7 +1481,7 @@ UDWORD calcDamage(UDWORD baseDamage, WEAPON_EFFECT weaponEffect, BASE_OBJECT* ps
 
       damage1 = baseDamage * Mod / 100;
 
-      DBPRINTF(("damage1=%d damage=%d baseDamage=%d mod=%d (weaponEffect=%d proptype=%d) \n", damage1, damage, baseDamage, Mod, weaponEffect
+      Neuron::DebugTrace("damage1={} damage={} baseDamage={} mod={} (weaponEffect={} proptype={}) \n", damage1, damage, baseDamage, Mod, weaponEffect
         , PropType);
     }
 #endif
@@ -1508,7 +1503,7 @@ BOOL objectDamage(BASE_OBJECT* psObj, UDWORD damage, UDWORD weaponClass, UDWORD 
   case OBJ_FEATURE:
     return featureDamage((FEATURE*)psObj, damage, weaponClass, weaponSubClass);
     break;
-  default: ASSERT((FALSE, "objectDamage - unknown object type"));
+  default: ASSERT_TEXT(FALSE, "objectDamage - unknown object type");
   }
   return FALSE;
 }
@@ -1540,7 +1535,7 @@ BOOL justBeenHitByEW(BASE_OBJECT* psObj)
     if ((gameTime - psStructure->timeLastHit) < HIT_THRESHOLD AND psStructure->lastHitWeapon == WSC_ELECTRONIC)
       return (TRUE);
     break;
-  default: DBERROR(("Weird object type in justBeenHitByEW"));
+  default: Neuron::Fatal("Weird object type in justBeenHitByEW");
     break;
   }
 

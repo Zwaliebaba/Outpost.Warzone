@@ -179,7 +179,6 @@ void gameTimeStop(void)
   if (stopCount == 0)
   {
     pauseStart = GetTickCount();
-    DBP1(("Clock paused at %d\n", pauseStart));
   }
   stopCount += 1;
 }

@@ -232,7 +232,7 @@ BOOL processWarCam(void)
     trackingCamera.status = CAM_INACTIVE;
     Status = FALSE;
     break;
-  default: DBERROR(("Weirdy status for tracking Camera"));
+  default: Neuron::Fatal("Weirdy status for tracking Camera");
     break;
   }
   /* TBR
@@ -256,7 +256,7 @@ BOOL processWarCam(void)
 /* Flips states for camera active */
 void setWarCamActive(BOOL status)
 {
-  DBPRINTF(("setWarCamActive(%d)\n",status));
+  Neuron::DebugTrace("setWarCamActive({})\n",status);
 
   /* We're trying to switch it on */
   if (status == TRUE)

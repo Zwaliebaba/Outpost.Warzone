@@ -58,14 +58,6 @@ BOOL frontendInitialised = FALSE;
 BOOL reInit = FALSE;
 BOOL bDisableLobby;
 
-// callback functions for message boxes and assert boxes
-DB_MBRETVAL fxMBCallback(SBYTE* pBuffer)
-{
-  (void)pBuffer;
-
-  return DBR_USE_WINDOWS_MB;
-}
-
 /*
 BOOL checkDisableLobby(void)
 {
@@ -179,12 +171,12 @@ init: //jump here from the end if re_initialising
   psPaletteBuffer = new (std::nothrow) iColour[257];
   if (psPaletteBuffer == nullptr)
   {
-    DBERROR(("Out of memory"));
+    Neuron::Fatal("Out of memory");
     return -1;
   }
   if (!loadFileToBuffer("palette.bin", (UBYTE*)psPaletteBuffer, (256 * sizeof(iColour) + 1), (UDWORD*)&pSize))
   {
-    DBERROR(("Couldn't load palette data"));
+    Neuron::Fatal("Couldn't load palette data");
     return -1;
   }
   pal_AddNewPalette(psPaletteBuffer);
@@ -204,7 +196,7 @@ init: //jump here from the end if re_initialising
   /* check CDROM drive available */
   if (cdspan_CheckCDAvailable() == FALSE)
   {
-    DBERROR(("Cannot detect CDROM drive\n"));
+    Neuron::Fatal("Cannot detect CDROM drive\n");
     quit = TRUE;
   }
 
@@ -258,13 +250,13 @@ init: //jump here from the end if re_initialising
       //after data is loaded check the research stats are valid
       if (!checkResearchStats())
       {
-        DBERROR(("Invalid Research Stats"));
+        Neuron::Fatal("Invalid Research Stats");
         goto exit;
       }
       //and check the structure stats are valid
       if (!checkStructureStats())
       {
-        DBERROR(("Invalid Structure Stats"));
+        Neuron::Fatal("Invalid Structure Stats");
         goto exit;
       }
 
@@ -272,15 +264,15 @@ init: //jump here from the end if re_initialising
       gameInitialised = TRUE;
       screen_StopBackDrop();
       break;
-    case GS_VIDEO_MODE: DBERROR(("Video_mode no longer valid"));
+    case GS_VIDEO_MODE: Neuron::Fatal("Video_mode no longer valid");
       if (introVideoControl == 0)
         videoInitialised = TRUE;
       break;
 
-    default: DBERROR(("Unknown game status on startup!"));
+    default: Neuron::Fatal("Unknown game status on startup!");
     }
 
-    DBPRINTF(("Entering main loop\n"));
+    Neuron::DebugTrace("Entering main loop\n");
 
     Restart = FALSE;
 
@@ -338,23 +330,23 @@ init: //jump here from the end if re_initialising
           {
             switch (titleLoop())
             {
-            case TITLECODE_QUITGAME: DBPRINTF(("TITLECODE_QUITGAME\n"));
+            case TITLECODE_QUITGAME: Neuron::DebugTrace("TITLECODE_QUITGAME\n");
               Restart = TRUE;
               quit = TRUE;
               break;
 
             //						case TITLECODE_ATTRACT:
 
-            case TITLECODE_SAVEGAMELOAD: DBPRINTF(("TITLECODE_SAVEGAMELOAD\n"));
+            case TITLECODE_SAVEGAMELOAD: Neuron::DebugTrace("TITLECODE_SAVEGAMELOAD\n");
               gameStatus = GS_SAVEGAMELOAD;
               Restart = TRUE;
               break;
-            case TITLECODE_STARTGAME: DBPRINTF(("TITLECODE_STARTGAME\n"));
+            case TITLECODE_STARTGAME: Neuron::DebugTrace("TITLECODE_STARTGAME\n");
               gameStatus = GS_NORMAL;
               Restart = TRUE;
               break;
 
-            case TITLECODE_SHOWINTRO: DBPRINTF(("TITLECODE_SHOWINTRO\n"));
+            case TITLECODE_SHOWINTRO: Neuron::DebugTrace("TITLECODE_SHOWINTRO\n");
               seq_ClearSeqList();
               seq_AddSeqToList("eidos-logo.rpl", nullptr, nullptr, FALSE, 0);
               seq_AddSeqToList("pumpkin.rpl", nullptr, nullptr, FALSE, 0);
@@ -367,7 +359,7 @@ init: //jump here from the end if re_initialising
             case TITLECODE_CONTINUE:
               break;
 
-            default: DBERROR(("Unknown code returned by titleLoop"));
+            default: Neuron::Fatal("Unknown code returned by titleLoop");
             }
           }
           pie_SetSwirlyBoxes(FALSE);
@@ -392,7 +384,7 @@ init: //jump here from the end if re_initialising
             loopStatus = gameLoop();
             switch (loopStatus)
             {
-            case GAMECODE_QUITGAME: DBPRINTF(("GAMECODE_QUITGAME\n"));
+            case GAMECODE_QUITGAME: Neuron::DebugTrace("GAMECODE_QUITGAME\n");
               gameStatus = GS_TITLE_SCREEN;
               Restart = TRUE;
 #ifdef NON_INTERACT
@@ -402,38 +394,38 @@ init: //jump here from the end if re_initialising
               if (NetPlay.bLobbyLaunched)
                 quit = TRUE;
               break;
-            case GAMECODE_FASTEXIT: DBPRINTF(("GAMECODE_FASTEXIT\n"));
+            case GAMECODE_FASTEXIT: Neuron::DebugTrace("GAMECODE_FASTEXIT\n");
               Restart = TRUE;
               quit = TRUE;
               break;
 
-            case GAMECODE_LOADGAME: DBPRINTF(("GAMECODE_LOADGAME\n"));
+            case GAMECODE_LOADGAME: Neuron::DebugTrace("GAMECODE_LOADGAME\n");
               Restart = TRUE;
               gameStatus = GS_SAVEGAMELOAD;
               break;
 
-            case GAMECODE_PLAYVIDEO: DBPRINTF(("GAMECODE_PLAYVIDEO\n"));
+            case GAMECODE_PLAYVIDEO: Neuron::DebugTrace("GAMECODE_PLAYVIDEO\n");
               Restart = FALSE;
               break;
 
-            case GAMECODE_NEWLEVEL: DBPRINTF(("GAMECODE_NEWLEVEL\n"));
+            case GAMECODE_NEWLEVEL: Neuron::DebugTrace("GAMECODE_NEWLEVEL\n");
               // gameStatus is unchanged, just loading additional data
               Restart = TRUE;
               break;
 
-            case GAMECODE_RESTARTGAME: DBPRINTF(("GAMECODE_RESTARTGAME\n"));
+            case GAMECODE_RESTARTGAME: Neuron::DebugTrace("GAMECODE_RESTARTGAME\n");
               Restart = TRUE;
               break;
 
             case GAMECODE_CONTINUE:
               break;
 
-            default: DBERROR(("Unknown code returned by gameLoop"));
+            default: Neuron::Fatal("Unknown code returned by gameLoop");
             }
           }
           break;
 
-        case GS_VIDEO_MODE: DBERROR(("Video_mode no longer valid"));
+        case GS_VIDEO_MODE: Neuron::Fatal("Video_mode no longer valid");
           if (loop_GetVideoStatus())
             videoLoop();
           else
@@ -448,7 +440,7 @@ init: //jump here from the end if re_initialising
             }
             else
             {
-              DBPRINTF(("VIDEO_QUIT\n"));
+              Neuron::DebugTrace("VIDEO_QUIT\n");
               if (introVideoControl == 2) //finished playing intro video
               {
                 gameStatus = GS_TITLE_SCREEN;
@@ -463,7 +455,7 @@ init: //jump here from the end if re_initialising
 
           break;
 
-        default: DBERROR(("Weirdy game status I'm afraid!!"));
+        default: Neuron::Fatal("Weirdy game status I'm afraid!!");
           break;
         }
 
@@ -496,17 +488,17 @@ init: //jump here from the end if re_initialising
       gameInitialised = FALSE;
       break;
 
-    case GS_VIDEO_MODE: DBERROR(("Video_mode no longer valid"));
+    case GS_VIDEO_MODE: Neuron::Fatal("Video_mode no longer valid");
       if (videoInitialised)
         videoInitialised = FALSE;
       break;
 
-    default: DBERROR(("Unknown game status on shutdown!"));
+    default: Neuron::Fatal("Unknown game status on shutdown!");
       break;
     }
   } // End of !quit loop.
 
-  DBPRINTF(("Shuting down application\n"));
+  Neuron::DebugTrace("Shuting down application\n");
 
   systemShutdown();
 
@@ -521,7 +513,7 @@ init: //jump here from the end if re_initialising
 
   return 0;
 
-exit: DBPRINTF(("Shutting down after fail\n"));
+exit: Neuron::DebugTrace("Shutting down after fail\n");
 
   systemShutdown();
 
@@ -538,9 +530,9 @@ UDWORD GetGameMode(void) { return gameStatus; }
 
 void SetGameMode(UDWORD status)
 {
-  ASSERT((status == GS_TITLE_SCREEN ||
+  ASSERT_TEXT(status == GS_TITLE_SCREEN ||
     status == GS_MISSION_SCREEN || status == GS_NORMAL || status == GS_VIDEO_MODE || status == GS_SAVEGAMELOAD,
-    "SetGameMode: invalid game mode"));
+    "SetGameMode: invalid game mode");
 
   gameStatus = status;
 }

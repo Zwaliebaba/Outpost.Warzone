@@ -708,7 +708,7 @@ BOOL systemInitialise(void)
     pie_SetDirect3DDeviceName("RGB Emulation");
     if (!pie_Initialise(REND_D3D_RGB))
     {
-      ASSERT((FALSE,"Unable to initialise DirectX RGB Renderer"));
+      ASSERT_TEXT(FALSE,"Unable to initialise DirectX RGB Renderer");
       return FALSE;
     }
     break;
@@ -716,7 +716,7 @@ BOOL systemInitialise(void)
     pie_SetDirect3DDeviceName("Reference Rasterizer");
     if (!pie_Initialise(REND_D3D_REF))
     {
-      ASSERT((FALSE,"Unable to initialise DirectX Reference Renderer"));
+      ASSERT_TEXT(FALSE,"Unable to initialise DirectX Reference Renderer");
       return FALSE;
     }
     break;
@@ -724,7 +724,7 @@ BOOL systemInitialise(void)
     pie_SetDirect3DDeviceName("Direct3D HAL");
     if (!pie_Initialise(REND_D3D_HAL))
     {
-      ASSERT((FALSE,"Unable to initialise DirectX HAL, ensure the correct DirectDraw device is selected"));
+      ASSERT_TEXT(FALSE,"Unable to initialise DirectX HAL, ensure the correct DirectDraw device is selected");
       return FALSE;
     }
     break;
@@ -739,7 +739,7 @@ BOOL systemInitialise(void)
   DisplayBuffer = new (std::nothrow) UBYTE[displayBufferSize];
   if (DisplayBuffer == nullptr)
   {
-    DBERROR(("Unable to allocate memory for display buffer"));
+    Neuron::Fatal("Unable to allocate memory for display buffer");
     return FALSE;
   }
 
@@ -748,7 +748,7 @@ BOOL systemInitialise(void)
 #else
   if (!audio_Init(frameGetWinHandle(), TRUE, droidAudioTrackStopped))
 #endif
-    DBERROR(("Couldn't initialise audio system: continuing without audio\n"));
+    Neuron::Fatal("Couldn't initialise audio system: continuing without audio\n");
 
 #if !defined(I_LIKE_LISTENING_TO_CDS)
   cdAudio_Open();
@@ -845,7 +845,7 @@ BOOL init_ObjectDead(void* psObj)
       psStructure->psCurAnim = nullptr;
       break;
 
-    default: DBERROR(("init_ObjectAnimRemoved: unrecognised object type"));
+    default: Neuron::Fatal("init_ObjectAnimRemoved: unrecognised object type");
     }
   }
 
@@ -857,7 +857,7 @@ BOOL init_ObjectDead(void* psObj)
 // WIN32 Version. Called At Frontend Startup.
 BOOL frontendInitialise(char* ResourceFile)
 {
-  DBPRINTF(("Initialising frontend : %s\n",ResourceFile));
+  Neuron::DebugTrace("Initialising frontend : {}\n",ResourceFile);
 
   // reset the multiple wdg stuff
   wdgEnableAddonWDG();
@@ -885,7 +885,7 @@ BOOL frontendInitialise(char* ResourceFile)
   if (!allocPlayerPower()) //set up the PlayerPower for each player - this should only be done ONCE now
     return FALSE;
 
-  DBPRINTF(("frontEndInitialise: loading resource file ....."));
+  Neuron::DebugTrace("frontEndInitialise: loading resource file .....");
   if (!resLoad(ResourceFile, 0, DisplayBuffer, displayBufferSize))
     return FALSE;
 
@@ -937,7 +937,7 @@ BOOL frontendInitialise(char* ResourceFile)
 //
 BOOL frontendShutdown(void)
 {
-  DBPRINTF(("Shuting down frontend\n"));
+  Neuron::DebugTrace("Shuting down frontend\n");
 
   saveConfig(); // save settings to registry.
 
@@ -981,7 +981,7 @@ BOOL frontendShutdown(void)
 
 BOOL stageOneInitialise(void)
 {
-  DBPRINTF(("stageOneInitalise\n"));
+  Neuron::DebugTrace("stageOneInitalise\n");
 
 #ifndef FINALBUILD
   tpInit();
@@ -1071,7 +1071,7 @@ BOOL stageOneInitialise(void)
 
 BOOL stageOneShutDown(void)
 {
-  DBPRINTF(("stageOneShutDown\n"));
+  Neuron::DebugTrace("stageOneShutDown\n");
 
   //do this before shutting down the iV library
 
@@ -1134,7 +1134,7 @@ BOOL stageOneShutDown(void)
 
 BOOL stageTwoInitialise(void)
 {
-  DBPRINTF(("stageTwoInitalise\n"));
+  Neuron::DebugTrace("stageTwoInitalise\n");
 
   if (bMultiPlayer)
   {
@@ -1155,7 +1155,7 @@ BOOL stageTwoInitialise(void)
   if (!initMiscImds()) /* Set up the explosions */
   {
     iV_ShutDown();
-    DBERROR(("Can't find all the explosions PCX's"));
+    Neuron::Fatal("Can't find all the explosions PCX's");
     return FALSE;
   }
 
@@ -1214,7 +1214,7 @@ BOOL stageTwoInitialise(void)
   //	if (!loadGame("final.gam"))
   //	if (!loadGame("savetest.gam"))
 
-  DBPRINTF(("stageTwoInitialise: done\n"));
+  Neuron::DebugTrace("stageTwoInitialise: done\n");
 
   return TRUE;
 }
@@ -1225,7 +1225,7 @@ BOOL stageTwoInitialise(void)
 //
 BOOL stageTwoShutDown(void)
 {
-  DBPRINTF(("stageTwoShutDown\n"));
+  Neuron::DebugTrace("stageTwoShutDown\n");
 
 #if !defined(I_LIKE_LISTENING_TO_CDS)
   cdAudio_Stop();
@@ -1310,7 +1310,7 @@ BOOL stageThreeInitialise(void)
 {
   STRUCTURE* psStr;
 
-  DBPRINTF(("stageThreeInitalise\n"));
+  Neuron::DebugTrace("stageThreeInitalise\n");
 
   bTrackingTransporter = FALSE;
 
@@ -1381,7 +1381,7 @@ BOOL stageThreeInitialise(void)
 
 BOOL stageThreeShutDown(void)
 {
-  DBPRINTF(("stageThreeShutDown\n"));
+  Neuron::DebugTrace("stageThreeShutDown\n");
 
   // make sure any button tips are gone.
   widgReset();
@@ -1438,7 +1438,7 @@ BOOL stageThreeShutDown(void)
 //
 BOOL gameReset(void)
 {
-  DBPRINTF(("gameReset\n"));
+  Neuron::DebugTrace("gameReset\n");
 
   return TRUE;
 }
@@ -1446,7 +1446,7 @@ BOOL gameReset(void)
 // Reset the game between campaigns
 BOOL campaignReset(void)
 {
-  DBPRINTF(("campaignReset\n"));
+  Neuron::DebugTrace("campaignReset\n");
   gwShutDown();
   mapShutdown();
   return TRUE;
@@ -1455,7 +1455,7 @@ BOOL campaignReset(void)
 // Reset the game when loading a save game
 BOOL saveGameReset(void)
 {
-  DBPRINTF(("saveGameReset\n"));
+  Neuron::DebugTrace("saveGameReset\n");
 
 #if !defined(I_LIKE_LISTENING_TO_CDS)
   cdAudio_Stop();
@@ -1489,7 +1489,7 @@ BOOL saveGameReset(void)
 
 BOOL newMapInitialise(void)
 {
-  DBPRINTF(("newMapInitialise\n"));
+  Neuron::DebugTrace("newMapInitialise\n");
 
   //NEW_SAVE removed for V11 Save removed for all versions
 

@@ -662,7 +662,7 @@ void CheckStartWallDrag(void)
         wallDrag.x1 = wallDrag.x2 = mouseTileX;
         wallDrag.y1 = wallDrag.y2 = mouseTileY;
         wallDrag.status = DRAG_PLACING;
-        DBPRINTF(("Start Wall Drag\n"));
+        Neuron::DebugTrace("Start Wall Drag\n");
       }
     }
     else if (intBuildSelectMode()) //if we were in build select mode
@@ -701,7 +701,7 @@ BOOL CheckFinishedFindPosition(void)
 
         wallDrag.status = DRAG_RELEASED;
       }
-      DBPRINTF(("BUILD3D_FINISHED\n"));
+      Neuron::DebugTrace("BUILD3D_FINISHED\n");
       buildState = BUILD3D_FINISHED;
       return TRUE;
     } //uhoh no place to build here
@@ -853,14 +853,14 @@ void processMouseClickInput(void)
   }
 
   selection = establishSelection(selectedPlayer);
-  ASSERT((selection<=POSSIBLE_SELECTIONS,"Weirdy selection!"));
+  ASSERT_TEXT(selection<=POSSIBLE_SELECTIONS,"Weirdy selection!");
 
   if ((selection != SC_INVALID) && !gamePaused())
   {
     BASE_OBJECT* ObjUnderMouse;
 
     item = itemUnderMouse(&ObjUnderMouse);
-    ASSERT((item<POSSIBLE_TARGETS,"Weirdy target!"));
+    ASSERT_TEXT(item<POSSIBLE_TARGETS,"Weirdy target!");
 
     // alliance override. If in alli then just use the move icon. - but not if its the same player
     //in single player, the genexp script defaults to setting an alliance between player 0 and selectedPlayer
@@ -966,7 +966,7 @@ void processMouseClickInput(void)
       BASE_OBJECT* ObjUnderMouse;
 
       item = itemUnderMouse(&ObjUnderMouse);
-      ASSERT((item<POSSIBLE_TARGETS,"Weirdy target!"));
+      ASSERT_TEXT(item<POSSIBLE_TARGETS,"Weirdy target!");
       if (item == MT_ENEMYDROID OR item == MT_ENEMYSTR OR item == MT_DAMFEATURE)
       {
         //display attack cursor
@@ -2099,7 +2099,7 @@ void dealWithLMB(void)
       driveDisableTactical();
     }
     else
-      ASSERT((FALSE,"Weirdy selection from LMB?!"));
+      ASSERT_TEXT(FALSE,"Weirdy selection from LMB?!");
   }
   else if (!driveModeActive() || driveTacticalActive())
   {
@@ -2131,7 +2131,7 @@ void dealWithLMB(void)
           displayProximityMessage((PROXIMITY_DISPLAY *)psLocation);
         }
         break;*/
-      default: ASSERT((FALSE, "Unknown type from checkMouseLoc"));
+      default: ASSERT_TEXT(FALSE, "Unknown type from checkMouseLoc");
       }
     }
     else
@@ -2399,7 +2399,7 @@ void dealWithRMB(void)
     } // end if its a structure
     /* And if it's not a feature, then we're in trouble! */
     else if (psClickedOn->type != OBJ_FEATURE)
-      ASSERT((FALSE,"Weirdy selection from RMB?!"));
+      ASSERT_TEXT(FALSE,"Weirdy selection from RMB?!");
   }
   else
   {
@@ -2418,7 +2418,7 @@ void dealWithRMB(void)
           if (psStructure) { setViewPos(psStructure->x >> TILE_SHIFT, psStructure->y >> TILE_SHIFT,TRUE); }
         }
         break;
-      default: ASSERT((FALSE, "Unknown type from checkMouseLoc"));
+      default: ASSERT_TEXT(FALSE, "Unknown type from checkMouseLoc");
       }
     }
     else
@@ -2715,7 +2715,7 @@ SELECTION_TYPE establishSelection(UDWORD selectedPlayer)
     // droid types and find the dominant selection.
     if (psDroid->selected)
     {
-      ASSERT((psDroid->droidType < NUM_DROID_WEIGHTS, "establishSelection : droidType exceeds NUM_DROID_WEIGHTS"));
+      ASSERT_TEXT(psDroid->droidType < NUM_DROID_WEIGHTS, "establishSelection : droidType exceeds NUM_DROID_WEIGHTS");
 
       atLeastOne = TRUE;
       if (DroidSelectionWeights[psDroid->droidType] < CurrWeight)
@@ -2780,7 +2780,7 @@ if ((psDominant->psTarget == NULL AND psDominant->psTarStats ==
       selectionClass = SC_DROID_REPAIR;
       break;
 
-    default: ASSERT((FALSE,"Weirdy droid type on what you've clicked on!!!"));
+    default: ASSERT_TEXT(FALSE,"Weirdy droid type on what you've clicked on!!!");
       break;
     }
   }

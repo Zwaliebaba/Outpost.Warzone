@@ -362,6 +362,54 @@ Two constraints: any struct serialised into save files must stay
 byte-identical, and this should proceed module by module indefinitely rather
 than as a big bang.
 
+### The legacy debug system is gone
+
+**Done, out of order.** `LegacyDebug.cpp`, `W95Trace.cpp` and `Mono.cpp` have
+been removed along with their headers, and the roughly 3,000 call sites now use
+the calls in `Debug.h`.
+
+| was | now |
+|---|---|
+| `ASSERT((cond, "msg", a))` | `ASSERT_TEXT(cond, "msg", a)` |
+| `DBERROR(("msg", a))` | `Neuron::Fatal("msg", a)` |
+| `DBPRINTF(("msg", a))`, `DBMB` | `Neuron::DebugTrace("msg", a)` |
+| `DBPn(("msg", a))` | `Neuron::DebugTrace`, or deleted where the group was off |
+
+`W95Trace.cpp` was a Win95 stack-trace helper and `Mono.cpp` drove a second
+monochrome monitor over an MDA card; both had no callers left. The file-output
+and mono macros - `DBOUTPUTFILE`, `DBMONOPRINTF` and their siblings - were
+already at zero uses.
+
+`DBERROR` reported an error and continued, and `Debug.h` has no non-fatal
+equivalent, so those sites now terminate. Most of them were followed by a
+`return FALSE` that is consequently unreachable; the builds do not use `/WX`,
+so the unreachable-code warnings do not break them.
+
+`dbg_printf` took printf conversions and `std::format` takes replacement
+fields, so about a thousand format strings were rewritten as well - `%s` and
+`%d` to `{}`, `%04x` to `{:04x}`, `%-6d` to `{:<6}`. This is the part that
+needed the compiler rather than review: `std::format` refuses to format an
+enum, a `UBYTE *` or a typed pointer, all of which printf accepted silently,
+and each one is a compile error until it is cast.
+
+Four things needed more than a substitution:
+
+- **`DEBUG` moved into `Debug.h`.** `LegacyDebug.h` defined it, and it gates
+  80-odd blocks, several in headers where it changes a struct's layout - so
+  every translation unit has to agree on it.
+- **`FPath.cpp`, `Move.cpp` and `GatewayRoute.cpp` redefine `DBPn`** to
+  something gated on a runtime flag. Their calls are live where the same macro
+  is dead elsewhere, and they now use their own `FPATH_TRACE`, `MOVE_TRACE` and
+  `GWR_TRACE` macros, which keep the flag.
+- **Seven `DBERROR((FALSE, "msg"))` sites** passed `FALSE` where
+  `dbg_ErrorBox` expected the format string, having been written as though they
+  were assertions. Reaching one would have handed `vsprintf` a null format.
+  They pass the message now.
+- **`Debug.h` itself.** `vformat` was unqualified, `Fatal` formatted a message
+  and then threw it away, and `DEBUG_WARNING` called an unqualified
+  `DebugTrace`. `Fatal` is the release-visible error path now, so it outputs
+  the message before breaking.
+
 ### The custom allocators are gone
 
 **Done, out of order.** `Mem.cpp`, `Heap.cpp` and `Block.cpp` were three

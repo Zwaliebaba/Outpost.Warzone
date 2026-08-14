@@ -41,7 +41,7 @@ BOOL NETgetLocalPlayerData(DPID dpid,VOID* pData, DWORD* pSize)
   hr = IDirectPlayX_GetPlayerData(glpDP, dpid, pData, pSize, DPGET_LOCAL);
   if (hr == DP_OK)
     return TRUE;
-  DBPRINTF(("NETPLAY: failed to get Local Player Data\n"));
+  Neuron::DebugTrace("NETPLAY: failed to get Local Player Data\n");
   return FALSE;
 }
 
@@ -62,7 +62,7 @@ BOOL NETgetGlobalPlayerData(DPID dpid,VOID* pData, DWORD* pSize)
 
   if (hr == DP_OK)
     return TRUE;
-  DBPRINTF(("NETPLAY: failed to get Global Player Data\n"));
+  Neuron::DebugTrace("NETPLAY: failed to get Global Player Data\n");
   return FALSE;
 }
 
@@ -85,7 +85,7 @@ BOOL NETsetLocalPlayerData(DPID dpid,VOID* pData, DWORD size)
   hr = IDirectPlayX_SetPlayerData(glpDP, dpid, pData, size, DPSET_LOCAL);
   if (hr == DP_OK)
     return TRUE;
-  DBPRINTF(("NETPLAY: failed to set Local Player Data\n"));
+  Neuron::DebugTrace("NETPLAY: failed to set Local Player Data\n");
   return FALSE;
 }
 
@@ -108,7 +108,7 @@ BOOL NETsetGlobalPlayerData(DPID dpid,VOID* pData, DWORD size)
   hr = IDirectPlayX_SetPlayerData(glpDP, dpid, pData, size, DPSET_GUARANTEED | DPSET_REMOTE);
   if (hr == DP_OK)
     return TRUE;
-  DBPRINTF(("NETPLAY: failed to set Global Player Data\n"));
+  Neuron::DebugTrace("NETPLAY: failed to set Global Player Data\n");
   return FALSE;
 }
 
@@ -119,7 +119,7 @@ BOOL FAR PASCAL Playercounter(DPID dpId, DWORD dwPlayerType, LPCDPNAME lpName, D
 {
   if (NetPlay.playercount == MaxNumberOfPlayers)
   {
-    DBPRINTF(("NETPLAY: max players reached, ignoring others\n"));
+    Neuron::DebugTrace("NETPLAY: max players reached, ignoring others\n");
     return FALSE;
   }
 
@@ -198,7 +198,7 @@ BOOL NETchangePlayerName(UDWORD dpid, char* newName)
 
   if (hr != DP_OK)
   {
-    DBPRINTF(("NETPLAY: failed to change a players name\n"));
+    Neuron::DebugTrace("NETPLAY: failed to change a players name\n");
     return FALSE;
   }
   return TRUE;

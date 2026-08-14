@@ -137,7 +137,7 @@ BOOL allocComponentList(COMPONENT_TYPE type, SDWORD number)
     apCompLists[inc][type] = new (std::nothrow) UBYTE[number];
     if (apCompLists[inc][type] == nullptr)
     {
-      DBERROR(("Out of memory assigning Player Component Lists"));
+      Neuron::Fatal("Out of memory assigning Player Component Lists");
       return FALSE;
     }
 
@@ -188,7 +188,7 @@ BOOL allocStructLists(void)
       apStructTypeLists[inc] = new (std::nothrow) UBYTE[numStructureStats];
       if (apStructTypeLists[inc] == nullptr)
       {
-        DBERROR(("Out of memory assigning Player Structure Lists"));
+        Neuron::Fatal("Out of memory assigning Player Structure Lists");
         return FALSE;
       }
       for (stat = 0; stat < static_cast<SDWORD>(numStructureStats); stat++)

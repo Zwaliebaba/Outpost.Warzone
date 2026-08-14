@@ -72,7 +72,7 @@ BOOL scrCBNewDroid(void)
   if (psScrCBNewDroid == nullptr)
   {
     // eh? got called without setting the new droid
-    ASSERT((FALSE, "scrCBNewUnit: no unit has been set"));
+    ASSERT_TEXT(FALSE, "scrCBNewUnit: no unit has been set");
     triggered = FALSE;
     *ppsDroid = nullptr;
     *ppsStructure = nullptr;
@@ -103,7 +103,7 @@ BOOL scrCBStructAttacked(void)
 
   if (psLastStructHit == nullptr)
   {
-    ASSERT((FALSE, "scrCBStructAttacked: no target has been set"));
+    ASSERT_TEXT(FALSE, "scrCBStructAttacked: no target has been set");
     triggered = FALSE;
     *ppsAttacker = nullptr;
     *ppsTarget = nullptr;
@@ -140,7 +140,7 @@ BOOL scrCBDroidAttacked(void)
 
   if (psLastDroidHit == nullptr)
   {
-    ASSERT((FALSE, "scrCBUnitAttacked: no target has been set"));
+    ASSERT_TEXT(FALSE, "scrCBUnitAttacked: no target has been set");
     triggered = FALSE;
     *ppsAttacker = nullptr;
     *ppsTarget = nullptr;
@@ -177,7 +177,7 @@ BOOL scrCBAttacked(void)
 
   if (psScrCBTarget == nullptr)
   {
-    ASSERT((FALSE, "scrCBAttacked: no target has been set"));
+    ASSERT_TEXT(FALSE, "scrCBAttacked: no target has been set");
     triggered = FALSE;
     *ppsAttacker = nullptr;
     *ppsTarget = nullptr;
@@ -369,7 +369,7 @@ BOOL scrCBObjectSeen(SDWORD callback)
 
   if (psScrCBObjSeen == nullptr)
   {
-    ASSERT((FALSE,"scrCBObjectSeen: no object set"));
+    ASSERT_TEXT(FALSE,"scrCBObjectSeen: no object set");
     return FALSE;
   }
 
@@ -502,7 +502,7 @@ BOOL scrCBVtolOffMap(void)
 
   if (psScrCBVtolOffMap == nullptr)
   {
-    ASSERT((FALSE, "scrCBVtolAtBase: NULL vtol pointer"));
+    ASSERT_TEXT(FALSE, "scrCBVtolAtBase: NULL vtol pointer");
     return FALSE;
   }
 
@@ -531,7 +531,7 @@ BOOL scrCBResCompleted(void)
 
   if (psCBLastResearch == nullptr)
   {
-    ASSERT((FALSE, "scrCBResCompleted: no research has been set"));
+    ASSERT_TEXT(FALSE, "scrCBResCompleted: no research has been set");
     retVal = FALSE;
     *ppsResearch = nullptr;
   }

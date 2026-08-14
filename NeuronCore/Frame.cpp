@@ -190,7 +190,7 @@ void frameSetCursor(HCURSOR hNewCursor)
 {
   if (hNewCursor == nullptr)
   {
-    ASSERT((FALSE,"frameSetCursor: NULL cursor handle"));
+    ASSERT_TEXT(FALSE,"frameSetCursor: NULL cursor handle");
     return;
   }
   hCursor = hNewCursor;
@@ -202,7 +202,7 @@ void frameSetCursorFromRes(WORD resID)
 {
   HCURSOR hNewCursor = nullptr;
 
-  ASSERT((resID != 0, "frameSetCursorFromRes: null resource ID"));
+  ASSERT_TEXT(resID != 0, "frameSetCursorFromRes: null resource ID");
 
   //If we are already using this cursor then  return
   if (resID != currentCursorResID)
@@ -217,7 +217,7 @@ void frameSetCursorFromRes(WORD resID)
     //if cursor wasnt loaded, load the cursor and add it to array
     if (hNewCursor == nullptr)
     {
-      ASSERT((nextCursor < MAX_CURSORS,"frameSetCursorFromRes: Attempting to load too many cursors\n"));
+      ASSERT_TEXT(nextCursor < MAX_CURSORS,"frameSetCursorFromRes: Attempting to load too many cursors\n");
 
       if (nextCursor >= MAX_CURSORS)
         nextCursor = MAX_CURSORS - 1;
@@ -231,7 +231,7 @@ void frameSetCursorFromRes(WORD resID)
       }
     }
 
-    ASSERT((hNewCursor != NULL, "frameSetCursorFromRes: LoadCursor failed:\n"));
+    ASSERT_TEXT(hNewCursor != NULL, "frameSetCursorFromRes: LoadCursor failed:\n");
 
     //if we got a new cursor set it
     if (hNewCursor != nullptr)
@@ -258,18 +258,16 @@ static long FAR PASCAL Wndproc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
   }
   switch (message)
   {
-  case WM_SETFOCUS: DBP1(("WM_SETFOCUS\n"));
+  case WM_SETFOCUS: 
     if (focusState != FOCUS_IN)
     {
-      DBP1(("FOCUS_SET\n"));
       focusState = FOCUS_SET;
       DInpMouseAcc(DINP_MOUSEACQUIRE);
     }
     return 0;
-  case WM_KILLFOCUS: DBP1(("WM_KILLFOCUS\n"));
+  case WM_KILLFOCUS: 
     if (focusState != FOCUS_OUT)
     {
-      DBP1(("FOCUS_KILL\n"));
       focusState = FOCUS_KILL;
       DInpMouseAcc(DINP_MOUSERELEASE);
     }
@@ -287,7 +285,7 @@ static long FAR PASCAL Wndproc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
           res = ShowCursor(FALSE);
           if (res >= 0)
           {
-            ASSERT((FALSE,"WM_SETCURSOR off: cursor count out of sync"));
+            ASSERT_TEXT(FALSE,"WM_SETCURSOR off: cursor count out of sync");
             while (ShowCursor(FALSE) >= 0) { ; }
           }
           mouseOn = FALSE;
@@ -302,7 +300,7 @@ static long FAR PASCAL Wndproc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
           res = ShowCursor(TRUE);
           if (res < 0)
           {
-            ASSERT((FALSE,"WM_SETCURSOR on: cursor count out of sync"));
+            ASSERT_TEXT(FALSE,"WM_SETCURSOR on: cursor count out of sync");
             while (ShowCursor(FALSE) < 0) { ; }
           }
           mouseOn = TRUE;
@@ -369,7 +367,7 @@ static BOOL winInitApp(HANDLE hInstance, // Instance handle for the program
     FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, nullptr, GetLastError(),
                   MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
                   (LPTSTR)&pMsgBuf, 0, nullptr);
-    DBERROR(("Create Cursor failed:\n%s", pMsgBuf));
+    Neuron::Fatal("Create Cursor failed:\n{}", pMsgBuf);
     // Free the message buffer.
     LocalFree(pMsgBuf);
 
@@ -394,7 +392,7 @@ static BOOL winInitApp(HANDLE hInstance, // Instance handle for the program
   BOOL rc = RegisterClass(&wc);
   if (!rc)
   {
-    DBERROR(("Failed to register windows class"));
+    Neuron::Fatal("Failed to register windows class");
     return FALSE;
   }
 
@@ -420,7 +418,7 @@ static BOOL winInitApp(HANDLE hInstance, // Instance handle for the program
 
   if (!hWndMain)
   {
-    DBERROR(("Couldn't create main window."));
+    Neuron::Fatal("Couldn't create main window.");
     return FALSE;
   }
 
@@ -479,10 +477,6 @@ BOOL frameInitialise(HANDLE hInst, // The windows application instance
   if (!resInitialise())
     return FALSE;
 
-  dbg_SetMessageBoxCallback(nullptr);
-  dbg_SetErrorBoxCallback(nullptr);
-  dbg_SetAssertCallback(nullptr);
-
   return TRUE;
 }
 
@@ -516,13 +510,11 @@ FRAME_STATUS frameUpdate(void)
     retVal = FRAME_QUIT;
   else if ((focusState == FOCUS_SET) && (focusLast == FOCUS_OUT))
   {
-    DBP1(("Returning SETFOCUS\n"));
     focusState = FOCUS_IN;
     retVal = FRAME_SETFOCUS;
   }
   else if ((focusState == FOCUS_KILL) && (focusLast == FOCUS_IN))
   {
-    DBP1(("Returning KILLFOCUS\n"));
     focusState = FOCUS_OUT;
     retVal = FRAME_KILLFOCUS;
   }
@@ -535,7 +527,6 @@ FRAME_STATUS frameUpdate(void)
   }
   else if (focusLast != focusState)
   {
-    DBP1(("focusLast changing from %d to %d\n", focusLast, focusState));
     focusLast = focusState;
   }
 
@@ -600,7 +591,7 @@ BOOL loadFile2(STRING* pFileName, UBYTE** ppFileData, UDWORD* pFileSize, BOOL Al
   // This will never work on the final build of the PSX because we can *ONLY* load files
   // directly from CD, i.e. from the WDG's normal fopen/fread calls will never work!
 #ifdef DEBUG
-  DBPRINTF(("FOPEN ! %s\n",pFileName));
+  Neuron::DebugTrace("FOPEN ! {}\n",pFileName);
 
 #endif
 
@@ -612,20 +603,20 @@ BOOL loadFile2(STRING* pFileName, UBYTE** ppFileData, UDWORD* pFileSize, BOOL Al
   pFileHandle = fopen(pFileName, "rb");
   if (pFileHandle == nullptr)
   {
-    DBERROR(("Couldn't open %s", pFileName));
+    Neuron::Fatal("Couldn't open {}", pFileName);
     return FALSE;
   }
 
   /* Get the length of the file */
   if (fseek(pFileHandle, 0, SEEK_END) != 0)
   {
-    DBERROR(("SEEK_END failed for %s", pFileName));
+    Neuron::Fatal("SEEK_END failed for {}", pFileName);
     return FALSE;
   }
   FileSize = ftell(pFileHandle);
   if (fseek(pFileHandle, 0, SEEK_SET) != 0)
   {
-    DBERROR(("SEEK_SET failed for %s", pFileName));
+    Neuron::Fatal("SEEK_SET failed for {}", pFileName);
     return FALSE;
   }
 
@@ -636,7 +627,7 @@ BOOL loadFile2(STRING* pFileName, UBYTE** ppFileData, UDWORD* pFileSize, BOOL Al
     *ppFileData = new (std::nothrow) UBYTE[(FileSize) + 1];
     if (*ppFileData == nullptr)
     {
-      DBERROR(("Out of memory"));
+      Neuron::Fatal("Out of memory");
       return FALSE;
     }
   }
@@ -644,7 +635,7 @@ BOOL loadFile2(STRING* pFileName, UBYTE** ppFileData, UDWORD* pFileSize, BOOL Al
   {
     if (FileSize > *pFileSize)
     {
-      DBERROR(("no room for file"));
+      Neuron::Fatal("no room for file");
       return FALSE;
     }
     assert(*ppFileData!=NULL);
@@ -652,13 +643,13 @@ BOOL loadFile2(STRING* pFileName, UBYTE** ppFileData, UDWORD* pFileSize, BOOL Al
   /* Load the file data */
   if (fread(*ppFileData, 1, FileSize, pFileHandle) != FileSize)
   {
-    DBERROR(("Read failed for %s", pFileName));
+    Neuron::Fatal("Read failed for {}", pFileName);
     return FALSE;
   }
 
   if (fclose(pFileHandle) != 0)
   {
-    DBERROR(("Close failed for %s", pFileName));
+    Neuron::Fatal("Close failed for {}", pFileName);
     return FALSE;
   }
 
@@ -687,7 +678,7 @@ BOOL loadFileToBuffer(STRING* pFileName, UBYTE* pFileBuffer, UDWORD bufferSize, 
   HANDLE hFile = CreateFile(pFileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, nullptr);
   if (hFile == INVALID_HANDLE_VALUE)
   {
-    DBERROR(("Couldn't open %s\n%s", pFileName, winErrorToString(GetLastError())));
+    Neuron::Fatal("Couldn't open {}\n{}", pFileName, winErrorToString(GetLastError()));
     return FALSE;
   }
 
@@ -695,7 +686,7 @@ BOOL loadFileToBuffer(STRING* pFileName, UBYTE* pFileBuffer, UDWORD bufferSize, 
   *pSize = GetFileSize(hFile, nullptr);
   if (*pSize >= bufferSize)
   {
-    DBERROR(("file too big !!:%s size %d\n", pFileName, *pSize));
+    Neuron::Fatal("file too big !!:{} size {}\n", pFileName, *pSize);
     return FALSE;
   }
 
@@ -703,7 +694,7 @@ BOOL loadFileToBuffer(STRING* pFileName, UBYTE* pFileBuffer, UDWORD bufferSize, 
   BOOL retVal = ReadFile(hFile, pFileBuffer, *pSize, &bytesRead, nullptr);
   if (!retVal || *pSize != bytesRead)
   {
-    DBERROR(("Couldn't read data from %s\n%s", pFileName, winErrorToString(GetLastError())));
+    Neuron::Fatal("Couldn't read data from {}\n{}", pFileName, winErrorToString(GetLastError()));
     return FALSE;
   }
   pFileBuffer[*pSize] = 0;
@@ -711,7 +702,7 @@ BOOL loadFileToBuffer(STRING* pFileName, UBYTE* pFileBuffer, UDWORD bufferSize, 
   retVal = CloseHandle(hFile);
   if (!retVal)
   {
-    DBERROR(("Couldn't close %s\n%s", pFileName, winErrorToString(GetLastError())));
+    Neuron::Fatal("Couldn't close {}\n{}", pFileName, winErrorToString(GetLastError()));
     return FALSE;
   }
 
@@ -763,19 +754,19 @@ BOOL saveFile(STRING* pFileName, UBYTE* pFileData, UDWORD fileSize)
   FILE* pFile = fopen(pFileName, "wb");
   if (!pFile)
   {
-    DBERROR(("Couldn't open %s", pFileName));
+    Neuron::Fatal("Couldn't open {}", pFileName);
     return FALSE;
   }
 
   if (fwrite(pFileData, fileSize, 1, pFile) != 1)
   {
-    DBERROR(("Write failed for %s: %s", pFileName, winErrorToString(GetLastError()) ));
+    Neuron::Fatal("Write failed for {}: {}", pFileName, winErrorToString(GetLastError()) );
     return FALSE;
   }
 
   if (fclose(pFile) != 0)
   {
-    DBERROR(("Close failed for %s", pFileName));
+    Neuron::Fatal("Close failed for {}", pFileName);
     return FALSE;
   }
 
@@ -892,7 +883,7 @@ SDWORD PercentFunc(char* File, UDWORD Line, SDWORD a, SDWORD b)
 {
   if (b)
     return (a * 100) / b;
-  DBPRINTF(("Divide by 0 (PERCENT) in %s,line %d\n",File,Line));
+  Neuron::DebugTrace("Divide by 0 (PERCENT) in {},line {}\n",File,Line);
 
   return 100;
 }
@@ -902,7 +893,7 @@ SDWORD PerNumFunc(char* File, UDWORD Line, SDWORD range, SDWORD a, SDWORD b)
   if (b)
     return (a * range) / b;
 
-  DBPRINTF(("Divide by 0 (PERNUM) in %s,line %d\n",File,Line));
+  Neuron::DebugTrace("Divide by 0 (PERNUM) in {},line {}\n",File,Line);
 
   return range;
 }

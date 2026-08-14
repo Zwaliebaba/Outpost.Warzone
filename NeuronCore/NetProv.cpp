@@ -31,7 +31,7 @@ BOOL NETsetupGeneric(LPDPCOMPOUNDADDRESSELEMENT LPelements, DWORD count, LPVOID*
 
   if (hr != DPERR_BUFFERTOOSMALL)
   {
-    DBERROR(("NETPLAY: Buffer failure"));
+    Neuron::Fatal("NETPLAY: Buffer failure");
     return (FALSE);
   }
 
@@ -39,7 +39,7 @@ BOOL NETsetupGeneric(LPDPCOMPOUNDADDRESSELEMENT LPelements, DWORD count, LPVOID*
   if (addr == nullptr)
   {
     hr = DPERR_NOMEMORY;
-    DBERROR(("NETPLAY: Can't alloc memory for address"));
+    Neuron::Fatal("NETPLAY: Can't alloc memory for address");
     return FALSE;
   }
 
@@ -48,7 +48,7 @@ BOOL NETsetupGeneric(LPDPCOMPOUNDADDRESSELEMENT LPelements, DWORD count, LPVOID*
 
   if (hr != DP_OK)
   {
-    DBERROR(("NETPLAY: Failed to create a proper DP address"));
+    Neuron::Fatal("NETPLAY: Failed to create a proper DP address");
     return (FALSE);
   }
 
@@ -165,12 +165,12 @@ static BOOL FAR PASCAL enumModemAddress(REFGUID guidDataType, DWORD dwDataSize, 
   {
     if (elementModemCount == 0)
     {
-      DBPRINTF(("\nNETPLAY: using modem %s\n",lpData));
+      Neuron::DebugTrace("\nNETPLAY: using modem {}\n",lpData);
       elementModemData = (LPVOID)lpData;
       elementModemSize = dwDataSize;
       return FALSE;
     }
-    DBPRINTF(("\nNETPLAY: not using modem %s\n",lpData));
+    Neuron::DebugTrace("\nNETPLAY: not using modem {}\n",lpData);
     elementModemCount--;
   }
   return TRUE;

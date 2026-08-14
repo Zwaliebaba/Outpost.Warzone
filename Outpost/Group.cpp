@@ -47,7 +47,7 @@ void grpJoin(DROID_GROUP* psGroup, DROID* psDroid)
   {
     if (psGroup->psList && psDroid->player != psGroup->psList->player)
     {
-      ASSERT((FALSE,"grpJoin: Cannot have more than one players droids in a group"));
+      ASSERT_TEXT(FALSE,"grpJoin: Cannot have more than one players droids in a group");
       return;
     }
 
@@ -58,14 +58,14 @@ void grpJoin(DROID_GROUP* psGroup, DROID* psDroid)
 
     if (psDroid->droidType == DROID_TRANSPORTER)
     {
-      ASSERT(((psGroup->type == GT_NORMAL), "grpJoin: Cannot have two transporters in a group"));
+      ASSERT_TEXT((psGroup->type == GT_NORMAL), "grpJoin: Cannot have two transporters in a group");
       psGroup->type = GT_TRANSPORTER;
       psDroid->psGrpNext = psGroup->psList;
       psGroup->psList = psDroid;
     }
     else if ((psDroid->droidType == DROID_COMMAND) && (psGroup->type != GT_TRANSPORTER))
     {
-      ASSERT(((psGroup->type == GT_NORMAL) && (psGroup->psCommander == NULL), "grpJoin: Cannot have two command droids in a group"));
+      ASSERT_TEXT((psGroup->type == GT_NORMAL) && (psGroup->psCommander == NULL), "grpJoin: Cannot have two command droids in a group");
       psGroup->type = GT_COMMAND;
       psGroup->psCommander = psDroid;
     }
@@ -89,7 +89,7 @@ void grpJoinEnd(DROID_GROUP* psGroup, DROID* psDroid)
   {
     if (psGroup->psList && psDroid->player != psGroup->psList->player)
     {
-      ASSERT((FALSE,"grpJoin: Cannot have more than one players droids in a group"));
+      ASSERT_TEXT(FALSE,"grpJoin: Cannot have more than one players droids in a group");
       return;
     }
 
@@ -100,7 +100,7 @@ void grpJoinEnd(DROID_GROUP* psGroup, DROID* psDroid)
 
     if (psDroid->droidType == DROID_COMMAND)
     {
-      ASSERT(((psGroup->type == GT_NORMAL) && (psGroup->psCommander == NULL), "grpJoin: Cannot have two command droids in a group"));
+      ASSERT_TEXT((psGroup->type == GT_NORMAL) && (psGroup->psCommander == NULL), "grpJoin: Cannot have two command droids in a group");
       psGroup->type = GT_COMMAND;
       psGroup->psCommander = psDroid;
     }
@@ -126,7 +126,7 @@ void grpLeave(DROID_GROUP* psGroup, DROID* psDroid)
 
   if ((psDroid != nullptr) && (psDroid->psGroup != psGroup))
   {
-    ASSERT((FALSE, "grpLeave: droid group does not match"));
+    ASSERT_TEXT(FALSE, "grpLeave: droid group does not match");
     return;
   }
 
@@ -142,7 +142,7 @@ void grpLeave(DROID_GROUP* psGroup, DROID* psDroid)
         break;
       psPrev = psCurr;
     }
-    ASSERT((psCurr != NULL, "grpLeave: droid not found"));
+    ASSERT_TEXT(psCurr != NULL, "grpLeave: droid not found");
     if (psCurr != nullptr)
     {
       if (psPrev)

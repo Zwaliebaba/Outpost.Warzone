@@ -29,7 +29,7 @@
 		} \
 		psPrev = psCurr; \
 	} \
-	ASSERT((psCurr!=NULL, "LIST_REMOVE: entry not found")); \
+	ASSERT_TEXT(psCurr!=NULL, "LIST_REMOVE: entry not found"); \
 	if (psPrev == NULL) \
 	{ \
 		(psHead) = (psHead)->psNext; \
@@ -88,7 +88,7 @@ BOOL gwInitialise(void)
   int i;
 #endif
 
-  ASSERT((psGateways == NULL, "gwInitialise: gatway list has not been reset"));
+  ASSERT_TEXT(psGateways == NULL, "gwInitialise: gatway list has not been reset");
 
   psGateways = nullptr;
 
@@ -136,14 +136,14 @@ BOOL gwNewGateway(SDWORD x1, SDWORD y1, SDWORD x2, SDWORD y2)
   if ((x1 < 0) || (x1 >= gwMapWidth()) || (y1 < 0) || (y1 >= gwMapHeight()) || (x2 < 0) || (x2 >= gwMapWidth()) || (y2 < 0) || (y2 >=
     gwMapHeight()) || ((x1 != x2) && (y1 != y2)))
   {
-    ASSERT((FALSE,"gwNewGateway: invalid coordinates"));
+    ASSERT_TEXT(FALSE,"gwNewGateway: invalid coordinates");
     return FALSE;
   }
 
   psNew = new (std::nothrow) GATEWAY[1];
   if (!psNew)
   {
-    DBERROR(("gwNewGateway: out of memory"));
+    Neuron::Fatal("gwNewGateway: out of memory");
     return FALSE;
   }
 
@@ -201,14 +201,14 @@ BOOL gwNewLinkGateway(SDWORD x, SDWORD y)
 
   if ((x < 0) || (x >= gwMapWidth()) || (y < 0) || (y >= gwMapHeight()))
   {
-    ASSERT((FALSE,"gwNewLinkGateway: invalid coordinates"));
+    ASSERT_TEXT(FALSE,"gwNewLinkGateway: invalid coordinates");
     return FALSE;
   }
 
   psNew = new (std::nothrow) GATEWAY[1];
   if (!psNew)
   {
-    DBERROR(("gwNewGateway: out of memory"));
+    Neuron::Fatal("gwNewGateway: out of memory");
     return FALSE;
   }
 
@@ -330,7 +330,7 @@ static void gwCalcZoneCenter(SDWORD zone, SDWORD* px, SDWORD* py)
     }
   }
 
-  ASSERT((numtiles != 0, "gwCalcZoneCenter: zone not found on map"));
+  ASSERT_TEXT(numtiles != 0, "gwCalcZoneCenter: zone not found on map");
 
   x = xsum / numtiles;
   y = ysum / numtiles;
@@ -379,7 +379,7 @@ void gwCheckZoneSizes(void)
 
       if (inzone > FPATH_NODEINIT)
       {
-        DBPRINTF(("gwCheckZoneSizes: warning zone %d at (%d,%d) is too large %d tiles (max %d)\n", zone, cx,cy, inzone, FPATH_NODEINIT));
+        Neuron::DebugTrace("gwCheckZoneSizes: warning zone {} at ({},{}) is too large {} tiles (max {})\n", zone, cx,cy, inzone, FPATH_NODEINIT);
       }
     }
   }
@@ -390,9 +390,9 @@ BOOL gwGenerateLinkGates(void)
 {
   SDWORD zone, cx, cy;
 
-  ASSERT((apEquivZones != NULL, "gwGenerateLinkGates: no zone equivalence table"));
+  ASSERT_TEXT(apEquivZones != NULL, "gwGenerateLinkGates: no zone equivalence table");
 
-  DBPRINTF(("Generating water link Gateways...."));
+  Neuron::DebugTrace("Generating water link Gateways....");
 
   for (zone = 1; zone < gwNumZones; zone += 1)
   {
@@ -406,11 +406,10 @@ BOOL gwGenerateLinkGates(void)
       gwCalcZoneCenter(zone, &cx, &cy);
       if (!gwNewLinkGateway(cx, cy))
         return FALSE;
-      DBP1(("\nnew water link gateway at (%d,%d) for zone %d ", cx,cy, zone));
     }
   }
 
-  DBPRINTF(("Done\n"));
+  Neuron::DebugTrace("Done\n");
 
   return TRUE;
 }
@@ -536,14 +535,14 @@ SDWORD gwRouteLength(GATEWAY* psStart, GATEWAY* psEnd)
   }
   while (ret == ASR_PARTIAL);
 
-  ASSERT((ret != ASR_FAILED, "gwRouteLength: no route between gateways at (%d,%d) and (%d,%d)", sx,sy, ex,ey));
+  ASSERT_TEXT(ret != ASR_FAILED, "gwRouteLength: no route between gateways at ({},{}) and ({},{})", sx,sy, ex,ey);
 
 #ifdef DEBUG
   if (ret == ASR_NEAREST)
   {
     zone = (psStart->zone1 == psEnd->zone1) || (psStart->zone1 == psEnd->zone2) ? psStart->zone1 : psStart->zone2;
-    DBPRINTF(("gwRouteLength: warning only partial route between gateways at %s(%d,%d) and %s(%d,%d) zone %d\n",
-      psStart->flags & GWR_WATERLINK ? "W" : "", sx,sy, psStart->flags & GWR_WATERLINK ? "W" : "", ex,ey, zone));
+    Neuron::DebugTrace("gwRouteLength: warning only partial route between gateways at {}({},{}) and {}({},{}) zone {}\n",
+      psStart->flags & GWR_WATERLINK ? "W" : "", sx,sy, psStart->flags & GWR_WATERLINK ? "W" : "", ex,ey, zone);
   }
 #endif
 
@@ -625,7 +624,7 @@ BOOL gwLinkGateways(void)
   aZoneReachable = new (std::nothrow) UBYTE[gwNumZones];
   if (aZoneReachable == nullptr)
   {
-    DBERROR(("gwLinkGateways: out of memory"));
+    Neuron::Fatal("gwLinkGateways: out of memory");
     return FALSE;
   }
   memset(aZoneReachable, 0, sizeof(UBYTE) * gwNumZones);
@@ -656,9 +655,9 @@ BOOL gwLinkGateways(void)
     }
     psCurr->zone2 = static_cast<UBYTE>(gwGetZone(x, y));
 
-    ASSERT(((psCurr->flags & GWR_WATERLINK) || gwCheckFloodTiles(psCurr),
-      "gwLinkGateways: Gateway at (%d,%d)->(%d,%d) is too close to a blocking tile. Zones %d, %d", psCurr->x1,psCurr->y1, psCurr->x2,psCurr
-      ->y2, psCurr->zone1, psCurr->zone2));
+    ASSERT_TEXT((psCurr->flags & GWR_WATERLINK) || gwCheckFloodTiles(psCurr),
+      "gwLinkGateways: Gateway at ({},{})->({},{}) is too close to a blocking tile. Zones {}, {}", psCurr->x1,psCurr->y1, psCurr->x2,psCurr
+      ->y2, psCurr->zone1, psCurr->zone2);
 
     aZoneReachable[psCurr->zone1] = TRUE;
     aZoneReachable[psCurr->zone2] = TRUE;
@@ -702,7 +701,7 @@ BOOL gwLinkGateways(void)
       psCurr->psLinks = new (std::nothrow) GATEWAY_LINK[(zone1Links+zone2Links)];
       if (psCurr->psLinks == nullptr)
       {
-        DBERROR(("gwLinkGateways: out of memory"));
+        Neuron::Fatal("gwLinkGateways: out of memory");
         return FALSE;
       }
     }
@@ -739,8 +738,6 @@ BOOL gwLinkGateways(void)
 
         if (bAddLink)
         {
-          DBP0(("Linking %sgateway (%d,%d)->(%d,%d) through %s to gateway (%d,%d)->(%d,%d)\n", (psCurr->flags & GWR_WATERLINK) ? "water " :
-            "", psCurr->x1,psCurr->y1, psCurr->x2,psCurr->y2, bZone1 ? "zone1" : "zone2", psLink->x1,psLink->y1, psLink->x2,psLink->y2));
           psCurr->psLinks[link].psGateway = psLink;
           psCurr->psLinks[link].flags = 0;
           psCurr->psLinks[link].dist = static_cast<SWORD>(gwRouteLength(psCurr, psLink));
@@ -772,8 +769,8 @@ UDWORD gwZoneLineSize(UDWORD Line)
   UDWORD pos = 0;
   UDWORD x = 0;
 
-  ASSERT((Line < static_cast<UDWORD>(gwMapHeight()),"gwNewZoneLine : Invalid line requested"));
-  ASSERT((apRLEZones != NULL,"gwNewZoneLine : NULL Zone map"));
+  ASSERT_TEXT(Line < static_cast<UDWORD>(gwMapHeight()),"gwNewZoneLine : Invalid line requested");
+  ASSERT_TEXT(apRLEZones != NULL,"gwNewZoneLine : NULL Zone map");
 
   pCode = apRLEZones[Line];
 
@@ -798,7 +795,7 @@ BOOL gwNewZoneMap(void)
   apRLEZones = new (std::nothrow) UBYTE*[gwMapHeight()];
   if (apRLEZones == nullptr)
   {
-    DBERROR(("gwNewZoneMap: Out of memory"));
+    Neuron::Fatal("gwNewZoneMap: Out of memory");
     return FALSE;
   }
 
@@ -812,15 +809,15 @@ BOOL gwNewZoneMap(void)
 //
 UBYTE* gwNewZoneLine(UDWORD Line, UDWORD Size)
 {
-  ASSERT((Line < static_cast<UDWORD>(gwMapHeight()),"gwNewZoneLine : Invalid line requested"));
-  ASSERT((apRLEZones != NULL,"gwNewZoneLine : NULL Zone map"));
+  ASSERT_TEXT(Line < static_cast<UDWORD>(gwMapHeight()),"gwNewZoneLine : Invalid line requested");
+  ASSERT_TEXT(apRLEZones != NULL,"gwNewZoneLine : NULL Zone map");
 
   if (apRLEZones[Line] != nullptr) { delete[] apRLEZones[Line]; }
 
   apRLEZones[Line] = new (std::nothrow) UBYTE[Size];
   if (apRLEZones[Line] == nullptr)
   {
-    DBERROR(("gwNewZoneLine: Out of memory"));
+    Neuron::Fatal("gwNewZoneLine: Out of memory");
     return nullptr;
   }
 
@@ -879,7 +876,7 @@ SDWORD gwGetZone(SDWORD x, SDWORD y)
     }
     while (xPos <= x); // xPos is where the next zone starts
   }
-  else { ASSERT((FALSE, "gwGetZone: invalid coordinates")); }
+  else { ASSERT_TEXT(FALSE, "gwGetZone: invalid coordinates"); }
 
   return zone;
 }
@@ -892,13 +889,13 @@ BOOL gwNewEquivTable(SDWORD numZones)
 {
   SDWORD i;
 
-  ASSERT((numZones < UBYTE_MAX, "gwNewEquivTable: invalid number of zones"));
+  ASSERT_TEXT(numZones < UBYTE_MAX, "gwNewEquivTable: invalid number of zones");
 
   gwNumZones = numZones;
   aNumEquiv = new (std::nothrow) UBYTE[numZones];
   if (aNumEquiv == nullptr)
   {
-    DBERROR(("gwNewEquivTable: out of memory"));
+    Neuron::Fatal("gwNewEquivTable: out of memory");
     return FALSE;
   }
   for (i = 0; i < numZones; i += 1)
@@ -907,7 +904,7 @@ BOOL gwNewEquivTable(SDWORD numZones)
   apEquivZones = new (std::nothrow) UBYTE*[numZones];
   if (apEquivZones == nullptr)
   {
-    DBERROR(("gwNewEquivTable: out of memory"));
+    Neuron::Fatal("gwNewEquivTable: out of memory");
     return FALSE;
   }
   for (i = 0; i < numZones; i += 1)
@@ -936,14 +933,14 @@ BOOL gwSetZoneEquiv(SDWORD zone, SDWORD numEquiv, UBYTE* pEquiv)
 {
   SDWORD i;
 
-  ASSERT((aNumEquiv != NULL && apEquivZones != NULL, "gwSetZoneEquiv: equivalence arrays not initialised"));
-  ASSERT((zone < gwNumZones, "gwSetZoneEquiv: invalid zone"));
-  ASSERT((numEquiv <= gwNumZones, "gwSetZoneEquiv: invalid number of zone equivalents"));
+  ASSERT_TEXT(aNumEquiv != NULL && apEquivZones != NULL, "gwSetZoneEquiv: equivalence arrays not initialised");
+  ASSERT_TEXT(zone < gwNumZones, "gwSetZoneEquiv: invalid zone");
+  ASSERT_TEXT(numEquiv <= gwNumZones, "gwSetZoneEquiv: invalid number of zone equivalents");
 
   apEquivZones[zone] = new (std::nothrow) UBYTE[numEquiv];
   if (apEquivZones[zone] == nullptr)
   {
-    DBERROR(("gwSetZoneEquiv: out of memory"));
+    Neuron::Fatal("gwSetZoneEquiv: out of memory");
     return FALSE;
   }
 
@@ -988,7 +985,7 @@ BOOL gwTileIsWater(UDWORD x, UDWORD y) { return TERRAIN_TYPE(mapTile(x ,y)) == T
 // see if a zone is reachable
 BOOL gwZoneReachable(SDWORD zone)
 {
-  ASSERT((zone >= 0 && zone < gwNumZones, "gwZoneReachable: invalid zone"));
+  ASSERT_TEXT(zone >= 0 && zone < gwNumZones, "gwZoneReachable: invalid zone");
 
   return aZoneReachable[zone];
 }

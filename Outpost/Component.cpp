@@ -78,7 +78,7 @@ BOOL setPlayerColour(UDWORD player, UDWORD col)
 {
   if (player > MAX_PLAYERS || col > MAX_PLAYERS)
   {
-    DBERROR(("setplayercolour: wrong values"));
+    Neuron::Fatal("setplayercolour: wrong values");
     return FALSE;
   }
   PlayerColour[static_cast<UBYTE>(player)] = static_cast<UBYTE>(col);
@@ -175,7 +175,7 @@ UDWORD getComponentRadius(BASE_STATS* psComponent)
 
   /* VTOL bombs are only stats allowed to have NULL ComponentIMD */
   if ((StatIsComponent(psComponent) != COMP_WEAPON) || ((WEAPON_STATS*)psComponent)->weaponSubClass != WSC_BOMB)
-    DBPRINTF(("ComponentPIE == NULL : File : %s Line : %d\n",__FILE__,__LINE__));
+    Neuron::DebugTrace("ComponentPIE == NULL : File : {} Line : {}\n",__FILE__,__LINE__);
 
   return COMPONENT_RADIUS;
 }
@@ -187,7 +187,7 @@ UDWORD getResearchRadius(BASE_STATS* Stat)
   if (ResearchIMD)
     return GetRadius(ResearchIMD);
 
-  DBPRINTF(("ResearchPIE == NULL : File : %s Line : %d\n",__FILE__,__LINE__));
+  Neuron::DebugTrace("ResearchPIE == NULL : File : {} Line : {}\n",__FILE__,__LINE__);
 
   return 100;
 }
@@ -447,7 +447,7 @@ void displayComponentButton(BASE_STATS* Stat, iVector* Rotation, iVector* Positi
 
   /* VTOL bombs are only stats allowed to have NULL ComponentIMD */
   if ((ComponentIMD == nullptr) && ((StatIsComponent(Stat) != COMP_WEAPON) || ((WEAPON_STATS*)Stat)->weaponSubClass != WSC_BOMB))
-    DBPRINTF(("ComponentPIE == NULL : File : %s Line : %d\n",__FILE__,__LINE__));
+    Neuron::DebugTrace("ComponentPIE == NULL : File : {} Line : {}\n",__FILE__,__LINE__);
 
   if (MountIMD)
     pie_Draw3DShape(MountIMD, 0, getPlayerColour(selectedPlayer), pie_MAX_BRIGHT_LEVEL, 0, pie_BUTTON, 0);
@@ -1018,7 +1018,7 @@ void displayCompObj(BASE_OBJECT* psObj, iVector* mountRotation, BOOL bButton)
       case DROID_PERSON:
         // no extra mounts for people
         break;
-      default: ASSERT((FALSE, "Whoa! Weirdy type of droid found in drawComponentObject!!!"));
+      default: ASSERT_TEXT(FALSE, "Whoa! Weirdy type of droid found in drawComponentObject!!!");
         break;
       }
     }

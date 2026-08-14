@@ -832,7 +832,7 @@ void drawTiles(iView* camera, iView* player)
         zMax = pie_MAX(zMax, tileScreenInfo[i][j + 1].sz);
         tileIJ[i][j].depth = zMax;
         if (static_cast<UDWORD>(i) > mapHeight OR static_cast<UDWORD>(j) > mapWidth)
-          ASSERT((FALSE,"Weirdy tile coords"));
+          ASSERT_TEXT(FALSE,"Weirdy tile coords");
         bucketAddTypeToList(RENDER_TILE, &tileIJ[i][j]);
         bucketAddTypeToList(RENDER_WATERTILE, &tileIJ[i][j]);
       }
@@ -1743,8 +1743,8 @@ void getPlayerPos(SDWORD* px, SDWORD* py)
 
 void setPlayerPos(SDWORD x, SDWORD y)
 {
-  ASSERT(((x > 0) && (x < (SDWORD)(mapWidth*TILE_UNITS)) &&
-    (y > 0) && (y < (SDWORD)(mapHeight*TILE_UNITS)), "setPlayerPos: position off map"));
+  ASSERT_TEXT((x > 0) && (x < (SDWORD)(mapWidth*TILE_UNITS)) &&
+    (y > 0) && (y < (SDWORD)(mapHeight*TILE_UNITS)), "setPlayerPos: position off map");
 
   // Find centre of grid thats actually DRAWN
   SDWORD midX = (x >> TILE_SHIFT) - (visibleXTiles / 2);
@@ -1871,7 +1871,7 @@ void renderProximityMsg(PROXIMITY_DISPLAY* psProxDisp)
     dv.y = ((BASE_OBJECT*)psProxDisp->psMessage->pViewData)->z + 64;
   }
   else
-    ASSERT((FALSE,"Buggered proximity message type"));
+    ASSERT_TEXT(FALSE,"Buggered proximity message type");
   UDWORD brightness = lightDoFogAndIllumination(pie_MAX_BRIGHT_LEVEL, getCentreX() - msgX, getCentreZ() - msgY, &specular);
 
   dv.x = (msgX - player.p.x) - terrainMidX * TILE_UNITS;
@@ -1902,14 +1902,14 @@ void renderProximityMsg(PROXIMITY_DISPLAY* psProxDisp)
     case PROX_ARTEFACT:
       proxImd = getImdFromIndex(MI_BLIP_ARTEFACT);
       break;
-    default: ASSERT((FALSE,"Buggered proximity message type"));
+    default: ASSERT_TEXT(FALSE,"Buggered proximity message type");
       break;
     }
   }
   else
   {
     //object Proximity displays are for oil resources and artefacts
-    ASSERT(( ((BASE_OBJECT *)psProxDisp->psMessage->pViewData)->type == OBJ_FEATURE, "renderProximityMsg: invalid feature" ));
+    ASSERT_TEXT(((BASE_OBJECT *)psProxDisp->psMessage->pViewData)->type == OBJ_FEATURE, "renderProximityMsg: invalid feature" );
 
     if (((FEATURE*)psProxDisp->psMessage->pViewData)->psStats->subType == FEAT_OIL_RESOURCE)
     {
@@ -2564,7 +2564,7 @@ void renderDeliveryPoint(FLAG_POSITION* psPosition)
 
   //quick check for invalid data
   //ASSERT((psPosition->factoryType < NUM_FACTORY_TYPES AND 
-  ASSERT((psPosition->factoryType < NUM_FLAG_TYPES AND psPosition->factoryInc < MAX_FACTORY, "Invalid assembly point"));
+  ASSERT_TEXT(psPosition->factoryType < NUM_FLAG_TYPES AND psPosition->factoryInc < MAX_FACTORY, "Invalid assembly point");
 
   if (!psPosition->selected)
   {
@@ -2896,7 +2896,7 @@ void drawWeaponReloadBar(BASE_OBJECT* psObj, WEAPON* psWeap)
       scrY += scale * 10 - 1;
       scrR = scale * 20;
       break;
-    default: ASSERT((FALSE, "drawWeaponReloadBars: invalid object type"));
+    default: ASSERT_TEXT(FALSE, "drawWeaponReloadBars: invalid object type");
       damLevel = 100;
       break;
     }
@@ -3227,7 +3227,7 @@ void drawDroidSelections(void)
     bEnergyBars = FALSE;
     bTinyBars = TRUE;
     break;
-  default: ASSERT((FALSE,"Invalid energy bar display value"));
+  default: ASSERT_TEXT(FALSE,"Invalid energy bar display value");
     break;
   }
 
@@ -3981,7 +3981,7 @@ iIMDShape* flattenImd(iIMDShape* imd, UDWORD structX, UDWORD structY, UDWORD dir
 
   // CHECK WHETHER THE NUMBER OF POINTS IN THE IMD WILL FIT IN THE ARRAY
 
-  ASSERT((imd->npoints < MAX_FLATTEN_POINTS, "flattenImd: too many points in the PIE to flatten it"));
+  ASSERT_TEXT(imd->npoints < MAX_FLATTEN_POINTS, "flattenImd: too many points in the PIE to flatten it");
 
   /* Get a copy of the points */
   memcpy(alteredPoints, imd->points, imd->npoints * sizeof(iVector));
@@ -4042,7 +4042,7 @@ iIMDShape* flattenImd(iIMDShape* imd, UDWORD structX, UDWORD structY, UDWORD dir
     }
     break;
 
-  default: DBERROR((FALSE,"Weirdy direction for a structure in renderWall"));
+  default: Neuron::Fatal("Weirdy direction for a structure in renderWall");
     break;
   }
   /*
@@ -4961,7 +4961,7 @@ UDWORD getDroidRankGraphic(DROID* psDroid)
   case 8:
     gfxId = IMAGE_LEV_7;
     break;
-  default: ASSERT((FALSE, "Weird droid level in drawDroidRank"));
+  default: ASSERT_TEXT(FALSE, "Weird droid level in drawDroidRank");
     break;
   }
   /*

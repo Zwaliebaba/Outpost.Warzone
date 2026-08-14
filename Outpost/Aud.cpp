@@ -45,7 +45,7 @@ BOOL audio_ObjectDead(void* psObj)
   /* check is valid simple object pointer */
   if (psSimpleObj == nullptr)
   {
-    DBPRINTF(("audio_ObjectDead: simple object pointer invalid\n"));
+    Neuron::DebugTrace("audio_ObjectDead: simple object pointer invalid\n");
     return TRUE;
   }
 
@@ -55,7 +55,7 @@ BOOL audio_ObjectDead(void* psObj)
     psProj = (PROJ_OBJECT*)psSimpleObj;
     if (psProj == nullptr)
     {
-      DBPRINTF(("audio_ObjectDead: projectile object pointer invalid\n"));
+      Neuron::DebugTrace("audio_ObjectDead: projectile object pointer invalid\n");
       return TRUE;
     }
     if (psProj->state == PROJ_POSTIMPACT)
@@ -68,7 +68,7 @@ BOOL audio_ObjectDead(void* psObj)
   /* check is valid pointer */
   if (psBaseObj == nullptr)
   {
-    DBPRINTF(("audio_ObjectDead: base object pointer invalid\n"));
+    Neuron::DebugTrace("audio_ObjectDead: base object pointer invalid\n");
     return TRUE;
   }
   return psBaseObj->died;
@@ -173,7 +173,7 @@ BOOL audio_GetClusterCentre(void* psClusterObj, SDWORD* piX, SDWORD* piY, SDWORD
   iClusterID = clustGetClusterID(static_cast<BASE_OBJECT*>(psClusterObj));
   if (iClusterID == 0)
   {
-    DBPRINTF(("audio_GetClusterCentre: empty cluster!\n"));
+    Neuron::DebugTrace("audio_GetClusterCentre: empty cluster!\n");
     return FALSE;
   }
   clustInitIterate(iClusterID);
@@ -225,7 +225,7 @@ BOOL audio_GetNewClusterObject(void** psClusterObj, SDWORD iClusterID)
 
   if (iClusterID == 0)
   {
-    DBPRINTF(("audio_GetNewClusterObject: empty cluster!\n"));
+    Neuron::DebugTrace("audio_GetNewClusterObject: empty cluster!\n");
     return FALSE;
   }
   /* find next undying droid in cluster */

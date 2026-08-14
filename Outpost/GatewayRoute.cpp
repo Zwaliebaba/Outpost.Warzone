@@ -10,10 +10,7 @@
 #include "Frame.h"
 
 BOOL gwrDoMessage;
-#undef DBP0
-#define DBP0( x ) \
-	if (gwrDoMessage) \
-		DBPRINTF( x )
+#define GWR_TRACE(...) do { if (gwrDoMessage) Neuron::DebugTrace(__VA_ARGS__); } while (0)
 
 #include "Map.h"
 #include "Gateway.h"
@@ -168,12 +165,10 @@ SDWORD gwrAStarRoute(SDWORD player, UDWORD terrain, SDWORD sx, SDWORD sy, SDWORD
   finalZone = gwGetZone(tileFX, tileFY);
   if (zone == finalZone)
   {
-    DBP1(("Route same zone\n"));
     return GWR_SAMEZONE;
   }
   if (zone == 0 || finalZone == 0)
   {
-    DBP1(("Route no zone info\n"));
     return GWR_NOZONE;
   }
   psOpenList = nullptr;
@@ -217,14 +212,14 @@ SDWORD gwrAStarRoute(SDWORD player, UDWORD terrain, SDWORD sx, SDWORD sy, SDWORD
   while (psOpenList != nullptr)
   {
     psCurr = gwrOpenGet();
-    DBP0(("processing gateway (%d,%d)->(%d,%d)\n", psCurr->x1,psCurr->y1, psCurr->x2,psCurr->y2));
+    GWR_TRACE("processing gateway ({},{})->({},{})\n", psCurr->x1,psCurr->y1, psCurr->x2,psCurr->y2);
 
     if (psCurr->zone1 == finalZone || psCurr->zone2 == finalZone || ((psCurr->flags & GWR_WATERLINK) && gwZoneInEquiv(
       psCurr->zone1, finalZone)))
     {
       // reached the target
       psRoute = psCurr;
-      DBP0(("Found route\n"));
+      GWR_TRACE("Found route\n");
       break;
     }
 
@@ -279,21 +274,21 @@ SDWORD gwrAStarRoute(SDWORD player, UDWORD terrain, SDWORD sx, SDWORD sy, SDWORD
         psNew->psRoute = psCurr;
         psNew->flags |= (psNew->zone1 == zone) ? GWR_ZONE1 : GWR_ZONE2;
         gwrOpenAdd(psNew);
-        DBP0(("new gateway (%d,%d)->(%d,%d) dist %d est %d\n", psNew->x1, psNew->y1, psNew->x2, psNew->y2, psNew->dist, psNew->est));
+        GWR_TRACE("new gateway ({},{})->({},{}) dist {} est {}\n", psNew->x1, psNew->y1, psNew->x2, psNew->y2, psNew->dist, psNew->est);
       }
       else if (psNew->flags & GWR_OPEN)
       {
         // already in the open list but this is shorter
-        DBP0(("new route to open gateway (%d,%d)->(%d,%d) dist %d->%d est %d\n", psNew->x1, psNew->y1, psNew->x2, psNew->y2, currDist, psNew
-          ->dist, psNew->est));
+        GWR_TRACE("new route to open gateway ({},{})->({},{}) dist {}->{} est {}\n", psNew->x1, psNew->y1, psNew->x2, psNew->y2, currDist, psNew
+          ->dist, psNew->est);
         psNew->dist = static_cast<SWORD>(currDist);
         psNew->psRoute = psCurr;
       }
       else if (psNew->flags & GWR_CLOSED)
       {
         // already in the closed list but this is shorter
-        DBP0(("new route to closed gateway (%d,%d)->(%d,%d) dist %d->%d est %d\n", psNew->x1, psNew->y1, psNew->x2, psNew->y2, currDist,
-          psNew->dist, psNew->est));
+        GWR_TRACE("new route to closed gateway ({},{})->({},{}) dist {}->{} est {}\n", psNew->x1, psNew->y1, psNew->x2, psNew->y2, currDist,
+          psNew->dist, psNew->est);
         psNew->dist = static_cast<SWORD>(currDist);
         psNew->psRoute = psCurr;
         gwrOpenAdd(psNew);
@@ -310,7 +305,7 @@ SDWORD gwrAStarRoute(SDWORD player, UDWORD terrain, SDWORD sx, SDWORD sy, SDWORD
   retval = GWR_OK;
   if (psRoute == nullptr)
   {
-    DBP0(("Partial route\n"));
+    GWR_TRACE("Partial route\n");
     psRoute = psNearest;
     retval = GWR_NEAREST;
   }
@@ -344,10 +339,8 @@ SDWORD gwrAStarRoute(SDWORD player, UDWORD terrain, SDWORD sx, SDWORD sy, SDWORD
     }
     psRoute = psParent;
 
-    DBP1(("Final route:\n"));
     for (psCurr = psRoute; psCurr; psCurr = psCurr->psRoute)
     {
-      DBP1(("   (%d,%d)->(%d,%d) dist %d est %d\n", psCurr->x1, psCurr->y1, psCurr->x2, psCurr->y2, psCurr->dist, psCurr->est));
     }
 
     *ppsRoute = psRoute;

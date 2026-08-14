@@ -197,7 +197,7 @@ BOOL mapNew(UDWORD width, UDWORD height)
 
   if (width * height > MAP_MAXAREA)
   {
-    DBERROR(("mapNew: map too large : %d %d\n",width,height));
+    Neuron::Fatal("mapNew: map too large : {} {}\n",width,height);
     return FALSE;
   }
 
@@ -225,7 +225,7 @@ BOOL mapNew(UDWORD width, UDWORD height)
   psMapTiles = new (std::nothrow) MAPTILE[width*height];
   if (psMapTiles == nullptr)
   {
-    DBERROR(("mapNew: Out of memory"));
+    Neuron::Fatal("mapNew: Out of memory");
     return FALSE;
   }
   memset(psMapTiles, 0, sizeof(MAPTILE) * width * height);
@@ -280,7 +280,7 @@ BOOL mapLoadV1(UBYTE* pFileData, UDWORD fileSize)
   }
   if (((UBYTE*)psTileData) - pFileData > static_cast<SDWORD>(fileSize))
   {
-    DBERROR(("mapLoad: unexpected end of file"));
+    Neuron::Fatal("mapLoad: unexpected end of file");
     return FALSE;
   }
 
@@ -312,7 +312,7 @@ BOOL mapLoadV2(UBYTE* pFileData, UDWORD fileSize)
 
   if (((UBYTE*)psTileData) - pFileData > static_cast<SDWORD>(fileSize))
   {
-    DBERROR(("mapLoad: unexpected end of file"));
+    Neuron::Fatal("mapLoad: unexpected end of file");
     return FALSE;
   }
 
@@ -351,13 +351,13 @@ BOOL mapLoadV3(UBYTE* pFileData, UDWORD fileSize)
   psGateHeader = (GATEWAY_SAVEHEADER*)psTileData;
   psGate = (GATEWAY_SAVE*)(psGateHeader + 1);
 
-  ASSERT((psGateHeader->version == 1,"Invalid gateway version"));
+  ASSERT_TEXT(psGateHeader->version == 1,"Invalid gateway version");
 
   for (i = 0; i < psGateHeader->numGateways; i++)
   {
     if (!gwNewGateway(psGate->x0, psGate->y0, psGate->x1, psGate->y1))
     {
-      DBERROR(("mapLoadV3: Unable to add gateway"));
+      Neuron::Fatal("mapLoadV3: Unable to add gateway");
       return FALSE;
     }
     psGate++;
@@ -369,7 +369,7 @@ BOOL mapLoadV3(UBYTE* pFileData, UDWORD fileSize)
   //		!gwGenerateLinkGates())
   psZoneHeader = (ZONEMAP_SAVEHEADER*)psGate;
 
-  ASSERT(( (psZoneHeader->version == 1) || (psZoneHeader->version == 2), "Invalid zone map version"));
+  ASSERT_TEXT((psZoneHeader->version == 1) || (psZoneHeader->version == 2), "Invalid zone map version");
 
   if (!gwNewZoneMap())
     return FALSE;
@@ -409,7 +409,7 @@ BOOL mapLoadV3(UBYTE* pFileData, UDWORD fileSize)
       // Load in the zone equivelance lists.
       if (!gwNewEquivTable(psZoneHeader->numEquivZones))
       {
-        DBERROR(("gwNewEquivTable failed"));
+        Neuron::Fatal("gwNewEquivTable failed");
         return FALSE;
       }
 
@@ -419,7 +419,7 @@ BOOL mapLoadV3(UBYTE* pFileData, UDWORD fileSize)
         {
           if (!gwSetZoneEquiv(i, *pZone, pZone + 1))
           {
-            DBERROR(("gwSetZoneEquiv failed"));
+            Neuron::Fatal("gwSetZoneEquiv failed");
             return FALSE;
           }
         }
@@ -430,7 +430,7 @@ BOOL mapLoadV3(UBYTE* pFileData, UDWORD fileSize)
 
   if (pZone - pFileData > static_cast<SDWORD>(fileSize))
   {
-    DBERROR(("mapLoadV3: unexpected end of file"));
+    Neuron::Fatal("mapLoadV3: unexpected end of file");
     return FALSE;
   }
 
@@ -465,7 +465,7 @@ BOOL mapLoad(UBYTE* pFileData, UDWORD fileSize)
   psHeader = (MAP_SAVEHEADER*)pFileData;
   if (psHeader->aFileType[0] != 'm' || psHeader->aFileType[1] != 'a' || psHeader->aFileType[2] != 'p' || psHeader->aFileType[3] != ' ')
   {
-    DBERROR(("mapLoad: Incorrect file type"));
+    Neuron::Fatal("mapLoad: Incorrect file type");
     delete[] pFileData;
     pFileData = nullptr;
     return FALSE;
@@ -475,7 +475,7 @@ BOOL mapLoad(UBYTE* pFileData, UDWORD fileSize)
   /* Check the file version */
   if (psHeader->version < VERSION_7)
   {
-    DBERROR(("MapLoad: unsupported save format version %d",psHeader->version));
+    Neuron::Fatal("MapLoad: unsupported save format version {}",psHeader->version);
     delete[] pFileData;
     pFileData = nullptr;
     return FALSE;
@@ -486,7 +486,7 @@ BOOL mapLoad(UBYTE* pFileData, UDWORD fileSize)
     pLoadMapFunc = mapLoadV3; // Includes gateway data for routing.
   else
   {
-    DBERROR(("MapLoad: undefined save format version %d",psHeader->version));
+    Neuron::Fatal("MapLoad: undefined save format version {}",psHeader->version);
     delete[] pFileData;
     pFileData = nullptr;
     return FALSE;
@@ -498,7 +498,7 @@ BOOL mapLoad(UBYTE* pFileData, UDWORD fileSize)
 
   if (width * height > MAP_MAXAREA)
   {
-    DBERROR(("mapLoad: map too large : %d %d\n",width,height));
+    Neuron::Fatal("mapLoad: map too large : {} {}\n",width,height);
     return FALSE;
   }
 
@@ -549,7 +549,7 @@ BOOL mapLoad(UBYTE* pFileData, UDWORD fileSize)
     psMapTiles = new (std::nothrow) MAPTILE[width*height];
     if (psMapTiles == nullptr)
     {
-      DBERROR(("mapLoad: Out of memory"));
+      Neuron::Fatal("mapLoad: Out of memory");
       return FALSE;
     }
     memset(psMapTiles, 0, sizeof(MAPTILE) * width * height);
@@ -622,7 +622,7 @@ BOOL mapSave(UBYTE** ppFileData, UDWORD* pFileSize)
   *ppFileData = new (std::nothrow) UBYTE[*pFileSize];
   if (*ppFileData == nullptr)
   {
-    DBERROR(("Out of memory"));
+    Neuron::Fatal("Out of memory");
     return FALSE;
   }
 
@@ -704,7 +704,7 @@ BOOL mapSave(UBYTE** ppFileData, UDWORD* pFileSize)
     }
   }
 
-  ASSERT(( ( ((UDWORD)psLastZone) - ((UDWORD)*ppFileData) ) < *pFileSize,"Buffer overflow saving map"));
+  ASSERT_TEXT(( ((UDWORD)psLastZone) - ((UDWORD)*ppFileData) ) < *pFileSize,"Buffer overflow saving map");
 
   return TRUE;
 }
@@ -784,10 +784,10 @@ extern SWORD map_Height(UDWORD x, UDWORD y)
 
   tileYOffset = (tileY * mapWidth);
 
-  ASSERT((ox < TILE_UNITS, "mapHeight: x offset too big"));
-  ASSERT((oy < TILE_UNITS, "mapHeight: y offset too big"));
-  ASSERT((ox >= 0, "mapHeight: x offset too small"));
-  ASSERT((oy >= 0, "mapHeight: y offset too small"));
+  ASSERT_TEXT(ox < TILE_UNITS, "mapHeight: x offset too big");
+  ASSERT_TEXT(oy < TILE_UNITS, "mapHeight: y offset too big");
+  ASSERT_TEXT(ox >= 0, "mapHeight: x offset too small");
+  ASSERT_TEXT(oy >= 0, "mapHeight: y offset too small");
 
   //different code for 4 different triangle cases
   if (psMapTiles[tileX + tileYOffset].texture & TILE_TRIFLIP)
@@ -810,7 +810,7 @@ extern SWORD map_Height(UDWORD x, UDWORD y)
       dy = ((hx - hxy) * oy) / TILE_UNITS;
 
       retVal = (hxy + dx + dy) * ELEVATION_SCALE;
-      ASSERT((retVal<MAX_HEIGHT,"Map height's gone weird!!!"));
+      ASSERT_TEXT(retVal<MAX_HEIGHT,"Map height's gone weird!!!");
       return static_cast<SWORD>(retVal);
     }
     //tile split top right to bottom left object if in top left half
@@ -828,7 +828,7 @@ extern SWORD map_Height(UDWORD x, UDWORD y)
     dy = ((hy - h0) * oy) / TILE_UNITS;
 
     retVal = (h0 + dx + dy) * ELEVATION_SCALE;
-    ASSERT((retVal<MAX_HEIGHT,"Map height's gone weird!!!"));
+    ASSERT_TEXT(retVal<MAX_HEIGHT,"Map height's gone weird!!!");
     return static_cast<SWORD>(retVal);
   }
   if (ox > oy) //tile split topleft to bottom right object if in top right half
@@ -846,7 +846,7 @@ extern SWORD map_Height(UDWORD x, UDWORD y)
     dx = ((hx - h0) * ox) / TILE_UNITS;
     dy = ((hxy - hx) * oy) / TILE_UNITS;
     retVal = (h0 + dx + dy) * ELEVATION_SCALE;
-    ASSERT((retVal<MAX_HEIGHT,"Map height's gone weird!!!"));
+    ASSERT_TEXT(retVal<MAX_HEIGHT,"Map height's gone weird!!!");
     return static_cast<SWORD>(retVal);
   }
   //tile split topleft to bottom right object if in bottom left half
@@ -864,7 +864,7 @@ extern SWORD map_Height(UDWORD x, UDWORD y)
   dy = ((hy - h0) * oy) / TILE_UNITS;
 
   retVal = (h0 + dx + dy) * ELEVATION_SCALE;
-  ASSERT((retVal<MAX_HEIGHT,"Map height's gone weird!!!"));
+  ASSERT_TEXT(retVal<MAX_HEIGHT,"Map height's gone weird!!!");
   return static_cast<SWORD>(retVal);
   return 0;
 }
@@ -942,7 +942,7 @@ BOOL writeVisibilityData(STRING* pFileName)
   if (!pFileData)
   {
     /* Nope, so do one */
-    DBERROR(("Saving visibility data : Cannot get the memory! (%d)",fileSize));
+    Neuron::Fatal("Saving visibility data : Cannot get the memory! ({})",fileSize);
     return (FALSE);
   }
 
@@ -966,21 +966,21 @@ BOOL writeVisibilityData(STRING* pFileName)
   pFile = fopen(pFileName, "wb");
   if (!pFile)
   {
-    DBERROR(("Saving visibility data : couldn't open file %s", pFileName));
+    Neuron::Fatal("Saving visibility data : couldn't open file {}", pFileName);
     return (FALSE);
   }
 
   /* Now, try and write it out */
   if (fwrite(pFileData, 1, fileSize, pFile) != fileSize)
   {
-    DBERROR(("Saving visibility data : write failed for %s", pFileName));
+    Neuron::Fatal("Saving visibility data : write failed for {}", pFileName);
     return (FALSE);
   }
 
   /* Finally, try and close it */
   if (fclose(pFile) != 0)
   {
-    DBERROR(("Saving visibility data : couldn't close %s", pFileName));
+    Neuron::Fatal("Saving visibility data : couldn't close {}", pFileName);
     return (FALSE);
   }
 
@@ -1004,8 +1004,8 @@ BOOL readVisibilityData(UBYTE* pFileData, UDWORD fileSize)
   psHeader = (VIS_SAVEHEADER*)pFileData;
   if (psHeader->aFileType[0] != 'v' || psHeader->aFileType[1] != 'i' || psHeader->aFileType[2] != 's' || psHeader->aFileType[3] != 'd')
   {
-    DBERROR(("Read visibility data : Weird file type found? Has header letters \
-				  - %s %s %s %s", psHeader->aFileType[0],psHeader->aFileType[1], psHeader->aFileType[2],psHeader->aFileType[3]));
+    Neuron::Fatal("Read visibility data : Weird file type found? Has header letters \
+				  - %s %s %s %s", psHeader->aFileType[0],psHeader->aFileType[1], psHeader->aFileType[2],psHeader->aFileType[3]);
     return FALSE;
   }
 
@@ -1017,7 +1017,7 @@ BOOL readVisibilityData(UBYTE* pFileData, UDWORD fileSize)
   if (fileSize != expectedFileSize)
   {
     /* No, so bomb out */
-    DBERROR(("Read visibility data : Weird file size for %d by %d sized map?", mapWidth,mapHeight));
+    Neuron::Fatal("Read visibility data : Weird file size for {} by {} sized map?", mapWidth,mapHeight);
     return (FALSE);
   }
 

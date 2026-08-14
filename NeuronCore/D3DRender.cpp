@@ -204,7 +204,7 @@ void BeginSceneD3D(void)
     rClear.y2 = pie_GetVideoBufferHeight();
 
     hResult = g_sD3DGlob.psD3DViewport3->lpVtbl->Clear(g_sD3DGlob.psD3DViewport3, 1, &rClear, D3DCLEAR_ZBUFFER);
-    if (hResult != D3D_OK) { DBERROR(("BeginSceneD3D: z buffer clear failed:\n%s", DDErrorToString(hResult) )); }
+    if (hResult != D3D_OK) { Neuron::Fatal("BeginSceneD3D: z buffer clear failed:\n{}", DDErrorToString(hResult) ); }
   }
 
   hResult = psDev->lpVtbl->BeginScene(psDev);
@@ -212,7 +212,7 @@ void BeginSceneD3D(void)
   {
     if (!bFirstError)
     {
-      ASSERT((bFirstError,"BeginSceneD3D: BeginScene failed\n%s", DDErrorToString(hResult) ));
+      ASSERT_TEXT(bFirstError,"BeginSceneD3D: BeginScene failed\n{}", DDErrorToString(hResult) );
       bFirstError = TRUE;
     }
   }
@@ -228,7 +228,7 @@ void EndSceneD3D(void)
   hResult = g_sD3DGlob.psD3DDevice3->lpVtbl->EndScene(g_sD3DGlob.psD3DDevice3);
   if (hResult != D3D_OK)
   {
-    ASSERT((bFirstError,"EndSceneD3D: EndScene failed\n%s",DDErrorToString(hResult)));
+    ASSERT_TEXT(bFirstError,"EndSceneD3D: EndScene failed\n{}",DDErrorToString(hResult));
     bFirstError = TRUE;
   }
 }
@@ -268,7 +268,7 @@ void D3DDrawPoly(int nVerts, D3DTLVERTEX* psVert)
 
   if (hResult != D3D_OK)
   {
-    ASSERT((bFirstError,"DrawTriD3D: DrawPrimitive failed\n%s",DDErrorToString(hResult)));
+    ASSERT_TEXT(bFirstError,"DrawTriD3D: DrawPrimitive failed\n{}",DDErrorToString(hResult));
     bFirstError = TRUE;
   }
 }
@@ -327,22 +327,22 @@ void D3DGetCaps(void)
   ATTEMPTD3D((hRes = psDev->lpVtbl->GetCaps( psDev, &sD3DHWDevDesc, &sD3DHELDevDesc )));
 
   if (!(sD3DHWDevDesc.dpcTriCaps.dwRasterCaps & D3DPRASTERCAPS_FOGVERTEX))
-    DBPRINTF(("D3DGetCaps: device can't do vertex fog\n"));
+    Neuron::DebugTrace("D3DGetCaps: device can't do vertex fog\n");
 
   if (!(sD3DHWDevDesc.dpcTriCaps.dwShadeCaps & D3DPSHADECAPS_ALPHAFLATBLEND))
   {
-    DBPRINTF(("D3DGetCaps: device can't do alpha\n"));
+    Neuron::DebugTrace("D3DGetCaps: device can't do alpha\n");
     /* set stippled alpha */
     if (sD3DHWDevDesc.dpcTriCaps.dwShadeCaps & D3DPSHADECAPS_ALPHAFLATSTIPPLED)
     {
-      DBPRINTF(("Enabling stippled alpha"));
+      Neuron::DebugTrace("Enabling stippled alpha");
       ATTEMPTD3D((psDev->lpVtbl->SetRenderState( psDev, D3DRENDERSTATE_STIPPLEDALPHA, TRUE )));
     }
   }
 
   return;
 
-exit_with_error: DBERROR(("D3DGetCaps:\n%s\n", DDErrorToString(hRes)));
+exit_with_error: Neuron::Fatal("D3DGetCaps:\n{}\n", DDErrorToString(hRes));
 }
 
 /***************************************************************************/
@@ -362,7 +362,7 @@ void D3DEnableFog(BOOL bEnable)
 
   return;
 
-exit_with_error: DBERROR(("D3DEnableFog:\n%s\n", DDErrorToString(hRes)));
+exit_with_error: Neuron::Fatal("D3DEnableFog:\n{}\n", DDErrorToString(hRes));
 }
 
 /***************************************************************************/
@@ -376,7 +376,7 @@ void D3DSetFogColour(D3DCOLOR dwColor)
 
   return;
 
-exit_with_error: DBERROR(("D3DSetFogColour:\n%s\n", DDErrorToString(hRes)));
+exit_with_error: Neuron::Fatal("D3DSetFogColour:\n{}\n", DDErrorToString(hRes));
 }
 
 /***************************************************************************/
@@ -394,7 +394,7 @@ SDWORD D3DCheckCard(void)
   hRes = psDD->lpVtbl->GetDeviceIdentifier(psDD, &did, 0);
   if (hRes != DD_OK)
   {
-    DBPRINTF(("D3DCheckCard: couldn't get card ID\n"));
+    Neuron::DebugTrace("D3DCheckCard: couldn't get card ID\n");
     return UNKNOWN_ID;
   }
 
@@ -432,19 +432,19 @@ void D3DSetCardSpecificParams(void)
 
   switch (g_iCardID)
   {
-  case RIVA_128: DBPRINTF(("Nvidia Riva 128 detected\n"));
+  case RIVA_128: Neuron::DebugTrace("Nvidia Riva 128 detected\n");
     g_sD3Dinfo.bAlphaKey = TRUE;
     if (g_bTexelOffsetOn)
       g_fTextureOffset = TEXEL_OFFSET_256;
     break;
 
-  case RIVA_TNT: DBPRINTF(("Nvidia Riva TNT detected\n"));
+  case RIVA_TNT: Neuron::DebugTrace("Nvidia Riva TNT detected\n");
     g_sD3Dinfo.bAlphaKey = TRUE;
     if (g_bTexelOffsetOn)
       g_fTextureOffset = TEXEL_OFFSET_256;
     break;
 
-  case PERMEDIA2: DBPRINTF(("3DLabs Permedia 2 detected\n"));
+  case PERMEDIA2: Neuron::DebugTrace("3DLabs Permedia 2 detected\n");
     pie_SetFogCap(FOG_CAP_GREY);
     break;
 
@@ -462,11 +462,11 @@ void D3DValidateDevice(void)
 
   D3DSetTranslucencyMode(TRANS_ALPHA);
   hRes = g_sD3DGlob.psD3DDevice3->lpVtbl->ValidateDevice(g_sD3DGlob.psD3DDevice3, &dwPasses);
-  if (hRes != D3D_OK) { DBPRINTF(("D3DValidateDevice: can't do trans_alpha: D3D reported %s\n", DDErrorToString(hRes) )); }
+  if (hRes != D3D_OK) { Neuron::DebugTrace("D3DValidateDevice: can't do trans_alpha: D3D reported {}\n", DDErrorToString(hRes) ); }
 
   D3DSetTranslucencyMode(TRANS_ADDITIVE);
   hRes = g_sD3DGlob.psD3DDevice3->lpVtbl->ValidateDevice(g_sD3DGlob.psD3DDevice3, &dwPasses);
-  if (hRes != D3D_OK) { DBPRINTF(("D3DValidateDevice: can't do trans_additive: D3D reported %s\n", DDErrorToString(hRes) )); }
+  if (hRes != D3D_OK) { Neuron::DebugTrace("D3DValidateDevice: can't do trans_additive: D3D reported {}\n", DDErrorToString(hRes) ); }
 }
 
 /***************************************************************************/
@@ -573,7 +573,7 @@ void D3DSetTranslucencyMode(TRANSLUCENCY_MODE transMode)
 
   return;
 
-exit_with_error: DBERROR(("D3DSetTranslucencyMode:\n%s\n", DDErrorToString(hResult)));
+exit_with_error: Neuron::Fatal("D3DSetTranslucencyMode:\n{}\n", DDErrorToString(hResult));
 }
 
 /***************************************************************************/
@@ -594,14 +594,14 @@ void D3DSetColourKeying(BOOL bKeyingOn)
   if (D3DGetAlphaKey() == TRUE)
   {
     hResult = psDev->lpVtbl->SetRenderState(psDev, D3DRENDERSTATE_ALPHATESTENABLE, bKeyingOn);
-    if (hResult != D3D_OK) { DBERROR(("D3DSetColourKeying: alpha test SetRenderState failed\n%s", DDErrorToString(hResult) )); }
+    if (hResult != D3D_OK) { Neuron::Fatal("D3DSetColourKeying: alpha test SetRenderState failed\n{}", DDErrorToString(hResult) ); }
   }
   else
   {
     hResult = psDev->lpVtbl->SetRenderState(psDev, D3DRENDERSTATE_BLENDENABLE, bKeyingOn);
-    if (hResult != D3D_OK) { DBERROR(("D3DSetColourKeying: blend enable SetRenderState failed\n%s", DDErrorToString(hResult) )); }
+    if (hResult != D3D_OK) { Neuron::Fatal("D3DSetColourKeying: blend enable SetRenderState failed\n{}", DDErrorToString(hResult) ); }
     hResult = psDev->lpVtbl->SetRenderState(psDev, D3DRENDERSTATE_COLORKEYENABLE, bKeyingOn);
-    if (hResult != D3D_OK) { DBERROR(("D3DSetColourKeying: colour key SetRenderState failed\n%s", DDErrorToString(hResult) )); }
+    if (hResult != D3D_OK) { Neuron::Fatal("D3DSetColourKeying: colour key SetRenderState failed\n{}", DDErrorToString(hResult) ); }
   }
 }
 
@@ -614,7 +614,7 @@ void D3DSetDepthBuffer(BOOL bDepthBufferOn)
 
   hResult = psDev->lpVtbl->SetRenderState(psDev, D3DRENDERSTATE_ZENABLE,
                                           bDepthBufferOn && g_sD3DGlob.Driver[g_sD3DGlob.uwCurrDriver].bDoesZBuffer);
-  if (hResult != D3D_OK) { DBERROR(("D3DSetDepthBuffer: bZBufferOn SetRenderState failed\n%s", DDErrorToString(hResult) )); }
+  if (hResult != D3D_OK) { Neuron::Fatal("D3DSetDepthBuffer: bZBufferOn SetRenderState failed\n{}", DDErrorToString(hResult) ); }
 }
 
 /***************************************************************************/
@@ -626,7 +626,7 @@ void D3DSetDepthWrite(BOOL bWriteEnable)
 
   hResult = psDev->lpVtbl->SetRenderState(psDev, D3DRENDERSTATE_ZWRITEENABLE,
                                           bWriteEnable && g_sD3DGlob.Driver[g_sD3DGlob.uwCurrDriver].bDoesZBuffer);
-  if (hResult != D3D_OK) { DBERROR(("D3DSetDepthWrite: bWriteEnable SetRenderState failed\n%s", DDErrorToString(hResult) )); }
+  if (hResult != D3D_OK) { Neuron::Fatal("D3DSetDepthWrite: bWriteEnable SetRenderState failed\n{}", DDErrorToString(hResult) ); }
 }
 
 /***************************************************************************/
@@ -637,7 +637,7 @@ void D3DSetDepthCompare(D3DCMPFUNC depthCompare)
   LPDIRECT3DDEVICE3 psDev = g_sD3DGlob.psD3DDevice3;
 
   hResult = psDev->lpVtbl->SetRenderState(psDev, D3DRENDERSTATE_ZFUNC, depthCompare);
-  if (hResult != D3D_OK) { DBERROR(("D3DSetDepthCompare: depthCompare SetRenderState failed\n%s", DDErrorToString(hResult) )); }
+  if (hResult != D3D_OK) { Neuron::Fatal("D3DSetDepthCompare: depthCompare SetRenderState failed\n{}", DDErrorToString(hResult) ); }
 }
 
 /***************************************************************************/
@@ -654,7 +654,7 @@ void D3DSetCulling(BOOL bCullingOn)
     cullMode = D3DCULL_NONE;
 
   hResult = psDev->lpVtbl->SetRenderState(psDev, D3DRENDERSTATE_CULLMODE, cullMode);
-  if (hResult != D3D_OK) { DBERROR(("D3DSetCulling: cull mode SetRenderState failed\n%s", DDErrorToString(hResult) )); }
+  if (hResult != D3D_OK) { Neuron::Fatal("D3DSetCulling: cull mode SetRenderState failed\n{}", DDErrorToString(hResult) ); }
 }
 
 /***************************************************************************/
@@ -676,7 +676,7 @@ void D3DSetClipWindow(SDWORD xMin, SDWORD yMin, SDWORD xMax, SDWORD yMax)
 
   /* set clip state */
   hResult = psDev->lpVtbl->SetClipStatus(psDev, &status);
-  if (hResult != D3D_OK) { DBERROR(("D3DSetClipWindow: failed\n%s", DDErrorToString(hResult) )); }
+  if (hResult != D3D_OK) { Neuron::Fatal("D3DSetClipWindow: failed\n{}", DDErrorToString(hResult) ); }
 }
 
 /***************************************************************************/
@@ -719,14 +719,14 @@ BOOL SetRenderState(void)
   hResult = psDev->lpVtbl->BeginScene(psDev);
   if (hResult != D3D_OK)
   {
-    DBERROR(("BeginScene failed in SetRenderState.\n%s", DDErrorToString(hResult)));
+    Neuron::Fatal("BeginScene failed in SetRenderState.\n{}", DDErrorToString(hResult));
     return FALSE;
   }
 
   hResult = psDev->lpVtbl->SetCurrentViewport(psDev, g_sD3DGlob.psD3DViewport3);
   if (hResult != D3D_OK)
   {
-    DBERROR(("SetViewport failed in SetRenderState.\n%s", DDErrorToString(hResult)));
+    Neuron::Fatal("SetViewport failed in SetRenderState.\n{}", DDErrorToString(hResult));
     return FALSE;
   }
 
@@ -736,7 +736,7 @@ BOOL SetRenderState(void)
   hResult = psDev->lpVtbl->EndScene(psDev);
   if (hResult != D3D_OK)
   {
-    DBERROR(("EndScene failed in SetRenderState.\n%s", DDErrorToString(hResult)));
+    Neuron::Fatal("EndScene failed in SetRenderState.\n{}", DDErrorToString(hResult));
     return FALSE;
   }
 
@@ -751,7 +751,7 @@ BOOL SetRenderState(void)
 
   return TRUE;
 
-exit_with_error: DBERROR(("Error in SetRenderState.\n%s", DDErrorToString(hResult)));
+exit_with_error: Neuron::Fatal("Error in SetRenderState.\n{}", DDErrorToString(hResult));
 
   return FALSE;
 }
@@ -808,7 +808,7 @@ DWORD BitsPerPixelToBitDepth(int iBpp)
   }
 
   /* assert if got to here */
-  ASSERT(( bValFound == TRUE, "BitsPerPixelToBitDepth: Unknown bitsperpixel\n"));
+  ASSERT_TEXT(bValFound == TRUE, "BitsPerPixelToBitDepth: Unknown bitsperpixel\n");
 
   return 0;
 }
@@ -835,7 +835,7 @@ BOOL GetWindowsMode(void)
 
   if (hResult != DD_OK)
   {
-    DBERROR(("GetDisplayMode failed:\n%s", DDErrorToString(hResult)));
+    Neuron::Fatal("GetDisplayMode failed:\n{}", DDErrorToString(hResult));
 
     return FALSE;
   }
@@ -864,7 +864,7 @@ static HRESULT WINAPI EnumDeviceFunc(LPGUID lpGuid, LPSTR lpDeviceDescription, L
 {
   lpContext;
 
-  DBPRINTF(("Direct3D device: desc %s, name %s\n", lpDeviceDescription, lpDeviceName ));
+  Neuron::DebugTrace("Direct3D device: desc {}, name {}\n", lpDeviceDescription, lpDeviceName );
 
   /*
    * Don't accept any hardware D3D devices if emulation only option is set
@@ -1025,7 +1025,7 @@ BOOL CreateZBuffer(int w, int h, int driver)
 
   if (hResult != DD_OK)
   {
-    DBERROR(( "Enumerate Z-buffer formats failed.\n%s", DDErrorToString(hResult) ));
+    Neuron::Fatal( "Enumerate Z-buffer formats failed.\n{}", DDErrorToString(hResult) );
 
     goto exit_with_error;
   }
@@ -1057,15 +1057,13 @@ BOOL CreateZBuffer(int w, int h, int driver)
     if (hResult == DDERR_OUTOFMEMORY || hResult == DDERR_OUTOFVIDEOMEMORY)
     {
       if (screenGetMode() == SCREEN_FULLSCREEN)
-        DBERROR(
-      ("There was not enough video memory to create the Z-buffer surface.\nPlease restart the program and try another fullscreen mode with less resolution or lower bit depth."
-      ));
+        Neuron::Fatal("There was not enough video memory to create the Z-buffer surface.\nPlease restart the program and try another fullscreen mode with less resolution or lower bit depth."
+      );
       else
-        DBERROR(
-      ("There was not enough video memory to create the Z-buffer surface.\nTo run this program in a window of this size, please adjust your display settings for a smaller desktop area or a lower palette size and restart the program."
-      ));
+        Neuron::Fatal("There was not enough video memory to create the Z-buffer surface.\nTo run this program in a window of this size, please adjust your display settings for a smaller desktop area or a lower palette size and restart the program."
+      );
     }
-    else { DBERROR(( "CreateSurface for Z-buffer failed.\n%s", DDErrorToString(hResult) )); }
+    else { Neuron::Fatal( "CreateSurface for Z-buffer failed.\n{}", DDErrorToString(hResult) ); }
 
     goto exit_with_error;
   }
@@ -1077,7 +1075,7 @@ BOOL CreateZBuffer(int w, int h, int driver)
 
   if (hResult != DD_OK)
   {
-    DBERROR(("AddAttachedBuffer failed for Z-Buffer.\n%s", DDErrorToString(hResult)));
+    Neuron::Fatal("AddAttachedBuffer failed for Z-Buffer.\n{}", DDErrorToString(hResult));
     goto exit_with_error;
   }
 
@@ -1088,7 +1086,7 @@ BOOL CreateZBuffer(int w, int h, int driver)
 
   if (hResult != DD_OK)
   {
-    DBERROR(("Failed to get surface description of Z buffer.\n%s", DDErrorToString(hResult)));
+    Neuron::Fatal("Failed to get surface description of Z buffer.\n{}", DDErrorToString(hResult));
     goto exit_with_error;
   }
 
@@ -1096,7 +1094,7 @@ BOOL CreateZBuffer(int w, int h, int driver)
 
   if (g_sD3DGlob.Driver[driver].bIsHardware && !g_sD3DGlob.bZBufferInVideo)
   {
-    DBERROR(("Could not fit the Z-buffer in video memory for this hardware device.\n"));
+    Neuron::Fatal("Could not fit the Z-buffer in video memory for this hardware device.\n");
     goto exit_with_error;
   }
 
@@ -1242,7 +1240,7 @@ LPDDPIXELFORMAT d3d_GetCurTexSurfDesc(void)
 {
   if ((g_sD3DGlob.uwNumTextureFormats == 0) || (g_sD3DGlob.uwCurrTextureFormat > g_sD3DGlob.uwNumTextureFormats))
   {
-    ASSERT((FALSE,"d3d_GetCurTexSurfDesc, Surface not initialised"));
+    ASSERT_TEXT(FALSE,"d3d_GetCurTexSurfDesc, Surface not initialised");
     return nullptr;
   }
   return &g_sD3DGlob.TextureFormat[g_sD3DGlob.uwCurrTextureFormat].ddsd;
@@ -1250,7 +1248,7 @@ LPDDPIXELFORMAT d3d_GetCurTexSurfDesc(void)
 
 LPDIRECT3DDEVICE3 d3d_GetpsD3DDevice3(void)
 {
-  ASSERT((g_sD3DGlob.psD3DDevice3 != NULL,"dx6_GetpsD3DDevice3(), Device not set."));
+  ASSERT_TEXT(g_sD3DGlob.psD3DDevice3 != NULL,"dx6_GetpsD3DDevice3(), Device not set.");
   return g_sD3DGlob.psD3DDevice3;
 }
 
@@ -1283,7 +1281,7 @@ BOOL CreateDevice(int iDriver)
   hResult = g_sD3DGlob.psBack4->lpVtbl->GetSurfaceDesc(g_sD3DGlob.psBack4, &sDDSurfDesc);
   if (hResult != DD_OK)
   {
-    DBERROR(("CreateDevice: GetSurfaceDesc for back buffer failed.\n%s", DDErrorToString(hResult) ));
+    Neuron::Fatal("CreateDevice: GetSurfaceDesc for back buffer failed.\n{}", DDErrorToString(hResult) );
     goto exit_with_error;
   }
 
@@ -1293,7 +1291,7 @@ BOOL CreateDevice(int iDriver)
   /* check back buffer in video memory for hardware rendering */
   if (g_sD3DGlob.Driver[g_sD3DGlob.uwCurrDriver].bIsHardware && !g_sD3DGlob.bBackBufferInVideo)
   {
-    DBERROR(("Back buffer must be in video memory for hardware rendering.\n"));
+    Neuron::Fatal("Back buffer must be in video memory for hardware rendering.\n");
     goto exit_with_error;
   }
 
@@ -1303,7 +1301,7 @@ BOOL CreateDevice(int iDriver)
 
   if (hResult != DD_OK)
   {
-    DBERROR(("Create D3D device failed.\n%s", DDErrorToString(hResult) ));
+    Neuron::Fatal("Create D3D device failed.\n{}", DDErrorToString(hResult) );
     goto exit_with_error;
   }
 
@@ -1337,7 +1335,7 @@ BOOL ChooseDriver(void)
 
   if (hResult != DD_OK)
   {
-    DBERROR(( "ChooseDriver: Error in enumeration of drivers:\n%s", DDErrorToString(hResult)));
+    Neuron::Fatal( "ChooseDriver: Error in enumeration of drivers:\n{}", DDErrorToString(hResult));
 
     return FALSE;
   }
@@ -1393,7 +1391,7 @@ static BOOL CreateViewport(DWORD dwWidth, DWORD dwHeight)
   hResult = g_sD3DGlob.psD3D3->lpVtbl->CreateViewport(g_sD3DGlob.psD3D3, &g_sD3DGlob.psD3DViewport3, nullptr);
   if (hResult != D3D_OK)
   {
-    DBERROR(("Create D3D viewport failed.\n%s", DDErrorToString(hResult)));
+    Neuron::Fatal("Create D3D viewport failed.\n{}", DDErrorToString(hResult));
     goto exit_with_error;
   }
 
@@ -1401,7 +1399,7 @@ static BOOL CreateViewport(DWORD dwWidth, DWORD dwHeight)
   hResult = g_sD3DGlob.psD3DDevice3->lpVtbl->AddViewport(g_sD3DGlob.psD3DDevice3, g_sD3DGlob.psD3DViewport3);
   if (hResult != D3D_OK)
   {
-    DBERROR(("Add D3D viewport failed.\n%s", DDErrorToString(hResult) ));
+    Neuron::Fatal("Add D3D viewport failed.\n{}", DDErrorToString(hResult) );
     goto exit_with_error;
   }
 
@@ -1422,7 +1420,7 @@ static BOOL CreateViewport(DWORD dwWidth, DWORD dwHeight)
   hResult = g_sD3DGlob.psD3DViewport3->lpVtbl->SetViewport2(g_sD3DGlob.psD3DViewport3, &viewData);
   if (hResult != D3D_OK)
   {
-    DBERROR(("SetViewport failed.\n%s", DDErrorToString(hResult) ));
+    Neuron::Fatal("SetViewport failed.\n{}", DDErrorToString(hResult) );
     goto exit_with_error;
   }
 
@@ -1449,7 +1447,7 @@ BOOL CreateMaterial(LPDIRECT3D3 lpD3D, D3DMATERIALHANDLE* hMat, LPDIRECT3DMATERI
   hResult = lpD3D->lpVtbl->CreateMaterial(lpD3D, ppsMat, nullptr);
   if (hResult != DD_OK)
   {
-    DBERROR(("CreateMaterial: Couldn't create material.\n%s", DDErrorToString(hResult)));
+    Neuron::Fatal("CreateMaterial: Couldn't create material.\n{}", DDErrorToString(hResult));
 
     goto exit_with_error;
   }
@@ -1487,7 +1485,7 @@ BOOL CreateMaterial(LPDIRECT3D3 lpD3D, D3DMATERIALHANDLE* hMat, LPDIRECT3DMATERI
   hResult = (*ppsMat)->lpVtbl->SetMaterial((*ppsMat), &sMat);
   if (hResult != DD_OK)
   {
-    DBERROR(("CreateMaterial: Couldn't set material.\n%s", DDErrorToString(hResult)));
+    Neuron::Fatal("CreateMaterial: Couldn't set material.\n{}", DDErrorToString(hResult));
 
     goto exit_with_error;
   }
@@ -1496,7 +1494,7 @@ BOOL CreateMaterial(LPDIRECT3D3 lpD3D, D3DMATERIALHANDLE* hMat, LPDIRECT3DMATERI
   hResult = (*ppsMat)->lpVtbl->GetHandle((*ppsMat), g_sD3DGlob.psD3DDevice3, hMat);
   if (hResult != DD_OK)
   {
-    DBERROR(("CreateMaterial: Couldn't get material handle.\n%s", DDErrorToString(hResult)));
+    Neuron::Fatal("CreateMaterial: Couldn't get material handle.\n{}", DDErrorToString(hResult));
 
     goto exit_with_error;
   }
@@ -1539,7 +1537,7 @@ BOOL rend_InitD3D(void)
     hRes = g_sD3DGlob.psDD4->lpVtbl->QueryInterface(g_sD3DGlob.psDD4, IID_IDirect3D3, (void**)&g_sD3DGlob.psD3D3);
     if (hRes != D3D_OK)
     {
-      DBERROR(("InitD3D: couldn't create Direct3D3 driver object"));
+      Neuron::Fatal("InitD3D: couldn't create Direct3D3 driver object");
       return FALSE;
     }
   }
@@ -1547,7 +1545,7 @@ BOOL rend_InitD3D(void)
   /* get current Windows mode data */
   if (GetWindowsMode() == FALSE)
   {
-    DBERROR(("disp3D_Initialise: Couldn't get WindowsMode.\n"));
+    Neuron::Fatal("disp3D_Initialise: Couldn't get WindowsMode.\n");
 
     goto exit_with_error;
   }

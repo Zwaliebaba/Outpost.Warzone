@@ -296,7 +296,7 @@ VOID changeTitleMode(tMode mode)
   case SHOWINTRO:
     break;
 
-  default: DBERROR(("Unknown title mode requested"));
+  default: Neuron::Fatal("Unknown title mode requested");
     break;
   }
 }
@@ -1669,7 +1669,7 @@ VOID addText(int FontID, UDWORD FormID, UDWORD id, UDWORD PosX, UDWORD PosY, STR
 {
   W_LABINIT sLabInit;
 
-  DBPRINTF(("addText : %s\n",txt));
+  Neuron::DebugTrace("addText : {}\n",txt);
   memset(&sLabInit, 0, sizeof(W_LABINIT));
   sLabInit.formID = FormID;
   sLabInit.id = id;

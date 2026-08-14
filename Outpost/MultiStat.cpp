@@ -245,8 +245,8 @@ VOID useTheForce(BOOL bAddTempl) //Luke
     y = y1;
 
     if (!pickATileGen(&x, &y,LOOK_FOR_EMPTY_TILE, zonedPAT))
-      ASSERT((FALSE, "UseTheForce: Unable to find a free location"));
-    DBPRINTF(("force droid dropping at :%d,%d\n",x,y));
+      ASSERT_TEXT(FALSE, "UseTheForce: Unable to find a free location");
+    Neuron::DebugTrace("force droid dropping at :{},{}\n",x,y);
 
     // copy template
     psTempl = NameToTemplate(Force.pMembers->pTempl->aName, selectedPlayer);
@@ -319,7 +319,7 @@ BOOL saveForce(char* name, FORCE* pfForce)
   pFileHandle = fopen(fileName, "wb"); // open the file
   if (!pFileHandle)
   {
-    DBERROR(("Couldn't open %s", fileName));
+    Neuron::Fatal("Couldn't open {}", fileName);
     return FALSE;
   }
 
@@ -330,7 +330,7 @@ BOOL saveForce(char* name, FORCE* pfForce)
     count++; // count templates
   if (fwrite(&count, sizeof(UDWORD), 1, pFileHandle) != 1)
   {
-    DBERROR(("Write failed for %s", fileName));
+    Neuron::Fatal("Write failed for {}", fileName);
     return FALSE;
   }
 
@@ -339,7 +339,7 @@ BOOL saveForce(char* name, FORCE* pfForce)
     count++; // count droids
   if (fwrite(&count, sizeof(UDWORD), 1, pFileHandle) != 1)
   {
-    DBERROR(("Write failed for %s", fileName));
+    Neuron::Fatal("Write failed for {}", fileName);
     return FALSE;
   }
 
@@ -349,7 +349,7 @@ BOOL saveForce(char* name, FORCE* pfForce)
   {
     if (fwrite(pT, sizeof(DROID_TEMPLATE), 1, pFileHandle) != 1) // template
     {
-      DBERROR(("Write failed for %s", fileName));
+      Neuron::Fatal("Write failed for {}", fileName);
       return FALSE;
     }
     fputc(10, pFileHandle); //seperator.
@@ -360,7 +360,7 @@ BOOL saveForce(char* name, FORCE* pfForce)
   {
     if (fwrite(&(pMember->pTempl->ref), sizeof(pMember->pTempl->ref), 1, pFileHandle) != 1)
     {
-      DBERROR(("Write failed for %s", fileName)); // force type
+      Neuron::Fatal("Write failed for {}", fileName); // force type
       return FALSE;
     }
   }
@@ -370,7 +370,7 @@ BOOL saveForce(char* name, FORCE* pfForce)
   {
     if (fwrite(&(pMember->pTempl->multiPlayerID), sizeof(pMember->pTempl->multiPlayerID), 1, pFileHandle) != 1)
     {
-      DBERROR(("Write failed for %s", fileName)); // force type
+      Neuron::Fatal("Write failed for {}", fileName); // force type
       return FALSE;
     }
   }
@@ -378,7 +378,7 @@ BOOL saveForce(char* name, FORCE* pfForce)
 
   if (fclose(pFileHandle) != 0)
   {
-    DBERROR(("Close failed for %s", fileName));
+    Neuron::Fatal("Close failed for {}", fileName);
     return FALSE;
   }
   return TRUE;
@@ -410,14 +410,14 @@ BOOL loadForce(char* name)
   // load in new force.
   if (fread(&tcount, sizeof(UDWORD), 1, pFileHandle) != 1) // get number of templates
   {
-    DBERROR(("Read failed for %s", fileName));
+    Neuron::Fatal("Read failed for {}", fileName);
     fclose(pFileHandle);
     return FALSE;
   }
 
   if (fread(&fcount, sizeof(UDWORD), 1, pFileHandle) != 1) // get number of droids in force	
   {
-    DBERROR(("read failed for %s", fileName));
+    Neuron::Fatal("read failed for {}", fileName);
     fclose(pFileHandle);
     return FALSE;
   }
@@ -429,12 +429,12 @@ BOOL loadForce(char* name)
     psTempl = new (std::nothrow) DROID_TEMPLATE;
     if (psTempl == NULL) //!HEAP_ALLOC(psTemplateHeap, &psTempl))
     {
-      DBERROR(("Couldn't allocate template for %s", fileName));
+      Neuron::Fatal("Couldn't allocate template for {}", fileName);
       return FALSE;
     }
     if (fread(psTempl, sizeof(DROID_TEMPLATE), 1, pFileHandle) != 1) // read in a template.		
     {
-      DBERROR(("read failed for %s", fileName));
+      Neuron::Fatal("read failed for {}", fileName);
       fclose(pFileHandle);
       return FALSE;
     }
@@ -446,7 +446,7 @@ BOOL loadForce(char* name)
   {
     if (fread(&ref, sizeof(ref), 1, pFileHandle) != 1) // read in a template ref code.
     {
-      DBERROR(("read failed for %s", fileName));
+      Neuron::Fatal("read failed for {}", fileName);
       fclose(pFileHandle);
       return FALSE;
     }
@@ -456,7 +456,7 @@ BOOL loadForce(char* name)
 
     if (!psTempl)
     {
-      DBERROR(("failed to load. invalid file."));
+      Neuron::Fatal("failed to load. invalid file.");
       fclose(pFileHandle);
       return FALSE;
     }
@@ -469,7 +469,7 @@ BOOL loadForce(char* name)
   {
     if (fread(&ref, sizeof(ref), 1, pFileHandle) != 1) // read in a template ref code.
     {
-      DBERROR(("read failed for %s", fileName));
+      Neuron::Fatal("read failed for {}", fileName);
       fclose(pFileHandle);
       return FALSE;
     }
@@ -482,7 +482,7 @@ BOOL loadForce(char* name)
 
   if (fclose(pFileHandle) != 0)
   {
-    DBERROR(("Close failed for %s", fileName));
+    Neuron::Fatal("Close failed for {}", fileName);
     return FALSE;
   }
   return TRUE;

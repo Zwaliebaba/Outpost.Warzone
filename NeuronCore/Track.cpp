@@ -39,7 +39,7 @@ BOOL sound_CheckDevice(void)
   /* check wave out device(s) present */
   if (waveOutGetNumDevs() == 0)
   {
-    DBPRINTF(("sound_CheckDevice: error in waveOutGetNumDevs\n"));
+    Neuron::DebugTrace("sound_CheckDevice: error in waveOutGetNumDevs\n");
     return FALSE;
   }
 
@@ -47,14 +47,14 @@ BOOL sound_CheckDevice(void)
   mmRes = waveOutGetDevCaps(0, &waveCaps, sizeof(WAVEOUTCAPS));
   if (mmRes != MMSYSERR_NOERROR)
   {
-    DBPRINTF(("sound_CheckDevice: error in waveOutGetDevCaps\n"));
+    Neuron::DebugTrace("sound_CheckDevice: error in waveOutGetDevCaps\n");
     return FALSE;
   }
 
   /* verify device supports volume changes */
   if (waveCaps.dwSupport & WAVECAPS_VOLUME)
     return TRUE;
-  DBPRINTF(("sound_CheckDevice: wave out device doesn't support volume changes\n"));
+  Neuron::DebugTrace("sound_CheckDevice: wave out device doesn't support volume changes\n");
   return FALSE;
 }
 
@@ -80,18 +80,18 @@ BOOL sound_Init(HWND hWnd, SDWORD iMaxSameSamples)
   {
     FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(),
                   MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&lpMsgBuf, 0, NULL);
-    DBPRINTF(("sound_Init: couldn't load compression manager MSACM32.DLL\n"));
+    Neuron::DebugTrace("sound_Init: couldn't load compression manager MSACM32.DLL\n");
   } if (!LoadLibrary("MSADP32.ACM"))
   {
     FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(),
                   MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&lpMsgBuf, 0, NULL);
-    DBPRINTF(("sound_Init: couldn't load ADPCM codec MSADP32.ACM\n"));
+    Neuron::DebugTrace("sound_Init: couldn't load ADPCM codec MSADP32.ACM\n");
   }
 #endif
 
   if (sound_InitLibrary() == FALSE)
   {
-    DBPRINTF(("Cannot init sound library\n"));
+    Neuron::DebugTrace("Cannot init sound library\n");
     return FALSE;
   }
 
@@ -134,14 +134,14 @@ BOOL sound_GetSystemActive(void) { return g_bSystemActive; }
 
 BOOL sound_SetTrackVals(TRACK* psTrack, BOOL bLoop, SDWORD iTrack, SDWORD iVol, SDWORD iPriority, SDWORD iAudibleRadius, SDWORD VagID)
 {
-  ASSERT((iPriority>=LOW_PRIORITY && iPriority<=HIGH_PRIORITY, "sound_CreateTrack: priority %i out of bounds\n", iPriority));
+  ASSERT_TEXT(iPriority>=LOW_PRIORITY && iPriority<=HIGH_PRIORITY, "sound_CreateTrack: priority {} out of bounds\n", iPriority);
 
   /* add to sound array */
   if (iTrack < MAX_TRACKS)
   {
     if (g_apTrack[iTrack] != nullptr)
     {
-      DBERROR(("sound_SetTrackVals: track %i already set\n", iTrack ));
+      Neuron::Fatal("sound_SetTrackVals: track {} already set\n", iTrack );
       return FALSE;
     }
 
@@ -182,7 +182,7 @@ BOOL sound_AddTrack(TRACK* pTrack)
 
     return TRUE;
   }
-  DBERROR(("sound_AddTrack: all tracks used: increase MAX_TRACKS\n"));
+  Neuron::Fatal("sound_AddTrack: all tracks used: increase MAX_TRACKS\n");
   return FALSE;
 }
 
@@ -197,14 +197,14 @@ void* sound_LoadTrackFromBuffer(UBYTE* pBuffer, UDWORD udwSize)
 
   if (pTrack == nullptr)
   {
-    DBERROR(("sound_LoadTrackFromBuffer: couldn't allocate memory\n"));
+    Neuron::Fatal("sound_LoadTrackFromBuffer: couldn't allocate memory\n");
     return nullptr;
   }
   pTrack->bMemBuffer = TRUE;
   pTrack->pName = new (std::nothrow) STRING[strlen(GetLastResourceFilename()) + 1];
   if (pTrack->pName == nullptr)
   {
-    DBERROR(("sound_LoadTrackFromBuffer: couldn't allocate memory\n"));
+    Neuron::Fatal("sound_LoadTrackFromBuffer: couldn't allocate memory\n");
     delete[] pTrack;
     pTrack = nullptr;
     return nullptr;
@@ -216,7 +216,7 @@ void* sound_LoadTrackFromBuffer(UBYTE* pBuffer, UDWORD udwSize)
     return nullptr;
 #if !USE_COMPRESSED_SPEECH
   /* flag compressed audio load */
-  if (pTrack->bCompressed == TRUE) { DBPRINTF(("sound_LoadTrackFromBuffer: %s is compressed!\n", pTrack->pName )); }
+  if (pTrack->bCompressed == TRUE) { Neuron::DebugTrace("sound_LoadTrackFromBuffer: {} is compressed!\n", pTrack->pName ); }
 #endif
   return pTrack;
 }
@@ -236,7 +236,7 @@ BOOL sound_LoadTrackFromFile(char szFileName[])
     pTrack->pName = new (std::nothrow) STRING[strlen(szFileName)+1];
     if (pTrack->pName == nullptr)
     {
-      DBERROR(("sound_LoadTrackFromFile: Out of memory"));
+      Neuron::Fatal("sound_LoadTrackFromFile: Out of memory");
       return FALSE;
     }
     strcpy(pTrack->pName, szFileName);
@@ -278,7 +278,7 @@ void sound_CheckAllUnloaded(void)
 
   for (iTrack = 0; iTrack < MAX_TRACKS; iTrack++)
   {
-    ASSERT((g_apTrack[iTrack] == NULL, "sound_CheckAllUnloaded: check audio.cfg for duplicate IDs\n"));
+    ASSERT_TEXT(g_apTrack[iTrack] == NULL, "sound_CheckAllUnloaded: check audio.cfg for duplicate IDs\n");
   }
 }
 
@@ -313,8 +313,8 @@ SDWORD sound_GetNumPlaying(SDWORD iTrack)
 
 void sound_CheckSample(AUDIO_SAMPLE* psSample)
 {
-  ASSERT(( psSample->iSample >=0 ||
-    psSample->iSample == SAMPLE_NOT_ALLOCATED, "sound_CheckSample: sample %i out of range\n", psSample->iSample ));
+  ASSERT_TEXT(psSample->iSample >=0 ||
+    psSample->iSample == SAMPLE_NOT_ALLOCATED, "sound_CheckSample: sample {} out of range\n", psSample->iSample );
 
   psSample;
 }
@@ -325,13 +325,13 @@ BOOL sound_CheckTrack(SDWORD iTrack)
 {
   if (iTrack < 0 || iTrack > g_iCurTracks - 1)
   {
-    DBPRINTF(("sound_CheckTrack: track number %i outside max %i\n", iTrack, g_iCurTracks));
+    Neuron::DebugTrace("sound_CheckTrack: track number {} outside max {}\n", iTrack, g_iCurTracks);
     return FALSE;
   }
 
   if (g_apTrack[iTrack] == nullptr)
   {
-    DBPRINTF(("sound_CheckTrack: track %i NULL\n", iTrack));
+    Neuron::DebugTrace("sound_CheckTrack: track {} NULL\n", iTrack);
     return FALSE;
   }
 
@@ -378,7 +378,7 @@ SDWORD sound_GetTrackAudibleRadius(SDWORD iTrack)
 
 char* sound_GetTrackName(SDWORD iTrack)
 {
-  ASSERT((g_apTrack[iTrack] != NULL, "sound_GetTrackName: unallocated track"));
+  ASSERT_TEXT(g_apTrack[iTrack] != NULL, "sound_GetTrackName: unallocated track");
   return g_apTrack[iTrack]->pName;
 }
 
@@ -386,7 +386,7 @@ char* sound_GetTrackName(SDWORD iTrack)
 
 UDWORD sound_GetTrackHashName(SDWORD iTrack)
 {
-  ASSERT((g_apTrack[iTrack] != NULL, "sound_GetTrackName: unallocated track"));
+  ASSERT_TEXT(g_apTrack[iTrack] != NULL, "sound_GetTrackName: unallocated track");
   return g_apTrack[iTrack]->resID;
 }
 
@@ -402,17 +402,17 @@ BOOL sound_Play2DTrack(AUDIO_SAMPLE* psSample, BOOL bQueued)
 #if USE_COMPRESSED_SPEECH
   if (bQueued && !psTrack->bCompressed)
   {
-    DBPRINTF(("sound_PlayTrack: trying to play uncompressed speech %s!\n", psTrack->pName));
+    Neuron::DebugTrace("sound_PlayTrack: trying to play uncompressed speech {}!\n", psTrack->pName);
     return FALSE;
   } if (!bQueued && psTrack->bCompressed)
   {
-    DBPRINTF(("sound_PlayTrack: trying to play compressed audio %s!\n", psTrack->pName));
+    Neuron::DebugTrace("sound_PlayTrack: trying to play compressed audio {}!\n", psTrack->pName);
     return FALSE;
   }
 #else
   if (psTrack->bCompressed)
   {
-    DBPRINTF(("sound_PlayTrack: trying to play compressed speech %s!\n", psTrack->pName));
+    Neuron::DebugTrace("sound_PlayTrack: trying to play compressed speech {}!\n", psTrack->pName);
     return FALSE;
   }
 #endif
@@ -430,7 +430,7 @@ BOOL sound_Play3DTrack(AUDIO_SAMPLE* psSample)
 
   if (psTrack->bCompressed)
   {
-    DBPRINTF(("sound_PlayTrack: trying to play compressed audio %s!\n", psTrack->pName));
+    Neuron::DebugTrace("sound_PlayTrack: trying to play compressed audio {}!\n", psTrack->pName);
     return FALSE;
   }
 
@@ -510,7 +510,7 @@ SDWORD sound_GetAvailableID(void)
       break;
   }
 
-  ASSERT((i<MAX_TRACKS, "sound_GetTrackID: unused track not found!\n"));
+  ASSERT_TEXT(i<MAX_TRACKS, "sound_GetTrackID: unused track not found!\n");
 
   if (i < MAX_TRACKS)
     return i;
@@ -531,7 +531,7 @@ SDWORD sound_GetGlobalVolume(void)
     if (mmRes == MMSYSERR_NOERROR)
       iGlobVol = static_cast<SDWORD>(LOWORD(iVol)) * AUDIO_VOL_MAX / 0xFFFF;
     else
-      DBPRINTF(("sound_GetGlobalVolume: waveOutGetVolume failed\n"));
+      Neuron::DebugTrace("sound_GetGlobalVolume: waveOutGetVolume failed\n");
   }
 
   return iGlobVol;
@@ -551,7 +551,7 @@ void sound_SetGlobalVolume(SDWORD iVol)
 
     mmRes = waveOutSetVolume(nullptr, iNewVol);
     if (mmRes != MMSYSERR_NOERROR)
-      DBPRINTF(("sound_GetGlobalVolume: waveOutSetVolume failed\n"));
+      Neuron::DebugTrace("sound_GetGlobalVolume: waveOutSetVolume failed\n");
   }
 }
 

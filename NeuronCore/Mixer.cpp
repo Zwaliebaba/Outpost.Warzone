@@ -26,14 +26,14 @@ static BOOL mixer_GetVolumeControlID(DWORD dwComponentType, DWORD* pdwControlID,
   mixerLine.dwComponentType = dwComponentType;
   if ((mmRes = mixerGetLineInfo((HMIXEROBJ)g_hMixer, &mixerLine, MIXER_GETLINEINFOF_COMPONENTTYPE)) != MMSYSERR_NOERROR)
   {
-    DBPRINTF(("mixer_GetVolumeControlID: mixerGetLineInfo failed\n "));
+    Neuron::DebugTrace("mixer_GetVolumeControlID: mixerGetLineInfo failed\n ");
     return FALSE;
   }
   /* allocate control space */
   aMixerControl = new (std::nothrow) MIXERCONTROL[mixerLine.cControls];
   if (aMixerControl == nullptr)
   {
-    DBPRINTF(("mixer_GetVolumeControlID: malloc failed\n "));
+    Neuron::DebugTrace("mixer_GetVolumeControlID: malloc failed\n ");
     return FALSE;
   }
 
@@ -46,7 +46,7 @@ static BOOL mixer_GetVolumeControlID(DWORD dwComponentType, DWORD* pdwControlID,
   mixerLineControls.pamxctrl = aMixerControl;
   if ((mmRes = mixerGetLineControls((HMIXEROBJ)g_hMixer, &mixerLineControls, MIXER_GETLINECONTROLSF_ALL)) != MMSYSERR_NOERROR)
   {
-    DBPRINTF(("mixer_GetVolumeControlID: mixerGetLineControls failed\n "));
+    Neuron::DebugTrace("mixer_GetVolumeControlID: mixerGetLineControls failed\n ");
     return FALSE;
   }
   /* find volume channel */
@@ -111,14 +111,14 @@ BOOL mixer_Open(void)
 
   if ((mmRes = mixerGetDevCaps(0, &mixerCaps, sizeof(MIXERCAPS))) != MMSYSERR_NOERROR)
   {
-    DBPRINTF(("mixer_Open: mixerGetDevCaps failed\n "));
+    Neuron::DebugTrace("mixer_Open: mixerGetDevCaps failed\n ");
     return FALSE;
   }
 
   /* open mixer */
   if ((mmRes = mixerOpen(&g_hMixer, 0, 0, 0, MIXER_OBJECTF_MIXER)) != MMSYSERR_NOERROR)
   {
-    DBPRINTF(("mixer_Open: mixerOpen failed\n "));
+    Neuron::DebugTrace("mixer_Open: mixerOpen failed\n ");
     return FALSE;
   }
 
@@ -129,7 +129,7 @@ BOOL mixer_Open(void)
   /* check volume controls found */
   if (bMixerOK == FALSE)
   {
-    DBPRINTF(("mixer_Open: couldn't get mixer controls\n "));
+    Neuron::DebugTrace("mixer_Open: couldn't get mixer controls\n ");
     mixerClose(g_hMixer);
     return FALSE;
   }
@@ -186,7 +186,7 @@ static void mixer_SetVolume(DWORD dwControlID, DWORD iVolRange, SDWORD iVol)
 
   if (bMixerOK == TRUE)
   {
-    ASSERT((iVol>=0 && iVol<=AUDIO_VOL_MAX, "mixer_SetVolume: vol %i out of range 0->100", iVol ));
+    ASSERT_TEXT(iVol>=0 && iVol<=AUDIO_VOL_MAX, "mixer_SetVolume: vol {} out of range 0->100", iVol );
 
     /* scale audio 0->AUDIO_VOL_MAX-1 */
     mxCntrlDetUnSigned.dwValue = iVol * iVolRange / AUDIO_VOL_MAX;

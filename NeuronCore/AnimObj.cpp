@@ -122,7 +122,7 @@ void animObj_Update(void)
     if (bRemove == TRUE)
     {
       if (hashTable_RemoveElement(g_pAnimObjTable, psObj, (int)psObj->psParent, psObj->psAnim->uwID) == FALSE)
-        DBERROR(("animObj_Update: couldn't remove anim obj\n"));
+        Neuron::Fatal("animObj_Update: couldn't remove anim obj\n");
     }
 
     psObj = static_cast<ANIM_OBJECT*>(hashTable_GetNext(g_pAnimObjTable));
@@ -143,14 +143,14 @@ ANIM_OBJECT* animObj_Add(void* pParentObj, int iAnimID, UDWORD udwStartDelay, UW
   BASEANIM* psAnim = anim_GetAnim(static_cast<UWORD>(iAnimID));
   UWORD i, uwObj;
 
-  ASSERT((psAnim != NULL, "anim_AddAnimObject: anim id %i not found\n", iAnimID ));
+  ASSERT_TEXT(psAnim != NULL, "anim_AddAnimObject: anim id {} not found\n", iAnimID );
 
   /* get object from table */
   psObj = static_cast<ANIM_OBJECT*>(hashTable_GetElement(g_pAnimObjTable));
 
   if (psObj == nullptr)
   {
-    DBERROR(("animObj_Add: No room in hash table\n"));
+    Neuron::Fatal("animObj_Add: No room in hash table\n");
     return (nullptr);
   }
 
@@ -171,7 +171,7 @@ ANIM_OBJECT* animObj_Add(void* pParentObj, int iAnimID, UDWORD udwStartDelay, UW
     uwObj = psAnim->uwStates;
 
   if (uwObj > ANIM_MAX_COMPONENTS)
-    DBERROR(("animObj_Add: number of components too small\n"));
+    Neuron::Fatal("animObj_Add: number of components too small\n");
 
   /* set parent pointer and shape pointer */
   for (i = 0; i < uwObj; i++)

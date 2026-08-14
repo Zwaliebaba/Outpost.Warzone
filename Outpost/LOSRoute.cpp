@@ -150,8 +150,8 @@ void fpathPointsToHugDir(SDWORD clearx, SDWORD cleary, SDWORD obstx, SDWORD obst
   xdiff = (obstx >> TILE_SHIFT) - (clearx >> TILE_SHIFT);
   ydiff = (obsty >> TILE_SHIFT) - (cleary >> TILE_SHIFT);
 
-  ASSERT(((xdiff >= -1 && xdiff <= 1 && ydiff >= -1 && ydiff <= 1), "fpathPointsToHugDir: points are more than one tile apart"));
-  ASSERT((xdiff != 0 || ydiff != 0, "fpathPointsToHugDir: points are on same tile"));
+  ASSERT_TEXT((xdiff >= -1 && xdiff <= 1 && ydiff >= -1 && ydiff <= 1), "fpathPointsToHugDir: points are more than one tile apart");
+  ASSERT_TEXT(xdiff != 0 || ydiff != 0, "fpathPointsToHugDir: points are on same tile");
 
   // not the most elegant solution but it works
   switch (xdiff + ydiff * 10)
@@ -188,7 +188,7 @@ void fpathPointsToHugDir(SDWORD clearx, SDWORD cleary, SDWORD obstx, SDWORD obst
     leftDir = 3;
     rightDir = 0;
     break;
-  default: ASSERT((FALSE, "fpathPointsToHugDir: unexpected point relationship"));
+  default: ASSERT_TEXT(FALSE, "fpathPointsToHugDir: unexpected point relationship");
     leftDir = 0;
     rightDir = 2;
     break;
@@ -272,7 +272,7 @@ BOOL fpathObstructionCallback(SDWORD x, SDWORD y, SDWORD dist)
       }
       else
       {
-        ASSERT((FALSE, "fpathObstructionCallback: out of near points"));
+        ASSERT_TEXT(FALSE, "fpathObstructionCallback: out of near points");
         return FALSE;
       }
     }
@@ -301,12 +301,12 @@ BOOL fpathObstructionCallback(SDWORD x, SDWORD y, SDWORD dist)
       }
       else
       {
-        ASSERT((FALSE, "fpathObstructionCallback: out of far points"));
+        ASSERT_TEXT(FALSE, "fpathObstructionCallback: out of far points");
         return FALSE;
       }
     }
     break;
-  default: ASSERT((FALSE,"fpathObstructionCallback: unknown state"));
+  default: ASSERT_TEXT(FALSE,"fpathObstructionCallback: unknown state");
     break;
   }
 
@@ -381,7 +381,7 @@ BOOL fpathTileLOSCallback(SDWORD x, SDWORD y, SDWORD dist)
       cont = FALSE;
     }
     break;
-  default: ASSERT((FALSE,"fpathTileLOSCallback: unknown state"));
+  default: ASSERT_TEXT(FALSE,"fpathTileLOSCallback: unknown state");
     break;
   }
 
@@ -484,7 +484,6 @@ static BOOL fpathWallHug(SDWORD sx, SDWORD sy, // start pos
     if (!fpathNextHugDir(x, y, &dir, hugDir))
     {
       // we are in a location totally surrounded by blocking tiles
-      DBP0(("wallHug: surrounded location\n"));
       goto exit_error;
     }
 
@@ -497,7 +496,6 @@ static BOOL fpathWallHug(SDWORD sx, SDWORD sy, // start pos
     // there might be a dead end one tile wide
     if (x == sx && y == sy)
     {
-      DBP0(("wallHug: revisited start\n"));
       goto exit_error;
     }
     /*		for(i=0; i<numPoints; i++)
@@ -522,11 +520,10 @@ static BOOL fpathWallHug(SDWORD sx, SDWORD sy, // start pos
     }
     else
     {
-      DBP0(("wallHug: out of points\n"));
       goto exit_error;
     }
 
-    ASSERT((!fpathBlockingTile(x,y), "fpathWallHug: wall hugged onto a blocking tile"));
+    ASSERT_TEXT(!fpathBlockingTile(x,y), "fpathWallHug: wall hugged onto a blocking tile");
 
     // see if the route has got to a finish point
     for (i = 0; i < farPoints; i++)
@@ -593,7 +590,7 @@ SDWORD fpathHugDistance(SDWORD sx, SDWORD sy, SDWORD fx, SDWORD fy, FP_POINT* as
   SDWORD lastIndex = numPoints;
 #endif
 
-  ASSERT((numPoints != 0, "fpathHugDistance: no points to optimise"));
+  ASSERT_TEXT(numPoints != 0, "fpathHugDistance: no points to optimise");
 
   raySX = fx;
   raySY = fy;
@@ -640,7 +637,7 @@ SDWORD fpathHugDistance(SDWORD sx, SDWORD sy, SDWORD fx, SDWORD fy, FP_POINT* as
     if (losFailed)
     {
 #ifdef DEBUG
-      ASSERT((lastIndex != search, "fpathHugDist: LOS failed for neighbouring tile"));
+      ASSERT_TEXT(lastIndex != search, "fpathHugDist: LOS failed for neighbouring tile");
       lastIndex = search;
 #endif
       // move the start of the ray to the previous point then continue
@@ -698,7 +695,7 @@ void fpathOptimiseRoute(SDWORD sx, SDWORD sy, SDWORD fx, SDWORD fy, FP_POINT* as
   SDWORD lastIndex = *pNumPoints;
 #endif
 
-  ASSERT((*pNumPoints != 0, "fpathOptimiseRoute: no points to optimise"));
+  ASSERT_TEXT(*pNumPoints != 0, "fpathOptimiseRoute: no points to optimise");
 
   raySX = fx;
   raySY = fy;
@@ -751,7 +748,7 @@ void fpathOptimiseRoute(SDWORD sx, SDWORD sy, SDWORD fx, SDWORD fy, FP_POINT* as
     if (losFailed)
     {
 #ifdef DEBUG
-      ASSERT((lastIndex != search, "fpathOptimiseRoute: LOS failed for neighbouring tile"));
+      ASSERT_TEXT(lastIndex != search, "fpathOptimiseRoute: LOS failed for neighbouring tile");
       lastIndex = search;
 #endif
       // store the previous point (there was LOS for it)

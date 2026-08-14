@@ -247,7 +247,6 @@ static int fprintf(FILE* f, char* c, ...) { return 0; }
 
 #include <string.h>
 #include "Types.h"
-#include "LegacyDebug.h"
 #include "Treap.h"
 #include "StrRes.h"
 #include "StrResLY.h"
@@ -873,7 +872,7 @@ void strresGetErrorData(int* pLine, char** ppText)
 int strres_wrap(void)
 {
   if (inComment)
-    DBERROR(("Warning: reched end of file in a comment"));
+    Neuron::Fatal("Warning: reched end of file in a comment");
 
   return 1;
 }

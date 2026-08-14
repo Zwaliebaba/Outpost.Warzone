@@ -71,7 +71,7 @@ BSPNodeTable[iV_IMD_MAX_POLYS];iIMDPoly* BSPPolyTable[iV_IMD_MAX_POLYS];void Out
 
     if (Triangle->flags & iV_IMD_TEXANIM)
     {
-      if (Triangle->pTexAnim == NULL) { DBPRINTF(("No TexAnim pointer!\n")); }
+      if (Triangle->pTexAnim == NULL) { Neuron::DebugTrace("No TexAnim pointer!\n"); }
       else
       {
         fprintf(fp, " %d %d %d %d", Triangle->pTexAnim->nFrames, Triangle->pTexAnim->playbackRate, Triangle->pTexAnim->textureWidth,

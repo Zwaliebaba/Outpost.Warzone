@@ -31,7 +31,7 @@ BOOL editBoxCreate(W_EDITBOX** ppsWidget, W_EDBINIT* psInit)
 {
   if (psInit->style & ~(WEDB_PLAIN | WIDG_HIDDEN | WEDB_DISABLED))
   {
-    ASSERT((FALSE, "Unknown edit box style"));
+    ASSERT_TEXT(FALSE, "Unknown edit box style");
     return FALSE;
   }
 
@@ -39,7 +39,7 @@ BOOL editBoxCreate(W_EDITBOX** ppsWidget, W_EDBINIT* psInit)
   *ppsWidget = new (std::nothrow) W_EDITBOX;
   if (*ppsWidget == nullptr)
   {
-    ASSERT((FALSE, "Out of memory"));
+    ASSERT_TEXT(FALSE, "Out of memory");
     return FALSE;
   }
 
@@ -97,7 +97,7 @@ static void insertChar(STRING* pBuffer, UDWORD* pPos, STRING ch)
   STRING *pSrc, *pDest;
   UDWORD len, count;
 
-  ASSERT((*pPos <= strlen(pBuffer), "insertChar: Invalid insertion point"));
+  ASSERT_TEXT(*pPos <= strlen(pBuffer), "insertChar: Invalid insertion point");
 
   len = strlen(pBuffer);
 
@@ -126,7 +126,7 @@ static void overwriteChar(STRING* pBuffer, UDWORD* pPos, STRING ch)
   STRING* pDest;
   UDWORD len;
 
-  ASSERT((*pPos <= strlen(pBuffer), "insertChar: Invalid insertion point"));
+  ASSERT_TEXT(*pPos <= strlen(pBuffer), "insertChar: Invalid insertion point");
 
   len = strlen(pBuffer);
 
@@ -156,7 +156,7 @@ static void delCharLeft(STRING* pBuffer, UDWORD* pPos)
   STRING *pSrc, *pDest;
   UDWORD len, count;
 
-  ASSERT((*pPos <= strlen(pBuffer), "delCharLeft: Invalid insertion point"));
+  ASSERT_TEXT(*pPos <= strlen(pBuffer), "delCharLeft: Invalid insertion point");
 
   /* Can't delete if we are at the start of the string */
   if (*pPos == 0)
@@ -180,7 +180,7 @@ static void delCharRight(STRING* pBuffer, UDWORD* pPos)
   STRING *pSrc, *pDest;
   UDWORD len, count;
 
-  ASSERT((*pPos <= strlen(pBuffer), "delCharLeft: Invalid insertion point"));
+  ASSERT_TEXT(*pPos <= strlen(pBuffer), "delCharLeft: Invalid insertion point");
 
   len = strlen(pBuffer);
 
@@ -485,7 +485,7 @@ void editBoxClicked(W_EDITBOX* psWidget, W_CONTEXT* psContext)
 /* Respond to loss of focus */
 void editBoxFocusLost(W_EDITBOX* psWidget)
 {
-  ASSERT(( !(psWidget->state & WEDBS_DISABLE), "editBoxFocusLost: disabled edit box"));
+  ASSERT_TEXT(!(psWidget->state & WEDBS_DISABLE), "editBoxFocusLost: disabled edit box");
 
   /* Stop editing the widget */
   psWidget->state = WEDBS_FIXED;

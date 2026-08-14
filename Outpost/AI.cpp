@@ -261,7 +261,7 @@ BOOL aiChooseTarget(BASE_OBJECT* psObj, BASE_OBJECT** ppsTarget)
   else if (psObj->type == OBJ_STRUCTURE)
   {
     //ASSERT((((STRUCTURE *)psObj)->numWeaps > 0,
-    ASSERT((((STRUCTURE *)psObj)->asWeaps[0].nStat > 0, "aiChooseTarget: no weapons on structure"));
+    ASSERT_TEXT(((STRUCTURE *)psObj)->asWeaps[0].nStat > 0, "aiChooseTarget: no weapons on structure");
     psWStats = ((STRUCTURE*)psObj)->asWeaps[0].nStat + asWeaponStats;
 
     // see if there is a target from the command droids
@@ -629,7 +629,6 @@ void aiUpdateDroid(DROID* psDroid)
       orderDroidObj(psDroid, DORDER_OBSERVE, psTarget);
     else
       orderDroidObj(psDroid, DORDER_ATTACKTARGET, psTarget);
-    DBP1(("Unit(%s) attacking : %d\n", psDroid->pName, psTarget->id));
     turnOffMultiMsg(FALSE);
   }
 }

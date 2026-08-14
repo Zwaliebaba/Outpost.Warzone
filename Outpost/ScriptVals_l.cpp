@@ -921,6 +921,6 @@ void scrvGetErrorData(int* pLine, char** ppText)
 int scrv_wrap(void)
 {
   if (inComment)
-    DBERROR(("Warning: reched end of file in a comment"));
+    Neuron::Fatal("Warning: reched end of file in a comment");
   return 1;
 }
