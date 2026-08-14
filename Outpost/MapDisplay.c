@@ -21,6 +21,7 @@
 #include "piemode.h"
 #include "pietexture.h"
 #include "pieMatrix.h"
+#include "rendmode.h"
 
 #include "Map.h"
 #include "MapDisplay.h"

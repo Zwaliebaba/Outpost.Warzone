@@ -21,6 +21,7 @@
 /* Includes direct access to render library */
 #include "piedef.h"
 #include "pieState.h"
+#include "rendmode.h"
 
 
 #include "Display3d.h"

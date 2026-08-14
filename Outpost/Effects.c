@@ -40,6 +40,7 @@
 #include "Lighting.h"
 #include "Console.h"
 #include "Loop.h"
+#include "rendmode.h"
 #include "MultiPlay.h"
 
 #include "Game.h"
