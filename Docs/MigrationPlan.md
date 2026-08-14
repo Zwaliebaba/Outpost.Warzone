@@ -91,10 +91,11 @@ Rename `.c` → `.cpp` (via `git mv`, preserving history) and fix **only**
 compile errors. No refactoring and no behaviour change in this phase; that is
 what keeps the diff reviewable and verification trivial.
 
-**Status: complete.** All 207 units are `.cpp` and both projects build as C++.
-The work was staged so that every commit before the rename remained valid C,
-which kept the Win32 CI builds green throughout and made each step
-independently verifiable. What it took, roughly in order of size:
+**Status: complete and verified.** All 207 units are `.cpp`, and both Win32
+configurations compile and link under MSVC. Every commit up to the rename kept
+the sources valid C, so CI stayed green through that half and each step was
+independently verifiable; the rename and the commits after it were red until
+the conversion finished. What it took, roughly in order of size:
 
 - **`typedef signed char STRING` was the dominant issue.** Because
   `signed char*` and `char*` are distinct types in C++, this one typedef
@@ -144,6 +145,31 @@ holds a single character. Both were preserved and merely typed correctly.
 `CINTERFACE` is defined for both projects, which keeps the roughly 270 legacy
 `lpVtbl` COM call sites compiling untouched. They are rewritten against
 Direct3D 9 in Phase 2 rather than converted twice.
+
+### What only the real build could find
+
+The cross-check cleared the tree three times before MSVC agreed, each time for
+a reason it could not have seen. These are worth remembering, because Phase 2
+faces the same asymmetry:
+
+- **`__STDC__`.** The generated lexers gate their prototypes on it. GCC must
+  define it; MSVC does not without `/Za`, so `YY_ARGS` collapsed to `()` and
+  every call to `res_error` and its siblings failed. GCC always took the other
+  branch.
+- **Implicit `int`.** GCC accepts `extern foo(void);` in C++ silently, without
+  even a warning. MSVC rejects it. No flag closes the gap, so the harness
+  gained a textual scan for that shape.
+- **Linking.** The largest class by far, and one the cross-check cannot reach
+  at all, having no linker. C merged a global written without `extern` in a
+  header, or the same file-scope definition repeated in two sources, into a
+  single common symbol; C++ makes each a real definition. That covered
+  `psActiveBullets`, `titleMode`, `hWndMain`, `mX`/`mY`, the drag-box `POINT`
+  scratch, the four generated parsers' shared `yy*` state, and a stray
+  `LTOKEN_TYPE` variable left by a missing `typedef`.
+
+Name mangling also exposed two mismatches that C had been linking happily for
+years: `buildTime` defined `UBYTE[9]` and declared `char[8]`, and
+`intAddTemplateButtons` called with eight arguments against seven parameters.
 
 ## Phase 2 — Direct3D 9 graphics
 
@@ -352,12 +378,12 @@ Mplayer and WINSTR are 32-bit MSVC binaries). It reliably catches the portable
 C++ issues, which is what Phase 1 is about, but a real `msbuild` remains the
 final word.
 
-One caveat specific to this proxy: mingw's libstdc++ undefines the Windows
-`min`/`max` macros in C++ via `c++config.h`, while MSVC's `windef.h` defines
-them regardless of language. The handful of `min`/`max` diagnostics the
-cross-check still reports are therefore an artefact of the toolchain, not a
-property of the code.
+mingw's libstdc++ undefines the Windows `min`/`max` macros in C++ via
+`c++config.h`, while MSVC's `windef.h` defines them regardless of language.
+The shadow re-defines them in `Frame.h`, which every unit includes and which
+comes after the system headers, so the cross-check matches MSVC.
 
-Current state: **202 of 207 units clean under the cross-check**, the remainder
-failing only on that `min`/`max` artefact. The Win32 CI builds are the
-authority.
+Current state: **207 of 207 units clean under the cross-check**, and both
+Win32 CI builds green. Treat the cross-check as a fast first pass, not a
+verdict: it is a different compiler, it cannot link, and the section above
+lists what that costs. The CI builds remain the authority.
