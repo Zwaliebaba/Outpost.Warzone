@@ -267,7 +267,6 @@ UDWORD	tilesProcessed;
 unsigned char	*tileStorage;
 unsigned char	*presentLoc;
 iSprite	sprite;
-SDWORD  index;
 	//check enough pages are allocated
 
 	/* Get enough memory to store one tile */
@@ -300,34 +299,15 @@ SDWORD  index;
 			/* Have we got all the tiles from the source!? */
 			if((tilesProcessed == tilesPerSource))// || (tileStorage[0] == 0))//hack probably causes too many texture pages to be used
 			{
-				if(pie_GetRenderEngine() == ENGINE_GLIDE)
-				{
-					index = iV_TEXPAGE(firstTexturePage+pageNumber)->textPage3dfx;
-					pageId[pageNumber] = index;
-					pie_Reload8bitTexturePage(sprite.bmp,(UWORD) sprite.width,(UWORD) sprite.height, index);
-				}
-				else //D3D
-				{
-					dtm_LoadTexSurface(&_TEX_PAGE[pageId[pageNumber]].tex, pageId[pageNumber]);
-				}
+				dtm_LoadTexSurface(&_TEX_PAGE[pageId[pageNumber]].tex, pageId[pageNumber]);
 				goto exit;
 			}
 
 			/* Have we run out of texture page? */
 			if(tilesProcessed%tilesPerPage == 0)
 			{
-				if(pie_GetRenderEngine() == ENGINE_GLIDE)
-				{
-					/* If so, download this one and reset to start again */
-					index = iV_TEXPAGE(firstTexturePage+pageNumber)->textPage3dfx;
-					pageId[pageNumber] = index;
-					pie_Reload8bitTexturePage(sprite.bmp, (UWORD)sprite.width, (UWORD)sprite.height, index);
-				}
-				else //D3D
-				{
-					/* If so, download this one and reset to start again */
-					dtm_LoadTexSurface(&_TEX_PAGE[pageId[pageNumber]].tex, pageId[pageNumber]);
-				}
+				/* If so, download this one and reset to start again */
+				dtm_LoadTexSurface(&_TEX_PAGE[pageId[pageNumber]].tex, pageId[pageNumber]);
 				pageNumber++;
 				sprite.bmp = _TEX_PAGE[pageId[pageNumber]].tex.bmp;
 				presentLoc = sprite.bmp;
@@ -397,20 +377,9 @@ BOOL getTileRadarColours(void)
 void	freeTileTextures( void )
 {
 	UDWORD	i;
-	if (!pie_Hardware())
+	for(i=0; i< ((UDWORD)numTexturePages); i++)
 	{
-		for(i=0; i<numPCXTiles; i++)
-		{
-			FREE(tilesRAW[i]);		
-		}
-		FREE(tilesRAW);
-	}
-	else
-	{
-		for(i=0; i< ((UDWORD)numTexturePages); i++)
-		{
-			FREE(_TEX_PAGE[(firstTexturePage+i)].tex.bmp);
-		}
+		FREE(_TEX_PAGE[(firstTexturePage+i)].tex.bmp);
 	}
 }
 
