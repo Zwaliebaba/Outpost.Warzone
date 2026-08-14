@@ -1,20 +1,13 @@
+#include "pch.h"
 /* Geometry.c - holds trig/vector deliverance specific stuff for 3D */
 /* Alex McLean, Pumpkin Studios, EIDOS Interactive */
 
 #include "Frame.h"
-#include <stdio.h>
-#include <stdlib.h>
-
-#include <math.h>
-
-#include "IvisDef.h" //ivis matrix code
 #include "Geo.h" //ivis matrix code
-
 #include "ObjectDef.h"
 #include "Map.h"
 #include "Display3D.h"
 #include "Geometry.h"
-#include "GTime.h"
 #include "HCI.h"
 #include "Display.h"
 
@@ -32,11 +25,9 @@ UBYTE sineHeightTable[SIZE_SINE_TABLE];
 
 void initBulletTable(void)
 {
-  UDWORD i;
-  UBYTE height;
-  for (i = 0; i < SIZE_SINE_TABLE; i++)
+  for (UDWORD i = 0; i < SIZE_SINE_TABLE; i++)
   {
-    height = static_cast<UBYTE>((AMPLITUDE_HEIGHT * sin(i * deg)));
+    UBYTE height = static_cast<UBYTE>((AMPLITUDE_HEIGHT * sin(i * deg)));
     sineHeightTable[i] = height;
   }
 }
@@ -46,16 +37,12 @@ void initBulletTable(void)
 /* Angle returned is reflected in line x=0 */
 SDWORD calcDirection(UDWORD x0, UDWORD y0, UDWORD x1, UDWORD y1)
 {
-  SDWORD xDif, yDif;
-  SDWORD angleInt;
-  double angle;
-
-  angleInt = 0;
-  xDif = (x1 - x0);
+  SDWORD angleInt = 0;
+  SDWORD xDif = (x1 - x0);
 
   /* Watch out here - should really be y1-y0, but coordinate system is reversed in Y */
-  yDif = (y0 - y1);
-  angle = atan2(yDif, xDif);
+  SDWORD yDif = (y0 - y1);
+  double angle = atan2(yDif, xDif);
   angle = 180 * (angle / pi);
   angleInt = static_cast<SDWORD>(angle);
 
@@ -80,7 +67,6 @@ SDWORD calcDirection(UDWORD x0, UDWORD y0, UDWORD x1, UDWORD y1)
 DROID* getNearestDroid(UDWORD x, UDWORD y, BOOL bSelected)
 {
   DROID *psDroid, *psBestUnit;
-  UDWORD xDif, yDif, dist;
   UDWORD bestSoFar;
 
   /* Go thru' all the droids  - how often have we seen this - a MACRO maybe? */
@@ -92,10 +78,10 @@ DROID* getNearestDroid(UDWORD x, UDWORD y, BOOL bSelected)
       if ((bSelected ? psDroid->selected : TRUE))
       {
         /* Get the differences */
-        xDif = abs(static_cast<SDWORD>(psDroid->x - x));
-        yDif = abs(static_cast<SDWORD>(psDroid->y - y));
+        UDWORD xDif = abs(static_cast<SDWORD>(psDroid->x - x));
+        UDWORD yDif = abs(static_cast<SDWORD>(psDroid->y - y));
         /* Approximates the distance away - using a sqrt approximation */
-        dist = max(xDif, yDif) + (min(xDif, yDif)) / 2; // approximates, but never more than 11% out...
+        UDWORD dist = std::max(xDif, yDif) + (std::min(xDif, yDif)) / 2; // approximates, but never more than 11% out...
         /* Is this the nearest one we got so far? */
         if (dist < bestSoFar)
         {
@@ -132,9 +118,7 @@ int inQuad(POINT* pt, QUAD* quad)
 
 UDWORD adjustDirection(SDWORD present, SDWORD difference)
 {
-  SDWORD sum;
-
-  sum = present + difference;
+  SDWORD sum = present + difference;
   if (sum >= 0 AND sum <= 360)
     return static_cast<UDWORD>(sum);
 
@@ -163,13 +147,10 @@ SDWORD directionDiff(SDWORD a, SDWORD b)
 void WorldPointToScreen(iPoint* worldPt, iPoint* screenPt)
 {
   iVector vec, null;
-  UDWORD worldX, worldY;
-  SDWORD xShift, zShift;
-  int32 rx, rz;
   /* Get into game context */
   /* Get the x,z translation components */
-  rx = player.p.x & (TILE_UNITS - 1);
-  rz = player.p.z & (TILE_UNITS - 1);
+  int32 rx = player.p.x & (TILE_UNITS - 1);
+  int32 rz = player.p.z & (TILE_UNITS - 1);
 
   /* Push identity matrix onto stack */
   iV_MatrixBegin();
@@ -191,8 +172,8 @@ void WorldPointToScreen(iPoint* worldPt, iPoint* screenPt)
   null.z = 0;
 
   /* Pull out coords now, because we use them twice */
-  worldX = worldPt->x;
-  worldY = worldPt->y;
+  UDWORD worldX = worldPt->x;
+  UDWORD worldY = worldPt->y;
 
   /* Get the coordinates of the object into the grid */
   vec.x = (worldX - player.p.x) - terrainMidX * TILE_UNITS;
@@ -206,8 +187,8 @@ void WorldPointToScreen(iPoint* worldPt, iPoint* screenPt)
 
   /* Translate */
   iV_TRANSLATE(vec.x, vec.y, vec.z);
-  xShift = player.p.x & (TILE_UNITS - 1);
-  zShift = player.p.z & (TILE_UNITS - 1);
+  SDWORD xShift = player.p.x & (TILE_UNITS - 1);
+  SDWORD zShift = player.p.z & (TILE_UNITS - 1);
 
   /* Translate */
   iV_TRANSLATE(xShift, 0, -zShift);
@@ -241,35 +222,28 @@ void baseObjScreenCoords(BASE_OBJECT* baseObj, iPoint* pt)
 /* Get the structure pointer for a specified tile coord. NULL if no structure */
 STRUCTURE* getTileStructure(UDWORD x, UDWORD y)
 {
-  STRUCTURE* psStructure;
-  STRUCTURE* psReturn;
-  UDWORD centreX, centreY;
-  UDWORD strX, strY;
-  UDWORD width, breadth;
-  UDWORD i;
-
   /* No point in checking if there's no structure here! */
   if (!TILE_HAS_STRUCTURE(mapTile(x,y)))
     return (nullptr);
 
   /* Otherwise - see which one it is! */
-  psReturn = nullptr;
+  STRUCTURE* psReturn = nullptr;
   /* Get the world coords for the tile centre */
-  centreX = (x << TILE_SHIFT) + (TILE_UNITS / 2);
-  centreY = (y << TILE_SHIFT) + (TILE_UNITS / 2);
+  UDWORD centreX = (x << TILE_SHIFT) + (TILE_UNITS / 2);
+  UDWORD centreY = (y << TILE_SHIFT) + (TILE_UNITS / 2);
 
   /* Go thru' all players - drop out if match though */
-  for (i = 0; i < MAX_PLAYERS AND !psReturn; i++)
+  for (UDWORD i = 0; i < MAX_PLAYERS AND !psReturn; i++)
   {
     /* Got thru' all structures for this player - again drop out if match */
-    for (psStructure = apsStructLists[i]; psStructure AND !psReturn; psStructure = psStructure->psNext)
+    for (STRUCTURE* psStructure = apsStructLists[i]; psStructure AND !psReturn; psStructure = psStructure->psNext)
     {
       /* Get structure coords */
-      strX = psStructure->x;
-      strY = psStructure->y;
+      UDWORD strX = psStructure->x;
+      UDWORD strY = psStructure->y;
       /* And extents */
-      width = psStructure->pStructureType->baseWidth * TILE_UNITS;
-      breadth = psStructure->pStructureType->baseBreadth * TILE_UNITS;
+      UDWORD width = psStructure->pStructureType->baseWidth * TILE_UNITS;
+      UDWORD breadth = psStructure->pStructureType->baseBreadth * TILE_UNITS;
       /* Within x boundary? */
 
       if ((centreX > (strX - (width / 2))) AND (centreX < (strX + (width / 2))))
@@ -295,31 +269,25 @@ STRUCTURE* getTileStructure(UDWORD x, UDWORD y)
 /* Sends back the feature on the specified tile - NULL if no feature */
 FEATURE* getTileFeature(UDWORD x, UDWORD y)
 {
-  FEATURE* psFeature;
-  FEATURE* psReturn;
-  UDWORD centreX, centreY;
-  UDWORD strX, strY;
-  UDWORD width, breadth;
-
   /* No point in checking if there's no feature here! */
   if (!TILE_HAS_FEATURE(mapTile(x,y)))
     return (nullptr);
 
   /* Otherwise - see which one it is! */
-  psReturn = nullptr;
+  FEATURE* psReturn = nullptr;
   /* Get the world coords for the tile centre */
-  centreX = (x << TILE_SHIFT) + (TILE_UNITS / 2);
-  centreY = (y << TILE_SHIFT) + (TILE_UNITS / 2);
+  UDWORD centreX = (x << TILE_SHIFT) + (TILE_UNITS / 2);
+  UDWORD centreY = (y << TILE_SHIFT) + (TILE_UNITS / 2);
 
   /* Go through all features for this player - again drop out if we get one */
-  for (psFeature = apsFeatureLists[0]; psFeature AND !psReturn; psFeature = psFeature->psNext)
+  for (FEATURE* psFeature = apsFeatureLists[0]; psFeature AND !psReturn; psFeature = psFeature->psNext)
   {
     /* Get the features coords */
-    strX = psFeature->x;
-    strY = psFeature->y;
+    UDWORD strX = psFeature->x;
+    UDWORD strY = psFeature->y;
     /* And it's base dimensions */
-    width = psFeature->psStats->baseWidth * TILE_UNITS;
-    breadth = psFeature->psStats->baseBreadth * TILE_UNITS;
+    UDWORD width = psFeature->psStats->baseWidth * TILE_UNITS;
+    UDWORD breadth = psFeature->psStats->baseBreadth * TILE_UNITS;
     /* Does tile centre lie within the area covered by base of feature? */
     /* First check for x */
     if ((centreX > (strX - (width / 2))) AND (centreX < (strX + (width / 2))))
@@ -370,11 +338,8 @@ BASE_OBJECT* getTileOccupier(UDWORD x, UDWORD y)
 /* Will return the player who presently has a structure on the specified tile */
 UDWORD getTileOwner(UDWORD x, UDWORD y)
 {
-  STRUCTURE* psStruct;
-  UDWORD retVal;
-
   /* Arbitrary error code - player 8 (non existent) owns tile from invalid request */
-  retVal = MAX_PLAYERS;
+  UDWORD retVal = MAX_PLAYERS;
 
   /* Check it has a structure - cannot have owner otherwise */
   if (!TILE_HAS_STRUCTURE(mapTile(x,y)))
@@ -382,7 +347,7 @@ UDWORD getTileOwner(UDWORD x, UDWORD y)
   else
   {
     /* Get a pointer to the structure */
-    psStruct = getTileStructure(x, y);
+    STRUCTURE* psStruct = getTileStructure(x, y);
 
     /* Did we get one - failsafe really as TILE_HAS_STRUCTURE should get it */
     if (psStruct != nullptr)
@@ -400,25 +365,20 @@ void getObjectsOnTile(MAPTILE* psTile) { (void)psTile; }
 // Approximates a square root - never more than 11% out...
 UDWORD dirtySqrt(SDWORD x1, SDWORD y1, SDWORD x2, SDWORD y2)
 {
-  UDWORD xDif, yDif;
-  UDWORD retVal;
+  UDWORD xDif = abs(x1 - x2);
+  UDWORD yDif = abs(y1 - y2);
 
-  xDif = abs(x1 - x2);
-  yDif = abs(y1 - y2);
-
-  retVal = (max(xDif, yDif) + (min(xDif, yDif) / 2));
+  UDWORD retVal = (std::max(xDif, yDif) + (std::min(xDif, yDif) / 2));
   return (retVal);
 }
 
 //-----------------------------------------------------------------------------------
 BOOL droidOnScreen(DROID* psDroid, SDWORD tolerance)
 {
-  SDWORD dX, dY;
-
   if (DrawnInLastFrame(psDroid->sDisplay.frameNumber) == TRUE)
   {
-    dX = psDroid->sDisplay.screenX;
-    dY = psDroid->sDisplay.screenY;
+    SDWORD dX = psDroid->sDisplay.screenX;
+    SDWORD dY = psDroid->sDisplay.screenY;
     /* Is it on screen */
     if (dX > (0 - tolerance) AND dY > (0 - tolerance) AND dX < static_cast<SDWORD>((DISP_WIDTH + tolerance)) AND dY < static_cast<SDWORD>((
       DISP_HEIGHT + tolerance)))
@@ -429,43 +389,32 @@ BOOL droidOnScreen(DROID* psDroid, SDWORD tolerance)
 
 void processImpact(UDWORD worldX, UDWORD worldY, UBYTE severity, UDWORD tilesAcross)
 {
-  UDWORD height;
-  SDWORD newHeight;
-  UDWORD distance;
-  float multiplier;
-  UDWORD damage;
-  UDWORD i, j;
-  UDWORD xDif, yDif;
-  SDWORD tileX, tileY;
-  UDWORD maxDisplacement;
-  UDWORD maxDistance;
-
   ASSERT((severity<MAX_TILE_DAMAGE,"Damage is too severe"));
   /* Make sure it's odd */
   if (!(tilesAcross & 0x01))
     tilesAcross -= 1;
-  tileX = ((worldX >> TILE_SHIFT) - (tilesAcross / 2 - 1));
-  tileY = ((worldY >> TILE_SHIFT) - (tilesAcross / 2 - 1));
-  maxDisplacement = ((tilesAcross / 2 + 1) * TILE_UNITS);
+  SDWORD tileX = ((worldX >> TILE_SHIFT) - (tilesAcross / 2 - 1));
+  SDWORD tileY = ((worldY >> TILE_SHIFT) - (tilesAcross / 2 - 1));
+  UDWORD maxDisplacement = ((tilesAcross / 2 + 1) * TILE_UNITS);
   maxDisplacement = static_cast<UDWORD>((float)maxDisplacement * (float)1.42);
-  maxDistance = static_cast<UDWORD>(sqrt(((float)maxDisplacement * (float)maxDisplacement)));
+  UDWORD maxDistance = static_cast<UDWORD>(sqrt(((float)maxDisplacement * (float)maxDisplacement)));
 
   if (tileX < 0)
     tileX = 0;
   if (tileY < 0)
     tileY = 0;
 
-  for (i = tileX; i < tileX + tilesAcross - 1; i++)
+  for (UDWORD i = tileX; i < tileX + tilesAcross - 1; i++)
   {
-    for (j = tileY; j < tileY + tilesAcross - 1; j++)
+    for (UDWORD j = tileY; j < tileY + tilesAcross - 1; j++)
     {
       /* Only process tiles that are on the map */
       if (tileX < static_cast<SDWORD>(mapWidth) AND tileY < static_cast<SDWORD>(mapHeight))
       {
-        xDif = abs(static_cast<SDWORD>(worldX - (i << TILE_SHIFT)));
-        yDif = abs(static_cast<SDWORD>(worldY - (j << TILE_SHIFT)));
-        distance = static_cast<UDWORD>(sqrt(((float)(xDif * xDif) + (float)(yDif * yDif))));
-        multiplier = (1 - static_cast<float>(distance) / static_cast<float>(maxDistance));
+        UDWORD xDif = abs(static_cast<SDWORD>(worldX - (i << TILE_SHIFT)));
+        UDWORD yDif = abs(static_cast<SDWORD>(worldY - (j << TILE_SHIFT)));
+        UDWORD distance = static_cast<UDWORD>(sqrt(((float)(xDif * xDif) + (float)(yDif * yDif))));
+        float multiplier = (1 - static_cast<float>(distance) / static_cast<float>(maxDistance));
         multiplier = static_cast<float>(1.0 - ((float)distance / (float)maxDistance));
         /* Are we talking less than 15% damage? i.e - at the edge of carater? */
         if (multiplier < 0.15)
@@ -474,9 +423,9 @@ void processImpact(UDWORD worldX, UDWORD worldY, UBYTE severity, UDWORD tilesAcr
           multiplier += static_cast<float>((float)(20 - rand() % 40) * 0.01);
         }
 
-        height = mapTile(i, j)->height;
-        damage = static_cast<UDWORD>((float)severity * multiplier);
-        newHeight = height - damage;
+        UDWORD height = mapTile(i, j)->height;
+        UDWORD damage = static_cast<UDWORD>((float)severity * multiplier);
+        SDWORD newHeight = height - damage;
         if (newHeight < 0)
           newHeight = 0;
         setTileHeight(i, j, newHeight);

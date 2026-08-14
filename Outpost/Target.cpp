@@ -1,3 +1,4 @@
+#include "pch.h"
 // Screen coordinate based targeting system. Maintains a list of on screen objects
 // and provides various functions for aquiring targets from this list.
 //

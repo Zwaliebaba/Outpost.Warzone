@@ -1,9 +1,4 @@
-/*
- * Font.c
- *
- * Definition for a fixed size font.
- *
- */
+#include "pch.h"
 
 #include <stdio.h>
 

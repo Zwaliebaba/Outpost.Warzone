@@ -12,7 +12,7 @@
 #define _heap_h
 
 #include "Types.h"
-#include "Debug.h"
+#include "LegacyDebug.h"
 /* Include Mem.h to get the DEBUG_MALLOC #define - this controls whether
  * normal or debugging memory management is used.
  */

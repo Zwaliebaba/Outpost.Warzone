@@ -1,3 +1,5 @@
+#include "pch.h"
+
 /* yacc -v -D StrRes_y.h -p strres_ -o StrRes_y.c StrRes.y */
 #ifdef YYTRACE
 #define YYDEBUG 1
@@ -78,7 +80,7 @@ static int printf(char* c, ...) { return 0; }
 #define FRAME_LIB_INCLUDE
 
 #include "Types.h"
-#include "Debug.h"
+#include "LegacyDebug.h"
 #include "Mem.h"
 #include "Heap.h"
 #include "Treap.h"

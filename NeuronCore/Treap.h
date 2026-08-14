@@ -13,7 +13,7 @@
 #define _treap_h
 
 #include "Types.h"
-#include "Debug.h"
+#include "LegacyDebug.h"
 #include "Mem.h"
 #include "Heap.h"
 

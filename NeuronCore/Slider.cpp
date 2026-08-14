@@ -1,9 +1,4 @@
-/*
- * Slider.c
- *
- * Slide bar widget definitions.
- */
-
+#include "pch.h"
 #include "Widget.h"
 #include "WidgInt.h"
 #include "Slider.h"

@@ -1,10 +1,4 @@
-/*
- * Cursor.c
- *
- * A thread based cursor implementation that allows a cursor to update faster
- * than the program framerate.
- *
- */
+#include "pch.h"
 
 #pragma warning (disable : 4201 4214 4115 4514)
 #define WIN32_LEAN_AND_MEAN
@@ -17,7 +11,7 @@
 #define FRAME_LIB_INCLUDE
 
 #include "Types.h"
-#include "Debug.h"
+#include "LegacyDebug.h"
 #include "Mem.h"
 #include "Surface.h"
 #include "Screen.h"

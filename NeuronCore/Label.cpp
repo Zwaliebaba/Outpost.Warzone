@@ -1,9 +1,4 @@
-/*
- * Label.c
- *
- * Functions for the label widget.
- */
-
+#include "pch.h"
 #include "Frame.h"
 #include "Widget.h"
 #include "WidgInt.h"

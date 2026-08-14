@@ -1,3 +1,4 @@
+#include "pch.h"
 /*
  * inGameOp.c
  * ingame options screen.

@@ -1,8 +1,4 @@
-/* 
- * netusers.c
- * functions regarding specific players
- */
-
+#include "pch.h"
 #include "Frame.h"
 #include "NetPlay.h"
 

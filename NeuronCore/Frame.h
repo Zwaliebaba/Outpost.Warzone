@@ -12,7 +12,7 @@
 #pragma warning (default : 4201 4214 4115)
 
 #include "Types.h"
-#include "Debug.h"
+#include "LegacyDebug.h"
 #include "Mem.h"
 #include "Screen.h"
 #include "ddraw.h"

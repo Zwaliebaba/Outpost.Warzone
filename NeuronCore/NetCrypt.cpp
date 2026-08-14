@@ -1,4 +1,6 @@
-/* 
+#include "pch.h"
+
+/*
  * netcrypt.c
  *
  * 1999 pumpkin Studios

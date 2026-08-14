@@ -1,15 +1,4 @@
-/*
-
-	BSP Draw routines for iVis02
-
-	- 5 Sept 1997  - Tim Cannell - Pumpkin Studios - Eidos 
-
-
-
-	- Main routines were written by Gareth Jones .... so if you find any bugs I think you better speak to him ...
-
-*/
-
+#include "pch.h"
 #include "Frame.h"	// just for the typedef's
 #include "PieTypes.h"
 #include "PieMatrix.h"

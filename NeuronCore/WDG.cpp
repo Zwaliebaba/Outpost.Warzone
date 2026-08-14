@@ -1,3 +1,4 @@
+#include "pch.h"
 /*******************************************************************
  *
  *    DESCRIPTION:	 Routines to handle format 4 .WDG files for PSX & PC

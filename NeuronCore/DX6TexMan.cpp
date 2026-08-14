@@ -1,12 +1,4 @@
-/***************************************************************************/
-/*
- * d3dTexMan.c
- *
- * directx 6 texture management system pumpkin library.
- *
- */
-/***************************************************************************/
-
+#include "pch.h"
 #include "Frame.h"
 #include "PieDef.h"
 #include "PieState.h"

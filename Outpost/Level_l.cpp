@@ -1,3 +1,4 @@
+#include "pch.h"
 /* d:\usr\mks-ly\mksnt\lex -p lev_ -o Level_l.c Level.l */
 #define YYNEWLINE 10
 #define INITIAL 0

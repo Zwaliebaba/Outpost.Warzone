@@ -1,19 +1,10 @@
-/*
- * Heap.c
- *
- * Memory routines for managing groups of the same sized objects.
- *
- */
-
-#include <string.h>
-#include <stdio.h>
-#include <assert.h>
+#include "pch.h"
 
 /* Allow frame header files to be singly included */
 #define FRAME_LIB_INCLUDE
 
 #include "Types.h"
-#include "Debug.h"
+#include "LegacyDebug.h"
 #include "Mem.h"
 #include "Heap.h"
 #include "Treap.h"

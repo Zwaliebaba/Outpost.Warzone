@@ -1,9 +1,4 @@
-/*
- * Button.c
- *
- * Functions for the button widget
- */
-
+#include "pch.h"
 #include "Frame.h"
 #include "FrameInt.h"
 #include "Widget.h"

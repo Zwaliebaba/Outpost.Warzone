@@ -1,3 +1,5 @@
+#include "pch.h"
+
 /* lex -p res_ -o resource_l.c Resource.l */
 #define YYNEWLINE 10
 #define INITIAL 0
@@ -227,7 +229,7 @@ static int fprintf(FILE* f, char* c, ...) { return 0; }
 
 #include <string.h>
 #include "Types.h"
-#include "Debug.h"
+#include "LegacyDebug.h"
 #include "ResLY.h"
 
 /* Get the Yacc definitions */

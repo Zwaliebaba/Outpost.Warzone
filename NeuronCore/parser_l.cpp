@@ -1,3 +1,5 @@
+#include "pch.h"
+
 /* d:\mks-ly\mksnt\lex -p audp_ -o parser_l.c .\parser.l */
 #define YYNEWLINE 10
 #define INITIAL 0

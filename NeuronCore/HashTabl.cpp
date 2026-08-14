@@ -1,8 +1,4 @@
-/***************************************************************************/
-
-#include <limits.h>
-#include <memory.h>
-
+#include "pch.h"
 #include "Frame.h"
 
 #include "HashTabl.h"

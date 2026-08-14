@@ -1,13 +1,4 @@
-/*
- * Debug.c
- *
- * Various debugging output functions.
- *
- */
-
-#include <stdio.h>
-#include <stdarg.h>
-#include <stdlib.h>
+#include "pch.h"
 
 #pragma warning (disable : 4201 4214 4115 4514)
 #define WIN32_LEAN_AND_MEAN
@@ -121,7 +112,6 @@ void dbg_MessageBox(SBYTE* pFormat, ...)
 {
   SBYTE aBuffer[DEBUG_STR_MAX]; // Output string buffer
   va_list pArgs; // Format arguments
-  DB_MBRETVAL retVal;
 
   /* Initialise the argument list */
   va_start(pArgs, pFormat);
@@ -134,7 +124,7 @@ void dbg_MessageBox(SBYTE* pFormat, ...)
 
   /* Output it */
   dbg_printf("MB: %s\n", aBuffer);
-  retVal = DBR_USE_WINDOWS_MB;
+  DB_MBRETVAL retVal = DBR_USE_WINDOWS_MB;
   if (mbCallback)
     retVal = mbCallback(aBuffer);
   if (retVal == DBR_USE_WINDOWS_MB)
@@ -186,7 +176,6 @@ void dbg_ErrorBox(SBYTE* pFormat, ...)
 {
   SBYTE aBuffer[DEBUG_STR_MAX] = ""; // Output string buffer
   va_list pArgs; // Format arguments
-  DB_MBRETVAL retVal;
 
   /* Initialise the argument list */
   va_start(pArgs, pFormat);
@@ -203,7 +192,7 @@ void dbg_ErrorBox(SBYTE* pFormat, ...)
 
   /* Output it */
   dbg_printf("ErrorBox: %s\n", aBuffer);
-  retVal = DBR_USE_WINDOWS_MB;
+  DB_MBRETVAL retVal = DBR_USE_WINDOWS_MB;
   if (errorCallback)
     retVal = errorCallback(aBuffer);
   if (retVal == DBR_USE_WINDOWS_MB)
@@ -264,7 +253,6 @@ void dbg_Assert(BOOL Expression, SBYTE* pFormat, ...)
   va_list pArgs;
   SBYTE aBuffer[DEBUG_STR_MAX];
   int Result = 0;
-  DB_MBRETVAL retVal;
 
   if (!Expression)
   {
@@ -277,7 +265,7 @@ void dbg_Assert(BOOL Expression, SBYTE* pFormat, ...)
     screenFlipToGDI();
 
     dbg_printf("ASSERT: %s\n", aBuffer);
-    retVal = DBR_USE_WINDOWS_MB;
+    DB_MBRETVAL retVal = DBR_USE_WINDOWS_MB;
     if (assertCallback)
       retVal = assertCallback(aBuffer);
     if (retVal == DBR_USE_WINDOWS_MB)

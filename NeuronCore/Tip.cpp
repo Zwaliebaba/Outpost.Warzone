@@ -1,14 +1,7 @@
-/*
- * Tip.c
- *
- * The tool tip display system.
- *
- */
-
+#include "pch.h"
 #include "Frame.h"
 #include "FrameInt.h"
 #include "Widget.h"
-#include "WidgInt.h"
 #include "Tip.h"
 #include "RendMode.h"
 

@@ -1,11 +1,4 @@
-/*
- * NETsupp.h
- *
- * Alex Lee, pumpkin studios, nov97
- * The meaty network support functions
- * as well as some logging stuff.
- * Net Encryption also lives here.
- */
+#include "pch.h"
 
 // ////////////////////////////////////////////////////////////////////////
 // Includes

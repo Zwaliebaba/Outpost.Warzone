@@ -1,14 +1,4 @@
-/***************************************************************************/
-/*
- * Sequence.c
- *
- * Sequence setup and video control
- *
- * based on eidos example code
- *
- *
- */
-/***************************************************************************/
+#include "pch.h"
 
 // Standard include file
 #include "Frame.h"

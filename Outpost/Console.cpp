@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Frame.h"
 #include "GTime.h"
 #include "Base.h"

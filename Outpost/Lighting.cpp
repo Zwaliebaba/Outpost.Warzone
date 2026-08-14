@@ -1,3 +1,4 @@
+#include "pch.h"
 /* Lighting.c - Alex McLean, Pumpkin Studios, EIDOS Interactive. */
 /* Calculates the shading values for the terrain world. */
 /* The terrain intensity values are calculated at map load/creation time. */

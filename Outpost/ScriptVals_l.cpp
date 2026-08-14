@@ -1,3 +1,4 @@
+#include "pch.h"
 /* lex -p scrv_ -o ScriptVals_l.c ScriptVals.l */
 #define YYNEWLINE 10
 #define INITIAL 0

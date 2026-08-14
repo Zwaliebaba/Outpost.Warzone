@@ -1,8 +1,4 @@
-/*
- * Net join.
- * join related stuff
- */
-
+#include "pch.h"
 #include "Frame.h"
 #include "NetPlay.h"
 #include "NetSupp.h"

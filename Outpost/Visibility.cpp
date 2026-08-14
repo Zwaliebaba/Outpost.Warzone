@@ -1,3 +1,4 @@
+#include "pch.h"
 /*	VISIBILTY.C Pumpkin Studios, Eidos Interactive 1996.	*/
 
 #include <math.h>

@@ -1,3 +1,4 @@
+#include "pch.h"
 /* WarCAM - Handles tracking/following of in game objects */
 /* Alex McLean, Pumpkin Studios, EIDOS Interactive, 1998 */
 /*	23rd September, 1998 - This code is now so hideously complex

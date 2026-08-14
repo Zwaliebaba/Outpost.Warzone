@@ -1,11 +1,4 @@
-/*
- * GTime.c
- *
- * Provide a game clock that runs only when the game runs.
- *
- */
-
-#include <time.h>
+#include "pch.h"
 
 #include "Frame.h"
 #include "GTime.h"

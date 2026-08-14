@@ -1,3 +1,4 @@
+#include "pch.h"
 /*	
 	Component.c
 	Draws component objects - oh yes indeed.

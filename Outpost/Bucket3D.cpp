@@ -1,3 +1,4 @@
+#include "pch.h"
 /* 
 	bucket3D.c - stores object render calls in a linked list renders after bucket sorting objects 
 

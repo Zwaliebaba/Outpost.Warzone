@@ -1,11 +1,4 @@
-/*
- * Input.c
- *
- * Processes all keyboard and mouse input.
- *
- */
-
-#include <stdio.h>
+#include "pch.h"
 
 #pragma warning (disable : 4201 4214 4115 4514)
 #define WIN32_LEAN_AND_MEAN
@@ -19,7 +12,7 @@
 
 /* The input buffer printf's */
 #include "Types.h"
-#include "Debug.h"
+#include "LegacyDebug.h"
 #include "Input.h"
 #include "Screen.h"
 #include "FrameInt.h"

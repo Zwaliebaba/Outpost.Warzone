@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Frame.h"
 #include "Map.h"
 #include "HCI.h"
@@ -62,12 +63,12 @@ BOOL bridgeValid(UDWORD startX, UDWORD startY, UDWORD endX, UDWORD endY)
     Don't whinge about this piece of code please! It's nice and short
     and is called very infrequently. Could be made slightly faster. 
   */
-  for (i = (xBridge ? (min(startY, endY)) : (min(startX, endX))); i < (xBridge ? (max(startY, endY)) : (max(startX, endX))); i++)
+  for (i = (xBridge ? (std::min(startY, endY)) : (std::min(startX, endX))); i < (xBridge ? (std::max(startY, endY)) : (std::max(startX, endX))); i++)
   {
     /* Get the height of a bridge section */
     sectionHeight = mapTile((xBridge ? startX : startY), i)->height;
     /* Is it higher than BOTH end points? */
-    if (sectionHeight > max(startHeight, endHeight))
+    if (sectionHeight > std::max(startHeight, endHeight))
     {
       /* Cry out */
       return (FALSE);
@@ -213,7 +214,7 @@ void testBuildBridge(UDWORD startX, UDWORD startY, UDWORD endX, UDWORD endY)
     getBridgeInfo(startX, startY, endX, endY, &bridge);
     if (bridge.bConstantX)
     {
-      for (i = min(bridge.startY, bridge.endY); i < (max(bridge.startY, bridge.endY) + 1); i++)
+      for (i = std::min(bridge.startY, bridge.endY); i < (std::max(bridge.startY, bridge.endY) + 1); i++)
       {
         dv.x = ((bridge.startX * 128) + 64);
         dv.z = ((i * 128) + 64);
@@ -223,7 +224,7 @@ void testBuildBridge(UDWORD startX, UDWORD startY, UDWORD endX, UDWORD endY)
     }
     else
     {
-      for (i = min(bridge.startX, bridge.endX); i < (max(bridge.startX, bridge.endX) + 1); i++)
+      for (i = std::min(bridge.startX, bridge.endX); i < (std::max(bridge.startX, bridge.endX) + 1); i++)
       {
         dv.x = ((i * 128) + 64);
         dv.z = ((bridge.startY * 128) + 64);
@@ -248,7 +249,7 @@ void testBuildBridge(UDWORD startX, UDWORD startY, UDWORD endX, UDWORD endY)
     getBridgeInfo(startX, startY, endX, endY, &bridge);
     if (bridge.bConstantX)
     {
-      for (i = min(bridge.startY, bridge.endY); i < (max(bridge.startY, bridge.endY) + 1); i++)
+      for (i = std::min(bridge.startY, bridge.endY); i < (std::max(bridge.startY, bridge.endY) + 1); i++)
       {
         dv.x = ((bridge.startX * 128) + 64);
         dv.z = ((i * 128) + 64);
@@ -258,7 +259,7 @@ void testBuildBridge(UDWORD startX, UDWORD startY, UDWORD endX, UDWORD endY)
     }
     else
     {
-      for (i = min(bridge.startX, bridge.endX); i < (max(bridge.startX, bridge.endX) + 1); i++)
+      for (i = std::min(bridge.startX, bridge.endX); i < (std::max(bridge.startX, bridge.endX) + 1); i++)
       {
         dv.x = ((i * 128) + 64);
         dv.z = ((bridge.startY * 128) + 64);

@@ -1,3 +1,4 @@
+#include "pch.h"
 /* Handles cheat codes for Warzone */
 /* Alex M 19th - Jan. 1999 */
 

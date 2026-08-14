@@ -1,12 +1,4 @@
-/*
-    Implementation of Win95 tracing facility to mimic that of NT
-*/
-#pragma warning (disable : 4201 4214 4115 4514)
-#include <Windows.h>
-#pragma warning (default : 4201 4214 4115)
-#include <stdio.h>
-#include <stdarg.h>
-#include <process.h>
+#include "pch.h"
 
 /* Allow frame header files to be singly included */
 #define FRAME_LIB_INCLUDE

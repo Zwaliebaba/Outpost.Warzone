@@ -1,9 +1,4 @@
-/*
- * Surface.c
- *
- * Utility functions for loading image data into surfaces.
- *
- */
+#include "pch.h"
 
 // surfRecreate pix format stuff 
 #include "Frame.h"

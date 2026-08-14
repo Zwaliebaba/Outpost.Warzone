@@ -1,6 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
+#include "pch.h"
 #include "RendMode.h"
 #include "Bug.h"
 #include "PiePalette.h"

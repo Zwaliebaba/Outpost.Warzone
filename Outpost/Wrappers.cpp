@@ -1,3 +1,4 @@
+#include "pch.h"
 /*
  * Wrappers.c   
  * frontend loop & also loading screen & game over screen. 

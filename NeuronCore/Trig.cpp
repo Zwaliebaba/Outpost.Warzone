@@ -1,16 +1,11 @@
-/*
- * Trig.c
- *
- * Trig lookup tables
- *
- */
+#include "pch.h"
 
 /* Allow frame header files to be singly included */
 #define FRAME_LIB_INCLUDE
 
 #include <assert.h>
 #include "Types.h"
-#include "Debug.h"
+#include "LegacyDebug.h"
 #include "Mem.h"
 #include "Fractions.h"
 #include "Trig.h"

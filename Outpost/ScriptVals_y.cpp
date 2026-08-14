@@ -1,3 +1,4 @@
+#include "pch.h"
 /* d:\mks-ly\mksnt\yacc -p scrv_ -o ScriptVals_y.c -D ScriptVals_y.h .\\ScriptVals.y */
 #ifdef YYTRACE
 #define YYDEBUG 1

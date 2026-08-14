@@ -1,17 +1,10 @@
-/*
- * Treap.c
- *
- * Balanced tree implementation
- *
- */
-
-#include <string.h>
+#include "pch.h"
 
 /* Allow frame header files to be singly included */
 #define FRAME_LIB_INCLUDE
 
 #include "Types.h"
-#include "Debug.h"
+#include "LegacyDebug.h"
 #include "Mem.h"
 #include "Heap.h"
 #include "Treap.h"

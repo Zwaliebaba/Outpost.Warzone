@@ -1,10 +1,4 @@
-/*
- * Event.c
- *
- * The event management system.
- */
-
-#include <stdio.h>
+#include "pch.h"
 
 // event tracing printf's
 #define DEBUG_GROUP0

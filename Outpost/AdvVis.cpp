@@ -1,3 +1,4 @@
+#include "pch.h"
 /* AdvVis.c Alex McLean */
 /* Experiment - possibly only for the faster configurations */
 /* Makes smooth transitions for terrain visibility */

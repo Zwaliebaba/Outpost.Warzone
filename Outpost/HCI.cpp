@@ -1,3 +1,4 @@
+#include "pch.h"
 /*
  * HCI.c		(Human Computer Interface - thanks to Alex for the file name).
  *

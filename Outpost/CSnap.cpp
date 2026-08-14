@@ -1,3 +1,4 @@
+#include "pch.h"
 /*
  * Cursor handling for keyboard/dpad control
  * Pumpkin Studios 98

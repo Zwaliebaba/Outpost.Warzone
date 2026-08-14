@@ -1,3 +1,4 @@
+#include "pch.h"
 /* Atmos.c - Handles atmospherics such as snow and rain */
 /* Alex McLean, Pumpkin Studios, EIDOS Interactive */
 /* 

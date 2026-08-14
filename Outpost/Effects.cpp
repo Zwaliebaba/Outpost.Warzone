@@ -1,3 +1,4 @@
+#include "pch.h"
 /*
 	Spot FX code - will handle every miscellaneous imd render and update for temporary
 	entities except projectiles.

@@ -1,3 +1,4 @@
+#include "pch.h"
 /*
  * Additional functions for the Gateway system.
  * Only needed for map preprocessing.

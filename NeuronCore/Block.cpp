@@ -1,13 +1,4 @@
-/*
- * Block.c
- *
- * Routines to allocate memory from one large block.
- * Any memory allocated is only available to reallocated after
- * the whole block has been reset.
- *
- */
-
-#include <string.h>
+#include "pch.h"
 
 /* Allow frame header files to be singly included */
 #define FRAME_LIB_INCLUDE
@@ -16,7 +7,7 @@
 #define DEBUG_GROUP0
 
 #include "Types.h"
-#include "Debug.h"
+#include "LegacyDebug.h"
 #include "Mem.h"
 #include "Heap.h"
 #include "Treap.h"

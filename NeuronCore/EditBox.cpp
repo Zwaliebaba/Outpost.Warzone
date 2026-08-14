@@ -1,9 +1,4 @@
-/*
- * EditBox.c
- *
- * Functions for the edit box widget.
- */
-
+#include "pch.h"
 #include "Frame.h"
 #include "Widget.h"
 #include "WidgInt.h"

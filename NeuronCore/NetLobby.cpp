@@ -1,11 +1,4 @@
-/*
- * netlobby.c
- *
- * provides dplay lobby features
- *
- * alex lee, nov97, pumpkin studios.
- */
-
+#include "pch.h"
 #include <windowsx.h>
 #include "Frame.h"				// for dbprintf
 #include "NetPlay.h"

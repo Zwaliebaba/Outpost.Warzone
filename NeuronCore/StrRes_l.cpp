@@ -1,3 +1,5 @@
+#include "pch.h"
+
 /* lex -a -p strres_ -o strres_l.c StrRes.l */
 #define YYNEWLINE 10
 #define INITIAL 0
@@ -245,7 +247,7 @@ static int fprintf(FILE* f, char* c, ...) { return 0; }
 
 #include <string.h>
 #include "Types.h"
-#include "Debug.h"
+#include "LegacyDebug.h"
 #include "Mem.h"
 #include "Heap.h"
 #include "Treap.h"

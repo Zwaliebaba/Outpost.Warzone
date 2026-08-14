@@ -1,12 +1,7 @@
-/*
- * Script.c
- *
- * A few general functions for the script library
- */
+#include "pch.h"
 
 #include "Frame.h"
 #include "Script.h"
-#include <assert.h>
 
 // Flags for storing function indexes
 #define FUNC_SETBIT		0x80000000		// set for a set function, clear otherwise

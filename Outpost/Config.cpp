@@ -1,3 +1,4 @@
+#include "pch.h"
 /*
  *Config.c  saves your favourite options to the Registry.
  * 

@@ -10,7 +10,7 @@
     <ClInclude Include="Dderror.h">
       <Filter>Framework</Filter>
     </ClInclude>
-    <ClInclude Include="Debug.h">
+    <ClInclude Include="LegacyDebug.h">
       <Filter>Framework</Filter>
     </ClInclude>
     <ClInclude Include="DXInput.h">
@@ -307,6 +307,9 @@
     <ClInclude Include="TrackLib.h">
       <Filter>Sound</Filter>
     </ClInclude>
+    <ClInclude Include="Debug.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="NeuronCore.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BitImage.cpp" />
@@ -349,7 +352,7 @@
     <ClCompile Include="Dderror.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
-    <ClCompile Include="Debug.cpp">
+    <ClCompile Include="LegacyDebug.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
     <ClCompile Include="DXInput.cpp">
@@ -508,6 +511,7 @@
     <ClCompile Include="HashTabl.cpp">
       <Filter>Gamelib</Filter>
     </ClCompile>
+    <ClCompile Include="pch.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Framework">

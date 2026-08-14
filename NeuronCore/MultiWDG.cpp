@@ -1,9 +1,4 @@
-/*
- * multiWDG.c
- *
- * Handle multiple wdg files
- *
- */
+#include "pch.h"
 
 #include "Frame.h"
 #include "WDG.h"

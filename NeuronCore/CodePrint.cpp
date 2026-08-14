@@ -1,9 +1,4 @@
-#ifndef NOSCRIPT
-/*
- * CodePrint.c
- *
- * Routines for displaying compiled scripts
- */
+#include "pch.h"
 
 #include "Frame.h"
 #include "Interp.h"
@@ -485,5 +480,3 @@ void cpPrintProgram(SCRIPT_CODE* psProg)
     data = (*ip) & OPCODE_DATAMASK;
   }
 }
-
-#endif

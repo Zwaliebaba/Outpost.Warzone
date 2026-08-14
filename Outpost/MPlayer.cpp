@@ -1,3 +1,4 @@
+#include "pch.h"
 /* 
  * mplayer.c
  * mplayer specific code. Keep it out of the main game!

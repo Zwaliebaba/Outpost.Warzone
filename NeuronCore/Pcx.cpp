@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Frame.h"
 #include "IvisDef.h"
 #include "Fbf.h"

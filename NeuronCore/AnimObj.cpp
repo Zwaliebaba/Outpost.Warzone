@@ -1,14 +1,4 @@
-/***************************************************************************/
-/*
- * Animobj.c
- *
- * Anim object functions
- *
- * Gareth Jones 14/11/97
- */
-/***************************************************************************/
-
-#include <string.h>
+#include "pch.h"
 
 #include "Frame.h"
 #include "HashTabl.h"

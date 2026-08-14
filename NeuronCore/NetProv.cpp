@@ -1,10 +1,4 @@
-/* 
- * NetProv.c 
- * Builds info for direct play providers..
- * 
- * Alex Lee Sep 97
- * Allows you to override all the MS dialogs.
- */
+#include "pch.h"
 
 // ////////////////////////////////////////////////////////////////////////
 // Includes

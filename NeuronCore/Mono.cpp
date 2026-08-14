@@ -1,13 +1,4 @@
-/*
- * Mono.c
- *
- * Output to the mono screen
- *
- */
-
-#include <stdio.h>
-#include <string.h>
-#include <stdarg.h>
+#include "pch.h"
 
 /* Allow frame header files to be singly included */
 #define FRAME_LIB_INCLUDE

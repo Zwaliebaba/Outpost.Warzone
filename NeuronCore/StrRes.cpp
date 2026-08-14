@@ -1,18 +1,11 @@
-/*
- * StrRes.c
- *
- * String storage an manipulation functions
- *
- */
-
-#include <string.h>
+#include "pch.h"
 
 /* Allow frame header files to be singly included */
 #define FRAME_LIB_INCLUDE
 
 // Report unused strings
 #include "Types.h"
-#include "Debug.h"
+#include "LegacyDebug.h"
 #include "Mem.h"
 #include "Heap.h"
 #include "Treap.h"

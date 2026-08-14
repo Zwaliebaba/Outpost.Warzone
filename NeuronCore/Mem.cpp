@@ -1,21 +1,11 @@
-/*
- * mem.c
- *
- * Replacements for malloc and free to track memory usage.
- *
- * Also allows pointer validity checking.
- */
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "pch.h"
 
 /* Allow frame header files to be singly included */
 #define FRAME_LIB_INCLUDE
 
 #include "Types.h"
 #include "Mem.h"
-#include "Debug.h"
+#include "LegacyDebug.h"
 #include "Heap.h"
 #include "Treap.h"
 #include "TreapInt.h"

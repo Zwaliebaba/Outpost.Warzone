@@ -1,3 +1,4 @@
+#include "pch.h"
 /* 
 	Scores.c Deals with all the mission results gubbins.
 	Alex W. McLean
@@ -154,10 +155,7 @@ void scoreDataToScreen(void) { drawStatBars(); }
 /* Builds an ascii string for the passed in components 04:02:23 for example */
 void constructTime(STRING* psText, UDWORD hours, UDWORD minutes, UDWORD seconds)
 {
-  UDWORD index;
-  UDWORD div;
-
-  index = 0;
+  UDWORD index = 0;
   // Hours do not have trailing zeros
   if (hours != 0)
   {
@@ -177,7 +175,7 @@ void constructTime(STRING* psText, UDWORD hours, UDWORD minutes, UDWORD seconds)
       // Over 100 hours - go outside people!!!!
       // build hours
       psText[index++] = static_cast<UBYTE>('0' + (hours / 100)); // hmmmmmm....
-      div = hours / 100;
+      UDWORD div = hours / 100;
       psText[index++] = static_cast<UBYTE>('0' + (hours - (div * 100)) / 10); // nice
       psText[index++] = static_cast<UBYTE>('0' + hours % 10);
     }
@@ -213,14 +211,6 @@ void getAsciiTime(STRING* psText, UDWORD time)
 // -----------------------------------------------------------------------------------
 void drawStatBars(void)
 {
-  UDWORD index;
-  BOOL bMoreBars;
-  UDWORD x, y;
-  UDWORD width, height;
-  FRACT length;
-  FRACT mul;
-  UDWORD div;
-
   if (!bDispStarted)
   {
     bDispStarted = TRUE;
@@ -239,8 +229,8 @@ void drawStatBars(void)
   iV_DrawText((unsigned char*)strresGetString(psStringRes, STR_MR_STRUCTURE_LOSSES),LC_X + D_W, 140 + 16 + D_H);
   iV_DrawText((unsigned char*)strresGetString(psStringRes, STR_MR_FORCE_INFO),LC_X + D_W, 200 + 16 + D_H);
 
-  index = 0;
-  bMoreBars = TRUE;
+  UDWORD index = 0;
+  BOOL bMoreBars = TRUE;
   while (bMoreBars)
   {
     /* Is it time to display this bar? */
@@ -254,10 +244,10 @@ void drawStatBars(void)
 
         /* Play a sound */
       }
-      x = infoBars[index].topX + D_W;
-      y = infoBars[index].topY + D_H;
-      width = infoBars[index].width;
-      height = infoBars[index].height;
+      UDWORD x = infoBars[index].topX + D_W;
+      UDWORD y = infoBars[index].topY + D_H;
+      UDWORD width = infoBars[index].width;
+      UDWORD height = infoBars[index].height;
 
       iV_Box(x, y, x + width, y + height, 0);
 
@@ -270,12 +260,12 @@ void drawStatBars(void)
       if (((gameTime2 - dispST) > infoBars[index].queTime))
       {
         /* Now draw amount filled */
-        length = MAKEFRACT(infoBars[index].percent) / MAKEFRACT(100);
+        FRACT length = MAKEFRACT(infoBars[index].percent) / MAKEFRACT(100);
         length = length * MAKEFRACT(infoBars[index].width);
-        div = PERCENT(gameTime2-dispST, BAR_CRAWL_TIME);
+        UDWORD div = PERCENT(gameTime2-dispST, BAR_CRAWL_TIME);
         if (div > 100)
           div = 100;
-        mul = MAKEFRACT(div) / 100;
+        FRACT mul = MAKEFRACT(div) / 100;
         length = length * mul;
         if (MAKEINT(length) > 4)
         {
@@ -326,7 +316,7 @@ void dispAdditionalInfo(void)
 void fillUpStats(void)
 {
   UDWORD i;
-  UDWORD maxi, num;
+  UDWORD maxi;
   FRACT scaleFactor;
   UDWORD length;
   UDWORD numUnits;
@@ -335,7 +325,7 @@ void fillUpStats(void)
   /* Do rankings first cos they're easier */
   for (i = 0, maxi = 0; i < DROID_LEVELS; i++)
   {
-    num = getNumDroidsForLevel(i);
+    UDWORD num = getNumDroidsForLevel(i);
     if (num > maxi)
       maxi = num;
   }
@@ -356,7 +346,7 @@ void fillUpStats(void)
 
   /* Now do the other stuff... */
   /* Units killed and lost... */
-  maxi = max(missionData.unitsLost, missionData.unitsKilled);
+  maxi = std::max(missionData.unitsLost, missionData.unitsKilled);
   if (maxi == 0)
     scaleFactor = 0;
   else
@@ -368,7 +358,7 @@ void fillUpStats(void)
   infoBars[STAT_UNIT_KILLED].percent = PERCENT(length, STAT_BAR_WIDTH);
 
   /* Now do the structure losses */
-  maxi = max(missionData.strLost, missionData.strKilled);
+  maxi = std::max(missionData.strLost, missionData.strKilled);
   if (maxi == 0)
     scaleFactor = 0;
   else
@@ -384,8 +374,8 @@ void fillUpStats(void)
 
   for (psDroid = mission.apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext, numUnits++);
 
-  maxi = max(missionData.unitsBuilt, missionData.strBuilt);
-  maxi = max(maxi, numUnits);
+  maxi = std::max(missionData.unitsBuilt, missionData.strBuilt);
+  maxi = std::max(maxi, numUnits);
 
   if (maxi == 0)
     scaleFactor = 0;
@@ -413,17 +403,16 @@ void fillUpStats(void)
 /* This will save out the score data */
 BOOL writeScoreData(STRING* pFileName)
 {
-  UBYTE* pFileData; // Pointer to the necessary allocated memory
-  MISSION_DATA* pScoreData;
-  UDWORD fileSize; // How many bytes we need - depends on compression
-  FILE* pFile; // File pointer
-  SCORE_SAVEHEADER* psHeader; // Pointer to the header part of the file
+  // Pointer to the necessary allocated memory
+  // How many bytes we need - depends on compression
+  // File pointer
+  // Pointer to the header part of the file
 
   /* Calculate memory required */
-  fileSize = (sizeof(struct _score_save_header) + sizeof(struct mission_data));
+  UDWORD fileSize = (sizeof(struct _score_save_header) + sizeof(struct mission_data));
 
   /* Try and allocate it - freed up in same function */
-  pFileData = static_cast<UBYTE*>(MALLOC(fileSize));
+  UBYTE* pFileData = static_cast<UBYTE*>(MALLOC(fileSize));
 
   /* Did we get it? */
   if (!pFileData)
@@ -434,7 +423,7 @@ BOOL writeScoreData(STRING* pFileName)
   }
 
   /* We got the memory, so put the file header on the file */
-  psHeader = (SCORE_SAVEHEADER*)pFileData;
+  SCORE_SAVEHEADER* psHeader = (SCORE_SAVEHEADER*)pFileData;
   psHeader->aFileType[0] = 's';
   psHeader->aFileType[1] = 'c';
   psHeader->aFileType[2] = 'd';
@@ -445,13 +434,13 @@ BOOL writeScoreData(STRING* pFileName)
   psHeader->version = CURRENT_VERSION_NUM;
 
   /* Skip past the header to the raw data area */
-  pScoreData = (MISSION_DATA*)(pFileData + sizeof(struct _score_save_header));
+  MISSION_DATA* pScoreData = (MISSION_DATA*)(pFileData + sizeof(struct _score_save_header));
 
   /* copy over the score data */
   memcpy(pScoreData, &missionData, sizeof(struct mission_data));
 
   /* Have a bash at opening the file to write */
-  pFile = fopen(pFileName, "wb");
+  FILE* pFile = fopen(pFileName, "wb");
   if (!pFile)
   {
     DBERROR(("Saving Score data : couldn't open file %s", pFileName));
@@ -482,12 +471,8 @@ BOOL writeScoreData(STRING* pFileName)
 /* This will read in the score data */
 BOOL readScoreData(UBYTE* pFileData, UDWORD fileSize)
 {
-  UDWORD expectedFileSize;
-  SCORE_SAVEHEADER* psHeader;
-  MISSION_DATA* pScoreData;
-
   /* See if we've been given the right file type? */
-  psHeader = (SCORE_SAVEHEADER*)pFileData;
+  SCORE_SAVEHEADER* psHeader = (SCORE_SAVEHEADER*)pFileData;
   if (psHeader->aFileType[0] != 's' || psHeader->aFileType[1] != 'c' || psHeader->aFileType[2] != 'd' || psHeader->aFileType[3] != 'a')
   {
     DBERROR(("Read Score data : Weird file type found? Has header letters \
@@ -496,7 +481,7 @@ BOOL readScoreData(UBYTE* pFileData, UDWORD fileSize)
   }
 
   /* How much data are we expecting? */
-  expectedFileSize = (sizeof(struct _score_save_header) + (psHeader->entries * sizeof(struct mission_data)));
+  UDWORD expectedFileSize = (sizeof(struct _score_save_header) + (psHeader->entries * sizeof(struct mission_data)));
 
   /* Is that what we've been given? */
   if (fileSize != expectedFileSize)
@@ -507,7 +492,7 @@ BOOL readScoreData(UBYTE* pFileData, UDWORD fileSize)
   }
 
   /* Skip past the header gubbins - can check version number here too */
-  pScoreData = (MISSION_DATA*)(pFileData + sizeof(struct _score_save_header));
+  MISSION_DATA* pScoreData = (MISSION_DATA*)(pFileData + sizeof(struct _score_save_header));
 
   memcpy(&missionData, pScoreData, sizeof(struct mission_data));
 

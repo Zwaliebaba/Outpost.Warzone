@@ -1,9 +1,4 @@
-/*
- * bar.c
- *
- * Functions for the bar graph widget
- */
-
+#include "pch.h"
 #include "Widget.h"
 #include "WidgInt.h"
 #include "Tip.h"

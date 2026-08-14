@@ -1,3 +1,4 @@
+#include "pch.h"
 /*
 	ALL PSX, HASH_NAMES AND WIN32 excluded stuff removed - Alex M.
 */

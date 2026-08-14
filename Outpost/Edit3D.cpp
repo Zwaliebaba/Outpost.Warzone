@@ -1,3 +1,4 @@
+#include "pch.h"
 /*	
 	Edit3D.c - to ultimately contain the map editing functions -
 	they are presently scattered in various files .

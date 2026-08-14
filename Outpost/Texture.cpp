@@ -1,3 +1,4 @@
+#include "pch.h"
 /* Texture stuff. */
 /* Alex McLean, Pumpkin Studios, EIDOS Interactive, 1997 */
 

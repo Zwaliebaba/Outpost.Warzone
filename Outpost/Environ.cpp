@@ -1,3 +1,4 @@
+#include "pch.h"
 /* 
 Environ.c - handles the enviroment stuff that's stored in tables
 used for the mist and water effects. These are preprocessed.

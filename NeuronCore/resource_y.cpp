@@ -1,3 +1,5 @@
+#include "pch.h"
+
 /* yacc -v -D Resource_y.h -p res_ -o Resource_y.c Resource.y */
 #ifdef YYTRACE
 #define YYDEBUG 1
@@ -83,7 +85,7 @@ static int printf(char* c, ...) { return 0; }
 //#define DEBUG_GROUP1
 #include <string.h>
 #include "Types.h"
-#include "Debug.h"
+#include "LegacyDebug.h"
 #include "ResLY.h"
 #include "FrameResource.h"
 

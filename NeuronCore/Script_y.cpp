@@ -1,3 +1,5 @@
+#include "pch.h"
+
 /* yacc -v -D Script_y.h -p scr_ -o Script_y.c Script.y */
 #ifdef YYTRACE
 #define YYDEBUG 1

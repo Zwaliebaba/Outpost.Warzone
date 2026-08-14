@@ -1,13 +1,4 @@
-/*
- * FrameResource.c
- *
- * Framework Resource file processing functions
- *
- */
-// Now renamed to avoid clash with warzone windows resource.c
-#include <string.h>
-#include <stdio.h>
-#include <assert.h>
+#include "pch.h"
 #include "Frame.h"
 #include "FrameResource.h"
 #include "ResLY.h"
@@ -442,8 +433,8 @@ void ResetBinaryResourceTypeCount(void) { BinaryResourceTypeCount = 0; }
 
 void AddBinaryResourceType(char* ResourceType)
 {
-  assert(strlen(ResourceType)<=MAXBINTYPENAME); // Type name is too long (can only be 3 letters)
-  assert(BinaryResourceTypeCount<=(MAXBINTYPES-1)); // too many types of binary file
+  ASSERT(strlen(ResourceType)<=MAXBINTYPENAME); // Type name is too long (can only be 3 letters)
+  ASSERT(BinaryResourceTypeCount<=(MAXBINTYPES-1)); // too many types of binary file
 
   strcpy(BinaryTypeNames[BinaryResourceTypeCount], ResourceType);
   BinaryResourceTypeCount++;

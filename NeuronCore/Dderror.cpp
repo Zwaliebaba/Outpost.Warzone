@@ -1,9 +1,4 @@
-/*
- * dderror.c
- *
- * Convert Direct Draw error numbers to strings.
- *
- */
+#include "pch.h"
 
 #pragma warning (disable : 4201 4214 4115 4514)
 #define WIN32_LEAN_AND_MEAN

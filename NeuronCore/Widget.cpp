@@ -1,9 +1,4 @@
-/*
- * Widget.c
- *
- * The main interface functions to the widget library
- */
-
+#include "pch.h"
 #include "Frame.h"
 #include "FrameInt.h"
 

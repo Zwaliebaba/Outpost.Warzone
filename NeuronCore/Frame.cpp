@@ -1,23 +1,7 @@
-/*
- * Frame.c
- *
- * Initialisation and shutdown for the framework library.
- *
- * Includes a basic windows message loop.
- *
- */
+#include "pch.h"
 
 // defines the inline functions in this module
 #define DEFINE_INLINE
-
-#pragma warning (disable : 4201 4214 4115 4514)
-#define WIN32_LEAN_AND_MEAN
-#define WIN32_EXTRA_LEAN
-#include <windows.h>
-#pragma warning (default : 4201 4214 4115)
-
-#include <stdio.h>
-#include <time.h>
 
 // window focus messages 
 #include "Frame.h"

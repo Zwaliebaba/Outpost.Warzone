@@ -1,9 +1,4 @@
-/*
- * DXInput.c
- *
- * Input functions using direct input.
- *
- */
+#include "pch.h"
 
 #include "Frame.h"
 #include "FrameInt.h"

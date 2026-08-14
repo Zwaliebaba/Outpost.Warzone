@@ -1,3 +1,5 @@
+#include "pch.h"
+
 /* d:\mks-ly\mksnt\yacc -p audp_ -o parser_y.c -D parser_y.h .\parser.y */
 #ifdef YYTRACE
 #define YYDEBUG 1

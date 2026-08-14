@@ -1,6 +1,4 @@
-/***************************************************************************/
-
-#include <stdio.h>
+#include "pch.h"
 
 #include "Frame.h"
 #include "GTime.h"

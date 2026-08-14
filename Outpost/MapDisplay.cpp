@@ -1,3 +1,4 @@
+#include "pch.h"
 /*
 	MapDisplay - Renders the world view necessary for the intelligence map
 	Alex McLean, Pumpkin Studios, EIDOS Interactive, 1997

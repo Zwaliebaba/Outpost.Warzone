@@ -1,9 +1,4 @@
-/*
- * Interp.c
- *
- * Execute the compiled version of a script
- *
- */
+#include "pch.h"
 
 /* Control the execution trace printf's */
 #define DEBUG_GROUP0

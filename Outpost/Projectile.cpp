@@ -1,3 +1,4 @@
+#include "pch.h"
 /***************************************************************************/
 /*
  * Projectile functions
@@ -1440,12 +1441,12 @@ UDWORD establishTargetRadius(BASE_OBJECT* psTarget)
     break;
   case OBJ_STRUCTURE:
     psStructure = (STRUCTURE*)psTarget;
-    radius = ((max(psStructure->pStructureType->baseBreadth, psStructure->pStructureType->baseWidth)) * TILE_UNITS) / 2;
+    radius = ((std::max(psStructure->pStructureType->baseBreadth, psStructure->pStructureType->baseWidth)) * TILE_UNITS) / 2;
     break;
   case OBJ_FEATURE:
     //			radius = TILE_UNITS/4;	// how will we arrive at this?
     psFeat = (FEATURE*)psTarget;
-    radius = ((max(psFeat->psStats->baseBreadth, psFeat->psStats->baseWidth)) * TILE_UNITS) / 2;
+    radius = ((std::max(psFeat->psStats->baseBreadth, psFeat->psStats->baseWidth)) * TILE_UNITS) / 2;
     break;
   }
 

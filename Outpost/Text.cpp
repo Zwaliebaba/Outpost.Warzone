@@ -1,3 +1,4 @@
+#include "pch.h"
 /*
  * Text.c (was Strings.c)
  *
