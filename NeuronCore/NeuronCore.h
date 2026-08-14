@@ -65,3 +65,5 @@
 #include <unknwn.h>
 
 #include "Debug.h"
+
+using namespace Neuron;
