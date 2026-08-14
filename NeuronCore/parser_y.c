@@ -508,6 +508,8 @@ void audp_error(char *pMessage,...)
 /***************************************************************************/
 /* Read a resource file */
 
+int audp_parse();					/* defined below */
+
 BOOL ParseResourceFile( UBYTE *pData, UDWORD fileSize )
 {
 	// Tell lex about the input buffer
@@ -538,7 +540,7 @@ BOOL ParseResourceFile( UBYTE *pData, UDWORD fileSize )
 
 static int win_yyparse();			/* prototype */
 
-audp_parse() 
+int audp_parse() 
 {
 	int wReturnValue;
 	HANDLE hRes_table;		/* handle of resource after loading */
@@ -631,7 +633,7 @@ static int win_yyparse()
  * standard way.
  */
 
-audp_parse() 
+int audp_parse() 
 
 #endif /* YACC_WINDOWS */
 

@@ -398,7 +398,7 @@ void strres_error(char *pMessage,...)
 
 static int win_yyparse();			/* prototype */
 
-strres_parse() 
+int strres_parse() 
 {
 	int wReturnValue;
 	HANDLE hRes_table;		/* handle of resource after loading */
@@ -491,7 +491,7 @@ static int win_yyparse()
  * standard way.
  */
 
-strres_parse() 
+int strres_parse() 
 
 #endif /* YACC_WINDOWS */
 

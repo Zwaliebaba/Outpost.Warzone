@@ -637,7 +637,7 @@ BOOL saveMultiStats(STRING *sFileName, STRING *sPlayerName,PLAYERSTATS *playerSt
 	
 	memcpy(&tmp,&NetPlay.cryptKey,sizeof(tmp));
 	NETsetKey(11974,224351,2023901,21080);
-	NETmangleData(&st,&codedst,sizeof(SAVEDPLAYERSTATS));	
+	NETmangleData((long *)&st,(long *)&codedst,sizeof(SAVEDPLAYERSTATS));	
 	NETsetKey(tmp[0],tmp[1],tmp[2],tmp[3]);
 
 	strcpy(fileName,"multiplay\\Players\\");

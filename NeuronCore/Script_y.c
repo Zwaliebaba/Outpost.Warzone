@@ -3159,7 +3159,7 @@ void scriptSetCallbackTab(CALLBACK_SYMBOL *psCallTab)
 
 static int win_yyparse();			/* prototype */
 
-scr_parse() 
+int scr_parse() 
 {
 	int wReturnValue;
 	HANDLE hRes_table;		/* handle of resource after loading */
@@ -3252,7 +3252,7 @@ static int win_yyparse()
  * standard way.
  */
 
-scr_parse() 
+int scr_parse() 
 
 #endif /* YACC_WINDOWS */
 

@@ -74,6 +74,7 @@ static int printf(char* c, ...)
 #define DEBUG_GROUP0
 // file printfs
 //#define DEBUG_GROUP1
+#include <string.h>
 #include "Types.h"
 #include "Debug.h"
 #include "ResLY.h"
@@ -409,7 +410,7 @@ void res_error(char *pMessage,...)
 
 static int win_yyparse();			/* prototype */
 
-res_parse() 
+int res_parse() 
 {
 	int wReturnValue;
 	HANDLE hRes_table;		/* handle of resource after loading */
@@ -502,7 +503,7 @@ static int win_yyparse()
  * standard way.
  */
 
-res_parse() 
+int res_parse() 
 
 #endif /* YACC_WINDOWS */
 

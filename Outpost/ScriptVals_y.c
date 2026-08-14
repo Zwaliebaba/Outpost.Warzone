@@ -624,7 +624,7 @@ void scrv_error(char *pMessage,...)
 
 static int win_yyparse();			/* prototype */
 
-scrv_parse() 
+int scrv_parse() 
 {
 	int wReturnValue;
 	HANDLE hRes_table;		/* handle of resource after loading */
@@ -717,7 +717,7 @@ static int win_yyparse()
  * standard way.
  */
 
-scrv_parse() 
+int scrv_parse() 
 
 #endif /* YACC_WINDOWS */
 
