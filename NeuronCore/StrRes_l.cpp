@@ -198,7 +198,7 @@ static int strres__base[] = {
  */
 #include <stdlib.h>
 #include <stdio.h>
-#if	__STDC__
+#if	__STDC__ || defined(__cplusplus)
 #define YY_ARGS(args)	args
 #else
 #define YY_ARGS(args)	()
