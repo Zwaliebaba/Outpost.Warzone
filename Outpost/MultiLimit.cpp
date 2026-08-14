@@ -284,7 +284,8 @@ VOID createLimitSet(VOID)
   if (ingame.numStructureLimits) // free the old set if required.
   {
     ingame.numStructureLimits = 0;
-    FREE(ingame.pStructureLimits);
+    delete[] ingame.pStructureLimits;
+    ingame.pStructureLimits = nullptr;
   }
 
   numchanges = 0; // count number of changes
@@ -295,7 +296,7 @@ VOID createLimitSet(VOID)
   }
 
   //close your eyes now
-  pChanges = MALLOC(numchanges*(sizeof(UDWORD)+sizeof(UBYTE))); // allocate some mem for this.
+  pChanges = new (std::nothrow) UBYTE[numchanges*(sizeof(UDWORD)+sizeof(UBYTE))]; // allocate some mem for this.
   pEntry = static_cast<UBYTE*>(pChanges);
 
   for (i = 0; i < numStructureStats; i++) // prepare chunk.
@@ -353,7 +354,8 @@ VOID applyLimitSet(VOID)
   // free.
   if (ingame.numStructureLimits)
   {
-    FREE(ingame.pStructureLimits);
+    delete[] ingame.pStructureLimits;
+    ingame.pStructureLimits = nullptr;
     ingame.numStructureLimits = 0;
   }
 }

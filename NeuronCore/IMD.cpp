@@ -418,7 +418,10 @@ void iV_IMDRelease(iIMDShape* s)
       iV_HeapFree(s->connectors, s->nconnectors * sizeof(iVector));
 
       if (s->BSPNode)
-      FREE(s->BSPNode); // I used MALLOC() so i'm going to use FREE()
+      {
+        delete[] s->BSPNode; // allocated with new[] in _imd_load_bsp, not iV_HeapAlloc
+        s->BSPNode = nullptr;
+      }
 
       if (s->polys)
       {

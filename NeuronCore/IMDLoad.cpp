@@ -174,7 +174,8 @@ iIMDShape* iV_IMDLoad(char* filename, iBool palkeep)
     //         'BPIE'
     if (tt == 0x45495042)
     {
-      FREE(pFileData); // free the file up
+      delete[] pFileData; // free the file up
+      pFileData = nullptr;
       return nullptr;
     }
   }
@@ -182,7 +183,8 @@ iIMDShape* iV_IMDLoad(char* filename, iBool palkeep)
   pFileDataStart = pFileData;
   pIMD = iV_ProcessIMD(&pFileData, pFileData + FileSize, path, (UBYTE*)imagePath, palkeep);
 
-  FREE(pFileDataStart); // free the file up
+  delete[] pFileDataStart; // free the file up
+  pFileDataStart = nullptr;
 
   return (pIMD);
 }
@@ -601,7 +603,7 @@ static iBool _imd_load_bsp(UBYTE** ppFileData, UBYTE* FileDataEnd, iIMDShape* s,
     iV_Error(0xff, "(_imd_load_bsp) Too many polygons in IMD for BSP to handle");
 
   // Build table of nodes - we sort out the links later 
-  NodeList = static_cast<PSBSPTREENODE>(MALLOC((sizeof(BSPTREENODE))*BSPNodeCount)); // Allocate the entire node tree
+  NodeList = new (std::nothrow) BSPTREENODE[BSPNodeCount]; // Allocate the entire node tree
 
   memset(NodeList, 0, (sizeof(BSPTREENODE)) * BSPNodeCount); // Zero it out ... we need to make all pointers NULL
 

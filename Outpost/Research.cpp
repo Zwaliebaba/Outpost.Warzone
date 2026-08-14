@@ -118,7 +118,7 @@ BOOL researchInitVars(void)
   psCBLastResearch = nullptr;
   asResearch = nullptr;
   //research is a pre-defined size now
-  asResearch = static_cast<RESEARCH*>(MALLOC(sizeof(RESEARCH)* MAX_RESEARCH));
+  asResearch = new (std::nothrow) RESEARCH[MAX_RESEARCH];
   if (asResearch == nullptr)
   {
     DBERROR(("Research Stats - Out of memory"));
@@ -129,7 +129,7 @@ BOOL researchInitVars(void)
   //create the PLAYER_RESEARCH arrays
   for (i = 0; i < MAX_PLAYERS; i++)
   {
-    asPlayerResList[i] = static_cast<PLAYER_RESEARCH*>(MALLOC(MAX_RESEARCH * sizeof(PLAYER_RESEARCH)));
+    asPlayerResList[i] = new (std::nothrow) PLAYER_RESEARCH[MAX_RESEARCH];
     if (asPlayerResList[i] == nullptr)
     {
       DBERROR(("Out of memory assigning Player_Research"));
@@ -142,7 +142,7 @@ BOOL researchInitVars(void)
 
   //and deal with all the other arrays for research
   //needs to be UWORD sized for the Patches
-  pResearchPR = static_cast<UWORD*>(MALLOC(sizeof(UWORD) * MAX_RESEARCH_PR));
+  pResearchPR = new (std::nothrow) UWORD[MAX_RESEARCH_PR];
   if (pResearchPR == nullptr)
   {
     DBERROR(("Research Stats - Out of memory"));
@@ -151,7 +151,7 @@ BOOL researchInitVars(void)
   //needs to be UWORD sized for the Patches
   memset(pResearchPR, 0, (MAX_RESEARCH_PR * sizeof(UWORD)));
 
-  pResearchStructPR = static_cast<UWORD*>(MALLOC(sizeof(UWORD) * MAX_RESEARCH_STRUCT_PR));
+  pResearchStructPR = new (std::nothrow) UWORD[MAX_RESEARCH_STRUCT_PR];
   if (pResearchStructPR == nullptr)
   {
     DBERROR(("Research Stats - Out of memory"));
@@ -159,7 +159,7 @@ BOOL researchInitVars(void)
   }
   memset(pResearchStructPR, 0, (MAX_RESEARCH_STRUCT_PR * sizeof(UWORD)));
 
-  pResearchFunc = static_cast<FUNCTION**>(MALLOC(sizeof(FUNCTION *) * MAX_RESEARCH_FUNC));
+  pResearchFunc = new (std::nothrow) FUNCTION*[MAX_RESEARCH_FUNC];
   if (pResearchFunc == nullptr)
   {
     DBERROR(("Research Stats - Out of memory"));
@@ -167,7 +167,7 @@ BOOL researchInitVars(void)
   }
   memset(pResearchFunc, 0, (MAX_RESEARCH_FUNC * sizeof(FUNCTION*)));
 
-  pResearchStructRed = static_cast<UWORD*>(MALLOC(sizeof(UWORD) * MAX_RESEARCH_STRUCT_RED));
+  pResearchStructRed = new (std::nothrow) UWORD[MAX_RESEARCH_STRUCT_RED];
   if (pResearchStructRed == nullptr)
   {
     DBERROR(("Research Stats - Out of memory"));
@@ -175,7 +175,7 @@ BOOL researchInitVars(void)
   }
   memset(pResearchStructRed, 0, (MAX_RESEARCH_STRUCT_RED * sizeof(UWORD)));
 
-  pResearchArteRed = static_cast<COMP_BASE_STATS**>(MALLOC(sizeof(COMP_BASE_STATS *) * MAX_RESEARCH_ARTE_RED));
+  pResearchArteRed = new (std::nothrow) COMP_BASE_STATS*[MAX_RESEARCH_ARTE_RED];
   if (pResearchArteRed == nullptr)
   {
     DBERROR(("Research Stats - Out of memory"));
@@ -183,7 +183,7 @@ BOOL researchInitVars(void)
   }
   memset(pResearchArteRed, 0, (MAX_RESEARCH_ARTE_RED * sizeof(COMP_BASE_STATS*)));
 
-  pResearchStructRes = static_cast<UWORD*>(MALLOC(sizeof(UWORD) * MAX_RESEARCH_STRUCT_RES));
+  pResearchStructRes = new (std::nothrow) UWORD[MAX_RESEARCH_STRUCT_RES];
   if (pResearchStructRes == nullptr)
   {
     DBERROR(("Research Stats - Out of memory"));
@@ -191,7 +191,7 @@ BOOL researchInitVars(void)
   }
   memset(pResearchStructRes, 0, (MAX_RESEARCH_STRUCT_RES * sizeof(UWORD)));
 
-  pResearchArteRes = static_cast<COMP_BASE_STATS**>(MALLOC(sizeof(COMP_BASE_STATS *) * MAX_RESEARCH_ARTE_RES));
+  pResearchArteRes = new (std::nothrow) COMP_BASE_STATS*[MAX_RESEARCH_ARTE_RES];
   if (pResearchArteRes == nullptr)
   {
     DBERROR(("Research Stats - Out of memory"));
@@ -199,7 +199,7 @@ BOOL researchInitVars(void)
   }
   memset(pResearchArteRes, 0, (MAX_RESEARCH_ARTE_RES * sizeof(COMP_BASE_STATS*)));
 
-  pResearchArteRep = static_cast<COMP_BASE_STATS**>(MALLOC(sizeof(COMP_BASE_STATS *) * MAX_RESEARCH_ARTE_RES));
+  pResearchArteRep = new (std::nothrow) COMP_BASE_STATS*[MAX_RESEARCH_ARTE_RES];
   if (pResearchArteRep == nullptr)
   {
     DBERROR(("Research Stats - Out of memory"));
@@ -1905,16 +1905,27 @@ BOOL ResearchRelease(void)
   UBYTE i;
 
   //free all the pre-defined arrays for research
-  FREE(asResearch);
-  for (i = 0; i < MAX_PLAYERS; i++) { FREE(asPlayerResList[i]); }
-  FREE(pResearchPR);
-  FREE(pResearchStructPR);
-  FREE(pResearchFunc);
-  FREE(pResearchStructRed);
-  FREE(pResearchArteRed);
-  FREE(pResearchStructRes);
-  FREE(pResearchArteRes);
-  FREE(pResearchArteRep);
+  {
+    delete[] asResearch;
+    asResearch = nullptr;
+  }
+  for (i = 0; i < MAX_PLAYERS; i++) { delete[] asPlayerResList[i]; }
+  delete[] pResearchPR;
+  pResearchPR = nullptr;
+  delete[] pResearchStructPR;
+  pResearchStructPR = nullptr;
+  delete[] pResearchFunc;
+  pResearchFunc = nullptr;
+  delete[] pResearchStructRed;
+  pResearchStructRed = nullptr;
+  delete[] pResearchArteRed;
+  pResearchArteRed = nullptr;
+  delete[] pResearchStructRes;
+  pResearchStructRes = nullptr;
+  delete[] pResearchArteRes;
+  pResearchArteRes = nullptr;
+  delete[] pResearchArteRep;
+  pResearchArteRep = nullptr;
 
   return TRUE;
 }

@@ -100,7 +100,7 @@ PLAYER_AI* asPlayerAI;
 /* Initialise the player AI system */
 BOOL playerInitialise(void)
 {
-  asPlayerAI = static_cast<PLAYER_AI*>(MALLOC(sizeof(PLAYER_AI) * MAX_PLAYERS));
+  asPlayerAI = new (std::nothrow) PLAYER_AI[MAX_PLAYERS];
   if (!asPlayerAI)
   {
     DBERROR(("Out of memory"));
@@ -115,7 +115,7 @@ BOOL playerInitialise(void)
 void playerReset(void) { memset(asPlayerAI, 0, sizeof(PLAYER_AI) * MAX_PLAYERS); }
 
 /* Shutdown the player AI system */
-void playerShutDown(void) { FREE(asPlayerAI); }
+void playerShutDown(void) { delete[] asPlayerAI; }
 
 /* Check a group list for dead droids */
 /*static void playerCheckGroup(DROID **ppsDroid)

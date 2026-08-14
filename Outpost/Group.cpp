@@ -11,11 +11,6 @@
 #include "Group.h"
 #include "OrderDef.h"
 #include "MultiPlay.h"
-// sizes for the group heap
-#define GRP_HEAP_INIT	45
-#define GRP_HEAP_EXT	15
-
-// heap for the droid group structure
 
 // initialise the group system
 BOOL grpInitialise(void)

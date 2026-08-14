@@ -615,7 +615,7 @@ BOOL intInitialise(void)
     WidgSetAudio(WidgetAudioCallback, -1, ID_SOUND_SELECT);
 
   /* Create storage for Structures that can be built */
-  apsStructStatsList = static_cast<STRUCTURE_STATS**>(MALLOC(sizeof(STRUCTURE_STATS *) * MAXSTRUCTURES));
+  apsStructStatsList = new (std::nothrow) STRUCTURE_STATS*[MAXSTRUCTURES];
   if (!apsStructStatsList)
   {
     DBERROR(("Out of memory"));
@@ -623,7 +623,7 @@ BOOL intInitialise(void)
   }
 
   //create the storage for Research topics - max possible size
-  ppResearchList = static_cast<RESEARCH**>(MALLOC(sizeof(RESEARCH *) * MAXRESEARCH));
+  ppResearchList = new (std::nothrow) RESEARCH*[MAXRESEARCH];
   if (ppResearchList == nullptr)
   {
     DBERROR(("Unable to allocate memory for research list"));
@@ -632,8 +632,8 @@ BOOL intInitialise(void)
 
   //create the list for the selected player
   //needs to be UWORD sized for Patches
-  pList = static_cast<UWORD*>(MALLOC(sizeof (UWORD) * MAXRESEARCH));
-  pSList = static_cast<UWORD*>(MALLOC(sizeof (UWORD) * MAXRESEARCH));
+  pList = new (std::nothrow) UWORD[MAXRESEARCH];
+  pSList = new (std::nothrow) UWORD[MAXRESEARCH];
 
   if (pList == nullptr)
   {
@@ -647,7 +647,7 @@ BOOL intInitialise(void)
   }
 
   /* Create storage for Templates that can be built */
-  apsTemplateList = static_cast<DROID_TEMPLATE**>(MALLOC(sizeof(DROID_TEMPLATE*) * MAXTEMPLATES));
+  apsTemplateList = new (std::nothrow) DROID_TEMPLATE*[MAXTEMPLATES];
   if (apsTemplateList == nullptr)
   {
     DBERROR(("Unable to allocate memory for template list"));
@@ -663,7 +663,7 @@ BOOL intInitialise(void)
   }
 
   /* Create storage for the feature list */
-  apsFeatureList = static_cast<FEATURE_STATS**>(MALLOC(sizeof(FEATURE_STATS *) * MAXFEATURES));
+  apsFeatureList = new (std::nothrow) FEATURE_STATS*[MAXFEATURES];
   if (apsFeatureList == nullptr)
   {
     DBERROR(("Unable to allocate memory for feature list"));
@@ -671,7 +671,7 @@ BOOL intInitialise(void)
   }
 
   /* Create storage for the component list */
-  apsComponentList = static_cast<COMP_BASE_STATS**>(MALLOC(sizeof(COMP_BASE_STATS *) * MAXCOMPONENT));
+  apsComponentList = new (std::nothrow) COMP_BASE_STATS*[MAXCOMPONENT];
   if (apsComponentList == nullptr)
   {
     DBERROR(("Unable to allocate memory for component list"));
@@ -679,7 +679,7 @@ BOOL intInitialise(void)
   }
 
   /* Create storage for the extra systems list */
-  apsExtraSysList = static_cast<COMP_BASE_STATS**>(MALLOC(sizeof(COMP_BASE_STATS *) * MAXEXTRASYS));
+  apsExtraSysList = new (std::nothrow) COMP_BASE_STATS*[MAXEXTRASYS];
   if (apsExtraSysList == nullptr)
   {
     DBERROR(("Unable to allocate memory for extra systems list"));
@@ -687,7 +687,7 @@ BOOL intInitialise(void)
   }
 
   // allocate the object list
-  apsObjectList = static_cast<BASE_OBJECT**>(MALLOC(sizeof(BASE_OBJECT *) * MAX_OBJECTS));
+  apsObjectList = new (std::nothrow) BASE_OBJECT*[MAX_OBJECTS];
   if (!apsObjectList)
   {
     DBERROR(("Out of memory"));
@@ -695,7 +695,7 @@ BOOL intInitialise(void)
   }
 
   //allocate the order list - ONLY SIZED FOR FACTORIES AT PRESENT!!
-  apsListToOrder = static_cast<BASE_OBJECT**>(MALLOC(sizeof(BASE_OBJECT *) * ORDERED_LIST_SIZE));
+  apsListToOrder = new (std::nothrow) BASE_OBJECT*[ORDERED_LIST_SIZE];
   if (!apsListToOrder)
   {
     DBERROR(("Out of memory"));
@@ -825,16 +825,26 @@ void intShutDown(void)
 
   ReleaseSnapBuffer(&InterfaceSnap);
 
-  FREE(apsStructStatsList);
-  FREE(ppResearchList);
-  FREE(pList);
-  FREE(pSList);
-  FREE(apsTemplateList);
-  FREE(apsFeatureList);
-  FREE(apsComponentList);
-  FREE(apsExtraSysList);
-  FREE(apsObjectList);
-  FREE(apsListToOrder);
+  delete[] apsStructStatsList;
+  apsStructStatsList = nullptr;
+  delete[] ppResearchList;
+  ppResearchList = nullptr;
+  delete[] pList;
+  pList = nullptr;
+  delete[] pSList;
+  pSList = nullptr;
+  delete[] apsTemplateList;
+  apsTemplateList = nullptr;
+  delete[] apsFeatureList;
+  apsFeatureList = nullptr;
+  delete[] apsComponentList;
+  apsComponentList = nullptr;
+  delete[] apsExtraSysList;
+  apsExtraSysList = nullptr;
+  delete[] apsObjectList;
+  apsObjectList = nullptr;
+  delete[] apsListToOrder;
+  apsListToOrder = nullptr;
 
   //release the message buffer
   releaseMapSurface(pIntelMapSurface);

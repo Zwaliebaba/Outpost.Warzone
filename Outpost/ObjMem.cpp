@@ -19,27 +19,6 @@
 #include "ScriptCB.h"
 #include "Mission.h"
 
-/* Allocation sizes for the droid, structure and feature heaps */
-
-#define DROID_INIT		400
-#define STRUCTURE_INIT	200
-
-#define DROID_EXT		15
-#define STRUCTURE_EXT	15
-#define STRUCTFUNC_INIT	50
-#define STRUCTFUNC_EXT	5
-#define FEATURE_INIT	145		// Surely this can be reduced.
-#define FEATURE_EXT		15
-#define FLAGPOS_INIT	20
-#define FLAGPOS_EXT		5
-#define TEMPLATE_INIT	120		// was 40 but this there is 116 templates in template.txt alone ... Arse ... 84 bytes each as well ... arse ...
-#define TEMPLATE_EXT	10
-
-/* The memory heaps for the different object types */
-/*Heap for structure functionality*/
-/* The memory heap for the Flag Postions */
-// the memory heap for templates
-
 SDWORD factoryDeliveryPointCheck[MAX_PLAYERS][NUM_FLAG_TYPES][MAX_FACTORY];
 // the initial value for the object ID
 #define OBJ_ID_INIT		20000
@@ -139,7 +118,6 @@ void embalm(BASE_OBJECT* psDead)
 
 void objListIntegCheck(void);
 
-/* Initialise the object heaps */
 BOOL objmemInitialise(void)
 {
   // reset the object ID number
@@ -150,7 +128,6 @@ BOOL objmemInitialise(void)
   return TRUE;
 }
 
-/* Release the object heaps */
 void objmemShutdown(void)
 {
 }
@@ -461,7 +438,6 @@ void killStruct(STRUCTURE* psDel)
   DESTROY(apsStructLists, psDel, STRUCTURE);
 }
 
-/* Remove heapall structures */
 void freeAllStructs(void) { RELEASEALL(apsStructLists, structureRelease, STRUCTURE); }
 
 /*Remove a single Structure from a list*/

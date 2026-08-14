@@ -1179,7 +1179,7 @@ BOOL receiveWholeDroid(NETMSG* m)
     sizecount += sizeof(pD->psTarStats); //later!
 
     //store the droid for later.
-    tempDroid = static_cast<DROIDSTORE*>(MALLOC(sizeof(DROIDSTORE)));
+    tempDroid = new (std::nothrow) DROIDSTORE[1];
     tempDroid->psDroid = pD;
     tempDroid->psNext = tempDroidList;
     tempDroidList = tempDroid;

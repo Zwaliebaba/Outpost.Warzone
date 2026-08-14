@@ -1395,7 +1395,7 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
     freeAllFeatures();
 
     if (psMapTiles) {}
-    if (aMapLinePoints) { FREE(aMapLinePoints); }
+    if (aMapLinePoints) { delete[] aMapLinePoints; }
     //clear all the messages?
     releaseAllProxDisp();
   }
@@ -1776,8 +1776,6 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
         }
       }
     }
-
-    //set mission heap
 
     // reload the objects that were in the mission list 
     //except droids these are always loaded directly to the mission.apsDroidList
@@ -2556,7 +2554,7 @@ error: DBPRINTF(("loadgame: ERROR\n"));
   freeAllFeatures();
   droidTemplateShutDown();
   if (psMapTiles) {}
-  if (aMapLinePoints) { FREE(aMapLinePoints); }
+  if (aMapLinePoints) { delete[] aMapLinePoints; }
   psMapTiles = nullptr;
   aMapLinePoints = nullptr;
 
@@ -2867,11 +2865,11 @@ BOOL writeMapFile(STRING* pFileName)
     goto error;
   }
 
-  if (pFileData != nullptr) { FREE(pFileData); }
+  if (pFileData != nullptr) { delete[] pFileData; }
   return TRUE;
 
 error:
-  if (pFileData != nullptr) { FREE(pFileData); }
+  if (pFileData != nullptr) { delete[] pFileData; }
   return FALSE;
 }
 
@@ -3419,7 +3417,7 @@ BOOL writeGameFile(STRING* pFileName, SDWORD saveType)
 
   /* Allocate the data buffer */
   fileSize = GAME_HEADER_SIZE + sizeof(SAVE_GAME);
-  pFileData = static_cast<UBYTE*>(MALLOC(fileSize));
+  pFileData = new (std::nothrow) UBYTE[fileSize];
   if (pFileData == nullptr)
   {
     DBERROR(("Out of memory"));
@@ -3586,11 +3584,11 @@ BOOL writeGameFile(STRING* pFileName, SDWORD saveType)
     goto error;
   }
 
-  if (pFileData != nullptr) { FREE(pFileData); }
+  if (pFileData != nullptr) { delete[] pFileData; }
   return TRUE;
 
 error:
-  if (pFileData != nullptr) { FREE(pFileData); }
+  if (pFileData != nullptr) { delete[] pFileData; }
   return FALSE;
 }
 
@@ -3962,7 +3960,7 @@ DROID* buildDroidFromSaveDroidV19(SAVE_DROID_V18* psSaveDroid, UDWORD version)
   /*create the Droid */
 
   // ignore brains for now
-  // not any *$ï¿½&!!! more - JOHN
+  // not any *$£&!!! more - JOHN
 
   if (psSaveDroid->x == INVALID_XY) { psDroid = buildDroid(psTemplate, psSaveDroid->x, psSaveDroid->y, psSaveDroid->player, TRUE); }
   else if (psSaveDroid->saveType == DROID_ON_TRANSPORT) { psDroid = buildDroid(psTemplate, 0, 0, psSaveDroid->player, TRUE); }
@@ -4170,7 +4168,7 @@ DROID* buildDroidFromSaveDroid(SAVE_DROID* psSaveDroid, UDWORD version)
   /*create the Droid */
 
   // ignore brains for now
-  // not any *$ï¿½&!!! more - JOHN
+  // not any *$£&!!! more - JOHN
 
   turnOffMultiMsg(TRUE);
 
@@ -4952,7 +4950,7 @@ BOOL writeDroidFile(STRING* pFileName, DROID** ppsCurrentDroidLists)
 
   /* Allocate the data buffer */
   fileSize = DROID_HEADER_SIZE + totalDroids * sizeof(SAVE_DROID);
-  pFileData = static_cast<UBYTE*>(MALLOC(fileSize));
+  pFileData = new (std::nothrow) UBYTE[fileSize];
   if (pFileData == nullptr)
   {
     DBERROR(("Out of memory"));
@@ -5019,14 +5017,14 @@ BOOL writeDroidFile(STRING* pFileName, DROID** ppsCurrentDroidLists)
     goto error;
   }
 
-  if (pFileData != nullptr) { FREE(pFileData); }
+  if (pFileData != nullptr) { delete[] pFileData; }
 
   ppsCurrentDroidLists = nullptr; //ensure it always gets set
 
   return TRUE;
 
 error:
-  if (pFileData != nullptr) { FREE(pFileData); }
+  if (pFileData != nullptr) { delete[] pFileData; }
   return FALSE;
 }
 
@@ -5982,7 +5980,7 @@ BOOL writeStructFile(STRING* pFileName)
 
   /* Allocate the data buffer */
   fileSize = STRUCT_HEADER_SIZE + totalStructs * sizeof(SAVE_STRUCTURE);
-  pFileData = static_cast<UBYTE*>(MALLOC(fileSize));
+  pFileData = new (std::nothrow) UBYTE[fileSize];
   if (pFileData == nullptr)
   {
     DBERROR(("Out of memory"));
@@ -6162,11 +6160,11 @@ BOOL writeStructFile(STRING* pFileName)
     goto error;
   }
 
-  if (pFileData != nullptr) { FREE(pFileData); }
+  if (pFileData != nullptr) { delete[] pFileData; }
   return TRUE;
 
 error:
-  if (pFileData != nullptr) { FREE(pFileData); }
+  if (pFileData != nullptr) { delete[] pFileData; }
   return FALSE;
 }
 
@@ -6558,7 +6556,7 @@ BOOL writeFeatureFile(STRING* pFileName)
 
   /* Allocate the data buffer */
   fileSize = FEATURE_HEADER_SIZE + totalFeatures * sizeof(SAVE_FEATURE);
-  pFileData = static_cast<UBYTE*>(MALLOC(fileSize));
+  pFileData = new (std::nothrow) UBYTE[fileSize];
   if (pFileData == nullptr)
   {
     DBERROR(("Out of memory"));
@@ -6614,11 +6612,11 @@ BOOL writeFeatureFile(STRING* pFileName)
     goto error;
   }
 
-  if (pFileData != nullptr) { FREE(pFileData); }
+  if (pFileData != nullptr) { delete[] pFileData; }
   return TRUE;
 
 error:
-  if (pFileData != nullptr) { FREE(pFileData); }
+  if (pFileData != nullptr) { delete[] pFileData; }
   return FALSE;
 }
 
@@ -7086,7 +7084,7 @@ BOOL writeTemplateFile(STRING* pFileName)
 
   /* Allocate the data buffer */
   fileSize = TEMPLATE_HEADER_SIZE + totalTemplates * sizeof(SAVE_TEMPLATE);
-  pFileData = static_cast<UBYTE*>(MALLOC(fileSize));
+  pFileData = new (std::nothrow) UBYTE[fileSize];
   if (pFileData == nullptr)
   {
     DBERROR(("Out of memory"));
@@ -7157,11 +7155,11 @@ BOOL writeTemplateFile(STRING* pFileName)
     goto error;
   }
 
-  if (pFileData != nullptr) { FREE(pFileData); }
+  if (pFileData != nullptr) { delete[] pFileData; }
   return TRUE;
 
 error:
-  if (pFileData != nullptr) { FREE(pFileData); }
+  if (pFileData != nullptr) { delete[] pFileData; }
   return FALSE;
 }
 
@@ -7230,7 +7228,7 @@ static BOOL writeTerrainTypeMapFile(STRING* pFileName)
 
   // Calculate the file size
   fileSize = TILETYPE_HEADER_SIZE + sizeof(UWORD) * MAX_TILE_TEXTURES;
-  pFileData = static_cast<UBYTE*>(MALLOC(fileSize));
+  pFileData = new (std::nothrow) UBYTE[fileSize];
   if (!pFileData)
   {
     DBERROR(("writeTerrainTypeMapFile: Out of memory"));
@@ -7255,7 +7253,8 @@ static BOOL writeTerrainTypeMapFile(STRING* pFileName)
 
   if (!saveFile(pFileName, pFileData, fileSize))
     return FALSE;
-  FREE(pFileData);
+  delete[] pFileData;
+  pFileData = nullptr;
 
   return TRUE;
 }
@@ -7430,7 +7429,7 @@ static BOOL writeCompListFile(STRING* pFileName)
     numBrainStats + numProgramStats) * MAX_PLAYERS;
   fileSize = COMPLIST_HEADER_SIZE + (sizeof(SAVE_COMPLIST) * totalComp);
   //allocate the buffer space
-  pFileData = static_cast<UBYTE*>(MALLOC(fileSize));
+  pFileData = new (std::nothrow) UBYTE[fileSize];
   if (!pFileData)
   {
     DBERROR(("writeCompListFile: Out of memory"));
@@ -7543,7 +7542,8 @@ static BOOL writeCompListFile(STRING* pFileName)
 
   if (!saveFile(pFileName, pFileData, fileSize))
     return FALSE;
-  FREE(pFileData);
+  delete[] pFileData;
+  pFileData = nullptr;
 
   return TRUE;
 }
@@ -7712,7 +7712,7 @@ static BOOL writeStructTypeListFile(STRING* pFileName)
   fileSize = STRUCTLIST_HEADER_SIZE + (sizeof(SAVE_STRUCTLIST) * numStructureStats * MAX_PLAYERS);
 
   //allocate the buffer space
-  pFileData = static_cast<UBYTE*>(MALLOC(fileSize));
+  pFileData = new (std::nothrow) UBYTE[fileSize];
   if (!pFileData)
   {
     DBERROR(("writeStructTypeListFile: Out of memory"));
@@ -7744,7 +7744,8 @@ static BOOL writeStructTypeListFile(STRING* pFileName)
 
   if (!saveFile(pFileName, pFileData, fileSize))
     return FALSE;
-  FREE(pFileData);
+  delete[] pFileData;
+  pFileData = nullptr;
 
   return TRUE;
 }
@@ -7939,7 +7940,7 @@ static BOOL writeResearchFile(STRING* pFileName)
   fileSize = RESEARCH_HEADER_SIZE + (sizeof(SAVE_RESEARCH) * numResearch);
 
   //allocate the buffer space
-  pFileData = static_cast<UBYTE*>(MALLOC(fileSize));
+  pFileData = new (std::nothrow) UBYTE[fileSize];
   if (!pFileData)
   {
     DBERROR(("writeResearchFile: Out of memory"));
@@ -7973,7 +7974,8 @@ static BOOL writeResearchFile(STRING* pFileName)
 
   if (!saveFile(pFileName, pFileData, fileSize))
     return FALSE;
-  FREE(pFileData);
+  delete[] pFileData;
+  pFileData = nullptr;
 
   return TRUE;
 }
@@ -8120,7 +8122,7 @@ static BOOL writeMessageFile(STRING* pFileName)
   fileSize = MESSAGE_HEADER_SIZE + (sizeof(SAVE_MESSAGE) * numMessages);
 
   //allocate the buffer space
-  pFileData = static_cast<UBYTE*>(MALLOC(fileSize));
+  pFileData = new (std::nothrow) UBYTE[fileSize];
   if (!pFileData)
   {
     DBERROR(("writeMessageFile: Out of memory"));
@@ -8186,7 +8188,8 @@ static BOOL writeMessageFile(STRING* pFileName)
 
   if (!saveFile(pFileName, pFileData, fileSize))
     return FALSE;
-  FREE(pFileData);
+  delete[] pFileData;
+  pFileData = nullptr;
 
   return TRUE;
 }
@@ -8264,7 +8267,7 @@ static BOOL writeProximityFile(STRING* pFileName)
   fileSize = PROXIMITY_HEADER_SIZE + (sizeof(SAVE_PROXIMITY) * numProximitys);
 
   //allocate the buffer space
-  pFileData = MALLOC(fileSize);
+  pFileData = new (std::nothrow) UBYTE[fileSize];
   if (!pFileData)
   {
     DBERROR(("writeProximityFile: Out of memory"));
@@ -8306,7 +8309,8 @@ static BOOL writeProximityFile(STRING* pFileName)
   }
 
   if (!saveFile(pFileName, pFileData, fileSize)) { return FALSE; }
-  FREE(pFileData);
+  delete[] pFileData;
+  pFileData = nullptr;
 
   return TRUE;
 }
@@ -8493,7 +8497,7 @@ static BOOL writeFlagFile(STRING* pFileName)
   fileSize = FLAG_HEADER_SIZE + (sizeof(SAVE_FLAG) * numflags);
 
   //allocate the buffer space
-  pFileData = static_cast<UBYTE*>(MALLOC(fileSize));
+  pFileData = new (std::nothrow) UBYTE[fileSize];
   if (!pFileData)
   {
     DBERROR(("writeflagFile: Out of memory"));
@@ -8582,7 +8586,8 @@ static BOOL writeFlagFile(STRING* pFileName)
 
   if (!saveFile(pFileName, pFileData, fileSize))
     return FALSE;
-  FREE(pFileData);
+  delete[] pFileData;
+  pFileData = nullptr;
 
   return TRUE;
 }
@@ -8662,7 +8667,7 @@ static BOOL writeProductionFile(STRING* pFileName)
   fileSize = PRODUCTION_HEADER_SIZE + (sizeof(SAVE_PRODUCTION) * NUM_FACTORY_TYPES * MAX_FACTORY * MAX_PROD_RUN);
 
   //allocate the buffer space
-  pFileData = static_cast<UBYTE*>(MALLOC(fileSize));
+  pFileData = new (std::nothrow) UBYTE[fileSize];
   if (!pFileData)
   {
     DBERROR(("writeProductionFile: Out of memory"));
@@ -8698,7 +8703,8 @@ static BOOL writeProductionFile(STRING* pFileName)
 
   if (!saveFile(pFileName, pFileData, fileSize))
     return FALSE;
-  FREE(pFileData);
+  delete[] pFileData;
+  pFileData = nullptr;
 
   return TRUE;
 }
@@ -8751,7 +8757,7 @@ BOOL loadSaveStructLimitsV19(UBYTE* pFileData, UDWORD filesize, UDWORD numLimits
   STRUCTURE_STATS* psStats;
   int SkippedRecords = 0;
 
-  psSaveLimits = static_cast<SAVE_STRUCTLIMITS_V2*>(MALLOC(sizeof(SAVE_STRUCTLIMITS_V2)));
+  psSaveLimits = new (std::nothrow) SAVE_STRUCTLIMITS_V2[1];
   if (!psSaveLimits)
   {
     DBERROR(("Out of memory"));
@@ -8796,7 +8802,8 @@ BOOL loadSaveStructLimitsV19(UBYTE* pFileData, UDWORD filesize, UDWORD numLimits
 
   if (SkippedRecords > 0)
     DBERROR(("Skipped %d records in structure limits due to bad player number\n",SkippedRecords));
-  FREE(psSaveLimits);
+  delete[] psSaveLimits;
+  psSaveLimits = nullptr;
   return TRUE;
 }
 
@@ -8809,7 +8816,7 @@ BOOL loadSaveStructLimitsV(UBYTE* pFileData, UDWORD filesize, UDWORD numLimits)
   STRUCTURE_STATS* psStats;
   int SkippedRecords = 0;
 
-  psSaveLimits = static_cast<SAVE_STRUCTLIMITS*>(MALLOC(sizeof(SAVE_STRUCTLIMITS)));
+  psSaveLimits = new (std::nothrow) SAVE_STRUCTLIMITS[1];
   if (!psSaveLimits)
   {
     DBERROR(("Out of memory"));
@@ -8854,7 +8861,8 @@ BOOL loadSaveStructLimitsV(UBYTE* pFileData, UDWORD filesize, UDWORD numLimits)
 
   if (SkippedRecords > 0)
     DBERROR(("Skipped %d records in structure limits due to bad player number\n",SkippedRecords));
-  FREE(psSaveLimits);
+  delete[] psSaveLimits;
+  psSaveLimits = nullptr;
   return TRUE;
 }
 
@@ -8875,7 +8883,7 @@ BOOL writeStructLimitsFile(STRING* pFileName)
 
   // Allocate the data buffer 
   fileSize = STRUCTLIMITS_HEADER_SIZE + (totalLimits * (sizeof(SAVE_STRUCTLIMITS)));
-  pFileData = static_cast<UBYTE*>(MALLOC(fileSize));
+  pFileData = new (std::nothrow) UBYTE[fileSize];
   if (pFileData == nullptr)
   {
     DBERROR(("Out of memory"));
@@ -8924,11 +8932,11 @@ BOOL writeStructLimitsFile(STRING* pFileName)
     goto error;
   }
 
-  if (pFileData != nullptr) { FREE(pFileData); }
+  if (pFileData != nullptr) { delete[] pFileData; }
   return TRUE;
 
 error:
-  if (pFileData != nullptr) { FREE(pFileData); }
+  if (pFileData != nullptr) { delete[] pFileData; }
   return FALSE;
 }
 
@@ -9015,7 +9023,7 @@ BOOL writeCommandLists(STRING* pFileName)
 
   // Allocate the data buffer 
   fileSize = COMMAND_HEADER_SIZE + (totalDroids * (sizeof(SAVE_COMMAND)));
-  pFileData = static_cast<UBYTE*>(MALLOC(fileSize));
+  pFileData = new (std::nothrow) UBYTE[fileSize];
   if (pFileData == nullptr)
   {
     DBERROR(("Out of memory"));
@@ -9069,11 +9077,11 @@ BOOL writeCommandLists(STRING* pFileName)
     goto error;
   }
 
-  if (pFileData != nullptr) { FREE(pFileData); }
+  if (pFileData != nullptr) { delete[] pFileData; }
   return TRUE;
 
 error:
-  if (pFileData != nullptr) { FREE(pFileData); }
+  if (pFileData != nullptr) { delete[] pFileData; }
   return FALSE;
 }
 
@@ -9089,7 +9097,8 @@ static BOOL writeScriptState(STRING* pFileName)
 
   if (!saveFile(pFileName, pBuffer, fileSize))
     return FALSE;
-  FREE(pBuffer);
+  delete[] pBuffer;
+  pBuffer = nullptr;
   return TRUE;
 }
 

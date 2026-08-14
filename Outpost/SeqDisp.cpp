@@ -279,8 +279,10 @@ void clearVideoBuffer(iSurface* surface)
 
 BOOL seq_ReleaseVideoBuffers(void)
 {
-  FREE(pVideoBuffer);
-  FREE(pVideoPalette);
+  delete[] pVideoBuffer;
+  pVideoBuffer = nullptr;
+  delete[] pVideoPalette;
+  pVideoPalette = nullptr;
   return TRUE;
 }
 
@@ -290,11 +292,11 @@ BOOL seq_SetupVideoBuffers(void)
   UBYTE r, g, b;
   //assume 320 * 240 * 16bit playback surface
   mallocSize = (RPL_WIDTH * RPL_HEIGHT * RPL_DEPTH);
-  if ((pVideoBuffer = static_cast<char*>(MALLOC(mallocSize))) == nullptr)
+  if ((pVideoBuffer = new (std::nothrow) char[mallocSize]) == nullptr)
     return FALSE;
 
   mallocSize = 1 << (RPL_BITS_555); //palette only used in 555mode
-  if ((pVideoPalette = static_cast<char*>(MALLOC(mallocSize))) == nullptr)
+  if ((pVideoPalette = new (std::nothrow) char[mallocSize]) == nullptr)
     return FALSE;
 
   //Assume 555 RGB buffer for 8 bit rendering

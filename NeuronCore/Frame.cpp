@@ -575,9 +575,6 @@ void frameShutDown(void)
   // Shutdown the resource stuff
   resShutDown();
 
-  /* Shutdown the memory system */
-  memShutDown();
-
   //unregister the windows class (incase we want to recreate it
   UnregisterClass(WINDOW_CLASS_NAME, hInstance);
 }
@@ -636,7 +633,7 @@ BOOL loadFile2(STRING* pFileName, UBYTE** ppFileData, UDWORD* pFileSize, BOOL Al
   {
     /* Allocate a buffer to store the data and a terminating zero */
     // we don't want this popping up in the tools (makewdg)
-    *ppFileData = static_cast<UBYTE*>(MALLOC((FileSize) + 1));
+    *ppFileData = new (std::nothrow) UBYTE[(FileSize) + 1];
     if (*ppFileData == nullptr)
     {
       DBERROR(("Out of memory"));

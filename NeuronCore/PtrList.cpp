@@ -24,9 +24,8 @@ static void ptrList_Init(PTRLIST* ptrList);
 BOOL ptrList_Create(PTRLIST** ppsList, UDWORD udwInitElements, UDWORD udwExtElements, UDWORD udwElementSize)
 {
   /* create ptr list struct */
-  (*ppsList) = static_cast<PTRLIST*>(MALLOC(sizeof(PTRLIST)));
+  (*ppsList) = new (std::nothrow) PTRLIST[1];
 
-  /* allocate heaps */
   /* init members */
   (*ppsList)->udwElements = udwInitElements;
   (*ppsList)->udwExtElements = udwExtElements;
@@ -43,10 +42,9 @@ void ptrList_Destroy(PTRLIST* ptrList)
 {
   ptrList_Clear(ptrList);
 
-  /* destroy heaps */
-
   /* free struct */
-  FREE(ptrList);
+  delete[] ptrList;
+  ptrList = nullptr;
   DeleteCriticalSection(&critSecAudio);
 }
 
@@ -77,10 +75,8 @@ void ptrList_Clear(PTRLIST* ptrList)
 
   while (psNode != nullptr)
   {
-    /* return node element to heap */
     delete[] static_cast<UBYTE*>(psNode->psElement);
 
-    /* return node to heap */
     psNodeTmp = psNode->psNext;
     delete psNode;
     psNode = psNodeTmp;
@@ -127,7 +123,6 @@ void ptrList_InsertElement(PTRLIST* ptrList, void* psElement, SDWORD sdwKey)
 {
   LISTNODE *psNode, *psCurNode, *psPrevNode;
 
-  /* get node from heap */
   psNode = new (std::nothrow) LISTNODE;
 
   /* set node elements */
@@ -183,7 +178,6 @@ BOOL ptrList_RemoveElement(PTRLIST* ptrList, void* psElement, SDWORD sdwKey)
     psCurNode = psCurNode->psNext;
   }
 
-  /* remove node from hash table and return to heap */
   if (psCurNode == nullptr)
     bOK = FALSE;
   else
@@ -210,11 +204,9 @@ BOOL ptrList_RemoveElement(PTRLIST* ptrList, void* psElement, SDWORD sdwKey)
         ptrList->psCurNode = psPrevNode;
     }
 
-    /* return element to heap */
     ASSERT((psCurNode->psElement == psElement, "ptrList_RemoveElement: removing wrong element!\n"));
     delete[] static_cast<UBYTE*>(psCurNode->psElement);
 
-    /* return node to heap */
     delete psCurNode;
 
     bOK = TRUE;

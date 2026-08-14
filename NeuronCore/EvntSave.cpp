@@ -524,7 +524,7 @@ BOOL eventSaveState(SDWORD version, UBYTE** ppBuffer, UDWORD* pFileSize)
   totalSize += size;
 
   // Allocate the buffer to save to
-  pBuffer = static_cast<UBYTE*>(MALLOC(totalSize));
+  pBuffer = new (std::nothrow) UBYTE[totalSize];
   if (pBuffer == nullptr)
   {
     DBERROR(("eventSaveState: out of memory"));

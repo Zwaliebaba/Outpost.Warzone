@@ -119,7 +119,7 @@ static char NotUsedString[50]; // Dummy area for scanf
 #define ALLOC_STATS(numEntries, list, listSize, type) \
 	ASSERT(((numEntries) < REF_RANGE, \
 	"allocStats: number of stats entries too large for " #type ));\
-	(list) = (type *)MALLOC(sizeof(type) * (numEntries)); \
+	(list) = new (std::nothrow) type[(numEntries)]; \
 	if ((list) == NULL) \
 	{ \
 		DBERROR(("Out of memory")); \
@@ -189,7 +189,8 @@ void statsDealloc(COMP_BASE_STATS* pStats, UDWORD listSize, UDWORD structureSize
 
   UDWORD inc; COMP_BASE_STATS* pStatList = pStats; UDWORD address = (UDWORD)pStats; for (inc = 0; inc < listSize; inc++)
   {
-    FREE(pStatList->pName);
+    delete[] pStatList->pName;
+    pStatList->pName = nullptr;
     address += structureSize;
     pStatList = (COMP_BASE_STATS*)address;
   }
@@ -201,7 +202,8 @@ void statsDealloc(COMP_BASE_STATS* pStats, UDWORD listSize, UDWORD structureSize
 
 #endif
 
-  FREE(pStats);
+  delete[] pStats;
+  pStats = nullptr;
 }
 
 static BOOL allocateStatName(BASE_STATS* pStat, char* Name)
@@ -225,11 +227,14 @@ void deallocBodyStats(void)
 
 #if !defined (RESOURCE_NAMES) && !defined (STORE_RESOURCE_ID)
 
-    FREE(psStat->pName);
+    delete[] psStat->pName;
+    psStat->pName = nullptr;
 #endif
-    FREE(psStat->ppIMDList);
+    delete[] psStat->ppIMDList;
+    psStat->ppIMDList = nullptr;
   }
-  FREE(asBodyStats);
+  delete[] asBodyStats;
+  asBodyStats = nullptr;
 }
 
 /*Deallocate all the stats assigned from input data*/
@@ -1705,7 +1710,7 @@ BOOL loadPropulsionTypes(SBYTE* pPropTypeData, UDWORD bufferSize)
   NumTypes = NUM_PROP_TYPES;
 
   //allocate storage for the stats
-  asPropulsionTypes = static_cast<PROPULSION_TYPES*>(MALLOC(sizeof(PROPULSION_TYPES)*NumTypes));
+  asPropulsionTypes = new (std::nothrow) PROPULSION_TYPES[NumTypes];
   if (asPropulsionTypes == nullptr)
   {
     DBERROR(("PropulsionTypes - Out of memory"));
@@ -1772,7 +1777,7 @@ BOOL loadTerrainTable(SBYTE* pTerrainTableData, UDWORD bufferSize)
   NumEntries = numCR((UBYTE*)pTerrainTableData, bufferSize);
 
   //allocate storage for the stats
-  asTerrainTable = static_cast<TERRAIN_TABLE*>(MALLOC(sizeof(TERRAIN_TABLE) * NUM_PROP_TYPES * TERRAIN_TYPES));
+  asTerrainTable = new (std::nothrow) TERRAIN_TABLE[NUM_PROP_TYPES * TERRAIN_TYPES];
 
   if (asTerrainTable == nullptr)
   {
@@ -1833,7 +1838,7 @@ BOOL loadSpecialAbility(SBYTE* pSAbilityData, UDWORD bufferSize)
   NumTypes = numCR((UBYTE*)pSAbilityData, bufferSize);
 
   //allocate storage for the stats
-  asSpecialAbility = static_cast<SPECIAL_ABILITY*>(MALLOC(sizeof(SPECIAL_ABILITY)*NumTypes));
+  asSpecialAbility = new (std::nothrow) SPECIAL_ABILITY[NumTypes];
 
   if (asSpecialAbility == nullptr)
   {
@@ -1859,7 +1864,7 @@ BOOL loadSpecialAbility(SBYTE* pSAbilityData, UDWORD bufferSize)
       return FALSE;
     }
     //allocate storage for the name
-    asSpecialAbility->pName = static_cast<STRING*>(MALLOC((strlen(SAbilityName))+1));
+    asSpecialAbility->pName = new (std::nothrow) STRING[(strlen(SAbilityName))+1];
     if (asSpecialAbility->pName == nullptr)
     {
       DBERROR(("Special Ability Name - Out of memory"));
@@ -1901,7 +1906,7 @@ BOOL loadBodyPropulsionIMDs(SBYTE* pData, UDWORD bufferSize)
   for (numStats = 0; numStats < numBodyStats; numStats++)
   {
     psBodyStat = &asBodyStats[numStats];
-    psBodyStat->ppIMDList = static_cast<iIMDShape**>(MALLOC(numPropulsionStats * NUM_PROP_SIDES * sizeof(iIMDShape *)));
+    psBodyStat->ppIMDList = new (std::nothrow) iIMDShape*[numPropulsionStats * NUM_PROP_SIDES];
     if (psBodyStat->ppIMDList == nullptr)
       DBERROR(("Out of memory"));
     //initialise the pointer space
@@ -2409,10 +2414,10 @@ CONSTRUCT_STATS* statsGetConstruct(UDWORD ref)
 *	Dealloc the extra storage tables
 ***********************************************************************************/
 //Deallocate the storage assigned for the Propulsion Types table
-void deallocPropulsionTypes(void) { FREE(asPropulsionTypes); }
+void deallocPropulsionTypes(void) { delete[] asPropulsionTypes; }
 
 //dealloc the storage assigned for the terrain table
-void deallocTerrainTable(void) { FREE(asTerrainTable); }
+void deallocTerrainTable(void) { delete[] asTerrainTable; }
 
 //dealloc the storage assigned for the Special Ability stats
 void deallocSpecialAbility(void)
@@ -2420,8 +2425,9 @@ void deallocSpecialAbility(void)
   UBYTE inc;
   SPECIAL_ABILITY* pList = asSpecialAbility;
 
-  for (inc = 0; inc < numSpecialAbility; inc++, pList++) { FREE(pList->pName); }
-  FREE(asSpecialAbility);
+  for (inc = 0; inc < numSpecialAbility; inc++, pList++) { delete[] pList->pName; }
+  delete[] asSpecialAbility;
+  asSpecialAbility = nullptr;
 }
 
 //store the speed Factor in the terrain table
@@ -2981,7 +2987,7 @@ BOOL allocateName(STRING** ppStore, STRING* pName)
 
 #else
   //need to allocate space for the name
-  *ppStore = (STRING*)MALLOC((strlen(pName))+1); if (ppStore == NULL)
+  *ppStore = new (std::nothrow) STRING[(strlen(pName))+1]; if (ppStore == NULL)
   {
     DBERROR(("Name - Out of memory"));
     return FALSE;

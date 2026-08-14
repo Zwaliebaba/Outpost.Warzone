@@ -1806,7 +1806,8 @@ void kf_ScriptTest(void)
 
   eventLoadState(pBuffer, size, TRUE);
 
-  FREE(pBuffer);
+  delete[] pBuffer;
+  pBuffer = nullptr;
 }
 
 // --------------------------------------------------------------------------

@@ -6,7 +6,6 @@
 #include <assert.h>
 #include "Types.h"
 #include "LegacyDebug.h"
-#include "Mem.h"
 #include "Fractions.h"
 #include "Trig.h"
 
@@ -40,21 +39,21 @@ BOOL trigInitialise(void)
   UDWORD count;
 
   // Allocate the tables
-  aSin = static_cast<FRACT*>(MALLOC(sizeof(FRACT) * TRIG_DEGREES));
+  aSin = new (std::nothrow) FRACT[TRIG_DEGREES];
   if (!aSin)
     return FALSE;
-  aCos = static_cast<FRACT*>(MALLOC(sizeof(FRACT) * TRIG_DEGREES));
+  aCos = new (std::nothrow) FRACT[TRIG_DEGREES];
   if (!aCos)
     return FALSE;
-  aInvSin = static_cast<FRACT*>(MALLOC(sizeof(FRACT) * TRIG_ACCURACY));
+  aInvSin = new (std::nothrow) FRACT[TRIG_ACCURACY];
   if (!aInvSin)
     return FALSE;
 
-  aInvCos = static_cast<FRACT*>(MALLOC(sizeof(FRACT) * TRIG_ACCURACY));
+  aInvCos = new (std::nothrow) FRACT[TRIG_ACCURACY];
   if (!aInvCos)
     return FALSE;
 
-  aSqrt = static_cast<FRACT*>(MALLOC(sizeof(FRACT) * SQRT_ACCURACY));
+  aSqrt = new (std::nothrow) FRACT[SQRT_ACCURACY];
   if (!aSqrt)
     return FALSE;
 
@@ -90,11 +89,16 @@ BOOL trigInitialise(void)
 /* Shutdown the trig tables */
 void trigShutDown(void)
 {
-  FREE(aSin);
-  FREE(aCos);
-  FREE(aInvSin);
-  FREE(aInvCos);
-  FREE(aSqrt);
+  delete[] aSin;
+  aSin = nullptr;
+  delete[] aCos;
+  aCos = nullptr;
+  delete[] aInvSin;
+  aInvSin = nullptr;
+  delete[] aInvCos;
+  aInvCos = nullptr;
+  delete[] aSqrt;
+  aSqrt = nullptr;
 }
 
 /* Access the trig tables */

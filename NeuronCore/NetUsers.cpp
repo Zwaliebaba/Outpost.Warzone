@@ -75,7 +75,7 @@ BOOL NETsetLocalPlayerData(DPID dpid,VOID* pData, DWORD size)
   {
     if (userDataSize == 0)
     {
-      pSingleUserData = MALLOC(size);
+      pSingleUserData = new (std::nothrow) UBYTE[size];
       userDataSize = size;
     }
     memcpy(pSingleUserData, pData, userDataSize);
@@ -98,7 +98,7 @@ BOOL NETsetGlobalPlayerData(DPID dpid,VOID* pData, DWORD size)
   {
     if (userDataSize == 0)
     {
-      pSingleUserData = MALLOC(size);
+      pSingleUserData = new (std::nothrow) UBYTE[size];
       userDataSize = size;
     }
     memcpy(pSingleUserData, pData, userDataSize);

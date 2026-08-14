@@ -182,7 +182,7 @@ static void sound_SaveTrackData(TRACK* psTrack, QMIXWAVEPARAMS* psQMixParams, LP
   psTrack->iTime = psMixWave->wh.dwBufferLength * 1000 / g_qMixConfig.dwSamplingRate + 1;
 
   /* add to riff data list */
-  psRiffData = static_cast<RIFFDATA*>(MALLOC(sizeof(RIFFDATA)));
+  psRiffData = new (std::nothrow) RIFFDATA[1];
   psRiffData->pWaveFormat = (WAVEFORMATEX*)psQMixParams->Resident.Format;
   psRiffData->pubData = (UBYTE*)psQMixParams->Resident.Data;
   psRiffData->psMixWave = psMixWave;
@@ -258,7 +258,8 @@ static BOOL sound_ReadRiffMemResFile(QMIXWAVEPARAMS* pQMixParams, void* pBuffer,
   if (mmioDescend(hmmio, &formatChunk, &waveChunk, MMIO_FINDCHUNK))
     return FALSE;
 
-  pQMixParams->Resident.Format = static_cast<WAVEFORMATEX*>(MALLOC(formatChunk.cksize));
+  // the format chunk is WAVEFORMATEX plus a variable tail, so it is read as bytes
+  pQMixParams->Resident.Format = (WAVEFORMATEX*)new (std::nothrow) UBYTE[formatChunk.cksize];
   if (mmioRead(hmmio, (char*)pQMixParams->Resident.Format, formatChunk.cksize) != static_cast<LONG>(formatChunk.cksize))
     return FALSE;
 
@@ -272,7 +273,7 @@ static BOOL sound_ReadRiffMemResFile(QMIXWAVEPARAMS* pQMixParams, void* pBuffer,
     return FALSE;
 
   pQMixParams->Resident.Bytes = dataChunk.cksize;
-  pQMixParams->Resident.Data = static_cast<HPSTR>(MALLOC(dataChunk.cksize));
+  pQMixParams->Resident.Data = (HPSTR)new (std::nothrow) UBYTE[dataChunk.cksize];
 
   if (mmioRead(hmmio, pQMixParams->Resident.Data, dataChunk.cksize) != static_cast<LONG>(dataChunk.cksize))
     return FALSE;
@@ -327,11 +328,12 @@ void sound_FreeTrack(TRACK* psTrack)
     DBPRINTF(("sound_FreeTrack: %s", g_szErrMsg));
   }
 
-  if (psRiffData->pWaveFormat != nullptr) { FREE(psRiffData->pWaveFormat); }
+  if (psRiffData->pWaveFormat != nullptr) { delete[] (UBYTE*)psRiffData->pWaveFormat; }
 
-  if (psRiffData->pubData != nullptr) { FREE(psRiffData->pubData); }
+  if (psRiffData->pubData != nullptr) { delete[] psRiffData->pubData; }
 
-  FREE(psRiffData);
+  delete[] psRiffData;
+  psRiffData = nullptr;
 }
 
 /***************************************************************************/

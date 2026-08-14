@@ -52,16 +52,21 @@ void anim_ReleaseAnim(BASEANIM* psAnim)
   LIST_REMOVE(g_animGlobals.psAnimList, psAnim, BASEANIM);
 
   /* free anim scripts */
-  FREE(psAnim->psStates);
+  delete[] psAnim->psStates;
+  psAnim->psStates = nullptr;
 
   /* free anim shape */
   if (psAnim->animType == ANIM_3D_FRAMES || psAnim->animType == ANIM_3D_TRANS)
   {
     psAnim3D = (ANIM3D*)psAnim;
-    FREE(psAnim3D->apFrame);
+    delete[] psAnim3D->apFrame;
+    psAnim3D->apFrame = nullptr;
   }
 
-  FREE(psAnim);
+  // BASEANIM only shares a layout prefix with ANIM3D, so it has to go back as
+  // the type it was allocated as
+  delete[] (ANIM3D*)psAnim;
+  psAnim = nullptr;
 }
 
 /***************************************************************************/
@@ -97,7 +102,7 @@ static void anim_InitBaseMembers(BASEANIM* psAnim, UWORD uwStates, UWORD uwFrame
   psAnim->uwAnimTime = static_cast<UWORD>(uwStates * 1000 / psAnim->uwFrameRate);
 
   /* allocate frames */
-  psAnim->psStates = static_cast<ANIM_STATE*>(MALLOC(uwObj*psAnim->uwStates*sizeof(ANIM_STATE)));
+  psAnim->psStates = new (std::nothrow) ANIM_STATE[uwObj*psAnim->uwStates];
 }
 
 /***************************************************************************/
@@ -109,7 +114,7 @@ BOOL anim_Create3D(char szPieFileName[], UWORD uwStates, UWORD uwFrameRate, UWOR
   UWORD uwFrames, i;
 
   /* allocate anim */
-  if ((psAnim3D = static_cast<ANIM3D*>(MALLOC(sizeof(ANIM3D)))) == nullptr)
+  if ((psAnim3D = new (std::nothrow) ANIM3D[1]) == nullptr)
     return FALSE;
 
   /* get local pointer to shape */
@@ -136,7 +141,7 @@ BOOL anim_Create3D(char szPieFileName[], UWORD uwStates, UWORD uwFrameRate, UWOR
   }
 
   /* get pointers to individual frames */
-  psAnim3D->apFrame = static_cast<iIMDShape**>(MALLOC(uwFrames*sizeof(iIMDShape *)));
+  psAnim3D->apFrame = new (std::nothrow) iIMDShape*[uwFrames];
   psFrames = psAnim3D->psFrames;
   for (i = 0; i < uwFrames; i++)
   {

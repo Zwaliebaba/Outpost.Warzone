@@ -2539,7 +2539,7 @@ BOOL writeFXData(STRING* pFileName)
   fileSize = (sizeof(struct _fx_save_header) + (fxEntries * sizeof(struct _effect_def)));
 
   /* Try and allocate it - freed up in same function */
-  pFileData = static_cast<UBYTE*>(MALLOC(fileSize));
+  pFileData = new (std::nothrow) UBYTE[fileSize];
 
   /* Did we get it? */
   if (!pFileData)
@@ -2619,7 +2619,7 @@ BOOL writeFXData(STRING* pFileName)
   }
 
   /* And free up the memory we used */
-  if (pFileData != nullptr) { FREE(pFileData); }
+  if (pFileData != nullptr) { delete[] pFileData; }
   /* Everything is just fine! */
   return TRUE;
 }

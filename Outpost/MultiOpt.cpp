@@ -164,7 +164,8 @@ void recvOptions(NETMSG* pMsg)
   if (ingame.numStructureLimits) // free old limits.
   {
     ingame.numStructureLimits = 0;
-    FREE(ingame.pStructureLimits);
+    delete[] ingame.pStructureLimits;
+    ingame.pStructureLimits = nullptr;
   }
 
   NetGet(pMsg, pos, player2dpid);
@@ -199,7 +200,7 @@ void recvOptions(NETMSG* pMsg)
   pos += sizeof(ingame.numStructureLimits);
   if (ingame.numStructureLimits)
   {
-    ingame.pStructureLimits = static_cast<UBYTE*>(MALLOC(ingame.numStructureLimits*(sizeof(UDWORD)+sizeof(UBYTE)))); // malloc some room
+    ingame.pStructureLimits = new (std::nothrow) UBYTE[ingame.numStructureLimits*(sizeof(UDWORD)+sizeof(UBYTE))]; // malloc some room
     memcpy(ingame.pStructureLimits, &(pMsg->body[pos]), ingame.numStructureLimits * (sizeof(UDWORD) + sizeof(UBYTE)));
   }
 
@@ -519,13 +520,15 @@ BOOL multiShutdown(VOID)
   {
     pF = Force.pMembers;
     Force.pMembers = pF->psNext;
-    FREE(pF);
+    delete[] pF;
+    pF = nullptr;
   }
 
   if (ingame.numStructureLimits)
   {
     ingame.numStructureLimits = 0;
-    FREE(ingame.pStructureLimits);
+    delete[] ingame.pStructureLimits;
+    ingame.pStructureLimits = nullptr;
   }
 
   return TRUE;
@@ -1000,7 +1003,8 @@ BOOL multiGameShutdown(VOID)
   if (ingame.numStructureLimits)
   {
     ingame.numStructureLimits = 0;
-    FREE(ingame.pStructureLimits);
+    delete[] ingame.pStructureLimits;
+    ingame.pStructureLimits = nullptr;
   }
 
   ingame.localJoiningInProgress = FALSE; // clean up

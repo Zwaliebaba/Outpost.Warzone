@@ -4,7 +4,6 @@
 #include "Slider.h"
 #include "RendMode.h"
 
-/* The widget heaps */
 BOOL DragEnabled = TRUE;
 
 void sliderEnableDrag(BOOL Enable) { DragEnabled = Enable; }
@@ -45,12 +44,8 @@ BOOL sliderCreate(W_SLIDER** ppsWidget, W_SLDINIT* psInit)
   }
 
   /* Allocate the required memory */
-#if W_USE_MALLOC
-  *ppsWidget = (W_SLIDER*)MALLOC(sizeof(W_SLIDER)); if (*ppsWidget == NULL)
-#else
   *ppsWidget = new (std::nothrow) W_SLIDER;
   if (*ppsWidget == nullptr)
-#endif
   {
     ASSERT((FALSE, "sliderCreate: Out of memory"));
     return FALSE;
@@ -106,11 +101,7 @@ void sliderFree(W_SLIDER* psWidget)
   if (psWidget->pTip) { widgFreeString(psWidget->pTip); }
 #endif
 
-#if W_USE_MALLOC
-  FREE(psWidget);
-#else
   delete psWidget;
-#endif
 }
 
 /* Initialise a slider widget before running it */

@@ -453,7 +453,7 @@ BOOL gwCreateBlankZoneMap(void)
   if (apRLEZones != nullptr)
     gwFreeZoneMap();
 
-  apRLEZones = static_cast<UBYTE**>(MALLOC(sizeof(UBYTE *) * gwMapHeight()));
+  apRLEZones = new (std::nothrow) UBYTE*[gwMapHeight()];
   if (apRLEZones == nullptr)
   {
     DBERROR(("gwCreateBlankZoneMap: Out of memory"));
@@ -461,7 +461,7 @@ BOOL gwCreateBlankZoneMap(void)
   }
   for (i = 0; i < gwMapHeight(); i++)
   {
-    apRLEZones[i] = static_cast<UBYTE*>(MALLOC(gwMapWidth() * 2));
+    apRLEZones[i] = new (std::nothrow) UBYTE[gwMapWidth() * 2];
     if (apRLEZones[i] == nullptr)
     {
       DBERROR(("gwCreateBlankZoneMap: Out of memory"));

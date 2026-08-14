@@ -107,10 +107,11 @@ void levShutDown(void)
 
   while (psLevels)
   {
-    FREE(psLevels->pName);
-    for (i = 0; i < LEVEL_MAXFILES; i++) { if (psLevels->apDataFiles[i] != nullptr) { FREE(psLevels->apDataFiles[i]); } }
+    delete[] psLevels->pName;
+    psLevels->pName = nullptr;
+    for (i = 0; i < LEVEL_MAXFILES; i++) { if (psLevels->apDataFiles[i] != nullptr) { delete[] psLevels->apDataFiles[i]; } }
     psNext = psLevels->psNext;
-    FREE(psLevels);
+    delete[] psLevels;
     psLevels = psNext;
   }
 }
@@ -178,7 +179,7 @@ BOOL levParse(UBYTE* pBuffer, SDWORD size)
       if (state == LP_START || state == LP_WAITDATA)
       {
         // start a new level data set
-        psDataSet = static_cast<LEVEL_DATASET*>(MALLOC(sizeof(LEVEL_DATASET)));
+        psDataSet = new (std::nothrow) LEVEL_DATASET[1];
         if (!psDataSet)
         {
           levError("Out of memory");
@@ -337,7 +338,7 @@ BOOL levParse(UBYTE* pBuffer, SDWORD size)
         }
 #endif
         // store the level name
-        psDataSet->pName = static_cast<STRING*>(MALLOC(strlen(pLevToken) + 1));
+        psDataSet->pName = new (std::nothrow) STRING[strlen(pLevToken) + 1];
         if (!psDataSet->pName)
         {
           levError("Out of memory");
@@ -376,7 +377,7 @@ BOOL levParse(UBYTE* pBuffer, SDWORD size)
           psDataSet->game = static_cast<SWORD>(currData);
 
         // store the data name
-        psDataSet->apDataFiles[currData] = static_cast<STRING*>(MALLOC(strlen(pLevToken) + 1));
+        psDataSet->apDataFiles[currData] = new (std::nothrow) STRING[strlen(pLevToken) + 1];
         if (!psDataSet->apDataFiles[currData])
         {
           levError("Out of memory");
@@ -532,8 +533,6 @@ BOOL levLoadBaseData(STRING* pName)
   // clear all the old data
   levReleaseAll();
 
-  // basic game data is loaded in the game heap
-
   // initialise
   if (!stageOneInitialise())
     return FALSE;
@@ -652,7 +651,6 @@ BOOL levLoadData(STRING* pName, STRING* pSaveName, SDWORD saveType)
       return FALSE;
   }
 
-  // basic game data is loaded in the game heap
   DBP0(("levLoadData: Setting game heap\n"));
 
   // initialise if necessary
@@ -773,7 +771,6 @@ BOOL levLoadData(STRING* pName, STRING* pSaveName, SDWORD saveType)
         DBP0(("levLoadData: setting map heap\n"));
       }
 
-      // missions with a seperate map have to use the mission heap now
       if ((psNewLevel->type == LDS_MKEEP
 #ifndef COVERMOUNT
         || psNewLevel->type == LDS_MCLEAR || psNewLevel->type == LDS_MKEEP_LIMBO
@@ -786,7 +783,6 @@ BOOL levLoadData(STRING* pName, STRING* pSaveName, SDWORD saveType)
       // load a savegame if there is one - but not if already done so
       if (pSaveName != nullptr AND !bCamChangeSaveGame)
       {
-        // make sure the map gets loaded into the right heap
         DBP0(("levLoadData: setting map heap\n"));
 
         //set the mission type before the saveGame data is loaded

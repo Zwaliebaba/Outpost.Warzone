@@ -12,10 +12,6 @@
 
 #define	NO_SAMPLE				-2
 
-#define	AUDIO_SAMPLE_HEAP_INIT	1000
-
-#define	AUDIO_SAMPLE_HEAP_EXT	10
-
 #define	MAX_SAME_SAMPLES		2
 
 #define	AUDIO_QUEUE_SIZE		30
@@ -96,7 +92,6 @@ BOOL audio_Shutdown()
 
   bOK = sound_Shutdown();
 
-  /* empty sample heap */
   EnterCriticalSection(&critSecAudio);
 
   /* empty sample list */
@@ -119,7 +114,6 @@ BOOL audio_Shutdown()
 
   LeaveCriticalSection(&critSecAudio);
 
-  /* free sample heap */
   g_psSampleList = nullptr;
   g_psSampleQueue = nullptr;
 

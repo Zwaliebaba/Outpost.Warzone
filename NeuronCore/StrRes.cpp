@@ -6,8 +6,6 @@
 // Report unused strings
 #include "Types.h"
 #include "LegacyDebug.h"
-#include "Mem.h"
-#include "Heap.h"
 #include "Treap.h"
 #include "StrRes.h"
 #include "StrResLY.h"
@@ -21,24 +19,24 @@ STR_RES* psCurrRes;
 /* Allocate a string block */
 static BOOL strresAllocBlock(STR_BLOCK** ppsBlock, UDWORD size)
 {
-  *ppsBlock = static_cast<STR_BLOCK*>(MALLOC(sizeof(STR_BLOCK)));
+  *ppsBlock = new (std::nothrow) STR_BLOCK[1];
   if (!*ppsBlock)
   {
     DBERROR(("strresAllocBlock: Out of memory - 1"));
     return FALSE;
   }
 
-  (*ppsBlock)->apStrings = static_cast<STRING**>(MALLOC(sizeof(STRING *) * size));
+  (*ppsBlock)->apStrings = new (std::nothrow) STRING*[size];
   if (!(*ppsBlock)->apStrings)
   {
     DBERROR(("strresAllocBlock: Out of memory - 2"));
-    FREE(*ppsBlock);
+    delete[] *ppsBlock;
     return FALSE;
   }
   memset((*ppsBlock)->apStrings, 0, sizeof(STRING*) * size);
 
 #ifdef DEBUG
-  (*ppsBlock)->aUsage = static_cast<UDWORD*>(MALLOC(sizeof(UDWORD) * size));
+  (*ppsBlock)->aUsage = new (std::nothrow) UDWORD[size];
   memset((*ppsBlock)->aUsage, 0, sizeof(UDWORD) * size);
 #endif
 
@@ -50,7 +48,7 @@ BOOL strresCreate(STR_RES** ppsRes, UDWORD init, UDWORD ext)
 {
   STR_RES* psRes;
 
-  psRes = static_cast<STR_RES*>(MALLOC(sizeof(STR_RES)));
+  psRes = new (std::nothrow) STR_RES[1];
   if (!psRes)
   {
     DBERROR(("strresCreate: Out of memory"));
@@ -63,14 +61,16 @@ BOOL strresCreate(STR_RES** ppsRes, UDWORD init, UDWORD ext)
   if (!TREAP_CREATE(&psRes->psIDTreap, treapStringCmp, init, ext))
   {
     DBERROR(("strresCreate: Out of memory"));
-    FREE(psRes);
+    delete[] psRes;
+    psRes = nullptr;
     return FALSE;
   }
 
   if (!strresAllocBlock(&psRes->psStrings, init))
   {
     TREAP_DESTROY(psRes->psIDTreap);
-    FREE(psRes);
+    delete[] psRes;
+    psRes = nullptr;
     return FALSE;
   }
   psRes->psStrings->psNext = nullptr;
@@ -95,8 +95,10 @@ void strresReleaseIDStrings(STR_RES* psRes)
     TREAP_DEL(psRes->psIDTreap, (UDWORD)psID->pIDStr);
     if (psID->id & ID_ALLOC)
     {
-      FREE(psID->pIDStr);
-      FREE(psID);
+      delete[] psID->pIDStr;
+      psID->pIDStr = nullptr;
+      delete[] psID;
+      psID = nullptr;
     }
   }
 }
@@ -121,23 +123,27 @@ void strresDestroy(STR_RES* psRes)
         DBP0(("strresDestroy: String id %d not used:\n" "               \"%s\"\n", i, psBlock->apStrings[i - psBlock->idStart]));
       }
 #endif
-      if (psBlock->apStrings[i - psBlock->idStart]) { FREE(psBlock->apStrings[i - psBlock->idStart]); }
+      if (psBlock->apStrings[i - psBlock->idStart]) { delete[] psBlock->apStrings[i - psBlock->idStart]; }
 #ifdef DEBUG
       else if (i < psRes->nextID)
         DBPRINTF(("strresDestroy: No string loaded for id %d\n", i));
 #endif
     }
     psNext = psBlock->psNext;
-    FREE(psBlock->apStrings);
+    delete[] psBlock->apStrings;
+    psBlock->apStrings = nullptr;
 #ifdef DEBUG
-    FREE(psBlock->aUsage);
+    delete[] psBlock->aUsage;
+    psBlock->aUsage = nullptr;
 #endif
-    FREE(psBlock);
+    delete[] psBlock;
+    psBlock = nullptr;
   }
 
   // Release the treap and free the final memory
   TREAP_DESTROY(psRes->psIDTreap);
-  FREE(psRes);
+  delete[] psRes;
+  psRes = nullptr;
 }
 
 /* Load a list of string ID's from a memory buffer */
@@ -212,17 +218,18 @@ BOOL strresStoreString(STR_RES* psRes, STRING* pID, STRING* pString)
   if (!psID)
   {
     // No ID yet so generate a new one
-    psID = static_cast<STR_ID*>(MALLOC(sizeof(STR_ID)));
+    psID = new (std::nothrow) STR_ID[1];
     if (!psID)
     {
       DBERROR(("strresStoreString: Out of memory"));
       return FALSE;
     }
-    psID->pIDStr = static_cast<STRING*>(MALLOC(sizeof(STRING) * (stringLen(pID) + 1)));
+    psID->pIDStr = new (std::nothrow) STRING[(stringLen(pID) + 1)];
     if (!psID->pIDStr)
     {
       DBERROR(("strresStoreString: Out of memory"));
-      FREE(psID);
+      delete[] psID;
+      psID = nullptr;
       return FALSE;
     }
     stringCpy(psID->pIDStr, pID);
@@ -254,7 +261,7 @@ BOOL strresStoreString(STR_RES* psRes, STRING* pID, STRING* pString)
   }
 
   // Allocate a copy of the string
-  pNew = static_cast<STRING*>(MALLOC(sizeof(STRING) * (stringLen(pString) + 1)));
+  pNew = new (std::nothrow) STRING[(stringLen(pString) + 1)];
   if (!pNew)
   {
     DBERROR(("strresStoreString: Out of memory"));

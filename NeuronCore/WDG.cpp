@@ -444,7 +444,7 @@ BOOL FILE_ShutdownCache(void)
     if (Cache.IsCacheDataMalloced == TRUE)
     {
       Cache.IsCacheDataValid = FALSE;
-      FREE(Cache.pBufferStart);
+      delete[] Cache.pBufferStart;
       Cache.pBufferStart = nullptr;
     }
     Cache.IsCacheDataMalloced = FALSE;
@@ -453,7 +453,7 @@ BOOL FILE_ShutdownCache(void)
 
   if (PrimBufferCatalog)
   {
-    FREE(PrimBufferCatalog);
+    delete[] PrimBufferCatalog;
     PrimBufferCatalog = NULL;
   }
 
@@ -539,13 +539,13 @@ BOOL FILE_InitialiseCache(SDWORD CacheSize)
 #ifdef	PRIMCATALOG
   if (PrimBufferCatalog == NULL)
   {
-    PrimBufferCatalog = (PRIMBUFFERCATALOG*)MALLOC(sizeof(PRIMBUFFERCATALOG));
+    PrimBufferCatalog = new (std::nothrow) PRIMBUFFERCATALOG[1];
 
     PrimBufferCatalog->Check1 = CHECK1; // sanity check (even in release - only 8 bytes)
     PrimBufferCatalog->Check2 = CHECK2;
   }
 #endif
-  CacheBuffer = static_cast<UBYTE*>(MALLOC(CacheSize));
+  CacheBuffer = new (std::nothrow) UBYTE[CacheSize];
   if (CacheBuffer == nullptr)
   {
     DBPRINTF(("No memory for the file cache ... !\n"));
@@ -904,7 +904,7 @@ BOOL loadFileFromWDGCache(WDG_FINDFILE* psFindFile, UBYTE** ppFileData, UDWORD* 
   if (MemAllocationMode == WDG_ALLOCATEMEM)
   {
     // we must allocate memory for the file
-    *ppFileData = static_cast<UBYTE*>(MALLOC(CurrentFile->filesize));
+    *ppFileData = new (std::nothrow) UBYTE[CurrentFile->filesize];
     if (*ppFileData == nullptr)
     {
       // no mem for file

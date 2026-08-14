@@ -116,10 +116,6 @@ int WINAPI WinMain(HINSTANCE hInstance, // handle to current instance
 
 init: //jump here from the end if re_initialising
 
-  // initialise memory stuff, moved out of frameinit by ajl. 
-  if (!memInitialise())
-    return FALSE;
-
   loadRenderMode(); //get the registry entry for clRendMode
 
   bDisableLobby = FALSE;
@@ -179,7 +175,8 @@ init: //jump here from the end if re_initialising
   }
 
   //load palette
-  psPaletteBuffer = static_cast<iColour*>(MALLOC(256 * sizeof(iColour)+1));
+  // palette.bin is 256 entries plus one trailing byte
+  psPaletteBuffer = new (std::nothrow) iColour[257];
   if (psPaletteBuffer == nullptr)
   {
     DBERROR(("Out of memory"));
@@ -191,7 +188,8 @@ init: //jump here from the end if re_initialising
     return -1;
   }
   pal_AddNewPalette(psPaletteBuffer);
-  FREE(psPaletteBuffer);
+  delete[] psPaletteBuffer;
+  psPaletteBuffer = nullptr;
 
 #ifdef COVERMOUNT
   pie_LoadBackDrop(SCREEN_COVERMOUNT,FALSE);

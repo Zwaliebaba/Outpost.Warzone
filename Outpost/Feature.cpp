@@ -142,7 +142,7 @@ BOOL loadFeatureStats(SBYTE* pFeatureData, UDWORD bufferSize)
 
   numFeatureStats = numCR((UBYTE*)pFeatureData, bufferSize);
 
-  asFeatureStats = static_cast<FEATURE_STATS*>(MALLOC(sizeof(FEATURE_STATS)* numFeatureStats));
+  asFeatureStats = new (std::nothrow) FEATURE_STATS[numFeatureStats];
 
   if (asFeatureStats == nullptr)
   {
@@ -585,11 +585,11 @@ void featureStatsShutDown(void)
 
 #if !defined(RESOURCE_NAMES) && !defined(STORE_RESOURCE_ID)
 
-  UDWORD inc; for (inc = 0; inc < numFeatureStats; inc++, psFeature++) { FREE(psFeature->pName); }
+  UDWORD inc; for (inc = 0; inc < numFeatureStats; inc++, psFeature++) { delete[] psFeature->pName; }
 
 #endif
 
-  if (numFeatureStats) { FREE(asFeatureStats); }
+  if (numFeatureStats) { delete[] asFeatureStats; }
 }
 
 /* Deal with damage to a feature */

@@ -56,7 +56,7 @@ void widgReset(void) { tipInitialise(); }
 /* Shut down the widget module */
 void widgShutDown(void) {}
 
-/* Get a string from the string heap */
+/* Allocate a widget string */
 BOOL widgAllocString(STRING** ppStr)
 {
   *ppStr = new (std::nothrow) STRING[WIDG_MAXSTR];
@@ -81,24 +81,21 @@ void widgCopyString(STRING* pDest, STRING* pSrc)
     strcpy(pDest, pSrc);
 }
 
-/* Get a string from the heap and copy in some data.
+/* Allocate a widget string and copy in some data.
  * The string to copy will be truncated if it is too long.
  */
 BOOL widgAllocCopyString(STRING** ppDest, STRING* pSrc)
 {
   *ppDest = new (std::nothrow) STRING[WIDG_MAXSTR];
   if (*ppDest == nullptr)
-  {
-    *ppDest = nullptr;
     return FALSE;
-  }
 
   widgCopyString(*ppDest, pSrc);
 
   return TRUE;
 }
 
-/* Return a string to the string heap */
+/* Release a widget string */
 void widgFreeString(STRING* pStr) { delete[] pStr; }
 
 /* Create an empty widget screen */
@@ -107,7 +104,7 @@ BOOL widgCreateScreen(W_SCREEN** ppsScreen)
   W_FORM* psForm;
   W_FORMINIT sInit;
 
-  *ppsScreen = static_cast<W_SCREEN*>(MALLOC(sizeof(W_SCREEN)));
+  *ppsScreen = new (std::nothrow) W_SCREEN[1];
   if (*ppsScreen == nullptr)
   {
     ASSERT((FALSE, "Out of memory"));
@@ -170,7 +167,8 @@ void widgReleaseScreen(W_SCREEN* psScreen)
 {
   formFree((W_FORM*)psScreen->psForm);
 
-  FREE(psScreen);
+  delete[] psScreen;
+  psScreen = nullptr;
 }
 
 /* Release a widget */

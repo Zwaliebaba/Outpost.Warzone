@@ -8,8 +8,6 @@
 #include "Tip.h"
 #include "RendMode.h"
 
-/* The widget heap */
-
 /* Initialise the button module */
 BOOL buttonStartUp(void) { return TRUE; }
 
@@ -23,12 +21,8 @@ BOOL buttonCreate(W_BUTTON** ppsWidget, W_BUTINIT* psInit)
   }
 
   /* Allocate the required memory */
-#if W_USE_MALLOC
-  *ppsWidget = (W_BUTTON*)MALLOC(sizeof(W_BUTTON)); if (*ppsWidget == NULL)
-#else
   *ppsWidget = new (std::nothrow) W_BUTTON;
   if (*ppsWidget == nullptr)
-#endif
   {
     ASSERT((FALSE, "buttonCreate: Out of memory"));
     return FALSE;
@@ -38,11 +32,7 @@ BOOL buttonCreate(W_BUTTON** ppsWidget, W_BUTINIT* psInit)
   {
 #if W_USE_STRHEAP
     if (!widgAllocCopyString(&(*ppsWidget)->pText, psInit->pText)) { ASSERT((FALSE, "buttonCreate: Out of memory"));
-#if W_USE_MALLOC
-    FREE(*ppsWidget);
-#else
     delete *ppsWidget;
-#endif
     return FALSE;
 		}
 #else
@@ -102,11 +92,7 @@ void buttonFree(W_BUTTON* psWidget)
   if (psWidget->pText) { widgFreeString(psWidget->pText); } if (psWidget->pTip) { widgFreeString(psWidget->pTip); }
 #endif
 
-#if W_USE_MALLOC
-  FREE(psWidget);
-#else
   delete psWidget;
-#endif
 }
 
 /* Initialise a button widget before it is run */

@@ -81,8 +81,6 @@ static int printf(char* c, ...) { return 0; }
 
 #include "Types.h"
 #include "LegacyDebug.h"
-#include "Mem.h"
-#include "Heap.h"
 #include "Treap.h"
 #include "StrRes.h"
 #include "StrResLY.h"

@@ -361,13 +361,13 @@ KEY_MAPPING* keyAddMapping(KEY_STATUS status, KEY_CODE metaCode, KEY_CODE subCod
 #endif
 
   /* Get some memory for our binding */
-  newMapping = static_cast<KEY_MAPPING*>(MALLOC(sizeof(KEY_MAPPING)));
+  newMapping = new (std::nothrow) KEY_MAPPING[1];
 
   ASSERT(((int)newMapping,"Couldn't allocate memory for a key mapping"));
 
   /* Plus one for the terminator */
 
-  newMapping->pName = static_cast<STRING*>(MALLOC(strlen(name)+1));
+  newMapping->pName = new (std::nothrow) STRING[strlen(name)+1];
   ASSERT(((int)newMapping->pName,"Couldn't allocate the memory for the string in a mapping"));
 
   /* Copy over the name */
@@ -448,8 +448,11 @@ BOOL keyRemoveMappingPt(KEY_MAPPING* psToRemove)
   if (psToRemove == keyMappings AND keyMappings->psNext == nullptr)
   {
     if (keyMappings->pName)
-    FREE(keyMappings->pName); // ffs
-    FREE(keyMappings);
+    {
+      delete[] keyMappings->pName; // ffs
+      keyMappings->pName = nullptr;
+    }
+    delete[] keyMappings;
     keyMappings = nullptr;
     numActiveMappings = 0;
     return (TRUE);
@@ -477,9 +480,15 @@ BOOL keyRemoveMappingPt(KEY_MAPPING* psToRemove)
     }
     /* Free up the memory, first for the string  */
     if (psCurr->pName)
-    FREE(psCurr->pName); // only free it if it was allocated in the first place (ffs)
+    {
+      delete[] psCurr->pName; // only free it if it was allocated in the first place (ffs)
+      psCurr->pName = nullptr;
+    }
     /* and then for the mapping itself */
-    FREE(psCurr);
+    {
+      delete[] psCurr;
+      psCurr = nullptr;
+    }
     numActiveMappings--;
     return (TRUE);
   }

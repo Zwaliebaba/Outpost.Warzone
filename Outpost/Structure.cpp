@@ -699,7 +699,7 @@ BOOL loadStructureStats(SBYTE* pStructData, UDWORD bufferSize)
 
   //	asStructureStats = (STRUCTURE_STATS *)MALLOC(sizeof(STRUCTURE_STATS)*
   //	//numStructureStats is added to in in demoStructs()
-  asStructureStats = static_cast<STRUCTURE_STATS*>(MALLOC(sizeof(STRUCTURE_STATS)* NumStructures));
+  asStructureStats = new (std::nothrow) STRUCTURE_STATS[NumStructures];
   numStructureStats = NumStructures;
 
   if (asStructureStats == nullptr)
@@ -877,7 +877,7 @@ BOOL loadStructureStats(SBYTE* pStructData, UDWORD bufferSize)
     psStructure->defaultFunc = -1;
     if (psStructure->numFuncs > 0)
     {
-      psStructure->asFuncList = static_cast<FUNCTION**>(MALLOC(psStructure->numFuncs* sizeof(FUNCTION*)));
+      psStructure->asFuncList = new (std::nothrow) FUNCTION*[psStructure->numFuncs];
       if (psStructure->asFuncList == nullptr)
       {
         DBERROR(("Out of memory assigning structure Functions"));
@@ -907,7 +907,7 @@ BOOL loadStructureStats(SBYTE* pStructData, UDWORD bufferSize)
   //allocate the structureLimits structure
   for (player = 0; player < MAX_PLAYERS; player++)
   {
-    asStructLimits[player] = static_cast<STRUCTURE_LIMITS*>(MALLOC(sizeof(STRUCTURE_LIMITS) * numStructureStats));
+    asStructLimits[player] = new (std::nothrow) STRUCTURE_LIMITS[numStructureStats];
     if (asStructLimits[player] == nullptr)
     {
       DBERROR(("Unable to allocate structure limits"));
@@ -1276,15 +1276,16 @@ BOOL structureStatsShutDown(void)
   for (inc = 0; inc < numStructureStats; inc++, pStructure++)
   {
 #if !defined (RESOURCE_NAMES) && !defined (STORE_RESOURCE_ID)
-    FREE(pStructure->pName);
+    delete[] pStructure->pName;
+    pStructure->pName = nullptr;
 #endif
-    if (pStructure->numFuncs > 0) { FREE(pStructure->asFuncList); }
+    if (pStructure->numFuncs > 0) { delete[] pStructure->asFuncList; }
   }
 
-  if (numStructureStats) { FREE(asStructureStats); }
+  if (numStructureStats) { delete[] asStructureStats; }
 
   //free up the structLimits structure
-  for (inc = 0; inc < MAX_PLAYERS; inc++) { if (asStructLimits[inc]) { FREE(asStructLimits[inc]); } }
+  for (inc = 0; inc < MAX_PLAYERS; inc++) { if (asStructLimits[inc]) { delete[] asStructLimits[inc]; } }
 
   return TRUE;
 }

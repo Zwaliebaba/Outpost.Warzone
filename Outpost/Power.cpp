@@ -58,7 +58,7 @@ BOOL allocPlayerPower(void)
   //allocate the space for the structure
   for (player = 0; player < MAX_PLAYERS; player++)
   {
-    asPower[player] = static_cast<PLAYER_POWER*>(MALLOC(sizeof(PLAYER_POWER)));
+    asPower[player] = new (std::nothrow) PLAYER_POWER[1];
     if (asPower[player] == nullptr)
     {
       DBERROR(("Out of memory"));
@@ -93,7 +93,7 @@ void releasePlayerPower(void)
   //check power has been allocated!
   if (asPower[0] == nullptr)
     return;
-  for (player = 0; player < MAX_PLAYERS; player++) { if (asPower[player]) { FREE(asPower[player]); } }
+  for (player = 0; player < MAX_PLAYERS; player++) { if (asPower[player]) { delete[] asPower[player]; } }
 }
 
 /*check the current power - if enough return true, else return false */

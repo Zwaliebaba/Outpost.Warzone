@@ -189,7 +189,7 @@ BOOL pal_AddNewPalette(iColour* pal)
   bPaletteInitialised = TRUE;
   if (psGamePal == nullptr)
   {
-    psGamePal = static_cast<iColour*>(MALLOC(PALETTE_SIZE * sizeof(iColour)));
+    psGamePal = new (std::nothrow) iColour[PALETTE_SIZE];
     if (psGamePal == nullptr)
     {
       DBERROR(("pal_AddNewPalette - Out of memory"));
@@ -198,7 +198,7 @@ BOOL pal_AddNewPalette(iColour* pal)
   }
   if (psWinPal == nullptr)
   {
-    psWinPal = static_cast<PALETTEENTRY*>(MALLOC(PALETTE_SIZE * sizeof(PALETTEENTRY)));
+    psWinPal = new (std::nothrow) PALETTEENTRY[PALETTE_SIZE];
     if (psGamePal == nullptr)
     {
       DBERROR(("pal_AddNewPalette - Out of memory"));
@@ -292,8 +292,10 @@ void pal_ShutDown(void)
   if (bPaletteInitialised)
   {
     bPaletteInitialised = FALSE;
-    FREE(psGamePal);
-    FREE(psWinPal);
+    delete[] psGamePal;
+    psGamePal = nullptr;
+    delete[] psWinPal;
+    psWinPal = nullptr;
   }
 }
 

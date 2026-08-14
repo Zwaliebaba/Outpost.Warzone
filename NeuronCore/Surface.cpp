@@ -60,7 +60,7 @@ BOOL surfCreate(LPDIRECTDRAWSURFACE4* ppsSurface, // The created surface
   if (bAddToList)
   {
     /* Create a new surface list entry */
-    psNew = static_cast<SURFACE_LIST*>(MALLOC(sizeof(SURFACE_LIST)));
+    psNew = new (std::nothrow) SURFACE_LIST[1];
     if (psNew == nullptr)
     {
       DBERROR(("Out of memory"));
@@ -86,7 +86,8 @@ void surfRelease(LPDIRECTDRAWSURFACE4 psSurface)
     psCurr = psSurfaces;
     psSurfaces = psSurfaces->psNext;
     RELEASE(psCurr->psSurface);
-    FREE(psCurr);
+    delete[] psCurr;
+    psCurr = nullptr;
   }
   else
   {
@@ -97,7 +98,8 @@ void surfRelease(LPDIRECTDRAWSURFACE4 psSurface)
     {
       psPrev->psNext = psCurr->psNext;
       RELEASE(psCurr->psSurface);
-      FREE(psCurr);
+      delete[] psCurr;
+      psCurr = nullptr;
     }
   }
 }
@@ -187,7 +189,8 @@ void surfShutDown(void)
     psNext = psCurr->psNext;
     /* The DD surface might have been released elsewhere */
     if (psCurr->psSurface->lpVtbl != nullptr) { RELEASE(psCurr->psSurface); }
-    FREE(psCurr);
+    delete[] psCurr;
+    psCurr = nullptr;
   }
 }
 
@@ -594,16 +597,19 @@ BOOL surfCreateFromBMP(STRING* pFileName, // The BMP file
 
   if (!imageParseBMP(pImageFile, imageFileSize, &width, &height, &pImageData, &psImagePalette))
   {
-    FREE(pImageFile);
+    delete[] pImageFile;
+    pImageFile = nullptr;
     return FALSE;
   }
 
-  FREE(pImageFile);
+  delete[] pImageFile;
+  pImageFile = nullptr;
 
   if (!surfCreate(ppsSurface, width, height, DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY, screenGetBackBufferPixelFormat(), FALSE, TRUE))
   {
-    FREE(pImageData);
-    if (psImagePalette) { FREE(psImagePalette); }
+    delete[] pImageData;
+    pImageData = nullptr;
+    if (psImagePalette) { delete[] psImagePalette; }
     return FALSE;
   }
 
@@ -611,17 +617,22 @@ BOOL surfCreateFromBMP(STRING* pFileName, // The BMP file
   {
     if (!surfLoadFrom8Bit(*ppsSurface, width, height, pImageData, psImagePalette))
     {
-      FREE(pImageData);
-      FREE(psImagePalette);
+      delete[] pImageData;
+      pImageData = nullptr;
+      delete[] psImagePalette;
+      psImagePalette = nullptr;
       return FALSE;
     }
-    FREE(pImageData);
-    FREE(psImagePalette);
+    delete[] pImageData;
+    pImageData = nullptr;
+    delete[] psImagePalette;
+    psImagePalette = nullptr;
   }
   else
   {
     DBERROR(("Surface loading from true colour images not implemented"));
-    FREE(pImageData);
+    delete[] pImageData;
+    pImageData = nullptr;
     return FALSE;
   }
 

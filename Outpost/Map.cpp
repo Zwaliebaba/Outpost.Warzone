@@ -189,7 +189,8 @@ BOOL mapNew(UDWORD width, UDWORD height)
     freeAllStructs();
     freeAllFeatures();
     proj_FreeAllProjectiles();
-    FREE(aMapLinePoints);
+    delete[] aMapLinePoints;
+    aMapLinePoints = nullptr;
     psMapTiles = nullptr;
     aMapLinePoints = nullptr;
   }
@@ -221,7 +222,7 @@ BOOL mapNew(UDWORD width, UDWORD height)
   }
   */
 
-  psMapTiles = static_cast<MAPTILE*>(MALLOC(sizeof(MAPTILE) * width*height));
+  psMapTiles = new (std::nothrow) MAPTILE[width*height];
   if (psMapTiles == nullptr)
   {
     DBERROR(("mapNew: Out of memory"));
@@ -465,7 +466,8 @@ BOOL mapLoad(UBYTE* pFileData, UDWORD fileSize)
   if (psHeader->aFileType[0] != 'm' || psHeader->aFileType[1] != 'a' || psHeader->aFileType[2] != 'p' || psHeader->aFileType[3] != ' ')
   {
     DBERROR(("mapLoad: Incorrect file type"));
-    FREE(pFileData);
+    delete[] pFileData;
+    pFileData = nullptr;
     return FALSE;
   }
 
@@ -474,7 +476,8 @@ BOOL mapLoad(UBYTE* pFileData, UDWORD fileSize)
   if (psHeader->version < VERSION_7)
   {
     DBERROR(("MapLoad: unsupported save format version %d",psHeader->version));
-    FREE(pFileData);
+    delete[] pFileData;
+    pFileData = nullptr;
     return FALSE;
   }
   if (psHeader->version <= VERSION_9)
@@ -484,7 +487,8 @@ BOOL mapLoad(UBYTE* pFileData, UDWORD fileSize)
   else
   {
     DBERROR(("MapLoad: undefined save format version %d",psHeader->version));
-    FREE(pFileData);
+    delete[] pFileData;
+    pFileData = nullptr;
     return FALSE;
   }
 
@@ -532,7 +536,8 @@ BOOL mapLoad(UBYTE* pFileData, UDWORD fileSize)
       freeAllStructs();
       freeAllFeatures();
       proj_FreeAllProjectiles();
-      FREE(aMapLinePoints);
+      delete[] aMapLinePoints;
+      aMapLinePoints = nullptr;
       psMapTiles = nullptr;
       aMapLinePoints = nullptr;
     }
@@ -541,7 +546,7 @@ BOOL mapLoad(UBYTE* pFileData, UDWORD fileSize)
   /* Allocate the memory for the map */
   if (mapAlloc)
   {
-    psMapTiles = static_cast<MAPTILE*>(MALLOC(sizeof(MAPTILE) * width*height));
+    psMapTiles = new (std::nothrow) MAPTILE[width*height];
     if (psMapTiles == nullptr)
     {
       DBERROR(("mapLoad: Out of memory"));
@@ -614,7 +619,7 @@ BOOL mapSave(UBYTE** ppFileData, UDWORD* pFileSize)
   for (i = 0; i < static_cast<UDWORD>(gwNumZones); i++)
     *pFileSize += 1 + aNumEquiv[i];
 
-  *ppFileData = static_cast<UBYTE*>(MALLOC(*pFileSize));
+  *ppFileData = new (std::nothrow) UBYTE[*pFileSize];
   if (*ppFileData == nullptr)
   {
     DBERROR(("Out of memory"));
@@ -707,7 +712,7 @@ BOOL mapSave(UBYTE** ppFileData, UDWORD* pFileSize)
 /* Shutdown the map module */
 BOOL mapShutdown(void)
 {
-  if (psMapTiles) { FREE(psMapTiles); }
+  if (psMapTiles) { delete[] psMapTiles; }
   psMapTiles = nullptr;
   mapWidth = mapHeight = 0;
 
@@ -931,7 +936,7 @@ BOOL writeVisibilityData(STRING* pFileName)
   fileSize = (sizeof(struct _vis_save_header) + (mapEntries * sizeof(UBYTE)));
 
   /* Try and allocate it - freed up in same function */
-  pFileData = static_cast<UBYTE*>(MALLOC(fileSize));
+  pFileData = new (std::nothrow) UBYTE[fileSize];
 
   /* Did we get it? */
   if (!pFileData)
@@ -980,7 +985,7 @@ BOOL writeVisibilityData(STRING* pFileName)
   }
 
   /* And free up the memory we used */
-  if (pFileData != nullptr) { FREE(pFileData); }
+  if (pFileData != nullptr) { delete[] pFileData; }
   /* Everything is just fine! */
   return TRUE;
 }

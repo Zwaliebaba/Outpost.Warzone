@@ -118,7 +118,7 @@ BOOL scriptSaveProg(SCRIPT_CODE* psProg, UDWORD* pSize, UBYTE** ppData)
   }
 
   // Allocate the save buffer
-  *ppData = static_cast<UBYTE*>(MALLOC(*pSize));
+  *ppData = new (std::nothrow) UBYTE[*pSize];
   if (!*ppData)
   {
     DBERROR(("scriptSaveProg: out of memory"));
@@ -369,7 +369,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE* pData, SCRIPT_CODE** ppsProg)
   UDWORD data, saveFunc;
 
   // Allocate the program structure
-  psProg = static_cast<SCRIPT_CODE*>(MALLOC(sizeof(SCRIPT_CODE)));
+  psProg = new (std::nothrow) SCRIPT_CODE[1];
   if (!psProg)
   {
     DBERROR(("scriptLoadProg: out of memory"));
@@ -401,7 +401,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE* pData, SCRIPT_CODE** ppsProg)
 
   if (psProg->numGlobals > 0)
   {
-    psProg->pGlobals = static_cast<INTERP_TYPE*>(MALLOC(sizeof(INTERP_TYPE) * psProg->numGlobals));
+    psProg->pGlobals = new (std::nothrow) INTERP_TYPE[psProg->numGlobals];
     if (!psProg->pGlobals)
     {
       DBERROR(("scriptLoadProg: out of memory"));
@@ -418,7 +418,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE* pData, SCRIPT_CODE** ppsProg)
   if (psProg->numArrays > 0)
   {
     // Load the array data
-    psProg->psArrayInfo = static_cast<ARRAY_DATA*>(MALLOC(sizeof(ARRAY_DATA) * psProg->numArrays));
+    psProg->psArrayInfo = new (std::nothrow) ARRAY_DATA[psProg->numArrays];
     if (psProg->psArrayInfo == nullptr)
     {
       DBERROR(("scriptLoadProg: out of memory"));
@@ -431,7 +431,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE* pData, SCRIPT_CODE** ppsProg)
   }
 
   // Load the trigger data
-  psProg->psTriggerData = static_cast<TRIGGER_DATA*>(MALLOC(sizeof(TRIGGER_DATA) * psProg->numTriggers));
+  psProg->psTriggerData = new (std::nothrow) TRIGGER_DATA[psProg->numTriggers];
   if (!psProg->psTriggerData)
   {
     DBERROR(("scriptLoadProg: out of memory"));
@@ -443,7 +443,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE* pData, SCRIPT_CODE** ppsProg)
   DbgSize += sizeof(TRIGGER_DATA) * psProg->numTriggers;
 
   // Load the trigger and event tables
-  psProg->pTriggerTab = static_cast<UWORD*>(MALLOC(sizeof(UWORD) * (psProg->numTriggers+1)));
+  psProg->pTriggerTab = new (std::nothrow) UWORD[(psProg->numTriggers+1)];
   if (!psProg->pTriggerTab)
   {
     DBERROR(("scriptLoadProg: out of memory"));
@@ -454,7 +454,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE* pData, SCRIPT_CODE** ppsProg)
 
   DbgSize += (sizeof(UWORD) * (psProg->numTriggers + 1));
 
-  psProg->pEventTab = static_cast<UWORD*>(MALLOC(sizeof(UWORD) * (psProg->numEvents+1)));
+  psProg->pEventTab = new (std::nothrow) UWORD[(psProg->numEvents+1)];
   if (!psProg->pEventTab)
   {
     DBERROR(("scriptLoadProg: out of memory"));
@@ -465,7 +465,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE* pData, SCRIPT_CODE** ppsProg)
 
   DbgSize += (sizeof(UWORD) * (psProg->numEvents + 1));
 
-  psProg->pEventLinks = static_cast<SWORD*>(MALLOC(sizeof(SWORD) * psProg->numEvents));
+  psProg->pEventLinks = new (std::nothrow) SWORD[psProg->numEvents];
   if (!psProg->pEventLinks)
   {
     DBERROR(("scriptLoadProg: out of memory"));
@@ -481,7 +481,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE* pData, SCRIPT_CODE** ppsProg)
   // Load the code
   ASSERT(((pPos - pData) % 4 == 0, "scriptLoadProg: data not DWORD aligned"));
 
-  psProg->pCode = static_cast<UDWORD*>(MALLOC(psProg->size));
+  psProg->pCode = new (std::nothrow) UDWORD[(psProg->size) / sizeof(UDWORD)];
   if (!psProg->pCode)
   {
     DBERROR(("scriptLoadProg: out of memory"));
@@ -538,7 +538,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE* pData, SCRIPT_CODE** ppsProg)
   {
     UDWORD Tot = 0;
 
-    psProg->psDebug = static_cast<SCRIPT_DEBUG*>(MALLOC(sizeof(SCRIPT_DEBUG) * psProg->debugEntries));
+    psProg->psDebug = new (std::nothrow) SCRIPT_DEBUG[psProg->debugEntries];
     if (!psProg->psDebug)
     {
       DBERROR(("scriptLoadProg: out of memory"));
@@ -549,7 +549,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE* pData, SCRIPT_CODE** ppsProg)
 
     if (psProg->numGlobals > 0)
     {
-      psProg->psVarDebug = static_cast<VAR_DEBUG*>(MALLOC(sizeof(VAR_DEBUG) * psProg->numGlobals));
+      psProg->psVarDebug = new (std::nothrow) VAR_DEBUG[psProg->numGlobals];
       if (!psProg->psVarDebug)
       {
         DBERROR(("scriptLoadProg: out of memory"));
@@ -563,7 +563,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE* pData, SCRIPT_CODE** ppsProg)
     }
     if (psProg->numArrays > 0)
     {
-      psProg->psArrayDebug = static_cast<ARRAY_DEBUG*>(MALLOC(sizeof(ARRAY_DEBUG) * psProg->numArrays));
+      psProg->psArrayDebug = new (std::nothrow) ARRAY_DEBUG[psProg->numArrays];
       if (!psProg->psArrayDebug)
       {
         DBERROR(("scriptLoadProg: out of memory"));
@@ -597,7 +597,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE* pData, SCRIPT_CODE** ppsProg)
       {
         StringSize = strlen((STRING*)pPos) + 1;
 
-        psProg->psVarDebug[i].pIdent = static_cast<STRING*>(MALLOC(StringSize));
+        psProg->psVarDebug[i].pIdent = new (std::nothrow) STRING[StringSize];
         if (!psProg->psVarDebug[i].pIdent)
         {
           DBERROR(("scriptLoadProg: out of memory"));
@@ -629,7 +629,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE* pData, SCRIPT_CODE** ppsProg)
       {
         StringSize = strlen((STRING*)pPos) + 1;
 
-        psProg->psArrayDebug[i].pIdent = static_cast<STRING*>(MALLOC(StringSize));
+        psProg->psArrayDebug[i].pIdent = new (std::nothrow) STRING[StringSize];
         if (!psProg->psArrayDebug[i].pIdent)
         {
           DBERROR(("scriptLoadProg: out of memory"));
@@ -665,29 +665,36 @@ void scriptFreeCode(SCRIPT_CODE* psCode)
 {
   UDWORD i;
 
-  FREE(psCode->pCode);
-  if (psCode->pTriggerTab) { FREE(psCode->pTriggerTab); }
-  if (psCode->psTriggerData) { FREE(psCode->psTriggerData); }
-  FREE(psCode->pEventTab);
-  FREE(psCode->pEventLinks);
-  if (psCode->pGlobals != nullptr) { FREE(psCode->pGlobals); }
-  if (psCode->psArrayInfo != nullptr) { FREE(psCode->psArrayInfo); }
+  delete[] psCode->pCode;
+  psCode->pCode = nullptr;
+  if (psCode->pTriggerTab) { delete[] psCode->pTriggerTab; }
+  if (psCode->psTriggerData) { delete[] psCode->psTriggerData; }
+  delete[] psCode->pEventTab;
+  psCode->pEventTab = nullptr;
+  delete[] psCode->pEventLinks;
+  psCode->pEventLinks = nullptr;
+  if (psCode->pGlobals != nullptr) { delete[] psCode->pGlobals; }
+  if (psCode->psArrayInfo != nullptr) { delete[] psCode->psArrayInfo; }
   if (psCode->psDebug)
   {
-    for (i = 0; i < psCode->debugEntries; i++) { if (psCode->psDebug[i].pLabel) { FREE(psCode->psDebug[i].pLabel); } }
-    FREE(psCode->psDebug);
+    for (i = 0; i < psCode->debugEntries; i++) { if (psCode->psDebug[i].pLabel) { delete[] psCode->psDebug[i].pLabel; } }
+    delete[] psCode->psDebug;
+    psCode->psDebug = nullptr;
   }
   if (psCode->psVarDebug)
   {
-    for (i = 0; i < psCode->numGlobals; i++) { if (psCode->psVarDebug[i].pIdent) { FREE(psCode->psVarDebug[i].pIdent); } }
-    FREE(psCode->psVarDebug);
+    for (i = 0; i < psCode->numGlobals; i++) { if (psCode->psVarDebug[i].pIdent) { delete[] psCode->psVarDebug[i].pIdent; } }
+    delete[] psCode->psVarDebug;
+    psCode->psVarDebug = nullptr;
   }
   if (psCode->psArrayDebug)
   {
-    for (i = 0; i < psCode->numArrays; i++) { if (psCode->psArrayDebug[i].pIdent) { FREE(psCode->psArrayDebug[i].pIdent); } }
-    FREE(psCode->psArrayDebug);
+    for (i = 0; i < psCode->numArrays; i++) { if (psCode->psArrayDebug[i].pIdent) { delete[] psCode->psArrayDebug[i].pIdent; } }
+    delete[] psCode->psArrayDebug;
+    psCode->psArrayDebug = nullptr;
   }
-  FREE(psCode);
+  delete[] psCode;
+  psCode = nullptr;
 }
 
 /* Lookup a script variable */

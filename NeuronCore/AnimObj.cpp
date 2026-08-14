@@ -19,10 +19,6 @@
  */
 #define	ANIM_HASH_TABLE_SIZE	499
 
-/* Allocation sizes for the anim heap */
-#define ANIM_INIT				10
-#define ANIM_EXT				5
-
 /***************************************************************************/
 /* global variables */
 
@@ -86,8 +82,7 @@ static UINT animObj_HashFunction(int iKey1, int iKey2) { return (iKey1 + iKey2) 
 
 static void animObj_HashFreeElementFunc(void* psElement)
 {
-  auto psObj = static_cast<ANIM_OBJECT*>(psElement);
-
+  (void)psElement;
 }
 
 /***************************************************************************/

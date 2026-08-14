@@ -13,10 +13,6 @@ static VAL_CREATE_FUNC* asCreateFuncs;
 static VAL_RELEASE_FUNC* asReleaseFuncs;
 static SDWORD numFuncs;
 
-// Heap for value chunks
-// Heap for active triggers
-// Heap for contexts
-
 // The list of currently active triggers
 ACTIVE_TRIGGER* psTrigList;
 
@@ -134,8 +130,8 @@ void eventShutDown(void)
 {
   eventReset();
 
-  if (asCreateFuncs) { FREE(asCreateFuncs); }
-  if (asReleaseFuncs) { FREE(asReleaseFuncs); }
+  if (asCreateFuncs) { delete[] asCreateFuncs; }
+  if (asReleaseFuncs) { delete[] asReleaseFuncs; }
 }
 
 // get the trigger id string
@@ -242,13 +238,13 @@ BOOL eventInitValueFuncs(SDWORD maxType)
 {
   ASSERT((asReleaseFuncs == NULL, "eventInitValueFuncs: array already initialised"));
 
-  asCreateFuncs = static_cast<VAL_CREATE_FUNC*>(MALLOC(sizeof(VAL_CREATE_FUNC) * maxType));
+  asCreateFuncs = new (std::nothrow) VAL_CREATE_FUNC[maxType];
   if (!asCreateFuncs)
   {
     DBERROR(("eventInitValueFuncs: Out of memory"));
     return FALSE;
   }
-  asReleaseFuncs = static_cast<VAL_RELEASE_FUNC*>(MALLOC(sizeof(VAL_RELEASE_FUNC) * maxType));
+  asReleaseFuncs = new (std::nothrow) VAL_RELEASE_FUNC[maxType];
   if (!asReleaseFuncs)
   {
     DBERROR(("eventInitValueFuncs: Out of memory"));

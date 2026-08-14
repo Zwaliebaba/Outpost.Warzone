@@ -702,14 +702,15 @@ BOOL dataIMGPAGELoad(UBYTE* pBuffer, UDWORD size, void** ppData)
 {
   UNUSEDPARAMETER(size);
 
-  auto psSprite = static_cast<iSprite*>(MALLOC(sizeof(iSprite)));
+  auto psSprite = new (std::nothrow) iSprite[1];
   if (!psSprite)
     return FALSE;
 
   if (!iV_PCXLoadMem((int8*)(SBYTE*)pBuffer, psSprite, nullptr))
   {
     DBERROR(("IMGPAGE load failed"));
-    FREE(psSprite);
+    delete[] psSprite;
+    psSprite = nullptr;
     return FALSE;
   }
 
@@ -721,8 +722,10 @@ BOOL dataIMGPAGELoad(UBYTE* pBuffer, UDWORD size, void** ppData)
 void dataIMGPAGERelease(void* pData)
 {
   auto psSprite = static_cast<iSprite*>(pData);
-  FREE(psSprite->bmp);
-  FREE(psSprite);
+  delete[] psSprite->bmp;
+  psSprite->bmp = nullptr;
+  delete[] psSprite;
+  psSprite = nullptr;
 }
 
 // Tertiles loader. This version for software renderer.
@@ -739,7 +742,8 @@ void dataTERTILESRelease(void* pData)
   auto psSprite = static_cast<iSprite*>(pData);
 
   freeTileTextures();
-  FREE(psSprite->bmp);
+  delete[] psSprite->bmp;
+  psSprite->bmp = nullptr;
   bTilesPCXLoaded = FALSE;
 }
 
@@ -797,7 +801,8 @@ void dataHWTERTILESRelease(void* pData)
   auto psSprite = static_cast<iSprite*>(pData);
 
   freeTileTextures();
-  FREE(psSprite->bmp);
+  delete[] psSprite->bmp;
+  psSprite->bmp = nullptr;
   bTilesPCXLoaded = FALSE;
   pie_TexShutDown();
 }
@@ -886,24 +891,25 @@ BOOL bufferTexPageLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
   }
   else
   {
-    auto NewTexturePage = static_cast<TEXTUREPAGE*>(MALLOC(sizeof(TEXTUREPAGE)));
+    auto NewTexturePage = new (std::nothrow) TEXTUREPAGE[1];
     if (!NewTexturePage)
       return FALSE;
 
     NewTexturePage->Texture = nullptr;
     NewTexturePage->Palette = nullptr;
 
-    auto psPal = static_cast<iPalette*>(MALLOC(sizeof(iPalette)));
+    auto psPal = new (std::nothrow) iPalette[1];
     if (!psPal)
       return FALSE;
 
-    auto psSprite = static_cast<iSprite*>(MALLOC(sizeof(iSprite)));
+    auto psSprite = new (std::nothrow) iSprite[1];
     if (!psSprite)
       return FALSE;
 
     if (!iV_PCXLoadMem((int8*)(SBYTE*)pBuffer, psSprite, nullptr))
     {
-      FREE(psSprite);
+      delete[] psSprite;
+      psSprite = nullptr;
       return FALSE;
     }
 
@@ -953,8 +959,10 @@ void dataISpriteRelease(void* pData)
 {
   auto psSprite = static_cast<iSprite*>(pData);
 
-  FREE(psSprite->bmp);
-  FREE(psSprite);
+  delete[] psSprite->bmp;
+  psSprite->bmp = nullptr;
+  delete[] psSprite;
+  psSprite = nullptr;
 }
 
 /* Release a texPage */
@@ -969,13 +977,21 @@ void dataTexPageRelease(void* pData)
   if (Tpage->Texture != nullptr)
   {
     if (Tpage->Texture->bmp != nullptr)
-    FREE(Tpage->Texture->bmp);
-    FREE(Tpage->Texture);
+    {
+      delete[] Tpage->Texture->bmp;
+      Tpage->Texture->bmp = nullptr;
+    }
+    delete[] Tpage->Texture;
+    Tpage->Texture = nullptr;
   }
   if (Tpage->Palette != nullptr)
-  FREE(Tpage->Palette);
+  {
+    delete[] Tpage->Palette;
+    Tpage->Palette = nullptr;
+  }
 
-  FREE(pData);
+  delete[] pData;
+  pData = nullptr;
 }
 
 /* Load an audio file */
@@ -1006,7 +1022,8 @@ void dataAudioRelease(void* pData)
     auto psTrack = static_cast<TRACK*>(pData);
 
     audio_ReleaseTrack(psTrack);
-    FREE(psTrack);
+    delete[] psTrack;
+    psTrack = nullptr;
   }
 }
 

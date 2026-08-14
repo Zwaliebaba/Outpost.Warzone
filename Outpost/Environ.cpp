@@ -63,7 +63,7 @@ BOOL waterOnMap(void) { return (bWaterOnMap); }
 //this function just allocates the memory now for MaxMapWidth, MaxMapHeight
 BOOL environInit(void)
 {
-  pEnvironData = static_cast<ENVIRON_DATA*>(MALLOC(sizeof(struct environ_data) * MAP_MAXWIDTH * MAP_MAXHEIGHT));
+  pEnvironData = new (std::nothrow) ENVIRON_DATA[MAP_MAXWIDTH * MAP_MAXHEIGHT];
   if (!pEnvironData)
   {
     DBERROR(("Can't get memory for the environment data"));
@@ -331,4 +331,4 @@ FUNCINLINE UDWORD map_TileMistValue(UDWORD x, UDWORD y)
 }
 
 // -------------------------------------------------------------------------------
-void environShutDown(void) { if (pEnvironData) { FREE(pEnvironData); } }
+void environShutDown(void) { if (pEnvironData) { delete[] pEnvironData; } }

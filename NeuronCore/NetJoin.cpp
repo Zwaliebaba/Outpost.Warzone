@@ -21,7 +21,8 @@ UDWORD descriptionSize = 0;
 
 VOID freePermMalloc(void)
 {
-  FREE(lpPermDescription);
+  delete[] static_cast<UBYTE*>(lpPermDescription);
+  lpPermDescription = nullptr;
   descriptionSize = 0;
   lpPermDescription = nullptr;
 
@@ -36,7 +37,7 @@ VOID permMalloc(UDWORD size)
     if (descriptionSize != 0) // get rid of old one.
       freePermMalloc();
 
-    lpPermDescription = MALLOC(size);
+    lpPermDescription = new (std::nothrow) UBYTE[size];
     descriptionSize = size;
   }
 }
@@ -54,7 +55,7 @@ BOOL NEThaltJoining(VOID)
   if (NetPlay.bLobbyLaunched) //Lobby version.
   {
     hr = IDirectPlayLobby_GetConnectionSettings(glpDPL, 0, NULL, &size); // get size
-    mempointer = MALLOC(size); // alloc space
+    mempointer = new (std::nothrow) UBYTE[size]; // alloc space
     hr = IDirectPlayLobby_GetConnectionSettings(glpDPL, 0, mempointer, &size);
     lobDesc = static_cast<LPDPLCONNECTION>(mempointer);
 
@@ -65,7 +66,7 @@ BOOL NEThaltJoining(VOID)
   else // ordinary version
   {
     hr = IDirectPlayX_GetSessionDesc(glpDP, NULL, &size); // get size
-    mempointer = MALLOC(size); // alloc
+    mempointer = new (std::nothrow) UBYTE[size]; // alloc
     hr = IDirectPlayX_GetSessionDesc(glpDP, mempointer, &size); // get desc.
     sessionDesc = static_cast<LPDPSESSIONDESC2>(mempointer);
 
@@ -74,7 +75,7 @@ BOOL NEThaltJoining(VOID)
     hr = IDirectPlayX_SetSessionDesc(glpDP, sessionDesc, 0); // write it back
   }
 
-  if (mempointer) { FREE(mempointer); }
+  if (mempointer) { delete[] static_cast<UBYTE*>(mempointer); }
   return TRUE;
 }
 

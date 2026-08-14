@@ -24,7 +24,7 @@ BOOL queue_Init(QUEUE** ppQueue, int iMaxElements, int iElementSize, QUEUE_CLEAR
   QUEUE_NODE* psNode;
 
   /* allocate queue */
-  (*ppQueue) = static_cast<QUEUE*>(MALLOC(sizeof(QUEUE)));
+  (*ppQueue) = new (std::nothrow) QUEUE[1];
 
   if ((*ppQueue) == nullptr)
   {
@@ -37,7 +37,7 @@ BOOL queue_Init(QUEUE** ppQueue, int iMaxElements, int iElementSize, QUEUE_CLEAR
   for (i = 0; i < iMaxElements; i++)
   {
     /* allocate node */
-    psNode = static_cast<QUEUE_NODE*>(MALLOC(sizeof(QUEUE_NODE)));
+    psNode = new (std::nothrow) QUEUE_NODE[1];
 
     if ((*ppQueue) == nullptr)
     {
@@ -82,7 +82,8 @@ void queue_Destroy(QUEUE* pQueue)
   {
     psNode = pQueue->psFreeNodeList;
     pQueue->psFreeNodeList = pQueue->psFreeNodeList->psNext;
-    FREE(psNode);
+    delete[] psNode;
+    psNode = nullptr;
   }
 
   /* free up node queue */
@@ -90,9 +91,11 @@ void queue_Destroy(QUEUE* pQueue)
   {
     psNode = pQueue->psNodeQHead;
     pQueue->psNodeQHead = pQueue->psNodeQHead->psNext;
-    FREE(psNode);
+    delete[] psNode;
+    psNode = nullptr;
   }
-  FREE(pQueue);
+  delete[] pQueue;
+  pQueue = nullptr;
 }
 
 /***************************************************************************/

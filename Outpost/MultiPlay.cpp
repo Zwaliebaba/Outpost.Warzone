@@ -1376,7 +1376,8 @@ BOOL recvMapFileData(NETMSG* pMsg)
         return FALSE;
       if (!levParse(pBuffer, size))
         return FALSE;
-      FREE(pBuffer);
+      delete[] pBuffer;
+      pBuffer = nullptr;
       wdgFindFirstFileRev(HashStringIgnoreCase("MISCDATA"), HashString("MISCDATA"), HashStringIgnoreCase("addon.lev"), &sFindFile);
 
       while (sFindFile.psCurrCache != nullptr)
@@ -1385,7 +1386,8 @@ BOOL recvMapFileData(NETMSG* pMsg)
           return FALSE;
         if (!levParse(pBuffer, size))
           return FALSE;
-        FREE(pBuffer);
+        delete[] pBuffer;
+        pBuffer = nullptr;
 
         wdgFindNextFileRev(&sFindFile);
       }

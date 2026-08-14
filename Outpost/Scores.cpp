@@ -412,7 +412,7 @@ BOOL writeScoreData(STRING* pFileName)
   UDWORD fileSize = (sizeof(struct _score_save_header) + sizeof(struct mission_data));
 
   /* Try and allocate it - freed up in same function */
-  UBYTE* pFileData = static_cast<UBYTE*>(MALLOC(fileSize));
+  UBYTE* pFileData = new (std::nothrow) UBYTE[fileSize];
 
   /* Did we get it? */
   if (!pFileData)
@@ -462,7 +462,7 @@ BOOL writeScoreData(STRING* pFileName)
   }
 
   /* And free up the memory we used */
-  if (pFileData != nullptr) { FREE(pFileData); }
+  if (pFileData != nullptr) { delete[] pFileData; }
   /* Everything is just fine! */
   return TRUE;
 }

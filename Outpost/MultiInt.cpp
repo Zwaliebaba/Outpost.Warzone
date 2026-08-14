@@ -789,7 +789,8 @@ VOID runConnectionScreen(void)
       if (chosenproto == 1 || chosenproto == 2 || chosenproto == 4) // this hack fixes the 
       {
         // memory leak in netplay
-        FREE(finalconnection); // cant do it in the lib, since requires protochosen!
+        delete[] finalconnection; // cant do it in the lib, since requires protochosen!
+        finalconnection = nullptr;
       }
     }
     else
@@ -2527,7 +2528,8 @@ BOOL startMultiOptions(BOOL bReenter)
     if (ingame.numStructureLimits)
     {
       ingame.numStructureLimits = 0;
-      FREE(ingame.pStructureLimits);
+      delete[] ingame.pStructureLimits;
+      ingame.pStructureLimits = nullptr;
     }
 
     // check the registry for setup entries and set game options.

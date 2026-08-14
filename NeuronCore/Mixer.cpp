@@ -30,7 +30,7 @@ static BOOL mixer_GetVolumeControlID(DWORD dwComponentType, DWORD* pdwControlID,
     return FALSE;
   }
   /* allocate control space */
-  aMixerControl = static_cast<MIXERCONTROL*>(MALLOC(mixerLine.cControls * sizeof(MIXERCONTROL)));
+  aMixerControl = new (std::nothrow) MIXERCONTROL[mixerLine.cControls];
   if (aMixerControl == nullptr)
   {
     DBPRINTF(("mixer_GetVolumeControlID: malloc failed\n "));
@@ -63,7 +63,8 @@ static BOOL mixer_GetVolumeControlID(DWORD dwComponentType, DWORD* pdwControlID,
   /* save control volume range */
   if (bControlFound == TRUE) { *piVolRange = aMixerControl[i].Bounds.dwMaximum - aMixerControl[i].Bounds.dwMinimum; }
 
-  FREE(aMixerControl);
+  delete[] aMixerControl;
+  aMixerControl = nullptr;
 
   return bControlFound;
 }

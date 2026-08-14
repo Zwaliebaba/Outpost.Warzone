@@ -19,10 +19,6 @@
 // radius for the different body sizes
 static SDWORD fmLtRad = 80, fmMedRad = 100, fmHvyRad = 110;
 
-// heap sizes
-#define F_HEAPINIT		10
-#define F_HEAPEXT		5
-
 // default length of a formation line
 #define F_DEFLENGTH		(4*fmLtRad)
 //(3 * TILE_UNITS / 1)
@@ -41,8 +37,6 @@ static SDWORD fmLtRad = 80, fmMedRad = 100, fmHvyRad = 110;
 #define FIND_RANGE		(TILE_UNITS/2)
 
 #define FORMATION_SPEED_INIT	100000L
-
-// The heap of formations
 
 // The list of allocated formations
 FORMATION* psFormationList;
@@ -92,7 +86,6 @@ BOOL formationNew(FORMATION** ppsFormation, FORMATION_TYPE type, SDWORD x, SDWOR
   FORMATION* psNew;
   SDWORD i;
 
-  // get a heap structure
   psNew = new (std::nothrow) FORMATION;
   if (psNew == nullptr)
     return FALSE;

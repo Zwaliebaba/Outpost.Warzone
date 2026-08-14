@@ -14,8 +14,6 @@
 
 #include "Types.h"
 #include "LegacyDebug.h"
-#include "Mem.h"
-#include "Heap.h"
 
 /* Turn on and off the treap debugging */
 #ifdef DEBUG
@@ -72,7 +70,7 @@ using TREAP = struct _treap
 /*                                                                                      */
 /*      These should not be called directly - use the macros below                      */
 
-/* Store the location in C code at which a call to the heap was made */
+/* Store the location in C code at which a call to the treap was made */
 extern void treapSetCallPos(STRING* pFileName, SDWORD lineNumber);
 
 /* Function type for object equality */

@@ -7,8 +7,6 @@
 #include "RendMode.h"
 #include "PiePalette.h"
 
-/* The widget heap */
-
 /* Create a barGraph widget data structure */
 BOOL barGraphCreate(W_BARGRAPH** ppsWidget, W_BARINIT* psInit)
 {
@@ -36,12 +34,8 @@ BOOL barGraphCreate(W_BARGRAPH** ppsWidget, W_BARINIT* psInit)
   }
 
   /* Allocate the required memory */
-#if W_USE_MALLOC
-  *ppsWidget = (W_BARGRAPH*)MALLOC(sizeof(W_BARGRAPH)); if (*ppsWidget == NULL)
-#else
   *ppsWidget = new (std::nothrow) W_BARGRAPH;
   if (*ppsWidget == nullptr)
-#endif
   {
     ASSERT((FALSE, "barGraphCreate: Out of memory"));
     return FALSE;
@@ -112,11 +106,7 @@ void barGraphFree(W_BARGRAPH* psWidget)
   if (psWidget->pTip) { widgFreeString(psWidget->pTip); }
 #endif
 
-#if W_USE_MALLOC
-  FREE(psWidget);
-#else
   delete psWidget;
-#endif
 }
 
 /* Initialise a barGraph widget before running it */

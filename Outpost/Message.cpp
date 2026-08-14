@@ -19,26 +19,12 @@
 #include "ObjMem.h"
 #include "Map.h"
 #include "MultiPlay.h"
-/* Allocation sizes for the message heaps */
-#define MESSAGE_INIT		20
-#define MESSAGE_EXT			5
-#define VIEWDATA_INIT		5		// was 2 ... but that wasn't enough
-#define VIEWDATA_EXT		1
-
-/* Allocation sizes for the proximity display heaps - this should coincide with 
-the number of Proximity Messages for a mission*/
-#define PROXDISP_INIT		10
-#define PROXDISP_EXT		5
 
 //max number of text strings or sequences for viewdata
 #define MAX_DATA		4
 
 //array of pointers for the view data
 VIEWDATA_LIST* apsViewData;
-
-/* The memory heaps for the messages and viewData*/
-
-/* The memory heap for the proximity displays */
 
 /* The id number for the next message allocated
  * Each message will have a unique id number irrespective of type
@@ -255,7 +241,6 @@ BOOL messageInitVars(void)
   return TRUE;
 }
 
-//allocates the viewdata heap
 BOOL initViewData(void)
 {
   return TRUE;
@@ -390,7 +375,6 @@ void releaseAllProxDisp(void)
   currentNumProxDisplays = 0;
 }
 
-/* Initialise the message heaps */
 BOOL initMessage(void)
 {
 #ifdef VIDEO_TEST
@@ -456,7 +440,7 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
   }
 
   //allocate space for the data
-  psViewData = static_cast<VIEWDATA*>(MALLOC(numData * sizeof(VIEWDATA)));
+  psViewData = new (std::nothrow) VIEWDATA[numData];
   if (psViewData == nullptr)
   {
     DBERROR(("Unable to allocate memory for viewdata"));
@@ -489,7 +473,7 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
     psViewData->numText = static_cast<UBYTE>(numText);
 
     //allocate storage for the name
-    psViewData->pName = static_cast<STRING*>(MALLOC((strlen(name))+1));
+    psViewData->pName = new (std::nothrow) STRING[(strlen(name))+1];
     if (psViewData->pName == nullptr)
     {
       DBERROR(("ViewData Name - Out of memory"));
@@ -498,7 +482,7 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
     strcpy(psViewData->pName, name);
 
     //allocate space for text strings
-    if (psViewData->numText) { psViewData->ppTextMsg = static_cast<STRING**>(MALLOC(psViewData->numText * sizeof(STRING *))); }
+    if (psViewData->numText) { psViewData->ppTextMsg = new (std::nothrow) STRING*[psViewData->numText]; }
 
     //read in the data for the text strings
     for (dataInc = 0; dataInc < psViewData->numText; dataInc++)
@@ -522,7 +506,7 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
     switch (psViewData->type)
     {
     case VIEW_RES:
-      psViewData->pData = static_cast<VIEW_RESEARCH*>(MALLOC(sizeof(VIEW_RESEARCH)));
+      psViewData->pData = new (std::nothrow) VIEW_RESEARCH[1];
       if (psViewData->pData == nullptr)
       {
         DBERROR(("Unable to allocate memory"));
@@ -557,7 +541,7 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
       if (strcmp(audioName, "0"))
       {
         //allocate space
-        psViewRes->pAudio = static_cast<STRING*>(MALLOC(strlen(audioName) + 1));
+        psViewRes->pAudio = new (std::nothrow) STRING[strlen(audioName) + 1];
         if (psViewRes->pAudio == nullptr)
         {
           DBERROR(("loadViewData - Out of memory"));
@@ -574,7 +558,7 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
     case VIEW_RPLX:
       // This is now also used for the stream playing on the PSX 
       // NOTE: on the psx the last entry (audioID) is used as the number of frames in the stream
-      psViewData->pData = static_cast<VIEW_REPLAY*>(MALLOC(sizeof(VIEW_REPLAY)));
+      psViewData->pData = new (std::nothrow) VIEW_REPLAY[1];
       if (psViewData->pData == nullptr)
       {
         DBERROR(("Unable to allocate memory"));
@@ -594,7 +578,7 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
       psViewReplay->numSeq = static_cast<UBYTE>(count);
 
       //allocate space for the sequences
-      psViewReplay->pSeqList = static_cast<SEQ_DISPLAY*>(MALLOC(psViewReplay->numSeq * sizeof(SEQ_DISPLAY)));
+      psViewReplay->pSeqList = new (std::nothrow) SEQ_DISPLAY[psViewReplay->numSeq];
 
       //read in the data for the sequences
       for (dataInc = 0; dataInc < psViewReplay->numSeq; dataInc++)
@@ -636,8 +620,7 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
         //allocate space for text strings
         if (psViewReplay->pSeqList[dataInc].numText)
         {
-          psViewReplay->pSeqList[dataInc].ppTextMsg = static_cast<STRING**>(MALLOC(
-            psViewReplay->pSeqList[dataInc].numText * sizeof(STRING *)));
+          psViewReplay->pSeqList[dataInc].ppTextMsg = new (std::nothrow) STRING*[psViewReplay->pSeqList[dataInc].numText];
         }
         //read in the data for the text strings
         for (seqInc = 0; seqInc < psViewReplay->pSeqList[dataInc].numText; seqInc++)
@@ -663,7 +646,7 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
         if (strcmp(audioName, "0"))
         {
           //allocate space
-          psViewReplay->pSeqList[dataInc].pAudio = static_cast<STRING*>(MALLOC(strlen(audioName) + 1));
+          psViewReplay->pSeqList[dataInc].pAudio = new (std::nothrow) STRING[strlen(audioName) + 1];
           if (psViewReplay->pSeqList[dataInc].pAudio == nullptr)
           {
             DBERROR(("loadViewData - Out of memory"));
@@ -678,7 +661,7 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
       break;
 
     case VIEW_PROX:
-      psViewData->pData = static_cast<VIEW_PROXIMITY*>(MALLOC(sizeof(VIEW_PROXIMITY)));
+      psViewData->pData = new (std::nothrow) VIEW_PROXIMITY[1];
       if (psViewData->pData == nullptr)
       {
         DBERROR(("Unable to allocate memory"));
@@ -768,7 +751,6 @@ VIEWDATA* getViewData(STRING* pName)
   return nullptr;
 }
 
-/* Release the message heaps */
 BOOL messageShutdown(void)
 {
   freeMessages();
@@ -798,9 +780,10 @@ void viewDataShutDown(VIEWDATA* psViewData)
         //check for any messages using this viewdata
         checkMessages((MSG_VIEWDATA*)psViewData);
 
-        FREE(psViewData->pName);
+        delete[] psViewData->pName;
+        psViewData->pName = nullptr;
         //free the space allocated for the text messages
-        if (psViewData->numText) { FREE(psViewData->ppTextMsg); }
+        if (psViewData->numText) { delete[] psViewData->ppTextMsg; }
 
         //free the space allocated for multiple sequences
         if (psViewData->type == VIEW_RPL)
@@ -811,21 +794,23 @@ void viewDataShutDown(VIEWDATA* psViewData)
             for (seqInc = 0; seqInc < psViewReplay->numSeq; seqInc++)
             {
               //free the space allocated for the text messages
-              if (psViewReplay->pSeqList[seqInc].numText) { FREE(psViewReplay->pSeqList[seqInc].ppTextMsg); }
-              if (psViewReplay->pSeqList[seqInc].pAudio) { FREE(psViewReplay->pSeqList[seqInc].pAudio); }
+              if (psViewReplay->pSeqList[seqInc].numText) { delete[] psViewReplay->pSeqList[seqInc].ppTextMsg; }
+              if (psViewReplay->pSeqList[seqInc].pAudio) { delete[] psViewReplay->pSeqList[seqInc].pAudio; }
             }
-            FREE(psViewReplay->pSeqList);
+            delete[] psViewReplay->pSeqList;
+            psViewReplay->pSeqList = nullptr;
           }
         }
         else if (psViewData->type == VIEW_RES)
         {
           psViewRes = static_cast<VIEW_RESEARCH*>(psViewData->pData);
-          if (psViewRes->pAudio) { FREE(psViewRes->pAudio); }
+          if (psViewRes->pAudio) { delete[] psViewRes->pAudio; }
         }
-        FREE(psViewData->pData);
+        delete[] psViewData->pData;
+        psViewData->pData = nullptr;
       }
-      FREE(psList->psViewData);
-      //remove viewData list from the heap
+      delete[] psList->psViewData;
+      psList->psViewData = nullptr;
       if (psList == apsViewData)
       {
         apsViewData = psList->psNext;

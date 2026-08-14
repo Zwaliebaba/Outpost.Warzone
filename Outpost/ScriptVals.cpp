@@ -51,8 +51,10 @@ void scrvShutDown(void)
     psCurr = psContextStore;
     psContextStore = psContextStore->psNext;
 
-    FREE(psCurr->pIDString);
-    FREE(psCurr);
+    delete[] psCurr->pIDString;
+    psCurr->pIDString = nullptr;
+    delete[] psCurr;
+    psCurr = nullptr;
   }
 }
 
@@ -65,8 +67,10 @@ void scrvReset(void)
     psCurr = psContextStore;
     psContextStore = psContextStore->psNext;
 
-    FREE(psCurr->pIDString);
-    FREE(psCurr);
+    delete[] psCurr->pIDString;
+    psCurr->pIDString = nullptr;
+    delete[] psCurr;
+    psCurr = nullptr;
   }
 
   psContextStore = nullptr;
@@ -78,13 +82,13 @@ BOOL scrvAddContext(STRING* pID, SCRIPT_CONTEXT* psContext, SCRV_TYPE type)
 {
   SCRV_STORE* psNew;
 
-  psNew = static_cast<SCRV_STORE*>(MALLOC(sizeof(SCRV_STORE)));
+  psNew = new (std::nothrow) SCRV_STORE[1];
   if (!psNew)
   {
     DBERROR(("scrvAddContext: Out of memory"));
     return FALSE;
   }
-  psNew->pIDString = static_cast<STRING*>(MALLOC(strlen(pID) + 1));
+  psNew->pIDString = new (std::nothrow) STRING[strlen(pID) + 1];
   if (!psNew->pIDString)
   {
     DBERROR(("scrvAddContext: Out of memory"));

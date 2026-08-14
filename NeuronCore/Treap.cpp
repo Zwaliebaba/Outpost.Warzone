@@ -5,8 +5,6 @@
 
 #include "Types.h"
 #include "LegacyDebug.h"
-#include "Mem.h"
-#include "Heap.h"
 #include "Treap.h"
 
 /* Position of the last call */
@@ -14,12 +12,11 @@ static SDWORD cLine;
 static STRING* pCFile;
 static STRING pCFileNone[] = "None";
 
-/* Store the location in C code at which a call to the heap was made */
 void treapSetCallPos(STRING* pFileName, SDWORD lineNumber)
 {
   cLine = lineNumber;
 
-  pCFile = static_cast<STRING*>(MALLOC(strlen(pFileName) + 1));
+  pCFile = new (std::nothrow) STRING[strlen(pFileName) + 1];
   if (pCFile)
     strcpy(pCFile, pFileName);
   else
@@ -59,7 +56,7 @@ SDWORD treapStringCmp(UDWORD key1, UDWORD key2)
  */
 BOOL treapCreate(TREAP** ppsTreap, TREAP_CMP cmp, UDWORD init, UDWORD ext)
 {
-  *ppsTreap = static_cast<TREAP*>(MALLOC(sizeof(TREAP)));
+  *ppsTreap = new (std::nothrow) TREAP[1];
   if (!(*ppsTreap))
   {
     DBERROR(("treapCreate: Out of memory"));
@@ -242,7 +239,8 @@ BOOL treapDel(TREAP* psTreap, UDWORD key)
 
   // Release the node
 #ifdef DEBUG
-  FREE(psDel->pFile);
+  delete[] psDel->pFile;
+  psDel->pFile = nullptr;
 #endif
   delete psDel;
 
@@ -318,11 +316,13 @@ void treapDestroy(TREAP* psTreap)
     DBPRINTF(("treapDestroy: %s, line %d : nodes still in the tree\n", psTreap->pFile, psTreap->line));
     treapReportRec(psTreap->psRoot);
   }
-  FREE(psTreap->pFile);
+  delete[] psTreap->pFile;
+  psTreap->pFile = nullptr;
 #endif
 
   treapDestroyRec(psTreap->psRoot);
-  FREE(psTreap);
+  delete[] psTreap;
+  psTreap = nullptr;
 }
 
 /* Recursively display the treap structure */

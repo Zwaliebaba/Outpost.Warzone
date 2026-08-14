@@ -76,21 +76,21 @@ IMAGEFILE* iV_LoadImageFile(UBYTE* FileData, UDWORD FileSize)
   Header = (IMAGEHEADER*)Ptr;
   Ptr += sizeof(IMAGEHEADER);
 
-  ImageFile = static_cast<IMAGEFILE*>(MALLOC(sizeof(IMAGEFILE)));
+  ImageFile = new (std::nothrow) IMAGEFILE[1];
   if (ImageFile == nullptr)
   {
     DBERROR(("Out of memory"));
     return nullptr;
   }
 
-  ImageFile->TexturePages = static_cast<iSprite*>(MALLOC(sizeof(iSprite)*Header->NumTPages));
+  ImageFile->TexturePages = new (std::nothrow) iSprite[Header->NumTPages];
   if (ImageFile->TexturePages == nullptr)
   {
     DBERROR(("Out of memory"));
     return nullptr;
   }
 
-  ImageFile->ImageDefs = static_cast<IMAGEDEF*>(MALLOC(sizeof(IMAGEDEF)*Header->NumImages));
+  ImageFile->ImageDefs = new (std::nothrow) IMAGEDEF[Header->NumImages];
   if (ImageFile->ImageDefs == nullptr)
   {
     DBERROR(("Out of memory"));
@@ -120,9 +120,12 @@ IMAGEFILE* iV_LoadImageFile(UBYTE* FileData, UDWORD FileSize)
 
 void iV_FreeImageFile(IMAGEFILE* ImageFile)
 {
-  FREE(ImageFile->TexturePages);
-  FREE(ImageFile->ImageDefs);
-  FREE(ImageFile);
+  delete[] ImageFile->TexturePages;
+  ImageFile->TexturePages = nullptr;
+  delete[] ImageFile->ImageDefs;
+  ImageFile->ImageDefs = nullptr;
+  delete[] ImageFile;
+  ImageFile = nullptr;
 }
 
 static BOOL LoadTextureFile(char* FileName, iSprite* pSprite, int* texPageID)

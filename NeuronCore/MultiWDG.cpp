@@ -47,12 +47,15 @@ void wdgMultiShutdown(void)
     psNext = psWDGCache->psNext;
 
     // free the file catalogs
-    for (i = 0; i < psWDGCache->numWRF; i++) { if (psWDGCache->apsWRFFileCatalog[i]) { FREE(psWDGCache->apsWRFFileCatalog[i]); } }
-    FREE(psWDGCache->apsWRFFileCatalog);
+    for (i = 0; i < psWDGCache->numWRF; i++) { if (psWDGCache->apsWRFFileCatalog[i]) { delete[] psWDGCache->apsWRFFileCatalog[i]; } }
+    delete[] psWDGCache->apsWRFFileCatalog;
+    psWDGCache->apsWRFFileCatalog = nullptr;
 
     // free the WRF catalog
-    FREE(psWDGCache->asWRFCatalog);
-    FREE(psWDGCache);
+    delete[] psWDGCache->asWRFCatalog;
+    psWDGCache->asWRFCatalog = nullptr;
+    delete[] psWDGCache;
+    psWDGCache = nullptr;
 
     psWDGCache = psNext;
   }
@@ -215,7 +218,7 @@ BOOL wdgLoadCompleteCatalog(char* pWDGName)
   FILE* pFileHandle;
 
   // allocate the cache structure
-  psNew = static_cast<WDGCACHE*>(MALLOC(sizeof(WDGCACHE)));
+  psNew = new (std::nothrow) WDGCACHE[1];
   if (psNew == nullptr)
   {
     DBERROR(("wdgLoadCompleteCatalog: out of memory"));
@@ -233,14 +236,14 @@ BOOL wdgLoadCompleteCatalog(char* pWDGName)
   // get the WRF catalog
   WDG_GetCurrentWDGCatalog(&pWDGName, &numWRF, &psCat);
   psNew->numWRF = numWRF;
-  psNew->asWRFCatalog = static_cast<WDGINFO*>(MALLOC(sizeof(WDGINFO) * numWRF));
+  psNew->asWRFCatalog = new (std::nothrow) WDGINFO[numWRF];
   if (psNew->asWRFCatalog == nullptr)
   {
     DBERROR(("wdgLoadCompleteCatalog: out of memory"));
     return FALSE;
   }
   memcpy(psNew->asWRFCatalog, psCat, sizeof(WDGINFO) * numWRF);
-  psNew->apsWRFFileCatalog = static_cast<WRFINFO**>(MALLOC(sizeof(WRFINFO *) * numWRF));
+  psNew->apsWRFFileCatalog = new (std::nothrow) WRFINFO*[numWRF];
   if (psNew->apsWRFFileCatalog == nullptr)
   {
     DBERROR(("wdgLoadCompleteCatalog: out of memory"));
@@ -273,7 +276,7 @@ BOOL wdgLoadCompleteCatalog(char* pWDGName)
       fclose(pFileHandle);
       return FALSE;
     }
-    psNew->apsWRFFileCatalog[i] = static_cast<WRFINFO*>(MALLOC(sizeof(WRFINFO) * psCat[i].filecount));
+    psNew->apsWRFFileCatalog[i] = new (std::nothrow) WRFINFO[psCat[i].filecount];
     if (psNew->apsWRFFileCatalog[i] == nullptr)
     {
       DBERROR(("wdgLoadCompleteCatalog: out of memory"));

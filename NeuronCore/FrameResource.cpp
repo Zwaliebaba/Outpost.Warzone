@@ -145,13 +145,10 @@ BOOL resLoad(STRING* pResFile, SDWORD blockID, UBYTE* pLoadBuffer, SDWORD buffer
   if (bAllowWRFProcessing == TRUE)
   {
 #ifndef FINALBUILD		// don't allow wrf's on final build
-    // make sure the WRF doesn't get loaded into a block heap
 
     // Load the RES file
     if (!LoadWRF(pResFile, &pBuffer, &size))
       return FALSE;
-
-    // now set the memory system to use the block heap
 
     // and parse it
     resSetInputBuffer(pBuffer, size);
@@ -183,7 +180,7 @@ static BOOL resAlloc(STRING* pType, RES_TYPE** ppsFunc)
 #endif
 
   // Allocate the memory
-  psT = static_cast<RES_TYPE*>(MALLOC(sizeof(RES_TYPE)));
+  psT = new (std::nothrow) RES_TYPE[1];
   if (!psT)
   {
     DBERROR(("resAlloc: Out of memory"));
@@ -389,7 +386,7 @@ void FreeResourceFile(RESOURCEFILE* OldResource)
 {
   switch (OldResource->type)
   {
-  case RESFILETYPE_LOADED: FREE(OldResource->pBuffer);
+  case RESFILETYPE_LOADED: delete[] OldResource->pBuffer;
 
     break;
   }
@@ -545,7 +542,7 @@ BOOL resLoadFile(STRING* pType, STRING* pFile)
     // Set up the resource structure if there is something to store
     if (pData != nullptr)
     {
-      psRes = static_cast<RES_DATA*>(MALLOC(sizeof(RES_DATA)));
+      psRes = new (std::nothrow) RES_DATA[1];
       if (!psRes)
       {
         DBERROR(("resLoadFile: Out of memory"));
@@ -792,10 +789,12 @@ void resReleaseAll(void)
       else
         ASSERT((FALSE,"resReleaseAll: NULL release function"));
       psNRes = psRes->psNext;
-      FREE(psRes);
+      delete[] psRes;
+      psRes = nullptr;
     }
     psNT = resNextType(psT);
-    FREE(psT);
+    delete[] psT;
+    psT = nullptr;
   }
 
   psResTypes = nullptr;
@@ -826,7 +825,8 @@ void resReleaseBlockData(SDWORD blockID)
           ASSERT((FALSE,"resReleaseAllData: NULL release function"));
 
         psNRes = psRes->psNext;
-        FREE(psRes);
+        delete[] psRes;
+        psRes = nullptr;
 
         if (psPRes == nullptr)
           psT->psRes = psNRes;
@@ -866,7 +866,8 @@ void resReleaseAllData(void)
         ASSERT((FALSE,"resReleaseAllData: NULL release function"));
 
       psNRes = psRes->psNext;
-      FREE(psRes);
+      delete[] psRes;
+      psRes = nullptr;
     }
     psT->psRes = nullptr;
     psNT = resNextType(psT);
@@ -897,7 +898,7 @@ static void ReleaseWRF(UBYTE** pBuffer)
   // this is here for when we free up a old wrf
 
   // now free up the memory for the .wrf file
-  FREE(*pBuffer);
+  delete[] *pBuffer;
 
 #endif
 }
@@ -955,7 +956,7 @@ BOOL FILE_ProcessFile(WRFINFO* CurrentFile, UBYTE* pRetreivedFile)
   {
     RES_DATA* psRes;
 
-    psRes = static_cast<RES_DATA*>(MALLOC(sizeof(RES_DATA)));
+    psRes = new (std::nothrow) RES_DATA[1];
     if (!psRes)
     {
       DBERROR(("resLoadFile: Out of memory"));

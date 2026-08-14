@@ -12,7 +12,6 @@
 
 #include "Types.h"
 #include "LegacyDebug.h"
-#include "Mem.h"
 #include "Image.h"
 
 #define WRITEIMAGES
@@ -82,7 +81,7 @@ BOOL imageParsePCX(UBYTE* pFileData, // Original file
   *pHeight = sHeader.height + 1;
 
   /* Allocate a buffer to store the image data */
-  *ppImageData = static_cast<UBYTE*>(MALLOC((UDWORD)((*pWidth) * (*pHeight))));
+  *ppImageData = new (std::nothrow) UBYTE[(UDWORD)((*pWidth) * (*pHeight))];
   if (!(*ppImageData))
   {
     DBERROR(("Out of memory"));
@@ -118,18 +117,18 @@ BOOL imageParsePCX(UBYTE* pFileData, // Original file
         /* The image data is corrupt as it decompresses to a 
            bigger image than specified in the header */
         DBERROR(("Corrupt PCX file data"));
-        FREE(*ppImageData);
+        delete[] *ppImageData;
         return FALSE;
       }
     }
   }
 
   /* Allocate a buffer for the palette */
-  *ppsPalette = static_cast<PALETTEENTRY*>(MALLOC(256 * sizeof(PALETTEENTRY)));
+  *ppsPalette = new (std::nothrow) PALETTEENTRY[256];
   if (!(*ppsPalette))
   {
     DBERROR(("Out of memory"));
-    FREE(*ppImageData);
+    delete[] *ppImageData;
     return FALSE;
   }
   memset(*ppsPalette, 0, sizeof(PALETTEENTRY) * 256);
@@ -253,7 +252,7 @@ BOOL imageParseBMP(UBYTE* pFileData, // Original file
     /* Allocate a palette of a full 256 entries anyway - everything gets
      * converted to 8 bit. 
      */
-    *ppsPalette = static_cast<PALETTEENTRY*>(MALLOC(sizeof(PALETTEENTRY) * 256));
+    *ppsPalette = new (std::nothrow) PALETTEENTRY[256];
     if (*ppsPalette == nullptr)
     {
       DBERROR(("Out of memory"));
@@ -278,16 +277,16 @@ BOOL imageParseBMP(UBYTE* pFileData, // Original file
   switch (psInfoHeader->bitCount)
   {
   case 1: DBERROR(("1 Bit BMP not implemented"));
-    FREE(*ppsPalette);
+    delete[] *ppsPalette;
     return FALSE;
     break;
   case 4:
     /* Allocate the memory for the image */
-    *ppImageData = static_cast<UBYTE*>(MALLOC((*pWidth) * (*pHeight) /2));
+    *ppImageData = new (std::nothrow) UBYTE[(*pWidth) * (*pHeight) /2];
     if (*ppImageData == nullptr)
     {
       DBERROR(("Out of memory"));
-      FREE(*ppsPalette);
+      delete[] *ppsPalette;
       return FALSE;
     }
     if (psInfoHeader->compression == 0)
@@ -322,17 +321,17 @@ BOOL imageParseBMP(UBYTE* pFileData, // Original file
     else
     {
       DBERROR(("Compressed BMP not implemented"));
-      FREE(*ppsPalette);
+      delete[] *ppsPalette;
       return FALSE;
     }
     break;
   case 8:
     /* Allocate the memory for the image */
-    *ppImageData = static_cast<UBYTE*>(MALLOC((*pWidth) * (*pHeight)));
+    *ppImageData = new (std::nothrow) UBYTE[(*pWidth) * (*pHeight)];
     if (*ppImageData == nullptr)
     {
       DBERROR(("Out of memory"));
-      FREE(*ppsPalette);
+      delete[] *ppsPalette;
       return FALSE;
     }
     if (psInfoHeader->compression == 0)
@@ -358,7 +357,7 @@ BOOL imageParseBMP(UBYTE* pFileData, // Original file
     else
     {
       DBERROR(("Compressed BMP not implemented"));
-      FREE(*ppsPalette);
+      delete[] *ppsPalette;
       return FALSE;
     }
     break;
@@ -406,14 +405,15 @@ BOOL imageCreateBMP(UBYTE* pImageData, // Original file
   else
     BitCount = 24;
 
-  psFileHeader = static_cast<BMP_FILEHEADER*>(MALLOC(sizeof(BMP_FILEHEADER)));
+  psFileHeader = new (std::nothrow) BMP_FILEHEADER[1];
   if (psFileHeader == nullptr)
     return FALSE;
 
-  psInfoHeader = static_cast<BMP_INFOHEADER*>(MALLOC(sizeof(BMP_INFOHEADER)));
+  psInfoHeader = new (std::nothrow) BMP_INFOHEADER[1];
   if (psInfoHeader == nullptr)
   {
-    FREE(psFileHeader);
+    delete[] psFileHeader;
+    psFileHeader = nullptr;
     return FALSE;
   }
 
@@ -423,11 +423,13 @@ BOOL imageCreateBMP(UBYTE* pImageData, // Original file
   else
     BMPSize = 2 + sizeof(BMP_FILEHEADER) + sizeof(BMP_INFOHEADER) + (Width * Height * 3);
 
-  BMPdata = static_cast<UBYTE*>(MALLOC(BMPSize));
+  BMPdata = new (std::nothrow) UBYTE[BMPSize];
   if (BMPdata == nullptr) // No mem for BMP file
   {
-    FREE(psInfoHeader);
-    FREE(psFileHeader);
+    delete[] psInfoHeader;
+    psInfoHeader = nullptr;
+    delete[] psFileHeader;
+    psFileHeader = nullptr;
     return FALSE;
   }
 
@@ -482,8 +484,10 @@ BOOL imageCreateBMP(UBYTE* pImageData, // Original file
   *ppBMPFile = BMPdata;
   *fileSize = BMPSize;
 
-  FREE(psInfoHeader);
-  FREE(psFileHeader);
+  delete[] psInfoHeader;
+  psInfoHeader = nullptr;
+  delete[] psFileHeader;
+  psFileHeader = nullptr;
   return TRUE;
 }
 

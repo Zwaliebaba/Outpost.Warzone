@@ -124,7 +124,7 @@ void gwShutDown(void)
   gwFreeZoneMap();
   gwFreeEquivTable();
 
-  if (aZoneReachable != nullptr) { FREE(aZoneReachable); }
+  if (aZoneReachable != nullptr) { delete[] aZoneReachable; }
 }
 
 // Add a gateway to the system
@@ -140,7 +140,7 @@ BOOL gwNewGateway(SDWORD x1, SDWORD y1, SDWORD x2, SDWORD y2)
     return FALSE;
   }
 
-  psNew = static_cast<GATEWAY*>(MALLOC(sizeof(GATEWAY)));
+  psNew = new (std::nothrow) GATEWAY[1];
   if (!psNew)
   {
     DBERROR(("gwNewGateway: out of memory"));
@@ -205,7 +205,7 @@ BOOL gwNewLinkGateway(SDWORD x, SDWORD y)
     return FALSE;
   }
 
-  psNew = static_cast<GATEWAY*>(MALLOC(sizeof(GATEWAY)));
+  psNew = new (std::nothrow) GATEWAY[1];
   if (!psNew)
   {
     DBERROR(("gwNewGateway: out of memory"));
@@ -453,8 +453,9 @@ void gwFreeGateway(GATEWAY* psDel)
     }
   }
 
-  if (psDel->psLinks != nullptr) { FREE(psDel->psLinks); }
-  FREE(psDel);
+  if (psDel->psLinks != nullptr) { delete[] psDel->psLinks; }
+  delete[] psDel;
+  psDel = nullptr;
 }
 
 // load a gateway list
@@ -621,7 +622,7 @@ BOOL gwLinkGateways(void)
   BOOL bZone1, bAddLink;
 
   // note which zones have a gateway
-  aZoneReachable = static_cast<UBYTE*>(MALLOC(sizeof(UBYTE) * gwNumZones));
+  aZoneReachable = new (std::nothrow) UBYTE[gwNumZones];
   if (aZoneReachable == nullptr)
   {
     DBERROR(("gwLinkGateways: out of memory"));
@@ -698,7 +699,7 @@ BOOL gwLinkGateways(void)
     }
     if (zone1Links + zone2Links > 0)
     {
-      psCurr->psLinks = static_cast<GATEWAY_LINK*>(MALLOC(sizeof(GATEWAY_LINK) * (zone1Links+zone2Links)));
+      psCurr->psLinks = new (std::nothrow) GATEWAY_LINK[(zone1Links+zone2Links)];
       if (psCurr->psLinks == nullptr)
       {
         DBERROR(("gwLinkGateways: out of memory"));
@@ -794,7 +795,7 @@ BOOL gwNewZoneMap(void)
   if (apRLEZones != nullptr)
     gwFreeZoneMap();
 
-  apRLEZones = static_cast<UBYTE**>(MALLOC(sizeof(UBYTE *) * gwMapHeight()));
+  apRLEZones = new (std::nothrow) UBYTE*[gwMapHeight()];
   if (apRLEZones == nullptr)
   {
     DBERROR(("gwNewZoneMap: Out of memory"));
@@ -814,9 +815,9 @@ UBYTE* gwNewZoneLine(UDWORD Line, UDWORD Size)
   ASSERT((Line < static_cast<UDWORD>(gwMapHeight()),"gwNewZoneLine : Invalid line requested"));
   ASSERT((apRLEZones != NULL,"gwNewZoneLine : NULL Zone map"));
 
-  if (apRLEZones[Line] != nullptr) { FREE(apRLEZones[Line]); }
+  if (apRLEZones[Line] != nullptr) { delete[] apRLEZones[Line]; }
 
-  apRLEZones[Line] = static_cast<UBYTE*>(MALLOC(Size));
+  apRLEZones[Line] = new (std::nothrow) UBYTE[Size];
   if (apRLEZones[Line] == nullptr)
   {
     DBERROR(("gwNewZoneLine: Out of memory"));
@@ -854,8 +855,9 @@ void gwFreeZoneMap(void)
 
   if (apRLEZones)
   {
-    for (i = 0; i < gwMapHeight(); i++) { FREE(apRLEZones[i]); }
-    FREE(apRLEZones);
+    for (i = 0; i < gwMapHeight(); i++) { delete[] apRLEZones[i]; }
+    delete[] apRLEZones;
+    apRLEZones = nullptr;
   }
 }
 
@@ -893,7 +895,7 @@ BOOL gwNewEquivTable(SDWORD numZones)
   ASSERT((numZones < UBYTE_MAX, "gwNewEquivTable: invalid number of zones"));
 
   gwNumZones = numZones;
-  aNumEquiv = static_cast<UBYTE*>(MALLOC(sizeof(UBYTE) * numZones));
+  aNumEquiv = new (std::nothrow) UBYTE[numZones];
   if (aNumEquiv == nullptr)
   {
     DBERROR(("gwNewEquivTable: out of memory"));
@@ -902,7 +904,7 @@ BOOL gwNewEquivTable(SDWORD numZones)
   for (i = 0; i < numZones; i += 1)
     aNumEquiv[i] = 0;
 
-  apEquivZones = static_cast<UBYTE**>(MALLOC(sizeof(UBYTE *) * numZones));
+  apEquivZones = new (std::nothrow) UBYTE*[numZones];
   if (apEquivZones == nullptr)
   {
     DBERROR(("gwNewEquivTable: out of memory"));
@@ -919,11 +921,12 @@ void gwFreeEquivTable(void)
 {
   SDWORD i;
 
-  if (aNumEquiv) { FREE(aNumEquiv); }
+  if (aNumEquiv) { delete[] aNumEquiv; }
   if (apEquivZones)
   {
-    for (i = 0; i < gwNumZones; i += 1) { if (apEquivZones[i]) { FREE(apEquivZones[i]); } }
-    FREE(apEquivZones);
+    for (i = 0; i < gwNumZones; i += 1) { if (apEquivZones[i]) { delete[] apEquivZones[i]; } }
+    delete[] apEquivZones;
+    apEquivZones = nullptr;
   }
   gwNumZones = 0;
 }
@@ -937,7 +940,7 @@ BOOL gwSetZoneEquiv(SDWORD zone, SDWORD numEquiv, UBYTE* pEquiv)
   ASSERT((zone < gwNumZones, "gwSetZoneEquiv: invalid zone"));
   ASSERT((numEquiv <= gwNumZones, "gwSetZoneEquiv: invalid number of zone equivalents"));
 
-  apEquivZones[zone] = static_cast<UBYTE*>(MALLOC(sizeof(UBYTE) * numEquiv));
+  apEquivZones[zone] = new (std::nothrow) UBYTE[numEquiv];
   if (apEquivZones[zone] == nullptr)
   {
     DBERROR(("gwSetZoneEquiv: out of memory"));

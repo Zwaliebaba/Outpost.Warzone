@@ -16,13 +16,7 @@
 // The number of world units per grid
 #define GRID_UNITS	(GRID_SIZE * TILE_UNITS)
 
-// Initial and extension sizes for the grid heap
-#define GRID_HEAPINIT	(GRID_MAXAREA)
-#define GRID_HEAPEXT	4
-
 UDWORD gridWidth, gridHeight;
-
-// The heap for the grid arrays
 
 // The map grid 
 GRID_ARRAY* apsMapGrid[GRID_MAXAREA];

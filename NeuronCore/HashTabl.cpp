@@ -57,12 +57,11 @@ BOOL hashTable_Create(HASHTABLE** ppsTable, UDWORD udwTableSize, UDWORD udwInitE
 
   /* allocate and init table */
 
-  (*ppsTable) = static_cast<HASHTABLE*>(MALLOC(sizeof(HASHTABLE)));
+  (*ppsTable) = new (std::nothrow) HASHTABLE[1];
   udwSize = udwTableSize * sizeof(HASHNODE*);
-  (*ppsTable)->ppsNode = static_cast<HASHNODE**>(MALLOC(udwSize));
+  (*ppsTable)->ppsNode = new (std::nothrow) HASHNODE*[udwTableSize];
   memset((*ppsTable)->ppsNode, 0, udwSize);
 
-  /* allocate heaps */
   /* init members */
   (*ppsTable)->udwTableSize = udwTableSize;
   (*ppsTable)->udwElements = udwInitElements;
@@ -88,11 +87,11 @@ void hashTable_Destroy(HASHTABLE* psTable)
 {
   hashTable_Clear(psTable);
 
-  /* destroy heaps */
-
   /* free table */
-  FREE(psTable->ppsNode);
-  FREE(psTable);
+  delete[] psTable->ppsNode;
+  psTable->ppsNode = nullptr;
+  delete[] psTable;
+  psTable = nullptr;
 }
 
 /***************************************************************************/
@@ -115,8 +114,6 @@ void hashTable_Clear(HASHTABLE* psTable)
     psNode = psTable->ppsNode[i];
     while (psNode != nullptr)
     {
-      /* return node element to heap */
-
       /* do free-element callback if set */
       if (psTable->pFreeFunc != nullptr)
         (psTable->pFreeFunc)(psNode->psElement);
@@ -124,7 +121,6 @@ void hashTable_Clear(HASHTABLE* psTable)
       /* free element */
       delete[] static_cast<UBYTE*>(psNode->psElement);
 
-      /* return node to heap */
       psNodeTmp = psNode->psNext;
       delete psNode;
       psNode = psNodeTmp;
@@ -181,7 +177,6 @@ void hashTable_InsertElement(HASHTABLE* psTable, void* psElement, int iKey1, int
   /* get hashed index */
   udwHashIndex = hashTable_GetHashKey(psTable, iKey1, iKey2);
 
-  /* get node from heap */
   psNode = new (std::nothrow) HASHNODE;
 
   /* set node elements */
@@ -219,7 +214,6 @@ void* hashTable_FindElement(HASHTABLE* psTable, int iKey1, int iKey2)
   /* loop through node list to find element match */
   while (psNode != nullptr && !(psNode->iKey1 == iKey1 && psNode->iKey2 == iKey2)) { psNode = psNode->psNext; }
 
-  /* remove node from hash table and return to heap */
   if (psNode == nullptr)
     return FALSE;
   return psNode->psElement;
@@ -275,7 +269,6 @@ BOOL hashTable_RemoveElement(HASHTABLE* psTable, void* psElement, int iKey1, int
     psNode = psNode->psNext;
   }
 
-  /* remove node from hash table and return to heap */
   if (psNode == nullptr)
     return FALSE;
   /* remove from hash table */
@@ -291,10 +284,8 @@ BOOL hashTable_RemoveElement(HASHTABLE* psTable, void* psElement, int iKey1, int
   /* setup next node pointer */
   hashTable_SetNextNode(psTable, TRUE);
 
-  /* return element to heap */
   delete[] static_cast<UBYTE*>(psNode->psElement);
 
-  /* return node to heap */
   delete psNode;
 
   return TRUE;

@@ -22,6 +22,7 @@
 #include <map>
 #include <mdspan>
 #include <memory>
+#include <new>
 #include <queue>
 #include <ranges>
 #include <set>

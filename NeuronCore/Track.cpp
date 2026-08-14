@@ -96,7 +96,7 @@ BOOL sound_Init(HWND hWnd, SDWORD iMaxSameSamples)
   }
 
   /* init audio array */
-  g_apTrack = static_cast<TRACK**>(MALLOC(sizeof(TRACK *) * MAX_TRACKS));
+  g_apTrack = new (std::nothrow) TRACK*[MAX_TRACKS];
   for (i = 0; i < MAX_TRACKS; i++)
     g_apTrack[i] = nullptr;
 
@@ -110,7 +110,8 @@ BOOL sound_Init(HWND hWnd, SDWORD iMaxSameSamples)
 
 BOOL sound_Shutdown()
 {
-  FREE(g_apTrack);
+  delete[] g_apTrack;
+  g_apTrack = nullptr;
 
   /* set inactive flag to prevent callbacks coming after shutdown */
   g_bSystemActive = FALSE;
@@ -192,7 +193,7 @@ void* sound_LoadTrackFromBuffer(UBYTE* pBuffer, UDWORD udwSize)
   TRACK* pTrack;
 
   /* allocate track */
-  pTrack = static_cast<TRACK*>(MALLOC(sizeof(TRACK)));
+  pTrack = new (std::nothrow) TRACK[1];
 
   if (pTrack == nullptr)
   {
@@ -200,11 +201,12 @@ void* sound_LoadTrackFromBuffer(UBYTE* pBuffer, UDWORD udwSize)
     return nullptr;
   }
   pTrack->bMemBuffer = TRUE;
-  pTrack->pName = static_cast<STRING*>(MALLOC(strlen(GetLastResourceFilename()) + 1));
+  pTrack->pName = new (std::nothrow) STRING[strlen(GetLastResourceFilename()) + 1];
   if (pTrack->pName == nullptr)
   {
     DBERROR(("sound_LoadTrackFromBuffer: couldn't allocate memory\n"));
-    FREE(pTrack);
+    delete[] pTrack;
+    pTrack = nullptr;
     return nullptr;
   }
   strcpy(pTrack->pName, GetLastResourceFilename());
@@ -226,12 +228,12 @@ BOOL sound_LoadTrackFromFile(char szFileName[])
   TRACK* pTrack;
 
   /* allocate track */
-  pTrack = static_cast<TRACK*>(MALLOC(sizeof(TRACK)));
+  pTrack = new (std::nothrow) TRACK[1];
 
   if (pTrack != nullptr)
   {
     pTrack->bMemBuffer = FALSE;
-    pTrack->pName = static_cast<STRING*>(MALLOC(strlen(szFileName)+1));
+    pTrack->pName = new (std::nothrow) STRING[strlen(szFileName)+1];
     if (pTrack->pName == nullptr)
     {
       DBERROR(("sound_LoadTrackFromFile: Out of memory"));
@@ -255,7 +257,7 @@ BOOL sound_ReleaseTrack(TRACK* psTrack)
 {
   SDWORD iTrack;
 
-  if (psTrack->pName != nullptr) { FREE(psTrack->pName); }
+  if (psTrack->pName != nullptr) { delete[] psTrack->pName; }
 
   for (iTrack = 0; iTrack < g_iCurTracks; iTrack++)
   {

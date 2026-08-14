@@ -248,8 +248,6 @@ static int fprintf(FILE* f, char* c, ...) { return 0; }
 #include <string.h>
 #include "Types.h"
 #include "LegacyDebug.h"
-#include "Mem.h"
-#include "Heap.h"
 #include "Treap.h"
 #include "StrRes.h"
 #include "StrResLY.h"

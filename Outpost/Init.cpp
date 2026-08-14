@@ -683,7 +683,8 @@ BOOL systemInitialise(void)
       return FALSE;
     if (!levParse(pBuffer, size))
       return FALSE;
-    FREE(pBuffer);
+    delete[] pBuffer;
+    pBuffer = nullptr;
 
     wdgFindFirstFileRev(HashStringIgnoreCase("MISCDATA"), HashString("MISCDATA"), HashStringIgnoreCase("addon.lev"), &sFindFile);
 
@@ -693,7 +694,8 @@ BOOL systemInitialise(void)
         return FALSE;
       if (!levParse(pBuffer, size))
         return FALSE;
-      FREE(pBuffer);
+      delete[] pBuffer;
+      pBuffer = nullptr;
 
       wdgFindNextFileRev(&sFindFile);
     }
@@ -734,7 +736,7 @@ BOOL systemInitialise(void)
   displayBufferSize = DISP_WIDTH * DISP_HEIGHT * 2;
   if (displayBufferSize < 1500000)
     displayBufferSize = 1500000;
-  DisplayBuffer = static_cast<UBYTE*>(MALLOC(displayBufferSize));
+  DisplayBuffer = new (std::nothrow) UBYTE[displayBufferSize];
   if (DisplayBuffer == nullptr)
   {
     DBERROR(("Unable to allocate memory for display buffer"));
@@ -795,8 +797,6 @@ BOOL systemShutdown(void)
   // free up all the load functions (all the data should already have been freed)
   resReleaseAll();
 
-  // release the block heaps
-
   if (!bDisableLobby && !multiShutdown()) // ajl. init net stuff
     return FALSE;
 
@@ -809,7 +809,8 @@ BOOL systemShutdown(void)
   mixer_Close();
 #endif
 
-  FREE(DisplayBuffer);
+  delete[] DisplayBuffer;
+  DisplayBuffer = nullptr;
 
   iV_ShutDown();
 
@@ -858,8 +859,6 @@ BOOL frontendInitialise(char* ResourceFile)
 {
   DBPRINTF(("Initialising frontend : %s\n",ResourceFile));
 
-  // allocate memory from the pre data heap
-
   // reset the multiple wdg stuff
   wdgEnableAddonWDG();
 
@@ -888,7 +887,6 @@ BOOL frontendInitialise(char* ResourceFile)
 
   DBPRINTF(("frontEndInitialise: loading resource file ....."));
   if (!resLoad(ResourceFile, 0, DisplayBuffer, displayBufferSize))
-    //need the object heaps to have been set up before loading in the save game
     return FALSE;
 
   if (!dispInitialise()) // Initialise the display system 
@@ -974,8 +972,6 @@ BOOL frontendShutdown(void)
 	}
 */
   pie_TexShutDown();
-
-  // reset the block heap
 
   return TRUE;
 }

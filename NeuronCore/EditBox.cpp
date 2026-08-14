@@ -22,8 +22,6 @@
 /* Number of characters to jump the edit box text when moving the cursor */
 #define WEDB_CHARJUMP		6
 
-/* The widget heap */
-
 // the other states
 /* Calculate how much of the start of a string can fit into the edit box */
 static void fitStringStart(STRING* pBuffer, UDWORD boxWidth, UWORD* pCount, UWORD* pCharWidth);
@@ -38,12 +36,8 @@ BOOL editBoxCreate(W_EDITBOX** ppsWidget, W_EDBINIT* psInit)
   }
 
   /* Allocate the required memory */
-#if W_USE_MALLOC
-  *ppsWidget = (W_EDITBOX*)MALLOC(sizeof(W_EDITBOX)); if (*ppsWidget == NULL)
-#else
   *ppsWidget = new (std::nothrow) W_EDITBOX;
   if (*ppsWidget == nullptr)
-#endif
   {
     ASSERT((FALSE, "Out of memory"));
     return FALSE;
@@ -85,11 +79,7 @@ BOOL editBoxCreate(W_EDITBOX** ppsWidget, W_EDBINIT* psInit)
 /* Free the memory used by an edit box */
 void editBoxFree(W_EDITBOX* psWidget)
 {
-#if W_USE_MALLOC
-  FREE(psWidget);
-#else
   delete psWidget;
-#endif
 }
 
 /* Initialise an edit box widget */

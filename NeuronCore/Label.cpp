@@ -7,8 +7,6 @@
 #include "Tip.h"
 #include "RendMode.h"
 
-/* The widget heaps */
-
 /* Create a button widget data structure */
 BOOL labelCreate(W_LABEL** ppsWidget, W_LABINIT* psInit)
 {
@@ -20,12 +18,8 @@ BOOL labelCreate(W_LABEL** ppsWidget, W_LABINIT* psInit)
   }
 
   /* Allocate the required memory */
-#if W_USE_MALLOC
-  *ppsWidget = (W_LABEL*)MALLOC(sizeof(W_LABEL)); if (*ppsWidget == NULL)
-#else
   *ppsWidget = new (std::nothrow) W_LABEL;
   if (*ppsWidget == nullptr)
-#endif
   {
     ASSERT((FALSE, "Out of memory"));
     return FALSE;
@@ -80,11 +74,7 @@ void labelFree(W_LABEL* psWidget)
   if (psWidget->pTip) { widgFreeString(psWidget->pTip); }
 #endif
 
-#if W_USE_MALLOC
-  FREE(psWidget);
-#else
   delete psWidget;
-#endif
 }
 
 /* label display function */

@@ -70,8 +70,6 @@ FP_NODE** apsClosed;
 FP_NODE** apsOpen;
 #endif
 
-// object heap to store nodes
-
 /*#define NUM_DIR		4
 // Convert a direction into an offset
 // dir 0 => x = 0, y = -1
@@ -108,13 +106,13 @@ UDWORD GetApsNodesSize(void) { return (sizeof(FP_NODE*) * FPATH_TABLESIZE); }
 BOOL astarInitialise(void)
 {
 #if OPEN_LIST == 2
-  apsNodes = static_cast<FP_NODE**>(MALLOC(sizeof(FP_NODE *) * FPATH_TABLESIZE));
+  apsNodes = new (std::nothrow) FP_NODE*[FPATH_TABLESIZE];
   if (!apsNodes)
     return FALSE;
   ClearAstarNodes();
 #else
   // Create the two hash tables
-  apsOpen = MALLOC(sizeof(FP_NODE *) * FPATH_TABLESIZE); if (!apsOpen) { return FALSE; }
+  apsOpen = new (std::nothrow) FP_NODE*[FPATH_TABLESIZE]; if (!apsOpen) { return FALSE; }
   memset(apsOpen, 0, sizeof(FP_NODE*) * FPATH_TABLESIZE); apsClosed = MALLOC(sizeof(FP_NODE *) * FPATH_TABLESIZE); if (!apsClosed)
   {
     return FALSE;
@@ -128,9 +126,10 @@ BOOL astarInitialise(void)
 void fpathShutDown(void)
 {
 #if OPEN_LIST == 2
-  FREE(apsNodes);
+  delete[] apsNodes;
+  apsNodes = nullptr;
 #else
-  FREE(apsOpen); FREE(apsClosed);
+  delete[] apsOpen; delete[] apsClosed;
 #endif
 }
 

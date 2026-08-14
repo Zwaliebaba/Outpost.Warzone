@@ -135,7 +135,8 @@ HRESULT NETshutdown(VOID)
 
   if (userDataSize) // free player data store.
   {
-    FREE(pSingleUserData);
+    delete[] static_cast<UBYTE*>(pSingleUserData);
+    pSingleUserData = nullptr;
     userDataSize = 0;
   }
 

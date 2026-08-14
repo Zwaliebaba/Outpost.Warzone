@@ -35,7 +35,7 @@ BOOL NETsetupGeneric(LPDPCOMPOUNDADDRESSELEMENT LPelements, DWORD count, LPVOID*
     return (FALSE);
   }
 
-  addr = MALLOC(addrsize); // allocate space
+  addr = new (std::nothrow) UBYTE[addrsize]; // allocate space
   if (addr == nullptr)
   {
     hr = DPERR_NOMEMORY;
@@ -218,7 +218,7 @@ BOOL NETsetupModem(LPVOID* addr, char* Phoneno, UDWORD modemToUse)
     goto FAILURE;
 
   // make room for it
-  lpAddress = MALLOC(dwAddressSize);
+  lpAddress = new (std::nothrow) UBYTE[dwAddressSize];
   if (lpAddress == nullptr)
   {
     hr = DPERR_NOMEMORY;
@@ -260,7 +260,10 @@ FAILURE:
   if (lpDPlay4A)
     lpDPlay4A->lpVtbl->Release(lpDPlay4A);
   if (lpAddress)
-  FREE(lpAddress);
+  {
+    delete[] static_cast<UBYTE*>(lpAddress);
+    lpAddress = nullptr;
+  }
 
   return result;
 }

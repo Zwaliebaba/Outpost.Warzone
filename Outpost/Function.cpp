@@ -64,7 +64,7 @@ BOOL loadFunctionStats(SBYTE* pFunctionData, UDWORD bufferSize)
   totalFunctions = numCR((UBYTE*)pFunctionData, bufferSize);
 
   //allocate storage for the Function pointer array
-  asFunctions = static_cast<FUNCTION**>(MALLOC(totalFunctions*sizeof(FUNCTION*)));
+  asFunctions = new (std::nothrow) FUNCTION*[totalFunctions];
   if (!asFunctions)
   {
     DBERROR(("Out of memory"));
@@ -235,7 +235,7 @@ BOOL storeName(FUNCTION* pFunction, STRING* pNameToStore)
 #ifdef HASH_NAMES
   pFunction->NameHash = HashString(pNameToStore);
 #else
-  pFunction->pName = static_cast<STRING*>(MALLOC(strlen(pNameToStore)+1));
+  pFunction->pName = new (std::nothrow) STRING[strlen(pNameToStore)+1];
   if (pFunction->pName == nullptr)
   {
     DBERROR(("Function Name - Out of memory"));
@@ -296,7 +296,7 @@ BOOL loadProduction(SBYTE* pData)
   STRING functionName[MAX_NAME_SIZE], bodySize[MAX_NAME_SIZE];
   UDWORD productionOutput;
   //allocate storage
-  psFunction = static_cast<PRODUCTION_FUNCTION*>(MALLOC(sizeof(PRODUCTION_FUNCTION)));
+  psFunction = new (std::nothrow) PRODUCTION_FUNCTION[1];
   if (psFunction == nullptr)
   {
     DBERROR(("Production Function - Out of memory"));
@@ -375,7 +375,7 @@ BOOL loadProductionUpgradeFunction(SBYTE* pData)
   UDWORD outputModifier;
 
   //allocate storage
-  psFunction = static_cast<PRODUCTION_UPGRADE_FUNCTION*>(MALLOC(sizeof (PRODUCTION_UPGRADE_FUNCTION)));
+  psFunction = new (std::nothrow) PRODUCTION_UPGRADE_FUNCTION[1];
   if (psFunction == nullptr)
   {
     DBERROR(("Production Upgrade Function - Out of memory"));
@@ -424,7 +424,7 @@ BOOL loadResearchFunction(SBYTE* pData)
   STRING functionName[MAX_NAME_SIZE];
 
   //allocate storage
-  psFunction = static_cast<RESEARCH_FUNCTION*>(MALLOC(sizeof(RESEARCH_FUNCTION)));
+  psFunction = new (std::nothrow) RESEARCH_FUNCTION[1];
   if (psFunction == nullptr)
   {
     DBERROR(("Research Function - Out of memory"));
@@ -457,7 +457,7 @@ BOOL loadReArmFunction(SBYTE* pData)
   STRING functionName[MAX_NAME_SIZE];
 
   //allocate storage
-  psFunction = static_cast<REARM_FUNCTION*>(MALLOC(sizeof(REARM_FUNCTION)));
+  psFunction = new (std::nothrow) REARM_FUNCTION[1];
   if (psFunction == nullptr)
   {
     DBERROR(("ReArm Function - Out of memory"));
@@ -548,7 +548,7 @@ BOOL loadUpgradeFunction(SBYTE* pData, UBYTE type)
   UPGRADE_FUNCTION* psFunction;
 
   //allocate storage
-  psFunction = static_cast<UPGRADE_FUNCTION*>(MALLOC(sizeof(UPGRADE_FUNCTION)));
+  psFunction = new (std::nothrow) UPGRADE_FUNCTION[1];
   if (psFunction == nullptr)
   {
     DBERROR(("Upgrade Function - Out of memory"));
@@ -591,7 +591,7 @@ BOOL loadDroidBodyUpgradeFunction(SBYTE* pData)
   UDWORD modifier, armourKinetic, armourHeat, body, droid, cyborg;
 
   //allocate storage
-  psFunction = static_cast<DROIDBODY_UPGRADE_FUNCTION*>(MALLOC(sizeof(DROIDBODY_UPGRADE_FUNCTION)));
+  psFunction = new (std::nothrow) DROIDBODY_UPGRADE_FUNCTION[1];
   if (psFunction == nullptr)
   {
     DBERROR(("UnitBody Upgrade Function - Out of memory"));
@@ -645,7 +645,7 @@ BOOL loadDroidSensorUpgradeFunction(SBYTE* pData)
   UDWORD modifier, range;
 
   //allocate storage
-  psFunction = static_cast<DROIDSENSOR_UPGRADE_FUNCTION*>(MALLOC(sizeof(DROIDSENSOR_UPGRADE_FUNCTION)));
+  psFunction = new (std::nothrow) DROIDSENSOR_UPGRADE_FUNCTION[1];
   if (psFunction == nullptr)
   {
     DBERROR(("UnitSensor Upgrade Function - Out of memory"));
@@ -689,7 +689,7 @@ BOOL loadWeaponUpgradeFunction(SBYTE* pData)
   UDWORD firePause, shortHit, longHit, damage, radiusDamage, incenDamage, radiusHit;
 
   //allocate storage
-  psFunction = static_cast<WEAPON_UPGRADE_FUNCTION*>(MALLOC(sizeof (WEAPON_UPGRADE_FUNCTION)));
+  psFunction = new (std::nothrow) WEAPON_UPGRADE_FUNCTION[1];
   if (psFunction == nullptr)
   {
     DBERROR(("Weapon Upgrade Function - Out of memory"));
@@ -748,7 +748,7 @@ BOOL loadStructureUpgradeFunction(SBYTE* pData)
   UDWORD armour, body, resistance;
 
   //allocate storage
-  psFunction = static_cast<STRUCTURE_UPGRADE_FUNCTION*>(MALLOC(sizeof (STRUCTURE_UPGRADE_FUNCTION)));
+  psFunction = new (std::nothrow) STRUCTURE_UPGRADE_FUNCTION[1];
   if (psFunction == nullptr)
   {
     DBERROR(("Structure Upgrade Function - Out of memory"));
@@ -794,7 +794,7 @@ BOOL loadWallDefenceUpgradeFunction(SBYTE* pData)
   UDWORD armour, body;
 
   //allocate storage
-  psFunction = static_cast<WALLDEFENCE_UPGRADE_FUNCTION*>(MALLOC(sizeof (WALLDEFENCE_UPGRADE_FUNCTION)));
+  psFunction = new (std::nothrow) WALLDEFENCE_UPGRADE_FUNCTION[1];
   if (psFunction == nullptr)
   {
     DBERROR(("WallDefence Upgrade Function - Out of memory"));
@@ -908,7 +908,7 @@ BOOL loadPowerGenFunction(SBYTE* pData)
   STRING functionName[MAX_NAME_SIZE];
 
   //allocate storage
-  psFunction = static_cast<POWER_GEN_FUNCTION*>(MALLOC(sizeof (POWER_GEN_FUNCTION)));
+  psFunction = new (std::nothrow) POWER_GEN_FUNCTION[1];
   if (psFunction == nullptr)
   {
     DBERROR(("Power Gen Function - Out of memory"));
@@ -946,7 +946,7 @@ BOOL loadResourceFunction(SBYTE* pData)
   STRING functionName[MAX_NAME_SIZE];
 
   //allocate storage
-  psFunction = static_cast<RESOURCE_FUNCTION*>(MALLOC(sizeof (RESOURCE_FUNCTION)));
+  psFunction = new (std::nothrow) RESOURCE_FUNCTION[1];
   if (psFunction == nullptr)
   {
     DBERROR(("Resource Function - Out of memory"));
@@ -1046,7 +1046,7 @@ BOOL loadRepairDroidFunction(SBYTE* pData)
   STRING functionName[MAX_NAME_SIZE];
 
   //allocate storage
-  psFunction = static_cast<REPAIR_DROID_FUNCTION*>(MALLOC(sizeof (REPAIR_DROID_FUNCTION)));
+  psFunction = new (std::nothrow) REPAIR_DROID_FUNCTION[1];
   if (psFunction == nullptr)
   {
     DBERROR(("Repair Droid Function - Out of memory"));
@@ -1345,7 +1345,7 @@ BOOL loadWallFunction(SBYTE* pData)
   STRING structureName[MAX_NAME_SIZE];
 
   //allocate storage
-  psFunction = static_cast<WALL_FUNCTION*>(MALLOC(sizeof(WALL_FUNCTION)));
+  psFunction = new (std::nothrow) WALL_FUNCTION[1];
   if (psFunction == nullptr)
   {
     DBERROR(("Wall Function - Out of memory"));
@@ -1927,16 +1927,19 @@ BOOL FunctionShutDown()
   {
     pFunction = *asFunctions;
 #ifndef HASH_NAMES
-    FREE(pFunction->pName);
+    delete[] pFunction->pName;
+    pFunction->pName = nullptr;
 #endif
 
 #if !defined (RESOURCE_NAMES) && !defined(STORE_RESOURCE_ID)
-    if (pFunction->type == WALL_TYPE) { FREE(((WALL_FUNCTION *)pFunction)->pStructName); }
+    if (pFunction->type == WALL_TYPE) { delete[] ((WALL_FUNCTION *)pFunction)->pStructName; }
 #endif
-    FREE(pFunction);
+    delete[] pFunction;
+    pFunction = nullptr;
     asFunctions++;
   }
-  FREE(pStartList);
+  delete[] pStartList;
+  pStartList = nullptr;
 
   //free the Upgrade lists
   return TRUE;

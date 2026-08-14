@@ -312,7 +312,7 @@ BOOL fontSave(PROP_FONT* psFont, UBYTE** ppFileData, UDWORD* pFileSize)
   *pFileSize += sizeof(PROP_PRINTABLE) * psFont->numOffset;
   for (i = 0; i < psFont->numChars; i++)
     *pFileSize += sizeof(FONT_SAVECHAR) + psFont->psChars[i].pitch * psFont->height;
-  *ppFileData = static_cast<UBYTE*>(MALLOC(*pFileSize));
+  *ppFileData = new (std::nothrow) UBYTE[*pFileSize];
   if (!*ppFileData)
     return FALSE;
 
@@ -386,7 +386,7 @@ BOOL fontLoad(UBYTE* pFileData, UDWORD fileSize, PROP_FONT** ppsFont)
     goto error;
   }
 
-  *ppsFont = static_cast<PROP_FONT*>(MALLOC(sizeof(PROP_FONT)));
+  *ppsFont = new (std::nothrow) PROP_FONT[1];
   if (!*ppsFont)
   {
     DBERROR(("fontLoad: Out of memory"));
@@ -401,13 +401,13 @@ BOOL fontLoad(UBYTE* pFileData, UDWORD fileSize, PROP_FONT** ppsFont)
   (*ppsFont)->numChars = psHdr->numChars;
 
   /* Allocate the offset and character buffers */
-  (*ppsFont)->psOffset = static_cast<PROP_PRINTABLE*>(MALLOC(sizeof(PROP_PRINTABLE) * psHdr->numOffset));
+  (*ppsFont)->psOffset = new (std::nothrow) PROP_PRINTABLE[psHdr->numOffset];
   if (!(*ppsFont)->psOffset)
   {
     DBERROR(("fontLoad Out of memory"));
     goto error;
   }
-  (*ppsFont)->psChars = static_cast<PROP_CHAR*>(MALLOC(sizeof(PROP_PRINTABLE) * psHdr->numChars));
+  (*ppsFont)->psChars = new (std::nothrow) PROP_CHAR[psHdr->numChars];
   if (!(*ppsFont)->psChars)
   {
     DBERROR(("fontLoad Out of memory"));
@@ -434,7 +434,7 @@ BOOL fontLoad(UBYTE* pFileData, UDWORD fileSize, PROP_FONT** ppsFont)
     psCurrC->width = psLoadC->width;
     psCurrC->pitch = psLoadC->pitch;
 
-    psCurrC->pData = static_cast<UBYTE*>(MALLOC((*ppsFont)->height * psCurrC->pitch));
+    psCurrC->pData = new (std::nothrow) UBYTE[(*ppsFont)->height * psCurrC->pitch];
     if (!psCurrC->pData)
     {
       DBERROR(("fontLoad: Out of memory (char)"));
@@ -455,13 +455,13 @@ BOOL fontLoad(UBYTE* pFileData, UDWORD fileSize, PROP_FONT** ppsFont)
 error:
   if (*ppsFont)
   {
-    if ((*ppsFont)->psOffset) { FREE((*ppsFont)->psOffset); }
+    if ((*ppsFont)->psOffset) { delete[] (*ppsFont)->psOffset; }
     if ((*ppsFont)->psChars)
     {
-      for (i = 0; i < (*ppsFont)->numChars; i++) { if ((*ppsFont)->psChars[i].pData) { FREE((*ppsFont)->psChars[i].pData); } }
-      FREE((*ppsFont)->psChars);
+      for (i = 0; i < (*ppsFont)->numChars; i++) { if ((*ppsFont)->psChars[i].pData) { delete[] (*ppsFont)->psChars[i].pData; } }
+      delete[] (*ppsFont)->psChars;
     }
-    FREE(*ppsFont);
+    delete[] *ppsFont;
   }
   *ppsFont = nullptr;
 
@@ -477,12 +477,14 @@ void fontFree(PROP_FONT* psFont)
   psChar = psFont->psChars;
   for (i = 0; i < psFont->numChars; i++)
   {
-    FREE(psChar->pData);
+    delete[] psChar->pData;
+    psChar->pData = nullptr;
     psChar++;
   }
-  if (psFont->psChars) { FREE(psFont->psChars); }
-  if (psFont->psOffset) { FREE(psFont->psOffset); }
-  FREE(psFont);
+  if (psFont->psChars) { delete[] psFont->psChars; }
+  if (psFont->psOffset) { delete[] psFont->psOffset; }
+  delete[] psFont;
+  psFont = nullptr;
 }
 
 UBYTE aFontData[PRINTABLE_CHARS][FONT_HEIGHT] = {
