@@ -79,12 +79,23 @@ def process(path):
             i+=1; continue
         j=i
         while j < len(lines) and lines[j].strip().startswith('//'): j+=1
+        # A // comment ending in a backslash continues onto the next line, so
+        # the run must extend over every spliced line. Removing only part of
+        # one leaves the backslash swallowing live code.
+        while j < len(lines) and lines[j-1].rstrip('\n').rstrip().endswith('\\'): j+=1
         run=range(i,j)
         banner=any(DECORATION.match(lines[k].strip()[2:].strip() or '') and
                    lines[k].strip()[2:].strip() for k in run)
+        run=range(i,j)
+        spliced=any(lines[k].rstrip('\n').rstrip().endswith('\\') for k in run)
         if not banner:
-            for k in run:
-                if k not in drop and is_code(lines[k].strip()[2:]): drop.add(k)
+            if spliced:
+                # all-or-nothing: only drop the run if every line in it is code
+                bodies=[lines[k].strip().lstrip('/') for k in run if lines[k].strip()!='//']
+                if bodies and all(is_code(b) for b in bodies): drop.update(run)
+            else:
+                for k in run:
+                    if k not in drop and is_code(lines[k].strip()[2:]): drop.add(k)
         i=j
     if not drop: return 0
     open(path,'w',encoding='latin-1').write(''.join(l for i,l in enumerate(lines) if i not in drop))

@@ -7719,7 +7719,6 @@ BOOL electronicReward(STRUCTURE *psStructure, UBYTE attackPlayer)
         bRewarded = TRUE;
 		break;
 	default:
-		//ASSERT((FALSE, "electronic Reward for a building not catered for - \
         bRewarded = FALSE;
 	}
 

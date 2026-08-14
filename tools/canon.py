@@ -47,8 +47,13 @@ def drop_if_zero(lines):
         out.append(lines[i]); i+=1
     return out
 
+def splice(t):
+    """Join backslash-continued lines, as the compiler does before anything
+    else. A // comment ending in a backslash swallows the next line."""
+    return re.sub(r'\\\n', '', t)
+
 def canon(path):
-    t=strip_comments(open(path,encoding='latin-1').read())
+    t=strip_comments(splice(open(path,encoding='latin-1').read()))
     lines=[l.strip() for l in t.splitlines()]
     lines=drop_if_zero(lines)
     return '\n'.join(l for l in lines if l)
