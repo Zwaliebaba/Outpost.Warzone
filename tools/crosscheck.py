@@ -19,7 +19,13 @@ from concurrent.futures import ThreadPoolExecutor
 ROOT = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
 CXX = 'i686-w64-mingw32-g++'
 
-DEFS = ['WIN32', '_DEBUG', '_CRT_SECURE_NO_WARNINGS', '_CRT_NONSTDC_NO_DEPRECATE',
+# --release swaps _DEBUG for NDEBUG. The two configurations do not compile the
+# same code - DEBUG gates blocks all over the tree - so a clean debug run says
+# nothing about the release branches and vice versa.
+RELEASE = '--release' in sys.argv
+
+DEFS = ['WIN32', 'NDEBUG' if RELEASE else '_DEBUG',
+        '_CRT_SECURE_NO_WARNINGS', '_CRT_NONSTDC_NO_DEPRECATE',
         'DIRECTINPUT_VERSION=0x0700', 'CINTERFACE', '__STDC__=1']
 
 # Sources whose bodies are MSVC inline asm. GCC cannot parse Intel-syntax
