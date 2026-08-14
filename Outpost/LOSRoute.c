@@ -855,7 +855,7 @@ void fpathOptimiseRoute(SDWORD sx, SDWORD sy, SDWORD fx, SDWORD fy,
 
 
 // Append points from a wall hug to the end of a route
-BOOL fpathAppendRoute(FP_POINT *asPoints, SDWORD numPoints)
+static BOOL fpathAppendRoute(FP_POINT *asPoints, SDWORD numPoints)
 {
 	if (numPoints + pathPoints >= FPATH_ROUTEMAX)
 	{

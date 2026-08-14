@@ -277,8 +277,8 @@ extern int	yt_getc YY_ARGS((void));
 			else { YY_SCANNER; lev_leng = (n); YY_USER; }
 
 YY_DECL	void	lev__reset YY_ARGS((void));
-YY_DECL	int	input	YY_ARGS((void));
-YY_DECL	int	unput	YY_ARGS((int c));
+static	int	input	YY_ARGS((void));
+static	int	unput	YY_ARGS((int c));
 
 /* functions defined in libl.lib */
 extern	int	lev_wrap	YY_ARGS((void));
@@ -905,7 +905,7 @@ lev__reset()
 	lev_lineno = 1;		/* line number */
 }
 /* get input char with pushback */
-YY_DECL int
+static int
 input()
 {
 	int c;
@@ -934,7 +934,7 @@ input()
 /*f
  * pushback char
  */
-YY_DECL int
+static int
 unput(c)
 	int c;
 {
