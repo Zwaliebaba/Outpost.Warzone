@@ -165,8 +165,6 @@ extern void screenFillRect(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1);
 /* x0,y0 - top left, x1,y1 - bottom right */
 extern void screenDrawEllipse(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1);
 
-extern BOOL screenInitialiseGlide(UDWORD	width, UDWORD height, HANDLE hWindow);
-
 extern BOOL screenReInit( void );
 
 #endif

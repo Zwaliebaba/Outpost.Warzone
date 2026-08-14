@@ -21,7 +21,6 @@
 #include "piemode.h"
 #include "pietexture.h"
 #include "pieMatrix.h"
-#include "vid.h"
 
 #include "Map.h"
 #include "MapDisplay.h"
@@ -31,7 +30,6 @@
 #include "HCI.h"
 #include "intelmap.h"
 #include "IntImage.h"
-//#include "dGlide.h"
 #include "Texture.h"
 #include "IntDisplay.h"
 
@@ -411,14 +409,7 @@ iPoint	offset;
 	//if ( TEST_TILE_VISIBLE(selectedPlayer, psTile) OR godMode)
  		/* get the appropriate tile texture */
  		tileNumber = psTile->texture; 
-		if (pie_GetRenderEngine() == ENGINE_GLIDE)
-		{
-			pie_SetTexturePage(tileTexInfo[tileNumber & TILE_NUMMASK].texPage);
-		}
-		else
-		{
-			texturePage.bmp = tilesRAW[tileNumber & TILE_NUMMASK];
-		}
+		texturePage.bmp = tilesRAW[tileNumber & TILE_NUMMASK];
  		  
 		/* Check for flipped and rotated tiles */
 		tileLayouts(tileNumber & ~TILE_NUMMASK);
@@ -460,11 +451,6 @@ iPoint	offset;
 		}
 
 		renderFlag = 0;
-		if (pie_GetRenderEngine() == ENGINE_GLIDE)
-		{
-			offset.x = (tileTexInfo[tileNumber & TILE_NUMMASK].xOffset * 64); 
-			offset.y = (tileTexInfo[tileNumber & TILE_NUMMASK].yOffset * 64); 
-		}
 		pie_DrawTriangle(p, &texturePage, renderFlag, &offset);	
 		// Clip the polygon and establish how many sides it has. 
 		// This routines also now clips shading and U,V values - Alex.
@@ -546,14 +532,6 @@ void	tileLayouts(int texture)
 // Render a Map Surface to display memory.
 void renderMapSurface(iSurface *pSurface, UDWORD x, UDWORD y, UDWORD width, UDWORD height)
 {
-	if (!pie_Hardware())
-	{
-		pie_LocalRenderBegin();
-
-		iV_ppBitmap((iBitmap*)pSurface->buffer, x, y, width, height,pSurface->width);
-
-		pie_LocalRenderEnd();
-	}
 }
 
 /* renders up to two IMDs into the surface - used by message display in Intelligence Map 
@@ -643,25 +621,10 @@ void renderResearchToBuffer(iSurface *pSurface, RESEARCH *psResearch,
 	UDWORD          basePlateSize, Radius;
     SDWORD          scale;
 	
-	if(!pie_Hardware())
-	{
-		 //Ensure all rendering is done to our bitmap and not to back or primary buffer
-   		iV_RenderAssign(iV_MODE_SURFACE,pSurface);
-    	//fill with IMAGE_BUT0 graphic
-        fillMapBufferWithBitmap(pSurface);
-	}
-
 	// Set identity (present) context
 	pie_MatBegin();
 
-	if (pie_Hardware())
-	{
-		pie_SetGeometricOffset(OriginX+10,OriginY+10);
-	}
-	else
-	{
-		pie_SetGeometricOffset(pSurface->width/2,pSurface->height/2);
-	}
+	pie_SetGeometricOffset(OriginX+10,OriginY+10);
 
 	// Pitch down a bit 
 	//pie_MatRotX(DEG(-30));
@@ -778,11 +741,6 @@ void renderResearchToBuffer(iSurface *pSurface, RESEARCH *psResearch,
 	// close matrix context
 	pie_MatEnd();
 
-	if (!pie_Hardware())
-	{
-		// Tell renderer we're back to back buffer 
-		iV_RenderAssign(iV_MODE_4101,&rendSurface);
-	}
 }
 
 

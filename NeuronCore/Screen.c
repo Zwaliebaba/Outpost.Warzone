@@ -127,68 +127,6 @@ static UDWORD	backDropWidth = BACKDROP_WIDTH;
 static UDWORD	backDropHeight = BACKDROP_HEIGHT;
 
 
-// ------------------------------------------------------------------
-// We can't create a direct draw surface because Direct draw isn't
-// initialised when Glide is running, so we have to use a DIB section
-BITMAPINFO	systemAreaForGlide;
-HBITMAP		systemBitmap;
-void		*pSystemBitmap;
-
-
-void	printTextToGlideArea( void )
-{
-HDC	glideHDC;
-
-	glideHDC = GetDC(systemBitmap);
-
-}
-
-
-BOOL	makeSystemAreaForGlide(UDWORD width, UDWORD height)
-{
-UDWORD	*mask;
-HDC		hdc;
-	// Setup our surface - assumes always 16 bit
-	systemAreaForGlide.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-	systemAreaForGlide.bmiHeader.biWidth = width;
-	systemAreaForGlide.bmiHeader.biHeight = height;
-	systemAreaForGlide.bmiHeader.biPlanes = 1;
-	systemAreaForGlide.bmiHeader.biBitCount = 16; // always for Glide for Warzone
-	systemAreaForGlide.bmiHeader.biCompression = BI_BITFIELDS;
-	systemAreaForGlide.bmiHeader.biSizeImage = 0;
-	systemAreaForGlide.bmiHeader.biXPelsPerMeter = 0;
-	systemAreaForGlide.bmiHeader.biYPelsPerMeter = 0;
-	systemAreaForGlide.bmiHeader.biClrUsed = 0;
-	systemAreaForGlide.bmiHeader.biClrImportant = 0;
-
-	// Set up the pixel format masks
-	mask = (UDWORD*)systemAreaForGlide.bmiColors;
-	mask[0] = 0x7c00;
-	mask[1] = 0x03e0;
-	mask[2] = 0x001f;
-
-	hdc = GetDC( (HWND)hWndMain);
-	if(hdc = NULL)
-	{
-		DBERROR(("Can't get device context on the main window"));
-		return(FALSE);
-	}
-
-	systemBitmap = CreateDIBSection(hdc,&systemAreaForGlide,DIB_RGB_COLORS,&pSystemBitmap,NULL,0);
-
-	if(systemBitmap == NULL)
-	{
-		DBERROR(("Can't create the DIB section"));
-		return(FALSE);
-	}
-	printTextToGlideArea();
-	return(TRUE);
-}
-
-// End of new stuff for the system font printing on a Glide Surface
-// ----------------------------------------------------------------
-
-
 /*********************************************************/
 /*********************************************************/
 /*********************************************************/
@@ -979,21 +917,6 @@ static BOOL releaseDDFullScreen(void)
 HWND screenGetHWnd( void )
 {
 	return hWndMain;
-}
-
-BOOL screenInitialiseGlide(UDWORD	width, UDWORD height, HANDLE hWindow)
-{
-	/* Store the screen information */
-	screenWidth = width;
-	screenHeight = height;
-	screenMode = SCREEN_FULLSCREEN;
-
-//	makeSystemAreaForGlide(width,height);
-
-//	hWndMain = hWindow;
-//	(void)SetWindowLong(hWndMain, GWL_STYLE, 0);
-//	(void)SetWindowLong(hWndMain, GWL_EXSTYLE, 0);
-	return(TRUE);
 }
 
 /* Initialise the double buffered display */

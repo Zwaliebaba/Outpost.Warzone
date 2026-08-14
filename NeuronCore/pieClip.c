@@ -13,11 +13,6 @@
 #include "pieState.h"
 #include "rendmode.h"
 #include "d3drender.h"
-#ifdef INC_GLIDE
-	#include "dGlide.h"
-//	#include "3dfxFunc.h"
-//	#include "3dfxText.h"
-#endif
 
 /***************************************************************************/
 /*

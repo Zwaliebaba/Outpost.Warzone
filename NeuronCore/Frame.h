@@ -40,8 +40,7 @@ extern BOOL frameInitialise(HANDLE hInstance,		// The windows application instan
 					 UDWORD height,			// The display height
 					 UDWORD bitDepth,		// The display bit depth
 					 BOOL	fullScreen,		// Whether to start full screen or windowed
-					 BOOL	bVidMem,	 	// Whether to put surfaces in video memory
-					 BOOL	bGlide );		// Whether to create surfaces
+					 BOOL	bVidMem );	 	// Whether to put surfaces in video memory
 
 /* Shut down the framework library.
  * This clears up all the Direct Draw stuff and ensures

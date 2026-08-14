@@ -59,12 +59,12 @@ static WARZONE_GLOBALS	warGlobs;//STATIC use or write an access function if you 
 /***************************************************************************/
 void war_SetDefaultStates(void)//Sets all states
 {
-	warGlobs.renderMode = REND_MODE_SOFTWARE;
+	warGlobs.renderMode = REND_MODE_HAL;
 	pie_SetFogCap(FOG_CAP_UNDEFINED);//set here and reset in clParse or loadConfig
 	pie_SetTexCap(TEX_CAP_UNDEFINED);//set here and reset in clParse or loadConfig
-	war_SetFog(FALSE);//set here and reset in clParse or loadConfig
-	war_SetTranslucent(FALSE);//set here and reset in clParse or loadConfig
-	war_SetAdditive(FALSE);//set here and reset in clParse or loadConfig
+	war_SetFog(TRUE);//set here and reset in clParse or loadConfig
+	war_SetTranslucent(TRUE);//set here and reset in clParse or loadConfig
+	war_SetAdditive(TRUE);//set here and reset in clParse or loadConfig
 }
 
 /***************************************************************************/
@@ -74,18 +74,9 @@ void war_SetRendMode(WAR_REND_MODE rendMode)
 	if (warGlobs.renderMode != rendMode)
 	{
 		warGlobs.renderMode = rendMode;
-		if (rendMode == REND_MODE_SOFTWARE)
-		{
-			war_SetFog(FALSE);//set here and turned off in clParse or loadConfig
-			war_SetTranslucent(FALSE);//set here and turned off in clParse or loadConfig
-			war_SetAdditive(FALSE);//set here and turned off in clParse or loadConfig
-		}
-		else
-		{
-			war_SetFog(TRUE);//set here and turned off in clParse or loadConfig
-			war_SetTranslucent(TRUE);//set here and turned off in clParse or loadConfig
-			war_SetAdditive(TRUE);//set here and turned off in clParse or loadConfig
-		}
+		war_SetFog(TRUE);//set here and turned off in clParse or loadConfig
+		war_SetTranslucent(TRUE);//set here and turned off in clParse or loadConfig
+		war_SetAdditive(TRUE);//set here and turned off in clParse or loadConfig
 	}
 }
 

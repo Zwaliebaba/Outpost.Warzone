@@ -21,7 +21,6 @@
 /* Includes direct access to render library */
 #include "piedef.h"
 #include "pieState.h"
-#include "vid.h"
 
 
 #include "Display3d.h"
@@ -3524,24 +3523,9 @@ void intDisplayWidgets(void)
 			DrawBegin();
 
 
-	//		software and glide
-	//		turn off the backdrop
-			if (pie_GetRenderEngine() != ENGINE_D3D)
-			{
-				screen_StopBackDrop();
-			}
-			else
-			{
-				screen_RestartBackDrop();
-			}
+			screen_RestartBackDrop();
 	// Download buffer in system memory to the display back buffer.
 			iV_DownloadDisplayBuffer(DisplayBuffer);
-			if (pie_GetRenderEngine() == ENGINE_GLIDE)
-			{
-				// On 3fdx, overlay a black transparency to make it darker.
-				iV_UniTransBoxFill( 0,0,DISP_WIDTH,DISP_HEIGHT,
-									(1<<16) | (1<<8) | 1, 64);
-			}
 	//			DISP_WIDTH, DISP_HEIGHT);
 			/*Add the radar to the design screen - only if player has HQ*/
 			/*bPlayerHasHQ=FALSE;

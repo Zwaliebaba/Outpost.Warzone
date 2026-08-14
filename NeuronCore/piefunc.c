@@ -20,12 +20,6 @@
 #include "d3d.h"
 #include "d3drender.h"
 
-#ifdef INC_GLIDE
-	#include "dGlide.h"
-	#include "3dfxFunc.h"
-	#include "3dfxText.h"
-#endif
-
 /***************************************************************************/
 /*
  *	Local Definitions
@@ -57,14 +51,7 @@ static UBYTE	aByteScale[256][256];
 
 void pie_DownLoadBufferToScreen(void *pSrcData, UDWORD destX, UDWORD destY,UDWORD srcWidth,UDWORD srcHeight,UDWORD srcStride)
 {
-	if (pie_GetRenderEngine() == ENGINE_GLIDE)
-	{
-		gl_BufferTo3dfx(pSrcData, destX, destY, srcWidth, srcHeight, srcStride);
-	}
-	else if (pie_GetRenderEngine() == ENGINE_D3D)
-	{
-		pie_D3DSetupRenderForFlip(destX, destY, pSrcData, srcWidth, srcHeight, srcStride);
-	}
+	pie_D3DSetupRenderForFlip(destX, destY, pSrcData, srcWidth, srcHeight, srcStride);
 	return;
 }
 
@@ -78,14 +65,7 @@ void pie_DownLoadBufferToScreen(void *pSrcData, UDWORD destX, UDWORD destY,UDWOR
 /***************************************************************************/
 void pie_RectFilter(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1, UDWORD colour)
 {
-	if (pie_GetRenderEngine() == ENGINE_GLIDE)
-	{
-		iV_UniTransBoxFill(x0, y0, x1, y1, (colour & 0x00ffffff), colour >> 24);
-	}
-	else
-	{
-		iV_TransBoxFill(x0, y0, x1, y1);
-	}
+	iV_TransBoxFill(x0, y0, x1, y1);
 	return;
 }
 
@@ -93,114 +73,80 @@ void pie_RectFilter(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1, UDWORD colour)
 void	pie_CornerBox(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1, UDWORD colour,
 					  UBYTE a, UBYTE b, UBYTE c, UBYTE d)
 {
-	gl_TransBoxFillCorners(x0,y0,x1,y1,colour,a,b,c,d);
 }
 
 /* ---------------------------------------------------------------------------------- */
-#define D3D_VIEW_WINDOW
-#ifndef D3D_VIEW_WINDOW
-void	pie_DrawViewingWindow( iVector *v, UDWORD x1, UDWORD y1, UDWORD x2, UDWORD y2,UDWORD colour)
-{
-	if(pie_GetRenderEngine() == ENGINE_GLIDE)
-	{
-		gl_DrawViewingWindow(v,x1,y1,x2,y2,colour);
-	}
-}
-#else
 void	pie_DrawViewingWindow(iVector *v,UDWORD x1, UDWORD y1, UDWORD x2, UDWORD y2, UDWORD colour)
 {
 	SDWORD clip, i;
 
-	if(pie_GetRenderEngine() == ENGINE_GLIDE)
-	{
-		gl_DrawViewingWindow(v,x1,y1,x2,y2,colour);
-	}
-   	else// if (pie_GetRenderEngine() == ENGINE_D3D)
-	{
-		pie_SetTexturePage(-1);
-		pie_SetRendMode(REND_ALPHA_FLAT);
+	pie_SetTexturePage(-1);
+	pie_SetRendMode(REND_ALPHA_FLAT);
 //PIE verts
-		pieVrts[0].sx = v[1].x;
-		pieVrts[0].sy = v[1].y;
-		//cull triangles with off screen points
-		pieVrts[0].sz  = INTERFACE_DEPTH;
-		
+	pieVrts[0].sx = v[1].x;
+	pieVrts[0].sy = v[1].y;
+	//cull triangles with off screen points
+	pieVrts[0].sz  = INTERFACE_DEPTH;
 
-		pieVrts[0].tu = 0.0;
-		pieVrts[0].tv = 0.0;
-		pieVrts[0].light.argb = colour;//0x7fffffff;
-		pieVrts[0].specular.argb = 0;
 
-		memcpy(&pieVrts[1],&pieVrts[0],sizeof(PIEVERTEX));
-		memcpy(&pieVrts[2],&pieVrts[0],sizeof(PIEVERTEX));
-		memcpy(&pieVrts[3],&pieVrts[0],sizeof(PIEVERTEX));
-		memcpy(&pieVrts[4],&pieVrts[0],sizeof(PIEVERTEX));
+	pieVrts[0].tu = 0.0;
+	pieVrts[0].tv = 0.0;
+	pieVrts[0].light.argb = colour;//0x7fffffff;
+	pieVrts[0].specular.argb = 0;
 
-		pieVrts[1].sx = v[0].x;
-		pieVrts[1].sy = v[0].y;
+	memcpy(&pieVrts[1],&pieVrts[0],sizeof(PIEVERTEX));
+	memcpy(&pieVrts[2],&pieVrts[0],sizeof(PIEVERTEX));
+	memcpy(&pieVrts[3],&pieVrts[0],sizeof(PIEVERTEX));
+	memcpy(&pieVrts[4],&pieVrts[0],sizeof(PIEVERTEX));
 
-		pieVrts[2].sx = v[2].x;
-		pieVrts[2].sy = v[2].y;
+	pieVrts[1].sx = v[0].x;
+	pieVrts[1].sy = v[0].y;
 
-		pieVrts[3].sx = v[3].x;
-		pieVrts[3].sy = v[3].y;
+	pieVrts[2].sx = v[2].x;
+	pieVrts[2].sy = v[2].y;
 
-		pie_Set2DClip(x1,y1,x2-1,y2-1);
-		clip = pie_ClipTextured(4, &pieVrts[0], &clippedVrts[0], FALSE);
-		pie_Set2DClip(CLIP_BORDER,CLIP_BORDER,psRendSurface->width-CLIP_BORDER,psRendSurface->height-CLIP_BORDER);
+	pieVrts[3].sx = v[3].x;
+	pieVrts[3].sy = v[3].y;
+
+	pie_Set2DClip(x1,y1,x2-1,y2-1);
+	clip = pie_ClipTextured(4, &pieVrts[0], &clippedVrts[0], FALSE);
+	pie_Set2DClip(CLIP_BORDER,CLIP_BORDER,psRendSurface->width-CLIP_BORDER,psRendSurface->height-CLIP_BORDER);
 
 
 #ifndef NO_RENDER
 
-		if (clip >= 3)
+	if (clip >= 3)
+	{
+		if(pie_Translucent())
 		{
-			if(pie_Translucent())
-			{
-				D3D_PIEPolygon(clip,&clippedVrts[0]);
-			}
-			else
-			{
-				for (i = 0;i < (clip - 1);i++)
-				{
-					pie_Line(clippedVrts[i].sx, clippedVrts[i].sy, clippedVrts[i+1].sx, clippedVrts[i+1].sy, colour);
-				}
-				pie_Line(clippedVrts[clip-1].sx, clippedVrts[clip-1].sy, clippedVrts[0].sx, clippedVrts[0].sy, colour);
-			}
+			D3D_PIEPolygon(clip,&clippedVrts[0]);
 		}
+		else
+		{
+			for (i = 0;i < (clip - 1);i++)
+			{
+				pie_Line(clippedVrts[i].sx, clippedVrts[i].sy, clippedVrts[i+1].sx, clippedVrts[i+1].sy, colour);
+			}
+			pie_Line(clippedVrts[clip-1].sx, clippedVrts[clip-1].sy, clippedVrts[0].sx, clippedVrts[0].sy, colour);
+		}
+	}
 #endif
-  }
 }
-#endif
 /* ---------------------------------------------------------------------------------- */
 void	pie_TransColouredTriangle(PIEVERTEX *vrt, UDWORD rgb, UDWORD trans)
 {
 UDWORD	clip;
 
-	if (pie_GetRenderEngine() == ENGINE_GLIDE)
-	{
-		vrt[0].light.argb = trans << 24;
+	// Give us a D3D version jezza!
+	clip = pie_ClipTexturedTriangleFast(&vrt[0],&vrt[1],&vrt[2],&clippedVrts[0], TRUE);
 
-		clip = pie_ClipTexturedTriangleFast(&vrt[0],&vrt[1],&vrt[2],&clippedVrts[0], FALSE);
-		if(clip >= 3)
-		{
-				pie_SetRendMode(REND_FILTER_ITERATED);
-				pie_SetColour(rgb);
-				gl_PIEPolygon(clip,clippedVrts);
-		}
-	}
-	else if (pie_GetRenderEngine() == ENGINE_D3D)
+	if(clip >= 3)
 	{
-		// Give us a D3D version jezza!
-		clip = pie_ClipTexturedTriangleFast(&vrt[0],&vrt[1],&vrt[2],&clippedVrts[0], TRUE);
-
-		if(clip >= 3)
-		{
-			pie_SetTexturePage(-1);
-			pie_SetRendMode(REND_ALPHA_ITERATED);
-			D3D_PIEPolygon(clip,&clippedVrts[0]);
-		}
+		pie_SetTexturePage(-1);
+		pie_SetRendMode(REND_ALPHA_ITERATED);
+		D3D_PIEPolygon(clip,&clippedVrts[0]);
 	}
-	
+
 }
 
 /* ---------------------------------------------------------------------------------- */
@@ -208,10 +154,6 @@ UDWORD	clip;
 int pie_Num3dfxBuffersPending( void )
 {
 int	retVal=0;
-	if (pie_GetRenderEngine() == ENGINE_GLIDE)
-	{
-		retVal = grBufferNumPending();
-	}	
 
 	return(retVal);
 }
@@ -384,17 +326,11 @@ void pie_Blit(SDWORD texPage, SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1)
 		d3dVrts[i].color = (D3DCOLOR)((255 << 24) + (255 << 16) + (255 << 8) + 255);
 		d3dVrts[i].specular = 0;
 	}
-	if ((rendSurface.usr == iV_MODE_4101) || (rendSurface.usr == REND_GLIDE_3DFX))
-	{
-	}
-	else
-	{
-		renderPoly.flags = PIE_NO_CULL | PIE_TEXTURED;
-		renderPoly.nVrts = 4;
-		renderPoly.pVrts = &d3dVrts[0];
-		pie_SetTexturePage(texPage);
-		pie_D3DPoly(&renderPoly);	   // draw the polygon ... this is an inline function
-	}
+	renderPoly.flags = PIE_NO_CULL | PIE_TEXTURED;
+	renderPoly.nVrts = 4;
+	renderPoly.pVrts = &d3dVrts[0];
+	pie_SetTexturePage(texPage);
+	pie_D3DPoly(&renderPoly);	   // draw the polygon ... this is an inline function
 }
 
 void pie_Sky(SDWORD texPage, PIEVERTEX* aSky)
@@ -402,15 +338,9 @@ void pie_Sky(SDWORD texPage, PIEVERTEX* aSky)
 	SDWORD i;
 	PIED3DPOLY renderPoly;
 
-	if ((rendSurface.usr == iV_MODE_4101) || (rendSurface.usr == REND_GLIDE_3DFX))
-	{
-	}
-	else
-	{
-		renderPoly.flags = PIE_NO_CULL | PIE_TEXTURED;
-		renderPoly.nVrts = 4;
-		renderPoly.pVrts = &d3dVrts[0];
-	}
+	renderPoly.flags = PIE_NO_CULL | PIE_TEXTURED;
+	renderPoly.nVrts = 4;
+	renderPoly.pVrts = &d3dVrts[0];
 	for(i = 0; i < 4; i++)
 	{
 		d3dVrts[i].sx = (float)aSky[i].sx;
@@ -426,14 +356,8 @@ void pie_Sky(SDWORD texPage, PIEVERTEX* aSky)
 		d3dVrts[i].color = (D3DCOLOR)((255 << 24) + (255 << 16) + (255 << 8) + 255);
 		d3dVrts[i].specular = 0;
 	}
-	if ((rendSurface.usr == iV_MODE_4101) || (rendSurface.usr == REND_GLIDE_3DFX))
-	{
-	}
-	else
-	{
-		pie_SetTexturePage(texPage);
-		pie_D3DPoly(&renderPoly);	   // draw the polygon ... this is an inline function
-	}
+	pie_SetTexturePage(texPage);
+	pie_D3DPoly(&renderPoly);	   // draw the polygon ... this is an inline function
 }
 
 void pie_Water(SDWORD texPage, SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1, SDWORD height, SDWORD translucency)
@@ -447,15 +371,9 @@ void pie_Water(SDWORD texPage, SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1, SDWOR
 
 	vertex.y = height;
 
-	if ((rendSurface.usr == iV_MODE_4101) || (rendSurface.usr == REND_GLIDE_3DFX))
-	{
-	}
-	else
-	{
-		renderPoly.flags = PIE_NO_CULL | PIE_TEXTURED | PIE_COLOURKEYED | PIE_ALPHA;
-		renderPoly.nVrts = 4;
-		renderPoly.pVrts = &d3dVrts[0];
-	}
+	renderPoly.flags = PIE_NO_CULL | PIE_TEXTURED | PIE_COLOURKEYED | PIE_ALPHA;
+	renderPoly.nVrts = 4;
+	renderPoly.pVrts = &d3dVrts[0];
 
 	for(i = 0; i < 4; i++)
 	{
@@ -523,14 +441,8 @@ void pie_Water(SDWORD texPage, SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1, SDWOR
 		d3dVrts[i].color = (D3DCOLOR)((translucency << 24) + (translucency << 16) + (translucency << 8) + translucency);
 		d3dVrts[i].specular = 0;
 	}
-	if ((rendSurface.usr == iV_MODE_4101) || (rendSurface.usr == REND_GLIDE_3DFX))
-	{
-	}
-	else
-	{
-		pie_SetTexturePage(texPage);
-		pie_D3DPoly(&renderPoly);	   // draw the polygon ... this is an inline function
-	}
+	pie_SetTexturePage(texPage);
+	pie_D3DPoly(&renderPoly);	   // draw the polygon ... this is an inline function
 }
 
 #define FOG_RED 00 

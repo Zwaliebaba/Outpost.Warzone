@@ -449,8 +449,18 @@ BOOL loadRenderMode()
 	}
 
 	// renderMode
-	if(getWarzoneKeyNumeric("renderMode",&val))		
+	if(getWarzoneKeyNumeric("renderMode",&val))
 	{
+		switch(val)
+		{
+		case REND_MODE_RGB:
+		case REND_MODE_REF:
+		case REND_MODE_HAL:
+			break;
+		default:
+			val = REND_MODE_HAL;
+			break;
+		}
 		war_SetRendMode(val);
 		if (val == REND_MODE_HAL)//d3d
 		{
@@ -601,7 +611,6 @@ BOOL saveConfig()
 	setWarzoneKeyNumeric("cdvol", mixer_GetCDVolume());
 
 	// note running rendermode
-	// ENGINE_GLIDE etc.
 	setWarzoneKeyNumeric("renderMode", war_GetRendMode());
 	if (war_GetRendMode() == REND_MODE_HAL)//d3d
 	{

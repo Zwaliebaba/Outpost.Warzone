@@ -22,7 +22,6 @@
 #include "Console.h"
 #include "RendMode.h"
 #include "pieMode.h"
-#include "dGlide.h"
 #include "Levels.h"
 #include "research.h"
 #include "warzoneConfig.h"
@@ -57,24 +56,13 @@ BOOL	videoInitialised = FALSE;
 BOOL	gameInitialised = FALSE;
 BOOL	frontendInitialised = FALSE;
 BOOL	reInit = FALSE;
-BOOL	bGlideFound=FALSE;		
 BOOL	bDisableLobby;
-
-
-// Some prototypes because I can't be arse to create a .h file
-BOOL InitGlideDLL(void);
-BOOL ShutdownGlideDLL(void);
 
 
 // callback functions for message boxes and assert boxes
 DB_MBRETVAL fxMBCallback(SBYTE *pBuffer)
 {
 	(void)pBuffer;
-
-	if(pie_GetRenderEngine() == ENGINE_GLIDE)
-	{
-		grSstControl(GR_CONTROL_DEACTIVATE);
-	}
 
 	return DBR_USE_WINDOWS_MB;
 }
@@ -114,7 +102,6 @@ int WINAPI WinMain(
 	BOOL			quit = FALSE;
 	BOOL			Restart = FALSE;
 	BOOL			paused = FALSE;//, firstTime = TRUE;
-	BOOL			bGlide = FALSE;
 	BOOL			bVidMem = FALSE;
 	SDWORD			dispBitDepth = DISP_BITDEPTH;
 	SDWORD			introVideoControl = 3;
@@ -140,13 +127,6 @@ int WINAPI WinMain(
 
 	war_SetRendMode(REND_MODE_HAL);
 
-	if (InitGlideDLL())	// In ivis02/3dfxdyn.c - returns FALSE if no glide2x.dll is not found
-	{
-		bGlideFound = TRUE;
-		war_SetRendMode(REND_MODE_GLIDE);//default to glide this will be over writen by Registry or Command line if found
-	}
-
-   
 init://jump here from the end if re_initialising
 
 
@@ -171,7 +151,7 @@ init://jump here from the end if re_initialising
 //	{
 		if(!reInit)
 		{
-			if(!ParseCommandLine(lpCmdLine,bGlideFound))
+			if(!ParseCommandLine(lpCmdLine))
 			{
 				return -1;
 			}
@@ -195,31 +175,21 @@ init://jump here from the end if re_initialising
 	//always start windowed toggle to fullscreen later
 	if (war_GetRendMode() == REND_MODE_HAL)
 	{
-		bGlide = FALSE;
 		bVidMem = TRUE;
 		dispBitDepth = DISP_HARDBITDEPTH;
 	}
 	else if (war_GetRendMode() == REND_MODE_REF)
 	{
-		bGlide = FALSE;
 		bVidMem = TRUE;
 		dispBitDepth = DISP_HARDBITDEPTH;
 	}
 	else if (war_GetRendMode() == REND_MODE_RGB)
 	{
-		bGlide = FALSE;
-		bVidMem = FALSE;
-		dispBitDepth = DISP_HARDBITDEPTH;
-	}
-	else if (war_GetRendMode() == REND_MODE_GLIDE)
-	{
-		bGlide = TRUE;
 		bVidMem = FALSE;
 		dispBitDepth = DISP_HARDBITDEPTH;
 	}
 	else
 	{
-		bGlide = FALSE;
 		bVidMem = FALSE;
 		dispBitDepth = DISP_BITDEPTH;
 	}
@@ -227,7 +197,7 @@ init://jump here from the end if re_initialising
 //	frameDDEnumerate();
 
 	if (!frameInitialise(hInstance, "Warzone 2100",
-									DISP_WIDTH,DISP_HEIGHT,dispBitDepth, !clStartWindowed, bVidMem, bGlide))
+									DISP_WIDTH,DISP_HEIGHT,dispBitDepth, !clStartWindowed, bVidMem))
 	{
 		return -1;
 	}
@@ -240,14 +210,7 @@ init://jump here from the end if re_initialising
 	pie_ScreenFlip(CLEAR_BLACK);
 	pie_ScreenFlip(CLEAR_BLACK);
 
-	if (war_GetRendMode() == REND_MODE_GLIDE)
-	{
-		dbg_SetMessageBoxCallback(fxMBCallback);
-		dbg_SetErrorBoxCallback(fxMBCallback);
-		dbg_SetAssertCallback(fxMBCallback);
-	}
-
-	if(gameStatus == GS_VIDEO_MODE) 
+	if(gameStatus == GS_VIDEO_MODE)
 	{
 		introVideoControl = 0;//play video
 		gameStatus = GS_TITLE_SCREEN;
@@ -268,22 +231,11 @@ init://jump here from the end if re_initialising
 	pal_AddNewPalette(psPaletteBuffer);
 	FREE(psPaletteBuffer);
 
-	if (war_GetRendMode() == REND_MODE_GLIDE)
-	{
 #ifdef COVERMOUNT
-		pie_LoadBackDrop(SCREEN_COVERMOUNT,TRUE);
+	pie_LoadBackDrop(SCREEN_COVERMOUNT,FALSE);
 #else
-		pie_LoadBackDrop(SCREEN_RANDOMBDROP,TRUE);
+	pie_LoadBackDrop(SCREEN_RANDOMBDROP,FALSE);
 #endif
-	}
-	else
-	{
-#ifdef COVERMOUNT
-		pie_LoadBackDrop(SCREEN_COVERMOUNT,FALSE);
-#else
-		pie_LoadBackDrop(SCREEN_RANDOMBDROP,FALSE);
-#endif
-	}
 	pie_SetFogStatus(FALSE);
 	pie_ScreenFlip(CLEAR_BLACK);
 
@@ -415,14 +367,6 @@ init://jump here from the end if re_initialising
 			case FRAME_KILLFOCUS:
 				paused = TRUE;
 				gameTimeStop();
-				if (pie_GetRenderEngine() == ENGINE_GLIDE)
-				{
-					if (!gl_Deactivate())
-					{
-						quit = TRUE;
-						Restart = TRUE;
-					}
-				}
 				mixer_SaveIngameVols();
 				mixer_RestoreWinVols();
 				audio_StopAll();
@@ -435,15 +379,7 @@ init://jump here from the end if re_initialising
 					quit = TRUE;
 					Restart = TRUE;
 				}
-				if (pie_GetRenderEngine() == ENGINE_GLIDE)
-				{
-					if (!gl_Reactivate())
-					{
-						quit = TRUE;
-						Restart = TRUE;
-					}
-				}
-				else if (pie_GetRenderEngine() == ENGINE_D3D)
+				if (pie_GetRenderEngine() == ENGINE_D3D)
 				{
 					dtm_RestoreTextures();
 				}
@@ -682,8 +618,6 @@ init://jump here from the end if re_initialising
 
 	frameShutDown();
 
-	ShutdownGlideDLL();
-
 	if (reInit) goto init;
 
 	PostQuitMessage(0);
@@ -699,8 +633,6 @@ exit:
 	pal_ShutDown();
 
 	frameShutDown();
-
-	ShutdownGlideDLL();
 
 	PostQuitMessage(1);
 

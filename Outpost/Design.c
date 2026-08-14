@@ -18,7 +18,6 @@
 
 /* Includes direct access to render library */
 #include "ivisdef.h"
-#include "vid.h"
 #include "pieMatrix.h"//matrix code
 #include "pieState.h"
 

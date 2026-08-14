@@ -15,7 +15,6 @@
 #include "piedef.h"
 #include "pieMode.h"
 #include "pieState.h"
-#include "3dfxFunc.h"
 #include "rendFunc.h"
 #include "rendMode.h"
 #include "texd3d.h"
@@ -66,26 +65,13 @@ void pie_Line(int x0, int y0, int x1, int y1, uint32 colour)
 	pie_SetColour(colour);
 	pie_SetTexturePage(-1);
 
-	switch (pie_GetRenderEngine())
-	{
-	case ENGINE_4101:
-	case ENGINE_SR:
-		line(x0, y0, x1, y1, colour);
-		break;
-	case ENGINE_GLIDE:
-		gl_Line(x0, y0, x1, y1, colour);
-		break;
-	case ENGINE_D3D:
-		/* Get our colour values from the ivis palette */
-		psPalette = pie_GetGamePal();
-		light.byte.r = psPalette[colour].r;
-		light.byte.g = psPalette[colour].g;
-		light.byte.b = psPalette[colour].b;
-		light.byte.a = MAX_UB_LIGHT;
-		pie_DrawLine(x0, y0, x1, y1, light.argb, TRUE);
-	default:
-		break;
-	}
+	/* Get our colour values from the ivis palette */
+	psPalette = pie_GetGamePal();
+	light.byte.r = psPalette[colour].r;
+	light.byte.g = psPalette[colour].g;
+	light.byte.b = psPalette[colour].b;
+	light.byte.a = MAX_UB_LIGHT;
+	pie_DrawLine(x0, y0, x1, y1, light.argb, TRUE);
 }
 /***************************************************************************/
 
@@ -111,32 +97,16 @@ void pie_Box(int x0,int y0, int x1, int y1, uint32 colour)
 	if (y1>psRendSurface->clip.bottom)
 		y1 = psRendSurface->clip.bottom;
 
-	switch (pie_GetRenderEngine())
-	{
-	case ENGINE_4101:
-	case ENGINE_SR:
-		box(x0,y0,x1,y1,colour);
-		break;
-	case ENGINE_GLIDE:
-		gl_Line(x0, y0, x1, y0, colour);
-		gl_Line(x1, y0, x1, y1, colour);
-		gl_Line(x1, y1, x0, y1, colour);
-		gl_Line(x0, y1, x0, y0, colour);
-		break;
-	case ENGINE_D3D:
-		psPalette = pie_GetGamePal();
-		/* Get our colour values from the ivis palette */
-		light.byte.r = psPalette[colour].r;
-		light.byte.g = psPalette[colour].g;
-		light.byte.b = psPalette[colour].b;
-		light.byte.a = MAX_UB_LIGHT;
-		pie_DrawLine(x0, y0, x1, y0, light.argb, FALSE);
-		pie_DrawLine(x1, y0, x1, y1, light.argb, FALSE);
-		pie_DrawLine(x1, y1, x0, y1, light.argb, FALSE);
-		pie_DrawLine(x0, y1, x0, y0, light.argb, FALSE);
-	default:
-		break;
-	}
+	psPalette = pie_GetGamePal();
+	/* Get our colour values from the ivis palette */
+	light.byte.r = psPalette[colour].r;
+	light.byte.g = psPalette[colour].g;
+	light.byte.b = psPalette[colour].b;
+	light.byte.a = MAX_UB_LIGHT;
+	pie_DrawLine(x0, y0, x1, y0, light.argb, FALSE);
+	pie_DrawLine(x1, y0, x1, y1, light.argb, FALSE);
+	pie_DrawLine(x1, y1, x0, y1, light.argb, FALSE);
+	pie_DrawLine(x0, y1, x0, y0, light.argb, FALSE);
 
 }
 
@@ -163,26 +133,13 @@ void pie_BoxFillIndex(int x0,int y0, int x1, int y1, UBYTE colour)
 	if (y1>psRendSurface->clip.bottom)
 		y1 = psRendSurface->clip.bottom;
 
-	switch (pie_GetRenderEngine())
-	{
-	case ENGINE_4101:
-	case ENGINE_SR:
-		iV_pBoxFill(x0,y0,x1,y1,colour);
-		break;
-	case ENGINE_GLIDE:
-		gl_BoxFill(x0, y0, x1, y1, colour);
-		break;
-	case ENGINE_D3D:
-		/* Get our colour values from the ivis palette */
-		psPalette = pie_GetGamePal();
-		light.byte.r = psPalette[colour].r;
-		light.byte.g = psPalette[colour].g;
-		light.byte.b = psPalette[colour].b;
-		light.byte.a = MAX_UB_LIGHT;
-		pie_DrawRect(x0, y0, x1, y1, light.argb, FALSE);
-	default:
-		break;
-	}
+	/* Get our colour values from the ivis palette */
+	psPalette = pie_GetGamePal();
+	light.byte.r = psPalette[colour].r;
+	light.byte.g = psPalette[colour].g;
+	light.byte.b = psPalette[colour].b;
+	light.byte.a = MAX_UB_LIGHT;
+	pie_DrawRect(x0, y0, x1, y1, light.argb, FALSE);
 
 }
 
@@ -206,24 +163,10 @@ void pie_BoxFill(int x0,int y0, int x1, int y1, uint32 colour)
 	if (y1>psRendSurface->clip.bottom)
 		y1 = psRendSurface->clip.bottom;
 
-	switch (pie_GetRenderEngine())
-	{
-	case ENGINE_4101:
-	case ENGINE_SR:
-		light.argb = colour;
-		iV_pBoxFill(x0,y0,x1,y1,pal_GetNearestColour(light.byte.r,  light.byte.g, light.byte.b));
-		break;
-	case ENGINE_GLIDE:
-		gl_IntelTransBoxFill(x0,y0,x1,y1,colour, MAX_UB_LIGHT);
-		break;
-	case ENGINE_D3D:
-		/* Get our colour values from the ivis palette */
-		light.argb = colour;
-		light.byte.a = MAX_UB_LIGHT;
-		pie_DrawRect(x0, y0, x1, y1, light.argb, FALSE);
-	default:
-		break;
-	}
+	/* Get our colour values from the ivis palette */
+	light.argb = colour;
+	light.byte.a = MAX_UB_LIGHT;
+	pie_DrawRect(x0, y0, x1, y1, light.argb, FALSE);
 
 }
 /***************************************************************************/
@@ -259,34 +202,14 @@ void pie_UniTransBoxFill(SDWORD x0,SDWORD y0, SDWORD x1, SDWORD y1, UDWORD rgb, 
 	if (y1>psRendSurface->clip.bottom)
 		y1 = psRendSurface->clip.bottom;
 
-	switch (pie_GetRenderEngine())
+	if (transparency == 0 )
 	{
-	case ENGINE_4101:
-	case ENGINE_SR:
-		TransBoxFill(x0,y0,x1,y1);
-		break;
-	case ENGINE_GLIDE:
-		if(pie_SwirlyBoxes())
-		{
-			pie_doWeirdBoxFX(x0,y0,x1,y1,rgb);
-		}
-		else
-		{
-			gl_IntelTransBoxFill(x0, y0, x1, y1, rgb, transparency);
-		}
-		break;
-	case ENGINE_D3D:
-		if (transparency == 0 )
-		{
-			transparency = 127;
-		}
-		pie_SetTexturePage(-1);
-		pie_SetRendMode(REND_ALPHA_FLAT);
-		light = (rgb & 0x00ffffff) + (transparency << 24);
-		pie_DrawRect(x0, y0, x1, y1, light, FALSE);
-	default:
-		break;
+		transparency = 127;
 	}
+	pie_SetTexturePage(-1);
+	pie_SetRendMode(REND_ALPHA_FLAT);
+	light = (rgb & 0x00ffffff) + (transparency << 24);
+	pie_DrawRect(x0, y0, x1, y1, light, FALSE);
 }
 
 /***************************************************************************/
@@ -294,104 +217,22 @@ void pie_UniTransBoxFill(SDWORD x0,SDWORD y0, SDWORD x1, SDWORD y1, UDWORD rgb, 
 void pie_DrawImageFileID(IMAGEFILE *ImageFile,UWORD ID,int x,int y)
 {
 	IMAGEDEF *Image;
-	iBitmap *bmp;
-	UDWORD modulus;
 	PIEIMAGE pieImage;
 	PIERECT dest;
-	SDWORD width;
-	SDWORD height;
-	SDWORD delta;
 
 	assert(ID < ImageFile->Header.NumImages);
 	Image = &ImageFile->ImageDefs[ID];
 
-	switch (pie_GetRenderEngine())
-	{
-	case ENGINE_4101:
-	case ENGINE_SR:
-		width = Image->Width;
-		height = Image->Height;
-		modulus = ImageFile->TexturePages[Image->TPageID].width;
-		bmp = ImageFile->TexturePages[Image->TPageID].bmp;
-
-		bmp += ((UDWORD)Image->Tu) + ((UDWORD)Image->Tv) * modulus;
-		x +=Image->XOffset;
-		y +=Image->YOffset;
-		//clip
-		if (x < psRendSurface->clip.left)//off left hand edge
-		{
-			delta = psRendSurface->clip.left - x;
-			if (delta < width)
-			{
-				bmp += delta;
-				x += delta;
-				width -= delta;
-			}
-			else
-			{
-				return;
-			}
-		}
-		if ((x + width) > (psRendSurface->clip.right + 1))
-		{
-			delta = (x + width) - (psRendSurface->clip.right + 1);
-			if (delta < width)
-			{
-				width -= delta;
-			}
-			else
-			{
-				return;
-			}
-		}
-		if (y < psRendSurface->clip.top)
-		{
-			delta = psRendSurface->clip.top - y;
-			if (delta < height)
-			{
-				bmp+= delta * modulus;
-				y += delta;
-				height -= delta;
-			}
-			else
-			{
-				return;
-			}
-		}
-		if ((y + height) > (psRendSurface->clip.bottom + 1))
-		{
-			delta = (y + height) - (psRendSurface->clip.bottom + 1);
-			if (delta < height)
-			{
-				height -= delta;
-			}
-			else
-			{
-				return;
-			}
-		}
-
-
-		iV_ppBitmapTrans(bmp,x,y,width,height,modulus);
-		break;
-	case ENGINE_GLIDE:
-			gl_IntelBitmap(ImageFile->TPageIDs[Image->TPageID], Image->Tu, Image->Tv, Image->Width, Image->Height, 
-					x+Image->XOffset, y+Image->YOffset, Image->Width, Image->Height);
-		break;
-	case ENGINE_D3D:
-		pieImage.texPage = ImageFile->TPageIDs[Image->TPageID];
-		pieImage.tu = Image->Tu;
-		pieImage.tv = Image->Tv;
-		pieImage.tw = Image->Width;
-		pieImage.th = Image->Height;
-		dest.x = x+Image->XOffset;
-		dest.y = y+Image->YOffset;
-		dest.w = Image->Width;
-		dest.h = Image->Height;
-		pie_DrawImage(&pieImage, &dest, &rendStyle);
-	default:
-		break;
-	}
+	pieImage.texPage = ImageFile->TPageIDs[Image->TPageID];
+	pieImage.tu = Image->Tu;
+	pieImage.tv = Image->Tv;
+	pieImage.tw = Image->Width;
+	pieImage.th = Image->Height;
+	dest.x = x+Image->XOffset;
+	dest.y = y+Image->YOffset;
+	dest.w = Image->Width;
+	dest.h = Image->Height;
+	pie_DrawImage(&pieImage, &dest, &rendStyle);
 }
 
 BOOL	bAddSprites = FALSE;
@@ -417,14 +258,8 @@ BOOL	pie_GetAdditiveSprites( void )
 void pie_ImageFileID(IMAGEFILE *ImageFile,UWORD ID,int x,int y)
 {
 	IMAGEDEF *Image;
-	iBitmap *bmp;
-	UDWORD modulus;
 	PIEIMAGE pieImage;
 	PIERECT dest;
-	SDWORD width;
-	SDWORD height;
-	SDWORD delta;
-	SDWORD	div,wave;
 
 	assert(ID < ImageFile->Header.NumImages);
 	Image = &ImageFile->ImageDefs[ID];
@@ -444,111 +279,16 @@ void pie_ImageFileID(IMAGEFILE *ImageFile,UWORD ID,int x,int y)
 		pie_SetColour(COLOURINTENSITY);
 		pie_SetColourKeyedBlack(TRUE);
 	}
-	switch (pie_GetRenderEngine())
-	{
-	case ENGINE_4101:
-	case ENGINE_SR:
-		width = Image->Width;
-		height = Image->Height;
-		modulus = ImageFile->TexturePages[Image->TPageID].width;
-		bmp = ImageFile->TexturePages[Image->TPageID].bmp;
-
-		bmp += ((UDWORD)Image->Tu) + ((UDWORD)Image->Tv) * modulus;
-		x +=Image->XOffset;
-		y +=Image->YOffset;
-		//clip
-		//clip
-		if (x < psRendSurface->clip.left)//off left hand edge
-		{
-			delta = psRendSurface->clip.left - x;
-			if (delta < width)
-			{
-				bmp += delta;
-				x += delta;
-				width -= delta;
-			}
-			else
-			{
-				return;
-			}
-		}
-		if ((x + width) > (psRendSurface->clip.right + 1))
-		{
-			delta = (x + width) - (psRendSurface->clip.right + 1);
-			if (delta < width)
-			{
-				width -= delta;
-			}
-			else
-			{
-				return;
-			}
-		}
-		if (y < psRendSurface->clip.top)
-		{
-			delta = psRendSurface->clip.top - y;
-			if (delta < height)
-			{
-				bmp+= delta * modulus;
-				y += delta;
-				height -= delta;
-			}
-			else
-			{
-				return;
-			}
-		}
-		if ((y + height) > (psRendSurface->clip.bottom + 1))
-		{
-			delta = (y + height) - (psRendSurface->clip.bottom + 1);
-			if (delta < height)
-			{
-				height -= delta;
-			}
-			else
-			{
-				return;
-			}
-		}
-
-		iV_ppBitmapTrans(bmp,x,y,width,height,modulus);
-		break;
-	case ENGINE_GLIDE:
-	   	if(pie_WaveBlit())
-	  	{
-			wave = getTimeValueRange(2880,360);
-			div =	96*SIN(DEG(wave));
-			div = div/4096;
-			div =	96+div;
-		 //	gl_IntelBitmap(ImageFile->TPageIDs[Image->TPageID], Image->Tu, Image->Tv, Image->Width, Image->Height, 
-		 //			x+Image->XOffset-wave/2, y+Image->YOffset-wave/2, Image->Width+wave, Image->Height+wave);
-			
-			gl_DrawStretchImage(ImageFile, ID, x+Image->XOffset-div/2,y+Image->YOffset , 
-				Image->Width+div, Image->Height);
-	  	}
-	 	else
-	  	{
-		 	gl_IntelBitmap(ImageFile->TPageIDs[Image->TPageID], Image->Tu, Image->Tv, Image->Width, Image->Height, 
-					x+Image->XOffset, y+Image->YOffset, Image->Width, Image->Height);
-			//gl_DrawStretchImage(ImageFile, ID, x+Image->XOffset,y+Image->YOffset , 
-			//	Image->Width, Image->Height);
-	  	}
-
-		break;
-	case ENGINE_D3D:
-		pieImage.texPage = ImageFile->TPageIDs[Image->TPageID];
-		pieImage.tu = Image->Tu;
-		pieImage.tv = Image->Tv;
-		pieImage.tw = Image->Width;
-		pieImage.th = Image->Height;
-		dest.x = x+Image->XOffset;
-		dest.y = y+Image->YOffset;
-		dest.w = Image->Width;
-		dest.h = Image->Height;
-		pie_DrawImage(&pieImage, &dest, &rendStyle);
-	default:
-		break;
-	}
+	pieImage.texPage = ImageFile->TPageIDs[Image->TPageID];
+	pieImage.tu = Image->Tu;
+	pieImage.tv = Image->Tv;
+	pieImage.tw = Image->Width;
+	pieImage.th = Image->Height;
+	dest.x = x+Image->XOffset;
+	dest.y = y+Image->YOffset;
+	dest.w = Image->Width;
+	dest.h = Image->Height;
+	pie_DrawImage(&pieImage, &dest, &rendStyle);
 }
 
 
@@ -575,34 +315,52 @@ void pie_ImageFileIDTile(IMAGEFILE *ImageFile,UWORD ID,int x,int y,int x0,int y0
 
 	
 
-	switch (pie_GetRenderEngine())
+	pieImage.texPage = ImageFile->TPageIDs[Image->TPageID];
+	pieImage.tu = Image->Tu;
+	pieImage.tv = Image->Tv;
+	pieImage.tw = Image->Width;
+	pieImage.th = Image->Height;
+
+	dest.x = x+Image->XOffset;
+	dest.y = y+Image->YOffset;
+	dest.w = Image->Width;
+	dest.h = Image->Height;
+
+	vRep = Height/Image->Height;
+	vRemainder = Height - (vRep * Image->Height);
+
+	while(vRep > 0)
 	{
-	case ENGINE_4101:
-	case ENGINE_SR:
-		DrawImageRect(ImageFile, ID, x, y, x0, y0, Width, Height);
-		break;
-	case ENGINE_GLIDE:
-		gl_DrawImageRect(ImageFile, ID, x, y, x0, y0, Width, Height);
-		break;
-	case ENGINE_D3D:
-		pieImage.texPage = ImageFile->TPageIDs[Image->TPageID];
-		pieImage.tu = Image->Tu;
-		pieImage.tv = Image->Tv;
+		hRep = Width/Image->Width;
+		hRemainder = Width - (hRep * Image->Width);
 		pieImage.tw = Image->Width;
-		pieImage.th = Image->Height;
-
 		dest.x = x+Image->XOffset;
-		dest.y = y+Image->YOffset;
 		dest.w = Image->Width;
-		dest.h = Image->Height;
-
-		vRep = Height/Image->Height;
-		vRemainder = Height - (vRep * Image->Height);
-
-		while(vRep > 0)
+		while(hRep > 0)
 		{
-			hRep = Width/Image->Width;
-			hRemainder = Width - (hRep * Image->Width);
+			pie_DrawImage(&pieImage, &dest, &rendStyle);
+			hRep --;
+			dest.x += Image->Width;
+		}
+		//draw remainder
+		if (hRemainder > 0)
+		{
+			pieImage.tw = hRemainder;
+			dest.w = hRemainder;
+			pie_DrawImage(&pieImage, &dest, &rendStyle);
+		}
+		vRep --;
+		dest.y += Image->Height;
+	}
+	//draw remainder
+	if (vRemainder > 0)
+	{
+		hRep = Width/Image->Width;
+		hRemainder = Width - (hRep * Image->Width);
+		pieImage.th = vRemainder;
+		dest.h = vRemainder;
+		//as above
+		{
 			pieImage.tw = Image->Width;
 			dest.x = x+Image->XOffset;
 			dest.w = Image->Width;
@@ -619,38 +377,7 @@ void pie_ImageFileIDTile(IMAGEFILE *ImageFile,UWORD ID,int x,int y,int x0,int y0
 				dest.w = hRemainder;
 				pie_DrawImage(&pieImage, &dest, &rendStyle);
 			}
-			vRep --;
-			dest.y += Image->Height;
 		}
-		//draw remainder
-		if (vRemainder > 0)
-		{
-			hRep = Width/Image->Width;
-			hRemainder = Width - (hRep * Image->Width);
-			pieImage.th = vRemainder;
-			dest.h = vRemainder;
-			//as above
-			{
-				pieImage.tw = Image->Width;
-				dest.x = x+Image->XOffset;
-				dest.w = Image->Width;
-				while(hRep > 0)
-				{
-					pie_DrawImage(&pieImage, &dest, &rendStyle);
-					hRep --;
-					dest.x += Image->Width;
-				}
-				//draw remainder
-				if (hRemainder > 0)
-				{
-					pieImage.tw = hRemainder;
-					dest.w = hRemainder;
-					pie_DrawImage(&pieImage, &dest, &rendStyle);
-				}
-			}
-		}
-	default:
-		break;
 	}
 }
 
@@ -668,29 +395,17 @@ void pie_ImageFileIDStretch(IMAGEFILE *ImageFile,UWORD ID,int x,int y,int Width,
 	pie_SetColour(COLOURINTENSITY);
 	pie_SetColourKeyedBlack(TRUE);
 
-	switch (pie_GetRenderEngine())
-	{
-	case ENGINE_4101:
-	case ENGINE_SR:
-		break;
-	case ENGINE_GLIDE:
-		gl_DrawStretchImage(ImageFile, ID, x, y, Width, Height);
-		break;
-	case ENGINE_D3D:
-		pieImage.texPage = ImageFile->TPageIDs[Image->TPageID];
-		pieImage.tu = Image->Tu;
-		pieImage.tv = Image->Tv;
-		pieImage.tw = Image->Width;
-		pieImage.th = Image->Height;
+	pieImage.texPage = ImageFile->TPageIDs[Image->TPageID];
+	pieImage.tu = Image->Tu;
+	pieImage.tv = Image->Tv;
+	pieImage.tw = Image->Width;
+	pieImage.th = Image->Height;
 
-		dest.x = x+Image->XOffset;
-		dest.y = y+Image->YOffset;
-		dest.w = Width;
-		dest.h = Height;
-		pie_DrawImage(&pieImage, &dest, &rendStyle);
-	default:
-		break;
-	}
+	dest.x = x+Image->XOffset;
+	dest.y = y+Image->YOffset;
+	dest.w = Width;
+	dest.h = Height;
+	pie_DrawImage(&pieImage, &dest, &rendStyle);
 }
 
 void pie_ImageDef(IMAGEDEF *Image,iBitmap *Bmp,UDWORD Modulus,int x,int y,BOOL bBilinear)
@@ -703,34 +418,16 @@ void pie_ImageDef(IMAGEDEF *Image,iBitmap *Bmp,UDWORD Modulus,int x,int y,BOOL b
 	pie_SetColour(COLOURINTENSITY);
 	pie_SetColourKeyedBlack(TRUE);
 
-	switch (pie_GetRenderEngine())
-	{
-	case ENGINE_4101:
-	case ENGINE_SR:
-//		Modulus = ImageFile->TexturePages[Image->TPageID].width;
-//		Bmp = ImageFile->TexturePages[Image->TPageID].bmp;
-		Bmp += ((UDWORD)Image->Tu) + ((UDWORD)Image->Tv) * Modulus;
-		iV_ppBitmapTrans(Bmp,x+Image->XOffset,y+Image->YOffset,
-			   		Image->Width,Image->Height,Modulus);
-		break;
-	case ENGINE_GLIDE:
-		gl_IntelBitmap(Image->TPageID, Image->Tu, Image->Tv, Image->Width, Image->Height, 
-					x+Image->XOffset, y+Image->YOffset, Image->Width, Image->Height);
-		break;
-	case ENGINE_D3D:
-		pieImage.texPage = Image->TPageID;
-		pieImage.tu = Image->Tu;
-		pieImage.tv = Image->Tv;
-		pieImage.tw = Image->Width;
-		pieImage.th = Image->Height;
-		dest.x = x+Image->XOffset;
-		dest.y = y+Image->YOffset;
-		dest.w = Image->Width;
-		dest.h = Image->Height;
-		pie_DrawImage(&pieImage, &dest, &rendStyle);
-	default:
-		break;
-	}
+	pieImage.texPage = Image->TPageID;
+	pieImage.tu = Image->Tu;
+	pieImage.tv = Image->Tv;
+	pieImage.tw = Image->Width;
+	pieImage.th = Image->Height;
+	dest.x = x+Image->XOffset;
+	dest.y = y+Image->YOffset;
+	dest.w = Image->Width;
+	dest.h = Image->Height;
+	pie_DrawImage(&pieImage, &dest, &rendStyle);
 	pie_SetBilinear(FALSE);	//changed by alex 19 oct 98
 
 }
@@ -742,111 +439,36 @@ void pie_ImageDefTrans(IMAGEDEF *Image,iBitmap *Bmp,UDWORD Modulus,int x,int y,i
 
 void pie_UploadDisplayBuffer(UBYTE *DisplayBuffer)
 {
-	switch (pie_GetRenderEngine())
-	{
-	case ENGINE_4101:
-	case ENGINE_SR:
-		UploadDisplayBuffer(DisplayBuffer);
-		break;
-	case ENGINE_GLIDE:
-		gl_UploadDisplayBuffer(DisplayBuffer);
-		screen_SetBackDrop(DisplayBuffer, pie_GetVideoBufferWidth(), pie_GetVideoBufferHeight());
-		break;
-	case ENGINE_D3D:
-		//only call inside D3D render
-		pie_GlobalRenderEnd(FALSE);
-		screen_Upload(DisplayBuffer);
-		screen_SetBackDrop(DisplayBuffer, pie_GetVideoBufferWidth(), pie_GetVideoBufferHeight());
-		pie_GlobalRenderBegin();
-	default:
-		break;
-	}
+	//only call inside D3D render
+	pie_GlobalRenderEnd(FALSE);
+	screen_Upload(DisplayBuffer);
+	screen_SetBackDrop(DisplayBuffer, pie_GetVideoBufferWidth(), pie_GetVideoBufferHeight());
+	pie_GlobalRenderBegin();
 }
 
 void pie_DownloadDisplayBuffer(UBYTE *DisplayBuffer)
 {
-	switch (pie_GetRenderEngine())
-	{
-	case ENGINE_4101:
-	case ENGINE_SR:
-		DownloadDisplayBuffer(DisplayBuffer);
-		break;
-	case ENGINE_GLIDE:
-		gl_DownloadDisplayBuffer((UWORD*)DisplayBuffer);
-		break;
-	case ENGINE_D3D:
-		//screen_SetBackDropFullWidth();//set when background sets
-	default:
-		break;
-	}
+	//screen_SetBackDropFullWidth();//set when background sets
 }
 
 void pie_ScaleBitmapRGB(UBYTE *DisplayBuffer,int Width,int Height,int ScaleR,int ScaleG,int ScaleB)
 {
-	switch (pie_GetRenderEngine())
-	{
-	case ENGINE_4101:
-	case ENGINE_SR:
-		ScaleBitmapRGB(DisplayBuffer, Width, Height, ScaleR, ScaleG, ScaleB);
-		break;
-	case ENGINE_GLIDE:
-		gl_ScaleBitmapRGB(DisplayBuffer, Width, Height, ScaleR, ScaleG, ScaleB);
-		break;
-	case ENGINE_D3D:
-	default:
-		break;
-	}
 }
 
 BOOL pie_InitRadar(void)
 {
-	switch (pie_GetRenderEngine())
-	{
-	case ENGINE_4101:
-	case ENGINE_SR:
-		break;
-	case ENGINE_GLIDE:
-		break;
-	case ENGINE_D3D:
-	default:
-		break;
-	}
 	return TRUE;
 }
 
 BOOL pie_ShutdownRadar(void)
 {
-	switch (pie_GetRenderEngine())
-	{
-	case ENGINE_4101:
-	case ENGINE_SR:
-		break;
-	case ENGINE_GLIDE:
-		break;
-	case ENGINE_D3D:
-	default:
-		break;
-	}
 	return TRUE;
 }
 
 
 void pie_DownLoadRadar(unsigned char *buffer, UDWORD texPageID)
 {
-	switch (pie_GetRenderEngine())
-	{
-	case ENGINE_4101:
-	case ENGINE_SR:
-		DownLoadRadar(buffer);
-		break;
-	case ENGINE_GLIDE:
-		gl_DownLoadRadar(buffer,texPageID);
-		break;
-	case ENGINE_D3D:
-		dtm_LoadRadarSurface(buffer);
-	default:
-		break;
-	}
+	dtm_LoadRadarSurface(buffer);
 }
 
 void pie_RenderRadar(IMAGEDEF *Image,iBitmap *Bmp,UDWORD Modulus,int x,int y)
@@ -854,34 +476,21 @@ void pie_RenderRadar(IMAGEDEF *Image,iBitmap *Bmp,UDWORD Modulus,int x,int y)
 	PIEIMAGE pieImage;
 	PIERECT dest;
 	//special case of pie_ImageDef
-	switch (pie_GetRenderEngine())
-	{
-	case ENGINE_4101:
-	case ENGINE_SR:
-		pie_ImageDef(Image,Bmp,Modulus,x,y,FALSE);
-		break;
-	case ENGINE_GLIDE:
-		pie_ImageDef(Image,Bmp,Modulus,x,y,TRUE);
-		break;
-	case ENGINE_D3D:
-		pie_SetBilinear(TRUE);
-		pie_SetRendMode(REND_GOURAUD_TEX);
-		pie_SetColour(COLOURINTENSITY);
-		pie_SetColourKeyedBlack(TRUE);
-		//special case function because texture is held outside of texture list
-		pieImage.texPage = RADAR_TEXPAGE_D3D;
-		pieImage.tu = 0;
-		pieImage.tv = 0;
-		pieImage.tw = dtm_GetRadarTexImageSize();
-		pieImage.th = dtm_GetRadarTexImageSize();
-		dest.x = x;
-		dest.y = y;
-		dest.w = 128;
-		dest.h = 128;
-		pie_DrawImage(&pieImage, &dest, &rendStyle);
-	default:
-		break;
-	}
+	pie_SetBilinear(TRUE);
+	pie_SetRendMode(REND_GOURAUD_TEX);
+	pie_SetColour(COLOURINTENSITY);
+	pie_SetColourKeyedBlack(TRUE);
+	//special case function because texture is held outside of texture list
+	pieImage.texPage = RADAR_TEXPAGE_D3D;
+	pieImage.tu = 0;
+	pieImage.tv = 0;
+	pieImage.tw = dtm_GetRadarTexImageSize();
+	pieImage.th = dtm_GetRadarTexImageSize();
+	dest.x = x;
+	dest.y = y;
+	dest.w = 128;
+	dest.h = 128;
+	pie_DrawImage(&pieImage, &dest, &rendStyle);
 }
 
 
@@ -890,34 +499,21 @@ void pie_RenderRadarRotated(IMAGEDEF *Image,iBitmap *Bmp,UDWORD Modulus,int x,in
 	PIEIMAGE pieImage;
 	PIERECT dest;
 	//special case of pie_ImageDef
-	switch (pie_GetRenderEngine())
-	{
-	case ENGINE_4101:
-	case ENGINE_SR:
-		pie_ImageDef(Image,Bmp,Modulus,x,y,FALSE);
-		break;
-	case ENGINE_GLIDE:
-		pie_ImageDef(Image,Bmp,Modulus,x,y,TRUE);
-		break;
-	case ENGINE_D3D:
-		pie_SetBilinear(TRUE);
-		pie_SetRendMode(REND_GOURAUD_TEX);
-		pie_SetColour(COLOURINTENSITY);
-		pie_SetColourKeyedBlack(TRUE);
-		//special case function because texture is held outside of texture list
-		pieImage.texPage = RADAR_TEXPAGE_D3D;
-		pieImage.tu = 0;
-		pieImage.tv = 0;
-		pieImage.tw = dtm_GetRadarTexImageSize();
-		pieImage.th = dtm_GetRadarTexImageSize();
-		dest.x = x;
-		dest.y = y;
-		dest.w = 128;
-		dest.h = 128;
-		pie_DrawImage(&pieImage, &dest, &rendStyle);
-	default:
-		break;
-	}
+	pie_SetBilinear(TRUE);
+	pie_SetRendMode(REND_GOURAUD_TEX);
+	pie_SetColour(COLOURINTENSITY);
+	pie_SetColourKeyedBlack(TRUE);
+	//special case function because texture is held outside of texture list
+	pieImage.texPage = RADAR_TEXPAGE_D3D;
+	pieImage.tu = 0;
+	pieImage.tv = 0;
+	pieImage.tw = dtm_GetRadarTexImageSize();
+	pieImage.th = dtm_GetRadarTexImageSize();
+	dest.x = x;
+	dest.y = y;
+	dest.w = 128;
+	dest.h = 128;
+	pie_DrawImage(&pieImage, &dest, &rendStyle);
 }
 
 

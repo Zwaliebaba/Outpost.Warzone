@@ -553,54 +553,6 @@ extern void frameSetWindowProc(DEFWINPROCTYPE winProc)
  */
 
 
-static BOOL WinInitGlide(HANDLE hInstance, char *name, int width, int height, BOOL maximize)
-{
-	WNDCLASS cls;
-//	HWND hWndMainGlide;	// note that this doesn't go anywhere....
-
-	cls.hInstance     = hInstance;//GetModuleHandle(NULL);
-	cls.hIcon         = LoadIcon(cls.hInstance, IDI_APPLICATION);
-	cls.hCursor       = LoadCursor(cls.hInstance, IDC_ARROW);
-	cls.lpszMenuName  = NULL;
-	cls.lpszClassName = WINDOW_CLASS_NAME;
-	cls.hbrBackground = (HBRUSH)GetStockObject(NULL_BRUSH);//GetStockObject(BLACK_BRUSH);
-	cls.style         = CS_DBLCLKS | CS_VREDRAW | CS_HREDRAW;
-	cls.lpfnWndProc   = Wndproc;
-	cls.cbClsExtra    = 0;
-	cls.cbWndExtra    = 0;
-
-	bRunningUnderGlide = TRUE;
-
-	if (!RegisterClass(&cls))
-	{
-		return FALSE;
-	}
-	width = GetSystemMetrics(SM_CXSCREEN);
-	height = GetSystemMetrics(SM_CYSCREEN);
-	// Initialise the window to be huge so it always covers the whole screen
-#ifdef DEBUG
-	hWndMain = CreateWindowEx(WS_EX_APPWINDOW, "Framework", name, WS_POPUP, 0, 0, width, height, NULL, NULL, cls.hInstance, NULL);
-#else
-	hWndMain = CreateWindowEx(WS_EX_APPWINDOW | WS_EX_TOPMOST, "Framework", name, WS_POPUP, 0, 0, width, height, NULL, NULL, cls.hInstance, NULL);
-#endif
-//	width; height;
-//	hWndMain = CreateWindowEx(WS_EX_APPWINDOW, "Framework", name, WS_POPUP, 0, 0, SDWORD_MAX, SDWORD_MAX, NULL, NULL, cls.hInstance, NULL);
-	if(!hWndMain)
-	{
-		DBERROR(("Whoa! Cannot create the main window for the glide version"));
-		return(FALSE);
-	}
-
-	ShowCursor(TRUE);
-  	ShowWindow(hWndMain, maximize ? SW_MAXIMIZE : SW_NORMAL);
-	UpdateWindow(hWndMain);
-
-	/* Store the default window procedure */
-	frameWinProc = NULL;
-
-	return TRUE;
-}
-
 static BOOL winInitApp(HANDLE hInstance,	// Instance handle for the program
 				STRING *pWindowName,	// The text to put on the window title bar
 				UDWORD width,			// The window width
@@ -711,8 +663,7 @@ BOOL frameInitialise(HANDLE hInst,			// The windows application instance
 					 UDWORD height,			// The display height
 					 UDWORD bitDepth,		// The display bit depth
 					 BOOL	fullScreen,		// Whether to start full screen or windowed
-					 BOOL	bVidMem,	 	// Whether to put surfaces in video memory
-					 BOOL	bGlide )		// Whether to create surfaces
+					 BOOL	bVidMem )	 	// Whether to put surfaces in video memory
 {
 	HWND	hWndPrev;
 
@@ -726,18 +677,10 @@ BOOL frameInitialise(HANDLE hInst,			// The windows application instance
 	winQuit = FALSE;
 	focusState = FOCUS_IN;
 	focusLast = FOCUS_IN;
-	if(!bGlide)
-	{
-		mouseOn = TRUE;
-		displayMouse = TRUE;
-	}
-	else
-	{
-		mouseOn = FALSE;
-		displayMouse = FALSE;
-	}
+	mouseOn = TRUE;
+	displayMouse = TRUE;
 	hInstance = hInst;
-	bActiveDDraw = !bGlide;
+	bActiveDDraw = TRUE;
 
 //	/* Initialise the memory system */
 //	if (!memInitialise())
@@ -756,33 +699,16 @@ BOOL frameInitialise(HANDLE hInst,			// The windows application instance
 		return FALSE;
 	}
 //#ifdef ALEXM
-	if(bGlide)
-	{
-		/* Initialise the windows stuff for Glide and open a window */
-		if (!WinInitGlide(hInstance,pWindowName, width, height,TRUE))
-		{
-			return FALSE;
-		}
-		
-	}
-	else
 	/* Initialise the windows stuff and open a window */
 	if (!winInitApp(hInstance, pWindowName, width, height))
 	{
 		return FALSE;
 	}
 
-	if(bGlide)		  // Don't do this for Glide.
+	/* Initialise the Direct Draw Buffers */
+	if (!screenInitialise(width, height, bitDepth, fullScreen, bVidMem, bActiveDDraw, hWndMain))
 	{
-		(void) screenInitialiseGlide(width,height,hWndMain);
-	}
-	else
-	{
-		/* Initialise the Direct Draw Buffers */
-		if (!screenInitialise(width, height, bitDepth, fullScreen, bVidMem, bActiveDDraw, hWndMain))
-		{
-			return FALSE;							
-		}
+		return FALSE;
 	}
 //#else
 #if 0

@@ -22,8 +22,6 @@ extern	void	pie_DrawTextNew(unsigned char *string, int x, int y);
 extern SDWORD DisplayXFactor;
 #ifndef PIETOOL	// if we are in the pie tool then don't compile any of this
 
-#include "3dfxfunc.h"
-
 /***************************************************************************/
 /*
  *	Global Variables
@@ -382,7 +380,7 @@ void pie_TestFormattedText(void)
 
 	// Draw some left justified appended to the last print.
 	ty = pie_DrawFormattedText(
-		(UBYTE*)"ÜThis stÜruÛcture contains technology vital for the success of the Project.",
+		(UBYTE*)"ï¿½This stï¿½ruï¿½cture contains technology vital for the success of the Project.",
 		16,ty,640-32,FTEXT_LEFTJUSTIFYAPPEND,TRUE);
 
 	// Draw some centre justified text.
@@ -1182,27 +1180,9 @@ void pie_DrawText270(unsigned char *String,int XPos,int YPos)
 
 void pie_BeginTextRender(SWORD ColourIndex)
 {
-	switch (pie_GetRenderEngine())
-	{
-	case ENGINE_4101:
-	case ENGINE_SR:
-		TextColourIndex = ColourIndex;
-		pie_SetRendMode(REND_TEXT);
-		pie_SetBilinear(FALSE); 
-		break;
-	case ENGINE_D3D:
-		TextColourIndex = ColourIndex;
-		pie_SetRendMode(REND_TEXT);
-		pie_SetBilinear(FALSE); 
-		break;
-	case ENGINE_GLIDE:
-		TextColourIndex = ColourIndex;
-		pie_SetRendMode(REND_TEXT);
-		pie_SetBilinear(FALSE); 
-		break;
-	default:
-		break;
-	}
+	TextColourIndex = ColourIndex;
+	pie_SetRendMode(REND_TEXT);
+	pie_SetBilinear(FALSE);
 }
 
 void pie_TextRender(IMAGEFILE *ImageFile,UWORD ID,int x,int y)
@@ -1222,101 +1202,33 @@ void pie_TextRender(IMAGEFILE *ImageFile,UWORD ID,int x,int y)
 	}
 	else
 	{
-		switch (pie_GetRenderEngine())
+		if (TextColourIndex == PIE_TEXT_WHITE)
 		{
-		case ENGINE_4101:
-		case ENGINE_SR:
-			DrawTransColourImage(ImageFile,ID,x,y,TextColourIndex);
-			break;
-		case ENGINE_GLIDE:
-			gl_DrawTransColourImage(ImageFile,ID,x,y,TextColourIndex);
-			break;
-		case ENGINE_D3D:
-			if (TextColourIndex == PIE_TEXT_WHITE)
-			{
-				pie_SetColour(PIE_TEXT_WHITE_COLOUR);
-			}
-			else if (TextColourIndex == PIE_TEXT_LIGHTBLUE)
-			{
-				pie_SetColour(PIE_TEXT_LIGHTBLUE_COLOUR);
-			}
-			else if (TextColourIndex == PIE_TEXT_DARKBLUE)
-			{
-				pie_SetColour(PIE_TEXT_DARKBLUE_COLOUR);
-			}
-			else
-			{
-				psPalette = pie_GetGamePal();
-				Red  = psPalette[TextColourIndex].r;
-				Green= psPalette[TextColourIndex].g;
-				Blue = psPalette[TextColourIndex].b;
-				pie_SetColour(((Alpha<<24) | (Red<<16) | (Green<<8) | Blue));
-			}
-			pie_SetColourKeyedBlack(TRUE);
-			pie_DrawImageFileID(ImageFile,ID,x,y);
-			break;
-		default:
-			break;
+			pie_SetColour(PIE_TEXT_WHITE_COLOUR);
 		}
+		else if (TextColourIndex == PIE_TEXT_LIGHTBLUE)
+		{
+			pie_SetColour(PIE_TEXT_LIGHTBLUE_COLOUR);
+		}
+		else if (TextColourIndex == PIE_TEXT_DARKBLUE)
+		{
+			pie_SetColour(PIE_TEXT_DARKBLUE_COLOUR);
+		}
+		else
+		{
+			psPalette = pie_GetGamePal();
+			Red  = psPalette[TextColourIndex].r;
+			Green= psPalette[TextColourIndex].g;
+			Blue = psPalette[TextColourIndex].b;
+			pie_SetColour(((Alpha<<24) | (Red<<16) | (Green<<8) | Blue));
+		}
+		pie_SetColourKeyedBlack(TRUE);
+		pie_DrawImageFileID(ImageFile,ID,x,y);
 	}
 }
 
 
 
-
-void TextRender270(IMAGEFILE *ImageFile, UWORD ImageID,int x,int y)
-{		
-	int w,h,i,j,Modulus;
-	uint8 *srcbp, *bp;
-	IMAGEDEF *Image;
-	iBitmap *Bmp;
-	UBYTE	present;
-	UDWORD	width;
-
-	assert(ImageID < ImageFile->Header.NumImages);				// setup the image
-	Image = &ImageFile->ImageDefs[ImageID];
-	Modulus = ImageFile->TexturePages[Image->TPageID].width;
-
-	Bmp = ImageFile->TexturePages[Image->TPageID].bmp;
-	Bmp += ((UDWORD)Image->Tu) + ((UDWORD)Image->Tv) * Modulus;
-
-	// ideally i would just call
-	//	iV_ppBitmapRot270(Bmp,
-	//			   	x+Image->YOffset,
-	//				y+Image->XOffset,
-	//			   	Image->Width,
-	//				Image->Height,Modulus);
-	// but we want a transparant image. Instead of creating a load
-	// of blank drawing functions I've just provided the one for 4101.
-	// if we need other modes I'll arrange it nicely in the library.
-	// note 3dfx uses a different method (gl_textrender270).
-
-	x = x+Image->YOffset;										// sort the position
-	y = y+Image->XOffset;
-	w = Image->Width;
-	h = Image->Height;
-
-//	y -= iV_GetImageWidth(ImageFile,ImageID);					// since drawing 'upside down'
-
-	srcbp = bp = (uint8 *) psRendSurface->buffer + x + psRendSurface->scantable[y+h-1];
-	width = pie_GetVideoBufferWidth();
-	for (j=0; j<h; j++) 
-	{
-		bp = srcbp;
-		for (i=0; i<w; i++) 
-		{							
-			if(*Bmp++) 
-			{
-				present =  *bp;							// What colour is there at the moment?
-				*bp = aTransTable2[present];			// Write in the new version (brite?)
-				//	*bp = (UBYTE)TextColourIndex;		// old 
-			}
-			bp -= width;		// goto previous line. 
-		}
-		srcbp++;
-		Bmp += (Modulus - w);
-	}
-}
 
 void pie_TextRender270(IMAGEFILE *ImageFile, UWORD ImageID,int x,int y)
 {
@@ -1330,54 +1242,40 @@ void pie_TextRender270(IMAGEFILE *ImageFile, UWORD ImageID,int x,int y)
 	PIESTYLE	rendStyle;
 	iColour* psPalette;
 
-		switch (pie_GetRenderEngine())
-		{
-		case ENGINE_4101:
-		case ENGINE_SR:
-			TextRender270( ImageFile, ImageID, x, y);
-			break;
-		case ENGINE_GLIDE:
-			gl_TextRender270( ImageFile, ImageID, x, y);
-			break;
-		case ENGINE_D3D:
-			Image = &(ImageFile->ImageDefs[ImageID]);
-			//not coloured yet
-			if (TextColourIndex == PIE_TEXT_WHITE)
-			{
-				pie_SetColour(PIE_TEXT_WHITE_COLOUR & 0x80ffffff);//special case semi transparent for rotated text
-				pie_SetRendMode(REND_ALPHA_TEXT);
-			}
-			else if (TextColourIndex == PIE_TEXT_LIGHTBLUE)
-			{
-				pie_SetColour(PIE_TEXT_LIGHTBLUE_COLOUR);
-			}
-			else if (TextColourIndex == PIE_TEXT_DARKBLUE)
-			{
-				pie_SetColour(PIE_TEXT_DARKBLUE_COLOUR);
-			}
-			else
-			{
-				psPalette = pie_GetGamePal();
-				Red  = psPalette[TextColourIndex].r;
-				Green= psPalette[TextColourIndex].g;
-				Blue = psPalette[TextColourIndex].b;
-				pie_SetColour(((Alpha<<24) | (Red<<16) | (Green<<8) | Blue));
-			}
-			pie_SetColourKeyedBlack(TRUE);
-			pieImage.texPage = ImageFile->TPageIDs[Image->TPageID];
-			pieImage.tu = Image->Tu;
-			pieImage.tv = Image->Tv;
-			pieImage.tw = Image->Width;
-			pieImage.th = Image->Height;
-			dest.x = x+Image->YOffset;
-			dest.y = y+Image->XOffset - Image->Width;
-			dest.w = Image->Width;
-			dest.h = Image->Height;
-			pie_DrawImage270(&pieImage, &dest, &rendStyle);
-			break;
-		default:
-			break;
-		}
+	Image = &(ImageFile->ImageDefs[ImageID]);
+	//not coloured yet
+	if (TextColourIndex == PIE_TEXT_WHITE)
+	{
+		pie_SetColour(PIE_TEXT_WHITE_COLOUR & 0x80ffffff);//special case semi transparent for rotated text
+		pie_SetRendMode(REND_ALPHA_TEXT);
+	}
+	else if (TextColourIndex == PIE_TEXT_LIGHTBLUE)
+	{
+		pie_SetColour(PIE_TEXT_LIGHTBLUE_COLOUR);
+	}
+	else if (TextColourIndex == PIE_TEXT_DARKBLUE)
+	{
+		pie_SetColour(PIE_TEXT_DARKBLUE_COLOUR);
+	}
+	else
+	{
+		psPalette = pie_GetGamePal();
+		Red  = psPalette[TextColourIndex].r;
+		Green= psPalette[TextColourIndex].g;
+		Blue = psPalette[TextColourIndex].b;
+		pie_SetColour(((Alpha<<24) | (Red<<16) | (Green<<8) | Blue));
+	}
+	pie_SetColourKeyedBlack(TRUE);
+	pieImage.texPage = ImageFile->TPageIDs[Image->TPageID];
+	pieImage.tu = Image->Tu;
+	pieImage.tv = Image->Tv;
+	pieImage.tw = Image->Width;
+	pieImage.th = Image->Height;
+	dest.x = x+Image->YOffset;
+	dest.y = y+Image->XOffset - Image->Width;
+	dest.w = Image->Width;
+	dest.h = Image->Height;
+	pie_DrawImage270(&pieImage, &dest, &rendStyle);
 
 }
 

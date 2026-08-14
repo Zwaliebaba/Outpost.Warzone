@@ -1911,28 +1911,6 @@ VOID displayTitleBitmap(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset
 
 	switch(war_GetRendMode())
 	{
-	case REND_MODE_SOFTWARE:
-		if(weHave3DNow())
-		{
-			sprintf(sTmp, VERSION_STRING " - Build: %s SW (With AMD 3DNow!)",__DATE__);
-		}
-		else
-		{
-			sprintf(sTmp, VERSION_STRING " - Build: %s SW",__DATE__);
-		}
-		break;
-		
-	case REND_MODE_GLIDE:
-		if(weHave3DNow())
-		{
-			sprintf(sTmp, VERSION_STRING " - Build: %s 3DFX (With AMD 3DNow!)",__DATE__);
-		}
-		else
-		{
-			sprintf(sTmp, VERSION_STRING " - Build: %s 3DFX",__DATE__);
-		}
-		break;
-
 	case REND_MODE_HAL:
 		if(weHave3DNow())
 		{

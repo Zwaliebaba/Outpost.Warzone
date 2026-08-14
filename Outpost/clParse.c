@@ -39,7 +39,7 @@ BOOL	bAllowDebugMode = FALSE;
 
 
 // note that render mode must come before resolution flag.
-BOOL ParseCommandLine( LPSTR psCmdLine, BOOL bGlideDllPresent)
+BOOL ParseCommandLine( LPSTR psCmdLine)
 {
 	char			seps[] = " ,\t\n";
 	char			*tokenType;
@@ -74,27 +74,6 @@ BOOL ParseCommandLine( LPSTR psCmdLine, BOOL bGlideDllPresent)
 		{
 			SetGameMode(GS_VIDEO_MODE);
 		}
-		else if ( stricmp( tokenType, "-software" ) == 0 )
-		{
-			war_SetRendMode(REND_MODE_SOFTWARE);
-			war_SetFog(FALSE);
-			pie_SetVideoBufferWidth(640);
-			pie_SetVideoBufferHeight(480);
-
-		}
-		else if ( stricmp( tokenType, "-3DFX" ) == 0 )
-		{
-			if (!bGlideDllPresent)
-			{
-				ASSERT((FALSE,"Glide DLL not found, unable to run in -3DFX mode"));
-			}
-			else
-			{
-				war_SetRendMode(REND_MODE_GLIDE);
-			}
-			pie_SetVideoBufferWidth(640);
-			pie_SetVideoBufferHeight(480);
-		}
 		else if ( stricmp( tokenType, "-D3D" ) == 0 )
 		{
 
@@ -105,41 +84,19 @@ BOOL ParseCommandLine( LPSTR psCmdLine, BOOL bGlideDllPresent)
 			pie_SetVideoBufferHeight(480);
 		}
 
-		else if ( stricmp( tokenType, "-MMX" ) == 0 )
-		{
-#ifndef COVERMOUNT
-			war_SetRendMode(REND_MODE_RGB);
-			pie_SetDirect3DDeviceName("RGB Emulation");
-			pie_SetVideoBufferWidth(640);
-			pie_SetVideoBufferHeight(480);
-#else
-			war_SetRendMode(REND_MODE_SOFTWARE);
-			war_SetFog(FALSE);
-#endif
-		}
 		else if ( stricmp( tokenType, "-RGB" ) == 0 )
 		{
-#ifndef COVERMOUNT
 			war_SetRendMode(REND_MODE_RGB);
 			pie_SetDirect3DDeviceName("RGB Emulation");
 			pie_SetVideoBufferWidth(640);
 			pie_SetVideoBufferHeight(480);
-#else
-			war_SetRendMode(REND_MODE_SOFTWARE);
-			war_SetFog(FALSE);
-#endif
 		}
 		else if ( stricmp( tokenType, "-REF" ) == 0 )
 		{
-#ifndef COVERMOUNT
 			war_SetRendMode(REND_MODE_REF);
 			pie_SetDirect3DDeviceName("Reference Rasterizer");
 			pie_SetVideoBufferWidth(640);
 			pie_SetVideoBufferHeight(480);
-#else
-			war_SetRendMode(REND_MODE_SOFTWARE);
-			war_SetFog(FALSE);
-#endif
 		}
 		else if ( stricmp( tokenType, "-title" ) == 0 )
 		{
