@@ -22,7 +22,6 @@
 #include "piedef.h"
 #include "pieState.h"
 #include "pieClip.h"
-#include "vid.h"
 #include "objmem.h"
 #include "gateway.h"
 #include "time.h"
@@ -225,21 +224,14 @@ void loadMapPreview(void)
 		coltab[col] = pal_GetNearestColour( col*16,col*16, col*16);
 	}
 		
-	if (pie_GetRenderEngine() == ENGINE_GLIDE)
+	pDDPixelFormat = screenGetBackBufferPixelFormat();
+	if( pDDPixelFormat->dwRGBBitCount == 16 )
 	{
 		bitDepth = 16;
 	}
 	else
 	{
-		pDDPixelFormat = screenGetBackBufferPixelFormat();
-		if( pDDPixelFormat->dwRGBBitCount == 16 )
-		{
-			bitDepth = 16;
-		}
-		else
-		{
-			bitDepth = 8;
-		}
+		bitDepth = 8;
 	}
 
 	backDropSprite.width = BACKDROP_WIDTH;
@@ -307,7 +299,7 @@ void loadMapPreview(void)
 
 	if (bitDepth != 8)
 	{
-		bufferTo16Bit(tempBmp, backDropBmp,(pie_GetRenderEngine() == ENGINE_GLIDE));		// convert
+		bufferTo16Bit(tempBmp, backDropBmp,FALSE);		// convert
 	}
 
 	screen_SetBackDrop(backDropBmp, BACKDROP_WIDTH, BACKDROP_HEIGHT);
@@ -1931,23 +1923,11 @@ VOID	stopJoining(void)
 
 		if(ingame.bHostSetup)
 		{	
-
-			if (pie_GetRenderEngine() == ENGINE_GLIDE)
-			{
 #ifdef COVERMOUNT
-				pie_LoadBackDrop(SCREEN_COVERMOUNT,TRUE);
+			pie_LoadBackDrop(SCREEN_COVERMOUNT,FALSE);
 #else
-				pie_LoadBackDrop(SCREEN_RANDOMBDROP,TRUE);
-#endif	
-			}
-			else
-			{
-#ifdef COVERMOUNT
-				pie_LoadBackDrop(SCREEN_COVERMOUNT,FALSE);
-#else
-				pie_LoadBackDrop(SCREEN_RANDOMBDROP,FALSE);
+			pie_LoadBackDrop(SCREEN_RANDOMBDROP,FALSE);
 #endif
-			}
 		}
 
 	}	
@@ -4117,15 +4097,7 @@ void displayMultiBut(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset, U
 	if(Grey)																	// disabled, render something over it!
 	{
 
-		if(pie_GetRenderEngine() == ENGINE_GLIDE)
-		{	pie_SetSwirlyBoxes(FALSE);
-			iV_UniTransBoxFill(x,y,x+psWidget->width,y+psWidget->height,(FILLRED<<16) | (FILLGREEN<<8) | FILLBLUE, FILLTRANS);
-			pie_SetSwirlyBoxes(TRUE);
-		}
-		else
-		{
-			iV_TransBoxFill(x,y,x+psWidget->width,y+psWidget->height);
-		}
+		iV_TransBoxFill(x,y,x+psWidget->width,y+psWidget->height);
 	
 	}
 
@@ -4235,10 +4207,7 @@ void displayForceDroid(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset,
 	pie_BoxFill(tlx,	tly,	brx,	bry, 0x006067a0);	
 	pie_BoxFill(tlx+1,	tly+1,	brx-1,	bry-1,	0x002f3050);
 
-	if (pie_Hardware())
-	{
-		pie_Set2DClip((UWORD)(tlx+1),(UWORD)(tly+1),(UWORD)(brx-1),(UWORD)(bry-1));
-	}
+	pie_Set2DClip((UWORD)(tlx+1),(UWORD)(tly+1),(UWORD)(brx-1),(UWORD)(bry-1));
 
 	pie_SetGeometricOffset( x,y);
 	Rotation.x = -20;
@@ -4253,9 +4222,6 @@ void displayForceDroid(struct _widget *psWidget, UDWORD xOffset, UDWORD yOffset,
 		displayComponentButtonTemplate(Force.pMembers->pTempl, &Rotation,&Position,TRUE, 2 * DROID_BUT_SCALE);
 	}
 
-	if (pie_Hardware())
-	{
-		pie_Set2DClip(CLIP_BORDER,CLIP_BORDER,psRendSurface->width-CLIP_BORDER,psRendSurface->height-CLIP_BORDER);
-	}
+	pie_Set2DClip(CLIP_BORDER,CLIP_BORDER,psRendSurface->width-CLIP_BORDER,psRendSurface->height-CLIP_BORDER);
 	return;	
 }
