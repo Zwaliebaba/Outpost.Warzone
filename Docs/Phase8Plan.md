@@ -237,17 +237,23 @@ Outpost/  (game code, ~700 call sites renamed mechanically)
    └─ Screen.cpp        IDirect3DDevice9, Present, back-buffer lock (unchanged)
 ```
 
-**Where stages A and B leave it.** The shape is in place under the old names,
-which is deliberate — stage C does the renaming, so B could stay mechanical.
-`D3DRender.cpp` is already the `Render.cpp` of that diagram: it holds the one
+**Where the work stands.** Stages A and B put the shape in place under the
+old names, deliberately — stage C does the renaming, so B could stay
+mechanical. C2 has since landed the names themselves, so the filenames in
+the diagram above are now the filenames on disk: `Render.cpp` holds the one
 state block, the vertex funnel, `BeginFrameD3D`/`EndFrameD3D` and the
-device-reset recovery, having absorbed `PieState.cpp` and `D3DMode.cpp`. The
-texture table is single, with `PieTexture.cpp` absorbed into `Tex.cpp`; the
-`Tex.cpp`/`TexMan.cpp` split into "the page table" and "the device textures"
-survives one more file boundary than the diagram wants, and closing it is a
-stage C rename rather than more surgery. `PieDraw.cpp` and `PieBlitFunc.cpp`
-are the `RenderModel`/`Render2D` pair in all but name. `PieClip.cpp`,
-`PieMatrix.cpp` and `PiePalette.cpp` are untouched, as planned.
+device-reset recovery, having absorbed `PieState.cpp` and `D3DMode.cpp`;
+`RenderModel.cpp` and `Render2D.cpp` are the model/2D pair;
+`RenderMatrix.cpp`, `RenderClip.cpp` and `Palette.cpp` are renamed with
+their internals untouched, as planned.
+
+Two gaps remain against the diagram. The texture table is single, with
+`PieTexture.cpp` absorbed into `Tex.cpp`, but the `Tex.cpp`/`TexMan.cpp`
+split into "the page table" and "the device textures" survives one more file
+boundary than the diagram wants — closing it is a merge, not more surgery.
+And the symbols still carry `pie_`/`iV_` prefixes even where the files no
+longer do (`pie_D3DRenderForFlip` now lives in `Render2D.cpp`); that is the
+symbol rename still ahead of C3.
 
 Deliberately **kept** even though a from-scratch D3D9 renderer would not have
 them, because changing them is not simplification, it is a second project:
@@ -487,18 +493,19 @@ once the funnel takes a vertex-buffer, which is D2.
 
 ### C — Rename to the target shape, delete the alias layer
 
-The full rename is decided (Decision 1), and this stage waits for Phase 6's
-`Sequence.cpp` rewrite to merge (Decision 4) — see
-[Sequencing](#sequencing-against-phases-6-and-7).
+The full rename is decided (Decision 1). Phase 6 has merged, so the wait
+described in [Sequencing](#sequencing-against-phases-6-and-7) is over and
+this stage is in progress: C1 and C2 are done, C3 is not started.
 
-- **C1. Kill the alias tables.** Delete `RendMode.h`'s `#define iV_* pie_*`
-  block and `IvisPatch.h`; scripted, reviewed find-and-replace lands the
-  canonical names at every call site, one game module per commit.
-- **C2. File moves.** `git mv` to the target layout (table above), both
-  project files and `.filters` updated in the same commits. Rewritten files
-  get §1 naming (`Neuron` namespace, PascalCase, `m_`/`_param`); files that
-  are renamed-but-not-rewritten (`RenderMatrix`, `RenderClip`, `Palette`)
-  keep their internals — renaming their every local is churn Phase 7 owns.
+- **C1. Kill the alias tables.** *(done)* Deleted `RendMode.h`'s
+  `#define iV_* pie_*` block, `TextDraw.h`'s pair and `IvisPatch.h`'s 34,
+  landing the canonical names at 630 call sites.
+- **C2. File moves.** *(done)* `git mv` to the target layout (table above),
+  with `#include` lines, project/`.filters` entries and include guards
+  following in the same commit. Files that are renamed-but-not-rewritten
+  (`RenderMatrix`, `RenderClip`, `Palette`) keep their internals — renaming
+  their every local is churn Phase 7 owns. Symbol renames were deliberately
+  kept out: mixing them into a file move makes the diff unreadable.
 - **C3. Header consolidation.** `PieDef.h`/`PieTypes.h`/`IvisDef.h`/`Ivi.h`
   reduce to a render-types header (vertex/state/image types) and a model
   header (`iIMDShape` family). `Ivi.cpp`'s `iV_Error`/`iV_Stop`/`iV_Abort`
@@ -507,6 +514,26 @@ The full rename is decided (Decision 1), and this stage waits for Phase 6's
 **Risk: low but wide.** Mechanical; the danger is a missed alias in a
 comment or a `.filters` mismatch, both of which CI and `check_case.py`
 catch.
+
+#### What Stage C turned up
+
+- **A word-boundary rename can eat its own definition.** `Ivi.h` carried a
+  duplicate `#define iV_POLY_MAX_POINTS pie_MAX_POLY_SIZE` — an alias whose
+  target was itself an alias. Rewriting alias names blind turned it into
+  `#define pie_MAX_POLY_SIZE pie_MAX_POLY_SIZE`, which is self-referential,
+  so the preprocessor stops expanding it: the real `#define
+  pie_MAX_POLY_SIZE 16` in `PieDef.h` was shadowed and
+  `static iVertex xclip[pie_MAX_POLY_SIZE + 4]` lost its array size. The
+  duplicate was deleted; a sweep for `^#define\s+(\w+)\s+\1` found no other
+  instance. Any future mass-rename wants that grep as a post-step.
+- **Debug CI does not cover the linker.** Removing
+  `ImageHasSafeExceptionHandlers=false` (during B6, on the assumption it
+  went with `WINSTR.LIB`) passed Debug and failed Release with LNK2026 /
+  LNK1281. Incremental linking silently disables `/SAFESEH`, so only the
+  `/INCREMENTAL:NO` Release config exercises it. The property is back, with
+  the real reason recorded at the site: `dinput8.lib` in `DX9\Lib` predates
+  SafeSEH and its `dilib1.obj` carries no handler table. Re-enabling
+  SafeSEH needs a clean `dinput8.lib` first — logged, not scheduled.
 
 ### D — Follow-up simplifications
 

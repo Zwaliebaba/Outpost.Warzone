@@ -28,7 +28,7 @@ If a rule here conflicts with a habit from another codebase, this file wins. If 
 | Constant, enumerator | `PascalCase` | `MaxDroids`, `DeviceLost` |
 | Macro | `SCREAMING_SNAKE` | `DEBUG_ASSERT`, `DEBUG_WARNING` |
 | Namespace | `PascalCase` | `Neuron` |
-| File | `PascalCase.cpp` / `.h` | `D3DRender.cpp` |
+| File | `PascalCase.cpp` / `.h` | `Render.cpp` |
 
 **This table governs code you write.** The legacy tree does not follow it — `SCREEN_PIXELFORMAT`, `g_psDevice`, `g_bAudioEnabled` and friends are grandfathered, not exemplars. Do not extend those patterns into new code, and do not mass-rename them either (§4).
 
@@ -195,11 +195,11 @@ The migration has already made these decisions. Use the replacement that is alre
 
 **R11 — No inline assembly.** The last `__asm` block is gone, which is part of what makes the tree portable to the cross-checker. Write the C++ equivalent.
 
-**R12 — Graphics is Direct3D 9 only.** An `IDirect3DDevice9` is owned by `Screen.cpp` and drawn through by `D3DRender.cpp` and `TexMan.cpp`. No DirectDraw, no surfaces, no palettes, no `GetDC`. New COM code uses C++ `device->Method(...)` syntax with RAII lifetimes — `CINTERFACE` is gone and is not coming back.
+**R12 — Graphics is Direct3D 9 only.** An `IDirect3DDevice9` is owned by `Screen.cpp` and drawn through by `Render.cpp` and `TexMan.cpp`. No DirectDraw, no surfaces, no palettes, no `GetDC`. New COM code uses C++ `device->Method(...)` syntax with RAII lifetimes — `CINTERFACE` is gone and is not coming back.
 
-Phase 8 is removing the `pie_*`/`iV_*` layer that used to sit between the game and that device, so the renderer is mid-move: **do not add a new indirection in front of `D3DRender.cpp`**, and do not reintroduce a second cache of a render state — one cache, owned by the code that makes the device call, is the rule the phase is establishing. `D3DMode.cpp`, `PieState.cpp` and `PieTexture.cpp` have been folded into their neighbours and are not to come back.
+Phase 8 is removing the `pie_*`/`iV_*` layer that used to sit between the game and that device, so the renderer is mid-move: **do not add a new indirection in front of `Render.cpp`**, and do not reintroduce a second cache of a render state — one cache, owned by the code that makes the device call, is the rule the phase is establishing. `D3DMode.cpp`, `PieState.cpp` and `PieTexture.cpp` have been folded into their neighbours and are not to come back. Stage C2 has renamed the render files: `Render.cpp/.h`, `RenderModel.cpp`, `Render2D.*`, `RenderMatrix.*`, `RenderClip.*` and `Palette.*` are the current names for what used to be `D3DRender`, `PieDraw`, `PieBlitFunc`, `PieMatrix`, `PieClip` and `PiePalette`.
 
-**R13 — Leave a subsystem mid-migration alone** unless your task *is* that phase. **No legacy subsystem is left**: DirectInput (Phase 3), audio (Phase 4), networking (Phase 5) and FMV video (Phase 6) are all migrated. What survives of Phase 6 is deletion — `WINSTR.LIB`, `STREAMER.H`, `dsound.lib`, the `GameData` decoder DLLs and `CDSpan.cpp` are all unreferenced and waiting for stage B6 — so do not build anything new against them. The courtesy still applies to the render layer while Phase 8 is in flight: if your task is not that phase, do not opportunistically rename or restructure `pie_*`/`iV_*` code.
+**R13 — Leave a subsystem mid-migration alone** unless your task *is* that phase. **No legacy subsystem is left**: DirectInput (Phase 3), audio (Phase 4), networking (Phase 5) and FMV video (Phase 6) are all migrated. Stage B6 finished the Phase 6 deletions: `WINSTR.LIB`, `STREAMER.H`, `dsound.lib`, the `GameData` decoder DLLs and `CDSpan.cpp` are gone. The courtesy still applies to the render layer while Phase 8 is in flight: if your task is not that phase, do not opportunistically rename or restructure `pie_*`/`iV_*` code.
 
 **R14 — No new third-party dependencies**, and no package manager. The DX9 SDK is vendored for exactly this reason. If you believe something is unavoidable, propose it in your report; do not add it.
 

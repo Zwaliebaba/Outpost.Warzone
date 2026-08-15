@@ -37,7 +37,7 @@ Subsystems in use today:
 
 - **Graphics** — **done, see Phase 2**, and being simplified onto the device
   in Phase 8. Direct3D 9 throughout: an `IDirect3DDevice9` owned by
-  `Screen.cpp` and drawn through by `D3DRender.cpp` and `TexMan.cpp`. Was
+  `Screen.cpp` and drawn through by `Render.cpp` and `TexMan.cpp`. Was
   DirectDraw 4 surfaces plus a Direct3D 6 immediate-mode device.
 - **Input** — **done, see Phase 3.** DirectInput 8 (`DXInput.cpp`,
   `DIRECTINPUT_VERSION=0x0800`).
@@ -886,10 +886,24 @@ software clipper and the palette module kept and renamed. The `.pie`/IMD
 
 This phase also absorbs two items Phase 2 left open: the dead device-name
 settings (deleted in stage A3) and dynamic vertex buffers (stage D2, after
-the draw funnel is singular). Sequencing is decided: stages A and B land
-now — they avoid Phase 6's contact surface — and stage C's rename, which
-touches `Sequence.cpp`, starts only after Phase 6's rewrite of that file
-merges.
+the draw funnel is singular). Stages A and B landed first because they avoid
+Phase 6's contact surface; stage C's rename, which touches `Sequence.cpp`,
+waited for Phase 6 to merge and is now under way.
+
+**Stage C is part done.** C1 deleted the three `#define iV_* pie_*` alias
+tables and landed the canonical names at 630 call sites. C2 moved the render
+files onto their target names — `D3DRender` → `Render`, `PieDraw` →
+`RenderModel`, `PieBlitFunc` → `Render2D`, `PieMatrix` → `RenderMatrix`,
+`PieClip` → `RenderClip`, `PiePalette` → `Palette` — as a pure rename:
+`git mv` for history, then `#include` lines, project/`.filters` entries and
+include guards. The symbols still carry `pie_`/`iV_` prefixes; renaming
+those, and C3's header consolidation, are what remain of the stage.
+
+Two findings from stage C are worth carrying forward, both recorded in
+[Phase8Plan.md](Phase8Plan.md): a blind alias rewrite can produce a
+self-referential `#define` that silently shadows the real one, and the Debug
+CI configuration does not exercise `/SAFESEH` because incremental linking
+turns it off — only Release catches that class of linker regression.
 
 ## Verification
 
@@ -901,7 +915,9 @@ include paths and preprocessor definitions taken from the `.vcxproj` files.
 things GCC cannot process: includes whose case does not match the real
 filename, the Concurrency Runtime headers `NeuronCore.h` includes but never
 uses, and — under `tools/stubs/` — declarations for the headers mingw-w64
-does not ship at all, currently `x3daudio.h`. Those last are a transcription
+does not ship at all: `x3daudio.h`, the MsQuic headers and `<winrt/base.h>`
+(a `com_ptr` minimal enough for the Media Foundation code Phase 6 added).
+Those last are a transcription
 of somebody else's API and check our use of it rather than themselves; each
 says so at the top. The inline-assembly handling has gone with the last `__asm` in the
 tree, and so has the `CINTERFACE` define — nothing in the tree defines it any
