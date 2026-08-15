@@ -8,6 +8,7 @@
 #define _SeqDisp_h
 
 #include "PieMode.h"
+#include "RendMode.h"
 /***************************************************************************/
 /*
  *	Global Definitions

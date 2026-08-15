@@ -7,8 +7,8 @@
 	temporary world 'effects 
 	Alex McLean, Pumpkin Studios, EIDOS Interactive, 1998.
 */
-#include "PieDef.h"
-#include "PieTypes.h"
+#include "Model.h"
+#include "RenderTypes.h"
 
 /* All the effect groups */
 using EFFECT_GROUP = enum

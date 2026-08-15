@@ -46,7 +46,7 @@
 #include "Order.h"
 #include "RendMode.h"
 #include "PieState.h"
-#include "PieMatrix.h"
+#include "RenderMatrix.h"
 
 #include "KeyMap.h"
 #include "Loop.h"
@@ -1402,7 +1402,7 @@ void kf_SendTextMessage(void)
     {
       // Kill if they hit return - it maxes out console or it's more than one line long
       if ((ch == INPBUF_CR) || (strlen(sTextToSend) >= MAX_CONSOLE_STRING_LENGTH - 16) // Prefixes with ERROR: and terminates with '?'
-        OR iV_GetTextWidth((unsigned char*)sTextToSend) > (DISP_WIDTH - 64)) // sendit
+        OR Neuron::GetTextWidth((unsigned char*)sTextToSend) > (DISP_WIDTH - 64)) // sendit
       //	if((ch == INPBUF_CR) || (strlen(sTextToSend)==MAX_TYPING_LENGTH) 
       {
         bAllowOtherKeyPresses = TRUE;

@@ -8,8 +8,7 @@
 
 #include "Widget.h"
 #include "Message.h"
-#include "CDSpan.h"
-#include "PieClip.h"
+#include "RenderClip.h"
 
 // store the objects that are being used for the object bar
 #define			MAX_OBJECTS		15//10 we need at least 15 for the 3 different types of factory
@@ -240,7 +239,6 @@ using INTMODE = enum
   // Results of a mission display.
   INT_MULTIMENU,
   // multiplayer only, player stats etc...
-  INT_CDCHANGE,
   // CD Change message box 
 
   INT_MAXMODE,
@@ -401,7 +399,6 @@ extern STRUCTURE* interfaceStructList(void);
 extern void addTransporterInterface(DROID* psSelected, BOOL onMission);
 
 /* CD change box */
-extern void addCDChangeInterface(CD_INDEX CDrequired, CDSPAN_CALLBACK fpOKCallback, CDSPAN_CALLBACK fpCancelCallback);
 
 /*causes a reticule button to start flashing*/
 extern void flashReticuleButton(UDWORD buttonID);

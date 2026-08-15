@@ -1,7 +1,7 @@
 #ifndef _tex_
 #define _tex_
+#include "RenderTypes.h"
 
-#include "Ivi.h"
 
 //*************************************************************************
 
@@ -9,17 +9,15 @@
  * allowed 48 while the device only ever had 32 - so a page past 32 was
  * written into the table and then refused by the texture manager.
  */
-#define iV_TEX_MAX		32
+#define TEX_MAX		32
 
 //*************************************************************************
 
-#define iV_TEXTEX(i)		((iTexture *) (&_TEX_PAGE[(i)].tex))
-#define iV_TEXPAGE(i)	((iTexPage *) (&_TEX_PAGE[(i)]))
-#define iV_TEXBMP(i)		((iBitmap *) (&_TEX_PAGE[(i)].tex.bmp))
-#define iV_TEXWIDTH(i)	(_TEX_PAGE[(i)].tex.width)
-#define iV_TEXHEIGHT(i) (_TEX_PAGE[(i)].tex.height)
-#define iV_TEXNAME(i)	((char *) (&_TEX_PAGE[(i)].name))
-#define iV_TEXTYPE(i)	(_TEX_PAGE[(i)].type)
+#define TEXTEX(i)		((iTexture *) (&_TEX_PAGE[(i)].tex))
+#define TEXWIDTH(i)	(_TEX_PAGE[(i)].tex.width)
+#define TEXHEIGHT(i) (_TEX_PAGE[(i)].tex.height)
+#define TEXNAME(i)	((char *) (&_TEX_PAGE[(i)].name))
+#define TEXTYPE(i)	(_TEX_PAGE[(i)].type)
 
 //*************************************************************************
 
@@ -34,12 +32,15 @@ using iTexPage = struct
 
 //*************************************************************************
 extern int _TEX_INDEX;
-extern iTexPage _TEX_PAGE[iV_TEX_MAX];
+extern iTexPage _TEX_PAGE[TEX_MAX];
 
 //*************************************************************************
 
-extern int iV_TexLoad(char* path, char* filename, int type, iBool palkeep, iBool bColourKeyed);
-extern int iV_TexLoadNew(char* path, char* filename, int type, iBool palkeep, iBool bColourKeyed);
+namespace Neuron
+{
+  extern int TexLoad(char* path, char* filename, int type, iBool palkeep, iBool bColourKeyed);
+  extern int TexLoadNew(char* path, char* filename, int type, iBool palkeep, iBool bColourKeyed);
+}
 extern int pie_ReloadTexPage(char* filename, UBYTE* pBuffer);
 extern int pie_AddBMPtoTexPages(iSprite* s, char* filename, int type, iBool bColourKeyed, iBool bResource);
 extern void pie_TexInit(void);
@@ -49,8 +50,11 @@ extern UDWORD pie_GetLastPageDownloaded(void);
 
 extern void pie_TexShutDown(void);
 
-extern BOOL iV_TexSizeIsLegal(UDWORD Width, UDWORD Height);
-extern BOOL iV_IsPower2(UDWORD Value);
+namespace Neuron
+{
+  extern BOOL TexSizeIsLegal(UDWORD Width, UDWORD Height);
+  extern BOOL IsPower2(UDWORD Value);
+}
 
 BOOL GenerateTEXPAGE(char* Filename, RECT* VramArea, UDWORD Mode, UWORD Clut);
 BOOL FindTextureNumber(UDWORD TexNum, int* TexPage);

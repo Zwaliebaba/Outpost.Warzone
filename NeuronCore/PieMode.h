@@ -41,6 +41,12 @@ using CLEAR_MODE = enum CLEAR_MODE
 /***************************************************************************/
 extern BOOL pie_Initialise(void);
 extern void pie_ShutDown(void);
+
+namespace Neuron
+{
+  extern void Reset(int bResetPal);
+  extern void ShutDown(void);
+}
 extern void pie_ScreenFlip(CLEAR_MODE ClearMode);
 extern void pie_GlobalRenderBegin(void);
 extern void pie_GlobalRenderEnd(BOOL bForceClearToBlack);

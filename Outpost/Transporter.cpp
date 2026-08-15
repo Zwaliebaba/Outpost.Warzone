@@ -28,7 +28,7 @@
 #include "Selection.h"
 #include "Audio.h"
 #include "AudioID.h"
-#include "PieMatrix.h"
+#include "RenderMatrix.h"
 #include "MapGrid.h"
 #include "MultiPlay.h"
 #include "CSnap.h"
@@ -355,8 +355,8 @@ BOOL intAddTransporterContents(void)
     sButFInit.style = WFORM_CLICKABLE | WFORM_NOCLICKMOVE;
     sButFInit.x = OBJ_STARTX;
     sButFInit.y = static_cast<UWORD>((STAT_SLDY - 1));
-    sButFInit.width = iV_GetImageWidth(IntImages, IMAGE_LAUNCHUP);
-    sButFInit.height = iV_GetImageHeight(IntImages, IMAGE_LAUNCHUP);
+    sButFInit.width = Neuron::GetImageWidth(IntImages, IMAGE_LAUNCHUP);
+    sButFInit.height = Neuron::GetImageHeight(IntImages, IMAGE_LAUNCHUP);
     sButFInit.pTip = strresGetString(psStringRes, STR_INT_TRANSLAUNCH);
     sButFInit.pDisplay = intDisplayImageHilight;
     sButFInit.pUserData = (void*)PACKDWORD_TRI(0, IMAGE_LAUNCHDOWN, IMAGE_LAUNCHUP);
@@ -397,8 +397,8 @@ BOOL intAddTransporterLaunch(DROID* psDroid)
   sButInit.style = WFORM_CLICKABLE | WFORM_NOCLICKMOVE;
   sButInit.x = RET_X;
   sButInit.y = static_cast<SWORD>(TIMER_Y);
-  sButInit.width = static_cast<UWORD>(10 + iV_GetImageWidth(IntImages, IMAGE_LAUNCHUP));
-  sButInit.height = iV_GetImageHeight(IntImages, IMAGE_LAUNCHUP);
+  sButInit.width = static_cast<UWORD>(10 + Neuron::GetImageWidth(IntImages, IMAGE_LAUNCHUP));
+  sButInit.height = Neuron::GetImageHeight(IntImages, IMAGE_LAUNCHUP);
   sButInit.pTip = strresGetString(psStringRes, STR_INT_TRANSLAUNCH);
   sButInit.pDisplay = intDisplayImageHilight;
   sButInit.pUserData = (void*)PACKDWORD_TRI(0, IMAGE_LAUNCHDOWN, IMAGE_LAUNCHUP);

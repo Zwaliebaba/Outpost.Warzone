@@ -3,7 +3,6 @@
     <Platform Name="x86" />
   </Configurations>
   <Folder Name="/Tools/">
-    <Project Path="MovieTest/MovieTest.vcxproj" Id="3c81f5ae-6d24-4f0b-9a17-8e4c2b5d7f61" />
     <Project Path="NetTest/NetTest.vcxproj" Id="7f2d1c40-9b3e-4a51-8c6d-2e5a41b7d903" />
   </Folder>
   <Project Path="NeuronCore/NeuronCore.vcxproj" Id="484036c5-f0ea-4673-aae1-f13e38660999" />

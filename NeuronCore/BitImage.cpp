@@ -1,7 +1,7 @@
 #include "pch.h"
+#include <assert.h>
 #include "RendMode.h"
-#include "Bug.h"
-#include "PiePalette.h"
+#include "Palette.h"
 #include "Pcx.h"
 #include "Tex.h"
 #include "IvisPatch.h"
@@ -10,13 +10,13 @@
 
 static BOOL LoadTextureFile(char* FileName, iSprite* TPage, int* TPageID);
 
-UWORD iV_GetImageWidth(IMAGEFILE* ImageFile, UWORD ID)
+UWORD Neuron::GetImageWidth(IMAGEFILE* ImageFile, UWORD ID)
 {
   assert(ID < ImageFile->Header.NumImages);
   return ImageFile->ImageDefs[ID].Width;
 }
 
-UWORD iV_GetImageHeight(IMAGEFILE* ImageFile, UWORD ID)
+UWORD Neuron::GetImageHeight(IMAGEFILE* ImageFile, UWORD ID)
 {
   assert(ID < ImageFile->Header.NumImages);
   return ImageFile->ImageDefs[ID].Height;
@@ -24,7 +24,7 @@ UWORD iV_GetImageHeight(IMAGEFILE* ImageFile, UWORD ID)
 
 // Get image width with no coordinate conversion.
 //
-UWORD iV_GetImageWidthNoCC(IMAGEFILE* ImageFile, UWORD ID)
+UWORD Neuron::GetImageWidthNoCC(IMAGEFILE* ImageFile, UWORD ID)
 {
   assert(ID < ImageFile->Header.NumImages);
   return ImageFile->ImageDefs[ID].Width;
@@ -32,37 +32,37 @@ UWORD iV_GetImageWidthNoCC(IMAGEFILE* ImageFile, UWORD ID)
 
 // Get image height with no coordinate conversion.
 //
-UWORD iV_GetImageHeightNoCC(IMAGEFILE* ImageFile, UWORD ID)
+UWORD Neuron::GetImageHeightNoCC(IMAGEFILE* ImageFile, UWORD ID)
 {
   assert(ID < ImageFile->Header.NumImages);
   return ImageFile->ImageDefs[ID].Height;
 }
 
-SWORD iV_GetImageXOffset(IMAGEFILE* ImageFile, UWORD ID)
+SWORD Neuron::GetImageXOffset(IMAGEFILE* ImageFile, UWORD ID)
 {
   assert(ID < ImageFile->Header.NumImages);
   return ImageFile->ImageDefs[ID].XOffset;
 }
 
-SWORD iV_GetImageYOffset(IMAGEFILE* ImageFile, UWORD ID)
+SWORD Neuron::GetImageYOffset(IMAGEFILE* ImageFile, UWORD ID)
 {
   assert(ID < ImageFile->Header.NumImages);
   return ImageFile->ImageDefs[ID].YOffset;
 }
 
-UWORD iV_GetImageCenterX(IMAGEFILE* ImageFile, UWORD ID)
+UWORD Neuron::GetImageCenterX(IMAGEFILE* ImageFile, UWORD ID)
 {
   assert(ID < ImageFile->Header.NumImages);
   return ImageFile->ImageDefs[ID].XOffset + ImageFile->ImageDefs[ID].Width / 2;
 }
 
-UWORD iV_GetImageCenterY(IMAGEFILE* ImageFile, UWORD ID)
+UWORD Neuron::GetImageCenterY(IMAGEFILE* ImageFile, UWORD ID)
 {
   assert(ID < ImageFile->Header.NumImages);
   return ImageFile->ImageDefs[ID].YOffset + ImageFile->ImageDefs[ID].Height / 2;
 }
 
-IMAGEFILE* iV_LoadImageFile(UBYTE* FileData, UDWORD FileSize)
+IMAGEFILE* Neuron::LoadImageFile(UBYTE* FileData, UDWORD FileSize)
 {
   UBYTE* Ptr;
   IMAGEHEADER* Header;
@@ -118,7 +118,7 @@ IMAGEFILE* iV_LoadImageFile(UBYTE* FileData, UDWORD FileSize)
   return ImageFile;
 }
 
-void iV_FreeImageFile(IMAGEFILE* ImageFile)
+void Neuron::FreeImageFile(IMAGEFILE* ImageFile)
 {
   delete[] ImageFile->TexturePages;
   ImageFile->TexturePages = nullptr;
@@ -136,7 +136,7 @@ static BOOL LoadTextureFile(char* FileName, iSprite* pSprite, int* texPageID)
 
   if (!resPresent("IMGPAGE", FileName))
   {
-    if (!iV_PCXLoad(FileName, pSprite, nullptr))
+    if (!Neuron::PCXLoad(FileName, pSprite, nullptr))
     {
       Neuron::Fatal("Unable to load texture file : {}",FileName);
       return FALSE;

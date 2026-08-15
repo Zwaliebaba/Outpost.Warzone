@@ -43,7 +43,6 @@
 #include "Lighting.h"
 #include "Atmos.h"
 #include "Music.h"
-#include "CDSpan.h"
 #include "NetPlay.h"
 #include "MultiPlay.h"
 #include "MultiGifts.h"
@@ -2666,21 +2665,6 @@ BOOL scrAnyStructButWallsLeft(void)
 }
 
 // -----------------------------------------------------------------------------------------
-//defines the background audio to play
-BOOL scrPlayBackgroundAudio(void)
-{
-  STRING* pText;
-  SDWORD iVol;
-
-  if (!stackPopParams(2, ST_TEXTSTRING, &pText, VAL_INT, &iVol))
-    return FALSE;
-
-  cdspan_PlayInGameAudio(pText, iVol);
-
-  return TRUE;
-}
-
-// -----------------------------------------------------------------------------------------
 //defines the CD audio to play
 BOOL scrPlayCDAudio(void)
 {
@@ -2691,27 +2675,6 @@ BOOL scrPlayCDAudio(void)
 
   music_PlayTrack(iTrack);
 
-  return TRUE;
-}
-
-// -----------------------------------------------------------------------------------------
-BOOL scrStopCDAudio(void)
-{
-  music_Stop();
-  return TRUE;
-}
-
-// -----------------------------------------------------------------------------------------
-BOOL scrPauseCDAudio(void)
-{
-  music_Pause();
-  return TRUE;
-}
-
-// -----------------------------------------------------------------------------------------
-BOOL scrResumeCDAudio(void)
-{
-  music_Resume();
   return TRUE;
 }
 

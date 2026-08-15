@@ -17,7 +17,6 @@
 #include "Edit2D.h"
 #include "Map.h"
 /* Includes direct access to render library */
-#include "IvisDef.h"
 #include "PieState.h"
 
 #include "PieMode.h"
@@ -262,7 +261,7 @@ void RenderWindow(IMAGEFRAME* Frame, UDWORD x, UDWORD y, UDWORD Width, UDWORD He
           Masked = TRUE;
         }
 
-        iV_TransBoxFill(x + Rect->TLXOffset, y + Rect->TLYOffset, x + Width - INCEND + Rect->BRXOffset,
+        pie_TransBoxFill(x + Rect->TLXOffset, y + Rect->TLYOffset, x + Width - INCEND + Rect->BRXOffset,
                         y + Height - INCEND + Rect->BRYOffset);
       }
       else
@@ -281,11 +280,11 @@ void RenderWindow(IMAGEFRAME* Frame, UDWORD x, UDWORD y, UDWORD Width, UDWORD He
           Masked = TRUE;
         }
 
-        iV_TransBoxFill(x + Rect->TLXOffset, y + Rect->TLYOffset, x + Rect->BRXOffset, y + Height - INCEND + Rect->BRYOffset);
+        pie_TransBoxFill(x + Rect->TLXOffset, y + Rect->TLYOffset, x + Rect->BRXOffset, y + Height - INCEND + Rect->BRYOffset);
       }
       else
       {
-        iV_BoxFill(x + Rect->TLXOffset, y + Rect->TLYOffset, x + Rect->BRXOffset, y + Height - INCEND + Rect->BRYOffset, Rect->ColourIndex);
+        pie_BoxFillIndex(x + Rect->TLXOffset, y + Rect->TLYOffset, x + Rect->BRXOffset, y + Height - INCEND + Rect->BRYOffset, Rect->ColourIndex);
       }
       break;
 
@@ -297,12 +296,12 @@ void RenderWindow(IMAGEFRAME* Frame, UDWORD x, UDWORD y, UDWORD Width, UDWORD He
           Width &= 0xfffc; // Software transboxfill needs to be a multiple of 4 pixels.
           Masked = TRUE;
         }
-        iV_TransBoxFill(x + Width - INCEND + Rect->TLXOffset, y + Rect->TLYOffset, x + Width - INCEND + Rect->BRXOffset,
+        pie_TransBoxFill(x + Width - INCEND + Rect->TLXOffset, y + Rect->TLYOffset, x + Width - INCEND + Rect->BRXOffset,
                         y + Height - INCEND + Rect->BRYOffset);
       }
       else
       {
-        iV_BoxFill(x + Width - INCEND + Rect->TLXOffset, y + Rect->TLYOffset, x + Width - INCEND + Rect->BRXOffset,
+        pie_BoxFillIndex(x + Width - INCEND + Rect->TLXOffset, y + Rect->TLYOffset, x + Width - INCEND + Rect->BRXOffset,
                    y + Height - INCEND + Rect->BRYOffset, Rect->ColourIndex);
       }
       break;
@@ -315,11 +314,11 @@ void RenderWindow(IMAGEFRAME* Frame, UDWORD x, UDWORD y, UDWORD Width, UDWORD He
           Width &= 0xfffc; // Software transboxfill needs to be a multiple of 4 pixels.
           Masked = TRUE;
         }
-        iV_TransBoxFill(x + Rect->TLXOffset, y + Rect->TLYOffset, x + Width - INCEND + Rect->BRXOffset, y + Rect->BRYOffset);
+        pie_TransBoxFill(x + Rect->TLXOffset, y + Rect->TLYOffset, x + Width - INCEND + Rect->BRXOffset, y + Rect->BRYOffset);
       }
       else
       {
-        iV_BoxFill(x + Rect->TLXOffset, y + Rect->TLYOffset, x + Width - INCEND + Rect->BRXOffset, y + Rect->BRYOffset, Rect->ColourIndex);
+        pie_BoxFillIndex(x + Rect->TLXOffset, y + Rect->TLYOffset, x + Width - INCEND + Rect->BRXOffset, y + Rect->BRYOffset, Rect->ColourIndex);
       }
       break;
 
@@ -331,12 +330,12 @@ void RenderWindow(IMAGEFRAME* Frame, UDWORD x, UDWORD y, UDWORD Width, UDWORD He
           Width &= 0xfffc; // Software transboxfill needs to be a multiple of 4 pixels.
           Masked = TRUE;
         }
-        iV_TransBoxFill(x + Rect->TLXOffset, y + Height - INCEND + Rect->TLYOffset, x + Width - INCEND + Rect->BRXOffset,
+        pie_TransBoxFill(x + Rect->TLXOffset, y + Height - INCEND + Rect->TLYOffset, x + Width - INCEND + Rect->BRXOffset,
                         y + Height - INCEND + Rect->BRYOffset);
       }
       else
       {
-        iV_BoxFill(x + Rect->TLXOffset, y + Height - INCEND + Rect->TLYOffset, x + Width - INCEND + Rect->BRXOffset,
+        pie_BoxFillIndex(x + Rect->TLXOffset, y + Height - INCEND + Rect->TLYOffset, x + Width - INCEND + Rect->BRXOffset,
                    y + Height - INCEND + Rect->BRYOffset, Rect->ColourIndex);
       }
       break;
@@ -347,43 +346,43 @@ void RenderWindow(IMAGEFRAME* Frame, UDWORD x, UDWORD y, UDWORD Width, UDWORD He
 
   if (Frame->TopLeft >= 0)
   {
-    WTopLeft = static_cast<SWORD>(iV_GetImageWidth(IntImages, Frame->TopLeft));
-    HTopLeft = static_cast<SWORD>(iV_GetImageHeight(IntImages, Frame->TopLeft));
-    iV_DrawTransImage(IntImages, Frame->TopLeft, x, y);
+    WTopLeft = static_cast<SWORD>(Neuron::GetImageWidth(IntImages, Frame->TopLeft));
+    HTopLeft = static_cast<SWORD>(Neuron::GetImageHeight(IntImages, Frame->TopLeft));
+    pie_ImageFileID(IntImages, Frame->TopLeft, x, y);
   }
 
   if (Frame->TopRight >= 0)
   {
-    WTopRight = static_cast<SWORD>(iV_GetImageWidth(IntImages, Frame->TopRight));
-    HTopRight = static_cast<SWORD>(iV_GetImageHeight(IntImages, Frame->TopRight));
-    iV_DrawTransImage(IntImages, Frame->TopRight, x + Width - WTopRight, y);
+    WTopRight = static_cast<SWORD>(Neuron::GetImageWidth(IntImages, Frame->TopRight));
+    HTopRight = static_cast<SWORD>(Neuron::GetImageHeight(IntImages, Frame->TopRight));
+    pie_ImageFileID(IntImages, Frame->TopRight, x + Width - WTopRight, y);
   }
 
   if (Frame->BottomRight >= 0)
   {
-    WBottomRight = static_cast<SWORD>(iV_GetImageWidth(IntImages, Frame->BottomRight));
-    HBottomRight = static_cast<SWORD>(iV_GetImageHeight(IntImages, Frame->BottomRight));
-    iV_DrawTransImage(IntImages, Frame->BottomRight, x + Width - WBottomRight, y + Height - HBottomRight);
+    WBottomRight = static_cast<SWORD>(Neuron::GetImageWidth(IntImages, Frame->BottomRight));
+    HBottomRight = static_cast<SWORD>(Neuron::GetImageHeight(IntImages, Frame->BottomRight));
+    pie_ImageFileID(IntImages, Frame->BottomRight, x + Width - WBottomRight, y + Height - HBottomRight);
   }
 
   if (Frame->BottomLeft >= 0)
   {
-    WBottomLeft = static_cast<SWORD>(iV_GetImageWidth(IntImages, Frame->BottomLeft));
-    HBottomLeft = static_cast<SWORD>(iV_GetImageHeight(IntImages, Frame->BottomLeft));
-    iV_DrawTransImage(IntImages, Frame->BottomLeft, x, y + Height - HBottomLeft);
+    WBottomLeft = static_cast<SWORD>(Neuron::GetImageWidth(IntImages, Frame->BottomLeft));
+    HBottomLeft = static_cast<SWORD>(Neuron::GetImageHeight(IntImages, Frame->BottomLeft));
+    pie_ImageFileID(IntImages, Frame->BottomLeft, x, y + Height - HBottomLeft);
   }
 
   if (Frame->TopEdge >= 0)
   {
     if (Frame->TopType == FR_SOLID)
     {
-      iV_DrawImageRect(IntImages, Frame->TopEdge, x + iV_GetImageWidth(IntImages, Frame->TopLeft), y, 0, 0, Width - WTopLeft - WTopRight,
-                       iV_GetImageHeight(IntImages, Frame->TopEdge));
+      pie_ImageFileIDTile(IntImages, Frame->TopEdge, x + Neuron::GetImageWidth(IntImages, Frame->TopLeft), y, 0, 0, Width - WTopLeft - WTopRight,
+                       Neuron::GetImageHeight(IntImages, Frame->TopEdge));
     }
     else
     {
-      iV_DrawTransImageRect(IntImages, Frame->TopEdge, x + iV_GetImageWidth(IntImages, Frame->TopLeft), y, 0, 0,
-                            Width - WTopLeft - WTopRight, iV_GetImageHeight(IntImages, Frame->TopEdge));
+      pie_ImageFileIDTile(IntImages, Frame->TopEdge, x + Neuron::GetImageWidth(IntImages, Frame->TopLeft), y, 0, 0,
+                            Width - WTopLeft - WTopRight, Neuron::GetImageHeight(IntImages, Frame->TopEdge));
     }
   }
 
@@ -391,13 +390,13 @@ void RenderWindow(IMAGEFRAME* Frame, UDWORD x, UDWORD y, UDWORD Width, UDWORD He
   {
     if (Frame->BottomType == FR_SOLID)
     {
-      iV_DrawImageRect(IntImages, Frame->BottomEdge, x + WBottomLeft, y + Height - iV_GetImageHeight(IntImages, Frame->BottomEdge), 0, 0,
-                       Width - WBottomLeft - WBottomRight, iV_GetImageHeight(IntImages, Frame->BottomEdge));
+      pie_ImageFileIDTile(IntImages, Frame->BottomEdge, x + WBottomLeft, y + Height - Neuron::GetImageHeight(IntImages, Frame->BottomEdge), 0, 0,
+                       Width - WBottomLeft - WBottomRight, Neuron::GetImageHeight(IntImages, Frame->BottomEdge));
     }
     else
     {
-      iV_DrawTransImageRect(IntImages, Frame->BottomEdge, x + WBottomLeft, y + Height - iV_GetImageHeight(IntImages, Frame->BottomEdge), 0,
-                            0, Width - WBottomLeft - WBottomRight, iV_GetImageHeight(IntImages, Frame->BottomEdge));
+      pie_ImageFileIDTile(IntImages, Frame->BottomEdge, x + WBottomLeft, y + Height - Neuron::GetImageHeight(IntImages, Frame->BottomEdge), 0,
+                            0, Width - WBottomLeft - WBottomRight, Neuron::GetImageHeight(IntImages, Frame->BottomEdge));
     }
   }
 
@@ -405,12 +404,12 @@ void RenderWindow(IMAGEFRAME* Frame, UDWORD x, UDWORD y, UDWORD Width, UDWORD He
   {
     if (Frame->LeftType == FR_SOLID)
     {
-      iV_DrawImageRect(IntImages, Frame->LeftEdge, x, y + HTopLeft, 0, 0, iV_GetImageWidth(IntImages, Frame->LeftEdge),
+      pie_ImageFileIDTile(IntImages, Frame->LeftEdge, x, y + HTopLeft, 0, 0, Neuron::GetImageWidth(IntImages, Frame->LeftEdge),
                        Height - HTopLeft - HBottomLeft);
     }
     else
     {
-      iV_DrawTransImageRect(IntImages, Frame->LeftEdge, x, y + HTopLeft, 0, 0, iV_GetImageWidth(IntImages, Frame->LeftEdge),
+      pie_ImageFileIDTile(IntImages, Frame->LeftEdge, x, y + HTopLeft, 0, 0, Neuron::GetImageWidth(IntImages, Frame->LeftEdge),
                             Height - HTopLeft - HBottomLeft);
     }
   }
@@ -419,13 +418,13 @@ void RenderWindow(IMAGEFRAME* Frame, UDWORD x, UDWORD y, UDWORD Width, UDWORD He
   {
     if (Frame->RightType == FR_SOLID)
     {
-      iV_DrawImageRect(IntImages, Frame->RightEdge, x + Width - iV_GetImageWidth(IntImages, Frame->RightEdge), y + HTopRight, 0, 0,
-                       iV_GetImageWidth(IntImages, Frame->RightEdge), Height - HTopRight - HBottomRight);
+      pie_ImageFileIDTile(IntImages, Frame->RightEdge, x + Width - Neuron::GetImageWidth(IntImages, Frame->RightEdge), y + HTopRight, 0, 0,
+                       Neuron::GetImageWidth(IntImages, Frame->RightEdge), Height - HTopRight - HBottomRight);
     }
     else
     {
-      iV_DrawTransImageRect(IntImages, Frame->RightEdge, x + Width - iV_GetImageWidth(IntImages, Frame->RightEdge), y + HTopRight, 0, 0,
-                            iV_GetImageWidth(IntImages, Frame->RightEdge), Height - HTopRight - HBottomRight);
+      pie_ImageFileIDTile(IntImages, Frame->RightEdge, x + Width - Neuron::GetImageWidth(IntImages, Frame->RightEdge), y + HTopRight, 0, 0,
+                            Neuron::GetImageWidth(IntImages, Frame->RightEdge), Height - HTopRight - HBottomRight);
     }
   }
 

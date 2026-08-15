@@ -1,5 +1,6 @@
 #ifndef _texture_h
 #define _texture_h
+#include "RenderTypes.h"
 
 extern iSprite tilesPCX;
 

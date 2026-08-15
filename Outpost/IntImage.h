@@ -1,5 +1,6 @@
 #ifndef __INCLUDED_INTIMAGE__
 #define __INCLUDED_INTIMAGE__
+#include "BitImage.h"
 
 #define FILLRED 16
 #define FILLGREEN 16

@@ -20,7 +20,7 @@
 #include "Display.h"
 #include "Widget.h"
 /* Includes direct access to render library */
-#include "IvisDef.h"
+#include "BitImage.h"
 #include "PieState.h"
 #include "KeyEdit.h"
 #include "PieFunc.h"
@@ -91,7 +91,6 @@ BOOL bForceEditorLoaded = FALSE;
 BOOL bUsingKeyboard = FALSE; // to disable mouse pointer when using keys.
 BOOL bUsingSlider = FALSE;
 
-static tMode g_tModeNext;
 static BOOL bInFastPlay = FALSE;
 
 // This is used on the PSX so that things like the mission result screen
@@ -339,39 +338,9 @@ BOOL startTitleMenu(VOID)
   return TRUE;
 }
 
-static void frontEndCDOK(void) { changeTitleMode(g_tModeNext); }
-
-static void frontEndCDCancel(void) { changeTitleMode(TITLE); }
-
-void frontEndCheckCD(tMode tModeNext, CD_INDEX cdIndex)
-{
-  BOOL bOK;
-
-  /* save next tmode */
-  g_tModeNext = tModeNext;
-
-  if (!cdspan_DontTest())
-  {
-    if (cdIndex == DISC_EITHER)
-      bOK = cdspan_initialCDcheck();
-    else
-    {
-      if (cdspan_CheckCDPresent(cdIndex))
-        bOK = TRUE;
-      else
-        bOK = FALSE;
-    }
-
-    if (bOK == FALSE)
-    {
-      widgDelete(psWScreen,FRONTEND_BACKDROP);
-      showChangeCDBox(psWScreen, cdIndex, frontEndCDOK, frontEndCDCancel);
-      return;
-    }
-  }
-
-  changeTitleMode(tModeNext);
-}
+/* Was a disc-presence gate in front of the mode change. The content is on
+ * disk, so the gate always passed; the mode change is all that is left. */
+void frontEndCheckCD(tMode tModeNext) { changeTitleMode(tModeNext); }
 
 BOOL runTitleMenu(VOID)
 {
@@ -381,31 +350,28 @@ BOOL runTitleMenu(VOID)
 
   id = widgRunScreen(psWScreen); // Run the current set of widgets 
 
-  if (!cdspan_ProcessCDChange(id))
+  switch (id)
   {
-    switch (id)
-    {
-    case FRONTEND_QUIT:
-      changeTitleMode(CREDITS);
-      break;
-    case FRONTEND_MULTIPLAYER:
-      frontEndCheckCD(MULTI, DISC_EITHER);
-      break;
-    case FRONTEND_SINGLEPLAYER:
-      changeTitleMode(SINGLE);
-      break;
-    case FRONTEND_OPTIONS:
-      changeTitleMode(OPTIONS);
-      break;
-    case FRONTEND_PLAYINTRO:
-      frontEndCheckCD(SHOWINTRO, DISC_ONE);
-      break;
-    case FRONTEND_TUTORIAL:
-      frontEndCheckCD(TUTORIAL, DISC_ONE);
-      break;
-    default:
-      break;
-    }
+  case FRONTEND_QUIT:
+    changeTitleMode(CREDITS);
+    break;
+  case FRONTEND_MULTIPLAYER:
+    frontEndCheckCD(MULTI);
+    break;
+  case FRONTEND_SINGLEPLAYER:
+    changeTitleMode(SINGLE);
+    break;
+  case FRONTEND_OPTIONS:
+    changeTitleMode(OPTIONS);
+    break;
+  case FRONTEND_PLAYINTRO:
+    frontEndCheckCD(SHOWINTRO);
+    break;
+  case FRONTEND_TUTORIAL:
+    frontEndCheckCD(TUTORIAL);
+    break;
+  default:
+    break;
   }
 
   DrawBegin();
@@ -551,33 +517,23 @@ BOOL runSinglePlayerMenu(VOID)
     id = widgRunScreen(psWScreen); // Run the current set of widgets 
 
     /* GJ to TC - this call processes the CD change widget box */
-    if (!cdspan_ProcessCDChange(id))
+    switch (id)
     {
-      switch (id)
-      {
-      case FRONTEND_NEWGAME:
-        if (cdspan_CheckCDPresent(getCDForCampaign(1)))
-          frontEndNewGame();
-        else
-        {
-          endSinglePlayerMenu();
-          showChangeCDBox(psWScreen, getCDForCampaign(1), frontEndNewGame, startSinglePlayerMenu);
-        }
+    case FRONTEND_NEWGAME:
+      frontEndNewGame();
+      break;
 
-        break;
+    case FRONTEND_LOADGAME:
+      addLoadSave(LOAD_FRONTEND, "savegame\\", "gam", strresGetString(psStringRes, STR_MR_LOAD_GAME));
+      // change mode when loadsave returns
+      break;
 
-      case FRONTEND_LOADGAME:
-        addLoadSave(LOAD_FRONTEND, "savegame\\", "gam", strresGetString(psStringRes, STR_MR_LOAD_GAME));
-        // change mode when loadsave returns
-        break;
+    case FRONTEND_QUIT:
+      changeTitleMode(TITLE);
+      break;
 
-      case FRONTEND_QUIT:
-        changeTitleMode(TITLE);
-        break;
-
-      default:
-        break;
-      }
+    default:
+      break;
     }
 
     if (CancelPressed())
@@ -1245,8 +1201,8 @@ BOOL startGameOptionsMenu(VOID)
   */
 
   // colour stuff	
-  w = iV_GetImageWidth(FrontImages, IMAGE_PLAYER0);
-  h = iV_GetImageHeight(FrontImages, IMAGE_PLAYER0);
+  w = Neuron::GetImageWidth(FrontImages, IMAGE_PLAYER0);
+  h = Neuron::GetImageHeight(FrontImages, IMAGE_PLAYER0);
   addMultiBut(psWScreen,FRONTEND_BOTFORM,FE_P0, FRONTEND_POS7M + (0 * (w + 6)),FRONTEND_POS7Y, w, h, 0, IMAGE_PLAYER0, IMAGE_PLAYERX,TRUE);
   addMultiBut(psWScreen,FRONTEND_BOTFORM,FE_P4, FRONTEND_POS7M + (1 * (w + 6)),FRONTEND_POS7Y, w, h, 0, IMAGE_PLAYER4, IMAGE_PLAYERX,TRUE);
   addMultiBut(psWScreen,FRONTEND_BOTFORM,FE_P5, FRONTEND_POS7M + (2 * (w + 6)),FRONTEND_POS7Y, w, h, 0, IMAGE_PLAYER5, IMAGE_PLAYERX,TRUE);
@@ -1499,7 +1455,7 @@ VOID addTextButton(UDWORD id, UDWORD PosX, UDWORD PosY, STRING* txt, BOOL bAlign
   if (bAlign)
   {
     sButInit.style = WBUT_PLAIN;
-    sButInit.width = static_cast<short>(iV_GetTextWidth((unsigned char*)txt) + 10); //FRONTEND_BUTWIDTH;
+    sButInit.width = static_cast<short>(Neuron::GetTextWidth((unsigned char*)txt) + 10); //FRONTEND_BUTWIDTH;
     sButInit.x += 35;
   }
   else
@@ -1532,11 +1488,11 @@ VOID addFESlider(UDWORD id, UDWORD parent, UDWORD x, UDWORD y, UDWORD stops, UDW
   sSldInit.style = WSLD_PLAIN;
   sSldInit.x = static_cast<short>(x);
   sSldInit.y = static_cast<short>(y);
-  sSldInit.width = iV_GetImageWidth(IntImages, IMAGE_SLIDER_BIG);
-  sSldInit.height = iV_GetImageHeight(IntImages, IMAGE_SLIDER_BIG);
+  sSldInit.width = Neuron::GetImageWidth(IntImages, IMAGE_SLIDER_BIG);
+  sSldInit.height = Neuron::GetImageHeight(IntImages, IMAGE_SLIDER_BIG);
   sSldInit.orientation = WSLD_LEFT;
   sSldInit.numStops = static_cast<UBYTE>(stops);
-  sSldInit.barSize = iV_GetImageHeight(IntImages, IMAGE_SLIDER_BIG);
+  sSldInit.barSize = Neuron::GetImageHeight(IntImages, IMAGE_SLIDER_BIG);
   sSldInit.pos = static_cast<UBYTE>(pos);
   sSldInit.pDisplay = displayBigSlider;
   sSldInit.pCallback = intUpdateQuantitySlider;
@@ -1595,8 +1551,8 @@ VOID displayTitleBitmap(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
   UNUSEDPARAMETER(xOffset);
   UNUSEDPARAMETER(psWidget);
 
-  iV_SetFont(WFont);
-  iV_SetTextColour(-1);
+  Neuron::SetFont(WFont);
+  Neuron::SetTextColour(-1);
 
   sprintf(sTmp, VERSION_STRING " - Build: %s D3D",__DATE__);
   pie_DrawText270((unsigned char*)sTmp,DISP_WIDTH - 10,DISP_HEIGHT - 15);
@@ -1607,7 +1563,7 @@ VOID displayTitleBitmap(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
 VOID displayLogo(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pColours)
 {
   UNUSEDPARAMETER(pColours);
-  iV_DrawTransImage(FrontImages, IMAGE_FE_LOGO, xOffset + psWidget->x, yOffset + psWidget->y);
+  pie_ImageFileID(FrontImages, IMAGE_FE_LOGO, xOffset + psWidget->x, yOffset + psWidget->y);
 }
 
 // ////////////////////////////////////////////////////////////////////////////
@@ -1621,13 +1577,13 @@ VOID displayTextOption(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset,
 
   UNUSEDPARAMETER(pColours);
   psBut = (W_BUTTON*)psWidget;
-  iV_SetFont(psBut->FontID);
+  Neuron::SetFont(psBut->FontID);
 
   if (widgGetMouseOver(psWScreen) == psBut->id) // if mouse is over text then hilight. 
     hilight = TRUE;
 
-  fw = iV_GetTextWidth((unsigned char*)psBut->pText);
-  fy = yOffset + psWidget->y + (psWidget->height - iV_GetTextLineSize()) / 2 - iV_GetTextAboveBase();
+  fw = Neuron::GetTextWidth((unsigned char*)psBut->pText);
+  fy = yOffset + psWidget->y + (psWidget->height - Neuron::GetTextLineSize()) / 2 - Neuron::GetTextAboveBase();
 
   if (psWidget->style & WBUT_TXTCENTRE) //check for centering, calculate offset.
     fx = xOffset + psWidget->x + ((psWidget->width - fw) / 2);
@@ -1635,19 +1591,19 @@ VOID displayTextOption(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset,
     fx = xOffset + psWidget->x;
 
   if (greyOut) // unavailable
-    iV_SetTextColour(PIE_TEXT_DARKBLUE);
+    Neuron::SetTextColour(PIE_TEXT_DARKBLUE);
   else // available
   {
     if (hilight) // hilight
     {
-      iV_SetTextColour(PIE_TEXT_WHITE);
-      //			displayHilightPulseBox( fx-4,fy+iV_GetTextAboveBase()-iV_GetTextBelowBase(),
+      Neuron::SetTextColour(PIE_TEXT_WHITE);
+      //			displayHilightPulseBox( fx-4,fy+Neuron::GetTextAboveBase()-Neuron::GetTextBelowBase(),
     }
     else // dont highlight
-      iV_SetTextColour(PIE_TEXT_LIGHTBLUE); //(unsigned short)iV_PaletteNearestColour(129,142,184)
+      Neuron::SetTextColour(PIE_TEXT_LIGHTBLUE); //(unsigned short)pal_GetNearestColour(129,142,184)
   }
 
-  iV_DrawText((unsigned char*)psBut->pText, fx, fy);
+  pie_DrawText((unsigned char*)psBut->pText, fx, fy);
 
   if (!greyOut) // dont snap to unavailable buttons.
   {
@@ -1672,14 +1628,14 @@ VOID displayTextAt270(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, 
   UNUSEDPARAMETER(yOffset);
 
   psLab = (W_LABEL*)psWidget;
-  iV_SetFont(FEFont);
+  Neuron::SetFont(FEFont);
 
-  iV_SetTextColour(PIE_TEXT_WHITE);
+  Neuron::SetTextColour(PIE_TEXT_WHITE);
 
   fx = xOffset + psWidget->x;
-  fy = yOffset + psWidget->y + iV_GetTextWidth((unsigned char*)psLab->aText);
+  fy = yOffset + psWidget->y + Neuron::GetTextWidth((unsigned char*)psLab->aText);
 
-  iV_DrawText270((unsigned char*)psLab->aText, fx, fy);
+  pie_DrawText270((unsigned char*)psLab->aText, fx, fy);
 }
 
 // ////////////////////////////////////////////////////////////////////////////
@@ -1692,10 +1648,10 @@ static VOID displayBigSlider(struct _widget* psWidget, UDWORD xOffset, UDWORD yO
   SWORD sx;
   UNUSEDPARAMETER(pColours);
 
-  iV_DrawTransImage(IntImages, IMAGE_SLIDER_BIG, x + STAT_SLD_OX, y + STAT_SLD_OY); // draw bdrop
+  pie_ImageFileID(IntImages, IMAGE_SLIDER_BIG, x + STAT_SLD_OX, y + STAT_SLD_OY); // draw bdrop
 
   sx = static_cast<SWORD>((Slider->width - 3 - Slider->barSize) * Slider->pos / Slider->numStops); // determine pos.
-  iV_DrawTransImage(IntImages, IMAGE_SLIDER_BIGBUT, x + 3 + sx, y + 3); //draw amount
+  pie_ImageFileID(IntImages, IMAGE_SLIDER_BIGBUT, x + 3 + sx, y + 3); //draw amount
 }
 
 //// Given a string id, set a text buttons dimensions.
@@ -1704,8 +1660,8 @@ static VOID displayBigSlider(struct _widget* psWidget, UDWORD xOffset, UDWORD yO
 //{
 //	psButInit->x = x;
 //	psButInit->y = y;
-//	psButInit->width = iV_GetTextWidth(strresGetString(psStringRes,StringID));
-//	psButInit->height = iV_GetTextLineSize();
+//	psButInit->width = Neuron::GetTextWidth(strresGetString(psStringRes,StringID));
+//	psButInit->height = Neuron::GetTextLineSize();
 //}
 
 // Placed here to avoid automatic inlining in InGameOp.c by the Playstation compiler.

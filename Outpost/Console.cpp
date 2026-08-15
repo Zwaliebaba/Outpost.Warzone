@@ -2,7 +2,6 @@
 #include "Frame.h"
 #include "GTime.h"
 #include "Base.h"
-#include "PieDef.h"
 #include "PieState.h"
 #include "RendMode.h"
 #include "IntImage.h"
@@ -101,7 +100,7 @@ void initConsoleMessages(void)
   messageIndex = 0;
 
   /* Console can extend to half screen height */
-  maxDrop = ((DISP_HEIGHT / iV_GetTextLineSize()) / 2);
+  maxDrop = ((DISP_HEIGHT / Neuron::GetTextLineSize()) / 2);
 
   if (maxDrop > 32)
     maxDrop = 32;
@@ -381,11 +380,11 @@ void displayConsoleMessages(void)
   numProcessed = 0;
 
   /* Get the travel to the next line */
-  linePitch = iV_GetTextLineSize();
+  linePitch = Neuron::GetTextLineSize();
 
   pie_SetDepthBufferStatus(DEPTH_CMP_ALWAYS_WRT_ON);
   pie_SetFogStatus(FALSE);
-  iV_SetTextColour(-1);
+  Neuron::SetTextColour(-1);
 
   drop = 0;
   if (bConsoleDropped)
@@ -399,7 +398,7 @@ void displayConsoleMessages(void)
     for (psMessage = consoleMessages, exceed = 0; psMessage AND (numProcessed < consoleVisibleLines) AND (exceed < 4); // ho ho ho!!! 
          psMessage = psMessage->psNext)
     {
-      if (static_cast<UDWORD>(iV_GetTextWidth((unsigned char*)psMessage->text)) > mainConsole.width)
+      if (static_cast<UDWORD>(Neuron::GetTextWidth((unsigned char*)psMessage->text)) > mainConsole.width)
         exceed++;
     }
 
@@ -411,7 +410,7 @@ void displayConsoleMessages(void)
     clipDepth = (mainConsole.topY + (boxDepth * linePitch) + CON_BORDER_HEIGHT + drop);
     if (clipDepth > (DISP_HEIGHT - linePitch))
       clipDepth = (DISP_HEIGHT - linePitch);
-    iV_TransBoxFill(mainConsole.topX - CON_BORDER_WIDTH, mainConsole.topY - mainConsole.textDepth - CON_BORDER_HEIGHT + drop + 1,
+    pie_TransBoxFill(mainConsole.topX - CON_BORDER_WIDTH, mainConsole.topY - mainConsole.textDepth - CON_BORDER_HEIGHT + drop + 1,
                     mainConsole.topX + mainConsole.width, clipDepth);
     //(hack = (mainConsole.topY+(boxDepth*linePitch)+CON_BORDER_HEIGHT+drop)) < DISP_HEIGHT-linePitch ? hack : (DISP_HEIGHT-linePitch)
   }
@@ -484,11 +483,11 @@ UDWORD displayOldMessages(void)
   if (count)
   {
     /* Get the line pitch */
-    linePitch = iV_GetTextLineSize();
+    linePitch = Neuron::GetTextLineSize();
 
     /* How big a box is necessary? */
     /* GET RID OF THE MAGIC NUMBERS BELOW */
-    iV_TransBoxFill(mainConsole.topX - CON_BORDER_WIDTH, mainConsole.topY - mainConsole.textDepth - CON_BORDER_HEIGHT,
+    pie_TransBoxFill(mainConsole.topX - CON_BORDER_WIDTH, mainConsole.topY - mainConsole.textDepth - CON_BORDER_HEIGHT,
                     mainConsole.topX + mainConsole.width, mainConsole.topY + ((count) * linePitch) + CON_BORDER_HEIGHT - linePitch);
   }
   /*
@@ -496,7 +495,7 @@ UDWORD displayOldMessages(void)
   {
     sprintf(buildData,"%s,%s",__TIME__,__DATE__);
 
-    buildWidth = iV_GetTextWidth(buildData);
+    buildWidth = Neuron::GetTextWidth(buildData);
 
     pie_DrawText(buildData,((mainConsole.topX+mainConsole.width) - buildWidth - 16),
       mainConsole.topY);
@@ -609,7 +608,7 @@ BOOL mouseOverConsoleBox(void)
   if ((static_cast<UDWORD>(mouseX()) > mainConsole.topX) // condition 1
     AND (static_cast<UDWORD>(mouseY()) > mainConsole.topY) // condition 2
     AND (static_cast<UDWORD>(mouseX()) < mainConsole.topX + mainConsole.width) //condition 3
-    AND (static_cast<UDWORD>(mouseY()) < (mainConsole.topY + iV_GetTextLineSize() * numActiveMessages)) //condition 4
+    AND (static_cast<UDWORD>(mouseY()) < (mainConsole.topY + Neuron::GetTextLineSize() * numActiveMessages)) //condition 4
   )
     return (TRUE);
   return (FALSE);

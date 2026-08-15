@@ -1,8 +1,8 @@
 #include "pch.h"
 #include "Frame.h"
-#include "IvisDef.h"
+#include "RenderTypes.h"
 #include "Fbf.h"
-#include "Bug.h"
+#include "Pcx.h"
 
 #include "IvisPatch.h"
 
@@ -41,21 +41,7 @@ static int _pcx_read_int8(void)
 {
   if (_PCX_MEM)
     return *_PCX_MI++;
-  return (iV_FileGet(_PCX_FI));
-}
-
-//*************************************************************************
-
-static void _pcx_info(char* filename, iPCX_header* h)
-
-{
-  iV_DEBUG1("pcx[pcx_info] = '%s' - PCX file header:\n", filename);
-  iV_DEBUG1("         Manufacturer     %4d\n", h->manufacturer);
-  iV_DEBUG12("         Version          %4d\n"
-             "         Encoding         %4d\n" "         Bits/pixel       %4d\n" "         Xmin, Ymin       %4d,%4d\n"
-             "         Xmax, Ymax       %4d,%4d\n" "         H, V resolution  %4d,%4d\n" "         Colour plane     %4d\n"
-             "         Bytes/line       %4d\n" "         Palette type     %4d\n", h->version, h->encoding, h->bits_per_pixel, h->xmin,
-             h->ymin, h->xmax, h->ymax, h->hres, h->vres, h->colour_planes, h->bytes_per_line, h->palette_type);
+  return (Neuron::FileGet(_PCX_FI));
 }
 
 //*************************************************************************
@@ -91,7 +77,7 @@ static void _load_palette(iColour* pal)
 {
   int i;
 
-  iV_FileSeek(_PCX_FI, -769,iV_FBF_SEEK_END);
+  Neuron::FileSeek(_PCX_FI, -769,FBF_SEEK_END);
 
   if (_pcx_read_int8() == 0x0C)
   {
@@ -113,7 +99,6 @@ static void _load_palette_mem(iColour* pal)
 
   if (_pcx_read_int8() == 0x0C)
   {
-    iV_DEBUG0("YES YES YES\n");
     for (i = 0; i < 256; i++)
     {
       pal[i].r = _pcx_read_int8();
@@ -133,11 +118,10 @@ BOOL pie_PCXLoadToBuffer(char* file, iSprite* s, iColour* pal)
 
   _PCX_MEM = FALSE;
 
-  iV_DEBUG1("pcx[PCXLoad] = loading pcx file '%s':\n", file);
 
-  if ((_PCX_FI = iV_FileOpen(file,iV_FBF_MODE_R, 51200)) < 0)
+  if ((_PCX_FI = Neuron::FileOpen(file,FBF_MODE_R, 51200)) < 0)
   {
-    iV_DEBUG1("pcx[PCXLoad] = could not open pcx file %d\n", _PCX_FI);
+    Neuron::DebugTrace("pcx[PCXLoad] = could not open pcx file {}\n", _PCX_FI);
     return FALSE;
   }
 
@@ -146,29 +130,28 @@ BOOL pie_PCXLoadToBuffer(char* file, iSprite* s, iColour* pal)
   for (i = 0; i < 128; i++)
     *hp++ = _pcx_read_int8();
 
-  _pcx_info(file, &header);
 
   if ((header.manufacturer != 10) && (header.version != 5))
   {
-    iV_FileClose(_PCX_FI);
+    Neuron::FileClose(_PCX_FI);
     return FALSE;
   }
 
   if (header.bits_per_pixel != 8)
   {
-    iV_FileClose(_PCX_FI);
+    Neuron::FileClose(_PCX_FI);
     return FALSE;
   }
 
   if (s->width != (header.xmax - header.xmin) + 1)
   {
-    iV_FileClose(_PCX_FI);
+    Neuron::FileClose(_PCX_FI);
     return FALSE;
   }
 
   if (s->height != (header.ymax - header.ymin) + 1)
   {
-    iV_FileClose(_PCX_FI);
+    Neuron::FileClose(_PCX_FI);
     return FALSE;
   }
 
@@ -179,14 +162,13 @@ BOOL pie_PCXLoadToBuffer(char* file, iSprite* s, iColour* pal)
   if (pal)
     _load_palette(pal);
 
-  iV_FileClose(_PCX_FI);
+  Neuron::FileClose(_PCX_FI);
 
-  iV_DEBUG3("pcx[iV_PCXLoad] = file '%s' %dx%d load successful\n", file, s->width, s->height);
 
   return TRUE;
 }
 
-iBool iV_PCXLoad(char* file, iSprite* s, iColour* pal)
+iBool Neuron::PCXLoad(char* file, iSprite* s, iColour* pal)
 
 {
   iPCX_header header;
@@ -196,11 +178,10 @@ iBool iV_PCXLoad(char* file, iSprite* s, iColour* pal)
 
   _PCX_MEM = FALSE;
 
-  iV_DEBUG1("pcx[PCXLoad] = loading pcx file '%s':\n", file);
 
-  if ((_PCX_FI = iV_FileOpen(file,iV_FBF_MODE_R, 51200)) < 0)
+  if ((_PCX_FI = Neuron::FileOpen(file,FBF_MODE_R, 51200)) < 0)
   {
-    iV_DEBUG1("pcx[PCXLoad] = could not open pcx file %d\n", _PCX_FI);
+    Neuron::DebugTrace("pcx[PCXLoad] = could not open pcx file {}\n", _PCX_FI);
     return FALSE;
   }
 
@@ -209,17 +190,16 @@ iBool iV_PCXLoad(char* file, iSprite* s, iColour* pal)
   for (i = 0; i < 128; i++)
     *hp++ = _pcx_read_int8();
 
-  _pcx_info(file, &header);
 
   if ((header.manufacturer != 10) && (header.version != 5))
   {
-    iV_FileClose(_PCX_FI);
+    Neuron::FileClose(_PCX_FI);
     return FALSE;
   }
 
   if (header.bits_per_pixel != 8)
   {
-    iV_FileClose(_PCX_FI);
+    Neuron::FileClose(_PCX_FI);
     return FALSE;
   }
 
@@ -228,9 +208,9 @@ iBool iV_PCXLoad(char* file, iSprite* s, iColour* pal)
 
   bsize = s->height * s->width;
 
-  if ((s->bmp = static_cast<uint8*>(iV_HeapAlloc(bsize))) == nullptr)
+  if ((s->bmp = static_cast<uint8*>(IVIS_HEAP_ALLOC(bsize))) == nullptr)
   {
-    iV_FileClose(_PCX_FI);
+    Neuron::FileClose(_PCX_FI);
     return FALSE;
   }
 
@@ -242,14 +222,13 @@ iBool iV_PCXLoad(char* file, iSprite* s, iColour* pal)
     _load_palette(pal);
   }
 
-  iV_FileClose(_PCX_FI);
+  Neuron::FileClose(_PCX_FI);
 
-  iV_DEBUG3("pcx[iV_PCXLoad] = file '%s' %dx%d load successful\n", file, s->width, s->height);
 
   return TRUE;
 }
 
-iBool iV_PCXLoadMem(int8* pcximge, iSprite* s, iColour* pal)
+iBool Neuron::PCXLoadMem(int8* pcximge, iSprite* s, iColour* pal)
 
 {
   iPCX_header header;
@@ -260,7 +239,6 @@ iBool iV_PCXLoadMem(int8* pcximge, iSprite* s, iColour* pal)
   _PCX_MEM = TRUE;
   _PCX_MI = pcximge;
 
-  iV_DEBUG1("pcx[PCXLoadMem] = loading pcx from memory %p\n", _PCX_MI);
 
   hp = (uint8*)&header;
 
@@ -278,18 +256,17 @@ iBool iV_PCXLoadMem(int8* pcximge, iSprite* s, iColour* pal)
 
   bsize = s->height * s->width;
 
-  if ((s->bmp = static_cast<uint8*>(iV_HeapAlloc(bsize))) == nullptr)
+  if ((s->bmp = static_cast<uint8*>(IVIS_HEAP_ALLOC(bsize))) == nullptr)
     return FALSE;
 
   _load_image(s->bmp, bsize);
 
   if (pal)
   {
-    DEBUG_ASSERT_TEXT(FALSE, "warning palette is being loaded in iV_PCXLoadMem");
+    DEBUG_ASSERT_TEXT(FALSE, "warning palette is being loaded in Neuron::PCXLoadMem");
     _load_palette_mem(pal);
   }
 
-  iV_DEBUG3("pcx[iV_PCXLoadMEM] = mem %p %dx%d load successful\n", _PCX_MI, s->width, s->height);
 
   return TRUE;
 }
@@ -305,7 +282,6 @@ BOOL pie_PCXLoadMemToBuffer(int8* pcximge, iSprite* s, iColour* pal)
   _PCX_MEM = TRUE;
   _PCX_MI = pcximge;
 
-  iV_DEBUG1("pcx[PCXLoadMem] = loading pcx from memory %p\n", _PCX_MI);
 
   hp = (uint8*)&header;
 
@@ -320,13 +296,13 @@ BOOL pie_PCXLoadMemToBuffer(int8* pcximge, iSprite* s, iColour* pal)
 
   if (s->width != (header.xmax - header.xmin) + 1)
   {
-    iV_FileClose(_PCX_FI);
+    Neuron::FileClose(_PCX_FI);
     return FALSE;
   }
 
   if (s->height != (header.ymax - header.ymin) + 1)
   {
-    iV_FileClose(_PCX_FI);
+    Neuron::FileClose(_PCX_FI);
     return FALSE;
   }
 
@@ -336,11 +312,10 @@ BOOL pie_PCXLoadMemToBuffer(int8* pcximge, iSprite* s, iColour* pal)
 
   if (pal)
   {
-    DEBUG_ASSERT_TEXT(FALSE, "warning palette is being loaded in iV_PCXLoadMem");
+    DEBUG_ASSERT_TEXT(FALSE, "warning palette is being loaded in Neuron::PCXLoadMem");
     _load_palette_mem(pal);
   }
 
-  iV_DEBUG3("pcx[iV_PCXLoadMEM] = mem %p %dx%d load successful\n", _PCX_MI, s->width, s->height);
 
   return TRUE;
 }

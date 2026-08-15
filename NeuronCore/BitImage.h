@@ -1,6 +1,59 @@
 #ifndef __INCLUDED_BITIMAGE__
 #define __INCLUDED_BITIMAGE__
 
+#include "Frame.h"
+#include "RenderTypes.h"
+
+//*************************************************************************
+//
+// immitmap image structures
+//
+//*************************************************************************
+
+using CLUTHEADER = struct
+{
+  UBYTE Type[4];
+  UWORD Version;
+  UWORD ClutSize;
+  UWORD NumCluts;
+  UWORD Pad;
+};
+
+using IMAGEHEADER = struct
+{
+  UBYTE Type[4];
+  UWORD Version;
+  UWORD NumImages;
+  UWORD BitDepth;
+  UWORD NumTPages;
+  UBYTE TPageFiles[16][16];
+  UBYTE PalFile[16];
+};
+
+using IMAGEDEF = struct
+{
+  //	UDWORD HashValue
+  UWORD TPageID;
+  UWORD PalID;
+  UWORD Tu, Tv;
+  UWORD Width;
+  UWORD Height;
+  SWORD XOffset;
+  SWORD YOffset;
+};
+
+using IMAGEFILE = struct
+{
+  IMAGEHEADER Header;
+  iSprite* TexturePages;
+  UWORD NumCluts;
+  UWORD TPageIDs[16];
+  UWORD ClutIDs[48];
+  IMAGEDEF* ImageDefs;
+};
+
+//*************************************************************************
+
 using CLUTLIST = struct
 {
   UWORD NumCluts;
@@ -9,25 +62,19 @@ using CLUTLIST = struct
 
 using CLUTCALLBACK = void(*)(UWORD* clut);
 
-UWORD iV_GetImageWidth(IMAGEFILE* ImageFile, UWORD ID);
-UWORD iV_GetImageHeight(IMAGEFILE* ImageFile, UWORD ID);
-UWORD iV_GetImageWidthNoCC(IMAGEFILE* ImageFile, UWORD ID);
-UWORD iV_GetImageHeightNoCC(IMAGEFILE* ImageFile, UWORD ID);
-SWORD iV_GetImageXOffset(IMAGEFILE* ImageFile, UWORD ID);
-SWORD iV_GetImageYOffset(IMAGEFILE* ImageFile, UWORD ID);
-UWORD iV_GetImageCenterX(IMAGEFILE* ImageFile, UWORD ID);
-UWORD iV_GetImageCenterY(IMAGEFILE* ImageFile, UWORD ID);
+namespace Neuron
+{
+  UWORD GetImageWidth(IMAGEFILE* ImageFile, UWORD ID);
+  UWORD GetImageHeight(IMAGEFILE* ImageFile, UWORD ID);
+  UWORD GetImageWidthNoCC(IMAGEFILE* ImageFile, UWORD ID);
+  UWORD GetImageHeightNoCC(IMAGEFILE* ImageFile, UWORD ID);
+  SWORD GetImageXOffset(IMAGEFILE* ImageFile, UWORD ID);
+  SWORD GetImageYOffset(IMAGEFILE* ImageFile, UWORD ID);
+  UWORD GetImageCenterX(IMAGEFILE* ImageFile, UWORD ID);
+  UWORD GetImageCenterY(IMAGEFILE* ImageFile, UWORD ID);
 
-IMAGEFILE* iV_LoadImageFile(UBYTE* FileData, UDWORD FileSize);
-void iV_FreeImageFile(IMAGEFILE* ImageFile);
-
-// Load a tim format texture page to VRAM.
-BOOL iV_LoadTexturePage_PSX(void* Data, RECT* StoredArea, int* TextureMode, CLUTCALLBACK ClutCallback);
-BOOL iV_ReLoadTexturePage_PSX(void* Data, RECT* StoredArea, CLUTCALLBACK ClutCallback);
-
-// Load a clut file into VRAM.
-BOOL iV_LoadClut_PSX(UBYTE* Data, CLUTLIST** ClutList, BOOL HalfBright);
-// Free up a clut list alloceted by iV_LoadClut_PSX.
-void iV_FreeClut_PSX(CLUTLIST* ClutList);
+  IMAGEFILE* LoadImageFile(UBYTE* FileData, UDWORD FileSize);
+  void FreeImageFile(IMAGEFILE* ImageFile);
+}
 
 #endif

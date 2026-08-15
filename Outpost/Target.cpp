@@ -24,6 +24,7 @@
 #include "RendMode.h"
 
 #include "Target.h"
+#include "Palette.h"
 
 extern UDWORD selectedPlayer;
 
@@ -307,15 +308,15 @@ void targetMarkCurrent(void)
   x1 = static_cast<SWORD>(x + Offset);
   y1 = static_cast<SWORD>(y + Offset);
 
-  iV_Line(x0, y0, x0 + 8, y0,COL_YELLOW);
-  iV_Line(x0, y0, x0, y0 + 8,COL_YELLOW);
+  pie_Line(x0, y0, x0 + 8, y0,COL_YELLOW);
+  pie_Line(x0, y0, x0, y0 + 8,COL_YELLOW);
 
-  iV_Line(x1, y0, x1 - 8, y0,COL_YELLOW);
-  iV_Line(x1, y0, x1, y0 + 8,COL_YELLOW);
+  pie_Line(x1, y0, x1 - 8, y0,COL_YELLOW);
+  pie_Line(x1, y0, x1, y0 + 8,COL_YELLOW);
 
-  iV_Line(x1, y1, x1 - 8, y1,COL_YELLOW);
-  iV_Line(x1, y1, x1, y1 - 8,COL_YELLOW);
+  pie_Line(x1, y1, x1 - 8, y1,COL_YELLOW);
+  pie_Line(x1, y1, x1, y1 - 8,COL_YELLOW);
 
-  iV_Line(x0, y1, x0 + 8, y1,COL_YELLOW);
-  iV_Line(x0, y1, x0, y1 - 8,COL_YELLOW);
+  pie_Line(x0, y1, x0 + 8, y1,COL_YELLOW);
+  pie_Line(x0, y1, x0, y1 - 8,COL_YELLOW);
 }

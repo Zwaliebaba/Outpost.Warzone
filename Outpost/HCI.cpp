@@ -18,7 +18,6 @@
 #include "Edit2D.h"
 #include "Map.h"
 /* Includes direct access to render library */
-#include "PieDef.h"
 #include "PieState.h"
 #include "RendMode.h"
 
@@ -72,12 +71,12 @@
 #include "MultiPlay.h"
 #include "MultiStat.h"
 #include "MultiMenu.h"
-#include "CDSpan.h"
 #include "Drive.h"
 #include "Levels.h"
 #include "FrontEnd.h"
 #include "Effects.h"
 #include "KeyMap.h"
+#include "Palette.h"
 
 #define	MAX_INTERFACE_SNAPS	64
 #define	MAX_RADAR_SNAPS 1
@@ -715,7 +714,7 @@ BOOL intInitialise(void)
 
   LOADBARCALLBACK(); //	loadingScreenCallback();
 
-  WFont = iV_CreateFontIndirect(IntImages, AsciiLookup, 4);
+  WFont = Neuron::CreateFontIndirect(IntImages, AsciiLookup, 4);
 
   if (!widgCreateScreen(&psWScreen))
   {
@@ -748,8 +747,8 @@ BOOL intInitialise(void)
   objectsChanged = FALSE;
 
   //set the default colours to be used for drawing outlines in 2D
-  outlineOK = iV_PaletteNearestColour(0xff, 0xff, 0xff);
-  outlineNotOK = iV_PaletteNearestColour(0xff, 0x00, 0x00);
+  outlineOK = pal_GetNearestColour(0xff, 0xff, 0xff);
+  outlineNotOK = pal_GetNearestColour(0xff, 0x00, 0x00);
 
   //	// Setup the power bar graph colours.
   //	PBarColour1 = screenGetCacheColour(255,0,0);	// Power used.
@@ -1140,9 +1139,6 @@ void intResetScreen(BOOL NoAnim)
       intRemoveTrans();
     break;
 
-  case INT_CDCHANGE:
-    cdspan_RemoveChangeCDBox();
-    break;
   }
 
   intMode = INT_NORMAL;
@@ -1471,12 +1467,6 @@ INT_RETVAL intRunWidgets(void)
     quitting = TRUE;
     break;
 
-  case ID_WIDG_CDSPAN_BUTTON_CANCEL: // cd span box cancel
-    cdspan_ProcessCDChange(retID);
-    intResetScreen(FALSE);
-    quitting = TRUE;
-    break;
-
   // Process form tab clicks.
   case IDOBJ_TABFORM: // If tab clicked on in object screen then refresh all rendered buttons.
     RefreshObjectButtons();
@@ -1545,9 +1535,6 @@ INT_RETVAL intRunWidgets(void)
       break;*/
     case INT_TRANSPORTER:
       intProcessTransporter(retID);
-      break;
-    case INT_CDCHANGE:
-      cdspan_ProcessCDChange(retID);
       break;
     case INT_NORMAL:
       break;
@@ -3373,7 +3360,7 @@ BOOL intAddPower(void)
   sBarInit.x = static_cast<SWORD>(POW_X);
   sBarInit.y = static_cast<SWORD>(POW_Y);
   sBarInit.width = POW_BARWIDTH;
-  sBarInit.height = iV_GetImageHeight(IntImages, IMAGE_PBAR_EMPTY);
+  sBarInit.height = Neuron::GetImageHeight(IntImages, IMAGE_PBAR_EMPTY);
   sBarInit.sCol.red = POW_CLICKBARMAJORRED;
   sBarInit.sCol.green = POW_CLICKBARMAJORGREEN;
   sBarInit.sCol.blue = POW_CLICKBARMAJORBLUE;
@@ -4834,8 +4821,8 @@ static BOOL _intAddStats(BASE_STATS** ppsStatsList, UDWORD numStats, BASE_STATS*
     sButInit.style = WBUT_PLAIN;
     sButInit.x = STAT_SLDX + STAT_SLDWIDTH + 2;
     sButInit.y = STAT_SLDY;
-    sButInit.width = iV_GetImageWidth(IntImages, IMAGE_INFINITE_DOWN);
-    sButInit.height = iV_GetImageHeight(IntImages, IMAGE_INFINITE_DOWN);
+    sButInit.width = Neuron::GetImageWidth(IntImages, IMAGE_INFINITE_DOWN);
+    sButInit.height = Neuron::GetImageHeight(IntImages, IMAGE_INFINITE_DOWN);
     sButInit.pTip = "Infinite Production";
     sButInit.FontID = WFont;
     sButInit.pDisplay = intDisplayButtonPressed;
@@ -4866,7 +4853,7 @@ static BOOL _intAddStats(BASE_STATS** ppsStatsList, UDWORD numStats, BASE_STATS*
     sSldInit.height = STAT_SLDHEIGHT;
     sSldInit.orientation = WSLD_LEFT;
     sSldInit.numStops = STAT_SLDSTOPS - 1;
-    sSldInit.barSize = iV_GetImageHeight(IntImages, IMAGE_SLIDER_BUT);
+    sSldInit.barSize = Neuron::GetImageHeight(IntImages, IMAGE_SLIDER_BUT);
     sSldInit.pos = 0;
     if (psOwner != NULL)
     {
@@ -4894,8 +4881,8 @@ static BOOL _intAddStats(BASE_STATS** ppsStatsList, UDWORD numStats, BASE_STATS*
     sButInit.style = WBUT_PLAIN | WFORM_SECONDARY;
     sButInit.x = 4;
     sButInit.y = STAT_SLDY;
-    sButInit.width = iV_GetImageWidth(IntImages, IMAGE_FDP_DOWN);
-    sButInit.height = iV_GetImageHeight(IntImages, IMAGE_FDP_DOWN);
+    sButInit.width = Neuron::GetImageWidth(IntImages, IMAGE_FDP_DOWN);
+    sButInit.height = Neuron::GetImageHeight(IntImages, IMAGE_FDP_DOWN);
     sButInit.pTip = strresGetString(psStringRes, STR_INT_DPOINT);
     sButInit.FontID = WFont;
     sButInit.pDisplay = intDisplayDPButton;
@@ -4911,8 +4898,8 @@ static BOOL _intAddStats(BASE_STATS** ppsStatsList, UDWORD numStats, BASE_STATS*
     sButInit.style = WBUT_PLAIN | WFORM_SECONDARY;
     sButInit.x = STAT_SLDX + STAT_SLDWIDTH + 2;
     sButInit.y = STAT_SLDY;
-    sButInit.width = iV_GetImageWidth(IntImages, IMAGE_LOOP_DOWN);
-    sButInit.height = iV_GetImageHeight(IntImages, IMAGE_LOOP_DOWN);
+    sButInit.width = Neuron::GetImageWidth(IntImages, IMAGE_LOOP_DOWN);
+    sButInit.height = Neuron::GetImageHeight(IntImages, IMAGE_LOOP_DOWN);
     sButInit.pTip = strresGetString(psStringRes, STR_INT_LOOP);
     sButInit.FontID = WFont;
     sButInit.pDisplay = intDisplayButtonPressed;
@@ -5981,14 +5968,6 @@ void addTransporterInterface(DROID* psSelected, BOOL onMission)
     intAddTransporter(psSelected, onMission);
     intMode = INT_TRANSPORTER;
   }
-}
-
-void addCDChangeInterface(CD_INDEX CDrequired, CDSPAN_CALLBACK fpOKCallback, CDSPAN_CALLBACK fpCancelCallback)
-{
-  intResetScreen(FALSE);
-  showChangeCDBox(psWScreen, CDrequired, fpOKCallback, fpCancelCallback);
-
-  intMode = INT_CDCHANGE;
 }
 
 /*sets which list of structures to use for the interface*/

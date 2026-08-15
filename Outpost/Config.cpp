@@ -14,7 +14,7 @@
 #include "AdvVis.h"
 #include "Audio.h"
 #include "HCI.h"
-#include "D3DRender.h"
+#include "Render.h"
 
 // ////////////////////////////////////////////////////////////////////////////
 

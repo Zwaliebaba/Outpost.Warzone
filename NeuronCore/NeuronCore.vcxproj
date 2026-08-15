@@ -99,11 +99,10 @@
     <ClInclude Include="BitImage.h" />
     <ClInclude Include="BSPFunc.h" />
     <ClInclude Include="BSPIMD.h" />
-    <ClInclude Include="Bug.h" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="CodePrint.h" />
     <ClInclude Include="D3D9Vertex.h" />
-    <ClInclude Include="D3DRender.h" />
+    <ClInclude Include="Render.h" />
     <ClInclude Include="DXError.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="DXInput.h" />
@@ -121,10 +120,10 @@
     <ClInclude Include="HashTabl.h" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="IMD.h" />
+    <ClInclude Include="Model.h" />
+    <ClInclude Include="RenderModel.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Interp.h" />
-    <ClInclude Include="Ivi.h" />
-    <ClInclude Include="IvisDef.h" />
     <ClInclude Include="IvisPatch.h" />
     <ClInclude Include="Label.h" />
     <ClInclude Include="ListMacs.h" />
@@ -140,15 +139,14 @@
     <ClInclude Include="parser_y.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Pcx.h" />
-    <ClInclude Include="PieBlitFunc.h" />
-    <ClInclude Include="PieClip.h" />
-    <ClInclude Include="PieDef.h" />
+    <ClInclude Include="Render2D.h" />
+    <ClInclude Include="RenderClip.h" />
     <ClInclude Include="PieFunc.h" />
-    <ClInclude Include="PieMatrix.h" />
+    <ClInclude Include="RenderMatrix.h" />
     <ClInclude Include="PieMode.h" />
-    <ClInclude Include="PiePalette.h" />
+    <ClInclude Include="Palette.h" />
     <ClInclude Include="PieState.h" />
-    <ClInclude Include="PieTypes.h" />
+    <ClInclude Include="RenderTypes.h" />
     <ClInclude Include="PQueue.h" />
     <ClInclude Include="Priority.h" />
     <ClInclude Include="PtrList.h" />
@@ -163,7 +161,6 @@
     <ClInclude Include="Sequence.h" />
     <ClInclude Include="Slider.h" />
     <ClInclude Include="Stack.h" />
-    <ClInclude Include="STREAMER.H" />
     <ClInclude Include="StrRes.h" />
     <ClInclude Include="StrResLY.h" />
     <ClInclude Include="StrRes_y.h" />
@@ -190,10 +187,9 @@
     <ClCompile Include="Bar.cpp" />
     <ClCompile Include="BitImage.cpp" />
     <ClCompile Include="BSPIMD.cpp" />
-    <ClCompile Include="Bug.cpp" />
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="CodePrint.cpp" />
-    <ClCompile Include="D3DRender.cpp" />
+    <ClCompile Include="Render.cpp" />
     <ClCompile Include="DXError.cpp" />
     <ClCompile Include="DXInput.cpp" />
     <ClCompile Include="EditBox.cpp" />
@@ -211,7 +207,6 @@
     <ClCompile Include="IMDLoad.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Interp.cpp" />
-    <ClCompile Include="Ivi.cpp" />
     <ClCompile Include="Label.cpp" />
     <ClCompile Include="MultiWDG.cpp" />
     <ClCompile Include="HostCertificate.cpp" />
@@ -227,13 +222,13 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Pcx.cpp" />
-    <ClCompile Include="PieBlitFunc.cpp" />
-    <ClCompile Include="PieClip.cpp" />
-    <ClCompile Include="PieDraw.cpp" />
+    <ClCompile Include="Render2D.cpp" />
+    <ClCompile Include="RenderClip.cpp" />
+    <ClCompile Include="RenderModel.cpp" />
     <ClCompile Include="PieFunc.cpp" />
-    <ClCompile Include="PieMatrix.cpp" />
+    <ClCompile Include="RenderMatrix.cpp" />
     <ClCompile Include="PieMode.cpp" />
-    <ClCompile Include="PiePalette.cpp" />
+    <ClCompile Include="Palette.cpp" />
     <ClCompile Include="PQueue.cpp" />
     <ClCompile Include="PtrList.cpp" />
     <ClCompile Include="RendFunc.cpp" />

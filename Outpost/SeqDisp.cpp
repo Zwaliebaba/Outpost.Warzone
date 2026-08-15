@@ -11,7 +11,6 @@
 #include "SeqDisp.h"
 #include "Sequence.h"
 #include "Loop.h"
-#include "PieDef.h"
 #include "PieFunc.h"
 #include "PieState.h"
 #include "HCI.h"//for font
@@ -27,6 +26,7 @@
 #include "ScriptTabs.h"
 #include "Design.h"
 #include "Wrappers.h"
+#include "Palette.h"
 
 /***************************************************************************/
 /*
@@ -74,17 +74,14 @@ using SEQLIST = struct
  */
 /***************************************************************************/
 
-static BOOL bBackDropWasAlreadyUp;
 
 BOOL bSeqInit = FALSE;
 BOOL bSeqPlaying = FALSE;
 BOOL bAudioPlaying = FALSE;
 BOOL bHoldSeqForAudio = FALSE;
 BOOL bSeq8Bit = TRUE;
-BOOL bCDPath = FALSE;
 BOOL bHardPath = FALSE;
 BOOL bSeqSubtitles = TRUE;
-char aCDPath[MAX_STR_LENGTH];
 char aHardPath[MAX_STR_LENGTH];
 char aVideoName[MAX_STR_LENGTH];
 char aAudioName[MAX_STR_LENGTH];
@@ -100,8 +97,6 @@ static SDWORD currentSeq = -1;
 static SDWORD currentPlaySeq = -1;
 static SDWORD frameDuration = 40;
 
-static BOOL g_bResumeInGame = FALSE;
-static CD_INDEX g_CDrequired = DISC_EITHER;
 
 static int videoFrameTime = 0;
 static SDWORD frame = 0;
@@ -147,36 +142,26 @@ BOOL seq_RenderVideoToBuffer(iSurface* pSurface, char* sequenceName, int time, i
   if (!bSeqPlaying)
   {
     //set a valid video path if there is one
-    if (!bCDPath && !bHardPath)
+    if (!bHardPath)
       seq_SetVideoPath();
 
-    if (bHardPath) //use this first
-    {
-      seq_BuildVideoName(aHardPath, sequenceName, aVideoName);
-
-      // check it exists. If not then try CD.
-      pFileHandle = fopen(aVideoName, "rb");
-      if (pFileHandle != nullptr)
-        fclose(pFileHandle);
-      else if (bCDPath)
-        seq_BuildVideoName(aCDPath, sequenceName, aVideoName);
-      /* The original called fclose on the null handle whenever the file was
-       * missing and no CD path was set. Nine of the movies the game names have
-       * no source in any format, so that path is reachable.
-       */
-    }
-    else if (bCDPath)
-    {
-      seq_BuildVideoName(aCDPath, sequenceName, aVideoName);
-    }
-    else
+    if (!bHardPath)
     {
       DEBUG_ASSERT_TEXT(FALSE, "seq_StartFullScreenVideo: sequence path not found");
       return FALSE;
     }
 
-    iV_SetFont(WFont);
-    iV_SetTextColour(-1);
+    seq_BuildVideoName(aHardPath, sequenceName, aVideoName);
+
+    /* Probed rather than assumed: nine of the movies the game names have no
+     * source in any format, so a missing file here is reachable and the
+     * player just gets no sequence. */
+    pFileHandle = fopen(aVideoName, "rb");
+    if (pFileHandle != nullptr)
+      fclose(pFileHandle);
+
+    Neuron::SetFont(WFont);
+    Neuron::SetTextColour(-1);
 
     videoMode = VIDEO_D3D_WINDOW;
 
@@ -328,23 +313,10 @@ void seq_BuildVideoName(const char* pPath, const char* pSeqName, char* pOut)
 
 void seq_SetVideoPath(void)
 {
-  char aCDDrive[256] = "";
   WIN32_FIND_DATA findData;
   HANDLE fileHandle;
-  /* set up the CD path */
-  if (!bCDPath)
-  {
-    if (cdspan_GetCDLetter(aCDDrive, g_CDrequired) == TRUE)
-    {
-      if (strlen(aCDDrive) <= (MAX_STR_LENGTH - 20)) //leave enough space to add "\\warzone\\sequences\\"
-      {
-        strcpy(aCDPath, aCDDrive);
-        strcat(aCDPath, "warzone\\sequences\\");
-        bCDPath = TRUE;
-      }
-    }
-  }
-  /* now set up the hard disc path */
+
+  /* set up the hard disc path */
   if (!bHardPath)
   {
     strcpy(aHardPath, "sequences\\");
@@ -396,34 +368,20 @@ BOOL seq_StartFullScreenVideo(char* videoName, char* audioName)
   }
 
   //set a valid video path if there is one
-  if (!bCDPath && !bHardPath)
+  if (!bHardPath)
     seq_SetVideoPath();
 
-  if (bHardPath) //use this first
-  {
-    seq_BuildVideoName(aHardPath, videoName, aVideoName);
-
-    // check it exists. If not then try CD.
-    pFileHandle = fopen(aVideoName, "rb");
-    if (pFileHandle == nullptr && bCDPath)
-    {
-      seq_BuildVideoName(aCDPath, videoName, aVideoName);
-    }
-    else
-    {
-      if (pFileHandle != nullptr)
-        fclose(pFileHandle);
-    }
-  }
-  else if (bCDPath)
-  {
-    seq_BuildVideoName(aCDPath, videoName, aVideoName);
-  }
-  else
+  if (!bHardPath)
   {
     DEBUG_ASSERT_TEXT(FALSE, "seq_StartFullScreenVideo: sequence path not found");
     return FALSE;
   }
+
+  seq_BuildVideoName(aHardPath, videoName, aVideoName);
+
+  pFileHandle = fopen(aVideoName, "rb");
+  if (pFileHandle != nullptr)
+    fclose(pFileHandle);
 
   //set audio path
   if (audioName != nullptr)
@@ -438,8 +396,8 @@ BOOL seq_StartFullScreenVideo(char* videoName, char* audioName)
   {
     music_Pause();
     loop_SetVideoPlaybackMode();
-    iV_SetFont(WFont);
-    iV_SetTextColour(-1);
+    Neuron::SetFont(WFont);
+    Neuron::SetTextColour(-1);
   }
 
   if (audioName != nullptr)
@@ -657,16 +615,6 @@ BOOL seq_StopFullScreenVideo(void)
 
   seq_ShutDown();
 
-  if (!seq_AnySeqLeft())
-  {
-    if (g_bResumeInGame == TRUE)
-    {
-      resetDesignPauseState();
-      intAddReticule();
-      g_bResumeInGame = FALSE;
-    }
-  }
-
   return TRUE;
 }
 
@@ -685,7 +633,7 @@ BOOL seq_AddTextForVideo(UBYTE* pText, SDWORD xOffset, SDWORD yOffset, SDWORD st
   SDWORD justification;
   static SDWORD lastX;
 
-  iV_SetFont(WFont);
+  Neuron::SetFont(WFont);
 
   DEBUG_ASSERT_TEXT(aSeqList[currentSeq].currentText < MAX_TEXT_OVERLAYS, "seq_AddTextForVideo: too many text lines");
 
@@ -707,7 +655,7 @@ BOOL seq_AddTextForVideo(UBYTE* pText, SDWORD xOffset, SDWORD yOffset, SDWORD st
 
   //check the string is shortenough to print
   //if not take a word of the end and try again
-  while (iV_GetTextWidth((unsigned char*)currentText) > BUFFER_WIDTH)
+  while (Neuron::GetTextWidth((unsigned char*)currentText) > BUFFER_WIDTH)
   {
     currentLength--;
     while ((pText[currentLength] != ' ') && (currentLength > 0)) { currentLength--; }
@@ -720,7 +668,7 @@ BOOL seq_AddTextForVideo(UBYTE* pText, SDWORD xOffset, SDWORD yOffset, SDWORD st
   {
     aSeqList[currentSeq].aText[aSeqList[currentSeq].currentText].x = lastX;
     aSeqList[currentSeq].aText[aSeqList[currentSeq].currentText].y = aSeqList[currentSeq].aText[aSeqList[currentSeq].currentText - 1].y +
-      iV_GetTextLineSize();
+      Neuron::GetTextLineSize();
   }
   else
   {
@@ -732,7 +680,7 @@ BOOL seq_AddTextForVideo(UBYTE* pText, SDWORD xOffset, SDWORD yOffset, SDWORD st
   if ((bJustify) && (currentLength == sourceLength))
   {
     //justify this text
-    justification = BUFFER_WIDTH - iV_GetTextWidth((unsigned char*)currentText);
+    justification = BUFFER_WIDTH - Neuron::GetTextWidth((unsigned char*)currentText);
     if ((bJustify == SEQ_TEXT_JUSTIFY) && (justification > MIN_JUSTIFICATION))
       aSeqList[currentSeq].aText[aSeqList[currentSeq].currentText].x += (justification / 2);
     else if ((bJustify == SEQ_TEXT_FOLLOW_ON) && (justification > FOLLOW_ON_JUSTIFICATION)) {}
@@ -880,12 +828,11 @@ BOOL seq_AnySeqLeft(void)
   return FALSE;
 }
 
-void seqDispCDOK(void)
+void seqDispPlayNext(void)
 {
   BOOL bPlayedOK;
 
-  if (bBackDropWasAlreadyUp == FALSE)
-    screen_StopBackDrop();
+  screen_StopBackDrop();
 
   currentPlaySeq++;
   if (currentPlaySeq >= MAX_SEQ_LIST)
@@ -903,37 +850,8 @@ void seqDispCDOK(void)
   }
 }
 
-void seqDispCDCancel(void) {}
-
 /*returns the next sequence in the list to play*/
-void seq_StartNextFullScreenVideo(void)
-{
-  if (bMultiPlayer)
-  {
-    seqDispCDOK();
-    return;
-  }
-
-  /* check correct CD in drive */
-  g_CDrequired = getCDForCampaign(getCampaignNumber());
-  if (cdspan_CheckCDPresent(g_CDrequired))
-    seqDispCDOK();
-  else
-  {
-    /* check backdrop already up */
-    if (screen_GetBackDrop() == nullptr)
-      bBackDropWasAlreadyUp = FALSE;
-    else
-      bBackDropWasAlreadyUp = TRUE;
-    intResetScreen(TRUE);
-    forceHidePowerBar();
-    intRemoveReticule();
-    setDesignPauseState();
-    if (!bMultiPlayer)
-      addCDChangeInterface(g_CDrequired, seqDispCDOK, seqDispCDCancel);
-    g_bResumeInGame = TRUE;
-  }
-}
+void seq_StartNextFullScreenVideo(void) { seqDispPlayNext(); }
 
 void seq_SetSubtitles(BOOL bNewState) { bSeqSubtitles = bNewState; }
 

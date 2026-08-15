@@ -14,7 +14,7 @@
 #include "Map.h"
 #include "Disp2D.h"
 #include "Display3D.h"
-#include "PieDef.h"
+#include "RenderTypes.h"
 #include "GTime.h"
 
 #include "Aud.h"

@@ -9,12 +9,12 @@
 
 #include "Frame.h"
 #include "RendMode.h"
-#include "IvisDef.h" //ivis palette code
+#include "BitImage.h"
 #include "PieState.h"
 #include "TextDraw.h" //ivis text code
 
 #include "PieMode.h"
-#include "PieMatrix.h"
+#include "RenderMatrix.h"
 #include "PieFunc.h"
 
 #include "HCI.h"		// access to widget screen.
@@ -47,7 +47,7 @@
 #include "MultiStat.h"
 #include "MultiLimit.h"
 
-extern void frontEndCheckCD(tMode tModeNext, CD_INDEX cdIndex);
+extern void frontEndCheckCD(tMode tModeNext);
 
 using STAR = struct _star
 {
@@ -110,7 +110,7 @@ BOOL playIntroOnInstall(VOID)
     setWarzoneKeyNumeric("nointro", 1);
     closeWarzoneKey();
 
-    frontEndCheckCD(SHOWINTRO, DISC_ONE);
+    frontEndCheckCD(SHOWINTRO);
     return TRUE;
   }
   closeWarzoneKey();

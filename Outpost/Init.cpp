@@ -32,14 +32,12 @@
 #include "Text.h"
 #include "Console.h"
 
-#include "PieDef.h"
 #include "PieState.h"
 #include "Config.h"
 #include "PieMode.h"
 #include "Tex.h"
 #include "resource.h"
 #include "RendMode.h"
-#include "Ivi.h"
 #include "Group.h"
 #include "Wrappers.h"
 #include "Display3D.h"
@@ -91,6 +89,7 @@
 #include "Cluster.h"
 #include "Gateway.h"
 #include "Lighting.h"
+#include "Palette.h"
 
 extern void statsInitVars(void);
 extern void structureInitVars(void);
@@ -748,7 +747,7 @@ BOOL systemInitialise(void)
   arrowInit();
 #endif
 
-  iV_Reset(TRUE); // Reset the IV library.
+  Neuron::Reset(TRUE); // Reset the IV library.
   initLoadingScreen(TRUE, FALSE);
 
   return TRUE;
@@ -787,7 +786,7 @@ BOOL systemShutdown(void)
   delete[] DisplayBuffer;
   DisplayBuffer = nullptr;
 
-  iV_ShutDown();
+  Neuron::ShutDown();
 
   levShutDown();
 
@@ -840,7 +839,7 @@ BOOL frontendInitialise(char* ResourceFile)
   if (!InitialiseGlobals()) // Initialise all globals and statics everywhere.
     return FALSE;
 
-  iV_Reset(TRUE); // Reset the IV library.
+  Neuron::Reset(TRUE); // Reset the IV library.
 
   if (!scrTabInitialise()) // Initialise the script system
     return FALSE;
@@ -873,7 +872,7 @@ BOOL frontendInitialise(char* ResourceFile)
 #endif
 
   FrontImages = static_cast<IMAGEFILE*>(resGetData("IMG", "frend.img"));
-  FEFont = iV_CreateFontIndirect(FrontImages, FEAsciiLookup, 4);
+  FEFont = Neuron::CreateFontIndirect(FrontImages, FEAsciiLookup, 4);
 
   /* Shift the interface initialisation here temporarily so that it
      can pick up the stats after they have been loaded */
@@ -888,7 +887,7 @@ BOOL frontendInitialise(char* ResourceFile)
   keyInitMappings(FALSE);
 
 #ifdef OLD_PALETTE
-  iV_PaletteSelect(iV_PaletteAdd(&gamePal[0]));
+  pal_SelectPalette(pal_AddNewPalette(&gamePal[0]));
 #endif
 
   frameSetCursorFromRes(IDC_DEFAULT);
@@ -965,7 +964,7 @@ BOOL stageOneInitialise(void)
   if (!InitialiseGlobals())
     return FALSE;
 
-  iV_Reset(FALSE); // Reset the IV library. (but not the palette)
+  Neuron::Reset(FALSE); // Reset the IV library. (but not the palette)
 
   if (!stringsInitialise()) /* Initialise the string system */
     return FALSE;
@@ -1128,7 +1127,7 @@ BOOL stageTwoInitialise(void)
 
   if (!initMiscImds()) /* Set up the explosions */
   {
-    iV_ShutDown();
+    Neuron::ShutDown();
     Neuron::Fatal("Can't find all the explosions PCX's");
     return FALSE;
   }

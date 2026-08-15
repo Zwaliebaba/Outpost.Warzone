@@ -28,7 +28,6 @@
     <ClCompile Include="AudioID.cpp" />
     <ClCompile Include="Bridge.cpp" />
     <ClCompile Include="Bucket3D.cpp" />
-    <ClCompile Include="CDSpan.cpp" />
     <ClCompile Include="Music.cpp" />
     <ClCompile Include="Cheat.cpp" />
     <ClCompile Include="ClParse.cpp" />
@@ -154,7 +153,6 @@
     <ClInclude Include="Bucket3D.h" />
     <ClInclude Include="Bullet.h" />
     <ClInclude Include="BulletDef.h" />
-    <ClInclude Include="CDSpan.h" />
     <ClInclude Include="Music.h" />
     <ClInclude Include="Cheat.h" />
     <ClInclude Include="ClParse.h" />
@@ -339,8 +337,13 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)..\DX9\Lib;$(MSBuildThisFileDirectory)..\NeuronCore;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>d3d9.lib;dxguid.lib;dinput8.lib;winmm.lib;ole32.lib;wsock32.lib;comdlg32.lib;xaudio2.lib;mfplat.lib;mfreadwrite.lib;mfuuid.lib;crypt32.lib;ncrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <!-- dinput8.lib in DX9\Lib predates SafeSEH: dilib1.obj carries no
+           exception handler table, so /SAFESEH cannot be satisfied (LNK2026 ->
+           LNK1281). Debug hid this because incremental linking turns /SAFESEH
+           off; Release links /INCREMENTAL:NO and fails. Turning this back on
+           needs a SafeSEH-clean dinput8.lib first. -->
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
-      <AdditionalDependencies>d3d9.lib;dxguid.lib;dsound.lib;dinput8.lib;winmm.lib;ole32.lib;wsock32.lib;comdlg32.lib;xaudio2.lib;mfplat.lib;mfreadwrite.lib;mfuuid.lib;crypt32.lib;ncrypt.lib;WINSTR.LIB;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -366,8 +369,9 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)..\DX9\Lib;$(MSBuildThisFileDirectory)..\NeuronCore;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>d3d9.lib;dxguid.lib;dinput8.lib;winmm.lib;ole32.lib;wsock32.lib;comdlg32.lib;xaudio2.lib;mfplat.lib;mfreadwrite.lib;mfuuid.lib;crypt32.lib;ncrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <!-- See the Debug comment: DX9\Lib's dinput8.lib is not SafeSEH-clean. -->
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
-      <AdditionalDependencies>d3d9.lib;dxguid.lib;dsound.lib;dinput8.lib;winmm.lib;ole32.lib;wsock32.lib;comdlg32.lib;xaudio2.lib;mfplat.lib;mfreadwrite.lib;mfuuid.lib;crypt32.lib;ncrypt.lib;WINSTR.LIB;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>

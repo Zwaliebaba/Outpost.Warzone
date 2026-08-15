@@ -1,11 +1,9 @@
 #include "pch.h"
 #include <stdio.h>
 #include <math.h>
-#include "Ivi.h"
 #include "PieState.h"
-#include "PiePalette.h"
+#include "Palette.h"
 #include "RendMode.h"
-#include "Bug.h"
 
 #define RED_CHROMATICITY	1
 #define GREEN_CHROMATICITY	1

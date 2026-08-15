@@ -6,10 +6,11 @@
  *
  */
 /***************************************************************************/
-#ifndef _pieMatrix_h
-#define _pieMatrix_h
+#ifndef _renderMatrix_h
+#define _renderMatrix_h
 
-#include "PieDef.h"
+#include "RenderTypes.h"
+#include "RendMode.h"
 
 /***************************************************************************/
 /*

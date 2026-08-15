@@ -12,7 +12,7 @@
 #include "Deliverance.h"
 
 #include "PieState.h"
-#include "PieClip.h"
+#include "RenderClip.h"
 
 #include "CSnap.h"
 #include "AudioID.h"

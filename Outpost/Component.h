@@ -1,5 +1,7 @@
 #ifndef _component_h
 #define _component_h
+#include "Model.h"
+#include "RenderTypes.h"
 
 /*
 	Header file for component.c 

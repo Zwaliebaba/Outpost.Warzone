@@ -18,11 +18,12 @@
 #include "Map.h"
 #include "Radar.h"
 /* Includes direct access to render library */
-#include "IvisDef.h"
+#include "Model.h"
+#include "BitImage.h"
 #include "PieState.h"
 #include "PieMode.h"			// ffs
-#include "PieClip.h"			// ffs 
-#include "PieBlitFunc.h"
+#include "RenderClip.h"			// ffs 
+#include "Render2D.h"
 #include "RendMode.h"
 #include "Geo.h"
 
@@ -53,6 +54,7 @@
 #include "Mission.h"
 
 #include "MultiPlay.h"
+#include "Palette.h"
 
 // Is a clickable form widget hilited, either because the cursor is over it or it is flashing.
 //
@@ -646,9 +648,9 @@ void intDisplayPowerBar(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
   realPower = asPower[selectedPlayer]->currentPower - ManuPower;
   BarWidth = BarGraph->width;
 #if	DRAW_POWER_BAR_TEXT
-  iV_SetFont(WFont);
+  Neuron::SetFont(WFont);
   itoa(realPower, szVal, 10);
-  textWidth = iV_GetTextWidth((unsigned char*)szVal);
+  textWidth = Neuron::GetTextWidth((unsigned char*)szVal);
   BarWidth -= textWidth;
 #endif
 
@@ -678,7 +680,7 @@ void intDisplayPowerBar(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
   pie_SetDepthBufferStatus(DEPTH_CMP_ALWAYS_WRT_ON);
   pie_SetFogStatus(FALSE);
 
-  iV_DrawTransImage(IntImages, IMAGE_PBAR_TOP, x0, y0);
+  pie_ImageFileID(IntImages, IMAGE_PBAR_TOP, x0, y0);
 
 #if	DRAW_POWER_BAR_TEXT
   iX = x0 + 3;
@@ -687,20 +689,20 @@ void intDisplayPowerBar(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
   iX = x0; iY = y0;
 #endif
 
-  x0 += iV_GetImageWidthNoCC(IntImages, IMAGE_PBAR_TOP);
+  x0 += Neuron::GetImageWidthNoCC(IntImages, IMAGE_PBAR_TOP);
 
   /* indent to allow text value */
   //draw used section
-  /*iV_DrawImageRect(IntImages,IMAGE_PBAR_USED,
+  /*pie_ImageFileIDTile(IntImages,IMAGE_PBAR_USED,
             x0,y0,
             0,0,
-            Used, iV_GetImageHeight(IntImages,IMAGE_PBAR_USED));
+            Used, Neuron::GetImageHeight(IntImages,IMAGE_PBAR_USED));
   x0 += Used;*/
 
   //fill in the empty section behind text
   if (textWidth > 0)
   {
-    iV_DrawImageRect(IntImages, IMAGE_PBAR_EMPTY, x0, y0, 0, 0, textWidth, iV_GetImageHeightNoCC(IntImages, IMAGE_PBAR_EMPTY));
+    pie_ImageFileIDTile(IntImages, IMAGE_PBAR_EMPTY, x0, y0, 0, 0, textWidth, Neuron::GetImageHeightNoCC(IntImages, IMAGE_PBAR_EMPTY));
     x0 += textWidth;
   }
 
@@ -708,16 +710,16 @@ void intDisplayPowerBar(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
   if (ManPow > Avail)
   {
     //draw the required in red
-    iV_DrawImageRect(IntImages, IMAGE_PBAR_USED, x0, y0, 0, 0, ManPow, iV_GetImageHeightNoCC(IntImages, IMAGE_PBAR_USED));
+    pie_ImageFileIDTile(IntImages, IMAGE_PBAR_USED, x0, y0, 0, 0, ManPow, Neuron::GetImageHeightNoCC(IntImages, IMAGE_PBAR_USED));
   }
-  else { iV_DrawImageRect(IntImages, IMAGE_PBAR_REQUIRED, x0, y0, 0, 0, ManPow, iV_GetImageHeightNoCC(IntImages, IMAGE_PBAR_REQUIRED)); }
+  else { pie_ImageFileIDTile(IntImages, IMAGE_PBAR_REQUIRED, x0, y0, 0, 0, ManPow, Neuron::GetImageHeightNoCC(IntImages, IMAGE_PBAR_REQUIRED)); }
 
   x0 += ManPow;
 
   //draw the available section if any!
   if (Avail - ManPow > 0)
   {
-    iV_DrawImageRect(IntImages, IMAGE_PBAR_AVAIL, x0, y0, 0, 0, Avail - ManPow, iV_GetImageHeightNoCC(IntImages, IMAGE_PBAR_AVAIL));
+    pie_ImageFileIDTile(IntImages, IMAGE_PBAR_AVAIL, x0, y0, 0, 0, Avail - ManPow, Neuron::GetImageHeightNoCC(IntImages, IMAGE_PBAR_AVAIL));
 
     x0 += Avail - ManPow;
   }
@@ -725,16 +727,16 @@ void intDisplayPowerBar(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
   //fill in the rest with empty section
   if (Empty > 0)
   {
-    iV_DrawImageRect(IntImages, IMAGE_PBAR_EMPTY, x0, y0, 0, 0, Empty, iV_GetImageHeightNoCC(IntImages, IMAGE_PBAR_EMPTY));
+    pie_ImageFileIDTile(IntImages, IMAGE_PBAR_EMPTY, x0, y0, 0, 0, Empty, Neuron::GetImageHeightNoCC(IntImages, IMAGE_PBAR_EMPTY));
     x0 += Empty;
   }
 
-  iV_DrawTransImage(IntImages, IMAGE_PBAR_BOTTOM, x0, y0);
+  pie_ImageFileID(IntImages, IMAGE_PBAR_BOTTOM, x0, y0);
   /* draw text value */
 
 #if	DRAW_POWER_BAR_TEXT
-  iV_SetTextColour(-1);
-  iV_DrawText((unsigned char*)szVal, iX, iY);
+  Neuron::SetTextColour(-1);
+  pie_DrawText((unsigned char*)szVal, iX, iY);
 #endif
 }
 
@@ -943,14 +945,14 @@ void intDisplayStatusButton(struct _widget* psWidget, UDWORD xOffset, UDWORD yOf
   if (bOnHold)
   {
     if (((gameTime2 / 250) % 2) == 0)
-      iV_DrawTransImage(IntImages, IMAGE_BUT0_DOWN, xOffset + Form->x, yOffset + Form->y);
+      pie_ImageFileID(IntImages, IMAGE_BUT0_DOWN, xOffset + Form->x, yOffset + Form->y);
     else
-      iV_DrawTransImage(IntImages, IMAGE_BUT_HILITE, xOffset + Form->x, yOffset + Form->y);
+      pie_ImageFileID(IntImages, IMAGE_BUT_HILITE, xOffset + Form->x, yOffset + Form->y);
   }
   else
   {
     if (Hilight)
-      iV_DrawTransImage(IntImages, IMAGE_BUT_HILITE, xOffset + Form->x, yOffset + Form->y);
+      pie_ImageFileID(IntImages, IMAGE_BUT_HILITE, xOffset + Form->x, yOffset + Form->y);
   }
 }
 
@@ -1026,7 +1028,7 @@ void intDisplayObjectButton(struct _widget* psWidget, UDWORD xOffset, UDWORD yOf
   CloseButtonRender();
 
   if (Hilight)
-    iV_DrawTransImage(IntImages, IMAGE_BUTB_HILITE, xOffset + Form->x, yOffset + Form->y);
+    pie_ImageFileID(IntImages, IMAGE_BUTB_HILITE, xOffset + Form->x, yOffset + Form->y);
 }
 
 // Widget callback to display a rendered stats button, ie the job selection window buttons.
@@ -1172,7 +1174,7 @@ void intDisplayStatsButton(struct _widget* psWidget, UDWORD xOffset, UDWORD yOff
   CloseButtonRender();
 
   if (Hilight)
-    iV_DrawTransImage(IntImages, IMAGE_BUT_HILITE, xOffset + Form->x, yOffset + Form->y);
+    pie_ImageFileID(IntImages, IMAGE_BUT_HILITE, xOffset + Form->x, yOffset + Form->y);
 }
 
 void RenderToButton(IMAGEFILE* ImageFile, UWORD ImageID, void* Object, UDWORD Player, RENDERED_BUTTON* Buffer, BOOL Down, UDWORD IMDType,
@@ -1376,7 +1378,7 @@ void intDisplayImage(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, U
   UDWORD y = yOffset + psWidget->y;
   UNUSEDPARAMETER(pColours);
 
-  iV_DrawTransImage(IntImages, static_cast<UWORD>((UDWORD)psWidget->pUserData), x, y);
+  pie_ImageFileID(IntImages, static_cast<UWORD>((UDWORD)psWidget->pUserData), x, y);
 }
 
 //draws the mission clock - flashes when below a predefined time
@@ -1389,11 +1391,11 @@ void intDisplayMissionClock(struct _widget* psWidget, UDWORD xOffset, UDWORD yOf
   UNUSEDPARAMETER(pColours);
 
   //draw the background image
-  iV_DrawTransImage(IntImages, static_cast<UWORD>(UNPACKDWORD_TRI_B((UDWORD)psWidget->pUserData)), x, y);
+  pie_ImageFileID(IntImages, static_cast<UWORD>(UNPACKDWORD_TRI_B((UDWORD)psWidget->pUserData)), x, y);
   //need to flash the timer when < 5 minutes remaining, but > 4 minutes
   flash = UNPACKDWORD_TRI_A((UDWORD)psWidget->pUserData);
   if (flash AND ((gameTime2 / 250) % 2) == 0)
-    iV_DrawTransImage(IntImages, static_cast<UWORD>(UNPACKDWORD_TRI_C((UDWORD)psWidget->pUserData)), x, y);
+    pie_ImageFileID(IntImages, static_cast<UWORD>(UNPACKDWORD_TRI_C((UDWORD)psWidget->pUserData)), x, y);
 }
 
 // Display one of two images depending on if the widget is hilighted by the mouse.
@@ -1437,15 +1439,15 @@ void intDisplayImageHilight(struct _widget* psWidget, UDWORD xOffset, UDWORD yOf
   if (flash AND psWidget->id == IDTRANS_LAUNCH)
   {
     if (((gameTime2 / 250) % 2) == 0)
-      iV_DrawTransImage(IntImages, static_cast<UWORD>(UNPACKDWORD_TRI_B((UDWORD)psWidget->pUserData)), x, y);
+      pie_ImageFileID(IntImages, static_cast<UWORD>(UNPACKDWORD_TRI_B((UDWORD)psWidget->pUserData)), x, y);
     else
-      iV_DrawTransImage(IntImages, ImageID, x, y);
+      pie_ImageFileID(IntImages, ImageID, x, y);
   }
   else
   {
-    iV_DrawTransImage(IntImages, ImageID, x, y);
+    pie_ImageFileID(IntImages, ImageID, x, y);
     if (Hilight)
-      iV_DrawTransImage(IntImages, static_cast<UWORD>(UNPACKDWORD_TRI_B((UDWORD)psWidget->pUserData)), x, y);
+      pie_ImageFileID(IntImages, static_cast<UWORD>(UNPACKDWORD_TRI_B((UDWORD)psWidget->pUserData)), x, y);
   }
 }
 
@@ -1518,9 +1520,9 @@ void intDisplayButtonHilight(struct _widget* psWidget, UDWORD xOffset, UDWORD yO
   else
     ImageID = static_cast<UWORD>((UNPACKDWORD_TRI_C((UDWORD)psWidget->pUserData) + Down));
 
-  iV_DrawTransImage(IntImages, ImageID, x, y);
+  pie_ImageFileID(IntImages, ImageID, x, y);
   if (Hilight)
-    iV_DrawTransImage(IntImages, static_cast<UWORD>(UNPACKDWORD_TRI_B((UDWORD)psWidget->pUserData)), x, y);
+    pie_ImageFileID(IntImages, static_cast<UWORD>(UNPACKDWORD_TRI_B((UDWORD)psWidget->pUserData)), x, y);
 }
 
 // Display one of two images depending on if the widget is hilighted by the mouse.
@@ -1545,9 +1547,9 @@ void intDisplayAltButtonHilight(struct _widget* psWidget, UDWORD xOffset, UDWORD
   else
     ImageID = static_cast<UWORD>((UNPACKDWORD_TRI_C((UDWORD)psWidget->pUserData) + Down));
 
-  iV_DrawTransImage(IntImages, ImageID, x, y);
+  pie_ImageFileID(IntImages, ImageID, x, y);
   if (Hilight)
-    iV_DrawTransImage(IntImages, static_cast<UWORD>(UNPACKDWORD_TRI_B((UDWORD)psWidget->pUserData)), x, y);
+    pie_ImageFileID(IntImages, static_cast<UWORD>(UNPACKDWORD_TRI_B((UDWORD)psWidget->pUserData)), x, y);
 }
 
 // Flash one of two images depending on if the widget is hilighted by the mouse.
@@ -1578,7 +1580,7 @@ void intDisplayButtonFlash(struct _widget* psWidget, UDWORD xOffset, UDWORD yOff
   else
     ImageID = static_cast<UWORD>((UNPACKDWORD_TRI_C((UDWORD)psWidget->pUserData)));
 
-  iV_DrawTransImage(IntImages, ImageID, x, y);
+  pie_ImageFileID(IntImages, ImageID, x, y);
 }
 
 void intDisplayReticuleButton(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pColours)
@@ -1598,7 +1600,7 @@ void intDisplayReticuleButton(struct _widget* psWidget, UDWORD xOffset, UDWORD y
 
   if (((W_BUTTON*)psWidget)->state & WBUTS_GREY)
   {
-    iV_DrawTransImage(IntImages, IMAGE_RETICULE_GREY, x, y);
+    pie_ImageFileID(IntImages, IMAGE_RETICULE_GREY, x, y);
     return;
   }
 
@@ -1636,14 +1638,14 @@ void intDisplayReticuleButton(struct _widget* psWidget, UDWORD xOffset, UDWORD y
     }
   }
 
-  iV_DrawTransImage(IntImages, ImageID, x, y);
+  pie_ImageFileID(IntImages, ImageID, x, y);
 
   if (Hilight)
   {
     if (Index == IMAGE_CANCEL_UP)
-      iV_DrawTransImage(IntImages, IMAGE_CANCEL_HILIGHT, x, y);
+      pie_ImageFileID(IntImages, IMAGE_CANCEL_HILIGHT, x, y);
     else
-      iV_DrawTransImage(IntImages, IMAGE_RETICULE_HILIGHT, x, y);
+      pie_ImageFileID(IntImages, IMAGE_RETICULE_HILIGHT, x, y);
   }
 
   psWidget->pUserData = (void*)(PACKDWORD_QUAD(flashTime, flashing, DownTime, Index));
@@ -1663,21 +1665,21 @@ void intDisplayTab(struct _widget* psWidget, UDWORD TabType, UDWORD Position, UD
 
   if (TabType == TAB_MAJOR)
   {
-    iV_DrawTransImage(IntImages, static_cast<UWORD>(Tab->MajorUp), x, y);
+    pie_ImageFileID(IntImages, static_cast<UWORD>(Tab->MajorUp), x, y);
 
     if (Hilight)
-      iV_DrawTransImage(IntImages, static_cast<UWORD>(Tab->MajorHilight), x, y);
+      pie_ImageFileID(IntImages, static_cast<UWORD>(Tab->MajorHilight), x, y);
     else if (Selected)
-      iV_DrawTransImage(IntImages, static_cast<UWORD>(Tab->MajorSelected), x, y);
+      pie_ImageFileID(IntImages, static_cast<UWORD>(Tab->MajorSelected), x, y);
   }
   else
   {
-    iV_DrawTransImage(IntImages, static_cast<UWORD>(Tab->MinorUp), x, y);
+    pie_ImageFileID(IntImages, static_cast<UWORD>(Tab->MinorUp), x, y);
 
     if (Hilight)
-      iV_DrawTransImage(IntImages, Tab->MinorHilight, x, y);
+      pie_ImageFileID(IntImages, Tab->MinorHilight, x, y);
     else if (Selected)
-      iV_DrawTransImage(IntImages, Tab->MinorSelected, x, y);
+      pie_ImageFileID(IntImages, Tab->MinorSelected, x, y);
   }
 }
 
@@ -1695,8 +1697,8 @@ void intDisplayTab(struct _widget* psWidget, UDWORD TabType, UDWORD Position, UD
 //
 //
 //	AddCursorSnap(&InterfaceSnap,
-//					x+(iV_GetImageXOffset(IntImages,ImageID))+iV_GetImageWidth(IntImages,ImageID)/2,
-//					y+(iV_GetImageYOffset(IntImages,ImageID))+iV_GetImageHeight(IntImages,ImageID)/2,
+//					x+(Neuron::GetImageXOffset(IntImages,ImageID))+Neuron::GetImageWidth(IntImages,ImageID)/2,
+//					y+(Neuron::GetImageYOffset(IntImages,ImageID))+Neuron::GetImageHeight(IntImages,ImageID)/2,
 
 //
 
@@ -1719,8 +1721,8 @@ void intDisplayButtonPressed(struct _widget* psWidget, UDWORD xOffset, UDWORD yO
 
   Hilight = static_cast<UBYTE>(buttonIsHilite(psButton));
 
-  iV_DrawTransImage(IntImages, ImageID, x, y);
-  if (Hilight) { iV_DrawTransImage(IntImages, static_cast<UWORD>(UNPACKDWORD_TRI_B((UDWORD)psWidget-> pUserData)), x, y); }
+  pie_ImageFileID(IntImages, ImageID, x, y);
+  if (Hilight) { pie_ImageFileID(IntImages, static_cast<UWORD>(UNPACKDWORD_TRI_B((UDWORD)psWidget-> pUserData)), x, y); }
 }
 
 // Display DP images depending on factory and if the widget is currently depressed
@@ -1760,16 +1762,16 @@ void intDisplayDPButton(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
       return;
     }
 
-    iV_DrawTransImage(IntImages, imageID, x, y);
+    pie_ImageFileID(IntImages, imageID, x, y);
     if (hilight)
     {
       imageID++;
-      iV_DrawTransImage(IntImages, imageID, x, y);
+      pie_ImageFileID(IntImages, imageID, x, y);
     }
     else if (down)
     {
       imageID--;
-      iV_DrawTransImage(IntImages, imageID, x, y);
+      pie_ImageFileID(IntImages, imageID, x, y);
     }
   }
 }
@@ -1782,16 +1784,16 @@ void intDisplaySlider(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, 
   SWORD sx;
 
   UNUSEDPARAMETER(pColours);
-  iV_DrawTransImage(IntImages, IMAGE_SLIDER_BACK, x + STAT_SLD_OX, y + STAT_SLD_OY);
+  pie_ImageFileID(IntImages, IMAGE_SLIDER_BACK, x + STAT_SLD_OX, y + STAT_SLD_OY);
 
   sx = static_cast<SWORD>((Slider->width - Slider->barSize) * Slider->pos / Slider->numStops);
   //	sx = (SWORD)((Slider->width-12 - Slider->barSize)
 
-  iV_DrawTransImage(IntImages, IMAGE_SLIDER_BUT, x + sx, y - 2);
+  pie_ImageFileID(IntImages, IMAGE_SLIDER_BUT, x + sx, y - 2);
 
   //	AddCursorSnap(&InterfaceSnap,
-  //					x+iV_GetImageCenterX(IntImages,IMAGE_SLIDER_BACK),
-  //					y+iV_GetImageCenterY(IntImages,IMAGE_SLIDER_BACK),
+  //					x+Neuron::GetImageCenterX(IntImages,IMAGE_SLIDER_BACK),
+  //					y+Neuron::GetImageCenterY(IntImages,IMAGE_SLIDER_BACK),
 }
 
 /* display highlighted edit box from left, middle and end edit box graphics */
@@ -1820,20 +1822,20 @@ void intDisplayEditBox(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset,
   /* draw left side of bar */
   iX = iXLeft;
   iY = iYLeft;
-  iV_DrawTransImage(IntImages, iImageIDLeft, iX, iY);
+  pie_ImageFileID(IntImages, iImageIDLeft, iX, iY);
 
   /* draw middle of bar */
-  iX += iV_GetImageWidth(IntImages, iImageIDLeft);
-  iDX = iV_GetImageWidth(IntImages, iImageIDMid);
-  iXRight = xOffset + psWidget->width - iV_GetImageWidth(IntImages, iImageIDRight);
+  iX += Neuron::GetImageWidth(IntImages, iImageIDLeft);
+  iDX = Neuron::GetImageWidth(IntImages, iImageIDMid);
+  iXRight = xOffset + psWidget->width - Neuron::GetImageWidth(IntImages, iImageIDRight);
   while (iX < iXRight)
   {
-    iV_DrawTransImage(IntImages, iImageIDMid, iX, iY);
+    pie_ImageFileID(IntImages, iImageIDMid, iX, iY);
     iX += iDX;
   }
 
   /* draw right side of bar */
-  iV_DrawTransImage(IntImages, iImageIDRight, iXRight, iY);
+  pie_ImageFileID(IntImages, iImageIDRight, iXRight, iY);
 }
 
 void intDisplayNumber(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pColours)
@@ -1864,7 +1866,7 @@ void intDisplayNumber(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, 
   }
 
   if (Quantity >= STAT_SLDSTOPS)
-    iV_DrawTransImage(IntImages, IMAGE_SLIDER_INFINITY, x + 4, y);
+    pie_ImageFileID(IntImages, IMAGE_SLIDER_INFINITY, x + 4, y);
   else
   {
     Label->aText[0] = static_cast<UBYTE>('0' + Quantity / 10);
@@ -1873,8 +1875,8 @@ void intDisplayNumber(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, 
 
     while (Label->aText[i])
     {
-      iV_DrawTransImage(IntImages, static_cast<UWORD>(IMAGE_0 + (Label->aText[i] - '0')), x, y);
-      x += iV_GetImageWidth(IntImages, static_cast<UWORD>(IMAGE_0 + (Label->aText[i] - '0'))) + 1;
+      pie_ImageFileID(IntImages, static_cast<UWORD>(IMAGE_0 + (Label->aText[i] - '0')), x, y);
+      x += Neuron::GetImageWidth(IntImages, static_cast<UWORD>(IMAGE_0 + (Label->aText[i] - '0'))) + 1;
       i++;
     }
   }
@@ -2137,13 +2139,13 @@ void CreateIMDButton(IMAGEFILE* ImageFile, UWORD ImageID, void* Object, UDWORD P
       //the top button is smaller than the bottom button
       if (buttonType == TOPBUTTON)
       {
-        pie_SetGeometricOffset((ButXPos + iV_GetImageWidth(IntImages, IMAGE_BUT0_DOWN) / 2) + ButtonDrawXOffset + 2,
-                               (ButYPos + iV_GetImageHeight(IntImages, IMAGE_BUT0_DOWN) / 2) + 2 + 8 + ButtonDrawYOffset);
+        pie_SetGeometricOffset((ButXPos + Neuron::GetImageWidth(IntImages, IMAGE_BUT0_DOWN) / 2) + ButtonDrawXOffset + 2,
+                               (ButYPos + Neuron::GetImageHeight(IntImages, IMAGE_BUT0_DOWN) / 2) + 2 + 8 + ButtonDrawYOffset);
       }
       else
       {
-        pie_SetGeometricOffset((ButXPos + iV_GetImageWidth(IntImages, IMAGE_BUTB0_DOWN) / 2) + ButtonDrawXOffset + 2,
-                               (ButYPos + iV_GetImageHeight(IntImages, IMAGE_BUTB0_DOWN) / 2) + 2 + 12 + ButtonDrawYOffset);
+        pie_SetGeometricOffset((ButXPos + Neuron::GetImageWidth(IntImages, IMAGE_BUTB0_DOWN) / 2) + ButtonDrawXOffset + 2,
+                               (ButYPos + Neuron::GetImageHeight(IntImages, IMAGE_BUTB0_DOWN) / 2) + 2 + 12 + ButtonDrawYOffset);
       }
     }
     else
@@ -2151,13 +2153,13 @@ void CreateIMDButton(IMAGEFILE* ImageFile, UWORD ImageID, void* Object, UDWORD P
       //the top button is smaller than the bottom button
       if (buttonType == TOPBUTTON)
       {
-        pie_SetGeometricOffset((ButXPos + iV_GetImageWidth(IntImages, IMAGE_BUT0_UP) / 2) + ButtonDrawXOffset,
-                               (ButYPos + iV_GetImageHeight(IntImages, IMAGE_BUT0_UP) / 2) + 8 + ButtonDrawYOffset);
+        pie_SetGeometricOffset((ButXPos + Neuron::GetImageWidth(IntImages, IMAGE_BUT0_UP) / 2) + ButtonDrawXOffset,
+                               (ButYPos + Neuron::GetImageHeight(IntImages, IMAGE_BUT0_UP) / 2) + 8 + ButtonDrawYOffset);
       }
       else
       {
-        pie_SetGeometricOffset((ButXPos + iV_GetImageWidth(IntImages, IMAGE_BUT0_UP) / 2) + ButtonDrawXOffset,
-                               (ButYPos + iV_GetImageHeight(IntImages, IMAGE_BUTB0_UP) / 2) + 12 + ButtonDrawYOffset);
+        pie_SetGeometricOffset((ButXPos + Neuron::GetImageWidth(IntImages, IMAGE_BUT0_UP) / 2) + ButtonDrawXOffset,
+                               (ButYPos + Neuron::GetImageHeight(IntImages, IMAGE_BUTB0_UP) / 2) + 12 + ButtonDrawYOffset);
       }
     }
 
@@ -2225,26 +2227,26 @@ void CreateIMDButton(IMAGEFILE* ImageFile, UWORD ImageID, void* Object, UDWORD P
     {
       if (buttonType == TOPBUTTON)
       {
-        pie_SetGeometricOffset((ButXPos + iV_GetImageWidth(IntImages, IMAGE_BUT0_DOWN) / 2) + ButtonDrawXOffset + 2,
-                               (ButYPos + iV_GetImageHeight(IntImages, IMAGE_BUT0_DOWN) / 2) + 2 + 8 + ButtonDrawYOffset);
+        pie_SetGeometricOffset((ButXPos + Neuron::GetImageWidth(IntImages, IMAGE_BUT0_DOWN) / 2) + ButtonDrawXOffset + 2,
+                               (ButYPos + Neuron::GetImageHeight(IntImages, IMAGE_BUT0_DOWN) / 2) + 2 + 8 + ButtonDrawYOffset);
       }
       else
       {
-        pie_SetGeometricOffset((ButXPos + iV_GetImageWidth(IntImages, IMAGE_BUTB0_DOWN) / 2) + ButtonDrawXOffset + 2,
-                               (ButYPos + iV_GetImageHeight(IntImages, IMAGE_BUTB0_DOWN) / 2) + 2 + 12 + ButtonDrawYOffset);
+        pie_SetGeometricOffset((ButXPos + Neuron::GetImageWidth(IntImages, IMAGE_BUTB0_DOWN) / 2) + ButtonDrawXOffset + 2,
+                               (ButYPos + Neuron::GetImageHeight(IntImages, IMAGE_BUTB0_DOWN) / 2) + 2 + 12 + ButtonDrawYOffset);
       }
     }
     else
     {
       if (buttonType == TOPBUTTON)
       {
-        pie_SetGeometricOffset((ButXPos + iV_GetImageWidth(IntImages, IMAGE_BUT0_UP) / 2) + ButtonDrawXOffset,
-                               (ButYPos + iV_GetImageHeight(IntImages, IMAGE_BUT0_UP) / 2) + 8 + ButtonDrawYOffset);
+        pie_SetGeometricOffset((ButXPos + Neuron::GetImageWidth(IntImages, IMAGE_BUT0_UP) / 2) + ButtonDrawXOffset,
+                               (ButYPos + Neuron::GetImageHeight(IntImages, IMAGE_BUT0_UP) / 2) + 8 + ButtonDrawYOffset);
       }
       else
       {
-        pie_SetGeometricOffset((ButXPos + iV_GetImageWidth(IntImages, IMAGE_BUTB0_UP) / 2) + ButtonDrawXOffset,
-                               (ButYPos + iV_GetImageHeight(IntImages, IMAGE_BUTB0_UP) / 2) + 12 + ButtonDrawYOffset);
+        pie_SetGeometricOffset((ButXPos + Neuron::GetImageWidth(IntImages, IMAGE_BUTB0_UP) / 2) + ButtonDrawXOffset,
+                               (ButYPos + Neuron::GetImageHeight(IntImages, IMAGE_BUTB0_UP) / 2) + 12 + ButtonDrawYOffset);
       }
     }
 
@@ -2354,13 +2356,13 @@ void CreateIMDButton(IMAGEFILE* ImageFile, UWORD ImageID, void* Object, UDWORD P
 
     if (ImageFile)
     {
-      iV_DrawTransImage(ImageFile, ImageID, ButXPos + ox, ButYPos + oy);
+      pie_ImageFileID(ImageFile, ImageID, ButXPos + ox, ButYPos + oy);
       //there may be an extra icon for research buttons now - AB 9/1/99
       /*if (IMDType == IMDTYPE_RESEARCH)
       {
           if (((RESEARCH *)Object)->subGroup != NO_RESEARCH_ICON)
           {
-              iV_DrawTransImage(ImageFile,((RESEARCH *)Object)->subGroup,ButXPos+ox + 40,ButYPos+oy);
+              pie_ImageFileID(ImageFile,((RESEARCH *)Object)->subGroup,ButXPos+ox + 40,ButYPos+oy);
           }
       }*/
     }
@@ -2393,7 +2395,7 @@ void CreateImageButton(IMAGEFILE* ImageFile, UWORD ImageID, RENDERED_BUTTON* Buf
 
   ClearButton(Down, 0, buttonType);
 
-  iV_DrawTransImage(ImageFile, ImageID, ButXPos + ox, ButYPos + oy);
+  pie_ImageFileID(ImageFile, ImageID, ButXPos + ox, ButYPos + oy);
 }
 
 // Create a blank button.
@@ -2410,7 +2412,7 @@ void CreateBlankButton(RENDERED_BUTTON* Buffer, BOOL Down, UDWORD buttonType)
   ClearButton(Down, 0, buttonType);
 
   // Draw a question mark, bit of quick hack this.
-  iV_DrawTransImage(IntImages, IMAGE_QUESTION_MARK, ButXPos + ox + 10, ButYPos + oy + 3);
+  pie_ImageFileID(IntImages, IMAGE_QUESTION_MARK, ButXPos + ox + 10, ButYPos + oy + 3);
 }
 
 // Render a button to display memory.
@@ -2780,27 +2782,27 @@ void intDisplayStatsBar(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
 
   /* indent to allow text value */
 #if	DRAW_BAR_TEXT
-  iX = x0 + iV_GetTextWidth((unsigned char*)szCheckWidth);
-  iY = y0 + (iV_GetImageHeight(IntImages, IMAGE_DES_STATSCURR) - iV_GetTextLineSize()) / 2 - iV_GetTextAboveBase();
+  iX = x0 + Neuron::GetTextWidth((unsigned char*)szCheckWidth);
+  iY = y0 + (Neuron::GetImageHeight(IntImages, IMAGE_DES_STATSCURR) - Neuron::GetTextLineSize()) / 2 - Neuron::GetTextAboveBase();
 #else
   iX = x0; iY = y0;
 #endif
 
   //draw current value section
-  iV_DrawImageRect(IntImages, IMAGE_DES_STATSCURR, iX, y0, 0, 0, BarGraph->majorSize, iV_GetImageHeight(IntImages, IMAGE_DES_STATSCURR));
+  pie_ImageFileIDTile(IntImages, IMAGE_DES_STATSCURR, iX, y0, 0, 0, BarGraph->majorSize, Neuron::GetImageHeight(IntImages, IMAGE_DES_STATSCURR));
 
   /* draw text value */
 #if	DRAW_BAR_TEXT
   itoa(BarGraph->iValue, szVal, 10);
-  iV_SetTextColour(-1);
-  iV_DrawText((unsigned char*)szVal, x0, iY);
+  Neuron::SetTextColour(-1);
+  pie_DrawText((unsigned char*)szVal, x0, iY);
 #endif
 
   //draw the comparison value - only if not zero
   if (BarGraph->minorSize != 0)
   {
     y0 -= 1;
-    iV_DrawTransImage(IntImages, IMAGE_DES_STATSCOMP, iX + BarGraph->minorSize, y0);
+    pie_ImageFileID(IntImages, IMAGE_DES_STATSCOMP, iX + BarGraph->minorSize, y0);
   }
 }
 
@@ -2829,8 +2831,8 @@ if (BarGraph->majorSize > BarGraph->width)
   DrawBegin();
 
   //draw the background image
-  iV_DrawImage(IntImages, IMAGE_DES_POWERBAR_LEFT, x0, y0);
-  iV_DrawImage(IntImages, IMAGE_DES_POWERBAR_RIGHT, x0 + psWidget->width - iV_GetImageWidth(IntImages, IMAGE_DES_POWERBAR_RIGHT), y0);
+  pie_ImageFileID(IntImages, IMAGE_DES_POWERBAR_LEFT, x0, y0);
+  pie_ImageFileID(IntImages, IMAGE_DES_POWERBAR_RIGHT, x0 + psWidget->width - Neuron::GetImageWidth(IntImages, IMAGE_DES_POWERBAR_RIGHT), y0);
 
   //increment for the position of the bars within the background image
   arbitaryOffset = 3;
@@ -2839,8 +2841,8 @@ if (BarGraph->majorSize > BarGraph->width)
 
   /* indent to allow text value */
 #if	DRAW_BAR_TEXT
-  iX = x0 + iV_GetTextWidth((unsigned char*)szCheckWidth);
-  iY = y0 + (iV_GetImageHeight(IntImages, IMAGE_DES_STATSCURR) - iV_GetTextLineSize()) / 2 - iV_GetTextAboveBase();
+  iX = x0 + Neuron::GetTextWidth((unsigned char*)szCheckWidth);
+  iY = y0 + (Neuron::GetImageHeight(IntImages, IMAGE_DES_STATSCURR) - Neuron::GetTextLineSize()) / 2 - Neuron::GetTextAboveBase();
 #else
   iX = x0; iY = y0;
 #endif
@@ -2853,13 +2855,13 @@ if (BarGraph->majorSize > BarGraph->width)
     width = barWidth;
 
   //draw current value section
-  iV_DrawImageRect(IntImages, IMAGE_DES_STATSCURR, iX, y0, 0, 0, width, iV_GetImageHeight(IntImages, IMAGE_DES_STATSCURR));
+  pie_ImageFileIDTile(IntImages, IMAGE_DES_STATSCURR, iX, y0, 0, 0, width, Neuron::GetImageHeight(IntImages, IMAGE_DES_STATSCURR));
 
   /* draw text value */
 #if	DRAW_BAR_TEXT
   itoa(BarGraph->iValue, szVal, 10);
-  iV_SetTextColour(-1);
-  iV_DrawText((unsigned char*)szVal, x0, iY);
+  Neuron::SetTextColour(-1);
+  pie_DrawText((unsigned char*)szVal, x0, iY);
 #endif
 
   //draw the comparison value - only if not zero
@@ -2869,7 +2871,7 @@ if (BarGraph->majorSize > BarGraph->width)
     width = BarGraph->minorSize * barWidth / 100;
     if (width > barWidth)
       width = barWidth;
-    iV_DrawTransImage(IntImages, IMAGE_DES_STATSCOMP, iX + width, y0);
+    pie_ImageFileID(IntImages, IMAGE_DES_STATSCOMP, iX + width, y0);
   }
 
   DrawEnd();
@@ -2939,7 +2941,7 @@ void intDisplayTransportButton(struct _widget* psWidget, UDWORD xOffset, UDWORD 
   CloseButtonRender();
 
   if (Hilight)
-    iV_DrawTransImage(IntImages, IMAGE_BUT_HILITE, xOffset + Form->x, yOffset + Form->y);
+    pie_ImageFileID(IntImages, IMAGE_BUT_HILITE, xOffset + Form->x, yOffset + Form->y);
 
   //if (psDroid AND missionIsOffworld()) Want this on all reInforcement missions
   if (psDroid AND missionForReInforcements())
@@ -2949,7 +2951,7 @@ void intDisplayTransportButton(struct _widget* psWidget, UDWORD xOffset, UDWORD 
     if (gfxId != UDWORD_MAX)
     {
       /* Render the rank graphic at the correct location */
-      iV_DrawTransImage(IntImages, static_cast<UWORD>(gfxId), xOffset + Form->x + 50, yOffset + Form->y + 30);
+      pie_ImageFileID(IntImages, static_cast<UWORD>(gfxId), xOffset + Form->x + 50, yOffset + Form->y + 30);
     }
   }
 }
@@ -3012,7 +3014,7 @@ void drawRadarBlips()
         imageID = static_cast<UWORD>(IMAGE_RAD_ENM1 + psProxDisp->strobe + (proxType * (NUM_PULSES + 1)));
       }
       //draw the 'blip'
-      iV_DrawImage(IntImages, imageID, psProxDisp->radarX + RADTLX, psProxDisp->radarY + RADTLY);
+      pie_ImageFileID(IntImages, imageID, psProxDisp->radarX + RADTLX, psProxDisp->radarY + RADTLY);
     }
   }
 
@@ -3044,10 +3046,10 @@ void drawRadarBlips()
         if (imageID)
         {
 #ifdef WIN32
-          iV_DrawTransImage(IntImages,imageID, psBuilding->radarX + RADTLX, 
+          pie_ImageFileID(IntImages,imageID, psBuilding->radarX + RADTLX, 
             psBuilding->radarY + RADTLY);
 #else
-          iV_DrawTransImage(IntImages,imageID, psBuilding->radarX*2 + RADTLX, 
+          pie_ImageFileID(IntImages,imageID, psBuilding->radarX*2 + RADTLX, 
                   psBuilding->radarY*2 + RADTLY);
 #endif
         }
@@ -3099,7 +3101,7 @@ void drawRadarBlips()
 					(pViewProximity->proxType * (NUM_PULSES + 1)));
 			}
 			//draw the 'blip'
-			iV_DrawTransImage(IntImages,imageID, psProxDisp->screenX, psProxDisp->screenY);
+			pie_ImageFileID(IntImages,imageID, psProxDisp->screenX, psProxDisp->screenY);
 		}
 	}
 }*/
@@ -3149,7 +3151,7 @@ void intDisplayProximityBlips(struct _widget* psWidget, UDWORD xOffset, UDWORD y
 		psButton->y = (SWORD)psProxDisp->screenY;
 
 		//draw the 'button'
-		iV_DrawTransImage(IntImages,imageID, psButton->x, psButton->y);
+		pie_ImageFileID(IntImages,imageID, psButton->x, psButton->y);
 		return;
 	}*/
 
@@ -3175,7 +3177,7 @@ void intDisplayProximityBlips(struct _widget* psWidget, UDWORD xOffset, UDWORD y
     psButton->y = static_cast<SWORD>(psProxDisp->screenY - psButton->height / 2);
     /*
         //draw the 'button'
-        iV_DrawTransImage(IntImages,imageID, psProxDisp->screenX, 
+        pie_ImageFileID(IntImages,imageID, psProxDisp->screenX, 
           psProxDisp->screenY);
           */
   }
@@ -3247,7 +3249,7 @@ void intDisplayResSubGroup(struct _widget* psWidget, UDWORD xOffset, UDWORD yOff
   UNUSEDPARAMETER(pColours);
 
   if (psResearch->subGroup != NO_RESEARCH_ICON)
-    iV_DrawTransImage(IntImages, psResearch->subGroup, x, y);
+    pie_ImageFileID(IntImages, psResearch->subGroup, x, y);
 }
 
 void intDisplayAllyIcon(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pColours)
@@ -3258,5 +3260,5 @@ void intDisplayAllyIcon(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
   UDWORD y = Label->y + yOffset;
   UNUSEDPARAMETER(pColours);
 
-  iV_DrawTransImage(IntImages, IMAGE_DES_BODYPOINTS, x, y);
+  pie_ImageFileID(IntImages, IMAGE_DES_BODYPOINTS, x, y);
 }

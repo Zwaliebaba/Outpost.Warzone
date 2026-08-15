@@ -1,9 +1,7 @@
 #ifndef _INCLUDED_TEXTDRAW_
 #define _INCLUDED_TEXTDRAW_
 
-#include "IvisDef.h"
-#define iV_DrawText			pie_DrawText
-#define iV_DrawText270		pie_DrawText270
+#include "BitImage.h"
 
 #define PIE_TEXT_WHITE				(-1)
 #define PIE_TEXT_LIGHTBLUE			(-2)
@@ -13,17 +11,19 @@
 #define PIE_TEXT_LIGHTBLUE_COLOUR	(0xffa0a0ff)
 #define PIE_TEXT_DARKBLUE_COLOUR	(0xff6060c0)
 
-extern void iV_ClearFonts(void);
-extern void iV_SetFont(int FontID);
-extern int iV_CreateFontIndirect(IMAGEFILE* ImageFile, UWORD* AsciiTable, int SpaceSize);
-extern int iV_CreateFont(IMAGEFILE* ImageFile, UWORD StartID, UWORD EndID, int SpaceSize, BOOL bInGame);
-extern void iV_GetTextExtents(unsigned char* String, int* Width, int* y0, int* y1);
-extern int iV_GetTextAboveBase(void);
-extern int iV_GetTextBelowBase(void);
-extern int iV_GetTextLineSize(void);
-extern int iV_GetTextWidth(unsigned char* String);
-extern int iV_GetCharWidth(unsigned char Char);
-extern void iV_SetTextColour(SWORD Index);
+namespace Neuron
+{
+  extern void ClearFonts(void);
+  extern void SetFont(int FontID);
+  extern int CreateFontIndirect(IMAGEFILE* ImageFile, UWORD* AsciiTable, int SpaceSize);
+  extern void GetTextExtents(unsigned char* String, int* Width, int* y0, int* y1);
+  extern int GetTextAboveBase(void);
+  extern int GetTextBelowBase(void);
+  extern int GetTextLineSize(void);
+  extern int GetTextWidth(unsigned char* String);
+  extern int GetCharWidth(unsigned char Char);
+  extern void SetTextColour(SWORD Index);
+}
 
 #define ASCII_SPACE			(32)
 #define ASCII_NEWLINE		('@')

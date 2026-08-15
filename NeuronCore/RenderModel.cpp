@@ -1,15 +1,17 @@
 #include "pch.h"
 #include "Frame.h"
-#include "IvisDef.h"
+#include "Model.h"
 #include "IMD.h"
 #include "RendMode.h"
 #include "PieFunc.h"
-#include "PieMatrix.h"
+#include "RenderMatrix.h"
 #include "Tex.h"
-#include "PieDef.h"
+#include "RenderTypes.h"
+#include "RenderModel.h"
+#include "D3D9Vertex.h"
 #include "PieState.h"
-#include "PieClip.h"
-#include "D3DRender.h"
+#include "RenderClip.h"
+#include "Render.h"
 
 #define MIST
 
@@ -40,6 +42,15 @@ static SDWORD polyCount = 0;
 /***************************************************************************/
 
 //pievertex draw poly (low level) //all modes from PIEVERTEX data
+/* Only these two static functions ever see it, so it stays out of the headers. */
+using PIEPOLY = struct
+{
+  UDWORD flags;
+  SDWORD nVrts;
+  PIEVERTEX* pVrts;
+  iTexAnim* pTexAnim;
+};
+
 static void pie_PiePoly(PIEPOLY* poly, BOOL bClip);
 static void pie_PiePolyFrame(PIEPOLY* poly, SDWORD frame, BOOL bClip);
 
@@ -534,7 +545,7 @@ static void pie_PiePolyFrame(PIEPOLY* poly, int frame, BOOL bClip)
     poly->flags |= PIE_NO_CULL; //dont check culling again for this poly
   }
 
-  if ((poly->flags & iV_IMD_TEXANIM) && (frame != 0))
+  if ((poly->flags & IMD_TEXANIM) && (frame != 0))
   {
     if (poly->pTexAnim != nullptr)
     {
@@ -546,7 +557,7 @@ static void pie_PiePolyFrame(PIEPOLY* poly, int frame, BOOL bClip)
       {
         // HACK - fix this!!!!
         framesPerLine = 256 / poly->pTexAnim->textureWidth;
-        //should be		framesPerLine = iV_TEXTEX(texPage)->width / poly->pTexAnim->textureWidth;
+        //should be		framesPerLine = TEXTEX(texPage)->width / poly->pTexAnim->textureWidth;
         vFrame = 0;
         while (frame >= framesPerLine)
         {

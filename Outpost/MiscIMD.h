@@ -1,5 +1,6 @@
 #ifndef _miscimd_h
 #define _miscimd_h
+#include "Model.h"
 
 extern BOOL initMiscImds(void);
 extern iIMDShape* getImdFromIndex(UDWORD index);

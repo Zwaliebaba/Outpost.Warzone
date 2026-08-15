@@ -18,7 +18,7 @@
 #include "WinMain.h"
 #include "HCI.h"
 #include "GTime.h"
-#include "RendFunc.h"                      // iV_GetMouseFrame
+#include "RendFunc.h"                      // Neuron::GetMouseFrame
 #include "Display.h"                       // getTargetType
 
 // current game level
@@ -92,7 +92,7 @@ BOOL scrGenExternGet(UDWORD index)
     break;
   case EXTID_CURSOR:
     type = VAL_INT;
-    val = iV_GetMouseFrame(); // from  rendfunc.c 
+    val = Neuron::GetMouseFrame(); // from  rendfunc.c 
     break;
   case EXTID_INTMODE:
     type = VAL_INT;

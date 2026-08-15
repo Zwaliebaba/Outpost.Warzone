@@ -20,9 +20,9 @@
 #include "Display3D.h"
 
 /* Includes direct access to render library */
-#include "PieDef.h"
+#include "RenderTypes.h"
 #include "PieState.h"
-#include "PieClip.h"
+#include "RenderClip.h"
 #include "RendMode.h"
 #include "ObjMem.h"
 #include "Gateway.h"
@@ -36,7 +36,7 @@
 #include "CSnap.h"
 #include "Power.h"
 #include "LoadSave.h"			// for blueboxes.
-#include "PieMatrix.h"			// for setgeometricoffset
+#include "RenderMatrix.h"			// for setgeometricoffset
 #include "Component.h"
 #include "Map.h"
 #include "Console.h"			// chat box stuff
@@ -56,6 +56,7 @@
 #include "MultiMenu.h"
 
 #include "Levels.h"
+#include "Palette.h"
 
 #include <initguid.h>
 // GUID for MPlayer service provider. Will This Change???
@@ -603,7 +604,7 @@ FAIL:
   widgDisplayScreen(psWScreen); // show the widgets currently running
   if (safeSearch)
   {
-    iV_SetFont(FEFont);
+    Neuron::SetFont(FEFont);
     pie_DrawText((UCHAR*)strresGetString(psStringRes, STR_MUL_SEARCHING),D_W + 260,D_H + 460);
   }
 
@@ -682,7 +683,7 @@ static void addGameOptions(BOOL bRedo)
   widgDelete(psWScreen,MULTIOP_OPTIONS); // clear options list
   widgDelete(psWScreen,FRONTEND_SIDETEXT3); // del text..
 
-  iV_SetFont(WFont);
+  Neuron::SetFont(WFont);
 
   memset(&sFormInit, 0, sizeof(W_FORMINIT)); // draw options box.
   sFormInit.formID = FRONTEND_BACKDROP;
@@ -897,8 +898,8 @@ static void addGameOptions(BOOL bRedo)
   }
 
   // cancel
-  addMultiBut(psWScreen,MULTIOP_OPTIONS,CON_CANCEL, MULTIOP_CANCELX,MULTIOP_CANCELY, iV_GetImageWidth(FrontImages, IMAGE_RETURN),
-              iV_GetImageHeight(FrontImages, IMAGE_RETURN), STR_MUL_CANCEL, IMAGE_RETURN, IMAGE_RETURN_HI,TRUE);
+  addMultiBut(psWScreen,MULTIOP_OPTIONS,CON_CANCEL, MULTIOP_CANCELX,MULTIOP_CANCELY, Neuron::GetImageWidth(FrontImages, IMAGE_RETURN),
+              Neuron::GetImageHeight(FrontImages, IMAGE_RETURN), STR_MUL_CANCEL, IMAGE_RETURN, IMAGE_RETURN_HI,TRUE);
 
   // host Games button
   if (ingame.bHostSetup && !bHosted)
@@ -1000,10 +1001,10 @@ static VOID addColourChooser(UDWORD player)
   // add the flags
   for (i = 0; i < MAX_PLAYERS; i++) //game.maxPlayers;i++)
   {
-    addMultiBut(psWScreen,MULTIOP_COLCHOOSER_FORM, MULTIOP_COLCHOOSER + i, (i * (iV_GetImageWidth(FrontImages, IMAGE_PLAYER0) + 5) + 7), //x
+    addMultiBut(psWScreen,MULTIOP_COLCHOOSER_FORM, MULTIOP_COLCHOOSER + i, (i * (Neuron::GetImageWidth(FrontImages, IMAGE_PLAYER0) + 5) + 7), //x
                 4,/*9,*/ //y
-                iV_GetImageWidth(FrontImages, IMAGE_PLAYER0), //w
-                iV_GetImageHeight(FrontImages, IMAGE_PLAYER0), //h
+                Neuron::GetImageWidth(FrontImages, IMAGE_PLAYER0), //w
+                Neuron::GetImageHeight(FrontImages, IMAGE_PLAYER0), //h
                 0, IMAGE_PLAYER0 + i, IMAGE_PLAYER0 + i,FALSE);
 
     if (!safeToUseColour(selectedPlayer, i))
@@ -1013,11 +1014,11 @@ static VOID addColourChooser(UDWORD player)
   //add the position chooser.
   for (i = 0; i < game.maxPlayers; i++)
   {
-    addMultiBut(psWScreen,MULTIOP_COLCHOOSER_FORM, MULTIOP_PLAYCHOOSER + i, (i * (iV_GetImageWidth(FrontImages, IMAGE_PLAYER0) + 5) + 7),
+    addMultiBut(psWScreen,MULTIOP_COLCHOOSER_FORM, MULTIOP_PLAYCHOOSER + i, (i * (Neuron::GetImageWidth(FrontImages, IMAGE_PLAYER0) + 5) + 7),
                 //x
                 23, //y
-                iV_GetImageWidth(FrontImages, IMAGE_WEE_GUY) + 7, //w
-                iV_GetImageHeight(FrontImages, IMAGE_WEE_GUY), //h
+                Neuron::GetImageWidth(FrontImages, IMAGE_WEE_GUY) + 7, //w
+                Neuron::GetImageHeight(FrontImages, IMAGE_WEE_GUY), //h
                 0, IMAGE_WEE_GUY, IMAGE_WEE_GUY, 10 + i);
 
     if (isHumanPlayer(i) && i != selectedPlayer)
@@ -1209,8 +1210,8 @@ VOID kickPlayer(NETPLAYERID dpid)
 
 static VOID addOkBut(VOID)
 {
-  addMultiBut(psWScreen, MULTIOP_OPTIONS,CON_OK, MULTIOP_OKX,MULTIOP_OKY, iV_GetImageWidth(FrontImages, IMAGE_BIGOK),
-              iV_GetImageHeight(FrontImages, IMAGE_BIGOK), STR_MUL_OK, IMAGE_BIGOK, IMAGE_BIGOK,FALSE);
+  addMultiBut(psWScreen, MULTIOP_OPTIONS,CON_OK, MULTIOP_OKX,MULTIOP_OKY, Neuron::GetImageWidth(FrontImages, IMAGE_BIGOK),
+              Neuron::GetImageHeight(FrontImages, IMAGE_BIGOK), STR_MUL_OK, IMAGE_BIGOK, IMAGE_BIGOK,FALSE);
 }
 
 static VOID addChatBox(VOID)
@@ -2128,7 +2129,7 @@ void runMultiOptions(VOID)
 
   if (widgGetFromID(psWScreen,MULTIOP_CHATBOX))
   {
-    iV_SetFont(WFont); // switch to small font.
+    Neuron::SetFont(WFont); // switch to small font.
     displayConsoleMessages(); // draw the chatbox
   }
 
@@ -2628,7 +2629,7 @@ BOOL startForceSelect(VOID)
   sBarInit.x = static_cast<SWORD>(FORCE_POWERX);
   sBarInit.y = static_cast<SWORD>(FORCE_POWERY);
   sBarInit.width = POW_BARWIDTH;
-  sBarInit.height = iV_GetImageHeight(IntImages, IMAGE_PBAR_EMPTY);
+  sBarInit.height = Neuron::GetImageHeight(IntImages, IMAGE_PBAR_EMPTY);
   sBarInit.sCol.red = POW_CLICKBARMAJORRED;
   sBarInit.sCol.green = POW_CLICKBARMAJORGREEN;
   sBarInit.sCol.blue = POW_CLICKBARMAJORBLUE;
@@ -2781,7 +2782,7 @@ BOOL displayWhiteBoard(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset,
         newy = static_cast<UWORD>(d.quot);
         newx = static_cast<UWORD>(d.rem);
         if (newPoint > 1 && oldPoint > 1)
-          iV_Line(x + oldx, y + oldy, x + newx, y + newy, col); // draw line!
+          pie_Line(x + oldx, y + oldy, x + newx, y + newy, col); // draw line!
         oldPoint = newPoint;
         oldx = newx;
         oldy = newy;
@@ -2790,7 +2791,7 @@ BOOL displayWhiteBoard(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset,
   }
 
   // overlay close widget.
-  iV_DrawTransImage(FrontImages, IMAGE_NOPENCIL,MULTIOP_CHATBOXX - 15 + D_W,MULTIOP_CHATBOXY + D_H + MULTIOP_CHATBOXH - 15);
+  pie_ImageFileID(FrontImages, IMAGE_NOPENCIL,MULTIOP_CHATBOXX - 15 + D_W,MULTIOP_CHATBOXY + D_H + MULTIOP_CHATBOXH - 15);
 
   return TRUE;
 }
@@ -2828,7 +2829,7 @@ void displayChatEdit(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, U
   UDWORD x = xOffset + psWidget->x;
   UDWORD y = yOffset + psWidget->y - 4; // 4 is the magic number.
   UNUSEDPARAMETER(pColours);
-  iV_Line(x, y, x + psWidget->width, y, iV_PaletteNearestColour(100, 100, 160));
+  pie_Line(x, y, x + psWidget->width, y, pal_GetNearestColour(100, 100, 160));
 
   AddCursorSnap(&InterfaceSnap, static_cast<SWORD>(x + (psWidget->width / 2)), static_cast<SWORD>(y + (psWidget->height / 2)),
                 psWidget->formID, psWidget->id, nullptr);
@@ -2860,34 +2861,34 @@ void displayRemoteGame(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset,
   drawBlueBox(x, y, 55, psWidget->height);
 
   //draw game info
-  iV_SetFont(WFont); // font
-  iV_SetTextColour(-1); //colour
+  Neuron::SetFont(WFont); // font
+  Neuron::SetTextColour(-1); //colour
 
   //draw type overlay.
   //	if(NETgetGameFlagsUnjoined(i,1) == DMATCH)
   //	else
   if (NETgetGameFlagsUnjoined(i, 1) == CAMPAIGN)
-    iV_DrawTransImage(FrontImages, IMAGE_CAMPAIGN_OVER, x + 59, y + 3);
+    pie_ImageFileID(FrontImages, IMAGE_CAMPAIGN_OVER, x + 59, y + 3);
   else if (NETgetGameFlagsUnjoined(i, 1) == TEAMPLAY)
-    iV_DrawTransImage(FrontImages, IMAGE_TEAM_OVER, x + 62, y + 3);
+    pie_ImageFileID(FrontImages, IMAGE_TEAM_OVER, x + 62, y + 3);
   else
-    iV_DrawTransImage(FrontImages, IMAGE_SKIRMISH_OVER, x + 62, y + 3); // SKIRMISH
+    pie_ImageFileID(FrontImages, IMAGE_SKIRMISH_OVER, x + 62, y + 3); // SKIRMISH
 
   // ping rating
   png = NETgetGameFlagsUnjoined(i, 2);
   if (png >= PING_LO && png < PING_MED)
-    iV_DrawTransImage(FrontImages, IMAGE_LAMP_GREEN, x + 70, y + 26);
+    pie_ImageFileID(FrontImages, IMAGE_LAMP_GREEN, x + 70, y + 26);
   else if (png >= PING_MED && png < PING_HI)
-    iV_DrawTransImage(FrontImages, IMAGE_LAMP_AMBER, x + 70, y + 26);
+    pie_ImageFileID(FrontImages, IMAGE_LAMP_AMBER, x + 70, y + 26);
   else
-    iV_DrawTransImage(FrontImages, IMAGE_LAMP_RED, x + 70, y + 26);
+    pie_ImageFileID(FrontImages, IMAGE_LAMP_RED, x + 70, y + 26);
 
   //draw game name
-  while (iV_GetTextWidth((unsigned char*)NetPlay.games[i].name) > (psWidget->width - 110))
+  while (Neuron::GetTextWidth((unsigned char*)NetPlay.games[i].name) > (psWidget->width - 110))
   {
     NetPlay.games[i].name[strlen(NetPlay.games[i].name) - 1] = '\0';
   }
-  iV_DrawText((UCHAR*)NetPlay.games[i].name, x + 100, y + 24); // name
+  pie_DrawText((UCHAR*)NetPlay.games[i].name, x + 100, y + 24); // name
 
   // get game info.
   if (NetPlay.games[i].bJoinDisabled || (NetPlay.games[i].currentPlayers >= NetPlay.games[i].maxPlayers) // if not joinable
@@ -2896,13 +2897,13 @@ void displayRemoteGame(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset,
       && (NetPlay.games[gameNumber].currentPlayers >= NetPlay.games[gameNumber].maxPlayers - 1)))
   {
     // need some sort of closed thing here!
-    iV_DrawTransImage(FrontImages, IMAGE_NOJOIN, x + 18, y + 11);
+    pie_ImageFileID(FrontImages, IMAGE_NOJOIN, x + 18, y + 11);
   }
   else
   {
-    iV_DrawText((UCHAR*)strresGetString(psStringRes, STR_MUL_PLAYERS), x + 5, y + 18);
+    pie_DrawText((UCHAR*)strresGetString(psStringRes, STR_MUL_PLAYERS), x + 5, y + 18);
     sprintf(tmp, "%d/%d", NetPlay.games[i].currentPlayers, NetPlay.games[i].maxPlayers);
-    iV_DrawText((UCHAR*)tmp, x + 17, y + 33);
+    pie_DrawText((UCHAR*)tmp, x + 17, y + 33);
   }
 
   AddCursorSnap(&InterfaceSnap, static_cast<SWORD>(x + (psWidget->width / 2)), static_cast<SWORD>(y + (psWidget->height / 2)),
@@ -2957,42 +2958,42 @@ void displayPlayer(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDW
 
     for (j = 0; player2dpid[j] != NetPlay.players[i].dpid && j < MAX_PLAYERS; j++); // get the in game playernumber.
 
-    iV_SetFont(WFont); // font
-    iV_SetTextColour(-1); // colour
+    Neuron::SetFont(WFont); // font
+    Neuron::SetTextColour(-1); // colour
 
     // name
-    while (iV_GetTextWidth((unsigned char*)NetPlay.players[i].name) > psWidget->width - 68) // clip name.
+    while (Neuron::GetTextWidth((unsigned char*)NetPlay.players[i].name) > psWidget->width - 68) // clip name.
     {
       NetPlay.players[i].name[strlen(NetPlay.players[i].name) - 1] = '\0';
     }
-    iV_DrawText((UCHAR*)NetPlay.players[i].name, x + 65, y + 22);
+    pie_DrawText((UCHAR*)NetPlay.players[i].name, x + 65, y + 22);
 
     // ping rating
     if (ingame.PingTimes[j] >= PING_LO && ingame.PingTimes[j] < PING_MED)
-      iV_DrawTransImage(FrontImages, IMAGE_LAMP_GREEN, x, y);
+      pie_ImageFileID(FrontImages, IMAGE_LAMP_GREEN, x, y);
     else if (ingame.PingTimes[j] >= PING_MED && ingame.PingTimes[j] < PING_HI)
-      iV_DrawTransImage(FrontImages, IMAGE_LAMP_AMBER, x, y);
+      pie_ImageFileID(FrontImages, IMAGE_LAMP_AMBER, x, y);
     else
-      iV_DrawTransImage(FrontImages, IMAGE_LAMP_RED, x, y);
+      pie_ImageFileID(FrontImages, IMAGE_LAMP_RED, x, y);
 
     // player number	
     switch (j)
     {
-    case 0: iV_DrawTransImage(IntImages, IMAGE_GN_0, x + 4, y + 29);
+    case 0: pie_ImageFileID(IntImages, IMAGE_GN_0, x + 4, y + 29);
       break;
-    case 1: iV_DrawTransImage(IntImages, IMAGE_GN_1, x + 5, y + 29);
+    case 1: pie_ImageFileID(IntImages, IMAGE_GN_1, x + 5, y + 29);
       break;
-    case 2: iV_DrawTransImage(IntImages, IMAGE_GN_2, x + 4, y + 29);
+    case 2: pie_ImageFileID(IntImages, IMAGE_GN_2, x + 4, y + 29);
       break;
-    case 3: iV_DrawTransImage(IntImages, IMAGE_GN_3, x + 4, y + 29);
+    case 3: pie_ImageFileID(IntImages, IMAGE_GN_3, x + 4, y + 29);
       break;
-    case 4: iV_DrawTransImage(IntImages, IMAGE_GN_4, x + 4, y + 29);
+    case 4: pie_ImageFileID(IntImages, IMAGE_GN_4, x + 4, y + 29);
       break;
-    case 5: iV_DrawTransImage(IntImages, IMAGE_GN_5, x + 4, y + 29);
+    case 5: pie_ImageFileID(IntImages, IMAGE_GN_5, x + 4, y + 29);
       break;
-    case 6: iV_DrawTransImage(IntImages, IMAGE_GN_6, x + 4, y + 29);
+    case 6: pie_ImageFileID(IntImages, IMAGE_GN_6, x + 4, y + 29);
       break;
-    case 7: iV_DrawTransImage(IntImages, IMAGE_GN_7, x + 4, y + 29);
+    case 7: pie_ImageFileID(IntImages, IMAGE_GN_7, x + 4, y + 29);
       break;
     default:
       break;
@@ -3002,26 +3003,26 @@ void displayPlayer(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDW
     eval = bestPlayer(j);
     switch (eval)
     {
-    case 1: iV_DrawTransImage(IntImages, IMAGE_GN_1, x + 5, y + 3);
+    case 1: pie_ImageFileID(IntImages, IMAGE_GN_1, x + 5, y + 3);
       break;
-    case 2: iV_DrawTransImage(IntImages, IMAGE_GN_2, x + 4, y + 3);
+    case 2: pie_ImageFileID(IntImages, IMAGE_GN_2, x + 4, y + 3);
       break;
-    case 3: iV_DrawTransImage(IntImages, IMAGE_GN_3, x + 4, y + 3);
+    case 3: pie_ImageFileID(IntImages, IMAGE_GN_3, x + 4, y + 3);
       break;
-    case 4: iV_DrawTransImage(IntImages, IMAGE_GN_4, x + 4, y + 3);
+    case 4: pie_ImageFileID(IntImages, IMAGE_GN_4, x + 4, y + 3);
       break;
-    case 5: iV_DrawTransImage(IntImages, IMAGE_GN_5, x + 4, y + 3);
+    case 5: pie_ImageFileID(IntImages, IMAGE_GN_5, x + 4, y + 3);
       break;
-    case 6: iV_DrawTransImage(IntImages, IMAGE_GN_6, x + 4, y + 3);
+    case 6: pie_ImageFileID(IntImages, IMAGE_GN_6, x + 4, y + 3);
       break;
-    case 7: iV_DrawTransImage(IntImages, IMAGE_GN_7, x + 4, y + 3);
+    case 7: pie_ImageFileID(IntImages, IMAGE_GN_7, x + 4, y + 3);
       break;
     default:
       break;
     }
 
     if (getMultiStats(j,FALSE).played < 5)
-      iV_DrawTransImage(FrontImages, IMAGE_MEDAL_DUMMY, x + 37, y + 13);
+      pie_ImageFileID(FrontImages, IMAGE_MEDAL_DUMMY, x + 37, y + 13);
     else
     {
       stat = getMultiStats(j,FALSE);
@@ -3029,29 +3030,29 @@ void displayPlayer(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDW
       // star 1 total droid kills
       eval = stat.totalKills;
       if (eval > 600)
-        iV_DrawTransImage(FrontImages, IMAGE_MULTIRANK1, x + 37, y + 3);
+        pie_ImageFileID(FrontImages, IMAGE_MULTIRANK1, x + 37, y + 3);
       else if (eval > 300)
-        iV_DrawTransImage(FrontImages, IMAGE_MULTIRANK2, x + 37, y + 3);
+        pie_ImageFileID(FrontImages, IMAGE_MULTIRANK2, x + 37, y + 3);
       else if (eval > 150)
-        iV_DrawTransImage(FrontImages, IMAGE_MULTIRANK3, x + 37, y + 3);
+        pie_ImageFileID(FrontImages, IMAGE_MULTIRANK3, x + 37, y + 3);
 
       // star 2 games played
       eval = stat.played;
       if (eval > 200)
-        iV_DrawTransImage(FrontImages, IMAGE_MULTIRANK1, x + 37, y + 13);
+        pie_ImageFileID(FrontImages, IMAGE_MULTIRANK1, x + 37, y + 13);
       else if (eval > 100)
-        iV_DrawTransImage(FrontImages, IMAGE_MULTIRANK2, x + 37, y + 13);
+        pie_ImageFileID(FrontImages, IMAGE_MULTIRANK2, x + 37, y + 13);
       else if (eval > 50)
-        iV_DrawTransImage(FrontImages, IMAGE_MULTIRANK3, x + 37, y + 13);
+        pie_ImageFileID(FrontImages, IMAGE_MULTIRANK3, x + 37, y + 13);
 
       // star 3 games won.
       eval = stat.wins;
       if (eval > 80)
-        iV_DrawTransImage(FrontImages, IMAGE_MULTIRANK1, x + 37, y + 23);
+        pie_ImageFileID(FrontImages, IMAGE_MULTIRANK1, x + 37, y + 23);
       else if (eval > 40)
-        iV_DrawTransImage(FrontImages, IMAGE_MULTIRANK2, x + 37, y + 23);
+        pie_ImageFileID(FrontImages, IMAGE_MULTIRANK2, x + 37, y + 23);
       else if (eval > 10)
-        iV_DrawTransImage(FrontImages, IMAGE_MULTIRANK3, x + 37, y + 23);
+        pie_ImageFileID(FrontImages, IMAGE_MULTIRANK3, x + 37, y + 23);
 
       // medals.
       if ((stat.loses > 2)AND(stat.wins > 2)AND(stat.wins > (2 * stat.loses))) // bronze requirement.
@@ -3059,32 +3060,32 @@ void displayPlayer(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDW
         if (stat.wins > (4 * stat.loses)) // silver requirement.
         {
           if (stat.wins > (8 * stat.loses)) // gold requirement
-            iV_DrawTransImage(FrontImages, IMAGE_MEDAL_GOLD, x + 49, y + 11);
+            pie_ImageFileID(FrontImages, IMAGE_MEDAL_GOLD, x + 49, y + 11);
           else
-            iV_DrawTransImage(FrontImages, IMAGE_MEDAL_SILVER, x + 49, y + 11);
+            pie_ImageFileID(FrontImages, IMAGE_MEDAL_SILVER, x + 49, y + 11);
         }
         else
-          iV_DrawTransImage(FrontImages, IMAGE_MEDAL_BRONZE, x + 49, y + 11);
+          pie_ImageFileID(FrontImages, IMAGE_MEDAL_BRONZE, x + 49, y + 11);
       }
     }
 
     switch (getPlayerColour(j)) //flag icon
     {
-    case 0: iV_DrawTransImage(FrontImages, IMAGE_PLAYER0, x + 7, y + 9);
+    case 0: pie_ImageFileID(FrontImages, IMAGE_PLAYER0, x + 7, y + 9);
       break;
-    case 1: iV_DrawTransImage(FrontImages, IMAGE_PLAYER1, x + 7, y + 9);
+    case 1: pie_ImageFileID(FrontImages, IMAGE_PLAYER1, x + 7, y + 9);
       break;
-    case 2: iV_DrawTransImage(FrontImages, IMAGE_PLAYER2, x + 7, y + 9);
+    case 2: pie_ImageFileID(FrontImages, IMAGE_PLAYER2, x + 7, y + 9);
       break;
-    case 3: iV_DrawTransImage(FrontImages, IMAGE_PLAYER3, x + 7, y + 9);
+    case 3: pie_ImageFileID(FrontImages, IMAGE_PLAYER3, x + 7, y + 9);
       break;
-    case 4: iV_DrawTransImage(FrontImages, IMAGE_PLAYER4, x + 7, y + 9);
+    case 4: pie_ImageFileID(FrontImages, IMAGE_PLAYER4, x + 7, y + 9);
       break;
-    case 5: iV_DrawTransImage(FrontImages, IMAGE_PLAYER5, x + 7, y + 9);
+    case 5: pie_ImageFileID(FrontImages, IMAGE_PLAYER5, x + 7, y + 9);
       break;
-    case 6: iV_DrawTransImage(FrontImages, IMAGE_PLAYER6, x + 7, y + 9);
+    case 6: pie_ImageFileID(FrontImages, IMAGE_PLAYER6, x + 7, y + 9);
       break;
-    case 7: iV_DrawTransImage(FrontImages, IMAGE_PLAYER7, x + 7, y + 9);
+    case 7: pie_ImageFileID(FrontImages, IMAGE_PLAYER7, x + 7, y + 9);
       break;
     default:
       break;
@@ -3100,7 +3101,7 @@ void displayPlayer(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDW
     drawBlueBox(x, y, 31, psWidget->height); // left.
 
     if (game.type == SKIRMISH && game.skDiff[i])
-      iV_DrawTransImage(FrontImages, IMAGE_PLAYER_PC, x + 2, y + 9);
+      pie_ImageFileID(FrontImages, IMAGE_PLAYER_PC, x + 2, y + 9);
   }
   AddCursorSnap(&InterfaceSnap, static_cast<SWORD>(x + (psWidget->width / 2)), static_cast<SWORD>(y + (psWidget->height / 2)),
                 psWidget->formID, psWidget->id, nullptr);
@@ -3132,7 +3133,7 @@ void displayMultiEditBox(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffse
   drawBlueBox(x, y, psWidget->width, psWidget->height);
   drawBlueBox(x + psWidget->width, y, psWidget->height, psWidget->height); // box on end.
 
-  iV_DrawTransImage(FrontImages, im, x + psWidget->width + 2, y + 4); //icon descriptor.
+  pie_ImageFileID(FrontImages, im, x + psWidget->width + 2, y + 4); //icon descriptor.
 
   if (((W_EDITBOX*)psWidget)->state & WEDBS_DISABLE) // disabled
   {
@@ -3164,7 +3165,7 @@ void displayMultiBut(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, U
   if ((usehl == 1) && ((W_BUTTON*)psWidget)->state & WBUTS_HILITE)
   {
     Hilight = TRUE;
-    switch (iV_GetImageWidth(FrontImages, im)) //pick a hilight.
+    switch (Neuron::GetImageWidth(FrontImages, im)) //pick a hilight.
     {
     case 30:
       hiToUse = IMAGE_HI34;
@@ -3203,26 +3204,26 @@ void displayMultiBut(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, U
     Grey = 1;
 
   // now display
-  iV_DrawTransImage(FrontImages, im, x, y);
+  pie_ImageFileID(FrontImages, im, x, y);
 
   // hilight with a number...just for player selector
   if (usehl >= 10)
-    iV_DrawTransImage(IntImages, IMAGE_ASCII48 - 10 + usehl, x + 11, y + 8);
+    pie_ImageFileID(IntImages, IMAGE_ASCII48 - 10 + usehl, x + 11, y + 8);
 
   // hilights etc..
   if (Hilight && !Grey)
   {
     if (Down)
-      iV_DrawTransImage(FrontImages, im2, x, y);
+      pie_ImageFileID(FrontImages, im2, x, y);
 
     if (hiToUse)
-      iV_DrawTransImage(FrontImages, hiToUse, x, y);
+      pie_ImageFileID(FrontImages, hiToUse, x, y);
   }
   else if (Down)
-    iV_DrawTransImage(FrontImages, im2, x, y);
+    pie_ImageFileID(FrontImages, im2, x, y);
 
   if (Grey) // disabled, render something over it!
-    iV_TransBoxFill(x, y, x + psWidget->width, y + psWidget->height);
+    pie_TransBoxFill(x, y, x + psWidget->width, y + psWidget->height);
 
   if (!Grey) // add a snap.
   {

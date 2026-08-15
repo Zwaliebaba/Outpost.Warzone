@@ -22,7 +22,8 @@
 #include "BitImage.h"
 #include "IntDisplay.h"
 #include "AudioID.h"
-#include "PieBlitFunc.h"
+#include "Render2D.h"
+#include "Palette.h"
 #include "MultiInt.h"                      // addMultiBut
 
 // ////////////////////////////////////////////////////////////////////////////
@@ -257,8 +258,8 @@ VOID displayKeyMap(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDW
     drawBlueBox(x, y, w, h);
 
   // draw name
-  iV_SetFont(WFont); // font
-  iV_SetTextColour(-1); //colour
+  Neuron::SetFont(WFont); // font
+  Neuron::SetTextColour(-1); //colour
 
   pie_DrawText((UCHAR*)psMapping->pName, x + 2, y + (psWidget->height / 2) + 3);
 
@@ -295,7 +296,7 @@ BOOL startKeyMapEditor(BOOL first)
   widgAddForm(psWScreen, &sFormInit);
 
   addMultiBut(psWScreen,KM_FORM,KM_RETURN, // return button.
-              8, 5, iV_GetImageWidth(FrontImages, IMAGE_RETURN), iV_GetImageHeight(FrontImages, IMAGE_RETURN), STR_MUL_CANCEL, IMAGE_RETURN,
+              8, 5, Neuron::GetImageWidth(FrontImages, IMAGE_RETURN), Neuron::GetImageHeight(FrontImages, IMAGE_RETURN), STR_MUL_CANCEL, IMAGE_RETURN,
               IMAGE_RETURN_HI,TRUE);
 
   addMultiBut(psWScreen,KM_FORM,KM_DEFAULT, 11, 45, 56, 38, STR_MUL_DEFAULT, IMAGE_KEYMAP_DEFAULT, IMAGE_KEYMAP_DEFAULT,TRUE); // default.
