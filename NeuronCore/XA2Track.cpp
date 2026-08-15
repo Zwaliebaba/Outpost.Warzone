@@ -904,6 +904,11 @@ initError:
 
 /***************************************************************************/
 
+/* Handed to the FMV player so it can build a source voice on the game's own
+ * graph instead of standing up a second audio engine. See TrackLib.h.
+ */
+IXAudio2* sound_GetEngine(void) { return g_pXAudio2; }
+
 void sound_ShutdownLibrary(void)
 {
   SDWORD i;

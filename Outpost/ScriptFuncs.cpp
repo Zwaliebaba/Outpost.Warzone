@@ -2578,7 +2578,7 @@ BOOL scrGameOver(void)
       setScriptWinLoseVideo(PLAY_WIN);
 
       seq_ClearSeqList();
-      seq_AddSeqToList("outro.rpl", nullptr, "outro.txa", FALSE, 0);
+      seq_AddSeqToList("outro.mp4", nullptr, "outro.txa", FALSE, 0);
       seq_StartNextFullScreenVideo();
     }
   }

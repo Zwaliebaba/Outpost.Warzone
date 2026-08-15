@@ -450,7 +450,7 @@ BOOL startMission(LEVEL_TYPE missionType, STRING* pGame)
         //play the cam 2 video
         seq_ClearSeqList();
       #ifdef WIN32
-        seq_AddSeqToList("CAM2\\c002.rpl",NULL,"CAM2\\c002.txa",FALSE);
+        seq_AddSeqToList("CAM2\\c002.mp4",NULL,"CAM2\\c002.txa",FALSE);
       #else
         seq_AddSeqToList("CAM2\\C002.STR","1656f");
       #endif
@@ -461,8 +461,8 @@ BOOL startMission(LEVEL_TYPE missionType, STRING* pGame)
         //play the cam 3 video
         seq_ClearSeqList();
       #ifdef WIN32
-        seq_AddSeqToList("CAM2\\cam2out.rpl",NULL,NULL,FALSE);
-        seq_AddSeqToList("CAM3\\c003.rpl",NULL,"CAM3\\c003.txa",FALSE);
+        seq_AddSeqToList("CAM2\\cam2out.mp4",NULL,NULL,FALSE);
+        seq_AddSeqToList("CAM3\\c003.mp4",NULL,"CAM3\\c003.txa",FALSE);
       #else
         seq_AddSeqToList("CAM3\\C003.STR","1656f");
       #endif

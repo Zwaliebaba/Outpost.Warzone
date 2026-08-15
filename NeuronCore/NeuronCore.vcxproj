@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\packages\Microsoft.Windows.CppWinRT.3.0.260715.1\build\native\Microsoft.Windows.CppWinRT.props" Condition="Exists('..\packages\Microsoft.Windows.CppWinRT.3.0.260715.1\build\native\Microsoft.Windows.CppWinRT.props')" />
   <ItemGroup Label="ProjectConfigurations">
@@ -159,6 +159,7 @@
     <ClInclude Include="Screen.h" />
     <ClInclude Include="Script.h" />
     <ClInclude Include="Script_y.h" />
+    <ClInclude Include="MovieStream.h" />
     <ClInclude Include="Sequence.h" />
     <ClInclude Include="Slider.h" />
     <ClInclude Include="Stack.h" />
@@ -243,6 +244,7 @@
     <ClCompile Include="Script.cpp" />
     <ClCompile Include="Script_l.cpp" />
     <ClCompile Include="Script_y.cpp" />
+    <ClCompile Include="MovieStream.cpp" />
     <ClCompile Include="Sequence.cpp" />
     <ClCompile Include="Slider.cpp" />
     <ClCompile Include="Stack.cpp" />

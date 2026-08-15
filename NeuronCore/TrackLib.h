@@ -28,6 +28,18 @@
 BOOL sound_InitLibrary(void);
 void sound_ShutdownLibrary(void);
 
+/* The mixer's XAudio2 engine, for code that needs a voice of its own.
+ *
+ * FMV is the only caller. It used to create a whole second audio object for
+ * itself -- DirectSound, because QMixer's had gone and there was nothing to
+ * borrow -- which meant the movie soundtrack ignored the game's volume and
+ * mixed outside its graph. Handing out the engine costs nothing and puts the
+ * two back together. Null before sound_InitLibrary or after its shutdown, and
+ * a caller that gets null plays its movie silently rather than failing.
+ */
+struct IXAudio2;
+IXAudio2* sound_GetEngine(void);
+
 BOOL sound_ReadTrackFromBuffer(TRACK* psTrack, void* pBuffer, UDWORD udwSize);
 void sound_FreeTrack(TRACK* psTrack);
 

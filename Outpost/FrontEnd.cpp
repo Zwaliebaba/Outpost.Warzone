@@ -506,7 +506,7 @@ void frontEndNewGame(void)
   case 1:
     strcpy(pLevelName,DEFAULT_LEVEL);
     seq_ClearSeqList();
-    seq_AddSeqToList("CAM1\\c001.rpl", nullptr, "CAM1\\c001.txa",FALSE, 0);
+    seq_AddSeqToList("CAM1\\c001.mp4", nullptr, "CAM1\\c001.txa",FALSE, 0);
     seq_StartNextFullScreenVideo();
     break;
 

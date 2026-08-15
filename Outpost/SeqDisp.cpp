@@ -152,26 +152,22 @@ BOOL seq_RenderVideoToBuffer(iSurface* pSurface, char* sequenceName, int time, i
 
     if (bHardPath) //use this first
     {
-      DEBUG_ASSERT_TEXT((strlen(sequenceName) + strlen(aHardPath))<MAX_STR_LENGTH, "sequence path+name greater than max string");
-      strcpy(aVideoName, aHardPath);
-      strcat(aVideoName, sequenceName);
+      seq_BuildVideoName(aHardPath, sequenceName, aVideoName);
 
       // check it exists. If not then try CD.
       pFileHandle = fopen(aVideoName, "rb");
-      if (pFileHandle == nullptr && bCDPath)
-      {
-        DEBUG_ASSERT_TEXT((strlen(sequenceName) + strlen(aCDPath))<MAX_STR_LENGTH, "sequence path+name greater than max string");
-        strcpy(aVideoName, aCDPath);
-        strcat(aVideoName, sequenceName);
-      }
-      else
+      if (pFileHandle != nullptr)
         fclose(pFileHandle);
+      else if (bCDPath)
+        seq_BuildVideoName(aCDPath, sequenceName, aVideoName);
+      /* The original called fclose on the null handle whenever the file was
+       * missing and no CD path was set. Nine of the movies the game names have
+       * no source in any format, so that path is reachable.
+       */
     }
     else if (bCDPath)
     {
-      DEBUG_ASSERT_TEXT((strlen(sequenceName) + strlen(aCDPath))<MAX_STR_LENGTH, "sequence path+name greater than max string");
-      strcpy(aVideoName, aCDPath);
-      strcat(aVideoName, sequenceName);
+      seq_BuildVideoName(aCDPath, sequenceName, aVideoName);
     }
     else
     {
@@ -191,7 +187,7 @@ BOOL seq_RenderVideoToBuffer(iSurface* pSurface, char* sequenceName, int time, i
     if ((bSeqPlaying = seq_SetSequenceForBuffer(aVideoName, videoMode, videoFrameTime, perfMode)) == FALSE)
     {
 #ifdef DUMMY_VIDEO
-      if ((bSeqPlaying = seq_SetSequenceForBuffer("noVideo.rpl", videoMode, time, perfMode)) == TRUE)
+      if ((bSeqPlaying = seq_SetSequenceForBuffer("noVideo.mp4", videoMode, time, perfMode)) == TRUE)
         return TRUE;
 #endif
       DEBUG_ASSERT_TEXT(FALSE, "seq_RenderVideoToBuffer: unable to initialise sequence {}",aVideoName);
@@ -311,6 +307,25 @@ BOOL seq_SetupVideoBuffers(void)
   return TRUE;
 }
 
+/* Builds the on-disk name of a movie: the video path plus the sequence name.
+ *
+ * Every name the game holds is `.mp4` now -- the call sites here and in
+ * WinMain, Mission, FrontEnd and ScriptFuncs, and every record in
+ * GameData/messages. There was briefly an extension rewrite in this function,
+ * translating the old `.rpl` names as they went past; it is gone, because a
+ * name that has to be corrected before it can be used is a name stored wrong.
+ *
+ * Save games never held movie names to begin with: they store message ids, and
+ * the name comes back from the message data on load.
+ */
+void seq_BuildVideoName(const char* pPath, const char* pSeqName, char* pOut)
+{
+  DEBUG_ASSERT_TEXT((strlen(pSeqName) + strlen(pPath)) < MAX_STR_LENGTH, "sequence path+name greater than max string");
+
+  strcpy(pOut, pPath);
+  strcat(pOut, pSeqName);
+}
+
 void seq_SetVideoPath(void)
 {
   char aCDDrive[256] = "";
@@ -333,7 +348,12 @@ void seq_SetVideoPath(void)
   if (!bHardPath)
   {
     strcpy(aHardPath, "sequences\\");
-    fileHandle = FindFirstFile("sequences\\*.rpl", &findData);
+    /* This glob decides whether the hard-disk path is usable at all, so it has
+     * to name the container that is actually there: it decides whether the
+     * hard-disk video path is usable at all, so a stale extension here reports
+     * "no videos installed" and every sequence in the game silently stops.
+     */
+    fileHandle = FindFirstFile("sequences\\*.mp4", &findData);
     if (fileHandle == INVALID_HANDLE_VALUE)
       bHardPath = FALSE;
     else
@@ -381,17 +401,13 @@ BOOL seq_StartFullScreenVideo(char* videoName, char* audioName)
 
   if (bHardPath) //use this first
   {
-    DEBUG_ASSERT_TEXT((strlen(videoName) + strlen(aHardPath))<MAX_STR_LENGTH, "sequence path+name greater than max string");
-    strcpy(aVideoName, aHardPath);
-    strcat(aVideoName, videoName);
+    seq_BuildVideoName(aHardPath, videoName, aVideoName);
 
     // check it exists. If not then try CD.
     pFileHandle = fopen(aVideoName, "rb");
     if (pFileHandle == nullptr && bCDPath)
     {
-      DEBUG_ASSERT_TEXT((strlen(videoName) + strlen(aCDPath))<MAX_STR_LENGTH, "sequence path+name greater than max string");
-      strcpy(aVideoName, aCDPath);
-      strcat(aVideoName, videoName);
+      seq_BuildVideoName(aCDPath, videoName, aVideoName);
     }
     else
     {
@@ -401,9 +417,7 @@ BOOL seq_StartFullScreenVideo(char* videoName, char* audioName)
   }
   else if (bCDPath)
   {
-    DEBUG_ASSERT_TEXT((strlen(videoName) + strlen(aCDPath))<MAX_STR_LENGTH, "sequence path+name greater than max string");
-    strcpy(aVideoName, aCDPath);
-    strcat(aVideoName, videoName);
+    seq_BuildVideoName(aCDPath, videoName, aVideoName);
   }
   else
   {
@@ -442,7 +456,7 @@ BOOL seq_StartFullScreenVideo(char* videoName, char* audioName)
   if (!seq_SetSequence(aVideoName, videoFrameTime + VIDEO_PLAYBACK_DELAY, pVideoBuffer, perfMode))
   {
 #ifdef DUMMY_VIDEO
-    if (seq_SetSequence("noVideo.rpl", videoFrameTime + VIDEO_PLAYBACK_DELAY, pVideoBuffer, perfMode))
+    if (seq_SetSequence("noVideo.mp4", videoFrameTime + VIDEO_PLAYBACK_DELAY, pVideoBuffer, perfMode))
     {
       strcpy(aAudioName, "noVideo.wav");
       return TRUE;

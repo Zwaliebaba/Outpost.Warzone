@@ -205,10 +205,10 @@ init: //jump here from the end if re_initialising
       if (introVideoControl <= 1)
       {
         seq_ClearSeqList();
-        seq_AddSeqToList("eidos-logo.rpl", nullptr, nullptr, FALSE, 0);
-        seq_AddSeqToList("pumpkin.rpl", nullptr, nullptr, FALSE, 0);
-        seq_AddSeqToList("titles.rpl", nullptr, nullptr, FALSE, 0);
-        seq_AddSeqToList("devastation.rpl", nullptr, "devastation.txa", FALSE, 0);
+        seq_AddSeqToList("eidos-logo.mp4", nullptr, nullptr, FALSE, 0);
+        seq_AddSeqToList("pumpkin.mp4", nullptr, nullptr, FALSE, 0);
+        seq_AddSeqToList("titles.mp4", nullptr, nullptr, FALSE, 0);
+        seq_AddSeqToList("devastation.mp4", nullptr, "devastation.txa", FALSE, 0);
 
         seq_StartNextFullScreenVideo();
         introVideoControl = 2;
@@ -318,10 +318,10 @@ init: //jump here from the end if re_initialising
 
             case TITLECODE_SHOWINTRO: Neuron::DebugTrace("TITLECODE_SHOWINTRO\n");
               seq_ClearSeqList();
-              seq_AddSeqToList("eidos-logo.rpl", nullptr, nullptr, FALSE, 0);
-              seq_AddSeqToList("pumpkin.rpl", nullptr, nullptr, FALSE, 0);
-              seq_AddSeqToList("titles.rpl", nullptr, nullptr, FALSE, 0);
-              seq_AddSeqToList("devastation.rpl", nullptr, "devastation.txa", FALSE, 0);
+              seq_AddSeqToList("eidos-logo.mp4", nullptr, nullptr, FALSE, 0);
+              seq_AddSeqToList("pumpkin.mp4", nullptr, nullptr, FALSE, 0);
+              seq_AddSeqToList("titles.mp4", nullptr, nullptr, FALSE, 0);
+              seq_AddSeqToList("devastation.mp4", nullptr, "devastation.txa", FALSE, 0);
               seq_StartNextFullScreenVideo();
               introVideoControl = 2; //play the video but dont init the sound system
               break;
@@ -403,8 +403,8 @@ init: //jump here from the end if re_initialising
             {
               seq_ClearSeqList();
 
-              seq_AddSeqToList("factory.rpl", nullptr, nullptr, FALSE, 0);
-              seq_StartNextFullScreenVideo(); //"sequences\\factory.rpl","sequences\\factory.wav");
+              seq_AddSeqToList("factory.mp4", nullptr, nullptr, FALSE, 0);
+              seq_StartNextFullScreenVideo(); //"sequences\\factory.mp4","sequences\\factory.wav");
               introVideoControl = 2;
             }
             else

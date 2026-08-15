@@ -36,6 +36,7 @@
  */
 /***************************************************************************/
 //buffer render
+extern void seq_BuildVideoName(const char* pPath, const char* pSeqName, char* pOut);
 extern BOOL seq_RenderVideoToBuffer(iSurface* pSurface, char* sequenceName, int time, int seqCommand);
 extern BOOL seq_BlitBufferToScreen(char* screen, SDWORD screenStride, SDWORD xOffset, SDWORD yOffset);
 
