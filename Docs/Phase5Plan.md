@@ -259,7 +259,13 @@ project.
 
 ## Progress
 
-**Steps 1 to 4 are done** — voice chat, Mplayer, the DirectPlay lobby and the
+**Steps 1 to 6 are done.** `NetTransport.h` is the seam, `NETPLAYERID` has
+replaced `DPID`, and DirectPlay's reach is down from fifteen files to ten — of
+which only two are game code rather than the `Net*` modules: `MultiInt.cpp`'s
+connection-type screen and `MultiPlay.cpp`'s system-message switch, both of
+which the swap rewrites.
+
+Earlier: **steps 1 to 4** — voice chat, Mplayer, the DirectPlay lobby and the
 dead IPX address setup are gone, about 2,600 lines. Two things the plan got
 wrong turned up while doing them, and both are recorded above rather than
 quietly fixed: the modem and serial address paths are not independently

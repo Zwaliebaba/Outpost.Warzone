@@ -196,6 +196,9 @@
     <ClInclude Include="NetProv.h">
       <Filter>NetPlay</Filter>
     </ClInclude>
+    <ClInclude Include="NetTransport.h">
+      <Filter>NetPlay</Filter>
+    </ClInclude>
     <ClInclude Include="NetSupp.h">
       <Filter>NetPlay</Filter>
     </ClInclude>

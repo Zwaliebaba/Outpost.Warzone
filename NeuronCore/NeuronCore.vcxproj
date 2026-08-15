@@ -132,6 +132,7 @@
     <ClInclude Include="MultiWDG.h" />
     <ClInclude Include="NetPlay.h" />
     <ClInclude Include="NetProv.h" />
+    <ClInclude Include="NetTransport.h" />
     <ClInclude Include="NetSupp.h" />
     <ClInclude Include="NeuronCore.h" />
     <ClInclude Include="Parse.h" />
