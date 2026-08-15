@@ -213,7 +213,6 @@
     <ClInclude Include="Sequence.h" />
     <ClInclude Include="Slider.h" />
     <ClInclude Include="Stack.h" />
-    <ClInclude Include="STREAMER.H" />
     <ClInclude Include="Tip.h" />
     <ClInclude Include="Track.h" />
     <ClInclude Include="TrackLib.h" />

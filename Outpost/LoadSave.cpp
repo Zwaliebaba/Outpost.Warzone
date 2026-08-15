@@ -301,21 +301,6 @@ BOOL closeLoadSave(void)
 }
 
 // ////////////////////////////////////////////////////////////////////////////
-void loadSaveCDOK(void)
-{
-  bRequestLoad = TRUE;
-  closeLoadSave();
-  loadOK();
-}
-
-// ////////////////////////////////////////////////////////////////////////////
-void loadSaveCDCancel(void)
-{
-  bRequestLoad = FALSE;
-  widgReveal(psRequestScreen,LOADSAVE_FORM);
-}
-
-// ////////////////////////////////////////////////////////////////////////////
 BOOL runLoadSave(BOOL bResetMissionWidgets) { return _runLoadSave(bResetMissionWidgets); }
 
 // ////////////////////////////////////////////////////////////////////////////
@@ -365,15 +350,11 @@ static BOOL _runLoadSave(BOOL bResetMissionWidgets)
   UDWORD id = 0;
   W_EDBINIT sEdInit;
   CHAR sTemp[MAX_STR_LENGTH];
-  CD_INDEX CDrequired;
   UDWORD iCampaign, i;
   W_CONTEXT context;
   BOOL bSkipCD = FALSE;
 
   id = widgRunScreen(psRequestScreen);
-
-  if (cdspan_ProcessCDChange(id))
-    return bRequestLoad;
 
   strcpy(sRequestResult, ""); // set returned filename to null;
 
@@ -394,17 +375,11 @@ static BOOL _runLoadSave(BOOL bResetMissionWidgets)
       if (bLoadSaveMode == LOAD_FORCE || bLoadSaveMode == SAVE_FORCE)
         goto successforce; // it's a force, dont check the cd.
 
-      /* check correct CD in drive */
+      /* getCampaign is still called for its bSkipCD out-parameter side
+       * effects on the caller's expectations; the disc it named is no longer
+       * consulted, because the content is on disk. */
       iCampaign = getCampaign(sRequestResult, &bSkipCD);
-      if (iCampaign == 0 OR bSkipCD)
-        Neuron::DebugTrace("getCampaign returned 0 or we're loading a skirmish game: assuming correct CD in drive\n");
-      CDrequired = getCDForCampaign(iCampaign);
-      if ((iCampaign == 0) || cdspan_CheckCDPresent(CDrequired) OR bSkipCD)
-        goto success;
-      bRequestLoad = FALSE;
-      widgHide(psRequestScreen,LOADSAVE_FORM);
-      showChangeCDBox(psRequestScreen, CDrequired, loadSaveCDOK, loadSaveCDCancel);
-      return FALSE;
+      goto success;
     }
     //  SAVING!add edit box at that position.
     if (!widgGetFromID(psRequestScreen,SAVEENTRY_EDIT))

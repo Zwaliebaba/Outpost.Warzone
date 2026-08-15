@@ -163,7 +163,6 @@
     <ClInclude Include="Sequence.h" />
     <ClInclude Include="Slider.h" />
     <ClInclude Include="Stack.h" />
-    <ClInclude Include="STREAMER.H" />
     <ClInclude Include="StrRes.h" />
     <ClInclude Include="StrResLY.h" />
     <ClInclude Include="StrRes_y.h" />

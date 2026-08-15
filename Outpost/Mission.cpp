@@ -57,7 +57,6 @@
 #include "Scores.h"
 #include "KeyMap.h"
 
-#include "CDSpan.h"
 #include "Music.h"
 #include "Texture.h"
 extern CURSORSNAP InterfaceSnap;
@@ -3025,8 +3024,6 @@ void intRunMissionResult()
   }
 }
 
-void missionCDCancelPressed(void) { intAddMissionResult(g_bMissionResult, TRUE); }
-
 void missionContineButtonPressed(void)
 {
   //SHOULDN'T BE ABLE TO BE ANY OTHER TYPE AT PRESENT!
@@ -3058,63 +3055,48 @@ void missionContineButtonPressed(void)
 void intProcessMissionResult(UDWORD id)
 {
   W_BUTINIT sButInit;
-  CD_INDEX CDrequired;
 
-  /* GJ to TC - this call processes the CD change widget box */
-  if (!cdspan_ProcessCDChange(id))
+  switch (id)
   {
-    switch (id)
+  case IDMISSIONRES_LOAD:
+    // throw up some filerequester
+    addLoadSave(LOAD_MISSIONEND, "savegame\\", "gam", strresGetString(psStringRes, STR_MR_LOAD_GAME)/*"Load Game"*/);
+    break;
+  case IDMISSIONRES_SAVE:
+    addLoadSave(SAVE_MISSIONEND, "savegame\\", "gam", strresGetString(psStringRes, STR_MR_SAVE_GAME)/*"Save Game"*/);
+
+    if (widgGetFromID(psWScreen, IDMISSIONRES_QUIT) == nullptr)
     {
-    case IDMISSIONRES_LOAD:
-      // throw up some filerequester
-      addLoadSave(LOAD_MISSIONEND, "savegame\\", "gam", strresGetString(psStringRes, STR_MR_LOAD_GAME)/*"Load Game"*/);
-      break;
-    case IDMISSIONRES_SAVE:
-      addLoadSave(SAVE_MISSIONEND, "savegame\\", "gam", strresGetString(psStringRes, STR_MR_SAVE_GAME)/*"Save Game"*/);
-
-      if (widgGetFromID(psWScreen, IDMISSIONRES_QUIT) == nullptr)
-      {
-        //Add Quit Button now save has been pressed
-        memset(&sButInit, 0, sizeof(W_BUTINIT));
-        sButInit.formID = IDMISSIONRES_FORM;
-        sButInit.style = WBUT_PLAIN | WBUT_TXTCENTRE;
-        sButInit.width = MISSION_TEXT_W;
-        sButInit.height = MISSION_TEXT_H;
-        sButInit.FontID = WFont;
-        sButInit.pTip = nullptr;
-        sButInit.pDisplay = displayTextOption;
-        sButInit.id = IDMISSIONRES_QUIT;
-        sButInit.x = MISSION_3_X;
-        sButInit.y = MISSION_3_Y;
-        sButInit.pText = strresGetString(psStringRes, STR_MR_QUIT_TO_MAIN);
-        widgAddButton(psWScreen, &sButInit);
-      }
-      break;
-
-    case IDMISSIONRES_QUIT:
-      // catered for by hci.c.
-      break;
-
-    case IDMISSIONRES_CONTINUE:
-      if (bLoadSaveUp)
-        closeLoadSave(); // close save interface if it's up.
-
-      /* check correct CD in drive */
-      CDrequired = getCDForCampaign(getCampaignNumber());
-      if (cdspan_CheckCDPresent(CDrequired))
-        missionContineButtonPressed();
-      else
-      {
-        widgDelete(psWScreen, IDMISSIONRES_TITLE);
-        widgDelete(psWScreen, IDMISSIONRES_FORM);
-        widgDelete(psWScreen, IDMISSIONRES_BACKFORM);
-        showChangeCDBox(psWScreen, CDrequired, missionContineButtonPressed, missionCDCancelPressed);
-      }
-      break;
-
-    default:
-      break;
+      //Add Quit Button now save has been pressed
+      memset(&sButInit, 0, sizeof(W_BUTINIT));
+      sButInit.formID = IDMISSIONRES_FORM;
+      sButInit.style = WBUT_PLAIN | WBUT_TXTCENTRE;
+      sButInit.width = MISSION_TEXT_W;
+      sButInit.height = MISSION_TEXT_H;
+      sButInit.FontID = WFont;
+      sButInit.pTip = nullptr;
+      sButInit.pDisplay = displayTextOption;
+      sButInit.id = IDMISSIONRES_QUIT;
+      sButInit.x = MISSION_3_X;
+      sButInit.y = MISSION_3_Y;
+      sButInit.pText = strresGetString(psStringRes, STR_MR_QUIT_TO_MAIN);
+      widgAddButton(psWScreen, &sButInit);
     }
+    break;
+
+  case IDMISSIONRES_QUIT:
+    // catered for by hci.c.
+    break;
+
+  case IDMISSIONRES_CONTINUE:
+    if (bLoadSaveUp)
+      closeLoadSave(); // close save interface if it's up.
+
+    missionContineButtonPressed();
+    break;
+
+  default:
+    break;
   }
 }
 
@@ -3185,9 +3167,6 @@ BOOL setUpMission(UDWORD type)
 
   if (type == LDS_CAMSTART)
   {
-    //this cannot be called here since we need to be able to save the game at the end of cam1 and cam2
-    /*CDrequired = getCDForCampaign( getCampaignNumber() );
-    if ( cdspan_CheckCDPresent(CDrequired) )*/
     {
       //another one of those lovely hacks!!
       BOOL bPlaySuccess = TRUE;
