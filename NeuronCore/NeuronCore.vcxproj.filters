@@ -112,9 +112,6 @@
     <ClInclude Include="Bug.h">
       <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="D3DMode.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="D3DRender.h">
       <Filter>Graphics</Filter>
     </ClInclude>
@@ -379,9 +376,6 @@
     <ClCompile Include="TexMan.cpp" />
     <ClCompile Include="TextDraw.cpp" />
     <ClCompile Include="WDG.cpp" />
-    <ClCompile Include="D3DMode.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="D3DRender.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>

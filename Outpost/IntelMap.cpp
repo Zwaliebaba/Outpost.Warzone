@@ -1078,7 +1078,7 @@ void intDisplayFLICView(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
     psViewResearch = static_cast<VIEW_RESEARCH*>(((VIEWDATA*)psCurrentMsg->pViewData)->pData);
     seq_RenderVideoToBuffer(nullptr, psViewResearch->sequenceName, gameTime2, SEQUENCE_HOLD);
     //download to screen now
-    seq_BlitBufferToScreen((SBYTE*)rendSurface.buffer, rendSurface.scantable[1], x0, y0);
+    seq_BlitBufferToScreen((SBYTE*)rendSurface.buffer, rendSurface.width, x0, y0);
     //	// PSXSequencesCountdown is the time until the playstation research seq. starts
     //	// ... This gives the rest of the display a chance to have a head start.
     //	//  ... avoiding screen flickers 

@@ -69,7 +69,6 @@ using iSurface = struct iSurface
   int ypshift;
   iClip clip;
   uint8* buffer;
-  int32 scantable[iV_SCANTABLE_MAX]; // currently uses 4k per structure (!)
   int width;
   int height;
   int32 size;

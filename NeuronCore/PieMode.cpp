@@ -15,22 +15,15 @@
 #include "PieMatrix.h"
 #include "PieFunc.h"
 #include "Tex.h"
-#include "D3DMode.h"
+#include "D3DRender.h"
 #include "RendMode.h"
 #include "PieClip.h"
 
 /***************************************************************************/
 /*
- *	Local Definitions
- */
-/***************************************************************************/
-#define DIVIDE_TABLE_SIZE		1024
-/***************************************************************************/
-/*
  *	Local Variables
  */
 /***************************************************************************/
-int32 _iVPRIM_DIVTABLE[DIVIDE_TABLE_SIZE];
 
 static SDWORD d3dActive = 0;
 
@@ -46,45 +39,51 @@ static SDWORD d3dActive = 0;
  */
 /***************************************************************************/
 
+/*
+ * Bring the renderer up, in the order the pieces depend on each other:
+ * the maths tables, then the surface the projection reads its centre and
+ * clip from, then the device (which brings the texture manager and the
+ * render states with it), then the palette the texture upload needs.
+ *
+ * This used to be spread over pie_Initialise, _mode_D3D, InitD3D and
+ * rend_InitD3D across three files, with the mode functions differing only in
+ * flags nothing read.
+ */
 BOOL pie_Initialise(void)
 {
-  BOOL r; //result
-  int i;
-
   pie_InitMaths();
   pie_TexInit();
-
-  rendSurface.flags = REND_SURFACE_UNDEFINED;
-  rendSurface.buffer = nullptr;
-  rendSurface.size = 0;
-
-  // divtable: first entry == unity to (ie n/0 == 1 !)
-  _iVPRIM_DIVTABLE[0] = iV_DIVMULTP;
-
-  for (i = 1; i < DIVIDE_TABLE_SIZE; i++)
-    _iVPRIM_DIVTABLE[i - 0] = std::lrintf((1.0f / static_cast<float>(i)) * iV_DIVMULTP);
-
   pie_MatInit();
   _TEX_INDEX = 0;
 
+  rendSurface.flags = REND_SURFACE_SCREEN;
+  rendSurface.buffer = nullptr;
+  rendSurface.width = pie_GetVideoBufferWidth();
+  rendSurface.height = pie_GetVideoBufferHeight();
+  rendSurface.xcentre = rendSurface.width >> 1;
+  rendSurface.ycentre = rendSurface.height >> 1;
+  rendSurface.clip.left = 0;
+  rendSurface.clip.top = 0;
+  rendSurface.clip.right = rendSurface.width;
+  rendSurface.clip.bottom = rendSurface.height;
+  rendSurface.xpshift = 10;
+  rendSurface.ypshift = 10;
   iV_RenderAssign(&rendSurface);
-  r = _mode_D3D();
 
-  if (r)
-    pie_SetDefaultStates();
-
-  if (r)
-    pal_Init();
-  else
+  if (!InitD3D())
   {
     iV_ShutDown();
     Neuron::Fatal("Initialise videomode failed");
     return FALSE;
   }
+
+  pie_SetDefaultStates();
+  pal_Init();
+
   return TRUE;
 }
 
-void pie_ShutDown(void) { _close_D3D(); }
+void pie_ShutDown(void) { ShutDownD3D(); }
 
 /***************************************************************************/
 
@@ -119,7 +118,7 @@ void pie_GlobalRenderBegin(void)
   if (d3dActive == 0)
   {
     d3dActive = 1;
-    _renderBegin_D3D();
+    BeginFrameD3D();
   }
 }
 
@@ -129,7 +128,7 @@ void pie_GlobalRenderEnd(BOOL bForceClearToBlack)
   if (d3dActive != 0)
   {
     d3dActive = 0;
-    _renderEnd_D3D();
+    EndFrameD3D();
   }
 }
 

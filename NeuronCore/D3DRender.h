@@ -11,14 +11,9 @@
 
 /***************************************************************************/
 
-using D3DINFO = struct D3DINFO
-{
-  BOOL bAlphaKey;
-};
-
-/***************************************************************************/
-
-extern BOOL InitD3D(D3DINFO* psD3Dinfo);
+extern BOOL InitD3D(void);
+extern void BeginFrameD3D(void);
+extern void EndFrameD3D(void);
 extern void ShutDownD3D(void);
 extern void BeginSceneD3D(void);
 extern void EndSceneD3D(void);

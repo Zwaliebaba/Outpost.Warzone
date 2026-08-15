@@ -33,14 +33,17 @@
 /***************************************************************************/
 /* local funcs */
 
-static BOOL rend_InitD3D(void);
 static void D3DSetCulling(BOOL bCullingOn);
+static void D3DGetCaps(void);
 
 /***************************************************************************/
 /* global variables */
 
-static D3DINFO g_sD3Dinfo;
 static LPDIRECT3DDEVICE9 g_psDevice = nullptr;
+
+/* The display mode the device was set up for, so a change can be noticed at
+ * the top of a frame. */
+static SCREEN_MODE g_ScreenMode;
 static D3DTLVERTEX d3dVrts[pie_MAX_POLY_VERTS];
 static float g_fTextureOffset = 0.0f;
 static BOOL g_bTexelOffsetOn = FALSE;
@@ -52,20 +55,52 @@ static BOOL g_bCanVertexFog = FALSE;
 
 /***************************************************************************/
 
-BOOL InitD3D(D3DINFO* psD3Dinfo)
+/*
+ * Take the device the framework created and get it ready to draw.
+ *
+ * Direct3D 9 has no colour key, so transparency is always the alpha test: the
+ * texture manager gives palette entry zero an alpha of zero and every other
+ * entry full alpha, which is what the DirectDraw colour key on black used to
+ * do. That used to be recorded in a D3DINFO flag nothing read.
+ */
+BOOL InitD3D(void)
 {
-  /* copy input struct */
-  memcpy(&g_sD3Dinfo, psD3Dinfo, sizeof(D3DINFO));
+  g_psDevice = screenGetDevice();
 
-  /* Direct3D 9 has no colour key, so transparency is always the alpha test.
-   * The texture manager gives palette entry zero an alpha of zero and every
-   * other entry full alpha, which is what the DirectDraw colour key on black
-   * used to do.
-   */
-  g_sD3Dinfo.bAlphaKey = TRUE;
+  if (g_psDevice == nullptr)
+  {
+    Neuron::Fatal("InitD3D: the framework has not created a Direct3D 9 device");
+    return FALSE;
+  }
 
-  return rend_InitD3D();
+  D3DGetCaps();
+
+  if (!dtm_Initialise())
+    return FALSE;
+
+  D3DApplyRenderStates();
+
+  g_ScreenMode = screenGetMode();
+
+  return TRUE;
 }
+
+/***************************************************************************/
+
+void BeginFrameD3D(void)
+{
+  /* A display mode change needs the states and texture bindings put back
+   * before anything is drawn through them. */
+  if (g_ScreenMode != screenGetMode())
+  {
+    D3DReInit();
+    g_ScreenMode = screenGetMode();
+  }
+
+  BeginSceneD3D();
+}
+
+void EndFrameD3D(void) { EndSceneD3D(); }
 
 /***************************************************************************/
 
@@ -440,35 +475,6 @@ void D3DApplyRenderStates(void)
   (void)g_psDevice->SetRenderState(D3DRS_ALPHATESTENABLE, TRUE);
 
   dtm_ApplyTextureStates();
-}
-
-/***************************************************************************/
-/*
- * rend_InitD3D
- *
- * Take the device the framework created and get it ready to draw.
- */
-/***************************************************************************/
-
-static BOOL rend_InitD3D(void)
-{
-  g_psDevice = screenGetDevice();
-
-  if (g_psDevice == nullptr)
-  {
-    Neuron::Fatal("InitD3D: the framework has not created a Direct3D 9 device");
-    return FALSE;
-  }
-
-  D3DGetCaps();
-
-  /* init texture manager */
-  if (!dtm_Initialise())
-    return FALSE;
-
-  D3DApplyRenderStates();
-
-  return TRUE;
 }
 
 /***************************************************************************/
