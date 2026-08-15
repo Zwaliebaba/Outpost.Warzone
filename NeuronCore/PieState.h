@@ -21,12 +21,6 @@
  */
 /***************************************************************************/
 
-using REND_ENGINE = enum REND_ENGINE
-{
-  ENGINE_UNDEFINED,
-  ENGINE_D3D
-};
-
 using REND_MODE = enum REND_MODE
 {
   REND_GOURAUD_TEX,
@@ -92,16 +86,7 @@ extern SDWORD pieStateCount;
  */
 /***************************************************************************/
 extern void pie_SetDefaultStates(); //Sets all states
-//render engine
-extern void pie_SetRenderEngine(REND_ENGINE rendEngine);
-extern REND_ENGINE pie_GetRenderEngine(void);
-extern BOOL pie_Hardware(void);
 extern void pie_SetDepthBufferStatus(DEPTH_MODE depthMode);
-extern void pie_SetGammaValue(float val);
-extern void pie_SetDirectDrawDeviceName(char* pDDDeviceName);
-extern char* pie_GetDirectDrawDeviceName(void);
-extern void pie_SetDirect3DDeviceName(char* pD3DDeviceName);
-extern char* pie_GetDirect3DDeviceName(void);
 //renderer capability
 extern void pie_SetTranslucent(BOOL val);
 extern BOOL pie_Translucent(void);
@@ -127,14 +112,6 @@ extern void pie_SetColourKeyedBlack(BOOL keyingOn);
 extern void pie_SetRendMode(REND_MODE rendMode);
 extern void pie_SetColour(UDWORD val);
 extern UDWORD pie_GetColour(void);
-//mouse states
-extern void pie_DrawMouse(int x, int y);
-extern void pie_SetMouse(IMAGEFILE* ImageFile, UWORD ImageID);
-extern UDWORD pie_GetMouseID(void);
-extern BOOL pie_SwirlyBoxes(void);
-extern void pie_SetSwirlyBoxes(BOOL val);
-extern BOOL pie_WaveBlit(void);
-extern void pie_SetWaveBlit(BOOL val);
 void pie_ResetStates(void); //Sets all states
 
 #endif // _pieState_h

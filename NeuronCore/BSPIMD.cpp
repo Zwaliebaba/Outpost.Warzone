@@ -17,108 +17,13 @@
 #include <stdio.h>
 #include <assert.h>
 
-// from imddraw.c
-void DrawTriangleList(BSPPOLYID PolygonNumber);
-
-// Local prototypes
-_inline int IsPointOnPlane(PSPLANE psPlane, iVector* vP);
 static iVector* IMDvec(int Vertex);
-static void TraverseTreeAndRender(PSBSPTREENODE psNode);
-
-iIMDShape* BSPimd = nullptr; // This is a global ... it is used in imddraw.c (for speed)
 
 // Local static variables
-static iVector* BSPScrPos = nullptr;
-
 static iVector* CurrentVertexList = nullptr;
 static int CurrentVertexListCount = 0;
 
-extern BOOL NoCullBSP; // Oh yes... a global externaly referenced variable....
-
 // General routines that work on both PC & PSX
-
-/***************************************************************************/
-/*
- * Calculates whether point is on same side, opposite side or in plane;
- *
- * returns OPPOSITE_SIDE if opposite,
- *         IN_PLANE if contained in plane,
- *         SAME_SIDE if same side
- *       Also returns pvDot - the dot product 
- * - inputs vP vector to the point
- * - psPlane structure containing the plane equation
- */
-/***************************************************************************/
-_inline int IsPointOnPlane(PSPLANE psPlane, iVector* vP)
-{
-  iVectorf vecP;
-  float Dot;
-
-  /* validate input */
-#ifdef BSP_MAXDEBUG
-#endif
-
-  /* subtract point on plane from input point to get position vector */
-  vecP.x = static_cast<float>(vP->x - psPlane->vP.x);
-  vecP.y = static_cast<float>(vP->y - psPlane->vP.y);
-  vecP.z = static_cast<float>(vP->z - psPlane->vP.z);
-
-  /* get dot product of result with plane normal (a,b,c of plane) */
-  Dot = static_cast<float>(((vecP.x * psPlane->a) + (vecP.y * psPlane->b) + (vecP.z * psPlane->c)));
-
-  /* if result is -ve, return -1 */
-  if ((abs(static_cast<int>(Dot))) < (1.0f / 100.0f))
-    return IN_PLANE;
-  if (Dot < 0)
-    return OPPOSITE_SIDE;
-  return SAME_SIDE;
-}
-
-/*
-	This is the main BSP Traversal routine. It Zaps through the tree (recursively) - and draws all the polygons
-	for the IMD in the correct order ... pretty clever eh ..
-*/
-static void TraverseTreeAndRender(PSBSPTREENODE psNode)
-{
-  /* is viewer on same side? */
-  // so we just do the list the opposite way around - this affects the BACKFACE culling as well 
-  if (IsPointOnPlane(&psNode->Plane, BSPScrPos) == SAME_SIDE)
-  {
-    /* recurse on opposite side, render this node on same side, 
-     * recurse on same side.
-     */
-
-    if (psNode->link[LEFT] != nullptr)
-      TraverseTreeAndRender(psNode->link[LEFT]);
-    if (psNode->TriSameDir != BSPPOLYID_TERMINATE)
-      DrawTriangleList(psNode->TriSameDir);
-#ifndef BSP_BACKFACECULL
-    if (psNode->TriOppoDir != BSPPOLYID_TERMINATE)
-      DrawTriangleList(psNode->TriOppoDir);
-#warning	LETS_FORCE_AN_ERROR_TO_MAKE_SURE_THAT_THIS_CODE_ISNT_COMPILED
-#endif
-    if (psNode->link[RIGHT] != nullptr)
-      TraverseTreeAndRender(psNode->link[RIGHT]);
-  }
-  else
-  /* viewer in plane or on opposite side */
-  {
-    /* recurse on same side, render this node on opposite side
-     * recurse on opposite side.
-     */
-    if (psNode->link[RIGHT] != nullptr)
-      TraverseTreeAndRender(psNode->link[RIGHT]);
-    if (psNode->TriOppoDir != BSPPOLYID_TERMINATE)
-      DrawTriangleList(psNode->TriOppoDir);
-
-#ifndef BSP_BACKFACECULL
-    if (psNode->TriSameDir != BSPPOLYID_TERMINATE)
-      DrawTriangleList(psNode->TriSameDir);
-#endif
-    if (psNode->link[LEFT] != nullptr)
-      TraverseTreeAndRender(psNode->link[LEFT]);
-  }
-}
 
 /*
 	These routines are used by the IMD Load_BSP routine 
@@ -346,31 +251,5 @@ PSBSPTREENODE InitNode(PSBSPTREENODE psBSPNode)
 }
 
 // PC Specific drawing routines
-
-// Calculate the real camera position based on the coordinates of the camera and the camera
-// distance - the result is stores in CameraLoc ,,  up is +ve Y
-void GetRealCameraPos(OBJPOS* Camera, SDWORD Distance, iVector* CameraLoc)
-{
-  int Yinc;
-
-  //  as pitch is negative ... we need to subtract the value from y to go up the axis
-  CameraLoc->y = Camera->y - ((SIN(Camera->pitch) * Distance) >> FP12_SHIFT);
-
-  Yinc = ((COS(Camera->pitch) * Distance) >> FP12_SHIFT);
-
-  CameraLoc->x = Camera->x + ((SIN(-Camera->yaw) * (-Yinc)) >> FP12_SHIFT);
-  CameraLoc->z = Camera->z + ((COS(-Camera->yaw) * (Yinc)) >> FP12_SHIFT);
-}
-
-iIMDPoly* BSPScrVertices = nullptr;
-
-void DrawBSPIMD(iIMDShape* IMDdef, iVector* pPos, iIMDPoly* ScrVertices)
-{
-  BSPScrVertices = ScrVertices; // this is wrong ... use vrt entry in IMDdef
-  BSPScrPos = pPos;
-  BSPimd = IMDdef;
-
-  TraverseTreeAndRender(IMDdef->BSPNode);
-}
 
 #endif			// #ifdef BSPIMD

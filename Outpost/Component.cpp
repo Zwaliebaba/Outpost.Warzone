@@ -38,7 +38,6 @@
 #include "E3Demo.h"
 #include "Transporter.h"
 #include "Projectile.h"
-#include "BSPFunc.h"                       // GetRealCameraPos
 #include "Findpath.h"
 #include "Loop.h"                          // gamePaused
 
@@ -112,19 +111,6 @@ void updateLightLevels(void)
 
 void setMatrix(iVector* Position, iVector* Rotation, iVector* CameraPos, BOOL RotXYZ)
 {
-  iVector BSPCameraPos;
-  OBJPOS Camera = {0, 0, 0};
-
-  Camera.pitch = -45;
-  Camera.yaw = 0;
-
-  GetRealCameraPos(&Camera, Position->z, &BSPCameraPos);
-  // Fixes BSP drawing in buttons. eg Player HQ.
-  SetBSPCameraPos(BSPCameraPos.x, 500, BSPCameraPos.z);
-  SetBSPObjectPos(0, 0, 0); // For imd button the bsp is sourced at 0,0,0
-
-  SetBSPObjectRot(DEG(-Rotation->y), 0); // Droid rotation
-
   pie_MatBegin();
 
   pie_TRANSLATE(Position->x, Position->y, Position->z);
@@ -279,7 +265,6 @@ void displayStructureButton(STRUCTURE* psStructure, iVector* Rotation, iVector* 
   if (psStructure->pStructureType->pIMD->nconnectors AND scale == SMALL_STRUCT_SCALE AND getStructureHeight(psStructure) > TOWER_HEIGHT)
     Position->y -= 20;
 
-  SetBSPObjectPos(0, 0, 0);
   setMatrix(Position, Rotation, &TmpCamPos, RotXYZ);
   scaleMatrix(scale);
 

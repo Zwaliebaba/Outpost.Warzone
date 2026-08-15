@@ -1237,30 +1237,25 @@ static char* _imd_get_path(char* filename, char* path)
 
 BOOL CheckColourKey(iIMDShape* psShape)
 {
-  iIMDShape* psShapeLevel;
   int i;
 
-  if (rendSurface.usr >= REND_D3D_RGB && rendSurface.usr <= REND_D3D_REF)
+  /* check model override flags else check all polys for colorkey flag */
+  if (_IMD_FLAGS & iV_IMD_XTRANS)
+    return TRUE;
+
+  /* loop over levels in model */
+  while (psShape != nullptr)
   {
-    /* check model override flags else check all polys for colorkey flag */
-    if (_IMD_FLAGS & iV_IMD_XTRANS)
-      return TRUE;
-    psShapeLevel = psShape;
-
-    /* loop over levels in model */
-    while (psShape != nullptr)
+    /* loop over polys in level */
+    for (i = 0; i < psShape->npolys; i++)
     {
-      /* loop over polys in level */
-      for (i = 0; i < psShape->npolys; i++)
-      {
-        /* break if transparent poly found */
-        if (psShape->polys[i].flags & PIE_COLOURKEYED)
-          return TRUE;
-      }
-
-      /* next level */
-      psShape = psShape->next;
+      /* break if transparent poly found */
+      if (psShape->polys[i].flags & PIE_COLOURKEYED)
+        return TRUE;
     }
+
+    /* next level */
+    psShape = psShape->next;
   }
 
   return FALSE;

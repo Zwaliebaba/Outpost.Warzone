@@ -370,13 +370,6 @@ BOOL LoadLevelGraphics(UBYTE LevelNumber)
 /* Initialise the display system */
 BOOL dispInitialise(void)
 {
-  /*	Build the transparency table that's
-    used for the rgb filter rectangle plotter in ivis */
-  iV_SetTransFilter(TRANS_BLUE, 0); // set the table.
-  iV_SetTransFilter(TRANS_BRITE, 1); // set the other table.
-  iV_SetTransFilter(TINT_BLUE, 2); // set the other other table.
-  iV_SetTransFilter(TINT_DEEPBLUE, 3); // set the other other table.
-
   noDrag3D = FALSE;
   RadarZoomLevel = 0;
 
@@ -953,7 +946,6 @@ void processMouseClickInput(void)
       else if (item == MT_TERRAIN AND TERRAIN_TYPE(mapTile(mouseTileX,mouseTileY)) == TER_CLIFFFACE)
         item = MT_BLOCKING;
 
-      pie_SetMouse(IntImages, MPointerImageIDs[arnMPointers[item][selection] - IDC_DEST]);
       frameSetCursorFromRes(static_cast<WORD>(arnMPointers[item][selection]));
     }
   }
@@ -969,19 +961,16 @@ void processMouseClickInput(void)
       if (item == MT_ENEMYDROID OR item == MT_ENEMYSTR OR item == MT_DAMFEATURE)
       {
         //display attack cursor
-        pie_SetMouse(IntImages, IMAGE_CURSOR_ATTACK);
         frameSetCursorFromRes(IDC_ATTACK);
       }
       else
       {
         //display block cursor
-        pie_SetMouse(IntImages, IMAGE_CURSOR_NOTPOS);
         frameSetCursorFromRes(IDC_NOTPOSSIBLE);
       }
     }
     else
     {
-      pie_SetMouse(IntImages, IMAGE_CURSOR_DEFAULT);
       frameSetCursorFromRes(IDC_DEFAULT);
     }
   }

@@ -112,9 +112,6 @@
     <ClInclude Include="Bug.h">
       <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="D3DMode.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="D3DRender.h">
       <Filter>Graphics</Filter>
     </ClInclude>
@@ -167,9 +164,6 @@
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="PieState.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="PieTexture.h">
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="PieTypes.h">
@@ -372,8 +366,6 @@
     <ClCompile Include="PieMatrix.cpp" />
     <ClCompile Include="PieMode.cpp" />
     <ClCompile Include="PiePalette.cpp" />
-    <ClCompile Include="PieState.cpp" />
-    <ClCompile Include="PieTexture.cpp" />
     <ClCompile Include="PQueue.cpp" />
     <ClCompile Include="PtrList.cpp" />
     <ClCompile Include="RendFunc.cpp" />
@@ -384,9 +376,6 @@
     <ClCompile Include="TexMan.cpp" />
     <ClCompile Include="TextDraw.cpp" />
     <ClCompile Include="WDG.cpp" />
-    <ClCompile Include="D3DMode.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="D3DRender.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>

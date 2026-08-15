@@ -1035,9 +1035,8 @@ void intDisplayPIEView(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset,
     // 3DFX version does it straight to the display.
     psResearch = getResearchForMsg((VIEWDATA*)psCurrentMsg->pViewData);
     //renderIMDToBuffer(pIntelMapSurface, psViewResearch->pIMD, 
-    renderResearchToBuffer(pIntelMapSurface, psResearch, x0 + (x1 - x0) / 2, y0 + (y1 - y0) / 2);
+    renderResearchToBuffer(psResearch, x0 + (x1 - x0) / 2, y0 + (y1 - y0) / 2);
     //add the contents to the window - this is only done in software now
-    renderMapSurface(pIntelMapSurface, x0, y0, Form->width, Form->height);
 
     CloseButtonRender();
 
@@ -1079,7 +1078,7 @@ void intDisplayFLICView(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
     psViewResearch = static_cast<VIEW_RESEARCH*>(((VIEWDATA*)psCurrentMsg->pViewData)->pData);
     seq_RenderVideoToBuffer(nullptr, psViewResearch->sequenceName, gameTime2, SEQUENCE_HOLD);
     //download to screen now
-    seq_BlitBufferToScreen((SBYTE*)rendSurface.buffer, rendSurface.scantable[1], x0, y0);
+    seq_BlitBufferToScreen((SBYTE*)rendSurface.buffer, rendSurface.width, x0, y0);
     //	// PSXSequencesCountdown is the time until the playstation research seq. starts
     //	// ... This gives the rest of the display a chance to have a head start.
     //	//  ... avoiding screen flickers 

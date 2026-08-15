@@ -30,7 +30,6 @@ extern void renderFeature(FEATURE* psFeature);
 extern void renderProximityMsg(PROXIMITY_DISPLAY* psProxDisp);
 extern void drawTerrainTile(UDWORD i, UDWORD j); //fast version - optimised
 void drawTerrainWaterTile(UDWORD i, UDWORD j);
-extern void drawTexturedTile(UDWORD i, UDWORD j);
 extern void renderProjectile(PROJ_OBJECT* psCurr);
 extern void renderAnimComponent(COMPONENT_OBJECT* psObj);
 extern void renderDeliveryPoint(FLAG_POSITION* psPosition);

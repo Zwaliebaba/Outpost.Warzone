@@ -459,7 +459,6 @@ static UBYTE ProductionRun = 1;
 #endif
 
 //Buffer to hold the 3D view for the Intelligence Screen
-iSurface* pIntelMapSurface = nullptr;
 
 /* pointer to hold the imd to use for a new template in the design screen */
 
@@ -764,7 +763,6 @@ BOOL intInitialise(void)
   LOADBARCALLBACK(); //	loadingScreenCallback();
 
   /*initialise the messages 3D view buffer */
-  pIntelMapSurface = setUpMapSurface(MSG_BUFFER_WIDTH, MSG_BUFFER_HEIGHT);
 
   LOADBARCALLBACK(); //	loadingScreenCallback();
 
@@ -846,7 +844,6 @@ void intShutDown(void)
   apsListToOrder = nullptr;
 
   //release the message buffer
-  releaseMapSurface(pIntelMapSurface);
 
   //release the video buffers
   seq_ReleaseVideoBuffers();
@@ -2950,7 +2947,6 @@ void intDisplayWidgets(void)
 
       screen_RestartBackDrop();
       // Download buffer in system memory to the display back buffer.
-      iV_DownloadDisplayBuffer(DisplayBuffer);
       /*Add the radar to the design screen - only if player has HQ*/
       bPlayerHasHQ = radarCheckForHQ(selectedPlayer);
 
@@ -5942,7 +5938,6 @@ void addIntelScreen(void)
     // Upload the current display back buffer into system memory.
     pie_UploadDisplayBuffer(DisplayBuffer);
     // Make it darker.
-    iV_ScaleBitmapRGB(DisplayBuffer, iV_GetDisplayWidth(), iV_GetDisplayHeight(), 2, 2, 2);
 
     radarOnScreen = radOnScreen;
     bRender3DOnly = FALSE;

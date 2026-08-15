@@ -29,7 +29,6 @@ static PIEPIXEL scrPoints[pie_MAX_POINTS];
 static PIEVERTEX pieVrts[pie_MAX_POLY_VERTS];
 static PIEVERTEX clippedVrts[pie_MAX_POLY_VERTS];
 static D3DTLVERTEX d3dVrts[pie_MAX_POLY_VERTS];
-static iVertex imdVrts[pie_MAX_POLY_VERTS];
 static SDWORD pieCount = 0;
 static SDWORD tileCount = 0;
 static SDWORD polyCount = 0;
@@ -40,106 +39,15 @@ static SDWORD polyCount = 0;
  */
 /***************************************************************************/
 
-//old ivis style draw poly (low level) software mode only
-static void pie_IvisPoly(SDWORD texPage, iIMDPoly* poly, BOOL bClip);
-static void pie_IvisPolyFrame(SDWORD texPage, iIMDPoly* poly, SDWORD frame, BOOL bClip);
-//d3d draw poly (low level) D3D mode only
-void pie_D3DPoly(PIED3DPOLY* poly);
-static void pie_D3DPolyFrame(PIED3DPOLY* poly, SDWORD frame);
 //pievertex draw poly (low level) //all modes from PIEVERTEX data
 static void pie_PiePoly(PIEPOLY* poly, BOOL bClip);
 static void pie_PiePolyFrame(PIEPOLY* poly, SDWORD frame, BOOL bClip);
-
-void DrawTriangleList(BSPPOLYID PolygonNumber);
 
 /***************************************************************************/
 /*
  *	Source
  */
 /***************************************************************************/
-
-#ifdef BSPIMD
-extern iIMDShape* BSPimd; // global defined here for speed 
-extern iIMDPoly* BSPScrVertices;
-UDWORD ShapeTexPage;
-UDWORD ShapeFrame;
-
-// This is a BSP routine that draws a linked list of polygon
-// .. Its in here becuase it uses in inline function "DrawPoly"
-#define IMD_POLYGON(poly) (	&BSPimd->polys[(poly)])
-
-void DrawTriangleList(BSPPOLYID PolygonNumber)
-{
-  iIMDPoly* pPolys;
-  UDWORD n;
-
-  VERTEXID* index;
-  iIMDPoly imdPoly;
-
-  while (PolygonNumber != BSPPOLYID_TERMINATE)
-  {
-    pPolys = IMD_POLYGON(PolygonNumber);
-
-    index = pPolys->pindex;
-    imdPoly.flags = pPolys->flags;
-    for (n = 0; n < pPolys->npnts; n++, index++)
-    {
-      imdVrts[n].x = std::lrintf(scrPoints[*index].d3dx);
-      imdVrts[n].y = std::lrintf(scrPoints[*index].d3dy);
-      imdVrts[n].z = 0;
-
-      //cull triangles with off screen points
-      if (scrPoints[*index].d3dy > static_cast<float>(LONG_TEST))
-        imdPoly.flags = 0;
-
-      imdVrts[n].u = pPolys->vrt[n].u;
-      imdVrts[n].v = pPolys->vrt[n].v;
-      imdVrts[n].g = 128; //(red + green + blue + alpha)>>2;
-    }
-    imdPoly.npnts = pPolys->npnts;
-    imdPoly.vrt = &imdVrts[0];
-    imdPoly.pTexAnim = pPolys->pTexAnim;
-    if (imdPoly.flags > 0)
-      pie_IvisPolyFrame(ShapeTexPage, &imdPoly, ShapeFrame,TRUE); // draw the polygon ... this is an inline function
-
-    PolygonNumber = pPolys->BSP_NextPoly;
-  }
-}
-
-// BSP object position
-static iVector BSPObject;
-static iVector BSPCamera;
-static SDWORD BSPObject_Yaw = 0, BSPObject_Pitch = 0;
-
-void SetBSPObjectPos(SDWORD x, SDWORD y, SDWORD z)
-{
-  BSPObject.x = x;
-  BSPObject.y = y;
-  BSPObject.z = z;
-  // Reset the yaw & pitch
-
-  // these values must be set every time they are used ...
-  BSPObject_Yaw = 0;
-  BSPObject_Pitch = 0;
-}
-
-// This MUST be called after SetBSPObjectPos ...
-
-void SetBSPObjectRot(SDWORD Yaw, SDWORD Pitch)
-{
-  BSPObject_Yaw = Yaw;
-  BSPObject_Pitch = Pitch;
-}
-
-// This must be called once per frame after the terrainMidX & player.p values have been updated
-void SetBSPCameraPos(SDWORD x, SDWORD y, SDWORD z)
-{
-  BSPCamera.x = x;
-  BSPCamera.y = y;
-  BSPCamera.z = z;
-}
-
-#endif
 
 /***************************************************************************
  * pie_Draw3dShape
@@ -149,9 +57,6 @@ void SetBSPCameraPos(SDWORD x, SDWORD y, SDWORD z)
  * Avoids recalculating vertex projections for every poly 
  ***************************************************************************/
 
-// ---
-// DEV STUDIO 5, 3D NOW and INTEL VERSION.
-#if (_MSC_VER != 1000) && (_MSC_VER != 1020)
 void pie_Draw3DShape(iIMDShape* shape, int frame, int team, UDWORD col, UDWORD spec, int pieFlag, int pieFlagData)
 {
   // needed for AMD
@@ -340,183 +245,6 @@ void pie_Draw3DShape(iIMDShape* shape, int frame, int team, UDWORD col, UDWORD s
   if (pieFlag & pie_BUTTON)
     pie_SetDepthBufferStatus(DEPTH_CMP_ALWAYS_WRT_ON);
 }
-#else
-// DEV STUDIO 4, 3D NOW and INTEL ONLY VERSION.
-
-// ---
-//
-//void pie_Draw3DIntelShape(iIMDShape *shape, int frame, int team, UDWORD col, UDWORD spec, int pieFlag, int pieFlagData)
-void pie_Draw3DShape(iIMDShape* shape, int frame, int team, UDWORD col, UDWORD spec, int pieFlag, int pieFlagData)
-{
-  int32 rx, ry, rz;
-  int32 tzx, tzy;
-  int32 tempY;
-  int i, n;
-  iVector* pVertices;
-  PIEPIXEL* pPixels;
-  iIMDPoly* pPolys;
-  PIEPOLY piePoly;
-  VERTEXID* index;
-  PIELIGHT colour, specular;
-  UBYTE alpha;
-
-  pieCount++;
-
-  // Fix for transparent buildings and features!! */
-  if ((pieFlag & pie_TRANSLUCENT) AND (pieFlagData > 220))
-  {
-    pieFlag = pieFlagData = 0; // force to bilinear and non-transparent
-  }
-  // Fix for transparent buildings and features!! */
-
-  // WARZONE light as byte passed in colour so expand
-  if (col <= MAX_UB_LIGHT)
-  {
-    colour.byte.a = 255; //no fog
-    colour.byte.r = (UBYTE)col;
-    colour.byte.g = (UBYTE)col;
-    colour.byte.b = (UBYTE)col;
-  }
-  else { colour.argb = col; }
-  specular.argb = spec;
-
-  if (frame == 0) { frame = team; }
-
-  if (!pie_Translucent())
-  {
-    if ((pieFlag & pie_ADDITIVE) || (pieFlag & pie_TRANSLUCENT))
-    {
-      pieFlag &= (pie_FLAG_MASK - pie_TRANSLUCENT - pie_ADDITIVE);
-      pieFlag |= pie_NO_BILINEAR;
-    }
-  }
-  else if (!pie_Additive())
-  {
-    if (pieFlag & pie_ADDITIVE) //Assume also translucent
-    {
-      pieFlag -= pie_ADDITIVE;
-      pieFlag |= pie_TRANSLUCENT;
-      pieFlag |= pie_NO_BILINEAR;
-      pieFlagData /= 2;
-    }
-  }
-  /* Set tranlucency */
-  if (pieFlag & pie_ADDITIVE) //Assume also translucent
-  {
-    pie_SetFogStatus(FALSE);
-    pie_SetRendMode(REND_ADDITIVE_TEX);
-    alpha = 255 - specular.byte.a;
-    alpha = pie_ByteScale(alpha, (UBYTE)pieFlagData); //scale transparency by fog value
-    colour.byte.a = alpha;
-    colour.byte.r = pie_ByteScale(alpha, colour.byte.r);
-    colour.byte.g = pie_ByteScale(alpha, colour.byte.g);
-    colour.byte.b = pie_ByteScale(alpha, colour.byte.b);
-    specular.argb = 0;
-    pie_SetBilinear(TRUE);
-  }
-  else if (pieFlag & pie_TRANSLUCENT)
-  {
-    pie_SetFogStatus(FALSE);
-    pie_SetRendMode(REND_ALPHA_TEX);
-    alpha = 255 - specular.byte.a;
-    alpha = pie_ByteScale(alpha, (UBYTE)pieFlagData); //scale transparency by fog value
-    colour.byte.a = alpha;
-    specular.argb = 0;
-    pie_SetBilinear(FALSE); //never bilinear with constant alpha, gives black edges 
-  }
-  else
-  {
-    if (pieFlag & pie_BUTTON)
-    {
-      pie_SetFogStatus(FALSE);
-      pie_SetDepthBufferStatus(DEPTH_CMP_LEQ_WRT_ON);
-    }
-    else { pie_SetFogStatus(TRUE); }
-    pie_SetRendMode(REND_GOURAUD_TEX);
-    //if hardware fog then alpha is set else unused in decal mode
-    if (pieFlag & pie_NO_BILINEAR) { pie_SetBilinear(FALSE); }
-    else { pie_SetBilinear(TRUE); }
-  }
-
-  if (pieFlag & pie_RAISE) { pieFlagData = (shape->ymax * (pie_RAISE_SCALE - pieFlagData)) / pie_RAISE_SCALE; }
-
-  pie_SetTexturePage(shape->texpage);
-
-  //now draw the shape	
-  //rotate and project points from shape->points to scrPoints
-  pVertices = shape->points;
-  pPixels = &scrPoints[0];
-
-  for (i = 0; i < shape->npoints; i++, pVertices++, pPixels++)
-  {
-    tempY = pVertices->y;
-    if (pieFlag & pie_RAISE)
-    {
-      tempY = pVertices->y - pieFlagData;
-      if (tempY < 0)
-        tempY = 0;
-    }
-    else if (pieFlag & pie_HEIGHT_SCALED) { if (pVertices->y > 0) { tempY = (pVertices->y * pieFlagData) / pie_RAISE_SCALE; } }
-    rx = pVertices->x * psMatrix->a + tempY * psMatrix->d + pVertices->z * psMatrix->g + psMatrix->j;
-    ry = pVertices->x * psMatrix->b + tempY * psMatrix->e + pVertices->z * psMatrix->h + psMatrix->k;
-    rz = pVertices->x * psMatrix->c + tempY * psMatrix->f + pVertices->z * psMatrix->i + psMatrix->l;
-
-    pPixels->d3dz = D3DVAL((rz>>STRETCHED_Z_SHIFT));
-
-    tzx = rz >> psRendSurface->xpshift;
-    tzy = rz >> psRendSurface->ypshift;
-
-    if ((tzx <= 0) || (tzy <= 0))
-    {
-      pPixels->d3dx = (float)LONG_WAY; //just along way off screen
-      pPixels->d3dy = (float)LONG_WAY;
-    }
-    else if (pPixels->d3dz < D3DVAL(MIN_STRETCHED_Z))
-    {
-      pPixels->d3dx = (float)LONG_WAY; //just along way off screen
-      pPixels->d3dy = (float)LONG_WAY;
-    }
-    else
-    {
-      pPixels->d3dx = D3DVAL((psRendSurface->xcentre + (rx / tzx)));
-      pPixels->d3dy = D3DVAL((psRendSurface->ycentre - (ry / tzy)));
-    }
-  }
-
-  //build and render polygons
-  pPolys = shape->polys;
-  for (i = 0; i < shape->npolys; i++, pPolys++)
-  {
-    index = pPolys->pindex;
-    piePoly.flags = pPolys->flags;
-    if (pieFlag & pie_TRANSLUCENT) { piePoly.flags |= PIE_ALPHA; }
-    else if (pieFlag & pie_ADDITIVE)
-    {
-      piePoly.flags &= (0xffffffff - PIE_COLOURKEYED); //dont treat additive images as colour keyed
-    }
-    for (n = 0; n < pPolys->npnts; n++, index++)
-    {
-      pieVrts[n].sx = std::lrintf(scrPoints[*index].d3dx);
-      pieVrts[n].sy = std::lrintf(scrPoints[*index].d3dy);
-      //cull triangles with off screen points
-      if (scrPoints[*index].d3dy > (float)LONG_TEST) { piePoly.flags = 0; }
-      pieVrts[n].sz = std::lrintf(scrPoints[*index].d3dz);
-      pieVrts[n].tu = pPolys->vrt[n].u;
-      pieVrts[n].tv = pPolys->vrt[n].v;
-      pieVrts[n].light.argb = colour.argb;
-      pieVrts[n].specular.argb = specular.argb;
-    }
-    piePoly.nVrts = pPolys->npnts;
-    piePoly.pVrts = &pieVrts[0];
-    piePoly.pTexAnim = pPolys->pTexAnim;
-    if (piePoly.flags > 0)
-    {
-      pie_PiePolyFrame(&piePoly, frame,TRUE); // draw the polygon ... this is an inline function
-    }
-  }
-  if (pieFlag & pie_BUTTON) { pie_SetDepthBufferStatus(DEPTH_CMP_ALWAYS_WRT_ON); }
-}
-#endif
 // THE VERSION MIKE CHANGED.
 // 3D NOW Specific (and FASTER) shape renderer.
 /***************************************************************************
@@ -841,232 +569,9 @@ static void pie_PiePolyFrame(PIEPOLY* poly, int frame, BOOL bClip)
 #endif
 }
 
-/***************************************************************************
- * pie_D3DPoly
- *
- * D3D specific poly draw function should change to use hardpoly
- *
- * Assumes render mode NOT set up externally
- *                     ---   
- ***************************************************************************/
-
-void pie_D3DPoly(PIED3DPOLY* poly)
-{
-#ifdef NO_RENDER
-  return;
-#else
-  polyCount++;
-  D3DDrawPoly(poly->nVrts, &poly->pVrts[0]);
-#endif
-}
-
-static void pie_D3DPolyFrame(PIED3DPOLY* poly, int frame)
-{
-  int uFrame, vFrame, j, framesPerLine;
-  // handle texture animated polygons
-
-  if (poly->flags & iV_IMD_TEXANIM)
-  {
-    if (poly->pTexAnim != nullptr)
-    {
-      if (poly->pTexAnim->nFrames >= 0)
-        frame %= poly->pTexAnim->nFrames;
-      else //frame is colour key
-        frame %= (-poly->pTexAnim->nFrames);
-
-      if (frame > 0)
-      {
-        framesPerLine = 256 / poly->pTexAnim->textureWidth; //use TexPage WIDTH define
-
-        vFrame = 0;
-        while (frame >= framesPerLine)
-        {
-          frame -= framesPerLine;
-          vFrame += poly->pTexAnim->textureHeight;
-        }
-        uFrame = frame * poly->pTexAnim->textureWidth;
-
-        // no clip for d3d render??
-        // shift the clipped textures for animation
-        for (j = 0; j < poly->nVrts; j++)
-        {
-          poly->pVrts[j].tu += static_cast<float>(uFrame) / static_cast<float>(256.0);
-          poly->pVrts[j].tv += static_cast<float>(vFrame) / static_cast<float>(256.0);
-        }
-      }
-    }
-  }
-
-  pie_D3DPoly(poly);
-}
-
-//old ivis style draw poly
-/***************************************************************************
- * pie_IvisPoly
- *
- * optimised poly draw function for software
- *
- * Assumes render mode NOT set up externally
- *                     ---
- ***************************************************************************/
-static void pie_IvisPoly(SDWORD texPage, iIMDPoly* poly, BOOL bClip)
-{
-  int c;
-  iVertex clip[iV_POLY_MAX_POINTS + 4];
-
-  polyCount++;
-
-  // handle texture animated polygons
-  if (!(poly->flags & PIE_NO_CULL) && (poly->npnts >= 3))
-  {
-    //cull if backfaced
-    if (!pie_Clockwise(poly->vrt))
-      return; //culled
-  }
-
-  if (bClip)
-  {
-    if (poly->flags & iV_IMD_TEX)
-      c = pie_PolyClipTex2D(poly->npnts, &poly->vrt[0], clip);
-    else
-      return; //no clip mode
-    poly->npnts = c;
-    poly->vrt = &clip[0];
-  }
-}
-
-static void pie_IvisPolyFrame(SDWORD texPage, iIMDPoly* poly, int frame, BOOL bClip)
-{
-  int uFrame, vFrame, j, framesPerLine;
-
-  polyCount++;
-
-  // handle texture animated polygons
-  if (!(poly->flags & PIE_NO_CULL) && (poly->npnts >= 3))
-  {
-    //cull if backfaced
-    if (!pie_Clockwise(poly->vrt))
-      return; //culled
-    poly->flags |= PIE_NO_CULL; //dont check culling again for this poly
-  }
-
-  if ((poly->flags & iV_IMD_TEXANIM) && (frame != 0))
-  {
-    if (poly->pTexAnim != nullptr)
-    {
-      if (poly->pTexAnim->nFrames >= 0)
-        frame %= poly->pTexAnim->nFrames;
-      else //frame is colour key
-        frame %= (-poly->pTexAnim->nFrames);
-      if (frame > 0)
-      {
-        framesPerLine = iV_TEXTEX(texPage)->width / poly->pTexAnim->textureWidth;
-        vFrame = 0;
-        while (frame >= framesPerLine)
-        {
-          frame -= framesPerLine;
-          vFrame += poly->pTexAnim->textureHeight;
-        }
-        uFrame = frame * poly->pTexAnim->textureWidth;
-        // shift the textures for animation
-        if (poly->flags & iV_IMD_TEXANIM)
-        {
-          for (j = 0; j < poly->npnts; j++)
-          {
-            poly->vrt[j].u += uFrame;
-            poly->vrt[j].v += vFrame;
-          }
-        }
-      }
-    }
-  }
-#ifndef NO_RENDER
-  pie_IvisPoly(texPage, poly, bClip);
-#endif
-}
-
-/***************************************************************************
- *
- *
- *
- ***************************************************************************/
-
-//ivis style draw function
-void pie_DrawTriangle(iVertex* pv, iTexture* texPage, UDWORD renderFlags, iPoint* offset)
-{
-  UDWORD n;
-  iVertex clip[iV_POLY_MAX_POINTS];
-
-  if (!pie_CLOCKWISE(pv[0].x, pv[0].y, pv[1].x, pv[1].y, pv[2].x, pv[2].y))
-    return;
-  // CULL test - only used on landscape?
-  /*
-  if(((v2->sy - v1->sy) * (v3->sx - v2->sx)) <= ((v2->sx - v1->sx) * (v3->sy - v2->sy)) )
-  {
-    bClockwise = TRUE;
-  }
-  else
-  {
-    return;
-  }
-  */
-  n = pie_PolyClipTex2D(3, pv, &clip[0]);
-  if (n == 0)
-    return;
-}
-
-void pie_DrawFastTriangle(PIEVERTEX* v1, PIEVERTEX* v2, PIEVERTEX* v3, iTexture* texPage, int pieFlag, int pieFlagData)
-{
-  UDWORD n;
-  BOOL bClockwise;
-  UBYTE alpha;
-
-  if (((v2->sy - v1->sy) * (v3->sx - v2->sx)) <= ((v2->sx - v1->sx) * (v3->sy - v2->sy)))
-    bClockwise = TRUE;
-  else
-    return;
-
-  tileCount++;
-
-  n = pie_ClipTexturedTriangleFast(v1, v2, v3, &clippedVrts[0], FALSE); //no specular for glide
-
-  if (n < 3)
-  {
-    /* Offscreen, so do one */
-    return;
-  }
-
-  /* Set tranlucency */
-  if (pieFlag & pie_ADDITIVE) //Assume also translucent
-  {
-    pie_SetFogStatus(FALSE);
-    pie_SetRendMode(REND_ADDITIVE_TEX);
-    alpha = static_cast<UBYTE>(pieFlagData);
-    pie_SetBilinear(TRUE);
-  }
-  else if (pieFlag & pie_TRANSLUCENT)
-  {
-    pie_SetFogStatus(FALSE);
-    pie_SetRendMode(REND_ALPHA_TEX);
-    alpha = static_cast<UBYTE>(pieFlagData);
-    pie_SetBilinear(FALSE); //never bilinear with constant alpha, gives black edges 
-  }
-  else
-  {
-    pie_SetFogStatus(TRUE);
-    pie_SetRendMode(REND_GOURAUD_TEX);
-    alpha = MAX_UB_LIGHT;
-    if (pieFlag & pie_NO_BILINEAR)
-      pie_SetBilinear(FALSE);
-    else
-      pie_SetBilinear(TRUE);
-  }
-}
-
 void pie_DrawPoly(SDWORD numVrts, PIEVERTEX* aVrts, SDWORD texPage, void* psEffects)
 {
-  SDWORD i;
-  PIED3DPOLY renderPoly;
+  SDWORD i, nVrts;
   BOOL bClockwise;
   UBYTE alpha, *psAlpha;
 
@@ -1089,16 +594,16 @@ void pie_DrawPoly(SDWORD numVrts, PIEVERTEX* aVrts, SDWORD texPage, void* psEffe
     pie_SetRendMode(REND_ALPHA_TEX); //jps 15apr99 old solid water code
   pie_SetBilinear(TRUE);
 
-  renderPoly.nVrts = pie_ClipTextured(numVrts, &aVrts[0], &clippedVrts[0], TRUE);
-  renderPoly.flags = 0x08;
-  renderPoly.pVrts = &d3dVrts[0];
-  for (i = 0; i < renderPoly.nVrts; i++)
+  nVrts = pie_ClipTextured(numVrts, &aVrts[0], &clippedVrts[0], TRUE);
+  /* The off-screen test the other draw paths make is deliberately absent
+   * here. It was written, into a flags field nothing read, so a terrain poly
+   * with an off-screen vertex has always been drawn rather than culled.
+   * Preserved as it is: making it cull would change what appears on screen.
+   */
+  for (i = 0; i < nVrts; i++)
   {
     d3dVrts[i].sx = static_cast<float>(clippedVrts[i].sx);
     d3dVrts[i].sy = static_cast<float>(clippedVrts[i].sy);
-    //cull triangles with off screen points
-    if (d3dVrts[i].sy > static_cast<float>(LONG_TEST))
-      renderPoly.flags = 0;
     d3dVrts[i].sz = static_cast<float>(clippedVrts[i].sz) * INV_MAX_Z;
     d3dVrts[i].rhw = static_cast<float>(1.0) / static_cast<float>(clippedVrts[i].sz);
     d3dVrts[i].tu = static_cast<float>(clippedVrts[i].tu) * INV_TEX_SIZE;
@@ -1118,51 +623,11 @@ void pie_DrawPoly(SDWORD numVrts, PIEVERTEX* aVrts, SDWORD texPage, void* psEffe
       d3dVrts[i].specular = clippedVrts[i].specular.argb;
     }
   }
-  if (renderPoly.nVrts >= 3)
-    pie_D3DPoly(&renderPoly); // draw the polygon ... this is an inline function
-}
-
-void pie_DrawTile(PIEVERTEX* pv0, PIEVERTEX* pv1, PIEVERTEX* pv2, PIEVERTEX* pv3, SDWORD texPage)
-{
-  SDWORD i;
-  DWORD colour, specular;
-  PIED3DPOLY renderPoly;
-
-  tileCount++;
-
-  pie_SetRendMode(REND_GOURAUD_TEX); // was written TRANS_DECAL, which is a
-  // TRANSLUCENCY_MODE sharing the value 0
-  pie_SetTexturePage(texPage);
-  pie_SetBilinear(TRUE);
-
-  memcpy(&pieVrts[0], pv0, sizeof(PIEVERTEX));
-  memcpy(&pieVrts[1], pv1, sizeof(PIEVERTEX));
-  memcpy(&pieVrts[2], pv2, sizeof(PIEVERTEX));
-  memcpy(&pieVrts[3], pv3, sizeof(PIEVERTEX));
-  renderPoly.nVrts = pie_ClipTextured(4, &pieVrts[0], &clippedVrts[0], TRUE);
-  renderPoly.flags = 0x08;
-  renderPoly.pVrts = &d3dVrts[0];
-  for (i = 0; i < renderPoly.nVrts; i++)
+  if (nVrts >= 3)
   {
-    colour = (clippedVrts[i].light.byte.a << 24) + (clippedVrts[i].light.byte.r << 16) + (clippedVrts[i].light.byte.g << 8) + clippedVrts[i]
-      .light.byte.b;
-    specular = (clippedVrts[i].specular.byte.a << 24) + (clippedVrts[i].specular.byte.r << 16) + (clippedVrts[i].specular.byte.g << 8) +
-      clippedVrts[i].specular.byte.b;
-
-    d3dVrts[i].sx = static_cast<float>(clippedVrts[i].sx);
-    d3dVrts[i].sy = static_cast<float>(clippedVrts[i].sy);
-    //cull triangles with off screen points
-    if (d3dVrts[i].sy > static_cast<float>(LONG_TEST))
-      renderPoly.flags = 0;
-    d3dVrts[i].sz = static_cast<float>(clippedVrts[i].sz) * INV_MAX_Z;
-    d3dVrts[i].rhw = static_cast<float>(1.0) / d3dVrts[i].sz;
-    d3dVrts[i].tu = static_cast<float>(clippedVrts[i].tu) * INV_TEX_SIZE;
-    d3dVrts[i].tv = static_cast<float>(clippedVrts[i].tv) * INV_TEX_SIZE;
-    d3dVrts[i].color = colour;
-    d3dVrts[i].specular = specular;
+    polyCount++;
+    D3DDrawPoly(nVrts, &d3dVrts[0]);
   }
-
-  pie_D3DPoly(&renderPoly); // draw the polygon ... this is an inline function
 }
 
 void pie_GetResetCounts(SDWORD* pPieCount, SDWORD* pTileCount, SDWORD* pPolyCount, SDWORD* pStateCount)

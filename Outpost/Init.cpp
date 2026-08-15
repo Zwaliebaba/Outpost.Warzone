@@ -701,32 +701,10 @@ BOOL systemInitialise(void)
   }
 
   //initialize render engine
-  switch (war_GetRendMode())
+  if (!pie_Initialise())
   {
-  case REND_MODE_RGB:
-    pie_SetDirect3DDeviceName("RGB Emulation");
-    if (!pie_Initialise(REND_D3D_RGB))
-    {
-      DEBUG_ASSERT_TEXT(FALSE, "Unable to initialise DirectX RGB Renderer");
-      return FALSE;
-    }
-    break;
-  case REND_MODE_REF:
-    pie_SetDirect3DDeviceName("Reference Rasterizer");
-    if (!pie_Initialise(REND_D3D_REF))
-    {
-      DEBUG_ASSERT_TEXT(FALSE, "Unable to initialise DirectX Reference Renderer");
-      return FALSE;
-    }
-    break;
-  case REND_MODE_HAL: default:
-    pie_SetDirect3DDeviceName("Direct3D HAL");
-    if (!pie_Initialise(REND_D3D_HAL))
-    {
-      DEBUG_ASSERT_TEXT(FALSE, "Unable to initialise DirectX HAL, ensure the correct DirectDraw device is selected");
-      return FALSE;
-    }
-    break;
+    DEBUG_ASSERT_TEXT(FALSE, "Unable to initialise the Direct3D renderer");
+    return FALSE;
   }
 
   pie_SetTranslucent(war_GetTranslucent());
@@ -904,7 +882,6 @@ BOOL frontendInitialise(char* ResourceFile)
   iV_PaletteSelect(iV_PaletteAdd(&gamePal[0]));
 #endif
 
-  pie_SetMouse(IntImages, IMAGE_CURSOR_DEFAULT); // Set the default cursor shape.
   frameSetCursorFromRes(IDC_DEFAULT);
 
   SetFormAudioIDs(-1, ID_SOUND_WINDOWCLOSE); // disable the open noise since distorted in 3dfx builds.
@@ -1193,7 +1170,6 @@ BOOL stageTwoInitialise(void)
   keyInitMappings(FALSE);
   LOADBARCALLBACK(); //	loadingScreenCallback();
 
-  pie_SetMouse(IntImages, IMAGE_CURSOR_DEFAULT); // Set the default cursor shape.
   frameSetCursorFromRes(IDC_DEFAULT);
 
   SetFormAudioIDs(ID_SOUND_WINDOWOPEN, ID_SOUND_WINDOWCLOSE);

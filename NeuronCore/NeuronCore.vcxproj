@@ -103,7 +103,6 @@
     <ClInclude Include="Button.h" />
     <ClInclude Include="CodePrint.h" />
     <ClInclude Include="D3D9Vertex.h" />
-    <ClInclude Include="D3DMode.h" />
     <ClInclude Include="D3DRender.h" />
     <ClInclude Include="DXError.h" />
     <ClInclude Include="Debug.h" />
@@ -149,7 +148,6 @@
     <ClInclude Include="PieMode.h" />
     <ClInclude Include="PiePalette.h" />
     <ClInclude Include="PieState.h" />
-    <ClInclude Include="PieTexture.h" />
     <ClInclude Include="PieTypes.h" />
     <ClInclude Include="PQueue.h" />
     <ClInclude Include="Priority.h" />
@@ -194,7 +192,6 @@
     <ClCompile Include="Bug.cpp" />
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="CodePrint.cpp" />
-    <ClCompile Include="D3DMode.cpp" />
     <ClCompile Include="D3DRender.cpp" />
     <ClCompile Include="DXError.cpp" />
     <ClCompile Include="DXInput.cpp" />
@@ -236,8 +233,6 @@
     <ClCompile Include="PieMatrix.cpp" />
     <ClCompile Include="PieMode.cpp" />
     <ClCompile Include="PiePalette.cpp" />
-    <ClCompile Include="PieState.cpp" />
-    <ClCompile Include="PieTexture.cpp" />
     <ClCompile Include="PQueue.cpp" />
     <ClCompile Include="PtrList.cpp" />
     <ClCompile Include="RendFunc.cpp" />

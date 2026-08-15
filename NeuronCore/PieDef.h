@@ -175,13 +175,6 @@ using TEXTUREPAGE = struct
   iPalette* Palette;
 };
 
-using PIED3DPOLY = struct
-{
-  UDWORD flags;
-  SDWORD nVrts;
-  D3DTLVERTEX* pVrts;
-  iTexAnim* pTexAnim;
-};
 using PIEPOLY = struct
 {
   UDWORD flags;
@@ -207,24 +200,10 @@ extern void pie_DrawImage270(PIEIMAGE* image, PIERECT* dest, PIESTYLE* style);
 
 //PIEVERTEX line draw for all hardware modes
 extern void pie_DrawLine(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1, UDWORD colour, BOOL bclip);
-//iVetrex triangle draw for software modes
-extern void pie_DrawTriangle(iVertex* pv, iTexture* texPage, UDWORD renderFlags, iPoint* offset);
 //PIEVERTEX poly draw for all hardware modes
 extern void pie_DrawPoly(SDWORD numVrts, PIEVERTEX* aVrts, SDWORD texPage, void* psEffects);
-extern void pie_DrawFastTriangle(PIEVERTEX* v1, PIEVERTEX* v2, PIEVERTEX* v3, iTexture* texPage, int pieFlag, int pieFlagData);
 
 extern void pie_GetResetCounts(SDWORD* pPieCount, SDWORD* pTileCount, SDWORD* pPolyCount, SDWORD* pStateCount);
-extern int pie_Num3dfxBuffersPending(void);
-
-extern void SetBSPObjectPos(SDWORD x, SDWORD y, SDWORD z);
-extern void SetBSPObjectRot(SDWORD Yaw, SDWORD Pitch);
-extern void SetBSPCameraPos(SDWORD x, SDWORD y, SDWORD z);
-
-//piedraw functions used in piefunc.c 
-extern void pie_D3DPoly(PIED3DPOLY* poly);
-
-//necromancer
-extern void pie_DrawTile(PIEVERTEX* pv0, PIEVERTEX* pv1, PIEVERTEX* pv2, PIEVERTEX* pv3, SDWORD texPage);
 
 // Special re-mix of sscanf that moves the string pointer along - defined in imdLoad.c
 extern int __cdecl sscanf1(char** stringPos, const char* format, ...);

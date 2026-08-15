@@ -3004,7 +3004,6 @@ void intRemoveMissionResultNoAnim(void)
 void intRunMissionResult()
 {
   processFrontendSnap(FALSE);
-  pie_SetMouse(IntImages, IMAGE_CURSOR_DEFAULT);
   frameSetCursorFromRes(IDC_DEFAULT);
 
   if (bLoadSaveUp)
