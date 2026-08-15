@@ -6,6 +6,14 @@ tree (at `4633436`) rather than estimated; the method is a tree-wide grep per
 symbol, cross-checked against the `.vcxproj` files and the feature-macro
 allow-list in `tools/check_case.py`, per [AGENTS.md §6](../AGENTS.md).
 
+**The four gating decisions are settled** — owner decision, 2026-08-15,
+recorded with their reasoning under [Decisions](#decisions--settled): the
+rename is full, the dead config keys are dropped, the clipper replacement is
+attempted behind a parity gate, and stages A and B land now while stage C
+waits for Phase 6's `Sequence.cpp` rewrite to merge. Nothing below is
+blocked on input; the remaining unknowns are audits (A5) and a measurement
+gate (D1), both owned by the stage that runs them.
+
 **Scope statement, because the name is overloaded.** Two things in this
 codebase are called "pie". The `.pie`/IMD **model format** — the shape files
 under `GameData/`, their loader (`IMDLoad.cpp`) and the `iIMDShape` structures
@@ -261,8 +269,9 @@ the diffs stay reviewable.
 - **A3. Renderer-selection configuration.** `WAR_REND_MODE` and both
   device-name pairs out of `WarzoneConfig.*`; the `-D3D`/`-RGB`/`-REF`
   switches out of `ClParse.cpp`; `rendMode` and device names out of
-  `Config.cpp` (unknown keys are ignored on read — verify, then stop
-  writing them); the commented video-options menu and `VIDEO` title mode out
+  `Config.cpp` — drop-and-ignore is decided (Decision 2): verify that
+  unknown keys are skipped on read, then stop reading and writing them,
+  leaving old config files working; the commented video-options menu and `VIDEO` title mode out
   of `FrontEnd.*`; `pie_Initialise(mode)` becomes `pie_Initialise()`;
   `REND_D3D_*`/`REND_GLIDE_*`/`REND_PSX`/`iV_MODE_*` constants and the range
   checks that consume them; `ENGINE_D3D`/`pie_GetRenderEngine`/
@@ -326,6 +335,10 @@ handling is exactly what it stresses.
 
 ### C — Rename to the target shape, delete the alias layer
 
+The full rename is decided (Decision 1), and this stage waits for Phase 6's
+`Sequence.cpp` rewrite to merge (Decision 4) — see
+[Sequencing](#sequencing-against-phases-6-and-7).
+
 - **C1. Kill the alias tables.** Delete `RendMode.h`'s `#define iV_* pie_*`
   block and `IvisPatch.h`; scripted, reviewed find-and-replace lands the
   canonical names at every call site, one game module per commit.
@@ -343,15 +356,17 @@ handling is exactly what it stresses.
 comment or a `.filters` mismatch, both of which CI and `check_case.py`
 catch.
 
-### D — Optional simplifications  *(each needs its own decision + parity check)*
+### D — Follow-up simplifications
 
-- **D1. Software clip → device clip.** Point the funnel at the viewport and
-  a scissor rect (`pie_Set2DClip` becomes `SetScissorRect`), keep the
-  behind-camera `LONG_WAY` convention, delete `RenderClip.cpp` (~1,000
-  lines). Needs side-by-side screenshots at screen edges and of the radar
-  viewing window; the interpolation difference (affine vs
+- **D1. Software clip → device clip.** Sanctioned (Decision 3), gated on
+  parity: point the funnel at the viewport and a scissor rect
+  (`pie_Set2DClip` becomes `SetScissorRect`), keep the behind-camera
+  `LONG_WAY` convention, and delete `RenderClip.cpp` (~1,000 lines) **only
+  if** side-by-side screenshots at screen edges and of the radar
+  viewing window are acceptable — the interpolation difference (affine vs
   perspective-correct at clip boundaries) is real, if likely invisible at
-  these depths.
+  these depths. If parity fails, the clipper stays and this item closes as
+  attempted-and-rejected, with the screenshots kept as the record.
 - **D2. Dynamic vertex buffer + quad batching.** The Phase 2 follow-up; the
   single funnel from B2 is the precondition. UI-heavy screens issue
   hundreds of 4-vertex `DrawPrimitiveUP` calls per frame.
@@ -373,9 +388,14 @@ subtitle path in `TextDraw.cpp`, and `screenLockBackBuffer` itself.
 **Stages A and B do not touch that surface** (A1's deletions inside
 `TextDraw.cpp` are to functions the subtitle path never calls) and can land
 before, after, or between Phase 6's stages. **Stage C renames the calls
-`Sequence.cpp` makes**, so C should land either before Phase 6's B3 backend
-rewrite starts or after it merges — not interleaved. Stage D1 must follow
-Phase 6's B4 if both happen, since both re-plumb the same back-buffer paths.
+`Sequence.cpp` makes**, so C must not interleave with the backend rewrite.
+
+**The ordering is decided (Decision 4): A and B land now; C starts after
+Phase 6's `Sequence.cpp` rewrite merges.** Phase 6's backend therefore lands
+into a smaller tree but an unchanged vocabulary — it keeps writing
+`pie_ScreenFlip`/`pie_RenderImageToBackBuffer` calls and stage C renames
+them with everything else. Stage D1 additionally follows Phase 6's B4 if
+both happen, since both re-plumb the same back-buffer paths.
 
 Phase 7 (incremental modernisation) picks up whatever this phase renames but
 does not rewrite — `RenderClip`'s internals, `Palette`'s globals, the
@@ -403,21 +423,44 @@ does not rewrite — `RenderClip`'s internals, `Palette`'s globals, the
   scene: state-change count should drop (one cache, no forced re-sends),
   poly count should be identical — a cheap regression tripwire.
 
-## Decisions
+## Decisions — settled
 
-1. **Scope of the rename (C1): recommended full.** The owner has sanctioned
-   transformation; half-renaming leaves two vocabularies alive indefinitely,
-   which is the current situation with `iV_`/`pie_`. The alternative — keep
-   `pie_*` as the permanent public API and only collapse beneath it — saves
-   ~700 mechanical edits and is the fallback if diff size becomes a problem.
-2. **Config-file compatibility (A3): recommended drop-and-ignore.** Unknown
-   keys are skipped on read (verify in `Config.cpp` first), so old installs
-   keep working; the alternative of writing dead keys forever has no upside.
-3. **Software clipper (D1): recommended attempt, gated on parity
-   screenshots.** It is the single biggest remaining file, but it is also
-   correct and battle-tested; nothing forces the trade.
-4. **`iSurface` residue (A5): recommended delete after per-user audit** —
-   the allocations are real memory (dozens of KB) feeding nothing.
-5. **Phase ordering: recommended A and B now, C after Phase 6's
-   `Sequence.cpp` rewrite merges.** A and B shrink the tree Phase 6's
-   backend lands into without touching its contact surface.
+All four questions were put to the owner and answered on 2026-08-15; each
+answer took the recommendation. Recorded here with the reasoning, so the
+stages above can cite them rather than reargue them.
+
+1. **Scope of the rename (C1): full.** Every `pie_*`/`iV_*` call site is
+   renamed to the new API and the alias headers are deleted. The owner has
+   sanctioned wide transformation; half-renaming would leave two
+   vocabularies alive indefinitely, which is exactly the `iV_`/`pie_`
+   situation this phase exists to end. The rejected alternatives — keeping
+   `pie_*` as the permanent public API, or renaming only the rewritten core
+   behind thin wrappers — both trade ~700 mechanical edits now for a
+   permanent split vocabulary, and the edits are scripted and reviewable
+   one module per commit.
+2. **Config-file compatibility (A3): drop and ignore.** The dead keys
+   (`rendMode`, both device names) stop being read and written; existing
+   config files keep working because unknown keys are skipped on read —
+   which A3 verifies in `Config.cpp` before deleting anything. Rejected:
+   writing dead keys forever (permanent dead weight, no upside) and a
+   versioned config reset (discards users' live settings to remove entries
+   that are already ignored).
+3. **Software clipper (D1): attempt replacement, gated on parity.** Device
+   viewport/scissor clipping is tried; `RenderClip.cpp` is deleted only if
+   side-by-side screenshots at screen edges and of the radar viewing window
+   pass. If parity fails, the clipper stays — it is correct and
+   battle-tested, and nothing forces the trade. The gate and its record are
+   specified in D1.
+4. **Phase ordering: A and B now, C after Phase 6.** The dead-code removal
+   and funnel collapse land immediately — they avoid Phase 6's contact
+   surface entirely — and the call-site rename waits for the `Sequence.cpp`
+   rewrite to merge so the two never interleave in the same files.
+   Rejected: running all of Phase 8 first (would force Phase 6's plan and
+   in-flight work to track renamed symbols) and finishing Phase 6 first
+   (parks 2,400 lines of provably dead code behind an unrelated
+   asset-conversion project).
+
+**Not a decision, an audit:** the `iSurface` residue (A5) — the button and
+map surface allocations feeding nothing in D3D mode. The plan's course is
+delete-after-per-user-audit; the audit itself is the gate, and it stays
+inside stage A where the evidence is gathered.

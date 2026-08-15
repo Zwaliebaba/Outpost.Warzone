@@ -784,7 +784,13 @@ hand out untyped bytes, so there is no type for `new` to allocate.
 
 ## Phase 8 — Native Direct3D 9: retiring the iVis/pie layer
 
-**Planned.** Phase 2 rewrote what the pie layer *talks to*; this phase removes
+**Planned, and its four gating decisions are settled by owner decision**
+(2026-08-15) — the full call-site rename, dropping the dead config keys,
+attempting the clipper replacement behind a parity gate, and the ordering
+against Phase 6. The record is in
+[Phase8Plan.md](Phase8Plan.md#decisions--settled).
+
+Phase 2 rewrote what the pie layer *talks to*; this phase removes
 the layer itself. The `pie_*`/`iV_*` code was iVis's abstraction over five
 renderers — software DDX, Glide, PlayStation, Direct3D 6 RGB and HAL — and
 since Phase 2 exactly one backend exists, so the layer now dispatches through
@@ -806,9 +812,10 @@ software clipper and the palette module kept and renamed. The `.pie`/IMD
 
 This phase also absorbs two items Phase 2 left open: the dead device-name
 settings (deleted in stage A3) and dynamic vertex buffers (stage D2, after
-the draw funnel is singular). Stages A and B are independent of Phase 6;
-stage C's rename touches `Sequence.cpp` and should not interleave with its
-rewrite — the sequencing constraints are in the plan.
+the draw funnel is singular). Sequencing is decided: stages A and B land
+now — they avoid Phase 6's contact surface — and stage C's rename, which
+touches `Sequence.cpp`, starts only after Phase 6's rewrite of that file
+merges.
 
 ## Verification
 
