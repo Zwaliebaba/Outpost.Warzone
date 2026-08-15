@@ -201,7 +201,12 @@ The migration has already made these decisions. Use the replacement that is alre
 
 **R14 — No new third-party dependencies**, and no package manager. The DX9 SDK is vendored for exactly this reason. If you believe something is unavoidable, propose it in your report; do not add it.
 
-**The one sanctioned exception is MsQuic**, which Phase 5 takes from the `Microsoft.Native.Quic.MsQuic.Schannel` NuGet package and CI restores before each build. It was an owner decision, and the reasoning is on the record in [Phase5Plan.md](Docs/Phase5Plan.md): the alternative was hand-writing sequencing, acknowledgement, retransmission and ordering for lockstep game commands, where a single reordered packet desynchronises a match silently — and nothing in this repository can test such a protocol. QUIC makes that somebody else's tested code. This exception covers MsQuic and the NuGet restore that fetches it, and nothing else; a second one needs the same conversation.
+**Two sanctioned exceptions exist, both owner decisions, both arriving through the NuGet restore CI runs before each build. The list is closed: a third needs the same conversation.**
+
+1. **MsQuic** (`Microsoft.Native.Quic.MsQuic.Schannel`), taken by Phase 5. The reasoning is on the record in [Phase5Plan.md](Docs/Phase5Plan.md): the alternative was hand-writing sequencing, acknowledgement, retransmission and ordering for lockstep game commands, where a single reordered packet desynchronises a match silently — and nothing in this repository can test such a protocol. QUIC makes that somebody else's tested code.
+2. **C++/WinRT** (`Microsoft.Windows.CppWinRT`), sanctioned for Phase 6. It is a header-only projection with no runtime to redistribute, and what it buys is `winrt::com_ptr` and `winrt::check_hresult` for the Media Foundation COM lifetimes the FMV rewrite introduces — R12 asks for RAII COM ownership and this is the modern spelling of it. **Prefer it over `Microsoft::WRL::ComPtr` in new code**; do not churn existing code to match, and do not reach for the WinRT projection itself (`winrt::Windows::*`) — the sanction covers the COM helpers, not a second UI or async framework.
+
+Neither exception licenses anything beyond the package named. Vendoring stays the default for everything else, which is why the DX9 SDK is checked in.
 
 **R15 — `namespace Neuron` is for new engine code**, as `Debug.h` does it. Legacy translation units reach it through the `using namespace Neuron;` in `NeuronCore.h`; do not add per-file `using namespace` directives to work around a lookup failure — qualify the name.
 

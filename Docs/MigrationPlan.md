@@ -537,7 +537,7 @@ dependency in the tree.
 The measured state of the assets, the staged plan and the four decisions the
 phase is gated on are in [Phase6Plan.md](Phase6Plan.md). Two findings there
 change the shape of this section and are corrected below: the audio is not
-carried the way this document assumed, and 165 of the 184 movies the game
+carried the way this document assumed, and 164 of the 181 movies the game
 references are not in the repository at all.
 
 ### Mplayer.lib — dead matchmaking service
@@ -590,7 +590,7 @@ change what the sequence is. `sequenceAudio/` also holds the subtitle `.txt`
 and `.txa` files, which is most of its file count.
 
 The other correction is scale. The 19 shipped movies are the hard-disk subset;
-the game references **184** distinct `.rpl` names, and the remaining 165 — every
+the game references **181** distinct `.rpl` names, and the remaining 164 — every
 `cam1\`, `cam2\` and `cam3\` briefing — are read from the CD via
 `cdspan_GetCDLetter`. Conversion is therefore also where Phase 4's deferred
 question about `CDSpan.cpp` gets settled.

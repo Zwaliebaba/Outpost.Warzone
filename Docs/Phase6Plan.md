@@ -13,7 +13,7 @@ files this phase rewrites was touched by that merge.
 The phase was two unrelated pieces sharing a heading. **Part 1 is now done** —
 Phase 5 took it. What remains is the second piece, the last remaining *rewrite*
 in the migration, gated on an asset decision the code cannot make for you — see
-[The asset problem](#the-asset-problem-165-of-184-movies-are-not-in-this-repo),
+[The asset problem](#the-asset-problem-164-of-181-movies-are-not-in-this-repo),
 which is the part of this document worth reading first.
 
 ---
@@ -137,11 +137,11 @@ under Phase 4 and needs no work at all.
 The eight movies with embedded audio are the only ones where "the replacement
 has to carry the audio and keep it in sync" applies.
 
-### The asset problem: 165 of 184 movies are not in this repo
+### The asset problem: 164 of 181 movies are not in this repo
 
 `GameData/sequences/` holds 18 movies plus `noVideo.rpl`, 15.7 MB, 1920 frames,
-**77 seconds in total**. The game references **184 distinct `.rpl` names** across
-`Outpost/*.cpp` and `GameData/messages/*.txt`. The other 165 — every `cam1\`,
+**77 seconds in total**. The game references **181 distinct `.rpl` names** across
+`Outpost/*.cpp` and `GameData/messages/*.txt`. The other 164 — every `cam1\`,
 `cam2\` and `cam3\` briefing, plus `eidos-logo`, `pumpkin`, `titles`,
 `devastation`, `factory`, `outro`, `inflight`, `transport` and the whole
 `sub1_*` set — live on the CDs, under `<drive>\warzone\sequences\`, which is
@@ -252,6 +252,13 @@ game code; B3 onward is the runtime.
 
 ### B1 — Read the format, prove it round-trips
 
+**Done.** `MovieTest/RplExtractor.cpp` drives the shipping decoder and has
+extracted all 19 movies; `MovieTest/Fixtures/reference.json` holds a SHA-256 per
+frame — 1920 frames, 143 KB — and `MovieTest/Fixtures/Audio/` the eight
+reference WAVs. A clean rebuild reproduces every frame bit-identically.
+[What B1 established](#what-b1-established) records what it found; the rest of
+this section is the design it followed.
+
 Before choosing an encoder, establish a **known-good reference decode** of the
 `.rpl` files. Two routes, and it is worth having both:
 
@@ -293,10 +300,75 @@ output against fixtures rather than against a live legacy decoder.
 **Verifies:** a per-movie PSNR/SSIM report against the extractor's output, and a
 sample-count match on the audio.
 
+#### What B1 established
+
+The decode is sound. Every movie's frame count matches its ARMovie header chunk
+count exactly, every audio track's length matches its video's duration to the
+sample, and rendered frames come out with correct colour and stride — the
+`BrfCom` orbital animation and the `res_droid` wireframe schematic both read
+correctly, HUD text included. The eight-with-audio / eleven-silent split this
+document predicted from the headers is confirmed by the decoder itself.
+
+Six things it turned up that the plan had wrong or did not know:
+
+1. **`WINSTR.LIB` is an import library for `winstr.dll`, not a static library.**
+   45 KB of link stubs; the code is the 80 KB DLL in `GameData/`. Every
+   description of it as "the last checked-in static library" is corrected below.
+   It also means the *DLL* is the 32-bit artefact, not the `.lib`.
+2. **It forces SafeSEH off.** `Outpost.vcxproj` carries
+   `ImageHasSafeExceptionHandlers=false` at lines 342 and 369 purely because a
+   1997 import library has no safe exception handler table. **B6 can delete that
+   opt-out and re-enable SafeSEH**, which is a real hardening win nobody had
+   costed.
+3. **`winstr.dll` binds at load time**, so it must sit beside the executable
+   before `main` runs — a `chdir` into `GameData` is far too late. The project
+   copies the four decoder DLLs to its output directory, as CI does for
+   `msquic.dll`.
+4. **The decoder never reports `STREAMER_FINISHEDAUDIO` past end of video.**
+   Asked to stream zero frames after the picture ends it keeps handing back
+   buffers indefinitely — a drain loop bounded only by an iteration count
+   produced 67 MB of repeated audio before this was caught. Audio is captured on
+   the video clock and cut to the video's exact duration instead, which is
+   sound because the eight tracks are authored to their video's length.
+5. **`Movie_GetTotalFrames` is consistently one high** — 60 reported against 59
+   chunks, 178 against 177. The header's chunk count is the authority.
+6. **`BrfCom.rpl` and `BrfCom4s.rpl` share one 50-frame visual loop.** Frame 50
+   is byte-identical to frame 0, and `BrfCom4s` is the same loop held longer for
+   a longer line of dialogue. Two encoding consequences for B2: keyframe
+   placement should respect the loop point, and these two are candidates for
+   sharing a single encoded asset.
+
+#### Route 1, measured
+
+ffmpeg is now available and route 1 has been run against the oracle. **It works,
+and it is not what ships.**
+
+| | Result |
+|---|---|
+| Demuxer / decoders | `rpl`, `escape130`, `adpcm_ima_escape` — all present |
+| **Audio** | **bit-exact.** All 52,038 overlapping samples of `BrfCom` identical to the shipping decoder |
+| Video, ffmpeg defaults | **31.5 dB** against the reference |
+| Video, `scale=in_range=full` | **42.4 dB** |
+| Frame count | **60 against the shipping decoder's 59** — one spurious trailing frame |
+
+Two things go wrong quietly. `escape130` decodes to `yuv420p` and ffmpeg assumes
+limited range, so without `in_range=full` every movie ships 11 dB darker in the
+shadows than it does today — and nothing about that failure announces itself.
+And the extra frame means a naive conversion lengthens every movie by 40 ms.
+
+So route 1 is the **fallback**, not the plan. B2 encodes from the extractor's
+frames, which are the shipping pixels by construction. Route 1 stays documented
+and implemented because the 164 CD movies will still need converting after B6
+deletes the extractor.
+
 ### B2 — The converter
 
-`tools/ConvertSequences.py` (the `tools/` directory is already the home for
-repository tooling), driving ffmpeg over a directory of `.rpl`:
+**Done for the 19 local movies.** `tools/convert_sequences.py` converts them all
+and self-checks; results and settings are under
+[What B2 produced](#what-b2-produced). The 164 CD movies remain, and they are
+blocked on the discs, not on the tool.
+
+`tools/convert_sequences.py`, driving ffmpeg over a directory of `.rpl`:
 
 - Video-only movies → MP4, H.264, no audio track. Frame rate stays 25 fps and
   the pixel dimensions stay exactly 320x240 / 192x168 — **do not upscale**;
@@ -321,8 +393,44 @@ the repository in the same commit as the `.mp4` files going in, so the tree is
 never carrying both. That commit is the one place this phase edits `GameData/`,
 and it is covered by the exception recorded under [Decisions](#decisions).
 
-**Verifies:** the manifest, plus every one of the 184 referenced names resolving
+**Verifies:** the manifest, plus every one of the 181 referenced names resolving
 to an output file (or being explicitly listed as CD-only and absent).
+
+#### What B2 produced
+
+`--verify` decodes each output back and measures it against the frames it was
+made from, so the numbers below come from the tool rather than from a spot
+check. Settings: **H.264 libx264, crf 18, `veryslow`, yuv420p, `-color_range pc`,
+AAC 96 kbit/s, `+faststart`.**
+
+| | |
+|---|---|
+| Movies converted | 19 of 19, all via the exact path, no fallbacks |
+| Size | **16,033 KB → 6,103 KB (2.6x smaller)** |
+| Video PSNR | 33.9 – 39.1 dB, mean ≈ 35 |
+| Audio SNR | 30.8 – 41.8 dB |
+| Audio sample drift | **±0 samples on all eight tracks** |
+| Frame counts | every movie matches its ARMovie chunk count exactly |
+| Output streams | H.264 **High** profile, `yuvj420p(pc)`, 8-bit; AAC-LC |
+
+**Read the PSNR against its ceiling, not against 100.** RGB565 → YUV → RGB565
+costs **40.96 dB with no codec involved at all** — measured, by running the
+conversion with no encoder in the path. 4:2:0 subsampling adds almost nothing
+(40.13 dB). So ~35 dB is roughly 5 dB of actual codec loss beneath an
+unavoidable colour-space floor, and H.264 for Media Foundation must be 8-bit
+YUV, so that floor cannot be bought out. Rendered side by side the reference and
+the crf 18 encode are indistinguishable; the residual is scattered sub-visible
+noise on bright gradient edges, with no blocking and no banding. crf 14 buys
+2 dB for 1.6x the size and was judged not worth it.
+
+Two things for B3 to check rather than assume:
+
+- **`yuvj420p(pc)` is full-range flagged.** If Media Foundation ignores the VUI
+  range flag, every movie renders washed out. It is one comparison against
+  `MovieTest/Fixtures/` to find out, and the fix if it does is a shader-side or
+  conversion-side range expansion.
+- **High profile, 8-bit, 4:2:0** is squarely inside what MF's H.264 decoder
+  supports, and AAC-LC likewise — but that is documentation, not a test.
 
 ### B3 — The new backend behind `Sequence.h`
 
@@ -503,7 +611,9 @@ Once B3, B4 and B5 run:
 | `NeuronCore/STREAMER.H` | 436 lines |
 | `NeuronCore/Sequence.cpp` | 840 lines, replaced |
 | `Outpost/CDSpan.cpp` + `.h` | 573 lines, per B5 |
-| `NeuronCore/WINSTR.LIB` | the checked-in library itself — the last third-party static library in the tree |
+| `NeuronCore/WINSTR.LIB` | the import library itself — the last checked-in third-party library in the tree |
+| `ImageHasSafeExceptionHandlers=false` | `Outpost.vcxproj` lines 342, 370 — present only for WINSTR.LIB; removing it re-enables SafeSEH |
+| `MovieTest/RplExtractor.cpp` + the project's WINSTR link | the extractor goes with the library; `MovieTest/Fixtures/` stays |
 | `scrPlayBackgroundAudio` + `ScriptTabs.cpp:154` | dead script function, per B5 |
 | `scrStopCDAudio`, `scrPauseCDAudio`, `scrResumeCDAudio` + entries | registered, called by no script |
 | `GameData/winstr.dll` | 80 KB |
@@ -583,11 +693,12 @@ stylistic one.
 ### The x64 question this phase unblocks
 
 Phase 5 already removed `NeuronCore/Mplayer.lib`, so **`NeuronCore/WINSTR.LIB`
-is the last checked-in 32-bit static library** and `GameData/`'s four decoder
-DLLs the last 32-bit binaries. B6 removes all five. After that **nothing
-vendored in the tree pins the build to x86** — the DX9 SDK in `DX9/Lib` has x64
-libraries, and XAudio2, DirectInput 8, WinSock2 and Media Foundation are all
-64-bit clean.
+is the last checked-in third-party library**. B1 established it is an *import*
+library rather than a static one, which sharpens the point: the 32-bit artefacts
+are `GameData/`'s four decoder DLLs, and `WINSTR.LIB` is only the 45 KB of stubs
+that bind to one of them. B6 removes all five. After that **nothing vendored in
+the tree pins the build to x86** — the DX9 SDK in `DX9/Lib` has x64 libraries,
+and XAudio2, DirectInput 8, WinSock2 and Media Foundation are all 64-bit clean.
 
 Two things the Phase 5 merge added to this question:
 
@@ -616,7 +727,7 @@ thing being deleted — so **capture it before B5**:
    subtitle timings, and the eight with embedded audio must stay in sync to the
    end rather than drifting.
 
-What **cannot** be verified without the CDs: 165 of the 184 movies, including
+What **cannot** be verified without the CDs: 164 of the 181 movies, including
 every campaign briefing. That is not a gap the converter can close — it is the
 main risk in the phase, and it argues for running B1's comparison over a full CD
 set before committing to the format.
@@ -628,22 +739,26 @@ set before committing to the format.
 ```
 Phase 5 ──► DONE (took Mplayer.lib with it)
 
-B1 ──► B2 ──► B3 ──► B4 ──► B6
- │      │             │
- │      │             └──► B5 (severable — may land after B6)
- └──────┴── offline, no game code, starts immediately
+B1 ──► B2 ─────► B3 ──► B4 ──► B6
+DONE   19 of              │
+       181 done           └──► B5 (severable — may land after B6)
 ```
 
-Nothing gates B1 any more. Phase 5 is merged, and B1 and B2 never depended on
-Phase 2's remaining work — so this phase can start now, and it should start
-there, because that is where the unknowns are. If ffmpeg cannot decode Escape
-130 faithfully the whole shape of the phase changes: the fallback is shipping
-the extractor's raw output through a hand-rolled encoder step, which is a
-different and larger project than a batch script.
+**B1 and B2 are done for everything in the repository**, and the phase has no
+technical unknowns left. The fixtures discharge the ordering constraint that
+worried this section — B6 deletes the library the extractor links against, and
+the oracle survives as 143 KB of per-frame hashes plus the eight reference WAVs.
 
-One ordering constraint the merge adds: **B6 deletes the library B1's extractor
-links against.** Capture the reference dumps as checked-in fixtures before B6,
-or the oracle disappears with the thing it was validating.
+What remains before B6 is **not** a coding problem: 164 of the 181 movies are on
+the CDs and have never been converted. B3 and B4 can proceed against the 19 in
+hand; B6 cannot land until the rest are done, or until the owner decides the
+missing ones fall back to the `noVideo` placeholder permanently.
+
+The `.rpl` fallback path in the converter exists exactly for that gap: it is the
+only way to convert a CD movie once B6 has deleted the extractor, at the cost of
+the 42 dB fidelity documented under
+[Route 1, measured](#route-1-measured). Converting the CDs *before* B6 avoids
+paying that.
 
 B5 is the one stage that can slip without holding anything up, and it is also
 the one with the widest reach into unrelated files. Do not let it gate B6.
@@ -666,7 +781,7 @@ run the game with FMV, which breaks the CAM_1A check
 **2. The `.rpl` sources do not stay in the repository.** `tools/ConvertSequences.py`
 and a manifest of names, SHA-256 hashes, frame counts and durations go in
 instead. The deciding argument is proportion: the 19 local files are 10% of the
-set, and the 165 CD movies could never live here, so keeping the local ones
+set, and the 164 CD movies could never live here, so keeping the local ones
 would build a 10%-complete archive that reads as a full one.
 
 **3. Conversion retires `CDSpan.cpp` and the CD-swap UI** — B5. Movies were the

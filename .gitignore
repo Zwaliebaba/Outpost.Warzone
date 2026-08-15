@@ -370,3 +370,16 @@ host.out
 host.err
 client.out
 client.err
+
+# Phase 6 keeps ffmpeg out of the tree deliberately. It is a build-time tool
+# for the one-off FMV conversion, never linked and never shipped, and the
+# Windows build is ~100 MB -- which is most of a GitHub file-size limit spent
+# on something no build step needs. tools/convert_sequences.py looks here
+# first, then on PATH.
+tools/ffmpeg.exe
+tools/ffprobe.exe
+
+# The extractor's raw dumps. Hundreds of megabytes of RGB565; what gets kept
+# is MovieTest/Fixtures/, which holds their hashes.
+MovieTest/bin/
+MovieTest/obj/
