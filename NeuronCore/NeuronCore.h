@@ -69,3 +69,5 @@
 #include "Debug.h"
 
 using namespace Neuron;
+
+#include "Types.h"

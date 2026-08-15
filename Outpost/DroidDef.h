@@ -1,13 +1,9 @@
-/*
- * DroidDef.h
- *
- * Droid structure definitions
- */
-#ifndef _droiddef_h
-#define _droiddef_h
+#pragma once
 
 #include "AnimObj.h"
-#include "Audio.h"
+#include "MoveDef.h"
+#include "StatsDef.h"
+#include "Weapons.h"
 
 /* The number of components in the asParts / asBits arrays */
 #define DROID_MAXCOMP		(COMP_NUMCOMPONENTS - 1)//(COMP_NUMCOMPONENTS - 2)
@@ -116,33 +112,22 @@ using DROID_TEMPLATE = struct _droid_template
   UDWORD numWeaps; /* Number of weapons*/
   UDWORD asWeaps[DROID_MAXWEAPS]; /* weapon indices */
 
-  /* The programs */
-  //UDWORD			numProgs;					/* Number of programs*/
-  //UDWORD			asProgs[DROID_MAXPROGS];	/* program indices*/
-
   DROID_TYPE droidType; // The type of droid
   UDWORD multiPlayerID; // multiplayer unique descriptor(cant use id's for templates)
   // used for save games as well now - AB 29/10/98
   struct _droid_template* psNext; /* Pointer to next template*/
 };
 
-using DROID = struct _droid
+struct DROID
 {
   /* The common structure elements for all objects */
-  BASE_ELEMENTS(struct _droid);
+  BASE_ELEMENTS(struct DROID);
 
   //Ascii name of the droid - This is generated from the droid template and can not be changed by the game player after creation.
   STRING aName[DROID_MAXNAME];
-  //	UBYTE 		NameVersion;			// Version number used for generating on-the-fly names (e.g. Viper Mk "I" would be stored as 1 - Viper Mk "X" as 10)  - copied from droid template
 
   DROID_TYPE droidType; // The type of droid
-
-  /* Possibly a set of function pointers here to be called when
-   * damage is done to a component, power is low ...
-   */
-
-  //	DROID_TEMPLATE	*pTemplate;		//defines the droids components
-
+  
   /* Holds the specifics for the component parts - allows damage
    * per part to be calculated. Indexed by COMPONENT_TYPE.
    * Weapons and Programs need to be dealt with separately.
@@ -171,14 +156,11 @@ using DROID = struct _droid
 
   SWORD resistance; //used in Electronic Warfare
 
-  //	SDWORD		activeWeapon;		// The currently selected weapon
   WEAPON asWeaps[DROID_MAXWEAPS];
-
-  //SDWORD		activeProg;			// The currently running program
 
   // The group the droid belongs to
   struct _droid_group* psGroup;
-  struct _droid* psGrpNext;
+  struct DROID* psGrpNext;
 
   struct _structure* psBaseStruct; //a structure that this droid might be associated with
   //for vtols its the rearming pad
@@ -225,5 +207,3 @@ using DROID = struct _droid
 
   SDWORD iAudioID;
 };
-
-#endif

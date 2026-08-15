@@ -193,7 +193,7 @@ through the list of structures at Home Base when on an offWorld mission map*/
 extern BOOL radarCheckForHQ(UDWORD player);
 
 // Set the command droid that factory production should go to
-extern void assignFactoryCommandDroid(STRUCTURE* psStruct, struct _droid* psCommander);
+extern void assignFactoryCommandDroid(STRUCTURE* psStruct, DROID* psCommander);
 
 // remove all factories from a command droid
 void clearCommandDroidFactory(DROID* psDroid);

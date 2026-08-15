@@ -29,15 +29,6 @@ using AI_DATA = struct _ai_data
 {
   AI_STATE state;
   BASE_OBJECT* psTarget;
-  /*	removed 27.2.98		john.
-    struct _weapon			*psSelectedWeapon;
-    struct _structure_stats	*psStructToBuild;
-    UDWORD					timeStarted;				//time a function was started -eg build, produce
-    //UDWORD					pointsToAdd;		NOT USED AT PRESENT 13/08/97
-    UDWORD					structX, structY;			// location of StructToBuild
-    UDWORD					moveX,moveY;				// location target for movement	
-    struct _droid			*psGroup;					// The list pointer for the droids group
-    */
 };
 
 #endif

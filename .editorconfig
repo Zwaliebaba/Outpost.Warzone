@@ -1,0 +1,51 @@
+# Baseline whitespace, so an editor gets it right before clang-format runs.
+#
+# /.clang-format is the AUTHORITY for C++ layout. Nothing in CI runs it today, so it and this
+# file are both descriptive — see the status note at the top of /.clang-format. This file exists
+# for the formats clang-format does not cover — Python, shell, YAML, MSBuild XML — and, for C++,
+# repeats only the two numbers an editor needs before the first save. Where the two disagree,
+# clang-format wins; keep IndentWidth and ColumnLimit in step with it.
+
+root = true
+
+[*]
+charset = utf-8
+end_of_line = crlf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+# Mirrors /.clang-format's IndentWidth and ColumnLimit. Both were measured against the tree.
+[*.{cpp,h}]
+indent_size = 2
+max_line_length = 140
+
+[*.{vcxproj,filters,slnx,props,targets}]
+indent_size = 2
+
+# LF for the formats that are read by non-Windows tooling: GitHub parses the workflow, and
+# tools/crosscheck.py runs in a Linux container. /.gitattributes is the stock Visual Studio
+# template with only `* text=auto` active, so it does NOT pin these — this file is the only
+# thing asking for it, and an editor that ignores .editorconfig will still write CRLF.
+[*.{yml,yaml}]
+end_of_line = lf
+indent_size = 2
+
+[*.py]
+end_of_line = lf
+indent_size = 2
+max_line_length = 100
+
+[*.sh]
+end_of_line = lf
+indent_size = 2
+
+[*.md]
+end_of_line = lf
+trim_trailing_whitespace = false
+
+# Game content is authored by tools outside this repo; leave it exactly as-is.
+[GameData/**]
+trim_trailing_whitespace = false
+insert_final_newline = false

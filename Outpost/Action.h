@@ -6,6 +6,9 @@
  */
 #ifndef _action_h
 #define _action_h
+#include "Base.h"
+#include "DroidDef.h"
+#include "StatsDef.h"
 
 // What a droid is currently doing
 // Not necessarily the same as it's order as the AI may get a droid to do
@@ -121,10 +124,6 @@ extern void actionDroidObj(DROID* psDroid, DROID_ACTION action, BASE_OBJECT* psO
 void actionDroidObjLoc(DROID* psDroid, DROID_ACTION action, BASE_OBJECT* psObj, UDWORD x, UDWORD y);
 
 /* Rotate turret toward  target return True if locked on (Droid and Structure) */
-/*extern BOOL actionTargetTurret(BASE_OBJECT *psAttacker, BASE_OBJECT *psTarget,
-								UWORD *pRotation, UWORD *pPitch, SWORD rotRate,
-								SWORD pitchRate, BOOL bDirectFire, BOOL bInvert);*/
-//								UDWORD *pRotation, UDWORD *pPitch, SDWORD rotRate,
 extern BOOL actionTargetTurret(BASE_OBJECT* psAttacker, BASE_OBJECT* psTarget, UWORD* pRotation, UWORD* pPitch, WEAPON_STATS* psWeapStats,
                                BOOL bInvert);
 
@@ -132,13 +131,13 @@ extern BOOL actionTargetTurret(BASE_OBJECT* psAttacker, BASE_OBJECT* psTarget, U
 extern void actionAlignTurret(BASE_OBJECT* psObj);
 
 /* Check if a target is at correct range to attack */
-extern BOOL actionInAttackRange(DROID* psDroid, BASE_OBJECT* psObj);
+extern BOOL actionInAttackRange(DROID* _psDroid, const BASE_OBJECT* _psObj);
 
 // check if a target is within weapon range
-extern BOOL actionInRange(DROID* psDroid, BASE_OBJECT* psObj);
+extern BOOL actionInRange(const DROID* _psDroid, const BASE_OBJECT* _psObj);
 
 // check if a target is inside minimum weapon range
-extern BOOL actionInsideMinRange(DROID* psDroid, BASE_OBJECT* psObj);
+extern BOOL actionInsideMinRange(const DROID* _psDroid, const BASE_OBJECT* _psObj);
 
 // return whether a droid can see a target to fire on it
 BOOL actionVisibleTarget(DROID* psDroid, BASE_OBJECT* psTarget);

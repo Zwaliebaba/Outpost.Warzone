@@ -49,6 +49,15 @@ static BOOL g_bTexelOffsetOn = FALSE;
  */
 static BOOL g_bCanVertexFog = FALSE;
 
+/* D3DSetTranslucencyMode only sends a state to the device when it differs
+ * from the last one it sent, so it has to know when the device has stopped
+ * agreeing with that record. A reset puts every render state back to its
+ * default, so D3DApplyRenderStates marks the record stale and the next call
+ * through writes all of them again. This is new: the Direct3D 6 code had no
+ * reset to recover from.
+ */
+static BOOL g_bStateCacheStale = TRUE;
+
 /***************************************************************************/
 
 BOOL InitD3D(D3DINFO* psD3Dinfo)
@@ -221,40 +230,12 @@ static void D3DGetCaps(void)
 }
 
 /***************************************************************************/
-
-void D3DEnableFog(BOOL bEnable)
-{
-  HRESULT hRes;
-  static BOOL bEnableLast = FALSE, bFirst = TRUE;
-
-  if (g_psDevice == nullptr)
-    return;
-
-  if (bFirst || (bEnableLast != bEnable))
-  {
-    hRes = g_psDevice->SetRenderState(D3DRS_FOGENABLE, bEnable ? TRUE : FALSE);
-    if (hRes != D3D_OK) { Neuron::Fatal("D3DEnableFog:\n{}\n", DXErrorToString(hRes)); }
-  }
-
-  if (bFirst)
-    bFirst = FALSE;
-
-  bEnableLast = bEnable;
-}
-
-/***************************************************************************/
-
-void D3DSetFogColour(D3DCOLOR dwColor)
-{
-  HRESULT hRes;
-
-  if (g_psDevice == nullptr)
-    return;
-
-  hRes = g_psDevice->SetRenderState(D3DRS_FOGCOLOR, dwColor);
-  if (hRes != D3D_OK) { Neuron::Fatal("D3DSetFogColour:\n{}\n", DXErrorToString(hRes)); }
-}
-
+/*
+ * D3DEnableFog and D3DSetFogColour drove Direct3D's fixed function fog. The
+ * game never called them - its fog is the per vertex specular colour that
+ * pie_AddFogandMist writes, plus the colour screenFlip clears to - so they
+ * have gone rather than been ported into states that would fight it.
+ */
 /***************************************************************************/
 
 void D3DSetTexelOffsetState(BOOL bOffsetOn)
@@ -269,10 +250,6 @@ void D3DSetTexelOffsetState(BOOL bOffsetOn)
    */
   g_fTextureOffset = bOffsetOn ? (1.0f / 512.0f) : 0.0f;
 }
-
-/***************************************************************************/
-
-void D3DSetAlphaKey(BOOL bAlphaOn) { g_sD3Dinfo.bAlphaKey = bAlphaOn; }
 
 /***************************************************************************/
 
@@ -292,7 +269,7 @@ void D3DSetTranslucencyMode(TRANSLUCENCY_MODE transMode)
 {
   HRESULT hResult;
   static BOOL bFirst = TRUE, bBlendEnableLast = FALSE;
-  BOOL bBlendEnable;
+  BOOL bBlendEnable, bForce;
 
   static D3DBLEND srcBlendLast = D3DBLEND_ZERO, destBlendLast = D3DBLEND_ZERO;
   D3DBLEND srcBlend, destBlend;
@@ -306,6 +283,8 @@ void D3DSetTranslucencyMode(TRANSLUCENCY_MODE transMode)
 
   if (g_psDevice == nullptr)
     return;
+
+  bForce = bFirst || g_bStateCacheStale;
 
   //dont write to z buffer if alpha on
   //controlled by piestates
@@ -349,23 +328,23 @@ void D3DSetTranslucencyMode(TRANSLUCENCY_MODE transMode)
     break;
   }
 
-  if (bFirst || (srcBlend != srcBlendLast)) { ATTEMPTD3D((hResult = g_psDevice->SetRenderState(D3DRS_SRCBLEND, srcBlend))); }
+  if (bForce || (srcBlend != srcBlendLast)) { ATTEMPTD3D((hResult = g_psDevice->SetRenderState(D3DRS_SRCBLEND, srcBlend))); }
 
-  if (bFirst || (destBlend != destBlendLast)) { ATTEMPTD3D((hResult = g_psDevice->SetRenderState(D3DRS_DESTBLEND, destBlend))); }
+  if (bForce || (destBlend != destBlendLast)) { ATTEMPTD3D((hResult = g_psDevice->SetRenderState(D3DRS_DESTBLEND, destBlend))); }
 
-  if (bFirst || (bBlendEnable != bBlendEnableLast))
+  if (bForce || (bBlendEnable != bBlendEnableLast))
   {
     ATTEMPTD3D((hResult = g_psDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, bBlendEnable ? TRUE : FALSE)));
   }
 
-  if (bFirst || (dwAlphaOp != dwAlphaOpLast)) { ATTEMPTD3D((hResult = g_psDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, dwAlphaOp))); }
+  if (bForce || (dwAlphaOp != dwAlphaOpLast)) { ATTEMPTD3D((hResult = g_psDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, dwAlphaOp))); }
 
-  if ((bFirst || (dwAlphaArg1 != dwAlphaArg1Last)) && (dwAlphaArg1 != ALPHA_ARG_UNUSED))
+  if ((bForce || (dwAlphaArg1 != dwAlphaArg1Last)) && (dwAlphaArg1 != ALPHA_ARG_UNUSED))
   {
     ATTEMPTD3D((hResult = g_psDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, dwAlphaArg1)));
   }
 
-  if ((bFirst || (dwAlphaArg2 != dwAlphaArg2Last)) && (dwAlphaArg2 != ALPHA_ARG_UNUSED))
+  if ((bForce || (dwAlphaArg2 != dwAlphaArg2Last)) && (dwAlphaArg2 != ALPHA_ARG_UNUSED))
   {
     ATTEMPTD3D((hResult = g_psDevice->SetTextureStageState(0, D3DTSS_ALPHAARG2, dwAlphaArg2)));
   }
@@ -373,6 +352,7 @@ void D3DSetTranslucencyMode(TRANSLUCENCY_MODE transMode)
   /* update statics */
   if (bFirst == TRUE)
     bFirst = FALSE;
+  g_bStateCacheStale = FALSE;
   srcBlendLast = srcBlend;
   destBlendLast = destBlend;
   dwAlphaOpLast = dwAlphaOp;
@@ -403,19 +383,6 @@ void D3DSetColourKeying(BOOL bKeyingOn)
 
   hResult = g_psDevice->SetRenderState(D3DRS_ALPHATESTENABLE, bKeyingOn ? TRUE : FALSE);
   if (hResult != D3D_OK) { Neuron::Fatal("D3DSetColourKeying: alpha test SetRenderState failed\n{}", DXErrorToString(hResult)); }
-}
-
-/***************************************************************************/
-
-void D3DSetDepthBuffer(BOOL bDepthBufferOn)
-{
-  HRESULT hResult;
-
-  if (g_psDevice == nullptr)
-    return;
-
-  hResult = g_psDevice->SetRenderState(D3DRS_ZENABLE, bDepthBufferOn ? D3DZB_TRUE : D3DZB_FALSE);
-  if (hResult != D3D_OK) { Neuron::Fatal("D3DSetDepthBuffer: bZBufferOn SetRenderState failed\n{}", DXErrorToString(hResult)); }
 }
 
 /***************************************************************************/
@@ -479,6 +446,10 @@ void D3DApplyRenderStates(void)
 
   if (g_psDevice == nullptr)
     return;
+
+  /* Everything the device holds is back at its default, so no cached "we
+   * already set that" answer can be trusted. */
+  g_bStateCacheStale = TRUE;
 
   sViewport.X = 0;
   sViewport.Y = 0;
@@ -556,6 +527,11 @@ void D3DReInit(void)
 
   D3DSetColourKeying(TRUE);
   dtm_SetBilinear(pie_GetBilinear());
+
+  /* Write every state the pie layer holds back out. Without this the pie
+   * layer would keep reporting the states it last asked for while the device
+   * sat at its post-reset defaults. */
+  pie_ResetStates();
 }
 
 /***************************************************************************/
@@ -596,8 +572,6 @@ void D3DTestCooperativeLevel(BOOL bGotFocus)
 }
 
 /***************************************************************************/
-
-BOOL d3d_bHardware(void) { return g_sD3Dinfo.bHardware; }
 
 LPDIRECT3DDEVICE9 d3d_GetDevice(void)
 {

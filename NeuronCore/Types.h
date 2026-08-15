@@ -7,14 +7,6 @@
 #ifndef _types_h
 #define _types_h
 
-/* Check the header files have been included from frame.h if they
- * are used outside of the framework library.
- */
-
-#if !defined(_frame_h) && !defined(FRAME_LIB_INCLUDE)
-#error Framework header files MUST be included from Frame.h ONLY.
-#endif
-
 /* Basic numeric types */
 using UBYTE = unsigned char;
 /* SBYTE and STRING are both plain char rather than signed char.  Much of the

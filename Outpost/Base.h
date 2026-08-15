@@ -51,10 +51,6 @@ using OBJECT_TYPE = enum _object_type
 	UBYTE				cluster;	/* Which cluster the object is a member of */ \
 	UBYTE				visible[MAX_PLAYERS];	/* Whether object is visible to specific player */	\
 	UDWORD				died;		/* When an object was destroyed, if 0 still alive */ \
-	/*BOOL			    (*damage)(pointerType	*psObject, */ \
-								  /*UDWORD		damage, */ \
-								  /* UDWORD		weaponClass); - Damage function */ \
-	/*UDWORD				emissionInterval;	how frequently does it puff out damage smoke?*/ \
 	UDWORD				lastEmission;	/* when did it last puff out smoke? */ \
 	/* Data for fire damage */ \
 	BOOL				inFire;		/* TRUE if the object is in a fire */ \

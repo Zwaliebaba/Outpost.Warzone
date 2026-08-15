@@ -8,6 +8,7 @@
 #define _droid_h
 
 #include "ObjectDef.h"
+#include "Track.h"
 
 #define OFF_SCREEN 9999		// world->screen check - alex
 

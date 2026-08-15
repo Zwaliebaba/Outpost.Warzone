@@ -30,17 +30,12 @@ extern void D3DDrawPoly(int nVerts, D3DTLVERTEX* psVert);
 extern void D3DSetTranslucencyMode(TRANSLUCENCY_MODE transMode);
 
 extern void D3DSetColourKeying(BOOL bKeyingOn);
-extern void D3DSetDepthBuffer(BOOL bDepthBufferOn);
 extern void D3DSetDepthWrite(BOOL bWriteEnable);
 extern void D3DSetDepthCompare(D3DCMPFUNC depthCompare);
 
-extern void D3DSetAlphaKey(BOOL bAlphaOn);
 extern BOOL D3DGetAlphaKey(void);
 
 extern void D3DSetTexelOffsetState(BOOL bOffsetOn);
-
-extern void D3DEnableFog(BOOL bEnable);
-extern void D3DSetFogColour(D3DCOLOR dwColor);
 
 extern void D3DReInit(void);
 extern void D3DTestCooperativeLevel(BOOL bGotFocus);
@@ -50,7 +45,6 @@ extern void D3DTestCooperativeLevel(BOOL bGotFocus);
  */
 extern void D3DApplyRenderStates(void);
 
-extern BOOL d3d_bHardware(void);
 extern LPDIRECT3DDEVICE9 d3d_GetDevice(void);
 
 /***************************************************************************/

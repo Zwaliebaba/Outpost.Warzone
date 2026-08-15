@@ -1,0 +1,123 @@
+# Outpost: Warzone — C++ layout (AGENTS.md §4).
+#
+# Conformance authority: AGENTS.md. clang-format owns WHITESPACE; /.clang-tidy owns NAMING and
+# semantics. The two never overlap: clang-tidy has no check that reports a wrong brace position
+# or an over-long line, and clang-format cannot see that a parameter is missing its `_`. Asking
+# either to do the other's job is how a repository ends up with neither.
+#
+# ── Status: DESCRIPTIVE, not yet a gate ────────────────────────────────────────────────────
+#
+# No CI step runs clang-format, and THE TREE IS NOT FORMATTED TO THIS FILE. A whole-tree run
+# would rewrite essentially every one of the ~223,000 lines in NeuronCore/ and Outpost/, which
+# is a change nobody can review and which would destroy the blame history the migration depends
+# on. So: format the lines you write, leave the rest alone (AGENTS.md §4).
+#
+# ── The values are measured against this tree ──────────────────────────────────────────────
+#
+# ColumnLimit 140 and IndentWidth 2 are what the code already is, not an aspiration. Measured
+# over the 222,766 lines of NeuronCore/ and Outpost/ .h and .cpp:
+#
+#   longest line          217
+#   over 140 columns       89 lines (0.04%)
+#   over 100 columns    5,265 lines (2.4%)
+#   dominant indent step    2 (59,850 first-level indents, against 35,958 at 4)
+#   brace style        Allman — 17,547 lines that are a brace alone, against 32 attached `) {`
+#
+# 100 columns was rejected on those numbers: it would reflow 5,265 existing lines to buy nothing.
+# /.editorconfig repeats the same two numbers for editors that do not run this file; if you
+# change one, change the other in the same commit or they start lying to each other.
+#
+# ── Deliberate choices ─────────────────────────────────────────────────────────────────────
+#
+# LineEnding is left at its default (DeriveLF) ON PURPOSE. The working tree is CRLF on Windows
+# and LF on the Linux checkers (see /.gitattributes); deriving per file means the same command is
+# a no-op in both places. Pinning either value would rewrite every file on one of the two.
+#
+# AlignConsecutive{Assignments,Declarations} are OFF. The code aligns some short runs by hand,
+# and clang-format cannot express "sometimes": switching them on aligns unrelated statements
+# across whole blocks and makes the diff against this tree substantially larger.
+#
+# ReflowComments is OFF. The legacy `/* … */` block comments carry deliberate line breaks — the
+# file-header comments in Screen.h and D3DRender.h are the pattern — and a reflow destroys them.
+#
+# UseTab: Never is a target, not a description: 142 files still contain tab-indented lines. They
+# convert when a change touches them, not in a sweep.
+
+Language: Cpp
+BasedOnStyle: LLVM
+Standard: Latest
+
+# 140 columns, 2-space indent — see the measurements in the header.
+ColumnLimit: 140
+IndentWidth: 2
+TabWidth: 2
+UseTab: Never
+ContinuationIndentWidth: 2
+
+# Allman: every brace on its own line.
+BreakBeforeBraces: Allman
+
+# `namespace Neuron` does not indent its contents — the whole file would be one level in for no
+# information gained.
+NamespaceIndentation: None
+
+# -2, matching IndentWidth: `public:` sits flush with the `class`, its members one step in.
+AccessModifierOffset: -2
+IndentAccessModifiers: false
+IndentCaseLabels: false
+
+# `#   include <d3d9.h>` inside `#if !defined(_frame_h)` — the nesting is visible, and the `#`
+# stays in column 0 where a preprocessor directive belongs. This tree is dense with conditional
+# compilation (QMIXER, EDITORWORLD, TEST_BED), so the nesting is worth seeing.
+IndentPPDirectives: AfterHash
+PPIndentWidth: 3
+
+# IDirect3DDevice9* _device, not IDirect3DDevice9 *_device.
+PointerAlignment: Left
+ReferenceAlignment: Left
+DerivePointerAlignment: false
+
+# Control flow never folds onto one line; an empty body may.
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortBlocksOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortLambdasOnASingleLine: All
+
+BreakConstructorInitializers: BeforeColon
+ConstructorInitializerIndentWidth: 2
+PackConstructorInitializers: Never
+
+# A `requires` clause goes on its own line, indented under the template head — the constraint is
+# part of the declaration's contract and reads as such. (Nothing in the tree uses one yet; the
+# setting is here so the first one does not land in whatever shape the default produces.)
+SpaceBeforeParens: Custom
+SpaceBeforeParensOptions:
+  AfterControlStatements: true
+  AfterRequiresInClause: true
+  AfterRequiresInExpression: false
+RequiresClausePosition: OwnLine
+IndentRequiresClause: true
+
+AlignConsecutiveAssignments: None
+AlignConsecutiveDeclarations: None
+AlignAfterOpenBracket: Align
+AlignEscapedNewlines: Left
+AlignTrailingComments: true
+
+# Include order is load-bearing here and is grouped by hand (AGENTS.md §4). Legacy headers guard
+# themselves on having been reached through Frame.h, and windows.h must precede the DirectX
+# headers — a formatter reordering includes behind a change's back is a correctness risk, not a
+# style preference.
+SortIncludes: Never
+IncludeBlocks: Preserve
+
+BinPackArguments: true
+BinPackParameters: true
+Cpp11BracedListStyle: true
+FixNamespaceComments: true
+KeepEmptyLinesAtTheStartOfBlocks: false
+MaxEmptyLinesToKeep: 1
+SpacesBeforeTrailingComments: 1
+ReflowComments: false

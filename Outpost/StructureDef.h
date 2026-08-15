@@ -228,9 +228,8 @@ using FACTORY = struct _factory
   UDWORD timeStartHold; /* The time the factory was put on hold*/
   FLAG_POSITION* psAssemblyPoint; /* Place for the new droids to assemble at */
   struct _formation* psFormation; // formation for the droids that are produced
-  struct _droid* psCommander; // command droid to produce droids for (if any)
+  struct DROID* psCommander; // command droid to produce droids for (if any)
   UDWORD secondaryOrder; // secondary order state for all units coming out of the factory
-  // added AB 22/04/99
 
   //these are no longer required - yipee!
   // The group the droids produced by this factory belong to - used for Missions
@@ -269,7 +268,7 @@ using REPAIR_FACILITY = struct REPAIR_FACILITY
 
   // The group the droids to be repaired by this facility belong to
   struct _droid_group* psGroup;
-  struct _droid* psGrpNext;
+  DROID* psGrpNext;
 };
 
 using REARM_PAD = struct _rearm_pad

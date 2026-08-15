@@ -1,15 +1,6 @@
 #include "pch.h"
-/*
- *Config.c  saves your favourite options to the Registry.
- * 
- */
-
 #include "Frame.h"
-
-#include "ObjMem.h"
 #include "Display.h"	// gamma
-#include "Track.h"		// audio
-#include "Music.h"
 #include "PieState.h"	// setgamma.
 #include "WarzoneConfig.h"	// renderMode
 #include "Component.h"
@@ -21,8 +12,8 @@
 #include "MultiPlay.h"
 #include "AI.h"
 #include "AdvVis.h"
+#include "Audio.h"
 #include "HCI.h"
-#include "FPath.h"
 #include "D3DRender.h"
 
 // ////////////////////////////////////////////////////////////////////////////
