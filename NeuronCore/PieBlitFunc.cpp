@@ -404,11 +404,6 @@ void pie_ImageDef(IMAGEDEF* Image, iBitmap* Bmp, UDWORD Modulus, int x, int y, B
   pie_SetBilinear(FALSE); //changed by alex 19 oct 98
 }
 
-void pie_ImageDefTrans(IMAGEDEF* Image, iBitmap* Bmp, UDWORD Modulus, int x, int y, int TransRate)
-{
-  pie_ImageDef(Image, Bmp, Modulus, x, y,FALSE);
-}
-
 void pie_UploadDisplayBuffer(UBYTE* DisplayBuffer)
 {
   //only call inside D3D render
@@ -417,13 +412,6 @@ void pie_UploadDisplayBuffer(UBYTE* DisplayBuffer)
   screen_SetBackDrop((UWORD*)DisplayBuffer, pie_GetVideoBufferWidth(), pie_GetVideoBufferHeight());
   pie_GlobalRenderBegin();
 }
-
-void pie_DownloadDisplayBuffer(UBYTE* DisplayBuffer)
-{
-  //screen_SetBackDropFullWidth();//set when background sets
-}
-
-void pie_ScaleBitmapRGB(UBYTE* DisplayBuffer, int Width, int Height, int ScaleR, int ScaleG, int ScaleB) {}
 
 BOOL pie_InitRadar(void) { return TRUE; }
 

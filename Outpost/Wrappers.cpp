@@ -140,7 +140,6 @@ TITLECODE titleLoop(void)
 
     firstcall = FALSE;
 
-    pie_SetMouse(IntImages, IMAGE_CURSOR_DEFAULT); // reset cursor (hw)
 
     frameSetCursorFromRes(IDC_DEFAULT); // reset cursor	(sw)
 

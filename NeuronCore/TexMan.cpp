@@ -33,7 +33,7 @@
  */
 /***************************************************************************/
 
-#define MAX_TEX_PAGES 32
+#define MAX_TEX_PAGES iV_TEX_MAX
 #define TEXTURE_SIZE 256
 
 /* The radar occupies the top left corner of its page rather than the whole
@@ -45,8 +45,6 @@
  *	Local Variables
  */
 /***************************************************************************/
-
-static LPDIRECT3DTEXTURE9 aTextures[MAX_TEX_PAGES];
 
 /* The game palette packed into A8R8G8B8. Entry zero is the transparent one -
  * it carries an alpha of zero, and the alpha test throws it away. That is
@@ -88,11 +86,13 @@ BOOL dtm_Initialise(void)
   if (psDevice == nullptr)
     return FALSE;
 
-  memset(aTextures, 0, sizeof(aTextures));
+  for (i = 0; i < MAX_TEX_PAGES; i++)
+    _TEX_PAGE[i].psTexture = nullptr;
 
   for (i = 0; i < MAX_TEX_PAGES; i++)
   {
-    hResult = psDevice->CreateTexture(TEXTURE_SIZE, TEXTURE_SIZE, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &aTextures[i], nullptr);
+    hResult = psDevice->CreateTexture(TEXTURE_SIZE, TEXTURE_SIZE, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &_TEX_PAGE[i].psTexture,
+                                      nullptr);
     if (hResult != D3D_OK)
     {
       Neuron::Fatal("dtm_Initialise: couldn't create texture page {}:\n{}", i, DXErrorToString(hResult));
@@ -114,7 +114,7 @@ BOOL dtm_ReleaseTextures(void)
 {
   SDWORD i;
 
-  for (i = 0; i < MAX_TEX_PAGES; i++) { RELEASE(aTextures[i]); }
+  for (i = 0; i < MAX_TEX_PAGES; i++) { RELEASE(_TEX_PAGE[i].psTexture); }
 
   currentTexPage = -1;
 
@@ -161,7 +161,7 @@ BOOL dtm_RestoreTextures(void)
 {
   SDWORD page;
 
-  if (aTextures[0] == nullptr)
+  if (_TEX_PAGE[0].psTexture == nullptr)
     return FALSE;
 
   page = currentTexPage;
@@ -184,7 +184,7 @@ void dtm_SetTexturePage(SDWORD i)
     return;
 
   if ((i >= 0) && (i < MAX_TEX_PAGES))
-    (void)psDevice->SetTexture(0, aTextures[i]);
+    (void)psDevice->SetTexture(0, _TEX_PAGE[i].psTexture);
   else
     (void)psDevice->SetTexture(0, nullptr);
 
@@ -213,7 +213,7 @@ void dtm_ApplyTextureStates(void)
 
   /* The binding is part of the device state a reset discards too. */
   if ((currentTexPage >= 0) && (currentTexPage < MAX_TEX_PAGES))
-    (void)psDevice->SetTexture(0, aTextures[currentTexPage]);
+    (void)psDevice->SetTexture(0, _TEX_PAGE[currentTexPage].psTexture);
 }
 
 /***************************************************************************/
@@ -300,14 +300,14 @@ BOOL dtm_LoadTexSurface(iTexture* psIvisTex, SDWORD index)
     return FALSE;
   }
 
-  return dtm_UploadImage(aTextures[index], psIvisTex->width, psIvisTex->height, psIvisTex->bmp);
+  return dtm_UploadImage(_TEX_PAGE[index].psTexture, psIvisTex->width, psIvisTex->height, psIvisTex->bmp);
 }
 
 /***************************************************************************/
 
 BOOL dtm_LoadRadarSurface(BYTE* radarBuffer)
 {
-  return dtm_UploadImage(aTextures[RADAR_TEXPAGE_D3D], RADAR_SIZE, RADAR_SIZE, (UBYTE*)radarBuffer);
+  return dtm_UploadImage(_TEX_PAGE[RADAR_TEXPAGE_D3D].psTexture, RADAR_SIZE, RADAR_SIZE, (UBYTE*)radarBuffer);
 }
 
 /***************************************************************************/

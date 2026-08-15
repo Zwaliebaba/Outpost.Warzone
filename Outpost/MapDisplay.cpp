@@ -18,7 +18,6 @@
 #include "PieDef.h"
 #include "PieState.h"
 #include "PieMode.h"
-#include "PieTexture.h"
 #include "PieMatrix.h"
 #include "RendMode.h"
 
@@ -57,7 +56,6 @@ void drawMapWorld(void);
 //void		drawMapTile				(SDWORD i, SDWORD j);//line draw nolonger used
 
 /* Textured tile draw */
-void drawMapTile2(SDWORD i, SDWORD j);
 
 /* Clears the map buffer prior to drawing in it */
 //clear text message background with gray fill
@@ -68,7 +66,6 @@ void drawMapTile2(SDWORD i, SDWORD j);
 /*fills the map buffer with a bitmap prior to drawing in it*/
 static void fillMapBufferWithBitmap(iSurface* surface);
 
-void tileLayouts(int texture);
 
 //fill the intelColours array with the colours used for the background
 /* ----------------------------------------------------------------------------------------- */
@@ -81,8 +78,6 @@ static SDWORD mapGridWidth, mapGridHeight, mapGridMidX, mapGridMidY;
 static SDWORD mapGridX, mapGridZ;
 static SDWORD gridDivX, gridDivZ;
 static iVector tileScreenCoords[MAX_MAP_GRID][MAX_MAP_GRID];
-static POINT sP1, sP2, sP3, sP4;
-static POINT *psP1, *psP2, *psP3, *psP4, *psPTemp;
 
 /*Flag to switch code for bucket sorting in renderFeatures etc 
   for the renderMapToBuffer code */
@@ -94,50 +89,6 @@ BOOL doBucket = TRUE;
 
 //colours used to 'paint' the background of 3D view
 UDWORD intelColours[MAX_INTEL_SHADES];
-
-/* ----------------------------------------------------------------------------------------- */
-/* Functions */
-iSurface* setUpMapSurface(UDWORD width, UDWORD height)
-{
-  void* bufSpace;
-  iSurface* pMapSurface;
-
-  /*	Release the old buffer if necessary - we may use many different intel maps
-    before resetting the game back to init/close */
-
-  /* Get the required memory for the render surface */
-  bufSpace = new (std::nothrow) UBYTE[width*height];
-
-  //initialise the buffer
-  memset(bufSpace, 0, (width * height));
-
-  /* Exit if we can't get it! */
-  DEBUG_ASSERT_TEXT(bufSpace!=NULL, "Can't get the memory for the map buffer");
-
-  /* Build our new surface */
-  pMapSurface = iV_SurfaceCreate(REND_SURFACE_USR, width, height, 10, 10, static_cast<uint8*>(bufSpace));
-
-  /* Exit if we can't get it! */
-  DEBUG_ASSERT_TEXT(pMapSurface!=NULL, "Whoa - can't make surface for map");
-
-  //set up the intel colours
-
-  /*	Return a pointer to our surface - from this they can get the rendered buffer
-    as well as info about width and height etc. */
-  return (pMapSurface);
-}
-
-void releaseMapSurface(iSurface* pSurface)
-{
-  /* Free up old alloaction if necessary */
-  if (pSurface != nullptr)
-  {
-    /* Free up old buffer if necessary */
-    if (pSurface->buffer != nullptr) { delete[] pSurface->buffer; }
-    delete[] pSurface;
-    pSurface = nullptr;
-  }
-}
 
 /* Draws the world into the current surface - set using 
    iV_RenderAssign(iV_MODE_SURFACE,pSurface) */
@@ -197,12 +148,6 @@ void drawMapWorld(void)
       /* Rotate and project the tile to get its screen coords and distance away */
       tileScreenCoords[i][j].z = pie_RotProj(&tileCoords, (iPoint*)&tileScreenCoords[i][j]);
     }
-  }
-
-  for (i = 0; i < mapGridWidth; i++)
-  {
-    for (j = 0; j < mapGridHeight; j++)
-      drawMapTile2(i, j);
   }
 
   doBucket = FALSE;
@@ -349,217 +294,6 @@ void fillMapBufferWithBitmap(iSurface* surface)
 #endif
 }
 */
-/* This draws the tile regardless of whether the tile should be VISIBLE */
-void drawMapTile2(SDWORD i, SDWORD j)
-{
-  UDWORD renderFlag;
-  UDWORD realX, realY;
-  UDWORD tileNumber;
-  UDWORD topL, botL, topR, botR;
-  iVertex p[4];
-  MAPTILE* psTile;
-  iPoint offset;
-
-  /* Get the actual tile to render */
-  realX = mapGridX + j;
-  realY = mapGridZ + i;
-
-  topL = mapTile(realX, realY)->illumination + 2;
-  botL = mapTile(realX, realY + 1)->illumination + 2;
-  botR = mapTile(realX + 1, realY + 1)->illumination + 2;
-  topR = mapTile(realX + 1, realY)->illumination + 2;
-
-  /* Get a pointer to the tile we're going to render */
-  psTile = mapTile(realX, realY);
-
-  /* Draw ALL the tiles - don't check for visible - for Intelligence Screen 3D View*/
-  //if ( TEST_TILE_VISIBLE(selectedPlayer, psTile) OR godMode)
-  /* get the appropriate tile texture */
-  tileNumber = psTile->texture;
-  texturePage.bmp = tilesRAW[tileNumber & TILE_NUMMASK];
-
-  /* Check for flipped and rotated tiles */
-  tileLayouts(tileNumber & ~TILE_NUMMASK);
-
-  if (TRI_FLIPPED(psTile))
-  {
-    /* Get the screen coordinates to render into for the texturer */
-    p[0].x = tileScreenCoords[i + 0][j + 0].x;
-    p[0].y = tileScreenCoords[i + 0][j + 0].y;
-    p[0].z = tileScreenCoords[i + 0][j + 0].z;
-    p[1].x = tileScreenCoords[i + 0][j + 1].x;
-    p[1].y = tileScreenCoords[i + 0][j + 1].y;
-    p[1].z = tileScreenCoords[i + 0][j + 1].z;
-    p[2].x = tileScreenCoords[i + 1][j + 0].x;
-    p[2].y = tileScreenCoords[i + 1][j + 0].y;
-    p[2].z = tileScreenCoords[i + 1][j + 0].z;
-
-    /* Get the U,V values for the indexing into the texture */
-    p[0].u = psP1->x;
-    p[0].v = psP1->y;
-    p[1].u = psP2->x;
-    p[1].v = psP2->y;
-    p[2].u = psP4->x;
-    p[2].v = psP4->y;
-
-    /* Get the intensity values	for shading */
-    p[0].g = static_cast<UBYTE>(topL);
-    p[1].g = static_cast<UBYTE>(topR);
-    p[2].g = static_cast<UBYTE>(botL);
-  }
-  else
-  {
-    /* Get the screen coordinates to render into for the texturer */
-    p[0].x = tileScreenCoords[i + 0][j + 0].x;
-    p[0].y = tileScreenCoords[i + 0][j + 0].y;
-    p[0].z = tileScreenCoords[i + 0][j + 0].z;
-    p[1].x = tileScreenCoords[i + 0][j + 1].x;
-    p[1].y = tileScreenCoords[i + 0][j + 1].y;
-    p[1].z = tileScreenCoords[i + 0][j + 1].z;
-    p[2].x = tileScreenCoords[i + 1][j + 1].x;
-    p[2].y = tileScreenCoords[i + 1][j + 1].y;
-    p[2].z = tileScreenCoords[i + 1][j + 1].z;
-
-    /* Get the U,V values for the indexing into the texture */
-    p[0].u = psP1->x;
-    p[0].v = psP1->y;
-    p[1].u = psP2->x;
-    p[1].v = psP2->y;
-    p[2].u = psP3->x;
-    p[2].v = psP3->y;
-
-    /* Get the intensity values	for shading */
-    p[0].g = static_cast<UBYTE>(topL);
-    p[1].g = static_cast<UBYTE>(topR);
-    p[2].g = static_cast<UBYTE>(botR);
-  }
-
-  renderFlag = 0;
-  pie_DrawTriangle(p, &texturePage, renderFlag, &offset);
-  // Clip the polygon and establish how many sides it has. 
-  // This routines also now clips shading and U,V values - Alex.
-  if (TRI_FLIPPED(psTile))
-  {
-    /* Set up the texel coordinates */
-    p[0].x = tileScreenCoords[i + 0][j + 1].x;
-    p[0].y = tileScreenCoords[i + 0][j + 1].y;
-    p[0].z = tileScreenCoords[i + 0][j + 1].z;
-    p[1].x = tileScreenCoords[i + 1][j + 1].x;
-    p[1].y = tileScreenCoords[i + 1][j + 1].y;
-    p[1].z = tileScreenCoords[i + 1][j + 1].z;
-    p[2].x = tileScreenCoords[i + 1][j + 0].x;
-    p[2].y = tileScreenCoords[i + 1][j + 0].y;
-    p[2].z = tileScreenCoords[i + 1][j + 0].z;
-
-    /* Set up U,V */
-    p[0].u = psP2->x;
-    p[0].v = psP2->y;
-    p[1].u = psP3->x;
-    p[1].v = psP3->y;
-    p[2].u = psP4->x;
-    p[2].v = psP4->y;
-
-    /* Set up shading vars */
-    p[0].g = static_cast<UBYTE>(topR);
-    p[1].g = static_cast<UBYTE>(botR);
-    p[2].g = static_cast<UBYTE>(botL);
-  }
-  else
-  {
-    /* Set up the texel coordinates */
-    p[0].x = tileScreenCoords[i + 0][j + 0].x;
-    p[0].y = tileScreenCoords[i + 0][j + 0].y;
-    p[0].z = tileScreenCoords[i + 0][j + 0].z;
-    p[1].x = tileScreenCoords[i + 1][j + 1].x;
-    p[1].y = tileScreenCoords[i + 1][j + 1].y;
-    p[1].z = tileScreenCoords[i + 1][j + 1].z;
-    p[2].x = tileScreenCoords[i + 1][j + 0].x;
-    p[2].y = tileScreenCoords[i + 1][j + 0].y;
-    p[2].z = tileScreenCoords[i + 1][j + 0].z;
-
-    /* Set up U,V */
-    p[0].u = psP1->x;
-    p[0].v = psP1->y;
-    p[1].u = psP3->x;
-    p[1].v = psP3->y;
-    p[2].u = psP4->x;
-    p[2].v = psP4->y;
-
-    /* Set up shading vars */
-    p[0].g = static_cast<UBYTE>(topL);
-    p[1].g = static_cast<UBYTE>(botR);
-    p[2].g = static_cast<UBYTE>(botL);
-  }
-  pie_DrawTriangle(p, &texturePage, renderFlag, &offset);
-}
-
-void tileLayouts(int texture)
-{
-  /* Store the source rect as four points */
-  sP1.x = 0;
-  sP1.y = 0;
-  sP2.x = 63;
-  sP2.y = 0;
-  sP3.x = 63;
-  sP3.y = 63;
-  sP4.x = 0;
-  sP4.y = 63;
-
-  /* Store pointers to the points */
-  psP1 = &sP1;
-  psP2 = &sP2;
-  psP3 = &sP3;
-  psP4 = &sP4;
-
-  if (texture & TILE_XFLIP)
-  {
-    psPTemp = psP1;
-    psP1 = psP2;
-    psP2 = psPTemp;
-    psPTemp = psP3;
-    psP3 = psP4;
-    psP4 = psPTemp;
-  }
-  if (texture & TILE_YFLIP)
-  {
-    psPTemp = psP1;
-    psP1 = psP4;
-    psP4 = psPTemp;
-    psPTemp = psP2;
-    psP2 = psP3;
-    psP3 = psPTemp;
-  }
-
-  switch ((texture & TILE_ROTMASK) >> TILE_ROTSHIFT)
-  {
-  case 1:
-    psPTemp = psP1;
-    psP1 = psP4;
-    psP4 = psP3;
-    psP3 = psP2;
-    psP2 = psPTemp;
-    break;
-  case 2:
-    psPTemp = psP1;
-    psP1 = psP3;
-    psP3 = psPTemp;
-    psPTemp = psP4;
-    psP4 = psP2;
-    psP2 = psPTemp;
-    break;
-  case 3:
-    psPTemp = psP1;
-    psP1 = psP2;
-    psP2 = psP3;
-    psP3 = psP4;
-    psP4 = psPTemp;
-    break;
-  }
-}
-
-// Render a Map Surface to display memory.
-void renderMapSurface(iSurface* pSurface, UDWORD x, UDWORD y, UDWORD width, UDWORD height) {}
-
 /* renders up to two IMDs into the surface - used by message display in Intelligence Map 
 THIS HAS BEEN REPLACED BY renderResearchToBuffer()*/
 /*void renderIMDToBuffer(iSurface *pSurface, iIMDShape *pIMD, iIMDShape *pIMD2,
@@ -633,7 +367,7 @@ THIS HAS BEEN REPLACED BY renderResearchToBuffer()*/
 
 /* renders the Research IMDs into the surface - used by message display in 
 Intelligence Map */
-void renderResearchToBuffer(iSurface* pSurface, RESEARCH* psResearch, UDWORD OriginX, UDWORD OriginY)
+void renderResearchToBuffer(RESEARCH* psResearch, UDWORD OriginX, UDWORD OriginY)
 {
   static UDWORD angle = 0;
 

@@ -18,6 +18,7 @@
 #include "Tex.h"
 #include "PiePalette.h"
 #include "PieState.h"
+#include "PieDef.h"
 #include "PieClip.h"
 #include "FrameInt.h"
 
@@ -32,14 +33,17 @@
 /***************************************************************************/
 /* local funcs */
 
-static BOOL rend_InitD3D(void);
 static void D3DSetCulling(BOOL bCullingOn);
+static void D3DGetCaps(void);
 
 /***************************************************************************/
 /* global variables */
 
-static D3DINFO g_sD3Dinfo;
 static LPDIRECT3DDEVICE9 g_psDevice = nullptr;
+
+/* The display mode the device was set up for, so a change can be noticed at
+ * the top of a frame. */
+static SCREEN_MODE g_ScreenMode;
 static D3DTLVERTEX d3dVrts[pie_MAX_POLY_VERTS];
 static float g_fTextureOffset = 0.0f;
 static BOOL g_bTexelOffsetOn = FALSE;
@@ -49,31 +53,54 @@ static BOOL g_bTexelOffsetOn = FALSE;
  */
 static BOOL g_bCanVertexFog = FALSE;
 
-/* D3DSetTranslucencyMode only sends a state to the device when it differs
- * from the last one it sent, so it has to know when the device has stopped
- * agreeing with that record. A reset puts every render state back to its
- * default, so D3DApplyRenderStates marks the record stale and the next call
- * through writes all of them again. This is new: the Direct3D 6 code had no
- * reset to recover from.
+/***************************************************************************/
+
+/*
+ * Take the device the framework created and get it ready to draw.
+ *
+ * Direct3D 9 has no colour key, so transparency is always the alpha test: the
+ * texture manager gives palette entry zero an alpha of zero and every other
+ * entry full alpha, which is what the DirectDraw colour key on black used to
+ * do. That used to be recorded in a D3DINFO flag nothing read.
  */
-static BOOL g_bStateCacheStale = TRUE;
+BOOL InitD3D(void)
+{
+  g_psDevice = screenGetDevice();
+
+  if (g_psDevice == nullptr)
+  {
+    Neuron::Fatal("InitD3D: the framework has not created a Direct3D 9 device");
+    return FALSE;
+  }
+
+  D3DGetCaps();
+
+  if (!dtm_Initialise())
+    return FALSE;
+
+  D3DApplyRenderStates();
+
+  g_ScreenMode = screenGetMode();
+
+  return TRUE;
+}
 
 /***************************************************************************/
 
-BOOL InitD3D(D3DINFO* psD3Dinfo)
+void BeginFrameD3D(void)
 {
-  /* copy input struct */
-  memcpy(&g_sD3Dinfo, psD3Dinfo, sizeof(D3DINFO));
+  /* A display mode change needs the states and texture bindings put back
+   * before anything is drawn through them. */
+  if (g_ScreenMode != screenGetMode())
+  {
+    D3DReInit();
+    g_ScreenMode = screenGetMode();
+  }
 
-  /* Direct3D 9 has no colour key, so transparency is always the alpha test.
-   * The texture manager gives palette entry zero an alpha of zero and every
-   * other entry full alpha, which is what the DirectDraw colour key on black
-   * used to do.
-   */
-  g_sD3Dinfo.bAlphaKey = TRUE;
-
-  return rend_InitD3D();
+  BeginSceneD3D();
 }
+
+void EndFrameD3D(void) { EndSceneD3D(); }
 
 /***************************************************************************/
 
@@ -253,9 +280,6 @@ void D3DSetTexelOffsetState(BOOL bOffsetOn)
 
 /***************************************************************************/
 
-BOOL D3DGetAlphaKey(void) { return g_sD3Dinfo.bAlphaKey; }
-
-/***************************************************************************/
 /*
  * Translucency
  *
@@ -268,23 +292,18 @@ BOOL D3DGetAlphaKey(void) { return g_sD3Dinfo.bAlphaKey; }
 void D3DSetTranslucencyMode(TRANSLUCENCY_MODE transMode)
 {
   HRESULT hResult;
-  static BOOL bFirst = TRUE, bBlendEnableLast = FALSE;
-  BOOL bBlendEnable, bForce;
+  BOOL bBlendEnable;
 
-  static D3DBLEND srcBlendLast = D3DBLEND_ZERO, destBlendLast = D3DBLEND_ZERO;
   D3DBLEND srcBlend, destBlend;
 
   /* 0xffffffff is not a texture argument, so it reads as "leave this one
    * alone" the way -1 did before. */
 #define ALPHA_ARG_UNUSED 0xffffffff
 
-  static DWORD dwAlphaOpLast = D3DTOP_DISABLE, dwAlphaArg1Last = ALPHA_ARG_UNUSED, dwAlphaArg2Last = ALPHA_ARG_UNUSED;
   DWORD dwAlphaOp, dwAlphaArg1 = ALPHA_ARG_UNUSED, dwAlphaArg2 = ALPHA_ARG_UNUSED;
 
   if (g_psDevice == nullptr)
     return;
-
-  bForce = bFirst || g_bStateCacheStale;
 
   //dont write to z buffer if alpha on
   //controlled by piestates
@@ -328,36 +347,16 @@ void D3DSetTranslucencyMode(TRANSLUCENCY_MODE transMode)
     break;
   }
 
-  if (bForce || (srcBlend != srcBlendLast)) { ATTEMPTD3D((hResult = g_psDevice->SetRenderState(D3DRS_SRCBLEND, srcBlend))); }
+  ATTEMPTD3D((hResult = g_psDevice->SetRenderState(D3DRS_SRCBLEND, srcBlend)));
+  ATTEMPTD3D((hResult = g_psDevice->SetRenderState(D3DRS_DESTBLEND, destBlend)));
+  ATTEMPTD3D((hResult = g_psDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, bBlendEnable ? TRUE : FALSE)));
+  ATTEMPTD3D((hResult = g_psDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, dwAlphaOp)));
 
-  if (bForce || (destBlend != destBlendLast)) { ATTEMPTD3D((hResult = g_psDevice->SetRenderState(D3DRS_DESTBLEND, destBlend))); }
+  /* An unused argument is left at whatever the previous mode set it to, which
+   * is what the per-argument record used to arrange. */
+  if (dwAlphaArg1 != ALPHA_ARG_UNUSED) { ATTEMPTD3D((hResult = g_psDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, dwAlphaArg1))); }
 
-  if (bForce || (bBlendEnable != bBlendEnableLast))
-  {
-    ATTEMPTD3D((hResult = g_psDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, bBlendEnable ? TRUE : FALSE)));
-  }
-
-  if (bForce || (dwAlphaOp != dwAlphaOpLast)) { ATTEMPTD3D((hResult = g_psDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, dwAlphaOp))); }
-
-  if ((bForce || (dwAlphaArg1 != dwAlphaArg1Last)) && (dwAlphaArg1 != ALPHA_ARG_UNUSED))
-  {
-    ATTEMPTD3D((hResult = g_psDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, dwAlphaArg1)));
-  }
-
-  if ((bForce || (dwAlphaArg2 != dwAlphaArg2Last)) && (dwAlphaArg2 != ALPHA_ARG_UNUSED))
-  {
-    ATTEMPTD3D((hResult = g_psDevice->SetTextureStageState(0, D3DTSS_ALPHAARG2, dwAlphaArg2)));
-  }
-
-  /* update statics */
-  if (bFirst == TRUE)
-    bFirst = FALSE;
-  g_bStateCacheStale = FALSE;
-  srcBlendLast = srcBlend;
-  destBlendLast = destBlend;
-  dwAlphaOpLast = dwAlphaOp;
-  dwAlphaArg1Last = dwAlphaArg1;
-  dwAlphaArg2Last = dwAlphaArg2;
+  if (dwAlphaArg2 != ALPHA_ARG_UNUSED) { ATTEMPTD3D((hResult = g_psDevice->SetTextureStageState(0, D3DTSS_ALPHAARG2, dwAlphaArg2))); }
 
   return;
 
@@ -447,10 +446,6 @@ void D3DApplyRenderStates(void)
   if (g_psDevice == nullptr)
     return;
 
-  /* Everything the device holds is back at its default, so no cached "we
-   * already set that" answer can be trusted. */
-  g_bStateCacheStale = TRUE;
-
   sViewport.X = 0;
   sViewport.Y = 0;
   sViewport.Width = pie_GetVideoBufferWidth();
@@ -480,35 +475,6 @@ void D3DApplyRenderStates(void)
   (void)g_psDevice->SetRenderState(D3DRS_ALPHATESTENABLE, TRUE);
 
   dtm_ApplyTextureStates();
-}
-
-/***************************************************************************/
-/*
- * rend_InitD3D
- *
- * Take the device the framework created and get it ready to draw.
- */
-/***************************************************************************/
-
-static BOOL rend_InitD3D(void)
-{
-  g_psDevice = screenGetDevice();
-
-  if (g_psDevice == nullptr)
-  {
-    Neuron::Fatal("InitD3D: the framework has not created a Direct3D 9 device");
-    return FALSE;
-  }
-
-  D3DGetCaps();
-
-  /* init texture manager */
-  if (!dtm_Initialise())
-    return FALSE;
-
-  D3DApplyRenderStates();
-
-  return TRUE;
 }
 
 /***************************************************************************/
@@ -579,4 +545,461 @@ LPDIRECT3DDEVICE9 d3d_GetDevice(void)
   return g_psDevice;
 }
 
+/***************************************************************************/
+
+/***************************************************************************/
+/***************************************************************************/
+/*
+ * Render state
+ *
+ * Was pieState.cpp. The state the game asks for and the device calls that
+ * carry it out are the same subject, and keeping them apart is what let the
+ * renderer cache the same information twice.
+ */
+/***************************************************************************/
+/***************************************************************************/
+
+/***************************************************************************/
+/*
+ *	Global Variables
+ */
+/***************************************************************************/
+
+SDWORD pieStateCount = 0;
+/***************************************************************************/
+/*
+ *	Local Definitions
+ */
+/***************************************************************************/
+
+using COLOUR_MODE = enum COLOUR_MODE
+{
+  COLOUR_FLAT_CONSTANT,
+  COLOUR_FLAT_ITERATED,
+  COLOUR_TEX_ITERATED,
+  COLOUR_TEX_CONSTANT
+};
+
+using RENDER_STATE = struct _renderState
+{
+  DEPTH_MODE depthBuffer;
+  BOOL translucent;
+  BOOL additive;
+  FOG_CAP fogCap;
+  BOOL fogEnabled;
+  BOOL fog;
+  UDWORD fogColour;
+  TEX_CAP texCap;
+  REND_MODE rendMode;
+  BOOL bilinearOn;
+  BOOL keyingOn;
+  COLOUR_MODE colourCombine;
+  TRANSLUCENCY_MODE transMode;
+  UDWORD colour;
+#ifdef STATES
+  BOOL textured; UBYTE lightLevel;
+#endif
+};
+
+/***************************************************************************/
+/*
+ *	Local Variables
+ */
+/***************************************************************************/
+
+RENDER_STATE rendStates;
+
+/***************************************************************************/
+/*
+ *	Local ProtoTypes
+ */
+/***************************************************************************/
+static void pie_SetColourCombine(COLOUR_MODE colCombMode);
+static void pie_SetTranslucencyMode(TRANSLUCENCY_MODE transMode);
+
+/***************************************************************************/
+/*
+ *	Source
+ */
+/***************************************************************************/
+void pie_SetDefaultStates(void) //Sets all states
+{
+  //		pie_SetFogColour(0x00B08f5f);//nicks colour
+  //fog off
+  rendStates.fogEnabled = FALSE; // enable fog before renderer
+  rendStates.fog = FALSE; //to force reset to false
+  pie_SetFogStatus(FALSE);
+  pie_SetFogColour(0x00000000); //nicks colour
+
+  //depth Buffer on
+  rendStates.depthBuffer = static_cast<DEPTH_MODE>(FALSE); //to force reset to true
+  pie_SetDepthBufferStatus(DEPTH_CMP_LEQ_WRT_ON);
+
+  //set render mode
+  pie_SetTranslucent(TRUE);
+  pie_SetAdditive(TRUE);
+
+  //basic gouraud textured rendering
+  rendStates.colourCombine = COLOUR_FLAT_CONSTANT; //to force reset to GOURAUD_TEX
+  pie_SetColourCombine(COLOUR_TEX_ITERATED);
+  rendStates.transMode = TRANS_ALPHA; //to force reset to DECAL
+  pie_SetTranslucencyMode(TRANS_DECAL);
+
+  //chroma keying on black
+  rendStates.keyingOn = FALSE; //to force reset to true
+  pie_SetColourKeyedBlack(TRUE);
+
+  //bilinear filtering
+  rendStates.bilinearOn = FALSE; //to force reset to true
+  pie_SetBilinear(TRUE);
+}
+
+/***************************************************************************/
+/***************************************************************************/
+void pie_ResetStates(void) //Sets all states
+{
+  SDWORD temp;
+
+  //		pie_SetFogColour(0x00B08f5f);//nicks colour
+  rendStates.fog = !rendStates.fog; //to force reset
+  pie_SetFogStatus(!rendStates.fog);
+
+  //depth Buffer on
+  temp = rendStates.depthBuffer;
+  rendStates.depthBuffer = static_cast<DEPTH_MODE>(-1); //to force reset
+  pie_SetDepthBufferStatus(static_cast<DEPTH_MODE>(temp));
+
+  //set render mode
+
+  //basic gouraud textured rendering
+  temp = rendStates.colourCombine;
+  rendStates.colourCombine = static_cast<COLOUR_MODE>(-1); //to force reset
+  pie_SetColourCombine(static_cast<COLOUR_MODE>(temp));
+
+  temp = rendStates.transMode;
+  rendStates.transMode = static_cast<TRANSLUCENCY_MODE>(-1); //to force reset
+  pie_SetTranslucencyMode(static_cast<TRANSLUCENCY_MODE>(temp));
+
+  //chroma keying on black
+  temp = rendStates.keyingOn;
+  rendStates.keyingOn = -1; //to force reset
+  pie_SetColourKeyedBlack(temp);
+
+  //bilinear filtering
+  temp = rendStates.bilinearOn;
+  rendStates.bilinearOn = -1; //to force reset
+  pie_SetBilinear(temp);
+}
+
+/***************************************************************************/
+/***************************************************************************/
+void pie_SetDepthBufferStatus(DEPTH_MODE depthMode)
+{
+#ifndef PIETOOL
+  if (rendStates.depthBuffer != depthMode)
+  {
+    rendStates.depthBuffer = depthMode;
+    switch (depthMode)
+    {
+    case DEPTH_CMP_LEQ_WRT_ON:
+      D3DSetDepthCompare(D3DCMP_LESSEQUAL);
+      D3DSetDepthWrite(TRUE);
+      break;
+    case DEPTH_CMP_ALWAYS_WRT_ON:
+      D3DSetDepthCompare(D3DCMP_ALWAYS);
+      D3DSetDepthWrite(TRUE);
+      break;
+    case DEPTH_CMP_LEQ_WRT_OFF:
+      D3DSetDepthCompare(D3DCMP_LESSEQUAL);
+      D3DSetDepthWrite(FALSE);
+      break;
+    case DEPTH_CMP_ALWAYS_WRT_OFF:
+      D3DSetDepthCompare(D3DCMP_ALWAYS);
+      D3DSetDepthWrite(FALSE);
+      break;
+    }
+  }
+#endif
+}
+
+//***************************************************************************
+//
+// pie_SetTranslucent(BOOL val);
+//
+// Global enable/disable Translucent effects 
+//
+//***************************************************************************
+
+void pie_SetTranslucent(BOOL val) { rendStates.translucent = val; }
+
+BOOL pie_Translucent(void) { return rendStates.translucent; }
+
+//***************************************************************************
+//
+// pie_SetAdditive(BOOL val);
+//
+// Global enable/disable Additive effects 
+//
+//***************************************************************************
+
+void pie_SetAdditive(BOOL val) { rendStates.additive = val; }
+
+BOOL pie_Additive(void) { return rendStates.additive; }
+
+//***************************************************************************
+//
+// pie_SetCaps(BOOL val);
+//
+// HIGHEST LEVEL enable/disable modes 
+//
+//***************************************************************************
+
+void pie_SetFogCap(FOG_CAP val) { rendStates.fogCap = val; }
+
+FOG_CAP pie_GetFogCap(void) { return rendStates.fogCap; }
+
+void pie_SetTexCap(TEX_CAP val) { rendStates.texCap = val; }
+
+TEX_CAP pie_GetTexCap(void) { return rendStates.texCap; }
+
+//***************************************************************************
+//
+// pie_EnableFog(BOOL val)
+//
+// Global enable/disable fog to allow fog to be turned of ingame 
+//
+//***************************************************************************
+
+void pie_EnableFog(BOOL val)
+{
+  if (rendStates.fogCap == FOG_CAP_NO)
+    val = FALSE;
+  if (rendStates.fogEnabled != val)
+  {
+    rendStates.fogEnabled = val;
+    if (val == TRUE)
+    {
+      //			pie_SetFogColour(0x0078684f);//(nicks colour + 404040)/2
+      pie_SetFogColour(0x00B08f5f); //nicks colour
+    }
+    else
+      pie_SetFogColour(0x00000000); //clear background to black
+  }
+}
+
+BOOL pie_GetFogEnabled(void) { return rendStates.fogEnabled; }
+
+//***************************************************************************
+//
+// pie_SetFogStatus(BOOL val)
+//
+// Toggle fog on and off for rendering objects inside or outside the 3D world
+//
+//***************************************************************************
+
+void pie_SetFogStatus(BOOL val)
+{
+  if (rendStates.fogEnabled)
+  {
+    //fog enabled so toggle if required 
+    if (rendStates.fog != val)
+      rendStates.fog = val;
+  }
+  else
+  {
+    //fog disabled so turn it off if not off already 
+    if (rendStates.fog != FALSE)
+      rendStates.fog = FALSE;
+  }
+}
+
+BOOL pie_GetFogStatus(void) { return rendStates.fog; }
+
+/***************************************************************************/
+void pie_SetFogColour(UDWORD colour)
+{
+  UDWORD grey;
+  if (rendStates.fogCap == FOG_CAP_GREY)
+  {
+    grey = colour & 0xff;
+    colour >>= 8;
+    grey += (colour & 0xff);
+    colour >>= 8;
+    grey += (colour & 0xff);
+    grey /= 3;
+    grey &= 0xff; //check only
+    colour = grey + (grey << 8) + (grey << 16);
+    rendStates.fogColour = colour;
+  }
+  else if (rendStates.fogCap == FOG_CAP_NO)
+    rendStates.fogColour = 0;
+  else
+    rendStates.fogColour = colour;
+}
+
+UDWORD pie_GetFogColour(void) { return rendStates.fogColour; }
+
+/***************************************************************************/
+void pie_SetTexturePage(SDWORD num)
+{
+#ifndef PIETOOL
+  /* dtm_SetTexturePage keeps the record of what is bound, and is the one that
+   * has to be right after a device reset. Caching the page here as well meant
+   * two records of the same fact, and this one was never reset. */
+  dtm_SetTexturePage(num < 0 ? -1 : num);
+#endif
+}
+
+/***************************************************************************/
+void pie_SetRendMode(REND_MODE rendMode)
+{
+  if (rendMode != rendStates.rendMode)
+  {
+    rendStates.rendMode = rendMode;
+    switch (rendMode)
+    {
+    case REND_GOURAUD_TEX:
+      pie_SetColourCombine(COLOUR_TEX_ITERATED);
+      pie_SetTranslucencyMode(TRANS_DECAL);
+      break;
+    case REND_ALPHA_TEX:
+      pie_SetColourCombine(COLOUR_TEX_ITERATED);
+      pie_SetTranslucencyMode(TRANS_ALPHA);
+      break;
+    case REND_ADDITIVE_TEX:
+      pie_SetColourCombine(COLOUR_TEX_ITERATED);
+      pie_SetTranslucencyMode(TRANS_ADDITIVE);
+      break;
+    case REND_TEXT:
+      pie_SetColourCombine(COLOUR_TEX_CONSTANT);
+      pie_SetTranslucencyMode(TRANS_DECAL);
+      break;
+    case REND_ALPHA_TEXT:
+      pie_SetColourCombine(COLOUR_TEX_CONSTANT);
+      pie_SetTranslucencyMode(TRANS_ALPHA);
+      break;
+    case REND_ALPHA_FLAT:
+      pie_SetColourCombine(COLOUR_FLAT_CONSTANT);
+      pie_SetTranslucencyMode(TRANS_ALPHA);
+      break;
+    case REND_ALPHA_ITERATED:
+      pie_SetColourCombine(COLOUR_FLAT_ITERATED);
+      pie_SetTranslucencyMode(TRANS_ADDITIVE);
+      break;
+    case REND_FILTER_FLAT:
+      pie_SetColourCombine(COLOUR_FLAT_CONSTANT);
+      pie_SetTranslucencyMode(TRANS_FILTER);
+      break;
+    case REND_FILTER_ITERATED:
+      pie_SetColourCombine(COLOUR_FLAT_CONSTANT);
+      pie_SetTranslucencyMode(TRANS_ALPHA);
+      break;
+    case REND_FLAT:
+      pie_SetColourCombine(COLOUR_FLAT_CONSTANT);
+      pie_SetTranslucencyMode(TRANS_DECAL);
+    default:
+      break;
+    }
+  }
+}
+
+/***************************************************************************/
+
+void pie_SetColourKeyedBlack(BOOL keyingOn)
+{
+#ifndef PIETOOL
+  if (keyingOn != rendStates.keyingOn)
+  {
+    rendStates.keyingOn = keyingOn;
+    pieStateCount++;
+    D3DSetColourKeying(keyingOn);
+  }
+#endif
+}
+
+/***************************************************************************/
+void pie_SetBilinear(BOOL bilinearOn)
+{
+#ifndef PIETOOL
+  if (bilinearOn != rendStates.bilinearOn)
+  {
+    rendStates.bilinearOn = bilinearOn;
+    pieStateCount++;
+    dtm_SetBilinear(bilinearOn);
+  }
+#endif
+}
+
+BOOL pie_GetBilinear(void)
+{
+#ifndef PIETOOL
+  return rendStates.bilinearOn;
+#else
+  return FALSE;
+#endif
+}
+
+/***************************************************************************/
+static void pie_SetColourCombine(COLOUR_MODE colCombMode)
+{
+#ifndef PIETOOL	//ffs
+
+  if (colCombMode != rendStates.colourCombine)
+  {
+    rendStates.colourCombine = colCombMode;
+    pieStateCount++;
+    switch (colCombMode)
+    {
+    case COLOUR_TEX_CONSTANT:
+      break;
+    case COLOUR_FLAT_CONSTANT:
+    case COLOUR_FLAT_ITERATED:
+      pie_SetTexturePage(-1);
+      break;
+    case COLOUR_TEX_ITERATED: default:
+      break;
+    }
+  }
+#endif
+}
+
+/***************************************************************************/
+static void pie_SetTranslucencyMode(TRANSLUCENCY_MODE transMode)
+{
+#ifndef PIETOOL
+  if (transMode != rendStates.transMode)
+  {
+    rendStates.transMode = transMode;
+    pieStateCount++;
+    D3DSetTranslucencyMode(transMode);
+  }
+#endif
+}
+
+/***************************************************************************/
+// set the constant colour used in text and flat render modes
+/***************************************************************************/
+void pie_SetColour(UDWORD colour)
+{
+  if (colour != rendStates.colour)
+  {
+    rendStates.colour = colour;
+    pieStateCount++;
+  }
+}
+
+/***************************************************************************/
+// get the constant colour used in text and flat render modes
+/***************************************************************************/
+UDWORD pie_GetColour(void) { return rendStates.colour; }
+
+/***************************************************************************/
+/***************************************************************************/
+/***************************************************************************/
+/***************************************************************************/
+/***************************************************************************/
+/***************************************************************************/
+/***************************************************************************/
+/***************************************************************************/
+/***************************************************************************/
 /***************************************************************************/

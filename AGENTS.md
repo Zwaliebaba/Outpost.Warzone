@@ -129,8 +129,8 @@ Two rules the config cannot express, and that a reviewer therefore has to carry:
 
 | Path | What it is | May you edit it? |
 |---|---|---|
-| `NeuronCore/` | Engine static library (~85 TUs): platform, D3D9 rendering, input, audio, UI widgets, debug | Yes |
-| `Outpost/` | Game executable (~121 TUs): simulation, AI, structures, droids, campaign, multiplayer | Yes |
+| `NeuronCore/` | Engine static library (75 TUs): platform, D3D9 rendering, input, audio, UI widgets, debug | Yes |
+| `Outpost/` | Game executable (119 TUs): simulation, AI, structures, droids, campaign, multiplayer | Yes |
 | `DX9/Include`, `DX9/Lib` | Vendored DirectX 9.0c SDK — deliberately checked in so the build needs no external SDK | **No** |
 | `GameData/` | Shipped content (levels, textures, audio, `.rpl` movies) and three third-party DLLs. Binary, authored by tools outside this repo | **No** |
 | `Docs/MigrationPlan.md` | The plan and the record of what each phase changed | Yes — see §6 |
@@ -195,9 +195,11 @@ The migration has already made these decisions. Use the replacement that is alre
 
 **R11 — No inline assembly.** The last `__asm` block is gone, which is part of what makes the tree portable to the cross-checker. Write the C++ equivalent.
 
-**R12 — Graphics is Direct3D 9 only.** An `IDirect3DDevice9` is owned by `Screen.cpp` and drawn through by `D3DRender.cpp`, `D3DMode.cpp` and `TexMan.cpp`. No DirectDraw, no surfaces, no palettes, no `GetDC`. New COM code uses C++ `device->Method(...)` syntax with RAII lifetimes — `CINTERFACE` is gone and is not coming back.
+**R12 — Graphics is Direct3D 9 only.** An `IDirect3DDevice9` is owned by `Screen.cpp` and drawn through by `D3DRender.cpp` and `TexMan.cpp`. No DirectDraw, no surfaces, no palettes, no `GetDC`. New COM code uses C++ `device->Method(...)` syntax with RAII lifetimes — `CINTERFACE` is gone and is not coming back.
 
-**R13 — Leave the not-yet-migrated subsystems alone** unless your task *is* that phase: DirectInput 7 (Phase 3), QMixer/DirectSound/CD audio (Phase 4), DirectPlay 4 and Mplayer (Phase 5), WINSTR video (Phase 6). Touching them opportunistically creates conflicts with the phase that will rewrite them.
+Phase 8 is removing the `pie_*`/`iV_*` layer that used to sit between the game and that device, so the renderer is mid-move: **do not add a new indirection in front of `D3DRender.cpp`**, and do not reintroduce a second cache of a render state — one cache, owned by the code that makes the device call, is the rule the phase is establishing. `D3DMode.cpp`, `PieState.cpp` and `PieTexture.cpp` have been folded into their neighbours and are not to come back.
+
+**R13 — Leave the not-yet-migrated subsystem alone** unless your task *is* that phase: **WINSTR video (Phase 6)** is the only one left — DirectInput (Phase 3), audio (Phase 4) and networking (Phase 5) are done. Touching it opportunistically creates conflicts with the phase that will rewrite it. The same courtesy applies to the render layer while Phase 8 is in flight: if your task is not that phase, do not opportunistically rename or restructure `pie_*`/`iV_*` code.
 
 **R14 — No new third-party dependencies**, and no package manager. The DX9 SDK is vendored for exactly this reason. If you believe something is unavoidable, propose it in your report; do not add it.
 

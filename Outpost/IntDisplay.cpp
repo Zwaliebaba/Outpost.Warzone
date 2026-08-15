@@ -141,10 +141,6 @@ BASE_STATS* CurrentStatsTemplate = nullptr;
 UDWORD ManuPower = 0; // Power required to manufacture the current item.
 
 // Display surfaces for rendered buttons.
-BUTTON_SURFACE TopicSurfaces[NUM_TOPICSURFACES];
-BUTTON_SURFACE ObjectSurfaces[NUM_OBJECTSURFACES];
-BUTTON_SURFACE StatSurfaces[NUM_STATSURFACES];
-BUTTON_SURFACE System0Surfaces[NUM_SYSTEM0SURFACES];
 
 // Working buffers for rendered buttons.
 RENDERED_BUTTON System0Buffers[NUM_SYSTEM0BUFFERS]; // References ObjectSurfaces.
@@ -1899,13 +1895,8 @@ void intInitialiseGraphics(void)
 //
 void intDeleteGraphics(void)
 {
-  DeleteButtonData();
   imageDeleteBitmaps();
 }
-
-//// This sets up a test button for rendering on the playstation
-//  	TestButtonBuffer.Surface = iV_SurfaceCreate(REND_SURFACE_USR,Width,Height,0,0,NULL);	// This allocates the surface in psx VRAM
-//
 
 static RENDERED_BUTTON* CurrentOpenButton = nullptr;
 
@@ -1913,68 +1904,30 @@ static RENDERED_BUTTON* CurrentOpenButton = nullptr;
 //
 void InitialiseButtonData(void)
 {
-  // Allocate surfaces for rendered buttons.
-  UDWORD Width = (iV_GetImageWidth(IntImages, IMAGE_BUT0_UP) + 3) & 0xfffffffc; // Ensure width is whole number of dwords.
-  UDWORD Height = iV_GetImageHeight(IntImages, IMAGE_BUT0_UP);
-  UDWORD WidthTopic = (iV_GetImageWidth(IntImages, IMAGE_BUTB0_UP) + 3) & 0xfffffffc; // Ensure width is whole number of dwords.
-  UDWORD HeightTopic = iV_GetImageHeight(IntImages, IMAGE_BUTB0_UP);
-
   UDWORD i;
 
-  for (i = 0; i < NUM_OBJECTSURFACES; i++)
-  {
-    ObjectSurfaces[i].Buffer = new (std::nothrow) uint8[Width*Height];
-    DEBUG_ASSERT_TEXT(ObjectSurfaces[i].Buffer!=NULL,"intInitialise : Failed to allocate Object surface");
-    ObjectSurfaces[i].Surface = iV_SurfaceCreate(REND_SURFACE_USR, Width, Height, 10, 10, ObjectSurfaces[i].Buffer);
-    DEBUG_ASSERT_TEXT(ObjectSurfaces[i].Surface!=NULL,"intInitialise : Failed to create Object surface");
-  }
 
   for (i = 0; i < NUM_OBJECTBUFFERS; i++)
   {
     RENDERBUTTON_NOTINUSE(&ObjectBuffers[i]);
-    ObjectBuffers[i].ButSurf = &ObjectSurfaces[i % NUM_OBJECTSURFACES];
   }
 
-  for (i = 0; i < NUM_SYSTEM0SURFACES; i++)
-  {
-    System0Surfaces[i].Buffer = new (std::nothrow) uint8[Width*Height];
-    DEBUG_ASSERT_TEXT(System0Surfaces[i].Buffer!=NULL,"intInitialise : Failed to allocate System0 surface");
-    System0Surfaces[i].Surface = iV_SurfaceCreate(REND_SURFACE_USR, Width, Height, 10, 10, System0Surfaces[i].Buffer);
-    DEBUG_ASSERT_TEXT(System0Surfaces[i].Surface!=NULL,"intInitialise : Failed to create System0 surface");
-  }
 
   for (i = 0; i < NUM_SYSTEM0BUFFERS; i++)
   {
     RENDERBUTTON_NOTINUSE(&System0Buffers[i]);
-    System0Buffers[i].ButSurf = &System0Surfaces[i % NUM_SYSTEM0SURFACES];
   }
 
-  for (i = 0; i < NUM_TOPICSURFACES; i++)
-  {
-    TopicSurfaces[i].Buffer = new (std::nothrow) uint8[WidthTopic*HeightTopic];
-    DEBUG_ASSERT_TEXT(TopicSurfaces[i].Buffer!=NULL,"intInitialise : Failed to allocate Topic surface");
-    TopicSurfaces[i].Surface = iV_SurfaceCreate(REND_SURFACE_USR, WidthTopic, HeightTopic, 10, 10, TopicSurfaces[i].Buffer);
-    DEBUG_ASSERT_TEXT(TopicSurfaces[i].Surface!=NULL,"intInitialise : Failed to create Topic surface");
-  }
 
   for (i = 0; i < NUM_TOPICBUFFERS; i++)
   {
     RENDERBUTTON_NOTINUSE(&TopicBuffers[i]);
-    TopicBuffers[i].ButSurf = &TopicSurfaces[i % NUM_TOPICSURFACES];
   }
 
-  for (i = 0; i < NUM_STATSURFACES; i++)
-  {
-    StatSurfaces[i].Buffer = new (std::nothrow) uint8[Width*Height];
-    DEBUG_ASSERT_TEXT(StatSurfaces[i].Buffer!=NULL,"intInitialise : Failed to allocate Stats surface");
-    StatSurfaces[i].Surface = iV_SurfaceCreate(REND_SURFACE_USR, Width, Height, 10, 10, StatSurfaces[i].Buffer);
-    DEBUG_ASSERT_TEXT(StatSurfaces[i].Surface!=NULL,"intInitialise : Failed to create Stat surface");
-  }
 
   for (i = 0; i < NUM_STATBUFFERS; i++)
   {
     RENDERBUTTON_NOTINUSE(&StatBuffers[i]);
-    StatBuffers[i].ButSurf = &StatSurfaces[i % NUM_STATSURFACES];
   }
 }
 
@@ -2126,40 +2079,6 @@ SDWORD GetSystem0Buffer(void)
   }
 
   return -1;
-}
-
-// Free up data for interface buttons.
-//
-void DeleteButtonData(void)
-{
-  UDWORD i;
-  for (i = 0; i < NUM_OBJECTSURFACES; i++)
-  {
-    delete[] ObjectSurfaces[i].Buffer;
-    ObjectSurfaces[i].Buffer = nullptr;
-    iV_SurfaceDestroy(ObjectSurfaces[i].Surface);
-  }
-
-  for (i = 0; i < NUM_TOPICSURFACES; i++)
-  {
-    delete[] TopicSurfaces[i].Buffer;
-    TopicSurfaces[i].Buffer = nullptr;
-    iV_SurfaceDestroy(TopicSurfaces[i].Surface);
-  }
-
-  for (i = 0; i < NUM_STATSURFACES; i++)
-  {
-    delete[] StatSurfaces[i].Buffer;
-    StatSurfaces[i].Buffer = nullptr;
-    iV_SurfaceDestroy(StatSurfaces[i].Surface);
-  }
-
-  for (i = 0; i < NUM_SYSTEM0SURFACES; i++)
-  {
-    delete[] System0Surfaces[i].Buffer;
-    System0Surfaces[i].Buffer = nullptr;
-    iV_SurfaceDestroy(System0Surfaces[i].Surface);
-  }
 }
 
 UWORD ButXPos = 0;

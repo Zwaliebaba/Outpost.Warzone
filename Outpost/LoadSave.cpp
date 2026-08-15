@@ -145,7 +145,6 @@ static BOOL _addLoadSave(BOOL bLoad, CHAR* sSearchPath, CHAR* sExtension, CHAR* 
 
         pie_UploadDisplayBuffer(DisplayBuffer); // Upload the current display back buffer into system memory.
 
-        iV_ScaleBitmapRGB(DisplayBuffer, iV_GetDisplayWidth(), iV_GetDisplayHeight(), 2, 2, 2); // Make it darker.
 
         radarOnScreen = radOnScreen;
         bRender3DOnly = FALSE;

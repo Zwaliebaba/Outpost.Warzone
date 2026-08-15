@@ -27,14 +27,11 @@
 
 using WARZONE_GLOBALS = struct _warzoneGlobals
 {
-  WAR_REND_MODE renderMode;
   SEQ_MODE seqMode;
   BOOL bFog;
   BOOL bTranslucent;
   BOOL bAdditive;
   SWORD effectsLevel;
-  char DDrawDriverName[256];
-  char D3DDriverName[256];
 };
 
 /***************************************************************************/
@@ -58,28 +55,12 @@ static WARZONE_GLOBALS warGlobs; //STATIC use or write an access function if you
 /***************************************************************************/
 void war_SetDefaultStates(void) //Sets all states
 {
-  warGlobs.renderMode = REND_MODE_HAL;
   pie_SetFogCap(FOG_CAP_UNDEFINED); //set here and reset in clParse or loadConfig
   pie_SetTexCap(TEX_CAP_UNDEFINED); //set here and reset in clParse or loadConfig
   war_SetFog(TRUE); //set here and reset in clParse or loadConfig
   war_SetTranslucent(TRUE); //set here and reset in clParse or loadConfig
   war_SetAdditive(TRUE); //set here and reset in clParse or loadConfig
 }
-
-/***************************************************************************/
-/***************************************************************************/
-void war_SetRendMode(WAR_REND_MODE rendMode)
-{
-  if (warGlobs.renderMode != rendMode)
-  {
-    warGlobs.renderMode = rendMode;
-    war_SetFog(TRUE); //set here and turned off in clParse or loadConfig
-    war_SetTranslucent(TRUE); //set here and turned off in clParse or loadConfig
-    war_SetAdditive(TRUE); //set here and turned off in clParse or loadConfig
-  }
-}
-
-WAR_REND_MODE war_GetRendMode(void) { return warGlobs.renderMode; }
 
 /***************************************************************************/
 /***************************************************************************/
@@ -125,27 +106,3 @@ BOOL war_GetAdditive(void) { return warGlobs.bAdditive; }
 void war_SetSeqMode(SEQ_MODE mode) { warGlobs.seqMode = mode; }
 
 SEQ_MODE war_GetSeqMode(void) { return warGlobs.seqMode; }
-
-/***************************************************************************/
-/***************************************************************************/
-void war_SetDirectDrawDeviceName(char* pDDDeviceName)
-{
-  DEBUG_ASSERT_TEXT(strlen(pDDDeviceName) < 255, "DirectDraw device string exceeds max string length.");
-  if (strlen(pDDDeviceName) >= 255)
-    pDDDeviceName[255] = 0;
-  strcpy(warGlobs.DDrawDriverName, pDDDeviceName);
-}
-
-char* war_GetDirectDrawDeviceName(void) { return warGlobs.DDrawDriverName; }
-
-/***************************************************************************/
-/***************************************************************************/
-void war_SetDirect3DDeviceName(char* pD3DDeviceName)
-{
-  DEBUG_ASSERT_TEXT(strlen(pD3DDeviceName) < 255, "Direct3D device string exceeds max string length.");
-  if (strlen(pD3DDeviceName) >= 255)
-    pD3DDeviceName[255] = 0;
-  strcpy(warGlobs.D3DDriverName, pD3DDeviceName);
-}
-
-char* war_GetDirect3DDeviceName(void) { return warGlobs.D3DDriverName; }

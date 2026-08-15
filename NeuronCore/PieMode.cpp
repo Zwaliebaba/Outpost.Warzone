@@ -15,25 +15,17 @@
 #include "PieMatrix.h"
 #include "PieFunc.h"
 #include "Tex.h"
-#include "D3DMode.h"
+#include "D3DRender.h"
 #include "RendMode.h"
 #include "PieClip.h"
 
 /***************************************************************************/
 /*
- *	Local Definitions
- */
-/***************************************************************************/
-#define DIVIDE_TABLE_SIZE		1024
-/***************************************************************************/
-/*
  *	Local Variables
  */
 /***************************************************************************/
-int32 _iVPRIM_DIVTABLE[DIVIDE_TABLE_SIZE];
 
 static SDWORD d3dActive = 0;
-static BOOL bDither = FALSE;
 
 /***************************************************************************/
 /*
@@ -47,79 +39,51 @@ static BOOL bDither = FALSE;
  */
 /***************************************************************************/
 
-BOOL pie_GetDitherStatus(void) { return (bDither); }
-
-void pie_SetDitherStatus(BOOL val) { bDither = val; }
-
-BOOL pie_Initialise(SDWORD mode)
+/*
+ * Bring the renderer up, in the order the pieces depend on each other:
+ * the maths tables, then the surface the projection reads its centre and
+ * clip from, then the device (which brings the texture manager and the
+ * render states with it), then the palette the texture upload needs.
+ *
+ * This used to be spread over pie_Initialise, _mode_D3D, InitD3D and
+ * rend_InitD3D across three files, with the mode functions differing only in
+ * flags nothing read.
+ */
+BOOL pie_Initialise(void)
 {
-  BOOL r; //result
-  int i;
-
   pie_InitMaths();
   pie_TexInit();
-
-  pie_SetRenderEngine(ENGINE_UNDEFINED);
-  rendSurface.usr = REND_UNDEFINED;
-  rendSurface.flags = REND_SURFACE_UNDEFINED;
-  rendSurface.buffer = nullptr;
-  rendSurface.size = 0;
-
-  // divtable: first entry == unity to (ie n/0 == 1 !)
-  _iVPRIM_DIVTABLE[0] = iV_DIVMULTP;
-
-  for (i = 1; i < DIVIDE_TABLE_SIZE; i++)
-    _iVPRIM_DIVTABLE[i - 0] = std::lrintf((1.0f / static_cast<float>(i)) * iV_DIVMULTP);
-
   pie_MatInit();
   _TEX_INDEX = 0;
 
-  //mode specific initialisation
-  if (mode == REND_D3D_REF)
-  {
-    iV_RenderAssign(REND_D3D_REF, &rendSurface);
-    pie_SetRenderEngine(ENGINE_D3D);
-    rendSurface.usr = mode;
-    r = _mode_D3D_REF();
-  }
-  else if (mode == REND_D3D_RGB)
-  {
-    iV_RenderAssign(REND_D3D_RGB, &rendSurface);
-    pie_SetRenderEngine(ENGINE_D3D);
-    rendSurface.usr = mode;
-    r = _mode_D3D_RGB();
-  }
-  else //REND_D3D_HAL
-  {
-    mode = REND_D3D_HAL;
-    iV_RenderAssign(REND_D3D_HAL, &rendSurface);
-    pie_SetRenderEngine(ENGINE_D3D);
-    rendSurface.usr = mode;
-    r = _mode_D3D_HAL();
-  }
+  rendSurface.flags = REND_SURFACE_SCREEN;
+  rendSurface.buffer = nullptr;
+  rendSurface.width = pie_GetVideoBufferWidth();
+  rendSurface.height = pie_GetVideoBufferHeight();
+  rendSurface.xcentre = rendSurface.width >> 1;
+  rendSurface.ycentre = rendSurface.height >> 1;
+  rendSurface.clip.left = 0;
+  rendSurface.clip.top = 0;
+  rendSurface.clip.right = rendSurface.width;
+  rendSurface.clip.bottom = rendSurface.height;
+  rendSurface.xpshift = 10;
+  rendSurface.ypshift = 10;
+  iV_RenderAssign(&rendSurface);
 
-  if (r)
-    pie_SetDefaultStates();
-
-  if (r)
-  {
-    iV_RenderAssign(mode, &rendSurface);
-    pal_Init();
-  }
-  else
+  if (!InitD3D())
   {
     iV_ShutDown();
     Neuron::Fatal("Initialise videomode failed");
     return FALSE;
   }
+
+  pie_SetDefaultStates();
+  pal_Init();
+
   return TRUE;
 }
 
-void pie_ShutDown(void)
-{
-  _close_D3D();
-  pie_SetRenderEngine(ENGINE_UNDEFINED);
-}
+void pie_ShutDown(void) { ShutDownD3D(); }
 
 /***************************************************************************/
 
@@ -149,15 +113,12 @@ void pie_ScreenFlip(CLEAR_MODE clearMode)
 
 /***************************************************************************/
 
-void pie_Clear(UDWORD colour) { (void)colour; }
-/***************************************************************************/
-
 void pie_GlobalRenderBegin(void)
 {
   if (d3dActive == 0)
   {
     d3dActive = 1;
-    _renderBegin_D3D();
+    BeginFrameD3D();
   }
 }
 
@@ -167,7 +128,7 @@ void pie_GlobalRenderEnd(BOOL bForceClearToBlack)
   if (d3dActive != 0)
   {
     d3dActive = 0;
-    _renderEnd_D3D();
+    EndFrameD3D();
   }
 }
 
@@ -203,9 +164,3 @@ UDWORD pie_GetResScalingFactor(void)
   }
 }
 
-/***************************************************************************/
-void pie_LocalRenderBegin(void) {}
-
-void pie_LocalRenderEnd(void) {}
-
-void pie_RenderSetup(void) {}

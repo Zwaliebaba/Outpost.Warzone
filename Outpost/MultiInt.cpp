@@ -3136,10 +3136,8 @@ void displayMultiEditBox(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffse
 
   if (((W_EDITBOX*)psWidget)->state & WEDBS_DISABLE) // disabled
   {
-    pie_SetSwirlyBoxes(FALSE);
     pie_UniTransBoxFill(x, y, x + psWidget->width + psWidget->height, y + psWidget->height, (FILLRED << 16) | (FILLGREEN << 8) | FILLBLUE,
                         FILLTRANS);
-    pie_SetSwirlyBoxes(TRUE);
   }
 
   AddCursorSnap(&InterfaceSnap, static_cast<SWORD>(x + (psWidget->width / 2)), static_cast<SWORD>(y + (psWidget->height / 2)),

@@ -11,17 +11,9 @@
 
 /***************************************************************************/
 
-using D3DINFO = struct D3DINFO
-{
-  BOOL bZBufferOn;
-  BOOL bHardware;
-  BOOL bReference;
-  BOOL bAlphaKey;
-};
-
-/***************************************************************************/
-
-extern BOOL InitD3D(D3DINFO* psD3Dinfo);
+extern BOOL InitD3D(void);
+extern void BeginFrameD3D(void);
+extern void EndFrameD3D(void);
 extern void ShutDownD3D(void);
 extern void BeginSceneD3D(void);
 extern void EndSceneD3D(void);
@@ -32,8 +24,6 @@ extern void D3DSetTranslucencyMode(TRANSLUCENCY_MODE transMode);
 extern void D3DSetColourKeying(BOOL bKeyingOn);
 extern void D3DSetDepthWrite(BOOL bWriteEnable);
 extern void D3DSetDepthCompare(D3DCMPFUNC depthCompare);
-
-extern BOOL D3DGetAlphaKey(void);
 
 extern void D3DSetTexelOffsetState(BOOL bOffsetOn);
 
