@@ -5,7 +5,7 @@
  */
 
 #include "Group.h"
-#include "NetPlay.h"	// for NETPLAYERID
+#include "NetTypes.h"	// NETPLAYERID
 
 // Different Message Structures allowed to be sent between players. 
 // Each message must have type = to one of these.

@@ -199,6 +199,9 @@
     <ClInclude Include="NetTransport.h">
       <Filter>NetPlay</Filter>
     </ClInclude>
+    <ClInclude Include="NetTypes.h">
+      <Filter>NetPlay</Filter>
+    </ClInclude>
     <ClInclude Include="NetSupp.h">
       <Filter>NetPlay</Filter>
     </ClInclude>

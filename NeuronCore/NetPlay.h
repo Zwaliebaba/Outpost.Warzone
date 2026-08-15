@@ -26,12 +26,7 @@
 #define MaxGames			12					// max number of concurrently playable games to allow.
 using UDWORD = unsigned int; // for similarity to warzone
 
-/* How a player is identified. This was DirectPlay's DPID, which is a DWORD,
- * so the width and therefore the bytes NetAdd puts on the wire are unchanged.
- * Naming it here is what lets the game stop including dplay.h to know what a
- * player is.
- */
-using NETPLAYERID = UDWORD;
+#include "NetTypes.h"	// NETPLAYERID
 
 //typedef struct {								//Available game storage... JUST FOR REFERENCE!
 

@@ -241,6 +241,22 @@ instead of the other, is an error MSVC refuses and GCC merely warns about under
 `-fpermissive`. `-w` then hid the warning. Seven sites across three files
 passed the cross-check and failed the build.
 
+A second, different failure followed on the next push, and this one the
+cross-check *structurally cannot* catch. `MultiInt.h` declared
+`kickPlayer(DWORD)` while `MultiInt.cpp` defined `kickPlayer(DPID)`, with a
+comment saying the argument was really a `DPID` and was spelled `DWORD` so the
+header need not pull in `dplay.h` — the same trick, and the same author's note,
+as `player2dpid` in `MultiPlay.h`. Both agreed by accident while `DPID` was a
+typedef for `DWORD`; giving the type a name of its own made C++ mangle them
+differently and the link fail. Only a linker finds that, and the harness has
+none. MigrationPlan already names this as its largest blind spot; this is it.
+
+The fix is `NetTypes.h`, which holds `NETPLAYERID` and nothing else and
+includes nothing. That is what the original authors wanted both times: a header
+can now name a player without pulling in `dplay.h`. The typedef had been put in
+`NetPlay.h`, whose own comment claimed to free the game from `dplay.h` while
+sitting behind an `#include <dplay.h>` — so it did not.
+
 `-fpermissive` cannot simply go: this codebase names anonymous types with
 `using X = enum {...}`, which MSVC accepts and GCC rejects, in 81 units.
 `crosscheck.py` now runs a second pass with warnings visible and fails on the

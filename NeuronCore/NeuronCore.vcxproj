@@ -133,6 +133,7 @@
     <ClInclude Include="NetPlay.h" />
     <ClInclude Include="NetProv.h" />
     <ClInclude Include="NetTransport.h" />
+    <ClInclude Include="NetTypes.h" />
     <ClInclude Include="NetSupp.h" />
     <ClInclude Include="NeuronCore.h" />
     <ClInclude Include="Parse.h" />
