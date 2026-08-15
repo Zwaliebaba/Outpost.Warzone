@@ -340,6 +340,18 @@ bool MovieStream::ReadOneFrame(bool _keepPixels)
   if (FAILED(buffer->Lock(&bytes, nullptr, &length)))
     return false;
 
+  /* Trust the geometry only as far as the buffer actually goes. The stride is
+   * what the media type claimed at open; a sample shorter than that claim would
+   * otherwise be read past its end, one row at a time.
+   */
+  const DWORD needed = static_cast<DWORD>(std::abs(m_stride)) * static_cast<DWORD>(m_height) * 4;
+  if (length < needed)
+  {
+    Neuron::DebugTrace("MovieStream: frame is {} bytes, expected {}\n", length, needed);
+    buffer->Unlock();
+    return false;
+  }
+
   const int rowPixels = m_width;
   const auto* source = reinterpret_cast<const std::uint32_t*>(bytes);
 

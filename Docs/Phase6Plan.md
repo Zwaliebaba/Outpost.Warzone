@@ -547,6 +547,32 @@ was missing and no CD path was set. Its twin in `seq_StartFullScreenVideo`
 guarded it; this one never had. Nine of the movies the game names have no source
 in any format, so the path is reachable.
 
+##### Shutdown order, which the first version got wrong
+
+Quitting the game produced `Invalid address specified to RtlValidateHeap`. The
+cause is worth recording, because it is a trap for anything that takes a voice
+from the shared mixer.
+
+An FMV soundtrack is an XAudio2 source voice on the game's own graph, and a
+voice has to be destroyed while the engine that created it still exists.
+`systemShutdown` released the engine through `audio_Shutdown`, and nothing tore
+FMV down first — `seq_ShutDown` was only ever called at the end of a sequence.
+The player was then a file-scope object, so its destructor ran during CRT static
+teardown, long after the engine had gone, and destroyed a voice into freed
+memory.
+
+Two changes, and both are needed:
+
+- `systemShutdown` calls `seq_ShutDown()` **before** `audio_Shutdown()`, so the
+  voice goes while its engine is alive.
+- The player is heap allocated and **never deleted**. Leaking one object at
+  process exit costs nothing; freeing it after COM and the mixer have gone costs
+  a corrupted heap. Nothing about FMV now depends on static destruction order.
+
+Also hardened while in there: the frame copy trusted the stride from the media
+type without checking the sample was actually that long, and would have walked
+off the end of a short buffer a row at a time.
+
 **Deliberately not done: audio as the master clock.** The plan wanted video
 presented against `SamplesPlayed`. That conflicts with leaving `SeqDisp.cpp`'s
 pacing loop alone, and between the two the smaller change won — sync is as good
