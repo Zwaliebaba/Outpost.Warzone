@@ -1,4 +1,5 @@
 #include "pch.h"
+#include <assert.h>
 /***************************************************************************/
 /*
  * pieBlitFunc.c
@@ -12,7 +13,6 @@
 #include <time.h>
 #include "Render2D.h"
 #include "TexMan.h"
-#include "Bug.h"
 #include "PieDef.h"
 #include "PieMode.h"
 #include "PieState.h"

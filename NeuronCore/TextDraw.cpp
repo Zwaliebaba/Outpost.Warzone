@@ -1,4 +1,5 @@
 #include "pch.h"
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -10,7 +11,6 @@
 
 #include "Render2D.h"
 
-#include "Bug.h"
 #include "Palette.h"
 #include "IvisPatch.h"
 #include "TextDraw.h"

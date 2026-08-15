@@ -27,16 +27,6 @@ using iPointer = union
   uint16* wp;
 };
 
-extern void iV_Error(long n, char* msge, ...);
-
-// If its a final build we need to undefine iv_error so that it doesn't generate any code !
-#ifdef FINALBUILD
-
-#undef iV_Error
-#define iV_Error(fmt...) ;
-
-#endif
-
 //*************************************************************************
 
 /***************************************************************************/
@@ -83,15 +73,8 @@ using iBox = struct
 
 //*************************************************************************
 
-extern iError _iVERROR;
-
-//*************************************************************************
-
 extern void iV_Reset(int bResetPal);
 extern void iV_ShutDown(void);
-extern void iV_Stop(char* string, ...);
-extern void iV_Abort(char* string, ...);
-extern void iV_DisplayLogFile(void);
 
 //*************************************************************************
 

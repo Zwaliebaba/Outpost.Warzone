@@ -162,11 +162,6 @@ using PIESTYLE = struct
   UBYTE light, trans, scale, height;
 }; //render style for pie draw functions
 
-using iError = struct
-{
-  long n;
-  char msge[240];
-};
 using fixed = int32;
 
 using TEXTUREPAGE = struct

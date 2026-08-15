@@ -11,7 +11,6 @@
 #include "RendMode.h"
 #include "Pcx.h"
 #include "Palette.h"
-#include "Bug.h"
 #include "IvisPatch.h"
 #include "Render.h"
 
@@ -65,7 +64,10 @@ int pie_AddBMPtoTexPages(iSprite* s, char* filename, int type, iBool bColourKeye
   /* Have we used up too many? */
   if (_TEX_INDEX >= iV_TEX_MAX)
   {
-    iV_DEBUG1("tex[TexLoad] = too many texture pages '%s'\n", buffer);
+    /* Named `buffer` here, which is a local of iV_TexLoad and not in scope in
+     * this function. It never failed to compile because iV_DEBUG1 expanded to
+     * nothing; `filename` is this function's equivalent. */
+    Neuron::DebugTrace("tex[TexLoad] = too many texture pages '{}'\n", filename);
     return -1;
   }
 
@@ -227,7 +229,7 @@ int iV_TexLoad(char* path, char* filename, int type, iBool palkeep, iBool bColou
     //			if (!iV_PCXLoad(buffer,&s,&pal[0])) 
     if (!iV_PCXLoad(buffer, &s, nullptr))
     {
-      iV_DEBUG1("WARNING: tex[TexLoad] = failed to load pcx file '%s' \n", buffer);
+      Neuron::DebugTrace("WARNING: tex[TexLoad] = failed to load pcx file '{}'\n", buffer);
       // the bspimd tool just needs to return a warning if the texture is not found
 #ifdef PIETOOL
       _TEX_PAGE[i].tex.bmp = NULL; _TEX_PAGE[i].tex.width = 0; _TEX_PAGE[i].tex.height = 0; _TEX_PAGE[i].tex.xshift = 0; _TEX_PAGE[i].type =
@@ -239,7 +241,7 @@ int iV_TexLoad(char* path, char* filename, int type, iBool palkeep, iBool bColou
     }
     return pie_AddBMPtoTexPages(&s, fname, type, bColourKeyed, FALSE);
     break;
-  default: iV_DEBUG1("tex[TexLoad] = unrecognised texture page type %d\n", type);
+  default: Neuron::DebugTrace("tex[TexLoad] = unrecognised texture page type {}\n", type);
     return -1;
   }
   return -1;

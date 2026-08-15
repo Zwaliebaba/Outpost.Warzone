@@ -4,7 +4,6 @@
 #include <math.h>
 #include "RendFunc.h"
 #include "RendMode.h"
-#include "Bug.h"
 #include "Palette.h"
 #include "IvisPatch.h"
 #include "RenderClip.h"

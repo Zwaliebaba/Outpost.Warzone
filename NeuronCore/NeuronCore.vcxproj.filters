@@ -109,9 +109,6 @@
     <ClInclude Include="BSPIMD.h">
       <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Bug.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Render.h">
       <Filter>Graphics</Filter>
     </ClInclude>
@@ -345,7 +342,6 @@
     <ClCompile Include="AnimObj.cpp" />
     <ClCompile Include="BitImage.cpp" />
     <ClCompile Include="BSPIMD.cpp" />
-    <ClCompile Include="Bug.cpp" />
     <ClCompile Include="Fbf.cpp" />
     <ClCompile Include="GTime.cpp" />
     <ClCompile Include="HashTabl.cpp" />

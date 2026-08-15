@@ -74,7 +74,6 @@ extern iIMDShape* iV_ProcessIMD(UBYTE** ppFileData, UBYTE* FileDataEnd, UBYTE* I
 iIMDShape* iV_ProcessBPIE(iIMDShape*, UDWORD size);
 
 extern iBool iV_IMDSave(char* filename, iIMDShape* s, BOOL PieIMD);
-extern void iV_IMDDebug(iIMDShape* s);
 
 extern void iV_IMDRelease(iIMDShape* s);
 

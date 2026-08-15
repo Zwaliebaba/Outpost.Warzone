@@ -99,7 +99,6 @@
     <ClInclude Include="BitImage.h" />
     <ClInclude Include="BSPFunc.h" />
     <ClInclude Include="BSPIMD.h" />
-    <ClInclude Include="Bug.h" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="CodePrint.h" />
     <ClInclude Include="D3D9Vertex.h" />
@@ -189,7 +188,6 @@
     <ClCompile Include="Bar.cpp" />
     <ClCompile Include="BitImage.cpp" />
     <ClCompile Include="BSPIMD.cpp" />
-    <ClCompile Include="Bug.cpp" />
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="CodePrint.cpp" />
     <ClCompile Include="Render.cpp" />

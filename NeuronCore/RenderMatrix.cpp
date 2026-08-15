@@ -13,7 +13,6 @@
 #include "PieDef.h"
 #include "RenderMatrix.h"
 #include "RendMode.h"
-#include "Bug.h"
 
 /***************************************************************************/
 /*
@@ -392,5 +391,4 @@ void pie_MatInit(void)
 
   pie_MatReset();
 
-  iV_DEBUG0("geo[_geo_setup] = setup successful\n");
 }
