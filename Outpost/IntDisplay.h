@@ -55,12 +55,6 @@ using RESEARCHICON = struct
   SWORD IMD;
 };
 
-using BUTTON_SURFACE = struct
-{
-  uint8* Buffer; // Bitmap buffer.
-  struct iSurface* Surface; // Ivis surface definition.
-};
-
 // I tried to get the PC code working with the above PSX structure but it was having none of it
 //  ... sorry about that ... TC
 #define RENDERBUTTON_INUSE(x)  ((x)->InUse=TRUE)
@@ -80,7 +74,6 @@ using RENDERED_BUTTON = struct
   UDWORD State; // Copy of widget's state so we know if state has changed.
   void* Data; // Any data we want to attach.
   void* Data2; // Any data we want to attach.
-  BUTTON_SURFACE* ButSurf; // Surface to render the button into.
   //	uint8 *Buffer;		// Bitmap buffer.
   //	iSurface *Surface;	// Ivis surface definition.
 };
@@ -89,10 +82,6 @@ extern RENDERED_BUTTON TopicBuffers[NUM_TOPICBUFFERS];
 extern RENDERED_BUTTON ObjectBuffers[NUM_OBJECTBUFFERS];
 extern RENDERED_BUTTON StatBuffers[NUM_STATBUFFERS];
 extern RENDERED_BUTTON System0Buffers[NUM_SYSTEM0BUFFERS];
-extern BUTTON_SURFACE TopicSurfaces[NUM_TOPICSURFACES];
-extern BUTTON_SURFACE ObjectSurfaces[NUM_OBJECTSURFACES];
-extern BUTTON_SURFACE StatSurfaces[NUM_STATSURFACES];
-extern BUTTON_SURFACE System0Surfaces[NUM_SYSTEM0SURFACES];
 
 extern UDWORD ManuPower; // Power required to manufacture the current item.
 extern UWORD ButXPos;
@@ -114,7 +103,6 @@ void intDeleteGraphics(void);
 void InitialiseButtonData(void);
 
 // Free up button surfaces.
-void DeleteButtonData(void);
 
 // Get a free RENDERED_BUTTON structure for an object window button.
 SDWORD GetObjectBuffer(void);

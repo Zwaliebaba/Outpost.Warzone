@@ -91,50 +91,6 @@ BOOL doBucket = TRUE;
 //colours used to 'paint' the background of 3D view
 UDWORD intelColours[MAX_INTEL_SHADES];
 
-/* ----------------------------------------------------------------------------------------- */
-/* Functions */
-iSurface* setUpMapSurface(UDWORD width, UDWORD height)
-{
-  void* bufSpace;
-  iSurface* pMapSurface;
-
-  /*	Release the old buffer if necessary - we may use many different intel maps
-    before resetting the game back to init/close */
-
-  /* Get the required memory for the render surface */
-  bufSpace = new (std::nothrow) UBYTE[width*height];
-
-  //initialise the buffer
-  memset(bufSpace, 0, (width * height));
-
-  /* Exit if we can't get it! */
-  DEBUG_ASSERT_TEXT(bufSpace!=NULL, "Can't get the memory for the map buffer");
-
-  /* Build our new surface */
-  pMapSurface = iV_SurfaceCreate(REND_SURFACE_USR, width, height, 10, 10, static_cast<uint8*>(bufSpace));
-
-  /* Exit if we can't get it! */
-  DEBUG_ASSERT_TEXT(pMapSurface!=NULL, "Whoa - can't make surface for map");
-
-  //set up the intel colours
-
-  /*	Return a pointer to our surface - from this they can get the rendered buffer
-    as well as info about width and height etc. */
-  return (pMapSurface);
-}
-
-void releaseMapSurface(iSurface* pSurface)
-{
-  /* Free up old alloaction if necessary */
-  if (pSurface != nullptr)
-  {
-    /* Free up old buffer if necessary */
-    if (pSurface->buffer != nullptr) { delete[] pSurface->buffer; }
-    delete[] pSurface;
-    pSurface = nullptr;
-  }
-}
-
 /* Draws the world into the current surface - set using 
    iV_RenderAssign(iV_MODE_SURFACE,pSurface) */
 void drawMapWorld(void)
@@ -339,9 +295,6 @@ void fillMapBufferWithBitmap(iSurface* surface)
 #endif
 }
 */
-// Render a Map Surface to display memory.
-void renderMapSurface(iSurface* pSurface, UDWORD x, UDWORD y, UDWORD width, UDWORD height) {}
-
 /* renders up to two IMDs into the surface - used by message display in Intelligence Map 
 THIS HAS BEEN REPLACED BY renderResearchToBuffer()*/
 /*void renderIMDToBuffer(iSurface *pSurface, iIMDShape *pIMD, iIMDShape *pIMD2,
@@ -415,7 +368,7 @@ THIS HAS BEEN REPLACED BY renderResearchToBuffer()*/
 
 /* renders the Research IMDs into the surface - used by message display in 
 Intelligence Map */
-void renderResearchToBuffer(iSurface* pSurface, RESEARCH* psResearch, UDWORD OriginX, UDWORD OriginY)
+void renderResearchToBuffer(RESEARCH* psResearch, UDWORD OriginX, UDWORD OriginY)
 {
   static UDWORD angle = 0;
 

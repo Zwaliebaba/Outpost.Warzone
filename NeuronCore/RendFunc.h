@@ -33,9 +33,6 @@
  */
 /***************************************************************************/
 //*************************************************************************
-extern void iV_SetMousePointer(IMAGEFILE* ImageFile, UWORD ImageID);
-extern void iV_DrawMousePointer(int x, int y);
-
 extern UDWORD iV_GetMouseFrame(void);
 
 //*************************************************************************

@@ -59,8 +59,6 @@ extern iSurface* psRendSurface;
 //*************************************************************************
 
 extern void iV_RenderAssign(iSurface* s);
-extern void iV_SurfaceDestroy(iSurface* s);
-extern iSurface* iV_SurfaceCreate(uint32 flags, int width, int height, int xp, int yp, uint8* buffer);
 
 //*************************************************************************
 
@@ -69,7 +67,5 @@ extern int iV_GetDisplayHeight(void);
 
 //*************************************************************************
 
-extern void iV_DrawMousePointer(int x, int y);
-extern void iV_SetMousePointer(IMAGEFILE* ImageFile, UWORD ImageID);
 //*************************************************************************
 #endif

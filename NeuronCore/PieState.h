@@ -112,8 +112,6 @@ extern void pie_SetColourKeyedBlack(BOOL keyingOn);
 extern void pie_SetRendMode(REND_MODE rendMode);
 extern void pie_SetColour(UDWORD val);
 extern UDWORD pie_GetColour(void);
-//mouse states
-extern void pie_SetMouse(IMAGEFILE* ImageFile, UWORD ImageID);
 void pie_ResetStates(void); //Sets all states
 
 #endif // _pieState_h

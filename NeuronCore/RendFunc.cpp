@@ -17,7 +17,11 @@
  */
 /***************************************************************************/
 
-static IMAGEFILE* MouseImageFile;
+/* Read back by the EXTID_CURSOR script variable through iV_GetMouseFrame.
+ * iV_SetMousePointer, which was the only thing that ever wrote it, had no
+ * callers, so this has read zero for a long time. The script binding is
+ * compiled into shipped .slo files, so the getter stays.
+ */
 static UWORD MouseImageID;
 
 /***************************************************************************/
@@ -28,20 +32,7 @@ static UWORD MouseImageID;
 
 //*************************************************************************
 
-void iV_SetMousePointer(IMAGEFILE* ImageFile, UWORD ImageID)
-{
-  DEBUG_ASSERT_TEXT(ImageID < ImageFile->Header.NumImages, "iV_SetMousePointer : Invalid image id");
-
-  MouseImageFile = ImageFile;
-  MouseImageID = ImageID;
-}
-
 UDWORD iV_GetMouseFrame(void) { return MouseImageID; }
-
-void iV_DrawMousePointer(int x, int y)
-{
-  iV_DrawImage(MouseImageFile, MouseImageID, x, y);
-}
 
 //*************************************************************************
 
