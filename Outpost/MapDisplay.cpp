@@ -170,13 +170,13 @@ void	drawMapTile(SDWORD i, SDWORD j)
 		DBPRINTF(("drawMapTile called\n");
 #endif
 
-		 iV_Line(tileScreenCoords[i+0][j+0].x,tileScreenCoords[i+0][j+0].y,
+		 pie_Line(tileScreenCoords[i+0][j+0].x,tileScreenCoords[i+0][j+0].y,
     	 		tileScreenCoords[i+0][j+1].x,tileScreenCoords[i+0][j+1].y,255);
-    	 iV_Line(tileScreenCoords[i+0][j+1].x,tileScreenCoords[i+0][j+1].y,
+    	 pie_Line(tileScreenCoords[i+0][j+1].x,tileScreenCoords[i+0][j+1].y,
 		 		tileScreenCoords[i+1][j+1].x,tileScreenCoords[i+1][j+1].y,255);
-    	 iV_Line(tileScreenCoords[i+1][j+1].x,tileScreenCoords[i+1][j+1].y,
+    	 pie_Line(tileScreenCoords[i+1][j+1].x,tileScreenCoords[i+1][j+1].y,
     	 		tileScreenCoords[i+1][j+0].x,tileScreenCoords[i+1][j+0].y,255);
-    	 iV_Line(tileScreenCoords[i+1][j+0].x,tileScreenCoords[i+1][j+0].y,
+    	 pie_Line(tileScreenCoords[i+1][j+0].x,tileScreenCoords[i+1][j+0].y,
     	 		tileScreenCoords[i+0][j+0].x,tileScreenCoords[i+0][j+0].y,255); 
 }
 */

@@ -153,18 +153,18 @@ void WorldPointToScreen(iPoint* worldPt, iPoint* screenPt)
   int32 rz = player.p.z & (TILE_UNITS - 1);
 
   /* Push identity matrix onto stack */
-  iV_MatrixBegin();
+  pie_MatBegin();
 
   /* Set the camera position */
   pie_MATTRANS(camera.p.x, camera.p.y, camera.p.z);
 
   /* Rotate for the player */
-  iV_MatrixRotateZ(player.r.z);
-  iV_MatrixRotateX(player.r.x);
-  iV_MatrixRotateY(player.r.y);
+  pie_MatRotZ(player.r.z);
+  pie_MatRotX(player.r.x);
+  pie_MatRotY(player.r.y);
 
   /* Translate */
-  iV_TRANSLATE(-rx, -player.p.y, rz);
+  pie_TRANSLATE(-rx, -player.p.y, rz);
 
   /* No rotation is necessary*/
   null.x = 0;
@@ -183,15 +183,15 @@ void WorldPointToScreen(iPoint* worldPt, iPoint* screenPt)
   vec.y = map_Height(worldX / TILE_UNITS, worldY / TILE_UNITS);
 
   /* Set matrix context to local - get an identity matrix */
-  iV_MatrixBegin();
+  pie_MatBegin();
 
   /* Translate */
-  iV_TRANSLATE(vec.x, vec.y, vec.z);
+  pie_TRANSLATE(vec.x, vec.y, vec.z);
   SDWORD xShift = player.p.x & (TILE_UNITS - 1);
   SDWORD zShift = player.p.z & (TILE_UNITS - 1);
 
   /* Translate */
-  iV_TRANSLATE(xShift, 0, -zShift);
+  pie_TRANSLATE(xShift, 0, -zShift);
 
   /* Project - no rotation being done. So effectively mapping from 3 space to 2 space */
   pie_RotProj(&null, screenPt);

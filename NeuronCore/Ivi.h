@@ -56,7 +56,6 @@ extern void iV_Error(long n, char* msge, ...);
 
 #define iV_DIVTABLE_MAX		1024
 
-#define  iV_POLY_MAX_POINTS	 pie_MAX_POLY_SIZE
 #define  iV_POLY_FLAT (1)		// added by TJC
 #define  iV_POLY_TEXT (2)
 #define  iV_POLY_TEXT0 (3)

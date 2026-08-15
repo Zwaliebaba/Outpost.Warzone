@@ -121,7 +121,7 @@ void pie_Set2DClip(int x0, int y0, int x1, int y1)
 int pie_PolyClipTex2D(int npoints, iVertex* points, iVertex* clip)
 
 {
-  static iVertex xclip[iV_POLY_MAX_POINTS + 4];
+  static iVertex xclip[pie_MAX_POLY_SIZE + 4];
   iVertex *p0, *p1;
   int n1, n, i;
 
@@ -157,7 +157,7 @@ int pie_PolyClipTex2D(int npoints, iVertex* points, iVertex* clip)
 int pie_ClipTextured(int npoints, PIEVERTEX* points, PIEVERTEX* clip, BOOL bSpecular)
 
 {
-  static PIEVERTEX xclip[iV_POLY_MAX_POINTS + 4];
+  static PIEVERTEX xclip[pie_MAX_POLY_SIZE + 4];
   PIEVERTEX *p0, *p1;
   int n1, n, i;
 
@@ -194,7 +194,7 @@ int pie_ClipTextured(int npoints, PIEVERTEX* points, PIEVERTEX* clip, BOOL bSpec
 /* Alex - much faster tri clipper - won't clip owt else tho' */
 int pie_ClipTexturedTriangleFast(PIEVERTEX* v1, PIEVERTEX* v2, PIEVERTEX* v3, PIEVERTEX* clipped, BOOL bSpecular)
 {
-  static PIEVERTEX xClip[iV_POLY_MAX_POINTS + 4]; // plus 4 hopefully is limit?
+  static PIEVERTEX xClip[pie_MAX_POLY_SIZE + 4]; // plus 4 hopefully is limit?
   static PIEVERTEX *p0, *p1;
   UDWORD numPreY, numAll;
   UDWORD i;
@@ -243,7 +243,7 @@ int pie_ClipTexturedTriangleFast(PIEVERTEX* v1, PIEVERTEX* v2, PIEVERTEX* v3, PI
 int iV_PolyClip2D(int npoints, iVertex* points, iVertex* clip)
 
 {
-  static iVertex xclip[iV_POLY_MAX_POINTS + 4];
+  static iVertex xclip[pie_MAX_POLY_SIZE + 4];
   iVertex *p0, *p1;
   int n1, n, i;
 

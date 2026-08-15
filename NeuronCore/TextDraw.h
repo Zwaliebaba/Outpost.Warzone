@@ -2,8 +2,6 @@
 #define _INCLUDED_TEXTDRAW_
 
 #include "IvisDef.h"
-#define iV_DrawText			pie_DrawText
-#define iV_DrawText270		pie_DrawText270
 
 #define PIE_TEXT_WHITE				(-1)
 #define PIE_TEXT_LIGHTBLUE			(-2)

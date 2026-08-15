@@ -879,7 +879,7 @@ BOOL frontendInitialise(char* ResourceFile)
   keyInitMappings(FALSE);
 
 #ifdef OLD_PALETTE
-  iV_PaletteSelect(iV_PaletteAdd(&gamePal[0]));
+  pal_SelectPalette(pal_AddNewPalette(&gamePal[0]));
 #endif
 
   frameSetCursorFromRes(IDC_DEFAULT);

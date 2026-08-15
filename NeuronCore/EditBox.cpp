@@ -542,10 +542,10 @@ void editBoxDisplay(WIDGET* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pC
   else
   {
     pie_BoxFillIndex(x0, y0, x1, y1, WCOL_BKGRND);
-    iV_Line(x0, y0, x1, y0, *(pColours + WCOL_DARK));
-    iV_Line(x0, y0, x0, y1, *(pColours + WCOL_DARK));
-    iV_Line(x0, y1, x1, y1, *(pColours + WCOL_LIGHT));
-    iV_Line(x1, y1, x1, y0, *(pColours + WCOL_LIGHT));
+    pie_Line(x0, y0, x1, y0, *(pColours + WCOL_DARK));
+    pie_Line(x0, y0, x0, y1, *(pColours + WCOL_DARK));
+    pie_Line(x0, y1, x1, y1, *(pColours + WCOL_LIGHT));
+    pie_Line(x1, y1, x1, y0, *(pColours + WCOL_LIGHT));
   }
 
   fx = x0 + WEDB_XGAP; // + (psEdBox->width - fw) / 2;
@@ -562,7 +562,7 @@ void editBoxDisplay(WIDGET* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pC
   ch = *pInsPoint;
 
   *pInsPoint = '\0';
-  iV_DrawText((unsigned char*)pPrint, fx, fy);
+  pie_DrawText((unsigned char*)pPrint, fx, fy);
   *pInsPoint = ch;
 
   /* Display the cursor if editing */
@@ -578,7 +578,7 @@ void editBoxDisplay(WIDGET* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pC
     cx = x0 + WEDB_XGAP + iV_GetTextWidth((unsigned char*)(psEdBox->aText + psEdBox->printStart));
     *pInsPoint = ch;
     cy = fy;
-    iV_Line(cx, cy + iV_GetTextAboveBase(), cx, cy + iV_GetTextBelowBase(), *(pColours + WCOL_CURSOR));
+    pie_Line(cx, cy + iV_GetTextAboveBase(), cx, cy + iV_GetTextBelowBase(), *(pColours + WCOL_CURSOR));
   }
 #if CURSOR_BLINK
 	else if ((psEdBox->state & WEDBS_MASK) == WEDBS_OVER && blink)
@@ -592,7 +592,7 @@ void editBoxDisplay(WIDGET* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pC
     cx = x0 + WEDB_XGAP + iV_GetTextWidth((unsigned char*)(psEdBox->aText + psEdBox->printStart));
     *pInsPoint = ch;
     cy = fy;
-    iV_Line(cx, cy, cx + WEDB_CURSORSIZE, cy, *(pColours + WCOL_CURSOR));
+    pie_Line(cx, cy, cx + WEDB_CURSORSIZE, cy, *(pColours + WCOL_CURSOR));
   }
 
   if (psEdBox->pBoxDisplay == nullptr)
@@ -600,10 +600,10 @@ void editBoxDisplay(WIDGET* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pC
     if (psEdBox->state & WEDBS_HILITE)
     {
       /* Display the button hilite */
-      iV_Line(x0 - 2, y0 - 2, x1 + 2, y0 - 2, *(pColours + WCOL_HILITE));
-      iV_Line(x0 - 2, y0 - 2, x0 - 2, y1 + 2, *(pColours + WCOL_HILITE));
-      iV_Line(x0 - 2, y1 + 2, x1 + 2, y1 + 2, *(pColours + WCOL_HILITE));
-      iV_Line(x1 + 2, y1 + 2, x1 + 2, y0 - 2, *(pColours + WCOL_HILITE));
+      pie_Line(x0 - 2, y0 - 2, x1 + 2, y0 - 2, *(pColours + WCOL_HILITE));
+      pie_Line(x0 - 2, y0 - 2, x0 - 2, y1 + 2, *(pColours + WCOL_HILITE));
+      pie_Line(x0 - 2, y1 + 2, x1 + 2, y1 + 2, *(pColours + WCOL_HILITE));
+      pie_Line(x1 + 2, y1 + 2, x1 + 2, y0 - 2, *(pColours + WCOL_HILITE));
     }
   }
 }

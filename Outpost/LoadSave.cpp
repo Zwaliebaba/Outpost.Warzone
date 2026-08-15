@@ -542,8 +542,8 @@ static void displayLoadBanner(struct _widget* psWidget, UDWORD xOffset, UDWORD y
   else
     col = COL_RED;
 
-  iV_BoxFill(x, y, x + psWidget->width, y + psWidget->height, col);
-  iV_BoxFill(x + 2, y + 2, x + psWidget->width - 2, y + psWidget->height - 2,COL_BLUE);
+  pie_BoxFillIndex(x, y, x + psWidget->width, y + psWidget->height, col);
+  pie_BoxFillIndex(x + 2, y + 2, x + psWidget->width - 2, y + psWidget->height - 2,COL_BLUE);
 }
 
 // ////////////////////////////////////////////////////////////////////////////
@@ -567,7 +567,7 @@ static void displayLoadSlot(struct _widget* psWidget, UDWORD xOffset, UDWORD yOf
     while (iV_GetTextWidth((unsigned char*)butString) > psWidget->width) { butString[strlen(butString) - 1] = '\0'; }
 
     //draw text								
-    iV_DrawText((unsigned char*)butString, x + 4, y + 17);
+    pie_DrawText((unsigned char*)butString, x + 4, y + 17);
   }
 }
 
@@ -580,8 +580,8 @@ static void displayLoadSaveEdit(struct _widget* psWidget, UDWORD xOffset, UDWORD
   UDWORD h = psWidget->height;
   UNUSEDPARAMETER(pColours);
 
-  iV_BoxFill(x, y, x + w, y + h,COL_RED);
-  iV_BoxFill(x + 1, y + 1, x + w - 1, y + h - 1,COL_BLUE);
+  pie_BoxFillIndex(x, y, x + w, y + h,COL_RED);
+  pie_BoxFillIndex(x + 1, y + 1, x + w - 1, y + h - 1,COL_BLUE);
 }
 
 // ////////////////////////////////////////////////////////////////////////////

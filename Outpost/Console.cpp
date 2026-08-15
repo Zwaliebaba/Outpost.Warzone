@@ -411,7 +411,7 @@ void displayConsoleMessages(void)
     clipDepth = (mainConsole.topY + (boxDepth * linePitch) + CON_BORDER_HEIGHT + drop);
     if (clipDepth > (DISP_HEIGHT - linePitch))
       clipDepth = (DISP_HEIGHT - linePitch);
-    iV_TransBoxFill(mainConsole.topX - CON_BORDER_WIDTH, mainConsole.topY - mainConsole.textDepth - CON_BORDER_HEIGHT + drop + 1,
+    pie_TransBoxFill(mainConsole.topX - CON_BORDER_WIDTH, mainConsole.topY - mainConsole.textDepth - CON_BORDER_HEIGHT + drop + 1,
                     mainConsole.topX + mainConsole.width, clipDepth);
     //(hack = (mainConsole.topY+(boxDepth*linePitch)+CON_BORDER_HEIGHT+drop)) < DISP_HEIGHT-linePitch ? hack : (DISP_HEIGHT-linePitch)
   }
@@ -488,7 +488,7 @@ UDWORD displayOldMessages(void)
 
     /* How big a box is necessary? */
     /* GET RID OF THE MAGIC NUMBERS BELOW */
-    iV_TransBoxFill(mainConsole.topX - CON_BORDER_WIDTH, mainConsole.topY - mainConsole.textDepth - CON_BORDER_HEIGHT,
+    pie_TransBoxFill(mainConsole.topX - CON_BORDER_WIDTH, mainConsole.topY - mainConsole.textDepth - CON_BORDER_HEIGHT,
                     mainConsole.topX + mainConsole.width, mainConsole.topY + ((count) * linePitch) + CON_BORDER_HEIGHT - linePitch);
   }
   /*

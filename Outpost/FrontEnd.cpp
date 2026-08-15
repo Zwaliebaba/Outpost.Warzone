@@ -1563,7 +1563,7 @@ VOID displayTitleBitmap(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
 VOID displayLogo(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pColours)
 {
   UNUSEDPARAMETER(pColours);
-  iV_DrawTransImage(FrontImages, IMAGE_FE_LOGO, xOffset + psWidget->x, yOffset + psWidget->y);
+  pie_ImageFileID(FrontImages, IMAGE_FE_LOGO, xOffset + psWidget->x, yOffset + psWidget->y);
 }
 
 // ////////////////////////////////////////////////////////////////////////////
@@ -1600,10 +1600,10 @@ VOID displayTextOption(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset,
       //			displayHilightPulseBox( fx-4,fy+iV_GetTextAboveBase()-iV_GetTextBelowBase(),
     }
     else // dont highlight
-      iV_SetTextColour(PIE_TEXT_LIGHTBLUE); //(unsigned short)iV_PaletteNearestColour(129,142,184)
+      iV_SetTextColour(PIE_TEXT_LIGHTBLUE); //(unsigned short)pal_GetNearestColour(129,142,184)
   }
 
-  iV_DrawText((unsigned char*)psBut->pText, fx, fy);
+  pie_DrawText((unsigned char*)psBut->pText, fx, fy);
 
   if (!greyOut) // dont snap to unavailable buttons.
   {
@@ -1635,7 +1635,7 @@ VOID displayTextAt270(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, 
   fx = xOffset + psWidget->x;
   fy = yOffset + psWidget->y + iV_GetTextWidth((unsigned char*)psLab->aText);
 
-  iV_DrawText270((unsigned char*)psLab->aText, fx, fy);
+  pie_DrawText270((unsigned char*)psLab->aText, fx, fy);
 }
 
 // ////////////////////////////////////////////////////////////////////////////
@@ -1648,10 +1648,10 @@ static VOID displayBigSlider(struct _widget* psWidget, UDWORD xOffset, UDWORD yO
   SWORD sx;
   UNUSEDPARAMETER(pColours);
 
-  iV_DrawTransImage(IntImages, IMAGE_SLIDER_BIG, x + STAT_SLD_OX, y + STAT_SLD_OY); // draw bdrop
+  pie_ImageFileID(IntImages, IMAGE_SLIDER_BIG, x + STAT_SLD_OX, y + STAT_SLD_OY); // draw bdrop
 
   sx = static_cast<SWORD>((Slider->width - 3 - Slider->barSize) * Slider->pos / Slider->numStops); // determine pos.
-  iV_DrawTransImage(IntImages, IMAGE_SLIDER_BIGBUT, x + 3 + sx, y + 3); //draw amount
+  pie_ImageFileID(IntImages, IMAGE_SLIDER_BIGBUT, x + 3 + sx, y + 3); //draw amount
 }
 
 //// Given a string id, set a text buttons dimensions.

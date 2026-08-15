@@ -286,7 +286,7 @@ SDWORD bucketCalculateZ(RENDER_TYPE objectType, void* pObject)
   COMPONENT_OBJECT* psCompObj;
   iIMDShape* pImd;
 
-  iV_MatrixBegin();
+  pie_MatBegin();
 
   switch (objectType)
   {
@@ -295,7 +295,7 @@ SDWORD bucketCalculateZ(RENDER_TYPE objectType, void* pObject)
     pz = player.p.z & (TILE_UNITS - 1);
 
     /* Translate */
-    iV_TRANSLATE(px, 0, -pz);
+    pie_TRANSLATE(px, 0, -pz);
 
     position.x = static_cast<UDWORD>(std::lrintf(((ATPART*)pObject)->position.x));
     position.y = static_cast<UDWORD>(std::lrintf(((ATPART*)pObject)->position.y));
@@ -339,7 +339,7 @@ SDWORD bucketCalculateZ(RENDER_TYPE objectType, void* pObject)
       pz = player.p.z & (TILE_UNITS - 1);
 
       /* Translate */
-      iV_TRANSLATE(px, 0, -pz);
+      pie_TRANSLATE(px, 0, -pz);
 
       psSimpObj = static_cast<SIMPLE_OBJECT*>(pObject);
       position.x = (psSimpObj->x - player.p.x) - terrainMidX * TILE_UNITS;
@@ -367,7 +367,7 @@ SDWORD bucketCalculateZ(RENDER_TYPE objectType, void* pObject)
     pz = player.p.z & (TILE_UNITS - 1);
 
     /* Translate */
-    iV_TRANSLATE(px, 0, -pz);
+    pie_TRANSLATE(px, 0, -pz);
 
     psSimpObj = static_cast<SIMPLE_OBJECT*>(pObject);
     position.x = (psSimpObj->x - player.p.x) - terrainMidX * TILE_UNITS;
@@ -411,7 +411,7 @@ SDWORD bucketCalculateZ(RENDER_TYPE objectType, void* pObject)
     pz = player.p.z & (TILE_UNITS - 1);
 
     /* Translate */
-    iV_TRANSLATE(px, 0, -pz);
+    pie_TRANSLATE(px, 0, -pz);
 
     psSimpObj = static_cast<SIMPLE_OBJECT*>(pObject);
     position.x = (psSimpObj->x - player.p.x) - terrainMidX * TILE_UNITS;
@@ -438,7 +438,7 @@ SDWORD bucketCalculateZ(RENDER_TYPE objectType, void* pObject)
     pz = player.p.z & (TILE_UNITS - 1);
 
     /* Translate */
-    iV_TRANSLATE(px, 0, -pz);
+    pie_TRANSLATE(px, 0, -pz);
 
     psCompObj = static_cast<COMPONENT_OBJECT*>(pObject);
     psSimpObj = static_cast<SIMPLE_OBJECT*>(psCompObj->psParent);
@@ -452,12 +452,12 @@ SDWORD bucketCalculateZ(RENDER_TYPE objectType, void* pObject)
     position.z -= psCompObj->psShape->ocen.y;
 
     /* object (animation) translations - ivis z and y flipped */
-    iV_TRANSLATE(psCompObj->position.x, psCompObj->position.z, psCompObj->position.y);
+    pie_TRANSLATE(psCompObj->position.x, psCompObj->position.z, psCompObj->position.y);
 
     /* object (animation) rotations */
-    iV_MatrixRotateY(-psCompObj->orientation.z);
-    iV_MatrixRotateZ(-psCompObj->orientation.y);
-    iV_MatrixRotateX(-psCompObj->orientation.x);
+    pie_MatRotY(-psCompObj->orientation.z);
+    pie_MatRotZ(-psCompObj->orientation.y);
+    pie_MatRotX(-psCompObj->orientation.x);
 
     z = pie_RotProj(&position, &pixel);
 #ifdef BUCKET_CLIP
@@ -484,7 +484,7 @@ SDWORD bucketCalculateZ(RENDER_TYPE objectType, void* pObject)
     pz = player.p.z & (TILE_UNITS - 1);
 
     /* Translate */
-    iV_TRANSLATE(px, 0, -pz);
+    pie_TRANSLATE(px, 0, -pz);
 
     psSimpObj = static_cast<SIMPLE_OBJECT*>(pObject);
     position.x = (psSimpObj->x - player.p.x) - terrainMidX * TILE_UNITS;
@@ -514,7 +514,7 @@ SDWORD bucketCalculateZ(RENDER_TYPE objectType, void* pObject)
     pz = player.p.z & (TILE_UNITS - 1);
 
     /* Translate */
-    iV_TRANSLATE(px, 0, -pz);
+    pie_TRANSLATE(px, 0, -pz);
     if (static_cast<PROXIMITY_DISPLAY*>(pObject)->type == POS_PROXDATA)
     {
       position.x = (static_cast<VIEW_PROXIMITY*>(((VIEWDATA*)((PROXIMITY_DISPLAY*)pObject)->psMessage->pViewData)->pData)->x - player.p.x) -
@@ -559,7 +559,7 @@ SDWORD bucketCalculateZ(RENDER_TYPE objectType, void* pObject)
     pz = player.p.z & (TILE_UNITS - 1);
 
     /* Translate */
-    iV_TRANSLATE(px, 0, -pz);
+    pie_TRANSLATE(px, 0, -pz);
 
     position.x = static_cast<SDWORD>(((EFFECT*)pObject)->position.x - player.p.x) - terrainMidX * TILE_UNITS;
     position.z = static_cast<SDWORD>(terrainMidY * TILE_UNITS - (((EFFECT*)pObject)->position.z - player.p.z));
@@ -590,7 +590,7 @@ SDWORD bucketCalculateZ(RENDER_TYPE objectType, void* pObject)
     pz = player.p.z & (TILE_UNITS - 1);
 
     /* Translate */
-    iV_TRANSLATE(px, 0, -pz);
+    pie_TRANSLATE(px, 0, -pz);
     position.x = (static_cast<FLAG_POSITION*>(pObject)->coords.x - player.p.x) - terrainMidX * TILE_UNITS;
     position.z = terrainMidY * TILE_UNITS - (static_cast<FLAG_POSITION*>(pObject)->coords.y - player.p.z);
     position.y = static_cast<FLAG_POSITION*>(pObject)->coords.z;

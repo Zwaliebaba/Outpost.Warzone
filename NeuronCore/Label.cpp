@@ -103,7 +103,7 @@ void labelDisplay(WIDGET* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pCol
     fx = xOffset + psLabel->x;
   fy = yOffset + psLabel->y + (psLabel->height - iV_GetTextLineSize()) / 2 - iV_GetTextAboveBase();
   //	fy = yOffset + psLabel->y + (psLabel->height -
-  iV_DrawText((unsigned char*)psLabel->aText, fx, fy);
+  pie_DrawText((unsigned char*)psLabel->aText, fx, fy);
 }
 
 /* Respond to a mouse moving over a label */

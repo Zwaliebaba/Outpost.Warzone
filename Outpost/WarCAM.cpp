@@ -1361,7 +1361,7 @@ void dispWarCamLogo(void)
   //	if(gamePaused())
   //		/* get out if we're paused */
   //
-  //	iV_MatrixBegin();							/* Push the indentity matrix */
+  //	pie_MatBegin();							/* Push the indentity matrix */
   //
 }
 

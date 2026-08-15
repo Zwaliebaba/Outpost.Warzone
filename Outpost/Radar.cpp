@@ -111,7 +111,7 @@ BOOL InitRadar(void)
   memset(radarBuffer, 0,RADWIDTH * RADHEIGHT);
 
   // Set up an image structure for the radar bitmap so we can draw
-  // it useing iV_DrawImageDef().
+  // it useing pie_ImageDef().
 
   RadarImage.TPageID = RADAR_3DFX_TPAGEID; // 3dfx only,radar is hard coded to texture page 31 - sort this out?
   RadarImage.Tu = 0;
@@ -338,7 +338,7 @@ void drawRadar(void)
 
   pie_DownLoadRadar(radarBuffer,RADAR_3DFX_TPAGEID);
 
-  iV_TransBoxFill(RADTLX,RADTLY, RADTLX + RADWIDTH,RADTLY + RADHEIGHT);
+  pie_TransBoxFill(RADTLX,RADTLY, RADTLX + RADWIDTH,RADTLY + RADHEIGHT);
 
   pie_RenderRadar(&RadarImage, radarBuffer, RadarWidth,RADTLX,RADTLY);
 
@@ -458,7 +458,7 @@ static void DrawRadarTiles(UBYTE* screen, UDWORD Modulus, UWORD boxSizeH, UWORD 
         DEBUG_ASSERT_TEXT(((UDWORD)WScr) >= radarBuffer, "WScr Onderflow"); DEBUG_ASSERT_TEXT(((UDWORD)WScr) < ((UDWORD)radarBuffer)+RADWIDTH*RADHEIGHT, "WScr Overrun");
 #endif
         if (TEST_TILE_VISIBLE(selectedPlayer, WTile) OR godMode)
-          *WScr = iV_SHADE_TABLE[(tileColours[(WTile->texture & TILE_NUMMASK)] * iV_PALETTE_SHADE_LEVEL + (WTile->illumination >>
+          *WScr = palShades[(tileColours[(WTile->texture & TILE_NUMMASK)] * PALETTE_SHADE_LEVEL + (WTile->illumination >>
             ShadeDiv))];
         else
           *WScr = colBlack; //colGrey;
@@ -482,7 +482,7 @@ static void DrawRadarTiles(UBYTE* screen, UDWORD Modulus, UWORD boxSizeH, UWORD 
         if (TEST_TILE_VISIBLE(selectedPlayer, WTile) OR godMode)
         {
           UBYTE Val = tileColours[(WTile->texture & TILE_NUMMASK)];
-          Val = iV_SHADE_TABLE[(Val * iV_PALETTE_SHADE_LEVEL + (WTile->illumination >> ShadeDiv))];
+          Val = palShades[(Val * PALETTE_SHADE_LEVEL + (WTile->illumination >> ShadeDiv))];
 
           Ptr = Scr + j + i * Modulus;
           for (c = 0; c < SizeV; c++)
@@ -957,5 +957,5 @@ void calcRadarColour(UBYTE* tileBitmap, UDWORD tileNumber)
   fGreen = static_cast<UBYTE>(tGreen / (SAMPLES * SAMPLES));
   fBlue = static_cast<UBYTE>(tBlue / (SAMPLES * SAMPLES));
 #endif
-  tileColours[tileNumber] = iV_PaletteNearestColour(fRed, fGreen, fBlue);
+  tileColours[tileNumber] = pal_GetNearestColour(fRed, fGreen, fBlue);
 }

@@ -4041,11 +4041,11 @@ void intDisplayStatForm(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
 
   DrawBegin();
 
-  iV_DrawImage(IntImages, IMAGE_DES_STATBACKLEFT, x0, y0);
-  iV_DrawImageRect(IntImages, IMAGE_DES_STATBACKMID, x0 + iV_GetImageWidth(IntImages, IMAGE_DES_STATBACKLEFT), y0, 0, 0,
+  pie_ImageFileID(IntImages, IMAGE_DES_STATBACKLEFT, x0, y0);
+  pie_ImageFileIDTile(IntImages, IMAGE_DES_STATBACKMID, x0 + iV_GetImageWidth(IntImages, IMAGE_DES_STATBACKLEFT), y0, 0, 0,
                    Form->width - iV_GetImageWidth(IntImages, IMAGE_DES_STATBACKLEFT) - iV_GetImageWidth(IntImages, IMAGE_DES_STATBACKRIGHT),
                    iV_GetImageHeight(IntImages, IMAGE_DES_STATBACKMID));
-  iV_DrawImage(IntImages, IMAGE_DES_STATBACKRIGHT, x0 + Form->width - iV_GetImageWidth(IntImages, IMAGE_DES_STATBACKRIGHT), y0);
+  pie_ImageFileID(IntImages, IMAGE_DES_STATBACKRIGHT, x0 + Form->width - iV_GetImageWidth(IntImages, IMAGE_DES_STATBACKRIGHT), y0);
 
   /* display current component */
   pie_SetGeometricOffset((xOffset + psWidget->width / 4), (yOffset + psWidget->height / 2));

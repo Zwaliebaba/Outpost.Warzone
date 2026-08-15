@@ -314,14 +314,14 @@ void renderParticle(ATPART* psPart)
   dv.x = (static_cast<UDWORD>(x) - player.p.x) - terrainMidX * TILE_UNITS;
   dv.y = static_cast<UDWORD>(y);
   dv.z = terrainMidY * TILE_UNITS - (static_cast<UDWORD>(z) - player.p.z);
-  iV_MatrixBegin(); /* Push the indentity matrix */
-  iV_TRANSLATE(dv.x, dv.y, dv.z);
+  pie_MatBegin(); /* Push the indentity matrix */
+  pie_TRANSLATE(dv.x, dv.y, dv.z);
   rx = player.p.x & (TILE_UNITS - 1); /* Get the x,z translation components */
   rz = player.p.z & (TILE_UNITS - 1);
-  iV_TRANSLATE(rx, 0, -rz); /* Translate */
+  pie_TRANSLATE(rx, 0, -rz); /* Translate */
   /* Make it face camera */
-  iV_MatrixRotateY(-player.r.y);
-  iV_MatrixRotateX(-player.r.x);
+  pie_MatRotY(-player.r.y);
+  pie_MatRotX(-player.r.x);
   /* Scale it... */
   scaleMatrix(psPart->size);
   /* Draw it... */
@@ -329,7 +329,7 @@ void renderParticle(ATPART* psPart)
   centreZ = (player.p.z + ((visibleYTiles / 2) << TILE_SHIFT));
   brightness = lightDoFogAndIllumination(pie_MAX_BRIGHT_LEVEL, centreX - x, centreZ - z, &specular);
   pie_Draw3DShape(psPart->imd, 0, 0, brightness, 0, pie_NO_BILINEAR, 0);
-  iV_MatrixEnd();
+  pie_MatEnd();
 }
 
 // -----------------------------------------------------------------------------

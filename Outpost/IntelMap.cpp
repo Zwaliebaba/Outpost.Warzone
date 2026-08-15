@@ -993,7 +993,7 @@ void intDisplayMessageButton(struct _widget* psWidget, UDWORD xOffset, UDWORD yO
 
   CloseButtonRender();
 
-  if (Hilight) { iV_DrawTransImage(IntImages, IMAGE_BUT_HILITE, xOffset + psButton->x, yOffset + psButton->y); }
+  if (Hilight) { pie_ImageFileID(IntImages, IMAGE_BUT_HILITE, xOffset + psButton->x, yOffset + psButton->y); }
 }
 
 /* displays the PIE view for the current message */
@@ -1043,7 +1043,7 @@ void intDisplayPIEView(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset,
     //draw image icon in top left of window
     image = static_cast<SWORD>(getResearchForMsg((VIEWDATA*)psMessage->pViewData)->iconID);
     if (image > 0)
-      iV_DrawTransImage(IntImages, image, x0, y0);
+      pie_ImageFileID(IntImages, image, x0, y0);
   }
 }
 
@@ -1115,7 +1115,7 @@ void intDisplayTEXTView(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
     ty += 3;
     /* Fix for spacing.... */
 
-    iV_SetTextColour(iV_PaletteNearestColour(255, 255, 255));
+    iV_SetTextColour(pal_GetNearestColour(255, 255, 255));
     //add each message
     for (i = 0; i < ((VIEWDATA*)psMessage->pViewData)->numText; i++)
     {
@@ -1126,7 +1126,7 @@ void intDisplayTEXTView(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
         return;
       }
       //need to check the string will fit!
-      iV_DrawText((unsigned char*)((VIEWDATA*)psMessage->pViewData)->ppTextMsg[i], x0 + TEXT_XINDENT,
+      pie_DrawText((unsigned char*)((VIEWDATA*)psMessage->pViewData)->ppTextMsg[i], x0 + TEXT_XINDENT,
                   (ty + TEXT_YINDENT * 3) + (i * linePitch));
     }
   }
@@ -1394,7 +1394,7 @@ void setCurrentMsg(void)
 	currentTextDisplay.text[text] = '\0';
 	iV_SetFont(currentTextDisplay.font);
 	iV_SetTextColour(currentTextDisplay.fontColour);
-	iV_DrawText(currentTextDisplay.text, position, y);
+	pie_DrawText(currentTextDisplay.text, position, y);
 
 	//time to redo message
 	if (frames > currentTextDisplay.totalFrames + gap)
@@ -1534,7 +1534,7 @@ void setCurrentMsg(void)
 	}
 
 	//draw the 'button'
-	iV_DrawTransImage(IntImages,imageID, psButton->x, psButton->y);
+	pie_ImageFileID(IntImages,imageID, psButton->x, psButton->y);
 }*/
 /*check the x and y are within the messages 3D view if on screen */
 /*BOOL checkMessageOverlap(MESSAGE *psMessage, SWORD x, SWORD y)

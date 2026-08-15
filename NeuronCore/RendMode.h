@@ -8,22 +8,6 @@
 #include "TextDraw.h"
 
 //*************************************************************************
-//patch
-
-#define	iV_Line					pie_Line
-#define	iV_Box					pie_Box
-#define	iV_BoxFill				pie_BoxFillIndex
-#define	iV_TransBoxFill			pie_TransBoxFill
-#define	iV_UniTransBoxFill		pie_UniTransBoxFill
-#define	iV_DrawImage			pie_ImageFileID
-#define	iV_DrawImageRect		pie_ImageFileIDTile
-#define	iV_DrawTransImage		pie_ImageFileID
-#define	iV_DrawTransImageRect	pie_ImageFileIDTile
-#define	iV_DrawStretchImage		pie_ImageFileIDStretch
-#define	iV_DrawImageDef				pie_ImageDef
-#define iV_UploadDisplayBuffer		pie_UploadDisplayBuffer
-
-//*************************************************************************
 
 // polygon flags	b0..b7: col, b24..b31: anim index
 
@@ -41,13 +25,6 @@
 #define REND_SURFACE_UNDEFINED	0
 #define REND_SURFACE_SCREEN		1
 #define REND_SURFACE_USR		2
-
-#define REND_MAX_X			pie_GetVideoBufferWidth()
-#define iV_SCREEN_Y_MAX		pie_GetVideoBufferHeight()
-#define iV_SCREEN_SIZE_MAX	(iV_SCREEN_X_MAX * iV_SCREEN_Y_MAX)
-#define iV_SCREEN_WIDTH		(rendSurface.width)
-#define iV_SCREEN_HEIGHT	(rendSurface.height)
-#define iV_SCREEN_BUFFER	(rendSurface.buffer)
 
 //*************************************************************************
 
