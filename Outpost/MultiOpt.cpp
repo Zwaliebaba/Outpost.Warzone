@@ -210,7 +210,7 @@ void recvOptions(NETMSG* pMsg)
     {
       // it's us thats new
       selectedPlayer = play; // select player
-      NETplayerInfo(nullptr); // get player info	
+      NETplayerInfo(); // get player info	
       powerCalculated = FALSE; // turn off any power requirements.
     }
     else
@@ -279,12 +279,12 @@ BOOL hostCampaign(STRING* sGame, STRING* sPlayer)
 
   if (!NetPlay.bComms)
   {
-    NETplayerInfo(nullptr);
+    NETplayerInfo();
     strcpy(NetPlay.players[0].name, sPlayer);
     numpl = 1;
   }
   else
-    numpl = NETplayerInfo(nullptr);
+    numpl = NETplayerInfo();
 
   // may be more than one player already. check and resolve!
   if (numpl > 1)
@@ -311,7 +311,12 @@ BOOL joinCampaign(UDWORD gameNumber, STRING* sPlayer)
   if (!ingame.localJoiningInProgress)
   {
     if (!NetPlay.bLobbyLaunched)
-      NETjoinGame(NetPlay.games[gameNumber].desc.guidInstance, sPlayer); // join 
+      /* The address rather than a session GUID. A browsed game carries the
+       * one the server gave it; with no server, gameNumber is not a real entry
+       * and NETjoinAddress is what the player typed on the connection screen.
+       */
+      NETjoinGame(NetPlay.games[gameNumber].address[0] ? NetPlay.games[gameNumber].address : NETjoinAddress,
+                  sPlayer); // join 
     ingame.localJoiningInProgress = TRUE;
 
     loadMultiStats(sPlayer, &playerStats);
@@ -424,8 +429,8 @@ BOOL LobbyLaunched(VOID)
   PLAYERSTATS pl = {0};
 
   // set the player info as soon as possible to avoid screwy scores appearing elsewhere.
-  NETplayerInfo(nullptr);
-  NETfindGame(TRUE);
+  NETplayerInfo();
+  NETfindGame();
 
   for (i = 0; (i < MAX_PLAYERS) && (NetPlay.players[i].dpid != NetPlay.dpidPlayer); i++);
 
@@ -446,7 +451,7 @@ BOOL LobbyLaunched(VOID)
 // Init and shutdown routines 
 BOOL lobbyInitialise(VOID)
 {
-  if (!NETinit(WARZONEGUID,TRUE)) // initialise, may change guid.
+  if (!NETinit(TRUE)) // initialise the transport.
     return FALSE;
 
 #ifndef COVERMOUNT
@@ -955,9 +960,10 @@ VOID playerResponding(VOID)
 
   // set the key from the lowest available dpid.
   for (i = 0; !player2dpid[i] && i < MAX_PLAYERS; i++);
+  /* The key no longer encrypts packets -- QUIC does that -- but it still seeds
+   * NEThashVal, which is what the version check at join compares.
+   */
   NETsetKey(0, 0, 0, player2dpid[i]);
-
-  NetPlay.bEncryptAllPackets = TRUE;
 }
 
 // ////////////////////////////////////////////////////////////////////////////
@@ -1008,6 +1014,5 @@ BOOL multiGameShutdown(VOID)
   selectedPlayer = 0; //back to use player 0 (single player friendly)
   bForceEditorLoaded = FALSE;
 
-  NetPlay.bEncryptAllPackets = FALSE; // pull security.
   return TRUE;
 }

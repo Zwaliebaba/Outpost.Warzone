@@ -22,6 +22,7 @@ extern BOOL recvDemolishFinished(NETMSG* pMsg);
 extern BOOL recvPing(NETMSG* pMsg);
 extern BOOL recvRequestDroid(NETMSG* pMsg);
 extern BOOL recvTextMessage(NETMSG* pMsg);
+extern BOOL recvMultiStats(NETMSG* pMsg); // a player's score, off the net.
 extern BOOL recvDroidSecondary(NETMSG* pMsg);
 extern BOOL recvDroidSecondaryAll(NETMSG* pMsg);
 extern BOOL recvDroidEmbark(NETMSG* pMsg);

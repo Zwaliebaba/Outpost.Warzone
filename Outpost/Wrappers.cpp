@@ -151,7 +151,11 @@ TITLECODE titleLoop(void)
       else
         ingame.bHostSetup = FALSE;
 
-      if (NetPlay.lpDirectPlay4A) // make sure lobby is valid.
+      /* Was "is the DirectPlay interface up". Unreachable either way --
+       * bLobbyLaunched is never set -- so it asks the transport instead of
+       * naming an interface that no longer exists.
+       */
+      if (NetPlay.bComms)
         changeTitleMode(MULTIOPTION);
       else
         changeTitleMode(QUIT);

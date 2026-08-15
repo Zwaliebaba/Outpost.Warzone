@@ -111,7 +111,11 @@ using MESSAGE_TYPES = enum _msgtype
   NET_LASSAT,
   //45 107, lassat firing.
 
-  NET_REQUESTMAP //46 107 dont have map, please send it.
+  NET_REQUESTMAP,
+  //46 107 dont have map, please send it.
+
+  NET_PLAYERSTATS //47 a player's score and rank. Was DirectPlay's replicated
+                  //   per-player data, which nothing else ever used.
 };
 
 // /////////////////////////////////////////////////////////////////////////////////////////////////

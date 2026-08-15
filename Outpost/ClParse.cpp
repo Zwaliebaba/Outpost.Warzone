@@ -240,7 +240,6 @@ BOOL ParseCommandLine(LPSTR psCmdLine)
 BOOL scanGameSpyFlags(LPSTR gflag, LPSTR value)
 {
   static UBYTE count = 0;
-  LPVOID finalconnection;
 
   count++;
   if (count == 1)
@@ -255,17 +254,22 @@ BOOL scanGameSpyFlags(LPSTR gflag, LPSTR value)
     NetPlay.bHost = 1;
     game.bytesPerSec = INETBYTESPERSEC;
     game.packetsPerSec = INETPACKETS;
-    NETsetupTCPIP(&finalconnection, "");
-    NETselectProtocol(finalconnection);
+    /* Was a DirectPlay compound address with an empty host, built and then
+     * initialised. A host binds when it hosts; there is nothing to set up
+     * here any more.
+     */
+    NETjoinAddress[0] = '\0';
   }
   else if (stricmp(gflag, "+connect") == 0) // join a multiplayer.
   {
     NetPlay.bHost = 0;
     game.bytesPerSec = INETBYTESPERSEC;
     game.packetsPerSec = INETPACKETS;
-    NETsetupTCPIP(&finalconnection, value);
-    NETselectProtocol(finalconnection);
-    // gflag is add to con to.
+    /* The address to join, kept for NETjoinGame the same way the connection
+     * screen keeps what the player typed.
+     */
+    strncpy(NETjoinAddress, value, NETTRANS_ADDRESS_SIZE - 1);
+    NETjoinAddress[NETTRANS_ADDRESS_SIZE - 1] = '\0';
   }
   else if (stricmp(gflag, "+name") == 0) // player name.
     strcpy((char*)sPlayer, value);

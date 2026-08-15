@@ -1,10 +1,21 @@
 #include "pch.h"
+/*
+ * NetSupp.cpp
+ *
+ * The netplay log.
+ *
+ * This file used to be two things: DirectPlay's session helpers -- interface
+ * creation, HostSession, JoinSession -- and the logging below. The first half
+ * went with DirectPlay; NetJoin.cpp calls the transport directly and has no
+ * use for a wrapper around a wrapper. The logging has nothing to do with any
+ * transport and is used across a dozen files, which is why the file is still
+ * here rather than deleted.
+ */
 
 // ////////////////////////////////////////////////////////////////////////
 // Includes
-//#include "Frame.h"
+#include "Frame.h"
 #include "NetPlay.h"
-#include "NetSupp.h"
 
 #include <time.h>
 #include <stdio.h>
@@ -12,129 +23,9 @@ static FILE* pFileHandle;
 
 // ////////////////////////////////////////////////////////////////////////
 // Prototypes
-
-HRESULT JoinSession(LPDIRECTPLAY4A lpDirectPlay4A, LPGUID lpguidSessionInstance, LPSTR lpszPlayerName, LPNETPLAY lpNetPlay);
-HRESULT HostSession(LPDIRECTPLAY4A lpDirectPlay4A, LPSTR lpszSessionName, LPSTR lpszPlayerName, LPNETPLAY lpNetPlay, DWORD one, DWORD two,
-                    DWORD three, DWORD four, UDWORD plyrs);
-HRESULT DestroyDirectPlayInterface(HWND hWnd, LPDIRECTPLAY4A lpDirectPlay4A);
-HRESULT CreateDirectPlayInterface(LPDIRECTPLAY4A* lplpDirectPlay4A);
-
 BOOL NETstartLogging(VOID);
 BOOL NETstopLogging(VOID);
 BOOL NETlogEntry(CHAR* str, UDWORD a, UDWORD b);
-
-// ////////////////////////////////////////////////////////////////////////
-// Open the DPLAY interface
-HRESULT CreateDirectPlayInterface(LPDIRECTPLAY4A* lplpDirectPlay4A)
-{
-  HRESULT hr;
-  LPDIRECTPLAY4A lpDirectPlay4A = nullptr;
-
-  hr = CoCreateInstance(CLSID_DirectPlay, nullptr, CLSCTX_INPROC_SERVER, // Create an IDirectPlay4 interface
-                        IID_IDirectPlay4A, (LPVOID*)&lpDirectPlay4A);
-
-  *lplpDirectPlay4A = lpDirectPlay4A; // return interface created
-  return (hr);
-}
-
-// ////////////////////////////////////////////////////////////////////////
-// Shutdown the DPLAY interface
-HRESULT DestroyDirectPlayInterface(HWND hWnd, LPDIRECTPLAY4A lpDirectPlay4A)
-{
-  HRESULT hr = DP_OK;
-  if (lpDirectPlay4A)
-    hr = IDirectPlayX_Release(glpDP);
-  return (hr);
-}
-
-// ////////////////////////////////////////////////////////////////////////
-// Create a new DPLAY game
-HRESULT HostSession(LPDIRECTPLAY4A lpDirectPlay4A, LPSTR lpszSessionName, LPSTR lpszPlayerName, LPNETPLAY lpNetPlay, DWORD one, DWORD two,
-                    DWORD three, DWORD four, UDWORD mplayers)
-{
-  DPID dpidPlayer; // DirectPlay's type: CreatePlayer writes through it
-  DPNAME dpName;
-  DPSESSIONDESC2 sessionDesc;
-  HRESULT hr;
-
-  ZeroMemory(&sessionDesc, sizeof(DPSESSIONDESC2)); // host a new session
-  sessionDesc.dwSize = sizeof(DPSESSIONDESC2);
-
-  sessionDesc.guidApplication = GAME_GUID;
-  sessionDesc.dwMaxPlayers = mplayers;
-  sessionDesc.lpszSessionNameA = lpszSessionName;
-#ifdef USE_DIRECTPLAY_PROTOCOL
-  sessionDesc.dwFlags = DPSESSION_MIGRATEHOST | DPSESSION_KEEPALIVE | DPSESSION_DIRECTPLAYPROTOCOL;
-#else
-  sessionDesc.dwFlags = DPSESSION_MIGRATEHOST | DPSESSION_KEEPALIVE;
-#endif
-  sessionDesc.dwUser1 = one; // set the user flags
-  sessionDesc.dwUser2 = two;
-  sessionDesc.dwUser3 = three;
-  sessionDesc.dwUser4 = four;
-
-  hr = IDirectPlayX_Open(glpDP, &sessionDesc, DPOPEN_CREATE);
-  if FAILED(hr)
-    goto OPEN_FAILURE;
-  ZeroMemory(&dpName, sizeof(DPNAME)); // fill out name structure
-  dpName.dwSize = sizeof(DPNAME);
-  dpName.lpszShortNameA = lpszPlayerName;
-  dpName.lpszLongNameA = nullptr;
-
-  hr = IDirectPlayX_CreatePlayer(glpDP, &dpidPlayer, &dpName, lpNetPlay->hPlayerEvent, NULL, 0, 0);
-
-  if FAILED(hr)
-    goto CREATEPLAYER_FAILURE;
-  lpNetPlay->lpDirectPlay4A = lpDirectPlay4A; // return connection info
-  lpNetPlay->dpidPlayer = dpidPlayer;
-  lpNetPlay->bHost = TRUE;
-  lpNetPlay->bSpectator = FALSE;
-  return (DP_OK);
-
-CREATEPLAYER_FAILURE:
-OPEN_FAILURE: IDirectPlayX_Close(glpDP);
-  return (hr);
-}
-
-// ////////////////////////////////////////////////////////////////////////
-// Enter a DPLAY game 
-HRESULT JoinSession(LPDIRECTPLAY4A lpDirectPlay4A, LPGUID lpguidSessionInstance, LPSTR lpszPlayerName, LPNETPLAY lpNetPlay)
-{
-  DPID dpidPlayer; // DirectPlay's type: CreatePlayer writes through it
-  DPNAME dpName;
-  DPSESSIONDESC2 sessionDesc;
-  HRESULT hr;
-
-  ZeroMemory(&sessionDesc, sizeof(DPSESSIONDESC2)); // join existing session
-  sessionDesc.dwSize = sizeof(DPSESSIONDESC2);
-  sessionDesc.guidInstance = *lpguidSessionInstance;
-
-  hr = IDirectPlayX_Open(glpDP, &sessionDesc, DPOPEN_JOIN);
-
-  if FAILED(hr)
-    goto OPEN_FAILURE;
-
-  ZeroMemory(&dpName, sizeof(DPNAME)); // fill out name structure
-  dpName.dwSize = sizeof(DPNAME);
-  dpName.lpszShortNameA = lpszPlayerName;
-  dpName.lpszLongNameA = nullptr;
-
-  hr = IDirectPlayX_CreatePlayer(glpDP, &dpidPlayer, &dpName, lpNetPlay->hPlayerEvent, NULL, 0, 0);
-
-  if FAILED(hr)
-    goto CREATEPLAYER_FAILURE;
-
-  lpNetPlay->lpDirectPlay4A = lpDirectPlay4A; // return connection info
-  lpNetPlay->dpidPlayer = dpidPlayer;
-  lpNetPlay->bHost = FALSE;
-  lpNetPlay->bSpectator = FALSE;
-
-  return (DP_OK);
-
-CREATEPLAYER_FAILURE:
-OPEN_FAILURE: IDirectPlayX_Close(glpDP);
-  return (hr);
-}
 
 // ////////////////////////////////////////////////////////////////////////
 // Logging for degug only

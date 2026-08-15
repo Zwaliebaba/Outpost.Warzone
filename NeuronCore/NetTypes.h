@@ -1,14 +1,19 @@
 /*
  * NetTypes.h
  *
- * How a player is identified, and nothing else.
+ * The vocabulary the networking headers share, and nothing else.
  *
- * This exists so that a header wanting to name a player does not have to pull
- * in NetPlay.h, and through it dplay.h. MultiInt.h and MultiPlay.h both used
- * to spell the type DWORD for exactly that reason, each with a comment saying
- * it was really a DPID -- and because DPID was a typedef for DWORD, the two
- * agreed by accident until the type was given a name of its own, at which
- * point kickPlayer and player2dpid stopped linking.
+ * This exists so that a header wanting to name a player, or a message size,
+ * does not have to pull in NetPlay.h. It began as somewhere to put the player
+ * id: MultiInt.h and MultiPlay.h both used to spell the type DWORD for exactly
+ * that reason, each with a comment saying it was really a DPID -- and because
+ * DPID was a typedef for DWORD, the two agreed by accident until the type was
+ * given a name of its own, at which point kickPlayer and player2dpid stopped
+ * linking.
+ *
+ * It now also holds the size constants, so that NetTransport.h can name them
+ * without including NetPlay.h and NetPlay.h can include NetTransport.h. They
+ * were in NetPlay.h and the two headers were a cycle away from each other.
  *
  * Deliberately includes nothing.
  */
@@ -22,6 +27,13 @@
  * bytes NetAdd puts on the wire -- is unchanged.
  */
 using NETPLAYERID = unsigned int;
+
+/***************************************************************************/
+
+#define MaxNumberOfPlayers	8					// max number of players in a game.
+#define MaxMsgSize			8000				// max size of a message in bytes.
+#define	StringSize			64					// size of strings used.
+#define MaxGames			12					// max number of concurrently playable games to allow.
 
 /***************************************************************************/
 

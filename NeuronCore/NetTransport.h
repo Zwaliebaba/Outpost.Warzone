@@ -17,7 +17,16 @@
 
 /***************************************************************************/
 
-#include "NetPlay.h"	// NETPLAYERID, StringSize, MaxGames, MaxMsgSize
+/* NetTypes.h rather than NetPlay.h, which is the other way round from how this
+ * started: NetPlay.h now includes this header, so taking anything from it
+ * would be a cycle.
+ *
+ * BOOL, DWORD and UDWORD are assumed to be visible already, as every header in
+ * this tree assumes -- Types.h refuses outright to be included except through
+ * Frame.h, and Windows.h arrives through pch.h. So a unit that wants this
+ * header includes Frame.h first, like every other unit does.
+ */
+#include "NetTypes.h"	// NETPLAYERID, StringSize, MaxGames, MaxMsgSize
 
 /***************************************************************************/
 /* A session as a browser sees it, which is to say before joining one.
@@ -123,6 +132,22 @@ NETPLAYERID nettrans_LocalPlayer(void);
 BOOL nettrans_IsHost(void);
 UDWORD nettrans_PlayerCount(void);
 BOOL nettrans_PlayerName(NETPLAYERID player, char szName[], UDWORD udwSize);
+
+/* Fills paPlayers with everybody in the session and returns how many, so the
+ * game can rebuild its own roster. DirectPlay offered this as an enumeration
+ * with a callback; a list is the same thing without the inversion.
+ */
+UDWORD nettrans_PlayerList(NETPLAYERID paPlayers[], UDWORD udwMax);
+
+/* Whether a given player is the one hosting, which is not the same question as
+ * nettrans_IsHost -- that one asks about this machine.
+ */
+BOOL nettrans_IsHostPlayer(NETPLAYERID player);
+
+/* Renames the local player everywhere. Only the local player: DirectPlay would
+ * let a machine rename anyone and nothing ever did.
+ */
+BOOL nettrans_SetLocalName(const char szName[]);
 
 /* Stops anyone else joining a session this machine hosts. */
 BOOL nettrans_CloseToJoiners(void);

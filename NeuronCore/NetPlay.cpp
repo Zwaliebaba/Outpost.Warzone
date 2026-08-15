@@ -4,18 +4,14 @@
 // includes
 #include "Frame.h"
 #include "NetPlay.h"
-#include "NetSupp.h"
 #include "time.h"			//for stats
 
 // ////////////////////////////////////////////////////////////////////////
-// Variables 
-GUID GAME_GUID;
-
-LPDIRECTPLAY4 glpDP = nullptr; // Directplay object pointer.
-LPDIRECTPLAYLOBBY3 glpDPL3 = nullptr; // Lobby pointer
-LPDIRECTPLAYLOBBYA glpDPL = nullptr; // Lobby pointer
-
+// Variables
 NETPLAY NetPlay;
+
+/* Where the joiner's typed address goes, since nothing discovers hosts. */
+char NETjoinAddress[NETTRANS_ADDRESS_SIZE] = "";
 
 // ////////////////////////////////////////////////////////////////////////
 using NETSTATS = struct
@@ -28,17 +24,10 @@ using NETSTATS = struct
 };
 
 static NETSTATS nStats;
-static UDWORD protocount = 0;
-
-extern VOID* pSingleUserData; // single player mode. a local copy...
-extern DWORD userDataSize;
-
-extern VOID* lpPermDescription; // description data store.
-extern UDWORD descriptionSize;
 
 // ////////////////////////////////////////////////////////////////////////
 // Prototypes
-BOOL NETinit(GUID g, BOOL bFirstCall);
+BOOL NETinit(BOOL bFirstCall);
 HRESULT NETshutdown(VOID);
 UDWORD NETgetBytesSent(VOID);
 UDWORD NETgetPacketsSent(VOID);
@@ -51,63 +40,47 @@ UDWORD NETgetRecentPacketsRecvd(VOID);
 BOOL NETsend(NETMSG* msg, NETPLAYERID player, BOOL guarantee);
 BOOL NETbcast(NETMSG* msg, BOOL guarantee);
 BOOL NETrecv(NETMSG* msg);
-BOOL NETselectProtocol(LPVOID lpConnection);
-BOOL FAR PASCAL NETfindProtocolCallback(LPCGUID lpguidSP, LPVOID lpConnection, DWORD dwConnectionSize, LPCDPNAME lpName, DWORD dwFlags,
-                                        LPVOID lpContext);
-BOOL NETfindProtocol(BOOL Lob);
 UBYTE NETsendFile(BOOL newFile, CHAR* fileName, NETPLAYERID player);
 UBYTE NETrecvFile(NETMSG* pMsg);
 
 // ////////////////////////////////////////////////////////////////////////
 // setup stuff
-BOOL NETinit(GUID g, BOOL bFirstCall)
+BOOL NETinit(BOOL bFirstCall)
 {
-  HRESULT hr;
-  LPDIRECTPLAYLOBBY glpTEMP; // for setting overrides.
   UDWORD i;
 
   if (bFirstCall)
   {
     Neuron::DebugTrace("NETPLAY: Init called, MORNIN' \n ");
 
-    NetPlay.bLobbyLaunched = FALSE; // clean up 
-    NetPlay.lpDirectPlay4A = nullptr;
-    NetPlay.hPlayerEvent = nullptr;
     NetPlay.dpidPlayer = 0;
     NetPlay.bHost = 0;
     NetPlay.bComms = TRUE;
 
-    NetPlay.bEncryptAllPackets = FALSE;
+    /* The key no longer has any packets to encrypt -- QUIC does that -- but
+     * NETmangleData still obfuscates the stats file with it and NEThashVal
+     * still derives the executable check from it, so it is still seeded.
+     */
     NETsetKey(0x2fe8f810, 0xb72a5, 0x114d0, 0x2a7); // j-random key to get us started
 
     for (i = 0; i < MaxNumberOfPlayers; i++)
-    {
-      ZeroMemory(&NetPlay.protocols[i], sizeof(PROTO));
       ZeroMemory(&NetPlay.players[i], sizeof(PLAYER));
+    for (i = 0; i < MaxGames; i++)
       ZeroMemory(&NetPlay.games[i], sizeof(GAMESTRUCT));
-    }
-    GAME_GUID = g;
-    CoInitialize(nullptr);
 
     NETuseNetwork(TRUE);
     NETstartLogging();
   }
 
-  /* The game is never launched by a DirectPlay lobby any more, so
-   * bLobbyLaunched stays FALSE and this is what used to be the else branch.
-   * glpDPL3 is still wanted: NetProv builds compound addresses through it.
+  /* Brings MsQuic up. There is nothing per-connection here: that happens at
+   * NEThostGame or NETjoinGame, where DirectPlay used to need an interface
+   * created and a service provider chosen first.
    */
-  hr = CreateDirectPlayInterface(&glpDP); // Create an IDirectPlay4 interface
-  if (FAILED(hr))
+  if (!nettrans_Startup())
+  {
+    Neuron::DebugTrace("NETPLAY: transport would not start\n");
     return FALSE;
-
-  hr = DirectPlayLobbyCreate(nullptr, &glpTEMP, nullptr, nullptr, 0); // create lobinterface
-  hr = IDirectPlayLobby_QueryInterface(glpTEMP, // set this up to allowfor service dialog
-                                       IID_IDirectPlayLobby3, // box overrides.
-                                       (LPVOID*)&glpDPL3); // GLPDPL nalso gets set here.
-
-  if (FAILED(hr))
-    return FALSE;
+  }
 
   Neuron::DebugTrace("NETPLAY: init success\n ");
   return TRUE;
@@ -117,34 +90,12 @@ BOOL NETinit(GUID g, BOOL bFirstCall)
 // SHUTDOWN THE CONNECTION.
 HRESULT NETshutdown(VOID)
 {
-  if (NetPlay.dpidPlayer || NetPlay.lpDirectPlay4A)
-  {
-    IDirectPlay_DestroyPlayer(glpDP, NetPlay.dpidPlayer);
-    NetPlay.dpidPlayer = 0;
-  }
-
-  if (userDataSize) // free player data store.
-  {
-    delete[] static_cast<UBYTE*>(pSingleUserData);
-    pSingleUserData = nullptr;
-    userDataSize = 0;
-  }
-
-  if (descriptionSize) // free connection info malloc area
-    freePermMalloc();
-
-  if (glpDPL)
-    IDirectPlayLobby_Release(glpDPL);
-
-  if (glpDP)
-  {
-    IDirectPlayX_Close(glpDP);
-    IDirectPlayX_Release(glpDP);
-  }
+  nettrans_Shutdown();
+  NetPlay.dpidPlayer = 0;
 
   NETstopLogging();
   Neuron::DebugTrace("NETPLAY: shutdown success\n");
-  return (DP_OK);
+  return S_OK;
 }
 
 // ////////////////////////////////////////////////////////////////////////
@@ -219,10 +170,20 @@ UDWORD NETgetPacketsRecvd(VOID)
 UDWORD NETgetRecentPacketsRecvd(VOID) { return nStats.packetsRecvd; }
 
 // ////////////////////////////////////////////////////////////////////////
+// How many bytes of a NETMSG actually travel: the header plus the body it
+// says it is carrying. Was written out longhand at each of the four call
+// sites, twice per send, and got it right every time -- but it is the one
+// number the whole wire format depends on.
+static UDWORD netMsgBytes(const NETMSG* msg)
+{
+  return msg->size + sizeof(msg->size) + sizeof(msg->type) + sizeof(msg->paddedBytes);
+}
+
+// ////////////////////////////////////////////////////////////////////////
 // Send a message to a player, option to guarantee message
 BOOL NETsend(NETMSG* msg, NETPLAYERID player, BOOL guarantee)
 {
-  HRESULT hr;
+  UDWORD size;
 
   NETlogEntry("send", msg->type, msg->size);
 
@@ -232,34 +193,21 @@ BOOL NETsend(NETMSG* msg, NETPLAYERID player, BOOL guarantee)
   if (msg->size > MaxMsgSize)
     Neuron::Fatal("NETPLAY: Message too large passed to NETsend");
 
-  if (NetPlay.bEncryptAllPackets && (msg->type != FILEMSG)) // optionally encrypt all packets.
-    NETmanglePacket(msg);
+  size = netMsgBytes(msg);
 
-  // send it.			
-  if (guarantee == TRUE)
-  {
-    hr = IDirectPlayX_Send(glpDP, NetPlay.dpidPlayer, player, DPSEND_GUARANTEED, msg,
-                           (msg->size + sizeof(msg->size) + sizeof(msg->type)+ sizeof(msg->paddedBytes) ));
-  }
-  else
-  {
-    hr = IDirectPlayX_Send(glpDP, NetPlay.dpidPlayer, player, 0, msg,
-                           (msg->size + sizeof(msg->size) + sizeof(msg->type)+sizeof(msg->paddedBytes) ));
-  }
+  if (!nettrans_Send(player, msg, size, guarantee))
+    return FALSE;
 
-  if (hr != DP_OK) //error!
-    return (FALSE);
-
-  nStats.bytesSent += (msg->size + sizeof(msg->size) + sizeof(msg->type) + sizeof(msg->paddedBytes));
+  nStats.bytesSent += size;
   nStats.packetsSent += 1;
-  return (TRUE);
+  return TRUE;
 }
 
 // ////////////////////////////////////////////////////////////////////////
 // broadcast a message to all players.
 BOOL NETbcast(NETMSG* msg, BOOL guarantee)
 {
-  HRESULT hr;
+  UDWORD size;
 
   NETlogEntry("bcst", msg->type, msg->size);
 
@@ -269,161 +217,58 @@ BOOL NETbcast(NETMSG* msg, BOOL guarantee)
   if (msg->size > MaxMsgSize)
     Neuron::Fatal("NETPLAY: Message Too large passed to NETbcast");
 
-  if (NetPlay.bEncryptAllPackets && (msg->type != FILEMSG)) // optionally encrypt all packets.
-    NETmanglePacket(msg);
+  size = netMsgBytes(msg);
 
-  // send it.			
-  if (guarantee == TRUE)
-  {
-    hr = IDirectPlayX_Send(glpDP, NetPlay.dpidPlayer, DPID_ALLPLAYERS, DPSEND_GUARANTEED, msg,
-                           (msg->size + sizeof(msg->size) + sizeof(msg->type) + sizeof(msg->paddedBytes) ));
-  }
-  else
-  {
-    hr = IDirectPlayX_Send(glpDP, NetPlay.dpidPlayer, DPID_ALLPLAYERS, 0, msg,
-                           (msg->size + sizeof(msg->size)+ sizeof(msg->type) +sizeof(msg->paddedBytes)));
-  }
+  /* As with DPID_ALLPLAYERS, this does not come back to the sender. The game
+   * depends on it: removeFeature broadcasts the destruction and then removes
+   * the feature locally, so a loopback copy would be applied twice.
+   */
+  if (!nettrans_Broadcast(msg, size, guarantee))
+    return FALSE;
 
-  if (hr != DP_OK) //error!
-    return (FALSE);
-
-  nStats.bytesSent += (msg->size + sizeof(msg->size) + sizeof(msg->type) + sizeof(msg->paddedBytes));
+  nStats.bytesSent += size;
   nStats.packetsSent += 1;
-  return (TRUE);
+  return TRUE;
 }
 
 // ////////////////////////////////////////////////////////////////////////
 // receive a message over the current connection
+//
+// Returns FALSE on a transport event as well as on an empty queue, which is
+// what the DPID_SYSMSG branch did: recvMessage loops on this, and a join or a
+// leave stops the loop for that frame rather than being processed alongside
+// ordinary traffic.
 BOOL NETrecv(NETMSG* pMsg)
 {
-  DPID idTo, idFrom; // DirectPlay's type: Receive writes through them
-  HRESULT hr;
-
-  DWORD bufsize = sizeof(NETMSG); // can only be as big as a NETMSG.
+  NETTRANS_EVENT sEvent;
+  NETPLAYERID from;
+  UDWORD size = 0;
 
   if (!NetPlay.bComms)
     return FALSE;
 
-  idFrom = 0;
-  idTo = 0;
-  hr = IDirectPlayX_Receive(glpDP, &idFrom, &idTo, DPRECEIVE_ALL, pMsg, &bufsize);
+  /* Once per call rather than once per frame. The transport needs a pump for
+   * the work that wants a clock rather than a callback, and this is the one
+   * function the game calls unconditionally while a game is running.
+   */
+  nettrans_Update();
 
-  if (hr == DPERR_NOMESSAGES)
-    return (FALSE); // no more messages waiting.
-
-  if (hr != DP_OK)
+  if (nettrans_NextEvent(&sEvent))
   {
-    Neuron::DebugTrace("NETPLAY: failed to recv on NETrecv\n");
-    return (FALSE);
-  }
-
-  nStats.bytesRecvd += bufsize; // note how much came in.
-  nStats.packetsRecvd += 1;
-
-  if (idFrom == DPID_SYSMSG)
-  {
-    NETlogEntry("SYSM", 0, pMsg->size);
-
-    DirectPlaySystemMessageHandler(pMsg); //it's a system message. argh!
-    return FALSE; // return false since it could be important not to keep going..
-  }
-
-  if ((pMsg->type >= ENCRYPTFLAG) && (pMsg->type != FILEMSG)) // decrypt if required..
-    NETunmanglePacket(pMsg);
-  NETlogEntry("recv", pMsg->type, pMsg->size);
-
-  return (TRUE);
-}
-
-// ////////////////////////////////////////////////////////////////////////
-// ////////////////////////////////////////////////////////////////////////
-// Protocol functions
-
-// select a current protocol. Call with a connection returned by findprotocol.
-BOOL NETselectProtocol(LPVOID lpConnection)
-{
-  HRESULT hr;
-
-  hr = IDirectPlayX_InitializeConnection(glpDP, lpConnection, 0); // initialize the connection
-  if (hr == DP_OK)
-  {
-    Neuron::DebugTrace("NETPLAY: Protocol initialised\n");
-    return TRUE;
-  }
-  if (hr == DPERR_ALREADYINITIALIZED)
-  {
-    if (NetPlay.bLobbyLaunched) // lobby shouldn't disconnect in this way.
-    {
-      Neuron::DebugTrace("NETPLAY: attempted a reconnect in a lobby, ignoring since already connected.\n");
-      return TRUE;
-    }
-
-    Neuron::DebugTrace("NETPLAY: Protocol Already Initialised trying restart\n");
-
-    NETshutdown(); // try restart
-    NETinit(GAME_GUID,FALSE);
-    hr = IDirectPlayX_InitializeConnection(glpDP, lpConnection, 0); // initialize the connection
-    if (hr == DP_OK)
-    {
-      Neuron::DebugTrace("NETPLAY: protocol restart OK\n");
-      return TRUE;
-    }
-    Neuron::DebugTrace("NETPLAY: failed to restart protocol \n");
+    NETlogEntry("SYSM", 0, 0);
+    NETeventHandler(&sEvent);
     return FALSE;
   }
-  if (hr == DPERR_INVALIDFLAGS)
-    Neuron::DebugTrace("NETPLAY: Bad Flags.\n");
-  else if (hr == DPERR_INVALIDPARAMS)
-    Neuron::DebugTrace("NETPLAY: Invalid Parameters. for initconnection\n");
 
-  else if (hr == DPERR_UNAVAILABLE)
-    Neuron::DebugTrace("NETPLAY: protocol Unavailable.\n");
-  else
-    Neuron::DebugTrace("NETPLAY:Can't select desired protocol. UNKNOWN ERROR\n");
-  // Couldn't init this connection.
+  if (!nettrans_Receive(pMsg, &size, &from))
+    return FALSE;
 
-  return (FALSE);
-}
+  nStats.bytesRecvd += size;
+  nStats.packetsRecvd += 1;
 
-BOOL FAR PASCAL NETfindProtocolCallback(LPCGUID lpguidSP, LPVOID lpConnection, DWORD dwConnectionSize, LPCDPNAME lpName, DWORD dwFlags,
-                                        LPVOID lpContext)
-{
-  if (protocount >= MaxProtocols)
-  {
-    Neuron::DebugTrace("NETPLAY:Maximum number of protocols exceeded.terminating search\n");
-    return (FALSE);
-  }
+  NETlogEntry("recv", pMsg->type, pMsg->size);
 
-  NetPlay.protocols[protocount].guid = *lpguidSP;
-  NetPlay.protocols[protocount].size = dwConnectionSize;
-
-  strcpy(NetPlay.protocols[protocount].name, (char*)(lpName->lpszShortName));
-  memcpy(&NetPlay.protocols[protocount].connection, lpConnection, dwConnectionSize);
-  protocount = protocount + 1;
-
-  return (TRUE);
-}
-
-// ////////////////////////////////////////////////////////////////////////
-// call with true to enumerate available protocols.
-BOOL NETfindProtocol(BOOL Lob)
-{
-  HRESULT hr;
-
-  protocount = 0;
-  ZeroMemory(NetPlay.protocols, (MaxProtocols*sizeof(PROTO))); // clear the proto list.
-
-  if (Lob == TRUE)
-    hr = IDirectPlayX_EnumConnections(glpDP, &GAME_GUID, NETfindProtocolCallback, NULL, DPCONNECTION_DIRECTPLAYLOBBY);
-  else
-    hr = IDirectPlayX_EnumConnections(glpDP, &GAME_GUID, NETfindProtocolCallback, NULL, 0);
-
-  if (hr != DP_OK)
-  {
-    Neuron::DebugTrace("NETPLAY: Find Protocol failed\n");
-    return (FALSE);
-  }
-  return (TRUE);
+  return TRUE;
 }
 
 // ////////////////////////////////////////////////////////////////////////

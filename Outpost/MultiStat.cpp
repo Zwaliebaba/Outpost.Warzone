@@ -41,6 +41,7 @@ BOOL saveMultiStats(STRING* sFName, STRING* sPlayerName, PLAYERSTATS* plStats);
 BOOL loadMultiStats(STRING* sPlayerName, PLAYERSTATS* plStats);
 PLAYERSTATS getMultiStats(UDWORD player, BOOL bLocal);
 BOOL setMultiStats(DWORD playerDPID, PLAYERSTATS plStats, BOOL bLocal);
+BOOL recvMultiStats(NETMSG* pMsg);
 
 VOID updateMultiStatsDamage(UDWORD attacker, UDWORD defender, UDWORD inflicted);
 VOID updateMultiStatsGames(void);
@@ -493,33 +494,111 @@ BOOL loadForce(char* name)
 // ////////////////////////////////////////////////////////////////////////////
 
 // ////////////////////////////////////////////////////////////////////////////
+// Player stats, and how they get around.
+//
+// DirectPlay replicated a per-player blob: setGlobalPlayerData pushed it to
+// everyone and kept it for players who joined later, and getGlobalPlayerData
+// fetched somebody else's. That went with the transport -- it was the only use
+// of the feature anywhere in the game -- so the blob is now a table each
+// machine keeps for itself and a NET_PLAYERSTATS message keeps them agreeing.
+//
+// The half DirectPlay did for free is the late joiner: a machine that arrives
+// mid-lobby has nobody's stats. MultiPlayerJoin covers it by having everyone
+// already present say theirs again.
+
+using STATENTRY = struct
+{
+  NETPLAYERID dpid;
+  PLAYERSTATS stats;
+};
+
+static STATENTRY aStatTable[MAX_PLAYERS];
+
+static STATENTRY* findStatEntry(NETPLAYERID dpid, BOOL bCreate)
+{
+  UDWORD i;
+
+  for (i = 0; i < MAX_PLAYERS; i++)
+    if (aStatTable[i].dpid == dpid)
+      return &aStatTable[i];
+
+  if (!bCreate)
+    return nullptr;
+
+  for (i = 0; i < MAX_PLAYERS; i++)
+    if (aStatTable[i].dpid == 0)
+    {
+      aStatTable[i].dpid = dpid;
+      memset(&aStatTable[i].stats, 0, sizeof(PLAYERSTATS));
+      return &aStatTable[i];
+    }
+
+  return nullptr;
+}
+
+// ////////////////////////////////////////////////////////////////////////////
 // Get Player's stats
 PLAYERSTATS getMultiStats(UDWORD player, BOOL bLocal)
 {
-  DWORD statSize = sizeof(PLAYERSTATS);
   PLAYERSTATS stat;
-  NETPLAYERID playerDPID;
+  STATENTRY* psEntry;
 
-  playerDPID = player2dpid[player];
+  UNUSEDPARAMETER(bLocal);
 
-  if (bLocal)
-    NETgetLocalPlayerData(playerDPID, &stat, &statSize);
-  else
-    NETgetGlobalPlayerData(playerDPID, &stat, &statSize);
+  memset(&stat, 0, sizeof(stat));
+
+  psEntry = findStatEntry(player2dpid[player], FALSE);
+  if (psEntry != nullptr)
+    stat = psEntry->stats;
 
   return stat;
 }
 
 // ////////////////////////////////////////////////////////////////////////////
 // Set Player's stats
+//
+// bLocal is what it always meant: TRUE keeps the change to this machine, FALSE
+// tells everybody. It used to pick between DirectPlay's two stores; it now
+// picks whether a message goes out.
 BOOL setMultiStats(DWORD dp, PLAYERSTATS plStats, BOOL bLocal)
 {
   NETPLAYERID playerDPID = dp;
+  STATENTRY* psEntry;
+  NETMSG m;
 
-  if (bLocal)
-    NETsetLocalPlayerData(playerDPID, &plStats, sizeof(PLAYERSTATS));
-  else
-    NETsetGlobalPlayerData(playerDPID, &plStats, sizeof(PLAYERSTATS));
+  psEntry = findStatEntry(playerDPID, TRUE);
+  if (psEntry == nullptr)
+    return FALSE;
+
+  psEntry->stats = plStats;
+
+  if (bLocal || !NetPlay.bComms)
+    return TRUE;
+
+  NetAdd(m, 0, playerDPID);
+  NetAdd(m, sizeof(playerDPID), plStats);
+  m.size = sizeof(playerDPID) + sizeof(PLAYERSTATS);
+  m.type = NET_PLAYERSTATS;
+
+  return NETbcast(&m,TRUE);
+}
+
+// ////////////////////////////////////////////////////////////////////////////
+// somebody else's stats have arrived.
+BOOL recvMultiStats(NETMSG* pMsg)
+{
+  NETPLAYERID playerDPID;
+  PLAYERSTATS plStats;
+  STATENTRY* psEntry;
+
+  NetGet(pMsg, 0, playerDPID);
+  NetGet(pMsg, sizeof(playerDPID), plStats);
+
+  psEntry = findStatEntry(playerDPID, TRUE);
+  if (psEntry == nullptr)
+    return FALSE;
+
+  psEntry->stats = plStats;
   return TRUE;
 }
 

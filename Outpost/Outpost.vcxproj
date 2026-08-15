@@ -336,7 +336,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)..\DX9\Lib;$(MSBuildThisFileDirectory)..\NeuronCore;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
-      <AdditionalDependencies>d3d9.lib;dxguid.lib;dsound.lib;dinput8.lib;dplayx.lib;winmm.lib;ole32.lib;wsock32.lib;comdlg32.lib;xaudio2.lib;crypt32.lib;ncrypt.lib;WINSTR.LIB;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d9.lib;dxguid.lib;dsound.lib;dinput8.lib;winmm.lib;ole32.lib;wsock32.lib;comdlg32.lib;xaudio2.lib;crypt32.lib;ncrypt.lib;WINSTR.LIB;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -363,7 +363,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)..\DX9\Lib;$(MSBuildThisFileDirectory)..\NeuronCore;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
-      <AdditionalDependencies>d3d9.lib;dxguid.lib;dsound.lib;dinput8.lib;dplayx.lib;winmm.lib;ole32.lib;wsock32.lib;comdlg32.lib;xaudio2.lib;crypt32.lib;ncrypt.lib;WINSTR.LIB;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d9.lib;dxguid.lib;dsound.lib;dinput8.lib;winmm.lib;ole32.lib;wsock32.lib;comdlg32.lib;xaudio2.lib;crypt32.lib;ncrypt.lib;WINSTR.LIB;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>

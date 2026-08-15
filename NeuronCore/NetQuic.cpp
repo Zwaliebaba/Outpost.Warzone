@@ -138,6 +138,7 @@
 #define	QF_LEFT					4	/* host->clients: u32 id                   */
 #define	QF_DATA					5	/* either way: u32 from, u32 to, payload   */
 #define	QF_REJECT				6	/* host->client: u16 reason                */
+#define	QF_RENAME				7	/* both ways: u32 id, u16 len, name        */
 
 #define	QREJECT_FULL			1
 #define	QREJECT_CLOSED			2
@@ -664,6 +665,31 @@ static void netq_SendJoined(NETPLAYERID id, const char szName[], NETPLAYERID exc
   netq_SendFrameToAll(abFrame, 7 + udwNameLen, TRUE, except);
 }
 
+/* A rename, which travels in both directions: a client tells the host, and the
+ * host tells everyone else. It is not a QF_JOINED with a new name because that
+ * would raise a join event for somebody already playing.
+ */
+static void netq_SendRename(QPEER* psPeer, NETPLAYERID id, const char szName[], BOOL bToAll,
+                            NETPLAYERID except)
+{
+  BYTE abFrame[7 + StringSize];
+  UDWORD udwNameLen;
+
+  udwNameLen = strlen(szName);
+  if (udwNameLen >= StringSize)
+    udwNameLen = StringSize - 1;
+
+  abFrame[0] = QF_RENAME;
+  netq_PutU32(abFrame + 1, id);
+  netq_PutU16(abFrame + 5, static_cast<UWORD>(udwNameLen));
+  memcpy(abFrame + 7, szName, udwNameLen);
+
+  if (bToAll)
+    netq_SendFrameToAll(abFrame, 7 + udwNameLen, TRUE, except);
+  else
+    netq_SendFrameTo(psPeer, abFrame, 7 + udwNameLen, TRUE);
+}
+
 static void netq_SendLeft(NETPLAYERID id)
 {
   BYTE abFrame[5];
@@ -833,6 +859,46 @@ static BOOL netq_OnLeft(const BYTE* pFrame, UDWORD udwSize)
   return TRUE;
 }
 
+static BOOL netq_OnRename(QPEER* psPeer, const BYTE* pFrame, UDWORD udwSize)
+{
+  NETPLAYERID id;
+  UDWORD udwNameLen;
+  char szName[StringSize];
+
+  if (psPeer->state != QPEER_READY || udwSize < 7)
+    return FALSE;
+
+  id = netq_GetU32(pFrame + 1);
+  udwNameLen = netq_GetU16(pFrame + 5);
+  if (udwNameLen + 7 > udwSize || udwNameLen >= StringSize)
+    return FALSE;
+
+  memcpy(szName, pFrame + 7, udwNameLen);
+  szName[udwNameLen] = '\0';
+
+  /* A client may rename itself and nobody else. The host relays what it
+   * accepts, which is the same authority it has over QF_DATA.
+   */
+  if (g_bHost)
+  {
+    if (id != psPeer->id)
+      return FALSE;
+
+    if (netq_FindPlayer(id) == nullptr)
+      return FALSE;
+
+    netq_AddPlayer(id, szName);
+    netq_SendRename(nullptr, id, szName, TRUE, id);
+    return TRUE;
+  }
+
+  if (netq_FindPlayer(id) == nullptr)
+    return TRUE;	/* somebody we have not been told about yet */
+
+  netq_AddPlayer(id, szName);
+  return TRUE;
+}
+
 static BOOL netq_OnData(QPEER* psPeer, const BYTE* pFrame, UDWORD udwSize, BOOL bReliable)
 {
   NETPLAYERID from, to;
@@ -917,6 +983,7 @@ static BOOL netq_OnFrame(QPEER* psPeer, const BYTE* pFrame, UDWORD udwSize, BOOL
   case QF_LEFT: bOk = netq_OnLeft(pFrame, udwSize); break;
   case QF_DATA: bOk = netq_OnData(psPeer, pFrame, udwSize, bReliable); break;
   case QF_REJECT: bOk = netq_OnReject(pFrame, udwSize); break;
+  case QF_RENAME: bOk = netq_OnRename(psPeer, pFrame, udwSize); break;
   default: bOk = FALSE; break;
   }
 
@@ -1913,6 +1980,68 @@ BOOL nettrans_PlayerName(NETPLAYERID player, char szName[], UDWORD udwSize)
   LeaveCriticalSection(&g_csNet);
 
   return bFound;
+}
+
+UDWORD nettrans_PlayerList(NETPLAYERID paPlayers[], UDWORD udwMax)
+{
+  UDWORD udwCount = 0;
+  int i;
+
+  if (paPlayers == nullptr)
+    return 0;
+
+  EnterCriticalSection(&g_csNet);
+
+  /* In id order, which is join order, so the host comes first and the roster
+   * does not shuffle under the game when somebody leaves.
+   */
+  for (i = 0; i < MaxNumberOfPlayers && udwCount < udwMax; i++)
+    if (g_aPlayers[i].bUsed)
+      paPlayers[udwCount++] = g_aPlayers[i].id;
+
+  for (UDWORD a = 0; a + 1 < udwCount; a++)
+    for (UDWORD b = 0; b + 1 < udwCount - a; b++)
+      if (paPlayers[b] > paPlayers[b + 1])
+      {
+        NETPLAYERID swap = paPlayers[b];
+        paPlayers[b] = paPlayers[b + 1];
+        paPlayers[b + 1] = swap;
+      }
+
+  LeaveCriticalSection(&g_csNet);
+
+  return udwCount;
+}
+
+/* The host is the first id assigned and ids are never reused within a session,
+ * so this needs nothing kept for it.
+ */
+BOOL nettrans_IsHostPlayer(NETPLAYERID player) { return player == NETQ_ID_HOST ? TRUE : FALSE; }
+
+BOOL nettrans_SetLocalName(const char szName[])
+{
+  if (!g_bInSession || szName == nullptr)
+    return FALSE;
+
+  EnterCriticalSection(&g_csNet);
+
+  strncpy(g_szLocalName, szName, StringSize - 1);
+  g_szLocalName[StringSize - 1] = '\0';
+
+  if (g_localPlayer != NETQ_ID_NONE)
+  {
+    netq_AddPlayer(g_localPlayer, g_szLocalName);
+
+    /* The host tells everyone; a client tells the host, which relays. */
+    if (g_bHost)
+      netq_SendRename(nullptr, g_localPlayer, g_szLocalName, TRUE, NETQ_ID_NONE);
+    else if (g_aPeers[0].state == QPEER_READY)
+      netq_SendRename(&g_aPeers[0], g_localPlayer, g_szLocalName, FALSE, NETQ_ID_NONE);
+  }
+
+  LeaveCriticalSection(&g_csNet);
+
+  return TRUE;
 }
 
 BOOL nettrans_CloseToJoiners(void)

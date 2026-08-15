@@ -241,7 +241,7 @@ BOOL MultiPlayerLeave(NETPLAYERID dp)
       audio_QueueTrack(ID_CLAN_EXIT);
   }
 
-  NETplayerInfo(nullptr); // update the player info stuff		
+  NETplayerInfo(); // update the player info stuff		
 
   // fire script callback to reassign skirmish players.
   eventFireCallbackTrigger(CALL_PLAYERLEFT);
@@ -257,6 +257,13 @@ BOOL MultiPlayerJoin(NETPLAYERID dpid)
 
   if (widgGetFromID(psWScreen,IDRET_FORM)) // if ingame.
     audio_QueueTrack(ID_CLAN_ENTER);
+
+  /* The new machine has nobody's stats. DirectPlay kept its replicated
+   * per-player data available to whoever joined later and the transport does
+   * not, so everybody already here says theirs again.
+   */
+  if (dpid != NetPlay.dpidPlayer)
+    setMultiStats(NetPlay.dpidPlayer, getMultiStats(selectedPlayer,TRUE),FALSE);
 
   if (widgGetFromID(psWScreen,MULTIOP_PLAYERS)) // if in multimenu.
   {
@@ -321,7 +328,7 @@ void setupNewPlayer(NETPLAYERID dpid, UDWORD player)
   }
 
   resetMultiVisibility(player); // set visibility flags.
-  NETplayerInfo(nullptr); // update the net info stuff
+  NETplayerInfo(); // update the net info stuff
 
   setMultiStats(player2dpid[player], getMultiStats(player,FALSE),TRUE); // get the players score from the ether.
 
