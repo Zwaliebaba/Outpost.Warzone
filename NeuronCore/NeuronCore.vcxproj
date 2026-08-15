@@ -215,7 +215,6 @@
     <ClCompile Include="Ivi.cpp" />
     <ClCompile Include="Label.cpp" />
     <ClCompile Include="MultiWDG.cpp" />
-    <ClCompile Include="NetAudio.cpp" />
     <ClCompile Include="NetCrypt.cpp" />
     <ClCompile Include="NetJoin.cpp" />
     <ClCompile Include="NetLobby.cpp" />

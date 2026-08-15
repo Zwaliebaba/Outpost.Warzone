@@ -387,9 +387,6 @@
     <ClCompile Include="Script_y.cpp">
       <Filter>Script</Filter>
     </ClCompile>
-    <ClCompile Include="NetAudio.cpp">
-      <Filter>NetPlay</Filter>
-    </ClCompile>
     <ClCompile Include="NetCrypt.cpp">
       <Filter>NetPlay</Filter>
     </ClCompile>

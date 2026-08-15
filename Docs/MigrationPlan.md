@@ -37,9 +37,9 @@ Subsystems in use today:
   data is confirmed to be installed to disk.
 - **Video** — `Sequence.cpp` streams `.rpl` movies onto DirectDraw surfaces via
   `WINSTR.LIB`.
-- **Network** — DirectPlay 4 (`NetPlay.cpp`, `NetSupp.cpp`, `NetLobby.cpp`,
-  `NetProv.cpp`, `NetUsers.cpp`, `NetAudio.cpp`), plus Mplayer.com matchmaking
-  (`MPDPXtra.cpp`, `MPlayer.cpp`).
+- **Network** — DirectPlay 4 (`NetPlay.cpp`, `NetJoin.cpp`, `NetSupp.cpp`,
+  `NetLobby.cpp`, `NetProv.cpp`, `NetUsers.cpp`), plus Mplayer.com matchmaking
+  (`MPDPXtra.cpp`, `MPlayer.cpp`). Voice chat has been removed.
 
 ## Ordering: C++ first, then DirectX
 
@@ -283,7 +283,14 @@ deprecated API.
 - **Remove** `dplayx.lib`, `dplay.h`/`dplobby.h`, and rewrite `NetProv.cpp`
   (service provider enumeration) and `NetLobby.cpp` (lobby launch), which are
   DirectPlay-shaped and largely disappear.
-- `NetAudio.cpp` (voice chat) is dropped rather than ported.
+- `NetAudio.cpp` (voice chat) is dropped rather than ported. **Done** — the
+  file, its nine entry points, the `AUDIOMSG` packet type and the three
+  capture flags are gone, which also leaves `Sequence.cpp` as the only
+  remaining DirectSound user.
+
+The step order, what MigrationPlan missed — `NetJoin.cpp` is in scope and
+`NetCrypt.cpp` is not — and the decisions still open are in
+[Phase5Plan.md](Phase5Plan.md). The phase is barely started.
 - The `NetAdd`/`NetGet` message macros and the `NETMSG` layout are unchanged,
   which keeps the blast radius inside the transport.
 

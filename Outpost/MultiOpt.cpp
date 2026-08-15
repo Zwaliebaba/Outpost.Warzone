@@ -483,12 +483,6 @@ BOOL lobbyInitialise(VOID)
 
 BOOL multiInitialise(VOID)
 {
-  // NET AUDIO CAPTURE 
-  NETinitAudioCapture();
-  // Null means NetAudio creates its own IDirectSound. It used to be handed the
-  // one QMixer had made for the game's mixer, which XAudio2 does not provide.
-  NETinitPlaybackBuffer(nullptr);
-
   return TRUE; // use the menus dumbass.
 }
 
@@ -514,8 +508,6 @@ BOOL multiShutdown(VOID)
 {
   FORCE_MEMBER* pF;
 
-  NETshutdownAudioCapture();
-  NETshutdownAudioPlayback();
   NETshutdown(); // shut down netplay lib.
 
   while (Force.pMembers) // clear any force we may have.
