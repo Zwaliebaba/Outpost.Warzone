@@ -848,15 +848,16 @@ translation units from 6,185 lines to 4,573. That is 26% of the layer gone
 before any restructuring, and more than the ~2,400 lines the plan estimated.
 `tools/crosscheck.py` is clean in both configurations at 198/198 units, the
 same count as the pre-change baseline, and `tools/check_case.py` passes.
-**It has not been built with MSVC or run** — no Windows toolchain exists in
-the development container — so the visual checklist in the plan is
-outstanding for the whole stage.
+**Built and linked clean under MSVC**, Debug and Release Win32, by CI on
+[PR #6](https://github.com/Zwaliebaba/Outpost.Warzone/pull/6). **It has not
+been run** — no Windows toolchain exists in the development container — so
+the visual checklist in the plan is outstanding for the whole stage.
 
 **Stage B is done too.** Collapsing the funnels removed a further 933 lines
 against 584 insertions and deleted three translation units — `PieState.cpp`
 folded into `D3DRender.cpp`, `PieTexture.cpp` into `Tex.cpp`, and
-`D3DMode.cpp` into `D3DRender.cpp` — taking `NeuronCore` from 83 units to
-80. The headline is that the renderer no longer keeps the same fact twice:
+`D3DMode.cpp` into `D3DRender.cpp` — taking `NeuronCore` from 78 project
+entries to 75. The headline is that the renderer no longer keeps the same fact twice:
 the translucency state and the texture-page binding each had a second cache
 in the D3D layer, and the second copy is what forced the `g_bStateCacheStale`
 machinery Phase 2 had to add for device reset. Both are single now, owned by
@@ -909,13 +910,17 @@ the end of Phase 6's first half. Treat the cross-check as a fast first pass,
 not a verdict: it is a different compiler, it cannot link, and the section
 above lists what that costs. The CI builds remain the authority.
 
-**Phase 8 stages A and B have not been through MSVC or run.** They are clean
-on the cross-checker in both configurations — 195 units, down from 198 as
-three files were folded away — but that is the weakest of the three signals,
-and every commit in them touches rendering. The visual checklist in
-[Phase8Plan.md](Phase8Plan.md#verification) is outstanding for both stages,
-and stage B especially wants the device-loss path exercised, since collapsing
-the state caches is exactly what that stresses.
+**Phase 8 stages A and B now have a real build.**
+[PR #6](https://github.com/Zwaliebaba/Outpost.Warzone/pull/6) builds and
+links them under MSVC in both Win32 configurations, so the two compiler
+signals agree: the cross-checker is clean at 195 units — down from 198 as
+three files were folded away — and CI is green on the same commit.
+
+**They have still not been run.** That remains the signal that matters for a
+renderer, and the visual checklist in
+[Phase8Plan.md](Phase8Plan.md#verification) is outstanding for both stages.
+Stage B especially wants the device-loss path exercised, since collapsing the
+state caches is exactly what that stresses.
 
 ### What Phase 2 needed beyond the build
 

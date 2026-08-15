@@ -384,10 +384,13 @@ resolution remains separately configured.
 
 **Verification.** Every sub-stage ends with `tools/crosscheck.py` clean in
 both Debug and Release (198/198 units, the same count as the pre-change
-baseline) and `tools/check_case.py` clean. **None of it has been built with
-MSVC or run** — there is no Windows toolchain in this container, and per
-[AGENTS.md §3](../AGENTS.md) that makes the visual checklist below
-outstanding for the whole of Stage A, not merely advisable.
+baseline) and `tools/check_case.py` clean. **It builds and links under MSVC**
+— CI on [PR #6](https://github.com/Zwaliebaba/Outpost.Warzone/pull/6) is
+green for Debug and Release Win32 on the final commit of Stage B, which
+carries Stage A with it. **It has not been run**: there is no Windows
+toolchain in this container, and per [AGENTS.md §3](../AGENTS.md) that makes
+the visual checklist below outstanding for the whole of Stage A, not merely
+advisable.
 
 ### B — Collapse the funnels  *(behaviour-preserving by construction)*
 
@@ -396,8 +399,11 @@ collapse, which is the semantic change, and B1b for the file merge, which is
 mechanical — so that a regression bisects to one or the other. The stage
 removed **933 lines against 584 insertions across 22 files**, and deleted
 three translation units (`PieState.cpp`, `PieTexture.cpp`, `D3DMode.cpp`),
-taking `NeuronCore` from 83 to 80. The layer is now **11 files, 3,885
-lines**, against 14 files and 6,185 at the start of Stage A — 37% gone.
+taking `NeuronCore` from 78 project entries to 75. The layer is now **11
+files, 3,885 lines**, against 14 files and 6,185 at the start of Stage A —
+37% gone. **CI on [PR #6](https://github.com/Zwaliebaba/Outpost.Warzone/pull/6)
+builds and links both stages under MSVC in Debug and Release Win32**, so the
+cross-checker and the real compiler agree; neither stage has been run.
 What the stage turned up is under
 [What Stage B turned up](#what-stage-b-turned-up).
 
