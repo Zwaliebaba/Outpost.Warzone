@@ -297,9 +297,6 @@
     <ClCompile Include="Audio.cpp">
       <Filter>Sound</Filter>
     </ClCompile>
-    <ClCompile Include="Track.cpp">
-      <Filter>Sound</Filter>
-    </ClCompile>
     <ClCompile Include="XA2Track.cpp">
       <Filter>Sound</Filter>
     </ClCompile>

@@ -256,7 +256,6 @@
     <ClCompile Include="TexMan.cpp" />
     <ClCompile Include="TextDraw.cpp" />
     <ClCompile Include="Tip.cpp" />
-    <ClCompile Include="Track.cpp" />
     <ClCompile Include="XA2Track.cpp" />
     <ClCompile Include="Treap.cpp" />
     <ClCompile Include="Trig.cpp" />
