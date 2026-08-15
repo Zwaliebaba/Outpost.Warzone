@@ -23,6 +23,8 @@
 #include <xaudio2.h>
 #include <x3daudio.h>
 
+#include <atomic>
+
 #include "Frame.h"
 #include "TrackLib.h"
 #include "Audio.h"
@@ -146,9 +148,7 @@ static SDWORD g_iListenerX = 0, g_iListenerY = 0, g_iListenerZ = 0;
  * OnStreamEnd on its own audio thread; all that does is set the slot's bit,
  * and sound_Update drains them on the game thread once a frame.
  */
-static CRITICAL_SECTION g_csFinished;
-static BOOL g_bFinishedInit = FALSE;
-static UDWORD g_udwFinishedMask = 0;
+static std::atomic<UDWORD> g_udwFinishedMask = 0;
 
 /***************************************************************************/
 
@@ -164,12 +164,10 @@ public:
 
   void STDMETHODCALLTYPE OnStreamEnd() override
   {
-    if (iSlot < 0 || g_bFinishedInit == FALSE)
+    if (iSlot < 0)
       return;
 
-    EnterCriticalSection(&g_csFinished);
-    g_udwFinishedMask |= 1u << iSlot;
-    LeaveCriticalSection(&g_csFinished);
+    g_udwFinishedMask.fetch_or(1u << iSlot);
   }
 
   void STDMETHODCALLTYPE OnVoiceProcessingPassStart(UINT32) override {}
@@ -406,15 +404,7 @@ static BOOL xa2_SlotIsClear(SDWORD iSlot)
  * hand its pending completion to whatever starts on the slot next, and stop
  * that instead.
  */
-static void xa2_ClearFinished(SDWORD iSlot)
-{
-  if (g_bFinishedInit == FALSE)
-    return;
-
-  EnterCriticalSection(&g_csFinished);
-  g_udwFinishedMask &= ~(1u << iSlot);
-  LeaveCriticalSection(&g_csFinished);
-}
+static void xa2_ClearFinished(SDWORD iSlot) { g_udwFinishedMask.fetch_and(~(1u << iSlot)); }
 
 /***************************************************************************/
 
@@ -810,9 +800,7 @@ BOOL sound_InitLibrary(void)
 
   memset(g_aSlots, 0, sizeof(g_aSlots));
 
-  InitializeCriticalSection(&g_csFinished);
   g_udwFinishedMask = 0;
-  g_bFinishedInit = TRUE;
 
   if (FAILED(XAudio2Create(&g_pXAudio2, 0, XAUDIO2_DEFAULT_PROCESSOR)))
   {
@@ -953,12 +941,7 @@ void sound_ShutdownLibrary(void)
 
   g_bX3DAudio = FALSE;
 
-  if (g_bFinishedInit == TRUE)
-  {
-    g_bFinishedInit = FALSE;
-    g_udwFinishedMask = 0;
-    DeleteCriticalSection(&g_csFinished);
-  }
+  g_udwFinishedMask = 0;
 }
 
 /***************************************************************************/
@@ -1440,10 +1423,7 @@ void sound_Update(void)
   /* Take the completions XAudio2's thread has raised since the last frame.
    * Everything below this line runs on the game thread.
    */
-  EnterCriticalSection(&g_csFinished);
-  udwFinished = g_udwFinishedMask;
-  g_udwFinishedMask = 0;
-  LeaveCriticalSection(&g_csFinished);
+  udwFinished = g_udwFinishedMask.exchange(0);
 
   for (i = 0; i < XA2_MAX_SLOTS; i++)
   {

@@ -33,6 +33,11 @@ using SDWVEC3D = struct SDWVEC3D
 /***************************************************************************/
 /* global variables */
 
+/* Game-thread only. QMixer delivered completion callbacks on its own thread,
+ * which is what the critical section that used to guard these lists was for;
+ * since Phase 4 the backend confines the audio thread to a completion mask it
+ * drains in sound_Update, so everything here runs on one thread.
+ */
 static AUDIO_SAMPLE* g_psSampleList = nullptr;
 static AUDIO_SAMPLE* g_psSampleQueue = nullptr;
 
@@ -43,8 +48,6 @@ static BOOL g_bStopAll = FALSE;
 static AUDIO_SAMPLE g_sPreviousSample = {NO_SAMPLE, SAMPLE_COORD_INVALID, SAMPLE_COORD_INVALID, SAMPLE_COORD_INVALID};
 
 static SDWORD g_i3DVolume = AUDIO_VOL_MAX;
-
-static CRITICAL_SECTION critSecAudio;
 
 /***************************************************************************/
 
@@ -68,8 +71,6 @@ BOOL audio_Init(BOOL bEnabled, AUDIO_CALLBACK pStopTrackCallback)
   {
     sound_SetStoppedCallback(pStopTrackCallback);
 
-    InitializeCriticalSection(&critSecAudio);
-
     return TRUE;
   }
   return FALSE;
@@ -90,8 +91,6 @@ BOOL audio_Shutdown()
 
   bOK = sound_Shutdown();
 
-  EnterCriticalSection(&critSecAudio);
-
   /* empty sample list */
   psSample = g_psSampleList;
   while (psSample != nullptr)
@@ -110,12 +109,8 @@ BOOL audio_Shutdown()
     psSample = psSampleTemp;
   }
 
-  LeaveCriticalSection(&critSecAudio);
-
   g_psSampleList = nullptr;
   g_psSampleQueue = nullptr;
-
-  DeleteCriticalSection(&critSecAudio);
 
   return bOK;
 }
@@ -142,13 +137,11 @@ BOOL audio_GetPreviousQueueTrackPos(SDWORD* iX, SDWORD* iY, SDWORD* iZ)
 
 static void audio_AddSampleToHead(AUDIO_SAMPLE** ppsSampleList, AUDIO_SAMPLE* psSample)
 {
-  EnterCriticalSection(&critSecAudio);
   psSample->psNext = (*ppsSampleList);
   psSample->psPrev = nullptr;
   if ((*ppsSampleList) != nullptr)
     (*ppsSampleList)->psPrev = psSample;
   (*ppsSampleList) = psSample;
-  LeaveCriticalSection(&critSecAudio);
 }
 
 /***************************************************************************/
@@ -156,8 +149,6 @@ static void audio_AddSampleToHead(AUDIO_SAMPLE** ppsSampleList, AUDIO_SAMPLE* ps
 static void audio_AddSampleToTail(AUDIO_SAMPLE** ppsSampleList, AUDIO_SAMPLE* psSample)
 {
   AUDIO_SAMPLE* psSampleTail = nullptr;
-
-  EnterCriticalSection(&critSecAudio);
 
   if ((*ppsSampleList) == nullptr)
     (*ppsSampleList) = psSample;
@@ -169,8 +160,6 @@ static void audio_AddSampleToTail(AUDIO_SAMPLE** ppsSampleList, AUDIO_SAMPLE* ps
     psSample->psPrev = psSampleTail;
     psSample->psNext = nullptr;
   }
-
-  LeaveCriticalSection(&critSecAudio);
 }
 
 /***************************************************************************/
@@ -186,7 +175,6 @@ static void audio_RemoveSample(AUDIO_SAMPLE** ppsSampleList, AUDIO_SAMPLE* psSam
   if (psSample == nullptr)
     return;
 
-  EnterCriticalSection(&critSecAudio);
   if (psSample == (*ppsSampleList))
   {
     /* first sample in list */
@@ -203,8 +191,6 @@ static void audio_RemoveSample(AUDIO_SAMPLE** ppsSampleList, AUDIO_SAMPLE* psSam
   /* set sample pointers NULL for safety */
   psSample->psPrev = nullptr;
   psSample->psNext = nullptr;
-
-  LeaveCriticalSection(&critSecAudio);
 }
 
 /***************************************************************************/
