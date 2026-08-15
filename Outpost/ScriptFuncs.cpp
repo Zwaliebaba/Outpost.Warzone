@@ -42,7 +42,7 @@
 #include "WarzoneConfig.h"
 #include "Lighting.h"
 #include "Atmos.h"
-#include "CDAudio.h"
+#include "Music.h"
 #include "CDSpan.h"
 #include "NetPlay.h"
 #include "MultiPlay.h"
@@ -2689,37 +2689,29 @@ BOOL scrPlayCDAudio(void)
   if (!stackPopParams(1, VAL_INT, &iTrack))
     return FALSE;
 
-#if !defined(I_LIKE_LISTENING_TO_CDS)
-  cdAudio_PlayTrack(iTrack);
-#endif
-  //
+  music_PlayTrack(iTrack);
+
   return TRUE;
 }
 
 // -----------------------------------------------------------------------------------------
 BOOL scrStopCDAudio(void)
 {
-#if !defined(I_LIKE_LISTENING_TO_CDS)
-  cdAudio_Stop();
-#endif
+  music_Stop();
   return TRUE;
 }
 
 // -----------------------------------------------------------------------------------------
 BOOL scrPauseCDAudio(void)
 {
-#if !defined(I_LIKE_LISTENING_TO_CDS)
-  cdAudio_Pause();
-#endif
+  music_Pause();
   return TRUE;
 }
 
 // -----------------------------------------------------------------------------------------
 BOOL scrResumeCDAudio(void)
 {
-#if !defined(I_LIKE_LISTENING_TO_CDS)
-  cdAudio_Resume();
-#endif
+  music_Resume();
   return TRUE;
 }
 

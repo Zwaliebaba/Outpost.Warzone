@@ -16,7 +16,7 @@
 #include "PieState.h"
 #include "HCI.h"//for font
 #include "Audio.h"
-#include "CDAudio.h"
+#include "Music.h"
 #include "Deliverance.h"
 #include "WarzoneConfig.h"
 
@@ -422,7 +422,7 @@ BOOL seq_StartFullScreenVideo(char* videoName, char* audioName)
   //start video mode
   if (loop_GetVideoMode() == 0)
   {
-    cdAudio_Pause();
+    music_Pause();
     loop_SetVideoPlaybackMode();
     iV_SetFont(WFont);
     iV_SetTextColour(-1);

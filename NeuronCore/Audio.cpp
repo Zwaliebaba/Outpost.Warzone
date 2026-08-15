@@ -725,19 +725,84 @@ BOOL audio_PlayStream(char szFileName[], SDWORD iVol, AUDIO_CALLBACK pUserCallba
 
   psSample = new (std::nothrow) AUDIO_SAMPLE;
 
-  if (psSample != nullptr)
-  {
-    memset(psSample, 0, sizeof(AUDIO_SAMPLE));
-    psSample->pCallback = pUserCallback;
-    psSample->bRemove = FALSE;
+  if (psSample == nullptr)
+    return FALSE;
 
-    audio_Set3DVolume(AUDIO_VOL_MAX);
-    if (sound_PlayStream(psSample, szFileName, iVol) == TRUE)
-      return TRUE;
+  memset(psSample, 0, sizeof(AUDIO_SAMPLE));
+  psSample->pCallback = pUserCallback;
+  psSample->bRemove = FALSE;
+
+  audio_Set3DVolume(AUDIO_VOL_MAX);
+
+  if (sound_PlayStream(psSample, szFileName, iVol) == FALSE)
+  {
+    delete psSample;
+    return FALSE;
   }
 
-  return FALSE;
+  /* The sample has to be on the list or nothing ever frees it: the backend
+   * reports the stream finished by setting bRemove, and audio_Update only
+   * looks at samples it can see. It used to be allocated and dropped.
+   */
+  audio_AddSampleToHead(&g_psSampleList, psSample);
+
+  return TRUE;
 }
+
+/***************************************************************************/
+/*
+ * Music, which is what replaces the CD audio. It has its own slot in the
+ * backend and no sample bookkeeping, so these are thin.
+ */
+/***************************************************************************/
+
+BOOL audio_PlayMusic(char szFileName[], SDWORD iVol, BOOL bLoop)
+{
+  if (g_bAudioEnabled == FALSE)
+    return FALSE;
+
+  return sound_PlayMusic(szFileName, iVol, bLoop);
+}
+
+/***************************************************************************/
+
+void audio_StopMusic(void)
+{
+  if (g_bAudioEnabled == TRUE)
+    sound_StopMusic();
+}
+
+/***************************************************************************/
+
+void audio_PauseMusic(void)
+{
+  if (g_bAudioEnabled == TRUE)
+    sound_PauseMusic();
+}
+
+/***************************************************************************/
+
+void audio_ResumeMusic(void)
+{
+  if (g_bAudioEnabled == TRUE)
+    sound_ResumeMusic();
+}
+
+/***************************************************************************/
+
+SDWORD audio_GetFXVolume(void) { return sound_GetGlobalVolume(); }
+
+/***************************************************************************/
+
+void audio_SetFXVolume(SDWORD iVol) { sound_SetGlobalVolume(iVol); }
+
+/***************************************************************************/
+
+SDWORD audio_GetMusicVolume(void) { return sound_GetMusicVolume(); }
+
+/***************************************************************************/
+
+void audio_SetMusicVolume(SDWORD iVol) { sound_SetMusicVolume(iVol); }
 
 /***************************************************************************/
 

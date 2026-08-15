@@ -39,6 +39,22 @@ void sound_StopAll(void);
 
 int sound_GetMaxVolume(void);
 
+/* Music, which is what replaces the CD. It has a slot of its own, so a
+ * briefing playing on the stream slot neither stops it nor un-pauses it, and
+ * it takes no AUDIO_SAMPLE because nothing above waits on it finishing.
+ */
+BOOL sound_PlayMusic(char szFileName[], SDWORD iVol, BOOL bLoop);
+void sound_StopMusic(void);
+void sound_PauseMusic(void);
+void sound_ResumeMusic(void);
+
+/* The two volume sliders. Both used to be lines on the Windows mixer, which
+ * meant moving the whole system's volume; they are the XAudio2 graph now --
+ * the master volume for one, the music slot's for the other.
+ */
+SDWORD sound_GetMusicVolume(void);
+void sound_SetMusicVolume(SDWORD iVol);
+
 BOOL sound_QueueSamplePlaying(void);
 
 void sound_SetPlayerPos(SDWORD iX, SDWORD iY, SDWORD iZ);

@@ -47,7 +47,7 @@
 #include "IntImage.h"
 #include "resource.h"
 #include "SeqDisp.h"
-#include "CDAudio.h"
+#include "Music.h"
 #include "Mission.h"
 #include "WarCAM.h"
 #include "Lighting.h"
@@ -59,7 +59,6 @@
 #include "FPath.h"
 #include "ScriptExtern.h"
 #include "Cluster.h"
-#include "Mixer.h"
 #include "CmdDroid.h"
 #include "KeyBind.h"
 #include "Wrappers.h"
@@ -782,8 +781,8 @@ GAMECODE videoLoop(void)
   if ((keyPressed(KEY_ESC) || bQuitVideo) && !seq_AnySeqLeft())
   {
     /* zero volume before video quit - restore later */
-    g_iGlobalVol = sound_GetGlobalVolume();
-    mixer_SetWavVolume(0);
+    g_iGlobalVol = audio_GetFXVolume();
+    audio_SetFXVolume(0);
     bVolKilled = TRUE;
   }
 
@@ -883,7 +882,7 @@ GAMECODE videoLoop(void)
 
   /* restore volume after video quit */
   if (bVolKilled == TRUE)
-    mixer_SetWavVolume(g_iGlobalVol);
+    audio_SetFXVolume(g_iGlobalVol);
 
   return GAMECODE_CONTINUE;
 }
@@ -908,7 +907,7 @@ void loop_ClearVideoPlaybackMode(void)
   paused = FALSE;
   video = FALSE;
   gameTimeStart();
-  cdAudio_Resume();
+  music_Resume();
   DEBUG_ASSERT_TEXT(videoMode == 0, "loop_ClearVideoPlaybackMode: out of sync.");
 }
 

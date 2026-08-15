@@ -25,38 +25,7 @@ static SDWORD g_iMaxSameSamples;
 /* flag set when system is active (for callbacks etc) */
 static BOOL g_bSystemActive = FALSE;
 
-static BOOL g_bDevVolume = FALSE;
-
 static AUDIO_CALLBACK g_pStopTrackCallback = nullptr;
-
-/***************************************************************************/
-
-BOOL sound_CheckDevice(void)
-{
-  WAVEOUTCAPS waveCaps;
-  MMRESULT mmRes;
-
-  /* check wave out device(s) present */
-  if (waveOutGetNumDevs() == 0)
-  {
-    Neuron::DebugTrace("sound_CheckDevice: error in waveOutGetNumDevs\n");
-    return FALSE;
-  }
-
-  /* default to using first device: check volume control caps */
-  mmRes = waveOutGetDevCaps(0, &waveCaps, sizeof(WAVEOUTCAPS));
-  if (mmRes != MMSYSERR_NOERROR)
-  {
-    Neuron::DebugTrace("sound_CheckDevice: error in waveOutGetDevCaps\n");
-    return FALSE;
-  }
-
-  /* verify device supports volume changes */
-  if (waveCaps.dwSupport & WAVECAPS_VOLUME)
-    return TRUE;
-  Neuron::DebugTrace("sound_CheckDevice: wave out device doesn't support volume changes\n");
-  return FALSE;
-}
 
 /***************************************************************************/
 
@@ -68,8 +37,6 @@ BOOL sound_Init(HWND hWnd, SDWORD iMaxSameSamples)
   g_iMaxSameSamples = iMaxSameSamples;
 
   g_iCurTracks = 0;
-
-  g_bDevVolume = sound_CheckDevice();
 
   if (sound_InitLibrary() == FALSE)
   {
@@ -376,14 +343,6 @@ void sound_StopTrack(AUDIO_SAMPLE* psSample)
 
 /***************************************************************************/
 
-void sound_PauseTrack(AUDIO_SAMPLE* psSample)
-{
-  if (psSample->iSample != SAMPLE_NOT_ALLOCATED)
-    sound_StopSample(psSample->iSample);
-}
-
-/***************************************************************************/
-
 void sound_FinishedCallback(AUDIO_SAMPLE* psSample)
 {
   sound_CheckSample(psSample);
@@ -435,44 +394,6 @@ SDWORD sound_GetAvailableID(void)
   if (i < MAX_TRACKS)
     return i;
   return SAMPLE_NOT_ALLOCATED;
-}
-
-/***************************************************************************/
-
-SDWORD sound_GetGlobalVolume(void)
-{
-  MMRESULT mmRes;
-  SDWORD iVol;
-  SDWORD iGlobVol = AUDIO_VOL_MAX;
-
-  if (g_bDevVolume == TRUE)
-  {
-    mmRes = waveOutGetVolume(nullptr, (LPDWORD)&iVol);
-    if (mmRes == MMSYSERR_NOERROR)
-      iGlobVol = static_cast<SDWORD>(LOWORD(iVol)) * AUDIO_VOL_MAX / 0xFFFF;
-    else
-      Neuron::DebugTrace("sound_GetGlobalVolume: waveOutGetVolume failed\n");
-  }
-
-  return iGlobVol;
-}
-
-/***************************************************************************/
-
-void sound_SetGlobalVolume(SDWORD iVol)
-{
-  MMRESULT mmRes;
-  SDWORD iNewVol, iWinVol;
-
-  if (g_bDevVolume == TRUE)
-  {
-    iWinVol = iVol * 0xFFFF / AUDIO_VOL_MAX;
-    iNewVol = (iWinVol << 16) | iWinVol;
-
-    mmRes = waveOutSetVolume(nullptr, iNewVol);
-    if (mmRes != MMSYSERR_NOERROR)
-      Neuron::DebugTrace("sound_GetGlobalVolume: waveOutSetVolume failed\n");
-  }
 }
 
 /***************************************************************************/

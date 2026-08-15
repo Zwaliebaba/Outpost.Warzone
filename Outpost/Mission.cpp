@@ -58,7 +58,7 @@
 #include "KeyMap.h"
 
 #include "CDSpan.h"
-#include "CDAudio.h"
+#include "Music.h"
 #include "Texture.h"
 extern CURSORSNAP InterfaceSnap;
 //DEFINES**************
@@ -2830,7 +2830,7 @@ static BOOL _intAddMissionResult(BOOL result, BOOL bPlaySuccess)
   memset(&sFormInit, 0, sizeof(W_FORMINIT));
 
   // add some funky beats
-  cdAudio_PlayTrack(2); // 2= frontend music.
+  music_PlayTrack(2); // 2= frontend music.
 
   pie_LoadBackDrop(SCREEN_MISSIONEND,FALSE);
 
@@ -2987,7 +2987,7 @@ void intRemoveMissionResultNoAnim(void)
   widgDelete(psWScreen, IDMISSIONRES_FORM);
   widgDelete(psWScreen, IDMISSIONRES_BACKFORM);
 
-  cdAudio_Stop();
+  music_Stop();
 
   MissionResUp = FALSE;
   ClosingMissionRes = FALSE;

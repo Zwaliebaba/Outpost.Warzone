@@ -129,7 +129,6 @@
     <ClInclude Include="Label.h" />
     <ClInclude Include="ListMacs.h" />
     <ClInclude Include="MaxPiDef.h" />
-    <ClInclude Include="Mixer.h" />
     <ClInclude Include="MultiWDG.h" />
     <ClInclude Include="NetLobby.h" />
     <ClInclude Include="NetPlay.h" />
@@ -154,7 +153,6 @@
     <ClInclude Include="PQueue.h" />
     <ClInclude Include="Priority.h" />
     <ClInclude Include="PtrList.h" />
-    <ClInclude Include="QMIXER.H" />
     <ClInclude Include="RendFunc.h" />
     <ClInclude Include="RendMode.h" />
     <ClInclude Include="ResLY.h" />
@@ -216,7 +214,6 @@
     <ClCompile Include="Interp.cpp" />
     <ClCompile Include="Ivi.cpp" />
     <ClCompile Include="Label.cpp" />
-    <ClCompile Include="Mixer.cpp" />
     <ClCompile Include="MultiWDG.cpp" />
     <ClCompile Include="NetAudio.cpp" />
     <ClCompile Include="NetCrypt.cpp" />
@@ -243,7 +240,6 @@
     <ClCompile Include="PieTexture.cpp" />
     <ClCompile Include="PQueue.cpp" />
     <ClCompile Include="PtrList.cpp" />
-    <ClCompile Include="QSTrack.cpp" />
     <ClCompile Include="RendFunc.cpp" />
     <ClCompile Include="RendMode.cpp" />
     <ClCompile Include="resource_l.cpp" />
@@ -264,6 +260,7 @@
     <ClCompile Include="TextDraw.cpp" />
     <ClCompile Include="Tip.cpp" />
     <ClCompile Include="Track.cpp" />
+    <ClCompile Include="XA2Track.cpp" />
     <ClCompile Include="Treap.cpp" />
     <ClCompile Include="Trig.cpp" />
     <ClCompile Include="WDG.cpp" />

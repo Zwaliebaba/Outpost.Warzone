@@ -13,7 +13,7 @@
 #include "HCI.h"
 #include "IntDisplay.h"
 #include "Audio.h"
-#include "CDAudio.h"
+#include "Music.h"
 #include "CDSpan.h"
 
 // turn on/off checks
@@ -153,22 +153,17 @@ BOOL cdspan_GetCDLetter(STRING szDriveName[], CD_INDEX index)
 
 // -----------------------------------------------------------------------
 
+/* The CD branch has gone: this always plays from disk now, which is where
+ * the fallback already looked. It goes to the music slot rather than the
+ * stream one, so the music slider moves it and a briefing does not stop it.
+ */
 void cdspan_PlayInGameAudio(STRING szFileName[], SDWORD iVol)
 {
-  STRING szStream[MAX_STR]; //	szDrive[MAX_STR] = "",
-  BOOL bPlaying = FALSE;
+  STRING szStream[MAX_STR];
 
-  audio_StopAll();
+  wsprintf(szStream, "audio\\%s", szFileName);
 
-  wsprintf(szStream, "%s%s", g_szCurDriveName, szFileName);
-  bPlaying = audio_PlayStream(szStream, iVol, nullptr);
-
-  /* try playing from hard disk */
-  if (bPlaying == FALSE)
-  {
-    wsprintf(szStream, "audio\\%s", szFileName);
-    bPlaying = audio_PlayStream(szStream, iVol, nullptr);
-  }
+  audio_PlayMusic(szStream, iVol, FALSE);
 }
 
 // -----------------------------------------------------------------------
@@ -332,8 +327,8 @@ BOOL showChangeCDBox(W_SCREEN* psCurWScreen, CD_INDEX CDrequired, CDSPAN_CALLBAC
   return TRUE;
 #endif
 
-  /* stop cd audio */
-  cdAudio_Stop();
+  /* stop the music */
+  music_Stop();
 
   /* save callbacks */
   g_fpOKCallback = fpOKCallback;

@@ -89,8 +89,6 @@ BOOL sound_SetTrackVals(TRACK* psTrack, BOOL bLoop, SDWORD iTrack, SDWORD iVol, 
 BOOL sound_ReleaseTrack(TRACK* psTrack);
 
 void sound_StopTrack(AUDIO_SAMPLE* psSample);
-void sound_PauseTrack(AUDIO_SAMPLE* psSample);
-void sound_UpdateSample(AUDIO_SAMPLE* psSample);
 void sound_CheckSample(AUDIO_SAMPLE* psSample);
 void sound_CheckAllUnloaded(void);
 
