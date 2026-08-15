@@ -800,10 +800,22 @@ state caches that `D3DReInit` has to reconcile after a device reset, converts
 configuration (`WAR_REND_MODE`, `-D3D`/`-RGB`/`-REF`, device-name strings, a
 commented-out Software/Glide/OpenGL menu) that selects nothing.
 
+**Stage A is done.** The five sub-stages — the dispatch tables and their
+stubs, the dead draw paths, the renderer-selection configuration, the
+empty-bodied functions, and the iVis surface residue — removed **3,024 lines
+against 85 insertions across 55 files**, taking the fourteen layer
+translation units from 6,185 lines to 4,573. That is 26% of the layer gone
+before any restructuring, and more than the ~2,400 lines the plan estimated.
+`tools/crosscheck.py` is clean in both configurations at 198/198 units, the
+same count as the pre-change baseline, and `tools/check_case.py` passes.
+**It has not been built with MSVC or run** — no Windows toolchain exists in
+the development container — so the visual checklist in the plan is
+outstanding for the whole stage.
+
 The measured inventory, the dead-code evidence, the target module layout and
 the staged execution are in [Phase8Plan.md](Phase8Plan.md). The short version:
-14 translation units and 6,185 lines make up the layer; ~2,400 lines are
-provably dead and go first, behaviour-preserving; the live remainder collapses
+14 translation units and 6,185 lines make up the layer; ~2,400 lines were
+estimated provably dead and went first, behaviour-preserving; the live remainder collapses
 into a renderer that calls the device directly — `Render` (state + one vertex
 funnel, from `D3DRender.cpp` + `PieState.cpp`), `RenderModel`, `Render2D`,
 `TexMan` (absorbing `Tex.cpp`), with the fixed-point matrix stack, the

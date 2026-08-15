@@ -59,7 +59,7 @@ whole class.
 
 | | |
 |---|---|
-| Layer translation units | 14 `.cpp`, 6,185 lines (table below) |
+| Layer translation units | 14 `.cpp`, 6,185 lines (table below) — **4,573 after Stage A** |
 | Layer headers | 17, ~1,670 lines |
 | Game TUs referencing `pie_*`/`iV_*` | 51 of 121 in `Outpost/` |
 | Engine TUs referencing them | 31 of 85 in `NeuronCore/` |
@@ -69,20 +69,20 @@ whole class.
 
 | File | Lines | What it is | Verdict |
 |---|---|---|---|
-| `PieMode.cpp` | 211 | Init: picks between three "modes" that run identical code; a divide table nothing reads; no-op begin/end wrappers | Collapse into renderer init |
-| `D3DMode.cpp` | 221 | Nine `_dummyFunc*_D3D` no-ops, empty vsync/palette/`SetTransFilter_D3D`/`TransBoxFill_D3D`, the RGB/HAL/REF trio | Delete; fold `_mode_D3D` into init |
-| `RendMode.cpp` | 293 | "Video memory" allocator with no callers, `iSurface` create/destroy, the function-pointer dispatch tables | Delete (audit the two `iSurface` users first) |
-| `RendFunc.cpp` | 194 | Transparency tables built by a function nothing calls; mouse-pointer bookkeeping | Fold the two live functions, delete the rest |
-| `PieState.cpp` | 628 | State cache #1; dead driver-name strings, engine enum, caps, no-op gamma, mouse, swirly-box flags | Merge with `D3DRender.cpp` into one state module |
-| `PieDraw.cpp` | 1,179 | **Live:** `pie_Draw3DShape`, image quads, line/rect, the poly funnel. **Dead:** a second `#if _MSC_VER` copy of `Draw3DShape`, the BSP draw block, `pie_IvisPoly*`, `pie_DrawTriangle`, `pie_DrawFastTriangle` | Rewrite live half; delete dead half |
-| `PieFunc.cpp` | 565 | **Live:** viewing window, `pie_TransColouredTriangle`, back-buffer image blit, byte-scale table. **Dead:** `pie_Sky`/`pie_Water`/`pie_Blit`/`pie_CornerBox`/`pie_AddFogandMist`/3dfx query | Split |
-| `PieBlitFunc.cpp` | 603 | UI image quads, radar, backdrop load — live, minus no-ops and a duplicate | Becomes the 2D module |
+| `PieMode.cpp` | 211 -> 167 | Init: picks between three "modes" that run identical code; a divide table nothing reads; no-op begin/end wrappers | Collapse into renderer init |
+| `D3DMode.cpp` | 221 -> 74 | Nine `_dummyFunc*_D3D` no-ops, empty vsync/palette/`SetTransFilter_D3D`/`TransBoxFill_D3D`, the RGB/HAL/REF trio | Delete; fold `_mode_D3D` into init |
+| `RendMode.cpp` | 293 -> 24 | "Video memory" allocator with no callers, `iSurface` create/destroy, the function-pointer dispatch tables | Delete (audit the two `iSurface` users first) |
+| `RendFunc.cpp` | 194 -> 39 | Transparency tables built by a function nothing calls; mouse-pointer bookkeeping | Fold the two live functions, delete the rest |
+| `PieState.cpp` | 628 -> 544 | State cache #1; dead driver-name strings, engine enum, caps, no-op gamma, mouse, swirly-box flags | Merge with `D3DRender.cpp` into one state module |
+| `PieDraw.cpp` | 1,179 -> 663 | **Live:** `pie_Draw3DShape`, image quads, line/rect, the poly funnel. **Dead:** a second `#if _MSC_VER` copy of `Draw3DShape`, the BSP draw block, `pie_IvisPoly*`, `pie_DrawTriangle`, `pie_DrawFastTriangle` | Rewrite live half; delete dead half |
+| `PieFunc.cpp` | 565 -> 186 | **Live:** viewing window, `pie_TransColouredTriangle`, back-buffer image blit, byte-scale table. **Dead:** `pie_Sky`/`pie_Water`/`pie_Blit`/`pie_CornerBox`/`pie_AddFogandMist`/3dfx query | Split |
+| `PieBlitFunc.cpp` | 603 -> 591 | UI image quads, radar, backdrop load — live, minus no-ops and a duplicate | Becomes the 2D module |
 | `PieClip.cpp` | 1,071 | Software polygon/line clipping (live), screen-size globals | Keep for now; retirement is stage D |
 | `PieMatrix.cpp` | 396 | Fixed-point matrix stack, rotate/project — live, also used by game logic | Keep as is (rename only) |
 | `PiePalette.cpp` | 316 | Palette, shade tables, nearest-colour — live, the assets are palettised | Keep |
 | `PieTexture.cpp` | 54 | Two one-line wrappers around `dtm_*` | Fold into `TexMan` |
-| `Tex.cpp` | 364 | Texture-page name/bookkeeping table mirroring `TexMan`'s pages | Merge into `TexMan` |
-| `Ivi.cpp` | 90 | Legacy error/abort/shutdown plumbing | Delete; fold shutdown |
+| `Tex.cpp` | 364 -> 360 | Texture-page name/bookkeeping table mirroring `TexMan`'s pages | Merge into `TexMan` |
+| `Ivi.cpp` | 90 -> 88 | Legacy error/abort/shutdown plumbing | Delete; fold shutdown |
 | `D3DRender.cpp` | 582 | The real device path: states, `DrawPrimitiveUP`, reset handling | **Nucleus of the new renderer** |
 | `TexMan.cpp` | 351 | The real texture pages (managed pool, `A8R8G8B8`) | Stays |
 | `Screen.cpp` | 1,190 | Device, present, back-buffer lock, backdrop | Stays |
@@ -251,7 +251,15 @@ every stage, since all of them touch rendering — **run**, not just built:
 Verification. Stages are ordered so that each is independently shippable and
 the diffs stay reviewable.
 
-### A — Remove what is provably dead  *(behaviour-preserving, ~2,400 lines)*
+### A — Remove what is provably dead  *(behaviour-preserving)*
+
+**Status: done**, in five commits, one per sub-stage. The estimate was
+"roughly 2,400 lines"; the measured result is **3,024 deletions against 85
+insertions across 55 files**, and the fourteen layer translation units drop
+from 6,185 lines to 4,573 — 26% of the layer, before any restructuring.
+`RendMode.cpp` is the extreme case, 293 lines down to 24. What the stage
+turned up that this plan did not predict is recorded
+[below](#what-stage-a-turned-up).
 
 - **A1. Dispatch tables and dummies.** Delete the function-pointer tables
   from `RendMode.cpp`/`RendFunc.cpp`, all `_dummyFunc*_D3D`, `_vsync_D3D`,
@@ -297,6 +305,66 @@ one behavioural question (A5) gets its own audit. Mouse-pointer plumbing
 (`pie_SetMouse` is called ten times; nothing reads the stored ID back)
 belongs in this audit too — establish how the pointer actually draws before
 deleting the bookkeeping.
+
+#### What Stage A turned up
+
+Seven things this plan did not have right, or did not know:
+
+1. **`renderSky` moved from A2 into A1.** It is the only caller of
+   `iV_UniBitmapDepth`, one of the never-assigned function pointers, so it
+   could not outlive A1's deletion of that pointer. It had no caller of its
+   own, so it could only ever have jumped through null.
+2. **`drawTexturedTile` and `drawMapTile2` are dead for different reasons**,
+   and only one of them is a no-op. `drawTexturedTile` issues real draws
+   (`pie_DrawTile`, `iV_Line`) but is unreachable, because `Display3D.cpp`
+   includes `Bucket3D.h` and `BUCKET` is therefore always defined.
+   `drawMapTile2` is reachable — from the live intelligence-screen map
+   render — but every draw it issues is a no-op. Both go; the second needed
+   a side-effect audit to establish, since it sits inside a function whose
+   other calls do draw.
+3. **The `SetBSP*` setters had live call sites in five files**, which the
+   "zero call sites" framing above missed. They write statics nothing reads,
+   so the calls went too, taking `CalcBSPCameraPos`, `GetRealCameraPos` and
+   `GetCameraDistance` with them.
+4. **`d3dFog` was nested inside the dead `renderMode` branch** of
+   `loadRenderMode`. It is live configuration and had to be lifted out
+   rather than deleted with its enclosing block — the one place in A3 where
+   dead and live were genuinely interleaved.
+5. **The gamma feature is inert but user-facing.** `pie_SetGammaValue`'s
+   body was `pieStateCount++`, so the slider and its two key bindings have
+   done nothing since Phase 2 dropped the DirectDraw gamma ramp. A4 removed
+   the no-op and its six call sites but deliberately kept the value, its
+   registry key and the keys that change it: removing a user-facing binding
+   is a decision about the feature, not dead-code removal. **Left open:**
+   implement it against `SetGammaRamp`, or drop it by owner decision.
+6. **`iV_GetMouseFrame` had to be kept.** The rest of the cursor cluster is
+   dead, but this one backs the `EXTID_CURSOR` script variable, and script
+   bindings are compiled into shipped `.slo` files where an unknown name is
+   a load failure — the trap Phase 6 documented for `playCDAudio`. It has
+   returned zero for as long as `iV_SetMousePointer` has had no callers, and
+   still does.
+7. **`releaseMapSurface` freed with `delete[]` memory that
+   `iV_SurfaceCreate` had obtained from `malloc`.** A latent defect, retired
+   by deleting both.
+
+Two things were left alone on purpose. The commented-out **graphics**
+options menu shares a comment block with the video options menu A3 deleted,
+but it configures fog and translucency, which are live settings, so it is
+not this phase's to remove. And `loadRenderMode` contains the **`resolution`
+block twice, verbatim** — pre-existing, idempotent, and nothing to do with
+renderer selection; noted rather than fixed as a drive-by.
+
+One incidental behaviour change: `-D3D`, `-RGB` and `-REF` each forced
+640x480 as a side effect of selecting a renderer, and no longer do. Unknown
+tokens fall through to `else {}`, so an old shortcut still launches;
+resolution remains separately configured.
+
+**Verification.** Every sub-stage ends with `tools/crosscheck.py` clean in
+both Debug and Release (198/198 units, the same count as the pre-change
+baseline) and `tools/check_case.py` clean. **None of it has been built with
+MSVC or run** — there is no Windows toolchain in this container, and per
+[AGENTS.md §3](../AGENTS.md) that makes the visual checklist below
+outstanding for the whole of Stage A, not merely advisable.
 
 ### B — Collapse the funnels  *(behaviour-preserving by construction)*
 
