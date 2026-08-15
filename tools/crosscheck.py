@@ -161,7 +161,7 @@ def check(shadow, rel):
     # NetTest is the console harness, and only it defines this.
     defs = DEFS + (['NEURON_TRACE_TO_STDERR'] if proj == 'NetTest' else [])
     # no -w, so the downgraded diagnostics are still printed
-    cmd = [CXX, '-fsyntax-only', '-std=c++20', '-fpermissive',
+    cmd = [CXX, '-fsyntax-only', '-std=c++23', '-fpermissive',
            '-fms-extensions', '-w', '-Wno-everything'] + \
           [f'-D{d}' for d in defs] + inc + [os.path.join(shadow, rel)]
     r = subprocess.run(cmd, capture_output=True, text=True)

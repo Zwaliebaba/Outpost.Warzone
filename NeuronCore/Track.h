@@ -4,7 +4,11 @@
 #define _TRACK_H_
 
 /***************************************************************************/
-/* defines */
+/* The audio module's legacy wire types and constants. Everything that used
+ * to be declared here besides these moved into Neuron::AudioSystem and
+ * Neuron::AudioMixer in Phase 9; this header and Audio.h survive as the shim
+ * surface until stage F renames the call sites.
+ */
 
 #ifndef MAX_STR
 #define	MAX_STR			255
@@ -17,11 +21,6 @@
 #define	AUDIO_VOL_MIN			0L
 #define	AUDIO_VOL_MAX			100L
 #define	AUDIO_VOL_RANGE			(AUDIO_VOL_MAX-AUDIO_VOL_MIN)
-
-/***************************************************************************/
-
-/***************************************************************************/
-/* enums */
 
 /***************************************************************************/
 /* forward definitions
@@ -46,8 +45,6 @@ using AUDIO_SAMPLE = struct AUDIO_SAMPLE
   BOOL bRemove;
   AUDIO_CALLBACK pCallback;
   void* psObj;
-  struct AUDIO_SAMPLE* psPrev;
-  struct AUDIO_SAMPLE* psNext;
 };
 
 using TRACK = struct TRACK
@@ -59,7 +56,7 @@ using TRACK = struct TRACK
   SDWORD iTime; /* duration in milliseconds */
   UDWORD iTimeLastFinished; /* time last finished in ms */
   BOOL bCompressed; /* compression data flag    */
-  void* pMem; /* pointer to audio data    */
+  void* pMem; /* the decoded Neuron::WavData */
   STRING* pName; // resource name of the track
   UDWORD resID; // hashed name of the WAV
 };
@@ -68,42 +65,11 @@ using TRACK = struct TRACK
 /* functions
  */
 
-BOOL sound_Init();
-BOOL sound_Shutdown();
-
-void* sound_LoadTrackFromBuffer(UBYTE* pBuffer, UDWORD udwSize);
-BOOL sound_SetTrackVals(TRACK* psTrack, BOOL bLoop, SDWORD iTrack, SDWORD iVol, SDWORD iPriority, SDWORD iAudibleRadius);
-BOOL sound_ReleaseTrack(TRACK* psTrack);
-
-void sound_StopTrack(AUDIO_SAMPLE* psSample);
-void sound_CheckSample(AUDIO_SAMPLE* psSample);
-void sound_CheckAllUnloaded(void);
-
-BOOL sound_CheckTrack(SDWORD iTrack);
-
-SDWORD sound_GetTrackAudibleRadius(SDWORD iTrack);
-SDWORD sound_GetTrackVolume(SDWORD iTrack);
+/* Save games round-trip script sound tracks by WAV-name hash (ScriptObj.cpp). */
 UDWORD sound_GetTrackHashName(SDWORD iTrack);
 
-BOOL sound_TrackLooped(SDWORD iTrack);
-SDWORD sound_TrackAudibleRadius(SDWORD iTrack);
-void sound_SetCallbackFunction(void* fn);
-
-BOOL sound_Play2DTrack(AUDIO_SAMPLE* psSample, BOOL bQueued);
-BOOL sound_Play3DTrack(AUDIO_SAMPLE* psSample);
-void sound_FinishedCallback(AUDIO_SAMPLE* psSample);
-
-BOOL sound_GetSystemActive(void);
-SDWORD sound_GetTrackID(TRACK* psTrack);
-SDWORD sound_GetAvailableID(void);
-
-SDWORD sound_GetGlobalVolume(void);
-void sound_SetGlobalVolume(SDWORD iVol);
-
-void sound_SetStoppedCallback(AUDIO_CALLBACK pStopTrackCallback);
-
-UDWORD sound_GetTrackTimeLastFinished(SDWORD iTrack);
-void sound_SetTrackTimeLastFinished(SDWORD iTrack, UDWORD iTime);
+/* Not the audio module's: Outpost/Aud.cpp returns gameTime. */
+UDWORD sound_GetGameTime(void);
 
 /***************************************************************************/
 

@@ -192,6 +192,8 @@
     <ClInclude Include="NeuronCore.h" />
     <ClInclude Include="Aud.h" />
     <ClInclude Include="Audio.h" />
+    <ClInclude Include="AudioMixer.h" />
+    <ClInclude Include="AudioSystem.h" />
     <ClInclude Include="Bar.h" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="CodePrint.h" />
@@ -209,7 +211,7 @@
     <ClInclude Include="Stack.h" />
     <ClInclude Include="Tip.h" />
     <ClInclude Include="Track.h" />
-    <ClInclude Include="TrackLib.h" />
+    <ClInclude Include="WavData.h" />
     <ClInclude Include="WidgBase.h" />
     <ClInclude Include="Widget.h" />
     <ClInclude Include="WidgInt.h" />
@@ -287,10 +289,13 @@
     <ClCompile Include="Widget.cpp">
       <Filter>Widget</Filter>
     </ClCompile>
-    <ClCompile Include="Audio.cpp">
+    <ClCompile Include="AudioMixer.cpp">
       <Filter>Sound</Filter>
     </ClCompile>
-    <ClCompile Include="XA2Track.cpp">
+    <ClCompile Include="AudioSystem.cpp">
+      <Filter>Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="WavData.cpp">
       <Filter>Sound</Filter>
     </ClCompile>
     <ClCompile Include="Sequence.cpp">
