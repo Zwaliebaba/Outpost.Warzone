@@ -19,7 +19,7 @@ part of this document worth reading first.
 | `NeuronCore/NetJoin.cpp` | 401 | 42 | rewrite — host, join, find, close, game flags |
 | `NeuronCore/NetProv.cpp` | 269 | 17 | mostly deleted — IPX, serial and modem addresses |
 | `NeuronCore/NetSupp.cpp` | 268 | 30 | rewrite — logging and support |
-| `NeuronCore/NetCrypt.cpp` | 265 | **0** | **untouched** — sits above the transport |
+| `NeuronCore/NetCrypt.cpp` | 265 | **0** | mostly **stays** — only its packet half is QUIC's to replace |
 | `NeuronCore/NetUsers.cpp` | 257 | 29 | rewrite — players, names, player data |
 | `NeuronCore/NetLobby.cpp` | 245 | 38 | delete — DirectPlay lobby launch |
 | `NeuronCore/NetPlay.h` | 217 | — | the interface; embeds DirectPlay types |
@@ -189,10 +189,29 @@ UDP broadcast**, and the session and player layer above the connections.
    branch is deleted rather than reimplemented.
 7. **Player data — replication is dropped.** `NETget/setLocal/GlobalPlayerData`
    go, and `MultiStat.cpp` broadcasts its `PLAYERSTATS` as an ordinary message.
-8. **Encryption — `NetCrypt.cpp` goes after all.** This reverses what the table
-   above says. QUIC encrypts every byte, so a hand-rolled packet mangler on top
-   is redundant; `bEncryptAllPackets` is already `FALSE` and nothing sets it,
-   so it is currently dead code protecting nothing.
+8. **Encryption — `NetCrypt.cpp` stays, and only its packet half goes, at the
+   swap.** This decision was made twice and got it wrong both times; the file
+   as it stands is the third answer and the correct one.
+
+   The claim that `bEncryptAllPackets` is never set was wrong — it was grepped
+   in `NetPlay.cpp` alone. `MultiOpt.cpp` sets it `TRUE` once the game starts
+   and `FALSE` on the way back to the menu, and `MultiPlay.cpp` suspends it
+   around chat. Packet encryption is **live in every multiplayer game**, so
+   removing it before QUIC exists would put game traffic in clear in the
+   interim.
+
+   And `NetCrypt.cpp` is not only packet encryption. It provides four things
+   and QUIC supersedes exactly one:
+
+   | | |
+   |---|---|
+   | `NETmanglePacket` / `NETunmanglePacket` | the wire — QUIC replaces this, at the swap |
+   | `NETmangleData` / `NETunmangleData` | obfuscates the `.sta` player-stats file on disk |
+   | `NEThashFile` / `NEThashVal` | hashes the executable; players compare it at join to catch a mismatched binary |
+   | `NEThashBuffer` | backs `Data.cpp`'s cheat hashing over loaded data files |
+
+   Three of those four have nothing to do with networking. Deleting the file
+   would have broken stats loading, the version check and the cheat hash.
 
 ### What was verified rather than assumed
 
@@ -231,13 +250,18 @@ project.
 2. **Delete Mplayer** — `MPDPXtra.cpp`/`.h`, `MPlayer.cpp`, `Mplayer.lib`.
 3. **Delete the dead address paths** — IPX, serial, modem in `NetProv.cpp`.
 4. **Delete lobby launch** — `NetLobby.cpp` and the `bLobbyLaunched` branches.
-5. **Delete `NetCrypt.cpp`** — superseded by QUIC, and already inert.
-6. **Define the transport interface**, with no DirectPlay in it.
-7. **Retire `DPID`** across its 113 sites.
-8. **Add MsQuic**, write the transport and the loopback harness together.
-9. **Swap over and delete `dplayx.lib`, `dplay.h`, `dplobby.h`.**
+5. **Define the transport interface**, with no DirectPlay in it.
+6. **Retire `DPID`** across its 113 sites.
+7. **Add MsQuic**, write the transport and the loopback harness together.
+8. **Swap over**: delete `dplayx.lib`, `dplay.h`, `dplobby.h`, the connection
+   screen's modem and serial paths, and `NETmanglePacket` — everything that has
+   a QUIC replacement only once the replacement is actually there.
 
 ## Progress
 
-**Step 1 is done** — voice chat is gone. Steps 2 to 5 are deletions and can
-proceed without further input. Step 8 is the project.
+**Steps 1 to 4 are done** — voice chat, Mplayer, the DirectPlay lobby and the
+dead IPX address setup are gone, about 2,600 lines. Two things the plan got
+wrong turned up while doing them, and both are recorded above rather than
+quietly fixed: the modem and serial address paths are not independently
+removable because the connection screen still lists them, and `NetCrypt.cpp`
+is neither dead nor purely networking. Step 7 is the project.
