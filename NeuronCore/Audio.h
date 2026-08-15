@@ -9,9 +9,11 @@
 
 /***************************************************************************/
 
-extern BOOL audio_Init(BOOL bEnabled, AUDIO_CALLBACK pStopTrackCallback);
+/* Init and Shutdown have no shim: their one caller, Outpost/Init.cpp, calls
+ * Neuron::AudioSystem directly and supplies the AudioWorld provider from
+ * GameAudio.h.
+ */
 extern BOOL audio_Update();
-extern BOOL audio_Shutdown();
 extern BOOL audio_Disabled(void);
 
 extern void* audio_LoadTrackFromBuffer(UBYTE* pBuffer, UDWORD udwSize);

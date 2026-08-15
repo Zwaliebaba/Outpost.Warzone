@@ -27,7 +27,7 @@
 
 #include "Frame.h"
 #include "Priority.h"
-#include "Aud.h"
+#include "Audio.h"
 #include "AudioSystem.h"
 #include "AudioMixer.h"
 
@@ -75,6 +75,11 @@ bool g_active = false;
  * passes a plain function pointer today.
  */
 std::move_only_function<BOOL(AUDIO_SAMPLE*)> g_stoppedCallback;
+
+/* The game's view of the world - object positions and liveness, the
+ * listener, name-to-ID resolution and the game clock. Populated by Init.
+ */
+AudioWorld g_world;
 
 /***************************************************************************/
 
@@ -276,7 +281,7 @@ bool Play3DTrack(std::int32_t _x, std::int32_t _y, std::int32_t _z, std::int32_t
 /* lifecycle */
 /***************************************************************************/
 
-bool AudioSystem::Init(bool _enabled, AUDIO_CALLBACK _stoppedCallback)
+bool AudioSystem::Init(bool _enabled, AUDIO_CALLBACK _stoppedCallback, AudioWorld _world)
 {
   /* if audio not enabled return true to carry on game without audio */
   if (_enabled == false)
@@ -284,6 +289,10 @@ bool AudioSystem::Init(bool _enabled, AUDIO_CALLBACK _stoppedCallback)
     g_enabled = false;
     return true;
   }
+
+  DEBUG_ASSERT_TEXT(_world.objectDead && _world.objectPosition && _world.staticPosition && _world.listenerPose &&
+                      _world.trackIdForName && _world.gameTimeMs,
+                    "AudioSystem::Init: the AudioWorld provider is incomplete\n");
 
   g_trackCount = 0;
   std::fill(std::begin(g_tracks), std::end(g_tracks), nullptr);
@@ -298,6 +307,7 @@ bool AudioSystem::Init(bool _enabled, AUDIO_CALLBACK _stoppedCallback)
   g_active = true;
   g_enabled = true;
   g_stoppedCallback = _stoppedCallback;
+  g_world = std::move(_world);
 
   return true;
 }
@@ -346,14 +356,9 @@ bool AudioSystem::Update()
    * the 2D map view
    */
   std::int32_t x, y, z, angle;
-  if (audio_Display3D() == TRUE)
-    audio_Get3DPlayerPos(&x, &y, &z);
-  else
-    audio_Get2DPlayerPos(&x, &y, &z);
+  g_world.listenerPose(x, y, z, angle);
 
   AudioMixer::SetListenerPosition(x, y, z);
-
-  audio_Get3DPlayerRotAboutVerticalAxis(&angle);
   AudioMixer::SetListenerOrientation(angle);
 
   /* sweep finished samples out, and keep the live ones honest: stop a sound
@@ -372,14 +377,14 @@ bool AudioSystem::Update()
 
     if (sample.psObj != nullptr)
     {
-      if (audio_ObjectDead(sample.psObj) || (sample.pCallback != nullptr && sample.pCallback(&sample) == FALSE))
+      if (g_world.objectDead(sample.psObj) || (sample.pCallback != nullptr && sample.pCallback(&sample) == FALSE))
       {
         StopSampleVoice(sample);
         sample.psObj = nullptr;
       }
       else
       {
-        audio_GetObjectPos(sample.psObj, &sample.x, &sample.y, &sample.z);
+        g_world.objectPosition(sample.psObj, sample.x, sample.y, sample.z);
         AudioMixer::SetEmitterPosition(sample.iSample, sample.x, sample.y, sample.z);
       }
     }
@@ -450,7 +455,7 @@ bool AudioSystem::SetTrackVals(const char* _fileName, bool _loop, std::int32_t& 
   }
 
   /* get current ID or spare one */
-  if (audio_GetIDFromStr(const_cast<STRING*>(_fileName), &_id) == FALSE)
+  if (g_world.trackIdForName(_fileName, _id) == false)
     _id = AvailableTrackId();
 
   if (_id == SAMPLE_NOT_ALLOCATED)
@@ -649,7 +654,7 @@ bool AudioSystem::PlayStaticTrack(std::int32_t _mapX, std::int32_t _mapY, std::i
     return false;
 
   std::int32_t x, y, z;
-  audio_GetStaticPos(_mapX, _mapY, &x, &y, &z);
+  g_world.staticPosition(_mapX, _mapY, x, y, z);
 
   return Play3DTrack(x, y, z, _id, nullptr, nullptr);
 }
@@ -662,7 +667,7 @@ bool AudioSystem::PlayObjectTrack(void* _object, std::int32_t _id, AUDIO_CALLBAC
     return false;
 
   std::int32_t x, y, z;
-  audio_GetObjectPos(_object, &x, &y, &z);
+  g_world.objectPosition(_object, x, y, z);
 
   return Play3DTrack(x, y, z, _id, _object, _callback);
 }
@@ -761,12 +766,12 @@ void AudioSystem::QueueTrackMinDelay(std::int32_t _id, std::uint32_t _minDelayMs
   if (CheckTrackId(_id) == false)
     return;
 
-  const std::uint32_t delay = sound_GetGameTime() - g_tracks[_id]->iTimeLastFinished;
+  const std::uint32_t delay = g_world.gameTimeMs() - g_tracks[_id]->iTimeLastFinished;
   if (delay <= _minDelayMs)
     return;
 
   if (QueueSample(_id) != nullptr)
-    g_tracks[_id]->iTimeLastFinished = sound_GetGameTime();
+    g_tracks[_id]->iTimeLastFinished = g_world.gameTimeMs();
 }
 
 /***************************************************************************/
@@ -780,7 +785,7 @@ void AudioSystem::QueueTrackMinDelayPos(std::int32_t _id, std::uint32_t _minDela
   if (CheckTrackId(_id) == false)
     return;
 
-  const std::uint32_t delay = sound_GetGameTime() - g_tracks[_id]->iTimeLastFinished;
+  const std::uint32_t delay = g_world.gameTimeMs() - g_tracks[_id]->iTimeLastFinished;
   if (delay <= _minDelayMs)
     return;
 
@@ -788,7 +793,7 @@ void AudioSystem::QueueTrackMinDelayPos(std::int32_t _id, std::uint32_t _minDela
   if (sample == nullptr)
     return;
 
-  g_tracks[_id]->iTimeLastFinished = sound_GetGameTime();
+  g_tracks[_id]->iTimeLastFinished = g_world.gameTimeMs();
   sample->x = _x;
   sample->y = _y;
   sample->z = _z;
@@ -906,7 +911,7 @@ void AudioSystem::FinishedCallback(AUDIO_SAMPLE& _sample)
   CheckSampleHandle(_sample);
 
   if (g_tracks[_sample.iTrack] != nullptr)
-    g_tracks[_sample.iTrack]->iTimeLastFinished = sound_GetGameTime();
+    g_tracks[_sample.iTrack]->iTimeLastFinished = g_world.gameTimeMs();
 
   if (_sample.pCallback != nullptr)
     (_sample.pCallback)(&_sample);
@@ -925,13 +930,6 @@ void AudioSystem::FinishedCallback(AUDIO_SAMPLE& _sample)
 /***************************************************************************/
 
 using Neuron::AudioSystem;
-
-BOOL audio_Init(BOOL bEnabled, AUDIO_CALLBACK pStopTrackCallback)
-{
-  return AudioSystem::Init(bEnabled == TRUE, pStopTrackCallback) ? TRUE : FALSE;
-}
-
-BOOL audio_Shutdown() { return AudioSystem::Shutdown() ? TRUE : FALSE; }
 
 BOOL audio_Update() { return AudioSystem::Update() ? TRUE : FALSE; }
 

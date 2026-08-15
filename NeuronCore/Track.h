@@ -68,9 +68,6 @@ using TRACK = struct TRACK
 /* Save games round-trip script sound tracks by WAV-name hash (ScriptObj.cpp). */
 UDWORD sound_GetTrackHashName(SDWORD iTrack);
 
-/* Not the audio module's: Outpost/Aud.cpp returns gameTime. */
-UDWORD sound_GetGameTime(void);
-
 /***************************************************************************/
 
 #endif	// _TRACK_H_

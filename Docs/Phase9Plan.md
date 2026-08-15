@@ -13,10 +13,14 @@ Phase 8 took the render layer — and it is the same shape of work: a layer buil
 to abstract over multiple backends now abstracts over exactly one, so the layer
 is cost with no remaining purpose.
 
-**Status: planned.** Nothing below is implemented. The figures were measured
-against the tree at the head of this branch; the method is at the
-[end](#measurement). Decisions the plan needs confirmed are collected under
-[Decisions to confirm](#decisions-to-confirm).
+**Status: stages A through E are implemented**; what came out differently
+from the plan below is recorded under [What was built](#what-was-built).
+Stage F — the tree-wide call-site rename — is not, and remains gated on an
+owner go-ahead; its precondition (Phase 6 stage B6 deleting `CDSpan.cpp`)
+was satisfied by main while this phase landed. The five
+[decisions](#decisions-to-confirm) were put to the owner and every
+recommendation was confirmed. The figures were measured against the tree at
+the head of this branch; the method is at the [end](#measurement).
 
 ## Where the stack stands
 
@@ -455,6 +459,49 @@ Same regime as Phases 4 and 8, stated plainly:
    free-function callers convert silently and future features get captures.
    The conservative alternative (keep the raw pointer type under a new name)
    costs nothing now and one more migration later.
+
+## What was built
+
+Stages A–E landed as planned — the stage boundaries, the shim, and the
+behavioural contract all held. Six things came out differently or turned up
+in the doing, and they are the parts worth knowing:
+
+- **The RAII COM lifetimes use plain deleters, not `winrt::com_ptr`.** The
+  plan named the sanctioned C++/WinRT helpers; the mixer instead wraps
+  `IXAudio2*` and the voices in `std::unique_ptr` with two-line deleters.
+  The reason is verification: mingw has no `winrt/base.h` of its own, and
+  the audio module staying cross-checkable by the only compiler in the
+  development container was worth more than the nicer spelling. A deliberate
+  bend of the R14-exception preference, recorded here rather than made
+  silently.
+- **`audio_Init` and `audio_Shutdown` have no shim.** Their one caller,
+  `Init.cpp`, calls `Neuron::AudioSystem` directly and supplies the
+  `AudioWorld` — the init call is where the provider must be handed over, so
+  the shim could not have survived stage E anyway.
+- **`std::move_only_function` landed where the shim allowed.** The stopped
+  callback and every `AudioWorld` member use it; `AUDIO_SAMPLE::pCallback`
+  stays a raw function pointer until stage F, because the struct is still
+  the public wire type the game's callbacks receive.
+- **The sweep had a defect the rewrite fixed by construction.** The old
+  loop read `psSample->psNext` *after* `audio_RemoveSample` had nulled it,
+  so removing one finished sample ended that frame's sweep early and every
+  later sample skipped a position update. The list-based sweep continues.
+- **The plan undercounted the generated-parser call sites.** Three, not
+  two: `ScriptVals_y.cpp:1354` also calls `audio_SetTrackVals` (compiled
+  scripts registering WAVs at load), and took the same in-place `VagID`
+  edit.
+- **The harness moved to `-std=c++23`, and the Release pass earned its
+  keep.** The bump was needed for `std::expected`; running `--release` as
+  well as the default caught nothing in this module but reproduced a
+  Release-only breakage this branch inherited from main's Phase 8 header
+  consolidation (`Loop.cpp`'s `RenderModel.h` include sat inside
+  `#ifdef DEBUG` while `pie_GetResetCounts` is called unconditionally),
+  which was fixed here. The default pass defines `DEBUG`, so
+  Debug-only-include mistakes are exactly the class it cannot see.
+
+Everything is cross-checked clean in both configurations and **not built
+with MSVC or run** from the container; CI and the
+[listening pass](#verification) remain the outstanding verification.
 
 ## Measurement
 

@@ -70,6 +70,7 @@
 #include "Deliverance.h"
 #include "Radar.h"
 #include "AudioID.h"
+#include "GameAudio.h"
 #include "IntDisplay.h"
 #include "FormationDef.h"
 #include "Formation.h"
@@ -721,9 +722,9 @@ BOOL systemInitialise(void)
   }
 
 #ifdef AUDIO_DISABLED
-  if (!audio_Init(FALSE, droidAudioTrackStopped)) // audio.
+  if (!Neuron::AudioSystem::Init(false, droidAudioTrackStopped, GameAudioWorld())) // audio.
 #else
-  if (!audio_Init(TRUE, droidAudioTrackStopped))
+  if (!Neuron::AudioSystem::Init(true, droidAudioTrackStopped, GameAudioWorld()))
 #endif
     Neuron::Fatal("Couldn't initialise audio system: continuing without audio\n");
 
@@ -780,7 +781,7 @@ BOOL systemShutdown(void)
    */
   seq_ShutDown();
 
-  if (audio_Disabled() == FALSE && !audio_Shutdown())
+  if (audio_Disabled() == FALSE && !Neuron::AudioSystem::Shutdown())
     return FALSE;
 
   delete[] DisplayBuffer;

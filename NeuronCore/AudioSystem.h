@@ -2,12 +2,30 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <span>
 
 #include "Track.h"
 
 namespace Neuron
 {
+
+/// What the audio system needs to know about the world it plays in,
+/// supplied by the game at Init. This is the module's one seam onto game
+/// state - before Phase 9 stage E these were free functions the engine
+/// declared and the game defined, an upward dependency hidden by C linkage.
+/// The object references are opaque here; only the provider the game wrote
+/// interprets them.
+struct AudioWorld
+{
+  std::move_only_function<bool(void* _object)> objectDead;
+  std::move_only_function<void(void* _object, std::int32_t& _x, std::int32_t& _y, std::int32_t& _z)> objectPosition;
+  std::move_only_function<void(std::int32_t _worldX, std::int32_t _worldY, std::int32_t& _x, std::int32_t& _y, std::int32_t& _z)>
+    staticPosition;
+  std::move_only_function<void(std::int32_t& _x, std::int32_t& _y, std::int32_t& _z, std::int32_t& _degrees)> listenerPose;
+  std::move_only_function<bool(const char* _wavName, std::int32_t& _id)> trackIdForName;
+  std::move_only_function<std::uint32_t()> gameTimeMs;
+};
 
 /// The audio module's public surface: track registry, sample lifecycle, the
 /// speech queue and its gates, ducking, music and the volume controls. One
@@ -22,8 +40,9 @@ public:
   /// _enabled FALSE means run silent: every entry point stays callable and
   /// inert, which is what the AUDIO_DISABLED build and a failed device both
   /// get. _stoppedCallback is invoked whenever an object-attached sample
-  /// stops, on the game thread.
-  static bool Init(bool _enabled, AUDIO_CALLBACK _stoppedCallback);
+  /// stops, on the game thread. _world must be fully populated when
+  /// _enabled is true.
+  static bool Init(bool _enabled, AUDIO_CALLBACK _stoppedCallback, AudioWorld _world);
   static bool Shutdown();
   static bool Update();
   [[nodiscard]] static bool Enabled();

@@ -8,7 +8,7 @@
     <ClCompile Include="Arrow.cpp" />
     <ClCompile Include="AStar.cpp" />
     <ClCompile Include="Atmos.cpp" />
-    <ClCompile Include="Aud.cpp" />
+    <ClCompile Include="GameAudio.cpp" />
     <ClCompile Include="AudioID.cpp" />
     <ClCompile Include="Bridge.cpp" />
     <ClCompile Include="Bucket3D.cpp" />
@@ -130,6 +130,7 @@
     <ClInclude Include="AStar.h" />
     <ClInclude Include="Atmos.h" />
     <ClInclude Include="AudioID.h" />
+    <ClInclude Include="GameAudio.h" />
     <ClInclude Include="Base.h" />
     <ClInclude Include="Bridge.h" />
     <ClInclude Include="Bucket3D.h" />
