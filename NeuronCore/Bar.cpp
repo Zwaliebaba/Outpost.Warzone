@@ -5,7 +5,7 @@
 #include "Form.h"
 #include "Bar.h"
 #include "RendMode.h"
-#include "PiePalette.h"
+#include "Palette.h"
 
 /* Create a barGraph widget data structure */
 BOOL barGraphCreate(W_BARGRAPH** ppsWidget, W_BARINIT* psInit)

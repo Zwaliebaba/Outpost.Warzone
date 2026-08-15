@@ -3,7 +3,7 @@
 #include <math.h>
 #include "Ivi.h"
 #include "PieState.h"
-#include "PiePalette.h"
+#include "Palette.h"
 #include "RendMode.h"
 #include "Bug.h"
 

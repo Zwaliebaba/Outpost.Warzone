@@ -23,7 +23,7 @@
 #include "Console.h"
 #include "BitImage.h"	// GFX incs
 #include "TextDraw.h"
-#include "PieMatrix.h"
+#include "RenderMatrix.h"
 #include "PieState.h"
 #include "NetPlay.h"
 #include "MultiPlay.h"

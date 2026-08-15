@@ -30,7 +30,7 @@
 #include "Feature.h"
 #include "PieState.h"
 #include "Loop.h"
-#include "PieMatrix.h"
+#include "RenderMatrix.h"
 
 #include "Scores.h"
 #include "Display3D.h"

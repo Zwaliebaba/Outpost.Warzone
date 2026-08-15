@@ -13,9 +13,9 @@
 #include <string.h>
 #include "PieDef.h"
 #include "PieState.h"
-#include "PieClip.h"
-#include "PiePalette.h"
-#include "PieMatrix.h"
+#include "RenderClip.h"
+#include "Palette.h"
+#include "RenderMatrix.h"
 #include "PieMode.h"
 #include "PieFunc.h"
 #include "RendMode.h"

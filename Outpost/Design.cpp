@@ -20,7 +20,7 @@
 /* Includes direct access to render library */
 #include "IvisDef.h"
 #include "RendMode.h"
-#include "PieMatrix.h"//matrix code
+#include "RenderMatrix.h"//matrix code
 #include "PieState.h"
 
 #include "Display3D.h"

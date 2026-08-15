@@ -3,8 +3,8 @@
 /* Includes direct access to render library */
 #include "PieDef.h"
 #include "RendMode.h"
-#include "PieMatrix.h"
-#include "PiePalette.h"
+#include "RenderMatrix.h"
+#include "Palette.h"
 #include "PieState.h"
 #include "Objects.h"
 #include "Display3D.h"

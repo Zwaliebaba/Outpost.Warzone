@@ -18,7 +18,7 @@
 #include "PieDef.h"
 #include "PieState.h"
 #include "PieMode.h"
-#include "PieMatrix.h"
+#include "RenderMatrix.h"
 #include "RendMode.h"
 
 #include "Map.h"

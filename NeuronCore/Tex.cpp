@@ -10,10 +10,10 @@
 #include "Tex.h"
 #include "RendMode.h"
 #include "Pcx.h"
-#include "PiePalette.h"
+#include "Palette.h"
 #include "Bug.h"
 #include "IvisPatch.h"
-#include "D3DRender.h"
+#include "Render.h"
 
 //*************************************************************************
 

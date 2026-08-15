@@ -21,8 +21,8 @@
 #include "IvisDef.h"
 #include "PieState.h"
 #include "PieMode.h"			// ffs
-#include "PieClip.h"			// ffs 
-#include "PieBlitFunc.h"
+#include "RenderClip.h"			// ffs 
+#include "Render2D.h"
 #include "RendMode.h"
 #include "Geo.h"
 

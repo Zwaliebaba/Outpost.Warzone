@@ -22,8 +22,8 @@
 #include "Frame.h"
 #include "PieDef.h"
 #include "PieState.h"
-#include "PiePalette.h"
-#include "D3DRender.h"
+#include "Palette.h"
+#include "Render.h"
 #include "TexMan.h"
 #include "Tex.h"
 

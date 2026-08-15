@@ -1,5 +1,5 @@
-#ifndef _piePalette_
-#define _piePalette_
+#ifndef _palette_h
+#define _palette_h
 
 #include "PieDef.h"
 //*************************************************************************

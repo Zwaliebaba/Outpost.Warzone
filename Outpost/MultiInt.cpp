@@ -22,7 +22,7 @@
 /* Includes direct access to render library */
 #include "PieDef.h"
 #include "PieState.h"
-#include "PieClip.h"
+#include "RenderClip.h"
 #include "RendMode.h"
 #include "ObjMem.h"
 #include "Gateway.h"
@@ -36,7 +36,7 @@
 #include "CSnap.h"
 #include "Power.h"
 #include "LoadSave.h"			// for blueboxes.
-#include "PieMatrix.h"			// for setgeometricoffset
+#include "RenderMatrix.h"			// for setgeometricoffset
 #include "Component.h"
 #include "Map.h"
 #include "Console.h"			// chat box stuff

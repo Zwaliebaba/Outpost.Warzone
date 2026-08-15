@@ -4,12 +4,12 @@
 #include "IMD.h"
 #include "RendMode.h"
 #include "PieFunc.h"
-#include "PieMatrix.h"
+#include "RenderMatrix.h"
 #include "Tex.h"
 #include "PieDef.h"
 #include "PieState.h"
-#include "PieClip.h"
-#include "D3DRender.h"
+#include "RenderClip.h"
+#include "Render.h"
 
 #define MIST
 

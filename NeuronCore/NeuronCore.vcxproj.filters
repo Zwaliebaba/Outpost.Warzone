@@ -112,7 +112,7 @@
     <ClInclude Include="Bug.h">
       <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="D3DRender.h">
+    <ClInclude Include="Render.h">
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="D3D9Vertex.h">
@@ -142,10 +142,10 @@
     <ClInclude Include="Pcx.h">
       <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="PieBlitFunc.h">
+    <ClInclude Include="Render2D.h">
       <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="PieClip.h">
+    <ClInclude Include="RenderClip.h">
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="PieDef.h">
@@ -154,13 +154,13 @@
     <ClInclude Include="PieFunc.h">
       <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="PieMatrix.h">
+    <ClInclude Include="RenderMatrix.h">
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="PieMode.h">
       <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="PiePalette.h">
+    <ClInclude Include="Palette.h">
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="PieState.h">
@@ -358,13 +358,13 @@
     <ClCompile Include="parser_y.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="Pcx.cpp" />
-    <ClCompile Include="PieBlitFunc.cpp" />
-    <ClCompile Include="PieClip.cpp" />
-    <ClCompile Include="PieDraw.cpp" />
+    <ClCompile Include="Render2D.cpp" />
+    <ClCompile Include="RenderClip.cpp" />
+    <ClCompile Include="RenderModel.cpp" />
     <ClCompile Include="PieFunc.cpp" />
-    <ClCompile Include="PieMatrix.cpp" />
+    <ClCompile Include="RenderMatrix.cpp" />
     <ClCompile Include="PieMode.cpp" />
-    <ClCompile Include="PiePalette.cpp" />
+    <ClCompile Include="Palette.cpp" />
     <ClCompile Include="PQueue.cpp" />
     <ClCompile Include="PtrList.cpp" />
     <ClCompile Include="RendFunc.cpp" />
@@ -375,7 +375,7 @@
     <ClCompile Include="TexMan.cpp" />
     <ClCompile Include="TextDraw.cpp" />
     <ClCompile Include="WDG.cpp" />
-    <ClCompile Include="D3DRender.cpp">
+    <ClCompile Include="Render.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
   </ItemGroup>

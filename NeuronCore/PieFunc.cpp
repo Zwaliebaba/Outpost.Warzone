@@ -15,10 +15,10 @@
 #include "PieFunc.h"
 #include "PieState.h"
 #include "GTime.h"
-#include "PieMatrix.h"
-#include "PieClip.h"
+#include "RenderMatrix.h"
+#include "RenderClip.h"
 
-#include "D3DRender.h"
+#include "Render.h"
 
 /***************************************************************************/
 /*

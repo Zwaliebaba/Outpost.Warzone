@@ -6,12 +6,12 @@
 #include "PieState.h"
 #include "RendMode.h"
 #include "RendFunc.h"
-#include "PieClip.h"
+#include "RenderClip.h"
 
-#include "PieBlitFunc.h"
+#include "Render2D.h"
 
 #include "Bug.h"
-#include "PiePalette.h"
+#include "Palette.h"
 #include "IvisPatch.h"
 #include "TextDraw.h"
 #include "BitImage.h"
@@ -797,7 +797,7 @@ void pie_DrawText(unsigned char *String,int XPos,int YPos)
 
 /* Draw one character into a locked 32 bit back buffer. The subtitles over an
  * FMV sequence are the only thing that draws this way; everything else goes
- * through the textured quads in PieDraw.
+ * through the textured quads in RenderModel.
  */
 static void pie_RenderCharToBackBuffer(SCREEN_LOCK* psLock, IMAGEFILE* ImageFile, UWORD ID, int x, int y)
 {

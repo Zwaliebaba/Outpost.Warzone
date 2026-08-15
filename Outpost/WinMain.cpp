@@ -31,7 +31,7 @@
 #include "MultiPlay.h"
 #include "NetPlay.h"
 #include "LoadSave.h"
-#include "D3DRender.h"
+#include "Render.h"
 #include "TexMan.h"
 #include "Game.h"
 #include "Lighting.h"

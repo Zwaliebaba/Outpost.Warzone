@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "RendMode.h"
-#include "PieClip.h"
+#include "RenderClip.h"
 #include "RendFunc.h"
 #include "Bug.h"
 #include "IvisPatch.h"

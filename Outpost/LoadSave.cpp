@@ -8,7 +8,7 @@
  */
 #include "Frame.h"
 #include "Widget.h"
-#include "PiePalette.h"		// for predefined colours.
+#include "Palette.h"		// for predefined colours.
 #include "RendMode.h"		// for boxfill
 #include "HCI.h"
 #include "LoadSave.h"

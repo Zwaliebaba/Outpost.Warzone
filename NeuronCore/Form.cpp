@@ -5,7 +5,7 @@
 #include "Form.h"
 #include "Tip.h"
 #include "RendMode.h"
-#include "PiePalette.h"
+#include "Palette.h"
 
 /* Control whether single tabs are displayed */
 #define NO_DISPLAY_SINGLE_TABS 1

@@ -8,7 +8,7 @@
 #define _displaydef_h
 
 #include "IMD.h"
-#include "PieClip.h"
+#include "RenderClip.h"
 #define DISP_WIDTH		(pie_GetVideoBufferWidth())
 #define DISP_HEIGHT		(pie_GetVideoBufferHeight())
 #define DISP_HARDBITDEPTH	(32)

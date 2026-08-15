@@ -11,7 +11,7 @@
 #include <stdio.h>
 
 #include "PieDef.h"
-#include "PieMatrix.h"
+#include "RenderMatrix.h"
 #include "RendMode.h"
 #include "Bug.h"
 

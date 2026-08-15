@@ -4,7 +4,7 @@
  * Interface to the Direct3D 9 display.
  *
  * The framework owns the D3D9 object, the device and the swap chain. The 3D
- * renderer (D3DRender.cpp) borrows the device from here rather than creating
+ * renderer (Render.cpp) borrows the device from here rather than creating
  * one of its own, which is how DirectDraw used to hand its back buffer to
  * Direct3D 6.
  */

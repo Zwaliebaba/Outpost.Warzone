@@ -12,12 +12,12 @@
 #include "PieDef.h"
 #include "PieState.h"
 #include "PieMode.h"
-#include "PieMatrix.h"
+#include "RenderMatrix.h"
 #include "PieFunc.h"
 #include "Tex.h"
-#include "D3DRender.h"
+#include "Render.h"
 #include "RendMode.h"
-#include "PieClip.h"
+#include "RenderClip.h"
 
 /***************************************************************************/
 /*

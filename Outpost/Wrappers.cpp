@@ -14,7 +14,7 @@
 #include "TextDraw.h" //ivis text code
 
 #include "PieMode.h"
-#include "PieMatrix.h"
+#include "RenderMatrix.h"
 #include "PieFunc.h"
 
 #include "HCI.h"		// access to widget screen.

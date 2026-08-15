@@ -25,7 +25,7 @@
 
 #define _iVPALETTE					psCurrentPalette
 
-#include "PiePalette.h"
+#include "Palette.h"
 
 //matrixstuff
 

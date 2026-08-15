@@ -8,12 +8,12 @@
  */
 /***************************************************************************/
 
-#include "PieClip.h"
+#include "RenderClip.h"
 #include "Frame.h"
 #include "PieDef.h"
 #include "PieState.h"
 #include "RendMode.h"
-#include "D3DRender.h"
+#include "Render.h"
 
 /***************************************************************************/
 /*

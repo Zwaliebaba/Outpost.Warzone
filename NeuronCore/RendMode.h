@@ -3,7 +3,7 @@
 #define _rendmode_h_
 #include "IvisDef.h"
 #include "Ivi.h"
-#include "PieBlitFunc.h"
+#include "Render2D.h"
 #include "BitImage.h"
 #include "TextDraw.h"
 

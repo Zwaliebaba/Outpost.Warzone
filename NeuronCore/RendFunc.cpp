@@ -5,9 +5,9 @@
 #include "RendFunc.h"
 #include "RendMode.h"
 #include "Bug.h"
-#include "PiePalette.h"
+#include "Palette.h"
 #include "IvisPatch.h"
-#include "PieClip.h"
+#include "RenderClip.h"
 
 #ifndef PIETOOL
 

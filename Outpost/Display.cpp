@@ -60,7 +60,7 @@
 #include "Transporter.h"
 #include "IntOrder.h"
 
-#include "PieClip.h"		// ffs am
+#include "RenderClip.h"		// ffs am
 #include "MultiPlay.h"
 
 #define	SHAKE_TIME	(1500)

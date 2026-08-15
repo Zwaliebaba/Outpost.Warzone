@@ -7,8 +7,8 @@
  */
 /***************************************************************************/
 
-#ifndef _pieclip_h
-#define _pieclip_h
+#ifndef _renderclip_h
+#define _renderclip_h
 
 /***************************************************************************/
 
@@ -45,4 +45,4 @@ extern BOOL pie_SetVideoBufferHeight(UDWORD height);
 extern UDWORD pie_GetVideoBufferWidth(void);
 extern UDWORD pie_GetVideoBufferHeight(void);
 
-#endif // _pieclip_h
+#endif // _renderclip_h

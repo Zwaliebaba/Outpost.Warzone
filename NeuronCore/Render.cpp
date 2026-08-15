@@ -1,7 +1,7 @@
 #include "pch.h"
 /***************************************************************************/
 /*
- * D3DRender.cpp
+ * Render.cpp
  *
  * The Direct3D 9 draw path.
  *
@@ -16,13 +16,13 @@
 #include "Ivi.h"
 #include "RendMode.h"
 #include "Tex.h"
-#include "PiePalette.h"
+#include "Palette.h"
 #include "PieState.h"
 #include "PieDef.h"
-#include "PieClip.h"
+#include "RenderClip.h"
 #include "FrameInt.h"
 
-#include "D3DRender.h"
+#include "Render.h"
 #include "TexMan.h"
 
 /***************************************************************************/

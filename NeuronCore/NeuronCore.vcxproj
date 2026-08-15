@@ -103,7 +103,7 @@
     <ClInclude Include="Button.h" />
     <ClInclude Include="CodePrint.h" />
     <ClInclude Include="D3D9Vertex.h" />
-    <ClInclude Include="D3DRender.h" />
+    <ClInclude Include="Render.h" />
     <ClInclude Include="DXError.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="DXInput.h" />
@@ -140,13 +140,13 @@
     <ClInclude Include="parser_y.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Pcx.h" />
-    <ClInclude Include="PieBlitFunc.h" />
-    <ClInclude Include="PieClip.h" />
+    <ClInclude Include="Render2D.h" />
+    <ClInclude Include="RenderClip.h" />
     <ClInclude Include="PieDef.h" />
     <ClInclude Include="PieFunc.h" />
-    <ClInclude Include="PieMatrix.h" />
+    <ClInclude Include="RenderMatrix.h" />
     <ClInclude Include="PieMode.h" />
-    <ClInclude Include="PiePalette.h" />
+    <ClInclude Include="Palette.h" />
     <ClInclude Include="PieState.h" />
     <ClInclude Include="PieTypes.h" />
     <ClInclude Include="PQueue.h" />
@@ -192,7 +192,7 @@
     <ClCompile Include="Bug.cpp" />
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="CodePrint.cpp" />
-    <ClCompile Include="D3DRender.cpp" />
+    <ClCompile Include="Render.cpp" />
     <ClCompile Include="DXError.cpp" />
     <ClCompile Include="DXInput.cpp" />
     <ClCompile Include="EditBox.cpp" />
@@ -226,13 +226,13 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Pcx.cpp" />
-    <ClCompile Include="PieBlitFunc.cpp" />
-    <ClCompile Include="PieClip.cpp" />
-    <ClCompile Include="PieDraw.cpp" />
+    <ClCompile Include="Render2D.cpp" />
+    <ClCompile Include="RenderClip.cpp" />
+    <ClCompile Include="RenderModel.cpp" />
     <ClCompile Include="PieFunc.cpp" />
-    <ClCompile Include="PieMatrix.cpp" />
+    <ClCompile Include="RenderMatrix.cpp" />
     <ClCompile Include="PieMode.cpp" />
-    <ClCompile Include="PiePalette.cpp" />
+    <ClCompile Include="Palette.cpp" />
     <ClCompile Include="PQueue.cpp" />
     <ClCompile Include="PtrList.cpp" />
     <ClCompile Include="RendFunc.cpp" />

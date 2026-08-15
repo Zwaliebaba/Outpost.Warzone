@@ -8,7 +8,7 @@
 
 #include "Widget.h"
 #include "Message.h"
-#include "PieClip.h"
+#include "RenderClip.h"
 
 // store the objects that are being used for the object bar
 #define			MAX_OBJECTS		15//10 we need at least 15 for the 3 different types of factory

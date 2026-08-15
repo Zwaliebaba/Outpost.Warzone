@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "RendMode.h"
 #include "Bug.h"
-#include "PiePalette.h"
+#include "Palette.h"
 #include "Pcx.h"
 #include "Tex.h"
 #include "IvisPatch.h"

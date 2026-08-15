@@ -45,7 +45,7 @@
 #include "MultiPlay.h"
 #include "RendMode.h"		// for downloadbuffer
 #include "PieFunc.h"
-#include "PieBlitFunc.h"
+#include "Render2D.h"
 #include "Environ.h"
 #include "Loop.h"
 #include "Levels.h"
