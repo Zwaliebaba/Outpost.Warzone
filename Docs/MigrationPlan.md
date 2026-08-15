@@ -410,8 +410,10 @@ been removed outright.
 `QMIXER.H`, `QMixer.lib`, `QMixer.dll` and the vestigial `EAX.H` are gone, as
 are `CDAudio.cpp` and `Mixer.cpp`. In-game music is served from files on disk
 by `Music.cpp`, and both volume sliders now move the XAudio2 graph rather than
-the Windows system mixer. `CDSpan.cpp` stays: removing it rests on game data
-being installed to disk, which is a decision of its own.
+the Windows system mixer. `CDSpan.cpp` stays for this phase: removing it rests
+on game data being installed to disk, which is a decision of its own. **That
+decision has since been taken in Phase 6** — the FMV conversion installs the
+movies to disk, so `CDSpan.cpp` goes with it.
 
 What it took, what was decided and what is still unverified are in
 [Phase4Plan.md](Phase4Plan.md).
@@ -428,11 +430,13 @@ port replaces that implementation behind the existing interface.
 - **Remove** `QMixer.lib`, `QMixer.dll`, `QMIXER.H` and the QSound references
   in `Aud.cpp`. Drop `EAX.H`, which is vestigial.
 - **Remove CD audio.** `CDAudio.cpp` (230 lines) and its MCI usage go; in-game
-  music is served from files on disk instead. `CDSpan.cpp` (631 lines) is
-  related but distinct — it locates game data across multiple CDs. It should
-  be removed too if game data is installed to disk, but that is a **decision
-  to confirm** rather than an assumption; `cdspan_*` calls are referenced from
-  game code and need unpicking.
+  music is served from files on disk instead. `CDSpan.cpp` is related but
+  distinct — it locates game data across multiple CDs. **Resolved in Phase 6:**
+  it is removed, because the FMV conversion installs the movies to disk and FMV
+  was its last real user. Two figures quoted here were wrong and are corrected
+  in [Phase6Plan.md](Phase6Plan.md) — the file lives in `Outpost/`, not
+  `NeuronCore/`, and it is 535 lines plus a 38-line header, with 19 `cdspan_*`
+  call sites across seven files to unpick.
 - Review `Audio.cpp` (1289 lines), `Track.cpp` (703) and `Mixer.cpp` (283) for
   QMixer-shaped assumptions leaking above the `TrackLib.h` line.
 
@@ -475,6 +479,12 @@ The step order, what MigrationPlan missed — `NetJoin.cpp` is in scope and
 are unrelated to each other despite being listed together, and the second is
 considerably more involved than its name suggests.
 
+The measured state of the assets, the staged plan and the four decisions the
+phase is gated on are in [Phase6Plan.md](Phase6Plan.md). Two findings there
+change the shape of this section and are corrected below: the audio is not
+carried the way this document assumed, and 165 of the 184 movies the game
+references are not in the repository at all.
+
 ### Mplayer.lib — dead matchmaking service
 
 `Mplayer.lib` is the Mplayer DirectPlay Extras library from Mpath Interactive
@@ -506,11 +516,31 @@ migrate to is a decision in its own right.
 
 #### The assets
 
-19 sequences, **15.7 MB** in total, the largest 1.4 MB. They are
-320x240-era content, and each carries **audio as well as video** —
-`Sequence.cpp` reads `Movie_GetSoundChannels`, `Movie_GetSoundPrecision` and
-`Movie_GetSoundRate`, and feeds a DirectSound buffer alongside the frames. Any
-replacement has to carry the audio and keep it in sync, not just the pictures.
+19 sequences ship in `GameData/sequences/`, **15.7 MB** and 77 seconds in
+total, the largest 1.4 MB. All are `ESCAPE 2.0` format 130, 16 bpp, 25 fps, at
+320x240 or 192x168.
+
+**Corrected: they do not all carry audio, and the ones that do not are why
+`GameData/sequenceAudio/` exists.** Eight of the nineteen have an embedded
+22050 Hz mono 4-bit track, which is what `Sequence.cpp` reads
+`Movie_GetSoundChannels`, `Movie_GetSoundPrecision` and `Movie_GetSoundRate`
+for before feeding a DirectSound buffer. The other eleven are silent and take
+their audio from a `.wav` in `sequenceAudio/`, named alongside the movie in
+`GameData/messages/*.txt` and played through `audio_PlayStream` — already
+XAudio2 since Phase 4. No movie uses both paths.
+
+That distinction constrains the replacement. The external wav is the sequence's
+clock, not the video: `NP2.WAV` runs 13.5 seconds against a 0.96-second movie
+that loops under it, and the sequence ends on the audio callback. So only the
+eight embedded tracks need carrying and sync; muxing the external ones would
+change what the sequence is. `sequenceAudio/` also holds the subtitle `.txt`
+and `.txa` files, which is most of its file count.
+
+The other correction is scale. The 19 shipped movies are the hard-disk subset;
+the game references **184** distinct `.rpl` names, and the remaining 165 — every
+`cam1\`, `cam2\` and `cam3\` briefing — are read from the CD via
+`cdspan_GetCDLetter`. Conversion is therefore also where Phase 4's deferred
+question about `CDSpan.cpp` gets settled.
 
 #### Considered and rejected: frames as DDS textures
 
@@ -549,9 +579,15 @@ today, keeps the audio track with its sync, and still removes `WINSTR.LIB`
 entirely. Since the source material is 320x240, a modern codec will not look
 worse than what ships now.
 
-Two things to settle when the work starts: whether a decoder ships with the
-game or Media Foundation's built-in support is relied on, and whether the
-original `.rpl` files are kept in the repository as the conversion source.
+**Settled.** No decoder ships with the game — Media Foundation's built-in
+H.264 and AAC support is relied on, which is the only choice consistent with
+[AGENTS.md](../AGENTS.md) R14 and with this phase's own stated endpoint of
+system libraries only. The install requirement that follows is Windows N
+editions needing the Media Feature Pack, and that is a legible fatal error at
+init rather than a black screen. The original `.rpl` files are **not** kept in
+the repository: the converter and a hash manifest replace them, and the
+converted movies take their place in `GameData/sequences/`. The reasoning for
+all four decisions is in [Phase6Plan.md](Phase6Plan.md#decisions).
 
 Dropping FMV altogether — static screens in place of the sequences — remains
 the cheap fallback if the conversion proves not to be worth it, at the cost of
@@ -559,11 +595,29 @@ game content.
 
 Either way the work is tightly coupled to Phase 2's rewrite of `Sequence.cpp`,
 so the two should be scheduled together. Once done, remove `WINSTR.LIB`,
-`winstr.dll`, `STREAMER.H` and `Dec130.dll`.
+`winstr.dll`, `STREAMER.H`, `Dec130.dll` and `CDSpan.cpp`. `dsound.lib` goes
+too: `Sequence.cpp` is the last DirectSound user in the tree.
+
+The last of the CD audio goes with `CDSpan.cpp` — `cdspan_PlayInGameAudio` and
+the four `*CDAudio` script functions, none of which any script calls, with one
+exception. **`playCDAudio` is not CD audio**: Phase 4 rewired it to
+`music_PlayTrack`, five campaign and tutorial `.slo` files call it, and since
+scripts are compiled at load an unknown name is a load failure. It stays.
+
+**Phase 6 modernises the code it rewrites** rather than deferring it to Phase 7
+— `Sequence.cpp` and `SeqDisp.cpp` only, a scoped exception to
+[AGENTS.md §4](../AGENTS.md), since writing 1998-shaped code into files being
+rebuilt is exactly the churn Phase 7 exists to avoid. The `seq_*` names and
+`ConformanceMode` are left for Phase 7 on purpose.
 
 After Phases 4-6 the only remaining non-system dependencies are the DirectX
 libraries themselves — which also removes the last constraint pinning the build
-to 32-bit, making an x64 target viable.
+to 32-bit, making an x64 target viable. Concretely: `NeuronCore/WINSTR.LIB` and
+`NeuronCore/Mplayer.lib` are the last checked-in 32-bit static libraries and
+`GameData/`'s four decoder DLLs the last 32-bit binaries. Phase 6 deletes all
+six but does **not** add the platform — [AGENTS.md §3](../AGENTS.md) makes that
+a stop-and-report, and it needs the `UDWORD`-holds-a-pointer audit in the
+save-game fixup first.
 
 ## Phase 7 — Incremental C++ modernisation
 
