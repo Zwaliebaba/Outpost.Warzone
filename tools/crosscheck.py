@@ -85,10 +85,16 @@ def build_shadow(dst):
             open(os.path.join(stubdir, name), 'w').write(
                 f'#pragma once\n#include <{name.lower()}>\n')
 
-    # Written last so a real stub wins over anything generated above.
+    # Written last so a real stub wins over anything generated above. Walked
+    # rather than listed because some stubs sit in a directory the include
+    # names -- <winrt/base.h> has to arrive as stubs/winrt/base.h.
     if os.path.isdir(STUBDIR):
-        for f in sorted(os.listdir(STUBDIR)):
-            shutil.copy2(os.path.join(STUBDIR, f), os.path.join(stubdir, f))
+        for root, _, files in os.walk(STUBDIR):
+            rel = os.path.relpath(root, STUBDIR)
+            out = stubdir if rel == '.' else os.path.join(stubdir, rel)
+            os.makedirs(out, exist_ok=True)
+            for f in sorted(files):
+                shutil.copy2(os.path.join(root, f), os.path.join(out, f))
 
     for proj in ('NeuronCore', 'Outpost', 'NetTest'):
         d = os.path.join(dst, proj)

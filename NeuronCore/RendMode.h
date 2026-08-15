@@ -1,27 +1,10 @@
 // vid.c 0.1 10-01-96.22-11-96
 #ifndef _rendmode_h_
 #define _rendmode_h_
-#include "IvisDef.h"
-#include "Ivi.h"
-#include "PieBlitFunc.h"
+#include "RenderTypes.h"
+#include "Render2D.h"
 #include "BitImage.h"
 #include "TextDraw.h"
-
-//*************************************************************************
-//patch
-
-#define	iV_Line					pie_Line
-#define	iV_Box					pie_Box
-#define	iV_BoxFill				pie_BoxFillIndex
-#define	iV_TransBoxFill			pie_TransBoxFill
-#define	iV_UniTransBoxFill		pie_UniTransBoxFill
-#define	iV_DrawImage			pie_ImageFileID
-#define	iV_DrawImageRect		pie_ImageFileIDTile
-#define	iV_DrawTransImage		pie_ImageFileID
-#define	iV_DrawTransImageRect	pie_ImageFileIDTile
-#define	iV_DrawStretchImage		pie_ImageFileIDStretch
-#define	iV_DrawImageDef				pie_ImageDef
-#define iV_UploadDisplayBuffer		pie_UploadDisplayBuffer
 
 //*************************************************************************
 
@@ -42,12 +25,21 @@
 #define REND_SURFACE_SCREEN		1
 #define REND_SURFACE_USR		2
 
-#define REND_MAX_X			pie_GetVideoBufferWidth()
-#define iV_SCREEN_Y_MAX		pie_GetVideoBufferHeight()
-#define iV_SCREEN_SIZE_MAX	(iV_SCREEN_X_MAX * iV_SCREEN_Y_MAX)
-#define iV_SCREEN_WIDTH		(rendSurface.width)
-#define iV_SCREEN_HEIGHT	(rendSurface.height)
-#define iV_SCREEN_BUFFER	(rendSurface.buffer)
+//*************************************************************************
+
+using iSurface = struct iSurface
+{
+  uint32 flags;
+  int xcentre;
+  int ycentre;
+  int xpshift;
+  int ypshift;
+  iClip clip;
+  uint8* buffer;
+  int width;
+  int height;
+  int32 size;
+};
 
 //*************************************************************************
 
@@ -58,12 +50,18 @@ extern iSurface* psRendSurface;
 
 //*************************************************************************
 
-extern void iV_RenderAssign(iSurface* s);
+namespace Neuron
+{
+  extern void RenderAssign(iSurface* s);
+}
 
 //*************************************************************************
 
-extern int iV_GetDisplayWidth(void);
-extern int iV_GetDisplayHeight(void);
+namespace Neuron
+{
+  extern int GetDisplayWidth(void);
+  extern int GetDisplayHeight(void);
+}
 
 //*************************************************************************
 

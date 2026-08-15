@@ -27,17 +27,17 @@
 #include "Research.h"
 #include "WarzoneConfig.h"
 #include "ClParse.h"
-#include "CDSpan.h"
 #include "Config.h"
 #include "MultiPlay.h"
 #include "NetPlay.h"
 #include "LoadSave.h"
-#include "D3DRender.h"
+#include "Render.h"
 #include "TexMan.h"
 #include "Game.h"
 #include "Lighting.h"
 #include "WDG.h"
 #include "MultiWDG.h"
+#include "Palette.h"
 
 // Warzone 2100 . Pumpkin Studios
 
@@ -171,13 +171,6 @@ init: //jump here from the end if re_initialising
   pie_ScreenFlip(CLEAR_BLACK);
 
   quit = FALSE;
-
-  /* check CDROM drive available */
-  if (cdspan_CheckCDAvailable() == FALSE)
-  {
-    Neuron::Fatal("Cannot detect CDROM drive\n");
-    quit = TRUE;
-  }
 
   if (!systemInitialise())
     return -1;

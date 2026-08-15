@@ -9,14 +9,15 @@
 #include "Game.h"
 #include "Geo.h"  
 #include "HCI.h"
-#include "IvisDef.h"  
+#include "Model.h"
 #include "Lighting.h"
 #include "Loop.h"
 #include "Map.h"
 #include "MiscIMD.h"
 #include "Mission.h"
 #include "MultiPlay.h"
-#include "PieDef.h"  
+#include "RenderTypes.h"
+#include "RenderModel.h"
 
 #define DOLIGHTS
 
@@ -1394,18 +1395,18 @@ void renderWaypointEffect(EFFECT* psEffect)
   dv.x = (static_cast<UDWORD>(std::lrintf(psEffect->position.x)) - player.p.x) - terrainMidX * TILE_UNITS;
   dv.y = static_cast<UDWORD>(std::lrintf(psEffect->position.y));
   dv.z = terrainMidY * TILE_UNITS - (static_cast<UDWORD>(std::lrintf(psEffect->position.z)) - player.p.z);
-  iV_MatrixBegin(); /* Push the indentity matrix */
-  iV_TRANSLATE(dv.x, dv.y, dv.z);
+  pie_MatBegin(); /* Push the indentity matrix */
+  pie_TRANSLATE(dv.x, dv.y, dv.z);
   SDWORD rx = player.p.x & (TILE_UNITS - 1); /* Get the x,z translation components */
   SDWORD rz = player.p.z & (TILE_UNITS - 1);
-  iV_TRANSLATE(rx, 0, -rz); /* Translate */
+  pie_TRANSLATE(rx, 0, -rz); /* Translate */
 
   // set up lighting
   UDWORD brightness = lightDoFogAndIllumination(pie_MAX_BRIGHT_LEVEL, getCentreX() - std::lrintf(psEffect->position.x),
                                                 getCentreZ() - std::lrintf(psEffect->position.z), &specular);
 
   pie_Draw3DShape(psEffect->imd, 0, 0, brightness, specular, 0, 0);
-  iV_MatrixEnd();
+  pie_MatEnd();
 }
 
 // ----------------------------------------------------------------------------------------
@@ -1421,21 +1422,21 @@ void renderFirework(EFFECT* psEffect)
   dv.x = (static_cast<UDWORD>(std::lrintf(psEffect->position.x)) - player.p.x) - terrainMidX * TILE_UNITS;
   dv.y = static_cast<UDWORD>(std::lrintf(psEffect->position.y));
   dv.z = terrainMidY * TILE_UNITS - (static_cast<UDWORD>(std::lrintf(psEffect->position.z)) - player.p.z);
-  iV_MatrixBegin(); /* Push the indentity matrix */
-  iV_TRANSLATE(dv.x, dv.y, dv.z);
+  pie_MatBegin(); /* Push the indentity matrix */
+  pie_TRANSLATE(dv.x, dv.y, dv.z);
   SDWORD rx = player.p.x & (TILE_UNITS - 1); /* Get the x,z translation components */
   SDWORD rz = player.p.z & (TILE_UNITS - 1);
-  iV_TRANSLATE(rx, 0, -rz); /* Translate */
+  pie_TRANSLATE(rx, 0, -rz); /* Translate */
 
-  iV_MatrixRotateY(-player.r.y);
-  iV_MatrixRotateX(-player.r.x);
+  pie_MatRotY(-player.r.y);
+  pie_MatRotX(-player.r.x);
 
   UDWORD brightness = lightDoFogAndIllumination(pie_MAX_BRIGHT_LEVEL, getCentreX() - std::lrintf(psEffect->position.x),
                                                 getCentreZ() - std::lrintf(psEffect->position.z), &specular);
 
   scaleMatrix(psEffect->size);
   pie_Draw3DShape(psEffect->imd, psEffect->frameNumber, 0, brightness, 0, pie_ADDITIVE, EFFECT_EXPLOSION_ADDITIVE);
-  iV_MatrixEnd();
+  pie_MatEnd();
 }
 
 // ----------------------------------------------------------------------------------------
@@ -1448,13 +1449,13 @@ void renderBloodEffect(EFFECT* psEffect)
   dv.x = (static_cast<UDWORD>(std::lrintf(psEffect->position.x)) - player.p.x) - terrainMidX * TILE_UNITS;
   dv.y = static_cast<UDWORD>(std::lrintf(psEffect->position.y));
   dv.z = terrainMidY * TILE_UNITS - (static_cast<UDWORD>(std::lrintf(psEffect->position.z)) - player.p.z);
-  iV_MatrixBegin(); /* Push the indentity matrix */
-  iV_TRANSLATE(dv.x, dv.y, dv.z);
+  pie_MatBegin(); /* Push the indentity matrix */
+  pie_TRANSLATE(dv.x, dv.y, dv.z);
   SDWORD rx = player.p.x & (TILE_UNITS - 1); /* Get the x,z translation components */
   SDWORD rz = player.p.z & (TILE_UNITS - 1);
-  iV_TRANSLATE(rx, 0, -rz); /* Translate */
-  iV_MatrixRotateY(-player.r.y);
-  iV_MatrixRotateX(-player.r.x);
+  pie_TRANSLATE(rx, 0, -rz); /* Translate */
+  pie_MatRotY(-player.r.y);
+  pie_MatRotX(-player.r.x);
   scaleMatrix(psEffect->size);
 
   // set up lighting
@@ -1462,7 +1463,7 @@ void renderBloodEffect(EFFECT* psEffect)
                                                 getCentreZ() - std::lrintf(psEffect->position.z), &specular);
 
   pie_Draw3DShape(getImdFromIndex(MI_BLOOD), psEffect->frameNumber, 0, brightness, specular, pie_TRANSLUCENT, EFFECT_BLOOD_TRANSPARENCY);
-  iV_MatrixEnd();
+  pie_MatEnd();
 }
 
 // ----------------------------------------------------------------------------------------
@@ -1478,11 +1479,11 @@ void renderDestructionEffect(EFFECT* psEffect)
   dv.x = (static_cast<UDWORD>(std::lrintf(psEffect->position.x)) - player.p.x) - terrainMidX * TILE_UNITS;
   dv.y = static_cast<UDWORD>(std::lrintf(psEffect->position.y));
   dv.z = terrainMidY * TILE_UNITS - (static_cast<UDWORD>(std::lrintf(psEffect->position.z)) - player.p.z);
-  iV_MatrixBegin(); /* Push the indentity matrix */
-  iV_TRANSLATE(dv.x, dv.y, dv.z);
+  pie_MatBegin(); /* Push the indentity matrix */
+  pie_TRANSLATE(dv.x, dv.y, dv.z);
   SDWORD rx = player.p.x & (TILE_UNITS - 1); /* Get the x,z translation components */
   SDWORD rz = player.p.z & (TILE_UNITS - 1);
-  iV_TRANSLATE(rx, 0, -rz); /* Translate */
+  pie_TRANSLATE(rx, 0, -rz); /* Translate */
 
   float div = static_cast<float>(gameTime - psEffect->birthTime) / psEffect->lifeSpan;
   if (div > 1.0)
@@ -1498,13 +1499,13 @@ void renderDestructionEffect(EFFECT* psEffect)
 
   if (!gamePaused())
   {
-    iV_MatrixRotateX(SKY_SHIMMY);
-    iV_MatrixRotateY(SKY_SHIMMY);
-    iV_MatrixRotateZ(SKY_SHIMMY);
+    pie_MatRotX(SKY_SHIMMY);
+    pie_MatRotY(SKY_SHIMMY);
+    pie_MatRotZ(SKY_SHIMMY);
   }
   pie_Draw3DShape(psEffect->imd, 0, 0, brightness, 0,pie_RAISE, percent);
 
-  iV_MatrixEnd();
+  pie_MatEnd();
 }
 
 // ----------------------------------------------------------------------------------------
@@ -1558,20 +1559,20 @@ void renderExplosionEffect(EFFECT* psEffect)
   dv.x = (static_cast<UDWORD>(std::lrintf(psEffect->position.x)) - player.p.x) - terrainMidX * TILE_UNITS;
   dv.y = static_cast<UDWORD>(std::lrintf(psEffect->position.y));
   dv.z = terrainMidY * TILE_UNITS - (static_cast<UDWORD>(std::lrintf(psEffect->position.z)) - player.p.z);
-  iV_MatrixBegin(); /* Push the indentity matrix */
-  iV_TRANSLATE(dv.x, dv.y, dv.z);
+  pie_MatBegin(); /* Push the indentity matrix */
+  pie_TRANSLATE(dv.x, dv.y, dv.z);
   SDWORD rx = player.p.x & (TILE_UNITS - 1); /* Get the x,z translation components */
   SDWORD rz = player.p.z & (TILE_UNITS - 1);
-  iV_TRANSLATE(rx, 0, -rz); /* Translate */
+  pie_TRANSLATE(rx, 0, -rz); /* Translate */
 
   /* Bit in comments - doesn't quite work yet? */
   if (TEST_FACING(psEffect))
   {
     /* Always face the viewer! */
-    /*		TEST_FLIPPED_Y(psEffect) ? iV_MatrixRotateY(-player.r.y+iV_DEG(180)) :*/
-    iV_MatrixRotateY(-player.r.y);
-    /*		TEST_FLIPPED_X(psEffect) ? iV_MatrixRotateX(-player.r.x+iV_DEG(180)) :*/
-    iV_MatrixRotateX(-player.r.x);
+    /*		TEST_FLIPPED_Y(psEffect) ? pie_MatRotY(-player.r.y+iV_DEG(180)) :*/
+    pie_MatRotY(-player.r.y);
+    /*		TEST_FLIPPED_X(psEffect) ? pie_MatRotX(-player.r.x+iV_DEG(180)) :*/
+    pie_MatRotX(-player.r.x);
   }
 
   /* Tesla explosions diminish in size */
@@ -1605,7 +1606,7 @@ void renderExplosionEffect(EFFECT* psEffect)
   else
     pie_Draw3DShape(psEffect->imd, psEffect->frameNumber, 0, brightness, 0, pie_ADDITIVE, EFFECT_EXPLOSION_ADDITIVE);
 
-  iV_MatrixEnd();
+  pie_MatEnd();
 }
 
 // ----------------------------------------------------------------------------------------
@@ -1620,21 +1621,21 @@ void renderGravitonEffect(EFFECT* psEffect)
   vec.z = terrainMidY * TILE_UNITS - (static_cast<UDWORD>(std::lrintf(psEffect->position.z)) - player.p.z);
 
   /* Push matrix */
-  iV_MatrixBegin();
+  pie_MatBegin();
 
   /* Move to position */
-  iV_TRANSLATE(vec.x, vec.y, vec.z);
+  pie_TRANSLATE(vec.x, vec.y, vec.z);
 
   /* Offset from camera */
   SDWORD rx = player.p.x & (TILE_UNITS - 1);
   SDWORD rz = player.p.z & (TILE_UNITS - 1);
 
   /* Move to camera reference */
-  iV_TRANSLATE(rx, 0, -rz);
+  pie_TRANSLATE(rx, 0, -rz);
 
-  iV_MatrixRotateX(psEffect->rotation.x);
-  iV_MatrixRotateY(psEffect->rotation.y);
-  iV_MatrixRotateZ(psEffect->rotation.z);
+  pie_MatRotX(psEffect->rotation.x);
+  pie_MatRotY(psEffect->rotation.y);
+  pie_MatRotZ(psEffect->rotation.z);
 
   /* Buildings emitted by gravitons are chunkier */
   if (psEffect->type == GRAVITON_TYPE_EMITTING_ST)
@@ -1650,7 +1651,7 @@ void renderGravitonEffect(EFFECT* psEffect)
   pie_Draw3DShape(psEffect->imd, psEffect->frameNumber, 0, brightness, specular, 0, 0);
 
   /* Pop the matrix */
-  iV_MatrixEnd();
+  pie_MatEnd();
 }
 
 // ----------------------------------------------------------------------------------------
@@ -1672,25 +1673,25 @@ void renderConstructionEffect(EFFECT* psEffect)
   vec.z = terrainMidY * TILE_UNITS - (static_cast<UDWORD>(std::lrintf(psEffect->position.z)) - player.p.z);
 
   /* Push matrix */
-  iV_MatrixBegin();
+  pie_MatBegin();
 
   /* Move to position */
-  iV_TRANSLATE(vec.x, vec.y, vec.z);
+  pie_TRANSLATE(vec.x, vec.y, vec.z);
 
   /* Offset from camera */
   SDWORD rx = player.p.x & (TILE_UNITS - 1);
   SDWORD rz = player.p.z & (TILE_UNITS - 1);
 
   /* Move to camera reference */
-  iV_TRANSLATE(rx, 0, -rz);
+  pie_TRANSLATE(rx, 0, -rz);
 
   /* Bit in comments doesn't quite work yet? */
   if (TEST_FACING(psEffect))
   {
-    /*		TEST_FLIPPED_Y(psEffect) ? iV_MatrixRotateY(-player.r.y+iV_DEG(180)) :*/
-    iV_MatrixRotateY(-player.r.y);
-    /*		TEST_FLIPPED_X(psEffect) ? iV_MatrixRotateX(-player.r.x+iV_DEG(180)) :*/
-    iV_MatrixRotateX(-player.r.x);
+    /*		TEST_FLIPPED_Y(psEffect) ? pie_MatRotY(-player.r.y+iV_DEG(180)) :*/
+    pie_MatRotY(-player.r.y);
+    /*		TEST_FLIPPED_X(psEffect) ? pie_MatRotX(-player.r.x+iV_DEG(180)) :*/
+    pie_MatRotX(-player.r.x);
   }
 
   /* Scale size according to age */
@@ -1717,7 +1718,7 @@ void renderConstructionEffect(EFFECT* psEffect)
   pie_Draw3DShape(psEffect->imd, psEffect->frameNumber, 0, brightness, specular, pie_TRANSLUCENT, static_cast<UBYTE>(translucency));
 
   /* Pop the matrix */
-  iV_MatrixEnd();
+  pie_MatEnd();
 }
 
 // ----------------------------------------------------------------------------------------
@@ -1737,24 +1738,24 @@ void renderSmokeEffect(EFFECT* psEffect)
   vec.z = terrainMidY * TILE_UNITS - (static_cast<UDWORD>(std::lrintf(psEffect->position.z)) - player.p.z);
 
   /* Push matrix */
-  iV_MatrixBegin();
+  pie_MatBegin();
 
   /* Move to position */
-  iV_TRANSLATE(vec.x, vec.y, vec.z);
+  pie_TRANSLATE(vec.x, vec.y, vec.z);
 
   /* Offset from camera */
   SDWORD rx = player.p.x & (TILE_UNITS - 1);
   SDWORD rz = player.p.z & (TILE_UNITS - 1);
 
   /* Move to camera reference */
-  iV_TRANSLATE(rx, 0, -rz);
+  pie_TRANSLATE(rx, 0, -rz);
 
   /* Bit in comments doesn't quite work yet? */
   if (TEST_FACING(psEffect))
   {
     /* Always face the viewer! */
-    iV_MatrixRotateY(-player.r.y);
-    iV_MatrixRotateX(-player.r.x);
+    pie_MatRotY(-player.r.y);
+    pie_MatRotX(-player.r.x);
   }
 
   /* Small smoke - used for the droids */
@@ -1801,7 +1802,7 @@ void renderSmokeEffect(EFFECT* psEffect)
   }
 
   /* Pop the matrix */
-  iV_MatrixEnd();
+  pie_MatEnd();
 }
 
 // ----------------------------------------------------------------------------------------
@@ -2296,8 +2297,8 @@ void effectDroidUpdates(void)
           if (static_cast<SDWORD>(psDroid->sMove.speed) != 0)
           {
             /* Present direction is important */
-            SDWORD xBehind = ((50 * iV_SIN(DEG(psDroid->direction))) >> FP12_SHIFT);
-            SDWORD yBehind = ((50 * iV_COS(DEG(psDroid->direction))) >> FP12_SHIFT);
+            SDWORD xBehind = ((50 * SIN(DEG(psDroid->direction))) >> FP12_SHIFT);
+            SDWORD yBehind = ((50 * COS(DEG(psDroid->direction))) >> FP12_SHIFT);
             pos.x = psDroid->x - xBehind;
             pos.z = psDroid->y - yBehind;
             pos.y = map_Height(pos.x, pos.z);

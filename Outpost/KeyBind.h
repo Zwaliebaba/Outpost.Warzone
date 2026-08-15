@@ -1,5 +1,6 @@
 #ifndef _keybind_h
 #define _keybind_h
+#include "RenderTypes.h"
 
 // --------------- All those keyboard mappable functions */
 extern void kf_HalveHeights(void);

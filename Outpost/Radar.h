@@ -1,5 +1,6 @@
 #ifndef _radar_h
 #define _radar_h
+#include "RenderTypes.h"
 
 extern void calcRadarColour(iBitmap* tileBitmap, UDWORD tileNumber);
 

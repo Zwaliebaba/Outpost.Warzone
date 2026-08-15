@@ -151,9 +151,10 @@ FUNC_SYMBOL asFuncTable[] = {
   {"clearConsole", scrClearConsole, VAL_VOID, 0, {VAL_VOID}}, {"playVideo", scrPlayVideo, VAL_VOID, 2, {ST_TEXTSTRING, ST_TEXTSTRING}},
   {"gameOverMessage", scrGameOverMessage, VAL_VOID, 4, {ST_INTMESSAGE, VAL_INT, VAL_INT, VAL_BOOL}},
   {"gameOver", scrGameOver, VAL_VOID, 1, {VAL_BOOL}},
-  {"playBackgroundAudio", scrPlayBackgroundAudio, VAL_VOID, 2, {ST_TEXTSTRING, VAL_INT}},
-  {"playCDAudio", scrPlayCDAudio, VAL_VOID, 1, {VAL_INT}}, {"stopCDAudio", scrStopCDAudio, VAL_VOID, 0, {VAL_VOID}},
-  {"pauseCDAudio", scrPauseCDAudio, VAL_VOID, 0, {VAL_VOID}}, {"resumeCDAudio", scrResumeCDAudio, VAL_VOID, 0, {VAL_VOID}},
+  /* playCDAudio is disk music with a misleading name - Phase 4 rewired it to
+   * music_PlayTrack - and five shipped .slo files call it, so it stays. Its
+   * three siblings were registered and called by nothing. */
+  {"playCDAudio", scrPlayCDAudio, VAL_VOID, 1, {VAL_INT}},
   {"setRetreatPoint", scrSetRetreatPoint, VAL_VOID, 3, {VAL_INT, VAL_INT, VAL_INT}},
   {"setRetreatForce", scrSetRetreatForce, VAL_VOID, 2, {VAL_INT, VAL_INT}},
   {"setRetreatLeadership", scrSetRetreatLeadership, VAL_VOID, 2, {VAL_INT, VAL_INT}},

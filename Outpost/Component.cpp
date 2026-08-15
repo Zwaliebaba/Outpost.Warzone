@@ -12,9 +12,10 @@
 #include "Action.h"
 #include "Order.h"
 #include "Component.h"
-#include "IvisDef.h" //ivis matrix code
+#include "Model.h"
 #include "Geo.h" //ivis matrix code
-#include "PieDef.h" //ivis matrix code
+#include "RenderTypes.h"
+#include "RenderModel.h"
 #include "PieState.h" //ivis render code
 #include "Lighting.h"
 
@@ -312,18 +313,18 @@ void displayStructureButton(STRUCTURE* psStructure, iVector* Rotation, iVector* 
     //draw Weapon/ECM/Sensor for structure
     if (weaponImd != nullptr)
     {
-      iV_MatrixBegin();
-      iV_TRANSLATE(strImd->connectors->x, strImd->connectors->z, strImd->connectors->y);
+      pie_MatBegin();
+      pie_TRANSLATE(strImd->connectors->x, strImd->connectors->z, strImd->connectors->y);
       pie_MatRotY(DEG(-static_cast<SDWORD>(psStructure->turretRotation)));
       if (mountImd != nullptr)
       {
         pie_Draw3DShape(mountImd, 0, getPlayerColour(selectedPlayer), pie_MAX_BRIGHT_LEVEL, 0, pie_BUTTON, 0);
-        if (mountImd->nconnectors) { iV_TRANSLATE(mountImd->connectors->x, mountImd->connectors->z, mountImd->connectors->y); }
+        if (mountImd->nconnectors) { pie_TRANSLATE(mountImd->connectors->x, mountImd->connectors->z, mountImd->connectors->y); }
       }
-      iV_MatrixRotateX(DEG(psStructure->turretPitch));
+      pie_MatRotX(DEG(psStructure->turretPitch));
       pie_Draw3DShape(weaponImd, 0, getPlayerColour(selectedPlayer), pie_MAX_BRIGHT_LEVEL, 0, pie_BUTTON, 0);
       //we have a droid weapon so do we draw a muzzle flash
-      iV_MatrixEnd();
+      pie_MatEnd();
     }
   }
   unsetMatrix();
@@ -391,18 +392,18 @@ void displayStructureStatButton(STRUCTURE_STATS* Stats, UDWORD Player, iVector* 
     //draw Weapon/ECM/Sensor for structure
     if (weaponImd != nullptr)
     {
-      iV_MatrixBegin();
-      iV_TRANSLATE(strImd->connectors->x, strImd->connectors->z, strImd->connectors->y);
+      pie_MatBegin();
+      pie_TRANSLATE(strImd->connectors->x, strImd->connectors->z, strImd->connectors->y);
       pie_MatRotY(DEG(0));
       if (mountImd != nullptr)
       {
         pie_Draw3DShape(mountImd, 0, getPlayerColour(selectedPlayer), pie_MAX_BRIGHT_LEVEL, 0, pie_BUTTON, 0);
-        if (mountImd->nconnectors) { iV_TRANSLATE(mountImd->connectors->x, mountImd->connectors->z, mountImd->connectors->y); }
+        if (mountImd->nconnectors) { pie_TRANSLATE(mountImd->connectors->x, mountImd->connectors->z, mountImd->connectors->y); }
       }
-      iV_MatrixRotateX(DEG(0));
+      pie_MatRotX(DEG(0));
       pie_Draw3DShape(weaponImd, 0, getPlayerColour(selectedPlayer), pie_MAX_BRIGHT_LEVEL, 0, pie_BUTTON, 0);
       //we have a droid weapon so do we draw a muzzle flash
-      iV_MatrixEnd();
+      pie_MatEnd();
     }
   }
 
@@ -681,7 +682,7 @@ void displayCompObj(BASE_OBJECT* psObj, iVector* mountRotation, BOOL bButton)
       psShape = getLeftPropulsionIMD(psDroid);
       if(psShape!=NULL)
       {
-        iV_PIEDraw(psShape,psDroid->player);
+        Neuron::PIEDraw(psShape,psDroid->player);
       }
     }
     else
@@ -689,7 +690,7 @@ void displayCompObj(BASE_OBJECT* psObj, iVector* mountRotation, BOOL bButton)
       psShape = getRightPropulsionIMD(psDroid);
       if(psShape!=NULL)
       {
-        iV_PIEDraw(psShape,psDroid->player);
+        Neuron::PIEDraw(psShape,psDroid->player);
       }
     }
   */
@@ -991,12 +992,12 @@ void displayCompObj(BASE_OBJECT* psObj, iVector* mountRotation, BOOL bButton)
             pie_MatRotZ(DEG(-psDroid->roll));
             pie_MatRotY(DEG(-mountRotation->y));
 
-            iV_MatrixRotateY(-player.r.y);
-            iV_MatrixRotateX(-player.r.x);
+            pie_MatRotY(-player.r.y);
+            pie_MatRotX(-player.r.x);
             pie_Draw3DShape(psShape, getStaticTimeValueRange(100, psShape->numFrames), 0, brightness, 0, pie_ADDITIVE, 140);
 
-            iV_MatrixRotateX(player.r.x);
-            iV_MatrixRotateY(player.r.y);
+            pie_MatRotX(player.r.x);
+            pie_MatRotY(player.r.y);
           }
         }
         break;
@@ -1036,7 +1037,7 @@ void displayCompObj(BASE_OBJECT* psObj, iVector* mountRotation, BOOL bButton)
 		psShape = getRightPropulsionIMD(psDroid);
 		if(psShape!=NULL)
 		{
-			iV_PIEDraw(psShape,psDroid->player);
+			Neuron::PIEDraw(psShape,psDroid->player);
 		}
 	}
 	else
@@ -1044,7 +1045,7 @@ void displayCompObj(BASE_OBJECT* psObj, iVector* mountRotation, BOOL bButton)
 		psShape = getLeftPropulsionIMD(psDroid);
 		if(psShape!=NULL)
 		{
-			iV_PIEDraw(psShape,psDroid->player);
+			Neuron::PIEDraw(psShape,psDroid->player);
 		}
 	}
 	*/

@@ -9,7 +9,6 @@
 #include "GTime.h"
 #include "Console.h"
 #include "Scores.h"
-#include "PieDef.h"
 #include "PieFunc.h"
 #include "PieMode.h"
 #include "PieState.h"
@@ -221,11 +220,11 @@ void drawStatBars(void)
   fillUpStats();
 
   pie_UniTransBoxFill(16 + D_W,MT_Y_POS - 16,DISP_WIDTH - D_W - 16,MT_Y_POS + 256, 0x00000088, 128);
-  iV_Box(16 + D_W,MT_Y_POS - 16,DISP_WIDTH - D_W - 16,MT_Y_POS + 256, 1);
+  pie_Box(16 + D_W,MT_Y_POS - 16,DISP_WIDTH - D_W - 16,MT_Y_POS + 256, 1);
 
-  iV_DrawText((unsigned char*)strresGetString(psStringRes, STR_MR_UNIT_LOSSES),LC_X + D_W, 80 + 16 + D_H);
-  iV_DrawText((unsigned char*)strresGetString(psStringRes, STR_MR_STRUCTURE_LOSSES),LC_X + D_W, 140 + 16 + D_H);
-  iV_DrawText((unsigned char*)strresGetString(psStringRes, STR_MR_FORCE_INFO),LC_X + D_W, 200 + 16 + D_H);
+  pie_DrawText((unsigned char*)strresGetString(psStringRes, STR_MR_UNIT_LOSSES),LC_X + D_W, 80 + 16 + D_H);
+  pie_DrawText((unsigned char*)strresGetString(psStringRes, STR_MR_STRUCTURE_LOSSES),LC_X + D_W, 140 + 16 + D_H);
+  pie_DrawText((unsigned char*)strresGetString(psStringRes, STR_MR_FORCE_INFO),LC_X + D_W, 200 + 16 + D_H);
 
   UDWORD index = 0;
   BOOL bMoreBars = TRUE;
@@ -247,13 +246,13 @@ void drawStatBars(void)
       UDWORD width = infoBars[index].width;
       UDWORD height = infoBars[index].height;
 
-      iV_Box(x, y, x + width, y + height, 0);
+      pie_Box(x, y, x + width, y + height, 0);
 
       /* Draw the background border box */
-      iV_BoxFill(x - 1, y - 1, x + width + 1, y + height + 1, 1);
+      pie_BoxFillIndex(x - 1, y - 1, x + width + 1, y + height + 1, 1);
 
       /* Draw the interior grey */
-      iV_BoxFill(x, y, x + width, y + height, 222);
+      pie_BoxFillIndex(x, y, x + width, y + height, 222);
 
       if (((gameTime2 - dispST) > infoBars[index].queTime))
       {
@@ -268,18 +267,18 @@ void drawStatBars(void)
         if (std::lrintf(length) > 4)
         {
           /* Black shadow */
-          iV_BoxFill(x + 1, y + 3, x + std::lrintf(length) - 1, y + height - 1, 1);
+          pie_BoxFillIndex(x + 1, y + 3, x + std::lrintf(length) - 1, y + height - 1, 1);
           /* Solid coloured bit */
-          iV_BoxFill(x + 1, y + 2, x + std::lrintf(length) - 4, y + height - 4, static_cast<UBYTE>(infoBars[index].colour));
+          pie_BoxFillIndex(x + 1, y + 2, x + std::lrintf(length) - 4, y + height - 4, static_cast<UBYTE>(infoBars[index].colour));
         }
       }
       /* Now render the text by the bar */
       sprintf(text, strresGetString(psStringRes, infoBars[index].stringID), infoBars[index].number);
-      iV_DrawText((unsigned char*)text, x + width + 16, y + 12);
+      pie_DrawText((unsigned char*)text, x + width + 16, y + 12);
 
       /* If we're beyond STAT_ROOKIE, then we're on rankings */
       if (index >= STAT_GREEN AND index <= STAT_ACE)
-        iV_DrawTransImage(IntImages, static_cast<UWORD>(IMAGE_LEV_0 + (index - STAT_GREEN)), x - 8, y + 2);
+        pie_ImageFileID(IntImages, static_cast<UWORD>(IMAGE_LEV_0 + (index - STAT_GREEN)), x - 8, y + 2);
     }
     /* Move onto the next bar */
     index++;
@@ -297,17 +296,17 @@ void dispAdditionalInfo(void)
 
   /* Firstly, top of the screen, number of artefacts found */
   sprintf(text, strresGetString(psStringRes, STR_MR_ARTEFACTS_FOUND), missionData.artefactsFound);
-  iV_DrawText((unsigned char*)text, (DISP_WIDTH - iV_GetTextWidth((unsigned char*)text)) / 2, 300 + D_H);
+  pie_DrawText((unsigned char*)text, (DISP_WIDTH - Neuron::GetTextWidth((unsigned char*)text)) / 2, 300 + D_H);
 
   /* Get the mission result time in a string - and write it out */
   getAsciiTime((char*)&text2, gameTime - missionData.missionStarted);
   sprintf(text, strresGetString(psStringRes, STR_MR_MISSION_TIME), text2);
-  iV_DrawText((unsigned char*)text, (DISP_WIDTH - iV_GetTextWidth((unsigned char*)text)) / 2, 320 + D_H);
+  pie_DrawText((unsigned char*)text, (DISP_WIDTH - Neuron::GetTextWidth((unsigned char*)text)) / 2, 320 + D_H);
 
   /* Write out total game time so far */
   getAsciiTime((char*)&text2, gameTime);
   sprintf(text, strresGetString(psStringRes, STR_MR_GAME_TIME), text2);
-  iV_DrawText((unsigned char*)text, (DISP_WIDTH - iV_GetTextWidth((unsigned char*)text)) / 2, 340 + D_H);
+  pie_DrawText((unsigned char*)text, (DISP_WIDTH - Neuron::GetTextWidth((unsigned char*)text)) / 2, 340 + D_H);
 }
 
 // -----------------------------------------------------------------------------------

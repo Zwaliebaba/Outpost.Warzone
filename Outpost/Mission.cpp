@@ -45,7 +45,7 @@
 #include "MultiPlay.h"
 #include "RendMode.h"		// for downloadbuffer
 #include "PieFunc.h"
-#include "PieBlitFunc.h"
+#include "Render2D.h"
 #include "Environ.h"
 #include "Loop.h"
 #include "Levels.h"
@@ -57,7 +57,6 @@
 #include "Scores.h"
 #include "KeyMap.h"
 
-#include "CDSpan.h"
 #include "Music.h"
 #include "Texture.h"
 extern CURSORSNAP InterfaceSnap;
@@ -2414,8 +2413,8 @@ BOOL intAddMissionTimer(void)
   sFormInit.formID = 0;
   sFormInit.id = IDTIMER_FORM;
   sFormInit.style = WFORM_PLAIN;
-  sFormInit.width = iV_GetImageWidth(IntImages, IMAGE_MISSION_CLOCK); //TIMER_WIDTH;
-  sFormInit.height = iV_GetImageHeight(IntImages, IMAGE_MISSION_CLOCK); //TIMER_HEIGHT;
+  sFormInit.width = Neuron::GetImageWidth(IntImages, IMAGE_MISSION_CLOCK); //TIMER_WIDTH;
+  sFormInit.height = Neuron::GetImageHeight(IntImages, IMAGE_MISSION_CLOCK); //TIMER_HEIGHT;
   sFormInit.x = static_cast<SWORD>((RADTLX + RADWIDTH - sFormInit.width));
   sFormInit.y = static_cast<SWORD>(TIMER_Y);
   sFormInit.pUserData = (void*)PACKDWORD_TRI(0, IMAGE_MISSION_CLOCK, IMAGE_MISSION_CLOCK_UP);
@@ -2462,8 +2461,8 @@ BOOL intAddTransporterTimer(void)
   sFormInit.style = WFORM_CLICKABLE | WFORM_NOCLICKMOVE;
   sFormInit.x = TRAN_FORM_X;
   sFormInit.y = TRAN_FORM_Y;
-  sFormInit.width = iV_GetImageWidth(IntImages, IMAGE_TRANSETA_UP);
-  sFormInit.height = iV_GetImageHeight(IntImages, IMAGE_TRANSETA_UP);
+  sFormInit.width = Neuron::GetImageWidth(IntImages, IMAGE_TRANSETA_UP);
+  sFormInit.height = Neuron::GetImageHeight(IntImages, IMAGE_TRANSETA_UP);
   sFormInit.pTip = strresGetString(psStringRes, STR_INT_TRANSPORTER);
   sFormInit.pDisplay = intDisplayImageHilight;
   sFormInit.pUserData = (void*)PACKDWORD_TRI(0, IMAGE_TRANSETA_DOWN, IMAGE_TRANSETA_UP);
@@ -2519,8 +2518,8 @@ BOOL intAddTransporterTimer(void)
 	sFormInit.style = WFORM_PLAIN | WFORM_INVISIBLE;
 	sFormInit.x = TRAN_FORM_X;
 	sFormInit.y = TRAN_FORM_Y;
-	sFormInit.width = iV_GetImageWidth(IntImages,IMAGE_TRANSETA_UP);//TRAN_FORM_WIDTH;
-	sFormInit.height = iV_GetImageHeight(IntImages,IMAGE_TRANSETA_UP);//TRAN_FORM_HEIGHT;
+	sFormInit.width = Neuron::GetImageWidth(IntImages,IMAGE_TRANSETA_UP);//TRAN_FORM_WIDTH;
+	sFormInit.height = Neuron::GetImageHeight(IntImages,IMAGE_TRANSETA_UP);//TRAN_FORM_HEIGHT;
 
 	if (!widgAddForm(psWScreen, &sFormInit))
 	{
@@ -3025,8 +3024,6 @@ void intRunMissionResult()
   }
 }
 
-void missionCDCancelPressed(void) { intAddMissionResult(g_bMissionResult, TRUE); }
-
 void missionContineButtonPressed(void)
 {
   //SHOULDN'T BE ABLE TO BE ANY OTHER TYPE AT PRESENT!
@@ -3058,63 +3055,48 @@ void missionContineButtonPressed(void)
 void intProcessMissionResult(UDWORD id)
 {
   W_BUTINIT sButInit;
-  CD_INDEX CDrequired;
 
-  /* GJ to TC - this call processes the CD change widget box */
-  if (!cdspan_ProcessCDChange(id))
+  switch (id)
   {
-    switch (id)
+  case IDMISSIONRES_LOAD:
+    // throw up some filerequester
+    addLoadSave(LOAD_MISSIONEND, "savegame\\", "gam", strresGetString(psStringRes, STR_MR_LOAD_GAME)/*"Load Game"*/);
+    break;
+  case IDMISSIONRES_SAVE:
+    addLoadSave(SAVE_MISSIONEND, "savegame\\", "gam", strresGetString(psStringRes, STR_MR_SAVE_GAME)/*"Save Game"*/);
+
+    if (widgGetFromID(psWScreen, IDMISSIONRES_QUIT) == nullptr)
     {
-    case IDMISSIONRES_LOAD:
-      // throw up some filerequester
-      addLoadSave(LOAD_MISSIONEND, "savegame\\", "gam", strresGetString(psStringRes, STR_MR_LOAD_GAME)/*"Load Game"*/);
-      break;
-    case IDMISSIONRES_SAVE:
-      addLoadSave(SAVE_MISSIONEND, "savegame\\", "gam", strresGetString(psStringRes, STR_MR_SAVE_GAME)/*"Save Game"*/);
-
-      if (widgGetFromID(psWScreen, IDMISSIONRES_QUIT) == nullptr)
-      {
-        //Add Quit Button now save has been pressed
-        memset(&sButInit, 0, sizeof(W_BUTINIT));
-        sButInit.formID = IDMISSIONRES_FORM;
-        sButInit.style = WBUT_PLAIN | WBUT_TXTCENTRE;
-        sButInit.width = MISSION_TEXT_W;
-        sButInit.height = MISSION_TEXT_H;
-        sButInit.FontID = WFont;
-        sButInit.pTip = nullptr;
-        sButInit.pDisplay = displayTextOption;
-        sButInit.id = IDMISSIONRES_QUIT;
-        sButInit.x = MISSION_3_X;
-        sButInit.y = MISSION_3_Y;
-        sButInit.pText = strresGetString(psStringRes, STR_MR_QUIT_TO_MAIN);
-        widgAddButton(psWScreen, &sButInit);
-      }
-      break;
-
-    case IDMISSIONRES_QUIT:
-      // catered for by hci.c.
-      break;
-
-    case IDMISSIONRES_CONTINUE:
-      if (bLoadSaveUp)
-        closeLoadSave(); // close save interface if it's up.
-
-      /* check correct CD in drive */
-      CDrequired = getCDForCampaign(getCampaignNumber());
-      if (cdspan_CheckCDPresent(CDrequired))
-        missionContineButtonPressed();
-      else
-      {
-        widgDelete(psWScreen, IDMISSIONRES_TITLE);
-        widgDelete(psWScreen, IDMISSIONRES_FORM);
-        widgDelete(psWScreen, IDMISSIONRES_BACKFORM);
-        showChangeCDBox(psWScreen, CDrequired, missionContineButtonPressed, missionCDCancelPressed);
-      }
-      break;
-
-    default:
-      break;
+      //Add Quit Button now save has been pressed
+      memset(&sButInit, 0, sizeof(W_BUTINIT));
+      sButInit.formID = IDMISSIONRES_FORM;
+      sButInit.style = WBUT_PLAIN | WBUT_TXTCENTRE;
+      sButInit.width = MISSION_TEXT_W;
+      sButInit.height = MISSION_TEXT_H;
+      sButInit.FontID = WFont;
+      sButInit.pTip = nullptr;
+      sButInit.pDisplay = displayTextOption;
+      sButInit.id = IDMISSIONRES_QUIT;
+      sButInit.x = MISSION_3_X;
+      sButInit.y = MISSION_3_Y;
+      sButInit.pText = strresGetString(psStringRes, STR_MR_QUIT_TO_MAIN);
+      widgAddButton(psWScreen, &sButInit);
     }
+    break;
+
+  case IDMISSIONRES_QUIT:
+    // catered for by hci.c.
+    break;
+
+  case IDMISSIONRES_CONTINUE:
+    if (bLoadSaveUp)
+      closeLoadSave(); // close save interface if it's up.
+
+    missionContineButtonPressed();
+    break;
+
+  default:
+    break;
   }
 }
 
@@ -3185,9 +3167,6 @@ BOOL setUpMission(UDWORD type)
 
   if (type == LDS_CAMSTART)
   {
-    //this cannot be called here since we need to be able to save the game at the end of cam1 and cam2
-    /*CDrequired = getCDForCampaign( getCampaignNumber() );
-    if ( cdspan_CheckCDPresent(CDrequired) )*/
     {
       //another one of those lovely hacks!!
       BOOL bPlaySuccess = TRUE;

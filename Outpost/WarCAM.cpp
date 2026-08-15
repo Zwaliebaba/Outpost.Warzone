@@ -10,7 +10,7 @@
 #include "stdio.h"
 #include "Frame.h"
 #include "Geo.h"
-#include "PieDef.h" //ivis matrix code
+#include "RenderTypes.h"
 #include "Objects.h"
 #include "WarCAM.h"
 #include "Display.h"
@@ -1361,7 +1361,7 @@ void dispWarCamLogo(void)
   //	if(gamePaused())
   //		/* get out if we're paused */
   //
-  //	iV_MatrixBegin();							/* Push the indentity matrix */
+  //	pie_MatBegin();							/* Push the indentity matrix */
   //
 }
 

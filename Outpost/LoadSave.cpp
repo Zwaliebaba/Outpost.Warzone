@@ -8,7 +8,7 @@
  */
 #include "Frame.h"
 #include "Widget.h"
-#include "PiePalette.h"		// for predefined colours.
+#include "Palette.h"		// for predefined colours.
 #include "RendMode.h"		// for boxfill
 #include "HCI.h"
 #include "LoadSave.h"
@@ -208,8 +208,8 @@ static BOOL _addLoadSave(BOOL bLoad, CHAR* sSearchPath, CHAR* sExtension, CHAR* 
   sButInit.formID = LOADSAVE_BANNER;
   sButInit.x = 4;
   sButInit.y = 3;
-  sButInit.width = iV_GetImageWidth(IntImages, IMAGE_NRUTER);
-  sButInit.height = iV_GetImageHeight(IntImages, IMAGE_NRUTER);
+  sButInit.width = Neuron::GetImageWidth(IntImages, IMAGE_NRUTER);
+  sButInit.height = Neuron::GetImageHeight(IntImages, IMAGE_NRUTER);
   sButInit.pUserData = (void*)PACKDWORD_TRI(0, IMAGE_NRUTER, IMAGE_NRUTER);
   sButInit.id = LOADSAVE_CANCEL;
   sButInit.style = WBUT_PLAIN;
@@ -301,21 +301,6 @@ BOOL closeLoadSave(void)
 }
 
 // ////////////////////////////////////////////////////////////////////////////
-void loadSaveCDOK(void)
-{
-  bRequestLoad = TRUE;
-  closeLoadSave();
-  loadOK();
-}
-
-// ////////////////////////////////////////////////////////////////////////////
-void loadSaveCDCancel(void)
-{
-  bRequestLoad = FALSE;
-  widgReveal(psRequestScreen,LOADSAVE_FORM);
-}
-
-// ////////////////////////////////////////////////////////////////////////////
 BOOL runLoadSave(BOOL bResetMissionWidgets) { return _runLoadSave(bResetMissionWidgets); }
 
 // ////////////////////////////////////////////////////////////////////////////
@@ -365,15 +350,11 @@ static BOOL _runLoadSave(BOOL bResetMissionWidgets)
   UDWORD id = 0;
   W_EDBINIT sEdInit;
   CHAR sTemp[MAX_STR_LENGTH];
-  CD_INDEX CDrequired;
   UDWORD iCampaign, i;
   W_CONTEXT context;
   BOOL bSkipCD = FALSE;
 
   id = widgRunScreen(psRequestScreen);
-
-  if (cdspan_ProcessCDChange(id))
-    return bRequestLoad;
 
   strcpy(sRequestResult, ""); // set returned filename to null;
 
@@ -394,17 +375,11 @@ static BOOL _runLoadSave(BOOL bResetMissionWidgets)
       if (bLoadSaveMode == LOAD_FORCE || bLoadSaveMode == SAVE_FORCE)
         goto successforce; // it's a force, dont check the cd.
 
-      /* check correct CD in drive */
+      /* getCampaign is still called for its bSkipCD out-parameter side
+       * effects on the caller's expectations; the disc it named is no longer
+       * consulted, because the content is on disk. */
       iCampaign = getCampaign(sRequestResult, &bSkipCD);
-      if (iCampaign == 0 OR bSkipCD)
-        Neuron::DebugTrace("getCampaign returned 0 or we're loading a skirmish game: assuming correct CD in drive\n");
-      CDrequired = getCDForCampaign(iCampaign);
-      if ((iCampaign == 0) || cdspan_CheckCDPresent(CDrequired) OR bSkipCD)
-        goto success;
-      bRequestLoad = FALSE;
-      widgHide(psRequestScreen,LOADSAVE_FORM);
-      showChangeCDBox(psRequestScreen, CDrequired, loadSaveCDOK, loadSaveCDCancel);
-      return FALSE;
+      goto success;
     }
     //  SAVING!add edit box at that position.
     if (!widgGetFromID(psRequestScreen,SAVEENTRY_EDIT))
@@ -567,8 +542,8 @@ static void displayLoadBanner(struct _widget* psWidget, UDWORD xOffset, UDWORD y
   else
     col = COL_RED;
 
-  iV_BoxFill(x, y, x + psWidget->width, y + psWidget->height, col);
-  iV_BoxFill(x + 2, y + 2, x + psWidget->width - 2, y + psWidget->height - 2,COL_BLUE);
+  pie_BoxFillIndex(x, y, x + psWidget->width, y + psWidget->height, col);
+  pie_BoxFillIndex(x + 2, y + 2, x + psWidget->width - 2, y + psWidget->height - 2,COL_BLUE);
 }
 
 // ////////////////////////////////////////////////////////////////////////////
@@ -586,13 +561,13 @@ static void displayLoadSlot(struct _widget* psWidget, UDWORD xOffset, UDWORD yOf
   {
     strcpy(butString, ((W_BUTTON*)psWidget)->pTip);
 
-    iV_SetFont(WFont); // font
-    iV_SetTextColour(-1); //colour
+    Neuron::SetFont(WFont); // font
+    Neuron::SetTextColour(-1); //colour
 
-    while (iV_GetTextWidth((unsigned char*)butString) > psWidget->width) { butString[strlen(butString) - 1] = '\0'; }
+    while (Neuron::GetTextWidth((unsigned char*)butString) > psWidget->width) { butString[strlen(butString) - 1] = '\0'; }
 
     //draw text								
-    iV_DrawText((unsigned char*)butString, x + 4, y + 17);
+    pie_DrawText((unsigned char*)butString, x + 4, y + 17);
   }
 }
 
@@ -605,8 +580,8 @@ static void displayLoadSaveEdit(struct _widget* psWidget, UDWORD xOffset, UDWORD
   UDWORD h = psWidget->height;
   UNUSEDPARAMETER(pColours);
 
-  iV_BoxFill(x, y, x + w, y + h,COL_RED);
-  iV_BoxFill(x + 1, y + 1, x + w - 1, y + h - 1,COL_BLUE);
+  pie_BoxFillIndex(x, y, x + w, y + h,COL_RED);
+  pie_BoxFillIndex(x + 1, y + 1, x + w - 1, y + h - 1,COL_BLUE);
 }
 
 // ////////////////////////////////////////////////////////////////////////////

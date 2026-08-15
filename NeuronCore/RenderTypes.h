@@ -1,28 +1,135 @@
 /***************************************************************************/
 /*
- * piedef.h
+ * RenderTypes.h
  *
- * type defines for all pumpkin image library functions.
+ * The render layer's value types: sized integers, geometry, colour, and the
+ * PIE vertex/state/image structures the draw path passes around.
+ *
+ * Absorbed PieDef.h, which held the PIE structures and the draw constants;
+ * PieDef.h's function declarations went to RenderModel.h and its PIEPOLY to
+ * RenderModel.cpp, which was its only user.
  *
  */
 /***************************************************************************/
 
-#ifndef _piedef_h
-#define _piedef_h
-
-/***************************************************************************/
+#ifndef _renderTypes_h
+#define _renderTypes_h
 
 #include "Frame.h"
-#include "IvisDef.h"
-#include "IvisPatch.h"
 
-#include "D3D9Vertex.h"
+/***************************************************************************/
+/***************************************************************************/
+/*
+ *	Global Definitions
+ */
+/***************************************************************************/
+
+#define PI 	  					3.141592654
 
 /***************************************************************************/
 /*
- *	Global Definitions (CONSTANTS)
+ *	Global Macros
  */
 /***************************************************************************/
+
+/***************************************************************************/
+/*
+ *	Global Type Definitions
+ */
+/***************************************************************************/
+using int8 = signed char;
+using int16 = signed short;
+using int32 = int;
+using uint8 = unsigned char;
+using uint16 = unsigned short;
+using uint32 = unsigned int;
+
+//*************************************************************************
+//
+// Simple derived types
+//
+//*************************************************************************
+using iClip = struct
+{
+  int left, top, right, bottom;
+};
+using iBitmap = uint8;
+using iColour = struct
+{
+  uint8 r, g, b;
+};
+using iBool = int;
+using iPoint = struct
+{
+  int32 x, y;
+};
+using iSprite = struct
+{
+  int width, height;
+  iBitmap* bmp;
+};
+using iPalette = iColour[256];
+using iRGB8 = struct
+{
+  uint8 r, g, b, p;
+};
+using iRGB16 = struct
+{
+  uint16 r, g, b, p;
+};
+using iRGB32 = struct
+{
+  uint32 r, g, b, p;
+};
+using iPoint8 = struct
+{
+  int8 x, y;
+};
+using iPoint16 = struct
+{
+  int16 x, y;
+};
+using iPoint32 = struct
+{
+  int32 x, y;
+};
+
+using iVector = struct
+{
+  int32 x, y, z;
+};
+using iVectorf = struct
+{
+  double x, y, z;
+};
+using iTexture = struct
+{
+  int xshift, width, height;
+  iBitmap* bmp;
+  iColour* pPal;
+  iBool bColourKeyed;
+};
+using iVertex = struct
+{
+  int32 x, y, z, u, v;
+  uint8 g;
+};
+using PIEVECTORF = struct
+{
+  float x, y, z;
+};
+using iView = struct
+{
+  iVector p, r;
+};
+
+
+/***************************************************************************/
+/*
+ *	Draw constants and macros (from PieDef.h)
+ */
+/***************************************************************************/
+
 #define DEG_360	65536
 #define DEG_1	(DEG_360/360)
 #define DEG_2	(DEG_360/180)
@@ -119,7 +226,7 @@
 
 /***************************************************************************/
 /*
- *	Global Definitions (STRUCTURES)
+ *	PIE structures (from PieDef.h)
  */
 /***************************************************************************/
 
@@ -162,11 +269,6 @@ using PIESTYLE = struct
   UBYTE light, trans, scale, height;
 }; //render style for pie draw functions
 
-using iError = struct
-{
-  long n;
-  char msge[240];
-};
 using fixed = int32;
 
 using TEXTUREPAGE = struct
@@ -175,37 +277,4 @@ using TEXTUREPAGE = struct
   iPalette* Palette;
 };
 
-using PIEPOLY = struct
-{
-  UDWORD flags;
-  SDWORD nVrts;
-  PIEVERTEX* pVrts;
-  iTexAnim* pTexAnim;
-};
-
-/***************************************************************************/
-/*
- *	Global Variables
- */
-/***************************************************************************/
-
-/***************************************************************************/
-/*
- *	Global ProtoTypes
- */
-/***************************************************************************/
-extern void pie_Draw3DShape(iIMDShape* shape, int frame, int team, UDWORD colour, UDWORD specular, int pieFlag, int pieData);
-extern void pie_DrawImage(PIEIMAGE* image, PIERECT* dest, PIESTYLE* style);
-extern void pie_DrawImage270(PIEIMAGE* image, PIERECT* dest, PIESTYLE* style);
-
-//PIEVERTEX line draw for all hardware modes
-extern void pie_DrawLine(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1, UDWORD colour, BOOL bclip);
-//PIEVERTEX poly draw for all hardware modes
-extern void pie_DrawPoly(SDWORD numVrts, PIEVERTEX* aVrts, SDWORD texPage, void* psEffects);
-
-extern void pie_GetResetCounts(SDWORD* pPieCount, SDWORD* pTileCount, SDWORD* pPolyCount, SDWORD* pStateCount);
-
-// Special re-mix of sscanf that moves the string pointer along - defined in imdLoad.c
-extern int __cdecl sscanf1(char** stringPos, const char* format, ...);
-
-#endif // _piedef_h
+#endif // _renderTypes_h

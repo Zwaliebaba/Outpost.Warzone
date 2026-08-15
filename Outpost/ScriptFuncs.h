@@ -223,13 +223,9 @@ extern BOOL scrGameOverMessage(void);
 extern BOOL scrGameOver(void);
 
 //defines the background audio to play
-extern BOOL scrPlayBackgroundAudio(void);
 
 // cd audio funcs
 extern BOOL scrPlayCDAudio(void);
-extern BOOL scrStopCDAudio(void);
-extern BOOL scrPauseCDAudio(void);
-extern BOOL scrResumeCDAudio(void);
 
 // set the retreat point for a player
 extern BOOL scrSetRetreatPoint(void);

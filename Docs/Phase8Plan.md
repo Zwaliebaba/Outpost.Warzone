@@ -10,7 +10,8 @@ allow-list in `tools/check_case.py`, per [AGENTS.md §6](../AGENTS.md).
 recorded with their reasoning under [Decisions](#decisions--settled): the
 rename is full, the dead config keys are dropped, the clipper replacement is
 attempted behind a parity gate, and stages A and B land now while stage C
-waits for Phase 6's `Sequence.cpp` rewrite to merge. Nothing below is
+waits for Phase 6's `Sequence.cpp` rewrite to merge. **Stages A, B and C are
+done**; D is the remainder. Nothing below is
 blocked on input; the remaining unknowns are audits (A5) and a measurement
 gate (D1), both owned by the stage that runs them.
 
@@ -92,10 +93,12 @@ and `g_bStateCacheStale` is gone.
 | `Screen.cpp` | 1,190 | Device, present, back-buffer lock, backdrop | Stays |
 | `TextDraw.cpp` | 1,061 -> 1,003 | Fonts as textured quads + FMV subtitle path | Consumer; loses two dead functions |
 
-Headers: `RendMode.h` (138) and `IvisPatch.h` (106) are pure alias tables —
-`#define iV_DrawImage pie_ImageFileID` and so on — and go entirely.
-`IvisDef.h`, `PieDef.h`, `PieTypes.h` carry the live type definitions
-(`iIMDShape`, `PIEVERTEX`, `IMAGEFILE`) and survive, consolidated.
+Headers: `RendMode.h` (138) and `IvisPatch.h` (106) were pure alias tables —
+`#define iV_DrawImage pie_ImageFileID` and so on — and the tables went in C1.
+`IvisDef.h`, `PieDef.h` and `PieTypes.h` carried the live type definitions
+(`iIMDShape`, `PIEVERTEX`, `IMAGEFILE`); C3 consolidated them into
+`RenderTypes.h` and `Model.h`, and all three are gone. `RendMode.h` survives
+as the surface module and now owns `iSurface`.
 
 ---
 
@@ -237,17 +240,23 @@ Outpost/  (game code, ~700 call sites renamed mechanically)
    └─ Screen.cpp        IDirect3DDevice9, Present, back-buffer lock (unchanged)
 ```
 
-**Where stages A and B leave it.** The shape is in place under the old names,
-which is deliberate — stage C does the renaming, so B could stay mechanical.
-`D3DRender.cpp` is already the `Render.cpp` of that diagram: it holds the one
+**Where the work stands.** Stages A and B put the shape in place under the
+old names, deliberately — stage C does the renaming, so B could stay
+mechanical. C2 has since landed the names themselves, so the filenames in
+the diagram above are now the filenames on disk: `Render.cpp` holds the one
 state block, the vertex funnel, `BeginFrameD3D`/`EndFrameD3D` and the
-device-reset recovery, having absorbed `PieState.cpp` and `D3DMode.cpp`. The
-texture table is single, with `PieTexture.cpp` absorbed into `Tex.cpp`; the
-`Tex.cpp`/`TexMan.cpp` split into "the page table" and "the device textures"
-survives one more file boundary than the diagram wants, and closing it is a
-stage C rename rather than more surgery. `PieDraw.cpp` and `PieBlitFunc.cpp`
-are the `RenderModel`/`Render2D` pair in all but name. `PieClip.cpp`,
-`PieMatrix.cpp` and `PiePalette.cpp` are untouched, as planned.
+device-reset recovery, having absorbed `PieState.cpp` and `D3DMode.cpp`;
+`RenderModel.cpp` and `Render2D.cpp` are the model/2D pair;
+`RenderMatrix.cpp`, `RenderClip.cpp` and `Palette.cpp` are renamed with
+their internals untouched, as planned.
+
+Two gaps remain against the diagram. The texture table is single, with
+`PieTexture.cpp` absorbed into `Tex.cpp`, but the `Tex.cpp`/`TexMan.cpp`
+split into "the page table" and "the device textures" survives one more file
+boundary than the diagram wants — closing it is a merge, not more surgery.
+And the symbols still carry `pie_`/`iV_` prefixes even where the files no
+longer do (`pie_D3DRenderForFlip` now lives in `Render2D.cpp`); that is the
+symbol rename still ahead of C3.
 
 Deliberately **kept** even though a from-scratch D3D9 renderer would not have
 them, because changing them is not simplification, it is a second project:
@@ -384,10 +393,13 @@ resolution remains separately configured.
 
 **Verification.** Every sub-stage ends with `tools/crosscheck.py` clean in
 both Debug and Release (198/198 units, the same count as the pre-change
-baseline) and `tools/check_case.py` clean. **None of it has been built with
-MSVC or run** — there is no Windows toolchain in this container, and per
-[AGENTS.md §3](../AGENTS.md) that makes the visual checklist below
-outstanding for the whole of Stage A, not merely advisable.
+baseline) and `tools/check_case.py` clean. **It builds and links under MSVC**
+— CI on [PR #6](https://github.com/Zwaliebaba/Outpost.Warzone/pull/6) is
+green for Debug and Release Win32 on the final commit of Stage B, which
+carries Stage A with it. **It has not been run**: there is no Windows
+toolchain in this container, and per [AGENTS.md §3](../AGENTS.md) that makes
+the visual checklist below outstanding for the whole of Stage A, not merely
+advisable.
 
 ### B — Collapse the funnels  *(behaviour-preserving by construction)*
 
@@ -396,8 +408,11 @@ collapse, which is the semantic change, and B1b for the file merge, which is
 mechanical — so that a regression bisects to one or the other. The stage
 removed **933 lines against 584 insertions across 22 files**, and deleted
 three translation units (`PieState.cpp`, `PieTexture.cpp`, `D3DMode.cpp`),
-taking `NeuronCore` from 83 to 80. The layer is now **11 files, 3,885
-lines**, against 14 files and 6,185 at the start of Stage A — 37% gone.
+taking `NeuronCore` from 78 project entries to 75. The layer is now **11
+files, 3,885 lines**, against 14 files and 6,185 at the start of Stage A —
+37% gone. **CI on [PR #6](https://github.com/Zwaliebaba/Outpost.Warzone/pull/6)
+builds and links both stages under MSVC in Debug and Release Win32**, so the
+cross-checker and the real compiler agree; neither stage has been run.
 What the stage turned up is under
 [What Stage B turned up](#what-stage-b-turned-up).
 
@@ -481,26 +496,92 @@ once the funnel takes a vertex-buffer, which is D2.
 
 ### C — Rename to the target shape, delete the alias layer
 
-The full rename is decided (Decision 1), and this stage waits for Phase 6's
-`Sequence.cpp` rewrite to merge (Decision 4) — see
-[Sequencing](#sequencing-against-phases-6-and-7).
+The full rename is decided (Decision 1). Phase 6 has merged, so the wait
+described in [Sequencing](#sequencing-against-phases-6-and-7) is over and
+this stage is **done**: C1, C2, C3 and the symbol rename have all landed.
 
-- **C1. Kill the alias tables.** Delete `RendMode.h`'s `#define iV_* pie_*`
-  block and `IvisPatch.h`; scripted, reviewed find-and-replace lands the
-  canonical names at every call site, one game module per commit.
-- **C2. File moves.** `git mv` to the target layout (table above), both
-  project files and `.filters` updated in the same commits. Rewritten files
-  get §1 naming (`Neuron` namespace, PascalCase, `m_`/`_param`); files that
-  are renamed-but-not-rewritten (`RenderMatrix`, `RenderClip`, `Palette`)
-  keep their internals — renaming their every local is churn Phase 7 owns.
-- **C3. Header consolidation.** `PieDef.h`/`PieTypes.h`/`IvisDef.h`/`Ivi.h`
-  reduce to a render-types header (vertex/state/image types) and a model
-  header (`iIMDShape` family). `Ivi.cpp`'s `iV_Error`/`iV_Stop`/`iV_Abort`
-  give way to `Debug.h` calls at their ~30 sites.
+- **C1. Kill the alias tables.** *(done)* Deleted `RendMode.h`'s
+  `#define iV_* pie_*` block, `TextDraw.h`'s pair and `IvisPatch.h`'s 34,
+  landing the canonical names at 630 call sites.
+- **C2. File moves.** *(done)* `git mv` to the target layout (table above),
+  with `#include` lines, project/`.filters` entries and include guards
+  following in the same commit. Files that are renamed-but-not-rewritten
+  (`RenderMatrix`, `RenderClip`, `Palette`) keep their internals — renaming
+  their every local is churn Phase 7 owns. Symbol renames were deliberately
+  kept out: mixing them into a file move makes the diff unreadable.
+- **C3. Header consolidation.** *(done)* The four headers reduced to the two
+  the target called for, plus a home for the declarations they were carrying:
+
+  | was | is |
+  |---|---|
+  | `PieTypes.h` + `PieDef.h`'s types and constants | `RenderTypes.h` (280 lines) |
+  | `IvisDef.h`'s `iIMDShape` family | `Model.h` (119 lines) |
+  | `IvisDef.h`'s `IMAGEFILE` family | `BitImage.h`, beside its functions |
+  | `IvisDef.h`'s `iSurface` | `RendMode.h`, beside `rendSurface` |
+  | `PieDef.h`'s eight `pie_Draw*` declarations | `RenderModel.h` (new, 30 lines) |
+  | `Ivi.h`'s `DIVSHIFT` | `RenderClip.cpp`, its only user |
+  | `Ivi.cpp`'s two lifecycle functions | `PieMode`, beside `pie_Initialise` |
+
+  `Ivi.h`, `Ivi.cpp`, `IvisDef.h` and `PieDef.h` are gone; `PieTypes.h`
+  became `RenderTypes.h`. `PIEPOLY` went to `RenderModel.cpp`, its only
+  user and only via `static` functions, so it never needed to be public.
+- **C4. The symbol rename.** *(done)* The `iV_` prefix became
+  `namespace Neuron` rather than being stripped — see below.
+- **C3a. The error and debug shims.** *(done)* `iV_Error`'s 47 sites became
+  `Neuron::DebugTrace`; `iV_Stop`, `iV_Abort` and the whole inert
+  `iV_DEBUG0..12` family were deleted with `Bug.h`/`Bug.cpp`.
 
 **Risk: low but wide.** Mechanical; the danger is a missed alias in a
 comment or a `.filters` mismatch, both of which CI and `check_case.py`
 catch.
+
+#### What Stage C turned up
+
+- **A word-boundary rename can eat its own definition.** `Ivi.h` carried a
+  duplicate `#define iV_POLY_MAX_POINTS pie_MAX_POLY_SIZE` — an alias whose
+  target was itself an alias. Rewriting alias names blind turned it into
+  `#define pie_MAX_POLY_SIZE pie_MAX_POLY_SIZE`, which is self-referential,
+  so the preprocessor stops expanding it: the real `#define
+  pie_MAX_POLY_SIZE 16` in `PieDef.h` was shadowed and
+  `static iVertex xclip[pie_MAX_POLY_SIZE + 4]` lost its array size. The
+  duplicate was deleted; a sweep for `^#define\s+(\w+)\s+\1` found no other
+  instance. Any future mass-rename wants that grep as a post-step.
+- **The `iV_` prefix was a namespace in disguise.** Checking all 87 rename
+  targets against the mingw-w64 Win32 and CRT headers before touching
+  anything found 8 platform collisions. Two were severe: `iV_HeapAlloc` and
+  `iV_HeapFree` are macros, so stripping them to `HeapAlloc`/`HeapFree`
+  would have hijacked every kernel32 call in every translation unit;
+  `CreateFontIndirect`, `GetCharWidth` and `SetFont` are GDI. The functions
+  went into `namespace Neuron` instead. **Run that check before the `pie_`
+  rename.**
+- **A macro that expands to nothing never type-checks its arguments.**
+  `iV_DEBUG` is defined in no configuration, so all 60 `iV_DEBUG0..12` sites
+  had been inert for years — long enough for `Tex.cpp` to be logging
+  `buffer`, a local of a *different function*. A tree-wide sweep found this
+  was the only always-empty parameterised macro with call sites, so the
+  class is closed.
+- **Two wrappers would have recursed into themselves.** `IntOrder.cpp` had
+  `static GetImageWidth`/`GetImageHeight` forwarding to the `iV_` functions
+  of the same name. Dropping the prefix makes each call itself — which
+  compiles clean and blows the stack. Neither the cross-checker nor CI
+  would have caught it. They were `UWORD`→`UDWORD`→`UWORD` no-ops and were
+  deleted.
+- **Most headers were never self-contained.** Splitting `IvisDef.h` and
+  `PieDef.h` showed that ~30 headers compiled only because a hub header
+  happened to arrive first through somebody else's include list —
+  `Render2D.h` takes `IMAGEFILE` parameters and included nothing at all.
+  Deriving each home header's public surface from the header itself, then
+  checking every file's transitive include closure against it, found them
+  in one pass instead of one 10-minute cross-check at a time. That script
+  is the tool to reach for next time a hub header is split.
+- **Debug CI does not cover the linker.** Removing
+  `ImageHasSafeExceptionHandlers=false` (during B6, on the assumption it
+  went with `WINSTR.LIB`) passed Debug and failed Release with LNK2026 /
+  LNK1281. Incremental linking silently disables `/SAFESEH`, so only the
+  `/INCREMENTAL:NO` Release config exercises it. The property is back, with
+  the real reason recorded at the site: `dinput8.lib` in `DX9\Lib` predates
+  SafeSEH and its `dilib1.obj` carries no handler table. Re-enabling
+  SafeSEH needs a clean `dinput8.lib` first — logged, not scheduled.
 
 ### D — Follow-up simplifications
 

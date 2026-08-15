@@ -15,6 +15,7 @@
 #include "Frame.h"
 
 #include "D3D9Vertex.h"
+#include "RenderTypes.h"
 
 /***************************************************************************/
 /*

@@ -315,8 +315,6 @@ static BOOL BuildDroidOrderList(void);
 static BOOL BuildStructureOrderList(STRUCTURE* psStructure);
 static SDWORD GetSecondaryStates(SECONDARY_ORDER sec);
 
-static UDWORD GetImageWidth(IMAGEFILE* ImageFile, UDWORD ImageID);
-static UDWORD GetImageHeight(IMAGEFILE* ImageFile, UDWORD ImageID);
 
 static UWORD NumSelectedDroids;
 static DROID* SelectedDroids[MAX_SELECTED_DROIDS];
@@ -536,15 +534,15 @@ BOOL _intAddOrder(BASE_OBJECT* psObj)
       break;
 
     case ORD_JUSTIFY_RIGHT:
-      sButInit.x = static_cast<SWORD>(sFormInit.width - ORDER_BUTX - (((NumJustifyButs * GetImageWidth(
+      sButInit.x = static_cast<SWORD>(sFormInit.width - ORDER_BUTX - (((NumJustifyButs * Neuron::GetImageWidth(
         IntImages, OrderButtons[OrdIndex].ButImageID[0])) + ((NumJustifyButs - 1) * ORDER_BUTGAP))));
       break;
 
     case ORD_JUSTIFY_CENTER:
       //				sButInit.x = (SWORD)((sFormInit.width / 2) -
-      //						( ((NumJustifyButs * GetImageWidth(IntImages,OrderButtons[OrdIndex].ButImageID[0])) + 
+      //						( ((NumJustifyButs * Neuron::GetImageWidth(IntImages,OrderButtons[OrdIndex].ButImageID[0])) + 
       sButInit.x = static_cast<SWORD>((sFormInit.width) - (((NumJustifyButs *
-        GetImageWidth(IntImages, OrderButtons[OrdIndex].ButImageID[0])) + ((NumJustifyButs - 1) * ORDER_BUTGAP)))) / 2;
+        Neuron::GetImageWidth(IntImages, OrderButtons[OrdIndex].ButImageID[0])) + ((NumJustifyButs - 1) * ORDER_BUTGAP)))) / 2;
       break;
 
     case ORD_JUSTIFY_COMBINE:
@@ -570,15 +568,15 @@ BOOL _intAddOrder(BASE_OBJECT* psObj)
       if (NumCombineButs >= ORD_MAX_COMBINE_BUTS)
       {
         // the buttons will fill the line
-        sButInit.x = static_cast<SWORD>((ORDER_BUTX + (GetImageWidth(IntImages, OrderButtons[OrdIndex].ButImageID[0]) + ORDER_BUTGAP) *
+        sButInit.x = static_cast<SWORD>((ORDER_BUTX + (Neuron::GetImageWidth(IntImages, OrderButtons[OrdIndex].ButImageID[0]) + ORDER_BUTGAP) *
           NumCombineBefore));
       }
       else
       {
         // center the buttons
-        sButInit.x = static_cast<SWORD>((sFormInit.width / 2) - (((NumCombineButs * GetImageWidth(
+        sButInit.x = static_cast<SWORD>((sFormInit.width / 2) - (((NumCombineButs * Neuron::GetImageWidth(
           IntImages, OrderButtons[OrdIndex].ButImageID[0])) + ((NumCombineButs - 1) * ORDER_BUTGAP)) / 2));
-        sButInit.x = static_cast<SWORD>(sButInit.x + (GetImageWidth(IntImages, OrderButtons[OrdIndex].ButImageID[0]) + ORDER_BUTGAP) *
+        sButInit.x = static_cast<SWORD>(sButInit.x + (Neuron::GetImageWidth(IntImages, OrderButtons[OrdIndex].ButImageID[0]) + ORDER_BUTGAP) *
           NumCombineBefore);
       }
 
@@ -592,8 +590,8 @@ BOOL _intAddOrder(BASE_OBJECT* psObj)
     for (i = 0; i < OrderButtons[OrdIndex].AcNumButs; i++)
     {
       sButInit.pTip = strresGetString(psStringRes, OrderButtons[OrdIndex].ButTips[i]);
-      sButInit.width = static_cast<UWORD>(GetImageWidth(IntImages, OrderButtons[OrdIndex].ButImageID[i]));
-      sButInit.height = static_cast<UWORD>(GetImageHeight(IntImages, OrderButtons[OrdIndex].ButImageID[i]));
+      sButInit.width = static_cast<UWORD>(Neuron::GetImageWidth(IntImages, OrderButtons[OrdIndex].ButImageID[i]));
+      sButInit.height = static_cast<UWORD>(Neuron::GetImageHeight(IntImages, OrderButtons[OrdIndex].ButImageID[i]));
       sButInit.pUserData = (void*)PACKDWORD_TRI(OrderButtons[OrdIndex].ButGreyID[i], OrderButtons[OrdIndex].ButHilightID[i],
                                                 OrderButtons[OrdIndex].ButImageID[i]);
       if (!widgAddButton(psWScreen, &sButInit))
@@ -1310,9 +1308,7 @@ static SDWORD GetSecondaryStates(SECONDARY_ORDER sec)
   return state;
 }
 
-static UDWORD GetImageWidth(IMAGEFILE* ImageFile, UDWORD ImageID) { return iV_GetImageWidth(ImageFile, static_cast<UWORD>(ImageID)); }
 
-static UDWORD GetImageHeight(IMAGEFILE* ImageFile, UDWORD ImageID) { return iV_GetImageHeight(ImageFile, static_cast<UWORD>(ImageID)); }
 
 //new function added to bring up the RMB order form for Factories as well as droids
 void intAddFactoryOrder(STRUCTURE* psStructure)

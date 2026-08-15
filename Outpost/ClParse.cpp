@@ -14,7 +14,7 @@
 #include "WinMain.h"
 #include "FrontEnd.h"
 
-#include "PieClip.h"
+#include "RenderClip.h"
 #include "WarzoneConfig.h"
 
 #include "ClParse.h"

@@ -4,20 +4,19 @@
 #include <string.h>
 #include <ctype.h>
 #include "Frame.h"
-#include "IvisDef.h"
+#include "RenderTypes.h"
 #include "PieState.h"
 #include "TexMan.h"
 #include "Tex.h"
 #include "RendMode.h"
 #include "Pcx.h"
-#include "PiePalette.h"
-#include "Bug.h"
+#include "Palette.h"
 #include "IvisPatch.h"
-#include "D3DRender.h"
+#include "Render.h"
 
 //*************************************************************************
 
-iTexPage _TEX_PAGE[iV_TEX_MAX];
+iTexPage _TEX_PAGE[TEX_MAX];
 
 //*************************************************************************
 
@@ -63,9 +62,12 @@ int pie_AddBMPtoTexPages(iSprite* s, char* filename, int type, iBool bColourKeye
   /* Get next available texture page */
   i = _TEX_INDEX;
   /* Have we used up too many? */
-  if (_TEX_INDEX >= iV_TEX_MAX)
+  if (_TEX_INDEX >= TEX_MAX)
   {
-    iV_DEBUG1("tex[TexLoad] = too many texture pages '%s'\n", buffer);
+    /* Named `buffer` here, which is a local of Neuron::TexLoad and not in scope in
+     * this function. It never failed to compile because iV_DEBUG1 expanded to
+     * nothing; `filename` is this function's equivalent. */
+    Neuron::DebugTrace("tex[TexLoad] = too many texture pages '{}'\n", filename);
     return -1;
   }
 
@@ -102,7 +104,7 @@ int pie_AddBMPtoTexPages(iSprite* s, char* filename, int type, iBool bColourKeye
   return (i);
 }
 
-int iV_TexLoadNew(char* path, char* filename, int type, iBool palkeep, iBool bColourKeyed)
+int Neuron::TexLoadNew(char* path, char* filename, int type, iBool palkeep, iBool bColourKeyed)
 {
   char fname[MAX_FILE_PATH];
   int i;
@@ -118,7 +120,7 @@ int iV_TexLoadNew(char* path, char* filename, int type, iBool palkeep, iBool bCo
   if (!resPresent("TEXPAGE", filename))
   {
     Neuron::Fatal("Texture not in resources; {}.\n", filename);
-    return (iV_TexLoad(path, filename, type, palkeep, bColourKeyed));
+    return (Neuron::TexLoad(path, filename, type, palkeep, bColourKeyed));
   }
 
   /* Ensure upper case for tex file names */
@@ -191,7 +193,7 @@ int pie_ReloadTexPage(char* filename, UBYTE* pBuffer)
   return i;
 }
 
-int iV_TexLoad(char* path, char* filename, int type, iBool palkeep, iBool bColourKeyed)
+int Neuron::TexLoad(char* path, char* filename, int type, iBool palkeep, iBool bColourKeyed)
 {
   int i;
   char buffer[MAX_FILE_PATH], fname[MAX_FILE_PATH];
@@ -224,10 +226,10 @@ int iV_TexLoad(char* path, char* filename, int type, iBool palkeep, iBool bColou
 
     // load texture
 
-    //			if (!iV_PCXLoad(buffer,&s,&pal[0])) 
-    if (!iV_PCXLoad(buffer, &s, nullptr))
+    //			if (!Neuron::PCXLoad(buffer,&s,&pal[0])) 
+    if (!Neuron::PCXLoad(buffer, &s, nullptr))
     {
-      iV_DEBUG1("WARNING: tex[TexLoad] = failed to load pcx file '%s' \n", buffer);
+      Neuron::DebugTrace("WARNING: tex[TexLoad] = failed to load pcx file '{}'\n", buffer);
       // the bspimd tool just needs to return a warning if the texture is not found
 #ifdef PIETOOL
       _TEX_PAGE[i].tex.bmp = NULL; _TEX_PAGE[i].tex.width = 0; _TEX_PAGE[i].tex.height = 0; _TEX_PAGE[i].tex.xshift = 0; _TEX_PAGE[i].type =
@@ -239,7 +241,7 @@ int iV_TexLoad(char* path, char* filename, int type, iBool palkeep, iBool bColou
     }
     return pie_AddBMPtoTexPages(&s, fname, type, bColourKeyed, FALSE);
     break;
-  default: iV_DEBUG1("tex[TexLoad] = unrecognised texture page type %d\n", type);
+  default: Neuron::DebugTrace("tex[TexLoad] = unrecognised texture page type {}\n", type);
     return -1;
   }
   return -1;
@@ -298,7 +300,7 @@ void pie_TexShutDown(void)
       if (_TEX_PAGE[i].tex.bmp)
       {
         j++;
-        iV_HeapFree(_TEX_PAGE[i].tex.bmp, _TEX_PAGE[i].tex.width * _TEX_PAGE[i].tex.height);
+        IVIS_HEAP_FREE(_TEX_PAGE[i].tex.bmp, _TEX_PAGE[i].tex.width * _TEX_PAGE[i].tex.height);
       }
     }
     i++;
@@ -330,16 +332,16 @@ void pie_TexInit(void)
 
 // Check that a texture is  <= 256x256 and 2^n x 2^n in size.
 //
-BOOL iV_TexSizeIsLegal(UDWORD Width, UDWORD Height)
+BOOL Neuron::TexSizeIsLegal(UDWORD Width, UDWORD Height)
 {
   if ((Width > 256) || (Height > 256))
     return FALSE;
 
-  if (!iV_IsPower2(Width))
+  if (!Neuron::IsPower2(Width))
     return FALSE;
 
   //  For now don't limit height to 2^n.
-  if (!iV_IsPower2(Height))
+  if (!Neuron::IsPower2(Height))
     return FALSE;
 
   return TRUE;
@@ -347,7 +349,7 @@ BOOL iV_TexSizeIsLegal(UDWORD Width, UDWORD Height)
 
 // Return TRUE if the given value is 2^n.
 //
-BOOL iV_IsPower2(UDWORD Value)
+BOOL Neuron::IsPower2(UDWORD Value)
 {
   int Bits = 0;
 

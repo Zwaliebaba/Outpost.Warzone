@@ -9,15 +9,15 @@
 /***************************************************************************/
 
 #include "Frame.h"
-#include "PieDef.h"
 #include "PieState.h"
 #include "PieMode.h"
-#include "PieMatrix.h"
+#include "RenderMatrix.h"
 #include "PieFunc.h"
 #include "Tex.h"
-#include "D3DRender.h"
+#include "Render.h"
 #include "RendMode.h"
-#include "PieClip.h"
+#include "RenderClip.h"
+#include "Palette.h"
 
 /***************************************************************************/
 /*
@@ -68,11 +68,11 @@ BOOL pie_Initialise(void)
   rendSurface.clip.bottom = rendSurface.height;
   rendSurface.xpshift = 10;
   rendSurface.ypshift = 10;
-  iV_RenderAssign(&rendSurface);
+  Neuron::RenderAssign(&rendSurface);
 
   if (!InitD3D())
   {
-    iV_ShutDown();
+    Neuron::ShutDown();
     Neuron::Fatal("Initialise videomode failed");
     return FALSE;
   }
@@ -164,3 +164,17 @@ UDWORD pie_GetResScalingFactor(void)
   }
 }
 
+//*************************************************************************
+
+// pass in true to reset the palette too.
+void Neuron::Reset(int bPalReset)
+{
+  _TEX_INDEX = 0;
+  Neuron::ClearFonts(); // Initialise the IVIS font module.
+}
+
+void Neuron::ShutDown(void)
+{
+  pie_ShutDown();
+  pie_TexShutDown();
+}

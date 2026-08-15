@@ -9,7 +9,6 @@
 #include "Frame.h"
 #include "Widget.h"
 /* Includes direct access to render library */
-#include "PieDef.h"
 #include "RendMode.h"
 
 #include "Display3D.h"
@@ -38,6 +37,7 @@
 #include "ScriptExtern.h"
 
 #include "CSnap.h"
+#include "Palette.h"
 extern CURSORSNAP InterfaceSnap;
 
 // See research.txt for research entry to be displayed
@@ -993,7 +993,7 @@ void intDisplayMessageButton(struct _widget* psWidget, UDWORD xOffset, UDWORD yO
 
   CloseButtonRender();
 
-  if (Hilight) { iV_DrawTransImage(IntImages, IMAGE_BUT_HILITE, xOffset + psButton->x, yOffset + psButton->y); }
+  if (Hilight) { pie_ImageFileID(IntImages, IMAGE_BUT_HILITE, xOffset + psButton->x, yOffset + psButton->y); }
 }
 
 /* displays the PIE view for the current message */
@@ -1043,7 +1043,7 @@ void intDisplayPIEView(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset,
     //draw image icon in top left of window
     image = static_cast<SWORD>(getResearchForMsg((VIEWDATA*)psMessage->pViewData)->iconID);
     if (image > 0)
-      iV_DrawTransImage(IntImages, image, x0, y0);
+      pie_ImageFileID(IntImages, image, x0, y0);
   }
 }
 
@@ -1107,15 +1107,15 @@ void intDisplayTEXTView(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
   RenderWindowFrame(&FrameNormal, x0, y0, x1 - x0, y1 - y0);
   if (psMessage)
   {
-    iV_SetFont(WFont);
+    Neuron::SetFont(WFont);
     /* Get the travel to the next line */
-    linePitch = iV_GetTextLineSize();
+    linePitch = Neuron::GetTextLineSize();
     /* Fix for spacing.... */
     linePitch += 6;
     ty += 3;
     /* Fix for spacing.... */
 
-    iV_SetTextColour(iV_PaletteNearestColour(255, 255, 255));
+    Neuron::SetTextColour(pal_GetNearestColour(255, 255, 255));
     //add each message
     for (i = 0; i < ((VIEWDATA*)psMessage->pViewData)->numText; i++)
     {
@@ -1126,7 +1126,7 @@ void intDisplayTEXTView(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
         return;
       }
       //need to check the string will fit!
-      iV_DrawText((unsigned char*)((VIEWDATA*)psMessage->pViewData)->ppTextMsg[i], x0 + TEXT_XINDENT,
+      pie_DrawText((unsigned char*)((VIEWDATA*)psMessage->pViewData)->ppTextMsg[i], x0 + TEXT_XINDENT,
                   (ty + TEXT_YINDENT * 3) + (i * linePitch));
     }
   }
@@ -1251,7 +1251,7 @@ appropriate sized image for the view*/
 #endif
 
 #ifdef PSX	
-	setConsoleSizePos(x1+2,y-32-iV_GetTextLineSize()*2,(x2-x1)-4);
+	setConsoleSizePos(x1+2,y-32-Neuron::GetTextLineSize()*2,(x2-x1)-4);
 #else
 	setConsoleSizePos(x1, y, (x2-x1));
 #endif
@@ -1312,7 +1312,7 @@ void setCurrentMsg(void)
 	//get the length of the text message
 	for (inc=0; inc < strLen; inc++)
 	{
-		currentLength += iV_GetCharWidth(psMessage->pViewData->pTextMsg[inc]);
+		currentLength += Neuron::GetCharWidth(psMessage->pViewData->pTextMsg[inc]);
 	}
 
 	width += currentLength;
@@ -1323,11 +1323,11 @@ void setCurrentMsg(void)
 	{
 		if (inc < strLen)
 		{
-			currentLength += iV_GetCharWidth(psMessage->pViewData->pTextMsg[inc]);
+			currentLength += Neuron::GetCharWidth(psMessage->pViewData->pTextMsg[inc]);
 		}
 		else
 		{
-			currentLength += iV_GetCharWidth(' ');
+			currentLength += Neuron::GetCharWidth(' ');
 		}
 
 		if (currentLength > width)
@@ -1360,13 +1360,13 @@ void setCurrentMsg(void)
 		if ((frames - 1 - inc) > (strLen-1))
 		{
 			//add a blank for 'characters' at the end of the sentence
-			currentLength += iV_GetCharWidth(' ');
+			currentLength += Neuron::GetCharWidth(' ');
 			//nothing to draw so go to next inc
 			continue;
 		}
 	
 		//increment the current amount drawn
-		currentLength += iV_GetCharWidth(pText[frames - 1 - inc]);
+		currentLength += Neuron::GetCharWidth(pText[frames - 1 - inc]);
 
 		if (((SDWORD)startX - currentLength) < (SDWORD)endX)
 		{
@@ -1392,9 +1392,9 @@ void setCurrentMsg(void)
 		currentTextDisplay.text[text++] = pText[inc];
 	}
 	currentTextDisplay.text[text] = '\0';
-	iV_SetFont(currentTextDisplay.font);
-	iV_SetTextColour(currentTextDisplay.fontColour);
-	iV_DrawText(currentTextDisplay.text, position, y);
+	Neuron::SetFont(currentTextDisplay.font);
+	Neuron::SetTextColour(currentTextDisplay.fontColour);
+	pie_DrawText(currentTextDisplay.text, position, y);
 
 	//time to redo message
 	if (frames > currentTextDisplay.totalFrames + gap)
@@ -1489,15 +1489,15 @@ void setCurrentMsg(void)
 	if (Hilight)
 	{
 		imageID = IMAGE_INTEL_PROXHILI;
-		psButton->width = iV_GetImageWidth(IntImages,IMAGE_INTEL_PROXHILI);
-		psButton->height = iV_GetImageHeight(IntImages,IMAGE_INTEL_PROXHILI);
+		psButton->width = Neuron::GetImageWidth(IntImages,IMAGE_INTEL_PROXHILI);
+		psButton->height = Neuron::GetImageHeight(IntImages,IMAGE_INTEL_PROXHILI);
 	}
 	else if (psMsg->read)
 	{
 		//if the message is read - don't animate
 		imageID = IMAGE_INTEL_PROXREAD;
-		psButton->width = iV_GetImageWidth(IntImages,IMAGE_INTEL_PROXREAD);
-		psButton->height = iV_GetImageHeight(IntImages,IMAGE_INTEL_PROXREAD);
+		psButton->width = Neuron::GetImageWidth(IntImages,IMAGE_INTEL_PROXREAD);
+		psButton->height = Neuron::GetImageHeight(IntImages,IMAGE_INTEL_PROXREAD);
 	}
 	else
 	{
@@ -1512,8 +1512,8 @@ void setCurrentMsg(void)
 			psProximityDisplay->timeLastDrawn = GetTickCount();
 		}
 		imageID = (UBYTE)(IMAGE_INTEL_PROXIMITY + psProximityDisplay->strobe);
-		psButton->width = iV_GetImageWidth(IntImages,IMAGE_INTEL_PROXIMITY);
-		psButton->height = iV_GetImageHeight(IntImages,IMAGE_INTEL_PROXIMITY);
+		psButton->width = Neuron::GetImageWidth(IntImages,IMAGE_INTEL_PROXIMITY);
+		psButton->height = Neuron::GetImageHeight(IntImages,IMAGE_INTEL_PROXIMITY);
 	}
 	//adjust button x and y for width and height of button
 	psButton->x = (SWORD)(psButton->x - psButton->width/(UWORD)2);
@@ -1534,7 +1534,7 @@ void setCurrentMsg(void)
 	}
 
 	//draw the 'button'
-	iV_DrawTransImage(IntImages,imageID, psButton->x, psButton->y);
+	pie_ImageFileID(IntImages,imageID, psButton->x, psButton->y);
 }*/
 /*check the x and y are within the messages 3D view if on screen */
 /*BOOL checkMessageOverlap(MESSAGE *psMessage, SWORD x, SWORD y)

@@ -42,6 +42,7 @@
 #include "Formation.h"
 #include "WarCAM.h"
 #include "Display3D.h"
+#include "IMD.h"		// sscanf1
 #include "Group.h"
 #include "Text.h"
 #include "Script.h"

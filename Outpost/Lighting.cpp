@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "IvisDef.h" //ivis matrix code
+#include "RenderTypes.h"
 #include "PieState.h" //ivis matrix code
 #include "PieFunc.h" //ivis matrix code
 #include "Geo.h" //ivis matrix code
@@ -194,7 +194,7 @@ void calcTileIllum(UDWORD tileX, UDWORD tileY)
 
   dotProduct = (finalVector.x * theSun.x + finalVector.y * theSun.y + finalVector.z * theSun.z) >> FP12_SHIFT;
 
-  /* iV_NumberOut(dotProduct,100,150,255);*/
+  /* NumberOut(dotProduct,100,150,255);*/
   val = ((abs(dotProduct)) / 16);
   if (val == 0)
     val = 1;

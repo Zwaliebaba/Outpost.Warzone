@@ -15,13 +15,15 @@ provide. Everything below assumes that target.
 
 Measured at the head of the Phase 8 work. The figures in brackets are what
 this table said when Phase 1 measured it; the fall is Phases 4 to 6 deleting
-QMixer, CD audio, DirectPlay and Mplayer, and Phase 8 folding three render
-files into their neighbours.
+QMixer, CD audio, DirectPlay and Mplayer, and Phase 8 folding render files
+into their neighbours. Header counts are whole-tree and include the vendored
+`DX9/Include`, so Phase 8's four deletions against two additions barely move
+them.
 
 | | |
 |---|---|
-| Source files | 195 `.cpp` (was 206), 376 `.h` (was 378) |
-| Translation units | 75 NeuronCore (was 85), 119 Outpost (was 121), plus the `NetTest` harness |
+| Source files | 193 `.cpp` (was 206), 374 `.h` (was 378) |
+| Translation units | 74 NeuronCore (was 85), 118 Outpost (was 121), plus the `NetTest` harness |
 | Toolset | MSVC v145, Win32 (x86) only |
 | Projects | `NeuronCore` (engine static lib), `Outpost` (game exe), `NetTest` (transport harness) |
 
@@ -37,7 +39,7 @@ Subsystems in use today:
 
 - **Graphics** — **done, see Phase 2**, and being simplified onto the device
   in Phase 8. Direct3D 9 throughout: an `IDirect3DDevice9` owned by
-  `Screen.cpp` and drawn through by `D3DRender.cpp` and `TexMan.cpp`. Was
+  `Screen.cpp` and drawn through by `Render.cpp` and `TexMan.cpp`. Was
   DirectDraw 4 surfaces plus a Direct3D 6 immediate-mode device.
 - **Input** — **done, see Phase 3.** DirectInput 8 (`DXInput.cpp`,
   `DIRECTINPUT_VERSION=0x0800`).
@@ -542,13 +544,23 @@ what each step actually cost — is in [Phase5Plan.md](Phase5Plan.md).
 
 ## Phase 6 — Removing Mplayer.lib and WINSTR.LIB
 
-**The rewrite is done; the deletions are not.** Two third-party libraries were
-listed here, unrelated to each other despite sharing a heading. **`Mplayer.lib`
-went with Phase 5.** `WINSTR.LIB` has been *replaced* — FMV plays through Media
-Foundation and nothing calls the library any more — but it is still on the link
-line, along with `dsound.lib`, `STREAMER.H`, the four `GameData` decoder DLLs
-and `CDSpan.cpp`. Removing them is stage B6, and it is now deletion rather than
-design.
+**Done.** Two third-party libraries were listed here, unrelated to each other
+despite sharing a heading. **`Mplayer.lib` went with Phase 5.** `WINSTR.LIB` was
+*replaced* by the Media Foundation path, and **stage B6 has now removed it**
+along with `dsound.lib`, `STREAMER.H`, the four `GameData` decoder DLLs, the
+`MovieTest` reference decoder and `CDSpan.cpp`.
+
+**No checked-in third-party library remains in the tree, and no third-party
+binary in `GameData`.** What is left is DirectX, the Windows SDK, and MsQuic
+under its sanctioned exception — which is the endpoint this phase set itself,
+and which also removes the last constraint pinning the build to 32-bit.
+Adding an x64 platform is still a stop-and-report under
+[AGENTS.md §3](../AGENTS.md), and still wants the `UDWORD`-holds-a-pointer
+audit in the save-game fixup first.
+
+B6 also re-enabled SafeSEH on the shipping executable:
+`ImageHasSafeExceptionHandlers=false` was on both link lines only because a
+1997 import library had no safe exception handler.
 
 The measured state of the assets, the staged plan and the four decisions the
 phase is gated on are in [Phase6Plan.md](Phase6Plan.md). Two findings there
@@ -571,9 +583,7 @@ anywhere in the tree. Nothing is left of this item for Phase 6.
 
 ### WINSTR.LIB — the FMV video codec
 
-**The playback rewrite is done and the sequences play.** What remains is
-deleting the library, which is stage B6 of
-[Phase6Plan.md](Phase6Plan.md#status).
+**Done — the sequences play and the library is gone.**
 
 **This is not a string library.** Despite the name, `WINSTR.LIB` (and
 `GameData/winstr.dll`) is Eidos' video streaming library: 64 exports in the
@@ -848,15 +858,16 @@ translation units from 6,185 lines to 4,573. That is 26% of the layer gone
 before any restructuring, and more than the ~2,400 lines the plan estimated.
 `tools/crosscheck.py` is clean in both configurations at 198/198 units, the
 same count as the pre-change baseline, and `tools/check_case.py` passes.
-**It has not been built with MSVC or run** — no Windows toolchain exists in
-the development container — so the visual checklist in the plan is
-outstanding for the whole stage.
+**Built and linked clean under MSVC**, Debug and Release Win32, by CI on
+[PR #6](https://github.com/Zwaliebaba/Outpost.Warzone/pull/6). **It has not
+been run** — no Windows toolchain exists in the development container — so
+the visual checklist in the plan is outstanding for the whole stage.
 
 **Stage B is done too.** Collapsing the funnels removed a further 933 lines
 against 584 insertions and deleted three translation units — `PieState.cpp`
 folded into `D3DRender.cpp`, `PieTexture.cpp` into `Tex.cpp`, and
-`D3DMode.cpp` into `D3DRender.cpp` — taking `NeuronCore` from 83 units to
-80. The headline is that the renderer no longer keeps the same fact twice:
+`D3DMode.cpp` into `D3DRender.cpp` — taking `NeuronCore` from 78 project
+entries to 75. The headline is that the renderer no longer keeps the same fact twice:
 the translucency state and the texture-page binding each had a second cache
 in the D3D layer, and the second copy is what forced the `g_bStateCacheStale`
 machinery Phase 2 had to add for device reset. Both are single now, owned by
@@ -877,10 +888,37 @@ software clipper and the palette module kept and renamed. The `.pie`/IMD
 
 This phase also absorbs two items Phase 2 left open: the dead device-name
 settings (deleted in stage A3) and dynamic vertex buffers (stage D2, after
-the draw funnel is singular). Sequencing is decided: stages A and B land
-now — they avoid Phase 6's contact surface — and stage C's rename, which
-touches `Sequence.cpp`, starts only after Phase 6's rewrite of that file
-merges.
+the draw funnel is singular). Stages A and B landed first because they avoid
+Phase 6's contact surface; stage C's rename, which touches `Sequence.cpp`,
+waited for Phase 6 to merge and is now under way.
+
+**Stage C is done.** C1 deleted the three `#define iV_* pie_*` alias
+tables and landed the canonical names at 630 call sites. C2 moved the render
+files onto their target names — `D3DRender` → `Render`, `PieDraw` →
+`RenderModel`, `PieBlitFunc` → `Render2D`, `PieMatrix` → `RenderMatrix`,
+`PieClip` → `RenderClip`, `PiePalette` → `Palette` — as a pure rename:
+`git mv` for history, then `#include` lines, project/`.filters` entries and
+include guards.
+
+C4 then took the `iV_` prefix off 51 functions — into `namespace Neuron`
+rather than stripped, because 8 of the 87 candidate names collide with the
+Win32 API and `iV_HeapAlloc`/`iV_HeapFree` are macros that would have
+hijacked `kernel32`. The 30 macros strip to bare `SCREAMING_SNAKE`. C3
+consolidated the four legacy type headers into `RenderTypes.h` and `Model.h`,
+with the image structures joining `BitImage.h`, `iSurface` joining
+`RendMode.h`, and the `pie_Draw*` declarations moving to a new
+`RenderModel.h`; `Ivi.h`, `Ivi.cpp`, `IvisDef.h` and `PieDef.h` are gone.
+Only the `pie_` prefix remains, and that is a phase of its own.
+
+Five findings from stage C are worth carrying forward, all recorded in
+[Phase8Plan.md](Phase8Plan.md): a blind alias rewrite can produce a
+self-referential `#define` that silently shadows the real one; the Debug CI
+configuration does not exercise `/SAFESEH`, so only Release catches that
+class of linker regression; a prefix that looks decorative may be standing in
+for a namespace, so **check rename targets against the platform headers
+first**; a macro that expands to nothing never type-checks its arguments, so
+code inside one rots unseen; and most of the tree's headers were never
+self-contained, compiling only because a hub header happened to arrive first.
 
 ## Verification
 
@@ -892,7 +930,9 @@ include paths and preprocessor definitions taken from the `.vcxproj` files.
 things GCC cannot process: includes whose case does not match the real
 filename, the Concurrency Runtime headers `NeuronCore.h` includes but never
 uses, and — under `tools/stubs/` — declarations for the headers mingw-w64
-does not ship at all, currently `x3daudio.h`. Those last are a transcription
+does not ship at all: `x3daudio.h`, the MsQuic headers and `<winrt/base.h>`
+(a `com_ptr` minimal enough for the Media Foundation code Phase 6 added).
+Those last are a transcription
 of somebody else's API and check our use of it rather than themselves; each
 says so at the top. The inline-assembly handling has gone with the last `__asm` in the
 tree, and so has the `CINTERFACE` define — nothing in the tree defines it any
@@ -909,13 +949,17 @@ the end of Phase 6's first half. Treat the cross-check as a fast first pass,
 not a verdict: it is a different compiler, it cannot link, and the section
 above lists what that costs. The CI builds remain the authority.
 
-**Phase 8 stages A and B have not been through MSVC or run.** They are clean
-on the cross-checker in both configurations — 195 units, down from 198 as
-three files were folded away — but that is the weakest of the three signals,
-and every commit in them touches rendering. The visual checklist in
-[Phase8Plan.md](Phase8Plan.md#verification) is outstanding for both stages,
-and stage B especially wants the device-loss path exercised, since collapsing
-the state caches is exactly what that stresses.
+**Phase 8 stages A and B now have a real build.**
+[PR #6](https://github.com/Zwaliebaba/Outpost.Warzone/pull/6) builds and
+links them under MSVC in both Win32 configurations, so the two compiler
+signals agree: the cross-checker is clean at 195 units — down from 198 as
+three files were folded away — and CI is green on the same commit.
+
+**They have still not been run.** That remains the signal that matters for a
+renderer, and the visual checklist in
+[Phase8Plan.md](Phase8Plan.md#verification) is outstanding for both stages.
+Stage B especially wants the device-loss path exercised, since collapsing the
+state caches is exactly what that stresses.
 
 ### What Phase 2 needed beyond the build
 

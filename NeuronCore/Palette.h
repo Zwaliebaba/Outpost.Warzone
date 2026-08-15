@@ -1,7 +1,7 @@
-#ifndef _piePalette_
-#define _piePalette_
+#ifndef _palette_h
+#define _palette_h
+#include "RenderTypes.h"
 
-#include "PieDef.h"
 //*************************************************************************
 
 #define PALETTE_MAX	8

@@ -109,10 +109,7 @@
     <ClInclude Include="BSPIMD.h">
       <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Bug.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="D3DRender.h">
+    <ClInclude Include="Render.h">
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="D3D9Vertex.h">
@@ -130,10 +127,10 @@
     <ClInclude Include="IMD.h">
       <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Ivi.h">
+    <ClInclude Include="Model.h">
       <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="IvisDef.h">
+    <ClInclude Include="RenderModel.h">
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="IvisPatch.h">
@@ -142,31 +139,28 @@
     <ClInclude Include="Pcx.h">
       <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="PieBlitFunc.h">
+    <ClInclude Include="Render2D.h">
       <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="PieClip.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="PieDef.h">
+    <ClInclude Include="RenderClip.h">
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="PieFunc.h">
       <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="PieMatrix.h">
+    <ClInclude Include="RenderMatrix.h">
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="PieMode.h">
       <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="PiePalette.h">
+    <ClInclude Include="Palette.h">
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="PieState.h">
       <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="PieTypes.h">
+    <ClInclude Include="RenderTypes.h">
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="RendFunc.h">
@@ -213,7 +207,6 @@
     <ClInclude Include="Sequence.h" />
     <ClInclude Include="Slider.h" />
     <ClInclude Include="Stack.h" />
-    <ClInclude Include="STREAMER.H" />
     <ClInclude Include="Tip.h" />
     <ClInclude Include="Track.h" />
     <ClInclude Include="TrackLib.h" />
@@ -346,26 +339,24 @@
     <ClCompile Include="AnimObj.cpp" />
     <ClCompile Include="BitImage.cpp" />
     <ClCompile Include="BSPIMD.cpp" />
-    <ClCompile Include="Bug.cpp" />
     <ClCompile Include="Fbf.cpp" />
     <ClCompile Include="GTime.cpp" />
     <ClCompile Include="HashTabl.cpp" />
     <ClCompile Include="IMD.cpp" />
     <ClCompile Include="IMDLoad.cpp" />
-    <ClCompile Include="Ivi.cpp" />
     <ClCompile Include="NetSupp.cpp" />
     <ClCompile Include="NetUsers.cpp" />
     <ClCompile Include="parser_l.cpp" />
     <ClCompile Include="parser_y.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="Pcx.cpp" />
-    <ClCompile Include="PieBlitFunc.cpp" />
-    <ClCompile Include="PieClip.cpp" />
-    <ClCompile Include="PieDraw.cpp" />
+    <ClCompile Include="Render2D.cpp" />
+    <ClCompile Include="RenderClip.cpp" />
+    <ClCompile Include="RenderModel.cpp" />
     <ClCompile Include="PieFunc.cpp" />
-    <ClCompile Include="PieMatrix.cpp" />
+    <ClCompile Include="RenderMatrix.cpp" />
     <ClCompile Include="PieMode.cpp" />
-    <ClCompile Include="PiePalette.cpp" />
+    <ClCompile Include="Palette.cpp" />
     <ClCompile Include="PQueue.cpp" />
     <ClCompile Include="PtrList.cpp" />
     <ClCompile Include="RendFunc.cpp" />
@@ -376,7 +367,7 @@
     <ClCompile Include="TexMan.cpp" />
     <ClCompile Include="TextDraw.cpp" />
     <ClCompile Include="WDG.cpp" />
-    <ClCompile Include="D3DRender.cpp">
+    <ClCompile Include="Render.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
   </ItemGroup>

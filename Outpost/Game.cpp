@@ -57,6 +57,7 @@
 #include "ScriptExtern.h"
 #include "MultiStat.h"
 #include "Wrappers.h"
+#include "Palette.h"
 
 #define ALLOWSAVE
 #define MAX_SAVE_NAME_SIZE_V19	40

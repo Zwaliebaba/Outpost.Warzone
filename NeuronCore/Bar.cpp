@@ -5,7 +5,7 @@
 #include "Form.h"
 #include "Bar.h"
 #include "RendMode.h"
-#include "PiePalette.h"
+#include "Palette.h"
 
 /* Create a barGraph widget data structure */
 BOOL barGraphCreate(W_BARGRAPH** ppsWidget, W_BARINIT* psInit)
@@ -207,10 +207,10 @@ void barGraphDisplay(WIDGET* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* p
 
   /* Now draw the graph */
   pie_BoxFillIndex(x0, y0, x1, y1, psBGraph->majorCol);
-  iV_Line(x0, y1, x0, y0, *(pColours + WCOL_LIGHT));
-  iV_Line(x0, y0, x1, y0, *(pColours + WCOL_LIGHT));
-  iV_Line(x1, y0, x1, y1, *(pColours + WCOL_DARK));
-  iV_Line(x0, y1, x1, y1, *(pColours + WCOL_DARK));
+  pie_Line(x0, y1, x0, y0, *(pColours + WCOL_LIGHT));
+  pie_Line(x0, y0, x1, y0, *(pColours + WCOL_LIGHT));
+  pie_Line(x1, y0, x1, y1, *(pColours + WCOL_DARK));
+  pie_Line(x0, y1, x1, y1, *(pColours + WCOL_DARK));
 }
 
 /* The double bar graph display function */
@@ -282,18 +282,18 @@ void barGraphDisplayDouble(WIDGET* psWidget, UDWORD xOffset, UDWORD yOffset, UDW
   if (psBGraph->minorSize > 0)
   {
     pie_BoxFillIndex(x2, y2, x3, y3, psBGraph->minorCol);
-    iV_Line(x2, y3, x2, y2, *(pColours + WCOL_LIGHT));
-    iV_Line(x2, y2, x3, y2, *(pColours + WCOL_LIGHT));
-    iV_Line(x3, y2, x3, y3, *(pColours + WCOL_DARK));
-    iV_Line(x2, y3, x3, y3, *(pColours + WCOL_DARK));
+    pie_Line(x2, y3, x2, y2, *(pColours + WCOL_LIGHT));
+    pie_Line(x2, y2, x3, y2, *(pColours + WCOL_LIGHT));
+    pie_Line(x3, y2, x3, y3, *(pColours + WCOL_DARK));
+    pie_Line(x2, y3, x3, y3, *(pColours + WCOL_DARK));
   }
 
   /* Draw the major bar graph */
   pie_BoxFillIndex(x0, y0, x1, y1, psBGraph->majorCol);
-  iV_Line(x0, y1, x0, y0, *(pColours + WCOL_LIGHT));
-  iV_Line(x0, y0, x1, y0, *(pColours + WCOL_LIGHT));
-  iV_Line(x1, y0, x1, y1, *(pColours + WCOL_DARK));
-  iV_Line(x0, y1, x1, y1, *(pColours + WCOL_DARK));
+  pie_Line(x0, y1, x0, y0, *(pColours + WCOL_LIGHT));
+  pie_Line(x0, y0, x1, y0, *(pColours + WCOL_LIGHT));
+  pie_Line(x1, y0, x1, y1, *(pColours + WCOL_DARK));
+  pie_Line(x0, y1, x1, y1, *(pColours + WCOL_DARK));
 }
 
 /* The trough bar graph display function */
@@ -373,9 +373,9 @@ void barGraphDisplayTrough(WIDGET* psWidget, UDWORD xOffset, UDWORD yOffset, UDW
   if (showTrough)
   {
     pie_BoxFillIndex(tx0, ty0, tx1, ty1, WCOL_BKGRND);
-    iV_Line(tx0, ty1, tx0, ty0, *(pColours + WCOL_DARK));
-    iV_Line(tx0, ty0, tx1, ty0, *(pColours + WCOL_DARK));
-    iV_Line(tx1, ty0, tx1, ty1, *(pColours + WCOL_LIGHT));
-    iV_Line(tx0, ty1, tx1, ty1, *(pColours + WCOL_LIGHT));
+    pie_Line(tx0, ty1, tx0, ty0, *(pColours + WCOL_DARK));
+    pie_Line(tx0, ty0, tx1, ty0, *(pColours + WCOL_DARK));
+    pie_Line(tx1, ty0, tx1, ty1, *(pColours + WCOL_LIGHT));
+    pie_Line(tx0, ty1, tx1, ty1, *(pColours + WCOL_LIGHT));
   }
 }

@@ -10,7 +10,8 @@
 
 #include "Frame.h"
 //render library
-#include "PieDef.h"
+#include "RenderTypes.h"
+#include "Model.h"
 #include "PieState.h"
 #include "Pcx.h"
 #include "BitImage.h"
@@ -634,7 +635,7 @@ void dataSMSGRelease(void* pData) { viewDataShutDown(static_cast<VIEWDATA*>(pDat
 /* Load an imd */
 BOOL dataIMDLoad(STRING* pFile, void** ppData)
 {
-  iIMDShape* psIMD = iV_IMDLoad(pFile,FALSE);
+  iIMDShape* psIMD = Neuron::IMDLoad(pFile,FALSE);
   if (psIMD == nullptr)
   {
     Neuron::Fatal("Please check that both file {} and it's texture file are present", pFile);
@@ -669,7 +670,7 @@ BOOL dataIMDBufferLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
 
   if (BinaryPIE == FALSE)
   {
-    psIMD = iV_ProcessIMD(&pBufferPosition, pBuffer + size, (UBYTE*)"", (UBYTE*)"",FALSE);
+    psIMD = Neuron::ProcessIMD(&pBufferPosition, pBuffer + size, (UBYTE*)"", (UBYTE*)"",FALSE);
 #ifndef FINALBUILD
     tpAddPIE(GetLastResourceFilename(), psIMD);
 #endif
@@ -681,7 +682,7 @@ BOOL dataIMDBufferLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
   }
   else
   {
-    psIMD = iV_ProcessBPIE((iIMDShape*)(pBuffer + 4), size);
+    psIMD = Neuron::ProcessBPIE((iIMDShape*)(pBuffer + 4), size);
 #ifndef FINALBUILD
     tpAddPIE(GetLastResourceFilename(), psIMD);
 #endif
@@ -706,7 +707,7 @@ BOOL dataIMGPAGELoad(UBYTE* pBuffer, UDWORD size, void** ppData)
   if (!psSprite)
     return FALSE;
 
-  if (!iV_PCXLoadMem((int8*)(SBYTE*)pBuffer, psSprite, nullptr))
+  if (!Neuron::PCXLoadMem((int8*)(SBYTE*)pBuffer, psSprite, nullptr))
   {
     Neuron::Fatal("IMGPAGE load failed");
     delete[] psSprite;
@@ -766,7 +767,7 @@ BOOL dataHWTERTILESLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
   else
   {
     Neuron::DebugTrace("Loading terrain tiles\n");
-    if (!iV_PCXLoadMem((int8*)(SBYTE*)pBuffer, &tilesPCX, nullptr))
+    if (!Neuron::PCXLoadMem((int8*)(SBYTE*)pBuffer, &tilesPCX, nullptr))
     {
       Neuron::Fatal("HWTERTILES load failed");
       return FALSE;
@@ -809,7 +810,7 @@ void dataHWTERTILESRelease(void* pData)
 
 BOOL dataIMGLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
 {
-  IMAGEFILE* ImageFile = iV_LoadImageFile(pBuffer, size);
+  IMAGEFILE* ImageFile = Neuron::LoadImageFile(pBuffer, size);
   if (ImageFile == nullptr)
     return FALSE;
 
@@ -818,12 +819,12 @@ BOOL dataIMGLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
   return TRUE;
 }
 
-void dataIMGRelease(void* pData) { iV_FreeImageFile(static_cast<IMAGEFILE*>(pData)); }
+void dataIMGRelease(void* pData) { Neuron::FreeImageFile(static_cast<IMAGEFILE*>(pData)); }
 
 /* Load a PCX to an iSprite */
 //
 //
-//	if (!iV_PCXLoad(pFile, psSprite, sPal))
+//	if (!Neuron::PCXLoad(pFile, psSprite, sPal))
 //
 //
 
@@ -906,7 +907,7 @@ BOOL bufferTexPageLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
     if (!psSprite)
       return FALSE;
 
-    if (!iV_PCXLoadMem((int8*)(SBYTE*)pBuffer, psSprite, nullptr))
+    if (!Neuron::PCXLoadMem((int8*)(SBYTE*)pBuffer, psSprite, nullptr))
     {
       delete[] psSprite;
       psSprite = nullptr;
@@ -1197,7 +1198,7 @@ static RES_TYPE_MIN ResourceTypes[] = {
   // freed by 3d shutdow},// Tertiles Files. This version used when running with hardware renderer.
   {"AUDIOCFG", dataAudioCfgLoad, nullptr}, {"WAV", dataAudioLoad, dataAudioRelease}, {"ANI", dataAnimLoad, dataAnimRelease},
   {"ANIMCFG", dataAnimCfgLoad, nullptr}, {"IMG", dataIMGLoad, dataIMGRelease}, {"TEXPAGE", bufferTexPageLoad, dataTexPageRelease},
-  {"IMD", dataIMDBufferLoad, (RES_FREE)iV_IMDRelease}, {nullptr, nullptr, nullptr} // indicates end of list
+  {"IMD", dataIMDBufferLoad, (RES_FREE)Neuron::IMDRelease}, {nullptr, nullptr, nullptr} // indicates end of list
 };
 
 /* Pass all the data loading functions to the framework library */

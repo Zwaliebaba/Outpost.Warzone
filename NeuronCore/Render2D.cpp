@@ -1,4 +1,5 @@
 #include "pch.h"
+#include <assert.h>
 /***************************************************************************/
 /*
  * pieBlitFunc.c
@@ -10,18 +11,19 @@
 
 #include "Frame.h"
 #include <time.h>
-#include "PieBlitFunc.h"
+#include "Render2D.h"
 #include "TexMan.h"
-#include "Bug.h"
-#include "PieDef.h"
+#include "RenderTypes.h"
+#include "RenderModel.h"
 #include "PieMode.h"
 #include "PieState.h"
 #include "RendFunc.h"
 #include "RendMode.h"
 #include "Pcx.h"
-#include "PieClip.h"
+#include "RenderClip.h"
 #include "PieFunc.h"
-#include "PieMatrix.h"
+#include "RenderMatrix.h"
+#include "Palette.h"
 /***************************************************************************/
 /*
  *	Local Definitions

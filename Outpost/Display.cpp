@@ -14,7 +14,7 @@
 #include "Atmos.h"	// temporary only for here
 #include "CSnap.h"
 /* Includes direct access to render library */
-#include "PieDef.h"
+#include "RenderTypes.h"
 #include "PieState.h"
 #include "RendMode.h"
 
@@ -60,7 +60,7 @@
 #include "Transporter.h"
 #include "IntOrder.h"
 
-#include "PieClip.h"		// ffs am
+#include "RenderClip.h"		// ffs am
 #include "MultiPlay.h"
 
 #define	SHAKE_TIME	(1500)
