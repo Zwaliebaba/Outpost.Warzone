@@ -59,7 +59,6 @@
 
 #include <initguid.h>
 // GUID for MPlayer service provider. Will This Change???
-DEFINE_GUID(SPGUID_MPLAYER, 0xd8d29744, 0x208a, 0x11d0, 0xbc, 0x9d, 0x0, 0xa0, 0x24, 0x29, 0x67, 0xb6);
 
 // ////////////////////////////////////////////////////////////////////////////
 // vars 
@@ -560,8 +559,6 @@ static void addConnections(UDWORD begin)
 
     else if (IsEqualGUID(NetPlay.protocols[i].guid, DPSPGUID_SERIAL))
       addTextButton(CON_TYPESID_START + i,FRONTEND_POS1X, pos, strresGetString(psStringRes, STR_CON_CABLE),FALSE,FALSE);
-    else if (IsEqualGUID(NetPlay.protocols[i].guid, SPGUID_MPLAYER))
-      addTextButton(CON_TYPESID_START + i,FRONTEND_POS1X, pos, "Play on EidosGames.com",FALSE,FALSE);
     else
     {
       if (strlen(NetPlay.protocols[i].name) > 25)
@@ -639,12 +636,6 @@ VOID runConnectionScreen(void)
       OptionsCable(id);
       widgSetButtonState(psConScreen, CON_COM1,WBUT_LOCK);
       widgSetButtonState(psConScreen, CON_19200,WBUT_LOCK);
-    }
-
-    else if (IsEqualGUID(NetPlay.protocols[id - CON_TYPESID_START].guid, SPGUID_MPLAYER)) // mplayer
-    {
-      if (system("multiplay\\MplayNow\\mplaynow.exe") != -1) // launch gizmo, if present. If not, tough...
-        changeTitleMode(QUIT); // shut down warzone...
     }
     else if (strncmp(NetPlay.protocols[id - CON_TYPESID_START].name, "Simulator For", 12) == 0) // DIRECTPLAY 6 TEST MODE
     {

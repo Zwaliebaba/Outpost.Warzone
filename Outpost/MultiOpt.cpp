@@ -45,7 +45,6 @@ DEFINE_GUID(WARZONEGUID, 0x48ab0b01, 0xfec0, 0x11d1, 0x98, 0xc, 0x0, 0xa0, 0x24,
 // External Variables
 
 extern char buildTime[8];
-extern BOOL mplayerSubmit(void);
 extern VOID stopJoining(void);
 
 // ////////////////////////////////////////////////////////////////////////////
@@ -990,7 +989,6 @@ BOOL multiGameShutdown(VOID)
   st = getMultiStats(selectedPlayer,TRUE); // save stats
 
   saveMultiStats(getPlayerName(selectedPlayer), getPlayerName(selectedPlayer), &st);
-  mplayerSubmit();
 
   NETclose(); // close game.
 
