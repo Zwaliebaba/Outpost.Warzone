@@ -2,7 +2,7 @@
 #define __INCLUDED_BITIMAGE__
 
 #include "Frame.h"
-#include "PieTypes.h"
+#include "RenderTypes.h"
 
 //*************************************************************************
 //

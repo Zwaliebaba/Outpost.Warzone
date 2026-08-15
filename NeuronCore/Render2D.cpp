@@ -13,7 +13,8 @@
 #include <time.h>
 #include "Render2D.h"
 #include "TexMan.h"
-#include "PieDef.h"
+#include "RenderTypes.h"
+#include "RenderModel.h"
 #include "PieMode.h"
 #include "PieState.h"
 #include "RendFunc.h"
@@ -22,6 +23,7 @@
 #include "RenderClip.h"
 #include "PieFunc.h"
 #include "RenderMatrix.h"
+#include "Palette.h"
 /***************************************************************************/
 /*
  *	Local Definitions

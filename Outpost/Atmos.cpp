@@ -6,7 +6,8 @@
 	system and aren't properly implemented in the software mode 
 */
 #include "Frame.h"
-#include "PieDef.h"
+#include "RenderTypes.h"
+#include "RenderModel.h"
 #include "PieState.h"
 #include "Display3D.h"
 #include "Display3Ddef.h"

@@ -11,7 +11,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "PieDef.h"
+#include "RenderTypes.h"
+#include "RenderModel.h"
+#include "Model.h"
 #include "PieState.h"
 #include "RenderClip.h"
 #include "Palette.h"

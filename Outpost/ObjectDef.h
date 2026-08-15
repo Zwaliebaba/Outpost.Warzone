@@ -9,7 +9,7 @@
 #define _objectdef_h
 
 #include "Frame.h"
-#include "PieTypes.h"
+#include "RenderTypes.h"
 
 #include "AIDef.h"
 #include "FunctionDef.h"

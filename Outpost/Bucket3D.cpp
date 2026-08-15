@@ -8,7 +8,8 @@
 */
 
 /* Includes direct access to matrix code */
-#include "PieDef.h"
+#include "RenderTypes.h"
+#include "Model.h"
 #include "PieState.h"
 #include "RendMode.h"
 #include "Geo.h"//matrix code

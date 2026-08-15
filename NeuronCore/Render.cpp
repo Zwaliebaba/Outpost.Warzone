@@ -17,7 +17,8 @@
 #include "Tex.h"
 #include "Palette.h"
 #include "PieState.h"
-#include "PieDef.h"
+#include "RenderTypes.h"
+#include "D3D9Vertex.h"
 #include "RenderClip.h"
 #include "FrameInt.h"
 

@@ -9,7 +9,6 @@
 #include "GTime.h"
 #include "Console.h"
 #include "Scores.h"
-#include "PieDef.h"
 #include "PieFunc.h"
 #include "PieMode.h"
 #include "PieState.h"

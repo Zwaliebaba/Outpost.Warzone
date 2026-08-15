@@ -32,7 +32,6 @@
 #include "Text.h"
 #include "Console.h"
 
-#include "PieDef.h"
 #include "PieState.h"
 #include "Config.h"
 #include "PieMode.h"
@@ -90,6 +89,7 @@
 #include "Cluster.h"
 #include "Gateway.h"
 #include "Lighting.h"
+#include "Palette.h"
 
 extern void statsInitVars(void);
 extern void structureInitVars(void);

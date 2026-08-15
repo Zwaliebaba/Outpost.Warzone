@@ -14,7 +14,7 @@
 #include "Atmos.h"	// temporary only for here
 #include "CSnap.h"
 /* Includes direct access to render library */
-#include "PieDef.h"
+#include "RenderTypes.h"
 #include "PieState.h"
 #include "RendMode.h"
 

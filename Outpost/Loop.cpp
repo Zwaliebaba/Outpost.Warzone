@@ -67,6 +67,7 @@
 
 #ifdef DEBUG
 #include "ObjMem.h"
+#include "RenderModel.h"
 #endif
 
 #define MISSION_COMPLETE_DELAY	4000

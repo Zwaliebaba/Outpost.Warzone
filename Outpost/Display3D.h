@@ -4,8 +4,8 @@
 #define _display3d_h
 
 #include "Display3Ddef.h"	// This should be the only place including this file on the PC ... display3d_psx.h on the playstation
-#include "PieTypes.h"
-#include "PieDef.h"
+#include "RenderTypes.h"
+#include "Model.h"
 #include "ObjectDef.h"
 #include "Message.h"
 

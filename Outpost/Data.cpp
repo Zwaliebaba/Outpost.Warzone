@@ -10,7 +10,8 @@
 
 #include "Frame.h"
 //render library
-#include "PieDef.h"
+#include "RenderTypes.h"
+#include "Model.h"
 #include "PieState.h"
 #include "Pcx.h"
 #include "BitImage.h"

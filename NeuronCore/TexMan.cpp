@@ -20,7 +20,7 @@
 /***************************************************************************/
 
 #include "Frame.h"
-#include "PieDef.h"
+#include "RenderTypes.h"
 #include "PieState.h"
 #include "Palette.h"
 #include "Render.h"

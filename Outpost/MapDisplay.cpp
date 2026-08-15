@@ -16,7 +16,7 @@
 /* Includes direct access to render library */
 #include "Model.h"
 #include "BitImage.h"
-#include "PieDef.h"
+#include "RenderTypes.h"
 #include "PieState.h"
 #include "PieMode.h"
 #include "RenderMatrix.h"

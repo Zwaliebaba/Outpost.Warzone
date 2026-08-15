@@ -4,8 +4,8 @@
 #include "HCI.h"
 #include "MapDisplay.h"
 #include "Display3D.h"
-#include "PieTypes.h"
-#include "PieDef.h" //pie render
+#include "RenderTypes.h"
+#include "RenderModel.h"
 #include "Geo.h" //ivis matrix code
 #include "MiscIMD.h"
 #include "Effects.h"

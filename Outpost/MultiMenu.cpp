@@ -12,7 +12,6 @@
 #include "IntDisplay.h"
 #include "Text.h"
 #include "RendMode.h"
-#include "PieDef.h"
 #include "GTime.h"
 #include "Geo.h"
 #include "Levels.h"
@@ -32,6 +31,7 @@
 #include "MultiInt.h"
 #include "MultiGifts.h"
 #include "MultiJoin.h"
+#include "Palette.h"
 #include "Scores.h"                        // getAsciiTime
 
 // ////////////////////////////////////////////////////////////////////////////

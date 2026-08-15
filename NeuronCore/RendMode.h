@@ -1,8 +1,7 @@
 // vid.c 0.1 10-01-96.22-11-96
 #ifndef _rendmode_h_
 #define _rendmode_h_
-#include "PieTypes.h"
-#include "PieDef.h"
+#include "RenderTypes.h"
 #include "Render2D.h"
 #include "BitImage.h"
 #include "TextDraw.h"

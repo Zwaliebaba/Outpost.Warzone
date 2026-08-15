@@ -37,6 +37,7 @@
 #include "Lighting.h"
 #include "WDG.h"
 #include "MultiWDG.h"
+#include "Palette.h"
 
 // Warzone 2100 . Pumpkin Studios
 

@@ -24,6 +24,7 @@
 #include "RendMode.h"
 
 #include "Target.h"
+#include "Palette.h"
 
 extern UDWORD selectedPlayer;
 

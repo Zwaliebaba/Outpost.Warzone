@@ -3,7 +3,7 @@
 /* Alex McLean, Pumpkin Studios, EIDOS Interactive, 1997 */
 
 #include "Frame.h"
-#include "PieTypes.h"
+#include "RenderTypes.h"
 #include "PieState.h"
 #include "TexMan.h"
 #include "Palette.h"

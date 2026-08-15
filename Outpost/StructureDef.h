@@ -7,7 +7,7 @@
 #ifndef _structuredef_h
 #define _structuredef_h
 #include "Model.h"
-#include "PieTypes.h"
+#include "RenderTypes.h"
 
 #define NUM_FACTORY_MODULES	2
 #define NUM_RESEARCH_MODULES 4

@@ -1,7 +1,7 @@
 #ifndef _mapdisplay_h
 #define _mapdisplay_h
 
-#include "PieTypes.h"
+#include "RenderTypes.h"
 #include "Model.h"
 #include "RendMode.h"
 

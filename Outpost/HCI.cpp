@@ -18,7 +18,6 @@
 #include "Edit2D.h"
 #include "Map.h"
 /* Includes direct access to render library */
-#include "PieDef.h"
 #include "PieState.h"
 #include "RendMode.h"
 
@@ -77,6 +76,7 @@
 #include "FrontEnd.h"
 #include "Effects.h"
 #include "KeyMap.h"
+#include "Palette.h"
 
 #define	MAX_INTERFACE_SNAPS	64
 #define	MAX_RADAR_SNAPS 1

@@ -9,7 +9,8 @@
 #ifndef _renderMatrix_h
 #define _renderMatrix_h
 
-#include "PieDef.h"
+#include "RenderTypes.h"
+#include "RendMode.h"
 
 /***************************************************************************/
 /*

@@ -10,7 +10,8 @@
 
 #include "Frame.h"
 
-#include "PieDef.h"
+#include "RenderTypes.h"
+#include "D3D9Vertex.h"
 #include "RendMode.h"
 #include "PieFunc.h"
 #include "PieState.h"

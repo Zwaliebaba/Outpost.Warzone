@@ -54,6 +54,7 @@
 #include "Mission.h"
 
 #include "MultiPlay.h"
+#include "Palette.h"
 
 // Is a clickable form widget hilited, either because the cursor is over it or it is flashing.
 //

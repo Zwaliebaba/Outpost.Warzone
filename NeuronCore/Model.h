@@ -16,7 +16,7 @@
 #define _model_h
 
 #include "Frame.h"
-#include "PieTypes.h"
+#include "RenderTypes.h"
 
 /* BSPIMD and BSPPOLYID come from here, and gate the BSP members below. */
 #include "BSPIMD.h"

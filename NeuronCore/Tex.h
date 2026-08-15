@@ -1,7 +1,7 @@
 #ifndef _tex_
 #define _tex_
+#include "RenderTypes.h"
 
-#include "PieDef.h"
 
 //*************************************************************************
 

@@ -9,7 +9,6 @@
 /***************************************************************************/
 
 #include "Frame.h"
-#include "PieDef.h"
 #include "PieState.h"
 #include "PieMode.h"
 #include "RenderMatrix.h"
@@ -18,6 +17,7 @@
 #include "Render.h"
 #include "RendMode.h"
 #include "RenderClip.h"
+#include "Palette.h"
 
 /***************************************************************************/
 /*

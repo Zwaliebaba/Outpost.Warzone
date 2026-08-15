@@ -8,6 +8,7 @@
 #include "D3D9Vertex.h"
 #include "Frame.h"
 #include "PieState.h"
+#include "RenderTypes.h"
 
 /***************************************************************************/
 

@@ -121,6 +121,7 @@
     <ClInclude Include="Image.h" />
     <ClInclude Include="IMD.h" />
     <ClInclude Include="Model.h" />
+    <ClInclude Include="RenderModel.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Interp.h" />
     <ClInclude Include="IvisPatch.h" />
@@ -140,13 +141,12 @@
     <ClInclude Include="Pcx.h" />
     <ClInclude Include="Render2D.h" />
     <ClInclude Include="RenderClip.h" />
-    <ClInclude Include="PieDef.h" />
     <ClInclude Include="PieFunc.h" />
     <ClInclude Include="RenderMatrix.h" />
     <ClInclude Include="PieMode.h" />
     <ClInclude Include="Palette.h" />
     <ClInclude Include="PieState.h" />
-    <ClInclude Include="PieTypes.h" />
+    <ClInclude Include="RenderTypes.h" />
     <ClInclude Include="PQueue.h" />
     <ClInclude Include="Priority.h" />
     <ClInclude Include="PtrList.h" />

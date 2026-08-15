@@ -130,6 +130,9 @@
     <ClInclude Include="Model.h">
       <Filter>Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="RenderModel.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
     <ClInclude Include="IvisPatch.h">
       <Filter>Graphics</Filter>
     </ClInclude>
@@ -140,9 +143,6 @@
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="RenderClip.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="PieDef.h">
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="PieFunc.h">
@@ -160,7 +160,7 @@
     <ClInclude Include="PieState.h">
       <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="PieTypes.h">
+    <ClInclude Include="RenderTypes.h">
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="RendFunc.h">

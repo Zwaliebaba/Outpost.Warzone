@@ -90,4 +90,8 @@ extern int tpGetNumPIEs(void);
 extern iIMDShape* tpGetPIE(int Index);
 extern char* tpGetPIEName(int Index);
 
+
+// Special re-mix of sscanf that moves the string pointer along - defined in IMDLoad.cpp
+extern int __cdecl sscanf1(char** stringPos, const char* format, ...);
+
 #endif

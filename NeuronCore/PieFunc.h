@@ -15,7 +15,7 @@
 #include "Frame.h"
 
 #include "D3D9Vertex.h"
-#include "PieTypes.h"
+#include "RenderTypes.h"
 
 /***************************************************************************/
 /*

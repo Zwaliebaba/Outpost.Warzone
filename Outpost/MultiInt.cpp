@@ -20,7 +20,7 @@
 #include "Display3D.h"
 
 /* Includes direct access to render library */
-#include "PieDef.h"
+#include "RenderTypes.h"
 #include "PieState.h"
 #include "RenderClip.h"
 #include "RendMode.h"
@@ -56,6 +56,7 @@
 #include "MultiMenu.h"
 
 #include "Levels.h"
+#include "Palette.h"
 
 #include <initguid.h>
 // GUID for MPlayer service provider. Will This Change???

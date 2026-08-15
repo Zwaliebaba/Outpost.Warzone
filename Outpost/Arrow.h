@@ -1,4 +1,4 @@
-#include "PieTypes.h"
+#include "RenderTypes.h"
 /***************************************************************************/
 
 BOOL arrowInit(void);

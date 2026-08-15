@@ -1,10 +1,9 @@
 #include "pch.h"
 #include "Frame.h"	// just for the typedef's
-#include "PieTypes.h"
+#include "RenderTypes.h"
 #include "RenderMatrix.h"
 #include "Model.h"
 #include "IMD.h"// this has the #define for BSPPOLYID_TERMINATE
-#include "PieDef.h"
 
 #ifdef BSPIMD		// covers the whole file
 

@@ -14,6 +14,7 @@
 #include "IvisPatch.h"
 #include "TextDraw.h"
 #include "BitImage.h"
+#include "RenderModel.h"
 
 extern void pie_DrawTextNew(unsigned char* string, int x, int y);
 extern SDWORD DisplayXFactor;

@@ -10,7 +10,8 @@ allow-list in `tools/check_case.py`, per [AGENTS.md §6](../AGENTS.md).
 recorded with their reasoning under [Decisions](#decisions--settled): the
 rename is full, the dead config keys are dropped, the clipper replacement is
 attempted behind a parity gate, and stages A and B land now while stage C
-waits for Phase 6's `Sequence.cpp` rewrite to merge. Nothing below is
+waits for Phase 6's `Sequence.cpp` rewrite to merge. **Stages A, B and C are
+done**; D is the remainder. Nothing below is
 blocked on input; the remaining unknowns are audits (A5) and a measurement
 gate (D1), both owned by the stage that runs them.
 
@@ -92,10 +93,12 @@ and `g_bStateCacheStale` is gone.
 | `Screen.cpp` | 1,190 | Device, present, back-buffer lock, backdrop | Stays |
 | `TextDraw.cpp` | 1,061 -> 1,003 | Fonts as textured quads + FMV subtitle path | Consumer; loses two dead functions |
 
-Headers: `RendMode.h` (138) and `IvisPatch.h` (106) are pure alias tables —
-`#define iV_DrawImage pie_ImageFileID` and so on — and go entirely.
-`IvisDef.h`, `PieDef.h`, `PieTypes.h` carry the live type definitions
-(`iIMDShape`, `PIEVERTEX`, `IMAGEFILE`) and survive, consolidated.
+Headers: `RendMode.h` (138) and `IvisPatch.h` (106) were pure alias tables —
+`#define iV_DrawImage pie_ImageFileID` and so on — and the tables went in C1.
+`IvisDef.h`, `PieDef.h` and `PieTypes.h` carried the live type definitions
+(`iIMDShape`, `PIEVERTEX`, `IMAGEFILE`); C3 consolidated them into
+`RenderTypes.h` and `Model.h`, and all three are gone. `RendMode.h` survives
+as the surface module and now owns `iSurface`.
 
 ---
 
@@ -495,7 +498,7 @@ once the funnel takes a vertex-buffer, which is D2.
 
 The full rename is decided (Decision 1). Phase 6 has merged, so the wait
 described in [Sequencing](#sequencing-against-phases-6-and-7) is over and
-this stage is in progress: C1 and C2 are done, C3 is not started.
+this stage is **done**: C1, C2, C3 and the symbol rename have all landed.
 
 - **C1. Kill the alias tables.** *(done)* Deleted `RendMode.h`'s
   `#define iV_* pie_*` block, `TextDraw.h`'s pair and `IvisPatch.h`'s 34,
@@ -506,10 +509,27 @@ this stage is in progress: C1 and C2 are done, C3 is not started.
   (`RenderMatrix`, `RenderClip`, `Palette`) keep their internals — renaming
   their every local is churn Phase 7 owns. Symbol renames were deliberately
   kept out: mixing them into a file move makes the diff unreadable.
-- **C3. Header consolidation.** `PieDef.h`/`PieTypes.h`/`IvisDef.h`/`Ivi.h`
-  reduce to a render-types header (vertex/state/image types) and a model
-  header (`iIMDShape` family). `Ivi.cpp`'s `iV_Error`/`iV_Stop`/`iV_Abort`
-  give way to `Debug.h` calls at their ~30 sites.
+- **C3. Header consolidation.** *(done)* The four headers reduced to the two
+  the target called for, plus a home for the declarations they were carrying:
+
+  | was | is |
+  |---|---|
+  | `PieTypes.h` + `PieDef.h`'s types and constants | `RenderTypes.h` (280 lines) |
+  | `IvisDef.h`'s `iIMDShape` family | `Model.h` (119 lines) |
+  | `IvisDef.h`'s `IMAGEFILE` family | `BitImage.h`, beside its functions |
+  | `IvisDef.h`'s `iSurface` | `RendMode.h`, beside `rendSurface` |
+  | `PieDef.h`'s eight `pie_Draw*` declarations | `RenderModel.h` (new, 30 lines) |
+  | `Ivi.h`'s `DIVSHIFT` | `RenderClip.cpp`, its only user |
+  | `Ivi.cpp`'s two lifecycle functions | `PieMode`, beside `pie_Initialise` |
+
+  `Ivi.h`, `Ivi.cpp`, `IvisDef.h` and `PieDef.h` are gone; `PieTypes.h`
+  became `RenderTypes.h`. `PIEPOLY` went to `RenderModel.cpp`, its only
+  user and only via `static` functions, so it never needed to be public.
+- **C4. The symbol rename.** *(done)* The `iV_` prefix became
+  `namespace Neuron` rather than being stripped — see below.
+- **C3a. The error and debug shims.** *(done)* `iV_Error`'s 47 sites became
+  `Neuron::DebugTrace`; `iV_Stop`, `iV_Abort` and the whole inert
+  `iV_DEBUG0..12` family were deleted with `Bug.h`/`Bug.cpp`.
 
 **Risk: low but wide.** Mechanical; the danger is a missed alias in a
 comment or a `.filters` mismatch, both of which CI and `check_case.py`
@@ -526,6 +546,34 @@ catch.
   `static iVertex xclip[pie_MAX_POLY_SIZE + 4]` lost its array size. The
   duplicate was deleted; a sweep for `^#define\s+(\w+)\s+\1` found no other
   instance. Any future mass-rename wants that grep as a post-step.
+- **The `iV_` prefix was a namespace in disguise.** Checking all 87 rename
+  targets against the mingw-w64 Win32 and CRT headers before touching
+  anything found 8 platform collisions. Two were severe: `iV_HeapAlloc` and
+  `iV_HeapFree` are macros, so stripping them to `HeapAlloc`/`HeapFree`
+  would have hijacked every kernel32 call in every translation unit;
+  `CreateFontIndirect`, `GetCharWidth` and `SetFont` are GDI. The functions
+  went into `namespace Neuron` instead. **Run that check before the `pie_`
+  rename.**
+- **A macro that expands to nothing never type-checks its arguments.**
+  `iV_DEBUG` is defined in no configuration, so all 60 `iV_DEBUG0..12` sites
+  had been inert for years — long enough for `Tex.cpp` to be logging
+  `buffer`, a local of a *different function*. A tree-wide sweep found this
+  was the only always-empty parameterised macro with call sites, so the
+  class is closed.
+- **Two wrappers would have recursed into themselves.** `IntOrder.cpp` had
+  `static GetImageWidth`/`GetImageHeight` forwarding to the `iV_` functions
+  of the same name. Dropping the prefix makes each call itself — which
+  compiles clean and blows the stack. Neither the cross-checker nor CI
+  would have caught it. They were `UWORD`→`UDWORD`→`UWORD` no-ops and were
+  deleted.
+- **Most headers were never self-contained.** Splitting `IvisDef.h` and
+  `PieDef.h` showed that ~30 headers compiled only because a hub header
+  happened to arrive first through somebody else's include list —
+  `Render2D.h` takes `IMAGEFILE` parameters and included nothing at all.
+  Deriving each home header's public surface from the header itself, then
+  checking every file's transitive include closure against it, found them
+  in one pass instead of one 10-minute cross-check at a time. That script
+  is the tool to reach for next time a hub header is split.
 - **Debug CI does not cover the linker.** Removing
   `ImageHasSafeExceptionHandlers=false` (during B6, on the assumption it
   went with `WINSTR.LIB`) passed Debug and failed Release with LNK2026 /

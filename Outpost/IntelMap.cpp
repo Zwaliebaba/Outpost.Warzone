@@ -9,7 +9,6 @@
 #include "Frame.h"
 #include "Widget.h"
 /* Includes direct access to render library */
-#include "PieDef.h"
 #include "RendMode.h"
 
 #include "Display3D.h"
@@ -38,6 +37,7 @@
 #include "ScriptExtern.h"
 
 #include "CSnap.h"
+#include "Palette.h"
 extern CURSORSNAP InterfaceSnap;
 
 // See research.txt for research entry to be displayed

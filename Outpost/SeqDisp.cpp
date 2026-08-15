@@ -11,7 +11,6 @@
 #include "SeqDisp.h"
 #include "Sequence.h"
 #include "Loop.h"
-#include "PieDef.h"
 #include "PieFunc.h"
 #include "PieState.h"
 #include "HCI.h"//for font
@@ -27,6 +26,7 @@
 #include "ScriptTabs.h"
 #include "Design.h"
 #include "Wrappers.h"
+#include "Palette.h"
 
 /***************************************************************************/
 /*

@@ -2,7 +2,6 @@
 #include "Frame.h"
 #include "GTime.h"
 #include "Base.h"
-#include "PieDef.h"
 #include "PieState.h"
 #include "RendMode.h"
 #include "IntImage.h"

@@ -16,7 +16,8 @@
 #include "MiscIMD.h"
 #include "Mission.h"
 #include "MultiPlay.h"
-#include "PieDef.h"  
+#include "RenderTypes.h"
+#include "RenderModel.h"
 
 #define DOLIGHTS
 

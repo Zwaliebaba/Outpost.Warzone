@@ -1,6 +1,6 @@
 #ifndef i_BSPIMD
 #define i_BSPIMD
-#include "PieTypes.h"
+#include "RenderTypes.h"
 
 /* Optional BSP is handled on all formats, so this is on for every build. It
  * gates BSP members in the model structures as well as code across the tree. */

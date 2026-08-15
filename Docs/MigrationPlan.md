@@ -15,13 +15,15 @@ provide. Everything below assumes that target.
 
 Measured at the head of the Phase 8 work. The figures in brackets are what
 this table said when Phase 1 measured it; the fall is Phases 4 to 6 deleting
-QMixer, CD audio, DirectPlay and Mplayer, and Phase 8 folding three render
-files into their neighbours.
+QMixer, CD audio, DirectPlay and Mplayer, and Phase 8 folding render files
+into their neighbours. Header counts are whole-tree and include the vendored
+`DX9/Include`, so Phase 8's four deletions against two additions barely move
+them.
 
 | | |
 |---|---|
-| Source files | 195 `.cpp` (was 206), 376 `.h` (was 378) |
-| Translation units | 75 NeuronCore (was 85), 119 Outpost (was 121), plus the `NetTest` harness |
+| Source files | 193 `.cpp` (was 206), 374 `.h` (was 378) |
+| Translation units | 74 NeuronCore (was 85), 118 Outpost (was 121), plus the `NetTest` harness |
 | Toolset | MSVC v145, Win32 (x86) only |
 | Projects | `NeuronCore` (engine static lib), `Outpost` (game exe), `NetTest` (transport harness) |
 
@@ -890,20 +892,33 @@ the draw funnel is singular). Stages A and B landed first because they avoid
 Phase 6's contact surface; stage C's rename, which touches `Sequence.cpp`,
 waited for Phase 6 to merge and is now under way.
 
-**Stage C is part done.** C1 deleted the three `#define iV_* pie_*` alias
+**Stage C is done.** C1 deleted the three `#define iV_* pie_*` alias
 tables and landed the canonical names at 630 call sites. C2 moved the render
 files onto their target names — `D3DRender` → `Render`, `PieDraw` →
 `RenderModel`, `PieBlitFunc` → `Render2D`, `PieMatrix` → `RenderMatrix`,
 `PieClip` → `RenderClip`, `PiePalette` → `Palette` — as a pure rename:
 `git mv` for history, then `#include` lines, project/`.filters` entries and
-include guards. The symbols still carry `pie_`/`iV_` prefixes; renaming
-those, and C3's header consolidation, are what remain of the stage.
+include guards.
 
-Two findings from stage C are worth carrying forward, both recorded in
+C4 then took the `iV_` prefix off 51 functions — into `namespace Neuron`
+rather than stripped, because 8 of the 87 candidate names collide with the
+Win32 API and `iV_HeapAlloc`/`iV_HeapFree` are macros that would have
+hijacked `kernel32`. The 30 macros strip to bare `SCREAMING_SNAKE`. C3
+consolidated the four legacy type headers into `RenderTypes.h` and `Model.h`,
+with the image structures joining `BitImage.h`, `iSurface` joining
+`RendMode.h`, and the `pie_Draw*` declarations moving to a new
+`RenderModel.h`; `Ivi.h`, `Ivi.cpp`, `IvisDef.h` and `PieDef.h` are gone.
+Only the `pie_` prefix remains, and that is a phase of its own.
+
+Five findings from stage C are worth carrying forward, all recorded in
 [Phase8Plan.md](Phase8Plan.md): a blind alias rewrite can produce a
-self-referential `#define` that silently shadows the real one, and the Debug
-CI configuration does not exercise `/SAFESEH` because incremental linking
-turns it off — only Release catches that class of linker regression.
+self-referential `#define` that silently shadows the real one; the Debug CI
+configuration does not exercise `/SAFESEH`, so only Release catches that
+class of linker regression; a prefix that looks decorative may be standing in
+for a namespace, so **check rename targets against the platform headers
+first**; a macro that expands to nothing never type-checks its arguments, so
+code inside one rots unseen; and most of the tree's headers were never
+self-contained, compiling only because a hub header happened to arrive first.
 
 ## Verification
 

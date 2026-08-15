@@ -23,6 +23,7 @@
 #include "IntDisplay.h"
 #include "AudioID.h"
 #include "Render2D.h"
+#include "Palette.h"
 #include "MultiInt.h"                      // addMultiBut
 
 // ////////////////////////////////////////////////////////////////////////////

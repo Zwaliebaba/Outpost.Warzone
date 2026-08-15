@@ -6,7 +6,9 @@
 #include "PieFunc.h"
 #include "RenderMatrix.h"
 #include "Tex.h"
-#include "PieDef.h"
+#include "RenderTypes.h"
+#include "RenderModel.h"
+#include "D3D9Vertex.h"
 #include "PieState.h"
 #include "RenderClip.h"
 #include "Render.h"
@@ -40,6 +42,15 @@ static SDWORD polyCount = 0;
 /***************************************************************************/
 
 //pievertex draw poly (low level) //all modes from PIEVERTEX data
+/* Only these two static functions ever see it, so it stays out of the headers. */
+using PIEPOLY = struct
+{
+  UDWORD flags;
+  SDWORD nVrts;
+  PIEVERTEX* pVrts;
+  iTexAnim* pTexAnim;
+};
+
 static void pie_PiePoly(PIEPOLY* poly, BOOL bClip);
 static void pie_PiePolyFrame(PIEPOLY* poly, SDWORD frame, BOOL bClip);
 

@@ -1,7 +1,8 @@
 #include "pch.h"
 #include "Frame.h"
 /* Includes direct access to render library */
-#include "PieDef.h"
+#include "RenderTypes.h"
+#include "IvisPatch.h"
 #include "RendMode.h"
 #include "RenderMatrix.h"
 #include "Palette.h"
