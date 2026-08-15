@@ -1,13 +1,17 @@
-# Phase 5 — Networking: custom UDP transport on WinSock2
+# Phase 5 — Networking: QUIC transport via MsQuic  *(Done)*
 
-Working plan for the phase described in [MigrationPlan.md](MigrationPlan.md#phase-5--networking-custom-udp-transport-on-winsock2).
+Working plan for the phase described in [MigrationPlan.md](MigrationPlan.md#phase-5--networking-quic-transport-via-msquic-done).
 As with Phase 4, the figures were measured against the tree rather than
 estimated.
 
 **This is the largest phase in the plan**, larger than Phase 4 and not
-comparable to Phase 3. It is also the first one whose result cannot be checked
-here at all — see [Verification](#verification-is-the-problem), which is the
-part of this document worth reading first.
+comparable to Phase 3.
+
+This document is kept as written, in order, including the parts that turned out
+to be wrong — the title above was "custom UDP transport on WinSock2" until the
+transport moved to QUIC, and the section below arguing the phase could not be
+verified was answered by building a harness that verifies it. What each
+revision changed and why is recorded where it happened rather than edited away.
 
 ## Current state
 
@@ -370,10 +374,51 @@ quietly fixed: the modem and serial address paths are not independently
 removable because the connection screen still lists them, and `NetCrypt.cpp`
 is neither dead nor purely networking.
 
-**Step 7 is done.** MsQuic is in the build and links, `NetQuic.cpp` implements
-every function in `NetTransport.h` over it — host-based and joined by address,
-per *The redirect* above — and `NetTest/` runs the pair against each other in
-CI. Only the swap, step 8, is left.
+**Steps 7 and 8 are done, and so is the phase.** `NetQuic.cpp` implements every
+function in `NetTransport.h` over MsQuic, `NetTest/` runs two of them against
+each other in CI, and the game is swapped onto the seam with DirectPlay gone
+from the build.
+
+### The swap, and what it cost
+
+Nine files of real DirectPlay code moved. Most of it was smaller than it
+looked: `NETsend`, `NETbcast` and `NETrecv` made two DirectPlay calls between
+them and now make three transport calls, and every function in `NetJoin.cpp`
+was an `EnumSessions` with a callback or a `DPSESSIONDESC2` fetched twice to
+learn its own size, each now a single call.
+
+Four things were worth more than their line count:
+
+- **`NETrecv` still stops its caller's loop on an event.** The old code
+  returned FALSE after handling a `DPID_SYSMSG`, and `recvMessage` loops on it,
+  so a join or a leave gets a frame to itself. Draining one event per call and
+  returning FALSE keeps that exactly.
+- **A lost host is reported as everybody leaving.** `DPSYS_HOST` was DirectPlay
+  promoting a new host; there is no migration now, and since every other player
+  was reached *through* the host they are all unreachable too. Rather than
+  invent a way to say that, it is said in terms the game already has, which
+  drops them to AI and puts a line on the console for each.
+- **Player stats needed a message of their own.** DirectPlay replicated a
+  per-player blob and `MultiStat.cpp` was its only consumer anywhere in the
+  tree. What DirectPlay also did for free was hand that blob to late joiners,
+  so `MultiPlayerJoin` now has everyone already present say theirs again.
+- **The browser had to keep working with nothing to browse.** `joinCampaign` is
+  reachable only by clicking a game in the list, so an empty list makes joining
+  impossible. `NETfindGame` therefore shows the typed address as its single
+  entry — which behaves like any other and needs no special case downstream.
+  That hole was introduced and then caught by tracing the path, not by any
+  check.
+
+### The blind spot, for the third time
+
+The swap shipped red. `startConnectionScreen` sat between `OptionsCable` and
+`addConnections`, and the splice that deleted the first ran to the second.
+
+That is the third red build from the same cause — the `DPID` sweep, then
+`kickPlayer`'s header/definition mismatch, now a function deleted with its
+neighbours — and all three are the one thing `crosscheck.py` structurally
+cannot do: link. MigrationPlan names it as the largest blind spot and it has
+now cost three CI round trips in one phase.
 
 ### What the transport is
 

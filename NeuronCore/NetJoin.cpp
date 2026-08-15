@@ -27,11 +27,15 @@ BOOL NEThaltJoining(VOID)
 // ////////////////////////////////////////////////////////////////////////
 // find games on the current connection.
 //
-// Answers nothing today. There is no discovery in this build -- the
-// destination is a relay server that owns the connections, where listing
-// games is a query to a known server -- so a joiner types an address and
-// NETjoinGame is given it directly. When the server exists it answers
-// nettrans_FindSessions and this fills up without changing.
+// There is no discovery in this build -- the destination is a relay server
+// that owns the connections, where listing games is a query to a known server
+// -- so nettrans_FindSessions answers nothing until that server exists.
+//
+// Which would leave the browser empty and joining unreachable, since the only
+// way into joinCampaign is clicking a game in it. So when nothing answers and
+// the player has typed an address, the list is that address: one entry, which
+// behaves like any other and needs no special case anywhere downstream. When
+// the server arrives it fills the list properly and this branch stops firing.
 BOOL NETfindGame(VOID)
 {
   NETSESSION aSessions[MaxGames];
@@ -53,6 +57,20 @@ BOOL NETfindGame(VOID)
     NetPlay.games[i].maxPlayers = aSessions[i].udwMaxPlayers;
     NetPlay.games[i].bJoinDisabled = FALSE;
     memcpy(NetPlay.games[i].flags, aSessions[i].adwFlags, sizeof(NetPlay.games[i].flags));
+  }
+
+  if (udwCount == 0 && NETjoinAddress[0] != '\0')
+  {
+    /* Named for the address because that is genuinely all that is known about
+     * it: nothing has been asked and nothing has answered. The player count
+     * says one of MaxNumberOfPlayers so the browser draws it as joinable --
+     * whether it really is, only the join attempt can say.
+     */
+    strncpy(NetPlay.games[0].name, NETjoinAddress, StringSize - 1);
+    strncpy(NetPlay.games[0].address, NETjoinAddress, NETTRANS_ADDRESS_SIZE - 1);
+    NetPlay.games[0].currentPlayers = 1;
+    NetPlay.games[0].maxPlayers = MaxNumberOfPlayers;
+    NetPlay.games[0].bJoinDisabled = FALSE;
   }
 
   return TRUE;
