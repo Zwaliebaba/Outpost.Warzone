@@ -131,21 +131,21 @@ BOOL startLimitScreen(void)
   // return button.
   //	addMultiBut(psWScreen,IDLIMITS,IDLIMITS_RETURN,
   //					8,5,
-  //					iV_GetImageWidth(FrontImages,IMAGE_RETURN),
-  //					iV_GetImageHeight(FrontImages,IMAGE_RETURN),
+  //					Neuron::GetImageWidth(FrontImages,IMAGE_RETURN),
+  //					Neuron::GetImageHeight(FrontImages,IMAGE_RETURN),
 
   // ok button
   //	addMultiBut(psWScreen,IDLIMITS,IDLIMITS_OK,
   //					LIMITS_OKX,LIMITS_OKY,
-  //					iV_GetImageWidth(FrontImages,IMAGE_BIGOK),
-  //					iV_GetImageHeight(FrontImages,IMAGE_BIGOK),
+  //					Neuron::GetImageWidth(FrontImages,IMAGE_BIGOK),
+  //					Neuron::GetImageHeight(FrontImages,IMAGE_BIGOK),
 
-  addMultiBut(psWScreen,IDLIMITS,IDLIMITS_RETURN, LIMITS_OKX - 40,LIMITS_OKY, iV_GetImageWidth(FrontImages, IMAGE_RETURN),
-              iV_GetImageHeight(FrontImages, IMAGE_RETURN), STR_MUL_CANCEL, IMAGE_NO, IMAGE_NO,TRUE);
+  addMultiBut(psWScreen,IDLIMITS,IDLIMITS_RETURN, LIMITS_OKX - 40,LIMITS_OKY, Neuron::GetImageWidth(FrontImages, IMAGE_RETURN),
+              Neuron::GetImageHeight(FrontImages, IMAGE_RETURN), STR_MUL_CANCEL, IMAGE_NO, IMAGE_NO,TRUE);
 
   // ok button
-  addMultiBut(psWScreen,IDLIMITS,IDLIMITS_OK, LIMITS_OKX,LIMITS_OKY, iV_GetImageWidth(FrontImages, IMAGE_BIGOK),
-              iV_GetImageHeight(FrontImages, IMAGE_BIGOK), STR_MUL_OK, IMAGE_OK, IMAGE_OK,TRUE);
+  addMultiBut(psWScreen,IDLIMITS,IDLIMITS_OK, LIMITS_OKX,LIMITS_OKY, Neuron::GetImageWidth(FrontImages, IMAGE_BIGOK),
+              Neuron::GetImageHeight(FrontImages, IMAGE_BIGOK), STR_MUL_OK, IMAGE_OK, IMAGE_OK,TRUE);
 
   // Count the number of minor tabs needed	
   numButtons = 0;
@@ -400,8 +400,8 @@ VOID displayStructureBar(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffse
   pie_SetDepthBufferStatus(DEPTH_CMP_ALWAYS_WRT_ON);
 
   // draw name
-  iV_SetFont(WFont); // font
-  iV_SetTextColour(-1); //colour
+  Neuron::SetFont(WFont); // font
+  Neuron::SetTextColour(-1); //colour
   pie_DrawText((unsigned char*)getName(stat->pName), x + 80, y + (psWidget->height / 2) + 3);
 
   // draw limit

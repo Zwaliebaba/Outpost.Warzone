@@ -72,7 +72,7 @@ void pie_TextRender270(IMAGEFILE* ImageFile, UWORD ImageID, int x, int y); //pro
  */
 /***************************************************************************/
 
-void iV_ClearFonts(void)
+void Neuron::ClearFonts(void)
 {
   NumFonts = 0;
   ActiveFontID = -1;
@@ -84,7 +84,7 @@ void iV_ClearFonts(void)
 // UWORD *AsciiTable		Array of 256 Ascii to ImageID lookups.
 // int SpaceSize			Pixel size of a space.
 //
-int iV_CreateFontIndirect(IMAGEFILE* ImageFile, UWORD* AsciiTable, int SpaceSize)
+int Neuron::CreateFontIndirect(IMAGEFILE* ImageFile, UWORD* AsciiTable, int SpaceSize)
 {
   int Above, Below;
   int Height;
@@ -106,8 +106,8 @@ int iV_CreateFontIndirect(IMAGEFILE* ImageFile, UWORD* AsciiTable, int SpaceSize
   for (c = 0; c < 256; c++)
   {
     Index = AsciiTable[c];
-    Above = iV_GetImageYOffset(Font->FontFile, Index);
-    Below = Above + iV_GetImageHeight(Font->FontFile, Index);
+    Above = Neuron::GetImageYOffset(Font->FontFile, Index);
+    Below = Above + Neuron::GetImageHeight(Font->FontFile, Index);
     Height = abs(Above) + abs(Below);
 
     if (Above < Font->FontAbove)
@@ -127,31 +127,31 @@ int iV_CreateFontIndirect(IMAGEFILE* ImageFile, UWORD* AsciiTable, int SpaceSize
   return NumFonts - 1;
 }
 
-void iV_SetFont(int FontID)
+void Neuron::SetFont(int FontID)
 {
   assert(FontID < NumFonts);
   ActiveFontID = FontID;
 }
 
-int iV_GetTextLineSize(void)
+int Neuron::GetTextLineSize(void)
 {
   IVIS_FONT* Font = &iVFonts[ActiveFontID];
   return abs(Font->FontAbove) + abs(Font->FontBelow);
 }
 
-int iV_GetTextAboveBase(void)
+int Neuron::GetTextAboveBase(void)
 {
   IVIS_FONT* Font = &iVFonts[ActiveFontID];
   return Font->FontAbove;
 }
 
-int iV_GetTextBelowBase(void)
+int Neuron::GetTextBelowBase(void)
 {
   IVIS_FONT* Font = &iVFonts[ActiveFontID];
   return Font->FontBelow;
 }
 
-int iV_GetTextWidth(unsigned char* String)
+int Neuron::GetTextWidth(unsigned char* String)
 {
   int Index;
   int MaxX = 0;
@@ -167,7 +167,7 @@ int iV_GetTextWidth(unsigned char* String)
       if (Index != ASCII_SPACE)
       {
         ImageID = Font->AsciiTable[Index];
-        MaxX += iV_GetImageWidth(Font->FontFile, ImageID) + 1;
+        MaxX += Neuron::GetImageWidth(Font->FontFile, ImageID) + 1;
       }
       else
         MaxX += Font->FontSpaceSize;
@@ -179,38 +179,7 @@ int iV_GetTextWidth(unsigned char* String)
   return MaxX;
 }
 
-BOOL iV_GetTextDetails(unsigned char Char, UWORD* Width, UWORD* Height, SWORD* YOffset, UBYTE* U, UBYTE* V, UWORD* TpageID)
-{
-  int Index;
-  UWORD ImageID;
-  IVIS_FONT* Font = &iVFonts[ActiveFontID];
-
-  Index = Char;
-
-  if (Index != ASCII_COLOURMODE)
-  {
-    if (Index != ASCII_SPACE)
-    {
-      ImageID = Font->AsciiTable[Index];
-
-      *Width = iV_GetImageWidth(Font->FontFile, ImageID);
-      *Height = iV_GetImageHeight(Font->FontFile, ImageID);
-      *YOffset = iV_GetImageYOffset(Font->FontFile, ImageID);
-      return TRUE;
-    }
-    *Width = Font->FontSpaceSize;
-    *Height = 0;
-    *YOffset = 0;
-    return TRUE;
-  }
-  *Width = 0;
-  *Height = 0;
-  *YOffset = 0;
-
-  return TRUE;
-}
-
-int iV_GetCharWidth(unsigned char Char)
+int Neuron::GetCharWidth(unsigned char Char)
 {
   int Index;
   UWORD ImageID;
@@ -225,7 +194,7 @@ int iV_GetCharWidth(unsigned char Char)
     {
       ImageID = Font->AsciiTable[Index];
 
-      Width = iV_GetImageWidth(Font->FontFile, ImageID) + 1;
+      Width = Neuron::GetImageWidth(Font->FontFile, ImageID) + 1;
     }
     else
       Width = Font->FontSpaceSize;
@@ -235,7 +204,7 @@ int iV_GetCharWidth(unsigned char Char)
 }
 
 /*
-void iV_GetTextExtents(char *String,int *Width,int *y0,int *y1)
+void Neuron::GetTextExtents(char *String,int *Width,int *y0,int *y1)
 {
 	int Index;
 	int MaxX = 0;
@@ -251,16 +220,16 @@ void iV_GetTextExtents(char *String,int *Width,int *y0,int *y1)
 		if((Index >= 0) && (Index <= Font->FontEndID - Font->FontStartID)) {
 			ImageID = Font->FontStartID + Index;
 
-			MaxX += iV_GetImageWidth(Font->FontFile,ImageID) + 1;
+			MaxX += Neuron::GetImageWidth(Font->FontFile,ImageID) + 1;
 
-			if( (iV_GetImageHeight(Font->FontFile,ImageID) < MinY) || FirstChar ) {
-				MinY = iV_GetImageYOffset(Font->FontFile,ImageID);
+			if( (Neuron::GetImageHeight(Font->FontFile,ImageID) < MinY) || FirstChar ) {
+				MinY = Neuron::GetImageYOffset(Font->FontFile,ImageID);
 			}
 
-			if( ((iV_GetImageYOffset(Font->FontFile,ImageID) +
-				iV_GetImageHeight(Font->FontFile,ImageID)) > MaxY) || FirstChar ) {
-				MaxY = iV_GetImageYOffset(Font->FontFile,ImageID) +
-				iV_GetImageHeight(Font->FontFile,ImageID);
+			if( ((Neuron::GetImageYOffset(Font->FontFile,ImageID) +
+				Neuron::GetImageHeight(Font->FontFile,ImageID)) > MaxY) || FirstChar ) {
+				MaxY = Neuron::GetImageYOffset(Font->FontFile,ImageID) +
+				Neuron::GetImageHeight(Font->FontFile,ImageID);
 			}
 
 			FirstChar = FALSE;
@@ -278,7 +247,7 @@ void iV_GetTextExtents(char *String,int *Width,int *y0,int *y1)
 }
 */
 
-void iV_SetTextColour(SWORD Index)
+void Neuron::SetTextColour(SWORD Index)
 {
   IVIS_FONT* Font = &iVFonts[ActiveFontID];
   Font->FontColourIndex = Index;
@@ -292,7 +261,7 @@ void pie_TestFormattedText(void)
 {
   int ty = 32;
 
-  iV_SetTextColour(-1);
+  Neuron::SetTextColour(-1);
 
   // Start recording text extents.
   pie_StartTextExtents();
@@ -426,7 +395,7 @@ UDWORD pie_DrawFormattedText(UBYTE* String, UDWORD x, UDWORD y, UDWORD Width, UD
 #endif
       if (AddLeadingSpace)
       {
-        WWidth += iV_GetCharWidth(' ');
+        WWidth += Neuron::GetCharWidth(' ');
         if (WWidth <= Width)
         {
           FWord[i] = ' ';
@@ -449,7 +418,7 @@ UDWORD pie_DrawFormattedText(UBYTE* String, UDWORD x, UDWORD y, UDWORD Width, UD
         else
         {
           // Update this lines pixel width.
-          WWidth += iV_GetCharWidth(String[si]);
+          WWidth += Neuron::GetCharWidth(String[si]);
 
           // If width ok then add this character to the current word.
           if (WWidth <= Width)
@@ -464,7 +433,7 @@ UDWORD pie_DrawFormattedText(UBYTE* String, UDWORD x, UDWORD y, UDWORD Width, UD
       // Don't forget the space.
       if (String[si] == ' ')
       {
-        WWidth += iV_GetCharWidth(' ');
+        WWidth += Neuron::GetCharWidth(' ');
         if (WWidth <= Width)
         {
           FWord[i] = ' ';
@@ -517,7 +486,7 @@ UDWORD pie_DrawFormattedText(UBYTE* String, UDWORD x, UDWORD y, UDWORD Width, UD
     }
 #endif
 
-    TWidth = iV_GetTextWidth(FString);
+    TWidth = Neuron::GetTextWidth(FString);
 
     // Do justify.
     switch (Justify)
@@ -558,8 +527,8 @@ UDWORD pie_DrawFormattedText(UBYTE* String, UDWORD x, UDWORD y, UDWORD Width, UD
       if (RecordExtents == EXTENTS_START)
       {
         // 
-        ExtentsStartY = y + iV_GetTextAboveBase();
-        ExtentsEndY = jy - iV_GetTextLineSize() + iV_GetTextBelowBase();
+        ExtentsStartY = y + Neuron::GetTextAboveBase();
+        ExtentsEndY = jy - Neuron::GetTextLineSize() + Neuron::GetTextBelowBase();
 
         RecordExtents = EXTENTS_END;
         ExtentsStartX = jx;
@@ -576,15 +545,15 @@ UDWORD pie_DrawFormattedText(UBYTE* String, UDWORD x, UDWORD y, UDWORD Width, UD
     }
 
     // and move down a line.
-    jy += iV_GetTextLineSize();
+    jy += Neuron::GetTextLineSize();
   }
 
   if (RecordExtents == EXTENTS_START)
   {
     RecordExtents = EXTENTS_END;
 
-    ExtentsStartY = y + iV_GetTextAboveBase();
-    ExtentsEndY = jy - iV_GetTextLineSize() + iV_GetTextBelowBase();
+    ExtentsStartY = y + Neuron::GetTextAboveBase();
+    ExtentsEndY = jy - Neuron::GetTextLineSize() + Neuron::GetTextBelowBase();
 
     if (ExtentsMode == EXTENTS_USEMAXWIDTH)
     {
@@ -601,7 +570,7 @@ UDWORD pie_DrawFormattedText(UBYTE* String, UDWORD x, UDWORD y, UDWORD Width, UD
   }
   else if (RecordExtents == EXTENTS_END)
   {
-    ExtentsEndY = jy - iV_GetTextLineSize() + iV_GetTextBelowBase();
+    ExtentsEndY = jy - Neuron::GetTextLineSize() + Neuron::GetTextBelowBase();
 
     if (ExtentsMode == EXTENTS_USEMAXWIDTH)
       ExtentsEndX = x + Width;
@@ -612,7 +581,7 @@ UDWORD pie_DrawFormattedText(UBYTE* String, UDWORD x, UDWORD y, UDWORD Width, UD
   //
   //		// and draw a transparent box behind the text.
   //		TransBoxFillRGB_psx(x,y, x+Width,
-  //							jy-iV_GetTextLineSize()+iV_GetTextBelowBase(),
+  //							jy-Neuron::GetTextLineSize()+Neuron::GetTextBelowBase(),
 
   return jy;
 }
@@ -653,7 +622,7 @@ void pie_DrawText(unsigned char* string, UDWORD x, UDWORD y)
       ImageID = Font->AsciiTable[Index];
       pie_TextRender(Font->FontFile, ImageID, x, y);
 
-      x += iV_GetImageWidth(Font->FontFile, ImageID) + 1;
+      x += Neuron::GetImageWidth(Font->FontFile, ImageID) + 1;
     }
 
     // Don't use this any more, If the text needs to wrap then use
@@ -663,7 +632,7 @@ void pie_DrawText(unsigned char* string, UDWORD x, UDWORD y)
     {
       /* Drop it to the next line if we hit screen edge */
       x = 0;
-      y += iV_GetTextLineSize();
+      y += Neuron::GetTextLineSize();
     }
     string++;
   }
@@ -720,9 +689,9 @@ void pie_DrawText(unsigned char* string, UDWORD x, UDWORD y)
 //			/* Draw the character */
 //			pie_TextRender(Font->FontFile,imageID,x,y);
 //#ifdef WIN32
-// 			x += iV_GetImageWidth(Font->FontFile,imageID) + 1;
+// 			x += Neuron::GetImageWidth(Font->FontFile,imageID) + 1;
 //#else
-// 			x += iV_GetImageWidth(Font->FontFile,imageID) + 2;	// legacy?
+// 			x += Neuron::GetImageWidth(Font->FontFile,imageID) + 2;	// legacy?
 //#endif																
 //			
 //		}
@@ -732,7 +701,7 @@ void pie_DrawText(unsigned char* string, UDWORD x, UDWORD y)
 //		{
 //			/* Drop it to the next line if we hit screen edge */
 //			x = 0;
-//			y += iV_GetTextLineSize();
+//			y += Neuron::GetTextLineSize();
 //		}
 //#endif
 //		/* Jump along to the next character */
@@ -767,9 +736,9 @@ void pie_DrawText(unsigned char *String,int XPos,int YPos)
 				pie_TextRender(Font->FontFile,ImageID,XPos,YPos);
 
 	#ifdef WIN32
-				XPos += iV_GetImageWidth(Font->FontFile,ImageID) + 1;
+				XPos += Neuron::GetImageWidth(Font->FontFile,ImageID) + 1;
 	#else
-				XPos += iV_GetImageWidth(Font->FontFile,ImageID) + 2;
+				XPos += Neuron::GetImageWidth(Font->FontFile,ImageID) + 2;
 	#endif
 			}
 			else if(Index!=-1)	// unknown character code!!!!
@@ -781,9 +750,9 @@ void pie_DrawText(unsigned char *String,int XPos,int YPos)
 				pie_TextRender(Font->FontFile,ImageID,XPos,YPos);
 
 	#ifdef WIN32
-				XPos += iV_GetImageWidth(Font->FontFile,ImageID) + 1;
+				XPos += Neuron::GetImageWidth(Font->FontFile,ImageID) + 1;
 	#else
-				XPos += iV_GetImageWidth(Font->FontFile,ImageID) + 2;
+				XPos += Neuron::GetImageWidth(Font->FontFile,ImageID) + 2;
 	#endif
 			}
 			else if(Index == -1) {
@@ -864,7 +833,7 @@ void pie_DrawTextToBackBuffer(unsigned char* String, int XPos, int YPos)
     {
       ImageID = Font->AsciiTable[Index];
       pie_RenderCharToBackBuffer(&sLock, Font->FontFile, ImageID, XPos, YPos);
-      XPos += iV_GetImageWidth(Font->FontFile, ImageID) + 1;
+      XPos += Neuron::GetImageWidth(Font->FontFile, ImageID) + 1;
     }
     else
       XPos += Font->FontSpaceSize;
@@ -881,7 +850,7 @@ void pie_DrawText270(unsigned char* String, int XPos, int YPos)
   UWORD ImageID;
   IVIS_FONT* Font = &iVFonts[ActiveFontID];
 
-  YPos += iV_GetImageWidth(Font->FontFile, Font->AsciiTable[33]) + 1;
+  YPos += Neuron::GetImageWidth(Font->FontFile, Font->AsciiTable[33]) + 1;
 
   pie_BeginTextRender(Font->FontColourIndex);
 
@@ -894,7 +863,7 @@ void pie_DrawText270(unsigned char* String, int XPos, int YPos)
       ImageID = Font->AsciiTable[Index];
       pie_TextRender270(Font->FontFile, ImageID, XPos, YPos);
 
-      YPos -= (iV_GetImageWidth(Font->FontFile, ImageID) + 1);
+      YPos -= (Neuron::GetImageWidth(Font->FontFile, ImageID) + 1);
     }
     else
       YPos -= (Font->FontSpaceSize);

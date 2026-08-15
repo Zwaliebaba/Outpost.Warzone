@@ -16,8 +16,8 @@ iSurface* psRendSurface;
 //*** assign the surface the renderer draws through
 //******
 
-void iV_RenderAssign(iSurface* s) { psRendSurface = s; }
+void Neuron::RenderAssign(iSurface* s) { psRendSurface = s; }
 
-int iV_GetDisplayWidth(void) { return rendSurface.width; }
+int Neuron::GetDisplayWidth(void) { return rendSurface.width; }
 
-int iV_GetDisplayHeight(void) { return rendSurface.height; }
+int Neuron::GetDisplayHeight(void) { return rendSurface.height; }

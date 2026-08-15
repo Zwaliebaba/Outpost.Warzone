@@ -91,7 +91,7 @@ BOOL doBucket = TRUE;
 UDWORD intelColours[MAX_INTEL_SHADES];
 
 /* Draws the world into the current surface - set using 
-   iV_RenderAssign(iV_MODE_SURFACE,pSurface) */
+   Neuron::RenderAssign(MODE_SURFACE,pSurface) */
 void drawMapWorld(void)
 {
   SDWORD i, j;
@@ -166,7 +166,7 @@ void drawMapWorld(void)
 void	drawMapTile(SDWORD i, SDWORD j)
 {
 #ifdef PSX
-		iV_SetOTIndex_PSX(OT2D_EXTREMEBACK);
+		SetOTIndex_PSX(OT2D_EXTREMEBACK);
 		DBPRINTF(("drawMapTile called\n");
 #endif
 
@@ -308,7 +308,7 @@ THIS HAS BEEN REPLACED BY renderResearchToBuffer()*/
 	if(!pie_Hardware())
 	{
 		 //Ensure all rendering is done to our bitmap and not to back or primary buffer
-   		iV_RenderAssign(iV_MODE_SURFACE,pSurface);
+   		Neuron::RenderAssign(MODE_SURFACE,pSurface);
 	}
 
 	// Empty the buffer 
@@ -361,7 +361,7 @@ THIS HAS BEEN REPLACED BY renderResearchToBuffer()*/
 	if (!pie_Hardware())
 	{
 		// Tell renderer we're back to back buffer 
-		iV_RenderAssign(iV_MODE_4101,&rendSurface);
+		Neuron::RenderAssign(MODE_4101,&rendSurface);
 	}
 }*/
 

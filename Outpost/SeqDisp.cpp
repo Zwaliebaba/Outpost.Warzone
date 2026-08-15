@@ -160,8 +160,8 @@ BOOL seq_RenderVideoToBuffer(iSurface* pSurface, char* sequenceName, int time, i
     if (pFileHandle != nullptr)
       fclose(pFileHandle);
 
-    iV_SetFont(WFont);
-    iV_SetTextColour(-1);
+    Neuron::SetFont(WFont);
+    Neuron::SetTextColour(-1);
 
     videoMode = VIDEO_D3D_WINDOW;
 
@@ -396,8 +396,8 @@ BOOL seq_StartFullScreenVideo(char* videoName, char* audioName)
   {
     music_Pause();
     loop_SetVideoPlaybackMode();
-    iV_SetFont(WFont);
-    iV_SetTextColour(-1);
+    Neuron::SetFont(WFont);
+    Neuron::SetTextColour(-1);
   }
 
   if (audioName != nullptr)
@@ -633,7 +633,7 @@ BOOL seq_AddTextForVideo(UBYTE* pText, SDWORD xOffset, SDWORD yOffset, SDWORD st
   SDWORD justification;
   static SDWORD lastX;
 
-  iV_SetFont(WFont);
+  Neuron::SetFont(WFont);
 
   DEBUG_ASSERT_TEXT(aSeqList[currentSeq].currentText < MAX_TEXT_OVERLAYS, "seq_AddTextForVideo: too many text lines");
 
@@ -655,7 +655,7 @@ BOOL seq_AddTextForVideo(UBYTE* pText, SDWORD xOffset, SDWORD yOffset, SDWORD st
 
   //check the string is shortenough to print
   //if not take a word of the end and try again
-  while (iV_GetTextWidth((unsigned char*)currentText) > BUFFER_WIDTH)
+  while (Neuron::GetTextWidth((unsigned char*)currentText) > BUFFER_WIDTH)
   {
     currentLength--;
     while ((pText[currentLength] != ' ') && (currentLength > 0)) { currentLength--; }
@@ -668,7 +668,7 @@ BOOL seq_AddTextForVideo(UBYTE* pText, SDWORD xOffset, SDWORD yOffset, SDWORD st
   {
     aSeqList[currentSeq].aText[aSeqList[currentSeq].currentText].x = lastX;
     aSeqList[currentSeq].aText[aSeqList[currentSeq].currentText].y = aSeqList[currentSeq].aText[aSeqList[currentSeq].currentText - 1].y +
-      iV_GetTextLineSize();
+      Neuron::GetTextLineSize();
   }
   else
   {
@@ -680,7 +680,7 @@ BOOL seq_AddTextForVideo(UBYTE* pText, SDWORD xOffset, SDWORD yOffset, SDWORD st
   if ((bJustify) && (currentLength == sourceLength))
   {
     //justify this text
-    justification = BUFFER_WIDTH - iV_GetTextWidth((unsigned char*)currentText);
+    justification = BUFFER_WIDTH - Neuron::GetTextWidth((unsigned char*)currentText);
     if ((bJustify == SEQ_TEXT_JUSTIFY) && (justification > MIN_JUSTIFICATION))
       aSeqList[currentSeq].aText[aSeqList[currentSeq].currentText].x += (justification / 2);
     else if ((bJustify == SEQ_TEXT_FOLLOW_ON) && (justification > FOLLOW_ON_JUSTIFICATION)) {}

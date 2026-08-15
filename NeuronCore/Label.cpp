@@ -87,21 +87,21 @@ void labelDisplay(WIDGET* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pCol
   psLabel = (W_LABEL*)psWidget;
   FontID = psLabel->FontID;
 
-  iV_SetFont(FontID);
-  iV_SetTextColour(static_cast<UWORD>(*(pColours + WCOL_TEXT)));
+  Neuron::SetFont(FontID);
+  Neuron::SetTextColour(static_cast<UWORD>(*(pColours + WCOL_TEXT)));
   if (psLabel->style & WLAB_ALIGNCENTRE)
   {
-    fw = iV_GetTextWidth((unsigned char*)psLabel->aText);
+    fw = Neuron::GetTextWidth((unsigned char*)psLabel->aText);
     fx = xOffset + psLabel->x + (psLabel->width - fw) / 2;
   }
   else if (psLabel->style & WLAB_ALIGNRIGHT)
   {
-    fw = iV_GetTextWidth((unsigned char*)psLabel->aText);
+    fw = Neuron::GetTextWidth((unsigned char*)psLabel->aText);
     fx = xOffset + psLabel->x + psLabel->width - fw;
   }
   else
     fx = xOffset + psLabel->x;
-  fy = yOffset + psLabel->y + (psLabel->height - iV_GetTextLineSize()) / 2 - iV_GetTextAboveBase();
+  fy = yOffset + psLabel->y + (psLabel->height - Neuron::GetTextLineSize()) / 2 - Neuron::GetTextAboveBase();
   //	fy = yOffset + psLabel->y + (psLabel->height -
   pie_DrawText((unsigned char*)psLabel->aText, fx, fy);
 }

@@ -183,10 +183,10 @@ void displayRequestOption(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffs
 
   drawBlueBox(x, y, psWidget->width, psWidget->height); //draw box
 
-  iV_SetFont(WFont); // font
-  iV_SetTextColour(-1); //colour
+  Neuron::SetFont(WFont); // font
+  Neuron::SetTextColour(-1); //colour
 
-  while (iV_GetTextWidth((unsigned char*)butString) > psWidget->width - 10) { butString[strlen(butString) - 1] = '\0'; }
+  while (Neuron::GetTextWidth((unsigned char*)butString) > psWidget->width - 10) { butString[strlen(butString) - 1] = '\0'; }
 
   //draw text								
   pie_DrawText((UCHAR*)butString, x + 8, y + 24);
@@ -531,8 +531,8 @@ void displayExtraGubbins(UDWORD height)
           MULTIMENU_FORM_Y + MULTIMENU_PLAYER_H, COL_BLACK);
 
   //draw titles.
-  iV_SetFont(WFont); // font
-  iV_SetTextColour(-1); //colour
+  Neuron::SetFont(WFont); // font
+  Neuron::SetTextColour(-1); //colour
 
   pie_DrawText((UCHAR*)strresGetString(psStringRes, STR_MUL_ALLIANCES),MULTIMENU_FORM_X + MULTIMENU_C0,
               MULTIMENU_FORM_Y + MULTIMENU_FONT_OSET);
@@ -565,8 +565,8 @@ void displayMultiPlayer(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
   if (responsibleFor(player, 0))
     displayExtraGubbins(widgGetFromID(psWScreen,MULTIMENU_FORM)->height);
 
-  iV_SetFont(WFont); // font
-  iV_SetTextColour(-1); //colour
+  Neuron::SetFont(WFont); // font
+  Neuron::SetTextColour(-1); //colour
 
   if (isHumanPlayer(player) || (game.type == SKIRMISH && player < game.maxPlayers))
   {
@@ -575,7 +575,7 @@ void displayMultiPlayer(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
     sprintf(str, "%d:", player, getPlayerName(player));
 
     strcat(str, getPlayerName(player));
-    while (iV_GetTextWidth((unsigned char*)str) >= (MULTIMENU_C0 - MULTIMENU_C2 - 10)) { str[strlen(str) - 1] = '\0'; }
+    while (Neuron::GetTextWidth((unsigned char*)str) >= (MULTIMENU_C0 - MULTIMENU_C2 - 10)) { str[strlen(str) - 1] = '\0'; }
     pie_DrawText((UCHAR*)str, x + MULTIMENU_C2, y + MULTIMENU_FONT_OSET);
 
     //c3-7 alliance
@@ -1116,7 +1116,7 @@ void intDisplayMiniMultiMenu(void)
 
 		pie_DrawText("1",x+5,y+13);							// display stuff
 		strcpy(sTmp,getPlayerName(scp[7]));
-		while(iV_GetTextWidth(sTmp) >= RADWIDTH-20 )
+		while(Neuron::GetTextWidth(sTmp) >= RADWIDTH-20 )
 		{
 			sTmp[strlen(sTmp)-1]='\0';
 		}
@@ -1126,7 +1126,7 @@ void intDisplayMiniMultiMenu(void)
 		{
 			pie_DrawText("2",x+5,y+26);
 			strcpy(sTmp,getPlayerName(scp[6]));
-			while(iV_GetTextWidth(sTmp) >= RADWIDTH-20 )
+			while(Neuron::GetTextWidth(sTmp) >= RADWIDTH-20 )
 			{
 				sTmp[strlen(sTmp)-1]='\0';
 			}
@@ -1141,7 +1141,7 @@ void intDisplayMiniMultiMenu(void)
 				pie_DrawText((UCHAR*)sTmp,x+5,y+39);
 
 				strcpy(sTmp,getPlayerName(scp[selectedPlayer]));
-				while(iV_GetTextWidth(sTmp) >= RADWIDTH-20 )
+				while(Neuron::GetTextWidth(sTmp) >= RADWIDTH-20 )
 				{
 					sTmp[strlen(sTmp)-1]='\0';
 				}
@@ -1151,7 +1151,7 @@ void intDisplayMiniMultiMenu(void)
 			{
 				pie_DrawText("3",x+5,y+39);
 				strcpy(sTmp,getPlayerName(scp[5]));
-				while(iV_GetTextWidth(sTmp) >= RADWIDTH-20 )
+				while(Neuron::GetTextWidth(sTmp) >= RADWIDTH-20 )
 				{
 					sTmp[strlen(sTmp)-1]='\0';
 				}

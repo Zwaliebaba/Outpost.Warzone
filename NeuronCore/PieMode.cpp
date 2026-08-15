@@ -68,11 +68,11 @@ BOOL pie_Initialise(void)
   rendSurface.clip.bottom = rendSurface.height;
   rendSurface.xpshift = 10;
   rendSurface.ypshift = 10;
-  iV_RenderAssign(&rendSurface);
+  Neuron::RenderAssign(&rendSurface);
 
   if (!InitD3D())
   {
-    iV_ShutDown();
+    Neuron::ShutDown();
     Neuron::Fatal("Initialise videomode failed");
     return FALSE;
   }

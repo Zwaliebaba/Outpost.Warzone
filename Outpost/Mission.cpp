@@ -2413,8 +2413,8 @@ BOOL intAddMissionTimer(void)
   sFormInit.formID = 0;
   sFormInit.id = IDTIMER_FORM;
   sFormInit.style = WFORM_PLAIN;
-  sFormInit.width = iV_GetImageWidth(IntImages, IMAGE_MISSION_CLOCK); //TIMER_WIDTH;
-  sFormInit.height = iV_GetImageHeight(IntImages, IMAGE_MISSION_CLOCK); //TIMER_HEIGHT;
+  sFormInit.width = Neuron::GetImageWidth(IntImages, IMAGE_MISSION_CLOCK); //TIMER_WIDTH;
+  sFormInit.height = Neuron::GetImageHeight(IntImages, IMAGE_MISSION_CLOCK); //TIMER_HEIGHT;
   sFormInit.x = static_cast<SWORD>((RADTLX + RADWIDTH - sFormInit.width));
   sFormInit.y = static_cast<SWORD>(TIMER_Y);
   sFormInit.pUserData = (void*)PACKDWORD_TRI(0, IMAGE_MISSION_CLOCK, IMAGE_MISSION_CLOCK_UP);
@@ -2461,8 +2461,8 @@ BOOL intAddTransporterTimer(void)
   sFormInit.style = WFORM_CLICKABLE | WFORM_NOCLICKMOVE;
   sFormInit.x = TRAN_FORM_X;
   sFormInit.y = TRAN_FORM_Y;
-  sFormInit.width = iV_GetImageWidth(IntImages, IMAGE_TRANSETA_UP);
-  sFormInit.height = iV_GetImageHeight(IntImages, IMAGE_TRANSETA_UP);
+  sFormInit.width = Neuron::GetImageWidth(IntImages, IMAGE_TRANSETA_UP);
+  sFormInit.height = Neuron::GetImageHeight(IntImages, IMAGE_TRANSETA_UP);
   sFormInit.pTip = strresGetString(psStringRes, STR_INT_TRANSPORTER);
   sFormInit.pDisplay = intDisplayImageHilight;
   sFormInit.pUserData = (void*)PACKDWORD_TRI(0, IMAGE_TRANSETA_DOWN, IMAGE_TRANSETA_UP);
@@ -2518,8 +2518,8 @@ BOOL intAddTransporterTimer(void)
 	sFormInit.style = WFORM_PLAIN | WFORM_INVISIBLE;
 	sFormInit.x = TRAN_FORM_X;
 	sFormInit.y = TRAN_FORM_Y;
-	sFormInit.width = iV_GetImageWidth(IntImages,IMAGE_TRANSETA_UP);//TRAN_FORM_WIDTH;
-	sFormInit.height = iV_GetImageHeight(IntImages,IMAGE_TRANSETA_UP);//TRAN_FORM_HEIGHT;
+	sFormInit.width = Neuron::GetImageWidth(IntImages,IMAGE_TRANSETA_UP);//TRAN_FORM_WIDTH;
+	sFormInit.height = Neuron::GetImageHeight(IntImages,IMAGE_TRANSETA_UP);//TRAN_FORM_HEIGHT;
 
 	if (!widgAddForm(psWScreen, &sFormInit))
 	{

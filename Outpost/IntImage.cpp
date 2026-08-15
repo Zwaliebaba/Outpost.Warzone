@@ -347,29 +347,29 @@ void RenderWindow(IMAGEFRAME* Frame, UDWORD x, UDWORD y, UDWORD Width, UDWORD He
 
   if (Frame->TopLeft >= 0)
   {
-    WTopLeft = static_cast<SWORD>(iV_GetImageWidth(IntImages, Frame->TopLeft));
-    HTopLeft = static_cast<SWORD>(iV_GetImageHeight(IntImages, Frame->TopLeft));
+    WTopLeft = static_cast<SWORD>(Neuron::GetImageWidth(IntImages, Frame->TopLeft));
+    HTopLeft = static_cast<SWORD>(Neuron::GetImageHeight(IntImages, Frame->TopLeft));
     pie_ImageFileID(IntImages, Frame->TopLeft, x, y);
   }
 
   if (Frame->TopRight >= 0)
   {
-    WTopRight = static_cast<SWORD>(iV_GetImageWidth(IntImages, Frame->TopRight));
-    HTopRight = static_cast<SWORD>(iV_GetImageHeight(IntImages, Frame->TopRight));
+    WTopRight = static_cast<SWORD>(Neuron::GetImageWidth(IntImages, Frame->TopRight));
+    HTopRight = static_cast<SWORD>(Neuron::GetImageHeight(IntImages, Frame->TopRight));
     pie_ImageFileID(IntImages, Frame->TopRight, x + Width - WTopRight, y);
   }
 
   if (Frame->BottomRight >= 0)
   {
-    WBottomRight = static_cast<SWORD>(iV_GetImageWidth(IntImages, Frame->BottomRight));
-    HBottomRight = static_cast<SWORD>(iV_GetImageHeight(IntImages, Frame->BottomRight));
+    WBottomRight = static_cast<SWORD>(Neuron::GetImageWidth(IntImages, Frame->BottomRight));
+    HBottomRight = static_cast<SWORD>(Neuron::GetImageHeight(IntImages, Frame->BottomRight));
     pie_ImageFileID(IntImages, Frame->BottomRight, x + Width - WBottomRight, y + Height - HBottomRight);
   }
 
   if (Frame->BottomLeft >= 0)
   {
-    WBottomLeft = static_cast<SWORD>(iV_GetImageWidth(IntImages, Frame->BottomLeft));
-    HBottomLeft = static_cast<SWORD>(iV_GetImageHeight(IntImages, Frame->BottomLeft));
+    WBottomLeft = static_cast<SWORD>(Neuron::GetImageWidth(IntImages, Frame->BottomLeft));
+    HBottomLeft = static_cast<SWORD>(Neuron::GetImageHeight(IntImages, Frame->BottomLeft));
     pie_ImageFileID(IntImages, Frame->BottomLeft, x, y + Height - HBottomLeft);
   }
 
@@ -377,13 +377,13 @@ void RenderWindow(IMAGEFRAME* Frame, UDWORD x, UDWORD y, UDWORD Width, UDWORD He
   {
     if (Frame->TopType == FR_SOLID)
     {
-      pie_ImageFileIDTile(IntImages, Frame->TopEdge, x + iV_GetImageWidth(IntImages, Frame->TopLeft), y, 0, 0, Width - WTopLeft - WTopRight,
-                       iV_GetImageHeight(IntImages, Frame->TopEdge));
+      pie_ImageFileIDTile(IntImages, Frame->TopEdge, x + Neuron::GetImageWidth(IntImages, Frame->TopLeft), y, 0, 0, Width - WTopLeft - WTopRight,
+                       Neuron::GetImageHeight(IntImages, Frame->TopEdge));
     }
     else
     {
-      pie_ImageFileIDTile(IntImages, Frame->TopEdge, x + iV_GetImageWidth(IntImages, Frame->TopLeft), y, 0, 0,
-                            Width - WTopLeft - WTopRight, iV_GetImageHeight(IntImages, Frame->TopEdge));
+      pie_ImageFileIDTile(IntImages, Frame->TopEdge, x + Neuron::GetImageWidth(IntImages, Frame->TopLeft), y, 0, 0,
+                            Width - WTopLeft - WTopRight, Neuron::GetImageHeight(IntImages, Frame->TopEdge));
     }
   }
 
@@ -391,13 +391,13 @@ void RenderWindow(IMAGEFRAME* Frame, UDWORD x, UDWORD y, UDWORD Width, UDWORD He
   {
     if (Frame->BottomType == FR_SOLID)
     {
-      pie_ImageFileIDTile(IntImages, Frame->BottomEdge, x + WBottomLeft, y + Height - iV_GetImageHeight(IntImages, Frame->BottomEdge), 0, 0,
-                       Width - WBottomLeft - WBottomRight, iV_GetImageHeight(IntImages, Frame->BottomEdge));
+      pie_ImageFileIDTile(IntImages, Frame->BottomEdge, x + WBottomLeft, y + Height - Neuron::GetImageHeight(IntImages, Frame->BottomEdge), 0, 0,
+                       Width - WBottomLeft - WBottomRight, Neuron::GetImageHeight(IntImages, Frame->BottomEdge));
     }
     else
     {
-      pie_ImageFileIDTile(IntImages, Frame->BottomEdge, x + WBottomLeft, y + Height - iV_GetImageHeight(IntImages, Frame->BottomEdge), 0,
-                            0, Width - WBottomLeft - WBottomRight, iV_GetImageHeight(IntImages, Frame->BottomEdge));
+      pie_ImageFileIDTile(IntImages, Frame->BottomEdge, x + WBottomLeft, y + Height - Neuron::GetImageHeight(IntImages, Frame->BottomEdge), 0,
+                            0, Width - WBottomLeft - WBottomRight, Neuron::GetImageHeight(IntImages, Frame->BottomEdge));
     }
   }
 
@@ -405,12 +405,12 @@ void RenderWindow(IMAGEFRAME* Frame, UDWORD x, UDWORD y, UDWORD Width, UDWORD He
   {
     if (Frame->LeftType == FR_SOLID)
     {
-      pie_ImageFileIDTile(IntImages, Frame->LeftEdge, x, y + HTopLeft, 0, 0, iV_GetImageWidth(IntImages, Frame->LeftEdge),
+      pie_ImageFileIDTile(IntImages, Frame->LeftEdge, x, y + HTopLeft, 0, 0, Neuron::GetImageWidth(IntImages, Frame->LeftEdge),
                        Height - HTopLeft - HBottomLeft);
     }
     else
     {
-      pie_ImageFileIDTile(IntImages, Frame->LeftEdge, x, y + HTopLeft, 0, 0, iV_GetImageWidth(IntImages, Frame->LeftEdge),
+      pie_ImageFileIDTile(IntImages, Frame->LeftEdge, x, y + HTopLeft, 0, 0, Neuron::GetImageWidth(IntImages, Frame->LeftEdge),
                             Height - HTopLeft - HBottomLeft);
     }
   }
@@ -419,13 +419,13 @@ void RenderWindow(IMAGEFRAME* Frame, UDWORD x, UDWORD y, UDWORD Width, UDWORD He
   {
     if (Frame->RightType == FR_SOLID)
     {
-      pie_ImageFileIDTile(IntImages, Frame->RightEdge, x + Width - iV_GetImageWidth(IntImages, Frame->RightEdge), y + HTopRight, 0, 0,
-                       iV_GetImageWidth(IntImages, Frame->RightEdge), Height - HTopRight - HBottomRight);
+      pie_ImageFileIDTile(IntImages, Frame->RightEdge, x + Width - Neuron::GetImageWidth(IntImages, Frame->RightEdge), y + HTopRight, 0, 0,
+                       Neuron::GetImageWidth(IntImages, Frame->RightEdge), Height - HTopRight - HBottomRight);
     }
     else
     {
-      pie_ImageFileIDTile(IntImages, Frame->RightEdge, x + Width - iV_GetImageWidth(IntImages, Frame->RightEdge), y + HTopRight, 0, 0,
-                            iV_GetImageWidth(IntImages, Frame->RightEdge), Height - HTopRight - HBottomRight);
+      pie_ImageFileIDTile(IntImages, Frame->RightEdge, x + Width - Neuron::GetImageWidth(IntImages, Frame->RightEdge), y + HTopRight, 0, 0,
+                            Neuron::GetImageWidth(IntImages, Frame->RightEdge), Height - HTopRight - HBottomRight);
     }
   }
 

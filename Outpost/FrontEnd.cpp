@@ -1201,8 +1201,8 @@ BOOL startGameOptionsMenu(VOID)
   */
 
   // colour stuff	
-  w = iV_GetImageWidth(FrontImages, IMAGE_PLAYER0);
-  h = iV_GetImageHeight(FrontImages, IMAGE_PLAYER0);
+  w = Neuron::GetImageWidth(FrontImages, IMAGE_PLAYER0);
+  h = Neuron::GetImageHeight(FrontImages, IMAGE_PLAYER0);
   addMultiBut(psWScreen,FRONTEND_BOTFORM,FE_P0, FRONTEND_POS7M + (0 * (w + 6)),FRONTEND_POS7Y, w, h, 0, IMAGE_PLAYER0, IMAGE_PLAYERX,TRUE);
   addMultiBut(psWScreen,FRONTEND_BOTFORM,FE_P4, FRONTEND_POS7M + (1 * (w + 6)),FRONTEND_POS7Y, w, h, 0, IMAGE_PLAYER4, IMAGE_PLAYERX,TRUE);
   addMultiBut(psWScreen,FRONTEND_BOTFORM,FE_P5, FRONTEND_POS7M + (2 * (w + 6)),FRONTEND_POS7Y, w, h, 0, IMAGE_PLAYER5, IMAGE_PLAYERX,TRUE);
@@ -1455,7 +1455,7 @@ VOID addTextButton(UDWORD id, UDWORD PosX, UDWORD PosY, STRING* txt, BOOL bAlign
   if (bAlign)
   {
     sButInit.style = WBUT_PLAIN;
-    sButInit.width = static_cast<short>(iV_GetTextWidth((unsigned char*)txt) + 10); //FRONTEND_BUTWIDTH;
+    sButInit.width = static_cast<short>(Neuron::GetTextWidth((unsigned char*)txt) + 10); //FRONTEND_BUTWIDTH;
     sButInit.x += 35;
   }
   else
@@ -1488,11 +1488,11 @@ VOID addFESlider(UDWORD id, UDWORD parent, UDWORD x, UDWORD y, UDWORD stops, UDW
   sSldInit.style = WSLD_PLAIN;
   sSldInit.x = static_cast<short>(x);
   sSldInit.y = static_cast<short>(y);
-  sSldInit.width = iV_GetImageWidth(IntImages, IMAGE_SLIDER_BIG);
-  sSldInit.height = iV_GetImageHeight(IntImages, IMAGE_SLIDER_BIG);
+  sSldInit.width = Neuron::GetImageWidth(IntImages, IMAGE_SLIDER_BIG);
+  sSldInit.height = Neuron::GetImageHeight(IntImages, IMAGE_SLIDER_BIG);
   sSldInit.orientation = WSLD_LEFT;
   sSldInit.numStops = static_cast<UBYTE>(stops);
-  sSldInit.barSize = iV_GetImageHeight(IntImages, IMAGE_SLIDER_BIG);
+  sSldInit.barSize = Neuron::GetImageHeight(IntImages, IMAGE_SLIDER_BIG);
   sSldInit.pos = static_cast<UBYTE>(pos);
   sSldInit.pDisplay = displayBigSlider;
   sSldInit.pCallback = intUpdateQuantitySlider;
@@ -1551,8 +1551,8 @@ VOID displayTitleBitmap(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
   UNUSEDPARAMETER(xOffset);
   UNUSEDPARAMETER(psWidget);
 
-  iV_SetFont(WFont);
-  iV_SetTextColour(-1);
+  Neuron::SetFont(WFont);
+  Neuron::SetTextColour(-1);
 
   sprintf(sTmp, VERSION_STRING " - Build: %s D3D",__DATE__);
   pie_DrawText270((unsigned char*)sTmp,DISP_WIDTH - 10,DISP_HEIGHT - 15);
@@ -1577,13 +1577,13 @@ VOID displayTextOption(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset,
 
   UNUSEDPARAMETER(pColours);
   psBut = (W_BUTTON*)psWidget;
-  iV_SetFont(psBut->FontID);
+  Neuron::SetFont(psBut->FontID);
 
   if (widgGetMouseOver(psWScreen) == psBut->id) // if mouse is over text then hilight. 
     hilight = TRUE;
 
-  fw = iV_GetTextWidth((unsigned char*)psBut->pText);
-  fy = yOffset + psWidget->y + (psWidget->height - iV_GetTextLineSize()) / 2 - iV_GetTextAboveBase();
+  fw = Neuron::GetTextWidth((unsigned char*)psBut->pText);
+  fy = yOffset + psWidget->y + (psWidget->height - Neuron::GetTextLineSize()) / 2 - Neuron::GetTextAboveBase();
 
   if (psWidget->style & WBUT_TXTCENTRE) //check for centering, calculate offset.
     fx = xOffset + psWidget->x + ((psWidget->width - fw) / 2);
@@ -1591,16 +1591,16 @@ VOID displayTextOption(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset,
     fx = xOffset + psWidget->x;
 
   if (greyOut) // unavailable
-    iV_SetTextColour(PIE_TEXT_DARKBLUE);
+    Neuron::SetTextColour(PIE_TEXT_DARKBLUE);
   else // available
   {
     if (hilight) // hilight
     {
-      iV_SetTextColour(PIE_TEXT_WHITE);
-      //			displayHilightPulseBox( fx-4,fy+iV_GetTextAboveBase()-iV_GetTextBelowBase(),
+      Neuron::SetTextColour(PIE_TEXT_WHITE);
+      //			displayHilightPulseBox( fx-4,fy+Neuron::GetTextAboveBase()-Neuron::GetTextBelowBase(),
     }
     else // dont highlight
-      iV_SetTextColour(PIE_TEXT_LIGHTBLUE); //(unsigned short)pal_GetNearestColour(129,142,184)
+      Neuron::SetTextColour(PIE_TEXT_LIGHTBLUE); //(unsigned short)pal_GetNearestColour(129,142,184)
   }
 
   pie_DrawText((unsigned char*)psBut->pText, fx, fy);
@@ -1628,12 +1628,12 @@ VOID displayTextAt270(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, 
   UNUSEDPARAMETER(yOffset);
 
   psLab = (W_LABEL*)psWidget;
-  iV_SetFont(FEFont);
+  Neuron::SetFont(FEFont);
 
-  iV_SetTextColour(PIE_TEXT_WHITE);
+  Neuron::SetTextColour(PIE_TEXT_WHITE);
 
   fx = xOffset + psWidget->x;
-  fy = yOffset + psWidget->y + iV_GetTextWidth((unsigned char*)psLab->aText);
+  fy = yOffset + psWidget->y + Neuron::GetTextWidth((unsigned char*)psLab->aText);
 
   pie_DrawText270((unsigned char*)psLab->aText, fx, fy);
 }
@@ -1660,8 +1660,8 @@ static VOID displayBigSlider(struct _widget* psWidget, UDWORD xOffset, UDWORD yO
 //{
 //	psButInit->x = x;
 //	psButInit->y = y;
-//	psButInit->width = iV_GetTextWidth(strresGetString(psStringRes,StringID));
-//	psButInit->height = iV_GetTextLineSize();
+//	psButInit->width = Neuron::GetTextWidth(strresGetString(psStringRes,StringID));
+//	psButInit->height = Neuron::GetTextLineSize();
 //}
 
 // Placed here to avoid automatic inlining in InGameOp.c by the Playstation compiler.

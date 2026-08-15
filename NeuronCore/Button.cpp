@@ -248,18 +248,18 @@ void buttonDisplay(WIDGET* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pCo
 
     if (psButton->pText)
     {
-      iV_SetFont(psButton->FontID);
-      iV_SetTextColour(static_cast<UWORD>(*(pColours + WCOL_TEXT)));
-      fw = iV_GetTextWidth((unsigned char*)psButton->pText);
+      Neuron::SetFont(psButton->FontID);
+      Neuron::SetTextColour(static_cast<UWORD>(*(pColours + WCOL_TEXT)));
+      fw = Neuron::GetTextWidth((unsigned char*)psButton->pText);
       if (psButton->style & WBUT_NOCLICKMOVE)
       {
         fx = x0 + (psButton->width - fw) / 2 + 1;
-        fy = y0 + 1 + (psButton->height - iV_GetTextLineSize()) / 2 - iV_GetTextAboveBase();
+        fy = y0 + 1 + (psButton->height - Neuron::GetTextLineSize()) / 2 - Neuron::GetTextAboveBase();
       }
       else
       {
         fx = x0 + (psButton->width - fw) / 2;
-        fy = y0 + (psButton->height - iV_GetTextLineSize()) / 2 - iV_GetTextAboveBase();
+        fy = y0 + (psButton->height - Neuron::GetTextLineSize()) / 2 - Neuron::GetTextAboveBase();
       }
       pie_DrawText((unsigned char*)psButton->pText, fx, fy);
     }
@@ -284,13 +284,13 @@ void buttonDisplay(WIDGET* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pCo
 
     if (psButton->pText)
     {
-      iV_SetFont(psButton->FontID);
-      fw = iV_GetTextWidth((unsigned char*)psButton->pText);
+      Neuron::SetFont(psButton->FontID);
+      fw = Neuron::GetTextWidth((unsigned char*)psButton->pText);
       fx = x0 + (psButton->width - fw) / 2;
-      fy = y0 + (psButton->height - iV_GetTextLineSize()) / 2 - iV_GetTextAboveBase();
-      iV_SetTextColour(static_cast<UWORD>(*(pColours + WCOL_LIGHT)));
+      fy = y0 + (psButton->height - Neuron::GetTextLineSize()) / 2 - Neuron::GetTextAboveBase();
+      Neuron::SetTextColour(static_cast<UWORD>(*(pColours + WCOL_LIGHT)));
       pie_DrawText((unsigned char*)psButton->pText, fx + 1, fy + 1);
-      iV_SetTextColour(static_cast<UWORD>(*(pColours + WCOL_DISABLE)));
+      Neuron::SetTextColour(static_cast<UWORD>(*(pColours + WCOL_DISABLE)));
       pie_DrawText((unsigned char*)psButton->pText, fx, fy);
     }
 
@@ -314,11 +314,11 @@ void buttonDisplay(WIDGET* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pCo
 
     if (psButton->pText)
     {
-      iV_SetFont(psButton->FontID);
-      iV_SetTextColour(static_cast<UWORD>(*(pColours + WCOL_TEXT)));
-      fw = iV_GetTextWidth((unsigned char*)psButton->pText);
+      Neuron::SetFont(psButton->FontID);
+      Neuron::SetTextColour(static_cast<UWORD>(*(pColours + WCOL_TEXT)));
+      fw = Neuron::GetTextWidth((unsigned char*)psButton->pText);
       fx = x0 + (psButton->width - fw) / 2;
-      fy = y0 + (psButton->height - iV_GetTextLineSize()) / 2 - iV_GetTextAboveBase();
+      fy = y0 + (psButton->height - Neuron::GetTextLineSize()) / 2 - Neuron::GetTextAboveBase();
       pie_DrawText((unsigned char*)psButton->pText, fx, fy);
     }
 

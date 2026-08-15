@@ -523,7 +523,7 @@ BOOL _intAddDesign(BOOL bShowCentreScreen)
   sFormInit.style = WFORM_PLAIN;
   sFormInit.x = DES_PARTFORMX;
   sFormInit.y = DES_PARTFORMY;
-  sFormInit.width = static_cast<UWORD>(iV_GetImageWidth(IntImages, IMAGE_DES_TURRET) + 2 * DES_PARTSEPARATIONX);
+  sFormInit.width = static_cast<UWORD>(Neuron::GetImageWidth(IntImages, IMAGE_DES_TURRET) + 2 * DES_PARTSEPARATIONX);
   sFormInit.height = DES_PARTFORMHEIGHT;
   sFormInit.pDisplay = intDisplayDesignForm;
   if (!widgAddForm(psWScreen, &sFormInit))
@@ -535,8 +535,8 @@ BOOL _intAddDesign(BOOL bShowCentreScreen)
   sButInit.style = WBUT_PLAIN;
   sButInit.x = DES_PARTSEPARATIONX;
   sButInit.y = DES_PARTSEPARATIONY;
-  sButInit.width = iV_GetImageWidth(IntImages, IMAGE_DES_BODY);
-  sButInit.height = iV_GetImageHeight(IntImages, IMAGE_DES_BODY);
+  sButInit.width = Neuron::GetImageWidth(IntImages, IMAGE_DES_BODY);
+  sButInit.height = Neuron::GetImageHeight(IntImages, IMAGE_DES_BODY);
   sButInit.pTip = strresGetString(psStringRes, STR_DES_BODY);
   sButInit.FontID = WFont;
 #ifdef FLASH_BUTTONS
@@ -553,9 +553,9 @@ BOOL _intAddDesign(BOOL bShowCentreScreen)
   sButInit.id = IDDES_PROPBUTTON;
   sButInit.style = WBUT_PLAIN;
   sButInit.x = DES_PARTSEPARATIONX;
-  sButInit.y = static_cast<UWORD>(iV_GetImageHeight(IntImages, IMAGE_DES_PROPULSION) + 2 * DES_PARTSEPARATIONY);
-  sButInit.width = iV_GetImageWidth(IntImages, IMAGE_DES_PROPULSION);
-  sButInit.height = iV_GetImageHeight(IntImages, IMAGE_DES_PROPULSION);
+  sButInit.y = static_cast<UWORD>(Neuron::GetImageHeight(IntImages, IMAGE_DES_PROPULSION) + 2 * DES_PARTSEPARATIONY);
+  sButInit.width = Neuron::GetImageWidth(IntImages, IMAGE_DES_PROPULSION);
+  sButInit.height = Neuron::GetImageHeight(IntImages, IMAGE_DES_PROPULSION);
   sButInit.pTip = strresGetString(psStringRes, STR_DES_PROPULSION);
   sButInit.FontID = WFont;
 #ifdef FLASH_BUTTONS
@@ -572,10 +572,10 @@ BOOL _intAddDesign(BOOL bShowCentreScreen)
   sButInit.id = IDDES_SYSTEMBUTTON;
   sButInit.style = WBUT_PLAIN;
   sButInit.x = DES_PARTSEPARATIONX;
-  sButInit.y = static_cast<UWORD>(iV_GetImageHeight(IntImages, IMAGE_DES_PROPULSION) + iV_GetImageHeight(IntImages, IMAGE_DES_BODY) + 3 *
+  sButInit.y = static_cast<UWORD>(Neuron::GetImageHeight(IntImages, IMAGE_DES_PROPULSION) + Neuron::GetImageHeight(IntImages, IMAGE_DES_BODY) + 3 *
     DES_PARTSEPARATIONY);
-  sButInit.width = iV_GetImageWidth(IntImages, IMAGE_DES_TURRET);
-  sButInit.height = iV_GetImageHeight(IntImages, IMAGE_DES_TURRET);
+  sButInit.width = Neuron::GetImageWidth(IntImages, IMAGE_DES_TURRET);
+  sButInit.height = Neuron::GetImageHeight(IntImages, IMAGE_DES_TURRET);
   sButInit.pTip = strresGetString(psStringRes, STR_DES_TURRET);
   sButInit.FontID = WFont;
 #ifdef FLASH_BUTTONS
@@ -591,8 +591,8 @@ BOOL _intAddDesign(BOOL bShowCentreScreen)
   sButInit.formID = IDDES_PARTFORM;
   sButInit.id = IDDES_BIN;
   sButInit.style = WBUT_PLAIN;
-  sButInit.width = iV_GetImageWidth(IntImages, IMAGE_DES_BIN);
-  sButInit.height = iV_GetImageHeight(IntImages, IMAGE_DES_BIN);
+  sButInit.width = Neuron::GetImageWidth(IntImages, IMAGE_DES_BIN);
+  sButInit.height = Neuron::GetImageHeight(IntImages, IMAGE_DES_BIN);
   sButInit.x = DES_PARTSEPARATIONX;
   sButInit.y = static_cast<UWORD>((DES_PARTFORMHEIGHT - sButInit.height - DES_PARTSEPARATIONY));
   sButInit.pTip = strresGetString(psStringRes, STR_DES_DEL);
@@ -741,10 +741,10 @@ BOOL _intAddDesign(BOOL bShowCentreScreen)
   sBarInit.id = IDDES_POWERBAR;
   sBarInit.style = WBAR_PLAIN;
   sBarInit.orientation = WBAR_LEFT;
-  sBarInit.x = static_cast<SWORD>((DES_POWERX + DES_POWERSEPARATIONX + iV_GetImageWidth(IntImages, IMAGE_DES_BODYPOINTS)));
+  sBarInit.x = static_cast<SWORD>((DES_POWERX + DES_POWERSEPARATIONX + Neuron::GetImageWidth(IntImages, IMAGE_DES_BODYPOINTS)));
   sBarInit.y = DES_POWERY;
-  sBarInit.width = static_cast<SWORD>((DES_POWERFORMWIDTH - 15 - iV_GetImageWidth(IntImages, IMAGE_DES_BODYPOINTS)));
-  sBarInit.height = iV_GetImageHeight(IntImages, IMAGE_DES_POWERBACK);
+  sBarInit.width = static_cast<SWORD>((DES_POWERFORMWIDTH - 15 - Neuron::GetImageWidth(IntImages, IMAGE_DES_BODYPOINTS)));
+  sBarInit.height = Neuron::GetImageHeight(IntImages, IMAGE_DES_POWERBACK);
   sBarInit.pDisplay = intDisplayDesignPowerBar; //intDisplayStatsBar;
   sBarInit.pTip = strresGetString(psStringRes, STR_DES_TEMPPOWER);
   sBarInit.iRange = DBAR_TEMPLATEMAXPOWER; //WBAR_SCALE;
@@ -755,7 +755,7 @@ BOOL _intAddDesign(BOOL bShowCentreScreen)
   sLabInit.formID = IDDES_POWERFORM;
   sLabInit.id = IDDES_TEMPBODYLAB;
   sLabInit.x = DES_POWERX;
-  sLabInit.y = static_cast<SWORD>((DES_POWERY + DES_POWERSEPARATIONY + iV_GetImageHeight(IntImages, IMAGE_DES_BODYPOINTS)));
+  sLabInit.y = static_cast<SWORD>((DES_POWERY + DES_POWERSEPARATIONY + Neuron::GetImageHeight(IntImages, IMAGE_DES_BODYPOINTS)));
   sLabInit.pTip = strresGetString(psStringRes, STR_DES_TEMPBODY);
   sLabInit.pDisplay = intDisplayImage;
   sLabInit.pUserData = (void*)IMAGE_DES_BODYPOINTS;
@@ -767,10 +767,10 @@ BOOL _intAddDesign(BOOL bShowCentreScreen)
   sBarInit.id = IDDES_BODYPOINTS;
   sBarInit.style = WBAR_PLAIN;
   sBarInit.orientation = WBAR_LEFT;
-  sBarInit.x = static_cast<SWORD>((DES_POWERX + DES_POWERSEPARATIONX + iV_GetImageWidth(IntImages, IMAGE_DES_BODYPOINTS)));
-  sBarInit.y = static_cast<SWORD>((DES_POWERY + DES_POWERSEPARATIONY + 4 + iV_GetImageHeight(IntImages, IMAGE_DES_BODYPOINTS)));
-  sBarInit.width = static_cast<SWORD>((DES_POWERFORMWIDTH - 15 - iV_GetImageWidth(IntImages, IMAGE_DES_BODYPOINTS)));
-  sBarInit.height = iV_GetImageHeight(IntImages, IMAGE_DES_POWERBACK);
+  sBarInit.x = static_cast<SWORD>((DES_POWERX + DES_POWERSEPARATIONX + Neuron::GetImageWidth(IntImages, IMAGE_DES_BODYPOINTS)));
+  sBarInit.y = static_cast<SWORD>((DES_POWERY + DES_POWERSEPARATIONY + 4 + Neuron::GetImageHeight(IntImages, IMAGE_DES_BODYPOINTS)));
+  sBarInit.width = static_cast<SWORD>((DES_POWERFORMWIDTH - 15 - Neuron::GetImageWidth(IntImages, IMAGE_DES_BODYPOINTS)));
+  sBarInit.height = Neuron::GetImageHeight(IntImages, IMAGE_DES_POWERBACK);
   sBarInit.pDisplay = intDisplayDesignPowerBar; //intDisplayStatsBar;
   sBarInit.pTip = strresGetString(psStringRes, STR_DES_TEMPBODY);
   sBarInit.iRange = DBAR_TEMPLATEMAXPOINTS; //(UWORD)getMaxBodyPoints();//DBAR_BODYMAXPOINTS;
@@ -2048,8 +2048,8 @@ static BOOL intAddSystemButtons(SDWORD mode)
   sButInit.style = WBUT_PLAIN;
   sButInit.x = DES_WEAPONBUTTON_X;
   sButInit.y = DES_SYSTEMBUTTON_Y;
-  sButInit.width = iV_GetImageWidth(IntImages, IMAGE_DES_WEAPONS);
-  sButInit.height = iV_GetImageHeight(IntImages, IMAGE_DES_WEAPONS);
+  sButInit.width = Neuron::GetImageWidth(IntImages, IMAGE_DES_WEAPONS);
+  sButInit.height = Neuron::GetImageHeight(IntImages, IMAGE_DES_WEAPONS);
   sButInit.pTip = strresGetString(psStringRes, STR_DES_WEAPONS);
   sButInit.FontID = WFont;
   sButInit.pDisplay = intDisplayButtonHilight;
@@ -2066,8 +2066,8 @@ static BOOL intAddSystemButtons(SDWORD mode)
     sButInit.style = WBUT_PLAIN;
     sButInit.x = DES_SYSTEMBUTTON_X;
     sButInit.y = DES_SYSTEMBUTTON_Y;
-    sButInit.width = iV_GetImageWidth(IntImages, IMAGE_DES_SYSTEMS);
-    sButInit.height = iV_GetImageHeight(IntImages, IMAGE_DES_SYSTEMS);
+    sButInit.width = Neuron::GetImageWidth(IntImages, IMAGE_DES_SYSTEMS);
+    sButInit.height = Neuron::GetImageHeight(IntImages, IMAGE_DES_SYSTEMS);
     sButInit.pTip = strresGetString(psStringRes, STR_DES_OTHER);
     sButInit.FontID = WFont;
     sButInit.pDisplay = intDisplayButtonHilight;
@@ -3321,7 +3321,7 @@ void intProcessDesign(UDWORD id)
   //	if (pie_GetRenderEngine() == ENGINE_GLIDE)
   /* Dirty hack to allow screen dumps from the 3dfx during design!!! */
   //		if(keyPressed(KEY_D))
-  //			CONPRINTF(ConsoleString,(ConsoleString,"Hackety hack - Alex has written screen dump to disk - %s",iV_ScreenDumpToDisk()));
+  //			CONPRINTF(ConsoleString,(ConsoleString,"Hackety hack - Alex has written screen dump to disk - %s",ScreenDumpToDisk()));
 
   /* check template button pressed */
   if (id >= IDDES_TEMPLSTART && id <= IDDES_TEMPLEND)
@@ -4042,10 +4042,10 @@ void intDisplayStatForm(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
   DrawBegin();
 
   pie_ImageFileID(IntImages, IMAGE_DES_STATBACKLEFT, x0, y0);
-  pie_ImageFileIDTile(IntImages, IMAGE_DES_STATBACKMID, x0 + iV_GetImageWidth(IntImages, IMAGE_DES_STATBACKLEFT), y0, 0, 0,
-                   Form->width - iV_GetImageWidth(IntImages, IMAGE_DES_STATBACKLEFT) - iV_GetImageWidth(IntImages, IMAGE_DES_STATBACKRIGHT),
-                   iV_GetImageHeight(IntImages, IMAGE_DES_STATBACKMID));
-  pie_ImageFileID(IntImages, IMAGE_DES_STATBACKRIGHT, x0 + Form->width - iV_GetImageWidth(IntImages, IMAGE_DES_STATBACKRIGHT), y0);
+  pie_ImageFileIDTile(IntImages, IMAGE_DES_STATBACKMID, x0 + Neuron::GetImageWidth(IntImages, IMAGE_DES_STATBACKLEFT), y0, 0, 0,
+                   Form->width - Neuron::GetImageWidth(IntImages, IMAGE_DES_STATBACKLEFT) - Neuron::GetImageWidth(IntImages, IMAGE_DES_STATBACKRIGHT),
+                   Neuron::GetImageHeight(IntImages, IMAGE_DES_STATBACKMID));
+  pie_ImageFileID(IntImages, IMAGE_DES_STATBACKRIGHT, x0 + Form->width - Neuron::GetImageWidth(IntImages, IMAGE_DES_STATBACKRIGHT), y0);
 
   /* display current component */
   pie_SetGeometricOffset((xOffset + psWidget->width / 4), (yOffset + psWidget->height / 2));

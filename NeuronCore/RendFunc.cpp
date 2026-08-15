@@ -16,8 +16,8 @@
  */
 /***************************************************************************/
 
-/* Read back by the EXTID_CURSOR script variable through iV_GetMouseFrame.
- * iV_SetMousePointer, which was the only thing that ever wrote it, had no
+/* Read back by the EXTID_CURSOR script variable through Neuron::GetMouseFrame.
+ * SetMousePointer, which was the only thing that ever wrote it, had no
  * callers, so this has read zero for a long time. The script binding is
  * compiled into shipped .slo files, so the getter stays.
  */
@@ -31,7 +31,7 @@ static UWORD MouseImageID;
 
 //*************************************************************************
 
-UDWORD iV_GetMouseFrame(void) { return MouseImageID; }
+UDWORD Neuron::GetMouseFrame(void) { return MouseImageID; }
 
 //*************************************************************************
 

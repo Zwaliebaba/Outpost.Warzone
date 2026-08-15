@@ -32,9 +32,6 @@
 //*************************************************************************
 
 //*************************************************************************
-void iV_IMDDrawTextureRaise(iIMDShape* shape, float scale);
-void iV_IMDDrawTexturedHeightScaled(iIMDShape* shape, float scale);
-void iV_IMDDrawTexturedShade(iIMDShape* shape, int32 lightLevel);
 
 // Output BSP Tree to a file
 
@@ -51,7 +48,7 @@ void iV_IMDDrawTexturedShade(iIMDShape* shape, int32 lightLevel);
 
 // Prototypes for the linked list handling
 void* list_GetFirst(PSBSPPTRLIST pList);void* list_GetNext(PSBSPPTRLIST pList, void* pData);int BSPPolys, BSPNodes;PSBSPTREENODE
-BSPNodeTable[iV_IMD_MAX_POLYS];iIMDPoly* BSPPolyTable[iV_IMD_MAX_POLYS];void OutputTriangleList(FILE* fp, PSBSPPTRLIST TriList)
+BSPNodeTable[IMD_MAX_POLYS];iIMDPoly* BSPPolyTable[IMD_MAX_POLYS];void OutputTriangleList(FILE* fp, PSBSPPTRLIST TriList)
 {
   iIMDPoly* Triangle;
   int TriNum = 0;
@@ -68,7 +65,7 @@ BSPNodeTable[iV_IMD_MAX_POLYS];iIMDPoly* BSPPolyTable[iV_IMD_MAX_POLYS];void Out
     for (d = 0; d < Triangle->npnts; d++)
       fprintf(fp, " %d", Triangle->pindex[d]);
 
-    if (Triangle->flags & iV_IMD_TEXANIM)
+    if (Triangle->flags & IMD_TEXANIM)
     {
       if (Triangle->pTexAnim == NULL) { Neuron::DebugTrace("No TexAnim pointer!\n"); }
       else
@@ -79,7 +76,7 @@ BSPNodeTable[iV_IMD_MAX_POLYS];iIMDPoly* BSPPolyTable[iV_IMD_MAX_POLYS];void Out
     }
 
     // if textured write texture uv's
-    if (Triangle->flags & (iV_IMD_TEX | iV_IMD_PSXTEX))
+    if (Triangle->flags & (IMD_TEX | IMD_PSXTEX))
     {
       for (d = 0; d < Triangle->npnts; d++)
         fprintf(fp, " %d %d", Triangle->vrt[d].u, Triangle->vrt[d].v);
@@ -91,7 +88,7 @@ BSPNodeTable[iV_IMD_MAX_POLYS];iIMDPoly* BSPPolyTable[iV_IMD_MAX_POLYS];void Out
 {
   iIMDPoly* Triangle;
 
-  assert(BSPPolys<iV_IMD_MAX_POLYS);
+  assert(BSPPolys<IMD_MAX_POLYS);
 
   if (TriList == NULL)
     return;
@@ -149,7 +146,7 @@ BSPNodeTable[iV_IMD_MAX_POLYS];iIMDPoly* BSPPolyTable[iV_IMD_MAX_POLYS];void Out
 {
   iIMDPoly* Triangle;
 
-  assert(BSPPolys<iV_IMD_MAX_POLYS);
+  assert(BSPPolys<IMD_MAX_POLYS);
 
   if (TriList == NULL)
     return;
@@ -218,7 +215,7 @@ void _imd_save_connectors(FILE* fp, iIMDShape* s)
 //*
 //******
 
-iBool iV_IMDSave(char* filename, iIMDShape* s, BOOL PieIMD)
+iBool Neuron::IMDSave(char* filename, iIMDShape* s, BOOL PieIMD)
 {
   FILE* fp;
   iIMDShape* sp;
@@ -235,9 +232,9 @@ iBool iV_IMDSave(char* filename, iIMDShape* s, BOOL PieIMD)
 
   // if textured write tex page file info
 
-  if (s->flags & iV_IMD_XTEX)
+  if (s->flags & IMD_XTEX)
   {
-    fprintf(fp, "TEXTURE %d %s %d %d\n",iV_TEXTYPE(s->texpage), iV_TEXNAME(s->texpage),iV_TEXWIDTH(s->texpage), iV_TEXHEIGHT(s->texpage));
+    fprintf(fp, "TEXTURE %d %s %d %d\n",TEXTYPE(s->texpage), TEXNAME(s->texpage),TEXWIDTH(s->texpage), TEXHEIGHT(s->texpage));
   }
 
   // find number of levels in shape
@@ -268,7 +265,7 @@ if (sp->BSPNode==NULL)
 				for (d=0; d<poly->npnts; d++)
 					fprintf(fp," %d",poly->pindex[d]);
 
-				if (poly->flags & iV_IMD_TEXANIM)
+				if (poly->flags & IMD_TEXANIM)
 				{
 
 					if (poly->pTexAnim == NULL)
@@ -288,7 +285,7 @@ if (sp->BSPNode==NULL)
 
 				// if textured write texture uv's
 
-				if (poly->flags & (iV_IMD_TEX | iV_IMD_PSXTEX)) {
+				if (poly->flags & (IMD_TEX | IMD_PSXTEX)) {
 					for (d=0; d<poly->npnts; d++)
 						fprintf(fp," %d %d",poly->vrt[d].u,poly->vrt[d].v);
 				}
@@ -325,7 +322,7 @@ fclose (fp);return TRUE;}
 //*
 //******
 
-void iV_IMDRelease(iIMDShape* s)
+void Neuron::IMDRelease(iIMDShape* s)
 
 {
   int i;
@@ -333,28 +330,28 @@ void iV_IMDRelease(iIMDShape* s)
 
   if (s)
   {
-    if (s->flags & iV_IMD_BINARY)
+    if (s->flags & IMD_BINARY)
     {
-      iV_HeapFree(s, 0);
+      IVIS_HEAP_FREE(s, 0);
       return;
     }
 
-    if (s->flags & iV_IMD_XEFFECT)
+    if (s->flags & IMD_XEFFECT)
     {
-      iV_HeapFree(s, sizeof(iIMDShapeEffect)); // free the special effect
+      IVIS_HEAP_FREE(s, sizeof(iIMDShapeEffect)); // free the special effect
       return;
     }
 
     {
       if (s->points)
-      iV_HeapFree(s->points, s->npoints * sizeof(iVector));
+      IVIS_HEAP_FREE(s->points, s->npoints * sizeof(iVector));
 
       if (s->connectors)
-      iV_HeapFree(s->connectors, s->nconnectors * sizeof(iVector));
+      IVIS_HEAP_FREE(s->connectors, s->nconnectors * sizeof(iVector));
 
       if (s->BSPNode)
       {
-        delete[] s->BSPNode; // allocated with new[] in _imd_load_bsp, not iV_HeapAlloc
+        delete[] s->BSPNode; // allocated with new[] in _imd_load_bsp, not IVIS_HEAP_ALLOC
         s->BSPNode = nullptr;
       }
 
@@ -363,20 +360,20 @@ void iV_IMDRelease(iIMDShape* s)
         for (i = 0; i < s->npolys; i++)
         {
           if (s->polys[i].pindex)
-          iV_HeapFree(s->polys[i].pindex, s->polys[i].npnts * sizeof(int));
+          IVIS_HEAP_FREE(s->polys[i].pindex, s->polys[i].npnts * sizeof(int));
           if (s->polys[i].pTexAnim)
-          iV_HeapFree(s->polys[i].pTexAnim, sizeof(iTexAnim));
+          IVIS_HEAP_FREE(s->polys[i].pTexAnim, sizeof(iTexAnim));
           if (s->polys[i].vrt)
-          iV_HeapFree(s->polys[i].vrt, s->polys[i].npnts * sizeof(iVertex));
+          IVIS_HEAP_FREE(s->polys[i].vrt, s->polys[i].npnts * sizeof(iVertex));
         }
-        iV_HeapFree(s->polys, s->npolys * sizeof(iIMDPoly));
+        IVIS_HEAP_FREE(s->polys, s->npolys * sizeof(iIMDPoly));
       }
 
 
       d = s->next;
-      iV_HeapFree(s, sizeof(iIMDShape));
+      IVIS_HEAP_FREE(s, sizeof(iIMDShape));
 
-      iV_IMDRelease(d);
+      Neuron::IMDRelease(d);
     }
   }
 }

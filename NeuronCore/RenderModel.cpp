@@ -534,7 +534,7 @@ static void pie_PiePolyFrame(PIEPOLY* poly, int frame, BOOL bClip)
     poly->flags |= PIE_NO_CULL; //dont check culling again for this poly
   }
 
-  if ((poly->flags & iV_IMD_TEXANIM) && (frame != 0))
+  if ((poly->flags & IMD_TEXANIM) && (frame != 0))
   {
     if (poly->pTexAnim != nullptr)
     {
@@ -546,7 +546,7 @@ static void pie_PiePolyFrame(PIEPOLY* poly, int frame, BOOL bClip)
       {
         // HACK - fix this!!!!
         framesPerLine = 256 / poly->pTexAnim->textureWidth;
-        //should be		framesPerLine = iV_TEXTEX(texPage)->width / poly->pTexAnim->textureWidth;
+        //should be		framesPerLine = TEXTEX(texPage)->width / poly->pTexAnim->textureWidth;
         vFrame = 0;
         while (frame >= framesPerLine)
         {

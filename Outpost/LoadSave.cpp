@@ -208,8 +208,8 @@ static BOOL _addLoadSave(BOOL bLoad, CHAR* sSearchPath, CHAR* sExtension, CHAR* 
   sButInit.formID = LOADSAVE_BANNER;
   sButInit.x = 4;
   sButInit.y = 3;
-  sButInit.width = iV_GetImageWidth(IntImages, IMAGE_NRUTER);
-  sButInit.height = iV_GetImageHeight(IntImages, IMAGE_NRUTER);
+  sButInit.width = Neuron::GetImageWidth(IntImages, IMAGE_NRUTER);
+  sButInit.height = Neuron::GetImageHeight(IntImages, IMAGE_NRUTER);
   sButInit.pUserData = (void*)PACKDWORD_TRI(0, IMAGE_NRUTER, IMAGE_NRUTER);
   sButInit.id = LOADSAVE_CANCEL;
   sButInit.style = WBUT_PLAIN;
@@ -561,10 +561,10 @@ static void displayLoadSlot(struct _widget* psWidget, UDWORD xOffset, UDWORD yOf
   {
     strcpy(butString, ((W_BUTTON*)psWidget)->pTip);
 
-    iV_SetFont(WFont); // font
-    iV_SetTextColour(-1); //colour
+    Neuron::SetFont(WFont); // font
+    Neuron::SetTextColour(-1); //colour
 
-    while (iV_GetTextWidth((unsigned char*)butString) > psWidget->width) { butString[strlen(butString) - 1] = '\0'; }
+    while (Neuron::GetTextWidth((unsigned char*)butString) > psWidget->width) { butString[strlen(butString) - 1] = '\0'; }
 
     //draw text								
     pie_DrawText((unsigned char*)butString, x + 4, y + 17);

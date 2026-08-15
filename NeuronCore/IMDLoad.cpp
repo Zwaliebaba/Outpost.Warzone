@@ -36,14 +36,13 @@
 static uint32 _IMD_FLAGS;
 static char _IMD_NAME[MAX_FILE_PATH];
 static int32 _IMD_VER;
-static VERTEXID vertexTable[iV_IMD_MAX_POINTS];
+static VERTEXID vertexTable[IMD_MAX_POINTS];
 static char imagePath[MAX_FILE_PATH] = {""};
 
 // local prototypes
 
 static iIMDShape* _imd_load_level(UBYTE** FileData, UBYTE* FileDataEnd, int nlevels, int texpage);
 static char* _imd_get_path(char* filename, char* path);
-iIMDShape* iV_ProcessIMD(UBYTE** ppFileData, UBYTE* FileDataEnd, UBYTE* IMDpath, UBYTE* PCXpath, iBool palkeep);
 BOOL CheckColourKey(iIMDShape* psShape);
 
 // Special re-mix of sscanf that moves the string pointer along
@@ -129,7 +128,7 @@ BOOL TESTDEBUG = FALSE;
 
 #define POST_LEVEL_TEXTURELOAD			// load the polygon level ... then load the texture     .... Gareths code
 
-iIMDShape* iV_IMDLoad(char* filename, iBool palkeep)
+iIMDShape* Neuron::IMDLoad(char* filename, iBool palkeep)
 {
   iIMDShape* pIMD;
   UBYTE *pFileData, *pFileDataStart;
@@ -180,7 +179,7 @@ iIMDShape* iV_IMDLoad(char* filename, iBool palkeep)
   }
 
   pFileDataStart = pFileData;
-  pIMD = iV_ProcessIMD(&pFileData, pFileData + FileSize, path, (UBYTE*)imagePath, palkeep);
+  pIMD = Neuron::ProcessIMD(&pFileData, pFileData + FileSize, path, (UBYTE*)imagePath, palkeep);
 
   delete[] pFileDataStart; // free the file up
   pFileDataStart = nullptr;
@@ -209,7 +208,7 @@ static char texfile[64]; //Last loaded texture page filename
 char* GetLastLoadedTexturePage(void) { return texfile; }
 
 // ppFileData is incremented to the end of the file on exit!
-iIMDShape* iV_ProcessIMD(UBYTE** ppFileData, UBYTE* FileDataEnd, UBYTE* IMDpath, UBYTE* PCXpath, iBool palkeep)
+iIMDShape* Neuron::ProcessIMD(UBYTE** ppFileData, UBYTE* FileDataEnd, UBYTE* IMDpath, UBYTE* PCXpath, iBool palkeep)
 {
   char buffer[MAX_FILE_PATH], texType[MAX_FILE_PATH], ch; //, *str;
   int i, nlevels, ptype, pwidth, pheight, texpage;
@@ -252,7 +251,7 @@ iIMDShape* iV_ProcessIMD(UBYTE** ppFileData, UBYTE* FileDataEnd, UBYTE* IMDpath,
   texpage = -1;
 
   // get texture page if specified
-  if (_IMD_FLAGS & iV_IMD_XTEX)
+  if (_IMD_FLAGS & IMD_XTEX)
   {
     if (_IMD_VER == 1)
     {
@@ -341,8 +340,8 @@ iIMDShape* iV_ProcessIMD(UBYTE** ppFileData, UBYTE* FileDataEnd, UBYTE* IMDpath,
 #ifdef PRE_LEVEL_TEXTURELOAD
     if (bTextured)
     {
-      texpage = iV_TexLoadNew(IMDpath, texfile, ptype, palkeep,FALSE);
-      if (texpage < 0) { texpage = iV_TexLoadNew(PCXpath, texfile, ptype, palkeep,FALSE); }
+      texpage = Neuron::TexLoadNew(IMDpath, texfile, ptype, palkeep,FALSE);
+      if (texpage < 0) { texpage = Neuron::TexLoadNew(PCXpath, texfile, ptype, palkeep,FALSE); }
       if (texpage < 0) { 
 #ifdef ALLOW_NONTEXTURED
     TESTDEBUG = TRUE; texpage = -1;
@@ -389,15 +388,15 @@ iIMDShape* iV_ProcessIMD(UBYTE** ppFileData, UBYTE* FileDataEnd, UBYTE* IMDpath,
 
 #ifdef POST_LEVEL_TEXTURELOAD
   // load texture page if specified
-  if ((s != nullptr) && (_IMD_FLAGS & iV_IMD_XTEX))
+  if ((s != nullptr) && (_IMD_FLAGS & IMD_XTEX))
   {
     bColourKey = TRUE; // CheckColourKey( s );//TRUE not the only imd using this texture
     if (bTextured)
     {
       /* Note call to new texture page loader that doesn't actually load!!!!!!!!!! */
-      texpage = iV_TexLoadNew((char*)IMDpath, texfile, ptype, palkeep, bColourKey);
+      texpage = Neuron::TexLoadNew((char*)IMDpath, texfile, ptype, palkeep, bColourKey);
       if (texpage < 0)
-        texpage = iV_TexLoadNew((char*)PCXpath, texfile, ptype, palkeep, bColourKey);
+        texpage = Neuron::TexLoadNew((char*)PCXpath, texfile, ptype, palkeep, bColourKey);
 
       if (texpage < 0)
       {
@@ -449,7 +448,7 @@ static iBool _imd_load_polys(UBYTE** ppFileData, UBYTE* FileDataEnd, iIMDShape* 
   IMDPolycount += s->npolys;
   s->numFrames = 0;
   s->animInterval = 0;
-  s->polys = static_cast<iIMDPoly*>(iV_HeapAlloc(sizeof(iIMDPoly) * s->npolys));
+  s->polys = static_cast<iIMDPoly*>(IVIS_HEAP_ALLOC(sizeof(iIMDPoly) * s->npolys));
 
   if (s->polys)
   {
@@ -466,16 +465,16 @@ static iBool _imd_load_polys(UBYTE** ppFileData, UBYTE* FileDataEnd, iIMDShape* 
         poly->flags = flags;
 
         if (flags & PIE_NO_CULL)
-          s->flags |= iV_IMD_NOCULLSOME;
+          s->flags |= IMD_NOCULLSOME;
 
         poly->npnts = npnts;
       }
 
       IMDVertexcount += poly->npnts;
 
-      poly->pindex = static_cast<VERTEXID*>(iV_HeapAlloc(sizeof(VERTEXID) * poly->npnts));
+      poly->pindex = static_cast<VERTEXID*>(IVIS_HEAP_ALLOC(sizeof(VERTEXID) * poly->npnts));
 
-      if ((poly->vrt = static_cast<iVertex*>(iV_HeapAlloc(sizeof(iVertex) * poly->npnts))) == nullptr)
+      if ((poly->vrt = static_cast<iVertex*>(IVIS_HEAP_ALLOC(sizeof(iVertex) * poly->npnts))) == nullptr)
       {
         Neuron::DebugTrace("(_load_polys) [poly {}] memory alloc fail (vertex struct)\n", i);
         return FALSE;
@@ -523,10 +522,10 @@ static iBool _imd_load_polys(UBYTE** ppFileData, UBYTE* FileDataEnd, iIMDShape* 
       else
         poly->normal.x = poly->normal.y = poly->normal.z = 0;
 
-      if (poly->flags & iV_IMD_TEXANIM)
+      if (poly->flags & IMD_TEXANIM)
       {
         IMDTexAnims++;
-        if ((poly->pTexAnim = static_cast<iTexAnim*>(iV_HeapAlloc(sizeof(iTexAnim)))) == nullptr)
+        if ((poly->pTexAnim = static_cast<iTexAnim*>(IVIS_HEAP_ALLOC(sizeof(iTexAnim)))) == nullptr)
         {
           Neuron::DebugTrace("(_load_polys) [poly {}] memory alloc fail (iTexAnim struct)\n", i);
           return FALSE;
@@ -555,7 +554,7 @@ static iBool _imd_load_polys(UBYTE** ppFileData, UBYTE* FileDataEnd, iIMDShape* 
       }
       else
         poly->pTexAnim = nullptr;
-      if (poly->vrt && (poly->flags & (iV_IMD_TEX | iV_IMD_PSXTEX)))
+      if (poly->vrt && (poly->flags & (IMD_TEX | IMD_PSXTEX)))
       {
         for (j = 0; j < poly->npnts; j++)
         {
@@ -773,7 +772,7 @@ BOOL ReadPoints(UBYTE** ppFileData, UBYTE* FileDataEnd, iIMDShape* s)
   }
 
   //clear remaining table
-  for (i = s->npoints; i < iV_IMD_MAX_POINTS; i++)
+  for (i = s->npoints; i < IMD_MAX_POINTS; i++)
     vertexTable[i] = -1;
 
   s->npoints = lastPoint;
@@ -811,7 +810,7 @@ static iBool _imd_load_points(UBYTE** ppFileData, UBYTE* FileDataEnd, iIMDShape*
 
   IMDPoints += s->npoints;
 
-  s->points = p = static_cast<iVector*>(iV_HeapAlloc(sizeof(iVector) * s->npoints));
+  s->points = p = static_cast<iVector*>(IVIS_HEAP_ALLOC(sizeof(iVector) * s->npoints));
   if (p == nullptr)
     return FALSE;
 
@@ -1018,9 +1017,9 @@ static iBool _imd_load_connectors(UBYTE** ppFileData, UBYTE* FileDataEnd, iIMDSh
 
   IMDConnectors += s->nconnectors;
 
-  if ((s->connectors = static_cast<iVector*>(iV_HeapAlloc(sizeof(iVector) * s->nconnectors))) == nullptr)
+  if ((s->connectors = static_cast<iVector*>(IVIS_HEAP_ALLOC(sizeof(iVector) * s->nconnectors))) == nullptr)
   {
-    Neuron::DebugTrace("(_load_connectors) iV_HeapAlloc fail\n");
+    Neuron::DebugTrace("(_load_connectors) IVIS_HEAP_ALLOC fail\n");
     return FALSE;
   }
 
@@ -1048,7 +1047,7 @@ static iBool _imd_load_connectors(UBYTE** ppFileData, UBYTE* FileDataEnd, iIMDSh
 //*
 //* params	fp 		= currently open shape file pointer
 //*			s			= pointer to shape level
-//*			texpage	= texture page number if iV_IMD_TEX
+//*			texpage	= texture page number if IMD_TEX
 //*
 //* on exit	s allocated
 //* returns	pointer to iFSDShape structure (or NULL on error)
@@ -1068,7 +1067,7 @@ static iIMDShape* _imd_load_level(UBYTE** ppFileData, UBYTE* FileDataEnd, int nl
   if (nlevels == 0)
     return nullptr;
 
-  s = static_cast<iIMDShape*>(iV_HeapAlloc(sizeof(iIMDShape)));
+  s = static_cast<iIMDShape*>(IVIS_HEAP_ALLOC(sizeof(iIMDShape)));
 
   if (s)
   {
@@ -1111,7 +1110,7 @@ static iIMDShape* _imd_load_level(UBYTE** ppFileData, UBYTE* FileDataEnd, int nl
       return nullptr;
     }
 
-    if (n > iV_IMD_MAX_POINTS)
+    if (n > IMD_MAX_POINTS)
       Neuron::DebugTrace("(_load_level) Too many points in IMD\n");
 
     s->npoints = n;
@@ -1196,7 +1195,7 @@ static iIMDShape* _imd_load_level(UBYTE** ppFileData, UBYTE* FileDataEnd, int nl
   return s;
 }
 
-BOOL iV_setImagePath(char* path)
+BOOL Neuron::setImagePath(char* path)
 {
   int i;
   strcpy(imagePath, path);
@@ -1235,7 +1234,7 @@ BOOL CheckColourKey(iIMDShape* psShape)
   int i;
 
   /* check model override flags else check all polys for colorkey flag */
-  if (_IMD_FLAGS & iV_IMD_XTRANS)
+  if (_IMD_FLAGS & IMD_XTRANS)
     return TRUE;
 
   /* loop over levels in model */
@@ -1275,8 +1274,8 @@ static int32 _imd_find_scale(int32 value, int32 limit)
 
 */
 
-iIMDShape* iV_ProcessIMD(UBYTE** ppFileData, UBYTE* FileDataEnd, UBYTE* IMDpath, UBYTE* PCXpath, iBool palkeep) { return (NULL); }iIMDShape*
-iV_IMDLoad(char* filename, iBool palkeep) { return (NULL); }
+iIMDShape* Neuron::ProcessIMD(UBYTE** ppFileData, UBYTE* FileDataEnd, UBYTE* IMDpath, UBYTE* PCXpath, iBool palkeep) { return (NULL); }iIMDShape*
+Neuron::IMDLoad(char* filename, iBool palkeep) { return (NULL); }
 
 #endif		// ALLOW_TEXTPIES
 
@@ -1285,7 +1284,7 @@ iV_IMDLoad(char* filename, iBool palkeep) { return (NULL); }
 */
 
 // Load a binary pie file - now handles multiple levels !
-iIMDShape* iV_ProcessBPIE(iIMDShape* InputPie, UDWORD SizeOfInputData)
+iIMDShape* Neuron::ProcessBPIE(iIMDShape* InputPie, UDWORD SizeOfInputData)
 {
   return (nullptr); // return NULL on pc
 }
@@ -1327,7 +1326,7 @@ void tpAddPIE(char* FileName, iIMDShape* pIMD)
     tp_PieList[tp_NumPies].NumLevels = 1;
     tp_PieList[tp_NumPies].Levels[0] = pIMD;
 
-    if (!(pIMD->flags & iV_IMD_XEFFECT))
+    if (!(pIMD->flags & IMD_XEFFECT))
     {
       pIMD2 = pIMD->next;
       while (pIMD2 != nullptr)

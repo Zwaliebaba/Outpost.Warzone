@@ -25,7 +25,7 @@
 
 #include "Script.h"
 #include "ScriptTabs.h"
-#include "Ivi.h"                           // iV_Reset
+#include "Ivi.h"                           // Neuron::Reset
 
 // semi hack to get the playstation to load resources from the WDG
 
@@ -764,7 +764,7 @@ BOOL levLoadData(STRING* pName, STRING* pSaveName, SDWORD saveType)
       // do some more initialising if necessary
       if (psNewLevel->type == LDS_COMPLETE || psNewLevel->type >= MULTI_TYPE_START || (psBaseData != nullptr AND !bCamChangeSaveGame))
       {
-        iV_Reset(FALSE); //unload font, to avoid crash on 8th load... ajl 15/sep/99
+        Neuron::Reset(FALSE); //unload font, to avoid crash on 8th load... ajl 15/sep/99
         if (!stageTwoInitialise())
           return FALSE;
 

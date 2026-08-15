@@ -9,7 +9,7 @@
 
 #include "PieDef.h"
 
-#define iV_DIVSHIFT			15
+#define DIVSHIFT			15
 
 // Simple derived types
 using iPointer = union
@@ -48,8 +48,11 @@ using iBox = struct
 
 //*************************************************************************
 
-extern void iV_Reset(int bResetPal);
-extern void iV_ShutDown(void);
+namespace Neuron
+{
+  extern void Reset(int bResetPal);
+  extern void ShutDown(void);
+}
 
 //*************************************************************************
 

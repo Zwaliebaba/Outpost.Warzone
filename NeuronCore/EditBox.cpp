@@ -87,7 +87,7 @@ void editBoxInitialise(W_EDITBOX* psWidget)
 {
   psWidget->state = WEDBS_FIXED;
   psWidget->printStart = 0;
-  iV_SetFont(psWidget->FontID);
+  Neuron::SetFont(psWidget->FontID);
   fitStringStart(psWidget->aText, psWidget->width, &psWidget->printChars, &psWidget->printWidth);
 }
 
@@ -210,7 +210,7 @@ static void fitStringStart(STRING* pBuffer, UDWORD boxWidth, UWORD* pCount, UWOR
   /* Find the number of characters that will fit in boxWidth */
   while (printChars < len)
   {
-    width = static_cast<UWORD>(printWidth + iV_GetCharWidth(*pCurr));
+    width = static_cast<UWORD>(printWidth + Neuron::GetCharWidth(*pCurr));
     if (width > boxWidth - WEDB_XGAP * 2)
     {
       /* We've got as many characters as will fit in the box */
@@ -242,7 +242,7 @@ static void fitStringEnd(STRING* pBuffer, UDWORD boxWidth, UWORD* pStart, UWORD*
   /* Find the number of characters that will fit in boxWidth */
   while (printChars < len)
   {
-    width = static_cast<UWORD>(printWidth + iV_GetCharWidth(*pCurr));
+    width = static_cast<UWORD>(printWidth + Neuron::GetCharWidth(*pCurr));
     if (width > boxWidth - (WEDB_XGAP * 2 + WEDB_CURSORSIZE))
     {
       /* Got as many characters as will fit into the box */
@@ -292,7 +292,7 @@ void editBoxRun(W_EDITBOX* psWidget, W_CONTEXT* psContext)
   printStart = psWidget->printStart;
   printWidth = psWidget->printWidth;
   printChars = psWidget->printChars;
-  iV_SetFont(psWidget->FontID);
+  Neuron::SetFont(psWidget->FontID);
 
   /* Loop through the characters in the input buffer */
   done = FALSE;
@@ -446,7 +446,7 @@ void editBoxSetString(W_EDITBOX* psWidget, STRING* pText)
   widgCopyString(psWidget->aText, pText);
   psWidget->state = WEDBS_FIXED;
   psWidget->printStart = 0;
-  iV_SetFont(psWidget->FontID);
+  Neuron::SetFont(psWidget->FontID);
   fitStringStart(psWidget->aText, psWidget->width, &psWidget->printChars, &psWidget->printWidth);
 }
 
@@ -471,7 +471,7 @@ void editBoxClicked(W_EDITBOX* psWidget, W_CONTEXT* psContext)
       psWidget->insPos = static_cast<UWORD>(len);
 
       /* Calculate how much of the string can appear in the box */
-      iV_SetFont(psWidget->FontID);
+      Neuron::SetFont(psWidget->FontID);
       fitStringEnd(psWidget->aText, psWidget->width, &psWidget->printStart, &psWidget->printChars, &psWidget->printWidth);
 
       /* Clear the input buffer */
@@ -550,10 +550,10 @@ void editBoxDisplay(WIDGET* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pC
 
   fx = x0 + WEDB_XGAP; // + (psEdBox->width - fw) / 2;
 
-  iV_SetFont(CurrFontID);
-  iV_SetTextColour(static_cast<UBYTE>(*(pColours + WCOL_TEXT)));
+  Neuron::SetFont(CurrFontID);
+  Neuron::SetTextColour(static_cast<UBYTE>(*(pColours + WCOL_TEXT)));
 
-  fy = y0 + (psEdBox->height - iV_GetTextLineSize()) / 2 - iV_GetTextAboveBase();
+  fy = y0 + (psEdBox->height - Neuron::GetTextLineSize()) / 2 - Neuron::GetTextAboveBase();
 
   /* If there is more text than will fit into the box,
      display the bit with the cursor in it */
@@ -575,10 +575,10 @@ void editBoxDisplay(WIDGET* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pC
     pInsPoint = psEdBox->aText + psEdBox->insPos;
     ch = *pInsPoint;
     *pInsPoint = '\0';
-    cx = x0 + WEDB_XGAP + iV_GetTextWidth((unsigned char*)(psEdBox->aText + psEdBox->printStart));
+    cx = x0 + WEDB_XGAP + Neuron::GetTextWidth((unsigned char*)(psEdBox->aText + psEdBox->printStart));
     *pInsPoint = ch;
     cy = fy;
-    pie_Line(cx, cy + iV_GetTextAboveBase(), cx, cy + iV_GetTextBelowBase(), *(pColours + WCOL_CURSOR));
+    pie_Line(cx, cy + Neuron::GetTextAboveBase(), cx, cy + Neuron::GetTextBelowBase(), *(pColours + WCOL_CURSOR));
   }
 #if CURSOR_BLINK
 	else if ((psEdBox->state & WEDBS_MASK) == WEDBS_OVER && blink)
@@ -589,7 +589,7 @@ void editBoxDisplay(WIDGET* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pC
     pInsPoint = psEdBox->aText + psEdBox->insPos;
     ch = *pInsPoint;
     *pInsPoint = '\0';
-    cx = x0 + WEDB_XGAP + iV_GetTextWidth((unsigned char*)(psEdBox->aText + psEdBox->printStart));
+    cx = x0 + WEDB_XGAP + Neuron::GetTextWidth((unsigned char*)(psEdBox->aText + psEdBox->printStart));
     *pInsPoint = ch;
     cy = fy;
     pie_Line(cx, cy, cx + WEDB_CURSORSIZE, cy, *(pColours + WCOL_CURSOR));

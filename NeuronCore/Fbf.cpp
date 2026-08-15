@@ -53,46 +53,46 @@ static int _fbf_getslot(void)
 //*					mode = FBF_MODE_ (read/write)
 //*					buffsize >0 -> buffer size to use
 //*			 		<0 -> use BUFFERSIZE (default)
-//* on exit:		iV_FileOpen() >=0 -> file descriptor fd
+//* on exit:		Neuron::FileOpen() >=0 -> file descriptor fd
 //*			   		<0  -> error:
-//*						iV_FBF_UNKNOWNMODE - R/W only
-//*						iV_FBF_TOOMANYOPEN
-//*						iV_FBF_OPENFAILED
-//*						iV_FBF_OUTOFMEMORY - could not claim buffer
+//*						FBF_UNKNOWNMODE - R/W only
+//*						FBF_TOOMANYOPEN
+//*						FBF_OPENFAILED
+//*						FBF_OUTOFMEMORY - could not claim buffer
 //******
 
-int iV_FileOpen(char* fname, int mode, int buffersize)
+int Neuron::FileOpen(char* fname, int mode, int buffersize)
 
 {
   int s;
   FILE* fp;
 
   if ((s = _fbf_getslot()) == -1)
-    return (iV_FBF_TOOMANYOPEN);
+    return (FBF_TOOMANYOPEN);
 
   switch (mode)
   {
-  case iV_FBF_MODE_R:
+  case FBF_MODE_R:
     if ((fp = fopen(fname, "rb")) == nullptr)
-      return (iV_FBF_OPENFAILED);
+      return (FBF_OPENFAILED);
     break;
 
-  case iV_FBF_MODE_W:
+  case FBF_MODE_W:
     if ((fp = fopen(fname, "wb")) == nullptr)
-      return (iV_FBF_OPENFAILED);
+      return (FBF_OPENFAILED);
     break;
 
   default:
-    return (iV_FBF_UNKNOWNMODE);
+    return (FBF_UNKNOWNMODE);
   }
 
   if (buffersize < 0)
     buffersize = BUFFERSIZE;
 
-  if ((fbf[s].buffer = static_cast<int8*>(iV_HeapAlloc(buffersize))) == nullptr)
+  if ((fbf[s].buffer = static_cast<int8*>(IVIS_HEAP_ALLOC(buffersize))) == nullptr)
   {
     fclose(fp);
-    return (iV_FBF_OUTOFMEMORY);
+    return (FBF_OUTOFMEMORY);
   }
 
   fbf[s].open = 1;
@@ -108,14 +108,14 @@ int iV_FileOpen(char* fname, int mode, int buffersize)
 //*************************************************************************
 //*** read one char from file
 //*
-//* pre:		iV_FileOpen(fd,iV_FBF_MODE_R,...)
+//* pre:		Neuron::FileOpen(fd,FBF_MODE_R,...)
 //*
 //* on entry:	fd = file descriptor
 //*
-//* on exit:	iV_FileGet() = char || EOF
+//* on exit:	Neuron::FileGet() = char || EOF
 //******
 
-int iV_FileGet(int fd)
+int Neuron::FileGet(int fd)
 
 {
   if (fbf[fd].n == 0)
@@ -130,21 +130,21 @@ int iV_FileGet(int fd)
 //*************************************************************************
 //*** close an open file
 //*
-//* pre:		iV_FileOpen(fd,...,...)
+//* pre:		Neuron::FileOpen(fd,...,...)
 //*
 //* on entry:	fd = file descriptor
 //******
 
-void iV_FileClose(int fd)
+void Neuron::FileClose(int fd)
 {
   if (fbf[fd].open)
   {
-    if ((fbf[fd].mode == iV_FBF_MODE_W) && (fbf[fd].n > 0))
+    if ((fbf[fd].mode == FBF_MODE_W) && (fbf[fd].n > 0))
       fwrite(fbf[fd].buffer, sizeof(int8), fbf[fd].n, fbf[fd].fp);
 
     if (fbf[fd].buffer)
     {
-      iV_HeapFree(fbf[fd].buffer, fbf[fd].buffersize);
+      IVIS_HEAP_FREE(fbf[fd].buffer, fbf[fd].buffersize);
       fbf[fd].buffer = nullptr;
     }
 
@@ -158,15 +158,15 @@ void iV_FileClose(int fd)
 //*************************************************************************
 //*** write one char to file
 //*
-//* pre:			iV_FileOpen(fd,iV_FBF_MODE_W,...)
+//* pre:			Neuron::FileOpen(fd,FBF_MODE_W,...)
 //*
 //* on entry:	fd = file descriptor
 //*	 			c  = char to write
 //*
-//* on exit:	iV_FilePut() =
+//* on exit:	Neuron::FilePut() =
 //******
 
-int iV_FilePut(int fd, int8 c)
+int Neuron::FilePut(int fd, int8 c)
 
 {
   int i = 1;
@@ -187,16 +187,16 @@ int iV_FilePut(int fd, int8 c)
 //*************************************************************************
 //*** seek to absolute file position
 //*
-//* pre:			iV_FileOpen(fd,iV_FBF_MODE_R,...)
+//* pre:			Neuron::FileOpen(fd,FBF_MODE_R,...)
 //*
 //* on entry:	fd 		= file descriptor
 //*	 			where  	= where in the file to seek to
-//*				seek		= seek mode (iV_FBF_SEEK_SET, iV_FBF_SEEK_END)
+//*				seek		= seek mode (FBF_SEEK_SET, FBF_SEEK_END)
 //*
-//* on exit:	iV_FileSeek == -1 -> error
+//* on exit:	Neuron::FileSeek == -1 -> error
 //******
 
-int iV_FileSeek(int fd, int where, int seek)
+int Neuron::FileSeek(int fd, int where, int seek)
 
 {
   fbf[fd].n = 0;
@@ -207,14 +207,14 @@ int iV_FileSeek(int fd, int where, int seek)
 //*************************************************************************
 //*** find size of an open file
 //*
-//* pre:			iV_FileOpen(fd,iV_FBF_MODE_R,...)
+//* pre:			Neuron::FileOpen(fd,FBF_MODE_R,...)
 //*
 //* on entry:	fd	= file descriptor
 //*
 //* returns		size of file or -1 if error
 //******
 
-int32 iV_FileSizeOpen(int fd)
+int32 Neuron::FileSizeOpen(int fd)
 
 {
   int32 pos, size;
@@ -246,7 +246,7 @@ int32 iV_FileSizeOpen(int fd)
 //* returns		size of file or -1 if error
 //******
 
-int32 iV_FileSize(char* filename)
+int32 Neuron::FileSize(char* filename)
 
 {
   int fd;
@@ -254,12 +254,12 @@ int32 iV_FileSize(char* filename)
 
   size = -1;
 
-  if (fd = iV_FileOpen(filename,iV_FBF_MODE_R,iV_FBF_DEFAULT_BUFFER) < 0)
+  if (fd = Neuron::FileOpen(filename,FBF_MODE_R,FBF_DEFAULT_BUFFER) < 0)
     return -1;
 
-  size = iV_FileSizeOpen(fd);
+  size = Neuron::FileSizeOpen(fd);
 
-  iV_FileClose(fd);
+  Neuron::FileClose(fd);
 
   return (size);
 }
@@ -274,7 +274,7 @@ int32 iV_FileSize(char* filename)
 //* returns		TRUE if saved ok else FALSE
 //******
 
-iBool iV_FileSave(char* filename, uint8* data, int32 size)
+iBool Neuron::FileSave(char* filename, uint8* data, int32 size)
 
 {
   FILE* fp;
@@ -298,13 +298,13 @@ iBool iV_FileSave(char* filename, uint8* data, int32 size)
 //* returns		TRUE if loaded ok else FALSE
 //******
 
-iBool iV_FileLoad(char* filename, uint8* data)
+iBool Neuron::FileLoad(char* filename, uint8* data)
 
 {
   FILE* fp;
   int32 size;
 
-  size = iV_FileSize(filename);
+  size = Neuron::FileSize(filename);
 
   if ((fp = fopen(filename, "rb")) == nullptr)
     return FALSE;

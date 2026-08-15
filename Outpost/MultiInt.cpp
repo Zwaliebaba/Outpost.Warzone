@@ -603,7 +603,7 @@ FAIL:
   widgDisplayScreen(psWScreen); // show the widgets currently running
   if (safeSearch)
   {
-    iV_SetFont(FEFont);
+    Neuron::SetFont(FEFont);
     pie_DrawText((UCHAR*)strresGetString(psStringRes, STR_MUL_SEARCHING),D_W + 260,D_H + 460);
   }
 
@@ -682,7 +682,7 @@ static void addGameOptions(BOOL bRedo)
   widgDelete(psWScreen,MULTIOP_OPTIONS); // clear options list
   widgDelete(psWScreen,FRONTEND_SIDETEXT3); // del text..
 
-  iV_SetFont(WFont);
+  Neuron::SetFont(WFont);
 
   memset(&sFormInit, 0, sizeof(W_FORMINIT)); // draw options box.
   sFormInit.formID = FRONTEND_BACKDROP;
@@ -897,8 +897,8 @@ static void addGameOptions(BOOL bRedo)
   }
 
   // cancel
-  addMultiBut(psWScreen,MULTIOP_OPTIONS,CON_CANCEL, MULTIOP_CANCELX,MULTIOP_CANCELY, iV_GetImageWidth(FrontImages, IMAGE_RETURN),
-              iV_GetImageHeight(FrontImages, IMAGE_RETURN), STR_MUL_CANCEL, IMAGE_RETURN, IMAGE_RETURN_HI,TRUE);
+  addMultiBut(psWScreen,MULTIOP_OPTIONS,CON_CANCEL, MULTIOP_CANCELX,MULTIOP_CANCELY, Neuron::GetImageWidth(FrontImages, IMAGE_RETURN),
+              Neuron::GetImageHeight(FrontImages, IMAGE_RETURN), STR_MUL_CANCEL, IMAGE_RETURN, IMAGE_RETURN_HI,TRUE);
 
   // host Games button
   if (ingame.bHostSetup && !bHosted)
@@ -1000,10 +1000,10 @@ static VOID addColourChooser(UDWORD player)
   // add the flags
   for (i = 0; i < MAX_PLAYERS; i++) //game.maxPlayers;i++)
   {
-    addMultiBut(psWScreen,MULTIOP_COLCHOOSER_FORM, MULTIOP_COLCHOOSER + i, (i * (iV_GetImageWidth(FrontImages, IMAGE_PLAYER0) + 5) + 7), //x
+    addMultiBut(psWScreen,MULTIOP_COLCHOOSER_FORM, MULTIOP_COLCHOOSER + i, (i * (Neuron::GetImageWidth(FrontImages, IMAGE_PLAYER0) + 5) + 7), //x
                 4,/*9,*/ //y
-                iV_GetImageWidth(FrontImages, IMAGE_PLAYER0), //w
-                iV_GetImageHeight(FrontImages, IMAGE_PLAYER0), //h
+                Neuron::GetImageWidth(FrontImages, IMAGE_PLAYER0), //w
+                Neuron::GetImageHeight(FrontImages, IMAGE_PLAYER0), //h
                 0, IMAGE_PLAYER0 + i, IMAGE_PLAYER0 + i,FALSE);
 
     if (!safeToUseColour(selectedPlayer, i))
@@ -1013,11 +1013,11 @@ static VOID addColourChooser(UDWORD player)
   //add the position chooser.
   for (i = 0; i < game.maxPlayers; i++)
   {
-    addMultiBut(psWScreen,MULTIOP_COLCHOOSER_FORM, MULTIOP_PLAYCHOOSER + i, (i * (iV_GetImageWidth(FrontImages, IMAGE_PLAYER0) + 5) + 7),
+    addMultiBut(psWScreen,MULTIOP_COLCHOOSER_FORM, MULTIOP_PLAYCHOOSER + i, (i * (Neuron::GetImageWidth(FrontImages, IMAGE_PLAYER0) + 5) + 7),
                 //x
                 23, //y
-                iV_GetImageWidth(FrontImages, IMAGE_WEE_GUY) + 7, //w
-                iV_GetImageHeight(FrontImages, IMAGE_WEE_GUY), //h
+                Neuron::GetImageWidth(FrontImages, IMAGE_WEE_GUY) + 7, //w
+                Neuron::GetImageHeight(FrontImages, IMAGE_WEE_GUY), //h
                 0, IMAGE_WEE_GUY, IMAGE_WEE_GUY, 10 + i);
 
     if (isHumanPlayer(i) && i != selectedPlayer)
@@ -1209,8 +1209,8 @@ VOID kickPlayer(NETPLAYERID dpid)
 
 static VOID addOkBut(VOID)
 {
-  addMultiBut(psWScreen, MULTIOP_OPTIONS,CON_OK, MULTIOP_OKX,MULTIOP_OKY, iV_GetImageWidth(FrontImages, IMAGE_BIGOK),
-              iV_GetImageHeight(FrontImages, IMAGE_BIGOK), STR_MUL_OK, IMAGE_BIGOK, IMAGE_BIGOK,FALSE);
+  addMultiBut(psWScreen, MULTIOP_OPTIONS,CON_OK, MULTIOP_OKX,MULTIOP_OKY, Neuron::GetImageWidth(FrontImages, IMAGE_BIGOK),
+              Neuron::GetImageHeight(FrontImages, IMAGE_BIGOK), STR_MUL_OK, IMAGE_BIGOK, IMAGE_BIGOK,FALSE);
 }
 
 static VOID addChatBox(VOID)
@@ -2128,7 +2128,7 @@ void runMultiOptions(VOID)
 
   if (widgGetFromID(psWScreen,MULTIOP_CHATBOX))
   {
-    iV_SetFont(WFont); // switch to small font.
+    Neuron::SetFont(WFont); // switch to small font.
     displayConsoleMessages(); // draw the chatbox
   }
 
@@ -2628,7 +2628,7 @@ BOOL startForceSelect(VOID)
   sBarInit.x = static_cast<SWORD>(FORCE_POWERX);
   sBarInit.y = static_cast<SWORD>(FORCE_POWERY);
   sBarInit.width = POW_BARWIDTH;
-  sBarInit.height = iV_GetImageHeight(IntImages, IMAGE_PBAR_EMPTY);
+  sBarInit.height = Neuron::GetImageHeight(IntImages, IMAGE_PBAR_EMPTY);
   sBarInit.sCol.red = POW_CLICKBARMAJORRED;
   sBarInit.sCol.green = POW_CLICKBARMAJORGREEN;
   sBarInit.sCol.blue = POW_CLICKBARMAJORBLUE;
@@ -2860,8 +2860,8 @@ void displayRemoteGame(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset,
   drawBlueBox(x, y, 55, psWidget->height);
 
   //draw game info
-  iV_SetFont(WFont); // font
-  iV_SetTextColour(-1); //colour
+  Neuron::SetFont(WFont); // font
+  Neuron::SetTextColour(-1); //colour
 
   //draw type overlay.
   //	if(NETgetGameFlagsUnjoined(i,1) == DMATCH)
@@ -2883,7 +2883,7 @@ void displayRemoteGame(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset,
     pie_ImageFileID(FrontImages, IMAGE_LAMP_RED, x + 70, y + 26);
 
   //draw game name
-  while (iV_GetTextWidth((unsigned char*)NetPlay.games[i].name) > (psWidget->width - 110))
+  while (Neuron::GetTextWidth((unsigned char*)NetPlay.games[i].name) > (psWidget->width - 110))
   {
     NetPlay.games[i].name[strlen(NetPlay.games[i].name) - 1] = '\0';
   }
@@ -2957,11 +2957,11 @@ void displayPlayer(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDW
 
     for (j = 0; player2dpid[j] != NetPlay.players[i].dpid && j < MAX_PLAYERS; j++); // get the in game playernumber.
 
-    iV_SetFont(WFont); // font
-    iV_SetTextColour(-1); // colour
+    Neuron::SetFont(WFont); // font
+    Neuron::SetTextColour(-1); // colour
 
     // name
-    while (iV_GetTextWidth((unsigned char*)NetPlay.players[i].name) > psWidget->width - 68) // clip name.
+    while (Neuron::GetTextWidth((unsigned char*)NetPlay.players[i].name) > psWidget->width - 68) // clip name.
     {
       NetPlay.players[i].name[strlen(NetPlay.players[i].name) - 1] = '\0';
     }
@@ -3164,7 +3164,7 @@ void displayMultiBut(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, U
   if ((usehl == 1) && ((W_BUTTON*)psWidget)->state & WBUTS_HILITE)
   {
     Hilight = TRUE;
-    switch (iV_GetImageWidth(FrontImages, im)) //pick a hilight.
+    switch (Neuron::GetImageWidth(FrontImages, im)) //pick a hilight.
     {
     case 30:
       hiToUse = IMAGE_HI34;

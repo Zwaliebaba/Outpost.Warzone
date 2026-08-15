@@ -33,7 +33,7 @@
  */
 /***************************************************************************/
 
-#define MAX_TEX_PAGES iV_TEX_MAX
+#define MAX_TEX_PAGES TEX_MAX
 #define TEXTURE_SIZE 256
 
 /* The radar occupies the top left corner of its page rather than the whole

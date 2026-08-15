@@ -7,13 +7,13 @@
 //*************************************************************************
 
 // pass in true to reset the palette too.
-void iV_Reset(int bPalReset)
+void Neuron::Reset(int bPalReset)
 {
   _TEX_INDEX = 0;
-  iV_ClearFonts(); // Initialise the IVIS font module.
+  Neuron::ClearFonts(); // Initialise the IVIS font module.
 }
 
-void iV_ShutDown(void)
+void Neuron::ShutDown(void)
 {
   pie_ShutDown();
   pie_TexShutDown();

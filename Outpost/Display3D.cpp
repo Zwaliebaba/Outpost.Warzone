@@ -326,8 +326,8 @@ SDWORD pitch;
 
 void displayMultiChat(void)
 {
-  UDWORD pixelLength = iV_GetTextWidth((unsigned char*)sTextToSend);
-  UDWORD pixelHeight = iV_GetTextLineSize();
+  UDWORD pixelLength = Neuron::GetTextWidth((unsigned char*)sTextToSend);
+  UDWORD pixelHeight = Neuron::GetTextLineSize();
 
   if (gameTime2 % 500 < 250)
     pie_BoxFillIndex(RET_X + pixelLength + 3, 474 + E_H - (pixelHeight / 4),RET_X + pixelLength + 10, 473 + E_H, 255);
@@ -426,7 +426,7 @@ void draw3DScene(void)
   }
   pie_SetDepthBufferStatus(DEPTH_CMP_ALWAYS_WRT_OFF);
   pie_SetFogStatus(FALSE);
-  iV_SetTextColour(-1);
+  Neuron::SetTextColour(-1);
 
   //----------------------------------------------------------
   //----------------------------------------------------------

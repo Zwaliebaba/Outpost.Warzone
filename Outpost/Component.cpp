@@ -681,7 +681,7 @@ void displayCompObj(BASE_OBJECT* psObj, iVector* mountRotation, BOOL bButton)
       psShape = getLeftPropulsionIMD(psDroid);
       if(psShape!=NULL)
       {
-        iV_PIEDraw(psShape,psDroid->player);
+        Neuron::PIEDraw(psShape,psDroid->player);
       }
     }
     else
@@ -689,7 +689,7 @@ void displayCompObj(BASE_OBJECT* psObj, iVector* mountRotation, BOOL bButton)
       psShape = getRightPropulsionIMD(psDroid);
       if(psShape!=NULL)
       {
-        iV_PIEDraw(psShape,psDroid->player);
+        Neuron::PIEDraw(psShape,psDroid->player);
       }
     }
   */
@@ -1036,7 +1036,7 @@ void displayCompObj(BASE_OBJECT* psObj, iVector* mountRotation, BOOL bButton)
 		psShape = getRightPropulsionIMD(psDroid);
 		if(psShape!=NULL)
 		{
-			iV_PIEDraw(psShape,psDroid->player);
+			Neuron::PIEDraw(psShape,psDroid->player);
 		}
 	}
 	else
@@ -1044,7 +1044,7 @@ void displayCompObj(BASE_OBJECT* psObj, iVector* mountRotation, BOOL bButton)
 		psShape = getLeftPropulsionIMD(psDroid);
 		if(psShape!=NULL)
 		{
-			iV_PIEDraw(psShape,psDroid->player);
+			Neuron::PIEDraw(psShape,psDroid->player);
 		}
 	}
 	*/

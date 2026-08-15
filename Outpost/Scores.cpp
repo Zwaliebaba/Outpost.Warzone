@@ -297,17 +297,17 @@ void dispAdditionalInfo(void)
 
   /* Firstly, top of the screen, number of artefacts found */
   sprintf(text, strresGetString(psStringRes, STR_MR_ARTEFACTS_FOUND), missionData.artefactsFound);
-  pie_DrawText((unsigned char*)text, (DISP_WIDTH - iV_GetTextWidth((unsigned char*)text)) / 2, 300 + D_H);
+  pie_DrawText((unsigned char*)text, (DISP_WIDTH - Neuron::GetTextWidth((unsigned char*)text)) / 2, 300 + D_H);
 
   /* Get the mission result time in a string - and write it out */
   getAsciiTime((char*)&text2, gameTime - missionData.missionStarted);
   sprintf(text, strresGetString(psStringRes, STR_MR_MISSION_TIME), text2);
-  pie_DrawText((unsigned char*)text, (DISP_WIDTH - iV_GetTextWidth((unsigned char*)text)) / 2, 320 + D_H);
+  pie_DrawText((unsigned char*)text, (DISP_WIDTH - Neuron::GetTextWidth((unsigned char*)text)) / 2, 320 + D_H);
 
   /* Write out total game time so far */
   getAsciiTime((char*)&text2, gameTime);
   sprintf(text, strresGetString(psStringRes, STR_MR_GAME_TIME), text2);
-  pie_DrawText((unsigned char*)text, (DISP_WIDTH - iV_GetTextWidth((unsigned char*)text)) / 2, 340 + D_H);
+  pie_DrawText((unsigned char*)text, (DISP_WIDTH - Neuron::GetTextWidth((unsigned char*)text)) / 2, 340 + D_H);
 }
 
 // -----------------------------------------------------------------------------------

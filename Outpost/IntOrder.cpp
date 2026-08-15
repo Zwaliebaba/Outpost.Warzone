@@ -534,15 +534,15 @@ BOOL _intAddOrder(BASE_OBJECT* psObj)
       break;
 
     case ORD_JUSTIFY_RIGHT:
-      sButInit.x = static_cast<SWORD>(sFormInit.width - ORDER_BUTX - (((NumJustifyButs * iV_GetImageWidth(
+      sButInit.x = static_cast<SWORD>(sFormInit.width - ORDER_BUTX - (((NumJustifyButs * Neuron::GetImageWidth(
         IntImages, OrderButtons[OrdIndex].ButImageID[0])) + ((NumJustifyButs - 1) * ORDER_BUTGAP))));
       break;
 
     case ORD_JUSTIFY_CENTER:
       //				sButInit.x = (SWORD)((sFormInit.width / 2) -
-      //						( ((NumJustifyButs * iV_GetImageWidth(IntImages,OrderButtons[OrdIndex].ButImageID[0])) + 
+      //						( ((NumJustifyButs * Neuron::GetImageWidth(IntImages,OrderButtons[OrdIndex].ButImageID[0])) + 
       sButInit.x = static_cast<SWORD>((sFormInit.width) - (((NumJustifyButs *
-        iV_GetImageWidth(IntImages, OrderButtons[OrdIndex].ButImageID[0])) + ((NumJustifyButs - 1) * ORDER_BUTGAP)))) / 2;
+        Neuron::GetImageWidth(IntImages, OrderButtons[OrdIndex].ButImageID[0])) + ((NumJustifyButs - 1) * ORDER_BUTGAP)))) / 2;
       break;
 
     case ORD_JUSTIFY_COMBINE:
@@ -568,15 +568,15 @@ BOOL _intAddOrder(BASE_OBJECT* psObj)
       if (NumCombineButs >= ORD_MAX_COMBINE_BUTS)
       {
         // the buttons will fill the line
-        sButInit.x = static_cast<SWORD>((ORDER_BUTX + (iV_GetImageWidth(IntImages, OrderButtons[OrdIndex].ButImageID[0]) + ORDER_BUTGAP) *
+        sButInit.x = static_cast<SWORD>((ORDER_BUTX + (Neuron::GetImageWidth(IntImages, OrderButtons[OrdIndex].ButImageID[0]) + ORDER_BUTGAP) *
           NumCombineBefore));
       }
       else
       {
         // center the buttons
-        sButInit.x = static_cast<SWORD>((sFormInit.width / 2) - (((NumCombineButs * iV_GetImageWidth(
+        sButInit.x = static_cast<SWORD>((sFormInit.width / 2) - (((NumCombineButs * Neuron::GetImageWidth(
           IntImages, OrderButtons[OrdIndex].ButImageID[0])) + ((NumCombineButs - 1) * ORDER_BUTGAP)) / 2));
-        sButInit.x = static_cast<SWORD>(sButInit.x + (iV_GetImageWidth(IntImages, OrderButtons[OrdIndex].ButImageID[0]) + ORDER_BUTGAP) *
+        sButInit.x = static_cast<SWORD>(sButInit.x + (Neuron::GetImageWidth(IntImages, OrderButtons[OrdIndex].ButImageID[0]) + ORDER_BUTGAP) *
           NumCombineBefore);
       }
 
@@ -590,8 +590,8 @@ BOOL _intAddOrder(BASE_OBJECT* psObj)
     for (i = 0; i < OrderButtons[OrdIndex].AcNumButs; i++)
     {
       sButInit.pTip = strresGetString(psStringRes, OrderButtons[OrdIndex].ButTips[i]);
-      sButInit.width = static_cast<UWORD>(iV_GetImageWidth(IntImages, OrderButtons[OrdIndex].ButImageID[i]));
-      sButInit.height = static_cast<UWORD>(iV_GetImageHeight(IntImages, OrderButtons[OrdIndex].ButImageID[i]));
+      sButInit.width = static_cast<UWORD>(Neuron::GetImageWidth(IntImages, OrderButtons[OrdIndex].ButImageID[i]));
+      sButInit.height = static_cast<UWORD>(Neuron::GetImageHeight(IntImages, OrderButtons[OrdIndex].ButImageID[i]));
       sButInit.pUserData = (void*)PACKDWORD_TRI(OrderButtons[OrdIndex].ButGreyID[i], OrderButtons[OrdIndex].ButHilightID[i],
                                                 OrderButtons[OrdIndex].ButImageID[i]);
       if (!widgAddButton(psWScreen, &sButInit))

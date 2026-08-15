@@ -150,7 +150,7 @@ void ResetMaxStringWidth(void) { MaxStringWidth = 0; }
 void AddMaxStringWidth(STR_RES* psRes, UDWORD StringID)
 {
   UDWORD StringWidth;
-  StringWidth = iV_GetTextWidth((unsigned char*)strresGetString(psRes, StringID));
+  StringWidth = Neuron::GetTextWidth((unsigned char*)strresGetString(psRes, StringID));
   if (StringWidth > MaxStringWidth)
     MaxStringWidth = StringWidth;
 }

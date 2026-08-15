@@ -35,12 +35,18 @@ extern iSurface* psRendSurface;
 
 //*************************************************************************
 
-extern void iV_RenderAssign(iSurface* s);
+namespace Neuron
+{
+  extern void RenderAssign(iSurface* s);
+}
 
 //*************************************************************************
 
-extern int iV_GetDisplayWidth(void);
-extern int iV_GetDisplayHeight(void);
+namespace Neuron
+{
+  extern int GetDisplayWidth(void);
+  extern int GetDisplayHeight(void);
+}
 
 //*************************************************************************
 

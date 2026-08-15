@@ -646,9 +646,9 @@ void intDisplayPowerBar(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
   realPower = asPower[selectedPlayer]->currentPower - ManuPower;
   BarWidth = BarGraph->width;
 #if	DRAW_POWER_BAR_TEXT
-  iV_SetFont(WFont);
+  Neuron::SetFont(WFont);
   itoa(realPower, szVal, 10);
-  textWidth = iV_GetTextWidth((unsigned char*)szVal);
+  textWidth = Neuron::GetTextWidth((unsigned char*)szVal);
   BarWidth -= textWidth;
 #endif
 
@@ -687,20 +687,20 @@ void intDisplayPowerBar(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
   iX = x0; iY = y0;
 #endif
 
-  x0 += iV_GetImageWidthNoCC(IntImages, IMAGE_PBAR_TOP);
+  x0 += Neuron::GetImageWidthNoCC(IntImages, IMAGE_PBAR_TOP);
 
   /* indent to allow text value */
   //draw used section
   /*pie_ImageFileIDTile(IntImages,IMAGE_PBAR_USED,
             x0,y0,
             0,0,
-            Used, iV_GetImageHeight(IntImages,IMAGE_PBAR_USED));
+            Used, Neuron::GetImageHeight(IntImages,IMAGE_PBAR_USED));
   x0 += Used;*/
 
   //fill in the empty section behind text
   if (textWidth > 0)
   {
-    pie_ImageFileIDTile(IntImages, IMAGE_PBAR_EMPTY, x0, y0, 0, 0, textWidth, iV_GetImageHeightNoCC(IntImages, IMAGE_PBAR_EMPTY));
+    pie_ImageFileIDTile(IntImages, IMAGE_PBAR_EMPTY, x0, y0, 0, 0, textWidth, Neuron::GetImageHeightNoCC(IntImages, IMAGE_PBAR_EMPTY));
     x0 += textWidth;
   }
 
@@ -708,16 +708,16 @@ void intDisplayPowerBar(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
   if (ManPow > Avail)
   {
     //draw the required in red
-    pie_ImageFileIDTile(IntImages, IMAGE_PBAR_USED, x0, y0, 0, 0, ManPow, iV_GetImageHeightNoCC(IntImages, IMAGE_PBAR_USED));
+    pie_ImageFileIDTile(IntImages, IMAGE_PBAR_USED, x0, y0, 0, 0, ManPow, Neuron::GetImageHeightNoCC(IntImages, IMAGE_PBAR_USED));
   }
-  else { pie_ImageFileIDTile(IntImages, IMAGE_PBAR_REQUIRED, x0, y0, 0, 0, ManPow, iV_GetImageHeightNoCC(IntImages, IMAGE_PBAR_REQUIRED)); }
+  else { pie_ImageFileIDTile(IntImages, IMAGE_PBAR_REQUIRED, x0, y0, 0, 0, ManPow, Neuron::GetImageHeightNoCC(IntImages, IMAGE_PBAR_REQUIRED)); }
 
   x0 += ManPow;
 
   //draw the available section if any!
   if (Avail - ManPow > 0)
   {
-    pie_ImageFileIDTile(IntImages, IMAGE_PBAR_AVAIL, x0, y0, 0, 0, Avail - ManPow, iV_GetImageHeightNoCC(IntImages, IMAGE_PBAR_AVAIL));
+    pie_ImageFileIDTile(IntImages, IMAGE_PBAR_AVAIL, x0, y0, 0, 0, Avail - ManPow, Neuron::GetImageHeightNoCC(IntImages, IMAGE_PBAR_AVAIL));
 
     x0 += Avail - ManPow;
   }
@@ -725,7 +725,7 @@ void intDisplayPowerBar(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
   //fill in the rest with empty section
   if (Empty > 0)
   {
-    pie_ImageFileIDTile(IntImages, IMAGE_PBAR_EMPTY, x0, y0, 0, 0, Empty, iV_GetImageHeightNoCC(IntImages, IMAGE_PBAR_EMPTY));
+    pie_ImageFileIDTile(IntImages, IMAGE_PBAR_EMPTY, x0, y0, 0, 0, Empty, Neuron::GetImageHeightNoCC(IntImages, IMAGE_PBAR_EMPTY));
     x0 += Empty;
   }
 
@@ -733,7 +733,7 @@ void intDisplayPowerBar(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
   /* draw text value */
 
 #if	DRAW_POWER_BAR_TEXT
-  iV_SetTextColour(-1);
+  Neuron::SetTextColour(-1);
   pie_DrawText((unsigned char*)szVal, iX, iY);
 #endif
 }
@@ -1695,8 +1695,8 @@ void intDisplayTab(struct _widget* psWidget, UDWORD TabType, UDWORD Position, UD
 //
 //
 //	AddCursorSnap(&InterfaceSnap,
-//					x+(iV_GetImageXOffset(IntImages,ImageID))+iV_GetImageWidth(IntImages,ImageID)/2,
-//					y+(iV_GetImageYOffset(IntImages,ImageID))+iV_GetImageHeight(IntImages,ImageID)/2,
+//					x+(Neuron::GetImageXOffset(IntImages,ImageID))+Neuron::GetImageWidth(IntImages,ImageID)/2,
+//					y+(Neuron::GetImageYOffset(IntImages,ImageID))+Neuron::GetImageHeight(IntImages,ImageID)/2,
 
 //
 
@@ -1790,8 +1790,8 @@ void intDisplaySlider(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, 
   pie_ImageFileID(IntImages, IMAGE_SLIDER_BUT, x + sx, y - 2);
 
   //	AddCursorSnap(&InterfaceSnap,
-  //					x+iV_GetImageCenterX(IntImages,IMAGE_SLIDER_BACK),
-  //					y+iV_GetImageCenterY(IntImages,IMAGE_SLIDER_BACK),
+  //					x+Neuron::GetImageCenterX(IntImages,IMAGE_SLIDER_BACK),
+  //					y+Neuron::GetImageCenterY(IntImages,IMAGE_SLIDER_BACK),
 }
 
 /* display highlighted edit box from left, middle and end edit box graphics */
@@ -1823,9 +1823,9 @@ void intDisplayEditBox(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset,
   pie_ImageFileID(IntImages, iImageIDLeft, iX, iY);
 
   /* draw middle of bar */
-  iX += iV_GetImageWidth(IntImages, iImageIDLeft);
-  iDX = iV_GetImageWidth(IntImages, iImageIDMid);
-  iXRight = xOffset + psWidget->width - iV_GetImageWidth(IntImages, iImageIDRight);
+  iX += Neuron::GetImageWidth(IntImages, iImageIDLeft);
+  iDX = Neuron::GetImageWidth(IntImages, iImageIDMid);
+  iXRight = xOffset + psWidget->width - Neuron::GetImageWidth(IntImages, iImageIDRight);
   while (iX < iXRight)
   {
     pie_ImageFileID(IntImages, iImageIDMid, iX, iY);
@@ -1874,7 +1874,7 @@ void intDisplayNumber(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, 
     while (Label->aText[i])
     {
       pie_ImageFileID(IntImages, static_cast<UWORD>(IMAGE_0 + (Label->aText[i] - '0')), x, y);
-      x += iV_GetImageWidth(IntImages, static_cast<UWORD>(IMAGE_0 + (Label->aText[i] - '0'))) + 1;
+      x += Neuron::GetImageWidth(IntImages, static_cast<UWORD>(IMAGE_0 + (Label->aText[i] - '0'))) + 1;
       i++;
     }
   }
@@ -2137,13 +2137,13 @@ void CreateIMDButton(IMAGEFILE* ImageFile, UWORD ImageID, void* Object, UDWORD P
       //the top button is smaller than the bottom button
       if (buttonType == TOPBUTTON)
       {
-        pie_SetGeometricOffset((ButXPos + iV_GetImageWidth(IntImages, IMAGE_BUT0_DOWN) / 2) + ButtonDrawXOffset + 2,
-                               (ButYPos + iV_GetImageHeight(IntImages, IMAGE_BUT0_DOWN) / 2) + 2 + 8 + ButtonDrawYOffset);
+        pie_SetGeometricOffset((ButXPos + Neuron::GetImageWidth(IntImages, IMAGE_BUT0_DOWN) / 2) + ButtonDrawXOffset + 2,
+                               (ButYPos + Neuron::GetImageHeight(IntImages, IMAGE_BUT0_DOWN) / 2) + 2 + 8 + ButtonDrawYOffset);
       }
       else
       {
-        pie_SetGeometricOffset((ButXPos + iV_GetImageWidth(IntImages, IMAGE_BUTB0_DOWN) / 2) + ButtonDrawXOffset + 2,
-                               (ButYPos + iV_GetImageHeight(IntImages, IMAGE_BUTB0_DOWN) / 2) + 2 + 12 + ButtonDrawYOffset);
+        pie_SetGeometricOffset((ButXPos + Neuron::GetImageWidth(IntImages, IMAGE_BUTB0_DOWN) / 2) + ButtonDrawXOffset + 2,
+                               (ButYPos + Neuron::GetImageHeight(IntImages, IMAGE_BUTB0_DOWN) / 2) + 2 + 12 + ButtonDrawYOffset);
       }
     }
     else
@@ -2151,13 +2151,13 @@ void CreateIMDButton(IMAGEFILE* ImageFile, UWORD ImageID, void* Object, UDWORD P
       //the top button is smaller than the bottom button
       if (buttonType == TOPBUTTON)
       {
-        pie_SetGeometricOffset((ButXPos + iV_GetImageWidth(IntImages, IMAGE_BUT0_UP) / 2) + ButtonDrawXOffset,
-                               (ButYPos + iV_GetImageHeight(IntImages, IMAGE_BUT0_UP) / 2) + 8 + ButtonDrawYOffset);
+        pie_SetGeometricOffset((ButXPos + Neuron::GetImageWidth(IntImages, IMAGE_BUT0_UP) / 2) + ButtonDrawXOffset,
+                               (ButYPos + Neuron::GetImageHeight(IntImages, IMAGE_BUT0_UP) / 2) + 8 + ButtonDrawYOffset);
       }
       else
       {
-        pie_SetGeometricOffset((ButXPos + iV_GetImageWidth(IntImages, IMAGE_BUT0_UP) / 2) + ButtonDrawXOffset,
-                               (ButYPos + iV_GetImageHeight(IntImages, IMAGE_BUTB0_UP) / 2) + 12 + ButtonDrawYOffset);
+        pie_SetGeometricOffset((ButXPos + Neuron::GetImageWidth(IntImages, IMAGE_BUT0_UP) / 2) + ButtonDrawXOffset,
+                               (ButYPos + Neuron::GetImageHeight(IntImages, IMAGE_BUTB0_UP) / 2) + 12 + ButtonDrawYOffset);
       }
     }
 
@@ -2225,26 +2225,26 @@ void CreateIMDButton(IMAGEFILE* ImageFile, UWORD ImageID, void* Object, UDWORD P
     {
       if (buttonType == TOPBUTTON)
       {
-        pie_SetGeometricOffset((ButXPos + iV_GetImageWidth(IntImages, IMAGE_BUT0_DOWN) / 2) + ButtonDrawXOffset + 2,
-                               (ButYPos + iV_GetImageHeight(IntImages, IMAGE_BUT0_DOWN) / 2) + 2 + 8 + ButtonDrawYOffset);
+        pie_SetGeometricOffset((ButXPos + Neuron::GetImageWidth(IntImages, IMAGE_BUT0_DOWN) / 2) + ButtonDrawXOffset + 2,
+                               (ButYPos + Neuron::GetImageHeight(IntImages, IMAGE_BUT0_DOWN) / 2) + 2 + 8 + ButtonDrawYOffset);
       }
       else
       {
-        pie_SetGeometricOffset((ButXPos + iV_GetImageWidth(IntImages, IMAGE_BUTB0_DOWN) / 2) + ButtonDrawXOffset + 2,
-                               (ButYPos + iV_GetImageHeight(IntImages, IMAGE_BUTB0_DOWN) / 2) + 2 + 12 + ButtonDrawYOffset);
+        pie_SetGeometricOffset((ButXPos + Neuron::GetImageWidth(IntImages, IMAGE_BUTB0_DOWN) / 2) + ButtonDrawXOffset + 2,
+                               (ButYPos + Neuron::GetImageHeight(IntImages, IMAGE_BUTB0_DOWN) / 2) + 2 + 12 + ButtonDrawYOffset);
       }
     }
     else
     {
       if (buttonType == TOPBUTTON)
       {
-        pie_SetGeometricOffset((ButXPos + iV_GetImageWidth(IntImages, IMAGE_BUT0_UP) / 2) + ButtonDrawXOffset,
-                               (ButYPos + iV_GetImageHeight(IntImages, IMAGE_BUT0_UP) / 2) + 8 + ButtonDrawYOffset);
+        pie_SetGeometricOffset((ButXPos + Neuron::GetImageWidth(IntImages, IMAGE_BUT0_UP) / 2) + ButtonDrawXOffset,
+                               (ButYPos + Neuron::GetImageHeight(IntImages, IMAGE_BUT0_UP) / 2) + 8 + ButtonDrawYOffset);
       }
       else
       {
-        pie_SetGeometricOffset((ButXPos + iV_GetImageWidth(IntImages, IMAGE_BUTB0_UP) / 2) + ButtonDrawXOffset,
-                               (ButYPos + iV_GetImageHeight(IntImages, IMAGE_BUTB0_UP) / 2) + 12 + ButtonDrawYOffset);
+        pie_SetGeometricOffset((ButXPos + Neuron::GetImageWidth(IntImages, IMAGE_BUTB0_UP) / 2) + ButtonDrawXOffset,
+                               (ButYPos + Neuron::GetImageHeight(IntImages, IMAGE_BUTB0_UP) / 2) + 12 + ButtonDrawYOffset);
       }
     }
 
@@ -2780,19 +2780,19 @@ void intDisplayStatsBar(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
 
   /* indent to allow text value */
 #if	DRAW_BAR_TEXT
-  iX = x0 + iV_GetTextWidth((unsigned char*)szCheckWidth);
-  iY = y0 + (iV_GetImageHeight(IntImages, IMAGE_DES_STATSCURR) - iV_GetTextLineSize()) / 2 - iV_GetTextAboveBase();
+  iX = x0 + Neuron::GetTextWidth((unsigned char*)szCheckWidth);
+  iY = y0 + (Neuron::GetImageHeight(IntImages, IMAGE_DES_STATSCURR) - Neuron::GetTextLineSize()) / 2 - Neuron::GetTextAboveBase();
 #else
   iX = x0; iY = y0;
 #endif
 
   //draw current value section
-  pie_ImageFileIDTile(IntImages, IMAGE_DES_STATSCURR, iX, y0, 0, 0, BarGraph->majorSize, iV_GetImageHeight(IntImages, IMAGE_DES_STATSCURR));
+  pie_ImageFileIDTile(IntImages, IMAGE_DES_STATSCURR, iX, y0, 0, 0, BarGraph->majorSize, Neuron::GetImageHeight(IntImages, IMAGE_DES_STATSCURR));
 
   /* draw text value */
 #if	DRAW_BAR_TEXT
   itoa(BarGraph->iValue, szVal, 10);
-  iV_SetTextColour(-1);
+  Neuron::SetTextColour(-1);
   pie_DrawText((unsigned char*)szVal, x0, iY);
 #endif
 
@@ -2830,7 +2830,7 @@ if (BarGraph->majorSize > BarGraph->width)
 
   //draw the background image
   pie_ImageFileID(IntImages, IMAGE_DES_POWERBAR_LEFT, x0, y0);
-  pie_ImageFileID(IntImages, IMAGE_DES_POWERBAR_RIGHT, x0 + psWidget->width - iV_GetImageWidth(IntImages, IMAGE_DES_POWERBAR_RIGHT), y0);
+  pie_ImageFileID(IntImages, IMAGE_DES_POWERBAR_RIGHT, x0 + psWidget->width - Neuron::GetImageWidth(IntImages, IMAGE_DES_POWERBAR_RIGHT), y0);
 
   //increment for the position of the bars within the background image
   arbitaryOffset = 3;
@@ -2839,8 +2839,8 @@ if (BarGraph->majorSize > BarGraph->width)
 
   /* indent to allow text value */
 #if	DRAW_BAR_TEXT
-  iX = x0 + iV_GetTextWidth((unsigned char*)szCheckWidth);
-  iY = y0 + (iV_GetImageHeight(IntImages, IMAGE_DES_STATSCURR) - iV_GetTextLineSize()) / 2 - iV_GetTextAboveBase();
+  iX = x0 + Neuron::GetTextWidth((unsigned char*)szCheckWidth);
+  iY = y0 + (Neuron::GetImageHeight(IntImages, IMAGE_DES_STATSCURR) - Neuron::GetTextLineSize()) / 2 - Neuron::GetTextAboveBase();
 #else
   iX = x0; iY = y0;
 #endif
@@ -2853,12 +2853,12 @@ if (BarGraph->majorSize > BarGraph->width)
     width = barWidth;
 
   //draw current value section
-  pie_ImageFileIDTile(IntImages, IMAGE_DES_STATSCURR, iX, y0, 0, 0, width, iV_GetImageHeight(IntImages, IMAGE_DES_STATSCURR));
+  pie_ImageFileIDTile(IntImages, IMAGE_DES_STATSCURR, iX, y0, 0, 0, width, Neuron::GetImageHeight(IntImages, IMAGE_DES_STATSCURR));
 
   /* draw text value */
 #if	DRAW_BAR_TEXT
   itoa(BarGraph->iValue, szVal, 10);
-  iV_SetTextColour(-1);
+  Neuron::SetTextColour(-1);
   pie_DrawText((unsigned char*)szVal, x0, iY);
 #endif
 

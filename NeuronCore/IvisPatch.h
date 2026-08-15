@@ -31,8 +31,8 @@
 
 //heap crash
 // these hand out untyped bytes, so there is no type for new to allocate
-#define iV_HeapAlloc(size) malloc(size)
-#define iV_HeapFree(pointer,size) free(pointer)
+#define IVIS_HEAP_ALLOC(size) malloc(size)
+#define IVIS_HEAP_FREE(pointer,size) free(pointer)
 
 /***************************************************************************/
 /*

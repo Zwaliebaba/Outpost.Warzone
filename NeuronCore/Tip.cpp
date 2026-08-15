@@ -108,11 +108,11 @@ void tipDisplay(void)
 
       /* Calculate the size of the tip box */
       topGap = TIP_VGAP;
-      iV_SetFont(FontID);
+      Neuron::SetFont(FontID);
 
-      fw = iV_GetTextWidth((unsigned char*)pTip);
+      fw = Neuron::GetTextWidth((unsigned char*)pTip);
       tw = fw + TIP_HGAP * 2;
-      th = topGap * 2 + iV_GetTextLineSize() + iV_GetTextBelowBase();
+      th = topGap * 2 + Neuron::GetTextLineSize() + Neuron::GetTextBelowBase();
 
       /* Position the tip box */
       tx = wx + (ww >> 1);
@@ -133,7 +133,7 @@ void tipDisplay(void)
 
       /* Position the text */
       fx = tx + TIP_HGAP;
-      fy = ty + (th - iV_GetTextLineSize()) / 2 - iV_GetTextAboveBase();
+      fy = ty + (th - Neuron::GetTextLineSize()) / 2 - Neuron::GetTextAboveBase();
 
       /* Note the time */
       startTime = GetTickCount();
@@ -158,8 +158,8 @@ void tipDisplay(void)
     pie_Line(tx, ty + th, tx + tw, ty + th, *(pColours + WCOL_DARK));
     pie_Line(tx + tw, ty + th - 1, tx + tw, ty, *(pColours + WCOL_DARK));
 
-    iV_SetFont(FontID);
-    iV_SetTextColour(static_cast<UWORD>(TipColour));
+    Neuron::SetFont(FontID);
+    Neuron::SetTextColour(static_cast<UWORD>(TipColour));
     pie_DrawText((unsigned char*)pTip, fx, fy);
     break;
   }

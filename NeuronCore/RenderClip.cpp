@@ -240,37 +240,6 @@ int pie_ClipTexturedTriangleFast(PIEVERTEX* v1, PIEVERTEX* v2, PIEVERTEX* v3, PI
 
 //*************************************************************************
 
-int iV_PolyClip2D(int npoints, iVertex* points, iVertex* clip)
-
-{
-  static iVertex xclip[pie_MAX_POLY_SIZE + 4];
-  iVertex *p0, *p1;
-  int n1, n, i;
-
-  p0 = &points[0];
-  p1 = &points[1];
-
-  for (i = 0, n1 = 0; i < npoints; i++, p0++, p1++)
-  {
-    if (i == (npoints - 1))
-      p1 = &points[0];
-
-    n1 += _xclip_edge2d(p0, p1, &xclip[n1]);
-  }
-
-  p0 = &xclip[0];
-  p1 = &xclip[1];
-
-  for (i = 0, n = 0; i < n1; p0++, p1++, i++)
-  {
-    if (i == (n1 - 1))
-      p1 = &xclip[0];
-    n += _yclip_edge2d(p0, p1, &clip[n]);
-  }
-
-  return n;
-}
-
 /***************************************************************************/
 
 static int _xtclip_edge2d(iVertex* s1, iVertex* s2, iVertex* clip)
@@ -298,12 +267,12 @@ static int _xtclip_edge2d(iVertex* s1, iVertex* s2, iVertex* clip)
       clip->x = psRendSurface->clip.left;
 
       // clip uv
-      t = ((clip->x - s1->x) << iV_DIVSHIFT) / dx;
+      t = ((clip->x - s1->x) << DIVSHIFT) / dx;
 
-      clip->u = s1->u + ((t * (s2->u - s1->u)) >> iV_DIVSHIFT);
-      clip->v = s1->v + ((t * (s2->v - s1->v)) >> iV_DIVSHIFT);
-      clip->g = s1->g + ((t * (s2->g - s1->g)) >> iV_DIVSHIFT);
-      clip->z = s1->z + ((t * (s2->z - s1->z)) >> iV_DIVSHIFT);
+      clip->u = s1->u + ((t * (s2->u - s1->u)) >> DIVSHIFT);
+      clip->v = s1->v + ((t * (s2->v - s1->v)) >> DIVSHIFT);
+      clip->g = s1->g + ((t * (s2->g - s1->g)) >> DIVSHIFT);
+      clip->z = s1->z + ((t * (s2->z - s1->z)) >> DIVSHIFT);
     }
     else
       *clip = *s1;
@@ -325,11 +294,11 @@ static int _xtclip_edge2d(iVertex* s1, iVertex* s2, iVertex* clip)
       clip->x = psRendSurface->clip.right;
 
       // clip uv
-      t = ((clip->x - s1->x) << iV_DIVSHIFT) / dx;
-      clip->u = s1->u + ((t * (s2->u - s1->u)) >> iV_DIVSHIFT);
-      clip->v = s1->v + ((t * (s2->v - s1->v)) >> iV_DIVSHIFT);
-      clip->g = s1->g + ((t * (s2->g - s1->g)) >> iV_DIVSHIFT);
-      clip->z = s1->z + ((t * (s2->z - s1->z)) >> iV_DIVSHIFT);
+      t = ((clip->x - s1->x) << DIVSHIFT) / dx;
+      clip->u = s1->u + ((t * (s2->u - s1->u)) >> DIVSHIFT);
+      clip->v = s1->v + ((t * (s2->v - s1->v)) >> DIVSHIFT);
+      clip->g = s1->g + ((t * (s2->g - s1->g)) >> DIVSHIFT);
+      clip->z = s1->z + ((t * (s2->z - s1->z)) >> DIVSHIFT);
 
       n = 2;
     }
@@ -351,11 +320,11 @@ static int _xtclip_edge2d(iVertex* s1, iVertex* s2, iVertex* clip)
     clip->x = psRendSurface->clip.right;
 
     // clip uv
-    t = ((clip->x - s1->x) << iV_DIVSHIFT) / dx;
-    clip->u = s1->u + ((t * (s1->u - s2->u)) >> iV_DIVSHIFT);
-    clip->v = s1->v + ((t * (s1->v - s2->v)) >> iV_DIVSHIFT);
-    clip->g = s1->g + ((t * (s1->g - s2->g)) >> iV_DIVSHIFT);
-    clip->z = s1->z + ((t * (s1->z - s2->z)) >> iV_DIVSHIFT);
+    t = ((clip->x - s1->x) << DIVSHIFT) / dx;
+    clip->u = s1->u + ((t * (s1->u - s2->u)) >> DIVSHIFT);
+    clip->v = s1->v + ((t * (s1->v - s2->v)) >> DIVSHIFT);
+    clip->g = s1->g + ((t * (s1->g - s2->g)) >> DIVSHIFT);
+    clip->z = s1->z + ((t * (s1->z - s2->z)) >> DIVSHIFT);
   }
   else
     *clip = *s1;
@@ -377,11 +346,11 @@ static int _xtclip_edge2d(iVertex* s1, iVertex* s2, iVertex* clip)
     clip->x = psRendSurface->clip.left;
 
     // clip uv
-    t = ((clip->x - s1->x) << iV_DIVSHIFT) / dx;
-    clip->u = s1->u + ((t * (s1->u - s2->u)) >> iV_DIVSHIFT);
-    clip->v = s1->v + ((t * (s1->v - s2->v)) >> iV_DIVSHIFT);
-    clip->g = s1->g + ((t * (s1->g - s2->g)) >> iV_DIVSHIFT);
-    clip->z = s1->z + ((t * (s1->z - s2->z)) >> iV_DIVSHIFT);
+    t = ((clip->x - s1->x) << DIVSHIFT) / dx;
+    clip->u = s1->u + ((t * (s1->u - s2->u)) >> DIVSHIFT);
+    clip->v = s1->v + ((t * (s1->v - s2->v)) >> DIVSHIFT);
+    clip->g = s1->g + ((t * (s1->g - s2->g)) >> DIVSHIFT);
+    clip->z = s1->z + ((t * (s1->z - s2->z)) >> DIVSHIFT);
 
     n = 2;
   }
@@ -415,21 +384,21 @@ static int pie_ClipXT(PIEVERTEX* s1, PIEVERTEX* s2, PIEVERTEX* clip)
       clip->sx = psRendSurface->clip.left;
 
       // clip uv
-      t = ((clip->sx - s1->sx) << iV_DIVSHIFT) / dx;
+      t = ((clip->sx - s1->sx) << DIVSHIFT) / dx;
 
-      clip->tu = s1->tu + ((t * (s2->tu - s1->tu)) >> iV_DIVSHIFT);
-      clip->tv = s1->tv + ((t * (s2->tv - s1->tv)) >> iV_DIVSHIFT);
-      clip->sz = s1->sz + ((t * (s2->sz - s1->sz)) >> iV_DIVSHIFT);
-      clip->light.byte.r = s1->light.byte.r + ((t * (s2->light.byte.r - s1->light.byte.r)) >> iV_DIVSHIFT);
-      clip->light.byte.g = s1->light.byte.g + ((t * (s2->light.byte.g - s1->light.byte.g)) >> iV_DIVSHIFT);
-      clip->light.byte.b = s1->light.byte.b + ((t * (s2->light.byte.b - s1->light.byte.b)) >> iV_DIVSHIFT);
-      clip->light.byte.a = s1->light.byte.a + ((t * (s2->light.byte.a - s1->light.byte.a)) >> iV_DIVSHIFT);
+      clip->tu = s1->tu + ((t * (s2->tu - s1->tu)) >> DIVSHIFT);
+      clip->tv = s1->tv + ((t * (s2->tv - s1->tv)) >> DIVSHIFT);
+      clip->sz = s1->sz + ((t * (s2->sz - s1->sz)) >> DIVSHIFT);
+      clip->light.byte.r = s1->light.byte.r + ((t * (s2->light.byte.r - s1->light.byte.r)) >> DIVSHIFT);
+      clip->light.byte.g = s1->light.byte.g + ((t * (s2->light.byte.g - s1->light.byte.g)) >> DIVSHIFT);
+      clip->light.byte.b = s1->light.byte.b + ((t * (s2->light.byte.b - s1->light.byte.b)) >> DIVSHIFT);
+      clip->light.byte.a = s1->light.byte.a + ((t * (s2->light.byte.a - s1->light.byte.a)) >> DIVSHIFT);
       if (bClipSpecular)
       {
-        clip->specular.byte.r = s1->specular.byte.r + ((t * (s2->specular.byte.r - s1->specular.byte.r)) >> iV_DIVSHIFT);
-        clip->specular.byte.g = s1->specular.byte.g + ((t * (s2->specular.byte.g - s1->specular.byte.g)) >> iV_DIVSHIFT);
-        clip->specular.byte.b = s1->specular.byte.b + ((t * (s2->specular.byte.b - s1->specular.byte.b)) >> iV_DIVSHIFT);
-        clip->specular.byte.a = s1->specular.byte.a + ((t * (s2->specular.byte.a - s1->specular.byte.a)) >> iV_DIVSHIFT);
+        clip->specular.byte.r = s1->specular.byte.r + ((t * (s2->specular.byte.r - s1->specular.byte.r)) >> DIVSHIFT);
+        clip->specular.byte.g = s1->specular.byte.g + ((t * (s2->specular.byte.g - s1->specular.byte.g)) >> DIVSHIFT);
+        clip->specular.byte.b = s1->specular.byte.b + ((t * (s2->specular.byte.b - s1->specular.byte.b)) >> DIVSHIFT);
+        clip->specular.byte.a = s1->specular.byte.a + ((t * (s2->specular.byte.a - s1->specular.byte.a)) >> DIVSHIFT);
       }
     }
     else
@@ -452,20 +421,20 @@ static int pie_ClipXT(PIEVERTEX* s1, PIEVERTEX* s2, PIEVERTEX* clip)
       clip->sx = psRendSurface->clip.right;
 
       // clip uv
-      t = ((clip->sx - s1->sx) << iV_DIVSHIFT) / dx;
-      clip->tu = s1->tu + ((t * (s2->tu - s1->tu)) >> iV_DIVSHIFT);
-      clip->tv = s1->tv + ((t * (s2->tv - s1->tv)) >> iV_DIVSHIFT);
-      clip->sz = s1->sz + ((t * (s2->sz - s1->sz)) >> iV_DIVSHIFT);
-      clip->light.byte.r = s1->light.byte.r + ((t * (s2->light.byte.r - s1->light.byte.r)) >> iV_DIVSHIFT);
-      clip->light.byte.g = s1->light.byte.g + ((t * (s2->light.byte.g - s1->light.byte.g)) >> iV_DIVSHIFT);
-      clip->light.byte.b = s1->light.byte.b + ((t * (s2->light.byte.b - s1->light.byte.b)) >> iV_DIVSHIFT);
-      clip->light.byte.a = s1->light.byte.a + ((t * (s2->light.byte.a - s1->light.byte.a)) >> iV_DIVSHIFT);
+      t = ((clip->sx - s1->sx) << DIVSHIFT) / dx;
+      clip->tu = s1->tu + ((t * (s2->tu - s1->tu)) >> DIVSHIFT);
+      clip->tv = s1->tv + ((t * (s2->tv - s1->tv)) >> DIVSHIFT);
+      clip->sz = s1->sz + ((t * (s2->sz - s1->sz)) >> DIVSHIFT);
+      clip->light.byte.r = s1->light.byte.r + ((t * (s2->light.byte.r - s1->light.byte.r)) >> DIVSHIFT);
+      clip->light.byte.g = s1->light.byte.g + ((t * (s2->light.byte.g - s1->light.byte.g)) >> DIVSHIFT);
+      clip->light.byte.b = s1->light.byte.b + ((t * (s2->light.byte.b - s1->light.byte.b)) >> DIVSHIFT);
+      clip->light.byte.a = s1->light.byte.a + ((t * (s2->light.byte.a - s1->light.byte.a)) >> DIVSHIFT);
       if (bClipSpecular)
       {
-        clip->specular.byte.r = s1->specular.byte.r + ((t * (s2->specular.byte.r - s1->specular.byte.r)) >> iV_DIVSHIFT);
-        clip->specular.byte.g = s1->specular.byte.g + ((t * (s2->specular.byte.g - s1->specular.byte.g)) >> iV_DIVSHIFT);
-        clip->specular.byte.b = s1->specular.byte.b + ((t * (s2->specular.byte.b - s1->specular.byte.b)) >> iV_DIVSHIFT);
-        clip->specular.byte.a = s1->specular.byte.a + ((t * (s2->specular.byte.a - s1->specular.byte.a)) >> iV_DIVSHIFT);
+        clip->specular.byte.r = s1->specular.byte.r + ((t * (s2->specular.byte.r - s1->specular.byte.r)) >> DIVSHIFT);
+        clip->specular.byte.g = s1->specular.byte.g + ((t * (s2->specular.byte.g - s1->specular.byte.g)) >> DIVSHIFT);
+        clip->specular.byte.b = s1->specular.byte.b + ((t * (s2->specular.byte.b - s1->specular.byte.b)) >> DIVSHIFT);
+        clip->specular.byte.a = s1->specular.byte.a + ((t * (s2->specular.byte.a - s1->specular.byte.a)) >> DIVSHIFT);
       }
 
       n = 2;
@@ -488,20 +457,20 @@ static int pie_ClipXT(PIEVERTEX* s1, PIEVERTEX* s2, PIEVERTEX* clip)
     clip->sx = psRendSurface->clip.right;
 
     // clip uv
-    t = ((clip->sx - s1->sx) << iV_DIVSHIFT) / dx;
-    clip->tu = s1->tu + ((t * (s1->tu - s2->tu)) >> iV_DIVSHIFT);
-    clip->tv = s1->tv + ((t * (s1->tv - s2->tv)) >> iV_DIVSHIFT);
-    clip->sz = s1->sz + ((t * (s1->sz - s2->sz)) >> iV_DIVSHIFT);
-    clip->light.byte.r = s1->light.byte.r + ((t * (s1->light.byte.r - s2->light.byte.r)) >> iV_DIVSHIFT);
-    clip->light.byte.g = s1->light.byte.g + ((t * (s1->light.byte.g - s2->light.byte.g)) >> iV_DIVSHIFT);
-    clip->light.byte.b = s1->light.byte.b + ((t * (s1->light.byte.b - s2->light.byte.b)) >> iV_DIVSHIFT);
-    clip->light.byte.a = s1->light.byte.a + ((t * (s1->light.byte.a - s2->light.byte.a)) >> iV_DIVSHIFT);
+    t = ((clip->sx - s1->sx) << DIVSHIFT) / dx;
+    clip->tu = s1->tu + ((t * (s1->tu - s2->tu)) >> DIVSHIFT);
+    clip->tv = s1->tv + ((t * (s1->tv - s2->tv)) >> DIVSHIFT);
+    clip->sz = s1->sz + ((t * (s1->sz - s2->sz)) >> DIVSHIFT);
+    clip->light.byte.r = s1->light.byte.r + ((t * (s1->light.byte.r - s2->light.byte.r)) >> DIVSHIFT);
+    clip->light.byte.g = s1->light.byte.g + ((t * (s1->light.byte.g - s2->light.byte.g)) >> DIVSHIFT);
+    clip->light.byte.b = s1->light.byte.b + ((t * (s1->light.byte.b - s2->light.byte.b)) >> DIVSHIFT);
+    clip->light.byte.a = s1->light.byte.a + ((t * (s1->light.byte.a - s2->light.byte.a)) >> DIVSHIFT);
     if (bClipSpecular)
     {
-      clip->specular.byte.r = s1->specular.byte.r + ((t * (s1->specular.byte.r - s2->specular.byte.r)) >> iV_DIVSHIFT);
-      clip->specular.byte.g = s1->specular.byte.g + ((t * (s1->specular.byte.g - s2->specular.byte.g)) >> iV_DIVSHIFT);
-      clip->specular.byte.b = s1->specular.byte.b + ((t * (s1->specular.byte.b - s2->specular.byte.b)) >> iV_DIVSHIFT);
-      clip->specular.byte.a = s1->specular.byte.a + ((t * (s1->specular.byte.a - s2->specular.byte.a)) >> iV_DIVSHIFT);
+      clip->specular.byte.r = s1->specular.byte.r + ((t * (s1->specular.byte.r - s2->specular.byte.r)) >> DIVSHIFT);
+      clip->specular.byte.g = s1->specular.byte.g + ((t * (s1->specular.byte.g - s2->specular.byte.g)) >> DIVSHIFT);
+      clip->specular.byte.b = s1->specular.byte.b + ((t * (s1->specular.byte.b - s2->specular.byte.b)) >> DIVSHIFT);
+      clip->specular.byte.a = s1->specular.byte.a + ((t * (s1->specular.byte.a - s2->specular.byte.a)) >> DIVSHIFT);
     }
   }
   else
@@ -524,20 +493,20 @@ static int pie_ClipXT(PIEVERTEX* s1, PIEVERTEX* s2, PIEVERTEX* clip)
     clip->sx = psRendSurface->clip.left;
 
     // clip uv
-    t = ((clip->sx - s1->sx) << iV_DIVSHIFT) / dx;
-    clip->tu = s1->tu + ((t * (s1->tu - s2->tu)) >> iV_DIVSHIFT);
-    clip->tv = s1->tv + ((t * (s1->tv - s2->tv)) >> iV_DIVSHIFT);
-    clip->sz = s1->sz + ((t * (s1->sz - s2->sz)) >> iV_DIVSHIFT);
-    clip->light.byte.r = s1->light.byte.r + ((t * (s1->light.byte.r - s2->light.byte.r)) >> iV_DIVSHIFT);
-    clip->light.byte.g = s1->light.byte.g + ((t * (s1->light.byte.g - s2->light.byte.g)) >> iV_DIVSHIFT);
-    clip->light.byte.b = s1->light.byte.b + ((t * (s1->light.byte.b - s2->light.byte.b)) >> iV_DIVSHIFT);
-    clip->light.byte.a = s1->light.byte.a + ((t * (s1->light.byte.a - s2->light.byte.a)) >> iV_DIVSHIFT);
+    t = ((clip->sx - s1->sx) << DIVSHIFT) / dx;
+    clip->tu = s1->tu + ((t * (s1->tu - s2->tu)) >> DIVSHIFT);
+    clip->tv = s1->tv + ((t * (s1->tv - s2->tv)) >> DIVSHIFT);
+    clip->sz = s1->sz + ((t * (s1->sz - s2->sz)) >> DIVSHIFT);
+    clip->light.byte.r = s1->light.byte.r + ((t * (s1->light.byte.r - s2->light.byte.r)) >> DIVSHIFT);
+    clip->light.byte.g = s1->light.byte.g + ((t * (s1->light.byte.g - s2->light.byte.g)) >> DIVSHIFT);
+    clip->light.byte.b = s1->light.byte.b + ((t * (s1->light.byte.b - s2->light.byte.b)) >> DIVSHIFT);
+    clip->light.byte.a = s1->light.byte.a + ((t * (s1->light.byte.a - s2->light.byte.a)) >> DIVSHIFT);
     if (bClipSpecular)
     {
-      clip->specular.byte.r = s1->specular.byte.r + ((t * (s1->specular.byte.r - s2->specular.byte.r)) >> iV_DIVSHIFT);
-      clip->specular.byte.g = s1->specular.byte.g + ((t * (s1->specular.byte.g - s2->specular.byte.g)) >> iV_DIVSHIFT);
-      clip->specular.byte.b = s1->specular.byte.b + ((t * (s1->specular.byte.b - s2->specular.byte.b)) >> iV_DIVSHIFT);
-      clip->specular.byte.a = s1->specular.byte.a + ((t * (s1->specular.byte.a - s2->specular.byte.a)) >> iV_DIVSHIFT);
+      clip->specular.byte.r = s1->specular.byte.r + ((t * (s1->specular.byte.r - s2->specular.byte.r)) >> DIVSHIFT);
+      clip->specular.byte.g = s1->specular.byte.g + ((t * (s1->specular.byte.g - s2->specular.byte.g)) >> DIVSHIFT);
+      clip->specular.byte.b = s1->specular.byte.b + ((t * (s1->specular.byte.b - s2->specular.byte.b)) >> DIVSHIFT);
+      clip->specular.byte.a = s1->specular.byte.a + ((t * (s1->specular.byte.a - s2->specular.byte.a)) >> DIVSHIFT);
     }
 
     n = 2;
@@ -572,11 +541,11 @@ static int _ytclip_edge2d(iVertex* s1, iVertex* s2, iVertex* clip)
       clip->y = psRendSurface->clip.top;
 
       // clip uv
-      t = ((clip->y - s1->y) << iV_DIVSHIFT) / dy;
-      clip->u = s1->u + ((t * (s2->u - s1->u)) >> iV_DIVSHIFT);
-      clip->v = s1->v + ((t * (s2->v - s1->v)) >> iV_DIVSHIFT);
-      clip->g = s1->g + ((t * (s2->g - s1->g)) >> iV_DIVSHIFT);
-      clip->z = s1->z + ((t * (s2->z - s1->z)) >> iV_DIVSHIFT);
+      t = ((clip->y - s1->y) << DIVSHIFT) / dy;
+      clip->u = s1->u + ((t * (s2->u - s1->u)) >> DIVSHIFT);
+      clip->v = s1->v + ((t * (s2->v - s1->v)) >> DIVSHIFT);
+      clip->g = s1->g + ((t * (s2->g - s1->g)) >> DIVSHIFT);
+      clip->z = s1->z + ((t * (s2->z - s1->z)) >> DIVSHIFT);
     }
     else
       *clip = *s1;
@@ -598,11 +567,11 @@ static int _ytclip_edge2d(iVertex* s1, iVertex* s2, iVertex* clip)
       clip->y = psRendSurface->clip.bottom;
 
       // clip uv
-      t = ((clip->y - s1->y) << iV_DIVSHIFT) / dy;
-      clip->u = s1->u + ((t * (s2->u - s1->u)) >> iV_DIVSHIFT);
-      clip->v = s1->v + ((t * (s2->v - s1->v)) >> iV_DIVSHIFT);
-      clip->g = s1->g + ((t * (s2->g - s1->g)) >> iV_DIVSHIFT);
-      clip->z = s1->z + ((t * (s2->z - s1->z)) >> iV_DIVSHIFT);
+      t = ((clip->y - s1->y) << DIVSHIFT) / dy;
+      clip->u = s1->u + ((t * (s2->u - s1->u)) >> DIVSHIFT);
+      clip->v = s1->v + ((t * (s2->v - s1->v)) >> DIVSHIFT);
+      clip->g = s1->g + ((t * (s2->g - s1->g)) >> DIVSHIFT);
+      clip->z = s1->z + ((t * (s2->z - s1->z)) >> DIVSHIFT);
 
       n = 2;
     }
@@ -624,11 +593,11 @@ static int _ytclip_edge2d(iVertex* s1, iVertex* s2, iVertex* clip)
     clip->y = psRendSurface->clip.bottom;
 
     // clip uv
-    t = ((clip->y - s1->y) << iV_DIVSHIFT) / dy;
-    clip->u = s1->u + ((t * (s1->u - s2->u)) >> iV_DIVSHIFT);
-    clip->v = s1->v + ((t * (s1->v - s2->v)) >> iV_DIVSHIFT);
-    clip->g = s1->g + ((t * (s1->g - s2->g)) >> iV_DIVSHIFT);
-    clip->z = s1->z + ((t * (s1->z - s2->z)) >> iV_DIVSHIFT);
+    t = ((clip->y - s1->y) << DIVSHIFT) / dy;
+    clip->u = s1->u + ((t * (s1->u - s2->u)) >> DIVSHIFT);
+    clip->v = s1->v + ((t * (s1->v - s2->v)) >> DIVSHIFT);
+    clip->g = s1->g + ((t * (s1->g - s2->g)) >> DIVSHIFT);
+    clip->z = s1->z + ((t * (s1->z - s2->z)) >> DIVSHIFT);
   }
   else
     *clip = *s1;
@@ -650,11 +619,11 @@ static int _ytclip_edge2d(iVertex* s1, iVertex* s2, iVertex* clip)
     clip->y = psRendSurface->clip.top;
 
     // clip uv
-    t = ((clip->y - s1->y) << iV_DIVSHIFT) / dy;
-    clip->u = s1->u + ((t * (s1->u - s2->u)) >> iV_DIVSHIFT);
-    clip->v = s1->v + ((t * (s1->v - s2->v)) >> iV_DIVSHIFT);
-    clip->g = s1->g + ((t * (s1->g - s2->g)) >> iV_DIVSHIFT);
-    clip->z = s1->z + ((t * (s1->z - s2->z)) >> iV_DIVSHIFT);
+    t = ((clip->y - s1->y) << DIVSHIFT) / dy;
+    clip->u = s1->u + ((t * (s1->u - s2->u)) >> DIVSHIFT);
+    clip->v = s1->v + ((t * (s1->v - s2->v)) >> DIVSHIFT);
+    clip->g = s1->g + ((t * (s1->g - s2->g)) >> DIVSHIFT);
+    clip->z = s1->z + ((t * (s1->z - s2->z)) >> DIVSHIFT);
 
     n = 2;
   }
@@ -689,20 +658,20 @@ static int pie_ClipYT(PIEVERTEX* s1, PIEVERTEX* s2, PIEVERTEX* clip)
       clip->sy = psRendSurface->clip.top;
 
       // clip uv
-      t = ((clip->sy - s1->sy) << iV_DIVSHIFT) / dy;
-      clip->tu = s1->tu + ((t * (s2->tu - s1->tu)) >> iV_DIVSHIFT);
-      clip->tv = s1->tv + ((t * (s2->tv - s1->tv)) >> iV_DIVSHIFT);
-      clip->sz = s1->sz + ((t * (s2->sz - s1->sz)) >> iV_DIVSHIFT);
-      clip->light.byte.r = s1->light.byte.r + ((t * (s2->light.byte.r - s1->light.byte.r)) >> iV_DIVSHIFT);
-      clip->light.byte.g = s1->light.byte.g + ((t * (s2->light.byte.g - s1->light.byte.g)) >> iV_DIVSHIFT);
-      clip->light.byte.b = s1->light.byte.b + ((t * (s2->light.byte.b - s1->light.byte.b)) >> iV_DIVSHIFT);
-      clip->light.byte.a = s1->light.byte.a + ((t * (s2->light.byte.a - s1->light.byte.a)) >> iV_DIVSHIFT);
+      t = ((clip->sy - s1->sy) << DIVSHIFT) / dy;
+      clip->tu = s1->tu + ((t * (s2->tu - s1->tu)) >> DIVSHIFT);
+      clip->tv = s1->tv + ((t * (s2->tv - s1->tv)) >> DIVSHIFT);
+      clip->sz = s1->sz + ((t * (s2->sz - s1->sz)) >> DIVSHIFT);
+      clip->light.byte.r = s1->light.byte.r + ((t * (s2->light.byte.r - s1->light.byte.r)) >> DIVSHIFT);
+      clip->light.byte.g = s1->light.byte.g + ((t * (s2->light.byte.g - s1->light.byte.g)) >> DIVSHIFT);
+      clip->light.byte.b = s1->light.byte.b + ((t * (s2->light.byte.b - s1->light.byte.b)) >> DIVSHIFT);
+      clip->light.byte.a = s1->light.byte.a + ((t * (s2->light.byte.a - s1->light.byte.a)) >> DIVSHIFT);
       if (bClipSpecular)
       {
-        clip->specular.byte.r = s1->specular.byte.r + ((t * (s2->specular.byte.r - s1->specular.byte.r)) >> iV_DIVSHIFT);
-        clip->specular.byte.g = s1->specular.byte.g + ((t * (s2->specular.byte.g - s1->specular.byte.g)) >> iV_DIVSHIFT);
-        clip->specular.byte.b = s1->specular.byte.b + ((t * (s2->specular.byte.b - s1->specular.byte.b)) >> iV_DIVSHIFT);
-        clip->specular.byte.a = s1->specular.byte.a + ((t * (s2->specular.byte.a - s1->specular.byte.a)) >> iV_DIVSHIFT);
+        clip->specular.byte.r = s1->specular.byte.r + ((t * (s2->specular.byte.r - s1->specular.byte.r)) >> DIVSHIFT);
+        clip->specular.byte.g = s1->specular.byte.g + ((t * (s2->specular.byte.g - s1->specular.byte.g)) >> DIVSHIFT);
+        clip->specular.byte.b = s1->specular.byte.b + ((t * (s2->specular.byte.b - s1->specular.byte.b)) >> DIVSHIFT);
+        clip->specular.byte.a = s1->specular.byte.a + ((t * (s2->specular.byte.a - s1->specular.byte.a)) >> DIVSHIFT);
       }
     }
     else
@@ -725,20 +694,20 @@ static int pie_ClipYT(PIEVERTEX* s1, PIEVERTEX* s2, PIEVERTEX* clip)
       clip->sy = psRendSurface->clip.bottom;
 
       // clip uv
-      t = ((clip->sy - s1->sy) << iV_DIVSHIFT) / dy;
-      clip->tu = s1->tu + ((t * (s2->tu - s1->tu)) >> iV_DIVSHIFT);
-      clip->tv = s1->tv + ((t * (s2->tv - s1->tv)) >> iV_DIVSHIFT);
-      clip->sz = s1->sz + ((t * (s2->sz - s1->sz)) >> iV_DIVSHIFT);
-      clip->light.byte.r = s1->light.byte.r + ((t * (s2->light.byte.r - s1->light.byte.r)) >> iV_DIVSHIFT);
-      clip->light.byte.g = s1->light.byte.g + ((t * (s2->light.byte.g - s1->light.byte.g)) >> iV_DIVSHIFT);
-      clip->light.byte.b = s1->light.byte.b + ((t * (s2->light.byte.b - s1->light.byte.b)) >> iV_DIVSHIFT);
-      clip->light.byte.a = s1->light.byte.a + ((t * (s2->light.byte.a - s1->light.byte.a)) >> iV_DIVSHIFT);
+      t = ((clip->sy - s1->sy) << DIVSHIFT) / dy;
+      clip->tu = s1->tu + ((t * (s2->tu - s1->tu)) >> DIVSHIFT);
+      clip->tv = s1->tv + ((t * (s2->tv - s1->tv)) >> DIVSHIFT);
+      clip->sz = s1->sz + ((t * (s2->sz - s1->sz)) >> DIVSHIFT);
+      clip->light.byte.r = s1->light.byte.r + ((t * (s2->light.byte.r - s1->light.byte.r)) >> DIVSHIFT);
+      clip->light.byte.g = s1->light.byte.g + ((t * (s2->light.byte.g - s1->light.byte.g)) >> DIVSHIFT);
+      clip->light.byte.b = s1->light.byte.b + ((t * (s2->light.byte.b - s1->light.byte.b)) >> DIVSHIFT);
+      clip->light.byte.a = s1->light.byte.a + ((t * (s2->light.byte.a - s1->light.byte.a)) >> DIVSHIFT);
       if (bClipSpecular)
       {
-        clip->specular.byte.r = s1->specular.byte.r + ((t * (s2->specular.byte.r - s1->specular.byte.r)) >> iV_DIVSHIFT);
-        clip->specular.byte.g = s1->specular.byte.g + ((t * (s2->specular.byte.g - s1->specular.byte.g)) >> iV_DIVSHIFT);
-        clip->specular.byte.b = s1->specular.byte.b + ((t * (s2->specular.byte.b - s1->specular.byte.b)) >> iV_DIVSHIFT);
-        clip->specular.byte.a = s1->specular.byte.a + ((t * (s2->specular.byte.a - s1->specular.byte.a)) >> iV_DIVSHIFT);
+        clip->specular.byte.r = s1->specular.byte.r + ((t * (s2->specular.byte.r - s1->specular.byte.r)) >> DIVSHIFT);
+        clip->specular.byte.g = s1->specular.byte.g + ((t * (s2->specular.byte.g - s1->specular.byte.g)) >> DIVSHIFT);
+        clip->specular.byte.b = s1->specular.byte.b + ((t * (s2->specular.byte.b - s1->specular.byte.b)) >> DIVSHIFT);
+        clip->specular.byte.a = s1->specular.byte.a + ((t * (s2->specular.byte.a - s1->specular.byte.a)) >> DIVSHIFT);
       }
 
       n = 2;
@@ -761,20 +730,20 @@ static int pie_ClipYT(PIEVERTEX* s1, PIEVERTEX* s2, PIEVERTEX* clip)
     clip->sy = psRendSurface->clip.bottom;
 
     // clip uv
-    t = ((clip->sy - s1->sy) << iV_DIVSHIFT) / dy;
-    clip->tu = s1->tu + ((t * (s1->tu - s2->tu)) >> iV_DIVSHIFT);
-    clip->tv = s1->tv + ((t * (s1->tv - s2->tv)) >> iV_DIVSHIFT);
-    clip->sz = s1->sz + ((t * (s1->sz - s2->sz)) >> iV_DIVSHIFT);
-    clip->light.byte.r = s1->light.byte.r + ((t * (s1->light.byte.r - s2->light.byte.r)) >> iV_DIVSHIFT);
-    clip->light.byte.g = s1->light.byte.g + ((t * (s1->light.byte.g - s2->light.byte.g)) >> iV_DIVSHIFT);
-    clip->light.byte.b = s1->light.byte.b + ((t * (s1->light.byte.b - s2->light.byte.b)) >> iV_DIVSHIFT);
-    clip->light.byte.a = s1->light.byte.a + ((t * (s1->light.byte.a - s2->light.byte.a)) >> iV_DIVSHIFT);
+    t = ((clip->sy - s1->sy) << DIVSHIFT) / dy;
+    clip->tu = s1->tu + ((t * (s1->tu - s2->tu)) >> DIVSHIFT);
+    clip->tv = s1->tv + ((t * (s1->tv - s2->tv)) >> DIVSHIFT);
+    clip->sz = s1->sz + ((t * (s1->sz - s2->sz)) >> DIVSHIFT);
+    clip->light.byte.r = s1->light.byte.r + ((t * (s1->light.byte.r - s2->light.byte.r)) >> DIVSHIFT);
+    clip->light.byte.g = s1->light.byte.g + ((t * (s1->light.byte.g - s2->light.byte.g)) >> DIVSHIFT);
+    clip->light.byte.b = s1->light.byte.b + ((t * (s1->light.byte.b - s2->light.byte.b)) >> DIVSHIFT);
+    clip->light.byte.a = s1->light.byte.a + ((t * (s1->light.byte.a - s2->light.byte.a)) >> DIVSHIFT);
     if (bClipSpecular)
     {
-      clip->specular.byte.r = s1->specular.byte.r + ((t * (s1->specular.byte.r - s2->specular.byte.r)) >> iV_DIVSHIFT);
-      clip->specular.byte.g = s1->specular.byte.g + ((t * (s1->specular.byte.g - s2->specular.byte.g)) >> iV_DIVSHIFT);
-      clip->specular.byte.b = s1->specular.byte.b + ((t * (s1->specular.byte.b - s2->specular.byte.b)) >> iV_DIVSHIFT);
-      clip->specular.byte.a = s1->specular.byte.a + ((t * (s1->specular.byte.a - s2->specular.byte.a)) >> iV_DIVSHIFT);
+      clip->specular.byte.r = s1->specular.byte.r + ((t * (s1->specular.byte.r - s2->specular.byte.r)) >> DIVSHIFT);
+      clip->specular.byte.g = s1->specular.byte.g + ((t * (s1->specular.byte.g - s2->specular.byte.g)) >> DIVSHIFT);
+      clip->specular.byte.b = s1->specular.byte.b + ((t * (s1->specular.byte.b - s2->specular.byte.b)) >> DIVSHIFT);
+      clip->specular.byte.a = s1->specular.byte.a + ((t * (s1->specular.byte.a - s2->specular.byte.a)) >> DIVSHIFT);
     }
   }
   else
@@ -797,20 +766,20 @@ static int pie_ClipYT(PIEVERTEX* s1, PIEVERTEX* s2, PIEVERTEX* clip)
     clip->sy = psRendSurface->clip.top;
 
     // clip uv
-    t = ((clip->sy - s1->sy) << iV_DIVSHIFT) / dy;
-    clip->tu = s1->tu + ((t * (s1->tu - s2->tu)) >> iV_DIVSHIFT);
-    clip->tv = s1->tv + ((t * (s1->tv - s2->tv)) >> iV_DIVSHIFT);
-    clip->sz = s1->sz + ((t * (s1->sz - s2->sz)) >> iV_DIVSHIFT);
-    clip->light.byte.r = s1->light.byte.r + ((t * (s1->light.byte.r - s2->light.byte.r)) >> iV_DIVSHIFT);
-    clip->light.byte.g = s1->light.byte.g + ((t * (s1->light.byte.g - s2->light.byte.g)) >> iV_DIVSHIFT);
-    clip->light.byte.b = s1->light.byte.b + ((t * (s1->light.byte.b - s2->light.byte.b)) >> iV_DIVSHIFT);
-    clip->light.byte.a = s1->light.byte.a + ((t * (s1->light.byte.a - s2->light.byte.a)) >> iV_DIVSHIFT);
+    t = ((clip->sy - s1->sy) << DIVSHIFT) / dy;
+    clip->tu = s1->tu + ((t * (s1->tu - s2->tu)) >> DIVSHIFT);
+    clip->tv = s1->tv + ((t * (s1->tv - s2->tv)) >> DIVSHIFT);
+    clip->sz = s1->sz + ((t * (s1->sz - s2->sz)) >> DIVSHIFT);
+    clip->light.byte.r = s1->light.byte.r + ((t * (s1->light.byte.r - s2->light.byte.r)) >> DIVSHIFT);
+    clip->light.byte.g = s1->light.byte.g + ((t * (s1->light.byte.g - s2->light.byte.g)) >> DIVSHIFT);
+    clip->light.byte.b = s1->light.byte.b + ((t * (s1->light.byte.b - s2->light.byte.b)) >> DIVSHIFT);
+    clip->light.byte.a = s1->light.byte.a + ((t * (s1->light.byte.a - s2->light.byte.a)) >> DIVSHIFT);
     if (bClipSpecular)
     {
-      clip->specular.byte.r = s1->specular.byte.r + ((t * (s1->specular.byte.r - s2->specular.byte.r)) >> iV_DIVSHIFT);
-      clip->specular.byte.g = s1->specular.byte.g + ((t * (s1->specular.byte.g - s2->specular.byte.g)) >> iV_DIVSHIFT);
-      clip->specular.byte.b = s1->specular.byte.b + ((t * (s1->specular.byte.b - s2->specular.byte.b)) >> iV_DIVSHIFT);
-      clip->specular.byte.a = s1->specular.byte.a + ((t * (s1->specular.byte.a - s2->specular.byte.a)) >> iV_DIVSHIFT);
+      clip->specular.byte.r = s1->specular.byte.r + ((t * (s1->specular.byte.r - s2->specular.byte.r)) >> DIVSHIFT);
+      clip->specular.byte.g = s1->specular.byte.g + ((t * (s1->specular.byte.g - s2->specular.byte.g)) >> DIVSHIFT);
+      clip->specular.byte.b = s1->specular.byte.b + ((t * (s1->specular.byte.b - s2->specular.byte.b)) >> DIVSHIFT);
+      clip->specular.byte.a = s1->specular.byte.a + ((t * (s1->specular.byte.a - s2->specular.byte.a)) >> DIVSHIFT);
     }
 
     n = 2;
