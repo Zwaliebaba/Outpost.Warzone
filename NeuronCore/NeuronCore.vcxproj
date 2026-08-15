@@ -236,7 +236,6 @@
     <ClCompile Include="PieMatrix.cpp" />
     <ClCompile Include="PieMode.cpp" />
     <ClCompile Include="PiePalette.cpp" />
-    <ClCompile Include="PieState.cpp" />
     <ClCompile Include="PieTexture.cpp" />
     <ClCompile Include="PQueue.cpp" />
     <ClCompile Include="PtrList.cpp" />
