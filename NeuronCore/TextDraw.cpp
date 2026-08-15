@@ -881,8 +881,7 @@ void pie_DrawText270(unsigned char* String, int XPos, int YPos)
   UWORD ImageID;
   IVIS_FONT* Font = &iVFonts[ActiveFontID];
 
-  if (pie_Hardware())
-    YPos += iV_GetImageWidth(Font->FontFile, Font->AsciiTable[33]) + 1;
+  YPos += iV_GetImageWidth(Font->FontFile, Font->AsciiTable[33]) + 1;
 
   pie_BeginTextRender(Font->FontColourIndex);
 

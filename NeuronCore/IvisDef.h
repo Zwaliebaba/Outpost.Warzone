@@ -62,7 +62,6 @@
 
 using iSurface = struct iSurface
 {
-  int usr;
   uint32 flags;
   int xcentre;
   int ycentre;

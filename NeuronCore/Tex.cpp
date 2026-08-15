@@ -91,12 +91,9 @@ int pie_AddBMPtoTexPages(iSprite* s, char* filename, int type, iBool bColourKeye
   _TEX_PAGE[i].tex.bColourKeyed = bColourKeyed;
   _TEX_PAGE[i].type = type;
 
-  if (rendSurface.usr >= REND_D3D_RGB && rendSurface.usr <= REND_D3D_REF)
-  {
-    /* set pie texture pointer */
-    if (dtm_LoadTexSurface(&_TEX_PAGE[i].tex, i) == FALSE)
-      return -1;
-  }
+  /* set pie texture pointer */
+  if (dtm_LoadTexSurface(&_TEX_PAGE[i].tex, i) == FALSE)
+    return -1;
 
   /* Send back the texpage number so we can store it in the IMD */
 
@@ -189,8 +186,7 @@ int pie_ReloadTexPage(char* filename, UBYTE* pBuffer)
 
   pie_PCXLoadMemToBuffer((int8*)pBuffer, &s, nullptr);
 
-  if (pie_GetRenderEngine() == ENGINE_D3D)
-    dtm_LoadTexSurface(&_TEX_PAGE[i].tex, i);
+  dtm_LoadTexSurface(&_TEX_PAGE[i].tex, i);
 
   return i;
 }

@@ -69,11 +69,7 @@ void iV_SurfaceDestroy(iSurface* s)
 //*
 //******
 
-void iV_RenderAssign(int mode, iSurface* s)
-{
-  (void)mode;
-  psRendSurface = s;
-}
+void iV_RenderAssign(iSurface* s) { psRendSurface = s; }
 
 int iV_GetDisplayWidth(void) { return rendSurface.width; }
 

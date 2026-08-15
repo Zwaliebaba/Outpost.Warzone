@@ -70,28 +70,6 @@ BOOL ParseCommandLine(LPSTR psCmdLine)
     }
     else if (stricmp(tokenType, "-intro") == 0)
       SetGameMode(GS_VIDEO_MODE);
-    else if (stricmp(tokenType, "-D3D") == 0)
-    {
-      war_SetRendMode(REND_MODE_HAL);
-      pie_SetDirect3DDeviceName("Direct3D HAL");
-      pie_SetVideoBufferWidth(640);
-      pie_SetVideoBufferHeight(480);
-    }
-
-    else if (stricmp(tokenType, "-RGB") == 0)
-    {
-      war_SetRendMode(REND_MODE_RGB);
-      pie_SetDirect3DDeviceName("RGB Emulation");
-      pie_SetVideoBufferWidth(640);
-      pie_SetVideoBufferHeight(480);
-    }
-    else if (stricmp(tokenType, "-REF") == 0)
-    {
-      war_SetRendMode(REND_MODE_REF);
-      pie_SetDirect3DDeviceName("Reference Rasterizer");
-      pie_SetVideoBufferWidth(640);
-      pie_SetVideoBufferHeight(480);
-    }
     else if (stricmp(tokenType, "-title") == 0)
       SetGameMode(GS_TITLE_SCREEN);
 #ifndef NON_INTERACT

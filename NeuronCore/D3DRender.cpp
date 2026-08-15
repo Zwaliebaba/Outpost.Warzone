@@ -253,9 +253,6 @@ void D3DSetTexelOffsetState(BOOL bOffsetOn)
 
 /***************************************************************************/
 
-BOOL D3DGetAlphaKey(void) { return g_sD3Dinfo.bAlphaKey; }
-
-/***************************************************************************/
 /*
  * Translucency
  *

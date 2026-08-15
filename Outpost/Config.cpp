@@ -2,7 +2,7 @@
 #include "Frame.h"
 #include "Display.h"	// gamma
 #include "PieState.h"	// setgamma.
-#include "WarzoneConfig.h"	// renderMode
+#include "WarzoneConfig.h"
 #include "Component.h"
 #include "Text.h"
 #include "SeqDisp.h"
@@ -375,42 +375,11 @@ BOOL loadRenderMode()
   if (!openWarzoneKey())
     return FALSE;
 
-  // renderMode
-  if (getWarzoneKeyNumeric("renderMode", &val))
-  {
-    switch (val)
-    {
-    case REND_MODE_RGB:
-    case REND_MODE_REF:
-    case REND_MODE_HAL:
-      break;
-    default:
-      val = REND_MODE_HAL;
-      break;
-    }
-    war_SetRendMode(static_cast<WAR_REND_MODE>(val));
-    if (val == REND_MODE_HAL) //d3d
-    {
-      if (getWarzoneKeyNumeric("d3dFog", &val))
-        war_SetFog(val);
-
-      //			if(getWarzoneKeyNumeric("d3dTrans",&val))
-      //				case 0:
-      //				case 1:
-      //				default:
-    }
-  }
+  // fog
+  if (getWarzoneKeyNumeric("d3dFog", &val))
+    war_SetFog(val);
   else
-  {
-    setWarzoneKeyNumeric("renderMode", war_GetRendMode());
-    if (war_GetRendMode() == REND_MODE_HAL) //d3d
-    {
-      setWarzoneKeyNumeric("d3dFog", war_GetFog());
-
-      //				if (war_GetAdditive())
-      //				else
-    }
-  }
+    setWarzoneKeyNumeric("d3dFog", war_GetFog());
 
   // now load the desired res..
   // note that we only do this if we havent changed renderer..
@@ -503,15 +472,7 @@ BOOL saveConfig()
   setWarzoneKeyNumeric("fxvol", audio_GetFXVolume());
   setWarzoneKeyNumeric("cdvol", audio_GetMusicVolume());
 
-  // note running rendermode
-  setWarzoneKeyNumeric("renderMode", war_GetRendMode());
-  if (war_GetRendMode() == REND_MODE_HAL) //d3d
-  {
-    setWarzoneKeyNumeric("d3dFog", war_GetFog());
-
-    //			if (war_GetAdditive())
-    //			else
-  }
+  setWarzoneKeyNumeric("d3dFog", war_GetFog());
 
   // res.
   setWarzoneKeyNumeric("resolution", pie_GetVideoBufferWidth());

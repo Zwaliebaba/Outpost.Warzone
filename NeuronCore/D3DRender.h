@@ -13,9 +13,6 @@
 
 using D3DINFO = struct D3DINFO
 {
-  BOOL bZBufferOn;
-  BOOL bHardware;
-  BOOL bReference;
   BOOL bAlphaKey;
 };
 
@@ -32,8 +29,6 @@ extern void D3DSetTranslucencyMode(TRANSLUCENCY_MODE transMode);
 extern void D3DSetColourKeying(BOOL bKeyingOn);
 extern void D3DSetDepthWrite(BOOL bWriteEnable);
 extern void D3DSetDepthCompare(D3DCMPFUNC depthCompare);
-
-extern BOOL D3DGetAlphaKey(void);
 
 extern void D3DSetTexelOffsetState(BOOL bOffsetOn);
 

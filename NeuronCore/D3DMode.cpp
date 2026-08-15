@@ -25,7 +25,6 @@ iBool _mode_D3D(void)
 {
   int i;
 
-  g_sD3Dinfo.bZBufferOn = TRUE;
   g_sD3Dinfo.bAlphaKey = FALSE;
 
   // set surface attributes
@@ -50,34 +49,6 @@ iBool _mode_D3D(void)
   g_ScreenMode = screenGetMode();
 
   return InitD3D(&g_sD3Dinfo);
-}
-
-/***************************************************************************/
-
-iBool _mode_D3D_RGB(void)
-{
-  g_sD3Dinfo.bHardware = FALSE;
-  g_sD3Dinfo.bReference = FALSE;
-  return _mode_D3D();
-}
-
-/***************************************************************************/
-
-iBool _mode_D3D_HAL(void)
-{
-  g_sD3Dinfo.bHardware = TRUE;
-  g_sD3Dinfo.bReference = FALSE;
-  return _mode_D3D();
-}
-
-/***************************************************************************/
-
-iBool _mode_D3D_REF(void)
-{
-  g_sD3Dinfo.bHardware = TRUE;
-  g_sD3Dinfo.bReference = TRUE;
-
-  return _mode_D3D();
 }
 
 /***************************************************************************/

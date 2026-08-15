@@ -29,17 +29,6 @@
 
 //*************************************************************************
 
-#define iV_MODE_4101		0x4101			// DDX 640x480x256
-#define REND_D3D_RGB		0x133			// Direct3D 640x480x16bit RGB renderer (mmx)
-#define REND_D3D_HAL		0x143			// Direct3D 640x480x16bit hardware
-#define REND_D3D_REF		0x153			// Direct3D 640x480x16bit hardware
-#define REND_GLIDE_3DFX		0x200			// 3dfx Glide API
-#define REND_16BIT			0x400			// 16bit software mode for video
-#define iV_MODE_SURFACE		0x10000			// off-screen surface
-#define REND_PSX			0x20000			// PlayStation - added by tjc
-#define REND_UNDEFINED		-1				// undefined mode
-
-//*************************************************************************
 // polygon flags	b0..b7: col, b24..b31: anim index
 
 #define PIE_TEXTURED		0x00000200
@@ -73,7 +62,7 @@ extern iSurface* psRendSurface;
 
 //*************************************************************************
 
-extern void iV_RenderAssign(int mode, iSurface* s);
+extern void iV_RenderAssign(iSurface* s);
 extern void iV_SurfaceDestroy(iSurface* s);
 extern iSurface* iV_SurfaceCreate(uint32 flags, int width, int height, int xp, int yp, uint8* buffer);
 

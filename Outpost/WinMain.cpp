@@ -103,8 +103,6 @@ int WINAPI WinMain(HINSTANCE hInstance, // handle to current instance
 
   war_SetDefaultStates();
 
-  war_SetRendMode(REND_MODE_HAL);
-
 init: //jump here from the end if re_initialising
 
   loadRenderMode(); //get the registry entry for clRendMode
@@ -129,26 +127,8 @@ init: //jump here from the end if re_initialising
 #endif
 
   //always start windowed toggle to fullscreen later
-  if (war_GetRendMode() == REND_MODE_HAL)
-  {
-    bVidMem = TRUE;
-    dispBitDepth = DISP_HARDBITDEPTH;
-  }
-  else if (war_GetRendMode() == REND_MODE_REF)
-  {
-    bVidMem = TRUE;
-    dispBitDepth = DISP_HARDBITDEPTH;
-  }
-  else if (war_GetRendMode() == REND_MODE_RGB)
-  {
-    bVidMem = FALSE;
-    dispBitDepth = DISP_HARDBITDEPTH;
-  }
-  else
-  {
-    bVidMem = FALSE;
-    dispBitDepth = DISP_BITDEPTH;
-  }
+  bVidMem = TRUE;
+  dispBitDepth = DISP_HARDBITDEPTH;
 
   if (!frameInitialise(hInstance, "Warzone 2100", DISP_WIDTH,DISP_HEIGHT, dispBitDepth, !clStartWindowed, bVidMem))
     return -1;
@@ -279,13 +259,10 @@ init: //jump here from the end if re_initialising
     {
       frameRet = frameUpdate();
 
-      if (pie_GetRenderEngine() == ENGINE_D3D)
-      {
-        if (frameRet == FRAME_SETFOCUS)
-          D3DTestCooperativeLevel(TRUE);
-        else
-          D3DTestCooperativeLevel(FALSE);
-      }
+      if (frameRet == FRAME_SETFOCUS)
+        D3DTestCooperativeLevel(TRUE);
+      else
+        D3DTestCooperativeLevel(FALSE);
 
       switch (frameRet)
       {
@@ -302,8 +279,7 @@ init: //jump here from the end if re_initialising
           quit = TRUE;
           Restart = TRUE;
         }
-        if (pie_GetRenderEngine() == ENGINE_D3D)
-          dtm_RestoreTextures();
+        dtm_RestoreTextures();
         break;
       case FRAME_QUIT:
         quit = TRUE;

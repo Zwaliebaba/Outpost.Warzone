@@ -51,7 +51,7 @@ BOOL pie_GetDitherStatus(void) { return (bDither); }
 
 void pie_SetDitherStatus(BOOL val) { bDither = val; }
 
-BOOL pie_Initialise(SDWORD mode)
+BOOL pie_Initialise(void)
 {
   BOOL r; //result
   int i;
@@ -59,8 +59,6 @@ BOOL pie_Initialise(SDWORD mode)
   pie_InitMaths();
   pie_TexInit();
 
-  pie_SetRenderEngine(ENGINE_UNDEFINED);
-  rendSurface.usr = REND_UNDEFINED;
   rendSurface.flags = REND_SURFACE_UNDEFINED;
   rendSurface.buffer = nullptr;
   rendSurface.size = 0;
@@ -74,38 +72,14 @@ BOOL pie_Initialise(SDWORD mode)
   pie_MatInit();
   _TEX_INDEX = 0;
 
-  //mode specific initialisation
-  if (mode == REND_D3D_REF)
-  {
-    iV_RenderAssign(REND_D3D_REF, &rendSurface);
-    pie_SetRenderEngine(ENGINE_D3D);
-    rendSurface.usr = mode;
-    r = _mode_D3D_REF();
-  }
-  else if (mode == REND_D3D_RGB)
-  {
-    iV_RenderAssign(REND_D3D_RGB, &rendSurface);
-    pie_SetRenderEngine(ENGINE_D3D);
-    rendSurface.usr = mode;
-    r = _mode_D3D_RGB();
-  }
-  else //REND_D3D_HAL
-  {
-    mode = REND_D3D_HAL;
-    iV_RenderAssign(REND_D3D_HAL, &rendSurface);
-    pie_SetRenderEngine(ENGINE_D3D);
-    rendSurface.usr = mode;
-    r = _mode_D3D_HAL();
-  }
+  iV_RenderAssign(&rendSurface);
+  r = _mode_D3D();
 
   if (r)
     pie_SetDefaultStates();
 
   if (r)
-  {
-    iV_RenderAssign(mode, &rendSurface);
     pal_Init();
-  }
   else
   {
     iV_ShutDown();
@@ -115,11 +89,7 @@ BOOL pie_Initialise(SDWORD mode)
   return TRUE;
 }
 
-void pie_ShutDown(void)
-{
-  _close_D3D();
-  pie_SetRenderEngine(ENGINE_UNDEFINED);
-}
+void pie_ShutDown(void) { _close_D3D(); }
 
 /***************************************************************************/
 

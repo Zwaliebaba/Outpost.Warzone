@@ -230,9 +230,6 @@ VOID changeTitleMode(tMode mode)
   /*	case DEMOMODE:// demo case. remove for release
       startDemoMenu();
       break;
-    case VIDEO:
-      startVideoOptionsMenu();
-      break;
   */
   case SINGLE:
     startSinglePlayerMenu();
@@ -958,105 +955,6 @@ BOOL runGraphicsOptionsMenu(VOID)
 }
 #endif
 
-// ////////////////////////////////////////////////////////////////////////////
-// Video Options Menu
-
-#ifdef WIN32
-BOOL startVideoOptionsMenu(VOID)
-{
-	addBackdrop();
-	addTopForm();
-	addBottomForm();
-
-	addTextButton(FRONTEND_SOFTWARE,FRONTEND_POS2X,FRONTEND_POS2Y, strresGetString(psStringRes, STR_FE_SOFTWARE),FALSE,FALSE);
-	addTextButton(FRONTEND_DIRECTX,	FRONTEND_POS3X,FRONTEND_POS3Y, strresGetString(psStringRes, STR_FE_DIRECTX),FALSE,FALSE);
-	addTextButton(FRONTEND_OPENGL,	FRONTEND_POS4X,FRONTEND_POS4Y, strresGetString(psStringRes, STR_FE_OPENGL),FALSE,TRUE);
-	addTextButton(FRONTEND_GLIDE,	FRONTEND_POS5X,FRONTEND_POS5Y, strresGetString(psStringRes, STR_FE_GLIDE),FALSE,FALSE);
-
-	addMultiBut(psWScreen,FRONTEND_BOTFORM,FRONTEND_QUIT,10,10,30,29, STR_FE_RETURN,IMAGE_RETURN,IMAGE_RETURN_HI,TRUE);
-
-	SetMousePos(0,320,FRONTEND_BOTFORMY+FRONTEND_POS3Y);
-	SnapToID(&InterfaceSnap,3);
-	return TRUE;
-}
-
-BOOL runVideoOptionsMenu(VOID)
-{
-	UDWORD id;
-
-	processFrontendSnap(TRUE);
-
-	id = widgRunScreen(psWScreen);						// Run the current set of widgets 
-	switch(id)
-	{
-	case FRONTEND_SOFTWARE:
-		if (war_GetRendMode() == REND_MODE_SOFTWARE)
-		{
-			changeTitleMode(OPTIONS);
-		}
-		else
-		{
-			war_SetRendMode(REND_MODE_SOFTWARE);
-			reInit = TRUE;//restart
-			changeTitleMode(QUIT);
-		}
-		break;
-	case FRONTEND_GLIDE:
-		if (war_GetRendMode() == REND_MODE_GLIDE)
-		{
-			changeTitleMode(OPTIONS);
-		}
-		else
-		{
-			war_SetRendMode(REND_MODE_GLIDE);
-			reInit = TRUE;//restart
-			changeTitleMode(QUIT);
-		}
-		break;
-	case FRONTEND_DIRECTX:
-		if (war_GetRendMode() == REND_MODE_HAL)
-		{
-			changeTitleMode(OPTIONS);
-		}
-		else
-		{
-			war_SetRendMode(REND_MODE_HAL);
-			reInit = TRUE;//restart
-			changeTitleMode(QUIT);
-		}
-		break;
-	case FRONTEND_OPENGL:
-		if (war_GetRendMode() == REND_MODE_HAL2)
-		{
-			changeTitleMode(OPTIONS);
-		}
-		else
-		{
-			war_SetRendMode(REND_MODE_HAL2);
-			reInit = TRUE;//restart
-			changeTitleMode(QUIT);
-		}
-		break;
-	case FRONTEND_QUIT:
-		changeTitleMode(OPTIONS);
-		break;
-	default:
-		break;
-	}
-	
-	// If close button pressed then return from this menu.
-	if(CancelPressed()) {
-		changeTitleMode(OPTIONS);
-	}
-
-	DrawBegin();
-	StartCursorSnap(&InterfaceSnap);
-	widgDisplayScreen(psWScreen);						// show the widgets currently running
-	DrawEnd();
-
-	return TRUE;
-}
-#endif
 */
 
 // ////////////////////////////////////////////////////////////////////////////
@@ -1701,15 +1599,7 @@ VOID displayTitleBitmap(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
   iV_SetFont(WFont);
   iV_SetTextColour(-1);
 
-  switch (war_GetRendMode())
-  {
-  case REND_MODE_HAL:
-      sprintf(sTmp, VERSION_STRING " - Build: %s D3D",__DATE__);
-    break;
-  default:
-    sprintf(sTmp, VERSION_STRING " - Build: %s ???",__DATE__);
-    break;
-  }
+  sprintf(sTmp, VERSION_STRING " - Build: %s D3D",__DATE__);
   pie_DrawText270((unsigned char*)sTmp,DISP_WIDTH - 10,DISP_HEIGHT - 15);
 }
 

@@ -52,8 +52,6 @@ using ALPHA_MODE = enum ALPHA_MODE
 
 using RENDER_STATE = struct _renderState
 {
-  REND_ENGINE rendEngine;
-  BOOL bHardware;
   DEPTH_MODE depthBuffer;
   BOOL translucent;
   BOOL additive;
@@ -74,8 +72,6 @@ using RENDER_STATE = struct _renderState
 #ifdef STATES
   BOOL textured; UBYTE lightLevel;
 #endif
-  UBYTE DDrawDriverName[256];
-  UBYTE D3DDriverName[256];
 };
 
 /***************************************************************************/
@@ -184,70 +180,30 @@ void pie_ResetStates(void) //Sets all states
 
 /***************************************************************************/
 /***************************************************************************/
-void pie_SetRenderEngine(REND_ENGINE rendEngine)
-{
-  rendStates.rendEngine = rendEngine;
-  rendStates.bHardware = (rendEngine == ENGINE_D3D);
-}
-
-REND_ENGINE pie_GetRenderEngine(void) { return rendStates.rendEngine; }
-
-BOOL pie_Hardware(void) { return rendStates.bHardware; }
-
-/***************************************************************************/
-/***************************************************************************/
-void pie_SetDirectDrawDeviceName(char* pDDDeviceName)
-{
-  DEBUG_ASSERT_TEXT(strlen(pDDDeviceName) < 255, "DirectDraw device string exceeds max string length.");
-  if (strlen(pDDDeviceName) >= 255)
-    pDDDeviceName[255] = 0;
-  strcpy((char*)(rendStates.DDrawDriverName), pDDDeviceName);
-}
-
-char* pie_GetDirectDrawDeviceName(void) { return (char*)(rendStates.DDrawDriverName); }
-
-/***************************************************************************/
-/***************************************************************************/
-void pie_SetDirect3DDeviceName(char* pD3DDeviceName)
-{
-  DEBUG_ASSERT_TEXT(strlen(pD3DDeviceName) < 255, "Direct3D device string exceeds max string length.");
-  if (strlen(pD3DDeviceName) >= 255)
-    pD3DDeviceName[255] = 0;
-  strcpy((char*)(rendStates.D3DDriverName), pD3DDeviceName);
-}
-
-char* pie_GetDirect3DDeviceName(void) { return (char*)(rendStates.D3DDriverName); }
-
-/***************************************************************************/
-/***************************************************************************/
-
 void pie_SetDepthBufferStatus(DEPTH_MODE depthMode)
 {
 #ifndef PIETOOL
   if (rendStates.depthBuffer != depthMode)
   {
     rendStates.depthBuffer = depthMode;
-    if (rendStates.rendEngine == ENGINE_D3D)
+    switch (depthMode)
     {
-      switch (depthMode)
-      {
-      case DEPTH_CMP_LEQ_WRT_ON:
-        D3DSetDepthCompare(D3DCMP_LESSEQUAL);
-        D3DSetDepthWrite(TRUE);
-        break;
-      case DEPTH_CMP_ALWAYS_WRT_ON:
-        D3DSetDepthCompare(D3DCMP_ALWAYS);
-        D3DSetDepthWrite(TRUE);
-        break;
-      case DEPTH_CMP_LEQ_WRT_OFF:
-        D3DSetDepthCompare(D3DCMP_LESSEQUAL);
-        D3DSetDepthWrite(FALSE);
-        break;
-      case DEPTH_CMP_ALWAYS_WRT_OFF:
-        D3DSetDepthCompare(D3DCMP_ALWAYS);
-        D3DSetDepthWrite(FALSE);
-        break;
-      }
+    case DEPTH_CMP_LEQ_WRT_ON:
+      D3DSetDepthCompare(D3DCMP_LESSEQUAL);
+      D3DSetDepthWrite(TRUE);
+      break;
+    case DEPTH_CMP_ALWAYS_WRT_ON:
+      D3DSetDepthCompare(D3DCMP_ALWAYS);
+      D3DSetDepthWrite(TRUE);
+      break;
+    case DEPTH_CMP_LEQ_WRT_OFF:
+      D3DSetDepthCompare(D3DCMP_LESSEQUAL);
+      D3DSetDepthWrite(FALSE);
+      break;
+    case DEPTH_CMP_ALWAYS_WRT_OFF:
+      D3DSetDepthCompare(D3DCMP_ALWAYS);
+      D3DSetDepthWrite(FALSE);
+      break;
     }
   }
 #endif
@@ -378,15 +334,9 @@ void pie_SetTexturePage(SDWORD num)
   {
     rendStates.texPage = num;
     if (num < 0)
-    {
-      if (rendStates.rendEngine == ENGINE_D3D)
-        dtm_SetTexturePage(-1);
-    }
+      dtm_SetTexturePage(-1);
     else
-    {
-      if (rendStates.rendEngine == ENGINE_D3D)
-        dtm_SetTexturePage(num);
-    }
+      dtm_SetTexturePage(num);
   }
 #endif
 }
@@ -473,8 +423,7 @@ void pie_SetColourKeyedBlack(BOOL keyingOn)
   {
     rendStates.keyingOn = keyingOn;
     pieStateCount++;
-    if (rendStates.rendEngine == ENGINE_D3D)
-      D3DSetColourKeying(keyingOn);
+    D3DSetColourKeying(keyingOn);
   }
 #endif
 }
@@ -487,8 +436,7 @@ void pie_SetBilinear(BOOL bilinearOn)
   {
     rendStates.bilinearOn = bilinearOn;
     pieStateCount++;
-    if (pie_GetRenderEngine() == ENGINE_D3D)
-      dtm_SetBilinear(bilinearOn);
+    dtm_SetBilinear(bilinearOn);
   }
 #endif
 }
@@ -511,19 +459,16 @@ static void pie_SetColourCombine(COLOUR_MODE colCombMode)
   {
     rendStates.colourCombine = colCombMode;
     pieStateCount++;
-    if (pie_GetRenderEngine() == ENGINE_D3D)
+    switch (colCombMode)
     {
-      switch (colCombMode)
-      {
-      case COLOUR_TEX_CONSTANT:
-        break;
-      case COLOUR_FLAT_CONSTANT:
-      case COLOUR_FLAT_ITERATED:
-        pie_SetTexturePage(-1);
-        break;
-      case COLOUR_TEX_ITERATED: default:
-        break;
-      }
+    case COLOUR_TEX_CONSTANT:
+      break;
+    case COLOUR_FLAT_CONSTANT:
+    case COLOUR_FLAT_ITERATED:
+      pie_SetTexturePage(-1);
+      break;
+    case COLOUR_TEX_ITERATED: default:
+      break;
     }
   }
 #endif
@@ -567,11 +512,7 @@ static void pie_SetTranslucencyMode(TRANSLUCENCY_MODE transMode)
   {
     rendStates.transMode = transMode;
     pieStateCount++;
-    if (rendStates.rendEngine == ENGINE_D3D)
-    {
-      D3DSetTranslucencyMode(transMode);
-      rendStates.transMode = transMode;
-    }
+    D3DSetTranslucencyMode(transMode);
   }
 #endif
 }

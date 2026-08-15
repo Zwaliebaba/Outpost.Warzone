@@ -5,9 +5,7 @@
 
 /***************************************************************************/
 
-iBool _mode_D3D_RGB(void);
-iBool _mode_D3D_HAL(void);
-iBool _mode_D3D_REF(void);
+iBool _mode_D3D(void);
 void _close_D3D(void);
 void _renderBegin_D3D(void);
 void _renderEnd_D3D(void);
