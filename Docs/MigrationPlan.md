@@ -43,7 +43,8 @@ Subsystems in use today:
   `DIRECTINPUT_VERSION=0x0800`).
 - **Audio** — **done, see Phase 4.** XAudio2 (`XA2Track.cpp` behind
   `TrackLib.h`), with in-game music served from disk by `Music.cpp`. QMixer
-  and CD audio are gone; `CDSpan.cpp` goes with Phase 6.
+  and CD audio are gone; `CDSpan.cpp` goes with Phase 6. The layers above the
+  backend are still QMixer-shaped C — retiring them is Phase 9.
 - **Video** — **done, see Phase 6.** `MovieStream.cpp` decodes H.264/AAC in MP4
   through Media Foundation, with the soundtrack on the game's XAudio2 graph.
   Was `Sequence.cpp` streaming `.rpl` movies through `WINSTR.LIB` into a
@@ -881,6 +882,41 @@ the draw funnel is singular). Sequencing is decided: stages A and B land
 now — they avoid Phase 6's contact surface — and stage C's rename, which
 touches `Sequence.cpp`, starts only after Phase 6's rewrite of that file
 merges.
+
+## Phase 9 — Audio: retiring the QMixer-shaped stack
+
+**Planned.** Phase 4 swapped the backend behind an interface it deliberately
+did not change; this phase changes the interface. The `audio_*`/`sound_*`
+double dispatch existed so backends could swap underneath a stable middle —
+the swap is done, exactly one backend has existed since, and the layering is
+now cost without purpose, the same finding Phase 8 made about the render
+dispatch tables.
+
+The measured state: 4,379 lines across twelve files, with 182 `audio_*` call
+sites in 43 translation units above them. The analysis found a dead surface of
+~20 functions and fields with zero callers (including a PSX `VagID` parameter
+threaded through the track API and discarded at the bottom), a critical
+section guarding lists that only one thread has touched since Phase 4 confined
+the audio-thread boundary to the backend, and one genuine layering defect:
+`NeuronCore/Aud.h` declares functions that `Outpost/Aud.cpp` defines, so the
+engine library links against game symbols.
+
+The target is a C++23 module in `namespace Neuron` — `AudioSystem` (samples,
+tracks, gates, ducking), `AudioMixer` (the XAudio2 graph, RAII voice
+lifetimes), `WavData` (`std::expected`-based decode over `std::span`, which
+retires the tree's last winmm API use and takes `winmm.lib` off the link
+line) — with the game handing in an `AudioWorld` provider at init, so the
+dependency edge points the right way. Behaviour is pinned by the Phase 4
+contract: the four fixed slots, the 3D pool and its distance-steal, the duck,
+the same-sound gates, and the save-game track-hash round-trip in
+`ScriptObj.cpp` all stay observable-identical. Six stages, A–F: dead-surface
+sweep, de-locking, mid-layer collapse, the rewrite behind a shim header, the
+upcall severed, then the tree-wide call-site rename last and gated on an owner
+decision, after Phase 6 stage B6.
+
+The full analysis — the dead-surface evidence, the constraint list, the
+idiom-by-idiom mapping, what is deliberately left unchanged, and the five
+decisions to confirm — is in [Phase9Plan.md](Phase9Plan.md).
 
 ## Verification
 
