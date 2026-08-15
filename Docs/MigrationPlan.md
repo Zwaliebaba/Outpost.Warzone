@@ -266,10 +266,18 @@ and can run in parallel with Phase 2.
 
 ## Phase 5 — Networking: custom UDP transport on WinSock2
 
-**Revised.** DirectPlay 4 is removed entirely and replaced with a **custom
-UDP-based transport layer implemented on WinSock2**. Porting to DirectPlay 8
+**Revised twice.** DirectPlay 4 is removed entirely. Porting to DirectPlay 8
 is explicitly rejected — it would be nearly a full rewrite into another
-deprecated API.
+deprecated API. The replacement is **QUIC via MsQuic**, with LAN discovery and
+the session layer written here over raw UDP; a hand-written reliable-UDP
+protocol was the original plan and was dropped because nothing in this
+environment can test one. QUIC supplies reliable ordered streams, unreliable
+datagrams, connection timeouts and TLS 1.3, which is DirectPlay's feature set
+plus encryption.
+
+This sets the floor at **Windows 11**, since MsQuic's Schannel backend needs
+Windows 11 or Server 2022 for TLS 1.3 — superseding the Windows 10 floor
+Phase 4 chose for XAudio 2.9.
 
 - Define a small transport interface covering what `NetPlay.cpp` / `NetSupp.cpp`
   actually need: session create/enumerate/join, player add/remove, and

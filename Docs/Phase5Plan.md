@@ -101,7 +101,10 @@ never exchanged a packet is not a migration step, it is an untested protocol
 implementation carrying lockstep RTS commands, where a single reordered or
 dropped command desynchronises the game silently.
 
-That is not an argument against doing it. It is an argument for two things:
+*This is what moved the transport to QUIC.* Sequencing, acknowledgement,
+retransmission and ordering become somebody else's tested code, and what is
+left to write here is session management, which fails visibly rather than
+silently. The argument below still holds for that remainder:
 
 1. **A loopback harness has to be part of the phase, not an afterthought.** The
    transport should be written so that two instances can be driven in one
@@ -144,30 +147,97 @@ Steps 1 to 4 remove roughly 2,500 lines and cannot break anything that is not
 immediately visible at compile time. Steps 5 and 6 are shape changes with no
 behaviour in them. Step 7 is the actual project.
 
-## Decisions to confirm
+## Decisions, as settled
 
-These change the work materially, so they are listed rather than assumed.
+**The transport is QUIC, via MsQuic.** Not a hand-written reliable-UDP
+protocol. MsQuic supplies what DirectPlay supplied and what would otherwise
+have had to be written and debugged blind:
 
-1. **The loopback harness** — is a runnable test that CI executes acceptable as
-   the bar for this phase? If not, the transport ships unverified and that
-   should be a conscious choice rather than a discovered one.
-2. **Player data replication** — rebuild `NET*PlayerData` over the new
-   transport, or drop it and have `MultiStat.cpp` send its `PLAYERSTATS` as an
-   ordinary broadcast message? The latter is far simpler and is what the one
-   consumer actually needs.
-3. **Host migration** — `DPSYS_HOST` says DirectPlay promoted us to host when
-   the old one left. Reproducing that in a custom transport is real work.
-   Alternative: the session ends when the host leaves, which is what most
-   players will already expect.
-4. **Mplayer removal timing** — with this phase as proposed above, or left in
-   Phase 6 as MigrationPlan has it?
-5. **Session discovery** — LAN broadcast on a fixed port plus direct connect by
-   address. Any internet play (a master server, NAT traversal) is a separate
-   project and is assumed out of scope.
-6. **Encryption** — `NetCrypt.cpp` stays, but `bEncryptAllPackets` is `FALSE`
-   at init and nothing sets it. Keep the layer, or remove it too?
+| DirectPlay | QUIC / MsQuic |
+|---|---|
+| `DPSEND_GUARANTEED` | a reliable ordered stream |
+| unguaranteed send | a QUIC DATAGRAM (RFC 9221) |
+| session open/close, player timeout | connection lifecycle and idle timeout |
+| nothing | TLS 1.3 on every byte |
+
+What stays hand-written is the part QUIC does not do: **LAN discovery over raw
+UDP broadcast**, and the session and player layer above the connections.
+
+1. **TLS backend — Schannel, and the floor becomes Windows 11.** MsQuic's
+   default. TLS comes from the OS, so nothing extra ships. Its docs are
+   explicit that Schannel TLS 1.3 needs Windows 11 or Server 2022, which
+   raises the Windows 10 floor Phase 4 set for XAudio 2.9. Defensible: Windows
+   10 passed end of support in October 2025. The alternative was building the
+   quictls OpenSSL fork for x86, which would have been the largest
+   build-system change in the migration.
+2. **MsQuic arrives as a NuGet package** — `Microsoft.Native.Quic.MsQuic.Schannel`.
+3. **Topology — the host relays.** Host is the QUIC server, every client holds
+   one connection to it, and a client sending to another client goes through
+   the host. One connection per player and one certificate. Most of the game's
+   traffic is already broadcast, so the extra hop applies to a minority of it.
+4. **Certificates — self-signed, generated when the host opens a session**,
+   with clients passing `QUIC_CREDENTIAL_FLAG_NO_CERTIFICATE_VALIDATION`. Be
+   plain about what this is worth: traffic is encrypted against passive
+   eavesdropping, but an active attacker on the same LAN can impersonate a
+   host. It is still strictly better than DirectPlay, which sent everything in
+   clear.
+5. **Verification — a loopback harness, run in CI.** Two transport instances in
+   one process over loopback, asserting reliable messages arrive complete and
+   in order under simulated loss, duplication and reordering. This is the bar
+   for the phase.
+6. **Host migration — the session ends when the host leaves.** The `DPSYS_HOST`
+   branch is deleted rather than reimplemented.
+7. **Player data — replication is dropped.** `NETget/setLocal/GlobalPlayerData`
+   go, and `MultiStat.cpp` broadcasts its `PLAYERSTATS` as an ordinary message.
+8. **Encryption — `NetCrypt.cpp` goes after all.** This reverses what the table
+   above says. QUIC encrypts every byte, so a hand-rolled packet mangler on top
+   is redundant; `bEncryptAllPackets` is already `FALSE` and nothing sets it,
+   so it is currently dead code protecting nothing.
+
+### What was verified rather than assumed
+
+The choice above rests on facts that would be expensive to discover late, so
+they were checked first:
+
+- **The NuGet package ships Win32 x86.** `build/native/lib/x86/msquic.lib` and
+  `build/native/bin/x86/msquic.dll`, alongside x64 and arm64, at version 2.6.0.
+  This mattered more than anything else: the build is x86-only until Phase 6
+  removes `WINSTR.LIB`, so an x64-only package would have forced Phase 5 to
+  wait for Phase 6.
+- **Its `.targets` file already handles `Win32`.** It adds the include
+  directory, links `lib/x86/msquic.lib` when the platform is Win32, and copies
+  `bin/x86/msquic.dll` next to the executable after build. So the vcxproj
+  change is an import and a `packages.config`, plus a restore step in CI.
+- **Unreliable sends exist.** `QUIC_DATAGRAM_SEND_STATE` and
+  `QUIC_PARAM_CONN_DATAGRAM_RECEIVE_ENABLED` are in `msquic.h`, so the
+  unguaranteed half of `NETsend` has somewhere to go.
+- **The certificate escape hatch exists.** `QUIC_CREDENTIAL_FLAG_NO_CERTIFICATE_VALIDATION`
+  is a documented flag, not a workaround.
+
+Two things remain unverified until CI runs. Whether the `windows-latest` runner
+is new enough for Schannel TLS 1.3 — it should be Server 2022 or later, and if
+it is not, the loopback harness fails loudly at connection open, which is the
+right way to find out. And mingw-w64 has no `msquic.h`, so the cross-check will
+need a checked-in stub under `tools/stubs/` exactly as `x3daudio.h` did, with
+the same caveat: it checks our use of the API, not the API.
+
+## Revised order
+
+Unchanged in shape — deletions first, so the risky part is written against a
+smaller codebase — but step 7 is now a port onto MsQuic rather than a protocol
+project.
+
+1. **Delete voice chat.** *(Done.)*
+2. **Delete Mplayer** — `MPDPXtra.cpp`/`.h`, `MPlayer.cpp`, `Mplayer.lib`.
+3. **Delete the dead address paths** — IPX, serial, modem in `NetProv.cpp`.
+4. **Delete lobby launch** — `NetLobby.cpp` and the `bLobbyLaunched` branches.
+5. **Delete `NetCrypt.cpp`** — superseded by QUIC, and already inert.
+6. **Define the transport interface**, with no DirectPlay in it.
+7. **Retire `DPID`** across its 113 sites.
+8. **Add MsQuic**, write the transport and the loopback harness together.
+9. **Swap over and delete `dplayx.lib`, `dplay.h`, `dplobby.h`.**
 
 ## Progress
 
-**Step 1 is done.** The rest is not started; steps 2 to 4 are unambiguous and
-can proceed, and step 7 should not start before decision 1 is settled.
+**Step 1 is done** — voice chat is gone. Steps 2 to 5 are deletions and can
+proceed without further input. Step 8 is the project.
