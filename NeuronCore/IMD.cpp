@@ -14,7 +14,7 @@
 #define SAVEIMD
 #endif
 
-#include "IvisDef.h"
+#include "Model.h"
 #include "IMD.h"
 #include "Tex.h"
 #include "IvisPatch.h"

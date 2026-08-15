@@ -2,6 +2,8 @@
 #define _mapdisplay_h
 
 #include "PieTypes.h"
+#include "Model.h"
+#include "RendMode.h"
 
 /* MapDisplay.h */
 

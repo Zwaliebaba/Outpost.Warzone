@@ -12,7 +12,7 @@
 #include "Action.h"
 #include "Order.h"
 #include "Component.h"
-#include "IvisDef.h" //ivis matrix code
+#include "Model.h"
 #include "Geo.h" //ivis matrix code
 #include "PieDef.h" //ivis matrix code
 #include "PieState.h" //ivis render code

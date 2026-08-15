@@ -17,7 +17,6 @@
 #include "Edit2D.h"
 #include "Map.h"
 /* Includes direct access to render library */
-#include "IvisDef.h"
 #include "PieState.h"
 
 #include "PieMode.h"

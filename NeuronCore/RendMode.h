@@ -1,7 +1,7 @@
 // vid.c 0.1 10-01-96.22-11-96
 #ifndef _rendmode_h_
 #define _rendmode_h_
-#include "IvisDef.h"
+#include "PieTypes.h"
 #include "PieDef.h"
 #include "Render2D.h"
 #include "BitImage.h"
@@ -25,6 +25,22 @@
 #define REND_SURFACE_UNDEFINED	0
 #define REND_SURFACE_SCREEN		1
 #define REND_SURFACE_USR		2
+
+//*************************************************************************
+
+using iSurface = struct iSurface
+{
+  uint32 flags;
+  int xcentre;
+  int ycentre;
+  int xpshift;
+  int ypshift;
+  iClip clip;
+  uint8* buffer;
+  int width;
+  int height;
+  int32 size;
+};
 
 //*************************************************************************
 

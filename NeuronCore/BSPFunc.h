@@ -1,7 +1,7 @@
 #ifndef _bspfunc_h_
 #define _bspfunc_h_
 
-#include "IvisDef.h"
+#include "Model.h"
 #include "BSPIMD.h"
 
 /***************************************************************************/

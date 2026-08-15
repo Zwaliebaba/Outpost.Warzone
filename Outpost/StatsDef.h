@@ -6,6 +6,7 @@
  */
 #ifndef _statsdef_h
 #define _statsdef_h
+#include "Model.h"
 
 #ifdef HASH_NAMES
 /* Elements common to all stats structures */

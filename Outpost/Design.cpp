@@ -18,7 +18,7 @@
 #include "Map.h"
 
 /* Includes direct access to render library */
-#include "IvisDef.h"
+#include "Model.h"
 #include "RendMode.h"
 #include "RenderMatrix.h"//matrix code
 #include "PieState.h"

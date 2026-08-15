@@ -6,6 +6,7 @@
  */
 #ifndef _researchdef_h
 #define _researchdef_h
+#include "Model.h"
 
 /* Research struct type definitions */
 using TECH_CODE = enum

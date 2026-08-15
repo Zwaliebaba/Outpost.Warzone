@@ -1,5 +1,7 @@
 #ifndef _atmos_h
 #define _atmos_h
+#include "Model.h"
+#include "PieTypes.h"
 
 using ATPART = struct _atmosParticle
 {

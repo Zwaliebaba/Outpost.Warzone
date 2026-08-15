@@ -18,7 +18,7 @@
 
 #include "Frame.h"
 #include "RenderMatrix.h" //for surface normals
-#include "IvisDef.h"	// for imd structures
+#include "Model.h"
 #include "IMD.h"	// for imd structures
 #include "RendMode.h"
 #include "IvisPatch.h"

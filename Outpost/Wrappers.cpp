@@ -9,7 +9,7 @@
 
 #include "Frame.h"
 #include "RendMode.h"
-#include "IvisDef.h" //ivis palette code
+#include "BitImage.h"
 #include "PieState.h"
 #include "TextDraw.h" //ivis text code
 

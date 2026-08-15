@@ -120,9 +120,9 @@
     <ClInclude Include="HashTabl.h" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="IMD.h" />
+    <ClInclude Include="Model.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Interp.h" />
-    <ClInclude Include="IvisDef.h" />
     <ClInclude Include="IvisPatch.h" />
     <ClInclude Include="Label.h" />
     <ClInclude Include="ListMacs.h" />

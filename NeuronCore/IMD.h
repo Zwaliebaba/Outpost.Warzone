@@ -1,7 +1,7 @@
 #ifndef _imd_
 #define _imd_
 
-#include "IvisDef.h"
+#include "Model.h"
 
 #define IMD_NAME				"IMD"
 #define PIE_NAME				"PIE"  // Pumpkin image export data file

@@ -1,5 +1,12 @@
 #ifndef i_BSPIMD
 #define i_BSPIMD
+#include "PieTypes.h"
+
+/* Optional BSP is handled on all formats, so this is on for every build. It
+ * gates BSP members in the model structures as well as code across the tree. */
+#define BSPIMD
+
+using BSPPOLYID = uint16; // lets hope this can work as a byte ... that will limit it to 255 polygons in 1 imd
 
 #ifdef PIETOOL				// only needed when generating the tree
 typedef double HDVAL;typedef struct

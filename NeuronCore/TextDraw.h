@@ -1,7 +1,7 @@
 #ifndef _INCLUDED_TEXTDRAW_
 #define _INCLUDED_TEXTDRAW_
 
-#include "IvisDef.h"
+#include "BitImage.h"
 
 #define PIE_TEXT_WHITE				(-1)
 #define PIE_TEXT_LIGHTBLUE			(-2)

@@ -9,7 +9,7 @@
 #include "Game.h"
 #include "Geo.h"  
 #include "HCI.h"
-#include "IvisDef.h"  
+#include "Model.h"
 #include "Lighting.h"
 #include "Loop.h"
 #include "Map.h"

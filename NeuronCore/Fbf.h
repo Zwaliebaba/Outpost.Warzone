@@ -2,7 +2,7 @@
 #define _fbf_
 
 #include <stdio.h>
-#include "IvisDef.h"
+#include "PieTypes.h"
 
 #define FBF_OPENFAILED		-1
 #define FBF_TOOMANYOPEN		-2

@@ -2,7 +2,7 @@
 #include "Frame.h"	// just for the typedef's
 #include "PieTypes.h"
 #include "RenderMatrix.h"
-#include "IvisDef.h"// this can have the #define for BSPIMD in it
+#include "Model.h"
 #include "IMD.h"// this has the #define for BSPPOLYID_TERMINATE
 #include "PieDef.h"
 

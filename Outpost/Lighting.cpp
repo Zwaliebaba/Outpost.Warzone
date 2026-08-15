@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "IvisDef.h" //ivis matrix code
+#include "PieTypes.h"
 #include "PieState.h" //ivis matrix code
 #include "PieFunc.h" //ivis matrix code
 #include "Geo.h" //ivis matrix code

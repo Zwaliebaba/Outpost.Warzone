@@ -127,7 +127,7 @@
     <ClInclude Include="IMD.h">
       <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="IvisDef.h">
+    <ClInclude Include="Model.h">
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="IvisPatch.h">

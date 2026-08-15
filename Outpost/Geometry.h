@@ -2,6 +2,7 @@
 
 #ifndef _geometry_h
 #define _geometry_h
+#include "PieTypes.h"
 
 #define SIZE_SINE_TABLE		100
 #define AMPLITUDE_HEIGHT	100

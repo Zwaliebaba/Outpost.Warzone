@@ -6,6 +6,7 @@
  */
 #ifndef _featuredef_h
 #define _featuredef_h
+#include "Model.h"
 
 using FEATURE_TYPE = enum _feature_type
 {

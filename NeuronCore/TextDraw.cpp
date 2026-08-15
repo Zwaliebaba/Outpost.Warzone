@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "IvisDef.h"
 #include "PieState.h"
 #include "RendMode.h"
 #include "RendFunc.h"

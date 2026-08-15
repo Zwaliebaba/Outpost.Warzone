@@ -20,7 +20,7 @@
 #include "Display.h"
 #include "Widget.h"
 /* Includes direct access to render library */
-#include "IvisDef.h"
+#include "BitImage.h"
 #include "PieState.h"
 #include "KeyEdit.h"
 #include "PieFunc.h"

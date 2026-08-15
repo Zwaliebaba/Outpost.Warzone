@@ -18,7 +18,8 @@
 #include "Map.h"
 #include "Radar.h"
 /* Includes direct access to render library */
-#include "IvisDef.h"
+#include "Model.h"
+#include "BitImage.h"
 #include "PieState.h"
 #include "PieMode.h"			// ffs
 #include "RenderClip.h"			// ffs 

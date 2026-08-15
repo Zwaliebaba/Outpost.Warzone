@@ -13,7 +13,7 @@
 /***************************************************************************/
 
 #include "Frame.h"
-#include "IvisDef.h"
+#include "Model.h"
 #include "IvisPatch.h"
 
 #include "D3D9Vertex.h"

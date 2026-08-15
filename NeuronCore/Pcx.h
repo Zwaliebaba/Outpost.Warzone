@@ -1,7 +1,7 @@
 #ifndef _pcx_
 #define _pcx_
 
-#include "IvisDef.h"
+#include "PieTypes.h"
 
 namespace Neuron
 {

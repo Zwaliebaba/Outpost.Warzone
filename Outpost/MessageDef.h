@@ -8,6 +8,7 @@
 
 #include "Deliverance.h"
 #include "PieTypes.h"
+#include "Model.h"
 
 using MESSAGE_TYPE = enum _message_type
 {

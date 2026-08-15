@@ -11,6 +11,7 @@
 #include "Slider.h"
 #include "IntImage.h"
 #include "Droid.h"
+#include "BitImage.h"
 
 #define NUM_OBJECTSURFACES		(10)
 #define NUM_TOPICSURFACES		(5)
