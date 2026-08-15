@@ -87,8 +87,6 @@
     <ClCompile Include="MiscIMD.cpp" />
     <ClCompile Include="Mission.cpp" />
     <ClCompile Include="Move.cpp" />
-    <ClCompile Include="MPDPXtra.cpp" />
-    <ClCompile Include="MPlayer.cpp" />
     <ClCompile Include="Multibot.cpp" />
     <ClCompile Include="MultiGifts.cpp" />
     <ClCompile Include="MultiInt.cpp" />
@@ -230,7 +228,6 @@
     <ClInclude Include="MissionDef.h" />
     <ClInclude Include="Move.h" />
     <ClInclude Include="MoveDef.h" />
-    <ClInclude Include="MPDPXtra.h" />
     <ClInclude Include="MultiGifts.h" />
     <ClInclude Include="MultiInt.h" />
     <ClInclude Include="MultiJoin.h" />
@@ -339,7 +336,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)..\DX9\Lib;$(MSBuildThisFileDirectory)..\NeuronCore;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
-      <AdditionalDependencies>d3d9.lib;dxguid.lib;dsound.lib;dinput8.lib;dplayx.lib;winmm.lib;ole32.lib;wsock32.lib;comdlg32.lib;xaudio2.lib;Mplayer.lib;WINSTR.LIB;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d9.lib;dxguid.lib;dsound.lib;dinput8.lib;winmm.lib;ole32.lib;wsock32.lib;comdlg32.lib;xaudio2.lib;crypt32.lib;ncrypt.lib;WINSTR.LIB;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -366,7 +363,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)..\DX9\Lib;$(MSBuildThisFileDirectory)..\NeuronCore;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
-      <AdditionalDependencies>d3d9.lib;dxguid.lib;dsound.lib;dinput8.lib;dplayx.lib;winmm.lib;ole32.lib;wsock32.lib;comdlg32.lib;xaudio2.lib;Mplayer.lib;WINSTR.LIB;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d9.lib;dxguid.lib;dsound.lib;dinput8.lib;winmm.lib;ole32.lib;wsock32.lib;comdlg32.lib;xaudio2.lib;crypt32.lib;ncrypt.lib;WINSTR.LIB;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -377,5 +374,12 @@
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\packages\Microsoft.Native.Quic.MsQuic.Schannel.2.6.0\build\native\Microsoft.Native.Quic.MsQuic.schannel.targets" Condition="Exists('..\packages\Microsoft.Native.Quic.MsQuic.Schannel.2.6.0\build\native\Microsoft.Native.Quic.MsQuic.schannel.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.Native.Quic.MsQuic.Schannel.2.6.0\build\native\Microsoft.Native.Quic.MsQuic.schannel.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Native.Quic.MsQuic.Schannel.2.6.0\build\native\Microsoft.Native.Quic.MsQuic.schannel.targets'))" />
+  </Target>
 </Project>

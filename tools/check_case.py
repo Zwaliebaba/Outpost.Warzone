@@ -23,12 +23,13 @@ SYS_OK = re.compile(r'^(windows|windowsx|stdio|stdlib|string|math|assert|time|ct
 
 def main():
     disk={}
-    for d in ('NeuronCore','Outpost','DX9/Include'):
+    for d in ('NeuronCore','Outpost','NetTest','DX9/Include'):
         for f in os.listdir(d): disk.setdefault(f.lower(), f)
     bad=[]
 
     inc=re.compile(r'#\s*include\s*"([^"]+)"')
-    for p in (glob.glob('NeuronCore/*.[ch]')+glob.glob('Outpost/*.[ch]')+glob.glob('NeuronCore/*.cpp')):
+    for p in (glob.glob('NeuronCore/*.[ch]')+glob.glob('Outpost/*.[ch]')+glob.glob('NeuronCore/*.cpp')
+              +glob.glob('NetTest/*.cpp')):
         for i,line in enumerate(open(p,encoding='latin-1'),1):
             m=inc.match(line.strip())
             if not m: continue
@@ -39,10 +40,13 @@ def main():
             elif actual!=base:
                 bad.append(f"{p}:{i}: include \"{base}\" but file is {actual}")
 
-    for proj,d in (('NeuronCore/NeuronCore.vcxproj','NeuronCore'),('Outpost/Outpost.vcxproj','Outpost')):
+    for proj,d in (('NeuronCore/NeuronCore.vcxproj','NeuronCore'),('Outpost/Outpost.vcxproj','Outpost'),
+                   ('NetTest/NetTest.vcxproj','NetTest')):
         t=open(proj,encoding='utf-8').read()
         for tag,ref in re.findall(r'<(ClCompile|ClInclude|None)\s+Include="([^"]+)"', t):
-            if not os.path.exists(os.path.join(d,ref)):
+            # NetTest reaches back into NeuronCore for the two files it builds,
+            # and MSBuild spells that with backslashes.
+            if not os.path.exists(os.path.join(d,ref.replace('\\','/'))):
                 bad.append(f"{proj}: {tag} {ref} not found with that exact case")
 
     if bad:

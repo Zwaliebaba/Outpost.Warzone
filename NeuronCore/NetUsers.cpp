@@ -1,21 +1,29 @@
 #include "pch.h"
+/*
+ * NetUsers.cpp
+ *
+ * Who is in the game.
+ *
+ * DirectPlay kept the roster and this file asked it, through an EnumPlayers
+ * with a callback per player. The transport keeps it now, so NETplayerInfo is
+ * a loop over ids rather than a callback, and it no longer takes the session
+ * GUID that told DirectPlay which session to enumerate: there is only one.
+ *
+ * Two things that were here are gone rather than ported. NETspectate and
+ * NETisSpectator had no callers anywhere in the tree -- spectating was never
+ * finished -- so PLAYER lost its bSpectator with them. And the four
+ * player-data functions wrapped DirectPlay's replicated per-player blobs,
+ * whose only consumer was MultiStat.cpp replicating a PLAYERSTATS; that now
+ * broadcasts an ordinary message, which is the whole of what the feature was
+ * being used for.
+ */
+
 #include "Frame.h"
 #include "NetPlay.h"
 
 BOOL NETuseNetwork(BOOL val);
-BOOL FAR PASCAL Playercounter(DPID dpId, DWORD dwPlayerType, LPCDPNAME lpName, DWORD dwFlags, LPVOID lpContext);
-UDWORD NETplayerInfo(LPGUID guidinstance);
-BOOL NETchangePlayerName(UDWORD dpid, char* newName);
-BOOL NETgetLocalPlayerData(DPID dpid,VOID* pData, DWORD* pSize);
-BOOL NETgetGlobalPlayerData(DPID dpid,VOID* pData, DWORD* pSize);
-BOOL NETsetLocalPlayerData(DPID dpid,VOID* pData, DWORD size);
-BOOL NETsetGlobalPlayerData(DPID dpid,VOID* pData, DWORD size);
-
-BOOL NETspectate(GUID guidSessionInstance);
-BOOL NETisSpectator(DPID dpid);
-
-VOID* pSingleUserData; // single player mode. a local copy...
-DWORD userDataSize = 0;
+UDWORD NETplayerInfo(VOID);
+BOOL NETchangePlayerName(NETPLAYERID dpid, char* newName);
 
 // call to disable/enable ALL comms. Absolute arse of a thing, be very careful!
 BOOL NETuseNetwork(BOOL val)
@@ -28,230 +36,68 @@ BOOL NETuseNetwork(BOOL val)
 }
 
 // ////////////////////////////////////////////////////////////////////////
-BOOL NETgetLocalPlayerData(DPID dpid,VOID* pData, DWORD* pSize)
+// count players in the game currently joined.
+UDWORD NETplayerInfo(VOID)
 {
-  HRESULT hr;
+  NETPLAYERID aPlayers[MaxNumberOfPlayers];
+  UDWORD udwCount;
+  UDWORD i;
 
-  if (!NetPlay.bComms)
-  {
-    memcpy(pData, pSingleUserData, userDataSize);
-    return TRUE;
-  }
-
-  hr = IDirectPlayX_GetPlayerData(glpDP, dpid, pData, pSize, DPGET_LOCAL);
-  if (hr == DP_OK)
-    return TRUE;
-  Neuron::DebugTrace("NETPLAY: failed to get Local Player Data\n");
-  return FALSE;
-}
-
-// ////////////////////////////////////////////////////////////////////////
-BOOL NETgetGlobalPlayerData(DPID dpid,VOID* pData, DWORD* pSize)
-{
-  HRESULT hr;
-
-  if (!NetPlay.bComms)
-  {
-    memcpy(pData, pSingleUserData, userDataSize);
-    return TRUE;
-  }
-
-  hr = IDirectPlayX_GetPlayerData(glpDP, dpid, pData, pSize, DPGET_REMOTE);
-
-  IDirectPlayX_SetPlayerData(glpDP, dpid, pData, *pSize, DPSET_LOCAL); // update local copy 
-
-  if (hr == DP_OK)
-    return TRUE;
-  Neuron::DebugTrace("NETPLAY: failed to get Global Player Data\n");
-  return FALSE;
-}
-
-// ////////////////////////////////////////////////////////////////////////
-BOOL NETsetLocalPlayerData(DPID dpid,VOID* pData, DWORD size)
-{
-  HRESULT hr;
-
-  if (!NetPlay.bComms)
-  {
-    if (userDataSize == 0)
-    {
-      pSingleUserData = new (std::nothrow) UBYTE[size];
-      userDataSize = size;
-    }
-    memcpy(pSingleUserData, pData, userDataSize);
-    return TRUE;
-  }
-
-  hr = IDirectPlayX_SetPlayerData(glpDP, dpid, pData, size, DPSET_LOCAL);
-  if (hr == DP_OK)
-    return TRUE;
-  Neuron::DebugTrace("NETPLAY: failed to set Local Player Data\n");
-  return FALSE;
-}
-
-// ////////////////////////////////////////////////////////////////////////
-BOOL NETsetGlobalPlayerData(DPID dpid,VOID* pData, DWORD size)
-{
-  HRESULT hr;
-
-  if (!NetPlay.bComms)
-  {
-    if (userDataSize == 0)
-    {
-      pSingleUserData = new (std::nothrow) UBYTE[size];
-      userDataSize = size;
-    }
-    memcpy(pSingleUserData, pData, userDataSize);
-    return TRUE;
-  }
-
-  hr = IDirectPlayX_SetPlayerData(glpDP, dpid, pData, size, DPSET_GUARANTEED | DPSET_REMOTE);
-  if (hr == DP_OK)
-    return TRUE;
-  Neuron::DebugTrace("NETPLAY: failed to set Global Player Data\n");
-  return FALSE;
-}
-
-// ////////////////////////////////////////////////////////////////////////
-// ////////////////////////////////////////////////////////////////////////
-// functions to examine players in a given game.
-BOOL FAR PASCAL Playercounter(DPID dpId, DWORD dwPlayerType, LPCDPNAME lpName, DWORD dwFlags, LPVOID lpContext)
-{
-  if (NetPlay.playercount == MaxNumberOfPlayers)
-  {
-    Neuron::DebugTrace("NETPLAY: max players reached, ignoring others\n");
-    return FALSE;
-  }
-
-  // dont add spectators!
-  if (dwFlags & DPENUMPLAYERS_SPECTATOR)
-    return TRUE;
-
-  //record name
-  strcpy(NetPlay.players[NetPlay.playercount].name, (char*)(lpName->lpszShortName));
-
-  // record dpid
-  NetPlay.players[NetPlay.playercount].dpid = dpId;
-
-  // record player type
-  if (dwFlags & DPENUMPLAYERS_SERVERPLAYER)
-    NetPlay.players[NetPlay.playercount].bHost = TRUE;
-  else
-    NetPlay.players[NetPlay.playercount].bHost = FALSE;
-
-  if (dwFlags & DPENUMPLAYERS_SPECTATOR)
-    NetPlay.players[NetPlay.playercount].bSpectator = TRUE;
-  else
-    NetPlay.players[NetPlay.playercount].bSpectator = FALSE;
-
-  NetPlay.playercount++;
-
-  return (TRUE);
-}
-
-// ////////////////////////////////////////////////////////////////////////
-// count players. call with null to enumerate the game already joined.
-UDWORD NETplayerInfo(LPGUID guidinstance)
-{
   NetPlay.playercount = 0; // reset player counter
 
   if (!NetPlay.bComms)
   {
     NetPlay.playercount = 1;
     NetPlay.players[0].bHost = TRUE;
-    NetPlay.players[0].bSpectator = FALSE;
     NetPlay.players[0].dpid = 1;
     return 1;
   }
 
-  ZeroMemory(NetPlay.players, (sizeof(PLAYER)*MaxNumberOfPlayers)); // reset player info
+  ZeroMemory(NetPlay.players, sizeof(NetPlay.players)); // reset player info
 
-  if ((NetPlay.bHost == TRUE) || (guidinstance == nullptr))
-    IDirectPlayX_EnumPlayers(glpDP, NULL, Playercounter, NULL, 0); //DPENUMPLAYERS_REMOTE);   		
-  else
-    IDirectPlayX_EnumPlayers(glpDP, guidinstance, Playercounter, NULL, DPENUMPLAYERS_SESSION);
+  udwCount = Transport::PlayerList(aPlayers, MaxNumberOfPlayers);
+
+  for (i = 0; i < udwCount; i++)
+  {
+    NetPlay.players[i].dpid = aPlayers[i];
+    Transport::PlayerName(aPlayers[i], NetPlay.players[i].name, StringSize);
+
+    /* The host is the first player and always has been -- the transport
+     * assigns ids in join order starting from itself.
+     */
+    NetPlay.players[i].bHost = Transport::IsHostPlayer(aPlayers[i]);
+  }
+
+  NetPlay.playercount = udwCount;
+
+  /* The local id is not known until the host has answered a join, so this is
+   * also where a joiner finds out what it is.
+   */
+  if (NetPlay.dpidPlayer == 0)
+    NetPlay.dpidPlayer = Transport::LocalPlayer();
 
   return NetPlay.playercount;
 }
 
 // ////////////////////////////////////////////////////////////////////////
-// rename the local player
+// rename a player
 //
-// dont call this a lot, since it uses a guaranteed msg.
-BOOL NETchangePlayerName(UDWORD dpid, char* newName)
+// Only the local player can be renamed -- DirectPlay would let you set any
+// player's name and nothing ever did. Still a guaranteed message underneath,
+// so still not something to call every frame.
+BOOL NETchangePlayerName(NETPLAYERID dpid, char* newName)
 {
-  HRESULT hr;
-  DPNAME name;
-  DPID dp = dpid;
-  ZeroMemory(&name, sizeof(DPNAME)); // fill out name structure
-  name.dwSize = sizeof(DPNAME);
-  name.lpszShortNameA = newName;
-  name.lpszLongNameA = nullptr;
-
   if (!NetPlay.bComms)
   {
     strcpy(NetPlay.players[0].name, newName);
     return TRUE;
   }
 
-  hr = IDirectPlayX_SetPlayerName(glpDP, dp, &name, DPSET_REMOTE);
-
-  if (hr != DP_OK)
+  if (dpid != Transport::LocalPlayer())
   {
-    Neuron::DebugTrace("NETPLAY: failed to change a players name\n");
+    Neuron::DebugTrace("NETPLAY: refusing to rename somebody else\n");
     return FALSE;
   }
-  return TRUE;
-}
 
-// ////////////////////////////////////////////////////////////////////////
-// ////////////////////////////////////////////////////////////////////////
-// Functions for spectators.
-
-BOOL NETspectate(GUID guidSessionInstance)
-{
-  DPID dpidPlayer;
-  DPSESSIONDESC2 sessionDesc;
-  HRESULT hr;
-
-  ZeroMemory(&sessionDesc, sizeof(DPSESSIONDESC2)); // join existing session
-  sessionDesc.dwSize = sizeof(DPSESSIONDESC2);
-  sessionDesc.guidInstance = guidSessionInstance;
-  hr = IDirectPlayX_Open(glpDP, &sessionDesc, DPOPEN_JOIN);
-
-  if FAILED(hr)
-    goto FAILURE;
-
-  hr = IDirectPlayX_CreatePlayer(glpDP, &dpidPlayer, NULL, NetPlay.hPlayerEvent, NULL, 0, DPPLAYER_SPECTATOR);
-
-  if FAILED(hr)
-    goto FAILURE;
-
-  NetPlay.lpDirectPlay4A = glpDP; // return connection info
-  NetPlay.dpidPlayer = dpidPlayer;
-  NetPlay.bHost = FALSE;
-  NetPlay.bSpectator = TRUE;
-  return (DP_OK);
-
-FAILURE: IDirectPlayX_Close(glpDP);
-  return (hr);
-}
-
-// ////////////////////////////////////////////////////////////////////////
-BOOL NETisSpectator(DPID dpid)
-{
-  UBYTE i;
-
-  if (dpid = NetPlay.dpidPlayer == dpid) // checking ourselves
-    return NetPlay.bSpectator;
-
-  // could enumerate the spectators and check if he's there!
-  // bugger it, just check that dpid isn't a player instead!
-  for (i = 0; i < MaxNumberOfPlayers; i++)
-  {
-    if (NetPlay.players[i].dpid == dpid)
-      return FALSE;
-  }
-
-  return TRUE; //not found, must be spectating
+  return Transport::SetLocalName(newName);
 }

@@ -60,11 +60,11 @@ BOOL sendVersionCheck();
 BOOL recvVersionCheck(NETMSG* pMsg);
 BOOL intDisplayMultiJoiningStatus(UBYTE joinCount);
 VOID clearPlayer(UDWORD player, BOOL quietly, BOOL removeOil); // what to do when a arena player leaves.
-BOOL MultiPlayerLeave(DPID dp); // remote player has left.
-BOOL MultiPlayerJoin(DPID dp); // remote player has just joined.
-VOID setupNewPlayer(DPID dpid, UDWORD player); // stuff to do when player joins.	
+BOOL MultiPlayerLeave(NETPLAYERID dp); // remote player has left.
+BOOL MultiPlayerJoin(NETPLAYERID dp); // remote player has just joined.
+VOID setupNewPlayer(NETPLAYERID dpid, UDWORD player); // stuff to do when player joins.	
 //BOOL multiPlayerRequest	(NETMSG *pMsg);							// remote player has requested info 
-//BOOL UpdateClient		(DPID dest, UDWORD playerToSend);		// send information to a remote player
+//BOOL UpdateClient		(NETPLAYERID dest, UDWORD playerToSend);		// send information to a remote player
 //BOOL ProcessDroidOrders	(VOID);									// ince setup, this player issues each droid order.
 VOID resetMultiVisibility(UDWORD player);
 
@@ -213,7 +213,7 @@ VOID resetMultiVisibility(UDWORD player)
 
 // ////////////////////////////////////////////////////////////////////////////
 // A remote player has left the game
-BOOL MultiPlayerLeave(DPID dp)
+BOOL MultiPlayerLeave(NETPLAYERID dp)
 {
   UDWORD i = 0;
   char buf[255];
@@ -241,7 +241,7 @@ BOOL MultiPlayerLeave(DPID dp)
       audio_QueueTrack(ID_CLAN_EXIT);
   }
 
-  NETplayerInfo(nullptr); // update the player info stuff		
+  NETplayerInfo(); // update the player info stuff		
 
   // fire script callback to reassign skirmish players.
   eventFireCallbackTrigger(CALL_PLAYERLEFT);
@@ -251,12 +251,19 @@ BOOL MultiPlayerLeave(DPID dp)
 
 // ////////////////////////////////////////////////////////////////////////////
 // A Remote Player has joined the game.
-BOOL MultiPlayerJoin(DPID dpid)
+BOOL MultiPlayerJoin(NETPLAYERID dpid)
 {
   UDWORD i;
 
   if (widgGetFromID(psWScreen,IDRET_FORM)) // if ingame.
     audio_QueueTrack(ID_CLAN_ENTER);
+
+  /* The new machine has nobody's stats. DirectPlay kept its replicated
+   * per-player data available to whoever joined later and the transport does
+   * not, so everybody already here says theirs again.
+   */
+  if (dpid != NetPlay.dpidPlayer)
+    setMultiStats(NetPlay.dpidPlayer, getMultiStats(selectedPlayer,TRUE),FALSE);
 
   if (widgGetFromID(psWScreen,MULTIOP_PLAYERS)) // if in multimenu.
   {
@@ -303,7 +310,7 @@ BOOL MultiPlayerJoin(DPID dpid)
 
 // ////////////////////////////////////////////////////////////////////////////
 // Setup Stuff for a new player.
-void setupNewPlayer(DPID dpid, UDWORD player)
+void setupNewPlayer(NETPLAYERID dpid, UDWORD player)
 {
   UDWORD i; //,col;
   char buf[255];
@@ -321,7 +328,7 @@ void setupNewPlayer(DPID dpid, UDWORD player)
   }
 
   resetMultiVisibility(player); // set visibility flags.
-  NETplayerInfo(nullptr); // update the net info stuff
+  NETplayerInfo(); // update the net info stuff
 
   setMultiStats(player2dpid[player], getMultiStats(player,FALSE),TRUE); // get the players score from the ether.
 
@@ -341,7 +348,7 @@ void setupNewPlayer(DPID dpid, UDWORD player)
 /*
 BOOL multiPlayerRequest(NETMSG *pMsg)
 {		
-	DPID dp;
+	NETPLAYERID dp;
 	UDWORD pl,newpl;//,rpl;
 	BOOL responsible = FALSE;
 
@@ -376,7 +383,7 @@ BOOL multiPlayerRequest(NETMSG *pMsg)
 
 // /////////////////////////////////////////////////////////////////////////////////////
 // send information to allow player 'dest' to update their game state to the current one.
-BOOL UpdateClient(DPID dest, UDWORD playerToSend)
+BOOL UpdateClient(NETPLAYERID dest, UDWORD playerToSend)
 {
 	NETMSG			 m;
 	DROID			*pD;
@@ -421,7 +428,7 @@ BOOL UpdateClient(DPID dest, UDWORD playerToSend)
 // Send/Recv Features when a player joins the game.
 
 // send a list of features on this machine.
-BOOL SendFeatures(FEATURE *pFeature, DPID player)
+BOOL SendFeatures(FEATURE *pFeature, NETPLAYERID player)
 {
 	NETMSG msg;
 	

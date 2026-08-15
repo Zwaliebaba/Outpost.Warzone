@@ -51,7 +51,7 @@ STUBDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'stubs')
 
 def sources():
     out = []
-    for proj in ('NeuronCore', 'Outpost'):
+    for proj in ('NeuronCore', 'Outpost', 'NetTest'):
         for f in sorted(os.listdir(os.path.join(ROOT, proj))):
             if f.endswith('.cpp'):
                 out.append(f'{proj}/{f}')
@@ -61,7 +61,7 @@ def sources():
 def build_shadow(dst):
     """Copy the tree, then apply the neutralisations."""
     real = {}
-    for proj in ('NeuronCore', 'Outpost', 'DX9/Include', 'DX9/Include/DShowIDL'):
+    for proj in ('NeuronCore', 'Outpost', 'NetTest', 'DX9/Include', 'DX9/Include/DShowIDL'):
         src = os.path.join(ROOT, proj)
         if not os.path.isdir(src):
             continue
@@ -90,7 +90,7 @@ def build_shadow(dst):
         for f in sorted(os.listdir(STUBDIR)):
             shutil.copy2(os.path.join(STUBDIR, f), os.path.join(stubdir, f))
 
-    for proj in ('NeuronCore', 'Outpost'):
+    for proj in ('NeuronCore', 'Outpost', 'NetTest'):
         d = os.path.join(dst, proj)
         for f in os.listdir(d):
             if not f.endswith(('.cpp', '.h')):
@@ -123,7 +123,7 @@ def system_includes(dst):
     """Every name included anywhere in the shadow, lower-cased key aside."""
     names = set()
     pat = re.compile(r'#\s*include\s*[<"]([^">]+)[">]')
-    for proj in ('NeuronCore', 'Outpost'):
+    for proj in ('NeuronCore', 'Outpost', 'NetTest'):
         d = os.path.join(dst, proj)
         for f in os.listdir(d):
             if f.endswith(('.cpp', '.h')):
@@ -132,17 +132,50 @@ def system_includes(dst):
     return {n.rsplit('/', 1)[-1] for n in names}
 
 
+# -fpermissive is needed: this codebase names anonymous types with
+# `using X = enum {...}`, which MSVC accepts and GCC calls "declared using
+# unnamed type", and 81 units use it. But -fpermissive also downgrades genuine
+# type errors to warnings, and -w then hides them -- which is how a batch of
+# NETPLAYERID-for-DPID conversions passed here and failed on MSVC.
+#
+# So the diagnostics that -fpermissive would otherwise swallow are matched back
+# out of a warning-visible run. Keep this list to things MSVC really rejects.
+# Matched against a -fpermissive run with warnings visible, where these appear
+# as "warning: invalid conversion ... [-fpermissive]" rather than as errors.
+# The unnamed-type diagnostic carries the same tag and is deliberately not here.
+PERMISSIVE_HIDES = re.compile(r'(invalid conversion|cannot convert).*\[-fpermissive\]')
+
+
 def check(shadow, rel):
     proj = rel.split('/')[0]
     inc = ['-I', os.path.join(shadow, proj), '-I', os.path.join(shadow, 'DX9/Include'),
            '-I', os.path.join(shadow, 'stubs')]
-    if proj == 'Outpost':
+    if proj in ('Outpost', 'NetTest'):
         inc += ['-I', os.path.join(shadow, 'NeuronCore')]
-    cmd = [CXX, '-fsyntax-only', '-std=c++20', '-fpermissive', '-w',
-           '-fms-extensions', '-Wno-everything'] + \
-          [f'-D{d}' for d in DEFS] + inc + [os.path.join(shadow, rel)]
+    # NetTest is the console harness, and only it defines this.
+    defs = DEFS + (['NEURON_TRACE_TO_STDERR'] if proj == 'NetTest' else [])
+    # no -w, so the downgraded diagnostics are still printed
+    cmd = [CXX, '-fsyntax-only', '-std=c++20', '-fpermissive',
+           '-fms-extensions', '-w', '-Wno-everything'] + \
+          [f'-D{d}' for d in defs] + inc + [os.path.join(shadow, rel)]
     r = subprocess.run(cmd, capture_output=True, text=True)
-    return rel, r.returncode, r.stderr
+    if r.returncode != 0:
+        return rel, r.returncode, r.stderr
+
+    # second pass, warnings visible, only to catch what -fpermissive hid
+    loud = [c for c in cmd if c not in ('-w', '-Wno-everything')]
+    r2 = subprocess.run(loud, capture_output=True, text=True)
+    # Only our own files are judged. The vendored msquic headers trip this on
+    # a mingw-vs-SDK signature difference in RtlIpv4StringToAddressA, which is
+    # a gap in mingw rather than anything MSVC would reject.
+    ours = (os.path.join(shadow, 'NeuronCore'), os.path.join(shadow, 'Outpost'),
+            os.path.join(shadow, 'NetTest'))
+    hidden = [l for l in r2.stderr.splitlines()
+              if PERMISSIVE_HIDES.search(l) and l.startswith(ours)]
+    if hidden:
+        return rel, 1, '\n'.join(hidden)
+
+    return rel, 0, ''
 
 
 def main():
@@ -168,6 +201,9 @@ def main():
                 if rc != 0:
                     bad += 1
                     lines = [l for l in err.splitlines() if ' error:' in l]
+                    # the -fpermissive catch reports warnings, not errors
+                    if not lines:
+                        lines = [l for l in err.splitlines() if l.strip()]
                     print(f'--- {rel}: {len(lines)} error(s)')
                     for l in lines[:12]:
                         print('   ', l.replace(shadow + '/', ''))

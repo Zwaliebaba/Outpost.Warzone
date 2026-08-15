@@ -59,7 +59,7 @@ BOOL recvGroupOrder(NETMSG* pMsg);
 static VOID ProcessDroidOrder(DROID* psDroid, DROID_ORDER order, UDWORD x, UDWORD y, OBJECT_TYPE desttype, UDWORD destid);
 BOOL SendDestroyDroid(DROID* pD);
 BOOL recvDestroyDroid(NETMSG* pMsg);
-BOOL sendWholeDroid(DROID* pD, DPID dest);
+BOOL sendWholeDroid(DROID* pD, NETPLAYERID dest);
 BOOL receiveWholeDroid(NETMSG* pMsg);
 BOOL sendRequestDroid(UDWORD droidId);
 BOOL recvRequestDroid(NETMSG* pMsg);
@@ -974,7 +974,7 @@ BOOL recvDestroyDroid(NETMSG* pMsg)
 // ////////////////////////////////////////////////////////////////////////////
 // ////////////////////////////////////////////////////////////////////////////
 // stuff for sending the WHOLE of a droid!
-BOOL sendWholeDroid(DROID* pD, DPID dest)
+BOOL sendWholeDroid(DROID* pD, NETPLAYERID dest)
 {
   NETMSG m;
   UDWORD sizecount = 0;
@@ -1217,7 +1217,7 @@ BOOL sendRequestDroid(UDWORD droidId)
   Neuron::DebugTrace("multibot: unknown droid {}, requesting info\n");
 
   msg.type = NET_REQUESTDROID;
-  msg.size = sizeof(DPID) + sizeof(UDWORD);
+  msg.size = sizeof(NETPLAYERID) + sizeof(UDWORD);
 
   NETbcast(&msg,FALSE);
   return TRUE;

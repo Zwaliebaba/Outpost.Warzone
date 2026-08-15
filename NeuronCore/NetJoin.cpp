@@ -1,177 +1,109 @@
 #include "pch.h"
+/*
+ * NetJoin.cpp
+ *
+ * Opening, finding, joining and closing a session.
+ *
+ * Every function here used to be DirectPlay: an EnumSessions with a callback,
+ * a DPSESSIONDESC2 fetched twice to learn its own size, and four game flags
+ * living in that description's dwUser1..4. All of it is now one call each into
+ * Transport.h, and the permanent malloc that existed to keep the
+ * variable-sized description out of the frame loop went with it.
+ */
+
 #include "Frame.h"
 #include "NetPlay.h"
-#include "NetSupp.h"
-
-BOOL NEThaltJoining(VOID);
-BOOL FAR PASCAL NETfindGameCallback(LPCDPSESSIONDESC2 lpSessionDesc, LPDWORD lpdwTimeOut, DWORD dwFlags, LPVOID lpContext);
-BOOL NETfindGame(BOOL async);
-BOOL NETjoinGame(GUID guidSessionInstance, LPSTR playername);
-BOOL NEThostGame(LPSTR SessionName, LPSTR PlayerName, DWORD one, DWORD two, DWORD three, DWORD four, UDWORD plyrs);
-HRESULT NETclose(VOID);
-DWORD NETgetGameFlags(UDWORD flag);
-DWORD NETgetGameFlagsUnjoined(UDWORD gameid, UDWORD flag);
-BOOL NETsetGameFlags(UDWORD flag, DWORD value);
-
-static UDWORD gamecount = 0;
-
-// Description Info. Used to remove ingame mallocs in netplay..
-LPVOID lpPermDescription = nullptr;
-UDWORD descriptionSize = 0;
-
-VOID freePermMalloc(void)
-{
-  delete[] static_cast<UBYTE*>(lpPermDescription);
-  lpPermDescription = nullptr;
-  descriptionSize = 0;
-  lpPermDescription = nullptr;
-
-  Neuron::DebugTrace("NETPLAY: permalloc freed \n");
-}
-
-VOID permMalloc(UDWORD size)
-{
-  if (descriptionSize < size) // sort the buffer out.
-  {
-    Neuron::DebugTrace("NETPLAY: permalloc changed from {} bytes to {} bytes \n",descriptionSize,size);
-    if (descriptionSize != 0) // get rid of old one.
-      freePermMalloc();
-
-    lpPermDescription = new (std::nothrow) UBYTE[size];
-    descriptionSize = size;
-  }
-}
 
 // ////////////////////////////////////////////////////////////////////////
-// Stop the dplay interface from accepting more players.
+// Stop the transport from accepting more players.
 BOOL NEThaltJoining(VOID)
 {
-  LPDPSESSIONDESC2 sessionDesc; // template to find. 
-  LPDPLCONNECTION lobDesc;
-  DWORD size = 1;
-  HRESULT hr;
-  LPVOID mempointer;
+  if (!NetPlay.bComms)
+    return TRUE;
 
-  if (NetPlay.bLobbyLaunched) //Lobby version.
+  return Transport::CloseToJoiners();
+}
+
+// ////////////////////////////////////////////////////////////////////////
+// find games on the current connection.
+//
+// There is no discovery in this build -- the destination is a relay server
+// that owns the connections, where listing games is a query to a known server
+// -- so Transport::FindSessions answers nothing until that server exists.
+//
+// Which would leave the browser empty and joining unreachable, since the only
+// way into joinCampaign is clicking a game in it. So when nothing answers and
+// the player has typed an address, the list is that address: one entry, which
+// behaves like any other and needs no special case anywhere downstream. When
+// the server arrives it fills the list properly and this branch stops firing.
+BOOL NETfindGame(VOID)
+{
+  Transport::SessionInfo aSessions[MaxGames];
+  UDWORD udwCount;
+  UDWORD i;
+
+  ZeroMemory(NetPlay.games, sizeof(NetPlay.games));
+
+  if (!NetPlay.bComms)
+    return TRUE;
+
+  udwCount = Transport::FindSessions(aSessions, MaxGames);
+
+  for (i = 0; i < udwCount && i < MaxGames; i++)
   {
-    hr = IDirectPlayLobby_GetConnectionSettings(glpDPL, 0, NULL, &size); // get size
-    mempointer = new (std::nothrow) UBYTE[size]; // alloc space
-    hr = IDirectPlayLobby_GetConnectionSettings(glpDPL, 0, mempointer, &size);
-    lobDesc = static_cast<LPDPLCONNECTION>(mempointer);
-
-    lobDesc->lpSessionDesc->dwFlags = lobDesc->lpSessionDesc->dwFlags | DPSESSION_JOINDISABLED; // set the flags.
-
-    hr = IDirectPlayLobby_SetConnectionSettings(glpDPL, 0, 0, lobDesc); //write it back
+    strncpy(NetPlay.games[i].name, aSessions[i].name, StringSize - 1);
+    strncpy(NetPlay.games[i].address, aSessions[i].address, Transport::AddressSize - 1);
+    NetPlay.games[i].currentPlayers = aSessions[i].currentPlayers;
+    NetPlay.games[i].maxPlayers = aSessions[i].maxPlayers;
+    NetPlay.games[i].bJoinDisabled = FALSE;
+    memcpy(NetPlay.games[i].flags, aSessions[i].gameFlags, sizeof(NetPlay.games[i].flags));
   }
-  else // ordinary version
+
+  if (udwCount == 0 && NETjoinAddress[0] != '\0')
   {
-    hr = IDirectPlayX_GetSessionDesc(glpDP, NULL, &size); // get size
-    mempointer = new (std::nothrow) UBYTE[size]; // alloc
-    hr = IDirectPlayX_GetSessionDesc(glpDP, mempointer, &size); // get desc.
-    sessionDesc = static_cast<LPDPSESSIONDESC2>(mempointer);
-
-    sessionDesc->dwFlags = sessionDesc->dwFlags | DPSESSION_JOINDISABLED; // set the flags.
-
-    hr = IDirectPlayX_SetSessionDesc(glpDP, sessionDesc, 0); // write it back
+    /* Named for the address because that is genuinely all that is known about
+     * it: nothing has been asked and nothing has answered. The player count
+     * says one of MaxNumberOfPlayers so the browser draws it as joinable --
+     * whether it really is, only the join attempt can say.
+     */
+    strncpy(NetPlay.games[0].name, NETjoinAddress, StringSize - 1);
+    strncpy(NetPlay.games[0].address, NETjoinAddress, Transport::AddressSize - 1);
+    NetPlay.games[0].currentPlayers = 1;
+    NetPlay.games[0].maxPlayers = MaxNumberOfPlayers;
+    NetPlay.games[0].bJoinDisabled = FALSE;
   }
 
-  if (mempointer) { delete[] static_cast<UBYTE*>(mempointer); }
   return TRUE;
-}
-
-// ////////////////////////////////////////////////////////////////////////
-// ////////////////////////////////////////////////////////////////////////
-// routines to find games currently running on the chosen protocol
-
-BOOL FAR PASCAL NETfindGameCallback(LPCDPSESSIONDESC2 lpSessionDesc, LPDWORD lpdwTimeOut, DWORD dwFlags, LPVOID lpContext)
-{
-  if (dwFlags == DPESC_TIMEDOUT)
-    return (FALSE);
-  if (gamecount >= MaxGames)
-  {
-    Neuron::DebugTrace("NETPLAY:Maximum number of available games exceeded. terminating search\n");
-    return (FALSE);
-  }
-  strcpy(NetPlay.games[gamecount].name, (char*)(lpSessionDesc->lpszSessionName));
-  memcpy(&NetPlay.games[gamecount].desc, lpSessionDesc, sizeof(DPSESSIONDESC2));
-  gamecount = gamecount + 1;
-
-  return (TRUE);
-}
-
-// ////////////////////////////////////////////////////////////////////////
-// find games on open connection, option to do this asynchronously 
-// since it can sometimes take a while.
-
-BOOL NETfindGame(BOOL async) /// may (not) want to use async here...
-{
-  HRESULT hr;
-  DPSESSIONDESC2 sessionDesc; // template to find. 
-  GUID guidSessionInstance;
-  DWORD size;
-  LPDPSESSIONDESC2 lpSessionDesc; // template to find. 
-
-  guidSessionInstance = GUID_NULL; // get guid of currently selected session
-  ZeroMemory(&sessionDesc, sizeof(DPSESSIONDESC2)); // add sessions to session list
-  sessionDesc.dwSize = sizeof(DPSESSIONDESC2);
-  sessionDesc.guidApplication = GAME_GUID;
-  size = sizeof(DPSESSIONDESC2);
-
-  gamecount = 0;
-  ZeroMemory(NetPlay.games, (MaxGames*sizeof(DPSESSIONDESC2)));
-
-  if (async == TRUE)
-  {
-    hr = IDirectPlayX_EnumSessions(glpDP, &sessionDesc, 0, NETfindGameCallback, NULL,
-                                   DPENUMSESSIONS_ALL | DPENUMSESSIONS_ASYNC | DPENUMSESSIONS_RETURNSTATUS);
-  }
-  else
-  {
-    hr = IDirectPlayX_EnumSessions(glpDP, &sessionDesc, 0, NETfindGameCallback, NULL, DPENUMSESSIONS_ALL | DPENUMSESSIONS_RETURNSTATUS);
-  }
-
-  if (hr == DPERR_GENERIC)
-  {
-    hr = IDirectPlayX_GetSessionDesc(glpDP, NULL, &size);
-    if (hr == DPERR_BUFFERTOOSMALL) // we are already connected. add this game.
-    {
-      permMalloc(size);
-      hr = IDirectPlayX_GetSessionDesc(glpDP, lpPermDescription, &size); // get desc.
-
-      if (!FAILED(hr))
-      {
-        lpSessionDesc = static_cast<LPDPSESSIONDESC2>(lpPermDescription);
-
-        strcpy(NetPlay.games[0].name, (char*)(lpSessionDesc->lpszSessionName));
-        memcpy(&NetPlay.games[0].desc, lpSessionDesc, sizeof(DPSESSIONDESC2));
-        gamecount = 1;
-      }
-    }
-  }
-  else if (hr == DPERR_CONNECTING) // still connecting, so thats ok.
-    return (TRUE);
-  else if (hr != DP_OK) // failed.
-    return (FALSE);
-
-  return (TRUE);
 }
 
 // ////////////////////////////////////////////////////////////////////////
 // ////////////////////////////////////////////////////////////////////////
 // Functions used to setup and join games.
 
-BOOL NETjoinGame(GUID guidSessionInstance, LPSTR playername)
+BOOL NETjoinGame(const char* address, LPSTR playername)
 {
-  HRESULT hr;
+  if (!NetPlay.bComms)
+    return TRUE;
 
-  hr = JoinSession(glpDP, &guidSessionInstance, playername, &NetPlay); // join this session
-  if FAILED(hr)
+  if (address == nullptr || address[0] == '\0')
   {
-    Neuron::DebugTrace("NETPLAY:Failed to Join Game\n");
-    return (FALSE);
+    Neuron::DebugTrace("NETPLAY: no address to join\n");
+    return FALSE;
   }
 
-  return (TRUE);
+  if (!Transport::Join(address, playername))
+  {
+    Neuron::DebugTrace("NETPLAY: Failed to Join Game at {}\n", address);
+    return FALSE;
+  }
+
+  /* Not known yet. The handshake is still running and the host assigns the id,
+   * which arrives a frame or two later; NETplayerInfo picks it up.
+   */
+  NetPlay.dpidPlayer = 0;
+  NetPlay.bHost = FALSE;
+
+  return TRUE;
 }
 
 // ////////////////////////////////////////////////////////////////////////
@@ -179,7 +111,7 @@ BOOL NETjoinGame(GUID guidSessionInstance, LPSTR playername)
 BOOL NEThostGame(LPSTR SessionName, LPSTR PlayerName, DWORD one, // flags.
                  DWORD two, DWORD three, DWORD four, UDWORD plyrs) // # of players.
 {
-  HRESULT hr;
+  DWORD gameFlags[Transport::GameFlagCount];
 
   if (!NetPlay.bComms)
   {
@@ -188,214 +120,70 @@ BOOL NEThostGame(LPSTR SessionName, LPSTR PlayerName, DWORD one, // flags.
     return TRUE;
   }
 
-  hr = HostSession(glpDP, SessionName, PlayerName, &NetPlay, one, two, three, four, plyrs);
-  if FAILED(hr)
+  gameFlags[0] = one;
+  gameFlags[1] = two;
+  gameFlags[2] = three;
+  gameFlags[3] = four;
+
+  if (!Transport::Host(SessionName, PlayerName, plyrs, gameFlags))
   {
     Neuron::Fatal("failed to host game");
-    return (FALSE);
+    return FALSE;
   }
-  return (TRUE);
+
+  NetPlay.dpidPlayer = Transport::LocalPlayer();
+  NetPlay.bHost = TRUE;
+
+  return TRUE;
 }
 
 // ////////////////////////////////////////////////////////////////////////
 //close the open game..
 HRESULT NETclose(VOID)
 {
-  IDirectPlayX_DestroyPlayer(glpDP, NetPlay.dpidPlayer);
+  Transport::Leave();
   NetPlay.dpidPlayer = 0;
-  if (glpDP)
-    IDirectPlayX_Close(glpDP);
-  return (DP_OK);
+  NetPlay.bHost = FALSE;
+  NetPlay.playercount = 0;
+
+  return S_OK;
 }
 
 // ////////////////////////////////////////////////////////////////////////
-// return one of the four user flags in the current sessiondescription.
-DWORD NETgetGameFlags(UDWORD flag)
-{
-  LPDPSESSIONDESC2 sessionDesc; // template to find. 
-  DWORD size = 1;
-  HRESULT hr;
-  DWORD result;
-  LPDPLCONNECTION lobDesc;
-
-  if (NetPlay.bLobbyLaunched)
-  {
-    hr = IDirectPlayLobby_GetConnectionSettings(glpDPL, 0, NULL, &size); // get the size 
-
-    permMalloc(size);
-
-    hr = IDirectPlayLobby_GetConnectionSettings(glpDPL, 0, lpPermDescription, &size); // get it.
-
-    if (hr != DP_OK)
-    {
-      Neuron::DebugTrace("NETPLAY:  couldn't get lobby game flags.\n");
-      return 0;
-    }
-
-    lobDesc = static_cast<LPDPLCONNECTION>(lpPermDescription);
-
-    switch (flag)
-    {
-    case 1:
-      result = lobDesc->lpSessionDesc->dwUser1;
-      break;
-    case 2:
-      result = lobDesc->lpSessionDesc->dwUser2;
-      break;
-    case 3:
-      result = lobDesc->lpSessionDesc->dwUser3;
-      break;
-    case 4:
-      result = lobDesc->lpSessionDesc->dwUser4;
-      break;
-    default: Neuron::Fatal("Invalid flag for getgameflags in netplay lib");
-      break;
-    }
-  }
-  else
-  {
-    hr = IDirectPlayX_GetSessionDesc(glpDP, NULL, &size);
-    permMalloc(size);
-    hr = IDirectPlayX_GetSessionDesc(glpDP, lpPermDescription, &size);
-
-    if (hr != DP_OK)
-    {
-      Neuron::DebugTrace("NETPLAY: couldn't get game flags\n");
-      return 0;
-    }
-
-    sessionDesc = static_cast<LPDPSESSIONDESC2>(lpPermDescription);
-
-    switch (flag)
-    {
-    case 1:
-      result = sessionDesc->dwUser1;
-      break;
-    case 2:
-      result = sessionDesc->dwUser2;
-      break;
-    case 3:
-      result = sessionDesc->dwUser3;
-      break;
-    case 4:
-      result = sessionDesc->dwUser4;
-      break;
-    default: Neuron::Fatal("Invalid flag for getgameflags in netplay lib");
-      break;
-    }
-  }
-  return result;
-}
-
+// return one of the four user flags for a game in the browser list.
+//
+// The flag numbers are 1 to 4 because DirectPlay called the fields dwUser1 to
+// dwUser4 and the game says NETgetGameFlagsUnjoined(n, 1) all over MultiInt.
 DWORD NETgetGameFlagsUnjoined(UDWORD gameid, UDWORD flag)
 {
-  switch (flag)
+  if (gameid >= MaxGames || flag < 1 || flag > Transport::GameFlagCount)
   {
-  case 1:
-    return NetPlay.games[gameid].desc.dwUser1;
-    break;
-  case 2:
-    return NetPlay.games[gameid].desc.dwUser2;
-    break;
-  case 3:
-    return NetPlay.games[gameid].desc.dwUser3;
-    break;
-  case 4:
-    return NetPlay.games[gameid].desc.dwUser4;
-    break;
-  default: Neuron::Fatal("Invalid flag for getgameflagsunjoined in netplay lib");
+    Neuron::Fatal("Invalid flag for getgameflagsunjoined in netplay lib");
     return 0;
-    break;
   }
+
+  return NetPlay.games[gameid].flags[flag - 1];
 }
 
 // ////////////////////////////////////////////////////////////////////////
-// Set a game flag
+// Set a game flag on the session this machine is hosting.
 BOOL NETsetGameFlags(UDWORD flag, DWORD value)
 {
-  LPDPSESSIONDESC2 sessionDesc;
-  DWORD size = 1;
-  HRESULT hr;
-  LPDPLCONNECTION lobDesc;
+  DWORD gameFlags[Transport::GameFlagCount];
 
   if (!NetPlay.bComms)
     return TRUE;
 
-  if (NetPlay.bLobbyLaunched) // LOBBY VERSION
+  if (flag < 1 || flag > Transport::GameFlagCount)
   {
-    hr = IDirectPlayLobby_GetConnectionSettings(glpDPL, 0, NULL, &size); // get the size 
-
-    permMalloc(size);
-
-    hr = IDirectPlayLobby_GetConnectionSettings(glpDPL, 0, lpPermDescription, &size); // get it.
-    if (hr != DP_OK)
-    {
-      Neuron::DebugTrace("NETPLAY: couldn't set lobby game flags \n");
-      return FALSE;
-    }
-
-    lobDesc = static_cast<LPDPLCONNECTION>(lpPermDescription);
-
-    switch (flag) //mod it
-    {
-    case 1:
-      lobDesc->lpSessionDesc->dwUser1 = value;
-      break;
-    case 2:
-      lobDesc->lpSessionDesc->dwUser2 = value;
-      break;
-    case 3:
-      lobDesc->lpSessionDesc->dwUser3 = value;
-      break;
-    case 4:
-      lobDesc->lpSessionDesc->dwUser4 = value;
-      break;
-    default: Neuron::Fatal("Invalid flag for setgameflags in netplay lib");
-      break;
-    }
-    hr = IDirectPlayLobby_SetConnectionSettings(glpDPL, 0, 0, lobDesc); //write it back
-    if (hr != DP_OK)
-      Neuron::DebugTrace("NETPLAY: couldn't set lobby game flags 2\n");
+    Neuron::Fatal("Invalid flag for setgameflags in netplay lib");
+    return FALSE;
   }
-  else // NON LOBBY VERSION
-  {
-    hr = IDirectPlayX_GetSessionDesc(glpDP, NULL, &size); //get size
-    permMalloc(size);
-    hr = IDirectPlayX_GetSessionDesc(glpDP, lpPermDescription, &size); //get it
 
-    if (hr != DP_OK)
-    {
-      Neuron::DebugTrace("NETPLAY: couldn't set game flags \n");
-      return FALSE;
-    }
+  if (!Transport::GetGameFlags(gameFlags))
+    return FALSE;
 
-    sessionDesc = static_cast<LPDPSESSIONDESC2>(lpPermDescription);
+  gameFlags[flag - 1] = value;
 
-    switch (flag) //mod it
-    {
-    case 1:
-      sessionDesc->dwUser1 = value;
-      break;
-    case 2:
-      sessionDesc->dwUser2 = value;
-      break;
-    case 3:
-      sessionDesc->dwUser3 = value;
-      break;
-    case 4:
-      sessionDesc->dwUser4 = value;
-      break;
-    default: Neuron::Fatal("Invalid flag for setgameflags in netplay lib");
-      break;
-    }
-
-    hr = IDirectPlayX_SetSessionDesc(glpDP, sessionDesc, 0); // write it back
-
-    if (hr != DP_OK)
-    {
-      Neuron::DebugTrace("NETPLAY: couldn't set lobby game flags \n");
-      return FALSE;
-    }
-  }
-  return TRUE;
+  return Transport::SetGameFlags(gameFlags);
 }

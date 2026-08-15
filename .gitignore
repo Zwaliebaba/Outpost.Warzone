@@ -361,3 +361,12 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+# NuGet packages restored at build time (MsQuic)
+packages/
+
+# The transport harness writes these beside itself when it runs.
+nettest.ready
+host.out
+host.err
+client.out
+client.err

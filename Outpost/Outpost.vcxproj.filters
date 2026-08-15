@@ -72,8 +72,6 @@
     <ClCompile Include="MiscIMD.cpp" />
     <ClCompile Include="Mission.cpp" />
     <ClCompile Include="Move.cpp" />
-    <ClCompile Include="MPDPXtra.cpp" />
-    <ClCompile Include="MPlayer.cpp" />
     <ClCompile Include="Multibot.cpp" />
     <ClCompile Include="MultiGifts.cpp" />
     <ClCompile Include="MultiInt.cpp" />
@@ -213,7 +211,6 @@
     <ClInclude Include="MissionDef.h" />
     <ClInclude Include="Move.h" />
     <ClInclude Include="MoveDef.h" />
-    <ClInclude Include="MPDPXtra.h" />
     <ClInclude Include="MultiGifts.h" />
     <ClInclude Include="MultiInt.h" />
     <ClInclude Include="MultiJoin.h" />
