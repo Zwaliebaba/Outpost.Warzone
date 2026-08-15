@@ -390,6 +390,28 @@ static BOOL OptionsInet(UDWORD parentID) //internet options
   return TRUE;
 }
 
+BOOL startConnectionScreen(VOID)
+{
+  addBackdrop(); //background
+  addTopForm(); // logo
+  addBottomForm();
+
+  SettingsUp = 0;
+  InitialProto = 0;
+  safeSearch = FALSE;
+
+  NETuseNetwork(TRUE); // don't pretend!!
+
+  addSideText(FRONTEND_SIDETEXT, FRONTEND_SIDEX, FRONTEND_SIDEY, strresGetString(psStringRes, STR_MUL_SIDECONNECTION));
+
+  addMultiBut(psWScreen,FRONTEND_BOTFORM,CON_CANCEL, 10, 10,MULTIOP_OKW,MULTIOP_OKH, STR_MUL_CANCEL, IMAGE_RETURN, IMAGE_RETURN_HI,
+              TRUE); // goback buttpn levels
+
+  addConnections(0);
+
+  return TRUE;
+}
+
 // add connections
 //
 // There is one. DirectPlay enumerated its service providers and this listed
