@@ -782,6 +782,34 @@ object model rather than of the change itself:
 `iV_HeapAlloc`/`iV_HeapFree` in `IvisPatch.h` stay on `malloc`/`free`: they
 hand out untyped bytes, so there is no type for `new` to allocate.
 
+## Phase 8 — Native Direct3D 9: retiring the iVis/pie layer
+
+**Planned.** Phase 2 rewrote what the pie layer *talks to*; this phase removes
+the layer itself. The `pie_*`/`iV_*` code was iVis's abstraction over five
+renderers — software DDX, Glide, PlayStation, Direct3D 6 RGB and HAL — and
+since Phase 2 exactly one backend exists, so the layer now dispatches through
+function-pointer tables whose every slot is a no-op or null, keeps two render
+state caches that `D3DReInit` has to reconcile after a device reset, converts
+`PIEVERTEX` to `D3DTLVERTEX` on every draw, and carries a renderer-selection
+configuration (`WAR_REND_MODE`, `-D3D`/`-RGB`/`-REF`, device-name strings, a
+commented-out Software/Glide/OpenGL menu) that selects nothing.
+
+The measured inventory, the dead-code evidence, the target module layout and
+the staged execution are in [Phase8Plan.md](Phase8Plan.md). The short version:
+14 translation units and 6,185 lines make up the layer; ~2,400 lines are
+provably dead and go first, behaviour-preserving; the live remainder collapses
+into a renderer that calls the device directly — `Render` (state + one vertex
+funnel, from `D3DRender.cpp` + `PieState.cpp`), `RenderModel`, `Render2D`,
+`TexMan` (absorbing `Tex.cpp`), with the fixed-point matrix stack, the
+software clipper and the palette module kept and renamed. The `.pie`/IMD
+*model format* and its loader are game data and are not touched.
+
+This phase also absorbs two items Phase 2 left open: the dead device-name
+settings (deleted in stage A3) and dynamic vertex buffers (stage D2, after
+the draw funnel is singular). Stages A and B are independent of Phase 6;
+stage C's rename touches `Sequence.cpp` and should not interleave with its
+rewrite — the sequencing constraints are in the plan.
+
 ## Verification
 
 There is no MSVC or Windows SDK in the Linux development container, so a real
