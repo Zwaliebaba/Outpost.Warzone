@@ -56,7 +56,6 @@ typedef struct
 } NETMSG, *LPNETMSG;
 
 #define		ENCRYPTFLAG		100			// added to type to determine packet is encrypted.
-#define		AUDIOMSG		255			// an audio packet (special message);
 #define		FILEMSG			254			// a file packet
 
 // ////////////////////////////////////////////////////////////////////////
@@ -89,10 +88,6 @@ typedef struct
 
   BOOL bEncryptAllPackets; // set to true to encrypt all communications.
   UDWORD cryptKey[4]; // 4*32 bit encryption key
-
-  BOOL bCaptureInUse; // true if someone is speaking.
-  BOOL bAllowCaptureRecord; // true if speech can be recorded.
-  BOOL bAllowCapturePlay; // true if speech can be played.
 } NETPLAY, *LPNETPLAY;
 
 // ////////////////////////////////////////////////////////////////////////
@@ -156,18 +151,6 @@ extern BOOL NETisSpectator(DPID dpid); // check for spectator staus.
 extern BOOL NETlogEntry(CHAR* str, UDWORD a, UDWORD b);
 extern BOOL NETstopLogging(VOID);
 extern BOOL NETstartLogging(VOID);
-
-// from net audio.
-extern BOOL NETprocessAudioCapture(VOID); //capture
-extern BOOL NETstopAudioCapture(VOID);
-extern BOOL NETstartAudioCapture(VOID);
-extern BOOL NETshutdownAudioCapture(VOID);
-extern BOOL NETinitAudioCapture(VOID);
-
-extern BOOL NETinitPlaybackBuffer(VOID* pDs); // playback
-extern VOID NETplayIncomingAudio(NETMSG* pMsg);
-extern BOOL NETqueueIncomingAudio(LPBYTE lpbSoundData, DWORD dwSoundBytes, BOOL bStream);
-extern BOOL NETshutdownAudioPlayback(VOID);
 
 // encryption
 extern BOOL NETsetKey(UDWORD c1, UDWORD c2, UDWORD c3, UDWORD c4);

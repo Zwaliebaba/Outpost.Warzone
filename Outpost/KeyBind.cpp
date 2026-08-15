@@ -893,20 +893,13 @@ void kf_addMultiMenu(void)
 }
 
 // --------------------------------------------------------------------------
-// start/stop capturing audio for multiplayer
-void kf_multiAudioStart(void)
-{
-  if (bMultiPlayer // multiplayer game
-    && game.bytesPerSec == IPXBYTESPERSEC // ipx type
-    && !NetPlay.bCaptureInUse) // noone else talking.
-    NETstartAudioCapture();
-}
+/* Multiplayer voice chat is gone. These two stay as empty handlers because
+ * the keymap refers to them by name and a saved keymap.map would not load
+ * without them.
+ */
+void kf_multiAudioStart(void) {}
 
-void kf_multiAudioStop(void)
-{
-  if (bMultiPlayer && game.bytesPerSec == IPXBYTESPERSEC)
-    NETstopAudioCapture();
-}
+void kf_multiAudioStop(void) {}
 
 // --------------------------------------------------------------------------
 

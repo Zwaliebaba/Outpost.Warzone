@@ -23,9 +23,14 @@ CXX = 'i686-w64-mingw32-g++'
 # nothing about the release branches and vice versa.
 RELEASE = '--release' in sys.argv
 
+# CINTERFACE is deliberately absent. It used to be here because the legacy
+# DirectX files called COM through lpVtbl, but nothing in the tree defines it
+# any more -- the projects never did, and the D3D9 work moved the call sites to
+# C++ syntax. Defining it here made seven units fail against a build that is
+# green, which is the harness lying rather than finding anything.
 DEFS = ['WIN32', 'NDEBUG' if RELEASE else '_DEBUG',
         '_CRT_SECURE_NO_WARNINGS', '_CRT_NONSTDC_NO_DEPRECATE',
-        'DIRECTINPUT_VERSION=0x0700', 'CINTERFACE', '__STDC__=1',
+        'DIRECTINPUT_VERSION=0x0800', '__STDC__=1',
         # an MSVC intrinsic, and the release half of Debug.h is built on it
         '__noop(...)=((void)0)']
 
@@ -35,6 +40,13 @@ SKIP = re.compile(r'^(DX9|GameData|Docs|tools)/')
 # includes them but nothing uses them, so an empty stub is enough for GCC.
 STUBS = ['concurrent_queue.h', 'concurrent_unordered_map.h', 'mdspan',
          'restrictederrorinfo.h', 'stacktrace']
+
+# Headers the tree really uses that mingw-w64 does not ship, so an empty stub
+# will not do. These are hand-written declarations, checked in under
+# tools/stubs and copied over the generated ones. They are a transcription of
+# somebody else's API: they catch mistakes in our use of it, not mistakes in
+# themselves. Each says so at the top.
+STUBDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'stubs')
 
 
 def sources():
@@ -72,6 +84,11 @@ def build_shadow(dst):
         if name.lower() != name and name.lower() not in known:
             open(os.path.join(stubdir, name), 'w').write(
                 f'#pragma once\n#include <{name.lower()}>\n')
+
+    # Written last so a real stub wins over anything generated above.
+    if os.path.isdir(STUBDIR):
+        for f in sorted(os.listdir(STUBDIR)):
+            shutil.copy2(os.path.join(STUBDIR, f), os.path.join(stubdir, f))
 
     for proj in ('NeuronCore', 'Outpost'):
         d = os.path.join(dst, proj)

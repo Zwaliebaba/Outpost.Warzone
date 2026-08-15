@@ -100,7 +100,6 @@ BOOL SendDestroyFeature(FEATURE* pF); // send a destruct feature message.
 BOOL recvDestroyFeature(NETMSG* m); // process a destroy feature msg.
 BOOL sendDestroyExtra(BASE_OBJECT* psKilled, BASE_OBJECT* psKiller);
 BOOL recvDestroyExtra(NETMSG* pMsg);
-BOOL recvAudioMsg(NETMSG* pMsg);
 
 BOOL recvMapFileRequested(NETMSG* pMsg);
 UBYTE sendMap(void);
@@ -242,10 +241,6 @@ BOOL multiPlayerLoop(VOID)
       setWidgetsStatus(TRUE);
     }
   }
-
-  // process network audio
-  if (game.bytesPerSec == IPXBYTESPERSEC)
-    NETprocessAudioCapture(); // manage the capture buffer
 
   recvMessage(); // get queued messages
 
@@ -589,10 +584,6 @@ BOOL recvMessage(VOID)
     {
       switch (msg.type)
       {
-      case AUDIOMSG:
-        recvAudioMsg(&msg);
-        break;
-
       case NET_DROID: // new droid of known type
         recvDroid(&msg);
         break;
@@ -1278,14 +1269,6 @@ BOOL recvDestroyExtra(NETMSG* pMsg)
     }
   }
   return FALSE;
-}
-
-// ////////////////////////////////////////////////////////////////////////////
-// Network Audio packet processor.
-BOOL recvAudioMsg(NETMSG* pMsg)
-{
-  NETplayIncomingAudio(pMsg);
-  return TRUE;
 }
 
 // ////////////////////////////////////////////////////////////////////////////

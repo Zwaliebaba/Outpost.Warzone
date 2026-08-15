@@ -265,12 +265,6 @@
     <ClInclude Include="Audio.h">
       <Filter>Sound</Filter>
     </ClInclude>
-    <ClInclude Include="Mixer.h">
-      <Filter>Sound</Filter>
-    </ClInclude>
-    <ClInclude Include="QMIXER.H">
-      <Filter>Sound</Filter>
-    </ClInclude>
     <ClInclude Include="Track.h">
       <Filter>Sound</Filter>
     </ClInclude>
@@ -360,6 +354,9 @@
     <ClCompile Include="Track.cpp">
       <Filter>Sound</Filter>
     </ClCompile>
+    <ClCompile Include="XA2Track.cpp">
+      <Filter>Sound</Filter>
+    </ClCompile>
     <ClCompile Include="Sequence.cpp">
       <Filter>Sequence</Filter>
     </ClCompile>
@@ -384,9 +381,6 @@
     <ClCompile Include="Script_y.cpp">
       <Filter>Script</Filter>
     </ClCompile>
-    <ClCompile Include="NetAudio.cpp">
-      <Filter>NetPlay</Filter>
-    </ClCompile>
     <ClCompile Include="NetCrypt.cpp">
       <Filter>NetPlay</Filter>
     </ClCompile>
@@ -407,9 +401,6 @@
     </ClCompile>
     <ClCompile Include="NetUsers.cpp">
       <Filter>NetPlay</Filter>
-    </ClCompile>
-    <ClCompile Include="Mixer.cpp">
-      <Filter>Sound</Filter>
     </ClCompile>
     <ClCompile Include="parser_l.cpp">
       <Filter>Gamelib</Filter>
@@ -510,9 +501,6 @@
     </ClCompile>
     <ClCompile Include="PQueue.cpp">
       <Filter>Gamelib</Filter>
-    </ClCompile>
-    <ClCompile Include="QSTrack.cpp">
-      <Filter>Sound</Filter>
     </ClCompile>
     <ClCompile Include="Screen.cpp">
       <Filter>Framework</Filter>

@@ -80,10 +80,6 @@ BOOL NETinit(GUID g, BOOL bFirstCall)
     NetPlay.bEncryptAllPackets = FALSE;
     NETsetKey(0x2fe8f810, 0xb72a5, 0x114d0, 0x2a7); // j-random key to get us started
 
-    NetPlay.bAllowCaptureRecord = FALSE;
-    NetPlay.bAllowCapturePlay = FALSE;
-    NetPlay.bCaptureInUse = FALSE;
-
     for (i = 0; i < MaxNumberOfPlayers; i++)
     {
       ZeroMemory(&NetPlay.protocols[i], sizeof(PROTO));
@@ -242,7 +238,7 @@ BOOL NETsend(NETMSG* msg, DPID player, BOOL guarantee)
   if (msg->size > MaxMsgSize)
     Neuron::Fatal("NETPLAY: Message too large passed to NETsend");
 
-  if (NetPlay.bEncryptAllPackets && (msg->type != AUDIOMSG) && (msg->type != FILEMSG)) // optionally encrypt all packets.
+  if (NetPlay.bEncryptAllPackets && (msg->type != FILEMSG)) // optionally encrypt all packets.
     NETmanglePacket(msg);
 
   // send it.			
@@ -279,7 +275,7 @@ BOOL NETbcast(NETMSG* msg, BOOL guarantee)
   if (msg->size > MaxMsgSize)
     Neuron::Fatal("NETPLAY: Message Too large passed to NETbcast");
 
-  if (NetPlay.bEncryptAllPackets && (msg->type != AUDIOMSG) && (msg->type != FILEMSG)) // optionally encrypt all packets.
+  if (NetPlay.bEncryptAllPackets && (msg->type != FILEMSG)) // optionally encrypt all packets.
     NETmanglePacket(msg);
 
   // send it.			
@@ -338,7 +334,7 @@ BOOL NETrecv(NETMSG* pMsg)
     return FALSE; // return false since it could be important not to keep going..
   }
 
-  if ((pMsg->type >= ENCRYPTFLAG) && (pMsg->type != AUDIOMSG) && (pMsg->type != FILEMSG)) // decrypt if required..
+  if ((pMsg->type >= ENCRYPTFLAG) && (pMsg->type != FILEMSG)) // decrypt if required..
     NETunmanglePacket(pMsg);
   NETlogEntry("recv", pMsg->type, pMsg->size);
 

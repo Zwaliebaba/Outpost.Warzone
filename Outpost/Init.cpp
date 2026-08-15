@@ -75,8 +75,7 @@
 #include "FormationDef.h"
 #include "Formation.h"
 
-#include "CDAudio.h"
-#include "Mixer.h"
+#include "Music.h"
 #include "AdvVis.h"
 
 #include "Mission.h"
@@ -750,11 +749,6 @@ BOOL systemInitialise(void)
 #endif
     Neuron::Fatal("Couldn't initialise audio system: continuing without audio\n");
 
-#if !defined(I_LIKE_LISTENING_TO_CDS)
-  cdAudio_Open();
-  mixer_Open();
-#endif
-
   if (!bDisableLobby && !multiInitialise()) // ajl. Init net stuff
     return FALSE;
 
@@ -802,12 +796,6 @@ BOOL systemShutdown(void)
 
   if (audio_Disabled() == FALSE && !audio_Shutdown())
     return FALSE;
-
-#if !defined(I_LIKE_LISTENING_TO_CDS)
-  cdAudio_Stop();
-  cdAudio_Close();
-  mixer_Close();
-#endif
 
   delete[] DisplayBuffer;
   DisplayBuffer = nullptr;
@@ -926,7 +914,7 @@ BOOL frontendInitialise(char* ResourceFile)
   gameTimeInit();
 
   // hit me with some funky beats....
-  cdAudio_PlayTrack(2); // track 2 = f.e. music,
+  music_PlayTrack(2); // track 2 = f.e. music,
 
   return TRUE;
 }
@@ -1227,9 +1215,7 @@ BOOL stageTwoShutDown(void)
 {
   Neuron::DebugTrace("stageTwoShutDown\n");
 
-#if !defined(I_LIKE_LISTENING_TO_CDS)
-  cdAudio_Stop();
-#endif
+  music_Stop();
 
   /* in stageThreeSgutDown now
   if (!missionShutDown())
@@ -1457,9 +1443,7 @@ BOOL saveGameReset(void)
 {
   Neuron::DebugTrace("saveGameReset\n");
 
-#if !defined(I_LIKE_LISTENING_TO_CDS)
-  cdAudio_Stop();
-#endif
+  music_Stop();
 
   /* in stageThreeSgutDown now
   if (!missionShutDown())

@@ -10,10 +10,10 @@
 #include <dinput.h>
 
 // The direct input object
-extern LPDIRECTINPUT psDI;
+extern LPDIRECTINPUT8 psDI;
 
 // The direct input mouse object
-extern LPDIRECTINPUTDEVICE psDIMouse;
+extern LPDIRECTINPUTDEVICE8 psDIMouse;
 
 // Initialise the Direct X Input system
 extern BOOL DInpInitialise(void);

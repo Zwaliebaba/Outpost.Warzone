@@ -5,10 +5,10 @@
 #include "DXInput.h"
 
 // The direct input object
-LPDIRECTINPUT psDI = nullptr;
+LPDIRECTINPUT8 psDI = nullptr;
 
 // The direct input mouse object
-LPDIRECTINPUTDEVICE psDIMouse = nullptr;
+LPDIRECTINPUTDEVICE8 psDIMouse = nullptr;
 
 // Whether the mouse has been aquired
 static BOOL DIMouseAcquired = FALSE;
@@ -24,7 +24,12 @@ BOOL DInpInitialise(void)
 {
   HRESULT hr;
 
-  hr = DirectInputCreate(hInstance, DIRECTINPUT_VERSION, &psDI, nullptr);
+  /* DirectInput 8 asks for the interface by IID rather than handing back a
+   * versioned object, and dinput8.lib does not export DirectInputCreate at
+   * all. CreateDevice below returns an IDirectInputDevice8 directly, so
+   * nothing has to be queried for afterwards.
+   */
+  hr = DirectInput8Create(hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&psDI, nullptr);
   if (FAILED(hr))
   {
     Neuron::Fatal("DXInpInitialise: couldn't create DI object");

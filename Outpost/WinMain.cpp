@@ -36,7 +36,6 @@
 #include "TexMan.h"
 #include "Game.h"
 #include "Lighting.h"
-#include "Mixer.h"
 #include "WDG.h"
 #include "MultiWDG.h"
 
@@ -293,8 +292,6 @@ init: //jump here from the end if re_initialising
       case FRAME_KILLFOCUS:
         paused = TRUE;
         gameTimeStop();
-        mixer_SaveIngameVols();
-        mixer_RestoreWinVols();
         audio_StopAll();
         break;
       case FRAME_SETFOCUS:
@@ -307,8 +304,6 @@ init: //jump here from the end if re_initialising
         }
         if (pie_GetRenderEngine() == ENGINE_D3D)
           dtm_RestoreTextures();
-        mixer_SaveWinVols();
-        mixer_RestoreIngameVols();
         break;
       case FRAME_QUIT:
         quit = TRUE;

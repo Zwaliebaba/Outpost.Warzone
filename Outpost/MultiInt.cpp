@@ -2196,10 +2196,6 @@ void frontendMultiMessages(void)
   {
     switch (msg.type)
     {
-    case AUDIOMSG:
-      recvAudioMsg(&msg);
-      break;
-
     case NET_REQUESTMAP:
       recvMapFileRequested(&msg);
       break;
@@ -2341,18 +2337,6 @@ void runMultiOptions(VOID)
 
       addPlayerBox(TRUE); // update the player box.
     }
-  }
-
-  // NET AUDIO CAPTURE
-  if (ingame.localJoiningInProgress && game.bytesPerSec == IPXBYTESPERSEC)
-  {
-    if (keyPressed(KEY_KP_FULLSTOP) // start capture
-      && !NetPlay.bCaptureInUse) // noone else talking.
-      NETstartAudioCapture();
-
-    if (keyReleased(KEY_KP_FULLSTOP)) // stop capture
-      NETstopAudioCapture();
-    NETprocessAudioCapture(); // manage the capture buffer
   }
 
   // update scores and pings if far enough into the game
