@@ -64,10 +64,10 @@
 #include "Wrappers.h"
 #include "PowerCrypt.h"
 #include "MultiJoin.h"                     // intDisplayMultiJoiningStatus
+#include "RenderModel.h"                   // pie_GetResetCounts, called in Release too
 
 #ifdef DEBUG
 #include "ObjMem.h"
-#include "RenderModel.h"
 #endif
 
 #define MISSION_COMPLETE_DELAY	4000
