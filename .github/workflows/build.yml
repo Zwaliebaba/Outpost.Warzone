@@ -25,6 +25,17 @@ jobs:
       - name: Check filename casing
         run: python tools/check_case.py
 
+      # MsQuic arrives as a NuGet package. These are packages.config projects,
+      # not PackageReference, so this is `nuget install` per project rather
+      # than msbuild -t:restore -- and it is done per project rather than for
+      # the solution because CI builds the vcxproj directly and Outpost.slnx
+      # is the new solution format, which the NuGet CLI does not read.
+      # -OutputDirectory must match the ..\packages\ the vcxproj imports.
+      - name: Restore NuGet packages
+        run: |
+          nuget install NeuronCore\packages.config -OutputDirectory packages -NonInteractive
+          nuget install Outpost\packages.config -OutputDirectory packages -NonInteractive
+
       # /flp contains a semicolon, which PowerShell reads as a statement
       # separator unless the whole switch is quoted. Building serially: with
       # /m the failing project's diagnostics can be interleaved away.

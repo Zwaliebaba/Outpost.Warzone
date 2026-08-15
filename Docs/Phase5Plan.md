@@ -233,6 +233,15 @@ they were checked first:
 - **The certificate escape hatch exists.** `QUIC_CREDENTIAL_FLAG_NO_CERTIFICATE_VALIDATION`
   is a documented flag, not a workaround.
 
+One gap between mingw-w64 and the real headers turned out to matter to the
+real build too, and is recorded here because it is the kind of thing that would
+otherwise be rediscovered painfully. `msquic_winuser.h` writes `#if DEBUG` to
+pick the debug layout of `QUIC_SQE`. `Debug.h` — reached from `pch.h` long
+before any of this — defines `DEBUG` with no value, which makes that `#if` with
+no expression: a preprocessor error, on MSVC as much as on GCC. `NetQuic.cpp`
+pushes and undefines the macro around the include, which is also the correct
+value, since the `msquic.dll` the package ships is a release build.
+
 Two things remain unverified until CI runs. Whether the `windows-latest` runner
 is new enough for Schannel TLS 1.3 — it should be Server 2022 or later, and if
 it is not, the loopback harness fails loudly at connection open, which is the

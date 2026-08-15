@@ -396,6 +396,9 @@
     <ClCompile Include="NetPlay.cpp">
       <Filter>NetPlay</Filter>
     </ClCompile>
+    <ClCompile Include="NetQuic.cpp">
+      <Filter>NetPlay</Filter>
+    </ClCompile>
     <ClCompile Include="NetProv.cpp">
       <Filter>NetPlay</Filter>
     </ClCompile>
