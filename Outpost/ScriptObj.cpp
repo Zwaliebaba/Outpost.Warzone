@@ -801,7 +801,7 @@ BOOL scrValDefLoad(SDWORD version, INTERP_TYPE type, UBYTE* pBuffer, UDWORD size
         break;
       }
       // set track vals
-      audio_SetTrackValsHashName(*((UDWORD*)pBuffer), FALSE, index, 100, 1, 1800, 0);
+      audio_SetTrackValsHashName(*((UDWORD*)pBuffer), FALSE, index, 100, 1, 1800);
     }
     *pData = static_cast<UDWORD>(index);
     break;

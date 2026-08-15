@@ -722,9 +722,9 @@ BOOL systemInitialise(void)
   }
 
 #ifdef AUDIO_DISABLED
-  if (!audio_Init(frameGetWinHandle(), FALSE, droidAudioTrackStopped)) // audio.
+  if (!audio_Init(FALSE, droidAudioTrackStopped)) // audio.
 #else
-  if (!audio_Init(frameGetWinHandle(), TRUE, droidAudioTrackStopped))
+  if (!audio_Init(TRUE, droidAudioTrackStopped))
 #endif
     Neuron::Fatal("Couldn't initialise audio system: continuing without audio\n");
 

@@ -1351,7 +1351,7 @@ yyEncore:
 
         compIndex = audio_GetTrackID(yypvt[0].sInit.pString);
         if (compIndex == SAMPLE_NOT_FOUND)
-          audio_SetTrackVals(yypvt[0].sInit.pString, FALSE, &compIndex, 100, 1, 1800, 0);
+          audio_SetTrackVals(yypvt[0].sInit.pString, FALSE, &compIndex, 100, 1, 1800);
 
         if (!eventSetContextVar(psCurrContext, yypvt[-2].vindex, yypvt[-1].tval, static_cast<UDWORD>(compIndex)))
         {

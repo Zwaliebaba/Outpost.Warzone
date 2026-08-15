@@ -18,10 +18,6 @@ static TRACK** g_apTrack;
 /* number of tracks loaded */
 static SDWORD g_iCurTracks = 0;
 
-static SDWORD g_iSamples = 0;
-static SDWORD g_iMaxSamples;
-static SDWORD g_iMaxSameSamples;
-
 /* flag set when system is active (for callbacks etc) */
 static BOOL g_bSystemActive = FALSE;
 
@@ -29,12 +25,9 @@ static AUDIO_CALLBACK g_pStopTrackCallback = nullptr;
 
 /***************************************************************************/
 
-BOOL sound_Init(HWND hWnd, SDWORD iMaxSameSamples)
+BOOL sound_Init()
 {
   SDWORD i;
-
-  hWnd;
-  g_iMaxSameSamples = iMaxSameSamples;
 
   g_iCurTracks = 0;
 
@@ -75,13 +68,8 @@ BOOL sound_Shutdown()
 BOOL sound_GetSystemActive(void) { return g_bSystemActive; }
 
 /***************************************************************************/
-/*
- * Vag ID is just used on PSX
- * szFileName just used on PC
- */
-/***************************************************************************/
 
-BOOL sound_SetTrackVals(TRACK* psTrack, BOOL bLoop, SDWORD iTrack, SDWORD iVol, SDWORD iPriority, SDWORD iAudibleRadius, SDWORD VagID)
+BOOL sound_SetTrackVals(TRACK* psTrack, BOOL bLoop, SDWORD iTrack, SDWORD iVol, SDWORD iPriority, SDWORD iAudibleRadius)
 {
   DEBUG_ASSERT_TEXT(iPriority>=LOW_PRIORITY && iPriority<=HIGH_PRIORITY, "sound_CreateTrack: priority {} out of bounds\n", iPriority);
 
@@ -100,9 +88,6 @@ BOOL sound_SetTrackVals(TRACK* psTrack, BOOL bLoop, SDWORD iTrack, SDWORD iVol, 
     psTrack->iPriority = iPriority;
     psTrack->iAudibleRadius = iAudibleRadius;
     psTrack->iTimeLastFinished = 0;
-    psTrack->iNumPlaying = 0;
-
-    VagID;
 
     /* set global */
     g_apTrack[iTrack] = psTrack;
@@ -130,7 +115,6 @@ void* sound_LoadTrackFromBuffer(UBYTE* pBuffer, UDWORD udwSize)
     Neuron::Fatal("sound_LoadTrackFromBuffer: couldn't allocate memory\n");
     return nullptr;
   }
-  pTrack->bMemBuffer = TRUE;
   pTrack->pName = new (std::nothrow) STRING[strlen(GetLastResourceFilename()) + 1];
   if (pTrack->pName == nullptr)
   {
@@ -202,15 +186,6 @@ SDWORD sound_TrackAudibleRadius(SDWORD iTrack)
 
 /***************************************************************************/
 
-SDWORD sound_GetNumPlaying(SDWORD iTrack)
-{
-  sound_CheckTrack(iTrack);
-
-  return g_apTrack[iTrack]->iNumPlaying;
-}
-
-/***************************************************************************/
-
 void sound_CheckSample(AUDIO_SAMPLE* psSample)
 {
   DEBUG_ASSERT_TEXT(psSample->iSample >=0 ||
@@ -240,24 +215,6 @@ BOOL sound_CheckTrack(SDWORD iTrack)
 
 /***************************************************************************/
 
-SDWORD sound_GetTrackTime(SDWORD iTrack)
-{
-  sound_CheckTrack(iTrack);
-
-  return g_apTrack[iTrack]->iTime;
-}
-
-/***************************************************************************/
-
-SDWORD sound_GetTrackPriority(SDWORD iTrack)
-{
-  sound_CheckTrack(iTrack);
-
-  return g_apTrack[iTrack]->iPriority;
-}
-
-/***************************************************************************/
-
 SDWORD sound_GetTrackVolume(SDWORD iTrack)
 {
   sound_CheckTrack(iTrack);
@@ -276,17 +233,9 @@ SDWORD sound_GetTrackAudibleRadius(SDWORD iTrack)
 
 /***************************************************************************/
 
-char* sound_GetTrackName(SDWORD iTrack)
-{
-  DEBUG_ASSERT_TEXT(g_apTrack[iTrack] != NULL, "sound_GetTrackName: unallocated track");
-  return g_apTrack[iTrack]->pName;
-}
-
-/***************************************************************************/
-
 UDWORD sound_GetTrackHashName(SDWORD iTrack)
 {
-  DEBUG_ASSERT_TEXT(g_apTrack[iTrack] != NULL, "sound_GetTrackName: unallocated track");
+  DEBUG_ASSERT_TEXT(g_apTrack[iTrack] != NULL, "sound_GetTrackHashName: unallocated track");
   return g_apTrack[iTrack]->resID;
 }
 
@@ -336,9 +285,6 @@ void sound_StopTrack(AUDIO_SAMPLE* psSample)
   /* do stopped callback */
   if (g_pStopTrackCallback != nullptr && psSample->psObj != nullptr)
     (g_pStopTrackCallback)(psSample);
-
-  /* update number of samples playing */
-  g_iSamples--;
 }
 
 /***************************************************************************/

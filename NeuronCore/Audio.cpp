@@ -14,8 +14,6 @@
 
 #define	MAX_SAME_SAMPLES		2
 
-#define	AUDIO_QUEUE_SIZE		30
-
 #define	LOWERED_VOL				AUDIO_VOL_MAX/4
 
 /***************************************************************************/
@@ -54,7 +52,7 @@ BOOL audio_Disabled(void) { return !g_bAudioEnabled; }
 
 /***************************************************************************/
 
-BOOL audio_Init(HWND hWnd, BOOL bEnabled, AUDIO_CALLBACK pStopTrackCallback)
+BOOL audio_Init(BOOL bEnabled, AUDIO_CALLBACK pStopTrackCallback)
 {
   /* if audio not enabled return TRUE to carry on game without audio */
   if (bEnabled == FALSE)
@@ -64,7 +62,7 @@ BOOL audio_Init(HWND hWnd, BOOL bEnabled, AUDIO_CALLBACK pStopTrackCallback)
   }
 
   /* init audio system */
-  g_bAudioEnabled = sound_Init(hWnd, MAX_SAME_SAMPLES);
+  g_bAudioEnabled = sound_Init();
 
   if (g_bAudioEnabled == TRUE)
   {
@@ -124,14 +122,6 @@ BOOL audio_Shutdown()
 
 /***************************************************************************/
 
-void audio_PlayPreviousQueueTrack(void)
-{
-  if (g_sPreviousSample.iTrack != NO_SAMPLE)
-    audio_PlayTrack(g_sPreviousSample.iTrack);
-}
-
-/***************************************************************************/
-
 BOOL audio_GetPreviousQueueTrackPos(SDWORD* iX, SDWORD* iY, SDWORD* iZ)
 {
   if (g_sPreviousSample.x != SAMPLE_COORD_INVALID && g_sPreviousSample.y != SAMPLE_COORD_INVALID && g_sPreviousSample.z !=
@@ -142,7 +132,9 @@ BOOL audio_GetPreviousQueueTrackPos(SDWORD* iX, SDWORD* iY, SDWORD* iZ)
     *iZ = g_sPreviousSample.z;
     return TRUE;
   }
-  *iX = *iY = *iZ;
+
+  /* this used to read the caller's uninitialised *iZ into the other two */
+  *iX = *iY = *iZ = 0;
   return FALSE;
 }
 
@@ -253,9 +245,6 @@ static BOOL audio_CheckSameQueueTracksPlaying(SDWORD iTrack)
 AUDIO_SAMPLE* audio_QueueSample(SDWORD iTrack)
 {
   AUDIO_SAMPLE* psSample = nullptr;
-  SDWORD iSameSamples = 0;
-
-  printf("audio_queuesample called - track=%d\n", iTrack);
 
   /* return if audio not enabled */
   if (g_bAudioEnabled == FALSE || g_bAudioPaused == TRUE || g_bStopAll == TRUE)
@@ -267,7 +256,6 @@ AUDIO_SAMPLE* audio_QueueSample(SDWORD iTrack)
   if (audio_CheckSameQueueTracksPlaying(iTrack) == FALSE)
     return nullptr;
 
-  printf("audio_queuetrack called1\n");
   psSample = new (std::nothrow) AUDIO_SAMPLE;
 
   if (psSample != nullptr)
@@ -514,7 +502,7 @@ void* audio_LoadTrackFromBuffer(UBYTE* pBuffer, UDWORD udwSize)
 //
 //  
 //
-BOOL audio_SetTrackVals(char szFileName[], BOOL bLoop, int* piID, int iVol, int iPriority, int iAudibleRadius, int VagID)
+BOOL audio_SetTrackVals(char szFileName[], BOOL bLoop, int* piID, int iVol, int iPriority, int iAudibleRadius)
 {
   TRACK* psTrack;
 
@@ -539,12 +527,12 @@ BOOL audio_SetTrackVals(char szFileName[], BOOL bLoop, int* piID, int iVol, int 
     Neuron::DebugTrace("audio_SetTrackVals: couldn't get spare track ID\n");
     return FALSE;
   }
-  return sound_SetTrackVals(psTrack, bLoop, *piID, iVol, iPriority, iAudibleRadius, VagID);
+  return sound_SetTrackVals(psTrack, bLoop, *piID, iVol, iPriority, iAudibleRadius);
 }
 
 /***************************************************************************/
 
-BOOL audio_SetTrackValsHashName(UDWORD hash, BOOL bLoop, int iTrack, int iVol, int iPriority, int iAudibleRadius, int VagID)
+BOOL audio_SetTrackValsHashName(UDWORD hash, BOOL bLoop, int iTrack, int iVol, int iPriority, int iAudibleRadius)
 {
   TRACK* psTrack;
 
@@ -557,7 +545,7 @@ BOOL audio_SetTrackValsHashName(UDWORD hash, BOOL bLoop, int iTrack, int iVol, i
 
   if (psTrack == nullptr)
     return FALSE;
-  return sound_SetTrackVals(psTrack, bLoop, iTrack, iVol, iPriority, iAudibleRadius, VagID);
+  return sound_SetTrackVals(psTrack, bLoop, iTrack, iVol, iPriority, iAudibleRadius);
 }
 
 /***************************************************************************/
@@ -960,20 +948,6 @@ SDWORD audio_Get3DVolume(void) { return g_i3DVolume; }
 /***************************************************************************/
 
 void audio_Set3DVolume(SDWORD iVol) { g_i3DVolume = iVol; }
-
-/***************************************************************************/
-/*
- * audio_GetMixVol
- *
- * iVol and audio_Get3DVolume need to be scaled by AUDIO_VOL_RANGE
- */
-/***************************************************************************/
-
-SDWORD audio_GetMixVol(SDWORD iVol)
-{
-  SDWORD iMixVol = (iVol * sound_GetMaxVolume() * audio_Get3DVolume()) / (AUDIO_VOL_RANGE * AUDIO_VOL_RANGE);
-  return iMixVol;
-}
 
 /***************************************************************************/
 /*
