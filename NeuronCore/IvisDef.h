@@ -22,14 +22,9 @@
  */
 /***************************************************************************/
 #define BSPIMD	// now defined for all versions (optional BSP handled on all formats)
-#define iV_DDX
 
-#define iV_SCANTABLE_MAX	1024
 
 // texture animation defines
-#define iV_IMD_ANIM_LOOP	0
-#define iV_IMD_ANIM_RUN		1
-#define iV_IMD_ANIM_FRAMES	8
 
 /***************************************************************************/
 /*
@@ -79,12 +74,6 @@ using iSurface = struct iSurface
 // texture animation structures
 //
 //*************************************************************************
-using iTexAnimFrame = struct
-{
-  int npoints;
-  iPoint frame[iV_IMD_ANIM_FRAMES];
-};
-
 using iTexAnim = struct
 {
   int nFrames;

@@ -9,15 +9,7 @@
 
 #include "PieDef.h"
 
-#define iV_SWAP(a,b)			{ (a) ^= (b); (b) ^= (a); (a) ^= (b); }
-
-#ifdef iV_DDX
-#define iV_DDX_ERROR		0x1000000
-#endif
-
 #define iV_DIVSHIFT			15
-#define iV_DIVMULTP			(1<<iV_DIVSHIFT)
-#define iV_DIVMULTP_2		(1<<(iV_DIVSHIFT-1))
 
 // Simple derived types
 using iPointer = union
@@ -37,23 +29,6 @@ using iPointer = union
 //* Macros:
 //*
 
-#define iV_ASHIFT	  			4
-#define iV_SSHIFT	  			7
-#define iV_RSHIFT	  	 		12
-#define iV_RMULTP				(1L<<iV_RSHIFT)
-#define iV_MSHIFT		 		10
-#define iV_MMULTP				(1L<<iV_MSHIFT);
-
-#define iV_DIVTABLE_MAX		1024
-
-#define  iV_POLY_FLAT (1)		// added by TJC
-#define  iV_POLY_TEXT (2)
-#define  iV_POLY_TEXT0 (3)
-#define  iV_POLY_GOUR (4)
-
-#ifdef iV_DDX
-#define iV_DDX_ERROR		0x1000000
-#endif
 
 /***************************************************************************/
 /*

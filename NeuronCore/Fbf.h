@@ -8,11 +8,8 @@
 #define iV_FBF_TOOMANYOPEN		-2
 #define iV_FBF_OUTOFMEMORY		-3
 #define iV_FBF_UNKNOWNMODE		-4
-#define iV_FBF_OK					0
 #define iV_FBF_MODE_R			0
 #define iV_FBF_MODE_W			1
-#define iV_FBF_MODE_WR			2
-#define iV_FBF_MODE_CR			3
 #define iV_FBF_SEEK_SET			SEEK_SET
 #define iV_FBF_SEEK_END			SEEK_END
 #define iV_FBF_DEFAULT_BUFFER	-1

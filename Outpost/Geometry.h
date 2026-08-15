@@ -7,7 +7,6 @@
 #define AMPLITUDE_HEIGHT	100
 #define	pi 3.141592657
 #define deg pi/SIZE_SINE_TABLE
-#define RESTRICT_iV_ANGLE(x)		((x) & (iV_RMULTP - 1))
 
 using TRI = struct _t_tri
 {
