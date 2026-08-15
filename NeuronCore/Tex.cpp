@@ -307,6 +307,11 @@ void pie_TexShutDown(void)
   Neuron::DebugTrace("pie_TexShutDown successful - freed {} texture pages\n",j);
 }
 
+/* The number of texture pages loaded so far. Texture.cpp asks for this to
+ * work out where the level's own pages start.
+ */
+UDWORD pie_GetLastPageDownloaded(void) { return _TEX_INDEX; }
+
 void pie_TexInit(void)
 {
   int i;

@@ -13,7 +13,6 @@
 #include <string.h>
 #include "PieDef.h"
 #include "PieState.h"
-#include "PieTexture.h"
 #include "PieClip.h"
 #include "PiePalette.h"
 #include "PieMatrix.h"

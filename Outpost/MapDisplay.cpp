@@ -18,7 +18,6 @@
 #include "PieDef.h"
 #include "PieState.h"
 #include "PieMode.h"
-#include "PieTexture.h"
 #include "PieMatrix.h"
 #include "RendMode.h"
 

@@ -584,7 +584,6 @@ using RENDER_STATE = struct _renderState
   BOOL fog;
   UDWORD fogColour;
   TEX_CAP texCap;
-  SDWORD texPage;
   REND_MODE rendMode;
   BOOL bilinearOn;
   BOOL keyingOn;
@@ -838,14 +837,10 @@ UDWORD pie_GetFogColour(void) { return rendStates.fogColour; }
 void pie_SetTexturePage(SDWORD num)
 {
 #ifndef PIETOOL
-  if (num != rendStates.texPage)
-  {
-    rendStates.texPage = num;
-    if (num < 0)
-      dtm_SetTexturePage(-1);
-    else
-      dtm_SetTexturePage(num);
-  }
+  /* dtm_SetTexturePage keeps the record of what is bound, and is the one that
+   * has to be right after a device reset. Caching the page here as well meant
+   * two records of the same fact, and this one was never reset. */
+  dtm_SetTexturePage(num < 0 ? -1 : num);
 #endif
 }
 

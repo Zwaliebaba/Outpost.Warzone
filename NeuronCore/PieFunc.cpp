@@ -16,7 +16,6 @@
 #include "PieState.h"
 #include "GTime.h"
 #include "PieMatrix.h"
-#include "PieTexture.h"
 #include "PieClip.h"
 
 #include "D3DRender.h"

@@ -149,7 +149,6 @@
     <ClInclude Include="PieMode.h" />
     <ClInclude Include="PiePalette.h" />
     <ClInclude Include="PieState.h" />
-    <ClInclude Include="PieTexture.h" />
     <ClInclude Include="PieTypes.h" />
     <ClInclude Include="PQueue.h" />
     <ClInclude Include="Priority.h" />
@@ -236,7 +235,6 @@
     <ClCompile Include="PieMatrix.cpp" />
     <ClCompile Include="PieMode.cpp" />
     <ClCompile Include="PiePalette.cpp" />
-    <ClCompile Include="PieTexture.cpp" />
     <ClCompile Include="PQueue.cpp" />
     <ClCompile Include="PtrList.cpp" />
     <ClCompile Include="RendFunc.cpp" />

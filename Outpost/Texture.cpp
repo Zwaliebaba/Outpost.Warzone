@@ -6,7 +6,6 @@
 #include "PieTypes.h"
 #include "PieState.h"
 #include "TexMan.h"
-#include "PieTexture.h"
 #include "PiePalette.h"
 #include "Display3Ddef.h"
 #include "Texture.h"
