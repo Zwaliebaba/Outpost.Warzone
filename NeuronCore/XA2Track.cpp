@@ -368,6 +368,23 @@ static BOOL xa2_SlotIsClear(SDWORD iSlot)
 
 /***************************************************************************/
 
+/* Drops a completion the audio thread raised but sound_Update has not drained
+ * yet. Without this, stealing a slot from a sound that has just ended would
+ * hand its pending completion to whatever starts on the slot next, and stop
+ * that instead.
+ */
+static void xa2_ClearFinished(SDWORD iSlot)
+{
+  if (g_bFinishedInit == FALSE)
+    return;
+
+  EnterCriticalSection(&g_csFinished);
+  g_udwFinishedMask &= ~(1u << iSlot);
+  LeaveCriticalSection(&g_csFinished);
+}
+
+/***************************************************************************/
+
 /* Waits for a flushed voice to let go of the buffer it was given. XAudio2
  * removes buffers on its own thread, so a flush is not the moment the memory
  * stops being read -- and sound_FreeTrack is about to give it back.
@@ -399,6 +416,8 @@ static void xa2_ReleaseSlot(SDWORD iSlot, BOOL bNotify)
     psSlot->pVoice->Stop(0, XAUDIO2_COMMIT_NOW);
     psSlot->pVoice->FlushSourceBuffers();
   }
+
+  xa2_ClearFinished(iSlot);
 
   for (i = 0; i < iPending; i++)
     aPending[i] = psSlot->aPending[i];
@@ -456,6 +475,11 @@ static BOOL xa2_StartSlot(SDWORD iSlot, TRACK* psTrack, AUDIO_SAMPLE* psSample, 
   sBuffer.AudioBytes = psData->udwBytes;
   sBuffer.pAudioData = psData->pSamples;
   sBuffer.LoopCount = bLoop == TRUE ? XAUDIO2_LOOP_INFINITE : 0;
+
+  /* the slot is clear, so the last sound's completion has already been
+   * raised; anything after this belongs to the one being started
+   */
+  xa2_ClearFinished(iSlot);
 
   if (FAILED(psSlot->pVoice->SubmitSourceBuffer(&sBuffer, nullptr)))
     return FALSE;
@@ -589,8 +613,10 @@ static SDWORD xa2_AcquirePoolSlot(void)
 
   xa2_ReleaseSlot(iFurthest, TRUE);
 
-  /* a flushed voice is not clear until its buffer has drained */
-  if (xa2_SlotIsClear(iFurthest) == FALSE)
+  /* Releasing runs the stopped sound's callback, which can start another --
+   * and a flushed voice is not clear until its buffer has drained either.
+   */
+  if (g_aSlots[iFurthest].bBusy == TRUE || xa2_SlotIsClear(iFurthest) == FALSE)
     return -1;
 
   return iFurthest;
@@ -921,7 +947,7 @@ BOOL sound_ReadTrackFromBuffer(TRACK* psTrack, void* pBuffer, UDWORD udwSize)
   psData->udwRate = udwRate;
 
   /* duration in milliseconds, which sound_GetTrackTime hands out */
-  psTrack->iTime = static_cast<SDWORD>(udwBytes / sizeof(SWORD) * 1000 / udwRate) + 1;
+  psTrack->iTime = static_cast<SDWORD>(static_cast<unsigned long long>(udwBytes) / sizeof(SWORD) * 1000 / udwRate) + 1;
   psTrack->pMem = psData;
 
   return TRUE;

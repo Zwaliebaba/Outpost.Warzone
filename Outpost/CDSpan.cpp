@@ -161,6 +161,12 @@ void cdspan_PlayInGameAudio(STRING szFileName[], SDWORD iVol)
 {
   STRING szStream[MAX_STR];
 
+  /* kept: this cleared the effects before the background audio started, and
+   * still does. It no longer stops the music, which audio_PlayMusic replaces
+   * by itself.
+   */
+  audio_StopAll();
+
   wsprintf(szStream, "audio\\%s", szFileName);
 
   audio_PlayMusic(szStream, iVol, FALSE);
