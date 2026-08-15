@@ -32,7 +32,7 @@
 #include "LoadSave.h"
 #include "Script.h"
 #include "ScriptTabs.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "AudioID.h"
 #include "CmdDroid.h"
 #include "WarCAM.h"
@@ -313,7 +313,7 @@ BOOL missionShutDown(void)
   if (missionIsOffworld()) //mission.type == LDS_MKEEP OR mission.type == LDS_MCLEAR)
   {
     //clear out the audio
-    audio_StopAll();
+    AudioSystem::StopAll();
 
     freeAllDroids();
     freeAllStructs();
@@ -718,7 +718,7 @@ void missionFlyTransportersIn(SDWORD iPlayer, BOOL bTrackTransporter)
 
         /* set fly-in order */
         orderDroidLoc(psTransporter, DORDER_TRANSPORTIN, iLandX, iLandY);
-        audio_PlayObjDynamicTrack(psTransporter, ID_SOUND_BLIMP_FLIGHT, moveCheckDroidMovingAndVisible);
+        AudioSystem::PlayObjectTrack(psTransporter, ID_SOUND_BLIMP_FLIGHT, moveCheckDroidMovingAndVisible);
         //only want to fly one transporter in at a time now - AB 14/01/99
         break;
       }
@@ -736,7 +736,7 @@ void saveMissionData(void)
   BOOL bRepairExists;
 
   //clear out the audio
-  audio_StopAll();
+  AudioSystem::StopAll();
 
   //save the mission data
   mission.psMapTiles = psMapTiles;
@@ -868,7 +868,7 @@ void restoreMissionData(void)
   BASE_OBJECT* psObj;
 
   //clear out the audio
-  audio_StopAll();
+  AudioSystem::StopAll();
 
   //clear all the lists
   proj_FreeAllProjectiles();
@@ -963,7 +963,7 @@ void saveMissionLimboData(void)
   STRUCTURE* psStruct;
 
   //clear out the audio
-  audio_StopAll();
+  AudioSystem::StopAll();
 
   //before copy the pointers over check selectedPlayer's mission.droids since 
   //there might be some from the previous camapign
@@ -1234,7 +1234,7 @@ void saveCampaignData(void)
   }
 
   //clear out the audio
-  audio_StopAll();
+  AudioSystem::StopAll();
 
   //clear all other memory
   freeAllStructs();
@@ -2664,7 +2664,7 @@ void intUpdateMissionTimer(struct _widget* psWidget, struct _w_context* psContex
   //play audio the first time the timed mission is started
   if (timeRemaining AND (missionCountDown & NOT_PLAYED_ACTIVATED))
   {
-    audio_QueueTrack(ID_SOUND_MISSION_TIMER_ACTIVATED);
+    AudioSystem::QueueTrack(ID_SOUND_MISSION_TIMER_ACTIVATED);
     missionCountDown &= ~NOT_PLAYED_ACTIVATED;
   }
   //play some audio for mission countdown - start at 10 minutes remaining
@@ -2672,27 +2672,27 @@ void intUpdateMissionTimer(struct _widget* psWidget, struct _w_context* psContex
   {
     if (timeRemaining < TEN_MINUTES AND (missionCountDown & NOT_PLAYED_TEN))
     {
-      audio_QueueTrack(ID_SOUND_10_MINUTES_REMAINING);
+      AudioSystem::QueueTrack(ID_SOUND_10_MINUTES_REMAINING);
       missionCountDown &= ~NOT_PLAYED_TEN;
     }
     else if (timeRemaining < FIVE_MINUTES AND (missionCountDown & NOT_PLAYED_FIVE))
     {
-      audio_QueueTrack(ID_SOUND_5_MINUTES_REMAINING);
+      AudioSystem::QueueTrack(ID_SOUND_5_MINUTES_REMAINING);
       missionCountDown &= ~NOT_PLAYED_FIVE;
     }
     else if (timeRemaining < THREE_MINUTES AND (missionCountDown & NOT_PLAYED_THREE))
     {
-      audio_QueueTrack(ID_SOUND_3_MINUTES_REMAINING);
+      AudioSystem::QueueTrack(ID_SOUND_3_MINUTES_REMAINING);
       missionCountDown &= ~NOT_PLAYED_THREE;
     }
     else if (timeRemaining < TWO_MINUTES AND (missionCountDown & NOT_PLAYED_TWO))
     {
-      audio_QueueTrack(ID_SOUND_2_MINUTES_REMAINING);
+      AudioSystem::QueueTrack(ID_SOUND_2_MINUTES_REMAINING);
       missionCountDown &= ~NOT_PLAYED_TWO;
     }
     else if (timeRemaining < ONE_MINUTE AND (missionCountDown & NOT_PLAYED_ONE))
     {
-      audio_QueueTrack(ID_SOUND_1_MINUTE_REMAINING);
+      AudioSystem::QueueTrack(ID_SOUND_1_MINUTE_REMAINING);
       missionCountDown &= ~NOT_PLAYED_ONE;
     }
   }
@@ -2967,7 +2967,7 @@ static BOOL _intAddMissionResult(BOOL result, BOOL bPlaySuccess)
 
   /* play result audio */
   if (result == TRUE AND bPlaySuccess)
-    audio_QueueTrack(ID_SOUND_OBJECTIVE_ACCOMPLISHED);
+    AudioSystem::QueueTrack(ID_SOUND_OBJECTIVE_ACCOMPLISHED);
 
   return TRUE;
 }

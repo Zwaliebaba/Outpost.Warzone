@@ -18,7 +18,7 @@
 #include "MessageDef.h"
 #include "Message.h"
 #include "ResearchDef.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "MultiPlay.h"
 #include "Text.h"
 #include "Levels.h"
@@ -546,7 +546,7 @@ BOOL scrValDefSave(INTERP_TYPE type, UDWORD data, UBYTE* pBuffer, UDWORD* pSize)
     break;
   case ST_SOUND:
     if (pBuffer)
-      *((UDWORD*)pBuffer) = sound_GetTrackHashName(static_cast<SDWORD>(data));
+      *((UDWORD*)pBuffer) = AudioSystem::TrackHashName(static_cast<SDWORD>(data));
     *pSize = sizeof(UDWORD);
     break;
   case ST_STRUCTUREID:
@@ -790,18 +790,18 @@ BOOL scrValDefLoad(SDWORD version, INTERP_TYPE type, UBYTE* pBuffer, UDWORD size
     break;
   case ST_SOUND:
     // find audio id
-    index = audio_GetTrackIDFromHash(*((UDWORD*)pBuffer));
+    index = AudioSystem::TrackIdFromHash(*((UDWORD*)pBuffer));
     if (index == SAMPLE_NOT_FOUND)
     {
       // find empty id
-      index = audio_GetAvailableID();
+      index = AudioSystem::AvailableTrackId();
       if (index == SAMPLE_NOT_ALLOCATED)
       {
         Neuron::Fatal("Sound ID not available {} not found", (char*)pBuffer);
         break;
       }
       // set track vals
-      audio_SetTrackValsHashName(*((UDWORD*)pBuffer), FALSE, index, 100, 1, 1800);
+      AudioSystem::SetTrackValsByHash(*((UDWORD*)pBuffer), FALSE, index, 100, 1, 1800);
     }
     *pData = static_cast<UDWORD>(index);
     break;

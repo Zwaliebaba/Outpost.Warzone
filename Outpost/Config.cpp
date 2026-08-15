@@ -12,7 +12,7 @@
 #include "MultiPlay.h"
 #include "AI.h"
 #include "AdvVis.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "HCI.h"
 #include "Render.h"
 
@@ -68,12 +68,12 @@ BOOL loadConfig(BOOL bResourceAvailable)
   // //////////////////////////
   // fx vol
   if (getWarzoneKeyNumeric("fxvol", &val))
-    audio_SetFXVolume(static_cast<SDWORD>(val));
+    AudioSystem::SetFxVolume(static_cast<SDWORD>(val));
 
   // //////////////////////////
   // cdvol
   if (getWarzoneKeyNumeric("cdvol", &val))
-    audio_SetMusicVolume(static_cast<SDWORD>(val));
+    AudioSystem::SetMusicVolume(static_cast<SDWORD>(val));
 
   // //////////////////////////
   // gamma
@@ -467,8 +467,8 @@ BOOL saveConfig()
 
   // //////////////////////////
   // fxvol and cdvol
-  setWarzoneKeyNumeric("fxvol", audio_GetFXVolume());
-  setWarzoneKeyNumeric("cdvol", audio_GetMusicVolume());
+  setWarzoneKeyNumeric("fxvol", AudioSystem::FxVolume());
+  setWarzoneKeyNumeric("cdvol", AudioSystem::MusicVolume());
 
   setWarzoneKeyNumeric("d3dFog", war_GetFog());
 

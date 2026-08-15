@@ -190,7 +190,6 @@
     <ClInclude Include="Debug.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="NeuronCore.h" />
-    <ClInclude Include="Audio.h" />
     <ClInclude Include="AudioMixer.h" />
     <ClInclude Include="AudioSystem.h" />
     <ClInclude Include="Bar.h" />

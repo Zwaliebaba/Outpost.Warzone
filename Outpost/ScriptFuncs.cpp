@@ -23,7 +23,7 @@
 #include "Structure.h"
 #include "Display3D.h"
 #include "Research.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "Text.h"
 #include "AudioID.h"
 #include "Power.h"
@@ -2326,9 +2326,9 @@ BOOL scrPlaySound(void)
 
   if (player == static_cast<SDWORD>(selectedPlayer))
   {
-    audio_QueueTrack(soundID);
+    AudioSystem::QueueTrack(soundID);
     if (bInTutorial)
-      audio_QueueTrack(ID_SOUND_OF_SILENCE);
+      AudioSystem::QueueTrack(ID_SOUND_OF_SILENCE);
   }
   return TRUE;
 }
@@ -2350,7 +2350,7 @@ BOOL scrPlaySoundPos(void)
   }
 
   if (player == static_cast<SDWORD>(selectedPlayer))
-    audio_QueueTrackPos(soundID, iX, iY, iZ);
+    AudioSystem::QueueTrackPos(soundID, iX, iY, iZ);
   return TRUE;
 }
 

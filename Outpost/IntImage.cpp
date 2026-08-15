@@ -35,7 +35,7 @@
 #include "Stats.h"
 #include "Game.h"
 #include "Power.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "AudioID.h"
 #include "WidgInt.h"
 #include "Bar.h"

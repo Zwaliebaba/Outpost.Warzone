@@ -16,7 +16,7 @@
 #include "AStar.h"
 #include "Disp2D.h"
 #include "HCI.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "Sequence.h" // seq_ShutDown, called before the mixer goes down
 #include "CSnap.h"
 #include "Wrappers.h"
@@ -722,9 +722,9 @@ BOOL systemInitialise(void)
   }
 
 #ifdef AUDIO_DISABLED
-  if (!Neuron::AudioSystem::Init(false, droidAudioTrackStopped, GameAudioWorld())) // audio.
+  if (!AudioSystem::Init(false, droidAudioTrackStopped, GameAudioWorld())) // audio.
 #else
-  if (!Neuron::AudioSystem::Init(true, droidAudioTrackStopped, GameAudioWorld()))
+  if (!AudioSystem::Init(true, droidAudioTrackStopped, GameAudioWorld()))
 #endif
     Neuron::Fatal("Couldn't initialise audio system: continuing without audio\n");
 
@@ -781,7 +781,7 @@ BOOL systemShutdown(void)
    */
   seq_ShutDown();
 
-  if (audio_Disabled() == FALSE && !Neuron::AudioSystem::Shutdown())
+  if (AudioSystem::Enabled() && !AudioSystem::Shutdown())
     return FALSE;
 
   delete[] DisplayBuffer;
@@ -1049,8 +1049,8 @@ BOOL stageOneShutDown(void)
 
   //do this before shutting down the iV library
 
-  if (audio_Disabled() == FALSE)
-    audio_CheckAllUnloaded();
+  if (AudioSystem::Enabled())
+    AudioSystem::CheckAllUnloaded();
 
   proj_Shutdown();
 
@@ -1357,7 +1357,7 @@ BOOL stageThreeShutDown(void)
   // make sure any button tips are gone.
   widgReset();
 
-  audio_StopAll();
+  AudioSystem::StopAll();
 
   saveConfig(); // save options to registry (may have changed in game).
 

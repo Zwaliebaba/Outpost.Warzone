@@ -8,7 +8,7 @@
 #define _move_h
 
 #include "ObjectDef.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 
 /* The base movement speed */
 extern float baseSpeed;

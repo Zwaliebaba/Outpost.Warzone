@@ -62,13 +62,6 @@ using TRACK = struct TRACK
 };
 
 /***************************************************************************/
-/* functions
- */
-
-/* Save games round-trip script sound tracks by WAV-name hash (ScriptObj.cpp). */
-UDWORD sound_GetTrackHashName(SDWORD iTrack);
-
-/***************************************************************************/
 
 #endif	// _TRACK_H_
 

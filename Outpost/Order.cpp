@@ -1101,7 +1101,7 @@ static void orderPlayFireSupportAudio(BASE_OBJECT* psObj)
   }
 
   if (iAudioID != NO_SOUND)
-    audio_QueueTrackMinDelay(iAudioID, AUDIO_DELAY_FIRESUPPORT);
+    AudioSystem::QueueTrackMinDelay(iAudioID, AUDIO_DELAY_FIRESUPPORT);
 #endif
 }
 
@@ -2451,7 +2451,7 @@ void orderPlayOrderObjAudio(UDWORD player, BASE_OBJECT* psObj)
         switch (psDroid->order)
         {
         case DORDER_ATTACK:
-          audio_QueueTrack(ID_SOUND_ON_OUR_WAY2);
+          AudioSystem::QueueTrack(ID_SOUND_ON_OUR_WAY2);
           break;
         }
       }
@@ -3639,7 +3639,7 @@ void orderStructureObj(UDWORD player, BASE_OBJECT* psObj)
       psStruct->asWeaps[0].lastFired = gameTime;
 
       //play 5 second countdown message
-      audio_QueueTrackPos(ID_SOUND_LAS_SAT_COUNTDOWN, psObj->x, psObj->y, psObj->z);
+      AudioSystem::QueueTrackPos(ID_SOUND_LAS_SAT_COUNTDOWN, psObj->x, psObj->y, psObj->z);
 
       // send the weapon fire
       if (bMultiPlayer)

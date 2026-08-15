@@ -26,7 +26,7 @@
 #include "BitImage.h"
 #include "WarCAM.h"
 #include "Selection.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "AudioID.h"
 #include "RenderMatrix.h"
 #include "MapGrid.h"
@@ -1530,11 +1530,11 @@ BOOL updateTransporter(DROID* psTransporter)
     DACTION_TRANSPORTOUT && !missionIsOffworld() && (gameTime > transporterGetLaunchTime() + TRANSPORTOUT_TIME) AND !
     getDroidsToSafetyFlag()))
   {
-    audio_StopObjTrack(psTransporter, ID_SOUND_BLIMP_FLIGHT);
+    AudioSystem::StopObjectTrack(psTransporter, ID_SOUND_BLIMP_FLIGHT);
     if (psTransporter->action == DACTION_TRANSPORTIN)
     {
       /* !!!! GJ Hack - should be landing audio !!!! */
-      audio_PlayObjDynamicTrack(psTransporter, ID_SOUND_BLIMP_TAKE_OFF, nullptr);
+      AudioSystem::PlayObjectTrack(psTransporter, ID_SOUND_BLIMP_TAKE_OFF, nullptr);
     }
 
     //DON@T PLAY AUDIO FOR THE FIRST TRANSPORTER LOAD...AB 9/2/99
@@ -1546,7 +1546,7 @@ BOOL updateTransporter(DROID* psTransporter)
       selectedPlayer)
     {
       //play reinforcements have arrived message
-      audio_QueueTrackPos(ID_SOUND_TRANSPORT_LANDING, psTransporter->x, psTransporter->y, psTransporter->z);
+      AudioSystem::QueueTrackPos(ID_SOUND_TRANSPORT_LANDING, psTransporter->x, psTransporter->y, psTransporter->z);
       addConsoleMessage(strresGetString(psStringRes, STR_GAM_REINF), LEFT_JUSTIFY);
       //reset the data for the transporter timer
       widgSetUserData(psWScreen, IDTRANTIMER_DISPLAY, nullptr);

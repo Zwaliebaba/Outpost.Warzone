@@ -16,7 +16,7 @@
 /***************************************************************************/
 
 #include "Frame.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "Music.h"
 
 /***************************************************************************/
@@ -45,7 +45,7 @@ BOOL music_PlayTrack(SDWORD iTrack)
   wsprintf(szFileName, "%s\\track%d.wav", MUSIC_DIRECTORY, iTrack);
 
   /* the CD looped the track until something else was asked for */
-  if (audio_PlayMusic(szFileName, AUDIO_VOL_MAX, TRUE) == FALSE)
+  if (AudioSystem::PlayMusic(szFileName, AUDIO_VOL_MAX, TRUE) == FALSE)
   {
     Neuron::DebugTrace("music_PlayTrack: no music for track {} ({})\n", iTrack, szFileName);
     return FALSE;
@@ -59,15 +59,15 @@ BOOL music_PlayTrack(SDWORD iTrack)
 void music_Stop(void)
 {
   g_iCurTrack = MUSIC_NO_TRACK;
-  audio_StopMusic();
+  AudioSystem::StopMusic();
 }
 
 /***************************************************************************/
 
-void music_Pause(void) { audio_PauseMusic(); }
+void music_Pause(void) { AudioSystem::PauseMusic(); }
 
 /***************************************************************************/
 
-void music_Resume(void) { audio_ResumeMusic(); }
+void music_Resume(void) { AudioSystem::ResumeMusic(); }
 
 /***************************************************************************/

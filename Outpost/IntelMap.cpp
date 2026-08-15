@@ -21,7 +21,7 @@
 #include "HCI.h"
 #include "IntelMap.h"
 #include "MapDisplay.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "Text.h"
 #include "Console.h"
 #include "Research.h"
@@ -199,7 +199,7 @@ BOOL _intAddIntelMap(void)
     Animate = FALSE;
   }
   else
-    audio_StopAll();
+    AudioSystem::StopAll();
 
   music_Pause();
 
@@ -736,7 +736,7 @@ void _intIntelButtonPressed(BOOL proxMsg, UDWORD id)
               strcat(aAudioName,((VIEW_RESEARCH *)((VIEWDATA *)psMessage->
                 pViewData)->pData)->pAudio);
       
-              audio_PlayStream(aAudioName, AUDIO_VOL_MAX, NULL);
+              AudioSystem::PlayStream(aAudioName, AUDIO_VOL_MAX, NULL);
             }
       */
       //This hack replaces it
@@ -746,28 +746,28 @@ void _intIntelButtonPressed(BOOL proxMsg, UDWORD id)
         switch (psResearch->iconID)
         {
         case IMAGE_RES_DROIDTECH:
-          audio_PlayStream("sequenceAudio\\Res_Droid.wav", AUDIO_VOL_MAX, nullptr);
+          AudioSystem::PlayStream("sequenceAudio\\Res_Droid.wav", AUDIO_VOL_MAX, nullptr);
           break;
         case IMAGE_RES_WEAPONTECH:
-          audio_PlayStream("sequenceAudio\\Res_Weapons.wav", AUDIO_VOL_MAX, nullptr);
+          AudioSystem::PlayStream("sequenceAudio\\Res_Weapons.wav", AUDIO_VOL_MAX, nullptr);
           break;
         case IMAGE_RES_COMPUTERTECH:
-          audio_PlayStream("sequenceAudio\\Res_com.wav", AUDIO_VOL_MAX, nullptr);
+          AudioSystem::PlayStream("sequenceAudio\\Res_com.wav", AUDIO_VOL_MAX, nullptr);
           break;
         case IMAGE_RES_POWERTECH:
-          audio_PlayStream("sequenceAudio\\Res_Power.wav", AUDIO_VOL_MAX, nullptr);
+          AudioSystem::PlayStream("sequenceAudio\\Res_Power.wav", AUDIO_VOL_MAX, nullptr);
           break;
         case IMAGE_RES_SYSTEMTECH:
-          audio_PlayStream("sequenceAudio\\Res_SysTech.wav", AUDIO_VOL_MAX, nullptr);
+          AudioSystem::PlayStream("sequenceAudio\\Res_SysTech.wav", AUDIO_VOL_MAX, nullptr);
           break;
         case IMAGE_RES_STRUCTURETECH:
-          audio_PlayStream("sequenceAudio\\Res_StruTech.wav", AUDIO_VOL_MAX, nullptr);
+          AudioSystem::PlayStream("sequenceAudio\\Res_StruTech.wav", AUDIO_VOL_MAX, nullptr);
           break;
         case IMAGE_RES_CYBORGTECH:
-          audio_PlayStream("sequenceAudio\\Res_Droid.wav", AUDIO_VOL_MAX, nullptr);
+          AudioSystem::PlayStream("sequenceAudio\\Res_Droid.wav", AUDIO_VOL_MAX, nullptr);
           break;
         case IMAGE_RES_DEFENCE:
-          audio_PlayStream("sequenceAudio\\Res_StruTech.wav", AUDIO_VOL_MAX, nullptr);
+          AudioSystem::PlayStream("sequenceAudio\\Res_StruTech.wav", AUDIO_VOL_MAX, nullptr);
           break;
           //				default:
         }

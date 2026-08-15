@@ -31,7 +31,7 @@ BOOL moveDoMessage;
 #include "Map.h"
 #include "FPath.h"
 #include "GTime.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "AudioID.h"
 #include "Geometry.h"
 #include "AnimObj.h"
@@ -3547,7 +3547,7 @@ void movePlayDroidMoveAudio(DROID* psDroid)
 
     if (iAudioID != NO_SOUND)
     {
-      if (audio_PlayObjDynamicTrack(psDroid, iAudioID, moveCheckDroidMovingAndVisible))
+      if (AudioSystem::PlayObjectTrack(psDroid, iAudioID, moveCheckDroidMovingAndVisible))
         psDroid->iAudioID = iAudioID;
     }
   }
@@ -3616,7 +3616,7 @@ void movePlayAudio(DROID* psDroid, BOOL bStarted, BOOL bStoppedBefore, SDWORD iM
 
   if ((iAudioID != NO_SOUND) && (psDroid->visible[selectedPlayer] OR godMode))
   {
-    if (audio_PlayObjDynamicTrack(psDroid, iAudioID, pAudioCallback))
+    if (AudioSystem::PlayObjectTrack(psDroid, iAudioID, pAudioCallback))
       psDroid->iAudioID = iAudioID;
   }
 }

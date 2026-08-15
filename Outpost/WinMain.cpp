@@ -19,7 +19,7 @@
 #include "Deliverance.h"
 #include "FrontEnd.h"
 #include "SeqDisp.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "Console.h"
 #include "RendMode.h"
 #include "PieMode.h"
@@ -262,7 +262,7 @@ init: //jump here from the end if re_initialising
       case FRAME_KILLFOCUS:
         paused = TRUE;
         gameTimeStop();
-        audio_StopAll();
+        AudioSystem::StopAll();
         break;
       case FRAME_SETFOCUS:
         paused = FALSE;

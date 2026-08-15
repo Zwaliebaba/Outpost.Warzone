@@ -9,7 +9,7 @@
 #include "Power.h"
 #include "HCI.h"
 #include "GTime.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "AudioID.h"
 #include "ObjMem.h"
 #include "FrontEnd.h"
@@ -116,7 +116,7 @@ BOOL checkPower(UDWORD player, UDWORD quantity, BOOL playAudio)
 //#warning POWER LOW IS DISABLED
     if (playAudio && player == selectedPlayer)
     {
-      audio_QueueTrack( ID_SOUND_POWER_LOW );
+      AudioSystem::QueueTrack( ID_SOUND_POWER_LOW );
       return FALSE;
     }
   }*/
@@ -916,7 +916,7 @@ void powerCheck(BOOL bBeforePowerUsed, UBYTE player)
 #endif
 		if (playAudio && player == selectedPlayer)
 		{
-			audio_QueueTrack( ID_SOUND_POWER_LOW );
+			AudioSystem::QueueTrack( ID_SOUND_POWER_LOW );
 			return FALSE;
 		}
 	}
@@ -964,7 +964,7 @@ void powerCheck(BOOL bBeforePowerUsed, UBYTE player)
 
 		if(player == selectedPlayer)
 		{
-			audio_QueueTrack( ID_SOUND_POWER_LOW );
+			AudioSystem::QueueTrack( ID_SOUND_POWER_LOW );
 		}
 
 		return FALSE;
@@ -1145,7 +1145,7 @@ void powerCheck(BOOL bBeforePowerUsed, UBYTE player)
 		asPower[player]->availablePower = 0;
 		if (player == selectedPlayer)
 		{
-			audio_QueueTrack( ID_SOUND_POWER_LOW );
+			AudioSystem::QueueTrack( ID_SOUND_POWER_LOW );
 		}
 	}
 	else

@@ -13,7 +13,7 @@
 #include "Edit3D.h"
 #include "KeyBind.h"
 #include "Mechanics.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "AudioID.h"
 #include "Lighting.h"
 #include "Power.h"
@@ -107,7 +107,7 @@ void kf_ToggleRadarJump(void)
 }
 
 // --------------------------------------------------------------------------
-void kf_NoFaults(void) { audio_QueueTrack(ID_SOUND_NOFAULTS); }
+void kf_NoFaults(void) { AudioSystem::QueueTrack(ID_SOUND_NOFAULTS); }
 // --------------------------------------------------------------------------
 
 void kf_ToggleDimension(void)
@@ -611,10 +611,10 @@ void kf_RadarZoomIn(void)
   {
     RadarZoomLevel++;
     SetRadarZoom(RadarZoomLevel);
-    audio_PlayTrack(ID_SOUND_BUTTON_CLICK_5);
+    AudioSystem::PlayTrack(ID_SOUND_BUTTON_CLICK_5);
   }
   else // at maximum already
-    audio_PlayTrack(ID_SOUND_BUILD_FAIL);
+    AudioSystem::PlayTrack(ID_SOUND_BUILD_FAIL);
 }
 
 // --------------------------------------------------------------------------
@@ -624,10 +624,10 @@ void kf_RadarZoomOut(void)
   {
     RadarZoomLevel--;
     SetRadarZoom(RadarZoomLevel);
-    audio_PlayTrack(ID_SOUND_BUTTON_CLICK_5);
+    AudioSystem::PlayTrack(ID_SOUND_BUTTON_CLICK_5);
   }
   else // at minimum already
-    audio_PlayTrack(ID_SOUND_BUILD_FAIL);
+    AudioSystem::PlayTrack(ID_SOUND_BUILD_FAIL);
 }
 
 // --------------------------------------------------------------------------
@@ -804,9 +804,9 @@ void kf_SelectGrouping(void)
   /* play group audio but only if they wern't already selected - AM */
   if (Selected AND !bAlreadySelected)
   {
-    audio_QueueTrack(ID_SOUND_GROUP_0 + groupNumber);
-    audio_QueueTrack(ID_SOUND_REPORTING);
-    audio_QueueTrack(ID_SOUND_RADIOCLICK_1 + (rand() % 6));
+    AudioSystem::QueueTrack(ID_SOUND_GROUP_0 + groupNumber);
+    AudioSystem::QueueTrack(ID_SOUND_REPORTING);
+    AudioSystem::QueueTrack(ID_SOUND_RADIOCLICK_1 + (rand() % 6));
   }
 #endif
 }
@@ -1268,7 +1268,7 @@ void kf_MoveToLastMessagePos(void)
 {
   SDWORD iX, iY, iZ;
 
-  if (audio_GetPreviousQueueTrackPos(&iX, &iY, &iZ))
+  if (AudioSystem::PreviousQueueTrackPos(iX, iY, iZ))
   {
     // Should use requestRadarTrack but the camera gets jammed so use setViewpos - GJ
     setViewPos(iX >> TILE_SHIFT, iY >> TILE_SHIFT, TRUE);

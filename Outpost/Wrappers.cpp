@@ -30,7 +30,7 @@
 #include "IntImage.h"
 #include "Text.h"
 #include "IntDisplay.h"	//for shutdown
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "AudioID.h"
 #include "GTime.h"
 #include "InGameOp.h"
@@ -258,7 +258,7 @@ TITLECODE titleLoop(void)
   default: Neuron::Fatal("unknown title screen mode ");
   }
 
-  audio_Update();
+  AudioSystem::Update();
 
   pie_GlobalRenderEnd(TRUE); //force to black
   pie_SetFogStatus(FALSE);

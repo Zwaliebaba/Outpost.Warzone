@@ -12,7 +12,7 @@
 #include "Stats.h"
 #include "Text.h"
 #include "Console.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "AudioID.h"
 #include "HCI.h"
 #include "Model.h"
@@ -861,7 +861,7 @@ void displayProximityMessage(PROXIMITY_DISPLAY* psProxDisp)
 
     //play message - if any
     psViewProx = static_cast<VIEW_PROXIMITY*>(psViewData->pData);
-    if (psViewProx->audioID != NO_AUDIO_MSG) { audio_QueueTrackPos(psViewProx->audioID, psViewProx->x, psViewProx->y, psViewProx->z); }
+    if (psViewProx->audioID != NO_AUDIO_MSG) { AudioSystem::QueueTrackPos(psViewProx->audioID, psViewProx->x, psViewProx->y, psViewProx->z); }
   }
   else if (psProxDisp->type == POS_PROXOBJ)
   {
@@ -871,12 +871,12 @@ void displayProximityMessage(PROXIMITY_DISPLAY* psProxDisp)
     if (psFeature->psStats->subType == FEAT_OIL_RESOURCE)
     {
       //play default audio message for oil resource
-      audio_QueueTrackPos(ID_SOUND_RESOURCE_HERE, psFeature->x, psFeature->y, psFeature->z);
+      AudioSystem::QueueTrackPos(ID_SOUND_RESOURCE_HERE, psFeature->x, psFeature->y, psFeature->z);
     }
     else if (psFeature->psStats->subType == FEAT_GEN_ARTE)
     {
       //play default audio message for artefact
-      audio_QueueTrackPos(ID_SOUND_ARTIFACT, psFeature->x, psFeature->y, psFeature->z);
+      AudioSystem::QueueTrackPos(ID_SOUND_ARTIFACT, psFeature->x, psFeature->y, psFeature->z);
     }
   }
 

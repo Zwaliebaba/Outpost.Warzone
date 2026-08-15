@@ -24,7 +24,7 @@
 #include "Component.h"
 #include "Console.h"
 #include "MultiPlay.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "MultiJoin.h"
 #include "FrontEnd.h"
 #include "Levels.h"

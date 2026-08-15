@@ -24,7 +24,7 @@
 #include "Display3D.h"
 #include "Mission.h"
 #include "Game.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "AudioID.h"
 #include "IntImage.h"
 
@@ -214,7 +214,7 @@ void drawStatBars(void)
   {
     bDispStarted = TRUE;
     dispST = gameTime2;
-    audio_PlayTrack(ID_SOUND_BUTTON_CLICK_5);
+    AudioSystem::PlayTrack(ID_SOUND_BUTTON_CLICK_5);
   }
 
   fillUpStats();

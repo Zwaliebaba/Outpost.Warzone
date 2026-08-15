@@ -14,7 +14,7 @@
 #include "PieFunc.h"
 #include "PieState.h"
 #include "HCI.h"//for font
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "Music.h"
 #include "Deliverance.h"
 #include "WarzoneConfig.h"
@@ -435,7 +435,7 @@ BOOL seq_StartFullScreenVideo(char* videoName, char* audioName)
     bAudioPlaying = FALSE;
   else
   {
-    bAudioPlaying = audio_PlayStream(aAudioName, AUDIO_VOL_MAX, SeqEndCallBack);
+    bAudioPlaying = AudioSystem::PlayStream(aAudioName, AUDIO_VOL_MAX, SeqEndCallBack);
     DEBUG_ASSERT_TEXT(bAudioPlaying == TRUE, "seq_StartFullScreenVideo: unable to initialise sound {}",aAudioName);
   }
 

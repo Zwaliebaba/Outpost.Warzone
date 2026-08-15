@@ -31,7 +31,7 @@
 #include "HCI.h"
 #include "Component.h"
 #include "Research.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "AudioID.h"
 #include "Wrappers.h"
 #include "IntImage.h"
@@ -238,7 +238,7 @@ BOOL MultiPlayerLeave(NETPLAYERID dp)
     addConsoleMessage(buf, DEFAULT_JUSTIFY);
 
     if (widgGetFromID(psWScreen,IDRET_FORM))
-      audio_QueueTrack(ID_CLAN_EXIT);
+      AudioSystem::QueueTrack(ID_CLAN_EXIT);
   }
 
   NETplayerInfo(); // update the player info stuff		
@@ -256,7 +256,7 @@ BOOL MultiPlayerJoin(NETPLAYERID dpid)
   UDWORD i;
 
   if (widgGetFromID(psWScreen,IDRET_FORM)) // if ingame.
-    audio_QueueTrack(ID_CLAN_ENTER);
+    AudioSystem::QueueTrack(ID_CLAN_ENTER);
 
   /* The new machine has nobody's stats. DirectPlay kept its replicated
    * per-player data available to whoever joined later and the transport does

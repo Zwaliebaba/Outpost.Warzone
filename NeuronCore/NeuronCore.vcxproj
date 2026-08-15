@@ -93,7 +93,6 @@
     <ClInclude Include="Ani.h" />
     <ClInclude Include="Anim.h" />
     <ClInclude Include="AnimObj.h" />
-    <ClInclude Include="Audio.h" />
     <ClInclude Include="AudioMixer.h" />
     <ClInclude Include="AudioSystem.h" />
     <ClInclude Include="Bar.h" />

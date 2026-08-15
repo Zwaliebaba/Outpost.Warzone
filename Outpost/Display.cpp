@@ -27,7 +27,7 @@
 #include "Edit3D.h"
 #include "Geometry.h"
 #include "GTime.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "AudioID.h"
 #include "Radar.h"
 #include "MiscIMD.h"
@@ -423,7 +423,7 @@ void ProcessRadarInput(void)
             orderSelectedLoc(selectedPlayer, (PosX * TILE_UNITS) + TILE_UNITS / 2, (PosY * TILE_UNITS) + TILE_UNITS / 2);
           }
           CheckScrollLimits();
-          audio_PlayTrack(ID_SOUND_MESSAGEEND);
+          AudioSystem::PlayTrack(ID_SOUND_MESSAGEEND);
         }
       }
 
@@ -660,7 +660,7 @@ void CheckStartWallDrag(void)
     else if (intBuildSelectMode()) //if we were in build select mode
     {
       //uhoh no place to build here
-      audio_PlayTrack(ID_SOUND_BUILD_FAIL);
+      AudioSystem::PlayTrack(ID_SOUND_BUILD_FAIL);
     }
   }
 }
@@ -1641,7 +1641,7 @@ void FeedbackOrderGiven(void)
   // Ensure only played once per game cycle.
   if (ThisFrame != LastFrame)
   {
-    audio_PlayTrack(ID_SOUND_SELECT);
+    AudioSystem::PlayTrack(ID_SOUND_SELECT);
     LastFrame = ThisFrame;
   }
 }
@@ -1660,7 +1660,7 @@ void BeepMessage(UDWORD StringID)
   if (ThisFrame != LastFrame)
   {
     addConsoleMessage(strresGetString(psStringRes, StringID), DEFAULT_JUSTIFY);
-    audio_PlayTrack(ID_SOUND_BUILD_FAIL);
+    AudioSystem::PlayTrack(ID_SOUND_BUILD_FAIL);
     LastFrame = ThisFrame;
   }
 }
@@ -1668,7 +1668,7 @@ void BeepMessage(UDWORD StringID)
 void AddDerrickBurningMessage(void)
 {
   addConsoleMessage(strresGetString(psStringRes, STR_GAM_DERRICK_BURNING), DEFAULT_JUSTIFY);
-  audio_PlayTrack(ID_SOUND_BUILD_FAIL);
+  AudioSystem::PlayTrack(ID_SOUND_BUILD_FAIL);
 }
 
 void dealWithLMB(void)
@@ -2069,7 +2069,7 @@ void dealWithLMB(void)
         #else
                   // the above dos'nt work so we'l do it the old way.
                   orderSelectedLoc(selectedPlayer, psFeature->x,psFeature->y);	// recover it.
-                  audio_PlayTrack(ID_SOUND_SELECT);
+                  AudioSystem::PlayTrack(ID_SOUND_SELECT);
         #endif
                   break;*/
         case FEAT_BOULDER:
@@ -2149,7 +2149,7 @@ void dealWithLMB(void)
         if (getNumDroidsSelected())
         {
           assignDestTarget();
-          audio_PlayTrack(ID_SOUND_SELECT);
+          AudioSystem::PlayTrack(ID_SOUND_SELECT);
         }
 
         if (godMode && (mouseTileX >= 0) && (mouseTileX < static_cast<SDWORD>(mapWidth)) && (mouseTileY >= 0) && (mouseTileY < static_cast<

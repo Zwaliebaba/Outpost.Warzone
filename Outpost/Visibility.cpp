@@ -12,7 +12,7 @@
 #include "GTime.h"
 #include "MapGrid.h"
 #include "Cluster.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "AudioID.h"
 #include "ScriptExtern.h"
 #include "Structure.h"
@@ -816,7 +816,7 @@ void processVisibility(BASE_OBJECT* psObj)
         if (!bInTutorial)
         {
           //play message to indicate been seen
-          audio_QueueTrackPos(ID_SOUND_RESOURCE_HERE, psObj->x, psObj->y, psObj->z);
+          AudioSystem::QueueTrackPos(ID_SOUND_RESOURCE_HERE, psObj->x, psObj->y, psObj->z);
         }
       }
     }
@@ -829,7 +829,7 @@ void processVisibility(BASE_OBJECT* psObj)
       if (!bInTutorial)
       {
         //play message to indicate been seen
-        audio_QueueTrackPos(ID_SOUND_ARTEFACT_DISC, psObj->x, psObj->y, psObj->z);
+        AudioSystem::QueueTrackPos(ID_SOUND_ARTEFACT_DISC, psObj->x, psObj->y, psObj->z);
       }
     }
   }

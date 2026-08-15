@@ -11,10 +11,6 @@
  * contract unchanged; Phase 9 changed the shape - owned containers instead
  * of hand-spliced intrusive lists, and a class instead of two layers of free
  * functions whose split existed for a backend swap that is finished.
- *
- * The audio_* free functions at the bottom are the legacy shim over this
- * class, kept so the 182 call sites above it do not move until Phase 9
- * stage F renames them; new code calls the class.
  */
 /***************************************************************************/
 
@@ -27,7 +23,6 @@
 
 #include "Frame.h"
 #include "Priority.h"
-#include "Audio.h"
 #include "AudioSystem.h"
 #include "AudioMixer.h"
 
@@ -920,128 +915,5 @@ void AudioSystem::FinishedCallback(AUDIO_SAMPLE& _sample)
 }
 
 } // namespace Neuron
-
-/***************************************************************************/
-/*
- * The legacy shim: the audio_* surface in Audio.h and the two sound_*
- * functions still consumed outside the module, each delegating to the class
- * above. Deleted by Phase 9 stage F, which renames the call sites.
- */
-/***************************************************************************/
-
-using Neuron::AudioSystem;
-
-BOOL audio_Update() { return AudioSystem::Update() ? TRUE : FALSE; }
-
-BOOL audio_Disabled(void) { return AudioSystem::Enabled() ? FALSE : TRUE; }
-
-void* audio_LoadTrackFromBuffer(UBYTE* pBuffer, UDWORD udwSize)
-{
-  return AudioSystem::LoadTrackFromBuffer(std::span(reinterpret_cast<const std::byte*>(pBuffer), udwSize));
-}
-
-BOOL audio_SetTrackVals(char szFileName[], BOOL bLoop, int* piID, int iVol, int iPriority, int iAudibleRadius)
-{
-  std::int32_t id = *piID;
-  const bool ok = AudioSystem::SetTrackVals(szFileName, bLoop == TRUE, id, iVol, iPriority, iAudibleRadius);
-  *piID = id;
-  return ok ? TRUE : FALSE;
-}
-
-BOOL audio_SetTrackValsHashName(UDWORD hash, BOOL bLoop, int iTrack, int iVol, int iPriority, int iAudibleRadius)
-{
-  return AudioSystem::SetTrackValsByHash(hash, bLoop == TRUE, iTrack, iVol, iPriority, iAudibleRadius) ? TRUE : FALSE;
-}
-
-void audio_ReleaseTrack(TRACK* psTrack) { AudioSystem::ReleaseTrack(*psTrack); }
-
-void audio_CheckAllUnloaded() { AudioSystem::CheckAllUnloaded(); }
-
-BOOL audio_PlayStaticTrack(SDWORD iMapX, SDWORD iMapY, int iTrack)
-{
-  return AudioSystem::PlayStaticTrack(iMapX, iMapY, iTrack) ? TRUE : FALSE;
-}
-
-BOOL audio_PlayObjStaticTrack(void* psObj, int iTrack) { return AudioSystem::PlayObjectTrack(psObj, iTrack, nullptr) ? TRUE : FALSE; }
-
-BOOL audio_PlayObjStaticTrackCallback(void* psObj, int iTrack, AUDIO_CALLBACK pUserCallback)
-{
-  return AudioSystem::PlayObjectTrack(psObj, iTrack, pUserCallback) ? TRUE : FALSE;
-}
-
-BOOL audio_PlayObjDynamicTrack(void* psObj, int iTrack, AUDIO_CALLBACK pUserCallback)
-{
-  return AudioSystem::PlayObjectTrack(psObj, iTrack, pUserCallback) ? TRUE : FALSE;
-}
-
-void audio_StopObjTrack(void* psObj, int iTrack) { AudioSystem::StopObjectTrack(psObj, iTrack); }
-
-void audio_PlayTrack(int iTrack) { AudioSystem::PlayTrack(iTrack); }
-
-BOOL audio_PlayStream(char szFileName[], SDWORD iVol, AUDIO_CALLBACK pUserCallback)
-{
-  return AudioSystem::PlayStream(szFileName, iVol, pUserCallback) ? TRUE : FALSE;
-}
-
-BOOL audio_PlayMusic(char szFileName[], SDWORD iVol, BOOL bLoop)
-{
-  return AudioSystem::PlayMusic(szFileName, iVol, bLoop == TRUE) ? TRUE : FALSE;
-}
-
-void audio_StopMusic(void) { AudioSystem::StopMusic(); }
-
-void audio_PauseMusic(void) { AudioSystem::PauseMusic(); }
-
-void audio_ResumeMusic(void) { AudioSystem::ResumeMusic(); }
-
-void audio_QueueTrack(SDWORD iTrack) { AudioSystem::QueueTrack(iTrack); }
-
-void audio_QueueTrackMinDelay(SDWORD iTrack, UDWORD iMinDelay) { AudioSystem::QueueTrackMinDelay(iTrack, iMinDelay); }
-
-void audio_QueueTrackMinDelayPos(SDWORD iTrack, UDWORD iMinDelay, SDWORD iX, SDWORD iY, SDWORD iZ)
-{
-  AudioSystem::QueueTrackMinDelayPos(iTrack, iMinDelay, iX, iY, iZ);
-}
-
-void audio_QueueTrackPos(SDWORD iTrack, SDWORD iX, SDWORD iY, SDWORD iZ) { AudioSystem::QueueTrackPos(iTrack, iX, iY, iZ); }
-
-BOOL audio_GetPreviousQueueTrackPos(SDWORD* iX, SDWORD* iY, SDWORD* iZ)
-{
-  return AudioSystem::PreviousQueueTrackPos(*iX, *iY, *iZ) ? TRUE : FALSE;
-}
-
-void audio_StopAll(void) { AudioSystem::StopAll(); }
-
-SDWORD audio_GetTrackID(char szFileName[]) { return AudioSystem::TrackId(szFileName); }
-
-SDWORD audio_GetTrackIDFromHash(UDWORD hash) { return AudioSystem::TrackIdFromHash(hash); }
-
-SDWORD audio_GetAvailableID(void)
-{
-  /* return if audio not enabled */
-  if (AudioSystem::Enabled() == false)
-    return 0;
-
-  return AudioSystem::AvailableTrackId();
-}
-
-SDWORD audio_GetFXVolume(void) { return AudioSystem::FxVolume(); }
-
-void audio_SetFXVolume(SDWORD iVol) { AudioSystem::SetFxVolume(iVol); }
-
-SDWORD audio_GetMusicVolume(void) { return AudioSystem::MusicVolume(); }
-
-void audio_SetMusicVolume(SDWORD iVol) { AudioSystem::SetMusicVolume(iVol); }
-
-SDWORD audio_Get3DVolume(void) { return AudioSystem::Volume3D(); }
-
-void audio_Set3DVolume(SDWORD iVol) { AudioSystem::SetVolume3D(iVol); }
-
-SDWORD audio_GetSampleMixVol(AUDIO_SAMPLE* psSample, SDWORD iVol, BOOL bScale3D)
-{
-  return AudioSystem::SampleMixVolume(*psSample, iVol, bScale3D == TRUE);
-}
-
-UDWORD sound_GetTrackHashName(SDWORD iTrack) { return AudioSystem::TrackHashName(iTrack); }
 
 /***************************************************************************/

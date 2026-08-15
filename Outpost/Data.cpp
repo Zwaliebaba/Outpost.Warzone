@@ -37,7 +37,7 @@
 #include "Game.h"
 #include "Objects.h"
 #include "Display.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "Anim.h"
 #include "Parser.h"
 #include "Levels.h"
@@ -1000,12 +1000,12 @@ BOOL dataAudioLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
 {
   TRACK* psTrack;
 
-  if (audio_Disabled() == TRUE)
+  if (!AudioSystem::Enabled())
   {
     *ppData = nullptr;
     return TRUE;
   }
-  if ((psTrack = static_cast<TRACK*>(audio_LoadTrackFromBuffer(pBuffer, size))) == nullptr)
+  if ((psTrack = AudioSystem::LoadTrackFromBuffer(std::span(reinterpret_cast<const std::byte*>(pBuffer), size))) == nullptr)
     return FALSE;
 
   /* save track data */
@@ -1016,13 +1016,13 @@ BOOL dataAudioLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
 
 void dataAudioRelease(void* pData)
 {
-  if (audio_Disabled() == TRUE)
+  if (!AudioSystem::Enabled())
     UNUSEDPARAMETER(pData);
   else
   {
     auto psTrack = static_cast<TRACK*>(pData);
 
-    audio_ReleaseTrack(psTrack);
+    AudioSystem::ReleaseTrack(*psTrack);
     delete[] psTrack;
     psTrack = nullptr;
   }
@@ -1033,7 +1033,7 @@ BOOL dataAudioCfgLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
 {
   *ppData = nullptr;
 
-  if (audio_Disabled() == FALSE && ParseResourceFile(pBuffer, size) == FALSE)
+  if (AudioSystem::Enabled() && ParseResourceFile(pBuffer, size) == FALSE)
     return FALSE;
   return TRUE;
 }
