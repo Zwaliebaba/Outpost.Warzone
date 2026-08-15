@@ -21,6 +21,7 @@
 #include <windows.h>
 #include <mmreg.h>
 #include <xaudio2.h>
+#include <x3daudio.h>
 
 #include "Frame.h"
 #include "TrackLib.h"
@@ -54,10 +55,17 @@
 
 /* QMixer's distance mapping, which every 3D sound was given: audible out to
  * the track's radius, no attenuation within the minimum, and a rolloff scale
- * between the two.
+ * between the two. X3DAudio has no such model built in, so it is handed the
+ * same shape as an explicit volume curve.
  */
 #define	XA2_MIN_DISTANCE		(300.0f)
 #define	XA2_ROLLOFF				(1.5f)
+#define	XA2_CURVE_POINTS		8
+
+/* X3DAudio writes one coefficient per destination channel, and handles at
+ * most eight of them.
+ */
+#define	XA2_MAX_DEST_CHANNELS	8
 
 /* iSample carries a generation for pool slots, so a handle held past the end
  * of its sound cannot stop whatever has taken the slot over since. Generations
@@ -113,6 +121,13 @@ static IXAudio2MasteringVoice* g_pMasterVoice = nullptr;
 static VOICE_SLOT g_aSlots[XA2_MAX_SLOTS];
 static UDWORD g_udwOutputChannels = 2;
 
+/* X3DAudio does the spatialisation: it takes the listener and an emitter and
+ * returns the per-speaker coefficients, attenuation included.
+ */
+static X3DAUDIO_HANDLE g_X3DAudio;
+static BOOL g_bX3DAudio = FALSE;
+static X3DAUDIO_LISTENER g_sListener;
+
 /* The stream and music voices are built per file, because unlike the pooled
  * voices they have to take the file's own channel count. Indexed by slot;
  * only those two entries are ever used.
@@ -122,11 +137,10 @@ static UBYTE* g_apStreamData[XA2_FIXED_SLOTS] = {nullptr, nullptr, nullptr, null
 static SDWORD g_iGlobalVolume = AUDIO_VOL_MAX;
 static SDWORD g_iMusicVolume = AUDIO_VOL_MAX;
 
-/* Listener position, and the unit vector pointing to the listener's right in
- * the audio plane, from which a sound's pan is taken.
+/* The listener's position is kept in game units as well, because stealing a
+ * pool slot picks the emitter furthest from it.
  */
 static SDWORD g_iListenerX = 0, g_iListenerY = 0, g_iListenerZ = 0;
-static float g_fRightX = 1.0f, g_fRightY = 0.0f;
 
 /* Completion crosses a thread boundary here and nowhere else. XAudio2 calls
  * OnStreamEnd on its own audio thread; all that does is set the slot's bit,
@@ -214,48 +228,86 @@ int sound_GetMaxVolume(void) { return 32767; }
 
 /***************************************************************************/
 
-/* Distance attenuation, replacing QMixer's SetDistanceMapping: inverse
- * distance with the same minimum, maximum and rolloff it was given.
+/* QMixer's distance mapping as an X3DAudio volume curve, over normalised
+ * distance where 1.0 is the track's audible radius: flat inside the minimum
+ * distance, inverse distance with QMixer's rolloff beyond it, and silent at
+ * the radius. X3DAudio's own default curve never reaches zero, and the
+ * audible radius is authored per track, so the cutoff has to be stated.
+ *
+ * The points are strictly increasing and end at exactly 1.0, which X3DAudio
+ * requires.
  */
-static float xa2_Attenuation(const VOICE_SLOT* psSlot)
+static void xa2_BuildVolumeCurve(float fRadius, X3DAUDIO_DISTANCE_CURVE_POINT* aPoints)
 {
-  const auto fdX = static_cast<float>(psSlot->x - g_iListenerX);
-  const auto fdY = static_cast<float>(psSlot->y - g_iListenerY);
-  const auto fdZ = static_cast<float>(psSlot->z - g_iListenerZ);
-  const float fDistance = sqrtf(fdX * fdX + fdY * fdY + fdZ * fdZ);
-  const auto fMaxDistance = static_cast<float>(psSlot->iRadius);
+  const float fNear = fRadius > XA2_MIN_DISTANCE ? XA2_MIN_DISTANCE / fRadius : 0.0f;
+  SDWORD i;
 
-  if (fMaxDistance > 0.0f && fDistance >= fMaxDistance)
-    return 0.0f;
+  aPoints[0].Distance = 0.0f;
+  aPoints[0].DSPSetting = 1.0f;
 
-  if (fDistance <= XA2_MIN_DISTANCE)
-    return 1.0f;
+  for (i = 1; i < XA2_CURVE_POINTS; i++)
+  {
+    const float fT = static_cast<float>(i) / static_cast<float>(XA2_CURVE_POINTS - 1);
+    const float fNorm = fNear + (1.0f - fNear) * fT;
+    const float fDistance = fNorm * fRadius;
 
-  return XA2_MIN_DISTANCE / (XA2_MIN_DISTANCE + XA2_ROLLOFF * (fDistance - XA2_MIN_DISTANCE));
+    aPoints[i].Distance = fNorm;
+    aPoints[i].DSPSetting = fDistance <= XA2_MIN_DISTANCE
+                              ? 1.0f
+                              : XA2_MIN_DISTANCE / (XA2_MIN_DISTANCE + XA2_ROLLOFF * (fDistance - XA2_MIN_DISTANCE));
+  }
+
+  /* inaudible at the audible radius, which is what the radius means */
+  aPoints[XA2_CURVE_POINTS - 1].Distance = 1.0f;
+  aPoints[XA2_CURVE_POINTS - 1].DSPSetting = 0.0f;
 }
 
 /***************************************************************************/
 
-/* Constant power stereo pan from the emitter's bearing relative to the
- * listener's right, which is where QMixer's listener orientation went.
+/* Runs X3DAudio for one positional slot and hands the result to the voice.
+ * The coefficients carry the distance attenuation, so the voice's own volume
+ * stays the sound's mix volume and nothing else.
  */
-static void xa2_Pan(const VOICE_SLOT* psSlot, float* pfLeft, float* pfRight)
+static void xa2_ApplySpatial(SDWORD iSlot)
 {
-  const auto fdX = static_cast<float>(psSlot->x - g_iListenerX);
-  const auto fdY = static_cast<float>(psSlot->y - g_iListenerY);
-  const float fLength = sqrtf(fdX * fdX + fdY * fdY);
-  float fPan = 0.0f;
+  VOICE_SLOT* psSlot = &g_aSlots[iSlot];
+  X3DAUDIO_DISTANCE_CURVE_POINT aPoints[XA2_CURVE_POINTS];
+  X3DAUDIO_DISTANCE_CURVE sCurve;
+  X3DAUDIO_EMITTER sEmitter;
+  X3DAUDIO_DSP_SETTINGS sDSP;
+  float afMatrix[XA2_MAX_DEST_CHANNELS];
+  UDWORD i;
 
-  if (fLength > 0.0f)
-    fPan = (fdX * g_fRightX + fdY * g_fRightY) / fLength;
+  const float fRadius = psSlot->iRadius > 0 ? static_cast<float>(psSlot->iRadius) : XA2_MIN_DISTANCE;
 
-  if (fPan < -1.0f)
-    fPan = -1.0f;
-  else if (fPan > 1.0f)
-    fPan = 1.0f;
+  xa2_BuildVolumeCurve(fRadius, aPoints);
+  sCurve.pPoints = aPoints;
+  sCurve.PointCount = XA2_CURVE_POINTS;
 
-  *pfLeft = sqrtf((1.0f - fPan) * 0.5f);
-  *pfRight = sqrtf((1.0f + fPan) * 0.5f);
+  memset(&sEmitter, 0, sizeof(sEmitter));
+  sEmitter.OrientFront.z = 1.0f;
+  sEmitter.OrientTop.y = 1.0f;
+  sEmitter.Position.x = static_cast<float>(psSlot->x);
+  sEmitter.Position.y = static_cast<float>(psSlot->z);
+  sEmitter.Position.z = static_cast<float>(psSlot->y);
+  sEmitter.ChannelCount = 1;
+  sEmitter.CurveDistanceScaler = fRadius;
+  sEmitter.pVolumeCurve = &sCurve;
+
+  /* No doppler: nothing in the game gives a sound a velocity. */
+  sEmitter.DopplerScaler = 0.0f;
+
+  for (i = 0; i < XA2_MAX_DEST_CHANNELS; i++)
+    afMatrix[i] = 0.0f;
+
+  memset(&sDSP, 0, sizeof(sDSP));
+  sDSP.SrcChannelCount = 1;
+  sDSP.DstChannelCount = g_udwOutputChannels;
+  sDSP.pMatrixCoefficients = afMatrix;
+
+  X3DAudioCalculate(g_X3DAudio, &g_sListener, &sEmitter, X3DAUDIO_CALCULATE_MATRIX, &sDSP);
+
+  psSlot->pVoice->SetOutputMatrix(nullptr, 1, g_udwOutputChannels, afMatrix);
 }
 
 /***************************************************************************/
@@ -263,9 +315,6 @@ static void xa2_Pan(const VOICE_SLOT* psSlot, float* pfLeft, float* pfRight)
 static void xa2_ApplySlotOutput(SDWORD iSlot)
 {
   VOICE_SLOT* psSlot = &g_aSlots[iSlot];
-  float afMatrix[XAUDIO2_MAX_AUDIO_CHANNELS];
-  float fLeft, fRight;
-  UDWORD i;
 
   if (psSlot->pVoice == nullptr)
     return;
@@ -275,29 +324,13 @@ static void xa2_ApplySlotOutput(SDWORD iSlot)
   if (psSlot->bMusic == TRUE)
     fVolume = fVolume * static_cast<float>(g_iMusicVolume) / static_cast<float>(AUDIO_VOL_MAX);
 
-  if (psSlot->bPositional == TRUE)
-    fVolume *= xa2_Attenuation(psSlot);
-
   psSlot->pVoice->SetVolume(fVolume);
 
-  /* Only positional sounds are panned; everything else keeps the default
-   * matrix, which is what the 2D channels had.
+  /* Only positional sounds are spatialised; everything else keeps the
+   * default output matrix, which is what the 2D channels had.
    */
-  if (psSlot->bPositional == FALSE || g_udwOutputChannels < 2 || g_udwOutputChannels > XAUDIO2_MAX_AUDIO_CHANNELS)
-    return;
-
-  xa2_Pan(psSlot, &fLeft, &fRight);
-
-  for (i = 0; i < g_udwOutputChannels; i++)
-    afMatrix[i] = 0.0f;
-
-  /* Channels zero and one are front left and right in every layout XAudio2
-   * reports, so a surround setup gets the sound across its front stage.
-   */
-  afMatrix[0] = fLeft;
-  afMatrix[1] = fRight;
-
-  psSlot->pVoice->SetOutputMatrix(nullptr, 1, g_udwOutputChannels, afMatrix);
+  if (psSlot->bPositional == TRUE && g_bX3DAudio == TRUE)
+    xa2_ApplySpatial(iSlot);
 }
 
 /***************************************************************************/
@@ -772,6 +805,7 @@ BOOL sound_InitLibrary(void)
 {
   WAVEFORMATEX sFormat;
   XAUDIO2_VOICE_DETAILS sDetails;
+  DWORD dwChannelMask = 0;
   SDWORD i;
 
   memset(g_aSlots, 0, sizeof(g_aSlots));
@@ -796,6 +830,35 @@ BOOL sound_InitLibrary(void)
 
   g_pMasterVoice->GetVoiceDetails(&sDetails);
   g_udwOutputChannels = sDetails.InputChannels;
+
+  /* The listener starts at the origin facing north, which is what
+   * sound_SetPlayerOrientation would compute for an angle of zero.
+   */
+  memset(&g_sListener, 0, sizeof(g_sListener));
+  g_sListener.OrientFront.z = 1.0f;
+  g_sListener.OrientTop.y = 1.0f;
+
+  /* X3DAudio writes one coefficient per destination channel and handles at
+   * most eight, so an unusually wide endpoint means no spatialisation rather
+   * than a buffer overrun.
+   */
+  g_bX3DAudio = FALSE;
+
+  /* GetChannelMask's result is deliberately not tested. It returns HRESULT in
+   * the Windows SDK but void in mingw-w64, so wrapping it in FAILED compiles
+   * on one and not the other; the mask staying zero is the same check by
+   * another route, and a mask of zero is no use to X3DAudio anyway.
+   */
+  g_pMasterVoice->GetChannelMask(&dwChannelMask);
+
+  if (g_udwOutputChannels > XA2_MAX_DEST_CHANNELS)
+    Neuron::DebugTrace("sound_InitLibrary: {} output channels, 3D audio off\n", g_udwOutputChannels);
+  else if (dwChannelMask == 0)
+    Neuron::DebugTrace("sound_InitLibrary: no speaker mask, 3D audio off\n");
+  else if (FAILED(X3DAudioInitialize(dwChannelMask, X3DAUDIO_SPEED_OF_SOUND, g_X3DAudio)))
+    Neuron::DebugTrace("sound_InitLibrary: X3DAudioInitialize failed, 3D audio off\n");
+  else
+    g_bX3DAudio = TRUE;
 
   /* The pooled voices are 16 bit mono. The rate here is only where they
    * start: each is retuned to the track it is given.
@@ -882,6 +945,8 @@ void sound_ShutdownLibrary(void)
     g_pXAudio2->Release();
     g_pXAudio2 = nullptr;
   }
+
+  g_bX3DAudio = FALSE;
 
   if (g_bFinishedInit == TRUE)
   {
@@ -1294,11 +1359,25 @@ BOOL sound_QueueSamplePlaying(void) { return g_aSlots[XA2_SLOT_QUEUE].bBusy; }
 /* positioning */
 /***************************************************************************/
 
+/*
+ * The game's audio space is x east, y north and z height -- Aud.cpp inverts
+ * world y on the way in, which is why north is positive. X3DAudio is left
+ * handed with x right, y up and z forward, so the two differ by swapping y
+ * and z, and nothing else.
+ *
+ * Checking the handedness comes out right: at an angle of zero the listener
+ * faces north, which is X3DAudio's +z, with +y up; the listener's right is
+ * then +x, which is east. Facing north, east is on your right.
+ */
 void sound_SetPlayerPos(SDWORD iX, SDWORD iY, SDWORD iZ)
 {
   g_iListenerX = iX;
   g_iListenerY = iY;
   g_iListenerZ = iZ;
+
+  g_sListener.Position.x = static_cast<float>(iX);
+  g_sListener.Position.y = static_cast<float>(iZ);
+  g_sListener.Position.z = static_cast<float>(iY);
 }
 
 /***************************************************************************/
@@ -1306,9 +1385,8 @@ void sound_SetPlayerPos(SDWORD iX, SDWORD iY, SDWORD iZ)
  * sound_SetPlayerOrientation
  *
  * Orientation given as an angle in degrees about the vertical axis. QMixer was
- * handed a direction vector of (-sin, cos, 0) built from it; what is kept here
- * is the perpendicular, pointing to the listener's right, because that is what
- * a sound's pan is taken from.
+ * handed a direction vector of (-sin, cos, 0) built from it in the game's
+ * axes; the same vector goes to X3DAudio with y and z swapped.
  */
 /***************************************************************************/
 
@@ -1319,8 +1397,13 @@ void sound_SetPlayerOrientation(SDWORD iX, SDWORD iY, SDWORD iZ)
   iX;
   iY;
 
-  g_fRightX = static_cast<float>(cos(dAngle));
-  g_fRightY = static_cast<float>(sin(dAngle));
+  g_sListener.OrientFront.x = static_cast<float>(-sin(dAngle));
+  g_sListener.OrientFront.y = 0.0f;
+  g_sListener.OrientFront.z = static_cast<float>(cos(dAngle));
+
+  g_sListener.OrientTop.x = 0.0f;
+  g_sListener.OrientTop.y = 1.0f;
+  g_sListener.OrientTop.z = 0.0f;
 }
 
 /***************************************************************************/

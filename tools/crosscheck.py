@@ -41,6 +41,13 @@ SKIP = re.compile(r'^(DX9|GameData|Docs|tools)/')
 STUBS = ['concurrent_queue.h', 'concurrent_unordered_map.h', 'mdspan',
          'restrictederrorinfo.h', 'stacktrace']
 
+# Headers the tree really uses that mingw-w64 does not ship, so an empty stub
+# will not do. These are hand-written declarations, checked in under
+# tools/stubs and copied over the generated ones. They are a transcription of
+# somebody else's API: they catch mistakes in our use of it, not mistakes in
+# themselves. Each says so at the top.
+STUBDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'stubs')
+
 
 def sources():
     out = []
@@ -77,6 +84,11 @@ def build_shadow(dst):
         if name.lower() != name and name.lower() not in known:
             open(os.path.join(stubdir, name), 'w').write(
                 f'#pragma once\n#include <{name.lower()}>\n')
+
+    # Written last so a real stub wins over anything generated above.
+    if os.path.isdir(STUBDIR):
+        for f in sorted(os.listdir(STUBDIR)):
+            shutil.copy2(os.path.join(STUBDIR, f), os.path.join(stubdir, f))
 
     for proj in ('NeuronCore', 'Outpost'):
         d = os.path.join(dst, proj)

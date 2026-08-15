@@ -468,13 +468,14 @@ from step 1 along with it. Phase 6 replaces the FMV decoder, at which point
    nothing to redistribute. `Microsoft.XAudio2.Redist` remains a drop-in if
    Windows 7 SP1 has to work: it changes the include path and the import
    library and nothing in the code.
-2. **3D audio** — **hand-rolled distance attenuation and constant-power pan**,
-   not X3DAudio. Two reasons, and the second decided it. It matches what QMixer
-   was actually asked for — `SetDistanceMapping` plus a listener position and
-   orientation, with no doppler and no cones, neither of which the game
-   supplies data for. And `x3daudio.h` is not in mingw-w64, so an X3DAudio
-   implementation could not be cross-checked at all and would have gone to CI
-   unverified. X3DAudio remains the upgrade if the panning proves wrong by ear.
+2. **3D audio** — **X3DAudio**. The first pass used a hand-rolled distance
+   attenuation and constant-power pan, on the grounds that `x3daudio.h` is not
+   in mingw-w64 and so an X3DAudio backend could not be cross-checked at all.
+   That was solved rather than accepted: `tools/stubs/x3daudio.h` is a
+   checked-in declaration-only shim the harness copies into its shadow tree,
+   so the file compiles under the cross-check like everything else. See
+   [The X3DAudio shim](#the-x3daudio-shim) for what that does and does not
+   prove.
 3. **Music assets** — still absent, and deliberately not invented.
    `Music.cpp` resolves track *n* to `music\track<n>.wav`; a missing file
    traces and the game stays quiet rather than failing.
@@ -516,6 +517,20 @@ one rate at load, which is what QMixer did internally and would have cost about
 48 MB resident and a resampler. A queue in the backend costs neither, at the
 price of a frame's gap between queued sounds.
 
+**3D is X3DAudio, and it needed a shim to be checkable.** The distance model
+is the one QMixer was given — flat inside 300 units, inverse distance with a
+1.5 rolloff beyond it, silent at the track's audible radius — but stated as an
+`X3DAUDIO_DISTANCE_CURVE` rather than computed by hand, because X3DAudio's own
+default curve never reaches zero and the audible radius is authored per track.
+X3DAudio returns the per-speaker coefficients with the attenuation already in
+them, so the voice's own volume carries the mix volume and nothing else.
+
+The axis mapping is the one place to be careful. The game's audio space is x
+east, y north, z height; X3DAudio is left-handed with x right, y up, z forward,
+so the two differ by swapping y and z. The check that it comes out right: at an
+angle of zero the listener faces north, which is X3DAudio's +z; its right is
+then +x, which is east — and facing north, east is on your right.
+
 **Two hazards the plan did not name.** A pool slot recycled between unrelated
 sounds means a handle held past the end of its sound can stop whatever took the
 slot over, so `iSample` carries a generation for pool slots. And XAudio2 keeps
@@ -535,6 +550,32 @@ volume mismatch is fixed by construction — and the same mismatch turned out to
 be in both volume sliders, which read `sound_GetGlobalVolume` (the `waveOut`
 volume) and wrote `mixer_SetWavVolume` (the mixer line).
 
+### The X3DAudio shim
+
+mingw-w64 ships `xaudio2.h`, `xaudio2fx.h`, `xapo.h` and `xapofx.h`, but no
+`x3daudio.h`. Rather than leave `XA2Track.cpp` unchecked, `tools/stubs/`
+now holds a declaration-only `x3daudio.h` that `crosscheck.py` copies into its
+shadow tree — the same idea as the empty Concurrency Runtime stubs already
+there, but with real declarations because the code actually uses the types.
+
+Be clear about what this buys. It checks the backend's *use* of X3DAudio
+against a transcription of the API, not against the SDK: it catches arity,
+spelling and type errors in our code, and cannot catch an error in the
+transcription. The declarations were taken from two independent sources that
+agree — FAudio's `F3DAudio.h`, a reimplementation of the same ABI, for the
+structure layouts, and DirectXTK's `Audio.h` and `SoundCommon.cpp`, Microsoft's
+own code against the Windows 10 SDK, for the signatures. That is also what
+settled two facts worth recording: `X3DAudioInitialize` returns `HRESULT` in
+these headers where XAudio 2.7's returned `void`, and `xaudio2.lib` is the only
+import library needed, because X3DAudio has been merged into XAudio2 since 2.8.
+
+Writing it turned up a divergence of exactly the kind Phase 1 catalogued, and
+in the less usual direction — mingw stricter than the SDK by accident.
+`IXAudio2MasteringVoice::GetChannelMask` returns `HRESULT` in the Windows SDK
+and `void` in mingw-w64, so `FAILED(GetChannelMask(...))` compiles on MSVC and
+fails the cross-check. The call goes unchecked and the speaker mask is tested
+for zero instead, which is the same guard by another route.
+
 ### Still unverified
 
 Everything above is cross-checked and none of it is *run*. The cross-check is a
@@ -542,7 +583,8 @@ different compiler and cannot link, so the swap of `QMixer.lib` for
 `xaudio2.lib` is exactly the kind of change it is blind to; CI is the first
 real check. Beyond that, this phase changes behaviour and needs the listening
 pass described under [Verification](#verification) — most of all the 3D panning,
-which is the part most likely to be subtly wrong.
+which is the part most likely to be subtly wrong, and which the shim above
+cannot speak to at all.
 
 ---
 

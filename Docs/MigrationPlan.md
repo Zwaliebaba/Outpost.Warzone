@@ -480,8 +480,11 @@ syntax-checked with **mingw-w64** against a shadow copy of the tree, using the
 include paths and preprocessor definitions taken from the `.vcxproj` files.
 `tools/crosscheck.py` is the harness. The shadow neutralises the Windows-only
 things GCC cannot process: includes whose case does not match the real
-filename, and the Concurrency Runtime headers `NeuronCore.h` includes but
-never uses. The inline-assembly handling has gone with the last `__asm` in the
+filename, the Concurrency Runtime headers `NeuronCore.h` includes but never
+uses, and — under `tools/stubs/` — declarations for the headers mingw-w64
+does not ship at all, currently `x3daudio.h`. Those last are a transcription
+of somebody else's API and check our use of it rather than themselves; each
+says so at the top. The inline-assembly handling has gone with the last `__asm` in the
 tree, and so has the `CINTERFACE` define — nothing in the tree defines it any
 more, and leaving it in the harness failed seven units against a green build.
 
