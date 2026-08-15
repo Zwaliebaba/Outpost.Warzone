@@ -127,9 +127,6 @@
     <ClInclude Include="IMD.h">
       <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Ivi.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="IvisDef.h">
       <Filter>Graphics</Filter>
     </ClInclude>
@@ -347,7 +344,6 @@
     <ClCompile Include="HashTabl.cpp" />
     <ClCompile Include="IMD.cpp" />
     <ClCompile Include="IMDLoad.cpp" />
-    <ClCompile Include="Ivi.cpp" />
     <ClCompile Include="NetSupp.cpp" />
     <ClCompile Include="NetUsers.cpp" />
     <ClCompile Include="parser_l.cpp" />

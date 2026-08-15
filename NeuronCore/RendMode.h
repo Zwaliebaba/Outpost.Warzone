@@ -2,7 +2,7 @@
 #ifndef _rendmode_h_
 #define _rendmode_h_
 #include "IvisDef.h"
-#include "Ivi.h"
+#include "PieDef.h"
 #include "Render2D.h"
 #include "BitImage.h"
 #include "TextDraw.h"

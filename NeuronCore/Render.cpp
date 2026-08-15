@@ -13,7 +13,6 @@
  */
 /***************************************************************************/
 
-#include "Ivi.h"
 #include "RendMode.h"
 #include "Tex.h"
 #include "Palette.h"

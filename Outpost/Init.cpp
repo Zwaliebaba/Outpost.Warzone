@@ -39,7 +39,6 @@
 #include "Tex.h"
 #include "resource.h"
 #include "RendMode.h"
-#include "Ivi.h"
 #include "Group.h"
 #include "Wrappers.h"
 #include "Display3D.h"

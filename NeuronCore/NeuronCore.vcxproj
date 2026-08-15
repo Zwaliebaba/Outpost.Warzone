@@ -122,7 +122,6 @@
     <ClInclude Include="IMD.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Interp.h" />
-    <ClInclude Include="Ivi.h" />
     <ClInclude Include="IvisDef.h" />
     <ClInclude Include="IvisPatch.h" />
     <ClInclude Include="Label.h" />
@@ -208,7 +207,6 @@
     <ClCompile Include="IMDLoad.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Interp.cpp" />
-    <ClCompile Include="Ivi.cpp" />
     <ClCompile Include="Label.cpp" />
     <ClCompile Include="MultiWDG.cpp" />
     <ClCompile Include="HostCertificate.cpp" />

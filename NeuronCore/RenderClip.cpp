@@ -1,4 +1,8 @@
 #include "pch.h"
+
+/* Fixed-point shift for the clipper's edge interpolation. Lived in Ivi.h,
+ * which had nothing else left in it; this file is its only user. */
+#define DIVSHIFT 15
 /***************************************************************************/
 /*
  * pieClip.c

@@ -25,7 +25,7 @@
 
 #include "Script.h"
 #include "ScriptTabs.h"
-#include "Ivi.h"                           // Neuron::Reset
+#include "PieMode.h"
 
 // semi hack to get the playstation to load resources from the WDG
 
