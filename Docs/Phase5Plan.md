@@ -464,3 +464,31 @@ which redirects `Neuron::DebugTrace` from `OutputDebugString` — which needs a
 debugger listening, and on a CI runner there is none — to stderr. Without it a
 certificate failure reads as "nettrans_Host returned FALSE" on a machine nobody
 can log into.
+
+### What it found
+
+It passed first time, in both configurations, which settles the question the
+phase was carrying: **Schannel accepts the certificate.** The persisted CNG
+key, the zero `dwProvType`, the SHA-256 signature and TLS 1.3 on the runner all
+work, and that is now a fact rather than an argument. So does the rest of it —
+handshake, ALPN, roster, flags, events, and all 120 reliable messages arriving
+in order and intact in both directions, the 8,004-byte ones included.
+
+One thing it turned up that was theory before, and is worth knowing because the
+game will meet it:
+
+    netquic: 1509 bytes will not fit a datagram (limit 1448), sending reliably
+
+**The unreliable path only reaches about 1,440 bytes.** Above that, MsQuic has
+no datagram big enough and `netq_SendFrameTo` falls back to the stream, so an
+unguaranteed send becomes a guaranteed one. That is the intended behaviour —
+the game asked for the message to be sent and only said it did not need it
+guaranteed, so dropping it would be worse — but it means "unreliable" is a
+property of small messages only. The game's unguaranteed traffic is position
+and movement updates, all well under the limit, so nothing is affected today.
+It would matter to anything larger that wanted to be droppable.
+
+The limit differs slightly between the two ends (1448 and 1439) because each is
+computed after that connection's own header overhead. The harness cycles
+through nine payload sizes, so five of them travel as real datagrams and four
+take the fallback: both paths are covered, which is more than was intended.
