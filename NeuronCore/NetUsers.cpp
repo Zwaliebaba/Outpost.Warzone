@@ -3,7 +3,7 @@
 #include "NetPlay.h"
 
 BOOL NETuseNetwork(BOOL val);
-BOOL FAR PASCAL Playercounter(NETPLAYERID dpId, DWORD dwPlayerType, LPCDPNAME lpName, DWORD dwFlags, LPVOID lpContext);
+BOOL FAR PASCAL Playercounter(DPID dpId, DWORD dwPlayerType, LPCDPNAME lpName, DWORD dwFlags, LPVOID lpContext);
 UDWORD NETplayerInfo(LPGUID guidinstance);
 BOOL NETchangePlayerName(UDWORD dpid, char* newName);
 BOOL NETgetLocalPlayerData(NETPLAYERID dpid,VOID* pData, DWORD* pSize);
@@ -115,7 +115,12 @@ BOOL NETsetGlobalPlayerData(NETPLAYERID dpid,VOID* pData, DWORD size)
 // ////////////////////////////////////////////////////////////////////////
 // ////////////////////////////////////////////////////////////////////////
 // functions to examine players in a given game.
-BOOL FAR PASCAL Playercounter(NETPLAYERID dpId, DWORD dwPlayerType, LPCDPNAME lpName, DWORD dwFlags, LPVOID lpContext)
+/* DPID rather than NETPLAYERID: DirectPlay's own type, because this is
+ * DirectPlay's own call. The two are both 32 bits but DPID is a DWORD and
+ * NETPLAYERID a UDWORD, so a pointer or callback of one is not the other and
+ * MSVC says so. These conversions go when the calls do.
+ */
+BOOL FAR PASCAL Playercounter(DPID dpId, DWORD dwPlayerType, LPCDPNAME lpName, DWORD dwFlags, LPVOID lpContext)
 {
   if (NetPlay.playercount == MaxNumberOfPlayers)
   {
@@ -210,7 +215,7 @@ BOOL NETchangePlayerName(UDWORD dpid, char* newName)
 
 BOOL NETspectate(GUID guidSessionInstance)
 {
-  NETPLAYERID dpidPlayer;
+  DPID dpidPlayer; // DirectPlay's type: CreatePlayer writes through it
   DPSESSIONDESC2 sessionDesc;
   HRESULT hr;
 

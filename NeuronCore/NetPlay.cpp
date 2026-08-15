@@ -296,7 +296,7 @@ BOOL NETbcast(NETMSG* msg, BOOL guarantee)
 // receive a message over the current connection
 BOOL NETrecv(NETMSG* pMsg)
 {
-  NETPLAYERID idTo, idFrom;
+  DPID idTo, idFrom; // DirectPlay's type: Receive writes through them
   HRESULT hr;
 
   DWORD bufsize = sizeof(NETMSG); // can only be as big as a NETMSG.

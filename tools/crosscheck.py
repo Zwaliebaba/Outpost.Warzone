@@ -132,17 +132,47 @@ def system_includes(dst):
     return {n.rsplit('/', 1)[-1] for n in names}
 
 
+# -fpermissive is needed: this codebase names anonymous types with
+# `using X = enum {...}`, which MSVC accepts and GCC calls "declared using
+# unnamed type", and 81 units use it. But -fpermissive also downgrades genuine
+# type errors to warnings, and -w then hides them -- which is how a batch of
+# NETPLAYERID-for-DPID conversions passed here and failed on MSVC.
+#
+# So the diagnostics that -fpermissive would otherwise swallow are matched back
+# out of a warning-visible run. Keep this list to things MSVC really rejects.
+# Matched against a -fpermissive run with warnings visible, where these appear
+# as "warning: invalid conversion ... [-fpermissive]" rather than as errors.
+# The unnamed-type diagnostic carries the same tag and is deliberately not here.
+PERMISSIVE_HIDES = re.compile(r'(invalid conversion|cannot convert).*\[-fpermissive\]')
+
+
 def check(shadow, rel):
     proj = rel.split('/')[0]
     inc = ['-I', os.path.join(shadow, proj), '-I', os.path.join(shadow, 'DX9/Include'),
            '-I', os.path.join(shadow, 'stubs')]
     if proj == 'Outpost':
         inc += ['-I', os.path.join(shadow, 'NeuronCore')]
-    cmd = [CXX, '-fsyntax-only', '-std=c++20', '-fpermissive', '-w',
-           '-fms-extensions', '-Wno-everything'] + \
+    # no -w, so the downgraded diagnostics are still printed
+    cmd = [CXX, '-fsyntax-only', '-std=c++20', '-fpermissive',
+           '-fms-extensions', '-w', '-Wno-everything'] + \
           [f'-D{d}' for d in DEFS] + inc + [os.path.join(shadow, rel)]
     r = subprocess.run(cmd, capture_output=True, text=True)
-    return rel, r.returncode, r.stderr
+    if r.returncode != 0:
+        return rel, r.returncode, r.stderr
+
+    # second pass, warnings visible, only to catch what -fpermissive hid
+    loud = [c for c in cmd if c not in ('-w', '-Wno-everything')]
+    r2 = subprocess.run(loud, capture_output=True, text=True)
+    # Only our own files are judged. The vendored msquic headers trip this on
+    # a mingw-vs-SDK signature difference in RtlIpv4StringToAddressA, which is
+    # a gap in mingw rather than anything MSVC would reject.
+    ours = (os.path.join(shadow, 'NeuronCore'), os.path.join(shadow, 'Outpost'))
+    hidden = [l for l in r2.stderr.splitlines()
+              if PERMISSIVE_HIDES.search(l) and l.startswith(ours)]
+    if hidden:
+        return rel, 1, '\n'.join(hidden)
+
+    return rel, 0, ''
 
 
 def main():
@@ -168,6 +198,9 @@ def main():
                 if rc != 0:
                     bad += 1
                     lines = [l for l in err.splitlines() if ' error:' in l]
+                    # the -fpermissive catch reports warnings, not errors
+                    if not lines:
+                        lines = [l for l in err.splitlines() if l.strip()]
                     print(f'--- {rel}: {len(lines)} error(s)')
                     for l in lines[:12]:
                         print('   ', l.replace(shadow + '/', ''))

@@ -233,6 +233,22 @@ they were checked first:
 - **The certificate escape hatch exists.** `QUIC_CREDENTIAL_FLAG_NO_CERTIFICATE_VALIDATION`
   is a documented flag, not a workaround.
 
+The `DPID` sweep shipped red and CI caught it, which is worth recording
+because the harness is why it was not caught sooner. `NETPLAYERID` is a
+`UDWORD` and `DPID` a `DWORD` — both 32 bits, different types — so a
+`NETPLAYERID*` where DirectPlay wants an `LPDPID`, or a callback taking one
+instead of the other, is an error MSVC refuses and GCC merely warns about under
+`-fpermissive`. `-w` then hid the warning. Seven sites across three files
+passed the cross-check and failed the build.
+
+`-fpermissive` cannot simply go: this codebase names anonymous types with
+`using X = enum {...}`, which MSVC accepts and GCC rejects, in 81 units.
+`crosscheck.py` now runs a second pass with warnings visible and fails on the
+diagnostics `-fpermissive` downgrades — currently `invalid conversion` and
+`cannot convert` — scoped to our own files, so the vendored msquic headers do
+not trip it on a mingw gap. The check was verified by reintroducing one of the
+seven and confirming the harness goes red.
+
 One gap between mingw-w64 and the real headers turned out to matter to the
 real build too, and is recorded here because it is the kind of thing that would
 otherwise be rediscovered painfully. `msquic_winuser.h` writes `#if DEBUG` to
