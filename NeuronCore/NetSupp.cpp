@@ -52,7 +52,7 @@ HRESULT DestroyDirectPlayInterface(HWND hWnd, LPDIRECTPLAY4A lpDirectPlay4A)
 HRESULT HostSession(LPDIRECTPLAY4A lpDirectPlay4A, LPSTR lpszSessionName, LPSTR lpszPlayerName, LPNETPLAY lpNetPlay, DWORD one, DWORD two,
                     DWORD three, DWORD four, UDWORD mplayers)
 {
-  DPID dpidPlayer;
+  NETPLAYERID dpidPlayer;
   DPNAME dpName;
   DPSESSIONDESC2 sessionDesc;
   HRESULT hr;
@@ -100,7 +100,7 @@ OPEN_FAILURE: IDirectPlayX_Close(glpDP);
 // Enter a DPLAY game 
 HRESULT JoinSession(LPDIRECTPLAY4A lpDirectPlay4A, LPGUID lpguidSessionInstance, LPSTR lpszPlayerName, LPNETPLAY lpNetPlay)
 {
-  DPID dpidPlayer;
+  NETPLAYERID dpidPlayer;
   DPNAME dpName;
   DPSESSIONDESC2 sessionDesc;
   HRESULT hr;

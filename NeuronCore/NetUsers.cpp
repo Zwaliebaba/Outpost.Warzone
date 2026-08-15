@@ -3,16 +3,16 @@
 #include "NetPlay.h"
 
 BOOL NETuseNetwork(BOOL val);
-BOOL FAR PASCAL Playercounter(DPID dpId, DWORD dwPlayerType, LPCDPNAME lpName, DWORD dwFlags, LPVOID lpContext);
+BOOL FAR PASCAL Playercounter(NETPLAYERID dpId, DWORD dwPlayerType, LPCDPNAME lpName, DWORD dwFlags, LPVOID lpContext);
 UDWORD NETplayerInfo(LPGUID guidinstance);
 BOOL NETchangePlayerName(UDWORD dpid, char* newName);
-BOOL NETgetLocalPlayerData(DPID dpid,VOID* pData, DWORD* pSize);
-BOOL NETgetGlobalPlayerData(DPID dpid,VOID* pData, DWORD* pSize);
-BOOL NETsetLocalPlayerData(DPID dpid,VOID* pData, DWORD size);
-BOOL NETsetGlobalPlayerData(DPID dpid,VOID* pData, DWORD size);
+BOOL NETgetLocalPlayerData(NETPLAYERID dpid,VOID* pData, DWORD* pSize);
+BOOL NETgetGlobalPlayerData(NETPLAYERID dpid,VOID* pData, DWORD* pSize);
+BOOL NETsetLocalPlayerData(NETPLAYERID dpid,VOID* pData, DWORD size);
+BOOL NETsetGlobalPlayerData(NETPLAYERID dpid,VOID* pData, DWORD size);
 
 BOOL NETspectate(GUID guidSessionInstance);
-BOOL NETisSpectator(DPID dpid);
+BOOL NETisSpectator(NETPLAYERID dpid);
 
 VOID* pSingleUserData; // single player mode. a local copy...
 DWORD userDataSize = 0;
@@ -28,7 +28,7 @@ BOOL NETuseNetwork(BOOL val)
 }
 
 // ////////////////////////////////////////////////////////////////////////
-BOOL NETgetLocalPlayerData(DPID dpid,VOID* pData, DWORD* pSize)
+BOOL NETgetLocalPlayerData(NETPLAYERID dpid,VOID* pData, DWORD* pSize)
 {
   HRESULT hr;
 
@@ -46,7 +46,7 @@ BOOL NETgetLocalPlayerData(DPID dpid,VOID* pData, DWORD* pSize)
 }
 
 // ////////////////////////////////////////////////////////////////////////
-BOOL NETgetGlobalPlayerData(DPID dpid,VOID* pData, DWORD* pSize)
+BOOL NETgetGlobalPlayerData(NETPLAYERID dpid,VOID* pData, DWORD* pSize)
 {
   HRESULT hr;
 
@@ -67,7 +67,7 @@ BOOL NETgetGlobalPlayerData(DPID dpid,VOID* pData, DWORD* pSize)
 }
 
 // ////////////////////////////////////////////////////////////////////////
-BOOL NETsetLocalPlayerData(DPID dpid,VOID* pData, DWORD size)
+BOOL NETsetLocalPlayerData(NETPLAYERID dpid,VOID* pData, DWORD size)
 {
   HRESULT hr;
 
@@ -90,7 +90,7 @@ BOOL NETsetLocalPlayerData(DPID dpid,VOID* pData, DWORD size)
 }
 
 // ////////////////////////////////////////////////////////////////////////
-BOOL NETsetGlobalPlayerData(DPID dpid,VOID* pData, DWORD size)
+BOOL NETsetGlobalPlayerData(NETPLAYERID dpid,VOID* pData, DWORD size)
 {
   HRESULT hr;
 
@@ -115,7 +115,7 @@ BOOL NETsetGlobalPlayerData(DPID dpid,VOID* pData, DWORD size)
 // ////////////////////////////////////////////////////////////////////////
 // ////////////////////////////////////////////////////////////////////////
 // functions to examine players in a given game.
-BOOL FAR PASCAL Playercounter(DPID dpId, DWORD dwPlayerType, LPCDPNAME lpName, DWORD dwFlags, LPVOID lpContext)
+BOOL FAR PASCAL Playercounter(NETPLAYERID dpId, DWORD dwPlayerType, LPCDPNAME lpName, DWORD dwFlags, LPVOID lpContext)
 {
   if (NetPlay.playercount == MaxNumberOfPlayers)
   {
@@ -182,7 +182,7 @@ BOOL NETchangePlayerName(UDWORD dpid, char* newName)
 {
   HRESULT hr;
   DPNAME name;
-  DPID dp = dpid;
+  NETPLAYERID dp = dpid;
   ZeroMemory(&name, sizeof(DPNAME)); // fill out name structure
   name.dwSize = sizeof(DPNAME);
   name.lpszShortNameA = newName;
@@ -210,7 +210,7 @@ BOOL NETchangePlayerName(UDWORD dpid, char* newName)
 
 BOOL NETspectate(GUID guidSessionInstance)
 {
-  DPID dpidPlayer;
+  NETPLAYERID dpidPlayer;
   DPSESSIONDESC2 sessionDesc;
   HRESULT hr;
 
@@ -238,7 +238,7 @@ FAILURE: IDirectPlayX_Close(glpDP);
 }
 
 // ////////////////////////////////////////////////////////////////////////
-BOOL NETisSpectator(DPID dpid)
+BOOL NETisSpectator(NETPLAYERID dpid)
 {
   UBYTE i;
 

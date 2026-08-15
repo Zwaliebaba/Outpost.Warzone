@@ -20,7 +20,7 @@ extern BOOL startForceSelect(VOID);
 
 extern BOOL chooseColour(UDWORD);
 
-// note the argument is of type DPID, not DWORD; spelled DWORD here (as
+// note the argument is of type NETPLAYERID, not DWORD; spelled DWORD here (as
 // player2dpid is in MultiPlay.h) so this header does not have to pull in
 // dplay.h for the files that only want the frontend definitions.
 extern VOID kickPlayer(DWORD dpid);

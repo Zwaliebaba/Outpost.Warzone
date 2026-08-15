@@ -504,7 +504,7 @@ using SAVE_GAME_V31 = struct save_game_v31
 	UDWORD			savePlayer;	\
 	STRING			sPName[32];	\
 	BOOL			multiPlayer;\
-	DPID			sPlayer2dpid[MAX_PLAYERS]
+	NETPLAYERID			sPlayer2dpid[MAX_PLAYERS]
 
 using SAVE_GAME_V33 = struct save_game_v33
 {

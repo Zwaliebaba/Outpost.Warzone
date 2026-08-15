@@ -48,7 +48,7 @@
 // globals.
 BOOL bMultiPlayer = FALSE; // true when more than 1 player.
 STRING sForceName[256] = "Default";
-DPID player2dpid[MAX_PLAYERS] = {0, 0, 0, 0, 0, 0, 0, 0}; //stores dpids of each player. FILTHY HACK (ASSUMES 8playerS)
+NETPLAYERID player2dpid[MAX_PLAYERS] = {0, 0, 0, 0, 0, 0, 0, 0}; //stores dpids of each player. FILTHY HACK (ASSUMES 8playerS)
 BOOL openchannels[MAX_PLAYERS] = {TRUE};
 UBYTE bDisplayMultiJoiningStatus;
 
@@ -574,7 +574,7 @@ BOOL DirectPlaySystemMessageHandler(LPVOID mg)
 BOOL recvMessage(VOID)
 {
   NETMSG msg;
-  DPID dp;
+  NETPLAYERID dp;
   UDWORD a;
 
   while (NETrecv(&msg) == TRUE) // for all incoming messages.
@@ -1011,7 +1011,7 @@ BOOL sendTextMessage(char* pStr, BOOL all)
 // Write a message to the console.
 BOOL recvTextMessage(NETMSG* pMsg)
 {
-  DPID dpid;
+  NETPLAYERID dpid;
   UDWORD i;
   STRING msg[MAX_CONSOLE_STRING_LENGTH];
 

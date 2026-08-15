@@ -5,6 +5,7 @@
  */
 
 #include "Group.h"
+#include "NetPlay.h"	// for NETPLAYERID
 
 // Different Message Structures allowed to be sent between players. 
 // Each message must have type = to one of these.
@@ -170,7 +171,7 @@ extern MULTIPLAYERINGAME ingame; // the game description.
 
 extern BOOL bMultiPlayer; // true when more than 1 player.
 extern UDWORD selectedPlayer;
-extern DWORD player2dpid[MAX_PLAYERS]; // note this is of type DPID, not DWORD
+extern NETPLAYERID player2dpid[MAX_PLAYERS];
 extern BOOL openchannels[MAX_PLAYERS];
 extern UBYTE bDisplayMultiJoiningStatus; // draw load progress?
 

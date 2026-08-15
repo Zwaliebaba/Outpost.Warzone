@@ -26,6 +26,13 @@
 #define MaxGames			12					// max number of concurrently playable games to allow.
 using UDWORD = unsigned int; // for similarity to warzone
 
+/* How a player is identified. This was DirectPlay's DPID, which is a DWORD,
+ * so the width and therefore the bytes NetAdd puts on the wire are unchanged.
+ * Naming it here is what lets the game stop including dplay.h to know what a
+ * player is.
+ */
+using NETPLAYERID = UDWORD;
+
 //typedef struct {								//Available game storage... JUST FOR REFERENCE!
 
 // Games Storage Structures
@@ -62,7 +69,7 @@ typedef struct
 // Player information. Update using NETplayerinfo
 using PLAYER = struct
 {
-  DPID dpid;
+  NETPLAYERID dpid;
   char name[StringSize];
   BOOL bHost; // a bool.
   BOOL bSpectator;
@@ -79,7 +86,7 @@ typedef struct
 
   LPDIRECTPLAY4A lpDirectPlay4A; // IDirectPlay4A interface pointer
   HANDLE hPlayerEvent; // player event to use
-  DPID dpidPlayer; // ID of player created
+  NETPLAYERID dpidPlayer; // ID of player created
 
   BOOL bComms; // actually do the comms?
   BOOL bHost; // TRUE if we are hosting the session
@@ -106,11 +113,11 @@ extern LPDIRECTPLAYLOBBYA glpDPL; // pointer to the dplay lobby interface.
 extern BOOL NETinit(GUID g, BOOL bFirstCall); //init(guid can be NULL)		
 extern BOOL NETfindProtocol(BOOL Lob); //put connections in Protocols[] (Lobbies optional)
 extern BOOL NETselectProtocol(LPVOID lpConnection); //choose one. 
-extern BOOL NETsend(NETMSG* msg, DPID player, BOOL guarantee); // send to player, possibly guaranteed
+extern BOOL NETsend(NETMSG* msg, NETPLAYERID player, BOOL guarantee); // send to player, possibly guaranteed
 extern BOOL NETbcast(NETMSG* msg, BOOL guarantee); // broadcast to everyone, possibly guaranteed
 extern BOOL NETrecv(NETMSG* msg); // recv a message if possible
 
-extern UCHAR NETsendFile(BOOL newFile, CHAR* fileName, DPID player); // send file chunk.
+extern UCHAR NETsendFile(BOOL newFile, CHAR* fileName, NETPLAYERID player); // send file chunk.
 extern UCHAR NETrecvFile(NETMSG* pMsg); // recv file chunk
 
 extern HRESULT NETclose(VOID); // close current game
@@ -139,13 +146,13 @@ extern BOOL NEThostGame(LPSTR SessionName, LPSTR PlayerName, // host a game
 extern BOOL NETuseNetwork(BOOL val); // TURN on/off networking.
 extern UDWORD NETplayerInfo(LPGUID guidinstance); // count players in this game.
 extern BOOL NETchangePlayerName(UDWORD dpid, char* newName); // change a players name.
-extern BOOL NETgetLocalPlayerData(DPID dpid,VOID* pData, DWORD* pSize);
-extern BOOL NETgetGlobalPlayerData(DPID dpid,VOID* pData, DWORD* pSize);
-extern BOOL NETsetLocalPlayerData(DPID dpid,VOID* pData, DWORD size);
-extern BOOL NETsetGlobalPlayerData(DPID dpid,VOID* pData, DWORD size);
+extern BOOL NETgetLocalPlayerData(NETPLAYERID dpid,VOID* pData, DWORD* pSize);
+extern BOOL NETgetGlobalPlayerData(NETPLAYERID dpid,VOID* pData, DWORD* pSize);
+extern BOOL NETsetLocalPlayerData(NETPLAYERID dpid,VOID* pData, DWORD size);
+extern BOOL NETsetGlobalPlayerData(NETPLAYERID dpid,VOID* pData, DWORD size);
 
 extern BOOL NETspectate(GUID guidSessionInstance); // create a spectator
-extern BOOL NETisSpectator(DPID dpid); // check for spectator staus.
+extern BOOL NETisSpectator(NETPLAYERID dpid); // check for spectator staus.
 
 //from netsupp
 extern BOOL NETlogEntry(CHAR* str, UDWORD a, UDWORD b);

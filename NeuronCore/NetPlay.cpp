@@ -48,14 +48,14 @@ UDWORD NETgetRecentBytesSent(VOID);
 UDWORD NETgetRecentPacketsSent(VOID);
 UDWORD NETgetRecentBytesRecvd(VOID);
 UDWORD NETgetRecentPacketsRecvd(VOID);
-BOOL NETsend(NETMSG* msg, DPID player, BOOL guarantee);
+BOOL NETsend(NETMSG* msg, NETPLAYERID player, BOOL guarantee);
 BOOL NETbcast(NETMSG* msg, BOOL guarantee);
 BOOL NETrecv(NETMSG* msg);
 BOOL NETselectProtocol(LPVOID lpConnection);
 BOOL FAR PASCAL NETfindProtocolCallback(LPCGUID lpguidSP, LPVOID lpConnection, DWORD dwConnectionSize, LPCDPNAME lpName, DWORD dwFlags,
                                         LPVOID lpContext);
 BOOL NETfindProtocol(BOOL Lob);
-UBYTE NETsendFile(BOOL newFile, CHAR* fileName, DPID player);
+UBYTE NETsendFile(BOOL newFile, CHAR* fileName, NETPLAYERID player);
 UBYTE NETrecvFile(NETMSG* pMsg);
 
 // ////////////////////////////////////////////////////////////////////////
@@ -220,7 +220,7 @@ UDWORD NETgetRecentPacketsRecvd(VOID) { return nStats.packetsRecvd; }
 
 // ////////////////////////////////////////////////////////////////////////
 // Send a message to a player, option to guarantee message
-BOOL NETsend(NETMSG* msg, DPID player, BOOL guarantee)
+BOOL NETsend(NETMSG* msg, NETPLAYERID player, BOOL guarantee)
 {
   HRESULT hr;
 
@@ -296,7 +296,7 @@ BOOL NETbcast(NETMSG* msg, BOOL guarantee)
 // receive a message over the current connection
 BOOL NETrecv(NETMSG* pMsg)
 {
-  DPID idTo, idFrom;
+  NETPLAYERID idTo, idFrom;
   HRESULT hr;
 
   DWORD bufsize = sizeof(NETMSG); // can only be as big as a NETMSG.
@@ -432,7 +432,7 @@ BOOL NETfindProtocol(BOOL Lob)
 
 // send file. it returns % of file sent. when 100 it's complete. call until it returns 100.
 
-UBYTE NETsendFile(BOOL newFile, CHAR* fileName, DPID player)
+UBYTE NETsendFile(BOOL newFile, CHAR* fileName, NETPLAYERID player)
 {
   static UDWORD fileSize, currPos;
   static FILE* pFileHandle;

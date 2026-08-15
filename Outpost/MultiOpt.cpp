@@ -50,7 +50,7 @@ extern VOID stopJoining(void);
 // ////////////////////////////////////////////////////////////////////////////
 // Local Functions
 
-VOID sendOptions(DPID dest, UDWORD player);
+VOID sendOptions(NETPLAYERID dest, UDWORD player);
 VOID recvOptions(NETMSG* pMsg);
 static BOOL dMatchInit(VOID);
 static BOOL campInit(VOID);
@@ -73,7 +73,7 @@ BOOL multiGameShutdown(VOID);
 
 // send complete game info set!
 // dpid == 0 for no new players.
-VOID sendOptions(DPID dest, UDWORD play)
+VOID sendOptions(NETPLAYERID dest, UDWORD play)
 {
   NETMSG m;
   UBYTE checkval;
@@ -146,7 +146,7 @@ BOOL checkGameWdg(CHAR* nm)
 void recvOptions(NETMSG* pMsg)
 {
   UDWORD pos = 0, play, id;
-  DPID newPl;
+  NETPLAYERID newPl;
   UBYTE checkval;
 
   NetGet(pMsg, 0, game); // get details.
