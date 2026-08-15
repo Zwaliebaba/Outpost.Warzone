@@ -9,7 +9,7 @@
 #include "ObjMem.h"
 #include "Display.h"	// gamma
 #include "Track.h"		// audio
-#include "CDAudio.h"	// audio
+#include "Music.h"
 #include "PieState.h"	// setgamma.
 #include "WarzoneConfig.h"	// renderMode
 #include "Component.h"
@@ -21,7 +21,6 @@
 #include "MultiPlay.h"
 #include "AI.h"
 #include "AdvVis.h"
-#include "Mixer.h"
 #include "HCI.h"
 #include "FPath.h"
 #include "D3DRender.h"
@@ -78,12 +77,12 @@ BOOL loadConfig(BOOL bResourceAvailable)
   // //////////////////////////
   // fx vol
   if (getWarzoneKeyNumeric("fxvol", &val))
-    mixer_SetWavVolume(static_cast<SDWORD>(val));
+    audio_SetFXVolume(static_cast<SDWORD>(val));
 
   // //////////////////////////
   // cdvol
   if (getWarzoneKeyNumeric("cdvol", &val))
-    mixer_SetCDVolume(static_cast<SDWORD>(val));
+    audio_SetMusicVolume(static_cast<SDWORD>(val));
 
   // //////////////////////////
   // gamma
@@ -510,8 +509,8 @@ BOOL saveConfig()
 
   // //////////////////////////
   // fxvol and cdvol
-  setWarzoneKeyNumeric("fxvol", mixer_GetWavVolume());
-  setWarzoneKeyNumeric("cdvol", mixer_GetCDVolume());
+  setWarzoneKeyNumeric("fxvol", audio_GetFXVolume());
+  setWarzoneKeyNumeric("cdvol", audio_GetMusicVolume());
 
   // note running rendermode
   setWarzoneKeyNumeric("renderMode", war_GetRendMode());

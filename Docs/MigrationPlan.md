@@ -31,14 +31,15 @@ Subsystems in use today:
   `D3DMode.cpp`, `DX6TexMan.cpp`, `TexD3D.cpp`. The iVis layer (`RendMode.cpp`,
   `PieState.h`) still carries dead 3dfx Glide, software-render and 8-bit
   palette backends.
-- **Input** — DirectInput 7 (`DXInput.cpp`, `DIRECTINPUT_VERSION=0x0700`).
-- **Audio** — QSound's QMixer (`QSTrack.cpp`, `Aud.cpp`) over DirectSound, plus
-  MCI CD audio (`CDAudio.cpp`) and CD spanning (`CDSpan.cpp`).
+- **Input** — DirectInput 8 (`DXInput.cpp`, `DIRECTINPUT_VERSION=0x0800`).
+- **Audio** — XAudio2 with X3DAudio (`XA2Track.cpp`, `Aud.cpp`), music from
+  disk (`Music.cpp`), and CD spanning (`CDSpan.cpp`), which stays until game
+  data is confirmed to be installed to disk.
 - **Video** — `Sequence.cpp` streams `.rpl` movies onto DirectDraw surfaces via
   `WINSTR.LIB`.
-- **Network** — DirectPlay 4 (`NetPlay.cpp`, `NetSupp.cpp`, `NetLobby.cpp`,
-  `NetProv.cpp`, `NetUsers.cpp`, `NetAudio.cpp`), plus Mplayer.com matchmaking
-  (`MPDPXtra.cpp`, `MPlayer.cpp`).
+- **Network** — DirectPlay 4 (`NetPlay.cpp`, `NetJoin.cpp`, `NetSupp.cpp`,
+  `NetLobby.cpp`, `NetProv.cpp`, `NetUsers.cpp`), plus Mplayer.com matchmaking
+  (`MPDPXtra.cpp`, `MPlayer.cpp`). Voice chat has been removed.
 
 ## Ordering: C++ first, then DirectX
 
@@ -200,15 +201,45 @@ checklist (transparency, additive effects, fog, terrain).
 
 ## Phase 3 — DirectInput 7 → 8
 
-Small and mechanical: `DIRECTINPUT_VERSION=0x0800`, `DirectInput8Create`,
-updated interface names in `DXInput.cpp`, link `dinput8.lib`. An afternoon, not a
-project.
+**Done**, and it was what it looked like: `DIRECTINPUT_VERSION=0x0800`,
+`DirectInput8Create`, `LPDIRECTINPUT8`/`LPDIRECTINPUTDEVICE8` in `DXInput.cpp`,
+and `dinput8.lib` in place of `dinput.lib`.
+
+Smaller than even that suggests, because the DirectInput surface is one mouse.
+`DXInput.cpp` is 185 lines and uses four DirectInput names in total, nothing
+else in either project touches `psDI` or `psDIMouse`, and there is no keyboard
+or joystick device — `Input.cpp` takes the keyboard from window messages.
+
+Three things made it a swap rather than a port. `DirectInput8Create` takes the
+interface by IID where `DirectInputCreate` handed back a versioned object, but
+that is one call site. `IDirectInput8::CreateDevice` returns an
+`IDirectInputDevice8` directly, so unlike the 3-to-7 upgrades nothing has to be
+queried for afterwards. And `DIMOUSESTATE`, `c_dfDIMouse`, `Acquire`,
+`SetDataFormat`, `SetCooperativeLevel` and `GetDeviceState` are unchanged, so
+the mouse code around them did not move at all.
+
+The vendored `DX9/Include/dinput.h` already supports 0x0800 — it defaults to it
+— and `DX9/Lib/dinput8.lib` was already there. The link was checked before CI
+rather than after, by looking for the symbols in the import libraries:
+`DirectInput8Create` and `c_dfDIMouse` are both in `dinput8.lib`, and
+`IID_IDirectInput8A` and `GUID_SysMouse` are in `dxguid.lib`, which stays on
+the link line. Nothing needed `dinput.lib` any more.
 
 ## Phase 4 — Audio: XAudio2, dropping QMixer and CD audio
 
-**Revised.** The earlier plan kept the option of retaining QMixer; that option
-is dropped. Audio moves to **XAudio2**, and QMixer and the CD audio features
-are removed outright.
+**Done.** The earlier plan kept the option of retaining QMixer; that option was
+dropped. Audio is on **XAudio2**, and QMixer and the CD audio features have
+been removed outright.
+
+`QSTrack.cpp` is replaced by `XA2Track.cpp` behind an unchanged `TrackLib.h`;
+`QMIXER.H`, `QMixer.lib`, `QMixer.dll` and the vestigial `EAX.H` are gone, as
+are `CDAudio.cpp` and `Mixer.cpp`. In-game music is served from files on disk
+by `Music.cpp`, and both volume sliders now move the XAudio2 graph rather than
+the Windows system mixer. `CDSpan.cpp` stays: removing it rests on game data
+being installed to disk, which is a decision of its own.
+
+What it took, what was decided and what is still unverified are in
+[Phase4Plan.md](Phase4Plan.md).
 
 This is well contained because `TrackLib.h` is already a clean ~80-line
 interface: `QSTrack.cpp` (849 lines) is simply its QMixer implementation. The
@@ -252,7 +283,14 @@ deprecated API.
 - **Remove** `dplayx.lib`, `dplay.h`/`dplobby.h`, and rewrite `NetProv.cpp`
   (service provider enumeration) and `NetLobby.cpp` (lobby launch), which are
   DirectPlay-shaped and largely disappear.
-- `NetAudio.cpp` (voice chat) is dropped rather than ported.
+- `NetAudio.cpp` (voice chat) is dropped rather than ported. **Done** — the
+  file, its nine entry points, the `AUDIOMSG` packet type and the three
+  capture flags are gone, which also leaves `Sequence.cpp` as the only
+  remaining DirectSound user.
+
+The step order, what MigrationPlan missed — `NetJoin.cpp` is in scope and
+`NetCrypt.cpp` is not — and the decisions still open are in
+[Phase5Plan.md](Phase5Plan.md). The phase is barely started.
 - The `NetAdd`/`NetGet` message macros and the `NETMSG` layout are unchanged,
   which keeps the blast radius inside the transport.
 
@@ -470,9 +508,13 @@ syntax-checked with **mingw-w64** against a shadow copy of the tree, using the
 include paths and preprocessor definitions taken from the `.vcxproj` files.
 `tools/crosscheck.py` is the harness. The shadow neutralises the Windows-only
 things GCC cannot process: includes whose case does not match the real
-filename, and the Concurrency Runtime headers `NeuronCore.h` includes but
-never uses. The inline-assembly handling has gone with the last `__asm` in the
-tree.
+filename, the Concurrency Runtime headers `NeuronCore.h` includes but never
+uses, and — under `tools/stubs/` — declarations for the headers mingw-w64
+does not ship at all, currently `x3daudio.h`. Those last are a transcription
+of somebody else's API and check our use of it rather than themselves; each
+says so at the top. The inline-assembly handling has gone with the last `__asm` in the
+tree, and so has the `CINTERFACE` define — nothing in the tree defines it any
+more, and leaving it in the harness failed seven units against a green build.
 
 This is a **proxy, not MSVC**. GCC is stricter in some places, MSVC under
 `/permissive` is more lenient in others, and the harness cannot link (QMixer,
@@ -480,7 +522,8 @@ Mplayer and WINSTR are 32-bit MSVC binaries). It reliably catches the portable
 C++ issues, which is what Phase 1 is about, but a real `msbuild` remains the
 final word.
 
-Current state: **206 of 206 units clean under the cross-check**, and both
-Win32 CI builds green. Treat the cross-check as a fast first pass, not a
+Current state: **200 of 200 units clean under the cross-check**, and both
+Win32 CI builds green. The unit count moves as files are added and removed;
+Phase 4 took out five and added two. Treat the cross-check as a fast first pass, not a
 verdict: it is a different compiler, it cannot link, and the section above
 lists what that costs. The CI builds remain the authority.

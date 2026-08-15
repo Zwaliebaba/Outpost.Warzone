@@ -34,7 +34,7 @@
 #include "SeqDisp.h"
 
 #include "MultiPlay.h"
-#include "CDAudio.h"
+#include "Music.h"
 #include "ScriptExtern.h"
 
 #include "CSnap.h"
@@ -201,7 +201,7 @@ BOOL _intAddIntelMap(void)
   else
     audio_StopAll();
 
-  cdAudio_Pause();
+  music_Pause();
 
   //add message to indicate game is paused - single player mode
   if (PAUSE_DISPLAY_CONDITION)
@@ -794,7 +794,7 @@ void intCleanUpIntelMap(void)
   resetIntelligencePauseState();
   immediateMessage = FALSE;
 
-  cdAudio_Resume();
+  music_Resume();
 }
 
 /* Remove the Intelligence Map widgets from the screen */

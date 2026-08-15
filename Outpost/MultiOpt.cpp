@@ -483,10 +483,6 @@ BOOL lobbyInitialise(VOID)
 
 BOOL multiInitialise(VOID)
 {
-  // NET AUDIO CAPTURE 
-  NETinitAudioCapture();
-  NETinitPlaybackBuffer(audio_GetDirectSoundObj()); // pass in a dsound pointer to use.
-
   return TRUE; // use the menus dumbass.
 }
 
@@ -512,8 +508,6 @@ BOOL multiShutdown(VOID)
 {
   FORCE_MEMBER* pF;
 
-  NETshutdownAudioCapture();
-  NETshutdownAudioPlayback();
   NETshutdown(); // shut down netplay lib.
 
   while (Force.pMembers) // clear any force we may have.

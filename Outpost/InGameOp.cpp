@@ -23,8 +23,7 @@
 #include "KeyBind.h"
 
 #include "Audio.h"					// for sound.
-#include "CDAudio.h"
-#include "Mixer.h"
+#include "Music.h"
 #include "MultiPlay.h"
 
 #include "CSnap.h"
@@ -112,12 +111,12 @@ static BOOL _addSlideOptions()
 
   // fx vol
   addIGTextButton(INTINGAMEOP_FXVOL,INTINGAMEOP_1_Y, STR_FE_FX,WBUT_PLAIN);
-  addFESlider(INTINGAMEOP_FXVOL_S, INTINGAMEOP, INTINGAMEOP_MID, INTINGAMEOP_1_Y - 5, AUDIO_VOL_MAX, sound_GetGlobalVolume(),
+  addFESlider(INTINGAMEOP_FXVOL_S, INTINGAMEOP, INTINGAMEOP_MID, INTINGAMEOP_1_Y - 5, AUDIO_VOL_MAX, audio_GetFXVolume(),
               INTINGAMEOP_FXVOL);
 
   // cd vol
   addIGTextButton(INTINGAMEOP_CDVOL,INTINGAMEOP_2_Y, STR_FE_MUSIC,WBUT_PLAIN);
-  addFESlider(INTINGAMEOP_CDVOL_S,INTINGAMEOP, INTINGAMEOP_MID,INTINGAMEOP_2_Y - 5, AUDIO_VOL_MAX, mixer_GetCDVolume(),INTINGAMEOP_CDVOL);
+  addFESlider(INTINGAMEOP_CDVOL_S,INTINGAMEOP, INTINGAMEOP_MID,INTINGAMEOP_2_Y - 5, AUDIO_VOL_MAX, audio_GetMusicVolume(),INTINGAMEOP_CDVOL);
 
   SetCurrentSnapID(&InterfaceSnap,INTINGAMEOP_RESUME);
 
@@ -362,10 +361,10 @@ void intProcessInGameOptions(UDWORD id)
     break;
 
   case INTINGAMEOP_FXVOL_S:
-    mixer_SetWavVolume(widgGetSliderPos(psWScreen,INTINGAMEOP_FXVOL_S));
+    audio_SetFXVolume(widgGetSliderPos(psWScreen,INTINGAMEOP_FXVOL_S));
     break;
   case INTINGAMEOP_CDVOL_S:
-    mixer_SetCDVolume(widgGetSliderPos(psWScreen,INTINGAMEOP_CDVOL_S));
+    audio_SetMusicVolume(widgGetSliderPos(psWScreen,INTINGAMEOP_CDVOL_S));
     break;
 
   //	case INTINGAMEOP_GAMMA_S:

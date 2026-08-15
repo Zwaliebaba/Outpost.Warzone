@@ -12,8 +12,8 @@
     <ClCompile Include="AudioID.cpp" />
     <ClCompile Include="Bridge.cpp" />
     <ClCompile Include="Bucket3D.cpp" />
-    <ClCompile Include="CDAudio.cpp" />
     <ClCompile Include="CDSpan.cpp" />
+    <ClCompile Include="Music.cpp" />
     <ClCompile Include="Cheat.cpp" />
     <ClCompile Include="ClParse.cpp" />
     <ClCompile Include="Cluster.cpp" />
@@ -138,8 +138,8 @@
     <ClInclude Include="Bucket3D.h" />
     <ClInclude Include="Bullet.h" />
     <ClInclude Include="BulletDef.h" />
-    <ClInclude Include="CDAudio.h" />
     <ClInclude Include="CDSpan.h" />
+    <ClInclude Include="Music.h" />
     <ClInclude Include="Cheat.h" />
     <ClInclude Include="ClParse.h" />
     <ClInclude Include="Cluster.h" />

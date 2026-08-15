@@ -68,6 +68,16 @@ int movieWidth, movieHeight;
 LPDIRECTSOUNDBUFFER lpDSSB = nullptr;
 LPBYTE soundbuffer1 = nullptr;
 LPBYTE soundbuffer2 = nullptr;
+
+/* FMV audio used to borrow the IDirectSound that QMixer had created for
+ * itself, handed over by audio_GetDirectSoundObj. The game's mixer is XAudio2
+ * now and has no DirectSound object to lend, so this module keeps its own.
+ * It is created on first use and released in seq_ShutDown. The codec writes
+ * PCM straight into a DirectSound buffer, so replacing that with an XAudio2
+ * voice means changing the decoder's callback -- work that belongs with the
+ * replacement of WINSTR.LIB, not here.
+ */
+static LPDIRECTSOUND lpSeqDS = nullptr;
 ULONG temp;
 BOOL bPlayerOn;
 BOOL bSmallVideo = FALSE;
@@ -86,11 +96,38 @@ void SoundCallBackFunc(LPSOUNDHANDLE shandle);
  */
 /***************************************************************************/
 
+/* Returns the module's DirectSound object, creating it the first time. A null
+ * return is not fatal: both callers treat it the way they treated a movie
+ * with no sound track, and play the video silently.
+ */
+static LPDIRECTSOUND seq_GetDirectSound(void)
+{
+  if (lpSeqDS != nullptr)
+    return lpSeqDS;
+
+  if (DirectSoundCreate(nullptr, &lpSeqDS, nullptr) != DS_OK)
+  {
+    Neuron::DebugTrace("seq_GetDirectSound: DirectSoundCreate failed\n");
+    lpSeqDS = nullptr;
+    return nullptr;
+  }
+
+  if (lpSeqDS->SetCooperativeLevel(frameGetWinHandle(), DSSCL_PRIORITY) != DS_OK)
+  {
+    Neuron::DebugTrace("seq_GetDirectSound: SetCooperativeLevel failed\n");
+    lpSeqDS->Release();
+    lpSeqDS = nullptr;
+    return nullptr;
+  }
+
+  return lpSeqDS;
+}
+
 //buffer render for software_window 3DFX_window and 3DFX_fullscreen modes
 // D3D_WINDOWED video size 16bit uses screen pixel mode
 // 3DFX_WINDOWED video size 16bit BGR 565 mode
 // 3DFX_FULLSCREEN 640 * 480 BGR 565 mode
-BOOL seq_SetSequenceForBuffer(char* filename, VIDEO_MODE mode, LPDIRECTSOUND lpDS, int startTime, PERF_MODE perfMode)
+BOOL seq_SetSequenceForBuffer(char* filename, VIDEO_MODE mode, int startTime, PERF_MODE perfMode)
 {
   long width, height;
   long precision, channels;
@@ -98,6 +135,7 @@ BOOL seq_SetSequenceForBuffer(char* filename, VIDEO_MODE mode, LPDIRECTSOUND lpD
   BOOL bCompression;
   DSBUFFERDESC DS_bd;
   WAVEFORMATEX pcmwf;
+  LPDIRECTSOUND lpDS = nullptr;
 
   mhandle = nullptr;
   vhandle = nullptr;
@@ -130,7 +168,7 @@ BOOL seq_SetSequenceForBuffer(char* filename, VIDEO_MODE mode, LPDIRECTSOUND lpD
 
 #ifdef SEQUENCE_SOUND
   // check for the presence of audio within the rpl file
-  if (Movie_GetSoundChannels(mhandle) && Movie_GetSoundPrecision(mhandle) && Movie_GetSoundRate(mhandle) && (lpDS != nullptr))
+  if (Movie_GetSoundChannels(mhandle) && Movie_GetSoundPrecision(mhandle) && Movie_GetSoundRate(mhandle) && ((lpDS = seq_GetDirectSound()) != nullptr))
   {
     //if so initialise Direct sound playback
     precision = Movie_GetSoundPrecision(mhandle);
@@ -222,7 +260,7 @@ BOOL seq_SetSequenceForBuffer(char* filename, VIDEO_MODE mode, LPDIRECTSOUND lpD
  * directX fullscreeen render uses local buffer to store previous frame data
  * directX 640 * 480 16bit rgb mode render through local buffer to back buffer
  */
-BOOL seq_SetSequence(char* filename, LPDIRECTSOUND lpDS, int startTime, char* lpBF, PERF_MODE perfMode)
+BOOL seq_SetSequence(char* filename, int startTime, char* lpBF, PERF_MODE perfMode)
 {
   long width, height;
   long precision, channels;
@@ -231,6 +269,7 @@ BOOL seq_SetSequence(char* filename, LPDIRECTSOUND lpDS, int startTime, char* lp
 
   DSBUFFERDESC DS_bd;
   WAVEFORMATEX pcmwf;
+  LPDIRECTSOUND lpDS = nullptr;
 
   mhandle = nullptr;
   vhandle = nullptr;
@@ -278,7 +317,7 @@ BOOL seq_SetSequence(char* filename, LPDIRECTSOUND lpDS, int startTime, char* lp
 
 #ifdef SEQUENCE_SOUND
   // check for the presence of audio
-  if (Movie_GetSoundChannels(mhandle) && Movie_GetSoundPrecision(mhandle) && Movie_GetSoundRate(mhandle) && (lpDS != nullptr))
+  if (Movie_GetSoundChannels(mhandle) && Movie_GetSoundPrecision(mhandle) && Movie_GetSoundRate(mhandle) && ((lpDS = seq_GetDirectSound()) != nullptr))
   {
     //if so initialise Direct sound playback
     precision = Movie_GetSoundPrecision(mhandle);
@@ -739,6 +778,13 @@ BOOL seq_ShutDown(void)
   shandle == nullptr;
   vhandle == nullptr;
   mhandle == nullptr;
+
+  if (lpSeqDS)
+  {
+    lpSeqDS->Release();
+    lpSeqDS = nullptr;
+  }
+
   return TRUE;
 }
 
