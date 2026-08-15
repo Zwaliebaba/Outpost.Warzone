@@ -130,7 +130,6 @@
     <ClInclude Include="ListMacs.h" />
     <ClInclude Include="MaxPiDef.h" />
     <ClInclude Include="MultiWDG.h" />
-    <ClInclude Include="NetLobby.h" />
     <ClInclude Include="NetPlay.h" />
     <ClInclude Include="NetProv.h" />
     <ClInclude Include="NetSupp.h" />
@@ -217,7 +216,6 @@
     <ClCompile Include="MultiWDG.cpp" />
     <ClCompile Include="NetCrypt.cpp" />
     <ClCompile Include="NetJoin.cpp" />
-    <ClCompile Include="NetLobby.cpp" />
     <ClCompile Include="NetPlay.cpp" />
     <ClCompile Include="NetProv.cpp" />
     <ClCompile Include="NetSupp.cpp" />

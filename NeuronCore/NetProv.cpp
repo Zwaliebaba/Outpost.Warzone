@@ -8,12 +8,10 @@
 // ////////////////////////////////////////////////////////////////////////
 // Prototypes.
 BOOL NETsetupGeneric(LPDPCOMPOUNDADDRESSELEMENT LPelements, DWORD count, LPVOID* LPaddr);
-BOOL NETsetupIPX(LPVOID* addr);
 BOOL NETsetupTCPIP(LPVOID* addr, char* machine);
 BOOL NETsetupSerial(LPVOID* addr, DWORD ComPort, DWORD BaudRate, DWORD StopBits, DWORD Parity, DWORD FlowControl);
 
 BOOL NETsetupModem(LPVOID* addr, char* Phoneno, UDWORD modemToUse);
-BOOL NETchooseModem(UBYTE mod);
 
 // ////////////////////////////////////////////////////////////////////////
 // ////////////////////////////////////////////////////////////////////////
@@ -56,25 +54,6 @@ BOOL NETsetupGeneric(LPDPCOMPOUNDADDRESSELEMENT LPelements, DWORD count, LPVOID*
   *LPaddr = addr;
 
   return TRUE;
-}
-
-// ////////////////////////////////////////////////////////////////////////
-// IPX stuff
-// IPX doesn't require anything at all!
-
-BOOL NETsetupIPX(LPVOID* addr)
-{
-  DPCOMPOUNDADDRESSELEMENT elements[2];
-  GUID type = DPSPGUID_IPX;
-  UDWORD count = 0;
-
-  // all DPADDRESS's must have a service provider chunk
-  elements[count].guidDataType = DPAID_ServiceProvider;
-  elements[count].dwDataSize = sizeof(GUID);
-  elements[count].lpData = &type;
-  count++;
-
-  return NETsetupGeneric(((DPCOMPOUNDADDRESSELEMENT*)&elements), 0, addr);
 }
 
 // ////////////////////////////////////////////////////////////////////////

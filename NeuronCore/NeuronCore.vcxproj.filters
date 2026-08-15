@@ -190,9 +190,6 @@
     <ClInclude Include="TextDraw.h">
       <Filter>ivis02</Filter>
     </ClInclude>
-    <ClInclude Include="NetLobby.h">
-      <Filter>NetPlay</Filter>
-    </ClInclude>
     <ClInclude Include="NetPlay.h">
       <Filter>NetPlay</Filter>
     </ClInclude>
@@ -391,9 +388,6 @@
       <Filter>NetPlay</Filter>
     </ClCompile>
     <ClCompile Include="NetJoin.cpp">
-      <Filter>NetPlay</Filter>
-    </ClCompile>
-    <ClCompile Include="NetLobby.cpp">
       <Filter>NetPlay</Filter>
     </ClCompile>
     <ClCompile Include="NetPlay.cpp">

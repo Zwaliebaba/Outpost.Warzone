@@ -93,24 +93,18 @@ BOOL NETinit(GUID g, BOOL bFirstCall)
     NETstartLogging();
   }
 
-  if (NETconnectToLobby(&NetPlay)) // try to connect to lobby
-  {
-    // we were lobby launched.	
-    // dont need to do anymore, we are connected.
-    Neuron::DebugTrace("NETPLAY: LobbyLaunched\n");
-  }
-  else
-  {
-    // not lobby launched.
-    hr = CreateDirectPlayInterface(&glpDP); // Create an IDirectPlay4 interface
-    if (FAILED(hr))
-      return FALSE;
+  /* The game is never launched by a DirectPlay lobby any more, so
+   * bLobbyLaunched stays FALSE and this is what used to be the else branch.
+   * glpDPL3 is still wanted: NetProv builds compound addresses through it.
+   */
+  hr = CreateDirectPlayInterface(&glpDP); // Create an IDirectPlay4 interface
+  if (FAILED(hr))
+    return FALSE;
 
-    hr = DirectPlayLobbyCreate(nullptr, &glpTEMP, nullptr, nullptr, 0); // create lobinterface
-    hr = IDirectPlayLobby_QueryInterface(glpTEMP, // set this up to allowfor service dialog
-                                         IID_IDirectPlayLobby3, // box overrides.
-                                         (LPVOID*)&glpDPL3); // GLPDPL nalso gets set here.
-  }
+  hr = DirectPlayLobbyCreate(nullptr, &glpTEMP, nullptr, nullptr, 0); // create lobinterface
+  hr = IDirectPlayLobby_QueryInterface(glpTEMP, // set this up to allowfor service dialog
+                                       IID_IDirectPlayLobby3, // box overrides.
+                                       (LPVOID*)&glpDPL3); // GLPDPL nalso gets set here.
 
   if (FAILED(hr))
     return FALSE;

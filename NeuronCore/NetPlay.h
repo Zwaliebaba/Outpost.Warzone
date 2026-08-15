@@ -166,7 +166,6 @@ extern UDWORD NEThashBuffer(unsigned char* pData, UDWORD size);
 extern BOOL DirectPlaySystemMessageHandler(LPVOID); // what to do with system messages.
 
 #include "NetProv.h"													// more functions to override dialog boxes
-#include "NetLobby.h"													// more functions to provide lobby facilities.
 
 // Some shortcuts to help you along!
 #define NetAdd(m,pos,thing) \
