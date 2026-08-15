@@ -136,7 +136,6 @@ void trackHeight(SDWORD desiredHeight);
 void setViewAngle(SDWORD angle);
 void setViewDistance(UDWORD dist);
 void getDefaultColours(void);
-void renderSky(void);
 void showShadePalette(void);
 /* Function prototypes:- */
 void scaleMatrix(UDWORD percent);
@@ -264,7 +263,6 @@ SDWORD tileZ = 8000;
 UDWORD demoTextPage = 0;
 BOOL updateVideoCard = FALSE;
 QUAD dragQuad;
-SDWORD skyShift;
 UDWORD cameraHeight = 400;
 // The maximum number of points for flattenImd
 #define MAX_FLATTEN_POINTS	 255
@@ -3922,43 +3920,6 @@ void scaleMatrix(UDWORD percent)
   psMatrix->g = (psMatrix->g * scaleFactor) / 4096;
   psMatrix->h = (psMatrix->h * scaleFactor) / 4096;
   psMatrix->i = (psMatrix->i * scaleFactor) / 4096;
-}
-
-/*
-HACK for IAN VISIT, but works....
-*/
-void renderSky(void)
-{
-  SDWORD width;
-  skyShift += 2;
-
-  SDWORD index = (player.r.y + skyShift) / 20;
-
-  while (index > 0) { index -= 256; }
-
-  while (index < 640)
-  {
-    if (index >= 384)
-      width = 640 - index;
-    else
-      width = 256;
-    iV_UniBitmapDepth(texPage, 0, 0, width, 128, index, 0, width, 192, 200, 65000);
-    index += 256;
-  }
-
-  index = (player.r.y + (skyShift / 2)) / 15;
-
-  while (index > 0) { index -= 256; }
-
-  while (index < 640)
-  {
-    if (index >= 384)
-      width = 640 - index;
-    else
-      width = 256;
-    iV_UniBitmapDepth(texPage, 0, 128, width, 127, index, 0, width, 192, 200, 64000);
-    index += 256;
-  }
 }
 
 /* Flattens an imd to the landscape and handles 4 different rotations */

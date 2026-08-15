@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "RendMode.h"
 #include "PieClip.h"
-#include "D3DMode.h"
 #include "RendFunc.h"
 #include "Bug.h"
 #include "IvisPatch.h"
@@ -9,12 +8,8 @@
 //*************************************************************************
 //*************************************************************************
 
-void (*iV_VSync)(void);
-//*************************************************************************
-
 iSurface rendSurface;
 iSurface* psRendSurface;
-static int g_mode = REND_UNDEFINED;
 
 //*************************************************************************
 
@@ -22,9 +17,6 @@ static uint8* _VIDEO_MEM;
 static int32 _VIDEO_SIZE;
 static iBool _VIDEO_LOCK;
 
-//*************************************************************************
-//temporary definition
-void (*iV_ppBitmapColourTrans)(iBitmap* bmp, int x, int y, int w, int h, int ow, int ColourIndex);
 //*************************************************************************
 
 //*************************************************************************
@@ -203,91 +195,18 @@ void iV_SurfaceDestroy(iSurface* s)
 }
 
 //*************************************************************************
-//*** assign renderer
+//*** assign the surface the renderer draws through
 //*
 //* params	mode	= render mode (screen/user) see iV_MODE_...
 //*
 //******
 
-void rend_Assign(int mode, iSurface* s)
+void iV_RenderAssign(int mode, iSurface* s)
 {
-  iV_RenderAssign(mode, s);
-
-  /* Need to look into this - won't the unwanted called still set render surface? */
+  (void)mode;
   psRendSurface = s;
 }
-
-// pre VideoOpen
-void rend_AssignScreen(void) { iV_RenderAssign(rendSurface.usr, &rendSurface); }
 
 int iV_GetDisplayWidth(void) { return rendSurface.width; }
 
 int iV_GetDisplayHeight(void) { return rendSurface.height; }
-
-//*************************************************************************
-//
-// function pointers for render assign
-//
-//*************************************************************************
-
-void (*iV_pLine)(int x0, int y0, int x1, int y1, uint32 colour);
-void (*iV_TransTriangle)(iVertex* vrt);
-
-char* (*iV_ScreenDumpToDisk)(void);
-
-void (*iV_ppBitmap)(iBitmap* bmp, int x, int y, int w, int h, int ow);
-void (*iV_ppBitmapTrans)(iBitmap* bmp, int x, int y, int w, int h, int ow);
-
-void (*iV_SetTransFilter)(UDWORD rgb, UDWORD tablenumber);
-
-void (*iV_UniBitmapDepth)(int texPage, int u, int v, int srcWidth, int srcHeight, int x, int y, int destWidth, int destHeight,
-                          unsigned char brightness, int depth);
-
-void (*iV_SetTransImds)(BOOL trans);
-
-//mapdisplay
-
-void (*iV_tgTriangle)(iVertex* vrt, iTexture* tex);
-void (*iV_tgPolygon)(int num, iVertex* vrt, iTexture* tex);
-
-//design
-
-//text
-
-//*************************************************************************
-//
-// function pointers for render assign
-//
-//*************************************************************************
-
-#ifndef PIETOOL
-void iV_RenderAssign(int mode, iSurface* s)
-{
-  /* Need to look into this - won't the unwanted called still set render surface? */
-  psRendSurface = s;
-
-  g_mode = mode;
-
-  switch (mode)
-  {
-  case REND_D3D_RGB:
-  case REND_D3D_HAL:
-  case REND_D3D_REF:
-    iV_VSync = _vsync_D3D;
-    iV_pLine = _dummyFunc2_D3D;
-    iV_pBox = _dummyFunc2_D3D;
-    iV_pBoxFill = _dummyFunc2_D3D;
-    iV_ppBitmap = _dummyFunc5_D3D;
-    iV_ppBitmapColourTrans = _dummyFunc6_D3D;
-    iV_ppBitmapTrans = _dummyFunc5_D3D;
-    iV_SetTransFilter = SetTransFilter_D3D;
-    break;
-
-  default: iV_DEBUG1("vid[RenderAssign] = unsupported render mode %d\n", mode);
-    break;
-  }
-
-  iV_DEBUG0("vid[RenderAssign] = assigned renderer :\n");
-  iV_DEBUG5("usr %d\nflags %x\nxcentre, ycentre %d\nbuffer %p\n", s->usr, s->flags, s->xcentre, s->ycentre, s->buffer);
-}
-#endif	// don't want this function at all if we have PIETOOL defined
