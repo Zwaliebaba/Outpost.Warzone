@@ -55,17 +55,17 @@ UDWORD NETplayerInfo(VOID)
 
   ZeroMemory(NetPlay.players, sizeof(NetPlay.players)); // reset player info
 
-  udwCount = nettrans_PlayerList(aPlayers, MaxNumberOfPlayers);
+  udwCount = Transport::PlayerList(aPlayers, MaxNumberOfPlayers);
 
   for (i = 0; i < udwCount; i++)
   {
     NetPlay.players[i].dpid = aPlayers[i];
-    nettrans_PlayerName(aPlayers[i], NetPlay.players[i].name, StringSize);
+    Transport::PlayerName(aPlayers[i], NetPlay.players[i].name, StringSize);
 
     /* The host is the first player and always has been -- the transport
      * assigns ids in join order starting from itself.
      */
-    NetPlay.players[i].bHost = nettrans_IsHostPlayer(aPlayers[i]);
+    NetPlay.players[i].bHost = Transport::IsHostPlayer(aPlayers[i]);
   }
 
   NetPlay.playercount = udwCount;
@@ -74,7 +74,7 @@ UDWORD NETplayerInfo(VOID)
    * also where a joiner finds out what it is.
    */
   if (NetPlay.dpidPlayer == 0)
-    NetPlay.dpidPlayer = nettrans_LocalPlayer();
+    NetPlay.dpidPlayer = Transport::LocalPlayer();
 
   return NetPlay.playercount;
 }
@@ -93,11 +93,11 @@ BOOL NETchangePlayerName(NETPLAYERID dpid, char* newName)
     return TRUE;
   }
 
-  if (dpid != nettrans_LocalPlayer())
+  if (dpid != Transport::LocalPlayer())
   {
     Neuron::DebugTrace("NETPLAY: refusing to rename somebody else\n");
     return FALSE;
   }
 
-  return nettrans_SetLocalName(newName);
+  return Transport::SetLocalName(newName);
 }

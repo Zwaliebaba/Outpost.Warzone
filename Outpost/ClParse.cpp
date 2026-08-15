@@ -268,8 +268,8 @@ BOOL scanGameSpyFlags(LPSTR gflag, LPSTR value)
     /* The address to join, kept for NETjoinGame the same way the connection
      * screen keeps what the player typed.
      */
-    strncpy(NETjoinAddress, value, NETTRANS_ADDRESS_SIZE - 1);
-    NETjoinAddress[NETTRANS_ADDRESS_SIZE - 1] = '\0';
+    strncpy(NETjoinAddress, value, Transport::AddressSize - 1);
+    NETjoinAddress[Transport::AddressSize - 1] = '\0';
   }
   else if (stricmp(gflag, "+name") == 0) // player name.
     strcpy((char*)sPlayer, value);

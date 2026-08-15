@@ -7,7 +7,7 @@
  * Every function here used to be DirectPlay: an EnumSessions with a callback,
  * a DPSESSIONDESC2 fetched twice to learn its own size, and four game flags
  * living in that description's dwUser1..4. All of it is now one call each into
- * NetTransport.h, and the permanent malloc that existed to keep the
+ * Transport.h, and the permanent malloc that existed to keep the
  * variable-sized description out of the frame loop went with it.
  */
 
@@ -21,7 +21,7 @@ BOOL NEThaltJoining(VOID)
   if (!NetPlay.bComms)
     return TRUE;
 
-  return nettrans_CloseToJoiners();
+  return Transport::CloseToJoiners();
 }
 
 // ////////////////////////////////////////////////////////////////////////
@@ -29,7 +29,7 @@ BOOL NEThaltJoining(VOID)
 //
 // There is no discovery in this build -- the destination is a relay server
 // that owns the connections, where listing games is a query to a known server
-// -- so nettrans_FindSessions answers nothing until that server exists.
+// -- so Transport::FindSessions answers nothing until that server exists.
 //
 // Which would leave the browser empty and joining unreachable, since the only
 // way into joinCampaign is clicking a game in it. So when nothing answers and
@@ -38,7 +38,7 @@ BOOL NEThaltJoining(VOID)
 // the server arrives it fills the list properly and this branch stops firing.
 BOOL NETfindGame(VOID)
 {
-  NETSESSION aSessions[MaxGames];
+  Transport::SessionInfo aSessions[MaxGames];
   UDWORD udwCount;
   UDWORD i;
 
@@ -47,16 +47,16 @@ BOOL NETfindGame(VOID)
   if (!NetPlay.bComms)
     return TRUE;
 
-  udwCount = nettrans_FindSessions(aSessions, MaxGames);
+  udwCount = Transport::FindSessions(aSessions, MaxGames);
 
   for (i = 0; i < udwCount && i < MaxGames; i++)
   {
-    strncpy(NetPlay.games[i].name, aSessions[i].szName, StringSize - 1);
-    strncpy(NetPlay.games[i].address, aSessions[i].szAddress, NETTRANS_ADDRESS_SIZE - 1);
-    NetPlay.games[i].currentPlayers = aSessions[i].udwCurrentPlayers;
-    NetPlay.games[i].maxPlayers = aSessions[i].udwMaxPlayers;
+    strncpy(NetPlay.games[i].name, aSessions[i].name, StringSize - 1);
+    strncpy(NetPlay.games[i].address, aSessions[i].address, Transport::AddressSize - 1);
+    NetPlay.games[i].currentPlayers = aSessions[i].currentPlayers;
+    NetPlay.games[i].maxPlayers = aSessions[i].maxPlayers;
     NetPlay.games[i].bJoinDisabled = FALSE;
-    memcpy(NetPlay.games[i].flags, aSessions[i].adwFlags, sizeof(NetPlay.games[i].flags));
+    memcpy(NetPlay.games[i].flags, aSessions[i].gameFlags, sizeof(NetPlay.games[i].flags));
   }
 
   if (udwCount == 0 && NETjoinAddress[0] != '\0')
@@ -67,7 +67,7 @@ BOOL NETfindGame(VOID)
      * whether it really is, only the join attempt can say.
      */
     strncpy(NetPlay.games[0].name, NETjoinAddress, StringSize - 1);
-    strncpy(NetPlay.games[0].address, NETjoinAddress, NETTRANS_ADDRESS_SIZE - 1);
+    strncpy(NetPlay.games[0].address, NETjoinAddress, Transport::AddressSize - 1);
     NetPlay.games[0].currentPlayers = 1;
     NetPlay.games[0].maxPlayers = MaxNumberOfPlayers;
     NetPlay.games[0].bJoinDisabled = FALSE;
@@ -91,7 +91,7 @@ BOOL NETjoinGame(const char* address, LPSTR playername)
     return FALSE;
   }
 
-  if (!nettrans_Join(address, playername))
+  if (!Transport::Join(address, playername))
   {
     Neuron::DebugTrace("NETPLAY: Failed to Join Game at {}\n", address);
     return FALSE;
@@ -111,7 +111,7 @@ BOOL NETjoinGame(const char* address, LPSTR playername)
 BOOL NEThostGame(LPSTR SessionName, LPSTR PlayerName, DWORD one, // flags.
                  DWORD two, DWORD three, DWORD four, UDWORD plyrs) // # of players.
 {
-  DWORD adwFlags[NETTRANS_GAME_FLAGS];
+  DWORD gameFlags[Transport::GameFlagCount];
 
   if (!NetPlay.bComms)
   {
@@ -120,18 +120,18 @@ BOOL NEThostGame(LPSTR SessionName, LPSTR PlayerName, DWORD one, // flags.
     return TRUE;
   }
 
-  adwFlags[0] = one;
-  adwFlags[1] = two;
-  adwFlags[2] = three;
-  adwFlags[3] = four;
+  gameFlags[0] = one;
+  gameFlags[1] = two;
+  gameFlags[2] = three;
+  gameFlags[3] = four;
 
-  if (!nettrans_Host(SessionName, PlayerName, plyrs, adwFlags))
+  if (!Transport::Host(SessionName, PlayerName, plyrs, gameFlags))
   {
     Neuron::Fatal("failed to host game");
     return FALSE;
   }
 
-  NetPlay.dpidPlayer = nettrans_LocalPlayer();
+  NetPlay.dpidPlayer = Transport::LocalPlayer();
   NetPlay.bHost = TRUE;
 
   return TRUE;
@@ -141,7 +141,7 @@ BOOL NEThostGame(LPSTR SessionName, LPSTR PlayerName, DWORD one, // flags.
 //close the open game..
 HRESULT NETclose(VOID)
 {
-  nettrans_Leave();
+  Transport::Leave();
   NetPlay.dpidPlayer = 0;
   NetPlay.bHost = FALSE;
   NetPlay.playercount = 0;
@@ -156,7 +156,7 @@ HRESULT NETclose(VOID)
 // dwUser4 and the game says NETgetGameFlagsUnjoined(n, 1) all over MultiInt.
 DWORD NETgetGameFlagsUnjoined(UDWORD gameid, UDWORD flag)
 {
-  if (gameid >= MaxGames || flag < 1 || flag > NETTRANS_GAME_FLAGS)
+  if (gameid >= MaxGames || flag < 1 || flag > Transport::GameFlagCount)
   {
     Neuron::Fatal("Invalid flag for getgameflagsunjoined in netplay lib");
     return 0;
@@ -169,21 +169,21 @@ DWORD NETgetGameFlagsUnjoined(UDWORD gameid, UDWORD flag)
 // Set a game flag on the session this machine is hosting.
 BOOL NETsetGameFlags(UDWORD flag, DWORD value)
 {
-  DWORD adwFlags[NETTRANS_GAME_FLAGS];
+  DWORD gameFlags[Transport::GameFlagCount];
 
   if (!NetPlay.bComms)
     return TRUE;
 
-  if (flag < 1 || flag > NETTRANS_GAME_FLAGS)
+  if (flag < 1 || flag > Transport::GameFlagCount)
   {
     Neuron::Fatal("Invalid flag for setgameflags in netplay lib");
     return FALSE;
   }
 
-  if (!nettrans_GetFlags(adwFlags))
+  if (!Transport::GetGameFlags(gameFlags))
     return FALSE;
 
-  adwFlags[flag - 1] = value;
+  gameFlags[flag - 1] = value;
 
-  return nettrans_SetFlags(adwFlags);
+  return Transport::SetGameFlags(gameFlags);
 }

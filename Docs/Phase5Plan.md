@@ -194,7 +194,7 @@ does — see *The redirect* below.)
    simulated loss, duplication and reordering. This is the bar for the phase.
 
    Amended while writing the transport: *two processes*, not two instances in
-   one. `NetQuic.cpp` keeps its session in file statics — one host, one client,
+   one. `Transport.cpp` keeps its session in file statics — one host, one client,
    one roster — which is the right shape for a game that is only ever one of
    those at a time, and the wrong shape for a harness that wants to be both.
    Two processes over 127.0.0.1 is also closer to what is being tested.
@@ -296,7 +296,7 @@ real build too, and is recorded here because it is the kind of thing that would
 otherwise be rediscovered painfully. `msquic_winuser.h` writes `#if DEBUG` to
 pick the debug layout of `QUIC_SQE`. `Debug.h` — reached from `pch.h` long
 before any of this — defines `DEBUG` with no value, which makes that `#if` with
-no expression: a preprocessor error, on MSVC as much as on GCC. `NetQuic.cpp`
+no expression: a preprocessor error, on MSVC as much as on GCC. `Transport.cpp`
 pushes and undefines the macro around the include, which is also the correct
 value, since the `msquic.dll` the package ships is a release build.
 
@@ -328,11 +328,11 @@ joined by typing an address rather than picking from a browsed list. The
 client is written against the interface, not against a protocol nobody has
 specified.
 
-What makes that safe is that `NetTransport.h` already hides both ends of the
-change. When the server arrives it slots in behind `nettrans_FindSessions` and
-`nettrans_Join` — the first becomes a query to the server instead of returning
+What makes that safe is that `Transport.h` already hides both ends of the
+change. When the server arrives it slots in behind `Transport::FindSessions` and
+`Transport::Join` — the first becomes a query to the server instead of returning
 the empty list, the second dials the server instead of the host — and no game
-code above the seam is touched. `nettrans_FindSessions` was shaped around
+code above the seam is touched. `Transport::FindSessions` was shaped around
 discovery and keeps its signature for exactly that reason; until a server
 answers it, it reports nothing and the join screen takes an address.
 
@@ -361,7 +361,7 @@ project.
 
 ## Progress
 
-**Steps 1 to 6 are done.** `NetTransport.h` is the seam, `NETPLAYERID` has
+**Steps 1 to 6 are done.** `Transport.h` is the seam, `NETPLAYERID` has
 replaced `DPID`, and DirectPlay's reach is down from fifteen files to ten — of
 which only two are game code rather than the `Net*` modules: `MultiInt.cpp`'s
 connection-type screen and `MultiPlay.cpp`'s system-message switch, both of
@@ -374,8 +374,8 @@ quietly fixed: the modem and serial address paths are not independently
 removable because the connection screen still lists them, and `NetCrypt.cpp`
 is neither dead nor purely networking.
 
-**Steps 7 and 8 are done, and so is the phase.** `NetQuic.cpp` implements every
-function in `NetTransport.h` over MsQuic, `NetTest/` runs two of them against
+**Steps 7 and 8 are done, and so is the phase.** `Transport.cpp` implements every
+function in `Transport.h` over MsQuic, `NetTest/` runs two of them against
 each other in CI, and the game is swapped onto the seam with DirectPlay gone
 from the build.
 
@@ -436,15 +436,15 @@ expensive to get wrong:
   behaved that way and the game is built on it: `removeFeature` broadcasts the
   destruction *and* removes the feature locally, so a loopback copy would
   double-apply. Verified at the call site rather than assumed from the docs.
-- **The receive ceiling is the seam's, not the transport's.** `nettrans_Receive`
-  writes into a buffer the caller sized, so `NETTRANS_MAX_MESSAGE` is now in
-  `NetTransport.h` and the wire refuses anything larger. Without that, the
+- **The receive ceiling is the seam's, not the transport's.** `Transport::Receive`
+  writes into a buffer the caller sized, so `Transport::MaxMessageBytes` is now in
+  `Transport.h` and the wire refuses anything larger. Without that, the
   frame ceiling's header slack is an overrun a peer chooses the size of.
 - **Two locking rules, and breaking either one deadlocks.** Never hold the
   transport's lock across a blocking MsQuic call — `ConnectionClose`,
   `ListenerClose` and `RegistrationClose` all wait for callbacks to drain — and
   never take it in a send-completion callback, because MsQuic may run those
-  inline inside `StreamSend`. The two deliberate exceptions are `nettrans_Leave`
+  inline inside `StreamSend`. The two deliberate exceptions are `Transport::Leave`
   and the handshake timeout, which issue `ConnectionShutdown` *under* the lock:
   it does not block, and holding the lock is what stops a peer's own teardown
   from closing a handle between reading it and using it.
@@ -456,7 +456,7 @@ connection closed before the configuration they were started with.
 
 ### The certificate
 
-`NetCert.cpp`, kept separate because it is CryptoAPI rather than QUIC. It
+`HostCertificate.cpp`, kept separate because it is CryptoAPI rather than QUIC. It
 follows MsQuic's own `selfsign_capi.c`: a persisted CNG key, a self-signed
 certificate naming it, the current user's personal store, and a SHA-1
 thumbprint handed to MsQuic. Created when a game is hosted and deleted when it
@@ -501,13 +501,13 @@ fails on either exit code. What gets checked:
   assert, on every message they receive, that it did not come from themselves.
 - **The roster and the events.** Both sides see two players with the right
   names, the joiner's four game flags survive the welcome, and the host sees
-  `NETTRANS_PLAYER_LEFT` and a roster of one when the client goes.
+  `TransportEventType::PlayerLeft` and a roster of one when the client goes.
 
-It compiles `NetQuic.cpp` and `NetCert.cpp` directly rather than linking
+It compiles `Transport.cpp` and `HostCertificate.cpp` directly rather than linking
 `NeuronCore.lib`, for one reason: that lets it define `NEURON_TRACE_TO_STDERR`,
 which redirects `Neuron::DebugTrace` from `OutputDebugString` — which needs a
 debugger listening, and on a CI runner there is none — to stderr. Without it a
-certificate failure reads as "nettrans_Host returned FALSE" on a machine nobody
+certificate failure reads as "Transport::Host returned FALSE" on a machine nobody
 can log into.
 
 ### What it found
@@ -525,7 +525,7 @@ game will meet it:
     netquic: 1509 bytes will not fit a datagram (limit 1448), sending reliably
 
 **The unreliable path only reaches about 1,440 bytes.** Above that, MsQuic has
-no datagram big enough and `netq_SendFrameTo` falls back to the stream, so an
+no datagram big enough and `SendFrameTo` falls back to the stream, so an
 unguaranteed send becomes a guaranteed one. That is the intended behaviour —
 the game asked for the message to be sent and only said it did not need it
 guaranteed, so dropping it would be worse — but it means "unreliable" is a

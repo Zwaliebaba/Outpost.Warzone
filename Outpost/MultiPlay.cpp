@@ -541,15 +541,15 @@ iVector cameraToHome(UDWORD player, BOOL scroll)
 // ////////////////////////////////////////////////////////////////////////////
 // ////////////////////////////////////////////////////////////////////////////
 // Required by the net library. It's the system message handler..
-BOOL NETeventHandler(const NETTRANS_EVENT* psEvent)
+BOOL NETeventHandler(const Transport::Event* psEvent)
 {
   switch (psEvent->type)
   {
-  case NETTRANS_PLAYER_JOINED: // player joining the game.
+  case TransportEventType::PlayerJoined: // player joining the game.
     MultiPlayerJoin(psEvent->player);
     break;
 
-  case NETTRANS_PLAYER_LEFT: // player leaving the game
+  case TransportEventType::PlayerLeft: // player leaving the game
     NETlogEntry("transport leave player called...", 0, 0);
     MultiPlayerLeave(psEvent->player);
     break;
@@ -561,7 +561,7 @@ BOOL NETeventHandler(const NETTRANS_EVENT* psEvent)
    * say that, it is said in the terms the game already has -- everybody left --
    * which drops them to AI control and puts a line on the console for each.
    */
-  case NETTRANS_HOST_LOST:
+  case TransportEventType::HostLost:
     NETlogEntry("host lost, the session is over", 0, 0);
     for (UDWORD pl = 0; pl < MAX_PLAYERS; pl++)
       if (player2dpid[pl] != 0 && player2dpid[pl] != NetPlay.dpidPlayer)

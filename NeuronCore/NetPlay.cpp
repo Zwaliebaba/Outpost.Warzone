@@ -11,7 +11,7 @@
 NETPLAY NetPlay;
 
 /* Where the joiner's typed address goes, since nothing discovers hosts. */
-char NETjoinAddress[NETTRANS_ADDRESS_SIZE] = "";
+char NETjoinAddress[Transport::AddressSize] = "";
 
 // ////////////////////////////////////////////////////////////////////////
 using NETSTATS = struct
@@ -76,7 +76,7 @@ BOOL NETinit(BOOL bFirstCall)
    * NEThostGame or NETjoinGame, where DirectPlay used to need an interface
    * created and a service provider chosen first.
    */
-  if (!nettrans_Startup())
+  if (!Transport::Startup())
   {
     Neuron::DebugTrace("NETPLAY: transport would not start\n");
     return FALSE;
@@ -90,7 +90,7 @@ BOOL NETinit(BOOL bFirstCall)
 // SHUTDOWN THE CONNECTION.
 HRESULT NETshutdown(VOID)
 {
-  nettrans_Shutdown();
+  Transport::Shutdown();
   NetPlay.dpidPlayer = 0;
 
   NETstopLogging();
@@ -195,7 +195,7 @@ BOOL NETsend(NETMSG* msg, NETPLAYERID player, BOOL guarantee)
 
   size = netMsgBytes(msg);
 
-  if (!nettrans_Send(player, msg, size, guarantee))
+  if (!Transport::Send(player, msg, size, guarantee))
     return FALSE;
 
   nStats.bytesSent += size;
@@ -223,7 +223,7 @@ BOOL NETbcast(NETMSG* msg, BOOL guarantee)
    * depends on it: removeFeature broadcasts the destruction and then removes
    * the feature locally, so a loopback copy would be applied twice.
    */
-  if (!nettrans_Broadcast(msg, size, guarantee))
+  if (!Transport::Broadcast(msg, size, guarantee))
     return FALSE;
 
   nStats.bytesSent += size;
@@ -240,7 +240,7 @@ BOOL NETbcast(NETMSG* msg, BOOL guarantee)
 // ordinary traffic.
 BOOL NETrecv(NETMSG* pMsg)
 {
-  NETTRANS_EVENT sEvent;
+  Transport::Event sEvent;
   NETPLAYERID from;
   UDWORD size = 0;
 
@@ -251,16 +251,16 @@ BOOL NETrecv(NETMSG* pMsg)
    * the work that wants a clock rather than a callback, and this is the one
    * function the game calls unconditionally while a game is running.
    */
-  nettrans_Update();
+  Transport::Update();
 
-  if (nettrans_NextEvent(&sEvent))
+  if (Transport::NextEvent(&sEvent))
   {
     NETlogEntry("SYSM", 0, 0);
     NETeventHandler(&sEvent);
     return FALSE;
   }
 
-  if (!nettrans_Receive(pMsg, &size, &from))
+  if (!Transport::Receive(pMsg, &size, &from))
     return FALSE;
 
   nStats.bytesRecvd += size;

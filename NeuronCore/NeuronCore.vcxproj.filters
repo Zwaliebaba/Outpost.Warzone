@@ -187,13 +187,13 @@
     <ClInclude Include="TextDraw.h">
       <Filter>ivis02</Filter>
     </ClInclude>
-    <ClInclude Include="NetCert.h">
+    <ClInclude Include="HostCertificate.h">
       <Filter>NetPlay</Filter>
     </ClInclude>
     <ClInclude Include="NetPlay.h">
       <Filter>NetPlay</Filter>
     </ClInclude>
-    <ClInclude Include="NetTransport.h">
+    <ClInclude Include="Transport.h">
       <Filter>NetPlay</Filter>
     </ClInclude>
     <ClInclude Include="NetTypes.h">
@@ -318,10 +318,10 @@
     <ClCompile Include="NetPlay.cpp">
       <Filter>NetPlay</Filter>
     </ClCompile>
-    <ClCompile Include="NetCert.cpp">
+    <ClCompile Include="HostCertificate.cpp">
       <Filter>NetPlay</Filter>
     </ClCompile>
-    <ClCompile Include="NetQuic.cpp">
+    <ClCompile Include="Transport.cpp">
       <Filter>NetPlay</Filter>
     </ClCompile>
   </ItemGroup>

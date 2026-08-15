@@ -13,22 +13,22 @@
 // This used to open with <dplay.h> and <dplobby.h>, and the comment on the
 // constants below used to explain that they were here so the game did not have
 // to include them -- while including them. The transport is QUIC now and lives
-// behind NetTransport.h; nothing above this line names it either.
+// behind Transport.h; nothing above this line names it either.
 
-#include "NetTransport.h"	// the seam, and through it NetTypes.h
+#include "Transport.h"	// the seam, and through it NetTypes.h
 
 // ////////////////////////////////////////////////////////////////////////
 // A game as the browser sees it, which is to say before joining one. What
-// DirectPlay carried in a DPSESSIONDESC2, and what nettrans_FindSessions
+// DirectPlay carried in a DPSESSIONDESC2, and what Transport::FindSessions
 // fills in.
 using GAMESTRUCT = struct
 {
   char name[StringSize];
-  char address[NETTRANS_ADDRESS_SIZE];
+  char address[Transport::AddressSize];
   UDWORD currentPlayers;
   UDWORD maxPlayers;
   BOOL bJoinDisabled;
-  DWORD flags[NETTRANS_GAME_FLAGS];
+  DWORD flags[Transport::GameFlagCount];
 };
 
 // ////////////////////////////////////////////////////////////////////////
@@ -92,10 +92,10 @@ extern NETPLAY NetPlay;
 extern LPNETPLAY lpNetPlay;
 
 /* Where the joiner's typed address goes. There is no discovery in this build
- * -- see NetTransport.h -- so this is how the game reaches a host, and it is
- * what nettrans_Join is given.
+ * -- see Transport.h -- so this is how the game reaches a host, and it is
+ * what Transport::Join is given.
  */
-extern char NETjoinAddress[NETTRANS_ADDRESS_SIZE];
+extern char NETjoinAddress[Transport::AddressSize];
 
 // ////////////////////////////////////////////////////////////////////////
 // functions available to you.
@@ -165,7 +165,7 @@ extern UDWORD NEThashBuffer(unsigned char* pData, UDWORD size);
  * DirectPlaySystemMessageHandler. Join, leave and the host going away used to
  * arrive as DirectPlay system messages and now arrive as transport events.
  */
-extern BOOL NETeventHandler(const NETTRANS_EVENT* psEvent);
+extern BOOL NETeventHandler(const Transport::Event* psEvent);
 
 // Some shortcuts to help you along!
 #define NetAdd(m,pos,thing) \

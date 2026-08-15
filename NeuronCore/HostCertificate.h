@@ -1,5 +1,5 @@
 /*
- * NetCert.h
+ * HostCertificate.h
  *
  * The certificate a host needs before QUIC will talk to it.
  *
@@ -15,27 +15,32 @@
  * certificate, which is what the relay server in the plan becomes.
  */
 
-#ifndef _NETCERT_H_
-#define _NETCERT_H_
+#pragma once
+
+namespace Neuron
+{
 
 /***************************************************************************/
 
-#define	NETCERT_HASH_SIZE	20		/* SHA-1, which is the shape MsQuic asks for */
+class HostCertificate
+{
+public:
+  static constexpr UDWORD HashSize = 20;	/* SHA-1, the shape MsQuic asks for */
+
+  /* Makes sure a host certificate exists and writes its thumbprint out. Cheap
+   * to call twice: the second call finds the first one's certificate.
+   */
+  static BOOL Acquire(BYTE _thumbprint[HashSize]);
+
+  /* Removes it again, private key included. Called when the host stops
+   * hosting, so that a machine that has finished playing is not left carrying
+   * a key.
+   */
+  static void Release();
+};
 
 /***************************************************************************/
 
-/* Makes sure a host certificate exists and writes its thumbprint out. Cheap
- * to call twice: the second call finds the first one's certificate.
- */
-BOOL netcert_Acquire(BYTE abThumbprint[NETCERT_HASH_SIZE]);
-
-/* Removes it again, private key included. Called when the host stops hosting,
- * so that a machine that has finished playing is not left carrying a key.
- */
-void netcert_Release(void);
-
-/***************************************************************************/
-
-#endif	// _NETCERT_H_
+} // namespace Neuron
 
 /***************************************************************************/

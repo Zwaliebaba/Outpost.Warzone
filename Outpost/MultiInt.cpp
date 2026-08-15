@@ -429,7 +429,7 @@ static void addConnections(UDWORD begin)
 VOID runConnectionScreen(void)
 {
   UDWORD id;
-  static char addr[NETTRANS_ADDRESS_SIZE];
+  static char addr[Transport::AddressSize];
 
   processFrontendSnap(TRUE);
 
@@ -468,8 +468,8 @@ VOID runConnectionScreen(void)
      * ask, so it is kept for NETjoinGame rather than handed to a connection
      * that is not opened until then.
      */
-    strncpy(NETjoinAddress, addr, NETTRANS_ADDRESS_SIZE - 1);
-    NETjoinAddress[NETTRANS_ADDRESS_SIZE - 1] = '\0';
+    strncpy(NETjoinAddress, addr, Transport::AddressSize - 1);
+    NETjoinAddress[Transport::AddressSize - 1] = '\0';
 
     if (ingame.bHostSetup)
       changeTitleMode(MULTIOPTION);

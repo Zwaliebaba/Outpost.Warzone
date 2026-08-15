@@ -1,11 +1,11 @@
 #include "pch.h"
 /***************************************************************************/
 /*
- * NetCert.cpp
+ * HostCertificate.cpp
  *
  * Generating the host's self-signed certificate, and taking it away again.
  *
- * This is CryptoAPI rather than QUIC, which is why it is not in NetQuic.cpp.
+ * This is CryptoAPI rather than QUIC, which is why it is not in Transport.cpp.
  * The shape follows MsQuic's own selfsign_capi.c, because that is the version
  * known to work with Schannel: a persisted CNG key, a self-signed certificate
  * naming it, added to the current user's personal store, and identified to
@@ -23,23 +23,28 @@
 #include <ncrypt.h>
 
 #include "Frame.h"
-#include "NetCert.h"
+#include "HostCertificate.h"
 
 /***************************************************************************/
+
+namespace Neuron
+{
+namespace
+{
 
 /* The subject, which is also how the certificate is found again. Nothing
  * validates it -- clients are told not to -- so it exists to be recognisable
  * to a player who goes looking in certmgr.
  */
-#define	NETCERT_SUBJECT			"CN=Outpost.Warzone Host"
+constexpr const char* CertificateSubject = "CN=Outpost.Warzone Host";
 
 /* The key container name. Fixed rather than a fresh GUID each time so that a
  * game killed mid-session leaves at most one behind.
  */
-#define	NETCERT_KEY_NAME		L"Outpost.Warzone Host Key"
+constexpr const wchar_t* CertificateKeyName = L"Outpost.Warzone Host Key";
 
-#define	NETCERT_KEY_BITS		2048
-#define	NETCERT_VALID_DAYS		30
+constexpr DWORD CertificateKeyBits = 2048;
+constexpr UDWORD CertificateValidDays = 30;
 
 /***************************************************************************/
 
@@ -47,17 +52,17 @@
  * LOCAL_MACHINE: writing to the machine store needs administrator rights, and
  * a game should not.
  */
-static HCERTSTORE netcert_OpenStore(void)
+HCERTSTORE OpenPersonalStore(void)
 {
-  HCERTSTORE hStore;
+  HCERTSTORE store;
 
-  hStore = CertOpenStore(CERT_STORE_PROV_SYSTEM_A, 0, 0,
+  store = CertOpenStore(CERT_STORE_PROV_SYSTEM_A, 0, 0,
                          CERT_SYSTEM_STORE_CURRENT_USER | CERT_STORE_OPEN_EXISTING_FLAG, "MY");
-  if (hStore == nullptr)
+  if (store == nullptr)
     Neuron::DebugTrace("netcert: cannot open the personal certificate store, {}\n",
                        static_cast<UDWORD>(GetLastError()));
 
-  return hStore;
+  return store;
 }
 
 /***************************************************************************/
@@ -65,10 +70,10 @@ static HCERTSTORE netcert_OpenStore(void)
 /* Finds ours among however many certificates the user has. Matching on the
  * subject string is enough because the subject is one we invented.
  */
-static PCCERT_CONTEXT netcert_Find(HCERTSTORE hStore)
+PCCERT_CONTEXT FindOurCertificate(HCERTSTORE store)
 {
-  return CertFindCertificateInStore(hStore, X509_ASN_ENCODING, 0, CERT_FIND_SUBJECT_STR_A,
-                                    NETCERT_SUBJECT, nullptr);
+  return CertFindCertificateInStore(store, X509_ASN_ENCODING, 0, CERT_FIND_SUBJECT_STR_A,
+                                    CertificateSubject, nullptr);
 }
 
 /***************************************************************************/
@@ -77,15 +82,15 @@ static PCCERT_CONTEXT netcert_Find(HCERTSTORE hStore)
  * the key through the certificate's provider info, which names a container,
  * and an ephemeral key has no container to name.
  */
-static BOOL netcert_MakeKey(void)
+BOOL CreatePrivateKey(void)
 {
-  NCRYPT_PROV_HANDLE hProv = 0;
-  NCRYPT_KEY_HANDLE hKey = 0;
+  NCRYPT_PROV_HANDLE provider = 0;
+  NCRYPT_KEY_HANDLE key = 0;
   SECURITY_STATUS ss;
-  DWORD dwBits = NETCERT_KEY_BITS;
-  BOOL bOk = FALSE;
+  DWORD bits = CertificateKeyBits;
+  BOOL ok = FALSE;
 
-  ss = NCryptOpenStorageProvider(&hProv, MS_KEY_STORAGE_PROVIDER, 0);
+  ss = NCryptOpenStorageProvider(&provider, MS_KEY_STORAGE_PROVIDER, 0);
   if (ss != ERROR_SUCCESS)
   {
     Neuron::DebugTrace("netcert: NCryptOpenStorageProvider failed, 0x{:08x}\n", static_cast<UDWORD>(ss));
@@ -96,32 +101,32 @@ static BOOL netcert_MakeKey(void)
    * with no certificate pointing at it, and creating it again would otherwise
    * fail forever.
    */
-  ss = NCryptCreatePersistedKey(hProv, &hKey, NCRYPT_RSA_ALGORITHM, NETCERT_KEY_NAME, 0,
+  ss = NCryptCreatePersistedKey(provider, &key, NCRYPT_RSA_ALGORITHM, CertificateKeyName, 0,
                                 NCRYPT_OVERWRITE_KEY_FLAG);
   if (ss != ERROR_SUCCESS)
   {
     Neuron::DebugTrace("netcert: NCryptCreatePersistedKey failed, 0x{:08x}\n", static_cast<UDWORD>(ss));
-    NCryptFreeObject(hProv);
+    NCryptFreeObject(provider);
     return FALSE;
   }
 
-  ss = NCryptSetProperty(hKey, NCRYPT_LENGTH_PROPERTY, reinterpret_cast<PBYTE>(&dwBits),
-                         sizeof(dwBits), 0);
+  ss = NCryptSetProperty(key, NCRYPT_LENGTH_PROPERTY, reinterpret_cast<PBYTE>(&bits),
+                         sizeof(bits), 0);
   if (ss != ERROR_SUCCESS)
     Neuron::DebugTrace("netcert: NCryptSetProperty(length) failed, 0x{:08x}\n", static_cast<UDWORD>(ss));
   else
   {
-    ss = NCryptFinalizeKey(hKey, 0);
+    ss = NCryptFinalizeKey(key, 0);
     if (ss != ERROR_SUCCESS)
       Neuron::DebugTrace("netcert: NCryptFinalizeKey failed, 0x{:08x}\n", static_cast<UDWORD>(ss));
     else
-      bOk = TRUE;
+      ok = TRUE;
   }
 
-  NCryptFreeObject(hKey);
-  NCryptFreeObject(hProv);
+  NCryptFreeObject(key);
+  NCryptFreeObject(provider);
 
-  return bOk;
+  return ok;
 }
 
 /***************************************************************************/
@@ -130,23 +135,23 @@ static BOOL netcert_MakeKey(void)
  * certificate rather than by opening the container directly, so that a
  * container belonging to something else cannot be destroyed by a name clash.
  */
-static void netcert_DeleteKey(PCCERT_CONTEXT pCert)
+void DeletePrivateKey(PCCERT_CONTEXT cert)
 {
-  NCRYPT_KEY_HANDLE hKey = 0;
-  DWORD dwKeySpec = 0;
-  BOOL bCallerFree = FALSE;
+  NCRYPT_KEY_HANDLE key = 0;
+  DWORD keySpec = 0;
+  BOOL callerMustFree = FALSE;
 
-  if (!CryptAcquireCertificatePrivateKey(pCert, CRYPT_ACQUIRE_ONLY_NCRYPT_KEY_FLAG, nullptr, &hKey,
-                                         &dwKeySpec, &bCallerFree))
+  if (!CryptAcquireCertificatePrivateKey(cert, CRYPT_ACQUIRE_ONLY_NCRYPT_KEY_FLAG, nullptr, &key,
+                                         &keySpec, &callerMustFree))
     return;
 
   /* NCryptDeleteKey frees the handle whether it succeeds or not, so the
    * caller-free flag must not lead to a second free afterwards.
    */
-  if (bCallerFree)
-    NCryptDeleteKey(hKey, 0);
+  if (callerMustFree)
+    NCryptDeleteKey(key, 0);
   else
-    NCryptFreeObject(hKey);
+    NCryptFreeObject(key);
 }
 
 /***************************************************************************/
@@ -156,33 +161,32 @@ static void netcert_DeleteKey(PCCERT_CONTEXT pCert)
  * extended key usage at all is a coin toss across Windows versions -- so say
  * so explicitly rather than relying on the default.
  */
-static BOOL netcert_BuildExtensions(CERT_EXTENSIONS* psExtensions, CERT_EXTENSION* psExtension,
-                                    CRYPT_DATA_BLOB* psEncoded)
+BOOL BuildExtensions(CERT_EXTENSIONS* _extensions, CERT_EXTENSION* _extension, CRYPT_DATA_BLOB* _encoded)
 {
-  CERT_ENHKEY_USAGE sUsage;
-  LPSTR apszUsage[1];
+  CERT_ENHKEY_USAGE usage;
+  LPSTR usageOids[1];
 
-  apszUsage[0] = const_cast<LPSTR>(szOID_PKIX_KP_SERVER_AUTH);
-  sUsage.cUsageIdentifier = 1;
-  sUsage.rgpszUsageIdentifier = apszUsage;
+  usageOids[0] = const_cast<LPSTR>(szOID_PKIX_KP_SERVER_AUTH);
+  usage.cUsageIdentifier = 1;
+  usage.rgpszUsageIdentifier = usageOids;
 
-  psEncoded->pbData = nullptr;
-  psEncoded->cbData = 0;
+  _encoded->pbData = nullptr;
+  _encoded->cbData = 0;
 
-  if (!CryptEncodeObjectEx(X509_ASN_ENCODING, X509_ENHANCED_KEY_USAGE, &sUsage,
-                           CRYPT_ENCODE_ALLOC_FLAG, nullptr, &psEncoded->pbData, &psEncoded->cbData))
+  if (!CryptEncodeObjectEx(X509_ASN_ENCODING, X509_ENHANCED_KEY_USAGE, &usage,
+                           CRYPT_ENCODE_ALLOC_FLAG, nullptr, &_encoded->pbData, &_encoded->cbData))
   {
     Neuron::DebugTrace("netcert: cannot encode the key usage extension, {}\n",
                        static_cast<UDWORD>(GetLastError()));
     return FALSE;
   }
 
-  psExtension->pszObjId = const_cast<LPSTR>(szOID_ENHANCED_KEY_USAGE);
-  psExtension->fCritical = FALSE;
-  psExtension->Value = *psEncoded;
+  _extension->pszObjId = const_cast<LPSTR>(szOID_ENHANCED_KEY_USAGE);
+  _extension->fCritical = FALSE;
+  _extension->Value = *_encoded;
 
-  psExtensions->cExtension = 1;
-  psExtensions->rgExtension = psExtension;
+  _extensions->cExtension = 1;
+  _extensions->rgExtension = _extension;
 
   return TRUE;
 }
@@ -192,42 +196,42 @@ static BOOL netcert_BuildExtensions(CERT_EXTENSIONS* psExtensions, CERT_EXTENSIO
 /* Builds the certificate and puts it in the store. The caller has already
  * looked for an existing one.
  */
-static PCCERT_CONTEXT netcert_Create(HCERTSTORE hStore)
+PCCERT_CONTEXT CreateCertificate(HCERTSTORE store)
 {
-  CERT_NAME_BLOB sSubject = {0, nullptr};
-  CRYPT_KEY_PROV_INFO sProvInfo = {};
-  CRYPT_ALGORITHM_IDENTIFIER sAlgorithm = {};
-  CERT_EXTENSIONS sExtensions = {};
-  CERT_EXTENSION sExtension = {};
-  CRYPT_DATA_BLOB sEncodedUsage = {};
-  SYSTEMTIME sStart, sEnd;
-  FILETIME ftStart, ftEnd;
-  ULARGE_INTEGER uliEnd;
-  PCCERT_CONTEXT pCert = nullptr;
-  PCCERT_CONTEXT pStored = nullptr;
+  CERT_NAME_BLOB subject = {0, nullptr};
+  CRYPT_KEY_PROV_INFO providerInfo = {};
+  CRYPT_ALGORITHM_IDENTIFIER algorithm = {};
+  CERT_EXTENSIONS extensions = {};
+  CERT_EXTENSION extension = {};
+  CRYPT_DATA_BLOB encodedUsage = {};
+  SYSTEMTIME startTime, endTime;
+  FILETIME startFileTime, endFileTime;
+  ULARGE_INTEGER endTicks;
+  PCCERT_CONTEXT cert = nullptr;
+  PCCERT_CONTEXT stored = nullptr;
 
-  if (!netcert_MakeKey())
+  if (!CreatePrivateKey())
     return nullptr;
 
   /* CertStrToNameA is called twice: once for the size, once for the bytes. */
-  if (!CertStrToNameA(X509_ASN_ENCODING, NETCERT_SUBJECT, CERT_X500_NAME_STR, nullptr, nullptr,
-                      &sSubject.cbData, nullptr))
+  if (!CertStrToNameA(X509_ASN_ENCODING, CertificateSubject, CERT_X500_NAME_STR, nullptr, nullptr,
+                      &subject.cbData, nullptr))
   {
     Neuron::DebugTrace("netcert: cannot measure the subject name, {}\n",
                        static_cast<UDWORD>(GetLastError()));
     return nullptr;
   }
 
-  sSubject.pbData = static_cast<BYTE*>(LocalAlloc(LPTR, sSubject.cbData));
-  if (sSubject.pbData == nullptr)
+  subject.pbData = static_cast<BYTE*>(LocalAlloc(LPTR, subject.cbData));
+  if (subject.pbData == nullptr)
     return nullptr;
 
-  if (!CertStrToNameA(X509_ASN_ENCODING, NETCERT_SUBJECT, CERT_X500_NAME_STR, nullptr,
-                      sSubject.pbData, &sSubject.cbData, nullptr))
+  if (!CertStrToNameA(X509_ASN_ENCODING, CertificateSubject, CERT_X500_NAME_STR, nullptr,
+                      subject.pbData, &subject.cbData, nullptr))
   {
     Neuron::DebugTrace("netcert: cannot encode the subject name, {}\n",
                        static_cast<UDWORD>(GetLastError()));
-    LocalFree(sSubject.pbData);
+    LocalFree(subject.pbData);
     return nullptr;
   }
 
@@ -236,124 +240,132 @@ static PCCERT_CONTEXT netcert_Create(HCERTSTORE hStore)
    * wrong makes Schannel fail to find the key at handshake time rather than
    * here, so it is worth being sure of.
    */
-  sProvInfo.pwszContainerName = const_cast<LPWSTR>(NETCERT_KEY_NAME);
-  sProvInfo.pwszProvName = const_cast<LPWSTR>(MS_KEY_STORAGE_PROVIDER);
-  sProvInfo.dwProvType = 0;
-  sProvInfo.dwFlags = 0;
-  sProvInfo.dwKeySpec = 0;
+  providerInfo.pwszContainerName = const_cast<LPWSTR>(CertificateKeyName);
+  providerInfo.pwszProvName = const_cast<LPWSTR>(MS_KEY_STORAGE_PROVIDER);
+  providerInfo.dwProvType = 0;
+  providerInfo.dwFlags = 0;
+  providerInfo.dwKeySpec = 0;
 
   /* SHA-256 rather than the SHA-1 default: TLS 1.3 will not sign with SHA-1
    * and a certificate it cannot use is no certificate at all.
    */
-  sAlgorithm.pszObjId = const_cast<LPSTR>(szOID_RSA_SHA256RSA);
+  algorithm.pszObjId = const_cast<LPSTR>(szOID_RSA_SHA256RSA);
 
-  GetSystemTime(&sStart);
-  SystemTimeToFileTime(&sStart, &ftStart);
-  uliEnd.LowPart = ftStart.dwLowDateTime;
-  uliEnd.HighPart = ftStart.dwHighDateTime;
-  uliEnd.QuadPart += static_cast<ULONGLONG>(NETCERT_VALID_DAYS) * 24 * 60 * 60 * 10000000ULL;
-  ftEnd.dwLowDateTime = uliEnd.LowPart;
-  ftEnd.dwHighDateTime = uliEnd.HighPart;
-  FileTimeToSystemTime(&ftEnd, &sEnd);
+  GetSystemTime(&startTime);
+  SystemTimeToFileTime(&startTime, &startFileTime);
+  endTicks.LowPart = startFileTime.dwLowDateTime;
+  endTicks.HighPart = startFileTime.dwHighDateTime;
+  endTicks.QuadPart += static_cast<ULONGLONG>(CertificateValidDays) * 24 * 60 * 60 * 10000000ULL;
+  endFileTime.dwLowDateTime = endTicks.LowPart;
+  endFileTime.dwHighDateTime = endTicks.HighPart;
+  FileTimeToSystemTime(&endFileTime, &endTime);
 
-  if (netcert_BuildExtensions(&sExtensions, &sExtension, &sEncodedUsage))
+  if (BuildExtensions(&extensions, &extension, &encodedUsage))
   {
-    pCert = CertCreateSelfSignCertificate(0, &sSubject, 0, &sProvInfo, &sAlgorithm, &sStart, &sEnd,
-                                          &sExtensions);
-    if (pCert == nullptr)
+    cert = CertCreateSelfSignCertificate(0, &subject, 0, &providerInfo, &algorithm, &startTime, &endTime,
+                                          &extensions);
+    if (cert == nullptr)
       Neuron::DebugTrace("netcert: CertCreateSelfSignCertificate failed, {}\n",
                          static_cast<UDWORD>(GetLastError()));
   }
 
-  if (sEncodedUsage.pbData != nullptr)
-    LocalFree(sEncodedUsage.pbData);
-  LocalFree(sSubject.pbData);
+  if (encodedUsage.pbData != nullptr)
+    LocalFree(encodedUsage.pbData);
+  LocalFree(subject.pbData);
 
-  if (pCert == nullptr)
+  if (cert == nullptr)
     return nullptr;
 
   /* The context that comes back from the store is the one to keep: it is the
    * one carrying the store's own properties, and it is what the thumbprint is
    * then read from.
    */
-  if (!CertAddCertificateContextToStore(hStore, pCert, CERT_STORE_ADD_REPLACE_EXISTING, &pStored))
+  if (!CertAddCertificateContextToStore(store, cert, CERT_STORE_ADD_REPLACE_EXISTING, &stored))
   {
     Neuron::DebugTrace("netcert: cannot add the certificate to the store, {}\n",
                        static_cast<UDWORD>(GetLastError()));
-    CertFreeCertificateContext(pCert);
+    CertFreeCertificateContext(cert);
     return nullptr;
   }
 
-  CertFreeCertificateContext(pCert);
+  CertFreeCertificateContext(cert);
 
-  return pStored;
+  return stored;
 }
 
 /***************************************************************************/
 
-BOOL netcert_Acquire(BYTE abThumbprint[NETCERT_HASH_SIZE])
-{
-  HCERTSTORE hStore;
-  PCCERT_CONTEXT pCert;
-  DWORD cbHash = NETCERT_HASH_SIZE;
-  BOOL bOk;
+} // anonymous namespace
 
-  hStore = netcert_OpenStore();
-  if (hStore == nullptr)
+/***************************************************************************/
+
+BOOL HostCertificate::Acquire(BYTE _thumbprint[HashSize])
+{
+  HCERTSTORE store;
+  PCCERT_CONTEXT cert;
+  DWORD hashBytes = HostCertificate::HashSize;
+  BOOL ok;
+
+  store = OpenPersonalStore();
+  if (store == nullptr)
     return FALSE;
 
-  pCert = netcert_Find(hStore);
-  if (pCert == nullptr)
-    pCert = netcert_Create(hStore);
+  cert = FindOurCertificate(store);
+  if (cert == nullptr)
+    cert = CreateCertificate(store);
 
-  if (pCert == nullptr)
+  if (cert == nullptr)
   {
-    CertCloseStore(hStore, 0);
+    CertCloseStore(store, 0);
     return FALSE;
   }
 
   /* CERT_HASH_PROP_ID is the SHA-1 of the whole certificate, which is what
    * certmgr calls the thumbprint and what QUIC_CERTIFICATE_HASH wants.
    */
-  bOk = CertGetCertificateContextProperty(pCert, CERT_HASH_PROP_ID, abThumbprint, &cbHash);
-  if (!bOk || cbHash != NETCERT_HASH_SIZE)
+  ok = CertGetCertificateContextProperty(cert, CERT_HASH_PROP_ID, _thumbprint, &hashBytes);
+  if (!ok || hashBytes != HostCertificate::HashSize)
   {
-    Neuron::DebugTrace("netcert: cannot read the certificate thumbprint, {}\n",
+    Neuron::DebugTrace("netcert: cannot read the certificate _thumbprint, {}\n",
                        static_cast<UDWORD>(GetLastError()));
-    bOk = FALSE;
+    ok = FALSE;
   }
 
-  CertFreeCertificateContext(pCert);
-  CertCloseStore(hStore, 0);
+  CertFreeCertificateContext(cert);
+  CertCloseStore(store, 0);
 
-  return bOk;
+  return ok;
 }
 
 /***************************************************************************/
 
-void netcert_Release(void)
+void HostCertificate::Release(void)
 {
-  HCERTSTORE hStore;
-  PCCERT_CONTEXT pCert;
+  HCERTSTORE store;
+  PCCERT_CONTEXT cert;
 
-  hStore = netcert_OpenStore();
-  if (hStore == nullptr)
+  store = OpenPersonalStore();
+  if (store == nullptr)
     return;
 
-  pCert = netcert_Find(hStore);
-  if (pCert != nullptr)
+  cert = FindOurCertificate(store);
+  if (cert != nullptr)
   {
-    netcert_DeleteKey(pCert);
+    DeletePrivateKey(cert);
 
     /* CertDeleteCertificateFromStore frees the context whatever it returns, so
      * there is nothing left to release afterwards.
      */
-    if (!CertDeleteCertificateFromStore(pCert))
+    if (!CertDeleteCertificateFromStore(cert))
       Neuron::DebugTrace("netcert: cannot delete the certificate, {}\n",
                          static_cast<UDWORD>(GetLastError()));
   }
 
-  CertCloseStore(hStore, 0);
+  CertCloseStore(store, 0);
 }
+
+/***************************************************************************/
+
+} // namespace Neuron
 
 /***************************************************************************/

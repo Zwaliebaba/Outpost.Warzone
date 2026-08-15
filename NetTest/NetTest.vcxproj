@@ -2,7 +2,7 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <!--
     The loopback harness for the QUIC transport. A console program, not part of
-    the game: it compiles NetQuic.cpp and NetCert.cpp directly rather than
+    the game: it compiles Transport.cpp and HostCertificate.cpp directly rather than
     linking NeuronCore.lib, so that NEURON_TRACE_TO_STDERR can be defined for
     them and a failure on a CI runner says why instead of just failing.
   -->
@@ -87,9 +87,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="NetTest.cpp" />
-    <ClCompile Include="..\NeuronCore\NetCert.cpp" />
-    <ClCompile Include="..\NeuronCore\NetQuic.cpp" />
+    <ClCompile Include="TransportTest.cpp" />
+    <ClCompile Include="..\NeuronCore\HostCertificate.cpp" />
+    <ClCompile Include="..\NeuronCore\Transport.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

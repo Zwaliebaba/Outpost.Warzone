@@ -11,8 +11,8 @@
  * given a name of its own, at which point kickPlayer and player2dpid stopped
  * linking.
  *
- * It now also holds the size constants, so that NetTransport.h can name them
- * without including NetPlay.h and NetPlay.h can include NetTransport.h. They
+ * It now also holds the size constants, so that Transport.h can name them
+ * without including NetPlay.h and NetPlay.h can include Transport.h. They
  * were in NetPlay.h and the two headers were a cycle away from each other.
  *
  * Deliberately includes nothing.

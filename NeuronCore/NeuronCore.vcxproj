@@ -130,9 +130,9 @@
     <ClInclude Include="ListMacs.h" />
     <ClInclude Include="MaxPiDef.h" />
     <ClInclude Include="MultiWDG.h" />
-    <ClInclude Include="NetCert.h" />
+    <ClInclude Include="HostCertificate.h" />
     <ClInclude Include="NetPlay.h" />
-    <ClInclude Include="NetTransport.h" />
+    <ClInclude Include="Transport.h" />
     <ClInclude Include="NetTypes.h" />
     <ClInclude Include="NeuronCore.h" />
     <ClInclude Include="Parse.h" />
@@ -215,11 +215,11 @@
     <ClCompile Include="Ivi.cpp" />
     <ClCompile Include="Label.cpp" />
     <ClCompile Include="MultiWDG.cpp" />
-    <ClCompile Include="NetCert.cpp" />
+    <ClCompile Include="HostCertificate.cpp" />
     <ClCompile Include="NetCrypt.cpp" />
     <ClCompile Include="NetJoin.cpp" />
     <ClCompile Include="NetPlay.cpp" />
-    <ClCompile Include="NetQuic.cpp" />
+    <ClCompile Include="Transport.cpp" />
     <ClCompile Include="NetSupp.cpp" />
     <ClCompile Include="NetUsers.cpp" />
     <ClCompile Include="parser_l.cpp" />
