@@ -31,9 +31,10 @@ Subsystems in use today:
   `D3DMode.cpp`, `DX6TexMan.cpp`, `TexD3D.cpp`. The iVis layer (`RendMode.cpp`,
   `PieState.h`) still carries dead 3dfx Glide, software-render and 8-bit
   palette backends.
-- **Input** — DirectInput 7 (`DXInput.cpp`, `DIRECTINPUT_VERSION=0x0700`).
-- **Audio** — QSound's QMixer (`QSTrack.cpp`, `Aud.cpp`) over DirectSound, plus
-  MCI CD audio (`CDAudio.cpp`) and CD spanning (`CDSpan.cpp`).
+- **Input** — DirectInput 8 (`DXInput.cpp`, `DIRECTINPUT_VERSION=0x0800`).
+- **Audio** — XAudio2 with X3DAudio (`XA2Track.cpp`, `Aud.cpp`), music from
+  disk (`Music.cpp`), and CD spanning (`CDSpan.cpp`), which stays until game
+  data is confirmed to be installed to disk.
 - **Video** — `Sequence.cpp` streams `.rpl` movies onto DirectDraw surfaces via
   `WINSTR.LIB`.
 - **Network** — DirectPlay 4 (`NetPlay.cpp`, `NetSupp.cpp`, `NetLobby.cpp`,
@@ -200,9 +201,29 @@ checklist (transparency, additive effects, fog, terrain).
 
 ## Phase 3 — DirectInput 7 → 8
 
-Small and mechanical: `DIRECTINPUT_VERSION=0x0800`, `DirectInput8Create`,
-updated interface names in `DXInput.cpp`, link `dinput8.lib`. An afternoon, not a
-project.
+**Done**, and it was what it looked like: `DIRECTINPUT_VERSION=0x0800`,
+`DirectInput8Create`, `LPDIRECTINPUT8`/`LPDIRECTINPUTDEVICE8` in `DXInput.cpp`,
+and `dinput8.lib` in place of `dinput.lib`.
+
+Smaller than even that suggests, because the DirectInput surface is one mouse.
+`DXInput.cpp` is 185 lines and uses four DirectInput names in total, nothing
+else in either project touches `psDI` or `psDIMouse`, and there is no keyboard
+or joystick device — `Input.cpp` takes the keyboard from window messages.
+
+Three things made it a swap rather than a port. `DirectInput8Create` takes the
+interface by IID where `DirectInputCreate` handed back a versioned object, but
+that is one call site. `IDirectInput8::CreateDevice` returns an
+`IDirectInputDevice8` directly, so unlike the 3-to-7 upgrades nothing has to be
+queried for afterwards. And `DIMOUSESTATE`, `c_dfDIMouse`, `Acquire`,
+`SetDataFormat`, `SetCooperativeLevel` and `GetDeviceState` are unchanged, so
+the mouse code around them did not move at all.
+
+The vendored `DX9/Include/dinput.h` already supports 0x0800 — it defaults to it
+— and `DX9/Lib/dinput8.lib` was already there. The link was checked before CI
+rather than after, by looking for the symbols in the import libraries:
+`DirectInput8Create` and `c_dfDIMouse` are both in `dinput8.lib`, and
+`IID_IDirectInput8A` and `GUID_SysMouse` are in `dxguid.lib`, which stays on
+the link line. Nothing needed `dinput.lib` any more.
 
 ## Phase 4 — Audio: XAudio2, dropping QMixer and CD audio
 

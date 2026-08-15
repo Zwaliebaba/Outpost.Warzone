@@ -30,7 +30,7 @@ RELEASE = '--release' in sys.argv
 # green, which is the harness lying rather than finding anything.
 DEFS = ['WIN32', 'NDEBUG' if RELEASE else '_DEBUG',
         '_CRT_SECURE_NO_WARNINGS', '_CRT_NONSTDC_NO_DEPRECATE',
-        'DIRECTINPUT_VERSION=0x0700', '__STDC__=1',
+        'DIRECTINPUT_VERSION=0x0800', '__STDC__=1',
         # an MSVC intrinsic, and the release half of Debug.h is built on it
         '__noop(...)=((void)0)']
 
