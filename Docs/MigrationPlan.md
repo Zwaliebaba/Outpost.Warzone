@@ -812,6 +812,19 @@ same count as the pre-change baseline, and `tools/check_case.py` passes.
 the development container — so the visual checklist in the plan is
 outstanding for the whole stage.
 
+**Stage B is done too.** Collapsing the funnels removed a further 933 lines
+against 584 insertions and deleted three translation units — `PieState.cpp`
+folded into `D3DRender.cpp`, `PieTexture.cpp` into `Tex.cpp`, and
+`D3DMode.cpp` into `D3DRender.cpp` — taking `NeuronCore` from 83 units to
+80. The headline is that the renderer no longer keeps the same fact twice:
+the translucency state and the texture-page binding each had a second cache
+in the D3D layer, and the second copy is what forced the `g_bStateCacheStale`
+machinery Phase 2 had to add for device reset. Both are single now, owned by
+the code that talks to the device, and that machinery is gone. Init and
+shutdown, previously spread over four functions in three files, are one of
+each. The layer stands at **11 files and 3,885 lines**, against 14 and 6,185
+before Stage A — 37% removed.
+
 The measured inventory, the dead-code evidence, the target module layout and
 the staged execution are in [Phase8Plan.md](Phase8Plan.md). The short version:
 14 translation units and 6,185 lines make up the layer; ~2,400 lines were

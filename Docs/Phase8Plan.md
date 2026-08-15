@@ -368,6 +368,16 @@ outstanding for the whole of Stage A, not merely advisable.
 
 ### B — Collapse the funnels  *(behaviour-preserving by construction)*
 
+**Status: done**, in five commits. B1 was split in two — B1a for the cache
+collapse, which is the semantic change, and B1b for the file merge, which is
+mechanical — so that a regression bisects to one or the other. The stage
+removed **933 lines against 584 insertions across 22 files**, and deleted
+three translation units (`PieState.cpp`, `PieTexture.cpp`, `D3DMode.cpp`),
+taking `NeuronCore` from 83 to 80. The layer is now **11 files, 3,885
+lines**, against 14 files and 6,185 at the start of Stage A — 37% gone.
+What the stage turned up is under
+[What Stage B turned up](#what-stage-b-turned-up).
+
 - **B1. One state module.** Merge `PieState.cpp` into `D3DRender.cpp`:
   a single state struct owned next to the device calls; the
   `COLOUR_MODE`/`TEX_MODE`/`ALPHA_MODE` triple — whose only observable
@@ -400,6 +410,51 @@ where regressions would be introduced by transcription error. Mitigation:
 one module per commit, screenshot comparison after each, and the device-loss
 path (alt-tab in fullscreen) exercised explicitly, since state-cache
 handling is exactly what it stresses.
+
+#### What Stage B turned up
+
+**The double cache was a pattern, not an instance.** The plan named the
+translucency state; the texture page binding had exactly the same shape, and
+its second copy was worse. `pie_SetTexturePage` cached the page and
+`dtm_SetTexturePage` cached it again, but only the second is restored by
+`dtm_RestoreTextures`, and `pie_ResetStates` never touched `texPage` at all
+— so the pie-side copy went stale after every device reset and was harmless
+only because the real binding was put back underneath it. Both caches are
+now single, in the module that owns the device call.
+
+**Three structs turned out to be entirely write-only**, each found by
+following a cache rather than by grep: `PIED3DPOLY`'s `flags` (B2),
+`D3DINFO`'s `bAlphaKey` — the last field standing after A3 removed
+`D3DGetAlphaKey`, set to `FALSE` by one function and `TRUE` by the next
+(B4) — and `rendStates.texPage` (B3).
+
+**Two more computed-and-never-read tables**, on top of the ones Stage A
+found: `_iVPRIM_DIVTABLE`, 1024 reciprocals rebuilt on every init, and
+`iSurface::scantable`, 4KB per surface. `scantable` looked live —
+`IntelMap.cpp` passed `scantable[1]` to `seq_BlitBufferToScreen` as a stride
+— but that function ignores both the buffer and the stride it is handed and
+uses its own video buffer. The call now passes `rendSurface.width`, which is
+the value `scantable[1]` held, so it stays correct even if the callee is
+later fixed to honour it.
+
+**One latent defect preserved rather than fixed.** `pie_DrawPoly` computed
+the same off-screen test as every other draw path and stored the result in
+`PIED3DPOLY::flags`, which nothing read — so a terrain polygon with an
+off-screen vertex has always been drawn rather than culled. Removing the
+struct made this visible. Stage B keeps the behaviour and documents it at
+the site: making it cull changes what appears on screen, which belongs to
+the visual pass, not to deleting a struct.
+
+**Two bounds that disagreed.** `iV_TEX_MAX` allowed 48 texture pages while
+the device only ever created 32, so a page past 32 was written into the name
+table and then refused by the texture manager, leaving a filled-in entry and
+returning -1. One array now, one bound.
+
+**Deliberately not done:** the plan's B2 item about the 2D quad fillers
+writing `D3DTLVERTEX` directly. The `PIEVERTEX` conversion is also where the
+off-screen bailout and the half-texel offset live, so bypassing it means
+duplicating both — the opposite of what this stage is for. It becomes free
+once the funnel takes a vertex-buffer, which is D2.
 
 ### C — Rename to the target shape, delete the alias layer
 
