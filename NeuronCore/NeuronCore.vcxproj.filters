@@ -196,6 +196,9 @@
     <ClInclude Include="NetProv.h">
       <Filter>NetPlay</Filter>
     </ClInclude>
+    <ClInclude Include="NetCert.h">
+      <Filter>NetPlay</Filter>
+    </ClInclude>
     <ClInclude Include="NetTransport.h">
       <Filter>NetPlay</Filter>
     </ClInclude>
@@ -397,6 +400,9 @@
       <Filter>NetPlay</Filter>
     </ClCompile>
     <ClCompile Include="NetPlay.cpp">
+      <Filter>NetPlay</Filter>
+    </ClCompile>
+    <ClCompile Include="NetCert.cpp">
       <Filter>NetPlay</Filter>
     </ClCompile>
     <ClCompile Include="NetQuic.cpp">

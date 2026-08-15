@@ -25,13 +25,21 @@
  * The four flags are the part that is easy to miss. DirectPlay carried them in
  * DPSESSIONDESC2's dwUser1..4, and NETgetGameFlagsUnjoined reads them out of a
  * session the player has not joined yet -- the multiplayer browser shows map,
- * version and player count from them. Whatever answers a discovery request has
- * to carry them, or the browser has nothing to display.
+ * version and player count from them. Whatever lists sessions has to carry
+ * them, or the browser has nothing to display.
  */
 /***************************************************************************/
 
 #define	NETTRANS_GAME_FLAGS		4
 #define	NETTRANS_ADDRESS_SIZE	64
+
+/* The largest message this seam will carry, and therefore the smallest buffer
+ * nettrans_Receive may be given. It is the size of NETMSG -- size, paddedBytes
+ * and type, then the body -- because NETMSG is the only thing the game sends,
+ * and a transport that would accept more than the receiver can hold is a
+ * buffer overrun waiting for a peer to ask for one.
+ */
+#define	NETTRANS_MAX_MESSAGE	(MaxMsgSize + 4)
 
 using NETSESSION = struct NETSESSION
 {
@@ -74,9 +82,9 @@ using NETTRANS_EVENT = struct NETTRANS_EVENT
 BOOL nettrans_Startup(void);
 void nettrans_Shutdown(void);
 
-/* Called once a frame. Connection maintenance, discovery replies and the
- * queues behind nettrans_Receive and nettrans_NextEvent are serviced here, so
- * that nothing above this line has to think about which thread it is on.
+/* Called once a frame. Connection maintenance and the queues behind
+ * nettrans_Receive and nettrans_NextEvent are serviced here, so that nothing
+ * above this line has to think about which thread it is on.
  */
 void nettrans_Update(void);
 
@@ -89,6 +97,12 @@ BOOL nettrans_Host(const char szSessionName[], const char szPlayerName[], UDWORD
 /* Fills paSessions with what is reachable, and returns how many. Synchronous:
  * DirectPlay offered an asynchronous enumeration and NETfindGame took a flag
  * for it, but every caller passes the same value.
+ *
+ * Answers nothing today, and the join screen takes a typed address instead.
+ * LAN broadcast discovery was deliberately not built: the destination is a
+ * relay server that owns the connections, where listing sessions is a query to
+ * a known server. That query goes here, behind this signature, and the game
+ * above the seam does not learn about it.
  */
 UDWORD nettrans_FindSessions(NETSESSION paSessions[], UDWORD udwMax);
 
@@ -129,7 +143,8 @@ BOOL nettrans_Send(NETPLAYERID to, const void* pData, UDWORD udwSize, BOOL bReli
 BOOL nettrans_Broadcast(const void* pData, UDWORD udwSize, BOOL bReliable);
 
 /* Returns FALSE when nothing is waiting. On TRUE, *pudwSize is how much was
- * written and *pFrom is who sent it.
+ * written and *pFrom is who sent it. pData must have room for
+ * NETTRANS_MAX_MESSAGE bytes.
  */
 BOOL nettrans_Receive(void* pData, UDWORD* pudwSize, NETPLAYERID* pFrom);
 

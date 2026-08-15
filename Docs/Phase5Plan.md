@@ -160,8 +160,9 @@ have had to be written and debugged blind:
 | session open/close, player timeout | connection lifecycle and idle timeout |
 | nothing | TLS 1.3 on every byte |
 
-What stays hand-written is the part QUIC does not do: **LAN discovery over raw
-UDP broadcast**, and the session and player layer above the connections.
+What stays hand-written is the session and player layer above the connections.
+(This originally also said LAN discovery over raw UDP broadcast. It no longer
+does — see *The redirect* below.)
 
 1. **TLS backend — Schannel, and the floor becomes Windows 11.** MsQuic's
    default. TLS comes from the OS, so nothing extra ships. Its docs are
@@ -175,16 +176,24 @@ UDP broadcast**, and the session and player layer above the connections.
    one connection to it, and a client sending to another client goes through
    the host. One connection per player and one certificate. Most of the game's
    traffic is already broadcast, so the extra hop applies to a minority of it.
+   *(Still what Phase 5 builds, but it is now the first half of a longer road —
+   see* The redirect *below.)*
 4. **Certificates — self-signed, generated when the host opens a session**,
    with clients passing `QUIC_CREDENTIAL_FLAG_NO_CERTIFICATE_VALIDATION`. Be
    plain about what this is worth: traffic is encrypted against passive
    eavesdropping, but an active attacker on the same LAN can impersonate a
    host. It is still strictly better than DirectPlay, which sent everything in
-   clear.
-5. **Verification — a loopback harness, run in CI.** Two transport instances in
-   one process over loopback, asserting reliable messages arrive complete and
-   in order under simulated loss, duplication and reordering. This is the bar
-   for the phase.
+   clear. *(Revisit when the relay server exists: one server with one real
+   certificate is a name clients can actually validate, which this is not.)*
+5. **Verification — a loopback harness, run in CI.** Two transports over
+   loopback, asserting reliable messages arrive complete and in order under
+   simulated loss, duplication and reordering. This is the bar for the phase.
+
+   Amended while writing the transport: *two processes*, not two instances in
+   one. `NetQuic.cpp` keeps its session in file statics — one host, one client,
+   one roster — which is the right shape for a game that is only ever one of
+   those at a time, and the wrong shape for a harness that wants to be both.
+   Two processes over 127.0.0.1 is also closer to what is being tested.
 6. **Host migration — the session ends when the host leaves.** The `DPSYS_HOST`
    branch is deleted rather than reimplemented.
 7. **Player data — replication is dropped.** `NETget/setLocal/GlobalPlayerData`
@@ -281,6 +290,41 @@ right way to find out. And mingw-w64 has no `msquic.h`, so the cross-check will
 need a checked-in stub under `tools/stubs/` exactly as `x3daudio.h` did, with
 the same caveat: it checks our use of the API, not the API.
 
+## The redirect
+
+Recorded during step 7, and it changes what step 7 is for rather than what it
+does.
+
+**LAN discovery is not a requirement.** A UDP broadcast responder and finder
+were written and then deleted unbuilt, because the destination is not a game
+that finds its peers on the local network. It is a **server-authoritative
+setup**: a relay server owns the connections, every client holds its QUIC
+connection to the server rather than to another player, and the server
+forwards. Discovery in that world is a query to a known server, not a shout
+into a broadcast domain, and building the broadcast version first would have
+meant writing a thing whose only future is deletion.
+
+**The order is transport first, server after.** The server does not exist yet
+and its protocol is not settled, so Phase 5 stays what it always was — the
+removal of DirectPlay — and finishes as: QUIC under the seam, host-based,
+joined by typing an address rather than picking from a browsed list. The
+client is written against the interface, not against a protocol nobody has
+specified.
+
+What makes that safe is that `NetTransport.h` already hides both ends of the
+change. When the server arrives it slots in behind `nettrans_FindSessions` and
+`nettrans_Join` — the first becomes a query to the server instead of returning
+the empty list, the second dials the server instead of the host — and no game
+code above the seam is touched. `nettrans_FindSessions` was shaped around
+discovery and keeps its signature for exactly that reason; until a server
+answers it, it reports nothing and the join screen takes an address.
+
+The netcode is untouched by all of this. The host still simulates; lockstep
+does not care whether the ordered command stream reaches it directly or
+through a relay. Making the *server* authoritative — rather than merely a
+relay — is a change to the simulation, not to the transport, and is not part
+of this phase or the next one.
+
 ## Revised order
 
 Unchanged in shape — deletions first, so the risky part is written against a
@@ -311,4 +355,64 @@ dead IPX address setup are gone, about 2,600 lines. Two things the plan got
 wrong turned up while doing them, and both are recorded above rather than
 quietly fixed: the modem and serial address paths are not independently
 removable because the connection screen still lists them, and `NetCrypt.cpp`
-is neither dead nor purely networking. Step 7 is the project.
+is neither dead nor purely networking.
+
+**Step 7 is in progress.** MsQuic is in the build and links — proved by CI
+reaching the linker with only an unrelated symbol unresolved — and the
+transport now exists: `NetQuic.cpp` implements every function in
+`NetTransport.h` over MsQuic, host-based and joined by address, per *The
+redirect* above. What remains of step 7 is the loopback harness.
+
+### What the transport is
+
+A listener on the host, one connection per client, one bidirectional stream on
+each. Reliable traffic is length-prefixed frames on that stream, because a QUIC
+stream is a byte pipe and not a message queue; unreliable traffic is the same
+frames as QUIC datagrams, which keep their own boundaries. Six frame kinds —
+hello, welcome, joined, left, data, reject — and the game's bytes travel inside
+the data frame untouched.
+
+Three things are worth naming because they are the parts that would be
+expensive to get wrong:
+
+- **A broadcast never returns to its sender.** DirectPlay's `DPID_ALLPLAYERS`
+  behaved that way and the game is built on it: `removeFeature` broadcasts the
+  destruction *and* removes the feature locally, so a loopback copy would
+  double-apply. Verified at the call site rather than assumed from the docs.
+- **The receive ceiling is the seam's, not the transport's.** `nettrans_Receive`
+  writes into a buffer the caller sized, so `NETTRANS_MAX_MESSAGE` is now in
+  `NetTransport.h` and the wire refuses anything larger. Without that, the
+  frame ceiling's header slack is an overrun a peer chooses the size of.
+- **Two locking rules, and breaking either one deadlocks.** Never hold the
+  transport's lock across a blocking MsQuic call — `ConnectionClose`,
+  `ListenerClose` and `RegistrationClose` all wait for callbacks to drain — and
+  never take it in a send-completion callback, because MsQuic may run those
+  inline inside `StreamSend`. The two deliberate exceptions are `nettrans_Leave`
+  and the handshake timeout, which issue `ConnectionShutdown` *under* the lock:
+  it does not block, and holding the lock is what stops a peer's own teardown
+  from closing a handle between reading it and using it.
+
+A session's departure waits on a count of connection *handles*, not of peers. A
+peer is forgotten at the top of its shutdown and its handle closed at the
+bottom, and it is the bottom that matters, because MsQuic requires every
+connection closed before the configuration they were started with.
+
+### The certificate
+
+`NetCert.cpp`, kept separate because it is CryptoAPI rather than QUIC. It
+follows MsQuic's own `selfsign_capi.c`: a persisted CNG key, a self-signed
+certificate naming it, the current user's personal store, and a SHA-1
+thumbprint handed to MsQuic. Created when a game is hosted and deleted when it
+stops, key container included; a host that crashed leaves at most one behind
+and the next one reuses it.
+
+Two details there are load-bearing and fail late rather than loudly if wrong.
+`CRYPT_KEY_PROV_INFO.dwProvType` must be zero, which is how a CNG container is
+distinguished from a legacy CSP one — get it wrong and Schannel fails to find
+the private key at handshake time rather than at creation. And the signature
+algorithm is SHA-256 rather than the SHA-1 default, because TLS 1.3 will not
+sign with SHA-1 and a certificate it cannot use is no certificate at all.
+
+This is the part of Phase 5 that no amount of cross-checking can verify: it
+compiles, and whether Schannel accepts the result is a question only a Windows
+machine can answer.

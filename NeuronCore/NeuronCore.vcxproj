@@ -130,6 +130,7 @@
     <ClInclude Include="ListMacs.h" />
     <ClInclude Include="MaxPiDef.h" />
     <ClInclude Include="MultiWDG.h" />
+    <ClInclude Include="NetCert.h" />
     <ClInclude Include="NetPlay.h" />
     <ClInclude Include="NetProv.h" />
     <ClInclude Include="NetTransport.h" />
@@ -216,6 +217,7 @@
     <ClCompile Include="Ivi.cpp" />
     <ClCompile Include="Label.cpp" />
     <ClCompile Include="MultiWDG.cpp" />
+    <ClCompile Include="NetCert.cpp" />
     <ClCompile Include="NetCrypt.cpp" />
     <ClCompile Include="NetJoin.cpp" />
     <ClCompile Include="NetPlay.cpp" />
