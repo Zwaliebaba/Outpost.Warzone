@@ -2027,7 +2027,7 @@ static BOOL statsGetAudioIDFromString(STRING* szStatName, STRING* szWavName, SDW
     *piWavID = NO_SOUND;
   else
   {
-    if (audioID_GetIDFromStr(szWavName, piWavID) == FALSE)
+    if (AudioIdFromName(szWavName, *piWavID) == false)
     {
       Neuron::Fatal("statsGetAudioIDFromString: couldn't get ID {} for sound {}", *piWavID, szWavName);
       return FALSE;

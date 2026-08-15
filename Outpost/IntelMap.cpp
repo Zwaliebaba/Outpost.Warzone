@@ -201,7 +201,7 @@ BOOL _intAddIntelMap(void)
   else
     AudioSystem::StopAll();
 
-  music_Pause();
+  Music::Pause();
 
   //add message to indicate game is paused - single player mode
   if (PAUSE_DISPLAY_CONDITION)
@@ -794,7 +794,7 @@ void intCleanUpIntelMap(void)
   resetIntelligencePauseState();
   immediateMessage = FALSE;
 
-  music_Resume();
+  Music::Resume();
 }
 
 /* Remove the Intelligence Map widgets from the screen */

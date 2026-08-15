@@ -262,23 +262,21 @@ static AUDIO_ID asAudioID[] = {
 
 /***************************************************************************/
 
-BOOL audioID_GetIDFromStr(STRING* pWavStr, SDWORD* piID)
+bool AudioIdFromName(const char* _wavName, SDWORD& _id)
 {
-  SDWORD i;
-
-  for (i = 0; i < ID_MAX_SOUND; i++)
+  for (SDWORD i = 0; i < ID_MAX_SOUND; i++)
   {
-    if (stricmp(pWavStr, asAudioID[i].pWavStr) == 0)
+    if (stricmp(_wavName, asAudioID[i].pWavStr) == 0)
     {
-      DEBUG_ASSERT_TEXT(i == asAudioID[i].iID, "audioID_GetIDFromStr: {} stored IDs don't match", pWavStr);
+      DEBUG_ASSERT_TEXT(i == asAudioID[i].iID, "AudioIdFromName: {} stored IDs don't match", _wavName);
 
-      *piID = asAudioID[i].iID;
-      return TRUE;
+      _id = asAudioID[i].iID;
+      return true;
     }
   }
 
-  *piID = NO_SOUND;
-  return FALSE;
+  _id = NO_SOUND;
+  return false;
 }
 
 /***************************************************************************/

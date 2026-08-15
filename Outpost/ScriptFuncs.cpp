@@ -2673,7 +2673,7 @@ BOOL scrPlayCDAudio(void)
   if (!stackPopParams(1, VAL_INT, &iTrack))
     return FALSE;
 
-  music_PlayTrack(iTrack);
+  Music::PlayTrack(iTrack);
 
   return TRUE;
 }

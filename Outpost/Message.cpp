@@ -677,7 +677,7 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
         audioID = NO_SOUND;
       else
       {
-        if (audioID_GetIDFromStr(audioName, &audioID) == FALSE)
+        if (AudioIdFromName(audioName, audioID) == false)
         {
           Neuron::Fatal("loadViewData: couldn't get ID {} for weapon sound {}", audioID, audioName);
           return FALSE;

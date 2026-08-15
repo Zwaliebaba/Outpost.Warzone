@@ -907,7 +907,7 @@ void loop_ClearVideoPlaybackMode(void)
   paused = FALSE;
   video = FALSE;
   gameTimeStart();
-  music_Resume();
+  Music::Resume();
   DEBUG_ASSERT_TEXT(videoMode == 0, "loop_ClearVideoPlaybackMode: out of sync.");
 }
 

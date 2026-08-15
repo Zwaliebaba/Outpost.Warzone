@@ -46,9 +46,9 @@ Subsystems in use today:
 - **Audio** — **done, see Phase 4**, and modernised in Phase 9: XAudio2
   behind `Neuron::AudioMixer`, the track/sample lifecycle in
   `Neuron::AudioSystem`, WAV decoding in `WavData.cpp`, and in-game music
-  served from disk by `Music.cpp`. QMixer and CD audio are gone; the
-  QMixer-shaped C layers above the backend went with Phase 9 stages A–E,
-  leaving the `audio_*` shim for stage F to rename away.
+  served from disk by `Music.cpp`. QMixer and CD audio are gone, and so are
+  the QMixer-shaped C layers that sat above the backend — the `audio_*` and
+  `sound_*` free functions with them.
 - **Video** — **done, see Phase 6.** `MovieStream.cpp` decodes H.264/AAC in MP4
   through Media Foundation, with the soundtrack on the game's XAudio2 graph.
   Was `Sequence.cpp` streaming `.rpl` movies through `WINSTR.LIB` into a
@@ -925,18 +925,22 @@ self-contained, compiling only because a hub header happened to arrive first.
 
 ## Phase 9 — Audio: retiring the QMixer-shaped stack
 
-**Stages A–E are implemented; stage F (the tree-wide `audio_*` call-site
-rename) remains, gated on an owner go-ahead now that Phase 6 B6 has
-satisfied its precondition.** The module is `AudioSystem.cpp`,
-`AudioMixer.cpp` and `WavData.cpp` in `namespace Neuron`, with `Audio.h`
-and `Track.h` surviving as the shim the 43 consuming units still compile
-against, and the game supplying an `AudioWorld` provider from
-`Outpost/GameAudio.cpp` (was `Aud.cpp`) — `NeuronCore/Aud.h` and the
-engine-to-game link dependency are gone, as are `TrackLib.h`, the mmio
-reader and `winmm.lib`. Cross-checked clean in both configurations
-(`tools/crosscheck.py` now runs `-std=c++23`); not yet MSVC-built or
-listened to at the time of writing. The record of what came out differently
-is in [Phase9Plan.md](Phase9Plan.md#what-was-built).
+**Done, stages A–F.** The module is `AudioSystem.cpp`, `AudioMixer.cpp` and
+`WavData.cpp` in `namespace Neuron`, called as `AudioSystem::PlayTrack(...)`
+from 52 files; the `audio_*` and `sound_*` free functions, `Audio.h`,
+`TrackLib.h` and `NeuronCore/Aud.h` are all deleted. The game supplies an
+`AudioWorld` provider from `Outpost/GameAudio.cpp` (was `Aud.cpp`), so the
+engine library no longer links against game symbols — the one dependency
+edge in the tree that pointed the wrong way. `Track.h` survives holding the
+`TRACK` and `AUDIO_SAMPLE` wire types and nothing else. The mmio RIFF reader
+is a `std::expected`-returning `WavData`, which took `winmm.lib` off both
+link lines.
+
+Stages A–E are green on MSVC CI in both configurations;
+`tools/crosscheck.py` (now `-std=c++23`) is clean at 193/193 through stage
+F. **Not run** — the listening pass is the outstanding verification. The
+record of what came out differently is in
+[Phase9Plan.md](Phase9Plan.md#what-was-built).
 
 Phase 4 swapped the backend behind an interface it deliberately
 did not change; this phase changes the interface. The `audio_*`/`sound_*`

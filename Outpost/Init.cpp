@@ -900,7 +900,7 @@ BOOL frontendInitialise(char* ResourceFile)
   gameTimeInit();
 
   // hit me with some funky beats....
-  music_PlayTrack(2); // track 2 = f.e. music,
+  Music::PlayTrack(2); // track 2 = f.e. music,
 
   return TRUE;
 }
@@ -1200,7 +1200,7 @@ BOOL stageTwoShutDown(void)
 {
   Neuron::DebugTrace("stageTwoShutDown\n");
 
-  music_Stop();
+  Music::Stop();
 
   /* in stageThreeSgutDown now
   if (!missionShutDown())
@@ -1428,7 +1428,7 @@ BOOL saveGameReset(void)
 {
   Neuron::DebugTrace("saveGameReset\n");
 
-  music_Stop();
+  Music::Stop();
 
   /* in stageThreeSgutDown now
   if (!missionShutDown())

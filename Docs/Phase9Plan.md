@@ -13,14 +13,13 @@ Phase 8 took the render layer — and it is the same shape of work: a layer buil
 to abstract over multiple backends now abstracts over exactly one, so the layer
 is cost with no remaining purpose.
 
-**Status: stages A through E are implemented**; what came out differently
-from the plan below is recorded under [What was built](#what-was-built).
-Stage F — the tree-wide call-site rename — is not, and remains gated on an
-owner go-ahead; its precondition (Phase 6 stage B6 deleting `CDSpan.cpp`)
-was satisfied by main while this phase landed. The five
+**Status: implemented, stages A through F.** What came out differently from
+the plan below is recorded under [What was built](#what-was-built). The five
 [decisions](#decisions-to-confirm) were put to the owner and every
-recommendation was confirmed. The figures were measured against the tree at
-the head of this branch; the method is at the [end](#measurement).
+recommendation was confirmed; stage F was authorised once Phase 6 stage B6
+had landed on main and satisfied its precondition. The figures were measured
+against the tree at the head of this branch; the method is at the
+[end](#measurement).
 
 ## Where the stack stands
 
@@ -499,9 +498,34 @@ in the doing, and they are the parts worth knowing:
   which was fixed here. The default pass defines `DEBUG`, so
   Debug-only-include mistakes are exactly the class it cannot see.
 
-Everything is cross-checked clean in both configurations and **not built
-with MSVC or run** from the container; CI and the
-[listening pass](#verification) remain the outstanding verification.
+Stage F came to **221 replacements across 52 files**, against the ~182 the
+plan estimated — the gap is that the estimate counted `audio_*` occurrences
+outside the module, and the rename also took `#include "Audio.h"`,
+`sound_GetTrackHashName` and the `music_*` and `audioID_*` families. Four
+things there were more than a substitution:
+
+- **`audio_Disabled()` inverted into `AudioSystem::Enabled()`**, so all
+  fourteen gates read positively rather than as a double negative against
+  `FALSE`.
+- **`audio_PlayObjStaticTrack` and `audio_PlayObjDynamicTrack` were the same
+  function under two names** — identical bodies, both calling
+  `audio_Play3DTrack` with an object and a callback. They are one
+  `PlayObjectTrack` now, the static form passing an explicit `nullptr`.
+- **`Music` became a class** and lost `g_iCurTrack`, which was assigned in
+  two places and never read.
+- **The filenames `AudioID.h`/`.cpp` were left alone**, against the plan's
+  "AudioID/Music take conforming type and function names". The type
+  (`INGAME_AUDIO` → `InGameAudio`) and the function (`audioID_GetIDFromStr`
+  → `AudioIdFromName`) conform now, but renaming the file for R4's
+  acronym-casing would have touched 41 includers for one letter's
+  difference, which is the drive-by churn [AGENTS.md §6](../AGENTS.md)
+  exists to prevent. Recorded here rather than done silently.
+
+Everything is cross-checked clean in both configurations. Stages A–E are
+**green on MSVC CI in both Debug and Release**, which is the first real test
+of the rewrite's linking — the half the cross-checker cannot reach. Nothing
+has been **run**: the [listening pass](#verification) is the outstanding
+verification for the whole phase.
 
 ## Measurement
 

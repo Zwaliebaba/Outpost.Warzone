@@ -1,3 +1,5 @@
+#pragma once
+
 /***************************************************************************/
 /*
  * Music.h
@@ -7,21 +9,16 @@
  */
 /***************************************************************************/
 
-#ifndef _MUSIC_H_
-#define _MUSIC_H_
-
-/***************************************************************************/
-
-/* Track numbers are the ones the game and its scripts already use; track 2 is
- * the front end music. Each maps onto a file under MUSIC_DIRECTORY.
- */
-BOOL music_PlayTrack(SDWORD iTrack);
-void music_Stop(void);
-void music_Pause(void);
-void music_Resume(void);
-
-/***************************************************************************/
-
-#endif	// _MUSIC_H_
+/// The music player. Track numbers are the ones the game and its scripts
+/// already use - track 2 is the front end music - and each maps onto a file
+/// under the music directory.
+class Music
+{
+public:
+  static bool PlayTrack(SDWORD _track);
+  static void Stop();
+  static void Pause();
+  static void Resume();
+};
 
 /***************************************************************************/

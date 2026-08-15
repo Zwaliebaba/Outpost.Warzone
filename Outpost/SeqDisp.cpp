@@ -394,7 +394,7 @@ BOOL seq_StartFullScreenVideo(char* videoName, char* audioName)
   //start video mode
   if (loop_GetVideoMode() == 0)
   {
-    music_Pause();
+    Music::Pause();
     loop_SetVideoPlaybackMode();
     Neuron::SetFont(WFont);
     Neuron::SetTextColour(-1);

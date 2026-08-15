@@ -107,18 +107,6 @@ void ListenerPose(SDWORD& _x, SDWORD& _y, SDWORD& _z, SDWORD& _degrees)
   _degrees = player.r.y / DEG_1;
 }
 
-/***************************************************************************/
-
-bool TrackIdForName(const char* _wavName, SDWORD& _id)
-{
-  SDWORD id;
-  if (audioID_GetIDFromStr(const_cast<char*>(_wavName), &id) == FALSE)
-    return false;
-
-  _id = id;
-  return true;
-}
-
 } // namespace
 
 /***************************************************************************/
@@ -131,7 +119,7 @@ Neuron::AudioWorld GameAudioWorld()
   world.objectPosition = ObjectPosition;
   world.staticPosition = StaticPosition;
   world.listenerPose = ListenerPose;
-  world.trackIdForName = TrackIdForName;
+  world.trackIdForName = AudioIdFromName; /* AudioID.h's, which already has this shape */
   world.gameTimeMs = [] { return gameTime; };
 
   return world;

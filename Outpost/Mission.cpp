@@ -2829,7 +2829,7 @@ static BOOL _intAddMissionResult(BOOL result, BOOL bPlaySuccess)
   memset(&sFormInit, 0, sizeof(W_FORMINIT));
 
   // add some funky beats
-  music_PlayTrack(2); // 2= frontend music.
+  Music::PlayTrack(2); // 2= frontend music.
 
   pie_LoadBackDrop(SCREEN_MISSIONEND,FALSE);
 
@@ -2986,7 +2986,7 @@ void intRemoveMissionResultNoAnim(void)
   widgDelete(psWScreen, IDMISSIONRES_FORM);
   widgDelete(psWScreen, IDMISSIONRES_BACKFORM);
 
-  music_Stop();
+  Music::Stop();
 
   MissionResUp = FALSE;
   ClosingMissionRes = FALSE;
