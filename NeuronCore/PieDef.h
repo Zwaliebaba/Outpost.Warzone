@@ -175,13 +175,6 @@ using TEXTUREPAGE = struct
   iPalette* Palette;
 };
 
-using PIED3DPOLY = struct
-{
-  UDWORD flags;
-  SDWORD nVrts;
-  D3DTLVERTEX* pVrts;
-  iTexAnim* pTexAnim;
-};
 using PIEPOLY = struct
 {
   UDWORD flags;
@@ -211,9 +204,6 @@ extern void pie_DrawLine(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1, UDWORD colo
 extern void pie_DrawPoly(SDWORD numVrts, PIEVERTEX* aVrts, SDWORD texPage, void* psEffects);
 
 extern void pie_GetResetCounts(SDWORD* pPieCount, SDWORD* pTileCount, SDWORD* pPolyCount, SDWORD* pStateCount);
-
-//piedraw functions used in piefunc.c
-extern void pie_D3DPoly(PIED3DPOLY* poly);
 
 // Special re-mix of sscanf that moves the string pointer along - defined in imdLoad.c
 extern int __cdecl sscanf1(char** stringPos, const char* format, ...);

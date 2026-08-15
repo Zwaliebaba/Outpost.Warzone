@@ -39,8 +39,6 @@ static SDWORD polyCount = 0;
  */
 /***************************************************************************/
 
-//d3d draw poly (low level) D3D mode only
-void pie_D3DPoly(PIED3DPOLY* poly);
 //pievertex draw poly (low level) //all modes from PIEVERTEX data
 static void pie_PiePoly(PIEPOLY* poly, BOOL bClip);
 static void pie_PiePolyFrame(PIEPOLY* poly, SDWORD frame, BOOL bClip);
@@ -571,29 +569,9 @@ static void pie_PiePolyFrame(PIEPOLY* poly, int frame, BOOL bClip)
 #endif
 }
 
-/***************************************************************************
- * pie_D3DPoly
- *
- * D3D specific poly draw function should change to use hardpoly
- *
- * Assumes render mode NOT set up externally
- *                     ---   
- ***************************************************************************/
-
-void pie_D3DPoly(PIED3DPOLY* poly)
-{
-#ifdef NO_RENDER
-  return;
-#else
-  polyCount++;
-  D3DDrawPoly(poly->nVrts, &poly->pVrts[0]);
-#endif
-}
-
 void pie_DrawPoly(SDWORD numVrts, PIEVERTEX* aVrts, SDWORD texPage, void* psEffects)
 {
-  SDWORD i;
-  PIED3DPOLY renderPoly;
+  SDWORD i, nVrts;
   BOOL bClockwise;
   UBYTE alpha, *psAlpha;
 
@@ -616,16 +594,16 @@ void pie_DrawPoly(SDWORD numVrts, PIEVERTEX* aVrts, SDWORD texPage, void* psEffe
     pie_SetRendMode(REND_ALPHA_TEX); //jps 15apr99 old solid water code
   pie_SetBilinear(TRUE);
 
-  renderPoly.nVrts = pie_ClipTextured(numVrts, &aVrts[0], &clippedVrts[0], TRUE);
-  renderPoly.flags = 0x08;
-  renderPoly.pVrts = &d3dVrts[0];
-  for (i = 0; i < renderPoly.nVrts; i++)
+  nVrts = pie_ClipTextured(numVrts, &aVrts[0], &clippedVrts[0], TRUE);
+  /* The off-screen test the other draw paths make is deliberately absent
+   * here. It was written, into a flags field nothing read, so a terrain poly
+   * with an off-screen vertex has always been drawn rather than culled.
+   * Preserved as it is: making it cull would change what appears on screen.
+   */
+  for (i = 0; i < nVrts; i++)
   {
     d3dVrts[i].sx = static_cast<float>(clippedVrts[i].sx);
     d3dVrts[i].sy = static_cast<float>(clippedVrts[i].sy);
-    //cull triangles with off screen points
-    if (d3dVrts[i].sy > static_cast<float>(LONG_TEST))
-      renderPoly.flags = 0;
     d3dVrts[i].sz = static_cast<float>(clippedVrts[i].sz) * INV_MAX_Z;
     d3dVrts[i].rhw = static_cast<float>(1.0) / static_cast<float>(clippedVrts[i].sz);
     d3dVrts[i].tu = static_cast<float>(clippedVrts[i].tu) * INV_TEX_SIZE;
@@ -645,8 +623,11 @@ void pie_DrawPoly(SDWORD numVrts, PIEVERTEX* aVrts, SDWORD texPage, void* psEffe
       d3dVrts[i].specular = clippedVrts[i].specular.argb;
     }
   }
-  if (renderPoly.nVrts >= 3)
-    pie_D3DPoly(&renderPoly); // draw the polygon ... this is an inline function
+  if (nVrts >= 3)
+  {
+    polyCount++;
+    D3DDrawPoly(nVrts, &d3dVrts[0]);
+  }
 }
 
 void pie_GetResetCounts(SDWORD* pPieCount, SDWORD* pTileCount, SDWORD* pPolyCount, SDWORD* pStateCount)
