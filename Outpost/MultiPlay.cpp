@@ -48,7 +48,7 @@
 // globals.
 BOOL bMultiPlayer = FALSE; // true when more than 1 player.
 STRING sForceName[256] = "Default";
-DPID player2dpid[MAX_PLAYERS] = {0, 0, 0, 0, 0, 0, 0, 0}; //stores dpids of each player. FILTHY HACK (ASSUMES 8playerS)
+NETPLAYERID player2dpid[MAX_PLAYERS] = {0, 0, 0, 0, 0, 0, 0, 0}; //stores dpids of each player. FILTHY HACK (ASSUMES 8playerS)
 BOOL openchannels[MAX_PLAYERS] = {TRUE};
 UBYTE bDisplayMultiJoiningStatus;
 
@@ -541,24 +541,31 @@ iVector cameraToHome(UDWORD player, BOOL scroll)
 // ////////////////////////////////////////////////////////////////////////////
 // ////////////////////////////////////////////////////////////////////////////
 // Required by the net library. It's the system message handler..
-BOOL DirectPlaySystemMessageHandler(LPVOID mg)
+BOOL NETeventHandler(const Transport::Event* psEvent)
 {
-  switch (static_cast<LPDPMSG_GENERIC>(mg)->dwType)
+  switch (psEvent->type)
   {
-  case DPSYS_DESTROYPLAYERORGROUP: // player leaving the game
-    if (static_cast<LPDPMSG_DESTROYPLAYERORGROUP>(mg)->dwPlayerType == DPPLAYERTYPE_PLAYER)
-    {
-      NETlogEntry("directplay leave player called...", 0, 0);
-      MultiPlayerLeave(static_cast<LPDPMSG_DESTROYPLAYERORGROUP>(mg)->dpId);
-    }
+  case TransportEventType::PlayerJoined: // player joining the game.
+    MultiPlayerJoin(psEvent->player);
     break;
 
-  case DPSYS_CREATEPLAYERORGROUP: // player joining the game.
-    MultiPlayerJoin(static_cast<LPDPMSG_CREATEPLAYERORGROUP>(mg)->dpId);
+  case TransportEventType::PlayerLeft: // player leaving the game
+    NETlogEntry("transport leave player called...", 0, 0);
+    MultiPlayerLeave(psEvent->player);
     break;
 
-  case DPSYS_HOST: // we have become host.
-    NetPlay.bHost = TRUE;
+  /* Was DPSYS_HOST, where DirectPlay promoted somebody when the host left and
+   * this machine might find itself hosting. There is no migration now: the
+   * session ends with the host, and since every other player was reached
+   * through the host they are all unreachable too. Rather than invent a way to
+   * say that, it is said in the terms the game already has -- everybody left --
+   * which drops them to AI control and puts a line on the console for each.
+   */
+  case TransportEventType::HostLost:
+    NETlogEntry("host lost, the session is over", 0, 0);
+    for (UDWORD pl = 0; pl < MAX_PLAYERS; pl++)
+      if (player2dpid[pl] != 0 && player2dpid[pl] != NetPlay.dpidPlayer)
+        MultiPlayerLeave(player2dpid[pl]);
     break;
 
   default:
@@ -574,7 +581,7 @@ BOOL DirectPlaySystemMessageHandler(LPVOID mg)
 BOOL recvMessage(VOID)
 {
   NETMSG msg;
-  DPID dp;
+  NETPLAYERID dp;
   UDWORD a;
 
   while (NETrecv(&msg) == TRUE) // for all incoming messages.
@@ -613,6 +620,10 @@ BOOL recvMessage(VOID)
         break;
       case NET_TEXTMSG: // simple text message
         recvTextMessage(&msg);
+        break;
+
+      case NET_PLAYERSTATS: // somebody's score and rank
+        recvMultiStats(&msg);
         break;
       case NET_BUILD: // a build order has been sent.
         recvBuildStarted(&msg);
@@ -956,14 +967,14 @@ BOOL sendTextMessage(char* pStr, BOOL all)
   BOOL sendto[MAX_PLAYERS];
   UDWORD i;
   CHAR display[MAX_CONSOLE_STRING_LENGTH];
-  BOOL bEncrypting;
 
   if (!ingame.localOptionsReceived)
     return TRUE;
 
-  bEncrypting = NetPlay.bEncryptAllPackets;
-  NetPlay.bEncryptAllPackets = FALSE;
-
+  /* Chat used to be sent with packet encryption suspended around it, so that a
+   * message could be read by a version whose key did not match. QUIC encrypts
+   * everything either way now, and there is no per-message switch to flick.
+   */
   for (i = 0; i < MAX_PLAYERS; i++)
     sendto[i] = 0;
 
@@ -997,8 +1008,6 @@ BOOL sendTextMessage(char* pStr, BOOL all)
     }
   }
 
-  NetPlay.bEncryptAllPackets = bEncrypting;
-
   for (i = 0; NetPlay.players[i].dpid != NetPlay.dpidPlayer; i++); //findplayer
   strcpy(display, NetPlay.players[i].name); // name
   strcat(display, " : "); // seperator
@@ -1011,7 +1020,7 @@ BOOL sendTextMessage(char* pStr, BOOL all)
 // Write a message to the console.
 BOOL recvTextMessage(NETMSG* pMsg)
 {
-  DPID dpid;
+  NETPLAYERID dpid;
   UDWORD i;
   STRING msg[MAX_CONSOLE_STRING_LENGTH];
 

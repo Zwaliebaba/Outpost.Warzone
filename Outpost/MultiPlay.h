@@ -5,6 +5,7 @@
  */
 
 #include "Group.h"
+#include "NetTypes.h"	// NETPLAYERID
 
 // Different Message Structures allowed to be sent between players. 
 // Each message must have type = to one of these.
@@ -110,7 +111,11 @@ using MESSAGE_TYPES = enum _msgtype
   NET_LASSAT,
   //45 107, lassat firing.
 
-  NET_REQUESTMAP //46 107 dont have map, please send it.
+  NET_REQUESTMAP,
+  //46 107 dont have map, please send it.
+
+  NET_PLAYERSTATS //47 a player's score and rank. Was DirectPlay's replicated
+                  //   per-player data, which nothing else ever used.
 };
 
 // /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -170,7 +175,7 @@ extern MULTIPLAYERINGAME ingame; // the game description.
 
 extern BOOL bMultiPlayer; // true when more than 1 player.
 extern UDWORD selectedPlayer;
-extern DWORD player2dpid[MAX_PLAYERS]; // note this is of type DPID, not DWORD
+extern NETPLAYERID player2dpid[MAX_PLAYERS];
 extern BOOL openchannels[MAX_PLAYERS];
 extern UBYTE bDisplayMultiJoiningStatus; // draw load progress?
 

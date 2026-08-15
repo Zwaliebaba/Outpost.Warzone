@@ -39,12 +39,18 @@ If a rule here conflicts with a habit from another codebase, this file wins. If 
 **R2 — A type name carries no prefix, and that includes abstract ones.** An interface is `Transport`, not `ITransport`. A base class is not `BaseTransport` or `AbstractTransport`. PascalCase means the name and nothing else — the Hungarian remnants in the legacy tree are not a precedent, and none is to be introduced. Name the concept and let the concrete types say what they are:
 
 ```
-Transport             ← the concept (the Phase 5 interface)
-├── UdpTransport      ← WinSock2-backed, the shipping one
+Transport             ← the concept
+├── UdpTransport      ← a socket-backed one
 └── LoopbackTransport ← in-process, for tests
 ```
 
 This also bans `CFoo`, `SFoo`, `EFoo`, `FooBase`, `IFoo`, and `_t` suffixes.
+
+The tree above is an illustration of the rule, not a description of anything.
+Phase 5 shipped as a single `Transport` in [Transport.h](NeuronCore/Transport.h)
+with static methods and no hierarchy at all, because there is exactly one
+implementation and a base class for one derived class is ceremony. Name the
+concept; add the layer when a second thing needs it.
 
 **R3 — Compile-time constants are Constants.** `static constexpr` members and namespace-scope `constexpr`/`inline constexpr` take PascalCase (`MaxDroids`, `TileWidth`, `TextureCacheBytes`). `sm_` is reserved for *mutable* statics, which are rare and must document their thread-safety.
 
@@ -194,6 +200,8 @@ The migration has already made these decisions. Use the replacement that is alre
 **R13 — Leave the not-yet-migrated subsystems alone** unless your task *is* that phase: DirectInput 7 (Phase 3), QMixer/DirectSound/CD audio (Phase 4), DirectPlay 4 and Mplayer (Phase 5), WINSTR video (Phase 6). Touching them opportunistically creates conflicts with the phase that will rewrite them.
 
 **R14 — No new third-party dependencies**, and no package manager. The DX9 SDK is vendored for exactly this reason. If you believe something is unavoidable, propose it in your report; do not add it.
+
+**The one sanctioned exception is MsQuic**, which Phase 5 takes from the `Microsoft.Native.Quic.MsQuic.Schannel` NuGet package and CI restores before each build. It was an owner decision, and the reasoning is on the record in [Phase5Plan.md](Docs/Phase5Plan.md): the alternative was hand-writing sequencing, acknowledgement, retransmission and ordering for lockstep game commands, where a single reordered packet desynchronises a match silently — and nothing in this repository can test such a protocol. QUIC makes that somebody else's tested code. This exception covers MsQuic and the NuGet restore that fetches it, and nothing else; a second one needs the same conversation.
 
 **R15 — `namespace Neuron` is for new engine code**, as `Debug.h` does it. Legacy translation units reach it through the `using namespace Neuron;` in `NeuronCore.h`; do not add per-file `using namespace` directives to work around a lookup failure — qualify the name.
 

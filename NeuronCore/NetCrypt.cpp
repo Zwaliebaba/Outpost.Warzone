@@ -18,7 +18,6 @@
 
 #include "Frame.h"
 #include "NetPlay.h"
-#include "NetSupp.h"
 
 #define			ENCRYPTSTRENGTH 16		// 32=ample, 16=sufficient, 8=maybe ok, good dispersion after 6.
 #define			NIBBLELENGTH	8		// bytes done per encrypt step.
@@ -29,8 +28,6 @@ UDWORD NEThashFile(STRING* pFileName);
 UDWORD NEThashBuffer(UBYTE* pData, UDWORD size);
 
 BOOL NETsetKey(UDWORD c1, UDWORD c2, UDWORD c3, UDWORD c4);
-NETMSG* NETmanglePacket(NETMSG* msg);
-VOID NETunmanglePacket(NETMSG* msg);
 
 BOOL NETmangleData(long* input, long* result, UDWORD dataSize);
 BOOL NETunmangleData(long* input, long* result, UDWORD dataSize);
@@ -148,74 +145,20 @@ static BOOL unmangle(long* v, long* w)
   return TRUE;
 }
 
-// ////////////////////////////////////////////////////////////////////////
-// encrypt a netplay packet
-
-NETMSG* NETmanglePacket(NETMSG* msg)
-{
-  NETMSG result;
-  UDWORD pos = 0;
-
-  if (msg->size > MaxMsgSize - NIBBLELENGTH)
-  {
-    Neuron::Fatal("NETmanglePacket: can't encrypt huge packets. returning unencrypted packet");
-    return msg;
-  }
-
-  msg->paddedBytes = 0;
-  while (msg->size % NIBBLELENGTH != 0) //need to pad out msg.
-  {
-    msg->body[msg->size] = 0;
-    msg->size++;
-    msg->paddedBytes++;
-  }
-
-  result.type = msg->type + ENCRYPTFLAG;
-  result.size = msg->size;
-  result.paddedBytes = msg->paddedBytes;
-
-  while (msg->size)
-  {
-    mangle((long*)&msg->body[pos], (long*)&result.body[pos]);
-    pos += NIBBLELENGTH;
-    msg->size -= NIBBLELENGTH;
-  }
-
-  memcpy(msg, &result, sizeof(NETMSG));
-  return msg;
-}
-
-// ////////////////////////////////////////////////////////////////////////
-// decrypt a netplay packet
-// messages SHOULD be 8byte multiples, not required tho. will return padded out..
-
-VOID NETunmanglePacket(NETMSG* msg)
-{
-  NETMSG result;
-  UDWORD pos = 0;
-
-  if (msg->size % NIBBLELENGTH != 0)
-  {
-    Neuron::Fatal("NETunmanglePacket: Incoming msg wrong length");
-    NETlogEntry("NETunmanglePacket failure", msg->type, msg->size);
-    return;
-  }
-
-  result.type = msg->type - ENCRYPTFLAG;
-  result.size = 0;
-  result.paddedBytes = msg->paddedBytes;
-
-  while (msg->size)
-  {
-    unmangle((LONG*)&msg->body[pos], (long*)&result.body[pos]);
-    pos += NIBBLELENGTH;
-    msg->size -= NIBBLELENGTH;
-    result.size += NIBBLELENGTH;
-  }
-  result.size -= msg->paddedBytes;
-
-  memcpy(msg, &result, sizeof(NETMSG));
-}
+/* NETmanglePacket and NETunmanglePacket were here.
+ *
+ * They encrypted a NETMSG in place, padding it to a multiple of the cipher's
+ * block length and marking the type with ENCRYPTFLAG so the far end knew to
+ * reverse it. QUIC encrypts every byte of every packet with TLS 1.3, so there
+ * was nothing left for them to add and they went with the transport swap. The
+ * padding they needed is what NETMSG's paddedBytes field was for; the field is
+ * still on the wire and now always zero.
+ *
+ * The rest of this file is not networking and never was, which is why it is
+ * still here: NETmangleData obfuscates the player-stats file on disk,
+ * NEThashFile and NEThashVal catch a mismatched executable when somebody
+ * joins, and NEThashBuffer backs Data.cpp's cheat hashing.
+ */
 
 // ////////////////////////////////////////////////////////////////////////
 // encrypt any datastream.
