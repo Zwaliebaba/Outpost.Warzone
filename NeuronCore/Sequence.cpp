@@ -39,7 +39,32 @@
  */
 /***************************************************************************/
 
-static Neuron::MovieStream g_movie;
+/* Deliberately heap allocated, and deliberately never deleted.
+ *
+ * A file-scope MovieStream is destroyed during CRT static teardown -- after
+ * systemShutdown has released the XAudio2 engine and after COM has gone.
+ * Destroying a source voice whose engine no longer exists corrupts the heap,
+ * and that is exactly what "Invalid address specified to RtlValidateHeap" on
+ * exit was: the movie's voice outliving the mixer that owned it.
+ *
+ * Leaking one object at process exit costs nothing; freeing it at the wrong
+ * moment costs a corrupted heap. seq_ShutDown releases everything inside it
+ * while the subsystems are still alive, and systemShutdown calls that before
+ * audio_Shutdown.
+ */
+static Neuron::MovieStream* g_movie = nullptr;
+
+static Neuron::MovieStream& seq_Movie()
+{
+  if (g_movie == nullptr)
+    g_movie = new Neuron::MovieStream();
+  return *g_movie;
+}
+
+/* Null-safe, so the query functions do not build a player just to be told
+ * there is no movie playing.
+ */
+static BOOL seq_MovieOpen(void) { return (g_movie != nullptr && g_movie->IsOpen()) ? TRUE : FALSE; }
 
 /* Set when the caller asked for the small in-HCI window rather than a
  * full-screen sequence, exactly as the old bSmallVideo did.
@@ -58,7 +83,7 @@ static BOOL g_smallVideo = FALSE;
 static BOOL seq_OpenMovie(char* filename, PERF_MODE perfMode)
 {
   g_smallVideo = (perfMode != VIDEO_PERF_FULLSCREEN);
-  return g_movie.Open(filename) ? TRUE : FALSE;
+  return seq_Movie().Open(filename) ? TRUE : FALSE;
 }
 
 /* The unused parameters are Sequence.h's, and Sequence.h is deliberately
@@ -76,7 +101,8 @@ BOOL seq_SetSequence(char* filename, int, char*, PERF_MODE perfMode) { return se
 
 int seq_ClearMovie(void)
 {
-  g_movie.Close();
+  if (g_movie != nullptr)
+    g_movie->Close();
   return TRUE;
 }
 
@@ -89,19 +115,19 @@ int seq_ClearMovie(void)
  */
 int seq_RenderOneFrameToBuffer(char* lpSF, int skip, SDWORD, SDWORD)
 {
-  if (!g_movie.IsOpen())
+  if (!seq_MovieOpen())
     return VIDEO_FRAME_ERROR;
 
-  const int frame = g_movie.DecodeNextFrame(skip);
+  const int frame = g_movie->DecodeNextFrame(skip);
   if (frame < 0)
     return VIDEO_FINISHED;
 
-  const UDWORD* source = g_movie.FramePixels();
+  const UDWORD* source = g_movie->FramePixels();
   if (source == nullptr || lpSF == nullptr)
     return frame;
 
-  const int width = g_movie.Width();
-  const int height = g_movie.Height();
+  const int width = g_movie->Width();
+  const int height = g_movie->Height();
   auto* dest = reinterpret_cast<UWORD*>(lpSF);
 
   for (int i = 0; i < width * height; i++)
@@ -129,19 +155,19 @@ int seq_RenderOneFrame(int skip, SDWORD subMin, SDWORD subMax)
   SDWORD borderX, borderY;
   SDWORD subYstart, subYend, subXstart, subXend;
 
-  if (!g_movie.IsOpen())
+  if (!seq_MovieOpen())
     return VIDEO_FRAME_ERROR;
 
-  const int frame = g_movie.DecodeNextFrame(skip);
+  const int frame = g_movie->DecodeNextFrame(skip);
   if (frame < 0)
     return VIDEO_FINISHED;
 
-  const UDWORD* source = g_movie.FramePixels();
+  const UDWORD* source = g_movie->FramePixels();
   if (source == nullptr)
     return VIDEO_FINISHED;
 
-  const SDWORD movieWidth = g_movie.Width();
-  const SDWORD movieHeight = g_movie.Height();
+  const SDWORD movieWidth = g_movie->Width();
+  const SDWORD movieHeight = g_movie->Height();
 
   /* The movies are 320x240 against a 640x480 playback area, so a full-screen
    * sequence draws every pixel twice in each direction. The old decoder did
@@ -244,20 +270,25 @@ int seq_RenderOneFrame(int skip, SDWORD subMin, SDWORD subMax)
  * cyclic buffer fed between frames. Media Foundation does its own reading, so
  * there is nothing left to top up.
  */
-BOOL seq_RefreshVideoBuffers(void) { return g_movie.IsOpen() ? TRUE : FALSE; }
+BOOL seq_RefreshVideoBuffers(void) { return seq_MovieOpen(); }
 
+/* Called at the end of every sequence, and now also from systemShutdown before
+ * the mixer goes. Everything COM or XAudio2 owns is released here, while the
+ * subsystems that created it are still up.
+ */
 BOOL seq_ShutDown(void)
 {
-  g_movie.Close();
+  if (g_movie != nullptr)
+    g_movie->Close();
   return TRUE;
 }
 
 BOOL seq_GetFrameSize(SDWORD* pWidth, SDWORD* pHeight)
 {
-  if (g_movie.IsOpen())
+  if (seq_MovieOpen())
   {
-    *pWidth = g_movie.Width();
-    *pHeight = g_movie.Height();
+    *pWidth = g_movie->Width();
+    *pHeight = g_movie->Height();
     return TRUE;
   }
 
@@ -266,8 +297,8 @@ BOOL seq_GetFrameSize(SDWORD* pWidth, SDWORD* pHeight)
   return FALSE;
 }
 
-int seq_GetCurrentFrame(void) { return g_movie.IsOpen() ? g_movie.CurrentFrame() : -1; }
+int seq_GetCurrentFrame(void) { return seq_MovieOpen() ? g_movie->CurrentFrame() : -1; }
 
-int seq_GetFrameTimeInClicks(void) { return g_movie.IsOpen() ? g_movie.FrameTimeMs() : 40; }
+int seq_GetFrameTimeInClicks(void) { return seq_MovieOpen() ? g_movie->FrameTimeMs() : 40; }
 
-int seq_GetTotalFrames(void) { return g_movie.IsOpen() ? g_movie.TotalFrames() : -1; }
+int seq_GetTotalFrames(void) { return seq_MovieOpen() ? g_movie->TotalFrames() : -1; }

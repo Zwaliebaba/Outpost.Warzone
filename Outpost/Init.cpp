@@ -17,6 +17,7 @@
 #include "Disp2D.h"
 #include "HCI.h"
 #include "Audio.h"
+#include "Sequence.h" // seq_ShutDown, called before the mixer goes down
 #include "CSnap.h"
 #include "Wrappers.h"
 #include "time.h"
@@ -771,6 +772,14 @@ BOOL systemShutdown(void)
 
   if (!bDisableLobby && !multiShutdown()) // ajl. init net stuff
     return FALSE;
+
+  /* Before the mixer, not after. An FMV soundtrack is an XAudio2 source voice
+   * on the game's own graph, and a voice must be destroyed while the engine
+   * that created it still exists. Quitting during or straight after a sequence
+   * otherwise leaves the voice behind, and tearing it down later corrupts the
+   * heap on the way out.
+   */
+  seq_ShutDown();
 
   if (audio_Disabled() == FALSE && !audio_Shutdown())
     return FALSE;
