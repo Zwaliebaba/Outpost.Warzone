@@ -4,6 +4,10 @@ Working plan for the phase described in [MigrationPlan.md](MigrationPlan.md#phas
 As there, the figures here were measured against the tree, not estimated; the
 method is at the end.
 
+**Status: implemented.** What was built, and where it departed from the plan
+below, is recorded under [What was built](#what-was-built). The six open
+decisions are settled; the reasoning is kept with each one.
+
 ## Current state
 
 | File | Lines | Role |
@@ -458,22 +462,87 @@ from step 1 along with it. Phase 6 replaces the FMV decoder, at which point
 `Sequence.cpp`'s own `IDirectSound` should give way to an XAudio2 voice and
 `dsound.lib` can leave the link line for good.
 
-## Decisions to confirm
+## Decisions, as settled
 
-1. **Windows floor** — Windows 10+ (SDK XAudio 2.9, nothing to ship) or Windows
-   7 SP1+ (`Microsoft.XAudio2.Redist`). Affects the include path and import
-   library only.
-2. **3D audio** — X3DAudio, or a hand-rolled distance-and-pan model. Best
-   judged by ear after step 5.
-3. **Music assets** — what disk-based music replaces the CD tracks, and what
-   `playBackgroundAudio`'s script-supplied filenames should resolve to. Neither
-   exists in the repository today.
-4. **CD spanning** — remove `CDSpan.cpp` on the assumption that game data is
-   installed to disk. Recommended, but its own change.
-5. **2D FX channel semantics** — keep QMixer's single serialised FX channel, or
-   give 2D effects their own pool slots.
-6. **Streaming** — a real streaming path, or load the (small) streamed files
-   whole. Recommendation: whole, revisit when music assets exist.
+1. **Windows floor** — **Windows 10+**, `xaudio2.lib` from the Windows SDK,
+   nothing to redistribute. `Microsoft.XAudio2.Redist` remains a drop-in if
+   Windows 7 SP1 has to work: it changes the include path and the import
+   library and nothing in the code.
+2. **3D audio** — **hand-rolled distance attenuation and constant-power pan**,
+   not X3DAudio. Two reasons, and the second decided it. It matches what QMixer
+   was actually asked for — `SetDistanceMapping` plus a listener position and
+   orientation, with no doppler and no cones, neither of which the game
+   supplies data for. And `x3daudio.h` is not in mingw-w64, so an X3DAudio
+   implementation could not be cross-checked at all and would have gone to CI
+   unverified. X3DAudio remains the upgrade if the panning proves wrong by ear.
+3. **Music assets** — still absent, and deliberately not invented.
+   `Music.cpp` resolves track *n* to `music\track<n>.wav`; a missing file
+   traces and the game stays quiet rather than failing.
+4. **CD spanning** — **`CDSpan.cpp` stays.** Only its CD-audio coupling was
+   removed. Deleting it rests on game data being installed to disk, which is a
+   separate decision and not a prerequisite for anything here.
+5. **2D FX channel semantics** — **kept**, effects still serialise on one slot.
+   The queue moved into the backend rather than onto the voice; see below.
+6. **Streaming** — **whole**, as recommended.
+
+## What was built
+
+Nine commits, each cross-checked in both configurations. Four things came out
+differently from the plan above, and they are the parts worth knowing.
+
+**The cross-check was lying, and had to be fixed first.** `tools/crosscheck.py`
+defined `CINTERFACE`, which no longer matches the tree: neither `.vcxproj`
+defines it, no header does, and the D3D9 work moved the COM call sites to C++
+syntax. Seven units failed under it — `D3DRender`, `DXInput`, `NetAudio`,
+`NetProv`, `Screen`, `Sequence` and `TexMan` — against a build that is green.
+Without that fix there was no working verification to build Phase 4 against.
+MigrationPlan.md's "206 of 206 units clean" is stale in two ways: the count is
+200 after the removals below, and the `CINTERFACE` rationale no longer applies.
+
+**Music needed a slot of its own.** The plan treated the single streaming
+channel as sufficient. It is not: FMV and research narration go through
+`audio_PlayStream` on that channel, so music sharing it would mean a briefing
+silencing the music, and `cdAudio_Pause` — whose whole purpose is to hold the
+music across a video — tearing it down instead. The CD was a separate device
+and the replacement has to be too. So there are four fixed slots, not three,
+and music takes no `AUDIO_SAMPLE` because nothing above waits on it.
+
+**The 2D effects queue moved into the backend.** XAudio2 queues buffers on a
+voice natively, which looked like a free reproduction of `QMIX_QUEUEWAVE` — but
+only within one voice format, and `SetSourceSampleRate` is illegal while
+buffers are queued. With the assets spread across 11025, 15000, 16000, 17050
+and 22050 Hz, keeping native queueing would have meant resampling everything to
+one rate at load, which is what QMixer did internally and would have cost about
+48 MB resident and a resampler. A queue in the backend costs neither, at the
+price of a frame's gap between queued sounds.
+
+**Two hazards the plan did not name.** A pool slot recycled between unrelated
+sounds means a handle held past the end of its sound can stop whatever took the
+slot over, so `iSample` carries a generation for pool slots. And XAudio2 keeps
+reading a submitted buffer until it has consumed it, which a flush does not
+make immediate — so `sound_FreeTrack` waits for the voice to let go before
+giving the memory back.
+
+Normalising every track to 16 bit mono at load is what makes one voice pool
+work: `SetSourceSampleRate` can retune a voice, but nothing can restate its
+sample size or channel count. It doubles the resident audio to roughly 24 MB.
+
+### The defects
+
+Three of the five recorded above disappeared with the function they were in.
+`audio_PlayStream` not putting its sample on the list is fixed. The `Loop.cpp`
+volume mismatch is fixed by construction — and the same mismatch turned out to
+be in both volume sliders, which read `sound_GetGlobalVolume` (the `waveOut`
+volume) and wrote `mixer_SetWavVolume` (the mixer line).
+
+### Still unverified
+
+Everything above is cross-checked and none of it is *run*. The cross-check is a
+different compiler and cannot link, so the swap of `QMixer.lib` for
+`xaudio2.lib` is exactly the kind of change it is blind to; CI is the first
+real check. Beyond that, this phase changes behaviour and needs the listening
+pass described under [Verification](#verification) — most of all the 3D panning,
+which is the part most likely to be subtly wrong.
 
 ---
 

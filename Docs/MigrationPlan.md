@@ -206,12 +206,18 @@ project.
 
 ## Phase 4 — Audio: XAudio2, dropping QMixer and CD audio
 
-**Revised.** The earlier plan kept the option of retaining QMixer; that option
-is dropped. Audio moves to **XAudio2**, and QMixer and the CD audio features
-are removed outright.
+**Done.** The earlier plan kept the option of retaining QMixer; that option was
+dropped. Audio is on **XAudio2**, and QMixer and the CD audio features have
+been removed outright.
 
-The implementation plan for this phase — measured file sizes, the live
-interface surface, the step order and the decisions still open — is in
+`QSTrack.cpp` is replaced by `XA2Track.cpp` behind an unchanged `TrackLib.h`;
+`QMIXER.H`, `QMixer.lib`, `QMixer.dll` and the vestigial `EAX.H` are gone, as
+are `CDAudio.cpp` and `Mixer.cpp`. In-game music is served from files on disk
+by `Music.cpp`, and both volume sliders now move the XAudio2 graph rather than
+the Windows system mixer. `CDSpan.cpp` stays: removing it rests on game data
+being installed to disk, which is a decision of its own.
+
+What it took, what was decided and what is still unverified are in
 [Phase4Plan.md](Phase4Plan.md).
 
 This is well contained because `TrackLib.h` is already a clean ~80-line
@@ -476,7 +482,8 @@ include paths and preprocessor definitions taken from the `.vcxproj` files.
 things GCC cannot process: includes whose case does not match the real
 filename, and the Concurrency Runtime headers `NeuronCore.h` includes but
 never uses. The inline-assembly handling has gone with the last `__asm` in the
-tree.
+tree, and so has the `CINTERFACE` define — nothing in the tree defines it any
+more, and leaving it in the harness failed seven units against a green build.
 
 This is a **proxy, not MSVC**. GCC is stricter in some places, MSVC under
 `/permissive` is more lenient in others, and the harness cannot link (QMixer,
@@ -484,7 +491,8 @@ Mplayer and WINSTR are 32-bit MSVC binaries). It reliably catches the portable
 C++ issues, which is what Phase 1 is about, but a real `msbuild` remains the
 final word.
 
-Current state: **206 of 206 units clean under the cross-check**, and both
-Win32 CI builds green. Treat the cross-check as a fast first pass, not a
+Current state: **200 of 200 units clean under the cross-check**, and both
+Win32 CI builds green. The unit count moves as files are added and removed;
+Phase 4 took out five and added two. Treat the cross-check as a fast first pass, not a
 verdict: it is a different compiler, it cannot link, and the section above
 lists what that costs. The CI builds remain the authority.
