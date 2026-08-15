@@ -542,13 +542,23 @@ what each step actually cost — is in [Phase5Plan.md](Phase5Plan.md).
 
 ## Phase 6 — Removing Mplayer.lib and WINSTR.LIB
 
-**The rewrite is done; the deletions are not.** Two third-party libraries were
-listed here, unrelated to each other despite sharing a heading. **`Mplayer.lib`
-went with Phase 5.** `WINSTR.LIB` has been *replaced* — FMV plays through Media
-Foundation and nothing calls the library any more — but it is still on the link
-line, along with `dsound.lib`, `STREAMER.H`, the four `GameData` decoder DLLs
-and `CDSpan.cpp`. Removing them is stage B6, and it is now deletion rather than
-design.
+**Done.** Two third-party libraries were listed here, unrelated to each other
+despite sharing a heading. **`Mplayer.lib` went with Phase 5.** `WINSTR.LIB` was
+*replaced* by the Media Foundation path, and **stage B6 has now removed it**
+along with `dsound.lib`, `STREAMER.H`, the four `GameData` decoder DLLs, the
+`MovieTest` reference decoder and `CDSpan.cpp`.
+
+**No checked-in third-party library remains in the tree, and no third-party
+binary in `GameData`.** What is left is DirectX, the Windows SDK, and MsQuic
+under its sanctioned exception — which is the endpoint this phase set itself,
+and which also removes the last constraint pinning the build to 32-bit.
+Adding an x64 platform is still a stop-and-report under
+[AGENTS.md §3](../AGENTS.md), and still wants the `UDWORD`-holds-a-pointer
+audit in the save-game fixup first.
+
+B6 also re-enabled SafeSEH on the shipping executable:
+`ImageHasSafeExceptionHandlers=false` was on both link lines only because a
+1997 import library had no safe exception handler.
 
 The measured state of the assets, the staged plan and the four decisions the
 phase is gated on are in [Phase6Plan.md](Phase6Plan.md). Two findings there
@@ -571,9 +581,7 @@ anywhere in the tree. Nothing is left of this item for Phase 6.
 
 ### WINSTR.LIB — the FMV video codec
 
-**The playback rewrite is done and the sequences play.** What remains is
-deleting the library, which is stage B6 of
-[Phase6Plan.md](Phase6Plan.md#status).
+**Done — the sequences play and the library is gone.**
 
 **This is not a string library.** Despite the name, `WINSTR.LIB` (and
 `GameData/winstr.dll`) is Eidos' video streaming library: 64 exports in the
