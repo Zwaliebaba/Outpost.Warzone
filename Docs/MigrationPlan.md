@@ -44,8 +44,10 @@ Subsystems in use today:
 - **Audio** — **done, see Phase 4.** XAudio2 (`XA2Track.cpp` behind
   `TrackLib.h`), with in-game music served from disk by `Music.cpp`. QMixer
   and CD audio are gone; `CDSpan.cpp` goes with Phase 6.
-- **Video** — `Sequence.cpp` streams `.rpl` movies via `WINSTR.LIB`, now into
-  the Direct3D 9 back buffer. The decoder itself is Phase 6.
+- **Video** — **done, see Phase 6.** `MovieStream.cpp` decodes H.264/AAC in MP4
+  through Media Foundation, with the soundtrack on the game's XAudio2 graph.
+  Was `Sequence.cpp` streaming `.rpl` movies through `WINSTR.LIB` into a
+  DirectSound ring buffer.
 - **Network** — **done, see Phase 5.** QUIC via MsQuic (`Transport.cpp`,
   `HostCertificate.cpp`, `NetPlay.cpp`, `NetSupp.cpp`, `NetUsers.cpp`).
   DirectPlay 4 and the Mplayer.com matchmaking are gone.
@@ -540,11 +542,13 @@ what each step actually cost — is in [Phase5Plan.md](Phase5Plan.md).
 
 ## Phase 6 — Removing Mplayer.lib and WINSTR.LIB
 
-**Half done.** Two third-party static libraries were listed here. They are
-unrelated to each other despite sharing a heading, and the second is
-considerably more involved than its name suggests. **`Mplayer.lib` went with
-Phase 5**; `WINSTR.LIB` is what remains, and it is the last vendored non-system
-dependency in the tree.
+**The rewrite is done; the deletions are not.** Two third-party libraries were
+listed here, unrelated to each other despite sharing a heading. **`Mplayer.lib`
+went with Phase 5.** `WINSTR.LIB` has been *replaced* — FMV plays through Media
+Foundation and nothing calls the library any more — but it is still on the link
+line, along with `dsound.lib`, `STREAMER.H`, the four `GameData` decoder DLLs
+and `CDSpan.cpp`. Removing them is stage B6, and it is now deletion rather than
+design.
 
 The measured state of the assets, the staged plan and the four decisions the
 phase is gated on are in [Phase6Plan.md](Phase6Plan.md). Two findings there
@@ -567,17 +571,41 @@ anywhere in the tree. Nothing is left of this item for Phase 6.
 
 ### WINSTR.LIB — the FMV video codec
 
+**The playback rewrite is done and the sequences play.** What remains is
+deleting the library, which is stage B6 of
+[Phase6Plan.md](Phase6Plan.md#status).
+
 **This is not a string library.** Despite the name, `WINSTR.LIB` (and
 `GameData/winstr.dll`) is Eidos' video streaming library: 64 exports in the
-`Movie_*`, `Alpha_*` and `Streamer_*` families, declared in `STREAMER.H`. It is
-consumed by exactly one file, `NeuronCore/Sequence.cpp`, and it decodes the
+`Movie_*`, `Alpha_*` and `Streamer_*` families, declared in `STREAMER.H`. It was
+consumed by exactly one file, `NeuronCore/Sequence.cpp`, and it decoded the
 game's `.rpl` movies — the briefings and research sequences under
-`GameData/sequences/`. `GameData/Dec130.dll` appears to be the associated
-decoder.
+`GameData/sequences/`. `GameData/Dec130.dll` is the associated decoder.
+It turned out to be an **import library for `winstr.dll`**, not a static one.
 
-Removing it therefore means **replacing FMV playback**, not deleting a utility.
-The `.rpl` assets cannot be decoded without a replacement, so the format they
-migrate to is a decision in its own right.
+Removing it therefore meant **replacing FMV playback**, not deleting a utility.
+What that took:
+
+- The `.rpl` assets were re-encoded offline to **H.264/AAC in MP4** and the
+  `.rpl` files removed. 179 movies now ship: 19 converted from the original
+  assets through a reference decode, and 160 from an OGG set that covered the
+  campaign movies which were only ever on the CDs.
+- `NeuronCore/MovieStream.cpp` decodes them through **`IMFSourceReader`** to
+  `MFVideoFormat_RGB32`, which is the back buffer's own format — so the FMV
+  blit no longer converts pixels at all.
+- The soundtrack is an **XAudio2 voice on the game's own graph**, reached
+  through a new `sound_GetEngine()`. The old module built itself a private
+  DirectSound object because QMixer's had gone; the movie now obeys the game's
+  volume. **Nothing in the tree includes `<dsound.h>` any more.**
+- `Sequence.h` is unchanged and `Sequence.cpp` fell from 840 lines to 273.
+
+Two things worth carrying forward. `SeqDisp.cpp` **did** have to change, against
+the plan's expectation — it probes the movie file before opening it and globs
+the sequences directory to decide whether video is installed at all, so a name
+translation hidden below it silently disables every sequence. And the old
+decoder scaled 320x240 movies to fill the 640x480 playback area via
+`DFLAG_DOUBLED`, which nothing had recorded; Media Foundation has no equivalent
+and the blit had to learn to do it.
 
 #### The assets
 

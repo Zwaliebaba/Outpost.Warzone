@@ -5,16 +5,28 @@ Working plan for the phase described in
 As with Phases 4 and 5, every figure here was measured against the tree and the
 shipped assets rather than estimated.
 
-**Re-checked against the tree after the Phase 5 merge (`ef6d927`).** Every
-figure below still holds except the ones called out in
-[What the Phase 5 merge changed](#what-the-phase-5-merge-changed). None of the
-files this phase rewrites was touched by that merge.
+## Status
 
-The phase was two unrelated pieces sharing a heading. **Part 1 is now done** —
-Phase 5 took it. What remains is the second piece, the last remaining *rewrite*
-in the migration, gated on an asset decision the code cannot make for you — see
-[The asset problem](#the-asset-problem-164-of-181-movies-are-not-in-this-repo),
-which is the part of this document worth reading first.
+**FMV plays on Media Foundation. The rewrite is done; the removals are not.**
+
+| Stage | |
+|---|---|
+| B1 — reference decode and fixtures | **done** |
+| B2 — conversion | **done** for every movie there is a source for: 179 in `GameData`, 19 from `.rpl` and 160 from `.ogg` |
+| B3 — Media Foundation backend | **done** — briefings, research videos and subtitles all play |
+| B4 — dynamic texture and quad | not started |
+| B5 — retire the CD path | not started |
+| B6 — delete `WINSTR.LIB`, `dsound.lib`, `CDSpan` | not started, and now unblocked |
+
+Nothing in the game reads `WINSTR.LIB` any more, and **nothing in the tree
+includes `<dsound.h>`** — both are dead weight on the link line waiting for B6.
+Ten of the 187 names the game can ask for still have no movie behind them: nine
+were never in any source set, and one is inside a commented-out line.
+
+The phase was two unrelated pieces sharing a heading. **Part 1 went with
+Phase 5.** The asset decision that gated everything is settled — see
+[The asset problem](#the-asset-problem-164-of-181-movies-are-not-in-this-repo)
+for how, and [Decisions](#decisions) for what was chosen.
 
 ---
 
@@ -434,6 +446,13 @@ Two things for B3 to check rather than assume:
 
 ### B3 — The new backend behind `Sequence.h`
 
+**Done, and the sequences play.** `NeuronCore/MovieStream.h`/`.cpp` (104 + 416
+lines) decode through `IMFSourceReader`; `Sequence.cpp` went from 840 lines to
+273 and is now a shim over one `MovieStream`. What it took, and the three places
+the design below turned out to be wrong, are under
+[What B3 took](#what-b3-took).
+
+
 Replace `NeuronCore/Sequence.cpp` with a Media Foundation implementation,
 `NeuronCore/MovieStream.cpp` plus a `MovieStream` class per
 [AGENTS.md §1](../AGENTS.md), keeping `Sequence.h`'s eleven functions as the
@@ -481,6 +500,58 @@ Design notes worth fixing now rather than discovering later:
 **Verifies:** `Debug\Outpost.exe -window` — the intro sequence, then a research
 completion (windowed `res_*` path) and a mission briefing (fullscreen path with
 embedded audio). Subtitles must appear on the right frames.
+
+#### What B3 took
+
+The shape above survived. `Sequence.h` is unchanged, `IMFSourceReader` decodes
+straight to `MFVideoFormat_RGB32` — which is the back buffer's own format, so
+the per-pixel 565 conversion is gone and rows are copied — and the whole
+soundtrack is decoded at open and submitted to one XAudio2 voice, which deleted
+the double buffer, its callback and the `SSDM_*` state machine along with it.
+
+`sound_GetEngine()` was added to `TrackLib.h` for that voice. The old module
+created **its own DirectSound object**, because QMixer's had gone and there was
+nothing left to borrow; the movie soundtrack now mixes on the game's graph and
+obeys its volume. `Sequence.h` no longer includes `<dsound.h>`, and nothing in
+the tree does.
+
+Three things the design above got wrong:
+
+1. **`SeqDisp.cpp` did have to change**, and the claim that it "should not need
+   to" was the most expensive error here. It builds `aVideoName` and then
+   *probes it with `fopen`*, and `seq_SetVideoPath` decides whether the
+   hard-disk video path exists at all by globbing `sequences\*.rpl`. Any name
+   translation deeper than that leaves those probes testing a file that is not
+   there — the glob alone reports "no videos installed" and every sequence in
+   the game stops. The first attempt put the translation inside `Sequence.cpp`
+   and looked correct until the assets were removed.
+2. **The `.rpl` → `.mp4` translation is gone entirely**, and should never have
+   been the plan. Rewriting a name on the way past means the name is stored
+   wrong; the fix was to rename the data — **531 names across 61 files**, the
+   hardcoded call sites in `WinMain`, `Mission`, `FrontEnd`, `ScriptFuncs` and
+   `SeqDisp`, plus every record in `GameData/messages`. Save games were never
+   an obstacle: they hold message ids, and the movie name comes back from the
+   message data on load. `seq_BuildVideoName` is now a plain path join.
+3. **`DFLAG_DOUBLED` had to be reimplemented.** Nothing in this document
+   recorded that the old decoder scaled: `seq_SetSequence` asked
+   `Streamer_InitVideo` to double any movie no larger than half the 640x480
+   playback area, then doubled `movieWidth`/`movieHeight` to match. Media
+   Foundation has no equivalent, so a 320x240 briefing drew at 320x240 in the
+   top-left corner. The blit now scales 2x with nearest-neighbour — pixel
+   replication, which is what the flag did — and walks *output* rows so the
+   scaling and the subtitle band share one coordinate space.
+
+One latent defect fixed on the way past: the file probe in
+`seq_RenderVideoToBuffer` called `fclose` on a null handle whenever the movie
+was missing and no CD path was set. Its twin in `seq_StartFullScreenVideo`
+guarded it; this one never had. Nine of the movies the game names have no source
+in any format, so the path is reachable.
+
+**Deliberately not done: audio as the master clock.** The plan wanted video
+presented against `SamplesPlayed`. That conflicts with leaving `SeqDisp.cpp`'s
+pacing loop alone, and between the two the smaller change won — sync is as good
+as the `.rpl` player's and no better. Driving from the audio clock is a real
+improvement and belongs with B4, which is already rewriting that loop.
 
 ### B4 — Dynamic texture and quad
 
@@ -739,29 +810,31 @@ set before committing to the format.
 ```
 Phase 5 ──► DONE (took Mplayer.lib with it)
 
-B1 ──► B2 ─────► B3 ──► B4 ──► B6
-DONE   19 of              │
-       181 done           └──► B5 (severable — may land after B6)
+B1 ──► B2 ──► B3 ──► B6        B4  (independent, improves what already works)
+DONE   DONE   DONE   next      B5  (severable, widest reach)
 ```
 
-**B1 and B2 are done for everything in the repository**, and the phase has no
-technical unknowns left. The fixtures discharge the ordering constraint that
-worried this section — B6 deletes the library the extractor links against, and
-the oracle survives as 143 KB of per-frame hashes plus the eight reference WAVs.
+**B1, B2 and B3 are done, and the movies play.** The asset problem that shaped
+this whole document is closed: an OGG set covering 155 of the 164 CD movies
+turned up, so 179 of the 187 names the game can ask for now resolve, and the
+`.rpl` files are gone from the repository.
 
-What remains before B6 is **not** a coding problem: 164 of the 181 movies are on
-the CDs and have never been converted. B3 and B4 can proceed against the 19 in
-hand; B6 cannot land until the rest are done, or until the owner decides the
-missing ones fall back to the `noVideo` placeholder permanently.
+**B6 is next and is now mostly deletion.** Nothing includes `<dsound.h>`,
+nothing calls a `Streamer_*` entry point, and the `.rpl` assets the extractor
+existed to read are already converted — so `WINSTR.LIB`, `STREAMER.H`, the four
+`GameData` decoder DLLs, `dsound.lib` and the `MovieTest` extractor can all go
+together. The fixtures stay: they are the only remaining record of what the
+original decoder produced.
 
-The `.rpl` fallback path in the converter exists exactly for that gap: it is the
-only way to convert a CD movie once B6 has deleted the extractor, at the cost of
-the 42 dB fidelity documented under
-[Route 1, measured](#route-1-measured). Converting the CDs *before* B6 avoids
-paying that.
+**B4 and B5 no longer gate anything.** B4 replaces a working CPU blit with a
+textured quad and is the right home for the audio-clock change B3 deferred; B5
+retires the CD path and reaches into seven files for no user-visible gain. Both
+are improvements to something that already works, which is a better position
+than this section previously described.
 
-B5 is the one stage that can slip without holding anything up, and it is also
-the one with the widest reach into unrelated files. Do not let it gate B6.
+What cannot be fixed by any of them: **nine movies have no source in any
+format**, and 57 of the OGG sources are 12.5 fps where the originals were 25.
+Both need better assets, not more code.
 
 ## Decisions
 
