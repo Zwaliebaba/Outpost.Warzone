@@ -310,7 +310,6 @@ UDWORD destTileX = 0, destTileY = 0;
 #define EFFECT_DELIVERY_POINT_TRANSPARENCY		128
 
 unsigned char buildInfo[255];
-UDWORD GetCameraDistance(void) { return distance; }
 
 /* Colour strobe values for the strobing drag selection box */
 UBYTE boxPulseColours[BOX_PULSE_SIZE] = {233, 232, 231, 230, 229, 228, 227, 226, 225, 224};
@@ -560,22 +559,6 @@ void displayTerrain(void)
     dragBox3D.status = DRAG_INACTIVE;
 }
 
-// Parameter is the vector to store the camera position
-void CalcBSPCameraPos(iVector* NewBSPCamera)
-{
-  OBJPOS Camera;
-
-  /* The 128's should really be TILE_UNITS - sort this out later ! */
-  Camera.x = player.p.x + (terrainMidX * 128);
-  Camera.y = player.p.y;
-  Camera.z = player.p.z + (terrainMidY * 128);
-
-  Camera.pitch = static_cast<SWORD>(player.r.x);
-  Camera.yaw = static_cast<SWORD>(player.r.y);
-
-  GetRealCameraPos(&Camera, GetCameraDistance(), NewBSPCamera);
-}
-
 /***************************************************************************/
 BOOL doWeDrawRadarBlips(void) { return (bDrawBlips); }
 /***************************************************************************/
@@ -591,7 +574,6 @@ void drawTiles(iView* camera, iView* player)
   SDWORD i, j;
   iVector tileXYZ;
   SDWORD zMax;
-  iVector BSPCamera;
   UDWORD specular;
   BOOL IsWaterTile;
   BOOL PushedDown;
@@ -623,9 +605,6 @@ void drawTiles(iView* camera, iView* player)
   /* Get the mid point of the grid */
   terrainMidX = (visibleXTiles >> 1);
   terrainMidY = (visibleYTiles >> 1);
-
-  CalcBSPCameraPos(&BSPCamera);
-  SetBSPCameraPos(BSPCamera.x, BSPCamera.y, BSPCamera.z);
 
   /* Find our position in tile coordinates */
   playerXTile = player->p.x >> TILE_SHIFT;
@@ -814,11 +793,6 @@ void drawTiles(iView* camera, iView* player)
   {
     for (j = 0; j < static_cast<SDWORD>(visibleXTiles); j++)
     {
-#ifndef BUCKET
-      //bucket?
-      drawTexturedTile(i, j);
-#else
-
       if (tileScreenInfo[i][j].drawInfo == TRUE)
       {
         tileIJ[i][j].i = i;
@@ -835,7 +809,6 @@ void drawTiles(iView* camera, iView* player)
       }
       else
         tilesRejected++;
-#endif //bucket
     }
   }
 
@@ -1286,219 +1259,6 @@ void renderAnimComponent(COMPONENT_OBJECT* psObj)
   }
 }
 
-/*	Renders ONE terrain tile and any droids, structures, features that are on it. Sorts the objects though, so's there
-	only drawn once and drawn at the appropriate time so tles aren't drawn over them */
-void drawTexturedTile(UDWORD i, UDWORD j)
-{
-  UDWORD tileNumber;
-  iVertex p[4];
-  MAPTILE* psTile;
-  BOOL tileOutlined = FALSE;
-  UDWORD topL, botL, topR, botR;
-  iPoint offset;
-
-  BOOL bEdgeTile = FALSE;
-  /* Get the actual tile to render */
-  UDWORD realX = playerXTile + j;
-  UDWORD realY = playerZTile + i;
-
-  /* Get a pointer to the tile we're going to render */
-  if ((realX < 0) OR (realY < 0) OR (realX > mapWidth - 2) OR (realY > mapHeight - 2))
-  {
-    psTile = &edgeTile;
-    bEdgeTile = TRUE;
-    CLEAR_TILE_HIGHLIGHT(psTile);
-  }
-  else
-    psTile = mapTile(realX, realY);
-
-  if (!TILE_DRAW(psTile))
-  {
-    /* Bomb out if we're not supposed to draw this tile! */
-    return;
-  }
-
-  // tiles are always visible for now - john.
-  //	if ( TEST_TILE_VISIBLE(selectedPlayer, psTile) OR godMode)
-  {
-    numTiles++;
-
-    if (bEdgeTile)
-      topL = botL = botR = topR = 0;
-    else
-    {
-      //penumbra
-      topL = tileScreenInfo[i + 0][j + 0].light.argb;
-      botL = tileScreenInfo[i + 1][j + 0].light.argb;
-      botR = tileScreenInfo[i + 1][j + 1].light.argb;
-      topR = tileScreenInfo[i + 0][j + 1].light.argb;
-      //no penumbra
-    }
-    /* get the appropriate tile texture */
-    if (TILE_HIGHLIGHT(psTile))
-    {
-      CLEAR_TILE_HIGHLIGHT(psTile);
-      tileNumber = FOUNDATION_TEXTURE;
-      tileOutlined = TRUE;
-    }
-    else
-      tileNumber = psTile->texture;
-    pie_SetTexturePage(tileTexInfo[tileNumber & TILE_NUMMASK].texPage);
-
-    //temp
-    //			pie_DrawTile(&tileScreenInfo[0][0],&tileScreenInfo[0][1],&tileScreenInfo[1][0],
-    //temp
-
-    /* Check for flipped and rotated tiles */
-    flipsAndRots(tileNumber & ~TILE_NUMMASK);
-
-    if (TRI_FLIPPED(psTile))
-    {
-      /* Get the screen coordinates to render into for the texturer */
-      p[0].x = tileScreenInfo[i + 0][j + 0].sx;
-      p[0].y = tileScreenInfo[i + 0][j + 0].sy;
-      p[0].z = tileScreenInfo[i + 0][j + 0].sz;
-      p[1].x = tileScreenInfo[i + 0][j + 1].sx;
-      p[1].y = tileScreenInfo[i + 0][j + 1].sy;
-      p[1].z = tileScreenInfo[i + 0][j + 1].sz;
-      p[2].x = tileScreenInfo[i + 1][j + 0].sx;
-      p[2].y = tileScreenInfo[i + 1][j + 0].sy;
-      p[2].z = tileScreenInfo[i + 1][j + 0].sz;
-
-      /* Get the U,V values for the indexing into the texture */
-      p[0].u = psP1->x;
-      p[0].v = psP1->y;
-      p[1].u = psP2->x;
-      p[1].v = psP2->y;
-      p[2].u = psP4->x;
-      p[2].v = psP4->y;
-
-      /* Get the intensity values	for shading */
-      p[0].g = static_cast<UBYTE>(topL);
-      p[1].g = static_cast<UBYTE>(topR);
-      p[2].g = static_cast<UBYTE>(botL);
-    }
-    else
-    {
-      /* Get the screen coordinates to render into for the texturer */
-      p[0].x = tileScreenInfo[i + 0][j + 0].sx;
-      p[0].y = tileScreenInfo[i + 0][j + 0].sy;
-      p[0].z = tileScreenInfo[i + 0][j + 0].sz;
-      p[1].x = tileScreenInfo[i + 0][j + 1].sx;
-      p[1].y = tileScreenInfo[i + 0][j + 1].sy;
-      p[1].z = tileScreenInfo[i + 0][j + 1].sz;
-      p[2].x = tileScreenInfo[i + 1][j + 1].sx;
-      p[2].y = tileScreenInfo[i + 1][j + 1].sy;
-      p[2].z = tileScreenInfo[i + 1][j + 1].sz;
-
-      /* Get the U,V values for the indexing into the texture */
-      p[0].u = psP1->x;
-      p[0].v = psP1->y;
-      p[1].u = psP2->x;
-      p[1].v = psP2->y;
-      p[2].u = psP3->x;
-      p[2].v = psP3->y;
-
-      /* Get the intensity values	for shading */
-      p[0].g = static_cast<UBYTE>(topL);
-      p[1].g = static_cast<UBYTE>(topR);
-      p[2].g = static_cast<UBYTE>(botR);
-    }
-
-    UDWORD renderFlag = 0;
-    pie_DrawTriangle(p, &texturePage, renderFlag, &offset);
-
-    if (TRI_FLIPPED(psTile))
-    {
-      /* Set up the texel coordinates */
-      p[0].x = tileScreenInfo[i + 0][j + 1].sx;
-      p[0].y = tileScreenInfo[i + 0][j + 1].sy;
-      p[0].z = tileScreenInfo[i + 0][j + 1].sz;
-      p[1].x = tileScreenInfo[i + 1][j + 1].sx;
-      p[1].y = tileScreenInfo[i + 1][j + 1].sy;
-      p[1].z = tileScreenInfo[i + 1][j + 1].sz;
-      p[2].x = tileScreenInfo[i + 1][j + 0].sx;
-      p[2].y = tileScreenInfo[i + 1][j + 0].sy;
-      p[2].z = tileScreenInfo[i + 1][j + 0].sz;
-
-      /* Set up U,V */
-      p[0].u = psP2->x;
-      p[0].v = psP2->y;
-      p[1].u = psP3->x;
-      p[1].v = psP3->y;
-      p[2].u = psP4->x;
-      p[2].v = psP4->y;
-
-      /* Set up shading vars */
-      p[0].g = static_cast<UBYTE>(topR);
-      p[1].g = static_cast<UBYTE>(botR);
-      p[2].g = static_cast<UBYTE>(botL);
-    }
-    else
-    {
-      /* Set up the texel coordinates */
-      p[0].x = tileScreenInfo[i + 0][j + 0].sx;
-      p[0].y = tileScreenInfo[i + 0][j + 0].sy;
-      p[0].z = tileScreenInfo[i + 0][j + 0].sz;
-      p[1].x = tileScreenInfo[i + 1][j + 1].sx;
-      p[1].y = tileScreenInfo[i + 1][j + 1].sy;
-      p[1].z = tileScreenInfo[i + 1][j + 1].sz;
-      p[2].x = tileScreenInfo[i + 1][j + 0].sx;
-      p[2].y = tileScreenInfo[i + 1][j + 0].sy;
-      p[2].z = tileScreenInfo[i + 1][j + 0].sz;
-
-      /* Set up U,V */
-      p[0].u = psP1->x;
-      p[0].v = psP1->y;
-      p[1].u = psP3->x;
-      p[1].v = psP3->y;
-      p[2].u = psP4->x;
-      p[2].v = psP4->y;
-
-      /* Set up shading vars */
-      p[0].g = static_cast<UBYTE>(topL);
-      p[1].g = static_cast<UBYTE>(botR);
-      p[2].g = static_cast<UBYTE>(botL);
-    }
-
-    pie_DrawTriangle(p, &texturePage, renderFlag, &offset);
-    // end tile-draw
-
-    // -------------------------------------------------------------------------
-    if (terrainOutline OR tileOutlined)
-    {
-      /*iV_Line(tileScreenInfo[i+0][j+0].sx,tileScreenInfo[i+0][j+0].sy,
-          tileScreenInfo[i+0][j+1].sx,tileScreenInfo[i+0][j+1].sy,255);
-        iV_Line(tileScreenInfo[i+0][j+1].sx,tileScreenInfo[i+0][j+1].sy,
-          tileScreenInfo[i+1][j+1].sx,tileScreenInfo[i+1][j+1].sy,255);
-        iV_Line(tileScreenInfo[i+1][j+1].sx,tileScreenInfo[i+1][j+1].sy,
-          tileScreenInfo[i+1][j+0].sx,tileScreenInfo[i+1][j+0].sy,255);
-        iV_Line(tileScreenInfo[i+1][j+0].sx,tileScreenInfo[i+1][j+0].sy,
-          tileScreenInfo[i+0][j+0].sx,tileScreenInfo[i+0][j+0].sy,255);*/
-      iV_Line(tileScreenInfo[i + 0][j + 0].sx, tileScreenInfo[i + 0][j + 0].sy, tileScreenInfo[i + 0][j + 1].sx,
-              tileScreenInfo[i + 0][j + 1].sy, outlineColour3D);
-      iV_Line(tileScreenInfo[i + 0][j + 1].sx, tileScreenInfo[i + 0][j + 1].sy, tileScreenInfo[i + 1][j + 1].sx,
-              tileScreenInfo[i + 1][j + 1].sy, outlineColour3D);
-      iV_Line(tileScreenInfo[i + 1][j + 1].sx, tileScreenInfo[i + 1][j + 1].sy, tileScreenInfo[i + 1][j + 0].sx,
-              tileScreenInfo[i + 1][j + 0].sy, outlineColour3D);
-      iV_Line(tileScreenInfo[i + 1][j + 0].sx, tileScreenInfo[i + 1][j + 0].sy, tileScreenInfo[i + 0][j + 0].sx,
-              tileScreenInfo[i + 0][j + 0].sy, outlineColour3D);
-      /*
-                     if(TRI_FLIPPED(psTile))
-                  {
-                    iV_Line(tileScreenInfo[i+0][j+0].x,tileScreenInfo[i+0][j+0].y,
-                        tileScreenInfo[i+1][j+1].x,tileScreenInfo[i+1][j+1].y,255);
-                  }
-                  else
-                  {
-                    iV_Line(tileScreenInfo[i+0][j+1].x,tileScreenInfo[i+0][j+1].y,
-                      tileScreenInfo[i+1][j+0].x,tileScreenInfo[i+1][j+0].y,255);
-                  }
-      */
-    }
-  }
-}
-
 /* Draw the buildings */
 void displayStaticObjects(void)
 {
@@ -1783,7 +1543,6 @@ void renderFeature(FEATURE* psFeature)
 
     /* features sits at the height of the tile it's centre is on */
     dv.y = psFeature->z;
-    SetBSPObjectPos(featX, dv.y, featY); // world x,y,z coord of structure ... this is needed for the BSP code
 
     /* Push the indentity matrix */
     iV_MatrixBegin();
@@ -2000,7 +1759,6 @@ void renderStructure(STRUCTURE* psStructure)
     dv.z = terrainMidY * TILE_UNITS - (structY - player.p.z);
 
     dv.y = map_TileHeight(structX >> TILE_SHIFT, structY >> TILE_SHIFT);
-    SetBSPObjectPos(structX, dv.y, structY); // world x,y,z coord of structure ... this is needed for the BSP code
     /* Push the indentity matrix */
     iV_MatrixBegin();
 
@@ -2313,7 +2071,6 @@ void renderDefensiveStructure(STRUCTURE* psStructure)
     dv.z = terrainMidY * TILE_UNITS - (structY - player.p.z);
     dv.y = psStructure->z; //map_TileHeight(structX>>TILE_SHIFT, structY>>TILE_SHIFT)+64;  
 
-    SetBSPObjectPos(structX, dv.y, structY); // world x,y,z coord of structure ... this is needed for the BSP code
     /* Push the indentity matrix */
     iV_MatrixBegin();
 
@@ -2656,7 +2413,6 @@ BOOL renderWallSection(STRUCTURE* psStructure)
     dv.z = terrainMidY * TILE_UNITS - (structY - player.p.z);
     dv.y = map_Height(structX, structY);
 
-    SetBSPObjectPos(structX, dv.y, structY); // world x,y,z coord of structure ... this is needed for the BSP code
 
     /* Push the indentity matrix */
     iV_MatrixBegin();

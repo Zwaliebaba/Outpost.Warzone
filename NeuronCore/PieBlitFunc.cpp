@@ -404,11 +404,6 @@ void pie_ImageDef(IMAGEDEF* Image, iBitmap* Bmp, UDWORD Modulus, int x, int y, B
   pie_SetBilinear(FALSE); //changed by alex 19 oct 98
 }
 
-void pie_ImageDefTrans(IMAGEDEF* Image, iBitmap* Bmp, UDWORD Modulus, int x, int y, int TransRate)
-{
-  pie_ImageDef(Image, Bmp, Modulus, x, y,FALSE);
-}
-
 void pie_UploadDisplayBuffer(UBYTE* DisplayBuffer)
 {
   //only call inside D3D render

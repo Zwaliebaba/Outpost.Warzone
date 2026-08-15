@@ -23,7 +23,6 @@
 #define	iV_DrawTransImageRect	pie_ImageFileIDTile
 #define	iV_DrawStretchImage		pie_ImageFileIDStretch
 #define	iV_DrawImageDef				pie_ImageDef
-#define	iV_DrawSemiTransImageDef	pie_ImageDefTrans
 #define iV_UploadDisplayBuffer		pie_UploadDisplayBuffer
 #define iV_DownloadDisplayBuffer	pie_DownloadDisplayBuffer
 #define iV_ScaleBitmapRGB			pie_ScaleBitmapRGB
@@ -74,11 +73,6 @@ extern iSurface* psRendSurface;
 
 //*************************************************************************
 
-extern int32 iV_VideoMemorySize(int mode);
-extern iBool iV_VideoMemoryLock(int mode);
-extern void iV_VideoMemoryFree(void);
-extern void iV_VideoMemoryUnlock(void);
-extern uint8* iV_VideoMemoryAlloc(int mode);
 extern void iV_RenderAssign(int mode, iSurface* s);
 extern void iV_SurfaceDestroy(iSurface* s);
 extern iSurface* iV_SurfaceCreate(uint32 flags, int width, int height, int xp, int yp, uint8* buffer);
