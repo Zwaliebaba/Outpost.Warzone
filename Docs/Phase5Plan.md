@@ -194,6 +194,19 @@ does — see *The redirect* below.)
    one roster — which is the right shape for a game that is only ever one of
    those at a time, and the wrong shape for a harness that wants to be both.
    Two processes over 127.0.0.1 is also closer to what is being tested.
+
+   Amended again once it existed: **loss, duplication and reordering are not
+   simulated, because MsQuic's public API offers no way to inject them** and
+   over loopback there is none to observe. That was written into the plan
+   before anyone checked, and it does not survive contact. What it costs is
+   less than it sounds: ordering under loss is QUIC's problem, not this
+   codebase's, and the layer actually at risk is the framing on top of it. So
+   the harness attacks that instead — a hundred and twenty messages at nine
+   different sizes, from nine bytes to the seam's ceiling, which forces frames
+   to be split across stream reads and packed several to a read. Every message
+   carries a sequence number and a pattern derived from it, so a message that
+   arrives short, out of place, or spliced from two others is caught rather
+   than merely counted.
 6. **Host migration — the session ends when the host leaves.** The `DPSYS_HOST`
    branch is deleted rather than reimplemented.
 7. **Player data — replication is dropped.** `NETget/setLocal/GlobalPlayerData`
@@ -357,11 +370,10 @@ quietly fixed: the modem and serial address paths are not independently
 removable because the connection screen still lists them, and `NetCrypt.cpp`
 is neither dead nor purely networking.
 
-**Step 7 is in progress.** MsQuic is in the build and links — proved by CI
-reaching the linker with only an unrelated symbol unresolved — and the
-transport now exists: `NetQuic.cpp` implements every function in
-`NetTransport.h` over MsQuic, host-based and joined by address, per *The
-redirect* above. What remains of step 7 is the loopback harness.
+**Step 7 is done.** MsQuic is in the build and links, `NetQuic.cpp` implements
+every function in `NetTransport.h` over it — host-based and joined by address,
+per *The redirect* above — and `NetTest/` runs the pair against each other in
+CI. Only the swap, step 8, is left.
 
 ### What the transport is
 
@@ -415,4 +427,40 @@ sign with SHA-1 and a certificate it cannot use is no certificate at all.
 
 This is the part of Phase 5 that no amount of cross-checking can verify: it
 compiles, and whether Schannel accepts the result is a question only a Windows
-machine can answer.
+machine can answer. Which is what the harness is for.
+
+### The harness
+
+`NetTest/` — a console program, run by CI in both configurations. It is the
+only place the QUIC code actually executes; everything before it proves the
+tree compiles and links.
+
+    NetTest.exe host <ready-file>
+    NetTest.exe join <address>
+
+CI starts the host, waits for it to write the ready file (which it does only
+once its listener is up, so the client cannot race it), starts the client, and
+fails on either exit code. What gets checked:
+
+- **The certificate and the handshake.** The host generates a certificate,
+  Schannel either accepts it or does not, ALPN either matches or does not. This
+  is the question the whole harness exists to answer.
+- **The framing.** The burst described above, verified per byte and per
+  sequence number, in both directions at once.
+- **Datagrams.** Twenty each way; the assertion is *at least one*, not all,
+  because a datagram is allowed to be dropped and requiring the full count
+  would be a test that fails for the right reason on a bad day. Zero over
+  loopback means the path is broken rather than unlucky.
+- **A broadcast does not return to its sender.** The host broadcasts a probe;
+  the client must see exactly one and the host none. Both sides additionally
+  assert, on every message they receive, that it did not come from themselves.
+- **The roster and the events.** Both sides see two players with the right
+  names, the joiner's four game flags survive the welcome, and the host sees
+  `NETTRANS_PLAYER_LEFT` and a roster of one when the client goes.
+
+It compiles `NetQuic.cpp` and `NetCert.cpp` directly rather than linking
+`NeuronCore.lib`, for one reason: that lets it define `NEURON_TRACE_TO_STDERR`,
+which redirects `Neuron::DebugTrace` from `OutputDebugString` — which needs a
+debugger listening, and on a CI runner there is none — to stderr. Without it a
+certificate failure reads as "nettrans_Host returned FALSE" on a machine nobody
+can log into.

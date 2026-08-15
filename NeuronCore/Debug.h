@@ -35,12 +35,24 @@
 #endif
 #endif
 
+/* OutputDebugString needs a debugger listening or it goes nowhere, which is
+ * fine for the game and useless for a console program running unattended on a
+ * CI runner. Defining this sends traces to stderr instead, and forces them on
+ * regardless of configuration. Only NetTest defines it; the game never does.
+ */
+#if defined(NEURON_TRACE_TO_STDERR)
+#include <cstdio>
+#endif
+
 namespace Neuron
 {
   template <class... Types>
   void DebugTrace(const std::string_view _fmt, Types&&... _args)
   {
-#ifdef _DEBUG
+#if defined(NEURON_TRACE_TO_STDERR)
+    const std::string message = std::vformat(_fmt, std::make_format_args(_args...));
+    fputs(message.c_str(), stderr);
+#elif defined(_DEBUG)
     const std::string message = std::vformat(_fmt, std::make_format_args(_args...));
     OutputDebugStringA(message.c_str());
 #else
@@ -51,7 +63,10 @@ namespace Neuron
   template <class... Types>
   void DebugTrace(const std::wstring_view _fmt, Types&&... _args)
   {
-#ifdef _DEBUG
+#if defined(NEURON_TRACE_TO_STDERR)
+    const std::wstring message = std::vformat(_fmt, std::make_wformat_args(_args...));
+    fputws(message.c_str(), stderr);
+#elif defined(_DEBUG)
     const std::wstring message = std::vformat(_fmt, std::make_wformat_args(_args...));
     OutputDebugStringW(message.c_str());
 #else
