@@ -367,7 +367,6 @@ void kf_RaiseGamma(void)
   if (gamma < static_cast<float>(5.0))
   {
     gamma = gamma + static_cast<float>(0.1);
-    pie_SetGammaValue(gamma);
     addConsoleMessage("Gamma correction altered", DEFAULT_JUSTIFY);
   }
   else
@@ -382,7 +381,6 @@ void kf_LowerGamma(void)
   if (gamma > static_cast<float>(0.2))
   {
     gamma = gamma - static_cast<float>(0.1);
-    pie_SetGammaValue(gamma);
     addConsoleMessage("Gamma correction lowered", DEFAULT_JUSTIFY);
   }
   else

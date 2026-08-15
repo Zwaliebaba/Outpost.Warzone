@@ -1321,7 +1321,6 @@ BOOL runGameOptionsMenu(VOID)
       // gamma range = 0.4 - 3 
       gamma = (float)( widgGetSliderPos(psWScreen,FRONTEND_GAMMA_SL) )/25  ;
       if(gamma<0.5)  gamma = (float).5;
-      pie_SetGammaValue(gamma);
       break;
   */
   case FRONTEND_SCROLLSPEED_SL:

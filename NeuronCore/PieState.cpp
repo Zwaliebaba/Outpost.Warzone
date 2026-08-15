@@ -22,8 +22,6 @@
 /***************************************************************************/
 
 SDWORD pieStateCount = 0;
-BOOL bSwirls = FALSE;
-BOOL bWave = FALSE;
 /***************************************************************************/
 /*
  *	Local Definitions
@@ -535,27 +533,9 @@ void pie_SetColour(UDWORD colour)
 UDWORD pie_GetColour(void) { return rendStates.colour; }
 
 /***************************************************************************/
-void pie_SetGammaValue(float val) { pieStateCount++; }
-
-/***************************************************************************/
-void pie_DrawMouse(SDWORD x, SDWORD y) {}
-
-/***************************************************************************/
 UWORD presentMouseID;
 
 void pie_SetMouse(IMAGEFILE* psImageFile, UWORD ImageID) { presentMouseID = ImageID; }
-
-/***************************************************************************/
-UDWORD pie_GetMouseID(void) { return (presentMouseID); }
-
-/***************************************************************************/
-BOOL pie_SwirlyBoxes(void) { return (bSwirls); }
-
-void pie_SetSwirlyBoxes(BOOL val) { bSwirls = val; }
-
-BOOL pie_WaveBlit(void) { return (bWave); }
-
-void pie_SetWaveBlit(BOOL val) { bWave = val; }
 
 /***************************************************************************/
 /***************************************************************************/

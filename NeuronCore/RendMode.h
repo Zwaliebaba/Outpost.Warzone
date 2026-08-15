@@ -10,8 +10,6 @@
 //*************************************************************************
 //patch
 
-#define iV_RenderBegin			pie_LocalRenderBegin
-#define iV_RenderEnd			pie_LocalRenderEnd
 #define	iV_Line					pie_Line
 #define	iV_Box					pie_Box
 #define	iV_BoxFill				pie_BoxFillIndex
@@ -24,8 +22,6 @@
 #define	iV_DrawStretchImage		pie_ImageFileIDStretch
 #define	iV_DrawImageDef				pie_ImageDef
 #define iV_UploadDisplayBuffer		pie_UploadDisplayBuffer
-#define iV_DownloadDisplayBuffer	pie_DownloadDisplayBuffer
-#define iV_ScaleBitmapRGB			pie_ScaleBitmapRGB
 
 //*************************************************************************
 

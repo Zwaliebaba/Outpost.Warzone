@@ -82,12 +82,10 @@ BOOL loadConfig(BOOL bResourceAvailable)
     gamma = static_cast<float>(val) / static_cast<float>(25);
     if (gamma < 0.5)
       gamma = static_cast<float>(.5);
-    pie_SetGammaValue(gamma);
   }
   else
   {
     gamma = static_cast<float>(DEFAULTGAMMA) / static_cast<float>(25);
-    pie_SetGammaValue(gamma);
     if (gamma < 0.5)
       gamma = static_cast<float>(.5);
     setWarzoneKeyNumeric("gamma",DEFAULTGAMMA);

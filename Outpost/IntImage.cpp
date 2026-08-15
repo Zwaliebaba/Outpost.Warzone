@@ -201,12 +201,7 @@ void DrawEnableLocks(BOOL Enable) { EnableLocks = Enable; }
 void DrawBegin(void)
 {
   if (EnableLocks)
-  {
-    if (LockRefs == 0)
-      pie_LocalRenderBegin();
-
     LockRefs++;
-  }
 }
 
 void DrawEnd(void)
@@ -216,9 +211,6 @@ void DrawEnd(void)
     LockRefs--;
 
     DEBUG_ASSERT_TEXT(LockRefs >= 0, "Inbalanced DrawEnd()");
-
-    if (LockRefs == 0)
-      pie_LocalRenderEnd();
   }
 }
 

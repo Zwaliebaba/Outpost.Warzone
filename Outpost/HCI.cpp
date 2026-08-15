@@ -2950,7 +2950,6 @@ void intDisplayWidgets(void)
 
       screen_RestartBackDrop();
       // Download buffer in system memory to the display back buffer.
-      iV_DownloadDisplayBuffer(DisplayBuffer);
       /*Add the radar to the design screen - only if player has HQ*/
       bPlayerHasHQ = radarCheckForHQ(selectedPlayer);
 
@@ -5942,7 +5941,6 @@ void addIntelScreen(void)
     // Upload the current display back buffer into system memory.
     pie_UploadDisplayBuffer(DisplayBuffer);
     // Make it darker.
-    iV_ScaleBitmapRGB(DisplayBuffer, iV_GetDisplayWidth(), iV_GetDisplayHeight(), 2, 2, 2);
 
     radarOnScreen = radOnScreen;
     bRender3DOnly = FALSE;

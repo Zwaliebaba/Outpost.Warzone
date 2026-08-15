@@ -413,13 +413,6 @@ void pie_UploadDisplayBuffer(UBYTE* DisplayBuffer)
   pie_GlobalRenderBegin();
 }
 
-void pie_DownloadDisplayBuffer(UBYTE* DisplayBuffer)
-{
-  //screen_SetBackDropFullWidth();//set when background sets
-}
-
-void pie_ScaleBitmapRGB(UBYTE* DisplayBuffer, int Width, int Height, int ScaleR, int ScaleG, int ScaleB) {}
-
 BOOL pie_InitRadar(void) { return TRUE; }
 
 BOOL pie_ShutdownRadar(void) { return TRUE; }

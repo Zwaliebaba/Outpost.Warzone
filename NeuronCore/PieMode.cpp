@@ -33,7 +33,6 @@
 int32 _iVPRIM_DIVTABLE[DIVIDE_TABLE_SIZE];
 
 static SDWORD d3dActive = 0;
-static BOOL bDither = FALSE;
 
 /***************************************************************************/
 /*
@@ -46,10 +45,6 @@ static BOOL bDither = FALSE;
  *	Source
  */
 /***************************************************************************/
-
-BOOL pie_GetDitherStatus(void) { return (bDither); }
-
-void pie_SetDitherStatus(BOOL val) { bDither = val; }
 
 BOOL pie_Initialise(void)
 {
@@ -119,9 +114,6 @@ void pie_ScreenFlip(CLEAR_MODE clearMode)
 
 /***************************************************************************/
 
-void pie_Clear(UDWORD colour) { (void)colour; }
-/***************************************************************************/
-
 void pie_GlobalRenderBegin(void)
 {
   if (d3dActive == 0)
@@ -173,9 +165,3 @@ UDWORD pie_GetResScalingFactor(void)
   }
 }
 
-/***************************************************************************/
-void pie_LocalRenderBegin(void) {}
-
-void pie_LocalRenderEnd(void) {}
-
-void pie_RenderSetup(void) {}

@@ -294,7 +294,6 @@ init: //jump here from the end if re_initialising
         switch (gameStatus)
         {
         case GS_TITLE_SCREEN:
-          pie_SetSwirlyBoxes(TRUE);
           if (loop_GetVideoStatus())
             videoLoop();
           else
@@ -333,7 +332,6 @@ init: //jump here from the end if re_initialising
             default: Neuron::Fatal("Unknown code returned by titleLoop");
             }
           }
-          pie_SetSwirlyBoxes(FALSE);
           break;
 
         /*				case GS_SAVEGAMELOAD:

@@ -367,7 +367,6 @@ void draw3DScene(void)
   /* Lock the surface */
   pie_GlobalRenderBegin(); //only begins scene if it wasn't already begun
 
-  pie_LocalRenderBegin();
 
   /* Build the drag quad */
   if (dragBox3D.status == DRAG_RELEASED)
@@ -411,7 +410,6 @@ void draw3DScene(void)
   }
 
   /* Unlock the surface */
-  pie_LocalRenderEnd();
 
   if (!bRender3DOnly)
   {
@@ -859,7 +857,6 @@ BOOL init3DView(void)
   gridCentreX = (player.p.x + ((visibleXTiles / 2) << TILE_SHIFT));
   gridCentreZ = (player.p.z + ((visibleYTiles / 2) << TILE_SHIFT));
 
-  pie_SetGammaValue(gamma);
 
   edgeTile.texture = 0;
 
