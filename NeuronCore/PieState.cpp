@@ -36,18 +36,6 @@ using COLOUR_MODE = enum COLOUR_MODE
   COLOUR_TEX_CONSTANT
 };
 
-using TEX_MODE = enum TEX_MODE
-{
-  TEX_LOCAL,
-  TEX_NONE
-};
-
-using ALPHA_MODE = enum ALPHA_MODE
-{
-  ALPHA_ITERATED,
-  ALPHA_CONSTANT
-};
-
 using RENDER_STATE = struct _renderState
 {
   DEPTH_MODE depthBuffer;
@@ -63,8 +51,6 @@ using RENDER_STATE = struct _renderState
   BOOL bilinearOn;
   BOOL keyingOn;
   COLOUR_MODE colourCombine;
-  TEX_MODE texCombine;
-  ALPHA_MODE alphaCombine;
   TRANSLUCENCY_MODE transMode;
   UDWORD colour;
 #ifdef STATES
@@ -86,8 +72,6 @@ RENDER_STATE rendStates;
  */
 /***************************************************************************/
 static void pie_SetColourCombine(COLOUR_MODE colCombMode);
-static void pie_SetTexCombine(TEX_MODE texCombMode);
-static void pie_SetAlphaCombine(ALPHA_MODE alphaCombMode);
 static void pie_SetTranslucencyMode(TRANSLUCENCY_MODE transMode);
 
 /***************************************************************************/
@@ -113,12 +97,8 @@ void pie_SetDefaultStates(void) //Sets all states
   pie_SetAdditive(TRUE);
 
   //basic gouraud textured rendering
-  rendStates.texCombine = TEX_NONE; //to force reset to GOURAUD_TEX
-  pie_SetTexCombine(TEX_LOCAL);
   rendStates.colourCombine = COLOUR_FLAT_CONSTANT; //to force reset to GOURAUD_TEX
   pie_SetColourCombine(COLOUR_TEX_ITERATED);
-  rendStates.alphaCombine = ALPHA_ITERATED; //to force reset to GOURAUD_TEX
-  pie_SetAlphaCombine(ALPHA_CONSTANT);
   rendStates.transMode = TRANS_ALPHA; //to force reset to DECAL
   pie_SetTranslucencyMode(TRANS_DECAL);
 
@@ -149,17 +129,9 @@ void pie_ResetStates(void) //Sets all states
   //set render mode
 
   //basic gouraud textured rendering
-  temp = rendStates.texCombine;
-  rendStates.texCombine = static_cast<TEX_MODE>(-1); //to force reset
-  pie_SetTexCombine(static_cast<TEX_MODE>(temp));
-
   temp = rendStates.colourCombine;
   rendStates.colourCombine = static_cast<COLOUR_MODE>(-1); //to force reset
   pie_SetColourCombine(static_cast<COLOUR_MODE>(temp));
-
-  temp = rendStates.alphaCombine;
-  rendStates.alphaCombine = static_cast<ALPHA_MODE>(-1); //to force reset
-  pie_SetAlphaCombine(static_cast<ALPHA_MODE>(temp));
 
   temp = rendStates.transMode;
   rendStates.transMode = static_cast<TRANSLUCENCY_MODE>(-1); //to force reset
@@ -349,62 +321,42 @@ void pie_SetRendMode(REND_MODE rendMode)
     {
     case REND_GOURAUD_TEX:
       pie_SetColourCombine(COLOUR_TEX_ITERATED);
-      pie_SetTexCombine(TEX_LOCAL);
-      pie_SetAlphaCombine(ALPHA_CONSTANT);
       pie_SetTranslucencyMode(TRANS_DECAL);
       break;
     case REND_ALPHA_TEX:
       pie_SetColourCombine(COLOUR_TEX_ITERATED);
-      pie_SetTexCombine(TEX_LOCAL);
-      pie_SetAlphaCombine(ALPHA_ITERATED);
       pie_SetTranslucencyMode(TRANS_ALPHA);
       break;
     case REND_ADDITIVE_TEX:
       pie_SetColourCombine(COLOUR_TEX_ITERATED);
-      pie_SetTexCombine(TEX_LOCAL);
-      pie_SetAlphaCombine(ALPHA_ITERATED);
       pie_SetTranslucencyMode(TRANS_ADDITIVE);
       break;
     case REND_TEXT:
       pie_SetColourCombine(COLOUR_TEX_CONSTANT);
-      pie_SetTexCombine(TEX_LOCAL);
-      pie_SetAlphaCombine(ALPHA_CONSTANT);
       pie_SetTranslucencyMode(TRANS_DECAL);
       break;
     case REND_ALPHA_TEXT:
       pie_SetColourCombine(COLOUR_TEX_CONSTANT);
-      pie_SetTexCombine(TEX_LOCAL);
-      pie_SetAlphaCombine(ALPHA_CONSTANT);
       pie_SetTranslucencyMode(TRANS_ALPHA);
       break;
     case REND_ALPHA_FLAT:
       pie_SetColourCombine(COLOUR_FLAT_CONSTANT);
-      pie_SetTexCombine(TEX_LOCAL);
-      pie_SetAlphaCombine(ALPHA_CONSTANT);
       pie_SetTranslucencyMode(TRANS_ALPHA);
       break;
     case REND_ALPHA_ITERATED:
       pie_SetColourCombine(COLOUR_FLAT_ITERATED);
-      pie_SetTexCombine(TEX_LOCAL);
-      pie_SetAlphaCombine(ALPHA_ITERATED);
       pie_SetTranslucencyMode(TRANS_ADDITIVE);
       break;
     case REND_FILTER_FLAT:
       pie_SetColourCombine(COLOUR_FLAT_CONSTANT);
-      pie_SetTexCombine(TEX_LOCAL);
-      pie_SetAlphaCombine(ALPHA_CONSTANT);
       pie_SetTranslucencyMode(TRANS_FILTER);
       break;
     case REND_FILTER_ITERATED:
       pie_SetColourCombine(COLOUR_FLAT_CONSTANT);
-      pie_SetTexCombine(TEX_LOCAL);
-      pie_SetAlphaCombine(ALPHA_ITERATED);
       pie_SetTranslucencyMode(TRANS_ALPHA);
       break;
     case REND_FLAT:
       pie_SetColourCombine(COLOUR_FLAT_CONSTANT);
-      pie_SetTexCombine(TEX_LOCAL);
-      pie_SetAlphaCombine(ALPHA_CONSTANT);
       pie_SetTranslucencyMode(TRANS_DECAL);
     default:
       break;
@@ -468,36 +420,6 @@ static void pie_SetColourCombine(COLOUR_MODE colCombMode)
     case COLOUR_TEX_ITERATED: default:
       break;
     }
-  }
-#endif
-}
-
-/***************************************************************************/
-static void pie_SetTexCombine(TEX_MODE texCombMode)
-{
-#ifndef PIETOOL	//ffs
-  if (texCombMode != rendStates.texCombine)
-  {
-    rendStates.texCombine = texCombMode;
-    pieStateCount++;
-    switch (texCombMode)
-    {
-    case TEX_LOCAL:
-    case TEX_NONE: default:
-      break;
-    }
-  }
-#endif
-}
-
-/***************************************************************************/
-static void pie_SetAlphaCombine(ALPHA_MODE alphaCombMode)
-{
-#ifndef PIETOOL	//ffs
-  if (alphaCombMode != rendStates.alphaCombine)
-  {
-    rendStates.alphaCombine = alphaCombMode;
-    pieStateCount++;
   }
 #endif
 }

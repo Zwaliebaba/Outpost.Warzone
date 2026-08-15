@@ -49,15 +49,6 @@ static BOOL g_bTexelOffsetOn = FALSE;
  */
 static BOOL g_bCanVertexFog = FALSE;
 
-/* D3DSetTranslucencyMode only sends a state to the device when it differs
- * from the last one it sent, so it has to know when the device has stopped
- * agreeing with that record. A reset puts every render state back to its
- * default, so D3DApplyRenderStates marks the record stale and the next call
- * through writes all of them again. This is new: the Direct3D 6 code had no
- * reset to recover from.
- */
-static BOOL g_bStateCacheStale = TRUE;
-
 /***************************************************************************/
 
 BOOL InitD3D(D3DINFO* psD3Dinfo)
@@ -265,23 +256,18 @@ void D3DSetTexelOffsetState(BOOL bOffsetOn)
 void D3DSetTranslucencyMode(TRANSLUCENCY_MODE transMode)
 {
   HRESULT hResult;
-  static BOOL bFirst = TRUE, bBlendEnableLast = FALSE;
-  BOOL bBlendEnable, bForce;
+  BOOL bBlendEnable;
 
-  static D3DBLEND srcBlendLast = D3DBLEND_ZERO, destBlendLast = D3DBLEND_ZERO;
   D3DBLEND srcBlend, destBlend;
 
   /* 0xffffffff is not a texture argument, so it reads as "leave this one
    * alone" the way -1 did before. */
 #define ALPHA_ARG_UNUSED 0xffffffff
 
-  static DWORD dwAlphaOpLast = D3DTOP_DISABLE, dwAlphaArg1Last = ALPHA_ARG_UNUSED, dwAlphaArg2Last = ALPHA_ARG_UNUSED;
   DWORD dwAlphaOp, dwAlphaArg1 = ALPHA_ARG_UNUSED, dwAlphaArg2 = ALPHA_ARG_UNUSED;
 
   if (g_psDevice == nullptr)
     return;
-
-  bForce = bFirst || g_bStateCacheStale;
 
   //dont write to z buffer if alpha on
   //controlled by piestates
@@ -325,36 +311,16 @@ void D3DSetTranslucencyMode(TRANSLUCENCY_MODE transMode)
     break;
   }
 
-  if (bForce || (srcBlend != srcBlendLast)) { ATTEMPTD3D((hResult = g_psDevice->SetRenderState(D3DRS_SRCBLEND, srcBlend))); }
+  ATTEMPTD3D((hResult = g_psDevice->SetRenderState(D3DRS_SRCBLEND, srcBlend)));
+  ATTEMPTD3D((hResult = g_psDevice->SetRenderState(D3DRS_DESTBLEND, destBlend)));
+  ATTEMPTD3D((hResult = g_psDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, bBlendEnable ? TRUE : FALSE)));
+  ATTEMPTD3D((hResult = g_psDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, dwAlphaOp)));
 
-  if (bForce || (destBlend != destBlendLast)) { ATTEMPTD3D((hResult = g_psDevice->SetRenderState(D3DRS_DESTBLEND, destBlend))); }
+  /* An unused argument is left at whatever the previous mode set it to, which
+   * is what the per-argument record used to arrange. */
+  if (dwAlphaArg1 != ALPHA_ARG_UNUSED) { ATTEMPTD3D((hResult = g_psDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, dwAlphaArg1))); }
 
-  if (bForce || (bBlendEnable != bBlendEnableLast))
-  {
-    ATTEMPTD3D((hResult = g_psDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, bBlendEnable ? TRUE : FALSE)));
-  }
-
-  if (bForce || (dwAlphaOp != dwAlphaOpLast)) { ATTEMPTD3D((hResult = g_psDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, dwAlphaOp))); }
-
-  if ((bForce || (dwAlphaArg1 != dwAlphaArg1Last)) && (dwAlphaArg1 != ALPHA_ARG_UNUSED))
-  {
-    ATTEMPTD3D((hResult = g_psDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, dwAlphaArg1)));
-  }
-
-  if ((bForce || (dwAlphaArg2 != dwAlphaArg2Last)) && (dwAlphaArg2 != ALPHA_ARG_UNUSED))
-  {
-    ATTEMPTD3D((hResult = g_psDevice->SetTextureStageState(0, D3DTSS_ALPHAARG2, dwAlphaArg2)));
-  }
-
-  /* update statics */
-  if (bFirst == TRUE)
-    bFirst = FALSE;
-  g_bStateCacheStale = FALSE;
-  srcBlendLast = srcBlend;
-  destBlendLast = destBlend;
-  dwAlphaOpLast = dwAlphaOp;
-  dwAlphaArg1Last = dwAlphaArg1;
-  dwAlphaArg2Last = dwAlphaArg2;
+  if (dwAlphaArg2 != ALPHA_ARG_UNUSED) { ATTEMPTD3D((hResult = g_psDevice->SetTextureStageState(0, D3DTSS_ALPHAARG2, dwAlphaArg2))); }
 
   return;
 
@@ -443,10 +409,6 @@ void D3DApplyRenderStates(void)
 
   if (g_psDevice == nullptr)
     return;
-
-  /* Everything the device holds is back at its default, so no cached "we
-   * already set that" answer can be trusted. */
-  g_bStateCacheStale = TRUE;
 
   sViewport.X = 0;
   sViewport.Y = 0;
