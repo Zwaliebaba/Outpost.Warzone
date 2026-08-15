@@ -528,9 +528,11 @@ what each step actually cost — is in [Phase5Plan.md](Phase5Plan.md).
 
 ## Phase 6 — Removing Mplayer.lib and WINSTR.LIB
 
-**New item.** Two third-party static libraries remain and both must go. They
-are unrelated to each other despite being listed together, and the second is
-considerably more involved than its name suggests.
+**Half done.** Two third-party static libraries were listed here. They are
+unrelated to each other despite sharing a heading, and the second is
+considerably more involved than its name suggests. **`Mplayer.lib` went with
+Phase 5**; `WINSTR.LIB` is what remains, and it is the last vendored non-system
+dependency in the tree.
 
 The measured state of the assets, the staged plan and the four decisions the
 phase is gated on are in [Phase6Plan.md](Phase6Plan.md). Two findings there
@@ -540,18 +542,16 @@ references are not in the repository at all.
 
 ### Mplayer.lib — dead matchmaking service
 
-`Mplayer.lib` is the Mplayer DirectPlay Extras library from Mpath Interactive
-(© 1996-97), for the Mplayer.com online gaming service. **That service shut
-down in 2001**, so this is pure dead weight.
+**Done, in Phase 5.** `Mplayer.lib` was the Mplayer DirectPlay Extras library
+from Mpath Interactive (© 1996-97), for the Mplayer.com online gaming service,
+which shut down in 2001. As predicted, it was naturally sequenced with Phase 5,
+since both concerned DirectPlay-era networking, and it landed there rather than
+here.
 
-- Delete `MPDPXtra.cpp` (751 lines), `MPDPXtra.h` (662 lines) and `MPlayer.cpp`
-  (86 lines), and drop them from `Outpost.vcxproj`.
-- Remove `Mplayer.lib` from `AdditionalDependencies`, and the Mplayer registry
-  probing and lobby hooks in `NetLobby.cpp`.
-- Low risk: the coupling is limited to `MPlayer.cpp`, which handles stat
-  submission to the service.
-- Naturally sequenced with Phase 5, since both concern DirectPlay-era
-  networking.
+`MPDPXtra.cpp`/`.h`, `MPlayer.cpp`, `NetLobby.cpp` and `NeuronCore/Mplayer.lib`
+are deleted; `Mplayer.lib` and `dplayx.lib` are off both link lines; the
+`GameData/multiplay/mplaynow/` payload is gone. No Mplayer reference remains
+anywhere in the tree. Nothing is left of this item for Phase 6.
 
 ### WINSTR.LIB — the FMV video codec
 

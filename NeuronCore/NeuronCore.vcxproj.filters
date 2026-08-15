@@ -101,91 +101,91 @@
       <Filter>Gamelib</Filter>
     </ClInclude>
     <ClInclude Include="BitImage.h">
-      <Filter>ivis02</Filter>
+      <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="BSPFunc.h">
-      <Filter>ivis02</Filter>
+      <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="BSPIMD.h">
-      <Filter>ivis02</Filter>
+      <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Bug.h">
-      <Filter>ivis02</Filter>
+      <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="D3DMode.h">
-      <Filter>ivis02</Filter>
+      <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="D3DRender.h">
-      <Filter>ivis02</Filter>
+      <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="D3D9Vertex.h">
-      <Filter>ivis02</Filter>
+      <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="TexMan.h">
-      <Filter>ivis02</Filter>
+      <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Fbf.h">
-      <Filter>ivis02</Filter>
+      <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Geo.h">
-      <Filter>ivis02</Filter>
+      <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="IMD.h">
-      <Filter>ivis02</Filter>
+      <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Ivi.h">
-      <Filter>ivis02</Filter>
+      <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="IvisDef.h">
-      <Filter>ivis02</Filter>
+      <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="IvisPatch.h">
-      <Filter>ivis02</Filter>
+      <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Pcx.h">
-      <Filter>ivis02</Filter>
+      <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="PieBlitFunc.h">
-      <Filter>ivis02</Filter>
+      <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="PieClip.h">
-      <Filter>ivis02</Filter>
+      <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="PieDef.h">
-      <Filter>ivis02</Filter>
+      <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="PieFunc.h">
-      <Filter>ivis02</Filter>
+      <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="PieMatrix.h">
-      <Filter>ivis02</Filter>
+      <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="PieMode.h">
-      <Filter>ivis02</Filter>
+      <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="PiePalette.h">
-      <Filter>ivis02</Filter>
+      <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="PieState.h">
-      <Filter>ivis02</Filter>
+      <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="PieTexture.h">
-      <Filter>ivis02</Filter>
+      <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="PieTypes.h">
-      <Filter>ivis02</Filter>
+      <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="RendFunc.h">
-      <Filter>ivis02</Filter>
+      <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="RendMode.h">
-      <Filter>ivis02</Filter>
+      <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Tex.h">
-      <Filter>ivis02</Filter>
+      <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="TextDraw.h">
-      <Filter>ivis02</Filter>
+      <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="HostCertificate.h">
       <Filter>NetPlay</Filter>
@@ -202,6 +202,30 @@
     <ClInclude Include="Debug.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="NeuronCore.h" />
+    <ClInclude Include="Aud.h" />
+    <ClInclude Include="Audio.h" />
+    <ClInclude Include="Bar.h" />
+    <ClInclude Include="Button.h" />
+    <ClInclude Include="CodePrint.h" />
+    <ClInclude Include="EditBox.h" />
+    <ClInclude Include="Event.h" />
+    <ClInclude Include="EvntSave.h" />
+    <ClInclude Include="Form.h" />
+    <ClInclude Include="Interp.h" />
+    <ClInclude Include="Label.h" />
+    <ClInclude Include="Parse.h" />
+    <ClInclude Include="Script.h" />
+    <ClInclude Include="Script_y.h" />
+    <ClInclude Include="Sequence.h" />
+    <ClInclude Include="Slider.h" />
+    <ClInclude Include="Stack.h" />
+    <ClInclude Include="STREAMER.H" />
+    <ClInclude Include="Tip.h" />
+    <ClInclude Include="Track.h" />
+    <ClInclude Include="TrackLib.h" />
+    <ClInclude Include="WidgBase.h" />
+    <ClInclude Include="Widget.h" />
+    <ClInclude Include="WidgInt.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DXError.cpp">
@@ -324,6 +348,48 @@
     <ClCompile Include="Transport.cpp">
       <Filter>NetPlay</Filter>
     </ClCompile>
+    <ClCompile Include="Anim.cpp" />
+    <ClCompile Include="AnimObj.cpp" />
+    <ClCompile Include="BitImage.cpp" />
+    <ClCompile Include="BSPIMD.cpp" />
+    <ClCompile Include="Bug.cpp" />
+    <ClCompile Include="Fbf.cpp" />
+    <ClCompile Include="GTime.cpp" />
+    <ClCompile Include="HashTabl.cpp" />
+    <ClCompile Include="IMD.cpp" />
+    <ClCompile Include="IMDLoad.cpp" />
+    <ClCompile Include="Ivi.cpp" />
+    <ClCompile Include="NetSupp.cpp" />
+    <ClCompile Include="NetUsers.cpp" />
+    <ClCompile Include="parser_l.cpp" />
+    <ClCompile Include="parser_y.cpp" />
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="Pcx.cpp" />
+    <ClCompile Include="PieBlitFunc.cpp" />
+    <ClCompile Include="PieClip.cpp" />
+    <ClCompile Include="PieDraw.cpp" />
+    <ClCompile Include="PieFunc.cpp" />
+    <ClCompile Include="PieMatrix.cpp" />
+    <ClCompile Include="PieMode.cpp" />
+    <ClCompile Include="PiePalette.cpp" />
+    <ClCompile Include="PieState.cpp" />
+    <ClCompile Include="PieTexture.cpp" />
+    <ClCompile Include="PQueue.cpp" />
+    <ClCompile Include="PtrList.cpp" />
+    <ClCompile Include="RendFunc.cpp" />
+    <ClCompile Include="RendMode.cpp" />
+    <ClCompile Include="Screen.cpp" />
+    <ClCompile Include="Stack.cpp" />
+    <ClCompile Include="Tex.cpp" />
+    <ClCompile Include="TexMan.cpp" />
+    <ClCompile Include="TextDraw.cpp" />
+    <ClCompile Include="WDG.cpp" />
+    <ClCompile Include="D3DMode.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DRender.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Framework">
@@ -331,9 +397,6 @@
     </Filter>
     <Filter Include="Gamelib">
       <UniqueIdentifier>{13bc249d-6089-4959-965b-82b54fc8ea99}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ivis02">
-      <UniqueIdentifier>{0d7d1d83-a43e-4556-b3aa-1ccadb1fb77f}</UniqueIdentifier>
     </Filter>
     <Filter Include="NetPlay">
       <UniqueIdentifier>{4b7b78b1-878b-4b16-9995-c8f4a8151b30}</UniqueIdentifier>
@@ -349,6 +412,12 @@
     </Filter>
     <Filter Include="Widget">
       <UniqueIdentifier>{5089e6fa-7d5f-4eea-b092-848d609c2f01}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graphics">
+      <UniqueIdentifier>{0d7d1d83-a43e-4556-b3aa-1ccadb1fb77f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Project Files">
+      <UniqueIdentifier>{bbd10971-0272-4ef4-af72-0cc83ef7dcf8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -375,6 +444,9 @@
     </None>
     <None Include="script.l">
       <Filter>Script</Filter>
+    </None>
+    <None Include="packages.config">
+      <Filter>Project Files</Filter>
     </None>
   </ItemGroup>
 </Project>

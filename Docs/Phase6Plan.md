@@ -5,37 +5,50 @@ Working plan for the phase described in
 As with Phases 4 and 5, every figure here was measured against the tree and the
 shipped assets rather than estimated.
 
-The phase is two unrelated pieces sharing a heading. The first is an afternoon.
-The second is the last remaining *rewrite* in the migration, and it is gated on
-an asset decision the code cannot make for you — see
+**Re-checked against the tree after the Phase 5 merge (`ef6d927`).** Every
+figure below still holds except the ones called out in
+[What the Phase 5 merge changed](#what-the-phase-5-merge-changed). None of the
+files this phase rewrites was touched by that merge.
+
+The phase was two unrelated pieces sharing a heading. **Part 1 is now done** —
+Phase 5 took it. What remains is the second piece, the last remaining *rewrite*
+in the migration, gated on an asset decision the code cannot make for you — see
 [The asset problem](#the-asset-problem-165-of-184-movies-are-not-in-this-repo),
 which is the part of this document worth reading first.
 
 ---
 
-## Part 1 — Mplayer.lib
+## What the Phase 5 merge changed
 
-Nothing here contradicts MigrationPlan.md. `Mplayer.lib` is the Mpath
-Interactive DirectPlay Extras library for the Mplayer.com service, dead since
-2001.
+`ef6d927` merged the completed Phase 5. It did not touch `Sequence.cpp`,
+`Sequence.h`, `STREAMER.H`, `SeqDisp.cpp`, `CDSpan.cpp`, `ScriptFuncs.cpp`,
+`ScriptTabs.cpp`, `IntelMap.cpp` or any `GameData/` movie asset, so the analysis
+in this document survives intact. Five things did move:
 
-| File | Lines | Fate |
-|---|---:|---|
-| `Outpost/MPDPXtra.cpp` + `.h` | 1401 | delete |
-| `Outpost/MPlayer.cpp` | 83 | delete |
-| `Mplayer.lib` in `AdditionalDependencies` | — | remove (both configs) |
-| Mplayer hooks in `NetLobby.cpp` | — | remove with the file |
+1. **Part 1 is complete.** `MPDPXtra.cpp`/`.h`, `MPlayer.cpp`, `NetLobby.cpp`
+   and `NeuronCore/Mplayer.lib` are all deleted, and `Mplayer.lib` and
+   `dplayx.lib` are off both link lines. Not one Mplayer reference is left in
+   the tree. The section that used to be Part 1 is gone with it.
+2. **`WINSTR.LIB` is now the only checked-in third-party static library**, and
+   with `GameData/`'s four decoder DLLs the last 32-bit binary in the tree.
+   That sharpens [the x64 question](#the-x64-question-this-phase-unblocks)
+   rather than changing it.
+3. **`AdditionalDependencies` moved to lines 343 and 370**, and
+   `ConformanceMode` / `LanguageStandard` to 333 and 362. It also gained
+   `crypt32.lib` and `ncrypt.lib`. Line references below are updated.
+4. **R14 now has one sanctioned exception, and it is explicitly closed.**
+   See [The target](#the-target) — this strengthens the Media Foundation choice
+   rather than reopening it.
+5. **`NetTest/` establishes a harness precedent** that B1 and B2 should copy.
+   See [B1](#b1--read-the-format-prove-it-round-trips).
 
-Phase5Plan.md already lists all three files as deletions, and `NetLobby.cpp` is
-scheduled for deletion there too. **Do this inside Phase 5, not here.** Keeping
-it as a separate Phase 6 item only creates a merge conflict with the phase that
-deletes the same files. What is left for Phase 6 is the two `<AdditionalDependencies>`
-lines in `Outpost/Outpost.vcxproj` (lines 342 and 369), which also carry
-`WINSTR.LIB` and are edited once at the end of Part 2.
+One correction to my own arithmetic, unrelated to the merge: the `cdspan_*` call
+sites are **18**, not the 19 quoted in an earlier draft, and one of those is
+inside a comment block at `Mission.cpp:3191`. The seven-file spread is unchanged.
 
 ---
 
-## Part 2 — WINSTR.LIB
+## WINSTR.LIB — what the phase actually is
 
 ### The audio question, answered
 
@@ -193,7 +206,7 @@ this phase at two files.
 
 `Sequence.cpp` and `Sequence.h` are the **only remaining DirectSound users in
 the tree** — Phase 5 already removed `NetAudio.cpp`, and Phase 4 moved the mixer
-to XAudio2. Finishing Part 2 lets `dsound.lib` come off both link lines and
+to XAudio2. Finishing this phase lets `dsound.lib` come off both link lines and
 `#include <dsound.h>` out of the tree entirely.
 
 ---
@@ -203,12 +216,18 @@ to XAudio2. Finishing Part 2 lets `dsound.lib` come off both link lines and
 **Media Foundation, H.264 video and AAC audio in MP4, decoded through
 `IMFSourceReader`.** The reasoning:
 
-- **[AGENTS.md §5 R14](../AGENTS.md) forbids new third-party dependencies**, and
-  MigrationPlan.md's stated endpoint for Phases 4-6 is "the only remaining
+- **[AGENTS.md §5 R14](../AGENTS.md) forbids new third-party dependencies.**
+  Phase 5 opened exactly one exception — MsQuic, via NuGet — and the rule now
+  spells out that it "covers MsQuic and the NuGet restore that fetches it, and
+  nothing else; a second one needs the same conversation." That makes the
+  argument here *stronger*, not weaker: the NuGet machinery existing does not
+  make a bundled video decoder cheap, it makes it an owner conversation. Media
+  Foundation needs no such conversation, and it is the only option consistent
+  with MigrationPlan.md's stated endpoint for Phases 4-6 — "the only remaining
   non-system dependencies are the DirectX libraries themselves". Bundling
-  libvpx, libtheora or ffmpeg contradicts both. Media Foundation is a system
+  libvpx, libtheora or ffmpeg contradicts that. Media Foundation is a system
   component: `mfplat.lib`, `mfreadwrite.lib`, `mfuuid.lib`, all in the Windows
-  SDK, no redistributable.
+  SDK, no redistributable, no package.
 - The source is 320x240 and 192x168 at 25 fps. Any modern codec is
   overqualified; the choice is about what ships with Windows, not about quality.
 - Size goes *down*, substantially. The current set averages ~1.7 Mbit/s for
@@ -245,15 +264,31 @@ Before choosing an encoder, establish a **known-good reference decode** of the
    ```
    If it decodes 59 video frames and 2.36 s of audio, the conversion is a
    one-line batch job.
-2. **A throwaway extractor linked against `WINSTR.LIB`.** A ~150-line console
-   EXE that calls the same 21 entry points `Sequence.cpp` does and dumps raw
-   RGB565 frames and 16-bit PCM. This is guaranteed bit-exact against what ships
-   today, because it *is* what ships today.
+2. **An extractor linked against `WINSTR.LIB`.** A ~150-line console EXE that
+   calls the same 21 entry points `Sequence.cpp` does and dumps raw RGB565
+   frames and 16-bit PCM. This is guaranteed bit-exact against what ships today,
+   because it *is* what ships today.
 
 Build route 2 regardless of whether route 1 works: it is the oracle that decides
 whether ffmpeg's decoder is faithful. Compare frame-by-frame; Escape 130 is an
 obscure codec and "it decoded without erroring" is not the same as "it decoded
 correctly".
+
+**Model it on `NetTest/`, and do not call it throwaway.** Phase 5 set the
+precedent: a console project that compiles the sources it exercises directly
+rather than linking `NeuronCore.lib`, built *and run* by CI
+([build.yml](../.github/workflows/build.yml)) because "everything before it
+proves the tree compiles and links" and nothing else actually runs the code. FMV
+is in the same position — a green build says nothing about whether a movie
+decodes. A `MovieTest/` project alongside `NetTest/` gives B1 its oracle, gives
+B2 a regression check, and after B3 gives the Media Foundation path somewhere to
+be exercised without launching the game. It is the difference between this phase
+being verifiable in CI and being verifiable only by watching it.
+
+It has to outlive `WINSTR.LIB` by one commit, though: the extractor links the
+library B6 deletes. Sequence it so the reference dumps are captured and checked
+in as fixtures *before* B6, and `MovieTest` then compares Media Foundation
+output against fixtures rather than against a live legacy decoder.
 
 **Verifies:** a per-movie PSNR/SSIM report against the extractor's output, and a
 sample-count match on the audio.
@@ -375,9 +410,9 @@ document says.** Two corrections from measuring the tree:
 
 - `CDSpan.cpp` is in **`Outpost/`, not `NeuronCore/`**, and it is **535 lines**
   plus a 38-line header — not the 631 quoted under Phase 4.
-- It has **19 `cdspan_*` call sites across seven files**, not the handful the
-  "related but distinct" description suggests. `seq_StartFullScreenVideo` is
-  two of them.
+- It has **18 `cdspan_*` call sites across seven files**, not the handful the
+  "related but distinct" description suggests — 17 live, plus one inside a
+  comment block at `Mission.cpp:3191`. `seq_StartFullScreenVideo` is two of them.
 
 The call sites divide into five groups, and only the first is really this
 phase's business:
@@ -463,13 +498,12 @@ Once B3, B4 and B5 run:
 
 | Removed | Where |
 |---|---|
-| `WINSTR.LIB` | `Outpost.vcxproj` lines 342, 369 |
-| `Mplayer.lib` | same two lines (if Phase 5 has not already) |
+| `WINSTR.LIB` | `Outpost.vcxproj` lines 343, 370 |
 | `dsound.lib` | same two lines — last user was `Sequence.cpp` |
 | `NeuronCore/STREAMER.H` | 436 lines |
 | `NeuronCore/Sequence.cpp` | 840 lines, replaced |
 | `Outpost/CDSpan.cpp` + `.h` | 573 lines, per B5 |
-| `NeuronCore/WINSTR.LIB`, `NeuronCore/Mplayer.lib` | the checked-in libraries themselves — last 32-bit binaries in the tree |
+| `NeuronCore/WINSTR.LIB` | the checked-in library itself — the last third-party static library in the tree |
 | `scrPlayBackgroundAudio` + `ScriptTabs.cpp:154` | dead script function, per B5 |
 | `scrStopCDAudio`, `scrPauseCDAudio`, `scrResumeCDAudio` + entries | registered, called by no script |
 | `GameData/winstr.dll` | 80 KB |
@@ -478,8 +512,10 @@ Once B3, B4 and B5 run:
 | `GameData/edec.dll`, `winsdec.dll` | **verify first** — 117 KB and 90 KB, no reference found anywhere in the tree, but they sit beside the other two and are probably the same family |
 
 Add `mfplat.lib`, `mfreadwrite.lib` and `mfuuid.lib` to the same two lines. The
-net change to `AdditionalDependencies` is three system libraries in, three
-entries out, and the last non-system dependency in the tree is gone.
+net change to `AdditionalDependencies` is three system libraries in, two entries
+out — `Mplayer.lib` and `dplayx.lib` having already gone with Phase 5 — and the
+last vendored non-system dependency in the tree is gone. What remains after that
+is DirectX, the Windows SDK, and MsQuic under its sanctioned exception.
 
 **Do not remove `playCDAudio` / `music_PlayTrack`** — see
 [the `*CDAudio` note under B5](#the-cdaudio-script-functions-are-not-cd-audio-and-one-of-them-is-live).
@@ -539,24 +575,34 @@ stylistic one.
   in Phase 7, where it is one commit instead of a diff buried inside a rewrite.
   §4's ban on drive-by renames still holds.
 - **`ConformanceMode` stays `false`.** Both configurations build with
-  `/permissive-` off ([Outpost.vcxproj:332, 361](../Outpost/Outpost.vcxproj)).
+  `/permissive-` off ([Outpost.vcxproj:333, 362](../Outpost/Outpost.vcxproj)).
   Turning it on is the single largest remaining modernisation win in the build,
   and it is tree-wide — not something to smuggle in under an FMV phase. Flagged
   for Phase 7 with a measurement, not attempted here.
 
 ### The x64 question this phase unblocks
 
-`NeuronCore/WINSTR.LIB` and `NeuronCore/Mplayer.lib` are the last checked-in
-32-bit static libraries, and `GameData/`'s four decoder DLLs are 32-bit
-binaries. B6 removes all six. After that **nothing in the tree pins the build to
-x86** — the DX9 SDK vendored in `DX9/Lib` has x64 libraries, and XAudio2,
-DirectInput 8, WinSock2 and Media Foundation are all 64-bit clean.
+Phase 5 already removed `NeuronCore/Mplayer.lib`, so **`NeuronCore/WINSTR.LIB`
+is the last checked-in 32-bit static library** and `GameData/`'s four decoder
+DLLs the last 32-bit binaries. B6 removes all five. After that **nothing
+vendored in the tree pins the build to x86** — the DX9 SDK in `DX9/Lib` has x64
+libraries, and XAudio2, DirectInput 8, WinSock2 and Media Foundation are all
+64-bit clean.
+
+Two things the Phase 5 merge added to this question:
+
+- **MsQuic is not an obstacle.** The `Microsoft.Native.Quic.MsQuic.Schannel`
+  package ships native binaries per architecture; CI currently copies from
+  `build\native\bin\x86\`, and that path is a per-platform variable, not a pin.
+- **CI is Win32-only** and now has more in it than a build — a NuGet restore per
+  project and the NetTest harness run. Adding a platform means doubling that
+  matrix, which is a real cost to weigh rather than a checkbox.
 
 [AGENTS.md §3](../AGENTS.md) says one platform exists and adding one is a
-stop-and-report. So this phase does not add x64; it **reports that the
-constraint is gone** and leaves the decision to the owner. Doing it would mean
-auditing the `UDWORD`-holds-a-pointer assumptions in the save-game fixup that
-Phase 1 already had to touch, which is its own piece of work.
+stop-and-report. So this phase does not add x64; it **reports that the vendored
+constraint is gone** and leaves the decision to the owner. Doing it would also
+mean auditing the `UDWORD`-holds-a-pointer assumptions in the save-game fixup
+that Phase 1 already had to touch, which is its own piece of work.
 
 ## Verification
 
@@ -580,19 +626,24 @@ set before committing to the format.
 ## Order of work
 
 ```
-Phase 5 ──► delete MPDPXtra/MPlayer/NetLobby (Part 1 rides along)
+Phase 5 ──► DONE (took Mplayer.lib with it)
 
 B1 ──► B2 ──► B3 ──► B4 ──► B6
  │      │             │
  │      │             └──► B5 (severable — may land after B6)
- └──────┴── offline, no game code, starts immediately and in parallel
+ └──────┴── offline, no game code, starts immediately
 ```
 
-B1 and B2 are independent of Phase 5 and of Phase 2's remaining work, and they
-are where the unknowns are. **Start there**, because if ffmpeg cannot decode
-Escape 130 faithfully the whole shape of the phase changes — the fallback is
-shipping the extractor's raw output through a hand-rolled encoder step, which is
-a different and larger project than a batch script.
+Nothing gates B1 any more. Phase 5 is merged, and B1 and B2 never depended on
+Phase 2's remaining work — so this phase can start now, and it should start
+there, because that is where the unknowns are. If ffmpeg cannot decode Escape
+130 faithfully the whole shape of the phase changes: the fallback is shipping
+the extractor's raw output through a hand-rolled encoder step, which is a
+different and larger project than a batch script.
+
+One ordering constraint the merge adds: **B6 deletes the library B1's extractor
+links against.** Capture the reference dumps as checked-in fixtures before B6,
+or the oracle disappears with the thing it was validating.
 
 B5 is the one stage that can slip without holding anything up, and it is also
 the one with the widest reach into unrelated files. Do not let it gate B6.
