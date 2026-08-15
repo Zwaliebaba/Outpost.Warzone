@@ -2700,16 +2700,6 @@ BOOL renderWallSection(STRUCTURE* psStructure)
     else if (psStructure->status == SS_BUILT)
     {
       pie_Draw3DShape(imd, 0, getPlayerColour(psStructure->player), brightness, specular, 0, 0);
-      /*
-      if (pie_Hardware())
-      {
-          pie_Draw3DShape(imd, 0,getPlayerColour( psStructure->player), brightness, specular, 0,0);//pie_TRANSLUCENT, psStructure->visible[selectedPlayer]);
-      }
-      else
-      {
-          pie_Draw3DShape(imd, 0, getPlayerColour(psStructure->player), brightness, specular, 0, 0);
-      }
-      */
     }
 
     imd->points = temp;
@@ -5107,7 +5097,7 @@ static void addConstructionLine(DROID* psDroid, STRUCTURE* psStructure)
   iVector each;
   iVector null, vec;
   UDWORD specular;
-  UDWORD trans;
+  UDWORD trans = 0;
 
   null.x = null.y = null.z = 0;
   each.x = psDroid->x;

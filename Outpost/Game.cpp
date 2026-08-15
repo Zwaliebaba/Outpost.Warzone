@@ -3960,7 +3960,7 @@ DROID* buildDroidFromSaveDroidV19(SAVE_DROID_V18* psSaveDroid, UDWORD version)
   /*create the Droid */
 
   // ignore brains for now
-  // not any *$£&!!! more - JOHN
+  // not any *$Â£&!!! more - JOHN
 
   if (psSaveDroid->x == INVALID_XY) { psDroid = buildDroid(psTemplate, psSaveDroid->x, psSaveDroid->y, psSaveDroid->player, TRUE); }
   else if (psSaveDroid->saveType == DROID_ON_TRANSPORT) { psDroid = buildDroid(psTemplate, 0, 0, psSaveDroid->player, TRUE); }
@@ -4168,7 +4168,7 @@ DROID* buildDroidFromSaveDroid(SAVE_DROID* psSaveDroid, UDWORD version)
   /*create the Droid */
 
   // ignore brains for now
-  // not any *$£&!!! more - JOHN
+  // not any *$Â£&!!! more - JOHN
 
   turnOffMultiMsg(TRUE);
 
@@ -4264,7 +4264,7 @@ DROID* buildDroidFromSaveDroid(SAVE_DROID* psSaveDroid, UDWORD version)
     {
       //rebuild group from command id in loadDroidSetPointers
       psDroid->psGroup = (struct _droid_group*)psSaveDroid->commandId;
-      psDroid->psGrpNext = (struct _droid*)UDWORD_MAX;
+      psDroid->psGrpNext = (DROID*)UDWORD_MAX;
     }
   }
   else
@@ -5800,7 +5800,7 @@ BOOL loadSaveStructureV(UBYTE* pFileData, UDWORD filesize, UDWORD numStructures,
       if (version >= VERSION_21) //version 21
       {
         //reset command id in loadStructSetPointers
-        psFactory->psCommander = (struct _droid*)psSaveStructure->commandId;
+        psFactory->psCommander = (DROID*)psSaveStructure->commandId;
       }
       //secondary order added - AB 22/04/99
       if (version >= VERSION_32)
@@ -5860,11 +5860,6 @@ BOOL loadSaveStructureV(UBYTE* pFileData, UDWORD filesize, UDWORD numStructures,
         ((RES_EXTRACTOR*)psStructure->pFunctionality)->active = FALSE;
       break;
     case REF_REPAIR_FACILITY: //CODE THIS SOMETIME
-      /*
-        // The group the droids to be repaired by this facility belong to
-        struct _droid_group		*psGroup;
-        struct _droid			*psGrpNext;
-      */
       psRepair = ((REPAIR_FACILITY*)psStructure->pFunctionality);
 
       psRepair->power = ((REPAIR_DROID_FUNCTION*)psStructure->pStructureType->asFuncList[0])->repairPoints;

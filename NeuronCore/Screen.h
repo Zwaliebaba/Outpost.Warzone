@@ -134,16 +134,14 @@ void screen_SetFogColour(UDWORD newFogColour);
 /* Toggle the display between full screen or windowed */
 extern void screenToggleMode(void);
 
-/* Kept for the video playback code. The display no longer changes bit depth
- * to play a sequence, so this now does nothing but report success.
+/* Full screen video playback used to be a third screen mode, because the
+ * display had to drop to 16 bit to play a sequence. It is 32 bit either way
+ * round now, so a sequence plays in whichever mode the game is already in.
  */
-extern BOOL screenToggleVideoPlaybackMode(void);
-
 using SCREEN_MODE = enum _screen_mode
 {
   SCREEN_FULLSCREEN,
-  SCREEN_WINDOWED,
-  SCREEN_FULLSCREEN_VIDEO
+  SCREEN_WINDOWED
 };
 
 /* get screen window handle */
@@ -237,7 +235,5 @@ extern void screenFillRect(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1);
 /* Draw an ellipse, and therefore circles too by specifying bounding box */
 /* x0,y0 - top left, x1,y1 - bottom right */
 extern void screenDrawEllipse(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1);
-
-extern BOOL screenReInit(void);
 
 #endif

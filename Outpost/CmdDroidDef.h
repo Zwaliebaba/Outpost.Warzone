@@ -20,7 +20,7 @@ using COMMAND_DROID = struct _command_droid
   SWORD survival;
   SWORD nWeapStat;
   UWORD kills;
-  struct _droid* psDroid;
+  DROID* psDroid;
 };
 
 #endif

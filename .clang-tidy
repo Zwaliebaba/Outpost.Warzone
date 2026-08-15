@@ -1,0 +1,102 @@
+# AGENTS.md §1 — naming and semantics, machine-readable. This file is the single source of truth
+# for the option values; AGENTS.md states the rules in prose and does not repeat the settings.
+#
+# This file owns IDENTIFIERS and semantics. /.clang-format owns whitespace, and the two never
+# overlap: clang-tidy has no check that reports a wrong brace position or an over-long line, and
+# clang-format cannot see that a parameter is missing its `_`.
+#
+# ── Status: nothing runs this automatically ────────────────────────────────────────────────
+#
+# .github/workflows/build.yml builds Win32 Debug and Release and runs tools/check_case.py; it has
+# no clang-tidy step, and the .vcxproj files do not enable MSBuild code analysis. Run it by hand
+# ON THE FILES YOU WROTE:
+#
+#   clang-tidy --quiet NeuronCore/YourNewFile.cpp -- -I NeuronCore -I DX9/Include -D WIN32 -D _DEBUG
+#
+# A whole-tree pass is not useful. The 1998 C code predates every rule here — SCREEN_PIXELFORMAT,
+# g_psDevice, bAudioEnabled — and AGENTS.md §1 grandfathers it explicitly, so a sweep reports
+# thousands of findings that must not be "fixed". WarningsAsErrors below is what a future gate
+# should apply to NEW code; it is not a verdict on the tree as it stands.
+#
+# readability-identifier-length is deliberately NOT enabled. Its defaults reject the domain
+# vocabulary this codebase is built on — x, y, _a, _b — and short names here are precise, not lazy.
+
+Checks: >
+  readability-identifier-naming,
+  bugprone-*,
+  performance-*,
+  modernize-use-nullptr,
+  modernize-use-override,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-narrowing-conversions,
+  -clang-analyzer-optin.performance.Padding
+
+# `-clang-analyzer-optin.performance.Padding` is a judgement call, not a mechanical exclusion, so
+# it is recorded here rather than left to be rediscovered. It is an OPT-IN analyzer that was never
+# chosen: this list does not begin with `-*`, so clang-tidy's defaults stay enabled and it arrived
+# with them. Every legacy struct in the tree would trip it, the layouts are load-bearing (wire
+# records, file formats read straight off disk, D3D vertex structs), and reordering fields to save
+# padding is exactly the kind of change this migration must not make casually.
+#
+# `-bugprone-narrowing-conversions` is off for the same reason: the UBYTE/UWORD/UDWORD typedefs in
+# Types.h narrow constantly and by design. It would fire on nearly every line of game logic.
+#
+# NOTE ON THE FORMAT: `Checks:` is a FOLDED scalar, so a `#` line indented under it is not a
+# comment — it folds into the value and corrupts the check list. Every comment belongs here.
+#
+# WarningsAsErrors: '*' says every enabled check is fatal, so that a future gate has one answer
+# rather than two settings disagreeing about which findings matter. Read it together with the
+# status note at the top: it applies to new code, run per file, not to a sweep of the tree.
+WarningsAsErrors: '*'
+
+# [/\\], not '/'. On a Windows Clang build the paths arrive with backslashes, so a filter anchored
+# on a forward slash matches no header at all and silently suppresses every in-build diagnostic.
+HeaderFilterRegex: '(NeuronCore|Outpost)[/\\].*\.h$'
+
+CheckOptions:
+  # ── Types: PascalCase, no prefix of any kind (R2, R5) ──────────────────────────────
+  - { key: readability-identifier-naming.NamespaceCase,            value: CamelCase  }
+  - { key: readability-identifier-naming.ClassCase,                value: CamelCase  }
+  - { key: readability-identifier-naming.StructCase,               value: CamelCase  }
+  - { key: readability-identifier-naming.EnumCase,                 value: CamelCase  }
+  - { key: readability-identifier-naming.EnumConstantCase,         value: CamelCase  }
+  - { key: readability-identifier-naming.TypeAliasCase,            value: CamelCase  }
+  - { key: readability-identifier-naming.TypedefCase,              value: CamelCase  }
+  - { key: readability-identifier-naming.ConceptCase,              value: CamelCase  }
+  - { key: readability-identifier-naming.TemplateParameterCase,    value: CamelCase  }
+  - { key: readability-identifier-naming.AbstractClassPrefix,      value: ''         }
+
+  # ── Functions: PascalCase ──────────────────────────────────────────────────────────
+  - { key: readability-identifier-naming.FunctionCase,             value: CamelCase  }
+  - { key: readability-identifier-naming.MethodCase,               value: CamelCase  }
+
+  # ── Constants: PascalCase (R3) ─────────────────────────────────────────────────────
+  - { key: readability-identifier-naming.ConstexprVariableCase,    value: CamelCase  }
+  - { key: readability-identifier-naming.GlobalConstantCase,       value: CamelCase  }
+  - { key: readability-identifier-naming.ClassConstantCase,        value: CamelCase  }
+  - { key: readability-identifier-naming.StaticConstantCase,       value: CamelCase  }
+
+  # ── Storage prefixes ───────────────────────────────────────────────────────────────
+  - { key: readability-identifier-naming.PrivateMemberCase,        value: camelBack  }
+  - { key: readability-identifier-naming.PrivateMemberPrefix,      value: 'm_'       }
+  - { key: readability-identifier-naming.ProtectedMemberCase,      value: camelBack  }
+  - { key: readability-identifier-naming.ProtectedMemberPrefix,    value: 'm_'       }
+  - { key: readability-identifier-naming.ClassMemberCase,          value: camelBack  }
+  - { key: readability-identifier-naming.ClassMemberPrefix,        value: 'sm_'      }
+  - { key: readability-identifier-naming.GlobalVariableCase,       value: camelBack  }
+  - { key: readability-identifier-naming.GlobalVariablePrefix,     value: 'g_'       }
+  - { key: readability-identifier-naming.StaticVariableCase,       value: camelBack  }
+  - { key: readability-identifier-naming.StaticVariablePrefix,     value: 'g_'       }
+
+  # R8: a public aggregate uses plain camelCase fields so brace initialization reads naturally.
+  # m_ marks encapsulated state, not every field.
+  - { key: readability-identifier-naming.PublicMemberCase,         value: camelBack  }
+
+  # ── Parameters carry a leading underscore (R1) ─────────────────────────────────────
+  # Legal C++: the reserved forms are _Uppercase, anything containing __, and _lowercase at
+  # GLOBAL scope. A parameter is never at global scope.
+  - { key: readability-identifier-naming.ParameterCase,            value: camelBack  }
+  - { key: readability-identifier-naming.ParameterPrefix,          value: '_'        }
+  - { key: readability-identifier-naming.LocalVariableCase,        value: camelBack  }
+
+  - { key: readability-identifier-naming.MacroDefinitionCase,      value: UPPER_CASE }

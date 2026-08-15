@@ -106,10 +106,10 @@ using WEAPON_CLASS = enum _weapon_class
 {
   WC_KINETIC,
   //bullets etc
-  //WC_EXPLOSIVE,	//rockets etc - classed as WC_KINETIC now to save space in struct _droid AB 25/11/98 
+  //WC_EXPLOSIVE,	//rockets etc - classed as WC_KINETIC now to save space in struct DROID AB 25/11/98 
   WC_HEAT,
   //laser etc
-  //WC_MISC,		//others we haven't thought of! - classed as WC_HEAT now to save space in struct _droid AB 25/11/98 
+  //WC_MISC,		//others we haven't thought of! - classed as WC_HEAT now to save space in struct DROID AB 25/11/98 
 
   NUM_WEAPON_CLASS,
 };

@@ -126,7 +126,15 @@ static void setPresentParameters(void)
   sPresentParams.BackBufferFormat = SCREEN_D3DFORMAT;
   sPresentParams.BackBufferCount = 1;
   sPresentParams.MultiSampleType = D3DMULTISAMPLE_NONE;
-  sPresentParams.SwapEffect = D3DSWAPEFFECT_DISCARD;
+
+  /* COPY rather than DISCARD, because the back buffer has to survive a
+   * present. pie_ScreenFlip(CLEAR_OFF) means "show this and keep it" - the
+   * loading screen draws its progress bar over the frame already there, and
+   * the video loop only writes the movie rectangle - which is what the
+   * DirectDraw front-from-back Blt gave them. DISCARD would leave both
+   * reading undefined memory.
+   */
+  sPresentParams.SwapEffect = D3DSWAPEFFECT_COPY;
   sPresentParams.hDeviceWindow = hWndMain;
   sPresentParams.Windowed = (screenMode == SCREEN_WINDOWED) ? TRUE : FALSE;
   sPresentParams.EnableAutoDepthStencil = TRUE;
@@ -299,15 +307,6 @@ void screenShutDown(void)
   RELEASE(psLockedBackBuffer);
   RELEASE(psD3DDevice);
   RELEASE(psD3D);
-}
-
-BOOL screenReInit(void)
-{
-  BOOL bFullScreen = (screenMode == SCREEN_FULLSCREEN);
-
-  screenShutDown();
-
-  return screenInitialise(screenWidth, screenHeight, screenDepth, bFullScreen, TRUE, TRUE, hWndMain);
 }
 
 /* Return the Direct3D 9 object */
@@ -575,12 +574,7 @@ void screenToggleMode(void)
   if (psD3DDevice == nullptr)
     return;
 
-  if (screenMode == SCREEN_WINDOWED)
-    newMode = SCREEN_FULLSCREEN;
-  else if (screenMode == SCREEN_FULLSCREEN)
-    newMode = SCREEN_WINDOWED;
-  else
-    return;
+  newMode = (screenMode == SCREEN_WINDOWED) ? SCREEN_FULLSCREEN : SCREEN_WINDOWED;
 
   screenMode = newMode;
   setWindowStyle();
@@ -599,9 +593,6 @@ void screenToggleMode(void)
     }
   }
 }
-
-/* The display no longer changes bit depth to play a sequence. */
-BOOL screenToggleVideoPlaybackMode(void) { return TRUE; }
 
 SCREEN_MODE screenGetMode(void) { return screenMode; }
 

@@ -1,10 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClInclude Include="Cursor.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="Dderror.h">
+    <ClInclude Include="DXError.h">
       <Filter>Framework</Filter>
     </ClInclude>
     <ClInclude Include="DXInput.h">
@@ -121,7 +118,10 @@
     <ClInclude Include="D3DRender.h">
       <Filter>ivis02</Filter>
     </ClInclude>
-    <ClInclude Include="DX6TexMan.h">
+    <ClInclude Include="D3D9Vertex.h">
+      <Filter>ivis02</Filter>
+    </ClInclude>
+    <ClInclude Include="TexMan.h">
       <Filter>ivis02</Filter>
     </ClInclude>
     <ClInclude Include="Fbf.h">
@@ -182,9 +182,6 @@
       <Filter>ivis02</Filter>
     </ClInclude>
     <ClInclude Include="Tex.h">
-      <Filter>ivis02</Filter>
-    </ClInclude>
-    <ClInclude Include="TexD3D.h">
       <Filter>ivis02</Filter>
     </ClInclude>
     <ClInclude Include="TextDraw.h">
@@ -285,10 +282,7 @@
     <ClInclude Include="NeuronCore.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Cursor.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="Dderror.cpp">
+    <ClCompile Include="DXError.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
     <ClCompile Include="DXInput.cpp">
@@ -484,7 +478,7 @@
     <ClCompile Include="D3DRender.cpp">
       <Filter>ivis02</Filter>
     </ClCompile>
-    <ClCompile Include="DX6TexMan.cpp">
+    <ClCompile Include="TexMan.cpp">
       <Filter>ivis02</Filter>
     </ClCompile>
     <ClCompile Include="Fbf.cpp">
@@ -506,9 +500,6 @@
       <Filter>ivis02</Filter>
     </ClCompile>
     <ClCompile Include="Tex.cpp">
-      <Filter>ivis02</Filter>
-    </ClCompile>
-    <ClCompile Include="TexD3D.cpp">
       <Filter>ivis02</Filter>
     </ClCompile>
     <ClCompile Include="TextDraw.cpp">
