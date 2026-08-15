@@ -27,9 +27,9 @@ renderers that no longer exist.
 
 ---
 
-## Where the layer sits today
+## Where the layer sat at the start of this phase
 
-One UI image, today, is five layers deep:
+One UI image was five layers deep:
 
 ```
 iV_DrawTransImage                      macro alias        (RendMode.h)
@@ -55,38 +55,42 @@ through forced double-toggles (`rendStates.fog = !rendStates.fog` and
 friends). One cache, owned by the code that talks to the device, removes the
 whole class.
 
+**Stage B did exactly that**, and found the same shape a second time in the
+texture-page binding. Both chains are now one call deep to a single cache,
+and `g_bStateCacheStale` is gone.
+
 ### The blast radius, measured
 
 | | |
 |---|---|
-| Layer translation units | 14 `.cpp`, 6,185 lines (table below) — **4,573 after Stage A** |
+| Layer translation units | 14 `.cpp`, 6,185 lines (table below) — **11 `.cpp`, 3,885 lines after Stage B** |
 | Layer headers | 17, ~1,670 lines |
 | Game TUs referencing `pie_*`/`iV_*` | 51 of 121 in `Outpost/` |
-| Engine TUs referencing them | 31 of 85 in `NeuronCore/` |
+| Engine TUs referencing them | 31 of 85 in `NeuronCore/` (75 units now) |
 | Heaviest call sites | `iV_DrawTransImage` 132, `pie_Draw3DShape` 84, `iV_GetImageWidth` 72, `iV_TRANSLATE` 70, `iV_DrawText` 54, `iV_Line` 47, `pie_SetFogStatus` 42 |
 
 ### File inventory and verdicts
 
-| File | Lines | What it is | Verdict |
+| File | Lines (start -> now) | What it is | Verdict |
 |---|---|---|---|
-| `PieMode.cpp` | 211 -> 167 | Init: picks between three "modes" that run identical code; a divide table nothing reads; no-op begin/end wrappers | Collapse into renderer init |
-| `D3DMode.cpp` | 221 -> 74 | Nine `_dummyFunc*_D3D` no-ops, empty vsync/palette/`SetTransFilter_D3D`/`TransBoxFill_D3D`, the RGB/HAL/REF trio | Delete; fold `_mode_D3D` into init |
+| `PieMode.cpp` | 211 -> 166 | Init: picks between three "modes" that run identical code; a divide table nothing reads; no-op begin/end wrappers | Collapse into renderer init |
+| `D3DMode.cpp` | 221 -> **deleted** (B4) | Nine `_dummyFunc*_D3D` no-ops, empty vsync/palette/`SetTransFilter_D3D`/`TransBoxFill_D3D`, the RGB/HAL/REF trio | Delete; fold `_mode_D3D` into init |
 | `RendMode.cpp` | 293 -> 24 | "Video memory" allocator with no callers, `iSurface` create/destroy, the function-pointer dispatch tables | Delete (audit the two `iSurface` users first) |
 | `RendFunc.cpp` | 194 -> 39 | Transparency tables built by a function nothing calls; mouse-pointer bookkeeping | Fold the two live functions, delete the rest |
-| `PieState.cpp` | 628 -> 544 | State cache #1; dead driver-name strings, engine enum, caps, no-op gamma, mouse, swirly-box flags | Merge with `D3DRender.cpp` into one state module |
-| `PieDraw.cpp` | 1,179 -> 663 | **Live:** `pie_Draw3DShape`, image quads, line/rect, the poly funnel. **Dead:** a second `#if _MSC_VER` copy of `Draw3DShape`, the BSP draw block, `pie_IvisPoly*`, `pie_DrawTriangle`, `pie_DrawFastTriangle` | Rewrite live half; delete dead half |
-| `PieFunc.cpp` | 565 -> 186 | **Live:** viewing window, `pie_TransColouredTriangle`, back-buffer image blit, byte-scale table. **Dead:** `pie_Sky`/`pie_Water`/`pie_Blit`/`pie_CornerBox`/`pie_AddFogandMist`/3dfx query | Split |
+| `PieState.cpp` | 628 -> **deleted** (B1b, into `D3DRender.cpp`) | State cache #1; dead driver-name strings, engine enum, caps, no-op gamma, mouse, swirly-box flags | Merge with `D3DRender.cpp` into one state module |
+| `PieDraw.cpp` | 1,179 -> 644 | **Live:** `pie_Draw3DShape`, image quads, line/rect, the poly funnel. **Dead:** a second `#if _MSC_VER` copy of `Draw3DShape`, the BSP draw block, `pie_IvisPoly*`, `pie_DrawTriangle`, `pie_DrawFastTriangle` | Rewrite live half; delete dead half |
+| `PieFunc.cpp` | 565 -> 185 | **Live:** viewing window, `pie_TransColouredTriangle`, back-buffer image blit, byte-scale table. **Dead:** `pie_Sky`/`pie_Water`/`pie_Blit`/`pie_CornerBox`/`pie_AddFogandMist`/3dfx query | Split |
 | `PieBlitFunc.cpp` | 603 -> 591 | UI image quads, radar, backdrop load — live, minus no-ops and a duplicate | Becomes the 2D module |
 | `PieClip.cpp` | 1,071 | Software polygon/line clipping (live), screen-size globals | Keep for now; retirement is stage D |
 | `PieMatrix.cpp` | 396 | Fixed-point matrix stack, rotate/project — live, also used by game logic | Keep as is (rename only) |
 | `PiePalette.cpp` | 316 | Palette, shade tables, nearest-colour — live, the assets are palettised | Keep |
-| `PieTexture.cpp` | 54 | Two one-line wrappers around `dtm_*` | Fold into `TexMan` |
-| `Tex.cpp` | 364 -> 360 | Texture-page name/bookkeeping table mirroring `TexMan`'s pages | Merge into `TexMan` |
+| `PieTexture.cpp` | 54 -> **deleted** (B3, into `Tex.cpp`) | Two one-line wrappers around `dtm_*` | Fold into `TexMan` |
+| `Tex.cpp` | 364 -> 365 | Texture-page name/bookkeeping table mirroring `TexMan`'s pages | Merge into `TexMan` |
 | `Ivi.cpp` | 90 -> 88 | Legacy error/abort/shutdown plumbing | Delete; fold shutdown |
-| `D3DRender.cpp` | 582 | The real device path: states, `DrawPrimitiveUP`, reset handling | **Nucleus of the new renderer** |
+| `D3DRender.cpp` | 582 -> 1,005 (absorbed `PieState.cpp` and `D3DMode.cpp`) | The real device path: states, `DrawPrimitiveUP`, reset handling | **Nucleus of the new renderer** |
 | `TexMan.cpp` | 351 | The real texture pages (managed pool, `A8R8G8B8`) | Stays |
 | `Screen.cpp` | 1,190 | Device, present, back-buffer lock, backdrop | Stays |
-| `TextDraw.cpp` | 1,061 | Fonts as textured quads + FMV subtitle path | Consumer; loses two dead functions |
+| `TextDraw.cpp` | 1,061 -> 1,003 | Fonts as textured quads + FMV subtitle path | Consumer; loses two dead functions |
 
 Headers: `RendMode.h` (138) and `IvisPatch.h` (106) are pure alias tables —
 `#define iV_DrawImage pie_ImageFileID` and so on — and go entirely.
@@ -96,6 +100,13 @@ Headers: `RendMode.h` (138) and `IvisPatch.h` (106) are pure alias tables —
 ---
 
 ## What the analysis found
+
+> **Read this section in the past tense.** It describes the tree as it stood
+> at `4633436`, before Stage A, and the line numbers and symbol names are
+> from that commit. Almost everything it names as dead has since been
+> deleted — that was the point — so it is kept as the evidence the stages
+> were justified by, not as a description of the code today. For what the
+> tree looks like now, see the stage status blocks below.
 
 ### Every dispatch slot is a no-op or null
 
@@ -225,6 +236,18 @@ Outpost/  (game code, ~700 call sites renamed mechanically)
    ├─ Palette.cpp       palettes and shade tables        (PiePalette, renamed)
    └─ Screen.cpp        IDirect3DDevice9, Present, back-buffer lock (unchanged)
 ```
+
+**Where stages A and B leave it.** The shape is in place under the old names,
+which is deliberate — stage C does the renaming, so B could stay mechanical.
+`D3DRender.cpp` is already the `Render.cpp` of that diagram: it holds the one
+state block, the vertex funnel, `BeginFrameD3D`/`EndFrameD3D` and the
+device-reset recovery, having absorbed `PieState.cpp` and `D3DMode.cpp`. The
+texture table is single, with `PieTexture.cpp` absorbed into `Tex.cpp`; the
+`Tex.cpp`/`TexMan.cpp` split into "the page table" and "the device textures"
+survives one more file boundary than the diagram wants, and closing it is a
+stage C rename rather than more surgery. `PieDraw.cpp` and `PieBlitFunc.cpp`
+are the `RenderModel`/`Render2D` pair in all but name. `PieClip.cpp`,
+`PieMatrix.cpp` and `PiePalette.cpp` are untouched, as planned.
 
 Deliberately **kept** even though a from-scratch D3D9 renderer would not have
 them, because changing them is not simplification, it is a second project:

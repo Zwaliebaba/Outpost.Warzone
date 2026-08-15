@@ -13,12 +13,17 @@ provide. Everything below assumes that target.
 
 ## Current state
 
+Measured at the head of the Phase 8 work. The figures in brackets are what
+this table said when Phase 1 measured it; the fall is Phases 4 to 6 deleting
+QMixer, CD audio, DirectPlay and Mplayer, and Phase 8 folding three render
+files into their neighbours.
+
 | | |
 |---|---|
-| Source files | 206 `.cpp`, 378 `.h` |
-| Translation units | 206 (85 NeuronCore, 121 Outpost) |
+| Source files | 195 `.cpp` (was 206), 376 `.h` (was 378) |
+| Translation units | 75 NeuronCore (was 85), 119 Outpost (was 121), plus the `NetTest` harness |
 | Toolset | MSVC v145, Win32 (x86) only |
-| Projects | `NeuronCore` (engine static lib), `Outpost` (game exe) |
+| Projects | `NeuronCore` (engine static lib), `Outpost` (game exe), `NetTest` (transport harness) |
 
 The legacy DirectX surface was **well contained**: roughly 271 COM call sites,
 almost all of them in ~15 NeuronCore files, with game code in `Outpost/`
@@ -30,18 +35,20 @@ Phases 3, 4 and 5.
 
 Subsystems in use today:
 
-- **Graphics** — **done, see Phase 2.** Direct3D 9 throughout: an
-  `IDirect3DDevice9` owned by `Screen.cpp` and drawn through by
-  `D3DRender.cpp`, `D3DMode.cpp` and `TexMan.cpp`. Was DirectDraw 4 surfaces
-  plus a Direct3D 6 immediate-mode device.
-- **Input** — DirectInput 7 (`DXInput.cpp`, `DIRECTINPUT_VERSION=0x0700`).
-- **Audio** — QSound's QMixer (`QSTrack.cpp`, `Aud.cpp`) over DirectSound, plus
-  MCI CD audio (`CDAudio.cpp`) and CD spanning (`CDSpan.cpp`).
+- **Graphics** — **done, see Phase 2**, and being simplified onto the device
+  in Phase 8. Direct3D 9 throughout: an `IDirect3DDevice9` owned by
+  `Screen.cpp` and drawn through by `D3DRender.cpp` and `TexMan.cpp`. Was
+  DirectDraw 4 surfaces plus a Direct3D 6 immediate-mode device.
+- **Input** — **done, see Phase 3.** DirectInput 8 (`DXInput.cpp`,
+  `DIRECTINPUT_VERSION=0x0800`).
+- **Audio** — **done, see Phase 4.** XAudio2 (`XA2Track.cpp` behind
+  `TrackLib.h`), with in-game music served from disk by `Music.cpp`. QMixer
+  and CD audio are gone; `CDSpan.cpp` goes with Phase 6.
 - **Video** — `Sequence.cpp` streams `.rpl` movies via `WINSTR.LIB`, now into
   the Direct3D 9 back buffer. The decoder itself is Phase 6.
-- **Network** — DirectPlay 4 (`NetPlay.cpp`, `NetSupp.cpp`, `NetLobby.cpp`,
-  `NetProv.cpp`, `NetUsers.cpp`, `NetAudio.cpp`), plus Mplayer.com matchmaking
-  (`MPDPXtra.cpp`, `MPlayer.cpp`).
+- **Network** — **done, see Phase 5.** QUIC via MsQuic (`Transport.cpp`,
+  `HostCertificate.cpp`, `NetPlay.cpp`, `NetSupp.cpp`, `NetUsers.cpp`).
+  DirectPlay 4 and the Mplayer.com matchmaking are gone.
 
 ## Ordering: C++ first, then DirectX
 
@@ -216,6 +223,12 @@ DirectDraw is gone from the tree. `ddraw.lib` is off the link line and
   sent", so after a reset that cache is a lie. It is explicitly invalidated,
   or the first frame back would draw with default blend states.
 
+  **Phase 8 removed the reason.** There were two caches of that state, and
+  the explicit invalidation (`g_bStateCacheStale`) existed only to reconcile
+  the second one. Stage B1a deleted the inner cache, so `pie_ResetStates` —
+  which this path already called — is the single invalidation point, and the
+  staleness flag is gone.
+
 - **Textures.** The whole video-memory negotiation went. Direct3D 6 asked
   DirectDraw how much texture memory was free and chose between 32 full size
   pages, a mixed 256/128 layout and an 8-bit palettised mode, then uploaded
@@ -357,14 +370,13 @@ rows.
 
 - **Vertex buffers.** Everything draws through `DrawPrimitiveUP`, as the plan
   intended for the first pass. Dynamic vertex buffers are the obvious next
-  optimisation and nothing in the design blocks them.
-- **The device name settings.** `war_SetDirectDrawDeviceName` and
-  `pie_SetDirect3DDeviceName` still store the strings the old code matched
-  driver GUIDs against. Nothing selects a device by name now — the framework
-  takes the default adapter and falls back by capability — so the `-D3D`,
-  `-RGB` and `-REF` switches and the matching config entries no longer choose
-  anything. They are left in place because the config file format is not this
-  phase's to change.
+  optimisation and nothing in the design blocks them. **Now tracked as Phase
+  8 stage D2**, which Phase 8's single draw funnel is the precondition for.
+- ~~**The device name settings.**~~ **Resolved by Phase 8 stage A3.**
+  `war_SetDirectDrawDeviceName`, `pie_SetDirect3DDeviceName` and their
+  getters are deleted, along with the `-D3D`, `-RGB` and `-REF` switches and
+  the `renderMode` registry key. Phase 2 left them because the config format
+  was not its to change; it was Phase 8's.
 - **The lockable back buffer.** `D3DPRESENTFLAG_LOCKABLE_BACKBUFFER` costs
   something on some drivers. It can come off once the backdrop and the FMV
   frames draw as textured quads — which is Phase 6's natural moment, since the
@@ -864,10 +876,18 @@ Mplayer and WINSTR are 32-bit MSVC binaries). It reliably catches the portable
 C++ issues, which is what Phase 1 is about, but a real `msbuild` remains the
 final word.
 
-Current state: both Win32 configurations build and link under MSVC. Treat the
-cross-check as a fast first pass, not a verdict: it is a different compiler,
-it cannot link, and the section above lists what that costs. The CI builds
-remain the authority.
+Current state: both Win32 configurations built and linked under MSVC as of
+the end of Phase 6's first half. Treat the cross-check as a fast first pass,
+not a verdict: it is a different compiler, it cannot link, and the section
+above lists what that costs. The CI builds remain the authority.
+
+**Phase 8 stages A and B have not been through MSVC or run.** They are clean
+on the cross-checker in both configurations — 195 units, down from 198 as
+three files were folded away — but that is the weakest of the three signals,
+and every commit in them touches rendering. The visual checklist in
+[Phase8Plan.md](Phase8Plan.md#verification) is outstanding for both stages,
+and stage B especially wants the device-loss path exercised, since collapsing
+the state caches is exactly what that stresses.
 
 ### What Phase 2 needed beyond the build
 
