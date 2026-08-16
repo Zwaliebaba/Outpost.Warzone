@@ -511,6 +511,35 @@ The stage is game-wide but shallow per site; it lands file-by-file like
 stage C, movement (`Move.cpp`) and sync (`MultiSync.cpp`) last with a
 skirmish run between them.
 
+**Status: the object and movement half (E2) is done**; the camera half
+(E3) and the `Trig.cpp`/`DEG` deletion (E4) remain. What the doing
+established, against the text above:
+
+- **The flip could not land file-by-file.** The aligner mixes turret
+  fields with `direction` and `calcDirection`; the movement core mixes
+  `direction`, `sMove.dir` and the trig API — one coupled commit, not a
+  sequence, with the compiler chasing the type junctions and a grep audit
+  chasing the conversions that still compiled (float into `UWORD` locals,
+  `%d` of a float, `DEG()` of a radian field).
+- **Five latent defects surfaced**, all recorded in the E2 commit: the
+  ballistic pitch-swap that assigned high to both variables, the
+  unreachable negative-pitch branch behind a +2π wrap, the perpendicular
+  speed lost past a 180° difference, the unwrapped vtol roll, and an
+  uninitialised track-angle average.
+- **Remaining for E3**, precisely: `iView::r` to `XMFLOAT3` radians in
+  `RenderTypes.h` and every `player.r`/`camera.r` site (the
+  `* RadiansPerWorldAngle` bridges collapse); `WarCAM.cpp`'s
+  binary-angle-valued floats (rotation/rotVel/rotAccel, `MODFRACT`, ~30
+  `DEG(` sites, `getAverageTrackAngle` returning degrees); `imdRot`/
+  `imdRot2` and the `/ Neuron::RadiansPerWorldAngle` bridges written
+  during E2; `KeyBind.cpp`/`Display.cpp` camera `DEG(` sites;
+  `MapDisplay.cpp`'s `mapView` (and the `mapPos.y` angle addend
+  oddity); `Radar.cpp`'s `RotateVector2D` angle parameter; the RayCast
+  pitch-helper API and its two camera callers; `Display3D.cpp`'s
+  `getSuggestedPitch`/`trackHeight` degree locals. E4 then deletes
+  `Trig.cpp`/`Trig.h`, the `Window.cpp` init/shutdown calls, the `DEG`
+  family in `RenderTypes.h`, and `RadiansPerWorldAngle`.
+
 ### F — Verification
 
 - `tools/crosscheck.py` both configurations. mingw-w64 ships

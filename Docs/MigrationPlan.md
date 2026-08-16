@@ -1041,9 +1041,15 @@ conversion rule the stage established is recorded in the phase plan.
 winding test moved beside its only callers in `RenderModel.cpp`, and
 `Geo.h` folded into its fourteen includers and deleted. The renderer maths
 migration is complete: `RenderMatrix` measures 166 lines against the 522
-the phase started from, with no `pie_` maths symbol left in the tree. What
-remains of the phase is stage E (the angle-state and `Trig.cpp` migration
-the owner ruled in) and the stage F run.
+the phase started from, with no `pie_` maths symbol left in the tree.
+**Stage E is half done** — the object and movement flip (E2) landed as one
+coupled commit: `direction`/`pitch`/`roll`, the turret fields, `sMove.dir`
+and the formation/drive state are float radians in (−π,π], the trig API
+(`calcDirection`, `directionDiff`, the movement helpers) takes and returns
+radians, and the level readers and net sync convert integer degrees at the
+boundary. Five latent angle defects surfaced and were corrected along the
+way (recorded in the phase plan). What remains of the phase is the camera
+half (E3), the `Trig.cpp`/`DEG` deletion (E4), and the stage F run.
 
 Phase 8 deliberately kept the fixed-point, pre-transformed-vertex pipeline
 because changing it "is not simplification, it is a second project". This is
