@@ -1062,8 +1062,14 @@ camera code went (`drawMapWorld`, `imdRot`/`imdRot2`, `disp3d_setView`/
 `NeuronCore/Trig.cpp` and its tables are gone with their `Window.cpp`
 init/shutdown calls, and the `DEG` family, `RadiansPerWorldAngle` and the
 legacy `PI` macro are deleted — the tree has no binary-angle or
-degree-state symbol left in live code. What remains of the phase is the
-stage F run.
+degree-state symbol left in live code. **Stage F is half done**: the build
+gates are recorded in the phase plan (cross-check green in both
+configurations at every stage boundary, 188/188 units at the final head;
+MSVC CI green stage by stage), and the run half — the CAM_1A session with
+the gameplay-in-radians checklist, the stage-B parity figure, and the
+two-instance sync check — is entered as
+[Verification.md](Verification.md#pass-i--phase-10-directxmath-and-the-radian-flip)
+pass I. The phase closes when that session is recorded.
 
 Phase 8 deliberately kept the fixed-point, pre-transformed-vertex pipeline
 because changing it "is not simplification, it is a second project". This is

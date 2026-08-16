@@ -598,24 +598,42 @@ What remains of the phase is stage F.
 
 ### F — Verification
 
-- `tools/crosscheck.py` both configurations. mingw-w64 ships
-  `<directxmath.h>`; if the pinned CI/container version predates it or
-  disagrees with MSVC's, the established `tools/stubs/` pattern applies —
-  a transcription that checks our usage, saying so at the top.
-- MSVC CI, Debug and Release Win32.
-- The stage-B parity figure: expected bound is ~1 pixel of screen-space
-  divergence; anything larger is a conversion bug to find, not a tolerance
-  to widen.
-- The run: CAM_1A boot per [Verification.md](Verification.md), with
-  attention on the passes this phase touches most — terrain and model
-  placement (any systematic offset means a projection-constant error),
-  turret/muzzle hierarchies, radar rotation, effects circles
-  (`SIN`/`COS` sites), and the sequence-player/UI screens that use
-  `pie_SetGeometricOffset`.
-- After stage E, gameplay joins the checklist: droid movement and turning,
-  formation ordering, projectile arcs and hits, turret tracking, and the
-  tracking camera — plus a two-instance multiplayer session long enough to
-  show the direction-sync tolerance checks holding in radians.
+The stage has two halves: the build gates, which run in the container and
+CI, and the run, which needs a Windows session. The gates are done; the
+run is entered as a debt in the tree's runsheet.
+
+**The build gates — measured, 2026-08-16:**
+
+- `tools/crosscheck.py` held green in both configurations at every stage
+  boundary: 189/189 units from stage A through E3, 188/188 after E4
+  deleted `Trig.cpp`. mingw-w64's own `<directxmath.h>` turned out to
+  carry only the storage types, so the established `tools/stubs/` pattern
+  applied from stage B on — `tools/stubs/directxmath.h` is a
+  transcription that checks our usage, saying so at the top.
+- `tools/check_case.py` clean at every stage boundary.
+- MSVC CI, Debug and Release Win32: green at every stage boundary, A
+  through E4 (`7fbc2a0`, run 171).
+
+**The run — owed, entered as [Verification.md](Verification.md#pass-i--phase-10-directxmath-and-the-radian-flip)
+pass I:**
+
+- The CAM_1A re-boot with the projection attention points (a systematic
+  placement offset means a projection-constant error; focal 1024, depth
+  world-z ×4), the turret/muzzle hierarchies, radar rotation and the
+  viewing-window quad, and the effect circles.
+- The stage-B parity figure, from the stage-B head `048f430` (the shadow
+  was retired at stage C, so the figure exists only there): expected
+  bound is ~1 pixel of screen-space divergence; anything larger is a
+  conversion bug to find, not a tolerance to widen.
+- Gameplay in radians: movement and turning, formations, projectile arcs,
+  turret tracking, the tracking camera through its fixed west-heading
+  band, the full camera-control surface, and the audio pan.
+- A two-instance skirmish long enough to show the direction-sync
+  tolerance checks holding in radians.
+
+Pass I opens with the list of intended behaviour changes — the seven
+latent defect fixes and the dropped 1°/frame turn floors — so the run
+does not misread a deliberate difference as a regression.
 
 ## Decisions — settled
 
