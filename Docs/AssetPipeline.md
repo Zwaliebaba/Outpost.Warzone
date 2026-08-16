@@ -20,6 +20,12 @@ audio loaders into the client library. Every figure and path below reflects
 the merged tree; where the removal changes a conclusion it is called out in
 place — chiefly §4, §7.1 and decision 3.
 
+**Implemented (2026-08-16).** All four stages proposed in §8 have since
+landed. Sections 1–4 describe the pipeline *as surveyed*: the WRF layer, the
+`audp_` grammar and the `sscanf` table loaders they document have been
+deleted, and the code and data they name now live in git history. §8 carries
+the record of what landed and where it deviated from the design.
+
 Defects noticed during the survey are recorded in
 [Appendix B](#appendix-b--defects-noticed-during-the-survey) but deliberately
 not fixed here.
