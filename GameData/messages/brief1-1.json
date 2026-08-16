@@ -1,0 +1,71 @@
+[
+ {
+  "name": "FLIGHT",
+  "textIds": [],
+  "type": 1,
+  "sequences": [
+   {
+    "name": "inflight.mp4",
+    "textIds": [
+     "INFLIGHT_MSG1"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ },
+ {
+  "name": "SB1_1_MSG",
+  "textIds": [],
+  "type": 1,
+  "sequences": [
+   {
+    "name": "cam1\\sub1_1P.mp4",
+    "textIds": [
+     "P1-1_MSG1",
+     "P1-1_MSG2",
+     "P1-1_MSG3"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   },
+   {
+    "name": "cam1\\sub1_1.mp4",
+    "textIds": [
+     "SUB1_1_MSG1",
+     "SUB1_1_MSG2",
+     "SUB1_1_MSG3"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ },
+ {
+  "name": "MB1_B2_MSG",
+  "textIds": [],
+  "type": 3,
+  "sequences": [
+   {
+    "name": "BrfCom.mp4",
+    "flag": 1,
+    "textIds": [
+     "TRANS_MSG1"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   },
+   {
+    "name": "cam1\\CAM1bpow.mp4",
+    "flag": 0,
+    "textIds": [
+     "CAM1_B2_MSG",
+     "CAM1_B2_MSG2",
+     "CAM1_B2_MSG3"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ }
+]

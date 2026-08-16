@@ -79,7 +79,7 @@
     <ClCompile Include="KeyEdit.cpp" />
     <ClCompile Include="KeyMap.cpp" />
     <ClCompile Include="Levels.cpp" />
-    <ClCompile Include="Level_l.cpp" />
+    <ClCompile Include="Manifest.cpp" />
     <ClCompile Include="Lighting.cpp" />
     <ClCompile Include="FileRequester.cpp" />
     <ClCompile Include="Loop.cpp" />
@@ -132,6 +132,7 @@
     <ClCompile Include="Selection.cpp" />
     <ClCompile Include="SeqDisp.cpp" />
     <ClCompile Include="Stats.cpp" />
+    <ClCompile Include="StatsTable.cpp" />
     <ClCompile Include="Structure.cpp" />
     <ClCompile Include="Target.cpp" />
     <ClCompile Include="Text.cpp" />
@@ -215,8 +216,8 @@
     <ClInclude Include="KeyBind.h" />
     <ClInclude Include="KeyEdit.h" />
     <ClInclude Include="KeyMap.h" />
-    <ClInclude Include="LevelInt.h" />
     <ClInclude Include="Levels.h" />
+    <ClInclude Include="Manifest.h" />
     <ClInclude Include="Lighting.h" />
     <ClInclude Include="FileRequester.h" />
     <ClInclude Include="Loop.h" />
@@ -269,6 +270,7 @@
     <ClInclude Include="Selection.h" />
     <ClInclude Include="SeqDisp.h" />
     <ClInclude Include="Stats.h" />
+    <ClInclude Include="StatsTable.h" />
     <ClInclude Include="StatsDef.h" />
     <ClInclude Include="Structure.h" />
     <ClInclude Include="StructureDef.h" />

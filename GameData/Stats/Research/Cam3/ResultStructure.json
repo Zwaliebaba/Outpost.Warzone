@@ -1,0 +1,152 @@
+[
+ {
+  "research": "R-Defense-GuardTower-ATMiss",
+  "structure": "GuardTower-ATMiss",
+  "dummy": 0,
+  "dummy2": 219
+ },
+ {
+  "research": "R-Defense-GuardTower-Rail1",
+  "structure": "GuardTower-Rail1",
+  "dummy": 0,
+  "dummy2": 220
+ },
+ {
+  "research": "R-Defense-HardcreteWall",
+  "structure": "A0HardcreteMk1CWall",
+  "dummy": 0,
+  "dummy2": 97
+ },
+ {
+  "research": "R-Defense-HardcreteWall",
+  "structure": "A0HardcreteMk1Wall",
+  "dummy": 0,
+  "dummy2": 93
+ },
+ {
+  "research": "R-Defense-HvyA-Trocket",
+  "structure": "Emplacement-HvyATrocket",
+  "dummy": 0,
+  "dummy2": 266
+ },
+ {
+  "research": "R-Defense-HvyArtMissile",
+  "structure": "Emplacement-HvART-pit",
+  "dummy": 0,
+  "dummy2": 271
+ },
+ {
+  "research": "R-Defense-MdArtMissile",
+  "structure": "Emplacement-MdART-pit",
+  "dummy": 0,
+  "dummy2": 270
+ },
+ {
+  "research": "R-Defense-Pillbox-RotMG",
+  "structure": "Pillbox-RotMG",
+  "dummy": 0,
+  "dummy2": 290
+ },
+ {
+  "research": "R-Defense-PrisLas",
+  "structure": "Emplacement-PrisLas",
+  "dummy": 0,
+  "dummy2": 214
+ },
+ {
+  "research": "R-Defense-PulseLas",
+  "structure": "Emplacement-PulseLaser",
+  "dummy": 0,
+  "dummy2": 268
+ },
+ {
+  "research": "R-Defense-Rail2",
+  "structure": "Emplacement-Rail2",
+  "dummy": 0,
+  "dummy2": 269
+ },
+ {
+  "research": "R-Defense-Rail3",
+  "structure": "Emplacement-Rail3",
+  "dummy": 0,
+  "dummy2": 221
+ },
+ {
+  "research": "R-Defense-RotHow",
+  "structure": "Emplacement-RotHow",
+  "dummy": 0,
+  "dummy2": 186
+ },
+ {
+  "research": "R-Defense-SamSite1",
+  "structure": "P0-AASite-SAM1",
+  "dummy": 0,
+  "dummy2": 260
+ },
+ {
+  "research": "R-Defense-SamSite2",
+  "structure": "P0-AASite-SAM2",
+  "dummy": 0,
+  "dummy2": 261
+ },
+ {
+  "research": "R-Defense-WallTower-A-Tmiss",
+  "structure": "WallTower-Atmiss",
+  "dummy": 0,
+  "dummy2": 274
+ },
+ {
+  "research": "R-Defense-WallTower-HPVcannon",
+  "structure": "WallTower-HPVcannon",
+  "dummy": 0,
+  "dummy2": 273
+ },
+ {
+  "research": "R-Defense-WallTower-HvyA-Trocket",
+  "structure": "WallTower-HvATrocket",
+  "dummy": 0,
+  "dummy2": 272
+ },
+ {
+  "research": "R-Defense-WallTower-PulseLas",
+  "structure": "WallTower-PulseLas",
+  "dummy": 0,
+  "dummy2": 216
+ },
+ {
+  "research": "R-Defense-WallTower-Rail2",
+  "structure": "WallTower-Rail2",
+  "dummy": 0,
+  "dummy2": 217
+ },
+ {
+  "research": "R-Defense-WallTower-Rail3",
+  "structure": "WallTower-Rail3",
+  "dummy": 0,
+  "dummy2": 275
+ },
+ {
+  "research": "R-Sys-CBSensor-Tower01",
+  "structure": "Sys-CB-Tower01",
+  "dummy": 0,
+  "dummy2": 210
+ },
+ {
+  "research": "R-Sys-Sensor-Tower01",
+  "structure": "Sys-SensoTower01",
+  "dummy": 0,
+  "dummy2": 89
+ },
+ {
+  "research": "R-Sys-VTOLCBS-Tower01",
+  "structure": "Sys-VTOL-CB-Tower01",
+  "dummy": 0,
+  "dummy2": 211
+ },
+ {
+  "research": "R-Sys-VTOLStrike-Tower01",
+  "structure": "Sys-VTOL-RadarTower01",
+  "dummy": 0,
+  "dummy2": 212
+ }
+]

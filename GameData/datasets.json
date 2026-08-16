@@ -1,0 +1,10273 @@
+{
+ "units": {
+  "wrf/audio": [
+   {
+    "d": "audio\\MemResSp\\DesnSeq",
+    "t": "WAV",
+    "f": "PCV331.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\DesnSeq",
+    "t": "WAV",
+    "f": "PCV332.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\DesnSeq",
+    "t": "WAV",
+    "f": "PCV333.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\DesnSeq",
+    "t": "WAV",
+    "f": "PCV334.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Struct",
+    "t": "WAV",
+    "f": "PCV335.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Struct",
+    "t": "WAV",
+    "f": "PCV336.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Struct",
+    "t": "WAV",
+    "f": "PCV337.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Struct",
+    "t": "WAV",
+    "f": "PCV339.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Struct",
+    "t": "WAV",
+    "f": "PCV340.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Power",
+    "t": "WAV",
+    "f": "PCV341.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Power",
+    "t": "WAV",
+    "f": "PCV342.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Power",
+    "t": "WAV",
+    "f": "PCV343.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Power",
+    "t": "WAV",
+    "f": "PCV344.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Power",
+    "t": "WAV",
+    "f": "PCV345.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Power",
+    "t": "WAV",
+    "f": "PCV346.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Power",
+    "t": "WAV",
+    "f": "PCV347.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Power",
+    "t": "WAV",
+    "f": "PCV348.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Power",
+    "t": "WAV",
+    "f": "PCV349.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Research",
+    "t": "WAV",
+    "f": "PCV350.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Research",
+    "t": "WAV",
+    "f": "PCV351.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Research",
+    "t": "WAV",
+    "f": "PCV352.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Research",
+    "t": "WAV",
+    "f": "PCV353.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Research",
+    "t": "WAV",
+    "f": "PCV354.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Research",
+    "t": "WAV",
+    "f": "PCV355.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Research",
+    "t": "WAV",
+    "f": "PCV356.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Research",
+    "t": "WAV",
+    "f": "PCV357.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Research",
+    "t": "WAV",
+    "f": "PCV358.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Research",
+    "t": "WAV",
+    "f": "PCV359.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Research",
+    "t": "WAV",
+    "f": "PCV360.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Research",
+    "t": "WAV",
+    "f": "PCV361.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Research",
+    "t": "WAV",
+    "f": "PCV362.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Research",
+    "t": "WAV",
+    "f": "PCV363.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Research",
+    "t": "WAV",
+    "f": "PCV364.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Research",
+    "t": "WAV",
+    "f": "PCV365.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Productn",
+    "t": "WAV",
+    "f": "PCV366.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Productn",
+    "t": "WAV",
+    "f": "PCV367.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Productn",
+    "t": "WAV",
+    "f": "PCV368.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Productn",
+    "t": "WAV",
+    "f": "PCV369.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Productn",
+    "t": "WAV",
+    "f": "PCV370.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Productn",
+    "t": "WAV",
+    "f": "PCV371.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Repair",
+    "t": "WAV",
+    "f": "PCV372.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Detect",
+    "t": "WAV",
+    "f": "PCV373.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Detect",
+    "t": "WAV",
+    "f": "PCV374.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Detect",
+    "t": "WAV",
+    "f": "PCV375.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Detect",
+    "t": "WAV",
+    "f": "PCV376.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Detect",
+    "t": "WAV",
+    "f": "PCV377.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Detect",
+    "t": "WAV",
+    "f": "PCV378.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Detect",
+    "t": "WAV",
+    "f": "PCV379.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Detect",
+    "t": "WAV",
+    "f": "PCV380.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Detect",
+    "t": "WAV",
+    "f": "PCV381.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Detect",
+    "t": "WAV",
+    "f": "PCV382.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Detect",
+    "t": "WAV",
+    "f": "PCV383.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Detect",
+    "t": "WAV",
+    "f": "PCV384.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Detect",
+    "t": "WAV",
+    "f": "PCV385.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Detect",
+    "t": "WAV",
+    "f": "PCV386.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Detect",
+    "t": "WAV",
+    "f": "PCV387.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Detect",
+    "t": "WAV",
+    "f": "PCV388.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Status",
+    "t": "WAV",
+    "f": "PCV389.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Status",
+    "t": "WAV",
+    "f": "PCV390.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Status",
+    "t": "WAV",
+    "f": "PCV391.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Status",
+    "t": "WAV",
+    "f": "PCV392.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Status",
+    "t": "WAV",
+    "f": "PCV393.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Status",
+    "t": "WAV",
+    "f": "PCV394.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Status",
+    "t": "WAV",
+    "f": "PCV395.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Status",
+    "t": "WAV",
+    "f": "PCV396.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Status",
+    "t": "WAV",
+    "f": "PCV397.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Status",
+    "t": "WAV",
+    "f": "PCV398.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Combat",
+    "t": "WAV",
+    "f": "PCV399.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Combat",
+    "t": "WAV",
+    "f": "PCV400.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Combat",
+    "t": "WAV",
+    "f": "PCV401.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Combat",
+    "t": "WAV",
+    "f": "PCV402.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\ArtBat",
+    "t": "WAV",
+    "f": "PCV403.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\ArtBat",
+    "t": "WAV",
+    "f": "PCV404.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\ArtBat",
+    "t": "WAV",
+    "f": "PCV405.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\ArtBat",
+    "t": "WAV",
+    "f": "PCV406.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\ArtBat",
+    "t": "WAV",
+    "f": "PCV407.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\VTOLs",
+    "t": "WAV",
+    "f": "PCV408.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\VTOLs",
+    "t": "WAV",
+    "f": "PCV409.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\VTOLs",
+    "t": "WAV",
+    "f": "PCV410.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\VTOLs",
+    "t": "WAV",
+    "f": "PCV411.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\VTOLs",
+    "t": "WAV",
+    "f": "PCV412.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Console",
+    "t": "WAV",
+    "f": "PCV413.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Console",
+    "t": "WAV",
+    "f": "PCV414.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Console",
+    "t": "WAV",
+    "f": "PCV415.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Console",
+    "t": "WAV",
+    "f": "PCV416.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Console",
+    "t": "WAV",
+    "f": "PCV417.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Console",
+    "t": "WAV",
+    "f": "PCV418.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Console",
+    "t": "WAV",
+    "f": "PCV419.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Console",
+    "t": "WAV",
+    "f": "PCV420.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Console",
+    "t": "WAV",
+    "f": "PCV421.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Console",
+    "t": "WAV",
+    "f": "PCV422.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Console",
+    "t": "WAV",
+    "f": "PCV423.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Console",
+    "t": "WAV",
+    "f": "PCV424.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Console",
+    "t": "WAV",
+    "f": "PCV425.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Console",
+    "t": "WAV",
+    "f": "PCV426.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Console",
+    "t": "WAV",
+    "f": "PCV427.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Console",
+    "t": "WAV",
+    "f": "PCV428.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Console",
+    "t": "WAV",
+    "f": "PCV429.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Tutorial",
+    "t": "WAV",
+    "f": "PCV430.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Tutorial",
+    "t": "WAV",
+    "f": "PCV431.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Tutorial",
+    "t": "WAV",
+    "f": "PCV432.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Tutorial",
+    "t": "WAV",
+    "f": "PCV433.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Tutorial",
+    "t": "WAV",
+    "f": "PCV434.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\CmndrAsi",
+    "t": "WAV",
+    "f": "PCV435.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\CmndrAsi",
+    "t": "WAV",
+    "f": "PCV436.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\CmndrAsi",
+    "t": "WAV",
+    "f": "PCV437.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Routing",
+    "t": "WAV",
+    "f": "PCV438.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Routing",
+    "t": "WAV",
+    "f": "PCV439.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Trnsport",
+    "t": "WAV",
+    "f": "PCV440.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Trnsport",
+    "t": "WAV",
+    "f": "PCV441.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Trnsport",
+    "t": "WAV",
+    "f": "PCV442.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Trnsport",
+    "t": "WAV",
+    "f": "PCV443.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Trnsport",
+    "t": "WAV",
+    "f": "PCV444.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Trnsport",
+    "t": "WAV",
+    "f": "PCV445.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Trnsport",
+    "t": "WAV",
+    "f": "LZ-Clear.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Trnsport",
+    "t": "WAV",
+    "f": "PCV446.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\Trnsport",
+    "t": "WAV",
+    "f": "PCV447.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\MissMesg",
+    "t": "WAV",
+    "f": "PCV448.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\MissMesg",
+    "t": "WAV",
+    "f": "PCV449.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\MissMesg",
+    "t": "WAV",
+    "f": "PCV450.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\MissMesg",
+    "t": "WAV",
+    "f": "PCV451.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\MissMesg",
+    "t": "WAV",
+    "f": "PCV452.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\MissMesg",
+    "t": "WAV",
+    "f": "PCV453.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\MissMesg",
+    "t": "WAV",
+    "f": "PCV454.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\MissMesg",
+    "t": "WAV",
+    "f": "PCV455.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\MissMesg",
+    "t": "WAV",
+    "f": "PCV456.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\MissMesg",
+    "t": "WAV",
+    "f": "PCV458.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\MissMesg",
+    "t": "WAV",
+    "f": "PCV459.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\MissMesg",
+    "t": "WAV",
+    "f": "PCV460.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\MissMesg",
+    "t": "WAV",
+    "f": "PCV461.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\MissMesg",
+    "t": "WAV",
+    "f": "PCV462.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\MissMesg",
+    "t": "WAV",
+    "f": "PCV463.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\MissMesg",
+    "t": "WAV",
+    "f": "PCV464.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\MissMesg",
+    "t": "WAV",
+    "f": "PCV465.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\MissMesg",
+    "t": "WAV",
+    "f": "PCV466.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\MissMesg",
+    "t": "WAV",
+    "f": "PCV467.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\MissMesg",
+    "t": "WAV",
+    "f": "PCV468.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\MissMesg",
+    "t": "WAV",
+    "f": "PCV469.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\MissMesg",
+    "t": "WAV",
+    "f": "PCV470.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\MissMesg",
+    "t": "WAV",
+    "f": "PCV471.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\MissMesg",
+    "t": "WAV",
+    "f": "PCV472.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\MissMesg",
+    "t": "WAV",
+    "f": "PCV473.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\MissMesg",
+    "t": "WAV",
+    "f": "PCV474.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\MissMesg",
+    "t": "WAV",
+    "f": "PCV475.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\MissMesg",
+    "t": "WAV",
+    "f": "PCV476.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\MissMesg",
+    "t": "WAV",
+    "f": "PCV477.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\MissMesg",
+    "t": "WAV",
+    "f": "PCV478.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\MissMesg",
+    "t": "WAV",
+    "f": "PCV479.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\MissMesg",
+    "t": "WAV",
+    "f": "PCV480.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\MissMesg",
+    "t": "WAV",
+    "f": "PCV481.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\MissMesg",
+    "t": "WAV",
+    "f": "PCV482.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\MissMesg",
+    "t": "WAV",
+    "f": "PCV483.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\MissMesg",
+    "t": "WAV",
+    "f": "PCV484.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\MissMesg",
+    "t": "WAV",
+    "f": "PCV485.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\MissMesg",
+    "t": "WAV",
+    "f": "PCV486.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\CmndrVoc",
+    "t": "WAV",
+    "f": "Group.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\CmndrVoc",
+    "t": "WAV",
+    "f": "9.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\CmndrVoc",
+    "t": "WAV",
+    "f": "8.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\CmndrVoc",
+    "t": "WAV",
+    "f": "7.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\CmndrVoc",
+    "t": "WAV",
+    "f": "6.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\CmndrVoc",
+    "t": "WAV",
+    "f": "5.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\CmndrVoc",
+    "t": "WAV",
+    "f": "4.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\CmndrVoc",
+    "t": "WAV",
+    "f": "3.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\CmndrVoc",
+    "t": "WAV",
+    "f": "2.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\CmndrVoc",
+    "t": "WAV",
+    "f": "1.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\CmndrVoc",
+    "t": "WAV",
+    "f": "0.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\CmndrVoc",
+    "t": "WAV",
+    "f": "Reprting.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\CmndrVoc",
+    "t": "WAV",
+    "f": "Commnder.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\CmndrVoc",
+    "t": "WAV",
+    "f": "COM021.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\CmndrVoc",
+    "t": "WAV",
+    "f": "COM022.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\CmndrVoc",
+    "t": "WAV",
+    "f": "COM023.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\CmndrVoc",
+    "t": "WAV",
+    "f": "COM024.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\CmndrVoc",
+    "t": "WAV",
+    "f": "COM025.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\CmndrVoc",
+    "t": "WAV",
+    "f": "COM026.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\CmndrVoc",
+    "t": "WAV",
+    "f": "COM027.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\CmndrVoc",
+    "t": "WAV",
+    "f": "COM028.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\CmndrVoc",
+    "t": "WAV",
+    "f": "COM029.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\CmndrVoc",
+    "t": "WAV",
+    "f": "COM030.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\CmndrVoc",
+    "t": "WAV",
+    "f": "COM031.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\CmndrVoc",
+    "t": "WAV",
+    "f": "COM032.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\CmndrVoc",
+    "t": "WAV",
+    "f": "COM033.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\CmndrVoc",
+    "t": "WAV",
+    "f": "COM034.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\CmndrVoc",
+    "t": "WAV",
+    "f": "COM035.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\CmndrVoc",
+    "t": "WAV",
+    "f": "COM036.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\CmndrVoc",
+    "t": "WAV",
+    "f": "COM037.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\CmndrVoc",
+    "t": "WAV",
+    "f": "COM038.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\CmndrVoc",
+    "t": "WAV",
+    "f": "COM039.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\CmndrVoc",
+    "t": "WAV",
+    "f": "COM040.wav"
+   },
+   {
+    "d": "audio\\MemResSp\\CmndrVoc",
+    "t": "WAV",
+    "f": "COM041.wav"
+   },
+   {
+    "d": "audio\\RadClick",
+    "t": "WAV",
+    "f": "RadClik1.wav"
+   },
+   {
+    "d": "audio\\RadClick",
+    "t": "WAV",
+    "f": "RadClik2.wav"
+   },
+   {
+    "d": "audio\\RadClick",
+    "t": "WAV",
+    "f": "RadClik3.wav"
+   },
+   {
+    "d": "audio\\RadClick",
+    "t": "WAV",
+    "f": "RadClik4.wav"
+   },
+   {
+    "d": "audio\\RadClick",
+    "t": "WAV",
+    "f": "RadClik5.wav"
+   },
+   {
+    "d": "audio\\RadClick",
+    "t": "WAV",
+    "f": "RadClik6.wav"
+   },
+   {
+    "d": "audio\\TrnspPil",
+    "t": "WAV",
+    "f": "T-AproLZ.wav"
+   },
+   {
+    "d": "audio\\TrnspPil",
+    "t": "WAV",
+    "f": "T-ARBoys.wav"
+   },
+   {
+    "d": "audio\\TrnspPil",
+    "t": "WAV",
+    "f": "T-GrnLi5.wav"
+   },
+   {
+    "d": "audio\\TrnspPil",
+    "t": "WAV",
+    "f": "T-GrnLi4.wav"
+   },
+   {
+    "d": "audio\\TrnspPil",
+    "t": "WAV",
+    "f": "T-GrnLi3.wav"
+   },
+   {
+    "d": "audio\\TrnspPil",
+    "t": "WAV",
+    "f": "T-GrnLi2.wav"
+   },
+   {
+    "d": "audio\\TrnspPil",
+    "t": "WAV",
+    "f": "T-GoGoGo.wav"
+   },
+   {
+    "d": "audio\\TrnspPil",
+    "t": "WAV",
+    "f": "T-DustOf.wav"
+   },
+   {
+    "d": "audio\\VtolTalk",
+    "t": "WAV",
+    "f": "V-Eloc1.wav"
+   },
+   {
+    "d": "audio\\VtolTalk",
+    "t": "WAV",
+    "f": "V-OnWay1.wav"
+   },
+   {
+    "d": "audio\\VtolTalk",
+    "t": "WAV",
+    "f": "V-RetBa1.Wav"
+   },
+   {
+    "d": "audio\\VtolTalk",
+    "t": "WAV",
+    "f": "V-LocOn1.Wav"
+   },
+   {
+    "d": "audio\\VtolTalk",
+    "t": "WAV",
+    "f": "V-AtkRn1.Wav"
+   },
+   {
+    "d": "audio\\VtolTalk",
+    "t": "WAV",
+    "f": "V-AbtRn1.Wav"
+   },
+   {
+    "d": "audio\\VtolTalk",
+    "t": "WAV",
+    "f": "V-Eloc2.wav"
+   },
+   {
+    "d": "audio\\VtolTalk",
+    "t": "WAV",
+    "f": "V-OnWay2.wav"
+   },
+   {
+    "d": "audio\\VtolTalk",
+    "t": "WAV",
+    "f": "V-RetBa2.Wav"
+   },
+   {
+    "d": "audio\\VtolTalk",
+    "t": "WAV",
+    "f": "V-LocOn2.Wav"
+   },
+   {
+    "d": "audio\\VtolTalk",
+    "t": "WAV",
+    "f": "V-AtkRn2.Wav"
+   },
+   {
+    "d": "audio\\VtolTalk",
+    "t": "WAV",
+    "f": "V-AbtRn2.Wav"
+   },
+   {
+    "d": "audio\\VtolTalk",
+    "t": "WAV",
+    "f": "V-Eloc3.wav"
+   },
+   {
+    "d": "audio\\VtolTalk",
+    "t": "WAV",
+    "f": "V-OnWay3.wav"
+   },
+   {
+    "d": "audio\\VtolTalk",
+    "t": "WAV",
+    "f": "V-RetBa3.Wav"
+   },
+   {
+    "d": "audio\\VtolTalk",
+    "t": "WAV",
+    "f": "V-LocOn3.Wav"
+   },
+   {
+    "d": "audio\\VtolTalk",
+    "t": "WAV",
+    "f": "V-AtkRn3.Wav"
+   },
+   {
+    "d": "audio\\VtolTalk",
+    "t": "WAV",
+    "f": "V-AbtRn3.Wav"
+   },
+   {
+    "d": "audio\\Coltive",
+    "t": "WAV",
+    "f": "COl011a.wav"
+   },
+   {
+    "d": "audio\\Coltive",
+    "t": "WAV",
+    "f": "COl012a.wav"
+   },
+   {
+    "d": "audio\\Coltive",
+    "t": "WAV",
+    "f": "COl013a.wav"
+   },
+   {
+    "d": "audio\\Coltive",
+    "t": "WAV",
+    "f": "COl014a.wav"
+   },
+   {
+    "d": "audio\\Coltive",
+    "t": "WAV",
+    "f": "COl015a.wav"
+   },
+   {
+    "d": "audio\\Coltive",
+    "t": "WAV",
+    "f": "COl016a.wav"
+   },
+   {
+    "d": "audio\\Coltive",
+    "t": "WAV",
+    "f": "COl017a.wav"
+   },
+   {
+    "d": "audio\\Coltive",
+    "t": "WAV",
+    "f": "COl018a.wav"
+   },
+   {
+    "d": "audio\\Coltive",
+    "t": "WAV",
+    "f": "COl019a.wav"
+   },
+   {
+    "d": "audio\\Coltive",
+    "t": "WAV",
+    "f": "COl020a.wav"
+   },
+   {
+    "d": "audio\\SFX\\Weapons",
+    "t": "WAV",
+    "f": "rocket.wav"
+   },
+   {
+    "d": "audio\\SFX\\Weapons",
+    "t": "WAV",
+    "f": "RotLsr.wav"
+   },
+   {
+    "d": "audio\\SFX\\Weapons",
+    "t": "WAV",
+    "f": "GaussGun.wav"
+   },
+   {
+    "d": "audio\\SFX\\Weapons",
+    "t": "WAV",
+    "f": "LrgCan.wav"
+   },
+   {
+    "d": "audio\\SFX\\Weapons",
+    "t": "WAV",
+    "f": "SmlCan.wav"
+   },
+   {
+    "d": "audio\\SFX\\Weapons",
+    "t": "WAV",
+    "f": "MedCan.wav"
+   },
+   {
+    "d": "audio\\SFX\\Weapons",
+    "t": "WAV",
+    "f": "FlmThrow.wav"
+   },
+   {
+    "d": "audio\\SFX\\Weapons",
+    "t": "WAV",
+    "f": "PlsLsr.wav"
+   },
+   {
+    "d": "audio\\SFX\\Weapons",
+    "t": "WAV",
+    "f": "BemLsr.wav"
+   },
+   {
+    "d": "audio\\SFX\\Weapons",
+    "t": "WAV",
+    "f": "Mortar.wav"
+   },
+   {
+    "d": "audio\\SFX\\Weapons",
+    "t": "WAV",
+    "f": "HwtzFlgt.wav"
+   },
+   {
+    "d": "audio\\SFX\\Weapons",
+    "t": "WAV",
+    "f": "MgBar1.wav"
+   },
+   {
+    "d": "audio\\SFX\\Weapons",
+    "t": "WAV",
+    "f": "MgBar2.wav"
+   },
+   {
+    "d": "audio\\SFX\\Weapons",
+    "t": "WAV",
+    "f": "MgBar3.wav"
+   },
+   {
+    "d": "audio\\SFX\\Weapons",
+    "t": "WAV",
+    "f": "MgHeavy.wav"
+   },
+   {
+    "d": "audio\\SFX\\Weapons",
+    "t": "WAV",
+    "f": "MgTower.wav"
+   },
+   {
+    "d": "audio\\SFX\\Weapons",
+    "t": "WAV",
+    "f": "Splash.wav"
+   },
+   {
+    "d": "audio\\SFX\\Weapons",
+    "t": "WAV",
+    "f": "AsltMG.wav"
+   },
+   {
+    "d": "audio\\SFX\\Weapons",
+    "t": "WAV",
+    "f": "RapdCan.wav"
+   },
+   {
+    "d": "audio\\SFX\\Weapons",
+    "t": "WAV",
+    "f": "HiVelCan.wav"
+   },
+   {
+    "d": "audio\\SFX\\Weapons",
+    "t": "WAV",
+    "f": "NxsTower.wav"
+   },
+   {
+    "d": "audio\\SFX\\Weapons",
+    "t": "WAV",
+    "f": "Weld-1.wav"
+   },
+   {
+    "d": "audio\\SFX\\Weapons",
+    "t": "WAV",
+    "f": "Weld-2.wav"
+   },
+   {
+    "d": "audio\\SFX\\Weapons",
+    "t": "WAV",
+    "f": "BldStart.wav"
+   },
+   {
+    "d": "audio\\SFX\\Weapons",
+    "t": "WAV",
+    "f": "BldLoop.wav"
+   },
+   {
+    "d": "audio\\SFX\\Weapons",
+    "t": "WAV",
+    "f": "Build1.wav"
+   },
+   {
+    "d": "audio\\SFX\\Weapons",
+    "t": "WAV",
+    "f": "Build2.wav"
+   },
+   {
+    "d": "audio\\SFX\\Weapons",
+    "t": "WAV",
+    "f": "Build3.wav"
+   },
+   {
+    "d": "audio\\SFX\\Weapons",
+    "t": "WAV",
+    "f": "Build4.wav"
+   },
+   {
+    "d": "audio\\SFX\\Explons",
+    "t": "WAV",
+    "f": "SmlExpl.wav"
+   },
+   {
+    "d": "audio\\SFX\\Explons",
+    "t": "WAV",
+    "f": "LsrExpl.wav"
+   },
+   {
+    "d": "audio\\SFX\\Explons",
+    "t": "WAV",
+    "f": "LrgExpl.wav"
+   },
+   {
+    "d": "audio\\SFX\\Explons",
+    "t": "WAV",
+    "f": "ATnkExpl.wav"
+   },
+   {
+    "d": "audio\\SFX\\Explons",
+    "t": "WAV",
+    "f": "Richet1.wav"
+   },
+   {
+    "d": "audio\\SFX\\Explons",
+    "t": "WAV",
+    "f": "Richet2.wav"
+   },
+   {
+    "d": "audio\\SFX\\Explons",
+    "t": "WAV",
+    "f": "Richet3.wav"
+   },
+   {
+    "d": "audio\\SFX\\Explons",
+    "t": "WAV",
+    "f": "Squish.wav"
+   },
+   {
+    "d": "audio\\SFX\\Explons",
+    "t": "WAV",
+    "f": "BldFall.wav"
+   },
+   {
+    "d": "audio\\SFX\\Explons",
+    "t": "WAV",
+    "f": "NxsExpld.wav"
+   },
+   {
+    "d": "audio\\SFX\\Interfce",
+    "t": "WAV",
+    "f": "Beep1.wav"
+   },
+   {
+    "d": "audio\\SFX\\Interfce",
+    "t": "WAV",
+    "f": "Beep2.wav"
+   },
+   {
+    "d": "audio\\SFX\\Interfce",
+    "t": "WAV",
+    "f": "Beep4.wav"
+   },
+   {
+    "d": "audio\\SFX\\Interfce",
+    "t": "WAV",
+    "f": "Beep5.wav"
+   },
+   {
+    "d": "audio\\SFX\\Interfce",
+    "t": "WAV",
+    "f": "Beep6.wav"
+   },
+   {
+    "d": "audio\\SFX\\Interfce",
+    "t": "WAV",
+    "f": "Beep7.wav"
+   },
+   {
+    "d": "audio\\SFX\\Interfce",
+    "t": "WAV",
+    "f": "Beep8.wav"
+   },
+   {
+    "d": "audio\\SFX\\Interfce",
+    "t": "WAV",
+    "f": "Beep9.wav"
+   },
+   {
+    "d": "audio\\SFX\\Interfce",
+    "t": "WAV",
+    "f": "GmeShtDn.wav"
+   },
+   {
+    "d": "audio\\SFX\\Vehicle",
+    "t": "WAV",
+    "f": "Con-Move Off.wav"
+   },
+   {
+    "d": "audio\\SFX\\Vehicle",
+    "t": "WAV",
+    "f": "Con-Move.wav"
+   },
+   {
+    "d": "audio\\SFX\\Vehicle",
+    "t": "WAV",
+    "f": "Con-Shut down.wav"
+   },
+   {
+    "d": "audio\\SFX\\Vehicle",
+    "t": "WAV",
+    "f": "TFlight.wav"
+   },
+   {
+    "d": "audio\\SFX\\Vehicle",
+    "t": "WAV",
+    "f": "THover.wav"
+   },
+   {
+    "d": "audio\\SFX\\Vehicle",
+    "t": "WAV",
+    "f": "TLand.wav"
+   },
+   {
+    "d": "audio\\SFX\\Vehicle",
+    "t": "WAV",
+    "f": "TStart.wav"
+   },
+   {
+    "d": "audio\\SFX\\Vehicle",
+    "t": "WAV",
+    "f": "VtolLand.wav"
+   },
+   {
+    "d": "audio\\SFX\\Vehicle",
+    "t": "WAV",
+    "f": "VtolOff.wav"
+   },
+   {
+    "d": "audio\\SFX\\Vehicle",
+    "t": "WAV",
+    "f": "Vtol-Move.wav"
+   },
+   {
+    "d": "audio\\SFX\\Vehicle",
+    "t": "WAV",
+    "f": "Tread.wav"
+   },
+   {
+    "d": "audio\\SFX\\Vehicle",
+    "t": "WAV",
+    "f": "HovMove.wav"
+   },
+   {
+    "d": "audio\\SFX\\Vehicle",
+    "t": "WAV",
+    "f": "HovStart.wav"
+   },
+   {
+    "d": "audio\\SFX\\Vehicle",
+    "t": "WAV",
+    "f": "HovStop.wav"
+   },
+   {
+    "d": "audio\\SFX\\Vehicle",
+    "t": "WAV",
+    "f": "Cyber-Move.wav"
+   },
+   {
+    "d": "audio\\SFX\\Building",
+    "t": "WAV",
+    "f": "OilPump.wav"
+   },
+   {
+    "d": "audio\\SFX\\Building",
+    "t": "WAV",
+    "f": "PowerHum.wav"
+   },
+   {
+    "d": "audio\\SFX\\Building",
+    "t": "WAV",
+    "f": "PowerSpk.wav"
+   },
+   {
+    "d": "audio\\SFX\\Building",
+    "t": "WAV",
+    "f": "Steam.wav"
+   },
+   {
+    "d": "audio\\SFX\\Building",
+    "t": "WAV",
+    "f": "ECMTower.wav"
+   },
+   {
+    "d": "audio\\SFX\\Building",
+    "t": "WAV",
+    "f": "FreRoar.wav"
+   },
+   {
+    "d": "audio\\SFX\\Misc",
+    "t": "WAV",
+    "f": "Help.wav"
+   },
+   {
+    "d": "audio\\SFX\\Misc",
+    "t": "WAV",
+    "f": "Scream.wav"
+   },
+   {
+    "d": "audio\\SFX\\Misc",
+    "t": "WAV",
+    "f": "Scream2.wav"
+   },
+   {
+    "d": "audio\\SFX\\Misc",
+    "t": "WAV",
+    "f": "Scream3.wav"
+   },
+   {
+    "d": "audio\\SFX\\Misc",
+    "t": "WAV",
+    "f": "Scream4.wav"
+   },
+   {
+    "d": "audio\\SFX\\Misc",
+    "t": "WAV",
+    "f": "Silence.wav"
+   },
+   {
+    "d": "audio\\Extra",
+    "t": "WAV",
+    "f": "LndgZne.wav"
+   },
+   {
+    "d": "audio\\Extra",
+    "t": "WAV",
+    "f": "NmeDeted.wav"
+   },
+   {
+    "d": "audio\\Extra",
+    "t": "WAV",
+    "f": "Pcv611.wav"
+   },
+   {
+    "d": "audio\\Extra",
+    "t": "WAV",
+    "f": "Pcv612.wav"
+   },
+   {
+    "d": "audio\\Extra",
+    "t": "WAV",
+    "f": "Pcv613.wav"
+   },
+   {
+    "d": "audio\\Extra",
+    "t": "WAV",
+    "f": "Pcv615.wav"
+   },
+   {
+    "d": "audio\\Extra",
+    "t": "WAV",
+    "f": "Pcv616.wav"
+   },
+   {
+    "d": "audio\\Extra",
+    "t": "WAV",
+    "f": "Pcv618.wav"
+   },
+   {
+    "d": "audio\\Extra",
+    "t": "WAV",
+    "f": "Pcv621.wav"
+   },
+   {
+    "d": "audio\\Extra",
+    "t": "WAV",
+    "f": "Pcv622.wav"
+   },
+   {
+    "d": "audio\\Extra",
+    "t": "WAV",
+    "f": "Pcv623.wav"
+   },
+   {
+    "d": "audio\\Extra",
+    "t": "WAV",
+    "f": "Pcv625.wav"
+   },
+   {
+    "d": "audio\\Extra",
+    "t": "WAV",
+    "f": "Pcv629.wav"
+   },
+   {
+    "d": "audio\\Extra",
+    "t": "WAV",
+    "f": "Pcv631.wav"
+   },
+   {
+    "d": "audio\\Extra",
+    "t": "WAV",
+    "f": "Pcv632.wav"
+   },
+   {
+    "d": "audio\\Extra",
+    "t": "WAV",
+    "f": "Pcv633.wav"
+   },
+   {
+    "d": "audio\\Extra",
+    "t": "WAV",
+    "f": "Pcv635.wav"
+   },
+   {
+    "d": "audio\\Extra",
+    "t": "WAV",
+    "f": "Pcv636.wav"
+   },
+   {
+    "d": "audio\\Extra",
+    "t": "WAV",
+    "f": "Pcv637.wav"
+   },
+   {
+    "d": "audio\\Extra",
+    "t": "WAV",
+    "f": "Pcv638.wav"
+   },
+   {
+    "d": "audio\\Extra",
+    "t": "WAV",
+    "f": "Pcv639.wav"
+   },
+   {
+    "d": "audio\\Extra",
+    "t": "WAV",
+    "f": "Pcv640.wav"
+   },
+   {
+    "d": "audio\\Extra",
+    "t": "WAV",
+    "f": "Pcv650.wav"
+   },
+   {
+    "d": "audio\\Extra",
+    "t": "WAV",
+    "f": "Pcv652.wav"
+   },
+   {
+    "d": "audio\\Extra",
+    "t": "WAV",
+    "f": "Pcv653.wav"
+   },
+   {
+    "d": "audio\\Extra",
+    "t": "WAV",
+    "f": "Pcv654.wav"
+   },
+   {
+    "d": "audio\\Extra",
+    "t": "WAV",
+    "f": "Pcv655.wav"
+   },
+   {
+    "d": "audio\\Extra",
+    "t": "WAV",
+    "f": "Pcv656.wav"
+   },
+   {
+    "d": "audio\\Extra",
+    "t": "WAV",
+    "f": "Pcv657.wav"
+   },
+   {
+    "d": "audio\\Nexus",
+    "t": "WAV",
+    "f": "DefAbsrd.wav"
+   },
+   {
+    "d": "audio\\Nexus",
+    "t": "WAV",
+    "f": "DefNut.wav"
+   },
+   {
+    "d": "audio\\Nexus",
+    "t": "WAV",
+    "f": "Laugh1.wav"
+   },
+   {
+    "d": "audio\\Nexus",
+    "t": "WAV",
+    "f": "Laugh2.wav"
+   },
+   {
+    "d": "audio\\Nexus",
+    "t": "WAV",
+    "f": "Laugh3.wav"
+   },
+   {
+    "d": "audio\\Nexus",
+    "t": "WAV",
+    "f": "PordComp.wav"
+   },
+   {
+    "d": "audio\\Nexus",
+    "t": "WAV",
+    "f": "ResAbsrd.wav"
+   },
+   {
+    "d": "audio\\Nexus",
+    "t": "WAV",
+    "f": "StrutAbs.wav"
+   },
+   {
+    "d": "audio\\Nexus",
+    "t": "WAV",
+    "f": "StrutNut.wav"
+   },
+   {
+    "d": "audio\\Nexus",
+    "t": "WAV",
+    "f": "SynpLnk.wav"
+   },
+   {
+    "d": "audio\\Nexus",
+    "t": "WAV",
+    "f": "UntAbsrd.wav"
+   },
+   {
+    "d": "audio\\Nexus",
+    "t": "WAV",
+    "f": "UntNut.wav"
+   },
+   {
+    "d": "audio",
+    "t": "AUDIOCFG",
+    "f": "audio.json"
+   }
+  ],
+  "wrf/basic": [
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXL3DSHK.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXLIGHTR.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXEXPDRT.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "MIRAIN.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "MISNOW.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXATExp.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXSExp.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXLExp.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "PARTHEAD.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "PARTBODY.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "PARTLEGS.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "PARTARM.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXSSTEAM.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXMSTEAM.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXSMOKE.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXDUST.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXPLASMA.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXFT.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXMFLARE.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "cybitbod.pie"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "cybitgun.pie"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "cybitrkt.pie"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "cybitlg1.pie"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "fxblip.pie"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "cyshadow.pie"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "fxblood.pie"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "fxpower.pie"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "fxssmoke.pie"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "midebr1.pie"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "midebr2.pie"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "midebr3.pie"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "midebr4.pie"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "midebr5.pie"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "fxvtl01.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "fxvtl2and3.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "fxvtl04.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "fxvtl5to8.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "fxvtl09.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "fxvtl10.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "fxvtl11.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "fxvtl12.PIE"
+   },
+   {
+    "d": "misc",
+    "t": "IMD",
+    "f": "arrow.pie"
+   },
+   {
+    "d": "misc",
+    "t": "IMD",
+    "f": "miNum1.pie"
+   },
+   {
+    "d": "misc",
+    "t": "IMD",
+    "f": "miNum2.pie"
+   },
+   {
+    "d": "misc",
+    "t": "IMD",
+    "f": "miNum3.pie"
+   },
+   {
+    "d": "misc",
+    "t": "IMD",
+    "f": "miNum4.pie"
+   },
+   {
+    "d": "misc",
+    "t": "IMD",
+    "f": "miNum5.pie"
+   },
+   {
+    "d": "misc",
+    "t": "IMD",
+    "f": "miCNum1.pie"
+   },
+   {
+    "d": "misc",
+    "t": "IMD",
+    "f": "miCNum2.pie"
+   },
+   {
+    "d": "misc",
+    "t": "IMD",
+    "f": "miCNum3.pie"
+   },
+   {
+    "d": "misc",
+    "t": "IMD",
+    "f": "miCNum4.pie"
+   },
+   {
+    "d": "misc",
+    "t": "IMD",
+    "f": "miCNum5.pie"
+   },
+   {
+    "d": "misc",
+    "t": "IMD",
+    "f": "miVNum1.pie"
+   },
+   {
+    "d": "misc",
+    "t": "IMD",
+    "f": "miVNum2.pie"
+   },
+   {
+    "d": "misc",
+    "t": "IMD",
+    "f": "miVNum3.pie"
+   },
+   {
+    "d": "misc",
+    "t": "IMD",
+    "f": "miVNum4.pie"
+   },
+   {
+    "d": "misc",
+    "t": "IMD",
+    "f": "miVNum5.pie"
+   },
+   {
+    "d": "misc",
+    "t": "IMD",
+    "f": "iccamera.pie"
+   },
+   {
+    "d": "misc",
+    "t": "IMD",
+    "f": "blipenm.pie"
+   },
+   {
+    "d": "misc",
+    "t": "IMD",
+    "f": "blipart.pie"
+   },
+   {
+    "d": "misc",
+    "t": "IMD",
+    "f": "blipres.pie"
+   },
+   {
+    "d": "misc",
+    "t": "IMD",
+    "f": "mitrnshd.pie"
+   },
+   {
+    "d": "misc",
+    "t": "IMD",
+    "f": "mirnum1.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blderik.pie"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "runanim.pie"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "runflame.pie"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "flamfall.pie"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "fireknee.pie"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "walkanim.pie"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "cybdpstd.pie"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "cybdpair.pie"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "cybdpjmp.pie"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "cybdplnd.pie"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "cybdprun.pie"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "cybd_std.pie"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "cybd_run.pie"
+   },
+   {
+    "d": "anims",
+    "t": "ANI",
+    "f": "runanim.json"
+   },
+   {
+    "d": "anims",
+    "t": "ANI",
+    "f": "runflame.json"
+   },
+   {
+    "d": "anims",
+    "t": "ANI",
+    "f": "flamfall.json"
+   },
+   {
+    "d": "anims",
+    "t": "ANI",
+    "f": "fireknee.json"
+   },
+   {
+    "d": "anims",
+    "t": "ANI",
+    "f": "walkanim.json"
+   },
+   {
+    "d": "anims",
+    "t": "ANI",
+    "f": "blderik.json"
+   },
+   {
+    "d": "anims",
+    "t": "ANI",
+    "f": "cybd_run.json"
+   },
+   {
+    "d": "anims",
+    "t": "ANI",
+    "f": "cybdpjmp.json"
+   },
+   {
+    "d": "anims",
+    "t": "ANI",
+    "f": "cybdplnd.json"
+   },
+   {
+    "d": "anims",
+    "t": "ANI",
+    "f": "cybdprun.json"
+   },
+   {
+    "d": "anims",
+    "t": "ANIMCFG",
+    "f": "anim.json"
+   }
+  ],
+  "wrf/cam1": [
+   {
+    "d": "messages\\strings",
+    "t": "STR_RES",
+    "f": "Strings.txt"
+   },
+   {
+    "d": "messages\\strings",
+    "t": "STR_RES",
+    "f": "GenStrings.txt"
+   },
+   {
+    "d": "messages\\strings",
+    "t": "STR_RES",
+    "f": "Cam1Strings.txt"
+   },
+   {
+    "d": "messages\\strings",
+    "t": "STR_RES",
+    "f": "Cam2Strings.txt"
+   },
+   {
+    "d": "messages\\strings",
+    "t": "STR_RES",
+    "f": "Cam3Strings.txt"
+   },
+   {
+    "d": "messages\\strings",
+    "t": "STR_RES",
+    "f": "ResStrings.txt"
+   },
+   {
+    "d": "messages\\strings",
+    "t": "STR_RES",
+    "f": "ScrStrings.txt"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "Cam1Messages.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "Cam2Messages.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "Cam3Messages.json"
+   }
+  ],
+  "wrf/cam1/cam1a": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief1a.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "prox1a.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam1a.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam1a-AI.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam1daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam1a.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam1a-ai.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam1day.vlo"
+   }
+  ],
+  "wrf/cam1/cam1a-c": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief1a-c.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "prox1a-c.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam1A-C.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam1daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam1A-C.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam1night.vlo"
+   }
+  ],
+  "wrf/cam1/cam1b": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief1b.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "prox1b.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam1b.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam1b-AI.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam1bX.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam1daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam1b.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam1b-ai.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam1bX.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam1mknight.vlo"
+   }
+  ],
+  "wrf/cam1/cam1c": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief1c.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "prox1c.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam1c.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam1daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam1c.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam1night.vlo"
+   }
+  ],
+  "wrf/cam1/cam1ca": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief1ca.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "prox1ca.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam1ca.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam1daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam1ca.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam1mkday.vlo"
+   }
+  ],
+  "wrf/cam1/cam1end": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "Cam1-Outro.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam1end.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam1daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam1end.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam1day.vlo"
+   }
+  ],
+  "wrf/cam1/cam1kevlar": [
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-7-Barbarians-Kevlar.pcx"
+   }
+  ],
+  "wrf/cam1/sub1-1": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief1-1.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "prox1-1.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "Cam1-1.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam1-1-AI.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam1daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "Cam1-1.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam1-1-ai.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam1mkday.vlo"
+   }
+  ],
+  "wrf/cam1/sub1-1s": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief1-1.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "Cam1-1s.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam1daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "Cam1-1s.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam1night.vlo"
+   }
+  ],
+  "wrf/cam1/sub1-2": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief1-2.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "prox1-2.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "Cam1-2.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "Cam1-2-ai.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam1daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "Cam1-2.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "Cam1-2-ai.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam1day.vlo"
+   }
+  ],
+  "wrf/cam1/sub1-2s": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief1-2.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "Cam1-2s.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam1daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "Cam1-2s.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam1day.vlo"
+   }
+  ],
+  "wrf/cam1/sub1-3": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief1-3.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "prox1-3.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "Cam1-3.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam1daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "Cam1-3.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam1mknight.vlo"
+   }
+  ],
+  "wrf/cam1/sub1-3s": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief1-3.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "Cam1-3s.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam1daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "Cam1-3s.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam1day.vlo"
+   }
+  ],
+  "wrf/cam1/sub1-4a": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief1-4a.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "prox1-4a.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "Cam1-4A.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam1daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "Cam1-4A.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam1day.vlo"
+   }
+  ],
+  "wrf/cam1/sub1-4as": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief1-4a.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "Cam1-4as.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam1daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "Cam1-4as.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam1day.vlo"
+   }
+  ],
+  "wrf/cam1/sub1-5": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief1-5.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "prox1-5.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "Cam1-5.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam1daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "Cam1-5.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam1mknight.vlo"
+   }
+  ],
+  "wrf/cam1/sub1-5s": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief1-5.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "Cam1-5s.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam1daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "Cam1-5s.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam1day.vlo"
+   }
+  ],
+  "wrf/cam1/sub1-7": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief1-7.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "prox1-7.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "Cam1-7.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam1daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "Cam1-7.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam1mkday.vlo"
+   }
+  ],
+  "wrf/cam1/sub1-7s": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief1-7.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "Cam1-7s.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam1daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "Cam1-7s.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam1day.vlo"
+   }
+  ],
+  "wrf/cam1/sub1-d": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief1d.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "prox1d.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "genexp.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam1daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam1-d.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam1mknight.vlo"
+   }
+  ],
+  "wrf/cam1/sub1-ds": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief1d.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "genbet.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam1daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam1-ds.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam1day.vlo"
+   }
+  ],
+  "wrf/cam1res": [
+   {
+    "d": "stats\\research\\cam1",
+    "t": "RESCH",
+    "f": "Research.json"
+   },
+   {
+    "d": "stats\\research\\cam1",
+    "t": "RPREREQ",
+    "f": "PRResearch.json"
+   },
+   {
+    "d": "stats\\research\\cam1",
+    "t": "RCOMPRED",
+    "f": "RedComponents.json"
+   },
+   {
+    "d": "stats\\research\\cam1",
+    "t": "RCOMPRES",
+    "f": "ResultComponent.json"
+   },
+   {
+    "d": "stats\\research\\cam1",
+    "t": "RSTRREQ",
+    "f": "ResearchStruct.json"
+   },
+   {
+    "d": "stats\\research\\cam1",
+    "t": "RSTRRED",
+    "f": "RedStructure.json"
+   },
+   {
+    "d": "stats\\research\\cam1",
+    "t": "RSTRRES",
+    "f": "ResultStructure.json"
+   },
+   {
+    "d": "stats\\research\\cam1",
+    "t": "RFUNC",
+    "f": "ResearchFunctions.json"
+   }
+  ],
+  "wrf/cam2": [
+   {
+    "d": "messages\\strings",
+    "t": "STR_RES",
+    "f": "Strings.txt"
+   },
+   {
+    "d": "messages\\strings",
+    "t": "STR_RES",
+    "f": "GenStrings.txt"
+   },
+   {
+    "d": "messages\\strings",
+    "t": "STR_RES",
+    "f": "Cam2Strings.txt"
+   },
+   {
+    "d": "messages\\strings",
+    "t": "STR_RES",
+    "f": "Cam3Strings.txt"
+   },
+   {
+    "d": "messages\\strings",
+    "t": "STR_RES",
+    "f": "ResStrings.txt"
+   },
+   {
+    "d": "messages\\strings",
+    "t": "STR_RES",
+    "f": "ScrStrings.txt"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "Cam2Messages.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "Cam3Messages.json"
+   }
+  ],
+  "wrf/cam2/cam2a": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief2a.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "prox2a.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "genexp.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam2daynight.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam2ax.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "vtols.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "reinforcement.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "Tech.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2a.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2day.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2ax.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "vtols2a.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2aReIn.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2tech.vlo"
+   }
+  ],
+  "wrf/cam2/cam2b": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief2b.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "prox2b.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "genexp.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam2bx.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "vtols.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam2daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2b.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2bx.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "vtols2b.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2day.vlo"
+   }
+  ],
+  "wrf/cam2/cam2c": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief2-C.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "prox2C.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "genexp.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam2cx.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "VTOLS2.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam2daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2C.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2cx.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "VTOLS2C.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2day.vlo"
+   }
+  ],
+  "wrf/cam2/cam2change": [
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-6-features-urban area.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-8-player buildings-bases Urban.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-9-player-soft buildings-bases-urban.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-9-player-hard buildings-bases-urban.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-7-barbarians-Urban.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TERTILES",
+    "f": "tertilesC2.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "HWTERTILES",
+    "f": "tertilesc2hw.pcx"
+   },
+   {
+    "d": "stats\\research\\cam2",
+    "t": "RESCH",
+    "f": "Research.json"
+   },
+   {
+    "d": "stats\\research\\cam2",
+    "t": "RPREREQ",
+    "f": "PRResearch.json"
+   },
+   {
+    "d": "stats\\research\\cam2",
+    "t": "RCOMPRED",
+    "f": "RedComponents.json"
+   },
+   {
+    "d": "stats\\research\\cam2",
+    "t": "RCOMPRES",
+    "f": "ResultComponent.json"
+   },
+   {
+    "d": "stats\\research\\cam2",
+    "t": "RSTRREQ",
+    "f": "ResearchStruct.json"
+   },
+   {
+    "d": "stats\\research\\cam2",
+    "t": "RSTRRED",
+    "f": "RedStructure.json"
+   },
+   {
+    "d": "stats\\research\\cam2",
+    "t": "RSTRRES",
+    "f": "ResultStructure.json"
+   },
+   {
+    "d": "stats\\research\\cam2",
+    "t": "RFUNC",
+    "f": "ResearchFunctions.json"
+   }
+  ],
+  "wrf/cam2/cam2end": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief2-DII.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam2endX.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam2daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2endX.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2day.vlo"
+   }
+  ],
+  "wrf/cam2/sub2-1": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief2-1.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "prox2-1.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam2-1X.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "genexp.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam2daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2-1X.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2-1.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2day.vlo"
+   }
+  ],
+  "wrf/cam2/sub2-1s": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief2-1.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "genbet.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam2daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2-1s.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2day.vlo"
+   }
+  ],
+  "wrf/cam2/sub2-2": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief2-2.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "prox2-2.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "genexp.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "vtols.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam2daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2-2.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "vtols2-2.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2day.vlo"
+   }
+  ],
+  "wrf/cam2/sub2-2s": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief2-2.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "genbet.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam2daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2-2s.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2day.vlo"
+   }
+  ],
+  "wrf/cam2/sub2-5": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief2-5.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "prox2-5.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "genexp.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam2daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2-5.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2day.vlo"
+   }
+  ],
+  "wrf/cam2/sub2-5s": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief2-5.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "genbet.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam2daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2-5s.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2day.vlo"
+   }
+  ],
+  "wrf/cam2/sub2-6": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief2-6.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "prox2-6.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "genexp.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam2daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2-6.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2day.vlo"
+   }
+  ],
+  "wrf/cam2/sub2-6s": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief2-6.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "genbet.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam2daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2-6s.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2day.vlo"
+   }
+  ],
+  "wrf/cam2/sub2-7": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief2-7.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "prox2-7.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "genexp.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "VTOLS2.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam2daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2-7.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "VTOLS2-7.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2day.vlo"
+   }
+  ],
+  "wrf/cam2/sub2-7s": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief2-7.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "genbet.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam2daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2-7s.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2day.vlo"
+   }
+  ],
+  "wrf/cam2/sub2-8": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief2-8.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "prox2-8.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "genexp.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "VTOLS2.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam2daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2-8.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "VTOLS2-8.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2day.vlo"
+   }
+  ],
+  "wrf/cam2/sub2-8s": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief2-8.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "genbet.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam2daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2-8s.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2day.vlo"
+   }
+  ],
+  "wrf/cam2/sub2-d": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief2-DI.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "prox2D.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "genexp.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam2DX.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "vtols.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam2daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2D.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2DX.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "vtols2d.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2day.vlo"
+   }
+  ],
+  "wrf/cam2/sub2-ds": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief2-DI.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "genbet.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam2daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2-ds.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2day.vlo"
+   }
+  ],
+  "wrf/cam2res": [
+   {
+    "d": "stats\\research\\cam2",
+    "t": "RESCH",
+    "f": "Research.json"
+   },
+   {
+    "d": "stats\\research\\cam2",
+    "t": "RPREREQ",
+    "f": "PRResearch.json"
+   },
+   {
+    "d": "stats\\research\\cam2",
+    "t": "RCOMPRED",
+    "f": "RedComponents.json"
+   },
+   {
+    "d": "stats\\research\\cam2",
+    "t": "RCOMPRES",
+    "f": "ResultComponent.json"
+   },
+   {
+    "d": "stats\\research\\cam2",
+    "t": "RSTRREQ",
+    "f": "ResearchStruct.json"
+   },
+   {
+    "d": "stats\\research\\cam2",
+    "t": "RSTRRED",
+    "f": "RedStructure.json"
+   },
+   {
+    "d": "stats\\research\\cam2",
+    "t": "RSTRRES",
+    "f": "ResultStructure.json"
+   },
+   {
+    "d": "stats\\research\\cam2",
+    "t": "RFUNC",
+    "f": "ResearchFunctions.json"
+   }
+  ],
+  "wrf/cam3": [
+   {
+    "d": "messages\\strings",
+    "t": "STR_RES",
+    "f": "Strings.txt"
+   },
+   {
+    "d": "messages\\strings",
+    "t": "STR_RES",
+    "f": "GenStrings.txt"
+   },
+   {
+    "d": "messages\\strings",
+    "t": "STR_RES",
+    "f": "Cam3Strings.txt"
+   },
+   {
+    "d": "messages\\strings",
+    "t": "STR_RES",
+    "f": "ResStrings.txt"
+   },
+   {
+    "d": "messages\\strings",
+    "t": "STR_RES",
+    "f": "ScrStrings.txt"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "Cam3Messages.json"
+   }
+  ],
+  "wrf/cam3/cam3a": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief3-a.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "prox3a.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "setdisk.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "genexp.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam3daynight.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam3aX.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "vtols.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "reinforcement.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "Tech.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3a.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3mknight.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3aX.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "vtols3A.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3aReIn.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "disk2.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3tech.vlo"
+   }
+  ],
+  "wrf/cam3/cam3ab": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief3A-B.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "prox3AB.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "setdisk.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "genexp.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam3A-BX.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "VTOLS.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam3daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3A-B.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3A-BX.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "VTOLS3A-B.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "disk2.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3day.vlo"
+   }
+  ],
+  "wrf/cam3/cam3ad1": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief3A-D1.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief3A-D2.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "prox3A-D1.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "setdisk.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "genexp.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam3a-d1X.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "VTOLS2.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam3daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3a-d1.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3a-d1X.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "disk2.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "VTOLS3AD1.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3mkday.vlo"
+   }
+  ],
+  "wrf/cam3/cam3ad2": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief3A-D1.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief3A-D2.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "prox3A-D1.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "genexp.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam3a-d2X.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "VTOLS.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam3daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3a-d2.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3a-d2X.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "VTOLS3AD2.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3mknight.vlo"
+   }
+  ],
+  "wrf/cam3/cam3b": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief3-B.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "prox3b.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "setdisk.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "genexp.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam3bx.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "VTOLS.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam3daynight.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "Tech.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3b.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3bx.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "VTOLS3B.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3mknight.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "disk2.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3btech.vlo"
+   }
+  ],
+  "wrf/cam3/cam3c": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief3-C.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "prox3c.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "setdisk.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "genexp.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam3cx.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "VTOLS2.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "Tech.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam3daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3c.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3cx.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "VTOLS3C.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3btech.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "disk2.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3mknight.vlo"
+   }
+  ],
+  "wrf/cam3/cam3change": [
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-6-features-rockies.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-7-Barbarians-Kevlar.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-8-player buildings-bases-Rockies.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-9-player-soft buildings-bases-rockies.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-9-player-hard buildings-bases-rockies.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TERTILES",
+    "f": "tertilesC3.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "HWTERTILES",
+    "f": "tertilesc3hw.pcx"
+   },
+   {
+    "d": "stats\\research\\cam3",
+    "t": "RESCH",
+    "f": "Research.json"
+   },
+   {
+    "d": "stats\\research\\cam3",
+    "t": "RPREREQ",
+    "f": "PRResearch.json"
+   },
+   {
+    "d": "stats\\research\\cam3",
+    "t": "RCOMPRED",
+    "f": "RedComponents.json"
+   },
+   {
+    "d": "stats\\research\\cam3",
+    "t": "RCOMPRES",
+    "f": "ResultComponent.json"
+   },
+   {
+    "d": "stats\\research\\cam3",
+    "t": "RSTRREQ",
+    "f": "ResearchStruct.json"
+   },
+   {
+    "d": "stats\\research\\cam3",
+    "t": "RSTRRED",
+    "f": "RedStructure.json"
+   },
+   {
+    "d": "stats\\research\\cam3",
+    "t": "RSTRRES",
+    "f": "ResultStructure.json"
+   },
+   {
+    "d": "stats\\research\\cam3",
+    "t": "RFUNC",
+    "f": "ResearchFunctions.json"
+   }
+  ],
+  "wrf/cam3/sub3-1": [
+   {
+    "d": "audio\\Countdown",
+    "t": "WAV",
+    "f": "60Min.wav"
+   },
+   {
+    "d": "audio\\Countdown",
+    "t": "WAV",
+    "f": "50Min.wav"
+   },
+   {
+    "d": "audio\\Countdown",
+    "t": "WAV",
+    "f": "40Min.wav"
+   },
+   {
+    "d": "audio\\Countdown",
+    "t": "WAV",
+    "f": "30Min.wav"
+   },
+   {
+    "d": "audio\\Countdown",
+    "t": "WAV",
+    "f": "20Min.wav"
+   },
+   {
+    "d": "audio\\Countdown",
+    "t": "WAV",
+    "f": "10Min.wav"
+   },
+   {
+    "d": "audio\\Countdown",
+    "t": "WAV",
+    "f": "MEFLP.wav"
+   },
+   {
+    "d": "audio\\Countdown",
+    "t": "WAV",
+    "f": "5Min.wav"
+   },
+   {
+    "d": "audio\\Countdown",
+    "t": "WAV",
+    "f": "4Min.wav"
+   },
+   {
+    "d": "audio\\Countdown",
+    "t": "WAV",
+    "f": "3Min.wav"
+   },
+   {
+    "d": "audio\\Countdown",
+    "t": "WAV",
+    "f": "2Min.wav"
+   },
+   {
+    "d": "audio\\Countdown",
+    "t": "WAV",
+    "f": "1Min.wav"
+   },
+   {
+    "d": "audio\\Countdown",
+    "t": "WAV",
+    "f": "FLSeq.wav"
+   },
+   {
+    "d": "audio\\Countdown",
+    "t": "WAV",
+    "f": "10to1.wav"
+   },
+   {
+    "d": "audio\\Countdown",
+    "t": "WAV",
+    "f": "MLaunch.wav"
+   },
+   {
+    "d": "audio\\Countdown",
+    "t": "WAV",
+    "f": "LAbort.wav"
+   },
+   {
+    "d": "audio\\Countdown",
+    "t": "WAV",
+    "f": "WActivat.wav"
+   },
+   {
+    "d": "audio\\Countdown",
+    "t": "WAV",
+    "f": "Det60Min.wav"
+   },
+   {
+    "d": "audio\\Countdown",
+    "t": "WAV",
+    "f": "Det50Min.wav"
+   },
+   {
+    "d": "audio\\Countdown",
+    "t": "WAV",
+    "f": "Det40Min.wav"
+   },
+   {
+    "d": "audio\\Countdown",
+    "t": "WAV",
+    "f": "Det30Min.wav"
+   },
+   {
+    "d": "audio\\Countdown",
+    "t": "WAV",
+    "f": "Det20Min.wav"
+   },
+   {
+    "d": "audio\\Countdown",
+    "t": "WAV",
+    "f": "Det10Min.wav"
+   },
+   {
+    "d": "audio\\Countdown",
+    "t": "WAV",
+    "f": "Det5Min.wav"
+   },
+   {
+    "d": "audio\\Countdown",
+    "t": "WAV",
+    "f": "Det4Min.wav"
+   },
+   {
+    "d": "audio\\Countdown",
+    "t": "WAV",
+    "f": "Det3Min.wav"
+   },
+   {
+    "d": "audio\\Countdown",
+    "t": "WAV",
+    "f": "Det2Min.wav"
+   },
+   {
+    "d": "audio\\Countdown",
+    "t": "WAV",
+    "f": "Det1Min.wav"
+   },
+   {
+    "d": "audio\\Countdown",
+    "t": "WAV",
+    "f": "FDetSeq.wav"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief3-1A.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief3-1b.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "prox3-1.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "setdisk.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "genexp.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam3-1x.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "VTOLS.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam3daynight.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "countdown.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3-1.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3-1x.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "VTOLS3-1.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "count3-1.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "disk2.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3mkday.vlo"
+   }
+  ],
+  "wrf/cam3/sub3-1s": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief3-1A.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "prox3-1.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "setdisk.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "genbet.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam3daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3-1s.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "disk2.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3night.vlo"
+   }
+  ],
+  "wrf/cam3/sub3-2": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief3-2.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "prox3-2.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "setdisk.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "genexp.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam3-2X.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "VTOLS.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "Tech.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam3daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3-2.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3-2X.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "VTOLS3-2.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3-2tech.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "disk2.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3mkday.vlo"
+   }
+  ],
+  "wrf/cam3/sub3-2s": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief3-2.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "prox3-2.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "setdisk.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "genbet.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam3daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3-2s.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "disk2.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3night.vlo"
+   }
+  ],
+  "wrf/cam3/sub3-3": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "prox3-3.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "setdisk.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "genexp.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam3daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3-3.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "disk2.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3day.vlo"
+   }
+  ],
+  "wrf/cam3/sub3-3s": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief3-3.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "prox3-3.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "setdisk.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "genbet.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam3daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3-3s.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "disk2.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3day.vlo"
+   }
+  ],
+  "wrf/cam3/sub3-4": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief3-4.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "prox3-4.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "setdisk.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "genexp.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "VTOLS2.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam3-4X.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam3daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3-4.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "disk1.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "VTOLS3-4.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3-4X.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3mkday.vlo"
+   }
+  ],
+  "wrf/cam3/sub3-4s": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "brief3-4.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "prox3-4.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "setdisk.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "genbet.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam3-4sX.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam3daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3-4s.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3-4sX.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "disk1.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3night.vlo"
+   }
+  ],
+  "wrf/cam3res": [
+   {
+    "d": "stats\\research\\cam3",
+    "t": "RESCH",
+    "f": "Research.json"
+   },
+   {
+    "d": "stats\\research\\cam3",
+    "t": "RPREREQ",
+    "f": "PRResearch.json"
+   },
+   {
+    "d": "stats\\research\\cam3",
+    "t": "RCOMPRED",
+    "f": "RedComponents.json"
+   },
+   {
+    "d": "stats\\research\\cam3",
+    "t": "RCOMPRES",
+    "f": "ResultComponent.json"
+   },
+   {
+    "d": "stats\\research\\cam3",
+    "t": "RSTRREQ",
+    "f": "ResearchStruct.json"
+   },
+   {
+    "d": "stats\\research\\cam3",
+    "t": "RSTRRED",
+    "f": "RedStructure.json"
+   },
+   {
+    "d": "stats\\research\\cam3",
+    "t": "RSTRRES",
+    "f": "ResultStructure.json"
+   },
+   {
+    "d": "stats\\research\\cam3",
+    "t": "RFUNC",
+    "f": "ResearchFunctions.json"
+   }
+  ],
+  "wrf/forcedit2": [
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "fxvtl01.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "fxvtl2and3.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "fxvtl04.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "fxvtl5to8.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "fxvtl09.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "fxvtl10.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "fxvtl11.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "fxvtl12.PIE"
+   },
+   {
+    "d": "misc",
+    "t": "IMD",
+    "f": "tAljetfx.PIE"
+   },
+   {
+    "d": "misc",
+    "t": "IMD",
+    "f": "tBmjetfx.PIE"
+   },
+   {
+    "d": "misc",
+    "t": "IMD",
+    "f": "tChjetfx.PIE"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "runanim.pie"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "runflame.pie"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "flamfall.pie"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "fireknee.pie"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "walkanim.pie"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "cybdpstd.pie"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "cybdpair.pie"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "cybdpjmp.pie"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "cybdplnd.pie"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "cybdprun.pie"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "cybd_std.pie"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "cybd_run.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blderik.pie"
+   },
+   {
+    "d": "stats",
+    "t": "SWEAPON",
+    "f": "Weapons.json"
+   },
+   {
+    "d": "stats",
+    "t": "SBODY",
+    "f": "Body.json"
+   },
+   {
+    "d": "stats",
+    "t": "SBRAIN",
+    "f": "Brain.json"
+   },
+   {
+    "d": "stats",
+    "t": "SPROP",
+    "f": "Propulsion.json"
+   },
+   {
+    "d": "stats",
+    "t": "SSENSOR",
+    "f": "Sensor.json"
+   },
+   {
+    "d": "stats",
+    "t": "SECM",
+    "f": "ECM.json"
+   },
+   {
+    "d": "stats",
+    "t": "SREPAIR",
+    "f": "Repair.json"
+   },
+   {
+    "d": "stats",
+    "t": "SCONSTR",
+    "f": "Construction.json"
+   },
+   {
+    "d": "stats",
+    "t": "SPROPTYPES",
+    "f": "PropulsionType.json"
+   },
+   {
+    "d": "stats",
+    "t": "STERRTABLE",
+    "f": "TerrainTable.json"
+   },
+   {
+    "d": "stats",
+    "t": "SSPECABIL",
+    "f": "SpecialAbility.json"
+   },
+   {
+    "d": "stats",
+    "t": "SBPIMD",
+    "f": "BodyPropulsionIMD.json"
+   },
+   {
+    "d": "stats",
+    "t": "SWEAPSND",
+    "f": "WeaponSounds.json"
+   },
+   {
+    "d": "stats",
+    "t": "STEMPL",
+    "f": "Templates.json"
+   },
+   {
+    "d": "stats",
+    "t": "STEMPWEAP",
+    "f": "assignWeapons.json"
+   },
+   {
+    "d": "stats",
+    "t": "SFUNC",
+    "f": "Functions.json"
+   },
+   {
+    "d": "stats",
+    "t": "SSTRUCT",
+    "f": "Structures.json"
+   },
+   {
+    "d": "stats",
+    "t": "SSTRFUNC",
+    "f": "StructureFunctions.json"
+   },
+   {
+    "d": "stats",
+    "t": "SSTRWEAP",
+    "f": "StructureWeapons.json"
+   },
+   {
+    "d": "stats",
+    "t": "SFEAT",
+    "f": "Features.json"
+   },
+   {
+    "d": "multiplay\\script",
+    "t": "SCRIPT",
+    "f": "multilim.slo"
+   },
+   {
+    "d": "multiplay\\script",
+    "t": "SCRIPTVAL",
+    "f": "multilim.vlo"
+   }
+  ],
+  "wrf/frontend": [
+   {
+    "d": "images",
+    "t": "IMGPAGE",
+    "f": "frend0.pcx"
+   },
+   {
+    "d": "images",
+    "t": "IMGPAGE",
+    "f": "frend1.pcx"
+   },
+   {
+    "d": "images",
+    "t": "IMGPAGE",
+    "f": "frend2.pcx"
+   },
+   {
+    "d": "images",
+    "t": "IMGPAGE",
+    "f": "frend3.pcx"
+   },
+   {
+    "d": "images",
+    "t": "IMGPAGE",
+    "f": "intfac3.pcx"
+   },
+   {
+    "d": "images",
+    "t": "IMGPAGE",
+    "f": "intfac0.pcx"
+   },
+   {
+    "d": "images",
+    "t": "IMGPAGE",
+    "f": "intfac1.pcx"
+   },
+   {
+    "d": "images",
+    "t": "IMGPAGE",
+    "f": "intfac2.pcx"
+   },
+   {
+    "d": "images",
+    "t": "IMGPAGE",
+    "f": "intfac4.pcx"
+   },
+   {
+    "d": "images",
+    "t": "IMG",
+    "f": "intfac.img"
+   },
+   {
+    "d": "images",
+    "t": "IMG",
+    "f": "frend.img"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-7-barbarians-arizona.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-14-droid hubs.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-16-droid drives.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-17-droid weapons.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-21-fx`s-hard.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-21-fx`s-soft.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-11-player buildings.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-12-player buildings.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-13-player buildings.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-15-droid hubs.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-18-fx`s-hard.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-18-fx`s-soft.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-19-fx`s-hard.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-19-fx`s-soft.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-20-fx`s-hard.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-20-fx`s-soft.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-10-laboratories.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-22-fx`s.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-23-fx`s-hard.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-23-fx`s-soft.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-24-fx`s.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-8-player buildings-bases.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-9-player-soft buildings-bases.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-9-player-hard buildings-bases.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-6-features-arizona.pcx"
+   },
+   {
+    "d": "audio\\SFX\\Interfce",
+    "t": "WAV",
+    "f": "Beep1.wav"
+   },
+   {
+    "d": "audio\\SFX\\Interfce",
+    "t": "WAV",
+    "f": "Beep2.wav"
+   },
+   {
+    "d": "audio\\SFX\\Interfce",
+    "t": "WAV",
+    "f": "Beep4.wav"
+   },
+   {
+    "d": "audio\\SFX\\Interfce",
+    "t": "WAV",
+    "f": "Beep5.wav"
+   },
+   {
+    "d": "audio\\SFX\\Interfce",
+    "t": "WAV",
+    "f": "Beep6.wav"
+   },
+   {
+    "d": "audio\\SFX\\Interfce",
+    "t": "WAV",
+    "f": "Beep7.wav"
+   },
+   {
+    "d": "audio\\SFX\\Interfce",
+    "t": "WAV",
+    "f": "Beep8.wav"
+   },
+   {
+    "d": "audio\\SFX\\Interfce",
+    "t": "WAV",
+    "f": "Beep9.wav"
+   },
+   {
+    "d": "audio\\SFX\\Interfce",
+    "t": "WAV",
+    "f": "GmeShtDn.wav"
+   },
+   {
+    "d": "audio",
+    "t": "AUDIOCFG",
+    "f": "frontaud.json"
+   },
+   {
+    "d": "messages\\strings",
+    "t": "STR_RES",
+    "f": "Strings.txt"
+   },
+   {
+    "d": "messages\\strings",
+    "t": "STR_RES",
+    "f": "Names.txt"
+   }
+  ],
+  "wrf/multi/campaign": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "multiplay.json"
+   },
+   {
+    "d": "multiplay\\script",
+    "t": "SCRIPT",
+    "f": "multiplay.slo"
+   },
+   {
+    "d": "multiplay\\script",
+    "t": "SCRIPTVAL",
+    "f": "multiplay.vlo"
+   }
+  ],
+  "wrf/multi/campaign-scav": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "multiplay.json"
+   },
+   {
+    "d": "multiplay\\script",
+    "t": "SCRIPT",
+    "f": "multiplay.slo"
+   },
+   {
+    "d": "multiplay\\script",
+    "t": "SCRIPT",
+    "f": "scavFact.slo"
+   },
+   {
+    "d": "multiplay\\script",
+    "t": "SCRIPTVAL",
+    "f": "multiplay.vlo"
+   },
+   {
+    "d": "multiplay\\script",
+    "t": "SCRIPTVAL",
+    "f": "scavFact.vlo"
+   }
+  ],
+  "wrf/multi/deathmatch": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "multiplay.json"
+   },
+   {
+    "d": "multiplay\\script",
+    "t": "SCRIPT",
+    "f": "multiplay.slo"
+   },
+   {
+    "d": "multiplay\\script",
+    "t": "SCRIPTVAL",
+    "f": "multiplay.vlo"
+   }
+  ],
+  "wrf/multi/fog1": [
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam1daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam1day.vlo"
+   }
+  ],
+  "wrf/multi/fog2": [
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam2daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam2day.vlo"
+   }
+  ],
+  "wrf/multi/fog3": [
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam3daynight.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "setdisk.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3day.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "disk2.vlo"
+   }
+  ],
+  "wrf/multi/skirmish2": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "multiplay.json"
+   },
+   {
+    "d": "multiplay\\script",
+    "t": "SCRIPT",
+    "f": "skirmish.slo"
+   },
+   {
+    "d": "multiplay\\script",
+    "t": "SCRIPT",
+    "f": "skirmishAI.slo"
+   },
+   {
+    "d": "multiplay\\script",
+    "t": "SCRIPTVAL",
+    "f": "skirmish.vlo"
+   },
+   {
+    "d": "multiplay\\script",
+    "t": "SCRIPTVAL",
+    "f": "skirmishAI0.vlo"
+   },
+   {
+    "d": "multiplay\\script",
+    "t": "SCRIPTVAL",
+    "f": "skirmishAI1.vlo"
+   }
+  ],
+  "wrf/multi/skirmish4": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "multiplay.json"
+   },
+   {
+    "d": "multiplay\\script",
+    "t": "SCRIPT",
+    "f": "skirmish.slo"
+   },
+   {
+    "d": "multiplay\\script",
+    "t": "SCRIPT",
+    "f": "skirmishAI.slo"
+   },
+   {
+    "d": "multiplay\\script",
+    "t": "SCRIPTVAL",
+    "f": "skirmish.vlo"
+   },
+   {
+    "d": "multiplay\\script",
+    "t": "SCRIPTVAL",
+    "f": "skirmishAI0.vlo"
+   },
+   {
+    "d": "multiplay\\script",
+    "t": "SCRIPTVAL",
+    "f": "skirmishAI1.vlo"
+   },
+   {
+    "d": "multiplay\\script",
+    "t": "SCRIPTVAL",
+    "f": "skirmishAI2.vlo"
+   },
+   {
+    "d": "multiplay\\script",
+    "t": "SCRIPTVAL",
+    "f": "skirmishAI3.vlo"
+   }
+  ],
+  "wrf/multi/skirmish8": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "multiplay.json"
+   },
+   {
+    "d": "multiplay\\script",
+    "t": "SCRIPT",
+    "f": "skirmish.slo"
+   },
+   {
+    "d": "multiplay\\script",
+    "t": "SCRIPT",
+    "f": "skirmishAI.slo"
+   },
+   {
+    "d": "multiplay\\script",
+    "t": "SCRIPTVAL",
+    "f": "skirmish.vlo"
+   },
+   {
+    "d": "multiplay\\script",
+    "t": "SCRIPTVAL",
+    "f": "skirmishAI0.vlo"
+   },
+   {
+    "d": "multiplay\\script",
+    "t": "SCRIPTVAL",
+    "f": "skirmishAI1.vlo"
+   },
+   {
+    "d": "multiplay\\script",
+    "t": "SCRIPTVAL",
+    "f": "skirmishAI2.vlo"
+   },
+   {
+    "d": "multiplay\\script",
+    "t": "SCRIPTVAL",
+    "f": "skirmishAI3.vlo"
+   },
+   {
+    "d": "multiplay\\script",
+    "t": "SCRIPTVAL",
+    "f": "skirmishAI4.vlo"
+   },
+   {
+    "d": "multiplay\\script",
+    "t": "SCRIPTVAL",
+    "f": "skirmishAI5.vlo"
+   },
+   {
+    "d": "multiplay\\script",
+    "t": "SCRIPTVAL",
+    "f": "skirmishAI6.vlo"
+   },
+   {
+    "d": "multiplay\\script",
+    "t": "SCRIPTVAL",
+    "f": "skirmishAI7.vlo"
+   }
+  ],
+  "wrf/multires": [
+   {
+    "d": "stats\\research\\multiplayer",
+    "t": "RESCH",
+    "f": "Research.json"
+   },
+   {
+    "d": "stats\\research\\multiplayer",
+    "t": "RPREREQ",
+    "f": "PRResearch.json"
+   },
+   {
+    "d": "stats\\research\\multiplayer",
+    "t": "RCOMPRED",
+    "f": "RedComponents.json"
+   },
+   {
+    "d": "stats\\research\\multiplayer",
+    "t": "RCOMPRES",
+    "f": "ResultComponent.json"
+   },
+   {
+    "d": "stats\\research\\multiplayer",
+    "t": "RSTRREQ",
+    "f": "ResearchStruct.json"
+   },
+   {
+    "d": "stats\\research\\multiplayer",
+    "t": "RSTRRED",
+    "f": "RedStructure.json"
+   },
+   {
+    "d": "stats\\research\\multiplayer",
+    "t": "RSTRRES",
+    "f": "ResultStructure.json"
+   },
+   {
+    "d": "stats\\research\\multiplayer",
+    "t": "RFUNC",
+    "f": "ResearchFunctions.json"
+   }
+  ],
+  "wrf/piestats": [
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blpower0.PIE"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blpower4.PIE"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blhq.PIE"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blhq2.PIE"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blbfact.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blfact0.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blfact1.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blfact2.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blwallh.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "BLWALLC2.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "BLWALL2.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "BLWALLC3.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "BLWALL3.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blbrbfac.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blbrbwlh.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "exrocket.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blbrbcr1.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blbrbtw1.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blbpower.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blbresch.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blresch0.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blresch4.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blbrbgen.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blbgen.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blbhq.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blbrbbnk.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blbrtowr.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "BLWALLC1.PIE"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blbrlook.PIE"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "icdozer.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "Blrpair3.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "BLGUARD1.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "BLGUARD2.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "BLGUARD3.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "bldrdcm0.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "BLBDRDCM.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "BLGUARDM.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blpilbox.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blguardr.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blcfact1.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blbcfact.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "mitrapst.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blcanpil.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blbrbtw2.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blhq3.PIE"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "MITrap2.PIE"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "BLHOWMNT.PIE"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "BLVTOLPD.PIE"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "MIBAR.PIE"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "BLBRMRTP.PIE"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "BLMRTPIT.PIE"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blbunkms.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blmssilo.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blvfact0.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blvfact1.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blvfact2.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "miupdish.PIE"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "micool.PIE"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "mibcool.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "minuke.PIE"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "miupbase.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "BLNAVBNK.PIE"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "BLNAVBAK.PIE"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blhq4.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "Blbrtowf.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blgaurdn.PIE"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "Blaamnt1.PIE"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "Blaamnt2.PIE"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "BLHARDPT.pie"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "blbrepr2.PIE"
+   },
+   {
+    "d": "structs",
+    "t": "IMD",
+    "f": "Blgrdnex.PIE"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "MICAPSUL.PIE"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "miarthov.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "mislick.PIE"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "mibould1.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "mibould2.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "mibould3.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "drwreck.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "miwreck.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "miwrek1.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "miwrek2.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "miwrek3.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "miwrek4.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "miwrek5.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "micamper.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "mijeep.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "mitanker.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "mitankerH.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "mibuild1.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "mibuild2.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "mibuild3.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "mibuild7.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "mibuild8.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "mibuil10.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "mibuil11.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "mibuil12.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "miruin5.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "miruin4.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "miruin3.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "miruin2.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "miruin1.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "blfactrd.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "blware1.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "blbrhut1.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "blware2.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "blware3.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "mibldwat.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "mipipe.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "mipipe1.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "mibldwa2.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "mibldwa3.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "mioil.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "mipipe1a.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "mipipe2a.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "mipipe3a.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "Mibuil16.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "Mibuil17.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "Mibuild9.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "mibrdfuk.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "michevy.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "micrane.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "mioiltow.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "miwatow.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "miblucar.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "mipickup.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "mipylon.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "mitrees.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "mitrees2.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "mitrees3.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "mistree1.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "mistree2.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "mistree3.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "micabin1.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "micabin2.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "micabin3.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "micabin4.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "micabin5.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "mifactry.pie"
+   },
+   {
+    "d": "features",
+    "t": "IMD",
+    "f": "miairtrf.pie"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNMECM1.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRMECM1.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRLCON.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRHCON.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRMCON.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNLGSS.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNMGSS.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNHGSS.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "trlsnsr1.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "trhsnsr3.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "gnlsnsr1.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRLCAN.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRLMG1.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRLMG2.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRMMG.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRMCAN.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRHCAN.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRLACAN.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRMVCAN.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRLFLMR.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRMFLMR.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRMHOWT.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRHHOWT.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRHHOW2.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRMMORT.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRHRMORT.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRMLAS.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRHLAS.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRLRCKT.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRLRCKTP.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRMRCKT.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRMRCKTA.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRHRCKT.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRLMSL.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRMMSL.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRMMSLA.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRHMSL.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRHMSLI.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRLGSS.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRMGSS.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRHGSS.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNLCAN.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNLACAN.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNMCAN.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNHCAN.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNMVCAN.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNLMG1.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNLMG2.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNMMG1.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNMMG2.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNLFLMR.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNMFLMR.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNMHOWT.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNHHOWT.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNHHOWT2.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNMMORT.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNHMORT.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNMLAS.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNMRLAS.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNHBLAS.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNLRCKT.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNLRCKTP.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNMRCKT.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNMRCKTA.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNHRCKT.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNLMSL.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNMMSL.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNMMSLA.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNHMSL.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNHMSLI.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "MISENSOR.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNLCMD1.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRLCMD1.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "exturret.pie"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "mibnktur.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "Mibnkgun.pie"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "cy_flame.pie"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "cy_gun.pie"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "cy_rkt.pie"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "cybody.pie"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "cybodyjp.pie"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "gnhmort2.pie"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNMAIR.pie"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNHAIR.pie"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRMAIR.pie"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRHAIR.pie"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNHSUPER.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRHSUPER.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRHPLASM.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNHPLASM.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNMSNSR2.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "trmsnsr2.pie"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "gnmecm2.pie"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "trmecm2.pie"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "gnmrepar.pie"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNHSNSR3.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNHECM3.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRHECM3.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "cy_can.pie"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "gnlair.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "gnhair2.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNNAVBIG.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "Gnmrcktb.pie"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "Trmrcktb.pie"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "Gnmrktbb.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "Gnmmslsa.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "Trmmslsa.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "Gnhmslsa.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "Trhmslsa.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "Gnmmslat.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "Trmmslat.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "Gnmmslbb.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "Trmmslbb.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "Gnmmslaa.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "Trmmslaa.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "gnhmslab.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "trhmslab.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "TRMRKTBB.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "trlvtlhe.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "trmvtlhe.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "trmvtlin.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "trlvtlin.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "GNHREPAR.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "CY_LAS.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "CY_RAIL.PIE"
+   },
+   {
+    "d": "components\\weapons",
+    "t": "IMD",
+    "f": "CY_MISS.PIE"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "DRHBOD09.PIE"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "DRHBOD10.PIE"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "DRHBOD11.PIE"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "DRHBOD12.PIE"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "DRLBOD01.PIE"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "DRLBOD02.PIE"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "DRLBOD03.PIE"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "DRLBOD04.PIE"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "DRMBOD05.PIE"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "DRMBOD06.PIE"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "DRMBOD07.PIE"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "DRMBOD08.PIE"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "DRTRANS.PIE"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "extrike.pie"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "exbuggy.pie"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "exbloke.pie"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "exjeep.pie"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "exjeeprk.pie"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "exbugrk.pie"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "exschool.pie"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "exfire.pie"
+   },
+   {
+    "d": "components\\bodies",
+    "t": "IMD",
+    "f": "mibnkbod.PIE"
+   },
+   {
+    "d": "components\\prop",
+    "t": "IMD",
+    "f": "PRLLWHL1.PIE"
+   },
+   {
+    "d": "components\\prop",
+    "t": "IMD",
+    "f": "PRLRWHL1.PIE"
+   },
+   {
+    "d": "components\\prop",
+    "t": "IMD",
+    "f": "PRMRWHL1.PIE"
+   },
+   {
+    "d": "components\\prop",
+    "t": "IMD",
+    "f": "PRMLWHL1.PIE"
+   },
+   {
+    "d": "components\\prop",
+    "t": "IMD",
+    "f": "PRHLWHL1.PIE"
+   },
+   {
+    "d": "components\\prop",
+    "t": "IMD",
+    "f": "PRHRWHL1.PIE"
+   },
+   {
+    "d": "components\\prop",
+    "t": "IMD",
+    "f": "PRLRTRK1.PIE"
+   },
+   {
+    "d": "components\\prop",
+    "t": "IMD",
+    "f": "PRLLTRK1.PIE"
+   },
+   {
+    "d": "components\\prop",
+    "t": "IMD",
+    "f": "PRMRTRK2.PIE"
+   },
+   {
+    "d": "components\\prop",
+    "t": "IMD",
+    "f": "PRMLTRK2.PIE"
+   },
+   {
+    "d": "components\\prop",
+    "t": "IMD",
+    "f": "PRHRTRK3.PIE"
+   },
+   {
+    "d": "components\\prop",
+    "t": "IMD",
+    "f": "PRHLTRK3.PIE"
+   },
+   {
+    "d": "components\\prop",
+    "t": "IMD",
+    "f": "PRLRVTL1.PIE"
+   },
+   {
+    "d": "components\\prop",
+    "t": "IMD",
+    "f": "PRLLVTL1.PIE"
+   },
+   {
+    "d": "components\\prop",
+    "t": "IMD",
+    "f": "PRMRVTL1.PIE"
+   },
+   {
+    "d": "components\\prop",
+    "t": "IMD",
+    "f": "PRMLVTL1.PIE"
+   },
+   {
+    "d": "components\\prop",
+    "t": "IMD",
+    "f": "PRHRVTL1.PIE"
+   },
+   {
+    "d": "components\\prop",
+    "t": "IMD",
+    "f": "PRHLVTL1.PIE"
+   },
+   {
+    "d": "components\\prop",
+    "t": "IMD",
+    "f": "PRHRVTL2.PIE"
+   },
+   {
+    "d": "components\\prop",
+    "t": "IMD",
+    "f": "PRHLVTL2.PIE"
+   },
+   {
+    "d": "components\\prop",
+    "t": "IMD",
+    "f": "PRHRVTL3.PIE"
+   },
+   {
+    "d": "components\\prop",
+    "t": "IMD",
+    "f": "PRHLVTL3.PIE"
+   },
+   {
+    "d": "components\\prop",
+    "t": "IMD",
+    "f": "PRHRVTL4.PIE"
+   },
+   {
+    "d": "components\\prop",
+    "t": "IMD",
+    "f": "PRHLVTL4.PIE"
+   },
+   {
+    "d": "components\\prop",
+    "t": "IMD",
+    "f": "PRLLVTL2.PIE"
+   },
+   {
+    "d": "components\\prop",
+    "t": "IMD",
+    "f": "PRLRVTL2.PIE"
+   },
+   {
+    "d": "components\\prop",
+    "t": "IMD",
+    "f": "PRLLVTL3.PIE"
+   },
+   {
+    "d": "components\\prop",
+    "t": "IMD",
+    "f": "PRLRVTL3.PIE"
+   },
+   {
+    "d": "components\\prop",
+    "t": "IMD",
+    "f": "PRLRHTR1.PIE"
+   },
+   {
+    "d": "components\\prop",
+    "t": "IMD",
+    "f": "PRLLHTR1.PIE"
+   },
+   {
+    "d": "components\\prop",
+    "t": "IMD",
+    "f": "PRMRHTR2.PIE"
+   },
+   {
+    "d": "components\\prop",
+    "t": "IMD",
+    "f": "PRMLHTR2.PIE"
+   },
+   {
+    "d": "components\\prop",
+    "t": "IMD",
+    "f": "PRHRHTR3.PIE"
+   },
+   {
+    "d": "components\\prop",
+    "t": "IMD",
+    "f": "PRHLHTR3.PIE"
+   },
+   {
+    "d": "components\\prop",
+    "t": "IMD",
+    "f": "PRLHOV1.PIE"
+   },
+   {
+    "d": "components\\prop",
+    "t": "IMD",
+    "f": "PRMHOV1.PIE"
+   },
+   {
+    "d": "components\\prop",
+    "t": "IMD",
+    "f": "PRHHOV1.PIE"
+   },
+   {
+    "d": "components\\prop",
+    "t": "IMD",
+    "f": "mibnkdrl.PIE"
+   },
+   {
+    "d": "components\\prop",
+    "t": "IMD",
+    "f": "mibnkdrr.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXLMgun2.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXCan20A.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXCan20m.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXCan40m.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FxCan75m.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXLFlmr.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXMFlmr.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXLGauss.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXMGauss.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXHGauss.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "fxmhowt.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "fxhhowt.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "fxhhowt2.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXMgunx2.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXLMgun.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXMgnVic.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXMgnVul.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXICBM.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXLMiss.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXATMiss.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXMMort.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXLasRot.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXHBLas.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXLRocPd.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXMRocAt.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXMRoc.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXVulCan.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXTracer.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXTracr2.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXBeam.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXCAmmo.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXLProj.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXGAmmo.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXPLAmmo.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXSRoc.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXSCUDM.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXFlecht.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXVLExp.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXVLSWav.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXLSWave.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXMExp.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXMSWave.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXSFlms.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXMNExp.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXSNExp.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXLSplsh.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXMSplsh.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXSSplsh.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXMelt.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXMPExp.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXDIRTsp.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXMETHIT.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXDIRT.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXtracrd.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXcam20.pie"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXLThrow.pie"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXGRDexp.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXGRDexl.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXAIREXP.pie"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "Fxlbmbi1.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "Fxlbmbx1.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "Fxmbmbi2.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "Fxmbmbx2.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXAALSHT.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXAALSH2.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "Fxflech2.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXGammoM.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXGammoH.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXFLSHL.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FxLFLSH.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXLENFL.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXSPLME.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXMPLME.PIE"
+   },
+   {
+    "d": "effects",
+    "t": "IMD",
+    "f": "FXHPLME.PIE"
+   },
+   {
+    "d": "misc/ResearchIMDs",
+    "t": "IMD",
+    "f": "ICMSLCD.PIE"
+   },
+   {
+    "d": "misc/ResearchIMDs",
+    "t": "IMD",
+    "f": "ICMOLQL.PIE"
+   },
+   {
+    "d": "misc/ResearchIMDs",
+    "t": "IMD",
+    "f": "ICSPANER.PIE"
+   },
+   {
+    "d": "misc/ResearchIMDs",
+    "t": "IMD",
+    "f": "ICCCCONS.PIE"
+   },
+   {
+    "d": "misc/ResearchIMDs",
+    "t": "IMD",
+    "f": "ICAMRHOT.PIE"
+   },
+   {
+    "d": "misc/ResearchIMDs",
+    "t": "IMD",
+    "f": "ICAMRKNT.PIE"
+   },
+   {
+    "d": "misc/ResearchIMDs",
+    "t": "IMD",
+    "f": "ICENG.PIE"
+   },
+   {
+    "d": "misc/ResearchIMDs",
+    "t": "IMD",
+    "f": "DPVTOL.PIE"
+   },
+   {
+    "d": "misc",
+    "t": "IMD",
+    "f": "icsynapt.PIE"
+   }
+  ],
+  "wrf/stats": [
+   {
+    "d": "messages/strings",
+    "t": "STR_RES",
+    "f": "Names.txt"
+   },
+   {
+    "d": "stats",
+    "t": "SWEAPON",
+    "f": "Weapons.json"
+   },
+   {
+    "d": "stats",
+    "t": "SBODY",
+    "f": "Body.json"
+   },
+   {
+    "d": "stats",
+    "t": "SBRAIN",
+    "f": "Brain.json"
+   },
+   {
+    "d": "stats",
+    "t": "SPROP",
+    "f": "Propulsion.json"
+   },
+   {
+    "d": "stats",
+    "t": "SSENSOR",
+    "f": "Sensor.json"
+   },
+   {
+    "d": "stats",
+    "t": "SECM",
+    "f": "ECM.json"
+   },
+   {
+    "d": "stats",
+    "t": "SREPAIR",
+    "f": "Repair.json"
+   },
+   {
+    "d": "stats",
+    "t": "SCONSTR",
+    "f": "Construction.json"
+   },
+   {
+    "d": "stats",
+    "t": "SPROPTYPES",
+    "f": "PropulsionType.json"
+   },
+   {
+    "d": "stats",
+    "t": "SPROPSND",
+    "f": "PropulsionSounds.json"
+   },
+   {
+    "d": "stats",
+    "t": "STERRTABLE",
+    "f": "TerrainTable.json"
+   },
+   {
+    "d": "stats",
+    "t": "SSPECABIL",
+    "f": "SpecialAbility.json"
+   },
+   {
+    "d": "stats",
+    "t": "SBPIMD",
+    "f": "BodyPropulsionIMD.json"
+   },
+   {
+    "d": "stats",
+    "t": "SWEAPSND",
+    "f": "WeaponSounds.json"
+   },
+   {
+    "d": "stats",
+    "t": "SWEAPMOD",
+    "f": "WeaponModifier.json"
+   },
+   {
+    "d": "stats",
+    "t": "STEMPL",
+    "f": "Templates.json"
+   },
+   {
+    "d": "stats",
+    "t": "STEMPWEAP",
+    "f": "assignWeapons.json"
+   },
+   {
+    "d": "stats",
+    "t": "SFUNC",
+    "f": "Functions.json"
+   },
+   {
+    "d": "stats",
+    "t": "SSTRUCT",
+    "f": "Structures.json"
+   },
+   {
+    "d": "stats",
+    "t": "SSTRFUNC",
+    "f": "StructureFunctions.json"
+   },
+   {
+    "d": "stats",
+    "t": "SSTRWEAP",
+    "f": "StructureWeapons.json"
+   },
+   {
+    "d": "stats",
+    "t": "SSTRMOD",
+    "f": "StructureModifier.json"
+   },
+   {
+    "d": "stats",
+    "t": "SFEAT",
+    "f": "Features.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "messages.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "ResMessages1.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "ResMessages12.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "ResMessages2.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "ResMessages23.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "ResMessages3.json"
+   },
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "ResMessagesAll.json"
+   }
+  ],
+  "wrf/tut": [
+   {
+    "d": "messages\\strings",
+    "t": "STR_RES",
+    "f": "Strings.txt"
+   },
+   {
+    "d": "messages\\strings",
+    "t": "STR_RES",
+    "f": "GenStrings.txt"
+   },
+   {
+    "d": "messages\\strings",
+    "t": "STR_RES",
+    "f": "TutStrings.txt"
+   },
+   {
+    "d": "messages\\strings",
+    "t": "STR_RES",
+    "f": "ResStrings.txt"
+   },
+   {
+    "d": "messages\\strings",
+    "t": "STR_RES",
+    "f": "ScrStrings.txt"
+   }
+  ],
+  "wrf/tutorial/newtut": [
+   {
+    "d": "messages",
+    "t": "SMSG",
+    "f": "proxtut.json"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "tutorial3.slo"
+   },
+   {
+    "d": "script\\text",
+    "t": "SCRIPT",
+    "f": "cam3daynight.slo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "tutorial3.vlo"
+   },
+   {
+    "d": "script\\data",
+    "t": "SCRIPTVAL",
+    "f": "cam3day.vlo"
+   }
+  ],
+  "wrf/tutorial/tutaudio": [
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut1.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut2.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut3.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut4.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut5.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut6.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut7.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut8.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut9.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut10.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut11.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut12.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut13.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut14.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut15.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut16.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut17.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut18.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut19.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut20.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut21.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut22.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut23.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut24.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut25.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut28.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut29.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut30.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut31.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut32.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut33.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut34.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut35.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut36.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut37.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut38.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut39.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut40.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut41.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut42.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut43.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut44.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut45.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut46.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut47.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut48.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut49.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut50.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut51.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut52.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut53.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut54.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut55.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut56.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut57.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut58.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut59.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut60.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut61.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut62.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut63.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut64.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut65.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut66.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut67.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut68.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut69.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut70.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut71.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut72.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut73.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut74.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut75.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut78.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut81.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut82.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut83.wav"
+   },
+   {
+    "d": "audio\\tutorial",
+    "t": "WAV",
+    "f": "tut84.wav"
+   }
+  ],
+  "wrf/vidmem": [
+   {
+    "d": "images",
+    "t": "IMGPAGE",
+    "f": "intfac0.pcx"
+   },
+   {
+    "d": "images",
+    "t": "IMGPAGE",
+    "f": "intfac1.pcx"
+   },
+   {
+    "d": "images",
+    "t": "IMGPAGE",
+    "f": "intfac2.pcx"
+   },
+   {
+    "d": "images",
+    "t": "IMGPAGE",
+    "f": "intfac3.pcx"
+   },
+   {
+    "d": "images",
+    "t": "IMGPAGE",
+    "f": "intfac4.pcx"
+   },
+   {
+    "d": "images",
+    "t": "IMG",
+    "f": "intfac.img"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-7-barbarians-arizona.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-14-droid hubs.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-16-droid drives.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-17-droid weapons.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TERTILES",
+    "f": "tertilesc1.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "HWTERTILES",
+    "f": "tertilesc1hw.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-21-fx`s-hard.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-21-fx`s-soft.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-11-player buildings.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-12-player buildings.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-13-player buildings.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-15-droid hubs.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-18-fx`s-hard.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-18-fx`s-soft.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-19-fx`s-hard.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-19-fx`s-soft.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-20-fx`s-hard.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-20-fx`s-soft.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-10-laboratories.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-22-fx`s.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-23-fx`s-hard.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-23-fx`s-soft.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-24-fx`s.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-8-player buildings-bases.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-9-player-soft buildings-bases.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-9-player-hard buildings-bases.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-6-features-arizona.pcx"
+   }
+  ],
+  "wrf/vidmem2": [
+   {
+    "d": "images",
+    "t": "IMGPAGE",
+    "f": "intfac0.pcx"
+   },
+   {
+    "d": "images",
+    "t": "IMGPAGE",
+    "f": "intfac1.pcx"
+   },
+   {
+    "d": "images",
+    "t": "IMGPAGE",
+    "f": "intfac2.pcx"
+   },
+   {
+    "d": "images",
+    "t": "IMGPAGE",
+    "f": "intfac3.pcx"
+   },
+   {
+    "d": "images",
+    "t": "IMGPAGE",
+    "f": "intfac4.pcx"
+   },
+   {
+    "d": "images",
+    "t": "IMG",
+    "f": "intfac.img"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-7-barbarians-Urban.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-14-droid hubs.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-16-droid drives.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-17-droid weapons.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TERTILES",
+    "f": "tertilesc2.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "HWTERTILES",
+    "f": "tertilesc2hw.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-21-fx`s-hard.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-21-fx`s-soft.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-11-player buildings.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-12-player buildings.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-13-player buildings.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-15-droid hubs.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-18-fx`s-hard.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-18-fx`s-soft.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-19-fx`s-hard.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-19-fx`s-soft.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-20-fx`s-hard.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-20-fx`s-soft.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-10-laboratories.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-22-fx`s.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-23-fx`s-hard.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-23-fx`s-soft.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-24-fx`s.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-8-player buildings-bases Urban.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-9-player-soft buildings-bases-urban.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-9-player-hard buildings-bases-urban.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-6-features-Urban Area.pcx"
+   }
+  ],
+  "wrf/vidmem3": [
+   {
+    "d": "images",
+    "t": "IMGPAGE",
+    "f": "intfac0.pcx"
+   },
+   {
+    "d": "images",
+    "t": "IMGPAGE",
+    "f": "intfac1.pcx"
+   },
+   {
+    "d": "images",
+    "t": "IMGPAGE",
+    "f": "intfac2.pcx"
+   },
+   {
+    "d": "images",
+    "t": "IMGPAGE",
+    "f": "intfac3.pcx"
+   },
+   {
+    "d": "images",
+    "t": "IMGPAGE",
+    "f": "intfac4.pcx"
+   },
+   {
+    "d": "images",
+    "t": "IMG",
+    "f": "intfac.img"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-7-barbarians-arizona.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-14-droid hubs.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-16-droid drives.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-17-droid weapons.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TERTILES",
+    "f": "tertilesC3.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "HWTERTILES",
+    "f": "tertilesC3hw.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-21-fx`s-hard.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-21-fx`s-soft.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-11-player buildings.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-12-player buildings.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-13-player buildings.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-15-droid hubs.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-18-fx`s-hard.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-18-fx`s-soft.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-19-fx`s-hard.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-19-fx`s-soft.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-20-fx`s-hard.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-20-fx`s-soft.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-10-laboratories.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-22-fx`s.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-23-fx`s-hard.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-23-fx`s-soft.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-24-fx`s.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-8-player buildings-bases-Rockies.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-9-player-soft buildings-bases-rockies.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-9-player-hard buildings-bases-rockies.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-6-Features-Rockies.pcx"
+   }
+  ],
+  "wrf/vidmemc": [
+   {
+    "d": "images",
+    "t": "IMGPAGE",
+    "f": "intfac0.pcx"
+   },
+   {
+    "d": "images",
+    "t": "IMGPAGE",
+    "f": "intfac1.pcx"
+   },
+   {
+    "d": "images",
+    "t": "IMGPAGE",
+    "f": "intfac2.pcx"
+   },
+   {
+    "d": "images",
+    "t": "IMGPAGE",
+    "f": "intfac3.pcx"
+   },
+   {
+    "d": "images",
+    "t": "IMGPAGE",
+    "f": "intfac4.pcx"
+   },
+   {
+    "d": "images",
+    "t": "IMG",
+    "f": "intfac.img"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-7-barbarians-Kevlar.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-14-droid hubs.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-16-droid drives.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-17-droid weapons.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TERTILES",
+    "f": "tertilesc1.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "HWTERTILES",
+    "f": "tertilesc1hw.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-21-fx`s-hard.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-21-fx`s-soft.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-11-player buildings.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-12-player buildings.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-13-player buildings.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-15-droid hubs.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-18-fx`s-hard.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-18-fx`s-soft.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-19-fx`s-hard.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-19-fx`s-soft.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-20-fx`s-hard.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-20-fx`s-soft.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-10-laboratories.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-22-fx`s.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-23-fx`s-hard.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-23-fx`s-soft.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-24-fx`s.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-8-player buildings-bases.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-9-player-hard buildings-bases.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-9-player-soft buildings-bases.pcx"
+   },
+   {
+    "d": "texpages",
+    "t": "TEXPAGE",
+    "f": "page-6-features-arizona.pcx"
+   }
+  ]
+ },
+ "datasets": [
+  {
+   "name": "CAM_TUT3",
+   "kind": "campaign",
+   "slots": [
+    {
+     "unit": "wrf/vidmem3"
+    },
+    {
+     "unit": "wrf/basic"
+    },
+    {
+     "unit": "wrf/tut"
+    },
+    {
+     "unit": "wrf/audio"
+    },
+    {
+     "unit": "wrf/tutorial/tutaudio"
+    },
+    {
+     "unit": "wrf/piestats"
+    },
+    {
+     "unit": "wrf/stats"
+    },
+    {
+     "unit": "wrf/cam1res"
+    }
+   ]
+  },
+  {
+   "name": "TUTORIAL3",
+   "kind": "camstart",
+   "slots": [
+    {
+     "game": "wrf/tutorial/newtut.gam"
+    },
+    {
+     "unit": "wrf/tutorial/newtut"
+    }
+   ],
+   "base": "CAM_TUT3"
+  },
+  {
+   "name": "CAM_1",
+   "kind": "campaign",
+   "slots": [
+    {
+     "unit": "wrf/vidmem"
+    },
+    {
+     "unit": "wrf/basic"
+    },
+    {
+     "unit": "wrf/cam1"
+    },
+    {
+     "unit": "wrf/audio"
+    },
+    {
+     "unit": "wrf/piestats"
+    },
+    {
+     "unit": "wrf/stats"
+    },
+    {
+     "unit": "wrf/cam1res"
+    }
+   ]
+  },
+  {
+   "name": "CAM_1KEVLAR",
+   "kind": "campaign",
+   "slots": [
+    {
+     "unit": "wrf/vidmemc"
+    },
+    {
+     "unit": "wrf/basic"
+    },
+    {
+     "unit": "wrf/cam1"
+    },
+    {
+     "unit": "wrf/audio"
+    },
+    {
+     "unit": "wrf/piestats"
+    },
+    {
+     "unit": "wrf/stats"
+    },
+    {
+     "unit": "wrf/cam1res"
+    }
+   ]
+  },
+  {
+   "name": "CAM_1A",
+   "kind": "camstart",
+   "slots": [
+    {
+     "game": "wrf/cam1/cam1a.gam"
+    },
+    {
+     "unit": "wrf/cam1/cam1a"
+    }
+   ],
+   "base": "CAM_1"
+  },
+  {
+   "name": "CAM_1B",
+   "kind": "expand",
+   "slots": [
+    {
+     "game": "wrf/cam1/cam1b.gam"
+    },
+    {
+     "unit": "wrf/cam1/cam1b"
+    }
+   ],
+   "base": "CAM_1"
+  },
+  {
+   "name": "SUB_1_1S",
+   "kind": "between",
+   "slots": [
+    {
+     "unit": "wrf/cam1/sub1-1s"
+    }
+   ],
+   "base": "CAM_1"
+  },
+  {
+   "name": "SUB_1_1",
+   "kind": "miss_keep",
+   "slots": [
+    {
+     "game": "wrf/cam1/sub1-1.gam"
+    },
+    {
+     "unit": "wrf/cam1/sub1-1"
+    }
+   ],
+   "base": "CAM_1"
+  },
+  {
+   "name": "SUB_1_2S",
+   "kind": "between",
+   "slots": [
+    {
+     "unit": "wrf/cam1/sub1-2s"
+    }
+   ],
+   "base": "CAM_1"
+  },
+  {
+   "name": "SUB_1_2",
+   "kind": "miss_keep",
+   "slots": [
+    {
+     "game": "wrf/cam1/sub1-2.gam"
+    },
+    {
+     "unit": "wrf/cam1/sub1-2"
+    }
+   ],
+   "base": "CAM_1"
+  },
+  {
+   "name": "SUB_1_3S",
+   "kind": "between",
+   "slots": [
+    {
+     "unit": "wrf/cam1/sub1-3s"
+    }
+   ],
+   "base": "CAM_1"
+  },
+  {
+   "name": "SUB_1_3",
+   "kind": "miss_keep",
+   "slots": [
+    {
+     "game": "wrf/cam1/sub1-3.gam"
+    },
+    {
+     "unit": "wrf/cam1/sub1-3"
+    }
+   ],
+   "base": "CAM_1"
+  },
+  {
+   "name": "CAM_1C",
+   "kind": "expand",
+   "slots": [
+    {
+     "unit": "wrf/cam1/cam1kevlar"
+    },
+    {
+     "game": "wrf/cam1/cam1c.gam"
+    },
+    {
+     "unit": "wrf/cam1/cam1c"
+    }
+   ],
+   "base": "CAM_1"
+  },
+  {
+   "name": "CAM_1CA",
+   "kind": "expand",
+   "slots": [
+    {
+     "unit": "wrf/cam1/cam1kevlar"
+    },
+    {
+     "game": "wrf/cam1/cam1ca.gam"
+    },
+    {
+     "unit": "wrf/cam1/cam1ca"
+    }
+   ],
+   "base": "CAM_1"
+  },
+  {
+   "name": "SUB_1_4AS",
+   "kind": "between",
+   "slots": [
+    {
+     "unit": "wrf/cam1/cam1kevlar"
+    },
+    {
+     "unit": "wrf/cam1/sub1-4as"
+    }
+   ],
+   "base": "CAM_1"
+  },
+  {
+   "name": "SUB_1_4A",
+   "kind": "miss_keep",
+   "slots": [
+    {
+     "unit": "wrf/cam1/cam1kevlar"
+    },
+    {
+     "game": "wrf/cam1/sub1-4.gam"
+    },
+    {
+     "unit": "wrf/cam1/sub1-4a"
+    }
+   ],
+   "base": "CAM_1"
+  },
+  {
+   "name": "SUB_1_5S",
+   "kind": "between",
+   "slots": [
+    {
+     "unit": "wrf/cam1/cam1kevlar"
+    },
+    {
+     "unit": "wrf/cam1/sub1-5s"
+    }
+   ],
+   "base": "CAM_1"
+  },
+  {
+   "name": "SUB_1_5",
+   "kind": "miss_keep",
+   "slots": [
+    {
+     "unit": "wrf/cam1/cam1kevlar"
+    },
+    {
+     "game": "wrf/cam1/sub1-5.gam"
+    },
+    {
+     "unit": "wrf/cam1/sub1-5"
+    }
+   ],
+   "base": "CAM_1"
+  },
+  {
+   "name": "CAM_1A-C",
+   "kind": "expand",
+   "slots": [
+    {
+     "unit": "wrf/cam1/cam1kevlar"
+    },
+    {
+     "game": "wrf/cam1/cam1ca.gam"
+    },
+    {
+     "unit": "wrf/cam1/cam1a-c"
+    }
+   ],
+   "base": "CAM_1"
+  },
+  {
+   "name": "SUB_1_7S",
+   "kind": "between",
+   "slots": [
+    {
+     "unit": "wrf/cam1/cam1kevlar"
+    },
+    {
+     "unit": "wrf/cam1/sub1-7s"
+    }
+   ],
+   "base": "CAM_1"
+  },
+  {
+   "name": "SUB_1_7",
+   "kind": "miss_keep",
+   "slots": [
+    {
+     "unit": "wrf/cam1/cam1kevlar"
+    },
+    {
+     "game": "wrf/cam1/sub1-7.gam"
+    },
+    {
+     "unit": "wrf/cam1/sub1-7"
+    }
+   ],
+   "base": "CAM_1"
+  },
+  {
+   "name": "SUB_1_DS",
+   "kind": "between",
+   "slots": [
+    {
+     "unit": "wrf/cam1/cam1kevlar"
+    },
+    {
+     "unit": "wrf/cam1/sub1-ds"
+    }
+   ],
+   "base": "CAM_1"
+  },
+  {
+   "name": "SUB_1_D",
+   "kind": "miss_keep",
+   "slots": [
+    {
+     "unit": "wrf/cam1/cam1kevlar"
+    },
+    {
+     "game": "wrf/cam1/sub1-d.gam"
+    },
+    {
+     "unit": "wrf/cam1/sub1-d"
+    }
+   ],
+   "base": "CAM_1"
+  },
+  {
+   "name": "CAM_1END",
+   "kind": "between",
+   "slots": [
+    {
+     "unit": "wrf/cam1/cam1kevlar"
+    },
+    {
+     "unit": "wrf/cam1/cam1end"
+    }
+   ],
+   "base": "CAM_1"
+  },
+  {
+   "name": "CAM_2",
+   "kind": "campaign",
+   "slots": [
+    {
+     "unit": "wrf/vidmem2"
+    },
+    {
+     "unit": "wrf/basic"
+    },
+    {
+     "unit": "wrf/cam2"
+    },
+    {
+     "unit": "wrf/audio"
+    },
+    {
+     "unit": "wrf/piestats"
+    },
+    {
+     "unit": "wrf/stats"
+    },
+    {
+     "unit": "wrf/cam2res"
+    }
+   ]
+  },
+  {
+   "name": "CAM_2A",
+   "kind": "camstart",
+   "slots": [
+    {
+     "game": "wrf/cam2/cam2start.gam"
+    },
+    {
+     "unit": "wrf/cam2/cam2a"
+    }
+   ],
+   "base": "CAM_2"
+  },
+  {
+   "name": "CAM_2A",
+   "kind": "camchange",
+   "slots": [
+    {
+     "unit": "wrf/cam2/cam2change"
+    },
+    {
+     "game": "wrf/cam2/cam2start.gam"
+    },
+    {
+     "unit": "wrf/cam2/cam2a"
+    }
+   ],
+   "base": "CAM_1"
+  },
+  {
+   "name": "SUB_2_1S",
+   "kind": "between",
+   "slots": [
+    {
+     "unit": "wrf/cam2/sub2-1s"
+    }
+   ],
+   "base": "CAM_2"
+  },
+  {
+   "name": "SUB_2_1",
+   "kind": "miss_keep",
+   "slots": [
+    {
+     "game": "wrf/cam2/sub2-1.gam"
+    },
+    {
+     "unit": "wrf/cam2/sub2-1"
+    }
+   ],
+   "base": "CAM_2"
+  },
+  {
+   "name": "CAM_2B",
+   "kind": "expand",
+   "slots": [
+    {
+     "game": "wrf/cam2/cam2b.gam"
+    },
+    {
+     "unit": "wrf/cam2/cam2b"
+    }
+   ],
+   "base": "CAM_2"
+  },
+  {
+   "name": "SUB_2_2S",
+   "kind": "between",
+   "slots": [
+    {
+     "unit": "wrf/cam2/sub2-2s"
+    }
+   ],
+   "base": "CAM_2"
+  },
+  {
+   "name": "SUB_2_2",
+   "kind": "miss_keep",
+   "slots": [
+    {
+     "game": "wrf/cam2/sub2-2.gam"
+    },
+    {
+     "unit": "wrf/cam2/sub2-2"
+    }
+   ],
+   "base": "CAM_2"
+  },
+  {
+   "name": "CAM_2C",
+   "kind": "expand",
+   "slots": [
+    {
+     "game": "wrf/cam2/cam2c.gam"
+    },
+    {
+     "unit": "wrf/cam2/cam2c"
+    }
+   ],
+   "base": "CAM_2"
+  },
+  {
+   "name": "SUB_2_5S",
+   "kind": "between",
+   "slots": [
+    {
+     "unit": "wrf/cam2/sub2-5s"
+    }
+   ],
+   "base": "CAM_2"
+  },
+  {
+   "name": "SUB_2_5",
+   "kind": "miss_keep",
+   "slots": [
+    {
+     "game": "wrf/cam2/sub2-5.gam"
+    },
+    {
+     "unit": "wrf/cam2/sub2-5"
+    }
+   ],
+   "base": "CAM_2"
+  },
+  {
+   "name": "SUB_2DS",
+   "kind": "between",
+   "slots": [
+    {
+     "unit": "wrf/cam2/sub2-ds"
+    }
+   ],
+   "base": "CAM_2"
+  },
+  {
+   "name": "SUB_2D",
+   "kind": "miss_keep",
+   "slots": [
+    {
+     "game": "wrf/cam2/sub2-d.gam"
+    },
+    {
+     "unit": "wrf/cam2/sub2-d"
+    }
+   ],
+   "base": "CAM_2"
+  },
+  {
+   "name": "SUB_2_6S",
+   "kind": "between",
+   "slots": [
+    {
+     "unit": "wrf/cam2/sub2-6s"
+    }
+   ],
+   "base": "CAM_2"
+  },
+  {
+   "name": "SUB_2_6",
+   "kind": "miss_keep",
+   "slots": [
+    {
+     "game": "wrf/cam2/sub2-6.gam"
+    },
+    {
+     "unit": "wrf/cam2/sub2-6"
+    }
+   ],
+   "base": "CAM_2"
+  },
+  {
+   "name": "SUB_2_7S",
+   "kind": "between",
+   "slots": [
+    {
+     "unit": "wrf/cam2/sub2-7s"
+    }
+   ],
+   "base": "CAM_2"
+  },
+  {
+   "name": "SUB_2_7",
+   "kind": "miss_keep",
+   "slots": [
+    {
+     "game": "wrf/cam2/sub2-7.gam"
+    },
+    {
+     "unit": "wrf/cam2/sub2-7"
+    }
+   ],
+   "base": "CAM_2"
+  },
+  {
+   "name": "SUB_2_8S",
+   "kind": "between",
+   "slots": [
+    {
+     "unit": "wrf/cam2/sub2-8s"
+    }
+   ],
+   "base": "CAM_2"
+  },
+  {
+   "name": "SUB_2_8",
+   "kind": "miss_keep",
+   "slots": [
+    {
+     "game": "wrf/cam2/sub2-8.gam"
+    },
+    {
+     "unit": "wrf/cam2/sub2-8"
+    }
+   ],
+   "base": "CAM_2"
+  },
+  {
+   "name": "CAM_2END",
+   "kind": "between",
+   "slots": [
+    {
+     "unit": "wrf/cam2/cam2end"
+    }
+   ],
+   "base": "CAM_2"
+  },
+  {
+   "name": "CAM_3",
+   "kind": "campaign",
+   "slots": [
+    {
+     "unit": "wrf/vidmem3"
+    },
+    {
+     "unit": "wrf/basic"
+    },
+    {
+     "unit": "wrf/cam3"
+    },
+    {
+     "unit": "wrf/audio"
+    },
+    {
+     "unit": "wrf/piestats"
+    },
+    {
+     "unit": "wrf/stats"
+    },
+    {
+     "unit": "wrf/cam3res"
+    }
+   ]
+  },
+  {
+   "name": "CAM_3A",
+   "kind": "camstart",
+   "slots": [
+    {
+     "game": "wrf/cam3/cam3a.gam"
+    },
+    {
+     "unit": "wrf/cam3/cam3a"
+    }
+   ],
+   "base": "CAM_3"
+  },
+  {
+   "name": "CAM_3A",
+   "kind": "camchange",
+   "slots": [
+    {
+     "unit": "wrf/cam3/cam3change"
+    },
+    {
+     "game": "wrf/cam3/cam3a.gam"
+    },
+    {
+     "unit": "wrf/cam3/cam3a"
+    }
+   ],
+   "base": "CAM_2"
+  },
+  {
+   "name": "SUB_3_1S",
+   "kind": "between",
+   "slots": [
+    {
+     "unit": "wrf/cam3/sub3-1s"
+    }
+   ],
+   "base": "CAM_3"
+  },
+  {
+   "name": "SUB_3_1",
+   "kind": "miss_keep_limbo",
+   "slots": [
+    {
+     "game": "wrf/cam3/sub3-1.gam"
+    },
+    {
+     "unit": "wrf/cam3/sub3-1"
+    }
+   ],
+   "base": "CAM_3"
+  },
+  {
+   "name": "CAM_3B",
+   "kind": "expand",
+   "slots": [
+    {
+     "game": "wrf/cam3/cam3b.gam"
+    },
+    {
+     "unit": "wrf/cam3/cam3b"
+    }
+   ],
+   "base": "CAM_3"
+  },
+  {
+   "name": "SUB_3_2S",
+   "kind": "between",
+   "slots": [
+    {
+     "unit": "wrf/cam3/sub3-2s"
+    }
+   ],
+   "base": "CAM_3"
+  },
+  {
+   "name": "SUB_3_2",
+   "kind": "miss_keep",
+   "slots": [
+    {
+     "game": "wrf/cam3/sub3-2.gam"
+    },
+    {
+     "unit": "wrf/cam3/sub3-2"
+    }
+   ],
+   "base": "CAM_3"
+  },
+  {
+   "name": "CAM3A-B",
+   "kind": "expand",
+   "slots": [
+    {
+     "game": "wrf/cam3/cam3a-b.gam"
+    },
+    {
+     "unit": "wrf/cam3/cam3ab"
+    }
+   ],
+   "base": "CAM_3"
+  },
+  {
+   "name": "CAM3C",
+   "kind": "expand_limbo",
+   "slots": [
+    {
+     "game": "wrf/cam3/cam3c.gam"
+    },
+    {
+     "unit": "wrf/cam3/cam3c"
+    }
+   ],
+   "base": "CAM_3"
+  },
+  {
+   "name": "CAM3A-D1",
+   "kind": "expand",
+   "slots": [
+    {
+     "game": "wrf/cam3/cam3d.gam"
+    },
+    {
+     "unit": "wrf/cam3/cam3ad1"
+    }
+   ],
+   "base": "CAM_3"
+  },
+  {
+   "name": "CAM3A-D2",
+   "kind": "expand",
+   "slots": [
+    {
+     "game": "wrf/cam3/cam3ad.gam"
+    },
+    {
+     "unit": "wrf/cam3/cam3ad2"
+    }
+   ],
+   "base": "CAM_3"
+  },
+  {
+   "name": "CAM_3_4S",
+   "kind": "between",
+   "slots": [
+    {
+     "unit": "wrf/cam3/sub3-4s"
+    }
+   ],
+   "base": "CAM_3"
+  },
+  {
+   "name": "CAM_3_4",
+   "kind": "miss_keep",
+   "slots": [
+    {
+     "game": "wrf/cam3/cam3-4.gam"
+    },
+    {
+     "unit": "wrf/cam3/sub3-4"
+    }
+   ],
+   "base": "CAM_3"
+  },
+  {
+   "name": "MULTI_CAM_1",
+   "kind": "campaign",
+   "slots": [
+    {
+     "unit": "wrf/vidmem"
+    },
+    {
+     "unit": "wrf/basic"
+    },
+    {
+     "unit": "wrf/cam1"
+    },
+    {
+     "unit": "wrf/audio"
+    },
+    {
+     "unit": "wrf/piestats"
+    },
+    {
+     "unit": "wrf/stats"
+    },
+    {
+     "unit": "wrf/multires"
+    }
+   ]
+  },
+  {
+   "name": "MULTI_CAM_2",
+   "kind": "campaign",
+   "slots": [
+    {
+     "unit": "wrf/vidmem2"
+    },
+    {
+     "unit": "wrf/basic"
+    },
+    {
+     "unit": "wrf/cam2"
+    },
+    {
+     "unit": "wrf/audio"
+    },
+    {
+     "unit": "wrf/piestats"
+    },
+    {
+     "unit": "wrf/stats"
+    },
+    {
+     "unit": "wrf/multires"
+    }
+   ]
+  },
+  {
+   "name": "MULTI_CAM_3",
+   "kind": "campaign",
+   "slots": [
+    {
+     "unit": "wrf/vidmem3"
+    },
+    {
+     "unit": "wrf/basic"
+    },
+    {
+     "unit": "wrf/cam3"
+    },
+    {
+     "unit": "wrf/audio"
+    },
+    {
+     "unit": "wrf/piestats"
+    },
+    {
+     "unit": "wrf/stats"
+    },
+    {
+     "unit": "wrf/multires"
+    }
+   ]
+  },
+  {
+   "name": "Rush",
+   "kind": "multi",
+   "slots": [
+    {
+     "game": "multiplay/maps/4c-rush.gam"
+    },
+    {
+     "unit": "wrf/multi/campaign-scav"
+    },
+    {
+     "unit": "wrf/multi/fog1"
+    }
+   ],
+   "players": 4,
+   "type": 12,
+   "base": "MULTI_CAM_1"
+  },
+  {
+   "name": "Rush2",
+   "kind": "multi",
+   "slots": [
+    {
+     "game": "multiplay/maps/4c-rush2.gam"
+    },
+    {
+     "unit": "wrf/multi/campaign-scav"
+    },
+    {
+     "unit": "wrf/multi/fog1"
+    }
+   ],
+   "players": 4,
+   "type": 12,
+   "base": "MULTI_CAM_1"
+  },
+  {
+   "name": "Startup",
+   "kind": "multi",
+   "slots": [
+    {
+     "game": "multiplay/maps/2c-startup.gam"
+    },
+    {
+     "unit": "wrf/multi/campaign-scav"
+    },
+    {
+     "unit": "wrf/multi/fog1"
+    }
+   ],
+   "players": 2,
+   "type": 12,
+   "base": "MULTI_CAM_1"
+  },
+  {
+   "name": "MizaMaze",
+   "kind": "multi",
+   "slots": [
+    {
+     "game": "multiplay/maps/8c-mizamaze.gam"
+    },
+    {
+     "unit": "wrf/multi/campaign"
+    },
+    {
+     "unit": "wrf/multi/fog1"
+    }
+   ],
+   "players": 8,
+   "type": 12,
+   "base": "MULTI_CAM_1"
+  },
+  {
+   "name": "Clover",
+   "kind": "multi",
+   "slots": [
+    {
+     "game": "multiplay/maps/8c-clover.gam"
+    },
+    {
+     "unit": "wrf/multi/campaign"
+    },
+    {
+     "unit": "wrf/multi/fog1"
+    }
+   ],
+   "players": 8,
+   "type": 12,
+   "base": "MULTI_CAM_1"
+  },
+  {
+   "name": "UrbanChasm",
+   "kind": "multi",
+   "slots": [
+    {
+     "game": "multiplay/maps/2c-urbanchasm.gam"
+    },
+    {
+     "unit": "wrf/multi/campaign"
+    },
+    {
+     "unit": "wrf/multi/fog2"
+    }
+   ],
+   "players": 2,
+   "type": 12,
+   "base": "MULTI_CAM_2"
+  },
+  {
+   "name": "UrbanDuel",
+   "kind": "multi",
+   "slots": [
+    {
+     "game": "multiplay/maps/4c-urbanduel.gam"
+    },
+    {
+     "unit": "wrf/multi/campaign"
+    },
+    {
+     "unit": "wrf/multi/fog2"
+    }
+   ],
+   "players": 4,
+   "type": 12,
+   "base": "MULTI_CAM_2"
+  },
+  {
+   "name": "Manhattan",
+   "kind": "multi",
+   "slots": [
+    {
+     "game": "multiplay/maps/8c-manhattan.gam"
+    },
+    {
+     "unit": "wrf/multi/campaign"
+    },
+    {
+     "unit": "wrf/multi/fog2"
+    }
+   ],
+   "players": 8,
+   "type": 12,
+   "base": "MULTI_CAM_2"
+  },
+  {
+   "name": "HighGround",
+   "kind": "multi",
+   "slots": [
+    {
+     "game": "multiplay/maps/2c-highground.gam"
+    },
+    {
+     "unit": "wrf/multi/campaign"
+    },
+    {
+     "unit": "wrf/multi/fog3"
+    }
+   ],
+   "players": 2,
+   "type": 12,
+   "base": "MULTI_CAM_3"
+  },
+  {
+   "name": "Mountain",
+   "kind": "multi",
+   "slots": [
+    {
+     "game": "multiplay/maps/4c-mountain.gam"
+    },
+    {
+     "unit": "wrf/multi/campaign"
+    },
+    {
+     "unit": "wrf/multi/fog3"
+    }
+   ],
+   "players": 4,
+   "type": 12,
+   "base": "MULTI_CAM_3"
+  },
+  {
+   "name": "Bananas",
+   "kind": "multi",
+   "slots": [
+    {
+     "game": "multiplay/maps/8c-bananas.gam"
+    },
+    {
+     "unit": "wrf/multi/campaign"
+    },
+    {
+     "unit": "wrf/multi/fog3"
+    }
+   ],
+   "players": 8,
+   "type": 12,
+   "base": "MULTI_CAM_3"
+  },
+  {
+   "name": "Sk-Rush",
+   "kind": "multi",
+   "slots": [
+    {
+     "game": "multiplay/maps/4c-rush.gam"
+    },
+    {
+     "unit": "wrf/multi/skirmish4"
+    },
+    {
+     "unit": "wrf/multi/fog1"
+    }
+   ],
+   "players": 4,
+   "type": 14,
+   "base": "MULTI_CAM_1"
+  },
+  {
+   "name": "Sk-Rush2",
+   "kind": "multi",
+   "slots": [
+    {
+     "game": "multiplay/maps/4c-rush2.gam"
+    },
+    {
+     "unit": "wrf/multi/skirmish4"
+    },
+    {
+     "unit": "wrf/multi/fog1"
+    }
+   ],
+   "players": 4,
+   "type": 14,
+   "base": "MULTI_CAM_1"
+  },
+  {
+   "name": "Sk-Startup",
+   "kind": "multi",
+   "slots": [
+    {
+     "game": "multiplay/maps/2c-startup.gam"
+    },
+    {
+     "unit": "wrf/multi/skirmish2"
+    },
+    {
+     "unit": "wrf/multi/fog1"
+    }
+   ],
+   "players": 2,
+   "type": 14,
+   "base": "MULTI_CAM_1"
+  },
+  {
+   "name": "Sk-Clover",
+   "kind": "multi",
+   "slots": [
+    {
+     "game": "multiplay/maps/8c-clover.gam"
+    },
+    {
+     "unit": "wrf/multi/skirmish8"
+    },
+    {
+     "unit": "wrf/multi/fog1"
+    }
+   ],
+   "players": 8,
+   "type": 14,
+   "base": "MULTI_CAM_1"
+  },
+  {
+   "name": "Sk-MizaMaze",
+   "kind": "multi",
+   "slots": [
+    {
+     "game": "multiplay/maps/8c-mizamaze.gam"
+    },
+    {
+     "unit": "wrf/multi/skirmish8"
+    },
+    {
+     "unit": "wrf/multi/fog1"
+    }
+   ],
+   "players": 8,
+   "type": 14,
+   "base": "MULTI_CAM_1"
+  },
+  {
+   "name": "Sk-UrbanChasm",
+   "kind": "multi",
+   "slots": [
+    {
+     "game": "multiplay/maps/2c-urbanchasm.gam"
+    },
+    {
+     "unit": "wrf/multi/skirmish2"
+    },
+    {
+     "unit": "wrf/multi/fog2"
+    }
+   ],
+   "players": 2,
+   "type": 14,
+   "base": "MULTI_CAM_2"
+  },
+  {
+   "name": "Sk-UrbanDuel",
+   "kind": "multi",
+   "slots": [
+    {
+     "game": "multiplay/maps/4c-urbanduel.gam"
+    },
+    {
+     "unit": "wrf/multi/skirmish4"
+    },
+    {
+     "unit": "wrf/multi/fog2"
+    }
+   ],
+   "players": 4,
+   "type": 14,
+   "base": "MULTI_CAM_2"
+  },
+  {
+   "name": "Sk-Manhattan",
+   "kind": "multi",
+   "slots": [
+    {
+     "game": "multiplay/maps/8c-manhattan.gam"
+    },
+    {
+     "unit": "wrf/multi/skirmish8"
+    },
+    {
+     "unit": "wrf/multi/fog2"
+    }
+   ],
+   "players": 8,
+   "type": 14,
+   "base": "MULTI_CAM_2"
+  },
+  {
+   "name": "Sk-HighGround",
+   "kind": "multi",
+   "slots": [
+    {
+     "game": "multiplay/maps/2c-highground.gam"
+    },
+    {
+     "unit": "wrf/multi/skirmish2"
+    },
+    {
+     "unit": "wrf/multi/fog3"
+    }
+   ],
+   "players": 2,
+   "type": 14,
+   "base": "MULTI_CAM_3"
+  },
+  {
+   "name": "Sk-Mountain",
+   "kind": "multi",
+   "slots": [
+    {
+     "game": "multiplay/maps/4c-mountain.gam"
+    },
+    {
+     "unit": "wrf/multi/skirmish4"
+    },
+    {
+     "unit": "wrf/multi/fog3"
+    }
+   ],
+   "players": 4,
+   "type": 14,
+   "base": "MULTI_CAM_3"
+  },
+  {
+   "name": "Sk-Bananas",
+   "kind": "multi",
+   "slots": [
+    {
+     "game": "multiplay/maps/8c-bananas.gam"
+    },
+    {
+     "unit": "wrf/multi/skirmish8"
+    },
+    {
+     "unit": "wrf/multi/fog3"
+    }
+   ],
+   "players": 8,
+   "type": 14,
+   "base": "MULTI_CAM_3"
+  }
+ ]
+}

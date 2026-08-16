@@ -1,20 +1,6 @@
 #include "pch.h"
 #include "Frame.h"
 #include "FrameResource.h"
-#include "ResLY.h"
-
-#include "WDG.h"
-#include "MultiWDG.h"
-
-// control how data files are loaded
-#define SINGLE_BUFFER_LOAD
-
-extern void InitWDG(char* WdgFileName);
-
-// Local prototypes
-void ResetBinaryResourceTypeCount(void);
-void AddBinaryResourceType(char* ResourceType);
-static void ReleaseWRF(UBYTE** pBuffer);
 
 static RES_TYPE* psResTypes = nullptr;
 
@@ -67,41 +53,12 @@ BOOL resInitialise(void)
 
   ResetResourceFile();
 
-  ResetBinaryResourceTypeCount(); //Reset the binary types
-
-#ifdef BINARY_PIES
-  AddBinaryResourceType("IMD");
-#endif
-#ifdef BINARY_SCRIPTS
-  AddBinaryResourceType("SCRIPT");
-#endif
-
-  FILE_InitialiseCache(2 * 1024 * 1024); // set the cache to be 2meg for the time being ...!
-  if (!wdgMultiInit())
-    return FALSE;
-
-  /*
-	res=WDG_SetCurrentWDG("warzone.wdg");
-	if (res==TRUE)	// only initialise the cache if the wdg is there!
-	{
-		// if you allocate the cache to a size of zero then it will use the default area for the cache
-
-		// on the PSX this will be the primative buffer
-
-		FILE_InitialiseCache(2*1024*1024);		// set the cache to be 2meg for the time being ...!
-	}
-*/
-
   return TRUE;
 }
 
 /* Shutdown the resource module */
 void resShutDown(void)
 {
-  FILE_ShutdownCache();
-  WDG_SetCurrentWDG(nullptr);
-  wdgMultiShutdown();
-
   if (psResTypes != nullptr)
   {
     Neuron::DebugTrace("resShutDown: warning resources still allocated");
@@ -112,13 +69,9 @@ void resShutDown(void)
 // set the base resource directory
 void resSetBaseDir(STRING* pResDir) { strncpy(aResDir, pResDir, FILE_MAXCHAR - 1); }
 
-/* Parse the res file */
-BOOL resLoad(STRING* pResFile, SDWORD blockID, UBYTE* pLoadBuffer, SDWORD bufferSize)
+/* Begin loading a block of resources */
+void resBeginBlock(SDWORD blockID, UBYTE* pLoadBuffer, SDWORD bufferSize)
 {
-  UBYTE* pBuffer;
-  UDWORD size;
-  BOOL bAllowWRFProcessing;
-
   strcpy(aCurrResDir, aResDir);
 
   // Note the buffer for file data
@@ -126,44 +79,36 @@ BOOL resLoad(STRING* pResFile, SDWORD blockID, UBYTE* pLoadBuffer, SDWORD buffer
   fileBufferSize = bufferSize;
   // Note the block id number
   resBlockID = blockID;
+}
 
-  bAllowWRFProcessing = WDG_AllowWRFs();
+/* Set the directory subsequent resLoadFile calls resolve against. The
+   semantics are the WRF `directory` directive's, kept exactly: rooted paths
+   replace the base directory, everything else appends to it, and a trailing
+   backslash is added unless the directory is empty. */
+void resSetDirectory(const STRING* pDir)
+{
+  const size_t dirLen = strlen(pDir);
 
-  // Do we want to check to see if the file is in the current WDG ?
-  if (WDG_AllowWDGs() == TRUE)
+  if (strlen(aResDir) + dirLen + 2 >= FILE_MAXCHAR)
   {
-    BOOL bResult;
-
-    bResult = WDG_ProcessWRF(pResFile, TRUE);
-    // we might need to return a little more than just a TRUE or FALSE here ... so that we know if the failed finding a wdg or at a later stage
-
-    // We we got all the files from the WDG we don't need to even consider the WRF
-    if (bResult == TRUE)
-      bAllowWRFProcessing = FALSE;
+    Neuron::Fatal("resSetDirectory: directory too long: {}{}", aResDir, pDir);
+    return;
   }
 
-  if (bAllowWRFProcessing == TRUE)
+  if ((dirLen >= 2 && pDir[1] == ':') || (dirLen >= 1 && pDir[0] == '\\'))
+    strcpy(aCurrResDir, pDir);
+  else
   {
-#ifndef FINALBUILD		// don't allow wrf's on final build
-
-    // Load the RES file
-    if (!LoadWRF(pResFile, &pBuffer, &size))
-      return FALSE;
-
-    // and parse it
-    resSetInputBuffer(pBuffer, size);
-    if (res_parse() != 0)
-      return FALSE;
-
-    // reset the memory system
-
-    ReleaseWRF(&pBuffer);
-#else
-    return FALSE;
-#endif
+    strcpy(aCurrResDir, aResDir);
+    strcat(aCurrResDir, pDir);
   }
 
-  return TRUE;
+  if (dirLen > 0)
+  {
+    const size_t len = strlen(aCurrResDir);
+    aCurrResDir[len] = '\\';
+    aCurrResDir[len + 1] = 0;
+  }
 }
 
 /* Allocate a RES_TYPE structure */
@@ -209,25 +154,6 @@ BOOL resAddBufferLoad(STRING* pType, RES_BUFFERLOAD buffLoad, RES_FREE release)
     return FALSE;
 
   psT->buffLoad = buffLoad;
-  psT->fileLoad = nullptr;
-  psT->release = release;
-
-  psT->psNext = psResTypes;
-  psResTypes = psT;
-
-  return TRUE;
-}
-
-/* Add a file name load function for a file type */
-BOOL resAddFileLoad(STRING* pType, RES_FILELOAD fileLoad, RES_FREE release)
-{
-  RES_TYPE* psT;
-
-  if (!resAlloc(pType, &psT))
-    return FALSE;
-
-  psT->buffLoad = nullptr;
-  psT->fileLoad = fileLoad;
   psT->release = release;
 
   psT->psNext = psResTypes;
@@ -322,7 +248,6 @@ using RESOURCEFILE = struct
 #define RESFILETYPE_EMPTY (0)			// empty entry
 #define RESFILETYPE_PC_SBL (1)			// Johns SBL stuff
 #define RESFILETYPE_LOADED (2)			// Loaded from a file (!)
-#define RESFILETYPE_WDGPTR (3)			// A pointer from the WDG cache
 
 #define MAXLOADEDRESOURCES (6)
 static RESOURCEFILE LoadedResourceFiles[MAXLOADEDRESOURCES];
@@ -371,7 +296,6 @@ BOOL RetreiveResourceFile(char* ResourceName, RESOURCEFILE** NewResource)
     return (TRUE);
   }
 
-  // This is needed for files that do not fit in the WDG cache ... (VAB file for example)
   if (!loadFile(ResourceName, &pBuffer, &size))
     return FALSE;
 
@@ -395,32 +319,6 @@ void FreeResourceFile(RESOURCEFILE* OldResource)
   OldResource->type = RESFILETYPE_EMPTY;
 }
 
-/*
-	Some routines to handle the loading of binary format files
-	- any type of file that is added to the list using AddBinaryResourceType() will be presummed to be
-	binary, and will be loaded from the directory called "olddirectoryname.bin"
-
-	- This is currently only used for files of type IMD on the PSX (when ADD_PIEBINDIR is defined)
-
-*/
-
-#define MAXBINTYPENAME (6)	// Max number of letters that the type of name can be binary (i.e. SCRIPT = 6)
-#define MAXBINTYPES (4)		// only four different types supported
-char BinaryTypeNames[MAXBINTYPES][MAXBINTYPENAME + 1];
-UDWORD BinaryResourceTypeCount = 0;
-
-// Clear out the table of resource types that are stored as binary
-void ResetBinaryResourceTypeCount(void) { BinaryResourceTypeCount = 0; }
-
-void AddBinaryResourceType(char* ResourceType)
-{
-  ASSERT(strlen(ResourceType)<=MAXBINTYPENAME); // Type name is too long (can only be 3 letters)
-  ASSERT(BinaryResourceTypeCount<=(MAXBINTYPES-1)); // too many types of binary file
-
-  strcpy(BinaryTypeNames[BinaryResourceTypeCount], ResourceType);
-  BinaryResourceTypeCount++;
-}
-
 void resDataInit(RES_DATA* psRes, const STRING* DebugName, UDWORD DataIDHash, void* pData, UDWORD BlockID)
 {
   psRes->pData = pData;
@@ -434,8 +332,6 @@ void resDataInit(RES_DATA* psRes, const STRING* DebugName, UDWORD DataIDHash, vo
 #endif
 }
 
-#ifndef FINALBUILD		// dont want this in final psx version
-
 /* Call the load function for a file */
 BOOL resLoadFile(STRING* pType, STRING* pFile)
 {
@@ -443,7 +339,6 @@ BOOL resLoadFile(STRING* pType, STRING* pFile)
   void* pData;
   RES_DATA* psRes;
   STRING aFileName[FILE_MAXCHAR];
-  UDWORD BinaryType;
 
   BOOL loadresource;
 
@@ -489,20 +384,6 @@ BOOL resLoadFile(STRING* pType, STRING* pFile)
       return FALSE;
     }
     strcpy(aFileName, aCurrResDir);
-
-    // Check to see if it's a type of file that is stored as BINARY , if it is then add .bin to the directory name
-    for (BinaryType = 0; BinaryType < BinaryResourceTypeCount; BinaryType++)
-    {
-      if (strcmp(pType, BinaryTypeNames[BinaryType]) == 0)
-      {
-#ifdef DEBUG
-#endif
-        aFileName[strlen(aFileName) - 1] = 0; // shorten string by 1 character to remove slash
-        strcat(aFileName, ".BIN\\"); // add the binary directory extension		
-        break; // exit out of the loop
-      }
-    }
-
     strcat(aFileName, pFile);
 
     strcpy(LastResourceFilename, pFile); // Save the filename in case any routines need it
@@ -530,9 +411,6 @@ BOOL resLoadFile(STRING* pType, STRING* pFile)
 
       resDoResLoadCallback(); // do callback.
     }
-#ifdef NORESHASH //WIN32
-		else if (psT->fileLoad) { if (!psT->fileLoad(aFileName, &pData)) { return FALSE; } }
-#endif
     else
     {
       Neuron::Fatal("resLoadFile:  No load functions for this type ({})\n",pType);
@@ -558,7 +436,6 @@ BOOL resLoadFile(STRING* pType, STRING* pFile)
   }
   return TRUE;
 }
-#endif	// ifndef FINALBUILD
 
 /* Return the resource for a type and hashedname */
 void* resGetDataFromHash(const STRING* pType, UDWORD HashedID)
@@ -689,48 +566,6 @@ BOOL resGetHashfromData(STRING* pType, void* pData, UDWORD* pHash)
   return TRUE;
 }
 
-#if(0)
-// return the ID string for a piece of data
-// This now no longer works ... this is used for the savegame code ... sorry jeremey
-// now use resGetHashfromData()  instead
-BOOL resGetIDfromData(STRING* pType, void* pData, STRING** ppID)
-{
-#ifdef NORESHASH //WIN32
-RES_TYPE* psT; RES_DATA* psRes;
-
-// Find the correct typefor(psT = psResTypes; resValidType(psT); psT= resNextType(psT) )
-	{
-		if (strcmp(psT->aType, pType) == 0)
-		{
-			break;
-		}
-	}
-	if (psT== NULL)
-	{
-		DEBUG_ASSERT_TEXT(FALSE, "resGetData: Unknown type: {}", pType);
-		return FALSE;
-	}
-
-// Find the resourcefor(psRes = psT->psRes; psRes; psRes= psRes->psNext)
-	{
-		if (resGetResDataPointer(psRes) == pData)
-		{
-			break;
-		}
-	}
-
-	if (psRes== NULL)
-	{
-		DEBUG_ASSERT_TEXT(FALSE, "resGetIDfromData: couldn't find data for type {}\n", pType);
-		return FALSE;
-	}
-
-	*ppID= psRes->aID;return TRUE;
-#else
-return FALSE;
-#endif
-}
-#endif
 
 /* Simply returns true if a resource is present */
 BOOL resPresent(const STRING* pType, const STRING* pID)
@@ -873,107 +708,3 @@ void resReleaseAllData(void)
     psNT = resNextType(psT);
   }
 }
-
-#ifndef FINALBUILD	// don't allow wrfs in final build
-
-#define MAXWRFSIZE (64000)	// the max size of a wrf file (this amount is taken out of the cache space)
-//								  	
-//
-// allocate memory for a wrf, and load it 
-//
-// Because we on use WRF's on non final version on the PSX we can malloc the memory for it now !
-//    ... this should make the save game work (as if by magic)
-//
-//
-BOOL LoadWRF(char* pResFile, UBYTE** pBuffer, UDWORD* size)
-{
-  return (loadFile2(pResFile, pBuffer, size,TRUE)); // on the PC (and now the PSX) we just allocate the memory 
-}
-
-static void ReleaseWRF(UBYTE** pBuffer)
-{
-#if (0)	//PSX  // now the Psx frees the mem as well
-  ResetPrimBuffers(); // free up the mem used in the prim buffers for the wrf file
-#else
-  // this is here for when we free up a old wrf
-
-  // now free up the memory for the .wrf file
-  delete[] *pBuffer;
-
-#endif
-}
-
-#endif
-
-static UDWORD CurrentFileNameHash;
-
-// Define the table of resource load functions - PSX only
-void resDefineLoadFuncTable(RES_TYPE* ResourceTypes)
-{
-  RES_TYPE* CurrRes;
-  psResTypes = ResourceTypes;
-
-  // Generate the hashed names of the ascii types
-  CurrRes = psResTypes;
-  while (CurrRes->aType)
-  {
-    CurrRes->HashedType = HashString(CurrRes->aType);
-    CurrRes++;
-  }
-}
-
-// Now call the correct routine based on the file type
-BOOL FILE_ProcessFile(WRFINFO* CurrentFile, UBYTE* pRetreivedFile)
-{
-  RES_TYPE* psT;
-  void* pData; // return data from buffer loading ... is this used any more ?
-
-  // first scan through all the types finding a matching one
-  for (psT = psResTypes; resValidType(psT); psT = resNextType(psT))
-  {
-    if (psT->HashedType == CurrentFile->type)
-      break;
-  }
-  if (psT == nullptr) // none found then error and panic
-  {
-    Neuron::DebugTrace("Unknown resource type {:x}\n",CurrentFile->type);
-    return FALSE;
-  }
-
-  // This is the normal hash value that is used to indentify the resource
-  // it is normally just a hased version of the filename
-  // we need the ability to adjust the hash value as well! - absoulutly insane!
-  CurrentFileNameHash = CurrentFile->name;
-
-  // Now process the buffer data by calling the relevant buffer command
-  if (!psT->buffLoad(pRetreivedFile, CurrentFile->filesize, &pData))
-  {
-    Neuron::DebugTrace("No buffer command for this type {}\n",psT->aType);
-    return FALSE;
-  }
-
-  if (pData != nullptr)
-  {
-    RES_DATA* psRes;
-
-    psRes = new (std::nothrow) RES_DATA[1];
-    if (!psRes)
-    {
-      Neuron::Fatal("resLoadFile: Out of memory");
-      psT->release(pData);
-      return FALSE;
-    }
-
-    // So we need to adjust the hashed name as well
-
-    resDataInit(psRes, "a wdg file", CurrentFileNameHash, pData, resBlockID);
-
-    // Add the resource to the list
-    psRes->psNext = psT->psRes;
-    psT->psRes = psRes;
-  }
-
-  return TRUE;
-}
-
-void SetLastResourceHash(char* fname) { CurrentFileNameHash = HashStringIgnoreCase(fname); }

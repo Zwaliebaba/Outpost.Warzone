@@ -1,0 +1,34 @@
+[
+ {
+  "name": "CMB1_MSG",
+  "textIds": [],
+  "type": 1,
+  "sequences": [
+   {
+    "name": "cam1\\cam1.mp4",
+    "textIds": [
+     "CAM1_MSG1",
+     "CAM1_MSG2",
+     "CAM1_MSG3"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ },
+ {
+  "name": "END",
+  "textIds": [],
+  "type": 1,
+  "sequences": [
+   {
+    "name": "end.mp4",
+    "textIds": [
+     "END_MSG1"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ }
+]

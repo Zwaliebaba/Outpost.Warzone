@@ -43,8 +43,6 @@
     <ClCompile Include="WavData.cpp" />
     <ClCompile Include="Widget.cpp" />
     <ClCompile Include="Window.cpp" />
-    <ClCompile Include="parser_l.cpp" />
-    <ClCompile Include="parser_y.cpp" />
     <ClCompile Include="pch.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -77,7 +75,6 @@
     <ClInclude Include="Model.h" />
     <ClInclude Include="MovieStream.h" />
     <ClInclude Include="Palette.h" />
-    <ClInclude Include="Parser.h" />
     <ClInclude Include="Pcx.h" />
     <ClInclude Include="PieFunc.h" />
     <ClInclude Include="PieMode.h" />
@@ -104,7 +101,6 @@
     <ClInclude Include="WidgInt.h" />
     <ClInclude Include="Widget.h" />
     <ClInclude Include="Window.h" />
-    <ClInclude Include="parser_y.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
 </Project>

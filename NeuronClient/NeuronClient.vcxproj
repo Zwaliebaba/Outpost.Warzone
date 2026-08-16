@@ -115,7 +115,6 @@
     <ClInclude Include="Model.h" />
     <ClInclude Include="MovieStream.h" />
     <ClInclude Include="Palette.h" />
-    <ClInclude Include="Parser.h" />
     <ClInclude Include="Pcx.h" />
     <ClInclude Include="PieFunc.h" />
     <ClInclude Include="PieMode.h" />
@@ -142,7 +141,6 @@
     <ClInclude Include="WidgInt.h" />
     <ClInclude Include="Widget.h" />
     <ClInclude Include="Window.h" />
-    <ClInclude Include="parser_y.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
@@ -188,8 +186,6 @@
     <ClCompile Include="WavData.cpp" />
     <ClCompile Include="Widget.cpp" />
     <ClCompile Include="Window.cpp" />
-    <ClCompile Include="parser_l.cpp" />
-    <ClCompile Include="parser_y.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

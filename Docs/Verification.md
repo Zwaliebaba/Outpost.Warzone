@@ -97,6 +97,14 @@ This is the highest-value single command in the document: it puts the 3D world,
 the HUD, the terrain, the units and the translucent build overlay on screen in
 one shot without needing menu input.
 
+Since the asset-pipeline conversion (2026-08-16,
+[AssetPipeline.md](AssetPipeline.md) §8), reaching the level at all also
+proves the new data path end to end: the `datasets.json` manifest replay that
+replaced the `.wrf` layer, every stats and message table through
+`Neuron::Json`, and the anim/audio configs that replaced the `audp_` parser.
+A data error now stops the boot with a named table/row/field fatal rather
+than playing on with zeroed stats — a fatal here is diagnostic, not noise.
+
 1. It reaches the level without a fatal. If it does not, read the listener
    window before concluding anything about the renderer.
 2. Terrain draws, with water translucency.
@@ -123,6 +131,11 @@ rewired both sliders.
 7. The intelligence screen draws.
 8. Radar draws, rotated radar draws, and the radar viewing-window quad draws.
    Look at this one properly — it is half of D1's parity gate.
+9. The keymap editor opens, a binding can be changed, and the change survives
+   a quit and relaunch. Bindings live in `keymap.json` by function name since
+   the asset-pipeline conversion — the old binary `keymap.map` was
+   invalidated by a build-time stamp, so surviving a relaunch of a *rebuilt*
+   executable is precisely what the old format never did.
 
 ## Pass C — device loss
 
@@ -176,7 +189,11 @@ subtly wrong.
    them.
 2. Weapons and explosions pan and attenuate as the camera moves. **This is the
    one to concentrate on** — 3D positioning went from QMixer's `bScale3D` to
-   X3DAudio and no shim can speak to whether it matches.
+   X3DAudio and no shim can speak to whether it matches. One known silence is
+   *not* a Phase 9 defect: the VTOL move loop never sounds, because
+   `PropulsionSounds` and `AudioID.cpp` name `VtolMove.wav` while the shipped
+   file is `Vtol-Move.wav` — recorded by the asset validator, fix pending an
+   owner decision ([AssetPipeline.md](AssetPipeline.md) §8, stage C).
 3. A research-message stream plays.
 4. Music survives a briefing, and stays paused across a video.
 5. ~~Save and load a campaign game with a script-assigned sound in flight.~~

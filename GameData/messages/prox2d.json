@@ -1,0 +1,50 @@
+[
+ {
+  "name": "C2D_OBJ1",
+  "textIds": [
+   "RUINS_MSG"
+  ],
+  "type": 2,
+  "x": 4160,
+  "y": 4544,
+  "z": 0,
+  "audio": "pcv653.wav",
+  "proxType": 2
+ },
+ {
+  "name": "C2D_BASE1",
+  "textIds": [
+   "ENEMYBASE_MSG"
+  ],
+  "type": 2,
+  "x": 5312,
+  "y": 4032,
+  "z": 0,
+  "audio": "pcv393.wav",
+  "proxType": 0
+ },
+ {
+  "name": "C2D_BASE2",
+  "textIds": [
+   "ENEMYBASE_MSG"
+  ],
+  "type": 2,
+  "x": 5824,
+  "y": 1344,
+  "z": 0,
+  "audio": "pcv393.wav",
+  "proxType": 0
+ },
+ {
+  "name": "C2D_LZ",
+  "textIds": [
+   "LZ_MSG"
+  ],
+  "type": 2,
+  "x": 704,
+  "y": 704,
+  "z": 0,
+  "audio": "pcv427.wav",
+  "proxType": 2
+ }
+]

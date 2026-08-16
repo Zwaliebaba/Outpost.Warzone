@@ -1,0 +1,26 @@
+[
+ {
+  "name": "C2A_BASE1",
+  "textIds": [
+   "ENEMYBASE_MSG"
+  ],
+  "type": 2,
+  "x": 13120,
+  "y": 9792,
+  "z": 256,
+  "audio": "pcv393.wav",
+  "proxType": 0
+ },
+ {
+  "name": "C2A_BASE2",
+  "textIds": [
+   "ENEMYBASE_MSG"
+  ],
+  "type": 2,
+  "x": 10816,
+  "y": 9920,
+  "z": 64,
+  "audio": "pcv393.wav",
+  "proxType": 0
+ }
+]

@@ -92,32 +92,31 @@ static KEY_CODE lastMetaKey, lastSubKey;
 static BOOL bKeyProcessing = TRUE;
 
 // ----------------------------------------------------------------------------------
-// Adding a mapped function ? add a save pointer! Thank AlexL.
-// don't bugger around with the order either. new ones go at the end! DEBUG in debug section..
-//typedef void (*_keymapsave)(void);
-_keymapsave keyMapSaveTable[] = {
-  kf_ChooseManufacture, kf_ChooseResearch, kf_ChooseBuild, kf_ChooseDesign, kf_ChooseIntelligence, kf_ChooseCommand, kf_ToggleRadar,
-  kf_ToggleConsole, kf_ToggleEnergyBars, kf_ToggleReloadBars, kf_ScreenDump, kf_MoveToLastMessagePos, kf_AssignGrouping, kf_SelectGrouping,
-  kf_addMultiMenu, kf_multiAudioStart, kf_multiAudioStop, kf_SeekNorth, kf_ToggleCamera, kf_addInGameOptions, kf_RadarZoomOut,
-  kf_RadarZoomIn, kf_ZoomOut, kf_ZoomIn, kf_PitchForward, kf_RotateLeft, kf_ResetPitch, kf_RotateRight, kf_PitchBack, kf_RightOrderMenu,
-  kf_JumpToResourceExtractor, kf_JumpToRepairUnits, kf_JumpToConstructorUnits, kf_JumpToSensorUnits, kf_JumpToCommandUnits,
-  kf_ToggleOverlays, kf_CentreOnBase, kf_SetDroidAttackCease, kf_JumpToUnassignedUnits, kf_SetDroidAttackReturn, kf_SetDroidAttackAtWill,
-  kf_SetDroidReturnToBase, kf_SetDroidRangeDefault, kf_ToggleFormationSpeedLimiting, kf_SetDroidRangeShort, kf_SetDroidMovePursue,
-  kf_SetDroidMovePatrol, kf_SetDroidGoForRepair, kf_SetDroidMoveHold, kf_SendTextMessage, kf_SetDroidRangeLong, kf_ScatterDroids,
-  kf_SetDroidRetreatMedium, kf_SetDroidRetreatHeavy, kf_SetDroidRetreatNever, kf_SelectAllCombatUnits, kf_SelectAllDamaged,
-  kf_SelectAllHalfTracked, kf_SelectAllHovers, kf_SetDroidRecycle, kf_SelectAllOnScreenUnits, kf_SelectAllTracked, kf_SelectAllUnits,
-  kf_SelectAllVTOLs, kf_SelectAllWheeled, kf_FinishResearch, kf_FrameRate, kf_SelectAllSameType, kf_SelectNextFactory,
-  kf_SelectNextResearch, kf_SelectNextPowerStation, kf_SelectNextCyborgFactory, kf_ToggleConsoleDrop, kf_SelectCommander, kf_FaceNorth,
-  kf_FaceSouth, kf_FaceWest, kf_FaceEast, kf_SpeedUp, kf_SlowDown, kf_NormalSpeed, kf_ToggleRadarJump, kf_MovePause,
-  kf_ToggleReopenBuildMenu, kf_SensorDisplayOn, kf_SensorDisplayOff, kf_AllAvailable, kf_ToggleDebugMappings, kf_NewPlayerPower,
-  kf_TogglePauseMode, kf_MaxScrollLimits, kf_DebugDroidInfo, kf_RecalcLighting, kf_ToggleFog, kf_ChooseOptions, kf_TogglePower,
-  kf_ToggleWeather, kf_SelectPlayer, kf_ToggleMistFog, kf_ToggleFogColour, kf_AddMissionOffWorld, kf_KillSelected, kf_ShowMappings,
-  kf_GiveTemplateSet, kf_ToggleVisibility,
-  //	kf_ToggleSensorDisplay,
-  /* kf_ToggleDemoMode sat in the next slot; the table's order is the id
+// Adding a mapped function ? add a named save entry, and keymap.json can
+// bind it. The names are the id space now, so order no longer matters.
+KEYMAP_SAVE keyMapSaveTable[] = {
+  {"kf_ChooseManufacture", kf_ChooseManufacture}, {"kf_ChooseResearch", kf_ChooseResearch}, {"kf_ChooseBuild", kf_ChooseBuild}, {"kf_ChooseDesign", kf_ChooseDesign}, {"kf_ChooseIntelligence", kf_ChooseIntelligence}, {"kf_ChooseCommand", kf_ChooseCommand}, {"kf_ToggleRadar", kf_ToggleRadar},
+  {"kf_ToggleConsole", kf_ToggleConsole}, {"kf_ToggleEnergyBars", kf_ToggleEnergyBars}, {"kf_ToggleReloadBars", kf_ToggleReloadBars}, {"kf_ScreenDump", kf_ScreenDump}, {"kf_MoveToLastMessagePos", kf_MoveToLastMessagePos}, {"kf_AssignGrouping", kf_AssignGrouping}, {"kf_SelectGrouping", kf_SelectGrouping},
+  {"kf_addMultiMenu", kf_addMultiMenu}, {"kf_multiAudioStart", kf_multiAudioStart}, {"kf_multiAudioStop", kf_multiAudioStop}, {"kf_SeekNorth", kf_SeekNorth}, {"kf_ToggleCamera", kf_ToggleCamera}, {"kf_addInGameOptions", kf_addInGameOptions}, {"kf_RadarZoomOut", kf_RadarZoomOut},
+  {"kf_RadarZoomIn", kf_RadarZoomIn}, {"kf_ZoomOut", kf_ZoomOut}, {"kf_ZoomIn", kf_ZoomIn}, {"kf_PitchForward", kf_PitchForward}, {"kf_RotateLeft", kf_RotateLeft}, {"kf_ResetPitch", kf_ResetPitch}, {"kf_RotateRight", kf_RotateRight}, {"kf_PitchBack", kf_PitchBack}, {"kf_RightOrderMenu", kf_RightOrderMenu},
+  {"kf_JumpToResourceExtractor", kf_JumpToResourceExtractor}, {"kf_JumpToRepairUnits", kf_JumpToRepairUnits}, {"kf_JumpToConstructorUnits", kf_JumpToConstructorUnits}, {"kf_JumpToSensorUnits", kf_JumpToSensorUnits}, {"kf_JumpToCommandUnits", kf_JumpToCommandUnits},
+  {"kf_ToggleOverlays", kf_ToggleOverlays}, {"kf_CentreOnBase", kf_CentreOnBase}, {"kf_SetDroidAttackCease", kf_SetDroidAttackCease}, {"kf_JumpToUnassignedUnits", kf_JumpToUnassignedUnits}, {"kf_SetDroidAttackReturn", kf_SetDroidAttackReturn}, {"kf_SetDroidAttackAtWill", kf_SetDroidAttackAtWill},
+  {"kf_SetDroidReturnToBase", kf_SetDroidReturnToBase}, {"kf_SetDroidRangeDefault", kf_SetDroidRangeDefault}, {"kf_ToggleFormationSpeedLimiting", kf_ToggleFormationSpeedLimiting}, {"kf_SetDroidRangeShort", kf_SetDroidRangeShort}, {"kf_SetDroidMovePursue", kf_SetDroidMovePursue},
+  {"kf_SetDroidMovePatrol", kf_SetDroidMovePatrol}, {"kf_SetDroidGoForRepair", kf_SetDroidGoForRepair}, {"kf_SetDroidMoveHold", kf_SetDroidMoveHold}, {"kf_SendTextMessage", kf_SendTextMessage}, {"kf_SetDroidRangeLong", kf_SetDroidRangeLong}, {"kf_ScatterDroids", kf_ScatterDroids},
+  {"kf_SetDroidRetreatMedium", kf_SetDroidRetreatMedium}, {"kf_SetDroidRetreatHeavy", kf_SetDroidRetreatHeavy}, {"kf_SetDroidRetreatNever", kf_SetDroidRetreatNever}, {"kf_SelectAllCombatUnits", kf_SelectAllCombatUnits}, {"kf_SelectAllDamaged", kf_SelectAllDamaged},
+  {"kf_SelectAllHalfTracked", kf_SelectAllHalfTracked}, {"kf_SelectAllHovers", kf_SelectAllHovers}, {"kf_SetDroidRecycle", kf_SetDroidRecycle}, {"kf_SelectAllOnScreenUnits", kf_SelectAllOnScreenUnits}, {"kf_SelectAllTracked", kf_SelectAllTracked}, {"kf_SelectAllUnits", kf_SelectAllUnits},
+  {"kf_SelectAllVTOLs", kf_SelectAllVTOLs}, {"kf_SelectAllWheeled", kf_SelectAllWheeled}, {"kf_FinishResearch", kf_FinishResearch}, {"kf_FrameRate", kf_FrameRate}, {"kf_SelectAllSameType", kf_SelectAllSameType}, {"kf_SelectNextFactory", kf_SelectNextFactory},
+  {"kf_SelectNextResearch", kf_SelectNextResearch}, {"kf_SelectNextPowerStation", kf_SelectNextPowerStation}, {"kf_SelectNextCyborgFactory", kf_SelectNextCyborgFactory}, {"kf_ToggleConsoleDrop", kf_ToggleConsoleDrop}, {"kf_SelectCommander", kf_SelectCommander}, {"kf_FaceNorth", kf_FaceNorth},
+  {"kf_FaceSouth", kf_FaceSouth}, {"kf_FaceWest", kf_FaceWest}, {"kf_FaceEast", kf_FaceEast}, {"kf_SpeedUp", kf_SpeedUp}, {"kf_SlowDown", kf_SlowDown}, {"kf_NormalSpeed", kf_NormalSpeed}, {"kf_ToggleRadarJump", kf_ToggleRadarJump}, {"kf_MovePause", kf_MovePause},
+  {"kf_ToggleReopenBuildMenu", kf_ToggleReopenBuildMenu}, {"kf_SensorDisplayOn", kf_SensorDisplayOn}, {"kf_SensorDisplayOff", kf_SensorDisplayOff}, {"kf_AllAvailable", kf_AllAvailable}, {"kf_ToggleDebugMappings", kf_ToggleDebugMappings}, {"kf_NewPlayerPower", kf_NewPlayerPower},
+  {"kf_TogglePauseMode", kf_TogglePauseMode}, {"kf_MaxScrollLimits", kf_MaxScrollLimits}, {"kf_DebugDroidInfo", kf_DebugDroidInfo}, {"kf_RecalcLighting", kf_RecalcLighting}, {"kf_ToggleFog", kf_ToggleFog}, {"kf_ChooseOptions", kf_ChooseOptions}, {"kf_TogglePower", kf_TogglePower},
+  {"kf_ToggleWeather", kf_ToggleWeather}, {"kf_SelectPlayer", kf_SelectPlayer}, {"kf_ToggleMistFog", kf_ToggleMistFog}, {"kf_ToggleFogColour", kf_ToggleFogColour}, {"kf_AddMissionOffWorld", kf_AddMissionOffWorld}, {"kf_KillSelected", kf_KillSelected}, {"kf_ShowMappings", kf_ShowMappings},
+  {"kf_GiveTemplateSet", kf_GiveTemplateSet}, {"kf_ToggleVisibility", kf_ToggleVisibility},
+  //	{"kf_ToggleSensorDisplay", kf_ToggleSensorDisplay},
+  /* {"kf_ToggleDemoMode", kf_ToggleDemoMode} sat in the next slot; the table's order is the id
    * space saved keymap files use, so the slot is refilled rather than
-   * removed. kf_ShowMappings is harmless if an old file had it bound. */
-  kf_FinishResearch, kf_LowerTile, kf_ShowMappings, kf_ToggleGodMode, kf_EndMissionOffWorld, kf_SystemClose, nullptr // last function!
+   * removed. {"kf_ShowMappings", kf_ShowMappings} is harmless if an old file had it bound. */
+  {"kf_FinishResearch", kf_FinishResearch}, {"kf_LowerTile", kf_LowerTile}, {"kf_ShowMappings", kf_ShowMappings}, {"kf_ToggleGodMode", kf_ToggleGodMode}, {"kf_EndMissionOffWorld", kf_EndMissionOffWorld}, {"kf_SystemClose", kf_SystemClose}, {nullptr, nullptr} // last function!
 };
 
 // ----------------------------------------------------------------------------------

@@ -9,6 +9,9 @@
 #ifndef _resource_h
 #define _resource_h
 
+/* Maximum number of characters in a file path */
+#define FILE_MAXCHAR		255
+
 /* Maximum number of characters in a resource type */
 #define RESTYPE_MAXCHAR		20
 
@@ -17,8 +20,6 @@
 
 /* Function pointer for a function that loads from a memory buffer */
 using RES_BUFFERLOAD = BOOL(*)(UBYTE* pBuffer, UDWORD size, void** pData);
-/* Function pointer for a function that loads from a filename */
-using RES_FILELOAD = BOOL(*)(STRING* pFile, void** pData);
 
 /* Function pointer for releasing a resource loaded by the above functions */
 using RES_FREE = void(*)(void* pData);
@@ -55,7 +56,6 @@ using RES_TYPE = struct _res_type
   // we must have a pointer to the data here so that we can do a resGetData();
   RES_DATA* psRes; // Linked list of data items of this type
   UDWORD HashedType; // hashed version of the name of the id - // a null hashedtype indicates end of list
-  RES_FILELOAD fileLoad; // This isn't really used any more ?
   struct _res_type* psNext;
 };
 
@@ -77,9 +77,15 @@ extern void resShutDown(void);
 // set the base resource directory
 extern void resSetBaseDir(STRING* pResDir);
 
-/* Parse the res file */
-struct _block_heap;
-extern BOOL resLoad(STRING* pResFile, SDWORD blockID, UBYTE* pLoadBuffer, SDWORD bufferSize);
+/* Begin loading a block of resources: the block ID subsequent resLoadFile
+   calls are stamped with, and the scratch buffer files are read into.
+   Resets the current directory to the base directory. */
+extern void resBeginBlock(SDWORD blockID, UBYTE* pLoadBuffer, SDWORD bufferSize);
+
+/* Set the directory subsequent resLoadFile calls resolve against. A rooted
+   path ("C:..." or "\...") replaces the base directory; anything else is
+   appended to it; the empty string resets to the bare base directory. */
+extern void resSetDirectory(const STRING* pDir);
 
 /* Release all the resources currently loaded and the resource load functions */
 extern void resReleaseAll(void);
@@ -93,14 +99,8 @@ extern void resReleaseAllData(void);
 /* Add a buffer load and release function for a file type */
 extern BOOL resAddBufferLoad(STRING* pType, RES_BUFFERLOAD buffLoad, RES_FREE release);
 
-/* Add a file name load and release function for a file type */
-extern BOOL resAddFileLoad(STRING* pType, RES_FILELOAD fileLoad, RES_FREE release);
-
 /* Call the load function for a file */
 extern BOOL resLoadFile(STRING* pType, STRING* pFile);
-
-// Add data to the resource system
-extern BOOL resAddData(STRING* pType, STRING* pID, void* pData);
 
 /* Return the resource for a type and ID */
 extern void* resGetDataFromHash(const STRING* pType, UDWORD HashedID);
@@ -125,13 +125,5 @@ void SetLastResourceFilename(const char* pName);
 UDWORD GetLastHashName(void);
 // Set the resource name of the last resource file loaded
 void SetLastHashName(UDWORD HashName);
-
-BOOL LoadWRF(char* pResFile, UBYTE** pBuffer, UDWORD* size);
-UDWORD ReadWDGData(UDWORD WDGoffset, UBYTE* DestinationAddress, UDWORD BytesToLoad);
-BOOL OpenWDG(char* WDGname);
-BOOL IsWDGopen(void);
-void CloseWDG(void);
-
-extern void SetLastResourceHash(char* fname);
 
 #endif

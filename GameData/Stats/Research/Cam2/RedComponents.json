@@ -1,0 +1,68 @@
+[
+ {
+  "research": "R-Wpn-Cannon4AMk1",
+  "component": "Cannon2A-TMk1",
+  "componentType": "WEAPON",
+  "dummy": 10
+ },
+ {
+  "research": "R-Wpn-Flame2",
+  "component": "Flame1Mk1",
+  "componentType": "WEAPON",
+  "dummy": 10
+ },
+ {
+  "research": "R-Wpn-Howitzer03-Rot",
+  "component": "Howitzer105Mk1",
+  "componentType": "WEAPON",
+  "dummy": 10
+ },
+ {
+  "research": "R-Wpn-MG4",
+  "component": "MG1-VTOL",
+  "componentType": "WEAPON",
+  "dummy": 10
+ },
+ {
+  "research": "R-Wpn-MG4",
+  "component": "MG1Mk1",
+  "componentType": "WEAPON",
+  "dummy": 10
+ },
+ {
+  "research": "R-Wpn-MG4",
+  "component": "MG2-VTOL",
+  "componentType": "WEAPON",
+  "dummy": 10
+ },
+ {
+  "research": "R-Wpn-MG4",
+  "component": "MG2Mk1",
+  "componentType": "WEAPON",
+  "dummy": 10
+ },
+ {
+  "research": "R-Wpn-MG4",
+  "component": "MG3-VTOL",
+  "componentType": "WEAPON",
+  "dummy": 10
+ },
+ {
+  "research": "R-Wpn-MG4",
+  "component": "MG3Mk1",
+  "componentType": "WEAPON",
+  "dummy": 10
+ },
+ {
+  "research": "R-Wpn-Mortar3",
+  "component": "Mortar1Mk1",
+  "componentType": "WEAPON",
+  "dummy": 10
+ },
+ {
+  "research": "R-Wpn-AAGun04",
+  "component": "QuadMg1AAGun",
+  "componentType": "WEAPON",
+  "dummy": 10
+ }
+]

@@ -1,0 +1,187 @@
+[
+ {
+  "structure": "A0ResearchFacility",
+  "function": "Research Facility",
+  "dummy": 4
+ },
+ {
+  "structure": "A0LightFactory",
+  "function": "FacProd1",
+  "dummy": 5
+ },
+ {
+  "structure": "A0PowerGenerator",
+  "function": "PowGen1",
+  "dummy": 6
+ },
+ {
+  "structure": "A0FacMod1",
+  "function": "FacMod1",
+  "dummy": 12
+ },
+ {
+  "structure": "A0ResourceExtractor",
+  "function": "Resource",
+  "dummy": 14
+ },
+ {
+  "structure": "A0BaBaFactory",
+  "function": "BaBaFacProd",
+  "dummy": 22
+ },
+ {
+  "structure": "A0BaBaPowerGenerator",
+  "function": "BaBaPowGen",
+  "dummy": 23
+ },
+ {
+  "structure": "A0ResearchModule1",
+  "function": "Research Module",
+  "dummy": 24
+ },
+ {
+  "structure": "A0PowMod1",
+  "function": "PowerModule",
+  "dummy": 36
+ },
+ {
+  "structure": "A0HardcreteMk1Wall",
+  "function": "Hardcrete Wall1",
+  "dummy": 41
+ },
+ {
+  "structure": "A0BaBaHorizontalWall",
+  "function": "baba Wall Function",
+  "dummy": 45
+ },
+ {
+  "structure": "A0ComDroidControl",
+  "function": "Research Facility",
+  "dummy": 50
+ },
+ {
+  "structure": "GuardTower1",
+  "function": "Basic Wall Function",
+  "dummy": 51
+ },
+ {
+  "structure": "GuardTower2",
+  "function": "Basic Wall Function",
+  "dummy": 52
+ },
+ {
+  "structure": "GuardTower3",
+  "function": "Basic Wall Function",
+  "dummy": 53
+ },
+ {
+  "structure": "GuardTower4",
+  "function": "Basic Wall Function",
+  "dummy": 54
+ },
+ {
+  "structure": "GuardTower5",
+  "function": "Basic Wall Function",
+  "dummy": 55
+ },
+ {
+  "structure": "GuardTower6",
+  "function": "Basic Wall Function",
+  "dummy": 56
+ },
+ {
+  "structure": "A0CyborgFactory",
+  "function": "FacProd1",
+  "dummy": 57
+ },
+ {
+  "structure": "PillBox1",
+  "function": "Basic Wall Function",
+  "dummy": 58
+ },
+ {
+  "structure": "A0TankTrap",
+  "function": "TankTrapFunc",
+  "dummy": 60
+ },
+ {
+  "structure": "PillBox2",
+  "function": "Basic Wall Function",
+  "dummy": 62
+ },
+ {
+  "structure": "PillBox3",
+  "function": "Basic Wall Function",
+  "dummy": 63
+ },
+ {
+  "structure": "PillBox4",
+  "function": "Basic Wall Function",
+  "dummy": 64
+ },
+ {
+  "structure": "Emplacement-Howitzer105",
+  "function": "Basic Wall Function",
+  "dummy": 67
+ },
+ {
+  "structure": "A0VtolPad",
+  "function": "ReArm",
+  "dummy": 68
+ },
+ {
+  "structure": "A0CommandCentre",
+  "function": "Basic Wall Function",
+  "dummy": 69
+ },
+ {
+  "structure": "A0CommandCentreCO",
+  "function": "Basic Wall Function",
+  "dummy": 70
+ },
+ {
+  "structure": "A0CommandCentreNP",
+  "function": "Basic Wall Function",
+  "dummy": 71
+ },
+ {
+  "structure": "A0VTolFactory1",
+  "function": "FacProd1",
+  "dummy": 72
+ },
+ {
+  "structure": "UplinkCentre",
+  "function": "Basic Wall Function",
+  "dummy": 74
+ },
+ {
+  "structure": "A0CommandCentreNE",
+  "function": "Basic Wall Function",
+  "dummy": 79
+ },
+ {
+  "structure": "CollectiveWall",
+  "function": "Collective Wall1",
+  "dummy": 80
+ },
+ {
+  "structure": "NEXUSWall",
+  "function": "NEXUS Wall1",
+  "dummy": 81
+ },
+ {
+  "structure": "A0RepairCentre3",
+  "function": "RepairFacilityFunc",
+  "dummy": 83
+ },
+ {
+  "structure": "NX-CruiseSite",
+  "function": "Basic Wall Function",
+  "dummy": 84
+ },
+ {
+  "structure": "NX-ANTI-SATSite",
+  "function": "Basic Wall Function",
+  "dummy": 85
+ }
+]

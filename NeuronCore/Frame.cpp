@@ -13,7 +13,6 @@
 
 #include "Frame.h"
 #include "FrameResource.h"
-#include "WDG.h"
 
 #include <assert.h>
 
@@ -49,26 +48,6 @@ BOOL loadFile2(STRING* pFileName, UBYTE** ppFileData, UDWORD* pFileSize, BOOL Al
   FILE* pFileHandle;
   UDWORD FileSize;
 
-  // First we try to see if we can load the file from the freedata section of the current WDG
-
-  BOOL res = loadFileFromWDG(pFileName, ppFileData, pFileSize,WDG_ALLOCATEMEM);
-  // loaded from WDG file, and allocate memory for it
-  if (res == TRUE)
-    return TRUE;
-
-  // Not in WDG so we try to load it the old fashion way !
-  // This will never work on the final build of the PSX because we can *ONLY* load files
-  // directly from CD, i.e. from the WDG's normal fopen/fread calls will never work!
-#ifdef DEBUG
-  Neuron::DebugTrace("FOPEN ! {}\n",pFileName);
-
-#endif
-
-#ifdef FINALBUILD
-  return FALSE;
-#endif
-
-  // Not needed in a PSX FINALBUILD.
   pFileHandle = fopen(pFileName, "rb");
   if (pFileHandle == nullptr)
   {
@@ -133,16 +112,6 @@ BOOL loadFileToBuffer(STRING* pFileName, UBYTE* pFileBuffer, UDWORD bufferSize, 
 {
   DWORD bytesRead;
 
-  UDWORD FileSize;
-
-  BOOL res = loadFileFromWDG(pFileName, &pFileBuffer, &FileSize,WDG_USESUPPLIED);
-  // loaded from WDG file, and allocate memory for it	if (res==TRUE)	return TRUE;
-  if (res == TRUE)
-  {
-    *pSize = FileSize;
-    return TRUE;
-  }
-
   // try and open the file
   HANDLE hFile = CreateFile(pFileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, nullptr);
   if (hFile == INVALID_HANDLE_VALUE)
@@ -182,16 +151,6 @@ BOOL loadFileToBuffer(STRING* pFileName, UBYTE* pFileBuffer, UDWORD bufferSize, 
 BOOL loadFileToBufferNoError(STRING* pFileName, UBYTE* pFileBuffer, UDWORD bufferSize, UDWORD* pSize)
 {
   DWORD bytesRead;
-
-  UDWORD FileSize;
-
-  BOOL res = loadFileFromWDG(pFileName, &pFileBuffer, &FileSize,WDG_USESUPPLIED);
-  // loaded from WDG file, and allocate memory for it	if (res==TRUE)	return TRUE;
-  if (res == TRUE)
-  {
-    *pSize = FileSize;
-    return TRUE;
-  }
 
   // try and open the file
   HANDLE hFile = CreateFile(pFileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, nullptr);
@@ -241,16 +200,6 @@ BOOL saveFile(STRING* pFileName, UBYTE* pFileData, UDWORD fileSize)
 
   return TRUE;
 }
-
-static UBYTE* WDGCacheStart = nullptr;
-static UDWORD WDGCacheSize = 0;
-
-#define MAXWDGDIRSIZE (7300)
-
-static UBYTE WDGDirectory[MAXWDGDIRSIZE]; // Directory for current WDG file (MALLOCed)
-
-static SDWORD WDGCacheStartPos = -1;
-static SDWORD WDGCacheEndPos = -1;
 
 /* next four used in HashPJW */
 #define	BITS_IN_int		32

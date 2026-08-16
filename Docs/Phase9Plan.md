@@ -83,7 +83,9 @@ these. Zero callers anywhere:
   used it to arbitrate channel stealing, and the XAudio2 backend steals by
   distance instead. The value has been parsed and ignored since Phase 4. Keep
   parsing it (the file format is data, not code), keep storing it (a future
-  feature may want it back), but its accessor is dead today.
+  feature may want it back), but its accessor is dead today. *(The file is
+  `audio/audio.json` since the asset-pipeline work, 2026-08-16; the priority
+  field is still authored, parsed and stored.)*
 - **`AUDIO_SAMPLE::iLoops`** — never touched. `SAMPLEVALIDFUNC` — a typedef
   nothing uses. `MIN_PITCH`/`MAX_PITCH`/`CENTER_PITCH` and the four
   `AUDIO_PAN_*` constants — QMixer-era knobs with no consumer.
@@ -154,12 +156,15 @@ features" needs more than any single feature).
 These are the constraints everything below is built around. Each was verified
 against the tree, not assumed:
 
-1. **Save games round-trip track IDs by WAV-name hash.** `ScriptObj.cpp:549`
-   saves `sound_GetTrackHashName(id)`; `:793` restores with
-   `audio_GetTrackIDFromHash(hash)` and, if the track is not yet registered,
-   `:804` re-registers it via `audio_SetTrackValsHashName`. Track *IDs* are
-   dynamic per run; the *hash* is the persistent name. The new module keeps
-   all three operations and the hash function's output byte-identical.
+1. ~~**Save games round-trip track IDs by WAV-name hash.**~~ *(Dissolved by
+   the save/load removal, 2026-08-16 — see
+   [MigrationPlan.md](MigrationPlan.md#removed-outright-saveload-and-the-demo-2026-08-16);
+   `AudioSystem::TrackIdFromHash` lost its last caller and is deleted.)*
+   `ScriptObj.cpp:549`
+   saved `sound_GetTrackHashName(id)`; `:793` restored with
+   `audio_GetTrackIDFromHash(hash)` and, if the track was not yet registered,
+   `:804` re-registered it via `audio_SetTrackValsHashName`. Track *IDs* are
+   dynamic per run; the *hash* was the persistent name.
 2. **Compiled scripts reach audio by table position and by WAV name.**
    `playCDAudio` (rewired to `music_PlayTrack` in Phase 4) must keep its
    `ScriptTabs.cpp` slot, and `ScriptVals_y.cpp:1352` resolves WAV names to
@@ -167,7 +172,11 @@ against the tree, not assumed:
 3. **The generated resource parser calls `audio_SetTrackVals`**
    (`parser_y.cpp:748`, `:756`) for every `audio.cfg` entry. Generated-but-
    patched code, per Phase 1 precedent: the two call sites may be edited in
-   place (dropping `VagID`), but nothing forces regeneration.
+   place (dropping `VagID`), but nothing forces regeneration. *(Overtaken
+   2026-08-16: the asset-pipeline work deleted the `audp_` parser whole —
+   `audio.cfg` became `audio/audio.json` and `dataAudioCfgLoad` calls
+   `AudioSystem::SetTrackVals` directly; see
+   [AssetPipeline.md](AssetPipeline.md) §8, stage D.)*
 4. **`Config.cpp` persists `fxvol` and `cdvol`.** Key names are part of
    existing `.cfg` files. They stay.
 5. **`MovieStream.cpp` borrows the engine** through `sound_GetEngine()` so FMV

@@ -18,6 +18,8 @@
 
 #include "MultiPlay.h"
 
+#include "StatsTable.h"
+
 //holder for all functions
 FUNCTION** asFunctions;
 UDWORD numFunctions;
@@ -27,10 +29,10 @@ UDWORD numFunctions;
 /*Returns the Function type based on the string - used for reading in data */
 static UDWORD functionType(char* pType);
 static BOOL storeName(FUNCTION* pFunction, STRING* pNameToStore);
-static BOOL loadUpgradeFunction(SBYTE* pData, UBYTE type);
+static BOOL loadUpgradeFunction(const StatsTable& _table, UDWORD _row, UBYTE type);
 
 //array of functions pointers for each load function
-BOOL (*pLoadFunction[NUMFUNCTIONS])(SBYTE* pData) = //, UDWORD functionType) = 
+BOOL (*pLoadFunction[NUMFUNCTIONS])(const StatsTable& _table, UDWORD _row) = //, UDWORD functionType) =
 {
   loadProduction, loadProductionUpgradeFunction, loadResearchFunction, loadResearchUpgradeFunction, loadPowerGenFunction,
   loadResourceFunction, loadRepairDroidFunction, loadWeaponUpgradeFunction, loadWallFunction, loadStructureUpgradeFunction,
@@ -53,15 +55,14 @@ BOOL (*pLoadFunction[NUMFUNCTIONS])(SBYTE* pData) = //, UDWORD functionType) =
 
 BOOL loadFunctionStats(SBYTE* pFunctionData, UDWORD bufferSize)
 {
-  SBYTE* pStartFunctionData;
   UDWORD totalFunctions = 0, i, type; //, player;
   STRING FunctionType[MAX_NAME_SIZE];
   FUNCTION** pStartList;
+  StatsTable sTable;
 
-  //keep the start so we release it at the end
-  pStartFunctionData = pFunctionData;
-
-  totalFunctions = numCR((UBYTE*)pFunctionData, bufferSize);
+  if (!StatsTable::Open((UBYTE*)pFunctionData, bufferSize, "Functions", sTable))
+    return FALSE;
+  totalFunctions = sTable.Rows();
 
   //allocate storage for the Function pointer array
   asFunctions = new (std::nothrow) FUNCTION*[totalFunctions];
@@ -79,16 +80,13 @@ BOOL loadFunctionStats(SBYTE* pFunctionData, UDWORD bufferSize)
 
   for (i = 0; i < totalFunctions; i++)
   {
-    //read the data into the storage - the data is delimeted using comma's
-    FunctionType[0] = '\0';
-    sscanf(pFunctionData, "%[^',']", &FunctionType);
-    type = functionType(FunctionType);
-    pFunctionData += (strlen(FunctionType) + 1);
-
-    if (!(pLoadFunction[type](pFunctionData)))
+    //read the data into the storage
+    if (!sTable.Text(i, "type", FunctionType, sizeof(FunctionType)))
       return FALSE;
-    //increment the pointer to the start of the next record
-    pFunctionData = strchr(pFunctionData, '\n') + 1;
+    type = functionType(FunctionType);
+
+    if (!(pLoadFunction[type](sTable, i)))
+      return FALSE;
   }
   //set the function list pointer to the start				
   asFunctions = pStartList;
@@ -290,7 +288,7 @@ BOOL storeName(FUNCTION* pFunction, STRING* pNameToStore)
 	return TRUE;
 }*/
 
-BOOL loadProduction(SBYTE* pData)
+BOOL loadProduction(const StatsTable& _table, UDWORD _row)
 {
   PRODUCTION_FUNCTION* psFunction;
   STRING functionName[MAX_NAME_SIZE], bodySize[MAX_NAME_SIZE];
@@ -314,9 +312,12 @@ BOOL loadProduction(SBYTE* pData)
   psFunction->type = PRODUCTION_TYPE;
 
   //read the data in
-  functionName[0] = '\0';
-  bodySize[0] = '\0';
-  sscanf(pData, "%[^','],%[^','],%d", &functionName, &bodySize, &productionOutput);
+  if (!_table.Text(_row, "name", functionName, sizeof(functionName)))
+    return FALSE;
+  if (!_table.Text(_row, "bodySize", bodySize, sizeof(bodySize)))
+    return FALSE;
+  if (!_table.Number(_row, "productionOutput", &productionOutput))
+    return FALSE;
 
   //allocate storage for the name
   storeName((FUNCTION*)psFunction, functionName);
@@ -367,7 +368,7 @@ BOOL loadProduction(SBYTE* pData)
   return TRUE;
 }
 
-BOOL loadProductionUpgradeFunction(SBYTE* pData)
+BOOL loadProductionUpgradeFunction(const StatsTable& _table, UDWORD _row)
 {
   PRODUCTION_UPGRADE_FUNCTION* psFunction;
   STRING functionName[MAX_NAME_SIZE];
@@ -393,8 +394,16 @@ BOOL loadProductionUpgradeFunction(SBYTE* pData)
   psFunction->type = PRODUCTION_UPGRADE_TYPE;
 
   //read the data in
-  functionName[0] = '\0';
-  sscanf(pData, "%[^','],%d,%d,%d,%d", &functionName, &factory, &cyborg, &vtol, &outputModifier);
+  if (!_table.Text(_row, "name", functionName, sizeof(functionName)))
+    return FALSE;
+  if (!_table.Number(_row, "factory", &factory))
+    return FALSE;
+  if (!_table.Number(_row, "cyborg", &cyborg))
+    return FALSE;
+  if (!_table.Number(_row, "vtol", &vtol))
+    return FALSE;
+  if (!_table.Number(_row, "outputModifier", &outputModifier))
+    return FALSE;
 
   psFunction->outputModifier = static_cast<UBYTE>(outputModifier);
   //allocate storage for the name
@@ -418,7 +427,7 @@ BOOL loadProductionUpgradeFunction(SBYTE* pData)
   return TRUE;
 }
 
-BOOL loadResearchFunction(SBYTE* pData)
+BOOL loadResearchFunction(const StatsTable& _table, UDWORD _row)
 {
   RESEARCH_FUNCTION* psFunction;
   STRING functionName[MAX_NAME_SIZE];
@@ -442,8 +451,10 @@ BOOL loadResearchFunction(SBYTE* pData)
   psFunction->type = RESEARCH_TYPE;
 
   //read the data in
-  functionName[0] = '\0';
-  sscanf(pData, "%[^','],%d", &functionName, &psFunction->researchPoints);
+  if (!_table.Text(_row, "name", functionName, sizeof(functionName)))
+    return FALSE;
+  if (!_table.Number(_row, "researchPoints", &psFunction->researchPoints))
+    return FALSE;
 
   //allocate storage for the name
   storeName((FUNCTION*)psFunction, functionName);
@@ -451,7 +462,7 @@ BOOL loadResearchFunction(SBYTE* pData)
   return TRUE;
 }
 
-BOOL loadReArmFunction(SBYTE* pData)
+BOOL loadReArmFunction(const StatsTable& _table, UDWORD _row)
 {
   REARM_FUNCTION* psFunction;
   STRING functionName[MAX_NAME_SIZE];
@@ -475,8 +486,10 @@ BOOL loadReArmFunction(SBYTE* pData)
   psFunction->type = REARM_TYPE;
 
   //read the data in
-  functionName[0] = '\0';
-  sscanf(pData, "%[^','],%d", &functionName, &psFunction->reArmPoints);
+  if (!_table.Text(_row, "name", functionName, sizeof(functionName)))
+    return FALSE;
+  if (!_table.Number(_row, "reArmPoints", &psFunction->reArmPoints))
+    return FALSE;
 
   //allocate storage for the name
   storeName((FUNCTION*)psFunction, functionName);
@@ -484,64 +497,64 @@ BOOL loadReArmFunction(SBYTE* pData)
   return TRUE;
 }
 
-BOOL loadResearchUpgradeFunction(SBYTE* pData)
+BOOL loadResearchUpgradeFunction(const StatsTable& _table, UDWORD _row)
 {
-  if (!loadUpgradeFunction(pData, RESEARCH_UPGRADE_TYPE))
+  if (!loadUpgradeFunction(_table, _row, RESEARCH_UPGRADE_TYPE))
     return FALSE;
 
   return TRUE;
 }
 
-BOOL loadPowerUpgradeFunction(SBYTE* pData)
+BOOL loadPowerUpgradeFunction(const StatsTable& _table, UDWORD _row)
 {
-  if (!loadUpgradeFunction(pData, POWER_UPGRADE_TYPE))
+  if (!loadUpgradeFunction(_table, _row, POWER_UPGRADE_TYPE))
     return FALSE;
 
   return TRUE;
 }
 
-BOOL loadRepairUpgradeFunction(SBYTE* pData)
+BOOL loadRepairUpgradeFunction(const StatsTable& _table, UDWORD _row)
 {
-  if (!loadUpgradeFunction(pData, REPAIR_UPGRADE_TYPE))
+  if (!loadUpgradeFunction(_table, _row, REPAIR_UPGRADE_TYPE))
     return FALSE;
 
   return TRUE;
 }
 
-BOOL loadDroidRepairUpgradeFunction(SBYTE* pData)
+BOOL loadDroidRepairUpgradeFunction(const StatsTable& _table, UDWORD _row)
 {
-  if (!loadUpgradeFunction(pData, DROIDREPAIR_UPGRADE_TYPE))
+  if (!loadUpgradeFunction(_table, _row, DROIDREPAIR_UPGRADE_TYPE))
     return FALSE;
 
   return TRUE;
 }
 
-BOOL loadDroidECMUpgradeFunction(SBYTE* pData)
+BOOL loadDroidECMUpgradeFunction(const StatsTable& _table, UDWORD _row)
 {
-  if (!loadUpgradeFunction(pData, DROIDECM_UPGRADE_TYPE))
+  if (!loadUpgradeFunction(_table, _row, DROIDECM_UPGRADE_TYPE))
     return FALSE;
 
   return TRUE;
 }
 
-BOOL loadDroidConstUpgradeFunction(SBYTE* pData)
+BOOL loadDroidConstUpgradeFunction(const StatsTable& _table, UDWORD _row)
 {
-  if (!loadUpgradeFunction(pData, DROIDCONST_UPGRADE_TYPE))
+  if (!loadUpgradeFunction(_table, _row, DROIDCONST_UPGRADE_TYPE))
     return FALSE;
 
   return TRUE;
 }
 
-BOOL loadReArmUpgradeFunction(SBYTE* pData)
+BOOL loadReArmUpgradeFunction(const StatsTable& _table, UDWORD _row)
 {
-  if (!loadUpgradeFunction(pData, REARM_UPGRADE_TYPE))
+  if (!loadUpgradeFunction(_table, _row, REARM_UPGRADE_TYPE))
     return FALSE;
 
   return TRUE;
 }
 
 //generic load function for upgrade type
-BOOL loadUpgradeFunction(SBYTE* pData, UBYTE type)
+BOOL loadUpgradeFunction(const StatsTable& _table, UDWORD _row, UBYTE type)
 {
   STRING functionName[MAX_NAME_SIZE];
   UDWORD modifier;
@@ -566,8 +579,10 @@ BOOL loadUpgradeFunction(SBYTE* pData, UBYTE type)
   psFunction->type = type;
 
   //read the data in
-  functionName[0] = '\0';
-  sscanf(pData, "%[^','],%d", &functionName, &modifier);
+  if (!_table.Text(_row, "name", functionName, sizeof(functionName)))
+    return FALSE;
+  if (!_table.Number(_row, "modifier", &modifier))
+    return FALSE;
 
   //allocate storage for the name
   storeName((FUNCTION*)psFunction, functionName);
@@ -584,7 +599,7 @@ BOOL loadUpgradeFunction(SBYTE* pData, UBYTE type)
   return TRUE;
 }
 
-BOOL loadDroidBodyUpgradeFunction(SBYTE* pData)
+BOOL loadDroidBodyUpgradeFunction(const StatsTable& _table, UDWORD _row)
 {
   DROIDBODY_UPGRADE_FUNCTION* psFunction;
   STRING functionName[MAX_NAME_SIZE];
@@ -609,8 +624,20 @@ BOOL loadDroidBodyUpgradeFunction(SBYTE* pData)
   psFunction->type = DROIDBODY_UPGRADE_TYPE;
 
   //read the data in
-  functionName[0] = '\0';
-  sscanf(pData, "%[^','],%d,%d,%d,%d,%d,%d", &functionName, &modifier, &body, &armourKinetic, &armourHeat, &droid, &cyborg);
+  if (!_table.Text(_row, "name", functionName, sizeof(functionName)))
+    return FALSE;
+  if (!_table.Number(_row, "modifier", &modifier))
+    return FALSE;
+  if (!_table.Number(_row, "body", &body))
+    return FALSE;
+  if (!_table.Number(_row, "armourKinetic", &armourKinetic))
+    return FALSE;
+  if (!_table.Number(_row, "armourHeat", &armourHeat))
+    return FALSE;
+  if (!_table.Number(_row, "droid", &droid))
+    return FALSE;
+  if (!_table.Number(_row, "cyborg", &cyborg))
+    return FALSE;
 
   //allocate storage for the name
   storeName((FUNCTION*)psFunction, functionName);
@@ -638,7 +665,7 @@ BOOL loadDroidBodyUpgradeFunction(SBYTE* pData)
   return TRUE;
 }
 
-BOOL loadDroidSensorUpgradeFunction(SBYTE* pData)
+BOOL loadDroidSensorUpgradeFunction(const StatsTable& _table, UDWORD _row)
 {
   DROIDSENSOR_UPGRADE_FUNCTION* psFunction;
   STRING functionName[MAX_NAME_SIZE];
@@ -663,8 +690,12 @@ BOOL loadDroidSensorUpgradeFunction(SBYTE* pData)
   psFunction->type = DROIDSENSOR_UPGRADE_TYPE;
 
   //read the data in
-  functionName[0] = '\0';
-  sscanf(pData, "%[^','],%d,%d", &functionName, &modifier, &range);
+  if (!_table.Text(_row, "name", functionName, sizeof(functionName)))
+    return FALSE;
+  if (!_table.Number(_row, "modifier", &modifier))
+    return FALSE;
+  if (!_table.Number(_row, "range", &range))
+    return FALSE;
 
   //allocate storage for the name
   storeName((FUNCTION*)psFunction, functionName);
@@ -682,7 +713,7 @@ BOOL loadDroidSensorUpgradeFunction(SBYTE* pData)
   return TRUE;
 }
 
-BOOL loadWeaponUpgradeFunction(SBYTE* pData)
+BOOL loadWeaponUpgradeFunction(const StatsTable& _table, UDWORD _row)
 {
   WEAPON_UPGRADE_FUNCTION* psFunction;
   STRING functionName[MAX_NAME_SIZE], weaponSubClass[MAX_NAME_SIZE];
@@ -707,10 +738,24 @@ BOOL loadWeaponUpgradeFunction(SBYTE* pData)
   psFunction->type = WEAPON_UPGRADE_TYPE;
 
   //read the data in
-  functionName[0] = '\0';
-  weaponSubClass[0] = '\0';
-  sscanf(pData, "%[^','],%[^','],%d,%d,%d,%d,%d,%d,%d", &functionName, &weaponSubClass, &firePause, &shortHit, &longHit, &damage,
-         &radiusDamage, &incenDamage, &radiusHit);
+  if (!_table.Text(_row, "name", functionName, sizeof(functionName)))
+    return FALSE;
+  if (!_table.Text(_row, "weaponSubClass", weaponSubClass, sizeof(weaponSubClass)))
+    return FALSE;
+  if (!_table.Number(_row, "firePause", &firePause))
+    return FALSE;
+  if (!_table.Number(_row, "shortHit", &shortHit))
+    return FALSE;
+  if (!_table.Number(_row, "longHit", &longHit))
+    return FALSE;
+  if (!_table.Number(_row, "damage", &damage))
+    return FALSE;
+  if (!_table.Number(_row, "radiusDamage", &radiusDamage))
+    return FALSE;
+  if (!_table.Number(_row, "incenDamage", &incenDamage))
+    return FALSE;
+  if (!_table.Number(_row, "radiusHit", &radiusHit))
+    return FALSE;
 
   //allocate storage for the name
   storeName((FUNCTION*)psFunction, functionName);
@@ -741,7 +786,7 @@ BOOL loadWeaponUpgradeFunction(SBYTE* pData)
   return TRUE;
 }
 
-BOOL loadStructureUpgradeFunction(SBYTE* pData)
+BOOL loadStructureUpgradeFunction(const StatsTable& _table, UDWORD _row)
 {
   STRUCTURE_UPGRADE_FUNCTION* psFunction;
   STRING functionName[MAX_NAME_SIZE];
@@ -766,8 +811,14 @@ BOOL loadStructureUpgradeFunction(SBYTE* pData)
   psFunction->type = STRUCTURE_UPGRADE_TYPE;
 
   //read the data in
-  functionName[0] = '\0';
-  sscanf(pData, "%[^','],%d,%d,%d", &functionName, &armour, &body, &resistance);
+  if (!_table.Text(_row, "name", functionName, sizeof(functionName)))
+    return FALSE;
+  if (!_table.Number(_row, "armour", &armour))
+    return FALSE;
+  if (!_table.Number(_row, "body", &body))
+    return FALSE;
+  if (!_table.Number(_row, "resistance", &resistance))
+    return FALSE;
 
   //allocate storage for the name
   storeName((FUNCTION*)psFunction, functionName);
@@ -787,7 +838,7 @@ BOOL loadStructureUpgradeFunction(SBYTE* pData)
   return TRUE;
 }
 
-BOOL loadWallDefenceUpgradeFunction(SBYTE* pData)
+BOOL loadWallDefenceUpgradeFunction(const StatsTable& _table, UDWORD _row)
 {
   WALLDEFENCE_UPGRADE_FUNCTION* psFunction;
   STRING functionName[MAX_NAME_SIZE];
@@ -812,8 +863,12 @@ BOOL loadWallDefenceUpgradeFunction(SBYTE* pData)
   psFunction->type = WALLDEFENCE_UPGRADE_TYPE;
 
   //read the data in
-  functionName[0] = '\0';
-  sscanf(pData, "%[^','],%d,%d", &functionName, &armour, &body);
+  if (!_table.Text(_row, "name", functionName, sizeof(functionName)))
+    return FALSE;
+  if (!_table.Number(_row, "armour", &armour))
+    return FALSE;
+  if (!_table.Number(_row, "body", &body))
+    return FALSE;
 
   //allocate storage for the name
   storeName((FUNCTION*)psFunction, functionName);
@@ -902,7 +957,7 @@ BOOL loadWallDefenceUpgradeFunction(SBYTE* pData)
 	return TRUE;
 }*/
 
-BOOL loadPowerGenFunction(SBYTE* pData)
+BOOL loadPowerGenFunction(const StatsTable& _table, UDWORD _row)
 {
   POWER_GEN_FUNCTION* psFunction;
   STRING functionName[MAX_NAME_SIZE];
@@ -926,10 +981,20 @@ BOOL loadPowerGenFunction(SBYTE* pData)
   psFunction->type = POWER_GEN_TYPE;
 
   //read the data in
-  functionName[0] = '\0';
-  sscanf(pData, "%[^','],%d,%d,%d,%d,%d,%d", &functionName, &psFunction->powerOutput, &psFunction->powerMultiplier,
-         &psFunction->criticalMassChance, &psFunction->criticalMassRadius, &psFunction->criticalMassDamage,
-         &psFunction->radiationDecayTime);
+  if (!_table.Text(_row, "name", functionName, sizeof(functionName)))
+    return FALSE;
+  if (!_table.Number(_row, "powerOutput", &psFunction->powerOutput))
+    return FALSE;
+  if (!_table.Number(_row, "powerMultiplier", &psFunction->powerMultiplier))
+    return FALSE;
+  if (!_table.Number(_row, "criticalMassChance", &psFunction->criticalMassChance))
+    return FALSE;
+  if (!_table.Number(_row, "criticalMassRadius", &psFunction->criticalMassRadius))
+    return FALSE;
+  if (!_table.Number(_row, "criticalMassDamage", &psFunction->criticalMassDamage))
+    return FALSE;
+  if (!_table.Number(_row, "radiationDecayTime", &psFunction->radiationDecayTime))
+    return FALSE;
 
   if (bMultiPlayer)
     modifyResources(psFunction);
@@ -940,7 +1005,7 @@ BOOL loadPowerGenFunction(SBYTE* pData)
   return TRUE;
 }
 
-BOOL loadResourceFunction(SBYTE* pData)
+BOOL loadResourceFunction(const StatsTable& _table, UDWORD _row)
 {
   RESOURCE_FUNCTION* psFunction;
   STRING functionName[MAX_NAME_SIZE];
@@ -964,8 +1029,10 @@ BOOL loadResourceFunction(SBYTE* pData)
   psFunction->type = RESOURCE_TYPE;
 
   //read the data in
-  functionName[0] = '\0';
-  sscanf(pData, "%[^','],%d", &functionName, &psFunction->maxPower);
+  if (!_table.Text(_row, "name", functionName, sizeof(functionName)))
+    return FALSE;
+  if (!_table.Number(_row, "maxPower", &psFunction->maxPower))
+    return FALSE;
 
   //allocate storage for the name
   storeName((FUNCTION*)psFunction, functionName);
@@ -1040,7 +1107,7 @@ BOOL loadResourceFunction(SBYTE* pData)
 	return TRUE;
 }*/
 
-BOOL loadRepairDroidFunction(SBYTE* pData)
+BOOL loadRepairDroidFunction(const StatsTable& _table, UDWORD _row)
 {
   REPAIR_DROID_FUNCTION* psFunction;
   STRING functionName[MAX_NAME_SIZE];
@@ -1064,8 +1131,10 @@ BOOL loadRepairDroidFunction(SBYTE* pData)
   psFunction->type = REPAIR_DROID_TYPE;
 
   //read the data in
-  functionName[0] = '\0';
-  sscanf(pData, "%[^','],%d", &functionName, &psFunction->repairPoints);
+  if (!_table.Text(_row, "name", functionName, sizeof(functionName)))
+    return FALSE;
+  if (!_table.Number(_row, "repairPoints", &psFunction->repairPoints))
+    return FALSE;
 
   //allocate storage for the name
   storeName((FUNCTION*)psFunction, functionName);
@@ -1338,11 +1407,12 @@ BOOL loadRepairDroidFunction(SBYTE* pData)
 }*/
 
 /*loads the corner stat to use for a particular wall stat */
-BOOL loadWallFunction(SBYTE* pData)
+BOOL loadWallFunction(const StatsTable& _table, UDWORD _row)
 {
   WALL_FUNCTION* psFunction;
   STRING functionName[MAX_NAME_SIZE];
   STRING structureName[MAX_NAME_SIZE];
+  UDWORD dummyVal;
 
   //allocate storage
   psFunction = new (std::nothrow) WALL_FUNCTION[1];
@@ -1363,9 +1433,12 @@ BOOL loadWallFunction(SBYTE* pData)
   psFunction->type = WALL_TYPE;
 
   //read the data in
-  functionName[0] = '\0';
-  structureName[0] = '\0';
-  sscanf(pData, "%[^','],%[^','],%*d", &functionName, &structureName);
+  if (!_table.Text(_row, "name", functionName, sizeof(functionName)))
+    return FALSE;
+  if (!_table.Text(_row, "structure", structureName, sizeof(structureName)))
+    return FALSE;
+  if (!_table.Number(_row, "dummy", &dummyVal))
+    return FALSE;
 
   //allocate storage for the name
   storeName((FUNCTION*)psFunction, functionName);

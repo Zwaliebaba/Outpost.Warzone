@@ -29,7 +29,6 @@
 #include "AudioSystem.h"
 #include "AudioID.h"
 
-#include "MultiWDG.h"
 
 #include "WarCAM.h"	// these 4 for fireworks
 #include "Effects.h"
@@ -42,7 +41,8 @@
 #include "MultiRecv.h"								// incoming messages stuff
 #include "MultiStat.h"
 #include "MultiGifts.h"								// gifts and alliances.
-#include "Levels.h"									// levParse
+#include "Levels.h"
+#include "Manifest.h"
 #include "Selection.h"                     // selDroidDeselect
 
 // ////////////////////////////////////////////////////////////////////////////
@@ -1354,38 +1354,11 @@ BOOL recvMapFileData(NETMSG* pMsg)
     addConsoleMessage("MAP DOWNLOADED!", DEFAULT_JUSTIFY);
     sendTextMessage("MAP DOWNLOADED",TRUE); //send
 
-    // clear out the old level list.
-    WDG_SetCurrentWDG(nullptr);
-    wdgMultiShutdown();
-    wdgMultiInit();
-    wdgLoadAllWDGCatalogs();
+    // clear out the old level list and re-register it from the manifest.
     levShutDown();
     levInitialise();
-    // reload the map lists.
-    {
-      WDG_FINDFILE sFindFile;
-      UBYTE* pBuffer;
-      UDWORD size;
-      if (!loadFile("GameDesc.lev", &pBuffer, &size)) // load the original gamedesc.lev
-        return FALSE;
-      if (!levParse(pBuffer, size))
-        return FALSE;
-      delete[] pBuffer;
-      pBuffer = nullptr;
-      wdgFindFirstFileRev(HashStringIgnoreCase("MISCDATA"), HashString("MISCDATA"), HashStringIgnoreCase("addon.lev"), &sFindFile);
-
-      while (sFindFile.psCurrCache != nullptr)
-      {
-        if (!loadFileFromWDGCache(&sFindFile, &pBuffer, &size, WDG_ALLOCATEMEM))
-          return FALSE;
-        if (!levParse(pBuffer, size))
-          return FALSE;
-        delete[] pBuffer;
-        pBuffer = nullptr;
-
-        wdgFindNextFileRev(&sFindFile);
-      }
-    }
+    if (!ManifestRegisterDataSets())
+      return FALSE;
   }
   else
   {

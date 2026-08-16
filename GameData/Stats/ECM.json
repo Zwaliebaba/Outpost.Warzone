@@ -1,0 +1,32 @@
+[
+ {
+  "name": "ZNULLECM",
+  "techLevel": "Level All",
+  "buildPower": 0,
+  "buildPoints": 0,
+  "weight": 0,
+  "hitPoints": 0,
+  "systemPoints": 0,
+  "body": 0,
+  "model": "0",
+  "mountModel": "0",
+  "location": "DEFAULT",
+  "power": 50,
+  "designable": 0
+ },
+ {
+  "name": "RepairCentre",
+  "techLevel": "Level All",
+  "buildPower": 0,
+  "buildPoints": 0,
+  "weight": 0,
+  "hitPoints": 0,
+  "systemPoints": 0,
+  "body": 0,
+  "model": "GNHREPAR.PIE",
+  "mountModel": "0",
+  "location": "TURRET",
+  "power": 0,
+  "designable": 0
+ }
+]

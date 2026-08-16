@@ -18,6 +18,7 @@
 #include "AudioID.h"
 #include "Projectile.h"
 #include "Text.h"
+#include "StatsTable.h"
 #define WEAPON_TIME		100
 
 /* The stores for the different stats */
@@ -266,20 +267,6 @@ BOOL statsShutDown(void)
 		"setStats: Invalid " #type " ref number"); \
 	memcpy((list) + (index), (stats), sizeof(type))
 
-/* Return the number of newlines in a file buffer */
-UDWORD numCR(UBYTE* pFileBuffer, UDWORD fileSize)
-{
-  UDWORD lines = 0; //, filePos=0;
-
-  while (fileSize-- > 0)
-  {
-    if (*pFileBuffer++ == '\n')
-      lines++;
-  }
-
-  return lines;
-}
-
 /*Load the stats from the Access database*/
 /*if (!loadWeaponStats())
 {
@@ -400,6 +387,7 @@ BOOL loadWeaponStats(SBYTE* pWeaponData, UDWORD bufferSize)
   STRING fireOnMove[11], weaponClass[16], weaponSubClass[16], weaponEffect[16], movement[16], facePlayer[6], faceInFlight[6], lightWorld[6];
   UDWORD longRange, effectSize, numAttackRuns, designable;
   UDWORD numRounds;
+  StatsTable sTable;
 
   char* StatsName;
 
@@ -409,7 +397,9 @@ BOOL loadWeaponStats(SBYTE* pWeaponData, UDWORD bufferSize)
   //reserve the start of the data
   psStartStats = psStats;
 
-  NumWeapons = numCR((UBYTE*)pWeaponData, bufferSize);
+  if (!StatsTable::Open((UBYTE*)pWeaponData, bufferSize, "Weapons", sTable))
+    return FALSE;
+  NumWeapons = sTable.Rows();
   if (!statsAllocWeapons(NumWeapons))
     return FALSE;
 
@@ -417,38 +407,111 @@ BOOL loadWeaponStats(SBYTE* pWeaponData, UDWORD bufferSize)
   {
     memset(psStats, 0, sizeof(WEAPON_STATS));
 
-    WeaponName[0] = '\0';
-    techLevel[0] = '\0';
-    GfxFile[0] = '\0';
-    mountGfx[0] = '\0';
-    muzzleGfx[0] = '\0';
-    flightGfx[0] = '\0';
-    hitGfx[0] = '\0';
-    missGfx[0] = '\0';
-    waterGfx[0] = '\0';
-    trailGfx[0] = '\0';
-    fireOnMove[0] = '\0';
-    weaponClass[0] = '\0';
-    weaponSubClass[0] = '\0';
-    movement[0] = '\0';
-    weaponEffect[0] = '\0';
-    facePlayer[0] = '\0';
-    faceInFlight[0] = '\0';
-
-    //read the data into the storage - the data is delimeted using comma's
-    sscanf(pWeaponData, "%59[^','],%59[^','],%d,%d,%d,%d,%d,%d,%59[^','],\
-			%59[^','],%59[^','],%59[^','],%59[^','],%59[^','],%59[^','],%59[^','],%d,\
-			%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%10[^','],\
-			%15[^','],%15[^','],%15[^','],%15[^','],%d,%d,%d,%5[^','],%5[^','],%d,%d,\
-			%5[^','],%d,%d,%d,%d", (char*)&WeaponName, (char*)&techLevel, &psStats->buildPower, &psStats->buildPoints, &psStats->weight,
-           &psStats->hitPoints, &psStats->systemPoints, &psStats->body, (char*)&GfxFile, (char*)&mountGfx, (char*)&muzzleGfx,
-           (char*)&flightGfx, (char*)&hitGfx, (char*)&missGfx, (char*)&waterGfx, (char*)&trailGfx, &psStats->shortRange,
-           &psStats->longRange, &psStats->shortHit, &psStats->longHit, &psStats->firePause, &psStats->numExplosions, &numRounds,
-           &psStats->reloadTime, &psStats->damage, &psStats->radius, &psStats->radiusHit, &psStats->radiusDamage, &psStats->incenTime,
-           &psStats->incenDamage, &psStats->incenRadius, &psStats->directLife, &psStats->radiusLife, &psStats->flightSpeed,
-           &psStats->indirectHeight, (char*)&fireOnMove, (char*)&weaponClass, (char*)&weaponSubClass, (char*)&movement,
-           (char*)&weaponEffect, &rotate, &maxElevation, &minElevation, (char*)&facePlayer, (char*)&faceInFlight, &psStats->recoilValue,
-           &psStats->minRange, (char*)&lightWorld, &effectSize, &surfaceToAir, &numAttackRuns, &designable);
+    //read the data into the storage
+    if (!sTable.Text(i, "name", WeaponName, sizeof(WeaponName)))
+      return FALSE;
+    if (!sTable.Text(i, "techLevel", techLevel, sizeof(techLevel)))
+      return FALSE;
+    if (!sTable.Number(i, "buildPower", &psStats->buildPower))
+      return FALSE;
+    if (!sTable.Number(i, "buildPoints", &psStats->buildPoints))
+      return FALSE;
+    if (!sTable.Number(i, "weight", &psStats->weight))
+      return FALSE;
+    if (!sTable.Number(i, "hitPoints", &psStats->hitPoints))
+      return FALSE;
+    if (!sTable.Number(i, "systemPoints", &psStats->systemPoints))
+      return FALSE;
+    if (!sTable.Number(i, "body", &psStats->body))
+      return FALSE;
+    if (!sTable.Text(i, "model", GfxFile, sizeof(GfxFile)))
+      return FALSE;
+    if (!sTable.Text(i, "mountModel", mountGfx, sizeof(mountGfx)))
+      return FALSE;
+    if (!sTable.Text(i, "muzzleModel", muzzleGfx, sizeof(muzzleGfx)))
+      return FALSE;
+    if (!sTable.Text(i, "flightModel", flightGfx, sizeof(flightGfx)))
+      return FALSE;
+    if (!sTable.Text(i, "hitModel", hitGfx, sizeof(hitGfx)))
+      return FALSE;
+    if (!sTable.Text(i, "missModel", missGfx, sizeof(missGfx)))
+      return FALSE;
+    if (!sTable.Text(i, "waterModel", waterGfx, sizeof(waterGfx)))
+      return FALSE;
+    if (!sTable.Text(i, "trailModel", trailGfx, sizeof(trailGfx)))
+      return FALSE;
+    if (!sTable.Number(i, "shortRange", &psStats->shortRange))
+      return FALSE;
+    if (!sTable.Number(i, "longRange", &psStats->longRange))
+      return FALSE;
+    if (!sTable.Number(i, "shortHit", &psStats->shortHit))
+      return FALSE;
+    if (!sTable.Number(i, "longHit", &psStats->longHit))
+      return FALSE;
+    if (!sTable.Number(i, "firePause", &psStats->firePause))
+      return FALSE;
+    if (!sTable.Number(i, "numExplosions", &psStats->numExplosions))
+      return FALSE;
+    if (!sTable.Number(i, "numRounds", &numRounds))
+      return FALSE;
+    if (!sTable.Number(i, "reloadTime", &psStats->reloadTime))
+      return FALSE;
+    if (!sTable.Number(i, "damage", &psStats->damage))
+      return FALSE;
+    if (!sTable.Number(i, "radius", &psStats->radius))
+      return FALSE;
+    if (!sTable.Number(i, "radiusHit", &psStats->radiusHit))
+      return FALSE;
+    if (!sTable.Number(i, "radiusDamage", &psStats->radiusDamage))
+      return FALSE;
+    if (!sTable.Number(i, "incenTime", &psStats->incenTime))
+      return FALSE;
+    if (!sTable.Number(i, "incenDamage", &psStats->incenDamage))
+      return FALSE;
+    if (!sTable.Number(i, "incenRadius", &psStats->incenRadius))
+      return FALSE;
+    if (!sTable.Number(i, "directLife", &psStats->directLife))
+      return FALSE;
+    if (!sTable.Number(i, "radiusLife", &psStats->radiusLife))
+      return FALSE;
+    if (!sTable.Number(i, "flightSpeed", &psStats->flightSpeed))
+      return FALSE;
+    if (!sTable.Number(i, "indirectHeight", &psStats->indirectHeight))
+      return FALSE;
+    if (!sTable.Text(i, "fireOnMove", fireOnMove, sizeof(fireOnMove)))
+      return FALSE;
+    if (!sTable.Text(i, "weaponClass", weaponClass, sizeof(weaponClass)))
+      return FALSE;
+    if (!sTable.Text(i, "weaponSubClass", weaponSubClass, sizeof(weaponSubClass)))
+      return FALSE;
+    if (!sTable.Text(i, "movement", movement, sizeof(movement)))
+      return FALSE;
+    if (!sTable.Text(i, "weaponEffect", weaponEffect, sizeof(weaponEffect)))
+      return FALSE;
+    if (!sTable.Number(i, "rotate", &rotate))
+      return FALSE;
+    if (!sTable.Number(i, "maxElevation", &maxElevation))
+      return FALSE;
+    if (!sTable.Number(i, "minElevation", &minElevation))
+      return FALSE;
+    if (!sTable.Text(i, "facePlayer", facePlayer, sizeof(facePlayer)))
+      return FALSE;
+    if (!sTable.Text(i, "faceInFlight", faceInFlight, sizeof(faceInFlight)))
+      return FALSE;
+    if (!sTable.Number(i, "recoilValue", &psStats->recoilValue))
+      return FALSE;
+    if (!sTable.Number(i, "minRange", &psStats->minRange))
+      return FALSE;
+    if (!sTable.Text(i, "lightWorld", lightWorld, sizeof(lightWorld)))
+      return FALSE;
+    if (!sTable.Number(i, "effectSize", &effectSize))
+      return FALSE;
+    if (!sTable.Number(i, "surfaceToAir", &surfaceToAir))
+      return FALSE;
+    if (!sTable.Number(i, "numAttackRuns", &numAttackRuns))
+      return FALSE;
+    if (!sTable.Number(i, "designable", &designable))
+      return FALSE;
 
     psStats->numRounds = static_cast<UBYTE>(numRounds);
 
@@ -725,8 +788,6 @@ BOOL loadWeaponStats(SBYTE* pWeaponData, UDWORD bufferSize)
     }
 
     psStats = psStartStats;
-    //increment the pointer to the start of the next record
-    pWeaponData = strchr(pWeaponData, '\n') + 1;
   }
 
   return TRUE;
@@ -821,6 +882,7 @@ BOOL loadBodyStats(SBYTE* pBodyData, UDWORD bufferSize)
   BODY_STATS sStats, *psStats, *psStartStats;
   UDWORD NumBody = 0, i, designable;
   STRING BodyName[MAX_NAME_SIZE], size[MAX_NAME_SIZE], GfxFile[MAX_NAME_SIZE], techLevel[MAX_NAME_SIZE], flameIMD[MAX_NAME_SIZE];
+  StatsTable sTable;
 
   //keep the start so we can release it at the end
 
@@ -828,7 +890,9 @@ BOOL loadBodyStats(SBYTE* pBodyData, UDWORD bufferSize)
   //reserve the start of the data
   psStartStats = psStats;
 
-  NumBody = numCR((UBYTE*)pBodyData, bufferSize);
+  if (!StatsTable::Open((UBYTE*)pBodyData, bufferSize, "Body", sTable))
+    return FALSE;
+  NumBody = sTable.Rows();
 
   if (!statsAllocBody(NumBody))
     return FALSE;
@@ -837,17 +901,37 @@ BOOL loadBodyStats(SBYTE* pBodyData, UDWORD bufferSize)
   {
     memset(psStats, 0, sizeof(BODY_STATS));
 
-    BodyName[0] = '\0';
-    techLevel[0] = '\0';
-    size[0] = '\0';
-    GfxFile[0] = '\0';
-    flameIMD[0] = '\0';
-    //read the data into the storage - the data is delimeted using comma's
-    sscanf(pBodyData, "%[^','],%[^','],%[^','],%d,%d,%d,%d,%[^','],\
-			%d,%d,%d,%d,%d,%[^','],%d", (char*)&BodyName, (char*)&techLevel, (char*)&size, &psStats->buildPower, &psStats->buildPoints,
-           &psStats->weight, &psStats->body, (char*)&GfxFile, &psStats->systemPoints, &psStats->weaponSlots, &psStats->powerOutput,
-           &psStats->armourValue[WC_KINETIC], &psStats->armourValue[WC_HEAT], (char*)&flameIMD,
-           &designable); //, &psStats->armourValue[WC_EXPLOSIVE], 
+    //read the data into the storage
+    if (!sTable.Text(i, "name", BodyName, sizeof(BodyName)))
+      return FALSE;
+    if (!sTable.Text(i, "techLevel", techLevel, sizeof(techLevel)))
+      return FALSE;
+    if (!sTable.Text(i, "size", size, sizeof(size)))
+      return FALSE;
+    if (!sTable.Number(i, "buildPower", &psStats->buildPower))
+      return FALSE;
+    if (!sTable.Number(i, "buildPoints", &psStats->buildPoints))
+      return FALSE;
+    if (!sTable.Number(i, "weight", &psStats->weight))
+      return FALSE;
+    if (!sTable.Number(i, "body", &psStats->body))
+      return FALSE;
+    if (!sTable.Text(i, "model", GfxFile, sizeof(GfxFile)))
+      return FALSE;
+    if (!sTable.Number(i, "systemPoints", &psStats->systemPoints))
+      return FALSE;
+    if (!sTable.Number(i, "weaponSlots", &psStats->weaponSlots))
+      return FALSE;
+    if (!sTable.Number(i, "powerOutput", &psStats->powerOutput))
+      return FALSE;
+    if (!sTable.Number(i, "armourKinetic", &psStats->armourValue[WC_KINETIC]))
+      return FALSE;
+    if (!sTable.Number(i, "armourHeat", &psStats->armourValue[WC_HEAT]))
+      return FALSE;
+    if (!sTable.Text(i, "flameModel", flameIMD, sizeof(flameIMD)))
+      return FALSE;
+    if (!sTable.Number(i, "designable", &designable))
+      return FALSE;
 
 #if (MAX_PLAYERS!=4 && MAX_PLAYERS!=8)
 #error Invalid number of players
@@ -915,8 +999,6 @@ BOOL loadBodyStats(SBYTE* pBodyData, UDWORD bufferSize)
     }
 
     psStats = psStartStats;
-    //increment the pointer to the start of the next record
-    pBodyData = strchr(pBodyData, '\n') + 1;
   }
   return TRUE;
 }
@@ -927,6 +1009,7 @@ BOOL loadBrainStats(SBYTE* pBrainData, UDWORD bufferSize)
   BRAIN_STATS sStats, *psStats, *psStartStats;
   UDWORD NumBrain = 0, i, incW;
   STRING BrainName[MAX_NAME_SIZE], techLevel[MAX_NAME_SIZE], weaponName[MAX_NAME_SIZE];
+  StatsTable sTable;
 
   //keep the start so we can release it at the end
 
@@ -934,7 +1017,9 @@ BOOL loadBrainStats(SBYTE* pBrainData, UDWORD bufferSize)
   //reserve the start of the data
   psStartStats = psStats;
 
-  NumBrain = numCR((UBYTE*)pBrainData, bufferSize);
+  if (!StatsTable::Open((UBYTE*)pBrainData, bufferSize, "Brain", sTable))
+    return FALSE;
+  NumBrain = sTable.Rows();
 
   if (!statsAllocBrain(NumBrain))
     return FALSE;
@@ -943,13 +1028,25 @@ BOOL loadBrainStats(SBYTE* pBrainData, UDWORD bufferSize)
   {
     memset(psStats, 0, sizeof(BRAIN_STATS));
 
-    BrainName[0] = '\0';
-    techLevel[0] = '\0';
-    weaponName[0] = '\0';
-    //read the data into the storage - the data is delimeted using comma's
-    sscanf(pBrainData, "%[^','],%[^','],%d,%d,%d,%d,%d,%[^','],%d", (char*)&BrainName, (char*)&techLevel, &psStats->buildPower,
-           &psStats->buildPoints, &psStats->weight, &psStats->hitPoints, &psStats->systemPoints, (char*)&weaponName,
-           &psStats->progCap); //, &psStats->AICap, &psStats->AISpeed);
+    //read the data into the storage
+    if (!sTable.Text(i, "name", BrainName, sizeof(BrainName)))
+      return FALSE;
+    if (!sTable.Text(i, "techLevel", techLevel, sizeof(techLevel)))
+      return FALSE;
+    if (!sTable.Number(i, "buildPower", &psStats->buildPower))
+      return FALSE;
+    if (!sTable.Number(i, "buildPoints", &psStats->buildPoints))
+      return FALSE;
+    if (!sTable.Number(i, "weight", &psStats->weight))
+      return FALSE;
+    if (!sTable.Number(i, "hitPoints", &psStats->hitPoints))
+      return FALSE;
+    if (!sTable.Number(i, "systemPoints", &psStats->systemPoints))
+      return FALSE;
+    if (!sTable.Text(i, "weapon", weaponName, sizeof(weaponName)))
+      return FALSE;
+    if (!sTable.Number(i, "progCap", &psStats->progCap))
+      return FALSE;
 
     if (!allocateStatName((BASE_STATS*)psStats, BrainName))
       return FALSE;
@@ -989,8 +1086,6 @@ BOOL loadBrainStats(SBYTE* pBrainData, UDWORD bufferSize)
     statsSetBrain(psStats, i);
 
     psStats = psStartStats;
-    //increment the pointer to the start of the next record
-    pBrainData = strchr(pBrainData, '\n') + 1;
   }
   return TRUE;
 }
@@ -1109,6 +1204,7 @@ BOOL loadPropulsionStats(SBYTE* pPropulsionData, UDWORD bufferSize)
   PROPULSION_STATS sStats, *psStats, *psStartStats;
   UDWORD NumPropulsion = 0, i, designable;
   STRING PropulsionName[MAX_NAME_SIZE], imdName[MAX_NAME_SIZE], techLevel[MAX_NAME_SIZE], type[MAX_NAME_SIZE];
+  StatsTable sTable;
 
   //keep the start so we release it at the end
 
@@ -1116,7 +1212,9 @@ BOOL loadPropulsionStats(SBYTE* pPropulsionData, UDWORD bufferSize)
   //reserve the start of the data
   psStartStats = psStats;
 
-  NumPropulsion = numCR((UBYTE*)pPropulsionData, bufferSize);
+  if (!StatsTable::Open((UBYTE*)pPropulsionData, bufferSize, "Propulsion", sTable))
+    return FALSE;
+  NumPropulsion = sTable.Rows();
   if (!statsAllocPropulsion(NumPropulsion))
     return FALSE;
 
@@ -1124,14 +1222,31 @@ BOOL loadPropulsionStats(SBYTE* pPropulsionData, UDWORD bufferSize)
   {
     memset(psStats, 0, sizeof(PROPULSION_STATS));
 
-    PropulsionName[0] = '\0';
-    techLevel[0] = '\0';
-    imdName[0] = '\0';
-
-    //read the data into the storage - the data is delimeted using comma's
-    sscanf(pPropulsionData, "%[^','],%[^','],%d,%d,%d,%d,%d,%d,%[^','],\
-			%[^','],%d,%d", (char*)&PropulsionName, (char*)&techLevel, &psStats->buildPower, &psStats->buildPoints, &psStats->weight,
-           &psStats->hitPoints, &psStats->systemPoints, &psStats->body, (char*)&imdName, (char*)&type, &psStats->maxSpeed, &designable);
+    //read the data into the storage
+    if (!sTable.Text(i, "name", PropulsionName, sizeof(PropulsionName)))
+      return FALSE;
+    if (!sTable.Text(i, "techLevel", techLevel, sizeof(techLevel)))
+      return FALSE;
+    if (!sTable.Number(i, "buildPower", &psStats->buildPower))
+      return FALSE;
+    if (!sTable.Number(i, "buildPoints", &psStats->buildPoints))
+      return FALSE;
+    if (!sTable.Number(i, "weight", &psStats->weight))
+      return FALSE;
+    if (!sTable.Number(i, "hitPoints", &psStats->hitPoints))
+      return FALSE;
+    if (!sTable.Number(i, "systemPoints", &psStats->systemPoints))
+      return FALSE;
+    if (!sTable.Number(i, "body", &psStats->body))
+      return FALSE;
+    if (!sTable.Text(i, "model", imdName, sizeof(imdName)))
+      return FALSE;
+    if (!sTable.Text(i, "type", type, sizeof(type)))
+      return FALSE;
+    if (!sTable.Number(i, "maxSpeed", &psStats->maxSpeed))
+      return FALSE;
+    if (!sTable.Number(i, "designable", &designable))
+      return FALSE;
 
 #if (MAX_PLAYERS!=4 && MAX_PLAYERS!=8)
 #error Invalid number of players
@@ -1181,8 +1296,6 @@ BOOL loadPropulsionStats(SBYTE* pPropulsionData, UDWORD bufferSize)
       setMaxPropulsionSpeed(psStats->maxSpeed);
 
     psStats = psStartStats;
-    //increment the pointer to the start of the next record
-    pPropulsionData = strchr(pPropulsionData, '\n') + 1;
   }
 
   /*since propulsion weight is a multiple of body weight we may need to 
@@ -1219,6 +1332,7 @@ BOOL loadSensorStats(SBYTE* pSensorData, UDWORD bufferSize)
   UDWORD NumSensor = 0, i, designable;
   STRING SensorName[MAX_NAME_SIZE], location[MAX_NAME_SIZE], GfxFile[MAX_NAME_SIZE], type[MAX_NAME_SIZE];
   STRING mountGfx[MAX_NAME_SIZE], techLevel[MAX_NAME_SIZE];
+  StatsTable sTable;
 
   //keep the start so we release it at the end
 
@@ -1226,7 +1340,9 @@ BOOL loadSensorStats(SBYTE* pSensorData, UDWORD bufferSize)
   //reserve the start of the data
   psStartStats = psStats;
 
-  NumSensor = numCR((UBYTE*)pSensorData, bufferSize);
+  if (!StatsTable::Open((UBYTE*)pSensorData, bufferSize, "Sensor", sTable))
+    return FALSE;
+  NumSensor = sTable.Rows();
   if (!statsAllocSensor(NumSensor))
     return FALSE;
 
@@ -1234,17 +1350,39 @@ BOOL loadSensorStats(SBYTE* pSensorData, UDWORD bufferSize)
   {
     memset(psStats, 0, sizeof(SENSOR_STATS));
 
-    SensorName[0] = '\0';
-    techLevel[0] = '\0';
-    GfxFile[0] = '\0';
-    mountGfx[0] = '\0';
-    location[0] = '\0';
-    type[0] = '\0';
-    //read the data into the storage - the data is delimeted using comma's
-    sscanf(pSensorData, "%[^','],%[^','],%d,%d,%d,%d,%d,%d,%[^','],\
-			%[^','],%d,%[^','],%[^','],%d,%d,%d", (char*)&SensorName, (char*)&techLevel, &psStats->buildPower, &psStats->buildPoints,
-           &psStats->weight, &psStats->hitPoints, &psStats->systemPoints, &psStats->body, (char*)&GfxFile, (char*)&mountGfx,
-           &psStats->range, (char*)&location, (char*)&type, &psStats->time, &psStats->power, &designable);
+    //read the data into the storage
+    if (!sTable.Text(i, "name", SensorName, sizeof(SensorName)))
+      return FALSE;
+    if (!sTable.Text(i, "techLevel", techLevel, sizeof(techLevel)))
+      return FALSE;
+    if (!sTable.Number(i, "buildPower", &psStats->buildPower))
+      return FALSE;
+    if (!sTable.Number(i, "buildPoints", &psStats->buildPoints))
+      return FALSE;
+    if (!sTable.Number(i, "weight", &psStats->weight))
+      return FALSE;
+    if (!sTable.Number(i, "hitPoints", &psStats->hitPoints))
+      return FALSE;
+    if (!sTable.Number(i, "systemPoints", &psStats->systemPoints))
+      return FALSE;
+    if (!sTable.Number(i, "body", &psStats->body))
+      return FALSE;
+    if (!sTable.Text(i, "model", GfxFile, sizeof(GfxFile)))
+      return FALSE;
+    if (!sTable.Text(i, "mountModel", mountGfx, sizeof(mountGfx)))
+      return FALSE;
+    if (!sTable.Number(i, "range", &psStats->range))
+      return FALSE;
+    if (!sTable.Text(i, "location", location, sizeof(location)))
+      return FALSE;
+    if (!sTable.Text(i, "type", type, sizeof(type)))
+      return FALSE;
+    if (!sTable.Number(i, "time", &psStats->time))
+      return FALSE;
+    if (!sTable.Number(i, "power", &psStats->power))
+      return FALSE;
+    if (!sTable.Number(i, "designable", &designable))
+      return FALSE;
 
 #if (MAX_PLAYERS!=4 && MAX_PLAYERS!=8)
 #error Invalid number of players
@@ -1325,8 +1463,6 @@ BOOL loadSensorStats(SBYTE* pSensorData, UDWORD bufferSize)
     }
 
     psStats = psStartStats;
-    //increment the pointer to the start of the next record
-    pSensorData = strchr(pSensorData, '\n') + 1;
   }
   return TRUE;
 }
@@ -1338,6 +1474,7 @@ BOOL loadECMStats(SBYTE* pECMData, UDWORD bufferSize)
   UDWORD NumECM = 0, i, designable;
   STRING ECMName[MAX_NAME_SIZE], location[MAX_NAME_SIZE], GfxFile[MAX_NAME_SIZE];
   STRING mountGfx[MAX_NAME_SIZE], techLevel[MAX_NAME_SIZE];
+  StatsTable sTable;
 
   //keep the start so we release it at the end
 
@@ -1345,7 +1482,9 @@ BOOL loadECMStats(SBYTE* pECMData, UDWORD bufferSize)
   //reserve the start of the data
   psStartStats = psStats;
 
-  NumECM = numCR((UBYTE*)pECMData, bufferSize);
+  if (!StatsTable::Open((UBYTE*)pECMData, bufferSize, "ECM", sTable))
+    return FALSE;
+  NumECM = sTable.Rows();
 
   if (!statsAllocECM(NumECM))
     return FALSE;
@@ -1354,16 +1493,33 @@ BOOL loadECMStats(SBYTE* pECMData, UDWORD bufferSize)
   {
     memset(psStats, 0, sizeof(ECM_STATS));
 
-    ECMName[0] = '\0';
-    techLevel[0] = '\0';
-    GfxFile[0] = '\0';
-    mountGfx[0] = '\0';
-    location[0] = '\0';
-    //read the data into the storage - the data is delimeted using comma's
-    sscanf(pECMData, "%[^','],%[^','],%d,%d,%d,%d,%d,%d,%[^','],%[^','],\
-			%[^','],%d,%d", (char*)&ECMName, (char*)&techLevel, &psStats->buildPower, &psStats->buildPoints, &psStats->weight,
-           &psStats->hitPoints, &psStats->systemPoints, &psStats->body, (char*)&GfxFile, (char*)&mountGfx, (char*)&location,
-           &psStats->power, &designable);
+    //read the data into the storage
+    if (!sTable.Text(i, "name", ECMName, sizeof(ECMName)))
+      return FALSE;
+    if (!sTable.Text(i, "techLevel", techLevel, sizeof(techLevel)))
+      return FALSE;
+    if (!sTable.Number(i, "buildPower", &psStats->buildPower))
+      return FALSE;
+    if (!sTable.Number(i, "buildPoints", &psStats->buildPoints))
+      return FALSE;
+    if (!sTable.Number(i, "weight", &psStats->weight))
+      return FALSE;
+    if (!sTable.Number(i, "hitPoints", &psStats->hitPoints))
+      return FALSE;
+    if (!sTable.Number(i, "systemPoints", &psStats->systemPoints))
+      return FALSE;
+    if (!sTable.Number(i, "body", &psStats->body))
+      return FALSE;
+    if (!sTable.Text(i, "model", GfxFile, sizeof(GfxFile)))
+      return FALSE;
+    if (!sTable.Text(i, "mountModel", mountGfx, sizeof(mountGfx)))
+      return FALSE;
+    if (!sTable.Text(i, "location", location, sizeof(location)))
+      return FALSE;
+    if (!sTable.Number(i, "power", &psStats->power))
+      return FALSE;
+    if (!sTable.Number(i, "designable", &designable))
+      return FALSE;
 
     // set a default ECM range for now
     psStats->range = TILE_UNITS * 8;
@@ -1433,8 +1589,6 @@ BOOL loadECMStats(SBYTE* pECMData, UDWORD bufferSize)
     }
 
     psStats = psStartStats;
-    //increment the pointer to the start of the next record
-    pECMData = strchr(pECMData, '\n') + 1;
   }
   return TRUE;
 }
@@ -1445,13 +1599,16 @@ BOOL loadRepairStats(SBYTE* pRepairData, UDWORD bufferSize)
   REPAIR_STATS sStats, *psStats, *psStartStats;
   UDWORD NumRepair = 0, i, designable;
   STRING RepairName[MAX_NAME_SIZE], techLevel[MAX_NAME_SIZE], GfxFile[MAX_NAME_SIZE], mountGfx[MAX_NAME_SIZE], location[MAX_NAME_SIZE];
+  StatsTable sTable;
   //keep the start so we can release it at the end
 
   psStats = &sStats;
   //reserve the start of the data
   psStartStats = psStats;
 
-  NumRepair = numCR((UBYTE*)pRepairData, bufferSize);
+  if (!StatsTable::Open((UBYTE*)pRepairData, bufferSize, "Repair", sTable))
+    return FALSE;
+  NumRepair = sTable.Rows();
 
   if (!statsAllocRepair(NumRepair))
     return FALSE;
@@ -1460,17 +1617,35 @@ BOOL loadRepairStats(SBYTE* pRepairData, UDWORD bufferSize)
   {
     memset(psStats, 0, sizeof(REPAIR_STATS));
 
-    RepairName[0] = '\0';
-    techLevel[0] = '\0';
-    GfxFile[0] = '\0';
-    mountGfx[0] = '\0';
-    location[0] = '\0';
-
-    //read the data into the storage - the data is delimeted using comma's
-    sscanf(pRepairData, "%[^','],%[^','],%d,%d,%d,%d,%d,%d,%[^','],\
-			%[^','],%[^','],%d,%d,%d", (char*)&RepairName, (char*)&techLevel, &psStats->buildPower, &psStats->buildPoints, &psStats->weight,
-           &psStats->hitPoints, &psStats->systemPoints, &psStats->repairArmour, (char*)&location, (char*)&GfxFile, (char*)&mountGfx,
-           &psStats->repairPoints, &psStats->time, &designable);
+    //read the data into the storage
+    if (!sTable.Text(i, "name", RepairName, sizeof(RepairName)))
+      return FALSE;
+    if (!sTable.Text(i, "techLevel", techLevel, sizeof(techLevel)))
+      return FALSE;
+    if (!sTable.Number(i, "buildPower", &psStats->buildPower))
+      return FALSE;
+    if (!sTable.Number(i, "buildPoints", &psStats->buildPoints))
+      return FALSE;
+    if (!sTable.Number(i, "weight", &psStats->weight))
+      return FALSE;
+    if (!sTable.Number(i, "hitPoints", &psStats->hitPoints))
+      return FALSE;
+    if (!sTable.Number(i, "systemPoints", &psStats->systemPoints))
+      return FALSE;
+    if (!sTable.Number(i, "repairArmour", &psStats->repairArmour))
+      return FALSE;
+    if (!sTable.Text(i, "location", location, sizeof(location)))
+      return FALSE;
+    if (!sTable.Text(i, "model", GfxFile, sizeof(GfxFile)))
+      return FALSE;
+    if (!sTable.Text(i, "mountModel", mountGfx, sizeof(mountGfx)))
+      return FALSE;
+    if (!sTable.Number(i, "repairPoints", &psStats->repairPoints))
+      return FALSE;
+    if (!sTable.Number(i, "time", &psStats->time))
+      return FALSE;
+    if (!sTable.Number(i, "designable", &designable))
+      return FALSE;
 
     if (!allocateStatName((BASE_STATS*)psStats, RepairName))
       return FALSE;
@@ -1543,8 +1718,6 @@ BOOL loadRepairStats(SBYTE* pRepairData, UDWORD bufferSize)
     }
 
     psStats = psStartStats;
-    //increment the pointer to the start of the next record
-    pRepairData = strchr(pRepairData, '\n') + 1;
   }
   return TRUE;
 }
@@ -1609,6 +1782,7 @@ BOOL loadConstructStats(SBYTE* pConstructData, UDWORD bufferSize)
   UDWORD NumConstruct = 0, i, designable;
   STRING ConstructName[MAX_NAME_SIZE], GfxFile[MAX_NAME_SIZE];
   STRING mountGfx[MAX_NAME_SIZE], techLevel[MAX_NAME_SIZE];
+  StatsTable sTable;
 
   //keep the start so we release it at the end
 
@@ -1616,7 +1790,9 @@ BOOL loadConstructStats(SBYTE* pConstructData, UDWORD bufferSize)
   //reserve the start of the data
   psStartStats = psStats;
 
-  NumConstruct = numCR((UBYTE*)pConstructData, bufferSize);
+  if (!StatsTable::Open((UBYTE*)pConstructData, bufferSize, "Construction", sTable))
+    return FALSE;
+  NumConstruct = sTable.Rows();
   if (!statsAllocConstruct(NumConstruct))
     return FALSE;
 
@@ -1624,15 +1800,31 @@ BOOL loadConstructStats(SBYTE* pConstructData, UDWORD bufferSize)
   {
     memset(psStats, 0, sizeof(CONSTRUCT_STATS));
 
-    ConstructName[0] = '\0';
-    techLevel[0] = '\0';
-    GfxFile[0] = '\0';
-    mountGfx[0] = '\0';
-    //read the data into the storage - the data is delimeted using comma's
-    sscanf(pConstructData, "%[^','],%[^','],%d,%d,%d,%d,%d,%d,%[^','],\
-			%[^','],%d,%d", (char*)&ConstructName, (char*)&techLevel, &psStats->buildPower, &psStats->buildPoints, &psStats->weight,
-           &psStats->hitPoints, &psStats->systemPoints, &psStats->body, (char*)&GfxFile, (char*)&mountGfx, &psStats->constructPoints,
-           &designable);
+    //read the data into the storage
+    if (!sTable.Text(i, "name", ConstructName, sizeof(ConstructName)))
+      return FALSE;
+    if (!sTable.Text(i, "techLevel", techLevel, sizeof(techLevel)))
+      return FALSE;
+    if (!sTable.Number(i, "buildPower", &psStats->buildPower))
+      return FALSE;
+    if (!sTable.Number(i, "buildPoints", &psStats->buildPoints))
+      return FALSE;
+    if (!sTable.Number(i, "weight", &psStats->weight))
+      return FALSE;
+    if (!sTable.Number(i, "hitPoints", &psStats->hitPoints))
+      return FALSE;
+    if (!sTable.Number(i, "systemPoints", &psStats->systemPoints))
+      return FALSE;
+    if (!sTable.Number(i, "body", &psStats->body))
+      return FALSE;
+    if (!sTable.Text(i, "model", GfxFile, sizeof(GfxFile)))
+      return FALSE;
+    if (!sTable.Text(i, "mountModel", mountGfx, sizeof(mountGfx)))
+      return FALSE;
+    if (!sTable.Number(i, "constructPoints", &psStats->constructPoints))
+      return FALSE;
+    if (!sTable.Number(i, "designable", &designable))
+      return FALSE;
 
 #if (MAX_PLAYERS!=4 && MAX_PLAYERS!=8)
 #error Invalid number of players
@@ -1692,8 +1884,6 @@ BOOL loadConstructStats(SBYTE* pConstructData, UDWORD bufferSize)
     }
 
     psStats = psStartStats;
-    //increment the pointer to the start of the next record
-    pConstructData = strchr(pConstructData, '\n') + 1;
   }
   return TRUE;
 }
@@ -1704,12 +1894,19 @@ BOOL loadPropulsionTypes(SBYTE* pPropTypeData, UDWORD bufferSize)
   PROPULSION_TYPES* pPropType;
   UDWORD NumTypes = 0, i, multiplier, type;
   STRING PropulsionName[MAX_NAME_SIZE], flightName[MAX_NAME_SIZE];
+  StatsTable sTable;
 
-  UNUSEDPARAMETER(bufferSize);
+  if (!StatsTable::Open((UBYTE*)pPropTypeData, bufferSize, "PropulsionType", sTable))
+    return FALSE;
 
   //keep the start so we can release it at the end
 
   NumTypes = NUM_PROP_TYPES;
+  if (sTable.Rows() != NumTypes)
+  {
+    Neuron::Fatal("loadPropulsionTypes: expected {} rows, found {}", NumTypes, sTable.Rows());
+    return FALSE;
+  }
 
   //allocate storage for the stats
   asPropulsionTypes = new (std::nothrow) PROPULSION_TYPES[NumTypes];
@@ -1723,8 +1920,13 @@ BOOL loadPropulsionTypes(SBYTE* pPropTypeData, UDWORD bufferSize)
 
   for (i = 0; i < NumTypes; i++)
   {
-    //read the data into the storage - the data is delimeted using comma's
-    sscanf(pPropTypeData, "%[^','],%[^','],%d", (char*)&PropulsionName, (char*)&flightName, &multiplier);
+    //read the data into the storage
+    if (!sTable.Text(i, "name", PropulsionName, sizeof(PropulsionName)))
+      return FALSE;
+    if (!sTable.Text(i, "flight", flightName, sizeof(flightName)))
+      return FALSE;
+    if (!sTable.Number(i, "multiplier", &multiplier))
+      return FALSE;
 
     //allocate storage for the name
     //set the pointer for this record based on the name
@@ -1761,9 +1963,6 @@ BOOL loadPropulsionTypes(SBYTE* pPropTypeData, UDWORD bufferSize)
     pPropType->moveID = NO_SOUND;
     pPropType->hissID = NO_SOUND;
     pPropType->shutDownID = NO_SOUND;
-
-    //increment the pointer to the start of the next record
-    pPropTypeData = strchr(pPropTypeData, '\n') + 1;
   }
 
   return TRUE;
@@ -1775,8 +1974,11 @@ BOOL loadTerrainTable(SBYTE* pTerrainTableData, UDWORD bufferSize)
   TERRAIN_TABLE* pTerrainTable;
   UDWORD NumEntries = 0, i, j;
   UDWORD terrainType, propulsionType, speedFactor;
+  StatsTable sTable;
 
-  NumEntries = numCR((UBYTE*)pTerrainTableData, bufferSize);
+  if (!StatsTable::Open((UBYTE*)pTerrainTableData, bufferSize, "TerrainTable", sTable))
+    return FALSE;
+  NumEntries = sTable.Rows();
 
   //allocate storage for the stats
   asTerrainTable = new (std::nothrow) TERRAIN_TABLE[NUM_PROP_TYPES * TERRAIN_TYPES];
@@ -1802,12 +2004,15 @@ BOOL loadTerrainTable(SBYTE* pTerrainTableData, UDWORD bufferSize)
 
   for (i = 0; i < NumEntries; i++)
   {
-    //read the data into the storage - the data is delimeted using comma's
-    sscanf(pTerrainTableData, "%d,%d,%d", &terrainType, &propulsionType, &speedFactor);
-    //store the speed factor at the correct location from the start	
+    //read the data into the storage
+    if (!sTable.Number(i, "terrainType", &terrainType))
+      return FALSE;
+    if (!sTable.Number(i, "propulsionType", &propulsionType))
+      return FALSE;
+    if (!sTable.Number(i, "speedFactor", &speedFactor))
+      return FALSE;
+    //store the speed factor at the correct location from the start
     storeSpeedFactor(terrainType, propulsionType, speedFactor);
-    //increment the pointer to the start of the next record
-    pTerrainTableData = strchr(pTerrainTableData, '\n') + 1;
   }
 
   //check that none of the entries are 0 otherwise this will stop a droid dead in its tracks
@@ -1834,10 +2039,13 @@ BOOL loadSpecialAbility(SBYTE* pSAbilityData, UDWORD bufferSize)
   SPECIAL_ABILITY* pSAbility;
   UDWORD NumTypes = 0, i, accessID;
   STRING SAbilityName[MAX_NAME_SIZE];
+  StatsTable sTable;
 
   //keep the start so we can release it at the end
 
-  NumTypes = numCR((UBYTE*)pSAbilityData, bufferSize);
+  if (!StatsTable::Open((UBYTE*)pSAbilityData, bufferSize, "SpecialAbility", sTable))
+    return FALSE;
+  NumTypes = sTable.Rows();
 
   //allocate storage for the stats
   asSpecialAbility = new (std::nothrow) SPECIAL_ABILITY[NumTypes];
@@ -1857,8 +2065,11 @@ BOOL loadSpecialAbility(SBYTE* pSAbilityData, UDWORD bufferSize)
 
   for (i = 0; i < NumTypes; i++)
   {
-    //read the data into the storage - the data is delimeted using comma's
-    sscanf(pSAbilityData, "%[^','],%d", (char*)&SAbilityName, &accessID);
+    //read the data into the storage
+    if (!sTable.Text(i, "name", SAbilityName, sizeof(SAbilityName)))
+      return FALSE;
+    if (!sTable.Number(i, "id", &accessID))
+      return FALSE;
     //check that the data is ordered in the way it will be stored
     if (accessID != i)
     {
@@ -1874,8 +2085,6 @@ BOOL loadSpecialAbility(SBYTE* pSAbilityData, UDWORD bufferSize)
     }
     strcpy(asSpecialAbility->pName, SAbilityName);
 
-    //increment the pointer to the start of the next record
-    pSAbilityData = strchr(pSAbilityData, '\n') + 1;
     asSpecialAbility++;
   }
 
@@ -1889,10 +2098,11 @@ BOOL loadBodyPropulsionIMDs(SBYTE* pData, UDWORD bufferSize)
 {
   BODY_STATS* psBodyStat;
   PROPULSION_STATS* psPropulsionStat;
-  UDWORD NumTypes = 0, i, numStats;
+  UDWORD NumTypes = 0, i, numStats, dummy;
   STRING bodyName[MAX_NAME_SIZE], propulsionName[MAX_NAME_SIZE], leftIMD[MAX_NAME_SIZE], rightIMD[MAX_NAME_SIZE];
   iIMDShape** startIMDs;
   BOOL found;
+  StatsTable sTable;
 #ifdef HASH_NAMES
   UDWORD HashedName;
 #endif
@@ -1917,18 +2127,24 @@ BOOL loadBodyPropulsionIMDs(SBYTE* pData, UDWORD bufferSize)
 
   //keep the start so we can release it at the end
 
-  NumTypes = numCR((UBYTE*)pData, bufferSize);
+  if (!StatsTable::Open((UBYTE*)pData, bufferSize, "BodyPropulsionIMD", sTable))
+    return FALSE;
+  NumTypes = sTable.Rows();
 
   for (i = 0; i < NumTypes; i++)
   {
-    bodyName[0] = '\0';
-    propulsionName[0] = '\0';
-    leftIMD[0] = '\0';
-    rightIMD[0] = '\0';
-
-    /*read the data into the storage - the data is delimited using comma's
-    not interested in the last number - needed for sscanf*/
-    sscanf(pData, "%[^','],%[^','],%[^','],%[^','],%*d", (char*)&bodyName, (char*)&propulsionName, (char*)&leftIMD, (char*)&rightIMD);
+    /*read the data into the storage -
+    not interested in the last number*/
+    if (!sTable.Text(i, "body", bodyName, sizeof(bodyName)))
+      return FALSE;
+    if (!sTable.Text(i, "propulsion", propulsionName, sizeof(propulsionName)))
+      return FALSE;
+    if (!sTable.Text(i, "leftModel", leftIMD, sizeof(leftIMD)))
+      return FALSE;
+    if (!sTable.Text(i, "rightModel", rightIMD, sizeof(rightIMD)))
+      return FALSE;
+    if (!sTable.Number(i, "dummy", &dummy))
+      return FALSE;
 
     //get the body stats
     found = FALSE;
@@ -2016,9 +2232,6 @@ BOOL loadBodyPropulsionIMDs(SBYTE* pData, UDWORD bufferSize)
 
     //reset the IMDList pointer
     psBodyStat->ppIMDList = startIMDs;
-
-    //increment the pointer to the start of the next record
-    pData = strchr(pData, '\n') + 1;
   }
   return (TRUE);
 }
@@ -2051,23 +2264,30 @@ BOOL loadWeaponSounds(SBYTE* pSoundData, UDWORD bufferSize)
   SDWORD NumRecords = 0, i, weaponSoundID, explosionSoundID, inc, iDum;
   STRING WeaponName[MAX_NAME_SIZE];
   STRING szWeaponWav[MAX_NAME_SIZE], szExplosionWav[MAX_NAME_SIZE];
+  StatsTable sTable;
 
 #ifdef HASH_NAMES
   UDWORD HashedName;
 #endif
   BOOL Ok = TRUE;
 
-  NumRecords = numCR((UBYTE*)pSoundData, bufferSize);
+  if (!StatsTable::Open((UBYTE*)pSoundData, bufferSize, "WeaponSounds", sTable))
+    return FALSE;
+  NumRecords = sTable.Rows();
 
   DEBUG_ASSERT_TEXT(asWeaponStats != NULL, "loadWeaponSounds: Weapon stats not loaded");
 
   for (i = 0; i < NumRecords; i++)
   {
-    WeaponName[0] = '\0';
-    szWeaponWav[0] = '\0';
-    szExplosionWav[0] = '\0';
-    //read the data into the storage - the data is delimeted using comma's
-    sscanf(pSoundData, "%[^','],%[^','],%[^','],%d", &WeaponName, &szWeaponWav, &szExplosionWav, &iDum);
+    //read the data into the storage
+    if (!sTable.Text(i, "weapon", WeaponName, sizeof(WeaponName)))
+      return FALSE;
+    if (!sTable.Text(i, "fireSound", szWeaponWav, sizeof(szWeaponWav)))
+      return FALSE;
+    if (!sTable.Text(i, "impactSound", szExplosionWav, sizeof(szExplosionWav)))
+      return FALSE;
+    if (!sTable.Number(i, "dummy", &iDum))
+      return FALSE;
 
     if (statsGetAudioIDFromString(WeaponName, szWeaponWav, &weaponSoundID) == FALSE)
       return FALSE;
@@ -2100,8 +2320,6 @@ BOOL loadWeaponSounds(SBYTE* pSoundData, UDWORD bufferSize)
       Neuron::Fatal("loadWeaponSounds: Weapon stat not found - {}", WeaponName);
       Ok = FALSE;
     }
-    //increment the pointer to the start of the next record
-    pSoundData = strchr(pSoundData, '\n') + 1;
   }
 
   return TRUE;
@@ -2114,6 +2332,7 @@ BOOL loadWeaponModifiers(SBYTE* pWeapModData, UDWORD bufferSize)
   WEAPON_EFFECT effectInc;
   UDWORD NumRecords = 0, i, j, modifier;
   STRING weaponEffectName[MAX_NAME_SIZE], propulsionName[MAX_NAME_SIZE];
+  StatsTable sTable;
 
   //initialise to 100%
   for (i = 0; i < WE_NUMEFFECTS; i++)
@@ -2122,12 +2341,19 @@ BOOL loadWeaponModifiers(SBYTE* pWeapModData, UDWORD bufferSize)
       asWeaponModifier[i][j] = 100;
   }
 
-  NumRecords = numCR((UBYTE*)pWeapModData, bufferSize);
+  if (!StatsTable::Open((UBYTE*)pWeapModData, bufferSize, "WeaponModifier", sTable))
+    return FALSE;
+  NumRecords = sTable.Rows();
 
   for (i = 0; i < NumRecords; i++)
   {
-    //read the data into the storage - the data is delimeted using comma's
-    sscanf(pWeapModData, "%[^','],%[^','],%d", (char*)&weaponEffectName, (char*)&propulsionName, &modifier);
+    //read the data into the storage
+    if (!sTable.Text(i, "effect", weaponEffectName, sizeof(weaponEffectName)))
+      return FALSE;
+    if (!sTable.Text(i, "propulsion", propulsionName, sizeof(propulsionName)))
+      return FALSE;
+    if (!sTable.Number(i, "modifier", &modifier))
+      return FALSE;
 
     //get the weapon effect inc
     effectInc = static_cast<WEAPON_EFFECT>(getWeaponEffect(weaponEffectName));
@@ -2151,9 +2377,6 @@ BOOL loadWeaponModifiers(SBYTE* pWeapModData, UDWORD bufferSize)
     }
     //store in the appropriate index
     asWeaponModifier[effectInc][propInc] = static_cast<UWORD>(modifier);
-
-    //increment the pointer to the start of the next record
-    pWeapModData = strchr(pWeapModData, '\n') + 1;
   }
 
   return TRUE;
@@ -2167,17 +2390,33 @@ BOOL loadPropulsionSounds(SBYTE* pPropSoundData, UDWORD bufferSize)
          szHiss[MAX_NAME_SIZE], szShutDown[MAX_NAME_SIZE];
   UDWORD type;
   PROPULSION_TYPES* pPropType;
+  StatsTable sTable;
 
-  NumRecords = numCR((UBYTE*)pPropSoundData, bufferSize);
+  if (!StatsTable::Open((UBYTE*)pPropSoundData, bufferSize, "PropulsionSounds", sTable))
+    return FALSE;
+  NumRecords = sTable.Rows();
 
   DEBUG_ASSERT_TEXT(asPropulsionTypes != NULL, "loadPropulsionSounds: Propulsion type stats not loaded");
 
   for (i = 0; i < NumRecords; i++)
   {
-    propulsionName[0] = '\0';
-    //read the data into the storage - the data is delimeted using comma's
-    sscanf(pPropSoundData, "%[^','],%[^','],%[^','],%[^','],%[^','],%[^','],%[^','],%d", &propulsionName, &szStart, &szIdle, &szMoveOff,
-           &szMove, &szHiss, &szShutDown, &iDum);
+    //read the data into the storage
+    if (!sTable.Text(i, "propulsion", propulsionName, sizeof(propulsionName)))
+      return FALSE;
+    if (!sTable.Text(i, "start", szStart, sizeof(szStart)))
+      return FALSE;
+    if (!sTable.Text(i, "idle", szIdle, sizeof(szIdle)))
+      return FALSE;
+    if (!sTable.Text(i, "moveOff", szMoveOff, sizeof(szMoveOff)))
+      return FALSE;
+    if (!sTable.Text(i, "move", szMove, sizeof(szMove)))
+      return FALSE;
+    if (!sTable.Text(i, "hiss", szHiss, sizeof(szHiss)))
+      return FALSE;
+    if (!sTable.Text(i, "shutDown", szShutDown, sizeof(szShutDown)))
+      return FALSE;
+    if (!sTable.Number(i, "dummy", &iDum))
+      return FALSE;
 
     if (statsGetAudioIDFromString(propulsionName, szStart, &startID) == FALSE)
       return FALSE;
@@ -2209,9 +2448,6 @@ BOOL loadPropulsionSounds(SBYTE* pPropSoundData, UDWORD bufferSize)
     pPropType->moveID = static_cast<SWORD>(moveID);
     pPropType->hissID = static_cast<SWORD>(hissID);
     pPropType->shutDownID = static_cast<SWORD>(shutDownID);
-
-    //increment the pointer to the start of the next record
-    pPropSoundData = strchr(pPropSoundData, '\n') + 1;
   }
 
   return (TRUE);

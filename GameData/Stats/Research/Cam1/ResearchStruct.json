@@ -1,0 +1,62 @@
+[
+ {
+  "research": "R-Comp-CommandTurret01",
+  "structure": "A0ComDroidControl",
+  "dummy": 118
+ },
+ {
+  "research": "R-Cyborg-Metals01",
+  "structure": "A0CyborgFactory",
+  "dummy": 125
+ },
+ {
+  "research": "R-Cyborg-Metals02",
+  "structure": "A0CyborgFactory",
+  "dummy": 125
+ },
+ {
+  "research": "R-Cyborg-Metals03",
+  "structure": "A0CyborgFactory",
+  "dummy": 125
+ },
+ {
+  "research": "R-Cyborg-Wpn-Cannon",
+  "structure": "A0CyborgFactory",
+  "dummy": 125
+ },
+ {
+  "research": "R-Cyborg-Wpn-Flamer",
+  "structure": "A0CyborgFactory",
+  "dummy": 125
+ },
+ {
+  "research": "R-Cyborg-Wpn-MG",
+  "structure": "A0CyborgFactory",
+  "dummy": 125
+ },
+ {
+  "research": "R-Cyborg-Wpn-Rocket",
+  "structure": "A0CyborgFactory",
+  "dummy": 125
+ },
+ {
+  "research": "R-Vehicle-Metals01",
+  "structure": "A0LightFactory",
+  "dummy": 9
+ },
+ {
+  "research": "R-Vehicle-Metals02",
+  "structure": "A0LightFactory",
+  "dummy": 9
+ },
+ {
+  "research": "R-Vehicle-Metals03",
+  "structure": "A0LightFactory",
+  "dummy": 9
+ },
+ {
+  "research": "R-Vehicle-Prop-Wheels",
+  "structure": "A0LightFactory",
+  "dummy": 9
+ }
+]

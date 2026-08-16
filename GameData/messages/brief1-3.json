@@ -1,0 +1,120 @@
+[
+ {
+  "name": "SB1_3_UPDATE",
+  "textIds": [],
+  "type": 1,
+  "sequences": [
+   {
+    "name": "cam1\\sub1_3P1.mp4",
+    "textIds": [
+     "P1-3A_MSG1"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   },
+   {
+    "name": "cam1\\sub13bet.mp4",
+    "textIds": [
+     "BETA1_MSG1",
+     "BETA1_MSG2",
+     "BETA1_MSG3"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   },
+   {
+    "name": "cam1\\sub13gam.mp4",
+    "textIds": [
+     "GAMMA_MSG1",
+     "GAMMA_MSG2",
+     "GAMMA_MSG3"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   },
+   {
+    "name": "cam1\\sub1_3.mp4",
+    "textIds": [
+     "SUB1_3_MSG1",
+     "SUB1_3_MSG2",
+     "SUB1_3_MSG3"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ },
+ {
+  "name": "SB1_3_MSG",
+  "textIds": [],
+  "type": 3,
+  "sequences": [
+   {
+    "name": "BrfCom.mp4",
+    "flag": 1,
+    "textIds": [
+     "TRANS_MSG1"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   },
+   {
+    "name": "cam1\\sub1_3.mp4",
+    "flag": 0,
+    "textIds": [
+     "SUB1_3_MSG1",
+     "SUB1_3_MSG2",
+     "SUB1_3_MSG3"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ },
+ {
+  "name": "SB1_3_MSG3",
+  "textIds": [],
+  "type": 1,
+  "sequences": [
+   {
+    "name": "cam1\\sub13np1.mp4",
+    "textIds": [
+     "NP_MSG1"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   },
+   {
+    "name": "npend.mp4",
+    "textIds": [
+     "NP_MSG2"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ },
+ {
+  "name": "SB1_3_MSG4",
+  "textIds": [],
+  "type": 1,
+  "sequences": [
+   {
+    "name": "cam1\\sub13np2.mp4",
+    "textIds": [
+     "NP_MSG1"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   },
+   {
+    "name": "npend.mp4",
+    "textIds": [
+     "NP_MSG2"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ }
+]

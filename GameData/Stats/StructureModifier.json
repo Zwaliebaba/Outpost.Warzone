@@ -1,0 +1,122 @@
+[
+ {
+  "effect": "ANTI PERSONNEL",
+  "strength": "SOFT",
+  "modifier": 200
+ },
+ {
+  "effect": "ANTI TANK",
+  "strength": "SOFT",
+  "modifier": 100
+ },
+ {
+  "effect": "BUNKER BUSTER",
+  "strength": "SOFT",
+  "modifier": 100
+ },
+ {
+  "effect": "ANTI PERSONNEL",
+  "strength": "MEDIUM",
+  "modifier": 100
+ },
+ {
+  "effect": "ANTI TANK",
+  "strength": "MEDIUM",
+  "modifier": 50
+ },
+ {
+  "effect": "BUNKER BUSTER",
+  "strength": "MEDIUM",
+  "modifier": 100
+ },
+ {
+  "effect": "ANTI PERSONNEL",
+  "strength": "HARD",
+  "modifier": 75
+ },
+ {
+  "effect": "ANTI TANK",
+  "strength": "HARD",
+  "modifier": 55
+ },
+ {
+  "effect": "BUNKER BUSTER",
+  "strength": "HARD",
+  "modifier": 350
+ },
+ {
+  "effect": "ARTILLERY ROUND",
+  "strength": "SOFT",
+  "modifier": 200
+ },
+ {
+  "effect": "ARTILLERY ROUND",
+  "strength": "MEDIUM",
+  "modifier": 100
+ },
+ {
+  "effect": "ARTILLERY ROUND",
+  "strength": "HARD",
+  "modifier": 75
+ },
+ {
+  "effect": "ARTILLERY ROUND",
+  "strength": "BUNKER",
+  "modifier": 60
+ },
+ {
+  "effect": "BUNKER BUSTER",
+  "strength": "BUNKER",
+  "modifier": 500
+ },
+ {
+  "effect": "ANTI PERSONNEL",
+  "strength": "BUNKER",
+  "modifier": 100
+ },
+ {
+  "effect": "ANTI TANK",
+  "strength": "BUNKER",
+  "modifier": 40
+ },
+ {
+  "effect": "FLAMER",
+  "strength": "SOFT",
+  "modifier": 150
+ },
+ {
+  "effect": "FLAMER",
+  "strength": "MEDIUM",
+  "modifier": 100
+ },
+ {
+  "effect": "FLAMER",
+  "strength": "HARD",
+  "modifier": 5
+ },
+ {
+  "effect": "FLAMER",
+  "strength": "BUNKER",
+  "modifier": 300
+ },
+ {
+  "effect": "ANTI AIRCRAFT",
+  "strength": "SOFT",
+  "modifier": 100
+ },
+ {
+  "effect": "ANTI AIRCRAFT",
+  "strength": "MEDIUM",
+  "modifier": 40
+ },
+ {
+  "effect": "ANTI AIRCRAFT",
+  "strength": "HARD",
+  "modifier": 30
+ },
+ {
+  "effect": "ANTI AIRCRAFT",
+  "strength": "BUNKER",
+  "modifier": 40
+ }
+]

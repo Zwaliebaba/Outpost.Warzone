@@ -9,6 +9,8 @@
 
 #include "ObjectDef.h"
 
+class StatsTable;
+
 //holder for all functions
 extern FUNCTION** asFunctions;
 extern UDWORD numFunctions;
@@ -18,27 +20,27 @@ extern UDWORD numFunctions;
 extern BOOL loadFunctionStats(SBYTE* pFunctionData, UDWORD bufferSize);
 
 //load the specific stats for each function
-extern BOOL loadRepairDroidFunction(SBYTE* pData); //, UDWORD functionType);
-extern BOOL loadPowerGenFunction(SBYTE* pData); //, UDWORD functionType);
-extern BOOL loadResourceFunction(SBYTE* pData);
-extern BOOL loadProduction(SBYTE* pData); //, UDWORD functionType);
-extern BOOL loadProductionUpgradeFunction(SBYTE* pData); //, UDWORD functionType);
-extern BOOL loadResearchFunction(SBYTE* pData);
-extern BOOL loadResearchUpgradeFunction(SBYTE* pData); //, UDWORD functionType);
+extern BOOL loadRepairDroidFunction(const StatsTable& _table, UDWORD _row); //, UDWORD functionType);
+extern BOOL loadPowerGenFunction(const StatsTable& _table, UDWORD _row); //, UDWORD functionType);
+extern BOOL loadResourceFunction(const StatsTable& _table, UDWORD _row);
+extern BOOL loadProduction(const StatsTable& _table, UDWORD _row); //, UDWORD functionType);
+extern BOOL loadProductionUpgradeFunction(const StatsTable& _table, UDWORD _row); //, UDWORD functionType);
+extern BOOL loadResearchFunction(const StatsTable& _table, UDWORD _row);
+extern BOOL loadResearchUpgradeFunction(const StatsTable& _table, UDWORD _row); //, UDWORD functionType);
 extern BOOL loadHQFunction(SBYTE* pData);
-extern BOOL loadWeaponUpgradeFunction(SBYTE* pData);
-extern BOOL loadWallFunction(SBYTE* pData);
-extern BOOL loadStructureUpgradeFunction(SBYTE* pData);
-extern BOOL loadWallDefenceUpgradeFunction(SBYTE* pData);
-extern BOOL loadRepairUpgradeFunction(SBYTE* pData);
-extern BOOL loadPowerUpgradeFunction(SBYTE* pData);
-extern BOOL loadDroidRepairUpgradeFunction(SBYTE* pData);
-extern BOOL loadDroidECMUpgradeFunction(SBYTE* pData);
-extern BOOL loadDroidBodyUpgradeFunction(SBYTE* pData);
-extern BOOL loadDroidSensorUpgradeFunction(SBYTE* pData);
-extern BOOL loadDroidConstUpgradeFunction(SBYTE* pData);
-extern BOOL loadReArmFunction(SBYTE* pData);
-extern BOOL loadReArmUpgradeFunction(SBYTE* pData);
+extern BOOL loadWeaponUpgradeFunction(const StatsTable& _table, UDWORD _row);
+extern BOOL loadWallFunction(const StatsTable& _table, UDWORD _row);
+extern BOOL loadStructureUpgradeFunction(const StatsTable& _table, UDWORD _row);
+extern BOOL loadWallDefenceUpgradeFunction(const StatsTable& _table, UDWORD _row);
+extern BOOL loadRepairUpgradeFunction(const StatsTable& _table, UDWORD _row);
+extern BOOL loadPowerUpgradeFunction(const StatsTable& _table, UDWORD _row);
+extern BOOL loadDroidRepairUpgradeFunction(const StatsTable& _table, UDWORD _row);
+extern BOOL loadDroidECMUpgradeFunction(const StatsTable& _table, UDWORD _row);
+extern BOOL loadDroidBodyUpgradeFunction(const StatsTable& _table, UDWORD _row);
+extern BOOL loadDroidSensorUpgradeFunction(const StatsTable& _table, UDWORD _row);
+extern BOOL loadDroidConstUpgradeFunction(const StatsTable& _table, UDWORD _row);
+extern BOOL loadReArmFunction(const StatsTable& _table, UDWORD _row);
+extern BOOL loadReArmUpgradeFunction(const StatsTable& _table, UDWORD _row);
 
 extern void productionUpgrade(FUNCTION* pFunction, UBYTE player);
 extern void researchUpgrade(FUNCTION* pFunction, UBYTE player);

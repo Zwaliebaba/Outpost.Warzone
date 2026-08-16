@@ -1,0 +1,88 @@
+[
+ {
+  "name": "MB3_2_MSG",
+  "textIds": [],
+  "type": 1,
+  "sequences": [
+   {
+    "name": "cam3\\cam32pl.mp4",
+    "textIds": [
+     "CAM3_2_MSG1",
+     "CAM3_2_MSG2",
+     "CAM3_2_MSG3"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   },
+   {
+    "name": "cam3\\cam32Alp.mp4",
+    "textIds": [
+     "CAM3_2_MSG4"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   },
+   {
+    "name": "cam3\\cam32pl2.mp4",
+    "textIds": [
+     "CAM3_2_MSG5"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ },
+ {
+  "name": "MB3_2_MSG2",
+  "textIds": [],
+  "type": 1,
+  "sequences": [
+   {
+    "name": "cam3\\cam3_2b.mp4",
+    "textIds": [
+     "CAM3_2_MSG6",
+     "CAM3_2_MSG7",
+     "CAM3_2_MSG8"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ },
+ {
+  "name": "MB3_2_MSG3",
+  "textIds": [],
+  "type": 1,
+  "sequences": [
+   {
+    "name": "IncomTns.mp4",
+    "textIds": [
+     "NP_MSG1"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   },
+   {
+    "name": "cam3\\cam32A2.mp4",
+    "textIds": [],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ },
+ {
+  "name": "MB3_2_MSG4",
+  "textIds": [],
+  "type": 1,
+  "sequences": [
+   {
+    "name": "cam3\\cam32pl3.mp4",
+    "textIds": [
+     "CAM3_2_MSG9"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ }
+]

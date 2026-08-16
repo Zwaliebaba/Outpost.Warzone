@@ -1,0 +1,63 @@
+[
+ {
+  "name": "SB1_7_MSG",
+  "textIds": [],
+  "type": 3,
+  "sequences": [
+   {
+    "name": "cam1\\sub1_7pl.mp4",
+    "flag": 1,
+    "textIds": [
+     "TRANS_MSG1",
+     "SUB1_7_MSG5",
+     "SUB1_7_MSG6"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   },
+   {
+    "name": "cam1\\sub17fmv.mp4",
+    "flag": 0,
+    "textIds": [
+     "SUB1_7_MSG4"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ },
+ {
+  "name": "SB1_7_MSG2",
+  "textIds": [],
+  "type": 1,
+  "sequences": [
+   {
+    "name": "cam1\\sub1_7.mp4",
+    "textIds": [
+     "SUB1_7_MSG1",
+     "SUB1_7_MSG2",
+     "SUB1_7_MSG3"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ },
+ {
+  "name": "SB1_7_MSG3",
+  "textIds": [],
+  "type": 1,
+  "sequences": [
+   {
+    "name": "cam1\\sub1_7b.mp4",
+    "textIds": [
+     "SUB1_7_MSG1",
+     "SUB1_7_MSG2",
+     "SUB1_7_MSG3"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ }
+]

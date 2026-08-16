@@ -1,0 +1,28 @@
+[
+ {
+  "name": "END",
+  "textIds": [],
+  "type": 1,
+  "sequences": [
+   {
+    "name": "end.mp4",
+    "textIds": [],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ },
+ {
+  "name": "WIN",
+  "textIds": [],
+  "type": 1,
+  "sequences": [
+   {
+    "name": "victory.mp4",
+    "textIds": [],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ }
+]

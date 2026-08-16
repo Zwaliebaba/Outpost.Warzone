@@ -17,6 +17,7 @@
 #include "Frame.h"
 #include "Window.h"
 #include "FrameResource.h"
+#include "Manifest.h"
 #include "StrRes.h"
 #include "Input.h"
 #include "WinMain.h"
@@ -538,17 +539,11 @@ BOOL runMultiPlayerMenu(VOID)
     if (!bForceEditorLoaded)
     {
       initLoadingScreen(TRUE, TRUE);
-      /*			if (!resLoad("wrf\\forcedit.wrf", 500,
-                   DisplayBuffer, displayBufferSize))				//need the object heaps to have been set up before loading 
-            {
-              return FALSE;
-            }
-      */
-      if (!resLoad("wrf\\piestats.wrf", 501, DisplayBuffer, displayBufferSize))
+      if (!ManifestLoadUnit("wrf/piestats", 501, DisplayBuffer, displayBufferSize))
         //need the object heaps to have been set up before loading 
         return FALSE;
 
-      if (!resLoad("wrf\\forcedit2.wrf", 502, DisplayBuffer, displayBufferSize))
+      if (!ManifestLoadUnit("wrf/forcedit2", 502, DisplayBuffer, displayBufferSize))
         //need the object heaps to have been set up before loading 
         return FALSE;
 

@@ -1,0 +1,50 @@
+[
+ {
+  "name": "CM3A_BASE1",
+  "textIds": [
+   "ENEMYBASE_MSG"
+  ],
+  "type": 2,
+  "x": 2240,
+  "y": 12608,
+  "z": 0,
+  "audio": "pcv393.wav",
+  "proxType": 0
+ },
+ {
+  "name": "CM3A_BASE2",
+  "textIds": [
+   "ENEMYBASE_MSG"
+  ],
+  "type": 2,
+  "x": 1984,
+  "y": 14912,
+  "z": 0,
+  "audio": "pcv393.wav",
+  "proxType": 0
+ },
+ {
+  "name": "CM3A_BASE3",
+  "textIds": [
+   "ENEMYBASE_MSG"
+  ],
+  "type": 2,
+  "x": 6464,
+  "y": 8896,
+  "z": 0,
+  "audio": "pcv393.wav",
+  "proxType": 0
+ },
+ {
+  "name": "CM3A_BASE4",
+  "textIds": [
+   "ENEMYBASE_MSG"
+  ],
+  "type": 2,
+  "x": 1600,
+  "y": 8896,
+  "z": 0,
+  "audio": "pcv393.wav",
+  "proxType": 0
+ }
+]

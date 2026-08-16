@@ -71,7 +71,16 @@ extern SDWORD getMarkerSpin(KEY_CODE code);
 
 // for keymap editor.
 using _keymapsave = void(*)(void);
-extern _keymapsave keyMapSaveTable[];
+
+/* The saveable key functions, each carrying the name keymap.json stores.
+   Names replaced the old table-index id space, so order no longer matters. */
+using KEYMAP_SAVE = struct
+{
+  const char* pName;
+  _keymapsave pFunction;
+};
+
+extern KEYMAP_SAVE keyMapSaveTable[];
 extern KEY_MAPPING* keyMappings;
 
 //remove this one below

@@ -81,16 +81,6 @@ namespace Neuron
 }
 */
 
-/* PIE registry, implemented in IMDLoad.c.  Declared here because the game
-   calls tpInit and tpAddPIE; C let those calls stand without a visible
-   declaration, C++ does not. */
-extern void tpInit(void);
-extern void tpAddPIE(char* FileName, iIMDShape* pIMD);
-extern int tpGetNumPIEs(void);
-extern iIMDShape* tpGetPIE(int Index);
-extern char* tpGetPIEName(int Index);
-
-
 // Special re-mix of sscanf that moves the string pointer along - defined in IMDLoad.cpp
 extern int __cdecl sscanf1(char** stringPos, const char* format, ...);
 
