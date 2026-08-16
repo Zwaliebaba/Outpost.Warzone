@@ -319,7 +319,7 @@ Anything needing ears or menu navigation is not done.
 | F — FMV and gates | not run | Needs menu navigation to reach a briefing |
 | G — fog parity | **pass** | Three-point comparison: default = warm haze over distance, `-noFog` = none, `-greyFog` = grey haze. The hue tracks the switch names, which excludes the day/night script as the cause. Closes the last open Phase 2 item |
 | H — counters | not run | `pie_GetResetCounts` has no visible readout from a plain launch |
-| I — Phase 10 | not run | Added after this session — Phase 10 landed later the same day. Also re-flags A, since the renderer under pass A changed wholesale |
+| I — Phase 10 | **pass** | Owner-run session, 2026-08-16. The boot surfaced two boundary-conversion escapes — an unwrapped 222° map heading and a visibility ray index past the trig tables — both fixed during the session and recorded in [Phase10Plan.md](Phase10Plan.md#f--verification); after the fixes the run came back clean. Covers the pass-A re-flag too, since reaching gameplay re-exercises the rewritten renderer |
 
 Two defects found by running, both fixed in the same session: `tools/dbg.py`
 crashed on its first-ever Windows run (`ctypes.wintypes` is a submodule and was

@@ -669,6 +669,15 @@ code, and the truncating `dirTot` accumulation sits in
 `moveGetObstVector3`, which has no callers — `moveGetObstVector4` is
 the live avoidance function and accumulates x/y components correctly.
 
+**Status: stage F is done and the phase is complete.** The owner's
+Windows session (2026-08-16) ran the game with both fixes in and
+reported everything working. The shape of the two findings is worth the
+record: both were E2 escapes of the same class — call sites that
+consumed the old integer-degree APIs through arithmetic that still
+compiled once the APIs returned float radians — and both were caught in
+minutes because the range asserts named the invariant instead of letting
+the garbage propagate. The asserts stay.
+
 ## Decisions — settled
 
 All six were put to the owner and settled on 2026-08-16. Two rulings widen
