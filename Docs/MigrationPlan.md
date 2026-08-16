@@ -1009,6 +1009,39 @@ The full analysis — the dead-surface evidence, the constraint list, the
 idiom-by-idiom mapping, what is deliberately left unchanged, and the five
 decisions to confirm — is in [Phase9Plan.md](Phase9Plan.md).
 
+## Phase 10 — Renderer maths onto DirectXMath
+
+**Planned; its six gating decisions are open.** The plan is in
+[Phase10Plan.md](Phase10Plan.md).
+
+Phase 8 deliberately kept the fixed-point, pre-transformed-vertex pipeline
+because changing it "is not simplification, it is a second project". This is
+that project, scoped to the arithmetic only: the 4.12 `SDMATRIX` stack, the
+5,120-entry sine table and the hand-rolled vector helpers in
+`RenderMatrix.cpp`, `RenderModel.cpp`'s open-coded vertex transform,
+`IMDLoad.cpp`'s double-precision bounding sphere and `BSPIMD.cpp`'s private
+cross/normalise all move onto **DirectXMath** — `XMMATRIX`/`XMVECTOR`
+computation composed natively at the call sites, `XMFLOAT3`/`XMFLOAT4X4` at
+rest, no wrapper functions or classes. The pipeline architecture (CPU
+transform, `D3DFVF_XYZRHW`, `DrawPrimitiveUP`, the software clipper) does not
+change.
+
+The measured surface is ~390 game-side call sites across 20 `Outpost/`
+files — the hierarchical-transform idiom in `Display3D.cpp`, `Component.cpp`
+and `Effects.cpp` above all — which is why the call sites are the migration:
+keeping the `pie_Mat*` signatures would *be* the wrapper layer the phase
+forbids. What survives as functions is renderer state and policy (the
+matrix stack's push/pop, the world→screen projection, the geometric offset),
+renamed per [AGENTS.md §1](../AGENTS.md). `NeuronCore/Trig.cpp` is proposed
+out of scope: its callers are simulation, not the renderer. DirectXMath
+arrives from the Windows SDK — header-only, nothing new under R14.
+
+The key enabling fact, derived element by element in the plan: the
+fixed-point rotations are exactly `XMMatrixRotationX/Y/Z` pre-multiplied
+under DirectXMath's row-vector convention, with binary angles converted at
+`2π/65536` — so the migration is mechanical substitution, verified by a
+temporary dual-path parity check over a CAM_1A run rather than re-derivation.
+
 ## Removed outright: save/load and the demo (2026-08-16)
 
 **By owner decision, the game no longer has user save games, and the demo-era
