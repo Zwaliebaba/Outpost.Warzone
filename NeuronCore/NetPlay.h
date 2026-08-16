@@ -69,15 +69,6 @@ typedef struct
   BOOL bComms; // actually do the comms?
   BOOL bHost; // TRUE if we are hosting the session
 
-  /* Inert, and kept only to hold the save-game layout. NetLobby.cpp went in
-   * Phase 5 step 4 and nothing has set this since; the branches that tested it
-   * across MultiInt, MultiJoin, MultiOpt, WinMain and Wrappers are gone, so
-   * nothing reads it either. It stays because NETPLAY is embedded whole in the
-   * save-game struct (Game.cpp's SAVE_GAME macro), where removing a field
-   * would silently shift every member after it.
-   */
-  BOOL bLobbyLaunchedUnused;
-
   UDWORD cryptKey[4]; // 4*32 bit key, now only for the stats file and hashes
 } NETPLAY, *LPNETPLAY;
 

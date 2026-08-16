@@ -64,9 +64,7 @@ public:
   static void ReleaseTrack(TRACK& _track);
   static void CheckAllUnloaded();
 
-  [[nodiscard]] static std::int32_t TrackId(const char* _fileName);
-  [[nodiscard]] static std::int32_t TrackIdFromHash(std::uint32_t _hash);
-  [[nodiscard]] static std::int32_t AvailableTrackId();
+  [[nodiscard]] static std::int32_t TrackId(const char* _fileName);  [[nodiscard]] static std::int32_t AvailableTrackId();
   [[nodiscard]] static std::uint32_t TrackHashName(std::int32_t _id);
   [[nodiscard]] static bool ValidTrack(std::int32_t _id);
   [[nodiscard]] static bool TrackLooped(std::int32_t _id);

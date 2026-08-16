@@ -558,26 +558,6 @@ std::int32_t AudioSystem::TrackId(const char* _fileName)
 
 /***************************************************************************/
 
-std::int32_t AudioSystem::TrackIdFromHash(std::uint32_t _hash)
-{
-  if (g_enabled == false)
-    return SAMPLE_NOT_FOUND;
-
-  auto* track = static_cast<TRACK*>(resGetDataFromHash("WAV", _hash));
-  if (track == nullptr)
-    return SAMPLE_NOT_FOUND;
-
-  for (std::int32_t id = 0; id < MaxTracks; id++)
-  {
-    if (g_tracks[id] != nullptr && g_tracks[id] == track)
-      return id;
-  }
-
-  return SAMPLE_NOT_FOUND;
-}
-
-/***************************************************************************/
-
 std::int32_t AudioSystem::AvailableTrackId()
 {
   for (std::int32_t id = 0; id < MaxTracks; id++)

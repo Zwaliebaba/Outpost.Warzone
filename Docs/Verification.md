@@ -55,7 +55,6 @@ All parsed in [ClParse.cpp](../Outpost/ClParse.cpp).
 |---|---|
 | `-window` | windowed rather than fullscreen |
 | `-game <name>` | boot straight into a level, skipping the menus |
-| `-savegame <name>` | boot straight into a save under `savegame\` |
 | `-title` / `-intro` | start at the title screen / the intro video |
 | `-datapath <dir>` | set the asset base directory and `chdir` to it |
 | `-640` … `-1280` | pick the resolution |
@@ -162,8 +161,12 @@ subtly wrong.
    X3DAudio and no shim can speak to whether it matches.
 3. A research-message stream plays.
 4. Music survives a briefing, and stays paused across a video.
-5. Save and load a campaign game with a script-assigned sound in flight — this
-   is the track-hash round-trip in `ScriptObj.cpp`.
+5. ~~Save and load a campaign game with a script-assigned sound in flight.~~
+   Gone with save/load (owner decision, 2026-08-16) — the track-hash
+   round-trip no longer exists. In its place: finish a mission and confirm
+   the results screen offers Continue and Quit, and that Continue starts the
+   next mission — the mission-transition path still loads level `.gam` files
+   through the same reader the removal narrowed.
 
 ## Pass F — FMV and the content gates
 
@@ -172,11 +175,15 @@ Covers Phase 6 B3 and the four gates B5 was never run against.
 1. A briefing sequence plays, with audio, in sync.
 2. Subtitles draw over it.
 3. A research video plays.
-4. The four gates that used to test for a CD — **new game from the front end, a
-   save-game load, a mission continue, and startup** — each proceed with no CD
-   dialog appearing and no path resolving to a drive letter. B5 removed the
-   apparatus; this confirms it removed only the apparatus.
-5. Sequences still play after `-seqSmall`.
+4. The gates that used to test for a CD — **new game from the front end, a
+   mission continue, and startup** — each proceed with no CD dialog appearing
+   and no path resolving to a drive letter. B5 removed the apparatus; this
+   confirms it removed only the apparatus. (The fourth gate, save-game load,
+   went with save/load itself.)
+5. The multiplayer force picker still opens, lists `.For` files, and saves a
+   force under a typed name — it shares the requester the save/load removal
+   narrowed.
+6. Sequences still play after `-seqSmall`.
 
 ## Pass G — fog parity
 

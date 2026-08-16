@@ -1001,6 +1001,67 @@ The full analysis — the dead-surface evidence, the constraint list, the
 idiom-by-idiom mapping, what is deliberately left unchanged, and the five
 decisions to confirm — is in [Phase9Plan.md](Phase9Plan.md).
 
+## Removed outright: save/load and the demo (2026-08-16)
+
+**By owner decision, the game no longer has user save games, and the demo-era
+content is gone.** The game is heading to a server-authoritative MMO shape —
+the direction Phase 5 set when it chose a relay-server world — and there a
+local save of world state has no meaning. This landed as four changes, staged
+so each was cross-checked green.
+
+The line that made it safe runs at **format version 8**. The `.gam` container
+is both the level format and the save format; measurement settled where one
+ends and the other begins: every shipped level `.gam` is version 5-8 and every
+shipped level `.bjo` (DInit, Struct, Feat) is version 8, while versions 9-33
+existed only for user saves — the only v33 files in the tree were three
+complete user saves checked into `GameData/savegame/`, now deleted. Everything
+at or below the line stays loadable; everything above it is gone, readers
+included, and the dispatchers reject it by version with a message saying why.
+
+What went, in order: the UI and every path into it (the front-end Load button,
+the esc-menu Load/Save, the mission-results Save/Load, `-savegame`, the
+`GS_SAVEGAMELOAD`/`GAMECODE_LOADGAME` plumbing); the machinery (the writer
+whole, `gameLoadV`, the full-state object readers, script-state save —
+`EvntSave.cpp` leaves NeuronCore — and the FX/score/visibility pairs); the
+format (the `SAVE_GAME_V10-V33` tower and 70-odd structs, deleted to a
+fixpoint where no type's name appeared outside its own definition); and the
+demo (68 dead `COVERMOUNT`/`MULTIDEMO`/`NON_INTERACT` gates, the E3 attract
+camera, FastPlay — which existed only in its demo form — and the stale
+`PROG`/`DEMO`/`MINIMAL`/`TEST` level entries, four of which referenced files
+not in the tree).
+
+The ten-slot requester survives as what it always also was: the multiplayer
+force picker. The mission-results screen survives as the between-mission
+Continue screen, with Quit offered directly where it used to be earned by
+saving. `plotStructurePreview` — the lobby map preview, which reads
+`struct.bjo` and looks like save code — survives narrowed to the shipped
+layout.
+
+**Three standing items changed shape:**
+
+- **The x64 audit is off the books.** The stated precondition for an x64
+  platform was "the `UDWORD`-holds-a-pointer audit in the save-game fixup";
+  the fixup (`loadDroidSetPointers`/`loadStructSetPointers`) is deleted, so
+  the audit has nothing to audit. Adding the platform remains a
+  stop-and-report under [AGENTS.md §3](../AGENTS.md).
+- **Phase 7's constraint** "any struct serialised into save files must stay
+  byte-identical" becomes: *the shipped level formats (v≤8) must stay
+  readable*. `NETPLAY` is no longer serialised anywhere, which is what let
+  the `bLobbyLaunched` layout-hold field finally go.
+- **Phase 9's save-game track-hash round-trip** constraint dissolves;
+  `AudioSystem::TrackIdFromHash` lost its last caller with the script-state
+  reader and is deleted.
+
+One keymap subtlety is recorded in the code where it lives: the key-function
+table's order is the id space saved keymap files index into, so
+`kf_ToggleDemoMode`'s slot is refilled with a harmless function rather than
+removed.
+
+None of this has been run — it is built-and-linked work like everything since
+Phase 2, and [Verification.md](Verification.md) carries what a run must now
+confirm: the campaign boot, the mission-results Continue flow, and the
+multiplayer force picker are the paths this work touched most.
+
 ## Verification
 
 There is no MSVC or Windows SDK in the Linux development container, so a real
