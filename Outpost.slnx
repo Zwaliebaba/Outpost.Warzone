@@ -3,7 +3,9 @@
     <Platform Name="x86" />
   </Configurations>
   <Folder Name="/Testing/">
+    <Project Path="NeuronClientTest/NeuronClientTest.vcxproj" />
     <Project Path="NeuronCoreTest/NeuronCoreTest.vcxproj" />
+    <Project Path="NeuronServerTest/NeuronServerTest.vcxproj" />
   </Folder>
   <Project Path="NeuronClient/NeuronClient.vcxproj" Id="f87f56ff-d6de-4ff1-a232-f4ae636410e8" />
   <Project Path="NeuronCore/NeuronCore.vcxproj" Id="484036c5-f0ea-4673-aae1-f13e38660999" />
