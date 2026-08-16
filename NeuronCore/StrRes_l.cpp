@@ -257,8 +257,10 @@ static int fprintf(FILE* f, char* c, ...) { return 0; }
 /* Maximum length for any TEXT value */
 #define YYLMAX	255
 
-/* Store for any string values */
-extern STRING aText[TEXT_BUFFERS][YYLMAX];
+/* Store for any string values. The buffer used to live in the resource
+   parser's lexer and was borrowed from here; that parser is gone, so this
+   lexer owns its own, like the script lexer does. */
+static STRING aText[TEXT_BUFFERS][YYLMAX];
 static UDWORD currText = 0;
 
 // Note if in a comment
