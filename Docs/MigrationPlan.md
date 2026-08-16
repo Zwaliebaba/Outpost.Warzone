@@ -1020,7 +1020,15 @@ dead-maths sweep removed 88 lines from `RenderMatrix.cpp`/`.h`
 (`pie_MatCreate`, `pie_VectorInverseRotate0`, the `pie_INVTRANS*` and
 `pie_CLOCKWISE`/`X_INTERCEPT` macros, `pie_Clockwise`, and `pie_MatReset`
 folded into `pie_MatInit`), behaviour-preserving, evidence greps recorded in
-the phase plan.
+the phase plan. **Stage B is done** — the stack is an `XMMATRIX` stack
+behind unchanged `pie_*` shims, the model-vertex loop and the IMD bounding
+sphere are native DirectXMath, and Debug builds carry a fixed-point parity
+shadow that reports the worst screen-space divergence at shutdown. What
+came out differently is recorded in the phase plan: `BSPIMD.cpp` is dead
+under an undefined feature macro and stays as found, `iIMDPoly::normal` is
+write-only, `scaleMatrix` was a tenth direct matrix writer and became the
+`pie_MatScale` shim, and the cross-check gained a `tools/stubs/directxmath.h`
+transcription because mingw-w64's own header has no maths in it.
 
 Phase 8 deliberately kept the fixed-point, pre-transformed-vertex pipeline
 because changing it "is not simplification, it is a second project". This is

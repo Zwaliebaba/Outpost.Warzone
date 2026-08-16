@@ -3642,19 +3642,7 @@ void scaleMatrix(UDWORD percent)
   if (percent == 100)
     return;
 
-  SDWORD scaleFactor = percent * ONE_PERCENT;
-
-  psMatrix->a = (psMatrix->a * scaleFactor) / 4096;
-  psMatrix->b = (psMatrix->b * scaleFactor) / 4096;
-  psMatrix->c = (psMatrix->c * scaleFactor) / 4096;
-
-  psMatrix->d = (psMatrix->d * scaleFactor) / 4096;
-  psMatrix->e = (psMatrix->e * scaleFactor) / 4096;
-  psMatrix->f = (psMatrix->f * scaleFactor) / 4096;
-
-  psMatrix->g = (psMatrix->g * scaleFactor) / 4096;
-  psMatrix->h = (psMatrix->h * scaleFactor) / 4096;
-  psMatrix->i = (psMatrix->i * scaleFactor) / 4096;
+  pie_MatScale(percent * ONE_PERCENT);
 }
 
 /* Flattens an imd to the landscape and handles 4 different rotations */

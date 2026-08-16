@@ -4,24 +4,21 @@
  *
  * matrix functions for pumpkin image library.
  *
+ * Phase 10 stage B: the transform stack is DirectXMath (an XMMATRIX stack)
+ * behind the pie_* names below, which are transitional shims -- stage C
+ * rewrites their call sites onto native XMMATRIX composition and deletes
+ * them. The names keep their legacy spellings, macros included, so the ~390
+ * call sites do not churn twice. See Docs/Phase10Plan.md.
+ *
  */
 /***************************************************************************/
 #ifndef _renderMatrix_h
 #define _renderMatrix_h
 
+#include <directxmath.h>
+
 #include "RenderTypes.h"
 #include "RendMode.h"
-
-/***************************************************************************/
-/*
- *	Global Definitions
- */
-/***************************************************************************/
-
-using SDMATRIX = struct
-{
-  SDWORD a, b, c, d, e, f, g, h, i, j, k, l;
-};
 
 /***************************************************************************/
 /*
@@ -29,68 +26,64 @@ using SDMATRIX = struct
  */
 /***************************************************************************/
 
-extern SDMATRIX* psMatrix;
 extern SDWORD aSinTable[];
 
 //*************************************************************************
 
+namespace Neuron
+{
+  // 16-bit binary angles (DEG_360 == 65536 == a full circle) to radians.
+  // Transitional like the shims: dies in stage E with the last binary-angle
+  // state.
+  inline constexpr float RadiansPerWorldAngle = DirectX::XM_2PI / 65536.0f;
+
+  // The renderer's depth scale. The fixed-point pipeline computed depth as
+  // FP12 z >> STRETCHED_Z_SHIFT, i.e. world z times this factor, and
+  // MIN_STRETCHED_Z, MAX_Z and the depth-sort ranges are calibrated to it.
+  inline constexpr float StretchedDepthScale = static_cast<float>(FP12_MULTIPLIER >> STRETCHED_Z_SHIFT);
+
+  // The current model -> camera transform: the top of the matrix stack.
+  extern DirectX::XMMATRIX& WorldMatrix(void);
+}
+
+//*************************************************************************
+// The sine table survives stage B for the game code that still indexes it
+// directly; stage C moves those call sites to XMScalarSinCos and deletes it.
+
 #define SIN(X)					aSinTable[(uint16)(X) >> 4]
 #define COS(X)					aSinTable[((uint16)(X) >> 4) + 1024]
-#define pie_MATTRANS(X,Y,Z)		{	psMatrix->j = (X)<<FP12_SHIFT;				\
-									psMatrix->k = (Y)<<FP12_SHIFT;				\
-									psMatrix->l = (Z)<<FP12_SHIFT;	}
+
 //*************************************************************************
+// Transitional shims for what used to be macros over the fixed-point stack.
 
-#define pie_SETUP_ROTATE_PROJECT																\
-	int32 _ivzfx, _ivzfy, _ivx, _ivy, _ivz
+extern void pie_MATTRANS(int _x, int _y, int _z);
+extern void pie_TRANSLATE(int _x, int _y, int _z);
+extern void pie_MatScale(SDWORD _scaleFP12);
+extern void pie_RotateProjectNear(SDWORD _x, SDWORD _y, SDWORD _z, SDWORD* _sx, SDWORD* _sy);
+extern void pie_RotateTranslate(SDWORD _x, SDWORD _y, SDWORD _z, SDWORD* _xs, SDWORD* _ys, SDWORD* _zs);
 
-#define pie_ROTATE_PROJECT(x,y,z,xs,ys)										\
-{																			\
-	_ivx = (x) * psMatrix->a + (y) * psMatrix->d + (z) * psMatrix->g +	\
-				psMatrix->j;												\
-	_ivy = (x) * psMatrix->b + (y) * psMatrix->e + (z) * psMatrix->h +	\
-				psMatrix->k;												\
-	_ivz = (x) * psMatrix->c + (y) * psMatrix->f + (z) * psMatrix->i +	\
-				psMatrix->l;												\
-	_ivzfx = _ivz >> psRendSurface->xpshift;							\
-	_ivzfy = _ivz >> psRendSurface->ypshift;							\
-	if ((_ivzfx > 0) && (_ivzfy > 0))										\
-	{																		\
-		(xs) = psRendSurface->xcentre + (int32) (_ivx / _ivzfx);		\
-		(ys) = psRendSurface->ycentre - (int32) (_ivy / _ivzfy);		\
-	}																		\
-	else																	\
-	{																		\
-		(xs) = 1<<15;														\
-		(ys) = 1<<15;														\
-	}																		\
+// The locals the old pie_ROTATE_PROJECT macro needed; nothing to declare now.
+#define pie_SETUP_ROTATE_PROJECT
+
+// Templates because the call sites bind outputs of mixed signedness; the old
+// macros assigned through whatever lvalue they were handed.
+template <class TX, class TY>
+inline void pie_ROTATE_PROJECT(SDWORD _x, SDWORD _y, SDWORD _z, TX& _sx, TY& _sy)
+{
+  SDWORD sx, sy;
+  pie_RotateProjectNear(_x, _y, _z, &sx, &sy);
+  _sx = static_cast<TX>(sx);
+  _sy = static_cast<TY>(sy);
 }
 
-//*************************************************************************
-
-#define pie_ROTATE_TRANSLATE(x,y,z,xs,ys,zs)										\
-{																			\
-	xs = (x) * psMatrix->a + (y) * psMatrix->d + (z) * psMatrix->g +	\
-				psMatrix->j;												\
-	ys = (x) * psMatrix->b + (y) * psMatrix->e + (z) * psMatrix->h +	\
-				psMatrix->k;												\
-	zs = (x) * psMatrix->c + (y) * psMatrix->f + (z) * psMatrix->i +	\
-				psMatrix->l;												\
-	xs >>=FP12_SHIFT;												\
-	ys >>=FP12_SHIFT;												\
-	zs >>=FP12_SHIFT;												\
-}
-
-//*************************************************************************
-
-#define pie_TRANSLATE(x, y, z)																\
-{																									\
-	psMatrix->j += ((x) * psMatrix->a + (y) * psMatrix->d + 					\
-						(z) * psMatrix->g);													\
-	psMatrix->k += ((x) * psMatrix->b + (y) * psMatrix->e + 					\
-						(z) * psMatrix->h);													\
-	psMatrix->l += ((x) * psMatrix->c + (y) * psMatrix->f + 					\
-						(z) * psMatrix->i);													\
+template <class TX, class TY, class TZ>
+inline void pie_ROTATE_TRANSLATE(SDWORD _x, SDWORD _y, SDWORD _z, TX& _xs, TY& _ys, TZ& _zs)
+{
+  SDWORD xs, ys, zs;
+  pie_RotateTranslate(_x, _y, _z, &xs, &ys, &zs);
+  _xs = static_cast<TX>(xs);
+  _ys = static_cast<TY>(ys);
+  _zs = static_cast<TZ>(zs);
 }
 
 //*************************************************************************
@@ -114,5 +107,14 @@ extern void pie_SetGeometricOffset(int x, int y);
 
 // PIEVERTEX structure contains much infomation that is not required on the playstation ... and hence is not currently used
 extern BOOL pie_PieClockwise(PIEVERTEX* s);
+
+//*************************************************************************
+// Stage-B parity instrumentation, defined in DEBUG builds only and deleted
+// in stage D: pie_RotProj and the model-vertex loop feed every projected
+// point through the old fixed-point pipeline as well, and the report traces
+// the worst screen-space divergence at shutdown.
+
+extern void pie_MatParityCheck(SDWORD _x, SDWORD _y, SDWORD _z, float _sx, float _sy);
+extern void pie_MatParityReport(void);
 
 #endif

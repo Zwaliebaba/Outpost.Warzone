@@ -288,6 +288,43 @@ allow-list checked, per the [AGENTS.md §6](../AGENTS.md) rule:
 
 ### B — Engine-internal swap, existing signatures kept  *(temporary shims)*
 
+**Status: done.** `RenderMatrix.cpp` is rebuilt on the `XMMATRIX` stack with
+every `pie_*` entry point preserved as a shim (the four macros became
+functions or inline templates with the same spellings, so no call site
+moved), the model-vertex loop and the IMDLoad bounding sphere are native,
+and the parity shadow is in. Cross-checked 193/193 units clean, Debug and
+Release. Four things came out differently from the text below, all
+measured:
+
+- **`BSPIMD.cpp` was not migrated, because it is not compiled.** The whole
+  file sits inside `#ifdef BSPIMD`, and no project defines the macro — its
+  `iVectorf` helpers and the `#ifdef BSPIMD` blocks in `IMDLoad.cpp` are
+  dead code under a feature gate, the same class `tools/check_case.py`
+  allow-lists. Migrating uncompiled code is churn; it stays as found, and
+  `iVectorf` stays typedef'd in `RenderTypes.h` for it.
+- **`iIMDPoly::normal` is write-only.** The `pie_SurfaceNormal` call at
+  model load (`IMDLoad.cpp:521`) fills a field nothing in the tree reads —
+  the renderer culls by screen winding (`pie_PieClockwise`), not by normal.
+  The call stays through the shim this stage; stage C deletes it and the
+  field with it, on this evidence.
+- **The inventory missed a tenth writer.** `Display3D.cpp`'s `scaleMatrix`
+  wrote the nine 3×3 elements of `psMatrix` directly (the design-screen
+  model scale). It is now a shim too — `pie_MatScale`, a pre-multiplied
+  `XMMatrixScaling`, exactly equivalent to the element-wise fixed-point
+  multiply — and `scaleMatrix` delegates to it.
+- **The cross-check stub landed now, not in stage F.** mingw-w64's
+  `directxmath.h` turned out to be a storage-types header with no
+  `XMMATRIX`, no `XMVECTOR` and no functions, so `tools/stubs/directxmath.h`
+  is a transcription of the surface the tree uses, per the established stub
+  pattern. mingw-w64 was also absent from the development container and is
+  installed there now; the 193/193 figures above are real local runs.
+
+The include is spelled `<directxmath.h>` — lowercase, like every system
+include in the tree — because MSVC resolves case-insensitively and the
+mingw side is case-sensitive.
+
+The stage as planned:
+
 Rebuild `RenderMatrix.cpp` on an `XMMATRIX` stack, and keep the `pie_*`
 signatures for one stage as forwarding shims so the tree stays green while
 stage C walks the call sites. The shims are explicitly transitional —

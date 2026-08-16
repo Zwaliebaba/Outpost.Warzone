@@ -1,4 +1,5 @@
 #include "pch.h"
+#include <directxmath.h>
 #include "Frame.h"
 #include "Model.h"
 #include "IMD.h"
@@ -12,6 +13,8 @@
 #include "PieState.h"
 #include "RenderClip.h"
 #include "Render.h"
+
+using namespace DirectX;
 
 #define MIST
 
@@ -78,8 +81,6 @@ void pie_Draw3DShape(iIMDShape* shape, int frame, int team, UDWORD col, UDWORD s
   int amd_HEIGHT_SCALED = 0x3f800000;
 
   // needed for intel
-  int32 rx, ry, rz;
-  int32 tzx, tzy;
   int32 tempY;
 
   int i, n;
@@ -177,10 +178,14 @@ void pie_Draw3DShape(iIMDShape* shape, int frame, int team, UDWORD col, UDWORD s
 
   pie_SetTexturePage(shape->texpage);
 
-  //now draw the shape	
+  //now draw the shape
   //rotate and project points from shape->points to scrPoints
   pVertices = shape->points;
   pPixels = &scrPoints[0];
+
+  const XMMATRIX worldMatrix = Neuron::WorldMatrix();
+  const float focalX = static_cast<float>(1 << psRendSurface->xpshift);
+  const float focalY = static_cast<float>(1 << psRendSurface->ypshift);
 
   for (i = 0; i < shape->npoints; i++, pVertices++, pPixels++)
   {
@@ -196,30 +201,26 @@ void pie_Draw3DShape(iIMDShape* shape, int frame, int team, UDWORD col, UDWORD s
       if (pVertices->y > 0)
         tempY = (pVertices->y * pieFlagData) / pie_RAISE_SCALE;
     }
-    rx = pVertices->x * psMatrix->a + tempY * psMatrix->d + pVertices->z * psMatrix->g + psMatrix->j;
-    ry = pVertices->x * psMatrix->b + tempY * psMatrix->e + pVertices->z * psMatrix->h + psMatrix->k;
-    rz = pVertices->x * psMatrix->c + tempY * psMatrix->f + pVertices->z * psMatrix->i + psMatrix->l;
+    const XMINT3 modelPoint(pVertices->x, tempY, pVertices->z);
+    const XMVECTOR world = XMVector3Transform(XMLoadSInt3(&modelPoint), worldMatrix);
+    const float rz = XMVectorGetZ(world);
 
-    pPixels->d3dz = D3DVAL((rz>>STRETCHED_Z_SHIFT));
+    pPixels->d3dz = rz * Neuron::StretchedDepthScale;
 
-    tzx = rz >> psRendSurface->xpshift;
-    tzy = rz >> psRendSurface->ypshift;
-
-    if ((tzx <= 0) || (tzy <= 0))
-    {
-      pPixels->d3dx = static_cast<float>(LONG_WAY); //just along way off screen
-      pPixels->d3dy = static_cast<float>(LONG_WAY);
-    }
-    else if (pPixels->d3dz < D3DVAL(MIN_STRETCHED_Z))
+    if (pPixels->d3dz < D3DVAL(MIN_STRETCHED_Z))
     {
       pPixels->d3dx = static_cast<float>(LONG_WAY); //just along way off screen
       pPixels->d3dy = static_cast<float>(LONG_WAY);
     }
     else
     {
-      pPixels->d3dx = D3DVAL((psRendSurface->xcentre + (rx / tzx)));
-      pPixels->d3dy = D3DVAL((psRendSurface->ycentre - (ry / tzy)));
+      pPixels->d3dx = static_cast<float>(psRendSurface->xcentre) + XMVectorGetX(world) * focalX / rz;
+      pPixels->d3dy = static_cast<float>(psRendSurface->ycentre) - XMVectorGetY(world) * focalY / rz;
     }
+
+#ifdef DEBUG
+    pie_MatParityCheck(pVertices->x, tempY, pVertices->z, pPixels->d3dx, pPixels->d3dy);
+#endif
   }
 
   //--

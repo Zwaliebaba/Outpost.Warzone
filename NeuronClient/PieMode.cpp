@@ -84,7 +84,13 @@ BOOL pie_Initialise(void)
   return TRUE;
 }
 
-void pie_ShutDown(void) { ShutDownD3D(); }
+void pie_ShutDown(void)
+{
+#ifdef DEBUG
+  pie_MatParityReport();
+#endif
+  ShutDownD3D();
+}
 
 /***************************************************************************/
 
