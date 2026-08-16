@@ -7,21 +7,32 @@ shipped assets rather than estimated.
 
 ## Status
 
-**FMV plays on Media Foundation. The rewrite is done; the removals are not.**
+**FMV plays on Media Foundation and the removals have landed. B4 is the only
+stage still open.**
 
 | Stage | |
 |---|---|
 | B1 — reference decode and fixtures | **done** |
 | B2 — conversion | **done** for every movie there is a source for: 179 in `GameData`, 19 from `.rpl` and 160 from `.ogg` |
 | B3 — Media Foundation backend | **done** — briefings, research videos and subtitles all play |
-| B4 — dynamic texture and quad | not started |
-| B5 — retire the CD path | not started |
-| B6 — delete `WINSTR.LIB`, `dsound.lib`, `CDSpan` | not started, and now unblocked |
+| B4 — dynamic texture and quad | **not started** — the FMV still blits through the locked back buffer |
+| B5 — retire the CD path | **done**, in `c50ac20` |
+| B6 — delete `WINSTR.LIB`, `dsound.lib`, `CDSpan` | **done**, in `c50ac20` |
 
-Nothing in the game reads `WINSTR.LIB` any more, and **nothing in the tree
-includes `<dsound.h>`** — both are dead weight on the link line waiting for B6.
+B5 and B6 landed as a single commit, and `59a8c26` recorded that in
+[MigrationPlan.md](MigrationPlan.md) without touching this document — so the
+table above said "not started" for both while the tree said otherwise. Measured
+at `d314720`: no `WINSTR.LIB`, `STREAMER.H`, `CDSpan.cpp`/`.h` or `GameData`
+decoder DLLs; no `cdspan_*`, `CDSpan`, `showChangeCDBox`, `g_bResumeInGame` or
+`DONTTEST` reference anywhere in `Outpost/` or `NeuronCore/`; and
+`AdditionalDependencies` carrying neither `WINSTR.LIB` nor `dsound.lib`.
+
 Ten of the 187 names the game can ask for still have no movie behind them: nine
 were never in any source set, and one is inside a commented-out line.
+
+**None of it has been run.** B5's own verification note asks for the four
+content gates to be exercised, and that is outstanding along with the rest of
+the tree's unrun verification.
 
 The phase was two unrelated pieces sharing a heading. **Part 1 went with
 Phase 5.** The asset decision that gated everything is settled — see
@@ -581,6 +592,8 @@ improvement and belongs with B4, which is already rewriting that loop.
 
 ### B4 — Dynamic texture and quad
 
+**Status: not started**, and the only open stage of the phase.
+
 MigrationPlan.md Phase 2 deliberately left the FMV blit as a CPU write into the
 locked back buffer, on the grounds that "a dynamic texture and a quad would be
 the right shape once Phase 6 replaces the decoder; doing it now would mean
@@ -601,10 +614,28 @@ rewriting the same function twice". This is that moment.
   ([SeqDisp.cpp:281-312](../Outpost/SeqDisp.cpp#L281-L312)). Both go. This is
   the one place `SeqDisp.cpp` does change.
 
+Two of those bullets have been overtaken since they were written, and the rest
+have not moved. `pie_D3DSetupRenderForFlip` and `pie_D3DRenderForFlip` no longer
+exist anywhere in the tree, so there is nothing left to check before deleting
+them. And B3's rewrite of `seq_RenderOneFrame` already replaced the
+`SEQ_LOW_BIT_MASK` shift with a `darken` flag inside the row loop
+([Sequence.cpp:248](../NeuronCore/Sequence.cpp#L248)) — still per-pixel, and
+still what the translucent quad would replace, but no longer 90 lines.
+
+What has not moved: `seq_SetupVideoBuffers` still allocates the 640x480x2 buffer
+and the 32 KB 555 palette table ([SeqDisp.cpp:262](../Outpost/SeqDisp.cpp#L262),
+called from [HCI.cpp:769](../Outpost/HCI.cpp#L769)), `Sequence.cpp` still takes
+`screenLockBackBuffer` to draw a frame, and
+`D3DPRESENTFLAG_LOCKABLE_BACKBUFFER` is still set
+([Screen.cpp:145](../NeuronCore/Screen.cpp#L145)) — the Phase 2 item this stage
+holds open.
+
 **Verifies:** same run as B3, plus a windowed/fullscreen toggle to confirm the
 quad scales where the old code hard-coded `borderX` / `borderY`.
 
 ### B5 — Retire the CD path
+
+**Status: done**, in `c50ac20`, together with B6.
 
 Movies were the last thing read from the CD, so with B2's output installed to
 disk the CD-presence apparatus becomes dead weight. This is the item Phase 4
@@ -695,9 +726,26 @@ B5 runs long, land it after B6 rather than holding the phase open.
 
 **Verifies:** the CAM_1A boot, a new game from the front end, a save-game load
 and a mission-continue — the four gates — confirming no CD dialog can appear and
-no path resolves to a drive letter. This needs a real run, not a build.
+no path resolves to a drive letter. This needs a real run, not a build. **That
+run has not happened**, and it is the part of B5 still owed.
+
+#### What B5 did differently
+
+It did not run long, so the severability above went unused: it landed inside
+B6's commit rather than after it. One departure worth recording — the C++ side
+of the surviving script function is still named `scrPlayCDAudio`, not the
+`scrPlayMusicTrack` this plan asked for. The script-visible name `playCDAudio`
+was always going to stay, and it carries the explanatory comment at
+[ScriptTabs.cpp:154](../Outpost/ScriptTabs.cpp#L154), so the code no longer
+misleads; only the rename that would have made the C++ symbol say `music` is
+outstanding, and it is cosmetic. The three unused `*CDAudio` functions and
+`playBackgroundAudio` are gone as planned, and the five `.slo` callers of
+`playCDAudio` still resolve.
 
 ### B6 — Removal
+
+**Status: done**, in `c50ac20`. The table below is what it removed; two entries
+resolved differently and are noted after it.
 
 Once B3, B4 and B5 run:
 
@@ -727,6 +775,25 @@ is DirectX, the Windows SDK, and MsQuic under its sanctioned exception.
 **Do not remove `playCDAudio` / `music_PlayTrack`** — see
 [the `*CDAudio` note under B5](#the-cdaudio-script-functions-are-not-cd-audio-and-one-of-them-is-live).
 It is disk music with a misleading name and five live script callers.
+
+#### What B6 did differently
+
+- **SafeSEH did not stay re-enabled.** Removing
+  `ImageHasSafeExceptionHandlers=false` on the assumption it existed for
+  `WINSTR.LIB` passed Debug and failed Release with LNK2026 / LNK1281. The real
+  culprit is `DX9\Lib\dinput8.lib`, whose `dilib1.obj` predates SafeSEH and
+  carries no handler table; incremental linking silently disables the check, so
+  only the `/INCREMENTAL:NO` Release configuration ever exercised it. The
+  property is back on both link lines with the real reason recorded at the site,
+  and re-enabling SafeSEH now needs a clean `dinput8.lib` first. Phase 8 records
+  the same finding from the other end.
+- **`edec.dll` and `winsdec.dll` were the same family**, as suspected. The
+  "verify first" held up: nothing in the tree referenced either, and both went
+  with the other two. `GameData/` now contains no DLL at all.
+
+`MovieTest/` kept its fixtures and lost everything else — the project is out of
+`Outpost.slnx` and `RplExtractor.cpp` is deleted, so the directory is now purely
+the record of what the original decoder produced.
 
 ---
 
@@ -836,8 +903,8 @@ set before committing to the format.
 ```
 Phase 5 ──► DONE (took Mplayer.lib with it)
 
-B1 ──► B2 ──► B3 ──► B6        B4  (independent, improves what already works)
-DONE   DONE   DONE   next      B5  (severable, widest reach)
+B1 ──► B2 ──► B3 ──► B5+B6     B4  (independent, improves what already works)
+DONE   DONE   DONE   DONE      open
 ```
 
 **B1, B2 and B3 are done, and the movies play.** The asset problem that shaped
@@ -845,18 +912,18 @@ this whole document is closed: an OGG set covering 155 of the 164 CD movies
 turned up, so 179 of the 187 names the game can ask for now resolve, and the
 `.rpl` files are gone from the repository.
 
-**B6 is next and is now mostly deletion.** Nothing includes `<dsound.h>`,
-nothing calls a `Streamer_*` entry point, and the `.rpl` assets the extractor
-existed to read are already converted — so `WINSTR.LIB`, `STREAMER.H`, the four
-`GameData` decoder DLLs, `dsound.lib` and the `MovieTest` extractor can all go
-together. The fixtures stay: they are the only remaining record of what the
-original decoder produced.
+**B5 and B6 went together** rather than in sequence, which the severability note
+under B5 allowed for. Nothing included `<dsound.h>` and nothing called a
+`Streamer_*` entry point by then, so the removal was as mechanical as predicted;
+the CD path's widget plumbing was the only part that reached into live code.
+`WINSTR.LIB`, `STREAMER.H`, the four `GameData` decoder DLLs, `dsound.lib`,
+`CDSpan.cpp` and the `MovieTest` extractor are all gone. The fixtures stay: they
+are the only remaining record of what the original decoder produced.
 
-**B4 and B5 no longer gate anything.** B4 replaces a working CPU blit with a
-textured quad and is the right home for the audio-clock change B3 deferred; B5
-retires the CD path and reaches into seven files for no user-visible gain. Both
-are improvements to something that already works, which is a better position
-than this section previously described.
+**B4 is what is left, and it gates nothing.** It replaces a working CPU blit
+with a textured quad and is the right home for the audio-clock change B3
+deferred. Its one outward claim is on Phase 2's lockable back buffer, which
+cannot come off the present parameters until the FMV stops locking it.
 
 What cannot be fixed by any of them: **nine movies have no source in any
 format**, and 57 of the OGG sources are 12.5 fps where the originals were 25.
