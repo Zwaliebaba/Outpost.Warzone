@@ -6,7 +6,19 @@ under `GameData/` — what is wrong with it, and a staged proposal for
 simplifying it. The two questions it was written to answer: **can the `.wrf`
 layer be reduced or removed**, and **where does moving to JSON pay for
 itself**. It is a design document; no code or data changes accompany it.
-Figures quoted were measured against the tree at `d314720`, not estimated.
+Figures quoted were measured, not estimated — first at `d314720`, and
+re-measured after the merge of main described below.
+
+**Revised after the save/load removal and the client-library split
+(2026-08-16).** Two owner decisions landed on `main` after the first draft
+and changed this analysis: user save/load was removed outright — the game is
+heading server-authoritative, where a local save of world state has no
+meaning; the record is in [MigrationPlan.md](MigrationPlan.md) under
+"Removed outright" — and the engine began splitting into `NeuronCore` /
+`NeuronClient` / `NeuronServer`, moving the model, animation, texture and
+audio loaders into the client library. Every figure and path below reflects
+the merged tree; where the removal changes a conclusion it is called out in
+place — chiefly §4, §7.1 and decision 3.
 
 Defects noticed during the survey are recorded in
 [Appendix B](#appendix-b--defects-noticed-during-the-survey) but deliberately
@@ -22,24 +34,24 @@ about — everything that is parsed rather than decoded — is under 30 MB:
 
 | Format | Files | Size | What it is | Parsed by |
 |---|---|---|---|---|
-| `.wrf` | 89 | ~180 KB | Load manifests (1,795 `file` entries, 344 `directory` entries) | MKS-yacc parser, `NeuronCore/resource_y.cpp` |
-| `.lev` | 1 | 24 KB | `GameDesc.lev` — 101 dataset declarations naming which WRFs each level loads | flex lexer + hand-written state machine, `Outpost/Levels.cpp:155` |
-| `.pie` | 516 | 570 KB | 3D models, all `PIE 2` text format | `NeuronCore/IMDLoad.cpp` |
-| `.ani` | 10 | 20 KB | Keyframe animation scripts (+ `anim.cfg`) | MKS-yacc parser, `NeuronCore/parser_y.cpp` |
-| Stats `.txt` | 210 | 416 KB | Positional CSV: weapons, bodies, structures, research… | hand-rolled `sscanf` loops, `Outpost/Stats.cpp` et al. |
-| Messages `.txt` | ~102 | 592 KB | View data (briefings, proximity) + string tables | `sscanf1` cursor parser + `StrRes` yacc grammar |
-| `.slo` / `.vlo` | 70 / 134 | 1.9 MB | Script source + typed value files, **compiled from source on every load** | yacc script compiler, `NeuronCore/Script_y.cpp` |
+| `.wrf` | 84 | ~170 KB | Load manifests (1,771 `file` entries, 321 `directory` entries) | MKS-yacc parser, `NeuronCore/resource_y.cpp` |
+| `.lev` | 1 | 22 KB | `GameDesc.lev` — 94 dataset declarations naming which WRFs each level loads | flex lexer + hand-written state machine, `Outpost/Levels.cpp:155` |
+| `.pie` | 516 | 570 KB | 3D models, all `PIE 2` text format | `NeuronClient/IMDLoad.cpp` |
+| `.ani` | 10 | 20 KB | Keyframe animation scripts (+ `anim.cfg`) | MKS-yacc parser, `NeuronClient/parser_y.cpp` |
+| Stats `.txt` | 55 | 416 KB | Positional CSV: weapons, bodies, structures, research… | hand-rolled `sscanf` loops, `Outpost/Stats.cpp` et al. |
+| Messages `.txt` | ~101 | 584 KB | View data (briefings, proximity) + string tables | `sscanf1` cursor parser + `StrRes` yacc grammar |
+| `.slo` / `.vlo` | 59 / 123 | 1.7 MB | Script source + typed value files, **compiled from source on every load** | yacc script compiler, `NeuronCore/Script_y.cpp` |
 | `.wav` | 555 | 12 MB | Audio (+ `audio.cfg` / `frontaud.cfg` track configs) | `WavData.cpp` (modernised, Phase 9) |
-| `.pcx` | 74 | 9 MB | Texture pages, UI atlases, backdrops (+ `palette.bin`) | `NeuronCore/Pcx.cpp` |
+| `.pcx` | 73 | 9 MB | Texture pages, UI atlases, backdrops (+ `palette.bin`) | `NeuronClient/Pcx.cpp` |
 | `.img` / `.jbf` | 2 / 2 | — | Sprite-atlas indexes / **Paint Shop Pro thumbnail caches (dead)** | `BitImage.cpp` / nothing |
-| `.map` / `.gam` / `.bjo` / `.ttp` | 42 / 49 / 194 / 41 | ~1 MB | Map tiles, save headers, binary game objects, terrain types — raw struct images | `Outpost/Map.cpp`, `Outpost/Game.cpp` |
-| `.tag` | 46 | 2 KB | **Dead.** No reader or writer in the tree; content is uninitialised 1998 heap memory | nothing |
+| `.map` / `.gam` / `.bjo` / `.ttp` | 36 / 44 / 134 / 36 | ~1 MB | Map tiles, scenario headers, binary game objects, terrain types — raw struct images; **level format only since the save/load removal** | `Outpost/Map.cpp`, `Outpost/Game.cpp` |
+| `.tag` | 44 | 2 KB | **Dead.** No reader or writer in the tree; content is uninitialised 1998 heap memory | nothing |
 | `keymap.map` | 1 | 20 KB | Serialised keybindings, raw struct dump keyed to build timestamp | `Outpost/KeyEdit.cpp` |
 | `sequences.json` | 1 | 92 KB | Build manifest from the Phase 6 movie conversion — **the only JSON, and no C++ reads it** | `tools/convert_sequences.py` |
 
 Two incidental findings about the layout itself: the `GameData/WRF/`
-directory is doing double duty — besides the 89 manifests it holds the
-campaign missions' `.map`/`.gam`/`.bjo`/`.ttp` data (105 `.bjo` files live
+directory is doing double duty — besides the 84 manifests it holds the
+campaign missions' `.map`/`.gam`/`.bjo`/`.ttp` data (99 `.bjo` files live
 under `WRF/CamN/<mission>/`); and the shipped binary data contains
 uninitialised memory from the 1998 tools that wrote it — `Feat.bjo` files
 carry recognisable Win32 heap pointers, every `TagList.tag` is 36 bytes of
@@ -52,21 +64,22 @@ stack garbage, and `keymap.map` pads names with MSVC's `0xCC` debug fill
 
 ```
 WinMain
- └ systemInitialise                        Outpost/Init.cpp:667
-     loadFile("GameDesc.lev") → levParse   Init.cpp:682   (direct fopen, not WRF)
-     dataInitLoadFuncs()  — registers 46 resource types   Init.cpp:734
+ └ systemInitialise                        Outpost/Init.cpp:669
+     loadFile("GameDesc.lev") → levParse   Init.cpp:684   (direct fopen, not WRF)
+     dataInitLoadFuncs()  — registers 45 resource types   Init.cpp:736
  └ GS_TITLE_SCREEN → resLoad("wrf\frontend.wrf", block 0)
- └ GS_NORMAL       → levLoadData(levelName, …)            Outpost/Levels.cpp:561
+ └ GS_NORMAL       → levLoadData(levelName)               Outpost/Levels.cpp:553
        for each of ≤9 base-dataset WRFs:  resLoad(file, blockID i)
        for each of ≤9 level WRFs:         resLoad(file, blockID i+9)
 ```
 
 A `.lev` dataset names up to nine files (`LEVEL_MAXFILES`,
 `Outpost/Levels.h:11`); slot order in the file **is** the load order, and one
-slot is the `.gam` map. `levLoadData` (`Outpost/Levels.cpp:561-924`) is a
-364-line function that interleaves resource loading with the three
-`stageNInitialise` engine phases and branches on five axes (base data present,
-save name present, save type, camchange, dataset type).
+slot is the `.gam` map. `levLoadData` (`Outpost/Levels.cpp:553`) interleaves
+resource loading with the three `stageNInitialise` engine phases; the
+save/load removal took its save-name, save-type and camchange-save axes with
+it (the function fell from 364 lines to ~230), leaving it branching on
+dataset type and base-data presence.
 
 `resLoad` (`NeuronCore/FrameResource.cpp:116`) parses a WRF with a generated
 yacc parser, and **loading happens inline in the grammar action**
@@ -78,7 +91,7 @@ per-file callback that repaints the loading bar.
 
 ### 2.2 The resource system
 
-`Outpost/Data.cpp:1175-1202` registers 46 types — from `IMD` and `WAV`
+`Outpost/Data.cpp:1151-1179` registers 45 types — from `IMD` and `WAV`
 through 23 stats-table types to `SCRIPT`/`SCRIPTVAL` (the full table is
 [Appendix A](#appendix-a--registered-resource-types)). Loaded resources are
 stored in **nested singly-linked lists** (type list → per-type data list,
@@ -98,22 +111,22 @@ level teardown calls it nine times.
 
 ### 2.3 The second loading path
 
-Roughly a third of the data never touches the resource system: maps, saves
-and `.bjo` objects, `TTypes.ttp`, `palette.bin`, `keymap.map`, music,
-sequence audio and subtitles, backdrops, multiplayer forces and stats are all
+Roughly a third of the data never touches the resource system: maps and
+their scenario `.bjo` objects, `TTypes.ttp`, `palette.bin`, `keymap.map`,
+music, sequence audio and subtitles, backdrops and multiplayer forces are all
 loaded by direct `fopen`/`CreateFile` with hard-coded `"\\"`-separated paths
-(`Outpost/Game.cpp:1649`, `Outpost/SeqDisp.cpp:739`,
-`NeuronCore/Render2D.cpp:534`, …). Most of them share one global 1.5 MB
+(`Outpost/Game.cpp:632`, `Outpost/SeqDisp.cpp:739`,
+`NeuronClient/Render2D.cpp:534`, …). Most of them share one global 1.5 MB
 scratch buffer (`DisplayBuffer`, `Outpost/Init.cpp:714-722`) with a fatal
 error as the overflow strategy — and `mapLoad`'s error paths `delete[]` that
 shared buffer (`Outpost/Map.cpp:468,478,489`).
 
 Path case in this second path only works because NTFS is case-insensitive:
-the loader asks for `game.map`/`templ.bjo`/`feat.bjo` where the disk has
-`Game.map`/`Templ.bjo`/`Feat.bjo`, and `Game.cpp`'s own load and save paths
-spell `CompL.bjo`/`compL.bjo` differently (`Outpost/Game.cpp:2156` vs
-`:2661`). `tools/check_case.py` polices exactly this class of bug for
-`#include` lines but does not look at data paths.
+the loader asks for `game.map`/`dinit.bjo`/`feat.bjo`/`struct.bjo`
+(`Outpost/Game.cpp:674,730,751,772`) where the disk has
+`Game.map`/`DInit.bjo`/`Feat.bjo`/`Struct.bjo`. `tools/check_case.py`
+polices exactly this class of bug for `#include` lines but does not look at
+data paths.
 
 ### 2.4 What the parsers are made of
 
@@ -122,14 +135,16 @@ Six separate grammar stacks parse the text formats: `Resource.l/.y` (WRF),
 config, anim config **and** `.ani` bodies, one shared grammar),
 `StrRes.l/.y` (string tables), `script.l/.y` (`.slo`), `ScriptVals.l/.y`
 (`.vlo`). All were generated with **MKS lex/yacc, which the project no
-longer has**. Only the generated `.cpp` files build
-(`NeuronCore.vcxproj:263-264` lists the `.l`/`.y` as `None`), and the
-generated files have been hand-edited since — `parser_y.cpp:748` calls the
-Phase 9 C++ audio API while its "source" `parser.y:79` still calls the
-deleted C one. **Any grammar change now means hand-editing 1990s generated
+longer has**. Only the generated `.cpp` files build (the `.l`/`.y` sit in
+the projects as `None` entries), and the generated files have been
+hand-edited since — `parser_y.cpp:748` calls the Phase 9 C++ audio API while
+its "source" `parser.y:79` still calls the deleted C one. The client-library
+split has now even put the two in different projects: `parser.l/.y` stayed
+in `NeuronCore` while the generated `parser_l/parser_y.cpp` moved to
+`NeuronClient`. **Any grammar change now means hand-editing 1990s generated
 C.** The stats tables use no grammar at all: hand-rolled `sscanf` loops with
 three different cursor-advance idioms (`Outpost/Stats.cpp:727`,
-`NeuronCore/IMDLoad.cpp:49`, `Outpost/Research.cpp:264`).
+`NeuronClient/IMDLoad.cpp:49`, `Outpost/Research.cpp:264`).
 
 ## 3. The WRF layer, measured
 
@@ -142,18 +157,21 @@ file      IMD  "blpower0.PIE"
 
 That is the entire language (`NeuronCore/Resource.y:51-97`): `directory`
 sets a sticky current directory, `file` names a type and a filename. No
-includes, no variables, no conditionals, no versioning. The 89 files divide
-into four base/bulk manifests (`Basic.wrf` 87 entries, `PieStats.wrf` 409,
-`Stats.wrf` 39, `audio.wrf` 348), four mutually-exclusive texture sets
-(`VidMem*.wrf`), `frontend.wrf` (48), `forcedit2.wrf` (46), per-campaign
-string/research sets, and 52 tiny per-level files of 5–14 entries each
-(scripts, briefings, the occasional texture swap).
+includes, no variables, no conditionals, no versioning. The 84 files divide
+into 18 top-level ones — four base/bulk manifests (`Basic.wrf` 87 entries,
+`PieStats.wrf` 409, `Stats.wrf` 39, `audio.wrf` 348), four
+mutually-exclusive texture sets (`VidMem*.wrf`), `frontend.wrf` (48),
+`forcedit2.wrf` (46), and the per-campaign string/research sets — plus 66
+small files of 5–14 entries each (scripts, briefings, the occasional
+texture swap) under `Cam1/` (21), `Cam2/` (19), `Cam3/` (15), `Multi/` (9)
+and `tutorial/` (2). The demo-era `FastPlay/` set and the broken
+`prog.wrf`/`minimal.wrf` went with the save/load-and-demo removal.
 
 ### 3.2 What a WRF actually does
 
 Three jobs, and each is done the weakest possible way:
 
-1. **Enumerate** what a dataset needs. But 1,103 of the 1,795 entries (61%)
+1. **Enumerate** what a dataset needs. But 1,103 of the 1,771 entries (62%)
    are in the always-loaded base manifests — enumerations of *everything in a
    directory* that must be hand-maintained as art is added or removed.
 2. **Type** each file so the right loader runs. But the type is derivable
@@ -169,7 +187,8 @@ Three jobs, and each is done the weakest possible way:
 ### 3.3 Duplication is structural, and a hack makes it survivable
 
 Because the format cannot express sharing, shared content is pasted:
-`cam1daynight.slo` is listed in **24** different WRFs, `genexp.slo` in 21,
+`cam1daynight.slo` and `genexp.slo` are each listed in **21** different WRFs
+(the count was 24 before the demo WRFs were deleted),
 `frontend.wrf` reproduces `VidMem.wrf`'s entire 23-page TEXPAGE list plus
 nine WAVs from `audio.wrf`, `forcedit2.wrf` re-lists 20 IMDs from
 `Basic.wrf` and 22 stats files from `Stats.wrf`, and the three campaign
@@ -188,14 +207,16 @@ zero `.wdg` files in the tree, yet every `resLoad` calls
 `WDG_ProcessWRF` (`FrameResource.cpp:137`), a 2 MB WDG read cache is
 allocated at startup (`FrameResource.cpp:79`) and never used, and
 `addon.lev` discovery scans archives that cannot exist
-(`Outpost/Init.cpp:689-701`). The `SAVEGAME` resource type is registered
-through a file-load mechanism that is compiled out (`NORESHASH` is defined
-nowhere), so the one WRF that uses it (`minimal.wrf`) hits a fatal error by
-construction. `PRIMCATALOG`, `COVERMOUNT`, `FINALBUILD`, `BINARY_PIES` guard
-further swathes that no configuration defines. `GameDesc.lev` also references
-WRFs that are not on disk (`test.wrf`, `wrf/Demo/DemoCam3.wrf`,
-`wrf/cam2/cam2c2.wrf`) — nothing validates the level list against the
-filesystem, so the failure would surface as a fatal mid-load.
+(`Outpost/Init.cpp:679-701`). The save/load removal already took the
+`SAVEGAME` resource type and the broken `minimal.wrf`/`prog.wrf` with it;
+what survives is the file-load mechanism `SAVEGAME` was registered through —
+`resAddFileLoad`, `RES_TYPE::fileLoad` and the compiled-out `NORESHASH`
+branch (`FrameResource.cpp:533`) — now with zero registrants. `PRIMCATALOG`,
+`FINALBUILD`, `BINARY_PIES` guard further swathes that no configuration
+defines (the `COVERMOUNT` gates went with the demo). One `GameDesc.lev`
+entry still references files that are not on disk — `expand CAM_2C2` names
+`wrf/cam2/cam2c2.wrf` and its `.gam` — and nothing validates the level list
+against the filesystem, so the failure would surface as a fatal mid-load.
 
 ### 3.5 Why the WRF layer costs what it costs
 
@@ -219,11 +240,13 @@ kept); every field is parsed twice by the `sscanf1` replay trick; loading
 the set costs ~17,700 `malloc`s for 1.28 MB, of which ~307 KB is dead
 `iVertex.x/y/z` fields; face normals are computed and never read; and the
 1,693 texture-animated polygons have their UV offsets recomputed per polygon
-per frame (`NeuronCore/RenderModel.cpp:548-576`, complete with a
+per frame (`NeuronClient/RenderModel.cpp:548-576`, complete with a
 `// HACK - fix this!!!!`) when every offset is derivable at load. Those are
 Phase 8 stage D concerns (vertex buffers, GPU transform, clipper
-retirement) plus a load-time baking pass — a *loader* rewrite against the
-same on-disk format. Changing the file format would buy nothing.
+retirement — D3 and D1a have landed since this document's first draft; D1b
+and D2 remain) plus a load-time baking pass — a *loader* rewrite against the
+same on-disk format. Changing the file format would buy nothing. The whole
+model path now lives in `NeuronClient` after the client-library split.
 
 **`.ani` animations.** Ten files, one of which (`BLDerik.ani`, the oil
 derrick) is the only non-trivial one; two ship but never play. The
@@ -234,15 +257,18 @@ hardcoded IDs (`Outpost/AnimID.h`) that must manually agree with
 stored, and never applied. This is a tiny system wearing a full yacc
 grammar.
 
-**Stats `.txt`.** 210 files of header-less positional CSV. Column order is
+**Stats `.txt`.** 55 files of header-less positional CSV. Column order is
 the contract; `sscanf` return values are never checked (a short row silently
 yields zeros); several loaders use unbounded `%[^',']` into 60-byte stack
 buffers; `loadPropulsionTypes` ignores the file's row count entirely and
 reads exactly nine records. The deepest coupling: **row order is identity** —
 a stat's reference number is `REF_<CLASS>_START + row index`
-(`Outpost/Stats.h:60-75`), and those refs persist into save games. Every
-cross-reference between files is a name string resolved by linear `strcmp`,
-with a load-order requirement documented only in WRF comments.
+(`Outpost/Stats.h:60-75`). Those refs used to persist into user save games;
+with save/load removed they are a runtime-only contract — the shipped level
+`.bjo` files reference stats by *name* — which materially loosens the
+constraint on any format change (§7.1). Every cross-reference between files
+is a name string resolved by linear `strcmp`, with a load-order requirement
+documented only in WRF comments.
 
 **Scripts.** `.slo` source is compiled by the generated script compiler on
 every run; `.vlo` files bind typed values (`WEAPON "TUTMG"`,
@@ -265,30 +291,37 @@ grammar, whose in-file format comment mis-describes its own columns —
 the 500-entry hand-maintained enum/name table in `Outpost/AudioID.cpp` whose
 array order must match its enum values (asserted at runtime, `:265-280`).
 
-**Maps, saves, binary objects.** `.map`/`.gam`/`.bjo`/`.ttp` are raw struct
-images with 4-byte magics, versioned by stacked macros
-(`#define GAME_SAVE_V22 GAME_SAVE_V20; <new fields>`) and a `sizeof` ladder
-(`Outpost/Game.cpp:2926-2960`). Struct padding, enum widths and 32-bit
-pointer slots are load-bearing; `writeFXData` stores a hash *in* a pointer
-field (`Outpost/Effects.cpp:2512-2518`). Phase 7's rule — anything
-serialised into saves stays byte-identical — protects this area, and an
-x64 port is already known to need an audit here (`Docs/MigrationPlan.md`,
-Phase 6).
+**Maps and binary scenario objects.** `.map`/`.gam`/`.bjo`/`.ttp` are raw
+struct images with 4-byte magics. **The save-game half of this family is
+gone**: the 2026-08-16 removal deleted the writer, the `SAVE_GAME_V10–V33`
+struct tower and its 70-odd structs, the full-state object readers, the
+script-state save (`EvntSave.cpp`) and the FX/score/visibility pairs, along
+with the three checked-in saves. What remains is the **level format** —
+every shipped `.gam` is version 5–8 and every shipped level `.bjo` is
+version 8 — read by the narrowed loaders in the 1,831-line `Game.cpp` (was
+9,596), whose dispatchers now reject anything above version 8 by design.
+Struct padding, enum widths and 32-bit layout are still load-bearing in what
+remains, and Phase 7's save rule has been re-scoped accordingly: *the
+shipped level formats (v≤8) must stay readable*.
 
 **Keybindings.** `keymap.map` stores raw structs plus an 8-byte build
 timestamp; **every rebuild silently discards the user's bindings**
-(`Outpost/KeyEdit.cpp:543-547`), and functions are stored as indices into a
-C table, so reordering `keyMapSaveTable[]` rebinds every key.
+(`Outpost/KeyEdit.cpp:544`), and functions are stored as indices into a
+C table, so reordering `keyMapSaveTable[]` rebinds every key. The save/load
+sweep just paid this tax: `kf_ToggleDemoMode`'s slot had to be refilled with
+a placeholder function rather than removed, because the table's order *is*
+the id space saved keymaps index into.
 
-**Dead weight in the data.** 46 `.tag` files with no reader anywhere, two
-`.jbf` Paint Shop Pro thumbnail caches, `prog.wrf`/`minimal.wrf` dev
-leftovers (the latter on a provably broken path), and 63 commented-out `IMD`
-entries across the WRFs.
+**Dead weight in the data.** 44 `.tag` files with no reader anywhere, two
+`.jbf` Paint Shop Pro thumbnail caches, and 63 commented-out `IMD`
+entries across the WRFs. (`prog.wrf` and `minimal.wrf`, listed here in the
+first draft, went with the save/load removal.)
 
 ## 5. Improvement areas, ranked
 
 1. **Delete the dead machinery and dead data.** The WDG layer, the PSX
-   shims, the `NORESHASH`/`SAVEGAME` file-load path, the dead loaders and
+   shims, the orphaned file-load mechanism (`resAddFileLoad`/`NORESHASH`,
+   registrant-less since the save/load removal), the dead loaders and
    the 336 KB `tp_PieList` registry, the `.tag`/`.jbf` files. This is the
    same move Phases 8 and 9 made first, and it shrinks every later decision.
 2. **Make load order a property of the code, not the data.** The type
@@ -359,7 +392,7 @@ Sketch, not a final schema:
 
 The important properties, in decreasing order of value:
 
-- **Sharing is by reference, not by paste.** Named groups replace the 24×
+- **Sharing is by reference, not by paste.** Named groups replace the 21×
   duplication and let the silent filename-hash dedupe hack die. A file
   listed twice becomes a validation *error*, because it no longer needs to
   be tolerated.
@@ -380,12 +413,12 @@ The important properties, in decreasing order of value:
   order-is-load-order convention go away. Block IDs become two named scopes
   (base / level) plus the force-editor one, owned by the loader.
 - **It is validatable offline.** A `tools/validate_assets.py` can check
-  every reference against the filesystem (catching the three datasets that
-  reference missing WRFs today), enforce case-exactness, and later check
+  every reference against the filesystem (catching the `CAM_2C2` dataset
+  that still references files not on disk), enforce case-exactness, and later check
   stats cross-references — in CI, where this project already does its
   verification, instead of as a fatal dialog on a Windows box.
 
-Net effect on file count: 90 hand-written manifest files (89 `.wrf` +
+Net effect on file count: 85 hand-written manifest files (84 `.wrf` +
 `GameDesc.lev`) become roughly a dozen shared-group manifests plus one small
 file per dataset — and per-level manifests shrink to the 5–14 genuinely
 level-specific entries they already contain. Code deleted: the WRF grammar
@@ -418,13 +451,16 @@ The project already has JSON precedent on the tooling side:
 game reads JSON yet. For what it is worth, the open-source descendant of
 this codebase (Warzone 2100) walked this exact road — its stats and level
 data are JSON today — so the destination is proven for this data, not
-speculative.
+speculative. The client/server split adds its own argument: `NeuronServer`
+will need stats and manifests without a renderer attached, and a
+language-neutral open format serves both sides of that split — and any
+server-side tooling — from one set of files.
 
 | Data | Today | Verdict | Reasoning |
 |---|---|---|---|
 | Manifests (`.wrf` + `.lev`) | 2 custom grammars | **Yes — first** | §6. Kills two parsers and the WDG layer; enables CI validation; expresses sharing. |
 | `audio.cfg`, `frontaud.cfg`, `anim.cfg` | `audp_` yacc grammar | **Yes — with manifests** | Tiny key-value lists. With the `.ani` conversion this deletes the whole shared grammar. |
-| Stats `.txt` (210 files) | positional CSV | **Yes — second wave** | Named fields end column-order coupling and silent zeros; schema validation offline. Array order preserved ⇒ `REF_*` ids unchanged ⇒ save-compatible (§7.1). |
+| Stats `.txt` (55 files) | positional CSV | **Yes — second wave** | Named fields end column-order coupling and silent zeros; schema validation offline. Array order preserved ⇒ `REF_*` ids unchanged (§7.1). |
 | Messages view data | variable-arity CSV | **Yes — with stats** | Arity currently depends on a mid-record type field; JSON objects model that naturally. |
 | `.ani` (10 files) | `audp_` yacc grammar | **Yes — cheap** | Ten files, one non-trivial. Names/indices the current parser throws away become real bindings; kills the grammar's other half. |
 | `keymap.map` | raw struct dump | **Yes — targeted** | Names instead of table indices, no build-timestamp key ⇒ bindings survive rebuilds and reorders. User-facing fix. |
@@ -433,18 +469,21 @@ speculative.
 | `.slo` scripts | script language | **No** | It is code, not data. |
 | `.pie` models | custom text | **No** | Compact, diff-able, tool-supported; JSON would multiply size and buy nothing. The wins are loader-side (§4). |
 | `.wav`/`.pcx`/`.mp4` | binary media | **No** | Media stays media. (`.pcx`→PNG is a conceivable separate modernisation; different discussion, touches `TexMan`.) |
-| `.map`/`.gam`/`.bjo`/`.ttp` | raw structs | **Not now** | Phase 7's byte-identical save rule stands, and the readers need a real serialiser before any format talk. Scenario `.bjo` (map content, not saves) are the eventual candidates — also the way to purge the shipped heap garbage — but only after a serialiser exists. |
+| `.map`/`.gam`/`.bjo`/`.ttp` | raw structs | **Not now** | The save-game half is already deleted; what remains is the v≤8 level format, which must stay readable. Converting the scenario data to a text form — also the way to purge the shipped heap garbage — is now unblocked *in principle*, but wants the map-tooling question answered first. |
 
-### 7.1 The stats conversion and save compatibility
+### 7.1 The stats conversion and the identity constraint
 
-The scariest-looking constraint is a non-issue if respected deliberately: a
-stat's persistent identity is its row index (`REF_<CLASS>_START + i`), and
-JSON arrays are ordered, so a converter that emits one object per row **in
-file order** preserves every reference number, and the loader keeps deriving
-refs from array position. Explicit `id` fields can wait until something
-actually needs them. Save games also store *name* strings for objects and
-templates; names don't change in a format conversion. The conversion is
-behaviour-preserving; only the parser changes.
+The scariest-looking constraint of the first draft has largely dissolved. A
+stat's identity is its row index (`REF_<CLASS>_START + i`), and those refs
+used to persist into user save games — which made row order a compatibility
+contract. **User saves are gone.** What still binds is much weaker: the refs
+remain the *runtime* id space (scripts and the shipped level `.bjo` bind by
+name, not by ref), and the v≤8 level formats must stay readable — which a
+stats-format change does not touch. The cheapest conversion is still the
+behaviour-preserving one: emit one JSON object per row **in file order**, so
+array position keeps deriving the same refs and nothing else in the engine
+notices. But explicit `id` fields, reordering, and even splitting files are
+now design choices rather than compatibility risks.
 
 What the conversion buys concretely: each field named once in a schema
 instead of positionally in a 52-conversion `sscanf` string and its argument
@@ -456,14 +495,18 @@ research→message, template→component) before a Windows build exists.
 
 ### 7.2 The parser question (AGENTS.md R14)
 
-R14 forbids new third-party dependencies, with MsQuic the recorded
-exception. Two compliant options:
+R14 forbids new third-party dependencies, with two recorded NuGet
+exceptions (MsQuic, and C++/WinRT since the FMV work) and an explicitly
+closed list — "a third needs the same conversation". Two compliant options:
 
 1. **A hand-written strict JSON reader in `NeuronCore`** (`Json.h`/`Json.cpp`
-   in `namespace Neuron`, DOM-style, ~400 lines with tests). JSON's grammar
-   is small and closed; the game parses only trusted local files; and the
-   project already prefers owning small things over depending on large ones
-   (`WavData.cpp` is the precedent). **Recommended.**
+   in `namespace Neuron`, DOM-style, ~400 lines with tests — and the new
+   `NeuronCoreTest` project is exactly where those tests belong). `NeuronCore`
+   is the right home because both `NeuronClient` and `NeuronServer` will read
+   manifests and stats. JSON's grammar is small and closed; the game parses
+   only trusted local files; and the project already prefers owning small
+   things over depending on large ones (`WavData.cpp` is the precedent).
+   **Recommended.**
 2. **A vendored single-header library** under a new R14 exception. More
    surface than the problem needs, and R14 exceptions are supposed to be
    rare and argued.
@@ -485,15 +528,17 @@ byte-for-byte, plus the offline validator in CI. (A run on a real Windows
 box remains the final word, as always.)
 
 - **Stage A — deletion and guard rails.** Remove the WDG layer, PSX shims,
-  `NORESHASH`/`SAVEGAME` machinery, dead loaders, `tp_PieList`; delete the
-  `.tag`/`.jbf` files, `prog.wrf`/`minimal.wrf` and the three dead
-  `GameDesc.lev` entries. Write `tools/validate_assets.py` **against the
-  current formats** and wire it into CI — it becomes the safety net for
-  everything after, and its data model becomes the converter.
+  the registrant-less file-load machinery (`resAddFileLoad`/`NORESHASH`),
+  dead loaders, `tp_PieList`; delete the `.tag`/`.jbf` files and fix or
+  drop the dead `CAM_2C2` entry. (The save/load removal already took
+  `SAVEGAME`, `prog.wrf`/`minimal.wrf` and the demo-era dead entries.)
+  Write `tools/validate_assets.py` **against the current formats** and wire
+  it into CI — it becomes the safety net for everything after, and its data
+  model becomes the converter.
 - **Stage B — manifests.** `Neuron::Json`; JSON dataset manifests emitted by
   a converter from the existing `.lev`+`.wrf` data; loader-owned type-phase
   ordering; named block scopes. Delete the WRF and `.lev` parsers. The
-  85-file WRF tree and `GameDesc.lev` leave the data set together.
+  84-file WRF tree and `GameDesc.lev` leave the data set together.
 - **Stage C — tables.** Stats and messages to JSON with schemas,
   array-order-preserving; delete the `sscanf` loops and `numCR`. The
   validator learns cross-reference checking.
@@ -502,12 +547,16 @@ box remains the final word, as always.)
   tables if and when parser-count argues for it.
 - **Explicitly not in scope:** `.pie` format (loader baking belongs to Phase
   8 stage D), media formats, `.map`/`.gam`/`.bjo` and anything else under
-  Phase 7's save-file rule, and the script language.
+  the v≤8 level-format-readability rule, and the script language.
 
 Ordering against the rest of the plan: stage A collides with nothing and
 could land tomorrow. Stages B–D touch only loaders, so they are independent
-of Phase 8 stage D (renderer) and can proceed in parallel with it; the one
-shared file is `Data.cpp`, where coordination is trivial.
+of Phase 8's remaining stage D work (D1b, D2) and can proceed in parallel
+with it; the one shared file is `Data.cpp`, where coordination is trivial.
+They are also independent of the `NeuronServer` build-out — and stage B is
+arguably *prerequisite* work for it, since a headless server wants a
+data-driven load path with no WDG, no `DisplayBuffer` and no renderer
+entangled in it.
 
 ## 9. Decisions needed
 
@@ -515,17 +564,20 @@ shared file is `Data.cpp`, where coordination is trivial.
    a vendored single-header under a new recorded exception?
 2. **Strict JSON vs. commented JSON** — strict recommended (§7.2); confirm,
    because it constrains what the converter does with existing comments.
-3. **Save compatibility across the stats conversion** — the design preserves
-   it (§7.1); confirm it is a requirement so the parity harness treats any
-   ref-number drift as a failure rather than a curiosity.
+3. ~~**Save compatibility across the stats conversion.**~~ **Resolved by the
+   save/load removal (2026-08-16)** — there are no user saves to stay
+   compatible with. The residual rule is that the v≤8 level formats stay
+   readable, which the stats conversion does not touch; the parity harness
+   still checks ref-number stability, but as a behaviour-preservation aid
+   rather than a compatibility requirement (§7.1).
 4. **First-wave scope** — stages A+B only, or A through C in one push? A+B
    recommended: B deletes the most fragile machinery, C is bigger and
    benefits from B's validator being battle-tested first.
 5. **The shipped binary scenario data** — regenerate the campaign/multiplayer
    `.bjo`/`.tag` content to purge the 1998 uninitialised memory (and delete
-   `.tag` outright), or freeze it as-is until the serialiser work? Deleting
-   `.tag` is safe now (no reader exists); regenerating `.bjo` needs the map
-   tooling question answered first.
+   the 44 `.tag` files outright), or freeze it as-is until the serialiser
+   work? Deleting `.tag` is safe now (no reader exists); regenerating `.bjo`
+   needs the map tooling question answered first.
 6. **Phase numbering** — whether this becomes Phase 10 in
    `MigrationPlan.md` or folds into an existing phase's remainder is the
    owner's call; this document deliberately claims no number.
@@ -534,31 +586,34 @@ shared file is `Data.cpp`, where coordination is trivial.
 
 ## Appendix A — Registered resource types
 
-46 types registered in `Outpost/Data.cpp:1175-1223`. Condensed; loader
-line numbers are in `Data.cpp` unless noted.
+45 types registered in `Outpost/Data.cpp:1151-1179` (the `SAVEGAME` type
+went with the save/load removal, and with it the table's one file-load
+entry — every type is now a buffer load). Condensed; loader line numbers
+are in `Data.cpp` unless noted.
 
 | Types | Loaders | Notes |
 |---|---|---|
-| `IMD` | `dataIMDBufferLoad` :650 | `.pie`; `BPIE` branch is a stub that fatals |
-| `TEXPAGE`, `IMGPAGE`, `IMG`, `TERTILES`, `HWTERTILES` | :837, :702, :811, :733, :752 | `.pcx` pages and atlases; `TERTILES` is a no-op stub; `TEXPAGE` re-keys itself to `page-NN` mid-load |
-| `WAV`, `AUDIOCFG` | :999, :1032 | Phase 9 `WavData`; `audp_` grammar |
-| `ANI`, `ANIMCFG` | :1042, :1058 | `.ani`; name→ID rebinding via `anim.cfg` |
+| `IMD` | `dataIMDBufferLoad` :648 | `.pie`; `BPIE` branch is a stub that fatals |
+| `TEXPAGE`, `IMGPAGE`, `IMG`, `TERTILES`, `HWTERTILES` | :835, :700, :809, :731, :750 | `.pcx` pages and atlases; `TERTILES` is a no-op stub; `TEXPAGE` re-keys itself to `page-NN` mid-load |
+| `WAV`, `AUDIOCFG` | :997, :1030 | Phase 9 `WavData`; `audp_` grammar |
+| `ANI`, `ANIMCFG` | :1040, :1056 | `.ani`; name→ID rebinding via `anim.cfg` |
 | `SWEAPON` `SBODY` `SBRAIN` `SPROP` `SSENSOR` `SECM` `SREPAIR` `SCONSTR` `SPROPTYPES` `SPROPSND` `STERRTABLE` `SSPECABIL` `SBPIMD` `SWEAPSND` `SWEAPMOD` `STEMPL` `STEMPWEAP` `SSTRUCT` `SSTRFUNC` `SSTRWEAP` `SSTRMOD` `SFEAT` `SFUNC` | :94–:477 | The 23 stats tables → `Outpost/Stats.cpp`, `Droid.cpp`, `Structure.cpp`, `Feature.cpp`, `Function.cpp` |
 | `RESCH` `RPREREQ` `RCOMPRED` `RCOMPRES` `RSTRREQ` `RSTRRED` `RSTRRES` `RFUNC` | :494–:608 | Research tables → `Outpost/Research.cpp`; `RESCH` self-releases so campaigns can reload the same filename |
-| `SMSG`, `STR_RES` | :621, :1071 | View data; string tables |
-| `SCRIPT`, `SCRIPTVAL` | :1100, :1126 | `.slo` compile-on-load; `.vlo` skipped when loading a save |
-| `SAVEGAME` | :1145 | Registered via the compiled-out file-load path — unreachable (§3.4) |
+| `SMSG`, `STR_RES` | :619, :1069 | View data; string tables |
+| `SCRIPT`, `SCRIPTVAL` | :1098, :1124 | `.slo` compile-on-load; `.vlo` values (the skip-on-save-load branch went with save/load) |
 
 ## Appendix B — Defects noticed during the survey
 
 Recorded, not fixed — this is a design document. Grouped by severity; all
-line numbers verified against `d314720`.
+line numbers re-verified after the merge of main (save/load removal and
+client-library split). Files that moved to `NeuronClient` kept their
+contents, so their internal line numbers are unchanged.
 
 **Would crash or corrupt at runtime**
 
 - `ID_ANIM_SUPERCYBORG_RUN` (10) has no entry in `anim.cfg` (which defines
   0–9); a super cyborg moving dereferences the null from `anim_GetAnim` in
-  release (`Outpost/Move.cpp:3429` → `NeuronCore/AnimObj.cpp:168`).
+  release (`Outpost/Move.cpp:3430` → `NeuronClient/AnimObj.cpp:168`).
 - `mapLoad`'s failure paths `delete[]` the shared global `DisplayBuffer`
   (`Outpost/Map.cpp:468,478,489`), which every later load reuses.
 - `functionType()` falls off the end of a non-void function on an unknown
@@ -567,9 +622,9 @@ line numbers verified against `d314720`.
 - Unbounded `%[^',']` reads into 60-byte stack buffers in the structure,
   view-data, research, feature and function loaders (e.g.
   `Outpost/Structure.cpp:729`); `strcpy` into fixed buffers in the anim
-  parser (`NeuronCore/parser_l.cpp:661`).
+  parser (`NeuronClient/parser_l.cpp:661`).
 - `_imd_load_bsp` has no return statement — UB, currently benign because the
-  caller discards the value (`NeuronCore/IMDLoad.cpp:592-722`).
+  caller discards the value (`NeuronClient/IMDLoad.cpp:592-722`).
 - A `.pie` with >256 points overruns `vertexTable[256]` at load and
   `scrPoints[256]` at draw — the loader only `DebugTrace`s
   (`IMDLoad.cpp:1113-1114`); shipped maximum is 243.
@@ -580,22 +635,22 @@ line numbers verified against `d314720`.
 
 - `anim_GetFrame3D` tests `if (dwTime < 0)` on an unsigned `DWORD`, so
   `ANIM_DELAYED` is unreachable and a delayed animation indexes a garbage
-  state (`NeuronCore/Anim.cpp:325,333`); moot only because every caller
+  state (`NeuronClient/Anim.cpp:325,333`); moot only because every caller
   passes delay 0.
 - `hashTable_RemoveElement` double-advances the iterator during
   `animObj_Update`, skipping the neighbour of any anim that expires
   (`NeuronCore/HashTabl.cpp:284`).
 - `(uwID != ID_ANIM_DROIDRUN || uwID != ID_ANIM_DROIDRUN)` is always true —
   the run animation is torn down and rebuilt every move order
-  (`Outpost/Move.cpp:3142-3143`).
+  (`Outpost/Move.cpp:3143-3144`).
 - PCX header validation is `(manufacturer != 10) && (version != 5)` — either
-  field alone passes a corrupt file (`NeuronCore/Pcx.cpp:134` and three
+  field alone passes a corrupt file (`NeuronClient/Pcx.cpp:134` and three
   clones); the RLE decoder ignores `bytes_per_line`, skewing any padded
   image.
 - `loadTerrainTypeMap` range check uses `>` against `TER_MAX`, letting the
   sentinel value through, and its version check is commented out
-  (`Outpost/Game.cpp:7184-7203`).
-- `ScriptFuncs.cpp:2580` plays `outro.txa`, which does not exist on disk;
+  (`Outpost/Game.cpp:1491-1510`).
+- `ScriptFuncs.cpp:2577` plays `outro.txa`, which does not exist on disk;
   `loadFileToBufferNoError` makes it a silent no-op.
 - `Research.cpp` advances its cursor by `strlen(name) + 1`, assuming exactly
   one comma and no whitespace (`Outpost/Research.cpp:264,274,333`).
@@ -605,15 +660,17 @@ line numbers verified against `d314720`.
 **Blockers already known to matter later (x64)**
 
 - Parent pointers truncated to `int` for hashing in the anim system
-  (`NeuronCore/AnimObj.cpp:124,184,226,233`).
-- `writeFXData` stores a 32-bit hash in an `iIMDShape*` field on disk
-  (`Outpost/Effects.cpp:2512-2518`); the `.gam`/`.bjo` macro-stacked structs
-  bake 32-bit layout generally (Phase 6's `UDWORD`-holds-a-pointer audit).
+  (`NeuronClient/AnimObj.cpp:124,184,226,233`).
+- The surviving v≤8 level structs still bake 32-bit layout (padding, enum
+  widths). The worst offenders went with the save/load removal — `writeFXData`
+  storing a hash in a pointer field is deleted, and the
+  `UDWORD`-holds-a-pointer save-fixup audit is off the books because the
+  fixup itself is gone.
 
 **Dead code with live cost**
 
 - 63 shipped `.pie` files carry BSP trees that are parsed, allocated, and
-  never traversed (`NeuronCore/IMDLoad.cpp:592`, renderer deleted in Phase 8
+  never traversed (`NeuronClient/IMDLoad.cpp:592`, renderer deleted in Phase 8
   stage A).
 - `tp_PieList`: 336 KB of static tables filled on every model load for five
   accessor functions with zero callers (`IMDLoad.cpp:1318-1352`).
@@ -623,6 +680,7 @@ line numbers verified against `d314720`.
   (`IMDLoad.cpp:520`); `iVertex.x/y/z` — 307 KB dead across the model set.
 - `walkanim.ani` and `cybdprun.ani` load on every campaign and are never
   played; `ANIM2D` exists only to be size-checked against `ANIM3D`
-  (`NeuronCore/Anim.cpp:30-34`).
+  (`NeuronClient/Anim.cpp:30-34`).
 - `keymap.map` writes 128-byte name fields from uninitialised stack
-  (`0xCC` fill visible in the shipped file, `Outpost/KeyEdit.cpp:421,451`).
+  (`0xCC` fill visible in the shipped file — including the regenerated one —
+  `Outpost/KeyEdit.cpp:442,452`).
