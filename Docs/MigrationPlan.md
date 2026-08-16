@@ -1011,8 +1011,11 @@ decisions to confirm — is in [Phase9Plan.md](Phase9Plan.md).
 
 ## Phase 10 — Renderer maths onto DirectXMath
 
-**Planned; its six gating decisions are open.** The plan is in
-[Phase10Plan.md](Phase10Plan.md).
+**Planned, and its six gating decisions are settled by owner decision**
+(2026-08-16). Two rulings went beyond the plan's recommendation and widened
+the scope: `NeuronCore/Trig.cpp` is in the phase, and the angle units stored
+in game state migrate to float radians. The record and the staged execution
+are in [Phase10Plan.md](Phase10Plan.md).
 
 Phase 8 deliberately kept the fixed-point, pre-transformed-vertex pipeline
 because changing it "is not simplification, it is a second project". This is
@@ -1032,9 +1035,13 @@ and `Effects.cpp` above all — which is why the call sites are the migration:
 keeping the `pie_Mat*` signatures would *be* the wrapper layer the phase
 forbids. What survives as functions is renderer state and policy (the
 matrix stack's push/pop, the world→screen projection, the geometric offset),
-renamed per [AGENTS.md §1](../AGENTS.md). `NeuronCore/Trig.cpp` is proposed
-out of scope: its callers are simulation, not the renderer. DirectXMath
-arrives from the Windows SDK — header-only, nothing new under R14.
+renamed per [AGENTS.md §1](../AGENTS.md). By the owner's rulings the phase
+also retires `NeuronCore/Trig.cpp` (52 simulation call sites onto
+`XMScalarSin`/`sqrtf`) and migrates the stored angle units — integer degrees
+on every game object, binary angles in the camera, ~150 `DEG(` bridge sites
+— to float radians, with the v≤8 level readers and the net wire keeping
+integer degrees at the boundary. DirectXMath arrives from the Windows SDK —
+header-only, nothing new under R14.
 
 The key enabling fact, derived element by element in the plan: the
 fixed-point rotations are exactly `XMMatrixRotationX/Y/Z` pre-multiplied
