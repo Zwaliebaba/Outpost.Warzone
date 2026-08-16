@@ -1,17 +1,17 @@
 #include "pch.h"
 /*
- * loadsave.c
- * load and save Popup screens.
+ * FileRequester.cpp
  *
- * these don't actually do any loading or saving, but just
- * return a filename to use for the ops.
+ * The ten-slot file requester popup. It does no file I/O: it lists what
+ * matches a path and extension and returns the name picked or typed. See
+ * FileRequester.h for why a widget this general was once called loadsave.
  */
 #include "Frame.h"
 #include "Widget.h"
 #include "Palette.h"		// for predefined colours.
 #include "RendMode.h"		// for boxfill
 #include "HCI.h"
-#include "LoadSave.h"
+#include "FileRequester.h"
 #include "MultiPlay.h"
 #include "AudioSystem.h"
 #include "AudioID.h"
@@ -20,48 +20,47 @@
 #include "Text.h"
 
 // ////////////////////////////////////////////////////////////////////////////
-#define LOADSAVE_X				130	+ D_W
-#define LOADSAVE_Y				170	+ D_H
-#define LOADSAVE_W				380
-#define LOADSAVE_H				200
+#define REQUESTER_X				130	+ D_W
+#define REQUESTER_Y				170	+ D_H
+#define REQUESTER_W				380
+#define REQUESTER_H				200
 
-#define MAX_SAVE_NAME			60
+#define MAX_REQUEST_NAME		60
 
-#define LOADSAVE_HGAP			5
-#define LOADSAVE_VGAP			5
-#define LOADSAVE_BANNER_DEPTH	25
+#define REQUESTER_HGAP			5
+#define REQUESTER_VGAP			5
+#define REQUESTER_BANNER_DEPTH	25
 
-#define LOADENTRY_W				(LOADSAVE_W -(3 * LOADSAVE_HGAP)) /2
-#define LOADENTRY_H				(LOADSAVE_H -(6 * LOADSAVE_VGAP )- (LOADSAVE_BANNER_DEPTH+LOADSAVE_VGAP) ) /5
+#define SLOT_W				(REQUESTER_W -(3 * REQUESTER_HGAP)) /2
+#define SLOT_H				(REQUESTER_H -(6 * REQUESTER_VGAP )- (REQUESTER_BANNER_DEPTH+REQUESTER_VGAP) ) /5
 
-#define ID_LOADSAVE				21000
-#define LOADSAVE_FORM			ID_LOADSAVE+1		// back form.
-#define LOADSAVE_CANCEL			ID_LOADSAVE+2		// cancel but.
-#define LOADSAVE_LABEL			ID_LOADSAVE+3		// load/save
-#define LOADSAVE_BANNER			ID_LOADSAVE+4		// banner.
+#define ID_REQUESTER				21000
+#define REQUESTER_FORM			ID_REQUESTER+1		// back form.
+#define REQUESTER_CANCEL			ID_REQUESTER+2		// cancel but.
+#define REQUESTER_LABEL			ID_REQUESTER+3		// title text
+#define REQUESTER_BANNER			ID_REQUESTER+4		// banner.
 
-#define LOADENTRY_START			ID_LOADSAVE+5		// each of the buttons.	
-#define LOADENTRY_END			ID_LOADSAVE+15
+#define SLOT_START			ID_REQUESTER+5		// each of the buttons.	
+#define SLOT_END			ID_REQUESTER+15
 
-#define SAVEENTRY_EDIT			ID_LOADSAVE+16		// save edit box.
+#define SLOT_EDIT			ID_REQUESTER+16		// name entry box.
 
 // ////////////////////////////////////////////////////////////////////////////
-void drawBlueBox(UDWORD x, UDWORD y, UDWORD w, UDWORD h);
-BOOL closeLoadSave();
-BOOL runLoadSave();
-BOOL displayLoadSave();
-static BOOL _addLoadSave(BOOL bLoad, CHAR* sSearchPath, CHAR* sExtension, CHAR* title);
-static BOOL _runLoadSave(void);
-static void displayLoadBanner(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pColours);
-static void displayLoadSlot(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pColours);
-static void displayLoadSaveEdit(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pColours);
+BOOL requesterClose();
+BOOL requesterRun();
+BOOL requesterDisplay();
+static BOOL _requesterOpen(BOOL bLoad, CHAR* sSearchPath, CHAR* sExtension, CHAR* title);
+static BOOL _requesterRun(void);
+static void displayRequesterBanner(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pColours);
+static void displayRequesterSlot(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pColours);
+static void displayRequesterEdit(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pColours);
 void removeWildcards(char* pStr);
 
 static W_SCREEN* psRequestScreen; // Widget screen for requester
 static BOOL mode;
 static UDWORD chosenSlotId;
 
-BOOL bLoadSaveUp = FALSE; // true when interface is up and should be run.
+BOOL bRequesterUp = FALSE; // true when interface is up and should be run.
 STRING sRequestResult[255]; // filename returned;
 STRING sDelete[MAX_STR_LENGTH];
 BOOL bRequestLoad = FALSE;
@@ -70,13 +69,13 @@ static CHAR sPath[255];
 static CHAR sExt[4];
 
 // ////////////////////////////////////////////////////////////////////////////
-BOOL addLoadSave(LOADSAVE_MODE mode, CHAR* sSearchPath, CHAR* sExtension, CHAR* title)
+BOOL requesterOpen(REQUESTER_MODE mode, CHAR* sSearchPath, CHAR* sExtension, CHAR* title)
 {
-  return _addLoadSave(mode == LOAD_FORCE, sSearchPath, sExtension, title);
+  return _requesterOpen(mode == LOAD_FORCE, sSearchPath, sExtension, title);
 }
 
 // ////////////////////////////////////////////////////
-static BOOL _addLoadSave(BOOL bLoad, CHAR* sSearchPath, CHAR* sExtension, CHAR* title)
+static BOOL _requesterOpen(BOOL bLoad, CHAR* sSearchPath, CHAR* sExtension, CHAR* title)
 {
   W_FORMINIT sFormInit;
   W_BUTINIT sButInit;
@@ -100,36 +99,36 @@ static BOOL _addLoadSave(BOOL bLoad, CHAR* sSearchPath, CHAR* sExtension, CHAR* 
   /* add a form to place the tabbed form on */
   memset(&sFormInit, 0, sizeof(W_FORMINIT));
   sFormInit.formID = 0;
-  sFormInit.id = LOADSAVE_FORM;
+  sFormInit.id = REQUESTER_FORM;
   sFormInit.style = WFORM_PLAIN;
-  sFormInit.x = static_cast<SWORD>((LOADSAVE_X));
-  sFormInit.y = static_cast<SWORD>((LOADSAVE_Y));
-  sFormInit.width = LOADSAVE_W;
-  sFormInit.height = LOADSAVE_H;
+  sFormInit.x = static_cast<SWORD>((REQUESTER_X));
+  sFormInit.y = static_cast<SWORD>((REQUESTER_Y));
+  sFormInit.width = REQUESTER_W;
+  sFormInit.height = REQUESTER_H;
   sFormInit.disableChildren = TRUE;
   sFormInit.pDisplay = intOpenPlainForm;
   widgAddForm(psRequestScreen, &sFormInit);
 
   // Add Banner
-  sFormInit.formID = LOADSAVE_FORM;
-  sFormInit.id = LOADSAVE_BANNER;
-  sFormInit.x = LOADSAVE_HGAP;
-  sFormInit.y = LOADSAVE_VGAP;
-  sFormInit.width = LOADSAVE_W - (2 * LOADSAVE_HGAP);
-  sFormInit.height = LOADSAVE_BANNER_DEPTH;
+  sFormInit.formID = REQUESTER_FORM;
+  sFormInit.id = REQUESTER_BANNER;
+  sFormInit.x = REQUESTER_HGAP;
+  sFormInit.y = REQUESTER_VGAP;
+  sFormInit.width = REQUESTER_W - (2 * REQUESTER_HGAP);
+  sFormInit.height = REQUESTER_BANNER_DEPTH;
   sFormInit.disableChildren = FALSE;
-  sFormInit.pDisplay = displayLoadBanner;
+  sFormInit.pDisplay = displayRequesterBanner;
   sFormInit.pUserData = (VOID*)bLoad;
   widgAddForm(psRequestScreen, &sFormInit);
 
   // Add Banner Label
   memset(&sLabInit, 0, sizeof(W_LABINIT));
-  sLabInit.formID = LOADSAVE_BANNER;
-  sLabInit.id = LOADSAVE_LABEL;
+  sLabInit.formID = REQUESTER_BANNER;
+  sLabInit.id = REQUESTER_LABEL;
   sLabInit.style = WLAB_ALIGNCENTRE;
   sLabInit.x = 0;
   sLabInit.y = 4;
-  sLabInit.width = LOADSAVE_W - (2 * LOADSAVE_HGAP); //LOADSAVE_W;
+  sLabInit.width = REQUESTER_W - (2 * REQUESTER_HGAP); //REQUESTER_W;
   sLabInit.height = 20;
   sLabInit.pText = title;
   sLabInit.FontID = WFont;
@@ -137,13 +136,13 @@ static BOOL _addLoadSave(BOOL bLoad, CHAR* sSearchPath, CHAR* sExtension, CHAR* 
 
   // add cancel.
   memset(&sButInit, 0, sizeof(W_BUTINIT));
-  sButInit.formID = LOADSAVE_BANNER;
+  sButInit.formID = REQUESTER_BANNER;
   sButInit.x = 4;
   sButInit.y = 3;
   sButInit.width = Neuron::GetImageWidth(IntImages, IMAGE_NRUTER);
   sButInit.height = Neuron::GetImageHeight(IntImages, IMAGE_NRUTER);
   sButInit.pUserData = (void*)PACKDWORD_TRI(0, IMAGE_NRUTER, IMAGE_NRUTER);
-  sButInit.id = LOADSAVE_CANCEL;
+  sButInit.id = REQUESTER_CANCEL;
   sButInit.style = WBUT_PLAIN;
   sButInit.pTip = strresGetString(psStringRes, STR_MISC_CLOSE);
   sButInit.FontID = WFont;
@@ -152,26 +151,26 @@ static BOOL _addLoadSave(BOOL bLoad, CHAR* sSearchPath, CHAR* sExtension, CHAR* 
 
   // add slots
   memset(&sButInit, 0, sizeof(W_BUTINIT));
-  sButInit.formID = LOADSAVE_FORM;
+  sButInit.formID = REQUESTER_FORM;
   sButInit.style = WBUT_PLAIN;
-  sButInit.width = LOADENTRY_W;
-  sButInit.height = LOADENTRY_H;
-  sButInit.pDisplay = displayLoadSlot;
+  sButInit.width = SLOT_W;
+  sButInit.height = SLOT_H;
+  sButInit.pDisplay = displayRequesterSlot;
   sButInit.FontID = WFont;
 
   for (slotCount = 0; slotCount < 10; slotCount++)
   {
-    sButInit.id = slotCount + LOADENTRY_START;
+    sButInit.id = slotCount + SLOT_START;
 
     if (slotCount < 5)
     {
-      sButInit.x = LOADSAVE_HGAP;
-      sButInit.y = static_cast<SWORD>((LOADSAVE_BANNER_DEPTH + (2 * LOADSAVE_VGAP)) + (slotCount * (LOADSAVE_VGAP + LOADENTRY_H)));
+      sButInit.x = REQUESTER_HGAP;
+      sButInit.y = static_cast<SWORD>((REQUESTER_BANNER_DEPTH + (2 * REQUESTER_VGAP)) + (slotCount * (REQUESTER_VGAP + SLOT_H)));
     }
     else
     {
-      sButInit.x = (2 * LOADSAVE_HGAP) + LOADENTRY_W;
-      sButInit.y = static_cast<SWORD>((LOADSAVE_BANNER_DEPTH + (2 * LOADSAVE_VGAP)) + ((slotCount - 5) * (LOADSAVE_VGAP + LOADENTRY_H)));
+      sButInit.x = (2 * REQUESTER_HGAP) + SLOT_W;
+      sButInit.y = static_cast<SWORD>((REQUESTER_BANNER_DEPTH + (2 * REQUESTER_VGAP)) + ((slotCount - 5) * (REQUESTER_VGAP + SLOT_H)));
     }
     widgAddButton(psRequestScreen, &sButInit);
   }
@@ -192,8 +191,8 @@ static BOOL _addLoadSave(BOOL bLoad, CHAR* sSearchPath, CHAR* sExtension, CHAR* 
 
       strcpy(sSlots[slotCount], found.cFileName); //store it!
 
-      ((W_BUTTON*)widgGetFromID(psRequestScreen,LOADENTRY_START + slotCount))->pTip = sSlots[slotCount];
-      ((W_BUTTON*)widgGetFromID(psRequestScreen,LOADENTRY_START + slotCount))->pText = sSlots[slotCount];
+      ((W_BUTTON*)widgGetFromID(psRequestScreen,SLOT_START + slotCount))->pTip = sSlots[slotCount];
+      ((W_BUTTON*)widgGetFromID(psRequestScreen,SLOT_START + slotCount))->pText = sSlots[slotCount];
 
       slotCount++; // goto next but.
 
@@ -202,28 +201,28 @@ static BOOL _addLoadSave(BOOL bLoad, CHAR* sSearchPath, CHAR* sExtension, CHAR* 
     }
   }
   FindClose(dir);
-  bLoadSaveUp = TRUE;
+  bRequesterUp = TRUE;
   return TRUE;
 }
 
 // ////////////////////////////////////////////////////////////////////////////
-BOOL closeLoadSave(void)
+BOOL requesterClose(void)
 {
-  widgDelete(psRequestScreen,LOADSAVE_FORM);
-  bLoadSaveUp = FALSE;
+  widgDelete(psRequestScreen,REQUESTER_FORM);
+  bRequesterUp = FALSE;
   widgReleaseScreen(psRequestScreen);
 
   return TRUE;
 }
 
 // ////////////////////////////////////////////////////////////////////////////
-BOOL runLoadSave(void) { return _runLoadSave(); }
+BOOL requesterRun(void) { return _requesterRun(); }
 
 // ////////////////////////////////////////////////////////////////////////////
 // Returns TRUE if cancel pressed or a valid game slot was selected.
 // if when returning TRUE strlen(sRequestResult) != 0 then a valid game
 // slot was selected otherwise cancel was selected..
-static BOOL _runLoadSave(void)
+static BOOL _requesterRun(void)
 {
   UDWORD id = 0;
   W_EDBINIT sEdInit;
@@ -236,11 +235,11 @@ static BOOL _runLoadSave(void)
   strcpy(sRequestResult, ""); // set returned filename to null;
 
   // cancel this operation...
-  if (id == LOADSAVE_CANCEL || CancelPressed())
+  if (id == REQUESTER_CANCEL || CancelPressed())
     goto failure;
 
   // clicked a load entry
-  if (id >= LOADENTRY_START && id <= LOADENTRY_END)
+  if (id >= SLOT_START && id <= SLOT_END)
   {
     if (mode) // Loading, return that entry.
     {
@@ -252,12 +251,12 @@ static BOOL _runLoadSave(void)
       goto success;
     }
     //  SAVING!add edit box at that position.
-    if (!widgGetFromID(psRequestScreen,SAVEENTRY_EDIT))
+    if (!widgGetFromID(psRequestScreen,SLOT_EDIT))
     {
       // add blank box.
       memset(&sEdInit, 0, sizeof(W_EDBINIT));
-      sEdInit.formID = LOADSAVE_FORM;
-      sEdInit.id = SAVEENTRY_EDIT;
+      sEdInit.formID = REQUESTER_FORM;
+      sEdInit.id = SLOT_EDIT;
       sEdInit.style = WEDB_PLAIN;
       sEdInit.x = widgGetFromID(psRequestScreen, id)->x;
       sEdInit.y = widgGetFromID(psRequestScreen, id)->y;
@@ -265,7 +264,7 @@ static BOOL _runLoadSave(void)
       sEdInit.height = widgGetFromID(psRequestScreen, id)->height;
       sEdInit.pText = ((W_BUTTON*)widgGetFromID(psRequestScreen, id))->pText;
       sEdInit.FontID = WFont;
-      sEdInit.pBoxDisplay = displayLoadSaveEdit;
+      sEdInit.pBoxDisplay = displayRequesterEdit;
       widgAddEditBox(psRequestScreen, &sEdInit);
 
       sprintf(sTemp, "%s%s.%s", sPath, ((W_BUTTON*)widgGetFromID(psRequestScreen, id))->pText, sExt);
@@ -283,7 +282,7 @@ static BOOL _runLoadSave(void)
       context.yOffset = 0;
       context.mx = mouseX();
       context.my = mouseY();
-      editBoxClicked((W_EDITBOX*)widgGetFromID(psRequestScreen,SAVEENTRY_EDIT), &context);
+      editBoxClicked((W_EDITBOX*)widgGetFromID(psRequestScreen,SLOT_EDIT), &context);
     }
     else
     {
@@ -292,11 +291,11 @@ static BOOL _runLoadSave(void)
   }
 
   // finished entering a name.
-  if (id == SAVEENTRY_EDIT)
+  if (id == SLOT_EDIT)
   {
     if (!keyPressed(KEY_RETURN)) // enter was not pushed, so not a vaild entry.	
     {
-      widgDelete(psRequestScreen,SAVEENTRY_EDIT); //unselect this box, and go back ..
+      widgDelete(psRequestScreen,SLOT_EDIT); //unselect this box, and go back ..
       widgReveal(psRequestScreen, chosenSlotId);
       return TRUE;
     }
@@ -305,14 +304,14 @@ static BOOL _runLoadSave(void)
     // so then fail.
     strcpy(sTemp, ((W_EDITBOX*)widgGetFromID(psRequestScreen, id))->aText);
 
-    for (i = LOADENTRY_START; i < LOADENTRY_END; i++)
+    for (i = SLOT_START; i < SLOT_END; i++)
     {
       if (i != chosenSlotId)
       {
         if (((W_BUTTON*)widgGetFromID(psRequestScreen, i))->pText && strcmp(sTemp, ((W_BUTTON*)widgGetFromID(psRequestScreen, i))->pText) ==
           0)
         {
-          widgDelete(psRequestScreen,SAVEENTRY_EDIT); //unselect this box, and go back ..
+          widgDelete(psRequestScreen,SLOT_EDIT); //unselect this box, and go back ..
           widgReveal(psRequestScreen, chosenSlotId);
           // move mouse to same box..
           AudioSystem::PlayTrack(ID_SOUND_BUILD_FAIL);
@@ -333,7 +332,7 @@ static BOOL _runLoadSave(void)
       goto failure; // we entered a blank name..
 
     // we're done. saving.
-    closeLoadSave();
+    requesterClose();
     bRequestLoad = FALSE;
     return TRUE;
   }
@@ -342,20 +341,20 @@ static BOOL _runLoadSave(void)
 
   // failed and/or cancelled..
 failure:
-  closeLoadSave();
+  requesterClose();
   bRequestLoad = FALSE;
   return TRUE;
 
   // success on load.
 success:
-  closeLoadSave();
+  requesterClose();
   bRequestLoad = TRUE;
   return TRUE;
 }
 
 // ////////////////////////////////////////////////////////////////////////////
 // should be done when drawing the other widgets.
-BOOL displayLoadSave(void)
+BOOL requesterDisplay(void)
 {
   widgDisplayScreen(psRequestScreen); // display widgets.
   return TRUE;
@@ -384,8 +383,8 @@ void removeWildcards(char* pStr)
       pStr[i] = '_';
   }
 
-  if (strlen(pStr) >= MAX_SAVE_NAME)
-    pStr[MAX_SAVE_NAME - 1] = 0;
+  if (strlen(pStr) >= MAX_REQUEST_NAME)
+    pStr[MAX_REQUEST_NAME - 1] = 0;
 }
 
 // ////////////////////////////////////////////////////////////////////////////
@@ -393,7 +392,7 @@ void removeWildcards(char* pStr)
 // ////////////////////////////////////////////////////////////////////////////
 // DISPLAY FUNCTIONS
 
-static void displayLoadBanner(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pColours)
+static void displayRequesterBanner(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pColours)
 {
   UBYTE col;
   UDWORD x = xOffset + psWidget->x;
@@ -411,7 +410,7 @@ static void displayLoadBanner(struct _widget* psWidget, UDWORD xOffset, UDWORD y
 }
 
 // ////////////////////////////////////////////////////////////////////////////
-static void displayLoadSlot(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pColours)
+static void displayRequesterSlot(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pColours)
 {
   UDWORD x = xOffset + psWidget->x;
   UDWORD y = yOffset + psWidget->y;
@@ -436,7 +435,7 @@ static void displayLoadSlot(struct _widget* psWidget, UDWORD xOffset, UDWORD yOf
 }
 
 // ////////////////////////////////////////////////////////////////////////////
-static void displayLoadSaveEdit(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pColours)
+static void displayRequesterEdit(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pColours)
 {
   UDWORD x = xOffset + psWidget->x;
   UDWORD y = yOffset + psWidget->y;
@@ -449,12 +448,3 @@ static void displayLoadSaveEdit(struct _widget* psWidget, UDWORD xOffset, UDWORD
 }
 
 // ////////////////////////////////////////////////////////////////////////////
-void drawBlueBox(UDWORD x, UDWORD y, UDWORD w, UDWORD h)
-{
-  UBYTE dark = COL_BLUE;
-  UBYTE light = COL_LIGHTBLUE;
-
-  // box
-  pie_BoxFillIndex(x - 1, y - 1, x + w + 1, y + h + 1, light);
-  pie_BoxFillIndex(x, y, x + w, y + h, dark);
-}

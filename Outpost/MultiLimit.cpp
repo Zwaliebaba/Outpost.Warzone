@@ -17,7 +17,6 @@
 #include "Stats.h"
 #include "FrontEnd.h"
 #include "Component.h"
-#include "LoadSave.h"
 #include "Wrappers.h"	// for loading screen
 #include "GTime.h"
 #include "Console.h"

@@ -35,7 +35,7 @@
 #include "HCI.h"
 #include "CSnap.h"
 #include "Power.h"
-#include "LoadSave.h"			// for blueboxes.
+#include "FileRequester.h"			// for blueboxes.
 #include "RenderMatrix.h"			// for setgeometricoffset
 #include "Component.h"
 #include "Map.h"
@@ -2391,9 +2391,9 @@ VOID runForceSelect(VOID)
 
   processFrontendSnap(FALSE);
 
-  if (bLoadSaveUp)
+  if (bRequesterUp)
   {
-    if (runLoadSave()) // check for file name.
+    if (requesterRun()) // check for file name.
     {
       if (strlen(sRequestResult))
       {
@@ -2495,11 +2495,11 @@ VOID runForceSelect(VOID)
       break;
 
     case FORCE_LOAD:
-      addLoadSave(LOAD_FORCE, "multiplay\\Forces\\", "For", strresGetString(psStringRes, STR_MUL_LOAD));
+      requesterOpen(LOAD_FORCE, "multiplay\\Forces\\", "For", strresGetString(psStringRes, STR_MUL_LOAD));
       break;
 
     case FORCE_SAVE:
-      addLoadSave(SAVE_FORCE, "multiplay\\Forces\\", "For", strresGetString(psStringRes, STR_MUL_SAVE));
+      requesterOpen(SAVE_FORCE, "multiplay\\Forces\\", "For", strresGetString(psStringRes, STR_MUL_SAVE));
       break;
 
     default:
@@ -2511,8 +2511,8 @@ VOID runForceSelect(VOID)
 
   DrawBegin();
   widgDisplayScreen(psWScreen); // show the widgets currently running	
-  if (bLoadSaveUp)
-    displayLoadSave();
+  if (bRequesterUp)
+    requesterDisplay();
   DrawEnd();
 }
 

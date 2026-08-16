@@ -29,7 +29,6 @@
 #include "CSnap.h"			// cursor snapping
 #include "IntDisplay.h"
 #include "Display.h"
-#include "LoadSave.h"
 #include "Script.h"
 #include "ScriptTabs.h"
 #include "AudioSystem.h"

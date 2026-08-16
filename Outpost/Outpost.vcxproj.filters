@@ -59,7 +59,7 @@
     <ClCompile Include="Levels.cpp" />
     <ClCompile Include="Level_l.cpp" />
     <ClCompile Include="Lighting.cpp" />
-    <ClCompile Include="LoadSave.cpp" />
+    <ClCompile Include="FileRequester.cpp" />
     <ClCompile Include="Loop.cpp" />
     <ClCompile Include="LOSRoute.cpp" />
     <ClCompile Include="Map.cpp" />
@@ -194,7 +194,7 @@
     <ClInclude Include="LevelInt.h" />
     <ClInclude Include="Levels.h" />
     <ClInclude Include="Lighting.h" />
-    <ClInclude Include="LoadSave.h" />
+    <ClInclude Include="FileRequester.h" />
     <ClInclude Include="Loop.h" />
     <ClInclude Include="LOSRoute.h" />
     <ClInclude Include="Map.h" />
