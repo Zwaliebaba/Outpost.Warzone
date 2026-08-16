@@ -446,7 +446,38 @@ The stage that decisions 2 and 5 added. It runs **after** D so the renderer
 work is complete and verifiable on its own before simulation state moves;
 its first commit is the **unit audit** — a table in this document of every
 angle-typed field, its unit and its wrap convention, confirmed against the
-code rather than assumed. Then, in order:
+code rather than assumed.
+
+#### The unit audit (E's first commit, measured against the tree)
+
+| State | Today | Wrap convention | Becomes |
+|---|---|---|---|
+| `SIMPLE_ELEMENTS` `direction` | `UWORD`, integer degrees 0–359 (writers normalise `% 360`; `calcDirection` returns 0–359) | `% 360` | `float` radians |
+| `SIMPLE_ELEMENTS` `pitch`, `roll` | `SWORD`, signed degrees (`Move.cpp` derives from `atan`) | ±180 comparisons | `float` radians |
+| `DROID`/`STRUCTURE` `turretRotation` | `UWORD`, degrees, `% 360` by the `Action.cpp` aligner | `% 360` | `float` radians |
+| `DROID`/`STRUCTURE` `turretPitch` | `UWORD`, degrees, **holds wrapped negatives** (`Projectile.cpp:399` copies a signed pitch in) | readers tolerate via the SWORD rule | `float` radians |
+| `MOVE_CONTROL` `dir`, `bumpDir` | `SWORD`, degrees of motion | shortest-turn idioms in `Move.cpp` | `float` radians |
+| `FORMATION::dir`, `FORM_LINE::dir` | `SWORD`, degrees | — | `float` radians |
+| `player.r`, `camera.r` (`iView`) | `iVector`, 16-bit binary angles | `MODFRACT` / `DEG(360)` | `XMFLOAT3` radians |
+| `WARCAM` `rotation`/`rotVel`/`rotAccel` | `XMFLOAT3` holding binary-angle *values* | `MODFRACT` | radians |
+| `imdRot`, `imdRot2` (`Display3D`) | `iVector`, binary angles | — | `XMFLOAT3` radians |
+| `Trig.cpp` API | degrees in, degrees out | tables wrap at 360 | deleted; `XMScalarSin`/`ACos`/`sqrtf` on radians |
+
+The measured surface: 18 `Outpost/` files touch the five object fields; 47
+wrap-idiom lines mention an angle; 41 trig call sites across six files
+(`Move` 14, `WarCAM` 12, `Projectile` 7, `Formation` 4, `OptimisePath` 2,
+`Action` 2 — the last two are `trigIntSqrt` only); ~89 `DEG(` sites remain,
+most of them camera work in `WarCAM`/`Display`/`KeyBind`.
+
+The boundaries, confirmed: the **v≤8 level readers**
+(`Game.cpp:1059/1274/1451`) convert on-disk integer degrees to radians at
+load. **`MultiSync.cpp`** packs `direction` at hand-coded byte offsets, so
+it keeps integer degrees on the wire and converts at pack/unpack.
+**`Multibot.cpp`** packs `direction`/`pitch`/`roll` with `sizeof`-chained
+offsets — its wire follows the field type and stays self-consistent, which
+same-binary lockstep permits. The **script VM** exposes no angle field.
+
+Then, in order:
 
 - **The fields change type**: `direction`/`pitch`/`roll` in
   `SIMPLE_ELEMENTS`, `turretRotation`/`turretPitch` in `DROID` and
