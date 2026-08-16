@@ -281,4 +281,8 @@ extern void intDisplayAllyIcon(struct _widget* psWidget, UDWORD xOffset, UDWORD 
 
 extern BOOL DroidIsDemolishing(DROID* Droid);
 
+/* The plain blue panel every multiplayer and keymap list draws its rows on.
+ * Lived in the load/save requester until that became a force picker. */
+extern void drawBlueBox(UDWORD x, UDWORD y, UDWORD w, UDWORD h);
+
 #endif

@@ -65,7 +65,6 @@
 #include "ScriptExtern.h"
 #include "ScriptCB.h"
 #include "Console.h"
-#include "LoadSave.h"
 #include "Wrappers.h"
 #include "SeqDisp.h"
 #include "MultiPlay.h"
@@ -1288,10 +1287,7 @@ INT_RETVAL intRunWidgets(void)
     intRunMissionResult();
 
   /* Run the current set of widgets */
-  if (!bLoadSaveUp)
-    retID = widgRunScreen(psWScreen);
-  else
-    retID = 0;
+  retID = widgRunScreen(psWScreen);
   /* We may need to trigger widgets with a key press */
   if (keyButtonMapping)
   {
@@ -2910,9 +2906,6 @@ void intDisplayWidgets(void)
   //19 #ifdef PSX
   //19 #endif
   widgDisplayScreen(psWScreen);
-
-  if (bLoadSaveUp)
-    displayLoadSave();
 }
 
 /* Tell the interface when an object is created - it may have to be added to a screen */

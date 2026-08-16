@@ -3262,3 +3262,17 @@ void intDisplayAllyIcon(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
 
   pie_ImageFileID(IntImages, IMAGE_DES_BODYPOINTS, x, y);
 }
+
+// ////////////////////////////////////////////////////////////////////////////
+/* The plain blue panel the multiplayer lists and the keymap editor draw their
+ * rows on. It lived in the load/save requester, which is a force picker now.
+ */
+void drawBlueBox(UDWORD x, UDWORD y, UDWORD w, UDWORD h)
+{
+  UBYTE dark = COL_BLUE;
+  UBYTE light = COL_LIGHTBLUE;
+
+  // box
+  pie_BoxFillIndex(x - 1, y - 1, x + w + 1, y + h + 1, light);
+  pie_BoxFillIndex(x, y, x + w, y + h, dark);
+}

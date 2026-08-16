@@ -23,7 +23,11 @@ SYS_OK = re.compile(r'^(windows|windowsx|stdio|stdlib|string|math|assert|time|ct
 
 def main():
     disk={}
+    # DX9/Include held the vendored DirectX SDK headers. It is gone as of the
+    # DX9 cleanup, which moved the build onto the Windows SDK's own copies, so
+    # the directory is scanned when present rather than required.
     for d in ('NeuronCore','Outpost','NetTest','DX9/Include'):
+        if not os.path.isdir(d): continue
         for f in os.listdir(d): disk.setdefault(f.lower(), f)
     bad=[]
 

@@ -15,7 +15,6 @@
 #include "PieState.h"		// for getrendertype
 #include "resource.h"
 #include "FrontEnd.h"		// for textdisplay function
-#include "LoadSave.h"		// for textdisplay function
 #include "Console.h"		// to add console message
 
 #include "ScriptExtern.h"	// for tutorial 

@@ -63,7 +63,7 @@ STAR stars[30]; // quick hack for loading stuff
 
 extern IMAGEFILE* FrontImages;
 extern int WFont;
-extern BOOL bLoadSaveUp;
+extern BOOL bRequesterUp;
 
 static BOOL firstcall;
 static UDWORD loadScreenCallNo = 0;
