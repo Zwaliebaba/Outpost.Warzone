@@ -34,9 +34,13 @@ that exercises `/SAFESEH` — Phase 8 found that the hard way, twice.
 
 **Working directory.** `resSetBaseDir` defaults to empty
 ([FrameResource.cpp:113](../NeuronCore/FrameResource.cpp#L113)), so every asset
-path is relative to the working directory. Run from a directory that contains
-`GameData`, or pass `-datapath`, which sets the base directory and `_chdir`s to
-it. Getting this wrong looks exactly like a rendering failure — see below.
+path is relative to the working directory. The paths are bare names — `WinMain`
+opens `"palette.bin"`, not `"GameData/palette.bin"` — so the working directory
+must be **`GameData` itself**, not the directory containing it. Run the exe by
+its full path with `GameData` as the working directory, or pass `-datapath`.
+Getting this wrong looks exactly like a rendering failure — see below. It was
+got wrong on the first run of this sheet, and the listener is the only reason
+it took seconds rather than an afternoon: `Couldn't open palette.bin`.
 
 **Attach the debug listener first.** `Neuron::Fatal` calls `__debugbreak()`, so
 an assertion under a launcher surfaces only as exit code `0xC0000003` with no
@@ -58,7 +62,7 @@ All parsed in [ClParse.cpp](../Outpost/ClParse.cpp).
 
 | Switch | Effect |
 |---|---|
-| `-window` | windowed rather than fullscreen |
+| `-window` | **nothing — the game always starts windowed.** See below |
 | `-game <name>` | boot straight into a level, skipping the menus |
 | `-title` / `-intro` | start at the title screen / the intro video |
 | `-datapath <dir>` | set the asset base directory and `chdir` to it |
@@ -66,6 +70,14 @@ All parsed in [ClParse.cpp](../Outpost/ClParse.cpp).
 | `-noFog` / `-greyFog` | cap render fog off / to grey |
 | `-noTranslucent` / `-noAdditive` | disable translucency / additive effects |
 | `-seqSmall` / `-seqSkip` | play sequences small / skip them |
+
+**There is no command-line route to full screen.** `clStartWindowed` is
+initialised `TRUE` ([ClParse.cpp:34](../Outpost/ClParse.cpp#L34)) and `-window`
+assigns `TRUE` in *both* arms of an `#ifdef _DEBUG`/`#else` whose branches are
+identical — a vestigial no-op. Nothing anywhere assigns `FALSE`, and
+[WinMain.cpp:130](../Outpost/WinMain.cpp#L130) says so: "always start windowed
+toggle to fullscreen later". Full screen is reached only with **Alt+Enter**
+in-game ([Loop.cpp:610](../Outpost/Loop.cpp#L610)), which pass C needs.
 
 **A trap worth knowing before the fog pass.** There are two unrelated fogs.
 Render fog is the distance fog the switches above control. `game.fog` is fog of
@@ -114,7 +126,8 @@ rewired both sliders.
 
 ## Pass C — device loss
 
-Fullscreen, then alt-tab away and back. **Twice.**
+Start windowed, **Alt+Enter to full screen** (there is no switch for it — see
+above), then alt-tab away and back. **Twice.**
 
 This is the single most important item in the document. Phase 2 built the reset
 path; Phase 8 stage B then deleted one of the two state caches it depended on
@@ -217,16 +230,114 @@ the same scene, before and after stage B:
 
 ## Results
 
+First session: **2026-08-16**, Debug and Release both rebuilt clean from scratch
+under MSVC 18.9.1 (0 errors; Release links, so `/SAFESEH` holds). Passes driven
+programmatically — window forced foreground, frames captured off the desktop.
+Anything needing ears or menu navigation is not done.
+
 | Pass | Result | Notes |
 |---|---|---|
-| A — boot and smoke | | |
-| B — front end | | |
-| C — device loss | | |
-| D — `bClip` experiment | | |
-| E — listening pass | | |
-| F — FMV and gates | | |
-| G — fog parity | | |
-| H — counters | | |
+| A — boot and smoke | **pass** | Reaches `Entering main loop`. Terrain, unit models, translucent build overlay, reticule HUD and text all draw. Water translucency and team-colour animation frames not separately isolated — no water in the start view |
+| B — front end | **partial** | Backdrop (the `CLEAR_OFF` keep-frame path), menu, buttons, translucent filter boxes and **rotated text** all draw. Menus driven by keyboard as far as Options → Game Options; both volume sliders exist and take focus. Item 8 (radar + viewing-window quad) confirmed incidentally in CAM_2A during pass D. Items 3–5, 7 still open — see "Driving the UI" below |
+| C — device loss | **pass** | Alt+Enter to 640x480 exclusive full screen, alt-tab away and back **twice**. Survived both; textures rebound, translucency correct, sim kept running. Caveat: the mode switch blanks the screen, so the literal *first* frame back is not capturable — earliest observed frame (~600 ms) was already correct |
+| D — `bClip` experiment | **run — see below** | Difference is measurable but sub-perceptual. Edges structurally clean; radar sub-rect unaffected; behind-camera rejection proven independent of `bClip` |
+| E — listening pass | not run | Cannot be automated — it is a listening pass |
+| F — FMV and gates | not run | Needs menu navigation to reach a briefing |
+| G — fog parity | **pass** | Three-point comparison: default = warm haze over distance, `-noFog` = none, `-greyFog` = grey haze. The hue tracks the switch names, which excludes the day/night script as the cause. Closes the last open Phase 2 item |
+| H — counters | not run | `pie_GetResetCounts` has no visible readout from a plain launch |
+
+Two defects found by running, both fixed in the same session: `tools/dbg.py`
+crashed on its first-ever Windows run (`ctypes.wintypes` is a submodule and was
+never imported), and this document's working-directory and `-window` guidance
+were both wrong — corrected above.
+
+### Driving the UI from a script — what works, and what stops you
+
+Recorded because the next person will otherwise rediscover all of it.
+
+- **Keyboard injection works** (`keybd_event`). Alt+Enter, arrows and Enter all
+  reach the game.
+- **The front end is fully keyboard-navigable**: arrows move the cursor-snap
+  between widgets, Enter activates
+  ([FrontEnd.cpp:177-203](../Outpost/FrontEnd.cpp#L177-L203)). Main menu →
+  Options → Game Options was driven that way.
+- **Mouse position is NOT the DirectInput mickeys.** The UI reads
+  `mouseXPos`/`mouseYPos` from `WM_MOUSEMOVE`
+  ([Input.cpp:251](../NeuronClient/Input.cpp#L251),
+  [391](../NeuronClient/Input.cpp#L391)), so absolute `SetCursorPos` drives it
+  and relative `mouse_event` motion does nothing. The mickeys in
+  `DXInput.cpp` feed something else. This is the single biggest time-waster
+  here — injected relative motion looks like it should work and never does.
+- **The window is DPI-unaware and its client is often not 640x480.** The game
+  presents its 640x480 back buffer into whatever the client is, so a smaller
+  client *crops* the view — the reticule falls off the bottom — and every
+  coordinate you compute from a screenshot is wrong. Force the client to
+  640x480 before clicking anything, and re-measure: the resize needs more than
+  one pass to converge, and sometimes does not converge at all.
+- **Keymapped functions stop responding once the game is paused.** F5 opens the
+  intelligence screen and pauses; after that F4/F5/F7/F8/Esc are all ignored,
+  because `keyProcessMappings` is skipped. Alt+Enter still works, since it is
+  tested directly in the loop rather than through the mapping table. So the
+  intelligence screen can be opened by key but must be closed by mouse.
+- **`GameData/keymap.map` overrides the `KeyMap.cpp` defaults**, so the F-key
+  bindings in the source are not necessarily the ones in force. Move it aside
+  to get the documented defaults; the game rewrites it on every startup, which
+  is why it shows as modified in `git status` after any run.
+- **Pass H needs debug mappings enabled first.** `kf_FrameRate` is Ctrl+Y but
+  registered `KEYMAP__DEBUG` ([KeyMap.cpp:292](../Outpost/KeyMap.cpp#L292)), and
+  pressing it in a normal run prints nothing. Its readout is a `CONPRINTF` to
+  the in-game console ([KeyBind.cpp:281](../Outpost/KeyBind.cpp#L281)) — the
+  sheet's old claim that it had no readout was wrong, and its `Loop.cpp:628`
+  reference is stale: the call is at
+  [Loop.cpp:584](../Outpost/Loop.cpp#L584).
+
+### Pass D result (2026-08-16)
+
+Only **two** call sites pass `bClip = TRUE`:
+[RenderModel.cpp:254](../NeuronClient/RenderModel.cpp#L254) (the 3D poly path)
+and [Render2D.cpp:77](../NeuronClient/Render2D.cpp#L77). Both were flipped to
+`FALSE`, Debug rebuilt, and the same two scenes captured. The change is
+reverted; the tree is back as it was.
+
+Scene choice matters. CAM_1A is near-deterministic frame to frame and is the
+only usable comparison; CAM_2A is so animated that its run-to-run noise swamps
+the signal, so it measures nothing. Per-pixel max channel deviation on CAM_1A:
+
+| | identical px | mean | p95 | p99 |
+|---|---|---|---|---|
+| control (same binary, two runs) | 99.9% | 0.09 | 1 | 1 |
+| experiment (`TRUE` vs `FALSE`) | 53.3% | 3.70 | 17 | 30 |
+
+So the difference is real and pervasive — about half the pixels move — but
+small, and it is **not** concentrated at the screen border (border band 10.11%
+against 9.20% overall). It shows up as a faint speckle in broad diagonal bands
+across terrain: sub-pixel vertex differences from the clipper rewriting every
+vertex it touches, not a clipping failure. At 1:1 the two frames are not
+distinguishable by eye.
+
+Three things the experiment settled beyond the pixel count:
+
+- **Screen edges are structurally clean** with the clipper off — no geometry
+  escaping the viewport, no torn or missing triangles, no gaps.
+- **The radar sub-rect is unaffected**, because the radar does not draw through
+  the `bClip` path at all. This pass therefore does *not* answer the
+  `pie_Set2DClip` sub-rect question — D1b still has to point it at
+  `SetScissorRect`, and that remains the real work.
+- **Behind-camera rejection does not depend on the clipper.** Two guards sit
+  outside it — [RenderModel.cpp:242](../NeuronClient/RenderModel.cpp#L242) and
+  the funnel's own test at [Render.cpp:227](../NeuronClient/Render.cpp#L227) —
+  and the sentinel `1<<15` is written to both coordinates against a `LONG_TEST`
+  of `1<<14`. (The clipper's own check at
+  [RenderClip.cpp:138](../NeuronClient/RenderClip.cpp#L138) tests `sy == -1<<15`,
+  the wrong sign, and so never fires — harmless only because the funnel catches
+  it first.)
+
+**Reading:** by the sheet's own criterion — invisible means write it — D1b is
+viable, and the two risks that would have killed it (edge artefacts,
+behind-camera leakage) are both disproved. The qualifier is that it is not
+pixel-identical, so it is a *looks-the-same* change rather than a
+behaviour-preserving one, which is a different bar from the one Phase 8 has
+held itself to so far. That call belongs to the owner.
 
 ## What each result unblocks
 

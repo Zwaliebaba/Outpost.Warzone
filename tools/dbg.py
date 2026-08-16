@@ -44,6 +44,10 @@ def _kernel32():
     if not sys.platform.startswith("win"):
         sys.exit("dbg.py reads a Win32 shared mapping and only runs on Windows.")
 
+    # A submodule, so plain "import ctypes" does not bind it, and it only
+    # imports on Windows -- which is why it lives below the guard above.
+    import ctypes.wintypes
+
     k32 = ctypes.WinDLL("kernel32", use_last_error=True)
     wt = ctypes.wintypes
 
