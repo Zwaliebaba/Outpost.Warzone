@@ -8,10 +8,11 @@
 	I really hope that no further changes are needed here...:-(
 	Alex M. */
 #include "stdio.h"
+#include <cmath>
+#include <directxmath.h>
 #include "Frame.h"
-#include "Trig.h"
 #include "Input.h"
-#include "Geo.h"
+#include "RenderMatrix.h"
 #include "RenderTypes.h"
 #include "Objects.h"
 #include "WarCAM.h"
@@ -37,20 +38,16 @@
 #include "Selection.h"
 #endif
 
-#define MODFRACT(value,mod) \
-	while((value) < 0)	{ (value) += (mod); } \
-	while((value) > (mod)) { (value) -= (mod); }
-
 #define MIN_TRACK_HEIGHT 16
+
+/* The radar-track stop test: the squared frame-to-frame rotation, under the
+   old threshold of 10000 square 16-bit binary angles. */
+constexpr float ROTATION_SETTLED = 10000.0f * (DirectX::XM_2PI / 65536.0f) * (DirectX::XM_2PI / 65536.0f);
 
 extern BOOL bTrackingTransporter;
 
-static UDWORD testAngle = 250;
 /* Holds all the details of our camera */
 static WARCAM trackingCamera;
-
-/* Present rotation for the 3d camera logo */
-static SDWORD warCamLogoRotation;
 
 /* The fake target that we track when jumping to a new location on the radar */
 static BASE_OBJECT radarTarget;
@@ -61,9 +58,6 @@ static BOOL bRadarAllign;
 /* How far we track relative to the droids location - direction matters */
 SDWORD camDroidXOffset;
 SDWORD camDroidYOffset;
-SDWORD presAvAngle = 0;;
-/* Camera logo spins at 120 degrees a second */
-#define	LOGO_ROT_SPEED DEG(120)
 
 /*	These are the DEFAULT offsets that make us track _behind_ a droid and allow
 	it to be pretty far _down_ the screen, so we can see more 
@@ -97,12 +91,12 @@ void requestRadarTrack(SDWORD x, SDWORD y);
 BOOL getRadarTrackingStatus(void);
 void dispWarCamLogo(void);
 UDWORD getPositionMagnitude(void);
-UDWORD getRotationMagnitude(void);
+float getRotationMagnitude(void);
 void toggleRadarAllignment(void);
-void camInformOfRotation(iVector* rotation);
+void camInformOfRotation(const DirectX::XMFLOAT3* rotation);
 void processLeaderSelection(void);
-SDWORD getAverageTrackAngle(BOOL bCheckOnScreen);
-SDWORD getGroupAverageTrackAngle(UDWORD groupNumber, BOOL bCheckOnScreen);
+float getAverageTrackAngle(BOOL bCheckOnScreen);
+float getGroupAverageTrackAngle(UDWORD groupNumber, BOOL bCheckOnScreen);
 void getTrackingConcerns(SDWORD* x, SDWORD* y, SDWORD* z);
 void getGroupTrackingConcerns(SDWORD* x, SDWORD* y, SDWORD* z, UDWORD groupNumber, BOOL bOnScreen);
 
@@ -124,12 +118,11 @@ static float radarX, radarY;
 
 /*	Where we were up to (pos and rot) last update - allows us to see whether
 	we are sufficently near our target to disable further tracking */
-static iVector oldPosition, oldRotation;
+static iVector oldPosition;
+static DirectX::XMFLOAT3 oldRotation;
 
 /* The fraction of a second that the last game frame took */
 static float fraction;
-
-static BOOL OldViewValid;
 
 //-----------------------------------------------------------------------------------
 /* Sets the camera to inactive to begin with */
@@ -144,13 +137,9 @@ void initWarCam(void)
   rotAccelConstant = ROT_ACCEL_CONSTANT;
   rotVelocityConstant = ROT_VELOCITY_CONSTANT;
 
-  /* Logo setup */
-  warCamLogoRotation = 0;
-
   /* Offset from droid's world coords */
   camDroidXOffset = CAM_DEFAULT_X_OFFSET;
   camDroidYOffset = CAM_DEFAULT_Y_OFFSET;
-  OldViewValid = FALSE;
 }
 
 //-----------------------------------------------------------------------------------
@@ -242,7 +231,7 @@ BOOL processWarCam(void)
   CONPRINTF(ConsoleString,(ConsoleString,"Velocity of movement constant : %.2f",velocityConstant));
   CONPRINTF(ConsoleString,(ConsoleString,"Acceleration of rotation constant : %.2f",rotAccelConstant));
   CONPRINTF(ConsoleString,(ConsoleString,"Velocity of rotation constant : %.2f",rotVelocityConstant));
-  CONPRINTF(ConsoleString,(ConsoleString,"Tracking droid direction : %d",trackingCamera.droid->direction));
+  CONPRINTF(ConsoleString,(ConsoleString,"Tracking droid direction : %.2f",trackingCamera.droid->direction));
   CONPRINTF(ConsoleString,(ConsoleString,"Tracking droid pitch : %d",trackingCamera.droid->pitch));
   CONPRINTF(ConsoleString,(ConsoleString,"Tracking droid roll : %d",trackingCamera.droid->roll));
   CONPRINTF(ConsoleString,(ConsoleString,"Tracking droid height (z) : %d",trackingCamera.droid->z));
@@ -325,16 +314,6 @@ BASE_OBJECT* camFindTarget(void)
 }
 
 //-----------------------------------------------------------------------------------
-UDWORD getTestAngle(void) { return (testAngle); }
-//-----------------------------------------------------------------------------------
-void updateTestAngle(void)
-{
-  testAngle += 1;
-  if (testAngle >= 360)
-    testAngle = 0;
-}
-
-//-----------------------------------------------------------------------------------
 
 /* Stores away old viewangle info and sets up new distance and angles */
 void camAllignWithTarget(BASE_OBJECT* psTarget)
@@ -343,9 +322,9 @@ void camAllignWithTarget(BASE_OBJECT* psTarget)
   trackingCamera.target = psTarget;
 
   /* Save away all the view angles */
-  trackingCamera.oldView.r.x = trackingCamera.rotation.x = static_cast<float>(player.r.x);
-  trackingCamera.oldView.r.y = trackingCamera.rotation.y = static_cast<float>(player.r.y);
-  trackingCamera.oldView.r.z = trackingCamera.rotation.z = static_cast<float>(player.r.z);
+  trackingCamera.oldView.r.x = trackingCamera.rotation.x = player.r.x;
+  trackingCamera.oldView.r.y = trackingCamera.rotation.y = player.r.y;
+  trackingCamera.oldView.r.z = trackingCamera.rotation.z = player.r.z;
 
   /* Store away the old positions and set the start position too */
   trackingCamera.oldView.p.x = trackingCamera.position.x = static_cast<float>(player.p.x);
@@ -366,8 +345,6 @@ void camAllignWithTarget(BASE_OBJECT* psTarget)
 
   /* Store away when we started */
   trackingCamera.lastUpdate = gameTime2;
-
-  OldViewValid = TRUE;
 }
 
 //-----------------------------------------------------------------------------------
@@ -423,12 +400,12 @@ void updateCameraAcceleration(UBYTE update)
   SDWORD xBehind, yBehind;
   BOOL bFlying;
   DROID* psDroid;
-  UDWORD multiAngle;
+  float multiAngle;
   PROPULSION_STATS* psPropStats;
   SDWORD angle;
 
-  angle = abs(((player.r.x / 182) % 90));
-  angle = 90 - angle;
+  /* The magnitude of the camera pitch, in whole degrees */
+  angle = abs(static_cast<SDWORD>(std::lround(DirectX::XMConvertToDegrees(player.r.x)))) % 90;
 
   bFlying = FALSE;
   if (trackingCamera.target->type == OBJ_DROID)
@@ -456,13 +433,17 @@ void updateCameraAcceleration(UBYTE update)
         multiAngle = getAverageTrackAngle(TRUE);
       else
         multiAngle = getGroupAverageTrackAngle(trackingCamera.target->group,TRUE);
-      xBehind = ((camDroidYOffset * SIN(DEG(multiAngle))) >> FP12_SHIFT);
-      yBehind = ((camDroidXOffset * COS(DEG(multiAngle))) >> FP12_SHIFT);
+      float trackSin, trackCos;
+      DirectX::XMScalarSinCos(&trackSin, &trackCos, multiAngle);
+      xBehind = static_cast<SDWORD>(std::lrintf(camDroidYOffset * trackSin));
+      yBehind = static_cast<SDWORD>(std::lrintf(camDroidXOffset * trackCos));
     }
     else
     {
-      xBehind = ((camDroidYOffset * SIN(DEG(trackingCamera.target->direction))) >> FP12_SHIFT);
-      yBehind = ((camDroidXOffset * COS(DEG(trackingCamera.target->direction))) >> FP12_SHIFT);
+      float trackSin, trackCos;
+      DirectX::XMScalarSinCos(&trackSin, &trackCos, trackingCamera.target->direction);
+      xBehind = static_cast<SDWORD>(std::lrintf(camDroidYOffset * trackSin));
+      yBehind = static_cast<SDWORD>(std::lrintf(camDroidXOffset * trackCos));
     }
   }
   else
@@ -594,14 +575,13 @@ void updateCameraPosition(UBYTE update)
 /* Calculate the acceleration that the camera spins around at */
 void updateCameraRotationAcceleration(UBYTE update)
 {
-  SDWORD worldAngle;
   float separation;
-  SDWORD xConcern, yConcern, zConcern;
+  float xConcern, yConcern, zConcern;
   BOOL bTooLow;
   DROID* psDroid;
   UDWORD droidHeight, mapHeight, difHeight;
   PROPULSION_STATS* psPropStats;
-  SDWORD pitch;
+  float pitch;
   BOOL bGotFlying = FALSE;
   SDWORD xPos, yPos, zPos;
 
@@ -628,23 +608,16 @@ void updateCameraRotationAcceleration(UBYTE update)
     if (getNumDroidsSelected() > 2 AND trackingCamera.target->type == OBJ_DROID)
     {
       if (trackingCamera.target->selected)
-        yConcern = DEG(getAverageTrackAngle(FALSE)); //DEG(trackingCamera.target->direction);	
+        yConcern = getAverageTrackAngle(FALSE);
       else
-        yConcern = DEG(getGroupAverageTrackAngle(trackingCamera.target->group,FALSE)); //DEG(trackingCamera.target->direction);	
+        yConcern = getGroupAverageTrackAngle(trackingCamera.target->group,FALSE);
     }
     else
-      yConcern = DEG(trackingCamera.target->direction);
-    yConcern += DEG(180);
-
-    while (trackingCamera.rotation.y < 0) { trackingCamera.rotation.y += DEG(360); }
+      yConcern = trackingCamera.target->direction;
+    yConcern += DirectX::XM_PI;
 
     /* Which way are we facing? */
-    worldAngle = trackingCamera.rotation.y;
-    separation = static_cast<float>((yConcern - worldAngle));
-    if (separation < DEG(-180))
-      separation += DEG(360);
-    else if (separation > DEG(180))
-      separation -= DEG(360);
+    separation = DirectX::XMScalarModAngle(yConcern - trackingCamera.rotation.y);
 
     /* Make new acceleration */
     trackingCamera.rotAccel.y = (rotAccelConstant * separation - rotVelocityConstant * trackingCamera.rotVel.y);
@@ -654,33 +627,19 @@ void updateCameraRotationAcceleration(UBYTE update)
   {
     if (trackingCamera.target->type == OBJ_DROID AND !bGotFlying)
     {
-      psDroid = (DROID*)trackingCamera.target;
       getTrackingConcerns(&xPos, &yPos, &zPos);
       if (trackingCamera.target->selected)
-        getBestPitchToEdgeOfGrid(xPos, zPos, 360 - ((getAverageTrackAngle(TRUE) + 180) % 360), &pitch);
+        getBestPitchToEdgeOfGrid(xPos, zPos, -(getAverageTrackAngle(TRUE) + DirectX::XM_PI), &pitch);
       else
-        getBestPitchToEdgeOfGrid(xPos, zPos, 360 - ((getGroupAverageTrackAngle(trackingCamera.target->group,TRUE) + 180) % 360), &pitch);
-      if (pitch < 14)
-        pitch = 14;
-      xConcern = DEG(-pitch);
+        getBestPitchToEdgeOfGrid(xPos, zPos, -(getGroupAverageTrackAngle(trackingCamera.target->group,TRUE) + DirectX::XM_PI), &pitch);
+      if (pitch < DirectX::XMConvertToRadians(14.0f))
+        pitch = DirectX::XMConvertToRadians(14.0f);
+      xConcern = -pitch;
     }
     else
-    {
-      xConcern = DEG(trackingCamera.target->pitch);
-      xConcern += DEG(-16);
-    }
+      xConcern = trackingCamera.target->pitch - DirectX::XMConvertToRadians(16.0f);
 
-    //	if(xConcern>DEG(MINCAMROTX))
-    while (trackingCamera.rotation.x < 0) { trackingCamera.rotation.x += DEG(360); }
-    worldAngle = trackingCamera.rotation.x;
-    separation = static_cast<float>((xConcern - worldAngle));
-
-    MODFRACT(separation, DEG(360));
-
-    if (separation < DEG(-180))
-      separation += DEG(360);
-    else if (separation > DEG(180))
-      separation -= DEG(360);
+    separation = DirectX::XMScalarModAngle(xConcern - trackingCamera.rotation.x);
 
     /* Make new acceleration */
     trackingCamera.rotAccel.x =
@@ -692,16 +651,10 @@ void updateCameraRotationAcceleration(UBYTE update)
   if (update & Z_UPDATE)
   {
     if (bTooLow)
-      zConcern = 0;
+      zConcern = 0.0f;
     else
-      zConcern = DEG(trackingCamera.target->roll);
-    while (trackingCamera.rotation.z < 0) { trackingCamera.rotation.z += DEG(360); }
-    worldAngle = trackingCamera.rotation.z;
-    separation = static_cast<float>((zConcern - worldAngle));
-    if (separation < DEG(-180))
-      separation += DEG(360);
-    else if (separation > DEG(180))
-      separation -= DEG(360);
+      zConcern = trackingCamera.target->roll;
+    separation = DirectX::XMScalarModAngle(zConcern - trackingCamera.rotation.z);
 
     /* Make new acceleration */
     trackingCamera.rotAccel.z =
@@ -736,11 +689,11 @@ void updateCameraRotationPosition(UBYTE update)
   fraction = (static_cast<float>(frameTime2) / static_cast<float>(GAME_TICKS_PER_SEC));
 
   if (update & Y_UPDATE)
-    trackingCamera.rotation.y += (trackingCamera.rotVel.y * fraction);
+    trackingCamera.rotation.y = DirectX::XMScalarModAngle(trackingCamera.rotation.y + trackingCamera.rotVel.y * fraction);
   if (update & X_UPDATE)
-    trackingCamera.rotation.x += (trackingCamera.rotVel.x * fraction);
+    trackingCamera.rotation.x = DirectX::XMScalarModAngle(trackingCamera.rotation.x + trackingCamera.rotVel.x * fraction);
   if (update & Z_UPDATE)
-    trackingCamera.rotation.z += (trackingCamera.rotVel.z * fraction);
+    trackingCamera.rotation.z = DirectX::XMScalarModAngle(trackingCamera.rotation.z + trackingCamera.rotVel.z * fraction);
 }
 
 BOOL nearEnough(void)
@@ -835,15 +788,15 @@ BOOL camTrackCamera(void)
   oldRotation.y = player.r.y;
   oldRotation.z = player.r.z;
 
-  /* Update the rotations that're now stored in trackingCamera.rotation (iVector) */
+  /* Update the rotations that're now stored in trackingCamera.rotation */
   player.r.x = trackingCamera.rotation.x;
   /*if(!bIsBuilding)*/
   player.r.y = trackingCamera.rotation.y;
   player.r.z = trackingCamera.rotation.z;
 
   /* There's a minimum for this - especially when John's VTOL code lets them land vertically on cliffs */
-  if (player.r.x > DEG(360+MAX_PLAYER_X_ANGLE))
-    player.r.x = DEG(360+MAX_PLAYER_X_ANGLE);
+  if (player.r.x > DirectX::XMConvertToRadians(MAX_PLAYER_X_ANGLE))
+    player.r.x = DirectX::XMConvertToRadians(MAX_PLAYER_X_ANGLE);
 
   /* Clip the position to the edge of the map */
   CheckScrollLimits();
@@ -861,9 +814,9 @@ BOOL camTrackCamera(void)
   if (getRadarTrackingStatus())
   {
     /*	This will ensure we come to a rest and terminate the tracking
-      routine once we're close enough 
+      routine once we're close enough
     */
-    if (getRotationMagnitude() < 10000)
+    if (getRotationMagnitude() < ROTATION_SETTLED)
     {
       if (nearEnough() AND getPositionMagnitude() < 60)
         camToggleStatus();
@@ -1018,18 +971,15 @@ DROID* getTrackingDroid(void)
 }
 
 //-----------------------------------------------------------------------------------
-SDWORD getGroupAverageTrackAngle(UDWORD groupNumber, BOOL bCheckOnScreen)
+float getGroupAverageTrackAngle(UDWORD groupNumber, BOOL bCheckOnScreen)
 {
   DROID* psDroid;
-  float xShift, yShift;
   float xTotal, yTotal;
-  float averageAngleFloat;
-  SDWORD droidCount, averageAngle;
-  SDWORD retVal;
+  SDWORD droidCount;
 
   /* Initialise all the stuff */
   droidCount = 0;
-  averageAngle = 0;
+
   /* Set totals to zero */
   xTotal = yTotal = 0.0f;
 
@@ -1042,64 +992,26 @@ SDWORD getGroupAverageTrackAngle(UDWORD groupNumber, BOOL bCheckOnScreen)
       if (bCheckOnScreen ? droidOnScreen(psDroid,DISP_WIDTH / 6) : TRUE)
       {
         droidCount++;
-        averageAngle += psDroid->direction;
-        xShift = trigSin(psDroid->direction);
-        yShift = trigCos(psDroid->direction);
-        xTotal += xShift;
-        yTotal += yShift;
+        xTotal += sinf(psDroid->direction);
+        yTotal += cosf(psDroid->direction);
       }
-      /*
-      if(bCheckOnScreen)
-      {
-        if(droidOnScreen(psDroid,DISP_WIDTH/6))
-        {
-          droidCount++;
-          averageAngle+=psDroid->direction;
-          xShift = trigSin(psDroid->direction);
-          yShift = trigCos(psDroid->direction);
-          xTotal += xShift;
-          yTotal += yShift;
-
-        }
-      }
-      else
-      {
-          droidCount++;
-          averageAngle+=psDroid->direction;
-          xShift = trigSin(psDroid->direction);
-          yShift = trigCos(psDroid->direction);
-          xTotal += xShift;
-          yTotal += yShift;
-
-
-      }
-      */
     }
   }
-  if (droidCount)
-  {
-    retVal = (averageAngle / droidCount);
-    averageAngleFloat = RAD_TO_DEG(atan2(xTotal,yTotal));
-  }
-  else
-    retVal = 0;
-  presAvAngle = std::lrintf(averageAngleFloat); //retVal;
-  return (presAvAngle);
+  if (droidCount == 0)
+    return 0.0f;
+  return atan2f(xTotal, yTotal);
 }
 
 //-----------------------------------------------------------------------------------
-SDWORD getAverageTrackAngle(BOOL bCheckOnScreen)
+float getAverageTrackAngle(BOOL bCheckOnScreen)
 {
   DROID* psDroid;
-  float xShift, yShift;
   float xTotal, yTotal;
-  float averageAngleFloat;
-  SDWORD droidCount, averageAngle;
-  SDWORD retVal;
+  SDWORD droidCount;
 
   /* Initialise all the stuff */
   droidCount = 0;
-  averageAngle = 0;
+
   /* Set totals to zero */
   xTotal = yTotal = 0.0f;
 
@@ -1112,53 +1024,16 @@ SDWORD getAverageTrackAngle(BOOL bCheckOnScreen)
       if (bCheckOnScreen ? droidOnScreen(psDroid,DISP_WIDTH / 6) : TRUE)
       {
         droidCount++;
-        averageAngle += psDroid->direction;
-        xShift = trigSin(psDroid->direction);
-        yShift = trigCos(psDroid->direction);
-        xTotal += xShift;
-        yTotal += yShift;
+        xTotal += sinf(psDroid->direction);
+        yTotal += cosf(psDroid->direction);
       }
-      /*
-      if(bCheckOnScreen)
-      {
-        if(droidOnScreen(psDroid,DISP_WIDTH/6))
-        {
-           droidCount++;
-          averageAngle+=psDroid->direction;
-          xShift = trigSin(psDroid->direction);
-          yShift = trigCos(psDroid->direction);
-          xTotal += xShift;
-          yTotal += yShift;
-
-        }
-      }
-      else
-      {
-          droidCount++;
-          averageAngle+=psDroid->direction;
-          xShift = trigSin(psDroid->direction);
-          yShift = trigCos(psDroid->direction);
-          xTotal += xShift;
-          yTotal += yShift;
-
-
-      }
-      */
     }
   }
-  if (droidCount)
-  {
-    retVal = (averageAngle / droidCount);
-    averageAngleFloat = static_cast<float>(RAD_TO_DEG(atan2(xTotal,yTotal)));
-  }
-  else
-    retVal = 0;
-  presAvAngle = std::lrintf(averageAngleFloat); //retVal;
-  return (presAvAngle);
+  if (droidCount == 0)
+    return 0.0f;
+  return atan2f(xTotal, yTotal);
 }
 
-//-----------------------------------------------------------------------------------
-SDWORD getPresAngle(void) { return (presAvAngle); }
 //-----------------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------------
@@ -1246,16 +1121,6 @@ void getGroupTrackingConcerns(SDWORD* x, SDWORD* y, SDWORD* z, UDWORD groupNumbe
 
 //-----------------------------------------------------------------------------------
 
-void camSetOldView(int x, int y, int z, int rx, int ry, int dist)
-{
-  UNUSEDPARAMETER(x);
-  UNUSEDPARAMETER(y);
-  UNUSEDPARAMETER(z);
-  UNUSEDPARAMETER(rx);
-  UNUSEDPARAMETER(ry);
-  UNUSEDPARAMETER(dist);
-}
-
 /* Static function that switches off tracking - and might not be desirable? - Jim?*/
 void camSwitchOff(void)
 {
@@ -1314,7 +1179,7 @@ void setUpRadarTarget(SDWORD x, SDWORD y)
     radarTarget.z = 128 * ELEVATION_SCALE;
   else
     radarTarget.z = map_Height(x, y);
-  radarTarget.direction = static_cast<UWORD>(calcDirection(player.p.x, player.p.z, x, y));
+  radarTarget.direction = calcDirection(player.p.x, player.p.z, x, y);
   radarTarget.pitch = 0;
   radarTarget.roll = 0;
   radarTarget.type = OBJ_TARGET;
@@ -1376,21 +1241,15 @@ UDWORD getPositionMagnitude(void)
 }
 
 /* Rteurns how far away we are from our goal in rotation */
-UDWORD getRotationMagnitude(void)
+float getRotationMagnitude(void)
 {
-  iVector dif;
-  UDWORD val;
-
-  dif.x = abs(player.r.x - oldRotation.x);
-  dif.y = abs(player.r.y - oldRotation.y);
-  dif.z = abs(player.r.z - oldRotation.z);
-  val = (dif.x * dif.x) + (dif.y * dif.y) + (dif.z * dif.z);
-  return (val);
+  const float difX = DirectX::XMScalarModAngle(player.r.x - oldRotation.x);
+  const float difY = DirectX::XMScalarModAngle(player.r.y - oldRotation.y);
+  const float difZ = DirectX::XMScalarModAngle(player.r.z - oldRotation.z);
+  return (difX * difX) + (difY * difY) + (difZ * difZ);
 }
 
-void camInformOfRotation(iVector* rotation)
+void camInformOfRotation(const DirectX::XMFLOAT3* rotation)
 {
-  trackingCamera.rotation.x = rotation->x;
-  trackingCamera.rotation.y = rotation->y;
-  trackingCamera.rotation.z = rotation->z;
+  trackingCamera.rotation = *rotation;
 }

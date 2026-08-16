@@ -183,9 +183,11 @@ extern void StartTacticalScrollObj(BOOL driveActive, BASE_OBJECT* psObj);
 extern void CancelTacticalScroll(void);
 extern void MoveTacticalScroll(SDWORD xVel, SDWORD yVel);
 extern BOOL getRotActive(void);
-extern SDWORD getDesiredPitch(void);
-extern void setDesiredPitch(SDWORD pitch);
+/* The camera pitch the player last chose - radians, as a positive magnitude */
+extern float getDesiredPitch(void);
+extern void setDesiredPitch(float pitch);
 
+/* Degrees; the camera holds player.r.x between these, converted to radians */
 #define MAX_PLAYER_X_ANGLE	(-14)
 #define MIN_PLAYER_X_ANGLE	(-50)
 

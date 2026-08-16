@@ -15,17 +15,11 @@
 #ifndef _renderTypes_h
 #define _renderTypes_h
 
+#include <directxmath.h>
+
 #include "Frame.h"
 
 /***************************************************************************/
-/***************************************************************************/
-/*
- *	Global Definitions
- */
-/***************************************************************************/
-
-#define PI 	  					3.141592654
-
 /***************************************************************************/
 /*
  *	Global Macros
@@ -114,13 +108,10 @@ using iVertex = struct
   int32 x, y, z, u, v;
   uint8 g;
 };
-using PIEVECTORF = struct
-{
-  float x, y, z;
-};
 using iView = struct
 {
-  iVector p, r;
+  iVector p;
+  DirectX::XMFLOAT3 r; /* radians */
 };
 
 
@@ -129,12 +120,6 @@ using iView = struct
  *	Draw constants and macros (from PieDef.h)
  */
 /***************************************************************************/
-
-#define DEG_360	65536
-#define DEG_1	(DEG_360/360)
-#define DEG_2	(DEG_360/180)
-#define DEG_60	(DEG_360/6)
-#define DEG(X)	(DEG_1 * (X))
 
 #define FP12_SHIFT				12
 #define FP12_MULTIPLIER				(1<<12)

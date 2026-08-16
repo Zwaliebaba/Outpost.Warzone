@@ -15,6 +15,9 @@
  */
 /***************************************************************************/
 
+#include <cmath>
+#include <directxmath.h>
+
 #include "Frame.h"
 #include "Base.h"
 #include "Map.h"
@@ -104,7 +107,7 @@ void ListenerPose(SDWORD& _x, SDWORD& _y, SDWORD& _z, SDWORD& _degrees)
     _z = 0;
   }
 
-  _degrees = player.r.y / DEG_1;
+  _degrees = ((std::lround(DirectX::XMConvertToDegrees(player.r.y)) % 360) + 360) % 360;
 }
 
 } // namespace

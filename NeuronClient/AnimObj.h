@@ -13,6 +13,8 @@
 
 /***************************************************************************/
 
+#include <directxmath.h>
+
 #include "Anim.h"
 
 /***************************************************************************/
@@ -36,7 +38,7 @@ using ANIMOBJDIEDTESTFUNC = BOOL(*)(void* psParent);
 
 #define	COMPONENT_ELEMENTS(pointerType)		\
 	VECTOR3D	position;					\
-	VECTOR3D	orientation;				\
+	DirectX::XMFLOAT3	orientation;		/* radians */	\
 	void		*psParent;					\
 	iIMDShape	*psShape;
 
@@ -81,7 +83,7 @@ BOOL animObj_Remove(ANIM_OBJECT** ppsObj, int iAnimID);
 ANIM_OBJECT* animObj_GetFirst(void);
 ANIM_OBJECT* animObj_GetNext(void);
 ANIM_OBJECT* animObj_Find(void* pParentObj, int iAnimID);
-UWORD animObj_GetFrame3D(ANIM_OBJECT* psObj, UWORD uwObj, VECTOR3D* psPos, VECTOR3D* psVecRot, VECTOR3D* psVecScale);
+UWORD animObj_GetFrame3D(ANIM_OBJECT* psObj, UWORD uwObj, VECTOR3D* psPos, DirectX::XMFLOAT3* psVecRot, VECTOR3D* psVecScale);
 
 /***************************************************************************/
 

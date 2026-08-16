@@ -44,9 +44,9 @@ using MOVE_CONTROL = struct _move_control
   // NOTE: this is supposed to replace Speed
   float speed; // Speed of motion
   SWORD boundX, boundY; // Vector for the end of path boundary
-  SWORD dir; // direction of motion (not the direction the droid is facing)
+  float dir; // direction of motion, radians in (-pi, pi] (not the direction the droid is facing)
 
-  SWORD bumpDir; // direction at last bump
+  float bumpDir; // direction at last bump, radians
   UDWORD bumpTime; // time of first bump with something
   UWORD lastBump; // time of last bump with a droid - relative to bumpTime
   UWORD pauseTime; // when MOVEPAUSE started - relative to bumpTime

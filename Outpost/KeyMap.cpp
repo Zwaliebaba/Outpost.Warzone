@@ -51,7 +51,7 @@ UDWORD asciiKeyCodeToTable(KEY_CODE code);
 KEY_CODE getQwertyKey(void);
 UDWORD getMarkerX(KEY_CODE code);
 UDWORD getMarkerY(KEY_CODE code);
-SDWORD getMarkerSpin(KEY_CODE code);
+float getMarkerSpin(KEY_CODE code);
 // ----------------------------------------------------------------------------------
 KEY_MAPPING* keyGetMappingFromFunction(void* function)
 {
@@ -73,7 +73,7 @@ using KEYMAP_MARKER = struct _keymap_Marker
 {
   KEY_MAPPING* psMapping;
   UDWORD xPos, yPos;
-  SDWORD spin;
+  float spin; /* radians */
 };
 static KEYMAP_MARKER qwertyKeyMappings[NUM_QWERTY_KEYS];
 
@@ -770,7 +770,7 @@ UDWORD getMarkerY(KEY_CODE code)
 
 // ----------------------------------------------------------------------------------
 /* Returns the map Y rotation associated with the passed in keycode */
-SDWORD getMarkerSpin(KEY_CODE code)
+float getMarkerSpin(KEY_CODE code)
 {
   UDWORD entry;
   entry = asciiKeyCodeToTable(code);

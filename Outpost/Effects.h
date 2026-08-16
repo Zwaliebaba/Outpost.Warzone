@@ -1,5 +1,7 @@
 #ifndef _effects_h
 #define _effects_h
+
+#include <directxmath.h>
 /*	
 	All singing, all dancing new effects code. Does all the stuff
 	that explosion.c and most of particle.c used to do as well as
@@ -174,10 +176,10 @@ using EFFECT = struct _effect_def
   UWORD size; // Size in terms of percent of original imd.
   UBYTE baseScale; // if scaled, what's bottom line?
   UBYTE specific; // how many times has it bounced?
-  PIEVECTORF position; // world coordinates of the effect - floats on the PC.
-  PIEVECTORF velocity; // movement values per update
-  iVector rotation; // current rotation - only for gravitons
-  iVector spin; // rotation info for spinning things.
+  DirectX::XMFLOAT3 position; // world coordinates of the effect - floats on the PC.
+  DirectX::XMFLOAT3 velocity; // movement values per update
+  DirectX::XMFLOAT3 rotation; // current rotation in radians - only for gravitons
+  DirectX::XMFLOAT3 spin; // radians per second for spinning things.
   UDWORD birthTime; // what time was it introduced into the world?
   UDWORD lastFrame; // when did we last update the frame?
   UWORD frameDelay; // how many game ticks between each frame?
@@ -218,8 +220,9 @@ extern UDWORD IMDGetAnimInterval(iIMDShape* Shape);
 extern void initPerimeterSmoke(iIMDShape* pImd, UDWORD x, UDWORD y, UDWORD z);
 
 #define SKY_MULT	1
-#define SKY_SHIMMY_BASE	((DEG(1)*SKY_MULT)/2)
-#define SKY_SHIMMY (SKY_SHIMMY_BASE - (rand()%(2*SKY_SHIMMY_BASE)))
+/* A random radian wobble in (-SKY_MULT/2, SKY_MULT/2] degrees */
+#define SKY_SHIMMY_BASE	DirectX::XMConvertToRadians(0.5f * SKY_MULT)
+#define SKY_SHIMMY (SKY_SHIMMY_BASE * (1.0f - static_cast<float>(rand() % 2048) / 1024.0f))
 extern void effectSetSize(UDWORD size);
 extern void effectSetLandLightSpec(LAND_LIGHT_SPEC spec);
 

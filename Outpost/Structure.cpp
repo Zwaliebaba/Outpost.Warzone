@@ -1,4 +1,5 @@
 #include "pch.h"
+#include <directxmath.h>
 #include "FrameResource.h"
 #include "StrRes.h"
 /*									   
@@ -1532,7 +1533,7 @@ SDWORD structChooseWallType(UDWORD player, UDWORD mapX, UDWORD mapY)
         psStruct = apsStructs[x][y];
         if (psStruct->pStructureType->type == REF_WALL)
         {
-          if (psStruct->direction == 90)
+          if (psStruct->direction == DirectX::XM_PIDIV2)
             nayborType = WALL_VERT;
           else
             nayborType = WALL_HORIZ;
@@ -1591,12 +1592,12 @@ SDWORD structChooseWallType(UDWORD player, UDWORD mapX, UDWORD mapY)
           else if (scanType == WALL_HORIZ)
           {
             // change to a horizontal wall
-            psStruct->direction = 0;
+            psStruct->direction = 0.0f;
           }
           else
           {
             // change to a vertical wall
-            psStruct->direction = 90;
+            psStruct->direction = DirectX::XM_PIDIV2;
           }
         }
       }
@@ -1862,7 +1863,7 @@ STRUCTURE* buildStructure(STRUCTURE_STATS* pStructureType, UDWORD x, UDWORD y, U
     psBuilding->burnStart = 0;
     psBuilding->burnDamage = 0;
 
-    psBuilding->direction = 0;
+    psBuilding->direction = 0.0f;
     psBuilding->pitch = 0;
     psBuilding->roll = 0;
     psBuilding->selected = FALSE;
@@ -1873,7 +1874,7 @@ STRUCTURE* buildStructure(STRUCTURE_STATS* pStructureType, UDWORD x, UDWORD y, U
 
     // rotate a wall if necessary
     if (!FromSave && pStructureType->type == REF_WALL && wallType == WALL_VERT)
-      psBuilding->direction = 90;
+      psBuilding->direction = DirectX::XM_PIDIV2;
 
     //set up the sensor stats
     if (psBuilding->pStructureType->pSensor)
@@ -3317,7 +3318,7 @@ void aiUpdateStructure(STRUCTURE* psStructure)
       //if were going to shoot at something move the turret first then fire when locked on
       if (psWStats->pMountGraphic == nullptr) //no turret so lock on whatever
       {
-        psStructure->turretRotation = static_cast<UWORD>(calcDirection(psStructure->x, psStructure->y, psChosenObj->x, psChosenObj->y));
+        psStructure->turretRotation = calcDirection(psStructure->x, psStructure->y, psChosenObj->x, psChosenObj->y);
         combFire(psStructure->asWeaps, (BASE_OBJECT*)psStructure, psChosenObj);
       }
       /*else if(actionTargetTurret((BASE_OBJECT*)psStructure, psChosenObj,
@@ -3331,8 +3332,11 @@ void aiUpdateStructure(STRUCTURE* psStructure)
     }
     else
     {
-      // realign the turret
-      if (((psStructure->turretRotation % 90) != 0) || (psStructure->turretPitch != 0))
+      // realign the turret; the aligner drives the offset from the nearest
+      // 90 degrees to exactly zero, so test against a small epsilon
+      const float nearest = roundf(psStructure->turretRotation / DirectX::XM_PIDIV2) * DirectX::XM_PIDIV2;
+      if ((std::fabs(DirectX::XMScalarModAngle(psStructure->turretRotation - nearest)) > 0.001f) ||
+          (std::fabs(psStructure->turretPitch) > 0.001f))
         actionAlignTurret((BASE_OBJECT*)psStructure);
     }
   }
@@ -5990,21 +5994,22 @@ BOOL calcStructureMuzzleLocation(STRUCTURE* psStructure, iVector* muzzle)
 
   if (psShape AND psShape->nconnectors)
   {
-    // This code has not been translated to the PSX Yet !!!!                                     (sorry)
-    pie_MatBegin();
+    Neuron::MatrixPush();
+    DirectX::XMMATRIX& world = Neuron::WorldMatrix();
 
-    pie_TRANSLATE(psStructure->x, -(SDWORD)psStructure->z, psStructure->y);
+    world = DirectX::XMMatrixTranslation(static_cast<float>(psStructure->x), -static_cast<float>(psStructure->z),
+                                         static_cast<float>(psStructure->y)) * world;
     //matrix = the center of droid
-    pie_MatRotY(DEG(static_cast<SDWORD>(psStructure->direction)));
-    pie_MatRotX(DEG(psStructure->pitch));
-    pie_MatRotZ(DEG(-static_cast<SDWORD>(psStructure->roll)));
-    //		pie_TRANSLATE(100,0,0);			//	(left,-height,forward)
-    pie_TRANSLATE(psShape->connectors->x, -psShape->connectors->z, -psShape->connectors->y); //note y and z flipped
+    // degrees to radians; UWORD fields go through SWORD so a wrapped-negative angle converts as negative
+    world = DirectX::XMMatrixRotationY(psStructure->direction) * world;
+    world = DirectX::XMMatrixRotationX(psStructure->pitch) * world;
+    world = DirectX::XMMatrixRotationZ(-psStructure->roll) * world;
+    world = DirectX::XMMatrixTranslation(static_cast<float>(psShape->connectors->x), static_cast<float>(-psShape->connectors->z),
+                                         static_cast<float>(-psShape->connectors->y)) * world; //note y and z flipped
 
     //matrix = the gun and turret mount on the body
-    pie_MatRotY(DEG(static_cast<SDWORD>(psStructure->turretRotation))); //+ve anticlockwise
-    pie_MatRotX(DEG(psStructure->turretPitch)); //+ve up
-    pie_MatRotZ(DEG(0));
+    world = DirectX::XMMatrixRotationY(psStructure->turretRotation) * world; //+ve anticlockwise
+    world = DirectX::XMMatrixRotationX(psStructure->turretPitch) * world; //+ve up
     //matrix = the muzzle mount on turret
     if (psWeaponImd AND psWeaponImd->nconnectors)
     {
@@ -6019,10 +6024,14 @@ BOOL calcStructureMuzzleLocation(STRUCTURE* psStructure, iVector* muzzle)
       barrel.z = 0;
     }
 
-    pie_ROTATE_TRANSLATE(barrel.x, barrel.z, barrel.y, muzzle->x, muzzle->z, muzzle->y);
+    const DirectX::XMVECTOR muzzleWorld = DirectX::XMVector3Transform(
+      DirectX::XMVectorSet(static_cast<float>(barrel.x), static_cast<float>(barrel.z), static_cast<float>(barrel.y), 1.0f), world);
+    muzzle->x = static_cast<SDWORD>(std::lrintf(DirectX::XMVectorGetX(muzzleWorld)));
+    muzzle->z = static_cast<SDWORD>(std::lrintf(DirectX::XMVectorGetY(muzzleWorld)));
+    muzzle->y = static_cast<SDWORD>(std::lrintf(DirectX::XMVectorGetZ(muzzleWorld)));
     muzzle->z = -muzzle->z;
 
-    pie_MatEnd();
+    Neuron::MatrixPop();
   }
   else
   {
@@ -7738,7 +7747,7 @@ STRUCTURE* giftSingleStructure(STRUCTURE* psStructure, UBYTE attackPlayer, BOOL 
   UBYTE capacity = 0, originalPlayer;
   SWORD buildPoints = 0, i;
   BOOL bPowerOn;
-  UWORD direction;
+  float direction;
 
 #ifdef TEST_EW
   bMultiPlayer = TRUE;

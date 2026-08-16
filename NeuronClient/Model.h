@@ -48,7 +48,6 @@ using iIMDPoly = struct
   uint32 flags;
   int32 zcentre;
   int npnts;
-  iVector normal;
   VERTEXID* pindex;
   iVertex* vrt;
   iTexAnim* pTexAnim; // warning.... this is not used on the playstation version !

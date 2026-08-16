@@ -22,7 +22,7 @@ extern BOOL formationInitialise(void);
 extern void formationShutDown(void);
 
 // Create a new formation
-extern BOOL formationNew(FORMATION** ppsFormation, FORMATION_TYPE type, SDWORD x, SDWORD y, SDWORD dir);
+extern BOOL formationNew(FORMATION** ppsFormation, FORMATION_TYPE type, SDWORD x, SDWORD y, float dir);
 
 // Try and find a formation near to a location
 extern BOOL formationFind(FORMATION** ppsFormation, SDWORD x, SDWORD y);

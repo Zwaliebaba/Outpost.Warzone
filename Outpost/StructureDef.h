@@ -320,9 +320,9 @@ using STRUCTURE = struct _structure
   /*UDWORD		turretRotation;				// weapon, ECM and sensor direction and pitch
   UDWORD		turretRotRate;				// weapon, ECM and sensor direction and pitch
   UDWORD		turretPitch;				// weapon, ECM and sensor direction and pitch*/
-  UWORD turretRotation; // weapon, ECM and sensor direction and pitch
+  float turretRotation; // weapon, ECM and sensor direction, radians in (-pi, pi]
   //UWORD		turretRotRate;				// weapon, ECM and sensor direction and pitch - THIS IS A CONSTANT
-  UWORD turretPitch; // weapon, ECM and sensor direction and pitch
+  float turretPitch; // weapon, ECM and sensor pitch, radians +ve up
 
   UDWORD timeLastHit; //the time the structure was last attacked
   UDWORD lastHitWeapon;

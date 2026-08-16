@@ -3,7 +3,7 @@
 #include "Frame.h"
 #include "ListMacs.h"
 #include "FrameResource.h"
-#include "Geo.h"
+#include "RenderMatrix.h"
 
 #include "Anim.h"
 #include "Json.h"
@@ -412,7 +412,7 @@ iIMDShape* anim_GetShapeFromID(UWORD uwID)
 /***************************************************************************/
 
 UWORD anim_GetFrame3D(ANIM3D* psAnim, UWORD uwObj, UDWORD udwGameTime, UDWORD udwStartTime, UDWORD udwStartDelay, VECTOR3D* psVecPos,
-                      VECTOR3D* psVecRot, VECTOR3D* psVecScale)
+                      DirectX::XMFLOAT3* psVecRot, VECTOR3D* psVecScale)
 {
   DWORD dwTime;
   UWORD uwState, uwFrame;
@@ -438,9 +438,10 @@ UWORD anim_GetFrame3D(ANIM3D* psAnim, UWORD uwObj, UDWORD udwGameTime, UDWORD ud
   psVecPos->y = psState->vecPos.y / INT_SCALE;
   psVecPos->z = psState->vecPos.z / INT_SCALE;
 
-  psVecRot->x = psState->vecAngle.x * DEG_1 / INT_SCALE;
-  psVecRot->y = psState->vecAngle.y * DEG_1 / INT_SCALE;
-  psVecRot->z = psState->vecAngle.z * DEG_1 / INT_SCALE;
+  /* the .ani files store the angles as degrees scaled up by INT_SCALE */
+  psVecRot->x = DirectX::XMConvertToRadians(static_cast<float>(psState->vecAngle.x) / INT_SCALE);
+  psVecRot->y = DirectX::XMConvertToRadians(static_cast<float>(psState->vecAngle.y) / INT_SCALE);
+  psVecRot->z = DirectX::XMConvertToRadians(static_cast<float>(psState->vecAngle.z) / INT_SCALE);
 
   psVecScale->x = psState->vecScale.x;
   psVecScale->y = psState->vecScale.y;

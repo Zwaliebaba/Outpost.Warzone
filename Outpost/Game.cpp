@@ -1,4 +1,5 @@
 #include "pch.h"
+#include <directxmath.h>
 /*
 	ALL PSX, HASH_NAMES AND WIN32 excluded stuff removed - Alex M.
 */
@@ -836,7 +837,7 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem)
 
   //		bMultiPlayer = TRUE;				// reenable multi player messages.
   setViewAngle(INITIAL_STARTING_PITCH);
-  setDesiredPitch(INITIAL_DESIRED_PITCH);
+  setDesiredPitch(DirectX::XMConvertToRadians(INITIAL_DESIRED_PITCH));
 
 
   //need to clear before setting up
@@ -1035,7 +1036,8 @@ BOOL loadSaveDroidInitV2(UBYTE* pFileData, UDWORD filesize, UDWORD quantity)
         if (psDroid)
         {
           psDroid->id = pDroidInit->id;
-          psDroid->direction = static_cast<UWORD>(pDroidInit->direction);
+          // on-disk degrees in [0, 360), wrapped into the engine's (-pi, pi]
+          psDroid->direction = DirectX::XMScalarModAngle(DirectX::XMConvertToRadians(static_cast<float>(pDroidInit->direction)));
           addDroid(psDroid, apsDroidLists);
         }
         else
@@ -1250,7 +1252,8 @@ BOOL loadSaveStructureV7(UBYTE* pFileData, UDWORD filesize, UDWORD numStructures
       //copy the values across
       psStructure->id = psSaveStructure->id;
       //are these going to ever change from the values set up with?
-      psStructure->direction = static_cast<UWORD>(psSaveStructure->direction);
+      // on-disk degrees in [0, 360), wrapped into the engine's (-pi, pi]
+      psStructure->direction = DirectX::XMScalarModAngle(DirectX::XMConvertToRadians(static_cast<float>(psSaveStructure->direction)));
     }
 
     psStructure->inFire = psSaveStructure->inFire;
@@ -1427,7 +1430,8 @@ BOOL loadSaveFeatureV14(UBYTE* pFileData, UDWORD filesize, UDWORD numFeatures, U
     }
     //restore values
     pFeature->id = psSaveFeature->id;
-    pFeature->direction = static_cast<UWORD>(psSaveFeature->direction);
+    // on-disk degrees in [0, 360), wrapped into the engine's (-pi, pi]
+    pFeature->direction = DirectX::XMScalarModAngle(DirectX::XMConvertToRadians(static_cast<float>(psSaveFeature->direction)));
     pFeature->inFire = psSaveFeature->inFire;
     pFeature->burnDamage = psSaveFeature->burnDamage;
     if (version >= VERSION_14)

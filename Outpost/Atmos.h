@@ -1,5 +1,7 @@
 #ifndef _atmos_h
 #define _atmos_h
+
+#include <directxmath.h>
 #include "Model.h"
 #include "RenderTypes.h"
 
@@ -8,8 +10,8 @@ using ATPART = struct _atmosParticle
   UBYTE status;
   UBYTE type;
   UDWORD size;
-  PIEVECTORF position;
-  PIEVECTORF velocity;
+  DirectX::XMFLOAT3 position;
+  DirectX::XMFLOAT3 velocity;
   iIMDShape* imd;
 };
 

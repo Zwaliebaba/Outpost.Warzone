@@ -169,7 +169,7 @@ BOOL multiplayerWinSequence(BOOL firstCall)
   {
     fraction = static_cast<float>(frameTime) / GAME_TICKS_PER_SEC;
     rotAmount = fraction * MAP_SPIN_RATE / 12;
-    player.r.y += std::lrintf(rotAmount);
+    player.r.y += rotAmount;
   }
 
   if (last > gameTime)

@@ -63,6 +63,6 @@ BOOL driveWasDriving(void);
 void driveDisableDriving(void);
 void driveRestoreDriving(void);
 SDWORD driveGetMoveSpeed(void);
-SDWORD driveGetMoveDir(void);
+float driveGetMoveDir(void);
 BOOL driveSetDirectControl(BOOL Control);
 BOOL driveSetWasDriving(BOOL Driving);

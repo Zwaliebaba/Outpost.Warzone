@@ -194,7 +194,7 @@ ANIM_OBJECT* animObj_Add(void* pParentObj, int iAnimID, UDWORD udwStartDelay, UW
  */
 /***************************************************************************/
 
-UWORD animObj_GetFrame3D(ANIM_OBJECT* psObj, UWORD uwObj, VECTOR3D* psVecPos, VECTOR3D* psVecRot, VECTOR3D* psVecScale)
+UWORD animObj_GetFrame3D(ANIM_OBJECT* psObj, UWORD uwObj, VECTOR3D* psVecPos, DirectX::XMFLOAT3* psVecRot, VECTOR3D* psVecScale)
 {
   ANIM3D* psAnim;
 

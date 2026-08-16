@@ -7,7 +7,7 @@
 #define _raycast_h
 
 #define NUM_RAYS		360
-#define RAY_ANGLE		((float)(2*PI/NUM_RAYS))
+#define RAY_ANGLE		(DirectX::XM_2PI / NUM_RAYS)
 #define RAY_LENGTH		(TILE_UNITS * 5)
 
 // maximum length for a visiblity ray
@@ -24,6 +24,9 @@ using RAY_CALLBACK = BOOL(*)(SDWORD x, SDWORD y, SDWORD dist);
 /* cast a ray from x,y (world coords) at angle ray (0-NUM_RAYS) */
 extern void rayCast(UDWORD x, UDWORD y, UDWORD ray, UDWORD length, RAY_CALLBACK callback);
 
+/* quantise a radian direction to a whole-degree ray index in [0, NUM_RAYS) */
+extern UDWORD rayIndex(float direction);
+
 // Calculate the angle to cast a ray between two points
 extern UDWORD rayPointsToAngle(SDWORD x1, SDWORD y1, SDWORD x2, SDWORD y2);
 
@@ -35,9 +38,9 @@ extern UDWORD rayPointsToAngle(SDWORD x1, SDWORD y1, SDWORD x2, SDWORD y2);
 extern SDWORD rayPointDist(SDWORD x1, SDWORD y1, SDWORD x2, SDWORD y2, SDWORD px, SDWORD py);
 
 // Calculates the maximum height and distance found along a line from any
-// point to the edge of the grid
-extern void getBestPitchToEdgeOfGrid(UDWORD x, UDWORD y, UDWORD direction, SDWORD* pitch);
+// point to the edge of the grid; the direction and the pitch are radians
+extern void getBestPitchToEdgeOfGrid(UDWORD x, UDWORD y, float direction, float* pitch);
 
-extern void getPitchToHighestPoint(UDWORD x, UDWORD y, UDWORD direction, UDWORD thresholdDistance, SDWORD* pitch);
+extern void getPitchToHighestPoint(UDWORD x, UDWORD y, float direction, UDWORD thresholdDistance, float* pitch);
 
 #endif

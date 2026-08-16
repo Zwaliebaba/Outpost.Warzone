@@ -499,7 +499,7 @@ BOOL visibleObject(BASE_OBJECT* psViewer, BASE_OBJECT* psTarget)
   tarDist = rangeSquared;
   rayStart = TRUE;
   currObj = 0;
-  ray = NUM_RAYS - 1 - calcDirection(psViewer->x, psViewer->y, psTarget->x, psTarget->y);
+  ray = NUM_RAYS - 1 - rayIndex(calcDirection(psViewer->x, psViewer->y, psTarget->x, psTarget->y));
   finalX = psTarget->x >> TILE_SHIFT;
   finalY = psTarget->y >> TILE_SHIFT;
 

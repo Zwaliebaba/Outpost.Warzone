@@ -1,128 +1,54 @@
 /***************************************************************************/
 /*
- * pieMatrix.h
+ * RenderMatrix.h
  *
- * matrix functions for pumpkin image library.
+ * The renderer's transform stack and world -> screen projection, on
+ * DirectXMath. Call sites compose local transforms onto the current matrix
+ * directly, pre-multiplied:
+ *
+ *   Neuron::MatrixPush();
+ *   DirectX::XMMATRIX& world = Neuron::WorldMatrix();
+ *   world = DirectX::XMMatrixTranslation(x, y, z) * world;
+ *   ...
+ *   Neuron::MatrixPop();
+ *
+ * A reference names the stack slot that was current when it was taken, so
+ * take it after MatrixPush and do not carry it across MatrixPop.
  *
  */
 /***************************************************************************/
 #ifndef _renderMatrix_h
 #define _renderMatrix_h
 
+#include <directxmath.h>
+
 #include "RenderTypes.h"
 #include "RendMode.h"
 
-/***************************************************************************/
-/*
- *	Global Definitions
- */
-/***************************************************************************/
-
-using SDMATRIX = struct
+namespace Neuron
 {
-  SDWORD a, b, c, d, e, f, g, h, i, j, k, l;
-};
+  // The renderer's depth scale. The fixed-point pipeline computed depth as
+  // FP12 z >> STRETCHED_Z_SHIFT, i.e. world z times this factor, and
+  // MIN_STRETCHED_Z, MAX_Z and the depth-sort ranges are calibrated to it.
+  inline constexpr float StretchedDepthScale = static_cast<float>(FP12_MULTIPLIER >> STRETCHED_Z_SHIFT);
 
-/***************************************************************************/
-/*
- *	Global Variables
- */
-/***************************************************************************/
+  // The current model -> camera transform: the top of the matrix stack.
+  extern DirectX::XMMATRIX& WorldMatrix(void);
 
-extern SDMATRIX* psMatrix;
-extern SDWORD aSinTable[];
+  extern void MatrixPush(void);
+  extern void MatrixPop(void);
 
-//*************************************************************************
+  // World -> screen through the current matrix. Returns the stretched depth
+  // (world z through the matrix, times StretchedDepthScale); writes LONG_WAY
+  // to both coordinates when the point is at or behind the near limit.
+  // Integer in and out because that is what every caller's world state is;
+  // stage E revisits the boundary with the angle units.
+  extern SDWORD ProjectToScreen(SDWORD _x, SDWORD _y, SDWORD _z, SDWORD* _sx, SDWORD* _sy);
 
-#define SIN(X)					aSinTable[(uint16)(X) >> 4]
-#define COS(X)					aSinTable[((uint16)(X) >> 4) + 1024]
-#define pie_INVTRANSX(X)		psMatrix->j = (X)<<FP12_SHIFT
-#define pie_INVTRANSY(Y)		psMatrix->k = (Y)<<FP12_SHIFT
-#define pie_INVTRANSZ(Z)		psMatrix->l = (Z)<<FP12_SHIFT
-#define pie_MATTRANS(X,Y,Z)		{	psMatrix->j = (X)<<FP12_SHIFT;				\
-									psMatrix->k = (Y)<<FP12_SHIFT;				\
-									psMatrix->l = (Z)<<FP12_SHIFT;	}
-//*************************************************************************
+  extern void SetGeometricOffset(int _x, int _y);
 
-#define pie_SETUP_ROTATE_PROJECT																\
-	int32 _ivzfx, _ivzfy, _ivx, _ivy, _ivz
-
-#define pie_ROTATE_PROJECT(x,y,z,xs,ys)										\
-{																			\
-	_ivx = (x) * psMatrix->a + (y) * psMatrix->d + (z) * psMatrix->g +	\
-				psMatrix->j;												\
-	_ivy = (x) * psMatrix->b + (y) * psMatrix->e + (z) * psMatrix->h +	\
-				psMatrix->k;												\
-	_ivz = (x) * psMatrix->c + (y) * psMatrix->f + (z) * psMatrix->i +	\
-				psMatrix->l;												\
-	_ivzfx = _ivz >> psRendSurface->xpshift;							\
-	_ivzfy = _ivz >> psRendSurface->ypshift;							\
-	if ((_ivzfx > 0) && (_ivzfy > 0))										\
-	{																		\
-		(xs) = psRendSurface->xcentre + (int32) (_ivx / _ivzfx);		\
-		(ys) = psRendSurface->ycentre - (int32) (_ivy / _ivzfy);		\
-	}																		\
-	else																	\
-	{																		\
-		(xs) = 1<<15;														\
-		(ys) = 1<<15;														\
-	}																		\
+  // Reset the stack and make the first matrix identity.
+  extern void MatrixInit(void);
 }
-
-//*************************************************************************
-
-#define pie_ROTATE_TRANSLATE(x,y,z,xs,ys,zs)										\
-{																			\
-	xs = (x) * psMatrix->a + (y) * psMatrix->d + (z) * psMatrix->g +	\
-				psMatrix->j;												\
-	ys = (x) * psMatrix->b + (y) * psMatrix->e + (z) * psMatrix->h +	\
-				psMatrix->k;												\
-	zs = (x) * psMatrix->c + (y) * psMatrix->f + (z) * psMatrix->i +	\
-				psMatrix->l;												\
-	xs >>=FP12_SHIFT;												\
-	ys >>=FP12_SHIFT;												\
-	zs >>=FP12_SHIFT;												\
-}
-
-//*************************************************************************
-
-#define pie_TRANSLATE(x, y, z)																\
-{																									\
-	psMatrix->j += ((x) * psMatrix->a + (y) * psMatrix->d + 					\
-						(z) * psMatrix->g);													\
-	psMatrix->k += ((x) * psMatrix->b + (y) * psMatrix->e + 					\
-						(z) * psMatrix->h);													\
-	psMatrix->l += ((x) * psMatrix->c + (y) * psMatrix->f + 					\
-						(z) * psMatrix->i);													\
-}
-
-//*************************************************************************
-
-#define pie_CLOCKWISE(x0,y0,x1,y1,x2,y2) ((((y1)-(y0)) * ((x2)-(x1))) <=	\
-															(((x1)-(x0)) * ((y2)-(y1))))
-
-//*************************************************************************
-
-extern void pie_MatInit(void);
-
-//*************************************************************************
-
-extern void pie_MatBegin(void);
-extern void pie_MatEnd(void);
-extern void pie_MatRotX(int x);
-extern void pie_MatRotY(int y);
-extern void pie_MatRotZ(int z);
-extern int32 pie_RotProj(iVector* v3d, iPoint* v2d);
-
-//*************************************************************************
-
-extern void pie_VectorNormalise(iVector* v);
-extern void pie_VectorInverseRotate0(iVector* v1, iVector* v2);
-extern void pie_SurfaceNormal(iVector* p1, iVector* p2, iVector* p3, iVector* v);
-extern BOOL pie_Clockwise(iVertex* s);
-extern void pie_SetGeometricOffset(int x, int y);
-
-// PIEVERTEX structure contains much infomation that is not required on the playstation ... and hence is not currently used
-extern BOOL pie_PieClockwise(PIEVERTEX* s);
 
 #endif

@@ -1,4 +1,6 @@
 #include "pch.h"
+#include <directxmath.h>
+#include <cmath>
 /*
  * Formation.c
  *
@@ -7,7 +9,6 @@
  */
 
 #include "Frame.h"
-#include "Trig.h"
 #include "Objects.h"
 #include "Map.h"
 #include "AStar.h"
@@ -82,7 +83,7 @@ UDWORD adjustDirection(SDWORD present, SDWORD difference)
 #endif
 
 // Create a new formation
-BOOL formationNew(FORMATION** ppsFormation, FORMATION_TYPE type, SDWORD x, SDWORD y, SDWORD dir)
+BOOL formationNew(FORMATION** ppsFormation, FORMATION_TYPE type, SDWORD x, SDWORD y, float dir)
 {
   FORMATION* psNew;
   SDWORD i;
@@ -96,7 +97,7 @@ BOOL formationNew(FORMATION** ppsFormation, FORMATION_TYPE type, SDWORD x, SDWOR
   psNew->refCount = 0;
   psNew->size = static_cast<SWORD>(F_DEFLENGTH);
   psNew->rankDist = static_cast<SWORD>(RANK_DIST);
-  psNew->dir = static_cast<SWORD>(dir);
+  psNew->dir = dir;
   psNew->x = x;
   psNew->y = y;
   psNew->free = 0;
@@ -114,12 +115,12 @@ BOOL formationNew(FORMATION** ppsFormation, FORMATION_TYPE type, SDWORD x, SDWOR
     // line to the left
     psNew->asLines[0].xoffset = 0;
     psNew->asLines[0].yoffset = 0;
-    psNew->asLines[0].dir = static_cast<SWORD>(adjustDirection(dir, -110));
+    psNew->asLines[0].dir = adjustDirection(dir, DirectX::XMConvertToRadians(-110.0f));
     psNew->asLines[0].member = -1;
     // line to the right
     psNew->asLines[1].xoffset = 0;
     psNew->asLines[1].yoffset = 0;
-    psNew->asLines[1].dir = static_cast<SWORD>(adjustDirection(dir, 110));
+    psNew->asLines[1].dir = adjustDirection(dir, DirectX::XMConvertToRadians(110.0f));
     psNew->asLines[1].member = -1;
     break;
   case FT_COLUMN:
@@ -127,7 +128,7 @@ BOOL formationNew(FORMATION** ppsFormation, FORMATION_TYPE type, SDWORD x, SDWOR
     // line to the left
     psNew->asLines[0].xoffset = 0;
     psNew->asLines[0].yoffset = 0;
-    psNew->asLines[0].dir = static_cast<SWORD>(adjustDirection(dir, 180));
+    psNew->asLines[0].dir = adjustDirection(dir, DirectX::XM_PI);
     psNew->asLines[0].member = -1;
     break;
   default: DEBUG_ASSERT_TEXT(FALSE, "fmNewFormation: unknown formation type");
@@ -304,15 +305,15 @@ void formationCalcPos(FORMATION* psFormation, SDWORD line, SDWORD dist, SDWORD* 
   rank = dist / psFormation->size;
 
   // calculate the offset of the line based on the rank
-  dir = static_cast<SDWORD>(adjustDirection(psFormation->dir, 180));
-  xoffset = std::lrintf(trigSin(dir) * static_cast<float>(psFormation->rankDist * rank)) + psFormation->asLines[line].xoffset;
-  yoffset = std::lrintf(trigCos(dir) * static_cast<float>(psFormation->rankDist * rank)) + psFormation->asLines[line].yoffset;
+  dir = adjustDirection(psFormation->dir, DirectX::XM_PI);
+  xoffset = std::lrintf(sinf(dir) * static_cast<float>(psFormation->rankDist * rank)) + psFormation->asLines[line].xoffset;
+  yoffset = std::lrintf(cosf(dir) * static_cast<float>(psFormation->rankDist * rank)) + psFormation->asLines[line].yoffset;
 
   // calculate the position of the gap
   dir = psFormation->asLines[line].dir;
   dist -= psFormation->size * rank;
-  *pX = std::lrintf(trigSin(dir) * static_cast<float>(dist)) + xoffset + psFormation->x;
-  *pY = std::lrintf(trigCos(dir) * static_cast<float>(dist)) + yoffset + psFormation->y;
+  *pX = std::lrintf(sinf(dir) * static_cast<float>(dist)) + xoffset + psFormation->x;
+  *pY = std::lrintf(cosf(dir) * static_cast<float>(dist)) + yoffset + psFormation->y;
 }
 
 // assign a unit to a free spot in the formation

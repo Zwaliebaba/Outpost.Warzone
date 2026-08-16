@@ -22,9 +22,9 @@ something replaces it, a green CI means the tree compiles and links — nothing
 more.
 
 The individual checklists live in [Phase8Plan.md](Phase8Plan.md#verification),
-[Phase9Plan.md](Phase9Plan.md#verification), [Phase4Plan.md](Phase4Plan.md#verification)
-and [Phase6Plan.md](Phase6Plan.md). This document does not replace them; it is
-the order to do them in.
+[Phase9Plan.md](Phase9Plan.md#verification), [Phase4Plan.md](Phase4Plan.md#verification),
+[Phase6Plan.md](Phase6Plan.md) and [Phase10Plan.md](Phase10Plan.md#f--verification).
+This document does not replace them; it is the order to do them in.
 
 ## Before you start
 
@@ -243,6 +243,63 @@ the same scene, before and after stage B:
 - **poly count should be identical** — if it moved, geometry changed, which
   stage B was not supposed to do
 
+## Pass I — Phase 10: DirectXMath and the radian flip
+
+Added 2026-08-16, after the first session below — Phase 10 landed later the
+same day, so nothing in it has been run. It replaced the renderer's
+fixed-point arithmetic with DirectXMath and, by owner ruling, migrated every
+stored angle in game state from integer degrees and 16-bit binary angles to
+float radians. Its surface is therefore both rendering *and* gameplay: droid
+turning, formations, projectiles, turrets and the camera all compute in new
+units. The cross-check and MSVC CI are green on all of it, which per this
+sheet's rule means it compiles and links — nothing more.
+
+**Intended behaviour changes first**, so a difference from memory is not
+misread as a regression. Seven latent angle defects were fixed during the
+migration (each recorded in the stage E status blocks of
+[Phase10Plan.md](Phase10Plan.md)): the ballistic pitch-swap that flattened
+some indirect-fire arcs, an unreachable negative-pitch branch, perpendicular
+speed lost past a 180° heading difference, the unwrapped vtol roll, an
+uninitialised track-angle average, the tracking camera's garbage offsets on
+west-ish average headings, and a degrees-versus-radians comparison in the
+component renderer's winding choice. Separately, the old 1°-per-frame turn
+floors are gone — slow-turning heavies now turn at their stated rate, which
+reads as *slightly slower* than before at low frame rates, deliberately.
+
+1. **Re-run pass A on the Phase 10 head.** Same criteria, plus: any
+   *systematic* offset in terrain or model placement means a
+   projection-constant error (the focal length is 1024, depth is world-z ×4);
+   turrets and muzzle flashes sit correctly on their hulls (the hierarchy is
+   now composed `XMMATRIX` pre-multiplies); the radar draws rotated and its
+   viewing-window quad tracks the camera (`RotateVector2D` takes radians);
+   effect circles — fireworks, gravitons — look round and tumble smoothly.
+2. **The parity figure.** Check out the stage-B head `048f430`, build Debug,
+   run `-game CAM_1A`, quit: the fixed-point parity shadow prints the worst
+   screen-space divergence at shutdown. Expected ≤ ~1 pixel; anything larger
+   is a conversion bug to find, not a tolerance to widen. The shadow was
+   retired at stage C, so the figure exists only at that commit.
+3. **Gameplay in radians.** Droids drive and turn cleanly at all speeds;
+   formation lines form and fill at the right angles; indirect fire arcs and
+   lands (low-trajectory shots differ deliberately — see above); turrets
+   track and settle, including the vtol ±45° traverse limit.
+4. **The tracking camera.** Track a single droid, then more than two
+   selected, then a group — and make some of them head *west*, the heading
+   band the fixed defect used to garbage. Track a vtol (roll now wraps).
+   Radar-jump with alignment on and off; the track must come to rest and
+   hand back control.
+5. **Camera controls.** Pitch clamps at both ends and reset-pitch;
+   face North/South/East/West; drag-rotate, normal and inverted mouse;
+   keyboard spin and pitch (a full turn in 2 seconds); edge scroll runs in
+   the compass direction of the drag at every yaw; screen shake; the
+   intelligence screen; save a view on a qwerty map marker and jump back to
+   it — the stored spin is radians now.
+6. **Audio pan.** Weapons and explosions stay positioned as the camera yaws —
+   the listener pose now converts radians to the mixer's degrees.
+7. **Two instances, one skirmish.** Long enough to see the direction-sync
+   tolerance checks hold in radians: no oscillating unit headings, no
+   rubber-banding snap-backs. The wire still carries whole integer degrees;
+   both peers run the same binary, so lockstep is unchanged by design.
+
 ---
 
 ## Results
@@ -262,6 +319,7 @@ Anything needing ears or menu navigation is not done.
 | F — FMV and gates | not run | Needs menu navigation to reach a briefing |
 | G — fog parity | **pass** | Three-point comparison: default = warm haze over distance, `-noFog` = none, `-greyFog` = grey haze. The hue tracks the switch names, which excludes the day/night script as the cause. Closes the last open Phase 2 item |
 | H — counters | not run | `pie_GetResetCounts` has no visible readout from a plain launch |
+| I — Phase 10 | **pass** | Owner-run session, 2026-08-16. The boot surfaced two boundary-conversion escapes — an unwrapped 222° map heading and a visibility ray index past the trig tables — both fixed during the session and recorded in [Phase10Plan.md](Phase10Plan.md#f--verification); after the fixes the run came back clean. Covers the pass-A re-flag too, since reaching gameplay re-exercises the rewritten renderer |
 
 Two defects found by running, both fixed in the same session: `tools/dbg.py`
 crashed on its first-ever Windows run (`ctypes.wintypes` is a submodule and was

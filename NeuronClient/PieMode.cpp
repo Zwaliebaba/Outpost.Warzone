@@ -54,7 +54,7 @@ BOOL pie_Initialise(void)
 {
   pie_InitMaths();
   pie_TexInit();
-  pie_MatInit();
+  Neuron::MatrixInit();
   _TEX_INDEX = 0;
 
   rendSurface.flags = REND_SURFACE_SCREEN;

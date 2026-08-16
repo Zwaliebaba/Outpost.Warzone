@@ -1,4 +1,5 @@
 #include "pch.h"
+#include <directxmath.h>
 #include "Effects.h"
 #include "AudioSystem.h"
 #include "AudioID.h"
@@ -8,7 +9,7 @@
 #include "Input.h"
 #include "GTime.h"
 #include "Game.h"
-#include "Geo.h"  
+#include "RenderMatrix.h"  
 #include "HCI.h"
 #include "Model.h"
 #include "Lighting.h"
@@ -594,9 +595,9 @@ void updateFirework(EFFECT* psEffect)
   UDWORD drop;
 
   /* Move it */
-  psEffect->position.x += (psEffect->velocity.x * fraction);
-  psEffect->position.y += (psEffect->velocity.y * fraction);
-  psEffect->position.z += (psEffect->velocity.z * fraction);
+  DirectX::XMStoreFloat3(&psEffect->position,
+    DirectX::XMVectorAdd(DirectX::XMLoadFloat3(&psEffect->position),
+                         DirectX::XMVectorScale(DirectX::XMLoadFloat3(&psEffect->velocity), fraction)));
 
   if (psEffect->type == FIREWORK_TYPE_LAUNCHER)
   {
@@ -619,10 +620,10 @@ void updateFirework(EFFECT* psEffect)
         //val = getStaticTimeValueRange(720,360);	// grab an angle - 4 seconds cyclic
         for (UDWORD val = 0; val <= 180; val += 20)
         {
-          UDWORD xDif = radius * (SIN(DEG(val)));
-          UDWORD yDif = radius * (COS(DEG(val)));
-          xDif = xDif / 4096; // cos it's fixed point
-          yDif = yDif / 4096;
+          float valSin, valCos;
+          DirectX::XMScalarSinCos(&valSin, &valCos, DirectX::XMConvertToRadians(static_cast<float>(val)));
+          SDWORD xDif = static_cast<SDWORD>(std::lrintf(radius * valSin));
+          SDWORD yDif = static_cast<SDWORD>(std::lrintf(radius * valCos));
           dv.x = std::lrintf(psEffect->position.x) + xDif;
           dv.z = std::lrintf(psEffect->position.z) + yDif;
           dv.y = std::lrintf(psEffect->position.y) + dif;
@@ -740,10 +741,10 @@ void updateSatLaser(EFFECT* psEffect)
       /* Add 36 around in a circle..! */
       for (UDWORD val = 0; val <= 180; val += 30)
       {
-        UDWORD xDif = radius * (SIN(DEG(val)));
-        UDWORD yDif = radius * (COS(DEG(val)));
-        xDif = xDif / 4096; // cos it's fixed point
-        yDif = yDif / 4096;
+        float valSin, valCos;
+        DirectX::XMScalarSinCos(&valSin, &valCos, DirectX::XMConvertToRadians(static_cast<float>(val)));
+        SDWORD xDif = static_cast<SDWORD>(std::lrintf(radius * valSin));
+        SDWORD yDif = static_cast<SDWORD>(std::lrintf(radius * valCos));
         dv.x = xPos + xDif + i / 64;
         dv.z = yPos + yDif;
         dv.y = startHeight + i;
@@ -880,9 +881,9 @@ void updateBlood(EFFECT* psEffect)
     }
   }
   /* Move it about in the world */
-  psEffect->position.x += (psEffect->velocity.x * fraction);
-  psEffect->position.y += (psEffect->velocity.y * fraction);
-  psEffect->position.z += (psEffect->velocity.z * fraction);
+  DirectX::XMStoreFloat3(&psEffect->position,
+    DirectX::XMVectorAdd(DirectX::XMLoadFloat3(&psEffect->position),
+                         DirectX::XMVectorScale(DirectX::XMLoadFloat3(&psEffect->velocity), fraction)));
 }
 
 // ----------------------------------------------------------------------------------------
@@ -923,9 +924,9 @@ void updatePolySmoke(EFFECT* psEffect)
   }
 
   /* Update position */
-  psEffect->position.x += (psEffect->velocity.x * fraction);
-  psEffect->position.y += (psEffect->velocity.y * fraction);
-  psEffect->position.z += (psEffect->velocity.z * fraction);
+  DirectX::XMStoreFloat3(&psEffect->position,
+    DirectX::XMVectorAdd(DirectX::XMLoadFloat3(&psEffect->position),
+                         DirectX::XMVectorScale(DirectX::XMLoadFloat3(&psEffect->velocity), fraction)));
 
   /* If it doesn't get killed by frame number, then by age */
   if (TEST_CYCLIC(psEffect))
@@ -970,9 +971,9 @@ void updateGraviton(EFFECT* psEffect)
     return;
   }
   /* Move it about in the world */
-  psEffect->position.x += (psEffect->velocity.x * fraction);
-  psEffect->position.y += (psEffect->velocity.y * fraction);
-  psEffect->position.z += (psEffect->velocity.z * fraction);
+  DirectX::XMStoreFloat3(&psEffect->position,
+    DirectX::XMVectorAdd(DirectX::XMLoadFloat3(&psEffect->position),
+                         DirectX::XMVectorScale(DirectX::XMLoadFloat3(&psEffect->velocity), fraction)));
   /* If it's bounced/drifted off the map then kill it */
   if ((static_cast<UDWORD>(std::lrintf(psEffect->position.x)) / TILE_UNITS >= mapWidth) OR static_cast<UDWORD>(std::lrintf(psEffect->position.z)) /
     TILE_UNITS >= mapHeight)
@@ -1027,9 +1028,9 @@ void updateGraviton(EFFECT* psEffect)
   }
 
   /* Spin it round a bit */
-  psEffect->rotation.x += std::lrintf(static_cast<float>(psEffect->spin.x) * fraction);
-  psEffect->rotation.y += std::lrintf(static_cast<float>(psEffect->spin.y) * fraction);
-  psEffect->rotation.z += std::lrintf(static_cast<float>(psEffect->spin.z) * fraction);
+  psEffect->rotation.x += psEffect->spin.x * fraction;
+  psEffect->rotation.y += psEffect->spin.y * fraction;
+  psEffect->rotation.z += psEffect->spin.z * fraction;
 
   /* Update velocity (and retarding of descent) according to present frame rate */
   accel = (GRAVITON_GRAVITY * fraction);
@@ -1258,9 +1259,9 @@ void updateConstruction(EFFECT* psEffect)
   }
 
   /* Move it about in the world */
-  psEffect->position.x += (psEffect->velocity.x * fraction);
-  psEffect->position.y += (psEffect->velocity.y * fraction);
-  psEffect->position.z += (psEffect->velocity.z * fraction);
+  DirectX::XMStoreFloat3(&psEffect->position,
+    DirectX::XMVectorAdd(DirectX::XMLoadFloat3(&psEffect->position),
+                         DirectX::XMVectorScale(DirectX::XMLoadFloat3(&psEffect->velocity), fraction)));
 
   /* If it doesn't get killed by frame number, then by height */
   if (TEST_CYCLIC(psEffect))
@@ -1396,18 +1397,18 @@ void renderWaypointEffect(EFFECT* psEffect)
   dv.x = (static_cast<UDWORD>(std::lrintf(psEffect->position.x)) - player.p.x) - terrainMidX * TILE_UNITS;
   dv.y = static_cast<UDWORD>(std::lrintf(psEffect->position.y));
   dv.z = terrainMidY * TILE_UNITS - (static_cast<UDWORD>(std::lrintf(psEffect->position.z)) - player.p.z);
-  pie_MatBegin(); /* Push the indentity matrix */
-  pie_TRANSLATE(dv.x, dv.y, dv.z);
+  Neuron::MatrixPush(); /* Push the indentity matrix */
+  Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(dv.x), static_cast<float>(dv.y), static_cast<float>(dv.z)) * Neuron::WorldMatrix();
   SDWORD rx = player.p.x & (TILE_UNITS - 1); /* Get the x,z translation components */
   SDWORD rz = player.p.z & (TILE_UNITS - 1);
-  pie_TRANSLATE(rx, 0, -rz); /* Translate */
+  Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(rx), 0.0f, static_cast<float>(-rz)) * Neuron::WorldMatrix(); /* Translate */
 
   // set up lighting
   UDWORD brightness = lightDoFogAndIllumination(pie_MAX_BRIGHT_LEVEL, getCentreX() - std::lrintf(psEffect->position.x),
                                                 getCentreZ() - std::lrintf(psEffect->position.z), &specular);
 
   pie_Draw3DShape(psEffect->imd, 0, 0, brightness, specular, 0, 0);
-  pie_MatEnd();
+  Neuron::MatrixPop();
 }
 
 // ----------------------------------------------------------------------------------------
@@ -1423,21 +1424,21 @@ void renderFirework(EFFECT* psEffect)
   dv.x = (static_cast<UDWORD>(std::lrintf(psEffect->position.x)) - player.p.x) - terrainMidX * TILE_UNITS;
   dv.y = static_cast<UDWORD>(std::lrintf(psEffect->position.y));
   dv.z = terrainMidY * TILE_UNITS - (static_cast<UDWORD>(std::lrintf(psEffect->position.z)) - player.p.z);
-  pie_MatBegin(); /* Push the indentity matrix */
-  pie_TRANSLATE(dv.x, dv.y, dv.z);
+  Neuron::MatrixPush(); /* Push the indentity matrix */
+  Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(dv.x), static_cast<float>(dv.y), static_cast<float>(dv.z)) * Neuron::WorldMatrix();
   SDWORD rx = player.p.x & (TILE_UNITS - 1); /* Get the x,z translation components */
   SDWORD rz = player.p.z & (TILE_UNITS - 1);
-  pie_TRANSLATE(rx, 0, -rz); /* Translate */
+  Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(rx), 0.0f, static_cast<float>(-rz)) * Neuron::WorldMatrix(); /* Translate */
 
-  pie_MatRotY(-player.r.y);
-  pie_MatRotX(-player.r.x);
+  Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(-player.r.y) * Neuron::WorldMatrix();
+  Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(-player.r.x) * Neuron::WorldMatrix();
 
   UDWORD brightness = lightDoFogAndIllumination(pie_MAX_BRIGHT_LEVEL, getCentreX() - std::lrintf(psEffect->position.x),
                                                 getCentreZ() - std::lrintf(psEffect->position.z), &specular);
 
   scaleMatrix(psEffect->size);
   pie_Draw3DShape(psEffect->imd, psEffect->frameNumber, 0, brightness, 0, pie_ADDITIVE, EFFECT_EXPLOSION_ADDITIVE);
-  pie_MatEnd();
+  Neuron::MatrixPop();
 }
 
 // ----------------------------------------------------------------------------------------
@@ -1450,13 +1451,13 @@ void renderBloodEffect(EFFECT* psEffect)
   dv.x = (static_cast<UDWORD>(std::lrintf(psEffect->position.x)) - player.p.x) - terrainMidX * TILE_UNITS;
   dv.y = static_cast<UDWORD>(std::lrintf(psEffect->position.y));
   dv.z = terrainMidY * TILE_UNITS - (static_cast<UDWORD>(std::lrintf(psEffect->position.z)) - player.p.z);
-  pie_MatBegin(); /* Push the indentity matrix */
-  pie_TRANSLATE(dv.x, dv.y, dv.z);
+  Neuron::MatrixPush(); /* Push the indentity matrix */
+  Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(dv.x), static_cast<float>(dv.y), static_cast<float>(dv.z)) * Neuron::WorldMatrix();
   SDWORD rx = player.p.x & (TILE_UNITS - 1); /* Get the x,z translation components */
   SDWORD rz = player.p.z & (TILE_UNITS - 1);
-  pie_TRANSLATE(rx, 0, -rz); /* Translate */
-  pie_MatRotY(-player.r.y);
-  pie_MatRotX(-player.r.x);
+  Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(rx), 0.0f, static_cast<float>(-rz)) * Neuron::WorldMatrix(); /* Translate */
+  Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(-player.r.y) * Neuron::WorldMatrix();
+  Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(-player.r.x) * Neuron::WorldMatrix();
   scaleMatrix(psEffect->size);
 
   // set up lighting
@@ -1464,7 +1465,7 @@ void renderBloodEffect(EFFECT* psEffect)
                                                 getCentreZ() - std::lrintf(psEffect->position.z), &specular);
 
   pie_Draw3DShape(getImdFromIndex(MI_BLOOD), psEffect->frameNumber, 0, brightness, specular, pie_TRANSLUCENT, EFFECT_BLOOD_TRANSPARENCY);
-  pie_MatEnd();
+  Neuron::MatrixPop();
 }
 
 // ----------------------------------------------------------------------------------------
@@ -1480,11 +1481,11 @@ void renderDestructionEffect(EFFECT* psEffect)
   dv.x = (static_cast<UDWORD>(std::lrintf(psEffect->position.x)) - player.p.x) - terrainMidX * TILE_UNITS;
   dv.y = static_cast<UDWORD>(std::lrintf(psEffect->position.y));
   dv.z = terrainMidY * TILE_UNITS - (static_cast<UDWORD>(std::lrintf(psEffect->position.z)) - player.p.z);
-  pie_MatBegin(); /* Push the indentity matrix */
-  pie_TRANSLATE(dv.x, dv.y, dv.z);
+  Neuron::MatrixPush(); /* Push the indentity matrix */
+  Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(dv.x), static_cast<float>(dv.y), static_cast<float>(dv.z)) * Neuron::WorldMatrix();
   SDWORD rx = player.p.x & (TILE_UNITS - 1); /* Get the x,z translation components */
   SDWORD rz = player.p.z & (TILE_UNITS - 1);
-  pie_TRANSLATE(rx, 0, -rz); /* Translate */
+  Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(rx), 0.0f, static_cast<float>(-rz)) * Neuron::WorldMatrix(); /* Translate */
 
   float div = static_cast<float>(gameTime - psEffect->birthTime) / psEffect->lifeSpan;
   if (div > 1.0)
@@ -1500,13 +1501,13 @@ void renderDestructionEffect(EFFECT* psEffect)
 
   if (!gamePaused())
   {
-    pie_MatRotX(SKY_SHIMMY);
-    pie_MatRotY(SKY_SHIMMY);
-    pie_MatRotZ(SKY_SHIMMY);
+    Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(SKY_SHIMMY) * Neuron::WorldMatrix();
+    Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(SKY_SHIMMY) * Neuron::WorldMatrix();
+    Neuron::WorldMatrix() = DirectX::XMMatrixRotationZ(SKY_SHIMMY) * Neuron::WorldMatrix();
   }
   pie_Draw3DShape(psEffect->imd, 0, 0, brightness, 0,pie_RAISE, percent);
 
-  pie_MatEnd();
+  Neuron::MatrixPop();
 }
 
 // ----------------------------------------------------------------------------------------
@@ -1560,20 +1561,20 @@ void renderExplosionEffect(EFFECT* psEffect)
   dv.x = (static_cast<UDWORD>(std::lrintf(psEffect->position.x)) - player.p.x) - terrainMidX * TILE_UNITS;
   dv.y = static_cast<UDWORD>(std::lrintf(psEffect->position.y));
   dv.z = terrainMidY * TILE_UNITS - (static_cast<UDWORD>(std::lrintf(psEffect->position.z)) - player.p.z);
-  pie_MatBegin(); /* Push the indentity matrix */
-  pie_TRANSLATE(dv.x, dv.y, dv.z);
+  Neuron::MatrixPush(); /* Push the indentity matrix */
+  Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(dv.x), static_cast<float>(dv.y), static_cast<float>(dv.z)) * Neuron::WorldMatrix();
   SDWORD rx = player.p.x & (TILE_UNITS - 1); /* Get the x,z translation components */
   SDWORD rz = player.p.z & (TILE_UNITS - 1);
-  pie_TRANSLATE(rx, 0, -rz); /* Translate */
+  Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(rx), 0.0f, static_cast<float>(-rz)) * Neuron::WorldMatrix(); /* Translate */
 
   /* Bit in comments - doesn't quite work yet? */
   if (TEST_FACING(psEffect))
   {
     /* Always face the viewer! */
     /*		TEST_FLIPPED_Y(psEffect) ? pie_MatRotY(-player.r.y+iV_DEG(180)) :*/
-    pie_MatRotY(-player.r.y);
+    Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(-player.r.y) * Neuron::WorldMatrix();
     /*		TEST_FLIPPED_X(psEffect) ? pie_MatRotX(-player.r.x+iV_DEG(180)) :*/
-    pie_MatRotX(-player.r.x);
+    Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(-player.r.x) * Neuron::WorldMatrix();
   }
 
   /* Tesla explosions diminish in size */
@@ -1607,7 +1608,7 @@ void renderExplosionEffect(EFFECT* psEffect)
   else
     pie_Draw3DShape(psEffect->imd, psEffect->frameNumber, 0, brightness, 0, pie_ADDITIVE, EFFECT_EXPLOSION_ADDITIVE);
 
-  pie_MatEnd();
+  Neuron::MatrixPop();
 }
 
 // ----------------------------------------------------------------------------------------
@@ -1622,21 +1623,21 @@ void renderGravitonEffect(EFFECT* psEffect)
   vec.z = terrainMidY * TILE_UNITS - (static_cast<UDWORD>(std::lrintf(psEffect->position.z)) - player.p.z);
 
   /* Push matrix */
-  pie_MatBegin();
+  Neuron::MatrixPush();
 
   /* Move to position */
-  pie_TRANSLATE(vec.x, vec.y, vec.z);
+  Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(vec.x), static_cast<float>(vec.y), static_cast<float>(vec.z)) * Neuron::WorldMatrix();
 
   /* Offset from camera */
   SDWORD rx = player.p.x & (TILE_UNITS - 1);
   SDWORD rz = player.p.z & (TILE_UNITS - 1);
 
   /* Move to camera reference */
-  pie_TRANSLATE(rx, 0, -rz);
+  Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(rx), 0.0f, static_cast<float>(-rz)) * Neuron::WorldMatrix();
 
-  pie_MatRotX(psEffect->rotation.x);
-  pie_MatRotY(psEffect->rotation.y);
-  pie_MatRotZ(psEffect->rotation.z);
+  Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(psEffect->rotation.x) * Neuron::WorldMatrix();
+  Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(psEffect->rotation.y) * Neuron::WorldMatrix();
+  Neuron::WorldMatrix() = DirectX::XMMatrixRotationZ(psEffect->rotation.z) * Neuron::WorldMatrix();
 
   /* Buildings emitted by gravitons are chunkier */
   if (psEffect->type == GRAVITON_TYPE_EMITTING_ST)
@@ -1652,7 +1653,7 @@ void renderGravitonEffect(EFFECT* psEffect)
   pie_Draw3DShape(psEffect->imd, psEffect->frameNumber, 0, brightness, specular, 0, 0);
 
   /* Pop the matrix */
-  pie_MatEnd();
+  Neuron::MatrixPop();
 }
 
 // ----------------------------------------------------------------------------------------
@@ -1674,25 +1675,25 @@ void renderConstructionEffect(EFFECT* psEffect)
   vec.z = terrainMidY * TILE_UNITS - (static_cast<UDWORD>(std::lrintf(psEffect->position.z)) - player.p.z);
 
   /* Push matrix */
-  pie_MatBegin();
+  Neuron::MatrixPush();
 
   /* Move to position */
-  pie_TRANSLATE(vec.x, vec.y, vec.z);
+  Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(vec.x), static_cast<float>(vec.y), static_cast<float>(vec.z)) * Neuron::WorldMatrix();
 
   /* Offset from camera */
   SDWORD rx = player.p.x & (TILE_UNITS - 1);
   SDWORD rz = player.p.z & (TILE_UNITS - 1);
 
   /* Move to camera reference */
-  pie_TRANSLATE(rx, 0, -rz);
+  Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(rx), 0.0f, static_cast<float>(-rz)) * Neuron::WorldMatrix();
 
   /* Bit in comments doesn't quite work yet? */
   if (TEST_FACING(psEffect))
   {
     /*		TEST_FLIPPED_Y(psEffect) ? pie_MatRotY(-player.r.y+iV_DEG(180)) :*/
-    pie_MatRotY(-player.r.y);
+    Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(-player.r.y) * Neuron::WorldMatrix();
     /*		TEST_FLIPPED_X(psEffect) ? pie_MatRotX(-player.r.x+iV_DEG(180)) :*/
-    pie_MatRotX(-player.r.x);
+    Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(-player.r.x) * Neuron::WorldMatrix();
   }
 
   /* Scale size according to age */
@@ -1719,7 +1720,7 @@ void renderConstructionEffect(EFFECT* psEffect)
   pie_Draw3DShape(psEffect->imd, psEffect->frameNumber, 0, brightness, specular, pie_TRANSLUCENT, static_cast<UBYTE>(translucency));
 
   /* Pop the matrix */
-  pie_MatEnd();
+  Neuron::MatrixPop();
 }
 
 // ----------------------------------------------------------------------------------------
@@ -1739,24 +1740,24 @@ void renderSmokeEffect(EFFECT* psEffect)
   vec.z = terrainMidY * TILE_UNITS - (static_cast<UDWORD>(std::lrintf(psEffect->position.z)) - player.p.z);
 
   /* Push matrix */
-  pie_MatBegin();
+  Neuron::MatrixPush();
 
   /* Move to position */
-  pie_TRANSLATE(vec.x, vec.y, vec.z);
+  Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(vec.x), static_cast<float>(vec.y), static_cast<float>(vec.z)) * Neuron::WorldMatrix();
 
   /* Offset from camera */
   SDWORD rx = player.p.x & (TILE_UNITS - 1);
   SDWORD rz = player.p.z & (TILE_UNITS - 1);
 
   /* Move to camera reference */
-  pie_TRANSLATE(rx, 0, -rz);
+  Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(rx), 0.0f, static_cast<float>(-rz)) * Neuron::WorldMatrix();
 
   /* Bit in comments doesn't quite work yet? */
   if (TEST_FACING(psEffect))
   {
     /* Always face the viewer! */
-    pie_MatRotY(-player.r.y);
-    pie_MatRotX(-player.r.x);
+    Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(-player.r.y) * Neuron::WorldMatrix();
+    Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(-player.r.x) * Neuron::WorldMatrix();
   }
 
   /* Small smoke - used for the droids */
@@ -1803,7 +1804,7 @@ void renderSmokeEffect(EFFECT* psEffect)
   }
 
   /* Pop the matrix */
-  pie_MatEnd();
+  Neuron::MatrixPop();
 }
 
 // ----------------------------------------------------------------------------------------
@@ -1966,13 +1967,13 @@ void effectSetupGraviton(EFFECT* psEffect)
     break;
   }
 
-  psEffect->rotation.x = DEG((rand()%360));
-  psEffect->rotation.z = DEG((rand()%360));
-  psEffect->rotation.y = DEG((rand()%360));
+  psEffect->rotation.x = DirectX::XMConvertToRadians(static_cast<float>(rand() % 360));
+  psEffect->rotation.z = DirectX::XMConvertToRadians(static_cast<float>(rand() % 360));
+  psEffect->rotation.y = DirectX::XMConvertToRadians(static_cast<float>(rand() % 360));
 
-  psEffect->spin.x = DEG((rand()%100)+20);
-  psEffect->spin.z = DEG((rand()%100)+20);
-  psEffect->spin.y = DEG((rand()%100)+20);
+  psEffect->spin.x = DirectX::XMConvertToRadians(static_cast<float>((rand() % 100) + 20));
+  psEffect->spin.z = DirectX::XMConvertToRadians(static_cast<float>((rand() % 100) + 20));
+  psEffect->spin.y = DirectX::XMConvertToRadians(static_cast<float>((rand() % 100) + 20));
 
   /* Gravitons are essential */
   SET_ESSENTIAL(psEffect);
@@ -2298,8 +2299,11 @@ void effectDroidUpdates(void)
           if (static_cast<SDWORD>(psDroid->sMove.speed) != 0)
           {
             /* Present direction is important */
-            SDWORD xBehind = ((50 * SIN(DEG(psDroid->direction))) >> FP12_SHIFT);
-            SDWORD yBehind = ((50 * COS(DEG(psDroid->direction))) >> FP12_SHIFT);
+            float dirSin, dirCos;
+            DirectX::XMScalarSinCos(&dirSin, &dirCos,
+                                    psDroid->direction);
+            SDWORD xBehind = static_cast<SDWORD>(std::lrintf(50 * dirSin));
+            SDWORD yBehind = static_cast<SDWORD>(std::lrintf(50 * dirCos));
             pos.x = psDroid->x - xBehind;
             pos.z = psDroid->y - yBehind;
             pos.y = map_Height(pos.x, pos.z);

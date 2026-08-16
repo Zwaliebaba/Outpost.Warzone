@@ -13,6 +13,8 @@
 
 /***************************************************************************/
 
+#include <directxmath.h>
+
 #include "Types.h"
 #include "IMD.h"
 #include "MaxPiDef.h"
@@ -116,7 +118,7 @@ BOOL anim_AddFrameToAnim(int iFrame, VECTOR3D vecPos, VECTOR3D vecRot, VECTOR3D 
 BASEANIM* anim_GetAnim(UWORD uwAnimID);
 iIMDShape* anim_GetShapeFromID(UWORD uwID);
 UWORD anim_GetFrame3D(ANIM3D* psAnim, UWORD uwObj, UDWORD udwGameTime, UDWORD udwStartTime, UDWORD udwStartDelay, VECTOR3D* psVecPos,
-                      VECTOR3D* psVecRot, VECTOR3D* psVecScale);
+                      DirectX::XMFLOAT3* psVecRot, VECTOR3D* psVecScale);
 void anim_SetVals(char szFileName[], UWORD uwAnimID);
 
 /***************************************************************************/

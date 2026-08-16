@@ -244,7 +244,14 @@ def main():
 
         # Built once per project rather than once per unit: the flags depend on
         # nothing but the project the unit lives in.
-        base = [CXX, '-fsyntax-only', '-std=c++23', '-fpermissive', '-fms-extensions'] + \
+        #
+        # -Wno-narrowing: the generated lexers and parsers initialise their
+        # short/char state tables from int literals like 65535, which GCC
+        # makes an error in list-init and MSVC accepts. The old quiet pass
+        # hid the whole class under -w; the sources are grandfathered
+        # generator output (AGENTS.md R7), so the diagnostic is off rather
+        # than the files patched.
+        base = [CXX, '-fsyntax-only', '-std=c++23', '-fpermissive', '-fms-extensions', '-Wno-narrowing'] + \
                [f'-D{d}' for d in DEFS + ['NDEBUG' if opt.release else '_DEBUG']]
         cmds = {}
         for proj in PROJECTS:

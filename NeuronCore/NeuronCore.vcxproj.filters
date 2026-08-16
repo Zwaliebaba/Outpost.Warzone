@@ -22,9 +22,6 @@
     <ClInclude Include="TreapInt.h">
       <Filter>Framework</Filter>
     </ClInclude>
-    <ClInclude Include="Trig.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
     <ClInclude Include="Types.h">
       <Filter>Framework</Filter>
     </ClInclude>
@@ -72,9 +69,6 @@
       <Filter>Framework</Filter>
     </ClCompile>
             <ClCompile Include="FrameResource.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="Trig.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
     <ClCompile Include="Treap.cpp">

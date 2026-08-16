@@ -1,4 +1,5 @@
 #include "pch.h"
+#include <directxmath.h>
 /*
  * Droid.c
  *
@@ -29,7 +30,7 @@
 #include "Action.h"
 #include "Order.h"
 #include "Move.h"
-#include "Geo.h"
+#include "RenderMatrix.h"
 #include "AnimID.h"
 #include "AnimObj.h"
 #include "Geometry.h"
@@ -3257,6 +3258,11 @@ DROID* buildDroid(DROID_TEMPLATE* pTemplate, UDWORD x, UDWORD y, UDWORD player, 
   psDroid->actionX = 0;
   psDroid->actionY = 0;
   psDroid->psActionTarget = nullptr;
+  psDroid->actionStarted = 0;
+  psDroid->actionPoints = 0;
+  psDroid->powerAccrued = 0;
+  psDroid->updateFlags = 0;
+  psDroid->currRayAng = 0;
 
   psDroid->listSize = 0;
   memset(psDroid->asOrderList, 0, sizeof(ORDER_LIST) * ORDER_LIST_MAX);
@@ -4015,21 +4021,22 @@ BOOL calcDroidMuzzleLocation(DROID* psDroid, iVector* muzzle)
 
   if (psShape AND psShape->nconnectors)
   {
-    // This code has not been translated to the PSX Yet !!!!                                     (sorry)
-    pie_MatBegin();
+    Neuron::MatrixPush();
+    DirectX::XMMATRIX& world = Neuron::WorldMatrix();
 
-    pie_TRANSLATE(psDroid->x, -(SDWORD)psDroid->z, psDroid->y);
+    world = DirectX::XMMatrixTranslation(static_cast<float>(psDroid->x), -static_cast<float>(psDroid->z),
+                                         static_cast<float>(psDroid->y)) * world;
     //matrix = the center of droid
-    pie_MatRotY(DEG(static_cast<SDWORD>(psDroid->direction)));
-    pie_MatRotX(DEG(psDroid->pitch));
-    pie_MatRotZ(DEG(-static_cast<SDWORD>(psDroid->roll)));
-    //		pie_TRANSLATE(100,0,0);			//	(left,-height,forward)
-    pie_TRANSLATE(psShape->connectors->x, -psShape->connectors->z, -psShape->connectors->y); //note y and z flipped
+    // degrees to radians; UWORD fields go through SWORD so a wrapped-negative angle converts as negative
+    world = DirectX::XMMatrixRotationY(psDroid->direction) * world;
+    world = DirectX::XMMatrixRotationX(psDroid->pitch) * world;
+    world = DirectX::XMMatrixRotationZ(-psDroid->roll) * world;
+    world = DirectX::XMMatrixTranslation(static_cast<float>(psShape->connectors->x), static_cast<float>(-psShape->connectors->z),
+                                         static_cast<float>(-psShape->connectors->y)) * world; //note y and z flipped
 
     //matrix = the gun and turret mount on the body
-    pie_MatRotY(DEG(static_cast<SDWORD>(psDroid->turretRotation))); //+ve anticlockwise
-    pie_MatRotX(DEG(psDroid->turretPitch)); //+ve up
-    pie_MatRotZ(DEG(0));
+    world = DirectX::XMMatrixRotationY(psDroid->turretRotation) * world; //+ve anticlockwise
+    world = DirectX::XMMatrixRotationX(psDroid->turretPitch) * world; //+ve up
     //matrix = the muzzle mount on turret
     if (psWeapon AND psWeapon->nconnectors)
     {
@@ -4044,10 +4051,14 @@ BOOL calcDroidMuzzleLocation(DROID* psDroid, iVector* muzzle)
       barrel.z = 0;
     }
 
-    pie_ROTATE_TRANSLATE(barrel.x, barrel.z, barrel.y, muzzle->x, muzzle->z, muzzle->y);
+    const DirectX::XMVECTOR muzzleWorld = DirectX::XMVector3Transform(
+      DirectX::XMVectorSet(static_cast<float>(barrel.x), static_cast<float>(barrel.z), static_cast<float>(barrel.y), 1.0f), world);
+    muzzle->x = static_cast<SDWORD>(std::lrintf(DirectX::XMVectorGetX(muzzleWorld)));
+    muzzle->z = static_cast<SDWORD>(std::lrintf(DirectX::XMVectorGetY(muzzleWorld)));
+    muzzle->y = static_cast<SDWORD>(std::lrintf(DirectX::XMVectorGetZ(muzzleWorld)));
     muzzle->z = -muzzle->z;
 
-    pie_MatEnd();
+    Neuron::MatrixPop();
   }
 
   else
@@ -5350,7 +5361,8 @@ BOOL cbSensorDroid(DROID* psDroid)
 DROID* giftSingleDroid(DROID* psD, UDWORD to)
 {
   DROID_TEMPLATE sTemplate;
-  UWORD x, y, numKills, direction, i;
+  UWORD x, y, numKills, i;
+  float direction;
   DROID *psNewDroid, *psCurr;
   STRUCTURE* psStruct;
   UDWORD body, armourK, armourH;

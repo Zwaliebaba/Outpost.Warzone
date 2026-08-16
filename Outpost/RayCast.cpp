@@ -6,11 +6,12 @@
  *
  */
 
+#include <cmath>
 #include <math.h>
 #include <stdio.h>
+#include <directxmath.h>
 
 #include "Frame.h"
-#include "Trig.h"
 
 #include "Objects.h"
 #include "Map.h"
@@ -122,6 +123,9 @@ void rayCast(UDWORD x, UDWORD y, UDWORD ray, UDWORD length, RAY_CALLBACK callbac
   SDWORD hDist, vDist; // distance to current horizontal and vertical intersections
   RAY_POINT sVert, sHoriz;
   SDWORD vdx = 0, hdy = 0; // vertical x increment, horiz y inc
+
+  // every table below has NUM_RAYS entries; an index past them reads garbage trig
+  DEBUG_ASSERT_TEXT(ray < NUM_RAYS, "rayCast: ray index out of range");
 #if RAY_CLIP == 0
   SDWORD newLen, clipLen; // ray length after clipping
 #endif
@@ -322,7 +326,7 @@ UDWORD rayPointsToAngle(SDWORD x1, SDWORD y1, SDWORD x2, SDWORD y2)
   xdiff = x2 - x1;
   ydiff = y1 - y2;
 
-  angle = static_cast<SDWORD>((NUM_RAYS / 2) * atan2(xdiff, ydiff) / PI);
+  angle = static_cast<SDWORD>((NUM_RAYS / 2) * atan2(xdiff, ydiff) / DirectX::XM_PI);
 
   angle += NUM_RAYS / 2;
   angle = angle % NUM_RAYS;
@@ -405,7 +409,7 @@ static BOOL getTileHighestCallback(SDWORD x, SDWORD y, SDWORD dist)
     if ((height > gHighestHeight) AND (dist >= gHMinDist))
     {
       heightDif = height - gHOrigHeight;
-      gHPitch = RAD_TO_DEG(atan2(static_cast<float>(heightDif), static_cast<float>(6*TILE_UNITS))); //MAKEFRACT(dist-(TILE_UNITS*3))));
+      gHPitch = atan2f(static_cast<float>(heightDif), static_cast<float>(6*TILE_UNITS)); //MAKEFRACT(dist-(TILE_UNITS*3))));
       gHighestHeight = height;
     }
   }
@@ -449,7 +453,7 @@ static BOOL getTileHeightCallback(SDWORD x, SDWORD y, SDWORD dist)
         heightDif = height - gHeight;
 
       /* Work out the angle to this point from start point */
-      newPitch = RAD_TO_DEG(atan2(static_cast<float>(heightDif),static_cast<float>(dist)));
+      newPitch = atan2f(static_cast<float>(heightDif), static_cast<float>(dist));
 
       /* Is this the steepest we've found? */
       if (newPitch > gPitch)
@@ -474,26 +478,32 @@ static BOOL getTileHeightCallback(SDWORD x, SDWORD y, SDWORD dist)
   return (TRUE);
 }
 
-void getBestPitchToEdgeOfGrid(UDWORD x, UDWORD y, UDWORD direction, SDWORD* pitch)
+/* The ray tables step in whole degrees, so quantise a radian direction to a ray index */
+UDWORD rayIndex(float direction)
+{
+  return static_cast<UDWORD>(((std::lround(DirectX::XMConvertToDegrees(direction)) % NUM_RAYS) + NUM_RAYS) % NUM_RAYS);
+}
+
+void getBestPitchToEdgeOfGrid(UDWORD x, UDWORD y, float direction, float* pitch)
 {
   /* Set global var to clear */
   gPitch = 0.0f;
   gHeight = map_Height(x, y);
   gStartTileX = x >> TILE_SHIFT;
   gStartTileY = y >> TILE_SHIFT;
-  rayCast(x, y, direction % 360, 5430, getTileHeightCallback);
-  *pitch = std::lrintf(gPitch);
+  rayCast(x, y, rayIndex(direction), 5430, getTileHeightCallback);
+  *pitch = gPitch;
 }
 
 //-----------------------------------------------------------------------------------
-void getPitchToHighestPoint(UDWORD x, UDWORD y, UDWORD direction, UDWORD thresholdDistance, SDWORD* pitch)
+void getPitchToHighestPoint(UDWORD x, UDWORD y, float direction, UDWORD thresholdDistance, float* pitch)
 {
   gHPitch = 0.0f;
   gHOrigHeight = map_Height(x, y);
   gHighestHeight = map_Height(x, y);
   gHMinDist = thresholdDistance;
-  rayCast(x, y, direction % 360, 3000, getTileHighestCallback);
-  *pitch = std::lrintf(gHPitch);
+  rayCast(x, y, rayIndex(direction), 3000, getTileHighestCallback);
+  *pitch = gHPitch;
 }
 
 //-----------------------------------------------------------------------------------

@@ -21,7 +21,6 @@
 #include "Input.h"
 #include "DXInput.h"
 #include "FrameResource.h"
-#include "Trig.h"
 #include "FrameInt.h"
 
 #include <assert.h>
@@ -372,9 +371,6 @@ BOOL frameInitialise(HANDLE hInst, // The windows application instance
   displayMouse = TRUE;
   hInstance = static_cast<HINSTANCE>(hInst);
 
-  /* Initialise the trig stuff */
-  if (!trigInitialise())
-    return FALSE;
   /* Initialise the windows stuff and open a window */
   if (!winInitApp(hInstance, pWindowName, width, height))
     return FALSE;
@@ -464,9 +460,6 @@ void frameShutDown(void)
 
   /* Destroy the Application window */
   DestroyWindow(hWndMain);
-
-  /* shutdown the trig stuff */
-  trigShutDown();
 
   // Shutdown the resource stuff
   resShutDown();

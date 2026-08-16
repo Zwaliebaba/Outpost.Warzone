@@ -27,7 +27,7 @@
 #include "RenderClip.h"			// ffs 
 #include "Render2D.h"
 #include "RendMode.h"
-#include "Geo.h"
+#include "RenderMatrix.h"
 
 #include "Display3D.h"
 #include "Edit3D.h"
@@ -2141,12 +2141,12 @@ void CreateIMDButton(IMAGEFILE* ImageFile, UWORD ImageID, void* Object, UDWORD P
       //the top button is smaller than the bottom button
       if (buttonType == TOPBUTTON)
       {
-        pie_SetGeometricOffset((ButXPos + Neuron::GetImageWidth(IntImages, IMAGE_BUT0_DOWN) / 2) + ButtonDrawXOffset + 2,
+        Neuron::SetGeometricOffset((ButXPos + Neuron::GetImageWidth(IntImages, IMAGE_BUT0_DOWN) / 2) + ButtonDrawXOffset + 2,
                                (ButYPos + Neuron::GetImageHeight(IntImages, IMAGE_BUT0_DOWN) / 2) + 2 + 8 + ButtonDrawYOffset);
       }
       else
       {
-        pie_SetGeometricOffset((ButXPos + Neuron::GetImageWidth(IntImages, IMAGE_BUTB0_DOWN) / 2) + ButtonDrawXOffset + 2,
+        Neuron::SetGeometricOffset((ButXPos + Neuron::GetImageWidth(IntImages, IMAGE_BUTB0_DOWN) / 2) + ButtonDrawXOffset + 2,
                                (ButYPos + Neuron::GetImageHeight(IntImages, IMAGE_BUTB0_DOWN) / 2) + 2 + 12 + ButtonDrawYOffset);
       }
     }
@@ -2155,12 +2155,12 @@ void CreateIMDButton(IMAGEFILE* ImageFile, UWORD ImageID, void* Object, UDWORD P
       //the top button is smaller than the bottom button
       if (buttonType == TOPBUTTON)
       {
-        pie_SetGeometricOffset((ButXPos + Neuron::GetImageWidth(IntImages, IMAGE_BUT0_UP) / 2) + ButtonDrawXOffset,
+        Neuron::SetGeometricOffset((ButXPos + Neuron::GetImageWidth(IntImages, IMAGE_BUT0_UP) / 2) + ButtonDrawXOffset,
                                (ButYPos + Neuron::GetImageHeight(IntImages, IMAGE_BUT0_UP) / 2) + 8 + ButtonDrawYOffset);
       }
       else
       {
-        pie_SetGeometricOffset((ButXPos + Neuron::GetImageWidth(IntImages, IMAGE_BUT0_UP) / 2) + ButtonDrawXOffset,
+        Neuron::SetGeometricOffset((ButXPos + Neuron::GetImageWidth(IntImages, IMAGE_BUT0_UP) / 2) + ButtonDrawXOffset,
                                (ButYPos + Neuron::GetImageHeight(IntImages, IMAGE_BUTB0_UP) / 2) + 12 + ButtonDrawYOffset);
       }
     }
@@ -2229,12 +2229,12 @@ void CreateIMDButton(IMAGEFILE* ImageFile, UWORD ImageID, void* Object, UDWORD P
     {
       if (buttonType == TOPBUTTON)
       {
-        pie_SetGeometricOffset((ButXPos + Neuron::GetImageWidth(IntImages, IMAGE_BUT0_DOWN) / 2) + ButtonDrawXOffset + 2,
+        Neuron::SetGeometricOffset((ButXPos + Neuron::GetImageWidth(IntImages, IMAGE_BUT0_DOWN) / 2) + ButtonDrawXOffset + 2,
                                (ButYPos + Neuron::GetImageHeight(IntImages, IMAGE_BUT0_DOWN) / 2) + 2 + 8 + ButtonDrawYOffset);
       }
       else
       {
-        pie_SetGeometricOffset((ButXPos + Neuron::GetImageWidth(IntImages, IMAGE_BUTB0_DOWN) / 2) + ButtonDrawXOffset + 2,
+        Neuron::SetGeometricOffset((ButXPos + Neuron::GetImageWidth(IntImages, IMAGE_BUTB0_DOWN) / 2) + ButtonDrawXOffset + 2,
                                (ButYPos + Neuron::GetImageHeight(IntImages, IMAGE_BUTB0_DOWN) / 2) + 2 + 12 + ButtonDrawYOffset);
       }
     }
@@ -2242,12 +2242,12 @@ void CreateIMDButton(IMAGEFILE* ImageFile, UWORD ImageID, void* Object, UDWORD P
     {
       if (buttonType == TOPBUTTON)
       {
-        pie_SetGeometricOffset((ButXPos + Neuron::GetImageWidth(IntImages, IMAGE_BUT0_UP) / 2) + ButtonDrawXOffset,
+        Neuron::SetGeometricOffset((ButXPos + Neuron::GetImageWidth(IntImages, IMAGE_BUT0_UP) / 2) + ButtonDrawXOffset,
                                (ButYPos + Neuron::GetImageHeight(IntImages, IMAGE_BUT0_UP) / 2) + 8 + ButtonDrawYOffset);
       }
       else
       {
-        pie_SetGeometricOffset((ButXPos + Neuron::GetImageWidth(IntImages, IMAGE_BUTB0_UP) / 2) + ButtonDrawXOffset,
+        Neuron::SetGeometricOffset((ButXPos + Neuron::GetImageWidth(IntImages, IMAGE_BUTB0_UP) / 2) + ButtonDrawXOffset,
                                (ButYPos + Neuron::GetImageHeight(IntImages, IMAGE_BUTB0_UP) / 2) + 12 + ButtonDrawYOffset);
       }
     }

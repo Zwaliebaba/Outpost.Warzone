@@ -1,4 +1,6 @@
 #include "pch.h"
+#include <cmath>
+#include <directxmath.h>
 #include "Frame.h"
 /* Includes direct access to render library */
 #include "RenderTypes.h"
@@ -747,12 +749,12 @@ static void DrawRadarObjects(UBYTE* screen, UDWORD Modulus, UWORD boxSizeH, UWOR
   }
 }
 
-// Rotate an array of 2d vectors about a given angle, also translates them after rotating.
+// Rotate an array of 2d vectors about a given angle in radians, also translates them after rotating.
 //
-void RotateVector2D(iVector* Vector, iVector* TVector, iVector* Pos, int Angle, int Count)
+void RotateVector2D(iVector* Vector, iVector* TVector, iVector* Pos, float Angle, int Count)
 {
-  int Cos = COS(Angle);
-  int Sin = SIN(Angle);
+  float Sin, Cos;
+  DirectX::XMScalarSinCos(&Sin, &Cos, Angle);
   int ox = 0;
   int oy = 0;
   int i;
@@ -767,8 +769,8 @@ void RotateVector2D(iVector* Vector, iVector* TVector, iVector* Pos, int Angle, 
 
   for (i = 0; i < Count; i++)
   {
-    TVec->x = ((Vec->x * Cos + Vec->y * Sin) >> FP12_SHIFT) + ox;
-    TVec->y = ((Vec->y * Cos - Vec->x * Sin) >> FP12_SHIFT) + oy;
+    TVec->x = static_cast<int32>(std::lrintf(Vec->x * Cos + Vec->y * Sin)) + ox;
+    TVec->y = static_cast<int32>(std::lrintf(Vec->y * Cos - Vec->x * Sin)) + oy;
     Vec++;
     TVec++;
   }
@@ -801,7 +803,7 @@ SDWORD getLengthAdjust(void)
   UDWORD lookingDown, lookingFar;
   SDWORD dif;
 
-  pitch = 360 - (player.r.x / DEG_1);
+  pitch = std::lround(DirectX::XMConvertToDegrees(-player.r.x));
 
   // Max at 
   lookingDown = (0 - MIN_PLAYER_X_ANGLE);

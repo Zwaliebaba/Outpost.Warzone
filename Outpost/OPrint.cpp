@@ -36,7 +36,7 @@ void printBaseObjInfo(BASE_OBJECT* psObj)
   }
 
   OPRINTF(ConsoleString,
-          (ConsoleString,"%s id %d at (%d,%d,%d) dpr (%d,%d,%d)\n", pType, psObj->id, psObj->x,psObj->y,psObj->z, psObj->direction,psObj->
+          (ConsoleString,"%s id %d at (%d,%d,%d) dpr (%.2f,%.2f,%.2f)\n", pType, psObj->id, psObj->x,psObj->y,psObj->z, psObj->direction,psObj->
             pitch,psObj->roll));
 }
 

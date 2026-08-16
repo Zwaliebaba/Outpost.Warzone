@@ -15,6 +15,7 @@
 /***************************************************************************/
 
 #include <stdio.h>
+#include <directxmath.h>
 
 #include "Frame.h"
 #include "FrameResource.h"
@@ -439,7 +440,7 @@ iIMDShape* Neuron::ProcessIMD(UBYTE** ppFileData, UBYTE* FileDataEnd, UBYTE* IMD
 static iBool _imd_load_polys(UBYTE** ppFileData, UBYTE* FileDataEnd, iIMDShape* s)
 {
   int i, j; //, anim;
-  iVector p0, p1, p2, *points;
+  iVector* points;
   iIMDPoly* poly;
   int nFrames, pbRate, tWidth, tHeight;
 
@@ -502,26 +503,6 @@ static iBool _imd_load_polys(UBYTE** ppFileData, UBYTE* FileDataEnd, iIMDShape* 
         Neuron::DebugTrace("(_load_polys) [poly {}] memory alloc fail (poly indices)\n", i);
         return FALSE;
       }
-
-      // calc poly normal
-      if (poly->npnts > 2)
-      {
-        p0.x = points[poly->pindex[0]].x;
-        p0.y = points[poly->pindex[0]].y;
-        p0.z = points[poly->pindex[0]].z;
-
-        p1.x = points[poly->pindex[1]].x;
-        p1.y = points[poly->pindex[1]].y;
-        p1.z = points[poly->pindex[1]].z;
-
-        p2.x = points[poly->pindex[poly->npnts - 1]].x;
-        p2.y = points[poly->pindex[poly->npnts - 1]].y;
-        p2.z = points[poly->pindex[poly->npnts - 1]].z;
-
-        pie_SurfaceNormal(&p0, &p1, &p2, &poly->normal);
-      }
-      else
-        poly->normal.x = poly->normal.y = poly->normal.z = 0;
 
       if (poly->flags & IMD_TEXANIM)
       {
@@ -799,13 +780,12 @@ BOOL ReadPoints(UBYTE** ppFileData, UBYTE* FileDataEnd, iIMDShape* s)
 static iBool _imd_load_points(UBYTE** ppFileData, UBYTE* FileDataEnd, iIMDShape* s)
 
 {
+  using namespace DirectX;
+
   int i;
   iVector* p;
   int32 tempXMax, tempXMin, tempZMax, tempZMin, extremeX, extremeZ;
   int32 xmax, ymax, zmax;
-  double dx, dy, dz, rad_sq, rad, old_to_p_sq, old_to_p, old_to_new;
-  double xspan, yspan, zspan, maxspan;
-  iVectorf dia1, dia2, vxmin, vymin, vzmin, vxmax, vymax, vzmax, cen;
 
   //load the points then pass through a second time to setup bounding datavalues
 
@@ -821,8 +801,13 @@ static iBool _imd_load_points(UBYTE** ppFileData, UBYTE* FileDataEnd, iIMDShape*
   s->xmax = s->ymax = s->zmax = tempXMax = tempZMax = -FP12_MULTIPLIER;
   s->xmin = s->ymin = s->zmin = tempXMin = tempZMin = FP12_MULTIPLIER;
 
-  vxmax.x = vymax.y = vzmax.z = static_cast<double>(-FP12_MULTIPLIER);
-  vxmin.x = vymin.y = vzmin.z = static_cast<double>(FP12_MULTIPLIER);
+  // the extreme point along each axis, for the tight-sphere seed below
+  XMFLOAT3 vxmin(static_cast<float>(FP12_MULTIPLIER), 0.0f, 0.0f);
+  XMFLOAT3 vxmax(static_cast<float>(-FP12_MULTIPLIER), 0.0f, 0.0f);
+  XMFLOAT3 vymin(0.0f, static_cast<float>(FP12_MULTIPLIER), 0.0f);
+  XMFLOAT3 vymax(0.0f, static_cast<float>(-FP12_MULTIPLIER), 0.0f);
+  XMFLOAT3 vzmin(0.0f, 0.0f, static_cast<float>(FP12_MULTIPLIER));
+  XMFLOAT3 vzmax(0.0f, 0.0f, static_cast<float>(-FP12_MULTIPLIER));
 
   // set up bounding data for minimum number of vertices	
   for (i = 0; i < s->npoints; i++, p++)
@@ -860,47 +845,25 @@ static iBool _imd_load_points(UBYTE** ppFileData, UBYTE* FileDataEnd, iIMDShape*
 
     // for tight sphere calculations
 
-    if (static_cast<double>(p->x) < vxmin.x)
-    {
-      vxmin.x = static_cast<double>(p->x);
-      vxmin.y = static_cast<double>(p->y);
-      vxmin.z = static_cast<double>(p->z);
-    }
+    const XMFLOAT3 point(static_cast<float>(p->x), static_cast<float>(p->y), static_cast<float>(p->z));
 
-    if (static_cast<double>(p->x) > vxmax.x)
-    {
-      vxmax.x = static_cast<double>(p->x);
-      vxmax.y = static_cast<double>(p->y);
-      vxmax.z = static_cast<double>(p->z);
-    }
+    if (point.x < vxmin.x)
+      vxmin = point;
 
-    if (static_cast<double>(p->y) < vymin.y)
-    {
-      vymin.x = static_cast<double>(p->x);
-      vymin.y = static_cast<double>(p->y);
-      vymin.z = static_cast<double>(p->z);
-    }
+    if (point.x > vxmax.x)
+      vxmax = point;
 
-    if (static_cast<double>(p->y) > vymax.y)
-    {
-      vymax.x = static_cast<double>(p->x);
-      vymax.y = static_cast<double>(p->y);
-      vymax.z = static_cast<double>(p->z);
-    }
+    if (point.y < vymin.y)
+      vymin = point;
 
-    if (static_cast<double>(p->z) < vzmin.z)
-    {
-      vzmin.x = static_cast<double>(p->x);
-      vzmin.y = static_cast<double>(p->y);
-      vzmin.z = static_cast<double>(p->z);
-    }
+    if (point.y > vymax.y)
+      vymax = point;
 
-    if (static_cast<double>(p->z) > vzmax.z)
-    {
-      vzmax.x = static_cast<double>(p->x);
-      vzmax.y = static_cast<double>(p->y);
-      vzmax.z = static_cast<double>(p->z);
-    }
+    if (point.z < vzmin.z)
+      vzmin = point;
+
+    if (point.z > vzmax.z)
+      vzmax = point;
   }
 
   /* Centered about origin I can do the '-' thing below!! */
@@ -919,91 +882,76 @@ static iBool _imd_load_points(UBYTE** ppFileData, UBYTE* FileDataEnd, iIMDShape*
 
   // START: tight bounding sphere
 
-  // set xspan = distance between 2 points xmin & xmax (squared)
+  // set the spans to the squared distances between each axis' extreme pair
 
-  dx = vxmax.x - vxmin.x;
-  dy = vxmax.y - vxmin.y;
-  dz = vxmax.z - vxmin.z;
-  xspan = dx * dx + dy * dy + dz * dz;
+  const XMVECTOR xminV = XMLoadFloat3(&vxmin);
+  const XMVECTOR xmaxV = XMLoadFloat3(&vxmax);
+  const XMVECTOR yminV = XMLoadFloat3(&vymin);
+  const XMVECTOR ymaxV = XMLoadFloat3(&vymax);
+  const XMVECTOR zminV = XMLoadFloat3(&vzmin);
+  const XMVECTOR zmaxV = XMLoadFloat3(&vzmax);
 
-  // same for yspan
-
-  dx = vymax.x - vymin.x;
-  dy = vymax.y - vymin.y;
-  dz = vymax.z - vymin.z;
-  yspan = dx * dx + dy * dy + dz * dz;
-
-  // and ofcourse zspan
-
-  dx = vzmax.x - vzmin.x;
-  dy = vzmax.y - vzmin.y;
-  dz = vzmax.z - vzmin.z;
-  zspan = dx * dx + dy * dy + dz * dz;
+  const float xspan = XMVectorGetX(XMVector3LengthSq(XMVectorSubtract(xmaxV, xminV)));
+  const float yspan = XMVectorGetX(XMVector3LengthSq(XMVectorSubtract(ymaxV, yminV)));
+  const float zspan = XMVectorGetX(XMVector3LengthSq(XMVectorSubtract(zmaxV, zminV)));
 
   // set points dia1 & dia2 to maximally seperated pair
 
   // assume xspan biggest
 
-  dia1 = vxmin;
-  dia2 = vxmax;
-  maxspan = xspan;
+  XMVECTOR dia1 = xminV;
+  XMVECTOR dia2 = xmaxV;
+  float maxspan = xspan;
 
   if (yspan > maxspan)
   {
     maxspan = yspan;
-    dia1 = vymin;
-    dia2 = vymax;
+    dia1 = yminV;
+    dia2 = ymaxV;
   }
 
   if (zspan > maxspan)
   {
     maxspan = zspan;
-    dia1 = vzmin;
-    dia2 = vzmax;
+    dia1 = zminV;
+    dia2 = zmaxV;
   }
 
   // dia1, dia2 diameter of initial sphere
 
-  cen.x = (dia1.x + dia2.x) / 2.;
-  cen.y = (dia1.y + dia2.y) / 2.;
-  cen.z = (dia1.z + dia2.z) / 2.;
+  XMVECTOR cen = XMVectorScale(XMVectorAdd(dia1, dia2), 0.5f);
 
   // calc initial radius
 
-  dx = dia2.x - cen.x;
-  dy = dia2.y - cen.y;
-  dz = dia2.z - cen.z;
-
-  rad_sq = dx * dx + dy * dy + dz * dz;
-  rad = sqrt(rad_sq);
+  float rad_sq = XMVectorGetX(XMVector3LengthSq(XMVectorSubtract(dia2, cen)));
+  float rad = sqrtf(rad_sq);
 
   for (p = s->points, i = 0; i < s->npoints; i++, p++)
   {
-    dx = p->x - cen.x;
-    dy = p->y - cen.y;
-    dz = p->z - cen.z;
-    old_to_p_sq = dx * dx + dy * dy + dz * dz;
+    const XMVECTOR point =
+      XMVectorSet(static_cast<float>(p->x), static_cast<float>(p->y), static_cast<float>(p->z), 0.0f);
+    const float old_to_p_sq = XMVectorGetX(XMVector3LengthSq(XMVectorSubtract(point, cen)));
 
     // do r**2 first
     if (old_to_p_sq > rad_sq)
     {
       // this point outside current sphere
-      old_to_p = sqrt(old_to_p_sq);
+      const float old_to_p = sqrtf(old_to_p_sq);
       // radius of new sphere
-      rad = (rad + old_to_p) / 2.;
+      rad = (rad + old_to_p) / 2.0f;
       // rad**2 for next compare
       rad_sq = rad * rad;
-      old_to_new = old_to_p - rad;
+      const float old_to_new = old_to_p - rad;
       // centre of new sphere
-      cen.x = (rad * cen.x + old_to_new * p->x) / old_to_p;
-      cen.y = (rad * cen.y + old_to_new * p->y) / old_to_p;
-      cen.z = (rad * cen.z + old_to_new * p->z) / old_to_p;
+      cen = XMVectorScale(XMVectorAdd(XMVectorScale(cen, rad), XMVectorScale(point, old_to_new)), 1.0f / old_to_p);
     }
   }
 
-  s->ocen.x = static_cast<int32>(cen.x);
-  s->ocen.y = static_cast<int32>(cen.y);
-  s->ocen.z = static_cast<int32>(cen.z);
+  XMFLOAT3 centre;
+  XMStoreFloat3(&centre, cen);
+  s->ocen.x = static_cast<int32>(centre.x);
+  s->ocen.y = static_cast<int32>(centre.y);
+  s->ocen.z = static_cast<int32>(centre.z);
   s->oradius = static_cast<int32>(rad);
 
   // END: tight bounding sphere

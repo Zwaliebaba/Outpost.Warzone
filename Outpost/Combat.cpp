@@ -1,4 +1,6 @@
 #include "pch.h"
+#include <directxmath.h>
+#include <cmath>
 /*
  * Combat.c
  *
@@ -75,7 +77,7 @@ void combFire(WEAPON* psWeap, BASE_OBJECT* psAttacker, BASE_OBJECT* psTarget)
   SDWORD missDir, missDist, missX, missY;
   SDWORD hitMod, hitInc, fireChance;
   UDWORD firePause;
-  SDWORD targetDir, dirDiff;
+  float targetDir, dirDiff;
   SDWORD longRange;
   DROID* psDroid;
   SDWORD level, cmdLevel;
@@ -206,8 +208,8 @@ void combFire(WEAPON* psWeap, BASE_OBJECT* psAttacker, BASE_OBJECT* psTarget)
   if (psAttacker->type == OBJ_DROID && !psStats->rotate)
   {
     targetDir = calcDirection(psAttacker->x, psAttacker->y, psTarget->x, psTarget->y);
-    dirDiff = labs(targetDir - static_cast<SDWORD>(psAttacker->direction));
-    if (dirDiff > FIXED_TURRET_DIR)
+    dirDiff = std::fabs(DirectX::XMScalarModAngle(targetDir - psAttacker->direction));
+    if (dirDiff > DirectX::XMConvertToRadians(static_cast<float>(FIXED_TURRET_DIR)))
       return;
   }
 

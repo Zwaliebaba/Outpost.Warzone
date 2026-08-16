@@ -1,4 +1,5 @@
 #include "pch.h"
+#include <directxmath.h>
 /* Lighting.c - Alex McLean, Pumpkin Studios, EIDOS Interactive. */
 /* Calculates the shading values for the terrain world. */
 /* The terrain intensity values are calculated at map load/creation time. */
@@ -10,7 +11,7 @@
 #include "RenderTypes.h"
 #include "PieState.h" //ivis matrix code
 #include "PieFunc.h" //ivis matrix code
-#include "Geo.h" //ivis matrix code
+#include "RenderMatrix.h" //ivis matrix code
 #include "Map.h"
 #include "Lighting.h"
 #include "Display3D.h"
@@ -34,8 +35,24 @@ void colourTile(SDWORD xIndex, SDWORD yIndex, LIGHT_COLOUR colour, UBYTE percent
 void calcTileIllum(UDWORD tileX, UDWORD tileY);
 void normalsOnTile(UDWORD tileX, UDWORD tileY, UDWORD quadrant);
 UDWORD numNormals; // How many normals have we got?
-iVector normals[8]; // Maximum 8 possible normals
+DirectX::XMFLOAT3 normals[8]; // Maximum 8 possible normals
 extern void draw3dLine(iVector* src, iVector* dest, UBYTE col);
+
+/* Unit surface normal of the triangle p1,p2,p3, with the operand order the
+ * old pie_SurfaceNormal used so the winding sign is unchanged. */
+static void SurfaceNormal(const iVector& _p1, const iVector& _p2, const iVector& _p3, DirectX::XMFLOAT3& _normal)
+{
+  const DirectX::XMVECTOR a = DirectX::XMVectorSet(static_cast<float>(_p3.x - _p1.x), static_cast<float>(_p3.y - _p1.y),
+                                                   static_cast<float>(_p3.z - _p1.z), 0.0f);
+  const DirectX::XMVECTOR b = DirectX::XMVectorSet(static_cast<float>(_p2.x - _p1.x), static_cast<float>(_p2.y - _p1.y),
+                                                   static_cast<float>(_p2.z - _p1.z), 0.0f);
+  const DirectX::XMVECTOR cross = DirectX::XMVector3Cross(a, b);
+
+  if (DirectX::XMVectorGetX(DirectX::XMVector3LengthSq(cross)) > 0.0f)
+    DirectX::XMStoreFloat3(&_normal, DirectX::XMVector3Normalize(cross));
+  else
+    _normal = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+}
 
 /*****************************************************************************/
 /*
@@ -147,7 +164,6 @@ void initLighting(UDWORD x1, UDWORD y1, UDWORD x2, UDWORD y2)
 
 void calcTileIllum(UDWORD tileX, UDWORD tileY)
 {
-  iVector finalVector;
   SDWORD dotProduct;
   UDWORD i;
   UDWORD val;
@@ -181,18 +197,20 @@ void calcTileIllum(UDWORD tileX, UDWORD tileY)
   normalsOnTile(tileX - 1, tileY, 3);
 
   /* The number or normals that we got is in numNormals*/
-  finalVector.x = finalVector.y = finalVector.z = 0;
+  DirectX::XMVECTOR finalVector = DirectX::XMVectorZero();
 
   for (i = 0; i < numNormals; i++)
-  {
-    finalVector.x += normals[i].x;
-    finalVector.y += normals[i].y;
-    finalVector.z += normals[i].z;
-  }
-  pie_VectorNormalise(&finalVector);
-  pie_VectorNormalise(&theSun);
+    finalVector = DirectX::XMVectorAdd(finalVector, DirectX::XMLoadFloat3(&normals[i]));
 
-  dotProduct = (finalVector.x * theSun.x + finalVector.y * theSun.y + finalVector.z * theSun.z) >> FP12_SHIFT;
+  const DirectX::XMVECTOR sun = DirectX::XMVector3Normalize(DirectX::XMVectorSet(
+    static_cast<float>(theSun.x), static_cast<float>(theSun.y), static_cast<float>(theSun.z), 0.0f));
+
+  /* The dot of two unit vectors, rescaled to the FP12 range the val maths below was written against */
+  if (DirectX::XMVectorGetX(DirectX::XMVector3LengthSq(finalVector)) > 0.0f)
+    dotProduct = static_cast<SDWORD>(std::lrintf(
+      DirectX::XMVectorGetX(DirectX::XMVector3Dot(DirectX::XMVector3Normalize(finalVector), sun)) * FP12_MULTIPLIER));
+  else
+    dotProduct = 0;
 
   /* NumberOut(dotProduct,100,150,255);*/
   val = ((abs(dotProduct)) / 16);
@@ -248,7 +266,7 @@ void normalsOnTile(UDWORD tileX, UDWORD tileY, UDWORD quadrant)
         corner3.x = tileX << TILE_SHIFT;
         corner3.y = (tileY + 1) << TILE_SHIFT;
         corner3.z = tileDown->height - dMod;
-        pie_SurfaceNormal(&corner1, &corner2, &corner3, &normals[numNormals++]);
+        SurfaceNormal(corner1, corner2, corner3, normals[numNormals++]);
       }
       else
       {
@@ -263,7 +281,7 @@ void normalsOnTile(UDWORD tileX, UDWORD tileY, UDWORD quadrant)
         corner3.x = tileX << TILE_SHIFT;
         corner3.y = (tileY + 1) << TILE_SHIFT;
         corner3.z = tileDown->height - dMod;
-        pie_SurfaceNormal(&corner1, &corner2, &corner3, &normals[numNormals++]);
+        SurfaceNormal(corner1, corner2, corner3, normals[numNormals++]);
       }
     }
     else
@@ -280,7 +298,7 @@ void normalsOnTile(UDWORD tileX, UDWORD tileY, UDWORD quadrant)
       corner3.x = (tileX + 1) << TILE_SHIFT;
       corner3.y = (tileY + 1) << TILE_SHIFT;
       corner3.z = tileDownRight->height - drMod;
-      pie_SurfaceNormal(&corner1, &corner2, &corner3, &normals[numNormals++]);
+      SurfaceNormal(corner1, corner2, corner3, normals[numNormals++]);
 
       corner1.x = tileX << TILE_SHIFT;
       corner1.y = tileY << TILE_SHIFT;
@@ -293,7 +311,7 @@ void normalsOnTile(UDWORD tileX, UDWORD tileY, UDWORD quadrant)
       corner3.x = tileX << TILE_SHIFT;
       corner3.y = (tileY + 1) << TILE_SHIFT;
       corner3.z = tileDown->height - dMod;
-      pie_SurfaceNormal(&corner1, &corner2, &corner3, &normals[numNormals++]);
+      SurfaceNormal(corner1, corner2, corner3, normals[numNormals++]);
     }
     break;
   case 1:
@@ -312,7 +330,7 @@ void normalsOnTile(UDWORD tileX, UDWORD tileY, UDWORD quadrant)
       corner3.x = tileX << TILE_SHIFT;
       corner3.y = (tileY + 1) << TILE_SHIFT;
       corner3.z = tileDown->height - dMod;
-      pie_SurfaceNormal(&corner1, &corner2, &corner3, &normals[numNormals++]);
+      SurfaceNormal(corner1, corner2, corner3, normals[numNormals++]);
 
       corner1.x = (tileX + 1) << TILE_SHIFT;
       corner1.y = tileY << TILE_SHIFT;
@@ -325,7 +343,7 @@ void normalsOnTile(UDWORD tileX, UDWORD tileY, UDWORD quadrant)
       corner3.x = tileX << TILE_SHIFT;
       corner3.y = (tileY + 1) << TILE_SHIFT;
       corner3.z = tileDown->height - dMod;
-      pie_SurfaceNormal(&corner1, &corner2, &corner3, &normals[numNormals++]);
+      SurfaceNormal(corner1, corner2, corner3, normals[numNormals++]);
     }
     else
     {
@@ -342,7 +360,7 @@ void normalsOnTile(UDWORD tileX, UDWORD tileY, UDWORD quadrant)
         corner3.x = tileX << TILE_SHIFT;
         corner3.y = (tileY + 1) << TILE_SHIFT;
         corner3.z = tileDown->height - dMod;
-        pie_SurfaceNormal(&corner1, &corner2, &corner3, &normals[numNormals++]);
+        SurfaceNormal(corner1, corner2, corner3, normals[numNormals++]);
       }
       else
       {
@@ -357,7 +375,7 @@ void normalsOnTile(UDWORD tileX, UDWORD tileY, UDWORD quadrant)
         corner3.x = (tileX + 1) << TILE_SHIFT;
         corner3.y = (tileY + 1) << TILE_SHIFT;
         corner3.z = tileDownRight->height - drMod;
-        pie_SurfaceNormal(&corner1, &corner2, &corner3, &normals[numNormals++]);
+        SurfaceNormal(corner1, corner2, corner3, normals[numNormals++]);
       }
     }
     break;
@@ -581,7 +599,7 @@ UDWORD lightDoFogAndIllumination(UBYTE brightness, SDWORD dx, SDWORD dz, UDWORD*
   SDWORD penumbraRadius; // radius of area of obscurity
   SDWORD umbra;
   SDWORD distance;
-  SDWORD cosA, sinA;
+  float cosA, sinA;
   PIELIGHT lighting, specular, fogColour;
   SDWORD depth = 0;
   SDWORD colour;
@@ -622,10 +640,8 @@ UDWORD lightDoFogAndIllumination(UBYTE brightness, SDWORD dx, SDWORD dz, UDWORD*
     //add fog
     if (pie_GetFogEnabled())
     {
-      cosA = COS(player.r.y);
-      sinA = SIN(player.r.y);
-      depth = sinA * dx + cosA * dz;
-      depth >>= FP12_SHIFT;
+      DirectX::XMScalarSinCos(&sinA, &cosA, player.r.y);
+      depth = static_cast<SDWORD>(std::lrintf(sinA * dx + cosA * dz));
       depth += FOG_START;
       depth /= FOG_RATE;
     }

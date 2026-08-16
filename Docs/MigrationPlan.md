@@ -1009,6 +1009,101 @@ The full analysis — the dead-surface evidence, the constraint list, the
 idiom-by-idiom mapping, what is deliberately left unchanged, and the five
 decisions to confirm — is in [Phase9Plan.md](Phase9Plan.md).
 
+## Phase 10 — Renderer maths onto DirectXMath
+
+**Under way; its six gating decisions are settled by owner decision**
+(2026-08-16). Two rulings went beyond the plan's recommendation and widened
+the scope: `NeuronCore/Trig.cpp` is in the phase, and the angle units stored
+in game state migrate to float radians. The record and the staged execution
+are in [Phase10Plan.md](Phase10Plan.md). **Stage A is done** — the
+dead-maths sweep removed 88 lines from `RenderMatrix.cpp`/`.h`
+(`pie_MatCreate`, `pie_VectorInverseRotate0`, the `pie_INVTRANS*` and
+`pie_CLOCKWISE`/`X_INTERCEPT` macros, `pie_Clockwise`, and `pie_MatReset`
+folded into `pie_MatInit`), behaviour-preserving, evidence greps recorded in
+the phase plan. **Stage B is done** — the stack is an `XMMATRIX` stack
+behind unchanged `pie_*` shims, the model-vertex loop and the IMD bounding
+sphere are native DirectXMath, and Debug builds carry a fixed-point parity
+shadow that reports the worst screen-space divergence at shutdown. What
+came out differently is recorded in the phase plan: `BSPIMD.cpp` is dead
+under an undefined feature macro and stays as found, `iIMDPoly::normal` is
+write-only, `scaleMatrix` was a tenth direct matrix writer and became the
+`pie_MatScale` shim, and the cross-check gained a `tools/stubs/directxmath.h`
+transcription because mingw-w64's own header has no maths in it. **Stage C
+is done** — all ~390 game-side sites compose `XMMATRIX` natively through
+`Neuron::WorldMatrix`/`MatrixPush`/`MatrixPop`/`ProjectToScreen`, and every
+`pie_*` maths shim died inside the stage with the sine table and its build
+loop; `RenderMatrix` is 174 lines against the 522 the phase started from.
+`PIEVECTORF` is `DirectX::XMFLOAT3`. Three latent defects were corrected
+along the way (the effect-circle unsigned trig wrap, `scaleMatrix`'s
+100% = 100.1%, the write-only poly normal), and the wrapped-negative-angle
+conversion rule the stage established is recorded in the phase plan.
+**Stage D is done** — `pie_MatInit` renamed to `Neuron::MatrixInit`, the
+winding test moved beside its only callers in `RenderModel.cpp`, and
+`Geo.h` folded into its fourteen includers and deleted. The renderer maths
+migration is complete: `RenderMatrix` measures 166 lines against the 522
+the phase started from, with no `pie_` maths symbol left in the tree.
+**Stage E is nearly done** — the object and movement flip (E2) landed as
+one coupled commit: `direction`/`pitch`/`roll`, the turret fields,
+`sMove.dir` and the formation/drive state are float radians in (−π,π], the
+trig API (`calcDirection`, `directionDiff`, the movement helpers) takes and
+returns radians, and the level readers and net sync convert integer degrees
+at the boundary. Five latent angle defects surfaced and were corrected
+along the way (recorded in the phase plan). The camera flip (E3) followed:
+`iView::r` is `XMFLOAT3` radians, WarCAM's spring-damper tracks radians
+with `XMScalarModAngle` separations, the RayCast pitch helpers take and
+return radians, and everything else that still bridged through
+`RadiansPerWorldAngle` — effect tumble, sky shimmy, the animation
+orientation chain, map markers — flipped with it, so the constant now has
+zero users. Two more latent defects died in E3 (a negative average track
+angle through a `UDWORD` into sin/cos, and a degrees-minus-radians
+comparison E2 had left in the component renderer), and the provably dead
+camera code went (`drawMapWorld`, `imdRot`/`imdRot2`, `disp3d_setView`/
+`disp3d_getView` among others). The deletion (E4) closed the stage:
+`NeuronCore/Trig.cpp` and its tables are gone with their `Window.cpp`
+init/shutdown calls, and the `DEG` family, `RadiansPerWorldAngle` and the
+legacy `PI` macro are deleted — the tree has no binary-angle or
+degree-state symbol left in live code. **The phase is complete** (2026-08-16):
+the build gates held green at every stage boundary (cross-check both
+configurations, 188/188 units at the final head; MSVC CI stage by
+stage), and the owner's Windows run —
+[Verification.md](Verification.md#pass-i--phase-10-directxmath-and-the-radian-flip)
+pass I — came back clean after two stage-F boot findings, both
+boundary-conversion escapes of the same class (degree call sites that
+still compiled against the radian APIs), were fixed and recorded in the
+phase plan.
+
+Phase 8 deliberately kept the fixed-point, pre-transformed-vertex pipeline
+because changing it "is not simplification, it is a second project". This is
+that project, scoped to the arithmetic only: the 4.12 `SDMATRIX` stack, the
+5,120-entry sine table and the hand-rolled vector helpers in
+`RenderMatrix.cpp`, `RenderModel.cpp`'s open-coded vertex transform,
+`IMDLoad.cpp`'s double-precision bounding sphere and `BSPIMD.cpp`'s private
+cross/normalise all move onto **DirectXMath** — `XMMATRIX`/`XMVECTOR`
+computation composed natively at the call sites, `XMFLOAT3`/`XMFLOAT4X4` at
+rest, no wrapper functions or classes. The pipeline architecture (CPU
+transform, `D3DFVF_XYZRHW`, `DrawPrimitiveUP`, the software clipper) does not
+change.
+
+The measured surface is ~390 game-side call sites across 20 `Outpost/`
+files — the hierarchical-transform idiom in `Display3D.cpp`, `Component.cpp`
+and `Effects.cpp` above all — which is why the call sites are the migration:
+keeping the `pie_Mat*` signatures would *be* the wrapper layer the phase
+forbids. What survives as functions is renderer state and policy (the
+matrix stack's push/pop, the world→screen projection, the geometric offset),
+renamed per [AGENTS.md §1](../AGENTS.md). By the owner's rulings the phase
+also retires `NeuronCore/Trig.cpp` (52 simulation call sites onto
+`XMScalarSin`/`sqrtf`) and migrates the stored angle units — integer degrees
+on every game object, binary angles in the camera, ~150 `DEG(` bridge sites
+— to float radians, with the v≤8 level readers and the net wire keeping
+integer degrees at the boundary. DirectXMath arrives from the Windows SDK —
+header-only, nothing new under R14.
+
+The key enabling fact, derived element by element in the plan: the
+fixed-point rotations are exactly `XMMatrixRotationX/Y/Z` pre-multiplied
+under DirectXMath's row-vector convention, with binary angles converted at
+`2π/65536` — so the migration is mechanical substitution, verified by a
+temporary dual-path parity check over a CAM_1A run rather than re-derivation.
+
 ## Removed outright: save/load and the demo (2026-08-16)
 
 **By owner decision, the game no longer has user save games, and the demo-era
