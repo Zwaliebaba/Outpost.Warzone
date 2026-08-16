@@ -24,6 +24,9 @@ using RAY_CALLBACK = BOOL(*)(SDWORD x, SDWORD y, SDWORD dist);
 /* cast a ray from x,y (world coords) at angle ray (0-NUM_RAYS) */
 extern void rayCast(UDWORD x, UDWORD y, UDWORD ray, UDWORD length, RAY_CALLBACK callback);
 
+/* quantise a radian direction to a whole-degree ray index in [0, NUM_RAYS) */
+extern UDWORD rayIndex(float direction);
+
 // Calculate the angle to cast a ray between two points
 extern UDWORD rayPointsToAngle(SDWORD x1, SDWORD y1, SDWORD x2, SDWORD y2);
 

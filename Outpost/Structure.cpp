@@ -3318,7 +3318,7 @@ void aiUpdateStructure(STRUCTURE* psStructure)
       //if were going to shoot at something move the turret first then fire when locked on
       if (psWStats->pMountGraphic == nullptr) //no turret so lock on whatever
       {
-        psStructure->turretRotation = static_cast<UWORD>(calcDirection(psStructure->x, psStructure->y, psChosenObj->x, psChosenObj->y));
+        psStructure->turretRotation = calcDirection(psStructure->x, psStructure->y, psChosenObj->x, psChosenObj->y);
         combFire(psStructure->asWeaps, (BASE_OBJECT*)psStructure, psChosenObj);
       }
       /*else if(actionTargetTurret((BASE_OBJECT*)psStructure, psChosenObj,

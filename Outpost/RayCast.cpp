@@ -123,6 +123,9 @@ void rayCast(UDWORD x, UDWORD y, UDWORD ray, UDWORD length, RAY_CALLBACK callbac
   SDWORD hDist, vDist; // distance to current horizontal and vertical intersections
   RAY_POINT sVert, sHoriz;
   SDWORD vdx = 0, hdy = 0; // vertical x increment, horiz y inc
+
+  // every table below has NUM_RAYS entries; an index past them reads garbage trig
+  DEBUG_ASSERT_TEXT(ray < NUM_RAYS, "rayCast: ray index out of range");
 #if RAY_CLIP == 0
   SDWORD newLen, clipLen; // ray length after clipping
 #endif
@@ -476,7 +479,7 @@ static BOOL getTileHeightCallback(SDWORD x, SDWORD y, SDWORD dist)
 }
 
 /* The ray tables step in whole degrees, so quantise a radian direction to a ray index */
-static UDWORD rayIndex(float direction)
+UDWORD rayIndex(float direction)
 {
   return static_cast<UDWORD>(((std::lround(DirectX::XMConvertToDegrees(direction)) % NUM_RAYS) + NUM_RAYS) % NUM_RAYS);
 }

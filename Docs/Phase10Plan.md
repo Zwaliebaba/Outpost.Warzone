@@ -650,6 +650,25 @@ debug-heap fill) are `buildDroid`'s pre-existing lazy initialisation —
 each is written at every action transition before its first read — not
 a Phase 10 regression.
 
+**Second run finding (2026-08-16), found and fixed:** `rayCast` tripped
+its zero-distance assert on ray index 361 — `Visibility.cpp`'s
+line-of-sight ray still computed `NUM_RAYS - 1 - calcDirection(...)`
+from the days when `calcDirection` returned integer degrees; with the
+radian return the arithmetic silently produces indices past the
+360-entry trig tables (361 = 359 − (−2 rad)), and every table read past
+the end is garbage. The site now goes through `rayIndex()`, the
+whole-degree quantiser the pitch helpers already used (promoted from
+file-local to the `RayCast.h` API), and `rayCast` itself gained a range
+assert so the next bad index is caught at the source rather than deep
+in the walk. The same sweep found one more of the class and fixed it:
+the turretless-structure snap-to-target in `Structure.cpp` pushed
+`calcDirection`'s radians through a `UWORD` cast, garbling
+`turretRotation` for any leftward target. The three remaining
+integer-cast sites the sweep surfaced are all inside commented-out
+code, and the truncating `dirTot` accumulation sits in
+`moveGetObstVector3`, which has no callers — `moveGetObstVector4` is
+the live avoidance function and accumulates x/y components correctly.
+
 ## Decisions — settled
 
 All six were put to the owner and settled on 2026-08-16. Two rulings widen
