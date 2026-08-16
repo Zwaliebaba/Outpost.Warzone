@@ -1039,11 +1039,7 @@ void orderCheckFireSupportPos(DROID* psSensor, DROID_ORDER_DATA* psOrder)
     // now get the angle between the firesupport units and the sensor move
     sensorAngle = atan2f(static_cast<float>(sensorVY), static_cast<float>(sensorVX));
     fsAngle = atan2f(static_cast<float>(fsVY), static_cast<float>(fsVX));
-    adiff = fsAngle - sensorAngle;
-    if (adiff < 0)
-      adiff += DirectX::XM_2PI;
-    if (adiff > DirectX::XM_PI)
-      adiff -= DirectX::XM_PI;
+    adiff = fabsf(DirectX::XMScalarModAngle(fsAngle - sensorAngle));
 
     // if the angle between the firesupport units and the sensor move is bigger
     // than 45 degrees don't retreat

@@ -678,6 +678,24 @@ compiled once the APIs returned float radians — and both were caught in
 minutes because the range asserts named the invariant instead of letting
 the garbage propagate. The asserts stay.
 
+**Post-phase follow-ups (2026-08-16, by owner request)**, the three
+items the stage F record left on the table:
+
+- The `Order.cpp` fire-support retreat test now measures true angular
+  separation — `fabsf(XMScalarModAngle(fsAngle − sensorAngle))` —
+  replacing the `adiff -= π` wrap that read near-full-circle
+  separations as large and wrongly suppressed a retreat.
+- The dead obstacle-avoidance family is deleted from `Move.cpp`
+  (540 lines): `moveGetObstVector2/3/5`, their only-caller helpers
+  `moveObjOnTarget` and `moveUpdateRepulsiveVector`, and the two
+  commented-out older versions of the same functions. Each was proved
+  dead by whole-tree grep; `moveGetObstVector4` — the one the movement
+  update actually calls — is untouched.
+- `buildDroid` now zero-initialises its five lazily-written fields
+  (`actionStarted`, `actionPoints`, `powerAccrued`, `updateFlags`,
+  `currRayAng`) so a fresh droid never carries the debug-heap fill the
+  first stage-F finding turned up in a debugger.
+
 ## Decisions — settled
 
 All six were put to the owner and settled on 2026-08-16. Two rulings widen

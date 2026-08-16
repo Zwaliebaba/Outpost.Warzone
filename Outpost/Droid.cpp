@@ -3258,6 +3258,11 @@ DROID* buildDroid(DROID_TEMPLATE* pTemplate, UDWORD x, UDWORD y, UDWORD player, 
   psDroid->actionX = 0;
   psDroid->actionY = 0;
   psDroid->psActionTarget = nullptr;
+  psDroid->actionStarted = 0;
+  psDroid->actionPoints = 0;
+  psDroid->powerAccrued = 0;
+  psDroid->updateFlags = 0;
+  psDroid->currRayAng = 0;
 
   psDroid->listSize = 0;
   memset(psDroid->asOrderList, 0, sizeof(ORDER_LIST) * ORDER_LIST_MAX);
