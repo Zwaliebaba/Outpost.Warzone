@@ -1,4 +1,5 @@
 #include "pch.h"
+#include <directxmath.h>
 #include "Window.h"
 #include "Trig.h"
 #include "StrRes.h"
@@ -677,10 +678,8 @@ void missionFlyTransportersIn(SDWORD iPlayer, BOOL bTrackTransporter)
         iDx = iLandX - iX;
         iDy = iLandY - iY;
 
-        fR = static_cast<float>(atan2(iDx, iDy));
-        if (fR < 0.0)
-          fR += static_cast<float>(2 * PI);
-        psTransporter->direction = static_cast<UWORD>((RAD_TO_DEG(fR)));
+        fR = atan2f(static_cast<float>(iDx), static_cast<float>(iDy));
+        psTransporter->direction = DirectX::XMScalarModAngle(fR);
 
         // Camera track requested and it's the selected player.
         if ((bTrackTransporter == TRUE) && (iPlayer == static_cast<SDWORD>(selectedPlayer)))

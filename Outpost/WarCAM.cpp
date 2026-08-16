@@ -243,7 +243,7 @@ BOOL processWarCam(void)
   CONPRINTF(ConsoleString,(ConsoleString,"Velocity of movement constant : %.2f",velocityConstant));
   CONPRINTF(ConsoleString,(ConsoleString,"Acceleration of rotation constant : %.2f",rotAccelConstant));
   CONPRINTF(ConsoleString,(ConsoleString,"Velocity of rotation constant : %.2f",rotVelocityConstant));
-  CONPRINTF(ConsoleString,(ConsoleString,"Tracking droid direction : %d",trackingCamera.droid->direction));
+  CONPRINTF(ConsoleString,(ConsoleString,"Tracking droid direction : %.2f",trackingCamera.droid->direction));
   CONPRINTF(ConsoleString,(ConsoleString,"Tracking droid pitch : %d",trackingCamera.droid->pitch));
   CONPRINTF(ConsoleString,(ConsoleString,"Tracking droid roll : %d",trackingCamera.droid->roll));
   CONPRINTF(ConsoleString,(ConsoleString,"Tracking droid height (z) : %d",trackingCamera.droid->z));
@@ -465,8 +465,7 @@ void updateCameraAcceleration(UBYTE update)
     else
     {
       float trackSin, trackCos;
-      DirectX::XMScalarSinCos(&trackSin, &trackCos,
-                              DirectX::XMConvertToRadians(static_cast<float>(trackingCamera.target->direction)));
+      DirectX::XMScalarSinCos(&trackSin, &trackCos, trackingCamera.target->direction);
       xBehind = static_cast<SDWORD>(std::lrintf(camDroidYOffset * trackSin));
       yBehind = static_cast<SDWORD>(std::lrintf(camDroidXOffset * trackCos));
     }
@@ -639,7 +638,7 @@ void updateCameraRotationAcceleration(UBYTE update)
         yConcern = DEG(getGroupAverageTrackAngle(trackingCamera.target->group,FALSE)); //DEG(trackingCamera.target->direction);	
     }
     else
-      yConcern = DEG(trackingCamera.target->direction);
+      yConcern = std::lrintf(trackingCamera.target->direction / Neuron::RadiansPerWorldAngle);
     yConcern += DEG(180);
 
     while (trackingCamera.rotation.y < 0) { trackingCamera.rotation.y += DEG(360); }
@@ -672,7 +671,7 @@ void updateCameraRotationAcceleration(UBYTE update)
     }
     else
     {
-      xConcern = DEG(trackingCamera.target->pitch);
+      xConcern = std::lrintf(trackingCamera.target->pitch / Neuron::RadiansPerWorldAngle);
       xConcern += DEG(-16);
     }
 
@@ -1029,13 +1028,13 @@ SDWORD getGroupAverageTrackAngle(UDWORD groupNumber, BOOL bCheckOnScreen)
   DROID* psDroid;
   float xShift, yShift;
   float xTotal, yTotal;
-  float averageAngleFloat;
-  SDWORD droidCount, averageAngle;
+  float averageAngleFloat = 0.0f;
+  SDWORD droidCount;
   SDWORD retVal;
 
   /* Initialise all the stuff */
   droidCount = 0;
-  averageAngle = 0;
+
   /* Set totals to zero */
   xTotal = yTotal = 0.0f;
 
@@ -1048,9 +1047,8 @@ SDWORD getGroupAverageTrackAngle(UDWORD groupNumber, BOOL bCheckOnScreen)
       if (bCheckOnScreen ? droidOnScreen(psDroid,DISP_WIDTH / 6) : TRUE)
       {
         droidCount++;
-        averageAngle += psDroid->direction;
-        xShift = trigSin(psDroid->direction);
-        yShift = trigCos(psDroid->direction);
+        xShift = sinf(psDroid->direction);
+        yShift = cosf(psDroid->direction);
         xTotal += xShift;
         yTotal += yShift;
       }
@@ -1084,7 +1082,6 @@ SDWORD getGroupAverageTrackAngle(UDWORD groupNumber, BOOL bCheckOnScreen)
   }
   if (droidCount)
   {
-    retVal = (averageAngle / droidCount);
     averageAngleFloat = RAD_TO_DEG(atan2(xTotal,yTotal));
   }
   else
@@ -1099,13 +1096,13 @@ SDWORD getAverageTrackAngle(BOOL bCheckOnScreen)
   DROID* psDroid;
   float xShift, yShift;
   float xTotal, yTotal;
-  float averageAngleFloat;
-  SDWORD droidCount, averageAngle;
+  float averageAngleFloat = 0.0f;
+  SDWORD droidCount;
   SDWORD retVal;
 
   /* Initialise all the stuff */
   droidCount = 0;
-  averageAngle = 0;
+
   /* Set totals to zero */
   xTotal = yTotal = 0.0f;
 
@@ -1118,9 +1115,8 @@ SDWORD getAverageTrackAngle(BOOL bCheckOnScreen)
       if (bCheckOnScreen ? droidOnScreen(psDroid,DISP_WIDTH / 6) : TRUE)
       {
         droidCount++;
-        averageAngle += psDroid->direction;
-        xShift = trigSin(psDroid->direction);
-        yShift = trigCos(psDroid->direction);
+        xShift = sinf(psDroid->direction);
+        yShift = cosf(psDroid->direction);
         xTotal += xShift;
         yTotal += yShift;
       }
@@ -1154,7 +1150,6 @@ SDWORD getAverageTrackAngle(BOOL bCheckOnScreen)
   }
   if (droidCount)
   {
-    retVal = (averageAngle / droidCount);
     averageAngleFloat = static_cast<float>(RAD_TO_DEG(atan2(xTotal,yTotal)));
   }
   else
@@ -1320,7 +1315,7 @@ void setUpRadarTarget(SDWORD x, SDWORD y)
     radarTarget.z = 128 * ELEVATION_SCALE;
   else
     radarTarget.z = map_Height(x, y);
-  radarTarget.direction = static_cast<UWORD>(calcDirection(player.p.x, player.p.z, x, y));
+  radarTarget.direction = calcDirection(player.p.x, player.p.z, x, y);
   radarTarget.pitch = 0;
   radarTarget.roll = 0;
   radarTarget.type = OBJ_TARGET;

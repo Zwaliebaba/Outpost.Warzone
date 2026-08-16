@@ -2301,7 +2301,7 @@ void effectDroidUpdates(void)
             /* Present direction is important */
             float dirSin, dirCos;
             DirectX::XMScalarSinCos(&dirSin, &dirCos,
-                                    DirectX::XMConvertToRadians(static_cast<float>(static_cast<SWORD>(psDroid->direction))));
+                                    psDroid->direction);
             SDWORD xBehind = static_cast<SDWORD>(std::lrintf(50 * dirSin));
             SDWORD yBehind = static_cast<SDWORD>(std::lrintf(50 * dirCos));
             pos.x = psDroid->x - xBehind;

@@ -148,8 +148,8 @@ struct DROID
   UDWORD armour[NUM_WEAPON_CLASS];
   UWORD numKills;
   //UWORD		turretRotRate; THIS IS A CONSTANT
-  UWORD turretRotation;
-  UWORD turretPitch; //*
+  float turretRotation; // radians in (-pi, pi], relative to the body
+  float turretPitch; // radians, +ve up
   UBYTE NameVersion;
   // Version number used for generating on-the-fly names (e.g. Viper Mk "I" would be stored as 1 - Viper Mk "X" as 10)  - copied from droid template
   UBYTE currRayAng;

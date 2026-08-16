@@ -1,4 +1,6 @@
 #include "pch.h"
+#include <directxmath.h>
+#include <cmath>
 /*
  * MultiSync.c
  *
@@ -230,7 +232,8 @@ static void packageCheck(UDWORD i, NETMSG* pMsg, DROID* pD)
   NetAdd2(pMsg, i+2, pD->id); // droid id
   NetAdd2(pMsg, i+6, pD->secondaryOrder);
   NetAdd2(pMsg, i+10, pD->body); // damage points
-  NetAdd2(pMsg, i+14, pD->direction); // direction
+  const UWORD dirDegrees = static_cast<UWORD>((std::lround(DirectX::XMConvertToDegrees(pD->direction)) + 360) % 360);
+  NetAdd2Type(pMsg, i+14, UWORD, dirDegrees); // direction, degrees on the wire
 
   if (pD->order == DORDER_ATTACK || pD->order == DORDER_MOVE || pD->order == DORDER_RTB || pD->order == DORDER_RTR)
   {
@@ -452,7 +455,7 @@ static void offscreenUpdate(DROID* psDroid, UDWORD dam, UDWORD x, UDWORD y, floa
         psDroid->y = static_cast<UWORD>(fy);
         gridMoveObject((BASE_OBJECT*)psDroid, static_cast<SDWORD>(oldx), static_cast<SDWORD>(oldy));
 
-        psDroid->direction = static_cast<UWORD>(dir % 360); // update rotation
+        psDroid->direction = DirectX::XMConvertToRadians(static_cast<float>(dir % 360)); // update rotation
 
         // reroute the droid.
         turnOffMultiMsg(TRUE);
@@ -468,7 +471,7 @@ static void offscreenUpdate(DROID* psDroid, UDWORD dam, UDWORD x, UDWORD y, floa
     psDroid->x = static_cast<UWORD>(x); //update x
     psDroid->y = static_cast<UWORD>(y); //update y
     gridMoveObject((BASE_OBJECT*)psDroid, static_cast<SDWORD>(oldx), static_cast<SDWORD>(oldy));
-    psDroid->direction = static_cast<UWORD>(dir % 360); // update rotation
+    psDroid->direction = DirectX::XMConvertToRadians(static_cast<float>(dir % 360)); // update rotation
   }
 
   psDroid->body = dam; // update damage
@@ -563,7 +566,8 @@ static BOOL sendStructureCheck(VOID)
     NetAdd(m, 11, pS->x); //position
     NetAdd(m, 13, pS->y);
     NetAdd(m, 15, pS->z);
-    NetAdd(m, 17, pS->direction);
+    const UWORD dirDegrees = static_cast<UWORD>((std::lround(DirectX::XMConvertToDegrees(pS->direction)) + 360) % 360);
+    NetAddType(m, 17, UWORD, dirDegrees); // degrees on the wire
 
     m.type = NET_CHECK_STRUCT;
     m.size = 19;
@@ -609,7 +613,9 @@ BOOL recvStructureCheck(NETMSG* m)
   if (pS)
   {
     NetGet(m, 5, pS->body); // Damage update.
-    NetGet(m, 17, pS->direction);
+    UWORD dirDegrees;
+    NetGet(m, 17, dirDegrees);
+    pS->direction = DirectX::XMConvertToRadians(static_cast<float>(dirDegrees));
   }
   else // structure wasn't found, create it.
   {
@@ -634,7 +640,7 @@ BOOL recvStructureCheck(NETMSG* m)
 
       if (pS && (pS->pStructureType->type == type) && (pS->player == player))
       {
-        pS->direction = dir;
+        pS->direction = DirectX::XMConvertToRadians(static_cast<float>(dir));
         pS->id = ref;
         if (pS->status != SS_BUILT)
         {
@@ -690,7 +696,7 @@ BOOL recvStructureCheck(NETMSG* m)
   {
     if (pS->status != SS_BUILT) // check its finished
     {
-      pS->direction = dir;
+      pS->direction = DirectX::XMConvertToRadians(static_cast<float>(dir));
       pS->id = ref;
       pS->status = SS_BUILT;
       buildingComplete(pS);

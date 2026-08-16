@@ -4023,15 +4023,15 @@ BOOL calcDroidMuzzleLocation(DROID* psDroid, iVector* muzzle)
                                          static_cast<float>(psDroid->y)) * world;
     //matrix = the center of droid
     // degrees to radians; UWORD fields go through SWORD so a wrapped-negative angle converts as negative
-    world = DirectX::XMMatrixRotationY(DirectX::XMConvertToRadians(static_cast<float>(static_cast<SWORD>(psDroid->direction)))) * world;
-    world = DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(static_cast<float>(psDroid->pitch))) * world;
-    world = DirectX::XMMatrixRotationZ(DirectX::XMConvertToRadians(-static_cast<float>(psDroid->roll))) * world;
+    world = DirectX::XMMatrixRotationY(psDroid->direction) * world;
+    world = DirectX::XMMatrixRotationX(psDroid->pitch) * world;
+    world = DirectX::XMMatrixRotationZ(-psDroid->roll) * world;
     world = DirectX::XMMatrixTranslation(static_cast<float>(psShape->connectors->x), static_cast<float>(-psShape->connectors->z),
                                          static_cast<float>(-psShape->connectors->y)) * world; //note y and z flipped
 
     //matrix = the gun and turret mount on the body
-    world = DirectX::XMMatrixRotationY(DirectX::XMConvertToRadians(static_cast<float>(static_cast<SWORD>(psDroid->turretRotation)))) * world; //+ve anticlockwise
-    world = DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(static_cast<float>(static_cast<SWORD>(psDroid->turretPitch)))) * world; //+ve up
+    world = DirectX::XMMatrixRotationY(psDroid->turretRotation) * world; //+ve anticlockwise
+    world = DirectX::XMMatrixRotationX(psDroid->turretPitch) * world; //+ve up
     //matrix = the muzzle mount on turret
     if (psWeapon AND psWeapon->nconnectors)
     {
@@ -5356,7 +5356,8 @@ BOOL cbSensorDroid(DROID* psDroid)
 DROID* giftSingleDroid(DROID* psD, UDWORD to)
 {
   DROID_TEMPLATE sTemplate;
-  UWORD x, y, numKills, direction, i;
+  UWORD x, y, numKills, i;
+  float direction;
   DROID *psNewDroid, *psCurr;
   STRUCTURE* psStruct;
   UDWORD body, armourK, armourH;

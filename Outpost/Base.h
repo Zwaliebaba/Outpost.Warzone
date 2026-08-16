@@ -38,9 +38,9 @@ using OBJECT_TYPE = enum _object_type
 	OBJECT_TYPE			type;		/* The type of object */ \
 	UDWORD				id;			/* ID number of the object */ \
 	UWORD				x,y,z;		/* Object's location */ \
-	UWORD				direction;	/* Object's direction +ve rotation about y axis*/ \
-	SWORD				pitch;		/* Object's pitch +ve nose up*/ \
-	SWORD				roll		/* Object's roll +ve left up, right down */
+	float				direction;	/* Object's direction +ve rotation about y axis, radians in (-pi, pi] */ \
+	float				pitch;		/* Object's pitch +ve nose up, radians */ \
+	float				roll		/* Object's roll +ve left up, right down, radians */
 
 #define BASE_ELEMENTS2(pointerType) \
 	SCREEN_DISP_DATA	sDisplay;	/* screen coordinate details */ \

@@ -1,4 +1,5 @@
 #include "pch.h"
+#include <directxmath.h>
 /*
 	ALL PSX, HASH_NAMES AND WIN32 excluded stuff removed - Alex M.
 */
@@ -1035,7 +1036,7 @@ BOOL loadSaveDroidInitV2(UBYTE* pFileData, UDWORD filesize, UDWORD quantity)
         if (psDroid)
         {
           psDroid->id = pDroidInit->id;
-          psDroid->direction = static_cast<UWORD>(pDroidInit->direction);
+          psDroid->direction = DirectX::XMConvertToRadians(static_cast<float>(pDroidInit->direction)); // on-disk degrees
           addDroid(psDroid, apsDroidLists);
         }
         else
@@ -1250,7 +1251,7 @@ BOOL loadSaveStructureV7(UBYTE* pFileData, UDWORD filesize, UDWORD numStructures
       //copy the values across
       psStructure->id = psSaveStructure->id;
       //are these going to ever change from the values set up with?
-      psStructure->direction = static_cast<UWORD>(psSaveStructure->direction);
+      psStructure->direction = DirectX::XMConvertToRadians(static_cast<float>(psSaveStructure->direction)); // on-disk degrees
     }
 
     psStructure->inFire = psSaveStructure->inFire;
@@ -1427,7 +1428,7 @@ BOOL loadSaveFeatureV14(UBYTE* pFileData, UDWORD filesize, UDWORD numFeatures, U
     }
     //restore values
     pFeature->id = psSaveFeature->id;
-    pFeature->direction = static_cast<UWORD>(psSaveFeature->direction);
+    pFeature->direction = DirectX::XMConvertToRadians(static_cast<float>(psSaveFeature->direction)); // on-disk degrees
     pFeature->inFire = psSaveFeature->inFire;
     pFeature->burnDamage = psSaveFeature->burnDamage;
     if (version >= VERSION_14)

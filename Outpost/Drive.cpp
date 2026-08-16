@@ -1,4 +1,5 @@
 #include "pch.h"
+#include <directxmath.h>
 //
 // Drive.c
 //
@@ -83,7 +84,7 @@ extern BOOL DirectControl;
 
 DROID* psDrivenDroid = nullptr; // The droid that's being driven.
 static BOOL bDriveMode = FALSE;
-static SDWORD driveDir; // Driven droid's direction.
+static float driveDir; // Driven droid's direction, radians in (-pi, pi].
 static SDWORD driveSpeed; // Driven droid's speed.
 static int driveBumpTime; // Time that followers get a kick up the ass.
 static BOOL DoFollowRangeCheck = TRUE;
@@ -199,7 +200,7 @@ BOOL StartDriverMode(DROID* psOldDroid)
 
   if (psDrivenDroid)
   {
-    driveDir = psDrivenDroid->direction % 360;
+    driveDir = psDrivenDroid->direction;
     driveSpeed = 0;
     driveBumpTime = gameTime;
     setDrivingStatus(TRUE);
@@ -394,18 +395,16 @@ static BOOL driveControl(DROID* psDroid)
 
   if (keyDown(KEY_LEFTARROW))
   {
-    driveDir += DRIVE_TURNSPEED;
+    driveDir += DirectX::XMConvertToRadians(static_cast<float>(DRIVE_TURNSPEED));
     Input = TRUE;
   }
   else if (keyDown(KEY_RIGHTARROW))
   {
-    driveDir -= DRIVE_TURNSPEED;
-    if (driveDir < 0)
-      driveDir += 360;
+    driveDir -= DirectX::XMConvertToRadians(static_cast<float>(DRIVE_TURNSPEED));
     Input = TRUE;
   }
 
-  driveDir = driveDir % 360;
+  driveDir = DirectX::XMScalarModAngle(driveDir);
 
   if (keyDown(KEY_UPARROW))
   {
@@ -541,7 +540,7 @@ void driveUpdate(void)
         {
           psDrivenDroid->sMove.Status = MOVEDRIVE;
           DEBUG_ASSERT_TEXT((psDrivenDroid->droidType != DROID_TRANSPORTER), "Tried to control a transporter");
-          driveDir = psDrivenDroid->direction % 360;
+          driveDir = psDrivenDroid->direction;
         }
 
         DoFollowRangeCheck = TRUE;
@@ -591,9 +590,9 @@ void driveUpdate(void)
 
 SDWORD driveGetMoveSpeed(void) { return driveSpeed; }
 
-SDWORD driveGetMoveDir(void) { return driveDir; }
+float driveGetMoveDir(void) { return driveDir; }
 
-void driveSetDroidMove(DROID* psDroid) { psDroid->direction = static_cast<UWORD>(driveDir); }
+void driveSetDroidMove(DROID* psDroid) { psDroid->direction = driveDir; }
 
 // Dissable user control of droid, ie when interface is up.
 

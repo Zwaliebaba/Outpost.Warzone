@@ -218,9 +218,9 @@ BOOL proj_SendProjectile(WEAPON* psWeap, BASE_OBJECT* psAttacker, SDWORD player,
   PROJ_OBJECT* psObj;
   SDWORD tarHeight, srcHeight, iMinSq;
   SDWORD altChange, dx, dy, dz, iVelSq, iVel;
-  float fR, fA, fS, fT, fC; // 52.12 fixed point on PSX, float on PC.
+  float fR, fA, fS, fC; // 52.12 fixed point on PSX, float on PC.
   iVector muzzle;
-  SDWORD iRadSq, iPitchLow, iPitchHigh, iTemp;
+  SDWORD iRadSq;
   UDWORD heightVariance;
   WEAPON_STATS* psWeapStats = &asWeaponStats[psWeap->nStat];
 
@@ -310,22 +310,16 @@ BOOL proj_SendProjectile(WEAPON* psWeap, BASE_OBJECT* psAttacker, SDWORD player,
   /* roll never set */
   psObj->roll = 0;
 
-  fR = static_cast<float>(atan2(dx, dy));
-  if (fR < 0.0)
-    fR += static_cast<float>(2 * PI);
-  psObj->direction = static_cast<UWORD>((RAD_TO_DEG(fR)));
+  psObj->direction = DirectX::XMScalarModAngle(atan2f(static_cast<float>(dx), static_cast<float>(dy)));
 
   /* get target distance */
   iRadSq = dx * dx + dy * dy + dz * dz;
-  fR = trigIntSqrt(iRadSq);
+  fR = sqrtf(static_cast<float>(iRadSq));
   iMinSq = static_cast<SDWORD>(psWeapStats->minRange * psWeapStats->minRange);
 
   if (proj_Direct(psObj->psWStats) || (!proj_Direct(psWeapStats) && (iRadSq <= iMinSq)))
   {
-    fR = static_cast<float>(atan2(dz, fR));
-    if (fR < 0.0)
-      fR += static_cast<float>(2 * PI);
-    psObj->pitch = static_cast<SWORD>((RAD_TO_DEG(fR)));
+    psObj->pitch = atan2f(static_cast<float>(dz), fR);
 
     /* set function pointer */
     psObj->pInFlightFunc = proj_InFlightDirectFunc;
@@ -343,19 +337,17 @@ BOOL proj_SendProjectile(WEAPON* psWeap, BASE_OBJECT* psAttacker, SDWORD player,
     if (fS < 0.0f)
     {
       /* set optimal pitch */
-      psObj->pitch = PROJ_MAX_PITCH;
+      psObj->pitch = DirectX::XMConvertToRadians(static_cast<float>(PROJ_MAX_PITCH));
 
       /* increase velocity: tan angle could be hard-coded but is variable here */
 
-      fS = trigSin(PROJ_MAX_PITCH);
-      fC = trigCos(PROJ_MAX_PITCH);
-      fT = (fS / fC);
+      const float fT = tanf(DirectX::XMConvertToRadians(static_cast<float>(PROJ_MAX_PITCH)));
       fS = ACC_GRAVITY * (1.0f + (fT * fT));
       fS = (fS / (2 * ((fR * fT) - static_cast<float>(dz))));
       {
         float Tmp;
         Tmp = (fR * fR);
-        iVel = std::lrintf(trigIntSqrt(std::lrintf(fS * Tmp)));
+        iVel = std::lrintf(sqrtf(fS * Tmp));
       }
     }
     else
@@ -364,32 +356,24 @@ BOOL proj_SendProjectile(WEAPON* psWeap, BASE_OBJECT* psAttacker, SDWORD player,
       iVel = psObj->psWStats->flightSpeed;
 
       /* get floating point square root */
-      fS = trigIntSqrt(std::lrintf(fS));
+      fS = sqrtf(fS);
 
-      fT = static_cast<float>(atan2(fR + fS, 2 * fA));
-      /* make sure angle positive */
-      if (fT < 0)
-        fT += static_cast<float>(2 * PI);
-      iPitchLow = std::lrintf(RAD_TO_DEG(fT));
+      float pitchLow = atan2f(fR + fS, 2 * fA);
+      float pitchHigh = atan2f(fR - fS, 2 * fA);
 
-      fT = static_cast<float>(atan2(fR - fS, 2 * fA));
-      /* make sure angle positive */
-      if (fT < 0)
-        fT += static_cast<float>(2 * PI);
-      iPitchHigh = std::lrintf(RAD_TO_DEG(fT));
       /* swap pitches if wrong way round */
-      if (iPitchLow > iPitchHigh)
+      if (pitchLow > pitchHigh)
       {
-        iTemp = iPitchHigh;
-        iPitchLow = iPitchHigh;
-        iPitchHigh = iTemp;
+        const float pitchTemp = pitchLow;
+        pitchLow = pitchHigh;
+        pitchHigh = pitchTemp;
       }
 
-      /* chooselow pitch unless -ve */
-      if (iPitchLow > 0)
-        psObj->pitch = static_cast<SWORD>(iPitchLow);
+      /* choose low pitch unless -ve */
+      if (pitchLow > 0.0f)
+        psObj->pitch = pitchLow;
       else
-        psObj->pitch = static_cast<SWORD>(iPitchHigh);
+        psObj->pitch = pitchHigh;
     }
 
     /* if droid set muzzle pitch */
@@ -401,8 +385,8 @@ BOOL proj_SendProjectile(WEAPON* psWeap, BASE_OBJECT* psAttacker, SDWORD player,
         ((STRUCTURE*)psAttacker)->turretPitch = psObj->pitch;
     }
 
-    psObj->vXY = std::lrintf(iVel * trigCos(psObj->pitch));
-    psObj->vZ = std::lrintf(iVel * trigSin(psObj->pitch));
+    psObj->vXY = std::lrintf(iVel * cosf(psObj->pitch));
+    psObj->vZ = std::lrintf(iVel * sinf(psObj->pitch));
 
     /* set function pointer */
     psObj->pInFlightFunc = proj_InFlightIndirectFunc;
@@ -655,7 +639,7 @@ void proj_InFlightIndirectFunc(PROJ_OBJECT* psObj)
   psObj->z = static_cast<UWORD>(psObj->srcHeight + dz);
 
   fVVert = static_cast<float>(psObj->vZ - (iTime*ACC_GRAVITY/GAME_TICKS_PER_SEC));
-  psObj->pitch = static_cast<SWORD>((RAD_TO_DEG(atan2(fVVert, psObj->vXY))));
+  psObj->pitch = atan2f(fVVert, static_cast<float>(psObj->vXY));
 
   if (psStats->weaponSubClass == WSC_FLAME)
   {

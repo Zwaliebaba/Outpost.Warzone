@@ -16,7 +16,7 @@
 void testAngles(void);
 void processImpact(UDWORD worldX, UDWORD worldY, UBYTE severity, UDWORD tilesAcross);
 void baseObjScreenCoords(BASE_OBJECT* baseObj, iPoint* pt);
-SDWORD calcDirection(UDWORD x0, UDWORD y0, UDWORD x1, UDWORD y1);
+float calcDirection(UDWORD x0, UDWORD y0, UDWORD x1, UDWORD y1);
 UDWORD adjustDirection(SDWORD present, SDWORD difference);
 
 void initBulletTable(void);
@@ -36,25 +36,15 @@ void initBulletTable(void)
 
 //void	attemptScreenShake(void)
 
-/* Angle returned is reflected in line x=0 */
-SDWORD calcDirection(UDWORD x0, UDWORD y0, UDWORD x1, UDWORD y1)
+/* Angle returned is reflected in line x=0; radians in (-pi, pi] */
+float calcDirection(UDWORD x0, UDWORD y0, UDWORD x1, UDWORD y1)
 {
-  SDWORD angleInt = 0;
-  SDWORD xDif = (x1 - x0);
+  const float xDif = static_cast<float>(static_cast<SDWORD>(x1 - x0));
 
   /* Watch out here - should really be y1-y0, but coordinate system is reversed in Y */
-  SDWORD yDif = (y0 - y1);
-  double angle = atan2(yDif, xDif);
-  angle = 180 * (angle / pi);
-  angleInt = static_cast<SDWORD>(angle);
+  const float yDif = static_cast<float>(static_cast<SDWORD>(y0 - y1));
 
-  angleInt += 90;
-  if (angleInt < 0)
-    angleInt += 360;
-
-  DEBUG_ASSERT_TEXT(angleInt >= 0 && angleInt < 360, "calcDirection: droid direction out of range");
-
-  return (angleInt);
+  return DirectX::XMScalarModAngle(atan2f(yDif, xDif) + DirectX::XM_PIDIV2);
 }
 
 // -------------------------------------------------------------------------------------------
@@ -118,33 +108,12 @@ int inQuad(POINT* pt, QUAD* quad)
   return c;
 }
 
-UDWORD adjustDirection(SDWORD present, SDWORD difference)
-{
-  SDWORD sum = present + difference;
-  if (sum >= 0 AND sum <= 360)
-    return static_cast<UDWORD>(sum);
-
-  if (sum < 0)
-    return static_cast<UDWORD>(360 + sum);
-
-  if (sum > 360)
-    return static_cast<UDWORD>(sum - 360);
-}
+float adjustDirection(float _present, float _difference) { return DirectX::XMScalarModAngle(_present + _difference); }
 
 /* Return a signed difference in direction : a - b
- * result is 180 .. -180
+ * result is radians in (-pi, pi]
  */
-SDWORD directionDiff(SDWORD a, SDWORD b)
-{
-  SDWORD diff = a - b;
-
-  if (diff > 180)
-    return diff - 360;
-  if (diff < -180)
-    return 360 + diff;
-
-  return diff;
-}
+float directionDiff(float _a, float _b) { return DirectX::XMScalarModAngle(_a - _b); }
 
 void WorldPointToScreen(iPoint* worldPt, iPoint* screenPt)
 {

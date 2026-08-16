@@ -1,4 +1,5 @@
 #include "pch.h"
+#include <directxmath.h>
 /*
  * Feature.c
  *
@@ -713,17 +714,17 @@ FEATURE* buildFeature(FEATURE_STATS* psStats, UDWORD x, UDWORD y, BOOL FromSave)
   /* Dump down the building wrecks at random angles - still looks shit though */
   if (psStats->subType == FEAT_BUILD_WRECK)
   {
-    psFeature->direction = static_cast<UWORD>(rand() % 360);
+    psFeature->direction = DirectX::XMConvertToRadians(static_cast<float>(rand() % 360));
     psFeature->gfxScaling = static_cast<UWORD>(80 + (10 - rand() % 20)); // put into define
   }
   else if (psStats->subType == FEAT_TREE)
   {
-    psFeature->direction = static_cast<UWORD>(rand() % 360);
+    psFeature->direction = DirectX::XMConvertToRadians(static_cast<float>(rand() % 360));
     psFeature->gfxScaling = static_cast<UWORD>(100 + (14 - rand() % 28));
   }
   else
   {
-    psFeature->direction = 0;
+    psFeature->direction = 0.0f;
     psFeature->gfxScaling = 100; // but irrelevant anyway, cos it's not scaled
   }
   psFeature->selected = FALSE;

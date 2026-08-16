@@ -1533,7 +1533,7 @@ SDWORD structChooseWallType(UDWORD player, UDWORD mapX, UDWORD mapY)
         psStruct = apsStructs[x][y];
         if (psStruct->pStructureType->type == REF_WALL)
         {
-          if (psStruct->direction == 90)
+          if (psStruct->direction == DirectX::XM_PIDIV2)
             nayborType = WALL_VERT;
           else
             nayborType = WALL_HORIZ;
@@ -1592,12 +1592,12 @@ SDWORD structChooseWallType(UDWORD player, UDWORD mapX, UDWORD mapY)
           else if (scanType == WALL_HORIZ)
           {
             // change to a horizontal wall
-            psStruct->direction = 0;
+            psStruct->direction = 0.0f;
           }
           else
           {
             // change to a vertical wall
-            psStruct->direction = 90;
+            psStruct->direction = DirectX::XM_PIDIV2;
           }
         }
       }
@@ -1863,7 +1863,7 @@ STRUCTURE* buildStructure(STRUCTURE_STATS* pStructureType, UDWORD x, UDWORD y, U
     psBuilding->burnStart = 0;
     psBuilding->burnDamage = 0;
 
-    psBuilding->direction = 0;
+    psBuilding->direction = 0.0f;
     psBuilding->pitch = 0;
     psBuilding->roll = 0;
     psBuilding->selected = FALSE;
@@ -1874,7 +1874,7 @@ STRUCTURE* buildStructure(STRUCTURE_STATS* pStructureType, UDWORD x, UDWORD y, U
 
     // rotate a wall if necessary
     if (!FromSave && pStructureType->type == REF_WALL && wallType == WALL_VERT)
-      psBuilding->direction = 90;
+      psBuilding->direction = DirectX::XM_PIDIV2;
 
     //set up the sensor stats
     if (psBuilding->pStructureType->pSensor)
@@ -3332,8 +3332,11 @@ void aiUpdateStructure(STRUCTURE* psStructure)
     }
     else
     {
-      // realign the turret
-      if (((psStructure->turretRotation % 90) != 0) || (psStructure->turretPitch != 0))
+      // realign the turret; the aligner drives the offset from the nearest
+      // 90 degrees to exactly zero, so test against a small epsilon
+      const float nearest = roundf(psStructure->turretRotation / DirectX::XM_PIDIV2) * DirectX::XM_PIDIV2;
+      if ((std::fabs(DirectX::XMScalarModAngle(psStructure->turretRotation - nearest)) > 0.001f) ||
+          (std::fabs(psStructure->turretPitch) > 0.001f))
         actionAlignTurret((BASE_OBJECT*)psStructure);
     }
   }
@@ -5998,15 +6001,15 @@ BOOL calcStructureMuzzleLocation(STRUCTURE* psStructure, iVector* muzzle)
                                          static_cast<float>(psStructure->y)) * world;
     //matrix = the center of droid
     // degrees to radians; UWORD fields go through SWORD so a wrapped-negative angle converts as negative
-    world = DirectX::XMMatrixRotationY(DirectX::XMConvertToRadians(static_cast<float>(static_cast<SWORD>(psStructure->direction)))) * world;
-    world = DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(static_cast<float>(psStructure->pitch))) * world;
-    world = DirectX::XMMatrixRotationZ(DirectX::XMConvertToRadians(-static_cast<float>(psStructure->roll))) * world;
+    world = DirectX::XMMatrixRotationY(psStructure->direction) * world;
+    world = DirectX::XMMatrixRotationX(psStructure->pitch) * world;
+    world = DirectX::XMMatrixRotationZ(-psStructure->roll) * world;
     world = DirectX::XMMatrixTranslation(static_cast<float>(psShape->connectors->x), static_cast<float>(-psShape->connectors->z),
                                          static_cast<float>(-psShape->connectors->y)) * world; //note y and z flipped
 
     //matrix = the gun and turret mount on the body
-    world = DirectX::XMMatrixRotationY(DirectX::XMConvertToRadians(static_cast<float>(static_cast<SWORD>(psStructure->turretRotation)))) * world; //+ve anticlockwise
-    world = DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(static_cast<float>(static_cast<SWORD>(psStructure->turretPitch)))) * world; //+ve up
+    world = DirectX::XMMatrixRotationY(psStructure->turretRotation) * world; //+ve anticlockwise
+    world = DirectX::XMMatrixRotationX(psStructure->turretPitch) * world; //+ve up
     //matrix = the muzzle mount on turret
     if (psWeaponImd AND psWeaponImd->nconnectors)
     {
@@ -7744,7 +7747,7 @@ STRUCTURE* giftSingleStructure(STRUCTURE* psStructure, UBYTE attackPlayer, BOOL 
   UBYTE capacity = 0, originalPlayer;
   SWORD buildPoints = 0, i;
   BOOL bPowerOn;
-  UWORD direction;
+  float direction;
 
 #ifdef TEST_EW
   bMultiPlayer = TRUE;

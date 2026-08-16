@@ -1,4 +1,6 @@
 #include "pch.h"
+#include <directxmath.h>
+#include <cmath>
 /*
  * Move.c
  *
@@ -232,16 +234,11 @@ DROID* psNextRouteDroid;
 BOOL tileInRange(UDWORD tileX, UDWORD tileY, DROID* psDroid);
 void fillNewBlocks(DROID* psDroid);
 void fillInitialView(DROID* psDroid);
-void moveUpdatePersonModel(DROID* psDroid, SDWORD speed, SDWORD direction);
+void moveUpdatePersonModel(DROID* psDroid, SDWORD speed, float direction);
 // Calculate the boundary vector
 void moveCalcBoundary(DROID* psDroid);
 /* Turn a vector into an angle - returns a FRACT (!) */
 static float vectorToAngle(float vx, float vy);
-
-/* Calculate the angle between two normalised vectors */
-#define VECTOR_ANGLE(vx1,vy1, vx2,vy2) \
-	trigInvCos((vx1 * vx2) + (vy1 * vy2))
-
 
 typedef enum MOVESOUNDTYPE
 {
@@ -484,9 +481,9 @@ void moveDroidToDirect(DROID* psDroid, UDWORD x, UDWORD y)
 // Get a droid to turn towards a locaton
 void moveTurnDroid(DROID* psDroid, UDWORD x, UDWORD y)
 {
-  SDWORD moveDir = calcDirection(psDroid->x, psDroid->y, x, y);
+  const float moveDir = calcDirection(psDroid->x, psDroid->y, x, y);
 
-  if (psDroid->direction != static_cast<UDWORD>(moveDir))
+  if (psDroid->direction != moveDir)
   {
     psDroid->sMove.targetX = static_cast<SDWORD>(x);
     psDroid->sMove.targetY = static_cast<SDWORD>(y);
@@ -494,30 +491,8 @@ void moveTurnDroid(DROID* psDroid, UDWORD x, UDWORD y)
   }
 }
 
-// get the difference in direction
-SDWORD moveDirDiff(SDWORD start, SDWORD end)
-{
-  SDWORD retval, diff;
-
-  diff = end - start;
-
-  if (diff > 0)
-  {
-    if (diff < 180)
-      retval = diff;
-    else
-      retval = diff - 360;
-  }
-  else
-  {
-    if (diff > -180)
-      retval = diff;
-    else
-      retval = 360 + diff;
-  }
-
-  return retval;
-}
+// get the difference in direction, radians in (-pi, pi]
+float moveDirDiff(float start, float end) { return DirectX::XMScalarModAngle(end - start); }
 
 // initialise a droid for a shuffle move
 /*void moveShuffleInit(DROID *psDroid, SDWORD mx, SDWORD my)
@@ -551,7 +526,7 @@ void moveShuffleDroid(DROID* psDroid, UDWORD shuffleStart, SDWORD sx, SDWORD sy)
 {
   float shuffleDir, droidDir;
   DROID* psCurr;
-  SDWORD xdiff, ydiff, mx, my, shuffleMag, diff;
+  SDWORD xdiff, ydiff, mx, my, shuffleMag;
   BOOL frontClear = TRUE, leftClear = TRUE, rightClear = TRUE;
   SDWORD lvx, lvy, rvx, rvy, svx, svy;
   SDWORD shuffleMove;
@@ -597,10 +572,10 @@ void moveShuffleDroid(DROID* psDroid, UDWORD shuffleStart, SDWORD sx, SDWORD sy)
       if (xdiff * xdiff + ydiff * ydiff < SHUFFLE_DIST * SHUFFLE_DIST)
       {
         droidDir = vectorToAngle(static_cast<float>(xdiff),static_cast<float>(ydiff));
-        diff = moveDirDiff(static_cast<SDWORD>(shuffleDir), static_cast<SDWORD>(droidDir));
-        if ((diff > -135) && (diff < -45))
+        const float diff = moveDirDiff(shuffleDir, droidDir);
+        if ((diff > -3.0f * DirectX::XM_PIDIV4) && (diff < -DirectX::XM_PIDIV4))
           leftClear = FALSE;
-        else if ((diff > 45) && (diff < 135))
+        else if ((diff > DirectX::XM_PIDIV4) && (diff < 3.0f * DirectX::XM_PIDIV4))
           rightClear = FALSE;
       }
     }
@@ -686,7 +661,6 @@ void moveReallyStopDroid(DROID* psDroid)
 void updateDroidOrientation(DROID* psDroid)
 {
   SDWORD hx0, hx1, hy0, hy1, w;
-  SDWORD newPitch, dPitch, pitchLimit;
   double dx, dy;
   double direction, pitch, roll;
   DEBUG_ASSERT_TEXT(psDroid->x < (mapWidth << TILE_SHIFT), "mapHeight: x coordinate bigger than map width");
@@ -716,22 +690,17 @@ void updateDroidOrientation(DROID* psDroid)
   //dx is atan of angle of elevation along x axis
   //dx is atan of angle of elevation along y axis
   //body
-  direction = (PI * psDroid->direction) / 180.0;
+  direction = psDroid->direction;
   pitch = sin(direction) * dx + cos(direction) * dy;
-  pitch = atan(pitch);
-  newPitch = static_cast<SDWORD>((pitch * 180) / PI);
+  const float newPitch = atanf(static_cast<float>(pitch));
   //limit the rate the front comes down to simulate momentum
-  pitchLimit = PITCH_LIMIT * frameTime / GAME_TICKS_PER_SEC;
-  dPitch = newPitch - psDroid->pitch;
-  if (dPitch < 0)
-    dPitch += 360;
-  if ((dPitch > 180) && (dPitch < 360 - pitchLimit))
-    psDroid->pitch = static_cast<SWORD>(psDroid->pitch - pitchLimit);
+  const float pitchLimit = DirectX::XMConvertToRadians(static_cast<float>(PITCH_LIMIT)) * frameTime / GAME_TICKS_PER_SEC;
+  if (newPitch - psDroid->pitch < -pitchLimit)
+    psDroid->pitch -= pitchLimit;
   else
-    psDroid->pitch = static_cast<SWORD>(newPitch);
+    psDroid->pitch = newPitch;
   roll = cos(direction) * dx - sin(direction) * dy;
-  roll = atan(roll);
-  psDroid->roll = static_cast<UWORD>((roll * 180) / PI);
+  psDroid->roll = atanf(static_cast<float>(roll));
 }
 
 /* Calculate the normalised vector between a droid and a point */
@@ -751,98 +720,36 @@ void updateDroidOrientation(DROID* psDroid)
 	*pVY = FRACTdiv(dy, root);
 }*/
 
-/* Turn a vector into an angle - returns a FRACT (!) */
-static float vectorToAngle(float vx, float vy)
+/* Turn a vector into an angle, radians in (-pi, pi] */
+static float vectorToAngle(float vx, float vy) { return DirectX::XMScalarModAngle(atan2f(-vy, vx) + DirectX::XM_PIDIV2); }
+
+/* Turn an angle in radians into a vector */
+static void angleToVector(float angle, float* pX, float* pY)
 {
-  float angle; // Angle in degrees (0->360)
-  angle = static_cast<float>((TRIG_DEGREES * atan2(-vy, vx) / PI / 2));
-  angle += TRIG_DEGREES / 4;
-  if (angle < 0)
-    angle += TRIG_DEGREES;
-
-  if (angle >= 360.0f)
-    angle -= 360.0f;
-
-  return angle;
+  *pX = sinf(angle);
+  *pY = cosf(angle);
 }
 
-/* Turn an angle into a vector */
-static void angleToVector(SDWORD angle, float* pX, float* pY)
-{
-  *pX = trigSin(angle);
-  *pY = trigCos(angle);
-}
-
-/* Calculate the change in direction given a target angle and turn rate */
+/* Calculate the change in direction given a target angle in radians and a
+ * turn rate in the legacy degree scale (the radian change is the old degree
+ * change converted, so the data-driven rates keep their meaning) */
 static void moveCalcTurn(float* pCurr, float target, UDWORD rate)
 {
-  float diff, change;
-  // the branch number the assertion at the end of the function reports. Left
-  // outside any DEBUG guard so the function stays correct whether or not that
-  // assertion is compiled in.
-  SDWORD path = 0;
-#define SET_PATH(x) path=x
+  // the difference in the angles, signed toward the shorter way round
+  const float diff = DirectX::XMScalarModAngle(target - *pCurr);
 
-  DEBUG_ASSERT_TEXT(target < 360.0f && target >= 0.0f, "moveCalcTurn: target out of range");
+  // the change in direction this frame
+  const float change = baseTurn * DirectX::XMConvertToRadians(static_cast<float>(rate));
 
-  DEBUG_ASSERT_TEXT((*pCurr) < 360.0f && (*pCurr) >= 0.0f, "moveCalcTurn: cur ang out of range");
-
-  // calculate the difference in the angles
-  diff = target - *pCurr;
-
-  // calculate the change in direction
-
-  change = (baseTurn * rate); // constant rate so we can use a normal mult
-  if (change < 1.0f)
-    change = 1.0f; // HACK to solve issue of when framerate so high
-  // that integer angle to turn per frame is less than 1
-
-
-  if ((diff >= 0 && diff < change) || (diff < 0 && diff > -change))
+  if (std::fabs(diff) <= change)
   {
     // got to the target direction
     *pCurr = target;
-    SET_PATH(0);
-  }
-  else if (diff > 0)
-  {
-    // Target dir is greater than current
-    if (diff < static_cast<float>(TRIG_DEGREES/2))
-    {
-      // Simple case - just increase towards target
-      *pCurr += change;
-      SET_PATH(1);
-    }
-    else
-    {
-      // decrease to target, but could go over 0 boundary */
-      *pCurr -= change;
-      SET_PATH(2);
-    }
   }
   else
-  {
-    if (diff > static_cast<float>(-(TRIG_DEGREES/2)))
-    {
-      // Simple case - just decrease towards target
-      *pCurr -= change;
-      SET_PATH(3);
-    }
-    else
-    {
-      // increase to target, but could go over 0 boundary
-      *pCurr += change;
-      SET_PATH(4);
-    }
-  }
+    *pCurr = DirectX::XMScalarModAngle(*pCurr + std::copysign(change, diff));
 
-  if (*pCurr < 0)
-    *pCurr += static_cast<float>(TRIG_DEGREES);
-  if (*pCurr >= static_cast<float>(TRIG_DEGREES))
-    *pCurr -= static_cast<float>(TRIG_DEGREES);
-
-
-  DEBUG_ASSERT_TEXT(static_cast<SDWORD>(*pCurr) < 360 && static_cast<SDWORD>(*pCurr) >= 0, "moveCalcTurn: angle out of range - path {}\n" "   NOTE - ANYONE WHO SEES THIS PLEASE REMEMBER: path {}", path, path);
+  DEBUG_ASSERT_TEXT(std::fabs(*pCurr) <= DirectX::XM_PI + 0.001f, "moveCalcTurn: angle out of range");
 }
 
 /* Get the next target point from the route */
@@ -1083,7 +990,7 @@ static SDWORD moveObjRadius(BASE_OBJECT* psObj)
 					psDroid->sMove.bumpTime = gameTime;
 					psDroid->sMove.bumpX = psDroid->x;
 					psDroid->sMove.bumpY = psDroid->y;
-					psDroid->sMove.bumpDir = (SDWORD)psDroid->direction;
+					psDroid->sMove.bumpDir = psDroid->direction;
 				}
 				return TRUE;
 			}
@@ -1158,7 +1065,7 @@ BOOL moveBlocked(DROID* psDroid)
   }
 
   // See if the block can be cancelled
-  if (dirDiff(psDroid->direction, psDroid->sMove.bumpDir) > BLOCK_DIR)
+  if (dirDiff(psDroid->direction, psDroid->sMove.bumpDir) > DirectX::XMConvertToRadians(static_cast<float>(BLOCK_DIR)))
   {
     // Move on, clear the bump
     psDroid->sMove.bumpTime = 0;
@@ -1305,7 +1212,7 @@ void moveCalcSlideVector(DROID* psDroid, SDWORD objX, SDWORD objY, float* pMx, f
 }
 
 // see if a droid has run into a blocking tile
-void moveCalcBlockingSlide(DROID* psDroid, float* pmx, float* pmy, SDWORD tarDir, SDWORD* pSlideDir)
+void moveCalcBlockingSlide(DROID* psDroid, float* pmx, float* pmy, float tarDir, float* pSlideDir)
 {
   float mx = *pmx, my = *pmy, nx, ny;
   SDWORD tx, ty, ntx, nty; // current tile x,y and new tile x,y
@@ -1325,7 +1232,7 @@ void moveCalcBlockingSlide(DROID* psDroid, float* pmx, float* pmy, SDWORD tarDir
 #endif
   float radx, rady;
   BOOL blocked;
-  SDWORD slideDir;
+  float slideDir;
 
   blocked = FALSE;
   radx = 0.0f;
@@ -1441,7 +1348,7 @@ void moveCalcBlockingSlide(DROID* psDroid, float* pmx, float* pmy, SDWORD tarDir
     psDroid->sMove.pauseTime = 0;
     psDroid->sMove.bumpX = psDroid->x;
     psDroid->sMove.bumpY = psDroid->y;
-    psDroid->sMove.bumpDir = static_cast<SWORD>(psDroid->direction);
+    psDroid->sMove.bumpDir = psDroid->direction;
   }
 
   if (tx != ntx && ty != nty)
@@ -1649,21 +1556,17 @@ void moveCalcBlockingSlide(DROID* psDroid, float* pmx, float* pmy, SDWORD tarDir
     }
   }
 
-  slideDir = static_cast<SDWORD>(vectorToAngle(*pmx,*pmy));
+  slideDir = vectorToAngle(*pmx, *pmy);
   if (ntx != tx)
   {
-    // hit a horizontal block
-    if ((tarDir < 90 || tarDir > 270) && (slideDir >= 90 && slideDir <= 270))
-      slideDir = tarDir;
-    else if ((tarDir >= 90 && tarDir <= 270) && (slideDir < 90 || slideDir > 270))
+    // hit a horizontal block: don't slide into the opposite half-plane
+    if ((std::fabs(tarDir) < DirectX::XM_PIDIV2) != (std::fabs(slideDir) < DirectX::XM_PIDIV2))
       slideDir = tarDir;
   }
   if (nty != ty)
   {
-    // hit a vertical block
-    if ((tarDir < 180) && (slideDir >= 180))
-      slideDir = tarDir;
-    else if ((tarDir >= 180) && (slideDir < 180))
+    // hit a vertical block: don't slide into the opposite half-plane
+    if ((tarDir >= 0.0f) != (slideDir >= 0.0f))
       slideDir = tarDir;
   }
   *pSlideDir = slideDir;
@@ -1759,7 +1662,7 @@ void moveCalcDroidSlide(DROID* psDroid, float* pmx, float* pmy)
         psDroid->sMove.pauseTime = 0;
         psDroid->sMove.bumpX = psDroid->x;
         psDroid->sMove.bumpY = psDroid->y;
-        psDroid->sMove.bumpDir = static_cast<SWORD>(psDroid->direction);
+        psDroid->sMove.bumpDir = psDroid->direction;
       }
       else
         psDroid->sMove.lastBump = static_cast<UWORD>(gameTime - psDroid->sMove.bumpTime);
@@ -2751,46 +2654,37 @@ BOOL moveDroidStopped(DROID* psDroid, SDWORD speed)
   return FALSE;
 }
 
-void moveUpdateDroidDirection(DROID* psDroid, SDWORD* pSpeed, SDWORD direction, SDWORD iSpinAngle, SDWORD iSpinSpeed, SDWORD iTurnSpeed,
-                              SDWORD* pDroidDir, float* pfSpeed)
+void moveUpdateDroidDirection(DROID* psDroid, SDWORD* pSpeed, float direction, SDWORD iSpinAngle, SDWORD iSpinSpeed, SDWORD iTurnSpeed,
+                              float* pDroidDir, float* pfSpeed)
 {
-  SDWORD adiff;
-  float temp;
-
   *pfSpeed = static_cast<float>(*pSpeed);
-  *pDroidDir = static_cast<SDWORD>(psDroid->direction);
+  *pDroidDir = psDroid->direction;
 
   // don't move if in MOVEPAUSE state
   if (psDroid->sMove.Status == MOVEPAUSE)
     return;
 
-  temp = static_cast<float>(*pDroidDir);
-  adiff = labs(direction - *pDroidDir);
-  if (adiff > TRIG_DEGREES / 2)
-    adiff = TRIG_DEGREES - adiff;
-  if (adiff > iSpinAngle)
+  const float adiff = std::fabs(DirectX::XMScalarModAngle(direction - *pDroidDir));
+  if (adiff > DirectX::XMConvertToRadians(static_cast<float>(iSpinAngle)))
   {
     // large change in direction, spin on the spot
-    moveCalcTurn(&temp, static_cast<float>(direction), iSpinSpeed);
+    moveCalcTurn(pDroidDir, direction, iSpinSpeed);
     *pSpeed = 0;
   }
   else
   {
     // small change in direction, turn while moving
-    moveCalcTurn(&temp, static_cast<float>(direction), iTurnSpeed);
+    moveCalcTurn(pDroidDir, direction, iTurnSpeed);
   }
-
-  *pDroidDir = static_cast<SDWORD>(temp);
 }
 
 // Calculate current speed perpendicular to droids direction
-float moveCalcPerpSpeed(DROID* psDroid, SDWORD iDroidDir, SDWORD iSkidDecel)
+float moveCalcPerpSpeed(DROID* psDroid, float iDroidDir, SDWORD iSkidDecel)
 {
-  SDWORD adiff;
   float perpSpeed;
 
-  adiff = labs(iDroidDir - psDroid->sMove.dir);
-  perpSpeed = (psDroid->sMove.speed * trigSin(adiff));
+  const float adiff = std::fabs(DirectX::XMScalarModAngle(iDroidDir - psDroid->sMove.dir));
+  perpSpeed = (psDroid->sMove.speed * sinf(adiff));
 
   // decelerate the perpendicular speed
   perpSpeed -= (iSkidDecel * baseSpeed);
@@ -2800,64 +2694,38 @@ float moveCalcPerpSpeed(DROID* psDroid, SDWORD iDroidDir, SDWORD iSkidDecel)
   return perpSpeed;
 }
 
-void moveCombineNormalAndPerpSpeeds(DROID* psDroid, float fNormalSpeed, float fPerpSpeed, SDWORD iDroidDir)
+void moveCombineNormalAndPerpSpeeds(DROID* psDroid, float fNormalSpeed, float fPerpSpeed, float iDroidDir)
 {
-  SDWORD finalDir, adiff;
-  float finalSpeed;
-
   /* set current direction */
-  psDroid->direction = static_cast<UWORD>(iDroidDir);
+  psDroid->direction = iDroidDir;
 
   /* set normal speed and direction if perpendicular speed is zero */
   if (fPerpSpeed == 0.0f)
   {
     psDroid->sMove.speed = fNormalSpeed;
-    psDroid->sMove.dir = static_cast<SWORD>(iDroidDir);
+    psDroid->sMove.dir = iDroidDir;
     return;
   }
 
-  finalSpeed = static_cast<float>(std::sqrt((fNormalSpeed * fNormalSpeed) + (fPerpSpeed * fPerpSpeed)));
+  const float finalSpeed = sqrtf((fNormalSpeed * fNormalSpeed) + (fPerpSpeed * fPerpSpeed));
 
   // calculate the angle between the droid facing and movement direction
-  finalDir = static_cast<SDWORD>(trigInvCos((fNormalSpeed / finalSpeed)));
+  const float offAngle = acosf(fNormalSpeed / finalSpeed);
 
   // choose the finalDir on the same side as the old movement direction
-  adiff = labs(iDroidDir - psDroid->sMove.dir);
-  if (adiff < TRIG_DEGREES / 2)
-  {
-    if (iDroidDir > psDroid->sMove.dir)
-      finalDir = iDroidDir - finalDir;
-    else
-      finalDir = iDroidDir + finalDir;
-  }
-  else
-  {
-    if (iDroidDir > psDroid->sMove.dir)
-    {
-      finalDir = iDroidDir + finalDir;
-      if (finalDir >= TRIG_DEGREES)
-        finalDir -= TRIG_DEGREES;
-    }
-    else
-    {
-      finalDir = iDroidDir - finalDir;
-      if (finalDir < 0)
-        finalDir += TRIG_DEGREES;
-    }
-  }
+  const float side = DirectX::XMScalarModAngle(psDroid->sMove.dir - iDroidDir);
 
-  psDroid->sMove.dir = static_cast<SWORD>(finalDir);
+  psDroid->sMove.dir = DirectX::XMScalarModAngle(iDroidDir + std::copysign(offAngle, side));
   psDroid->sMove.speed = finalSpeed;
 }
 
 // Calculate the current speed in the droids normal direction
-float moveCalcNormalSpeed(DROID* psDroid, float fSpeed, SDWORD iDroidDir, SDWORD iAccel, SDWORD iDecel)
+float moveCalcNormalSpeed(DROID* psDroid, float fSpeed, float iDroidDir, SDWORD iAccel, SDWORD iDecel)
 {
-  SDWORD adiff;
   float normalSpeed;
 
-  adiff = labs(iDroidDir - psDroid->sMove.dir);
-  normalSpeed = (psDroid->sMove.speed * trigCos(adiff));
+  const float adiff = DirectX::XMScalarModAngle(iDroidDir - psDroid->sMove.dir);
+  normalSpeed = (psDroid->sMove.speed * cosf(adiff));
 
   if (normalSpeed < fSpeed)
   {
@@ -2883,8 +2751,8 @@ void moveGetDroidPosDiffs(DROID* psDroid, float* pDX, float* pDY)
 
   move = (psDroid->sMove.speed * baseSpeed);
 
-  *pDX = (move * trigSin(psDroid->sMove.dir));
-  *pDY = (move * trigCos(psDroid->sMove.dir));
+  *pDX = (move * sinf(psDroid->sMove.dir));
+  *pDY = (move * cosf(psDroid->sMove.dir));
 }
 
 // see if the droid is close to the final way point
@@ -2967,10 +2835,10 @@ void moveUpdateDroidPos(DROID* psDroid, float dx, float dy)
 }
 
 /* Update a tracked droids position and speed given target values */
-void moveUpdateGroundModel(DROID* psDroid, SDWORD speed, SDWORD direction)
+void moveUpdateGroundModel(DROID* psDroid, SDWORD speed, float direction)
 {
   float fPerpSpeed, fNormalSpeed, dx, dy, fSpeed, bx, by;
-  SDWORD iDroidDir, slideDir;
+  float iDroidDir, slideDir;
   PROPULSION_STATS* psPropStats;
   SDWORD spinSpeed, turnSpeed, skidDecel;
   // constants for the different propulsion types
@@ -3055,7 +2923,7 @@ void moveUpdateGroundModel(DROID* psDroid, SDWORD speed, SDWORD direction)
   {
     moveUpdateDroidDirection(psDroid, &speed, slideDir, TRACKED_SPIN_ANGLE, psDroid->baseSpeed, psDroid->baseSpeed / 3, &iDroidDir,
                              &fSpeed);
-    psDroid->direction = static_cast<UWORD>(iDroidDir);
+    psDroid->direction = iDroidDir;
   }
 
   moveUpdateDroidPos(psDroid, bx, by);
@@ -3066,10 +2934,10 @@ void moveUpdateGroundModel(DROID* psDroid, SDWORD speed, SDWORD direction)
 }
 
 /* Update a persons position and speed given target values */
-void moveUpdatePersonModel(DROID* psDroid, SDWORD speed, SDWORD direction)
+void moveUpdatePersonModel(DROID* psDroid, SDWORD speed, float direction)
 {
   float fPerpSpeed, fNormalSpeed, dx, dy, fSpeed;
-  SDWORD iDroidDir, slideDir;
+  float iDroidDir, slideDir;
   BOOL bRet;
 
   // nothing to do if the droid is stopped
@@ -3213,10 +3081,11 @@ void moveMakeVtolHover(DROID* psDroid)
   psDroid->z = static_cast<UWORD>(map_Height(psDroid->x, psDroid->y) + VTOL_HEIGHT_LEVEL);
 }
 
-void moveUpdateVtolModel(DROID* psDroid, SDWORD speed, SDWORD direction)
+void moveUpdateVtolModel(DROID* psDroid, SDWORD speed, float direction)
 {
   float fPerpSpeed, fNormalSpeed, dx, dy, fSpeed;
-  SDWORD iDroidDir, iDZ, iDroidZ, iMapZ, iRoll, slideDir, iSpinSpeed, iTurnSpeed;
+  float iDroidDir, slideDir;
+  SDWORD iDZ, iDroidZ, iMapZ, iSpinSpeed, iTurnSpeed;
   float fDZ, fDroidZ, fMapZ;
 
   // nothing to do if the droid is stopped
@@ -3257,10 +3126,7 @@ void moveUpdateVtolModel(DROID* psDroid, SDWORD speed, SDWORD direction)
   moveUpdateDroidPos(psDroid, dx, dy);
 
   /* update vtol orientation */
-  iRoll = (psDroid->sMove.dir - static_cast<SDWORD>(psDroid->direction)) / 3;
-  if (iRoll < 0)
-    iRoll += 360;
-  psDroid->roll = static_cast<UWORD>(iRoll);
+  psDroid->roll = DirectX::XMScalarModAngle(psDroid->sMove.dir - psDroid->direction) / 3.0f;
 
   iMapZ = map_Height(psDroid->x, psDroid->y);
 
@@ -3349,7 +3215,7 @@ void moveCyborgTouchDownAnimDone(ANIM_OBJECT* psObj)
 void moveUpdateJumpCyborgModel(DROID* psDroid, SDWORD speed, SDWORD direction)
 {
   float fPerpSpeed, fNormalSpeed, dx, dy, fSpeed;
-  SDWORD iDroidDir;
+  float iDroidDir;
 
   // nothing to do if the droid is stopped
   if (moveDroidStopped(psDroid, speed) == TRUE)
@@ -3368,7 +3234,7 @@ void moveUpdateJumpCyborgModel(DROID* psDroid, SDWORD speed, SDWORD direction)
   moveUpdateDroidPos(psDroid, dx, dy);
 }
 
-void moveUpdateCyborgModel(DROID* psDroid, SDWORD moveSpeed, SDWORD moveDir, UBYTE oldStatus)
+void moveUpdateCyborgModel(DROID* psDroid, SDWORD moveSpeed, float moveDir, UBYTE oldStatus)
 {
   PROPULSION_STATS* psPropStats;
   auto psObj = (BASE_OBJECT*)psDroid;
@@ -3415,7 +3281,7 @@ void moveUpdateCyborgModel(DROID* psDroid, SDWORD moveSpeed, SDWORD moveDir, UBY
   iDx = psDroid->sMove.DestinationX - static_cast<SDWORD>(psDroid->x);
   iDy = psDroid->sMove.DestinationY - static_cast<SDWORD>(psDroid->y);
   iDz = static_cast<SDWORD>(psDroid->z) - static_cast<SDWORD>(iMapZ);
-  iDist = static_cast<SDWORD>(trigIntSqrt( iDx*iDx + iDy*iDy ));
+  iDist = static_cast<SDWORD>(sqrtf(static_cast<float>(iDx * iDx + iDy * iDy)));
 
   /* set jumping cyborg walking short distances */
   if ((psPropStats->propulsionType != JUMP) || ((psDroid->sMove.iVertSpeed == 0) && (iDist < CYBORG_MIN_JUMP_DISTANCE)))
@@ -3668,7 +3534,8 @@ void moveUpdateDroid(DROID* psDroid)
   SDWORD fx, fy;
   UDWORD oldx, oldy, iZ;
   UBYTE oldStatus = psDroid->sMove.Status;
-  SDWORD moveSpeed, moveDir;
+  SDWORD moveSpeed;
+  float moveDir;
   PROPULSION_STATS* psPropStats;
   iVector pos;
   BOOL bStarted = FALSE, bStopped;
@@ -3700,7 +3567,7 @@ void moveUpdateDroid(DROID* psDroid)
   fpathSetCurrentObject((BASE_OBJECT*)psDroid);
 
   moveSpeed = 0;
-  moveDir = static_cast<SDWORD>(psDroid->direction);
+  moveDir = psDroid->direction;
 
   /* get droid height */
   iZ = map_Height(psDroid->x, psDroid->y);
@@ -3784,7 +3651,7 @@ void moveUpdateDroid(DROID* psDroid)
           Neuron::DebugTrace("a) dir {},{} ({})\n",tx,ty,tangle);
 
         moveSpeed = moveCalcDroidSpeed(psDroid);
-        moveDir = static_cast<SDWORD>(tangle);
+        moveDir = tangle;
       }
     }
 
@@ -3911,7 +3778,7 @@ void moveUpdateDroid(DROID* psDroid)
 
     moveSpeed = moveCalcDroidSpeed(psDroid);
 
-    moveDir = static_cast<SDWORD>(tangle);
+    moveDir = tangle;
 
     if ((psDroid->sMove.bumpTime != 0) && (psDroid->sMove.pauseTime + psDroid->sMove.bumpTime + BLOCK_PAUSETIME < gameTime))
     {
@@ -3946,7 +3813,7 @@ void moveUpdateDroid(DROID* psDroid)
   case MOVETURNTOTARGET:
     moveSpeed = 0;
     moveDir = calcDirection(psDroid->x, psDroid->y, psDroid->sMove.targetX, psDroid->sMove.targetY);
-    if (psDroid->direction == static_cast<UDWORD>(moveDir))
+    if (psDroid->direction == moveDir)
     {
       if (psPropStats->propulsionType == LIFT)
         psDroid->sMove.Status = MOVEPOINTTOPOINT;

@@ -1,4 +1,6 @@
 #include "pch.h"
+#include <directxmath.h>
+#include <cmath>
 #include "Action.h"
 #include "AudioID.h"
 #include "Combat.h"
@@ -29,8 +31,7 @@
 #define VTOL_ATTACK_RETURNDIST	700
 
 // turret rotation limits
-#define VTOL_TURRET_RLIMIT		315
-#define VTOL_TURRET_LLIMIT		45
+#define VTOL_TURRET_LIMIT		DirectX::XMConvertToRadians(45.0f)
 
 // time to pause before a droid blows up
 #define  ACTION_DESTRUCT_TIME	2000
@@ -244,12 +245,11 @@ BOOL actionInsideMinRange(const DROID* _psDroid, const BASE_OBJECT* _psObj)
 // Realign turret
 void actionAlignTurret(BASE_OBJECT* psObj)
 {
-  UWORD tRot, tPitch, nearest;
-  //get the maximum rotation this frame
+  float tRot, tPitch;
+  float nearest = 0.0f;
 
-  UDWORD rotation = (ACTION_TURRET_ROTATION_RATE * frameTime) / (4 * GAME_TICKS_PER_SEC);
-  if (rotation == 0)
-    rotation = 1;
+  //get the maximum rotation this frame
+  float rotation = DirectX::XMConvertToRadians(static_cast<float>(ACTION_TURRET_ROTATION_RATE) / 4.0f) * frameTime / GAME_TICKS_PER_SEC;
 
   switch (psObj->type)
   {
@@ -262,48 +262,28 @@ void actionAlignTurret(BASE_OBJECT* psObj)
     tPitch = ((STRUCTURE*)psObj)->turretPitch;
 
     // now find the nearest 90 degree angle
-    nearest = static_cast<UWORD>(((tRot + 45) / 90) * 90);
-    tRot = static_cast<UWORD>(((tRot + 360) - nearest) % 360);
+    nearest = roundf(tRot / DirectX::XM_PIDIV2) * DirectX::XM_PIDIV2;
+    tRot = DirectX::XMScalarModAngle(tRot - nearest);
     break;
   default: DEBUG_ASSERT_TEXT(FALSE, "actionAlignTurret: invalid object type");
     return;
     break;
   }
 
-  if (rotation > 180) //crop to 180 degrees, no point in turning more than all the way round
-    rotation = 180;
-  if (tRot < 180) // +ve angle 0 - 179 degrees
-  {
-    if (tRot > rotation)
-      tRot = static_cast<UWORD>(tRot - rotation);
-    else
-      tRot = 0;
-  }
-  else //angle greater than 180 rotate in opposite direction
-  {
-    if (tRot < (360 - rotation))
-      tRot = static_cast<UWORD>(tRot + rotation);
-    else
-      tRot = 0;
-  }
-  tRot %= 360;
+  if (rotation > DirectX::XM_PI) //crop to 180 degrees, no point in turning more than all the way round
+    rotation = DirectX::XM_PI;
 
-  // align the turret pitch
-  if (tPitch < 180) // +ve angle 0 - 179 degrees
-  {
-    if (tPitch > rotation / 2)
-      tPitch = static_cast<UWORD>(tPitch - rotation / 2);
-    else
-      tPitch = 0;
-  }
-  else // -ve angle rotate in opposite direction
-  {
-    if (tPitch < (360 - static_cast<SDWORD>(rotation) / 2))
-      tPitch = static_cast<UWORD>(tPitch + rotation / 2);
-    else
-      tPitch = 0;
-  }
-  tPitch %= 360;
+  // step the rotation toward zero
+  if (std::fabs(tRot) > rotation)
+    tRot -= std::copysign(rotation, tRot);
+  else
+    tRot = 0.0f;
+
+  // align the turret pitch, at half the rate
+  if (std::fabs(tPitch) > rotation / 2.0f)
+    tPitch -= std::copysign(rotation / 2.0f, tPitch);
+  else
+    tPitch = 0.0f;
 
   switch (psObj->type)
   {
@@ -313,7 +293,7 @@ void actionAlignTurret(BASE_OBJECT* psObj)
     break;
   case OBJ_STRUCTURE:
     // now adjust back to the nearest 90 degree angle
-    tRot = static_cast<UWORD>((tRot + nearest) % 360);
+    tRot = DirectX::XMScalarModAngle(tRot + nearest);
 
     ((STRUCTURE*)psObj)->turretRotation = tRot;
     ((STRUCTURE*)psObj)->turretPitch = tPitch;
@@ -331,16 +311,15 @@ void actionAlignTurret(BASE_OBJECT* psObj)
 //		UDWORD *pPitch, SDWORD rotRate, SDWORD pitchRate, BOOL bDirectFire, BOOL bInvert)
 //BOOL actionTargetTurret(BASE_OBJECT *psAttacker, BASE_OBJECT *psTarget, UWORD *pRotation,
 //		UWORD *pPitch, SWORD rotRate, SWORD pitchRate, BOOL bDirectFire, BOOL bInvert)
-BOOL actionTargetTurret(BASE_OBJECT* psAttacker, BASE_OBJECT* psTarget, UWORD* pRotation, UWORD* pPitch, WEAPON_STATS* psWeapStats,
+BOOL actionTargetTurret(BASE_OBJECT* psAttacker, BASE_OBJECT* psTarget, float* pRotation, float* pPitch, WEAPON_STATS* psWeapStats,
                         BOOL bInvert)
 {
   BOOL onTarget = FALSE;
-  SDWORD pitchUpperLimit;
   DROID* psDroid;
 
   //these are constants now and can be set up at the start of the function
-  SWORD rotRate = ACTION_TURRET_ROTATION_RATE;
-  SWORD pitchRate = ACTION_TURRET_ROTATION_RATE / 2;
+  float rotRate = DirectX::XMConvertToRadians(static_cast<float>(ACTION_TURRET_ROTATION_RATE));
+  float pitchRate = rotRate / 2.0f;
 
   //added for 22/07/99 upgrade - AB
   if (psWeapStats)
@@ -348,21 +327,22 @@ BOOL actionTargetTurret(BASE_OBJECT* psAttacker, BASE_OBJECT* psTarget, UWORD* p
     //extra heavy weapons on some structures need to rotate and pitch more slowly
     if (psWeapStats->weight > HEAVY_WEAPON_WEIGHT)
     {
-      rotRate = static_cast<SWORD>((ACTION_TURRET_ROTATION_RATE / 2 - (100 * (psWeapStats->weight - HEAVY_WEAPON_WEIGHT) / psWeapStats->
-        weight)));
-      pitchRate = static_cast<SWORD>(rotRate / 2);
+      rotRate = DirectX::XMConvertToRadians(static_cast<float>(ACTION_TURRET_ROTATION_RATE / 2 - (100 * (psWeapStats->weight -
+        HEAVY_WEAPON_WEIGHT) / psWeapStats->weight)));
+      pitchRate = rotRate / 2.0f;
     }
   }
 
-  SWORD tRotation = *pRotation;
-  SWORD tPitch = *pPitch;
+  float tRotation = *pRotation;
+  float tPitch = *pPitch;
 
-  //set the pitch limits based on the weapon stats of the attacker
-  SDWORD pitchLowerLimit = pitchUpperLimit = 0;
+  //set the pitch limits based on the weapon stats of the attacker (degrees in the data)
+  float pitchLowerLimit = 0.0f;
+  float pitchUpperLimit = 0.0f;
   if (psAttacker->type == OBJ_STRUCTURE)
   {
-    pitchLowerLimit = asWeaponStats[((STRUCTURE*)psAttacker)->asWeaps[0].nStat].minElevation;
-    pitchUpperLimit = asWeaponStats[((STRUCTURE*)psAttacker)->asWeaps[0].nStat].maxElevation;
+    pitchLowerLimit = DirectX::XMConvertToRadians(static_cast<float>(asWeaponStats[((STRUCTURE*)psAttacker)->asWeaps[0].nStat].minElevation));
+    pitchUpperLimit = DirectX::XMConvertToRadians(static_cast<float>(asWeaponStats[((STRUCTURE*)psAttacker)->asWeaps[0].nStat].maxElevation));
   }
   else if (psAttacker->type == OBJ_DROID)
   {
@@ -370,27 +350,23 @@ BOOL actionTargetTurret(BASE_OBJECT* psAttacker, BASE_OBJECT* psTarget, UWORD* p
     if ((psDroid->droidType == DROID_WEAPON) || (psDroid->droidType == DROID_TRANSPORTER) || (psDroid->droidType == DROID_COMMAND) || (
       psDroid->droidType == DROID_CYBORG) || (psDroid->droidType == DROID_CYBORG_SUPER))
     {
-      pitchLowerLimit = asWeaponStats[psDroid->asWeaps[0].nStat].minElevation;
-      pitchUpperLimit = asWeaponStats[psDroid->asWeaps[0].nStat].maxElevation;
+      pitchLowerLimit = DirectX::XMConvertToRadians(static_cast<float>(asWeaponStats[psDroid->asWeaps[0].nStat].minElevation));
+      pitchUpperLimit = DirectX::XMConvertToRadians(static_cast<float>(asWeaponStats[psDroid->asWeaps[0].nStat].maxElevation));
     }
     else if (psDroid->droidType == DROID_REPAIR)
     {
-      pitchLowerLimit = REPAIR_PITCH_LOWER;
-      pitchUpperLimit = REPAIR_PITCH_UPPER;
+      pitchLowerLimit = DirectX::XMConvertToRadians(static_cast<float>(REPAIR_PITCH_LOWER));
+      pitchUpperLimit = DirectX::XMConvertToRadians(static_cast<float>(REPAIR_PITCH_UPPER));
     }
   }
 
   //get the maximum rotation this frame
-  rotRate = static_cast<SWORD>(rotRate * frameTime / GAME_TICKS_PER_SEC);
-  if (rotRate > 180) //crop to 180 degrees, no point in turning more than all the way round
-    rotRate = 180;
-  if (rotRate <= 0)
-    rotRate = 1;
-  pitchRate = static_cast<SWORD>(pitchRate * frameTime / GAME_TICKS_PER_SEC);
-  if (pitchRate > 180) //crop to 180 degrees, no point in turning more than all the way round
-    pitchRate = 180;
-  if (pitchRate <= 0)
-    pitchRate = 1;
+  rotRate = rotRate * frameTime / GAME_TICKS_PER_SEC;
+  if (rotRate > DirectX::XM_PI) //crop to 180 degrees, no point in turning more than all the way round
+    rotRate = DirectX::XM_PI;
+  pitchRate = pitchRate * frameTime / GAME_TICKS_PER_SEC;
+  if (pitchRate > DirectX::XM_PI) //crop to 180 degrees, no point in turning more than all the way round
+    pitchRate = DirectX::XM_PI;
 
   /*	if ( (psAttacker->type == OBJ_STRUCTURE) &&
 		 (((STRUCTURE *)psAttacker)->pStructureType->type == REF_DEFENSE) &&
@@ -401,45 +377,34 @@ BOOL actionTargetTurret(BASE_OBJECT* psAttacker, BASE_OBJECT* psTarget, UWORD* p
 	}*/
 
   //and point the turret at target
-  SDWORD targetRotation = calcDirection(psAttacker->x, psAttacker->y, psTarget->x, psTarget->y);
+  const float targetRotation = calcDirection(psAttacker->x, psAttacker->y, psTarget->x, psTarget->y);
 
-  SDWORD rotationError = targetRotation - (tRotation + psAttacker->direction);
-  //restrict rotationerror to =/- 180 degrees
-  while (rotationError > 180) { rotationError -= 360; }
+  //restricted to +/- 180 degrees by the wrap
+  const float rotationError = DirectX::XMScalarModAngle(targetRotation - (tRotation + psAttacker->direction));
 
-  while (rotationError < -180) { rotationError += 360; }
-
-  if (-rotationError > static_cast<SDWORD>(rotRate))
+  if (-rotationError > rotRate)
   {
     // subtract rotation
-    if (tRotation < rotRate)
-      tRotation = static_cast<SWORD>(tRotation + 360 - rotRate);
-    else
-      tRotation = static_cast<SWORD>(tRotation - rotRate);
+    tRotation = DirectX::XMScalarModAngle(tRotation - rotRate);
   }
-  else if (rotationError > static_cast<SDWORD>(rotRate))
+  else if (rotationError > rotRate)
   {
     // add rotation
-    tRotation = static_cast<SWORD>(tRotation + rotRate);
-    tRotation %= 360;
+    tRotation = DirectX::XMScalarModAngle(tRotation + rotRate);
   }
   else //roughly there so lock on and fire
   {
-    if (static_cast<SDWORD>(psAttacker->direction) > targetRotation)
-      tRotation = static_cast<SWORD>(targetRotation + 360 - psAttacker->direction);
-    else
-      tRotation = static_cast<SWORD>(targetRotation - psAttacker->direction);
+    tRotation = DirectX::XMScalarModAngle(targetRotation - psAttacker->direction);
     onTarget = TRUE;
   }
-  tRotation %= 360;
 
   if ((psAttacker->type == OBJ_DROID) && vtolDroid((DROID*)psAttacker))
   {
     // limit the rotation for vtols
-    if ((tRotation <= 180) && (tRotation > VTOL_TURRET_LLIMIT))
-      tRotation = VTOL_TURRET_LLIMIT;
-    else if ((tRotation > 180) && (tRotation < VTOL_TURRET_RLIMIT))
-      tRotation = VTOL_TURRET_RLIMIT;
+    if (tRotation > VTOL_TURRET_LIMIT)
+      tRotation = VTOL_TURRET_LIMIT;
+    else if (tRotation < -VTOL_TURRET_LIMIT)
+      tRotation = -VTOL_TURRET_LIMIT;
   }
 
   /* set muzzle pitch if direct fire */
@@ -453,55 +418,50 @@ BOOL actionTargetTurret(BASE_OBJECT* psAttacker, BASE_OBJECT* psTarget, UWORD* p
     SDWORD dz = psTarget->z - psAttacker->z; //muzzle.z;
 
     /* get target distance */
-    float fR = trigIntSqrt(dx * dx + dy * dy);
+    const float fR = sqrtf(static_cast<float>(dx * dx + dy * dy));
 
-    SDWORD targetPitch = static_cast<SDWORD>((RAD_TO_DEG(atan2(dz, fR))));
-    if (tPitch > 180)
-      tPitch -= 360;
+    float targetPitch = atan2f(static_cast<float>(dz), fR);
 
     /* invert calculations for bottom-mounted weapons (i.e. for vtols) */
     if (bInvert)
     {
-      tPitch = static_cast<SWORD>(-tPitch);
+      tPitch = -tPitch;
       targetPitch = -targetPitch;
     }
 
-    SDWORD pitchError = targetPitch - tPitch;
+    const float pitchError = targetPitch - tPitch;
 
     if (pitchError < -pitchRate)
     {
       // move down
-      tPitch = static_cast<SWORD>(tPitch - pitchRate);
+      tPitch -= pitchRate;
       onTarget = FALSE;
     }
     else if (pitchError > pitchRate)
     {
       // add rotation
-      tPitch = static_cast<SWORD>(tPitch + pitchRate);
+      tPitch += pitchRate;
       onTarget = FALSE;
     }
     else //roughly there so lock on and fire
-      tPitch = static_cast<SWORD>(targetPitch);
+      tPitch = targetPitch;
 
     /* re-invert result for bottom-mounted weapons (i.e. for vtols) */
     if (bInvert)
-      tPitch = static_cast<SWORD>(-tPitch);
+      tPitch = -tPitch;
 
     if (tPitch < pitchLowerLimit)
     {
       // move down
-      tPitch = static_cast<SWORD>(pitchLowerLimit);
+      tPitch = pitchLowerLimit;
       onTarget = FALSE;
     }
     else if (tPitch > pitchUpperLimit)
     {
       // add rotation
-      tPitch = static_cast<SWORD>(pitchUpperLimit);
+      tPitch = pitchUpperLimit;
       onTarget = FALSE;
     }
-
-    if (tPitch < 0)
-      tPitch += 360;
   }
 
   *pRotation = tRotation;
@@ -557,7 +517,7 @@ void actionAddVtolAttackRun(DROID* psDroid)
   SDWORD iVNy = psTarget->y - psDroid->y;
 
   /* get magnitude of normal vector */
-  float fA = trigIntSqrt(iVNx * iVNx + iVNy * iVNy);
+  float fA = sqrtf(static_cast<float>(iVNx * iVNx + iVNy * iVNy));
   SDWORD iA = std::lrintf(fA);
 
   /* add waypoint behind target attack length away*/
@@ -816,7 +776,8 @@ void actionUpdateDroid(DROID* psDroid)
   STRUCTURE_STATS* psStructStats;
   BASE_OBJECT* psTarget = psDroid->psTarget; //, *psObj;
   WEAPON_STATS* psWeapStats;
-  SDWORD targetDir, dirDiff, pbx, pby;
+  float targetDir, dirDiff;
+  SDWORD pbx, pby;
   SDWORD xdiff, ydiff, rangeSq, state;
   PROPULSION_STATS* psPropStats;
   BOOL bChaseBloke, bInvert;
@@ -831,8 +792,8 @@ void actionUpdateDroid(DROID* psDroid)
 
   psPropStats = asPropulsionStats + psDroid->asBits[COMP_PROPULSION].nStat;
 
-  DEBUG_ASSERT_TEXT(psDroid->turretRotation < 360, "turretRotation out of range");
-  DEBUG_ASSERT_TEXT(psDroid->direction < 360, "unit direction out of range");
+  DEBUG_ASSERT_TEXT(std::fabs(psDroid->turretRotation) <= DirectX::XM_PI + 0.001f, "turretRotation out of range");
+  DEBUG_ASSERT_TEXT(std::fabs(psDroid->direction) <= DirectX::XM_PI + 0.001f, "unit direction out of range");
 
   /* check whether turret inverted for actionTargetTurret */
   //if ( psDroid->droidType != DROID_CYBORG &&
@@ -1100,11 +1061,11 @@ void actionUpdateDroid(DROID* psDroid)
       {
         // no rotating turret - need to check aligned with target
         targetDir = calcDirection(psDroid->x, psDroid->y, psDroid->psActionTarget->x, psDroid->psActionTarget->y);
-        dirDiff = labs(targetDir - static_cast<SDWORD>(psDroid->direction));
+        dirDiff = std::fabs(DirectX::XMScalarModAngle(targetDir - psDroid->direction));
       }
       else
-        dirDiff = 0;
-      if (dirDiff > FIXED_TURRET_DIR)
+        dirDiff = 0.0f;
+      if (dirDiff > DirectX::XMConvertToRadians(static_cast<float>(FIXED_TURRET_DIR)))
       {
         if (psDroid->sMove.Status != MOVESHUFFLE)
         {

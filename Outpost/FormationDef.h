@@ -16,7 +16,7 @@
 using F_LINE = struct _f_line
 {
   SWORD xoffset, yoffset; // position relative to center
-  SWORD dir; // orientation of line
+  float dir; // orientation of line, radians in (-pi, pi]
   SBYTE member; // first member in the 'linked list' of members
 };
 
@@ -36,7 +36,7 @@ using FORMATION = struct _formation
 
   SWORD size; // maximum length of the lines
   SWORD rankDist; // seperation between the ranks
-  SWORD dir; // direction of the formation
+  float dir; // direction of the formation, radians in (-pi, pi]
   SDWORD x, y; // position of the front of the formation
 
   // the lines that make up a formation

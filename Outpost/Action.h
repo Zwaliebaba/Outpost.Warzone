@@ -124,7 +124,7 @@ extern void actionDroidObj(DROID* psDroid, DROID_ACTION action, BASE_OBJECT* psO
 void actionDroidObjLoc(DROID* psDroid, DROID_ACTION action, BASE_OBJECT* psObj, UDWORD x, UDWORD y);
 
 /* Rotate turret toward  target return True if locked on (Droid and Structure) */
-extern BOOL actionTargetTurret(BASE_OBJECT* psAttacker, BASE_OBJECT* psTarget, UWORD* pRotation, UWORD* pPitch, WEAPON_STATS* psWeapStats,
+extern BOOL actionTargetTurret(BASE_OBJECT* psAttacker, BASE_OBJECT* psTarget, float* pRotation, float* pPitch, WEAPON_STATS* psWeapStats,
                                BOOL bInvert);
 
 // Realign turret
