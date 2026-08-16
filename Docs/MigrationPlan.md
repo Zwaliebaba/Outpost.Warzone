@@ -1201,6 +1201,58 @@ explicitly out of scope. Like everything since Phase 2 this is
 built-and-verified work, not run work; a campaign and a skirmish load are
 what a Windows run must confirm.
 
+## The display: desktop-resolution borderless window, scaled UI (2026-08-16)
+
+**By owner decision, the fixed-resolution display is gone.** The game now
+starts in a borderless `WS_POPUP` window covering the desktop at the
+desktop's own resolution, presented through a windowed Direct3D 9 swap chain
+— there is no exclusive full-screen mode, no Alt+Enter toggle, no `-640` …
+`-1280` switches and no `resolution` registry key. `frameInitialise` makes
+the process DPI-aware (per-monitor-V2 where the OS has it, resolved at run
+time), reads the desktop metrics, and derives two sizes from them:
+
+- **Physical**: `screenWidth`/`screenHeight` in `Screen.cpp` — the desktop,
+  the back buffer, the viewport.
+- **Logical**: the `pie_GetVideoBufferWidth/Height` canvas the game computes
+  every coordinate on — the desktop divided by an integer **display scale**
+  (`Neuron::DisplayScale`, stored beside the canvas in `RenderClip.cpp`).
+  The scale is the largest whole number that keeps the canvas at least
+  960x540, so the 640x480-anchored UI keeps roughly the same physical size
+  whatever the pixel density (1080p and 1440p get 2, 4K gets 4).
+
+The bridge between the two is deliberately thin, because everything drawn
+goes through one of four narrow places: `D3DDrawPoly` multiplies every
+pre-transformed vertex by the scale (models, terrain, HUD quads, text — one
+funnel); `pie_RenderImageToBackBuffer` and `seq_RenderOneFrame` replicate
+each FMV pixel into a scale-sized square; `drawBackDrop` does the same for
+the backdrop; and `screen_Upload` samples every scale-th pixel reading the
+back buffer back down to the logical canvas. Input mirrors it: the window
+message handler divides the physical mouse position by the scale, so the
+game, the widgets and 3D picking all stay in one coordinate space. The
+640x480-relative UI layout Phase 8 chose to keep is untouched — it now lays
+out on the logical canvas and arrives on screen scaled.
+
+`pie_GetResScalingFactor` became a formula (`logicalWidth * 100 / 640`),
+scaling the world off the width: the horizontal view span stays what the
+640-wide layout was designed for and the vertical span follows the window's
+aspect ratio, the safe direction while `VISIBLE_XTILES` is still a fixed
+32-tile grid tuned for 4:3. Widening the vertical/horizontal trade for
+widescreen is a possible follow-up, not part of this change.
+
+What this deliberately does not do: change resolution at runtime (the
+canvas, `DisplayBuffer`, the widget root and the radar are all sized at
+init), scale the CPU debug-2D paths in `Screen.cpp` (`screenTextOut` and
+friends — reachable only from the `DISP2D` editor tree), or touch the dead
+DirectInput mouse path (`DInpGetMouseState` has no callers). Device loss
+handling stays exactly as Phase 2 built it; a windowed swap chain just makes
+it rarer.
+
+Like everything since Phase 2 this is built-and-verified work, not run work:
+crosscheck is green, and [Verification.md](Verification.md) now carries what
+a Windows run must confirm — the borderless boot at desktop resolution, UI
+scale 2 on a 1080p/1440p desktop, mouse-to-widget alignment, an FMV with
+subtitles, and a load/save-screen backdrop round trip.
+
 ## Verification
 
 There is no MSVC or Windows SDK in the Linux development container, so a real

@@ -599,24 +599,9 @@ GAMECODE gameLoop(void)
     clearMode = CLEAR_BLACK; //force to black 3DFX
   }
 
-  if (!quitting && !fastExit)
-  {
-    //JPS 24 feb???		pie_ScreenFlip(clearMode);//gameloopflip
-    //	if(pie_Hardware())
-    /* Needs to be handled! */
-    //	else
-    {
-      /* Check for toggling display mode */
-      if ((keyDown(KEY_LALT) || keyDown(KEY_RALT)) && keyPressed(KEY_RETURN))
-      {
-        screenToggleMode();
-#ifdef DISP2D
-        disp2DModeChange();
-#endif
-        dispModeChange();
-      }
-    }
-  }
+  /* Alt+Enter used to toggle between the decorated window and exclusive
+   * full screen here. The display is always a borderless window covering
+   * the desktop now, so there is no other mode to toggle to. */
 
   /*	if(missionComplete)
     {
@@ -660,20 +645,6 @@ GAMECODE gameLoop(void)
     pie_SetFogStatus(FALSE);
     pie_ScreenFlip(CLEAR_BLACK); //gameloopflip
     pie_ScreenFlip(CLEAR_BLACK); //gameloopflip
-    //	if(pie_Hardware())
-    /* Needs to be handled! */
-    //	else
-    {
-      /* Check for toggling display mode */
-      if ((keyDown(KEY_LALT) || keyDown(KEY_RALT)) && keyPressed(KEY_RETURN))
-      {
-        screenToggleMode();
-#ifdef DISP2D
-        disp2DModeChange();
-#endif
-        dispModeChange();
-      }
-    }
     return GAMECODE_FASTEXIT;
   }
   if (quitting)
@@ -681,20 +652,6 @@ GAMECODE gameLoop(void)
     pie_SetFogStatus(FALSE);
     pie_ScreenFlip(CLEAR_BLACK); //gameloopflip
     pie_ScreenFlip(CLEAR_BLACK); //gameloopflip
-    //	if(pie_Hardware())
-    /* Needs to be handled! */
-    //	else
-    {
-      /* Check for toggling display mode */
-      if ((keyDown(KEY_LALT) || keyDown(KEY_RALT)) && keyPressed(KEY_RETURN))
-      {
-        screenToggleMode();
-#ifdef DISP2D
-        disp2DModeChange();
-#endif
-        dispModeChange();
-      }
-    }
     return GAMECODE_QUITGAME;
   }
   if (video)

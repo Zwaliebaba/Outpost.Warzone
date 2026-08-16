@@ -90,8 +90,6 @@ int WINAPI WinMain(HINSTANCE hInstance, // handle to current instance
   BOOL quit = FALSE;
   BOOL Restart = FALSE;
   BOOL paused = FALSE; //, firstTime = TRUE;
-  BOOL bVidMem = FALSE;
-  SDWORD dispBitDepth = DISP_BITDEPTH;
   SDWORD introVideoControl = 3;
   GAMECODE loopStatus;
   iColour* psPaletteBuffer;
@@ -125,11 +123,9 @@ init: //jump here from the end if re_initialising
   _chdir(FILE_PATH);
 #endif
 
-  //always start windowed toggle to fullscreen later
-  bVidMem = TRUE;
-  dispBitDepth = DISP_HARDBITDEPTH;
-
-  if (!frameInitialise(hInstance, "Warzone 2100", DISP_WIDTH,DISP_HEIGHT, dispBitDepth, !clStartWindowed, bVidMem))
+  /* The display is a borderless window covering the desktop at its own
+   * resolution; the framework derives the game's logical canvas from it. */
+  if (!frameInitialise(hInstance, "Warzone 2100"))
     return -1;
 
   pie_SetFogStatus(FALSE);
@@ -168,9 +164,6 @@ init: //jump here from the end if re_initialising
   if (!systemInitialise())
     return -1;
 
-  // If windowed mode not requested then toggle to full screen. Doing
-  // it here rather than in the call to frameInitialise fixes a problem
-  // where machines with an NVidia and a 3DFX would kill the 3dfx display. (Definitly a HACK, PD)
   //set all the pause states to false
   setAllPauseStates(FALSE);
 

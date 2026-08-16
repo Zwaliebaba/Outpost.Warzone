@@ -22,6 +22,7 @@
 #include "DXInput.h"
 #include "FrameResource.h"
 #include "FrameInt.h"
+#include "RenderClip.h"
 
 #include <assert.h>
 
@@ -259,6 +260,49 @@ static long FAR PASCAL Wndproc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 extern void frameSetWindowProc(DEFWINPROCTYPE winProc) { frameWinProc = winProc; }
 
 /*
+ * SetDpiAwareness
+ *
+ * Without this a scaled desktop reports virtualised metrics - a 1920x1080
+ * display at 125% would claim to be 1536x864 - and the compositor stretches
+ * the window back up, blurrily. Both calls are resolved at run time: the
+ * context call needs Windows 10 1703, SetProcessDPIAware is the fallback.
+ */
+static void SetDpiAwareness(void)
+{
+#ifdef DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2
+  using SetContextFn = DPI_AWARENESS_CONTEXT(WINAPI*)(DPI_AWARENESS_CONTEXT);
+
+  HMODULE hUser32 = GetModuleHandle("user32.dll");
+  if (hUser32 != nullptr)
+  {
+    SetContextFn pSetContext = reinterpret_cast<SetContextFn>(GetProcAddress(hUser32, "SetProcessDpiAwarenessContext"));
+    if (pSetContext != nullptr && pSetContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2) != nullptr)
+      return;
+  }
+#endif
+  (void)SetProcessDPIAware();
+}
+
+/*
+ * ChooseDisplayScale
+ *
+ * Pick the integer factor every drawn coordinate is multiplied by. The UI
+ * lays itself out on a 640x480-anchored logical canvas; the factor is the
+ * largest whole number that leaves that canvas at least 960x540, so the
+ * interface keeps roughly the same physical size whatever the pixel density.
+ * A display too small for that draws unscaled.
+ */
+static UDWORD ChooseDisplayScale(UDWORD _widthPx, UDWORD _heightPx)
+{
+  UDWORD scale = 1;
+
+  while ((_widthPx / (scale + 1) >= 960) && (_heightPx / (scale + 1) >= 540))
+    scale += 1;
+
+  return scale;
+}
+
+/*
  * winInitApp
  *
  * Do that Windows initialization thang...
@@ -270,7 +314,6 @@ static BOOL winInitApp(HANDLE hInstance, // Instance handle for the program
                        UDWORD height) // The window height
 {
   WNDCLASS wc;
-  RECT sWinSize;
   STRING* pMsgBuf;
 
   /* Create the default cursor for the app - a simple arrow */
@@ -310,24 +353,13 @@ static BOOL winInitApp(HANDLE hInstance, // Instance handle for the program
     return FALSE;
   }
 
-  /* Get the actual size of window we want (including the size of
-     title bars etc.) */
-  (void)SetRect(&sWinSize, 0, 0, width, height);
-  (void)AdjustWindowRectEx(&sWinSize, WIN_STYLE, FALSE, WIN_EXSTYLE);
-
-  /* The rectangle returned has values for the window edges relative to
-     the display area origin, i.e. left and top are negative - so we have
-     to adjust */
-  sWinSize.right -= sWinSize.left;
-  sWinSize.left = 0;
-  sWinSize.bottom -= sWinSize.top;
-  sWinSize.top = 0;
-
-  /* Create the main window */
-  hWndMain = CreateWindowEx(WIN_EXSTYLE, // Extended window style, defined in WinMain.h
-                            "Framework", pWindowName, WIN_STYLE, // Window style, defined in WinMain.h
+  /* Create the main window: borderless, covering the desktop. A popup
+   * window has no non-client area, so the client area is the window and
+   * nothing needs adjusting for title bars. WS_EX_APPWINDOW keeps it on
+   * the task bar. */
+  hWndMain = CreateWindowEx(WS_EX_APPWINDOW, "Framework", pWindowName, WS_POPUP | WS_VISIBLE,
                             0, 0, // Initial window location
-                            sWinSize.right, sWinSize.bottom, // Initial window size
+                            width, height, // Initial window size
                             nullptr, nullptr, static_cast<HINSTANCE>(hInstance), nullptr);
 
   if (!hWndMain)
@@ -346,16 +378,17 @@ static BOOL winInitApp(HANDLE hInstance, // Instance handle for the program
  * frameInitialise
  *
  * Initialise the framework library. - PC version
+ *
+ * The display is the desktop: a borderless window covering it, at its
+ * resolution, with a windowed swap chain - so no display mode ever changes.
+ * The game lays out on the logical canvas this derives (the desktop size
+ * divided by the display scale) and the renderer multiplies back up.
  */
 BOOL frameInitialise(HANDLE hInst, // The windows application instance
-                     STRING* pWindowName, // The text to appear in the window title bar
-                     UDWORD width, // The display width
-                     UDWORD height, // The display height
-                     UDWORD bitDepth, // The display bit depth
-                     BOOL fullScreen, // Whether to start full screen or windowed
-                     BOOL bVidMem) // Whether to put surfaces in video memory
+                     STRING* pWindowName) // The text to appear in the window title bar
 {
   HWND hWndPrev;
+  UDWORD width, height, scale;
 
   /* exit if existing window with pWindowName name (i.e. only run one version) */
   if ((hWndPrev = FindWindow(WINDOW_CLASS_NAME, pWindowName)) != nullptr)
@@ -371,12 +404,29 @@ BOOL frameInitialise(HANDLE hInst, // The windows application instance
   displayMouse = TRUE;
   hInstance = static_cast<HINSTANCE>(hInst);
 
+  /* Must come before any metrics are read or any window exists. */
+  SetDpiAwareness();
+
+  /* The physical display is the desktop */
+  width = static_cast<UDWORD>(GetSystemMetrics(SM_CXSCREEN));
+  height = static_cast<UDWORD>(GetSystemMetrics(SM_CYSCREEN));
+  if (width < 640)
+    width = 640;
+  if (height < 480)
+    height = 480;
+
+  /* The logical canvas the game sees */
+  scale = ChooseDisplayScale(width, height);
+  Neuron::SetDisplayScale(scale);
+  (void)pie_SetVideoBufferWidth(width / scale);
+  (void)pie_SetVideoBufferHeight(height / scale);
+
   /* Initialise the windows stuff and open a window */
   if (!winInitApp(hInstance, pWindowName, width, height))
     return FALSE;
 
   /* Create the Direct3D device and its swap chain */
-  if (!screenInitialise(width, height, bitDepth, fullScreen, bVidMem, TRUE, hWndMain))
+  if (!screenInitialise(width, height, TRUE, hWndMain))
     return FALSE;
   /* Initialise the input system */
   inputInitialise();

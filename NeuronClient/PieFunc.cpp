@@ -146,13 +146,20 @@ UBYTE pie_ByteScale(UBYTE a, UBYTE b) { return aByteScale[a][b]; }
 
 //render raw 16 bit data in system memory to the back buffer
 //use outside of a D3D scene only
+//
+//The offsets and the source size are in logical-canvas units like every
+//other coordinate the game hands over; each source pixel becomes a
+//display-scale square of physical pixels, so the FMV frames keep their
+//position and size relative to the subtitles drawn over them.
 void pie_RenderImageToBackBuffer(SDWORD surfaceOffsetX, SDWORD surfaceOffsetY, UWORD* pSrcData, SDWORD srcWidth, SDWORD srcHeight,
                                  SDWORD srcStride)
 {
   SCREEN_LOCK sLock;
-  int i, j;
+  int i, j, sy, sx, destRow, destCol;
+  SDWORD scale, destX, destY;
   UWORD* pSrc;
   UDWORD* pDest;
+  UDWORD pixel;
 
   if (pSrcData == nullptr)
     return;
@@ -163,22 +170,32 @@ void pie_RenderImageToBackBuffer(SDWORD surfaceOffsetX, SDWORD surfaceOffsetY, U
     return;
   }
 
+  scale = static_cast<SDWORD>(Neuron::DisplayScale());
+  destX = surfaceOffsetX * scale;
+  destY = surfaceOffsetY * scale;
+
   pSrc = pSrcData;
   //word stride
   srcStride /= 2;
 
   for (i = 0; i < srcHeight; i++)
   {
-    if (surfaceOffsetY + i < 0 || surfaceOffsetY + i >= static_cast<SDWORD>(sLock.height))
+    for (sy = 0; sy < scale; sy++)
     {
-      pSrc += srcStride;
-      continue;
-    }
-    pDest = (UDWORD*)(sLock.pPixels + sLock.pitch * (surfaceOffsetY + i)) + surfaceOffsetX;
-    for (j = 0; j < srcWidth; j++)
-    {
-      if (surfaceOffsetX + j >= 0 && surfaceOffsetX + j < static_cast<SDWORD>(sLock.width))
-        pDest[j] = screen565To32(pSrc[j]);
+      destRow = destY + i * scale + sy;
+      if (destRow < 0 || destRow >= static_cast<SDWORD>(sLock.height))
+        continue;
+      pDest = (UDWORD*)(sLock.pPixels + sLock.pitch * destRow) + destX;
+      destCol = 0;
+      for (j = 0; j < srcWidth; j++)
+      {
+        pixel = screen565To32(pSrc[j]);
+        for (sx = 0; sx < scale; sx++, destCol++)
+        {
+          if (destX + destCol >= 0 && destX + destCol < static_cast<SDWORD>(sLock.width))
+            pDest[destCol] = pixel;
+        }
+      }
     }
     pSrc += srcStride;
   }

@@ -43,4 +43,13 @@ extern BOOL pie_SetVideoBufferHeight(UDWORD height);
 extern UDWORD pie_GetVideoBufferWidth(void);
 extern UDWORD pie_GetVideoBufferHeight(void);
 
+namespace Neuron
+{
+/* The integer factor between the logical canvas the game lays out on (the
+ * video buffer size above) and the physical back buffer. Set once at start
+ * up, next to the video buffer size, by the framework. */
+void SetDisplayScale(UDWORD _scale);
+UDWORD DisplayScale(void);
+} // namespace Neuron
+
 #endif // _renderclip_h

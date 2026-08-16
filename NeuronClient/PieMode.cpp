@@ -136,33 +136,13 @@ void pie_GlobalRenderEnd(BOOL bForceClearToBlack)
 /***************************************************************************/
 UDWORD pie_GetResScalingFactor(void)
 {
-  UDWORD resWidth; //n.b. resolution width implies resolution height...!
-
-  resWidth = pie_GetVideoBufferWidth();
-  switch (resWidth)
-  {
-  case 640:
-    return (100); // game runs in 640, so scale factor is 100 (normal)
-    break;
-  case 800:
-    return (125);
-    break; // as 800 is 125 percent of 640
-  case 960:
-    return (150);
-    break;
-  case 1024:
-    return (160);
-    break;
-  case 1152:
-    return (180);
-    break;
-  case 1280:
-    return (200);
-    break;
-  default: DEBUG_ASSERT_TEXT(FALSE, "Unsupported resolution");
-    return (100); // default to 640
-    break;
-  }
+  /* The world is scaled so that the horizontal view span stays what the
+   * 640-wide layout was designed for, whatever the logical width. The
+   * vertical span follows the display's aspect ratio instead of the old
+   * 4:3 - scaling off the width is the safe direction, because the fixed
+   * visible-tile grid was tuned for the 4:3 span and a wider world view
+   * could outrun it. */
+  return (pie_GetVideoBufferWidth() * 100) / 640;
 }
 
 //*************************************************************************

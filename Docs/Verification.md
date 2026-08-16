@@ -62,22 +62,24 @@ All parsed in [ClParse.cpp](../Outpost/ClParse.cpp).
 
 | Switch | Effect |
 |---|---|
-| `-window` | **nothing — the game always starts windowed.** See below |
+| `-window` | **nothing — accepted and ignored.** See below |
 | `-game <name>` | boot straight into a level, skipping the menus |
 | `-title` / `-intro` | start at the title screen / the intro video |
 | `-datapath <dir>` | set the asset base directory and `chdir` to it |
-| `-640` … `-1280` | pick the resolution |
 | `-noFog` / `-greyFog` | cap render fog off / to grey |
 | `-noTranslucent` / `-noAdditive` | disable translucency / additive effects |
 | `-seqSmall` / `-seqSkip` | play sequences small / skip them |
 
-**There is no command-line route to full screen.** `clStartWindowed` is
-initialised `TRUE` ([ClParse.cpp:34](../Outpost/ClParse.cpp#L34)) and `-window`
-assigns `TRUE` in *both* arms of an `#ifdef _DEBUG`/`#else` whose branches are
-identical — a vestigial no-op. Nothing anywhere assigns `FALSE`, and
-[WinMain.cpp:130](../Outpost/WinMain.cpp#L130) says so: "always start windowed
-toggle to fullscreen later". Full screen is reached only with **Alt+Enter**
-in-game ([Loop.cpp:610](../Outpost/Loop.cpp#L610)), which pass C needs.
+**There is one display mode and no switch for it.** The display is a
+borderless window covering the desktop at the desktop's own resolution,
+presented through a windowed swap chain
+([Window.cpp `frameInitialise`](../NeuronClient/Window.cpp)). The game lays
+out on a logical canvas — the desktop size divided by the integer display
+scale `ChooseDisplayScale` picks — and `D3DDrawPoly` multiplies every vertex
+back up. The `-640` … `-1280` switches, the `resolution` registry key, the
+Direct3D exclusive mode and the Alt+Enter toggle that reached it are all
+gone; `-window` is still accepted so old shortcuts keep working, but it does
+nothing.
 
 **A trap worth knowing before the fog pass.** There are two unrelated fogs.
 Render fog is the distance fog the switches above control. `game.fog` is fog of
@@ -138,6 +140,13 @@ rewired both sliders.
    executable is precisely what the old format never did.
 
 ## Pass C — device loss
+
+*(Recorded against the build that still had exclusive full screen; the pass
+below was run and passed then. The display is a borderless window on a
+windowed swap chain now — Alt+Enter is gone, and a windowed device survives
+alt-tab without a reset. Device loss still exists — locking the workstation
+(Win+L) or a remote-desktop session can still provoke it — so the reset path
+it exercised remains live, just rarer.)*
 
 Start windowed, **Alt+Enter to full screen** (there is no switch for it — see
 above), then alt-tab away and back. **Twice.**

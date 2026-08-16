@@ -124,12 +124,13 @@ extern void screen_Upload(UWORD* newBackDropBmp);
 /* fog */
 void screen_SetFogColour(UDWORD newFogColour);
 
-/* Toggle the display between full screen or windowed */
-extern void screenToggleMode(void);
-
 /* Full screen video playback used to be a third screen mode, because the
  * display had to drop to 16 bit to play a sequence. It is 32 bit either way
  * round now, so a sequence plays in whichever mode the game is already in.
+ *
+ * The display itself no longer toggles: it is always a borderless window
+ * covering the desktop, so SCREEN_WINDOWED is the mode there is, and
+ * SCREEN_FULLSCREEN remains only so old comparisons still type-check.
  */
 using SCREEN_MODE = enum _screen_mode
 {
@@ -139,9 +140,6 @@ using SCREEN_MODE = enum _screen_mode
 
 /* get screen window handle */
 extern HWND screenGetHWnd(void);
-
-/* Set whether the display is windowed or full screen */
-extern void screenSetMode(SCREEN_MODE mode);
 
 /* Get display mode (windowed or full screen) */
 extern SCREEN_MODE screenGetMode(void);

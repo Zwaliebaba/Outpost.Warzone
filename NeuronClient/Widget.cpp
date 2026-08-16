@@ -2,6 +2,7 @@
 #include "Frame.h"
 #include "Input.h"
 #include "FrameInt.h"
+#include "RenderClip.h"
 
 #include "Widget.h"
 #include "WidgInt.h"
@@ -117,8 +118,10 @@ BOOL widgCreateScreen(W_SCREEN** ppsScreen)
   sInit.style = WFORM_PLAIN | WFORM_INVISIBLE;
   sInit.x = 0;
   sInit.y = 0;
-  sInit.width = static_cast<UWORD>(screenWidth - 1);
-  sInit.height = static_cast<UWORD>(screenHeight - 1);
+  /* The root form spans the logical canvas the widgets lay out on, not the
+   * physical display */
+  sInit.width = static_cast<UWORD>(pie_GetVideoBufferWidth() - 1);
+  sInit.height = static_cast<UWORD>(pie_GetVideoBufferHeight() - 1);
   if (!formCreate(&psForm, &sInit))
     return FALSE;
 

@@ -2,6 +2,7 @@
 #include "Frame.h"
 #include "Input.h"
 #include "FrameInt.h"
+#include "RenderClip.h"
 #include "Widget.h"
 #include "Tip.h"
 #include "RendMode.h"
@@ -119,14 +120,14 @@ void tipDisplay(void)
       tx = wx + (ww >> 1);
       ty = wy + wh + TIP_VGAP;
 
-      /* Check the box is on screen */
+      /* Check the box is on the logical canvas the widgets lay out on */
       if (tx < 0)
         tx = 0;
-      if (tx + tw >= static_cast<SDWORD>(screenWidth) - RIGHTBORDER)
-        tx = screenWidth - RIGHTBORDER - tw - 1;
+      if (tx + tw >= static_cast<SDWORD>(pie_GetVideoBufferWidth()) - RIGHTBORDER)
+        tx = pie_GetVideoBufferWidth() - RIGHTBORDER - tw - 1;
       if (ty < 0)
         ty = 0;
-      if (ty + th >= static_cast<SDWORD>(screenHeight) - BOTTOMBORDER)
+      if (ty + th >= static_cast<SDWORD>(pie_GetVideoBufferHeight()) - BOTTOMBORDER)
       {
         /* Position the tip above the button */
         ty = wy - th - TIP_VGAP;

@@ -9,17 +9,6 @@
 #include "Surface.h"
 #include "Screen.h"
 
-/* Define the style and extended style of the window.
- * Need these to calculate the size the window should be when returning to
- * window mode.
- *
- * create a title bar, minimise button on the title bar,
- * automatic ShowWindow, get standard system menu on title bar
- */
-#define WIN_STYLE (WS_CAPTION | WS_MINIMIZEBOX | WS_VISIBLE | WS_SYSMENU)
-
-#define WIN_EXSTYLE	 WS_EX_APPWINDOW	// Go on task bar when iconified
-
 /* Program hInstance */
 extern HINSTANCE hInstance;
 
@@ -28,14 +17,8 @@ extern HWND hWndMain;
 
 /* Initialise the double buffered display */
 
-extern BOOL screenInitialise(UDWORD width, // Display width
-                             UDWORD height, // Display height
-                             UDWORD bitDepth, // Display bit depth - recorded
-                             // only, the display is always 32 bit
-                             BOOL fullScreen, // Whether to start windowed
-                             // or full screen.
-                             BOOL bVidMem, // No longer used - the managed
-                             // pool decides where resources live
+extern BOOL screenInitialise(UDWORD width, // Display width - the desktop's
+                             UDWORD height, // Display height - the desktop's
                              BOOL bCreateDevice, // Whether to create a device at all
                              HANDLE hWindow); // The main windows handle
 

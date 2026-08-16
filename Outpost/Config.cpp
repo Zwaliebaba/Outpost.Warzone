@@ -380,71 +380,10 @@ BOOL loadRenderMode()
   else
     setWarzoneKeyNumeric("d3dFog", war_GetFog());
 
-  // now load the desired res..
-  // note that we only do this if we havent changed renderer..
-  if (getWarzoneKeyNumeric("resolution", &val))
-  {
-    switch (val)
-    {
-    case 640:
-      pie_SetVideoBufferWidth(640);
-      pie_SetVideoBufferHeight(480);
-      break;
-    case 800:
-      pie_SetVideoBufferWidth(800);
-      pie_SetVideoBufferHeight(600);
-      break;
-    case 960:
-      pie_SetVideoBufferWidth(960);
-      pie_SetVideoBufferHeight(720);
-      break;
-    case 1024:
-      pie_SetVideoBufferWidth(1024);
-      pie_SetVideoBufferHeight(768);
-      break;
-    case 1152:
-      pie_SetVideoBufferWidth(1152);
-      pie_SetVideoBufferHeight(864);
-      break;
-    case 1280:
-      pie_SetVideoBufferWidth(1280);
-      pie_SetVideoBufferHeight(1024);
-      break;
-    }
-  }
-
-  // now load the desired res..
-  // note that we only do this if we havent changed renderer..
-  if (getWarzoneKeyNumeric("resolution", &val))
-  {
-    switch (val)
-    {
-    case 640:
-      pie_SetVideoBufferWidth(640);
-      pie_SetVideoBufferHeight(480);
-      break;
-    case 800:
-      pie_SetVideoBufferWidth(800);
-      pie_SetVideoBufferHeight(600);
-      break;
-    case 960:
-      pie_SetVideoBufferWidth(960);
-      pie_SetVideoBufferHeight(720);
-      break;
-    case 1024:
-      pie_SetVideoBufferWidth(1024);
-      pie_SetVideoBufferHeight(768);
-      break;
-    case 1152:
-      pie_SetVideoBufferWidth(1152);
-      pie_SetVideoBufferHeight(864);
-      break;
-    case 1280:
-      pie_SetVideoBufferWidth(1280);
-      pie_SetVideoBufferHeight(1024);
-      break;
-    }
-  }
+  /* The "resolution" key was read here (twice, an old copy-paste). The
+   * display is the desktop's own resolution now, decided by the framework
+   * at start up, so the key is neither read nor written; an existing config
+   * file keeps working because unknown keys are skipped on read. */
 
   /* TexelOffsetOn was read and written here. The half texel offset is
    * unconditional now (Phase 8 stage D3), so the key is neither read nor
@@ -469,9 +408,6 @@ BOOL saveConfig()
   setWarzoneKeyNumeric("cdvol", AudioSystem::MusicVolume());
 
   setWarzoneKeyNumeric("d3dFog", war_GetFog());
-
-  // res.
-  setWarzoneKeyNumeric("resolution", pie_GetVideoBufferWidth());
 
   // dont save out the cheat mode.
   if (getDifficultyLevel() == DL_KILLER OR getDifficultyLevel() == DL_TOUGH)
