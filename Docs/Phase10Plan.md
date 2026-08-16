@@ -635,6 +635,21 @@ Pass I opens with the list of intended behaviour changes — the seven
 latent defect fixes and the dropped 1°/frame turn floors — so the run
 does not misread a deliberate difference as a regression.
 
+**First run finding (2026-08-16), found and fixed:** the boot tripped the
+direction range assert on a map-authored 222° heading. The E2 boundary
+conversions — `XMConvertToRadians` of on-disk, wire and random degree
+values in [0, 360) — never wrapped the result into the engine's
+canonical (−π, π]: correct for values up to 180°, invariant-breaking
+past it, and downstream of the assert the quadrant tests and
+shortest-turn maths would pick the long way round. All ten boundary
+sites now wrap with `XMScalarModAngle`: the three level readers in
+`Game.cpp`, the five sync receives in `MultiSync.cpp`, and the two
+random feature directions in `Feature.cpp`. The other alarming-looking
+fields on the tripped droid (`actionStarted` and friends carrying the
+debug-heap fill) are `buildDroid`'s pre-existing lazy initialisation —
+each is written at every action transition before its first read — not
+a Phase 10 regression.
+
 ## Decisions — settled
 
 All six were put to the owner and settled on 2026-08-16. Two rulings widen

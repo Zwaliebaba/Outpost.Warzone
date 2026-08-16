@@ -1036,7 +1036,8 @@ BOOL loadSaveDroidInitV2(UBYTE* pFileData, UDWORD filesize, UDWORD quantity)
         if (psDroid)
         {
           psDroid->id = pDroidInit->id;
-          psDroid->direction = DirectX::XMConvertToRadians(static_cast<float>(pDroidInit->direction)); // on-disk degrees
+          // on-disk degrees in [0, 360), wrapped into the engine's (-pi, pi]
+          psDroid->direction = DirectX::XMScalarModAngle(DirectX::XMConvertToRadians(static_cast<float>(pDroidInit->direction)));
           addDroid(psDroid, apsDroidLists);
         }
         else
@@ -1251,7 +1252,8 @@ BOOL loadSaveStructureV7(UBYTE* pFileData, UDWORD filesize, UDWORD numStructures
       //copy the values across
       psStructure->id = psSaveStructure->id;
       //are these going to ever change from the values set up with?
-      psStructure->direction = DirectX::XMConvertToRadians(static_cast<float>(psSaveStructure->direction)); // on-disk degrees
+      // on-disk degrees in [0, 360), wrapped into the engine's (-pi, pi]
+      psStructure->direction = DirectX::XMScalarModAngle(DirectX::XMConvertToRadians(static_cast<float>(psSaveStructure->direction)));
     }
 
     psStructure->inFire = psSaveStructure->inFire;
@@ -1428,7 +1430,8 @@ BOOL loadSaveFeatureV14(UBYTE* pFileData, UDWORD filesize, UDWORD numFeatures, U
     }
     //restore values
     pFeature->id = psSaveFeature->id;
-    pFeature->direction = DirectX::XMConvertToRadians(static_cast<float>(psSaveFeature->direction)); // on-disk degrees
+    // on-disk degrees in [0, 360), wrapped into the engine's (-pi, pi]
+    pFeature->direction = DirectX::XMScalarModAngle(DirectX::XMConvertToRadians(static_cast<float>(psSaveFeature->direction)));
     pFeature->inFire = psSaveFeature->inFire;
     pFeature->burnDamage = psSaveFeature->burnDamage;
     if (version >= VERSION_14)

@@ -455,7 +455,7 @@ static void offscreenUpdate(DROID* psDroid, UDWORD dam, UDWORD x, UDWORD y, floa
         psDroid->y = static_cast<UWORD>(fy);
         gridMoveObject((BASE_OBJECT*)psDroid, static_cast<SDWORD>(oldx), static_cast<SDWORD>(oldy));
 
-        psDroid->direction = DirectX::XMConvertToRadians(static_cast<float>(dir % 360)); // update rotation
+        psDroid->direction = DirectX::XMScalarModAngle(DirectX::XMConvertToRadians(static_cast<float>(dir % 360))); // update rotation
 
         // reroute the droid.
         turnOffMultiMsg(TRUE);
@@ -471,7 +471,7 @@ static void offscreenUpdate(DROID* psDroid, UDWORD dam, UDWORD x, UDWORD y, floa
     psDroid->x = static_cast<UWORD>(x); //update x
     psDroid->y = static_cast<UWORD>(y); //update y
     gridMoveObject((BASE_OBJECT*)psDroid, static_cast<SDWORD>(oldx), static_cast<SDWORD>(oldy));
-    psDroid->direction = DirectX::XMConvertToRadians(static_cast<float>(dir % 360)); // update rotation
+    psDroid->direction = DirectX::XMScalarModAngle(DirectX::XMConvertToRadians(static_cast<float>(dir % 360))); // update rotation
   }
 
   psDroid->body = dam; // update damage
@@ -615,7 +615,7 @@ BOOL recvStructureCheck(NETMSG* m)
     NetGet(m, 5, pS->body); // Damage update.
     UWORD dirDegrees;
     NetGet(m, 17, dirDegrees);
-    pS->direction = DirectX::XMConvertToRadians(static_cast<float>(dirDegrees));
+    pS->direction = DirectX::XMScalarModAngle(DirectX::XMConvertToRadians(static_cast<float>(dirDegrees)));
   }
   else // structure wasn't found, create it.
   {
@@ -640,7 +640,7 @@ BOOL recvStructureCheck(NETMSG* m)
 
       if (pS && (pS->pStructureType->type == type) && (pS->player == player))
       {
-        pS->direction = DirectX::XMConvertToRadians(static_cast<float>(dir));
+        pS->direction = DirectX::XMScalarModAngle(DirectX::XMConvertToRadians(static_cast<float>(dir)));
         pS->id = ref;
         if (pS->status != SS_BUILT)
         {
@@ -696,7 +696,7 @@ BOOL recvStructureCheck(NETMSG* m)
   {
     if (pS->status != SS_BUILT) // check its finished
     {
-      pS->direction = DirectX::XMConvertToRadians(static_cast<float>(dir));
+      pS->direction = DirectX::XMScalarModAngle(DirectX::XMConvertToRadians(static_cast<float>(dir)));
       pS->id = ref;
       pS->status = SS_BUILT;
       buildingComplete(pS);
