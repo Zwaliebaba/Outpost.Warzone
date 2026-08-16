@@ -212,6 +212,7 @@
     <ClInclude Include="WidgBase.h" />
     <ClInclude Include="Widget.h" />
     <ClInclude Include="WidgInt.h" />
+    <ClInclude Include="MovieStream.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DXError.cpp">
@@ -366,6 +367,7 @@
     <ClCompile Include="Render.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="MovieStream.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Framework">

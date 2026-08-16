@@ -326,7 +326,7 @@
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;DIRECTINPUT_VERSION=0x0800;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\NeuronCore;$(MSBuildThisFileDirectory)..\DX9\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)NeuronCore;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ConformanceMode>false</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -335,7 +335,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)..\DX9\Lib;$(MSBuildThisFileDirectory)..\NeuronCore;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>d3d9.lib;dxguid.lib;dinput8.lib;ole32.lib;wsock32.lib;comdlg32.lib;xaudio2.lib;mfplat.lib;mfreadwrite.lib;mfuuid.lib;crypt32.lib;ncrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <!-- dinput8.lib in DX9\Lib predates SafeSEH: dilib1.obj carries no
            exception handler table, so /SAFESEH cannot be satisfied (LNK2026 ->
