@@ -17,7 +17,7 @@
 #include "Map.h"
 #include "Atmos.h"
 #include "Loop.h"
-#include "Geo.h"
+#include "RenderMatrix.h"
 #include "Effects.h"
 #include "Lighting.h"
 #include "Bucket3D.h"

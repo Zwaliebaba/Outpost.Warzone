@@ -14,7 +14,7 @@
 #include "Order.h"
 #include "Component.h"
 #include "Model.h"
-#include "Geo.h" //ivis matrix code
+#include "RenderMatrix.h" //ivis matrix code
 #include "RenderTypes.h"
 #include "RenderModel.h"
 #include "PieState.h" //ivis render code

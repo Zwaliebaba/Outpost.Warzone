@@ -57,6 +57,13 @@ using PIEPOLY = struct
 static void pie_PiePoly(PIEPOLY* poly, BOOL bClip);
 static void pie_PiePolyFrame(PIEPOLY* poly, SDWORD frame, BOOL bClip);
 
+/* Screen-space winding test for backface culling (was pie_PieClockwise in
+ * the matrix module, moved beside its only two callers). */
+static BOOL Clockwise(const PIEVERTEX* _s)
+{
+  return (((_s[1].sy - _s[0].sy) * (_s[2].sx - _s[1].sx)) <= ((_s[1].sx - _s[0].sx) * (_s[2].sy - _s[1].sy)));
+}
+
 /***************************************************************************/
 /*
  *	Source
@@ -505,7 +512,7 @@ static void pie_PiePoly(PIEPOLY* poly, BOOL bClip)
   if (!(poly->flags & PIE_NO_CULL) && (poly->nVrts >= 3))
   {
     //cull if backfaced
-    if (!pie_PieClockwise(poly->pVrts))
+    if (!Clockwise(poly->pVrts))
       return; //culled
   }
 
@@ -537,7 +544,7 @@ static void pie_PiePolyFrame(PIEPOLY* poly, int frame, BOOL bClip)
   if (!(poly->flags & PIE_NO_CULL) && (poly->nVrts >= 3))
   {
     //cull if backfaced
-    if (!pie_PieClockwise(poly->pVrts))
+    if (!Clockwise(poly->pVrts))
       return; //culled
     poly->flags |= PIE_NO_CULL; //dont check culling again for this poly
   }

@@ -1037,6 +1037,13 @@ loop; `RenderMatrix` is 174 lines against the 522 the phase started from.
 along the way (the effect-circle unsigned trig wrap, `scaleMatrix`'s
 100% = 100.1%, the write-only poly normal), and the wrapped-negative-angle
 conversion rule the stage established is recorded in the phase plan.
+**Stage D is done** — `pie_MatInit` renamed to `Neuron::MatrixInit`, the
+winding test moved beside its only callers in `RenderModel.cpp`, and
+`Geo.h` folded into its fourteen includers and deleted. The renderer maths
+migration is complete: `RenderMatrix` measures 166 lines against the 522
+the phase started from, with no `pie_` maths symbol left in the tree. What
+remains of the phase is stage E (the angle-state and `Trig.cpp` migration
+the owner ruled in) and the stage F run.
 
 Phase 8 deliberately kept the fixed-point, pre-transformed-vertex pipeline
 because changing it "is not simplification, it is a second project". This is

@@ -7,7 +7,7 @@
 #include "Display3D.h"
 #include "RenderTypes.h"
 #include "RenderModel.h"
-#include "Geo.h" //ivis matrix code
+#include "RenderMatrix.h" //ivis matrix code
 #include "MiscIMD.h"
 #include "Effects.h"
 #include "Bridge.h"

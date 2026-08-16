@@ -27,7 +27,7 @@
 #include "RenderClip.h"			// ffs 
 #include "Render2D.h"
 #include "RendMode.h"
-#include "Geo.h"
+#include "RenderMatrix.h"
 
 #include "Display3D.h"
 #include "Edit3D.h"

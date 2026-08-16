@@ -13,7 +13,7 @@
 #include "Model.h"
 #include "PieState.h"
 #include "RendMode.h"
-#include "Geo.h"//matrix code
+#include "RenderMatrix.h"//matrix code
 /* Includes from PUMPKIN stuff */
 #include "Frame.h"
 #include "ObjectDef.h"

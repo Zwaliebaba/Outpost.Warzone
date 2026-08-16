@@ -14,7 +14,7 @@
 #include "Text.h"
 #include "RendMode.h"
 #include "GTime.h"
-#include "Geo.h"
+#include "RenderMatrix.h"
 #include "Levels.h"
 #include "ObjMem.h"		 	//for droid lists.
 #include "Component.h"		// for disaplycomponentobj.

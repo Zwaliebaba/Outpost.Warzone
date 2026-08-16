@@ -21,7 +21,7 @@
 #include "HCI.h"
 #include "Text.h"
 #include "MiscIMD.h"
-#include "Geo.h"
+#include "RenderMatrix.h"
 #include "Display3D.h"
 #include "Mission.h"
 #include "Game.h"

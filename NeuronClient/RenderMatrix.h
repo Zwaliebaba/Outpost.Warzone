@@ -50,13 +50,9 @@ namespace Neuron
   extern SDWORD ProjectToScreen(SDWORD _x, SDWORD _y, SDWORD _z, SDWORD* _sx, SDWORD* _sy);
 
   extern void SetGeometricOffset(int _x, int _y);
+
+  // Reset the stack and make the first matrix identity.
+  extern void MatrixInit(void);
 }
-
-//*************************************************************************
-
-extern void pie_MatInit(void);
-
-// PIEVERTEX structure contains much infomation that is not required on the playstation ... and hence is not currently used
-extern BOOL pie_PieClockwise(PIEVERTEX* s);
 
 #endif

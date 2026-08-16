@@ -12,7 +12,7 @@
 #include "Frame.h"
 #include "Trig.h"
 #include "Input.h"
-#include "Geo.h"
+#include "RenderMatrix.h"
 #include "RenderTypes.h"
 #include "Objects.h"
 #include "WarCAM.h"

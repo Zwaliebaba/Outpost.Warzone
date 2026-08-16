@@ -64,7 +64,6 @@
     <ClInclude Include="Font.h" />
     <ClInclude Include="Form.h" />
     <ClInclude Include="FrameInt.h" />
-    <ClInclude Include="Geo.h" />
     <ClInclude Include="IMD.h" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="Input.h" />

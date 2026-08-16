@@ -5,7 +5,7 @@
 #include <directxmath.h>
 
 #include "Frame.h"
-#include "Geo.h" //ivis matrix code
+#include "RenderMatrix.h" //ivis matrix code
 #include "ObjectDef.h"
 #include "Map.h"
 #include "Display3D.h"

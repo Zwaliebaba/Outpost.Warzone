@@ -97,15 +97,11 @@ void Neuron::SetGeometricOffset(int _x, int _y)
 }
 
 //*************************************************************************
-
-BOOL pie_PieClockwise(PIEVERTEX* s) { return (((s[1].sy - s[0].sy) * (s[2].sx - s[1].sx)) <= ((s[1].sx - s[0].sx) * (s[2].sy - s[1].sy))); }
-
-//*************************************************************************
 //*** reset the stack and make the first matrix identity
 //*
 //******
 
-void pie_MatInit(void)
+void Neuron::MatrixInit(void)
 {
   g_matrixIndex = 0;
   g_matrixStack[0] = XMMatrixIdentity();

@@ -11,7 +11,7 @@
 #include "RenderTypes.h"
 #include "PieState.h" //ivis matrix code
 #include "PieFunc.h" //ivis matrix code
-#include "Geo.h" //ivis matrix code
+#include "RenderMatrix.h" //ivis matrix code
 #include "Map.h"
 #include "Lighting.h"
 #include "Display3D.h"

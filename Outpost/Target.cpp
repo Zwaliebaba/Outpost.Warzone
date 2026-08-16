@@ -19,7 +19,7 @@
 #include "ObjectDef.h"
 #include "Droid.h"
 
-#include "Geo.h"
+#include "RenderMatrix.h"
 #include "IMD.h"
 #include "RendMode.h"
 

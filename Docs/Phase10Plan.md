@@ -416,6 +416,20 @@ the one-liners (`MultiInt`, `MultiMenu`, `MultiLimit`, `Design`,
 
 ### D — Finish and rename
 
+**Status: done.** Stage C had already consumed the deletions (the table,
+the parity, every shim), so what remained was small and landed in one
+commit: `pie_MatInit` is `Neuron::MatrixInit` (checked against the
+platform headers; no collision), `pie_PieClockwise` moved into
+`RenderModel.cpp` as the file-static `Clockwise` beside its only two
+callers, and `Geo.h` — a pure forwarder to `RenderMatrix.h` since stage C
+of Phase 8 — is folded into its fourteen includers and deleted, with its
+`.vcxproj`/`.filters` entries. No `pie_` symbol remains anywhere in the
+maths module. **The module stands at 58 lines of header and 108 of
+implementation, against 128 and 394 at the phase's start.** Cross-checked
+189/189 in both configurations; `check_case.py` clean.
+
+The stage as planned:
+
 Delete `aSinTable`, `pie_MatInit`'s table build (init collapses to a stack
 reset), the parity instrumentation, and every remaining shim. The module's
 public names land per [AGENTS.md §1](../AGENTS.md) in `namespace Neuron` —
