@@ -11,7 +11,7 @@ static SDWORD cLine;
 static STRING* pCFile;
 static STRING pCFileNone[] = "None";
 
-void treapSetCallPos(STRING* pFileName, SDWORD lineNumber)
+void treapSetCallPos(const STRING* pFileName, SDWORD lineNumber)
 {
   cLine = lineNumber;
 

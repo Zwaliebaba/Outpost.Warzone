@@ -143,7 +143,7 @@ extern BOOL loadFileToBufferNoError(STRING* pFileName, UBYTE* pFileBuffer, UDWOR
 
 extern SDWORD ftol(float f);
 
-UINT HashString(char* String);
-UINT HashStringIgnoreCase(char* String);
+UINT HashString(const char* String);
+UINT HashStringIgnoreCase(const char* String);
 
 #endif

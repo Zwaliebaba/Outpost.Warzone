@@ -84,7 +84,7 @@ CACHE Cache = {nullptr, 0, 0,FALSE};
 char CurrentWDGname[MAX_STR]; // name of the current wdg
 
 // set the current WDG and it's catalogs
-void WDG_SetCurrentWDGCatalog(char* filename, UDWORD numWRF, WDGINFO* psWRFCatalog)
+void WDG_SetCurrentWDGCatalog(const char* filename, UDWORD numWRF, WDGINFO* psWRFCatalog)
 {
   strcpy(CurrentWDGname, filename);
   NumberOfWRFfiles = numWRF;

@@ -2132,7 +2132,7 @@ BOOL scriptCompile(UBYTE* pData, UDWORD fileSize, SCRIPT_CODE** ppsProg, SCR_DEB
 }
 
 /* A simple error reporting routine */
-void scr_error(char* pMessage, ...)
+void scr_error(const char* pMessage, ...)
 {
   int line;
   char* text;
@@ -2312,7 +2312,7 @@ BOOL scriptLookUpVariable(STRING* pIdent, VAR_SYMBOL** ppsSym)
 }
 
 /* Add a new trigger symbol */
-BOOL scriptAddTrigger(STRING* pIdent, TRIGGER_DECL* psDecl, UDWORD line)
+BOOL scriptAddTrigger(const STRING* pIdent, TRIGGER_DECL* psDecl, UDWORD line)
 {
   TRIGGER_SYMBOL *psTrigger, *psCurr, *psPrev;
 

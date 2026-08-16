@@ -103,7 +103,7 @@ file_line:			FILETOKEN TEXT QTEXT
  * A simple error reporting routine
  */
 
-void res_error(char *pMessage,...)
+void res_error(const char *pMessage,...)
 {
 	int		line;
 	char	*pText;

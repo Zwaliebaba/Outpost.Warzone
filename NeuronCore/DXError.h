@@ -22,6 +22,6 @@
 #include "Types.h"
 
 /* Turn a Direct3D 9 (or general COM) error code into a string */
-extern STRING* DXErrorToString(HRESULT error);
+extern const STRING* DXErrorToString(HRESULT error);
 
 #endif

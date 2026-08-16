@@ -135,7 +135,7 @@ extern UDWORD NETplayerInfo(VOID); // count players in this game.
 extern BOOL NETchangePlayerName(NETPLAYERID dpid, char* newName); // change a players name.
 
 //from netsupp
-extern BOOL NETlogEntry(CHAR* str, UDWORD a, UDWORD b);
+extern BOOL NETlogEntry(const CHAR* str, UDWORD a, UDWORD b);
 extern BOOL NETstopLogging(VOID);
 extern BOOL NETstartLogging(VOID);
 

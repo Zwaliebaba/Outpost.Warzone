@@ -330,7 +330,7 @@ static char* yygetState YY_ARGS((int));
  * A simple error reporting routine
  */
 
-void res_error(char* pMessage, ...)
+void res_error(const char* pMessage, ...)
 {
   int line;
   char* pText;

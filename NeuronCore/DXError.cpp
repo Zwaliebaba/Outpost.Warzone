@@ -23,7 +23,7 @@
  * replaced, because most of what DirectDraw could fail at (surface
  * management, cooperative levels, colour keys, palettes) no longer exists.
  */
-STRING* DXErrorToString(HRESULT error)
+const STRING* DXErrorToString(HRESULT error)
 {
   switch (error)
   {

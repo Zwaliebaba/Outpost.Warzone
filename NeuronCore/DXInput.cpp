@@ -163,7 +163,7 @@ BOOL DInpGetMouseState(SDWORD* pX, SDWORD* pY, SDWORD* pButtons)
 }
 
 // convert a direct input error to a string
-STRING* DIErrorToString(HRESULT dierror)
+const STRING* DIErrorToString(HRESULT dierror)
 {
   switch (dierror)
   {

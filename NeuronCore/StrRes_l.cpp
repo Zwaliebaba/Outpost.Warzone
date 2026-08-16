@@ -217,7 +217,7 @@ static int unput YY_ARGS((int c));
 
 /* functions defined in libl.lib */
 extern int strres_wrap YY_ARGS((void));
-extern void strres_error YY_ARGS((char *fmt, ...));
+extern void strres_error YY_ARGS((const char *fmt, ...));
 extern void strres_comment YY_ARGS((char *term));
 extern int strres_mapch YY_ARGS((int delim, int escape));
 

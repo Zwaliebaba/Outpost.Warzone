@@ -63,7 +63,7 @@ line:			TEXT QTEXT
  * A simple error reporting routine
  */
 
-void strres_error(char *pMessage,...)
+void strres_error(const char *pMessage,...)
 {
 	int		line;
 	char	*pText;

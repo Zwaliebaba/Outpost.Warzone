@@ -253,7 +253,7 @@ static char LastResourceFilename[FILE_MAXCHAR];
 char* GetLastResourceFilename(void) { return (LastResourceFilename); }
 
 // Set the resource name of the last resource file loaded
-void SetLastResourceFilename(char* pName)
+void SetLastResourceFilename(const char* pName)
 {
   strncpy(LastResourceFilename, pName, FILE_MAXCHAR - 1);
   LastResourceFilename[FILE_MAXCHAR - 1] = 0;
@@ -421,7 +421,7 @@ void AddBinaryResourceType(char* ResourceType)
   BinaryResourceTypeCount++;
 }
 
-void resDataInit(RES_DATA* psRes, STRING* DebugName, UDWORD DataIDHash, void* pData, UDWORD BlockID)
+void resDataInit(RES_DATA* psRes, const STRING* DebugName, UDWORD DataIDHash, void* pData, UDWORD BlockID)
 {
   psRes->pData = pData;
   psRes->blockID = resBlockID;
@@ -561,7 +561,7 @@ BOOL resLoadFile(STRING* pType, STRING* pFile)
 #endif	// ifndef FINALBUILD
 
 /* Return the resource for a type and hashedname */
-void* resGetDataFromHash(STRING* pType, UDWORD HashedID)
+void* resGetDataFromHash(const STRING* pType, UDWORD HashedID)
 {
   RES_TYPE* psT;
   RES_DATA* psRes;
@@ -606,7 +606,7 @@ void* resGetDataFromHash(STRING* pType, UDWORD HashedID)
 }
 
 /* Return the resource for a type and ID */
-void* resGetData(STRING* pType, STRING* pID)
+void* resGetData(const STRING* pType, const STRING* pID)
 {
   RES_TYPE* psT;
   RES_DATA* psRes;
@@ -733,7 +733,7 @@ return FALSE;
 #endif
 
 /* Simply returns true if a resource is present */
-BOOL resPresent(STRING* pType, STRING* pID)
+BOOL resPresent(const STRING* pType, const STRING* pID)
 {
   RES_TYPE* psT;
   RES_DATA* psRes;

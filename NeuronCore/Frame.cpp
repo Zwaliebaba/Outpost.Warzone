@@ -787,7 +787,7 @@ static SDWORD WDGCacheEndPos = -1;
  * Accepts string and returns hashed integer.
  */
 /***************************************************************************/
-UINT HashString(char* String)
+UINT HashString(const char* String)
 {
   UINT iHashValue, i;
   auto c = String;
@@ -806,7 +806,7 @@ UINT HashString(char* String)
   return iHashValue;
 }
 
-UINT HashStringIgnoreCase(char* String)
+UINT HashStringIgnoreCase(const char* String)
 {
   UINT iHashValue, i;
   auto c = String;

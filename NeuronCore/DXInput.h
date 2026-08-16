@@ -35,6 +35,6 @@ extern BOOL DInpMouseAcc(UDWORD aquireType);
 extern BOOL DInpGetMouseState(SDWORD* pX, SDWORD* pY, SDWORD* pButtons);
 
 // convert a direct input error to a string
-extern STRING* DIErrorToString(HRESULT dierror);
+extern const STRING* DIErrorToString(HRESULT dierror);
 
 #endif
