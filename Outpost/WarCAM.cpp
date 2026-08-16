@@ -9,6 +9,8 @@
 	Alex M. */
 #include "stdio.h"
 #include "Frame.h"
+#include "Trig.h"
+#include "Input.h"
 #include "Geo.h"
 #include "RenderTypes.h"
 #include "Objects.h"
@@ -29,7 +31,6 @@
 #include "Order.h"
 #include "Action.h"
 #include "IntDisplay.h"
-#include "E3Demo.h"
 #include "RayCast.h"
 #include "Display3D.h"
 #ifndef PAUL
@@ -767,10 +768,7 @@ BOOL camTrackCamera(void)
 
   /* Most importantly - see if the target we're tracking is dead! */
   if (trackingCamera.target->died)
-  {
-    setFindNewTarget();
     return (FALSE);
-  }
 
   /*	Cancel tracking if it's no longer selected.
     This may not be desirable? 	*/
@@ -890,9 +888,6 @@ void processLeaderSelection(void)
   BOOL bSuccess;
   UDWORD dif;
   UDWORD bestSoFar;
-
-  if (demoGetStatus())
-    return;
 
   if (getWarCamStatus())
   {

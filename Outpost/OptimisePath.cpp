@@ -8,6 +8,7 @@
 
 // -------------------------------------------------------------------------
 #include "Frame.h"
+#include "Trig.h"
 #include "Base.h"
 #include "Move.h"
 #include "Map.h"

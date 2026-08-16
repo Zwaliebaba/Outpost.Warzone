@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <Math.h>
 #include "Frame.h"
+#include "Trig.h"
 
 #ifdef DEBUG
 BOOL moveDoMessage;

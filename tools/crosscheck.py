@@ -34,7 +34,35 @@ DEFS = ['WIN32', 'NDEBUG' if RELEASE else '_DEBUG',
         # an MSVC intrinsic, and the release half of Debug.h is built on it
         '__noop(...)=((void)0)']
 
-SKIP = re.compile(r'^(DX9|GameData|Docs|tools)/')
+SKIP = re.compile(r'^(GameData|Docs|tools|packages)/')
+
+# The projects mingw can syntax-check. NeuronCoreTest is deliberately absent:
+# it is built on MSVC's CppUnitTest framework, which does not ship for mingw
+# and is not worth stubbing. DX9/Include held the vendored DirectX SDK headers
+# and NetTest was the console harness; both are gone from the tree.
+PROJECTS = ('NeuronCore', 'Outpost', 'NeuronClient', 'NeuronServer')
+
+
+def sibling_includes(proj):
+    """The sibling projects proj compiles against, read from its .vcxproj.
+
+    Taken from AdditionalIncludeDirectories rather than hardcoded, so a file
+    moving between projects does not silently take the harness out of step
+    with MSVC -- which is exactly what happened when the client layer moved
+    from NeuronCore to NeuronClient.
+    """
+    path = os.path.join(ROOT, proj, f'{proj}.vcxproj')
+    try:
+        text = open(path, encoding='utf-8').read()
+    except OSError:
+        return []
+    found = []
+    for block in re.findall(r'<AdditionalIncludeDirectories>([^<]*)<', text):
+        for entry in block.split(';'):
+            name = entry.strip().replace('\\', '/').rstrip('/').rsplit('/', 1)[-1]
+            if name in PROJECTS and name != proj and name not in found:
+                found.append(name)
+    return found
 
 # MSVC-only headers that ship with the Concurrency Runtime. NeuronCore.h
 # includes them but nothing uses them, so an empty stub is enough for GCC.
@@ -51,7 +79,7 @@ STUBDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'stubs')
 
 def sources():
     out = []
-    for proj in ('NeuronCore', 'Outpost', 'NetTest'):
+    for proj in PROJECTS:
         for f in sorted(os.listdir(os.path.join(ROOT, proj))):
             if f.endswith('.cpp'):
                 out.append(f'{proj}/{f}')
@@ -61,7 +89,7 @@ def sources():
 def build_shadow(dst):
     """Copy the tree, then apply the neutralisations."""
     real = {}
-    for proj in ('NeuronCore', 'Outpost', 'NetTest', 'DX9/Include', 'DX9/Include/DShowIDL'):
+    for proj in PROJECTS:
         src = os.path.join(ROOT, proj)
         if not os.path.isdir(src):
             continue
@@ -96,7 +124,7 @@ def build_shadow(dst):
             for f in sorted(files):
                 shutil.copy2(os.path.join(root, f), os.path.join(out, f))
 
-    for proj in ('NeuronCore', 'Outpost', 'NetTest'):
+    for proj in PROJECTS:
         d = os.path.join(dst, proj)
         for f in os.listdir(d):
             if not f.endswith(('.cpp', '.h')):
@@ -111,9 +139,9 @@ def build_shadow(dst):
 
             # Include case: MSVC resolves case-insensitively, the shadow is on
             # a case-sensitive filesystem, so rewrite to the real name.
-            def fix(m):
+            def fix(m, proj=proj):
                 name = m.group(2)
-                for where in (proj, 'NeuronCore', 'DX9/Include'):
+                for where in (proj, *sibling_includes(proj)):
                     hit = real.get(where, {}).get(name.lower())
                     if hit and hit != name:
                         return m.group(1) + hit + m.group(3)
@@ -129,7 +157,7 @@ def system_includes(dst):
     """Every name included anywhere in the shadow, lower-cased key aside."""
     names = set()
     pat = re.compile(r'#\s*include\s*[<"]([^">]+)[">]')
-    for proj in ('NeuronCore', 'Outpost', 'NetTest'):
+    for proj in PROJECTS:
         d = os.path.join(dst, proj)
         for f in os.listdir(d):
             if f.endswith(('.cpp', '.h')):
@@ -154,12 +182,10 @@ PERMISSIVE_HIDES = re.compile(r'(invalid conversion|cannot convert).*\[-fpermiss
 
 def check(shadow, rel):
     proj = rel.split('/')[0]
-    inc = ['-I', os.path.join(shadow, proj), '-I', os.path.join(shadow, 'DX9/Include'),
-           '-I', os.path.join(shadow, 'stubs')]
-    if proj in ('Outpost', 'NetTest'):
-        inc += ['-I', os.path.join(shadow, 'NeuronCore')]
-    # NetTest is the console harness, and only it defines this.
-    defs = DEFS + (['NEURON_TRACE_TO_STDERR'] if proj == 'NetTest' else [])
+    inc = ['-I', os.path.join(shadow, proj), '-I', os.path.join(shadow, 'stubs')]
+    for sib in sibling_includes(proj):
+        inc += ['-I', os.path.join(shadow, sib)]
+    defs = DEFS
     # no -w, so the downgraded diagnostics are still printed
     cmd = [CXX, '-fsyntax-only', '-std=c++23', '-fpermissive',
            '-fms-extensions', '-w', '-Wno-everything'] + \
@@ -174,8 +200,7 @@ def check(shadow, rel):
     # Only our own files are judged. The vendored msquic headers trip this on
     # a mingw-vs-SDK signature difference in RtlIpv4StringToAddressA, which is
     # a gap in mingw rather than anything MSVC would reject.
-    ours = (os.path.join(shadow, 'NeuronCore'), os.path.join(shadow, 'Outpost'),
-            os.path.join(shadow, 'NetTest'))
+    ours = tuple(os.path.join(shadow, p) for p in PROJECTS)
     hidden = [l for l in r2.stderr.splitlines()
               if PERMISSIVE_HIDES.search(l) and l.startswith(ours)]
     if hidden:

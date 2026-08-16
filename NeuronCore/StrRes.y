@@ -16,9 +16,6 @@ static int printf(char* c, ...)
 }
 #endif
 
-/* Allow frame header files to be singly included */
-#define FRAME_LIB_INCLUDE
-
 #include "Types.h"
 #include "Debug.h"
 #include "Mem.h"
@@ -63,7 +60,7 @@ line:			TEXT QTEXT
  * A simple error reporting routine
  */
 
-void strres_error(char *pMessage,...)
+void strres_error(const char *pMessage,...)
 {
 	int		line;
 	char	*pText;

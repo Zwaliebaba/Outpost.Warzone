@@ -1,34 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClInclude Include="DXError.h">
+                <ClInclude Include="Frame.h">
       <Filter>Framework</Filter>
     </ClInclude>
-    <ClInclude Include="DXInput.h">
+            <ClInclude Include="FrameResource.h">
       <Filter>Framework</Filter>
     </ClInclude>
-    <ClInclude Include="Font.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="FrameInt.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="FrameResource.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="Image.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="Input.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="ListMacs.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="MultiWDG.h">
+                <ClInclude Include="MultiWDG.h">
       <Filter>Framework</Filter>
     </ClInclude>
     <ClInclude Include="ResLY.h">
@@ -37,10 +16,7 @@
     <ClInclude Include="resource_y.h">
       <Filter>Framework</Filter>
     </ClInclude>
-    <ClInclude Include="Screen.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="StrRes.h">
+        <ClInclude Include="StrRes.h">
       <Filter>Framework</Filter>
     </ClInclude>
     <ClInclude Include="StrRes_y.h">
@@ -49,10 +25,7 @@
     <ClInclude Include="StrResLY.h">
       <Filter>Framework</Filter>
     </ClInclude>
-    <ClInclude Include="Surface.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="Treap.h">
+        <ClInclude Include="Treap.h">
       <Filter>Framework</Filter>
     </ClInclude>
     <ClInclude Include="TreapInt.h">
@@ -67,31 +40,13 @@
     <ClInclude Include="WDG.h">
       <Filter>Framework</Filter>
     </ClInclude>
-    <ClInclude Include="Ani.h">
-      <Filter>Gamelib</Filter>
-    </ClInclude>
-    <ClInclude Include="Anim.h">
-      <Filter>Gamelib</Filter>
-    </ClInclude>
-    <ClInclude Include="AnimObj.h">
-      <Filter>Gamelib</Filter>
-    </ClInclude>
-    <ClInclude Include="GTime.h">
+                <ClInclude Include="GTime.h">
       <Filter>Gamelib</Filter>
     </ClInclude>
     <ClInclude Include="HashTabl.h">
       <Filter>Gamelib</Filter>
     </ClInclude>
-    <ClInclude Include="MaxPiDef.h">
-      <Filter>Gamelib</Filter>
-    </ClInclude>
-    <ClInclude Include="Parser.h">
-      <Filter>Gamelib</Filter>
-    </ClInclude>
-    <ClInclude Include="parser_y.h">
-      <Filter>Gamelib</Filter>
-    </ClInclude>
-    <ClInclude Include="PQueue.h">
+                <ClInclude Include="PQueue.h">
       <Filter>Gamelib</Filter>
     </ClInclude>
     <ClInclude Include="Priority.h">
@@ -100,82 +55,7 @@
     <ClInclude Include="PtrList.h">
       <Filter>Gamelib</Filter>
     </ClInclude>
-    <ClInclude Include="BitImage.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="BSPFunc.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="BSPIMD.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Render.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="D3D9Vertex.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="TexMan.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Fbf.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Geo.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="IMD.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Model.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderModel.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="IvisPatch.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Pcx.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Render2D.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderClip.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="PieFunc.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderMatrix.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="PieMode.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Palette.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="PieState.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderTypes.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="RendFunc.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="RendMode.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Tex.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="TextDraw.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="HostCertificate.h">
+                                                                                                        <ClInclude Include="HostCertificate.h">
       <Filter>NetPlay</Filter>
     </ClInclude>
     <ClInclude Include="NetPlay.h">
@@ -190,53 +70,22 @@
     <ClInclude Include="Debug.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="NeuronCore.h" />
-    <ClInclude Include="AudioMixer.h" />
-    <ClInclude Include="AudioSystem.h" />
-    <ClInclude Include="Bar.h" />
-    <ClInclude Include="Button.h" />
-    <ClInclude Include="CodePrint.h" />
-    <ClInclude Include="EditBox.h" />
-    <ClInclude Include="Event.h" />
-    <ClInclude Include="EvntSave.h" />
-    <ClInclude Include="Form.h" />
-    <ClInclude Include="Interp.h" />
-    <ClInclude Include="Label.h" />
-    <ClInclude Include="Parse.h" />
+                    <ClInclude Include="CodePrint.h" />
+        <ClInclude Include="Event.h" />
+        <ClInclude Include="Interp.h" />
+        <ClInclude Include="Parse.h" />
     <ClInclude Include="Script.h" />
     <ClInclude Include="Script_y.h" />
-    <ClInclude Include="Sequence.h" />
-    <ClInclude Include="Slider.h" />
-    <ClInclude Include="Stack.h" />
-    <ClInclude Include="Tip.h" />
-    <ClInclude Include="Track.h" />
-    <ClInclude Include="WavData.h" />
-    <ClInclude Include="WidgBase.h" />
-    <ClInclude Include="Widget.h" />
-    <ClInclude Include="WidgInt.h" />
-  </ItemGroup>
+            <ClInclude Include="Stack.h" />
+                              </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DXError.cpp">
+                <ClCompile Include="Frame.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
-    <ClCompile Include="DXInput.cpp">
+            <ClCompile Include="FrameResource.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
-    <ClCompile Include="Font.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="Frame.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="Image.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="FrameResource.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="Input.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="MultiWDG.cpp">
+        <ClCompile Include="MultiWDG.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
     <ClCompile Include="resource_l.cpp">
@@ -260,52 +109,10 @@
     <ClCompile Include="StrRes_y.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
-    <ClCompile Include="Surface.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="Bar.cpp">
-      <Filter>Widget</Filter>
-    </ClCompile>
-    <ClCompile Include="Button.cpp">
-      <Filter>Widget</Filter>
-    </ClCompile>
-    <ClCompile Include="EditBox.cpp">
-      <Filter>Widget</Filter>
-    </ClCompile>
-    <ClCompile Include="Form.cpp">
-      <Filter>Widget</Filter>
-    </ClCompile>
-    <ClCompile Include="Label.cpp">
-      <Filter>Widget</Filter>
-    </ClCompile>
-    <ClCompile Include="Slider.cpp">
-      <Filter>Widget</Filter>
-    </ClCompile>
-    <ClCompile Include="Tip.cpp">
-      <Filter>Widget</Filter>
-    </ClCompile>
-    <ClCompile Include="Widget.cpp">
-      <Filter>Widget</Filter>
-    </ClCompile>
-    <ClCompile Include="AudioMixer.cpp">
-      <Filter>Sound</Filter>
-    </ClCompile>
-    <ClCompile Include="AudioSystem.cpp">
-      <Filter>Sound</Filter>
-    </ClCompile>
-    <ClCompile Include="WavData.cpp">
-      <Filter>Sound</Filter>
-    </ClCompile>
-    <ClCompile Include="Sequence.cpp">
-      <Filter>Sequence</Filter>
-    </ClCompile>
-    <ClCompile Include="CodePrint.cpp">
+                                                        <ClCompile Include="CodePrint.cpp">
       <Filter>Script</Filter>
     </ClCompile>
     <ClCompile Include="Event.cpp">
-      <Filter>Script</Filter>
-    </ClCompile>
-    <ClCompile Include="EvntSave.cpp">
       <Filter>Script</Filter>
     </ClCompile>
     <ClCompile Include="Interp.cpp">
@@ -335,42 +142,16 @@
     <ClCompile Include="Transport.cpp">
       <Filter>NetPlay</Filter>
     </ClCompile>
-    <ClCompile Include="Anim.cpp" />
-    <ClCompile Include="AnimObj.cpp" />
-    <ClCompile Include="BitImage.cpp" />
-    <ClCompile Include="BSPIMD.cpp" />
-    <ClCompile Include="Fbf.cpp" />
-    <ClCompile Include="GTime.cpp" />
+                        <ClCompile Include="GTime.cpp" />
     <ClCompile Include="HashTabl.cpp" />
-    <ClCompile Include="IMD.cpp" />
-    <ClCompile Include="IMDLoad.cpp" />
-    <ClCompile Include="NetSupp.cpp" />
+            <ClCompile Include="NetSupp.cpp" />
     <ClCompile Include="NetUsers.cpp" />
-    <ClCompile Include="parser_l.cpp" />
-    <ClCompile Include="parser_y.cpp" />
-    <ClCompile Include="pch.cpp" />
-    <ClCompile Include="Pcx.cpp" />
-    <ClCompile Include="Render2D.cpp" />
-    <ClCompile Include="RenderClip.cpp" />
-    <ClCompile Include="RenderModel.cpp" />
-    <ClCompile Include="PieFunc.cpp" />
-    <ClCompile Include="RenderMatrix.cpp" />
-    <ClCompile Include="PieMode.cpp" />
-    <ClCompile Include="Palette.cpp" />
-    <ClCompile Include="PQueue.cpp" />
+            <ClCompile Include="pch.cpp" />
+                                    <ClCompile Include="PQueue.cpp" />
     <ClCompile Include="PtrList.cpp" />
-    <ClCompile Include="RendFunc.cpp" />
-    <ClCompile Include="RendMode.cpp" />
-    <ClCompile Include="Screen.cpp" />
-    <ClCompile Include="Stack.cpp" />
-    <ClCompile Include="Tex.cpp" />
-    <ClCompile Include="TexMan.cpp" />
-    <ClCompile Include="TextDraw.cpp" />
-    <ClCompile Include="WDG.cpp" />
-    <ClCompile Include="Render.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
-  </ItemGroup>
+                <ClCompile Include="Stack.cpp" />
+                <ClCompile Include="WDG.cpp" />
+          </ItemGroup>
   <ItemGroup>
     <Filter Include="Framework">
       <UniqueIdentifier>{b6512305-8326-4d86-aa65-1b1483f45df9}</UniqueIdentifier>

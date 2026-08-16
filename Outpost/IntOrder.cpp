@@ -3,6 +3,7 @@
 #include <math.h>
 
 #include "Frame.h"
+#include "StrRes.h"
 #include "Widget.h"
 #include "Objects.h"
 #include "Loop.h"

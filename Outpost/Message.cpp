@@ -8,6 +8,8 @@
 #include <stdio.h>
 
 #include "Frame.h"
+#include "FrameResource.h"
+#include "StrRes.h"
 #include "Message.h"
 #include "Stats.h"
 #include "Text.h"

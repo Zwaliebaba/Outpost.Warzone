@@ -8,6 +8,8 @@
 
 #include "stdio.h"
 #include "Frame.h"
+#include "Window.h"
+#include "FrameResource.h"
 #include "Init.h"
 #include "Mechanics.h"
 #include "Objects.h"
@@ -1341,8 +1343,7 @@ BOOL stageThreeInitialise(void)
 
   setAllPauseStates(FALSE);
 
-  if (getLevelLoadType() != GTYPE_SAVE_MIDMISSION)
-    eventFireCallbackTrigger(CALL_GAMEINIT);
+  eventFireCallbackTrigger(CALL_GAMEINIT);
 
   return TRUE;
 }
@@ -1423,39 +1424,6 @@ BOOL campaignReset(void)
   return TRUE;
 }
 
-// Reset the game when loading a save game
-BOOL saveGameReset(void)
-{
-  Neuron::DebugTrace("saveGameReset\n");
-
-  Music::Stop();
-
-  /* in stageThreeSgutDown now
-  if (!missionShutDown())
-  {
-    return FALSE;
-  }*/
-
-  freeAllStructs();
-  freeAllDroids();
-  freeAllFeatures();
-  freeAllFlagPositions();
-  initMission();
-  initTransporters();
-  //free up the gateway stuff?
-  gwShutDown();
-  intResetScreen(TRUE);
-  intResetPreviousObj();
-
-  if (!mapShutdown())
-    return FALSE;
-
-  //clear out any messages
-  freeMessages();
-
-  return TRUE;
-}
-
 BOOL newMapInitialise(void)
 {
   Neuron::DebugTrace("newMapInitialise\n");
@@ -1480,11 +1448,7 @@ BOOL newMapInitialise(void)
 void initMiscVars(void)
 {
   selectedPlayer = 0;
-#ifndef NON_INTERACT
   godMode = FALSE;
-#else
-  godMode = TRUE;
-#endif
 
   setBlipDraw(TRUE);
   setProximityDraw(TRUE);

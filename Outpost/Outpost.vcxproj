@@ -12,8 +12,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\NeuronClient\NeuronClient.vcxproj">
+      <Project>{f87f56ff-d6de-4ff1-a232-f4ae636410e8}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\NeuronCore\NeuronCore.vcxproj">
       <Project>{484036c5-f0ea-4673-aae1-f13e38660999}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\NeuronServer\NeuronServer.vcxproj">
+      <Project>{1e5ccd3c-6863-4b9b-9607-8ce6b2baf4c3}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -46,7 +52,6 @@
     <ClCompile Include="Display3D.cpp" />
     <ClCompile Include="Drive.cpp" />
     <ClCompile Include="Droid.cpp" />
-    <ClCompile Include="E3Demo.cpp" />
     <ClCompile Include="Edit2D.cpp" />
     <ClCompile Include="Edit3D.cpp" />
     <ClCompile Include="Effects.cpp" />
@@ -76,7 +81,7 @@
     <ClCompile Include="Levels.cpp" />
     <ClCompile Include="Level_l.cpp" />
     <ClCompile Include="Lighting.cpp" />
-    <ClCompile Include="LoadSave.cpp" />
+    <ClCompile Include="FileRequester.cpp" />
     <ClCompile Include="Loop.cpp" />
     <ClCompile Include="LOSRoute.cpp" />
     <ClCompile Include="Map.cpp" />
@@ -177,7 +182,6 @@
     <ClInclude Include="Drive.h" />
     <ClInclude Include="Droid.h" />
     <ClInclude Include="DroidDef.h" />
-    <ClInclude Include="E3Demo.h" />
     <ClInclude Include="Edit2D.h" />
     <ClInclude Include="Edit3D.h" />
     <ClInclude Include="Effects.h" />
@@ -214,7 +218,7 @@
     <ClInclude Include="LevelInt.h" />
     <ClInclude Include="Levels.h" />
     <ClInclude Include="Lighting.h" />
-    <ClInclude Include="LoadSave.h" />
+    <ClInclude Include="FileRequester.h" />
     <ClInclude Include="Loop.h" />
     <ClInclude Include="LOSRoute.h" />
     <ClInclude Include="Map.h" />
@@ -328,7 +332,7 @@
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;DIRECTINPUT_VERSION=0x0800;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\NeuronCore;$(MSBuildThisFileDirectory)..\DX9\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\NeuronCore;$(MSBuildThisFileDirectory)..\NeuronClient;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ConformanceMode>false</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -337,7 +341,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)..\DX9\Lib;$(MSBuildThisFileDirectory)..\NeuronCore;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>d3d9.lib;dxguid.lib;dinput8.lib;ole32.lib;wsock32.lib;comdlg32.lib;xaudio2.lib;mfplat.lib;mfreadwrite.lib;mfuuid.lib;crypt32.lib;ncrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <!-- dinput8.lib in DX9\Lib predates SafeSEH: dilib1.obj carries no
            exception handler table, so /SAFESEH cannot be satisfied (LNK2026 ->
@@ -362,7 +366,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;DIRECTINPUT_VERSION=0x0800;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\NeuronCore;$(MSBuildThisFileDirectory)..\DX9\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\NeuronCore;$(MSBuildThisFileDirectory)..\NeuronClient;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ConformanceMode>false</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>

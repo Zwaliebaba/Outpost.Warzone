@@ -10,6 +10,7 @@
 #include <math.h>
 
 #include "Frame.h"
+#include "FrameResource.h"
 #include "Widget.h"
 
 #include "Objects.h"

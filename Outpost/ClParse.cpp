@@ -9,6 +9,7 @@
 #include "Direct.h"
 
 #include "Frame.h"
+#include "FrameResource.h"
 #include "Widget.h"
 
 #include "WinMain.h"
@@ -19,7 +20,6 @@
 
 #include "ClParse.h"
 #include "PieState.h"
-#include "LoadSave.h"
 #include "Objects.h"
 #include "AdvVis.h"
 #include "MultiPlay.h"
@@ -63,16 +63,13 @@ BOOL ParseCommandLine(LPSTR psCmdLine)
 #ifdef	_DEBUG
       clStartWindowed = TRUE;
 #else
-#ifndef COVERMOUNT
       clStartWindowed = TRUE;
-#endif
 #endif
     }
     else if (stricmp(tokenType, "-intro") == 0)
       SetGameMode(GS_VIDEO_MODE);
     else if (stricmp(tokenType, "-title") == 0)
       SetGameMode(GS_TITLE_SCREEN);
-#ifndef NON_INTERACT
     else if (stricmp(tokenType, "-game") == 0)
     {
       // find the game name
@@ -85,20 +82,6 @@ BOOL ParseCommandLine(LPSTR psCmdLine)
       strncpy(pLevelName, token, 254);
       SetGameMode(GS_NORMAL);
     }
-    else if (stricmp(tokenType, "-savegame") == 0)
-    {
-      // find the game name
-      token = strtok(nullptr, seps);
-      if (token == nullptr)
-      {
-        Neuron::Fatal("Unrecognised -savegame name\n");
-        return FALSE;
-      }
-      strcpy(saveGameName, "savegame\\");
-      strncat(saveGameName, token, 240);
-      SetGameMode(GS_SAVEGAMELOAD);
-    }
-#endif
     else if (stricmp(tokenType, "-datapath") == 0)
     {
       // find the quoted path name
@@ -206,9 +189,6 @@ BOOL ParseCommandLine(LPSTR psCmdLine)
   }
 
   // look for any gamespy flags in the command line.
-#ifdef NON_INTERACT
-  SetGameMode(GS_NORMAL);
-#endif
 
   return TRUE;
 }

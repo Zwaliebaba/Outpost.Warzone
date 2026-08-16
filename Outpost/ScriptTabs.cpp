@@ -41,23 +41,23 @@
  * The access type controls whether the type is a simple data type or an object type.
  */
 TYPE_SYMBOL asTypeTable[] = {
-  {ST_INTMESSAGE, AT_SIMPLE, "INTMESSAGE", scrValDefSave, scrValDefLoad},
-  {ST_BASEOBJECT, AT_OBJECT, "BASEOBJ", scrValDefSave, scrValDefLoad}, {ST_DROID, AT_OBJECT, "DROID", scrValDefSave, scrValDefLoad},
-  {ST_STRUCTURE, AT_OBJECT, "STRUCTURE", scrValDefSave, scrValDefLoad}, {ST_FEATURE, AT_OBJECT, "FEATURE", scrValDefSave, scrValDefLoad},
-  {ST_BASESTATS, AT_SIMPLE, "BASESTATS", scrValDefSave, scrValDefLoad},
+  {ST_INTMESSAGE, AT_SIMPLE, "INTMESSAGE"},
+  {ST_BASEOBJECT, AT_OBJECT, "BASEOBJ"}, {ST_DROID, AT_OBJECT, "DROID"},
+  {ST_STRUCTURE, AT_OBJECT, "STRUCTURE"}, {ST_FEATURE, AT_OBJECT, "FEATURE"},
+  {ST_BASESTATS, AT_SIMPLE, "BASESTATS"},
 
   // Component types
-  {ST_COMPONENT, AT_SIMPLE, "COMPONENT", scrValDefSave, scrValDefLoad}, {ST_BODY, AT_SIMPLE, "BODY", scrValDefSave, scrValDefLoad},
-  {ST_PROPULSION, AT_SIMPLE, "PROPULSION", scrValDefSave, scrValDefLoad}, {ST_ECM, AT_SIMPLE, "ECM", scrValDefSave, scrValDefLoad},
-  {ST_SENSOR, AT_SIMPLE, "SENSOR", scrValDefSave, scrValDefLoad}, {ST_CONSTRUCT, AT_SIMPLE, "CONSTRUCT", scrValDefSave, scrValDefLoad},
-  {ST_WEAPON, AT_SIMPLE, "WEAPON", scrValDefSave, scrValDefLoad}, {ST_REPAIR, AT_SIMPLE, "REPAIR", scrValDefSave, scrValDefLoad},
-  {ST_BRAIN, AT_SIMPLE, "BRAIN", scrValDefSave, scrValDefLoad}, {ST_TEMPLATE, AT_SIMPLE, "TEMPLATE", scrValDefSave, scrValDefLoad},
-  {ST_STRUCTUREID, AT_SIMPLE, "STRUCTUREID", scrValDefSave, scrValDefLoad},
-  {ST_STRUCTURESTAT, AT_SIMPLE, "STRUCTURESTAT", scrValDefSave, scrValDefLoad},
-  {ST_FEATURESTAT, AT_SIMPLE, "FEATURESTAT", scrValDefSave, scrValDefLoad},
-  {ST_DROIDID, AT_SIMPLE, "DROIDID", scrValDefSave, scrValDefLoad}, {ST_TEXTSTRING, AT_SIMPLE, "TEXTSTRING", scrValDefSave, scrValDefLoad},
-  {ST_SOUND, AT_SIMPLE, "SOUND", scrValDefSave, scrValDefLoad}, {ST_LEVEL, AT_SIMPLE, "LEVEL", scrValDefSave, scrValDefLoad},
-  {ST_GROUP, AT_OBJECT, "GROUP", scrValDefSave, scrValDefLoad}, {ST_RESEARCH, AT_SIMPLE, "RESEARCHSTAT", scrValDefSave, scrValDefLoad},
+  {ST_COMPONENT, AT_SIMPLE, "COMPONENT"}, {ST_BODY, AT_SIMPLE, "BODY"},
+  {ST_PROPULSION, AT_SIMPLE, "PROPULSION"}, {ST_ECM, AT_SIMPLE, "ECM"},
+  {ST_SENSOR, AT_SIMPLE, "SENSOR"}, {ST_CONSTRUCT, AT_SIMPLE, "CONSTRUCT"},
+  {ST_WEAPON, AT_SIMPLE, "WEAPON"}, {ST_REPAIR, AT_SIMPLE, "REPAIR"},
+  {ST_BRAIN, AT_SIMPLE, "BRAIN"}, {ST_TEMPLATE, AT_SIMPLE, "TEMPLATE"},
+  {ST_STRUCTUREID, AT_SIMPLE, "STRUCTUREID"},
+  {ST_STRUCTURESTAT, AT_SIMPLE, "STRUCTURESTAT"},
+  {ST_FEATURESTAT, AT_SIMPLE, "FEATURESTAT"},
+  {ST_DROIDID, AT_SIMPLE, "DROIDID"}, {ST_TEXTSTRING, AT_SIMPLE, "TEXTSTRING"},
+  {ST_SOUND, AT_SIMPLE, "SOUND"}, {ST_LEVEL, AT_SIMPLE, "LEVEL"},
+  {ST_GROUP, AT_OBJECT, "GROUP"}, {ST_RESEARCH, AT_SIMPLE, "RESEARCHSTAT"},
 
   //private types for code - NOT used in the scripts - hence the ""
   {ST_POINTER_O, AT_OBJECT, ""}, {ST_POINTER_T, AT_SIMPLE, ""}, {ST_POINTER_S, AT_SIMPLE, ""},
@@ -427,13 +427,9 @@ CONST_SYMBOL asConstantTable[] = {
   {"OBJ_FEATURE", VAL_INT, 0, OBJ_FEATURE, nullptr},
   //mission Types
   {"CAMP_START", VAL_INT, 0, LDS_CAMSTART, nullptr},
-#ifndef COVERMOUNT
   {"CAMP_EXPAND", VAL_INT, 0, LDS_EXPAND, nullptr},
-#endif
   {"OFF_KEEP", VAL_INT, 0, LDS_MKEEP, nullptr},
-#ifndef COVERMOUNT
   {"OFF_CLEAR", VAL_INT, 0, LDS_MCLEAR, nullptr},
-#endif
   {"BETWEEN", VAL_INT, 0, LDS_BETWEEN, nullptr},
   // droid types
   {"DROID_WEAPON", VAL_INT, 0, DROID_WEAPON, nullptr}, {"DROID_SENSOR", VAL_INT, 0, DROID_SENSOR, nullptr},

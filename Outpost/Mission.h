@@ -38,7 +38,6 @@ extern void setMissionCountDown(void);
 extern BOOL startMission(UDWORD missionType, STRING* pGame);
 extern void endMission(void);
 // initialise the mission stuff for a save game
-extern BOOL startMissionSave(SDWORD missionType);
 
 //sets up the game to start a new mission
 extern BOOL setUpMission(UDWORD type);
@@ -69,7 +68,6 @@ extern void swapMissionPointers(void);
 #define		IDTIMER_DISPLAY			11001
 #define		IDMISSIONRES_FORM		11002
 #define     IDMISSIONRES_QUIT		11007
-#define     IDMISSIONRES_SAVE		11006
 
 //timer display for transporter timer
 #define		IDTRANTIMER_DISPLAY		11010

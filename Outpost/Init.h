@@ -26,6 +26,5 @@ extern BOOL newMapInitialise(void);
 // Reset the game between campaigns
 extern BOOL campaignReset(void);
 // Reset the game when loading a save game
-extern BOOL saveGameReset(void);
 
 #endif

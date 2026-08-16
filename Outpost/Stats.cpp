@@ -9,6 +9,8 @@
 #include <assert.h>
 
 #include "Frame.h"
+#include "FrameResource.h"
+#include "StrRes.h"
 #include "Objects.h"
 #include "Stats.h"
 #include "Map.h"

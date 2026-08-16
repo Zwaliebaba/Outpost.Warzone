@@ -69,14 +69,6 @@ typedef struct
   BOOL bComms; // actually do the comms?
   BOOL bHost; // TRUE if we are hosting the session
 
-  /* Always FALSE. NetLobby.cpp went in step 4 and nothing sets this any more,
-   * but a dozen branches across MultiInt, MultiJoin, MultiOpt, WinMain and
-   * Wrappers still test it. Collapsing those is a dead-code sweep through the
-   * front end rather than part of the transport swap, and doing it blind is
-   * how a menu flow breaks quietly, so it is left for its own change.
-   */
-  BOOL bLobbyLaunched;
-
   UDWORD cryptKey[4]; // 4*32 bit key, now only for the stats file and hashes
 } NETPLAY, *LPNETPLAY;
 
@@ -143,7 +135,7 @@ extern UDWORD NETplayerInfo(VOID); // count players in this game.
 extern BOOL NETchangePlayerName(NETPLAYERID dpid, char* newName); // change a players name.
 
 //from netsupp
-extern BOOL NETlogEntry(CHAR* str, UDWORD a, UDWORD b);
+extern BOOL NETlogEntry(const CHAR* str, UDWORD a, UDWORD b);
 extern BOOL NETstopLogging(VOID);
 extern BOOL NETstartLogging(VOID);
 

@@ -8,6 +8,8 @@
  */
 
 #include "Frame.h"
+#include "StrRes.h"
+#include "Input.h"
 #include "Map.h"
 
 #include "Stats.h"									// for templates.

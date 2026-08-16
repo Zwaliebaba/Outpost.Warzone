@@ -15,6 +15,7 @@
 // ////////////////////////////////////////////////////////////////////////
 // Includes
 #include "Frame.h"
+#include "GTime.h"
 #include "NetPlay.h"
 
 #include <time.h>
@@ -25,7 +26,7 @@ static FILE* pFileHandle;
 // Prototypes
 BOOL NETstartLogging(VOID);
 BOOL NETstopLogging(VOID);
-BOOL NETlogEntry(CHAR* str, UDWORD a, UDWORD b);
+BOOL NETlogEntry(const CHAR* str, UDWORD a, UDWORD b);
 
 // ////////////////////////////////////////////////////////////////////////
 // Logging for degug only
@@ -51,7 +52,7 @@ BOOL NETstopLogging()
   return TRUE;
 }
 
-BOOL NETlogEntry(CHAR* str, UDWORD a, UDWORD b)
+BOOL NETlogEntry(const CHAR* str, UDWORD a, UDWORD b)
 {
 #ifdef LOG
   static UDWORD lastframe = 0; UDWORD frame = frameGetFrameNumber(); time_t aclock; struct tm* newtime;

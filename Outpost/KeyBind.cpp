@@ -1,5 +1,8 @@
 #include "pch.h"
 #include "Frame.h"
+#include "GTime.h"
+#include "StrRes.h"
+#include "Input.h"
 #include "Objects.h"
 #include "Base.h"
 #include "Map.h"
@@ -26,7 +29,6 @@
 #include "Geometry.h"
 #include "Radar.h"
 #include "Cheat.h"
-#include "E3Demo.h"	// will this be on PSX?
 #include "NetPlay.h"
 #include "MultiPlay.h"
 #include "MultiMenu.h"
@@ -800,7 +802,6 @@ void kf_SelectGrouping(void)
 
   // Tell the driving system that the selection may have changed.
   driveSelectionChanged();
-#ifndef COVERMOUNT
   /* play group audio but only if they wern't already selected - AM */
   if (Selected AND !bAlreadySelected)
   {
@@ -808,7 +809,6 @@ void kf_SelectGrouping(void)
     AudioSystem::QueueTrack(ID_SOUND_REPORTING);
     AudioSystem::QueueTrack(ID_SOUND_RADIOCLICK_1 + (rand() % 6));
   }
-#endif
 }
 
 // --------------------------------------------------------------------------
@@ -858,7 +858,6 @@ void kf_AddMissionOffWorld(void)
 #ifndef DEBUG
   if (bMultiPlayer) { return; }
 #endif
-  game_SetValidityKey(VALIDITYKEY_CTRL_M);
   eventFireCallbackTrigger(CALL_MISSION_START);
 }
 
@@ -955,7 +954,6 @@ void kf_ToggleDebugMappings(void)
     }
     else
     {
-      game_SetValidityKey(VALIDITYKEY_CHEAT_MODE);
       processDebugMappings(TRUE);
       CONPRINTF(ConsoleString, (ConsoleString,"ALL Debug Key Mappings - PERMITTED"));
       CONPRINTF(ConsoleString, (ConsoleString,"DISCLAIMER: YOU HAVE NOW CHEATED"));
@@ -977,13 +975,11 @@ void kf_ToggleGodMode(void)
   {
     godMode = FALSE;
     CONPRINTF(ConsoleString, (ConsoleString,"God Mode OFF"));
-    demoProcessTilesOut();
   }
   else
   {
     godMode = TRUE;
     CONPRINTF(ConsoleString, (ConsoleString,"God Mode ON"));
-    demoProcessTilesIn();
   }
 }
 
@@ -1063,27 +1059,6 @@ void kf_ToggleReloadBars(void)
 {
   toggleReloadBarDisplay();
   CONPRINTF(ConsoleString, (ConsoleString, strresGetString(psStringRes,STR_GAM_ENERGY ) ));
-}
-
-// --------------------------------------------------------------------------
-void kf_ToggleDemoMode(void)
-{
-  if (demoGetStatus() == FALSE)
-  {
-    /* Switch on demo mode */
-    toggleDemoStatus();
-    enableConsoleDisplay(TRUE);
-  }
-  else
-  {
-    toggleDemoStatus();
-    flushConsoleMessages();
-    setConsolePermanence(FALSE,TRUE);
-    permitNewConsoleMessages(TRUE);
-    addConsoleMessage("Demo Mode OFF - Returning to normal game mode", LEFT_JUSTIFY);
-    if (getWarCamStatus())
-      camToggleStatus();
-  }
 }
 
 // --------------------------------------------------------------------------
@@ -1221,7 +1196,7 @@ void kf_ToggleDrivingMode(void)
       StopDriverMode();
     else
     {
-      if ((driveModeActive() == FALSE) && (demoGetStatus() == FALSE) && !bMultiPlayer)
+      if ((driveModeActive() == FALSE) && !bMultiPlayer)
         StartDriverMode(nullptr);
     }
   }
@@ -1772,22 +1747,6 @@ void kf_RightOrderMenu(void)
     intResetScreen(TRUE);
     intObjectSelected((BASE_OBJECT*)psGotOne);
   }
-}
-
-// --------------------------------------------------------------------------
-void kf_ScriptTest(void)
-{
-  UBYTE* pBuffer;
-  UDWORD size;
-
-  eventSaveState(1, &pBuffer, &size);
-
-  eventReset();
-
-  eventLoadState(pBuffer, size, TRUE);
-
-  delete[] pBuffer;
-  pBuffer = nullptr;
 }
 
 // --------------------------------------------------------------------------

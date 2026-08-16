@@ -10,6 +10,7 @@
 #include <stdio.h>					// for sprintf
 
 #include "Frame.h"
+#include "StrRes.h"
 
 #include "ObjMem.h"
 #include "StatsDef.h"
@@ -267,8 +268,7 @@ BOOL MultiPlayerJoin(NETPLAYERID dpid)
 
   if (widgGetFromID(psWScreen,MULTIOP_PLAYERS)) // if in multimenu.
   {
-    if (!multiRequestUp && (bHosted || (ingame.localJoiningInProgress && !NetPlay.bLobbyLaunched) || (NetPlay.bLobbyLaunched && ingame.
-      localOptionsReceived)))
+    if (!multiRequestUp && (bHosted || ingame.localJoiningInProgress))
       addPlayerBox(TRUE); // update the player box.
   }
 
@@ -298,8 +298,7 @@ BOOL MultiPlayerJoin(NETPLAYERID dpid)
     chooseColour(i); // pick an unused colour.
 
     setupNewPlayer(dpid, i); // setup all the guff for that player.
-    if (!NetPlay.bLobbyLaunched || (NetPlay.bLobbyLaunched && bHosted))
-      sendOptions(dpid, i);
+    sendOptions(dpid, i);
 
     // if skirmish and game full, then kick... 
     if (game.type == SKIRMISH && NetPlay.playercount >= game.maxPlayers)

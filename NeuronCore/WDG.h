@@ -93,7 +93,7 @@ UBYTE* FILE_RetrieveSingle(FILE* pFileHandle, UDWORD offsetInWDG, UDWORD filesiz
 #define	WDG_RETURNCACHE	(2)	// new  - just returns as much of the file as we can in the cache
 
 // set the current WDG and it's catalogs
-void WDG_SetCurrentWDGCatalog(char* filename, UDWORD numWRF, WDGINFO* psWRFCatalog);
+void WDG_SetCurrentWDGCatalog(const char* filename, UDWORD numWRF, WDGINFO* psWRFCatalog);
 
 // set the current WRF file catalog
 void WDG_SetCurrentWRFFileCatalog(UDWORD catOffset, WRFINFO* psFileCatalog);

@@ -70,7 +70,7 @@ using TREAP = struct _treap
 /*      These should not be called directly - use the macros below                      */
 
 /* Store the location in C code at which a call to the treap was made */
-extern void treapSetCallPos(STRING* pFileName, SDWORD lineNumber);
+extern void treapSetCallPos(const STRING* pFileName, SDWORD lineNumber);
 
 /* Function type for object equality */
 

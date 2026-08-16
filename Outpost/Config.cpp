@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Frame.h"
+#include "StrRes.h"
 #include "Display.h"	// gamma
 #include "PieState.h"	// setgamma.
 #include "WarzoneConfig.h"
@@ -222,7 +223,7 @@ BOOL loadConfig(BOOL bResourceAvailable)
   if (bResourceAvailable)
   {
     // game name
-    if (!NetPlay.bLobbyLaunched && !gameSpy.bGameSpy)
+    if (!gameSpy.bGameSpy)
     {
       if (getWarzoneKeyString("gameName", (char*)&sBuf))
         strcpy(game.name, sBuf);
@@ -234,7 +235,7 @@ BOOL loadConfig(BOOL bResourceAvailable)
     }
 
     // player name
-    if (!NetPlay.bLobbyLaunched && !gameSpy.bGameSpy) // name will be set for us.
+    if (!gameSpy.bGameSpy) // name will be set for us.
     {
       if (getWarzoneKeyString("playerName", (char*)&sBuf))
         strcpy((STRING*)sPlayer, sBuf);
@@ -445,14 +446,11 @@ BOOL loadRenderMode()
     }
   }
 
-  // NVidia texel offset hacks
-  if (getWarzoneKeyNumeric("TexelOffsetOn", &val))
-    D3DSetTexelOffsetState(val);
-  else
-  {
-    D3DSetTexelOffsetState(TRUE);
-    setWarzoneKeyNumeric("TexelOffsetOn", 1);
-  }
+  /* TexelOffsetOn was read and written here. The half texel offset is
+   * unconditional now (Phase 8 stage D3), so the key is neither read nor
+   * written; an existing config file keeps working because unknown keys are
+   * skipped on read, which is the same course stage A3 took for rendMode.
+   */
 
   return closeWarzoneKey();
 }

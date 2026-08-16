@@ -6,6 +6,7 @@
  */
 
 #include "Frame.h"
+#include "StrRes.h"
 #include "Widget.h"
 
 #include "Display3D.h"
@@ -19,7 +20,6 @@
 #include "Component.h"		// for disaplycomponentobj.
 #include "HCI.h"			// for wFont def.& intmode.
 #include "Power.h"
-#include "LoadSave.h"		// for drawbluebox
 #include "Console.h"
 #include "AI.h"
 #include "CSnap.h"

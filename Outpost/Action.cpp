@@ -5,6 +5,7 @@
 #include "Findpath.h"
 #include "Formation.h"
 #include "Frame.h"
+#include "Trig.h"
 #include "GTime.h"
 #include "Geometry.h"
 #include "HCI.h"
@@ -1156,10 +1157,8 @@ void actionUpdateDroid(DROID* psDroid)
     {
       if (actionInRange(psDroid, psDroid->psActionTarget))
       {
-#ifndef COVERMOUNT
         if (psDroid->player == selectedPlayer)
           AudioSystem::QueueTrackMinDelay(ID_SOUND_COMMENCING_ATTACK_RUN2, VTOL_ATTACK_AUDIO_DELAY);
-#endif
 
         if (actionTargetTurret((BASE_OBJECT*)psDroid, psDroid->psActionTarget, &(psDroid->turretRotation), &(psDroid->turretPitch),
                                &asWeaponStats[psDroid->asWeaps->nStat], bInvert))

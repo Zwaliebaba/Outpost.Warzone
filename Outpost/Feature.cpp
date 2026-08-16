@@ -9,6 +9,7 @@
 #include <assert.h>
 
 #include "Frame.h"
+#include "FrameResource.h"
 #include "Feature.h"
 #include "Map.h"
 #include "HCI.h"

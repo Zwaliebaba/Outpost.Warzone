@@ -7,6 +7,9 @@
 #ifndef _strres_h
 #define _strres_h
 
+#include "Types.h"
+#include "Treap.h"
+
 /* A string block */
 using STR_BLOCK = struct _str_block
 {

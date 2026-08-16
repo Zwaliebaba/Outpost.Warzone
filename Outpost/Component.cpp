@@ -36,7 +36,6 @@
 #include "IntDisplay.h"
 #include "MiscIMD.h"
 #include "Effects.h"
-#include "E3Demo.h"
 #include "Transporter.h"
 #include "Projectile.h"
 #include "Findpath.h"
@@ -604,7 +603,7 @@ void displayComponentObject(BASE_OBJECT* psObj)
     addEffect(&position, EFFECT_EXPLOSION, EXPLOSION_TYPE_PLASMA,FALSE, nullptr, 0);
   }
 
-  if (godMode || (psDroid->visible[selectedPlayer] == UBYTE_MAX) OR demoGetStatus())
+  if (godMode || (psDroid->visible[selectedPlayer] == UBYTE_MAX))
   {
     //ingame not button object
     displayCompObj(psObj, &mountRotation,FALSE);

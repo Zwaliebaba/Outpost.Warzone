@@ -6,6 +6,7 @@
  */
 
 #include "Frame.h"
+#include "StrRes.h"
 #include "Text.h"
 
 /* The numbers of strings that will be loaded */

@@ -1,8 +1,5 @@
 #include "pch.h"
 
-/* Allow frame header files to be singly included */
-#define FRAME_LIB_INCLUDE
-
 #include "Types.h"
 #include "Treap.h"
 
@@ -11,7 +8,7 @@ static SDWORD cLine;
 static STRING* pCFile;
 static STRING pCFileNone[] = "None";
 
-void treapSetCallPos(STRING* pFileName, SDWORD lineNumber)
+void treapSetCallPos(const STRING* pFileName, SDWORD lineNumber)
 {
   cLine = lineNumber;
 
