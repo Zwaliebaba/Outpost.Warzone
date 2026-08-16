@@ -17,8 +17,6 @@
 
 /* Function pointer for a function that loads from a memory buffer */
 using RES_BUFFERLOAD = BOOL(*)(UBYTE* pBuffer, UDWORD size, void** pData);
-/* Function pointer for a function that loads from a filename */
-using RES_FILELOAD = BOOL(*)(STRING* pFile, void** pData);
 
 /* Function pointer for releasing a resource loaded by the above functions */
 using RES_FREE = void(*)(void* pData);
@@ -55,7 +53,6 @@ using RES_TYPE = struct _res_type
   // we must have a pointer to the data here so that we can do a resGetData();
   RES_DATA* psRes; // Linked list of data items of this type
   UDWORD HashedType; // hashed version of the name of the id - // a null hashedtype indicates end of list
-  RES_FILELOAD fileLoad; // This isn't really used any more ?
   struct _res_type* psNext;
 };
 
@@ -78,7 +75,6 @@ extern void resShutDown(void);
 extern void resSetBaseDir(STRING* pResDir);
 
 /* Parse the res file */
-struct _block_heap;
 extern BOOL resLoad(STRING* pResFile, SDWORD blockID, UBYTE* pLoadBuffer, SDWORD bufferSize);
 
 /* Release all the resources currently loaded and the resource load functions */
@@ -93,14 +89,8 @@ extern void resReleaseAllData(void);
 /* Add a buffer load and release function for a file type */
 extern BOOL resAddBufferLoad(STRING* pType, RES_BUFFERLOAD buffLoad, RES_FREE release);
 
-/* Add a file name load and release function for a file type */
-extern BOOL resAddFileLoad(STRING* pType, RES_FILELOAD fileLoad, RES_FREE release);
-
 /* Call the load function for a file */
 extern BOOL resLoadFile(STRING* pType, STRING* pFile);
-
-// Add data to the resource system
-extern BOOL resAddData(STRING* pType, STRING* pID, void* pData);
 
 /* Return the resource for a type and ID */
 extern void* resGetDataFromHash(const STRING* pType, UDWORD HashedID);
@@ -127,11 +117,5 @@ UDWORD GetLastHashName(void);
 void SetLastHashName(UDWORD HashName);
 
 BOOL LoadWRF(char* pResFile, UBYTE** pBuffer, UDWORD* size);
-UDWORD ReadWDGData(UDWORD WDGoffset, UBYTE* DestinationAddress, UDWORD BytesToLoad);
-BOOL OpenWDG(char* WDGname);
-BOOL IsWDGopen(void);
-void CloseWDG(void);
-
-extern void SetLastResourceHash(char* fname);
 
 #endif

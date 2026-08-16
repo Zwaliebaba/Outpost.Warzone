@@ -56,8 +56,6 @@
 #include "Component.h"
 #include "FPath.h"
 #include "WinMain.h"
-#include "WDG.h"
-#include "MultiWDG.h"
 
 #ifdef ARROWS
 #include "Arrow.h"
@@ -676,10 +674,7 @@ BOOL systemInitialise(void)
 
   // load up the level discription file
   // used for the script stuff .... !
-  // loop through all addon.lev files loading each one
   {
-    WDG_FINDFILE sFindFile;
-
     // load the original gamedesc.lev
     if (!loadFile("GameDesc.lev", &pBuffer, &size))
       return FALSE;
@@ -687,20 +682,6 @@ BOOL systemInitialise(void)
       return FALSE;
     delete[] pBuffer;
     pBuffer = nullptr;
-
-    wdgFindFirstFileRev(HashStringIgnoreCase("MISCDATA"), HashString("MISCDATA"), HashStringIgnoreCase("addon.lev"), &sFindFile);
-
-    while (sFindFile.psCurrCache != nullptr)
-    {
-      if (!loadFileFromWDGCache(&sFindFile, &pBuffer, &size, WDG_ALLOCATEMEM))
-        return FALSE;
-      if (!levParse(pBuffer, size))
-        return FALSE;
-      delete[] pBuffer;
-      pBuffer = nullptr;
-
-      wdgFindNextFileRev(&sFindFile);
-    }
   }
 
   //initialize render engine
@@ -836,9 +817,6 @@ BOOL frontendInitialise(char* ResourceFile)
 {
   Neuron::DebugTrace("Initialising frontend : {}\n",ResourceFile);
 
-  // reset the multiple wdg stuff
-  wdgEnableAddonWDG();
-
   if (!InitialiseGlobals()) // Initialise all globals and statics everywhere.
     return FALSE;
 
@@ -958,10 +936,6 @@ BOOL frontendShutdown(void)
 BOOL stageOneInitialise(void)
 {
   Neuron::DebugTrace("stageOneInitalise\n");
-
-#ifndef FINALBUILD
-  tpInit();
-#endif
 
   // Initialise all globals and statics everwhere.
   if (!InitialiseGlobals())
@@ -1098,9 +1072,6 @@ BOOL stageOneShutDown(void)
   viewDataHeapShutDown();
 
   initMiscVars();
-
-  // reset the multiple wdg stuff
-  wdgEnableAddonWDG();
 
   return TRUE;
 }

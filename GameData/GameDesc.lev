@@ -230,10 +230,12 @@ dataset		CAM_2
 game		"wrf\cam2\cam2c.gam"
 data		"wrf\cam2\cam2c.wrf"
 
+/* This level CUT - cam2c2.gam and cam2c2.wrf were never in the tree
 expand		CAM_2C2
 dataset		CAM_2
 game		"wrf\cam2\cam2c2.gam"
 data		"wrf\cam2\cam2c2.wrf"
+*/
 
 /* This level CUT
 between		SUB_2_4S

@@ -49,7 +49,7 @@
 
 #include "MultiPlay.h"
 #include "NetPlay.h"
-#include "IMD.h"									// tpAddPIE
+#include "IMD.h"
 
 /**********************************************************
  *
@@ -59,8 +59,6 @@
 
 BOOL bTilesPCXLoaded = FALSE;
 
-// whether a save game is currently being loaded
-extern STRING aCurrResDir[255]; // Arse
 
 UDWORD cheatHash[CHEAT_MAXCHEAT];
 
@@ -221,24 +219,6 @@ BOOL bufferSBRAINLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
   return TRUE;
 }
 
-/* Load the Program stats */
-/*BOOL bufferSPROGRAMLoad(UBYTE *pBuffer, UDWORD size, void **ppData)
-{
-	if (!loadProgramStats((SBYTE*)pBuffer, size))
-	{
-		return FALSE;
-	}
-
-	if (!allocComponentList(COMP_PROGRAM, numProgramStats))
-	{
-		return FALSE;
-	}
-
-	//not interested in this value
-	*ppData = NULL;
-	return TRUE;
-}*/
-
 /* Load the PropulsionType stats */
 BOOL bufferSPROPTYPESLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
 {
@@ -356,19 +336,6 @@ BOOL bufferSTEMPWEAPLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
   *ppData = nullptr;
   return TRUE;
 }
-
-/* Load the Template programs stats */
-/*BOOL bufferSTEMPPROGLoad(UBYTE *pBuffer, UDWORD size, void **ppData)
-{
-	if (!loadDroidPrograms((SBYTE*)pBuffer, size))
-	{
-		return FALSE;
-	}
-
-	//not interested in this value
-	*ppData = NULL;
-	return TRUE;
-}*/
 
 /* Load the Structure stats */
 BOOL bufferSSTRUCTLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
@@ -523,20 +490,6 @@ BOOL bufferRPREREQLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
   return TRUE;
 }
 
-/* Load the research components required */
-/*BOOL bufferRCOMPREQLoad(UBYTE *pBuffer, UDWORD size, void **ppData)
-{
-	//DON'T DO ANYTHING WITH IT SINCE SHOULDN'T BE LOADING ANYMORE - AB 20/04/98
-	if (!loadResearchArtefacts((SBYTE*)pBuffer, size, REQ_LIST))
-	{
-		return FALSE;
-	}
-
-	//not interested in this value
-	*ppData = NULL;
-	return TRUE;
-}*/
-
 /* Load the research components made redundant */
 BOOL bufferRCOMPREDLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
 {
@@ -631,20 +584,6 @@ BOOL bufferSMSGLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
 void dataSMSGRelease(void* pData) { viewDataShutDown(static_cast<VIEWDATA*>(pData)); }
 
 /* Load an imd */
-BOOL dataIMDLoad(STRING* pFile, void** ppData)
-{
-  iIMDShape* psIMD = Neuron::IMDLoad(pFile,FALSE);
-  if (psIMD == nullptr)
-  {
-    Neuron::Fatal("Please check that both file {} and it's texture file are present", pFile);
-    return FALSE;
-  }
-
-  *ppData = psIMD;
-  return TRUE;
-}
-
-/* Load an imd */
 BOOL dataIMDBufferLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
 {
   iIMDShape* psIMD;
@@ -669,9 +608,6 @@ BOOL dataIMDBufferLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
   if (BinaryPIE == FALSE)
   {
     psIMD = Neuron::ProcessIMD(&pBufferPosition, pBuffer + size, (UBYTE*)"", (UBYTE*)"",FALSE);
-#ifndef FINALBUILD
-    tpAddPIE(GetLastResourceFilename(), psIMD);
-#endif
     if (psIMD == nullptr)
     {
       Neuron::Fatal("IMD load failed - {}", GetLastResourceFilename());
@@ -681,9 +617,6 @@ BOOL dataIMDBufferLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
   else
   {
     psIMD = Neuron::ProcessBPIE((iIMDShape*)(pBuffer + 4), size);
-#ifndef FINALBUILD
-    tpAddPIE(GetLastResourceFilename(), psIMD);
-#endif
     if (psIMD == nullptr)
     {
       Neuron::Fatal("BinaryPIE load failed - {}",GetLastResourceFilename() );
@@ -876,7 +809,6 @@ BOOL bufferTexPageLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
     texfile[i] = 0;
   }
   SetLastResourceFilename(texfile);
-  SetLastResourceHash(texfile);
 
   Neuron::DebugTrace("{} texturepage added (len={})\n",texfile,strlen(texfile));
 
@@ -935,33 +867,6 @@ BOOL bufferTexPageLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
   }
 
   return TRUE;
-}
-
-BOOL bufferTexPageLoadSoftOnly(UBYTE* pBuffer, UDWORD size, void** ppData)
-{
-  if (!war_GetTranslucent())
-    return bufferTexPageLoad(pBuffer, size, ppData);
-  *ppData = nullptr;
-  return TRUE;
-}
-
-BOOL bufferTexPageLoadHardOnly(UBYTE* pBuffer, UDWORD size, void** ppData)
-{
-  if (war_GetTranslucent())
-    return bufferTexPageLoad(pBuffer, size, ppData);
-  *ppData = nullptr;
-  return TRUE;
-}
-
-/* Release an iSprite */
-void dataISpriteRelease(void* pData)
-{
-  auto psSprite = static_cast<iSprite*>(pData);
-
-  delete[] psSprite->bmp;
-  psSprite->bmp = nullptr;
-  delete[] psSprite;
-  psSprite = nullptr;
 }
 
 /* Release a texPage */
@@ -1152,13 +1057,11 @@ static RES_TYPE_MIN ResourceTypes[] = {
   {"SWEAPON", bufferSWEAPONLoad, nullptr}, {"SBODY", bufferSBODYLoad, dataReleaseStats}, {"SBRAIN", bufferSBRAINLoad, nullptr},
   {"SPROP", bufferSPROPLoad, nullptr}, {"SSENSOR", bufferSSENSORLoad, nullptr}, {"SECM", bufferSECMLoad, nullptr},
   {"SREPAIR", bufferSREPAIRLoad, nullptr},
-  //{"SPROGRAM", bufferSPROGRAMLoad, NULL},
   {"SCONSTR", bufferSCONSTRLoad, nullptr}, {"SPROPTYPES", bufferSPROPTYPESLoad, nullptr}, {"SPROPSND", bufferSPROPSNDLoad, nullptr},
   {"STERRTABLE", bufferSTERRTABLELoad, nullptr}, {"SSPECABIL", bufferSSPECABILLoad, nullptr}, {"SBPIMD", bufferSBPIMDLoad, nullptr},
   {"SWEAPSND", bufferSWEAPSNDLoad, nullptr}, {"SWEAPMOD", bufferSWEAPMODLoad, nullptr}, {"STEMPL", bufferSTEMPLLoad, dataSTEMPLRelease},
   //template and associated files
   {"STEMPWEAP", bufferSTEMPWEAPLoad, nullptr},
-  //{"STEMPPROG", bufferSTEMPPROGLoad, NULL},
   {"SSTRUCT", bufferSSTRUCTLoad, dataSSTRUCTRelease}, //structure stats and associated files
   {"SSTRFUNC", bufferSSTRFUNCLoad, nullptr}, {"SSTRWEAP", bufferSSTRWEAPLoad, nullptr}, {"SSTRMOD", bufferSSTRMODLoad, nullptr},
   {"SFEAT", bufferSFEATLoad, dataSFEATRelease}, //feature stats file

@@ -7,9 +7,6 @@
             <ClInclude Include="FrameResource.h">
       <Filter>Framework</Filter>
     </ClInclude>
-                <ClInclude Include="MultiWDG.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
     <ClInclude Include="ResLY.h">
       <Filter>Framework</Filter>
     </ClInclude>
@@ -35,9 +32,6 @@
       <Filter>Framework</Filter>
     </ClInclude>
     <ClInclude Include="Types.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="WDG.h">
       <Filter>Framework</Filter>
     </ClInclude>
                 <ClInclude Include="GTime.h">
@@ -83,9 +77,6 @@
       <Filter>Framework</Filter>
     </ClCompile>
             <ClCompile Include="FrameResource.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-        <ClCompile Include="MultiWDG.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
     <ClCompile Include="resource_l.cpp">
@@ -150,7 +141,6 @@
                                     <ClCompile Include="PQueue.cpp" />
     <ClCompile Include="PtrList.cpp" />
                 <ClCompile Include="Stack.cpp" />
-                <ClCompile Include="WDG.cpp" />
           </ItemGroup>
   <ItemGroup>
     <Filter Include="Framework">

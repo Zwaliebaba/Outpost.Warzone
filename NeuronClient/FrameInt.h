@@ -64,7 +64,6 @@ extern SURFACE_LIST* psSurfaces;
 extern void surfShutDown(void);
 
 /* Free current currently open widget file */
-BOOL FreeCurrentWDG(void);
 
 /* The Direct3D objects */
 extern LPDIRECT3D9 psD3D;

@@ -98,7 +98,6 @@
         <ClInclude Include="GTime.h" />
     <ClInclude Include="HashTabl.h" />
                         <ClInclude Include="Interp.h" />
-                    <ClInclude Include="MultiWDG.h" />
     <ClInclude Include="HostCertificate.h" />
     <ClInclude Include="NetPlay.h" />
     <ClInclude Include="Transport.h" />
@@ -121,7 +120,6 @@
     <ClInclude Include="TreapInt.h" />
     <ClInclude Include="Trig.h" />
     <ClInclude Include="Types.h" />
-    <ClInclude Include="WDG.h" />
               </ItemGroup>
   <ItemGroup>
                                     <ClCompile Include="CodePrint.cpp" />
@@ -131,7 +129,6 @@
     <ClCompile Include="GTime.cpp" />
     <ClCompile Include="HashTabl.cpp" />
                     <ClCompile Include="Interp.cpp" />
-        <ClCompile Include="MultiWDG.cpp" />
     <ClCompile Include="HostCertificate.cpp" />
     <ClCompile Include="NetCrypt.cpp" />
     <ClCompile Include="NetJoin.cpp" />
@@ -155,7 +152,6 @@
     <ClCompile Include="StrRes_y.cpp" />
                             <ClCompile Include="Treap.cpp" />
     <ClCompile Include="Trig.cpp" />
-    <ClCompile Include="WDG.cpp" />
       </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

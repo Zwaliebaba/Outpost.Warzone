@@ -23,13 +23,10 @@
 #include "Lighting.h"
 #include "PieState.h"
 #include "Data.h"
-#include "MultiWDG.h"
 
 #include "Script.h"
 #include "ScriptTabs.h"
 #include "PieMode.h"
-
-// semi hack to get the playstation to load resources from the WDG
 
 // minimum type number for a type instruction
 #define MULTI_TYPE_START	10
@@ -608,10 +605,6 @@ BOOL levLoadData(STRING* pName)
     Neuron::DebugTrace("levLoadData: No base dataset to load\n");
     psBaseData = nullptr;
   }
-
-  // if this is a single player level - disable the multiple WDG
-  if (psNewLevel->type < LDS_NONE)
-    wdgDisableAddonWDG();
 
   // reset the old mission data if necessary
   if (psCurrLevel != nullptr)
