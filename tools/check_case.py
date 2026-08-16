@@ -19,21 +19,26 @@ ABSENT_OK = {
 SYS_OK = re.compile(r'^(windows|windowsx|stdio|stdlib|string|math|assert|time|ctype|memory|'
                     r'malloc|limits|stdarg|float|io|fcntl|direct|process|conio|search|errno|'
                     r'signal|setjmp|stddef|share|objbase|ole2|initguid|winsock2?|shellapi|'
-                    r'commdlg|winres|crtdbg|new|eh|excpt|tchar|wtypes|basetsd|mmsystem|mmreg)\.h$', re.I)
+                    r'commdlg|winres|crtdbg|new|eh|excpt|tchar|wtypes|basetsd|mmsystem|mmreg|'
+                    # ships with Visual Studio under $(VCInstallDir)UnitTest\include
+                    r'cppunittest)\.h$', re.I)
+
+# Every project in the solution. DX9/Include held the vendored DirectX SDK
+# headers and NetTest was the console harness; both are gone, the former as of
+# the DX9 cleanup which moved the build onto the Windows SDK's own copies.
+PROJECTS = ('NeuronCore', 'Outpost', 'NeuronClient', 'NeuronServer', 'NeuronCoreTest')
 
 def main():
     disk={}
-    # DX9/Include held the vendored DirectX SDK headers. It is gone as of the
-    # DX9 cleanup, which moved the build onto the Windows SDK's own copies, so
-    # the directory is scanned when present rather than required.
-    for d in ('NeuronCore','Outpost','NetTest','DX9/Include'):
+    for d in PROJECTS:
         if not os.path.isdir(d): continue
         for f in os.listdir(d): disk.setdefault(f.lower(), f)
     bad=[]
 
     inc=re.compile(r'#\s*include\s*"([^"]+)"')
-    for p in (glob.glob('NeuronCore/*.[ch]')+glob.glob('Outpost/*.[ch]')+glob.glob('NeuronCore/*.cpp')
-              +glob.glob('NetTest/*.cpp')):
+    sources=[]
+    for d in PROJECTS: sources+=glob.glob(f'{d}/*.[ch]')+glob.glob(f'{d}/*.cpp')
+    for p in sources:
         for i,line in enumerate(open(p,encoding='latin-1'),1):
             m=inc.match(line.strip())
             if not m: continue
@@ -44,12 +49,13 @@ def main():
             elif actual!=base:
                 bad.append(f"{p}:{i}: include \"{base}\" but file is {actual}")
 
-    for proj,d in (('NeuronCore/NeuronCore.vcxproj','NeuronCore'),('Outpost/Outpost.vcxproj','Outpost'),
-                   ('NetTest/NetTest.vcxproj','NetTest')):
+    for d in PROJECTS:
+        proj=f'{d}/{d}.vcxproj'
+        if not os.path.exists(proj): continue
         t=open(proj,encoding='utf-8').read()
         for tag,ref in re.findall(r'<(ClCompile|ClInclude|None)\s+Include="([^"]+)"', t):
-            # NetTest reaches back into NeuronCore for the two files it builds,
-            # and MSBuild spells that with backslashes.
+            # A project may reach into a sibling for a file it builds, and
+            # MSBuild spells that with backslashes.
             if not os.path.exists(os.path.join(d,ref.replace('\\','/'))):
                 bad.append(f"{proj}: {tag} {ref} not found with that exact case")
 
