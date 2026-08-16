@@ -1011,11 +1011,16 @@ decisions to confirm — is in [Phase9Plan.md](Phase9Plan.md).
 
 ## Phase 10 — Renderer maths onto DirectXMath
 
-**Planned, and its six gating decisions are settled by owner decision**
+**Under way; its six gating decisions are settled by owner decision**
 (2026-08-16). Two rulings went beyond the plan's recommendation and widened
 the scope: `NeuronCore/Trig.cpp` is in the phase, and the angle units stored
 in game state migrate to float radians. The record and the staged execution
-are in [Phase10Plan.md](Phase10Plan.md).
+are in [Phase10Plan.md](Phase10Plan.md). **Stage A is done** — the
+dead-maths sweep removed 88 lines from `RenderMatrix.cpp`/`.h`
+(`pie_MatCreate`, `pie_VectorInverseRotate0`, the `pie_INVTRANS*` and
+`pie_CLOCKWISE`/`X_INTERCEPT` macros, `pie_Clockwise`, and `pie_MatReset`
+folded into `pie_MatInit`), behaviour-preserving, evidence greps recorded in
+the phase plan.
 
 Phase 8 deliberately kept the fixed-point, pre-transformed-vertex pipeline
 because changing it "is not simplification, it is a second project". This is

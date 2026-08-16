@@ -36,9 +36,6 @@ extern SDWORD aSinTable[];
 
 #define SIN(X)					aSinTable[(uint16)(X) >> 4]
 #define COS(X)					aSinTable[((uint16)(X) >> 4) + 1024]
-#define pie_INVTRANSX(X)		psMatrix->j = (X)<<FP12_SHIFT
-#define pie_INVTRANSY(Y)		psMatrix->k = (Y)<<FP12_SHIFT
-#define pie_INVTRANSZ(Z)		psMatrix->l = (Z)<<FP12_SHIFT
 #define pie_MATTRANS(X,Y,Z)		{	psMatrix->j = (X)<<FP12_SHIFT;				\
 									psMatrix->k = (Y)<<FP12_SHIFT;				\
 									psMatrix->l = (Z)<<FP12_SHIFT;	}
@@ -98,11 +95,6 @@ extern SDWORD aSinTable[];
 
 //*************************************************************************
 
-#define pie_CLOCKWISE(x0,y0,x1,y1,x2,y2) ((((y1)-(y0)) * ((x2)-(x1))) <=	\
-															(((x1)-(x0)) * ((y2)-(y1))))
-
-//*************************************************************************
-
 extern void pie_MatInit(void);
 
 //*************************************************************************
@@ -117,9 +109,7 @@ extern int32 pie_RotProj(iVector* v3d, iPoint* v2d);
 //*************************************************************************
 
 extern void pie_VectorNormalise(iVector* v);
-extern void pie_VectorInverseRotate0(iVector* v1, iVector* v2);
 extern void pie_SurfaceNormal(iVector* p1, iVector* p2, iVector* p3, iVector* v);
-extern BOOL pie_Clockwise(iVertex* s);
 extern void pie_SetGeometricOffset(int x, int y);
 
 // PIEVERTEX structure contains much infomation that is not required on the playstation ... and hence is not currently used

@@ -266,8 +266,16 @@ built, once a Windows environment is available: `Debug\Outpost.exe -window
 
 ### A — Dead-maths sweep  *(behaviour-preserving)*
 
-Zero callers anywhere in the tree, feature-macro allow-list checked, per the
-[AGENTS.md §6](../AGENTS.md) rule:
+**Status: done.** 88 lines deleted, no insertions beyond the two-line
+inline of `pie_MatReset`'s body: `RenderMatrix.cpp` 394 → 316,
+`RenderMatrix.h` 128 → 118. Evidence was a whole-tree grep per symbol over
+every file type (so `.vcxproj`/`.filters` and feature-macro-gated code are
+covered), each returning only the symbol's own declaration/definition;
+after the sweep the same grep returns nothing. `tools/check_case.py` is
+clean. mingw-w64 is not installed in the development container, so the
+cross-check did not run; MSVC CI is the compile authority for the stage.
+The items, each with zero callers anywhere in the tree, feature-macro
+allow-list checked, per the [AGENTS.md §6](../AGENTS.md) rule:
 
 - `pie_MatCreate` — defined, not even declared in the header.
 - `pie_VectorInverseRotate0` — declared and defined, never called.
