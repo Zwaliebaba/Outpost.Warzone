@@ -182,7 +182,7 @@ init: //jump here from the end if re_initialising
     case GS_TITLE_SCREEN:
       screen_RestartBackDrop();
 
-      if (!frontendInitialise("wrf\\frontend.wrf"))
+      if (!frontendInitialise("wrf/frontend"))
         goto exit;
 
       frontendInitialised = TRUE;

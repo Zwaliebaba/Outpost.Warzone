@@ -7,12 +7,6 @@
             <ClInclude Include="FrameResource.h">
       <Filter>Framework</Filter>
     </ClInclude>
-    <ClInclude Include="ResLY.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="resource_y.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
         <ClInclude Include="StrRes.h">
       <Filter>Framework</Filter>
     </ClInclude>
@@ -67,6 +61,7 @@
                     <ClInclude Include="CodePrint.h" />
         <ClInclude Include="Event.h" />
         <ClInclude Include="Interp.h" />
+        <ClInclude Include="Json.h" />
         <ClInclude Include="Parse.h" />
     <ClInclude Include="Script.h" />
     <ClInclude Include="Script_y.h" />
@@ -77,12 +72,6 @@
       <Filter>Framework</Filter>
     </ClCompile>
             <ClCompile Include="FrameResource.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="resource_l.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="resource_y.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
     <ClCompile Include="Trig.cpp">
@@ -107,6 +96,7 @@
       <Filter>Script</Filter>
     </ClCompile>
     <ClCompile Include="Interp.cpp">
+    <ClCompile Include="Json.cpp" />
       <Filter>Script</Filter>
     </ClCompile>
     <ClCompile Include="Script.cpp">
@@ -175,16 +165,10 @@
     <None Include="parser.y">
       <Filter>Gamelib</Filter>
     </None>
-    <None Include="Resource.y">
-      <Filter>Gamelib</Filter>
-    </None>
     <None Include="StrRes.y">
       <Filter>Gamelib</Filter>
     </None>
     <None Include="parser.l">
-      <Filter>Gamelib</Filter>
-    </None>
-    <None Include="Resource.l">
       <Filter>Gamelib</Filter>
     </None>
     <None Include="StrRes.l">

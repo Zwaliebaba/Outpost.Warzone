@@ -56,6 +56,7 @@
 #include "Component.h"
 #include "FPath.h"
 #include "WinMain.h"
+#include "Manifest.h"
 
 #ifdef ARROWS
 #include "Arrow.h"
@@ -666,23 +667,12 @@ BOOL InitialiseGlobals(void)
 //
 BOOL systemInitialise(void)
 {
-  UBYTE* pBuffer;
-  UDWORD size;
-
   if (!widgInitialise())
     return FALSE;
 
-  // load up the level discription file
-  // used for the script stuff .... !
-  {
-    // load the original gamedesc.lev
-    if (!loadFile("GameDesc.lev", &pBuffer, &size))
-      return FALSE;
-    if (!levParse(pBuffer, size))
-      return FALSE;
-    delete[] pBuffer;
-    pBuffer = nullptr;
-  }
+  // load the asset manifest and register the level datasets
+  if (!ManifestLoad())
+    return FALSE;
 
   //initialize render engine
   if (!pie_Initialise())
@@ -773,6 +763,7 @@ BOOL systemShutdown(void)
   Neuron::ShutDown();
 
   levShutDown();
+  ManifestShutDown();
 
   widgShutDown();
 
@@ -841,7 +832,7 @@ BOOL frontendInitialise(char* ResourceFile)
     return FALSE;
 
   Neuron::DebugTrace("frontEndInitialise: loading resource file .....");
-  if (!resLoad(ResourceFile, 0, DisplayBuffer, displayBufferSize))
+  if (!ManifestLoadUnit(ResourceFile, 0, DisplayBuffer, displayBufferSize))
     return FALSE;
 
   if (!dispInitialise()) // Initialise the display system 

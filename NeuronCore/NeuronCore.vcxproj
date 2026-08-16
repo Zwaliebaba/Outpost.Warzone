@@ -98,6 +98,7 @@
         <ClInclude Include="GTime.h" />
     <ClInclude Include="HashTabl.h" />
                         <ClInclude Include="Interp.h" />
+    <ClInclude Include="Json.h" />
     <ClInclude Include="HostCertificate.h" />
     <ClInclude Include="NetPlay.h" />
     <ClInclude Include="Transport.h" />
@@ -108,8 +109,6 @@
                                         <ClInclude Include="PQueue.h" />
     <ClInclude Include="Priority.h" />
     <ClInclude Include="PtrList.h" />
-            <ClInclude Include="ResLY.h" />
-    <ClInclude Include="resource_y.h" />
         <ClInclude Include="Script.h" />
     <ClInclude Include="Script_y.h" />
                 <ClInclude Include="Stack.h" />
@@ -129,6 +128,7 @@
     <ClCompile Include="GTime.cpp" />
     <ClCompile Include="HashTabl.cpp" />
                     <ClCompile Include="Interp.cpp" />
+    <ClCompile Include="Json.cpp" />
     <ClCompile Include="HostCertificate.cpp" />
     <ClCompile Include="NetCrypt.cpp" />
     <ClCompile Include="NetJoin.cpp" />
@@ -141,8 +141,6 @@
     </ClCompile>
                                     <ClCompile Include="PQueue.cpp" />
     <ClCompile Include="PtrList.cpp" />
-            <ClCompile Include="resource_l.cpp" />
-    <ClCompile Include="resource_y.cpp" />
         <ClCompile Include="Script.cpp" />
     <ClCompile Include="Script_l.cpp" />
     <ClCompile Include="Script_y.cpp" />
@@ -157,8 +155,6 @@
     <None Include="packages.config" />
     <None Include="parser.l" />
     <None Include="parser.y" />
-    <None Include="Resource.l" />
-    <None Include="Resource.y" />
     <None Include="script.l" />
     <None Include="script.y" />
     <None Include="StrRes.l" />

@@ -306,22 +306,14 @@ void displayMapPreview()
 // ////////////////////////////////////////////////////////////////////////////
 // helper func
 
-//sets sWRFILE form game.map
+//sets the level name from game.map
 static void decideWRF(void)
 {
-  HANDLE pFileHandle;
-
-  // try and load it from the maps directory first,
-  strcpy(pLevelName, "multiplay\\customMaps\\");
-  strcat(pLevelName, game.map);
-  strcat(pLevelName, ".wrf");
-
-  //if the file exists in the downloaded maps dir then use that one instead.
-  pFileHandle = fopen(pLevelName, "rb");
-  if (pFileHandle == nullptr)
-    strcpy(pLevelName, game.map); // doesn't exist, must be a predefined one.
-  else
-    fclose(static_cast<FILE*>(pFileHandle));
+  /* Downloaded custom maps used to be probed here as
+   * multiplay\customMaps\<map>.wrf. Custom-map WRFs went with the WRF
+   * format; when map transfer returns it wants a manifest fragment, which
+   * is a design of its own. Until then the map is always a built-in level. */
+  strcpy(pLevelName, game.map);
 }
 
 // ////////////////////////////////////////////////////////////////////////////

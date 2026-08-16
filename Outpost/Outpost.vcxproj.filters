@@ -57,7 +57,7 @@
     <ClCompile Include="KeyEdit.cpp" />
     <ClCompile Include="KeyMap.cpp" />
     <ClCompile Include="Levels.cpp" />
-    <ClCompile Include="Level_l.cpp" />
+    <ClCompile Include="Manifest.cpp" />
     <ClCompile Include="Lighting.cpp" />
     <ClCompile Include="FileRequester.cpp" />
     <ClCompile Include="Loop.cpp" />
@@ -191,8 +191,8 @@
     <ClInclude Include="KeyBind.h" />
     <ClInclude Include="KeyEdit.h" />
     <ClInclude Include="KeyMap.h" />
-    <ClInclude Include="LevelInt.h" />
     <ClInclude Include="Levels.h" />
+    <ClInclude Include="Manifest.h" />
     <ClInclude Include="Lighting.h" />
     <ClInclude Include="FileRequester.h" />
     <ClInclude Include="Loop.h" />

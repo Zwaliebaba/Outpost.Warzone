@@ -7,6 +7,7 @@
 
 #include "Frame.h"
 #include "FrameResource.h"
+#include "Manifest.h"
 #include "CSnap.h"
 #include "Widget.h"
 #include "HCI.h"
@@ -96,17 +97,11 @@ BOOL startLimitScreen(void)
   if (!bForceEditorLoaded)
   {
     initLoadingScreen(TRUE, TRUE); //changed by jeremy mar8
-    /*		if (!resLoad("wrf\\forcedit.wrf", 500,
-               DisplayBuffer, displayBufferSize))				//need the object heaps to have been set up before loading 
-        {
-          return FALSE;
-        }
-    */
-    if (!resLoad("wrf\\piestats.wrf", 501, DisplayBuffer, displayBufferSize))
+    if (!ManifestLoadUnit("wrf/piestats", 501, DisplayBuffer, displayBufferSize))
       //need the object heaps to have been set up before loading 
       return FALSE;
 
-    if (!resLoad("wrf\\forcedit2.wrf", 502, DisplayBuffer, displayBufferSize))
+    if (!ManifestLoadUnit("wrf/forcedit2", 502, DisplayBuffer, displayBufferSize))
       //need the object heaps to have been set up before loading 
       return FALSE;
 

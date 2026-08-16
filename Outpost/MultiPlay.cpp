@@ -41,7 +41,8 @@
 #include "MultiRecv.h"								// incoming messages stuff
 #include "MultiStat.h"
 #include "MultiGifts.h"								// gifts and alliances.
-#include "Levels.h"									// levParse
+#include "Levels.h"
+#include "Manifest.h"
 #include "Selection.h"                     // selDroidDeselect
 
 // ////////////////////////////////////////////////////////////////////////////
@@ -1353,20 +1354,11 @@ BOOL recvMapFileData(NETMSG* pMsg)
     addConsoleMessage("MAP DOWNLOADED!", DEFAULT_JUSTIFY);
     sendTextMessage("MAP DOWNLOADED",TRUE); //send
 
-    // clear out the old level list.
+    // clear out the old level list and re-register it from the manifest.
     levShutDown();
     levInitialise();
-    // reload the map lists.
-    {
-      UBYTE* pBuffer;
-      UDWORD size;
-      if (!loadFile("GameDesc.lev", &pBuffer, &size)) // load the original gamedesc.lev
-        return FALSE;
-      if (!levParse(pBuffer, size))
-        return FALSE;
-      delete[] pBuffer;
-      pBuffer = nullptr;
-    }
+    if (!ManifestRegisterDataSets())
+      return FALSE;
   }
   else
   {

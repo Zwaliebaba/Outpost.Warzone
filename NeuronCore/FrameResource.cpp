@@ -1,10 +1,6 @@
 #include "pch.h"
 #include "Frame.h"
 #include "FrameResource.h"
-#include "ResLY.h"
-
-// Local prototypes
-static void ReleaseWRF(UBYTE** pBuffer);
 
 static RES_TYPE* psResTypes = nullptr;
 
@@ -73,12 +69,9 @@ void resShutDown(void)
 // set the base resource directory
 void resSetBaseDir(STRING* pResDir) { strncpy(aResDir, pResDir, FILE_MAXCHAR - 1); }
 
-/* Parse the res file */
-BOOL resLoad(STRING* pResFile, SDWORD blockID, UBYTE* pLoadBuffer, SDWORD bufferSize)
+/* Begin loading a block of resources */
+void resBeginBlock(SDWORD blockID, UBYTE* pLoadBuffer, SDWORD bufferSize)
 {
-  UBYTE* pBuffer;
-  UDWORD size;
-
   strcpy(aCurrResDir, aResDir);
 
   // Note the buffer for file data
@@ -86,19 +79,36 @@ BOOL resLoad(STRING* pResFile, SDWORD blockID, UBYTE* pLoadBuffer, SDWORD buffer
   fileBufferSize = bufferSize;
   // Note the block id number
   resBlockID = blockID;
+}
 
-  // Load the RES file
-  if (!LoadWRF(pResFile, &pBuffer, &size))
-    return FALSE;
+/* Set the directory subsequent resLoadFile calls resolve against. The
+   semantics are the WRF `directory` directive's, kept exactly: rooted paths
+   replace the base directory, everything else appends to it, and a trailing
+   backslash is added unless the directory is empty. */
+void resSetDirectory(const STRING* pDir)
+{
+  const size_t dirLen = strlen(pDir);
 
-  // and parse it
-  resSetInputBuffer(pBuffer, size);
-  if (res_parse() != 0)
-    return FALSE;
+  if (strlen(aResDir) + dirLen + 2 >= FILE_MAXCHAR)
+  {
+    Neuron::Fatal("resSetDirectory: directory too long: {}{}", aResDir, pDir);
+    return;
+  }
 
-  ReleaseWRF(&pBuffer);
+  if ((dirLen >= 2 && pDir[1] == ':') || (dirLen >= 1 && pDir[0] == '\\'))
+    strcpy(aCurrResDir, pDir);
+  else
+  {
+    strcpy(aCurrResDir, aResDir);
+    strcat(aCurrResDir, pDir);
+  }
 
-  return TRUE;
+  if (dirLen > 0)
+  {
+    const size_t len = strlen(aCurrResDir);
+    aCurrResDir[len] = '\\';
+    aCurrResDir[len + 1] = 0;
+  }
 }
 
 /* Allocate a RES_TYPE structure */
@@ -697,16 +707,4 @@ void resReleaseAllData(void)
     psT->psRes = nullptr;
     psNT = resNextType(psT);
   }
-}
-
-// allocate memory for a wrf, and load it
-BOOL LoadWRF(char* pResFile, UBYTE** pBuffer, UDWORD* size)
-{
-  return (loadFile2(pResFile, pBuffer, size,TRUE));
-}
-
-static void ReleaseWRF(UBYTE** pBuffer)
-{
-  // now free up the memory for the .wrf file
-  delete[] *pBuffer;
 }

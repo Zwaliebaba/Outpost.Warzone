@@ -9,6 +9,9 @@
 #ifndef _resource_h
 #define _resource_h
 
+/* Maximum number of characters in a file path */
+#define FILE_MAXCHAR		255
+
 /* Maximum number of characters in a resource type */
 #define RESTYPE_MAXCHAR		20
 
@@ -74,8 +77,15 @@ extern void resShutDown(void);
 // set the base resource directory
 extern void resSetBaseDir(STRING* pResDir);
 
-/* Parse the res file */
-extern BOOL resLoad(STRING* pResFile, SDWORD blockID, UBYTE* pLoadBuffer, SDWORD bufferSize);
+/* Begin loading a block of resources: the block ID subsequent resLoadFile
+   calls are stamped with, and the scratch buffer files are read into.
+   Resets the current directory to the base directory. */
+extern void resBeginBlock(SDWORD blockID, UBYTE* pLoadBuffer, SDWORD bufferSize);
+
+/* Set the directory subsequent resLoadFile calls resolve against. A rooted
+   path ("C:..." or "\...") replaces the base directory; anything else is
+   appended to it; the empty string resets to the bare base directory. */
+extern void resSetDirectory(const STRING* pDir);
 
 /* Release all the resources currently loaded and the resource load functions */
 extern void resReleaseAll(void);
@@ -115,7 +125,5 @@ void SetLastResourceFilename(const char* pName);
 UDWORD GetLastHashName(void);
 // Set the resource name of the last resource file loaded
 void SetLastHashName(UDWORD HashName);
-
-BOOL LoadWRF(char* pResFile, UBYTE** pBuffer, UDWORD* size);
 
 #endif
