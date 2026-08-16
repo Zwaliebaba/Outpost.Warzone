@@ -1,6 +1,7 @@
 #include "pch.h"
 #include <assert.h>
 #include "Frame.h"
+#include "FrameResource.h"
 #include "Effects.h"
 #include "Structure.h"
 #include "MessageDef.h"

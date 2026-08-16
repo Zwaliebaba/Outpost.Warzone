@@ -7,6 +7,7 @@
  */
 
 #include "Frame.h"
+#include "StrRes.h"
 #include "Script.h"
 #include "Objects.h"
 #include "Base.h"

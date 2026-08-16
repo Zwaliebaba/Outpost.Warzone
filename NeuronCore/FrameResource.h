@@ -103,9 +103,9 @@ extern BOOL resLoadFile(STRING* pType, STRING* pFile);
 extern BOOL resAddData(STRING* pType, STRING* pID, void* pData);
 
 /* Return the resource for a type and ID */
-extern void* resGetDataFromHash(STRING* pType, UDWORD HashedID);
-extern void* resGetData(STRING* pType, STRING* pID);
-extern BOOL resPresent(STRING* pType, STRING* pID);
+extern void* resGetDataFromHash(const STRING* pType, UDWORD HashedID);
+extern void* resGetData(const STRING* pType, const STRING* pID);
+extern BOOL resPresent(const STRING* pType, const STRING* pID);
 void resToLower(STRING* pStr);
 
 // return the ID string for a piece of data
@@ -119,7 +119,7 @@ VOID resDoResLoadCallback();
 //return last imd resource
 char* GetLastResourceFilename(void);
 // Set the resource name of the last resource file loaded
-void SetLastResourceFilename(char* pName);
+void SetLastResourceFilename(const char* pName);
 
 // Returns the filename of the last resource file loaded
 UDWORD GetLastHashName(void);

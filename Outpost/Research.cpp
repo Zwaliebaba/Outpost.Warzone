@@ -1,4 +1,6 @@
 #include "pch.h"
+#include "FrameResource.h"
+#include "StrRes.h"
 /*
  * Research.c
  *

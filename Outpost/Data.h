@@ -12,8 +12,6 @@ extern BOOL dataInitLoadFuncs(void);
 extern BOOL dataIMGPAGELoad(UBYTE* pBuffer, UDWORD size, void** ppData);
 extern void dataIMGPAGERelease(void* pData);
 
-extern void dataSetSaveFlag(void);
-extern void dataClearSaveFlag(void);
 
 // multiplayer cheat code.
 #define CHEAT_SWEAPON	0

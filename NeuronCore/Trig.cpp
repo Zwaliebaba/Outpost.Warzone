@@ -1,8 +1,5 @@
 #include "pch.h"
 
-/* Allow frame header files to be singly included */
-#define FRAME_LIB_INCLUDE
-
 #include <assert.h>
 #include "Types.h"
 #include "Trig.h"

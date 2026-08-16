@@ -22,9 +22,6 @@ static int fprintf(FILE* f,char* c,...)
 }
 #endif
 
-/* Allow frame header files to be singly included */
-#define FRAME_LIB_INCLUDE
-
 #include <string.h>
 #include "Types.h"
 #include "Debug.h"

@@ -10,6 +10,8 @@
 
 /* Droid damage printf's */
 #include "Frame.h"
+#include "StrRes.h"
+#include "Screen.h"
 #include "Objects.h"
 #include "Loop.h"
 #include "Visibility.h"

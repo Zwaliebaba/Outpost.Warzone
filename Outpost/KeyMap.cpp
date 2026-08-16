@@ -1,5 +1,7 @@
 #include "pch.h"
 #include "Frame.h"
+#include "StrRes.h"
+#include "Input.h"
 #include "GTime.h"
 #include "Text.h"
 #include "KeyMap.h"
@@ -112,7 +114,10 @@ _keymapsave keyMapSaveTable[] = {
   kf_ToggleWeather, kf_SelectPlayer, kf_ToggleMistFog, kf_ToggleFogColour, kf_AddMissionOffWorld, kf_KillSelected, kf_ShowMappings,
   kf_GiveTemplateSet, kf_ToggleVisibility,
   //	kf_ToggleSensorDisplay,
-  kf_FinishResearch, kf_LowerTile, kf_ToggleDemoMode, kf_ToggleGodMode, kf_EndMissionOffWorld, kf_SystemClose, nullptr // last function!
+  /* kf_ToggleDemoMode sat in the next slot; the table's order is the id
+   * space saved keymap files use, so the slot is refilled rather than
+   * removed. kf_ShowMappings is harmless if an old file had it bound. */
+  kf_FinishResearch, kf_LowerTile, kf_ShowMappings, kf_ToggleGodMode, kf_EndMissionOffWorld, kf_SystemClose, nullptr // last function!
 };
 
 // ----------------------------------------------------------------------------------
@@ -314,7 +319,6 @@ void keyInitMappings(BOOL bForceDefaults)
   keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE, KEY_N, KEYMAP_PRESSED, kf_GiveTemplateSet, "Give template set(s) to player 0 ");
   keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE, KEY_V, KEYMAP_PRESSED, kf_ToggleVisibility, "Toggle visibility");
   keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE, KEY_W, KEYMAP_DOWN, kf_LowerTile, "Lower tile height");
-  keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE, KEY_Y, KEYMAP_PRESSED, kf_ToggleDemoMode, "Toggles on/off DEMO Mode");
   keyAddMapping(KEYMAP__DEBUG, KEY_LCTRL, KEY_B, KEYMAP_PRESSED, kf_EndMissionOffWorld, "End Mission");
   keyAddMapping(KEYMAP__DEBUG, KEY_LCTRL, KEY_KP_MINUS, KEYMAP_PRESSED, kf_SystemClose, "System Close (EXIT)");
   keyAddMapping(KEYMAP__DEBUG, KEY_LCTRL, KEY_E, KEYMAP_PRESSED, kf_DebugDroidInfo, "Show unit info");
@@ -354,11 +358,6 @@ KEY_MAPPING* keyAddMapping(KEY_STATUS status, KEY_CODE metaCode, KEY_CODE subCod
 {
   KEY_MAPPING* newMapping;
 
-#ifdef COVERMOUNT
-#ifdef NON_INTERACT		// escape key is the only valid mapping
-  if (subCode != KEY_ESC) { return (NULL); }
-#endif
-#endif
 
   /* Get some memory for our binding */
   newMapping = new (std::nothrow) KEY_MAPPING[1];

@@ -12,6 +12,7 @@
  */
 
 #include "Frame.h"
+#include "Input.h"
 #include "Stats.h"
 #include "GTime.h"
 #include "Map.h"

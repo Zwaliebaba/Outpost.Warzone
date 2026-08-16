@@ -8,6 +8,10 @@
 #include <stdio.h>
 
 #include "Frame.h"
+#include "Window.h"
+#include "FrameResource.h"
+#include "Screen.h"
+#include "Input.h"
 #include "RendMode.h"
 #include "BitImage.h"
 #include "PieState.h"
@@ -63,7 +67,7 @@ STAR stars[30]; // quick hack for loading stuff
 
 extern IMAGEFILE* FrontImages;
 extern int WFont;
-extern BOOL bLoadSaveUp;
+extern BOOL bRequesterUp;
 
 static BOOL firstcall;
 static UDWORD loadScreenCallNo = 0;
@@ -130,9 +134,7 @@ TITLECODE titleLoop(void)
 
   if (firstcall)
   {
-#ifndef COVERMOUNT
     if (playIntroOnInstall() == FALSE)
-#endif
     {
       startTitleMenu();
       titleMode = TITLE;
@@ -143,23 +145,7 @@ TITLECODE titleLoop(void)
 
     frameSetCursorFromRes(IDC_DEFAULT); // reset cursor	(sw)
 
-    if (NetPlay.bLobbyLaunched) // lobbies skip title screens & go into the game
-    {
-      if (NetPlay.bHost)
-        ingame.bHostSetup = TRUE;
-      else
-        ingame.bHostSetup = FALSE;
-
-      /* Was "is the DirectPlay interface up". Unreachable either way --
-       * bLobbyLaunched is never set -- so it asks the transport instead of
-       * naming an interface that no longer exists.
-       */
-      if (NetPlay.bComms)
-        changeTitleMode(MULTIOPTION);
-      else
-        changeTitleMode(QUIT);
-    }
-    else if (gameSpy.bGameSpy)
+    if (gameSpy.bGameSpy)
     {
       // set host
       if (NetPlay.bHost)
@@ -218,7 +204,6 @@ TITLECODE titleLoop(void)
   case CREDITS:
     runCreditsScreen();
     break;
-  //		case DEMOMODE:
   //	case VIDEO:
   case OPTIONS:
     runOptionsMenu();
@@ -237,12 +222,8 @@ TITLECODE titleLoop(void)
     break;
 
   case STARTGAME:
-  case LOADSAVEGAME:
     initLoadingScreen(TRUE,TRUE); //render active
-    if (titleMode == LOADSAVEGAME)
-      RetCode = TITLECODE_SAVEGAMELOAD;
-    else
-      RetCode = TITLECODE_STARTGAME;
+    RetCode = TITLECODE_STARTGAME;
     pie_GlobalRenderEnd(TRUE); //force to black
     return RetCode; // don't flip!
     break;
@@ -355,11 +336,7 @@ UDWORD lastChange = 0;
 // fill buffers with the static screen
 void startCreditsScreen(BOOL bRenderActive)
 {
-#ifdef COVERMOUNT
-  SCREENTYPE screen = SCREEN_SLIDE1;
-#else
   SCREENTYPE screen = SCREEN_CREDITS;
-#endif
 
   lastChange = gameTime;
   // fill buffers
@@ -380,39 +357,12 @@ void startCreditsScreen(BOOL bRenderActive)
 void runCreditsScreen(void)
 {
   static UBYTE quitstage = 0;
-#ifdef COVERMOUNT
-  SCREENTYPE screen;
-#endif
   // Check for key presses now.
 
   if (keyReleased(KEY_ESC) || keyReleased(KEY_SPACE) || mouseReleased(MOUSE_LMB) || (gameTime - lastChange > 4000))
   {
     lastChange = gameTime;
-#ifdef COVERMOUNT
-    quitstage++; switch (quitstage)
-    {
-    case 1:
-      screen = SCREEN_SLIDE2;
-      break;
-    case 2:
-      screen = SCREEN_SLIDE3;
-      break;
-    case 3:
-      screen = SCREEN_SLIDE4;
-      break;
-    //		case 4:
-    case 4:
-      screen = SCREEN_CREDITS;
-      break;
-    case 5: default:
-      changeTitleMode(QUIT);
-      return;
-      break;
-    } pie_LoadBackDrop(screen,FALSE); pie_SetFogStatus(FALSE); pie_ScreenFlip(CLEAR_BLACK); //flip to set back buffer
-    pie_ScreenFlip(CLEAR_BLACK); //init loading
-#else
     changeTitleMode(QUIT);
-#endif
   }
 }
 

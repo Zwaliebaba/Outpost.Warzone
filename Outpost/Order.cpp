@@ -10,6 +10,7 @@
 // secondary order factory printf's
 // order recieved printf's
 #include "Frame.h"
+#include "Input.h"
 #include "Objects.h"
 #include "Order.h"
 #include "Action.h"
@@ -1071,9 +1072,6 @@ done:
 
 static void orderPlayFireSupportAudio(BASE_OBJECT* psObj)
 {
-#ifdef COVERMOUNT
-  return;
-#else
 
   DROID* psDroid = nullptr;
   STRUCTURE* psStruct = nullptr;
@@ -1102,7 +1100,6 @@ static void orderPlayFireSupportAudio(BASE_OBJECT* psObj)
 
   if (iAudioID != NO_SOUND)
     AudioSystem::QueueTrackMinDelay(iAudioID, AUDIO_DELAY_FIRESUPPORT);
-#endif
 }
 
 /* The base order function */
@@ -2439,7 +2436,6 @@ void orderPlayOrderObjAudio(UDWORD player, BASE_OBJECT* psObj)
   DROID* psDroid;
 
   UNUSEDPARAMETER(psObj);
-#ifndef COVERMOUNT
   /* loop over selected droids */
   for (psDroid = apsDroidLists[player]; psDroid; psDroid = psDroid->psNext)
   {
@@ -2460,7 +2456,6 @@ void orderPlayOrderObjAudio(UDWORD player, BASE_OBJECT* psObj)
       break;
     }
   }
-#endif
 }
 
 /* Give selected droids an order from an object target

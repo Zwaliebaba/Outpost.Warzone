@@ -12,6 +12,7 @@
 
 #include "Findpath.h"
 #include "Frame.h"
+#include "GTime.h"
 
 BOOL fpathDoMessage;
 #define FPATH_TRACE(...) do { if (fpathDoMessage) Neuron::DebugTrace(__VA_ARGS__); } while (0)

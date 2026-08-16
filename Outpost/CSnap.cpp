@@ -8,6 +8,7 @@
 #include <math.h>
 
 #include "Frame.h"
+#include "Window.h"
 #include "Widget.h"
 #include "Deliverance.h"
 

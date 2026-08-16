@@ -16,9 +16,6 @@ static int printf(char* c, ...)
 }
 #endif
 
-/* Allow frame header files to be singly included */
-#define FRAME_LIB_INCLUDE
-
 // directory printfs
 #define DEBUG_GROUP0
 // file printfs
@@ -103,7 +100,7 @@ file_line:			FILETOKEN TEXT QTEXT
  * A simple error reporting routine
  */
 
-void res_error(char *pMessage,...)
+void res_error(const char *pMessage,...)
 {
 	int		line;
 	char	*pText;

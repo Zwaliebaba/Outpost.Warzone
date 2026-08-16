@@ -12,6 +12,7 @@
 #include "IMD.h"
 #include "RendMode.h"
 #include "Frame.h"
+#include "Input.h"
 #include "Objects.h"
 #include "Move.h"
 #include "Findpath.h"

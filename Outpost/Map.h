@@ -209,7 +209,6 @@ extern BOOL mapNew(UDWORD width, UDWORD height);
 extern BOOL mapLoad(UBYTE* pFileData, UDWORD fileSize);
 
 /* Save the map data */
-extern BOOL mapSave(UBYTE** ppFileData, UDWORD* pFileSize);
 
 /* Load map texture info */
 extern void mapLoadTexture(void);
@@ -301,8 +300,6 @@ extern void getTileMaxMin(UDWORD x, UDWORD y, UDWORD* pMax, UDWORD* pMin);
 MAPTILE* GetCurrentMap(void); // returns a pointer to the current loaded map data
 UDWORD GetHeightOfMap(void);
 UDWORD GetWidthOfMap(void);
-extern BOOL readVisibilityData(UBYTE* pFileData, UDWORD fileSize);
-extern BOOL writeVisibilityData(STRING* pFileName);
 extern void mapFreeTilesAndStrips(void);
 
 //scroll min and max values

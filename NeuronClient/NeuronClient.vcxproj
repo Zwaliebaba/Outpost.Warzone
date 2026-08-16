@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>18.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{f87f56ff-d6de-4ff1-a232-f4ae636410e8}</ProjectGuid>
+    <RootNamespace>NeuronClient</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>false</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;DIRECTINPUT_VERSION=0x0800;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\NeuronCore;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>
+      </SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Manifest>
+      <EnableSegmentHeap>true</EnableSegmentHeap>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>false</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;DIRECTINPUT_VERSION=0x0800;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\NeuronCore;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>
+      </SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Manifest>
+      <EnableSegmentHeap>true</EnableSegmentHeap>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="Ani.h" />
+    <ClInclude Include="Anim.h" />
+    <ClInclude Include="AnimObj.h" />
+    <ClInclude Include="AudioMixer.h" />
+    <ClInclude Include="AudioSystem.h" />
+    <ClInclude Include="BSPFunc.h" />
+    <ClInclude Include="BSPIMD.h" />
+    <ClInclude Include="Bar.h" />
+    <ClInclude Include="BitImage.h" />
+    <ClInclude Include="Button.h" />
+    <ClInclude Include="D3D9Vertex.h" />
+    <ClInclude Include="DXError.h" />
+    <ClInclude Include="DXInput.h" />
+    <ClInclude Include="EditBox.h" />
+    <ClInclude Include="Fbf.h" />
+    <ClInclude Include="Font.h" />
+    <ClInclude Include="Form.h" />
+    <ClInclude Include="FrameInt.h" />
+    <ClInclude Include="Geo.h" />
+    <ClInclude Include="IMD.h" />
+    <ClInclude Include="Image.h" />
+    <ClInclude Include="Input.h" />
+    <ClInclude Include="IvisPatch.h" />
+    <ClInclude Include="Label.h" />
+    <ClInclude Include="ListMacs.h" />
+    <ClInclude Include="MaxPiDef.h" />
+    <ClInclude Include="Model.h" />
+    <ClInclude Include="MovieStream.h" />
+    <ClInclude Include="Palette.h" />
+    <ClInclude Include="Parser.h" />
+    <ClInclude Include="Pcx.h" />
+    <ClInclude Include="PieFunc.h" />
+    <ClInclude Include="PieMode.h" />
+    <ClInclude Include="PieState.h" />
+    <ClInclude Include="RendFunc.h" />
+    <ClInclude Include="RendMode.h" />
+    <ClInclude Include="Render.h" />
+    <ClInclude Include="Render2D.h" />
+    <ClInclude Include="RenderClip.h" />
+    <ClInclude Include="RenderMatrix.h" />
+    <ClInclude Include="RenderModel.h" />
+    <ClInclude Include="RenderTypes.h" />
+    <ClInclude Include="Screen.h" />
+    <ClInclude Include="Sequence.h" />
+    <ClInclude Include="Slider.h" />
+    <ClInclude Include="Surface.h" />
+    <ClInclude Include="Tex.h" />
+    <ClInclude Include="TexMan.h" />
+    <ClInclude Include="TextDraw.h" />
+    <ClInclude Include="Tip.h" />
+    <ClInclude Include="Track.h" />
+    <ClInclude Include="WavData.h" />
+    <ClInclude Include="WidgBase.h" />
+    <ClInclude Include="WidgInt.h" />
+    <ClInclude Include="Widget.h" />
+    <ClInclude Include="Window.h" />
+    <ClInclude Include="parser_y.h" />
+    <ClInclude Include="pch.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Anim.cpp" />
+    <ClCompile Include="AnimObj.cpp" />
+    <ClCompile Include="AudioMixer.cpp" />
+    <ClCompile Include="AudioSystem.cpp" />
+    <ClCompile Include="BSPIMD.cpp" />
+    <ClCompile Include="Bar.cpp" />
+    <ClCompile Include="BitImage.cpp" />
+    <ClCompile Include="Button.cpp" />
+    <ClCompile Include="DXError.cpp" />
+    <ClCompile Include="DXInput.cpp" />
+    <ClCompile Include="EditBox.cpp" />
+    <ClCompile Include="Fbf.cpp" />
+    <ClCompile Include="Font.cpp" />
+    <ClCompile Include="Form.cpp" />
+    <ClCompile Include="IMD.cpp" />
+    <ClCompile Include="IMDLoad.cpp" />
+    <ClCompile Include="Image.cpp" />
+    <ClCompile Include="Input.cpp" />
+    <ClCompile Include="Label.cpp" />
+    <ClCompile Include="MovieStream.cpp" />
+    <ClCompile Include="Palette.cpp" />
+    <ClCompile Include="Pcx.cpp" />
+    <ClCompile Include="PieFunc.cpp" />
+    <ClCompile Include="PieMode.cpp" />
+    <ClCompile Include="RendFunc.cpp" />
+    <ClCompile Include="RendMode.cpp" />
+    <ClCompile Include="Render.cpp" />
+    <ClCompile Include="Render2D.cpp" />
+    <ClCompile Include="RenderClip.cpp" />
+    <ClCompile Include="RenderMatrix.cpp" />
+    <ClCompile Include="RenderModel.cpp" />
+    <ClCompile Include="Screen.cpp" />
+    <ClCompile Include="Sequence.cpp" />
+    <ClCompile Include="Slider.cpp" />
+    <ClCompile Include="Surface.cpp" />
+    <ClCompile Include="Tex.cpp" />
+    <ClCompile Include="TexMan.cpp" />
+    <ClCompile Include="TextDraw.cpp" />
+    <ClCompile Include="Tip.cpp" />
+    <ClCompile Include="WavData.cpp" />
+    <ClCompile Include="Widget.cpp" />
+    <ClCompile Include="Window.cpp" />
+    <ClCompile Include="parser_l.cpp" />
+    <ClCompile Include="parser_y.cpp" />
+    <ClCompile Include="pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NeuronCore\NeuronCore.vcxproj">
+      <Project>{484036c5-f0ea-4673-aae1-f13e38660999}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -60,7 +60,7 @@ concept; add the layer when a second thing needs it.
 
 **R6 — Units belong in names; types do not.** `rangeTiles`, `durationTicks`, `speedUnitsPerTick` are encouraged — a world measured in tiles, world units and game ticks makes unit ambiguity a real defect class. Never encode the type: no `iCount`, `pDroid`, `strName`. The legacy Hungarian in the tree (`g_psDevice`, `bAudioEnabled`, `uiRet`) is exactly what this rule bans; it stays where it is and spreads nowhere.
 
-**R7 — A file is named for its primary type**, PascalCase, `.h` / `.cpp` only. `.hpp`, `.cc`, `.inl` are not used; template implementations live in the header. Vendored third-party headers keep whatever name they shipped with (`DX9/Include/`, `EAX.H`) and are never renamed.
+**R7 — A file is named for its primary type**, PascalCase, `.h` / `.cpp` only. `.hpp`, `.cc`, `.inl` are not used; template implementations live in the header. Two exceptions, both grandfathered: the bison/flex output (`Script_y.cpp`, `parser_l.cpp`, and the `.y`/`.l` they are generated from) keeps the generator's spelling, and per-project `pch.h`/`pch.cpp` keep the name MSBuild expects.
 
 **R8 — `m_` marks encapsulated state, not every field.** A `class` with invariants prefixes private members `m_`. A public aggregate — a `Desc` config struct, a wire record, a POD passed to the renderer — uses plain `camelCase` fields so brace initialization reads naturally. This rule extends the table rather than quoting it.
 
@@ -115,7 +115,7 @@ private:
 **When you do run it, run it on what you wrote, not on the tree.** The legacy code predates every rule here (§1, under the table), so a whole-tree pass reports thousands of grandfathered findings and tells you nothing. Point it at the files your change adds, or filter to your changed lines:
 
 ```
-clang-tidy --quiet NeuronCore/YourNewFile.cpp -- -I NeuronCore -I DX9/Include -D WIN32 -D _DEBUG
+clang-tidy --quiet NeuronCore/YourNewFile.cpp -- -I NeuronCore -D WIN32 -D _DEBUG
 ```
 
 Two rules the config cannot express, and that a reviewer therefore has to carry:
@@ -129,17 +129,42 @@ Two rules the config cannot express, and that a reviewer therefore has to carry:
 
 | Path | What it is | May you edit it? |
 |---|---|---|
-| `NeuronCore/` | Engine static library (75 TUs): platform, D3D9 rendering, input, audio, UI widgets, debug | Yes |
-| `Outpost/` | Game executable (119 TUs): simulation, AI, structures, droids, campaign, multiplayer | Yes |
-| `DX9/Include`, `DX9/Lib` | Vendored DirectX 9.0c SDK — deliberately checked in so the build needs no external SDK | **No** |
+| `NeuronCore/` | Engine static library (30 TUs): platform, timing, the `.WDG` archive and resource system, containers, maths, script VM, string resources, networking and transport | Yes |
+| `NeuronClient/` | Client-side engine static library (45 TUs): the window, D3D9 rendering, IMD models, DirectInput, XAudio2, UI widgets, fonts, images, FMV sequences | Yes |
+| `NeuronServer/` | Server-side engine static library. **Currently a PCH shell** — one `pch.h`/`pch.cpp` and nothing else | Yes |
+| `Outpost/` | Game executable (117 TUs): simulation, AI, structures, droids, campaign, multiplayer | Yes |
+| `NeuronCoreTest/` | MSVC CppUnitTest DLL. **A stock template with one empty test** — it does not yet reference `NeuronCore` | Yes |
 | `GameData/` | Shipped content (levels, textures, audio, `.rpl` movies) and three third-party DLLs. Binary, authored by tools outside this repo | **No** |
 | `Docs/MigrationPlan.md` | The plan and the record of what each phase changed | Yes — see §6 |
 | `.clang-format`, `.clang-tidy`, `.editorconfig` | Layout and naming, machine-readable (§1, §4) | Yes — with an owner decision |
-| `tools/*.py` | Repository checkers (§3). Several files are empty placeholders; ignore those | Yes |
+| `tools/*.py` | Repository checkers and content-authoring scripts (§3) | Yes |
 | `.github/workflows/build.yml` | CI: Debug and Release, Win32 | Yes, carefully |
 | `Debug/`, `x64/`, `.vs/`, `*.user` | Build and IDE output | **No — and never commit them** |
 
-Two projects, one dependency edge: `Outpost.vcxproj` links `NeuronCore.lib`, so building the game builds the engine. `Outpost.slnx` is the solution.
+**There is no vendored SDK.** `DX9/Include` and `DX9/Lib` held a checked-in DirectX 9.0c
+SDK and are gone: the Windows SDK ships `d3d9.h`, `dinput.h`, `d3d9.lib`, `dinput8.lib`
+and the rest, so nothing needed them. `NetTest/`, the console harness for the Phase 5
+QUIC transport, is gone with them. Do not restore either, and do not add a build step
+that assumes they exist.
+
+**Five projects, and the edges run one way.** `Outpost.slnx` is the solution; its only
+platform is `x86`.
+
+```
+NeuronCore.lib          ← the engine everything else builds on
+├── NeuronClient.lib    ← references NeuronCore
+├── NeuronServer.lib    ← references NeuronCore
+└── Outpost.exe         ← references all three
+NeuronCoreTest.dll      ← references nothing yet
+```
+
+`NeuronClient` and `NeuronServer` are the destination of the engine split: game-engine
+code that is meaningful only to a client (presentation, input, local prediction) or only
+to a server (authoritative simulation, session ownership) moves out of `NeuronCore`,
+which keeps what both need. **The client half has landed**: presentation, input and
+audio moved to `NeuronClient` on 2026-08-16. The server half has not — `NeuronServer` is
+still a shell and the simulation is still inside `Outpost.exe`. **Until a task is that
+split, do not move a file between them** — see R13.
 
 ---
 
@@ -148,13 +173,27 @@ Two projects, one dependency edge: `Outpost.vcxproj` links `NeuronCore.lib`, so 
 **One platform exists: Win32 (x86), toolset v145, `/std:c++latest`.** There is no x64 configuration and no CMake. If a build error tempts you to add a platform, change the toolset, or lower the language standard — stop and report instead.
 
 ```powershell
-# Build (from the repository root). This builds NeuronCore first.
+# Build the game. Its project references pull in NeuronCore, NeuronClient and
+# NeuronServer, so this builds all four.
 msbuild Outpost\Outpost.vcxproj /p:Configuration=Debug /p:Platform=Win32 /v:normal /nologo
+
+# Build everything including the test DLL. Note the platform is x86 here, not
+# Win32: that is the name the .slnx gives it.
+msbuild Outpost.slnx /p:Configuration=Debug /p:Platform=x86 /v:normal /nologo
 
 # Filename-casing gate. MSVC resolves includes case-insensitively, so a wrong
 # #include still builds on Windows and only fails on the Linux checkers. Run it.
 python tools/check_case.py
 ```
+
+Both commands run from the repository root. Use `$(MSBuildThisFileDirectory)` in a
+`.vcxproj`, never `$(SolutionDir)`: MSBuild leaves `SolutionDir` empty when it builds a
+project file directly, which is what the first command and CI both do.
+
+**The engine libraries build `/permissive-`; the game does not yet.** `NeuronCore`,
+`NeuronClient` and `NeuronServer` set `ConformanceMode=true`, `Outpost` sets it to
+`false`. Do not switch a project's conformance to make a build pass — fix the code. What
+this mostly means in practice is R16.
 
 The executable lands in `Debug\Outpost.exe` (or `Release\`), and it needs `GameData/` beside it at runtime.
 
@@ -201,18 +240,40 @@ Phase 8 is removing the `pie_*`/`iV_*` layer that used to sit between the game a
 
 Stage C has also finished the type headers and the `iV_` prefix. `RenderTypes.h` holds the render value types and draw constants, `Model.h` the `iIMDShape` family, `RenderModel.h` the `pie_Draw*` declarations; `BitImage.h` owns the `IMAGEFILE` structures and `RendMode.h` owns `iSurface`. `Ivi.h`, `Ivi.cpp`, `IvisDef.h`, `PieDef.h`, `PieTypes.h` and `Bug.h`/`Bug.cpp` are gone and are not to come back. The `iV_` prefix is now `namespace Neuron` — **do not strip a legacy prefix without first checking the bare name against the Win32 and CRT headers**; eight of the 87 `iV_` names collided, and `iV_HeapAlloc` was a macro that would have hijacked every `kernel32` call. **Headers must include what they use**: the tree relied on hub headers arriving first for years, and C3 fixed ~30 of them.
 
-**R13 — Leave a subsystem mid-migration alone** unless your task *is* that phase. **No legacy subsystem is left**: DirectInput (Phase 3), audio (Phase 4), networking (Phase 5) and FMV video (Phase 6) are all migrated. Stage B6 finished the Phase 6 deletions: `WINSTR.LIB`, `STREAMER.H`, `dsound.lib`, the `GameData` decoder DLLs and `CDSpan.cpp` are gone. The courtesy still applies to the render layer while Phase 8 is in flight: if your task is not that phase, do not opportunistically rename or restructure `pie_*`/`iV_*` code.
+**R13 — Leave a subsystem mid-migration alone** unless your task *is* that phase. **No legacy subsystem is left**: DirectInput (Phase 3), audio (Phase 4), networking (Phase 5) and FMV video (Phase 6) are all migrated. Stage B6 finished the Phase 6 deletions: `WINSTR.LIB`, `STREAMER.H`, `dsound.lib`, the `GameData` decoder DLLs and `CDSpan.cpp` are gone. The courtesy still applies twice over:
 
-**R14 — No new third-party dependencies**, and no package manager. The DX9 SDK is vendored for exactly this reason. If you believe something is unavoidable, propose it in your report; do not add it.
+- **The render layer**, while Phase 8 is in flight: if your task is not that phase, do not opportunistically rename or restructure `pie_*`/`iV_*` code.
+- **The `NeuronCore` → `NeuronClient`/`NeuronServer` split.** Moving a file between the three libraries changes what links into a server build, so it is a design decision and not a tidy-up. If your task is not the split, leave every file where it is, and note in your report anything you think is on the wrong side.
+
+**R14 — No new third-party dependencies**, and no package manager beyond what is already here. If you believe something is unavoidable, propose it in your report; do not add it. What the build is allowed to depend on is: the Windows SDK, the MSVC standard library, and the two NuGet packages below. Nothing else.
 
 **Two sanctioned exceptions exist, both owner decisions, both arriving through the NuGet restore CI runs before each build. The list is closed: a third needs the same conversation.**
 
 1. **MsQuic** (`Microsoft.Native.Quic.MsQuic.Schannel`), taken by Phase 5. The reasoning is on the record in [Phase5Plan.md](Docs/Phase5Plan.md): the alternative was hand-writing sequencing, acknowledgement, retransmission and ordering for lockstep game commands, where a single reordered packet desynchronises a match silently — and nothing in this repository can test such a protocol. QUIC makes that somebody else's tested code.
 2. **C++/WinRT** (`Microsoft.Windows.CppWinRT`), sanctioned for Phase 6. It is a header-only projection with no runtime to redistribute, and what it buys is `winrt::com_ptr` and `winrt::check_hresult` for the Media Foundation COM lifetimes the FMV rewrite introduces — R12 asks for RAII COM ownership and this is the modern spelling of it. **Prefer it over `Microsoft::WRL::ComPtr` in new code**; do not churn existing code to match, and do not reach for the WinRT projection itself (`winrt::Windows::*`) — the sanction covers the COM helpers, not a second UI or async framework.
 
-Neither exception licenses anything beyond the package named. Vendoring stays the default for everything else, which is why the DX9 SDK is checked in.
+Neither exception licenses anything beyond the package named. Both are restored per project from a `packages.config` — `NeuronCore` and `Outpost` have one, the other three do not.
 
 **R15 — `namespace Neuron` is for new engine code**, as `Debug.h` does it. Legacy translation units reach it through the `using namespace Neuron;` in `NeuronCore.h`; do not add per-file `using namespace` directives to work around a lookup failure — qualify the name.
+
+**R16 — A string you do not write is `const`.** The engine libraries build `/permissive-`
+(§3), which turns on `/Zc:strictStrings`: a literal is `const char[N]` and will not bind
+to `char*` or `STRING*`. The fix is const on the signature, never a cast at the call
+site — a `const_cast` here is a lie about a literal that lives in a read-only section,
+and writing through it is a real crash rather than a theoretical one.
+
+```cpp
+void* resGetData(const STRING* _type, const STRING* _id);   // reads, so const
+void  scr_error(const char* _message, ...);
+const STRING* DXErrorToString(HRESULT _error);              // returns a literal
+```
+
+Const propagates: adding it to a signature usually asks for it on the helpers that
+signature calls, and that is the change finishing rather than spreading. Adding const to
+a parameter is source-compatible for every caller, so it does not break `Outpost` while
+that project is still `/permissive`. **Watch for function-pointer typedefs** — a callback
+`using`-alias is *not* const-compatible, so a signature reached through one
+(`RES_FILELOAD`, `GETSHAPEFUNC`, `FONT_DISPLAY`) must change with its alias or not at all.
 
 ---
 
@@ -224,7 +285,7 @@ Neither exception licenses anything beyond the package named. Vendoring stays th
 
 **Prove code is dead before deleting it.** Files here are reached through feature macros the preprocessor never expands in these builds (`QMIXER`, `EDITORWORLD`, `TEST_BED`, `JEREMY`) — `tools/check_case.py` keeps an explicit allow-list of exactly this. Grep the whole tree, including `.vcxproj` and `.filters`, before concluding nothing references a symbol.
 
-**Keep the project files honest.** Adding or removing a source file means editing `NeuronCore.vcxproj`/`Outpost.vcxproj` *and* the matching `.filters`. A file that compiles locally but is missing from the project fails only in CI.
+**Keep the project files honest.** Adding, removing or *moving* a source file means editing the owning `.vcxproj` **and** its `.filters` — and a move between projects means editing two of each. A file that compiles locally but is missing from the project fails only in CI. `python tools/check_case.py` reads every project's `ClCompile`/`ClInclude`/`None` entries and is the cheapest way to catch a half-done move.
 
 **Commits and PRs.** Branch off `main`; small, focused commits with an imperative subject describing the change, not the process. Both CI configurations (Debug and Release) must be green. Never commit build output, `.vs/` or `.user` files.
 
@@ -234,7 +295,8 @@ Neither exception licenses anything beyond the package named. Vendoring stays th
 
 - [ ] Naming conforms to §1 — including `_` on parameters, `m_` on class state, no `I`/`C`/`Base` prefixes.
 - [ ] Only the lines the task required were changed; no reformatting, no drive-by fixes.
-- [ ] New or removed files are reflected in the `.vcxproj` **and** `.filters`.
+- [ ] New, removed or moved files are reflected in the `.vcxproj` **and** `.filters` of every project involved.
+- [ ] No project's `ConformanceMode` was changed, and no `const_cast` was added to satisfy R16.
 - [ ] `python tools/check_case.py` passes.
 - [ ] It builds — Debug at minimum, and say which configurations you actually built.
 - [ ] If it touches rendering, input, audio or level loading: it was **run**, not just built.

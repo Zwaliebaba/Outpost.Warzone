@@ -17,7 +17,6 @@ using GAMECODE = enum
   GAMECODE_PLAYVIDEO,
   GAMECODE_NEWLEVEL,
   GAMECODE_FASTEXIT,
-  GAMECODE_LOADGAME,
 };
 
 // the states the loop goes through before starting a new level
@@ -27,12 +26,10 @@ using LOOP_MISSION_STATE = enum
   // normal state of the loop
   LMS_SETUPMISSION,
   // make the call to set up mission
-  LMS_SAVECONTINUE,
-  // the save/continue box is up between missions
+  LMS_MISSIONRESULT,
+  // the results box is up between missions
   LMS_NEWLEVEL,
   // start a new level
-  LMS_LOADGAME,
-  // load a savegame
   LMS_CLEAROBJECTS,
   // make the call to destroy objects
 };

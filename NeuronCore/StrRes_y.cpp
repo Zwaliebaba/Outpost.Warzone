@@ -76,9 +76,6 @@ typedef struct yyNamedType_tag
 static int printf(char* c, ...) { return 0; }
 #endif
 
-/* Allow frame header files to be singly included */
-#define FRAME_LIB_INCLUDE
-
 #include "Types.h"
 #include "Treap.h"
 #include "StrRes.h"
@@ -319,7 +316,7 @@ static char* yygetState YY_ARGS((int));
  * A simple error reporting routine
  */
 
-void strres_error(char* pMessage, ...)
+void strres_error(const char* pMessage, ...)
 {
   int line;
   char* pText;

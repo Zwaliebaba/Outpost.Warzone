@@ -2,9 +2,11 @@
   <Configurations>
     <Platform Name="x86" />
   </Configurations>
-  <Folder Name="/Tools/">
-    <Project Path="NetTest/NetTest.vcxproj" Id="7f2d1c40-9b3e-4a51-8c6d-2e5a41b7d903" />
+  <Folder Name="/Testing/">
+    <Project Path="NeuronCoreTest/NeuronCoreTest.vcxproj" />
   </Folder>
+  <Project Path="NeuronClient/NeuronClient.vcxproj" Id="f87f56ff-d6de-4ff1-a232-f4ae636410e8" />
   <Project Path="NeuronCore/NeuronCore.vcxproj" Id="484036c5-f0ea-4673-aae1-f13e38660999" />
+  <Project Path="NeuronServer/NeuronServer.vcxproj" Id="1e5ccd3c-6863-4b9b-9607-8ce6b2baf4c3" />
   <Project Path="Outpost/Outpost.vcxproj" Id="74631770-300d-4fb7-a52b-1accb2b874b7" />
 </Solution>

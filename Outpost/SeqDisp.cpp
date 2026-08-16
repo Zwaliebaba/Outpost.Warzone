@@ -6,6 +6,7 @@
  *
  */
 #include "Frame.h"
+#include "Screen.h"
 #include "Widget.h"
 #include "RendMode.h"
 #include "SeqDisp.h"

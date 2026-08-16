@@ -84,6 +84,7 @@ typedef struct yyNamedType_tag
 #include <stdio.h>
 
 #include "Frame.h"
+#include "FrameResource.h"
 #include "Script.h"
 #include "ScriptTabs.h"
 #include "ScriptVals.h"

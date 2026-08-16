@@ -11,6 +11,8 @@
 // levLoadData printf's
 #define DEBUG_GROUP0
 #include "Frame.h"
+#include "ListMacs.h"
+#include "FrameResource.h"
 #include "Init.h"
 #include "Objects.h"
 #include "HCI.h"
@@ -49,7 +51,6 @@ LEVEL_DATASET sSingleWRF;
 // return values from the lexer
 STRING* pLevToken;
 SDWORD levVal;
-SDWORD levelLoadType;
 
 // modes for the parser
 enum
@@ -97,7 +98,6 @@ BOOL levInitialise(void)
   return TRUE;
 }
 
-SDWORD getLevelLoadType(void) { return levelLoadType; }
 
 // shutdown the level system
 void levShutDown(void)
@@ -209,7 +209,6 @@ BOOL levParse(UBYTE* pBuffer, SDWORD size)
         case LTK_MKEEP:
           psDataSet->type = LDS_MKEEP;
           break;
-#ifndef COVERMOUNT
         case LTK_CAMCHANGE:
           psDataSet->type = LDS_CAMCHANGE;
           break;
@@ -225,7 +224,6 @@ BOOL levParse(UBYTE* pBuffer, SDWORD size)
         case LTK_MKEEP_LIMBO:
           psDataSet->type = LDS_MKEEP_LIMBO;
           break;
-#endif
         default: DEBUG_ASSERT_TEXT(FALSE, "eh?");
           break;
         }
@@ -290,10 +288,8 @@ BOOL levParse(UBYTE* pBuffer, SDWORD size)
       else if (state == LP_LEVELDONE)
       {
         if (psDataSet->type == LDS_CAMSTART || psDataSet->type == LDS_MKEEP
-#ifndef COVERMOUNT
           || psDataSet->type == LDS_CAMCHANGE || psDataSet->type == LDS_EXPAND || psDataSet->type == LDS_MCLEAR || psDataSet->type ==
           LDS_EXPAND_LIMBO || psDataSet->type == LDS_MKEEP_LIMBO
-#endif
         )
         {
           levError("Missing dataset command");
@@ -319,7 +315,6 @@ BOOL levParse(UBYTE* pBuffer, SDWORD size)
     case LTK_IDENT:
       if (state == LP_LEVEL)
       {
-#ifndef COVERMOUNT
         if (psDataSet->type == LDS_CAMCHANGE)
         {
           // campaign change dataset - need to find the full data set
@@ -336,7 +331,6 @@ BOOL levParse(UBYTE* pBuffer, SDWORD size)
           }
           psFoundData->psChange = psDataSet;
         }
-#endif
         // store the level name
         psDataSet->pName = new (std::nothrow) STRING[strlen(pLevToken) + 1];
         if (!psDataSet->pName)
@@ -520,10 +514,8 @@ BOOL levLoadBaseData(STRING* pName)
   }
 
   if (psNewLevel->type != LDS_CAMSTART && psNewLevel->type != LDS_MKEEP
-#ifndef COVERMOUNT
     && psNewLevel->type != LDS_EXPAND && psNewLevel->type != LDS_MCLEAR && psNewLevel->type != LDS_EXPAND_LIMBO && psNewLevel->type !=
     LDS_MKEEP_LIMBO
-#endif
   )
   {
     Neuron::Fatal("levLoadBaseData: incorect level type");
@@ -558,18 +550,12 @@ BOOL levLoadBaseData(STRING* pName)
 UBYTE* getLevelName(void) { return (currentLevelName); }
 
 // load up the data for a level
-BOOL levLoadData(STRING* pName, STRING* pSaveName, SDWORD saveType)
+BOOL levLoadData(STRING* pName)
 {
   LEVEL_DATASET *psNewLevel, *psBaseData, *psChangeLevel;
   SDWORD i;
-  BOOL bCamChangeSaveGame;
 
   Neuron::DebugTrace("Loading level {}\n", pName);
-
-  // reset fog
-  //	pie_EnableFog(FALSE);//removed, always set by script or save game
-
-  levelLoadType = saveType;
 
   // find the level dataset
   if (!levFindDataSet(pName, &psNewLevel))
@@ -581,16 +567,9 @@ BOOL levLoadData(STRING* pName, STRING* pSaveName, SDWORD saveType)
   /* Keep a copy of the present level name */
   strcpy((char*)currentLevelName, pName);
 
-  bCamChangeSaveGame = FALSE;
-  if (pSaveName AND saveType == GTYPE_SAVE_START)
-  {
-    if (psNewLevel->psChange != nullptr)
-      bCamChangeSaveGame = TRUE;
-  }
-
   // select the change dataset if there is one
   psChangeLevel = nullptr;
-  if (((psNewLevel->psChange != nullptr) && (psCurrLevel != nullptr)) OR bCamChangeSaveGame)
+  if ((psNewLevel->psChange != nullptr) && (psCurrLevel != nullptr))
   {
     //store the level name
     Neuron::DebugTrace("levLoadData: Found CAMCHANGE dataset\n");
@@ -644,13 +623,6 @@ BOOL levLoadData(STRING* pName, STRING* pSaveName, SDWORD saveType)
       return FALSE;
   }
 
-  // need to free the current map and droids etc for a save game
-  if ((psBaseData == nullptr) && (pSaveName != nullptr))
-  {
-    if (!saveGameReset())
-      return FALSE;
-  }
-
   Neuron::DebugTrace("levLoadData: Setting game heap\n");
 
   // initialise if necessary
@@ -677,82 +649,20 @@ BOOL levLoadData(STRING* pName, STRING* pSaveName, SDWORD saveType)
       }
     }
   }
-#ifndef COVERMOUNT
   if (psNewLevel->type == LDS_CAMCHANGE)
   {
     if (!campaignReset())
       return FALSE;
   }
-#endif
   if (psNewLevel->game == -1) //no .gam file to load - BETWEEN missions (for Editor games only)
   {
     DEBUG_ASSERT_TEXT(psNewLevel->type == LDS_BETWEEN, "levLoadData: only BETWEEN missions do not need a .gam file");
     Neuron::DebugTrace("levLoadData: no .gam file for level: BETWEEN mission\n");
-    if (pSaveName != nullptr)
-    {
-      if (psBaseData != nullptr)
-      {
-        if (!stageTwoInitialise())
-          return FALSE;
-      }
-
-      Neuron::DebugTrace("levLoadData: setting map heap\n");
-
-      //set the mission type before the saveGame data is loaded
-      if (saveType == GTYPE_SAVE_MIDMISSION)
-      {
-        Neuron::DebugTrace("levLoadData: init mission stuff\n");
-        if (!startMissionSave(psNewLevel->type))
-          return FALSE;
-
-        Neuron::DebugTrace("levLoadData: dataSetSaveFlag\n");
-        dataSetSaveFlag();
-      }
-
-      Neuron::DebugTrace("levLoadData: loading savegame: {}\n", pSaveName);
-      if (!loadGame(pSaveName, FALSE, TRUE,TRUE))
-        return FALSE;
-
-      if (!newMapInitialise())
-        return FALSE;
-    }
-
-    if ((pSaveName == nullptr) || (saveType == GTYPE_SAVE_START))
-    {
-      Neuron::DebugTrace("levLoadData: start mission - no .gam\n");
-      if (!startMission(psNewLevel->type, nullptr))
-        return FALSE;
-    }
+    Neuron::DebugTrace("levLoadData: start mission - no .gam\n");
+    if (!startMission(psNewLevel->type, nullptr))
+      return FALSE;
 
     Neuron::DebugTrace("levLoadData: setting mission heap\n");
-  }
-
-  //we need to load up the save game data here for a camchange
-  if (bCamChangeSaveGame)
-  {
-    Neuron::DebugTrace("levLoadData: no .gam file for level: BETWEEN mission\n");
-    if (pSaveName != nullptr)
-    {
-      if (psBaseData != nullptr)
-      {
-        if (!stageTwoInitialise())
-          return FALSE;
-      }
-
-      Neuron::DebugTrace("levLoadData: setting map heap\n");
-
-      Neuron::DebugTrace("levLoadData: loading savegame: {}\n", pSaveName);
-      if (!loadGame(pSaveName, FALSE, TRUE,TRUE))
-        return FALSE;
-
-      if (!campaignReset())
-        return FALSE;
-
-      //we now need to go to the next level
-
-      //stageTwoShutDown??
-      //block_reset??
-    }
   }
 
   // load the new data
@@ -762,7 +672,7 @@ BOOL levLoadData(STRING* pName, STRING* pSaveName, SDWORD saveType)
     if (psNewLevel->game == i)
     {
       // do some more initialising if necessary
-      if (psNewLevel->type == LDS_COMPLETE || psNewLevel->type >= MULTI_TYPE_START || (psBaseData != nullptr AND !bCamChangeSaveGame))
+      if (psNewLevel->type == LDS_COMPLETE || psNewLevel->type >= MULTI_TYPE_START || psBaseData != nullptr)
       {
         Neuron::Reset(FALSE); //unload font, to avoid crash on 8th load... ajl 15/sep/99
         if (!stageTwoInitialise())
@@ -771,43 +681,13 @@ BOOL levLoadData(STRING* pName, STRING* pSaveName, SDWORD saveType)
         Neuron::DebugTrace("levLoadData: setting map heap\n");
       }
 
-      if ((psNewLevel->type == LDS_MKEEP
-#ifndef COVERMOUNT
+      if (psNewLevel->type == LDS_MKEEP
         || psNewLevel->type == LDS_MCLEAR || psNewLevel->type == LDS_MKEEP_LIMBO
-#endif
-      ) && pSaveName == nullptr)
+      )
       {
         Neuron::DebugTrace("levLoadData: setting mission heap\n");
       }
 
-      // load a savegame if there is one - but not if already done so
-      if (pSaveName != nullptr AND !bCamChangeSaveGame)
-      {
-        Neuron::DebugTrace("levLoadData: setting map heap\n");
-
-        //set the mission type before the saveGame data is loaded
-        if (saveType == GTYPE_SAVE_MIDMISSION)
-        {
-          Neuron::DebugTrace("levLoadData: init mission stuff\n");
-          if (!startMissionSave(psNewLevel->type))
-            return FALSE;
-
-          Neuron::DebugTrace("levLoadData: dataSetSaveFlag\n");
-          dataSetSaveFlag();
-        }
-
-        Neuron::DebugTrace("levLoadData: loading save game {}\n", pSaveName);
-        if (!loadGame(pSaveName, FALSE, TRUE,TRUE))
-          return FALSE;
-
-        /*				if (saveType == GTYPE_SAVE_START)
-				{
-					// do not load any more data
-					break;
-				}*/
-      }
-
-      if ((pSaveName == nullptr) || (saveType == GTYPE_SAVE_START))
       {
         // load the game
         Neuron::DebugTrace("Loading scenario file {} ...", psNewLevel->apDataFiles[i]);
@@ -829,7 +709,6 @@ BOOL levLoadData(STRING* pName, STRING* pSaveName, SDWORD saveType)
           if (!startMission(LDS_MKEEP, psNewLevel->apDataFiles[i]))
             return FALSE;
           break;
-#ifndef COVERMOUNT
         case LDS_CAMCHANGE: Neuron::DebugTrace("CAMCHANGE\n");
           //if (!startMission(MISSION_CAMPSTART, psNewLevel->apDataFiles[i]))
           if (!startMission(LDS_CAMCHANGE, psNewLevel->apDataFiles[i]))
@@ -857,7 +736,6 @@ BOOL levLoadData(STRING* pName, STRING* pSaveName, SDWORD saveType)
           if (!startMission(LDS_MKEEP_LIMBO, psNewLevel->apDataFiles[i]))
             return FALSE;
           break;
-#endif
         default: DEBUG_ASSERT_TEXT(psNewLevel->type >= MULTI_TYPE_START, "levLoadData: Unexpected mission type");
           Neuron::DebugTrace("MULTIPLAYER\n");
           //if (!startMission(MISSION_CAMPSTART, psNewLevel->apDataFiles[i]))
@@ -868,10 +746,8 @@ BOOL levLoadData(STRING* pName, STRING* pSaveName, SDWORD saveType)
       }
 
       // set the view position if necessary
-      if ((pSaveName != nullptr) || (psNewLevel->type != LDS_BETWEEN)
-#ifndef COVERMOUNT
+      if ((psNewLevel->type != LDS_BETWEEN)
         && (psNewLevel->type != LDS_EXPAND) && (psNewLevel->type != LDS_EXPAND_LIMBO)
-#endif
       )
       {
         if (!newMapInitialise())
@@ -887,31 +763,13 @@ BOOL levLoadData(STRING* pName, STRING* pSaveName, SDWORD saveType)
     }
   }
 
-  dataClearSaveFlag();
-
-  if (pSaveName != nullptr)
-  {
-    //load MidMission Extras
-    if (!loadMissionExtras(pSaveName, psNewLevel->type))
-      return FALSE;
-  }
-
-  if (pSaveName != nullptr && saveType == GTYPE_SAVE_MIDMISSION)
-  {
-    //load script stuff
-    // load the event system state here for a save game
-    Neuron::DebugTrace("levLoadData: loading script system state\n");
-    if (!loadScriptState(pSaveName))
-      return FALSE;
-  }
-
   if (!stageThreeInitialise())
     return FALSE;
 
   //want to test with release build too
   //this enables us to to start cam2/cam3 without going via a save game and get the extra droids
   //in from the script-controlled Transporters
-  if (!pSaveName AND psNewLevel->type == LDS_CAMSTART)
+  if (psNewLevel->type == LDS_CAMSTART)
     eventFireCallbackTrigger(CALL_NO_REINFORCEMENTS_LEFT);
 
   //restore the level name for comparisons on next mission load up

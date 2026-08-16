@@ -18,7 +18,7 @@ using tMode = enum _title_mode
   GAME,
   // 4
   TUTORIAL,
-  // 5  tutorial/fastplay	
+  // 5  tutorial
   CREDITS,
   // 6  credits
   PROTOCOL,
@@ -37,15 +37,12 @@ using tMode = enum _title_mode
   // 13 reshow the intro
   QUIT,
   // 14 leaving game
-  LOADSAVEGAME,
-  // 15 loading a save game
   KEYMAP,
   // 16 keymap editor
   GAME2,
   // 17 second options menu.
   //		GRAPHICS,					// 5
   //		VIDEO,
-  //	DEMOMODE,					// demo mode. remove for release?
 };
 
 // This dos'nt compile on the PSX.
@@ -71,7 +68,6 @@ extern BOOL runTitleMenu(VOID);
 extern BOOL runSinglePlayerMenu(VOID);
 extern BOOL runMultiPlayerMenu(VOID);
 extern BOOL runGameOptionsMenu(VOID);
-extern BOOL runDemoMenu(VOID);
 extern BOOL runOptionsMenu(VOID);
 extern BOOL runTutorialMenu(VOID);
 
@@ -88,11 +84,9 @@ extern void displayLogo(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
 extern void displayTitleBitmap(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pColours);
 extern void displayTextOption(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pColours);
 
-extern void loadOK(void);
 extern BOOL CancelPressed(VOID);
 BOOL runGameOptions2Menu(VOID);
 
-extern BOOL GetInFastPlay(void);
 
 BOOL addIGTextButton(UDWORD id, UWORD y, UDWORD StringID, UDWORD Style);
 
@@ -160,7 +154,6 @@ BOOL addIGTextButton(UDWORD id, UWORD y, UDWORD StringID, UDWORD Style);
 #define FRONTEND_SKIRMISH		20010
 
 #define FRONTEND_NEWGAME		20011		// single player
-#define FRONTEND_LOADGAME		20012
 #define FRONTEND_PLAYINTRO		20013
 
 #define FRONTEND_SCROLLSPEED	20015
@@ -168,7 +161,6 @@ BOOL addIGTextButton(UDWORD id, UWORD y, UDWORD StringID, UDWORD Style);
 #define FRONTEND_MUSIC			20018
 
 #define FRONTEND_TUTORIAL		20019
-#define FRONTEND_FASTPLAY		20020
 
 #define FRONTEND_SCROLLSPEED_SL	20022
 #define FRONTEND_FX_SL			20024
@@ -197,12 +189,6 @@ BOOL addIGTextButton(UDWORD id, UWORD y, UDWORD StringID, UDWORD Style);
 #define FRONTEND_CONTROL		20041
 #define FRONTEND_CONTROL_BT		20042
 
-#define FRONTEND_DEMO			20056
-#define FRONTEND_DEMO1			20057
-#define FRONTEND_DEMO2			20058
-#define FRONTEND_DEMO3			20059
-#define FRONTEND_DEMO4			20060
-#define FRONTEND_DEMO5			20061
 
 #define FRONTEND_LOGO			20062
 

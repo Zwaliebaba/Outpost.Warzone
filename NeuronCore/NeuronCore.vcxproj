@@ -51,9 +51,9 @@
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;DIRECTINPUT_VERSION=0x0800;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>false</ConformanceMode>
+      <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\DX9\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
@@ -75,9 +75,9 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;DIRECTINPUT_VERSION=0x0800;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>false</ConformanceMode>
+      <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\DX9\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
@@ -90,126 +90,48 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Ani.h" />
-    <ClInclude Include="Anim.h" />
-    <ClInclude Include="AnimObj.h" />
-    <ClInclude Include="AudioMixer.h" />
-    <ClInclude Include="AudioSystem.h" />
-    <ClInclude Include="Bar.h" />
-    <ClInclude Include="BitImage.h" />
-    <ClInclude Include="BSPFunc.h" />
-    <ClInclude Include="BSPIMD.h" />
-    <ClInclude Include="Button.h" />
-    <ClInclude Include="CodePrint.h" />
-    <ClInclude Include="D3D9Vertex.h" />
-    <ClInclude Include="Render.h" />
-    <ClInclude Include="DXError.h" />
-    <ClInclude Include="Debug.h" />
-    <ClInclude Include="DXInput.h" />
-    <ClInclude Include="EditBox.h" />
-    <ClInclude Include="Event.h" />
-    <ClInclude Include="EvntSave.h" />
-    <ClInclude Include="Fbf.h" />
-    <ClInclude Include="Font.h" />
-    <ClInclude Include="Form.h" />
-    <ClInclude Include="Frame.h" />
-    <ClInclude Include="FrameInt.h" />
-    <ClInclude Include="FrameResource.h" />
-    <ClInclude Include="Geo.h" />
-    <ClInclude Include="GTime.h" />
+                                            <ClInclude Include="CodePrint.h" />
+                <ClInclude Include="Debug.h" />
+            <ClInclude Include="Event.h" />
+                <ClInclude Include="Frame.h" />
+            <ClInclude Include="FrameResource.h" />
+        <ClInclude Include="GTime.h" />
     <ClInclude Include="HashTabl.h" />
-    <ClInclude Include="Image.h" />
-    <ClInclude Include="IMD.h" />
-    <ClInclude Include="Model.h" />
-    <ClInclude Include="RenderModel.h" />
-    <ClInclude Include="Input.h" />
-    <ClInclude Include="Interp.h" />
-    <ClInclude Include="IvisPatch.h" />
-    <ClInclude Include="Label.h" />
-    <ClInclude Include="ListMacs.h" />
-    <ClInclude Include="MaxPiDef.h" />
-    <ClInclude Include="MultiWDG.h" />
+                        <ClInclude Include="Interp.h" />
+                    <ClInclude Include="MultiWDG.h" />
     <ClInclude Include="HostCertificate.h" />
     <ClInclude Include="NetPlay.h" />
     <ClInclude Include="Transport.h" />
     <ClInclude Include="NetTypes.h" />
     <ClInclude Include="NeuronCore.h" />
     <ClInclude Include="Parse.h" />
-    <ClInclude Include="Parser.h" />
-    <ClInclude Include="parser_y.h" />
-    <ClInclude Include="pch.h" />
-    <ClInclude Include="Pcx.h" />
-    <ClInclude Include="Render2D.h" />
-    <ClInclude Include="RenderClip.h" />
-    <ClInclude Include="PieFunc.h" />
-    <ClInclude Include="RenderMatrix.h" />
-    <ClInclude Include="PieMode.h" />
-    <ClInclude Include="Palette.h" />
-    <ClInclude Include="PieState.h" />
-    <ClInclude Include="RenderTypes.h" />
-    <ClInclude Include="PQueue.h" />
+            <ClInclude Include="pch.h" />
+                                        <ClInclude Include="PQueue.h" />
     <ClInclude Include="Priority.h" />
     <ClInclude Include="PtrList.h" />
-    <ClInclude Include="RendFunc.h" />
-    <ClInclude Include="RendMode.h" />
-    <ClInclude Include="ResLY.h" />
+            <ClInclude Include="ResLY.h" />
     <ClInclude Include="resource_y.h" />
-    <ClInclude Include="Screen.h" />
-    <ClInclude Include="Script.h" />
+        <ClInclude Include="Script.h" />
     <ClInclude Include="Script_y.h" />
-    <ClInclude Include="MovieStream.h" />
-    <ClInclude Include="Sequence.h" />
-    <ClInclude Include="Slider.h" />
-    <ClInclude Include="Stack.h" />
+                <ClInclude Include="Stack.h" />
     <ClInclude Include="StrRes.h" />
     <ClInclude Include="StrResLY.h" />
     <ClInclude Include="StrRes_y.h" />
-    <ClInclude Include="Surface.h" />
-    <ClInclude Include="Tex.h" />
-    <ClInclude Include="TexMan.h" />
-    <ClInclude Include="TextDraw.h" />
-    <ClInclude Include="Tip.h" />
-    <ClInclude Include="Track.h" />
-    <ClInclude Include="WavData.h" />
-    <ClInclude Include="Treap.h" />
+                                <ClInclude Include="Treap.h" />
     <ClInclude Include="TreapInt.h" />
     <ClInclude Include="Trig.h" />
     <ClInclude Include="Types.h" />
     <ClInclude Include="WDG.h" />
-    <ClInclude Include="WidgBase.h" />
-    <ClInclude Include="Widget.h" />
-    <ClInclude Include="WidgInt.h" />
-  </ItemGroup>
+              </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Anim.cpp" />
-    <ClCompile Include="AnimObj.cpp" />
-    <ClCompile Include="AudioMixer.cpp" />
-    <ClCompile Include="AudioSystem.cpp" />
-    <ClCompile Include="Bar.cpp" />
-    <ClCompile Include="BitImage.cpp" />
-    <ClCompile Include="BSPIMD.cpp" />
-    <ClCompile Include="Button.cpp" />
-    <ClCompile Include="CodePrint.cpp" />
-    <ClCompile Include="Render.cpp" />
-    <ClCompile Include="DXError.cpp" />
-    <ClCompile Include="DXInput.cpp" />
-    <ClCompile Include="EditBox.cpp" />
-    <ClCompile Include="Event.cpp" />
-    <ClCompile Include="EvntSave.cpp" />
-    <ClCompile Include="Fbf.cpp" />
-    <ClCompile Include="Font.cpp" />
-    <ClCompile Include="Form.cpp" />
-    <ClCompile Include="Frame.cpp" />
-    <ClCompile Include="FrameResource.cpp" />
+                                    <ClCompile Include="CodePrint.cpp" />
+                    <ClCompile Include="Event.cpp" />
+                <ClCompile Include="Frame.cpp" />
+        <ClCompile Include="FrameResource.cpp" />
     <ClCompile Include="GTime.cpp" />
     <ClCompile Include="HashTabl.cpp" />
-    <ClCompile Include="Image.cpp" />
-    <ClCompile Include="IMD.cpp" />
-    <ClCompile Include="IMDLoad.cpp" />
-    <ClCompile Include="Input.cpp" />
-    <ClCompile Include="Interp.cpp" />
-    <ClCompile Include="Label.cpp" />
-    <ClCompile Include="MultiWDG.cpp" />
+                    <ClCompile Include="Interp.cpp" />
+        <ClCompile Include="MultiWDG.cpp" />
     <ClCompile Include="HostCertificate.cpp" />
     <ClCompile Include="NetCrypt.cpp" />
     <ClCompile Include="NetJoin.cpp" />
@@ -217,47 +139,24 @@
     <ClCompile Include="Transport.cpp" />
     <ClCompile Include="NetSupp.cpp" />
     <ClCompile Include="NetUsers.cpp" />
-    <ClCompile Include="parser_l.cpp" />
-    <ClCompile Include="parser_y.cpp" />
-    <ClCompile Include="pch.cpp">
+            <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Pcx.cpp" />
-    <ClCompile Include="Render2D.cpp" />
-    <ClCompile Include="RenderClip.cpp" />
-    <ClCompile Include="RenderModel.cpp" />
-    <ClCompile Include="PieFunc.cpp" />
-    <ClCompile Include="RenderMatrix.cpp" />
-    <ClCompile Include="PieMode.cpp" />
-    <ClCompile Include="Palette.cpp" />
-    <ClCompile Include="PQueue.cpp" />
+                                    <ClCompile Include="PQueue.cpp" />
     <ClCompile Include="PtrList.cpp" />
-    <ClCompile Include="RendFunc.cpp" />
-    <ClCompile Include="RendMode.cpp" />
-    <ClCompile Include="resource_l.cpp" />
+            <ClCompile Include="resource_l.cpp" />
     <ClCompile Include="resource_y.cpp" />
-    <ClCompile Include="Screen.cpp" />
-    <ClCompile Include="Script.cpp" />
+        <ClCompile Include="Script.cpp" />
     <ClCompile Include="Script_l.cpp" />
     <ClCompile Include="Script_y.cpp" />
-    <ClCompile Include="MovieStream.cpp" />
-    <ClCompile Include="Sequence.cpp" />
-    <ClCompile Include="Slider.cpp" />
-    <ClCompile Include="Stack.cpp" />
+                <ClCompile Include="Stack.cpp" />
     <ClCompile Include="StrRes.cpp" />
     <ClCompile Include="StrRes_l.cpp" />
     <ClCompile Include="StrRes_y.cpp" />
-    <ClCompile Include="Surface.cpp" />
-    <ClCompile Include="Tex.cpp" />
-    <ClCompile Include="TexMan.cpp" />
-    <ClCompile Include="TextDraw.cpp" />
-    <ClCompile Include="Tip.cpp" />
-    <ClCompile Include="WavData.cpp" />
-    <ClCompile Include="Treap.cpp" />
+                            <ClCompile Include="Treap.cpp" />
     <ClCompile Include="Trig.cpp" />
     <ClCompile Include="WDG.cpp" />
-    <ClCompile Include="Widget.cpp" />
-  </ItemGroup>
+      </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="parser.l" />

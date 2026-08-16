@@ -6,42 +6,6 @@
 
 
 /******************************************************/
-/*     self contained test levels                     */
-
-level		PROG
-data		"wrf\vidmem.wrf"
-data		"wrf\basic.wrf"
-data		"wrf\cam1.wrf"
-data		"wrf\audio.wrf"
-data		"wrf\piestats.wrf"
-data		"wrf\stats.wrf"
-//data		"wrf\cam1Res.wrf"
-game		"multiplay\maps\4c-rush.gam"
-//data		"wrf\multi\cm1.wrf"
-data		"wrf\prog.wrf"
-
-level		DEMO
-data		"wrf\vidmem3.wrf"
-data		"wrf\basic.wrf"
-data		"wrf\cam1.wrf"
-data		"wrf\audio.wrf"
-data		"wrf\piestats.wrf"
-data		"wrf\stats.wrf"
-data		"wrf\cam1Res.wrf"
-game		"wrf\Demo\DemoCam3.gam"
-data		"wrf\Demo\DemoCam3.wrf"
-
-level		MINIMAL
-data		"wrf\vidmem.wrf"
-data		"wrf\basic.wrf"
-data		"wrf\cam1.wrf"
-data		"wrf\audio.wrf"
-data		"wrf\minimal.wrf"
-
-level		TEST
-data		"test.wrf"
-
-/******************************************************/
 /*     Tutorial dataset and levels                  */
 
 campaign	CAM_TUT3
@@ -443,26 +407,6 @@ dataset		CAM_3
 game		"wrf\cam3\cam3-4.gam"
 data		"wrf\cam3\sub3-4.wrf"
 
-
-/********************************************************/
-/* fast play 						*/
-
-camstart	FASTPLAY
-dataset		CAM_1
-//game		"wrf\FastPlay\fastplay.gam"
-//data		"wrf\FastPlay\fastplay.wrf"
-//changed for demo!
-game		"wrf\FastPlay\fastdemo.gam"
-data		"wrf\FastPlay\fastdemo.wrf"
-
-between		SUBDEMO_START
-dataset		CAM_1
-data		"wrf\FastPlay\subdemos.wrf"
-
-miss_keep	SUBDEMO
-dataset		CAM_1
-game		"wrf\FastPlay\subdemo.gam"
-data		"wrf\FastPlay\subdemo.wrf"
 
 
 /********************************************************/

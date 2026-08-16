@@ -6,7 +6,7 @@
 
 // functions	
 extern BOOL intAddInGameOptions(void);
-extern BOOL intCloseInGameOptions(BOOL bPutUpLoadSave, BOOL bResetMissionWidgets);
+extern BOOL intCloseInGameOptions(BOOL bResetMissionWidgets);
 extern void intCloseInGameOptionsNoAnim(BOOL bResetMissionWidgets);
 extern BOOL intRunInGameOptions(void);
 extern void intProcessInGameOptions(UDWORD);
@@ -62,8 +62,6 @@ extern BOOL bSubtitles;
 #define INTINGAMEOP_QUIT			(INTINGAMEOP+1)
 #define	INTINGAMEOP_RESUME			(INTINGAMEOP+3)	//resume
 
-#define INTINGAMEOP_LOAD			(INTINGAMEOP+4)
-#define INTINGAMEOP_SAVE			(INTINGAMEOP+5)
 #define INTINGAMEOP_OPTIONS			(INTINGAMEOP+6)
 #define INTINGAMEOP_FXVOL			(INTINGAMEOP+7)
 #define INTINGAMEOP_FXVOL_S			(INTINGAMEOP+8)
