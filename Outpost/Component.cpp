@@ -1,4 +1,5 @@
 #include "pch.h"
+#include <directxmath.h>
 /*	
 	Component.c
 	Draws component objects - oh yes indeed.
@@ -111,25 +112,25 @@ void updateLightLevels(void)
 
 void setMatrix(iVector* Position, iVector* Rotation, iVector* CameraPos, BOOL RotXYZ)
 {
-  pie_MatBegin();
+  Neuron::MatrixPush();
 
-  pie_TRANSLATE(Position->x, Position->y, Position->z);
+  Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(Position->x), static_cast<float>(Position->y), static_cast<float>(Position->z)) * Neuron::WorldMatrix();
 
   if (RotXYZ)
   {
-    pie_MatRotX(DEG(Rotation->x));
-    pie_MatRotY(DEG(Rotation->y));
-    pie_MatRotZ(DEG(Rotation->z));
+    Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(static_cast<float>(Rotation->x))) * Neuron::WorldMatrix();
+    Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(DirectX::XMConvertToRadians(static_cast<float>(Rotation->y))) * Neuron::WorldMatrix();
+    Neuron::WorldMatrix() = DirectX::XMMatrixRotationZ(DirectX::XMConvertToRadians(static_cast<float>(Rotation->z))) * Neuron::WorldMatrix();
   }
   else
   {
-    pie_MatRotY(DEG(Rotation->y));
-    pie_MatRotX(DEG(Rotation->x));
-    pie_MatRotZ(DEG(Rotation->z));
+    Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(DirectX::XMConvertToRadians(static_cast<float>(Rotation->y))) * Neuron::WorldMatrix();
+    Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(static_cast<float>(Rotation->x))) * Neuron::WorldMatrix();
+    Neuron::WorldMatrix() = DirectX::XMMatrixRotationZ(DirectX::XMConvertToRadians(static_cast<float>(Rotation->z))) * Neuron::WorldMatrix();
   }
 }
 
-void unsetMatrix(void) { pie_MatEnd(); }
+void unsetMatrix(void) { Neuron::MatrixPop(); }
 
 UDWORD getComponentDroidRadius(DROID* psDroid)
 {
@@ -312,18 +313,18 @@ void displayStructureButton(STRUCTURE* psStructure, iVector* Rotation, iVector* 
     //draw Weapon/ECM/Sensor for structure
     if (weaponImd != nullptr)
     {
-      pie_MatBegin();
-      pie_TRANSLATE(strImd->connectors->x, strImd->connectors->z, strImd->connectors->y);
-      pie_MatRotY(DEG(-static_cast<SDWORD>(psStructure->turretRotation)));
+      Neuron::MatrixPush();
+      Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(strImd->connectors->x), static_cast<float>(strImd->connectors->z), static_cast<float>(strImd->connectors->y)) * Neuron::WorldMatrix();
+      Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(DirectX::XMConvertToRadians(static_cast<float>(-static_cast<SWORD>(psStructure->turretRotation)))) * Neuron::WorldMatrix();
       if (mountImd != nullptr)
       {
         pie_Draw3DShape(mountImd, 0, getPlayerColour(selectedPlayer), pie_MAX_BRIGHT_LEVEL, 0, pie_BUTTON, 0);
-        if (mountImd->nconnectors) { pie_TRANSLATE(mountImd->connectors->x, mountImd->connectors->z, mountImd->connectors->y); }
+        if (mountImd->nconnectors) { Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(mountImd->connectors->x), static_cast<float>(mountImd->connectors->z), static_cast<float>(mountImd->connectors->y)) * Neuron::WorldMatrix(); }
       }
-      pie_MatRotX(DEG(psStructure->turretPitch));
+      Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(static_cast<float>(static_cast<SWORD>(psStructure->turretPitch)))) * Neuron::WorldMatrix();
       pie_Draw3DShape(weaponImd, 0, getPlayerColour(selectedPlayer), pie_MAX_BRIGHT_LEVEL, 0, pie_BUTTON, 0);
       //we have a droid weapon so do we draw a muzzle flash
-      pie_MatEnd();
+      Neuron::MatrixPop();
     }
   }
   unsetMatrix();
@@ -391,18 +392,16 @@ void displayStructureStatButton(STRUCTURE_STATS* Stats, UDWORD Player, iVector* 
     //draw Weapon/ECM/Sensor for structure
     if (weaponImd != nullptr)
     {
-      pie_MatBegin();
-      pie_TRANSLATE(strImd->connectors->x, strImd->connectors->z, strImd->connectors->y);
-      pie_MatRotY(DEG(0));
+      Neuron::MatrixPush();
+      Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(strImd->connectors->x), static_cast<float>(strImd->connectors->z), static_cast<float>(strImd->connectors->y)) * Neuron::WorldMatrix();
       if (mountImd != nullptr)
       {
         pie_Draw3DShape(mountImd, 0, getPlayerColour(selectedPlayer), pie_MAX_BRIGHT_LEVEL, 0, pie_BUTTON, 0);
-        if (mountImd->nconnectors) { pie_TRANSLATE(mountImd->connectors->x, mountImd->connectors->z, mountImd->connectors->y); }
+        if (mountImd->nconnectors) { Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(mountImd->connectors->x), static_cast<float>(mountImd->connectors->z), static_cast<float>(mountImd->connectors->y)) * Neuron::WorldMatrix(); }
       }
-      pie_MatRotX(DEG(0));
       pie_Draw3DShape(weaponImd, 0, getPlayerColour(selectedPlayer), pie_MAX_BRIGHT_LEVEL, 0, pie_BUTTON, 0);
       //we have a droid weapon so do we draw a muzzle flash
-      pie_MatEnd();
+      Neuron::MatrixPop();
     }
   }
 
@@ -553,14 +552,14 @@ void displayComponentObject(BASE_OBJECT* psObj)
     leftFirst = TRUE;
 
   /* Push the matrix */
-  pie_MatBegin();
+  Neuron::MatrixPush();
 
   /* Get internal tile units coordinates */
   xShift = player.p.x & (TILE_UNITS - 1);
   zShift = player.p.z & (TILE_UNITS - 1);
 
   /* Mask out to tile_units resolution */
-  pie_TRANSLATE(xShift, 0, -zShift);
+  Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(xShift), 0.0f, static_cast<float>(-zShift)) * Neuron::WorldMatrix();
 
   /* Get the real position */
   position.x = (psDroid->x - player.p.x) - terrainMidX * TILE_UNITS;
@@ -581,12 +580,12 @@ void displayComponentObject(BASE_OBJECT* psObj)
   mountRotation.z = 0;
 
   /* Translate origin */
-  pie_TRANSLATE(position.x, position.y, position.z);
+  Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(position.x), static_cast<float>(position.y), static_cast<float>(position.z)) * Neuron::WorldMatrix();
 
   /* Rotate for droid */
-  pie_MatRotY(DEG(rotation.y));
-  pie_MatRotX(DEG(rotation.x));
-  pie_MatRotZ(DEG(rotation.z));
+  Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(DirectX::XMConvertToRadians(static_cast<float>(rotation.y))) * Neuron::WorldMatrix();
+  Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(static_cast<float>(rotation.x))) * Neuron::WorldMatrix();
+  Neuron::WorldMatrix() = DirectX::XMMatrixRotationZ(DirectX::XMConvertToRadians(static_cast<float>(rotation.z))) * Neuron::WorldMatrix();
 
   if ((gameTime - psDroid->timeLastHit < GAME_TICKS_PER_SEC) AND psDroid->lastHitWeapon == WSC_ELECTRONIC)
     objectShimmy((BASE_OBJECT*)psDroid);
@@ -625,7 +624,7 @@ void displayComponentObject(BASE_OBJECT* psObj)
       }
     }
   }
-  pie_MatEnd();
+  Neuron::MatrixPop();
 }
 
 /* Assumes matrix context is already set */
@@ -671,7 +670,7 @@ void displayCompObj(BASE_OBJECT* psObj, iVector* mountRotation, BOOL bButton)
   null.x = null.y = null.z = 0;
 
   /* We've got a z value here _and_ screen coords of origin */
-  dummyZ = pie_RotProj(&null, &screenCoords);
+  dummyZ = Neuron::ProjectToScreen(null.x, null.y, null.z, &screenCoords.x, &screenCoords.y);
 
   /* Draw the propulsion and body imds here */
   /* Establish the propulsion - this is more complex if two parts */
@@ -789,7 +788,7 @@ void displayCompObj(BASE_OBJECT* psObj, iVector* mountRotation, BOOL bButton)
   /* Indenting here is only to show new matrix context */
   {
     psShape = BODY_IMD(psDroid, psDroid->player);
-    pie_MatBegin();
+    Neuron::MatrixPush();
     if (psShape->nconnectors)
     {
       /* vtol weapons attach to connector 2 (underneath);
@@ -800,15 +799,15 @@ void displayCompObj(BASE_OBJECT* psObj, iVector* mountRotation, BOOL bButton)
         iConnector = 0;
 
       /* Now we need to move for the mount point */
-      pie_TRANSLATE(psShape->connectors[iConnector].x, psShape->connectors[iConnector].z, psShape->connectors[iConnector].y);
+      Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(psShape->connectors[iConnector].x), static_cast<float>(psShape->connectors[iConnector].z), static_cast<float>(psShape->connectors[iConnector].y)) * Neuron::WorldMatrix();
 
       /* Rotate the turret */
-      pie_MatRotY(DEG(mountRotation->y));
+      Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(DirectX::XMConvertToRadians(static_cast<float>(mountRotation->y))) * Neuron::WorldMatrix();
       //dont pitch the turret
 
       /* vtol weapons inverted */
       if (iConnector == 1)
-        pie_MatRotZ(DEG_360 / 2); //this might affect gun rotation
+        Neuron::WorldMatrix() = DirectX::XMMatrixRotationZ((DEG_360 / 2) * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix(); //this might affect gun rotation
 
       //SEPERATE Mount IMDs now...
       /*	Get the mounting graphic - we've already moved to the right position 
@@ -833,33 +832,33 @@ void displayCompObj(BASE_OBJECT* psObj, iVector* mountRotation, BOOL bButton)
           /* Draw it */
           //if(psDroid->numWeaps) already done this check above?!
           {
-            pie_TRANSLATE(0, 0, psDroid->asWeaps[0].recoilValue/3);
+            Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(0.0f, 0.0f, static_cast<float>(psDroid->asWeaps[0].recoilValue / 3)) * Neuron::WorldMatrix();
           }
           if (psShape)
             pie_Draw3DShape(psShape, 0, colour/*getPlayerColour(psDroid->player)*/, brightness, specular, pieFlag, iPieData);
 
           //if(psDroid->numWeaps) already done this check above?!
           {
-            pie_TRANSLATE(0, 0, psDroid->asWeaps[0].recoilValue);
+            Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(0.0f, 0.0f, static_cast<float>(psDroid->asWeaps[0].recoilValue)) * Neuron::WorldMatrix();
           }
 
           /* translate for weapon mount point if cyborg */
           //if( psDroid->droidType == DROID_CYBORG &&
           if (cyborgDroid(psDroid) && psShape && psShape->nconnectors)
           {
-            pie_TRANSLATE(psShape->connectors[0].x, psShape->connectors[0].z, psShape->connectors[0].y);
+            Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(psShape->connectors[0].x), static_cast<float>(psShape->connectors[0].z), static_cast<float>(psShape->connectors[0].y)) * Neuron::WorldMatrix();
           }
 
           /* vtol weapons inverted */
           if (iConnector == 1)
           {
             //pitch the barrel down
-            pie_MatRotX(DEG(-mountRotation->x));
+            Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(static_cast<float>(-mountRotation->x))) * Neuron::WorldMatrix();
           }
           else
           {
             //pitch the barrel up
-            pie_MatRotX(DEG(mountRotation->x));
+            Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(static_cast<float>(mountRotation->x))) * Neuron::WorldMatrix();
           }
 
           /* Get the weapon (gun?) graphic */
@@ -871,7 +870,7 @@ void displayCompObj(BASE_OBJECT* psObj, iVector* mountRotation, BOOL bButton)
           if (psShape && psShape->nconnectors)
           {
             /* Now we need to move to the end fo the barrel */
-            pie_TRANSLATE(psShape->connectors[0].x, psShape->connectors[0].z, psShape->connectors[0].y);
+            Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(psShape->connectors[0].x), static_cast<float>(psShape->connectors[0].z), static_cast<float>(psShape->connectors[0].y)) * Neuron::WorldMatrix();
             //and draw the muzzle flash
             //animate for the duration of the flash only
             psShape = MUZZLE_FLASH_PIE(psDroid, psDroid->player);
@@ -929,7 +928,7 @@ void displayCompObj(BASE_OBJECT* psObj, iVector* mountRotation, BOOL bButton)
         /* translate for construct mount point if cyborg */
         if (cyborgDroid(psDroid) && psShape && psShape->nconnectors)
         {
-          pie_TRANSLATE(psShape->connectors[0].x, psShape->connectors[0].z, psShape->connectors[0].y);
+          Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(psShape->connectors[0].x), static_cast<float>(psShape->connectors[0].z), static_cast<float>(psShape->connectors[0].y)) * Neuron::WorldMatrix();
         }
 
         /* Get the construct graphic assuming it's there */
@@ -968,7 +967,7 @@ void displayCompObj(BASE_OBJECT* psObj, iVector* mountRotation, BOOL bButton)
         /* translate for construct mount point if cyborg */
         if (cyborgDroid(psDroid) && psShape && psShape->nconnectors)
         {
-          pie_TRANSLATE(psShape->connectors[0].x, psShape->connectors[0].z, psShape->connectors[0].y);
+          Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(psShape->connectors[0].x), static_cast<float>(psShape->connectors[0].z), static_cast<float>(psShape->connectors[0].y)) * Neuron::WorldMatrix();
         }
 
         /* Get the Repair graphic assuming it's there.... */
@@ -980,23 +979,23 @@ void displayCompObj(BASE_OBJECT* psObj, iVector* mountRotation, BOOL bButton)
           pie_Draw3DShape(psShape, 0, colour /*getPlayerColour( psDroid->player)*/, brightness, specular, pieFlag, iPieData);
           if (psShape->nconnectors AND psDroid->action == DACTION_DROIDREPAIR)
           {
-            pie_TRANSLATE(psShape->connectors[0].x, psShape->connectors[0].z, psShape->connectors[0].y);
-            pie_TRANSLATE(0, -20, 0);
+            Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(psShape->connectors[0].x), static_cast<float>(psShape->connectors[0].z), static_cast<float>(psShape->connectors[0].y)) * Neuron::WorldMatrix();
+            Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(0.0f, -20.0f, 0.0f) * Neuron::WorldMatrix();
 
             psShape = getImdFromIndex(MI_FLAME);
 
             /* Rotate for droid */
-            pie_MatRotY(DEG(static_cast<SDWORD>(psDroid->direction)));
-            pie_MatRotX(DEG(-psDroid->pitch));
-            pie_MatRotZ(DEG(-psDroid->roll));
-            pie_MatRotY(DEG(-mountRotation->y));
+            Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(DirectX::XMConvertToRadians(static_cast<float>(static_cast<SWORD>(psDroid->direction)))) * Neuron::WorldMatrix();
+            Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(static_cast<float>(-psDroid->pitch))) * Neuron::WorldMatrix();
+            Neuron::WorldMatrix() = DirectX::XMMatrixRotationZ(DirectX::XMConvertToRadians(static_cast<float>(-psDroid->roll))) * Neuron::WorldMatrix();
+            Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(DirectX::XMConvertToRadians(static_cast<float>(-mountRotation->y))) * Neuron::WorldMatrix();
 
-            pie_MatRotY(-player.r.y);
-            pie_MatRotX(-player.r.x);
+            Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(-player.r.y * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
+            Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(-player.r.x * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
             pie_Draw3DShape(psShape, getStaticTimeValueRange(100, psShape->numFrames), 0, brightness, 0, pie_ADDITIVE, 140);
 
-            pie_MatRotX(player.r.x);
-            pie_MatRotY(player.r.y);
+            Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(player.r.x * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
+            Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(player.r.y * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
           }
         }
         break;
@@ -1011,7 +1010,7 @@ void displayCompObj(BASE_OBJECT* psObj, iVector* mountRotation, BOOL bButton)
       muzzle flash attachment points - just grab it from psShape->connectors->[x|y|z] */
 
     /* Pop Matrix */
-    pie_MatEnd();
+    Neuron::MatrixPop();
   } // end of illustrative indentation - see above
 
   /* set default components transparent */
