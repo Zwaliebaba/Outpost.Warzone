@@ -15,40 +15,18 @@
  *	Global Definitions
  */
 /***************************************************************************/
-//the version number used in save games
-#define VERSION_7				7				//string ID names saved for comps an objects
-#define VERSION_8				8				//research status saved out for user saved games
-#define VERSION_9				9				//power and experience saved out for user saved games
-#define VERSION_10				10				//includes gateways and zones in .map file.
-#define VERSION_11				11				//newstyle save game with extending structure checked in 13 Nov.
-#define VERSION_12				12				//mission and order stuff checked in 20 Nov.
-#define VERSION_13				13				//odds and ends to 24 Nov. and hashed scripts
-#define VERSION_14				14				//
-#define VERSION_15				15				//
-#define VERSION_16				16				//beta save game
-#define VERSION_17				17				//objId and new struct stats included
-#define VERSION_18				18				//droid name savegame validity stamps
-#define VERSION_19				19				//alliances, colours, radar zoom
-#define VERSION_20				20				//MAX_NAME_ SIZE replaced by MAX_SAVE_NAME_SIZE
-#define VERSION_21              21              //timeStartHold saved out for research facilities
-#define VERSION_22              22              //asRundData
-#define VERSION_23              23              //limbo droids and camstart droids saved properly, no cluster save
-#define VERSION_24              24              //reinforceTime, droid move, droid resistance
-#define VERSION_25              25              //limbo droid, research module hold fixed, cleaned by Alex
-#define VERSION_26              26              //reArm pads
-#define VERSION_27              27              //unit not the "d" word, experience and repair facility currentPtsAdded
-#define VERSION_28              28              //rearm pads currentPtsAdded saved
-#define VERSION_29              29              //mission scroll limits saved
-#define VERSION_30              30              //script external variables saved
-#define VERSION_31              31              //mission cheat time saved
-#define VERSION_32              32              //factory secondary order saved
-#define VERSION_33              33              //skirmish save 
+/* The .gam/.bjo format versions. Shipped level content is version 5-8; the
+ * user-save formats (9-33) are gone with save/load itself, and the readers
+ * reject anything above 8. CURRENT_VERSION_NUM survives as the map format's
+ * version stamp. */
+#define VERSION_7				7
+#define VERSION_8				8
+#define VERSION_9				9
+#define VERSION_12				12
+#define VERSION_14				14
+#define VERSION_19				19
 
-#ifdef SAVE_TEST
-#define	CURRENT_VERSION_NUM		VERSION_33
-#else
-#define	CURRENT_VERSION_NUM		VERSION_33
-#endif
+#define	CURRENT_VERSION_NUM		33
 
 //used in the loadGame
 #define KEEPOBJECTS				TRUE
@@ -67,26 +45,6 @@ enum
   // User saved game - at the start of a level.
   GTYPE_SAVE_MIDMISSION,
   // User saved game - in the middle of a level
-};
-
-using VIS_SAVEHEADER = struct _vis_save_header
-{
-  STRING aFileType[4];
-  UDWORD version;
-};
-
-using FX_SAVEHEADER = struct _fx_save_header
-{
-  STRING aFileType[4];
-  UDWORD version;
-  UDWORD entries;
-};
-
-using SCORE_SAVEHEADER = struct _score_save_header
-{
-  STRING aFileType[4];
-  UDWORD version;
-  UDWORD entries; // should always be one for this?
 };
 
 /***************************************************************************/

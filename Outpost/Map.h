@@ -209,7 +209,6 @@ extern BOOL mapNew(UDWORD width, UDWORD height);
 extern BOOL mapLoad(UBYTE* pFileData, UDWORD fileSize);
 
 /* Save the map data */
-extern BOOL mapSave(UBYTE** ppFileData, UDWORD* pFileSize);
 
 /* Load map texture info */
 extern void mapLoadTexture(void);

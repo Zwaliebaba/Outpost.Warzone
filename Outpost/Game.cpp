@@ -77,12 +77,6 @@ using GAME_SAVEHEADER = struct _game_save_header
   UDWORD version;
 };
 
-using DROID_SAVEHEADER = struct _droid_save_header
-{
-  STRING aFileType[4];
-  UDWORD version;
-  UDWORD quantity;
-};
 
 using STRUCT_SAVEHEADER = struct _struct_save_header
 {
@@ -91,12 +85,6 @@ using STRUCT_SAVEHEADER = struct _struct_save_header
   UDWORD quantity;
 };
 
-using TEMPLATE_SAVEHEADER = struct _template_save_header
-{
-  STRING aFileType[4];
-  UDWORD version;
-  UDWORD quantity;
-};
 
 using FEATURE_SAVEHEADER = struct _feature_save_header
 {
@@ -114,68 +102,15 @@ using TILETYPE_SAVEHEADER = struct
 };
 
 /* Structure definitions for loading and saving map data */
-using COMPLIST_SAVEHEADER = struct _compList_save_header
-{
-  STRING aFileType[4];
-  UDWORD version;
-  UDWORD quantity;
-};
 
 /* Structure definitions for loading and saving map data */
-using STRUCTLIST_SAVEHEADER = struct _structList_save_header
-{
-  STRING aFileType[4];
-  UDWORD version;
-  UDWORD quantity;
-};
 
-using RESEARCH_SAVEHEADER = struct _research_save_header
-{
-  STRING aFileType[4];
-  UDWORD version;
-  UDWORD quantity;
-};
 
-using MESSAGE_SAVEHEADER = struct _message_save_header
-{
-  STRING aFileType[4];
-  UDWORD version;
-  UDWORD quantity;
-};
 
-using PROXIMITY_SAVEHEADER = struct _proximity_save_header
-{
-  STRING aFileType[4];
-  UDWORD version;
-  UDWORD quantity;
-};
 
-using FLAG_SAVEHEADER = struct _flag_save_header
-{
-  STRING aFileType[4];
-  UDWORD version;
-  UDWORD quantity;
-};
 
-using PRODUCTION_SAVEHEADER = struct _production_save_header
-{
-  STRING aFileType[4];
-  UDWORD version;
-};
 
-using STRUCTLIMITS_SAVEHEADER = struct _structLimits_save_header
-{
-  STRING aFileType[4];
-  UDWORD version;
-  UDWORD quantity;
-};
 
-using COMMAND_SAVEHEADER = struct _command_save_header
-{
-  STRING aFileType[4];
-  UDWORD version;
-  UDWORD quantity;
-};
 
 /* Sanity check definitions for the save struct file sizes */
 #define GAME_HEADER_SIZE			8
@@ -218,37 +153,10 @@ using COMMAND_SAVEHEADER = struct _command_save_header
 	UDWORD				burnStart; \
 	UDWORD				burnDamage
 
-using SAVE_COMPONENT_V19 = struct _save_component_v19
-{
-  STRING name[MAX_SAVE_NAME_SIZE_V19];
-};
 
-using SAVE_COMPONENT = struct _save_component
-{
-  STRING name[MAX_SAVE_NAME_SIZE];
-};
 
-using SAVE_WEAPON_V19 = struct _save_weapon_v19
-{
-  STRING name[MAX_SAVE_NAME_SIZE_V19];
-  UDWORD hitPoints; //- remove at some point
-  UDWORD ammo;
-  UDWORD lastFired;
-};
 
-using SAVE_WEAPON = struct _save_weapon
-{
-  STRING name[MAX_SAVE_NAME_SIZE];
-  UDWORD hitPoints; //- remove at some point
-  UDWORD ammo;
-  UDWORD lastFired;
-};
 
-using SAVE_POWER = struct _savePower
-{
-  UDWORD currentPower;
-  UDWORD extractedPower;
-};
 
 #define GAME_SAVE_V7	\
 	UDWORD	gameTime;	\
@@ -264,463 +172,34 @@ using SAVE_GAME_V7 = struct save_game_v7
   GAME_SAVE_V7;
 };
 
-#define GAME_SAVE_V10	\
-	GAME_SAVE_V7;		\
-	SAVE_POWER	power[MAX_PLAYERS]
 
-using SAVE_GAME_V10 = struct save_game_v10
-{
-  GAME_SAVE_V10;
-};
 
-#define GAME_SAVE_V11	\
-	GAME_SAVE_V10;		\
-	iView currentPlayerPos
 
-using SAVE_GAME_V11 = struct save_game_v11
-{
-  GAME_SAVE_V11;
-};
-
-#define GAME_SAVE_V12	\
-	GAME_SAVE_V11;		\
-	UDWORD	missionTime;\
-	UDWORD	saveKey
-
-using SAVE_GAME_V12 = struct save_game_v12
-{
-  GAME_SAVE_V12;
-};
-
-#define GAME_SAVE_V14			\
-	GAME_SAVE_V12;				\
-	SDWORD	missionOffTime;		\
-	SDWORD	missionETA;			\
-    UWORD   missionHomeLZ_X;	\
-    UWORD   missionHomeLZ_Y;	\
-	SDWORD	missionPlayerX;		\
-	SDWORD	missionPlayerY;		\
-	UWORD	iTranspEntryTileX[MAX_PLAYERS];	\
-	UWORD	iTranspEntryTileY[MAX_PLAYERS];	\
-	UWORD	iTranspExitTileX[MAX_PLAYERS];	\
-	UWORD	iTranspExitTileY[MAX_PLAYERS];	\
-	UDWORD 	aDefaultSensor[MAX_PLAYERS];	\
-	UDWORD	aDefaultECM[MAX_PLAYERS];		\
-	UDWORD	aDefaultRepair[MAX_PLAYERS]
-
-using SAVE_GAME_V14 = struct save_game_v14
-{
-  GAME_SAVE_V14;
-};
-
-#define GAME_SAVE_V15			\
-	GAME_SAVE_V14;				\
-	BOOL	offWorldKeepLists;\
-	UBYTE	aDroidExperience[MAX_PLAYERS][MAX_RECYCLED_DROIDS];\
-	UDWORD	RubbleTile;\
-	UDWORD	WaterTile;\
-	UDWORD	fogColour;\
-	UDWORD	fogState
-
-using SAVE_GAME_V15 = struct save_game_v15
-{
-  GAME_SAVE_V15;
-};
-
-#define GAME_SAVE_V16			\
-	GAME_SAVE_V15;				\
-	LANDING_ZONE   sLandingZone[MAX_NOGO_AREAS]
-
-using SAVE_GAME_V16 = struct save_game_v16
-{
-  GAME_SAVE_V16;
-};
-
-#define GAME_SAVE_V17			\
-	GAME_SAVE_V16;				\
-	UDWORD   objId
-
-using SAVE_GAME_V17 = struct save_game_v17
-{
-  GAME_SAVE_V17;
-};
-
-#define GAME_SAVE_V18			\
-	GAME_SAVE_V17;				\
-	char		buildDate[MAX_STR_LENGTH];		\
-	UDWORD		oldestVersion;	\
-	UDWORD		validityKey
-
-using SAVE_GAME_V18 = struct save_game_v18
-{
-  GAME_SAVE_V18;
-};
-
-#define GAME_SAVE_V19			\
-	GAME_SAVE_V18;				\
-	UBYTE alliances[MAX_PLAYERS][MAX_PLAYERS];\
-	UBYTE playerColour[MAX_PLAYERS];\
-	UBYTE radarZoom
-
-using SAVE_GAME_V19 = struct save_game_v19
-{
-  GAME_SAVE_V19;
-};
-
-#define GAME_SAVE_V20			\
-	GAME_SAVE_V19;				\
-	UBYTE bDroidsToSafetyFlag;	\
-	POINT	asVTOLReturnPos[MAX_PLAYERS]
-
-using SAVE_GAME_V20 = struct save_game_v20
-{
-  GAME_SAVE_V20;
-};
-
-#define GAME_SAVE_V22			\
-	GAME_SAVE_V20;				\
-	RUN_DATA	asRunData[MAX_PLAYERS]
-
-using SAVE_GAME_V22 = struct save_game_v22
-{
-  GAME_SAVE_V22;
-};
-
-#define GAME_SAVE_V24			\
-	GAME_SAVE_V22;				\
-	UDWORD reinforceTime;		\
-	UBYTE bPlayCountDown;	\
-	UBYTE bPlayerHasWon;	\
-	UBYTE bPlayerHasLost;	\
-	UBYTE dummy3
-
-using SAVE_GAME_V24 = struct save_game_v24
-{
-  GAME_SAVE_V24;
-};
-
-/*
-#define GAME_SAVE_V27		\
-	UDWORD	gameTime;		\
-	UDWORD	GameType;		\
-	SDWORD	ScrollMinX;		\
-	SDWORD	ScrollMinY;		\
-	UDWORD	ScrollMaxX;		\
-	UDWORD	ScrollMaxY;		\
-	STRING	levelName[MAX_LEVEL_SIZE];	\
-	SAVE_POWER	power[MAX_PLAYERS];		\
-	iView	currentPlayerPos;	\
-	UDWORD	missionTime;	\
-	UDWORD	saveKey;		\
-	SDWORD	missionOffTime;	\
-	SDWORD	missionETA;		\
-    UWORD   missionHomeLZ_X;\
-    UWORD   missionHomeLZ_Y;\
-	SDWORD	missionPlayerX;	\
-	SDWORD	missionPlayerY;	\
-	UWORD	iTranspEntryTileX[MAX_PLAYERS];	\
-	UWORD	iTranspEntryTileY[MAX_PLAYERS];	\
-	UWORD	iTranspExitTileX[MAX_PLAYERS];	\
-	UWORD	iTranspExitTileY[MAX_PLAYERS];	\
-	UDWORD 	aDefaultSensor[MAX_PLAYERS];	\
-	UDWORD	aDefaultECM[MAX_PLAYERS];		\
-	UDWORD	aDefaultRepair[MAX_PLAYERS];	\
-	BOOL	offWorldKeepLists;\
-	UWORD	aDroidExperience[MAX_PLAYERS][MAX_RECYCLED_DROIDS];\
-	UDWORD	RubbleTile;		\
-	UDWORD	WaterTile;		\
-	UDWORD	fogColour;		\
-	UDWORD	fogState;		\
-	LANDING_ZONE   sLandingZone[MAX_NOGO_AREAS];\
-	UDWORD  objId;			\
-	char	buildDate[MAX_STR_LENGTH];		\
-	UDWORD	oldestVersion;	\
-	UDWORD	validityKey;\
-	UBYTE	alliances[MAX_PLAYERS][MAX_PLAYERS];\
-	UBYTE	playerColour[MAX_PLAYERS];\
-	UBYTE	radarZoom;		\
-	UBYTE	bDroidsToSafetyFlag;	\
-	POINT	asVTOLReturnPos[MAX_PLAYERS];\
-	RUN_DATA asRunData[MAX_PLAYERS];\
-	UDWORD	reinforceTime;	\
-	UBYTE	bPlayCountDown;	\
-	UBYTE	bPlayerHasWon;	\
-	UBYTE	bPlayerHasLost;	\
-	UBYTE	dummy3
-
-typedef struct save_game_v27
-{
-	GAME_SAVE_V27;
-} SAVE_GAME_V27;
-*/
-#define GAME_SAVE_V27			\
-	GAME_SAVE_V24;				\
-	UWORD	awDroidExperience[MAX_PLAYERS][MAX_RECYCLED_DROIDS]
-
-using SAVE_GAME_V27 = struct save_game_v27
-{
-  GAME_SAVE_V27;
-};
-
-#define GAME_SAVE_V29			\
-	GAME_SAVE_V27;				\
-	UWORD	missionScrollMinX;  \
-	UWORD	missionScrollMinY;  \
-	UWORD	missionScrollMaxX;  \
-	UWORD	missionScrollMaxY
-
-using SAVE_GAME_V29 = struct save_game_v29
-{
-  GAME_SAVE_V29;
-};
-
-#define GAME_SAVE_V30			\
-	GAME_SAVE_V29;				\
-    SDWORD  scrGameLevel;       \
-    UBYTE   bExtraVictoryFlag;  \
-    UBYTE   bExtraFailFlag;     \
-    UBYTE   bTrackTransporter
-
-using SAVE_GAME_V30 = struct save_game_v30
-{
-  GAME_SAVE_V30;
-};
-
-//extra code for the patch - saves out whether cheated with the mission timer
-#define GAME_SAVE_V31           \
-    GAME_SAVE_V30;				\
-    SDWORD	missionCheatTime
-
-using SAVE_GAME_V31 = struct save_game_v31
-{
-  GAME_SAVE_V31;
-};
-
-// alexl. skirmish saves
-#define GAME_SAVE_V33           \
-    GAME_SAVE_V31;				\
-	MULTIPLAYERGAME sGame;		\
-	NETPLAY			sNetPlay;	\
-	UDWORD			savePlayer;	\
-	STRING			sPName[32];	\
-	BOOL			multiPlayer;\
-	NETPLAYERID			sPlayer2dpid[MAX_PLAYERS]
-
-using SAVE_GAME_V33 = struct save_game_v33
-{
-  GAME_SAVE_V33;
-};
-
-using SAVE_GAME = struct save_game
-{
-  GAME_SAVE_V33;
-};
 
 #define TEMP_DROID_MAXPROGS	3
 #define	SAVE_COMP_PROGRAM	8
 #define SAVE_COMP_WEAPON	9
 
-using SAVE_MOVE_CONTROL = struct _save_move_control
-{
-  UBYTE Status; // Inactive, Navigating or moving point to point status
-  UBYTE Mask; // Mask used for the creation of this path	
-  //	SBYTE	Direction;					// Direction object should be moving (0-7) 0=Up,1=Up-Right
-  //	SDWORD	Speed;						// Speed at which object moves along the movement list
-  UBYTE Position; // Position in asPath
-  UBYTE numPoints; // number of points in asPath
-  PATH_POINT asPath[TRAVELSIZE]; // Pointer to list of block X,Y coordinates.
-  // Values prefixed by 0x8000 are pixel coordinates instead of
-  // block coordinates
-  SDWORD DestinationX; // DestinationX,Y should match objects current X,Y
-  SDWORD DestinationY; //		location for this movement to be complete.
-  //   	UDWORD	Direction3D;				// *** not necessary
-  //	UDWORD	TargetDir;					// *** not necessary Direction the object should be facing
-  //	SDWORD	Gradient;					// Gradient of line
-  //	SDWORD	DeltaX;						// Distance from start to end position of current movement X
-  //	SDWORD	DeltaY;						// Distance from start to end position of current movement Y
-  //	SDWORD	XStep;						// Adjustment to the characters X position each movement
-  //	SDWORD	YStep;						// Adjustment to the characters Y position each movement
-  //	SDWORD	DestPixelX;					// Pixel coordinate destination for pixel movement (NOT the final X)
-  //	SDWORD	DestPixelY;					// Pixel coordiante destination for pixel movement (NOT the final Y)
-  SDWORD srcX, srcY, targetX, targetY;
 
-  /* Stuff for John's movement update */
-  float fx, fy; // droid location as a fract
-  //	FRACT	dx,dy;						// x and y change for current direction
-  // NOTE: this is supposed to replace Speed
-  float speed; // Speed of motion
-  SWORD boundX, boundY; // Vector for the end of path boundary
-  SWORD dir; // direction of motion (not the direction the droid is facing)
 
-  SWORD bumpDir; // direction at last bump
-  UDWORD bumpTime; // time of first bump with something
-  UWORD lastBump; // time of last bump with a droid - relative to bumpTime
-  UWORD pauseTime; // when MOVEPAUSE started - relative to bumpTime
-  UWORD bumpX, bumpY; // position of last bump
-
-  UDWORD shuffleStart; // when a shuffle started
-
-  struct _formation* psFormation; // formation the droid is currently a member of
-
-  /* vtol movement - GJ */
-  SWORD iVertSpeed;
-  UWORD iAttackRuns;
-
-  /* Only needed for Alex's movement update ? */
-};
-
-#define DROID_SAVE_V9		\
-	OBJECT_SAVE_V19;			\
-	SAVE_COMPONENT_V19	asBits[DROID_MAXCOMP]; \
-	UDWORD		body;		\
-	UBYTE		droidType;	\
-	UDWORD		saveType;	\
-	UDWORD		numWeaps;	\
-	SAVE_WEAPON_V19	asWeaps[TEMP_DROID_MAXPROGS];	\
-	UDWORD		numKills
-
-using SAVE_DROID_V9 = struct _save_droid_v9
-{
-  DROID_SAVE_V9;
-};
 
 /*save DROID SAVE 11 */
-#define DROID_SAVE_V11		\
-	OBJECT_SAVE_V19;			\
-	SAVE_COMPONENT_V19	asBits[DROID_MAXCOMP]; \
-	UDWORD		body;		\
-	UBYTE		droidType;	\
-	UBYTE		saveType;	\
-	UDWORD		numWeaps;	\
-	SAVE_WEAPON_V19	asWeaps[TEMP_DROID_MAXPROGS];	\
-	UDWORD		numKills;	\
-	UWORD	turretRotation;	\
-	UWORD	turretPitch
 
-using SAVE_DROID_V11 = struct _save_droid_v11
-{
-  DROID_SAVE_V11;
-};
 
-#define DROID_SAVE_V12		\
-	DROID_SAVE_V9;			\
-	UWORD	turretRotation;	\
-	UWORD	turretPitch;	\
-	SDWORD	order;			\
-	UWORD	orderX,orderY;	\
-	UWORD	orderX2,orderY2;\
-	UDWORD	timeLastHit;	\
-	UDWORD	targetID;		\
-	UDWORD	secondaryOrder;	\
-	SDWORD	action;			\
-	UDWORD	actionX,actionY;\
-	UDWORD	actionTargetID;	\
-	UDWORD	actionStarted;	\
-	UDWORD	actionPoints;	\
-	UWORD	actionHeight
 
-using SAVE_DROID_V12 = struct _save_droid_v12
-{
-  DROID_SAVE_V12;
-};
 
-#define DROID_SAVE_V14		\
-	DROID_SAVE_V12;			\
-	CHAR	tarStatName[MAX_STR_SIZE];\
-    UDWORD	baseStructID;	\
-	UBYTE	group;			\
-	UBYTE	selected;		\
-	UBYTE	cluster_unused;		\
-	UBYTE	visible[MAX_PLAYERS];\
-	UDWORD	died;			\
-	UDWORD	lastEmission
 
-using SAVE_DROID_V14 = struct _save_droid_v14
-{
-  DROID_SAVE_V14;
-};
 
 //DROID_SAVE_18 replaces DROID_SAVE_14
-#define DROID_SAVE_V18		\
-	DROID_SAVE_V12;			\
-	CHAR	tarStatName[MAX_SAVE_NAME_SIZE_V19];\
-    UDWORD	baseStructID;	\
-	UBYTE	group;			\
-	UBYTE	selected;		\
-	UBYTE	cluster_unused;		\
-	UBYTE	visible[MAX_PLAYERS];\
-	UDWORD	died;			\
-	UDWORD	lastEmission
 
-using SAVE_DROID_V18 = struct _save_droid_v18
-{
-  DROID_SAVE_V18;
-};
 
 //DROID_SAVE_20 replaces all previous saves uses 60 character names
-#define DROID_SAVE_V20		\
-	OBJECT_SAVE_V20;			\
-	SAVE_COMPONENT	asBits[DROID_MAXCOMP]; \
-	UDWORD		body;		\
-	UBYTE		droidType;	\
-	UDWORD		saveType;	\
-	UDWORD		numWeaps;	\
-	SAVE_WEAPON	asWeaps[TEMP_DROID_MAXPROGS];	\
-	UDWORD		numKills;	\
-	UWORD	turretRotation;	\
-	UWORD	turretPitch;	\
-	SDWORD	order;			\
-	UWORD	orderX,orderY;	\
-	UWORD	orderX2,orderY2;\
-	UDWORD	timeLastHit;	\
-	UDWORD	targetID;		\
-	UDWORD	secondaryOrder;	\
-	SDWORD	action;			\
-	UDWORD	actionX,actionY;\
-	UDWORD	actionTargetID;	\
-	UDWORD	actionStarted;	\
-	UDWORD	actionPoints;	\
-	UWORD	actionHeight;	\
-	CHAR	tarStatName[MAX_SAVE_NAME_SIZE];\
-    UDWORD	baseStructID;	\
-	UBYTE	group;			\
-	UBYTE	selected;		\
-	UBYTE	cluster_unused;		\
-	UBYTE	visible[MAX_PLAYERS];\
-	UDWORD	died;			\
-	UDWORD	lastEmission
 
-using SAVE_DROID_V20 = struct _save_droid_v20
-{
-  DROID_SAVE_V20;
-};
 
-#define DROID_SAVE_V21		\
-	DROID_SAVE_V20;			\
-	UDWORD	commandId
 
-using SAVE_DROID_V21 = struct _save_droid_v21
-{
-  DROID_SAVE_V21;
-};
 
-#define DROID_SAVE_V24		\
-	DROID_SAVE_V21;			\
-	SDWORD	resistance;		\
-	SAVE_MOVE_CONTROL	sMove;	\
-	SWORD		formationDir;	\
-	SDWORD		formationX;	\
-	SDWORD		formationY
 
-using SAVE_DROID_V24 = struct _save_droid_v24
-{
-  DROID_SAVE_V24;
-};
 
-using SAVE_DROID = struct _save_droid
-{
-  DROID_SAVE_V24;
-};
 
 using DROIDINIT_SAVEHEADER = struct _droidinit_save_header
 {
@@ -767,28 +246,16 @@ using SAVE_STRUCTURE_V2 = struct _save_structure_v2
 	UDWORD				timeToBuild;		\
 	UDWORD				timeStartHold
 
-using SAVE_STRUCTURE_V12 = struct _save_structure_v12
-{
-  STRUCTURE_SAVE_V12;
-};
 
 #define STRUCTURE_SAVE_V14 \
 	STRUCTURE_SAVE_V12; \
 	UBYTE	visible[MAX_PLAYERS]
 
-using SAVE_STRUCTURE_V14 = struct _save_structure_v14
-{
-  STRUCTURE_SAVE_V14;
-};
 
 #define STRUCTURE_SAVE_V15 \
 	STRUCTURE_SAVE_V14; \
 	char	researchName[MAX_SAVE_NAME_SIZE_V19]
 
-using SAVE_STRUCTURE_V15 = struct _save_structure_v15
-{
-  STRUCTURE_SAVE_V15;
-};
 
 #define STRUCTURE_SAVE_V17 \
 	STRUCTURE_SAVE_V15;\
@@ -823,24 +290,12 @@ using SAVE_STRUCTURE_V17 = struct _save_structure_v17
 	char				researchName[MAX_SAVE_NAME_SIZE]; \
 	SWORD				currentPowerAccrued
 
-using SAVE_STRUCTURE_V20 = struct _save_structure_v20
-{
-  STRUCTURE_SAVE_V20;
-};
 
 #define STRUCTURE_SAVE_V21 \
 	STRUCTURE_SAVE_V20; \
 	UDWORD				commandId
 
-using SAVE_STRUCTURE_V21 = struct _save_structure_v21
-{
-  STRUCTURE_SAVE_V21;
-};
 
-using SAVE_STRUCTURE = struct _save_structure
-{
-  STRUCTURE_SAVE_V21;
-};
 
 //PROGRAMS NEED TO BE REMOVED FROM DROIDS - 7/8/98
 // multiPlayerID for templates needs to be saved - 29/10/98
@@ -876,25 +331,9 @@ using SAVE_STRUCTURE = struct _save_structure
 	STRING				asWeaps[TEMP_DROID_MAXPROGS][MAX_SAVE_NAME_SIZE]; \
 	UDWORD				multiPlayerID
 
-using SAVE_TEMPLATE_V2 = struct _save_template_v2
-{
-  TEMPLATE_SAVE_V2;
-};
 
-using SAVE_TEMPLATE_V14 = struct _save_template_v14
-{
-  TEMPLATE_SAVE_V14;
-};
 
-using SAVE_TEMPLATE_V20 = struct _save_template_v20
-{
-  TEMPLATE_SAVE_V20;
-};
 
-using SAVE_TEMPLATE = struct _save_template
-{
-  TEMPLATE_SAVE_V20;
-};
 
 #define FEATURE_SAVE_V2 \
 	OBJECT_SAVE_V19
@@ -917,15 +356,7 @@ using SAVE_FEATURE_V14 = struct _save_feature_v14
 	OBJECT_SAVE_V20; \
 	UBYTE	visible[MAX_PLAYERS]
 
-using SAVE_FEATURE_V20 = struct _save_feature_v20
-{
-  FEATURE_SAVE_V20;
-};
 
-using SAVE_FEATURE = struct _save_feature
-{
-  FEATURE_SAVE_V20;
-};
 
 #define COMPLIST_SAVE_V6 \
 	CHAR				name[MAX_SAVE_NAME_SIZE_V19]; \
@@ -939,20 +370,8 @@ using SAVE_FEATURE = struct _save_feature
 	UBYTE				state; \
 	UBYTE				player
 
-using SAVE_COMPLIST_V6 = struct _save_compList_v6
-{
-  COMPLIST_SAVE_V6;
-};
 
-using SAVE_COMPLIST_V20 = struct _save_compList_v20
-{
-  COMPLIST_SAVE_V20;
-};
 
-using SAVE_COMPLIST = struct _save_compList
-{
-  COMPLIST_SAVE_V20;
-};
 
 #define STRUCTLIST_SAVE_V6 \
 	CHAR				name[MAX_SAVE_NAME_SIZE_V19]; \
@@ -964,20 +383,8 @@ using SAVE_COMPLIST = struct _save_compList
 	UBYTE				state; \
 	UBYTE				player
 
-using SAVE_STRUCTLIST_V6 = struct _save_structList_v6
-{
-  STRUCTLIST_SAVE_V6;
-};
 
-using SAVE_STRUCTLIST_V20 = struct _save_structList_v20
-{
-  STRUCTLIST_SAVE_V20;
-};
 
-using SAVE_STRUCTLIST = struct _save_structList
-{
-  STRUCTLIST_SAVE_V20;
-};
 
 #define RESEARCH_SAVE_V8 \
 	CHAR				name[MAX_SAVE_NAME_SIZE_V19]; \
@@ -991,125 +398,31 @@ using SAVE_STRUCTLIST = struct _save_structList
 	UBYTE				researched[MAX_PLAYERS]; \
 	UDWORD				currentPoints[MAX_PLAYERS]
 
-using SAVE_RESEARCH_V8 = struct _save_research_v8
-{
-  RESEARCH_SAVE_V8;
-};
 
-using SAVE_RESEARCH_V20 = struct _save_research_v20
-{
-  RESEARCH_SAVE_V20;
-};
 
-using SAVE_RESEARCH = struct _save_research
-{
-  RESEARCH_SAVE_V20;
-};
 
-using SAVE_MESSAGE = struct _save_message
-{
-  MESSAGE_TYPE type; //The type of message 
-  BOOL bObj;
-  CHAR name[MAX_STR_SIZE];
-  UDWORD objId; //Id for Proximity messages!
-  BOOL read; //flag to indicate whether message has been read
-  UDWORD player; //which player this message belongs to
-};
 
-using SAVE_PROXIMITY = struct _save_proximity
-{
-  POSITION_TYPE type; /*the type of position obj - FlagPos or ProxDisp*/
-  UDWORD frameNumber; /*when the Position was last drawn*/
-  UDWORD screenX; /*screen coords and radius of Position imd */
-  UDWORD screenY;
-  UDWORD screenR;
-  UDWORD player; /*which player the Position belongs to*/
-  BOOL selected; /*flag to indicate whether the Position */
-  UDWORD objId; //Id for Proximity messages!
-  UDWORD radarX; //Used to store the radar coords - if to be drawn
-  UDWORD radarY;
-  UDWORD timeLastDrawn; //stores the time the 'button' was last drawn for animation
-  UDWORD strobe; //id of image last used
-  UDWORD buttonID; //id of the button for the interface
-};
 
-using SAVE_FLAG_V18 = struct _save_flag_v18
-{
-  POSITION_TYPE type; /*the type of position obj - FlagPos or ProxDisp*/
-  UDWORD frameNumber; /*when the Position was last drawn*/
-  UDWORD screenX; /*screen coords and radius of Position imd */
-  UDWORD screenY;
-  UDWORD screenR;
-  UDWORD player; /*which player the Position belongs to*/
-  BOOL selected; /*flag to indicate whether the Position */
-  iVector coords; //the world coords of the Position
-  UBYTE factoryInc; //indicates whether the first, second etc factory
-  UBYTE factoryType; //indicates whether standard, cyborg or vtol factory
-  UBYTE dummyNOTUSED; //sub value. needed to order production points.
-  UBYTE dummyNOTUSED2;
-};
 
-using SAVE_FLAG = struct _save_flag
-{
-  POSITION_TYPE type; /*the type of position obj - FlagPos or ProxDisp*/
-  UDWORD frameNumber; /*when the Position was last drawn*/
-  UDWORD screenX; /*screen coords and radius of Position imd */
-  UDWORD screenY;
-  UDWORD screenR;
-  UDWORD player; /*which player the Position belongs to*/
-  BOOL selected; /*flag to indicate whether the Position */
-  iVector coords; //the world coords of the Position
-  UBYTE factoryInc; //indicates whether the first, second etc factory
-  UBYTE factoryType; //indicates whether standard, cyborg or vtol factory
-  UBYTE dummyNOTUSED; //sub value. needed to order production points.
-  UBYTE dummyNOTUSED2;
-  UDWORD repairId;
-};
 
-using SAVE_PRODUCTION = struct _save_production
-{
-  UBYTE quantity; //number to build
-  UBYTE built; //number built on current run
-  UDWORD multiPlayerID; //template to build
-};
 
 #define STRUCTLIMITS_SAVE_V2 \
 	CHAR				name[MAX_SAVE_NAME_SIZE_V19]; \
 	UBYTE				limit; \
 	UBYTE				player
 
-using SAVE_STRUCTLIMITS_V2 = struct _save_structLimits_v2
-{
-  STRUCTLIMITS_SAVE_V2;
-};
 
 #define STRUCTLIMITS_SAVE_V20 \
 	CHAR				name[MAX_SAVE_NAME_SIZE]; \
 	UBYTE				limit; \
 	UBYTE				player
 
-using SAVE_STRUCTLIMITS_V20 = struct _save_structLimits_v20
-{
-  STRUCTLIMITS_SAVE_V20;
-};
 
-using SAVE_STRUCTLIMITS = struct _save_structLimits
-{
-  STRUCTLIMITS_SAVE_V20;
-};
 
 #define COMMAND_SAVE_V20 \
 	UDWORD				droidID
 
-using SAVE_COMMAND_V20 = struct _save_command_v20
-{
-  COMMAND_SAVE_V20;
-};
 
-using SAVE_COMMAND = struct _save_command
-{
-  COMMAND_SAVE_V20;
-};
 
 /* The different types of droid */
 using DROID_SAVE_TYPE = enum _droid_save_type
@@ -1127,7 +440,6 @@ using DROID_SAVE_TYPE = enum _droid_save_type
 extern UDWORD objID; // unique ID creation thing..
 
 static UDWORD saveGameVersion = 0;
-static UDWORD oldestSaveGameVersion = CURRENT_VERSION_NUM;
 
 static UDWORD savedGameTime;
 static UDWORD savedObjId;
@@ -1199,8 +511,6 @@ static BOOL getSaveObjectName(STRING* pName);
 static void setMapScroll();
 
 char* getSaveStructNameV19(SAVE_STRUCTURE_V17* psSaveStructure) { return (psSaveStructure->name); }
-
-char* getSaveStructNameV(SAVE_STRUCTURE* psSaveStructure) { return (psSaveStructure->name); }
 
 /*This just loads up the .gam file to determine which level data to set up - split up
 so can be called in levLoadData when starting a game from a load save game*/
@@ -1817,516 +1127,6 @@ DROID_TEMPLATE* FindDroidTemplate(STRING* name, UDWORD player)
 
 // -----------------------------------------------------------------------------------------
 UDWORD RemapPlayerNumber(UDWORD OldNumber) { return (OldNumber); }
-
-// -----------------------------------------------------------------------------------------
-DROID* buildDroidFromSaveDroidV11(SAVE_DROID_V11* psSaveDroid)
-{
-  DROID_TEMPLATE *psTemplate, sTemplate;
-  DROID* psDroid;
-  BOOL found;
-  UDWORD i;
-  SDWORD compInc;
-  UDWORD burnTime;
-
-  psTemplate = &sTemplate;
-
-  //set up the template
-  //copy the values across
-
-  strncpy(psTemplate->aName, psSaveDroid->name, DROID_MAXNAME);
-  psTemplate->aName[DROID_MAXNAME - 1] = 0;
-  //ignore the first comp - COMP_UNKNOWN
-  found = TRUE;
-  for (i = 1; i < DROID_MAXCOMP; i++)
-  {
-    compInc = getCompFromName(i, psSaveDroid->asBits[i].name);
-    if (compInc < 0)
-    {
-      Neuron::Fatal("This component no longer exists - {}, the droid will be deleted", psSaveDroid->asBits[i].name);
-      found = FALSE;
-      break; //continue;
-    }
-    psTemplate->asParts[i] = static_cast<UDWORD>(compInc);
-  }
-  if (!found)
-  {
-    //ignore this record
-    return nullptr;
-  }
-  psTemplate->numWeaps = psSaveDroid->numWeaps;
-  found = TRUE;
-  for (i = 0; i < psSaveDroid->numWeaps; i++)
-  {
-    psTemplate->asWeaps[i] = getCompFromName(COMP_WEAPON, psSaveDroid->asWeaps[i].name);
-
-    if (psTemplate->asWeaps[i] < 0)
-    {
-      Neuron::Fatal("This component no longer exists - {}, the droid will be deleted", psSaveDroid->asWeaps[i].name);
-      found = FALSE;
-      break;
-    }
-  }
-  if (!found)
-  {
-    //ignore this record
-    return nullptr;
-  }
-
-  psTemplate->buildPoints = calcTemplateBuild(psTemplate);
-  psTemplate->powerPoints = calcTemplatePower(psTemplate);
-  psTemplate->droidType = static_cast<DROID_TYPE>(psSaveDroid->droidType);
-
-  /*create the Droid */
-
-  // ignore brains for now
-  psTemplate->asParts[COMP_BRAIN] = 0;
-
-  psDroid = buildDroid(psTemplate, psSaveDroid->x, psSaveDroid->y, psSaveDroid->player, FALSE);
-
-  //copy the droid's weapon stats
-  if (psDroid->asWeaps[0].nStat > 0)
-  {
-    //only one weapon now
-    i = 0;
-    psDroid->asWeaps[i].hitPoints = psSaveDroid->asWeaps[i].hitPoints;
-    psDroid->asWeaps[i].ammo = psSaveDroid->asWeaps[i].ammo;
-    psDroid->asWeaps[i].lastFired = psSaveDroid->asWeaps[i].lastFired;
-  }
-  //copy the values across
-  psDroid->id = psSaveDroid->id;
-  //are these going to ever change from the values set up with?
-  //			psDroid->z = psSaveDroid->z;		// use the correct map height value
-
-  psDroid->direction = static_cast<UWORD>(psSaveDroid->direction);
-  psDroid->body = psSaveDroid->body;
-  if (psDroid->body > psDroid->originalBody)
-    psDroid->body = psDroid->originalBody;
-
-  psDroid->inFire = psSaveDroid->inFire;
-  psDroid->burnDamage = psSaveDroid->burnDamage;
-  burnTime = psSaveDroid->burnStart;
-  psDroid->burnStart = burnTime;
-
-  psDroid->numKills = static_cast<UWORD>(psSaveDroid->numKills);
-  //version 11
-  psDroid->turretRotation = psSaveDroid->turretRotation;
-  psDroid->turretPitch = psSaveDroid->turretPitch;
-
-  psDroid->psGroup = nullptr;
-  psDroid->psGrpNext = nullptr;
-
-  return psDroid;
-}
-
-// -----------------------------------------------------------------------------------------
-DROID* buildDroidFromSaveDroidV19(SAVE_DROID_V18* psSaveDroid, UDWORD version)
-{
-  DROID_TEMPLATE *psTemplate, sTemplate;
-  DROID* psDroid;
-  SAVE_DROID_V14* psSaveDroidV14;
-  BOOL found;
-  UDWORD i, id;
-  SDWORD compInc;
-  UDWORD burnTime;
-
-  psTemplate = &sTemplate;
-
-  psTemplate->pName = nullptr;
-
-  //set up the template
-  //copy the values across
-
-  strncpy(psTemplate->aName, psSaveDroid->name, DROID_MAXNAME);
-  psTemplate->aName[DROID_MAXNAME - 1] = 0;
-
-  //ignore the first comp - COMP_UNKNOWN
-  found = TRUE;
-  for (i = 1; i < DROID_MAXCOMP; i++)
-  {
-    compInc = getCompFromName(i, psSaveDroid->asBits[i].name);
-
-    if (compInc < 0)
-    {
-      Neuron::Fatal("This component no longer exists - {}, the droid will be deleted", psSaveDroid->asBits[i].name);
-
-      found = FALSE;
-      break; //continue;
-    }
-    psTemplate->asParts[i] = static_cast<UDWORD>(compInc);
-  }
-  if (!found)
-  {
-    //ignore this record
-    DEBUG_ASSERT_TEXT(found, "buildUnitFromSavedUnit; failed to find weapon");
-    return nullptr;
-  }
-  psTemplate->numWeaps = psSaveDroid->numWeaps;
-  found = TRUE;
-  if (psSaveDroid->numWeaps > 0)
-  {
-    psTemplate->asWeaps[0] = getCompFromName(COMP_WEAPON, psSaveDroid->asWeaps[0].name);
-
-    if (psTemplate->asWeaps[0] < 0)
-    {
-      Neuron::Fatal("This component no longer exists - {}, the droid will be deleted", psSaveDroid->asWeaps[0].name);
-      found = FALSE;
-    }
-  }
-  if (!found)
-  {
-    //ignore this record
-    DEBUG_ASSERT_TEXT(found, "buildUnitFromSavedUnit; failed to find weapon");
-    return nullptr;
-  }
-
-  psTemplate->buildPoints = calcTemplateBuild(psTemplate);
-  psTemplate->powerPoints = calcTemplatePower(psTemplate);
-  psTemplate->droidType = static_cast<DROID_TYPE>(psSaveDroid->droidType);
-
-  /*create the Droid */
-
-  // ignore brains for now
-  // not any *$£&!!! more - JOHN
-
-  if (psSaveDroid->x == INVALID_XY) { psDroid = buildDroid(psTemplate, psSaveDroid->x, psSaveDroid->y, psSaveDroid->player, TRUE); }
-  else if (psSaveDroid->saveType == DROID_ON_TRANSPORT) { psDroid = buildDroid(psTemplate, 0, 0, psSaveDroid->player, TRUE); }
-  else { psDroid = buildDroid(psTemplate, psSaveDroid->x, psSaveDroid->y, psSaveDroid->player, FALSE); }
-
-  if (psDroid == nullptr)
-  {
-    DEBUG_ASSERT_TEXT(FALSE, "buildUnitFromSavedUnit; failed to build unit");
-    return nullptr;
-  }
-
-  //copy the droid's weapon stats
-  if (psDroid->asWeaps[0].nStat > 0)
-  {
-    psDroid->asWeaps[0].hitPoints = psSaveDroid->asWeaps[0].hitPoints;
-    psDroid->asWeaps[0].ammo = psSaveDroid->asWeaps[0].ammo;
-    psDroid->asWeaps[0].lastFired = psSaveDroid->asWeaps[0].lastFired;
-  }
-  //copy the values across
-  psDroid->id = psSaveDroid->id;
-  //are these going to ever change from the values set up with?
-  //			psDroid->z = psSaveDroid->z;		// use the correct map height value
-
-  psDroid->direction = static_cast<UWORD>(psSaveDroid->direction);
-  psDroid->body = psSaveDroid->body;
-  if (psDroid->body > psDroid->originalBody)
-    psDroid->body = psDroid->originalBody;
-
-  psDroid->inFire = psSaveDroid->inFire;
-  psDroid->burnDamage = psSaveDroid->burnDamage;
-  burnTime = psSaveDroid->burnStart;
-  psDroid->burnStart = burnTime;
-
-  psDroid->numKills = static_cast<UWORD>(psSaveDroid->numKills);
-  //version 14
-  psDroid->resistance = droidResistance(psDroid);
-
-  if (version >= VERSION_11) //version 11
-  {
-    psDroid->turretRotation = psSaveDroid->turretRotation;
-    psDroid->turretPitch = psSaveDroid->turretPitch;
-  }
-  if (version >= VERSION_12) //version 12
-  {
-    psDroid->order = psSaveDroid->order;
-    psDroid->orderX = psSaveDroid->orderX;
-    psDroid->orderY = psSaveDroid->orderY;
-    psDroid->orderX2 = psSaveDroid->orderX2;
-    psDroid->orderY2 = psSaveDroid->orderY2;
-    psDroid->timeLastHit = psSaveDroid->timeLastHit;
-    //rebuild the object pointer from the ID
-    psDroid->psTarget = (BASE_OBJECT*)psSaveDroid->targetID;
-    psDroid->secondaryOrder = psSaveDroid->secondaryOrder;
-    psDroid->action = psSaveDroid->action;
-    psDroid->actionX = psSaveDroid->actionX;
-    psDroid->actionY = psSaveDroid->actionY;
-    //rebuild the object pointer from the ID
-    psDroid->psActionTarget = (BASE_OBJECT*)psSaveDroid->actionTargetID;
-    psDroid->actionStarted = psSaveDroid->actionStarted;
-    psDroid->actionPoints = psSaveDroid->actionPoints;
-    //actionHeight has been renamed to powerAccrued - AB 7/1/99
-    psDroid->powerAccrued = psSaveDroid->actionHeight;
-    //added for V14
-
-    psDroid->psGroup = nullptr;
-    psDroid->psGrpNext = nullptr;
-  }
-  if ((version >= VERSION_14) && (version < VERSION_18)) //version 14
-  {
-    //warning V14 - v17 only		
-    //current Save Droid V18+ uses larger tarStatName
-    //subsequent structure elements are not aligned between the two
-    psSaveDroidV14 = (SAVE_DROID_V14*)psSaveDroid;
-    if (psSaveDroidV14->tarStatName[0] == 0)
-      psDroid->psTarStats = nullptr;
-    else
-    {
-      id = getStructStatFromName(psSaveDroidV14->tarStatName);
-      if (id != -1)
-        psDroid->psTarStats = (BASE_STATS*)&asStructureStats[id];
-      else
-      {
-        DEBUG_ASSERT_TEXT(FALSE, "loadUnit TargetStat not found");
-        psDroid->psTarStats = nullptr;
-        orderDroid(psDroid, DORDER_STOP);
-      }
-    }
-    //warning V14 - v17 only		
-    //rebuild the object pointer from the ID
-    psDroid->psBaseStruct = (struct _structure*)psSaveDroidV14->baseStructID;
-    psDroid->group = psSaveDroidV14->group;
-    psDroid->selected = psSaveDroidV14->selected;
-    psDroid->died = psSaveDroidV14->died;
-    psDroid->lastEmission = psSaveDroidV14->lastEmission;
-    //warning V14 - v17 only		
-    for (i = 0; i < MAX_PLAYERS; i++)
-      psDroid->visible[i] = psSaveDroidV14->visible[i];
-    //end warning V14 - v17 only		
-  }
-  else if (version >= VERSION_18) //version 18
-  {
-    if (psSaveDroid->tarStatName[0] == 0)
-      psDroid->psTarStats = nullptr;
-    else
-    {
-      id = getStructStatFromName(psSaveDroid->tarStatName);
-      if (id != -1)
-        psDroid->psTarStats = (BASE_STATS*)&asStructureStats[id];
-      else
-      {
-        DEBUG_ASSERT_TEXT(FALSE, "loadUnit TargetStat not found");
-        psDroid->psTarStats = nullptr;
-      }
-    }
-    //rebuild the object pointer from the ID
-    psDroid->psBaseStruct = (struct _structure*)psSaveDroid->baseStructID;
-    psDroid->group = psSaveDroid->group;
-    psDroid->selected = psSaveDroid->selected;
-    psDroid->died = psSaveDroid->died;
-    psDroid->lastEmission = psSaveDroid->lastEmission;
-    for (i = 0; i < MAX_PLAYERS; i++)
-      psDroid->visible[i] = psSaveDroid->visible[i];
-  }
-
-  return psDroid;
-}
-
-// -----------------------------------------------------------------------------------------
-//version 20 + after names change
-DROID* buildDroidFromSaveDroid(SAVE_DROID* psSaveDroid, UDWORD version)
-{
-  DROID_TEMPLATE *psTemplate, sTemplate;
-  DROID* psDroid;
-  BOOL found;
-  UDWORD i, id;
-  SDWORD compInc;
-  UDWORD burnTime;
-
-  version;
-
-  psTemplate = &sTemplate;
-
-  psTemplate->pName = nullptr;
-
-  //set up the template
-  //copy the values across
-
-  strncpy(psTemplate->aName, psSaveDroid->name, DROID_MAXNAME);
-  psTemplate->aName[DROID_MAXNAME - 1] = 0;
-  //ignore the first comp - COMP_UNKNOWN
-  found = TRUE;
-  for (i = 1; i < DROID_MAXCOMP; i++)
-  {
-    compInc = getCompFromName(i, psSaveDroid->asBits[i].name);
-
-    //HACK to get the game to load when ECMs, Sensors or RepairUnits have been deleted
-    if (compInc < 0 AND (i == COMP_ECM OR i == COMP_SENSOR OR i == COMP_REPAIRUNIT))
-    {
-      //set the ECM to be the defaultECM ...
-      if (i == COMP_ECM)
-        compInc = aDefaultECM[psSaveDroid->player];
-      else if (i == COMP_SENSOR)
-        compInc = aDefaultSensor[psSaveDroid->player];
-      else if (i == COMP_REPAIRUNIT)
-        compInc = aDefaultRepair[psSaveDroid->player];
-    }
-    else if (compInc < 0)
-    {
-      Neuron::Fatal("This component no longer exists - {}, the droid will be deleted", psSaveDroid->asBits[i].name);
-
-      found = FALSE;
-      break; //continue;
-    }
-    psTemplate->asParts[i] = static_cast<UDWORD>(compInc);
-  }
-  if (!found)
-  {
-    //ignore this record
-    DEBUG_ASSERT_TEXT(found, "buildUnitFromSavedUnit; failed to find weapon");
-    return nullptr;
-  }
-  psTemplate->numWeaps = psSaveDroid->numWeaps;
-  found = TRUE;
-  if (psSaveDroid->numWeaps > 0)
-  {
-    psTemplate->asWeaps[0] = getCompFromName(COMP_WEAPON, psSaveDroid->asWeaps[0].name);
-
-    if (psTemplate->asWeaps[0] < 0)
-    {
-      Neuron::Fatal("This component no longer exists - {}, the droid will be deleted", psSaveDroid->asWeaps[0].name);
-      found = FALSE;
-    }
-  }
-  if (!found)
-  {
-    //ignore this record
-    DEBUG_ASSERT_TEXT(found, "buildUnitFromSavedUnit; failed to find weapon");
-    return nullptr;
-  }
-
-  psTemplate->buildPoints = calcTemplateBuild(psTemplate);
-  psTemplate->powerPoints = calcTemplatePower(psTemplate);
-  psTemplate->droidType = static_cast<DROID_TYPE>(psSaveDroid->droidType);
-
-  /*create the Droid */
-
-  // ignore brains for now
-  // not any *$£&!!! more - JOHN
-
-  turnOffMultiMsg(TRUE);
-
-  if (psSaveDroid->x == INVALID_XY) { psDroid = buildDroid(psTemplate, psSaveDroid->x, psSaveDroid->y, psSaveDroid->player, TRUE); }
-  else if (psSaveDroid->saveType == DROID_ON_TRANSPORT) { psDroid = buildDroid(psTemplate, 0, 0, psSaveDroid->player, TRUE); }
-  else { psDroid = buildDroid(psTemplate, psSaveDroid->x, psSaveDroid->y, psSaveDroid->player, FALSE); }
-
-  if (psDroid == nullptr)
-  {
-    DEBUG_ASSERT_TEXT(FALSE, "buildUnitFromSavedUnit; failed to build unit");
-    return nullptr;
-  }
-
-  turnOffMultiMsg(FALSE);
-
-  //copy the droid's weapon stats
-  if (psDroid->asWeaps[0].nStat > 0)
-  {
-    psDroid->asWeaps[0].hitPoints = psSaveDroid->asWeaps[0].hitPoints;
-    psDroid->asWeaps[0].ammo = psSaveDroid->asWeaps[0].ammo;
-    psDroid->asWeaps[0].lastFired = psSaveDroid->asWeaps[0].lastFired;
-  }
-  //copy the values across
-  psDroid->id = psSaveDroid->id;
-  //are these going to ever change from the values set up with?
-  //			psDroid->z = psSaveDroid->z;		// use the correct map height value
-
-  psDroid->direction = static_cast<UWORD>(psSaveDroid->direction);
-  psDroid->body = psSaveDroid->body;
-  if (psDroid->body > psDroid->originalBody)
-    psDroid->body = psDroid->originalBody;
-
-  psDroid->inFire = psSaveDroid->inFire;
-  psDroid->burnDamage = psSaveDroid->burnDamage;
-  burnTime = psSaveDroid->burnStart;
-  psDroid->burnStart = burnTime;
-
-  psDroid->numKills = static_cast<UWORD>(psSaveDroid->numKills);
-  //version 14
-  psDroid->resistance = droidResistance(psDroid);
-
-  //version 11
-  psDroid->turretRotation = psSaveDroid->turretRotation;
-  psDroid->turretPitch = psSaveDroid->turretPitch;
-
-  //version 12
-  psDroid->order = psSaveDroid->order;
-  psDroid->orderX = psSaveDroid->orderX;
-  psDroid->orderY = psSaveDroid->orderY;
-  psDroid->orderX2 = psSaveDroid->orderX2;
-  psDroid->orderY2 = psSaveDroid->orderY2;
-  psDroid->timeLastHit = psSaveDroid->timeLastHit;
-  //rebuild the object pointer from the ID
-  psDroid->psTarget = (BASE_OBJECT*)psSaveDroid->targetID;
-  psDroid->secondaryOrder = psSaveDroid->secondaryOrder;
-  psDroid->action = psSaveDroid->action;
-  psDroid->actionX = psSaveDroid->actionX;
-  psDroid->actionY = psSaveDroid->actionY;
-  //rebuild the object pointer from the ID
-  psDroid->psActionTarget = (BASE_OBJECT*)psSaveDroid->actionTargetID;
-  psDroid->actionStarted = psSaveDroid->actionStarted;
-  psDroid->actionPoints = psSaveDroid->actionPoints;
-  //actionHeight has been renamed to powerAccrued - AB 7/1/99
-  psDroid->powerAccrued = psSaveDroid->actionHeight;
-  //added for V14
-
-  //version 18
-  if (psSaveDroid->tarStatName[0] == 0)
-    psDroid->psTarStats = nullptr;
-  else
-  {
-    id = getStructStatFromName(psSaveDroid->tarStatName);
-    if (id != -1)
-      psDroid->psTarStats = (BASE_STATS*)&asStructureStats[id];
-    else
-    {
-      DEBUG_ASSERT_TEXT(FALSE, "loadUnit TargetStat not found");
-      psDroid->psTarStats = nullptr;
-    }
-  }
-  //rebuild the object pointer from the ID
-  psDroid->psBaseStruct = (struct _structure*)psSaveDroid->baseStructID;
-  psDroid->group = psSaveDroid->group;
-  psDroid->selected = psSaveDroid->selected;
-  psDroid->died = psSaveDroid->died;
-  psDroid->lastEmission = psSaveDroid->lastEmission;
-  for (i = 0; i < MAX_PLAYERS; i++)
-    psDroid->visible[i] = psSaveDroid->visible[i];
-
-  if (version >= VERSION_21) //version 21
-  {
-    if ((psDroid->droidType != DROID_TRANSPORTER) && (psDroid->droidType != DROID_COMMAND))
-    {
-      //rebuild group from command id in loadDroidSetPointers
-      psDroid->psGroup = (struct _droid_group*)psSaveDroid->commandId;
-      psDroid->psGrpNext = (DROID*)UDWORD_MAX;
-    }
-  }
-  else
-  {
-    if ((psDroid->droidType != DROID_TRANSPORTER) && (psDroid->droidType != DROID_COMMAND))
-    {
-      //dont rebuild group from command id in loadDroidSetPointers
-      psDroid->psGroup = nullptr;
-      psDroid->psGrpNext = nullptr;
-    }
-  }
-
-  if (version >= VERSION_24) //version 24
-  {
-    psDroid->resistance = static_cast<SWORD>(psSaveDroid->resistance);
-    memcpy(&psDroid->sMove, &psSaveDroid->sMove, sizeof(SAVE_MOVE_CONTROL));
-    psDroid->sMove.fz = static_cast<float>(psDroid->z);
-    if (psDroid->sMove.psFormation != nullptr)
-    {
-      psDroid->sMove.psFormation = nullptr;
-      psSaveDroid->formationDir;
-      psSaveDroid->formationX;
-      psSaveDroid->formationY;
-      // join a formation if it exists at the destination
-      if (formationFind(&psDroid->sMove.psFormation, psSaveDroid->formationX, psSaveDroid->formationY))
-        formationJoin(psDroid->sMove.psFormation, (BASE_OBJECT*)psDroid);
-      else
-      {
-        // no formation so create a new one
-        if (formationNew(&psDroid->sMove.psFormation, FT_LINE, psSaveDroid->formationX, psSaveDroid->formationY, psSaveDroid->formationDir))
-          formationJoin(psDroid->sMove.psFormation, (BASE_OBJECT*)psDroid);
-      }
-    }
-  }
-  return psDroid;
-}
 
 // -----------------------------------------------------------------------------------------
 BOOL loadSaveStructure(UBYTE* pFileData, UDWORD filesize)
@@ -2976,15 +1776,10 @@ static BOOL getNameFromComp(UDWORD compType, STRING* pDest, UDWORD compIndex)
 // draws the structures onto a completed map preview sprite.
 BOOL plotStructurePreview(iSprite* backDropSprite, UBYTE scale, UDWORD offX, UDWORD offY)
 {
-  SAVE_STRUCTURE sSave; // close eyes now.
-  SAVE_STRUCTURE* psSaveStructure = &sSave; // assumes save_struct is larger than all previous ones...
-  auto psSaveStructure2 = (SAVE_STRUCTURE_V2*)&sSave;
-  auto psSaveStructure12 = (SAVE_STRUCTURE_V12*)&sSave;
-  auto psSaveStructure14 = (SAVE_STRUCTURE_V14*)&sSave;
-  auto psSaveStructure15 = (SAVE_STRUCTURE_V15*)&sSave;
-  auto psSaveStructure17 = (SAVE_STRUCTURE_V17*)&sSave;
-  auto psSaveStructure20 = (SAVE_STRUCTURE_V20*)&sSave;
-  // ok you can open them again..
+  /* Shipped struct.bjo files are version 8, so only the V2 record layout
+   * can arrive here; the reader for the save-era layouts went with saves. */
+  SAVE_STRUCTURE_V2 sSave;
+  SAVE_STRUCTURE_V2* psSaveStructure2 = &sSave;
 
   STRUCT_SAVEHEADER* psHeader;
   STRING aFileName[256];
@@ -3012,65 +1807,20 @@ BOOL plotStructurePreview(iSprite* backDropSprite, UBYTE scale, UDWORD offX, UDW
   //increment to the start of the data
   pFileData += STRUCT_HEADER_SIZE;
 
-  if (psHeader->version < VERSION_12)
-    sizeOfSaveStruture = sizeof(SAVE_STRUCTURE_V2);
-  else if (psHeader->version < VERSION_14)
-    sizeOfSaveStruture = sizeof(SAVE_STRUCTURE_V12);
-  else if (psHeader->version <= VERSION_14)
-    sizeOfSaveStruture = sizeof(SAVE_STRUCTURE_V14);
-  else if (psHeader->version <= VERSION_16)
-    sizeOfSaveStruture = sizeof(SAVE_STRUCTURE_V15);
-  else if (psHeader->version <= VERSION_19)
-    sizeOfSaveStruture = sizeof(SAVE_STRUCTURE_V17);
-  else if (psHeader->version <= VERSION_20)
-    sizeOfSaveStruture = sizeof(SAVE_STRUCTURE_V20);
-  else
-    sizeOfSaveStruture = sizeof(SAVE_STRUCTURE);
+  if (psHeader->version >= VERSION_12)
+  {
+    Neuron::Fatal("plotStructurePreview: unsupported save format version {}", psHeader->version);
+    return FALSE;
+  }
+  sizeOfSaveStruture = sizeof(SAVE_STRUCTURE_V2);
 
   /* Load in the structure data */
   for (count = 0; count < psHeader->quantity; count++, pFileData += sizeOfSaveStruture)
   {
-    if (psHeader->version < VERSION_12)
     {
       memcpy(psSaveStructure2, pFileData, sizeOfSaveStruture);
       xx = (psSaveStructure2->x >> TILE_SHIFT);
       yy = (psSaveStructure2->y >> TILE_SHIFT);
-    }
-    else if (psHeader->version < VERSION_14)
-    {
-      memcpy(psSaveStructure12, pFileData, sizeOfSaveStruture);
-      xx = (psSaveStructure12->x >> TILE_SHIFT);
-      yy = (psSaveStructure12->y >> TILE_SHIFT);
-    }
-    else if (psHeader->version <= VERSION_14)
-    {
-      memcpy(psSaveStructure14, pFileData, sizeOfSaveStruture);
-      xx = (psSaveStructure14->x >> TILE_SHIFT);
-      yy = (psSaveStructure14->y >> TILE_SHIFT);
-    }
-    else if (psHeader->version <= VERSION_16)
-    {
-      memcpy(psSaveStructure15, pFileData, sizeOfSaveStruture);
-      xx = (psSaveStructure15->x >> TILE_SHIFT);
-      yy = (psSaveStructure15->y >> TILE_SHIFT);
-    }
-    else if (psHeader->version <= VERSION_19)
-    {
-      memcpy(psSaveStructure17, pFileData, sizeOfSaveStruture);
-      xx = (psSaveStructure17->x >> TILE_SHIFT);
-      yy = (psSaveStructure17->y >> TILE_SHIFT);
-    }
-    else if (psHeader->version <= VERSION_20)
-    {
-      memcpy(psSaveStructure20, pFileData, sizeOfSaveStruture);
-      xx = (psSaveStructure20->x >> TILE_SHIFT);
-      yy = (psSaveStructure20->y >> TILE_SHIFT);
-    }
-    else
-    {
-      memcpy(psSaveStructure, pFileData, sizeOfSaveStruture);
-      xx = (psSaveStructure->x >> TILE_SHIFT);
-      yy = (psSaveStructure->y >> TILE_SHIFT);
     }
 
     for (x = (xx * scale); x < (xx * scale) + scale; x++)
