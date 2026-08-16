@@ -38,7 +38,6 @@
 #define RPL_WIDTH 640
 #define RPL_HEIGHT 480
 #define RPL_DEPTH 2	//bytes, 16bit
-#define RPL_BITS_555 15	//15bit
 #define RPL_MASK_555 0x7fff	//15bit
 #define RPL_FRAME_TIME frameDuration	//milliseconds
 #define STD_FRAME_TIME 40 //milliseconds
@@ -89,7 +88,6 @@ char aAudioName[MAX_STR_LENGTH];
 char aTextName[MAX_STR_LENGTH];
 char aSubtitleName[MAX_STR_LENGTH];
 char* pVideoBuffer = nullptr;
-char* pVideoPalette = nullptr;
 VIDEO_MODE videoMode;
 PERF_MODE perfMode = VIDEO_PERF_FULLSCREEN;
 static SDWORD frameSkip = 1;
@@ -255,40 +253,19 @@ BOOL seq_ReleaseVideoBuffers(void)
 {
   delete[] pVideoBuffer;
   pVideoBuffer = nullptr;
-  delete[] pVideoPalette;
-  pVideoPalette = nullptr;
   return TRUE;
 }
 
 BOOL seq_SetupVideoBuffers(void)
 {
-  SDWORD c, mallocSize;
-  UBYTE r, g, b;
+  SDWORD mallocSize;
   //assume 320 * 240 * 16bit playback surface
   mallocSize = (RPL_WIDTH * RPL_HEIGHT * RPL_DEPTH);
   if ((pVideoBuffer = new (std::nothrow) char[mallocSize]) == nullptr)
     return FALSE;
 
-  mallocSize = 1 << (RPL_BITS_555); //palette only used in 555mode
-  if ((pVideoPalette = new (std::nothrow) char[mallocSize]) == nullptr)
-    return FALSE;
-
-  //Assume 555 RGB buffer for 8 bit rendering
-  c = 0;
-  for (r = 0; r < 32; r++)
-  {
-    LOADBARCALLBACK(); //	loadingScreenCallback();
-
-    for (g = 0; g < 32; g++)
-    {
-      for (b = 0; b < 32; b++)
-      {
-        pVideoPalette[c] = static_cast<char>(pal_GetNearestColour(static_cast<uint8>(r << 3), static_cast<uint8>(g << 3),
-                                                                  static_cast<uint8>(b << 3)));
-        c++;
-      }
-    }
-  }
+  /* The 555-to-palette-index lookup that was built here went unread from the
+   * day the RPL decoder was replaced; the MP4 decoder hands over RGB. */
 
   return TRUE;
 }

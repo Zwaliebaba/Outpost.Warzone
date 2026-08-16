@@ -13,7 +13,6 @@ extern void freeTileTextures(void);
 extern UDWORD getTileXIndex(UDWORD tileNumber);
 extern UDWORD getTileYIndex(UDWORD tileNumber);
 extern void buildTileIndexes(void);
-extern void pcxBufferTo16Bit(UBYTE* origBuffer, UWORD* newBuffer);
 
 using TILE_TEX_INFO = struct _tileTexInfo
 {

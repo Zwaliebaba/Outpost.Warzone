@@ -62,7 +62,6 @@ using iSprite = struct
   int width, height;
   iBitmap* bmp;
 };
-using iPalette = iColour[256];
 using iRGB8 = struct
 {
   uint8 r, g, b, p;
@@ -259,7 +258,6 @@ using fixed = int32;
 using TEXTUREPAGE = struct
 {
   iSprite* Texture;
-  iPalette* Palette;
 };
 
 #endif // _renderTypes_h

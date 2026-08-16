@@ -79,7 +79,6 @@ BOOL pie_Initialise(void)
   }
 
   pie_SetDefaultStates();
-  pal_Init();
 
   return TRUE;
 }

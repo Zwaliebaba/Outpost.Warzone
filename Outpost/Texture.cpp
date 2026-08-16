@@ -22,7 +22,6 @@
 #define NUM_OTHER_PAGES	19
 
 iSprite tempTexStore;
-iPalette tempPal;
 /* Stores the graphics data for the terrain tiles textures */
 iSprite tilesPCX;
 /* Stores the raw PCX data for the terrain tiles at load file time */
@@ -46,7 +45,6 @@ TILE_TEX_INFO tileTexInfo[MAX_TILES];
 
 TEXTURE_PAGE_3DFX allPages[MAX_TEXTURE_PAGES];
 
-void pcxBufferTo16Bit(UBYTE* origBuffer, UWORD* newBuffer);
 void getRectFromPage(UDWORD width, UDWORD height, unsigned char* src, UDWORD bufWidth, unsigned char* dest);
 void putRectIntoPage(UDWORD width, UDWORD height, unsigned char* dest, UDWORD bufWidth, unsigned char* src);
 
@@ -404,39 +402,3 @@ void buildTileIndexes(void)
   }
 }
 
-/*	Converts an 8 bit raw (palettised) source image to
-	a 16 bit argb destination image 
-*/
-void pcxBufferTo16Bit(UBYTE* origBuffer, UWORD* newBuffer)
-{
-  UBYTE paletteIndex;
-  UWORD newColour;
-  UWORD mask;
-  UDWORD i;
-  iColour* psCurrentPalette;
-
-  psCurrentPalette = pie_GetGamePal();
-  /*	640*480, 8 bit colour source image 
-    640*480, 16 bit colour destination image
-  */
-  for (i = 0; i < 640 * 480; i++)
-  {
-    /* Get the next colour */
-    paletteIndex = *origBuffer++;
-    /* Flush out destination word (and alpha bits) */
-    newColour = 0;
-    /* Get red bits - 5 */
-    mask = static_cast<UWORD>(psCurrentPalette[paletteIndex].r >> 3);
-    newColour = static_cast<UWORD>(newColour | mask);
-    newColour = static_cast<UWORD>(newColour << 6);
-    /* Get green bits - 6 */
-    mask = static_cast<UWORD>(psCurrentPalette[paletteIndex].g >> 2);
-    newColour = static_cast<UWORD>(newColour | mask);
-    newColour = static_cast<UWORD>(newColour << 5);
-    /* Get blue bits - 5 */
-    mask = static_cast<UWORD>(psCurrentPalette[paletteIndex].b >> 3);
-    newColour = static_cast<UWORD>(newColour | mask);
-    /* Copy over */
-    *newBuffer++ = newColour;
-  }
-}

@@ -255,8 +255,6 @@ static SDWORD mX, mY;
 /* Index so we know how to find the tile BEHIND the one currently being processed for any view angle */
 UDWORD stepIndex;
 /* The box used for multiple selection - present screen coordinates */
-/* The game palette */
-iPalette gamePal;
 UDWORD currentGameFrame;
 UDWORD numTiles = 0;
 SDWORD tileZ = 8000;

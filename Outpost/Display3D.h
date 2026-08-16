@@ -73,7 +73,6 @@ extern SDWORD scrollSpeed;
 extern BOOL gouraudShading;
 extern iBitmap** tilesRAW;
 extern UDWORD stepIndex;
-extern iPalette gamePal;
 extern void assignSensorTarget(BASE_OBJECT* psObj);
 extern void assignDestTarget(void);
 extern void processSensorTarget(void);

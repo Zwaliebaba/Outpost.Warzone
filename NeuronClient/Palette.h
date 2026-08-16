@@ -4,8 +4,6 @@
 
 //*************************************************************************
 
-#define PALETTE_MAX	8
-
 #define PALETTE_SIZE	256
 #define PALETTE_SHADE_LEVEL 16
 
@@ -31,21 +29,14 @@
 
 extern uint8 colours[];
 extern uint8 palShades[PALETTE_SIZE * PALETTE_SHADE_LEVEL];
-extern uint8 transLookup[PALETTE_SIZE][PALETTE_SIZE];
-extern UWORD palette16Bit[PALETTE_SIZE]; //RGB565 version of the present palette
 extern UDWORD palette32Bit[PALETTE_SIZE]; //X8R8G8B8 version of the present palette
 
 //*************************************************************************
-extern void pal_Init(void);
 extern void pal_ShutDown(void);
 extern void pal_BuildAdjustedShadeTable(void);
 extern uint8 pal_GetNearestColour(uint8 r, uint8 g, uint8 b);
 extern int pal_AddNewPalette(iColour* pal);
-extern void pal_SelectPalette(int n);
-extern void pal_PaletteSet(void);
 extern BOOL pal_MakePackedPalettes(void);
 extern iColour* pie_GetGamePal(void);
-extern PALETTEENTRY* pie_GetWinPal(void);
-extern void pie_BuildSoftwareTransparency(void);
 
 #endif

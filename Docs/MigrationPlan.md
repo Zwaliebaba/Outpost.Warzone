@@ -1253,6 +1253,64 @@ a Windows run must confirm — the borderless boot at desktop resolution, UI
 scale 2 on a 1080p/1440p desktop, mouse-to-widget alignment, an FMV with
 subtitles, and a load/save-screen backdrop round trip.
 
+## Removing the palette: true-colour assets in DDS (planned 2026-08-16, stage 1 landed)
+
+**By owner decision, the 256-colour palette is to be removed, and the target
+asset format is DDS** (uncompressed A8R8G8B8, hand-rolled loader — no D3DX,
+no new dependency; the 128-byte header is trivial to read and to write from
+a stdlib-only Python tool). The palette is live and load-bearing today:
+`GameData/palette.bin` (256 RGB triplets) is the single global palette, the
+73 PCX texture pages plus the `.img` UI pages store indices *into it* (the
+PCX loader warns if a file so much as carries its own palette), and the
+pixels stay 8-bit in memory until the last moment — `dtm_UploadImage`
+expands them through `texPal32Bit` at device upload, with entry 0 as the
+transparent colour-key. On top of the assets, a wide band of code treats
+colour as a palette index: `pal_GetNearestColour` (~30 sites), the 16
+`COL_*` primaries (106 sites across the widget library and game UI), the
+index-taking draw calls (`pie_Line` 161 sites, `pie_BoxFillIndex` 50,
+`pie_Box` 9), widget colour tables and font colour indices. Team colours
+need nothing special: they are baked into palettised page variants selected
+as texture frames in `pie_Draw3DShape`.
+
+The removal is staged so every stage ships alone and the gate is visual
+parity — the same RGB values fall out of each stage, so screenshots should
+match to the pixel except where 256-colour quantisation disappears:
+
+1. **Delete the provably dead half** — *landed with this entry.* The
+   transparency lookup (`transLookup`, `pie_BuildSoftwareTransparency`),
+   `palette16Bit`, the never-read FMV palette (`pVideoPalette` and its
+   555 build loop — unread since the MP4 decoder), the Windows-palette copy
+   (`psWinPal`, `pie_GetWinPal`, `screenSetPalette`, `screenGetPalEntry`
+   and `asPalEntries` — last real consumer was the dead `DISP2D` editor
+   tree), the per-page `TEXTUREPAGE.Palette` that was allocated and freed
+   but never read, `pcxBufferTo16Bit`, `iPalette`, `gamePal`, `tempPal`,
+   the empty `pal_Init`/`pal_SelectPalette`/`pal_SetPalette` and the
+   `OLD_PALETTE` block. What survives is exactly the live half: `psGamePal`,
+   `pal_GetNearestColour`, `palShades` (radar lighting), `palette32Bit`
+   (FMV subtitle glyphs) and the `COL_*` machinery.
+2. **True colour in memory, same assets.** Move the index expansion from
+   upload time to load time: sprites and texture pages carry 32-bit pixels,
+   `dtm_UploadImage` becomes a copy, the radar composes in 32-bit (shading
+   by per-channel multiply instead of `palShades`), the subtitle and
+   backdrop paths read 32-bit. The palette then exists only inside the PCX
+   loader.
+3. **Colour-as-index becomes packed RGB.** Every `pal_GetNearestColour`
+   caller already holds the RGB it wants — the palette round-trip only
+   quantises it — so the conversion is mechanical: `COL_*` become constexpr
+   packed constants, `pie_Line`/`pie_Box`/`pie_BoxFillIndex` take packed
+   RGB as `pie_BoxFill` already does, widget colour tables widen, font
+   colour indices go packed. Two conventions carry over: index 0/black as
+   transparent becomes real alpha (the alpha-test state already implements
+   it), and the "never produce pure black" guard stays in
+   `screenGetCacheColour`.
+4. **Convert the assets and delete the module.** A `tools/` script expands
+   each 8-bit PCX through `palette.bin` into uncompressed A8R8G8B8 DDS
+   (index 0 → alpha 0), a ~100-line DDS reader replaces the PCX loader for
+   pages, and `palette.bin`, its WinMain load, `Palette.cpp/.h` and
+   `texPal32Bit` are deleted. Converting GameData binaries is sanctioned
+   the way the Phase 6 `.rpl`→MP4 re-encode was: by this owner decision,
+   through a committed tool.
+
 ## Verification
 
 There is no MSVC or Windows SDK in the Linux development container, so a real

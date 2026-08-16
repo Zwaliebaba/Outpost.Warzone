@@ -57,13 +57,6 @@ static BOOL bDeviceCreated = FALSE;
 /* The back buffer surface, only held while it is locked */
 static LPDIRECT3DSURFACE9 psLockedBackBuffer = nullptr;
 
-/* The palette entries kept for palette matching. The display has not been
- * palettised since DirectDraw went, but the game still asks for the nearest
- * entry to an RGB value when it packs its own colours.
- */
-#define PAL_MAX				256
-static PALETTEENTRY asPalEntries[PAL_MAX];
-
 /* The pixel format of the display, and of the back buffer. Both are
  * X8R8G8B8 - they are kept separate because the callers still ask for each.
  */
@@ -205,11 +198,6 @@ BOOL screenInitialise(UDWORD width, // Display width - the desktop's
   hWndMain = static_cast<HWND>(hWindow);
 
   setPixelFormats();
-
-  memset(asPalEntries, 0, sizeof(PALETTEENTRY) * PAL_MAX);
-  asPalEntries[PAL_MAX - 1].peRed = 0xff;
-  asPalEntries[PAL_MAX - 1].peGreen = 0xff;
-  asPalEntries[PAL_MAX - 1].peBlue = 0xff;
 
   /* The one mode there is: a borderless window covering the desktop,
    * presented through a windowed swap chain. */
@@ -546,59 +534,6 @@ void screenFlip(BOOL clearBackBuffer)
 /*********************************************************/
 
 SCREEN_MODE screenGetMode(void) { return screenMode; }
-
-/*********************************************************/
-/* Palette matching                                      */
-/*********************************************************/
-
-void screenSetPalette(UDWORD first, UDWORD count, PALETTEENTRY* psEntries)
-{
-  DEBUG_ASSERT_TEXT((first+count-1 < PAL_MAX), "screenSetPalette: invalid entry range");
-
-  if (count == 0)
-    return;
-
-  /* ensure that colour 0 is black and 255 is white */
-  if ((first == 0 || first == 255) && count == 1)
-    return;
-
-  if (first == 0)
-  {
-    first = 1;
-    count -= 1;
-  }
-  if (first + count - 1 == PAL_MAX)
-    count -= 1;
-
-  memcpy(asPalEntries + first, psEntries + first, sizeof(PALETTEENTRY) * count);
-}
-
-/* Return the best colour match in the stored palette */
-UBYTE screenGetPalEntry(UBYTE red, UBYTE green, UBYTE blue)
-{
-  UDWORD i, minDist, dist;
-  UDWORD redDiff, greenDiff, blueDiff;
-  UBYTE colour;
-
-  minDist = 0xff * 0xff * 0xff;
-  colour = 0;
-  for (i = 0; i < PAL_MAX; i++)
-  {
-    redDiff = asPalEntries[i].peRed - red;
-    greenDiff = asPalEntries[i].peGreen - green;
-    blueDiff = asPalEntries[i].peBlue - blue;
-    dist = redDiff * redDiff + greenDiff * greenDiff + blueDiff * blueDiff;
-    if (dist < minDist)
-    {
-      minDist = dist;
-      colour = static_cast<UBYTE>(i);
-    }
-    if (minDist == 0)
-      break;
-  }
-
-  return colour;
-}
 
 /* Return the actual value that will be poked into screen memory
  * given an RGB value.

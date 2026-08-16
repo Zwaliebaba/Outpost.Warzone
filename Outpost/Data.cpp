@@ -827,11 +827,6 @@ BOOL bufferTexPageLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
       return FALSE;
 
     NewTexturePage->Texture = nullptr;
-    NewTexturePage->Palette = nullptr;
-
-    auto psPal = new (std::nothrow) iPalette[1];
-    if (!psPal)
-      return FALSE;
 
     auto psSprite = new (std::nothrow) iSprite[1];
     if (!psSprite)
@@ -845,7 +840,6 @@ BOOL bufferTexPageLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
     }
 
     NewTexturePage->Texture = psSprite;
-    NewTexturePage->Palette = psPal;
 
     //Hack mar8 to load	textures in order	
     /*	for(i=0;i<_TEX_INDEX;i++)
@@ -887,11 +881,6 @@ void dataTexPageRelease(void* pData)
     }
     delete[] Tpage->Texture;
     Tpage->Texture = nullptr;
-  }
-  if (Tpage->Palette != nullptr)
-  {
-    delete[] Tpage->Palette;
-    Tpage->Palette = nullptr;
   }
 
   delete[] pData;

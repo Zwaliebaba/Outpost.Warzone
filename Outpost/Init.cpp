@@ -858,10 +858,6 @@ BOOL frontendInitialise(char* ResourceFile)
   keyClearMappings();
   keyInitMappings(FALSE);
 
-#ifdef OLD_PALETTE
-  pal_SelectPalette(pal_AddNewPalette(&gamePal[0]));
-#endif
-
   frameSetCursorFromRes(IDC_DEFAULT);
 
   SetFormAudioIDs(-1, ID_SOUND_WINDOWCLOSE); // disable the open noise since distorted in 3dfx builds.

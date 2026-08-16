@@ -144,15 +144,6 @@ extern HWND screenGetHWnd(void);
 /* Get display mode (windowed or full screen) */
 extern SCREEN_MODE screenGetMode(void);
 
-/* Set palette entries for the display buffer
- * first specifies the first palette entry. count the number of entries
- * The psPalette should have at least first + count entries in it.
- */
-extern void screenSetPalette(UDWORD first, UDWORD count, PALETTEENTRY* psPalette);
-
-/* Return the best colour match in the stored palette */
-extern UBYTE screenGetPalEntry(UBYTE red, UBYTE green, UBYTE blue);
-
 /* Set the colour for text */
 extern void screenSetTextColour(UBYTE red, UBYTE green, UBYTE blue);
 
