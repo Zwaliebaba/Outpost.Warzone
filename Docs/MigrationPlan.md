@@ -1042,6 +1042,21 @@ renderer, and the visual checklist in
 Stage B especially wants the device-loss path exercised, since collapsing the
 state caches is exactly what that stresses.
 
+### The runsheet
+
+Five phases now owe a running build, each with a checklist in its own document.
+[Verification.md](Verification.md) gathers them into one ordered session —
+eight passes, each screen visited once, with what "pass" means for each item and
+a table to record results in. It also carries the two things that are not
+checklist items: the working-directory failure that looks exactly like a
+rendering fault, and the `visfog` key inverting its own name, which would have
+had the fog comparison verifying the wrong fog.
+
+Two of the passes settle open decisions rather than confirming existing work.
+Pass C is the precondition for Phase 8 D2 and Phase 6 B4, which both thread a
+`D3DPOOL_DEFAULT` resource through the device-loss path. Pass D answers D1b
+outright, in either direction, without any of it being written first.
+
 ### What Phase 2 needed beyond the build
 
 A green build says nothing about whether a renderer draws. Phase 2 was checked
@@ -1056,3 +1071,10 @@ up only as exit code `0xC0000003` with no message. The message goes to
 mapping is what turns that back into a diagnosis — that is how "Couldn't open
 `wrf\demo\democam3.gam`" was distinguished from a rendering failure. Worth
 knowing for Phases 3 to 6, which face the same asymmetry.
+
+`tools/dbg.py` is that listener. It was an empty placeholder until the runsheet
+needed it; it is now a reader for the `DBWIN_BUFFER` protocol, and like the
+files under `tools/stubs/` it is a transcription of somebody else's API and says
+so at the top. Start it before the game — every pass in
+[Verification.md](Verification.md) can fail in a way that is indistinguishable
+from a rendering fault until the message is visible.
