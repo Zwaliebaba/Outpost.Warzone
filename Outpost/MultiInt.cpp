@@ -916,10 +916,6 @@ static void addGameOptions(BOOL bRedo)
   }
 
   //disable demo options
-#ifdef MULTIDEMO
-
-  widgSetButtonState(psWScreen, MULTIOP_DEFENCE,WBUT_DISABLE); widgSetButtonState(psWScreen, MULTIOP_SKIRMISH,WBUT_DISABLE);
-#endif
 }
 
 // ////////////////////////////////////////////////////////////////////////////
@@ -1379,11 +1375,7 @@ VOID stopJoining(void)
 
   if (ingame.bHostSetup)
   {
-#ifdef COVERMOUNT
-    pie_LoadBackDrop(SCREEN_COVERMOUNT,FALSE);
-#else
     pie_LoadBackDrop(SCREEN_RANDOMBDROP,FALSE);
-#endif
   }
 }
 

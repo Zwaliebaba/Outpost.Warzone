@@ -73,7 +73,6 @@ using SCREENTYPE = enum _screenType
   SCREEN_SLIDE3,
   SCREEN_SLIDE4,
   SCREEN_SLIDE5,
-  SCREEN_COVERMOUNT,
 };
 
 extern void pie_LoadBackDrop(SCREENTYPE screenType, BOOL b3DFX);

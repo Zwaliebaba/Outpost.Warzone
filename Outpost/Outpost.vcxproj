@@ -46,7 +46,6 @@
     <ClCompile Include="Display3D.cpp" />
     <ClCompile Include="Drive.cpp" />
     <ClCompile Include="Droid.cpp" />
-    <ClCompile Include="E3Demo.cpp" />
     <ClCompile Include="Edit2D.cpp" />
     <ClCompile Include="Edit3D.cpp" />
     <ClCompile Include="Effects.cpp" />
@@ -177,7 +176,6 @@
     <ClInclude Include="Drive.h" />
     <ClInclude Include="Droid.h" />
     <ClInclude Include="DroidDef.h" />
-    <ClInclude Include="E3Demo.h" />
     <ClInclude Include="Edit2D.h" />
     <ClInclude Include="Edit3D.h" />
     <ClInclude Include="Effects.h" />

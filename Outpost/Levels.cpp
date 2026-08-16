@@ -207,7 +207,6 @@ BOOL levParse(UBYTE* pBuffer, SDWORD size)
         case LTK_MKEEP:
           psDataSet->type = LDS_MKEEP;
           break;
-#ifndef COVERMOUNT
         case LTK_CAMCHANGE:
           psDataSet->type = LDS_CAMCHANGE;
           break;
@@ -223,7 +222,6 @@ BOOL levParse(UBYTE* pBuffer, SDWORD size)
         case LTK_MKEEP_LIMBO:
           psDataSet->type = LDS_MKEEP_LIMBO;
           break;
-#endif
         default: DEBUG_ASSERT_TEXT(FALSE, "eh?");
           break;
         }
@@ -288,10 +286,8 @@ BOOL levParse(UBYTE* pBuffer, SDWORD size)
       else if (state == LP_LEVELDONE)
       {
         if (psDataSet->type == LDS_CAMSTART || psDataSet->type == LDS_MKEEP
-#ifndef COVERMOUNT
           || psDataSet->type == LDS_CAMCHANGE || psDataSet->type == LDS_EXPAND || psDataSet->type == LDS_MCLEAR || psDataSet->type ==
           LDS_EXPAND_LIMBO || psDataSet->type == LDS_MKEEP_LIMBO
-#endif
         )
         {
           levError("Missing dataset command");
@@ -317,7 +313,6 @@ BOOL levParse(UBYTE* pBuffer, SDWORD size)
     case LTK_IDENT:
       if (state == LP_LEVEL)
       {
-#ifndef COVERMOUNT
         if (psDataSet->type == LDS_CAMCHANGE)
         {
           // campaign change dataset - need to find the full data set
@@ -334,7 +329,6 @@ BOOL levParse(UBYTE* pBuffer, SDWORD size)
           }
           psFoundData->psChange = psDataSet;
         }
-#endif
         // store the level name
         psDataSet->pName = new (std::nothrow) STRING[strlen(pLevToken) + 1];
         if (!psDataSet->pName)
@@ -518,10 +512,8 @@ BOOL levLoadBaseData(STRING* pName)
   }
 
   if (psNewLevel->type != LDS_CAMSTART && psNewLevel->type != LDS_MKEEP
-#ifndef COVERMOUNT
     && psNewLevel->type != LDS_EXPAND && psNewLevel->type != LDS_MCLEAR && psNewLevel->type != LDS_EXPAND_LIMBO && psNewLevel->type !=
     LDS_MKEEP_LIMBO
-#endif
   )
   {
     Neuron::Fatal("levLoadBaseData: incorect level type");
@@ -655,13 +647,11 @@ BOOL levLoadData(STRING* pName)
       }
     }
   }
-#ifndef COVERMOUNT
   if (psNewLevel->type == LDS_CAMCHANGE)
   {
     if (!campaignReset())
       return FALSE;
   }
-#endif
   if (psNewLevel->game == -1) //no .gam file to load - BETWEEN missions (for Editor games only)
   {
     DEBUG_ASSERT_TEXT(psNewLevel->type == LDS_BETWEEN, "levLoadData: only BETWEEN missions do not need a .gam file");
@@ -690,9 +680,7 @@ BOOL levLoadData(STRING* pName)
       }
 
       if (psNewLevel->type == LDS_MKEEP
-#ifndef COVERMOUNT
         || psNewLevel->type == LDS_MCLEAR || psNewLevel->type == LDS_MKEEP_LIMBO
-#endif
       )
       {
         Neuron::DebugTrace("levLoadData: setting mission heap\n");
@@ -719,7 +707,6 @@ BOOL levLoadData(STRING* pName)
           if (!startMission(LDS_MKEEP, psNewLevel->apDataFiles[i]))
             return FALSE;
           break;
-#ifndef COVERMOUNT
         case LDS_CAMCHANGE: Neuron::DebugTrace("CAMCHANGE\n");
           //if (!startMission(MISSION_CAMPSTART, psNewLevel->apDataFiles[i]))
           if (!startMission(LDS_CAMCHANGE, psNewLevel->apDataFiles[i]))
@@ -747,7 +734,6 @@ BOOL levLoadData(STRING* pName)
           if (!startMission(LDS_MKEEP_LIMBO, psNewLevel->apDataFiles[i]))
             return FALSE;
           break;
-#endif
         default: DEBUG_ASSERT_TEXT(psNewLevel->type >= MULTI_TYPE_START, "levLoadData: Unexpected mission type");
           Neuron::DebugTrace("MULTIPLAYER\n");
           //if (!startMission(MISSION_CAMPSTART, psNewLevel->apDataFiles[i]))
@@ -759,9 +745,7 @@ BOOL levLoadData(STRING* pName)
 
       // set the view position if necessary
       if ((psNewLevel->type != LDS_BETWEEN)
-#ifndef COVERMOUNT
         && (psNewLevel->type != LDS_EXPAND) && (psNewLevel->type != LDS_EXPAND_LIMBO)
-#endif
       )
       {
         if (!newMapInitialise())

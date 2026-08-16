@@ -26,7 +26,6 @@
 #include "Geometry.h"
 #include "Radar.h"
 #include "Cheat.h"
-#include "E3Demo.h"	// will this be on PSX?
 #include "NetPlay.h"
 #include "MultiPlay.h"
 #include "MultiMenu.h"
@@ -800,7 +799,6 @@ void kf_SelectGrouping(void)
 
   // Tell the driving system that the selection may have changed.
   driveSelectionChanged();
-#ifndef COVERMOUNT
   /* play group audio but only if they wern't already selected - AM */
   if (Selected AND !bAlreadySelected)
   {
@@ -808,7 +806,6 @@ void kf_SelectGrouping(void)
     AudioSystem::QueueTrack(ID_SOUND_REPORTING);
     AudioSystem::QueueTrack(ID_SOUND_RADIOCLICK_1 + (rand() % 6));
   }
-#endif
 }
 
 // --------------------------------------------------------------------------
@@ -975,13 +972,11 @@ void kf_ToggleGodMode(void)
   {
     godMode = FALSE;
     CONPRINTF(ConsoleString, (ConsoleString,"God Mode OFF"));
-    demoProcessTilesOut();
   }
   else
   {
     godMode = TRUE;
     CONPRINTF(ConsoleString, (ConsoleString,"God Mode ON"));
-    demoProcessTilesIn();
   }
 }
 
@@ -1061,27 +1056,6 @@ void kf_ToggleReloadBars(void)
 {
   toggleReloadBarDisplay();
   CONPRINTF(ConsoleString, (ConsoleString, strresGetString(psStringRes,STR_GAM_ENERGY ) ));
-}
-
-// --------------------------------------------------------------------------
-void kf_ToggleDemoMode(void)
-{
-  if (demoGetStatus() == FALSE)
-  {
-    /* Switch on demo mode */
-    toggleDemoStatus();
-    enableConsoleDisplay(TRUE);
-  }
-  else
-  {
-    toggleDemoStatus();
-    flushConsoleMessages();
-    setConsolePermanence(FALSE,TRUE);
-    permitNewConsoleMessages(TRUE);
-    addConsoleMessage("Demo Mode OFF - Returning to normal game mode", LEFT_JUSTIFY);
-    if (getWarCamStatus())
-      camToggleStatus();
-  }
 }
 
 // --------------------------------------------------------------------------
@@ -1219,7 +1193,7 @@ void kf_ToggleDrivingMode(void)
       StopDriverMode();
     else
     {
-      if ((driveModeActive() == FALSE) && (demoGetStatus() == FALSE) && !bMultiPlayer)
+      if ((driveModeActive() == FALSE) && !bMultiPlayer)
         StartDriverMode(nullptr);
     }
   }

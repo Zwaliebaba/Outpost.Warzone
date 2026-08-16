@@ -859,8 +859,6 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem)
   setViewAngle(INITIAL_STARTING_PITCH);
   setDesiredPitch(INITIAL_DESIRED_PITCH);
 
-#ifndef COVERMOUNT
-#endif
 
   //need to clear before setting up
   clearMissionWidgets();

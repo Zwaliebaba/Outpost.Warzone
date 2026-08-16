@@ -533,9 +533,6 @@ void pie_LoadBackDrop(SCREENTYPE screenType, BOOL b3DFX)
   case SCREEN_RANDOMBDROP:
     sprintf(backd, "texpages\\bdrops\\%d%d-bdrop.pcx", chooser0, chooser1);
     break;
-  case SCREEN_COVERMOUNT:
-    sprintf(backd, "texpages\\bdrops\\demo-bdrop.pcx");
-    break;
   case SCREEN_MISSIONEND:
     sprintf(backd, "texpages\\bdrops\\missionend.pcx");
     break;

@@ -94,7 +94,6 @@ extern BOOL yBeforeX;
 extern UDWORD numDroidsSelected;
 extern UDWORD intensity1, intensity2, intensity3;
 extern UDWORD lightLevel;
-extern UDWORD demoTextPage;
 extern BOOL updateVideoCard;
 
 #define	INITIAL_DESIRED_PITCH		(325)

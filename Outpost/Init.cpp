@@ -1446,11 +1446,7 @@ BOOL newMapInitialise(void)
 void initMiscVars(void)
 {
   selectedPlayer = 0;
-#ifndef NON_INTERACT
   godMode = FALSE;
-#else
-  godMode = TRUE;
-#endif
 
   setBlipDraw(TRUE);
   setProximityDraw(TRUE);

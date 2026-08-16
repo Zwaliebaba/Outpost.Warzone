@@ -427,13 +427,9 @@ CONST_SYMBOL asConstantTable[] = {
   {"OBJ_FEATURE", VAL_INT, 0, OBJ_FEATURE, nullptr},
   //mission Types
   {"CAMP_START", VAL_INT, 0, LDS_CAMSTART, nullptr},
-#ifndef COVERMOUNT
   {"CAMP_EXPAND", VAL_INT, 0, LDS_EXPAND, nullptr},
-#endif
   {"OFF_KEEP", VAL_INT, 0, LDS_MKEEP, nullptr},
-#ifndef COVERMOUNT
   {"OFF_CLEAR", VAL_INT, 0, LDS_MCLEAR, nullptr},
-#endif
   {"BETWEEN", VAL_INT, 0, LDS_BETWEEN, nullptr},
   // droid types
   {"DROID_WEAPON", VAL_INT, 0, DROID_WEAPON, nullptr}, {"DROID_SENSOR", VAL_INT, 0, DROID_SENSOR, nullptr},

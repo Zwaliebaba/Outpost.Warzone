@@ -65,7 +65,6 @@ extern void kf_MaxScrollLimits(void);
 extern void kf_LevelSea(void);
 extern void kf_TestWater(void);
 extern void kf_TogglePauseMode(void);
-extern void kf_ToggleDemoMode(void);
 extern void kf_ToggleRadarAllign(void);
 
 extern void kf_ToggleEnergyBars(void);

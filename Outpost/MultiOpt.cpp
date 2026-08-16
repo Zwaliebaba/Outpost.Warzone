@@ -155,9 +155,6 @@ void recvOptions(NETMSG* pMsg)
 #ifndef DEBUG
     Neuron::Fatal("Host is running a different version of Warzone2100.");
 #endif
-#ifdef COVERMOUNT
-    Neuron::Fatal("Warzone 2100 Demo is not compatible with the release version"); ExitProcess(4);
-#endif
   }
   if (ingame.numStructureLimits) // free old limits.
   {
@@ -177,9 +174,6 @@ void recvOptions(NETMSG* pMsg)
   if (checkval != NEThashVal(NetPlay.cryptKey[0]))
   {
     Neuron::Fatal("Host Binary is different from this one. Cheating?");
-#ifdef COVERMOUNT
-    Neuron::Fatal("Warzone 2100 Demo is not compatible with the release version"); ExitProcess(4);
-#endif
   }
 
   NetGet(pMsg, pos, newPl);
@@ -418,7 +412,6 @@ BOOL lobbyInitialise(VOID)
   if (!NETinit(TRUE)) // initialise the transport.
     return FALSE;
 
-#ifndef COVERMOUNT
   // setup the encryption key 
 
   // hash the file to get the key.and catch out the exe patchers.
@@ -428,10 +421,6 @@ BOOL lobbyInitialise(VOID)
   NETsetKey(NEThashFile("warzone.exe"), 0xb72a5, 0x114d0, 0x2a7);
 #endif
 
-#else
-  // hash the file to get the key.and catch out the exe patchers.
-  NETsetKey(NEThashFile("wzdemo.exe"), 0xb72a5, 0x114d0, 0x2a7);
-#endif
 
   return TRUE;
 }

@@ -81,21 +81,15 @@ STRING strTrans[MAX_STR_LENGTH];
 // Local Definitions
 // iPalette			titlePalette;
 int FEFont;
-#ifndef NON_INTERACT
 char pLevelName[MAX_LEVEL_NAME_SIZE + 1]; //256];			// vital! the wrf file to use.
-#else
-char pLevelName[] = "ROCKIES";
-#endif
 BOOL bForceEditorLoaded = FALSE;
 BOOL bUsingKeyboard = FALSE; // to disable mouse pointer when using keys.
 BOOL bUsingSlider = FALSE;
 
-static BOOL bInFastPlay = FALSE;
 
 // This is used on the PSX so that things like the mission result screen
 // can know if were in the fast play game and behave a bit differently if so.
 // Currently just returns FALSE on the PC.
-BOOL GetInFastPlay(void) { return FALSE; }
 
 // ////////////////////////////////////////////////////////////////////////////
 // extern Definitions
@@ -305,17 +299,6 @@ BOOL startTitleMenu(VOID)
   addTopForm();
   addBottomForm();
 
-#ifdef COVERMOUNT	// no multiplayer								
-  addTextButton(FRONTEND_TUTORIAL, FRONTEND_POS2X,FRONTEND_POS2Y, "Demo",FALSE,FALSE);
-#ifdef  MULTIDEMO
-  addTextButton(FRONTEND_MULTIPLAYER, FRONTEND_POS3X,FRONTEND_POS3Y, strresGetString(psStringRes, STR_FE_MULTI),FALSE,FALSE);
-#else
-  addTextButton(FRONTEND_MULTIPLAYER, FRONTEND_POS3X,FRONTEND_POS3Y, strresGetString(psStringRes, STR_FE_MULTI),FALSE,TRUE);
-#endif
-  addTextButton(FRONTEND_SINGLEPLAYER,FRONTEND_POS4X,FRONTEND_POS4Y, strresGetString(psStringRes, STR_FE_SINGLE),FALSE,TRUE); addTextButton(
-    FRONTEND_OPTIONS, FRONTEND_POS5X,FRONTEND_POS5Y, strresGetString(psStringRes, STR_FE_OPTIONS),FALSE,FALSE); addTextButton(
-    FRONTEND_PLAYINTRO, FRONTEND_POS6X,FRONTEND_POS6Y, strresGetString(psStringRes, STR_FE_INTRO),FALSE,TRUE);
-#else		// normal
   addTextButton(FRONTEND_SINGLEPLAYER,FRONTEND_POS2X,FRONTEND_POS2Y, strresGetString(psStringRes, STR_FE_SINGLE),FALSE,FALSE);
   if (!bDisableLobby)
     addTextButton(FRONTEND_MULTIPLAYER, FRONTEND_POS3X,FRONTEND_POS3Y, strresGetString(psStringRes, STR_FE_MULTI),FALSE,FALSE);
@@ -324,7 +307,6 @@ BOOL startTitleMenu(VOID)
   addTextButton(FRONTEND_TUTORIAL, FRONTEND_POS4X,FRONTEND_POS4Y, strresGetString(psStringRes, STR_FE_TUT),FALSE,FALSE);
   addTextButton(FRONTEND_OPTIONS, FRONTEND_POS5X,FRONTEND_POS5Y, strresGetString(psStringRes, STR_FE_OPTIONS),FALSE,FALSE);
   addTextButton(FRONTEND_PLAYINTRO, FRONTEND_POS6X,FRONTEND_POS6Y, strresGetString(psStringRes, STR_FE_INTRO),FALSE,FALSE);
-#endif
 
   addTextButton(FRONTEND_QUIT, FRONTEND_POS7X,FRONTEND_POS7Y, strresGetString(psStringRes, STR_FE_QUIT),FALSE,FALSE);
 
@@ -390,10 +372,9 @@ BOOL startTutorialMenu(VOID)
   addBottomForm();
 
   addTextButton(FRONTEND_TUTORIAL, FRONTEND_POS3X,FRONTEND_POS3Y, strresGetString(psStringRes, STR_FE_TUT),FALSE,FALSE);
-  addTextButton(FRONTEND_FASTPLAY, FRONTEND_POS4X,FRONTEND_POS4Y, strresGetString(psStringRes, STR_FE_FASTPLAY),FALSE,FALSE);
   addSideText(FRONTEND_SIDETEXT,FRONTEND_SIDEX,FRONTEND_SIDEY, strresGetString(psStringRes, STR_FE_SIDETUT));
   addMultiBut(psWScreen,FRONTEND_BOTFORM,FRONTEND_QUIT, 10, 10, 30, 29, STR_FE_RETURN, IMAGE_RETURN, IMAGE_RETURN_HI,TRUE);
-  SetCurrentSnapID(&InterfaceSnap,FRONTEND_FASTPLAY);
+  SetCurrentSnapID(&InterfaceSnap,FRONTEND_TUTORIAL);
 
   return TRUE;
 }
@@ -408,11 +389,6 @@ BOOL runTutorialMenu(VOID)
   {
   case FRONTEND_TUTORIAL:
     strcpy(pLevelName,TUTORIAL_LEVEL);
-    changeTitleMode(STARTGAME);
-    break;
-
-  case FRONTEND_FASTPLAY:
-    strcpy(pLevelName, "FASTPLAY");
     changeTitleMode(STARTGAME);
     break;
 
@@ -514,91 +490,6 @@ BOOL runSinglePlayerMenu(VOID)
   return TRUE;
 }
 
-// ////////////////////////////////////////////////////////////////////////////
-// Demo menus, remove for release.
-/*
-BOOL startDemoMenu(VOID)
-{
-	addBackdrop();
-	addTopForm();
-	addBottomForm();
-	
-	addSideText	 (FRONTEND_SIDETEXT ,	FRONTEND_SIDEX,FRONTEND_SIDEY,"DEMO");
-
-#ifdef PSX
-#if(0)		// none of these demos work anymore !
-	addTextButton(FRONTEND_DEMO1,	FRONTEND_POS2X,FRONTEND_POS2Y, "Rocky Mountains",FALSE,FALSE);
-	addTextButton(FRONTEND_DEMO2,   FRONTEND_POS3X,FRONTEND_POS3Y, "New Paradigm HQ",FALSE,FALSE);
-	addTextButton(FRONTEND_DEMO3,	FRONTEND_POS4X,FRONTEND_POS4Y, "City Dam",FALSE,FALSE);
-	addTextButton(FRONTEND_DEMO4,	FRONTEND_POS5X,FRONTEND_POS5Y, "City Crater",FALSE,FALSE);
-#endif
-#endif
-
-#ifdef WIN32
-	addTextButton(FRONTEND_DEMO1,	FRONTEND_POS2X,FRONTEND_POS2Y, "Rocky Mountains",FALSE,FALSE);
-	addTextButton(FRONTEND_DEMO2,   FRONTEND_POS3X,FRONTEND_POS3Y, "New Paradigm HQ",FALSE,FALSE);
-	addTextButton(FRONTEND_DEMO3,	FRONTEND_POS4X,FRONTEND_POS4Y, "City Dam",FALSE,FALSE);
-	addTextButton(FRONTEND_DEMO4,	FRONTEND_POS5X,FRONTEND_POS5Y, "City Crater",FALSE,FALSE);
-	addTextButton(FRONTEND_DEMO5,	FRONTEND_POS6X,FRONTEND_POS6Y, "Empty",FALSE,FALSE);
-#endif
-
-#ifdef WIN32
-	addMultiBut(psWScreen,FRONTEND_BOTFORM,FRONTEND_QUIT,10,10,30,29, STR_FE_RETURN,IMAGE_RETURN,IMAGE_RETURN_HI,TRUE);
-#else
-	addTextButton(FRONTEND_QUIT,FRONTEND_POS5X,FRONTEND_POS5Y, strresGetString(psStringRes, STR_FE_RETURN),TRUE,FALSE);
-#endif
-	return TRUE;
-}
-
-BOOL runDemoMenu(VOID)
-{
-	UDWORD id;
-
-	processFrontendSnap(FALSE);
-
-	id = widgRunScreen(psWScreen);						// Run the current set of widgets 
-	switch(id)
-	{
-//	case FRONTEND_DEMO1:
-	case FRONTEND_DEMO1:
-		strcpy(pLevelName,"DEMO1");
-		changeTitleMode(STARTGAME);
-		break;
-	case FRONTEND_DEMO2:
-		strcpy(pLevelName,"DEMO2");
-		changeTitleMode(STARTGAME);
-		break;
-	case FRONTEND_DEMO3:
-		strcpy(pLevelName,"DEMO3");
-		changeTitleMode(STARTGAME);
-		break;
-	case FRONTEND_DEMO4:
-		strcpy(pLevelName,"DEMO4");
-		changeTitleMode(STARTGAME);
-		break;
-	case FRONTEND_DEMO5:
-		strcpy(pLevelName,"DEMO5");
-		changeTitleMode(STARTGAME);
-		break;
-	case FRONTEND_QUIT:
-		changeTitleMode(TITLE);
-		break;
-	default:
-		break;
-	}
-
-	// If close button pressed then return from this menu.
-	if(CancelPressed()) {
-		changeTitleMode(TITLE);
-	}
-
-	DrawBegin();	
-	StartCursorSnap(&InterfaceSnap);
-	widgDisplayScreen(psWScreen);						// show the widgets currently running
-	DrawEnd();
-	return TRUE;
-}
-*/
 
 // ////////////////////////////////////////////////////////////////////////////
 // Multi Player Menu
@@ -614,13 +505,8 @@ BOOL startMultiPlayerMenu(VOID)
   addTextButton(FRONTEND_HOST, FRONTEND_POS3X,FRONTEND_POS3Y, strresGetString(psStringRes, STR_FE_HOST),FALSE,FALSE);
   addTextButton(FRONTEND_JOIN, FRONTEND_POS4X,FRONTEND_POS4Y, strresGetString(psStringRes, STR_FE_JOIN),FALSE,FALSE);
 
-#ifdef MULTIDEMO
-  addTextButton(FRONTEND_FORCEEDIT,FRONTEND_POS5X,FRONTEND_POS5Y, strresGetString(psStringRes, STR_FE_FORCEEDIT),FALSE,TRUE); addTextButton(
-    FRONTEND_SKIRMISH, FRONTEND_POS6X,FRONTEND_POS6Y, strresGetString(psStringRes, STR_FE_SKIRMISH),FALSE,TRUE);
-#else
   addTextButton(FRONTEND_FORCEEDIT,FRONTEND_POS5X,FRONTEND_POS5Y, strresGetString(psStringRes, STR_FE_FORCEEDIT),FALSE,FALSE);
   addTextButton(FRONTEND_SKIRMISH, FRONTEND_POS6X,FRONTEND_POS6Y, strresGetString(psStringRes, STR_FE_SKIRMISH),FALSE,FALSE);
-#endif
   addMultiBut(psWScreen,FRONTEND_BOTFORM,FRONTEND_QUIT, 10, 10, 30, 29, STR_FE_RETURN, IMAGE_RETURN, IMAGE_RETURN_HI,TRUE);
 
   SetMousePos(0, 320,FRONTEND_BOTFORMY + FRONTEND_POS3Y);

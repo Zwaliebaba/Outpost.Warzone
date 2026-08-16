@@ -3274,13 +3274,11 @@ BOOL intReticuleIsUp(void) { return ReticuleUp; }
 
 void intRemoveReticule(void)
 {
-#ifndef NON_INTERACT
   if (ReticuleUp == TRUE)
   {
     widgDelete(psWScreen,IDRET_FORM); // remove reticule
     ReticuleUp = FALSE;
   }
-#endif
 }
 
 //toggles the Power Bar display on and off
@@ -3300,9 +3298,6 @@ BOOL intAddPower(void)
 {
   W_BARINIT sBarInit;
 
-#ifdef NON_INTERACT
-  return (TRUE);
-#endif
 
   memset(&sBarInit, 0, sizeof(W_BARINIT));
 
@@ -6961,9 +6956,6 @@ BOOL intAddOptions(void)
 
 BOOL intAddReticule(void)
 {
-#ifdef NON_INTERACT
-  return TRUE;
-#endif
   return _intAddReticule();
 }
 

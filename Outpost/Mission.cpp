@@ -200,10 +200,8 @@ static UDWORD camNumber = 1;
 BOOL missionIsOffworld(void)
 {
   return ((mission.type == LDS_MKEEP)
-#ifndef COVERMOUNT
 
     || (mission.type == LDS_MCLEAR) || (mission.type == LDS_MKEEP_LIMBO)
-#endif
   );
 }
 
@@ -211,9 +209,7 @@ BOOL missionIsOffworld(void)
 BOOL missionForReInforcements(void)
 {
   if ((mission.type == LDS_CAMSTART) OR missionIsOffworld()
-#ifndef COVERMOUNT
     OR (mission.type == LDS_CAMCHANGE)
-#endif
   )
     return TRUE;
   return FALSE;
@@ -236,10 +232,8 @@ BOOL missionCanReEnforce(void)
 //returns TRUE if the mission is a Limbo Expand mission
 BOOL missionLimboExpand(void)
 {
-#ifndef COVERMOUNT
   if (mission.type == LDS_EXPAND_LIMBO)
     return TRUE;
-#endif
   return FALSE;
 }
 
@@ -425,9 +419,7 @@ BOOL startMission(LEVEL_TYPE missionType, STRING* pGame)
     }
 
   case LDS_MKEEP:
-#ifndef COVERMOUNT
   case LDS_MKEEP_LIMBO:
-#endif
     {
       if (!startMissionOffKeep(pGame))
         loaded = FALSE;
@@ -440,7 +432,6 @@ BOOL startMission(LEVEL_TYPE missionType, STRING* pGame)
         loaded = FALSE;
       break;
     }
-#ifndef COVERMOUNT
   case LDS_CAMCHANGE:
     {
       /*if (getCampaignNumber() == 1)
@@ -490,7 +481,6 @@ BOOL startMission(LEVEL_TYPE missionType, STRING* pGame)
       break;
     }
 
-#endif
   default:
     {
       //error!
@@ -1575,9 +1565,7 @@ void endMission(void)
       endMissionOffKeep();
       break;
     }
-#ifndef COVERMOUNT
   case LDS_EXPAND:
-#endif
   case LDS_BETWEEN:
     {
       /*
@@ -1585,7 +1573,6 @@ void endMission(void)
       */
       break;
     }
-#ifndef COVERMOUNT
   case LDS_CAMCHANGE:
     {
       //any transporters that are flying in need to be emptied
@@ -1615,7 +1602,6 @@ void endMission(void)
       endMissionOffKeepLimbo();
       break;
     }
-#endif
   default:
     {
       //error!
@@ -1695,12 +1681,10 @@ void endMissionExpandLimbo(void) { restoreMissionLimboData(); }
 //this is called mid Limbo mission via the script
 void resetLimboMission(void)
 {
-#ifndef COVERMOUNT
   //add the units that were moved into the mission list at the start of the mission
   restoreMissionLimboData();
   //set the mission type to plain old expand...
   mission.type = LDS_EXPAND;
-#endif
 }
 
 /* The AI update routine for all Structures left back at base during a Mission*/
@@ -2990,9 +2974,7 @@ void missionContineButtonPressed(void)
   //	MISSION_CAMPEXPAND OR nextMissionType == MISSION_BETWEEN)
 
   if (nextMissionType == LDS_CAMSTART OR nextMissionType == LDS_BETWEEN
-#ifndef COVERMOUNT
     OR nextMissionType == LDS_EXPAND OR nextMissionType == LDS_EXPAND_LIMBO
-#endif
   )
   {
     //if we're moving from cam2-cam3?
@@ -3119,9 +3101,7 @@ BOOL setUpMission(UDWORD type)
     }*/
   }
   else if (type == LDS_MKEEP
-#ifndef COVERMOUNT
     OR type == LDS_MCLEAR OR type == LDS_MKEEP_LIMBO
-#endif
   )
     launchMission();
   else

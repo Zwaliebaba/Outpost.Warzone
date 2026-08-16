@@ -162,11 +162,7 @@ init: //jump here from the end if re_initialising
   delete[] psPaletteBuffer;
   psPaletteBuffer = nullptr;
 
-#ifdef COVERMOUNT
-  pie_LoadBackDrop(SCREEN_COVERMOUNT,FALSE);
-#else
   pie_LoadBackDrop(SCREEN_RANDOMBDROP,FALSE);
-#endif
   pie_SetFogStatus(FALSE);
   pie_ScreenFlip(CLEAR_BLACK);
 
@@ -326,9 +322,6 @@ init: //jump here from the end if re_initialising
             case GAMECODE_QUITGAME: Neuron::DebugTrace("GAMECODE_QUITGAME\n");
               gameStatus = GS_TITLE_SCREEN;
               Restart = TRUE;
-#ifdef NON_INTERACT
-              quit = TRUE;
-#endif
               break;
             case GAMECODE_FASTEXIT: Neuron::DebugTrace("GAMECODE_FASTEXIT\n");
               Restart = TRUE;

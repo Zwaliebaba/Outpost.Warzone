@@ -125,7 +125,6 @@ using InGameAudio = enum
   ID_SOUND_UNIT_RETURNING_FOR_REPAIR,
 
   /* Artillery Batteries */
-#ifndef COVERMOUNT
   ID_SOUND_ASSIGNED_TO_SENSOR,
   ID_SOUND_SENSOR_LOCKED_ON,
   ID_SOUND_ASSIGNED_TO_COUNTER_RADAR,
@@ -156,9 +155,7 @@ using InGameAudio = enum
   ID_SOUND_GUARD,
   ID_SOUND_PURSUE,
   ID_SOUND_PATROL,
-#endif
   ID_SOUND_RETURN_TO_LZ,
-#ifndef COVERMOUNT
   ID_SOUND_RECYCLING,
   ID_SOUND_SCATTER,
 
@@ -180,7 +177,6 @@ using InGameAudio = enum
 
   ID_SOUND_ROUTE_OBSTRUCTED,
   ID_SOUND_NO_ROUTE_AVAILABLE,
-#endif
   /* Transports and LZS */
 
   ID_SOUND_REINFORCEMENTS_AVAILABLE,
@@ -234,7 +230,6 @@ using InGameAudio = enum
   ID_TECHNOLOGY_TRANSFER,
   ID_UNITS_TRANSFER,
 
-#ifndef COVERMOUNT
   /* Group and Commander Voices - Male */
   ID_SOUND_GROUP,
   ID_SOUND_GROUP_0,
@@ -327,7 +322,6 @@ using InGameAudio = enum
   ID_SOUND_COLL_INTERCEPT_AND_DESTROY,
   ID_SOUND_COLL_ENEMY_DESTROYED,
 
-#endif
   /* SFX */
 
   /* Weapon Sounds */

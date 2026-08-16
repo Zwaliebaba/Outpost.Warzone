@@ -22,7 +22,6 @@
 #include "PieFunc.h"
 #include "RendMode.h"
 #include "BSPFunc.h"
-#include "E3Demo.h"	// on the psx?
 #include "Loop.h"
 #include "Atmos.h"
 #include "RayCast.h"
@@ -261,7 +260,6 @@ iPalette gamePal;
 UDWORD currentGameFrame;
 UDWORD numTiles = 0;
 SDWORD tileZ = 8000;
-UDWORD demoTextPage = 0;
 BOOL updateVideoCard = FALSE;
 QUAD dragQuad;
 UDWORD cameraHeight = 400;
@@ -465,7 +463,7 @@ void draw3DScene(void)
   //----------------------------------------------------------
   //----------------------------------------------------------
   //----------------------------------------------------------
-  if (getDebugMappingStatus() AND !demoGetStatus() AND !gamePaused())
+  if (getDebugMappingStatus() AND !gamePaused())
     pie_DrawText((unsigned char*)"DEBUG ",RET_X + 134, 440 + E_H);
   else
   {
@@ -491,27 +489,12 @@ void draw3DScene(void)
   else
     processWarCam();
 
-  if (demoGetStatus())
-  {
-    flushConsoleMessages();
-    setConsolePermanence(TRUE,TRUE);
-    permitNewConsoleMessages(TRUE);
-
-#ifndef COVERMOUNT
-#ifndef NON_INTERACT
-    addConsoleMessage("Warzone 2100 : Pumpkin Studios ", RIGHT_JUSTIFY);
-#endif
-#endif
-    permitNewConsoleMessages(FALSE);
-  }
-
 #ifdef ALEXM
   sprintf(buildInfo, "Skipped effects : %d", getNumSkippedEffects()); pie_DrawText(buildInfo, 100, 200);
   sprintf(buildInfo, "Miss Count : %d", getMissCount()); pie_DrawText(buildInfo, 100, 220); sprintf(
     buildInfo, "Even effects : %d", getNumEvenEffects()); pie_DrawText(buildInfo, 100, 240);
 #endif
 
-  processDemoCam();
   processSensorTarget();
   processDestinationTarget();
 
@@ -894,7 +877,6 @@ BOOL init3DView(void)
 
   atmosInitSystem();
 
-  initDemoCamera();
 
   /* HACK -  remove, although function of some form still necessary */
 
@@ -921,8 +903,6 @@ BOOL init3DView(void)
   /* Set up the fog tbale for the 3dfx */
   return (TRUE);
   CONPRINTF(ConsoleString, (ConsoleString, "This build : %s, %s",__TIME__,__DATE__));
-
-  demoProcessTilesIn();
 }
 
 // set the view position from save game
@@ -1164,7 +1144,7 @@ void renderAnimComponent(COMPONENT_OBJECT* psObj)
   UDWORD brightness, specular;
 
   /* only draw visible bits */
-  if ((psParentObj->type == OBJ_DROID) AND !godMode AND !demoGetStatus())
+  if ((psParentObj->type == OBJ_DROID) AND !godMode)
   {
     if (((DROID*)psParentObj)->visible[selectedPlayer] != UBYTE_MAX)
       return;
@@ -1447,7 +1427,7 @@ void displayDynamicObjects(void)
       if (clipXY(psDroid->x, psDroid->y))
       {
         /* No point in adding it if you can't see it? */
-        if (psDroid->visible[selectedPlayer] OR godMode OR demoGetStatus())
+        if (psDroid->visible[selectedPlayer] OR godMode)
         {
           psDroid->sDisplay.frameNumber = currentGameFrame;
           //don't use #ifndef BUCKET for now - need to do it this way for renderMapToBuffer
@@ -1527,7 +1507,7 @@ void renderFeature(FEATURE* psFeature)
 
   BOOL bForceDraw = (!getRevealStatus() AND psFeature->psStats->visibleAtStart);
 
-  if (psFeature->visible[selectedPlayer] OR godMode OR demoGetStatus() OR bForceDraw)
+  if (psFeature->visible[selectedPlayer] OR godMode OR bForceDraw)
   {
     psFeature->sDisplay.frameNumber = currentGameFrame;
     /* Get it's x and y coordinates so we don't have to deref. struct later */
@@ -1563,7 +1543,7 @@ void renderFeature(FEATURE* psFeature)
     if (psFeature->psStats->subType == FEAT_SKYSCRAPER)
       objectShimmy((BASE_OBJECT*)psFeature);
 
-    if (godMode OR demoGetStatus() OR bForceDraw)
+    if (godMode OR bForceDraw)
       brightness = 200;
     else if (getRevealStatus())
       brightness = avGetObjLightLevel((BASE_OBJECT*)psFeature, brightness);
@@ -1747,7 +1727,7 @@ void renderStructure(STRUCTURE* psStructure)
 
   // -------------------------------------------------------------------------------
 
-  if (psStructure->visible[selectedPlayer] OR godMode OR demoGetStatus())
+  if (psStructure->visible[selectedPlayer] OR godMode)
   {
     psStructure->sDisplay.frameNumber = currentGameFrame;
     /* Get it's x and y coordinates so we don't have to deref. struct later */
@@ -1795,7 +1775,7 @@ void renderStructure(STRUCTURE* psStructure)
       buildingBrightness = 200 + brightVar;
     }
 
-    if (godMode OR demoGetStatus())
+    if (godMode)
       buildingBrightness = buildingBrightness;
     else if (getRevealStatus())
       buildingBrightness = avGetObjLightLevel((BASE_OBJECT*)psStructure, buildingBrightness);
@@ -2037,7 +2017,7 @@ void renderDefensiveStructure(STRUCTURE* psStructure)
   SDWORD playerFrame = getPlayerColour(psStructure->player); // psStructure->player
   SDWORD animFrame = playerFrame;
   // -------------------------------------------------------------------------------
-  if (psStructure->visible[selectedPlayer] OR godMode OR demoGetStatus())
+  if (psStructure->visible[selectedPlayer] OR godMode)
   {
     /* Mark it as having been drawn */
     psStructure->sDisplay.frameNumber = currentGameFrame;
@@ -2101,7 +2081,7 @@ void renderDefensiveStructure(STRUCTURE* psStructure)
 
       buildingBrightness = 200 + brightVar;
     }
-    if (godMode OR demoGetStatus())
+    if (godMode)
       buildingBrightness = buildingBrightness;
     else if (getRevealStatus())
       buildingBrightness = avGetObjLightLevel((BASE_OBJECT*)psStructure, buildingBrightness);
@@ -2355,7 +2335,7 @@ BOOL renderWallSection(STRUCTURE* psStructure)
   SDWORD sX, sY;
   SDWORD brightVar;
 
-  if (psStructure->visible[selectedPlayer] OR godMode OR demoGetStatus())
+  if (psStructure->visible[selectedPlayer] OR godMode)
   {
     psStructure->sDisplay.frameNumber = currentGameFrame;
     /* Get it's x and y coordinates so we don't have to deref. struct later */
@@ -2377,7 +2357,7 @@ BOOL renderWallSection(STRUCTURE* psStructure)
       buildingBrightness = 200 + brightVar;
     }
 
-    if (godMode OR demoGetStatus())
+    if (godMode)
     {
       /* NOP */
     }
