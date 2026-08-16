@@ -520,7 +520,7 @@ open standard" to every other tool, which was the point.
 
 ## 8. Proposed staging
 
-**Stages A and B are done (2026-08-16, owner instruction).** What landed,
+**All four stages are done (2026-08-16, owner instruction).** What landed,
 and where it deviated from the design below:
 
 - **Stage A** removed the WDG layer whole (`WDG.cpp`, `MultiWDG.cpp`, the
@@ -553,6 +553,50 @@ and where it deviated from the design below:
   on it. Custom-map `.wrf` probing in `decideWRF` was removed with the
   format — map transfer wants a manifest-fragment design when it returns
   (§9 note).
+- **Stage C** converted every stats and message table.
+  `tools/convert_stats.py` emits 133 JSON tables — the 22 core stats
+  specs, the type-dispatched `Functions.txt`, the 8 research tables in
+  each of 4 campaigns, and the viewdata messages — and proves each one by
+  re-emitting the original token stream from the JSON (`--check`; after
+  the `.txt` deletion it reports the missing sources as skipped rather
+  than re-proving them). The loaders read the tables through
+  `Outpost/StatsTable`: fields fetched by name, a missing or wrong-kind
+  field fatal with table/row/field named — where the `sscanf` loops
+  zero-filled short rows silently. Function loaders dispatch on the row's
+  `type` field and take `(table, row)`; Message's nested sequence records
+  use `Neuron::Json` directly. Array order still derives the `REF_*`
+  reference numbers. `numCR` is gone. The validator learned
+  cross-reference checks — stats model fields against each unit's loaded
+  IMD entries, stats sound fields against the `AudioID.cpp` table — and
+  caught a real defect: `PropulsionSounds` row 3 names `VtolMove.wav`
+  but the shipped file is `Vtol-Move.wav`, so the VTOL move loop never
+  sounds (recorded as a warning, fix pending owner decision). The 14
+  message `.txt` files no unit references (cut missions) stay in place.
+- **Stage D** killed the `audp_` grammar. `tools/convert_anims.py` turned
+  the 10 `.ani` keyframe scripts, `anim.cfg` and the two audio configs
+  into JSON with the same token-level round-trip proof (`ANIMOBJECT`
+  names the old parser discarded are preserved; the loop flag became a
+  real boolean). `anim_LoadFromBuffer` and the two `Data.cpp` config
+  loaders parse them with `Neuron::Json`, replaying the parser actions'
+  exact call sequence — including the running placeholder-ID counter that
+  `anims/anim.json` later overwrites through `anim_SetVals`. The
+  generated MKS lex/yacc translation units and their unbuildable grammar
+  sources left both projects; `anim_GetAnimID`, dead since the save/load
+  removal, went with them. The keymap editor dropped binary `keymap.map`
+  — a build-time stamp invalidated it on every rebuild, so it effectively
+  never loaded — for `keymap.json` with named function bindings:
+  `keyMapSaveTable` now pairs each saveable function with its name, and
+  the loader resolves by name, skipping entries whose function no longer
+  exists instead of misbinding them. String tables stay `.txt` — two
+  parsers did not argue hard enough (§8 stage D test).
+- **Stage C/D deviation — verification.** The parity harness sketched
+  below (loaded-tables debug dump, diffed before/after) was never built:
+  this container cannot run the game, so a dump had nothing to run in.
+  Its role was filled on the data side by the converters' token-level
+  round-trip proofs and the offline validator, and on the code side by
+  behaviour-preserving ports cross-checked 189/189 in both configs, with
+  the MSVC CI build as the authority. Table schemas (§7) live implicitly
+  in the loaders' field fetches rather than as standalone schema files.
 
 Each stage is independently shippable and CI-checkable, in the pattern the
 migration has used since Phase 1. Verification for stages B and C is a
@@ -594,10 +638,12 @@ entangled in it.
 
 ## 9. Decisions needed
 
-1. **JSON reader under R14** — hand-written `Neuron::Json` (recommended) or
-   a vendored single-header under a new recorded exception?
-2. **Strict JSON vs. commented JSON** — strict recommended (§7.2); confirm,
-   because it constrains what the converter does with existing comments.
+1. ~~**JSON reader under R14**~~ **Resolved with stage B (2026-08-16)** —
+   hand-written `Neuron::Json` landed, no new dependency.
+2. ~~**Strict JSON vs. commented JSON**~~ **Resolved with stage B
+   (2026-08-16)** — strict RFC 8259; the converters carry former comments
+   into JSON string fields where they held data (none did) and drop the
+   rest, with the originals preserved in git history.
 3. ~~**Save compatibility across the stats conversion.**~~ **Resolved by the
    save/load removal (2026-08-16)** — there are no user saves to stay
    compatible with. The residual rule is that the v≤8 level formats stay
