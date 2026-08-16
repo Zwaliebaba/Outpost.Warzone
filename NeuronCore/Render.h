@@ -26,8 +26,6 @@ extern void D3DSetColourKeying(BOOL bKeyingOn);
 extern void D3DSetDepthWrite(BOOL bWriteEnable);
 extern void D3DSetDepthCompare(D3DCMPFUNC depthCompare);
 
-extern void D3DSetTexelOffsetState(BOOL bOffsetOn);
-
 extern void D3DReInit(void);
 extern void D3DTestCooperativeLevel(BOOL bGotFocus);
 

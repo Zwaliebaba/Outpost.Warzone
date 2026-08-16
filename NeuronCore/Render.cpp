@@ -45,8 +45,18 @@ static LPDIRECT3DDEVICE9 g_psDevice = nullptr;
  * the top of a frame. */
 static SCREEN_MODE g_ScreenMode;
 static D3DTLVERTEX d3dVrts[pie_MAX_POLY_VERTS];
-static float g_fTextureOffset = 0.0f;
-static BOOL g_bTexelOffsetOn = FALSE;
+
+/* Half a texel on a 256x256 page - INV_TEX_SIZE is 1/256, so this is half of
+ * it. Direct3D samples a texel at its centre while a screen space vertex
+ * addresses its corner, and the texture coordinates carry the difference.
+ *
+ * The Direct3D 6 code applied this per card, for the two chipsets that needed
+ * it, behind a D3DSetTexelOffsetState switch and a TexelOffsetOn config key.
+ * Direct3D 9's sampling rules do not vary by device, so the offset is either
+ * right for every one of them or none, and the config defaulted it on and
+ * wrote the key back - so on is what shipped. It is a constant now.
+ */
+static constexpr float TEXEL_OFFSET = 1.0f / 512.0f;
 
 /* Whether the device can do vertex fog. Reported by the caps; the game asks
  * for fog whether or not it can, so this is only worth a diagnostic.
@@ -216,8 +226,8 @@ void D3D_PIEPolygon(SDWORD numVerts, PIEVERTEX* pVrts)
       return;
     d3dVrts[i].sz = static_cast<float>(pVrts[i].sz) * INV_MAX_Z;
     d3dVrts[i].rhw = static_cast<float>(1.0) / pVrts[i].sz;
-    d3dVrts[i].tu = static_cast<float>(pVrts[i].tu) * INV_TEX_SIZE + g_fTextureOffset;
-    d3dVrts[i].tv = static_cast<float>(pVrts[i].tv) * INV_TEX_SIZE + g_fTextureOffset;
+    d3dVrts[i].tu = static_cast<float>(pVrts[i].tu) * INV_TEX_SIZE + TEXEL_OFFSET;
+    d3dVrts[i].tv = static_cast<float>(pVrts[i].tv) * INV_TEX_SIZE + TEXEL_OFFSET;
     d3dVrts[i].color = pVrts[i].light.argb;
     d3dVrts[i].specular = pVrts[i].specular.argb;
   }
@@ -263,21 +273,6 @@ static void D3DGetCaps(void)
  * pie_AddFogandMist writes, plus the colour screenFlip clears to - so they
  * have gone rather than been ported into states that would fight it.
  */
-/***************************************************************************/
-
-void D3DSetTexelOffsetState(BOOL bOffsetOn)
-{
-  g_bTexelOffsetOn = bOffsetOn;
-
-  /* The half texel offset was a per-card workaround in the Direct3D 6 code,
-   * switched on for the two chipsets that needed it. Direct3D 9's sampling
-   * rules are the same for every device, so the offset is either wanted for
-   * all of them or none. Left under the same switch so the setting still
-   * does something the user can see.
-   */
-  g_fTextureOffset = bOffsetOn ? (1.0f / 512.0f) : 0.0f;
-}
-
 /***************************************************************************/
 
 /*

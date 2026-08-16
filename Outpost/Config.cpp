@@ -445,14 +445,11 @@ BOOL loadRenderMode()
     }
   }
 
-  // NVidia texel offset hacks
-  if (getWarzoneKeyNumeric("TexelOffsetOn", &val))
-    D3DSetTexelOffsetState(val);
-  else
-  {
-    D3DSetTexelOffsetState(TRUE);
-    setWarzoneKeyNumeric("TexelOffsetOn", 1);
-  }
+  /* TexelOffsetOn was read and written here. The half texel offset is
+   * unconditional now (Phase 8 stage D3), so the key is neither read nor
+   * written; an existing config file keeps working because unknown keys are
+   * skipped on read, which is the same course stage A3 took for rendMode.
+   */
 
   return closeWarzoneKey();
 }
