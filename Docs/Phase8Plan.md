@@ -637,8 +637,8 @@ needs is below.
   The sentinel is written to **both** coordinates together — the two places
   that mark a vertex as behind the camera set `d3dx` *and* `d3dy` to
   `LONG_WAY` in the same breath
-  ([RenderModel.cpp:210](../NeuronCore/RenderModel.cpp#L210) and
-  [:215](../NeuronCore/RenderModel.cpp#L215)) — so a test on `sy` alone
+  ([RenderModel.cpp:210](../NeuronClient/RenderModel.cpp#L210) and
+  [:215](../NeuronClient/RenderModel.cpp#L215)) — so a test on `sy` alone
   catches every one of them. `pie_ClipTextured`'s own guard is an exact
   equality, `sx == LONG_WAY || sy == -LONG_WAY`, whose second half tests a
   value nothing ever writes.
@@ -659,7 +659,7 @@ needs is below.
   funnel.
 - **D1's premise is already running in production, which makes the parity test
   cheap.** `bClip` is a parameter, not a constant
-  ([RenderModel.cpp:515](../NeuronCore/RenderModel.cpp#L515)), and seven live
+  ([RenderModel.cpp:515](../NeuronClient/RenderModel.cpp#L515)), and seven live
   sites in `Render2D.cpp` pass `FALSE`: the box outlines and the filled rects
   hand raw screen-space vertices straight to `DrawPrimitiveUP` and let the
   device clip them at the viewport. That is exactly what D1 proposes to do

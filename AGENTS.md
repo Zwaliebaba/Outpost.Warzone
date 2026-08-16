@@ -129,9 +129,9 @@ Two rules the config cannot express, and that a reviewer therefore has to carry:
 
 | Path | What it is | May you edit it? |
 |---|---|---|
-| `NeuronCore/` | Engine static library (73 TUs): platform, D3D9 rendering, input, audio, UI widgets, script VM, debug | Yes |
-| `NeuronClient/` | Client-side engine static library. **Currently a PCH shell** — one `pch.h`/`pch.cpp` and nothing else | Yes |
-| `NeuronServer/` | Server-side engine static library. **Currently a PCH shell** — same | Yes |
+| `NeuronCore/` | Engine static library (30 TUs): platform, timing, the `.WDG` archive and resource system, containers, maths, script VM, string resources, networking and transport | Yes |
+| `NeuronClient/` | Client-side engine static library (45 TUs): the window, D3D9 rendering, IMD models, DirectInput, XAudio2, UI widgets, fonts, images, FMV sequences | Yes |
+| `NeuronServer/` | Server-side engine static library. **Currently a PCH shell** — one `pch.h`/`pch.cpp` and nothing else | Yes |
 | `Outpost/` | Game executable (117 TUs): simulation, AI, structures, droids, campaign, multiplayer | Yes |
 | `NeuronCoreTest/` | MSVC CppUnitTest DLL. **A stock template with one empty test** — it does not yet reference `NeuronCore` | Yes |
 | `GameData/` | Shipped content (levels, textures, audio, `.rpl` movies) and three third-party DLLs. Binary, authored by tools outside this repo | **No** |
@@ -161,8 +161,10 @@ NeuronCoreTest.dll      ← references nothing yet
 `NeuronClient` and `NeuronServer` are the destination of the engine split: game-engine
 code that is meaningful only to a client (presentation, input, local prediction) or only
 to a server (authoritative simulation, session ownership) moves out of `NeuronCore`,
-which keeps what both need. **Until a task is that split, do not move a file between
-them** — see R13.
+which keeps what both need. **The client half has landed**: presentation, input and
+audio moved to `NeuronClient` on 2026-08-16. The server half has not — `NeuronServer` is
+still a shell and the simulation is still inside `Outpost.exe`. **Until a task is that
+split, do not move a file between them** — see R13.
 
 ---
 
@@ -250,6 +252,10 @@ Stage C has also finished the type headers and the `iV_` prefix. `RenderTypes.h`
 1. **MsQuic** (`Microsoft.Native.Quic.MsQuic.Schannel`), taken by Phase 5. The reasoning is on the record in [Phase5Plan.md](Docs/Phase5Plan.md): the alternative was hand-writing sequencing, acknowledgement, retransmission and ordering for lockstep game commands, where a single reordered packet desynchronises a match silently — and nothing in this repository can test such a protocol. QUIC makes that somebody else's tested code.
 2. **C++/WinRT** (`Microsoft.Windows.CppWinRT`), sanctioned for Phase 6. It is a header-only projection with no runtime to redistribute, and what it buys is `winrt::com_ptr` and `winrt::check_hresult` for the Media Foundation COM lifetimes the FMV rewrite introduces — R12 asks for RAII COM ownership and this is the modern spelling of it. **Prefer it over `Microsoft::WRL::ComPtr` in new code**; do not churn existing code to match, and do not reach for the WinRT projection itself (`winrt::Windows::*`) — the sanction covers the COM helpers, not a second UI or async framework.
 
+Neither exception licenses anything beyond the package named. Both are restored per project from a `packages.config` — `NeuronCore` and `Outpost` have one, the other three do not.
+
+**R15 — `namespace Neuron` is for new engine code**, as `Debug.h` does it. Legacy translation units reach it through the `using namespace Neuron;` in `NeuronCore.h`; do not add per-file `using namespace` directives to work around a lookup failure — qualify the name.
+
 **R16 — A string you do not write is `const`.** The engine libraries build `/permissive-`
 (§3), which turns on `/Zc:strictStrings`: a literal is `const char[N]` and will not bind
 to `char*` or `STRING*`. The fix is const on the signature, never a cast at the call
@@ -268,10 +274,6 @@ a parameter is source-compatible for every caller, so it does not break `Outpost
 that project is still `/permissive`. **Watch for function-pointer typedefs** — a callback
 `using`-alias is *not* const-compatible, so a signature reached through one
 (`RES_FILELOAD`, `GETSHAPEFUNC`, `FONT_DISPLAY`) must change with its alias or not at all.
-
-Neither exception licenses anything beyond the package named. Both are restored per project from a `packages.config` — `NeuronCore` and `Outpost` have one, the other three do not.
-
-**R15 — `namespace Neuron` is for new engine code**, as `Debug.h` does it. Legacy translation units reach it through the `using namespace Neuron;` in `NeuronCore.h`; do not add per-file `using namespace` directives to work around a lookup failure — qualify the name.
 
 ---
 

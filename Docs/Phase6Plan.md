@@ -123,7 +123,7 @@ Those fields become `SEQLIST::pSeq` / `SEQLIST::pAudio` in `Outpost/SeqDisp.cpp`
 and `seq_StartFullScreenVideo` prefixes the audio name with `sequenceAudio\`
 ([SeqDisp.cpp:418](../Outpost/SeqDisp.cpp#L418)). Meanwhile `Sequence.cpp` tests
 `Movie_GetSoundChannels() && Movie_GetSoundPrecision() && Movie_GetSoundRate()`
-([Sequence.cpp:320](../NeuronCore/Sequence.cpp#L320)) and only builds a
+([Sequence.cpp:320](../NeuronClient/Sequence.cpp#L320)) and only builds a
 DirectSound buffer when the file has a track. Neither path knows about the other,
 and neither ever fires for the same movie.
 
@@ -396,7 +396,7 @@ blocked on the discs, not on the tool.
 - Video-only movies → MP4, H.264, no audio track. Frame rate stays 25 fps and
   the pixel dimensions stay exactly 320x240 / 192x168 — **do not upscale**;
   `Movie_GetXSize` feeds the on-screen placement arithmetic and the
-  `DFLAG_DOUBLED` decision at [Sequence.cpp:299](../NeuronCore/Sequence.cpp#L299).
+  `DFLAG_DOUBLED` decision at [Sequence.cpp:299](../NeuronClient/Sequence.cpp#L299).
 - Movies with embedded audio → MP4, H.264 + AAC, audio muxed.
 - Emit a manifest: input name, SHA-256, output name, frame count, duration,
   audio present. This is what makes a partial or wrong-CD conversion detectable
@@ -617,17 +617,17 @@ rewriting the same function twice". This is that moment.
 One of those bullets has been overtaken since it was written, and the rest have
 not moved. B3's rewrite of `seq_RenderOneFrame` already replaced the
 `SEQ_LOW_BIT_MASK` shift with a `darken` flag inside the row loop
-([Sequence.cpp:248](../NeuronCore/Sequence.cpp#L248)) — still per-pixel, and
+([Sequence.cpp:248](../NeuronClient/Sequence.cpp#L248)) — still per-pixel, and
 still what the translucent quad would replace, but no longer 90 lines.
 
 The bullet asking whether anything else uses `pie_D3DSetupRenderForFlip` and
 `pie_D3DRenderForFlip` is still live, and the answer is **yes**. Both survive in
-[Render2D.cpp:575](../NeuronCore/Render2D.cpp#L575) and
-[:586](../NeuronCore/Render2D.cpp#L586). The FMV reaches the first through
-`pie_DownLoadBufferToScreen` ([PieFunc.cpp:55](../NeuronCore/PieFunc.cpp#L55)),
+[Render2D.cpp:575](../NeuronClient/Render2D.cpp#L575) and
+[:586](../NeuronClient/Render2D.cpp#L586). The FMV reaches the first through
+`pie_DownLoadBufferToScreen` ([PieFunc.cpp:55](../NeuronClient/PieFunc.cpp#L55)),
 which is what [SeqDisp.cpp:239](../Outpost/SeqDisp.cpp#L239) calls — but
 `pie_D3DRenderForFlip` has a **second caller outside the FMV path**, at
-[PieMode.cpp:92](../NeuronCore/PieMode.cpp#L92), so B4 cannot delete the pair
+[PieMode.cpp:92](../NeuronClient/PieMode.cpp#L92), so B4 cannot delete the pair
 just because the FMV stopped needing them. An earlier revision of this note
 claimed both were already gone; that was a grep truncated by `head`, and it was
 wrong.
@@ -637,7 +637,7 @@ and the 32 KB 555 palette table ([SeqDisp.cpp:262](../Outpost/SeqDisp.cpp#L262),
 called from [HCI.cpp:769](../Outpost/HCI.cpp#L769)), `Sequence.cpp` still takes
 `screenLockBackBuffer` to draw a frame, and
 `D3DPRESENTFLAG_LOCKABLE_BACKBUFFER` is still set
-([Screen.cpp:145](../NeuronCore/Screen.cpp#L145)) — the Phase 2 item this stage
+([Screen.cpp:145](../NeuronClient/Screen.cpp#L145)) — the Phase 2 item this stage
 holds open.
 
 **Verifies:** same run as B3, plus a windowed/fullscreen toggle to confirm the

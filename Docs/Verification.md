@@ -134,7 +134,7 @@ is behaviour-preserving by construction and has never been executed.
 This answers a decision, not just a checklist item, and it needs no new code.
 
 `bClip` is a parameter, not a constant
-([RenderModel.cpp:515](../NeuronCore/RenderModel.cpp#L515)), and seven live
+([RenderModel.cpp:515](../NeuronClient/RenderModel.cpp#L515)), and seven live
 sites in `Render2D.cpp` already pass `FALSE` — handing raw screen-space
 vertices to the device and letting it clip them at the viewport. That is what
 D1 proposes to do everywhere.
