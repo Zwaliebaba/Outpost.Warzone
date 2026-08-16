@@ -2,6 +2,8 @@
 /* Prevent multiple inclusion */
 #define _warcam_h
 
+#include <directxmath.h>
+
 #include "RenderTypes.h"
 
 #define X_UPDATE 0x1
@@ -52,13 +54,13 @@ using WARCAM = struct _warcam
   UDWORD lastUpdate;
   iView oldView;
 
-  PIEVECTORF acceleration;
-  PIEVECTORF velocity;
-  PIEVECTORF position;
+  DirectX::XMFLOAT3 acceleration;
+  DirectX::XMFLOAT3 velocity;
+  DirectX::XMFLOAT3 position;
 
-  PIEVECTORF rotation;
-  PIEVECTORF rotVel;
-  PIEVECTORF rotAccel;
+  DirectX::XMFLOAT3 rotation;
+  DirectX::XMFLOAT3 rotVel;
+  DirectX::XMFLOAT3 rotAccel;
 
   UDWORD oldDistance;
   BASE_OBJECT* target;

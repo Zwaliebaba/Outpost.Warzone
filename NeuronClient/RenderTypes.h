@@ -114,10 +114,6 @@ using iVertex = struct
   int32 x, y, z, u, v;
   uint8 g;
 };
-using PIEVECTORF = struct
-{
-  float x, y, z;
-};
 using iView = struct
 {
   iVector p, r;

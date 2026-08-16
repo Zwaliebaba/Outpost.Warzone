@@ -1,5 +1,7 @@
 #ifndef _effects_h
 #define _effects_h
+
+#include <directxmath.h>
 /*	
 	All singing, all dancing new effects code. Does all the stuff
 	that explosion.c and most of particle.c used to do as well as
@@ -174,8 +176,8 @@ using EFFECT = struct _effect_def
   UWORD size; // Size in terms of percent of original imd.
   UBYTE baseScale; // if scaled, what's bottom line?
   UBYTE specific; // how many times has it bounced?
-  PIEVECTORF position; // world coordinates of the effect - floats on the PC.
-  PIEVECTORF velocity; // movement values per update
+  DirectX::XMFLOAT3 position; // world coordinates of the effect - floats on the PC.
+  DirectX::XMFLOAT3 velocity; // movement values per update
   iVector rotation; // current rotation - only for gravitons
   iVector spin; // rotation info for spinning things.
   UDWORD birthTime; // what time was it introduced into the world?

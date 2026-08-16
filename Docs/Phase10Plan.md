@@ -351,6 +351,49 @@ end state.
 
 ### C — Call sites go native, file by file
 
+**Status: done**, in four commits (C0 plus three call-site batches),
+each cross-checked 189/189 in both configurations. All ~390 sites
+compose `XMMATRIX` natively, and **every shim died inside the stage** —
+by the time `Display3D.cpp` landed, no `pie_*` maths entry point had a
+caller left, so the layer was deleted whole rather than waiting for
+stage D: the `SIN`/`COS` macros, the 5,120-entry sine table and its
+build loop went with it, and `pie_MatInit` is now a stack reset.
+`RenderMatrix` stands at **62 lines of header and 112 of
+implementation** (was 128/394 at the phase's start), holding the stack,
+the projection, the offset and the winding test. What came out
+differently from the text below:
+
+- **The parity shadow retired at C0**, not stage D: it stayed truthful
+  only while every matrix mutation went through the shims, which the
+  first native call site ends. To capture the parity figure, run a
+  Debug build of the stage-B head commit.
+- **`Neuron::ProjectToScreen` takes integers**, not `XMFLOAT3`: every
+  caller's world state is integer, and float parameters would have
+  forced casts at ~30 sites. Stage E revisits the boundary with the
+  angle units.
+- **The wrapped-negative angle rule.** Degree-typed `UWORD` fields
+  convert through `SWORD` (`Projectile.cpp` copies signed pitches into
+  `turretPitch`): the old mod-65536 table lookup handled the wrap and a
+  naive float conversion would not, since 65536° is not a whole number
+  of turns — a 16°-per-wrap error class avoided tree-wide.
+- **The seven `pie_ROTATE_PROJECT` macro sites** unified onto
+  `ProjectToScreen`'s `MIN_STRETCHED_Z` near limit; the divergence is a
+  63.75-world-unit sliver at the camera where both forms produced
+  off-screen coordinates.
+- **Three latent defects corrected**, all recorded in the commits: the
+  effect-circle `UDWORD` trig wrap that placed fireworks ~2^20 units
+  off for the negative half-cycle, `scaleMatrix`'s 41/4096 scale that
+  made 100% equal 100.1%, and stage C0's deletion of the write-only
+  `iIMDPoly::normal`.
+- **WarCAM's camera integration stays scalar** under decision 6's
+  "genuinely a vector op" rule: its per-axis updates are gated by
+  per-axis flags and differ in logic between axes. The Effects/Atmos
+  motion triplets (6 sites) are `XMVectorAdd`/`XMVectorScale`.
+- Left for stage D beyond the plan: only the renames of the two
+  survivors (`pie_MatInit`, `pie_PieClockwise`) and the `Geo.h` fold.
+
+The stage as planned:
+
 Rewrite the ~390 game-side sites to compose `XMMATRIX` directly, smallest
 files first so the pattern is settled before `Display3D.cpp`:
 the one-liners (`MultiInt`, `MultiMenu`, `MultiLimit`, `Design`,

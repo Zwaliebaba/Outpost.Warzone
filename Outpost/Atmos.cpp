@@ -151,9 +151,9 @@ void processParticle(ATPART* psPart)
   if (!gamePaused())
   {
     /* Move the particle - frame rate controlled */
-    psPart->position.x += (psPart->velocity.x * fraction);
-    psPart->position.y += (psPart->velocity.y * fraction);
-    psPart->position.z += (psPart->velocity.z * fraction);
+    DirectX::XMStoreFloat3(&psPart->position,
+      DirectX::XMVectorAdd(DirectX::XMLoadFloat3(&psPart->position),
+                           DirectX::XMVectorScale(DirectX::XMLoadFloat3(&psPart->velocity), fraction)));
 
     /* Wrap it around if it's gone off grid... */
     testParticleWrap(psPart);

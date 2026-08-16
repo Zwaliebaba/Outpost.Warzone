@@ -595,9 +595,9 @@ void updateFirework(EFFECT* psEffect)
   UDWORD drop;
 
   /* Move it */
-  psEffect->position.x += (psEffect->velocity.x * fraction);
-  psEffect->position.y += (psEffect->velocity.y * fraction);
-  psEffect->position.z += (psEffect->velocity.z * fraction);
+  DirectX::XMStoreFloat3(&psEffect->position,
+    DirectX::XMVectorAdd(DirectX::XMLoadFloat3(&psEffect->position),
+                         DirectX::XMVectorScale(DirectX::XMLoadFloat3(&psEffect->velocity), fraction)));
 
   if (psEffect->type == FIREWORK_TYPE_LAUNCHER)
   {
@@ -881,9 +881,9 @@ void updateBlood(EFFECT* psEffect)
     }
   }
   /* Move it about in the world */
-  psEffect->position.x += (psEffect->velocity.x * fraction);
-  psEffect->position.y += (psEffect->velocity.y * fraction);
-  psEffect->position.z += (psEffect->velocity.z * fraction);
+  DirectX::XMStoreFloat3(&psEffect->position,
+    DirectX::XMVectorAdd(DirectX::XMLoadFloat3(&psEffect->position),
+                         DirectX::XMVectorScale(DirectX::XMLoadFloat3(&psEffect->velocity), fraction)));
 }
 
 // ----------------------------------------------------------------------------------------
@@ -924,9 +924,9 @@ void updatePolySmoke(EFFECT* psEffect)
   }
 
   /* Update position */
-  psEffect->position.x += (psEffect->velocity.x * fraction);
-  psEffect->position.y += (psEffect->velocity.y * fraction);
-  psEffect->position.z += (psEffect->velocity.z * fraction);
+  DirectX::XMStoreFloat3(&psEffect->position,
+    DirectX::XMVectorAdd(DirectX::XMLoadFloat3(&psEffect->position),
+                         DirectX::XMVectorScale(DirectX::XMLoadFloat3(&psEffect->velocity), fraction)));
 
   /* If it doesn't get killed by frame number, then by age */
   if (TEST_CYCLIC(psEffect))
@@ -971,9 +971,9 @@ void updateGraviton(EFFECT* psEffect)
     return;
   }
   /* Move it about in the world */
-  psEffect->position.x += (psEffect->velocity.x * fraction);
-  psEffect->position.y += (psEffect->velocity.y * fraction);
-  psEffect->position.z += (psEffect->velocity.z * fraction);
+  DirectX::XMStoreFloat3(&psEffect->position,
+    DirectX::XMVectorAdd(DirectX::XMLoadFloat3(&psEffect->position),
+                         DirectX::XMVectorScale(DirectX::XMLoadFloat3(&psEffect->velocity), fraction)));
   /* If it's bounced/drifted off the map then kill it */
   if ((static_cast<UDWORD>(std::lrintf(psEffect->position.x)) / TILE_UNITS >= mapWidth) OR static_cast<UDWORD>(std::lrintf(psEffect->position.z)) /
     TILE_UNITS >= mapHeight)
@@ -1259,9 +1259,9 @@ void updateConstruction(EFFECT* psEffect)
   }
 
   /* Move it about in the world */
-  psEffect->position.x += (psEffect->velocity.x * fraction);
-  psEffect->position.y += (psEffect->velocity.y * fraction);
-  psEffect->position.z += (psEffect->velocity.z * fraction);
+  DirectX::XMStoreFloat3(&psEffect->position,
+    DirectX::XMVectorAdd(DirectX::XMLoadFloat3(&psEffect->position),
+                         DirectX::XMVectorScale(DirectX::XMLoadFloat3(&psEffect->velocity), fraction)));
 
   /* If it doesn't get killed by frame number, then by height */
   if (TEST_CYCLIC(psEffect))

@@ -1028,7 +1028,15 @@ came out differently is recorded in the phase plan: `BSPIMD.cpp` is dead
 under an undefined feature macro and stays as found, `iIMDPoly::normal` is
 write-only, `scaleMatrix` was a tenth direct matrix writer and became the
 `pie_MatScale` shim, and the cross-check gained a `tools/stubs/directxmath.h`
-transcription because mingw-w64's own header has no maths in it.
+transcription because mingw-w64's own header has no maths in it. **Stage C
+is done** — all ~390 game-side sites compose `XMMATRIX` natively through
+`Neuron::WorldMatrix`/`MatrixPush`/`MatrixPop`/`ProjectToScreen`, and every
+`pie_*` maths shim died inside the stage with the sine table and its build
+loop; `RenderMatrix` is 174 lines against the 522 the phase started from.
+`PIEVECTORF` is `DirectX::XMFLOAT3`. Three latent defects were corrected
+along the way (the effect-circle unsigned trig wrap, `scaleMatrix`'s
+100% = 100.1%, the write-only poly normal), and the wrapped-negative-angle
+conversion rule the stage established is recorded in the phase plan.
 
 Phase 8 deliberately kept the fixed-point, pre-transformed-vertex pipeline
 because changing it "is not simplification, it is a second project". This is
