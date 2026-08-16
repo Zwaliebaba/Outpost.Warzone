@@ -585,22 +585,81 @@ catch.
 
 ### D — Follow-up simplifications
 
+**Status: D3 done, D1 split and half done, D2 open.** The two items that could
+be settled without a running build were, and the analysis that D1's parity gate
+needs is below.
+
 - **D1. Software clip → device clip.** Sanctioned (Decision 3), gated on
   parity: point the funnel at the viewport and a scissor rect
   (`pie_Set2DClip` becomes `SetScissorRect`), keep the behind-camera
-  `LONG_WAY` convention, and delete `RenderClip.cpp` (~1,000 lines) **only
+  `LONG_WAY` convention, and delete `RenderClip.cpp` **only
   if** side-by-side screenshots at screen edges and of the radar
   viewing window are acceptable — the interpolation difference (affine vs
   perspective-correct at clip boundaries) is real, if likely invisible at
   these depths. If parity fails, the clipper stays and this item closes as
   attempted-and-rejected, with the screenshots kept as the record.
-- **D2. Dynamic vertex buffer + quad batching.** The Phase 2 follow-up; the
+  - **D1a. The unreachable half.** *(done)* 449 lines deleted, ungated —
+    see below.
+  - **D1b. The replacement itself.** *(open)* Still gated on the screenshots,
+    and now with a precondition D1 did not know it had.
+- **D2. Dynamic vertex buffer + quad batching.** *(open — deferral
+  recommended, see below.)* The Phase 2 follow-up; the
   single funnel from B2 is the precondition. UI-heavy screens issue
   hundreds of 4-vertex `DrawPrimitiveUP` calls per frame.
-- **D3. Texel-offset switch.** `D3DSetTexelOffsetState` is a per-card
-  Direct3D 6 workaround kept "so the setting still does something"; decide
-  whether the half-texel offset is wanted always or never, and delete the
-  switch.
+- **D3. Texel-offset switch.** *(done)* Resolved to **always on**, which is
+  what every configuration already ran: `Config.cpp` defaulted the key to 1
+  and wrote it back, so only a hand-edited registry ever saw it off. The
+  offset is a constant, and `D3DSetTexelOffsetState`, the `TexelOffsetOn` key
+  and the write-only `g_bTexelOffsetOn` flag are gone. The key is dropped
+  rather than reset, on A3's precedent.
+
+#### What stage D turned up
+
+- **43% of the clipper was unreachable, and the sweep that should have found
+  it could not.** `RenderClip.cpp` held two clipping families — one over
+  `PIEVERTEX`, which the renderer uses, and one over `iVertex`, which nothing
+  calls. `pie_PolyClipTex2D` and its two edge helpers, plus `_xclip_edge2d`
+  and `_yclip_edge2d`, are 449 lines with no call site anywhere; and
+  `pie_PolyClip2D` was declared in the header without ever being defined.
+  Stage A's tree-wide grep missed them because two are `extern` in
+  `RenderClip.h`: the declaration and the definition are two hits, which reads
+  as used. **A grep proves a symbol is dead only if it distinguishes
+  declarations from calls** — the sharper test here was that `iVertex` now
+  appears nowhere in the file. The clipper is 595 lines, so D1b's prize is
+  that, not the ~1,000 this plan costed it at.
+- **The behind-camera cull is not the same in the two places that do it, so
+  it does not survive D1b for free.** This plan says to keep the `LONG_WAY`
+  convention, on the assumption the funnel already carries it. It carries
+  *some* of it: `D3D_PIEPolygon` culls a polygon when a vertex has
+  `sy > LONG_TEST`, and only `sy`. `pie_ClipTexturedTriangleFast` bails on
+  `sx > LONG_TEST` **or** `sy > LONG_TEST`, and `pie_ClipTextured` on
+  `sx == LONG_WAY || sy == -LONG_WAY`. Deleting the clipper therefore drops
+  the `sx` half of the test, and the failure would be silent: a polygon far
+  off to the side, drawn instead of skipped. **D1b must widen the funnel's
+  cull before it removes anything**, and that widening is worth doing and
+  verifying on its own, ahead of the scissor work.
+- **The parity gate is not asking what it looks like it is asking.**
+  `pie_ClipXT`/`pie_ClipYT` interpolate position, `tu`, `tv`, `sz`, colour and
+  specular linearly in screen space, in fixed point (`>> DIVSHIFT`), and the
+  funnel then derives `rhw` as `1/sz` from that affine `sz`. So the vertices
+  the clipper emits at a boundary are *already* an affine approximation, and a
+  scissor rect — clipping at rasterisation, perspective-correct throughout —
+  would be the more correct of the two. The question the screenshots answer is
+  not "is the device version worse" but "does the difference show at all".
+  That reframes the gate; it does not remove it, because a visible change is
+  a visible change whichever direction it is.
+- **D2's cost is not where the plan looked.** A dynamic vertex buffer must
+  live in `D3DPOOL_DEFAULT` — `D3DUSAGE_DYNAMIC` forbids `MANAGED` — so it has
+  to be released before `Reset` and recreated after, which puts a new resource
+  into the device-loss path. That path is the one stage B disturbed most, by
+  collapsing the two state caches it depends on, and
+  [it has never been run](#verification). The win on the other side is small:
+  the game issues hundreds of draw calls per frame at 640x480, which no
+  hardware this will run on notices. **Recommendation: D2 after the visual
+  checklist has been run once**, so device loss is known good before something
+  new is threaded through it. Quad batching proper is a further step again —
+  merging draws requires consecutive ones to share state, and getting that
+  wrong reorders translucency.
 
 ---
 

@@ -923,6 +923,28 @@ first**; a macro that expands to nothing never type-checks its arguments, so
 code inside one rots unseen; and most of the tree's headers were never
 self-contained, compiling only because a hub header happened to arrive first.
 
+**Stage D is part done.** D3 settled the texel-offset switch the only way
+Direct3D 9 allows — its sampling rules do not vary by device, so the half-texel
+offset is right for all of them or none, and on is what every configuration
+already ran. It is a constant now, and the switch, its config key and a
+write-only flag are gone. D1 then split: **D1a** deleted 449 lines of
+`RenderClip.cpp` that nothing reaches, an `iVertex` clipping family beside the
+`PIEVERTEX` one the renderer actually uses, which stage A's sweep had missed
+because two of its entry points are `extern` in the header and so read as used.
+That is ungated work — unreachable code, deleted, no behaviour to compare —
+and it leaves the clipper at 595 lines rather than the ~1,000 D1 was costed at.
+
+**D1b and D2 are open, and one of them has a new precondition.** The plan
+assumed the behind-camera `LONG_WAY` convention would survive replacing the
+clipper because the draw funnel already carries it. It carries half:
+`D3D_PIEPolygon` culls on `sy` alone where the clipper tests `sx` as well, so
+deleting the clipper as written would silently start drawing polygons far off
+to the side. The funnel's cull has to widen first. D2's cost also moved: a
+dynamic vertex buffer must be `D3DPOOL_DEFAULT`, which puts a new resource into
+the device-loss path — the path stage B disturbed most and which has still not
+been run — for a saving no hardware this runs on would notice. Both are
+recorded in [Phase8Plan.md](Phase8Plan.md).
+
 ## Phase 9 — Audio: retiring the QMixer-shaped stack
 
 **Done, stages A–F.** The module is `AudioSystem.cpp`, `AudioMixer.cpp` and
