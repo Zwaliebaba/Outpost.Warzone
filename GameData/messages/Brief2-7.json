@@ -1,0 +1,42 @@
+[
+ {
+  "name": "MB2_7_MSG",
+  "textIds": [],
+  "type": 3,
+  "sequences": [
+   {
+    "name": "BrfCom.mp4",
+    "flag": 1,
+    "textIds": [
+     "TRANS_MSG1"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   },
+   {
+    "name": "cam2\\cam27fmv.mp4",
+    "flag": 0,
+    "textIds": [],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ },
+ {
+  "name": "MB2_7_MSG2",
+  "textIds": [],
+  "type": 1,
+  "sequences": [
+   {
+    "name": "cam2\\cam2_7.mp4",
+    "textIds": [
+     "CAM2_7_MSG",
+     "CAM2_7_MSG2",
+     "CAM2_7_MSG3"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ }
+]

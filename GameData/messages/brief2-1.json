@@ -1,0 +1,35 @@
+[
+ {
+  "name": "MB2_1_MSG",
+  "textIds": [],
+  "type": 1,
+  "sequences": [
+   {
+    "name": "BrfCom4s.mp4",
+    "textIds": [
+     "CAM2_1_MSG1",
+     "CAM2_1_MSG2"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ },
+ {
+  "name": "MB2_1_MSG2",
+  "textIds": [],
+  "type": 1,
+  "sequences": [
+   {
+    "name": "cam2\\cam2_1.mp4",
+    "textIds": [
+     "CAM2_1_MSG3",
+     "CAM2_1_MSG4",
+     "CAM2_1_MSG5"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ }
+]

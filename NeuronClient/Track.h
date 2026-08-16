@@ -51,7 +51,7 @@ using TRACK = struct TRACK
 {
   BOOL bLoop;
   SDWORD iVol;
-  SDWORD iPriority; /* authored in audio.cfg; no reader since Phase 4 stole by distance */
+  SDWORD iPriority; /* authored in audio.json; no reader since Phase 4 stole by distance */
   SDWORD iAudibleRadius;
   SDWORD iTime; /* duration in milliseconds */
   UDWORD iTimeLastFinished; /* time last finished in ms */

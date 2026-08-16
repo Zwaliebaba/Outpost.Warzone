@@ -122,9 +122,6 @@ extern BOOL statsAllocConstruct(UDWORD numEntries);
 /*******************************************************************************
 *		Load stats functions
 *******************************************************************************/
-/* Return the number of newlines in a file buffer */
-extern UDWORD numCR(UBYTE* pFileBuffer, UDWORD fileSize);
-
 /*Load the weapon stats from the file exported from Access*/
 extern BOOL loadWeaponStats(SBYTE* pWeaponData, UDWORD bufferSize);
 

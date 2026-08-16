@@ -114,7 +114,6 @@ void anim_BeginScript(void);
 BOOL anim_EndScript(void);
 BOOL anim_AddFrameToAnim(int iFrame, VECTOR3D vecPos, VECTOR3D vecRot, VECTOR3D vecScale);
 BASEANIM* anim_GetAnim(UWORD uwAnimID);
-UWORD anim_GetAnimID(char* szName);
 iIMDShape* anim_GetShapeFromID(UWORD uwID);
 UWORD anim_GetFrame3D(ANIM3D* psAnim, UWORD uwObj, UDWORD udwGameTime, UDWORD udwStartTime, UDWORD udwStartDelay, VECTOR3D* psVecPos,
                       VECTOR3D* psVecRot, VECTOR3D* psVecScale);

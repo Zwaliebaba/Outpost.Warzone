@@ -1,0 +1,74 @@
+[
+ {
+  "name": "C1D_BASE1",
+  "textIds": [
+   "ENEMYBASE_MSG"
+  ],
+  "type": 2,
+  "x": 5184,
+  "y": 15040,
+  "z": 0,
+  "audio": "pcv393.wav",
+  "proxType": 0
+ },
+ {
+  "name": "C1D_BASE2",
+  "textIds": [
+   "ENEMYBASE_MSG"
+  ],
+  "type": 2,
+  "x": 4800,
+  "y": 4288,
+  "z": 0,
+  "audio": "pcv393.wav",
+  "proxType": 0
+ },
+ {
+  "name": "C1D_BASE3",
+  "textIds": [
+   "ENEMYBASE_MSG"
+  ],
+  "type": 2,
+  "x": 8512,
+  "y": 2240,
+  "z": 0,
+  "audio": "pcv393.wav",
+  "proxType": 0
+ },
+ {
+  "name": "C1D_LZ",
+  "textIds": [
+   "LZ_MSG"
+  ],
+  "type": 2,
+  "x": 704,
+  "y": 15552,
+  "z": 0,
+  "audio": "pcv397.wav",
+  "proxType": 2
+ },
+ {
+  "name": "C1D_LZ2",
+  "textIds": [
+   "LZ_MSG3"
+  ],
+  "type": 2,
+  "x": 7488,
+  "y": 5952,
+  "z": 0,
+  "audio": "pcv396.wav",
+  "proxType": 0
+ },
+ {
+  "name": "C1D_OBJ1",
+  "textIds": [
+   "RUINS_MSG"
+  ],
+  "type": 2,
+  "x": 8512,
+  "y": 2112,
+  "z": 0,
+  "audio": "pcv448.wav",
+  "proxType": 0
+ }
+]

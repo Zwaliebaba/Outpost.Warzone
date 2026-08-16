@@ -1,0 +1,74 @@
+[
+ {
+  "name": "C1-2_BASE1",
+  "textIds": [
+   "BARBASE_MSG"
+  ],
+  "type": 2,
+  "x": 4160,
+  "y": 2112,
+  "z": 0,
+  "audio": "pcv389.wav",
+  "proxType": 0
+ },
+ {
+  "name": "C1-2_BASE2",
+  "textIds": [
+   "BARBASE_MSG"
+  ],
+  "type": 2,
+  "x": 1984,
+  "y": 7000,
+  "z": 0,
+  "audio": "pcv389.wav",
+  "proxType": 0
+ },
+ {
+  "name": "C1-2_GUARD1",
+  "textIds": [
+   "BARBASE_MSG"
+  ],
+  "type": 2,
+  "x": 2880,
+  "y": 5824,
+  "z": 0,
+  "audio": "pcv390.wav",
+  "proxType": 0
+ },
+ {
+  "name": "C1-2_GUARD2",
+  "textIds": [
+   "BARBASE_MSG"
+  ],
+  "type": 2,
+  "x": 5312,
+  "y": 4160,
+  "z": 0,
+  "audio": "pcv390.wav",
+  "proxType": 0
+ },
+ {
+  "name": "C1-2_LZ",
+  "textIds": [
+   "LZ_MSG"
+  ],
+  "type": 2,
+  "x": 6848,
+  "y": 7104,
+  "z": 0,
+  "audio": "pcv427.wav",
+  "proxType": 2
+ },
+ {
+  "name": "C1-2_OBJ1",
+  "textIds": [
+   "RUINS_MSG2"
+  ],
+  "type": 2,
+  "x": 2752,
+  "y": 3904,
+  "z": 0,
+  "audio": "pcv448.wav",
+  "proxType": 0
+ }
+]

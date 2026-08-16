@@ -1,0 +1,50 @@
+[
+ {
+  "name": "C1B_BASE0",
+  "textIds": [
+   "BARBASE_MSG"
+  ],
+  "type": 2,
+  "x": 2112,
+  "y": 9280,
+  "z": 0,
+  "audio": "pcv389.wav",
+  "proxType": 0
+ },
+ {
+  "name": "C1B_BASE1",
+  "textIds": [
+   "BARBASE_MSG"
+  ],
+  "type": 2,
+  "x": 4370,
+  "y": 9872,
+  "z": 0,
+  "audio": "pcv389.wav",
+  "proxType": 0
+ },
+ {
+  "name": "C1B_BASE2",
+  "textIds": [
+   "POWSURGE_MSG"
+  ],
+  "type": 2,
+  "x": 3193,
+  "y": 13806,
+  "z": 0,
+  "audio": "pcv448.wav",
+  "proxType": 0
+ },
+ {
+  "name": "C1B_OBJ1",
+  "textIds": [
+   "RUINS_MSG"
+  ],
+  "type": 2,
+  "x": 3776,
+  "y": 11328,
+  "z": 0,
+  "audio": "pcv390.wav",
+  "proxType": 0
+ }
+]

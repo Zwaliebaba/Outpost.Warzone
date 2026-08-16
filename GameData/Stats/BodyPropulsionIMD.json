@@ -1,0 +1,1269 @@
+[
+ {
+  "body": "Body1REC",
+  "propulsion": "wheeled03",
+  "leftModel": "PRLLWHL1.PIE",
+  "rightModel": "PRLRWHL1.PIE",
+  "dummy": 1
+ },
+ {
+  "body": "Body1REC",
+  "propulsion": "wheeled01",
+  "leftModel": "PRLLWHL1.PIE",
+  "rightModel": "PRLRWHL1.PIE",
+  "dummy": 3
+ },
+ {
+  "body": "Body1REC",
+  "propulsion": "V-Tol03",
+  "leftModel": "PRLLVTL1.PIE",
+  "rightModel": "PRLRVTL1.PIE",
+  "dummy": 4
+ },
+ {
+  "body": "Body1REC",
+  "propulsion": "wheeled02",
+  "leftModel": "PRLLWHL1.PIE",
+  "rightModel": "PRLRWHL1.PIE",
+  "dummy": 5
+ },
+ {
+  "body": "Body2SUP",
+  "propulsion": "wheeled03",
+  "leftModel": "PRLLWHL1.PIE",
+  "rightModel": "PRLRWHL1.PIE",
+  "dummy": 6
+ },
+ {
+  "body": "Body2SUP",
+  "propulsion": "wheeled01",
+  "leftModel": "PRLLWHL1.PIE",
+  "rightModel": "PRLRWHL1.PIE",
+  "dummy": 7
+ },
+ {
+  "body": "Body2SUP",
+  "propulsion": "V-Tol03",
+  "leftModel": "PRLLVTL2.PIE",
+  "rightModel": "PRLRVTL2.PIE",
+  "dummy": 8
+ },
+ {
+  "body": "Body2SUP",
+  "propulsion": "wheeled02",
+  "leftModel": "PRLLWHL1.PIE",
+  "rightModel": "PRLRWHL1.PIE",
+  "dummy": 9
+ },
+ {
+  "body": "Body3MBT",
+  "propulsion": "wheeled03",
+  "leftModel": "PRLLWHL1.PIE",
+  "rightModel": "PRLRWHL1.PIE",
+  "dummy": 26
+ },
+ {
+  "body": "Body4ABT",
+  "propulsion": "wheeled03",
+  "leftModel": "PRLLWHL1.PIE",
+  "rightModel": "PRLRWHL1.PIE",
+  "dummy": 27
+ },
+ {
+  "body": "Body4ABT",
+  "propulsion": "wheeled01",
+  "leftModel": "PRLLWHL1.PIE",
+  "rightModel": "PRLRWHL1.PIE",
+  "dummy": 28
+ },
+ {
+  "body": "Body4ABT",
+  "propulsion": "wheeled02",
+  "leftModel": "PRLLWHL1.PIE",
+  "rightModel": "PRLRWHL1.PIE",
+  "dummy": 29
+ },
+ {
+  "body": "Body4ABT",
+  "propulsion": "V-Tol03",
+  "leftModel": "PRLLVTL3.PIE",
+  "rightModel": "PRLRVTL3.PIE",
+  "dummy": 30
+ },
+ {
+  "body": "Body5REC",
+  "propulsion": "wheeled03",
+  "leftModel": "PRMLWHL1.PIE",
+  "rightModel": "PRMRWHL1.PIE",
+  "dummy": 31
+ },
+ {
+  "body": "Body5REC",
+  "propulsion": "wheeled01",
+  "leftModel": "PRMLWHL1.PIE",
+  "rightModel": "PRMRWHL1.PIE",
+  "dummy": 32
+ },
+ {
+  "body": "Body5REC",
+  "propulsion": "wheeled02",
+  "leftModel": "PRMLWHL1.PIE",
+  "rightModel": "PRMRWHL1.PIE",
+  "dummy": 33
+ },
+ {
+  "body": "Body5REC",
+  "propulsion": "V-Tol03",
+  "leftModel": "PRMLVTL1.PIE",
+  "rightModel": "PRMRVTL1.PIE",
+  "dummy": 34
+ },
+ {
+  "body": "Body6SUPP",
+  "propulsion": "wheeled03",
+  "leftModel": "PRMLWHL1.PIE",
+  "rightModel": "PRMRWHL1.PIE",
+  "dummy": 35
+ },
+ {
+  "body": "Body6SUPP",
+  "propulsion": "wheeled01",
+  "leftModel": "PRMLWHL1.PIE",
+  "rightModel": "PRMRWHL1.PIE",
+  "dummy": 36
+ },
+ {
+  "body": "Body6SUPP",
+  "propulsion": "wheeled02",
+  "leftModel": "PRMLWHL1.PIE",
+  "rightModel": "PRMRWHL1.PIE",
+  "dummy": 37
+ },
+ {
+  "body": "Body6SUPP",
+  "propulsion": "V-Tol03",
+  "leftModel": "PRMLVTL1.PIE",
+  "rightModel": "PRMRVTL1.PIE",
+  "dummy": 38
+ },
+ {
+  "body": "Body7ABT",
+  "propulsion": "hover02",
+  "leftModel": "PRMHOV1.PIE",
+  "rightModel": "0",
+  "dummy": 39
+ },
+ {
+  "body": "Body7ABT",
+  "propulsion": "HalfTrack03",
+  "leftModel": "PRMLHTR2.PIE",
+  "rightModel": "PRMRHTR2.PIE",
+  "dummy": 40
+ },
+ {
+  "body": "Body7ABT",
+  "propulsion": "hover01",
+  "leftModel": "PRMHOV1.PIE",
+  "rightModel": "0",
+  "dummy": 41
+ },
+ {
+  "body": "Body7ABT",
+  "propulsion": "HalfTrack02",
+  "leftModel": "PRMLHTR2.PIE",
+  "rightModel": "PRMRHTR2.PIE",
+  "dummy": 42
+ },
+ {
+  "body": "Body11ABT",
+  "propulsion": "tracked02",
+  "leftModel": "PRHLTRK3.PIE",
+  "rightModel": "PRHRTRK3.PIE",
+  "dummy": 47
+ },
+ {
+  "body": "Body11ABT",
+  "propulsion": "hover03",
+  "leftModel": "PRHHOV1.PIE",
+  "rightModel": "0",
+  "dummy": 48
+ },
+ {
+  "body": "Body11ABT",
+  "propulsion": "tracked01",
+  "leftModel": "PRHLTRK3.PIE",
+  "rightModel": "PRHRTRK3.PIE",
+  "dummy": 49
+ },
+ {
+  "body": "Body11ABT",
+  "propulsion": "hover02",
+  "leftModel": "PRHHOV1.PIE",
+  "rightModel": "0",
+  "dummy": 50
+ },
+ {
+  "body": "Body10MBT",
+  "propulsion": "hover03",
+  "leftModel": "PRHHOV1.PIE",
+  "rightModel": "0",
+  "dummy": 51
+ },
+ {
+  "body": "Body10MBT",
+  "propulsion": "wheeled03",
+  "leftModel": "PRHLWHL1.PIE",
+  "rightModel": "PRHRWHL1.PIE",
+  "dummy": 52
+ },
+ {
+  "body": "Body10MBT",
+  "propulsion": "wheeled02",
+  "leftModel": "PRHLWHL1.PIE",
+  "rightModel": "PRHRWHL1.PIE",
+  "dummy": 53
+ },
+ {
+  "body": "Body10MBT",
+  "propulsion": "hover01",
+  "leftModel": "PRHHOV1.PIE",
+  "rightModel": "0",
+  "dummy": 54
+ },
+ {
+  "body": "Body3MBT",
+  "propulsion": "wheeled01",
+  "leftModel": "PRLLWHL1.PIE",
+  "rightModel": "PRLRWHL1.PIE",
+  "dummy": 59
+ },
+ {
+  "body": "Body3MBT",
+  "propulsion": "V-Tol03",
+  "leftModel": "PRLLVTL2.PIE",
+  "rightModel": "PRLRVTL2.PIE",
+  "dummy": 61
+ },
+ {
+  "body": "Body3MBT",
+  "propulsion": "wheeled02",
+  "leftModel": "PRLLWHL1.PIE",
+  "rightModel": "PRLRWHL1.PIE",
+  "dummy": 72
+ },
+ {
+  "body": "Body1REC",
+  "propulsion": "V-Tol02",
+  "leftModel": "PRLLVTL1.PIE",
+  "rightModel": "PRLRVTL1.PIE",
+  "dummy": 79
+ },
+ {
+  "body": "Body2SUP",
+  "propulsion": "V-Tol02",
+  "leftModel": "PRLLVTL2.PIE",
+  "rightModel": "PRLRVTL2.PIE",
+  "dummy": 80
+ },
+ {
+  "body": "Body3MBT",
+  "propulsion": "V-Tol02",
+  "leftModel": "PRLLVTL2.PIE",
+  "rightModel": "PRLRVTL2.PIE",
+  "dummy": 81
+ },
+ {
+  "body": "Body4ABT",
+  "propulsion": "V-Tol02",
+  "leftModel": "PRLLVTL3.PIE",
+  "rightModel": "PRLRVTL3.PIE",
+  "dummy": 82
+ },
+ {
+  "body": "Body5REC",
+  "propulsion": "V-Tol02",
+  "leftModel": "PRMLVTL1.PIE",
+  "rightModel": "PRMRVTL1.PIE",
+  "dummy": 83
+ },
+ {
+  "body": "Body6SUPP",
+  "propulsion": "V-Tol02",
+  "leftModel": "PRMLVTL1.PIE",
+  "rightModel": "PRMRVTL1.PIE",
+  "dummy": 84
+ },
+ {
+  "body": "Body7ABT",
+  "propulsion": "HalfTrack",
+  "leftModel": "PRMLHTR2.PIE",
+  "rightModel": "PRMRHTR2.PIE",
+  "dummy": 85
+ },
+ {
+  "body": "Body11ABT",
+  "propulsion": "HalfTrack",
+  "leftModel": "PRHLHTR3.PIE",
+  "rightModel": "PRHRHTR3.PIE",
+  "dummy": 87
+ },
+ {
+  "body": "Body10MBT",
+  "propulsion": "hover02",
+  "leftModel": "PRHHOV1.PIE",
+  "rightModel": "0",
+  "dummy": 88
+ },
+ {
+  "body": "Body11ABT",
+  "propulsion": "HalfTrack02",
+  "leftModel": "PRHLHTR3.PIE",
+  "rightModel": "PRHRHTR3.PIE",
+  "dummy": 91
+ },
+ {
+  "body": "Body10MBT",
+  "propulsion": "HalfTrack02",
+  "leftModel": "PRHLHTR3.PIE",
+  "rightModel": "PRHRHTR3.PIE",
+  "dummy": 93
+ },
+ {
+  "body": "Body10MBT",
+  "propulsion": "wheeled01",
+  "leftModel": "PRHLWHL1.PIE",
+  "rightModel": "PRHRWHL1.PIE",
+  "dummy": 94
+ },
+ {
+  "body": "Body10MBT",
+  "propulsion": "HalfTrack",
+  "leftModel": "PRHLHTR3.PIE",
+  "rightModel": "PRHRHTR3.PIE",
+  "dummy": 95
+ },
+ {
+  "body": "Body10MBT",
+  "propulsion": "HalfTrack03",
+  "leftModel": "PRHLHTR3.PIE",
+  "rightModel": "PRHRHTR3.PIE",
+  "dummy": 96
+ },
+ {
+  "body": "Body10MBT",
+  "propulsion": "tracked01",
+  "leftModel": "PRHLTRK3.PIE",
+  "rightModel": "PRHRTRK3.PIE",
+  "dummy": 97
+ },
+ {
+  "body": "Body10MBT",
+  "propulsion": "tracked02",
+  "leftModel": "PRHLTRK3.PIE",
+  "rightModel": "PRHRTRK3.PIE",
+  "dummy": 98
+ },
+ {
+  "body": "Body10MBT",
+  "propulsion": "tracked03",
+  "leftModel": "PRHLTRK3.PIE",
+  "rightModel": "PRHRTRK3.PIE",
+  "dummy": 99
+ },
+ {
+  "body": "Body10MBT",
+  "propulsion": "V-Tol",
+  "leftModel": "PRHLVTL2.PIE",
+  "rightModel": "PRHRVTL2.PIE",
+  "dummy": 100
+ },
+ {
+  "body": "Body10MBT",
+  "propulsion": "V-Tol02",
+  "leftModel": "PRHLVTL2.PIE",
+  "rightModel": "PRHRVTL2.PIE",
+  "dummy": 101
+ },
+ {
+  "body": "Body10MBT",
+  "propulsion": "V-Tol03",
+  "leftModel": "PRHLVTL2.PIE",
+  "rightModel": "PRHRVTL2.PIE",
+  "dummy": 102
+ },
+ {
+  "body": "Body11ABT",
+  "propulsion": "hover01",
+  "leftModel": "PRHHOV1.PIE",
+  "rightModel": "0",
+  "dummy": 109
+ },
+ {
+  "body": "Body11ABT",
+  "propulsion": "HalfTrack03",
+  "leftModel": "PRHLHTR3.PIE",
+  "rightModel": "PRHRHTR3.PIE",
+  "dummy": 115
+ },
+ {
+  "body": "Body11ABT",
+  "propulsion": "tracked03",
+  "leftModel": "PRHLTRK3.PIE",
+  "rightModel": "PRHRTRK3.PIE",
+  "dummy": 116
+ },
+ {
+  "body": "Body11ABT",
+  "propulsion": "V-Tol",
+  "leftModel": "PRHLVTL3.PIE",
+  "rightModel": "PRHRVTL3.PIE",
+  "dummy": 117
+ },
+ {
+  "body": "Body11ABT",
+  "propulsion": "V-Tol02",
+  "leftModel": "PRHLVTL3.PIE",
+  "rightModel": "PRHRVTL3.PIE",
+  "dummy": 118
+ },
+ {
+  "body": "Body11ABT",
+  "propulsion": "V-Tol03",
+  "leftModel": "PRHLVTL3.PIE",
+  "rightModel": "PRHRVTL3.PIE",
+  "dummy": 119
+ },
+ {
+  "body": "Body11ABT",
+  "propulsion": "wheeled01",
+  "leftModel": "PRHLWHL1.PIE",
+  "rightModel": "PRHRWHL1.PIE",
+  "dummy": 120
+ },
+ {
+  "body": "Body11ABT",
+  "propulsion": "wheeled02",
+  "leftModel": "PRHLWHL1.PIE",
+  "rightModel": "PRHRWHL1.PIE",
+  "dummy": 121
+ },
+ {
+  "body": "Body11ABT",
+  "propulsion": "wheeled03",
+  "leftModel": "PRHLWHL1.PIE",
+  "rightModel": "PRHRWHL1.PIE",
+  "dummy": 122
+ },
+ {
+  "body": "Body12SUP",
+  "propulsion": "wheeled03",
+  "leftModel": "PRHLWHL1.PIE",
+  "rightModel": "PRHRWHL1.PIE",
+  "dummy": 140
+ },
+ {
+  "body": "Body12SUP",
+  "propulsion": "wheeled02",
+  "leftModel": "PRHLWHL1.PIE",
+  "rightModel": "PRHRWHL1.PIE",
+  "dummy": 141
+ },
+ {
+  "body": "Body12SUP",
+  "propulsion": "wheeled01",
+  "leftModel": "PRHLWHL1.PIE",
+  "rightModel": "PRHRWHL1.PIE",
+  "dummy": 142
+ },
+ {
+  "body": "Body12SUP",
+  "propulsion": "V-Tol03",
+  "leftModel": "PRHLVTL4.PIE",
+  "rightModel": "PRHRVTL4.PIE",
+  "dummy": 143
+ },
+ {
+  "body": "Body12SUP",
+  "propulsion": "V-Tol02",
+  "leftModel": "PRHLVTL4.PIE",
+  "rightModel": "PRHRVTL4.PIE",
+  "dummy": 144
+ },
+ {
+  "body": "Body12SUP",
+  "propulsion": "V-Tol",
+  "leftModel": "PRHLVTL4.PIE",
+  "rightModel": "PRHRVTL4.PIE",
+  "dummy": 145
+ },
+ {
+  "body": "Body12SUP",
+  "propulsion": "tracked03",
+  "leftModel": "PRHLTRK3.PIE",
+  "rightModel": "PRHRTRK3.PIE",
+  "dummy": 146
+ },
+ {
+  "body": "Body12SUP",
+  "propulsion": "tracked02",
+  "leftModel": "PRHLTRK3.PIE",
+  "rightModel": "PRHRTRK3.PIE",
+  "dummy": 147
+ },
+ {
+  "body": "Body12SUP",
+  "propulsion": "HalfTrack02",
+  "leftModel": "PRHLHTR3.PIE",
+  "rightModel": "PRHRHTR3.PIE",
+  "dummy": 148
+ },
+ {
+  "body": "Body12SUP",
+  "propulsion": "hover03",
+  "leftModel": "PRHHOV1.PIE",
+  "rightModel": "0",
+  "dummy": 149
+ },
+ {
+  "body": "Body12SUP",
+  "propulsion": "hover02",
+  "leftModel": "PRHHOV1.PIE",
+  "rightModel": "0",
+  "dummy": 150
+ },
+ {
+  "body": "Body12SUP",
+  "propulsion": "hover01",
+  "leftModel": "PRHHOV1.PIE",
+  "rightModel": "0",
+  "dummy": 151
+ },
+ {
+  "body": "Body12SUP",
+  "propulsion": "HalfTrack03",
+  "leftModel": "PRHLHTR3.PIE",
+  "rightModel": "PRHRHTR3.PIE",
+  "dummy": 152
+ },
+ {
+  "body": "Body12SUP",
+  "propulsion": "HalfTrack",
+  "leftModel": "PRHLHTR3.PIE",
+  "rightModel": "PRHRHTR3.PIE",
+  "dummy": 153
+ },
+ {
+  "body": "Body12SUP",
+  "propulsion": "tracked01",
+  "leftModel": "PRHLTRK3.PIE",
+  "rightModel": "PRHRTRK3.PIE",
+  "dummy": 154
+ },
+ {
+  "body": "Body1REC",
+  "propulsion": "tracked02",
+  "leftModel": "PRLLTRK1.PIE",
+  "rightModel": "PRLRTRK1.PIE",
+  "dummy": 155
+ },
+ {
+  "body": "Body1REC",
+  "propulsion": "tracked01",
+  "leftModel": "PRLLTRK1.PIE",
+  "rightModel": "PRLRTRK1.PIE",
+  "dummy": 156
+ },
+ {
+  "body": "Body1REC",
+  "propulsion": "hover03",
+  "leftModel": "PRLHOV1.PIE",
+  "rightModel": "0",
+  "dummy": 157
+ },
+ {
+  "body": "Body1REC",
+  "propulsion": "tracked03",
+  "leftModel": "PRLLTRK1.PIE",
+  "rightModel": "PRLRTRK1.PIE",
+  "dummy": 158
+ },
+ {
+  "body": "Body1REC",
+  "propulsion": "hover01",
+  "leftModel": "PRLHOV1.PIE",
+  "rightModel": "0",
+  "dummy": 159
+ },
+ {
+  "body": "Body1REC",
+  "propulsion": "hover02",
+  "leftModel": "PRLHOV1.PIE",
+  "rightModel": "0",
+  "dummy": 160
+ },
+ {
+  "body": "Body1REC",
+  "propulsion": "HalfTrack",
+  "leftModel": "PRLLHTR1.PIE",
+  "rightModel": "PRLRHTR1.PIE",
+  "dummy": 161
+ },
+ {
+  "body": "Body1REC",
+  "propulsion": "V-Tol",
+  "leftModel": "PRLLVTL1.PIE",
+  "rightModel": "PRLRVTL1.PIE",
+  "dummy": 162
+ },
+ {
+  "body": "Body1REC",
+  "propulsion": "HalfTrack02",
+  "leftModel": "PRLLHTR1.PIE",
+  "rightModel": "PRLRHTR1.PIE",
+  "dummy": 163
+ },
+ {
+  "body": "Body1REC",
+  "propulsion": "HalfTrack03",
+  "leftModel": "PRLLHTR1.PIE",
+  "rightModel": "PRLRHTR1.PIE",
+  "dummy": 164
+ },
+ {
+  "body": "Body2SUP",
+  "propulsion": "tracked01",
+  "leftModel": "PRLLTRK1.PIE",
+  "rightModel": "PRLRTRK1.PIE",
+  "dummy": 165
+ },
+ {
+  "body": "Body2SUP",
+  "propulsion": "hover03",
+  "leftModel": "PRLHOV1.PIE",
+  "rightModel": "0",
+  "dummy": 166
+ },
+ {
+  "body": "Body2SUP",
+  "propulsion": "hover02",
+  "leftModel": "PRLHOV1.PIE",
+  "rightModel": "0",
+  "dummy": 167
+ },
+ {
+  "body": "Body2SUP",
+  "propulsion": "hover01",
+  "leftModel": "PRLHOV1.PIE",
+  "rightModel": "0",
+  "dummy": 168
+ },
+ {
+  "body": "Body2SUP",
+  "propulsion": "HalfTrack03",
+  "leftModel": "PRLLHTR1.PIE",
+  "rightModel": "PRLRHTR1.PIE",
+  "dummy": 169
+ },
+ {
+  "body": "Body2SUP",
+  "propulsion": "V-Tol",
+  "leftModel": "PRLLVTL2.PIE",
+  "rightModel": "PRLRVTL2.PIE",
+  "dummy": 170
+ },
+ {
+  "body": "Body2SUP",
+  "propulsion": "HalfTrack02",
+  "leftModel": "PRLLHTR1.PIE",
+  "rightModel": "PRLRHTR1.PIE",
+  "dummy": 171
+ },
+ {
+  "body": "Body2SUP",
+  "propulsion": "HalfTrack",
+  "leftModel": "PRLLHTR1.PIE",
+  "rightModel": "PRLRHTR1.PIE",
+  "dummy": 172
+ },
+ {
+  "body": "Body2SUP",
+  "propulsion": "tracked02",
+  "leftModel": "PRLLTRK1.PIE",
+  "rightModel": "PRLRTRK1.PIE",
+  "dummy": 173
+ },
+ {
+  "body": "Body2SUP",
+  "propulsion": "tracked03",
+  "leftModel": "PRLLTRK1.PIE",
+  "rightModel": "PRLRTRK1.PIE",
+  "dummy": 174
+ },
+ {
+  "body": "Body3MBT",
+  "propulsion": "hover02",
+  "leftModel": "PRLHOV1.PIE",
+  "rightModel": "0",
+  "dummy": 175
+ },
+ {
+  "body": "Body3MBT",
+  "propulsion": "tracked01",
+  "leftModel": "PRLLTRK1.PIE",
+  "rightModel": "PRLRTRK1.PIE",
+  "dummy": 176
+ },
+ {
+  "body": "Body3MBT",
+  "propulsion": "hover01",
+  "leftModel": "PRLHOV1.PIE",
+  "rightModel": "0",
+  "dummy": 177
+ },
+ {
+  "body": "Body3MBT",
+  "propulsion": "HalfTrack",
+  "leftModel": "PRLLHTR1.PIE",
+  "rightModel": "PRLRHTR1.PIE",
+  "dummy": 178
+ },
+ {
+  "body": "Body3MBT",
+  "propulsion": "HalfTrack02",
+  "leftModel": "PRLLHTR1.PIE",
+  "rightModel": "PRLRHTR1.PIE",
+  "dummy": 179
+ },
+ {
+  "body": "Body3MBT",
+  "propulsion": "HalfTrack03",
+  "leftModel": "PRLLHTR1.PIE",
+  "rightModel": "PRLRHTR1.PIE",
+  "dummy": 180
+ },
+ {
+  "body": "Body3MBT",
+  "propulsion": "tracked03",
+  "leftModel": "PRLLTRK1.PIE",
+  "rightModel": "PRLRTRK1.PIE",
+  "dummy": 181
+ },
+ {
+  "body": "Body3MBT",
+  "propulsion": "V-Tol",
+  "leftModel": "PRLLVTL2.PIE",
+  "rightModel": "PRLRVTL2.PIE",
+  "dummy": 182
+ },
+ {
+  "body": "Body3MBT",
+  "propulsion": "hover03",
+  "leftModel": "PRLHOV1.PIE",
+  "rightModel": "0",
+  "dummy": 183
+ },
+ {
+  "body": "Body3MBT",
+  "propulsion": "tracked02",
+  "leftModel": "PRLLTRK1.PIE",
+  "rightModel": "PRLRTRK1.PIE",
+  "dummy": 184
+ },
+ {
+  "body": "Body4ABT",
+  "propulsion": "hover02",
+  "leftModel": "PRLHOV1.PIE",
+  "rightModel": "0",
+  "dummy": 185
+ },
+ {
+  "body": "Body4ABT",
+  "propulsion": "V-Tol",
+  "leftModel": "PRLLVTL3.PIE",
+  "rightModel": "PRLRVTL3.PIE",
+  "dummy": 186
+ },
+ {
+  "body": "Body4ABT",
+  "propulsion": "tracked03",
+  "leftModel": "PRLLTRK1.PIE",
+  "rightModel": "PRLRTRK1.PIE",
+  "dummy": 187
+ },
+ {
+  "body": "Body4ABT",
+  "propulsion": "tracked02",
+  "leftModel": "PRLLTRK1.PIE",
+  "rightModel": "PRLRTRK1.PIE",
+  "dummy": 188
+ },
+ {
+  "body": "Body4ABT",
+  "propulsion": "tracked01",
+  "leftModel": "PRLLTRK1.PIE",
+  "rightModel": "PRLRTRK1.PIE",
+  "dummy": 189
+ },
+ {
+  "body": "Body4ABT",
+  "propulsion": "HalfTrack03",
+  "leftModel": "PRLLHTR1.PIE",
+  "rightModel": "PRLRHTR1.PIE",
+  "dummy": 190
+ },
+ {
+  "body": "Body4ABT",
+  "propulsion": "hover03",
+  "leftModel": "PRLHOV1.PIE",
+  "rightModel": "0",
+  "dummy": 191
+ },
+ {
+  "body": "Body4ABT",
+  "propulsion": "HalfTrack",
+  "leftModel": "PRLLHTR1.PIE",
+  "rightModel": "PRLRHTR1.PIE",
+  "dummy": 192
+ },
+ {
+  "body": "Body4ABT",
+  "propulsion": "HalfTrack02",
+  "leftModel": "PRLLHTR1.PIE",
+  "rightModel": "PRLRHTR1.PIE",
+  "dummy": 193
+ },
+ {
+  "body": "Body4ABT",
+  "propulsion": "hover01",
+  "leftModel": "PRLHOV1.PIE",
+  "rightModel": "0",
+  "dummy": 194
+ },
+ {
+  "body": "Body5REC",
+  "propulsion": "V-Tol",
+  "leftModel": "PRMLVTL1.PIE",
+  "rightModel": "PRMRVTL1.PIE",
+  "dummy": 195
+ },
+ {
+  "body": "Body5REC",
+  "propulsion": "HalfTrack",
+  "leftModel": "PRMLHTR2.PIE",
+  "rightModel": "PRMRHTR2.PIE",
+  "dummy": 196
+ },
+ {
+  "body": "Body5REC",
+  "propulsion": "HalfTrack02",
+  "leftModel": "PRMLHTR2.PIE",
+  "rightModel": "PRMRHTR2.PIE",
+  "dummy": 197
+ },
+ {
+  "body": "Body5REC",
+  "propulsion": "HalfTrack03",
+  "leftModel": "PRMLHTR2.PIE",
+  "rightModel": "PRMRHTR2.PIE",
+  "dummy": 198
+ },
+ {
+  "body": "Body5REC",
+  "propulsion": "hover01",
+  "leftModel": "PRMHOV1.PIE",
+  "rightModel": "0",
+  "dummy": 199
+ },
+ {
+  "body": "Body5REC",
+  "propulsion": "hover02",
+  "leftModel": "PRMHOV1.PIE",
+  "rightModel": "0",
+  "dummy": 200
+ },
+ {
+  "body": "Body5REC",
+  "propulsion": "hover03",
+  "leftModel": "PRMHOV1.PIE",
+  "rightModel": "0",
+  "dummy": 201
+ },
+ {
+  "body": "Body5REC",
+  "propulsion": "tracked01",
+  "leftModel": "PRMLTRK2.PIE",
+  "rightModel": "PRMRTRK2.PIE",
+  "dummy": 202
+ },
+ {
+  "body": "Body5REC",
+  "propulsion": "tracked02",
+  "leftModel": "PRMLTRK2.PIE",
+  "rightModel": "PRMRTRK2.PIE",
+  "dummy": 203
+ },
+ {
+  "body": "Body5REC",
+  "propulsion": "tracked03",
+  "leftModel": "PRMLTRK2.PIE",
+  "rightModel": "PRMRTRK2.PIE",
+  "dummy": 204
+ },
+ {
+  "body": "Body6SUPP",
+  "propulsion": "tracked03",
+  "leftModel": "PRMLTRK2.PIE",
+  "rightModel": "PRMRTRK2.PIE",
+  "dummy": 205
+ },
+ {
+  "body": "Body6SUPP",
+  "propulsion": "HalfTrack03",
+  "leftModel": "PRMLHTR2.PIE",
+  "rightModel": "PRMRHTR2.PIE",
+  "dummy": 206
+ },
+ {
+  "body": "Body6SUPP",
+  "propulsion": "hover01",
+  "leftModel": "PRMHOV1.PIE",
+  "rightModel": "0",
+  "dummy": 207
+ },
+ {
+  "body": "Body6SUPP",
+  "propulsion": "V-Tol",
+  "leftModel": "PRMLVTL1.PIE",
+  "rightModel": "PRMRVTL1.PIE",
+  "dummy": 208
+ },
+ {
+  "body": "Body6SUPP",
+  "propulsion": "hover02",
+  "leftModel": "PRMHOV1.PIE",
+  "rightModel": "0",
+  "dummy": 209
+ },
+ {
+  "body": "Body6SUPP",
+  "propulsion": "HalfTrack",
+  "leftModel": "PRMLHTR2.PIE",
+  "rightModel": "PRMRHTR2.PIE",
+  "dummy": 210
+ },
+ {
+  "body": "Body6SUPP",
+  "propulsion": "hover03",
+  "leftModel": "PRMHOV1.PIE",
+  "rightModel": "0",
+  "dummy": 211
+ },
+ {
+  "body": "Body6SUPP",
+  "propulsion": "tracked01",
+  "leftModel": "PRMLTRK2.PIE",
+  "rightModel": "PRMRTRK2.PIE",
+  "dummy": 212
+ },
+ {
+  "body": "Body6SUPP",
+  "propulsion": "tracked02",
+  "leftModel": "PRMLTRK2.PIE",
+  "rightModel": "PRMRTRK2.PIE",
+  "dummy": 213
+ },
+ {
+  "body": "Body6SUPP",
+  "propulsion": "HalfTrack02",
+  "leftModel": "PRMLHTR2.PIE",
+  "rightModel": "PRMRHTR2.PIE",
+  "dummy": 214
+ },
+ {
+  "body": "Body7ABT",
+  "propulsion": "hover03",
+  "leftModel": "PRMHOV1.PIE",
+  "rightModel": "0",
+  "dummy": 215
+ },
+ {
+  "body": "Body7ABT",
+  "propulsion": "tracked01",
+  "leftModel": "PRMLTRK2.PIE",
+  "rightModel": "PRMRTRK2.PIE",
+  "dummy": 216
+ },
+ {
+  "body": "Body7ABT",
+  "propulsion": "tracked02",
+  "leftModel": "PRMLTRK2.PIE",
+  "rightModel": "PRMRTRK2.PIE",
+  "dummy": 217
+ },
+ {
+  "body": "Body7ABT",
+  "propulsion": "tracked03",
+  "leftModel": "PRMLTRK2.PIE",
+  "rightModel": "PRMRTRK2.PIE",
+  "dummy": 218
+ },
+ {
+  "body": "Body7ABT",
+  "propulsion": "V-Tol",
+  "leftModel": "PRMLVTL1.PIE",
+  "rightModel": "PRMRVTL1.PIE",
+  "dummy": 219
+ },
+ {
+  "body": "Body7ABT",
+  "propulsion": "V-Tol02",
+  "leftModel": "PRMLVTL1.PIE",
+  "rightModel": "PRMRVTL1.PIE",
+  "dummy": 220
+ },
+ {
+  "body": "Body7ABT",
+  "propulsion": "V-Tol03",
+  "leftModel": "PRMLVTL1.PIE",
+  "rightModel": "PRMRVTL1.PIE",
+  "dummy": 221
+ },
+ {
+  "body": "Body7ABT",
+  "propulsion": "wheeled01",
+  "leftModel": "PRMLWHL1.PIE",
+  "rightModel": "PRMRWHL1.PIE",
+  "dummy": 222
+ },
+ {
+  "body": "Body7ABT",
+  "propulsion": "wheeled02",
+  "leftModel": "PRMLWHL1.PIE",
+  "rightModel": "PRMRWHL1.PIE",
+  "dummy": 223
+ },
+ {
+  "body": "Body7ABT",
+  "propulsion": "wheeled03",
+  "leftModel": "PRMLWHL1.PIE",
+  "rightModel": "PRMRWHL1.PIE",
+  "dummy": 224
+ },
+ {
+  "body": "Body8MBT",
+  "propulsion": "HalfTrack",
+  "leftModel": "PRMLHTR2.PIE",
+  "rightModel": "PRMRHTR2.PIE",
+  "dummy": 225
+ },
+ {
+  "body": "Body8MBT",
+  "propulsion": "HalfTrack02",
+  "leftModel": "PRMLHTR2.PIE",
+  "rightModel": "PRMRHTR2.PIE",
+  "dummy": 226
+ },
+ {
+  "body": "Body8MBT",
+  "propulsion": "HalfTrack03",
+  "leftModel": "PRMLHTR2.PIE",
+  "rightModel": "PRMRHTR2.PIE",
+  "dummy": 227
+ },
+ {
+  "body": "Body8MBT",
+  "propulsion": "hover01",
+  "leftModel": "PRMHOV1.PIE",
+  "rightModel": "0",
+  "dummy": 228
+ },
+ {
+  "body": "Body8MBT",
+  "propulsion": "hover02",
+  "leftModel": "PRMHOV1.PIE",
+  "rightModel": "0",
+  "dummy": 229
+ },
+ {
+  "body": "Body8MBT",
+  "propulsion": "hover03",
+  "leftModel": "PRMHOV1.PIE",
+  "rightModel": "0",
+  "dummy": 230
+ },
+ {
+  "body": "Body8MBT",
+  "propulsion": "tracked01",
+  "leftModel": "PRMLTRK2.PIE",
+  "rightModel": "PRMRTRK2.PIE",
+  "dummy": 231
+ },
+ {
+  "body": "Body8MBT",
+  "propulsion": "tracked02",
+  "leftModel": "PRMLTRK2.PIE",
+  "rightModel": "PRMRTRK2.PIE",
+  "dummy": 232
+ },
+ {
+  "body": "Body8MBT",
+  "propulsion": "tracked03",
+  "leftModel": "PRMLTRK2.PIE",
+  "rightModel": "PRMRTRK2.PIE",
+  "dummy": 233
+ },
+ {
+  "body": "Body8MBT",
+  "propulsion": "V-Tol",
+  "leftModel": "PRMLVTL1.PIE",
+  "rightModel": "PRMRVTL1.PIE",
+  "dummy": 234
+ },
+ {
+  "body": "Body8MBT",
+  "propulsion": "V-Tol02",
+  "leftModel": "PRMLVTL1.PIE",
+  "rightModel": "PRMRVTL1.PIE",
+  "dummy": 235
+ },
+ {
+  "body": "Body8MBT",
+  "propulsion": "V-Tol03",
+  "leftModel": "PRMLVTL1.PIE",
+  "rightModel": "PRMRVTL1.PIE",
+  "dummy": 236
+ },
+ {
+  "body": "Body8MBT",
+  "propulsion": "wheeled01",
+  "leftModel": "PRMLWHL1.PIE",
+  "rightModel": "PRMRWHL1.PIE",
+  "dummy": 237
+ },
+ {
+  "body": "Body8MBT",
+  "propulsion": "wheeled02",
+  "leftModel": "PRMLWHL1.PIE",
+  "rightModel": "PRMRWHL1.PIE",
+  "dummy": 238
+ },
+ {
+  "body": "Body8MBT",
+  "propulsion": "wheeled03",
+  "leftModel": "PRMLWHL1.PIE",
+  "rightModel": "PRMRWHL1.PIE",
+  "dummy": 239
+ },
+ {
+  "body": "Body9REC",
+  "propulsion": "HalfTrack",
+  "leftModel": "PRHLHTR3.PIE",
+  "rightModel": "PRHRHTR3.PIE",
+  "dummy": 240
+ },
+ {
+  "body": "Body9REC",
+  "propulsion": "HalfTrack02",
+  "leftModel": "PRHLHTR3.PIE",
+  "rightModel": "PRHRHTR3.PIE",
+  "dummy": 241
+ },
+ {
+  "body": "Body9REC",
+  "propulsion": "HalfTrack03",
+  "leftModel": "PRHLHTR3.PIE",
+  "rightModel": "PRHRHTR3.PIE",
+  "dummy": 242
+ },
+ {
+  "body": "Body9REC",
+  "propulsion": "hover01",
+  "leftModel": "PRHHOV1.PIE",
+  "rightModel": "0",
+  "dummy": 243
+ },
+ {
+  "body": "Body9REC",
+  "propulsion": "hover02",
+  "leftModel": "PRHHOV1.PIE",
+  "rightModel": "0",
+  "dummy": 244
+ },
+ {
+  "body": "Body9REC",
+  "propulsion": "hover03",
+  "leftModel": "PRHHOV1.PIE",
+  "rightModel": "0",
+  "dummy": 245
+ },
+ {
+  "body": "Body9REC",
+  "propulsion": "tracked01",
+  "leftModel": "PRHLTRK3.PIE",
+  "rightModel": "PRHRTRK3.PIE",
+  "dummy": 246
+ },
+ {
+  "body": "Body9REC",
+  "propulsion": "tracked02",
+  "leftModel": "PRHLTRK3.PIE",
+  "rightModel": "PRHRTRK3.PIE",
+  "dummy": 247
+ },
+ {
+  "body": "Body9REC",
+  "propulsion": "tracked03",
+  "leftModel": "PRHLTRK3.PIE",
+  "rightModel": "PRHRTRK3.PIE",
+  "dummy": 248
+ },
+ {
+  "body": "Body9REC",
+  "propulsion": "V-Tol",
+  "leftModel": "PRHLVTL1.PIE",
+  "rightModel": "PRHRVTL1.PIE",
+  "dummy": 249
+ },
+ {
+  "body": "Body9REC",
+  "propulsion": "V-Tol02",
+  "leftModel": "PRHLVTL1.PIE",
+  "rightModel": "PRHRVTL1.PIE",
+  "dummy": 250
+ },
+ {
+  "body": "Body9REC",
+  "propulsion": "V-Tol03",
+  "leftModel": "PRHLVTL1.PIE",
+  "rightModel": "PRHRVTL1.PIE",
+  "dummy": 251
+ },
+ {
+  "body": "Body9REC",
+  "propulsion": "wheeled01",
+  "leftModel": "PRHLWHL1.PIE",
+  "rightModel": "PRHRWHL1.PIE",
+  "dummy": 252
+ },
+ {
+  "body": "Body9REC",
+  "propulsion": "wheeled02",
+  "leftModel": "PRHLWHL1.PIE",
+  "rightModel": "PRHRWHL1.PIE",
+  "dummy": 253
+ },
+ {
+  "body": "Body9REC",
+  "propulsion": "wheeled03",
+  "leftModel": "PRHLWHL1.PIE",
+  "rightModel": "PRHRWHL1.PIE",
+  "dummy": 254
+ },
+ {
+  "body": "ZNULLBODY",
+  "propulsion": "ZNULLPROP",
+  "leftModel": "MIBNKDRL.PIE",
+  "rightModel": "MIBNKDRR.PIE",
+  "dummy": 255
+ }
+]

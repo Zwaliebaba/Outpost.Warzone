@@ -1,0 +1,65 @@
+[
+ {
+  "file": "Beep1.wav",
+  "loop": false,
+  "volume": 30,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "Beep2.wav",
+  "loop": false,
+  "volume": 30,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "Beep4.wav",
+  "loop": false,
+  "volume": 30,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "Beep5.wav",
+  "loop": false,
+  "volume": 30,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "Beep6.wav",
+  "loop": false,
+  "volume": 30,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "Beep7.wav",
+  "loop": false,
+  "volume": 30,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "Beep8.wav",
+  "loop": false,
+  "volume": 30,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "Beep9.wav",
+  "loop": false,
+  "volume": 30,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "GmeShtDn.wav",
+  "loop": false,
+  "volume": 30,
+  "priority": 2,
+  "radius": 1800
+ }
+]

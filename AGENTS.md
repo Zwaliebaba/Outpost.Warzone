@@ -60,7 +60,7 @@ concept; add the layer when a second thing needs it.
 
 **R6 — Units belong in names; types do not.** `rangeTiles`, `durationTicks`, `speedUnitsPerTick` are encouraged — a world measured in tiles, world units and game ticks makes unit ambiguity a real defect class. Never encode the type: no `iCount`, `pDroid`, `strName`. The legacy Hungarian in the tree (`g_psDevice`, `bAudioEnabled`, `uiRet`) is exactly what this rule bans; it stays where it is and spreads nowhere.
 
-**R7 — A file is named for its primary type**, PascalCase, `.h` / `.cpp` only. `.hpp`, `.cc`, `.inl` are not used; template implementations live in the header. Two exceptions, both grandfathered: the bison/flex output (`Script_y.cpp`, `parser_l.cpp`, and the `.y`/`.l` they are generated from) keeps the generator's spelling, and per-project `pch.h`/`pch.cpp` keep the name MSBuild expects.
+**R7 — A file is named for its primary type**, PascalCase, `.h` / `.cpp` only. `.hpp`, `.cc`, `.inl` are not used; template implementations live in the header. Two exceptions, both grandfathered: the bison/flex output (`Script_y.cpp`, `StrRes_l.cpp`, and the `.y`/`.l` they are generated from) keeps the generator's spelling, and per-project `pch.h`/`pch.cpp` keep the name MSBuild expects.
 
 **R8 — `m_` marks encapsulated state, not every field.** A `class` with invariants prefixes private members `m_`. A public aggregate — a `Desc` config struct, a wire record, a POD passed to the renderer — uses plain `camelCase` fields so brace initialization reads naturally. This rule extends the table rather than quoting it.
 
@@ -129,12 +129,12 @@ Two rules the config cannot express, and that a reviewer therefore has to carry:
 
 | Path | What it is | May you edit it? |
 |---|---|---|
-| `NeuronCore/` | Engine static library (30 TUs): platform, timing, the `.WDG` archive and resource system, containers, maths, script VM, string resources, networking and transport | Yes |
-| `NeuronClient/` | Client-side engine static library (45 TUs): the window, D3D9 rendering, IMD models, DirectInput, XAudio2, UI widgets, fonts, images, FMV sequences | Yes |
+| `NeuronCore/` | Engine static library (27 TUs): platform, timing, the resource system and the `Neuron::Json` reader, containers, maths, script VM, string resources, networking and transport | Yes |
+| `NeuronClient/` | Client-side engine static library (43 TUs): the window, D3D9 rendering, IMD models, animations, DirectInput, XAudio2, UI widgets, fonts, images, FMV sequences | Yes |
 | `NeuronServer/` | Server-side engine static library. **Currently a PCH shell** — one `pch.h`/`pch.cpp` and nothing else | Yes |
-| `Outpost/` | Game executable (117 TUs): simulation, AI, structures, droids, campaign, multiplayer | Yes |
-| `NeuronCoreTest/` | MSVC CppUnitTest DLL. **A stock template with one empty test** — it does not yet reference `NeuronCore` | Yes |
-| `GameData/` | Shipped content (levels, textures, audio, `.rpl` movies) and three third-party DLLs. Binary, authored by tools outside this repo | **No** |
+| `Outpost/` | Game executable (118 TUs): simulation, AI, structures, droids, campaign, multiplayer | Yes |
+| `NeuronCoreTest/` | MSVC CppUnitTest DLL: the `Neuron::Json` test suite | Yes |
+| `GameData/` | Shipped content. The JSON manifests and tables (`datasets.json`, stats, messages, anims, audio configs) are text authored in this repo — `tools/validate_assets.py` must stay green. The binary media (textures, models, `.wav`, `.mp4`, levels) is authored by tools outside this repo | JSON: yes, validated. Binary: **No** |
 | `Docs/MigrationPlan.md` | The plan and the record of what each phase changed | Yes — see §6 |
 | `.clang-format`, `.clang-tidy`, `.editorconfig` | Layout and naming, machine-readable (§1, §4) | Yes — with an owner decision |
 | `tools/*.py` | Repository checkers and content-authoring scripts (§3) | Yes |

@@ -1,0 +1,29 @@
+[
+ {
+  "name": "SB1_5_MSG",
+  "textIds": [],
+  "type": 3,
+  "sequences": [
+   {
+    "name": "cam1\\sub1_5pl.mp4",
+    "flag": 0,
+    "textIds": [
+     "TRANS_MSG1"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   },
+   {
+    "name": "cam1\\sub1_5.mp4",
+    "flag": 0,
+    "textIds": [
+     "SUB1_5_MSG1",
+     "SUB1_5_MSG2",
+     "SUB1_5_MSG3"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ }
+]

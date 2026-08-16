@@ -1113,15 +1113,51 @@ layout.
   `AudioSystem::TrackIdFromHash` lost its last caller with the script-state
   reader and is deleted.
 
-One keymap subtlety is recorded in the code where it lives: the key-function
-table's order is the id space saved keymap files index into, so
-`kf_ToggleDemoMode`'s slot is refilled with a harmless function rather than
-removed.
+One keymap subtlety was recorded in the code where it lived: the key-function
+table's order was the id space saved keymap files indexed into, so
+`kf_ToggleDemoMode`'s slot was refilled with a harmless function rather than
+removed. The asset-pipeline work below has since dissolved it — `keymap.json`
+stores each binding by function *name*, order no longer matters, and the
+refill duplicate is gone.
 
 None of this has been run — it is built-and-linked work like everything since
 Phase 2, and [Verification.md](Verification.md) carries what a run must now
 confirm: the campaign boot, the mission-results Continue flow, and the
 multiplayer force picker are the paths this work touched most.
+
+## The asset pipeline: WRF, stats tables and the audp grammar → JSON (2026-08-16)
+
+**By owner decision, the data-description formats are JSON and their four
+parsers are deleted.** The survey, the design and the full landed record live
+in [AssetPipeline.md](AssetPipeline.md); whether this work takes a phase
+number is still the owner's call (its decision 6), so this entry records it
+without claiming one. Four stages, each pushed CI-green:
+
+- **A — deletion and guard rails.** The WDG archive layer, the registrant-less
+  file-load machinery, the dead loaders and the `.tag`/`.jbf` files went;
+  `tools/validate_assets.py` joined CI and immediately caught real breaks
+  (`vidmemC.wrf` referenced six texture pages that never existed — the Kevlar
+  campaign would have fataled on load).
+- **B — manifests.** `Neuron::Json` (hand-written strict RFC 8259, tests in
+  `NeuronCoreTest`) and `GameData/datasets.json` replaced the WRF grammar,
+  the `.lev` parser, the 84 `.wrf` files and `GameDesc.lev`;
+  `Outpost/Manifest.cpp` replays a unit as the same resource-load calls the
+  grammar actions made.
+- **C — tables.** The 133 stats/message `.txt` tables became JSON, proven by
+  token-level round-trip before the sources were deleted; the loaders fetch
+  fields by name through `Outpost/StatsTable` (missing field = fatal, where
+  `sscanf` zero-filled silently); array order still derives the `REF_*`
+  numbers.
+- **D — the small wins.** The `.ani` scripts, `anim.cfg` and the audio
+  configs became JSON and the generated MKS `audp_` lex/yacc parser left the
+  tree; binary `keymap.map` (invalidated by a build-time stamp on every
+  rebuild) became `keymap.json` with named function bindings.
+
+The constraint the save/load removal left — *the shipped level formats (v≤8)
+stay readable* — is untouched: `.gam`/`.bjo` and the media formats were
+explicitly out of scope. Like everything since Phase 2 this is
+built-and-verified work, not run work; a campaign and a skirmish load are
+what a Windows run must confirm.
 
 ## Verification
 
@@ -1146,6 +1182,12 @@ This is a **proxy, not MSVC**. GCC is stricter in some places, MSVC under
 Mplayer and WINSTR are 32-bit MSVC binaries). It reliably catches the portable
 C++ issues, which is what Phase 1 is about, but a real `msbuild` remains the
 final word.
+
+Two content checkers run ahead of the build in CI: `tools/check_case.py`
+(every include and project entry must match the on-disk filename case) and,
+since the asset-pipeline work, `tools/validate_assets.py` (the JSON manifests
+and tables cross-referenced against the shipped data — file existence, name
+joins, model and sound references).
 
 Current state: both Win32 configurations built and linked under MSVC as of
 the end of Phase 6's first half. Treat the cross-check as a fast first pass,

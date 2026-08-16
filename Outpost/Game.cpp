@@ -452,7 +452,6 @@ static SDWORD startX, startY;
 static UDWORD width, height;
 static UDWORD gameType;
 static BOOL IsScenario;
-static BOOL LoadGameFromWDG;
 /***************************************************************************/
 /*
  *	Local ProtoTypes
@@ -607,27 +606,7 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem)
 
   //before loading the data - turn power off so don't get any power low warnings
   powerCalculated = FALSE;
-  /* Load in the chosen file data */
-  /*#ifdef WIN32
-    pFileData = DisplayBuffer;
-    if (!loadFileToBuffer(aFileName, pFileData, displayBufferSize, &fileSize))
-    {
-      DBPRINTF(("loadgame: Fail2\n"));
-      goto error;
-    }
-  #else
-    if (loadFileFromWDG(aFileName,&pFileData,&fileSize,WDG_USESUPPLIED)!=WDG_OK)
-    {
-      DBPRINTF(("loadgame: Fail3\n"));
-      goto error;
-    }
-  #endif
-    if (!gameLoad(pFileData, fileSize))
-    {
-      DBPRINTF(("loadgame: Fail4\n"));
-      goto error;
-    }
-  */
+
   strcpy(aFileName, pGameToLoad);
   fileExten = strlen(aFileName) - 3; // hack - !
   aFileName[fileExten - 1] = '\0';

@@ -23,6 +23,8 @@
 #include "Map.h"
 #include "MultiPlay.h"
 
+#include "Json.h"
+
 //max number of text strings or sequences for viewdata
 #define MAX_DATA		4
 
@@ -422,6 +424,73 @@ BOOL addToViewDataList(VIEWDATA* psViewData, UBYTE numData)
   return FALSE;
 }
 
+/* Field access on a view data JSON record; all fatal on a missing field or
+   a wrong kind - a short record is a data error, not a default. */
+static const Neuron::Json* ViewDataField(const Neuron::Json& _record, const char* _field, Neuron::Json::Kind _kind)
+{
+  const Neuron::Json* field = _record.Find(_field);
+  if (field == nullptr)
+  {
+    Neuron::Fatal("messages: missing field {}", _field);
+    return nullptr;
+  }
+  if (field->Type() != _kind)
+  {
+    Neuron::Fatal("messages: field {} has the wrong kind", _field);
+    return nullptr;
+  }
+  return field;
+}
+
+static BOOL ViewDataText(const Neuron::Json& _record, const char* _field, STRING* _out, UDWORD _outSize)
+{
+  const Neuron::Json* field = ViewDataField(_record, _field, Neuron::Json::Kind::String);
+  if (field == nullptr)
+    return FALSE;
+  if (field->AsString().size() >= _outSize)
+  {
+    Neuron::Fatal("messages: field {} is too long", _field);
+    return FALSE;
+  }
+  strcpy(_out, field->AsString().c_str());
+  return TRUE;
+}
+
+static BOOL ViewDataTextItem(const Neuron::Json& _list, UDWORD _index, STRING* _out, UDWORD _outSize)
+{
+  const Neuron::Json& item = _list.Item(_index);
+  if (!item.IsString())
+  {
+    Neuron::Fatal("messages: a text id must be a string");
+    return FALSE;
+  }
+  if (item.AsString().size() >= _outSize)
+  {
+    Neuron::Fatal("messages: a text id is too long");
+    return FALSE;
+  }
+  strcpy(_out, item.AsString().c_str());
+  return TRUE;
+}
+
+static BOOL ViewDataNumber(const Neuron::Json& _record, const char* _field, SDWORD* _out)
+{
+  const Neuron::Json* field = ViewDataField(_record, _field, Neuron::Json::Kind::Number);
+  if (field == nullptr)
+    return FALSE;
+  *_out = static_cast<SDWORD>(field->AsInt());
+  return TRUE;
+}
+
+static BOOL ViewDataNumber(const Neuron::Json& _record, const char* _field, UDWORD* _out)
+{
+  const Neuron::Json* field = ViewDataField(_record, _field, Neuron::Json::Kind::Number);
+  if (field == nullptr)
+    return FALSE;
+  *_out = static_cast<UDWORD>(field->AsInt());
+  return TRUE;
+}
+
 /*load the view data for the messages from the file */
 VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
 {
@@ -433,9 +502,19 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
   STRING audioName[MAX_STR_LENGTH];
   SDWORD LocX, LocY, LocZ, proxType, audioID;
 
-  //keep the start so we release it at the end
+  auto parsed = Neuron::Json::Parse(std::string_view(reinterpret_cast<char*>(pViewMsgData), bufferSize));
+  if (!parsed.has_value())
+  {
+    Neuron::Fatal("messages: parse error at line {} column {}: {}", parsed.error().line, parsed.error().column, parsed.error().message);
+    return nullptr;
+  }
+  if (!parsed->IsArray())
+  {
+    Neuron::Fatal("messages: a view data file must be a JSON array");
+    return nullptr;
+  }
 
-  numData = numCR((UBYTE*)pViewMsgData, bufferSize);
+  numData = static_cast<UDWORD>(parsed->Size());
   if (numData > UBYTE_MAX)
   {
     Neuron::Fatal("loadViewData: Didn't expect 256 viewData messages!");
@@ -459,13 +538,17 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
   for (i = 0; i < numData; i++)
   {
     UDWORD numText;
+    const Neuron::Json& record = parsed->Item(i);
 
     memset(psViewData, 0, sizeof(VIEWDATA));
 
-    name[0] = '\0';
-
-    //read the data into the storage - the data is delimeted using comma's
-    sscanf1(&pViewMsgData, "%[^','],%d,", &name, &numText);
+    //read the data into the storage
+    if (!ViewDataText(record, "name", name, sizeof(name)))
+      return nullptr;
+    const Neuron::Json* textIds = ViewDataField(record, "textIds", Neuron::Json::Kind::Array);
+    if (textIds == nullptr)
+      return nullptr;
+    numText = static_cast<UDWORD>(textIds->Size());
 
     //check not loading up too many text strings
     if (numText > MAX_DATA)
@@ -490,8 +573,8 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
     //read in the data for the text strings
     for (dataInc = 0; dataInc < psViewData->numText; dataInc++)
     {
-      name[0] = '\0';
-      sscanf1(&pViewMsgData, "%[^','],", &name);
+      if (!ViewDataTextItem(*textIds, dataInc, name, sizeof(name)))
+        return nullptr;
 
       //get the ID for the string
       if (!strresGetIDNum(psStringRes, name, &id))
@@ -503,7 +586,12 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
       psViewData->ppTextMsg[dataInc] = strresGetString(psStringRes, id);
     }
 
-    sscanf1(&pViewMsgData, "%d,", &psViewData->type);
+    {
+      const Neuron::Json* type = ViewDataField(record, "type", Neuron::Json::Kind::Number);
+      if (type == nullptr)
+        return nullptr;
+      psViewData->type = static_cast<VIEW_TYPE>(type->AsInt());
+    }
 
     //allocate data according to type
     switch (psViewData->type)
@@ -515,12 +603,16 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
         Neuron::Fatal("Unable to allocate memory");
         return nullptr;
       }
-      imdName[0] = '\0';
-      imdName2[0] = '\0';
-      string[0] = '\0';
-      audioName[0] = '\0';
-      //sscanf(pViewMsgData, "%[^','],%[^','],%[^','],%[^','],%d", 
-      sscanf1(&pViewMsgData, "%[^','],%[^','],%[^','],%[^','],%d,", &imdName, &imdName2, &string, &audioName, &numFrames);
+      if (!ViewDataText(record, "model", imdName, sizeof(imdName)))
+        return nullptr;
+      if (!ViewDataText(record, "model2", imdName2, sizeof(imdName2)))
+        return nullptr;
+      if (!ViewDataText(record, "sequence", string, sizeof(string)))
+        return nullptr;
+      if (!ViewDataText(record, "audio", audioName, sizeof(audioName)))
+        return nullptr;
+      if (!ViewDataNumber(record, "numFrames", &numFrames))
+        return nullptr;
       psViewRes = static_cast<VIEW_RESEARCH*>(psViewData->pData);
       psViewRes->pIMD = static_cast<iIMDShape*>(resGetData("IMD", imdName));
       if (psViewRes->pIMD == nullptr)
@@ -570,95 +662,117 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
       psViewReplay = static_cast<VIEW_REPLAY*>(psViewData->pData);
 
       //read in number of sequences for this message
-      sscanf1(&pViewMsgData, "%d,", &count);
-
-      if (count > MAX_DATA)
       {
-        Neuron::Fatal("loadViewData: too many sequence for {}", psViewData->pName);
-        return nullptr;
-      }
+        const Neuron::Json* sequences = ViewDataField(record, "sequences", Neuron::Json::Kind::Array);
+        if (sequences == nullptr)
+          return nullptr;
+        count = static_cast<UDWORD>(sequences->Size());
 
-      psViewReplay->numSeq = static_cast<UBYTE>(count);
-
-      //allocate space for the sequences
-      psViewReplay->pSeqList = new (std::nothrow) SEQ_DISPLAY[psViewReplay->numSeq];
-
-      //read in the data for the sequences
-      for (dataInc = 0; dataInc < psViewReplay->numSeq; dataInc++)
-      {
-        name[0] = '\0';
-        //load extradat for extended type only
-        if (psViewData->type == VIEW_RPL)
+        if (count > MAX_DATA)
         {
-          sscanf1(&pViewMsgData, "%[^','],%d,", &name, &count);
-          if (count > MAX_DATA)
+          Neuron::Fatal("loadViewData: too many sequence for {}", psViewData->pName);
+          return nullptr;
+        }
+
+        psViewReplay->numSeq = static_cast<UBYTE>(count);
+
+        //allocate space for the sequences
+        psViewReplay->pSeqList = new (std::nothrow) SEQ_DISPLAY[psViewReplay->numSeq];
+
+        //read in the data for the sequences
+        for (dataInc = 0; dataInc < psViewReplay->numSeq; dataInc++)
+        {
+          const Neuron::Json& sequence = sequences->Item(dataInc);
+          if (!sequence.IsObject())
           {
-            Neuron::Fatal("loadViewData: too many strings for {}", psViewData->pName);
+            Neuron::Fatal("messages: a sequence must be an object");
             return nullptr;
           }
-          psViewReplay->pSeqList[dataInc].numText = static_cast<UBYTE>(count);
-          //set the flag to default
-          psViewReplay->pSeqList[dataInc].flag = 0;
-        }
-        else //extended type
-        {
-          sscanf1(&pViewMsgData, "%[^','],%d,%d,", &name, &count, &count2);
-          if (count > MAX_DATA)
-          {
-            Neuron::Fatal("loadViewData: invalid video playback flag {}", psViewData->pName);
-            return nullptr;
-          }
-          psViewReplay->pSeqList[dataInc].flag = static_cast<UBYTE>(count);
-          //check not loading up too many text strings
-          if (count2 > MAX_DATA)
-          {
-            Neuron::Fatal("loadViewData: too many text strings for seq for {}", psViewData->pName);
-            return nullptr;
-          }
-          psViewReplay->pSeqList[dataInc].numText = static_cast<UBYTE>(count2);
-        }
-        strcpy(psViewReplay->pSeqList[dataInc].sequenceName, name);
 
-        //get the text strings for this sequence - if any
-        //allocate space for text strings
-        if (psViewReplay->pSeqList[dataInc].numText)
-        {
-          psViewReplay->pSeqList[dataInc].ppTextMsg = new (std::nothrow) STRING*[psViewReplay->pSeqList[dataInc].numText];
-        }
-        //read in the data for the text strings
-        for (seqInc = 0; seqInc < psViewReplay->pSeqList[dataInc].numText; seqInc++)
-        {
-          name[0] = '\0';
-          sscanf1(&pViewMsgData, "%[^','],", &name);
-          //get the ID for the string
-          if (!strresGetIDNum(psStringRes, name, &id))
-          {
-            Neuron::Fatal("Cannot find the view data string id {} ", name);
+          if (!ViewDataText(sequence, "name", name, sizeof(name)))
             return nullptr;
-          }
-          //get the string from the id
-          psViewReplay->pSeqList[dataInc].ppTextMsg[seqInc] = strresGetString(psStringRes, id);
-        }
-        //get the audio text string
-        sscanf1(&pViewMsgData, "%[^','], %d,", &audioName, &count);
-
-        DEBUG_ASSERT_TEXT(count < UWORD_MAX, "loadViewData: numFrames too high for {}", name);
-
-        psViewReplay->pSeqList[dataInc].numFrames = static_cast<UWORD>(count);
-
-        if (strcmp(audioName, "0"))
-        {
-          //allocate space
-          psViewReplay->pSeqList[dataInc].pAudio = new (std::nothrow) STRING[strlen(audioName) + 1];
-          if (psViewReplay->pSeqList[dataInc].pAudio == nullptr)
-          {
-            Neuron::Fatal("loadViewData - Out of memory");
+          const Neuron::Json* seqTextIds = ViewDataField(sequence, "textIds", Neuron::Json::Kind::Array);
+          if (seqTextIds == nullptr)
             return nullptr;
+
+          //load extradat for extended type only
+          if (psViewData->type == VIEW_RPL)
+          {
+            count = static_cast<UDWORD>(seqTextIds->Size());
+            if (count > MAX_DATA)
+            {
+              Neuron::Fatal("loadViewData: too many strings for {}", psViewData->pName);
+              return nullptr;
+            }
+            psViewReplay->pSeqList[dataInc].numText = static_cast<UBYTE>(count);
+            //set the flag to default
+            psViewReplay->pSeqList[dataInc].flag = 0;
           }
-          strcpy(psViewReplay->pSeqList[dataInc].pAudio, audioName);
+          else //extended type
+          {
+            if (!ViewDataNumber(sequence, "flag", &count))
+              return nullptr;
+            if (count > MAX_DATA)
+            {
+              Neuron::Fatal("loadViewData: invalid video playback flag {}", psViewData->pName);
+              return nullptr;
+            }
+            psViewReplay->pSeqList[dataInc].flag = static_cast<UBYTE>(count);
+            count2 = static_cast<UDWORD>(seqTextIds->Size());
+            //check not loading up too many text strings
+            if (count2 > MAX_DATA)
+            {
+              Neuron::Fatal("loadViewData: too many text strings for seq for {}", psViewData->pName);
+              return nullptr;
+            }
+            psViewReplay->pSeqList[dataInc].numText = static_cast<UBYTE>(count2);
+          }
+          strcpy(psViewReplay->pSeqList[dataInc].sequenceName, name);
+
+          //get the text strings for this sequence - if any
+          //allocate space for text strings
+          if (psViewReplay->pSeqList[dataInc].numText)
+          {
+            psViewReplay->pSeqList[dataInc].ppTextMsg = new (std::nothrow) STRING*[psViewReplay->pSeqList[dataInc].numText];
+          }
+          //read in the data for the text strings
+          for (seqInc = 0; seqInc < psViewReplay->pSeqList[dataInc].numText; seqInc++)
+          {
+            if (!ViewDataTextItem(*seqTextIds, seqInc, name, sizeof(name)))
+              return nullptr;
+            //get the ID for the string
+            if (!strresGetIDNum(psStringRes, name, &id))
+            {
+              Neuron::Fatal("Cannot find the view data string id {} ", name);
+              return nullptr;
+            }
+            //get the string from the id
+            psViewReplay->pSeqList[dataInc].ppTextMsg[seqInc] = strresGetString(psStringRes, id);
+          }
+          //get the audio text string
+          if (!ViewDataText(sequence, "audio", audioName, sizeof(audioName)))
+            return nullptr;
+          if (!ViewDataNumber(sequence, "numFrames", &count))
+            return nullptr;
+
+          DEBUG_ASSERT_TEXT(count < UWORD_MAX, "loadViewData: numFrames too high for {}", name);
+
+          psViewReplay->pSeqList[dataInc].numFrames = static_cast<UWORD>(count);
+
+          if (strcmp(audioName, "0"))
+          {
+            //allocate space
+            psViewReplay->pSeqList[dataInc].pAudio = new (std::nothrow) STRING[strlen(audioName) + 1];
+            if (psViewReplay->pSeqList[dataInc].pAudio == nullptr)
+            {
+              Neuron::Fatal("loadViewData - Out of memory");
+              return nullptr;
+            }
+            strcpy(psViewReplay->pSeqList[dataInc].pAudio, audioName);
+          }
+          else
+            psViewReplay->pSeqList[dataInc].pAudio = nullptr;
         }
-        else
-          psViewReplay->pSeqList[dataInc].pAudio = nullptr;
       }
       psViewData->type = VIEW_RPL; //no longer need to know if it is extended type
       break;
@@ -671,8 +785,16 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
         return nullptr;
       }
 
-      audioName[0] = '\0';
-      sscanf1(&pViewMsgData, "%d,%d,%d,%[^','],%d", &LocX, &LocY, &LocZ, &audioName, &proxType);
+      if (!ViewDataNumber(record, "x", &LocX))
+        return nullptr;
+      if (!ViewDataNumber(record, "y", &LocY))
+        return nullptr;
+      if (!ViewDataNumber(record, "z", &LocZ))
+        return nullptr;
+      if (!ViewDataText(record, "audio", audioName, sizeof(audioName)))
+        return nullptr;
+      if (!ViewDataNumber(record, "proxType", &proxType))
+        return nullptr;
 
       //allocate audioID
       if (strcmp(audioName, "0") == 0)
@@ -723,8 +845,6 @@ VIEWDATA* loadViewData(SBYTE* pViewMsgData, UDWORD bufferSize)
     default: Neuron::Fatal("Unknown ViewData type");
       return nullptr;
     }
-    //increment the pointer to the start of the next record
-    pViewMsgData = strchr(pViewMsgData, '\n') + 1;
     //increment the list to the start of the next storage block
     psViewData++;
   }

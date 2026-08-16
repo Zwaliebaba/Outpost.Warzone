@@ -1,0 +1,2431 @@
+[
+ {
+  "file": "Beep1.wav",
+  "loop": false,
+  "volume": 30,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Beep2.wav",
+  "loop": false,
+  "volume": 30,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Beep4.wav",
+  "loop": false,
+  "volume": 15,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Beep5.wav",
+  "loop": false,
+  "volume": 30,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Beep6.wav",
+  "loop": false,
+  "volume": 30,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Beep7.wav",
+  "loop": false,
+  "volume": 30,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Beep8.wav",
+  "loop": false,
+  "volume": 30,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Beep9.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "GmeShtDn.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "PCV331.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV332.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV333.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV334.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV335.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV336.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV337.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV339.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV340.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV341.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV342.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV343.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV344.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV345.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV346.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV347.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV348.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV349.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV350.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV351.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV352.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV353.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV354.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV355.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV356.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV357.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV358.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV359.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV360.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV361.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV362.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV363.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV364.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV365.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV366.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV367.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV368.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV369.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV370.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV371.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV372.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV373.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV374.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV375.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV376.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV377.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV378.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV379.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV380.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV381.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV382.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV383.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV384.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV385.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV386.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV387.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV388.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV389.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV390.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV391.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV392.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV393.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV394.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV395.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV396.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV397.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV398.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV399.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV400.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV401.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV402.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV403.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV404.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV405.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV406.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV407.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV408.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV409.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV410.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV411.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV412.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV413.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV414.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV415.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV416.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV417.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV418.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV419.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV420.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV421.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV422.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV423.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV424.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV425.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV426.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV427.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV428.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV429.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV430.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV431.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV432.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV433.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV434.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV435.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV436.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV437.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV438.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV439.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV440.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV441.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV442.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV443.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV444.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV445.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "LZ-clear.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV446.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV447.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV448.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV449.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV450.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV451.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV452.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV453.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV454.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV455.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV456.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV458.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV459.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV460.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV461.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV462.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV463.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV464.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV465.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV466.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV467.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV468.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV469.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV470.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV471.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV472.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV473.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV474.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV475.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV476.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV477.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV478.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV479.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV480.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV481.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV482.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV483.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV484.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV485.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "PCV486.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "Group.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "9.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "8.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "7.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "6.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "5.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "4.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "3.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "2.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "1.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "0.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "Reprting.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "Commnder.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "COM021.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "COM022.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "COM023.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "COM024.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "COM025.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "COM026.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "COM027.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "COM028.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "COM029.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "COM030.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "COM031.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "COM032.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "COM033.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "COM034.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "COM035.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "COM036.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "COM037.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "COM038.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "COM039.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "COM040.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "COM041.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "RadClik1.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "RadClik2.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "RadClik3.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "RadClik4.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "RadClik5.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "RadClik6.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "T-AproLZ.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "T-ARBoys.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "T-GrnLi5.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "T-GrnLi4.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "T-GrnLi3.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "T-GrnLi2.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "T-GoGoGo.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "T-DustOf.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "V-Eloc1.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "V-OnWay1.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "V-RetBa1.Wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "V-LocOn1.Wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "V-AtkRn1.Wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "V-AbtRn1.Wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "V-Eloc2.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "V-OnWay2.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "V-RetBa2.Wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "V-LocOn2.Wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "V-AtkRn2.Wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "V-AbtRn2.Wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "V-Eloc3.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "V-OnWay3.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "V-RetBa3.Wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "V-LocOn3.Wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "V-AtkRn3.Wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "V-AbtRn3.Wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "COl011a.Wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "COl012a.Wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "COl013a.Wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "COl014a.Wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "COl015a.Wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "COl016a.Wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "COl017a.Wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "COl018a.Wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "COl019a.Wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "COl020a.Wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 2,
+  "radius": 1800
+ },
+ {
+  "file": "rocket.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "RotLsr.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "GaussGun.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "LrgCan.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "SmlCan.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "MedCan.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "FlmThrow.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "PlsLsr.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "BemLsr.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Mortar.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "HwtzFlgt.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "MgBar1.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "MgBar2.wav",
+  "loop": false,
+  "volume": 70,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "MgBar3.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "MgHeavy.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "MgTower.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Splash.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "AsltMG.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "RapdCan.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "HiVelCan.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "NxsTower.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Weld-1.wav",
+  "loop": false,
+  "volume": 20,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Weld-2.wav",
+  "loop": false,
+  "volume": 20,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "BldStart.wav",
+  "loop": false,
+  "volume": 20,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "BldLoop.wav",
+  "loop": true,
+  "volume": 20,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Build1.wav",
+  "loop": false,
+  "volume": 20,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Build2.wav",
+  "loop": false,
+  "volume": 20,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Build3.wav",
+  "loop": false,
+  "volume": 20,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Build4.wav",
+  "loop": false,
+  "volume": 20,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "SmlExpl.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "LsrExpl.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "LrgExpl.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "ATnkExpl.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Richet1.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Richet2.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Richet3.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Squish.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "BldFall.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "NxsExpld.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Con-Move Off.wav",
+  "loop": false,
+  "volume": 15,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Con-Move.wav",
+  "loop": true,
+  "volume": 15,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Con-Shut down.wav",
+  "loop": false,
+  "volume": 15,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "TFlight.wav",
+  "loop": true,
+  "volume": 30,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "THover.wav",
+  "loop": true,
+  "volume": 30,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "TLand.wav",
+  "loop": false,
+  "volume": 30,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "TStart.wav",
+  "loop": false,
+  "volume": 30,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "VtolLand.wav",
+  "loop": false,
+  "volume": 15,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "VtolOff.wav",
+  "loop": false,
+  "volume": 15,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Vtol-Move.wav",
+  "loop": true,
+  "volume": 15,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Tread.wav",
+  "loop": true,
+  "volume": 15,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "HovMove.wav",
+  "loop": true,
+  "volume": 15,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "HovStart.wav",
+  "loop": false,
+  "volume": 15,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "HovStop.wav",
+  "loop": false,
+  "volume": 15,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Cyber-Move.wav",
+  "loop": true,
+  "volume": 15,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "OilPump.wav",
+  "loop": true,
+  "volume": 20,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "PowerHum.wav",
+  "loop": true,
+  "volume": 20,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "PowerSpk.wav",
+  "loop": false,
+  "volume": 20,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Steam.wav",
+  "loop": false,
+  "volume": 20,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "ECMTower.wav",
+  "loop": false,
+  "volume": 20,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "FreRoar.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Help.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Scream.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Scream2.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Scream3.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Scream4.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Silence.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "LndgZne.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Pcv652.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Pcv653.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Pcv654.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Pcv655.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Pcv656.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "NmeDeted.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Pcv611.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Pcv612.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Pcv613.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Pcv615.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Pcv616.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Pcv618.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Pcv621.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Pcv622.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Pcv623.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Pcv625.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Pcv629.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Pcv631.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Pcv632.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Pcv633.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Pcv635.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Pcv636.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Pcv637.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Pcv638.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Pcv639.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Pcv640.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Pcv650.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Pcv657.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "DefAbsrd.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "DefNut.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Laugh1.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Laugh2.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "Laugh3.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "PordComp.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "ResAbsrd.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "StrutAbs.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "StrutNut.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "SynpLnk.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "UntAbsrd.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ },
+ {
+  "file": "UntNut.wav",
+  "loop": false,
+  "volume": 100,
+  "priority": 1,
+  "radius": 1800
+ }
+]

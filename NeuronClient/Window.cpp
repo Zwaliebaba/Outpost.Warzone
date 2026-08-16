@@ -23,7 +23,6 @@
 #include "FrameResource.h"
 #include "Trig.h"
 #include "FrameInt.h"
-#include "WDG.h"
 
 #include <assert.h>
 

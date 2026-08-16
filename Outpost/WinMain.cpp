@@ -36,8 +36,6 @@
 #include "TexMan.h"
 #include "Game.h"
 #include "Lighting.h"
-#include "WDG.h"
-#include "MultiWDG.h"
 #include "Palette.h"
 
 // Warzone 2100 . Pumpkin Studios
@@ -133,8 +131,6 @@ init: //jump here from the end if re_initialising
 
   if (!frameInitialise(hInstance, "Warzone 2100", DISP_WIDTH,DISP_HEIGHT, dispBitDepth, !clStartWindowed, bVidMem))
     return -1;
-  if (!wdgLoadAllWDGCatalogs())
-    return -1;
 
   pie_SetFogStatus(FALSE);
   pie_ScreenFlip(CLEAR_BLACK);
@@ -186,7 +182,7 @@ init: //jump here from the end if re_initialising
     case GS_TITLE_SCREEN:
       screen_RestartBackDrop();
 
-      if (!frontendInitialise("wrf\\frontend.wrf"))
+      if (!frontendInitialise("wrf/frontend"))
         goto exit;
 
       frontendInitialised = TRUE;

@@ -1,0 +1,542 @@
+[
+ {
+  "weapon": "MG1Mk1",
+  "fireSound": "MgBar2.wav",
+  "impactSound": "-1",
+  "dummy": 160
+ },
+ {
+  "weapon": "MG2Mk1",
+  "fireSound": "MgBar3.wav",
+  "impactSound": "-1",
+  "dummy": 161
+ },
+ {
+  "weapon": "MG3Mk1",
+  "fireSound": "MgHeavy.wav",
+  "impactSound": "-1",
+  "dummy": 162
+ },
+ {
+  "weapon": "MG1-Pillbox",
+  "fireSound": "MgBar2.wav",
+  "impactSound": "-1",
+  "dummy": 163
+ },
+ {
+  "weapon": "MG4ROTARYMk1",
+  "fireSound": "AsltMG.wav",
+  "impactSound": "-1",
+  "dummy": 164
+ },
+ {
+  "weapon": "BaBaCannon",
+  "fireSound": "SmlCan.wav",
+  "impactSound": "SmlExpl.wav",
+  "dummy": 165
+ },
+ {
+  "weapon": "BaBaMG",
+  "fireSound": "MgBar1.wav",
+  "impactSound": "-1",
+  "dummy": 166
+ },
+ {
+  "weapon": "BabaRocket",
+  "fireSound": "rocket.wav",
+  "impactSound": "rocket.wav",
+  "dummy": 167
+ },
+ {
+  "weapon": "BJeepMG",
+  "fireSound": "MgBar2.wav",
+  "impactSound": "-1",
+  "dummy": 168
+ },
+ {
+  "weapon": "BTowerMG",
+  "fireSound": "MgTower.wav",
+  "impactSound": "-1",
+  "dummy": 169
+ },
+ {
+  "weapon": "bTrikeMG",
+  "fireSound": "MgBar3.wav",
+  "impactSound": "-1",
+  "dummy": 170
+ },
+ {
+  "weapon": "BuggyMG",
+  "fireSound": "MgBar2.wav",
+  "impactSound": "-1",
+  "dummy": 171
+ },
+ {
+  "weapon": "Cannon1Mk1",
+  "fireSound": "SmlCan.wav",
+  "impactSound": "SmlExpl.wav",
+  "dummy": 172
+ },
+ {
+  "weapon": "Cannon2A-TMk1",
+  "fireSound": "MedCan.wav",
+  "impactSound": "SmlExpl.wav",
+  "dummy": 173
+ },
+ {
+  "weapon": "Cannon375mmMk1",
+  "fireSound": "LrgCan.wav",
+  "impactSound": "LrgExpl.wav",
+  "dummy": 174
+ },
+ {
+  "weapon": "Cannon4AUTOMk1",
+  "fireSound": "HiVelCan.wav",
+  "impactSound": "SmlExpl.wav",
+  "dummy": 175
+ },
+ {
+  "weapon": "Cannon5Vulcan-VTOL",
+  "fireSound": "RapdCan.wav",
+  "impactSound": "SmlExpl.wav",
+  "dummy": 176
+ },
+ {
+  "weapon": "CyborgCannon",
+  "fireSound": "SmlCan.wav",
+  "impactSound": "SmlExpl.wav",
+  "dummy": 177
+ },
+ {
+  "weapon": "CyborgChaingun",
+  "fireSound": "MgBar2.wav",
+  "impactSound": "-1",
+  "dummy": 178
+ },
+ {
+  "weapon": "Flame1Mk1",
+  "fireSound": "FlmThrow.wav",
+  "impactSound": "-1",
+  "dummy": 179
+ },
+ {
+  "weapon": "Flame2",
+  "fireSound": "FlmThrow.wav",
+  "impactSound": "-1",
+  "dummy": 180
+ },
+ {
+  "weapon": "Howitzer03-Rot",
+  "fireSound": "LrgCan.wav",
+  "impactSound": "LrgExpl.wav",
+  "dummy": 183
+ },
+ {
+  "weapon": "Laser3BEAMMk1",
+  "fireSound": "BemLsr.wav",
+  "impactSound": "LsrExpl.wav",
+  "dummy": 185
+ },
+ {
+  "weapon": "Laser2PULSEMk1",
+  "fireSound": "PlsLsr.wav",
+  "impactSound": "LsrExpl.wav",
+  "dummy": 186
+ },
+ {
+  "weapon": "Missile-A-T",
+  "fireSound": "rocket.wav",
+  "impactSound": "SmlExpl.wav",
+  "dummy": 189
+ },
+ {
+  "weapon": "Missile-MdArt",
+  "fireSound": "rocket.wav",
+  "impactSound": "LrgExpl.wav",
+  "dummy": 190
+ },
+ {
+  "weapon": "Missile-HvySAM",
+  "fireSound": "rocket.wav",
+  "impactSound": "LrgExpl.wav",
+  "dummy": 191
+ },
+ {
+  "weapon": "Missile-HvyArt",
+  "fireSound": "rocket.wav",
+  "impactSound": "LrgExpl.wav",
+  "dummy": 192
+ },
+ {
+  "weapon": "Mortar1Mk1",
+  "fireSound": "mortar.wav",
+  "impactSound": "LrgExpl.wav",
+  "dummy": 193
+ },
+ {
+  "weapon": "Mortar3ROTARYMk1",
+  "fireSound": "mortar.wav",
+  "impactSound": "LrgExpl.wav",
+  "dummy": 195
+ },
+ {
+  "weapon": "RailGun1Mk1",
+  "fireSound": "GaussGun.wav",
+  "impactSound": "GaussGun.wav",
+  "dummy": 196
+ },
+ {
+  "weapon": "RailGun2Mk1",
+  "fireSound": "GaussGun.wav",
+  "impactSound": "LrgExpl.wav",
+  "dummy": 197
+ },
+ {
+  "weapon": "RailGun3Mk1",
+  "fireSound": "GaussGun.wav",
+  "impactSound": "LrgExpl.wav",
+  "dummy": 198
+ },
+ {
+  "weapon": "Rocket-LtA-T",
+  "fireSound": "rocket.wav",
+  "impactSound": "SmlExpl.wav",
+  "dummy": 199
+ },
+ {
+  "weapon": "Rocket-MRL",
+  "fireSound": "rocket.wav",
+  "impactSound": "LrgExpl.wav",
+  "dummy": 200
+ },
+ {
+  "weapon": "Rocket-BB",
+  "fireSound": "rocket.wav",
+  "impactSound": "SmlExpl.wav",
+  "dummy": 201
+ },
+ {
+  "weapon": "Rocket-Pod",
+  "fireSound": "rocket.wav",
+  "impactSound": "SmlExpl.wav",
+  "dummy": 203
+ },
+ {
+  "weapon": "TUTMG",
+  "fireSound": "MgBar1.wav",
+  "impactSound": "-1",
+  "dummy": 204
+ },
+ {
+  "weapon": "CyborgRocket",
+  "fireSound": "rocket.wav",
+  "impactSound": "LrgExpl.wav",
+  "dummy": 205
+ },
+ {
+  "weapon": "BusCannon",
+  "fireSound": "SmlCan.wav",
+  "impactSound": "SmlExpl.wav",
+  "dummy": 206
+ },
+ {
+  "weapon": "BabaPitRocket",
+  "fireSound": "rocket.wav",
+  "impactSound": "LrgExpl.wav",
+  "dummy": 207
+ },
+ {
+  "weapon": "CyborgFlamer01",
+  "fireSound": "FlmThrow.wav",
+  "impactSound": "-1",
+  "dummy": 208
+ },
+ {
+  "weapon": "AAGun2Mk1",
+  "fireSound": "MedCan.wav",
+  "impactSound": "LrgExpl.wav",
+  "dummy": 210
+ },
+ {
+  "weapon": "PlasmaHeavy",
+  "fireSound": "MedCan.wav",
+  "impactSound": "LrgExpl.wav",
+  "dummy": 212
+ },
+ {
+  "weapon": "MG2-Pillbox",
+  "fireSound": "MgBar3.wav",
+  "impactSound": "-1",
+  "dummy": 214
+ },
+ {
+  "weapon": "MG3-Pillbox",
+  "fireSound": "MgHeavy.wav",
+  "impactSound": "-1",
+  "dummy": 215
+ },
+ {
+  "weapon": "CommandTurret1",
+  "fireSound": "RotLsr.wav",
+  "impactSound": "-1",
+  "dummy": 216
+ },
+ {
+  "weapon": "SpyTurret01",
+  "fireSound": "RotLsr.wav",
+  "impactSound": "-1",
+  "dummy": 217
+ },
+ {
+  "weapon": "BabaPitRocketAT",
+  "fireSound": "rocket.wav",
+  "impactSound": "SmlExpl.wav",
+  "dummy": 218
+ },
+ {
+  "weapon": "QuadMg1AAGun",
+  "fireSound": "MgBar2.wav",
+  "impactSound": "SmlExpl.wav",
+  "dummy": 219
+ },
+ {
+  "weapon": "QuadRotAAGun",
+  "fireSound": "AsltMG.wav",
+  "impactSound": "SmlExpl.wav",
+  "dummy": 220
+ },
+ {
+  "weapon": "BabaFlame",
+  "fireSound": "FlmThrow.wav",
+  "impactSound": "-1",
+  "dummy": 222
+ },
+ {
+  "weapon": "NX-CyborgMiss",
+  "fireSound": "rocket.wav",
+  "impactSound": "SmlExpl.wav",
+  "dummy": 223
+ },
+ {
+  "weapon": "NX-CyborgChaingun",
+  "fireSound": "MgBar2.wav",
+  "impactSound": "-1",
+  "dummy": 224
+ },
+ {
+  "weapon": "NEXUSlink",
+  "fireSound": "NxsTower.wav",
+  "impactSound": "NxsExpld.wav",
+  "dummy": 266
+ },
+ {
+  "weapon": "Cyb-Wpn-Atmiss",
+  "fireSound": "rocket.wav",
+  "impactSound": "SmlExpl.wav",
+  "dummy": 267
+ },
+ {
+  "weapon": "Cyb-Wpn-Laser",
+  "fireSound": "BemLsr.wav",
+  "impactSound": "LsrExpl.wav",
+  "dummy": 268
+ },
+ {
+  "weapon": "Cyb-Wpn-Rail1",
+  "fireSound": "GaussGun.wav",
+  "impactSound": "GaussGun.wav",
+  "dummy": 269
+ },
+ {
+  "weapon": "NX-CyborgPulseLas",
+  "fireSound": "PlsLsr.wav",
+  "impactSound": "LsrExpl.wav",
+  "dummy": 225
+ },
+ {
+  "weapon": "Missile-LtSAM",
+  "fireSound": "rocket.wav",
+  "impactSound": "SmlExpl.wav",
+  "dummy": 226
+ },
+ {
+  "weapon": "Missile-VTOL-AT",
+  "fireSound": "rocket.wav",
+  "impactSound": "SmlExpl.wav",
+  "dummy": 227
+ },
+ {
+  "weapon": "Superweapon",
+  "fireSound": "MgBar2.wav",
+  "impactSound": "-1",
+  "dummy": 229
+ },
+ {
+  "weapon": "Superweapon2",
+  "fireSound": "MgBar2.wav",
+  "impactSound": "-1",
+  "dummy": 230
+ },
+ {
+  "weapon": "Howitzer105Mk1",
+  "fireSound": "LrgCan.wav",
+  "impactSound": "LrgExpl.wav",
+  "dummy": 232
+ },
+ {
+  "weapon": "Mortar2Mk1",
+  "fireSound": "mortar.wav",
+  "impactSound": "LrgExpl.wav",
+  "dummy": 233
+ },
+ {
+  "weapon": "Rocket-IDF",
+  "fireSound": "rocket.wav",
+  "impactSound": "SmlExpl.wav",
+  "dummy": 234
+ },
+ {
+  "weapon": "Rocket-HvyA-T",
+  "fireSound": "rocket.wav",
+  "impactSound": "LrgExpl.wav",
+  "dummy": 235
+ },
+ {
+  "weapon": "Bomb1-VTOL-LtHE",
+  "fireSound": "HwtzFlgt.wav",
+  "impactSound": "LrgExpl.wav",
+  "dummy": 238
+ },
+ {
+  "weapon": "Cannon5VulcanMk1",
+  "fireSound": "RapdCan.wav",
+  "impactSound": "SmlExpl.wav",
+  "dummy": 239
+ },
+ {
+  "weapon": "MG4ROTARY-VTOL",
+  "fireSound": "AsltMG.wav",
+  "impactSound": "-1",
+  "dummy": 240
+ },
+ {
+  "weapon": "Bomb2-VTOL-HvHE",
+  "fireSound": "HwtzFlgt.wav",
+  "impactSound": "LrgExpl.wav",
+  "dummy": 241
+ },
+ {
+  "weapon": "Bomb3-VTOL-LtINC",
+  "fireSound": "HwtzFlgt.wav",
+  "impactSound": "LrgExpl.wav",
+  "dummy": 242
+ },
+ {
+  "weapon": "Bomb4-VTOL-HvyINC",
+  "fireSound": "HwtzFlgt.wav",
+  "impactSound": "LrgExpl.wav",
+  "dummy": 243
+ },
+ {
+  "weapon": "Cannon1-VTOL",
+  "fireSound": "SmlCan.wav",
+  "impactSound": "SmlExpl.wav",
+  "dummy": 244
+ },
+ {
+  "weapon": "Cannon4AUTO-VTOL",
+  "fireSound": "HiVelCan.wav",
+  "impactSound": "SmlExpl.wav",
+  "dummy": 245
+ },
+ {
+  "weapon": "CyborgRotMG",
+  "fireSound": "AsltMG.wav",
+  "impactSound": "-1",
+  "dummy": 246
+ },
+ {
+  "weapon": "Howitzer150Mk1",
+  "fireSound": "LrgCan.wav",
+  "impactSound": "LrgExpl.wav",
+  "dummy": 248
+ },
+ {
+  "weapon": "Laser2PULSE-VTOL",
+  "fireSound": "PlsLsr.wav",
+  "impactSound": "LsrExpl.wav",
+  "dummy": 250
+ },
+ {
+  "weapon": "Laser3BEAM-VTOL",
+  "fireSound": "BemLsr.wav",
+  "impactSound": "LsrExpl.wav",
+  "dummy": 251
+ },
+ {
+  "weapon": "LasSat",
+  "fireSound": "BemLsr.wav",
+  "impactSound": "LsrExpl.wav",
+  "dummy": 252
+ },
+ {
+  "weapon": "MG1-VTOL",
+  "fireSound": "MgBar2.wav",
+  "impactSound": "-1",
+  "dummy": 253
+ },
+ {
+  "weapon": "MG2-VTOL",
+  "fireSound": "MgBar3.wav",
+  "impactSound": "-1",
+  "dummy": 254
+ },
+ {
+  "weapon": "MG3-VTOL",
+  "fireSound": "MgHeavy.wav",
+  "impactSound": "-1",
+  "dummy": 255
+ },
+ {
+  "weapon": "NX-Cyb-Rail1",
+  "fireSound": "GaussGun.wav",
+  "impactSound": "SmlExpl.wav",
+  "dummy": 258
+ },
+ {
+  "weapon": "RailGun1-VTOL",
+  "fireSound": "GaussGun.wav",
+  "impactSound": "SmlExpl.wav",
+  "dummy": 259
+ },
+ {
+  "weapon": "RailGun2-VTOL",
+  "fireSound": "GaussGun.wav",
+  "impactSound": "LrgExpl.wav",
+  "dummy": 260
+ },
+ {
+  "weapon": "Rocket-VTOL-BB",
+  "fireSound": "rocket.wav",
+  "impactSound": "SmlExpl.wav",
+  "dummy": 262
+ },
+ {
+  "weapon": "Rocket-VTOL-HvyA-T",
+  "fireSound": "rocket.wav",
+  "impactSound": "LrgExpl.wav",
+  "dummy": 263
+ },
+ {
+  "weapon": "Rocket-VTOL-LtA-T",
+  "fireSound": "rocket.wav",
+  "impactSound": "SmlExpl.wav",
+  "dummy": 264
+ },
+ {
+  "weapon": "Rocket-VTOL-Pod",
+  "fireSound": "rocket.wav",
+  "impactSound": "SmlExpl.wav",
+  "dummy": 265
+ }
+]

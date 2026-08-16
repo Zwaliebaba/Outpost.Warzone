@@ -1,0 +1,50 @@
+[
+ {
+  "name": "ZNULLREPAIR",
+  "techLevel": "Level All",
+  "buildPower": 0,
+  "buildPoints": 0,
+  "weight": 0,
+  "hitPoints": 0,
+  "systemPoints": 0,
+  "repairArmour": 0,
+  "location": "DEFAULT",
+  "model": "0",
+  "mountModel": "0",
+  "repairPoints": 0,
+  "time": 100,
+  "designable": 0
+ },
+ {
+  "name": "NEXUSrepair",
+  "techLevel": "Level Three",
+  "buildPower": 0,
+  "buildPoints": 0,
+  "weight": 0,
+  "hitPoints": 0,
+  "systemPoints": 0,
+  "repairArmour": 1,
+  "location": "DEFAULT",
+  "model": "0",
+  "mountModel": "0",
+  "repairPoints": 100,
+  "time": 100,
+  "designable": 0
+ },
+ {
+  "name": "LightRepair1",
+  "techLevel": "Level All",
+  "buildPower": 50,
+  "buildPoints": 250,
+  "weight": 800,
+  "hitPoints": 0,
+  "systemPoints": 10,
+  "repairArmour": 0,
+  "location": "TURRET",
+  "model": "GNMREPAR.PIE",
+  "mountModel": "TRMECM1.PIE",
+  "repairPoints": 15,
+  "time": 7,
+  "designable": 1
+ }
+]

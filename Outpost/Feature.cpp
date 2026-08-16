@@ -34,6 +34,7 @@
 #include "MapGrid.h"
 #include "Display3D.h"
 #include "Gateway.h"
+#include "StatsTable.h"
 
 /* The statistics for the features */
 FEATURE_STATS* asFeatureStats;
@@ -133,15 +134,14 @@ void featureType(FEATURE_STATS* psFeature, char* pType)
 /* Load the feature stats */
 BOOL loadFeatureStats(SBYTE* pFeatureData, UDWORD bufferSize)
 {
-  SBYTE* pData;
   FEATURE_STATS* psFeature;
   UDWORD i;
   STRING featureName[MAX_NAME_SIZE], GfxFile[MAX_NAME_SIZE], type[MAX_NAME_SIZE];
+  StatsTable sTable;
 
-  //keep the start so we release it at the end
-  pData = pFeatureData;
-
-  numFeatureStats = numCR((UBYTE*)pFeatureData, bufferSize);
+  if (!StatsTable::Open((UBYTE*)pFeatureData, bufferSize, "Features", sTable))
+    return FALSE;
+  numFeatureStats = sTable.Rows();
 
   asFeatureStats = new (std::nothrow) FEATURE_STATS[numFeatureStats];
 
@@ -157,18 +157,29 @@ BOOL loadFeatureStats(SBYTE* pFeatureData, UDWORD bufferSize)
     UDWORD Width, Breadth;
 
     memset(psFeature, 0, sizeof(FEATURE_STATS));
-    featureName[0] = '\0';
-    GfxFile[0] = '\0';
-    type[0] = '\0';
-    //read the data into the storage - the data is delimeted using comma's
 
-    /*		sscanf(pFeatureData,"%[^','],%d,%d,%d,%d,%d,%[^','],%[^','],%[^','],%[^','],%d,%d,%d",
-          &featureName, &psFeature->baseWidth, &psFeature->baseBreadth,
-          &psFeature->damageable, &psFeature->armour, &psFeature->body, 
-          &GfxFile, &type, &compType, &compName,
-          &psFeature->tileDraw, &psFeature->allowLOS, &psFeature->visibleAtStart);*/
-    sscanf(pFeatureData, "%[^','],%d,%d,%d,%d,%d,%[^','],%[^','],%d,%d,%d", &featureName, &Width, &Breadth, &psFeature->damageable,
-           &psFeature->armour, &psFeature->body, &GfxFile, &type, &psFeature->tileDraw, &psFeature->allowLOS, &psFeature->visibleAtStart);
+    if (!sTable.Text(i, "name", featureName, sizeof(featureName)))
+      return FALSE;
+    if (!sTable.Number(i, "width", &Width))
+      return FALSE;
+    if (!sTable.Number(i, "breadth", &Breadth))
+      return FALSE;
+    if (!sTable.Number(i, "damageable", &psFeature->damageable))
+      return FALSE;
+    if (!sTable.Number(i, "armour", &psFeature->armour))
+      return FALSE;
+    if (!sTable.Number(i, "body", &psFeature->body))
+      return FALSE;
+    if (!sTable.Text(i, "model", GfxFile, sizeof(GfxFile)))
+      return FALSE;
+    if (!sTable.Text(i, "type", type, sizeof(type)))
+      return FALSE;
+    if (!sTable.Number(i, "tileDraw", &psFeature->tileDraw))
+      return FALSE;
+    if (!sTable.Number(i, "allowLOS", &psFeature->allowLOS))
+      return FALSE;
+    if (!sTable.Number(i, "visibleAtStart", &psFeature->visibleAtStart))
+      return FALSE;
 
     // These are now only 16 bits wide - so we need to copy them
     psFeature->baseWidth = static_cast<UWORD>(Width);
@@ -218,8 +229,6 @@ BOOL loadFeatureStats(SBYTE* pFeatureData, UDWORD bufferSize)
 
     psFeature->ref = REF_FEATURE_START + i;
 
-    //increment the pointer to the start of the next record
-    pFeatureData = strchr(pFeatureData, '\n') + 1;
     //increment the list to the start of the next storage block
     psFeature++;
   }

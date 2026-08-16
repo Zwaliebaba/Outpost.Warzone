@@ -1,0 +1,50 @@
+[
+ {
+  "name": "MB1A-C_MSG",
+  "textIds": [],
+  "type": 1,
+  "sequences": [
+   {
+    "name": "cam1\\cam1acp.mp4",
+    "textIds": [
+     "TRANS_MSG1",
+     "CAM1A-C_MSG5",
+     "CAM1A-C_MSG6"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   },
+   {
+    "name": "cam1\\map1A_C.mp4",
+    "textIds": [],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ },
+ {
+  "name": "MB1A-C_MSG2",
+  "textIds": [],
+  "type": 1,
+  "sequences": [
+   {
+    "name": "BrfCom.mp4",
+    "textIds": [
+     "TRANS_MSG1"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   },
+   {
+    "name": "cam1\\cam1ac.mp4",
+    "textIds": [
+     "CAM1A-C_MSG1",
+     "CAM1A-C_MSG2",
+     "CAM1A-C_MSG3"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ }
+]

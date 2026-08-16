@@ -110,10 +110,6 @@ VOID sendOptions(NETPLAYERID dest, UDWORD play)
     m.size = static_cast<UWORD>(m.size + ingame.numStructureLimits * (sizeof(UBYTE) + sizeof(UDWORD)));
   }
 
-  //
-  // now add the wdg files that are being used.
-  //
-
   m.type = NET_OPTIONS; // send it.
   NETbcast(&m,TRUE);
 }
@@ -123,11 +119,7 @@ BOOL checkGameWdg(CHAR* nm)
 {
   LEVEL_DATASET* lev;
 
-  //
-  // now check the wdg files that are being used.
-  //
-
-  // game.map must be available in xxx list.
+  // game.map must be available in the level list.
 
   lev = psLevels;
   while (lev)

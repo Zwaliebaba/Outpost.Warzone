@@ -1,0 +1,38 @@
+[
+ {
+  "name": "CM31_BASE1",
+  "textIds": [
+   "ENEMYBASE_MSG"
+  ],
+  "type": 2,
+  "x": 1856,
+  "y": 6848,
+  "z": 0,
+  "audio": "pcv393.wav",
+  "proxType": 0
+ },
+ {
+  "name": "CM31_TAR_UPLINK",
+  "textIds": [
+   "MISSIONTARGET_MSG"
+  ],
+  "type": 2,
+  "x": 768,
+  "y": 6848,
+  "z": 0,
+  "audio": "pcv448.wav",
+  "proxType": 0
+ },
+ {
+  "name": "CM31_HIDE_LOC",
+  "textIds": [
+   "MISSIONTARGET_MSG"
+  ],
+  "type": 2,
+  "x": 6464,
+  "y": 1600,
+  "z": 64,
+  "audio": "pcv448.wav",
+  "proxType": 2
+ }
+]

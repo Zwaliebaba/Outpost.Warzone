@@ -7,7 +7,7 @@
 #ifndef _levels_h
 #define _levels_h
 
-// maximum number of WRF/WDG files
+// maximum number of data units per level
 #define LEVEL_MAXFILES	9
 
 // types of level datasets
@@ -43,17 +43,16 @@ enum _level_type
 
 using LEVEL_TYPE = UDWORD;
 
-// the WRF/WDG files needed for a particular level
-// the WRF/WDG files needed for a particular level
+// the data units needed for a particular level
 
 using LEVEL_DATASET = struct _level_dataset
 {
   SWORD type; // type of map
   SWORD players; // number of players for the map
-  SWORD game; // index of WRF/WDG that loads the scenario file
+  SWORD game; // index of the slot that names the scenario (.gam) file
   STRING* pName; // title for the level
-  STRING* apDataFiles[LEVEL_MAXFILES]; // the WRF/WDG files for the level
-  // in load order
+  STRING* apDataFiles[LEVEL_MAXFILES]; // manifest unit names (and the scenario
+  // file path in slot `game`), in load order
   struct _level_dataset* psBaseData; // LEVEL_DATASET that must be loaded for this level to load
   struct _level_dataset* psChange; // LEVEL_DATASET used when changing to this level from another
 
@@ -62,9 +61,6 @@ using LEVEL_DATASET = struct _level_dataset
 
 // the current level descriptions
 extern LEVEL_DATASET* psLevels;
-
-// parse a level description data file
-extern BOOL levParse(UBYTE* pBuffer, SDWORD size);
 
 // shutdown the level system
 extern void levShutDown(void);

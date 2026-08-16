@@ -5,7 +5,7 @@
 
 /***************************************************************************/
 /* The game's sound vocabulary. The enumerators keep their 1998 spelling and,
- * more to the point, their values and order: audio.cfg and the compiled
+ * more to the point, their values and order: audio.json and the compiled
  * scripts are matched against them, and several hundred call sites name
  * them.
  */

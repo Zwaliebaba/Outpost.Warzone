@@ -1,0 +1,362 @@
+[
+ {
+  "terrainType": 0,
+  "propulsionType": 0,
+  "speedFactor": 100
+ },
+ {
+  "terrainType": 0,
+  "propulsionType": 1,
+  "speedFactor": 100
+ },
+ {
+  "terrainType": 0,
+  "propulsionType": 2,
+  "speedFactor": 100
+ },
+ {
+  "terrainType": 0,
+  "propulsionType": 3,
+  "speedFactor": 150
+ },
+ {
+  "terrainType": 0,
+  "propulsionType": 5,
+  "speedFactor": 250
+ },
+ {
+  "terrainType": 0,
+  "propulsionType": 7,
+  "speedFactor": 100
+ },
+ {
+  "terrainType": 1,
+  "propulsionType": 0,
+  "speedFactor": 100
+ },
+ {
+  "terrainType": 1,
+  "propulsionType": 1,
+  "speedFactor": 100
+ },
+ {
+  "terrainType": 1,
+  "propulsionType": 2,
+  "speedFactor": 100
+ },
+ {
+  "terrainType": 1,
+  "propulsionType": 3,
+  "speedFactor": 80
+ },
+ {
+  "terrainType": 1,
+  "propulsionType": 5,
+  "speedFactor": 250
+ },
+ {
+  "terrainType": 1,
+  "propulsionType": 7,
+  "speedFactor": 100
+ },
+ {
+  "terrainType": 2,
+  "propulsionType": 0,
+  "speedFactor": 80
+ },
+ {
+  "terrainType": 2,
+  "propulsionType": 1,
+  "speedFactor": 100
+ },
+ {
+  "terrainType": 2,
+  "propulsionType": 2,
+  "speedFactor": 100
+ },
+ {
+  "terrainType": 2,
+  "propulsionType": 3,
+  "speedFactor": 150
+ },
+ {
+  "terrainType": 2,
+  "propulsionType": 5,
+  "speedFactor": 250
+ },
+ {
+  "terrainType": 2,
+  "propulsionType": 7,
+  "speedFactor": 100
+ },
+ {
+  "terrainType": 3,
+  "propulsionType": 0,
+  "speedFactor": 80
+ },
+ {
+  "terrainType": 3,
+  "propulsionType": 1,
+  "speedFactor": 90
+ },
+ {
+  "terrainType": 3,
+  "propulsionType": 2,
+  "speedFactor": 100
+ },
+ {
+  "terrainType": 3,
+  "propulsionType": 3,
+  "speedFactor": 100
+ },
+ {
+  "terrainType": 3,
+  "propulsionType": 5,
+  "speedFactor": 250
+ },
+ {
+  "terrainType": 3,
+  "propulsionType": 7,
+  "speedFactor": 80
+ },
+ {
+  "terrainType": 4,
+  "propulsionType": 0,
+  "speedFactor": 100
+ },
+ {
+  "terrainType": 4,
+  "propulsionType": 1,
+  "speedFactor": 100
+ },
+ {
+  "terrainType": 4,
+  "propulsionType": 2,
+  "speedFactor": 100
+ },
+ {
+  "terrainType": 4,
+  "propulsionType": 3,
+  "speedFactor": 80
+ },
+ {
+  "terrainType": 4,
+  "propulsionType": 5,
+  "speedFactor": 250
+ },
+ {
+  "terrainType": 4,
+  "propulsionType": 7,
+  "speedFactor": 100
+ },
+ {
+  "terrainType": 5,
+  "propulsionType": 0,
+  "speedFactor": 80
+ },
+ {
+  "terrainType": 5,
+  "propulsionType": 1,
+  "speedFactor": 100
+ },
+ {
+  "terrainType": 5,
+  "propulsionType": 2,
+  "speedFactor": 100
+ },
+ {
+  "terrainType": 5,
+  "propulsionType": 3,
+  "speedFactor": 50
+ },
+ {
+  "terrainType": 5,
+  "propulsionType": 5,
+  "speedFactor": 250
+ },
+ {
+  "terrainType": 5,
+  "propulsionType": 7,
+  "speedFactor": 90
+ },
+ {
+  "terrainType": 6,
+  "propulsionType": 0,
+  "speedFactor": 150
+ },
+ {
+  "terrainType": 6,
+  "propulsionType": 1,
+  "speedFactor": 120
+ },
+ {
+  "terrainType": 6,
+  "propulsionType": 2,
+  "speedFactor": 100
+ },
+ {
+  "terrainType": 6,
+  "propulsionType": 3,
+  "speedFactor": 150
+ },
+ {
+  "terrainType": 6,
+  "propulsionType": 5,
+  "speedFactor": 250
+ },
+ {
+  "terrainType": 6,
+  "propulsionType": 7,
+  "speedFactor": 135
+ },
+ {
+  "terrainType": 7,
+  "propulsionType": 0,
+  "speedFactor": 60
+ },
+ {
+  "terrainType": 7,
+  "propulsionType": 1,
+  "speedFactor": 60
+ },
+ {
+  "terrainType": 7,
+  "propulsionType": 2,
+  "speedFactor": 60
+ },
+ {
+  "terrainType": 7,
+  "propulsionType": 3,
+  "speedFactor": 150
+ },
+ {
+  "terrainType": 7,
+  "propulsionType": 5,
+  "speedFactor": 250
+ },
+ {
+  "terrainType": 7,
+  "propulsionType": 7,
+  "speedFactor": 60
+ },
+ {
+  "terrainType": 8,
+  "propulsionType": 0,
+  "speedFactor": 60
+ },
+ {
+  "terrainType": 8,
+  "propulsionType": 1,
+  "speedFactor": 60
+ },
+ {
+  "terrainType": 8,
+  "propulsionType": 2,
+  "speedFactor": 60
+ },
+ {
+  "terrainType": 8,
+  "propulsionType": 3,
+  "speedFactor": 80
+ },
+ {
+  "terrainType": 8,
+  "propulsionType": 5,
+  "speedFactor": 250
+ },
+ {
+  "terrainType": 8,
+  "propulsionType": 7,
+  "speedFactor": 60
+ },
+ {
+  "terrainType": 9,
+  "propulsionType": 0,
+  "speedFactor": 80
+ },
+ {
+  "terrainType": 9,
+  "propulsionType": 1,
+  "speedFactor": 80
+ },
+ {
+  "terrainType": 9,
+  "propulsionType": 2,
+  "speedFactor": 100
+ },
+ {
+  "terrainType": 9,
+  "propulsionType": 3,
+  "speedFactor": 80
+ },
+ {
+  "terrainType": 9,
+  "propulsionType": 5,
+  "speedFactor": 250
+ },
+ {
+  "terrainType": 9,
+  "propulsionType": 7,
+  "speedFactor": 50
+ },
+ {
+  "terrainType": 10,
+  "propulsionType": 0,
+  "speedFactor": 70
+ },
+ {
+  "terrainType": 10,
+  "propulsionType": 1,
+  "speedFactor": 90
+ },
+ {
+  "terrainType": 10,
+  "propulsionType": 2,
+  "speedFactor": 100
+ },
+ {
+  "terrainType": 10,
+  "propulsionType": 3,
+  "speedFactor": 150
+ },
+ {
+  "terrainType": 10,
+  "propulsionType": 5,
+  "speedFactor": 250
+ },
+ {
+  "terrainType": 10,
+  "propulsionType": 7,
+  "speedFactor": 80
+ },
+ {
+  "terrainType": 11,
+  "propulsionType": 0,
+  "speedFactor": 60
+ },
+ {
+  "terrainType": 11,
+  "propulsionType": 1,
+  "speedFactor": 100
+ },
+ {
+  "terrainType": 11,
+  "propulsionType": 2,
+  "speedFactor": 75
+ },
+ {
+  "terrainType": 11,
+  "propulsionType": 3,
+  "speedFactor": 80
+ },
+ {
+  "terrainType": 11,
+  "propulsionType": 5,
+  "speedFactor": 250
+ },
+ {
+  "terrainType": 11,
+  "propulsionType": 7,
+  "speedFactor": 80
+ }
+]

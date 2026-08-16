@@ -1,0 +1,50 @@
+[
+ {
+  "name": "C22_OBJ1",
+  "textIds": [
+   "RUINS_MSG"
+  ],
+  "type": 2,
+  "x": 5440,
+  "y": 1344,
+  "z": 0,
+  "audio": "pcv448.wav",
+  "proxType": 0
+ },
+ {
+  "name": "C22_BASE1",
+  "textIds": [
+   "ENEMYBASE_MSG"
+  ],
+  "type": 2,
+  "x": 5952,
+  "y": 1344,
+  "z": 0,
+  "audio": "pcv393.wav",
+  "proxType": 0
+ },
+ {
+  "name": "C22_BASE2",
+  "textIds": [
+   "ENEMYBASE_MSG"
+  ],
+  "type": 2,
+  "x": 1088,
+  "y": 1216,
+  "z": 0,
+  "audio": "pcv393.wav",
+  "proxType": 0
+ },
+ {
+  "name": "C22_LZ",
+  "textIds": [
+   "LZ_MSG"
+  ],
+  "type": 2,
+  "x": 5696,
+  "y": 7232,
+  "z": 0,
+  "audio": "pcv427.wav",
+  "proxType": 2
+ }
+]

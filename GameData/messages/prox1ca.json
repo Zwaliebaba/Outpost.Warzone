@@ -1,0 +1,74 @@
+[
+ {
+  "name": "C1CA_OBJ1",
+  "textIds": [
+   "RUINS_MSG"
+  ],
+  "type": 2,
+  "x": 9408,
+  "y": 6848,
+  "z": 0,
+  "audio": "pcv448.wav",
+  "proxType": 2
+ },
+ {
+  "name": "C1CA_LZ1",
+  "textIds": [
+   "LZ_MSG3"
+  ],
+  "type": 2,
+  "x": 10560,
+  "y": 8384,
+  "z": 0,
+  "audio": "pcv396.wav",
+  "proxType": 0
+ },
+ {
+  "name": "C1CA_LZ2",
+  "textIds": [
+   "LZ_MSG3"
+  ],
+  "type": 2,
+  "x": 7232,
+  "y": 6336,
+  "z": 0,
+  "audio": "pcv396.wav",
+  "proxType": 0
+ },
+ {
+  "name": "C1CA_LZ3",
+  "textIds": [
+   "LZ_MSG3"
+  ],
+  "type": 2,
+  "x": 6208,
+  "y": 6848,
+  "z": 0,
+  "audio": "pcv396.wav",
+  "proxType": 0
+ },
+ {
+  "name": "C1CA_LZ4",
+  "textIds": [
+   "LZ_MSG3"
+  ],
+  "type": 2,
+  "x": 7872,
+  "y": 4672,
+  "z": 0,
+  "audio": "pcv396.wav",
+  "proxType": 0
+ },
+ {
+  "name": "C1CA_LZ5",
+  "textIds": [
+   "LZ_MSG3"
+  ],
+  "type": 2,
+  "x": 6848,
+  "y": 3520,
+  "z": 0,
+  "audio": "pcv396.wav",
+  "proxType": 0
+ }
+]
