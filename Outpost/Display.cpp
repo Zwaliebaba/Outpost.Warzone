@@ -6,6 +6,9 @@
  *
  */
 
+#include <cmath>
+#include <directxmath.h>
+
 #include "Frame.h"
 #include "Window.h"
 #include "Input.h"
@@ -69,7 +72,6 @@
 
 #define TD_SCROLL_DIV 2
 
-#define pi 3.141592657
 struct _dragBox dragBox3D, wallDrag;
 
 // control whether the scroll is limited to visible tiles
@@ -243,21 +245,19 @@ static SDWORD mX = OFF_SCREEN, mY = OFF_SCREEN;
 BOOL bInstantRadarJump = FALSE;
 
 BOOL rotActive = FALSE;
-SDWORD desiredPitch = 340;
+float desiredPitch = DirectX::XMConvertToRadians(20.0f);
 UDWORD currentFrame;
 static UDWORD StartOfLastFrame;
 SDWORD rotX;
 SDWORD rotY;
-UDWORD worldAngle;
-UDWORD rotInitial;
-UDWORD rotInitialUp;
+float rotInitial;
+float rotInitialUp;
 UDWORD xMoved, yMoved;
 BOOL gameStats = FALSE;
 STRUCTURE* psBuilding;
 BOOL mouseAtEdge = FALSE;
 /* Will be used to do diagonal scroll */
 BOOL mouseAtBottom, mouseAtTop, mouseAtRight, mouseAtLeft;
-SDWORD direction = 0;
 BOOL edgeOfMap = FALSE;
 UDWORD scrollRefTime;
 float scrollAccel;
@@ -348,7 +348,7 @@ void shakeUpdate(void)
     screenShakePercentage = PERCENT(gameTime2-screenShakeStarted, screenShakeLength);
 
     if (screenShakePercentage < 100)
-      player.r.z = 0 + DEG(screenShakeTable[screenShakePercentage]);
+      player.r.z = DirectX::XMConvertToRadians(static_cast<float>(screenShakeTable[screenShakePercentage]));
     if (gameTime > (screenShakeStarted + screenShakeLength))
     {
       bScreenShakeActive = FALSE;
@@ -1118,14 +1118,10 @@ void scroll(void)
   scrollStepLeftRight = scrollSpeedLeftRight * static_cast<float>(timeDiff) / static_cast<float>(GAME_TICKS_PER_SEC);
   scrollStepUpDown = scrollSpeedUpDown * static_cast<float>(timeDiff) / static_cast<float>(GAME_TICKS_PER_SEC);
 
-  /* Get angle vector to scroll along */
-  worldAngle = static_cast<UDWORD>(player.r.y) / DEG_1 % 360;
-  direction = (360) - worldAngle;
-
-  /* Convert to radians */
-  radians = ((static_cast<float>(pi) / 180) * (direction));
-  cosine = static_cast<float>(cos(radians));
-  sine = static_cast<float>(sin(radians));
+  /* Get angle vector to scroll along - the reverse of the camera's spin */
+  radians = -player.r.y;
+  cosine = cosf(radians);
+  sine = sinf(radians);
 
   /* Get x component of movement */
   xDif = std::lround(cosine * scrollStepLeftRight + sine * scrollStepUpDown);
@@ -1259,7 +1255,6 @@ BOOL CheckScrollLimits(void)
 /* Do the 3D display */
 void displayWorld(void)
 {
-  iVector pos;
   shakeUpdate();
 
   if (mouseDown(MOUSE_RMB) AND rotActive)
@@ -1268,9 +1263,9 @@ void displayWorld(void)
     {
       xMoved += (abs(mX - rotX));
       if (mX < rotX)
-        player.r.y = rotInitial + (((rotX - mX) / 2) * DEG(1));
+        player.r.y = rotInitial + DirectX::XMConvertToRadians(static_cast<float>((rotX - mX) / 2));
       else
-        player.r.y = rotInitial - (((mX - rotX) / 2) * DEG(1));
+        player.r.y = rotInitial - DirectX::XMConvertToRadians(static_cast<float>((mX - rotX) / 2));
     }
     if ((abs(mY - rotY) > 8) OR yMoved > 8)
     {
@@ -1278,23 +1273,23 @@ void displayWorld(void)
       if (bInvertMouse)
       {
         if (mY < rotY)
-          player.r.x = rotInitialUp + (((rotY - mY) / 3) * DEG(1));
+          player.r.x = rotInitialUp + DirectX::XMConvertToRadians(static_cast<float>((rotY - mY) / 3));
         else
-          player.r.x = rotInitialUp - (((mY - rotY) / 3) * DEG(1));
+          player.r.x = rotInitialUp - DirectX::XMConvertToRadians(static_cast<float>((mY - rotY) / 3));
       }
       else
       {
         if (mY < rotY)
-          player.r.x = rotInitialUp - (((rotY - mY) / 3) * DEG(1));
+          player.r.x = rotInitialUp - DirectX::XMConvertToRadians(static_cast<float>((rotY - mY) / 3));
         else
-          player.r.x = rotInitialUp + (((mY - rotY) / 3) * DEG(1));
+          player.r.x = rotInitialUp + DirectX::XMConvertToRadians(static_cast<float>((mY - rotY) / 3));
       }
-      if (player.r.x > DEG(360 + MAX_PLAYER_X_ANGLE))
-        player.r.x = DEG(360 + MAX_PLAYER_X_ANGLE);
-      if (player.r.x < DEG(360 + MIN_PLAYER_X_ANGLE))
-        player.r.x = DEG(360 + MIN_PLAYER_X_ANGLE);
+      if (player.r.x > DirectX::XMConvertToRadians(MAX_PLAYER_X_ANGLE))
+        player.r.x = DirectX::XMConvertToRadians(MAX_PLAYER_X_ANGLE);
+      if (player.r.x < DirectX::XMConvertToRadians(MIN_PLAYER_X_ANGLE))
+        player.r.x = DirectX::XMConvertToRadians(MIN_PLAYER_X_ANGLE);
 
-      setDesiredPitch(player.r.x / DEG_1);
+      setDesiredPitch(-player.r.x);
     }
   }
 
@@ -1303,10 +1298,7 @@ void displayWorld(void)
     rotActive = FALSE;
     xMoved = yMoved = 0;
     ignoreRMBC = TRUE;
-    pos.x = player.r.x;
-    pos.y = player.r.y;
-    pos.z = player.r.z;
-    camInformOfRotation(&pos);
+    camInformOfRotation(&player.r);
     bRadarDragging = FALSE;
   }
 
@@ -2142,9 +2134,9 @@ void dealWithLMB(void)
 
 BOOL getRotActive(void) { return (rotActive); }
 
-SDWORD getDesiredPitch(void) { return (desiredPitch); }
+float getDesiredPitch(void) { return (desiredPitch); }
 
-void setDesiredPitch(SDWORD pitch) { desiredPitch = pitch; }
+void setDesiredPitch(float pitch) { desiredPitch = pitch; }
 
 // process LMB double clicks
 void dealWithLMBDClick(void)

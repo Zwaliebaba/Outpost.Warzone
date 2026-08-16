@@ -174,7 +174,7 @@ void kf_SpeedUp(void);
 void kf_SlowDown(void);
 void kf_NormalSpeed(void);
 
-#define SPIN_SCALING	(360*DEG_1)
+#define SPIN_SCALING	(DirectX::XM_2PI)
 #define	SECS_PER_SPIN	2
 #define MAP_SPIN_RATE	(SPIN_SCALING/SECS_PER_SPIN)
 

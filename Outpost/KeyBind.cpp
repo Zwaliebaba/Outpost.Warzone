@@ -1,4 +1,5 @@
 #include "pch.h"
+#include <directxmath.h>
 #include "Frame.h"
 #include "GTime.h"
 #include "StrRes.h"
@@ -65,8 +66,6 @@
 
 #define	MAP_ZOOM_RATE	(500)
 
-#define PITCH_SCALING	(360*DEG_1)
-#define	SECS_PER_PITCH	2
 #define MAP_PITCH_RATE	(SPIN_SCALING/SECS_PER_SPIN)
 
 #define MAX_TYPING_LENGTH	80
@@ -147,7 +146,7 @@ void kf_FaceNorth(void)
 // --------------------------------------------------------------------------
 void kf_FaceSouth(void)
 {
-  player.r.y = DEG(180);
+  player.r.y = DirectX::XM_PI;
   if (getWarCamStatus())
     camToggleStatus();
 }
@@ -155,7 +154,7 @@ void kf_FaceSouth(void)
 // --------------------------------------------------------------------------
 void kf_FaceEast(void)
 {
-  player.r.y = DEG(90);
+  player.r.y = DirectX::XM_PIDIV2;
   if (getWarCamStatus())
     camToggleStatus();
 }
@@ -163,7 +162,7 @@ void kf_FaceEast(void)
 // --------------------------------------------------------------------------
 void kf_FaceWest(void)
 {
-  player.r.y = DEG(270);
+  player.r.y = -DirectX::XM_PIDIV2;
   if (getWarCamStatus())
     camToggleStatus();
 }
@@ -684,7 +683,7 @@ void kf_RotateLeft(void)
 
   fraction = static_cast<float>(frameTime2) / GAME_TICKS_PER_SEC;
   rotAmount = fraction * MAP_SPIN_RATE;
-  player.r.y += std::lrintf(rotAmount);
+  player.r.y += rotAmount;
 }
 
 // --------------------------------------------------------------------------
@@ -696,9 +695,7 @@ void kf_RotateRight(void)
 
   fraction = static_cast<float>(frameTime2) / GAME_TICKS_PER_SEC;
   rotAmount = fraction * MAP_SPIN_RATE;
-  player.r.y -= std::lrintf(rotAmount);
-  if (player.r.y < 0)
-    player.r.y += DEG(360);
+  player.r.y -= rotAmount;
 }
 
 // --------------------------------------------------------------------------
@@ -713,13 +710,13 @@ void kf_PitchBack(void)
 
   //
 
-  player.r.x += std::lrintf(pitchAmount);
+  player.r.x += pitchAmount;
 
   //	if(getDebugMappingStatus() == FALSE)
 
-  if (player.r.x > DEG(360+MAX_PLAYER_X_ANGLE))
-    player.r.x = DEG(360+MAX_PLAYER_X_ANGLE);
-  setDesiredPitch(player.r.x / DEG_1);
+  if (player.r.x > DirectX::XMConvertToRadians(MAX_PLAYER_X_ANGLE))
+    player.r.x = DirectX::XMConvertToRadians(MAX_PLAYER_X_ANGLE);
+  setDesiredPitch(-player.r.x);
 }
 
 // --------------------------------------------------------------------------
@@ -731,18 +728,18 @@ void kf_PitchForward(void)
 
   fraction = static_cast<float>(frameTime2) / GAME_TICKS_PER_SEC;
   pitchAmount = fraction * MAP_PITCH_RATE;
-  player.r.x -= std::lrintf(pitchAmount);
+  player.r.x -= pitchAmount;
   //	if(getDebugMappingStatus() == FALSE)
-  if (player.r.x < DEG(360+MIN_PLAYER_X_ANGLE))
-    player.r.x = DEG(360+MIN_PLAYER_X_ANGLE);
-  setDesiredPitch(player.r.x / DEG_1);
+  if (player.r.x < DirectX::XMConvertToRadians(MIN_PLAYER_X_ANGLE))
+    player.r.x = DirectX::XMConvertToRadians(MIN_PLAYER_X_ANGLE);
+  setDesiredPitch(-player.r.x);
 }
 
 // --------------------------------------------------------------------------
 /* Resets pitch to default */
 void kf_ResetPitch(void)
 {
-  player.r.x = DEG(360-20);
+  player.r.x = DirectX::XMConvertToRadians(-20.0f);
   distance = START_DISTANCE;
 }
 

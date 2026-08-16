@@ -1,4 +1,5 @@
 #include "pch.h"
+#include <cmath>
 #include <directxmath.h>
 #include "Frame.h"
 /* Includes direct access to render library */
@@ -748,12 +749,12 @@ static void DrawRadarObjects(UBYTE* screen, UDWORD Modulus, UWORD boxSizeH, UWOR
   }
 }
 
-// Rotate an array of 2d vectors about a given angle, also translates them after rotating.
+// Rotate an array of 2d vectors about a given angle in radians, also translates them after rotating.
 //
-void RotateVector2D(iVector* Vector, iVector* TVector, iVector* Pos, int Angle, int Count)
+void RotateVector2D(iVector* Vector, iVector* TVector, iVector* Pos, float Angle, int Count)
 {
   float Sin, Cos;
-  DirectX::XMScalarSinCos(&Sin, &Cos, Angle * Neuron::RadiansPerWorldAngle);
+  DirectX::XMScalarSinCos(&Sin, &Cos, Angle);
   int ox = 0;
   int oy = 0;
   int i;
@@ -802,7 +803,7 @@ SDWORD getLengthAdjust(void)
   UDWORD lookingDown, lookingFar;
   SDWORD dif;
 
-  pitch = 360 - (player.r.x / DEG_1);
+  pitch = std::lround(DirectX::XMConvertToDegrees(-player.r.x));
 
   // Max at 
   lookingDown = (0 - MIN_PLAYER_X_ANGLE);

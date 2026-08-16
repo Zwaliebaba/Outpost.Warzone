@@ -1042,14 +1042,24 @@ winding test moved beside its only callers in `RenderModel.cpp`, and
 `Geo.h` folded into its fourteen includers and deleted. The renderer maths
 migration is complete: `RenderMatrix` measures 166 lines against the 522
 the phase started from, with no `pie_` maths symbol left in the tree.
-**Stage E is half done** — the object and movement flip (E2) landed as one
-coupled commit: `direction`/`pitch`/`roll`, the turret fields, `sMove.dir`
-and the formation/drive state are float radians in (−π,π], the trig API
-(`calcDirection`, `directionDiff`, the movement helpers) takes and returns
-radians, and the level readers and net sync convert integer degrees at the
-boundary. Five latent angle defects surfaced and were corrected along the
-way (recorded in the phase plan). What remains of the phase is the camera
-half (E3), the `Trig.cpp`/`DEG` deletion (E4), and the stage F run.
+**Stage E is nearly done** — the object and movement flip (E2) landed as
+one coupled commit: `direction`/`pitch`/`roll`, the turret fields,
+`sMove.dir` and the formation/drive state are float radians in (−π,π], the
+trig API (`calcDirection`, `directionDiff`, the movement helpers) takes and
+returns radians, and the level readers and net sync convert integer degrees
+at the boundary. Five latent angle defects surfaced and were corrected
+along the way (recorded in the phase plan). The camera flip (E3) followed:
+`iView::r` is `XMFLOAT3` radians, WarCAM's spring-damper tracks radians
+with `XMScalarModAngle` separations, the RayCast pitch helpers take and
+return radians, and everything else that still bridged through
+`RadiansPerWorldAngle` — effect tumble, sky shimmy, the animation
+orientation chain, map markers — flipped with it, so the constant now has
+zero users. Two more latent defects died in E3 (a negative average track
+angle through a `UDWORD` into sin/cos, and a degrees-minus-radians
+comparison E2 had left in the component renderer), and the provably dead
+camera code went (`drawMapWorld`, `imdRot`/`imdRot2`, `disp3d_setView`/
+`disp3d_getView` among others). What remains of the phase is the
+`Trig.cpp`/`DEG` deletion (E4) and the stage F run.
 
 Phase 8 deliberately kept the fixed-point, pre-transformed-vertex pipeline
 because changing it "is not simplification, it is a second project". This is

@@ -15,6 +15,8 @@
 #ifndef _renderTypes_h
 #define _renderTypes_h
 
+#include <directxmath.h>
+
 #include "Frame.h"
 
 /***************************************************************************/
@@ -116,7 +118,8 @@ using iVertex = struct
 };
 using iView = struct
 {
-  iVector p, r;
+  iVector p;
+  DirectX::XMFLOAT3 r; /* radians */
 };
 
 

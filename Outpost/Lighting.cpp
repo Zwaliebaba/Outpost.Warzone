@@ -640,7 +640,7 @@ UDWORD lightDoFogAndIllumination(UBYTE brightness, SDWORD dx, SDWORD dz, UDWORD*
     //add fog
     if (pie_GetFogEnabled())
     {
-      DirectX::XMScalarSinCos(&sinA, &cosA, player.r.y * Neuron::RadiansPerWorldAngle);
+      DirectX::XMScalarSinCos(&sinA, &cosA, player.r.y);
       depth = static_cast<SDWORD>(std::lrintf(sinA * dx + cosA * dz));
       depth += FOG_START;
       depth /= FOG_RATE;

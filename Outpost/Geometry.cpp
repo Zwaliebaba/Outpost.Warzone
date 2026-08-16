@@ -132,9 +132,9 @@ void WorldPointToScreen(iPoint* worldPt, iPoint* screenPt)
                                    static_cast<float>(camera.p.z), 1.0f);
 
   /* Rotate for the player */
-  view = DirectX::XMMatrixRotationZ(player.r.z * Neuron::RadiansPerWorldAngle) * view;
-  view = DirectX::XMMatrixRotationX(player.r.x * Neuron::RadiansPerWorldAngle) * view;
-  view = DirectX::XMMatrixRotationY(player.r.y * Neuron::RadiansPerWorldAngle) * view;
+  view = DirectX::XMMatrixRotationZ(player.r.z) * view;
+  view = DirectX::XMMatrixRotationX(player.r.x) * view;
+  view = DirectX::XMMatrixRotationY(player.r.y) * view;
 
   /* Translate */
   view = DirectX::XMMatrixTranslation(static_cast<float>(-rx), static_cast<float>(-player.p.y), static_cast<float>(rz)) * view;

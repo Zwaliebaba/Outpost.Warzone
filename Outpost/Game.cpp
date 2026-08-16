@@ -837,7 +837,7 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem)
 
   //		bMultiPlayer = TRUE;				// reenable multi player messages.
   setViewAngle(INITIAL_STARTING_PITCH);
-  setDesiredPitch(INITIAL_DESIRED_PITCH);
+  setDesiredPitch(DirectX::XMConvertToRadians(INITIAL_DESIRED_PITCH));
 
 
   //need to clear before setting up

@@ -124,8 +124,8 @@ static float separation = static_cast<float>(0);
 static SDWORD acceleration = 0;
 static SDWORD heightSpeed = 0;
 static float aSep;
-static SDWORD aAccel = 0;
-static SDWORD aSpeed = 0;
+static float aAccel = 0.0f;
+static float aSpeed = 0.0f;
 
 UDWORD barMode = BAR_FULL;
 
@@ -147,7 +147,7 @@ void preprocessTiles(void);
 BOOL renderWallSection(STRUCTURE* psStructure);
 void buildTileTextures(void);
 void draw3dLine(iVector* src, iVector* dest, UBYTE col);
-UDWORD getSuggestedPitch(void);
+float getSuggestedPitch(void);
 void drawDragBox(void);
 void setViewPos(UDWORD x, UDWORD y, BOOL Pan);
 void calcScreenCoords(DROID* psDroid);
@@ -213,8 +213,6 @@ UDWORD mapX = 45, mapY = 80;
 BOOL selectAttempt = FALSE;
 /* Vectors that hold the player and camera directions and positions */
 iView player, camera;
-/* Temporary rotation vectors to store rotations for droids etc */
-iVector imdRot, imdRot2;
 /* How far away are we from the terrain */
 UDWORD distance = START_DISTANCE; //(DISTANCE - (DISTANCE/6));
 /* Are we outlining the terrain tile triangles */
@@ -478,7 +476,7 @@ void draw3DScene(void)
 #endif
   }
 
-  while (player.r.y > DEG(360)) { player.r.y -= DEG(360); }
+  player.r.y = DirectX::XMScalarModAngle(player.r.y);
 
   /* If we don't have an active camera track, then track terrain height! */
   if (!getWarCamStatus())
@@ -580,7 +578,7 @@ void drawTiles(iView* camera, iView* player)
   }
   /* Is the scene spinning? - showcase demo stuff */
   if (spinScene)
-    player->r.y += DEG(3);
+    player->r.y += DirectX::XMConvertToRadians(3.0f);
 
   /* ---------------------------------------------------------------- */
   /* Do boundary and extent checking                                  */
@@ -610,9 +608,9 @@ void drawTiles(iView* camera, iView* player)
   /* Set the camera position */
   Neuron::WorldMatrix().r[3] = DirectX::XMVectorSet(static_cast<float>(camera->p.x), static_cast<float>(camera->p.y), static_cast<float>(camera->p.z), 1.0f);
   /* Rotate for the player */
-  Neuron::WorldMatrix() = DirectX::XMMatrixRotationZ(player->r.z * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
-  Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(player->r.x * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
-  Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(player->r.y * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
+  Neuron::WorldMatrix() = DirectX::XMMatrixRotationZ(player->r.z) * Neuron::WorldMatrix();
+  Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(player->r.x) * Neuron::WorldMatrix();
+  Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(player->r.y) * Neuron::WorldMatrix();
   /* Translate */
   Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(-rx), static_cast<float>(-player->p.y), static_cast<float>(rz)) * Neuron::WorldMatrix();
 
@@ -862,8 +860,6 @@ BOOL init3DView(void)
   theSun.y = -3441;
   theSun.z = 2619;
 
-  /* Make sure and change these to comply with map.c */
-  imdRot.x = -35;
   /* Maximum map size */
   terrainMaxX = 128;
   terrainMaxY = 128;
@@ -890,11 +886,6 @@ BOOL init3DView(void)
   pal_BuildAdjustedShadeTable();
   getDefaultColours();
 
-  /* No initial rotations */
-  imdRot2.x = 0;
-  imdRot.y = 0;
-  imdRot2.z = 0;
-
   /* Set up the player */
 
   bRender3DOnly = FALSE;
@@ -905,12 +896,6 @@ BOOL init3DView(void)
   return (TRUE);
   CONPRINTF(ConsoleString, (ConsoleString, "This build : %s, %s",__TIME__,__DATE__));
 }
-
-// set the view position from save game
-void disp3d_setView(iView* newView) { memcpy(&player, newView, sizeof(iView)); }
-
-// get the view position for save game
-void disp3d_getView(iView* newView) { memcpy(newView, &player, sizeof(iView)); }
 
 /* John's routine - deals with flipping around the vertex ordering for source textures
    when flips and rotations are being done */
@@ -1113,12 +1098,10 @@ void renderProjectile(PROJ_OBJECT* psCurr)
     Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(rx), 0.0f, static_cast<float>(-rz)) * Neuron::WorldMatrix();
 
     /* Rotate it to the direction it's facing */
-    imdRot2.y = std::lrintf(psCurr->direction / Neuron::RadiansPerWorldAngle);
-    Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(-imdRot2.y * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
+    Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(-psCurr->direction) * Neuron::WorldMatrix();
 
     /* pitch it */
-    imdRot2.x = std::lrintf(psCurr->pitch / Neuron::RadiansPerWorldAngle);
-    Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(imdRot2.x * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
+    Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(psCurr->pitch) * Neuron::WorldMatrix();
 
     /* Spin the bullet around - remove later */
 
@@ -1175,18 +1158,16 @@ void renderAnimComponent(COMPONENT_OBJECT* psObj)
     Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(rx), 0.0f, static_cast<float>(-rz)) * Neuron::WorldMatrix();
 
     /* parent object rotations */
-    imdRot2.y = std::lrintf(psParentObj->direction / Neuron::RadiansPerWorldAngle);
-    Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(-imdRot2.y * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
-    imdRot2.x = std::lrintf(psParentObj->pitch / Neuron::RadiansPerWorldAngle);
-    Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(imdRot2.x * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
+    Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(-psParentObj->direction) * Neuron::WorldMatrix();
+    Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(psParentObj->pitch) * Neuron::WorldMatrix();
 
     /* object (animation) translations - ivis z and y flipped */
     Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(psObj->position.x), static_cast<float>(psObj->position.z), static_cast<float>(psObj->position.y)) * Neuron::WorldMatrix();
 
     /* object (animation) rotations */
-    Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(-psObj->orientation.z * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
-    Neuron::WorldMatrix() = DirectX::XMMatrixRotationZ(-psObj->orientation.y * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
-    Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(-psObj->orientation.x * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
+    Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(-psObj->orientation.z) * Neuron::WorldMatrix();
+    Neuron::WorldMatrix() = DirectX::XMMatrixRotationZ(-psObj->orientation.y) * Neuron::WorldMatrix();
+    Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(-psObj->orientation.x) * Neuron::WorldMatrix();
 
     /* Set frame numbers - look into this later?? FIXME!!!!!!!! */
     if (psParentObj->type == OBJ_DROID)
@@ -1376,7 +1357,8 @@ void displayProximityMsgs(void)
 void displayAnimation(ANIM_OBJECT* psAnimObj, BOOL bHoldOnFirstFrame)
 {
   UWORD uwFrame;
-  VECTOR3D vecPos, vecRot, vecScale;
+  VECTOR3D vecPos, vecScale;
+  DirectX::XMFLOAT3 vecRot;
   COMPONENT_OBJECT* psComp;
 
   for (UWORD i = 0; i < psAnimObj->psAnim->uwObj; i++)
@@ -1385,7 +1367,7 @@ void displayAnimation(ANIM_OBJECT* psAnimObj, BOOL bHoldOnFirstFrame)
     {
       uwFrame = 0;
       vecPos.x = vecPos.y = vecPos.z = 0;
-      vecRot.x = vecRot.y = vecRot.z = 0;
+      vecRot.x = vecRot.y = vecRot.z = 0.0f;
       vecScale.x = vecScale.y = vecScale.z = 0;
     }
     else { uwFrame = animObj_GetFrame3D(psAnimObj, i, &vecPos, &vecRot, &vecScale); }
@@ -1489,7 +1471,7 @@ void setPlayerPos(SDWORD x, SDWORD y)
   SetRadarStrobe(midX, midY);
 }
 
-void setViewAngle(SDWORD angle) { player.r.x = DEG(360 + angle); }
+void setViewAngle(SDWORD angle) { player.r.x = DirectX::XMConvertToRadians(static_cast<float>(angle)); }
 
 UDWORD getViewDistance(VOID) { return distance; }
 
@@ -1653,8 +1635,8 @@ void renderProximityMsg(PROXIMITY_DISPLAY* psProxDisp)
     }
   }
 
-  Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(-player.r.y * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
-  Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(-player.r.x * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
+  Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(-player.r.y) * Neuron::WorldMatrix();
+  Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(-player.r.x) * Neuron::WorldMatrix();
 
   if (!gamePaused())
     pie_Draw3DShape(proxImd, getTimeValueRange(1000, 4), 0, brightness, specular, pie_ADDITIVE, 192);
@@ -1890,12 +1872,12 @@ void renderStructure(STRUCTURE* psStructure)
 
               Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(psStructure->turretRotation) * Neuron::WorldMatrix();
 
-              Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(-player.r.y * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
-              Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(-player.r.x * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
+              Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(-player.r.y) * Neuron::WorldMatrix();
+              Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(-player.r.x) * Neuron::WorldMatrix();
               pie_Draw3DShape(pRepImd, getStaticTimeValueRange(100, pRepImd->numFrames), 0, buildingBrightness, 0, pie_ADDITIVE, 192);
 
-              Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(player.r.x * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
-              Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(player.r.y * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
+              Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(player.r.x) * Neuron::WorldMatrix();
+              Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(player.r.y) * Neuron::WorldMatrix();
               Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(psStructure->turretRotation) * Neuron::WorldMatrix();
             }
           }
@@ -4185,21 +4167,19 @@ void drawTerrainWaterTile(UDWORD i, UDWORD j) //hardware only
 }
 
 // -------------------------------------------------------------------------------------
-UDWORD getSuggestedPitch(void)
+float getSuggestedPitch(void)
 {
-  SDWORD pitch;
+  float pitch;
 
-  UDWORD worldAngle = static_cast<UDWORD>(player.r.y) / DEG_1 % 360;
   /* Now, we need to track angle too - to avoid near z clip! */
-
   UDWORD xPos = (player.p.x + ((visibleXTiles / 2) * TILE_UNITS));
   UDWORD yPos = (player.p.z + ((visibleYTiles / 2) * TILE_UNITS));
-  getPitchToHighestPoint(xPos, yPos, 360 - worldAngle, 0, &pitch);
+  getPitchToHighestPoint(xPos, yPos, -player.r.y, 0, &pitch);
 
-  if (pitch < abs(MAX_PLAYER_X_ANGLE))
-    pitch = abs(MAX_PLAYER_X_ANGLE);
-  if (pitch > abs(MIN_PLAYER_X_ANGLE))
-    pitch = abs(MIN_PLAYER_X_ANGLE);
+  if (pitch < DirectX::XMConvertToRadians(-MAX_PLAYER_X_ANGLE))
+    pitch = DirectX::XMConvertToRadians(-MAX_PLAYER_X_ANGLE);
+  if (pitch > DirectX::XMConvertToRadians(-MIN_PLAYER_X_ANGLE))
+    pitch = DirectX::XMConvertToRadians(-MIN_PLAYER_X_ANGLE);
 
   return (pitch);
 }
@@ -4207,7 +4187,7 @@ UDWORD getSuggestedPitch(void)
 // -------------------------------------------------------------------------------------
 void trackHeight(SDWORD desiredHeight)
 {
-  SDWORD angConcern;
+  float angConcern;
 
   /* What fraction of a second did last game loop take */
   float fraction = (static_cast<float>(frameTime2) / static_cast<float>(GAME_TICKS_PER_SEC));
@@ -4227,41 +4207,24 @@ void trackHeight(SDWORD desiredHeight)
   /* Now do auto pitch as well, but only if we're not using mouselook and not tracking */
   if (!getWarCamStatus() AND !getRotActive())
   {
-    /* Get the suggested pitch */
-    UDWORD pitch = getSuggestedPitch();
-
-    /* Make sure this isn't negative */
-    while (player.r.x < 0) { player.r.x += DEG(360); }
-
-    /* Or too much */
-    while (player.r.x > DEG(360)) { player.r.x -= DEG(360); }
-
-    /* What's the desired pitch from the player */
-    UDWORD desPitch = (360 - getDesiredPitch());
+    /* Get the suggested pitch, and the pitch the player asked for - both magnitudes */
+    const float pitch = getSuggestedPitch();
+    const float desPitch = getDesiredPitch();
 
     /* Do nothing if we're within 2 degrees of optimum */
-    if (abs(static_cast<SDWORD>(pitch - desPitch)) < 2) // near enough
+    if (fabsf(pitch - desPitch) < DirectX::XMConvertToRadians(2.0f)) // near enough
     {
       /*NOP*/
     }
-
-    /* Force adjust if too low - stops near z clip */
-    else if (pitch > desPitch)
-    {
-      angConcern = DEG(360-pitch);
-      aSep = static_cast<float>(angConcern - player.r.x);
-      aAccel = std::lrintf(((ACCEL_CONSTANT)) * aSep - (VELOCITY_CONSTANT) * static_cast<float>(aSpeed));
-      aSpeed += std::lrintf(static_cast<float>(aAccel) * fraction);
-      player.r.x += std::lrintf(static_cast<float>(aSpeed) * fraction);
-    }
     else
     {
-      /* Else, move towards player's last selected pitch */
-      angConcern = DEG(360-desPitch);
-      aSep = static_cast<float>(angConcern - player.r.x);
-      aAccel = std::lrintf(((ACCEL_CONSTANT)) * aSep - (VELOCITY_CONSTANT) * static_cast<float>(aSpeed));
-      aSpeed += std::lrintf(static_cast<float>(aAccel) * fraction);
-      player.r.x += std::lrintf(static_cast<float>(aSpeed) * fraction);
+      /*	Force adjust if too low - stops near z clip. Otherwise move
+        towards the player's last selected pitch */
+      angConcern = (pitch > desPitch) ? -pitch : -desPitch;
+      aSep = angConcern - player.r.x;
+      aAccel = ACCEL_CONSTANT * aSep - VELOCITY_CONSTANT * aSpeed;
+      aSpeed += aAccel * fraction;
+      player.r.x += aSpeed * fraction;
     }
   }
 }

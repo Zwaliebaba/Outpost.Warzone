@@ -323,8 +323,8 @@ void renderParticle(ATPART* psPart)
   rz = player.p.z & (TILE_UNITS - 1);
   world = DirectX::XMMatrixTranslation(static_cast<float>(rx), 0.0f, static_cast<float>(-rz)) * world; /* Translate */
   /* Make it face camera */
-  world = DirectX::XMMatrixRotationY(-player.r.y * Neuron::RadiansPerWorldAngle) * world;
-  world = DirectX::XMMatrixRotationX(-player.r.x * Neuron::RadiansPerWorldAngle) * world;
+  world = DirectX::XMMatrixRotationY(-player.r.y) * world;
+  world = DirectX::XMMatrixRotationX(-player.r.x) * world;
   /* Scale it... */
   scaleMatrix(psPart->size);
   /* Draw it... */

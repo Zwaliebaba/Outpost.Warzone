@@ -460,9 +460,9 @@ SDWORD bucketCalculateZ(RENDER_TYPE objectType, void* pObject)
                                            static_cast<float>(psCompObj->position.y)) * world;
 
       /* object (animation) rotations */
-      world = DirectX::XMMatrixRotationY(-psCompObj->orientation.z * Neuron::RadiansPerWorldAngle) * world;
-      world = DirectX::XMMatrixRotationZ(-psCompObj->orientation.y * Neuron::RadiansPerWorldAngle) * world;
-      world = DirectX::XMMatrixRotationX(-psCompObj->orientation.x * Neuron::RadiansPerWorldAngle) * world;
+      world = DirectX::XMMatrixRotationY(-psCompObj->orientation.z) * world;
+      world = DirectX::XMMatrixRotationZ(-psCompObj->orientation.y) * world;
+      world = DirectX::XMMatrixRotationX(-psCompObj->orientation.x) * world;
     }
 
     z = Neuron::ProjectToScreen(position.x, position.y, position.z, &pixel.x, &pixel.y);

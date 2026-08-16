@@ -1028,9 +1028,9 @@ void updateGraviton(EFFECT* psEffect)
   }
 
   /* Spin it round a bit */
-  psEffect->rotation.x += std::lrintf(static_cast<float>(psEffect->spin.x) * fraction);
-  psEffect->rotation.y += std::lrintf(static_cast<float>(psEffect->spin.y) * fraction);
-  psEffect->rotation.z += std::lrintf(static_cast<float>(psEffect->spin.z) * fraction);
+  psEffect->rotation.x += psEffect->spin.x * fraction;
+  psEffect->rotation.y += psEffect->spin.y * fraction;
+  psEffect->rotation.z += psEffect->spin.z * fraction;
 
   /* Update velocity (and retarding of descent) according to present frame rate */
   accel = (GRAVITON_GRAVITY * fraction);
@@ -1430,8 +1430,8 @@ void renderFirework(EFFECT* psEffect)
   SDWORD rz = player.p.z & (TILE_UNITS - 1);
   Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(rx), 0.0f, static_cast<float>(-rz)) * Neuron::WorldMatrix(); /* Translate */
 
-  Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(-player.r.y * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
-  Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(-player.r.x * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
+  Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(-player.r.y) * Neuron::WorldMatrix();
+  Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(-player.r.x) * Neuron::WorldMatrix();
 
   UDWORD brightness = lightDoFogAndIllumination(pie_MAX_BRIGHT_LEVEL, getCentreX() - std::lrintf(psEffect->position.x),
                                                 getCentreZ() - std::lrintf(psEffect->position.z), &specular);
@@ -1456,8 +1456,8 @@ void renderBloodEffect(EFFECT* psEffect)
   SDWORD rx = player.p.x & (TILE_UNITS - 1); /* Get the x,z translation components */
   SDWORD rz = player.p.z & (TILE_UNITS - 1);
   Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(rx), 0.0f, static_cast<float>(-rz)) * Neuron::WorldMatrix(); /* Translate */
-  Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(-player.r.y * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
-  Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(-player.r.x * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
+  Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(-player.r.y) * Neuron::WorldMatrix();
+  Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(-player.r.x) * Neuron::WorldMatrix();
   scaleMatrix(psEffect->size);
 
   // set up lighting
@@ -1501,9 +1501,9 @@ void renderDestructionEffect(EFFECT* psEffect)
 
   if (!gamePaused())
   {
-    Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(SKY_SHIMMY * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
-    Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(SKY_SHIMMY * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
-    Neuron::WorldMatrix() = DirectX::XMMatrixRotationZ(SKY_SHIMMY * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
+    Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(SKY_SHIMMY) * Neuron::WorldMatrix();
+    Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(SKY_SHIMMY) * Neuron::WorldMatrix();
+    Neuron::WorldMatrix() = DirectX::XMMatrixRotationZ(SKY_SHIMMY) * Neuron::WorldMatrix();
   }
   pie_Draw3DShape(psEffect->imd, 0, 0, brightness, 0,pie_RAISE, percent);
 
@@ -1572,9 +1572,9 @@ void renderExplosionEffect(EFFECT* psEffect)
   {
     /* Always face the viewer! */
     /*		TEST_FLIPPED_Y(psEffect) ? pie_MatRotY(-player.r.y+iV_DEG(180)) :*/
-    Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(-player.r.y * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
+    Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(-player.r.y) * Neuron::WorldMatrix();
     /*		TEST_FLIPPED_X(psEffect) ? pie_MatRotX(-player.r.x+iV_DEG(180)) :*/
-    Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(-player.r.x * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
+    Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(-player.r.x) * Neuron::WorldMatrix();
   }
 
   /* Tesla explosions diminish in size */
@@ -1635,9 +1635,9 @@ void renderGravitonEffect(EFFECT* psEffect)
   /* Move to camera reference */
   Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(rx), 0.0f, static_cast<float>(-rz)) * Neuron::WorldMatrix();
 
-  Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(psEffect->rotation.x * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
-  Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(psEffect->rotation.y * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
-  Neuron::WorldMatrix() = DirectX::XMMatrixRotationZ(psEffect->rotation.z * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
+  Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(psEffect->rotation.x) * Neuron::WorldMatrix();
+  Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(psEffect->rotation.y) * Neuron::WorldMatrix();
+  Neuron::WorldMatrix() = DirectX::XMMatrixRotationZ(psEffect->rotation.z) * Neuron::WorldMatrix();
 
   /* Buildings emitted by gravitons are chunkier */
   if (psEffect->type == GRAVITON_TYPE_EMITTING_ST)
@@ -1691,9 +1691,9 @@ void renderConstructionEffect(EFFECT* psEffect)
   if (TEST_FACING(psEffect))
   {
     /*		TEST_FLIPPED_Y(psEffect) ? pie_MatRotY(-player.r.y+iV_DEG(180)) :*/
-    Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(-player.r.y * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
+    Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(-player.r.y) * Neuron::WorldMatrix();
     /*		TEST_FLIPPED_X(psEffect) ? pie_MatRotX(-player.r.x+iV_DEG(180)) :*/
-    Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(-player.r.x * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
+    Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(-player.r.x) * Neuron::WorldMatrix();
   }
 
   /* Scale size according to age */
@@ -1756,8 +1756,8 @@ void renderSmokeEffect(EFFECT* psEffect)
   if (TEST_FACING(psEffect))
   {
     /* Always face the viewer! */
-    Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(-player.r.y * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
-    Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(-player.r.x * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
+    Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(-player.r.y) * Neuron::WorldMatrix();
+    Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(-player.r.x) * Neuron::WorldMatrix();
   }
 
   /* Small smoke - used for the droids */
@@ -1967,13 +1967,13 @@ void effectSetupGraviton(EFFECT* psEffect)
     break;
   }
 
-  psEffect->rotation.x = DEG((rand()%360));
-  psEffect->rotation.z = DEG((rand()%360));
-  psEffect->rotation.y = DEG((rand()%360));
+  psEffect->rotation.x = DirectX::XMConvertToRadians(static_cast<float>(rand() % 360));
+  psEffect->rotation.z = DirectX::XMConvertToRadians(static_cast<float>(rand() % 360));
+  psEffect->rotation.y = DirectX::XMConvertToRadians(static_cast<float>(rand() % 360));
 
-  psEffect->spin.x = DEG((rand()%100)+20);
-  psEffect->spin.z = DEG((rand()%100)+20);
-  psEffect->spin.y = DEG((rand()%100)+20);
+  psEffect->spin.x = DirectX::XMConvertToRadians(static_cast<float>((rand() % 100) + 20));
+  psEffect->spin.z = DirectX::XMConvertToRadians(static_cast<float>((rand() % 100) + 20));
+  psEffect->spin.y = DirectX::XMConvertToRadians(static_cast<float>((rand() % 100) + 20));
 
   /* Gravitons are essential */
   SET_ESSENTIAL(psEffect);

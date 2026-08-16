@@ -35,9 +35,9 @@ extern UDWORD rayPointsToAngle(SDWORD x1, SDWORD y1, SDWORD x2, SDWORD y2);
 extern SDWORD rayPointDist(SDWORD x1, SDWORD y1, SDWORD x2, SDWORD y2, SDWORD px, SDWORD py);
 
 // Calculates the maximum height and distance found along a line from any
-// point to the edge of the grid
-extern void getBestPitchToEdgeOfGrid(UDWORD x, UDWORD y, UDWORD direction, SDWORD* pitch);
+// point to the edge of the grid; the direction and the pitch are radians
+extern void getBestPitchToEdgeOfGrid(UDWORD x, UDWORD y, float direction, float* pitch);
 
-extern void getPitchToHighestPoint(UDWORD x, UDWORD y, UDWORD direction, UDWORD thresholdDistance, SDWORD* pitch);
+extern void getPitchToHighestPoint(UDWORD x, UDWORD y, float direction, UDWORD thresholdDistance, float* pitch);
 
 #endif

@@ -540,6 +540,40 @@ established, against the text above:
   `Trig.cpp`/`Trig.h`, the `Window.cpp` init/shutdown calls, the `DEG`
   family in `RenderTypes.h`, and `RadiansPerWorldAngle`.
 
+**Status: the camera half (E3) is done**; only the deletion (E4) remains.
+Beyond the inventory above, the doing established:
+
+- **The scope was wider than the camera.** Everything that still bridged
+  through `RadiansPerWorldAngle` had to flip with it: `EFFECT`'s
+  `rotation`/`spin` (graviton tumble), the `SKY_SHIMMY` wobble, the
+  animation chain (`vecAngle` degrees×1000 in the `.ani` files now
+  convert to radians in `anim_GetFrame3D`, and
+  `COMPONENT_OBJECT::orientation` is `XMFLOAT3`), the `KeyMap.cpp`
+  map-marker `spin`, and `MultiPlay.cpp`'s lobby spin. After E3 the
+  constant has zero users.
+- **The desired-pitch convention flipped.** The old code stored the
+  wanted pitch as `360 − k` integer degrees (the camera held
+  `player.r.x` near `DEG(360−k)`); `desiredPitch` is now the magnitude
+  `k` in radians, `player.r.x` is plainly negative, and the
+  `DEG(360+MAX_PLAYER_X_ANGLE)`-style clamps became direct
+  radian comparisons.
+- **Two latent defects died with the units.** `getAverageTrackAngle`
+  could return negative degrees that a `UDWORD` call site fed to
+  sin/cos as ~4×10⁹ (garbage camera offsets whenever the average heading
+  pointed west), and E2 had left `displayComponentObject` subtracting a
+  radian `direction` from a degree `worldAngle` in the left-first winding
+  choice — both are `XMScalarModAngle` comparisons now.
+- **The dead code around the camera went.** `drawMapWorld` and its
+  `mapPos`/`mapView` globals (never written), `imdRot` (write-only) and
+  `imdRot2` (scratch, collapsed into direct rotations),
+  `disp3d_setView`/`disp3d_getView`, `camSetOldView`, `getPresAngle`,
+  `getTestAngle`/`updateTestAngle`, the empty logo spinner's state, and
+  the `BEHIND_DROID_DIRECTION` macro — each proved by whole-tree grep.
+- The ray caster keeps its whole-degree DDA tables; the pitch helpers
+  take and return radians and quantise to a ray index at the boundary.
+  The radar-track stop threshold is preserved exactly as
+  `10000 · (2π/65536)²` in the `ROTATION_SETTLED` constant.
+
 ### F — Verification
 
 - `tools/crosscheck.py` both configurations. mingw-w64 ships

@@ -1539,9 +1539,9 @@ void objectShimmy(BASE_OBJECT* psObj)
   if (justBeenHitByEW(psObj))
   {
     DirectX::XMMATRIX& world = Neuron::WorldMatrix();
-    world = DirectX::XMMatrixRotationX(SKY_SHIMMY * Neuron::RadiansPerWorldAngle) * world;
-    world = DirectX::XMMatrixRotationY(SKY_SHIMMY * Neuron::RadiansPerWorldAngle) * world;
-    world = DirectX::XMMatrixRotationZ(SKY_SHIMMY * Neuron::RadiansPerWorldAngle) * world;
+    world = DirectX::XMMatrixRotationX(SKY_SHIMMY) * world;
+    world = DirectX::XMMatrixRotationY(SKY_SHIMMY) * world;
+    world = DirectX::XMMatrixRotationZ(SKY_SHIMMY) * world;
     if (psObj->type == OBJ_DROID)
     {
       world = DirectX::XMMatrixTranslation(static_cast<float>(1 - rand() % 3), 0.0f, static_cast<float>(1 - rand() % 3)) * world;

@@ -39,7 +39,6 @@ extern UWORD ButYPos;
 extern UWORD ButWidth, ButHeight;
 extern BOOL godMode;
 
-#define MAX_MAP_GRID	32
 #define ROTATE_ANGLE	5
 
 /* ----------------------------------------------------------------------------------------- */
@@ -50,9 +49,6 @@ extern BOOL godMode;
 /* Draws the intelligence map to the already setup buffer */
 
 /* Frees up the memory we've used */
-
-/* Draw the grid */
-void drawMapWorld(void);
 
 /* Draw a tile on the grid */
 //void		drawMapTile				(SDWORD i, SDWORD j);//line draw nolonger used
@@ -73,15 +69,8 @@ static void fillMapBufferWithBitmap(iSurface* surface);
 /* ----------------------------------------------------------------------------------------- */
 
 static iTexture texturePage = {6, 64, 64, nullptr};
-SDWORD elevation;
-iVector mapPos, mapView;
-static iVector oldPos, oldView;
-static SDWORD mapGridWidth, mapGridHeight, mapGridMidX, mapGridMidY;
-static SDWORD mapGridX, mapGridZ;
-static SDWORD gridDivX, gridDivZ;
-static iVector tileScreenCoords[MAX_MAP_GRID][MAX_MAP_GRID];
 
-/*Flag to switch code for bucket sorting in renderFeatures etc 
+/*Flag to switch code for bucket sorting in renderFeatures etc
   for the renderMapToBuffer code */
 /*This is no longer used but may be useful for testing so I've left it in - maybe
 get rid of it eventually? - AB 1/4/98*/
@@ -91,81 +80,6 @@ BOOL doBucket = TRUE;
 
 //colours used to 'paint' the background of 3D view
 UDWORD intelColours[MAX_INTEL_SHADES];
-
-/* Draws the world into the current surface - set using 
-   Neuron::RenderAssign(MODE_SURFACE,pSurface) */
-void drawMapWorld(void)
-{
-  SDWORD i, j;
-  MAPTILE* psTile;
-  iVector tileCoords;
-  static UDWORD angle = 0;
-
-  /* How many tiles to draw on grid - calculate */
-  mapGridWidth = BUFFER_GRIDX;
-  mapGridHeight = BUFFER_GRIDY;
-
-  /* Mid point tiles? */
-  mapGridMidX = (mapGridWidth >> 1);
-  mapGridMidY = (mapGridHeight >> 1);
-
-  /* Where are we positioned? */
-  mapGridX = mapPos.x >> TILE_SHIFT;
-  mapGridZ = mapPos.z >> TILE_SHIFT;
-
-  /* Pixel position inside tile */
-  gridDivX = mapPos.x & (TILE_UNITS - 1);
-  gridDivZ = mapPos.z & (TILE_UNITS - 1);
-
-  /* Set up context */
-  Neuron::MatrixPush();
-  DirectX::XMMATRIX& view = Neuron::WorldMatrix();
-
-  /* Translate for the camera position */
-  view.r[3] = DirectX::XMVectorSet(0.0f, 0.0f, static_cast<float>(elevation), 1.0f);
-
-  /* Rotate for the view angle */
-  view = DirectX::XMMatrixRotationZ(mapView.z * Neuron::RadiansPerWorldAngle) * view;
-  view = DirectX::XMMatrixRotationX(mapView.x * Neuron::RadiansPerWorldAngle) * view;
-  view = DirectX::XMMatrixRotationY(mapView.y * Neuron::RadiansPerWorldAngle) * view;
-
-  /* Translate to our location */
-  view = DirectX::XMMatrixTranslation(static_cast<float>(-gridDivX), static_cast<float>(-mapPos.y),
-                                      static_cast<float>(gridDivZ)) * view;
-
-  /* Rotate round */
-  angle += ROTATE_ANGLE;
-  if (angle > 360)
-    angle -= 360;
-  view = DirectX::XMMatrixRotationY((DEG(angle) + mapPos.y) * Neuron::RadiansPerWorldAngle) * view;
-
-  /* Now we're in camera and viewer context */
-
-  for (i = 0; i < mapGridWidth + 1; i++)
-  {
-    for (j = 0; j < mapGridHeight + 1; j++)
-    {
-      psTile = mapTile(mapGridX + j, mapGridZ + i);
-      tileCoords.x = ((j - mapGridMidX) << TILE_SHIFT);
-      tileCoords.y = psTile->height;
-      tileCoords.z = ((mapGridMidY - i) << TILE_SHIFT);
-      /* Rotate and project the tile to get its screen coords and distance away */
-      tileScreenCoords[i][j].z =
-        Neuron::ProjectToScreen(tileCoords.x, tileCoords.y, tileCoords.z, &tileScreenCoords[i][j].x, &tileScreenCoords[i][j].y);
-    }
-  }
-
-  doBucket = FALSE;
-  displayFeatures();
-  displayStaticObjects();
-  displayDynamicObjects();
-  //don't show proximity messages in this view
-  //don't show Delivery Points in this view
-  doBucket = TRUE;
-
-  /* Close matrix context */
-  Neuron::MatrixPop();
-}
 
 /* unused
 void	drawMapTile(SDWORD i, SDWORD j)

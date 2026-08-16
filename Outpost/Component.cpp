@@ -534,8 +534,7 @@ void displayComponentObject(BASE_OBJECT* psObj)
   iVector position; //,null;
   DirectX::XMFLOAT3 rotation, mountRotation;
   int32 xShift, zShift;
-  UDWORD worldAngle;
-  SDWORD difference;
+  float difference;
   SDWORD frame;
   PROPULSION_STATS* psPropStats;
   UDWORD tileX, tileY;
@@ -544,10 +543,9 @@ void displayComponentObject(BASE_OBJECT* psObj)
   psDroid = (DROID*)psObj;
   psPropStats = asPropulsionStats + psDroid->asBits[COMP_PROPULSION].nStat;
 
-  worldAngle = static_cast<UDWORD>(player.r.y) / DEG_1 % 360;
-  difference = (worldAngle - psObj->direction);
+  difference = DirectX::XMScalarModAngle(player.r.y - psObj->direction);
 
-  if ((difference > 0 AND difference < 180) OR difference < -180)
+  if (difference > 0.0f)
     leftFirst = FALSE;
   else
     leftFirst = TRUE;
@@ -808,7 +806,7 @@ void displayCompObj(BASE_OBJECT* psObj, DirectX::XMFLOAT3* mountRotation, BOOL b
 
       /* vtol weapons inverted */
       if (iConnector == 1)
-        Neuron::WorldMatrix() = DirectX::XMMatrixRotationZ((DEG_360 / 2) * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix(); //this might affect gun rotation
+        Neuron::WorldMatrix() = DirectX::XMMatrixRotationZ(DirectX::XM_PI) * Neuron::WorldMatrix(); //this might affect gun rotation
 
       //SEPERATE Mount IMDs now...
       /*	Get the mounting graphic - we've already moved to the right position 
@@ -991,12 +989,12 @@ void displayCompObj(BASE_OBJECT* psObj, DirectX::XMFLOAT3* mountRotation, BOOL b
             Neuron::WorldMatrix() = DirectX::XMMatrixRotationZ(-psDroid->roll) * Neuron::WorldMatrix();
             Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(-mountRotation->y) * Neuron::WorldMatrix();
 
-            Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(-player.r.y * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
-            Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(-player.r.x * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
+            Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(-player.r.y) * Neuron::WorldMatrix();
+            Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(-player.r.x) * Neuron::WorldMatrix();
             pie_Draw3DShape(psShape, getStaticTimeValueRange(100, psShape->numFrames), 0, brightness, 0, pie_ADDITIVE, 140);
 
-            Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(player.r.x * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
-            Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(player.r.y * Neuron::RadiansPerWorldAngle) * Neuron::WorldMatrix();
+            Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(player.r.x) * Neuron::WorldMatrix();
+            Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(player.r.y) * Neuron::WorldMatrix();
           }
         }
         break;

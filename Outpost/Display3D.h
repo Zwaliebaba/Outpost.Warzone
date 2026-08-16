@@ -20,8 +20,6 @@ extern void scaleMatrix(UDWORD percent);
 extern void setViewPos(UDWORD x, UDWORD y, BOOL Pan);
 extern void getPlayerPos(SDWORD* px, SDWORD* py);
 extern void setPlayerPos(SDWORD x, SDWORD y);
-extern void disp3d_setView(iView* newView);
-extern void disp3d_getView(iView* newView);
 
 extern void draw3DScene(void);
 extern void renderDroid(DROID* psDroid);
@@ -50,14 +48,14 @@ extern void setBlipDraw(BOOL val);
 extern void setProximityDraw(BOOL val);
 extern void renderShadow(DROID* psDroid, iIMDShape* psShadowIMD);
 
-extern UDWORD getSuggestedPitch(void);
+/* The magnitude, in radians, of the down-pitch the terrain ahead asks for */
+extern float getSuggestedPitch(void);
 
 extern BOOL clipXY(SDWORD x, SDWORD y);
 
 extern int init3DView(void);
 extern void initViewPosition(void);
 extern iView player, camera;
-extern iVector imdRot;
 extern UDWORD distance;
 extern UDWORD terrainOutline;
 extern SDWORD mouseTileX;
@@ -74,7 +72,6 @@ extern int32 playerXTile, playerZTile, rx, rz;
 extern SDWORD scrollSpeed;
 extern BOOL gouraudShading;
 extern iBitmap** tilesRAW;
-extern UDWORD worldAngle;
 extern UDWORD stepIndex;
 extern iPalette gamePal;
 extern void assignSensorTarget(BASE_OBJECT* psObj);
@@ -96,9 +93,9 @@ extern UDWORD intensity1, intensity2, intensity3;
 extern UDWORD lightLevel;
 extern BOOL updateVideoCard;
 
-#define	INITIAL_DESIRED_PITCH		(325)
+/* Both pitches are degrees; the desired pitch is a magnitude, the camera holds -35 */
+#define	INITIAL_DESIRED_PITCH		(35)
 #define INITIAL_STARTING_PITCH		(-75)
-#define INITIAL_DESIRED_ROTATION	(-45)
 
 extern BOOL bRender3DOnly;
 
