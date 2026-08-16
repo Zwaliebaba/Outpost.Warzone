@@ -768,6 +768,11 @@ void pie_DrawText(unsigned char *String,int XPos,int YPos)
 /* Draw one character into a locked 32 bit back buffer. The subtitles over an
  * FMV sequence are the only thing that draws this way; everything else goes
  * through the textured quads in RenderModel.
+ *
+ * The position arrives in logical-canvas units like every other coordinate;
+ * each glyph pixel becomes a display-scale square of physical pixels, which
+ * keeps the subtitles sized and placed with the video frame and the darkened
+ * band seq_RenderOneFrame draws under them.
  */
 static void pie_RenderCharToBackBuffer(SCREEN_LOCK* psLock, IMAGEFILE* ImageFile, UWORD ID, int x, int y)
 {
@@ -777,7 +782,9 @@ static void pie_RenderCharToBackBuffer(SCREEN_LOCK* psLock, IMAGEFILE* ImageFile
   int w;
   int h;
   int ow;
-  int i, j;
+  int i, j, sy, sx;
+  int scale, destRow, destCol;
+  UDWORD pixel;
   UDWORD* bp;
 
   assert(ID < ImageFile->Header.NumImages);
@@ -788,27 +795,33 @@ static void pie_RenderCharToBackBuffer(SCREEN_LOCK* psLock, IMAGEFILE* ImageFile
 
   bmp += static_cast<UDWORD>(Image->Tu) + static_cast<UDWORD>(Image->Tv) * Modulus;
 
-  x = x + Image->XOffset;
-  y = y + Image->YOffset;
+  scale = static_cast<int>(Neuron::DisplayScale());
+  x = (x + Image->XOffset) * scale;
+  y = (y + Image->YOffset) * scale;
   w = Image->Width;
   h = Image->Height;
   ow = Modulus;
 
   for (i = 0; i < h; i++)
   {
-    if ((y + i < 0) || (y + i >= static_cast<int>(psLock->height)))
+    for (sy = 0; sy < scale; sy++)
     {
-      bmp += ow;
-      continue;
+      destRow = y + i * scale + sy;
+      if ((destRow < 0) || (destRow >= static_cast<int>(psLock->height)))
+        continue;
+      bp = (UDWORD*)(psLock->pPixels + psLock->pitch * destRow) + x;
+      destCol = 0;
+      for (j = 0; j < w; j++)
+      {
+        pixel = palette32Bit[bmp[j]];
+        for (sx = 0; sx < scale; sx++, destCol++)
+        {
+          if (bmp[j] && (x + destCol >= 0) && (x + destCol < static_cast<int>(psLock->width)))
+            bp[destCol] = pixel;
+        }
+      }
     }
-    bp = (UDWORD*)(psLock->pPixels + psLock->pitch * (y + i)) + x;
-    for (j = 0; j < w; j++)
-    {
-      if (*bmp && (x + j >= 0) && (x + j < static_cast<int>(psLock->width)))
-        bp[j] = palette32Bit[*bmp];
-      bmp++;
-    }
-    bmp += (ow - w);
+    bmp += ow;
   }
 }
 
