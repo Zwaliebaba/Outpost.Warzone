@@ -9,6 +9,8 @@
 	Alex M. */
 #include "stdio.h"
 #include "Frame.h"
+#include "Trig.h"
+#include "Input.h"
 #include "Geo.h"
 #include "RenderTypes.h"
 #include "Objects.h"

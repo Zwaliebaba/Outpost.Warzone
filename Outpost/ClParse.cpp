@@ -9,6 +9,7 @@
 #include "Direct.h"
 
 #include "Frame.h"
+#include "FrameResource.h"
 #include "Widget.h"
 
 #include "WinMain.h"

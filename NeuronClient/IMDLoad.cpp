@@ -17,6 +17,7 @@
 #include <stdio.h>
 
 #include "Frame.h"
+#include "FrameResource.h"
 #include "RenderMatrix.h" //for surface normals
 #include "Model.h"
 #include "IMD.h"	// for imd structures

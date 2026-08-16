@@ -1,6 +1,8 @@
 #include "pch.h"
 
 #include "Frame.h"
+#include "ListMacs.h"
+#include "FrameResource.h"
 #include "Geo.h"
 
 #include "Anim.h"

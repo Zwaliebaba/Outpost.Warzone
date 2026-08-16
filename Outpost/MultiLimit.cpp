@@ -6,6 +6,7 @@
  */
 
 #include "Frame.h"
+#include "FrameResource.h"
 #include "CSnap.h"
 #include "Widget.h"
 #include "HCI.h"

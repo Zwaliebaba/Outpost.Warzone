@@ -7,6 +7,8 @@
  */
 
 #include "Frame.h"
+#include "Window.h"
+#include "Input.h"
 #include "Display.h"
 #include "Map.h"
 #include "Disp2D.h"

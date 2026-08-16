@@ -4,6 +4,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "Frame.h"
+#include "FrameResource.h"
 #include "RenderTypes.h"
 #include "PieState.h"
 #include "TexMan.h"

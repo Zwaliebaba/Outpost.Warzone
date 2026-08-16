@@ -20,6 +20,8 @@
 /***************************************************************************/
 
 #include "Frame.h"
+#include "Screen.h"
+#include "DXError.h"
 #include "RenderTypes.h"
 #include "PieState.h"
 #include "Palette.h"

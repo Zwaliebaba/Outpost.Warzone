@@ -9,6 +9,7 @@
 /***************************************************************************/
 
 #include "Frame.h"
+#include "Screen.h"
 
 #include "RenderTypes.h"
 #include "D3D9Vertex.h"

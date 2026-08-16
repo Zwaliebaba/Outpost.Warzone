@@ -11,6 +11,8 @@
 // levLoadData printf's
 #define DEBUG_GROUP0
 #include "Frame.h"
+#include "ListMacs.h"
+#include "FrameResource.h"
 #include "Init.h"
 #include "Objects.h"
 #include "HCI.h"

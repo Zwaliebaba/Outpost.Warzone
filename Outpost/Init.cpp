@@ -8,6 +8,8 @@
 
 #include "stdio.h"
 #include "Frame.h"
+#include "Window.h"
+#include "FrameResource.h"
 #include "Init.h"
 #include "Mechanics.h"
 #include "Objects.h"

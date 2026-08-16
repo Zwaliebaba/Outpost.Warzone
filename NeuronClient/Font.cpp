@@ -3,6 +3,8 @@
 #include <stdio.h>
 
 #include "Frame.h"
+#include "Screen.h"
+#include "Font.h"
 #include "FrameInt.h"
 
 /* The header on a font file */

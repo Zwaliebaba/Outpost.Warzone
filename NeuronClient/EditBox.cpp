@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Frame.h"
+#include "Input.h"
 #include "Widget.h"
 #include "WidgInt.h"
 #include "EditBox.h"

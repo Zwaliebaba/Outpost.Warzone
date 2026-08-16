@@ -10,6 +10,7 @@
 #include <stdio.h>
 
 #include "Frame.h"
+#include "Trig.h"
 
 #include "Objects.h"
 #include "Map.h"

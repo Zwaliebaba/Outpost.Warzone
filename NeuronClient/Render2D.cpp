@@ -10,6 +10,7 @@
 /***************************************************************************/
 
 #include "Frame.h"
+#include "Screen.h"
 #include <time.h>
 #include "Render2D.h"
 #include "TexMan.h"

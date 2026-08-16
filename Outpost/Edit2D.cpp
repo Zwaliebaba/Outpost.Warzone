@@ -11,6 +11,7 @@
 /* Grab box printf's */
 /* Selection flip and rotate printf's */
 #include "Frame.h"
+#include "Window.h"
 #include "FrameInt.h"
 
 #include "GTime.h"

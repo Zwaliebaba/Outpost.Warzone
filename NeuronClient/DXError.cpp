@@ -7,9 +7,6 @@
 #include <d3d9.h>
 #pragma warning (default : 4201 4214 4115)
 
-/* Allow frame header files to be singly included */
-#define FRAME_LIB_INCLUDE
-
 #include "DXError.h"
 #include "Types.h"
 

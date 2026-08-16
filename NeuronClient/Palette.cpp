@@ -1,5 +1,6 @@
 #include "pch.h"
 #include <stdio.h>
+#include "Screen.h"
 #include <math.h>
 #include "PieState.h"
 #include "Palette.h"

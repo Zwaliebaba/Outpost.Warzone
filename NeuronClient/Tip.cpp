@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Frame.h"
+#include "Input.h"
 #include "FrameInt.h"
 #include "Widget.h"
 #include "Tip.h"

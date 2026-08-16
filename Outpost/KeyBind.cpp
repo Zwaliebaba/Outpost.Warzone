@@ -1,5 +1,8 @@
 #include "pch.h"
 #include "Frame.h"
+#include "GTime.h"
+#include "StrRes.h"
+#include "Input.h"
 #include "Objects.h"
 #include "Base.h"
 #include "Map.h"

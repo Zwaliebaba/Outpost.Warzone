@@ -6,6 +6,7 @@
 
 // --------------------------------------------------------------------
 #include "Frame.h"
+#include "StrRes.h"
 #include "GTime.h"
 #include "Console.h"
 #include "Scores.h"

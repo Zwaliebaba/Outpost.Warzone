@@ -10,6 +10,7 @@
 #include <stdio.h>					// for sprintf
 
 #include "Frame.h"
+#include "StrRes.h"
 
 #include "ObjMem.h"
 #include "StatsDef.h"

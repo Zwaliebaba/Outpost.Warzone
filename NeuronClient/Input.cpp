@@ -6,9 +6,6 @@
 #include <windows.h>
 #pragma warning (default : 4201 4214 4115)
 
-/* Allow frame header files to be singly included */
-#define FRAME_LIB_INCLUDE
-
 /* The input buffer printf's */
 #include "Types.h"
 #include "Input.h"

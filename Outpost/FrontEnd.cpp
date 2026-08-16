@@ -15,6 +15,10 @@
 
 #include "stdio.h"
 #include "Frame.h"
+#include "Window.h"
+#include "FrameResource.h"
+#include "StrRes.h"
+#include "Input.h"
 #include "WinMain.h"
 #include "Objects.h"
 #include "Display.h"

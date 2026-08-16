@@ -76,9 +76,6 @@ typedef struct yyNamedType_tag
 static int printf(char* c, ...) { return 0; }
 #endif
 
-/* Allow frame header files to be singly included */
-#define FRAME_LIB_INCLUDE
-
 #include "Types.h"
 #include "Treap.h"
 #include "StrRes.h"

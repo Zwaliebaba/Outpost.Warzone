@@ -8,13 +8,6 @@
 #ifndef _treapint_h
 #define _treapint_h
 
-/* Check the header files have been included from frame.h if they
- * are used outside of the framework library.
- */
-#if !defined(_frame_h) && !defined(FRAME_LIB_INCLUDE)
-#error Framework header files MUST be included from Frame.h ONLY.
-#endif
-
 /* Recursive function to add an object to a tree */
 extern void treapAddNode(TREAP_NODE** ppsRoot, TREAP_NODE* psNew, TREAP_CMP cmp);
 

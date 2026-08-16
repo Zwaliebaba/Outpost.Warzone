@@ -8,6 +8,7 @@
 */
 
 #include "Frame.h"
+#include "StrRes.h"
 #include "Objects.h"
 #include "Base.h"
 #include "DroidDef.h"

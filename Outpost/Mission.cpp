@@ -1,4 +1,7 @@
 #include "pch.h"
+#include "Window.h"
+#include "Trig.h"
+#include "StrRes.h"
 /*
  * mission.c
  *

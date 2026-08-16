@@ -1,6 +1,7 @@
 #include "pch.h"
 #include <assert.h>
 #include "RendMode.h"
+#include "FrameResource.h"
 #include "Palette.h"
 #include "Pcx.h"
 #include "Tex.h"

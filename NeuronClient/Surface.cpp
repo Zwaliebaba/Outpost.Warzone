@@ -7,6 +7,9 @@
  */
 
 #include "Frame.h"
+#include "Surface.h"
+#include "Image.h"
+#include "Screen.h"
 #include "FrameInt.h"
 
 #define NUM_8BIT_PAL_ENTRIES	256

@@ -31,6 +31,7 @@
 #endif
 /* Includes from PUMPKIN stuff */
 #include "Frame.h"
+#include "Input.h"
 #include "Map.h"
 #include "Move.h"
 #include "Visibility.h"

@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Widget.h"
+#include "Input.h"
 #include "WidgInt.h"
 #include "Slider.h"
 #include "RendMode.h"

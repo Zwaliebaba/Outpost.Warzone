@@ -5,6 +5,8 @@
  */
 #include <direct.h>
 #include "Frame.h"
+#include "Window.h"
+#include "Screen.h"
 #include "Widget.h"
 #include "Script.h"
 #include "Init.h"

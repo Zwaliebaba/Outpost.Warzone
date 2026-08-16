@@ -65,4 +65,26 @@ extern UDWORD getStaticTimeValueRange(UDWORD tickFrequency, UDWORD requiredRange
 
 extern void getTimeComponents(UDWORD time, UDWORD* hours, UDWORD* minutes, UDWORD* seconds);
 
+/* The frame counters. These were Frame.h's, beside the window and the message
+ * pump; they are here because core code reads them - NetSupp stamps every
+ * network log entry with the frame number - and a headless build has a frame
+ * number without having a window. Window.cpp advances them once per frame.
+ */
+
+/* Returns the current frame we're on - used to establish whats on screen */
+extern UDWORD frameGetFrameNumber(void);
+
+/* Return the current frame rate */
+extern UDWORD frameGetFrameRate(void);
+
+/* Return the overall frame rate */
+extern UDWORD frameGetOverallRate(void);
+
+/* Return the frame rate for the last second */
+extern UDWORD frameGetRecentRate(void);
+
+/* Called by the frame loop: once at start up, then once per frame */
+extern void gtimeFrameCountInit(void);
+extern void gtimeFrameCountUpdate(void);
+
 #endif

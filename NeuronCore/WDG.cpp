@@ -14,6 +14,7 @@
 #include <assert.h>
 
 #include "Frame.h"
+#include "FrameResource.h"
 #include "WDG.h"
 #include "MultiWDG.h"
 

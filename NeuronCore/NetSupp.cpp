@@ -15,6 +15,7 @@
 // ////////////////////////////////////////////////////////////////////////
 // Includes
 #include "Frame.h"
+#include "GTime.h"
 #include "NetPlay.h"
 
 #include <time.h>

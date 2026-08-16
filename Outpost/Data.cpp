@@ -9,6 +9,7 @@
 #include <assert.h>
 
 #include "Frame.h"
+#include "StrRes.h"
 //render library
 #include "RenderTypes.h"
 #include "Model.h"

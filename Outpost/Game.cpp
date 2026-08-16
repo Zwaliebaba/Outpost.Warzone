@@ -10,6 +10,7 @@
 
 /* Warzone src and library headers */
 #include "Frame.h"
+#include "StrRes.h"
 #include "FrameInt.h"
 #include "Ivis02.h"
 #include "Script.h"

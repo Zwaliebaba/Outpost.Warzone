@@ -9,6 +9,7 @@
 /***************************************************************************/
 
 #include "Frame.h"
+#include "Screen.h"
 #include "PieState.h"
 #include "PieMode.h"
 #include "RenderMatrix.h"

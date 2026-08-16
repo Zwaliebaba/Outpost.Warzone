@@ -5,6 +5,7 @@
 #include "Findpath.h"
 #include "Formation.h"
 #include "Frame.h"
+#include "Trig.h"
 #include "GTime.h"
 #include "Geometry.h"
 #include "HCI.h"

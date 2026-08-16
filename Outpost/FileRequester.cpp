@@ -7,6 +7,8 @@
  * FileRequester.h for why a widget this general was once called loadsave.
  */
 #include "Frame.h"
+#include "StrRes.h"
+#include "Input.h"
 #include "Widget.h"
 #include "Palette.h"		// for predefined colours.
 #include "RendMode.h"		// for boxfill

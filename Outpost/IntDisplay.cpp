@@ -11,6 +11,8 @@
 #include <assert.h>
 
 #include "Frame.h"
+#include "StrRes.h"
+#include "Input.h"
 
 #include "Objects.h"
 #include "Loop.h"

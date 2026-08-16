@@ -7,6 +7,7 @@
  */
 #include <time.h>
 #include "Frame.h"
+#include "StrRes.h"
 #include "Widget.h"
 /* Includes direct access to render library */
 #include "RendMode.h"

@@ -14,6 +14,8 @@
 /***************************************************************************/
 
 #include "RendMode.h"
+#include "Screen.h"
+#include "DXError.h"
 #include "Tex.h"
 #include "Palette.h"
 #include "PieState.h"

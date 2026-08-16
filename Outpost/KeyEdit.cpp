@@ -9,6 +9,8 @@
 // includes 
 #include "AudioSystem.h"
 #include "Frame.h"
+#include "StrRes.h"
+#include "Input.h"
 #include "Widget.h"
 #include "FrontEnd.h"
 #include "Frend.h"

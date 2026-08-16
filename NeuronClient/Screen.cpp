@@ -19,6 +19,9 @@
 #pragma warning (default : 4201 4214 4115)
 
 #include "Frame.h"
+#include "Window.h"
+#include "DXError.h"
+#include "Font.h"
 #include "FrameInt.h"
 
 /* The Current screen size and bit depth */

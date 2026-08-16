@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Frame.h"
+#include "StrRes.h"
 #include "Display.h"	// gamma
 #include "PieState.h"	// setgamma.
 #include "WarzoneConfig.h"

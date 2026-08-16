@@ -11,6 +11,9 @@
 #include <math.h>
 
 #include "Frame.h"
+#include "StrRes.h"
+#include "Screen.h"
+#include "Input.h"
 #include "Widget.h"
 
 #include "Objects.h"

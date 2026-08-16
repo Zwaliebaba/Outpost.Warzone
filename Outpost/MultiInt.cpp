@@ -11,6 +11,9 @@
 #include <direct.h>		//dito
 
 #include "Frame.h"
+#include "FrameResource.h"
+#include "StrRes.h"
+#include "Input.h"
 #include "FrameInt.h"
 #include "Widget.h"
 

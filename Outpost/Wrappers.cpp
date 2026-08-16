@@ -8,6 +8,10 @@
 #include <stdio.h>
 
 #include "Frame.h"
+#include "Window.h"
+#include "FrameResource.h"
+#include "Screen.h"
+#include "Input.h"
 #include "RendMode.h"
 #include "BitImage.h"
 #include "PieState.h"

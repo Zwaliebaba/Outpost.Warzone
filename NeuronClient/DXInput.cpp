@@ -1,6 +1,7 @@
 #include "pch.h"
 
 #include "Frame.h"
+#include "Screen.h"
 #include "FrameInt.h"
 #include "DXInput.h"
 

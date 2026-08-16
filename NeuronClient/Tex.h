@@ -1,5 +1,6 @@
 #ifndef _tex_
 #define _tex_
+#include <d3d9.h>
 #include "RenderTypes.h"
 
 

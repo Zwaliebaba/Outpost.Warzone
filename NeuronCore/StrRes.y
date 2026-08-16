@@ -16,9 +16,6 @@ static int printf(char* c, ...)
 }
 #endif
 
-/* Allow frame header files to be singly included */
-#define FRAME_LIB_INCLUDE
-
 #include "Types.h"
 #include "Debug.h"
 #include "Mem.h"

@@ -7,6 +7,8 @@
 #ifndef _text_h
 #define _text_h
 
+#include "StrRes.h"
+
 //the two defines below are MUTUALLY EXCLUSIVE! don't have both defined...
 #define	STORE_RESOURCE_ID
 

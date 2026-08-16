@@ -22,6 +22,7 @@
 #include <memory>
 
 #include "Frame.h"
+#include "FrameResource.h"
 #include "Priority.h"
 #include "AudioSystem.h"
 #include "AudioMixer.h"

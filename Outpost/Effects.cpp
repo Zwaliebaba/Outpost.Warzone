@@ -5,6 +5,7 @@
 #include "Bucket3D.h"
 #include "Display3D.h"
 #include "Frame.h"
+#include "Input.h"
 #include "GTime.h"
 #include "Game.h"
 #include "Geo.h"  

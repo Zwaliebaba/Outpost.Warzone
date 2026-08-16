@@ -6,6 +6,7 @@
  */
 
 #include "Frame.h"
+#include "StrRes.h"
 #include "Widget.h"
 
 #include "Display3D.h"

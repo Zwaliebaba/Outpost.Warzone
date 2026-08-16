@@ -10,6 +10,9 @@
 
 /* loop position printf's */
 #include "Frame.h"
+#include "Window.h"
+#include "Screen.h"
+#include "Input.h"
 #include "Loop.h"
 #include "RendMode.h"
 #include "PieState.h" //ivis render code

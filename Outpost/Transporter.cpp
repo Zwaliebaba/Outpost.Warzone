@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "StrRes.h"
 /*
  * transporter.c
  *
