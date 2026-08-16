@@ -915,16 +915,6 @@ static void addGameOptions(BOOL bRedo)
                 IMAGE_SLIM, IMAGE_SLIM_HI,FALSE);
   }
 
-  // disable buttons not available in lobby games
-  if (NetPlay.bLobbyLaunched)
-  {
-    widgSetButtonState(psWScreen, MULTIOP_GNAME,WEDBS_DISABLE);
-    widgSetButtonState(psWScreen, MULTIOP_GNAME_ICON,WBUT_DISABLE);
-
-    widgSetButtonState(psWScreen, MULTIOP_PNAME,WEDBS_DISABLE);
-    widgSetButtonState(psWScreen, MULTIOP_PNAME_ICON,WBUT_DISABLE);
-  }
-
   //disable demo options
 #ifdef MULTIDEMO
 
@@ -1344,11 +1334,6 @@ VOID stopJoining(void)
   if (bWhiteBoardUp)
     removeWhiteBoard();
 
-  if (NetPlay.bLobbyLaunched)
-  {
-    changeTitleMode(QUIT);
-    return;
-  }
   if (bHosted) // cancel a hosted game.
   {
     sendLeavingMsg(); // say goodbye
@@ -1435,7 +1420,6 @@ static VOID chooseSkirmishColours()
 static void processMultiopWidgets(UDWORD id)
 {
   PLAYERSTATS playerStats;
-  UDWORD i;
   STRING tmp[255];
 
   // host, who is setting up the game
@@ -1751,16 +1735,6 @@ static void processMultiopWidgets(UDWORD id)
     hostCampaign(game.name, (STRING*)sPlayer);
     bHosted = TRUE;
 
-    // wait for players, when happy, send options.
-    if (NetPlay.bLobbyLaunched)
-    {
-      for (i = 0; i < MAX_PLAYERS; i++) // send options to everyone.
-      {
-        if (isHumanPlayer(i))
-          sendOptions(player2dpid[i], i);
-      }
-    }
-
     widgDelete(psWScreen,MULTIOP_REFRESH);
     widgDelete(psWScreen,MULTIOP_HOST);
 
@@ -1998,8 +1972,7 @@ void runMultiOptions(VOID)
   if ((gameTime - lastrefresh) > 2000)
   {
     lastrefresh = gameTime;
-    if (!multiRequestUp && (bHosted || (ingame.localJoiningInProgress && !NetPlay.bLobbyLaunched) || (NetPlay.bLobbyLaunched && ingame.
-      localOptionsReceived)))
+    if (!multiRequestUp && (bHosted || ingame.localJoiningInProgress))
     {
       // store the slider settings if they are up,
       for (id = 0; id < MAX_PLAYERS; id++)
@@ -2203,27 +2176,11 @@ BOOL startMultiOptions(BOOL bReenter)
     // check the registry for setup entries and set game options.
     //		NETcheckRegistryEntries("Warzone2100",S_WARZONEGUID);		// check for registry entries.. warn if not ok...
 
-    if (NetPlay.bLobbyLaunched)
-    {
-      game.bytesPerSec = INETBYTESPERSEC; // maximum bitrate achieved before dropping checks.
-      game.packetsPerSec = INETPACKETS;
-    }
-
     loadMultiStats((STRING*)sPlayer, &nullStats);
   }
 
   addPlayerBox(FALSE); // Players
   addGameOptions(FALSE);
-
-  if (NetPlay.bLobbyLaunched)
-  {
-    if (!NetPlay.bHost)
-    {
-      ingame.localJoiningInProgress = TRUE;
-      widgDelete(psWScreen,MULTIOP_REFRESH);
-    }
-    ingame.localOptionsReceived = FALSE;
-  }
 
   addChatBox();
 

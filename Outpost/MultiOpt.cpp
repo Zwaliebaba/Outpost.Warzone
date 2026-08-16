@@ -56,7 +56,6 @@ static BOOL dMatchInit(VOID);
 static BOOL campInit(VOID);
 BOOL hostCampaign(STRING* sGame, STRING* sPlayer);
 BOOL joinCampaign(UDWORD gameNumber, STRING* playername);
-BOOL LobbyLaunched(VOID);
 VOID playerResponding(VOID);
 BOOL multiInitialise(VOID); //only once.
 BOOL lobbyInitialise(VOID); //only once.
@@ -251,15 +250,7 @@ BOOL hostCampaign(STRING* sGame, STRING* sPlayer)
   UDWORD pl, numpl, i, j;
 
   freeMessages();
-  if (!NetPlay.bLobbyLaunched)
-    NEThostGame(sGame, sPlayer, game.type, 0, 0, 0, game.maxPlayers); // temporary stuff  	
-  else
-  {
-    NETsetGameFlags(1, game.type);
-    // 2 is average ping
-    NETsetGameFlags(3, 0);
-    NETsetGameFlags(4, 0);
-  }
+  NEThostGame(sGame, sPlayer, game.type, 0, 0, 0, game.maxPlayers); // temporary stuff
 
   for (i = 0; i < MAX_PLAYERS; i++)
     player2dpid[i] = 0;
@@ -310,13 +301,12 @@ BOOL joinCampaign(UDWORD gameNumber, STRING* sPlayer)
 
   if (!ingame.localJoiningInProgress)
   {
-    if (!NetPlay.bLobbyLaunched)
-      /* The address rather than a session GUID. A browsed game carries the
-       * one the server gave it; with no server, gameNumber is not a real entry
-       * and NETjoinAddress is what the player typed on the connection screen.
-       */
-      NETjoinGame(NetPlay.games[gameNumber].address[0] ? NetPlay.games[gameNumber].address : NETjoinAddress,
-                  sPlayer); // join 
+    /* The address rather than a session GUID. A browsed game carries the
+     * one the server gave it; with no server, gameNumber is not a real entry
+     * and NETjoinAddress is what the player typed on the connection screen.
+     */
+    NETjoinGame(NetPlay.games[gameNumber].address[0] ? NetPlay.games[gameNumber].address : NETjoinAddress,
+                sPlayer); // join
     ingame.localJoiningInProgress = TRUE;
 
     loadMultiStats(sPlayer, &playerStats);
@@ -422,32 +412,6 @@ BOOL joinArena(UDWORD gameNumber, STRING *playerName)
 */
 
 // ////////////////////////////////////////////////////////////////////////////
-// Lobby launched. fires the correct routine when the game was lobby launched.
-BOOL LobbyLaunched(VOID)
-{
-  UDWORD i;
-  PLAYERSTATS pl = {0};
-
-  // set the player info as soon as possible to avoid screwy scores appearing elsewhere.
-  NETplayerInfo();
-  NETfindGame();
-
-  for (i = 0; (i < MAX_PLAYERS) && (NetPlay.players[i].dpid != NetPlay.dpidPlayer); i++);
-
-  if (!loadMultiStats(NetPlay.players[i].name, &pl))
-    return FALSE; // cheating was detected, so fail.
-
-  setMultiStats(NetPlay.dpidPlayer, pl,FALSE);
-  setMultiStats(NetPlay.dpidPlayer, pl,TRUE);
-
-  // setup text boxes on multiplay screen.
-  strcpy((STRING*)sPlayer, NetPlay.players[i].name);
-  strcpy(game.name, NetPlay.games[0].name);
-
-  return TRUE;
-}
-
-// ////////////////////////////////////////////////////////////////////////////
 // Init and shutdown routines 
 BOOL lobbyInitialise(VOID)
 {
@@ -469,19 +433,6 @@ BOOL lobbyInitialise(VOID)
   NETsetKey(NEThashFile("wzdemo.exe"), 0xb72a5, 0x114d0, 0x2a7);
 #endif
 
-  if (NetPlay.bLobbyLaunched) // now check for lobby launching..
-  {
-    // DISABLE LOBBIES HERE
-    //dont play lobby games from this covermount.
-
-#ifndef MULTIDEMO
-#ifdef COVERMOUNT
-    return FALSE;
-#endif
-#endif
-    if (!LobbyLaunched())
-      return FALSE;
-  }
   return TRUE;
 }
 
@@ -1008,7 +959,6 @@ BOOL multiGameShutdown(VOID)
   ingame.localJoiningInProgress = FALSE; // clean up
   ingame.localOptionsReceived = FALSE;
   ingame.bHostSetup = FALSE; //dont attempt a host
-  NetPlay.bLobbyLaunched = FALSE; //revert back to main menu, not multioptions.
   NetPlay.bHost = FALSE;
   bMultiPlayer = FALSE; //back to single player mode	
   selectedPlayer = 0; //back to use player 0 (single player friendly)

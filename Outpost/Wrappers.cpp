@@ -143,23 +143,7 @@ TITLECODE titleLoop(void)
 
     frameSetCursorFromRes(IDC_DEFAULT); // reset cursor	(sw)
 
-    if (NetPlay.bLobbyLaunched) // lobbies skip title screens & go into the game
-    {
-      if (NetPlay.bHost)
-        ingame.bHostSetup = TRUE;
-      else
-        ingame.bHostSetup = FALSE;
-
-      /* Was "is the DirectPlay interface up". Unreachable either way --
-       * bLobbyLaunched is never set -- so it asks the transport instead of
-       * naming an interface that no longer exists.
-       */
-      if (NetPlay.bComms)
-        changeTitleMode(MULTIOPTION);
-      else
-        changeTitleMode(QUIT);
-    }
-    else if (gameSpy.bGameSpy)
+    if (gameSpy.bGameSpy)
     {
       // set host
       if (NetPlay.bHost)

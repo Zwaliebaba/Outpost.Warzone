@@ -352,9 +352,6 @@ init: //jump here from the end if re_initialising
 #ifdef NON_INTERACT
               quit = TRUE;
 #endif
-
-              if (NetPlay.bLobbyLaunched)
-                quit = TRUE;
               break;
             case GAMECODE_FASTEXIT: Neuron::DebugTrace("GAMECODE_FASTEXIT\n");
               Restart = TRUE;

@@ -222,7 +222,7 @@ BOOL loadConfig(BOOL bResourceAvailable)
   if (bResourceAvailable)
   {
     // game name
-    if (!NetPlay.bLobbyLaunched && !gameSpy.bGameSpy)
+    if (!gameSpy.bGameSpy)
     {
       if (getWarzoneKeyString("gameName", (char*)&sBuf))
         strcpy(game.name, sBuf);
@@ -234,7 +234,7 @@ BOOL loadConfig(BOOL bResourceAvailable)
     }
 
     // player name
-    if (!NetPlay.bLobbyLaunched && !gameSpy.bGameSpy) // name will be set for us.
+    if (!gameSpy.bGameSpy) // name will be set for us.
     {
       if (getWarzoneKeyString("playerName", (char*)&sBuf))
         strcpy((STRING*)sPlayer, sBuf);
