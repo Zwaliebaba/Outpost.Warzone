@@ -153,10 +153,6 @@
       </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="script.l" />
-    <None Include="script.y" />
-    <None Include="StrRes.l" />
-    <None Include="StrRes.y" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -162,18 +162,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="StrRes.y">
-      <Filter>Gamelib</Filter>
-    </None>
-    <None Include="StrRes.l">
-      <Filter>Gamelib</Filter>
-    </None>
-    <None Include="script.y">
-      <Filter>Script</Filter>
-    </None>
-    <None Include="script.l">
-      <Filter>Script</Filter>
-    </None>
     <None Include="packages.config">
       <Filter>Project Files</Filter>
     </None>
