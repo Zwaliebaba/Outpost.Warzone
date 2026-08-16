@@ -440,7 +440,7 @@ iIMDShape* Neuron::ProcessIMD(UBYTE** ppFileData, UBYTE* FileDataEnd, UBYTE* IMD
 static iBool _imd_load_polys(UBYTE** ppFileData, UBYTE* FileDataEnd, iIMDShape* s)
 {
   int i, j; //, anim;
-  iVector p0, p1, p2, *points;
+  iVector* points;
   iIMDPoly* poly;
   int nFrames, pbRate, tWidth, tHeight;
 
@@ -503,26 +503,6 @@ static iBool _imd_load_polys(UBYTE** ppFileData, UBYTE* FileDataEnd, iIMDShape* 
         Neuron::DebugTrace("(_load_polys) [poly {}] memory alloc fail (poly indices)\n", i);
         return FALSE;
       }
-
-      // calc poly normal
-      if (poly->npnts > 2)
-      {
-        p0.x = points[poly->pindex[0]].x;
-        p0.y = points[poly->pindex[0]].y;
-        p0.z = points[poly->pindex[0]].z;
-
-        p1.x = points[poly->pindex[1]].x;
-        p1.y = points[poly->pindex[1]].y;
-        p1.z = points[poly->pindex[1]].z;
-
-        p2.x = points[poly->pindex[poly->npnts - 1]].x;
-        p2.y = points[poly->pindex[poly->npnts - 1]].y;
-        p2.z = points[poly->pindex[poly->npnts - 1]].z;
-
-        pie_SurfaceNormal(&p0, &p1, &p2, &poly->normal);
-      }
-      else
-        poly->normal.x = poly->normal.y = poly->normal.z = 0;
 
       if (poly->flags & IMD_TEXANIM)
       {

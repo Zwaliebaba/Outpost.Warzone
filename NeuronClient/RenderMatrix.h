@@ -43,7 +43,22 @@ namespace Neuron
   inline constexpr float StretchedDepthScale = static_cast<float>(FP12_MULTIPLIER >> STRETCHED_Z_SHIFT);
 
   // The current model -> camera transform: the top of the matrix stack.
+  // Compose local transforms onto it directly, pre-multiplied:
+  //   XMMATRIX& world = Neuron::WorldMatrix();
+  //   world = XMMatrixTranslation(x, y, z) * world;
+  // A reference names the stack slot that was current when it was taken, so
+  // take it after MatrixPush and do not carry it across MatrixPop.
   extern DirectX::XMMATRIX& WorldMatrix(void);
+
+  extern void MatrixPush(void);
+  extern void MatrixPop(void);
+
+  // World -> screen through the current matrix. Returns the stretched depth
+  // (world z through the matrix, times StretchedDepthScale); writes LONG_WAY
+  // to both coordinates when the point is at or behind the near limit.
+  extern SDWORD ProjectToScreen(float _x, float _y, float _z, SDWORD* _sx, SDWORD* _sy);
+
+  extern void SetGeometricOffset(int _x, int _y);
 }
 
 //*************************************************************************
@@ -107,14 +122,5 @@ extern void pie_SetGeometricOffset(int x, int y);
 
 // PIEVERTEX structure contains much infomation that is not required on the playstation ... and hence is not currently used
 extern BOOL pie_PieClockwise(PIEVERTEX* s);
-
-//*************************************************************************
-// Stage-B parity instrumentation, defined in DEBUG builds only and deleted
-// in stage D: pie_RotProj and the model-vertex loop feed every projected
-// point through the old fixed-point pipeline as well, and the report traces
-// the worst screen-space divergence at shutdown.
-
-extern void pie_MatParityCheck(SDWORD _x, SDWORD _y, SDWORD _z, float _sx, float _sy);
-extern void pie_MatParityReport(void);
 
 #endif

@@ -217,10 +217,6 @@ void pie_Draw3DShape(iIMDShape* shape, int frame, int team, UDWORD col, UDWORD s
       pPixels->d3dx = static_cast<float>(psRendSurface->xcentre) + XMVectorGetX(world) * focalX / rz;
       pPixels->d3dy = static_cast<float>(psRendSurface->ycentre) - XMVectorGetY(world) * focalY / rz;
     }
-
-#ifdef DEBUG
-    pie_MatParityCheck(pVertices->x, tempY, pVertices->z, pPixels->d3dx, pPixels->d3dy);
-#endif
   }
 
   //--
