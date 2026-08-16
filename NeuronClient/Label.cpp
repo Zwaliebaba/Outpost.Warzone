@@ -88,7 +88,7 @@ void labelDisplay(WIDGET* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pCol
   FontID = psLabel->FontID;
 
   Neuron::SetFont(FontID);
-  Neuron::SetTextColour(static_cast<UWORD>(*(pColours + WCOL_TEXT)));
+  Neuron::SetTextColour(*(pColours + WCOL_TEXT));
   if (psLabel->style & WLAB_ALIGNCENTRE)
   {
     fw = Neuron::GetTextWidth((unsigned char*)psLabel->aText);

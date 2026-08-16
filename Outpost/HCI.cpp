@@ -746,8 +746,8 @@ BOOL intInitialise(void)
   objectsChanged = FALSE;
 
   //set the default colours to be used for drawing outlines in 2D
-  outlineOK = pal_GetNearestColour(0xff, 0xff, 0xff);
-  outlineNotOK = pal_GetNearestColour(0xff, 0x00, 0x00);
+  outlineOK = 0xffffffff;
+  outlineNotOK = 0xffff0000;
 
   //	// Setup the power bar graph colours.
   //	PBarColour1 = screenGetCacheColour(255,0,0);	// Power used.

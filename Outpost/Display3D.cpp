@@ -137,7 +137,6 @@ void toggleReloadBarDisplay(void);
 void trackHeight(SDWORD desiredHeight);
 void setViewAngle(SDWORD angle);
 void setViewDistance(UDWORD dist);
-void getDefaultColours(void);
 void showShadePalette(void);
 /* Function prototypes:- */
 void scaleMatrix(UDWORD percent);
@@ -146,7 +145,7 @@ void locateMouse(void);
 void preprocessTiles(void);
 BOOL renderWallSection(STRUCTURE* psStructure);
 void buildTileTextures(void);
-void draw3dLine(iVector* src, iVector* dest, UBYTE col);
+void draw3dLine(iVector* src, iVector* dest, UDWORD col);
 float getSuggestedPitch(void);
 void drawDragBox(void);
 void setViewPos(UDWORD x, UDWORD y, BOOL Pan);
@@ -307,17 +306,13 @@ UDWORD destTileX = 0, destTileY = 0;
 
 unsigned char buildInfo[255];
 
-/* Colour strobe values for the strobing drag selection box */
-UBYTE boxPulseColours[BOX_PULSE_SIZE] = {233, 232, 231, 230, 229, 228, 227, 226, 225, 224};
+/* Colour strobe values for the strobing drag selection box - the white-to-
+ * grey ramp palette entries 233 down to 224 used to hold, packed */
+UDWORD boxPulseColours[BOX_PULSE_SIZE] = {
+  0xffffffff, 0xffefefef, 0xffdedede, 0xffcecece, 0xffbebebe, 0xffadadad, 0xff9d9d9d, 0xff8d8d8d, 0xff7c7c7c, 0xff6c6c6c,
+};
 UDWORD lightLevel = 12;
 UDWORD tCon, tIgn, tCal;
-
-using DEF_COLOURS = struct _defaultColours
-{
-  UBYTE red, green, blue, yellow, purple, white, black, cyan;
-};
-
-DEF_COLOURS defaultColours;
 
 SDWORD pitch;
 
@@ -327,7 +322,7 @@ void displayMultiChat(void)
   UDWORD pixelHeight = Neuron::GetTextLineSize();
 
   if (gameTime2 % 500 < 250)
-    pie_BoxFillIndex(RET_X + pixelLength + 3, 474 + E_H - (pixelHeight / 4),RET_X + pixelLength + 10, 473 + E_H, 255);
+    pie_BoxFillIndex(RET_X + pixelLength + 3, 474 + E_H - (pixelHeight / 4),RET_X + pixelLength + 10, 473 + E_H, COL_WHITE);
 
   /* GET RID OF THE MAGIC NUMBERS BELOW */
   pie_TransBoxFill(RET_X + 1, 474 + E_H - pixelHeight,RET_X + 1 + pixelLength + 2, 473 + E_H);
@@ -879,8 +874,6 @@ BOOL init3DView(void)
   initBulletTable();
 
   /* Set up light values */
-
-  getDefaultColours();
 
   /* Set up the player */
 
@@ -2616,7 +2609,7 @@ void drawStructureSelections(void)
   STRUCTURE* psStruct;
   SDWORD scrX, scrY, scrR;
   UDWORD longPowerCol;
-  UBYTE powerCol;
+  UDWORD powerCol;
   UDWORD health, width;
   UDWORD scale;
   BOOL bMouseOverStructure = FALSE;
@@ -2702,7 +2695,7 @@ void drawStructureSelections(void)
           if (health > width)
             health = width;
           health *= 2;
-          pie_BoxFillIndex(scrX - scrR - 1, scrY - 1, scrX + scrR + 1, scrY + 2, 1);
+          pie_BoxFillIndex(scrX - scrR - 1, scrY - 1, scrX + scrR + 1, scrY + 2, 0xff080808); // the near-black palette entry 1 held
           pie_BoxFillIndex(scrX - scrR, scrY, scrX - scrR + health, scrY + 1, powerCol);
         }
       }
@@ -2784,7 +2777,7 @@ void drawStructureSelections(void)
         powerCol = COL_GREEN;
         health = (((width * 10000) / 100) * health) / 10000;
         health *= 2;
-        pie_BoxFillIndex(scrX - scrR - 1, scrY - 1, scrX + scrR + 1, scrY + 2, 1);
+        pie_BoxFillIndex(scrX - scrR - 1, scrY - 1, scrX + scrR + 1, scrY + 2, 0xff080808); // the near-black palette entry 1 held
         pie_BoxFillIndex(scrX - scrR - 1, scrY, scrX - scrR + health, scrY + 1, powerCol);
       }
       //----
@@ -2879,7 +2872,7 @@ void drawDeliveryPointSelection(void)
       SDWORD scrR = psDelivPoint->screenR;
       /* Three DFX clips properly right now - not sure if software does */
       if ((scrX + scrR) > 0 AND (scrY + scrR) > 0 AND (scrX - scrR) < DISP_WIDTH AND (scrY - scrR) < DISP_HEIGHT)
-        pie_Box(scrX - scrR, scrY - scrR, scrX + scrR, scrY + scrR, 110);
+        pie_Box(scrX - scrR, scrY - scrR, scrX + scrR, scrY + scrR, 0xffffff9f); // the pale yellow palette entry 110 held
     }
   }
 }
@@ -3270,7 +3263,7 @@ void drawDroidCmndNo(DROID* psDroid)
 /* ---------------------------------------------------------------------------- */
 
 /* ---------------------------------------------------------------------------- */
-void draw3dLine(iVector* src, iVector* dest, UBYTE col)
+void draw3dLine(iVector* src, iVector* dest, UDWORD col)
 {
   iVector null, vec;
   iPoint srcS, destS;
@@ -3706,18 +3699,6 @@ iIMDShape* flattenImd(iIMDShape* imd, UDWORD structX, UDWORD structY, float dire
   return (imd);
 }
 
-void getDefaultColours(void)
-{
-  defaultColours.red = pal_GetNearestColour(255, 0, 0);
-  defaultColours.green = pal_GetNearestColour(0, 255, 0);
-  defaultColours.blue = pal_GetNearestColour(0, 0, 255);
-  defaultColours.yellow = pal_GetNearestColour(255, 255, 0);
-  defaultColours.purple = pal_GetNearestColour(255, 0, 255);
-  defaultColours.cyan = pal_GetNearestColour(0, 255, 255);
-  defaultColours.black = pal_GetNearestColour(0, 0, 0);
-  defaultColours.white = pal_GetNearestColour(255, 255, 255);
-}
-
 #ifdef JOHN
 #endif
 
@@ -3937,13 +3918,13 @@ void drawTerrainTile(UDWORD i, UDWORD j) //hardware only
      tileScreenInfo[i+0][j+0].sx,tileScreenInfo[i+0][j+0].sy,255);*/
 
     pie_Line(tileScreenInfo[i + 0][j + 0].sx, tileScreenInfo[i + 0][j + 0].sy, tileScreenInfo[i + 0][j + 1].sx,
-            tileScreenInfo[i + 0][j + 1].sy, 255);
+            tileScreenInfo[i + 0][j + 1].sy, COL_WHITE);
     pie_Line(tileScreenInfo[i + 0][j + 1].sx, tileScreenInfo[i + 0][j + 1].sy, tileScreenInfo[i + 1][j + 1].sx,
-            tileScreenInfo[i + 1][j + 1].sy, 255);
+            tileScreenInfo[i + 1][j + 1].sy, COL_WHITE);
     pie_Line(tileScreenInfo[i + 1][j + 1].sx, tileScreenInfo[i + 1][j + 1].sy, tileScreenInfo[i + 1][j + 0].sx,
-            tileScreenInfo[i + 1][j + 0].sy, 255);
+            tileScreenInfo[i + 1][j + 0].sy, COL_WHITE);
     pie_Line(tileScreenInfo[i + 1][j + 0].sx, tileScreenInfo[i + 1][j + 0].sy, tileScreenInfo[i + 0][j + 0].sx,
-            tileScreenInfo[i + 0][j + 0].sy, 255);
+            tileScreenInfo[i + 0][j + 0].sy, COL_WHITE);
   }
 
   if (bOutlined)

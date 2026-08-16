@@ -84,14 +84,14 @@ BOOL barGraphCreate(W_BARGRAPH** ppsWidget, W_BARINIT* psInit)
   else
     (*ppsWidget)->display = barGraphDisplay;
   /* Set the major colour */
-  //	(*ppsWidget)->majorCol = screenGetCacheColour(psInit->sCol.red,
-  (*ppsWidget)->majorCol = pal_GetNearestColour(psInit->sCol.red, psInit->sCol.green, psInit->sCol.blue);
+  (*ppsWidget)->majorCol = 0xff000000 | (static_cast<UDWORD>(psInit->sCol.red) << 16) | (static_cast<UDWORD>(psInit->sCol.green) << 8) |
+    static_cast<UDWORD>(psInit->sCol.blue);
 
   /* Set the minor colour if necessary */
   if (psInit->style & WBAR_DOUBLE)
   {
-    //		(*ppsWidget)->minorCol = screenGetCacheColour(psInit->sMinorCol.red,
-    (*ppsWidget)->majorCol = pal_GetNearestColour(psInit->sMinorCol.red, psInit->sMinorCol.green, psInit->sMinorCol.blue);
+    (*ppsWidget)->majorCol = 0xff000000 | (static_cast<UDWORD>(psInit->sMinorCol.red) << 16) |
+      (static_cast<UDWORD>(psInit->sMinorCol.green) << 8) | static_cast<UDWORD>(psInit->sMinorCol.blue);
   }
 
   barGraphInitialise(*ppsWidget);

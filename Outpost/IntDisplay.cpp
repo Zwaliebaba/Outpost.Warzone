@@ -3271,8 +3271,8 @@ void intDisplayAllyIcon(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
  */
 void drawBlueBox(UDWORD x, UDWORD y, UDWORD w, UDWORD h)
 {
-  UBYTE dark = COL_BLUE;
-  UBYTE light = COL_LIGHTBLUE;
+  UDWORD dark = COL_BLUE;
+  UDWORD light = COL_LIGHTBLUE;
 
   // box
   pie_BoxFillIndex(x - 1, y - 1, x + w + 1, y + h + 1, light);

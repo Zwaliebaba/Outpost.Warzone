@@ -396,7 +396,7 @@ void removeWildcards(char* pStr)
 
 static void displayRequesterBanner(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pColours)
 {
-  UBYTE col;
+  UDWORD col;
   UDWORD x = xOffset + psWidget->x;
   UDWORD y = yOffset + psWidget->y;
 

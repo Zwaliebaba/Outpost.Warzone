@@ -552,7 +552,7 @@ void editBoxDisplay(WIDGET* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pC
   fx = x0 + WEDB_XGAP; // + (psEdBox->width - fw) / 2;
 
   Neuron::SetFont(CurrFontID);
-  Neuron::SetTextColour(static_cast<UBYTE>(*(pColours + WCOL_TEXT)));
+  Neuron::SetTextColour(*(pColours + WCOL_TEXT));
 
   fy = y0 + (psEdBox->height - Neuron::GetTextLineSize()) / 2 - Neuron::GetTextAboveBase();
 

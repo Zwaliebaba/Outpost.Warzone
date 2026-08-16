@@ -20,55 +20,25 @@ using TAB_POS = struct _tab_pos
   UDWORD width, height;
 };
 
-/* Set default colours for a form */
+/* Set default colours for a form.
+ *
+ * Packed A8R8G8B8; these were the nearest palette entries to the same
+ * values, resolved on first use. WCOL_TEXT of -1 reads as opaque white,
+ * which modulates the font bitmap to its own colours - that is what
+ * "-1 means use bitmap" always meant in effect. WCOL_DARK keeps the
+ * near-black the palette match used to land on, since the nearest-colour
+ * search never returned the transparent entry 0.
+ */
 static void formSetDefaultColours(W_FORM* psForm)
 {
-  static BOOL bDefaultsSet = FALSE;
-  static UBYTE wcol_bkgrnd;
-  static SDWORD wcol_text;
-  static UBYTE wcol_light;
-  static UBYTE wcol_dark;
-  static UBYTE wcol_hilite;
-  static UBYTE wcol_cursor;
-  static UBYTE wcol_tipbkgrnd;
-  static UBYTE wcol_disable;
-
-  if (bDefaultsSet)
-  {
-    psForm->aColours[WCOL_BKGRND] = wcol_bkgrnd;
-    psForm->aColours[WCOL_TEXT] = wcol_text;
-    psForm->aColours[WCOL_LIGHT] = wcol_light;
-    psForm->aColours[WCOL_DARK] = wcol_dark;
-    psForm->aColours[WCOL_HILITE] = wcol_hilite;
-    psForm->aColours[WCOL_CURSOR] = wcol_cursor;
-    psForm->aColours[WCOL_TIPBKGRND] = wcol_tipbkgrnd;
-    psForm->aColours[WCOL_DISABLE] = wcol_disable;
-  }
-  else
-  {
-    wcol_bkgrnd = pal_GetNearestColour(0x7f, 0x7f, 0x7f);
-    wcol_text = -1;
-    wcol_light = pal_GetNearestColour(0xff, 0xff, 0xff);
-    wcol_dark = pal_GetNearestColour(0, 0, 0);
-    wcol_hilite = pal_GetNearestColour(0x40, 0x40, 0x40);
-    wcol_cursor = pal_GetNearestColour(0xff, 0x00, 0x00);
-    wcol_tipbkgrnd = pal_GetNearestColour(0x30, 0x30, 0x60);
-    wcol_disable = pal_GetNearestColour(0xbf, 0xbf, 0xbf);
-
-    bDefaultsSet = TRUE;
-
-    psForm->aColours[WCOL_BKGRND] = wcol_bkgrnd;
-    psForm->aColours[WCOL_TEXT] = wcol_text;
-    psForm->aColours[WCOL_LIGHT] = wcol_light;
-    psForm->aColours[WCOL_DARK] = wcol_dark;
-    psForm->aColours[WCOL_HILITE] = wcol_hilite;
-    psForm->aColours[WCOL_CURSOR] = wcol_cursor;
-    psForm->aColours[WCOL_TIPBKGRND] = wcol_tipbkgrnd;
-    psForm->aColours[WCOL_DISABLE] = wcol_disable;
-  }
-  //old colours ??
-  //	psForm->aColours[WCOL_TEXT] = -1;	// use bmp colours  was screenGetCacheColour(0,0,0);
-  //	psForm->aColours[WCOL_TIPBKGRND] = screenGetCacheColour(50,50,100); //was screenGetCacheColour(0xcc,0xcc,0xcc);
+  psForm->aColours[WCOL_BKGRND] = 0xff7f7f7f;
+  psForm->aColours[WCOL_TEXT] = -1;
+  psForm->aColours[WCOL_LIGHT] = 0xffffffff;
+  psForm->aColours[WCOL_DARK] = 0xff080808;
+  psForm->aColours[WCOL_HILITE] = 0xff404040;
+  psForm->aColours[WCOL_CURSOR] = 0xffff0000;
+  psForm->aColours[WCOL_TIPBKGRND] = 0xff303060;
+  psForm->aColours[WCOL_DISABLE] = 0xffbfbfbf;
 }
 
 /* Create a plain form widget */
@@ -577,7 +547,8 @@ void widgSetColour(W_SCREEN* psScreen, UDWORD id, UDWORD colour, UBYTE red, UBYT
     DEBUG_ASSERT_TEXT(FALSE, "widgSetColour: Colour id out of range");
     return;
   }
-  psForm->aColours[colour] = pal_GetNearestColour(red, green, blue);
+  psForm->aColours[colour] = static_cast<SDWORD>(0xff000000 | (static_cast<UDWORD>(red) << 16) | (static_cast<UDWORD>(green) << 8) |
+    static_cast<UDWORD>(blue));
 }
 
 /* Return the origin on the form from which button locations are calculated */
@@ -1275,7 +1246,7 @@ static void formDisplayRTabs(W_TABFORM* psForm, SDWORD x0, SDWORD y0, UDWORD wid
       if (i == selected)
       {
         /* Fill in the tab */
-        pie_BoxFillIndex(x0, y + 1, x1 - 1, y1 - 1, static_cast<UBYTE>(*(pColours + WCOL_BKGRND)));
+        pie_BoxFillIndex(x0, y + 1, x1 - 1, y1 - 1, *(pColours + WCOL_BKGRND));
         /* Draw the outline */
         pie_Line(x0, y, x1 - 1, y, *(pColours + WCOL_LIGHT));
         pie_Line(x1, y, x1, y1 - 2, *(pColours + WCOL_DARK));
@@ -1285,7 +1256,7 @@ static void formDisplayRTabs(W_TABFORM* psForm, SDWORD x0, SDWORD y0, UDWORD wid
       else
       {
         /* Fill in the tab */
-        pie_BoxFillIndex(x0 + 1, y + 1, x1 - 2, y1 - 1, static_cast<UBYTE>(*(pColours + WCOL_BKGRND)));
+        pie_BoxFillIndex(x0 + 1, y + 1, x1 - 2, y1 - 1, *(pColours + WCOL_BKGRND));
         /* Draw the outline */
         pie_Line(x0 + 1, y, x1 - 1, y, *(pColours + WCOL_LIGHT));
         pie_Line(x1 - 1, y, x1 - 1, y1 - 2, *(pColours + WCOL_DARK));

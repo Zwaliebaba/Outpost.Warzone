@@ -2666,7 +2666,8 @@ BOOL displayWhiteBoard(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset,
   UDWORD y = D_H + yOffset + psWidget->y;
   UDWORD i;
   div_t d;
-  UBYTE j, col;
+  UBYTE j;
+  UDWORD col;
   UWORD oldPoint, newPoint, oldx, oldy, newx, newy;
 
   UNUSEDPARAMETER(pColours);
@@ -2766,7 +2767,7 @@ void displayChatEdit(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, U
   UDWORD x = xOffset + psWidget->x;
   UDWORD y = yOffset + psWidget->y - 4; // 4 is the magic number.
   UNUSEDPARAMETER(pColours);
-  pie_Line(x, y, x + psWidget->width, y, pal_GetNearestColour(100, 100, 160));
+  pie_Line(x, y, x + psWidget->width, y, 0xff6464a0); // the lavender (100,100,160) asked of the palette before
 
   AddCursorSnap(&InterfaceSnap, static_cast<SWORD>(x + (psWidget->width / 2)), static_cast<SWORD>(y + (psWidget->height / 2)),
                 psWidget->formID, psWidget->id, nullptr);

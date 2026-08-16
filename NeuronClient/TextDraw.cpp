@@ -43,7 +43,7 @@ using IVIS_FONT = struct
   int FontBelow; // Max pixels below the base line.
   int FontLineSize; // Pixel spacing used for new lines.
   int FontSpaceSize; // Pixel spacing used for spaces.
-  SWORD FontColourIndex; // The colour index to use.
+  UDWORD FontColour; // The colour to draw with, packed A8R8G8B8.
   UWORD* AsciiTable;
 };
 
@@ -53,7 +53,7 @@ using IVIS_FONT = struct
  */
 /***************************************************************************/
 
-static SWORD TextColourIndex;
+static UDWORD TextColour;
 static int NumFonts;
 static int ActiveFontID;
 static IVIS_FONT iVFonts[MAX_IVIS_FONTS];
@@ -63,7 +63,7 @@ static IVIS_FONT iVFonts[MAX_IVIS_FONTS];
  *	Local ProtoTypes
  */
 /***************************************************************************/
-void pie_BeginTextRender(SWORD ColourIndex);
+void pie_BeginTextRender(UDWORD Colour);
 void pie_TextRender(IMAGEFILE* ImageFile, UWORD ID, int x, int y);
 void pie_TextRender270(IMAGEFILE* ImageFile, UWORD ImageID, int x, int y); //prototype
 
@@ -248,10 +248,13 @@ void Neuron::GetTextExtents(char *String,int *Width,int *y0,int *y1)
 }
 */
 
-void Neuron::SetTextColour(SWORD Index)
+/* The colour is packed A8R8G8B8. Callers passing -1 keep meaning white:
+ * as a packed value -1 is opaque white, so the old "-1 = use the bitmap's
+ * own colours" convention still holds - white modulates to identity. */
+void Neuron::SetTextColour(UDWORD Colour)
 {
   IVIS_FONT* Font = &iVFonts[ActiveFontID];
-  Font->FontColourIndex = Index;
+  Font->FontColour = Colour;
 }
 
 // --------------------------------------------------------------------------
@@ -587,7 +590,7 @@ UDWORD pie_DrawFormattedText(UBYTE* String, UDWORD x, UDWORD y, UDWORD Width, UD
   return jy;
 }
 
-static SWORD OldTextColourIndex = -1;
+static UDWORD OldTextColour = PIE_TEXT_WHITE;
 
 void pie_DrawText(unsigned char* string, UDWORD x, UDWORD y)
 {
@@ -596,7 +599,7 @@ void pie_DrawText(unsigned char* string, UDWORD x, UDWORD y)
   IVIS_FONT* Font = &iVFonts[ActiveFontID];
 
   /* Colour selection */
-  pie_BeginTextRender(Font->FontColourIndex);
+  pie_BeginTextRender(Font->FontColour);
 
   while (*string != 0)
   {
@@ -605,16 +608,15 @@ void pie_DrawText(unsigned char* string, UDWORD x, UDWORD y)
     // Toggle colour mode?
     if (Index == ASCII_COLOURMODE)
     {
-      if (TextColourIndex >= 0)
+      /* Toggle between the set colour and white - the packed spelling of
+       * what the index-sign flip used to do */
+      if (TextColour != PIE_TEXT_WHITE)
       {
-        OldTextColourIndex = TextColourIndex;
-        TextColourIndex = -1;
+        OldTextColour = TextColour;
+        TextColour = PIE_TEXT_WHITE;
       }
       else
-      {
-        if (OldTextColourIndex >= 0)
-          TextColourIndex = OldTextColourIndex;
-      }
+        TextColour = OldTextColour;
     }
     else if (Index == ASCII_SPACE)
       x += Font->FontSpaceSize;
@@ -650,7 +652,7 @@ void pie_DrawText(unsigned char* string, UDWORD x, UDWORD y)
 //	Font = &iVFonts[ActiveFontID];
 //
 //	/* Colour selection */
-//	pie_BeginTextRender(Font->FontColourIndex);
+//	pie_BeginTextRender(Font->FontColour);
 //   
 //	/* Keep going until NULL terminated */
 //	while((presChar = (*string)))
@@ -868,7 +870,7 @@ void pie_DrawText270(unsigned char* String, int XPos, int YPos)
 
   YPos += Neuron::GetImageWidth(Font->FontFile, Font->AsciiTable[33]) + 1;
 
-  pie_BeginTextRender(Font->FontColourIndex);
+  pie_BeginTextRender(Font->FontColour);
 
   while (*String != 0)
   {
@@ -899,79 +901,39 @@ void pie_DrawText270(unsigned char* String, int XPos, int YPos)
 ////#else
 ////#endif
 
-void pie_BeginTextRender(SWORD ColourIndex)
+void pie_BeginTextRender(UDWORD Colour)
 {
-  TextColourIndex = ColourIndex;
+  TextColour = Colour;
   pie_SetRendMode(REND_TEXT);
   pie_SetBilinear(FALSE);
 }
 
 void pie_TextRender(IMAGEFILE* ImageFile, UWORD ID, int x, int y)
 {
-  UDWORD Red;
-  UDWORD Green;
-  UDWORD Blue;
-  UDWORD Alpha = MAX_UB_LIGHT;
-  iColour* psPalette;
-
-  if ((TextColourIndex == PIE_TEXT_WHITE) || (TextColourIndex == 255))
-  {
-    pie_SetColour(MAX_LIGHT);
-    pie_SetColourKeyedBlack(TRUE);
-    pie_DrawImageFileID(ImageFile, ID, x, y);
-  }
-  else
-  {
-    if (TextColourIndex == PIE_TEXT_WHITE)
-      pie_SetColour(PIE_TEXT_WHITE_COLOUR);
-    else if (TextColourIndex == PIE_TEXT_LIGHTBLUE)
-      pie_SetColour(PIE_TEXT_LIGHTBLUE_COLOUR);
-    else if (TextColourIndex == PIE_TEXT_DARKBLUE)
-      pie_SetColour(PIE_TEXT_DARKBLUE_COLOUR);
-    else
-    {
-      psPalette = pie_GetGamePal();
-      Red = psPalette[TextColourIndex].r;
-      Green = psPalette[TextColourIndex].g;
-      Blue = psPalette[TextColourIndex].b;
-      pie_SetColour(((Alpha << 24) | (Red << 16) | (Green << 8) | Blue));
-    }
-    pie_SetColourKeyedBlack(TRUE);
-    pie_DrawImageFileID(ImageFile, ID, x, y);
-  }
+  /* The colour is packed A8R8G8B8; until stage 3 of the palette removal it
+   * was a palette index or a negative sentinel, and the sentinels are now
+   * simply the colours they named. White is MAX_LIGHT, so the old fast
+   * path for white text is the general path. */
+  pie_SetColour(TextColour);
+  pie_SetColourKeyedBlack(TRUE);
+  pie_DrawImageFileID(ImageFile, ID, x, y);
 }
 
 void pie_TextRender270(IMAGEFILE* ImageFile, UWORD ImageID, int x, int y)
 {
-  UDWORD Red;
-  UDWORD Green;
-  UDWORD Blue;
-  UDWORD Alpha = MAX_UB_LIGHT;
   IMAGEDEF* Image;
   PIEIMAGE pieImage;
   PIERECT dest;
   PIESTYLE rendStyle;
-  iColour* psPalette;
 
   Image = &(ImageFile->ImageDefs[ImageID]);
-  //not coloured yet
-  if (TextColourIndex == PIE_TEXT_WHITE)
+  if (TextColour == PIE_TEXT_WHITE)
   {
-    pie_SetColour(PIE_TEXT_WHITE_COLOUR & 0x80ffffff); //special case semi transparent for rotated text
+    pie_SetColour(PIE_TEXT_WHITE & 0x80ffffff); //special case semi transparent for rotated text
     pie_SetRendMode(REND_ALPHA_TEXT);
   }
-  else if (TextColourIndex == PIE_TEXT_LIGHTBLUE)
-    pie_SetColour(PIE_TEXT_LIGHTBLUE_COLOUR);
-  else if (TextColourIndex == PIE_TEXT_DARKBLUE)
-    pie_SetColour(PIE_TEXT_DARKBLUE_COLOUR);
   else
-  {
-    psPalette = pie_GetGamePal();
-    Red = psPalette[TextColourIndex].r;
-    Green = psPalette[TextColourIndex].g;
-    Blue = psPalette[TextColourIndex].b;
-    pie_SetColour(((Alpha << 24) | (Red << 16) | (Green << 8) | Blue));
-  }
+    pie_SetColour(TextColour);
   pie_SetColourKeyedBlack(TRUE);
   pieImage.texPage = ImageFile->TPageIDs[Image->TPageID];
   pieImage.tu = Image->Tu;

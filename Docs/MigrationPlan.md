@@ -1253,7 +1253,7 @@ a Windows run must confirm — the borderless boot at desktop resolution, UI
 scale 2 on a 1080p/1440p desktop, mouse-to-widget alignment, an FMV with
 subtitles, and a load/save-screen backdrop round trip.
 
-## Removing the palette: true-colour assets in DDS (planned 2026-08-16, stage 1 landed)
+## Removing the palette: true-colour assets in DDS (2026-08-16, stages 1-3 landed)
 
 **By owner decision, the 256-colour palette is to be removed, and the target
 asset format is DDS** (uncompressed A8R8G8B8, hand-rolled loader — no D3DX,
@@ -1288,28 +1288,41 @@ match to the pixel except where 256-colour quantisation disappears:
    `OLD_PALETTE` block. What survives is exactly the live half: `psGamePal`,
    `pal_GetNearestColour`, `palShades` (radar lighting), `palette32Bit`
    (FMV subtitle glyphs) and the `COL_*` machinery.
-2. **True colour in memory, same assets.** Move the index expansion from
-   upload time to load time: sprites and texture pages carry 32-bit pixels,
-   `dtm_UploadImage` becomes a copy, the radar composes in 32-bit (shading
-   by per-channel multiply instead of `palShades`), the subtitle and
-   backdrop paths read 32-bit. The palette then exists only inside the PCX
-   loader.
-3. **Colour-as-index becomes packed RGB.** Every `pal_GetNearestColour`
-   caller already holds the RGB it wants — the palette round-trip only
-   quantises it — so the conversion is mechanical: `COL_*` become constexpr
-   packed constants, `pie_Line`/`pie_Box`/`pie_BoxFillIndex` take packed
-   RGB as `pie_BoxFill` already does, widget colour tables widen, font
-   colour indices go packed. Two conventions carry over: index 0/black as
-   transparent becomes real alpha (the alpha-test state already implements
-   it), and the "never produce pure black" guard stays in
-   `screenGetCacheColour`.
-4. **Convert the assets and delete the module.** A `tools/` script expands
-   each 8-bit PCX through `palette.bin` into uncompressed A8R8G8B8 DDS
-   (index 0 → alpha 0), a ~100-line DDS reader replaces the PCX loader for
-   pages, and `palette.bin`, its WinMain load, `Palette.cpp/.h` and
-   `texPal32Bit` are deleted. Converting GameData binaries is sanctioned
-   the way the Phase 6 `.rpl`→MP4 re-encode was: by this owner decision,
-   through a committed tool.
+2. **True colour in memory, same assets** — *landed.* `iBitmap` is the
+   packed A8R8G8B8 pixel now, which let the compiler enumerate the
+   consumers. The PCX loader expands each index as it decodes (index 0 →
+   alpha 0), `dtm_UploadImage` is a straight row copy (`texPal32Bit` and
+   its builder gone), the radar composes in 32-bit — averaged tile colours,
+   per-channel-multiply lighting replacing `palShades`, clan/flash tables
+   carrying the packed values of the entries they used to index — and the
+   backdrop is 32-bit end to end (`bufferTo16Bit` gone, `DisplayBuffer`
+   sized ×4). The FMV subtitle glyphs read page pixels directly, deleting
+   `palette32Bit`. The dead software-renderer intel-map fill went rather
+   than being converted.
+3. **Colour-as-index becomes packed RGB** — *landed.* `COL_*` are packed
+   constants (the RGB values `pie_SetColourDefines` used to ask the palette
+   for), `pie_Line`/`pie_Box`/`pie_BoxFillIndex` take packed colour as
+   `pie_BoxFill` already did, the widget colour tables, bar graph colours,
+   tool tip and text colours are packed (the negative `PIE_TEXT_*`
+   sentinels became the colours they named — `-1` still reads as white,
+   which is what "use the bitmap's own colours" meant), and every literal
+   palette index at a draw site (score bars, radar arrows, the drag-box
+   strobe ramp, health-bar backing) carries the packed value of the entry
+   it used to name. `pal_GetNearestColour` and `pie_SetColourDefines` are
+   deleted. The narrowing hazard was the real work: colour variables and
+   casts of `UBYTE`/`UWORD` width would silently truncate packed values,
+   so every one was found and widened by hand — the cross-checker cannot
+   catch those.
+4. **Convert the assets and delete the module** — *remaining.* A `tools/`
+   script expands each 8-bit PCX through `palette.bin` into uncompressed
+   A8R8G8B8 DDS (index 0 → alpha 0, the same expansion the loader now does
+   at run time), a ~100-line DDS reader replaces the PCX decode, and
+   `palette.bin`, its WinMain load and what is left of `Palette.cpp/.h`
+   (`psGamePal` and its loader) are deleted. Converting GameData binaries
+   is sanctioned the way the Phase 6 `.rpl`→MP4 re-encode was: by this
+   owner decision, through a committed tool. After stages 1-3 the palette's
+   whole remaining footprint is the expansion table built inside the PCX
+   loader's `_load_image`.
 
 ## Verification
 

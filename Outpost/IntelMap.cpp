@@ -1116,7 +1116,7 @@ void intDisplayTEXTView(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
     ty += 3;
     /* Fix for spacing.... */
 
-    Neuron::SetTextColour(pal_GetNearestColour(255, 255, 255));
+    Neuron::SetTextColour(PIE_TEXT_WHITE);
     //add each message
     for (i = 0; i < ((VIEWDATA*)psMessage->pViewData)->numText; i++)
     {

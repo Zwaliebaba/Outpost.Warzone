@@ -1695,10 +1695,10 @@ BOOL moveGetTileObst(SDWORD cx, SDWORD cy, SDWORD ox, SDWORD oy, SDWORD* pDist)
 }
 
 /* arrow colours */
-#define	YELLOWARROW		117
-#define	GREENARROW		253
-#define	WHITEARROW		255
-#define REDARROW		179
+#define	YELLOWARROW		0xffffeb13 // packed values of the palette entries these used to index
+#define	GREENARROW		0xff009100
+#define	WHITEARROW		0xffffffff
+#define REDARROW		0xff630000
 
 // get an obstacle avoidance vector
 void moveGetObstVector4(DROID* psDroid, float* pX, float* pY)

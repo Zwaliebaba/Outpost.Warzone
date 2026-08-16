@@ -64,17 +64,14 @@ POINT rectVerts[4];
 void pie_Line(int x0, int y0, int x1, int y1, uint32 colour)
 {
   PIELIGHT light;
-  iColour* psPalette;
 
   pie_SetRendMode(REND_FLAT);
   pie_SetColour(colour);
   pie_SetTexturePage(-1);
 
-  /* Get our colour values from the ivis palette */
-  psPalette = pie_GetGamePal();
-  light.byte.r = psPalette[colour].r;
-  light.byte.g = psPalette[colour].g;
-  light.byte.b = psPalette[colour].b;
+  /* The colour arrives packed - it was a palette index until stage 3 of
+   * the palette removal */
+  light.argb = colour;
   light.byte.a = MAX_UB_LIGHT;
   pie_DrawLine(x0, y0, x1, y1, light.argb, TRUE);
 }
@@ -84,7 +81,6 @@ void pie_Line(int x0, int y0, int x1, int y1, uint32 colour)
 void pie_Box(int x0, int y0, int x1, int y1, uint32 colour)
 {
   PIELIGHT light;
-  iColour* psPalette;
 
   pie_SetRendMode(REND_FLAT);
   pie_SetColour(colour);
@@ -102,11 +98,9 @@ void pie_Box(int x0, int y0, int x1, int y1, uint32 colour)
   if (y1 > psRendSurface->clip.bottom)
     y1 = psRendSurface->clip.bottom;
 
-  psPalette = pie_GetGamePal();
-  /* Get our colour values from the ivis palette */
-  light.byte.r = psPalette[colour].r;
-  light.byte.g = psPalette[colour].g;
-  light.byte.b = psPalette[colour].b;
+  /* The colour arrives packed - it was a palette index until stage 3 of
+   * the palette removal */
+  light.argb = colour;
   light.byte.a = MAX_UB_LIGHT;
   pie_DrawLine(x0, y0, x1, y0, light.argb, FALSE);
   pie_DrawLine(x1, y0, x1, y1, light.argb, FALSE);
@@ -116,10 +110,9 @@ void pie_Box(int x0, int y0, int x1, int y1, uint32 colour)
 
 /***************************************************************************/
 
-void pie_BoxFillIndex(int x0, int y0, int x1, int y1, UBYTE colour)
+void pie_BoxFillIndex(int x0, int y0, int x1, int y1, UDWORD colour)
 {
   PIELIGHT light;
-  iColour* psPalette;
 
   pie_SetRendMode(REND_FLAT);
   pie_SetTexturePage(-1);
@@ -136,11 +129,10 @@ void pie_BoxFillIndex(int x0, int y0, int x1, int y1, UBYTE colour)
   if (y1 > psRendSurface->clip.bottom)
     y1 = psRendSurface->clip.bottom;
 
-  /* Get our colour values from the ivis palette */
-  psPalette = pie_GetGamePal();
-  light.byte.r = psPalette[colour].r;
-  light.byte.g = psPalette[colour].g;
-  light.byte.b = psPalette[colour].b;
+  /* The colour arrives packed - the "Index" in the name is what it took
+   * until stage 3 of the palette removal; the name waits for the pie_
+   * rename Phase 8 owns. */
+  light.argb = colour;
   light.byte.a = MAX_UB_LIGHT;
   pie_DrawRect(x0, y0, x1, y1, light.argb, FALSE);
 }

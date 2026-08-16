@@ -13,7 +13,7 @@ using ARROW = struct ARROW
 {
   iVector vecBase;
   iVector vecHead;
-  UBYTE iColour;
+  UDWORD iColour;
   struct ARROW* psNext;
 };
 
@@ -36,7 +36,7 @@ void arrowShutDown(void) {  }
 
 /***************************************************************************/
 
-BOOL arrowAdd(SDWORD iBaseX, SDWORD iBaseY, SDWORD iBaseZ, SDWORD iHeadX, SDWORD iHeadY, SDWORD iHeadZ, UBYTE iColour)
+BOOL arrowAdd(SDWORD iBaseX, SDWORD iBaseY, SDWORD iBaseZ, SDWORD iHeadX, SDWORD iHeadY, SDWORD iHeadZ, UDWORD iColour)
 {
   ARROW* psArrow;
 

@@ -22,7 +22,7 @@ namespace Neuron
   extern int GetTextLineSize(void);
   extern int GetTextWidth(unsigned char* String);
   extern int GetCharWidth(unsigned char Char);
-  extern void SetTextColour(SWORD Index);
+  extern void SetTextColour(UDWORD Colour);
 }
 
 #define ASCII_SPACE			(32)

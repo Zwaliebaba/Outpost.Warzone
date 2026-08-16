@@ -18,8 +18,8 @@ using W_BARGRAPH = struct _w_bargraph
   UWORD minorSize; // Percentage of the minor bar if there is one
   UWORD iRange; // Maximum range
   UWORD iValue; // Current value
-  UBYTE majorCol; // Colour for the major bar
-  UBYTE minorCol; // Colour for the minor bar
+  UDWORD majorCol; // Colour for the major bar, packed A8R8G8B8
+  UDWORD minorCol; // Colour for the minor bar, packed A8R8G8B8
   STRING* pTip; // The tool tip for the graph
 };
 
