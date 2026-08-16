@@ -1,4 +1,5 @@
 #include "pch.h"
+#include <directxmath.h>
 /*
 	MapDisplay - Renders the world view necessary for the intelligence map
 	Alex McLean, Pumpkin Studios, EIDOS Interactive, 1997
@@ -117,24 +118,26 @@ void drawMapWorld(void)
   gridDivZ = mapPos.z & (TILE_UNITS - 1);
 
   /* Set up context */
-  pie_MatBegin();
+  Neuron::MatrixPush();
+  DirectX::XMMATRIX& view = Neuron::WorldMatrix();
 
   /* Translate for the camera position */
-  pie_MATTRANS(0, 0, elevation);
+  view.r[3] = DirectX::XMVectorSet(0.0f, 0.0f, static_cast<float>(elevation), 1.0f);
 
   /* Rotate for the view angle */
-  pie_MatRotZ(mapView.z);
-  pie_MatRotX(mapView.x);
-  pie_MatRotY(mapView.y);
+  view = DirectX::XMMatrixRotationZ(mapView.z * Neuron::RadiansPerWorldAngle) * view;
+  view = DirectX::XMMatrixRotationX(mapView.x * Neuron::RadiansPerWorldAngle) * view;
+  view = DirectX::XMMatrixRotationY(mapView.y * Neuron::RadiansPerWorldAngle) * view;
 
   /* Translate to our location */
-  pie_TRANSLATE(-gridDivX, -mapPos.y, gridDivZ);
+  view = DirectX::XMMatrixTranslation(static_cast<float>(-gridDivX), static_cast<float>(-mapPos.y),
+                                      static_cast<float>(gridDivZ)) * view;
 
   /* Rotate round */
   angle += ROTATE_ANGLE;
   if (angle > 360)
     angle -= 360;
-  pie_MatRotY(DEG(angle) + mapPos.y);
+  view = DirectX::XMMatrixRotationY((DEG(angle) + mapPos.y) * Neuron::RadiansPerWorldAngle) * view;
 
   /* Now we're in camera and viewer context */
 
@@ -147,7 +150,8 @@ void drawMapWorld(void)
       tileCoords.y = psTile->height;
       tileCoords.z = ((mapGridMidY - i) << TILE_SHIFT);
       /* Rotate and project the tile to get its screen coords and distance away */
-      tileScreenCoords[i][j].z = pie_RotProj(&tileCoords, (iPoint*)&tileScreenCoords[i][j]);
+      tileScreenCoords[i][j].z =
+        Neuron::ProjectToScreen(tileCoords.x, tileCoords.y, tileCoords.z, &tileScreenCoords[i][j].x, &tileScreenCoords[i][j].y);
     }
   }
 
@@ -160,7 +164,7 @@ void drawMapWorld(void)
   doBucket = TRUE;
 
   /* Close matrix context */
-  pie_MatEnd();
+  Neuron::MatrixPop();
 }
 
 /* unused
@@ -325,11 +329,11 @@ THIS HAS BEEN REPLACED BY renderResearchToBuffer()*/
 
 	if (pie_Hardware())
 	{
-		pie_SetGeometricOffset(OriginX+10,OriginY+10);
+		Neuron::SetGeometricOffset(OriginX+10,OriginY+10);
 	}
 	else
 	{
-		pie_SetGeometricOffset(pSurface->width/2,pSurface->height/2);
+		Neuron::SetGeometricOffset(pSurface->width/2,pSurface->height/2);
 	}
 
 	// shift back
@@ -379,9 +383,9 @@ void renderResearchToBuffer(RESEARCH* psResearch, UDWORD OriginX, UDWORD OriginY
   SDWORD scale;
 
   // Set identity (present) context
-  pie_MatBegin();
+  Neuron::MatrixPush();
 
-  pie_SetGeometricOffset(OriginX + 10, OriginY + 10);
+  Neuron::SetGeometricOffset(OriginX + 10, OriginY + 10);
 
   // Pitch down a bit 
 
@@ -477,5 +481,5 @@ void renderResearchToBuffer(RESEARCH* psResearch, UDWORD OriginX, UDWORD OriginY
     DEBUG_ASSERT_TEXT(FALSE, "renderResearchToBuffer: Unknown PIEType");
 
   // close matrix context
-  pie_MatEnd();
+  Neuron::MatrixPop();
 }

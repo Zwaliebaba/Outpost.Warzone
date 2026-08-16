@@ -56,7 +56,9 @@ namespace Neuron
   // World -> screen through the current matrix. Returns the stretched depth
   // (world z through the matrix, times StretchedDepthScale); writes LONG_WAY
   // to both coordinates when the point is at or behind the near limit.
-  extern SDWORD ProjectToScreen(float _x, float _y, float _z, SDWORD* _sx, SDWORD* _sy);
+  // Integer in and out because that is what every caller's world state is;
+  // stage E revisits the boundary with the angle units.
+  extern SDWORD ProjectToScreen(SDWORD _x, SDWORD _y, SDWORD _z, SDWORD* _sx, SDWORD* _sy);
 
   extern void SetGeometricOffset(int _x, int _y);
 }
@@ -75,7 +77,6 @@ extern void pie_MATTRANS(int _x, int _y, int _z);
 extern void pie_TRANSLATE(int _x, int _y, int _z);
 extern void pie_MatScale(SDWORD _scaleFP12);
 extern void pie_RotateProjectNear(SDWORD _x, SDWORD _y, SDWORD _z, SDWORD* _sx, SDWORD* _sy);
-extern void pie_RotateTranslate(SDWORD _x, SDWORD _y, SDWORD _z, SDWORD* _xs, SDWORD* _ys, SDWORD* _zs);
 
 // The locals the old pie_ROTATE_PROJECT macro needed; nothing to declare now.
 #define pie_SETUP_ROTATE_PROJECT
@@ -89,16 +90,6 @@ inline void pie_ROTATE_PROJECT(SDWORD _x, SDWORD _y, SDWORD _z, TX& _sx, TY& _sy
   pie_RotateProjectNear(_x, _y, _z, &sx, &sy);
   _sx = static_cast<TX>(sx);
   _sy = static_cast<TY>(sy);
-}
-
-template <class TX, class TY, class TZ>
-inline void pie_ROTATE_TRANSLATE(SDWORD _x, SDWORD _y, SDWORD _z, TX& _xs, TY& _ys, TZ& _zs)
-{
-  SDWORD xs, ys, zs;
-  pie_RotateTranslate(_x, _y, _z, &xs, &ys, &zs);
-  _xs = static_cast<TX>(xs);
-  _ys = static_cast<TY>(ys);
-  _zs = static_cast<TZ>(zs);
 }
 
 //*************************************************************************
@@ -118,7 +109,6 @@ extern int32 pie_RotProj(iVector* v3d, iPoint* v2d);
 
 extern void pie_VectorNormalise(iVector* v);
 extern void pie_SurfaceNormal(iVector* p1, iVector* p2, iVector* p3, iVector* v);
-extern void pie_SetGeometricOffset(int x, int y);
 
 // PIEVERTEX structure contains much infomation that is not required on the playstation ... and hence is not currently used
 extern BOOL pie_PieClockwise(PIEVERTEX* s);

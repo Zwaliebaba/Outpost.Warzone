@@ -646,7 +646,7 @@ void displayMultiPlayer(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
   // a droid of theirs.
   if (apsDroidLists[player])
   {
-    pie_SetGeometricOffset(MULTIMENU_FORM_X + MULTIMENU_C1, y + MULTIMENU_PLAYER_H);
+    Neuron::SetGeometricOffset(MULTIMENU_FORM_X + MULTIMENU_C1, y + MULTIMENU_PLAYER_H);
     Rotation.x = -15;
     Rotation.y = 45;
     Rotation.z = 0;

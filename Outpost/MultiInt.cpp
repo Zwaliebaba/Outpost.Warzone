@@ -3263,7 +3263,7 @@ void displayForceDroid(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset,
 
   pie_Set2DClip(static_cast<UWORD>(tlx + 1), static_cast<UWORD>(tly + 1), static_cast<UWORD>(brx - 1), static_cast<UWORD>(bry - 1));
 
-  pie_SetGeometricOffset(x, y);
+  Neuron::SetGeometricOffset(x, y);
   Rotation.x = -20;
   Rotation.y = ((gameTime2 / 45) % 360); //45
   Rotation.z = 0;

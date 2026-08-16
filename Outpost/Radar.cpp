@@ -1,4 +1,5 @@
 #include "pch.h"
+#include <directxmath.h>
 #include "Frame.h"
 /* Includes direct access to render library */
 #include "RenderTypes.h"
@@ -751,8 +752,8 @@ static void DrawRadarObjects(UBYTE* screen, UDWORD Modulus, UWORD boxSizeH, UWOR
 //
 void RotateVector2D(iVector* Vector, iVector* TVector, iVector* Pos, int Angle, int Count)
 {
-  int Cos = COS(Angle);
-  int Sin = SIN(Angle);
+  float Sin, Cos;
+  DirectX::XMScalarSinCos(&Sin, &Cos, Angle * Neuron::RadiansPerWorldAngle);
   int ox = 0;
   int oy = 0;
   int i;
@@ -767,8 +768,8 @@ void RotateVector2D(iVector* Vector, iVector* TVector, iVector* Pos, int Angle, 
 
   for (i = 0; i < Count; i++)
   {
-    TVec->x = ((Vec->x * Cos + Vec->y * Sin) >> FP12_SHIFT) + ox;
-    TVec->y = ((Vec->y * Cos - Vec->x * Sin) >> FP12_SHIFT) + oy;
+    TVec->x = static_cast<int32>(std::lrintf(Vec->x * Cos + Vec->y * Sin)) + ox;
+    TVec->y = static_cast<int32>(std::lrintf(Vec->y * Cos - Vec->x * Sin)) + oy;
     Vec++;
     TVec++;
   }

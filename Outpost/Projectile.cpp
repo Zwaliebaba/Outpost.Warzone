@@ -8,6 +8,8 @@
  */
 /***************************************************************************/
 
+#include <directxmath.h>
+
 #include "Frame.h"
 #include "Trig.h"
 #include "GTime.h"
@@ -1552,9 +1554,13 @@ void objectShimmy(BASE_OBJECT* psObj)
 {
   if (justBeenHitByEW(psObj))
   {
-    pie_MatRotX(SKY_SHIMMY);
-    pie_MatRotY(SKY_SHIMMY);
-    pie_MatRotZ(SKY_SHIMMY);
-    if (psObj->type == OBJ_DROID) { pie_TRANSLATE(1-rand()%3, 0, 1-rand()%3); }
+    DirectX::XMMATRIX& world = Neuron::WorldMatrix();
+    world = DirectX::XMMatrixRotationX(SKY_SHIMMY * Neuron::RadiansPerWorldAngle) * world;
+    world = DirectX::XMMatrixRotationY(SKY_SHIMMY * Neuron::RadiansPerWorldAngle) * world;
+    world = DirectX::XMMatrixRotationZ(SKY_SHIMMY * Neuron::RadiansPerWorldAngle) * world;
+    if (psObj->type == OBJ_DROID)
+    {
+      world = DirectX::XMMatrixTranslation(static_cast<float>(1 - rand() % 3), 0.0f, static_cast<float>(1 - rand() % 3)) * world;
+    }
   }
 }

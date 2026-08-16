@@ -374,7 +374,7 @@ VOID displayStructureBar(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffse
   drawBlueBox(x, y, w, h);
 
   // draw image
-  pie_SetGeometricOffset(x + 35, y + (psWidget->height / 2) + 9);
+  Neuron::SetGeometricOffset(x + 35, y + (psWidget->height / 2) + 9);
   Rotation.x = -15;
   Rotation.y = ((gameTime2 / 45) % 360); //45
   Rotation.z = 0;

@@ -85,9 +85,9 @@ void Neuron::MatrixPop(void)
 //*
 //******
 
-SDWORD Neuron::ProjectToScreen(float _x, float _y, float _z, SDWORD* _sx, SDWORD* _sy)
+SDWORD Neuron::ProjectToScreen(SDWORD _x, SDWORD _y, SDWORD _z, SDWORD* _sx, SDWORD* _sy)
 {
-  const XMVECTOR world = TransformPoint(_x, _y, _z);
+  const XMVECTOR world = TransformPoint(static_cast<float>(_x), static_cast<float>(_y), static_cast<float>(_z));
   const float rz = XMVectorGetZ(world);
   const float depth = rz * Neuron::StretchedDepthScale;
 
@@ -188,8 +188,7 @@ void pie_MatScale(SDWORD _scaleFP12)
 int32 pie_RotProj(iVector* v3d, iPoint* v2d)
 
 {
-  return Neuron::ProjectToScreen(static_cast<float>(v3d->x), static_cast<float>(v3d->y), static_cast<float>(v3d->z),
-                                 &v2d->x, &v2d->y);
+  return Neuron::ProjectToScreen(v3d->x, v3d->y, v3d->z, &v2d->x, &v2d->y);
 }
 
 //*** project a point already in model space to screen, clipping only at the
@@ -216,17 +215,6 @@ void pie_RotateProjectNear(SDWORD _x, SDWORD _y, SDWORD _z, SDWORD* _sx, SDWORD*
     *_sx = LONG_WAY;
     *_sy = LONG_WAY;
   }
-}
-
-//*** rotate and translate a point by the current matrix without projecting
-//*** (was the pie_ROTATE_TRANSLATE macro)
-
-void pie_RotateTranslate(SDWORD _x, SDWORD _y, SDWORD _z, SDWORD* _xs, SDWORD* _ys, SDWORD* _zs)
-{
-  const XMVECTOR world = TransformPoint(static_cast<float>(_x), static_cast<float>(_y), static_cast<float>(_z));
-  *_xs = static_cast<SDWORD>(std::lrintf(XMVectorGetX(world)));
-  *_ys = static_cast<SDWORD>(std::lrintf(XMVectorGetY(world)));
-  *_zs = static_cast<SDWORD>(std::lrintf(XMVectorGetZ(world)));
 }
 
 //*************************************************************************
@@ -284,10 +272,6 @@ void pie_SurfaceNormal(iVector* p1, iVector* p2, iVector* p3, iVector* v)
   else
     v->x = v->y = v->z = 0;
 }
-
-//*************************************************************************
-
-void pie_SetGeometricOffset(int x, int y) { Neuron::SetGeometricOffset(x, y); }
 
 //*************************************************************************
 

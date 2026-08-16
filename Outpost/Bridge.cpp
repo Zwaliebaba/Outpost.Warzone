@@ -1,4 +1,5 @@
 #include "pch.h"
+#include <directxmath.h>
 #include "Frame.h"
 #include "Map.h"
 #include "HCI.h"
@@ -106,21 +107,22 @@ BOOL renderBridgeSection(STRUCTURE* psStructure)
   dv.y = structZ;
 
   /* Push the indentity matrix */
-  pie_MatBegin();
+  Neuron::MatrixPush();
+  DirectX::XMMATRIX& world = Neuron::WorldMatrix();
 
   /* Translate */
-  pie_TRANSLATE(dv.x, dv.y, dv.z);
+  world = DirectX::XMMatrixTranslation(static_cast<float>(dv.x), static_cast<float>(dv.y), static_cast<float>(dv.z)) * world;
 
   /* Get the x,z translation components */
   rx = player.p.x & (TILE_UNITS - 1);
   rz = player.p.z & (TILE_UNITS - 1);
 
   /* Translate */
-  pie_TRANSLATE(rx, 0, -rz);
+  world = DirectX::XMMatrixTranslation(static_cast<float>(rx), 0.0f, static_cast<float>(-rz)) * world;
 
   pie_Draw3DShape(psStructure->sDisplay.imd, 0, 0, pie_DROID_BRIGHT_LEVEL, 0, 0, 0);
 
-  pie_MatEnd();
+  Neuron::MatrixPop();
   return (TRUE);
 }
 

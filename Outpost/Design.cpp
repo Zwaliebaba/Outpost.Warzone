@@ -4049,7 +4049,7 @@ void intDisplayStatForm(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
   pie_ImageFileID(IntImages, IMAGE_DES_STATBACKRIGHT, x0 + Form->width - Neuron::GetImageWidth(IntImages, IMAGE_DES_STATBACKRIGHT), y0);
 
   /* display current component */
-  pie_SetGeometricOffset((xOffset + psWidget->width / 4), (yOffset + psWidget->height / 2));
+  Neuron::SetGeometricOffset((xOffset + psWidget->width / 4), (yOffset + psWidget->height / 2));
   Rotation.x = -30;
   Rotation.y = iRY;
   Rotation.z = 0;
@@ -4097,7 +4097,7 @@ void intDisplayViewForm(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
 
   if (CurrentStatsTemplate)
   {
-    pie_SetGeometricOffset((DES_CENTERFORMX + DES_3DVIEWX) + (DES_3DVIEWWIDTH / 2),
+    Neuron::SetGeometricOffset((DES_CENTERFORMX + DES_3DVIEWX) + (DES_3DVIEWWIDTH / 2),
                            (DES_CENTERFORMY + DES_3DVIEWY) + (DES_3DVIEWHEIGHT / 4) + 32);
 
     Rotation.x = -30;

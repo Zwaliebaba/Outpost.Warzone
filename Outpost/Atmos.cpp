@@ -1,4 +1,5 @@
 #include "pch.h"
+#include <directxmath.h>
 /* Atmos.c - Handles atmospherics such as snow and rain */
 /* Alex McLean, Pumpkin Studios, EIDOS Interactive */
 /* 
@@ -315,14 +316,15 @@ void renderParticle(ATPART* psPart)
   dv.x = (static_cast<UDWORD>(x) - player.p.x) - terrainMidX * TILE_UNITS;
   dv.y = static_cast<UDWORD>(y);
   dv.z = terrainMidY * TILE_UNITS - (static_cast<UDWORD>(z) - player.p.z);
-  pie_MatBegin(); /* Push the indentity matrix */
-  pie_TRANSLATE(dv.x, dv.y, dv.z);
+  Neuron::MatrixPush(); /* Push the indentity matrix */
+  DirectX::XMMATRIX& world = Neuron::WorldMatrix();
+  world = DirectX::XMMatrixTranslation(static_cast<float>(dv.x), static_cast<float>(dv.y), static_cast<float>(dv.z)) * world;
   rx = player.p.x & (TILE_UNITS - 1); /* Get the x,z translation components */
   rz = player.p.z & (TILE_UNITS - 1);
-  pie_TRANSLATE(rx, 0, -rz); /* Translate */
+  world = DirectX::XMMatrixTranslation(static_cast<float>(rx), 0.0f, static_cast<float>(-rz)) * world; /* Translate */
   /* Make it face camera */
-  pie_MatRotY(-player.r.y);
-  pie_MatRotX(-player.r.x);
+  world = DirectX::XMMatrixRotationY(-player.r.y * Neuron::RadiansPerWorldAngle) * world;
+  world = DirectX::XMMatrixRotationX(-player.r.x * Neuron::RadiansPerWorldAngle) * world;
   /* Scale it... */
   scaleMatrix(psPart->size);
   /* Draw it... */
@@ -330,7 +332,7 @@ void renderParticle(ATPART* psPart)
   centreZ = (player.p.z + ((visibleYTiles / 2) << TILE_SHIFT));
   brightness = lightDoFogAndIllumination(pie_MAX_BRIGHT_LEVEL, centreX - x, centreZ - z, &specular);
   pie_Draw3DShape(psPart->imd, 0, 0, brightness, 0, pie_NO_BILINEAR, 0);
-  pie_MatEnd();
+  Neuron::MatrixPop();
 }
 
 // -----------------------------------------------------------------------------

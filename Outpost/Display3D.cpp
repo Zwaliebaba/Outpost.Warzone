@@ -521,7 +521,7 @@ void displayTerrain(void)
   /* Render the sky here */
 
   /* Set 3D world origins */
-  pie_SetGeometricOffset(((rendSurface.width) >> 1), geoOffset);
+  Neuron::SetGeometricOffset(((rendSurface.width) >> 1), geoOffset);
 
   /* We haven't yet located which tile mouse is over */
   mouseLocated = FALSE;

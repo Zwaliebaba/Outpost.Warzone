@@ -8,6 +8,7 @@
 	I really hope that no further changes are needed here...:-(
 	Alex M. */
 #include "stdio.h"
+#include <directxmath.h>
 #include "Frame.h"
 #include "Trig.h"
 #include "Input.h"
@@ -456,13 +457,18 @@ void updateCameraAcceleration(UBYTE update)
         multiAngle = getAverageTrackAngle(TRUE);
       else
         multiAngle = getGroupAverageTrackAngle(trackingCamera.target->group,TRUE);
-      xBehind = ((camDroidYOffset * SIN(DEG(multiAngle))) >> FP12_SHIFT);
-      yBehind = ((camDroidXOffset * COS(DEG(multiAngle))) >> FP12_SHIFT);
+      float trackSin, trackCos;
+      DirectX::XMScalarSinCos(&trackSin, &trackCos, DirectX::XMConvertToRadians(static_cast<float>(multiAngle)));
+      xBehind = static_cast<SDWORD>(std::lrintf(camDroidYOffset * trackSin));
+      yBehind = static_cast<SDWORD>(std::lrintf(camDroidXOffset * trackCos));
     }
     else
     {
-      xBehind = ((camDroidYOffset * SIN(DEG(trackingCamera.target->direction))) >> FP12_SHIFT);
-      yBehind = ((camDroidXOffset * COS(DEG(trackingCamera.target->direction))) >> FP12_SHIFT);
+      float trackSin, trackCos;
+      DirectX::XMScalarSinCos(&trackSin, &trackCos,
+                              DirectX::XMConvertToRadians(static_cast<float>(trackingCamera.target->direction)));
+      xBehind = static_cast<SDWORD>(std::lrintf(camDroidYOffset * trackSin));
+      yBehind = static_cast<SDWORD>(std::lrintf(camDroidXOffset * trackCos));
     }
   }
   else

@@ -1,4 +1,5 @@
 #include "pch.h"
+#include <directxmath.h>
 #include "StrRes.h"
 /*
  * transporter.c
@@ -1613,9 +1614,8 @@ SDWORD bobTransporterHeight(void)
 
   angle = gameTime % 4320;
   val = angle / 12;
-  val = 10 * (SIN(DEG(val)));
 
-  return (val / 4096);
+  return static_cast<SDWORD>(10.0f * DirectX::XMScalarSin(DirectX::XMConvertToRadians(static_cast<float>(val))));
 }
 
 /*causes one of the mission buttons (Launch Button or Mission Timer) to start flashing*/

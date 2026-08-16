@@ -1,4 +1,5 @@
 #include "pch.h"
+#include <directxmath.h>
 #include "FrameResource.h"
 #include "StrRes.h"
 /*									   
@@ -5990,21 +5991,22 @@ BOOL calcStructureMuzzleLocation(STRUCTURE* psStructure, iVector* muzzle)
 
   if (psShape AND psShape->nconnectors)
   {
-    // This code has not been translated to the PSX Yet !!!!                                     (sorry)
-    pie_MatBegin();
+    Neuron::MatrixPush();
+    DirectX::XMMATRIX& world = Neuron::WorldMatrix();
 
-    pie_TRANSLATE(psStructure->x, -(SDWORD)psStructure->z, psStructure->y);
+    world = DirectX::XMMatrixTranslation(static_cast<float>(psStructure->x), -static_cast<float>(psStructure->z),
+                                         static_cast<float>(psStructure->y)) * world;
     //matrix = the center of droid
-    pie_MatRotY(DEG(static_cast<SDWORD>(psStructure->direction)));
-    pie_MatRotX(DEG(psStructure->pitch));
-    pie_MatRotZ(DEG(-static_cast<SDWORD>(psStructure->roll)));
-    //		pie_TRANSLATE(100,0,0);			//	(left,-height,forward)
-    pie_TRANSLATE(psShape->connectors->x, -psShape->connectors->z, -psShape->connectors->y); //note y and z flipped
+    // degrees to radians; UWORD fields go through SWORD so a wrapped-negative angle converts as negative
+    world = DirectX::XMMatrixRotationY(DirectX::XMConvertToRadians(static_cast<float>(static_cast<SWORD>(psStructure->direction)))) * world;
+    world = DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(static_cast<float>(psStructure->pitch))) * world;
+    world = DirectX::XMMatrixRotationZ(DirectX::XMConvertToRadians(-static_cast<float>(psStructure->roll))) * world;
+    world = DirectX::XMMatrixTranslation(static_cast<float>(psShape->connectors->x), static_cast<float>(-psShape->connectors->z),
+                                         static_cast<float>(-psShape->connectors->y)) * world; //note y and z flipped
 
     //matrix = the gun and turret mount on the body
-    pie_MatRotY(DEG(static_cast<SDWORD>(psStructure->turretRotation))); //+ve anticlockwise
-    pie_MatRotX(DEG(psStructure->turretPitch)); //+ve up
-    pie_MatRotZ(DEG(0));
+    world = DirectX::XMMatrixRotationY(DirectX::XMConvertToRadians(static_cast<float>(static_cast<SWORD>(psStructure->turretRotation)))) * world; //+ve anticlockwise
+    world = DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(static_cast<float>(static_cast<SWORD>(psStructure->turretPitch)))) * world; //+ve up
     //matrix = the muzzle mount on turret
     if (psWeaponImd AND psWeaponImd->nconnectors)
     {
@@ -6019,10 +6021,14 @@ BOOL calcStructureMuzzleLocation(STRUCTURE* psStructure, iVector* muzzle)
       barrel.z = 0;
     }
 
-    pie_ROTATE_TRANSLATE(barrel.x, barrel.z, barrel.y, muzzle->x, muzzle->z, muzzle->y);
+    const DirectX::XMVECTOR muzzleWorld = DirectX::XMVector3Transform(
+      DirectX::XMVectorSet(static_cast<float>(barrel.x), static_cast<float>(barrel.z), static_cast<float>(barrel.y), 1.0f), world);
+    muzzle->x = static_cast<SDWORD>(std::lrintf(DirectX::XMVectorGetX(muzzleWorld)));
+    muzzle->z = static_cast<SDWORD>(std::lrintf(DirectX::XMVectorGetY(muzzleWorld)));
+    muzzle->y = static_cast<SDWORD>(std::lrintf(DirectX::XMVectorGetZ(muzzleWorld)));
     muzzle->z = -muzzle->z;
 
-    pie_MatEnd();
+    Neuron::MatrixPop();
   }
   else
   {

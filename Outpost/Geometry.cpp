@@ -2,6 +2,8 @@
 /* Geometry.c - holds trig/vector deliverance specific stuff for 3D */
 /* Alex McLean, Pumpkin Studios, EIDOS Interactive */
 
+#include <directxmath.h>
+
 #include "Frame.h"
 #include "Geo.h" //ivis matrix code
 #include "ObjectDef.h"
@@ -153,18 +155,20 @@ void WorldPointToScreen(iPoint* worldPt, iPoint* screenPt)
   int32 rz = player.p.z & (TILE_UNITS - 1);
 
   /* Push identity matrix onto stack */
-  pie_MatBegin();
+  Neuron::MatrixPush();
+  DirectX::XMMATRIX& view = Neuron::WorldMatrix();
 
   /* Set the camera position */
-  pie_MATTRANS(camera.p.x, camera.p.y, camera.p.z);
+  view.r[3] = DirectX::XMVectorSet(static_cast<float>(camera.p.x), static_cast<float>(camera.p.y),
+                                   static_cast<float>(camera.p.z), 1.0f);
 
   /* Rotate for the player */
-  pie_MatRotZ(player.r.z);
-  pie_MatRotX(player.r.x);
-  pie_MatRotY(player.r.y);
+  view = DirectX::XMMatrixRotationZ(player.r.z * Neuron::RadiansPerWorldAngle) * view;
+  view = DirectX::XMMatrixRotationX(player.r.x * Neuron::RadiansPerWorldAngle) * view;
+  view = DirectX::XMMatrixRotationY(player.r.y * Neuron::RadiansPerWorldAngle) * view;
 
   /* Translate */
-  pie_TRANSLATE(-rx, -player.p.y, rz);
+  view = DirectX::XMMatrixTranslation(static_cast<float>(-rx), static_cast<float>(-player.p.y), static_cast<float>(rz)) * view;
 
   /* No rotation is necessary*/
   null.x = 0;
@@ -183,22 +187,23 @@ void WorldPointToScreen(iPoint* worldPt, iPoint* screenPt)
   vec.y = map_Height(worldX / TILE_UNITS, worldY / TILE_UNITS);
 
   /* Set matrix context to local - get an identity matrix */
-  pie_MatBegin();
+  Neuron::MatrixPush();
+  DirectX::XMMATRIX& local = Neuron::WorldMatrix();
 
   /* Translate */
-  pie_TRANSLATE(vec.x, vec.y, vec.z);
+  local = DirectX::XMMatrixTranslation(static_cast<float>(vec.x), static_cast<float>(vec.y), static_cast<float>(vec.z)) * local;
   SDWORD xShift = player.p.x & (TILE_UNITS - 1);
   SDWORD zShift = player.p.z & (TILE_UNITS - 1);
 
   /* Translate */
-  pie_TRANSLATE(xShift, 0, -zShift);
+  local = DirectX::XMMatrixTranslation(static_cast<float>(xShift), 0.0f, static_cast<float>(-zShift)) * local;
 
   /* Project - no rotation being done. So effectively mapping from 3 space to 2 space */
-  pie_RotProj(&null, screenPt);
+  Neuron::ProjectToScreen(null.x, null.y, null.z, &screenPt->x, &screenPt->y);
 
   /* Pop remaining matrices */
-  pie_MatEnd();
-  pie_MatEnd();
+  Neuron::MatrixPop();
+  Neuron::MatrixPop();
 }
 
 /*	Calculates the RELATIVE screen coords of a game object from its BASE_OBJECT pointer */

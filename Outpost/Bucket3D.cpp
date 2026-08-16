@@ -1,4 +1,5 @@
 #include "pch.h"
+#include <directxmath.h>
 /* 
 	bucket3D.c - stores object render calls in a linked list renders after bucket sorting objects 
 
@@ -287,7 +288,7 @@ SDWORD bucketCalculateZ(RENDER_TYPE objectType, void* pObject)
   COMPONENT_OBJECT* psCompObj;
   iIMDShape* pImd;
 
-  pie_MatBegin();
+  Neuron::MatrixPush();
 
   switch (objectType)
   {
@@ -296,7 +297,7 @@ SDWORD bucketCalculateZ(RENDER_TYPE objectType, void* pObject)
     pz = player.p.z & (TILE_UNITS - 1);
 
     /* Translate */
-    pie_TRANSLATE(px, 0, -pz);
+    Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(px), 0.0f, static_cast<float>(-pz)) * Neuron::WorldMatrix();
 
     position.x = static_cast<UDWORD>(std::lrintf(((ATPART*)pObject)->position.x));
     position.y = static_cast<UDWORD>(std::lrintf(((ATPART*)pObject)->position.y));
@@ -307,7 +308,7 @@ SDWORD bucketCalculateZ(RENDER_TYPE objectType, void* pObject)
     position.y = position.y;
 
     /* 16 below is HACK!!! */
-    z = pie_RotProj(&position, &pixel) - 16;
+    z = Neuron::ProjectToScreen(position.x, position.y, position.z, &pixel.x, &pixel.y) - 16;
 #ifdef BUCKET_CLIP
     if (z > 0)
     {
@@ -340,7 +341,7 @@ SDWORD bucketCalculateZ(RENDER_TYPE objectType, void* pObject)
       pz = player.p.z & (TILE_UNITS - 1);
 
       /* Translate */
-      pie_TRANSLATE(px, 0, -pz);
+      Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(px), 0.0f, static_cast<float>(-pz)) * Neuron::WorldMatrix();
 
       psSimpObj = static_cast<SIMPLE_OBJECT*>(pObject);
       position.x = (psSimpObj->x - player.p.x) - terrainMidX * TILE_UNITS;
@@ -348,7 +349,7 @@ SDWORD bucketCalculateZ(RENDER_TYPE objectType, void* pObject)
 
       position.y = psSimpObj->z;
 
-      z = pie_RotProj(&position, &pixel);
+      z = Neuron::ProjectToScreen(position.x, position.y, position.z, &pixel.x, &pixel.y);
 #ifdef BUCKET_CLIP
       if (z > 0)
       {
@@ -368,7 +369,7 @@ SDWORD bucketCalculateZ(RENDER_TYPE objectType, void* pObject)
     pz = player.p.z & (TILE_UNITS - 1);
 
     /* Translate */
-    pie_TRANSLATE(px, 0, -pz);
+    Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(px), 0.0f, static_cast<float>(-pz)) * Neuron::WorldMatrix();
 
     psSimpObj = static_cast<SIMPLE_OBJECT*>(pObject);
     position.x = (psSimpObj->x - player.p.x) - terrainMidX * TILE_UNITS;
@@ -394,7 +395,7 @@ SDWORD bucketCalculateZ(RENDER_TYPE objectType, void* pObject)
 #endif
     }
 
-    z = pie_RotProj(&position, &pixel);
+    z = Neuron::ProjectToScreen(position.x, position.y, position.z, &pixel.x, &pixel.y);
 #ifdef BUCKET_CLIP
     if (z > 0)
     {
@@ -412,7 +413,7 @@ SDWORD bucketCalculateZ(RENDER_TYPE objectType, void* pObject)
     pz = player.p.z & (TILE_UNITS - 1);
 
     /* Translate */
-    pie_TRANSLATE(px, 0, -pz);
+    Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(px), 0.0f, static_cast<float>(-pz)) * Neuron::WorldMatrix();
 
     psSimpObj = static_cast<SIMPLE_OBJECT*>(pObject);
     position.x = (psSimpObj->x - player.p.x) - terrainMidX * TILE_UNITS;
@@ -420,7 +421,7 @@ SDWORD bucketCalculateZ(RENDER_TYPE objectType, void* pObject)
 
     position.y = psSimpObj->z + 2;
 
-    z = pie_RotProj(&position, &pixel);
+    z = Neuron::ProjectToScreen(position.x, position.y, position.z, &pixel.x, &pixel.y);
 #ifdef BUCKET_CLIP
     if (z > 0)
     {
@@ -439,7 +440,7 @@ SDWORD bucketCalculateZ(RENDER_TYPE objectType, void* pObject)
     pz = player.p.z & (TILE_UNITS - 1);
 
     /* Translate */
-    pie_TRANSLATE(px, 0, -pz);
+    Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(px), 0.0f, static_cast<float>(-pz)) * Neuron::WorldMatrix();
 
     psCompObj = static_cast<COMPONENT_OBJECT*>(pObject);
     psSimpObj = static_cast<SIMPLE_OBJECT*>(psCompObj->psParent);
@@ -453,14 +454,18 @@ SDWORD bucketCalculateZ(RENDER_TYPE objectType, void* pObject)
     position.z -= psCompObj->psShape->ocen.y;
 
     /* object (animation) translations - ivis z and y flipped */
-    pie_TRANSLATE(psCompObj->position.x, psCompObj->position.z, psCompObj->position.y);
+    {
+      DirectX::XMMATRIX& world = Neuron::WorldMatrix();
+      world = DirectX::XMMatrixTranslation(static_cast<float>(psCompObj->position.x), static_cast<float>(psCompObj->position.z),
+                                           static_cast<float>(psCompObj->position.y)) * world;
 
-    /* object (animation) rotations */
-    pie_MatRotY(-psCompObj->orientation.z);
-    pie_MatRotZ(-psCompObj->orientation.y);
-    pie_MatRotX(-psCompObj->orientation.x);
+      /* object (animation) rotations */
+      world = DirectX::XMMatrixRotationY(-psCompObj->orientation.z * Neuron::RadiansPerWorldAngle) * world;
+      world = DirectX::XMMatrixRotationZ(-psCompObj->orientation.y * Neuron::RadiansPerWorldAngle) * world;
+      world = DirectX::XMMatrixRotationX(-psCompObj->orientation.x * Neuron::RadiansPerWorldAngle) * world;
+    }
 
-    z = pie_RotProj(&position, &pixel);
+    z = Neuron::ProjectToScreen(position.x, position.y, position.z, &pixel.x, &pixel.y);
 #ifdef BUCKET_CLIP
     /*	Don't do this for animations
     if (z > 0)
@@ -485,7 +490,7 @@ SDWORD bucketCalculateZ(RENDER_TYPE objectType, void* pObject)
     pz = player.p.z & (TILE_UNITS - 1);
 
     /* Translate */
-    pie_TRANSLATE(px, 0, -pz);
+    Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(px), 0.0f, static_cast<float>(-pz)) * Neuron::WorldMatrix();
 
     psSimpObj = static_cast<SIMPLE_OBJECT*>(pObject);
     position.x = (psSimpObj->x - player.p.x) - terrainMidX * TILE_UNITS;
@@ -496,7 +501,7 @@ SDWORD bucketCalculateZ(RENDER_TYPE objectType, void* pObject)
 
     psBStats = asBodyStats + psDroid->asBits[COMP_BODY].nStat;
     droidSize = psBStats->pIMD->radius;
-    z = pie_RotProj(&position, &pixel) - (droidSize * 2);
+    z = Neuron::ProjectToScreen(position.x, position.y, position.z, &pixel.x, &pixel.y) - (droidSize * 2);
 #ifdef BUCKET_CLIP
     if (z > 0)
     {
@@ -515,7 +520,7 @@ SDWORD bucketCalculateZ(RENDER_TYPE objectType, void* pObject)
     pz = player.p.z & (TILE_UNITS - 1);
 
     /* Translate */
-    pie_TRANSLATE(px, 0, -pz);
+    Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(px), 0.0f, static_cast<float>(-pz)) * Neuron::WorldMatrix();
     if (static_cast<PROXIMITY_DISPLAY*>(pObject)->type == POS_PROXDATA)
     {
       position.x = (static_cast<VIEW_PROXIMITY*>(((VIEWDATA*)((PROXIMITY_DISPLAY*)pObject)->psMessage->pViewData)->pData)->x - player.p.x) -
@@ -532,7 +537,7 @@ SDWORD bucketCalculateZ(RENDER_TYPE objectType, void* pObject)
         z);
       position.y = ((BASE_OBJECT*)static_cast<PROXIMITY_DISPLAY*>(pObject)->psMessage->pViewData)->z;
     }
-    z = pie_RotProj(&position, &pixel);
+    z = Neuron::ProjectToScreen(position.x, position.y, position.z, &pixel.x, &pixel.y);
 #ifdef BUCKET_CLIP
     if (z > 0)
     {
@@ -560,14 +565,14 @@ SDWORD bucketCalculateZ(RENDER_TYPE objectType, void* pObject)
     pz = player.p.z & (TILE_UNITS - 1);
 
     /* Translate */
-    pie_TRANSLATE(px, 0, -pz);
+    Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(px), 0.0f, static_cast<float>(-pz)) * Neuron::WorldMatrix();
 
     position.x = static_cast<SDWORD>(((EFFECT*)pObject)->position.x - player.p.x) - terrainMidX * TILE_UNITS;
     position.z = static_cast<SDWORD>(terrainMidY * TILE_UNITS - (((EFFECT*)pObject)->position.z - player.p.z));
     position.y = static_cast<SDWORD>(((EFFECT*)pObject)->position.y);
 
     /* 16 below is HACK!!! */
-    z = pie_RotProj(&position, &pixel) - 16;
+    z = Neuron::ProjectToScreen(position.x, position.y, position.z, &pixel.x, &pixel.y) - 16;
 #ifdef BUCKET_CLIP
     if (z > 0)
     {
@@ -591,12 +596,12 @@ SDWORD bucketCalculateZ(RENDER_TYPE objectType, void* pObject)
     pz = player.p.z & (TILE_UNITS - 1);
 
     /* Translate */
-    pie_TRANSLATE(px, 0, -pz);
+    Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(px), 0.0f, static_cast<float>(-pz)) * Neuron::WorldMatrix();
     position.x = (static_cast<FLAG_POSITION*>(pObject)->coords.x - player.p.x) - terrainMidX * TILE_UNITS;
     position.z = terrainMidY * TILE_UNITS - (static_cast<FLAG_POSITION*>(pObject)->coords.y - player.p.z);
     position.y = static_cast<FLAG_POSITION*>(pObject)->coords.z;
 
-    z = pie_RotProj(&position, &pixel);
+    z = Neuron::ProjectToScreen(position.x, position.y, position.z, &pixel.x, &pixel.y);
 #ifdef BUCKET_CLIP
     if (z > 0)
     {
@@ -616,7 +621,7 @@ SDWORD bucketCalculateZ(RENDER_TYPE objectType, void* pObject)
     break;
   }
 
-  pie_MatEnd();
+  Neuron::MatrixPop();
 
   return z;
 }
