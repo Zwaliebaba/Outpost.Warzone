@@ -42,6 +42,28 @@ SKIP = re.compile(r'^(GameData|Docs|tools|packages)/')
 # and NetTest was the console harness; both are gone from the tree.
 PROJECTS = ('NeuronCore', 'Outpost', 'NeuronClient', 'NeuronServer')
 
+
+def sibling_includes(proj):
+    """The sibling projects proj compiles against, read from its .vcxproj.
+
+    Taken from AdditionalIncludeDirectories rather than hardcoded, so a file
+    moving between projects does not silently take the harness out of step
+    with MSVC -- which is exactly what happened when the client layer moved
+    from NeuronCore to NeuronClient.
+    """
+    path = os.path.join(ROOT, proj, f'{proj}.vcxproj')
+    try:
+        text = open(path, encoding='utf-8').read()
+    except OSError:
+        return []
+    found = []
+    for block in re.findall(r'<AdditionalIncludeDirectories>([^<]*)<', text):
+        for entry in block.split(';'):
+            name = entry.strip().replace('\\', '/').rstrip('/').rsplit('/', 1)[-1]
+            if name in PROJECTS and name != proj and name not in found:
+                found.append(name)
+    return found
+
 # MSVC-only headers that ship with the Concurrency Runtime. NeuronCore.h
 # includes them but nothing uses them, so an empty stub is enough for GCC.
 STUBS = ['concurrent_queue.h', 'concurrent_unordered_map.h', 'mdspan',
@@ -117,9 +139,9 @@ def build_shadow(dst):
 
             # Include case: MSVC resolves case-insensitively, the shadow is on
             # a case-sensitive filesystem, so rewrite to the real name.
-            def fix(m):
+            def fix(m, proj=proj):
                 name = m.group(2)
-                for where in (proj, 'NeuronCore'):
+                for where in (proj, *sibling_includes(proj)):
                     hit = real.get(where, {}).get(name.lower())
                     if hit and hit != name:
                         return m.group(1) + hit + m.group(3)
@@ -161,8 +183,8 @@ PERMISSIVE_HIDES = re.compile(r'(invalid conversion|cannot convert).*\[-fpermiss
 def check(shadow, rel):
     proj = rel.split('/')[0]
     inc = ['-I', os.path.join(shadow, proj), '-I', os.path.join(shadow, 'stubs')]
-    if proj != 'NeuronCore':
-        inc += ['-I', os.path.join(shadow, 'NeuronCore')]
+    for sib in sibling_includes(proj):
+        inc += ['-I', os.path.join(shadow, sib)]
     defs = DEFS
     # no -w, so the downgraded diagnostics are still printed
     cmd = [CXX, '-fsyntax-only', '-std=c++23', '-fpermissive',
