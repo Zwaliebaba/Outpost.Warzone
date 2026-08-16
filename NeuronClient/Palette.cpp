@@ -12,12 +12,6 @@
 
 uint8 pal_GetNearestColour(uint8 r, uint8 g, uint8 b);
 void pie_SetColourDefines(void);
-/*
-	This is how far from the end you want the drawn as the artist intended shades
-	to appear
-*/
-
-#define COLOUR_BALANCE	6		// 3 from the end. (two brighter shades!)
 
 /*
 
@@ -29,37 +23,8 @@ void pie_SetColourDefines(void);
 */
 
 iColour* psGamePal = nullptr;
-uint8 palShades[PALETTE_SIZE * PALETTE_SHADE_LEVEL];
 BOOL bPaletteInitialised = FALSE;
 uint8 colours[16];
-/* The present palette packed X8R8G8B8, for the FMV subtitle glyphs - the one
- * path that still expands 8 bit pixels straight into the back buffer.
- *
- * The RGB565 twin this had went with its last reader: the backdrop and FMV
- * buffers do their own conversion from the game palette.
- */
-UDWORD palette32Bit[PALETTE_SIZE]; //X8R8G8B8 version of the present palette
-
-BOOL pal_MakePackedPalettes(void)
-{
-  iColour* psPal;
-  UDWORD i;
-
-  psPal = pie_GetGamePal();
-  if (psPal == nullptr)
-    return FALSE;
-
-  for (i = 0; i < PALETTE_SIZE; i++)
-  {
-    UDWORD red = psPal[i].r;
-    UDWORD green = psPal[i].g;
-    UDWORD blue = psPal[i].b;
-
-    palette32Bit[i] = (red << 16) | (green << 8) | blue;
-  }
-
-  return TRUE;
-}
 
 //*************************************************************************
 //*** add a new palette
@@ -95,7 +60,6 @@ BOOL pal_AddNewPalette(iColour* pal)
   }
 
   pie_SetColourDefines();
-  pal_MakePackedPalettes();
   return 0;
 }
 
@@ -168,40 +132,6 @@ uint8 pal_GetNearestColour(uint8 r, uint8 g, uint8 b)
   if (best_colour == 0)
     best_colour = 1;
   return static_cast<uint8>(best_colour);
-}
-
-void pal_BuildAdjustedShadeTable(void)
-{
-  float redFraction, greenFraction, blueFraction;
-  int seekRed, seekGreen, seekBlue;
-  int numColours;
-  int numShades;
-
-  DEBUG_ASSERT_TEXT(bPaletteInitialised, "pal_BuildAdjustedShadeTable, palette not initialised.");
-
-  for (numColours = 0; numColours < 255; numColours++)
-  {
-    redFraction = static_cast<float>(psGamePal[numColours].r) / static_cast<float>(16);
-    greenFraction = static_cast<float>(psGamePal[numColours].g) / static_cast<float>(16);
-    blueFraction = static_cast<float>(psGamePal[numColours].b) / static_cast<float>(16);
-
-    for (numShades = COLOUR_BALANCE; numShades < 16 + COLOUR_BALANCE; numShades++)
-    {
-      seekRed = static_cast<int>((float)numShades * redFraction);
-      seekGreen = static_cast<int>((float)numShades * greenFraction);
-      seekBlue = static_cast<int>((float)numShades * blueFraction);
-
-      if (seekRed > 255)
-        seekRed = 255;
-      if (seekGreen > 255)
-        seekGreen = 255;
-      if (seekBlue > 255)
-        seekBlue = 255;
-
-      palShades[(numColours * PALETTE_SHADE_LEVEL) + (numShades - COLOUR_BALANCE)] = pal_GetNearestColour(
-        static_cast<uint8>(seekRed), static_cast<uint8>(seekGreen), static_cast<uint8>(seekBlue));
-    }
-  }
 }
 
 iColour* pie_GetGamePal(void)

@@ -47,23 +47,32 @@
 #define RADAR_TRIANGLE_WIDTH	(RADAR_TRIANGLE_SIZE/2)
 
 static UDWORD sweep;
-static UBYTE colBlack, colWhite, colRadarBorder, colGrey;
+
+/* Transparent black: the radar quad is drawn alpha tested, so undiscovered
+ * area shows the translucent box behind it - what palette index 0 did. */
+static iBitmap colBlack;
 
 // colours for each clan on the radar map.
+// These were palette indices; the values are those entries of palette.bin
+// packed A8R8G8B8, so the clans keep the colours that shipped.
 #define CAMPAIGNS	3
-static UDWORD clanColours[CAMPAIGNS][MAX_PLAYERS] = {
-  {81, 243, 231, 1, 182, 187, 207, 195}, {81, 243, 231, 1, 182, 187, 207, 195}, {81, 243, 231, 1, 182, 187, 207, 195},
+static iBitmap clanColours[CAMPAIGNS][MAX_PLAYERS] = {
+  {0xff37ef6f, 0xfff0aa38, 0xffdedede, 0xff080808, 0xffe70000, 0xff4e62ff, 0xffff00a5, 0xff00bcbc},
+  {0xff37ef6f, 0xfff0aa38, 0xffdedede, 0xff080808, 0xffe70000, 0xff4e62ff, 0xffff00a5, 0xff00bcbc},
+  {0xff37ef6f, 0xfff0aa38, 0xffdedede, 0xff080808, 0xffe70000, 0xff4e62ff, 0xffff00a5, 0xff00bcbc},
 };
 
-static UDWORD flashColours[CAMPAIGNS][MAX_PLAYERS] = {
-  {165, 165, 165, 165, 255, 165, 165, 165}, // everything flashes red when attacked except red - it goes white!
-  {165, 165, 165, 165, 255, 165, 165, 165}, {165, 165, 165, 165, 255, 165, 165, 165},
+static iBitmap flashColours[CAMPAIGNS][MAX_PLAYERS] = {
+  // everything flashes red when attacked except red - it goes white!
+  {0xffff2300, 0xffff2300, 0xffff2300, 0xffff2300, 0xffffffff, 0xffff2300, 0xffff2300, 0xffff2300},
+  {0xffff2300, 0xffff2300, 0xffff2300, 0xffff2300, 0xffffffff, 0xffff2300, 0xffff2300, 0xffff2300},
+  {0xffff2300, 0xffff2300, 0xffff2300, 0xffff2300, 0xffffffff, 0xffff2300, 0xffff2300, 0xffff2300},
 };
 
-static UBYTE tileColours[NUM_TILES];
+static iBitmap tileColours[NUM_TILES];
 static BOOL radarStrobe;
 static UDWORD radarStrobeX, radarStrobeY, radarStrobeIndex, sweepStrobeIndex;
-static UBYTE* radarBuffer;
+static iBitmap* radarBuffer;
 
 static SDWORD RadarScrollX;
 static SDWORD RadarScrollY;
@@ -83,11 +92,32 @@ static SDWORD RadarMapHeight;
 
 static void CalcRadarPixelSize(UWORD* SizeH, UWORD* SizeV);
 static void CalcRadarScroll(UWORD boxSizeH, UWORD boxSizeV);
-static void ClearRadar(UBYTE* screen, UDWORD Modulus, UWORD boxSizeH, UWORD boxSizeV);
-static void DrawRadarTiles(UBYTE* screen, UDWORD Modulus, UWORD boxSizeH, UWORD boxSizeV);
-static void DrawRadarObjects(UBYTE* screen, UDWORD Modulus, UWORD boxSizeH, UWORD boxSizeV);
+static void ClearRadar(iBitmap* screen, UDWORD Modulus, UWORD boxSizeH, UWORD boxSizeV);
+static void DrawRadarTiles(iBitmap* screen, UDWORD Modulus, UWORD boxSizeH, UWORD boxSizeV);
+static void DrawRadarObjects(iBitmap* screen, UDWORD Modulus, UWORD boxSizeH, UWORD boxSizeV);
 static void DrawRadarExtras(UWORD boxSizeH, UWORD boxSizeV);
 static void UpdateRadar(UWORD boxSizeH, UWORD boxSizeV);
+
+/* What the palShades table used to hold: shade level k in [0..15] scales the
+ * colour by (k + 6) / 16, saturating - the levels past full scale are the
+ * "brighter than the artist drew it" shades the old table kept at its end.
+ */
+#define RADAR_SHADE_BALANCE 6
+static iBitmap scaleRadarColour(iBitmap colour, UDWORD shade)
+{
+  UDWORD r = (((colour >> 16) & 0xff) * (shade + RADAR_SHADE_BALANCE)) / 16;
+  UDWORD g = (((colour >> 8) & 0xff) * (shade + RADAR_SHADE_BALANCE)) / 16;
+  UDWORD b = ((colour & 0xff) * (shade + RADAR_SHADE_BALANCE)) / 16;
+
+  if (r > 255)
+    r = 255;
+  if (g > 255)
+    g = 255;
+  if (b > 255)
+    b = 255;
+
+  return 0xff000000 | (r << 16) | (g << 8) | b;
+}
 
 void radarInitVars(void)
 {
@@ -108,10 +138,10 @@ void resetRadarRedraw(void) { RadarRedraw = TRUE; }
 
 BOOL InitRadar(void)
 {
-  radarBuffer = new (std::nothrow) UBYTE[RADWIDTH*RADHEIGHT];
+  radarBuffer = new (std::nothrow) iBitmap[RADWIDTH*RADHEIGHT];
   if (radarBuffer == nullptr)
     return FALSE;
-  memset(radarBuffer, 0,RADWIDTH * RADHEIGHT);
+  memset(radarBuffer, 0,RADWIDTH * RADHEIGHT * sizeof(iBitmap));
 
   // Set up an image structure for the radar bitmap so we can draw
   // it useing pie_ImageDef().
@@ -124,10 +154,7 @@ BOOL InitRadar(void)
   RadarImage.XOffset = 0;
   RadarImage.YOffset = 0;
 
-  colRadarBorder = COL_GREY;
   colBlack = 0;
-  colGrey = COL_DARKGREY;
-  colWhite = COL_WHITE;
 
   pie_InitRadar();
   return TRUE;
@@ -374,10 +401,10 @@ static void UpdateRadar(UWORD boxSizeH, UWORD boxSizeV)
 
 // Clear the radar buffer.
 //
-static void ClearRadar(UBYTE* screen, UDWORD Modulus, UWORD boxSizeH, UWORD boxSizeV)
+static void ClearRadar(iBitmap* screen, UDWORD Modulus, UWORD boxSizeH, UWORD boxSizeV)
 {
   SDWORD i, j;
-  UBYTE *Scr, *WScr;
+  iBitmap *Scr, *WScr;
   SDWORD RadWidth, RadHeight;
   UNUSEDPARAMETER(boxSizeH);
   UNUSEDPARAMETER(boxSizeV);
@@ -400,15 +427,15 @@ static void ClearRadar(UBYTE* screen, UDWORD Modulus, UWORD boxSizeH, UWORD boxS
 
 // Draw the map tiles on the radar.
 //
-static void DrawRadarTiles(UBYTE* screen, UDWORD Modulus, UWORD boxSizeH, UWORD boxSizeV)
+static void DrawRadarTiles(iBitmap* screen, UDWORD Modulus, UWORD boxSizeH, UWORD boxSizeV)
 {
   SDWORD i, j, EndY;
   MAPTILE* psTile;
   MAPTILE* WTile;
-  UBYTE* Scr;
-  UBYTE* WScr;
+  iBitmap* Scr;
+  iBitmap* WScr;
   UDWORD c, d;
-  UBYTE *Ptr, *WPtr;
+  iBitmap *Ptr, *WPtr;
   UWORD SizeH, SizeV;
   SDWORD SweepPos;
   SDWORD VisWidth;
@@ -461,8 +488,7 @@ static void DrawRadarTiles(UBYTE* screen, UDWORD Modulus, UWORD boxSizeH, UWORD 
         DEBUG_ASSERT_TEXT(((UDWORD)WScr) >= radarBuffer, "WScr Onderflow"); DEBUG_ASSERT_TEXT(((UDWORD)WScr) < ((UDWORD)radarBuffer)+RADWIDTH*RADHEIGHT, "WScr Overrun");
 #endif
         if (TEST_TILE_VISIBLE(selectedPlayer, WTile) OR godMode)
-          *WScr = palShades[(tileColours[(WTile->texture & TILE_NUMMASK)] * PALETTE_SHADE_LEVEL + (WTile->illumination >>
-            ShadeDiv))];
+          *WScr = scaleRadarColour(tileColours[(WTile->texture & TILE_NUMMASK)], WTile->illumination >> ShadeDiv);
         else
           *WScr = colBlack; //colGrey;
         /* Next pixel, next tile */
@@ -484,8 +510,7 @@ static void DrawRadarTiles(UBYTE* screen, UDWORD Modulus, UWORD boxSizeH, UWORD 
         /* Only draw if discovered or in GOD mode */
         if (TEST_TILE_VISIBLE(selectedPlayer, WTile) OR godMode)
         {
-          UBYTE Val = tileColours[(WTile->texture & TILE_NUMMASK)];
-          Val = palShades[(Val * PALETTE_SHADE_LEVEL + (WTile->illumination >> ShadeDiv))];
+          iBitmap Val = scaleRadarColour(tileColours[(WTile->texture & TILE_NUMMASK)], WTile->illumination >> ShadeDiv);
 
           Ptr = Scr + j + i * Modulus;
           for (c = 0; c < SizeV; c++)
@@ -529,7 +554,7 @@ static void DrawRadarTiles(UBYTE* screen, UDWORD Modulus, UWORD boxSizeH, UWORD 
 
 // Draw the droids and structure positions on the radar.
 //
-static void DrawRadarObjects(UBYTE* screen, UDWORD Modulus, UWORD boxSizeH, UWORD boxSizeV)
+static void DrawRadarObjects(iBitmap* screen, UDWORD Modulus, UWORD boxSizeH, UWORD boxSizeV)
 {
   SDWORD c, d;
   UBYTE clan;
@@ -538,7 +563,7 @@ static void DrawRadarObjects(UBYTE* screen, UDWORD Modulus, UWORD boxSizeH, UWOR
   STRUCTURE* psStruct;
   PROXIMITY_DISPLAY* psProxDisp;
   VIEW_PROXIMITY* psViewProx;
-  UBYTE *Ptr, *WPtr;
+  iBitmap *Ptr, *WPtr;
   SDWORD SizeH, SizeV;
   SDWORD bw, bh;
   SDWORD SSizeH, SSizeV;
@@ -547,8 +572,8 @@ static void DrawRadarObjects(UBYTE* screen, UDWORD Modulus, UWORD boxSizeH, UWOR
   SDWORD VisHeight;
   SDWORD OffsetX;
   SDWORD OffsetY;
-  UBYTE playerCol, col;
-  UBYTE flashCol;
+  iBitmap playerCol, col;
+  iBitmap flashCol;
   UBYTE camNum;
 
   SizeH = boxSizeH;
@@ -903,62 +928,36 @@ BOOL CoordInRadar(int x, int y)
   return FALSE;
 }
 
-void calcRadarColour(UBYTE* tileBitmap, UDWORD tileNumber)
+void calcRadarColour(iBitmap* tileBitmap, UDWORD tileNumber)
 {
   UDWORD i, j;
-  UBYTE penNumber;
-  UBYTE fRed, fGreen, fBlue;
-  UBYTE red, green, blue;
+  iBitmap pixel;
+  UDWORD fRed, fGreen, fBlue;
   UDWORD tRed, tGreen, tBlue;
-  iColour* psPalette;
   tRed = tGreen = tBlue = 0;
 #define SAMPLES 8
-#if 0
-  /* Got through every pixel */
-  //what all 4096 of them
-  for (i = 0; i < TILE_SIZE; i++)
-  {
-    /* Get pixel colour index */
-    penNumber = (UBYTE)tileBitmap[i];
-    /* Get the r,g,b components */
-    red = _iVPALETTE[penNumber].r;
-    green = _iVPALETTE[penNumber].g;
-    blue = _iVPALETTE[penNumber].b;
-    /* Add them to totals */
-    tRed += red;
-    tGreen += green;
-    tBlue += blue;
-  }
-  /* Get average of each component */
-  fRed = (UBYTE)(tRed / TILE_SIZE); fGreen = (UBYTE)(tGreen / TILE_SIZE); fBlue = (UBYTE)(tBlue / TILE_SIZE);
-#else
   //this routine only checks 64 pixels
   //offset half a step at the start
   tileBitmap += ((TILE_HEIGHT / (2 * SAMPLES)) * TILE_WIDTH);
   tileBitmap += (TILE_WIDTH / (2 * SAMPLES));
-  psPalette = pie_GetGamePal();
   for (i = 0; i < SAMPLES; i++)
   {
     for (j = 0; j < SAMPLES; j++)
     {
-      /* Get pixel colour index */
-      penNumber = tileBitmap[j * (TILE_WIDTH / SAMPLES)]; //stepping across a few steps
-      /* Get the r,g,b components */
-      red = psPalette[penNumber].r;
-      green = psPalette[penNumber].g;
-      blue = psPalette[penNumber].b;
-      /* Add them to totals */
-      tRed += red;
-      tGreen += green;
-      tBlue += blue;
+      /* Get the pixel and add its components to the totals */
+      pixel = tileBitmap[j * (TILE_WIDTH / SAMPLES)]; //stepping across a few steps
+      tRed += (pixel >> 16) & 0xff;
+      tGreen += (pixel >> 8) & 0xff;
+      tBlue += pixel & 0xff;
     }
     //step down a few lines
     tileBitmap += ((TILE_HEIGHT / (SAMPLES)) * TILE_WIDTH);
   }
-  /* Get average of each component */
-  fRed = static_cast<UBYTE>(tRed / (SAMPLES * SAMPLES));
-  fGreen = static_cast<UBYTE>(tGreen / (SAMPLES * SAMPLES));
-  fBlue = static_cast<UBYTE>(tBlue / (SAMPLES * SAMPLES));
-#endif
-  tileColours[tileNumber] = pal_GetNearestColour(fRed, fGreen, fBlue);
+  /* Get average of each component. The old path took this average back
+   * through pal_GetNearestColour; the average itself is the colour now. */
+  fRed = tRed / (SAMPLES * SAMPLES);
+  fGreen = tGreen / (SAMPLES * SAMPLES);
+  fBlue = tBlue / (SAMPLES * SAMPLES);
+
+  tileColours[tileNumber] = 0xff000000 | (fRed << 16) | (fGreen << 8) | fBlue;
 }

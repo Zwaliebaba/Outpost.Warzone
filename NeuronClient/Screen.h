@@ -114,12 +114,12 @@ extern void screenUnlockBackBuffer(void);
 extern void screenFlip(BOOL clearBackBuffer);
 
 /* backDrop */
-extern void screen_SetBackDrop(UWORD* newBackDropBmp, UDWORD width, UDWORD height);
+extern void screen_SetBackDrop(UDWORD* newBackDropBmp, UDWORD width, UDWORD height);
 extern void screen_StopBackDrop(void);
 extern void screen_RestartBackDrop(void);
-extern UWORD* screen_GetBackDrop(void);
+extern UDWORD* screen_GetBackDrop(void);
 extern UDWORD screen_GetBackDropWidth(void);
-extern void screen_Upload(UWORD* newBackDropBmp);
+extern void screen_Upload(UDWORD* newBackDropBmp);
 
 /* fog */
 void screen_SetFogColour(UDWORD newFogColour);

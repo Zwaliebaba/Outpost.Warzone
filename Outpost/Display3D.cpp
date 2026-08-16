@@ -880,8 +880,6 @@ BOOL init3DView(void)
 
   /* Set up light values */
 
-  /* Build our shade table for gouraud shading - 256*16 values with best match from 256 colour table */
-  pal_BuildAdjustedShadeTable();
   getDefaultColours();
 
   /* Set up the player */

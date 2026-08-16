@@ -3,6 +3,7 @@
 #include "RenderTypes.h"
 #include "Fbf.h"
 #include "Pcx.h"
+#include "Palette.h"
 
 #include "IvisPatch.h"
 
@@ -46,11 +47,24 @@ static int _pcx_read_int8(void)
 
 //*************************************************************************
 
+/* Decode the 8 bit RLE image, expanding each palette index into a packed
+ * A8R8G8B8 pixel as it lands. This is the one place the game palette still
+ * touches image data: index 0 - the old colour key on black - becomes a
+ * fully transparent pixel, everything else is opaque.
+ */
 static void _load_image(iBitmap* bmp, long size)
 
 {
   int data, num_bytes;
   long count;
+  iColour* psPal;
+  iBitmap aExpanded[256];
+
+  psPal = pie_GetGamePal();
+  aExpanded[0] = 0x00000000;
+  for (count = 1; count < 256; count++)
+    aExpanded[count] = 0xff000000 | (static_cast<iBitmap>(psPal[count].r) << 16) | (static_cast<iBitmap>(psPal[count].g) << 8) |
+      static_cast<iBitmap>(psPal[count].b);
 
   count = 0;
 
@@ -66,7 +80,7 @@ static void _load_image(iBitmap* bmp, long size)
     else
       num_bytes = 1;
 
-    while ((num_bytes-- > 0) && (count++ < size)) { *bmp++ = data; }
+    while ((num_bytes-- > 0) && (count++ < size)) { *bmp++ = aExpanded[data & 0xff]; }
   }
 }
 
@@ -208,7 +222,7 @@ iBool Neuron::PCXLoad(char* file, iSprite* s, iColour* pal)
 
   bsize = s->height * s->width;
 
-  if ((s->bmp = static_cast<uint8*>(IVIS_HEAP_ALLOC(bsize))) == nullptr)
+  if ((s->bmp = static_cast<iBitmap*>(IVIS_HEAP_ALLOC(bsize * sizeof(iBitmap)))) == nullptr)
   {
     Neuron::FileClose(_PCX_FI);
     return FALSE;
@@ -256,7 +270,7 @@ iBool Neuron::PCXLoadMem(int8* pcximge, iSprite* s, iColour* pal)
 
   bsize = s->height * s->width;
 
-  if ((s->bmp = static_cast<uint8*>(IVIS_HEAP_ALLOC(bsize))) == nullptr)
+  if ((s->bmp = static_cast<iBitmap*>(IVIS_HEAP_ALLOC(bsize * sizeof(iBitmap)))) == nullptr)
     return FALSE;
 
   _load_image(s->bmp, bsize);

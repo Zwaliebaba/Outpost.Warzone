@@ -75,7 +75,7 @@ HANDLE hScreenFlipSemaphore;
 //backDrop
 #define BACKDROP_WIDTH	640
 #define BACKDROP_HEIGHT	480
-UWORD* pBackDropData = nullptr;
+UDWORD* pBackDropData = nullptr;
 BOOL bBackDrop = FALSE;
 BOOL bUpload = FALSE;
 
@@ -377,7 +377,7 @@ void screenUnlockBackBuffer(void)
 /* Backdrop                                              */
 /*********************************************************/
 
-void screen_SetBackDrop(UWORD* newBackDropBmp, UDWORD width, UDWORD height)
+void screen_SetBackDrop(UDWORD* newBackDropBmp, UDWORD width, UDWORD height)
 {
   bBackDrop = TRUE;
   pBackDropData = newBackDropBmp;
@@ -389,7 +389,7 @@ void screen_StopBackDrop(void) { bBackDrop = FALSE; }
 
 void screen_RestartBackDrop(void) { bBackDrop = TRUE; }
 
-UWORD* screen_GetBackDrop(void)
+UDWORD* screen_GetBackDrop(void)
 {
   if (bBackDrop == TRUE)
     return pBackDropData;
@@ -403,19 +403,19 @@ UDWORD screen_GetBackDropWidth(void)
   return 0;
 }
 
-/* Read the back buffer back into a 16 bit software buffer.
+/* Read the back buffer back into a 32 bit software buffer.
  *
  * The buffer is logical-canvas sized while the back buffer is physical, so
  * this samples every display-scale-th pixel; the backdrop draw scales the
  * result back up on the way in, which round-trips exactly.
  */
-void screen_Upload(UWORD* newBackDropBmp)
+void screen_Upload(UDWORD* newBackDropBmp)
 {
   SCREEN_LOCK sLock;
   UDWORD x, y;
   UDWORD destWidth, destHeight, scale;
   UDWORD* pSrc;
-  UWORD* pDest;
+  UDWORD* pDest;
 
   if (newBackDropBmp == nullptr)
     return;
@@ -432,7 +432,7 @@ void screen_Upload(UWORD* newBackDropBmp)
   {
     pSrc = (UDWORD*)(sLock.pPixels + sLock.pitch * (y * scale));
     for (x = 0; (x < destWidth) && (x * scale < sLock.width); x++)
-      pDest[x] = screen32To565(pSrc[x * scale]);
+      pDest[x] = pSrc[x * scale];
     pDest += destWidth;
   }
 
@@ -452,16 +452,16 @@ void screen_SetFogColour(UDWORD newFogColour)
 /*********************************************************/
 
 /* Draw the backdrop into the back buffer, centred and enlarged by the
- * display scale, converting 565 to 32 bit. The backdrop bitmap is in
- * logical-canvas units like everything else the game hands over, so a
- * 640x480 menu backdrop keeps its size relative to the menus on top of it.
+ * display scale. The backdrop bitmap is in logical-canvas units like
+ * everything else the game hands over, so a 640x480 menu backdrop keeps its
+ * size relative to the menus on top of it.
  */
 static void drawBackDrop(void)
 {
   SCREEN_LOCK sLock;
   UDWORD x, y;
   UDWORD* pDest;
-  UWORD* pSrc;
+  UDWORD* pSrc;
   UDWORD destX, destY;
   UDWORD scale, scaledWidth, scaledHeight;
 
@@ -480,7 +480,7 @@ static void drawBackDrop(void)
     pSrc = pBackDropData + (y / scale) * backDropWidth;
     pDest = (UDWORD*)(sLock.pPixels + sLock.pitch * (destY + y)) + destX;
     for (x = 0; (x < scaledWidth) && (destX + x < sLock.width); x++)
-      pDest[x] = screen565To32(pSrc[x / scale]);
+      pDest[x] = pSrc[x / scale];
   }
 
   screenUnlockBackBuffer();

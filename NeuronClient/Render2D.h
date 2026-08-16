@@ -51,7 +51,7 @@ extern void pie_DrawRect(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1, UDWORD colo
 
 extern BOOL pie_InitRadar(void);
 extern BOOL pie_ShutdownRadar(void);
-extern void pie_DownLoadRadar(unsigned char* buffer, UDWORD texPageID);
+extern void pie_DownLoadRadar(iBitmap* buffer, UDWORD texPageID);
 extern void pie_RenderRadar(IMAGEDEF* Image, iBitmap* Bmp, UDWORD Modulus, int x, int y);
 extern void pie_RenderRadarRotated(IMAGEDEF* Image, iBitmap* Bmp, UDWORD Modulus, int x, int y, int angle);
 
@@ -78,6 +78,5 @@ using SCREENTYPE = enum _screenType
 extern void pie_LoadBackDrop(SCREENTYPE screenType, BOOL b3DFX);
 extern void pie_ResetBackDrop(void);
 
-extern void bufferTo16Bit(UBYTE* origBuffer, UWORD* newBuffer, BOOL b3DFX);
 
 #endif // 

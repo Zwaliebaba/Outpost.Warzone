@@ -45,8 +45,8 @@ TILE_TEX_INFO tileTexInfo[MAX_TILES];
 
 TEXTURE_PAGE_3DFX allPages[MAX_TEXTURE_PAGES];
 
-void getRectFromPage(UDWORD width, UDWORD height, unsigned char* src, UDWORD bufWidth, unsigned char* dest);
-void putRectIntoPage(UDWORD width, UDWORD height, unsigned char* dest, UDWORD bufWidth, unsigned char* src);
+void getRectFromPage(UDWORD width, UDWORD height, iBitmap* src, UDWORD bufWidth, iBitmap* dest);
+void putRectIntoPage(UDWORD width, UDWORD height, iBitmap* dest, UDWORD bufWidth, iBitmap* src);
 
 /* Extracts the tile texture in pcx format of abc..
 											  def..
@@ -159,15 +159,15 @@ int remakeTileTextures(void)
 	We must then make sure that we source in that texture page and set the 
 	texture coordinate for a complete tile to be its position.
 */
-void makeTileTexturePages(UDWORD srcWidth, UDWORD srcHeight, UDWORD tileWidth, UDWORD tileHeight, unsigned char* src)
+void makeTileTexturePages(UDWORD srcWidth, UDWORD srcHeight, UDWORD tileWidth, UDWORD tileHeight, iBitmap* src)
 {
   UDWORD i, j;
   UDWORD pageNumber;
   UDWORD tilesAcross, tilesDown;
   UDWORD tilesAcrossPage, tilesDownPage, tilesPerPage, tilesPerSource;
   UDWORD tilesProcessed;
-  unsigned char* tileStorage;
-  unsigned char* presentLoc;
+  iBitmap* tileStorage;
+  iBitmap* presentLoc;
   iSprite sprite;
 
   /* This is how many pages are already used on hardware */
@@ -175,7 +175,7 @@ void makeTileTexturePages(UDWORD srcWidth, UDWORD srcHeight, UDWORD tileWidth, U
 
   /* Get enough memory to store one tile */
   pageNumber = 0;
-  tileStorage = new (std::nothrow) unsigned char[tileWidth*tileHeight];
+  tileStorage = new (std::nothrow) iBitmap[tileWidth*tileHeight];
   sprite.bmp = new (std::nothrow) iBitmap[TEXTURE_PAGE_SIZE];
   sprite.width = PAGE_WIDTH;
   sprite.height = PAGE_HEIGHT;
@@ -229,21 +229,21 @@ exit: delete[] tileStorage;
   buildTileIndexes();
 }
 
-void remakeTileTexturePages(UDWORD srcWidth, UDWORD srcHeight, UDWORD tileWidth, UDWORD tileHeight, unsigned char* src)
+void remakeTileTexturePages(UDWORD srcWidth, UDWORD srcHeight, UDWORD tileWidth, UDWORD tileHeight, iBitmap* src)
 {
   UDWORD i, j;
   UDWORD pageNumber;
   UDWORD tilesAcross, tilesDown;
   UDWORD tilesAcrossPage, tilesDownPage, tilesPerPage, tilesPerSource;
   UDWORD tilesProcessed;
-  unsigned char* tileStorage;
-  unsigned char* presentLoc;
+  iBitmap* tileStorage;
+  iBitmap* presentLoc;
   iSprite sprite;
   //check enough pages are allocated
 
   /* Get enough memory to store one tile */
   pageNumber = 0;
-  tileStorage = new (std::nothrow) unsigned char[tileWidth*tileHeight];
+  tileStorage = new (std::nothrow) iBitmap[tileWidth*tileHeight];
   sprite.width = PAGE_WIDTH;
   sprite.height = PAGE_HEIGHT;
 
@@ -302,7 +302,7 @@ BOOL getTileRadarColours(void)
 {
   UDWORD x, y, i, j, w, h, t;
   iBitmap *b, *s;
-  UBYTE tempBMP[TILE_WIDTH * TILE_HEIGHT];
+  iBitmap tempBMP[TILE_WIDTH * TILE_HEIGHT];
 
   w = tilesPCX.width / TILE_WIDTH;
   h = tilesPCX.height / TILE_HEIGHT;
@@ -365,7 +365,7 @@ UDWORD getTileYIndex(UDWORD tileNumber)
 
 /* Extracts a rectangular buffer from a source buffer, storing result in one contiguous
    chunk	*/
-void getRectFromPage(UDWORD width, UDWORD height, unsigned char* src, UDWORD bufWidth, unsigned char* dest)
+void getRectFromPage(UDWORD width, UDWORD height, iBitmap* src, UDWORD bufWidth, iBitmap* dest)
 {
   UDWORD i, j;
 
@@ -378,7 +378,7 @@ void getRectFromPage(UDWORD width, UDWORD height, unsigned char* src, UDWORD buf
 }
 
 /* Inserts a rectangle into a dest rectangle */
-void putRectIntoPage(UDWORD width, UDWORD height, unsigned char* dest, UDWORD bufWidth, unsigned char* src)
+void putRectIntoPage(UDWORD width, UDWORD height, iBitmap* dest, UDWORD bufWidth, iBitmap* src)
 {
   UDWORD i, j;
 

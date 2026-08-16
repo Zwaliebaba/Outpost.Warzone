@@ -48,12 +48,6 @@
  */
 /***************************************************************************/
 
-/* The game palette packed into A8R8G8B8. Entry zero is the transparent one -
- * it carries an alpha of zero, and the alpha test throws it away. That is
- * what DirectDraw's colour key on black used to do.
- */
-static UDWORD texPal32Bit[PALETTE_SIZE];
-
 /* The page currently bound to stage 0, so that a redundant SetTexture can be
  * skipped and so that a device reset can put the binding back. */
 static SDWORD currentTexPage = -1;
@@ -64,8 +58,7 @@ static SDWORD currentTexPage = -1;
  */
 /***************************************************************************/
 
-static BOOL dtm_BuildTexturePalette(void);
-static BOOL dtm_UploadImage(LPDIRECT3DTEXTURE9 psTexture, UDWORD width, UDWORD height, UBYTE* pImageData);
+static BOOL dtm_UploadImage(LPDIRECT3DTEXTURE9 psTexture, UDWORD width, UDWORD height, iBitmap* pImageData);
 
 /***************************************************************************/
 /*
@@ -246,22 +239,16 @@ void dtm_SetBilinear(BOOL bBilinearOn)
  * texture is backed by system memory, so this writes into it and lets the
  * runtime move it.
  */
-static BOOL dtm_UploadImage(LPDIRECT3DTEXTURE9 psTexture, UDWORD width, UDWORD height, UBYTE* pImageData)
+static BOOL dtm_UploadImage(LPDIRECT3DTEXTURE9 psTexture, UDWORD width, UDWORD height, iBitmap* pImageData)
 {
   HRESULT hResult;
   D3DLOCKED_RECT sLocked;
   D3DSURFACE_DESC sDesc;
   UDWORD x, y;
-  UBYTE* pSrc;
+  iBitmap* pSrc;
   UDWORD* pDest;
 
   if ((psTexture == nullptr) || (pImageData == nullptr))
-    return FALSE;
-
-  /* Rebuild the packed palette each time. It costs 256 iterations against a
-   * 65536 pixel upload, and it means a texture loaded after the game palette
-   * changes gets the palette it is actually meant to have. */
-  if (!dtm_BuildTexturePalette())
     return FALSE;
 
   hResult = psTexture->GetLevelDesc(0, &sDesc);
@@ -278,12 +265,14 @@ static BOOL dtm_UploadImage(LPDIRECT3DTEXTURE9 psTexture, UDWORD width, UDWORD h
     return FALSE;
   }
 
+  /* The pixels are already packed A8R8G8B8 - the PCX loader expanded them
+   * through the palette at load - so the upload is a straight row copy. */
   pSrc = pImageData;
   for (y = 0; (y < height) && (y < sDesc.Height); y++)
   {
     pDest = (UDWORD*)(static_cast<UBYTE*>(sLocked.pBits) + sLocked.Pitch * y);
     for (x = 0; (x < width) && (x < sDesc.Width); x++)
-      pDest[x] = texPal32Bit[pSrc[x]];
+      pDest[x] = pSrc[x];
     pSrc += width;
   }
 
@@ -307,9 +296,9 @@ BOOL dtm_LoadTexSurface(iTexture* psIvisTex, SDWORD index)
 
 /***************************************************************************/
 
-BOOL dtm_LoadRadarSurface(BYTE* radarBuffer)
+BOOL dtm_LoadRadarSurface(iBitmap* radarBuffer)
 {
-  return dtm_UploadImage(_TEX_PAGE[RADAR_TEXPAGE_D3D].psTexture, RADAR_SIZE, RADAR_SIZE, (UBYTE*)radarBuffer);
+  return dtm_UploadImage(_TEX_PAGE[RADAR_TEXPAGE_D3D].psTexture, RADAR_SIZE, RADAR_SIZE, radarBuffer);
 }
 
 /***************************************************************************/
@@ -322,32 +311,3 @@ SDWORD dtm_GetRadarTexImageSize(void)
   return RADAR_SIZE;
 }
 
-/***************************************************************************/
-/*
- * dtm_BuildTexturePalette
- *
- * Pack the game palette into A8R8G8B8, with entry zero transparent.
- *
- * Direct3D 6 needed this in whatever 16 bit layout the card had handed back,
- * which is what the bit mask scanning in the old dtm_Build16BitTexturePalette
- * was for. The texture format is ours to choose now, so the packing is fixed.
- */
-static BOOL dtm_BuildTexturePalette(void)
-{
-  iColour* psPal;
-  UDWORD i;
-
-  psPal = pie_GetGamePal();
-  if (psPal == nullptr)
-    return FALSE;
-
-  for (i = 0; i < PALETTE_SIZE; i++)
-  {
-    UDWORD alpha = (i == 0) ? 0x00000000 : 0xff000000;
-
-    texPal32Bit[i] = alpha | (static_cast<UDWORD>(psPal[i].r) << 16) | (static_cast<UDWORD>(psPal[i].g) << 8) | static_cast<UDWORD>(psPal[i].
-      b);
-  }
-
-  return TRUE;
-}

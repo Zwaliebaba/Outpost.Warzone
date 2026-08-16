@@ -813,7 +813,9 @@ static void pie_RenderCharToBackBuffer(SCREEN_LOCK* psLock, IMAGEFILE* ImageFile
       destCol = 0;
       for (j = 0; j < w; j++)
       {
-        pixel = palette32Bit[bmp[j]];
+        /* The page holds packed pixels now; a fully transparent one - the
+         * old index 0 - is skipped, which is the same test as before. */
+        pixel = bmp[j];
         for (sx = 0; sx < scale; sx++, destCol++)
         {
           if (bmp[j] && (x + destCol >= 0) && (x + destCol < static_cast<int>(psLock->width)))

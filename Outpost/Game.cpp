@@ -1807,7 +1807,7 @@ BOOL plotStructurePreview(iSprite* backDropSprite, UBYTE scale, UDWORD offX, UDW
     for (x = (xx * scale); x < (xx * scale) + scale; x++)
     {
       for (y = (yy * scale); y < (yy * scale) + scale; y++)
-        backDropSprite->bmp[((offY + y) * BACKDROP_WIDTH) + x + offX] = COL_RED;
+        backDropSprite->bmp[((offY + y) * BACKDROP_WIDTH) + x + offX] = 0xff800000; // the red COL_RED named
     }
   }
   return TRUE;

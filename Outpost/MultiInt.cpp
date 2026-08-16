@@ -171,7 +171,7 @@ static VOID CurrentForce(VOID); // draw the current force
 
 // ////////////////////////////////////////////////////////////////////////////
 // map previews..
-extern UWORD backDropBmp[];
+extern iBitmap backDropBmp[];
 
 void loadMapPreview(void)
 {
@@ -180,12 +180,9 @@ void loadMapPreview(void)
   UBYTE* pFileData = nullptr;
   LEVEL_DATASET* psLevel;
 
-  iBitmap tempBmp[BACKDROP_WIDTH * BACKDROP_HEIGHT];
   UDWORD i, j, x, y, height, offX, offY;
-  UBYTE scale, col, coltab[16];
-  /* The backdrop is always composited in 16 bit now - the 8 bit path was for
-   * a palettised display, which went with DirectDraw. */
-  UBYTE bitDepth = 16;
+  UBYTE scale, level;
+  iBitmap col, coltab[16];
   MAPTILE *psTile, *WTile;
   iSprite backDropSprite;
 
@@ -207,19 +204,18 @@ void loadMapPreview(void)
   }
   gwShutDown();
 
-  for (col = 0; col < 16; col += 1)
-    coltab[col] = pal_GetNearestColour(col * 16, col * 16, col * 16);
+  /* A greyscale ramp for the height map. These were the nearest palette
+   * entries to each grey; they are the greys themselves now. */
+  for (level = 0; level < 16; level += 1)
+    coltab[level] = 0xff000000 | (static_cast<iBitmap>(level * 16) << 16) | (static_cast<iBitmap>(level * 16) << 8) |
+      static_cast<iBitmap>(level * 16);
 
   backDropSprite.width = BACKDROP_WIDTH;
   backDropSprite.height = BACKDROP_HEIGHT;
-
-  if (bitDepth == 8)
-    backDropSprite.bmp = (UBYTE*)backDropBmp;
-  else
-    backDropSprite.bmp = tempBmp;
+  backDropSprite.bmp = backDropBmp;
 
   // plot the image
-  memset(backDropSprite.bmp, 0,BACKDROP_HEIGHT * BACKDROP_WIDTH);
+  memset(backDropSprite.bmp, 0,BACKDROP_HEIGHT * BACKDROP_WIDTH * sizeof(iBitmap));
 
   scale = 1;
   if ((mapHeight < 240) && (mapWidth < 320))
@@ -256,9 +252,6 @@ void loadMapPreview(void)
   }
 
   plotStructurePreview(&backDropSprite, scale, offX, offY);
-
-  if (bitDepth != 8)
-    bufferTo16Bit(tempBmp, backDropBmp,FALSE); // convert
 
   screen_SetBackDrop(backDropBmp, BACKDROP_WIDTH, BACKDROP_HEIGHT);
   hideTime = gameTime;

@@ -684,7 +684,10 @@ BOOL systemInitialise(void)
   pie_SetTranslucent(war_GetTranslucent());
   pie_SetAdditive(war_GetAdditive());
 
-  displayBufferSize = DISP_WIDTH * DISP_HEIGHT * 2;
+  /* Big enough for a 32 bit screen-sized image - screen_Upload reads the
+   * back buffer into it for the load-screen backdrop - and reused as a
+   * general file staging buffer, which is what the floor is for. */
+  displayBufferSize = DISP_WIDTH * DISP_HEIGHT * 4;
   if (displayBufferSize < 1500000)
     displayBufferSize = 1500000;
   DisplayBuffer = new (std::nothrow) UBYTE[displayBufferSize];

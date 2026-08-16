@@ -5,7 +5,6 @@
 //*************************************************************************
 
 #define PALETTE_SIZE	256
-#define PALETTE_SHADE_LEVEL 16
 
 #define COL_TRANS			0
 #define COL_BLACK			colours[0]
@@ -28,15 +27,11 @@
 //*************************************************************************
 
 extern uint8 colours[];
-extern uint8 palShades[PALETTE_SIZE * PALETTE_SHADE_LEVEL];
-extern UDWORD palette32Bit[PALETTE_SIZE]; //X8R8G8B8 version of the present palette
 
 //*************************************************************************
 extern void pal_ShutDown(void);
-extern void pal_BuildAdjustedShadeTable(void);
 extern uint8 pal_GetNearestColour(uint8 r, uint8 g, uint8 b);
 extern int pal_AddNewPalette(iColour* pal);
-extern BOOL pal_MakePackedPalettes(void);
 extern iColour* pie_GetGamePal(void);
 
 #endif

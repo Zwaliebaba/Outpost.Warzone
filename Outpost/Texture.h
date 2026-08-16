@@ -6,8 +6,8 @@ extern iSprite tilesPCX;
 
 extern int makeTileTextures(void);
 extern int remakeTileTextures(void);
-extern void makeTileTexturePages(UDWORD srcWidth, UDWORD srcHeight, UDWORD tileWidth, UDWORD tileHeight, unsigned char* src);
-extern void remakeTileTexturePages(UDWORD srcWidth, UDWORD srcHeight, UDWORD tileWidth, UDWORD tileHeight, unsigned char* src);
+extern void makeTileTexturePages(UDWORD srcWidth, UDWORD srcHeight, UDWORD tileWidth, UDWORD tileHeight, iBitmap* src);
+extern void remakeTileTexturePages(UDWORD srcWidth, UDWORD srcHeight, UDWORD tileWidth, UDWORD tileHeight, iBitmap* src);
 extern int getTileRadarColours(void);
 extern void freeTileTextures(void);
 extern UDWORD getTileXIndex(UDWORD tileNumber);
