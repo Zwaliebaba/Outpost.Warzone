@@ -12,8 +12,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\NeuronClient\NeuronClient.vcxproj">
+      <Project>{f87f56ff-d6de-4ff1-a232-f4ae636410e8}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\NeuronCore\NeuronCore.vcxproj">
       <Project>{484036c5-f0ea-4673-aae1-f13e38660999}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\NeuronServer\NeuronServer.vcxproj">
+      <Project>{1e5ccd3c-6863-4b9b-9607-8ce6b2baf4c3}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
