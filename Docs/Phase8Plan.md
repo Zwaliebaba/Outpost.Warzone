@@ -627,17 +627,51 @@ needs is below.
   declarations from calls** — the sharper test here was that `iVertex` now
   appears nowhere in the file. The clipper is 595 lines, so D1b's prize is
   that, not the ~1,000 this plan costed it at.
-- **The behind-camera cull is not the same in the two places that do it, so
-  it does not survive D1b for free.** This plan says to keep the `LONG_WAY`
-  convention, on the assumption the funnel already carries it. It carries
-  *some* of it: `D3D_PIEPolygon` culls a polygon when a vertex has
-  `sy > LONG_TEST`, and only `sy`. `pie_ClipTexturedTriangleFast` bails on
-  `sx > LONG_TEST` **or** `sy > LONG_TEST`, and `pie_ClipTextured` on
-  `sx == LONG_WAY || sy == -LONG_WAY`. Deleting the clipper therefore drops
-  the `sx` half of the test, and the failure would be silent: a polygon far
-  off to the side, drawn instead of skipped. **D1b must widen the funnel's
-  cull before it removes anything**, and that widening is worth doing and
-  verifying on its own, ahead of the scissor work.
+- **The behind-camera cull does survive D1b, and the funnel must *not* be
+  widened.** An earlier revision of this section said the opposite — that
+  `D3D_PIEPolygon` testing only `sy > LONG_TEST` where the clipper tests `sx`
+  as well would drop polygons far off to the side, and that the funnel's cull
+  had to widen first. Following it through the projection shows that is wrong,
+  and acting on it would have caused the regression it was trying to prevent.
+
+  The sentinel is written to **both** coordinates together — the two places
+  that mark a vertex as behind the camera set `d3dx` *and* `d3dy` to
+  `LONG_WAY` in the same breath
+  ([RenderModel.cpp:210](../NeuronCore/RenderModel.cpp#L210) and
+  [:215](../NeuronCore/RenderModel.cpp#L215)) — so a test on `sy` alone
+  catches every one of them. `pie_ClipTextured`'s own guard is an exact
+  equality, `sx == LONG_WAY || sy == -LONG_WAY`, whose second half tests a
+  value nothing ever writes.
+
+  Widening the funnel's cull to `sx > LONG_TEST || sy > LONG_TEST` would then
+  be a regression, because a large `sx` is not only a sentinel: a vertex close
+  to the camera and far to the side projects there legitimately. Seven live
+  draw sites already pass such vertices to the funnel unclipped (below), and
+  the device rasterises them correctly today. A wider cull would discard the
+  whole primitive instead.
+
+  What *is* load-bearing is narrower and sits on one path:
+  `pie_ClipTexturedTriangleFast`'s `sx > LONG_TEST` test protects
+  `pie_TransColouredTriangle`, whose caller
+  ([Display3D.cpp:4915](../Outpost/Display3D.cpp#L4915)) admits a triangle when
+  only **one** of its three vertices is on screen, leaving the other two
+  anywhere at all. That single test is what D1b has to account for — not the
+  funnel.
+- **D1's premise is already running in production, which makes the parity test
+  cheap.** `bClip` is a parameter, not a constant
+  ([RenderModel.cpp:515](../NeuronCore/RenderModel.cpp#L515)), and seven live
+  sites in `Render2D.cpp` pass `FALSE`: the box outlines and the filled rects
+  hand raw screen-space vertices straight to `DrawPrimitiveUP` and let the
+  device clip them at the viewport. That is exactly what D1 proposes to do
+  everywhere, so the question is not whether it works but whether it looks the
+  same.
+
+  It also means the gate can be run **before** any rewrite: force `bClip` to
+  `FALSE` on the clipped paths, screenshot, compare. If the difference is
+  invisible there, the `SetScissorRect` work is worth starting; if it is not,
+  D1b closes as attempted-and-rejected without a line of it being written. The
+  scissor rect is still needed for the sub-rects `pie_Set2DClip` sets — the
+  radar and the design screen — since a viewport alone does not express those.
 - **The parity gate is not asking what it looks like it is asking.**
   `pie_ClipXT`/`pie_ClipYT` interpolate position, `tu`, `tv`, `sz`, colour and
   specular linearly in screen space, in fixed point (`>> DIVSHIFT`), and the

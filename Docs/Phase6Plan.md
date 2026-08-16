@@ -614,13 +614,23 @@ rewriting the same function twice". This is that moment.
   ([SeqDisp.cpp:281-312](../Outpost/SeqDisp.cpp#L281-L312)). Both go. This is
   the one place `SeqDisp.cpp` does change.
 
-Two of those bullets have been overtaken since they were written, and the rest
-have not moved. `pie_D3DSetupRenderForFlip` and `pie_D3DRenderForFlip` no longer
-exist anywhere in the tree, so there is nothing left to check before deleting
-them. And B3's rewrite of `seq_RenderOneFrame` already replaced the
+One of those bullets has been overtaken since it was written, and the rest have
+not moved. B3's rewrite of `seq_RenderOneFrame` already replaced the
 `SEQ_LOW_BIT_MASK` shift with a `darken` flag inside the row loop
 ([Sequence.cpp:248](../NeuronCore/Sequence.cpp#L248)) — still per-pixel, and
 still what the translucent quad would replace, but no longer 90 lines.
+
+The bullet asking whether anything else uses `pie_D3DSetupRenderForFlip` and
+`pie_D3DRenderForFlip` is still live, and the answer is **yes**. Both survive in
+[Render2D.cpp:575](../NeuronCore/Render2D.cpp#L575) and
+[:586](../NeuronCore/Render2D.cpp#L586). The FMV reaches the first through
+`pie_DownLoadBufferToScreen` ([PieFunc.cpp:55](../NeuronCore/PieFunc.cpp#L55)),
+which is what [SeqDisp.cpp:239](../Outpost/SeqDisp.cpp#L239) calls — but
+`pie_D3DRenderForFlip` has a **second caller outside the FMV path**, at
+[PieMode.cpp:92](../NeuronCore/PieMode.cpp#L92), so B4 cannot delete the pair
+just because the FMV stopped needing them. An earlier revision of this note
+claimed both were already gone; that was a grep truncated by `head`, and it was
+wrong.
 
 What has not moved: `seq_SetupVideoBuffers` still allocates the 640x480x2 buffer
 and the 32 KB 555 palette table ([SeqDisp.cpp:262](../Outpost/SeqDisp.cpp#L262),

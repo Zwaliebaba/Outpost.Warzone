@@ -934,12 +934,16 @@ because two of its entry points are `extern` in the header and so read as used.
 That is ungated work — unreachable code, deleted, no behaviour to compare —
 and it leaves the clipper at 595 lines rather than the ~1,000 D1 was costed at.
 
-**D1b and D2 are open, and one of them has a new precondition.** The plan
-assumed the behind-camera `LONG_WAY` convention would survive replacing the
-clipper because the draw funnel already carries it. It carries half:
-`D3D_PIEPolygon` culls on `sy` alone where the clipper tests `sx` as well, so
-deleting the clipper as written would silently start drawing polygons far off
-to the side. The funnel's cull has to widen first. D2's cost also moved: a
+**D1b and D2 are open, and D1b now has a cheap way to answer its own gate.**
+`bClip` is a parameter rather than a constant, and seven live draw sites
+already pass `FALSE` — handing raw screen-space vertices to the device and
+letting it clip them at the viewport, which is precisely what D1 proposes to
+do everywhere. So the parity screenshots can be taken by forcing `bClip` off
+on the clipped paths, before any rewrite exists to be judged. The behind-camera
+convention survives untouched: the sentinel is written to both coordinates at
+once, so the funnel's test on `sy` alone catches every case, and widening it
+would be a regression rather than a precondition — an earlier revision of this
+section said the reverse and was wrong. D2's cost also moved: a
 dynamic vertex buffer must be `D3DPOOL_DEFAULT`, which puts a new resource into
 the device-loss path — the path stage B disturbed most and which has still not
 been run — for a saving no hardware this runs on would notice. Both are
