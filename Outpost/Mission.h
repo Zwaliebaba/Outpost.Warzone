@@ -38,7 +38,6 @@ extern void setMissionCountDown(void);
 extern BOOL startMission(UDWORD missionType, STRING* pGame);
 extern void endMission(void);
 // initialise the mission stuff for a save game
-extern BOOL startMissionSave(SDWORD missionType);
 
 //sets up the game to start a new mission
 extern BOOL setUpMission(UDWORD type);

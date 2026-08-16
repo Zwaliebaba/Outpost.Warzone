@@ -197,7 +197,6 @@
     <ClInclude Include="CodePrint.h" />
     <ClInclude Include="EditBox.h" />
     <ClInclude Include="Event.h" />
-    <ClInclude Include="EvntSave.h" />
     <ClInclude Include="Form.h" />
     <ClInclude Include="Interp.h" />
     <ClInclude Include="Label.h" />
@@ -303,9 +302,6 @@
       <Filter>Script</Filter>
     </ClCompile>
     <ClCompile Include="Event.cpp">
-      <Filter>Script</Filter>
-    </ClCompile>
-    <ClCompile Include="EvntSave.cpp">
       <Filter>Script</Filter>
     </ClCompile>
     <ClCompile Include="Interp.cpp">

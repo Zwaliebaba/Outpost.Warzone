@@ -57,21 +57,12 @@ using ACCESS_TYPE = enum _access_type
   // The type represents an object
 };
 
-// function pointer for script variable saving
-// if pBuffer is NULL the script system is just asking how much space the saved variable will require
-// otherwise pBuffer points to an array to store the value in
-using SCR_VAL_SAVE = BOOL(*)(INTERP_TYPE type, UDWORD data, UBYTE* pBuffer, UDWORD* pSize);
-// function pointer for script variable loading
-using SCR_VAL_LOAD = BOOL(*)(SDWORD version, INTERP_TYPE type, UBYTE* pBuffer, UDWORD size, UDWORD* pData);
-
 /* Type for a user type symbol */
 using TYPE_SYMBOL = struct _type_symbol
 {
   SWORD typeID; // The type id to use in the type field of values
   SWORD accessType; // Whether the type is an object or a simple value
   STRING* pIdent; // Type identifier
-  SCR_VAL_SAVE saveFunc; // load and save functions
-  SCR_VAL_LOAD loadFunc; // 
 };
 
 /* Type for a variable identifier declaration */

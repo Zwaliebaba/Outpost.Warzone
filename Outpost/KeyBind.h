@@ -137,7 +137,6 @@ extern void kf_JumpToCommandUnits(void);
 extern void kf_JumpToSensorUnits(void);
 
 extern void kf_JumpToUnassignedUnits(void);
-extern void kf_ScriptTest(void);
 extern void kf_TriggerShockWave(void);
 extern void kf_ToggleVisibility(void);
 extern void kf_RadarZoomIn(void);

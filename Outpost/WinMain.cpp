@@ -209,7 +209,7 @@ init: //jump here from the end if re_initialising
       break;
 
     case GS_NORMAL:
-      if (!levLoadData(pLevelName, nullptr, 0))
+      if (!levLoadData(pLevelName))
         goto exit;
       //after data is loaded check the research stats are valid
       if (!checkResearchStats())

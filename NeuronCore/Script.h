@@ -11,7 +11,6 @@
 #include "CodePrint.h"
 #include "Parse.h"
 #include "Event.h"
-#include "EvntSave.h"
 
 /* Whether to include debug info when compiling */
 using SCR_DEBUGTYPE = enum _scr_debugtype

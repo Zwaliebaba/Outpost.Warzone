@@ -820,18 +820,6 @@ static BOOL campInit()
   UBYTE newPlayerArray[MAX_PLAYERS];
   UDWORD i, j;
 
-  // if this is from a savegame, stop here!
-  if ((getSaveGameType() == GTYPE_SAVE_START) || (getSaveGameType() == GTYPE_SAVE_MIDMISSION))
-  {
-    // these two lines are the biggest hack in the world.
-    // the reticule seems to get detached from 'reticuleup'
-    // this forces it back in sync...
-    intRemoveReticule();
-    intAddReticule();
-
-    return TRUE;
-  }
-
   // for each player, if it's a skirmish then assign a player or clear it off.
   if (game.type == SKIRMISH)
   {

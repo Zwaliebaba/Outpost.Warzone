@@ -59,7 +59,6 @@
 BOOL bTilesPCXLoaded = FALSE;
 
 // whether a save game is currently being loaded
-BOOL saveFlag = FALSE;
 extern STRING aCurrResDir[255]; // Arse
 
 UDWORD cheatHash[CHEAT_MAXCHEAT];
@@ -87,8 +86,6 @@ void resetCheatHash()
 
 /**********************************************************/
 
-void dataSetSaveFlag(void) { saveFlag = TRUE; }
-void dataClearSaveFlag(void) { saveFlag = FALSE; }
 
 /* Load the body stats */
 BOOL bufferSBODYLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
@@ -1129,33 +1126,11 @@ BOOL dataScriptLoadVals(UBYTE* pBuffer, UDWORD size, void** ppData)
 
   calcCheatHash(pBuffer, size,CHEAT_SCRIPTVAL);
 
-  // don't load anything if a saved game is being loaded
-  if (saveFlag)
-    return TRUE;
-
   Neuron::DebugTrace("Loading script data {}\n",GetLastResourceFilename());
 
   if (!scrvLoad(pBuffer, size))
     return FALSE;
 
-  *ppData = nullptr;
-  return TRUE;
-}
-
-BOOL dataSaveGameLoad(STRING* pFile, void** ppData)
-{
-  if (!stageTwoInitialise())
-    return FALSE;
-
-  if (!loadGameInit(pFile,TRUE))
-    return FALSE;
-  if (!loadGame(pFile, !KEEPOBJECTS, FREEMEM,TRUE))
-    return FALSE;
-
-  if (!newMapInitialise())
-    return FALSE;
-
-  //not interested in this value
   *ppData = nullptr;
   return TRUE;
 }
@@ -1220,8 +1195,5 @@ BOOL dataInitLoadFuncs(void)
   }
 
   // Now add the only file load left!
-  if (!resAddFileLoad("SAVEGAME", dataSaveGameLoad, nullptr))
-    return FALSE;
-
   return TRUE;
 }

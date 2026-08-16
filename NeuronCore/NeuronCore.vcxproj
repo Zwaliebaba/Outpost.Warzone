@@ -108,7 +108,6 @@
     <ClInclude Include="DXInput.h" />
     <ClInclude Include="EditBox.h" />
     <ClInclude Include="Event.h" />
-    <ClInclude Include="EvntSave.h" />
     <ClInclude Include="Fbf.h" />
     <ClInclude Include="Font.h" />
     <ClInclude Include="Form.h" />
@@ -195,7 +194,6 @@
     <ClCompile Include="DXInput.cpp" />
     <ClCompile Include="EditBox.cpp" />
     <ClCompile Include="Event.cpp" />
-    <ClCompile Include="EvntSave.cpp" />
     <ClCompile Include="Fbf.cpp" />
     <ClCompile Include="Font.cpp" />
     <ClCompile Include="Form.cpp" />

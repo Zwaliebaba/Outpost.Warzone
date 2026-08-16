@@ -76,7 +76,7 @@ extern void levShutDown(void);
 extern BOOL levLoadBaseData(STRING* pName);
 
 // load up the data for a level
-extern BOOL levLoadData(STRING* pName, STRING* pSaveName, SDWORD saveType);
+extern BOOL levLoadData(STRING* pName);
 
 // find the level dataset
 extern BOOL levFindDataSet(STRING* pName, LEVEL_DATASET** ppsDataSet);
@@ -88,7 +88,6 @@ extern BOOL levReleaseAll(void);
 extern BOOL levReleaseMissionData(void);
 
 //get the type of level currently being loaded of GTYPE type
-extern SDWORD getLevelLoadType(void);
 
 extern UBYTE* getLevelName(void);
 

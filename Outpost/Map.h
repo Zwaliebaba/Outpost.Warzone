@@ -301,8 +301,6 @@ extern void getTileMaxMin(UDWORD x, UDWORD y, UDWORD* pMax, UDWORD* pMin);
 MAPTILE* GetCurrentMap(void); // returns a pointer to the current loaded map data
 UDWORD GetHeightOfMap(void);
 UDWORD GetWidthOfMap(void);
-extern BOOL readVisibilityData(UBYTE* pFileData, UDWORD fileSize);
-extern BOOL writeVisibilityData(STRING* pFileName);
 extern void mapFreeTilesAndStrips(void);
 
 //scroll min and max values

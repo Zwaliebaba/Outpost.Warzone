@@ -858,7 +858,6 @@ void kf_AddMissionOffWorld(void)
 #ifndef DEBUG
   if (bMultiPlayer) { return; }
 #endif
-  game_SetValidityKey(VALIDITYKEY_CTRL_M);
   eventFireCallbackTrigger(CALL_MISSION_START);
 }
 
@@ -955,7 +954,6 @@ void kf_ToggleDebugMappings(void)
     }
     else
     {
-      game_SetValidityKey(VALIDITYKEY_CHEAT_MODE);
       processDebugMappings(TRUE);
       CONPRINTF(ConsoleString, (ConsoleString,"ALL Debug Key Mappings - PERMITTED"));
       CONPRINTF(ConsoleString, (ConsoleString,"DISCLAIMER: YOU HAVE NOW CHEATED"));
@@ -1772,22 +1770,6 @@ void kf_RightOrderMenu(void)
     intResetScreen(TRUE);
     intObjectSelected((BASE_OBJECT*)psGotOne);
   }
-}
-
-// --------------------------------------------------------------------------
-void kf_ScriptTest(void)
-{
-  UBYTE* pBuffer;
-  UDWORD size;
-
-  eventSaveState(1, &pBuffer, &size);
-
-  eventReset();
-
-  eventLoadState(pBuffer, size, TRUE);
-
-  delete[] pBuffer;
-  pBuffer = nullptr;
 }
 
 // --------------------------------------------------------------------------

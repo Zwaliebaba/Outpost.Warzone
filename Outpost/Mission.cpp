@@ -410,7 +410,7 @@ BOOL startMission(LEVEL_TYPE missionType, STRING* pGame)
 
   //load the game file for all types of mission except a Between Mission
   if (missionType != LDS_BETWEEN)
-    loadGameInit(pGame,TRUE);
+    loadGameInit(pGame);
 
   //all proximity messages are removed between missions now
   releaseAllProxDisp();
@@ -526,14 +526,6 @@ BOOL startMission(LEVEL_TYPE missionType, STRING* pGame)
 
   //add proximity messages for all untapped VISIBLE oil resources
   addOilResourceProximities();
-
-  return TRUE;
-}
-
-// initialise the mission stuff for a save game
-BOOL startMissionSave(SDWORD missionType)
-{
-  mission.type = missionType;
 
   return TRUE;
 }
@@ -1246,7 +1238,7 @@ BOOL startMissionOffClear(STRING* pGame)
   saveMissionData();
 
   //load in the new game clearing the lists
-  if (!loadGame(pGame, !KEEPOBJECTS, !FREEMEM,FALSE))
+  if (!loadGame(pGame, !KEEPOBJECTS, !FREEMEM))
     return FALSE;
 
   //call after everything has been loaded up - done on stageThreeInit
@@ -1266,7 +1258,7 @@ BOOL startMissionOffKeep(STRING* pGame)
   saveMissionData();
 
   //load in the new game clearing the lists
-  if (!loadGame(pGame, !KEEPOBJECTS, !FREEMEM,FALSE))
+  if (!loadGame(pGame, !KEEPOBJECTS, !FREEMEM))
     return FALSE;
 
   //call after everything has been loaded up - done on stageThreeInit
@@ -1289,7 +1281,7 @@ BOOL startMissionCampaignStart(STRING* pGame)
   clearCampaignUnits();
 
   //load in the new game details
-  if (!loadGame(pGame, !KEEPOBJECTS, FREEMEM, FALSE))
+  if (!loadGame(pGame, !KEEPOBJECTS, FREEMEM))
     return FALSE;
 
   //call after everything has been loaded up - done on stageThreeInit
@@ -1313,7 +1305,7 @@ BOOL startMissionCampaignChange(STRING* pGame)
   saveCampaignData();
 
   //load in the new game details
-  if (!loadGame(pGame, !KEEPOBJECTS, !FREEMEM, FALSE))
+  if (!loadGame(pGame, !KEEPOBJECTS, !FREEMEM))
     return FALSE;
 
   offWorldKeepLists = FALSE;
@@ -1325,7 +1317,7 @@ BOOL startMissionCampaignChange(STRING* pGame)
 BOOL startMissionCampaignExpand(STRING* pGame)
 {
   //load in the new game details
-  if (!loadGame(pGame, KEEPOBJECTS, !FREEMEM, FALSE))
+  if (!loadGame(pGame, KEEPOBJECTS, !FREEMEM))
     return FALSE;
 
   //call after everything has been loaded up - done on stageThreeInit
@@ -1339,7 +1331,7 @@ BOOL startMissionCampaignExpandLimbo(STRING* pGame)
   saveMissionLimboData();
 
   //load in the new game details
-  if (!loadGame(pGame, KEEPOBJECTS, !FREEMEM, FALSE))
+  if (!loadGame(pGame, KEEPOBJECTS, !FREEMEM))
     return FALSE;
 
   //call after everything has been loaded up - done on stageThreeInit
