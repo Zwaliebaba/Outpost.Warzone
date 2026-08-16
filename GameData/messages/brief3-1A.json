@@ -1,0 +1,53 @@
+[
+ {
+  "name": "MB3_1A_MSG",
+  "textIds": [],
+  "type": 1,
+  "sequences": [
+   {
+    "name": "IncomInt.mp4",
+    "textIds": [
+     "CAM3_1A_MSG"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   },
+   {
+    "name": "cam3\\cam31gam.mp4",
+    "textIds": [
+     "CAM3_1A_MSG1",
+     "CAM3_1A_MSG2",
+     "CAM3_1A_MSG3"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   },
+   {
+    "name": "cam3\\cam31G2.mp4",
+    "textIds": [
+     "CAM3_1A_MSG4",
+     "CAM3_1A_MSG5"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ },
+ {
+  "name": "MB3_1A_MSG2",
+  "textIds": [],
+  "type": 1,
+  "sequences": [
+   {
+    "name": "cam3\\CAM3_1.mp4",
+    "textIds": [
+     "CAM3_1A_MSG6",
+     "CAM3_1A_MSG7",
+     "CAM3_1A_MSG8"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ }
+]

@@ -1,0 +1,17 @@
+[
+ {
+  "research": "R-Defense-HvyMor",
+  "structure": "Emplacement-MortarPit01",
+  "dummy": 142
+ },
+ {
+  "research": "R-Defense-WallTower03",
+  "structure": "WallTower02",
+  "dummy": 101
+ },
+ {
+  "research": "R-Sys-Sensor-Tower02",
+  "structure": "Sys-SensoTower01",
+  "dummy": 89
+ }
+]

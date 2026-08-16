@@ -107,6 +107,7 @@
     <ClCompile Include="Selection.cpp" />
     <ClCompile Include="SeqDisp.cpp" />
     <ClCompile Include="Stats.cpp" />
+    <ClCompile Include="StatsTable.cpp" />
     <ClCompile Include="Structure.cpp" />
     <ClCompile Include="Target.cpp" />
     <ClCompile Include="Text.cpp" />
@@ -244,6 +245,7 @@
     <ClInclude Include="Selection.h" />
     <ClInclude Include="SeqDisp.h" />
     <ClInclude Include="Stats.h" />
+    <ClInclude Include="StatsTable.h" />
     <ClInclude Include="StatsDef.h" />
     <ClInclude Include="Structure.h" />
     <ClInclude Include="StructureDef.h" />

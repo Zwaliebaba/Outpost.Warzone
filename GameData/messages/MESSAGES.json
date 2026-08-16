@@ -1,0 +1,74 @@
+[
+ {
+  "name": "MSG1",
+  "textIds": [
+   "RMG_MSG1"
+  ],
+  "type": 0,
+  "model": "MICAPSUL.PIE",
+  "model2": "0",
+  "sequence": "res_pow.mp4",
+  "audio": "Structure Research Completed.wav",
+  "numFrames": 0
+ },
+ {
+  "name": "MSG2",
+  "textIds": [
+   "RMG_MSG2"
+  ],
+  "type": 0,
+  "model": "MICAPSUL.PIE",
+  "model2": "0",
+  "sequence": "res_pow.mp4",
+  "audio": "Power Research Completed.wav",
+  "numFrames": 0
+ },
+ {
+  "name": "MSG3",
+  "textIds": [
+   "RMG_MSG3"
+  ],
+  "type": 0,
+  "model": "MICAPSUL.PIE",
+  "model2": "0",
+  "sequence": "res_pow.mp4",
+  "audio": "Computer Research Completed.wav",
+  "numFrames": 0
+ },
+ {
+  "name": "MSG4",
+  "textIds": [
+   "RMG_MSG4"
+  ],
+  "type": 0,
+  "model": "MICAPSUL.PIE",
+  "model2": "0",
+  "sequence": "res_pow.mp4",
+  "audio": "Droid Research Completed.wav",
+  "numFrames": 0
+ },
+ {
+  "name": "MSG5",
+  "textIds": [
+   "RMG_MSG5"
+  ],
+  "type": 0,
+  "model": "MICAPSUL.PIE",
+  "model2": "0",
+  "sequence": "res_pow.mp4",
+  "audio": "Systems Research Completed.wav",
+  "numFrames": 0
+ },
+ {
+  "name": "MSG6",
+  "textIds": [
+   "RMG_MSG6"
+  ],
+  "type": 0,
+  "model": "MICAPSUL.PIE",
+  "model2": "0",
+  "sequence": "res_pow.mp4",
+  "audio": "Weapon Research Completed.wav",
+  "numFrames": 0
+ }
+]

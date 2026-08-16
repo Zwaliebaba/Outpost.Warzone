@@ -2218,29 +2218,29 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "Cam1Messages.txt"
+    "f": "Cam1Messages.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "Cam2Messages.txt"
+    "f": "Cam2Messages.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "Cam3Messages.txt"
+    "f": "Cam3Messages.json"
    }
   ],
   "wrf/cam1/cam1a": [
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief1a.txt"
+    "f": "brief1a.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "prox1a.txt"
+    "f": "prox1a.json"
    },
    {
     "d": "script\\text",
@@ -2277,12 +2277,12 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief1a-c.txt"
+    "f": "brief1a-c.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "prox1a-c.txt"
+    "f": "prox1a-c.json"
    },
    {
     "d": "script\\text",
@@ -2309,12 +2309,12 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief1b.txt"
+    "f": "brief1b.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "prox1b.txt"
+    "f": "prox1b.json"
    },
    {
     "d": "script\\text",
@@ -2361,12 +2361,12 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief1c.txt"
+    "f": "brief1c.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "prox1c.txt"
+    "f": "prox1c.json"
    },
    {
     "d": "script\\text",
@@ -2393,12 +2393,12 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief1ca.txt"
+    "f": "brief1ca.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "prox1ca.txt"
+    "f": "prox1ca.json"
    },
    {
     "d": "script\\text",
@@ -2425,7 +2425,7 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "Cam1-Outro.txt"
+    "f": "Cam1-Outro.json"
    },
    {
     "d": "script\\text",
@@ -2459,12 +2459,12 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief1-1.txt"
+    "f": "brief1-1.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "prox1-1.txt"
+    "f": "prox1-1.json"
    },
    {
     "d": "script\\text",
@@ -2501,7 +2501,7 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief1-1.txt"
+    "f": "brief1-1.json"
    },
    {
     "d": "script\\text",
@@ -2528,12 +2528,12 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief1-2.txt"
+    "f": "brief1-2.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "prox1-2.txt"
+    "f": "prox1-2.json"
    },
    {
     "d": "script\\text",
@@ -2570,7 +2570,7 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief1-2.txt"
+    "f": "brief1-2.json"
    },
    {
     "d": "script\\text",
@@ -2597,12 +2597,12 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief1-3.txt"
+    "f": "brief1-3.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "prox1-3.txt"
+    "f": "prox1-3.json"
    },
    {
     "d": "script\\text",
@@ -2629,7 +2629,7 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief1-3.txt"
+    "f": "brief1-3.json"
    },
    {
     "d": "script\\text",
@@ -2656,12 +2656,12 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief1-4a.txt"
+    "f": "brief1-4a.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "prox1-4a.txt"
+    "f": "prox1-4a.json"
    },
    {
     "d": "script\\text",
@@ -2688,7 +2688,7 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief1-4a.txt"
+    "f": "brief1-4a.json"
    },
    {
     "d": "script\\text",
@@ -2715,12 +2715,12 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief1-5.txt"
+    "f": "brief1-5.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "prox1-5.txt"
+    "f": "prox1-5.json"
    },
    {
     "d": "script\\text",
@@ -2747,7 +2747,7 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief1-5.txt"
+    "f": "brief1-5.json"
    },
    {
     "d": "script\\text",
@@ -2774,12 +2774,12 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief1-7.txt"
+    "f": "brief1-7.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "prox1-7.txt"
+    "f": "prox1-7.json"
    },
    {
     "d": "script\\text",
@@ -2806,7 +2806,7 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief1-7.txt"
+    "f": "brief1-7.json"
    },
    {
     "d": "script\\text",
@@ -2833,12 +2833,12 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief1d.txt"
+    "f": "brief1d.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "prox1d.txt"
+    "f": "prox1d.json"
    },
    {
     "d": "script\\text",
@@ -2865,7 +2865,7 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief1d.txt"
+    "f": "brief1d.json"
    },
    {
     "d": "script\\text",
@@ -2892,42 +2892,42 @@
    {
     "d": "stats\\research\\cam1",
     "t": "RESCH",
-    "f": "Research.txt"
+    "f": "Research.json"
    },
    {
     "d": "stats\\research\\cam1",
     "t": "RPREREQ",
-    "f": "PRResearch.txt"
+    "f": "PRResearch.json"
    },
    {
     "d": "stats\\research\\cam1",
     "t": "RCOMPRED",
-    "f": "RedComponents.txt"
+    "f": "RedComponents.json"
    },
    {
     "d": "stats\\research\\cam1",
     "t": "RCOMPRES",
-    "f": "ResultComponent.txt"
+    "f": "ResultComponent.json"
    },
    {
     "d": "stats\\research\\cam1",
     "t": "RSTRREQ",
-    "f": "ResearchStruct.txt"
+    "f": "ResearchStruct.json"
    },
    {
     "d": "stats\\research\\cam1",
     "t": "RSTRRED",
-    "f": "RedStructure.txt"
+    "f": "RedStructure.json"
    },
    {
     "d": "stats\\research\\cam1",
     "t": "RSTRRES",
-    "f": "ResultStructure.txt"
+    "f": "ResultStructure.json"
    },
    {
     "d": "stats\\research\\cam1",
     "t": "RFUNC",
-    "f": "ResearchFunctions.txt"
+    "f": "ResearchFunctions.json"
    }
   ],
   "wrf/cam2": [
@@ -2964,24 +2964,24 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "Cam2Messages.txt"
+    "f": "Cam2Messages.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "Cam3Messages.txt"
+    "f": "Cam3Messages.json"
    }
   ],
   "wrf/cam2/cam2a": [
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief2a.txt"
+    "f": "brief2a.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "prox2a.txt"
+    "f": "prox2a.json"
    },
    {
     "d": "script\\text",
@@ -3048,12 +3048,12 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief2b.txt"
+    "f": "brief2b.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "prox2b.txt"
+    "f": "prox2b.json"
    },
    {
     "d": "script\\text",
@@ -3100,12 +3100,12 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief2-C.txt"
+    "f": "brief2-C.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "prox2C.txt"
+    "f": "prox2C.json"
    },
    {
     "d": "script\\text",
@@ -3187,49 +3187,49 @@
    {
     "d": "stats\\research\\cam2",
     "t": "RESCH",
-    "f": "Research.txt"
+    "f": "Research.json"
    },
    {
     "d": "stats\\research\\cam2",
     "t": "RPREREQ",
-    "f": "PRResearch.txt"
+    "f": "PRResearch.json"
    },
    {
     "d": "stats\\research\\cam2",
     "t": "RCOMPRED",
-    "f": "RedComponents.txt"
+    "f": "RedComponents.json"
    },
    {
     "d": "stats\\research\\cam2",
     "t": "RCOMPRES",
-    "f": "ResultComponent.txt"
+    "f": "ResultComponent.json"
    },
    {
     "d": "stats\\research\\cam2",
     "t": "RSTRREQ",
-    "f": "ResearchStruct.txt"
+    "f": "ResearchStruct.json"
    },
    {
     "d": "stats\\research\\cam2",
     "t": "RSTRRED",
-    "f": "RedStructure.txt"
+    "f": "RedStructure.json"
    },
    {
     "d": "stats\\research\\cam2",
     "t": "RSTRRES",
-    "f": "ResultStructure.txt"
+    "f": "ResultStructure.json"
    },
    {
     "d": "stats\\research\\cam2",
     "t": "RFUNC",
-    "f": "ResearchFunctions.txt"
+    "f": "ResearchFunctions.json"
    }
   ],
   "wrf/cam2/cam2end": [
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief2-DII.txt"
+    "f": "brief2-DII.json"
    },
    {
     "d": "script\\text",
@@ -3256,12 +3256,12 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief2-1.txt"
+    "f": "brief2-1.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "prox2-1.txt"
+    "f": "prox2-1.json"
    },
    {
     "d": "script\\text",
@@ -3298,7 +3298,7 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief2-1.txt"
+    "f": "brief2-1.json"
    },
    {
     "d": "script\\text",
@@ -3325,12 +3325,12 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief2-2.txt"
+    "f": "brief2-2.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "prox2-2.txt"
+    "f": "prox2-2.json"
    },
    {
     "d": "script\\text",
@@ -3367,7 +3367,7 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief2-2.txt"
+    "f": "brief2-2.json"
    },
    {
     "d": "script\\text",
@@ -3394,12 +3394,12 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief2-5.txt"
+    "f": "brief2-5.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "prox2-5.txt"
+    "f": "prox2-5.json"
    },
    {
     "d": "script\\text",
@@ -3426,7 +3426,7 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief2-5.txt"
+    "f": "brief2-5.json"
    },
    {
     "d": "script\\text",
@@ -3453,12 +3453,12 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief2-6.txt"
+    "f": "brief2-6.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "prox2-6.txt"
+    "f": "prox2-6.json"
    },
    {
     "d": "script\\text",
@@ -3485,7 +3485,7 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief2-6.txt"
+    "f": "brief2-6.json"
    },
    {
     "d": "script\\text",
@@ -3512,12 +3512,12 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief2-7.txt"
+    "f": "brief2-7.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "prox2-7.txt"
+    "f": "prox2-7.json"
    },
    {
     "d": "script\\text",
@@ -3554,7 +3554,7 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief2-7.txt"
+    "f": "brief2-7.json"
    },
    {
     "d": "script\\text",
@@ -3581,12 +3581,12 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief2-8.txt"
+    "f": "brief2-8.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "prox2-8.txt"
+    "f": "prox2-8.json"
    },
    {
     "d": "script\\text",
@@ -3623,7 +3623,7 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief2-8.txt"
+    "f": "brief2-8.json"
    },
    {
     "d": "script\\text",
@@ -3650,12 +3650,12 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief2-DI.txt"
+    "f": "brief2-DI.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "prox2D.txt"
+    "f": "prox2D.json"
    },
    {
     "d": "script\\text",
@@ -3702,7 +3702,7 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief2-DI.txt"
+    "f": "brief2-DI.json"
    },
    {
     "d": "script\\text",
@@ -3729,42 +3729,42 @@
    {
     "d": "stats\\research\\cam2",
     "t": "RESCH",
-    "f": "Research.txt"
+    "f": "Research.json"
    },
    {
     "d": "stats\\research\\cam2",
     "t": "RPREREQ",
-    "f": "PRResearch.txt"
+    "f": "PRResearch.json"
    },
    {
     "d": "stats\\research\\cam2",
     "t": "RCOMPRED",
-    "f": "RedComponents.txt"
+    "f": "RedComponents.json"
    },
    {
     "d": "stats\\research\\cam2",
     "t": "RCOMPRES",
-    "f": "ResultComponent.txt"
+    "f": "ResultComponent.json"
    },
    {
     "d": "stats\\research\\cam2",
     "t": "RSTRREQ",
-    "f": "ResearchStruct.txt"
+    "f": "ResearchStruct.json"
    },
    {
     "d": "stats\\research\\cam2",
     "t": "RSTRRED",
-    "f": "RedStructure.txt"
+    "f": "RedStructure.json"
    },
    {
     "d": "stats\\research\\cam2",
     "t": "RSTRRES",
-    "f": "ResultStructure.txt"
+    "f": "ResultStructure.json"
    },
    {
     "d": "stats\\research\\cam2",
     "t": "RFUNC",
-    "f": "ResearchFunctions.txt"
+    "f": "ResearchFunctions.json"
    }
   ],
   "wrf/cam3": [
@@ -3796,19 +3796,19 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "Cam3Messages.txt"
+    "f": "Cam3Messages.json"
    }
   ],
   "wrf/cam3/cam3a": [
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief3-a.txt"
+    "f": "brief3-a.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "prox3a.txt"
+    "f": "prox3a.json"
    },
    {
     "d": "script\\text",
@@ -3885,12 +3885,12 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief3A-B.txt"
+    "f": "brief3A-B.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "prox3AB.txt"
+    "f": "prox3AB.json"
    },
    {
     "d": "script\\text",
@@ -3947,17 +3947,17 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief3A-D1.txt"
+    "f": "brief3A-D1.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief3A-D2.txt"
+    "f": "brief3A-D2.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "prox3A-D1.txt"
+    "f": "prox3A-D1.json"
    },
    {
     "d": "script\\text",
@@ -4014,17 +4014,17 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief3A-D1.txt"
+    "f": "brief3A-D1.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief3A-D2.txt"
+    "f": "brief3A-D2.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "prox3A-D1.txt"
+    "f": "prox3A-D1.json"
    },
    {
     "d": "script\\text",
@@ -4071,12 +4071,12 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief3-B.txt"
+    "f": "brief3-B.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "prox3b.txt"
+    "f": "prox3b.json"
    },
    {
     "d": "script\\text",
@@ -4143,12 +4143,12 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief3-C.txt"
+    "f": "brief3-C.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "prox3c.txt"
+    "f": "prox3c.json"
    },
    {
     "d": "script\\text",
@@ -4250,42 +4250,42 @@
    {
     "d": "stats\\research\\cam3",
     "t": "RESCH",
-    "f": "Research.txt"
+    "f": "Research.json"
    },
    {
     "d": "stats\\research\\cam3",
     "t": "RPREREQ",
-    "f": "PRResearch.txt"
+    "f": "PRResearch.json"
    },
    {
     "d": "stats\\research\\cam3",
     "t": "RCOMPRED",
-    "f": "RedComponents.txt"
+    "f": "RedComponents.json"
    },
    {
     "d": "stats\\research\\cam3",
     "t": "RCOMPRES",
-    "f": "ResultComponent.txt"
+    "f": "ResultComponent.json"
    },
    {
     "d": "stats\\research\\cam3",
     "t": "RSTRREQ",
-    "f": "ResearchStruct.txt"
+    "f": "ResearchStruct.json"
    },
    {
     "d": "stats\\research\\cam3",
     "t": "RSTRRED",
-    "f": "RedStructure.txt"
+    "f": "RedStructure.json"
    },
    {
     "d": "stats\\research\\cam3",
     "t": "RSTRRES",
-    "f": "ResultStructure.txt"
+    "f": "ResultStructure.json"
    },
    {
     "d": "stats\\research\\cam3",
     "t": "RFUNC",
-    "f": "ResearchFunctions.txt"
+    "f": "ResearchFunctions.json"
    }
   ],
   "wrf/cam3/sub3-1": [
@@ -4437,17 +4437,17 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief3-1A.txt"
+    "f": "brief3-1A.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief3-1b.txt"
+    "f": "brief3-1b.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "prox3-1.txt"
+    "f": "prox3-1.json"
    },
    {
     "d": "script\\text",
@@ -4514,12 +4514,12 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief3-1A.txt"
+    "f": "brief3-1A.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "prox3-1.txt"
+    "f": "prox3-1.json"
    },
    {
     "d": "script\\text",
@@ -4556,12 +4556,12 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief3-2.txt"
+    "f": "brief3-2.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "prox3-2.txt"
+    "f": "prox3-2.json"
    },
    {
     "d": "script\\text",
@@ -4628,12 +4628,12 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief3-2.txt"
+    "f": "brief3-2.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "prox3-2.txt"
+    "f": "prox3-2.json"
    },
    {
     "d": "script\\text",
@@ -4670,7 +4670,7 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "prox3-3.txt"
+    "f": "prox3-3.json"
    },
    {
     "d": "script\\text",
@@ -4707,12 +4707,12 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief3-3.txt"
+    "f": "brief3-3.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "prox3-3.txt"
+    "f": "prox3-3.json"
    },
    {
     "d": "script\\text",
@@ -4749,12 +4749,12 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief3-4.txt"
+    "f": "brief3-4.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "prox3-4.txt"
+    "f": "prox3-4.json"
    },
    {
     "d": "script\\text",
@@ -4811,12 +4811,12 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "brief3-4.txt"
+    "f": "brief3-4.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "prox3-4.txt"
+    "f": "prox3-4.json"
    },
    {
     "d": "script\\text",
@@ -4863,42 +4863,42 @@
    {
     "d": "stats\\research\\cam3",
     "t": "RESCH",
-    "f": "Research.txt"
+    "f": "Research.json"
    },
    {
     "d": "stats\\research\\cam3",
     "t": "RPREREQ",
-    "f": "PRResearch.txt"
+    "f": "PRResearch.json"
    },
    {
     "d": "stats\\research\\cam3",
     "t": "RCOMPRED",
-    "f": "RedComponents.txt"
+    "f": "RedComponents.json"
    },
    {
     "d": "stats\\research\\cam3",
     "t": "RCOMPRES",
-    "f": "ResultComponent.txt"
+    "f": "ResultComponent.json"
    },
    {
     "d": "stats\\research\\cam3",
     "t": "RSTRREQ",
-    "f": "ResearchStruct.txt"
+    "f": "ResearchStruct.json"
    },
    {
     "d": "stats\\research\\cam3",
     "t": "RSTRRED",
-    "f": "RedStructure.txt"
+    "f": "RedStructure.json"
    },
    {
     "d": "stats\\research\\cam3",
     "t": "RSTRRES",
-    "f": "ResultStructure.txt"
+    "f": "ResultStructure.json"
    },
    {
     "d": "stats\\research\\cam3",
     "t": "RFUNC",
-    "f": "ResearchFunctions.txt"
+    "f": "ResearchFunctions.json"
    }
   ],
   "wrf/forcedit2": [
@@ -5025,102 +5025,102 @@
    {
     "d": "stats",
     "t": "SWEAPON",
-    "f": "Weapons.txt"
+    "f": "Weapons.json"
    },
    {
     "d": "stats",
     "t": "SBODY",
-    "f": "Body.txt"
+    "f": "Body.json"
    },
    {
     "d": "stats",
     "t": "SBRAIN",
-    "f": "Brain.txt"
+    "f": "Brain.json"
    },
    {
     "d": "stats",
     "t": "SPROP",
-    "f": "Propulsion.txt"
+    "f": "Propulsion.json"
    },
    {
     "d": "stats",
     "t": "SSENSOR",
-    "f": "Sensor.txt"
+    "f": "Sensor.json"
    },
    {
     "d": "stats",
     "t": "SECM",
-    "f": "ECM.txt"
+    "f": "ECM.json"
    },
    {
     "d": "stats",
     "t": "SREPAIR",
-    "f": "Repair.txt"
+    "f": "Repair.json"
    },
    {
     "d": "stats",
     "t": "SCONSTR",
-    "f": "Construction.txt"
+    "f": "Construction.json"
    },
    {
     "d": "stats",
     "t": "SPROPTYPES",
-    "f": "PropulsionType.txt"
+    "f": "PropulsionType.json"
    },
    {
     "d": "stats",
     "t": "STERRTABLE",
-    "f": "TerrainTable.txt"
+    "f": "TerrainTable.json"
    },
    {
     "d": "stats",
     "t": "SSPECABIL",
-    "f": "SpecialAbility.txt"
+    "f": "SpecialAbility.json"
    },
    {
     "d": "stats",
     "t": "SBPIMD",
-    "f": "BodyPropulsionIMD.txt"
+    "f": "BodyPropulsionIMD.json"
    },
    {
     "d": "stats",
     "t": "SWEAPSND",
-    "f": "WeaponSounds.txt"
+    "f": "WeaponSounds.json"
    },
    {
     "d": "stats",
     "t": "STEMPL",
-    "f": "Templates.txt"
+    "f": "Templates.json"
    },
    {
     "d": "stats",
     "t": "STEMPWEAP",
-    "f": "assignWeapons.txt"
+    "f": "assignWeapons.json"
    },
    {
     "d": "stats",
     "t": "SFUNC",
-    "f": "Functions.txt"
+    "f": "Functions.json"
    },
    {
     "d": "stats",
     "t": "SSTRUCT",
-    "f": "Structures.txt"
+    "f": "Structures.json"
    },
    {
     "d": "stats",
     "t": "SSTRFUNC",
-    "f": "StructureFunctions.txt"
+    "f": "StructureFunctions.json"
    },
    {
     "d": "stats",
     "t": "SSTRWEAP",
-    "f": "StructureWeapons.txt"
+    "f": "StructureWeapons.json"
    },
    {
     "d": "stats",
     "t": "SFEAT",
-    "f": "Features.txt"
+    "f": "Features.json"
    },
    {
     "d": "multiplay\\script",
@@ -5379,7 +5379,7 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "multiplay.txt"
+    "f": "multiplay.json"
    },
    {
     "d": "multiplay\\script",
@@ -5396,7 +5396,7 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "multiplay.txt"
+    "f": "multiplay.json"
    },
    {
     "d": "multiplay\\script",
@@ -5423,7 +5423,7 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "multiplay.txt"
+    "f": "multiplay.json"
    },
    {
     "d": "multiplay\\script",
@@ -5486,7 +5486,7 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "multiplay.txt"
+    "f": "multiplay.json"
    },
    {
     "d": "multiplay\\script",
@@ -5518,7 +5518,7 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "multiplay.txt"
+    "f": "multiplay.json"
    },
    {
     "d": "multiplay\\script",
@@ -5560,7 +5560,7 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "multiplay.txt"
+    "f": "multiplay.json"
    },
    {
     "d": "multiplay\\script",
@@ -5622,42 +5622,42 @@
    {
     "d": "stats\\research\\multiplayer",
     "t": "RESCH",
-    "f": "Research.txt"
+    "f": "Research.json"
    },
    {
     "d": "stats\\research\\multiplayer",
     "t": "RPREREQ",
-    "f": "PRResearch.txt"
+    "f": "PRResearch.json"
    },
    {
     "d": "stats\\research\\multiplayer",
     "t": "RCOMPRED",
-    "f": "RedComponents.txt"
+    "f": "RedComponents.json"
    },
    {
     "d": "stats\\research\\multiplayer",
     "t": "RCOMPRES",
-    "f": "ResultComponent.txt"
+    "f": "ResultComponent.json"
    },
    {
     "d": "stats\\research\\multiplayer",
     "t": "RSTRREQ",
-    "f": "ResearchStruct.txt"
+    "f": "ResearchStruct.json"
    },
    {
     "d": "stats\\research\\multiplayer",
     "t": "RSTRRED",
-    "f": "RedStructure.txt"
+    "f": "RedStructure.json"
    },
    {
     "d": "stats\\research\\multiplayer",
     "t": "RSTRRES",
-    "f": "ResultStructure.txt"
+    "f": "ResultStructure.json"
    },
    {
     "d": "stats\\research\\multiplayer",
     "t": "RFUNC",
-    "f": "ResearchFunctions.txt"
+    "f": "ResearchFunctions.json"
    }
   ],
   "wrf/piestats": [
@@ -7716,152 +7716,152 @@
    {
     "d": "stats",
     "t": "SWEAPON",
-    "f": "Weapons.txt"
+    "f": "Weapons.json"
    },
    {
     "d": "stats",
     "t": "SBODY",
-    "f": "Body.txt"
+    "f": "Body.json"
    },
    {
     "d": "stats",
     "t": "SBRAIN",
-    "f": "Brain.txt"
+    "f": "Brain.json"
    },
    {
     "d": "stats",
     "t": "SPROP",
-    "f": "Propulsion.txt"
+    "f": "Propulsion.json"
    },
    {
     "d": "stats",
     "t": "SSENSOR",
-    "f": "Sensor.txt"
+    "f": "Sensor.json"
    },
    {
     "d": "stats",
     "t": "SECM",
-    "f": "ECM.txt"
+    "f": "ECM.json"
    },
    {
     "d": "stats",
     "t": "SREPAIR",
-    "f": "Repair.txt"
+    "f": "Repair.json"
    },
    {
     "d": "stats",
     "t": "SCONSTR",
-    "f": "Construction.txt"
+    "f": "Construction.json"
    },
    {
     "d": "stats",
     "t": "SPROPTYPES",
-    "f": "PropulsionType.txt"
+    "f": "PropulsionType.json"
    },
    {
     "d": "stats",
     "t": "SPROPSND",
-    "f": "PropulsionSounds.txt"
+    "f": "PropulsionSounds.json"
    },
    {
     "d": "stats",
     "t": "STERRTABLE",
-    "f": "TerrainTable.txt"
+    "f": "TerrainTable.json"
    },
    {
     "d": "stats",
     "t": "SSPECABIL",
-    "f": "SpecialAbility.txt"
+    "f": "SpecialAbility.json"
    },
    {
     "d": "stats",
     "t": "SBPIMD",
-    "f": "BodyPropulsionIMD.txt"
+    "f": "BodyPropulsionIMD.json"
    },
    {
     "d": "stats",
     "t": "SWEAPSND",
-    "f": "WeaponSounds.txt"
+    "f": "WeaponSounds.json"
    },
    {
     "d": "stats",
     "t": "SWEAPMOD",
-    "f": "WeaponModifier.txt"
+    "f": "WeaponModifier.json"
    },
    {
     "d": "stats",
     "t": "STEMPL",
-    "f": "Templates.txt"
+    "f": "Templates.json"
    },
    {
     "d": "stats",
     "t": "STEMPWEAP",
-    "f": "assignWeapons.txt"
+    "f": "assignWeapons.json"
    },
    {
     "d": "stats",
     "t": "SFUNC",
-    "f": "Functions.txt"
+    "f": "Functions.json"
    },
    {
     "d": "stats",
     "t": "SSTRUCT",
-    "f": "Structures.txt"
+    "f": "Structures.json"
    },
    {
     "d": "stats",
     "t": "SSTRFUNC",
-    "f": "StructureFunctions.txt"
+    "f": "StructureFunctions.json"
    },
    {
     "d": "stats",
     "t": "SSTRWEAP",
-    "f": "StructureWeapons.txt"
+    "f": "StructureWeapons.json"
    },
    {
     "d": "stats",
     "t": "SSTRMOD",
-    "f": "StructureModifier.txt"
+    "f": "StructureModifier.json"
    },
    {
     "d": "stats",
     "t": "SFEAT",
-    "f": "Features.txt"
+    "f": "Features.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "messages.txt"
+    "f": "messages.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "ResMessages1.txt"
+    "f": "ResMessages1.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "ResMessages12.txt"
+    "f": "ResMessages12.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "ResMessages2.txt"
+    "f": "ResMessages2.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "ResMessages23.txt"
+    "f": "ResMessages23.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "ResMessages3.txt"
+    "f": "ResMessages3.json"
    },
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "ResMessagesAll.txt"
+    "f": "ResMessagesAll.json"
    }
   ],
   "wrf/tut": [
@@ -7895,7 +7895,7 @@
    {
     "d": "messages",
     "t": "SMSG",
-    "f": "proxtut.txt"
+    "f": "proxtut.json"
    },
    {
     "d": "script\\text",

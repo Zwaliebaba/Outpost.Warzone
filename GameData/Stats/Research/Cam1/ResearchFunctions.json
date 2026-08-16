@@ -1,0 +1,322 @@
+[
+ {
+  "research": "R-Struc-Factory-Upgrade01",
+  "function": "Struc-Factory-Upgrade01",
+  "dummy": 444
+ },
+ {
+  "research": "CAM1VEHICLES",
+  "function": "Struc-Factory-Upgrade01",
+  "dummy": 453
+ },
+ {
+  "research": "R-Struc-Factory-Upgrade02",
+  "function": "Struc-Factory-Upgrade02",
+  "dummy": 445
+ },
+ {
+  "research": "R-Struc-PowerModuleMk1",
+  "function": "Struc-PowerModuleMk1",
+  "dummy": 225
+ },
+ {
+  "research": "R-Vehicle-Engine01",
+  "function": "Vehicle-Engine01",
+  "dummy": 381
+ },
+ {
+  "research": "R-Vehicle-Engine02",
+  "function": "Vehicle-Engine02",
+  "dummy": 382
+ },
+ {
+  "research": "R-Defense-WallUpgrade01",
+  "function": "Defense-WallUpgrade01",
+  "dummy": 374
+ },
+ {
+  "research": "R-Defense-WallUpgrade02",
+  "function": "Defense-WallUpgrade02",
+  "dummy": 432
+ },
+ {
+  "research": "R-Defense-WallUpgrade03",
+  "function": "Defense-WallUpgrade03",
+  "dummy": 434
+ },
+ {
+  "research": "R-Struc-Materials01",
+  "function": "Struc-Materials01",
+  "dummy": 435
+ },
+ {
+  "research": "R-Struc-Materials02",
+  "function": "Struc-Materials02",
+  "dummy": 436
+ },
+ {
+  "research": "R-Struc-Materials03",
+  "function": "Struc-Materials03",
+  "dummy": 437
+ },
+ {
+  "research": "R-Vehicle-Metals01",
+  "function": "Vehicle-Metals01",
+  "dummy": 438
+ },
+ {
+  "research": "R-Vehicle-Metals02",
+  "function": "Vehicle-Metals02",
+  "dummy": 439
+ },
+ {
+  "research": "R-Vehicle-Metals03",
+  "function": "Vehicle-Metals03",
+  "dummy": 440
+ },
+ {
+  "research": "R-Cyborg-Metals01",
+  "function": "Cyborg-Metals01",
+  "dummy": 449
+ },
+ {
+  "research": "R-Cyborg-Metals02",
+  "function": "Cyborg-Metals02",
+  "dummy": 450
+ },
+ {
+  "research": "R-Cyborg-Metals03",
+  "function": "Cyborg-Metals03",
+  "dummy": 451
+ },
+ {
+  "research": "R-Wpn-Cannon-Accuracy01",
+  "function": "Wpn-Cannon-Accuracy01",
+  "dummy": 469
+ },
+ {
+  "research": "R-Struc-Factory-Upgrade03",
+  "function": "Struc-Factory-Upgrade03",
+  "dummy": 446
+ },
+ {
+  "research": "R-Struc-Research-Upgrade01",
+  "function": "Struc-Research-Upgrade01",
+  "dummy": 441
+ },
+ {
+  "research": "R-Struc-Research-Upgrade02",
+  "function": "Struc-Research-Upgrade02",
+  "dummy": 442
+ },
+ {
+  "research": "R-Struc-Research-Upgrade03",
+  "function": "Struc-Research-Upgrade03",
+  "dummy": 443
+ },
+ {
+  "research": "R-Sys-Sensor-Upgrade01",
+  "function": "Sys-Sensor-Upgrade01",
+  "dummy": 463
+ },
+ {
+  "research": "R-Vehicle-Engine03",
+  "function": "Vehicle-Engine03",
+  "dummy": 384
+ },
+ {
+  "research": "R-Wpn-Cannon-Damage01",
+  "function": "Wpn-Cannon-Damage01",
+  "dummy": 392
+ },
+ {
+  "research": "R-Wpn-Cannon-Damage02",
+  "function": "Wpn-Cannon-Damage02",
+  "dummy": 393
+ },
+ {
+  "research": "R-Wpn-Cannon-Damage03",
+  "function": "Wpn-Cannon-Damage03",
+  "dummy": 394
+ },
+ {
+  "research": "R-Wpn-Flamer-Damage01",
+  "function": "Wpn-Flamer-Damage01",
+  "dummy": 385
+ },
+ {
+  "research": "R-Wpn-Flamer-Damage02",
+  "function": "Wpn-Flamer-Damage02",
+  "dummy": 386
+ },
+ {
+  "research": "R-Wpn-Flamer-Damage03",
+  "function": "Wpn-Flamer-Damage03",
+  "dummy": 387
+ },
+ {
+  "research": "R-Wpn-Flamer-ROF01",
+  "function": "Wpn-Flamer-ROF01",
+  "dummy": 388
+ },
+ {
+  "research": "R-Wpn-MG-Damage01",
+  "function": "Wpn-MG-Damage01",
+  "dummy": 362
+ },
+ {
+  "research": "R-Wpn-MG-Damage02",
+  "function": "Wpn-MG-Damage02",
+  "dummy": 364
+ },
+ {
+  "research": "R-Wpn-MG-Damage03",
+  "function": "Wpn-MG-Damage03",
+  "dummy": 366
+ },
+ {
+  "research": "R-Wpn-MG-ROF01",
+  "function": "Wpn-MG-ROF01",
+  "dummy": 363
+ },
+ {
+  "research": "R-Wpn-Rocket-Damage01",
+  "function": "Wpn-Rocket-Damage01",
+  "dummy": 476
+ },
+ {
+  "research": "R-Wpn-Rocket-Damage02",
+  "function": "Wpn-Rocket-Damage02",
+  "dummy": 477
+ },
+ {
+  "research": "R-Wpn-Rocket-Damage03",
+  "function": "Wpn-Rocket-Damage03",
+  "dummy": 903
+ },
+ {
+  "research": "R-Wpn-Rocket-ROF01",
+  "function": "Wpn-Rocket-ROF01",
+  "dummy": 474
+ },
+ {
+  "research": "R-Wpn-Rocket-ROF02",
+  "function": "Wpn-Rocket-ROF02",
+  "dummy": 475
+ },
+ {
+  "research": "R-Wpn-Rocket-ROF03",
+  "function": "Wpn-Rocket-ROF03",
+  "dummy": 913
+ },
+ {
+  "research": "R-Wpn-MG-Damage04",
+  "function": "Wpn-MG-Damage04",
+  "dummy": 502
+ },
+ {
+  "research": "R-Wpn-Cannon-Accuracy02",
+  "function": "Wpn-Cannon-Accuracy02",
+  "dummy": 626
+ },
+ {
+  "research": "R-Sys-Engineering01",
+  "function": "Sys-Engineering-Upgrade01",
+  "dummy": 290
+ },
+ {
+  "research": "R-Struc-Factory-Cyborg-Upgrade01",
+  "function": "Struc-Factory-Cyborg-Upgrade01",
+  "dummy": 687
+ },
+ {
+  "research": "R-Struc-Factory-Cyborg-Upgrade02",
+  "function": "Struc-Factory-Cyborg-Upgrade02",
+  "dummy": 688
+ },
+ {
+  "research": "R-Struc-Factory-Cyborg-Upgrade03",
+  "function": "Struc-Factory-Cyborg-Upgrade03",
+  "dummy": 689
+ },
+ {
+  "research": "R-Struc-RprFac-Upgrade01",
+  "function": "Struc-RprFac-Upgrade01",
+  "dummy": 499
+ },
+ {
+  "research": "R-Struc-RprFac-Upgrade02",
+  "function": "Struc-RprFac-Upgrade02",
+  "dummy": 500
+ },
+ {
+  "research": "R-Struc-RprFac-Upgrade03",
+  "function": "Struc-RprFac-Upgrade03",
+  "dummy": 501
+ },
+ {
+  "research": "R-Wpn-Mortar-Acc01",
+  "function": "Wpn-Mortar-Acc01",
+  "dummy": 1012
+ },
+ {
+  "research": "R-Wpn-Mortar-Damage01",
+  "function": "Wpn-Mortar-Damage01",
+  "dummy": 400
+ },
+ {
+  "research": "R-Wpn-Mortar-Damage02",
+  "function": "Wpn-Mortar-Damage02",
+  "dummy": 401
+ },
+ {
+  "research": "R-Wpn-Mortar-Damage03",
+  "function": "Wpn-Mortar-Damage03",
+  "dummy": 402
+ },
+ {
+  "research": "R-Wpn-Mortar-ROF01",
+  "function": "Wpn-Mortar-ROF01",
+  "dummy": 403
+ },
+ {
+  "research": "R-Wpn-Rocket-Accuracy01",
+  "function": "Wpn-Rocket-Accuracy01",
+  "dummy": 900
+ },
+ {
+  "research": "R-Wpn-Rocket-Accuracy02",
+  "function": "Wpn-Rocket-Accuracy02",
+  "dummy": 901
+ },
+ {
+  "research": "R-Wpn-RocketSlow-Accuracy01",
+  "function": "Wpn-RocketSlow-Accuracy01",
+  "dummy": 925
+ },
+ {
+  "research": "R-Wpn-RocketSlow-Accuracy02",
+  "function": "Wpn-RocketSlow-Accuracy02",
+  "dummy": 926
+ },
+ {
+  "research": "R-Wpn-RocketSlow-Accuracy03",
+  "function": "Wpn-RocketSlow-Accuracy03",
+  "dummy": 927
+ },
+ {
+  "research": "R-Wpn-RocketSlow-Damage01",
+  "function": "Wpn-RocketSlow-Damage01",
+  "dummy": 931
+ },
+ {
+  "research": "R-Wpn-RocketSlow-Damage02",
+  "function": "Wpn-RocketSlow-Damage02",
+  "dummy": 932
+ },
+ {
+  "research": "R-Wpn-RocketSlow-Damage03",
+  "function": "Wpn-RocketSlow-Damage03",
+  "dummy": 933
+ }
+]

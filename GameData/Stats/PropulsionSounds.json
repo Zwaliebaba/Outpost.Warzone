@@ -1,0 +1,42 @@
+[
+ {
+  "propulsion": "Wheeled",
+  "start": "Con-Move Off.wav",
+  "idle": "-1",
+  "moveOff": "-1",
+  "move": "Con-Move.wav",
+  "hiss": "-1",
+  "shutDown": "Con-Shut down.wav",
+  "dummy": 2
+ },
+ {
+  "propulsion": "Tracked",
+  "start": "-1",
+  "idle": "-1",
+  "moveOff": "-1",
+  "move": "Tread.wav",
+  "hiss": "-1",
+  "shutDown": "-1",
+  "dummy": 3
+ },
+ {
+  "propulsion": "Hover",
+  "start": "HovStart.wav",
+  "idle": "-1",
+  "moveOff": "-1",
+  "move": "HovMove.wav",
+  "hiss": "-1",
+  "shutDown": "HovStop.wav",
+  "dummy": 4
+ },
+ {
+  "propulsion": "Lift",
+  "start": "VtolOff.wav",
+  "idle": "-1",
+  "moveOff": "-1",
+  "move": "VtolMove.wav",
+  "hiss": "-1",
+  "shutDown": "VtolLand.wav",
+  "dummy": 5
+ }
+]

@@ -1,0 +1,32 @@
+[
+ {
+  "research": "R-Defense-HvyArtMissile",
+  "structure": "Emplacement-Howitzer105",
+  "dummy": 134
+ },
+ {
+  "research": "R-Defense-MdArtMissile",
+  "structure": "Emplacement-MortarPit02",
+  "dummy": 282
+ },
+ {
+  "research": "R-Defense-MdArtMissile",
+  "structure": "Emplacement-MRL-pit",
+  "dummy": 263
+ },
+ {
+  "research": "R-Defense-Pillbox-RotMG",
+  "structure": "PillBox1",
+  "dummy": 126
+ },
+ {
+  "research": "R-Defense-RotHow",
+  "structure": "Emplacement-Howitzer105",
+  "dummy": 134
+ },
+ {
+  "research": "R-Defense-WallTower-A-Tmiss",
+  "structure": "WallTower06",
+  "dummy": 163
+ }
+]

@@ -1,0 +1,14 @@
+[
+ {
+  "name": "DELETE_ME",
+  "textIds": [
+   "RUINS_MSG"
+  ],
+  "type": 2,
+  "x": 6848,
+  "y": 7104,
+  "z": 0,
+  "audio": "0",
+  "proxType": 2
+ }
+]

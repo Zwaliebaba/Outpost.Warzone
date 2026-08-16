@@ -1,0 +1,38 @@
+[
+ {
+  "name": "C28_BASE1",
+  "textIds": [
+   "ENEMYBASE_MSG"
+  ],
+  "type": 2,
+  "x": 4160,
+  "y": 4032,
+  "z": 0,
+  "audio": "pcv393.wav",
+  "proxType": 0
+ },
+ {
+  "name": "C28_BASE2",
+  "textIds": [
+   "ENEMYBASE_MSG"
+  ],
+  "type": 2,
+  "x": 4032,
+  "y": 1856,
+  "z": 0,
+  "audio": "pcv393.wav",
+  "proxType": 0
+ },
+ {
+  "name": "C28_BASE3",
+  "textIds": [
+   "ENEMYBASE_MSG"
+  ],
+  "type": 2,
+  "x": 7232,
+  "y": 1600,
+  "z": 0,
+  "audio": "pcv393.wav",
+  "proxType": 0
+ }
+]

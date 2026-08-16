@@ -1,0 +1,36 @@
+[
+ {
+  "name": "DELETE_ME",
+  "textIds": [],
+  "type": 1,
+  "sequences": [
+   {
+    "name": "cam2intro1.mp4",
+    "textIds": [],
+    "audio": "0",
+    "numFrames": 0
+   },
+   {
+    "name": "cam2intro2.mp4",
+    "textIds": [],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ },
+ {
+  "name": "END",
+  "textIds": [],
+  "type": 1,
+  "sequences": [
+   {
+    "name": "end.mp4",
+    "textIds": [
+     "END_MSG1"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ }
+]

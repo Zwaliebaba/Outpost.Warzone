@@ -1,0 +1,417 @@
+[
+ {
+  "structure": "A0BaBaRocketPit",
+  "weapon": "BabaPitRocket",
+  "dummy": 29
+ },
+ {
+  "structure": "A0CannonTower",
+  "weapon": "BaBaCannon",
+  "dummy": 31
+ },
+ {
+  "structure": "WallTower01",
+  "weapon": "MG3Mk1",
+  "dummy": 33
+ },
+ {
+  "structure": "WallTower02",
+  "weapon": "Cannon1Mk1",
+  "dummy": 34
+ },
+ {
+  "structure": "WallTower03",
+  "weapon": "Cannon2A-TMk1",
+  "dummy": 35
+ },
+ {
+  "structure": "WallTower04",
+  "weapon": "Cannon375mmMk1",
+  "dummy": 37
+ },
+ {
+  "structure": "A0BaBaBunker",
+  "weapon": "MG3Mk1",
+  "dummy": 39
+ },
+ {
+  "structure": "GuardTower1",
+  "weapon": "MG3Mk1",
+  "dummy": 40
+ },
+ {
+  "structure": "GuardTower2",
+  "weapon": "MG2Mk1",
+  "dummy": 41
+ },
+ {
+  "structure": "GuardTower3",
+  "weapon": "MG3Mk1",
+  "dummy": 42
+ },
+ {
+  "structure": "GuardTower4",
+  "weapon": "Flame1Mk1",
+  "dummy": 43
+ },
+ {
+  "structure": "GuardTower5",
+  "weapon": "Rocket-LtA-T",
+  "dummy": 44
+ },
+ {
+  "structure": "GuardTower6",
+  "weapon": "Rocket-Pod",
+  "dummy": 45
+ },
+ {
+  "structure": "PillBox2",
+  "weapon": "MG2-Pillbox",
+  "dummy": 47
+ },
+ {
+  "structure": "PillBox3",
+  "weapon": "MG3-Pillbox",
+  "dummy": 48
+ },
+ {
+  "structure": "PillBox4",
+  "weapon": "Cannon1Mk1",
+  "dummy": 49
+ },
+ {
+  "structure": "A0BaBaGunTowerEND",
+  "weapon": "BuggyMG",
+  "dummy": 50
+ },
+ {
+  "structure": "PillBox1",
+  "weapon": "MG3-Pillbox",
+  "dummy": 51
+ },
+ {
+  "structure": "Emplacement-Howitzer105",
+  "weapon": "Howitzer105Mk1",
+  "dummy": 52
+ },
+ {
+  "structure": "Emplacement-MortarPit01",
+  "weapon": "Mortar1Mk1",
+  "dummy": 54
+ },
+ {
+  "structure": "PillBox5",
+  "weapon": "Flame1Mk1",
+  "dummy": 57
+ },
+ {
+  "structure": "WallTower05",
+  "weapon": "Flame1Mk1",
+  "dummy": 58
+ },
+ {
+  "structure": "WallTower06",
+  "weapon": "Rocket-LtA-T",
+  "dummy": 60
+ },
+ {
+  "structure": "PillBox6",
+  "weapon": "Rocket-LtA-T",
+  "dummy": 61
+ },
+ {
+  "structure": "A0BaBaRocketPitAT",
+  "weapon": "BabaPitRocketAT",
+  "dummy": 62
+ },
+ {
+  "structure": "Tower-Projector",
+  "weapon": "Flame2",
+  "dummy": 63
+ },
+ {
+  "structure": "WallTower-Projector",
+  "weapon": "Flame2",
+  "dummy": 64
+ },
+ {
+  "structure": "Emplacement-RotMor",
+  "weapon": "Mortar3ROTARYMk1",
+  "dummy": 65
+ },
+ {
+  "structure": "Emplacement-RotHow",
+  "weapon": "Howitzer03-Rot",
+  "dummy": 66
+ },
+ {
+  "structure": "AASite-QuadBof",
+  "weapon": "AAGun2Mk1",
+  "dummy": 68
+ },
+ {
+  "structure": "AASite-QuadMg1",
+  "weapon": "QuadMg1AAGun",
+  "dummy": 69
+ },
+ {
+  "structure": "Tower-RotMg",
+  "weapon": "MG4ROTARYMk1",
+  "dummy": 73
+ },
+ {
+  "structure": "Tower-VulcanCan",
+  "weapon": "Cannon4AUTOMk1",
+  "dummy": 74
+ },
+ {
+  "structure": "Wall-RotMg",
+  "weapon": "MG4ROTARYMk1",
+  "dummy": 75
+ },
+ {
+  "structure": "AASite-QuadRotMg",
+  "weapon": "QuadRotAAGun",
+  "dummy": 76
+ },
+ {
+  "structure": "Wall-VulcanCan",
+  "weapon": "Cannon5VulcanMk1",
+  "dummy": 77
+ },
+ {
+  "structure": "A0BaBaFlameTower",
+  "weapon": "Flame1Mk1",
+  "dummy": 80
+ },
+ {
+  "structure": "A0BaBaGunTower",
+  "weapon": "BuggyMG",
+  "dummy": 83
+ },
+ {
+  "structure": "Emplacement-PrisLas",
+  "weapon": "Laser3BEAMMk1",
+  "dummy": 85
+ },
+ {
+  "structure": "WallTower-PulseLas",
+  "weapon": "Laser3BEAMMk1",
+  "dummy": 87
+ },
+ {
+  "structure": "WallTower-Rail2",
+  "weapon": "RailGun2Mk1",
+  "dummy": 88
+ },
+ {
+  "structure": "GuardTower-BeamLas",
+  "weapon": "Laser3BEAMMk1",
+  "dummy": 89
+ },
+ {
+  "structure": "GuardTower-ATMiss",
+  "weapon": "Missile-A-T",
+  "dummy": 90
+ },
+ {
+  "structure": "GuardTower-Rail1",
+  "weapon": "RailGun1Mk1",
+  "dummy": 91
+ },
+ {
+  "structure": "Emplacement-Rail3",
+  "weapon": "RailGun3Mk1",
+  "dummy": 92
+ },
+ {
+  "structure": "Emplacement-Rocket06-IDF",
+  "weapon": "Rocket-IDF",
+  "dummy": 93
+ },
+ {
+  "structure": "CO-Tower-MG3",
+  "weapon": "MG3Mk1",
+  "dummy": 94
+ },
+ {
+  "structure": "CO-Tower-RotMG",
+  "weapon": "MG4ROTARYMk1",
+  "dummy": 95
+ },
+ {
+  "structure": "CO-Tower-MdCan",
+  "weapon": "Cannon2A-TMk1",
+  "dummy": 96
+ },
+ {
+  "structure": "CO-WallTower-HvCan",
+  "weapon": "Cannon375mmMk1",
+  "dummy": 97
+ },
+ {
+  "structure": "CO-WallTower-RotCan",
+  "weapon": "Cannon5VulcanMk1",
+  "dummy": 98
+ },
+ {
+  "structure": "CO-Tower-HVCan",
+  "weapon": "Cannon4AUTOMk1",
+  "dummy": 99
+ },
+ {
+  "structure": "CO-Tower-HvFlame",
+  "weapon": "Flame2",
+  "dummy": 100
+ },
+ {
+  "structure": "CO-Tower-LtATRkt",
+  "weapon": "Rocket-LtA-T",
+  "dummy": 102
+ },
+ {
+  "structure": "NX-Tower-Rail1",
+  "weapon": "RailGun1Mk1",
+  "dummy": 113
+ },
+ {
+  "structure": "NX-Tower-ATMiss",
+  "weapon": "Missile-A-T",
+  "dummy": 114
+ },
+ {
+  "structure": "NX-Tower-PulseLas",
+  "weapon": "Laser2PULSEMk1",
+  "dummy": 115
+ },
+ {
+  "structure": "NX-WallTower-Rail2",
+  "weapon": "RailGun2Mk1",
+  "dummy": 116
+ },
+ {
+  "structure": "NX-WallTower-BeamLas",
+  "weapon": "Laser3BEAMMk1",
+  "dummy": 117
+ },
+ {
+  "structure": "NX-WallTower-Rail3",
+  "weapon": "RailGun3Mk1",
+  "dummy": 118
+ },
+ {
+  "structure": "NX-Emp-MedArtMiss-Pit",
+  "weapon": "Missile-MdArt",
+  "dummy": 119
+ },
+ {
+  "structure": "NX-Emp-MultiArtMiss-Pit",
+  "weapon": "Missile-HvyArt",
+  "dummy": 120
+ },
+ {
+  "structure": "NX-Emp-Plasma-Pit",
+  "weapon": "PlasmaHeavy",
+  "dummy": 121
+ },
+ {
+  "structure": "P0-AASite-SAM1",
+  "weapon": "Missile-LtSAM",
+  "dummy": 124
+ },
+ {
+  "structure": "P0-AASite-SAM2",
+  "weapon": "Missile-HvySAM",
+  "dummy": 125
+ },
+ {
+  "structure": "Emplacement-MRL-pit",
+  "weapon": "Rocket-MRL",
+  "dummy": 127
+ },
+ {
+  "structure": "GuardTower-RotMg",
+  "weapon": "MG4ROTARYMk1",
+  "dummy": 128
+ },
+ {
+  "structure": "Emplacement-HvyATrocket",
+  "weapon": "Rocket-HvyA-T",
+  "dummy": 129
+ },
+ {
+  "structure": "Emplacement-HPVcannon",
+  "weapon": "Cannon4AUTOMk1",
+  "dummy": 130
+ },
+ {
+  "structure": "Emplacement-PulseLaser",
+  "weapon": "Laser2PULSEMk1",
+  "dummy": 131
+ },
+ {
+  "structure": "Emplacement-Rail2",
+  "weapon": "RailGun2Mk1",
+  "dummy": 132
+ },
+ {
+  "structure": "Emplacement-HvART-pit",
+  "weapon": "Missile-HvyArt",
+  "dummy": 133
+ },
+ {
+  "structure": "WallTower-HvATrocket",
+  "weapon": "Rocket-HvyA-T",
+  "dummy": 134
+ },
+ {
+  "structure": "WallTower-HPVcannon",
+  "weapon": "Cannon4AUTOMk1",
+  "dummy": 135
+ },
+ {
+  "structure": "WallTower-Atmiss",
+  "weapon": "Missile-A-T",
+  "dummy": 136
+ },
+ {
+  "structure": "WallTower-Rail3",
+  "weapon": "RailGun3Mk1",
+  "dummy": 137
+ },
+ {
+  "structure": "Emplacement-MortarPit02",
+  "weapon": "Mortar2Mk1",
+  "dummy": 139
+ },
+ {
+  "structure": "Emplacement-MdART-pit",
+  "weapon": "Missile-MdArt",
+  "dummy": 140
+ },
+ {
+  "structure": "Emplacement-Howitzer150",
+  "weapon": "Howitzer150Mk1",
+  "dummy": 141
+ },
+ {
+  "structure": "Pillbox-RotMG",
+  "weapon": "MG4ROTARY-Pillbox",
+  "dummy": 142
+ },
+ {
+  "structure": "Sys-NEXUSLinkTOW",
+  "weapon": "NEXUSlink",
+  "dummy": 143
+ },
+ {
+  "structure": "CO-Tower-HvATRkt",
+  "weapon": "Rocket-HvyA-T",
+  "dummy": 144
+ },
+ {
+  "structure": "A0BaBaMortarPit",
+  "weapon": "Mortar1Mk1",
+  "dummy": 146
+ }
+]

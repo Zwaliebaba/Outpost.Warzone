@@ -1,0 +1,2711 @@
+[
+ {
+  "type": "Production",
+  "name": "FacProd1",
+  "bodySize": "LIGHT",
+  "productionOutput": 10
+ },
+ {
+  "type": "Production",
+  "name": "FacMod1",
+  "bodySize": "LIGHT",
+  "productionOutput": 10
+ },
+ {
+  "type": "Production",
+  "name": "BaBaFacProd",
+  "bodySize": "LIGHT",
+  "productionOutput": 10
+ },
+ {
+  "type": "Research Upgrade",
+  "name": "Struc-Research-Upgrade01",
+  "modifier": 30
+ },
+ {
+  "type": "Research Upgrade",
+  "name": "Struc-Research-Upgrade02",
+  "modifier": 60
+ },
+ {
+  "type": "Research Upgrade",
+  "name": "Struc-Research-Upgrade03",
+  "modifier": 90
+ },
+ {
+  "type": "Research Upgrade",
+  "name": "Struc-Research-Upgrade04",
+  "modifier": 120
+ },
+ {
+  "type": "Research Upgrade",
+  "name": "Struc-Research-Upgrade05",
+  "modifier": 150
+ },
+ {
+  "type": "Research Upgrade",
+  "name": "Struc-Research-Upgrade06",
+  "modifier": 180
+ },
+ {
+  "type": "Research Upgrade",
+  "name": "Struc-Research-Upgrade07",
+  "modifier": 210
+ },
+ {
+  "type": "Research Upgrade",
+  "name": "Struc-Research-Upgrade08",
+  "modifier": 240
+ },
+ {
+  "type": "Research Upgrade",
+  "name": "Struc-Research-Upgrade09",
+  "modifier": 270
+ },
+ {
+  "type": "Repair Droid",
+  "name": "RepairFacilityFunc",
+  "repairPoints": 40
+ },
+ {
+  "type": "Power Generator",
+  "name": "PowGen1",
+  "powerOutput": 0,
+  "powerMultiplier": 55,
+  "criticalMassChance": 0,
+  "criticalMassRadius": 0,
+  "criticalMassDamage": 0,
+  "radiationDecayTime": 0
+ },
+ {
+  "type": "Power Generator",
+  "name": "BaBaPowGen",
+  "powerOutput": 400,
+  "powerMultiplier": 50,
+  "criticalMassChance": 0,
+  "criticalMassRadius": 0,
+  "criticalMassDamage": 0,
+  "radiationDecayTime": 0
+ },
+ {
+  "type": "Power Generator",
+  "name": "PowerModule",
+  "powerOutput": 0,
+  "powerMultiplier": 28,
+  "criticalMassChance": 0,
+  "criticalMassRadius": 0,
+  "criticalMassDamage": 0,
+  "radiationDecayTime": 0
+ },
+ {
+  "type": "Resource",
+  "name": "Resource",
+  "maxPower": 12500
+ },
+ {
+  "type": "Production Upgrade",
+  "name": "Struc-Factory-Upgrade01",
+  "factory": 1,
+  "cyborg": 0,
+  "vtol": 0,
+  "outputModifier": 30
+ },
+ {
+  "type": "Production Upgrade",
+  "name": "Struc-Factory-Upgrade02",
+  "factory": 1,
+  "cyborg": 0,
+  "vtol": 0,
+  "outputModifier": 60
+ },
+ {
+  "type": "Production Upgrade",
+  "name": "Struc-Factory-Upgrade03",
+  "factory": 1,
+  "cyborg": 0,
+  "vtol": 0,
+  "outputModifier": 90
+ },
+ {
+  "type": "Production Upgrade",
+  "name": "Struc-Factory-Upgrade04",
+  "factory": 1,
+  "cyborg": 0,
+  "vtol": 0,
+  "outputModifier": 120
+ },
+ {
+  "type": "Production Upgrade",
+  "name": "Struc-Factory-Upgrade05",
+  "factory": 1,
+  "cyborg": 0,
+  "vtol": 0,
+  "outputModifier": 150
+ },
+ {
+  "type": "Production Upgrade",
+  "name": "Struc-Factory-Upgrade06",
+  "factory": 1,
+  "cyborg": 0,
+  "vtol": 0,
+  "outputModifier": 180
+ },
+ {
+  "type": "Production Upgrade",
+  "name": "Struc-Factory-Cyborg-Upgrade01",
+  "factory": 0,
+  "cyborg": 1,
+  "vtol": 0,
+  "outputModifier": 30
+ },
+ {
+  "type": "Production Upgrade",
+  "name": "Struc-Factory-Cyborg-Upgrade02",
+  "factory": 0,
+  "cyborg": 1,
+  "vtol": 0,
+  "outputModifier": 60
+ },
+ {
+  "type": "Production Upgrade",
+  "name": "Struc-Factory-Cyborg-Upgrade03",
+  "factory": 0,
+  "cyborg": 1,
+  "vtol": 0,
+  "outputModifier": 90
+ },
+ {
+  "type": "Production Upgrade",
+  "name": "Struc-Factory-Cyborg-Upgrade04",
+  "factory": 0,
+  "cyborg": 1,
+  "vtol": 0,
+  "outputModifier": 120
+ },
+ {
+  "type": "Production Upgrade",
+  "name": "Struc-Factory-Cyborg-Upgrade05",
+  "factory": 0,
+  "cyborg": 1,
+  "vtol": 0,
+  "outputModifier": 150
+ },
+ {
+  "type": "Production Upgrade",
+  "name": "Struc-Factory-Cyborg-Upgrade06",
+  "factory": 0,
+  "cyborg": 1,
+  "vtol": 0,
+  "outputModifier": 180
+ },
+ {
+  "type": "Production Upgrade",
+  "name": "Struc-VTOLFactory-Upgrade01",
+  "factory": 0,
+  "cyborg": 0,
+  "vtol": 1,
+  "outputModifier": 30
+ },
+ {
+  "type": "Production Upgrade",
+  "name": "Struc-VTOLFactory-Upgrade02",
+  "factory": 0,
+  "cyborg": 0,
+  "vtol": 1,
+  "outputModifier": 60
+ },
+ {
+  "type": "Production Upgrade",
+  "name": "Struc-VTOLFactory-Upgrade03",
+  "factory": 0,
+  "cyborg": 0,
+  "vtol": 1,
+  "outputModifier": 90
+ },
+ {
+  "type": "Production Upgrade",
+  "name": "Struc-VTOLFactory-Upgrade04",
+  "factory": 0,
+  "cyborg": 0,
+  "vtol": 1,
+  "outputModifier": 120
+ },
+ {
+  "type": "Production Upgrade",
+  "name": "Struc-VTOLFactory-Upgrade05",
+  "factory": 0,
+  "cyborg": 0,
+  "vtol": 1,
+  "outputModifier": 150
+ },
+ {
+  "type": "Production Upgrade",
+  "name": "Struc-VTOLFactory-Upgrade06",
+  "factory": 0,
+  "cyborg": 0,
+  "vtol": 1,
+  "outputModifier": 180
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Cannon-Accuracy01",
+  "weaponSubClass": "CANNON",
+  "firePause": 0,
+  "shortHit": 10,
+  "longHit": 10,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Cannon-Damage01",
+  "weaponSubClass": "CANNON",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 30,
+  "radiusDamage": 10,
+  "incenDamage": 0,
+  "radiusHit": 10
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Cannon-Damage02",
+  "weaponSubClass": "CANNON",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 60,
+  "radiusDamage": 20,
+  "incenDamage": 0,
+  "radiusHit": 20
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Cannon-Damage03",
+  "weaponSubClass": "CANNON",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 90,
+  "radiusDamage": 30,
+  "incenDamage": 0,
+  "radiusHit": 30
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Cannon-ROF01",
+  "weaponSubClass": "CANNON",
+  "firePause": 10,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Cannon-ROF02",
+  "weaponSubClass": "CANNON",
+  "firePause": 20,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Cannon-ROF03",
+  "weaponSubClass": "CANNON",
+  "firePause": 30,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Flamer-Damage01",
+  "weaponSubClass": "FLAME",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 30,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Flamer-Damage02",
+  "weaponSubClass": "FLAME",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 60,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Flamer-Damage03",
+  "weaponSubClass": "FLAME",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 90,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Flamer-ROF01",
+  "weaponSubClass": "FLAME",
+  "firePause": 20,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Flamer-ROF02",
+  "weaponSubClass": "FLAME",
+  "firePause": 40,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Flamer-ROF03",
+  "weaponSubClass": "FLAME",
+  "firePause": 60,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-MG-Damage01",
+  "weaponSubClass": "MACHINE GUN",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 30,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-MG-Damage02",
+  "weaponSubClass": "MACHINE GUN",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 60,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-MG-Damage03",
+  "weaponSubClass": "MACHINE GUN",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 90,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-MG-ROF01",
+  "weaponSubClass": "MACHINE GUN",
+  "firePause": 20,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-MG-ROF02",
+  "weaponSubClass": "MACHINE GUN",
+  "firePause": 40,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-MG-ROF03",
+  "weaponSubClass": "MACHINE GUN",
+  "firePause": 60,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Artillery-Damage01",
+  "weaponSubClass": "MORTARS",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 30,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Artillery-Damage02",
+  "weaponSubClass": "MORTARS",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 60,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Artillery-Damage03",
+  "weaponSubClass": "MORTARS",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 90,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Artillery-ROF01",
+  "weaponSubClass": "MORTARS",
+  "firePause": 20,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Artillery-ROF02",
+  "weaponSubClass": "MORTARS",
+  "firePause": 40,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Artillery-ROF03",
+  "weaponSubClass": "MORTARS",
+  "firePause": 60,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Rocket-Damage01",
+  "weaponSubClass": "ROCKET",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 30,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Rocket-Damage02",
+  "weaponSubClass": "ROCKET",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 60,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Rocket-Damage03",
+  "weaponSubClass": "ROCKET",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 90,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Rocket-ROF01",
+  "weaponSubClass": "ROCKET",
+  "firePause": 20,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Rocket-ROF02",
+  "weaponSubClass": "ROCKET",
+  "firePause": 40,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Rocket-ROF03",
+  "weaponSubClass": "ROCKET",
+  "firePause": 60,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-MG-Damage04",
+  "weaponSubClass": "MACHINE GUN",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 120,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-MG-Damage05",
+  "weaponSubClass": "MACHINE GUN",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 150,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-MG-Damage06",
+  "weaponSubClass": "MACHINE GUN",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 180,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Cannon-Damage04",
+  "weaponSubClass": "CANNON",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 120,
+  "radiusDamage": 30,
+  "incenDamage": 0,
+  "radiusHit": 30
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Cannon-Damage05",
+  "weaponSubClass": "CANNON",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 150,
+  "radiusDamage": 30,
+  "incenDamage": 0,
+  "radiusHit": 30
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Cannon-Damage06",
+  "weaponSubClass": "CANNON",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 180,
+  "radiusDamage": 30,
+  "incenDamage": 0,
+  "radiusHit": 30
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Cannon-Damage07",
+  "weaponSubClass": "CANNON",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 200,
+  "radiusDamage": 30,
+  "incenDamage": 0,
+  "radiusHit": 30
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Cannon-Damage08",
+  "weaponSubClass": "CANNON",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 225,
+  "radiusDamage": 30,
+  "incenDamage": 0,
+  "radiusHit": 30
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Cannon-Damage09",
+  "weaponSubClass": "CANNON",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 255,
+  "radiusDamage": 30,
+  "incenDamage": 0,
+  "radiusHit": 30
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Cannon-ROF04",
+  "weaponSubClass": "CANNON",
+  "firePause": 45,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Cannon-ROF05",
+  "weaponSubClass": "CANNON",
+  "firePause": 60,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Cannon-ROF06",
+  "weaponSubClass": "CANNON",
+  "firePause": 70,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Cannon-Accuracy02",
+  "weaponSubClass": "CANNON",
+  "firePause": 0,
+  "shortHit": 20,
+  "longHit": 20,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Cannon-Accuracy03",
+  "weaponSubClass": "CANNON",
+  "firePause": 0,
+  "shortHit": 30,
+  "longHit": 30,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-AAGun-Accuracy01",
+  "weaponSubClass": "A-A GUN",
+  "firePause": 0,
+  "shortHit": 10,
+  "longHit": 10,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-AAGun-Accuracy02",
+  "weaponSubClass": "A-A GUN",
+  "firePause": 0,
+  "shortHit": 20,
+  "longHit": 20,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-AAGun-Accuracy03",
+  "weaponSubClass": "A-A GUN",
+  "firePause": 0,
+  "shortHit": 30,
+  "longHit": 30,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-AAGun-Damage01",
+  "weaponSubClass": "A-A GUN",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 30,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-AAGun-Damage02",
+  "weaponSubClass": "A-A GUN",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 60,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-AAGun-Damage03",
+  "weaponSubClass": "A-A GUN",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 90,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-AAGun-Damage04",
+  "weaponSubClass": "A-A GUN",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 120,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-AAGun-Damage05",
+  "weaponSubClass": "A-A GUN",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 150,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-AAGun-Damage06",
+  "weaponSubClass": "A-A GUN",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 180,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-AAGun-ROF01",
+  "weaponSubClass": "A-A GUN",
+  "firePause": 10,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-AAGun-ROF02",
+  "weaponSubClass": "A-A GUN",
+  "firePause": 20,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-AAGun-ROF03",
+  "weaponSubClass": "A-A GUN",
+  "firePause": 30,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-AAGun-ROF04",
+  "weaponSubClass": "A-A GUN",
+  "firePause": 40,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-AAGun-ROF05",
+  "weaponSubClass": "A-A GUN",
+  "firePause": 50,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-AAGun-ROF06",
+  "weaponSubClass": "A-A GUN",
+  "firePause": 60,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Bomb-Accuracy01",
+  "weaponSubClass": "BOMB",
+  "firePause": 0,
+  "shortHit": 10,
+  "longHit": 10,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Bomb-Accuracy02",
+  "weaponSubClass": "BOMB",
+  "firePause": 0,
+  "shortHit": 20,
+  "longHit": 20,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Bomb-Accuracy03",
+  "weaponSubClass": "BOMB",
+  "firePause": 0,
+  "shortHit": 30,
+  "longHit": 30,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Flamer-Damage04",
+  "weaponSubClass": "FLAME",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 120,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Flamer-Damage05",
+  "weaponSubClass": "FLAME",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 150,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Flamer-Damage06",
+  "weaponSubClass": "FLAME",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 180,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Howitzer-Accuracy01",
+  "weaponSubClass": "HOWITZERS",
+  "firePause": 0,
+  "shortHit": 10,
+  "longHit": 10,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Howitzer-Accuracy02",
+  "weaponSubClass": "HOWITZERS",
+  "firePause": 0,
+  "shortHit": 20,
+  "longHit": 20,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Howitzer-Accuracy03",
+  "weaponSubClass": "HOWITZERS",
+  "firePause": 0,
+  "shortHit": 30,
+  "longHit": 30,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Howitzer-Damage01",
+  "weaponSubClass": "HOWITZERS",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 30,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Howitzer-Damage02",
+  "weaponSubClass": "HOWITZERS",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 60,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Howitzer-Damage03",
+  "weaponSubClass": "HOWITZERS",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 90,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Howitzer-Damage04",
+  "weaponSubClass": "HOWITZERS",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 120,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Howitzer-Damage05",
+  "weaponSubClass": "HOWITZERS",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 150,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Howitzer-Damage06",
+  "weaponSubClass": "HOWITZERS",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 180,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Howitzer-ROF01",
+  "weaponSubClass": "HOWITZERS",
+  "firePause": 10,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Howitzer-ROF02",
+  "weaponSubClass": "HOWITZERS",
+  "firePause": 20,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Howitzer-ROF03",
+  "weaponSubClass": "HOWITZERS",
+  "firePause": 40,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Howitzer-ROF04",
+  "weaponSubClass": "HOWITZERS",
+  "firePause": 60,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Energy-Accuracy01",
+  "weaponSubClass": "ENERGY",
+  "firePause": 0,
+  "shortHit": 10,
+  "longHit": 10,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Energy-Accuracy02",
+  "weaponSubClass": "ENERGY",
+  "firePause": 0,
+  "shortHit": 20,
+  "longHit": 20,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Energy-Accuracy03",
+  "weaponSubClass": "ENERGY",
+  "firePause": 0,
+  "shortHit": 30,
+  "longHit": 30,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Energy-Damage01",
+  "weaponSubClass": "ENERGY",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 30,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Energy-Damage02",
+  "weaponSubClass": "ENERGY",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 60,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Energy-Damage03",
+  "weaponSubClass": "ENERGY",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 90,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Energy-ROF01",
+  "weaponSubClass": "ENERGY",
+  "firePause": 20,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Energy-ROF02",
+  "weaponSubClass": "ENERGY",
+  "firePause": 40,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Energy-ROF03",
+  "weaponSubClass": "ENERGY",
+  "firePause": 60,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-MG-Damage07",
+  "weaponSubClass": "MACHINE GUN",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 210,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-MG-Damage08",
+  "weaponSubClass": "MACHINE GUN",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 240,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-MG-Damage09",
+  "weaponSubClass": "MACHINE GUN",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 255,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Missile-Accuracy01",
+  "weaponSubClass": "MISSILE",
+  "firePause": 0,
+  "shortHit": 10,
+  "longHit": 10,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Missile-Accuracy02",
+  "weaponSubClass": "MISSILE",
+  "firePause": 0,
+  "shortHit": 20,
+  "longHit": 20,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Missile-Damage01",
+  "weaponSubClass": "MISSILE",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 30,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Missile-Damage02",
+  "weaponSubClass": "MISSILE",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 60,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Missile-Damage03",
+  "weaponSubClass": "MISSILE",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 90,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Missile-ROF01",
+  "weaponSubClass": "MISSILE",
+  "firePause": 20,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Missile-ROF02",
+  "weaponSubClass": "MISSILE",
+  "firePause": 40,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Missile-ROF03",
+  "weaponSubClass": "MISSILE",
+  "firePause": 60,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-MissileSlow-Damage01",
+  "weaponSubClass": "MISSILE",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 30,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-MissileSlow-Damage02",
+  "weaponSubClass": "MISSILE",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 60,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-MissileSlow-Damage03",
+  "weaponSubClass": "MISSILE",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 90,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-MissileSlow-ROF01",
+  "weaponSubClass": "MISSILE",
+  "firePause": 20,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Mortar-Acc01",
+  "weaponSubClass": "MORTARS",
+  "firePause": 0,
+  "shortHit": 10,
+  "longHit": 10,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Mortar-Acc02",
+  "weaponSubClass": "MORTARS",
+  "firePause": 0,
+  "shortHit": 20,
+  "longHit": 20,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Mortar-Acc03",
+  "weaponSubClass": "MORTARS",
+  "firePause": 0,
+  "shortHit": 30,
+  "longHit": 30,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Mortar-Damage01",
+  "weaponSubClass": "MORTARS",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 30,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Mortar-Damage02",
+  "weaponSubClass": "MORTARS",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 60,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Mortar-Damage03",
+  "weaponSubClass": "MORTARS",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 90,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Mortar-Damage04",
+  "weaponSubClass": "MORTARS",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 120,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Mortar-Damage05",
+  "weaponSubClass": "MORTARS",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 150,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Mortar-Damage06",
+  "weaponSubClass": "MORTARS",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 180,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Mortar-ROF01",
+  "weaponSubClass": "MORTARS",
+  "firePause": 10,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Mortar-ROF02",
+  "weaponSubClass": "MORTARS",
+  "firePause": 20,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Mortar-ROF03",
+  "weaponSubClass": "MORTARS",
+  "firePause": 30,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Mortar-ROF04",
+  "weaponSubClass": "MORTARS",
+  "firePause": 40,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Rail-Accuracy01",
+  "weaponSubClass": "GAUSS",
+  "firePause": 0,
+  "shortHit": 10,
+  "longHit": 10,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Rail-Damage01",
+  "weaponSubClass": "GAUSS",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 30,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Rail-Damage02",
+  "weaponSubClass": "GAUSS",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 60,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Rail-Damage03",
+  "weaponSubClass": "GAUSS",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 90,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Rail-ROF01",
+  "weaponSubClass": "GAUSS",
+  "firePause": 20,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Rail-ROF02",
+  "weaponSubClass": "GAUSS",
+  "firePause": 40,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Rail-ROF03",
+  "weaponSubClass": "GAUSS",
+  "firePause": 60,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Rocket-Accuracy01",
+  "weaponSubClass": "ROCKET",
+  "firePause": 0,
+  "shortHit": 10,
+  "longHit": 10,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Rocket-Accuracy02",
+  "weaponSubClass": "ROCKET",
+  "firePause": 0,
+  "shortHit": 20,
+  "longHit": 20,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Rocket-Damage04",
+  "weaponSubClass": "ROCKET",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 120,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Rocket-Damage05",
+  "weaponSubClass": "ROCKET",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 150,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-Rocket-Damage06",
+  "weaponSubClass": "ROCKET",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 180,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-RocketSlow-Accuracy01",
+  "weaponSubClass": "ROCKET",
+  "firePause": 0,
+  "shortHit": 10,
+  "longHit": 10,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-RocketSlow-Accuracy02",
+  "weaponSubClass": "ROCKET",
+  "firePause": 0,
+  "shortHit": 20,
+  "longHit": 20,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-RocketSlow-Accuracy03",
+  "weaponSubClass": "ROCKET",
+  "firePause": 0,
+  "shortHit": 30,
+  "longHit": 30,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-RocketSlow-Damage01",
+  "weaponSubClass": "ROCKET",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 30,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-RocketSlow-Damage02",
+  "weaponSubClass": "ROCKET",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 60,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-RocketSlow-Damage03",
+  "weaponSubClass": "ROCKET",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 90,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-RocketSlow-Damage04",
+  "weaponSubClass": "ROCKET",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 120,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-RocketSlow-Damage05",
+  "weaponSubClass": "ROCKET",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 150,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-RocketSlow-Damage06",
+  "weaponSubClass": "ROCKET",
+  "firePause": 0,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 180,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-RocketSlow-ROF01",
+  "weaponSubClass": "ROCKET",
+  "firePause": 20,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-RocketSlow-ROF02",
+  "weaponSubClass": "ROCKET",
+  "firePause": 40,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Weapon Upgrade",
+  "name": "Wpn-RocketSlow-ROF03",
+  "weaponSubClass": "ROCKET",
+  "firePause": 60,
+  "shortHit": 0,
+  "longHit": 0,
+  "damage": 0,
+  "radiusDamage": 0,
+  "incenDamage": 0,
+  "radiusHit": 0
+ },
+ {
+  "type": "Wall Function",
+  "name": "Basic Wall Function",
+  "structure": "A0BabaCornerWall",
+  "dummy": 31
+ },
+ {
+  "type": "Wall Function",
+  "name": "Hardcrete Wall1",
+  "structure": "A0HardcreteMk1CWall",
+  "dummy": 69
+ },
+ {
+  "type": "Wall Function",
+  "name": "baba Wall Function",
+  "structure": "A0BabaCornerWall",
+  "dummy": 73
+ },
+ {
+  "type": "Wall Function",
+  "name": "TankTrapFunc",
+  "structure": "TankTrapC",
+  "dummy": 187
+ },
+ {
+  "type": "Wall Function",
+  "name": "Collective Wall1",
+  "structure": "CollectiveCWall",
+  "dummy": 231
+ },
+ {
+  "type": "Wall Function",
+  "name": "NEXUS Wall1",
+  "structure": "NEXUSCWall",
+  "dummy": 232
+ },
+ {
+  "type": "Structure Upgrade",
+  "name": "Struc-Materials01",
+  "armour": 30,
+  "body": 30,
+  "resistance": 0
+ },
+ {
+  "type": "Structure Upgrade",
+  "name": "Struc-Materials02",
+  "armour": 60,
+  "body": 60,
+  "resistance": 0
+ },
+ {
+  "type": "Structure Upgrade",
+  "name": "Struc-Materials03",
+  "armour": 90,
+  "body": 90,
+  "resistance": 0
+ },
+ {
+  "type": "Structure Upgrade",
+  "name": "Sys-Resistance-Upgrade01",
+  "armour": 0,
+  "body": 0,
+  "resistance": 60
+ },
+ {
+  "type": "Structure Upgrade",
+  "name": "Sys-Resistance-Upgrade02",
+  "armour": 0,
+  "body": 0,
+  "resistance": 120
+ },
+ {
+  "type": "Structure Upgrade",
+  "name": "Sys-Resistance-Upgrade03",
+  "armour": 0,
+  "body": 0,
+  "resistance": 180
+ },
+ {
+  "type": "Structure Upgrade",
+  "name": "Struc-Materials04",
+  "armour": 120,
+  "body": 120,
+  "resistance": 0
+ },
+ {
+  "type": "Structure Upgrade",
+  "name": "Struc-Materials05",
+  "armour": 150,
+  "body": 150,
+  "resistance": 0
+ },
+ {
+  "type": "Structure Upgrade",
+  "name": "Struc-Materials06",
+  "armour": 180,
+  "body": 180,
+  "resistance": 0
+ },
+ {
+  "type": "Structure Upgrade",
+  "name": "Struc-Materials07",
+  "armour": 210,
+  "body": 210,
+  "resistance": 0
+ },
+ {
+  "type": "Structure Upgrade",
+  "name": "Struc-Materials08",
+  "armour": 240,
+  "body": 240,
+  "resistance": 0
+ },
+ {
+  "type": "Structure Upgrade",
+  "name": "Struc-Materials09",
+  "armour": 270,
+  "body": 270,
+  "resistance": 0
+ },
+ {
+  "type": "Structure Upgrade",
+  "name": "Struc-Materials10",
+  "armour": 300,
+  "body": 300,
+  "resistance": 0
+ },
+ {
+  "type": "Structure Upgrade",
+  "name": "Sys-Resistance-Upgrade0",
+  "armour": 0,
+  "body": 0,
+  "resistance": 10
+ },
+ {
+  "type": "WallDefence Upgrade",
+  "name": "Defense-WallUpgrade01",
+  "armour": 30,
+  "body": 30
+ },
+ {
+  "type": "WallDefence Upgrade",
+  "name": "Defense-WallUpgrade02",
+  "armour": 60,
+  "body": 60
+ },
+ {
+  "type": "WallDefence Upgrade",
+  "name": "Defense-WallUpgrade03",
+  "armour": 90,
+  "body": 90
+ },
+ {
+  "type": "WallDefence Upgrade",
+  "name": "Defense-WallUpgrade04",
+  "armour": 120,
+  "body": 120
+ },
+ {
+  "type": "WallDefence Upgrade",
+  "name": "Defense-WallUpgrade05",
+  "armour": 150,
+  "body": 150
+ },
+ {
+  "type": "WallDefence Upgrade",
+  "name": "Defense-WallUpgrade06",
+  "armour": 180,
+  "body": 180
+ },
+ {
+  "type": "WallDefence Upgrade",
+  "name": "Defense-WallUpgrade07",
+  "armour": 210,
+  "body": 210
+ },
+ {
+  "type": "WallDefence Upgrade",
+  "name": "Defense-WallUpgrade08",
+  "armour": 240,
+  "body": 240
+ },
+ {
+  "type": "WallDefence Upgrade",
+  "name": "Defense-WallUpgrade09",
+  "armour": 270,
+  "body": 270
+ },
+ {
+  "type": "WallDefence Upgrade",
+  "name": "Defense-WallUpgrade10",
+  "armour": 300,
+  "body": 300
+ },
+ {
+  "type": "Research",
+  "name": "Research Facility",
+  "researchPoints": 14
+ },
+ {
+  "type": "Research",
+  "name": "Research Module",
+  "researchPoints": 12
+ },
+ {
+  "type": "Repair Upgrade",
+  "name": "RepairFacility-Upgrade01",
+  "modifier": 10
+ },
+ {
+  "type": "Repair Upgrade",
+  "name": "RepairFacility-Upgrade02",
+  "modifier": 20
+ },
+ {
+  "type": "Repair Upgrade",
+  "name": "RepairFacility-Upgrade03",
+  "modifier": 30
+ },
+ {
+  "type": "Repair Upgrade",
+  "name": "Struc-RprFac-Upgrade01",
+  "modifier": 50
+ },
+ {
+  "type": "Repair Upgrade",
+  "name": "Struc-RprFac-Upgrade02",
+  "modifier": 100
+ },
+ {
+  "type": "Repair Upgrade",
+  "name": "Struc-RprFac-Upgrade03",
+  "modifier": 150
+ },
+ {
+  "type": "Repair Upgrade",
+  "name": "Struc-RprFac-Upgrade04",
+  "modifier": 200
+ },
+ {
+  "type": "Repair Upgrade",
+  "name": "Struc-RprFac-Upgrade05",
+  "modifier": 250
+ },
+ {
+  "type": "Repair Upgrade",
+  "name": "Struc-RprFac-Upgrade06",
+  "modifier": 300
+ },
+ {
+  "type": "Power Upgrade",
+  "name": "Struc-PowerModuleMk1",
+  "modifier": 20
+ },
+ {
+  "type": "Power Upgrade",
+  "name": "Struc-Power Upgrade01",
+  "modifier": 15
+ },
+ {
+  "type": "Power Upgrade",
+  "name": "Struc-Power Upgrade02",
+  "modifier": 40
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Vehicle-Engine01",
+  "modifier": 5,
+  "body": 0,
+  "armourKinetic": 0,
+  "armourHeat": 0,
+  "droid": 1,
+  "cyborg": 0
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Vehicle-Engine02",
+  "modifier": 10,
+  "body": 0,
+  "armourKinetic": 0,
+  "armourHeat": 0,
+  "droid": 1,
+  "cyborg": 0
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Vehicle-Metals01",
+  "modifier": 0,
+  "body": 30,
+  "armourKinetic": 30,
+  "armourHeat": 0,
+  "droid": 1,
+  "cyborg": 0
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Vehicle-Metals02",
+  "modifier": 0,
+  "body": 60,
+  "armourKinetic": 60,
+  "armourHeat": 0,
+  "droid": 1,
+  "cyborg": 0
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Vehicle-Metals03",
+  "modifier": 0,
+  "body": 90,
+  "armourKinetic": 90,
+  "armourHeat": 0,
+  "droid": 1,
+  "cyborg": 0
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Cyborg-Metals01",
+  "modifier": 0,
+  "body": 30,
+  "armourKinetic": 30,
+  "armourHeat": 0,
+  "droid": 0,
+  "cyborg": 1
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Cyborg-Metals02",
+  "modifier": 0,
+  "body": 60,
+  "armourKinetic": 60,
+  "armourHeat": 0,
+  "droid": 0,
+  "cyborg": 1
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Cyborg-Metals03",
+  "modifier": 0,
+  "body": 90,
+  "armourKinetic": 90,
+  "armourHeat": 0,
+  "droid": 0,
+  "cyborg": 1
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Vehicle-Engine03",
+  "modifier": 15,
+  "body": 0,
+  "armourKinetic": 0,
+  "armourHeat": 0,
+  "droid": 1,
+  "cyborg": 0
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Cyborg-Metals04",
+  "modifier": 0,
+  "body": 120,
+  "armourKinetic": 120,
+  "armourHeat": 0,
+  "droid": 0,
+  "cyborg": 1
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Cyborg-Metals05",
+  "modifier": 0,
+  "body": 150,
+  "armourKinetic": 150,
+  "armourHeat": 0,
+  "droid": 0,
+  "cyborg": 1
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Cyborg-Metals06",
+  "modifier": 0,
+  "body": 180,
+  "armourKinetic": 180,
+  "armourHeat": 0,
+  "droid": 0,
+  "cyborg": 1
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Cyborg-Metals07",
+  "modifier": 0,
+  "body": 210,
+  "armourKinetic": 210,
+  "armourHeat": 0,
+  "droid": 0,
+  "cyborg": 1
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Cyborg-Metals08",
+  "modifier": 0,
+  "body": 240,
+  "armourKinetic": 240,
+  "armourHeat": 0,
+  "droid": 0,
+  "cyborg": 1
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Cyborg-Metals09",
+  "modifier": 0,
+  "body": 270,
+  "armourKinetic": 270,
+  "armourHeat": 0,
+  "droid": 0,
+  "cyborg": 1
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Cyborg-Metals10",
+  "modifier": 0,
+  "body": 300,
+  "armourKinetic": 300,
+  "armourHeat": 0,
+  "droid": 0,
+  "cyborg": 1
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Vehicle-Metals04",
+  "modifier": 0,
+  "body": 120,
+  "armourKinetic": 120,
+  "armourHeat": 0,
+  "droid": 1,
+  "cyborg": 0
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Vehicle-Metals05",
+  "modifier": 0,
+  "body": 150,
+  "armourKinetic": 150,
+  "armourHeat": 0,
+  "droid": 1,
+  "cyborg": 0
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Vehicle-Metals06",
+  "modifier": 0,
+  "body": 180,
+  "armourKinetic": 180,
+  "armourHeat": 0,
+  "droid": 1,
+  "cyborg": 0
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Vehicle-Metals07",
+  "modifier": 0,
+  "body": 210,
+  "armourKinetic": 210,
+  "armourHeat": 0,
+  "droid": 1,
+  "cyborg": 0
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Vehicle-Metals08",
+  "modifier": 0,
+  "body": 240,
+  "armourKinetic": 240,
+  "armourHeat": 0,
+  "droid": 1,
+  "cyborg": 0
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Vehicle-Metals09",
+  "modifier": 0,
+  "body": 270,
+  "armourKinetic": 270,
+  "armourHeat": 0,
+  "droid": 1,
+  "cyborg": 0
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Vehicle-Metals10",
+  "modifier": 0,
+  "body": 300,
+  "armourKinetic": 300,
+  "armourHeat": 0,
+  "droid": 1,
+  "cyborg": 0
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Vehicle-Engine04",
+  "modifier": 20,
+  "body": 0,
+  "armourKinetic": 0,
+  "armourHeat": 0,
+  "droid": 1,
+  "cyborg": 0
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Vehicle-Engine05",
+  "modifier": 25,
+  "body": 0,
+  "armourKinetic": 0,
+  "armourHeat": 0,
+  "droid": 1,
+  "cyborg": 0
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Vehicle-Engine06",
+  "modifier": 30,
+  "body": 0,
+  "armourKinetic": 0,
+  "armourHeat": 0,
+  "droid": 1,
+  "cyborg": 0
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Vehicle-Engine07",
+  "modifier": 35,
+  "body": 0,
+  "armourKinetic": 0,
+  "armourHeat": 0,
+  "droid": 1,
+  "cyborg": 0
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Vehicle-Engine08",
+  "modifier": 40,
+  "body": 0,
+  "armourKinetic": 0,
+  "armourHeat": 0,
+  "droid": 1,
+  "cyborg": 0
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Vehicle-Engine09",
+  "modifier": 45,
+  "body": 0,
+  "armourKinetic": 0,
+  "armourHeat": 0,
+  "droid": 1,
+  "cyborg": 0
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Vehicle-Engine10",
+  "modifier": 50,
+  "body": 0,
+  "armourKinetic": 0,
+  "armourHeat": 0,
+  "droid": 1,
+  "cyborg": 0
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Vehicle-Armor-Heat01",
+  "modifier": 0,
+  "body": 0,
+  "armourKinetic": 0,
+  "armourHeat": 40,
+  "droid": 1,
+  "cyborg": 0
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Vehicle-Armor-Heat02",
+  "modifier": 0,
+  "body": 0,
+  "armourKinetic": 0,
+  "armourHeat": 80,
+  "droid": 1,
+  "cyborg": 0
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Vehicle-Armor-Heat03",
+  "modifier": 0,
+  "body": 0,
+  "armourKinetic": 0,
+  "armourHeat": 120,
+  "droid": 1,
+  "cyborg": 0
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Vehicle-Armor-Heat04",
+  "modifier": 0,
+  "body": 0,
+  "armourKinetic": 0,
+  "armourHeat": 160,
+  "droid": 1,
+  "cyborg": 0
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Vehicle-Armor-Heat05",
+  "modifier": 0,
+  "body": 0,
+  "armourKinetic": 0,
+  "armourHeat": 200,
+  "droid": 1,
+  "cyborg": 0
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Vehicle-Armor-Heat06",
+  "modifier": 0,
+  "body": 0,
+  "armourKinetic": 0,
+  "armourHeat": 240,
+  "droid": 1,
+  "cyborg": 0
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Cyborg-Armor-Heat01",
+  "modifier": 0,
+  "body": 0,
+  "armourKinetic": 0,
+  "armourHeat": 40,
+  "droid": 0,
+  "cyborg": 1
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Cyborg-Armor-Heat02",
+  "modifier": 0,
+  "body": 0,
+  "armourKinetic": 0,
+  "armourHeat": 80,
+  "droid": 0,
+  "cyborg": 1
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Cyborg-Armor-Heat03",
+  "modifier": 0,
+  "body": 0,
+  "armourKinetic": 0,
+  "armourHeat": 120,
+  "droid": 0,
+  "cyborg": 1
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Cyborg-Armor-Heat04",
+  "modifier": 0,
+  "body": 0,
+  "armourKinetic": 0,
+  "armourHeat": 160,
+  "droid": 0,
+  "cyborg": 1
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Cyborg-Armor-Heat05",
+  "modifier": 0,
+  "body": 0,
+  "armourKinetic": 0,
+  "armourHeat": 200,
+  "droid": 0,
+  "cyborg": 1
+ },
+ {
+  "type": "VehicleBody Upgrade",
+  "name": "Cyborg-Armor-Heat06",
+  "modifier": 0,
+  "body": 0,
+  "armourKinetic": 0,
+  "armourHeat": 240,
+  "droid": 0,
+  "cyborg": 1
+ },
+ {
+  "type": "VehicleConst Upgrade",
+  "name": "Sys-Engineering-Upgrade01",
+  "modifier": 10
+ },
+ {
+  "type": "VehicleConst Upgrade",
+  "name": "Sys-Engineering-Upgrade02",
+  "modifier": 30
+ },
+ {
+  "type": "VehicleConst Upgrade",
+  "name": "Sys-Engineering-Upgrade03",
+  "modifier": 50
+ },
+ {
+  "type": "VehicleECM Upgrade",
+  "name": "Sys-ECM-Upgrade01",
+  "modifier": 10
+ },
+ {
+  "type": "VehicleECM Upgrade",
+  "name": "Sys-ECM-Upgrade02",
+  "modifier": 20
+ },
+ {
+  "type": "VehicleECM Upgrade",
+  "name": "Sys-ECM-Upgrade03",
+  "modifier": 30
+ },
+ {
+  "type": "VehicleRepair Upgrade",
+  "name": "Sys-Autorepair-Vehicle-Upgrade01",
+  "modifier": 10
+ },
+ {
+  "type": "VehicleRepair Upgrade",
+  "name": "Sys-Autorepair-Vehicle-Upgrade02",
+  "modifier": 20
+ },
+ {
+  "type": "VehicleSensor Upgrade",
+  "name": "Sys-Sensor-Upgrade01",
+  "modifier": 0,
+  "range": 25
+ },
+ {
+  "type": "VehicleSensor Upgrade",
+  "name": "Sys-Sensor-Upgrade02",
+  "modifier": 0,
+  "range": 40
+ },
+ {
+  "type": "VehicleSensor Upgrade",
+  "name": "Sys-Sensor-Upgrade03",
+  "modifier": 0,
+  "range": 60
+ },
+ {
+  "type": "ReArm",
+  "name": "ReArm",
+  "reArmPoints": 10
+ },
+ {
+  "type": "ReArm Upgrade",
+  "name": "ReArmUpgrade",
+  "modifier": 1
+ },
+ {
+  "type": "ReArm Upgrade",
+  "name": "Struc-VTOLPad-Upgrade01",
+  "modifier": 30
+ },
+ {
+  "type": "ReArm Upgrade",
+  "name": "Struc-VTOLPad-Upgrade02",
+  "modifier": 60
+ },
+ {
+  "type": "ReArm Upgrade",
+  "name": "Struc-VTOLPad-Upgrade03",
+  "modifier": 90
+ },
+ {
+  "type": "ReArm Upgrade",
+  "name": "Struc-VTOLPad-Upgrade04",
+  "modifier": 120
+ },
+ {
+  "type": "ReArm Upgrade",
+  "name": "Struc-VTOLPad-Upgrade05",
+  "modifier": 150
+ },
+ {
+  "type": "ReArm Upgrade",
+  "name": "Struc-VTOLPad-Upgrade06",
+  "modifier": 180
+ }
+]

@@ -1,0 +1,24 @@
+[
+ {
+  "name": "ZNULLBRAIN",
+  "techLevel": "Level All",
+  "buildPower": 0,
+  "buildPoints": 0,
+  "weight": 0,
+  "hitPoints": 0,
+  "systemPoints": 0,
+  "weapon": "ZNULLWEAPON",
+  "progCap": 0
+ },
+ {
+  "name": "CommandBrain01",
+  "techLevel": "Level All",
+  "buildPower": 1,
+  "buildPoints": 1,
+  "weight": 1,
+  "hitPoints": 1,
+  "systemPoints": 1,
+  "weapon": "CommandTurret1",
+  "progCap": 0
+ }
+]

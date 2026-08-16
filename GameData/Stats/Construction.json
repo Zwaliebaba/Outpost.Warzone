@@ -1,0 +1,30 @@
+[
+ {
+  "name": "ZNULLCONSTRUCT",
+  "techLevel": "Level All",
+  "buildPower": 0,
+  "buildPoints": 0,
+  "weight": 0,
+  "hitPoints": 0,
+  "systemPoints": 0,
+  "body": 0,
+  "model": "TRLCON.PIE",
+  "mountModel": "TRLCON.PIE",
+  "constructPoints": 0,
+  "designable": 0
+ },
+ {
+  "name": "Spade1Mk1",
+  "techLevel": "Level All",
+  "buildPower": 17,
+  "buildPoints": 85,
+  "weight": 600,
+  "hitPoints": 20,
+  "systemPoints": 5,
+  "body": 50,
+  "model": "TRLCON.PIE",
+  "mountModel": "0",
+  "constructPoints": 10,
+  "designable": 1
+ }
+]

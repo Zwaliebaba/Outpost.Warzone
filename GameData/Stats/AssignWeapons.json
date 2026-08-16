@@ -1,0 +1,697 @@
+[
+ {
+  "template": "ASPOTTER",
+  "weapon": "QuadMg1AAGun",
+  "player": 6
+ },
+ {
+  "template": "ATESTVEHICLE",
+  "weapon": "Bomb2-VTOL-HvHE",
+  "player": 6
+ },
+ {
+  "template": "ATESTVTOL",
+  "weapon": "Rocket-VTOL-BB",
+  "player": 6
+ },
+ {
+  "template": "BabaBusCan",
+  "weapon": "BusCannon",
+  "player": 7
+ },
+ {
+  "template": "BabaFireCan",
+  "weapon": "BusCannon",
+  "player": 7
+ },
+ {
+  "template": "BabaFireTruck",
+  "weapon": "BabaFlame",
+  "player": 7
+ },
+ {
+  "template": "BabaJeep",
+  "weapon": "BJeepMG",
+  "player": 7
+ },
+ {
+  "template": "BaBaPeople",
+  "weapon": "BaBaMG",
+  "player": 7
+ },
+ {
+  "template": "BabaRKJeep",
+  "weapon": "BabaRocket",
+  "player": 7
+ },
+ {
+  "template": "BarbarianBuggy",
+  "weapon": "BuggyMG",
+  "player": 7
+ },
+ {
+  "template": "BarbarianRKBuggy",
+  "weapon": "BabaRocket",
+  "player": 7
+ },
+ {
+  "template": "BarbarianTrike",
+  "weapon": "bTrikeMG",
+  "player": 7
+ },
+ {
+  "template": "CO-H-COM-H",
+  "weapon": "CommandTurret1",
+  "player": 2
+ },
+ {
+  "template": "CO-H-Command-Track",
+  "weapon": "CommandTurret1",
+  "player": 2
+ },
+ {
+  "template": "CO-H-How105-Tracks",
+  "weapon": "Howitzer105Mk1",
+  "player": 2
+ },
+ {
+  "template": "CO-H-How150-Tracks",
+  "weapon": "Howitzer150Mk1",
+  "player": 2
+ },
+ {
+  "template": "CO-H-HPVCannon-Tracks",
+  "weapon": "Cannon4AUTOMk1",
+  "player": 2
+ },
+ {
+  "template": "CO-H-HvyCan-Tracks",
+  "weapon": "Cannon375mmMk1",
+  "player": 2
+ },
+ {
+  "template": "CO-H-QuadBofAA-T",
+  "weapon": "AAGun2Mk1",
+  "player": 2
+ },
+ {
+  "template": "CO-H-QuadRotAA-T",
+  "weapon": "QuadRotAAGun",
+  "player": 2
+ },
+ {
+  "template": "CO-H-Rkt-BB-T",
+  "weapon": "Rocket-BB",
+  "player": 2
+ },
+ {
+  "template": "CO-H-RotCan-Track",
+  "weapon": "Cannon5VulcanMk1",
+  "player": 2
+ },
+ {
+  "template": "CO-H-RotHow-Track",
+  "weapon": "Howitzer03-Rot",
+  "player": 2
+ },
+ {
+  "template": "CO-L-Bomb1-VTOL",
+  "weapon": "Bomb1-VTOL-LtHE",
+  "player": 2
+ },
+ {
+  "template": "CO-L-Rocket-LtA-T-VTOL",
+  "weapon": "Rocket-VTOL-LtA-T",
+  "player": 2
+ },
+ {
+  "template": "CO-L-RotMG-VTOL",
+  "weapon": "MG4ROTARY-VTOL",
+  "player": 2
+ },
+ {
+  "template": "CO-M-Bomb1-VTOL",
+  "weapon": "Bomb1-VTOL-LtHE",
+  "player": 2
+ },
+ {
+  "template": "CO-M-Bomb2-VTOL",
+  "weapon": "Bomb2-VTOL-HvHE",
+  "player": 2
+ },
+ {
+  "template": "CO-M-HMG-T",
+  "weapon": "MG3Mk1",
+  "player": 2
+ },
+ {
+  "template": "CO-M-HPVCannon-Tracks",
+  "weapon": "Cannon4AUTOMk1",
+  "player": 2
+ },
+ {
+  "template": "CO-M-HVAT-Hover",
+  "weapon": "Rocket-HvyA-T",
+  "player": 2
+ },
+ {
+  "template": "CO-M-HVAT-V",
+  "weapon": "Rocket-VTOL-HvyA-T",
+  "player": 2
+ },
+ {
+  "template": "CO-M-HvFlame-Track",
+  "weapon": "Flame2",
+  "player": 2
+ },
+ {
+  "template": "CO-M-HvMortar-T",
+  "weapon": "Mortar2Mk1",
+  "player": 2
+ },
+ {
+  "template": "CO-M-LTAT-Hover",
+  "weapon": "Rocket-LtA-T",
+  "player": 2
+ },
+ {
+  "template": "CO-M-MedCan-Tracks",
+  "weapon": "Cannon2A-TMk1",
+  "player": 2
+ },
+ {
+  "template": "CO-M-Rocket-HvyA-T-Track",
+  "weapon": "Rocket-HvyA-T",
+  "player": 2
+ },
+ {
+  "template": "CO-M-Rocket-LtA-T-T",
+  "weapon": "Rocket-LtA-T",
+  "player": 2
+ },
+ {
+  "template": "CO-M-ROTMG-T",
+  "weapon": "MG4ROTARYMk1",
+  "player": 2
+ },
+ {
+  "template": "CO-M-RotMortar-T",
+  "weapon": "Mortar3ROTARYMk1",
+  "player": 2
+ },
+ {
+  "template": "CO-M-RR-HT",
+  "weapon": "Rocket-IDF",
+  "player": 2
+ },
+ {
+  "template": "CobraComHalftrack",
+  "weapon": "CommandTurret1",
+  "player": 6
+ },
+ {
+  "template": "CobraFlameTracks",
+  "weapon": "Flame1Mk1",
+  "player": 6
+ },
+ {
+  "template": "CobraHMGHalfTrack",
+  "weapon": "MG3Mk1",
+  "player": 4
+ },
+ {
+  "template": "CobraHvyCnTrks",
+  "weapon": "Cannon375mmMk1",
+  "player": 6
+ },
+ {
+  "template": "CobraHvyMortarHalftrack",
+  "weapon": "Mortar2Mk1",
+  "player": 6
+ },
+ {
+  "template": "CobraLtA-Thalftrack",
+  "weapon": "Rocket-LtA-T",
+  "player": 6
+ },
+ {
+  "template": "CobraLtCnTrks",
+  "weapon": "Cannon1Mk1",
+  "player": 4
+ },
+ {
+  "template": "CobraMedCnTrks",
+  "weapon": "Cannon2A-TMk1",
+  "player": 6
+ },
+ {
+  "template": "CobraMortarHalfTrack",
+  "weapon": "Mortar1Mk1",
+  "player": 4
+ },
+ {
+  "template": "CobraMRLHalftrack",
+  "weapon": "Rocket-MRL",
+  "player": 6
+ },
+ {
+  "template": "Cyb-Atmiss-GROUND",
+  "weapon": "Cyb-Wpn-Atmiss",
+  "player": 0
+ },
+ {
+  "template": "Cyb-Cannon-GROUND",
+  "weapon": "CyborgCannon",
+  "player": 0
+ },
+ {
+  "template": "Cyb-Chain-GROUND",
+  "weapon": "CyborgChaingun",
+  "player": 0
+ },
+ {
+  "template": "Cyb-Flamer-GROUND",
+  "weapon": "CyborgFlamer01",
+  "player": 0
+ },
+ {
+  "template": "Cyb-Laser1-GROUND",
+  "weapon": "Cyb-Wpn-Laser",
+  "player": 0
+ },
+ {
+  "template": "Cyb-Rail1-GROUND",
+  "weapon": "Cyb-Wpn-Rail1",
+  "player": 0
+ },
+ {
+  "template": "Cyb-Rocket-GROUND",
+  "weapon": "CyborgRocket",
+  "player": 0
+ },
+ {
+  "template": "Cyb-RotMG-GROUND",
+  "weapon": "CyborgRotMG",
+  "player": 0
+ },
+ {
+  "template": "CyborgCannon01CGrd",
+  "weapon": "CyborgCannon",
+  "player": 4
+ },
+ {
+  "template": "CyborgCannon01Grd",
+  "weapon": "CyborgCannon",
+  "player": 5
+ },
+ {
+  "template": "CyborgChain01CGround",
+  "weapon": "CyborgChaingun",
+  "player": 4
+ },
+ {
+  "template": "CyborgChain01Ground",
+  "weapon": "CyborgChaingun",
+  "player": 5
+ },
+ {
+  "template": "CyborgFlamer01CGrd",
+  "weapon": "CyborgFlamer01",
+  "player": 4
+ },
+ {
+  "template": "CyborgFlamer01Grd",
+  "weapon": "CyborgFlamer01",
+  "player": 5
+ },
+ {
+  "template": "CyborgRkt01Ground",
+  "weapon": "CyborgRocket",
+  "player": 5
+ },
+ {
+  "template": "NP-H-HvyCannon-Hover",
+  "weapon": "Cannon375mmMk1",
+  "player": 1
+ },
+ {
+  "template": "NP-H-HvyCannon-Tracks",
+  "weapon": "Cannon375mmMk1",
+  "player": 1
+ },
+ {
+  "template": "NP-H-MdCannon-Tracks",
+  "weapon": "Cannon2A-TMk1",
+  "player": 1
+ },
+ {
+  "template": "NP-L-HMG-Halftrack",
+  "weapon": "MG3Mk1",
+  "player": 1
+ },
+ {
+  "template": "NP-L-LtAT-Halftrack",
+  "weapon": "Rocket-LtA-T",
+  "player": 1
+ },
+ {
+  "template": "NP-L-LtCannon-Halftrack",
+  "weapon": "Cannon1Mk1",
+  "player": 1
+ },
+ {
+  "template": "NP-L-MRLS-Halftrack",
+  "weapon": "Rocket-MRL",
+  "player": 1
+ },
+ {
+  "template": "NP-L-RocketPod-Wheels",
+  "weapon": "Rocket-Pod",
+  "player": 1
+ },
+ {
+  "template": "NP-M-BB-Halftrack",
+  "weapon": "Rocket-BB",
+  "player": 1
+ },
+ {
+  "template": "NP-M-Command-Halftrack",
+  "weapon": "CommandTurret1",
+  "player": 1
+ },
+ {
+  "template": "NP-M-Command-Track",
+  "weapon": "CommandTurret1",
+  "player": 1
+ },
+ {
+  "template": "NP-M-HvyMortar-Halftrack",
+  "weapon": "Mortar2Mk1",
+  "player": 1
+ },
+ {
+  "template": "NP-M-LitCannon-Halftrack",
+  "weapon": "Cannon1Mk1",
+  "player": 1
+ },
+ {
+  "template": "NP-M-LtAT-Hover",
+  "weapon": "Rocket-LtA-T",
+  "player": 1
+ },
+ {
+  "template": "NP-M-LtMortar-Halftrack",
+  "weapon": "Mortar1Mk1",
+  "player": 1
+ },
+ {
+  "template": "NP-M-MdCannon-Halftrack",
+  "weapon": "Cannon2A-TMk1",
+  "player": 1
+ },
+ {
+  "template": "NP-M-MdCannon-Tracks",
+  "weapon": "Cannon2A-TMk1",
+  "player": 1
+ },
+ {
+  "template": "NP-M-MG3-Hover",
+  "weapon": "MG3Mk1",
+  "player": 1
+ },
+ {
+  "template": "NX-Cyb-Miss-JUMP",
+  "weapon": "NX-CyborgMiss",
+  "player": 3
+ },
+ {
+  "template": "NX-Cyb-PulseLas-JUMP",
+  "weapon": "NX-CyborgPulseLas",
+  "player": 3
+ },
+ {
+  "template": "NX-Cyb-Rail1-JUMP",
+  "weapon": "NX-Cyb-Rail1",
+  "player": 3
+ },
+ {
+  "template": "NX-H-HvMiss-Hover",
+  "weapon": "Missile-HvySAM",
+  "player": 3
+ },
+ {
+  "template": "NX-H-Rail2-VTOL",
+  "weapon": "RailGun2-VTOL",
+  "player": 3
+ },
+ {
+  "template": "NX-H-Rail3-Hover",
+  "weapon": "RailGun3Mk1",
+  "player": 3
+ },
+ {
+  "template": "NX-L-Flash-Hover",
+  "weapon": "Laser3BEAMMk1",
+  "player": 3
+ },
+ {
+  "template": "NX-L-Link-Hov",
+  "weapon": "NEXUSlink",
+  "player": 3
+ },
+ {
+  "template": "NX-L-Missile-A-T-VTOL",
+  "weapon": "Missile-VTOL-AT",
+  "player": 3
+ },
+ {
+  "template": "NX-L-Missile-MdArt-Hover",
+  "weapon": "Missile-MdArt",
+  "player": 3
+ },
+ {
+  "template": "NX-L-PulseLas-VTOL",
+  "weapon": "Laser2PULSE-VTOL",
+  "player": 3
+ },
+ {
+  "template": "NX-L-Rail1-VTOL",
+  "weapon": "RailGun1-VTOL",
+  "player": 3
+ },
+ {
+  "template": "NX-M-Bomb2-VTOL",
+  "weapon": "Bomb2-VTOL-HvHE",
+  "player": 3
+ },
+ {
+  "template": "NX-M-Bomb4-VTOL",
+  "weapon": "Bomb4-VTOL-HvyINC",
+  "player": 3
+ },
+ {
+  "template": "NX-M-Com-Hover",
+  "weapon": "CommandTurret1",
+  "player": 3
+ },
+ {
+  "template": "NX-M-HvSam-Hover",
+  "weapon": "Missile-HvySAM",
+  "player": 3
+ },
+ {
+  "template": "NX-M-Link-Hover",
+  "weapon": "NEXUSlink",
+  "player": 3
+ },
+ {
+  "template": "NX-M-Missile-A-T-Hover",
+  "weapon": "Missile-A-T",
+  "player": 3
+ },
+ {
+  "template": "NX-M-PulseLas-Hover",
+  "weapon": "Laser2PULSEMk1",
+  "player": 3
+ },
+ {
+  "template": "NX-M-Rail2-Hover",
+  "weapon": "RailGun2Mk1",
+  "player": 3
+ },
+ {
+  "template": "P0cam3PyAsltGnTrk",
+  "weapon": "MG4ROTARYMk1",
+  "player": 3
+ },
+ {
+  "template": "P0cam3PyFlakHT",
+  "weapon": "AAGun2Mk1",
+  "player": 3
+ },
+ {
+  "template": "P0cam3PyHPVcanTrk",
+  "weapon": "Cannon4AUTOMk1",
+  "player": 3
+ },
+ {
+  "template": "P0cam3PyHvyATTrk",
+  "weapon": "Rocket-HvyA-T",
+  "player": 3
+ },
+ {
+  "template": "P0CobraFlameTracks",
+  "weapon": "Flame1Mk1",
+  "player": 2
+ },
+ {
+  "template": "P0CobraHvyMGHtrack",
+  "weapon": "MG3Mk1",
+  "player": 2
+ },
+ {
+  "template": "P0CobraLtATRktHtrack",
+  "weapon": "Rocket-LtA-T",
+  "player": 2
+ },
+ {
+  "template": "P0CobraMedCnTrks",
+  "weapon": "Cannon2A-TMk1",
+  "player": 2
+ },
+ {
+  "template": "P0PythonComTracks",
+  "weapon": "CommandTurret1",
+  "player": 2
+ },
+ {
+  "template": "P0PythonHvyCnTrks",
+  "weapon": "Cannon375mmMk1",
+  "player": 2
+ },
+ {
+  "template": "P6-L-Bomb1-V",
+  "weapon": "Bomb1-VTOL-LtHE",
+  "player": 6
+ },
+ {
+  "template": "P6-L-LTAT-V",
+  "weapon": "Rocket-VTOL-LtA-T",
+  "player": 6
+ },
+ {
+  "template": "P6-M-QMG1-HT",
+  "weapon": "QuadMg1AAGun",
+  "player": 6
+ },
+ {
+  "template": "PythonComTracks",
+  "weapon": "CommandTurret1",
+  "player": 6
+ },
+ {
+  "template": "PythonHvyCnTrks",
+  "weapon": "Cannon375mmMk1",
+  "player": 6
+ },
+ {
+  "template": "PythonLtCnTrks",
+  "weapon": "Cannon1Mk1",
+  "player": 6
+ },
+ {
+  "template": "PythonMedCnTrks",
+  "weapon": "Cannon2A-TMk1",
+  "player": 6
+ },
+ {
+  "template": "SuperTank",
+  "weapon": "Superweapon",
+  "player": 6
+ },
+ {
+  "template": "SuperTank2",
+  "weapon": "Superweapon2",
+  "player": 6
+ },
+ {
+  "template": "Transporter",
+  "weapon": "MG3-VTOL",
+  "player": 2
+ },
+ {
+  "template": "ViperBBWheels",
+  "weapon": "Rocket-BB",
+  "player": 6
+ },
+ {
+  "template": "ViperFlameWheels",
+  "weapon": "Flame1Mk1",
+  "player": 4
+ },
+ {
+  "template": "ViperHMGHalftrack",
+  "weapon": "MG3Mk1",
+  "player": 6
+ },
+ {
+  "template": "ViperHMGTracks",
+  "weapon": "MG3Mk1",
+  "player": 6
+ },
+ {
+  "template": "ViperLtA-Twheels",
+  "weapon": "Rocket-LtA-T",
+  "player": 6
+ },
+ {
+  "template": "ViperLtCannonTracks",
+  "weapon": "Cannon1Mk1",
+  "player": 4
+ },
+ {
+  "template": "ViperLtCannonWheels",
+  "weapon": "Cannon1Mk1",
+  "player": 4
+ },
+ {
+  "template": "ViperLtMGWheels",
+  "weapon": "MG1Mk1",
+  "player": 0
+ },
+ {
+  "template": "ViperMedCnTrks",
+  "weapon": "Cannon2A-TMk1",
+  "player": 6
+ },
+ {
+  "template": "ViperMG01Wheels",
+  "weapon": "MG1Mk1",
+  "player": 6
+ },
+ {
+  "template": "ViperMG02Halftrack",
+  "weapon": "MG2Mk1",
+  "player": 6
+ },
+ {
+  "template": "ViperMG02Wheels",
+  "weapon": "MG2Mk1",
+  "player": 6
+ },
+ {
+  "template": "ViperMRLWheels",
+  "weapon": "Rocket-MRL",
+  "player": 6
+ },
+ {
+  "template": "ViperPODWheels",
+  "weapon": "Rocket-Pod",
+  "player": 6
+ },
+ {
+  "template": "ZNULLDESIGN",
+  "weapon": "ZNULLWEAPON",
+  "player": 0
+ }
+]

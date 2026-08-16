@@ -1,0 +1,47 @@
+[
+ {
+  "name": "Wheeled",
+  "flight": "GROUND",
+  "multiplier": 80
+ },
+ {
+  "name": "Tracked",
+  "flight": "GROUND",
+  "multiplier": 80
+ },
+ {
+  "name": "Legged",
+  "flight": "GROUND",
+  "multiplier": 100
+ },
+ {
+  "name": "Hover",
+  "flight": "GROUND",
+  "multiplier": 120
+ },
+ {
+  "name": "Ski",
+  "flight": "GROUND",
+  "multiplier": 100
+ },
+ {
+  "name": "Lift",
+  "flight": "AIR",
+  "multiplier": 130
+ },
+ {
+  "name": "Propellor",
+  "flight": "AIR",
+  "multiplier": 100
+ },
+ {
+  "name": "Half-Tracked",
+  "flight": "GROUND",
+  "multiplier": 80
+ },
+ {
+  "name": "Jump",
+  "flight": "AIR",
+  "multiplier": 200
+ }
+]

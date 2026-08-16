@@ -1,0 +1,37 @@
+[
+ {
+  "research": "R-Defense-AASite-QuadRotMg",
+  "structure": "AASite-QuadMg1",
+  "dummy": 189
+ },
+ {
+  "research": "R-Defense-HvyMor",
+  "structure": "Emplacement-MortarPit01",
+  "dummy": 142
+ },
+ {
+  "research": "R-Defense-Pillbox-RotMG",
+  "structure": "PillBox1",
+  "dummy": 126
+ },
+ {
+  "research": "R-Defense-RotMor",
+  "structure": "Emplacement-MortarPit01",
+  "dummy": 142
+ },
+ {
+  "research": "R-Defense-Wall-RotMg",
+  "structure": "WallTower01",
+  "dummy": 32
+ },
+ {
+  "research": "R-Defense-Wall-VulcanCan",
+  "structure": "WallTower03",
+  "dummy": 102
+ },
+ {
+  "research": "R-Sys-Sensor-Tower02",
+  "structure": "Sys-SensoTower01",
+  "dummy": 89
+ }
+]

@@ -1,0 +1,200 @@
+[
+ {
+  "research": "R-Defense-AASite-QuadBof",
+  "structure": "AASite-QuadBof",
+  "dummy": 0,
+  "dummy2": 188
+ },
+ {
+  "research": "R-Defense-AASite-QuadMg1",
+  "structure": "AASite-QuadMg1",
+  "dummy": 0,
+  "dummy2": 189
+ },
+ {
+  "research": "R-Defense-HardcreteWall",
+  "structure": "A0HardcreteMk1Wall",
+  "dummy": 0,
+  "dummy2": 93
+ },
+ {
+  "research": "R-Defense-HardcreteWall",
+  "structure": "A0HardcreteMk1CWall",
+  "dummy": 0,
+  "dummy2": 97
+ },
+ {
+  "research": "R-Defense-Howitzer",
+  "structure": "Emplacement-Howitzer105",
+  "dummy": 0,
+  "dummy2": 134
+ },
+ {
+  "research": "R-Defense-HvyMor",
+  "structure": "Emplacement-MortarPit02",
+  "dummy": 0,
+  "dummy2": 282
+ },
+ {
+  "research": "R-Defense-MortarPit",
+  "structure": "Emplacement-MortarPit01",
+  "dummy": 0,
+  "dummy2": 142
+ },
+ {
+  "research": "R-Defense-MRL",
+  "structure": "Emplacement-MRL-pit",
+  "dummy": 0,
+  "dummy2": 263
+ },
+ {
+  "research": "R-Defense-Pillbox01",
+  "structure": "PillBox1",
+  "dummy": 0,
+  "dummy2": 126
+ },
+ {
+  "research": "R-Defense-Pillbox04",
+  "structure": "PillBox4",
+  "dummy": 0,
+  "dummy2": 130
+ },
+ {
+  "research": "R-Defense-Pillbox05",
+  "structure": "PillBox5",
+  "dummy": 0,
+  "dummy2": 158
+ },
+ {
+  "research": "R-Defense-Pillbox06",
+  "structure": "PillBox6",
+  "dummy": 0,
+  "dummy2": 174
+ },
+ {
+  "research": "R-Defense-TankTrap01",
+  "structure": "A0TankTrap",
+  "dummy": 0,
+  "dummy2": 127
+ },
+ {
+  "research": "R-Defense-Tower01",
+  "structure": "GuardTower1",
+  "dummy": 0,
+  "dummy2": 119
+ },
+ {
+  "research": "R-Defense-Tower06",
+  "structure": "GuardTower6",
+  "dummy": 0,
+  "dummy2": 124
+ },
+ {
+  "research": "R-Defense-WallTower01",
+  "structure": "WallTower01",
+  "dummy": 0,
+  "dummy2": 32
+ },
+ {
+  "research": "R-Defense-WallTower02",
+  "structure": "WallTower02",
+  "dummy": 0,
+  "dummy2": 101
+ },
+ {
+  "research": "R-Defense-WallTower03",
+  "structure": "WallTower03",
+  "dummy": 0,
+  "dummy2": 102
+ },
+ {
+  "research": "R-Defense-WallTower04",
+  "structure": "WallTower04",
+  "dummy": 0,
+  "dummy2": 104
+ },
+ {
+  "research": "R-Defense-WallTower06",
+  "structure": "WallTower06",
+  "dummy": 0,
+  "dummy2": 163
+ },
+ {
+  "research": "R-Struc-CommandRelay",
+  "structure": "A0ComDroidControl",
+  "dummy": 0,
+  "dummy2": 118
+ },
+ {
+  "research": "R-Struc-Factory-Cyborg",
+  "structure": "A0CyborgFactory",
+  "dummy": 0,
+  "dummy2": 125
+ },
+ {
+  "research": "R-Struc-Factory-Module",
+  "structure": "A0FacMod1",
+  "dummy": 0,
+  "dummy2": 10
+ },
+ {
+  "research": "R-Struc-PowerModuleMk1",
+  "structure": "A0PowMod1",
+  "dummy": 0,
+  "dummy2": 84
+ },
+ {
+  "research": "R-Struc-RepairFacility",
+  "structure": "A0RepairCentre3",
+  "dummy": 0,
+  "dummy2": 287
+ },
+ {
+  "research": "R-Struc-Research-Module",
+  "structure": "A0ResearchModule1",
+  "dummy": 0,
+  "dummy2": 14
+ },
+ {
+  "research": "R-Struc-VTOLFactory",
+  "structure": "A0VTolFactory1",
+  "dummy": 0,
+  "dummy2": 178
+ },
+ {
+  "research": "R-Struc-VTOLPad",
+  "structure": "A0VtolPad",
+  "dummy": 0,
+  "dummy2": 135
+ },
+ {
+  "research": "R-Sys-CBSensor-Tower01",
+  "structure": "Sys-CB-Tower01",
+  "dummy": 0,
+  "dummy2": 210
+ },
+ {
+  "research": "R-Sys-Sensor-Tower01",
+  "structure": "Sys-SensoTower01",
+  "dummy": 0,
+  "dummy2": 89
+ },
+ {
+  "research": "R-Sys-Sensor-Tower02",
+  "structure": "Sys-SensoTower02",
+  "dummy": 0,
+  "dummy2": 225
+ },
+ {
+  "research": "R-Sys-VTOLCBS-Tower01",
+  "structure": "Sys-VTOL-CB-Tower01",
+  "dummy": 0,
+  "dummy2": 211
+ },
+ {
+  "research": "R-Sys-VTOLStrike-Tower01",
+  "structure": "Sys-VTOL-RadarTower01",
+  "dummy": 0,
+  "dummy2": 212
+ }
+]

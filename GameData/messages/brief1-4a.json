@@ -1,0 +1,92 @@
+[
+ {
+  "name": "SB1_4_MSG",
+  "textIds": [],
+  "type": 3,
+  "sequences": [
+   {
+    "name": "cam1\\sub1_4pl.mp4",
+    "flag": 1,
+    "textIds": [
+     "SUB1_4A_MSG4",
+     "SUB1_4A_MSG5",
+     "SUB1_4A_MSG6"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   },
+   {
+    "name": "cam1\\sub14aNP.mp4",
+    "flag": 0,
+    "textIds": [],
+    "audio": "0",
+    "numFrames": 0
+   },
+   {
+    "name": "npend.mp4",
+    "flag": 0,
+    "textIds": [
+     "NP_MSG2"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   },
+   {
+    "name": "cam1\\sub1_4.mp4",
+    "flag": 0,
+    "textIds": [
+     "SUB1_4A_MSG1",
+     "SUB1_4A_MSG2",
+     "SUB1_4A_MSG3"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ },
+ {
+  "name": "SB1_4_B",
+  "textIds": [],
+  "type": 3,
+  "sequences": [
+   {
+    "name": "cam1\\sub14bpl.mp4",
+    "flag": 1,
+    "textIds": [
+     "TRANS_MSG1",
+     "SUB1_4B_MSG2",
+     "SUB1_4B_MSG3"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   },
+   {
+    "name": "cam1\\sub1_4bn.mp4",
+    "flag": 0,
+    "textIds": [],
+    "audio": "0",
+    "numFrames": 0
+   },
+   {
+    "name": "Nexend.mp4",
+    "flag": 0,
+    "textIds": [
+     "NP_MSG2"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   },
+   {
+    "name": "cam1\\sub1_4b.mp4",
+    "flag": 0,
+    "textIds": [
+     "SUB1_4B_MSG4",
+     "SUB1_4B_MSG5",
+     "SUB1_4B_MSG6"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ }
+]

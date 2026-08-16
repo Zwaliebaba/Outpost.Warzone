@@ -1,0 +1,182 @@
+[
+ {
+  "effect": "ANTI PERSONNEL",
+  "propulsion": "Wheeled",
+  "modifier": 100
+ },
+ {
+  "effect": "ANTI TANK",
+  "propulsion": "Wheeled",
+  "modifier": 125
+ },
+ {
+  "effect": "BUNKER BUSTER",
+  "propulsion": "Wheeled",
+  "modifier": 33
+ },
+ {
+  "effect": "ANTI PERSONNEL",
+  "propulsion": "Tracked",
+  "modifier": 75
+ },
+ {
+  "effect": "ANTI TANK",
+  "propulsion": "Tracked",
+  "modifier": 125
+ },
+ {
+  "effect": "BUNKER BUSTER",
+  "propulsion": "Tracked",
+  "modifier": 33
+ },
+ {
+  "effect": "ANTI PERSONNEL",
+  "propulsion": "Legged",
+  "modifier": 140
+ },
+ {
+  "effect": "ANTI TANK",
+  "propulsion": "Legged",
+  "modifier": 75
+ },
+ {
+  "effect": "BUNKER BUSTER",
+  "propulsion": "Legged",
+  "modifier": 33
+ },
+ {
+  "effect": "ANTI PERSONNEL",
+  "propulsion": "Hover",
+  "modifier": 100
+ },
+ {
+  "effect": "ANTI TANK",
+  "propulsion": "Hover",
+  "modifier": 125
+ },
+ {
+  "effect": "BUNKER BUSTER",
+  "propulsion": "Hover",
+  "modifier": 33
+ },
+ {
+  "effect": "ANTI PERSONNEL",
+  "propulsion": "Lift",
+  "modifier": 25
+ },
+ {
+  "effect": "ANTI TANK",
+  "propulsion": "Lift",
+  "modifier": 20
+ },
+ {
+  "effect": "BUNKER BUSTER",
+  "propulsion": "Lift",
+  "modifier": 33
+ },
+ {
+  "effect": "ANTI PERSONNEL",
+  "propulsion": "Half-Tracked",
+  "modifier": 75
+ },
+ {
+  "effect": "ANTI TANK",
+  "propulsion": "Half-Tracked",
+  "modifier": 125
+ },
+ {
+  "effect": "BUNKER BUSTER",
+  "propulsion": "Half-Tracked",
+  "modifier": 33
+ },
+ {
+  "effect": "ARTILLERY ROUND",
+  "propulsion": "Hover",
+  "modifier": 150
+ },
+ {
+  "effect": "ARTILLERY ROUND",
+  "propulsion": "Half-Tracked",
+  "modifier": 100
+ },
+ {
+  "effect": "ARTILLERY ROUND",
+  "propulsion": "Legged",
+  "modifier": 200
+ },
+ {
+  "effect": "ARTILLERY ROUND",
+  "propulsion": "Tracked",
+  "modifier": 100
+ },
+ {
+  "effect": "ARTILLERY ROUND",
+  "propulsion": "Wheeled",
+  "modifier": 100
+ },
+ {
+  "effect": "FLAMER",
+  "propulsion": "Half-Tracked",
+  "modifier": 80
+ },
+ {
+  "effect": "FLAMER",
+  "propulsion": "Wheeled",
+  "modifier": 100
+ },
+ {
+  "effect": "FLAMER",
+  "propulsion": "Tracked",
+  "modifier": 80
+ },
+ {
+  "effect": "FLAMER",
+  "propulsion": "Legged",
+  "modifier": 150
+ },
+ {
+  "effect": "FLAMER",
+  "propulsion": "Hover",
+  "modifier": 150
+ },
+ {
+  "effect": "FLAMER",
+  "propulsion": "Lift",
+  "modifier": 25
+ },
+ {
+  "effect": "ANTI AIRCRAFT",
+  "propulsion": "Wheeled",
+  "modifier": 100
+ },
+ {
+  "effect": "ANTI AIRCRAFT",
+  "propulsion": "Tracked",
+  "modifier": 100
+ },
+ {
+  "effect": "ANTI AIRCRAFT",
+  "propulsion": "Half-Tracked",
+  "modifier": 100
+ },
+ {
+  "effect": "ANTI AIRCRAFT",
+  "propulsion": "Hover",
+  "modifier": 100
+ },
+ {
+  "effect": "ANTI AIRCRAFT",
+  "propulsion": "Legged",
+  "modifier": 100
+ },
+ {
+  "effect": "ANTI AIRCRAFT",
+  "propulsion": "Lift",
+  "modifier": 110
+ },
+ {
+  "effect": "ARTILLERY ROUND",
+  "propulsion": "Lift",
+  "modifier": 100
+ }
+]

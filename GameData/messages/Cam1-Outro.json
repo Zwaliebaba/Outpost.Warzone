@@ -1,0 +1,77 @@
+[
+ {
+  "name": "CAM1_OUT",
+  "textIds": [],
+  "type": 1,
+  "sequences": [
+   {
+    "name": "cam1\\Cam1out1.mp4",
+    "textIds": [
+     "CAM1OUT_MSG1",
+     "CAM1OUT_MSG2",
+     "CAM1OUT_MSG3"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   },
+   {
+    "name": "cam1\\Cam1out2.mp4",
+    "textIds": [],
+    "audio": "0",
+    "numFrames": 0
+   },
+   {
+    "name": "cam1\\Cam1out3.mp4",
+    "textIds": [],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ },
+ {
+  "name": "CAM1_OUT2",
+  "textIds": [],
+  "type": 3,
+  "sequences": [
+   {
+    "name": "cam1\\Cam1out4.mp4",
+    "flag": 0,
+    "textIds": [],
+    "audio": "0",
+    "numFrames": 0
+   },
+   {
+    "name": "cam1\\Cam1out5.mp4",
+    "flag": 0,
+    "textIds": [],
+    "audio": "0",
+    "numFrames": 0
+   },
+   {
+    "name": "cam1\\cam1out6.mp4",
+    "flag": 1,
+    "textIds": [
+     "CAM1OUT_MSG4",
+     "CAM1OUT_MSG5"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ },
+ {
+  "name": "CAM2_BRIEF",
+  "textIds": [],
+  "type": 1,
+  "sequences": [
+   {
+    "name": "cam1\\C001PL.mp4",
+    "textIds": [
+     "CAM1OUT_MSG6"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ }
+]

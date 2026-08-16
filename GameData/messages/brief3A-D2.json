@@ -1,0 +1,135 @@
+[
+ {
+  "name": "MB3_AD2_MSG",
+  "textIds": [],
+  "type": 1,
+  "sequences": [
+   {
+    "name": "cam3\\c3ad2pl1.mp4",
+    "textIds": [
+     "CAM3A_D2_MSG1",
+     "CAM3A_D2_MSG2",
+     "CAM3A_D2_MSG3"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   },
+   {
+    "name": "cam3\\c3ad2pl2.mp4",
+    "textIds": [
+     "CAM3A_D2_MSG4",
+     "CAM3A_D2_MSG5",
+     "CAM3A_D2_MSG6"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   },
+   {
+    "name": "cam3\\c3ad2pl3.mp4",
+    "textIds": [
+     "CAM3A_D2_MSG7"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   },
+   {
+    "name": "cam3\\cam3ad2n.mp4",
+    "textIds": [],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ },
+ {
+  "name": "MB3_AD2_MSG2",
+  "textIds": [],
+  "type": 1,
+  "sequences": [
+   {
+    "name": "cam3\\c3ad2n2.mp4",
+    "textIds": [],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ },
+ {
+  "name": "MB3_AD2_MSG3",
+  "textIds": [],
+  "type": 3,
+  "sequences": [
+   {
+    "name": "cam3\\c3ad2pl4.mp4",
+    "flag": 1,
+    "textIds": [
+     "CAM3A_D2_MSG8",
+     "CAM3A_D2_MSG9",
+     "CAM3A_D2_MSG10"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   },
+   {
+    "name": "cam3\\C3AD2_09.mp4",
+    "flag": 0,
+    "textIds": [
+     "CAM3A_D2_MSG11",
+     "CAM3A_D2_MSG12",
+     "CAM3A_D2_MSG13"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ },
+ {
+  "name": "MB3_AD2_MSG4",
+  "textIds": [],
+  "type": 1,
+  "sequences": [
+   {
+    "name": "cam3\\C3AD2_12.mp4",
+    "textIds": [
+     "CAM3A_D2_MSG14",
+     "CAM3A_D2_MSG15",
+     "CAM3A_D2_MSG16"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ },
+ {
+  "name": "MB3_AD2_MSG5",
+  "textIds": [],
+  "type": 1,
+  "sequences": [
+   {
+    "name": "cam3\\C3AD2_14.mp4",
+    "textIds": [
+     "CAM3A_D2_MSG17",
+     "CAM3A_D2_MSG18",
+     "CAM3A_D2_MSG19"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ },
+ {
+  "name": "MB3_AD2_MSG6",
+  "textIds": [],
+  "type": 1,
+  "sequences": [
+   {
+    "name": "cam3\\C3AD2_16.mp4",
+    "textIds": [
+     "CAM3A_D2_MSG20",
+     "CAM3A_D2_MSG21"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ }
+]

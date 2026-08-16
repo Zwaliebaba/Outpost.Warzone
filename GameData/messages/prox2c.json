@@ -1,0 +1,62 @@
+[
+ {
+  "name": "C2C_OBJ1",
+  "textIds": [
+   "RUINS_MSG"
+  ],
+  "type": 2,
+  "x": 4928,
+  "y": 4160,
+  "z": 0,
+  "audio": "pcv448.wav",
+  "proxType": 0
+ },
+ {
+  "name": "C2C_OBJ2",
+  "textIds": [
+   "RUINS_MSG"
+  ],
+  "type": 2,
+  "x": 5696,
+  "y": 11072,
+  "z": 0,
+  "audio": "pcv396.wav",
+  "proxType": 0
+ },
+ {
+  "name": "C2C_BASE1",
+  "textIds": [
+   "ENEMYBASE_MSG"
+  ],
+  "type": 2,
+  "x": 2752,
+  "y": 2368,
+  "z": 0,
+  "audio": "pcv393.wav",
+  "proxType": 0
+ },
+ {
+  "name": "C2C_BASE2",
+  "textIds": [
+   "ENEMYBASE_MSG"
+  ],
+  "type": 2,
+  "x": 7488,
+  "y": 7744,
+  "z": 0,
+  "audio": "pcv393.wav",
+  "proxType": 0
+ },
+ {
+  "name": "C2C_BASE3",
+  "textIds": [
+   "ENEMYBASE_MSG"
+  ],
+  "type": 2,
+  "x": 6464,
+  "y": 10816,
+  "z": 0,
+  "audio": "pcv393.wav",
+  "proxType": 0
+ }
+]

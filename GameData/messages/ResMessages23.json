@@ -1,0 +1,257 @@
+[
+ {
+  "name": "RES_CY_LG2",
+  "textIds": [
+   "RES_CYW_LG2_MSG1",
+   "RES_CYW_LG2_MSG2",
+   "RES_CYW_LG2_MSG3",
+   "RES_CYW_LG2_MSG4"
+  ],
+  "type": 0,
+  "model": "MICAPSUL.pie",
+  "model2": "0",
+  "sequence": "res_droid.mp4",
+  "audio": "0",
+  "numFrames": 0
+ },
+ {
+  "name": "RES_WT13_HPV",
+  "textIds": [
+   "RES_WT13_HPV_MSG1",
+   "RES_WT13_HPV_MSG2",
+   "RES_WT13_HPV_MSG3",
+   "RES_WT13_HPV_MSG4"
+  ],
+  "type": 0,
+  "model": "MICAPSUL.pie",
+  "model2": "0",
+  "sequence": "res_struttech.mp4",
+  "audio": "0",
+  "numFrames": 0
+ },
+ {
+  "name": "RES_POWU1",
+  "textIds": [
+   "RES_POWU1_MSG1",
+   "RES_POWU1_MSG2",
+   "RES_POWU1_MSG3",
+   "RES_POWU1_MSG4"
+  ],
+  "type": 0,
+  "model": "MICAPSUL.pie",
+  "model2": "0",
+  "sequence": "res_pow.mp4",
+  "audio": "0",
+  "numFrames": 0
+ },
+ {
+  "name": "RES_ENGIN2",
+  "textIds": [
+   "RES_ENGIN2_MSG1",
+   "RES_ENGIN2_MSG2",
+   "RES_ENGIN2_MSG3",
+   "RES_ENGIN2_MSG4"
+  ],
+  "type": 0,
+  "model": "MICAPSUL.PIE",
+  "model2": "0",
+  "sequence": "res_systech.mp4",
+  "audio": "0",
+  "numFrames": 0
+ },
+ {
+  "name": "RES_SY_CBSU2",
+  "textIds": [
+   "RES_SY_CBSU2_MSG1",
+   "RES_SY_CBSU2_MSG2",
+   "RES_SY_CBSU2_MSG3",
+   "RES_SY_CBSU2_MSG4"
+  ],
+  "type": 0,
+  "model": "MICAPSUL.PIE",
+  "model2": "0",
+  "sequence": "res_systech.mp4",
+  "audio": "0",
+  "numFrames": 0
+ },
+ {
+  "name": "RES_SY_VCBSTW1",
+  "textIds": [
+   "RES_SY_VCBSTW1_MSG1",
+   "RES_SY_VCBSTW1_MSG2",
+   "RES_SY_VCBSTW1_MSG3",
+   "RES_SY_VCBSTW1_MSG4"
+  ],
+  "type": 0,
+  "model": "MICAPSUL.PIE",
+  "model2": "0",
+  "sequence": "res_systech.mp4",
+  "audio": "0",
+  "numFrames": 0
+ },
+ {
+  "name": "RES_SY_VCBSU2",
+  "textIds": [
+   "RES_SY_VCBSU2_MSG1",
+   "RES_SY_VCBSU2_MSG2",
+   "RES_SY_VCBSU2_MSG3",
+   "RES_SY_VCBSU2_MSG4"
+  ],
+  "type": 0,
+  "model": "MICAPSUL.PIE",
+  "model2": "0",
+  "sequence": "res_systech.mp4",
+  "audio": "0",
+  "numFrames": 0
+ },
+ {
+  "name": "RES_SY_VSTW1",
+  "textIds": [
+   "RES_SY_VSTW1_MSG1",
+   "RES_SY_VSTW1_MSG2",
+   "RES_SY_VSTW1_MSG3",
+   "RES_SY_VSTW1_MSG4"
+  ],
+  "type": 0,
+  "model": "MICAPSUL.PIE",
+  "model2": "0",
+  "sequence": "res_systech.mp4",
+  "audio": "0",
+  "numFrames": 0
+ },
+ {
+  "name": "RES_SY_VSTU1",
+  "textIds": [
+   "RES_SY_VSTU1_MSG1",
+   "RES_SY_VSTU1_MSG2",
+   "RES_SY_VSTU1_MSG3",
+   "RES_SY_VSTU1_MSG4"
+  ],
+  "type": 0,
+  "model": "MICAPSUL.PIE",
+  "model2": "0",
+  "sequence": "res_systech.mp4",
+  "audio": "0",
+  "numFrames": 0
+ },
+ {
+  "name": "RES_SY_VS2",
+  "textIds": [
+   "RES_SY_VS2_MSG1",
+   "RES_SY_VS2_MSG2",
+   "RES_SY_VS2_MSG3",
+   "RES_SY_VS2_MSG4"
+  ],
+  "type": 0,
+  "model": "MICAPSUL.PIE",
+  "model2": "0",
+  "sequence": "res_systech.mp4",
+  "audio": "0",
+  "numFrames": 0
+ },
+ {
+  "name": "RES_W_AAAC2",
+  "textIds": [
+   "RES_AAAC2_MSG1",
+   "RES_AAAC2_MSG2",
+   "RES_AAAC2_MSG3",
+   "RES_AAAC2_MSG4"
+  ],
+  "type": 0,
+  "model": "MICAPSUL.PIE",
+  "model2": "0",
+  "sequence": "res_weapons.mp4",
+  "audio": "0",
+  "numFrames": 0
+ },
+ {
+  "name": "RES_W_BMB3",
+  "textIds": [
+   "RES_BMB3_MSG1",
+   "RES_BMB3_MSG2",
+   "RES_BMB3_MSG3",
+   "RES_BMB3_MSG4"
+  ],
+  "type": 0,
+  "model": "MICAPSUL.PIE",
+  "model2": "0",
+  "sequence": "res_weapons.mp4",
+  "audio": "0",
+  "numFrames": 0
+ },
+ {
+  "name": "RES_W_BAC2",
+  "textIds": [
+   "RES_BAC2_MSG1",
+   "RES_BAC2_MSG2",
+   "RES_BAC2_MSG3",
+   "RES_BAC2_MSG4"
+  ],
+  "type": 0,
+  "model": "MICAPSUL.PIE",
+  "model2": "0",
+  "sequence": "res_weapons.mp4",
+  "audio": "0",
+  "numFrames": 0
+ },
+ {
+  "name": "RES_W_MG_ROF3",
+  "textIds": [
+   "RES_W_MG_ROF3_MSG1",
+   "RES_W_MG_ROF3_MSG2",
+   "RES_W_MG_ROF3_MSG3",
+   "RES_W_MG_ROF3_MSG4"
+  ],
+  "type": 0,
+  "model": "MICAPSUL.PIE",
+  "model2": "0",
+  "sequence": "res_weapons.mp4",
+  "audio": "0",
+  "numFrames": 0
+ },
+ {
+  "name": "RES_W_M_AC2",
+  "textIds": [
+   "RES_W_M_AC2_MSG1",
+   "RES_W_M_AC2_MSG2",
+   "RES_W_M_AC2_MSG3",
+   "RES_W_M_AC2_MSG4"
+  ],
+  "type": 0,
+  "model": "MICAPSUL.PIE",
+  "model2": "0",
+  "sequence": "res_weapons.mp4",
+  "audio": "0",
+  "numFrames": 0
+ },
+ {
+  "name": "RES_W_RHOW",
+  "textIds": [
+   "RES_W_RHOW_MSG1",
+   "RES_W_RHOW_MSG2",
+   "RES_W_RHOW_MSG3",
+   "RES_W_RHOW_MSG4"
+  ],
+  "type": 0,
+  "model": "MICAPSUL.PIE",
+  "model2": "0",
+  "sequence": "res_weapons.mp4",
+  "audio": "0",
+  "numFrames": 0
+ },
+ {
+  "name": "RES_W_MG4",
+  "textIds": [
+   "RES_MG4_MSG1",
+   "RES_MG4_MSG2",
+   "RES_MG4_MSG3",
+   "RES_MG4_MSG4"
+  ],
+  "type": 0,
+  "model": "MICAPSUL.pie",
+  "model2": "0",
+  "sequence": "res_weapons.mp4",
+  "audio": "0",
+  "numFrames": 0
+ }
+]

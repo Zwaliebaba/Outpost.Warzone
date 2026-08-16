@@ -1,0 +1,26 @@
+[
+ {
+  "name": "C3-2_OBJ1",
+  "textIds": [
+   "RUINS_MSG"
+  ],
+  "type": 2,
+  "x": 4544,
+  "y": 8896,
+  "z": 0,
+  "audio": "pcv448.wav",
+  "proxType": 2
+ },
+ {
+  "name": "C32_LZ",
+  "textIds": [
+   "LZ_MSG"
+  ],
+  "type": 2,
+  "x": 1728,
+  "y": 832,
+  "z": 0,
+  "audio": "pcv427.wav",
+  "proxType": 2
+ }
+]

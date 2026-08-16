@@ -154,6 +154,119 @@ def check_datasets(doc, units):
         declared.setdefault(name, kind)
 
 
+def load_table(name):
+    resolved, _exact = resolve('Stats\\' + name)
+    if resolved is None:
+        return None
+    return json.load(open(os.path.join(GAMEDATA, resolved), encoding='utf-8'))
+
+
+def check_stats(doc):
+    """Cross-reference checks over the JSON stats tables: every name one
+    table uses to point at another must resolve, and every model or sound a
+    table names must be a unit entry the manifests actually load."""
+    weapons = load_table('Weapons.json')
+    if weapons is None:
+        return  # tables not converted yet
+
+    units = doc.get('units', {})
+    imds = {e['f'].lower() for u in units.values() for e in u if e.get('t') == 'IMD'}
+    wavs = {e['f'].lower() for u in units.values() for e in u if e.get('t') == 'WAV'}
+
+    # Sound references resolve against the AudioID.cpp name table at load
+    # time; whether the named .wav is actually loaded only matters at play
+    # time, so a table hit with no loaded wav is a warning, not an error.
+    audio_src = open(os.path.join(ROOT, 'Outpost', 'AudioID.cpp'), encoding='latin-1').read()
+    audio_ids = {m.lower() for m in re.findall(r'"([^"]+\.wav)"', audio_src)}
+
+    def check_sound(table, row, field, value):
+        if value == '-1':
+            return
+        if value.lower() not in audio_ids:
+            errors.append(f'Stats/{table} row {row}: {field} names a sound missing from AudioID.cpp: {value}')
+        elif value.lower() not in wavs:
+            warnings.append(f'Stats/{table} row {row}: {field} sound {value} is in AudioID.cpp but no unit loads that .wav - silent at runtime')
+
+    def names(table):
+        rows = load_table(table) or []
+        return {r['name'] for r in rows}
+
+    def check_ref(table, row, field, value, pool, kind, none=('0',)):
+        if value in none:
+            return
+        if value.lower() not in pool:
+            errors.append(f'Stats/{table} row {row}: {field} names a missing {kind}: {value}')
+
+    def check_name(table, row, field, value, pool, target):
+        if value == '0':
+            return
+        if value not in pool:
+            errors.append(f'Stats/{table} row {row}: {field} names an unknown {target}: {value}')
+
+    body_names = names('Body.json')
+    prop_names = names('Propulsion.json')
+    weapon_names = {r['name'] for r in weapons}
+    template_names = names('Templates.json')
+    structure_names = names('Structures.json')
+    sensor_names = names('Sensor.json')
+    ecm_names = names('ECM.json')
+    brain_names = names('Brain.json')
+    construct_names = names('Construction.json')
+    repair_names = names('Repair.json')
+    proptype_names = names('PropulsionType.json')
+
+    model_fields = {
+        'Weapons.json': ['model', 'mountModel', 'muzzleModel', 'flightModel',
+                         'hitModel', 'missModel', 'waterModel', 'trailModel'],
+        'Body.json': ['model', 'flameModel'],
+        'Propulsion.json': ['model'],
+        'Sensor.json': ['model', 'mountModel'],
+        'ECM.json': ['model', 'mountModel'],
+        'Repair.json': ['model', 'mountModel'],
+        'Construction.json': ['model', 'mountModel'],
+        'Structures.json': ['model', 'baseModel'],
+        'Features.json': ['model'],
+        'BodyPropulsionIMD.json': ['leftModel', 'rightModel'],
+    }
+    for table, fields in model_fields.items():
+        for n, row in enumerate(load_table(table) or []):
+            for field in fields:
+                check_ref(table, n, field, row[field], imds, 'model')
+
+    for n, row in enumerate(load_table('WeaponSounds.json') or []):
+        check_name('WeaponSounds.json', n, 'weapon', row['weapon'], weapon_names, 'weapon')
+        for field in ('fireSound', 'impactSound'):
+            check_sound('WeaponSounds.json', n, field, row[field])
+    for n, row in enumerate(load_table('PropulsionSounds.json') or []):
+        check_name('PropulsionSounds.json', n, 'propulsion', row['propulsion'], proptype_names, 'propulsion type')
+        for field in ('start', 'idle', 'moveOff', 'move', 'hiss', 'shutDown'):
+            check_sound('PropulsionSounds.json', n, field, row[field])
+    for n, row in enumerate(load_table('WeaponModifier.json') or []):
+        check_name('WeaponModifier.json', n, 'propulsion', row['propulsion'], proptype_names, 'propulsion type')
+    for n, row in enumerate(load_table('BodyPropulsionIMD.json') or []):
+        check_name('BodyPropulsionIMD.json', n, 'body', row['body'], body_names, 'body')
+        check_name('BodyPropulsionIMD.json', n, 'propulsion', row['propulsion'], prop_names, 'propulsion')
+    for n, row in enumerate(load_table('Templates.json') or []):
+        check_name('Templates.json', n, 'body', row['body'], body_names, 'body')
+        check_name('Templates.json', n, 'brain', row['brain'], brain_names, 'brain')
+        check_name('Templates.json', n, 'construct', row['construct'], construct_names, 'construct')
+        check_name('Templates.json', n, 'ecm', row['ecm'], ecm_names, 'ecm')
+        check_name('Templates.json', n, 'propulsion', row['propulsion'], prop_names, 'propulsion')
+        check_name('Templates.json', n, 'repair', row['repair'], repair_names, 'repair')
+        check_name('Templates.json', n, 'sensor', row['sensor'], sensor_names, 'sensor')
+    for n, row in enumerate(load_table('AssignWeapons.json') or []):
+        check_name('AssignWeapons.json', n, 'template', row['template'], template_names, 'template')
+        check_name('AssignWeapons.json', n, 'weapon', row['weapon'], weapon_names, 'weapon')
+    for n, row in enumerate(load_table('Structures.json') or []):
+        check_name('Structures.json', n, 'ecm', row['ecm'], ecm_names, 'ecm')
+        check_name('Structures.json', n, 'sensor', row['sensor'], sensor_names, 'sensor')
+    for n, row in enumerate(load_table('StructureWeapons.json') or []):
+        check_name('StructureWeapons.json', n, 'structure', row['structure'], structure_names, 'structure')
+        check_name('StructureWeapons.json', n, 'weapon', row['weapon'], weapon_names, 'weapon')
+    for n, row in enumerate(load_table('StructureFunctions.json') or []):
+        check_name('StructureFunctions.json', n, 'structure', row['structure'], structure_names, 'structure')
+
+
 def main():
     path = os.path.join(GAMEDATA, 'datasets.json')
     try:
@@ -165,6 +278,7 @@ def main():
     if types:
         units = check_units(doc, types)
         check_datasets(doc, units)
+        check_stats(doc)
     for w in warnings:
         print(f'warning: {w}')
     for e in errors:

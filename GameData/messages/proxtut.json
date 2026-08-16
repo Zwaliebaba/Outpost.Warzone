@@ -1,0 +1,26 @@
+[
+ {
+  "name": "TUT_RES1",
+  "textIds": [
+   "POWRES_MSG"
+  ],
+  "type": 2,
+  "x": 1216,
+  "y": 1472,
+  "z": 0,
+  "audio": "pcv376.wav",
+  "proxType": 1
+ },
+ {
+  "name": "TUT_ART1",
+  "textIds": [
+   "ART_MSG"
+  ],
+  "type": 2,
+  "x": 448,
+  "y": 2752,
+  "z": 0,
+  "audio": "0",
+  "proxType": 2
+ }
+]

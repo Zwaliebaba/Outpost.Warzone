@@ -1,0 +1,44 @@
+[
+ {
+  "name": "MB3A_MSG",
+  "textIds": [],
+  "type": 1,
+  "sequences": [
+   {
+    "name": "cam3\\cam3intp.mp4",
+    "textIds": [
+     "CAM3_MSG1",
+     "CAM3_MSG2",
+     "CAM3_MSG3"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   },
+   {
+    "name": "BrfCom.mp4",
+    "textIds": [
+     "TRANS_MSG1"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ },
+ {
+  "name": "MB3A_MSG2",
+  "textIds": [],
+  "type": 1,
+  "sequences": [
+   {
+    "name": "cam3\\cam3intB.mp4",
+    "textIds": [
+     "CAM3A_MSG1",
+     "CAM3A_MSG2",
+     "CAM3A_MSG3"
+    ],
+    "audio": "0",
+    "numFrames": 0
+   }
+  ]
+ }
+]

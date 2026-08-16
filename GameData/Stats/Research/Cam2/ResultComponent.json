@@ -1,0 +1,338 @@
+[
+ {
+  "research": "R-Wpn-AAGun02",
+  "component": "AAGun2Mk1",
+  "componentType": "WEAPON",
+  "replacedComponent": "0",
+  "replacedComponentType": "0",
+  "dummy": 10
+ },
+ {
+  "research": "R-Vehicle-Body02",
+  "component": "Body2SUP",
+  "componentType": "BODY",
+  "replacedComponent": "0",
+  "replacedComponentType": "0",
+  "dummy": 2
+ },
+ {
+  "research": "R-Vehicle-Body06",
+  "component": "Body6SUPP",
+  "componentType": "BODY",
+  "replacedComponent": "0",
+  "replacedComponentType": "0",
+  "dummy": 2
+ },
+ {
+  "research": "R-Vehicle-Body09",
+  "component": "Body9REC",
+  "componentType": "BODY",
+  "replacedComponent": "0",
+  "replacedComponentType": "0",
+  "dummy": 2
+ },
+ {
+  "research": "R-Wpn-Bomb01",
+  "component": "Bomb1-VTOL-LtHE",
+  "componentType": "WEAPON",
+  "replacedComponent": "0",
+  "replacedComponentType": "0",
+  "dummy": 10
+ },
+ {
+  "research": "R-Wpn-Bomb02",
+  "component": "Bomb2-VTOL-HvHE",
+  "componentType": "WEAPON",
+  "replacedComponent": "0",
+  "replacedComponentType": "0",
+  "dummy": 10
+ },
+ {
+  "research": "R-Wpn-Bomb03",
+  "component": "Bomb3-VTOL-LtINC",
+  "componentType": "WEAPON",
+  "replacedComponent": "0",
+  "replacedComponentType": "0",
+  "dummy": 10
+ },
+ {
+  "research": "R-Wpn-Cannon4AMk1",
+  "component": "Cannon4AUTO-VTOL",
+  "componentType": "WEAPON",
+  "replacedComponent": "0",
+  "replacedComponentType": "0",
+  "dummy": 10
+ },
+ {
+  "research": "R-Wpn-Cannon4AMk1",
+  "component": "Cannon4AUTOMk1",
+  "componentType": "WEAPON",
+  "replacedComponent": "0",
+  "replacedComponentType": "0",
+  "dummy": 10
+ },
+ {
+  "research": "R-Wpn-Cannon5",
+  "component": "Cannon5VulcanMk1",
+  "componentType": "WEAPON",
+  "replacedComponent": "0",
+  "replacedComponentType": "0",
+  "dummy": 10
+ },
+ {
+  "research": "R-Cyborg-Legs01",
+  "component": "CyborgLegs",
+  "componentType": "PROPULSION",
+  "replacedComponent": "0",
+  "replacedComponentType": "0",
+  "dummy": 5
+ },
+ {
+  "research": "R-Cyborg-Wpn-RotMG-Grd",
+  "component": "CybRotMgGrd",
+  "componentType": "BODY",
+  "replacedComponent": "CyborgChain1Ground",
+  "replacedComponentType": "BODY",
+  "dummy": 2
+ },
+ {
+  "research": "R-Wpn-Flame2",
+  "component": "Flame2",
+  "componentType": "WEAPON",
+  "replacedComponent": "0",
+  "replacedComponentType": "0",
+  "dummy": 10
+ },
+ {
+  "research": "R-Vehicle-Prop-Halftracks02",
+  "component": "HalfTrack02",
+  "componentType": "PROPULSION",
+  "replacedComponent": "HalfTrack",
+  "replacedComponentType": "PROPULSION",
+  "dummy": 5
+ },
+ {
+  "research": "R-Wpn-Howitzer03-Rot",
+  "component": "Howitzer03-Rot",
+  "componentType": "WEAPON",
+  "replacedComponent": "0",
+  "replacedComponentType": "0",
+  "dummy": 10
+ },
+ {
+  "research": "R-Wpn-HowitzerMk1",
+  "component": "Howitzer105Mk1",
+  "componentType": "WEAPON",
+  "replacedComponent": "0",
+  "replacedComponentType": "0",
+  "dummy": 10
+ },
+ {
+  "research": "R-Wpn-HvyHowitzer",
+  "component": "Howitzer150Mk1",
+  "componentType": "WEAPON",
+  "replacedComponent": "0",
+  "replacedComponentType": "0",
+  "dummy": 10
+ },
+ {
+  "research": "R-Sys-MobileRepairTurret01",
+  "component": "LightRepair1",
+  "componentType": "REPAIR",
+  "replacedComponent": "0",
+  "replacedComponentType": "0",
+  "dummy": 6
+ },
+ {
+  "research": "R-Wpn-MG2Mk1",
+  "component": "MG2-VTOL",
+  "componentType": "WEAPON",
+  "replacedComponent": "0",
+  "replacedComponentType": "0",
+  "dummy": 10
+ },
+ {
+  "research": "R-Wpn-MG2Mk1",
+  "component": "MG2Mk1",
+  "componentType": "WEAPON",
+  "replacedComponent": "0",
+  "replacedComponentType": "0",
+  "dummy": 10
+ },
+ {
+  "research": "R-Wpn-MG3Mk1",
+  "component": "MG3-VTOL",
+  "componentType": "WEAPON",
+  "replacedComponent": "0",
+  "replacedComponentType": "0",
+  "dummy": 10
+ },
+ {
+  "research": "R-Wpn-MG3Mk1",
+  "component": "MG3Mk1",
+  "componentType": "WEAPON",
+  "replacedComponent": "0",
+  "replacedComponentType": "0",
+  "dummy": 10
+ },
+ {
+  "research": "R-Wpn-MG4",
+  "component": "MG4ROTARY-VTOL",
+  "componentType": "WEAPON",
+  "replacedComponent": "0",
+  "replacedComponentType": "0",
+  "dummy": 10
+ },
+ {
+  "research": "R-Wpn-MG4",
+  "component": "MG4ROTARYMk1",
+  "componentType": "WEAPON",
+  "replacedComponent": "0",
+  "replacedComponentType": "0",
+  "dummy": 10
+ },
+ {
+  "research": "R-Wpn-Mortar02Hvy",
+  "component": "Mortar2Mk1",
+  "componentType": "WEAPON",
+  "replacedComponent": "0",
+  "replacedComponentType": "0",
+  "dummy": 10
+ },
+ {
+  "research": "R-Wpn-Mortar3",
+  "component": "Mortar3ROTARYMk1",
+  "componentType": "WEAPON",
+  "replacedComponent": "0",
+  "replacedComponentType": "0",
+  "dummy": 10
+ },
+ {
+  "research": "R-Wpn-AAGun03",
+  "component": "QuadMg1AAGun",
+  "componentType": "WEAPON",
+  "replacedComponent": "0",
+  "replacedComponentType": "0",
+  "dummy": 10
+ },
+ {
+  "research": "R-Wpn-AAGun04",
+  "component": "QuadRotAAGun",
+  "componentType": "WEAPON",
+  "replacedComponent": "0",
+  "replacedComponentType": "0",
+  "dummy": 10
+ },
+ {
+  "research": "R-Wpn-Rocket03-HvAT",
+  "component": "Rocket-BB",
+  "componentType": "WEAPON",
+  "replacedComponent": "0",
+  "replacedComponentType": "0",
+  "dummy": 10
+ },
+ {
+  "research": "R-Wpn-Rocket07-Tank-Killer",
+  "component": "Rocket-HvyA-T",
+  "componentType": "WEAPON",
+  "replacedComponent": "0",
+  "replacedComponentType": "0",
+  "dummy": 10
+ },
+ {
+  "research": "R-Wpn-Rocket06-IDF",
+  "component": "Rocket-IDF",
+  "componentType": "WEAPON",
+  "replacedComponent": "0",
+  "replacedComponentType": "0",
+  "dummy": 10
+ },
+ {
+  "research": "R-Wpn-Rocket01-LtAT",
+  "component": "Rocket-LtA-T",
+  "componentType": "WEAPON",
+  "replacedComponent": "0",
+  "replacedComponentType": "0",
+  "dummy": 10
+ },
+ {
+  "research": "R-Wpn-Rocket02-MRL",
+  "component": "Rocket-MRL",
+  "componentType": "WEAPON",
+  "replacedComponent": "0",
+  "replacedComponentType": "0",
+  "dummy": 10
+ },
+ {
+  "research": "R-Wpn-Rocket03-HvAT",
+  "component": "Rocket-VTOL-BB",
+  "componentType": "WEAPON",
+  "replacedComponent": "0",
+  "replacedComponentType": "0",
+  "dummy": 10
+ },
+ {
+  "research": "R-Wpn-Rocket07-Tank-Killer",
+  "component": "Rocket-VTOL-HvyA-T",
+  "componentType": "WEAPON",
+  "replacedComponent": "0",
+  "replacedComponentType": "0",
+  "dummy": 10
+ },
+ {
+  "research": "R-Wpn-Rocket01-LtAT",
+  "component": "Rocket-VTOL-LtA-T",
+  "componentType": "WEAPON",
+  "replacedComponent": "0",
+  "replacedComponentType": "0",
+  "dummy": 10
+ },
+ {
+  "research": "R-Sys-Sensor-Turret01",
+  "component": "SensorTurret1Mk1",
+  "componentType": "SENSOR",
+  "replacedComponent": "0",
+  "replacedComponentType": "0",
+  "dummy": 8
+ },
+ {
+  "research": "R-Sys-CBSensor-Turret01",
+  "component": "Sys-CBTurret01",
+  "componentType": "SENSOR",
+  "replacedComponent": "0",
+  "replacedComponentType": "0",
+  "dummy": 8
+ },
+ {
+  "research": "R-Sys-VTOLStrike-Turret01",
+  "component": "Sys-VstrikeTurret01",
+  "componentType": "SENSOR",
+  "replacedComponent": "0",
+  "replacedComponentType": "0",
+  "dummy": 8
+ },
+ {
+  "research": "R-Sys-VTOLCBS-Turret01",
+  "component": "Sys-VTOLCBTurret01",
+  "componentType": "SENSOR",
+  "replacedComponent": "0",
+  "replacedComponentType": "0",
+  "dummy": 8
+ },
+ {
+  "research": "R-Vehicle-Prop-Tracks02",
+  "component": "tracked02",
+  "componentType": "PROPULSION",
+  "replacedComponent": "tracked01",
+  "replacedComponentType": "PROPULSION",
+  "dummy": 5
+ },
+ {
+  "research": "R-Vehicle-Prop-VTOL",
+  "component": "V-Tol",
+  "componentType": "PROPULSION",
+  "replacedComponent": "0",
+  "replacedComponentType": "0",
+  "dummy": 5
+ }
+]
