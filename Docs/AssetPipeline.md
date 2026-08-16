@@ -520,6 +520,40 @@ open standard" to every other tool, which was the point.
 
 ## 8. Proposed staging
 
+**Stages A and B are done (2026-08-16, owner instruction).** What landed,
+and where it deviated from the design below:
+
+- **Stage A** removed the WDG layer whole (`WDG.cpp`, `MultiWDG.cpp`, the
+  2 MB cache, the `addon.lev` scans, every call site), the registrant-less
+  file-load machinery, the dead loaders, `tp_PieList`, and the `.tag`/`.jbf`
+  files. `tools/validate_assets.py` runs in CI — and promptly earned its
+  keep: beyond the `CAM_2C2` entry (now commented out like its cut
+  siblings), `vidmemC.wrf` referenced six texture pages that never existed,
+  so **the Kevlar campaign would have fataled on load** — fixed to the
+  `-hard`/`-soft` pairs the other VidMem sets use. `SUB_3_3`'s missing
+  `.vlo` files are recorded in the validator as known-missing, pending
+  decision 7. Cross-checked 191/191 clean.
+- **Stage B** landed `Neuron::Json` (strict RFC 8259, ~400 lines, tests in
+  `NeuronCoreTest`), `tools/convert_manifests.py`, and
+  `GameData/datasets.json` — 84 named units and 83 dataset records — then
+  deleted the WRF grammar, the `.lev` lexer and state machine, the 84
+  `.wrf` files and `GameDesc.lev`. `Outpost/Manifest.cpp` replays a unit
+  as the same `resSetDirectory`/`resLoadFile` calls the WRF grammar actions
+  made (the `directory` semantics moved byte-exact into
+  `resSetDirectory`), so the conversion is the §6.2 verbatim one.
+  Cross-checked 190/190 clean in Debug and Release; none of it has been
+  *run*, per this repository's standing caveat.
+- **Deliberate deviations, now follow-up work rather than delivered:** the
+  §6.1 extras — directory conventions for the bulk units, dropping the
+  per-entry type strings, loader-owned type-phase ordering, named block
+  scopes — are not in. Units mirror their former WRFs entry-for-entry, so
+  ordering still lives in the data and the numeric block slots stay. The
+  filename-hash dedupe hack in `resLoadFile` also stays, because the
+  force-editor path loads `wrf/piestats` on top of a loaded game and leans
+  on it. Custom-map `.wrf` probing in `decideWRF` was removed with the
+  format — map transfer wants a manifest-fragment design when it returns
+  (§9 note).
+
 Each stage is independently shippable and CI-checkable, in the pattern the
 migration has used since Phase 1. Verification for stages B and C is a
 parity harness in the same spirit as `tools/crosscheck.py`: a debug dump of
@@ -570,9 +604,8 @@ entangled in it.
    readable, which the stats conversion does not touch; the parity harness
    still checks ref-number stability, but as a behaviour-preservation aid
    rather than a compatibility requirement (§7.1).
-4. **First-wave scope** — stages A+B only, or A through C in one push? A+B
-   recommended: B deletes the most fragile machinery, C is bigger and
-   benefits from B's validator being battle-tested first.
+4. ~~**First-wave scope.**~~ **Resolved by owner instruction (2026-08-16)**
+   — stages A and B landed together; C waits, as recommended.
 5. **The shipped binary scenario data** — regenerate the campaign/multiplayer
    `.bjo`/`.tag` content to purge the 1998 uninitialised memory (and delete
    the 44 `.tag` files outright), or freeze it as-is until the serialiser
@@ -581,6 +614,10 @@ entangled in it.
 6. **Phase numbering** — whether this becomes Phase 10 in
    `MigrationPlan.md` or folds into an existing phase's remainder is the
    owner's call; this document deliberately claims no number.
+7. **SUB_3_3's lost content** — the mission's `.vlo` files were never in
+   the tree, its brief is commented out, and it has no mission script; the
+   validator carries the two files as known-missing warnings. Restore the
+   content, cut the mission, or leave the hole recorded?
 
 ---
 
