@@ -10,11 +10,16 @@ down it and record the result in [Results](#results) as you go.
 ## Why this exists
 
 Phase 2 was the last work verified by running it. Everything after — Phase 3
-input, Phase 4 audio, Phase 5 networking above the `NetTest` harness, Phase 6's
-Media Foundation FMV, Phase 8 stages A, B, C and D, Phase 9's audio rewrite —
-is **built and linked and nothing more**. MSVC CI is green on all of it, and
-`tools/crosscheck.py` is clean at 193/193 in both configurations, but neither
-can say whether a renderer draws or a mixer sounds right.
+input, Phase 4 audio, Phase 5 networking above what the `NetTest` harness once
+covered, Phase 6's Media Foundation FMV, Phase 8 stages A, B, C and D, Phase
+9's audio rewrite — is **built and linked and nothing more**. MSVC CI is green
+on all of it, and `tools/crosscheck.py` is clean in both configurations, but
+neither can say whether a renderer draws or a mixer sounds right.
+
+**CI stopped running anything on 2026-08-16**, when `NetTest/` was deleted with
+the client/server restructure. It was the only executable CI started. Until
+something replaces it, a green CI means the tree compiles and links — nothing
+more.
 
 The individual checklists live in [Phase8Plan.md](Phase8Plan.md#verification),
 [Phase9Plan.md](Phase9Plan.md#verification), [Phase4Plan.md](Phase4Plan.md#verification)

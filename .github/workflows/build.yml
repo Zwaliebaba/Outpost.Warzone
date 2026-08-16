@@ -35,7 +35,6 @@ jobs:
         run: |
           nuget install NeuronCore\packages.config -OutputDirectory packages -NonInteractive
           nuget install Outpost\packages.config -OutputDirectory packages -NonInteractive
-          nuget install NetTest\packages.config -OutputDirectory packages -NonInteractive
 
       # /flp contains a semicolon, which PowerShell reads as a statement
       # separator unless the whole switch is quoted. Building serially: with
@@ -60,51 +59,3 @@ jobs:
           name: build-log-${{ matrix.configuration }}
           path: build.log
           if-no-files-found: ignore
-
-      # The transport's loopback harness. This is the only place the QUIC code
-      # actually runs: everything before it proves the tree compiles and links,
-      # and nothing before it can say whether Schannel accepts the certificate
-      # the host generates, or whether the framing reassembles.
-      - name: Build the transport harness
-        run: msbuild NetTest\NetTest.vcxproj /p:Configuration=${{ matrix.configuration }} /p:Platform=Win32 /v:minimal /nologo
-
-      # Two processes over 127.0.0.1, one hosting and one joining. The host
-      # writes a ready file once its listener is up so the client cannot race
-      # it; the client retries anyway.
-      - name: Run the transport harness
-        run: |
-          $cfg = "${{ matrix.configuration }}"
-          $exe = Join-Path $PWD "NetTest\bin\$cfg\NetTest.exe"
-          if (-not (Test-Path $exe)) { Write-Host "harness missing at $exe"; exit 1 }
-
-          # The package's targets should have put msquic.dll beside it. Copying
-          # again is free and turns a silent missing-DLL start failure into a
-          # non-event.
-          Copy-Item "packages\Microsoft.Native.Quic.MsQuic.Schannel.2.6.0\build\native\bin\x86\msquic.dll" `
-                    -Destination (Split-Path $exe) -Force -ErrorAction SilentlyContinue
-
-          $ready = Join-Path $PWD "nettest.ready"
-          Remove-Item $ready -Force -ErrorAction SilentlyContinue
-
-          $hostProc = Start-Process -FilePath $exe -ArgumentList "host","$ready" -PassThru -NoNewWindow `
-                        -RedirectStandardOutput host.out -RedirectStandardError host.err
-          $deadline = (Get-Date).AddSeconds(30)
-          while (-not (Test-Path $ready) -and (Get-Date) -lt $deadline -and -not $hostProc.HasExited) {
-            Start-Sleep -Milliseconds 200
-          }
-          if (-not (Test-Path $ready)) { Write-Host "the host never became ready" }
-
-          $clientProc = Start-Process -FilePath $exe -ArgumentList "join","127.0.0.1" -PassThru -NoNewWindow `
-                          -RedirectStandardOutput client.out -RedirectStandardError client.err
-
-          foreach ($p in @($clientProc, $hostProc)) {
-            if (-not $p.WaitForExit(180000)) { Write-Host "killing a harness process that would not exit"; $p.Kill() }
-          }
-
-          foreach ($f in @("host.out","host.err","client.out","client.err")) {
-            Write-Host "--- $f"
-            if (Test-Path $f) { Get-Content $f } else { Write-Host "(none)" }
-          }
-
-          Write-Host "--- host exit $($hostProc.ExitCode), client exit $($clientProc.ExitCode)"
-          if ($hostProc.ExitCode -ne 0 -or $clientProc.ExitCode -ne 0) { exit 1 }
