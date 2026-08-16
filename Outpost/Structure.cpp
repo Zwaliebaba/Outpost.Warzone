@@ -71,6 +71,7 @@
 #include "Loop.h"
 #include "Scores.h"
 #include "Gateway.h"
+#include "StatsTable.h"
 
 //testing the new electronic warfare for multiPlayer - AB don't want to release with this in the game!!!!!!
 
@@ -662,7 +663,6 @@ void initModulePIEsNoMods(char* GfxFile, UDWORD i, STRUCTURE_STATS* psStructure)
 /* load the Structure stats from the Access database */
 BOOL loadStructureStats(SBYTE* pStructData, UDWORD bufferSize)
 {
-  SBYTE* pData;
   UDWORD NumStructures = 0, i, inc, player, numWeaps, weapSlots;
   STRING StructureName[MAX_NAME_SIZE], foundation[MAX_NAME_SIZE], type[MAX_NAME_SIZE], techLevel[MAX_NAME_SIZE], strength[MAX_NAME_SIZE];
   STRING GfxFile[MAX_NAME_SIZE], baseIMD[MAX_NAME_SIZE];
@@ -673,6 +673,7 @@ BOOL loadStructureStats(SBYTE* pStructData, UDWORD bufferSize)
   UDWORD module;
   UDWORD iID;
   UDWORD dummyVal;
+  StatsTable sTable;
 
 #ifdef HASH_NAMES
   UDWORD HashedType;
@@ -693,10 +694,9 @@ BOOL loadStructureStats(SBYTE* pStructData, UDWORD bufferSize)
   for (module = 0; module < NUM_POWER_MODULES; module++)
     powerModuleIMDs[module] = nullptr;
 
-  //keep the start so we release it at the end
-  pData = pStructData;
-
-  NumStructures = numCR((UBYTE*)pStructData, bufferSize);
+  if (!StatsTable::Open((UBYTE*)pStructData, bufferSize, "Structures", sTable))
+    return FALSE;
+  NumStructures = sTable.Rows();
 
   //	asStructureStats = (STRUCTURE_STATS *)MALLOC(sizeof(STRUCTURE_STATS)*
   //	//numStructureStats is added to in in demoStructs()
@@ -718,27 +718,60 @@ BOOL loadStructureStats(SBYTE* pStructData, UDWORD bufferSize)
   for (i = 0; i < NumStructures; i++)
   {
     memset(psStructure, 0, sizeof(STRUCTURE_STATS));
-    //read the data into the storage - the data is delimeted using comma's
-    GfxFile[0] = '\0';
-    StructureName[0] = '\0';
-    type[0] = '\0';
-    strength[0] = '\0';
-    foundation[0] = '\0';
-    ecmType[0] = '\0';
-    sensorType[0] = '\0';
-    baseIMD[0] = '\0';
 
-    sscanf(pStructData, "%[^','],%[^','],%[^','],%[^','],%d,%d,%d,%[^','],\
-			%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%[^','],%[^','],%d,%[^','],%[^','],\
-			%d,%d", &StructureName, &type, &techLevel, &strength, &psStructure->terrainType, &psStructure->baseWidth, &psStructure->baseBreadth,
-           &foundation, &psStructure->buildPoints, &psStructure->height, &psStructure->armourValue, &psStructure->bodyPoints,
-           &psStructure->repairSystem, &psStructure->powerToBuild,
-           //&psStructure->minimumPower, &psStructure->resistance, 
-           &dummyVal, &psStructure->resistance,
-           //&psStructure->quantityLimit, &psStructure->sizeModifier, 
-           &dummyVal, &psStructure->sizeModifier,
-           //&ecmType, &sensorType, &psStructure->weaponSlots, &GfxFile,
-           &ecmType, &sensorType, &weapSlots, &GfxFile, &baseIMD, &psStructure->numFuncs, &numWeaps);
+    if (!sTable.Text(i, "name", StructureName, sizeof(StructureName)))
+      return FALSE;
+    if (!sTable.Text(i, "type", type, sizeof(type)))
+      return FALSE;
+    if (!sTable.Text(i, "techLevel", techLevel, sizeof(techLevel)))
+      return FALSE;
+    if (!sTable.Text(i, "strength", strength, sizeof(strength)))
+      return FALSE;
+    if (!sTable.Number(i, "terrainType", &psStructure->terrainType))
+      return FALSE;
+    if (!sTable.Number(i, "baseWidth", &psStructure->baseWidth))
+      return FALSE;
+    if (!sTable.Number(i, "baseBreadth", &psStructure->baseBreadth))
+      return FALSE;
+    if (!sTable.Text(i, "foundation", foundation, sizeof(foundation)))
+      return FALSE;
+    if (!sTable.Number(i, "buildPoints", &psStructure->buildPoints))
+      return FALSE;
+    if (!sTable.Number(i, "height", &psStructure->height))
+      return FALSE;
+    if (!sTable.Number(i, "armour", &psStructure->armourValue))
+      return FALSE;
+    if (!sTable.Number(i, "bodyPoints", &psStructure->bodyPoints))
+      return FALSE;
+    if (!sTable.Number(i, "repairSystem", &psStructure->repairSystem))
+      return FALSE;
+    if (!sTable.Number(i, "powerToBuild", &psStructure->powerToBuild))
+      return FALSE;
+    //&psStructure->minimumPower, &psStructure->resistance,
+    if (!sTable.Number(i, "minimumPower", &dummyVal))
+      return FALSE;
+    if (!sTable.Number(i, "resistance", &psStructure->resistance))
+      return FALSE;
+    //&psStructure->quantityLimit, &psStructure->sizeModifier,
+    if (!sTable.Number(i, "quantityLimit", &dummyVal))
+      return FALSE;
+    if (!sTable.Number(i, "sizeModifier", &psStructure->sizeModifier))
+      return FALSE;
+    //&ecmType, &sensorType, &psStructure->weaponSlots, &GfxFile,
+    if (!sTable.Text(i, "ecm", ecmType, sizeof(ecmType)))
+      return FALSE;
+    if (!sTable.Text(i, "sensor", sensorType, sizeof(sensorType)))
+      return FALSE;
+    if (!sTable.Number(i, "weaponSlots", &weapSlots))
+      return FALSE;
+    if (!sTable.Text(i, "model", GfxFile, sizeof(GfxFile)))
+      return FALSE;
+    if (!sTable.Text(i, "baseModel", baseIMD, sizeof(baseIMD)))
+      return FALSE;
+    if (!sTable.Number(i, "numFuncs", &psStructure->numFuncs))
+      return FALSE;
+    if (!sTable.Number(i, "numWeaps", &numWeaps))
+      return FALSE;
 
 #if (MAX_PLAYERS!=4 && MAX_PLAYERS!=8)
 #error Invalid number of players
@@ -885,8 +918,6 @@ BOOL loadStructureStats(SBYTE* pStructData, UDWORD bufferSize)
         return FALSE;
       }
     }
-    //increment the pointer to the start of the next record
-    pStructData = strchr(pStructData, '\n') + 1;
     //increment the list to the start of the next storage block
     psStructure++;
   }
@@ -998,27 +1029,30 @@ void setCurrentStructQuantity(BOOL displayError)
 //Load the weapons assigned to Structure in the Access database
 BOOL loadStructureWeapons(SBYTE* pWeaponData, UDWORD bufferSize)
 {
-  SBYTE* pStartWeaponData;
   UDWORD NumToAlloc = 0, i, incS, incW;
   STRING StructureName[MAX_NAME_SIZE], WeaponName[MAX_NAME_SIZE];
   STRUCTURE_STATS* pStructure = asStructureStats;
   WEAPON_STATS* pWeapon = asWeaponStats;
   BOOL weaponFound, structureFound;
+  UDWORD dummyVal;
+  StatsTable sTable;
 
 #ifdef HASH_NAMES
   UDWORD StructureHash; UDWORD WeaponHash;
 #endif
 
-  pStartWeaponData = pWeaponData;
-
-  NumToAlloc = numCR((UBYTE*)pWeaponData, bufferSize);
+  if (!StatsTable::Open((UBYTE*)pWeaponData, bufferSize, "StructureWeapons", sTable))
+    return FALSE;
+  NumToAlloc = sTable.Rows();
 
   for (i = 0; i < NumToAlloc; i++)
   {
-    //read the data into the storage - the data is delimeted using comma's
-    StructureName[0] = '\0';
-    WeaponName[0] = '\0';
-    sscanf(pWeaponData, "%[^','],%[^','],%*d", &StructureName, &WeaponName);
+    if (!sTable.Text(i, "structure", StructureName, sizeof(StructureName)))
+      return FALSE;
+    if (!sTable.Text(i, "weapon", WeaponName, sizeof(WeaponName)))
+      return FALSE;
+    if (!sTable.Number(i, "dummy", &dummyVal))
+      return FALSE;
 
     if (!getResourceName(StructureName))
       return FALSE;
@@ -1079,8 +1113,6 @@ BOOL loadStructureWeapons(SBYTE* pWeaponData, UDWORD bufferSize)
       Neuron::Fatal("Unable to find stats for structure {}", StructureName);
       return FALSE;
     }
-    //increment the pointer to the start of the next record
-    pWeaponData = strchr(pWeaponData, '\n') + 1;
   }
   return TRUE;
 }
@@ -1088,26 +1120,29 @@ BOOL loadStructureWeapons(SBYTE* pWeaponData, UDWORD bufferSize)
 //Load the programs assigned to Droids in the Access database
 BOOL loadStructureFunctions(SBYTE* pFunctionData, UDWORD bufferSize)
 {
-  SBYTE* pStartFunctionData;
   UDWORD NumToAlloc = 0, i, incS, incF;
   STRING StructureName[MAX_NAME_SIZE], FunctionName[MAX_NAME_SIZE];
   STRUCTURE_STATS* pStructure = asStructureStats;
   FUNCTION *pFunction, **pStartFunctions = asFunctions;
   BOOL functionFound, structureFound;
+  UDWORD dummyVal;
+  StatsTable sTable;
 #ifdef HASH_NAMES
   UDWORD StructureHash; UDWORD FunctionHash;
 #endif
 
-  pStartFunctionData = pFunctionData;
-
-  NumToAlloc = numCR((UBYTE*)pFunctionData, bufferSize);
+  if (!StatsTable::Open((UBYTE*)pFunctionData, bufferSize, "StructureFunctions", sTable))
+    return FALSE;
+  NumToAlloc = sTable.Rows();
 
   for (i = 0; i < NumToAlloc; i++)
   {
-    //read the data into the storage - the data is delimeted using comma's
-    StructureName[0] = '\0';
-    FunctionName[0] = '\0';
-    sscanf(pFunctionData, "%[^','],%[^','],%*d", &StructureName, &FunctionName);
+    if (!sTable.Text(i, "structure", StructureName, sizeof(StructureName)))
+      return FALSE;
+    if (!sTable.Text(i, "function", FunctionName, sizeof(FunctionName)))
+      return FALSE;
+    if (!sTable.Number(i, "dummy", &dummyVal))
+      return FALSE;
     functionFound = structureFound = FALSE;
 
     if (!getResourceName(StructureName))
@@ -1169,8 +1204,6 @@ BOOL loadStructureFunctions(SBYTE* pFunctionData, UDWORD bufferSize)
       Neuron::Fatal("Unable to find stats for structure {}", StructureName);
       return FALSE;
     }
-    //increment the pointer to the start of the next record
-    pFunctionData = strchr(pFunctionData, '\n') + 1;
   }
 
   /**************************************************************************/
@@ -1223,6 +1256,7 @@ BOOL loadStructureStrengthModifiers(SBYTE* pStrengthModData, UDWORD bufferSize)
   WEAPON_EFFECT effectInc;
   UDWORD NumRecords = 0, i, j, modifier;
   STRING weaponEffectName[MAX_NAME_SIZE], strengthName[MAX_NAME_SIZE];
+  StatsTable sTable;
 
   //memset(asStructStrengthModifier, 0, (sizeof(STRUCTSTRENGTH_MODIFIER) *
   //initialise to 100%
@@ -1232,12 +1266,18 @@ BOOL loadStructureStrengthModifiers(SBYTE* pStrengthModData, UDWORD bufferSize)
       asStructStrengthModifier[i][j] = 100;
   }
 
-  NumRecords = numCR((UBYTE*)pStrengthModData, bufferSize);
+  if (!StatsTable::Open((UBYTE*)pStrengthModData, bufferSize, "StructureModifier", sTable))
+    return FALSE;
+  NumRecords = sTable.Rows();
 
   for (i = 0; i < NumRecords; i++)
   {
-    //read the data into the storage - the data is delimeted using comma's
-    sscanf(pStrengthModData, "%[^','],%[^','],%d", &weaponEffectName, &strengthName, &modifier);
+    if (!sTable.Text(i, "effect", weaponEffectName, sizeof(weaponEffectName)))
+      return FALSE;
+    if (!sTable.Text(i, "strength", strengthName, sizeof(strengthName)))
+      return FALSE;
+    if (!sTable.Number(i, "modifier", &modifier))
+      return FALSE;
 
     //get the weapon effect inc
     effectInc = static_cast<WEAPON_EFFECT>(getWeaponEffect(weaponEffectName));
@@ -1261,9 +1301,6 @@ BOOL loadStructureStrengthModifiers(SBYTE* pStrengthModData, UDWORD bufferSize)
     }
     //store in the appropriate index
     asStructStrengthModifier[effectInc][strengthInc] = static_cast<UWORD>(modifier);
-
-    //increment the pointer to the start of the next record
-    pStrengthModData = strchr(pStrengthModData, '\n') + 1;
   }
 
   return TRUE;

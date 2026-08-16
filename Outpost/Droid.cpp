@@ -64,6 +64,7 @@
 #include "Findpath.h"
 #include "Scores.h"
 #include "Research.h"
+#include "StatsTable.h"
 
 #define DEFAULT_RECOIL_TIME	(GAME_TICKS_PER_SEC/4)
 #define	DROID_DAMAGE_SPREAD	(16 - rand()%32)
@@ -2076,7 +2077,6 @@ BOOL droidUpdateDroidRepair(DROID* psRepairDroid)
 /* load the Droid stats for the components from the Access database */
 BOOL loadDroidTemplates(SBYTE* pDroidData, UDWORD bufferSize)
 {
-  SBYTE* pStartDroidData;
   UDWORD NumDroids = 0, i, player;
   STRING componentName[MAX_NAME_SIZE], droidName[MAX_NAME_SIZE];
   BOOL found = FALSE; //,EndOfFile;
@@ -2084,6 +2084,7 @@ BOOL loadDroidTemplates(SBYTE* pDroidData, UDWORD bufferSize)
   COMP_BASE_STATS* pStats;
   UDWORD size, inc, templateID;
   BOOL bDefaultTemplateFound = FALSE;
+  StatsTable sTable;
 #ifdef STORE_RESOURCE_ID
   STRING* pDroidName = droidName;
 #endif
@@ -2099,9 +2100,9 @@ BOOL loadDroidTemplates(SBYTE* pDroidData, UDWORD bufferSize)
   /* init default template */
   memset(&sDefaultDesignTemplate, 0, sizeof(DROID_TEMPLATE));
 
-  pStartDroidData = pDroidData;
-
-  NumDroids = numCR((UBYTE*)pDroidData, bufferSize);
+  if (!StatsTable::Open((UBYTE*)pDroidData, bufferSize, "Templates", sTable))
+    return FALSE;
+  NumDroids = sTable.Rows();
 
   for (i = 0; i < NumDroids; i++)
   {
@@ -2118,9 +2119,10 @@ BOOL loadDroidTemplates(SBYTE* pDroidData, UDWORD bufferSize)
     pDroidDesign->pName = nullptr;
 #endif
 
-    //read the data into the storage - the data is delimeted using comma's
-    componentName[0] = '\0';
-    sscanf1(&pDroidData, "%[^','],%d,", &componentName, &templateID);
+    if (!sTable.Text(i, "name", componentName, sizeof(componentName)))
+      return FALSE;
+    if (!sTable.Number(i, "id", &templateID))
+      return FALSE;
 
     // Hideous mishmash of ifdef's ... sorry about that
 #ifdef HASH_NAMES
@@ -2174,8 +2176,8 @@ BOOL loadDroidTemplates(SBYTE* pDroidData, UDWORD bufferSize)
     pDroidDesign->multiPlayerID = templateID;
 
     //read in Body Name
-    componentName[0] = '\0';
-    sscanf1(&pDroidData, "%[^','],", &componentName);
+    if (!sTable.Text(i, "body", componentName, sizeof(componentName)))
+      return FALSE;
 
     found = FALSE;
     //get the Body stats pointer
@@ -2215,8 +2217,8 @@ BOOL loadDroidTemplates(SBYTE* pDroidData, UDWORD bufferSize)
 
     //read in Brain Name
     found = FALSE;
-    componentName[0] = '\0';
-    sscanf1(&pDroidData, "%[^','],", &componentName);
+    if (!sTable.Text(i, "brain", componentName, sizeof(componentName)))
+      return FALSE;
 
     //get the Brain stats pointer
     if (!strcmp(componentName, "0"))
@@ -2254,8 +2256,8 @@ BOOL loadDroidTemplates(SBYTE* pDroidData, UDWORD bufferSize)
 
     //read in Construct Name
     found = FALSE;
-    componentName[0] = '\0';
-    sscanf1(&pDroidData, "%[^','],", &componentName);
+    if (!sTable.Text(i, "construct", componentName, sizeof(componentName)))
+      return FALSE;
 
     //get the Construct stats pointer
     if (!strcmp(componentName, "0"))
@@ -2293,8 +2295,8 @@ BOOL loadDroidTemplates(SBYTE* pDroidData, UDWORD bufferSize)
 
     //read in Ecm Name
     found = FALSE;
-    componentName[0] = '\0';
-    sscanf1(&pDroidData, "%[^','],", &componentName);
+    if (!sTable.Text(i, "ecm", componentName, sizeof(componentName)))
+      return FALSE;
 
     //get the Ecm stats pointer
     if (!strcmp(componentName, "0"))
@@ -2331,12 +2333,13 @@ BOOL loadDroidTemplates(SBYTE* pDroidData, UDWORD bufferSize)
     }
 
     //read in player id - Access decides the order -crap hey?
-    sscanf1(&pDroidData, "%d,", &player);
+    if (!sTable.Number(i, "player", &player))
+      return FALSE;
 
     //read in Propulsion Name
     found = FALSE;
-    componentName[0] = '\0';
-    sscanf1(&pDroidData, "%[^','],", &componentName);
+    if (!sTable.Text(i, "propulsion", componentName, sizeof(componentName)))
+      return FALSE;
 
     //get the Propulsion stats pointer
     if (!strcmp(componentName, "0"))
@@ -2374,8 +2377,8 @@ BOOL loadDroidTemplates(SBYTE* pDroidData, UDWORD bufferSize)
 
     //read in Repair Name
     found = FALSE;
-    componentName[0] = '\0';
-    sscanf1(&pDroidData, "%[^','],", &componentName);
+    if (!sTable.Text(i, "repair", componentName, sizeof(componentName)))
+      return FALSE;
 
     //get the Repair stats pointer
     if (!strcmp(componentName, "0"))
@@ -2412,8 +2415,8 @@ BOOL loadDroidTemplates(SBYTE* pDroidData, UDWORD bufferSize)
     }
 
     //read in droid type - only interested if set to PERSON
-    componentName[0] = '\0';
-    sscanf1(&pDroidData, "%[^','],", &componentName);
+    if (!sTable.Text(i, "type", componentName, sizeof(componentName)))
+      return FALSE;
     if (!strcmp(componentName, "PERSON"))
       pDroidDesign->droidType = DROID_PERSON;
     if (!strcmp(componentName, "CYBORG"))
@@ -2434,8 +2437,8 @@ BOOL loadDroidTemplates(SBYTE* pDroidData, UDWORD bufferSize)
 
     //read in Sensor Name
     found = FALSE;
-    componentName[0] = '\0';
-    sscanf1(&pDroidData, "%[^','],", &componentName);
+    if (!sTable.Text(i, "sensor", componentName, sizeof(componentName)))
+      return FALSE;
 
     //get the Sensor stats pointer
     if (!strcmp(componentName, "0"))
@@ -2478,9 +2481,8 @@ BOOL loadDroidTemplates(SBYTE* pDroidData, UDWORD bufferSize)
     }
 
     //read in totals
-    /*sscanf(pDroidData,"%d,%d", 
-      &pDroidDesign->numProgs, &pDroidDesign->numWeaps);*/
-    sscanf(pDroidData, "%d", &pDroidDesign->numWeaps);
+    if (!sTable.Number(i, "numWeaps", &pDroidDesign->numWeaps))
+      return FALSE;
     //check that not allocating more weapons than allowed
     if (((asBodyStats + pDroidDesign->asParts[COMP_BODY])->weaponSlots < pDroidDesign->numWeaps) || pDroidDesign->numWeaps > DROID_MAXWEAPS)
     {
@@ -2526,8 +2528,6 @@ BOOL loadDroidTemplates(SBYTE* pDroidData, UDWORD bufferSize)
       apsDroidTemplates[player] = pDroidDesign;
     }
 
-    //increment the pointer to the start of the next record
-    pDroidData = strchr(pDroidData, '\n') + 1;
     pDroidDesign++;
   }
 
@@ -2648,7 +2648,6 @@ DROID_TYPE droidTemplateType(DROID_TEMPLATE* psTemplate)
 //Load the weapons assigned to Droids in the Access database
 BOOL loadDroidWeapons(SBYTE* pWeaponData, UDWORD bufferSize)
 {
-  SBYTE* pStartWeaponData;
   UDWORD NumWeapons = 0, i, player;
   STRING WeaponName[MAX_NAME_SIZE], TemplateName[MAX_NAME_SIZE];
   DROID_TEMPLATE* pTemplate;
@@ -2656,6 +2655,7 @@ BOOL loadDroidWeapons(SBYTE* pWeaponData, UDWORD bufferSize)
   BOOL recFound;
   UWORD SkippedWeaponCount = 0;
   SDWORD incW;
+  StatsTable sTable;
 #ifdef HASH_NAMES
   UDWORD HashedName;
 #endif
@@ -2669,17 +2669,19 @@ BOOL loadDroidWeapons(SBYTE* pWeaponData, UDWORD bufferSize)
     }
   }
 
-  pStartWeaponData = pWeaponData;
-
-  NumWeapons = numCR((UBYTE*)pWeaponData, bufferSize);
+  if (!StatsTable::Open((UBYTE*)pWeaponData, bufferSize, "AssignWeapons", sTable))
+    return FALSE;
+  NumWeapons = sTable.Rows();
 
   for (i = 0; i < NumWeapons; i++)
   {
     recFound = FALSE;
-    //read the data into the storage - the data is delimeted using comma's
-    TemplateName[0] = '\0';
-    WeaponName[0] = '\0';
-    sscanf(pWeaponData, "%[^','],%[^','],%d", &TemplateName, &WeaponName, &player);
+    if (!sTable.Text(i, "template", TemplateName, sizeof(TemplateName)))
+      return FALSE;
+    if (!sTable.Text(i, "weapon", WeaponName, sizeof(WeaponName)))
+      return FALSE;
+    if (!sTable.Number(i, "player", &player))
+      return FALSE;
     //loop through each droid to compare the name
 
     player = RemapPlayerNumber(player); // for psx ...
@@ -2755,9 +2757,6 @@ BOOL loadDroidWeapons(SBYTE* pWeaponData, UDWORD bufferSize)
     }
     else
       SkippedWeaponCount++;
-
-    //increment the pointer to the start of the next record
-    pWeaponData = strchr(pWeaponData, '\n') + 1;
   }
 
   if (SkippedWeaponCount > 0)

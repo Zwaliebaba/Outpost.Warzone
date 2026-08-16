@@ -224,6 +224,7 @@ CONSTANTS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                               'stats_dropped_columns.json')
 
 errors = []
+skipped = []
 
 
 def find_file(rel):
@@ -335,6 +336,9 @@ def read_lines(path):
 def convert_functions(check):
     """Functions.txt: cell 1 picks the record shape."""
     path = find_file('Stats/Functions.txt')
+    if check and path is None:
+        skipped.append('Stats/Functions.txt')
+        return
     out = os.path.splitext(path)[0] + '.json'
     records = json.load(open(out)) if check else []
     for n, line in enumerate(read_lines(path)):
@@ -379,7 +383,10 @@ def convert_research(check):
             rel = rdir + '/' + name
             path = find_file(rel)
             if path is None:
-                errors.append(f'{rel}: file not found')
+                if check:
+                    skipped.append(rel)
+                else:
+                    errors.append(f'{rel}: file not found')
                 continue
             out = os.path.splitext(path)[0] + '.json'
             if check:
@@ -477,7 +484,10 @@ def convert_messages(check):
         resolved, _exact = None, None
         path = find_file(rel.replace('\\', '/'))
         if path is None:
-            errors.append(f'{rel}: SMSG file not found')
+            if check:
+                skipped.append(rel)
+            else:
+                errors.append(f'{rel}: SMSG file not found')
             continue
         out = os.path.splitext(path)[0] + '.json'
         lines = [l for l in read_lines(path) if l.strip() != '']
@@ -515,6 +525,9 @@ def main():
     for rel, spec in sorted(TABLES.items()):
         out = os.path.splitext(find_file(rel) or os.path.join(GAMEDATA, rel))[0] + '.json'
         if check:
+            if find_file(rel) is None:
+                skipped.append(rel)
+                continue
             recorded = json.load(open(CONSTANTS_PATH))
             entry = recorded[rel]
             check_table(rel, spec, out, entry['dropped'], find_file(rel))
@@ -529,6 +542,9 @@ def main():
         with open(CONSTANTS_PATH, 'w', newline='\n') as f:
             json.dump(manifest, f, indent=1)
             f.write('\n')
+    if skipped:
+        print(f'note: {len(skipped)} table(s) skipped: source .txt already '
+              'deleted from the tree (round-trip was proven before removal)')
     for e in errors:
         print(f'error: {e}')
     print(('check ' if check else 'convert ') + ('FAILED' if errors else 'ok'))

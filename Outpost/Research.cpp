@@ -29,6 +29,8 @@
 
 #include "MultiPlay.h"
 
+#include "StatsTable.h"
+
 //used to calc the research power
 #define RESEARCH_FACTOR		32//16
 #define RESEARCH_MAX_POWER  450
@@ -218,7 +220,6 @@ BOOL researchInitVars(void)
 /*Load the research stats from the file exported from Access*/
 BOOL loadResearch(SBYTE* pResearchData, UDWORD bufferSize)
 {
-  SBYTE* pStartResearchData;
   RESEARCH* pResearch;
   COMP_BASE_STATS* psComp;
   SDWORD structID;
@@ -227,11 +228,11 @@ BOOL loadResearch(SBYTE* pResearchData, UDWORD bufferSize)
   STRING msgName[MAX_STR_SIZE], iconID[MAX_NAME_SIZE];
   STRING imdName[MAX_NAME_SIZE], imdName2[MAX_NAME_SIZE];
   STRING structName[MAX_NAME_SIZE], compName[MAX_NAME_SIZE], compType[MAX_STR_SIZE];
+  StatsTable sTable;
 
-  //reserve the start of the data
-  pStartResearchData = pResearchData;
-
-  researchCount = numCR((UBYTE*)pResearchData, bufferSize);
+  if (!StatsTable::Open((UBYTE*)pResearchData, bufferSize, "Research", sTable))
+    return FALSE;
+  researchCount = sTable.Rows();
 
   numResearch = researchCount;
   DEBUG_ASSERT_TEXT((numResearch) <= MAX_RESEARCH, "Too many ResearchStats!! - max allowed {}", MAX_RESEARCH);
@@ -247,9 +248,9 @@ BOOL loadResearch(SBYTE* pResearchData, UDWORD bufferSize)
   {
     memset(pResearch, 0, sizeof(RESEARCH));
 
-    //read the data into the storage - the data is delimeted using comma's
-    ResearchName[0] = '\0';
-    sscanf(pResearchData, "%[^','],", &ResearchName);
+    //read the data into the storage
+    if (!sTable.Text(i, "name", ResearchName, sizeof(ResearchName)))
+      return FALSE;
     //allocate storage for the name
 
 #ifdef HASH_NAMES
@@ -263,20 +264,16 @@ BOOL loadResearch(SBYTE* pResearchData, UDWORD bufferSize)
     if (!checkResearchName(pResearch, i))
       return FALSE;
 
-    pResearchData += (strlen(ResearchName) + 1);
-
     pResearch->ref = REF_RESEARCH_START + i;
 
     //determine the tech level
-    ResearchName[0] = '\0';
-    sscanf(pResearchData, "%[^','],", &ResearchName);
+    if (!sTable.Text(i, "techLevel", ResearchName, sizeof(ResearchName)))
+      return FALSE;
     if (!setTechLevel((BASE_STATS*)pResearch, ResearchName))
       return FALSE;
 
-    pResearchData += (strlen(ResearchName) + 1);
-
-    ResearchName[0] = '\0';
-    sscanf(pResearchData, "%[^','],", &ResearchName);
+    if (!sTable.Text(i, "subGroupIcon", ResearchName, sizeof(ResearchName)))
+      return FALSE;
 
     //subGroup value now holds which category the research comes under for yet another icon!
     // store subgroup. may differ from tech level at some point?
@@ -332,16 +329,6 @@ BOOL loadResearch(SBYTE* pResearchData, UDWORD bufferSize)
     else
       pResearch->subGroup = NO_RESEARCH_ICON;
 
-    pResearchData += (strlen(ResearchName) + 1);
-
-    iconID[0] = '\0';
-    imdName[0] = '\0';
-    imdName2[0] = '\0';
-    msgName[0] = '\0';
-    structName[0] = '\0';
-    compName[0] = '\0';
-    compType[0] = '\0';
-
     {
       UDWORD numPRRequired;
       UDWORD numFunctions;
@@ -351,10 +338,38 @@ BOOL loadResearch(SBYTE* pResearchData, UDWORD bufferSize)
       UDWORD numRedArtefacts;
       UDWORD numArteResults;
 
-      sscanf(pResearchData, "%d,%[^','],%[^','],%[^','],%[^','],%[^','], \
-                %[^','],%[^','],%d,%d,%d,%d,%d,%d,%d,%d,%d", &techCode, &iconID, &imdName, &imdName2, &msgName, &structName, &compName,
-             &compType, &resPoints, &keyTopic, &numPRRequired, &numFunctions, &numStructures, &numRedStructs, &numStructResults,
-             &numRedArtefacts, &numArteResults);
+      if (!sTable.Number(i, "techCode", &techCode))
+        return FALSE;
+      if (!sTable.Text(i, "iconID", iconID, sizeof(iconID)))
+        return FALSE;
+      if (!sTable.Text(i, "model", imdName, sizeof(imdName)))
+        return FALSE;
+      if (!sTable.Text(i, "model2", imdName2, sizeof(imdName2)))
+        return FALSE;
+      if (!sTable.Text(i, "message", msgName, sizeof(msgName)))
+        return FALSE;
+      if (!sTable.Text(i, "structure", structName, sizeof(structName)))
+        return FALSE;
+      if (!sTable.Text(i, "component", compName, sizeof(compName)))
+        return FALSE;
+      if (!sTable.Number(i, "researchPoints", &resPoints))
+        return FALSE;
+      if (!sTable.Number(i, "keyTopic", &keyTopic))
+        return FALSE;
+      if (!sTable.Number(i, "numPRRequired", &numPRRequired))
+        return FALSE;
+      if (!sTable.Number(i, "numFunctions", &numFunctions))
+        return FALSE;
+      if (!sTable.Number(i, "numStructures", &numStructures))
+        return FALSE;
+      if (!sTable.Number(i, "numRedStructs", &numRedStructs))
+        return FALSE;
+      if (!sTable.Number(i, "numStructResults", &numStructResults))
+        return FALSE;
+      if (!sTable.Number(i, "numRedArtefacts", &numRedArtefacts))
+        return FALSE;
+      if (!sTable.Number(i, "numArteResults", &numArteResults))
+        return FALSE;
 
       pResearch->numPRRequired = static_cast<UBYTE>(numPRRequired);
       pResearch->numFunctions = static_cast<UBYTE>(numFunctions);
@@ -411,6 +426,8 @@ BOOL loadResearch(SBYTE* pResearchData, UDWORD bufferSize)
     else if (strcmp(compName, "0"))
     {
       //find the component stat
+      if (!sTable.Text(i, "componentType", compType, sizeof(compType)))
+        return FALSE;
       psComp = getComponentDetails(compType, compName);
       if (psComp != nullptr)
         pResearch->psStat = (BASE_STATS*)psComp;
@@ -636,8 +653,6 @@ BOOL loadResearch(SBYTE* pResearchData, UDWORD bufferSize)
     if (pResearch->researchPower > RESEARCH_MAX_POWER)
       pResearch->researchPower = RESEARCH_MAX_POWER;
 
-    //increment the pointer to the start of the next record
-    pResearchData = strchr(pResearchData, '\n') + 1;
     //increment the list to the start of the next storage block
     pResearch++;
   }
@@ -663,20 +678,21 @@ BOOL loadResearch(SBYTE* pResearchData, UDWORD bufferSize)
 //Load the pre-requisites for a research list
 BOOL loadResearchPR(SBYTE* pPRData, UDWORD bufferSize)
 {
-  SBYTE* pStartPRData;
   UDWORD NumToAlloc = 0, i;
   STRING ResearchName[MAX_NAME_SIZE], PRName[MAX_NAME_SIZE];
   UWORD incR, incPR;
   RESEARCH *pResearch = asResearch, *pPRResearch = asResearch;
   BOOL recFound;
+  UDWORD dummyVal;
+  StatsTable sTable;
 
 #ifdef HASH_NAMES
   UDWORD HashedResearchName; UDWORD HashedPRName;
 #endif
 
-  pStartPRData = pPRData;
-
-  NumToAlloc = numCR((UBYTE*)pPRData, bufferSize);
+  if (!StatsTable::Open((UBYTE*)pPRData, bufferSize, "PRResearch", sTable))
+    return FALSE;
+  NumToAlloc = sTable.Rows();
 
   //check not going to go over max
   DEBUG_ASSERT_TEXT(NumToAlloc <= MAX_RESEARCH_PR, "loadResearchPR: too many!");
@@ -685,10 +701,13 @@ BOOL loadResearchPR(SBYTE* pPRData, UDWORD bufferSize)
   for (i = 0; i < NumToAlloc; i++)
   {
     recFound = FALSE;
-    //read the data into the storage - the data is delimited using comma's
-    ResearchName[0] = '\0';
-    PRName[0] = '\0';
-    sscanf(pPRData, "%[^','],%[^','],%*d", &ResearchName, &PRName);
+    //read the data into the storage
+    if (!sTable.Text(i, "research", ResearchName, sizeof(ResearchName)))
+      return FALSE;
+    if (!sTable.Text(i, "requires", PRName, sizeof(PRName)))
+      return FALSE;
+    if (!sTable.Number(i, "dummy", &dummyVal))
+      return FALSE;
 
     if (!getResourceName(ResearchName))
       return FALSE;
@@ -752,8 +771,6 @@ BOOL loadResearchPR(SBYTE* pPRData, UDWORD bufferSize)
       //don't load any more since will write over memory!
       break;
     }
-    //increment the pointer to the start of the next record
-    pPRData = strchr(pPRData, '\n') + 1;
   }
   return TRUE;
 }
@@ -761,7 +778,6 @@ BOOL loadResearchPR(SBYTE* pPRData, UDWORD bufferSize)
 //Load the artefacts for a research list
 BOOL loadResearchArtefacts(SBYTE* pArteData, UDWORD bufferSize, UDWORD listNumber)
 {
-  SBYTE* pStartArteData;
   UDWORD NumToAlloc = 0, i;
   STRING ResearchName[MAX_NAME_SIZE], ArteName[MAX_NAME_SIZE], TypeName[MAX_NAME_SIZE];
   UDWORD incR;
@@ -769,15 +785,27 @@ BOOL loadResearchArtefacts(SBYTE* pArteData, UDWORD bufferSize, UDWORD listNumbe
   COMP_BASE_STATS* pArtefact;
   UDWORD newType;
   UBYTE maxArtefacts;
+  UDWORD dummyVal;
+  const char* pTableName;
+  StatsTable sTable;
 
   //initialise the storage flags
   for (incR = 0; incR < numResearch; incR++)
     pResearch[incR].storeCount = 0;
   pResearch = asResearch;
 
-  pStartArteData = pArteData;
+  //the file read depends on the list being loaded
+  switch (listNumber)
+  {
+  case RED_LIST: pTableName = "RedComponents";
+    break;
+  default: pTableName = "ResultComponent";
+    break;
+  }
 
-  NumToAlloc = numCR((UBYTE*)pArteData, bufferSize);
+  if (!StatsTable::Open((UBYTE*)pArteData, bufferSize, pTableName, sTable))
+    return FALSE;
+  NumToAlloc = sTable.Rows();
 
   //check not going to go over max
   switch (listNumber)
@@ -793,14 +821,13 @@ BOOL loadResearchArtefacts(SBYTE* pArteData, UDWORD bufferSize, UDWORD listNumbe
 
   for (i = 0; i < NumToAlloc; i++)
   {
-    //read the data into the storage - the data is delimited using comma's
-    ResearchName[0] = '\0';
-    ArteName[0] = '\0';
-    TypeName[0] = '\0';
-    sscanf(pArteData, "%[^','],%[^','],%[^',']", &ResearchName, &ArteName, &TypeName);
-
-    //increment the data pointer
-    pArteData += (strlen(ResearchName) + 1 + strlen(ArteName) + 1 + strlen(TypeName) + 1);
+    //read the data into the storage
+    if (!sTable.Text(i, "research", ResearchName, sizeof(ResearchName)))
+      return FALSE;
+    if (!sTable.Text(i, "component", ArteName, sizeof(ArteName)))
+      return FALSE;
+    if (!sTable.Text(i, "componentType", TypeName, sizeof(TypeName)))
+      return FALSE;
 
     if (!getResourceName(ResearchName))
       return FALSE;
@@ -839,13 +866,17 @@ BOOL loadResearchArtefacts(SBYTE* pArteData, UDWORD bufferSize, UDWORD listNumbe
     switch (listNumber)
     {
     case RED_LIST:
-      //ignore the last character
-      sscanf(pArteData, ",%*d");
+      //ignore the last field
+      if (!sTable.Number(i, "dummy", &dummyVal))
+        return FALSE;
       break;
     case RES_LIST:
-      ArteName[0] = '\0';
-      TypeName[0] = '\0';
-      sscanf(pArteData, "%[^','],%[^','],%*d", &ArteName, &TypeName);
+      if (!sTable.Text(i, "replacedComponent", ArteName, sizeof(ArteName)))
+        return FALSE;
+      if (!sTable.Text(i, "replacedComponentType", TypeName, sizeof(TypeName)))
+        return FALSE;
+      if (!sTable.Number(i, "dummy", &dummyVal))
+        return FALSE;
       if (!strcmp(ArteName, "0"))
         *(pResearch->pReplacedArtefacts + pResearch->storeCount) = nullptr;
       else
@@ -886,8 +917,6 @@ BOOL loadResearchArtefacts(SBYTE* pArteData, UDWORD bufferSize, UDWORD listNumbe
       //don't load any more since will write over memory!
       break;
     }
-    //increment the pointer to the start of the next record
-    pArteData = strchr(pArteData, '\n') + 1;
   }
   return TRUE;
 }
@@ -895,7 +924,6 @@ BOOL loadResearchArtefacts(SBYTE* pArteData, UDWORD bufferSize, UDWORD listNumbe
 //Load the Structures for a research list
 BOOL loadResearchStructures(SBYTE* pStructData, UDWORD bufferSize, UDWORD listNumber)
 {
-  SBYTE* pStartStructData;
   UDWORD NumToAlloc = 0, i;
   STRING ResearchName[MAX_NAME_SIZE], StructureName[MAX_NAME_SIZE];
   UWORD incR;
@@ -904,6 +932,8 @@ BOOL loadResearchStructures(SBYTE* pStructData, UDWORD bufferSize, UDWORD listNu
   STRUCTURE_STATS* pStructure = asStructureStats;
   BOOL recFound;
   UDWORD numToFind;
+  const char* pTableName;
+  StatsTable sTable;
 
 #ifdef HASH_NAMES
   UDWORD HashedResearchName; UDWORD HashedStructureName;
@@ -914,9 +944,20 @@ BOOL loadResearchStructures(SBYTE* pStructData, UDWORD bufferSize, UDWORD listNu
     pResearch[incR].storeCount = 0;
   pResearch = asResearch;
 
-  pStartStructData = pStructData;
+  //the file read depends on the list being loaded
+  switch (listNumber)
+  {
+  case RED_LIST: pTableName = "RedStructure";
+    break;
+  case RES_LIST: pTableName = "ResultStructure";
+    break;
+  default: pTableName = "ResearchStruct";
+    break;
+  }
 
-  NumToAlloc = numCR((UBYTE*)pStructData, bufferSize);
+  if (!StatsTable::Open((UBYTE*)pStructData, bufferSize, pTableName, sTable))
+    return FALSE;
+  NumToAlloc = sTable.Rows();
   switch (listNumber)
   {
   case REQ_LIST:
@@ -941,10 +982,11 @@ BOOL loadResearchStructures(SBYTE* pStructData, UDWORD bufferSize, UDWORD listNu
     recFound = FALSE;
     numToFind = 0;
 
-    //read the data into the storage - the data is delimited using comma's
-    ResearchName[0] = '\0';
-    StructureName[0] = '\0';
-    sscanf(pStructData, "%[^','],%[^','],%*d,%*d", &ResearchName, &StructureName);
+    //read the data into the storage
+    if (!sTable.Text(i, "research", ResearchName, sizeof(ResearchName)))
+      return FALSE;
+    if (!sTable.Text(i, "structure", StructureName, sizeof(StructureName)))
+      return FALSE;
 
     if (!getResourceName(ResearchName))
       return FALSE;
@@ -1033,8 +1075,6 @@ BOOL loadResearchStructures(SBYTE* pStructData, UDWORD bufferSize, UDWORD listNu
       //don't load any more since will write over memory!
       break;
     }
-    //increment the pointer to the start of the next record
-    pStructData = strchr(pStructData, '\n') + 1;
   }
   return TRUE;
 }
@@ -1042,13 +1082,14 @@ BOOL loadResearchStructures(SBYTE* pStructData, UDWORD bufferSize, UDWORD listNu
 //Load the pre-requisites for a research list
 BOOL loadResearchFunctions(SBYTE* pFunctionData, UDWORD bufferSize)
 {
-  SBYTE* pStartFunctionData;
   UDWORD NumToAlloc = 0, i;
   STRING ResearchName[MAX_NAME_SIZE], FunctionName[MAX_NAME_SIZE];
   UDWORD incR, incF;
   RESEARCH* pResearch = asResearch;
   FUNCTION** pFunction = asFunctions;
   BOOL recFound;
+  UDWORD dummyVal;
+  StatsTable sTable;
 #ifdef HASH_NAMES
   UDWORD HashedResearchName; UDWORD HashedFunctionName;
 #endif
@@ -1058,9 +1099,9 @@ BOOL loadResearchFunctions(SBYTE* pFunctionData, UDWORD bufferSize)
     pResearch[incR].storeCount = 0;
   pResearch = asResearch;
 
-  pStartFunctionData = pFunctionData;
-
-  NumToAlloc = numCR((UBYTE*)pFunctionData, bufferSize);
+  if (!StatsTable::Open((UBYTE*)pFunctionData, bufferSize, "ResearchFunctions", sTable))
+    return FALSE;
+  NumToAlloc = sTable.Rows();
   //check not going to go over max
   DEBUG_ASSERT_TEXT(NumToAlloc <= MAX_RESEARCH_FUNC, "loadResearchFunctions: too many");
   numResearchFunc = 0;
@@ -1068,10 +1109,13 @@ BOOL loadResearchFunctions(SBYTE* pFunctionData, UDWORD bufferSize)
   for (i = 0; i < NumToAlloc; i++)
   {
     recFound = FALSE;
-    //read the data into the storage - the data is delimited using comma's
-    ResearchName[0] = '\0';
-    FunctionName[0] = '\0';
-    sscanf(pFunctionData, "%[^','],%[^','],%*d", &ResearchName, &FunctionName);
+    //read the data into the storage
+    if (!sTable.Text(i, "research", ResearchName, sizeof(ResearchName)))
+      return FALSE;
+    if (!sTable.Text(i, "function", FunctionName, sizeof(FunctionName)))
+      return FALSE;
+    if (!sTable.Number(i, "dummy", &dummyVal))
+      return FALSE;
 
     if (!getResourceName(ResearchName))
       return FALSE;
@@ -1136,8 +1180,6 @@ BOOL loadResearchFunctions(SBYTE* pFunctionData, UDWORD bufferSize)
       //don't load any more since will write over memory!
       break;
     }
-    //increment the pointer to the start of the next record
-    pFunctionData = strchr(pFunctionData, '\n') + 1;
   }
   return TRUE;
 }
