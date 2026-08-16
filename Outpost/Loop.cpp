@@ -146,7 +146,7 @@ GAMECODE gameLoop(void)
   if (fogStatus & FOG_BACKGROUND)
   {
     clearMode = CLEAR_FOG; //screen clear to fog colour D3D
-    if (loopMissionState == LMS_SAVECONTINUE)
+    if (loopMissionState == LMS_MISSIONRESULT)
     {
       pie_SetFogStatus(FALSE);
       clearMode = CLEAR_BLACK;
@@ -450,46 +450,6 @@ GAMECODE gameLoop(void)
       }
     }
 
-    if (bLoadSaveUp)
-    {
-      if (runLoadSave(TRUE)) // check for file name.
-      {
-        if (strlen(sRequestResult))
-        {
-          Neuron::DebugTrace("Returned {}",sRequestResult);
-          if (bRequestLoad)
-          {
-            loopMissionState = LMS_LOADGAME;
-            strcpy(saveGameName, sRequestResult);
-          }
-          else
-          {
-            if (saveInMissionRes())
-            {
-              if (saveGame(sRequestResult, GTYPE_SAVE_START))
-                addConsoleMessage(strresGetString(psStringRes, STR_GAME_SAVED), LEFT_JUSTIFY);
-              else
-              {
-                DEBUG_ASSERT_TEXT(FALSE, "Mission Results: saveGame Failed");
-                deleteSaveGame(sRequestResult);
-              }
-            }
-            else if (bMultiPlayer || saveMidMission())
-            {
-              if (saveGame(sRequestResult, GTYPE_SAVE_MIDMISSION)) //mid mission from [esc] menu
-                addConsoleMessage(strresGetString(psStringRes, STR_GAME_SAVED), LEFT_JUSTIFY);
-              else
-              {
-                DEBUG_ASSERT_TEXT(FALSE, "Mid Mission: saveGame Failed");
-                deleteSaveGame(sRequestResult);
-              }
-            }
-            else
-              DEBUG_ASSERT_TEXT(FALSE, "Attempt to save game with incorrect load/save mode");
-          }
-        }
-      }
-    }
   }
 
   /* Check for quit */
@@ -631,7 +591,7 @@ GAMECODE gameLoop(void)
   {
     pie_GlobalRenderEnd(FALSE); //screen clear to fog colour 3DFX
     clearMode = CLEAR_FOG; //screen clear to fog colour D3D
-    if (loopMissionState == LMS_SAVECONTINUE)
+    if (loopMissionState == LMS_MISSIONRESULT)
     {
       pie_SetFogStatus(FALSE);
       clearMode = CLEAR_BLACK;
@@ -687,16 +647,13 @@ GAMECODE gameLoop(void)
     if (!setUpMission(nextMissionType))
       return GAMECODE_QUITGAME;
     break;
-  case LMS_SAVECONTINUE:
+  case LMS_MISSIONRESULT:
     // just wait for this to be changed when the new mission starts
     clearMode = CLEAR_BLACK;
     break;
   case LMS_NEWLEVEL:
     nextMissionType = LDS_NONE;
     return GAMECODE_NEWLEVEL;
-    break;
-  case LMS_LOADGAME:
-    return GAMECODE_LOADGAME;
     break;
   default: DEBUG_ASSERT_TEXT(FALSE, "unknown loopMissionState");
     break;

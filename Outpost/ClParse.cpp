@@ -85,19 +85,6 @@ BOOL ParseCommandLine(LPSTR psCmdLine)
       strncpy(pLevelName, token, 254);
       SetGameMode(GS_NORMAL);
     }
-    else if (stricmp(tokenType, "-savegame") == 0)
-    {
-      // find the game name
-      token = strtok(nullptr, seps);
-      if (token == nullptr)
-      {
-        Neuron::Fatal("Unrecognised -savegame name\n");
-        return FALSE;
-      }
-      strcpy(saveGameName, "savegame\\");
-      strncat(saveGameName, token, 240);
-      SetGameMode(GS_SAVEGAMELOAD);
-    }
 #endif
     else if (stricmp(tokenType, "-datapath") == 0)
     {

@@ -9,7 +9,6 @@ using TITLECODE = enum
   TITLECODE_STARTGAME,
   TITLECODE_QUITGAME,
   TITLECODE_SHOWINTRO,
-  TITLECODE_SAVEGAMELOAD,
 };
 
 //used to set the scriptWinLoseVideo variable

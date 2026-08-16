@@ -197,8 +197,6 @@ static void orderDroids(void);
 #define IDOPT_MAPNEW		1032		// The new map button
 #define IDOPT_MAPWIDTH		1033		// The edit box for the map width
 #define IDOPT_MAPHEIGHT		1034		// The edit box for the map height
-#define	IDOPT_LOADGAME		1035		// The load game button
-#define IDOPT_SAVEGAME		1036		// The save game button
 #define IDOPT_DROID			1037		// The place droid button
 #define IDOPT_STRUCT		1038		// The place struct button
 #define IDOPT_FEATURE		1039		// The place feature button
@@ -251,7 +249,6 @@ static void orderDroids(void);
 #define OPT_MAPY		25
 #define OPT_EDITY		100
 #define OPT_PLAYERY		150
-#define OPT_LOADY		260
 
 /* Edit positions */
 #define ED_X			32
@@ -1081,7 +1078,7 @@ void intResetScreen(BOOL NoAnim)
     if (NoAnim)
       intCloseInGameOptionsNoAnim(TRUE);
     else
-      intCloseInGameOptions(FALSE, TRUE);
+      intCloseInGameOptions(TRUE);
     break;
 
   case INT_MISSIONRES:
@@ -1284,37 +1281,7 @@ INT_RETVAL intRunWidgets(void)
   }
   objectsChanged = FALSE;
 
-  if (bLoadSaveUp)
-  {
-    if (runLoadSave(TRUE)) // check for file name.
-    {
-      if (strlen(sRequestResult))
-      {
-        Neuron::DebugTrace("Returned {}",sRequestResult);
-        if (bRequestLoad)
-        {
-          loopMissionState = LMS_LOADGAME;
-          strcpy(saveGameName, sRequestResult);
-        }
-        else
-        {
-          if (saveGame(sRequestResult, GTYPE_SAVE_START))
-          {
-            addConsoleMessage(strresGetString(psStringRes, STR_GAME_SAVED), LEFT_JUSTIFY);
-
-            if (widgGetFromID(psWScreen,IDMISSIONRES_SAVE))
-              widgDelete(psWScreen,IDMISSIONRES_SAVE);
-          }
-          else
-          {
-            DEBUG_ASSERT_TEXT(FALSE, "intRunWidgets: saveGame Failed");
-            deleteSaveGame(sRequestResult);
-          }
-        }
-      }
-    }
-  }
-  else if (InGameOpUp)
+  if (InGameOpUp)
     intRunInGameOptions();
 
   if (MissionResUp)
@@ -1977,19 +1944,6 @@ static void intProcessOptions(UDWORD id)
     case IDOPT_MAPLABEL:
     case IDOPT_PLAYERFORM:
     case IDOPT_PLAYERLABEL:
-      break;
-    case IDOPT_SAVEGAME:
-      /* NO LONGER AVAILABLE HERE - 14/04/98 AB*/
-      //			if (saveGame())
-      break;
-    case IDOPT_LOADGAME:
-      /* NO LONGER AVAILABLE HERE - 14/04/98 AB
-      if (loadGame(NULL, FALSE, TRUE))  
-      {
-        intRemoveOptions();
-        intMode = INT_NORMAL;
-        widgSetButtonState(psWScreen, IDRET_OPTIONS, 0);
-      }*/
       break;
     default: DEBUG_ASSERT_TEXT(FALSE, "intProcessOptions: Unknown return code");
       break;
@@ -3454,12 +3408,6 @@ BOOL _intAddOptions(void)
     = "Save"; sButInit.pTip = "Save Map File"; if (!widgAddButton(psWScreen, &sButInit)) { return FALSE; } sButInit.id = IDOPT_MAPNEW;
   sButInit.x = OPT_GAP; sButInit.y = OPT_GAP * 2 + OPT_BUTHEIGHT; sButInit.pText = "New"; sButInit.pTip = "New Blank Map"; if (!
     widgAddButton(psWScreen, &sButInit)) { return FALSE; }
-
-  /* Add the load and save game buttons */
-  sButInit.formID = IDOPT_FORM; sButInit.id = IDOPT_LOADGAME; sButInit.x = OPT_GAP; sButInit.y = OPT_LOADY; sButInit.pText = "Load";
-  sButInit.pTip = strresGetString(psStringRes, STR_MISC_LOADGAME); if (!widgAddButton(psWScreen, &sButInit)) { return FALSE; } sButInit.id =
-    IDOPT_SAVEGAME; sButInit.x += OPT_GAP + OPT_BUTWIDTH; sButInit.pText = "Save"; sButInit.pTip =
-    strresGetString(psStringRes, STR_MISC_SAVEGAME); if (!widgAddButton(psWScreen, &sButInit)) { return FALSE; }
 
   /* Add the map size edit boxes */
   newMapWidth = mapWidth; newMapHeight = mapHeight; sEdInit.formID = IDOPT_MAPFORM; sEdInit.id = IDOPT_MAPWIDTH; sEdInit.style = WEDB_PLAIN;

@@ -221,12 +221,8 @@ TITLECODE titleLoop(void)
     break;
 
   case STARTGAME:
-  case LOADSAVEGAME:
     initLoadingScreen(TRUE,TRUE); //render active
-    if (titleMode == LOADSAVEGAME)
-      RetCode = TITLECODE_SAVEGAMELOAD;
-    else
-      RetCode = TITLECODE_STARTGAME;
+    RetCode = TITLECODE_STARTGAME;
     pie_GlobalRenderEnd(TRUE); //force to black
     return RetCode; // don't flip!
     break;

@@ -173,7 +173,7 @@ static BOOL _intAddInGameOptions(void)
   //if already open, then close!
   if (widgGetFromID(psWScreen,INTINGAMEOP))
   {
-    intCloseInGameOptions(FALSE, TRUE);
+    intCloseInGameOptions(TRUE);
     return TRUE;
   }
 
@@ -192,26 +192,16 @@ static BOOL _intAddInGameOptions(void)
   sFormInit.style = WFORM_PLAIN;
   sFormInit.x = static_cast<SWORD>(INTINGAMEOP_X);
   sFormInit.y = static_cast<SWORD>(INTINGAMEOP_Y);
-  sFormInit.height = INTINGAMEOP_H;
-
-  if ((!bMultiPlayer || (NetPlay.bComms == 0)) && !bInTutorial) {}
-  else
-    sFormInit.height = INTINGAMEOP_HS;
+  /* The taller form existed to hold the load and save buttons; the menu is
+   * always quit/resume/options now, so it is always the short form. */
+  sFormInit.height = INTINGAMEOP_HS;
 
   sFormInit.pDisplay = intOpenPlainForm;
   sFormInit.disableChildren = TRUE;
   widgAddForm(psWScreen, &sFormInit);
 
   // add 'quit' text
-#if 0
   addIGTextButton(INTINGAMEOP_QUIT,INTINGAMEOP_3_Y, STR_GAME_QUIT,OPALIGN);
-#else
-  if ((!bMultiPlayer || (NetPlay.bComms == 0)) && !bInTutorial)
-    addIGTextButton(INTINGAMEOP_QUIT,INTINGAMEOP_5_Y, STR_GAME_QUIT,OPALIGN);
-  else
-    addIGTextButton(INTINGAMEOP_QUIT,INTINGAMEOP_3_Y, STR_GAME_QUIT,OPALIGN);
-
-#endif
 
   // add 'resume'
   addIGTextButton(INTINGAMEOP_RESUME,INTINGAMEOP_1_Y, STR_GAME_RESUME,OPALIGN);
@@ -220,14 +210,6 @@ static BOOL _intAddInGameOptions(void)
 
   // add 'options'
   addIGTextButton(INTINGAMEOP_OPTIONS,INTINGAMEOP_2_Y, STR_FE_OPTIONS,OPALIGN);
-
-  if ((!bMultiPlayer || (NetPlay.bComms == 0)) && !bInTutorial)
-  {
-    // add 'load'
-    addIGTextButton(INTINGAMEOP_LOAD,INTINGAMEOP_3_Y, STR_MISC_LOADGAME,OPALIGN);
-    // add 'save'
-    addIGTextButton(INTINGAMEOP_SAVE,INTINGAMEOP_4_Y, STR_MISC_SAVEGAME,OPALIGN);
-  }
 
   intMode = INT_INGAMEOP; // change interface mode.
   InGameOpUp = TRUE; // inform interface.
@@ -269,38 +251,25 @@ void intCloseInGameOptionsNoAnim(BOOL bResetMissionWidgets)
 }
 
 // ////////////////////////////////////////////////////////////////////////////
-BOOL intCloseInGameOptions(BOOL bPutUpLoadSave, BOOL bResetMissionWidgets)
+BOOL intCloseInGameOptions(BOOL bResetMissionWidgets)
 {
   W_TABFORM* Form;
-  WIDGET* widg;
 
-  if (bPutUpLoadSave)
+  // close the form.
+  // Start the window close animation.
+  Form = (W_TABFORM*)widgGetFromID(psWScreen,INTINGAMEOP);
+  if (Form)
   {
-    widg = widgGetFromID(psWScreen,INTINGAMEOP);
-    if (widg)
-      widgDelete(psWScreen,INTINGAMEOP);
-
+    Form->display = intClosePlainForm;
+    Form->pUserData = static_cast<void*>(nullptr); // Used to signal when the close anim has finished.
+    Form->disableChildren = TRUE;
+    ClosingInGameOp = TRUE; // like orderup/closingorder
     InGameOpUp = FALSE;
-    ClosingInGameOp = TRUE;
-  }
-  else
-  {
-    // close the form.
-    // Start the window close animation.
-    Form = (W_TABFORM*)widgGetFromID(psWScreen,INTINGAMEOP);
-    if (Form)
-    {
-      Form->display = intClosePlainForm;
-      Form->pUserData = static_cast<void*>(nullptr); // Used to signal when the close anim has finished.
-      Form->disableChildren = TRUE;
-      ClosingInGameOp = TRUE; // like orderup/closingorder
-      InGameOpUp = FALSE;
-    }
   }
 
   ProcessOptionFinished();
 
-  //don't add the widgets if the load/save screen is put up or exiting to front end
+  //don't add the widgets if exiting to the front end
   if (bResetMissionWidgets)
   {
     //put any widgets back on for the missions
@@ -329,7 +298,7 @@ void intProcessInGameOptions(UDWORD id)
     break;
 
   case INTINGAMEOP_QUIT_CONFIRM: //quit was confirmed.
-    intCloseInGameOptions(FALSE, FALSE);
+    intCloseInGameOptions(FALSE);
     break;
 
   case INTINGAMEOP_OPTIONS: //game options  was pressed
@@ -337,22 +306,10 @@ void intProcessInGameOptions(UDWORD id)
     break;
 
   case INTINGAMEOP_RESUME: //resume was pressed.
-    intCloseInGameOptions(FALSE, TRUE);
+    intCloseInGameOptions(TRUE);
     break;
 
-  //	case INTINGAMEOP_REPLAY:
-  //		if(0!=strcmp(getLevelName(),"CAM_1A"))
-  case INTINGAMEOP_LOAD:
-    intCloseInGameOptions(TRUE, FALSE);
-    addLoadSave(LOAD_INGAME, "savegame\\", "gam", strresGetString(psStringRes, STR_MR_LOAD_GAME));
-    // change mode when loadsave returns//		if(runLoadSave())// check for file name.
-    break;
-  case INTINGAMEOP_SAVE:
-    intCloseInGameOptions(TRUE, FALSE);
-    addLoadSave(SAVE_INGAME, "savegame\\", "gam", strresGetString(psStringRes, STR_MR_SAVE_GAME));
-    break;
-
-  // GAME OPTIONS KEYS 
+  // GAME OPTIONS KEYS
   case INTINGAMEOP_FXVOL:
   case INTINGAMEOP_CDVOL:
     //	case INTINGAMEOP_GAMMA:	

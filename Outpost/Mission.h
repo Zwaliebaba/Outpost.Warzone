@@ -69,7 +69,6 @@ extern void swapMissionPointers(void);
 #define		IDTIMER_DISPLAY			11001
 #define		IDMISSIONRES_FORM		11002
 #define     IDMISSIONRES_QUIT		11007
-#define     IDMISSIONRES_SAVE		11006
 
 //timer display for transporter timer
 #define		IDTRANTIMER_DISPLAY		11010

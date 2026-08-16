@@ -13,18 +13,11 @@
 #include "HCI.h"
 #include "LoadSave.h"
 #include "MultiPlay.h"
-#include "Game.h"
+#include "AudioSystem.h"
 #include "AudioID.h"
 #include "FrontEnd.h"
-#include "WinMain.h"
-#include "Display3D.h"
-#include "Display.h"
-#include "NetPlay.h"
-#include "Loop.h"
 #include "IntDisplay.h"
 #include "Text.h"
-#include "Mission.h"
-#include "GTime.h"
 
 // ////////////////////////////////////////////////////////////////////////////
 #define LOADSAVE_X				130	+ D_W
@@ -55,10 +48,10 @@
 // ////////////////////////////////////////////////////////////////////////////
 void drawBlueBox(UDWORD x, UDWORD y, UDWORD w, UDWORD h);
 BOOL closeLoadSave();
-BOOL runLoadSave(BOOL bResetMissionWidgets);
+BOOL runLoadSave();
 BOOL displayLoadSave();
 static BOOL _addLoadSave(BOOL bLoad, CHAR* sSearchPath, CHAR* sExtension, CHAR* title);
-static BOOL _runLoadSave(BOOL bResetMissionWidgets);
+static BOOL _runLoadSave(void);
 static void displayLoadBanner(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pColours);
 static void displayLoadSlot(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pColours);
 static void displayLoadSaveEdit(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pColours);
@@ -69,46 +62,17 @@ static BOOL mode;
 static UDWORD chosenSlotId;
 
 BOOL bLoadSaveUp = FALSE; // true when interface is up and should be run.
-STRING saveGameName[256]; //the name of the save game to load from the front end
 STRING sRequestResult[255]; // filename returned;
 STRING sDelete[MAX_STR_LENGTH];
 BOOL bRequestLoad = FALSE;
-LOADSAVE_MODE bLoadSaveMode;
 
 static CHAR sPath[255];
 static CHAR sExt[4];
 
 // ////////////////////////////////////////////////////////////////////////////
-// return whether the save screen was displayed in the mission results screen
-BOOL saveInMissionRes(void) { return bLoadSaveMode == SAVE_MISSIONEND; }
-
-// ////////////////////////////////////////////////////////////////////////////
-// return whether the save screen was displayed in the middle of a mission
-BOOL saveMidMission(void) { return bLoadSaveMode == SAVE_INGAME; }
-
-// ////////////////////////////////////////////////////////////////////////////
 BOOL addLoadSave(LOADSAVE_MODE mode, CHAR* sSearchPath, CHAR* sExtension, CHAR* title)
 {
-  BOOL bLoad;
-
-  bLoadSaveMode = mode;
-
-  switch (mode)
-  {
-  case LOAD_FRONTEND:
-  case LOAD_MISSIONEND:
-  case LOAD_INGAME:
-  case LOAD_FORCE:
-    bLoad = TRUE;
-    break;
-  case SAVE_MISSIONEND:
-  case SAVE_INGAME:
-  case SAVE_FORCE: default:
-    bLoad = FALSE;
-    break;
-  }
-
-  return _addLoadSave(bLoad, sSearchPath, sExtension, title);
+  return _addLoadSave(mode == LOAD_FORCE, sSearchPath, sExtension, title);
 }
 
 // ////////////////////////////////////////////////////
@@ -128,38 +92,6 @@ static BOOL _addLoadSave(BOOL bLoad, CHAR* sSearchPath, CHAR* sExtension, CHAR* 
 
   if (GetCurrentDirectory(255, (char*)&sTemp) == 0)
     return FALSE; // failed, directory probably didn't exist.
-
-  if ((bLoadSaveMode == LOAD_INGAME) || (bLoadSaveMode == SAVE_INGAME))
-  {
-    if (!bMultiPlayer || (NetPlay.bComms == 0))
-    {
-      gameTimeStop();
-      if (GetGameMode() == GS_NORMAL)
-      {
-        BOOL radOnScreen = radarOnScreen; // Only do this in main game.
-
-        bRender3DOnly = TRUE;
-        radarOnScreen = FALSE;
-
-        displayWorld(); // Just display the 3d, no interface
-
-        pie_UploadDisplayBuffer(DisplayBuffer); // Upload the current display back buffer into system memory.
-
-
-        radarOnScreen = radOnScreen;
-        bRender3DOnly = FALSE;
-      }
-
-      setGamePauseStatus(TRUE);
-      setGameUpdatePause(TRUE);
-      setScriptPause(TRUE);
-      setScrollPause(TRUE);
-      setConsolePause(TRUE);
-    }
-
-    forceHidePowerBar();
-    intRemoveReticule();
-  }
 
   CreateDirectory(sSearchPath, nullptr); // create the directory required... fails if already there, so no problem.
   widgCreateScreen(&psRequestScreen); // init the screen.
@@ -279,80 +211,25 @@ BOOL closeLoadSave(void)
 {
   widgDelete(psRequestScreen,LOADSAVE_FORM);
   bLoadSaveUp = FALSE;
-
-  if ((bLoadSaveMode == LOAD_INGAME) || (bLoadSaveMode == SAVE_INGAME))
-  {
-    if (!bMultiPlayer || (NetPlay.bComms == 0))
-    {
-      gameTimeStart();
-      setGamePauseStatus(FALSE);
-      setGameUpdatePause(FALSE);
-      setScriptPause(FALSE);
-      setScrollPause(FALSE);
-      setConsolePause(FALSE);
-    }
-
-    intAddReticule();
-    intShowPowerBar();
-  }
   widgReleaseScreen(psRequestScreen);
 
   return TRUE;
 }
 
 // ////////////////////////////////////////////////////////////////////////////
-BOOL runLoadSave(BOOL bResetMissionWidgets) { return _runLoadSave(bResetMissionWidgets); }
-
-// ////////////////////////////////////////////////////////////////////////////
-void deleteSaveGame(char* saveGameName)
-{
-  CHAR sTemp2[MAX_STR_LENGTH], sToDel[MAX_STR_LENGTH];
-  WIN32_FIND_DATA found;
-  HANDLE dir;
-
-  DEBUG_ASSERT_TEXT(strlen(saveGameName) < MAX_STR_LENGTH, "deleteSaveGame; save game name too long");
-
-  DeleteFile(saveGameName); // remove old file.
-
-  saveGameName[strlen(saveGameName) - 4] = '\0'; // strip extension
-
-  strcat(saveGameName, ".es"); // remove script data if it exists.
-  DeleteFile(saveGameName);
-
-  saveGameName[strlen(saveGameName) - 3] = '\0'; // strip extension
-
-  // if it's a save game, delete the other files.
-  // check for a directory and remove that too.
-  sprintf(sTemp2, "%s\\*.*", saveGameName);
-
-  dir = FindFirstFile(sTemp2, &found); // remove other files
-  if (dir != INVALID_HANDLE_VALUE)
-  {
-    sprintf(sToDel, "%s\\%s", saveGameName, found.cFileName);
-    DeleteFile(sToDel);
-    while (FindNextFile(dir, &found))
-    {
-      sprintf(sToDel, "%s\\%s", saveGameName, found.cFileName);
-      DeleteFile(sToDel);
-    }
-  }
-  FindClose(dir);
-
-  RemoveDirectory(saveGameName);
-}
+BOOL runLoadSave(void) { return _runLoadSave(); }
 
 // ////////////////////////////////////////////////////////////////////////////
 // Returns TRUE if cancel pressed or a valid game slot was selected.
 // if when returning TRUE strlen(sRequestResult) != 0 then a valid game
 // slot was selected otherwise cancel was selected..
-static BOOL _runLoadSave(BOOL bResetMissionWidgets)
+static BOOL _runLoadSave(void)
 {
   UDWORD id = 0;
   W_EDBINIT sEdInit;
   CHAR sTemp[MAX_STR_LENGTH];
-  UDWORD iCampaign, i;
+  UDWORD i;
   W_CONTEXT context;
-  BOOL bSkipCD = FALSE;
 
   id = widgRunScreen(psRequestScreen);
 
@@ -372,13 +249,6 @@ static BOOL _runLoadSave(BOOL bResetMissionWidgets)
       else
         goto failure; // clicked on an empty box
 
-      if (bLoadSaveMode == LOAD_FORCE || bLoadSaveMode == SAVE_FORCE)
-        goto successforce; // it's a force, dont check the cd.
-
-      /* getCampaign is still called for its bSkipCD out-parameter side
-       * effects on the caller's expectations; the disc it named is no longer
-       * consulted, because the content is on disk. */
-      iCampaign = getCampaign(sRequestResult, &bSkipCD);
       goto success;
     }
     //  SAVING!add edit box at that position.
@@ -457,7 +327,7 @@ static BOOL _runLoadSave(BOOL bResetMissionWidgets)
       strcpy(sTemp, ((W_EDITBOX*)widgGetFromID(psRequestScreen, id))->aText);
       removeWildcards(sTemp);
       sprintf(sRequestResult, "%s%s.%s", sPath, sTemp, sExt);
-      deleteSaveGame(sDelete); //only delete game if a new game fills the slot
+      DeleteFile(sDelete); //only delete the old file if a new name fills the slot
     }
     else
       goto failure; // we entered a blank name..
@@ -465,8 +335,6 @@ static BOOL _runLoadSave(BOOL bResetMissionWidgets)
     // we're done. saving.
     closeLoadSave();
     bRequestLoad = FALSE;
-    if (bResetMissionWidgets AND widgGetFromID(psWScreen,IDMISSIONRES_FORM) == nullptr)
-      resetMissionWidgets(); //reset the mission widgets here if necessary
     return TRUE;
   }
 
@@ -476,14 +344,10 @@ static BOOL _runLoadSave(BOOL bResetMissionWidgets)
 failure:
   closeLoadSave();
   bRequestLoad = FALSE;
-  if (bResetMissionWidgets AND widgGetFromID(psWScreen,IDMISSIONRES_FORM) == nullptr)
-    resetMissionWidgets();
   return TRUE;
 
   // success on load.
 success:
-  setCampaignNumber(getCampaign(sRequestResult, &bSkipCD));
-successforce:
   closeLoadSave();
   bRequestLoad = TRUE;
   return TRUE;

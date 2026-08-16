@@ -86,7 +86,6 @@ char pLevelName[MAX_LEVEL_NAME_SIZE + 1]; //256];			// vital! the wrf file to us
 #else
 char pLevelName[] = "ROCKIES";
 #endif
-//STRING			saveGameName[256];			//the name of the save game to load from the front end
 BOOL bForceEditorLoaded = FALSE;
 BOOL bUsingKeyboard = FALSE; // to disable mouse pointer when using keys.
 BOOL bUsingSlider = FALSE;
@@ -285,7 +284,6 @@ VOID changeTitleMode(tMode mode)
     break;
   case STARTGAME:
   case QUIT:
-  case LOADSAVEGAME:
     bUsingKeyboard = FALSE;
     bForceEditorLoaded = FALSE;
   case SHOWINTRO:
@@ -446,15 +444,9 @@ VOID startSinglePlayerMenu(VOID)
   addTopForm();
   addBottomForm();
 
-#ifdef COVERMOUNT						// reduce single player options
-  addTextButton(FRONTEND_NEWGAME, FRONTEND_POS5X,FRONTEND_POS5Y, strresGetString(psStringRes, STR_FE_NEW),FALSE,TRUE); addTextButton(
-    FRONTEND_LOADGAME, FRONTEND_POS6X,FRONTEND_POS6Y, strresGetString(psStringRes, STR_FE_LOAD),FALSE,TRUE);
-#else
-  addTextButton(FRONTEND_LOADGAME, FRONTEND_POS4X,FRONTEND_POS4Y, strresGetString(psStringRes, STR_FE_LOAD),FALSE,FALSE);
   addTextButton(FRONTEND_NEWGAME, FRONTEND_POS3X,FRONTEND_POS3Y, strresGetString(psStringRes, STR_FE_NEW),FALSE,FALSE);
-#endif
   addSideText(FRONTEND_SIDETEXT,FRONTEND_SIDEX,FRONTEND_SIDEY, strresGetString(psStringRes, STR_FE_SIDESINGLE1));
-  SetCurrentSnapID(&InterfaceSnap,FRONTEND_LOADGAME);
+  SetCurrentSnapID(&InterfaceSnap,FRONTEND_NEWGAME);
   addMultiBut(psWScreen,FRONTEND_BOTFORM,FRONTEND_QUIT, 10, 10, 30, 29, STR_FE_RETURN, IMAGE_RETURN, IMAGE_RETURN_HI,TRUE);
 }
 
@@ -488,44 +480,19 @@ void frontEndNewGame(void)
   changeTitleMode(STARTGAME);
 }
 
-void loadOK(void)
-{
-  if (strlen(sRequestResult))
-  {
-    strcpy(saveGameName, sRequestResult);
-    changeTitleMode(LOADSAVEGAME);
-  }
-  SetCurrentSnapID(&InterfaceSnap,FRONTEND_LOADGAME);
-}
-
 BOOL runSinglePlayerMenu(VOID)
 {
   UDWORD id;
 
   processFrontendSnap(TRUE);
 
-  if (bLoadSaveUp)
   {
-    if (runLoadSave(FALSE)) // check for file name.
-    {
-      loadOK();
-      SetCurrentSnapID(&InterfaceSnap,FRONTEND_LOADGAME);
-    }
-  }
-  else
-  {
-    id = widgRunScreen(psWScreen); // Run the current set of widgets 
+    id = widgRunScreen(psWScreen); // Run the current set of widgets
 
-    /* GJ to TC - this call processes the CD change widget box */
     switch (id)
     {
     case FRONTEND_NEWGAME:
       frontEndNewGame();
-      break;
-
-    case FRONTEND_LOADGAME:
-      addLoadSave(LOAD_FRONTEND, "savegame\\", "gam", strresGetString(psStringRes, STR_MR_LOAD_GAME));
-      // change mode when loadsave returns
       break;
 
     case FRONTEND_QUIT:
@@ -542,11 +509,7 @@ BOOL runSinglePlayerMenu(VOID)
 
   DrawBegin();
   StartCursorSnap(&InterfaceSnap);
-  if (!bLoadSaveUp) // if save/load screen is up
-    widgDisplayScreen(psWScreen); // show the widgets currently running
-  if (bLoadSaveUp) // if save/load screen is up
-    displayLoadSave();
-
+  widgDisplayScreen(psWScreen); // show the widgets currently running
   DrawEnd();
   return TRUE;
 }

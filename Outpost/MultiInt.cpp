@@ -2401,7 +2401,7 @@ VOID runForceSelect(VOID)
 
   if (bLoadSaveUp)
   {
-    if (runLoadSave(FALSE)) // check for file name.
+    if (runLoadSave()) // check for file name.
     {
       if (strlen(sRequestResult))
       {

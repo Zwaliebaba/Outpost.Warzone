@@ -37,7 +37,6 @@ using tMode = enum _title_mode
   // 13 reshow the intro
   QUIT,
   // 14 leaving game
-  LOADSAVEGAME,
   // 15 loading a save game
   KEYMAP,
   // 16 keymap editor
@@ -160,7 +159,6 @@ BOOL addIGTextButton(UDWORD id, UWORD y, UDWORD StringID, UDWORD Style);
 #define FRONTEND_SKIRMISH		20010
 
 #define FRONTEND_NEWGAME		20011		// single player
-#define FRONTEND_LOADGAME		20012
 #define FRONTEND_PLAYINTRO		20013
 
 #define FRONTEND_SCROLLSPEED	20015

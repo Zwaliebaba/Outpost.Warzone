@@ -63,7 +63,6 @@ extern CURSORSNAP InterfaceSnap;
 //DEFINES**************
 
 #define		IDMISSIONRES_TXT		11004
-#define     IDMISSIONRES_LOAD		11005
 #define     IDMISSIONRES_CONTINUE	11008
 
 #define		IDMISSIONRES_BACKFORM	11013
@@ -2918,48 +2917,32 @@ static BOOL _intAddMissionResult(BOOL result, BOOL bPlaySuccess)
     else
     {
       // Finished the mission, so display "Continue Game"
-      if (!GetInFastPlay()) // If in fast play then no save option so move up a bit.
-        sButInit.y = MISSION_2_Y;
-      else
-        sButInit.y = MISSION_2_Y - 16;
+      sButInit.y = MISSION_2_Y;
       sButInit.id = IDMISSIONRES_CONTINUE;
       sButInit.pText = strresGetString(psStringRes, STR_MR_CONTINUE); //"Continue Game";
       widgAddButton(psWScreen, &sButInit);
-      intSetCurrentCursorPosition(&InterfaceSnap, sButInit.id);
-    }
 
-#ifndef COVERMOUNT
-    /* Only add save option if in the game for real, ie, not fastplay. 
-        And the player hasn't just completed the whole game
-        Don't add save option if just lost and in debug mode*/
-    if (!GetInFastPlay() AND !testPlayerHasWon() AND !(testPlayerHasLost() AND getDebugMappingStatus()))
-    {
-      //save
-      sButInit.id = IDMISSIONRES_SAVE;
+      /* The save button sat in the MISSION_1 slot and quitting was offered
+       * only once a save had been made. With saves gone, quit is offered
+       * directly in that slot. */
+      sButInit.id = IDMISSIONRES_QUIT;
       sButInit.x = MISSION_1_X;
       sButInit.y = MISSION_1_Y;
-      sButInit.pText = strresGetString(psStringRes, STR_MR_SAVE_GAME); //"Save Game";
+      sButInit.pText = strresGetString(psStringRes, STR_MR_QUIT_TO_MAIN);
       widgAddButton(psWScreen, &sButInit);
-      intSetCurrentCursorPosition(&InterfaceSnap, sButInit.id);
+
+      intSetCurrentCursorPosition(&InterfaceSnap, IDMISSIONRES_CONTINUE);
     }
-#endif
   }
   else
   {
-#ifndef COVERMOUNT
-    //load
-    sButInit.id = IDMISSIONRES_LOAD;
-    sButInit.x = MISSION_1_X;
-    sButInit.y = MISSION_1_Y;
-    sButInit.pText = strresGetString(psStringRes, STR_MR_LOAD_GAME); //"Load Saved Game";
-    widgAddButton(psWScreen, &sButInit);
-    intSetCurrentCursorPosition(&InterfaceSnap, sButInit.id);
-#endif		//quit
+    //quit
     sButInit.id = IDMISSIONRES_QUIT;
     sButInit.x = MISSION_2_X;
     sButInit.y = MISSION_2_Y;
     sButInit.pText = strresGetString(psStringRes, STR_MR_QUIT_TO_MAIN); //"Quit to Main Menu";
     widgAddButton(psWScreen, &sButInit);
+    intSetCurrentCursorPosition(&InterfaceSnap, sButInit.id);
   }
 
   intMode = INT_MISSIONRES;
@@ -3004,24 +2987,6 @@ void intRunMissionResult()
 {
   processFrontendSnap(FALSE);
   frameSetCursorFromRes(IDC_DEFAULT);
-
-  if (bLoadSaveUp)
-  {
-    if (runLoadSave(FALSE)) // check for file name.
-    {
-      if (strlen(sRequestResult))
-      {
-        Neuron::DebugTrace("Returned {}",sRequestResult);
-
-        if (bRequestLoad) {}
-        else
-        {
-          saveGame(sRequestResult, GTYPE_SAVE_START);
-          addConsoleMessage(strresGetString(psStringRes, STR_GAME_SAVED), LEFT_JUSTIFY);
-        }
-      }
-    }
-  }
 }
 
 void missionContineButtonPressed(void)
@@ -3054,44 +3019,13 @@ void missionContineButtonPressed(void)
 
 void intProcessMissionResult(UDWORD id)
 {
-  W_BUTINIT sButInit;
-
   switch (id)
   {
-  case IDMISSIONRES_LOAD:
-    // throw up some filerequester
-    addLoadSave(LOAD_MISSIONEND, "savegame\\", "gam", strresGetString(psStringRes, STR_MR_LOAD_GAME)/*"Load Game"*/);
-    break;
-  case IDMISSIONRES_SAVE:
-    addLoadSave(SAVE_MISSIONEND, "savegame\\", "gam", strresGetString(psStringRes, STR_MR_SAVE_GAME)/*"Save Game"*/);
-
-    if (widgGetFromID(psWScreen, IDMISSIONRES_QUIT) == nullptr)
-    {
-      //Add Quit Button now save has been pressed
-      memset(&sButInit, 0, sizeof(W_BUTINIT));
-      sButInit.formID = IDMISSIONRES_FORM;
-      sButInit.style = WBUT_PLAIN | WBUT_TXTCENTRE;
-      sButInit.width = MISSION_TEXT_W;
-      sButInit.height = MISSION_TEXT_H;
-      sButInit.FontID = WFont;
-      sButInit.pTip = nullptr;
-      sButInit.pDisplay = displayTextOption;
-      sButInit.id = IDMISSIONRES_QUIT;
-      sButInit.x = MISSION_3_X;
-      sButInit.y = MISSION_3_Y;
-      sButInit.pText = strresGetString(psStringRes, STR_MR_QUIT_TO_MAIN);
-      widgAddButton(psWScreen, &sButInit);
-    }
-    break;
-
   case IDMISSIONRES_QUIT:
     // catered for by hci.c.
     break;
 
   case IDMISSIONRES_CONTINUE:
-    if (bLoadSaveUp)
-      closeLoadSave(); // close save interface if it's up.
-
     missionContineButtonPressed();
     break;
 
@@ -3174,10 +3108,10 @@ BOOL setUpMission(UDWORD type)
       //we don't want the 'mission accomplished' audio/text message at end of cam1
       if (getCampaignNumber() == 2)
         bPlaySuccess = FALSE;
-      //give the option of save/continue
+      //put up the mission results screen
       if (!intAddMissionResult(TRUE, bPlaySuccess))
         return FALSE;
-      loopMissionState = LMS_SAVECONTINUE;
+      loopMissionState = LMS_MISSIONRESULT;
       //intCDOK(); - do this later - in missionContineButtonPressed() to be exact
     }
     /*else
@@ -3189,7 +3123,7 @@ BOOL setUpMission(UDWORD type)
       }
       missionResetInGameState();
       addCDChangeInterface( CDrequired, intCDOK, intCDCancel );
-      loopMissionState = LMS_SAVECONTINUE;
+      loopMissionState = LMS_MISSIONRESULT;
     }*/
   }
   else if (type == LDS_MKEEP
@@ -3205,16 +3139,16 @@ BOOL setUpMission(UDWORD type)
       setWidgetsStatus(TRUE);
       intResetScreen(FALSE);
     }
-    //give the option of save/continue
+    //put up the mission results screen
     if (!intAddMissionResult(TRUE, TRUE))
       return FALSE;
-    loopMissionState = LMS_SAVECONTINUE;
+    loopMissionState = LMS_MISSIONRESULT;
   }
 
-  //if current mission is 'between' then don't give option to save/continue again
+  //if current mission is 'between' then don't put the results screen up again
   /*if (oldMission != MISSION_BETWEEN)
   {
-    //give the option of save/continue
+    //put up the mission results screen
     if (!intAddMissionResult(TRUE))
     {
       return FALSE;

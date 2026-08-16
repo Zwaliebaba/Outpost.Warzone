@@ -208,14 +208,6 @@ init: //jump here from the end if re_initialising
       }
       break;
 
-    case GS_SAVEGAMELOAD:
-      screen_RestartBackDrop();
-      gameStatus = GS_NORMAL;
-      // load up a save game
-      if (!loadGameInit(saveGameName,FALSE))
-        goto exit;
-      screen_StopBackDrop();
-      break;
     case GS_NORMAL:
       if (!levLoadData(pLevelName, nullptr, 0))
         goto exit;
@@ -300,10 +292,6 @@ init: //jump here from the end if re_initialising
 
             //						case TITLECODE_ATTRACT:
 
-            case TITLECODE_SAVEGAMELOAD: Neuron::DebugTrace("TITLECODE_SAVEGAMELOAD\n");
-              gameStatus = GS_SAVEGAMELOAD;
-              Restart = TRUE;
-              break;
             case TITLECODE_STARTGAME: Neuron::DebugTrace("TITLECODE_STARTGAME\n");
               gameStatus = GS_NORMAL;
               Restart = TRUE;
@@ -327,17 +315,6 @@ init: //jump here from the end if re_initialising
           }
           break;
 
-        /*				case GS_SAVEGAMELOAD:
-                  if (loopNewLevel)
-                  {
-                    //the start of a campaign/expand mission
-                    DBPRINTF(("GAMECODE_NEWLEVEL\n"));
-                    loopNewLevel = FALSE;
-                    // gameStatus is unchanged, just loading additional data
-                    Restart = TRUE;
-                  }
-                  break;
-        */
         case GS_NORMAL:
           if (loop_GetVideoStatus())
             videoLoop();
@@ -356,11 +333,6 @@ init: //jump here from the end if re_initialising
             case GAMECODE_FASTEXIT: Neuron::DebugTrace("GAMECODE_FASTEXIT\n");
               Restart = TRUE;
               quit = TRUE;
-              break;
-
-            case GAMECODE_LOADGAME: Neuron::DebugTrace("GAMECODE_LOADGAME\n");
-              Restart = TRUE;
-              gameStatus = GS_SAVEGAMELOAD;
               break;
 
             case GAMECODE_PLAYVIDEO: Neuron::DebugTrace("GAMECODE_PLAYVIDEO\n");
@@ -431,18 +403,13 @@ init: //jump here from the end if re_initialising
       frontendInitialised = FALSE;
       break;
 
-    /*			case GS_SAVEGAMELOAD:
-            //get the next level to load up
-            gameStatus = GS_NORMAL;
-            break;*/
     case GS_NORMAL:
       if (loopStatus != GAMECODE_NEWLEVEL)
       {
         initLoadingScreen(TRUE,FALSE); // returning to f.e. do a loader.render not active
         pie_EnableFog(FALSE); //dont let the normal loop code set status on
         fogStatus = 0;
-        if (loopStatus != GAMECODE_LOADGAME)
-          levReleaseAll();
+        levReleaseAll();
       }
       gameInitialised = FALSE;
       break;
@@ -490,7 +457,7 @@ UDWORD GetGameMode(void) { return gameStatus; }
 void SetGameMode(UDWORD status)
 {
   DEBUG_ASSERT_TEXT(status == GS_TITLE_SCREEN ||
-    status == GS_MISSION_SCREEN || status == GS_NORMAL || status == GS_VIDEO_MODE || status == GS_SAVEGAMELOAD, "SetGameMode: invalid game mode");
+    status == GS_MISSION_SCREEN || status == GS_NORMAL || status == GS_VIDEO_MODE, "SetGameMode: invalid game mode");
 
   gameStatus = status;
 }

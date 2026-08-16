@@ -3060,7 +3060,10 @@ BOOL gameLoadV7(UBYTE* pFileData, UDWORD filesize)
     //copy the level name across
     strcpy(pLevelName, psSaveGame->levelName);
     //load up the level dataset
-    if (!levLoadData(pLevelName, saveGameName, gameType))
+    /* saveGameName came from the load-game UI, which is gone; this branch is
+     * user-save loading and goes with the reader. nullptr keeps it compiling
+     * until it does. */
+    if (!levLoadData(pLevelName, nullptr, gameType))
       return FALSE;
     // find the level dataset
     if (!levFindDataSet(pLevelName, &psNewLevel))
@@ -3338,7 +3341,10 @@ BOOL gameLoadV(UBYTE* pFileData, UDWORD filesize, UDWORD version)
     //copy the level name across
     strcpy(pLevelName, psSaveGame->levelName);
     //load up the level dataset
-    if (!levLoadData(pLevelName, saveGameName, gameType))
+    /* saveGameName came from the load-game UI, which is gone; this branch is
+     * user-save loading and goes with the reader. nullptr keeps it compiling
+     * until it does. */
+    if (!levLoadData(pLevelName, nullptr, gameType))
       return FALSE;
     // find the level dataset
     /*		if (!levFindDataSet(pLevelName, &psNewLevel))
