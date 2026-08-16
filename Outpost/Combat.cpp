@@ -24,7 +24,7 @@
 #include "MessageDef.h"
 #include "MiscIMD.h"
 #include "Projectile.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "AudioID.h"
 #include "Geometry.h"
 #include "CmdDroid.h"

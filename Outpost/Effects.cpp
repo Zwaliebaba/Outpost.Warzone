@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Effects.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "AudioID.h"
 #include "Bucket3D.h"
 #include "Display3D.h"
@@ -606,7 +606,7 @@ void updateFirework(EFFECT* psEffect)
       dv.z = std::lrintf(psEffect->position.z);
       dv.y = std::lrintf(psEffect->position.y) + (psEffect->radius / 2);
       addEffect(&dv, EFFECT_EXPLOSION, EXPLOSION_TYPE_MEDIUM,FALSE, nullptr, 0);
-      audio_PlayStaticTrack(std::lrintf(psEffect->position.x), std::lrintf(psEffect->position.z), ID_SOUND_EXPLOSION);
+      AudioSystem::PlayStaticTrack(std::lrintf(psEffect->position.x), std::lrintf(psEffect->position.z), ID_SOUND_EXPLOSION);
 
       for (UDWORD dif = 0; dif < (psEffect->radius * 2); dif += 20)
       {
@@ -724,7 +724,7 @@ void updateSatLaser(EFFECT* psEffect)
       addEffect(&dv, EFFECT_EXPLOSION, EXPLOSION_TYPE_MEDIUM,FALSE, nullptr, 0);
     }
     /* Add a sound effect */
-    audio_PlayStaticTrack(std::lrintf(psEffect->position.x), std::lrintf(psEffect->position.z), ID_SOUND_EXPLOSION);
+    AudioSystem::PlayStaticTrack(std::lrintf(psEffect->position.x), std::lrintf(psEffect->position.z), ID_SOUND_EXPLOSION);
 
     /* Add a shockwave */
     dv.x = xPos;
@@ -1224,7 +1224,7 @@ void updateDestruction(EFFECT* psEffect)
       {
         iX = std::lrintf(psEffect->position.x);
         iY = std::lrintf(psEffect->position.z);
-        audio_PlayStaticTrack(iX, iY, ID_SOUND_EXPLOSION);
+        AudioSystem::PlayStaticTrack(iX, iY, ID_SOUND_EXPLOSION);
       }
       break;
     }
@@ -2353,7 +2353,7 @@ void effectStructureUpdates(void)
                       addEffect(&eventPos, EFFECT_SMOKE, SMOKE_TYPE_STEAM,FALSE, nullptr, 0);
 
                       if (selectedPlayer == psStructure->player)
-                        audio_PlayObjStaticTrack(psStructure, ID_SOUND_STEAM);
+                        AudioSystem::PlayObjectTrack(psStructure, ID_SOUND_STEAM, nullptr);
                     }
                   }
                   else if (psStructure->pStructureType->type == REF_POWER_GEN)
@@ -2388,7 +2388,7 @@ void effectStructureUpdates(void)
                       eventPos.y = psStructure->z + 48;
                       addEffect(&eventPos, EFFECT_EXPLOSION, EXPLOSION_TYPE_TESLA,FALSE, nullptr, 0);
                       if (selectedPlayer == psStructure->player)
-                        audio_PlayObjStaticTrack(psStructure, ID_SOUND_POWER_SPARK);
+                        AudioSystem::PlayObjectTrack(psStructure, ID_SOUND_POWER_SPARK, nullptr);
                     }
                     /*	Work out how many spires it has. This is a particularly unpleasant
 								hack and I'm not proud of it, but it needs to done. Honest. AM

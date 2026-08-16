@@ -4,9 +4,13 @@
 #define _AUDIO_ID_H_
 
 /***************************************************************************/
-/* INGAME AUDIO */
+/* The game's sound vocabulary. The enumerators keep their 1998 spelling and,
+ * more to the point, their values and order: audio.cfg and the compiled
+ * scripts are matched against them, and several hundred call sites name
+ * them.
+ */
 
-using INGAME_AUDIO = enum
+using InGameAudio = enum
 {
   NO_SOUND = -1,
 
@@ -483,7 +487,9 @@ using INGAME_AUDIO = enum
 
 /***************************************************************************/
 
-extern BOOL audioID_GetIDFromStr(STRING* pWavStr, SDWORD* piID);
+/// Resolves a WAV filename to its InGameAudio id, false if the name is not
+/// one of them.
+[[nodiscard]] bool AudioIdFromName(const char* _wavName, SDWORD& _id);
 
 /***************************************************************************/
 

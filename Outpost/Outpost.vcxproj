@@ -24,7 +24,7 @@
     <ClCompile Include="Arrow.cpp" />
     <ClCompile Include="AStar.cpp" />
     <ClCompile Include="Atmos.cpp" />
-    <ClCompile Include="Aud.cpp" />
+    <ClCompile Include="GameAudio.cpp" />
     <ClCompile Include="AudioID.cpp" />
     <ClCompile Include="Bridge.cpp" />
     <ClCompile Include="Bucket3D.cpp" />
@@ -148,6 +148,7 @@
     <ClInclude Include="AStar.h" />
     <ClInclude Include="Atmos.h" />
     <ClInclude Include="AudioID.h" />
+    <ClInclude Include="GameAudio.h" />
     <ClInclude Include="Base.h" />
     <ClInclude Include="Bridge.h" />
     <ClInclude Include="Bucket3D.h" />
@@ -337,7 +338,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)..\DX9\Lib;$(MSBuildThisFileDirectory)..\NeuronCore;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>d3d9.lib;dxguid.lib;dinput8.lib;winmm.lib;ole32.lib;wsock32.lib;comdlg32.lib;xaudio2.lib;mfplat.lib;mfreadwrite.lib;mfuuid.lib;crypt32.lib;ncrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d9.lib;dxguid.lib;dinput8.lib;ole32.lib;wsock32.lib;comdlg32.lib;xaudio2.lib;mfplat.lib;mfreadwrite.lib;mfuuid.lib;crypt32.lib;ncrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <!-- dinput8.lib in DX9\Lib predates SafeSEH: dilib1.obj carries no
            exception handler table, so /SAFESEH cannot be satisfied (LNK2026 ->
            LNK1281). Debug hid this because incremental linking turns /SAFESEH
@@ -369,7 +370,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)..\DX9\Lib;$(MSBuildThisFileDirectory)..\NeuronCore;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>d3d9.lib;dxguid.lib;dinput8.lib;winmm.lib;ole32.lib;wsock32.lib;comdlg32.lib;xaudio2.lib;mfplat.lib;mfreadwrite.lib;mfuuid.lib;crypt32.lib;ncrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d9.lib;dxguid.lib;dinput8.lib;ole32.lib;wsock32.lib;comdlg32.lib;xaudio2.lib;mfplat.lib;mfreadwrite.lib;mfuuid.lib;crypt32.lib;ncrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <!-- See the Debug comment: DX9\Lib's dinput8.lib is not SafeSEH-clean. -->
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>

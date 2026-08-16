@@ -51,7 +51,7 @@
 #include "Levels.h"
 #include "Mission.h"
 #include "Geometry.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "Gateway.h"
 #include "ScriptTabs.h"
 #include "ScriptExtern.h"
@@ -1389,7 +1389,7 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem, BOOL UserSave
   if (freeMem)
   {
     //clear out the audio
-    audio_StopAll();
+    AudioSystem::StopAll();
 
     freeAllDroids();
     freeAllStructs();
@@ -5584,7 +5584,7 @@ BOOL loadSaveStructureV19(UBYTE* pFileData, UDWORD filesize, UDWORD numStructure
       case REF_POWER_GEN:
         checkForResExtractors(psStructure);
         if (selectedPlayer == psStructure->player)
-          audio_PlayObjStaticTrack(psStructure, ID_SOUND_POWER_HUM);
+          AudioSystem::PlayObjectTrack(psStructure, ID_SOUND_POWER_HUM, nullptr);
         break;
       case REF_RESOURCE_EXTRACTOR:
         //only try and connect if power left in
@@ -5919,7 +5919,7 @@ BOOL loadSaveStructureV(UBYTE* pFileData, UDWORD filesize, UDWORD numStructures,
       case REF_POWER_GEN:
         checkForResExtractors(psStructure);
         if (selectedPlayer == psStructure->player)
-          audio_PlayObjStaticTrack(psStructure, ID_SOUND_POWER_HUM);
+          AudioSystem::PlayObjectTrack(psStructure, ID_SOUND_POWER_HUM, nullptr);
         break;
       case REF_RESOURCE_EXTRACTOR:
         //only try and connect if power left in

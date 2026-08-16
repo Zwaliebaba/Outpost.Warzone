@@ -22,7 +22,7 @@
 #include "RendMode.h"
 #include "KeyBind.h"
 
-#include "Audio.h"					// for sound.
+#include "AudioSystem.h"					// for sound.
 #include "Music.h"
 #include "MultiPlay.h"
 
@@ -111,12 +111,12 @@ static BOOL _addSlideOptions()
 
   // fx vol
   addIGTextButton(INTINGAMEOP_FXVOL,INTINGAMEOP_1_Y, STR_FE_FX,WBUT_PLAIN);
-  addFESlider(INTINGAMEOP_FXVOL_S, INTINGAMEOP, INTINGAMEOP_MID, INTINGAMEOP_1_Y - 5, AUDIO_VOL_MAX, audio_GetFXVolume(),
+  addFESlider(INTINGAMEOP_FXVOL_S, INTINGAMEOP, INTINGAMEOP_MID, INTINGAMEOP_1_Y - 5, AUDIO_VOL_MAX, AudioSystem::FxVolume(),
               INTINGAMEOP_FXVOL);
 
   // cd vol
   addIGTextButton(INTINGAMEOP_CDVOL,INTINGAMEOP_2_Y, STR_FE_MUSIC,WBUT_PLAIN);
-  addFESlider(INTINGAMEOP_CDVOL_S,INTINGAMEOP, INTINGAMEOP_MID,INTINGAMEOP_2_Y - 5, AUDIO_VOL_MAX, audio_GetMusicVolume(),INTINGAMEOP_CDVOL);
+  addFESlider(INTINGAMEOP_CDVOL_S,INTINGAMEOP, INTINGAMEOP_MID,INTINGAMEOP_2_Y - 5, AUDIO_VOL_MAX, AudioSystem::MusicVolume(),INTINGAMEOP_CDVOL);
 
   SetCurrentSnapID(&InterfaceSnap,INTINGAMEOP_RESUME);
 
@@ -162,7 +162,7 @@ static BOOL _intAddInGameOptions(void)
   UWORD WindowWidth;
   W_FORMINIT sFormInit;
 
-  audio_StopAll();
+  AudioSystem::StopAll();
 
   //clear out any mission widgets - timers etc that may be on the screen
   clearMissionWidgets();
@@ -360,10 +360,10 @@ void intProcessInGameOptions(UDWORD id)
     break;
 
   case INTINGAMEOP_FXVOL_S:
-    audio_SetFXVolume(widgGetSliderPos(psWScreen,INTINGAMEOP_FXVOL_S));
+    AudioSystem::SetFxVolume(widgGetSliderPos(psWScreen,INTINGAMEOP_FXVOL_S));
     break;
   case INTINGAMEOP_CDVOL_S:
-    audio_SetMusicVolume(widgGetSliderPos(psWScreen,INTINGAMEOP_CDVOL_S));
+    AudioSystem::SetMusicVolume(widgGetSliderPos(psWScreen,INTINGAMEOP_CDVOL_S));
     break;
 
   //	case INTINGAMEOP_GAMMA_S:

@@ -43,9 +43,12 @@ Subsystems in use today:
   DirectDraw 4 surfaces plus a Direct3D 6 immediate-mode device.
 - **Input** — **done, see Phase 3.** DirectInput 8 (`DXInput.cpp`,
   `DIRECTINPUT_VERSION=0x0800`).
-- **Audio** — **done, see Phase 4.** XAudio2 (`XA2Track.cpp` behind
-  `TrackLib.h`), with in-game music served from disk by `Music.cpp`. QMixer
-  and CD audio are gone; `CDSpan.cpp` goes with Phase 6.
+- **Audio** — **done, see Phase 4**, and modernised in Phase 9: XAudio2
+  behind `Neuron::AudioMixer`, the track/sample lifecycle in
+  `Neuron::AudioSystem`, WAV decoding in `WavData.cpp`, and in-game music
+  served from disk by `Music.cpp`. QMixer and CD audio are gone, and so are
+  the QMixer-shaped C layers that sat above the backend — the `audio_*` and
+  `sound_*` free functions with them.
 - **Video** — **done, see Phase 6.** `MovieStream.cpp` decodes H.264/AAC in MP4
   through Media Foundation, with the soundtrack on the game's XAudio2 graph.
   Was `Sequence.cpp` streaming `.rpl` movies through `WINSTR.LIB` into a
@@ -919,6 +922,58 @@ for a namespace, so **check rename targets against the platform headers
 first**; a macro that expands to nothing never type-checks its arguments, so
 code inside one rots unseen; and most of the tree's headers were never
 self-contained, compiling only because a hub header happened to arrive first.
+
+## Phase 9 — Audio: retiring the QMixer-shaped stack
+
+**Done, stages A–F.** The module is `AudioSystem.cpp`, `AudioMixer.cpp` and
+`WavData.cpp` in `namespace Neuron`, called as `AudioSystem::PlayTrack(...)`
+from 52 files; the `audio_*` and `sound_*` free functions, `Audio.h`,
+`TrackLib.h` and `NeuronCore/Aud.h` are all deleted. The game supplies an
+`AudioWorld` provider from `Outpost/GameAudio.cpp` (was `Aud.cpp`), so the
+engine library no longer links against game symbols — the one dependency
+edge in the tree that pointed the wrong way. `Track.h` survives holding the
+`TRACK` and `AUDIO_SAMPLE` wire types and nothing else. The mmio RIFF reader
+is a `std::expected`-returning `WavData`, which took `winmm.lib` off both
+link lines.
+
+Stages A–E are green on MSVC CI in both configurations;
+`tools/crosscheck.py` (now `-std=c++23`) is clean at 193/193 through stage
+F. **Not run** — the listening pass is the outstanding verification. The
+record of what came out differently is in
+[Phase9Plan.md](Phase9Plan.md#what-was-built).
+
+Phase 4 swapped the backend behind an interface it deliberately
+did not change; this phase changes the interface. The `audio_*`/`sound_*`
+double dispatch existed so backends could swap underneath a stable middle —
+the swap is done, exactly one backend has existed since, and the layering is
+now cost without purpose, the same finding Phase 8 made about the render
+dispatch tables.
+
+The measured state: 4,379 lines across twelve files, with 182 `audio_*` call
+sites in 43 translation units above them. The analysis found a dead surface of
+~20 functions and fields with zero callers (including a PSX `VagID` parameter
+threaded through the track API and discarded at the bottom), a critical
+section guarding lists that only one thread has touched since Phase 4 confined
+the audio-thread boundary to the backend, and one genuine layering defect:
+`NeuronCore/Aud.h` declares functions that `Outpost/Aud.cpp` defines, so the
+engine library links against game symbols.
+
+The target is a C++23 module in `namespace Neuron` — `AudioSystem` (samples,
+tracks, gates, ducking), `AudioMixer` (the XAudio2 graph, RAII voice
+lifetimes), `WavData` (`std::expected`-based decode over `std::span`, which
+retires the tree's last winmm API use and takes `winmm.lib` off the link
+line) — with the game handing in an `AudioWorld` provider at init, so the
+dependency edge points the right way. Behaviour is pinned by the Phase 4
+contract: the four fixed slots, the 3D pool and its distance-steal, the duck,
+the same-sound gates, and the save-game track-hash round-trip in
+`ScriptObj.cpp` all stay observable-identical. Six stages, A–F: dead-surface
+sweep, de-locking, mid-layer collapse, the rewrite behind a shim header, the
+upcall severed, then the tree-wide call-site rename last and gated on an owner
+decision, after Phase 6 stage B6.
+
+The full analysis — the dead-surface evidence, the constraint list, the
+idiom-by-idiom mapping, what is deliberately left unchanged, and the five
+decisions to confirm — is in [Phase9Plan.md](Phase9Plan.md).
 
 ## Verification
 

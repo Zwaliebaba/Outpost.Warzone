@@ -72,7 +72,7 @@
 #include "Gateway.h"
 #include "Transporter.h"
 #include "WarzoneConfig.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "AudioID.h"
 #include "Action.h"
 #include "KeyBind.h"
@@ -1301,13 +1301,13 @@ void displayStaticObjects(void)
               {
                 displayAnimation(psAnimObj, FALSE);
                 if (selectedPlayer == psStructure->player)
-                  audio_PlayObjStaticTrack(psStructure, ID_SOUND_OIL_PUMP_2);
+                  AudioSystem::PlayObjectTrack(psStructure, ID_SOUND_OIL_PUMP_2, nullptr);
               }
               else
               {
                 /* hold anim on first frame */
                 displayAnimation(psAnimObj, TRUE);
-                audio_StopObjTrack(psStructure, ID_SOUND_OIL_PUMP_2);
+                AudioSystem::StopObjectTrack(psStructure, ID_SOUND_OIL_PUMP_2);
               }
             }
           }

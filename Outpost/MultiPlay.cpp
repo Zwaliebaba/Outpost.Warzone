@@ -24,7 +24,7 @@
 #include "Wrappers.h"								// for game over
 #include "Component.h"
 #include "FrontEnd.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "AudioID.h"
 
 #include "MultiWDG.h"
@@ -1034,9 +1034,9 @@ BOOL recvTextMessage(NETMSG* pMsg)
 
   // make some noise!
   if (titleMode == MULTIOPTION || titleMode == MULTILIMIT)
-    audio_PlayTrack(FE_AUDIO_MESSAGEEND);
+    AudioSystem::PlayTrack(FE_AUDIO_MESSAGEEND);
   else if (!ingame.localJoiningInProgress)
-    audio_PlayTrack(ID_SOUND_MESSAGEEND);
+    AudioSystem::PlayTrack(ID_SOUND_MESSAGEEND);
 
   return TRUE;
 }

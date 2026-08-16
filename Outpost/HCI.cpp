@@ -32,7 +32,7 @@
 #include "Stats.h"
 #include "Game.h"
 #include "Power.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "AudioID.h"
 #include "WidgInt.h"
 #include "Bar.h"
@@ -5868,7 +5868,7 @@ static void intObjStatRMBPressed(UDWORD id)
             //cancel if have RMB-clicked twice
             cancelProduction(psStructure);
             //play audio to indicate cancelled
-            audio_PlayTrack(ID_SOUND_WINDOWCLOSE);
+            AudioSystem::PlayTrack(ID_SOUND_WINDOWCLOSE);
           }
         }
       }
@@ -5885,7 +5885,7 @@ static void intObjStatRMBPressed(UDWORD id)
             //cancel if have RMB-clicked twice
             cancelResearch(psStructure);
             //play audio to indicate cancelled
-            audio_PlayTrack(ID_SOUND_WINDOWCLOSE);
+            AudioSystem::PlayTrack(ID_SOUND_WINDOWCLOSE);
           }
         }
       }
@@ -5942,7 +5942,7 @@ void addIntelScreen(void)
       intAddMessageView(psCurrentMsg->type);
       if (psCurrentMsg->pViewData->audioID != NO_AUDIO_MSG)
       {
-        audio_PlayTrack(psCurrentMsg->pViewData->audioID);
+        AudioSystem::PlayTrack(psCurrentMsg->pViewData->audioID);
       }
       intMode = INT_TUTORIAL;
     }

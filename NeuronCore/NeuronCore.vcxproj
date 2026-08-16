@@ -93,8 +93,8 @@
     <ClInclude Include="Ani.h" />
     <ClInclude Include="Anim.h" />
     <ClInclude Include="AnimObj.h" />
-    <ClInclude Include="Aud.h" />
-    <ClInclude Include="Audio.h" />
+    <ClInclude Include="AudioMixer.h" />
+    <ClInclude Include="AudioSystem.h" />
     <ClInclude Include="Bar.h" />
     <ClInclude Include="BitImage.h" />
     <ClInclude Include="BSPFunc.h" />
@@ -170,7 +170,7 @@
     <ClInclude Include="TextDraw.h" />
     <ClInclude Include="Tip.h" />
     <ClInclude Include="Track.h" />
-    <ClInclude Include="TrackLib.h" />
+    <ClInclude Include="WavData.h" />
     <ClInclude Include="Treap.h" />
     <ClInclude Include="TreapInt.h" />
     <ClInclude Include="Trig.h" />
@@ -183,7 +183,8 @@
   <ItemGroup>
     <ClCompile Include="Anim.cpp" />
     <ClCompile Include="AnimObj.cpp" />
-    <ClCompile Include="Audio.cpp" />
+    <ClCompile Include="AudioMixer.cpp" />
+    <ClCompile Include="AudioSystem.cpp" />
     <ClCompile Include="Bar.cpp" />
     <ClCompile Include="BitImage.cpp" />
     <ClCompile Include="BSPIMD.cpp" />
@@ -251,8 +252,7 @@
     <ClCompile Include="TexMan.cpp" />
     <ClCompile Include="TextDraw.cpp" />
     <ClCompile Include="Tip.cpp" />
-    <ClCompile Include="Track.cpp" />
-    <ClCompile Include="XA2Track.cpp" />
+    <ClCompile Include="WavData.cpp" />
     <ClCompile Include="Treap.cpp" />
     <ClCompile Include="Trig.cpp" />
     <ClCompile Include="WDG.cpp" />

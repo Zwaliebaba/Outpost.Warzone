@@ -3,7 +3,7 @@
 #include "MovieStream.h"
 
 #include "Frame.h"
-#include "TrackLib.h"
+#include "AudioMixer.h"
 
 #include <mfapi.h>
 #include <mferror.h>
@@ -267,7 +267,7 @@ bool MovieStream::ReadAudioTrack(std::vector<std::uint8_t>& _pcm, std::uint32_t&
 
 void MovieStream::StartAudio(const std::vector<std::uint8_t>& _pcm, std::uint32_t _samplesPerSecond, std::uint16_t _channels)
 {
-  IXAudio2* engine = sound_GetEngine();
+  IXAudio2* engine = AudioMixer::Engine();
   if (engine == nullptr)
     return; // the movie plays silently, as it did when DirectSound was unavailable
 

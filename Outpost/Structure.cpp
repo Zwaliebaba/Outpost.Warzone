@@ -26,7 +26,7 @@
 #include "MiscIMD.h"
 #include "Effects.h"
 #include "Combat.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "AudioID.h"
 #include "Stats.h"
 #include "Edit3D.h"
@@ -2926,7 +2926,7 @@ static void structPlaceDroid(STRUCTURE* psStructure, DROID_TEMPLATE* psTempl, DR
     *ppsDroid = psNewDroid;
     if (psNewDroid->player == selectedPlayer)
     {
-      audio_QueueTrack(ID_SOUND_DROID_COMPLETED);
+      AudioSystem::QueueTrack(ID_SOUND_DROID_COMPLETED);
       intRefreshScreen(); // update any interface implications.
     }
 
@@ -3557,7 +3557,7 @@ void aiUpdateStructure(STRUCTURE* psStructure)
         {
           /*Done in research Result now - AB 31/1/98
           gameTimeStop();
-          audio_PlayTrack( ID_SOUND_MAJOR_RESEARCH );
+          AudioSystem::PlayTrack( ID_SOUND_MAJOR_RESEARCH );
           gameTimeStart();*/
 
           if (bMultiPlayer)
@@ -5359,7 +5359,7 @@ BOOL destroyStruct(STRUCTURE* psDel)
 
     //--------------------------------------- And finally, add a boom sound!!!! 
     /* and add a sound effect */
-    audio_PlayStaticTrack(psDel->x, psDel->y, ID_SOUND_EXPLOSION);
+    AudioSystem::PlayStaticTrack(psDel->x, psDel->y, ID_SOUND_EXPLOSION);
   }
   //---------------------------------------------------------------------------------------
 
@@ -6230,7 +6230,7 @@ void buildingComplete(STRUCTURE* psBuilding)
   case REF_POWER_GEN:
     checkForResExtractors(psBuilding);
     if (selectedPlayer == psBuilding->player)
-      audio_PlayObjStaticTrack(psBuilding, ID_SOUND_POWER_HUM);
+      AudioSystem::PlayObjectTrack(psBuilding, ID_SOUND_POWER_HUM, nullptr);
     break;
   case REF_RESOURCE_EXTRACTOR:
     checkForPowerGen(psBuilding);
@@ -7051,7 +7051,7 @@ void holdProduction(STRUCTURE* psBuilding)
     psFactory->timeStartHold = gameTime;
     //play audio to indicate on hold
     if (psBuilding->player == selectedPlayer)
-      audio_PlayTrack(ID_SOUND_WINDOWCLOSE);
+      AudioSystem::PlayTrack(ID_SOUND_WINDOWCLOSE);
   }
 }
 
@@ -7871,9 +7871,9 @@ STRUCTURE* giftSingleStructure(STRUCTURE* psStructure, UBYTE attackPlayer, BOOL 
       {
         if (wallDefenceStruct(psNewStruct->pStructureType))
         {
-          audio_QueueTrackPos(ID_SOUND_NEXUS_DEFENCES_ABSORBED, psNewStruct->x, psNewStruct->y, psNewStruct->z);
+          AudioSystem::QueueTrackPos(ID_SOUND_NEXUS_DEFENCES_ABSORBED, psNewStruct->x, psNewStruct->y, psNewStruct->z);
         }
-        else { audio_QueueTrackPos(ID_SOUND_NEXUS_STRUCTURE_ABSORBED, psNewStruct->x, psNewStruct->y, psNewStruct->z); }
+        else { AudioSystem::QueueTrackPos(ID_SOUND_NEXUS_STRUCTURE_ABSORBED, psNewStruct->x, psNewStruct->y, psNewStruct->z); }
         //make sure this structure is visible to selectedPlayer if the structure used to be selectedPlayers'
         psNewStruct->visible[selectedPlayer] = UBYTE_MAX;
         //make sure the tiles don't get drawn

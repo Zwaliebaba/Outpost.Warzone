@@ -19,7 +19,7 @@
 #include "Map.h"
 #include "Disp2D.h"
 #include "HCI.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "InGameOp.h"
 #include "Player.h"
 #include "GTime.h"
@@ -64,10 +64,10 @@
 #include "Wrappers.h"
 #include "PowerCrypt.h"
 #include "MultiJoin.h"                     // intDisplayMultiJoiningStatus
+#include "RenderModel.h"                   // pie_GetResetCounts, called in Release too
 
 #ifdef DEBUG
 #include "ObjMem.h"
-#include "RenderModel.h"
 #endif
 
 #define MISSION_COMPLETE_DELAY	4000
@@ -163,7 +163,7 @@ GAMECODE gameLoop(void)
 
   HandleClosingWindows(); // Needs to be done outside the pause case.
 
-  audio_Update();
+  AudioSystem::Update();
 
   if (!paused)
   {
@@ -746,7 +746,7 @@ GAMECODE gameLoop(void)
   }
   if (video)
   {
-    audio_StopAll();
+    AudioSystem::StopAll();
     return GAMECODE_PLAYVIDEO;
   }
 
@@ -781,8 +781,8 @@ GAMECODE videoLoop(void)
   if ((keyPressed(KEY_ESC) || bQuitVideo) && !seq_AnySeqLeft())
   {
     /* zero volume before video quit - restore later */
-    g_iGlobalVol = audio_GetFXVolume();
-    audio_SetFXVolume(0);
+    g_iGlobalVol = AudioSystem::FxVolume();
+    AudioSystem::SetFxVolume(0);
     bVolKilled = TRUE;
   }
 
@@ -882,7 +882,7 @@ GAMECODE videoLoop(void)
 
   /* restore volume after video quit */
   if (bVolKilled == TRUE)
-    audio_SetFXVolume(g_iGlobalVol);
+    AudioSystem::SetFxVolume(g_iGlobalVol);
 
   return GAMECODE_CONTINUE;
 }
@@ -898,7 +898,7 @@ void loop_SetVideoPlaybackMode(void)
   clearCount = 0;
   gameTimeStop();
   pie_SetFogStatus(FALSE);
-  audio_StopAll();
+  AudioSystem::StopAll();
 }
 
 void loop_ClearVideoPlaybackMode(void)
@@ -907,7 +907,7 @@ void loop_ClearVideoPlaybackMode(void)
   paused = FALSE;
   video = FALSE;
   gameTimeStart();
-  music_Resume();
+  Music::Resume();
   DEBUG_ASSERT_TEXT(videoMode == 0, "loop_ClearVideoPlaybackMode: out of sync.");
 }
 

@@ -17,7 +17,7 @@
 #include "Effects.h"
 #include "Map.h"
 #include "AudioID.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "HashTabl.h"
 #include "AnimID.h"
 #include "Projectile.h"
@@ -424,15 +424,15 @@ BOOL proj_SendProjectile(WEAPON* psWeap, BASE_OBJECT* psAttacker, SDWORD player,
       if (psObj->psSource)
       {
         /* firing sound emitted from source */
-        audio_PlayObjDynamicTrack(psObj->psSource, psObj->psWStats->iAudioFireID, nullptr);
+        AudioSystem::PlayObjectTrack(psObj->psSource, psObj->psWStats->iAudioFireID, nullptr);
         /* GJ HACK: move howitzer sound with shell */
-        if (psObj->psWStats->weaponSubClass == WSC_HOWITZERS) { audio_PlayObjDynamicTrack(psObj, ID_SOUND_HOWITZ_FLIGHT, nullptr); }
+        if (psObj->psWStats->weaponSubClass == WSC_HOWITZERS) { AudioSystem::PlayObjectTrack(psObj, ID_SOUND_HOWITZ_FLIGHT, nullptr); }
       }
       else
       {
         //don't play the sound for a LasSat in multiPlayer
         if (!(bMultiPlayer AND psWeapStats->weaponSubClass == WSC_LAS_SAT))
-          audio_PlayObjStaticTrack(psObj, psObj->psWStats->iAudioFireID);
+          AudioSystem::PlayObjectTrack(psObj, psObj->psWStats->iAudioFireID, nullptr);
       }
     }
   }
@@ -773,13 +773,13 @@ void proj_ImpactFunc(PROJ_OBJECT* psObj)
       if (psObj->psDest != nullptr && psObj->psWStats->weaponSubClass == WSC_MGUN && ONEINTHREE)
       {
         iAudioImpactID = ID_SOUND_RICOCHET_1 + (rand() % 3);
-        audio_PlayStaticTrack(psObj->psDest->x, psObj->psDest->y, iAudioImpactID);
+        AudioSystem::PlayStaticTrack(psObj->psDest->x, psObj->psDest->y, iAudioImpactID);
       }
     }
     else
     {
-      if (psObj->psDest == nullptr) { audio_PlayStaticTrack(psObj->tarX, psObj->tarY, psStats->iAudioImpactID); }
-      else { audio_PlayStaticTrack(psObj->psDest->x, psObj->psDest->y, psStats->iAudioImpactID); }
+      if (psObj->psDest == nullptr) { AudioSystem::PlayStaticTrack(psObj->tarX, psObj->tarY, psStats->iAudioImpactID); }
+      else { AudioSystem::PlayStaticTrack(psObj->psDest->x, psObj->psDest->y, psStats->iAudioImpactID); }
     }
   }
   // note the attacker if any

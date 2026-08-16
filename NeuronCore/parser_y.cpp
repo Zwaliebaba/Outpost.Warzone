@@ -69,7 +69,7 @@ typedef struct yyNamedType_tag
 
 #include "Frame.h"
 #include "Parser.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "Anim.h"
 
 static int g_iCurAnimID = 0;
@@ -745,7 +745,7 @@ yyEncore:
     {
       /* audio_track :  AUDIO QTEXT LOOP INTEGER INTEGER INTEGER */
 
-      audio_SetTrackVals(yypvt[-4].sval, TRUE, &g_iDummy, yypvt[-2].ival, yypvt[-1].ival, yypvt[0].ival, 0);
+      AudioSystem::SetTrackVals(yypvt[-4].sval, true, g_iDummy, yypvt[-2].ival, yypvt[-1].ival, yypvt[0].ival);
     }
     break;
 
@@ -753,7 +753,7 @@ yyEncore:
     {
       /* audio_track :  AUDIO QTEXT ONESHOT INTEGER INTEGER INTEGER */
 
-      audio_SetTrackVals(yypvt[-4].sval, FALSE, &g_iDummy, yypvt[-2].ival, yypvt[-1].ival, yypvt[0].ival, 0);
+      AudioSystem::SetTrackVals(yypvt[-4].sval, false, g_iDummy, yypvt[-2].ival, yypvt[-1].ival, yypvt[0].ival);
     }
     break;
 

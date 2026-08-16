@@ -7,7 +7,7 @@
 
 // ////////////////////////////////////////////////////////////////////////////
 // includes 
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "Frame.h"
 #include "Widget.h"
 #include "FrontEnd.h"
@@ -82,7 +82,7 @@ static BOOL pushedKeyMap(UDWORD key)
   if (selectedKeyMap && selectedKeyMap->status != KEYMAP_ASSIGNABLE)
   {
     selectedKeyMap = nullptr;
-    audio_PlayTrack(ID_SOUND_BUILD_FAIL);
+    AudioSystem::PlayTrack(ID_SOUND_BUILD_FAIL);
   }
 
   return TRUE;

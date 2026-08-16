@@ -92,7 +92,7 @@ typedef struct yyNamedType_tag
 #include "Droid.h"
 #include "Structure.h"
 #include "Message.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "Levels.h"
 #include "Research.h"
 
@@ -1349,9 +1349,9 @@ yyEncore:
           YYABORT;
         }
 
-        compIndex = audio_GetTrackID(yypvt[0].sInit.pString);
+        compIndex = AudioSystem::TrackId(yypvt[0].sInit.pString);
         if (compIndex == SAMPLE_NOT_FOUND)
-          audio_SetTrackVals(yypvt[0].sInit.pString, FALSE, &compIndex, 100, 1, 1800, 0);
+          AudioSystem::SetTrackVals(yypvt[0].sInit.pString, false, compIndex, 100, 1, 1800);
 
         if (!eventSetContextVar(psCurrContext, yypvt[-2].vindex, yypvt[-1].tval, static_cast<UDWORD>(compIndex)))
         {

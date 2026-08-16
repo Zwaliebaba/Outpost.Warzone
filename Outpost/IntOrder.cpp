@@ -12,7 +12,7 @@
 
 #include "Display3D.h"
 #include "HCI.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "AudioID.h"
 #include "WidgInt.h"
 #include "Bar.h"

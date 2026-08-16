@@ -50,7 +50,7 @@
  * Leaking one object at process exit costs nothing; freeing it at the wrong
  * moment costs a corrupted heap. seq_ShutDown releases everything inside it
  * while the subsystems are still alive, and systemShutdown calls that before
- * audio_Shutdown.
+ * AudioSystem::Shutdown.
  */
 static Neuron::MovieStream* g_movie = nullptr;
 

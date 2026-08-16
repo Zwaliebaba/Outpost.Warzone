@@ -22,7 +22,7 @@
 #include "MiscIMD.h"
 #include "Effects.h"
 #include "Feature.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "AudioID.h"
 #include "Action.h"
 #include "Order.h"
@@ -220,7 +220,7 @@ BOOL droidDamage(DROID* psDroid, UDWORD damage, UDWORD weaponClass, UDWORD weapo
       {
         CONPRINTF(ConsoleString, (ConsoleString, strresGetString(psStringRes,STR_GAM_UNITLOST)));
         scoreUpdateVar(WD_UNITS_LOST);
-        audio_QueueTrackMinDelayPos(ID_SOUND_UNIT_DESTROYED,UNIT_LOST_DELAY, psDroid->x, psDroid->y, psDroid->z);
+        AudioSystem::QueueTrackMinDelayPos(ID_SOUND_UNIT_DESTROYED,UNIT_LOST_DELAY, psDroid->x, psDroid->y, psDroid->z);
       }
       else
         scoreUpdateVar(WD_UNITS_KILLED);
@@ -256,7 +256,7 @@ BOOL droidDamage(DROID* psDroid, UDWORD damage, UDWORD weaponClass, UDWORD weapo
       {
         CONPRINTF(ConsoleString, (ConsoleString,strresGetString(psStringRes,STR_GAM_UNITLOST)));
         scoreUpdateVar(WD_UNITS_LOST);
-        audio_QueueTrackMinDelayPos(ID_SOUND_UNIT_DESTROYED,UNIT_LOST_DELAY, psDroid->x, psDroid->y, psDroid->z);
+        AudioSystem::QueueTrackMinDelayPos(ID_SOUND_UNIT_DESTROYED,UNIT_LOST_DELAY, psDroid->x, psDroid->y, psDroid->z);
       }
       else
         scoreUpdateVar(WD_UNITS_KILLED);
@@ -553,7 +553,7 @@ void removeDroidFX(DROID* psDel)
       if (psDel->visible[selectedPlayer])
       {
         // The babarian has been run over ...
-        audio_PlayStaticTrack(psDel->x, psDel->y, ID_SOUND_BARB_SQUISH);
+        AudioSystem::PlayStaticTrack(psDel->x, psDel->y, ID_SOUND_BARB_SQUISH);
       }
     }
   }
@@ -564,7 +564,7 @@ void removeDroidFX(DROID* psDel)
     pos.z = psDel->y;
     pos.y = psDel->z;
     addEffect(&pos, EFFECT_DESTRUCTION, DESTRUCTION_TYPE_DROID,FALSE, nullptr, 0);
-    audio_PlayStaticTrack(psDel->x, psDel->y, ID_SOUND_EXPLOSION);
+    AudioSystem::PlayStaticTrack(psDel->x, psDel->y, ID_SOUND_EXPLOSION);
   }
 }
 
@@ -717,7 +717,7 @@ void droidBurn(DROID* psDroid)
 
   /* add scream */
   Neuron::DebugTrace("baba burn\n");
-  audio_PlayObjDynamicTrack(psDroid, ID_SOUND_BARB_SCREAM + (rand() % 3), nullptr);
+  AudioSystem::PlayObjectTrack(psDroid, ID_SOUND_BARB_SCREAM + (rand() % 3), nullptr);
 
   /* set droid running */
   orderDroid(psDroid, DORDER_RUNBURN);
@@ -1136,7 +1136,7 @@ static BOOL droidBuildStartAudioCallback(AUDIO_SAMPLE* psSample)
   {
     if (psDroid->visible[selectedPlayer])
     {
-      audio_PlayObjDynamicTrack(psDroid, ID_SOUND_CONSTRUCTION_LOOP, droidCheckBuildStillInProgress);
+      AudioSystem::PlayObjectTrack(psDroid, ID_SOUND_CONSTRUCTION_LOOP, droidCheckBuildStillInProgress);
     }
   }
 
@@ -1230,7 +1230,7 @@ BOOL droidStartBuild(DROID* psDroid)
 
   if (psStruct->visible[selectedPlayer])
   {
-    audio_PlayObjStaticTrackCallback(psDroid, ID_SOUND_CONSTRUCTION_START, droidBuildStartAudioCallback);
+    AudioSystem::PlayObjectTrack(psDroid, ID_SOUND_CONSTRUCTION_START, droidBuildStartAudioCallback);
   }
 
   return TRUE;
@@ -1242,7 +1242,7 @@ static void droidAddWeldSound(iVector iVecEffect)
 
   iAudioID = ID_SOUND_CONSTRUCTION_1 + (rand() % 4);
 
-  audio_PlayStaticTrack(iVecEffect.x, iVecEffect.z, iAudioID);
+  AudioSystem::PlayStaticTrack(iVecEffect.x, iVecEffect.z, iAudioID);
 }
 
 static void addConstructorEffect(STRUCTURE* psStruct)
@@ -1433,12 +1433,12 @@ BOOL droidUpdateBuild(DROID* psDroid)
     if ((psStruct->player == selectedPlayer) && (psDroid->order != DORDER_LINEBUILD || (psDroid->orderX >> TILE_SHIFT == psDroid->orderX2 >>
       TILE_SHIFT && psDroid->orderY >> TILE_SHIFT == psDroid->orderY2 >> TILE_SHIFT)))
     {
-      audio_QueueTrackPos(ID_SOUND_STRUCTURE_COMPLETED, psStruct->x, psStruct->y, psStruct->z);
+      AudioSystem::QueueTrackPos(ID_SOUND_STRUCTURE_COMPLETED, psStruct->x, psStruct->y, psStruct->z);
       intRefreshScreen(); // update any open interface bars.
     }
     structureCompletedCallback(psStruct->pStructureType);
 
-    audio_StopObjTrack(psDroid, ID_SOUND_CONSTRUCTION_LOOP);
+    AudioSystem::StopObjectTrack(psDroid, ID_SOUND_CONSTRUCTION_LOOP);
     return FALSE;
   }
   addConstructorEffect(psStruct);
@@ -5458,7 +5458,7 @@ DROID* giftSingleDroid(DROID* psD, UDWORD to)
   if ((psD->player == selectedPlayer) AND (to != selectedPlayer))
   {
     scoreUpdateVar(WD_UNITS_LOST);
-    audio_QueueTrackPos(ID_SOUND_NEXUS_UNIT_ABSORBED, x, y, psD->z);
+    AudioSystem::QueueTrackPos(ID_SOUND_NEXUS_UNIT_ABSORBED, x, y, psD->z);
   }
   //make the old droid vanish
   vanishDroid(psD);

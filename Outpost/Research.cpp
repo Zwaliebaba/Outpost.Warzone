@@ -12,7 +12,7 @@
 #include "Research.h"
 #include "Message.h"
 #include "Text.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "AudioID.h"
 #include "Script.h"
 #include "ScriptTabs.h"
@@ -1752,7 +1752,7 @@ void researchResult(UDWORD researchIndex, UBYTE player, BOOL bDisplay)
     //only play sound if major topic
     if (player == selectedPlayer)
     {
-      audio_QueueTrack(ID_SOUND_MAJOR_RESEARCH);
+      AudioSystem::QueueTrack(ID_SOUND_MAJOR_RESEARCH);
       //add console text message
       addConsoleMessage(strresGetString(psStringRes, STR_INT_RESCOMPLETED), LEFT_JUSTIFY);
     }
@@ -1769,7 +1769,7 @@ void researchResult(UDWORD researchIndex, UBYTE player, BOOL bDisplay)
   {
     if ((player == selectedPlayer) && bDisplay)
     {
-      audio_QueueTrack(ID_SOUND_RESEARCH_COMPLETED);
+      AudioSystem::QueueTrack(ID_SOUND_RESEARCH_COMPLETED);
       //add console text message
       addConsoleMessage(strresGetString(psStringRes, STR_INT_RESCOMPLETED), LEFT_JUSTIFY);
     }
@@ -1944,7 +1944,7 @@ void holdResearch(STRUCTURE* psBuilding)
     psResFac->timeStartHold = gameTime;
     //play audio to indicate on hold
     if (psBuilding->player == selectedPlayer)
-      audio_PlayTrack(ID_SOUND_WINDOWCLOSE);
+      AudioSystem::PlayTrack(ID_SOUND_WINDOWCLOSE);
   }
 }
 

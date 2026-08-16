@@ -38,7 +38,7 @@
 #include "Stats.h"
 #include "Game.h"
 #include "Power.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "AudioID.h"
 #include "Order.h"
 #include "FrontEnd.h"
@@ -1240,7 +1240,7 @@ void intOpenPlainForm(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, 
   {
     if ((FormOpenAudioID >= 0) && (FormOpenCount == 0))
     {
-      audio_PlayTrack(FormOpenAudioID);
+      AudioSystem::PlayTrack(FormOpenAudioID);
       FormOpenCount++;
     }
     Form->Ax0 = static_cast<UWORD>(Tx0);
@@ -1305,7 +1305,7 @@ void intClosePlainForm(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset,
   {
     if ((FormCloseAudioID >= 0) && (FormCloseCount == 0))
     {
-      audio_PlayTrack(FormCloseAudioID);
+      AudioSystem::PlayTrack(FormCloseAudioID);
       FormCloseCount++;
     }
     Form->Ax0 = static_cast<UWORD>(xOffset + Form->x);
@@ -2893,7 +2893,7 @@ void WidgetAudioCallback(int AudioID)
     if (TimeSinceLastWidgetBeep < 0 || TimeSinceLastWidgetBeep > WIDGETBEEPGAP)
     {
       LastTimeAudio = gameTime2;
-      audio_PlayTrack(AudioID);
+      AudioSystem::PlayTrack(AudioID);
     }
   }
 }

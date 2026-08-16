@@ -445,7 +445,7 @@ static BOOL _runLoadSave(BOOL bResetMissionWidgets)
           widgDelete(psRequestScreen,SAVEENTRY_EDIT); //unselect this box, and go back ..
           widgReveal(psRequestScreen, chosenSlotId);
           // move mouse to same box..
-          audio_PlayTrack(ID_SOUND_BUILD_FAIL);
+          AudioSystem::PlayTrack(ID_SOUND_BUILD_FAIL);
           return TRUE;
         }
       }

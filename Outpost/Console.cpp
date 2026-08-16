@@ -8,7 +8,7 @@
 #include "Console.h"
 #include "ScriptExtern.h"
 #include "AudioID.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 
 /* Alex McLean, Pumpkin Studios, EIDOS Interactive */
 
@@ -153,13 +153,13 @@ void toggleConsoleDrop(void)
     consoleDrop = 0;
     bConsoleDropped = TRUE;
 
-    audio_PlayTrack(ID_SOUND_WINDOWOPEN);
+    AudioSystem::PlayTrack(ID_SOUND_WINDOWOPEN);
   }
   else
   {
     /* It's already open (or opening) */
     dropState = DROP_CLOSING;
-    audio_PlayTrack(ID_SOUND_WINDOWCLOSE);
+    AudioSystem::PlayTrack(ID_SOUND_WINDOWCLOSE);
   }
 
   return;

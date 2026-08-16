@@ -19,7 +19,7 @@
 #include "ScriptFuncs.h"		// for objectinrange.
 #include "GTime.h"
 #include "Effects.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "AudioID.h"			// for samples.
 #include "Wrappers.h"			// for gameover..
 #include "Script.h"
@@ -98,20 +98,20 @@ BOOL recvGift(NETMSG* pMsg)
   // play some audio.
   if (to == selectedPlayer)
   {
-    audio_QueueTrack(ID_GIFT);
+    AudioSystem::QueueTrack(ID_GIFT);
     switch (t)
     {
     case RADAR_GIFT:
-      audio_QueueTrack(ID_SENSOR_DOWNLOAD);
+      AudioSystem::QueueTrack(ID_SENSOR_DOWNLOAD);
       break;
     case DROID_GIFT:
-      audio_QueueTrack(ID_UNITS_TRANSFER);
+      AudioSystem::QueueTrack(ID_UNITS_TRANSFER);
       break;
     case RESEARCH_GIFT:
-      audio_QueueTrack(ID_TECHNOLOGY_TRANSFER);
+      AudioSystem::QueueTrack(ID_TECHNOLOGY_TRANSFER);
       break;
     case POWER_GIFT:
-      audio_QueueTrack(ID_POWER_TRANSMIT);
+      AudioSystem::QueueTrack(ID_POWER_TRANSMIT);
       break;
     default:
       break;
@@ -127,19 +127,19 @@ BOOL sendGift(UDWORD type, UDWORD to)
   {
   case RADAR_GIFT:
     giftRadar(selectedPlayer, to,TRUE);
-    audio_QueueTrack(ID_SENSOR_DOWNLOAD);
+    AudioSystem::QueueTrack(ID_SENSOR_DOWNLOAD);
     break;
   case DROID_GIFT:
     sendGiftDroids(selectedPlayer, to);
-    audio_QueueTrack(ID_UNITS_TRANSFER);
+    AudioSystem::QueueTrack(ID_UNITS_TRANSFER);
     break;
   case RESEARCH_GIFT:
     giftResearch(selectedPlayer, to,TRUE);
-    audio_QueueTrack(ID_TECHNOLOGY_TRANSFER);
+    AudioSystem::QueueTrack(ID_TECHNOLOGY_TRANSFER);
     break;
   case POWER_GIFT:
     giftPower(selectedPlayer, to,TRUE);
-    audio_QueueTrack(ID_POWER_TRANSMIT);
+    AudioSystem::QueueTrack(ID_POWER_TRANSMIT);
     break;
   default: Neuron::Fatal("Unknown Gift sent");
     return FALSE;
@@ -332,13 +332,13 @@ void requestAlliance(UBYTE from, UBYTE to, BOOL prop, BOOL allowAudio)
   {
     CONPRINTF(ConsoleString, (ConsoleString,strresGetString(psStringRes,STR_ALLI_REQ),getPlayerName(from) ));
     if (allowAudio)
-      audio_QueueTrack(ID_ALLIANCE_OFF);
+      AudioSystem::QueueTrack(ID_ALLIANCE_OFF);
   }
   if (from == selectedPlayer)
   {
     CONPRINTF(ConsoleString, (ConsoleString,strresGetString(psStringRes,STR_ALLI_OFF),getPlayerName(to) ));
     if (allowAudio)
-      audio_QueueTrack(ID_ALLIANCE_OFF);
+      AudioSystem::QueueTrack(ID_ALLIANCE_OFF);
   }
 
   if (prop)
@@ -353,7 +353,7 @@ void breakAlliance(UBYTE p1, UBYTE p2, BOOL prop, BOOL allowAudio)
     strcpy(tm1, getPlayerName(p1));
     CONPRINTF(ConsoleString, (ConsoleString,strresGetString(psStringRes,STR_ALLI_BRK),tm1,getPlayerName(p2) ));
     if (allowAudio && (p1 == selectedPlayer || p2 == selectedPlayer))
-      audio_QueueTrack(ID_ALLIANCE_BRO);
+      AudioSystem::QueueTrack(ID_ALLIANCE_BRO);
   }
 
   alliances[p1][p2] = ALLIANCE_BROKEN;
@@ -380,7 +380,7 @@ void formAlliance(UBYTE p1, UBYTE p2, BOOL prop, BOOL allowAudio)
   alliances[p2][p1] = ALLIANCE_FORMED;
 
   if (allowAudio && (p1 == selectedPlayer || p2 == selectedPlayer))
-    audio_QueueTrack(ID_ALLIANCE_ACC);
+    AudioSystem::QueueTrack(ID_ALLIANCE_ACC);
 
   if (bMultiPlayer) //jps 15apr99
   {
@@ -602,7 +602,7 @@ void addLoserGifts(void)
       if (pF)
         pF->player = ONEPLAYER; // flag for multiplayer artifacts
     }
-    audio_QueueTrack(ID_GIFT);
+    AudioSystem::QueueTrack(ID_GIFT);
     m.type = NET_ARTIFACTS;
     NETbcast(&m,FALSE); // tell everyone.
   }
@@ -640,7 +640,7 @@ void addLoserGifts(void)
           psD=buildDroid(	psTempl, x<<TILE_SHIFT,  y<<TILE_SHIFT, selectedPlayer, FALSE);
           if(psD)
           {	
-            audio_QueueTrack(ID_GIFT);
+            AudioSystem::QueueTrack(ID_GIFT);
             addDroid(psD,apsDroidLists);							// add droid. telling everyone
             addEffect(&position,EFFECT_EXPLOSION,EXPLOSION_TYPE_DISCOVERY,FALSE,NULL,FALSE);
           }
@@ -815,7 +815,7 @@ VOID processMultiPlayerArtifacts(VOID)
         removeFeature(pF); // remove artifact+ send info.
         giftArtifact(pl, x, y); // reward player.	
         pF->player = 0;
-        audio_QueueTrack(ID_SOUND_ARTIFACT_RECOVERED);
+        AudioSystem::QueueTrack(ID_SOUND_ARTIFACT_RECOVERED);
       }
     }
 

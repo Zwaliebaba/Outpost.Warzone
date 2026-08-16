@@ -15,18 +15,21 @@
  */
 /***************************************************************************/
 
+#include <format>
+#include <string>
+
 #include "Frame.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "Music.h"
 
 /***************************************************************************/
 
-#define	MUSIC_DIRECTORY			"music"
-#define	MUSIC_NO_TRACK			-1
+namespace
+{
 
-/***************************************************************************/
+constexpr const char* MusicDirectory = "music";
 
-static SDWORD g_iCurTrack = MUSIC_NO_TRACK;
+} // namespace
 
 /***************************************************************************/
 /*
@@ -36,38 +39,30 @@ static SDWORD g_iCurTrack = MUSIC_NO_TRACK;
  */
 /***************************************************************************/
 
-BOOL music_PlayTrack(SDWORD iTrack)
+bool Music::PlayTrack(SDWORD _track)
 {
-  char szFileName[MAX_STR];
-
-  g_iCurTrack = iTrack;
-
-  wsprintf(szFileName, "%s\\track%d.wav", MUSIC_DIRECTORY, iTrack);
+  const std::string fileName = std::format("{}\\track{}.wav", MusicDirectory, _track);
 
   /* the CD looped the track until something else was asked for */
-  if (audio_PlayMusic(szFileName, AUDIO_VOL_MAX, TRUE) == FALSE)
+  if (AudioSystem::PlayMusic(fileName.c_str(), AUDIO_VOL_MAX, true) == false)
   {
-    Neuron::DebugTrace("music_PlayTrack: no music for track {} ({})\n", iTrack, szFileName);
-    return FALSE;
+    Neuron::DebugTrace("Music::PlayTrack: no music for track {} ({})\n", _track, fileName);
+    return false;
   }
 
-  return TRUE;
+  return true;
 }
 
 /***************************************************************************/
 
-void music_Stop(void)
-{
-  g_iCurTrack = MUSIC_NO_TRACK;
-  audio_StopMusic();
-}
+void Music::Stop() { AudioSystem::StopMusic(); }
 
 /***************************************************************************/
 
-void music_Pause(void) { audio_PauseMusic(); }
+void Music::Pause() { AudioSystem::PauseMusic(); }
 
 /***************************************************************************/
 
-void music_Resume(void) { audio_ResumeMusic(); }
+void Music::Resume() { AudioSystem::ResumeMusic(); }
 
 /***************************************************************************/

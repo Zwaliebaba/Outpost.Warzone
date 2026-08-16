@@ -29,7 +29,7 @@
 
 #include "Display3D.h"
 #include "IntDisplay.h"
-#include "Audio.h"					// for sound.
+#include "AudioSystem.h"					// for sound.
 #include "AudioID.h"				// for sound..
 #include "Music.h"
 #include "Config.h"
@@ -1183,11 +1183,11 @@ BOOL startGameOptionsMenu(VOID)
 
   //volume
   addTextButton(FRONTEND_FX, FRONTEND_POS4X - 25,FRONTEND_POS4Y, strresGetString(psStringRes, STR_FE_FX),TRUE,FALSE);
-  addFESlider(FRONTEND_FX_SL,FRONTEND_BOTFORM, FRONTEND_POS4M, FRONTEND_POS4Y + 5, AUDIO_VOL_MAX, audio_GetFXVolume(),FRONTEND_FX);
+  addFESlider(FRONTEND_FX_SL,FRONTEND_BOTFORM, FRONTEND_POS4M, FRONTEND_POS4Y + 5, AUDIO_VOL_MAX, AudioSystem::FxVolume(),FRONTEND_FX);
 
   // cd audio
   addTextButton(FRONTEND_MUSIC, FRONTEND_POS5X - 25,FRONTEND_POS5Y, strresGetString(psStringRes, STR_FE_MUSIC),TRUE,FALSE);
-  addFESlider(FRONTEND_MUSIC_SL,FRONTEND_BOTFORM, FRONTEND_POS5M, FRONTEND_POS5Y + 5,AUDIO_VOL_MAX, audio_GetMusicVolume(),FRONTEND_MUSIC);
+  addFESlider(FRONTEND_MUSIC_SL,FRONTEND_BOTFORM, FRONTEND_POS5M, FRONTEND_POS5Y + 5,AUDIO_VOL_MAX, AudioSystem::MusicVolume(),FRONTEND_MUSIC);
 
   /*	if (pie_GetRenderEngine() == ENGINE_GLIDE)
     {
@@ -1285,11 +1285,11 @@ BOOL runGameOptionsMenu(VOID)
       scroll_speed_accel = 100;
     break;
   case FRONTEND_FX_SL:
-    audio_SetFXVolume(widgGetSliderPos(psWScreen,FRONTEND_FX_SL));
+    AudioSystem::SetFxVolume(widgGetSliderPos(psWScreen,FRONTEND_FX_SL));
     break;
 
   case FRONTEND_MUSIC_SL:
-    audio_SetMusicVolume(widgGetSliderPos(psWScreen,FRONTEND_MUSIC_SL));
+    AudioSystem::SetMusicVolume(widgGetSliderPos(psWScreen,FRONTEND_MUSIC_SL));
     break;
 
   case FRONTEND_QUIT:

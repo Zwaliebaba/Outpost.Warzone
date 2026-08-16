@@ -14,7 +14,7 @@
 #include "HCI.h"
 #include "GTime.h"
 #include "Power.h"
-#include "Audio.h"
+#include "AudioSystem.h"
 #include "AudioID.h"
 #include "Objects.h"
 #include "Display.h"
@@ -996,9 +996,9 @@ void destroyFeature(FEATURE* psDel)
 
     //play sound
     if (psDel->psStats->subType == FEAT_SKYSCRAPER)
-      audio_PlayStaticTrack(psDel->x, psDel->y, ID_SOUND_BUILDING_FALL);
+      AudioSystem::PlayStaticTrack(psDel->x, psDel->y, ID_SOUND_BUILDING_FALL);
     else
-      audio_PlayStaticTrack(psDel->x, psDel->y, ID_SOUND_EXPLOSION);
+      AudioSystem::PlayStaticTrack(psDel->x, psDel->y, ID_SOUND_EXPLOSION);
   }
   //---------------------------------------------------------------------------------------
 
