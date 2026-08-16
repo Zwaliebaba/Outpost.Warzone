@@ -6,7 +6,9 @@
 #include "Geo.h"
 
 #include "Anim.h"
-#include "Parser.h"
+#include "Json.h"
+
+#include <string_view>
 
 /***************************************************************************/
 /* structs */
@@ -15,6 +17,11 @@
 /* global variables */
 
 ANIMGLOBALS g_animGlobals;
+
+/* The placeholder ID each loaded script gets until anim.json's table assigns
+   the real one; carries the old parser's g_iCurAnimID sequence, so it advances
+   after every script and resumes from the last config entry's ID. */
+static UWORD s_uwNextAnimID = 0;
 
 /***************************************************************************/
 /* local functions */
@@ -263,42 +270,125 @@ void anim_SetVals(char szFileName[], UWORD uwAnimID)
   /* set anim vals */
   psAnim->uwID = uwAnimID;
   strcpy(psAnim->szFileName, szFileName);
+
+  /* placeholder IDs for anims loaded after the config resume from here */
+  s_uwNextAnimID = uwAnimID;
+}
+
+/***************************************************************************/
+
+/* play one script's state rows into the anim at the head of the list */
+static BOOL anim_LoadStates(const Neuron::Json& states)
+{
+  VECTOR3D vecPos, vecRot, vecScale;
+  std::size_t i, j;
+
+  anim_BeginScript();
+  for (i = 0; i < states.Size(); i++)
+  {
+    const Neuron::Json& row = states.Item(i);
+    if (!row.IsArray() || row.Size() != 10)
+      return FALSE;
+    for (j = 0; j < 10; j++)
+    {
+      if (!row.Item(j).IsNumber())
+        return FALSE;
+    }
+    vecPos.x = row.Item(1).AsInt();
+    vecPos.y = row.Item(2).AsInt();
+    vecPos.z = row.Item(3).AsInt();
+    vecRot.x = row.Item(4).AsInt();
+    vecRot.y = row.Item(5).AsInt();
+    vecRot.z = row.Item(6).AsInt();
+    vecScale.x = row.Item(7).AsInt();
+    vecScale.y = row.Item(8).AsInt();
+    vecScale.z = row.Item(9).AsInt();
+    anim_AddFrameToAnim(row.Item(0).AsInt(), vecPos, vecRot, vecScale);
+  }
+  return anim_EndScript();
 }
 
 /***************************************************************************/
 // the playstation version uses sscanf's ... see animload.c
 BASEANIM* anim_LoadFromBuffer(UBYTE* pBuffer, UDWORD size)
 {
-  if (ParseResourceFile(pBuffer, size) == FALSE)
+  char szPieName[MAX_STR];
+  std::size_t i;
+
+  auto parsed = Neuron::Json::Parse(std::string_view(reinterpret_cast<char*>(pBuffer), size));
+  if (!parsed.has_value())
   {
-    Neuron::Fatal("anim_LoadFromBuffer: couldn't parse file\n");
+    Neuron::Fatal("anim_LoadFromBuffer: parse error at line {} column {}: {}\n",
+                  parsed.error().line, parsed.error().column, parsed.error().message);
     return nullptr;
   }
 
-  /* loaded anim is at head of list */
-  return g_animGlobals.psAnimList;
-}
-
-/***************************************************************************/
-
-UWORD anim_GetAnimID(char* szName)
-{
-  BASEANIM* psAnim;
-  char* cPos = strstr(szName, ".ani");
-
-  if (cPos == nullptr)
+  const Neuron::Json& root = *parsed;
+  const Neuron::Json* pPie = root.Find("pie");
+  const Neuron::Json* pFrameRate = root.Find("frameRate");
+  const Neuron::Json* pType = root.Find("type");
+  if (pPie == nullptr || !pPie->IsString() || pPie->AsString().size() >= MAX_STR ||
+    pFrameRate == nullptr || !pFrameRate->IsNumber() || pType == nullptr || !pType->IsString())
   {
-    Neuron::Fatal("anim_GetAnimID: {} isn't .ani file\n");
-    return NO_ANIM;
+    Neuron::Fatal("anim_LoadFromBuffer: malformed anim header\n");
+    return nullptr;
+  }
+  strcpy(szPieName, pPie->AsString().c_str());
+  const UWORD uwFrameRate = static_cast<UWORD>(pFrameRate->AsInt());
+
+  if (pType->AsString() == "frames")
+  {
+    const Neuron::Json* pStates = root.Find("states");
+    if (pStates == nullptr || !pStates->IsArray())
+    {
+      Neuron::Fatal("anim_LoadFromBuffer: frames anim without states\n");
+      return nullptr;
+    }
+    if (!anim_Create3D(szPieName, static_cast<UWORD>(pStates->Size()), uwFrameRate, 1, ANIM_3D_FRAMES, s_uwNextAnimID))
+      return nullptr;
+    if (!anim_LoadStates(*pStates))
+    {
+      Neuron::Fatal("anim_LoadFromBuffer: malformed state row\n");
+      return nullptr;
+    }
+  }
+  else if (pType->AsString() == "trans")
+  {
+    const Neuron::Json* pObjects = root.Find("objects");
+    if (pObjects == nullptr || !pObjects->IsArray() || pObjects->Size() == 0)
+    {
+      Neuron::Fatal("anim_LoadFromBuffer: trans anim without objects\n");
+      return nullptr;
+    }
+    const Neuron::Json* pFirstStates = pObjects->Item(0).Find("states");
+    if (pFirstStates == nullptr || !pFirstStates->IsArray())
+    {
+      Neuron::Fatal("anim_LoadFromBuffer: trans object without states\n");
+      return nullptr;
+    }
+    if (!anim_Create3D(szPieName, static_cast<UWORD>(pFirstStates->Size()), uwFrameRate,
+                       static_cast<UWORD>(pObjects->Size()), ANIM_3D_TRANS, s_uwNextAnimID))
+      return nullptr;
+    for (i = 0; i < pObjects->Size(); i++)
+    {
+      const Neuron::Json* pStates = pObjects->Item(i).Find("states");
+      if (pStates == nullptr || !pStates->IsArray() || !anim_LoadStates(*pStates))
+      {
+        Neuron::Fatal("anim_LoadFromBuffer: malformed state row\n");
+        return nullptr;
+      }
+    }
+  }
+  else
+  {
+    Neuron::Fatal("anim_LoadFromBuffer: unknown anim type {}\n", pType->AsString());
+    return nullptr;
   }
 
-  /* find matching anim string in list */
-  psAnim = g_animGlobals.psAnimList;
-  while (psAnim != nullptr && stricmp(psAnim->szFileName, szName) != 0) { psAnim = psAnim->psNext; }
+  s_uwNextAnimID++;
 
-  if (psAnim != nullptr)
-    return psAnim->uwID;
-  return NO_ANIM;
+  /* loaded anim is at head of list */
+  return g_animGlobals.psAnimList;
 }
 
 /***************************************************************************/

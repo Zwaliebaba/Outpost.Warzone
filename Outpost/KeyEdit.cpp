@@ -26,6 +26,9 @@
 #include "Render2D.h"
 #include "Palette.h"
 #include "MultiInt.h"                      // addMultiBut
+#include "Json.h"
+
+#include <string>
 
 // ////////////////////////////////////////////////////////////////////////////
 // defines
@@ -67,8 +70,6 @@ BOOL startKeyMapEditor(BOOL first);
 BOOL saveKeyMap(void);
 BOOL loadKeyMap(void);
 static BOOL pushedKeyMap(UDWORD key);
-
-extern char buildTime[9];
 
 // ////////////////////////////////////////////////////////////////////////////
 // funcs
@@ -413,88 +414,55 @@ BOOL startKeyMapEditor(BOOL first)
 }
 
 // ////////////////////////////////////////////////////////////////////////////
-// save current keymaps to registry
+// save current keymaps to keymap.json
+static void writeJsonString(FILE* pFileHandle, const STRING* pText)
+{
+  const STRING* pChar;
+
+  fputc('"', pFileHandle);
+  for (pChar = pText; *pChar != '\0'; pChar++)
+  {
+    if (*pChar == '"' || *pChar == '\\')
+      fputc('\\', pFileHandle);
+    fputc(*pChar, pFileHandle);
+  }
+  fputc('"', pFileHandle);
+}
+
 BOOL saveKeyMap(void)
 {
   KEY_MAPPING* psMapping;
   FILE* pFileHandle;
   SDWORD count;
-  STRING name[128];
 
-  pFileHandle = fopen("keymap.map", "wb"); // open the file
+  pFileHandle = fopen("keymap.json", "w"); // open the file
   if (!pFileHandle)
   {
     Neuron::Fatal("Couldn't open keymap file");
     return FALSE;
   }
 
-  // write out number of entries.
-  count = 0;
-  for (psMapping = keyMappings; psMapping; psMapping = psMapping->psNext)
-    count++;
-  if (fwrite(&count, sizeof(SDWORD), 1, pFileHandle) != 1)
-  {
-    Neuron::Fatal("Keymap Write failed");
-    return FALSE;
-  }
-
-  // version data
-  if (fwrite(&buildTime, 8, 1, pFileHandle) != 1)
-  {
-    Neuron::Fatal("version Write failed");
-    return FALSE;
-  }
-
+  fputs("[\n", pFileHandle);
   for (psMapping = keyMappings; psMapping; psMapping = psMapping->psNext)
   {
-    // save this map.
-    // name
-    strcpy(name, psMapping->pName);
-    if (fwrite(&name, 128, 1, pFileHandle) != 1)
+    // the save table's name for the mapped function is the mapping's identity
+    for (count = 0; keyMapSaveTable[count].pFunction != nullptr && keyMapSaveTable[count].pFunction != psMapping->function;
+         count++);
+    if (keyMapSaveTable[count].pFunction == nullptr)
     {
-      Neuron::Fatal("Keymap Write failed");
-      return FALSE;
-    }
-
-    // status
-    if (fwrite(&psMapping->status, sizeof(KEY_STATUS), 1, pFileHandle) != 1)
-    {
-      Neuron::Fatal("Keymap Write failed");
-      return FALSE;
-    }
-
-    // metakey
-    if (fwrite(&psMapping->metaKeyCode, sizeof(KEY_CODE), 1, pFileHandle) != 1)
-    {
-      Neuron::Fatal("Keymap Write failed");
-      return FALSE;
-    }
-
-    // subkey
-    if (fwrite(&psMapping->subKeyCode, sizeof(KEY_CODE), 1, pFileHandle) != 1)
-    {
-      Neuron::Fatal("Keymap Write failed");
-      return FALSE;
-    }
-
-    // action
-    if (fwrite(&psMapping->action, sizeof(KEY_ACTION), 1, pFileHandle) != 1)
-    {
-      Neuron::Fatal("Keymap Write failed");
-      return FALSE;
-    }
-
-    // function to map to!
-    for (count = 0; keyMapSaveTable[count] != nullptr && keyMapSaveTable[count] != psMapping->function; count++);
-    if (keyMapSaveTable[count] == nullptr)
       Neuron::Fatal("can't find keymapped function in the keymap save table!!");
-
-    if (fwrite(&count, sizeof(UDWORD), 1, pFileHandle) != 1)
-    {
-      Neuron::Fatal("Keymap Write failed");
+      fclose(pFileHandle);
       return FALSE;
     }
+
+    fputs(" {\"name\": ", pFileHandle);
+    writeJsonString(pFileHandle, psMapping->pName);
+    fprintf(pFileHandle, ", \"status\": %d, \"meta\": %d, \"sub\": %d, \"action\": %d, \"function\": \"%s\"}%s\n",
+            static_cast<int>(psMapping->status), static_cast<int>(psMapping->metaKeyCode),
+            static_cast<int>(psMapping->subKeyCode), static_cast<int>(psMapping->action),
+            keyMapSaveTable[count].pName, psMapping->psNext != nullptr ? "," : "");
   }
+  fputs("]\n", pFileHandle);
 
   if (fclose(pFileHandle) != 0)
   {
@@ -507,100 +475,81 @@ BOOL saveKeyMap(void)
 }
 
 // ////////////////////////////////////////////////////////////////////////////
-// load keymaps from registry.
+// load keymaps from keymap.json
 BOOL loadKeyMap(void)
 {
-  KEY_STATUS status;
-  KEY_CODE metaCode;
-  KEY_CODE subCode;
-  KEY_ACTION action;
-  STRING name[128];
   FILE* pFileHandle;
+  long fileSize;
   SDWORD count;
-  UDWORD funcmap;
-  char ver[8];
+  std::size_t i;
 
   // throw away any keymaps!!
   keyClearMappings();
 
-  pFileHandle = fopen("keymap.map", "rb"); // check file exists
+  pFileHandle = fopen("keymap.json", "rb"); // check file exists
   if (pFileHandle == nullptr)
     return FALSE; // failed
 
-  if (fread(&count, sizeof(UDWORD), 1, pFileHandle) != 1)
+  if (fseek(pFileHandle, 0, SEEK_END) != 0 || (fileSize = ftell(pFileHandle)) <= 0 ||
+    fseek(pFileHandle, 0, SEEK_SET) != 0)
+  {
+    fclose(pFileHandle);
+    return FALSE;
+  }
+  std::string text(static_cast<std::size_t>(fileSize), '\0');
+  if (fread(text.data(), 1, text.size(), pFileHandle) != text.size())
   {
     Neuron::Fatal("Read failed for keymap load");
     fclose(pFileHandle);
     return FALSE;
   }
+  fclose(pFileHandle);
 
-  // get version number.
-  // if not from current version, create a new one..
-  if (fread(&ver, 8, 1, pFileHandle) != 1)
+  auto parsed = Neuron::Json::Parse(text);
+  if (!parsed.has_value())
   {
-    fclose(pFileHandle);
+    Neuron::DebugTrace("keymap.json: parse error at line {} column {}: {} - using defaults\n",
+                       parsed.error().line, parsed.error().column, parsed.error().message);
     return FALSE;
   }
-  if (strncmp(ver, buildTime, 8) != 0) // check 
+  if (!parsed->IsArray())
   {
-    fclose(pFileHandle);
+    Neuron::DebugTrace("keymap.json: not a JSON array - using defaults\n");
     return FALSE;
   }
 
-  for (; count > 0; count--)
+  for (i = 0; i < parsed->Size(); i++)
   {
-    // name
-    if (fread(&name, 128, 1, pFileHandle) != 1)
+    const Neuron::Json& entry = parsed->Item(i);
+    const Neuron::Json* pName = entry.Find("name");
+    const Neuron::Json* pStatus = entry.Find("status");
+    const Neuron::Json* pMeta = entry.Find("meta");
+    const Neuron::Json* pSub = entry.Find("sub");
+    const Neuron::Json* pAction = entry.Find("action");
+    const Neuron::Json* pFunction = entry.Find("function");
+
+    if (pName == nullptr || !pName->IsString() || pStatus == nullptr || !pStatus->IsNumber() ||
+      pMeta == nullptr || !pMeta->IsNumber() || pSub == nullptr || !pSub->IsNumber() ||
+      pAction == nullptr || !pAction->IsNumber() || pFunction == nullptr || !pFunction->IsString())
     {
-      Neuron::Fatal("Read failed for keymap load");
-      fclose(pFileHandle);
-      return FALSE;
+      Neuron::DebugTrace("keymap.json entry {}: malformed - skipped\n", i);
+      continue;
     }
 
-    // status
-    if (fread(&status, sizeof(KEY_STATUS), 1, pFileHandle) != 1)
+    // resolve the function by its saved name; a mapping whose function no
+    // longer exists is dropped rather than misbound
+    for (count = 0; keyMapSaveTable[count].pFunction != nullptr &&
+         strcmp(keyMapSaveTable[count].pName, pFunction->AsString().c_str()) != 0; count++);
+    if (keyMapSaveTable[count].pFunction == nullptr)
     {
-      Neuron::Fatal("Read failed for keymap load");
-      fclose(pFileHandle);
-      return FALSE;
-    }
-    // metakey
-    if (fread(&metaCode, sizeof(KEY_CODE), 1, pFileHandle) != 1)
-    {
-      Neuron::Fatal("Read failed for keymap load");
-      fclose(pFileHandle);
-      return FALSE;
-    }
-    // subkey
-    if (fread(&subCode, sizeof(KEY_CODE), 1, pFileHandle) != 1)
-    {
-      Neuron::Fatal("Read failed for keymap load");
-      fclose(pFileHandle);
-      return FALSE;
-    }
-    // action
-    if (fread(&action, sizeof(KEY_ACTION), 1, pFileHandle) != 1)
-    {
-      Neuron::Fatal("Read failed for keymap load");
-      fclose(pFileHandle);
-      return FALSE;
-    }
-    // function
-    if (fread(&funcmap, sizeof(UDWORD), 1, pFileHandle) != 1)
-    {
-      Neuron::Fatal("Read failed for keymap load");
-      fclose(pFileHandle);
-      return FALSE;
+      Neuron::DebugTrace("keymap.json: unknown function {} - skipped\n", pFunction->AsString());
+      continue;
     }
 
-    // add mapping
-    keyAddMapping(status, metaCode, subCode, action, keyMapSaveTable[funcmap], (char*)&name);
+    keyAddMapping(static_cast<KEY_STATUS>(pStatus->AsInt()), static_cast<KEY_CODE>(pMeta->AsInt()),
+                  static_cast<KEY_CODE>(pSub->AsInt()), static_cast<KEY_ACTION>(pAction->AsInt()),
+                  keyMapSaveTable[count].pFunction, const_cast<STRING*>(pName->AsString().c_str()));
   }
 
-  if (fclose(pFileHandle) != 0)
-  {
-    Neuron::Fatal("Close failed for load key map.");
-    return FALSE;
-  }
   return TRUE;
 }

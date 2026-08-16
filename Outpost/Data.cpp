@@ -40,7 +40,7 @@
 #include "Display.h"
 #include "AudioSystem.h"
 #include "Anim.h"
-#include "Parser.h"
+#include "Json.h"
 #include "Levels.h"
 #include "Mechanics.h"
 #include "Display3D.h"
@@ -931,13 +931,48 @@ void dataAudioRelease(void* pData)
   }
 }
 
-/* Load an audio file */
+/* Load an audio config file: a JSON array of track records */
 BOOL dataAudioCfgLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
 {
   *ppData = nullptr;
 
-  if (AudioSystem::Enabled() && ParseResourceFile(pBuffer, size) == FALSE)
+  if (!AudioSystem::Enabled())
+    return TRUE;
+
+  auto parsed = Neuron::Json::Parse(std::string_view(reinterpret_cast<char*>(pBuffer), size));
+  if (!parsed.has_value())
+  {
+    Neuron::Fatal("audio config: parse error at line {} column {}: {}",
+                  parsed.error().line, parsed.error().column, parsed.error().message);
     return FALSE;
+  }
+  if (!parsed->IsArray())
+  {
+    Neuron::Fatal("audio config: must be a JSON array");
+    return FALSE;
+  }
+
+  for (std::size_t i = 0; i < parsed->Size(); i++)
+  {
+    const Neuron::Json& track = parsed->Item(i);
+    const Neuron::Json* pFile = track.Find("file");
+    const Neuron::Json* pLoop = track.Find("loop");
+    const Neuron::Json* pVolume = track.Find("volume");
+    const Neuron::Json* pPriority = track.Find("priority");
+    const Neuron::Json* pRadius = track.Find("radius");
+    if (pFile == nullptr || !pFile->IsString() || pLoop == nullptr || !pLoop->IsBool() ||
+      pVolume == nullptr || !pVolume->IsNumber() || pPriority == nullptr || !pPriority->IsNumber() ||
+      pRadius == nullptr || !pRadius->IsNumber())
+    {
+      Neuron::Fatal("audio config: track {} is malformed", i);
+      return FALSE;
+    }
+
+    std::int32_t iUnusedID;
+    AudioSystem::SetTrackVals(pFile->AsString().c_str(), pLoop->AsBool(), iUnusedID,
+                              pVolume->AsInt(), pPriority->AsInt(), pRadius->AsInt());
+  }
+
   return TRUE;
 }
 
@@ -957,13 +992,40 @@ BOOL dataAnimLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
   return TRUE;
 }
 
-/* Load an audio config file */
+/* Load an anim config file: a JSON array of {file, id} records */
 BOOL dataAnimCfgLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
 {
   *ppData = nullptr;
 
-  if (ParseResourceFile(pBuffer, size) == FALSE)
+  auto parsed = Neuron::Json::Parse(std::string_view(reinterpret_cast<char*>(pBuffer), size));
+  if (!parsed.has_value())
+  {
+    Neuron::Fatal("anim config: parse error at line {} column {}: {}",
+                  parsed.error().line, parsed.error().column, parsed.error().message);
     return FALSE;
+  }
+  if (!parsed->IsArray())
+  {
+    Neuron::Fatal("anim config: must be a JSON array");
+    return FALSE;
+  }
+
+  for (std::size_t i = 0; i < parsed->Size(); i++)
+  {
+    const Neuron::Json& entry = parsed->Item(i);
+    const Neuron::Json* pFile = entry.Find("file");
+    const Neuron::Json* pID = entry.Find("id");
+    if (pFile == nullptr || !pFile->IsString() || pFile->AsString().size() >= MAX_STR ||
+      pID == nullptr || !pID->IsNumber())
+    {
+      Neuron::Fatal("anim config: entry {} is malformed", i);
+      return FALSE;
+    }
+
+    STRING aFileName[MAX_STR];
+    strcpy(aFileName, pFile->AsString().c_str());
+    anim_SetVals(aFileName, static_cast<UWORD>(pID->AsInt()));
+  }
 
   return TRUE;
 }

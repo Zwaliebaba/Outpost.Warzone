@@ -533,7 +533,7 @@ void AudioSystem::CheckAllUnloaded()
 {
   for (std::int32_t id = 0; id < MaxTracks; id++)
   {
-    DEBUG_ASSERT_TEXT(g_tracks[id] == nullptr, "AudioSystem: track {} still loaded - check audio.cfg for duplicate IDs\n", id);
+    DEBUG_ASSERT_TEXT(g_tracks[id] == nullptr, "AudioSystem: track {} still loaded - check audio.json for duplicate IDs\n", id);
   }
 }
 

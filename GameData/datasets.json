@@ -1739,7 +1739,7 @@
    {
     "d": "audio",
     "t": "AUDIOCFG",
-    "f": "audio.cfg"
+    "f": "audio.json"
    }
   ],
   "wrf/basic": [
@@ -2126,57 +2126,57 @@
    {
     "d": "anims",
     "t": "ANI",
-    "f": "runanim.ani"
+    "f": "runanim.json"
    },
    {
     "d": "anims",
     "t": "ANI",
-    "f": "runflame.ani"
+    "f": "runflame.json"
    },
    {
     "d": "anims",
     "t": "ANI",
-    "f": "flamfall.ani"
+    "f": "flamfall.json"
    },
    {
     "d": "anims",
     "t": "ANI",
-    "f": "fireknee.ani"
+    "f": "fireknee.json"
    },
    {
     "d": "anims",
     "t": "ANI",
-    "f": "walkanim.ani"
+    "f": "walkanim.json"
    },
    {
     "d": "anims",
     "t": "ANI",
-    "f": "blderik.ani"
+    "f": "blderik.json"
    },
    {
     "d": "anims",
     "t": "ANI",
-    "f": "cybd_run.ani"
+    "f": "cybd_run.json"
    },
    {
     "d": "anims",
     "t": "ANI",
-    "f": "cybdpjmp.ani"
+    "f": "cybdpjmp.json"
    },
    {
     "d": "anims",
     "t": "ANI",
-    "f": "cybdplnd.ani"
+    "f": "cybdplnd.json"
    },
    {
     "d": "anims",
     "t": "ANI",
-    "f": "cybdprun.ani"
+    "f": "cybdprun.json"
    },
    {
     "d": "anims",
     "t": "ANIMCFG",
-    "f": "anim.cfg"
+    "f": "anim.json"
    }
   ],
   "wrf/cam1": [
@@ -5362,7 +5362,7 @@
    {
     "d": "audio",
     "t": "AUDIOCFG",
-    "f": "frontaud.cfg"
+    "f": "frontaud.json"
    },
    {
     "d": "messages\\strings",

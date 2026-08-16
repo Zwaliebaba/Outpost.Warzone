@@ -1,0 +1,42 @@
+[
+ {
+  "file": "walkanim.json",
+  "id": 0
+ },
+ {
+  "file": "fireknee.json",
+  "id": 1
+ },
+ {
+  "file": "runanim.json",
+  "id": 2
+ },
+ {
+  "file": "runflame.json",
+  "id": 3
+ },
+ {
+  "file": "flamfall.json",
+  "id": 4
+ },
+ {
+  "file": "blderik.json",
+  "id": 5
+ },
+ {
+  "file": "cybd_run.json",
+  "id": 6
+ },
+ {
+  "file": "cybdpjmp.json",
+  "id": 7
+ },
+ {
+  "file": "cybdplnd.json",
+  "id": 8
+ },
+ {
+  "file": "cybdprun.json",
+  "id": 9
+ }
+]

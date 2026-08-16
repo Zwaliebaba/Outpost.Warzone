@@ -153,8 +153,6 @@
       </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="parser.l" />
-    <None Include="parser.y" />
     <None Include="script.l" />
     <None Include="script.y" />
     <None Include="StrRes.l" />

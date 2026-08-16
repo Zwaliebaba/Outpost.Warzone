@@ -891,8 +891,8 @@ void kf_addMultiMenu(void)
 
 // --------------------------------------------------------------------------
 /* Multiplayer voice chat is gone. These two stay as empty handlers because
- * the keymap refers to them by name and a saved keymap.map would not load
- * without them.
+ * the default keymap still binds them and keymap.json refers to them by
+ * name.
  */
 void kf_multiAudioStart(void) {}
 

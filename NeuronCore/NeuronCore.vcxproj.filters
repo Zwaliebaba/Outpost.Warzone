@@ -162,13 +162,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="parser.y">
-      <Filter>Gamelib</Filter>
-    </None>
     <None Include="StrRes.y">
-      <Filter>Gamelib</Filter>
-    </None>
-    <None Include="parser.l">
       <Filter>Gamelib</Filter>
     </None>
     <None Include="StrRes.l">
