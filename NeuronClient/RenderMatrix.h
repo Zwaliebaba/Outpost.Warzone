@@ -27,10 +27,6 @@
 
 namespace Neuron
 {
-  // 16-bit binary angles (DEG_360 == 65536 == a full circle) to radians.
-  // Dies in stage E of Phase 10 with the last binary-angle state.
-  inline constexpr float RadiansPerWorldAngle = DirectX::XM_2PI / 65536.0f;
-
   // The renderer's depth scale. The fixed-point pipeline computed depth as
   // FP12 z >> STRETCHED_Z_SHIFT, i.e. world z times this factor, and
   // MIN_STRETCHED_Z, MAX_Z and the depth-sort ranges are calibrated to it.

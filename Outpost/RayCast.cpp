@@ -323,7 +323,7 @@ UDWORD rayPointsToAngle(SDWORD x1, SDWORD y1, SDWORD x2, SDWORD y2)
   xdiff = x2 - x1;
   ydiff = y1 - y2;
 
-  angle = static_cast<SDWORD>((NUM_RAYS / 2) * atan2(xdiff, ydiff) / PI);
+  angle = static_cast<SDWORD>((NUM_RAYS / 2) * atan2(xdiff, ydiff) / DirectX::XM_PI);
 
   angle += NUM_RAYS / 2;
   angle = angle % NUM_RAYS;

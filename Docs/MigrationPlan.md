@@ -1058,8 +1058,12 @@ zero users. Two more latent defects died in E3 (a negative average track
 angle through a `UDWORD` into sin/cos, and a degrees-minus-radians
 comparison E2 had left in the component renderer), and the provably dead
 camera code went (`drawMapWorld`, `imdRot`/`imdRot2`, `disp3d_setView`/
-`disp3d_getView` among others). What remains of the phase is the
-`Trig.cpp`/`DEG` deletion (E4) and the stage F run.
+`disp3d_getView` among others). The deletion (E4) closed the stage:
+`NeuronCore/Trig.cpp` and its tables are gone with their `Window.cpp`
+init/shutdown calls, and the `DEG` family, `RadiansPerWorldAngle` and the
+legacy `PI` macro are deleted — the tree has no binary-angle or
+degree-state symbol left in live code. What remains of the phase is the
+stage F run.
 
 Phase 8 deliberately kept the fixed-point, pre-transformed-vertex pipeline
 because changing it "is not simplification, it is a second project". This is

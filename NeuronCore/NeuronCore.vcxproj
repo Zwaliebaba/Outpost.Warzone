@@ -117,7 +117,6 @@
     <ClInclude Include="StrRes_y.h" />
                                 <ClInclude Include="Treap.h" />
     <ClInclude Include="TreapInt.h" />
-    <ClInclude Include="Trig.h" />
     <ClInclude Include="Types.h" />
               </ItemGroup>
   <ItemGroup>
@@ -149,7 +148,6 @@
     <ClCompile Include="StrRes_l.cpp" />
     <ClCompile Include="StrRes_y.cpp" />
                             <ClCompile Include="Treap.cpp" />
-    <ClCompile Include="Trig.cpp" />
       </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

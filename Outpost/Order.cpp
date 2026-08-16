@@ -1,4 +1,6 @@
 #include "pch.h"
+#include <cmath>
+#include <directxmath.h>
 /*
  * Order.c
  *
@@ -1035,17 +1037,17 @@ void orderCheckFireSupportPos(DROID* psSensor, DROID_ORDER_DATA* psOrder)
       goto done;
 
     // now get the angle between the firesupport units and the sensor move
-    sensorAngle = static_cast<float>(atan2(sensorVY, sensorVX));
-    fsAngle = static_cast<float>(atan2(fsVY, fsVX));
+    sensorAngle = atan2f(static_cast<float>(sensorVY), static_cast<float>(sensorVX));
+    fsAngle = atan2f(static_cast<float>(fsVY), static_cast<float>(fsVX));
     adiff = fsAngle - sensorAngle;
     if (adiff < 0)
-      adiff += static_cast<float>((PI * 2));
-    if (adiff > PI)
-      adiff -= static_cast<float>((PI));
+      adiff += DirectX::XM_2PI;
+    if (adiff > DirectX::XM_PI)
+      adiff -= DirectX::XM_PI;
 
     // if the angle between the firesupport units and the sensor move is bigger
     // than 45 degrees don't retreat
-    if (adiff > PI / 4)
+    if (adiff > DirectX::XM_PIDIV4)
       goto done;
 
     bRetreat = TRUE;

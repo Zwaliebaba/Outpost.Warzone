@@ -574,6 +574,28 @@ Beyond the inventory above, the doing established:
   The radar-track stop threshold is preserved exactly as
   `10000 · (2π/65536)²` in the `ROTATION_SETTLED` constant.
 
+**Status: stage E is done.** E4 deleted `Trig.cpp`/`Trig.h` (188 units
+now, down from 189), the `Window.cpp` init/shutdown calls, the seven
+stale `#include "Trig.h"` lines, the `DEG`/`DEG_1`/`DEG_2`/`DEG_60`/
+`DEG_360` family, `RadiansPerWorldAngle`, and the dead
+`getBisectingDirectionAway` body. The legacy `PI` macro went with them —
+its three live users (`RAY_ANGLE`, the ray-index conversion in
+`rayPointsToAngle`, and `Order.cpp`'s fire-support retreat test) moved
+to the `XM_PI` constants. Two notes from the doing:
+
+- `Move.cpp`'s spin-on-the-spot thresholds were written as
+  `TRIG_DEGREES/8` — they are integer-degree parameters to
+  `moveUpdateDroidDirection`, so they became plain `360/8` rather than
+  radians; the conversion still happens at the single use site.
+- **Observed, deliberately not fixed:** `Order.cpp`'s fire-support
+  retreat test wraps its angle difference with `adiff -= π` where the
+  mirror `2π − adiff` is meant, so separations near a full circle read
+  as large instead of small and suppress a retreat that should happen.
+  The conversion preserved the behaviour verbatim (`XM_PI` for `PI`);
+  the fix is a simulation change and is the owner's call.
+
+What remains of the phase is stage F.
+
 ### F — Verification
 
 - `tools/crosscheck.py` both configurations. mingw-w64 ships

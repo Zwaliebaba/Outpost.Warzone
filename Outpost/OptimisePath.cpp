@@ -8,7 +8,6 @@
 
 // -------------------------------------------------------------------------
 #include "Frame.h"
-#include "Trig.h"
 #include "Base.h"
 #include "Move.h"
 #include "Map.h"
@@ -42,37 +41,7 @@ UDWORD getStepIndexFromAngle(UDWORD angle);
 void optimisePathForDroid(DROID* psDroid) { UNUSEDPARAMETER(psDroid); }
 
 // -------------------------------------------------------------------------
-/*	
-	Gets the angle that bisects the given to angles. the angle
-	is given such that it points into the larger arc. This is
-	of course ambiguous in the case where the two given angles
-	are 180 degrees apart
-*/
-UDWORD getBisectingDirectionAway(UDWORD angleA, UDWORD angleB)
-{
-  float xVec, yVec;
-  float angle;
-  UDWORD retVal;
-
-  /* Get the component vectors */
-  xVec = trigSin(angleA) + trigSin(angleB);
-  yVec = trigCos(angleA) + trigCos(angleB);
-
-  /* Get the angle between them */
-  angle = RAD_TO_DEG(atan2(xVec,yVec));
-  angle += 360;
-  /* Get it as an integer */
-  retVal = (std::lrintf(angle)) % 360;
-
-  /* And make it point the other way - into larger arc */
-  retVal = (retVal + 180) % 360;
-  DEBUG_ASSERT_TEXT(retVal<360, "Weird angle found");
-
-  return (retVal);
-}
-
-// -------------------------------------------------------------------------
-/*	
+/*
 	A hack function - could be done by dividing the angle by 45 
 	and establishing the right quadrant 
 */

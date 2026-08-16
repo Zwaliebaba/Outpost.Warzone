@@ -11,7 +11,6 @@
 #include <directxmath.h>
 
 #include "Frame.h"
-#include "Trig.h"
 #include "GTime.h"
 #include "Objects.h"
 #include "Move.h"

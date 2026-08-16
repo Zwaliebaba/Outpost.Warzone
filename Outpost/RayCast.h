@@ -7,7 +7,7 @@
 #define _raycast_h
 
 #define NUM_RAYS		360
-#define RAY_ANGLE		((float)(2*PI/NUM_RAYS))
+#define RAY_ANGLE		(DirectX::XM_2PI / NUM_RAYS)
 #define RAY_LENGTH		(TILE_UNITS * 5)
 
 // maximum length for a visiblity ray

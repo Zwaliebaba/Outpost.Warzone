@@ -18,7 +18,6 @@
 #include <stdio.h>
 #include <Math.h>
 #include "Frame.h"
-#include "Trig.h"
 
 #ifdef DEBUG
 BOOL moveDoMessage;
@@ -173,8 +172,8 @@ BOOL moveDoMessage;
 /***********************************************************************************/
 /*             Tracked model defines                                               */
 
-// The magnitude of direction change required for a droid to spin on the spot
-#define TRACKED_SPIN_ANGLE		(TRIG_DEGREES/8)
+// The magnitude of direction change, in degrees, required for a droid to spin on the spot
+#define TRACKED_SPIN_ANGLE		(360/8)
 // The speed at which tracked droids spin
 #define TRACKED_SPIN_SPEED		200
 // The speed at which tracked droids turn while going forward
@@ -193,8 +192,8 @@ BOOL moveDoMessage;
 /************************************************************************************/
 /*             Person model defines                                                 */
 
-// The magnitude of direction change required for a person to spin on the spot
-#define PERSON_SPIN_ANGLE		(TRIG_DEGREES/8)
+// The magnitude of direction change, in degrees, required for a person to spin on the spot
+#define PERSON_SPIN_ANGLE		(360/8)
 // The speed at which people spin
 #define PERSON_SPIN_SPEED		500
 // The speed at which people turn while going forward
@@ -207,8 +206,8 @@ BOOL moveDoMessage;
 /************************************************************************************/
 /*             VTOL model defines                                                 */
 
-// The magnitude of direction change required for a vtol to spin on the spot
-#define VTOL_SPIN_ANGLE			(TRIG_DEGREES)
+// The magnitude of direction change, in degrees, required for a vtol to spin on the spot
+#define VTOL_SPIN_ANGLE			(360)
 #define VTOL_SPIN_SPEED			100
 #define VTOL_TURN_SPEED			100
 // How fast vtols accelerate

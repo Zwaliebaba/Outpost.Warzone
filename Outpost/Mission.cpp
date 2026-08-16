@@ -1,7 +1,6 @@
 #include "pch.h"
 #include <directxmath.h>
 #include "Window.h"
-#include "Trig.h"
 #include "StrRes.h"
 /*
  * mission.c

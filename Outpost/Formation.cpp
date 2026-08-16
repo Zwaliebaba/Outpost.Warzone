@@ -9,7 +9,6 @@
  */
 
 #include "Frame.h"
-#include "Trig.h"
 #include "Objects.h"
 #include "Map.h"
 #include "AStar.h"
