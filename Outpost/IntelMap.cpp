@@ -498,7 +498,7 @@ BOOL intAddMessageView(MESSAGE* psMessage)
   sButInit.height = CLOSE_SIZE;
   sButInit.pTip = strresGetString(psStringRes, STR_MISC_CLOSE);
   sButInit.pDisplay = intDisplayImageHilight;
-  sButInit.pUserData = (void*)PACKDWORD_TRI(0, IMAGE_CLOSEHILIGHT, IMAGE_CLOSE);
+  sButInit.pUserData = widgPackUserData(PACKDWORD_TRI(0, IMAGE_CLOSEHILIGHT, IMAGE_CLOSE));
   if (!widgAddButton(psWScreen, &sButInit))
     return FALSE;
 

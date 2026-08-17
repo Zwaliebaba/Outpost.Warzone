@@ -3194,7 +3194,7 @@ BOOL _intAddReticule(void)
     SetReticuleButPos(RETBUT_COMMAND, &sButInit);
     sButInit.pTip = strresGetString(psStringRes, STR_RET_COMMAND);
     sButInit.pDisplay = intDisplayReticuleButton;
-    sButInit.pUserData = (void*)IMAGE_COMMANDDROID_UP;
+    sButInit.pUserData = widgPackUserData(IMAGE_COMMANDDROID_UP);
     if (!widgAddButton(psWScreen, &sButInit))
       return FALSE;
 
@@ -3204,7 +3204,7 @@ BOOL _intAddReticule(void)
     SetReticuleButPos(RETBUT_INTELMAP, &sButInit);
     sButInit.pTip = strresGetString(psStringRes, STR_RET_INTELLIGENCE);
     sButInit.pDisplay = intDisplayReticuleButton;
-    sButInit.pUserData = (void*)IMAGE_INTELMAP_UP;
+    sButInit.pUserData = widgPackUserData(IMAGE_INTELMAP_UP);
     if (!widgAddButton(psWScreen, &sButInit))
       return FALSE;
 
@@ -3214,7 +3214,7 @@ BOOL _intAddReticule(void)
     SetReticuleButPos(RETBUT_FACTORY, &sButInit);
     sButInit.pTip = strresGetString(psStringRes, STR_RET_MANUFACTURE);
     sButInit.pDisplay = intDisplayReticuleButton;
-    sButInit.pUserData = (void*)IMAGE_MANUFACTURE_UP;
+    sButInit.pUserData = widgPackUserData(IMAGE_MANUFACTURE_UP);
     if (!widgAddButton(psWScreen, &sButInit))
       return FALSE;
 
@@ -3224,7 +3224,7 @@ BOOL _intAddReticule(void)
     SetReticuleButPos(RETBUT_DESIGN, &sButInit);
     sButInit.pTip = strresGetString(psStringRes, STR_RET_DESIGN);
     sButInit.pDisplay = intDisplayReticuleButton;
-    sButInit.pUserData = (void*)IMAGE_DESIGN_UP;
+    sButInit.pUserData = widgPackUserData(IMAGE_DESIGN_UP);
     if (!widgAddButton(psWScreen, &sButInit))
       return FALSE;
 
@@ -3234,7 +3234,7 @@ BOOL _intAddReticule(void)
     SetReticuleButPos(RETBUT_RESEARCH, &sButInit);
     sButInit.pTip = strresGetString(psStringRes, STR_RET_RESEARCH);
     sButInit.pDisplay = intDisplayReticuleButton;
-    sButInit.pUserData = (void*)IMAGE_RESEARCH_UP;
+    sButInit.pUserData = widgPackUserData(IMAGE_RESEARCH_UP);
     if (!widgAddButton(psWScreen, &sButInit))
       return FALSE;
 
@@ -3244,7 +3244,7 @@ BOOL _intAddReticule(void)
     SetReticuleButPos(RETBUT_BUILD, &sButInit);
     sButInit.pTip = strresGetString(psStringRes, STR_RET_BUILD);
     sButInit.pDisplay = intDisplayReticuleButton;
-    sButInit.pUserData = (void*)IMAGE_BUILD_UP;
+    sButInit.pUserData = widgPackUserData(IMAGE_BUILD_UP);
     if (!widgAddButton(psWScreen, &sButInit))
       return FALSE;
 
@@ -3256,7 +3256,7 @@ BOOL _intAddReticule(void)
     sButInit.height = RET_BUTHEIGHT + 8;
     sButInit.pTip = strresGetString(psStringRes, STR_RET_CLOSE);
     sButInit.pDisplay = intDisplayReticuleButton;
-    sButInit.pUserData = (void*)IMAGE_CANCEL_UP;
+    sButInit.pUserData = widgPackUserData(IMAGE_CANCEL_UP);
     if (!widgAddButton(psWScreen, &sButInit))
       return FALSE;
 
@@ -3766,7 +3766,7 @@ static BOOL _intAddObjectWindow(BASE_OBJECT* psObjects, BASE_OBJECT* psSelected,
   sButInit.pTip = strresGetString(psStringRes, STR_MISC_CLOSE);
   sButInit.FontID = WFont;
   sButInit.pDisplay = intDisplayImageHilight;
-  sButInit.pUserData = (void*)PACKDWORD_TRI(0, IMAGE_CLOSEHILIGHT, IMAGE_CLOSE);
+  sButInit.pUserData = widgPackUserData(PACKDWORD_TRI(0, IMAGE_CLOSEHILIGHT, IMAGE_CLOSE));
   if (!widgAddButton(psWScreen, &sButInit))
     return FALSE;
 
@@ -4350,7 +4350,7 @@ void HandleClosingWindows(void)
     if (Widg)
     {
       // Has the window finished closing?
-      if (((UDWORD)Widg->pUserData))
+      if ((widgUnpackUserData(Widg->pUserData)))
       {
         widgDelete(psWScreen, IDOBJ_FORM);
         ClosingObject = FALSE;
@@ -4366,7 +4366,7 @@ void HandleClosingWindows(void)
     if (Widg)
     {
       // Has the window finished closing?
-      if (((UDWORD)Widg->pUserData))
+      if ((widgUnpackUserData(Widg->pUserData)))
       {
         widgDelete(psWScreen, IDSTAT_FORM);
         ClosingStats = FALSE;
@@ -4381,7 +4381,7 @@ void HandleClosingWindows(void)
     if (Widg)
     {
       // Has the window finished closing?
-      if (((UDWORD)Widg->pUserData))
+      if ((widgUnpackUserData(Widg->pUserData)))
       {
         widgDelete(psWScreen, IDINTMAP_MSGVIEW);
         ClosingMessageView = FALSE;
@@ -4396,7 +4396,7 @@ void HandleClosingWindows(void)
     if (Widg)
     {
       // Has the window finished closing?
-      if (((UDWORD)Widg->pUserData))
+      if ((widgUnpackUserData(Widg->pUserData)))
       {
         widgDelete(psWScreen, IDINTMAP_FORM);
         ClosingIntelMap = FALSE;
@@ -4412,7 +4412,7 @@ void HandleClosingWindows(void)
     if (Widg)
     {
       // Has the window finished closing?
-      if (((UDWORD)Widg->pUserData))
+      if ((widgUnpackUserData(Widg->pUserData)))
       {
         widgDelete(psWScreen, IDORDER_FORM);
         ClosingOrder = FALSE;
@@ -4427,7 +4427,7 @@ void HandleClosingWindows(void)
     if (Widg)
     {
       // Has the window finished closing?
-      if (((UDWORD)Widg->pUserData))
+      if ((widgUnpackUserData(Widg->pUserData)))
       {
         widgDelete(psWScreen, IDTRANS_FORM);
         ClosingTrans = FALSE;
@@ -4442,7 +4442,7 @@ void HandleClosingWindows(void)
     if (Widg)
     {
       // Has the window finished closing?
-      if (((UDWORD)Widg->pUserData))
+      if ((widgUnpackUserData(Widg->pUserData)))
       {
         widgDelete(psWScreen, IDTRANS_CONTENTFORM);
         ClosingTransCont = FALSE;
@@ -4457,7 +4457,7 @@ void HandleClosingWindows(void)
     if (Widg)
     {
       // Has the window finished closing?
-      if (((UDWORD)Widg->pUserData))
+      if ((widgUnpackUserData(Widg->pUserData)))
       {
         widgDelete(psWScreen, IDTRANS_DROIDS);
         ClosingTransDroids = FALSE;
@@ -4473,7 +4473,7 @@ void HandleClosingWindows(void)
     if (Widg)
     {
       // Has the window finished closing?
-      if (((UDWORD)Widg->pUserData))
+      if ((widgUnpackUserData(Widg->pUserData)))
       {
         widgDelete(psWScreen, INTINGAMEOP);
         ClosingInGameOp = FALSE;
@@ -4493,7 +4493,7 @@ void HandleClosingWindows(void)
     if (Widg)
     {
       // Has the window finished closing?
-      if (((UDWORD)Widg->pUserData))
+      if ((widgUnpackUserData(Widg->pUserData)))
       {
         widgDelete(psWScreen, MULTIMENU_FORM);
         ClosingMultiMenu = FALSE;
@@ -4765,7 +4765,7 @@ static BOOL _intAddStats(BASE_STATS** ppsStatsList, UDWORD numStats, BASE_STATS*
     sButInit.pTip = "Infinite Production";
     sButInit.FontID = WFont;
     sButInit.pDisplay = intDisplayButtonPressed;
-    sButInit.pUserData = (void*)PACKDWORD_TRI(IMAGE_INFINITE_DOWN, IMAGE_INFINITE_HI, IMAGE_INFINITE_UP);
+    sButInit.pUserData = widgPackUserData(PACKDWORD_TRI(IMAGE_INFINITE_DOWN, IMAGE_INFINITE_HI, IMAGE_INFINITE_UP));
     if (!widgAddButton(psWScreen, &sButInit)) { return FALSE; }
 
     //add the number display
@@ -4842,7 +4842,7 @@ static BOOL _intAddStats(BASE_STATS** ppsStatsList, UDWORD numStats, BASE_STATS*
     sButInit.pTip = strresGetString(psStringRes, STR_INT_LOOP);
     sButInit.FontID = WFont;
     sButInit.pDisplay = intDisplayButtonPressed;
-    sButInit.pUserData = (void*)PACKDWORD_TRI(IMAGE_LOOP_DOWN, IMAGE_LOOP_HI, IMAGE_LOOP_UP);
+    sButInit.pUserData = widgPackUserData(PACKDWORD_TRI(IMAGE_LOOP_DOWN, IMAGE_LOOP_HI, IMAGE_LOOP_UP));
 
     if (!widgAddButton(psWScreen, &sButInit))
       return FALSE;
@@ -4895,7 +4895,7 @@ static BOOL _intAddStats(BASE_STATS** ppsStatsList, UDWORD numStats, BASE_STATS*
   sButInit.pTip = strresGetString(psStringRes, STR_MISC_CLOSE);
   sButInit.FontID = WFont;
   sButInit.pDisplay = intDisplayImageHilight;
-  sButInit.pUserData = (void*)PACKDWORD_TRI(0, IMAGE_CLOSEHILIGHT, IMAGE_CLOSE);
+  sButInit.pUserData = widgPackUserData(PACKDWORD_TRI(0, IMAGE_CLOSEHILIGHT, IMAGE_CLOSE));
   if (!widgAddButton(psWScreen, &sButInit))
     return FALSE;
 
@@ -5074,7 +5074,7 @@ static BOOL _intAddStats(BASE_STATS** ppsStatsList, UDWORD numStats, BASE_STATS*
                 sLabInit.y = STAT_BUTHEIGHT - 19;
                 sLabInit.width = 12;
                 sLabInit.height = 15;
-                sLabInit.pUserData = (void*)ii;
+                sLabInit.pUserData = widgPackUserData(ii);
                 sLabInit.pTip = getPlayerName(ii);
                 sLabInit.pDisplay = intDisplayAllyIcon;
                 widgAddLabel(psWScreen, &sLabInit);
@@ -5929,7 +5929,7 @@ void flashReticuleButton(UDWORD buttonID)
   {
     //set flashing byte to true
     flash = (static_cast<UBYTE>(TRUE) & 0xff) << 24;
-    psButton->pUserData = (void*)(flash | (UDWORD)psButton->pUserData);
+    psButton->pUserData = widgPackUserData(flash | widgUnpackUserData(psButton->pUserData));
   }
 }
 
@@ -5946,14 +5946,14 @@ void stopReticuleButtonFlash(UDWORD buttonID)
   if (psButton)
   {
     // clear flashing byte
-    DownTime = static_cast<UBYTE>(UNPACKDWORD_QUAD_C((UDWORD)psButton->pUserData));
-    Index = static_cast<UBYTE>(UNPACKDWORD_QUAD_D((UDWORD)psButton->pUserData));
-    flashing = static_cast<UBYTE>(UNPACKDWORD_QUAD_A((UDWORD)psButton->pUserData));
-    flashTime = static_cast<UBYTE>(UNPACKDWORD_QUAD_B((UDWORD)psButton->pUserData));
+    DownTime = static_cast<UBYTE>(UNPACKDWORD_QUAD_C(widgUnpackUserData(psButton->pUserData)));
+    Index = static_cast<UBYTE>(UNPACKDWORD_QUAD_D(widgUnpackUserData(psButton->pUserData)));
+    flashing = static_cast<UBYTE>(UNPACKDWORD_QUAD_A(widgUnpackUserData(psButton->pUserData)));
+    flashTime = static_cast<UBYTE>(UNPACKDWORD_QUAD_B(widgUnpackUserData(psButton->pUserData)));
 
     flashing = static_cast<UBYTE>(FALSE);
     flashTime = 0;
-    psButton->pUserData = (void*)(PACKDWORD_QUAD(flashTime, flashing, DownTime, Index));
+    psButton->pUserData = widgPackUserData(PACKDWORD_QUAD(flashTime, flashing, DownTime, Index));
   }
 }
 

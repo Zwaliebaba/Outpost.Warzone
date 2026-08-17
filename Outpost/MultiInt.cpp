@@ -527,7 +527,7 @@ static void addGames()
 
       sButInit.pTip = NetPlay.games[i].name;
 
-      sButInit.pUserData = (void*)i;
+      sButInit.pUserData = widgPackUserData(i);
       widgAddButton(psWScreen, &sButInit);
     }
   }
@@ -1127,7 +1127,7 @@ UDWORD addPlayerBox(BOOL players)
         sButInit.pTip = nullptr; //Players[i].name;
         sButInit.FontID = WFont;
         sButInit.pDisplay = displayPlayer; //intDisplayButtonHilight;
-        sButInit.pUserData = (void*)i;
+        sButInit.pUserData = widgPackUserData(i);
 
         if (bColourChooserUp && NetPlay.players[i].dpid == player2dpid[selectedPlayer])
           addColourChooser(i);
@@ -1146,7 +1146,7 @@ UDWORD addPlayerBox(BOOL players)
         sFormInit.height = MULTIOP_PLAYERHEIGHT;
         sFormInit.pTip = nullptr; //Players[i].name;
         sFormInit.pDisplay = displayPlayer; //intDisplayButtonHilight;
-        sFormInit.pUserData = (void*)i;
+        sFormInit.pUserData = widgPackUserData(i);
         widgAddForm(psWScreen, &sFormInit);
         addFESlider(MULTIOP_SKSLIDE + i, sFormInit.id, 43, 9, 20, game.skDiff[i], 0);
       }
@@ -2785,7 +2785,7 @@ void displayRemoteGame(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset,
   UDWORD png;
 
   UNUSEDPARAMETER(pColours);
-  i = (int)psWidget->pUserData;
+  i = static_cast<int>(widgUnpackUserData(psWidget->pUserData));
 
   // collate info
   if (((W_BUTTON*)psWidget)->state & (WBUTS_HILITE))
@@ -2882,7 +2882,7 @@ void displayPlayer(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDW
 
   if (((W_BUTTON*)psWidget)->state & (WBUTS_HILITE | WCLICK_DOWN | WCLICK_LOCKED | WCLICK_CLICKLOCK))
     Hilight = TRUE;
-  i = (int)psWidget->pUserData;
+  i = static_cast<int>(widgUnpackUserData(psWidget->pUserData));
 
   //bluboxes.
   drawBlueBox(x, y, psWidget->width, psWidget->height); // right
@@ -3065,7 +3065,7 @@ void displayMultiEditBox(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffse
 {
   UDWORD x = xOffset + psWidget->x;
   UDWORD y = yOffset + psWidget->y;
-  UWORD im = static_cast<UWORD>((UDWORD)psWidget->pUserData);
+  UWORD im = static_cast<UWORD>(widgUnpackUserData(psWidget->pUserData));
   UNUSEDPARAMETER(pColours);
 
   drawBlueBox(x, y, psWidget->width, psWidget->height);
@@ -3093,9 +3093,9 @@ void displayMultiBut(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, U
   UDWORD Down = 0;
   UWORD hiToUse = 0;
   UDWORD Grey = 0;
-  UWORD im = static_cast<UWORD>(UNPACKDWORD_TRI_B((UDWORD)psWidget->pUserData));
-  UWORD im2 = static_cast<UWORD>((UNPACKDWORD_TRI_C((UDWORD)psWidget->pUserData)));
-  BOOL usehl = static_cast<UWORD>((UNPACKDWORD_TRI_A((UDWORD)psWidget->pUserData)));
+  UWORD im = static_cast<UWORD>(UNPACKDWORD_TRI_B(widgUnpackUserData(psWidget->pUserData)));
+  UWORD im2 = static_cast<UWORD>((UNPACKDWORD_TRI_C(widgUnpackUserData(psWidget->pUserData))));
+  BOOL usehl = static_cast<UWORD>((UNPACKDWORD_TRI_A(widgUnpackUserData(psWidget->pUserData))));
 
   UNUSEDPARAMETER(pColours);
 
@@ -3188,7 +3188,7 @@ BOOL addMultiEditBox(UDWORD formid, UDWORD id, UDWORD x, UDWORD y, UDWORD tip, S
   sEdInit.height = MULTIOP_EDITBOXH;
   sEdInit.pText = tipres;
   sEdInit.FontID = WFont;
-  sEdInit.pUserData = (void*)icon;
+  sEdInit.pUserData = widgPackUserData(icon);
   sEdInit.pBoxDisplay = displayMultiEditBox;
   if (!widgAddEditBox(psWScreen, &sEdInit))
     return FALSE;
@@ -3222,16 +3222,16 @@ BOOL addMultiBut(W_SCREEN* screen, UDWORD formid, UDWORD id, UDWORD x, UDWORD y,
   /*
     if (hiIt == 1)
     {
-      sButInit.pUserData = (void*)PACKDWORD_TRI(0,norm , hi);
+      sButInit.pUserData = widgPackUserData(PACKDWORD_TRI(0,norm , hi));
     }
     else if (hiIt == 0)
     {	
-      sButInit.pUserData = (void*)PACKDWORD_TRI(1,norm , hi);
+      sButInit.pUserData = widgPackUserData(PACKDWORD_TRI(1,norm , hi));
     }
     else 
     {}
     */
-  sButInit.pUserData = (void*)PACKDWORD_TRI(hiIt, norm, hi);
+  sButInit.pUserData = widgPackUserData(PACKDWORD_TRI(hiIt, norm, hi));
 
   if (!widgAddButton(screen, &sButInit))
     return FALSE;

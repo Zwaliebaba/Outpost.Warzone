@@ -194,7 +194,7 @@ BOOL startLimitScreen(void)
     if (useStruct(numButtons, i))
     {
       numButtons++;
-      sButInit.pUserData = (VOID*)i;
+      sButInit.pUserData = widgPackUserData(i);
 
       widgAddForm(psWScreen, &sButInit);
       sButInit.id++;
@@ -229,7 +229,7 @@ VOID runLimitScreen(void)
   // sliders 
   if ((id > IDLIMITS_ENTRIES_START) && (id < IDLIMITS_ENTRIES_END))
   {
-    statid = (UDWORD)widgGetFromID(psWScreen, id - 1)->pUserData;
+    statid = widgUnpackUserData(widgGetFromID(psWScreen, id - 1)->pUserData);
     if (statid)
       asStructLimits[0][statid].limit = static_cast<UBYTE>(((W_SLIDER*)(widgGetFromID(psWScreen, id)))->pos);
   }
@@ -363,7 +363,7 @@ VOID displayStructureBar(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffse
   UDWORD y = yOffset + psWidget->y;
   UDWORD w = psWidget->width;
   UDWORD h = psWidget->height;
-  STRUCTURE_STATS* stat = asStructureStats + (UDWORD)psWidget->pUserData;
+  STRUCTURE_STATS* stat = asStructureStats + widgUnpackUserData(psWidget->pUserData);
   iVector Rotation, Position;
   CHAR str[3];
 

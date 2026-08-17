@@ -120,7 +120,7 @@ static BOOL _requesterOpen(BOOL bLoad, CHAR* sSearchPath, CHAR* sExtension, CHAR
   sFormInit.height = REQUESTER_BANNER_DEPTH;
   sFormInit.disableChildren = FALSE;
   sFormInit.pDisplay = displayRequesterBanner;
-  sFormInit.pUserData = (VOID*)bLoad;
+  sFormInit.pUserData = widgPackUserData(bLoad);
   widgAddForm(psRequestScreen, &sFormInit);
 
   // Add Banner Label
@@ -143,7 +143,7 @@ static BOOL _requesterOpen(BOOL bLoad, CHAR* sSearchPath, CHAR* sExtension, CHAR
   sButInit.y = 3;
   sButInit.width = Neuron::GetImageWidth(IntImages, IMAGE_NRUTER);
   sButInit.height = Neuron::GetImageHeight(IntImages, IMAGE_NRUTER);
-  sButInit.pUserData = (void*)PACKDWORD_TRI(0, IMAGE_NRUTER, IMAGE_NRUTER);
+  sButInit.pUserData = widgPackUserData(PACKDWORD_TRI(0, IMAGE_NRUTER, IMAGE_NRUTER));
   sButInit.id = REQUESTER_CANCEL;
   sButInit.style = WBUT_PLAIN;
   sButInit.pTip = strresGetString(psStringRes, STR_MISC_CLOSE);
@@ -416,8 +416,8 @@ static void displayRequesterSlot(struct _widget* psWidget, UDWORD xOffset, UDWOR
 {
   UDWORD x = xOffset + psWidget->x;
   UDWORD y = yOffset + psWidget->y;
-  UWORD im = static_cast<UWORD>(UNPACKDWORD_TRI_B((UDWORD)psWidget->pUserData));
-  UWORD im2 = static_cast<UWORD>((UNPACKDWORD_TRI_C((UDWORD)psWidget->pUserData)));
+  UWORD im = static_cast<UWORD>(UNPACKDWORD_TRI_B(widgUnpackUserData(psWidget->pUserData)));
+  UWORD im2 = static_cast<UWORD>((UNPACKDWORD_TRI_C(widgUnpackUserData(psWidget->pUserData))));
   STRING butString[64];
 
   UNUSEDPARAMETER(pColours);

@@ -361,12 +361,12 @@ KEY_MAPPING* keyAddMapping(KEY_STATUS status, KEY_CODE metaCode, KEY_CODE subCod
   /* Get some memory for our binding */
   newMapping = new (std::nothrow) KEY_MAPPING[1];
 
-  DEBUG_ASSERT_TEXT((int)newMapping,"Couldn't allocate memory for a key mapping");
+  DEBUG_ASSERT_TEXT(newMapping != nullptr,"Couldn't allocate memory for a key mapping");
 
   /* Plus one for the terminator */
 
   newMapping->pName = new (std::nothrow) STRING[strlen(name)+1];
-  DEBUG_ASSERT_TEXT((int)newMapping->pName,"Couldn't allocate the memory for the string in a mapping");
+  DEBUG_ASSERT_TEXT(newMapping->pName != nullptr,"Couldn't allocate the memory for the string in a mapping");
 
   /* Copy over the name */
   strcpy(newMapping->pName, name);

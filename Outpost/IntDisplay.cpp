@@ -1275,13 +1275,14 @@ void intOpenPlainForm(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, 
 
   if ((Form->Ay0 == Ty0) && (Form->Ay1 == Ty1))
   {
-    if (Form->pUserData != nullptr)
-      Form->display = (WIDGET_DISPLAY)((SDWORD)Form->pUserData);
-    else
-    {
-      //default to display
-      Form->display = intDisplayPlainForm;
-    }
+    /* This used to read pUserData back as a WIDGET_DISPLAY when it was
+       non-null. Nothing ever stores a display function there; on a plain
+       form the field is the close-animation flag, and the only non-null
+       value it can hold is the 1 that intClosePlainForm writes. So the
+       branch could only ever have installed (WIDGET_DISPLAY)1 as the paint
+       function, and it was unreachable solely because HandleClosingWindows
+       deletes the form first. */
+    Form->display = intDisplayPlainForm;
     Form->disableChildren = FALSE;
     Form->animCount = 0;
   }
@@ -1337,7 +1338,10 @@ void intClosePlainForm(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset,
 
   if ((Form->Ay0 == Ty0) && (Form->Ay1 == Ty1))
   {
-    Form->pUserData = (void*)1;
+    /* Signals HandleClosingWindows that the form has finished shrinking
+       and can be deleted. The forms that animate closed keep nothing else
+       in pUserData; they are all created with it null. */
+    Form->pUserData = widgPackUserData(1);
     Form->animCount = 0;
   }
 }
@@ -1380,7 +1384,7 @@ void intDisplayImage(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, U
   UDWORD y = yOffset + psWidget->y;
   UNUSEDPARAMETER(pColours);
 
-  pie_ImageFileID(IntImages, static_cast<UWORD>((UDWORD)psWidget->pUserData), x, y);
+  pie_ImageFileID(IntImages, static_cast<UWORD>(widgUnpackUserData(psWidget->pUserData)), x, y);
 }
 
 //draws the mission clock - flashes when below a predefined time
@@ -1393,11 +1397,11 @@ void intDisplayMissionClock(struct _widget* psWidget, UDWORD xOffset, UDWORD yOf
   UNUSEDPARAMETER(pColours);
 
   //draw the background image
-  pie_ImageFileID(IntImages, static_cast<UWORD>(UNPACKDWORD_TRI_B((UDWORD)psWidget->pUserData)), x, y);
+  pie_ImageFileID(IntImages, static_cast<UWORD>(UNPACKDWORD_TRI_B(widgUnpackUserData(psWidget->pUserData))), x, y);
   //need to flash the timer when < 5 minutes remaining, but > 4 minutes
-  flash = UNPACKDWORD_TRI_A((UDWORD)psWidget->pUserData);
+  flash = UNPACKDWORD_TRI_A(widgUnpackUserData(psWidget->pUserData));
   if (flash AND ((gameTime2 / 250) % 2) == 0)
-    pie_ImageFileID(IntImages, static_cast<UWORD>(UNPACKDWORD_TRI_C((UDWORD)psWidget->pUserData)), x, y);
+    pie_ImageFileID(IntImages, static_cast<UWORD>(UNPACKDWORD_TRI_C(widgUnpackUserData(psWidget->pUserData))), x, y);
 }
 
 // Display one of two images depending on if the widget is hilighted by the mouse.
@@ -1434,14 +1438,14 @@ void intDisplayImageHilight(struct _widget* psWidget, UDWORD xOffset, UDWORD yOf
     Hilight = FALSE;
   }
 
-  ImageID = static_cast<UWORD>(UNPACKDWORD_TRI_C((UDWORD)psWidget->pUserData));
+  ImageID = static_cast<UWORD>(UNPACKDWORD_TRI_C(widgUnpackUserData(psWidget->pUserData)));
 
   //need to flash the button if Full Transporter
-  flash = UNPACKDWORD_TRI_A((UDWORD)psWidget->pUserData);
+  flash = UNPACKDWORD_TRI_A(widgUnpackUserData(psWidget->pUserData));
   if (flash AND psWidget->id == IDTRANS_LAUNCH)
   {
     if (((gameTime2 / 250) % 2) == 0)
-      pie_ImageFileID(IntImages, static_cast<UWORD>(UNPACKDWORD_TRI_B((UDWORD)psWidget->pUserData)), x, y);
+      pie_ImageFileID(IntImages, static_cast<UWORD>(UNPACKDWORD_TRI_B(widgUnpackUserData(psWidget->pUserData))), x, y);
     else
       pie_ImageFileID(IntImages, ImageID, x, y);
   }
@@ -1449,7 +1453,7 @@ void intDisplayImageHilight(struct _widget* psWidget, UDWORD xOffset, UDWORD yOf
   {
     pie_ImageFileID(IntImages, ImageID, x, y);
     if (Hilight)
-      pie_ImageFileID(IntImages, static_cast<UWORD>(UNPACKDWORD_TRI_B((UDWORD)psWidget->pUserData)), x, y);
+      pie_ImageFileID(IntImages, static_cast<UWORD>(UNPACKDWORD_TRI_B(widgUnpackUserData(psWidget->pUserData))), x, y);
   }
 }
 
@@ -1516,15 +1520,15 @@ void intDisplayButtonHilight(struct _widget* psWidget, UDWORD xOffset, UDWORD yO
 
   if (Grey)
   {
-    ImageID = static_cast<UWORD>((UNPACKDWORD_TRI_A((UDWORD)psWidget->pUserData)));
+    ImageID = static_cast<UWORD>((UNPACKDWORD_TRI_A(widgUnpackUserData(psWidget->pUserData))));
     Hilight = FALSE;
   }
   else
-    ImageID = static_cast<UWORD>((UNPACKDWORD_TRI_C((UDWORD)psWidget->pUserData) + Down));
+    ImageID = static_cast<UWORD>((UNPACKDWORD_TRI_C(widgUnpackUserData(psWidget->pUserData)) + Down));
 
   pie_ImageFileID(IntImages, ImageID, x, y);
   if (Hilight)
-    pie_ImageFileID(IntImages, static_cast<UWORD>(UNPACKDWORD_TRI_B((UDWORD)psWidget->pUserData)), x, y);
+    pie_ImageFileID(IntImages, static_cast<UWORD>(UNPACKDWORD_TRI_B(widgUnpackUserData(psWidget->pUserData))), x, y);
 }
 
 // Display one of two images depending on if the widget is hilighted by the mouse.
@@ -1543,15 +1547,15 @@ void intDisplayAltButtonHilight(struct _widget* psWidget, UDWORD xOffset, UDWORD
 
   if (Grey)
   {
-    ImageID = static_cast<UWORD>((UNPACKDWORD_TRI_A((UDWORD)psWidget->pUserData)));
+    ImageID = static_cast<UWORD>((UNPACKDWORD_TRI_A(widgUnpackUserData(psWidget->pUserData))));
     Hilight = FALSE;
   }
   else
-    ImageID = static_cast<UWORD>((UNPACKDWORD_TRI_C((UDWORD)psWidget->pUserData) + Down));
+    ImageID = static_cast<UWORD>((UNPACKDWORD_TRI_C(widgUnpackUserData(psWidget->pUserData)) + Down));
 
   pie_ImageFileID(IntImages, ImageID, x, y);
   if (Hilight)
-    pie_ImageFileID(IntImages, static_cast<UWORD>(UNPACKDWORD_TRI_B((UDWORD)psWidget->pUserData)), x, y);
+    pie_ImageFileID(IntImages, static_cast<UWORD>(UNPACKDWORD_TRI_B(widgUnpackUserData(psWidget->pUserData))), x, y);
 }
 
 // Flash one of two images depending on if the widget is hilighted by the mouse.
@@ -1576,11 +1580,11 @@ void intDisplayButtonFlash(struct _widget* psWidget, UDWORD xOffset, UDWORD yOff
 
   if (Down && ((gameTime2 / 250) % 2 == 0))
   {
-    ImageID = static_cast<UWORD>((UNPACKDWORD_TRI_B((UDWORD)psWidget->pUserData)));
+    ImageID = static_cast<UWORD>((UNPACKDWORD_TRI_B(widgUnpackUserData(psWidget->pUserData))));
     Hilight = FALSE;
   }
   else
-    ImageID = static_cast<UWORD>((UNPACKDWORD_TRI_C((UDWORD)psWidget->pUserData)));
+    ImageID = static_cast<UWORD>((UNPACKDWORD_TRI_C(widgUnpackUserData(psWidget->pUserData))));
 
   pie_ImageFileID(IntImages, ImageID, x, y);
 }
@@ -1591,10 +1595,10 @@ void intDisplayReticuleButton(struct _widget* psWidget, UDWORD xOffset, UDWORD y
   UDWORD y = yOffset + psWidget->y;
   BOOL Hilight = FALSE;
   BOOL Down = FALSE;
-  UBYTE DownTime = static_cast<UBYTE>(UNPACKDWORD_QUAD_C((UDWORD)psWidget->pUserData));
-  UBYTE Index = static_cast<UBYTE>(UNPACKDWORD_QUAD_D((UDWORD)psWidget->pUserData));
-  UBYTE flashing = static_cast<UBYTE>(UNPACKDWORD_QUAD_A((UDWORD)psWidget->pUserData));
-  UBYTE flashTime = static_cast<UBYTE>(UNPACKDWORD_QUAD_B((UDWORD)psWidget->pUserData));
+  UBYTE DownTime = static_cast<UBYTE>(UNPACKDWORD_QUAD_C(widgUnpackUserData(psWidget->pUserData)));
+  UBYTE Index = static_cast<UBYTE>(UNPACKDWORD_QUAD_D(widgUnpackUserData(psWidget->pUserData)));
+  UBYTE flashing = static_cast<UBYTE>(UNPACKDWORD_QUAD_A(widgUnpackUserData(psWidget->pUserData)));
+  UBYTE flashTime = static_cast<UBYTE>(UNPACKDWORD_QUAD_B(widgUnpackUserData(psWidget->pUserData)));
   UWORD ImageID;
   UNUSEDPARAMETER(pColours);
 
@@ -1650,7 +1654,7 @@ void intDisplayReticuleButton(struct _widget* psWidget, UDWORD xOffset, UDWORD y
       pie_ImageFileID(IntImages, IMAGE_RETICULE_HILIGHT, x, y);
   }
 
-  psWidget->pUserData = (void*)(PACKDWORD_QUAD(flashTime, flashing, DownTime, Index));
+  psWidget->pUserData = widgPackUserData(PACKDWORD_QUAD(flashTime, flashing, DownTime, Index));
 }
 
 void intDisplayTab(struct _widget* psWidget, UDWORD TabType, UDWORD Position, UDWORD Number, BOOL Selected, BOOL Hilight, UDWORD x,
@@ -1717,14 +1721,14 @@ void intDisplayButtonPressed(struct _widget* psWidget, UDWORD xOffset, UDWORD yO
   UNUSEDPARAMETER(pColours);
 
   if (psButton->state & (WBUTS_DOWN | WBUTS_LOCKED | WBUTS_CLICKLOCK))
-    ImageID = static_cast<UWORD>((UNPACKDWORD_TRI_A((UDWORD)psWidget->pUserData)));
+    ImageID = static_cast<UWORD>((UNPACKDWORD_TRI_A(widgUnpackUserData(psWidget->pUserData))));
   else
-    ImageID = static_cast<UWORD>((UNPACKDWORD_TRI_C((UDWORD)psWidget->pUserData)));
+    ImageID = static_cast<UWORD>((UNPACKDWORD_TRI_C(widgUnpackUserData(psWidget->pUserData))));
 
   Hilight = static_cast<UBYTE>(buttonIsHilite(psButton));
 
   pie_ImageFileID(IntImages, ImageID, x, y);
-  if (Hilight) { pie_ImageFileID(IntImages, static_cast<UWORD>(UNPACKDWORD_TRI_B((UDWORD)psWidget-> pUserData)), x, y); }
+  if (Hilight) { pie_ImageFileID(IntImages, static_cast<UWORD>(UNPACKDWORD_TRI_B(widgUnpackUserData(psWidget->pUserData))), x, y); }
 }
 
 // Display DP images depending on factory and if the widget is currently depressed
@@ -1846,7 +1850,7 @@ void intDisplayNumber(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, 
   UDWORD i = 0;
   UDWORD x = Label->x + xOffset;
   UDWORD y = Label->y + yOffset;
-  UDWORD Quantity; // = (UDWORD)Label->pUserData;
+  UDWORD Quantity; // = widgUnpackUserData(Label->pUserData);
   STRUCTURE* psStruct;
   FACTORY* psFactory;
 
@@ -3257,7 +3261,6 @@ void intDisplayResSubGroup(struct _widget* psWidget, UDWORD xOffset, UDWORD yOff
 void intDisplayAllyIcon(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pColours)
 {
   auto Label = (W_LABEL*)psWidget;
-  UDWORD i = (UDWORD)Label->pUserData;
   UDWORD x = Label->x + xOffset;
   UDWORD y = Label->y + yOffset;
   UNUSEDPARAMETER(pColours);

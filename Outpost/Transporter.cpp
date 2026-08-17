@@ -240,7 +240,7 @@ static BOOL _intAddTransporter(DROID* psSelected, BOOL offWorld)
   sButInit.pTip = strresGetString(psStringRes, STR_MISC_CLOSE);
   sButInit.FontID = WFont;
   sButInit.pDisplay = intDisplayImageHilight;
-  sButInit.pUserData = (void*)PACKDWORD_TRI(0, IMAGE_CLOSEHILIGHT, IMAGE_CLOSE);
+  sButInit.pUserData = widgPackUserData(PACKDWORD_TRI(0, IMAGE_CLOSEHILIGHT, IMAGE_CLOSE));
   if (!widgAddButton(psWScreen, &sButInit))
     return FALSE;
 
@@ -316,7 +316,7 @@ BOOL intAddTransporterContents(void)
   sButInit.pTip = strresGetString(psStringRes, STR_MISC_CLOSE);
   sButInit.FontID = WFont;
   sButInit.pDisplay = intDisplayImageHilight;
-  sButInit.pUserData = (void*)PACKDWORD_TRI(0, IMAGE_CLOSEHILIGHT, IMAGE_CLOSE);
+  sButInit.pUserData = widgPackUserData(PACKDWORD_TRI(0, IMAGE_CLOSEHILIGHT, IMAGE_CLOSE));
   if (!widgAddButton(psWScreen, &sButInit))
     return FALSE;
 
@@ -361,7 +361,7 @@ BOOL intAddTransporterContents(void)
     sButFInit.height = Neuron::GetImageHeight(IntImages, IMAGE_LAUNCHUP);
     sButFInit.pTip = strresGetString(psStringRes, STR_INT_TRANSLAUNCH);
     sButFInit.pDisplay = intDisplayImageHilight;
-    sButFInit.pUserData = (void*)PACKDWORD_TRI(0, IMAGE_LAUNCHDOWN, IMAGE_LAUNCHUP);
+    sButFInit.pUserData = widgPackUserData(PACKDWORD_TRI(0, IMAGE_LAUNCHDOWN, IMAGE_LAUNCHUP));
     if (!widgAddForm(psWScreen, &sButFInit))
       return FALSE;
     if (!AlreadyUp)
@@ -403,7 +403,7 @@ BOOL intAddTransporterLaunch(DROID* psDroid)
   sButInit.height = Neuron::GetImageHeight(IntImages, IMAGE_LAUNCHUP);
   sButInit.pTip = strresGetString(psStringRes, STR_INT_TRANSLAUNCH);
   sButInit.pDisplay = intDisplayImageHilight;
-  sButInit.pUserData = (void*)PACKDWORD_TRI(0, IMAGE_LAUNCHDOWN, IMAGE_LAUNCHUP);
+  sButInit.pUserData = widgPackUserData(PACKDWORD_TRI(0, IMAGE_LAUNCHDOWN, IMAGE_LAUNCHUP));
   if (!widgAddForm(psWScreen, &sButInit))
     return FALSE;
 
@@ -739,7 +739,7 @@ BOOL intAddDroidsAvailForm(void)
   sButInit.pTip = strresGetString(psStringRes, STR_MISC_CLOSE);
   sButInit.FontID = WFont;
   sButInit.pDisplay = intDisplayImageHilight;
-  sButInit.pUserData = (void*)PACKDWORD_TRI(0, IMAGE_CLOSEHILIGHT, IMAGE_CLOSE);
+  sButInit.pUserData = widgPackUserData(PACKDWORD_TRI(0, IMAGE_CLOSEHILIGHT, IMAGE_CLOSE));
   if (!widgAddButton(psWScreen, &sButInit))
     return FALSE;
 
@@ -1630,10 +1630,10 @@ void flashMissionButton(UDWORD buttonID)
     switch (buttonID)
     {
     case IDTRANS_LAUNCH:
-      psForm->pUserData = (void*)PACKDWORD_TRI(1, IMAGE_LAUNCHDOWN, IMAGE_LAUNCHUP);
+      psForm->pUserData = widgPackUserData(PACKDWORD_TRI(1, IMAGE_LAUNCHDOWN, IMAGE_LAUNCHUP));
       break;
     case IDTIMER_FORM:
-      psForm->pUserData = (void*)PACKDWORD_TRI(1, IMAGE_MISSION_CLOCK, IMAGE_MISSION_CLOCK_UP);
+      psForm->pUserData = widgPackUserData(PACKDWORD_TRI(1, IMAGE_MISSION_CLOCK, IMAGE_MISSION_CLOCK_UP));
       break;
     default:
       //do nothing other than in debug
@@ -1655,10 +1655,10 @@ void stopMissionButtonFlash(UDWORD buttonID)
     switch (buttonID)
     {
     case IDTRANS_LAUNCH:
-      psForm->pUserData = (void*)PACKDWORD_TRI(0, IMAGE_LAUNCHDOWN, IMAGE_LAUNCHUP);
+      psForm->pUserData = widgPackUserData(PACKDWORD_TRI(0, IMAGE_LAUNCHDOWN, IMAGE_LAUNCHUP));
       break;
     case IDTIMER_FORM:
-      psForm->pUserData = (void*)PACKDWORD_TRI(0, IMAGE_MISSION_CLOCK, IMAGE_MISSION_CLOCK_UP);
+      psForm->pUserData = widgPackUserData(PACKDWORD_TRI(0, IMAGE_MISSION_CLOCK, IMAGE_MISSION_CLOCK_UP));
       break;
     default:
       //do nothing other than in debug

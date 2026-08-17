@@ -2392,7 +2392,7 @@ BOOL intAddMissionTimer(void)
   sFormInit.height = Neuron::GetImageHeight(IntImages, IMAGE_MISSION_CLOCK); //TIMER_HEIGHT;
   sFormInit.x = static_cast<SWORD>((RADTLX + RADWIDTH - sFormInit.width));
   sFormInit.y = static_cast<SWORD>(TIMER_Y);
-  sFormInit.pUserData = (void*)PACKDWORD_TRI(0, IMAGE_MISSION_CLOCK, IMAGE_MISSION_CLOCK_UP);
+  sFormInit.pUserData = widgPackUserData(PACKDWORD_TRI(0, IMAGE_MISSION_CLOCK, IMAGE_MISSION_CLOCK_UP));
   sFormInit.pDisplay = intDisplayMissionClock;
 
   if (!widgAddForm(psWScreen, &sFormInit))
@@ -2440,7 +2440,7 @@ BOOL intAddTransporterTimer(void)
   sFormInit.height = Neuron::GetImageHeight(IntImages, IMAGE_TRANSETA_UP);
   sFormInit.pTip = strresGetString(psStringRes, STR_INT_TRANSPORTER);
   sFormInit.pDisplay = intDisplayImageHilight;
-  sFormInit.pUserData = (void*)PACKDWORD_TRI(0, IMAGE_TRANSETA_DOWN, IMAGE_TRANSETA_UP);
+  sFormInit.pUserData = widgPackUserData(PACKDWORD_TRI(0, IMAGE_TRANSETA_DOWN, IMAGE_TRANSETA_UP));
 
   if (!widgAddForm(psWScreen, &sFormInit))
     return FALSE;
@@ -2531,8 +2531,8 @@ BOOL intAddTransporterTimer(void)
 	sButInit.style = WBUT_PLAIN;
 	sButInit.pTip = strresGetString(psStringRes, STR_INT_TRANSPORTER);
 	sButInit.pDisplay = intDisplayImageHilight;
-	sButInit.pUserData = (void*)PACKDWORD_TRI(0,IMAGE_TRANSETA_DOWN,
-		IMAGE_TRANSETA_UP);
+	sButInit.pUserData = widgPackUserData(PACKDWORD_TRI(0,IMAGE_TRANSETA_DOWN,
+		IMAGE_TRANSETA_UP));
 //	AddCursorSnap(&InterfaceSnap,
 //					sFormInit.x+sButInit.x+sButInit.width/2,
 	if (!widgAddButton(psWScreen, &sButInit))
