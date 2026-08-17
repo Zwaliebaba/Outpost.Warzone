@@ -64,7 +64,7 @@ static void eventFreeTrigger(ACTIVE_TRIGGER* psTrigger);
 void eventTimeReset(UDWORD initTime) { updateTime = initTime; }
 
 /* Initialise the event system */
-BOOL eventInitialise(EVENT_INIT* psInit)
+BOOL eventInitialise(void)
 {
   psTrigList = nullptr;
   psCallbackList = nullptr;
@@ -290,8 +290,6 @@ BOOL eventAddValueRelease(INTERP_TYPE type, VAL_RELEASE_FUNC release)
 BOOL eventNewContext(SCRIPT_CODE* psCode, CONTEXT_RELEASE release, SCRIPT_CONTEXT** ppsContext)
 {
   SCRIPT_CONTEXT* psContext;
-  SDWORD val, storeIndex, type, arrayNum, i, arraySize;
-  VAL_CHUNK *psNewChunk, *psNextChunk;
 
   // Get a new context
   psContext = new (std::nothrow) SCRIPT_CONTEXT;
@@ -302,82 +300,44 @@ BOOL eventNewContext(SCRIPT_CODE* psCode, CONTEXT_RELEASE release, SCRIPT_CONTEX
   psContext->psCode = psCode;
   psContext->triggerCount = 0;
   psContext->release = static_cast<SWORD>(release == CR_RELEASE ? TRUE : FALSE);
-  psContext->psGlobals = nullptr;
   psContext->id = -1; // only used by the save game
-  val = static_cast<SDWORD>(psCode->ValueSlots()) - 1;
-  arrayNum = psCode->numArrays - 1;
-  arraySize = 1;
-  if (psCode->numArrays > 0)
+  psContext->aValues.resize(psCode->ValueSlots());
+
+  /* Type every slot: the declared globals, then the array elements, then
+     the function parameter slots.  Parameter slots are call-scoped
+     temporaries, so they get a type but no create hook (nor a release at
+     context teardown). */
+  for (UDWORD slot = 0; slot < psContext->aValues.size(); slot++)
   {
-    for (i = 0; i < psCode->psArrayInfo[arrayNum].dimensions; i++)
-      arraySize *= psCode->psArrayInfo[arrayNum].elements[i];
-  }
-  while (val >= 0)
-  {
-    psNewChunk = new (std::nothrow) VAL_CHUNK;
-    if (psNewChunk == nullptr)
+    INTERP_TYPE type;
+    bool paramSlot = false;
+    if (slot < psCode->numGlobals)
+      type = psCode->pGlobals[slot];
+    else if (slot < psCode->numGlobals + psCode->arraySize)
     {
-      for (psNewChunk = psContext->psGlobals; psNewChunk; psNewChunk = psNextChunk)
-      {
-        psNextChunk = psNewChunk->psNext;
-        delete psNewChunk;
-      }
-      delete psContext;
-      return FALSE;
+      UDWORD arrayNum = 0;
+      while (arrayNum + 1u < psCode->psArrayInfo.size() && slot >= psCode->psArrayInfo[arrayNum + 1].base)
+        arrayNum += 1;
+      type = psCode->psArrayInfo[arrayNum].type;
+    }
+    else
+    {
+      type = psCode->aParamTypes[slot - psCode->numGlobals - psCode->arraySize];
+      paramSlot = true;
     }
 
-    // Set the value types
-    storeIndex = val % CONTEXT_VALS;
-    while (storeIndex >= 0)
+    psContext->aValues[slot].type = type;
+    psContext->aValues[slot].v.oval = nullptr;
+    if (!paramSlot && asCreateFuncs != nullptr && type < numFuncs && asCreateFuncs[type])
     {
-      /* Function parameter slots sit above the globals and arrays; they
-         are call-scoped temporaries, so they get a type but no create
-         hook (nor a release at context teardown). */
-      const bool paramSlot = val >= static_cast<SDWORD>(psCode->numGlobals + psCode->arraySize);
-      if (paramSlot)
-        type = psCode->aParamTypes[val - psCode->numGlobals - psCode->arraySize];
-      else if (val >= psCode->numGlobals)
-        type = psCode->psArrayInfo[arrayNum].type;
-      else
-        type = psCode->pGlobals[val];
-      psNewChunk->asVals[storeIndex].type = type;
-      psNewChunk->asVals[storeIndex].v.oval = nullptr;
-      if (!paramSlot && asCreateFuncs != nullptr && type < numFuncs && asCreateFuncs[type])
+      if (!asCreateFuncs[type](&psContext->aValues[slot]))
       {
-        if (!asCreateFuncs[type](psNewChunk->asVals + storeIndex))
-        {
-          delete psNewChunk;
-          for (psNewChunk = psContext->psGlobals; psNewChunk; psNewChunk = psNextChunk)
-          {
-            psNextChunk = psNewChunk->psNext;
-            delete psNewChunk;
-          }
-          delete psContext;
-          return FALSE;
-        }
-      }
-      storeIndex -= 1;
-      val -= 1;
-      if (!paramSlot)
-      {
-        arraySize -= 1;
-        if (arraySize <= 0)
-        {
-          // finished this array
-          arrayNum -= 1;
-          if (arrayNum >= 0)
-          {
-            // calculate the next array size
-            arraySize = 1;
-            for (i = 0; i < psCode->psArrayInfo[arrayNum].dimensions; i++)
-              arraySize *= psCode->psArrayInfo[arrayNum].elements[i];
-          }
-        }
+        delete psContext;
+        return FALSE;
       }
     }
-    psNewChunk->psNext = psContext->psGlobals;
-    psContext->psGlobals = psNewChunk;
   }
+
   psContext->psNext = psContList;
   psContList = psContext;
 
@@ -390,24 +350,15 @@ BOOL eventNewContext(SCRIPT_CODE* psCode, CONTEXT_RELEASE release, SCRIPT_CONTEX
 BOOL eventCopyContext(SCRIPT_CONTEXT* psContext, SCRIPT_CONTEXT** ppsNew)
 {
   SCRIPT_CONTEXT* psNew;
-  SDWORD val;
-  VAL_CHUNK *psChunk, *psOChunk;
 
   // Get a new context
   if (!eventNewContext(psContext->psCode, static_cast<CONTEXT_RELEASE>(psContext->release), &psNew))
     return FALSE;
 
-  // Now copy the values over.  The whole union is copied - the old
+  // Now copy the values over.  The whole value is copied - the old
   // ival-only copy would truncate object pointers on x64.
-  psChunk = psNew->psGlobals;
-  psOChunk = psContext->psGlobals;
-  while (psChunk)
-  {
-    for (val = 0; val < CONTEXT_VALS; val++)
-      psChunk->asVals[val].v = psOChunk->asVals[val].v;
-    psChunk = psChunk->psNext;
-    psOChunk = psOChunk->psNext;
-  }
+  for (size_t val = 0; val < psContext->aValues.size(); val++)
+    psNew->aValues[val].v = psContext->aValues[val].v;
 
   *ppsNew = psNew;
 
@@ -456,9 +407,7 @@ BOOL eventRunContext(SCRIPT_CONTEXT* psContext, UDWORD time)
 void eventRemoveContext(SCRIPT_CONTEXT* psContext)
 {
   ACTIVE_TRIGGER *psCurr, *psPrev = nullptr, *psNext;
-  VAL_CHUNK *psCChunk, *psNChunk;
   SCRIPT_CONTEXT *psCCont, *psPCont = nullptr;
-  SDWORD i, chunkStart;
   INTERP_VAL* psVal;
 
   // Get rid of all it's triggers
@@ -501,27 +450,12 @@ void eventRemoveContext(SCRIPT_CONTEXT* psContext)
   // Call the release function for all the values
   if (asReleaseFuncs != nullptr)
   {
-    psCChunk = psContext->psGlobals;
-    chunkStart = 0;
-    for (i = 0; i < psContext->psCode->numGlobals; i++)
+    for (UDWORD i = 0; i < psContext->psCode->numGlobals; i++)
     {
-      if (i - chunkStart >= CONTEXT_VALS)
-      {
-        chunkStart += CONTEXT_VALS;
-        psCChunk = psCChunk->psNext;
-        DEBUG_ASSERT_TEXT(psCChunk != NULL, "eventRemoveContext: not enough value chunks");
-      }
-      psVal = psCChunk->asVals + (i - chunkStart);
+      psVal = &psContext->aValues[i];
       if (psVal->type < numFuncs && asReleaseFuncs[psVal->type] != nullptr)
         asReleaseFuncs[psVal->type](psVal);
     }
-  }
-
-  // Free it's variables
-  for (psCChunk = psContext->psGlobals; psCChunk; psCChunk = psNChunk)
-  {
-    psNChunk = psCChunk->psNext;
-    delete psCChunk;
   }
 
   // Remove it from the context list
@@ -548,22 +482,13 @@ void eventRemoveContext(SCRIPT_CONTEXT* psContext)
 // Get the value pointer for a variable index
 BOOL eventGetContextVal(SCRIPT_CONTEXT* psContext, UDWORD index, INTERP_VAL** ppsVal)
 {
-  VAL_CHUNK* psChunk;
-
-  // Find the chunk for the variable
-  psChunk = psContext->psGlobals;
-  while (psChunk && index >= CONTEXT_VALS)
-  {
-    index -= CONTEXT_VALS;
-    psChunk = psChunk->psNext;
-  }
-  if (!psChunk)
+  if (index >= psContext->aValues.size())
   {
     DEBUG_ASSERT_TEXT(FALSE, "eventGetContextVal: Variable not found");
     return FALSE;
   }
 
-  *ppsVal = psChunk->asVals + index;
+  *ppsVal = &psContext->aValues[index];
 
   return TRUE;
 }

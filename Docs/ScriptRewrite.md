@@ -202,14 +202,19 @@ old varargs form is deleted so no unconverted site can survive the build.
 ### 4.5 Event system modernisation (semantics frozen)
 
 - Context globals: `VAL_CHUNK` chains → `std::vector<INTERP_VAL>` per
-  context; `interpGetVarData` becomes indexing.
-- Trigger and context lists: hand-rolled intrusive lists →
-  `std::list`, keeping the exact time-ordered insertion, the deferred
-  `psAddedTriggers` handling during a firing pass, and `TR_PAUSE`
-  resume-offset behaviour. (The `std::list` choice for callback-mutates-
-  container safety follows the AnimObj/Projectile precedent.)
+  context; `interpGetVarData` becomes indexing. **Done.** Every variable
+  access was a linked-list walk; it is now an index into storage that
+  never moves, so `OP_PUSHREF` values and the base-pointer registry stay
+  valid as before.
 - `EVENT_INIT` pool tuning disappears; `scriptInitialise()` loses its
-  parameter (2 callers).
+  parameter. **Done.**
+- Trigger and context lists: **left as the intrusive lists they are**, a
+  deliberate narrowing recorded at implementation time. They are correct
+  and self-contained, and a `std::list` conversion would rework the one
+  piece of the module where behaviour is subtlest — the time-ordered
+  insert decides firing order between same-tick triggers, and the
+  deferred `psAddedTriggers` handling exists precisely because the lists
+  mutate mid-iteration — to change nothing but allocation style.
 - Value create/release hooks (`eventAddValueCreate`/`Release`) unchanged —
   the group/base-pointer machinery depends on them.
 

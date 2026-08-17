@@ -220,8 +220,7 @@ public:
     scriptSetCallbackTab(asTestCallbacks);
     scriptSetTypeEquiv(nullptr);
 
-    EVENT_INIT sInit = {};
-    Assert::IsTrue(scriptInitialise(&sInit) == TRUE);
+    Assert::IsTrue(scriptInitialise() == TRUE);
 
     g_lastIntArg = 0;
     g_externValue = 0;

@@ -25,7 +25,7 @@ using SCR_DEBUGTYPE = enum _scr_debugtype
 #define SCRIPTTYPE SCR_DEBUGINFO
 
 // Initialise the script library
-extern BOOL scriptInitialise(EVENT_INIT* psInit);
+extern BOOL scriptInitialise(void);
 
 // Shutdown the script library
 extern void scriptShutDown(void);

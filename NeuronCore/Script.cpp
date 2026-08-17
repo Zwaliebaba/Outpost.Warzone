@@ -4,13 +4,13 @@
 #include "Script.h"
 
 // Initialise the script library
-BOOL scriptInitialise(EVENT_INIT* psInit)
+BOOL scriptInitialise(void)
 {
   if (!stackInitialise())
     return FALSE;
   if (!interpInitialise())
     return FALSE;
-  if (!eventInitialise(psInit))
+  if (!eventInitialise())
     return FALSE;
 
   return TRUE;

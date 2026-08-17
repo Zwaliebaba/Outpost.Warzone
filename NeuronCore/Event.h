@@ -7,45 +7,22 @@
 #ifndef _event_h
 #define _event_h
 
-/* The number of values in a context value chunk */
-#define CONTEXT_VALS 20
+#include <vector>
 
-/* One chunk of variables for a script context */
-using VAL_CHUNK = struct _val_chunk
-{
-  INTERP_VAL asVals[CONTEXT_VALS];
+/* The data needed within an object to run a script.
 
-  struct _val_chunk* psNext;
-};
-
-/* The number of links in a context event link chunk */
-#define CONTEXT_LINKS	10
-/* One chunk of event links for a script context */
-using LINK_CHUNK = struct _link_chunk
-{
-  SWORD aLinks[CONTEXT_LINKS];
-
-  struct _link_chunk* psNext;
-};
-
-/* The data needed within an object to run a script */
+   aValues is sized once at creation (SCRIPT_CODE::ValueSlots()) and never
+   resized, so pointers into it - OP_PUSHREF values, the base-pointer
+   registry in ScriptVals.cpp - stay valid for the context's lifetime. */
 using SCRIPT_CONTEXT = struct _script_context
 {
   SCRIPT_CODE* psCode; // The actual script to run
-  VAL_CHUNK* psGlobals; // The objects copy of the global variables
+  std::vector<INTERP_VAL> aValues; // The object's copy of the context values
   SDWORD triggerCount; // Number of currently active triggers
   SWORD release; // Whether to release the context when there are no triggers
   SWORD id;
 
   struct _script_context* psNext;
-};
-
-// The Event initialisation data
-using EVENT_INIT = struct _event_init
-{
-  UWORD valInit, valExt; // value chunk init values
-  UWORD trigInit, trigExt; // trigger chunk init values
-  UWORD contInit, contExt; // context chunk init values
 };
 
 /*
@@ -75,7 +52,7 @@ extern ACTIVE_TRIGGER* psCallbackList;
 extern SCRIPT_CONTEXT* psContList;
 
 /* Initialise the event system */
-extern BOOL eventInitialise(EVENT_INIT* psInit);
+extern BOOL eventInitialise(void);
 
 // Shutdown the event system
 extern void eventShutDown(void);

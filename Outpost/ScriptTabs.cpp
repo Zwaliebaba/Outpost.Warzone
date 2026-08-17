@@ -635,15 +635,7 @@ TYPE_EQUIV asEquivTable[] = {
 // Initialise the script system
 BOOL scrTabInitialise(void)
 {
-  EVENT_INIT sInit;
-
-  sInit.valInit = 50;
-  sInit.valExt = 5;
-  sInit.trigInit = 35; // was 20 ... not enough
-  sInit.trigExt = 5;
-  sInit.contInit = 50;
-  sInit.contExt = 5;
-  if (!scriptInitialise(&sInit))
+  if (!scriptInitialise())
     return FALSE;
 
   if (!eventInitValueFuncs(ST_MAXTYPE))

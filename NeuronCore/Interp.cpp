@@ -44,22 +44,13 @@ BOOL interpTrace;
 BOOL interpProcessorActive(void) { return bInterpRunning; }
 
 /* Find the value store for a context variable slot */
-__inline INTERP_VAL* interpGetVarData(VAL_CHUNK* psGlobals, UDWORD index)
+__inline INTERP_VAL* interpGetVarData(SCRIPT_CONTEXT* psContext, UDWORD index)
 {
-  VAL_CHUNK* psChunk;
-
-  psChunk = psGlobals;
-  while (index >= CONTEXT_VALS)
-  {
-    index -= CONTEXT_VALS;
-    psChunk = psChunk->psNext;
-  }
-
-  return psChunk->asVals + index;
+  return &psContext->aValues[index];
 }
 
 // get the array data for an array operation
-static BOOL interpGetArrayVarData(const ScriptInstr& sInstr, VAL_CHUNK* psGlobals, SCRIPT_CODE* psProg, INTERP_VAL** ppsVal)
+static BOOL interpGetArrayVarData(const ScriptInstr& sInstr, SCRIPT_CONTEXT* psContext, SCRIPT_CODE* psProg, INTERP_VAL** ppsVal)
 {
   SDWORD i, val;
   UDWORD size, index;
@@ -104,7 +95,7 @@ static BOOL interpGetArrayVarData(const ScriptInstr& sInstr, VAL_CHUNK* psGlobal
     return FALSE;
   }
 
-  *ppsVal = interpGetVarData(psGlobals, psProg->psArrayInfo[base].base + index);
+  *ppsVal = interpGetVarData(psContext, psProg->psArrayInfo[base].base + index);
 
   return TRUE;
 }
@@ -150,7 +141,6 @@ BOOL interpRunScript(SCRIPT_CONTEXT* psContext, INTERP_RUNTYPE runType, UDWORD i
 {
   UDWORD ip;
   INTERP_VAL sVal, *psVar;
-  VAL_CHUNK* psGlobals;
   UDWORD numSlots;
   UDWORD codeStart, codeEnd, codeBase;
   SCRIPT_FUNC scriptFunc;
@@ -177,9 +167,8 @@ BOOL interpRunScript(SCRIPT_CONTEXT* psContext, INTERP_RUNTYPE runType, UDWORD i
   // Turn off tracing initially
   interpTrace = FALSE;
 
-  /* Get the global variables */
+  /* Get the number of context value slots */
   numSlots = psProg->ValueSlots();
-  psGlobals = psContext->psGlobals;
 
   // Find the code range
   switch (runType)
@@ -247,7 +236,7 @@ BOOL interpRunScript(SCRIPT_CONTEXT* psContext, INTERP_RUNTYPE runType, UDWORD i
         // The type of the variable is stored in with the opcode
         sVal.type = sInstr.type;
         // store the pointer
-        psVar = interpGetVarData(psGlobals, static_cast<UDWORD>(sInstr.data));
+        psVar = interpGetVarData(psContext, static_cast<UDWORD>(sInstr.data));
         sVal.v.oval = &(psVar->v.ival);
         TRCPRINTF(("PUSHREF     "));
         TRCPRINTVAL(&sVal);
@@ -281,7 +270,7 @@ BOOL interpRunScript(SCRIPT_CONTEXT* psContext, INTERP_RUNTYPE runType, UDWORD i
           DEBUG_ASSERT_TEXT(FALSE, "interpRunScript: variable index out of range");
           goto exit_with_error;
         }
-        if (!stackPush(interpGetVarData(psGlobals, static_cast<UDWORD>(sInstr.data))))
+        if (!stackPush(interpGetVarData(psContext, static_cast<UDWORD>(sInstr.data))))
           goto exit_with_error;
         ip += 1;
         break;
@@ -293,13 +282,13 @@ BOOL interpRunScript(SCRIPT_CONTEXT* psContext, INTERP_RUNTYPE runType, UDWORD i
           DEBUG_ASSERT_TEXT(FALSE, "interpRunScript: variable index out of range");
           goto exit_with_error;
         }
-        if (!stackPopType(interpGetVarData(psGlobals, static_cast<UDWORD>(sInstr.data))))
+        if (!stackPopType(interpGetVarData(psContext, static_cast<UDWORD>(sInstr.data))))
           goto exit_with_error;
         ip += 1;
         break;
       case OP_PUSHARRAYGLOBAL:
         TRCPRINTF(("PUSHARRAYGLOBAL  "));
-        if (!interpGetArrayVarData(sInstr, psGlobals, psProg, &psVar))
+        if (!interpGetArrayVarData(sInstr, psContext, psProg, &psVar))
           goto exit_with_error;
         TRCPRINTF(("\n"));
         if (!stackPush(psVar))
@@ -308,7 +297,7 @@ BOOL interpRunScript(SCRIPT_CONTEXT* psContext, INTERP_RUNTYPE runType, UDWORD i
         break;
       case OP_POPARRAYGLOBAL:
         TRCPRINTF(("POPARRAYGLOBAL   "));
-        if (!interpGetArrayVarData(sInstr, psGlobals, psProg, &psVar))
+        if (!interpGetArrayVarData(sInstr, psContext, psProg, &psVar))
           goto exit_with_error;
         TRCPRINTSTACKTOP();
         TRCPRINTF(("\n"));
@@ -409,7 +398,7 @@ BOOL interpRunScript(SCRIPT_CONTEXT* psContext, INTERP_RUNTYPE runType, UDWORD i
           const SCRIPT_FUNC_DATA& sFunc = psProg->psFuncData[func];
           for (SDWORD param = sFunc.numParams - 1; param >= 0; param -= 1)
           {
-            psVar = interpGetVarData(psGlobals, sFunc.firstParamSlot + static_cast<UDWORD>(param));
+            psVar = interpGetVarData(psContext, sFunc.firstParamSlot + static_cast<UDWORD>(param));
             if (!stackPopType(psVar))
               goto exit_with_error;
           }
