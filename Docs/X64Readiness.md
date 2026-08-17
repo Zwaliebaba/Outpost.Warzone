@@ -7,10 +7,12 @@ those same lines truncate a 64-bit pointer to 32 bits and hand back an address
 that is not the one that went in.
 
 The x86 CI build's own 343 warnings were cleaned up alongside this audit; that
-work is separate and is described in the commit history. The Win32 build now
-emits 12. Nothing here showed up as a warning on Win32 — it only appeared once
-`Platform=x64` was built, and some of it never warns at all, because a
-truncating cast is legal C++.
+work is separate and is described in the commit history. Nothing here showed up
+as a warning on Win32 — it only appeared once `Platform=x64` was built, and
+some of it never warns at all, because a truncating cast is legal C++.
+
+**All four configurations now build warning-free**: Debug and Release, Win32
+and x64, zero warnings and zero errors.
 
 Status key: **Fixed** — done, and behaviour-identical on Win32.
 **Blocker** — must be designed and done before x64 can run.
@@ -107,7 +109,8 @@ in `SDWORD` locals, the `.vlo` loader passing object pointers through a
 
 ## Measured
 
-The first x64 build produced **203 unique warnings** (Debug; 205 Release),
+The first x64 build produced **203 unique warnings** (Debug; 205 Release); all
+of them are now gone,
 which is the only figure in this document that was ever counted rather than
 estimated -- and it inverted the audit's expectation. The audit predicted
 "mostly C4267, plus C4311/C4312 at the Watch sites". It was the other way
@@ -137,6 +140,13 @@ All of the above are fixed. `widgPackUserData` / `widgUnpackUserData` in
 `Widget.h` carry the widget integers through `uintptr_t`; the BSP indices and
 the stats walks no longer put non-pointers in pointers; the `size_t`
 narrowings are cast at the point of assignment.
+
+Release surfaces two things Debug does not, because `DEBUG_ASSERT_TEXT` is
+`__noop` in release and the optimiser then sees the fall-through.
+`widgGetButtonState` and `functionType` both ended on an assert and returned
+whatever was in the return register. `functionType` was the dangerous one: its
+result indexes `pLoadFunction[]`, so an unrecognised `type` string in the
+function stats table called through a garbage function pointer.
 
 Fixing them also turned up one latent crash that had nothing to do with
 pointer width. `intOpenPlainForm` read `pUserData` back as a `WIDGET_DISPLAY`
