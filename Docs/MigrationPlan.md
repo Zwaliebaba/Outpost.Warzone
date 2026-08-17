@@ -1253,7 +1253,7 @@ a Windows run must confirm — the borderless boot at desktop resolution, UI
 scale 2 on a 1080p/1440p desktop, mouse-to-widget alignment, an FMV with
 subtitles, and a load/save-screen backdrop round trip.
 
-## Removing the palette: true-colour assets in DDS (2026-08-16, stages 1-3 landed)
+## Removing the palette: true-colour assets in DDS (2026-08-16/17, complete)
 
 **By owner decision, the 256-colour palette is to be removed, and the target
 asset format is DDS** (uncompressed A8R8G8B8, hand-rolled loader — no D3DX,
@@ -1313,16 +1313,30 @@ match to the pixel except where 256-colour quantisation disappears:
    casts of `UBYTE`/`UWORD` width would silently truncate packed values,
    so every one was found and widened by hand — the cross-checker cannot
    catch those.
-4. **Convert the assets and delete the module** — *remaining.* A `tools/`
-   script expands each 8-bit PCX through `palette.bin` into uncompressed
-   A8R8G8B8 DDS (index 0 → alpha 0, the same expansion the loader now does
-   at run time), a ~100-line DDS reader replaces the PCX decode, and
-   `palette.bin`, its WinMain load and what is left of `Palette.cpp/.h`
-   (`psGamePal` and its loader) are deleted. Converting GameData binaries
-   is sanctioned the way the Phase 6 `.rpl`→MP4 re-encode was: by this
-   owner decision, through a committed tool. After stages 1-3 the palette's
-   whole remaining footprint is the expansion table built inside the PCX
-   loader's `_load_image`.
+4. **Convert the assets and delete the module** — *landed.*
+   `tools/convert_pcx_to_dds.py` (stdlib-only, kept as the record of the
+   conversion) expanded all 73 PCX files through `palette.bin` into
+   uncompressed A8R8G8B8 DDS - index 0 → alpha 0, the same expansion the
+   loader had been doing at run time, so the files now hold byte for byte
+   what the game held in memory - retargeted the 177 `.pcx` references in
+   `datasets.json`, and patched the fixed-width `TPageFiles` name tables in
+   the two `.img` headers ("pcx"→"dds" is the same length). The 121 `.pie`
+   model files needed nothing: the IMD loader normalises their TEXTURE
+   names to extensionless `page-NN` keys, and their `pcx` type tag stays
+   as a format token. `Dds.cpp` (~250 lines, `Neuron::DdsLoad` and the
+   Mem/ToBuffer variants - a header validation and a copy) replaced
+   `Pcx.cpp`; `Palette.cpp` and `palette.bin` are deleted, and `Palette.h`
+   is down to the packed `COL_*` colour constants. Converting GameData
+   binaries was sanctioned the way the Phase 6 `.rpl`→MP4 re-encode was:
+   by owner decision, through the committed tool.
+
+   One measured finding, for the record: every shipped PCX carries an
+   embedded palette that differs from `palette.bin` by 3-4 bytes of 768 -
+   rounding, plus disagreement about the RGB of the transparent entry 0,
+   which never renders. The game always ignored the embedded palettes, so
+   the conversion went through `palette.bin`, matching what the game drew.
+   `tools/validate_assets.py` reports the identical 0 errors / 981
+   warnings before and after the conversion.
 
 ## Verification
 

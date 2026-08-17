@@ -290,6 +290,11 @@ iIMDShape* Neuron::ProcessIMD(UBYTE** ppFileData, UBYTE* FileDataEnd, UBYTE* IMD
           return nullptr;
         }
 
+        /* "pcx" here is the PIE format's texture type tag, not a file that
+         * exists: the art is DDS since the palette removal, and for the
+         * page-* names the extension appended below is truncated away
+         * before the lookup anyway. The tag stays so the shipped .pie
+         * files keep parsing. */
         if (strcmp(texType, "pcx") != 0)
         {
           Neuron::DebugTrace("(IMDLoad) file corrupt -F\n");
@@ -298,7 +303,7 @@ iIMDShape* Neuron::ProcessIMD(UBYTE** ppFileData, UBYTE* FileDataEnd, UBYTE* IMD
 
         texfile[i] = 0;
 
-        strcat(texfile, ".pcx");
+        strcat(texfile, ".dds");
 
         if (sscanf1((char**)ppFileData, "%d %d", &pwidth, &pheight) != 2)
         {

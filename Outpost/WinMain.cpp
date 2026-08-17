@@ -36,7 +36,6 @@
 #include "TexMan.h"
 #include "Game.h"
 #include "Lighting.h"
-#include "Palette.h"
 
 // Warzone 2100 . Pumpkin Studios
 
@@ -92,8 +91,6 @@ int WINAPI WinMain(HINSTANCE hInstance, // handle to current instance
   BOOL paused = FALSE; //, firstTime = TRUE;
   SDWORD introVideoControl = 3;
   GAMECODE loopStatus;
-  iColour* psPaletteBuffer;
-  SDWORD pSize;
 
   (void)nShowCmd;
   (void)hPrevInstance;
@@ -138,22 +135,8 @@ init: //jump here from the end if re_initialising
     gameStatus = GS_TITLE_SCREEN;
   }
 
-  //load palette
-  // palette.bin is 256 entries plus one trailing byte
-  psPaletteBuffer = new (std::nothrow) iColour[257];
-  if (psPaletteBuffer == nullptr)
-  {
-    Neuron::Fatal("Out of memory");
-    return -1;
-  }
-  if (!loadFileToBuffer("palette.bin", (UBYTE*)psPaletteBuffer, (256 * sizeof(iColour) + 1), (UDWORD*)&pSize))
-  {
-    Neuron::Fatal("Couldn't load palette data");
-    return -1;
-  }
-  pal_AddNewPalette(psPaletteBuffer);
-  delete[] psPaletteBuffer;
-  psPaletteBuffer = nullptr;
+  /* palette.bin was loaded here. The art is true colour DDS now, so there
+   * is no palette to load - the colours are in the files. */
 
   pie_LoadBackDrop(SCREEN_RANDOMBDROP,FALSE);
   pie_SetFogStatus(FALSE);
@@ -411,8 +394,6 @@ init: //jump here from the end if re_initialising
 
   systemShutdown();
 
-  pal_ShutDown();
-
   frameShutDown();
 
   if (reInit)
@@ -425,8 +406,6 @@ init: //jump here from the end if re_initialising
 exit: Neuron::DebugTrace("Shutting down after fail\n");
 
   systemShutdown();
-
-  pal_ShutDown();
 
   frameShutDown();
 

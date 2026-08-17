@@ -10,8 +10,7 @@
 #include "TexMan.h"
 #include "Tex.h"
 #include "RendMode.h"
-#include "Pcx.h"
-#include "Palette.h"
+#include "Dds.h"
 #include "IvisPatch.h"
 #include "Render.h"
 
@@ -187,7 +186,7 @@ int pie_ReloadTexPage(char* filename, UBYTE* pBuffer)
   s.height = _TEX_PAGE[i].tex.height;
   s.bmp = _TEX_PAGE[i].tex.bmp;
 
-  pie_PCXLoadMemToBuffer((int8*)pBuffer, &s, nullptr);
+  Neuron::DdsLoadMemToBuffer((int8*)pBuffer, &s);
 
   dtm_LoadTexSurface(&_TEX_PAGE[i].tex, i);
 
@@ -223,14 +222,12 @@ int Neuron::TexLoad(char* path, char* filename, int type, iBool palkeep, iBool b
 
   switch (type)
   {
-  case 0: // pcx
+  case 0: // dds
 
     // load texture
-
-    //			if (!Neuron::PCXLoad(buffer,&s,&pal[0])) 
-    if (!Neuron::PCXLoad(buffer, &s, nullptr))
+    if (!Neuron::DdsLoad(buffer, &s))
     {
-      Neuron::DebugTrace("WARNING: tex[TexLoad] = failed to load pcx file '{}'\n", buffer);
+      Neuron::DebugTrace("WARNING: tex[TexLoad] = failed to load dds file '{}'\n", buffer);
       // the bspimd tool just needs to return a warning if the texture is not found
 #ifdef PIETOOL
       _TEX_PAGE[i].tex.bmp = NULL; _TEX_PAGE[i].tex.width = 0; _TEX_PAGE[i].tex.height = 0; _TEX_PAGE[i].tex.xshift = 0; _TEX_PAGE[i].type =
@@ -301,7 +298,8 @@ void pie_TexShutDown(void)
       if (_TEX_PAGE[i].tex.bmp)
       {
         j++;
-        IVIS_HEAP_FREE(_TEX_PAGE[i].tex.bmp, _TEX_PAGE[i].tex.width * _TEX_PAGE[i].tex.height);
+        delete[] _TEX_PAGE[i].tex.bmp;
+        _TEX_PAGE[i].tex.bmp = nullptr;
       }
     }
     i++;

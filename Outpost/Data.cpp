@@ -14,7 +14,7 @@
 #include "RenderTypes.h"
 #include "Model.h"
 #include "PieState.h"
-#include "Pcx.h"
+#include "Dds.h"
 #include "BitImage.h"
 
 #include "Texture.h"
@@ -638,7 +638,7 @@ BOOL dataIMGPAGELoad(UBYTE* pBuffer, UDWORD size, void** ppData)
   if (!psSprite)
     return FALSE;
 
-  if (!Neuron::PCXLoadMem((int8*)(SBYTE*)pBuffer, psSprite, nullptr))
+  if (!Neuron::DdsLoadMem((int8*)(SBYTE*)pBuffer, psSprite))
   {
     Neuron::Fatal("IMGPAGE load failed");
     delete[] psSprite;
@@ -689,7 +689,7 @@ BOOL dataHWTERTILESLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
   {
     Neuron::DebugTrace("Reloading terrain tiles\n");
 
-    if (!pie_PCXLoadMemToBuffer((int8*)(SBYTE*)pBuffer, &tilesPCX, nullptr))
+    if (!Neuron::DdsLoadMemToBuffer((int8*)(SBYTE*)pBuffer, &tilesPCX))
     {
       Neuron::Fatal("HWTERTILES reload failed");
       return FALSE;
@@ -698,7 +698,7 @@ BOOL dataHWTERTILESLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
   else
   {
     Neuron::DebugTrace("Loading terrain tiles\n");
-    if (!Neuron::PCXLoadMem((int8*)(SBYTE*)pBuffer, &tilesPCX, nullptr))
+    if (!Neuron::DdsLoadMem((int8*)(SBYTE*)pBuffer, &tilesPCX))
     {
       Neuron::Fatal("HWTERTILES load failed");
       return FALSE;
@@ -832,7 +832,7 @@ BOOL bufferTexPageLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
     if (!psSprite)
       return FALSE;
 
-    if (!Neuron::PCXLoadMem((int8*)(SBYTE*)pBuffer, psSprite, nullptr))
+    if (!Neuron::DdsLoadMem((int8*)(SBYTE*)pBuffer, psSprite))
     {
       delete[] psSprite;
       psSprite = nullptr;

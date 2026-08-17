@@ -4,15 +4,17 @@
 
 //*************************************************************************
 
-#define PALETTE_SIZE	256
-
-/* The sixteen primaries, packed A8R8G8B8. Until the palette removal's stage
- * 3 these were indices - the nearest palette entry to each of the values
- * below, resolved when the palette loaded. The values are the ones the old
- * pie_SetColourDefines asked for, no longer quantised to the palette.
- * COL_BLACK stays a whisker off pure black: pal_GetNearestColour never
- * returned entry 0, the transparent one, and colour-keyed draws still treat
- * pure black as transparent. */
+/* The sixteen primaries, packed A8R8G8B8.
+ *
+ * This header is what is left of the palette: the COL_* names were indices
+ * into a 256 entry global palette - the nearest entry to each of the values
+ * below, resolved when palette.bin loaded - until the palette removal
+ * (MigrationPlan.md) converted the art to true colour DDS and the colours
+ * to the packed values the old code asked the palette for.
+ *
+ * COL_BLACK stays a whisker off pure black: the nearest-colour search never
+ * returned the transparent entry 0, and colour-keyed draws still treat pure
+ * black as transparent. */
 #define COL_TRANS			0
 #define COL_BLACK			0xff010101
 #define COL_BLUE			0xff000080
@@ -30,10 +32,5 @@
 #define COL_LIGHTMAGENTA	0xffff00ff
 #define COL_YELLOW			0xffffff00
 #define COL_WHITE			0xffffffff
-
-//*************************************************************************
-extern void pal_ShutDown(void);
-extern int pal_AddNewPalette(iColour* pal);
-extern iColour* pie_GetGamePal(void);
 
 #endif

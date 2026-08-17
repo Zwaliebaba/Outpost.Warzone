@@ -20,7 +20,7 @@
 #include "PieState.h"
 #include "RendFunc.h"
 #include "RendMode.h"
-#include "Pcx.h"
+#include "Dds.h"
 #include "RenderClip.h"
 #include "PieFunc.h"
 #include "RenderMatrix.h"
@@ -486,36 +486,36 @@ void pie_LoadBackDrop(SCREENTYPE screenType, BOOL b3DFX)
   switch (screenType)
   {
   case SCREEN_RANDOMBDROP:
-    sprintf(backd, "texpages\\bdrops\\%d%d-bdrop.pcx", chooser0, chooser1);
+    sprintf(backd, "texpages\\bdrops\\%d%d-bdrop.dds", chooser0, chooser1);
     break;
   case SCREEN_MISSIONEND:
-    sprintf(backd, "texpages\\bdrops\\missionend.pcx");
+    sprintf(backd, "texpages\\bdrops\\missionend.dds");
     break;
   case SCREEN_SLIDE1:
-    sprintf(backd, "texpages\\slides\\slide1.pcx");
+    sprintf(backd, "texpages\\slides\\slide1.dds");
     break;
   case SCREEN_SLIDE2:
-    sprintf(backd, "texpages\\slides\\slide2.pcx");
+    sprintf(backd, "texpages\\slides\\slide2.dds");
     break;
   case SCREEN_SLIDE3:
-    sprintf(backd, "texpages\\slides\\slide3.pcx");
+    sprintf(backd, "texpages\\slides\\slide3.dds");
     break;
   case SCREEN_SLIDE4:
-    sprintf(backd, "texpages\\slides\\slide4.pcx");
+    sprintf(backd, "texpages\\slides\\slide4.dds");
     break;
   case SCREEN_SLIDE5:
-    sprintf(backd, "texpages\\slides\\slide5.pcx");
+    sprintf(backd, "texpages\\slides\\slide5.dds");
     break;
 
   case SCREEN_CREDITS:
-    sprintf(backd, "texpages\\bdrops\\credits.pcx");
+    sprintf(backd, "texpages\\bdrops\\credits.dds");
     break;
 
   default:
-    sprintf(backd, "texpages\\bdrops\\credits.pcx");
+    sprintf(backd, "texpages\\bdrops\\credits.dds");
     break;
   }
-  if (!pie_PCXLoadToBuffer(backd, &backDropSprite, nullptr))
+  if (!Neuron::DdsLoadToBuffer(backd, &backDropSprite))
     return;
 
   screen_SetBackDrop(backDropBmp, BACKDROP_WIDTH, BACKDROP_HEIGHT);
