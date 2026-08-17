@@ -1207,7 +1207,7 @@ void SetAllTilesVisible(void)
   MAPTILE* psTile = psMapTiles;
   int i;
 
-  for (i = 0; i < mapWidth * mapHeight; i++)
+  for (i = 0; i < static_cast<SDWORD>(mapWidth * mapHeight); i++)
   {
     SET_TILE_VISIBLE(selectedPlayer, psTile);
     psTile++;
