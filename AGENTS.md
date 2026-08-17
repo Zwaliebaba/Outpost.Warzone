@@ -230,7 +230,7 @@ The migration has already made these decisions. Use the replacement that is alre
 
 **R9 — Assertions come from [`NeuronCore/Debug.h`](NeuronCore/Debug.h).** `DEBUG_ASSERT`, `DEBUG_ASSERT_TEXT`, `DEBUG_WARNING` — the `_TEXT` forms take a `std::format` string, and all three compile to `__noop` in Release while still type-checking their arguments. Never `#include <assert.h>`, and never resurrect the legacy debug system (removed in Phase 7).
 
-**R10 — Memory is plain C++.** `new`/`delete`, RAII, and the standard containers. The custom allocators (`Mem.cpp`, `Heap.cpp`, `Block.cpp`) were deleted on purpose; do not reintroduce a pool, a slab or a free-list without an owner decision.
+**R10 — Memory is plain C++.** `new`/`delete`, RAII, and the standard containers. The custom allocators (`Mem.cpp`, `Heap.cpp`, `Block.cpp`) were deleted on purpose, and so were the hand-rolled containers that carried their own node pools (`HashTabl`, `Treap`, `PQueue`); do not reintroduce a pool, a slab or a free-list without an owner decision.
 
 **R11 — No inline assembly.** The last `__asm` block is gone, which is part of what makes the tree portable to the cross-checker. Write the C++ equivalent.
 

@@ -32,7 +32,7 @@ and palette work, and the script module rewrite:
 
 | | |
 |---|---|
-| Translation units | 23 NeuronCore, 42 NeuronClient, 1 NeuronServer, 117 Outpost, 12 NeuronCoreTest |
+| Translation units | 21 NeuronCore, 42 NeuronClient, 1 NeuronServer, 117 Outpost, 12 NeuronCoreTest |
 | Toolset | MSVC v145; Win32 (x86) builds and ships, x64 configurations exist but are unbuilt (`Docs/X64Readiness.md`) |
 | Generated parser code | **None.** All six MKS lex/yacc grammars are gone |
 | Win32 build warnings | 12 (was 343) |
@@ -1397,6 +1397,49 @@ copies truncating object pointers, four `ScriptAI.cpp` sites parking
 pointers in `SDWORD` locals, `.vlo` object initialisation truncating, and
 trigger labels never reaching the debug info (`eventGetTriggerID` printed
 `NOT FOUND` for every code trigger).
+
+## The treap and the priority queue: standard containers (2026-08-17, complete)
+
+**By owner decision, `TREAP` and `QUEUE` were to move onto standard
+containers and their files deleted.** The survey found the two are not the
+same job:
+
+- **`PQueue.cpp`/`.h` (457 lines) had no consumers at all.** Nothing outside
+  the module included `PQueue.h` or called a `queue_*` function; it was the
+  A* pathfinder's queue once, and `AStar.cpp` has long had its own. There was
+  nothing to migrate — it is a deletion with a grep proof.
+- **`Treap.cpp`/`.h`/`TreapInt.h` (588 lines) had exactly one consumer**, the
+  string-resource system, so the real work was modernising `STR_RES` rather
+  than swapping a container behind it.
+
+`STR_RES` was a treap keyed on the *address* of the ID string (with a
+`strcmp` comparator — the idiom that had already forced the `TREAP_KEY`
+pointer-width fix in `X64Readiness.md`), a chain of fixed-size `STR_BLOCK`s
+walked linearly on every lookup, an `ID_ALLOC` flag bit separating ids the
+system allocated from ids the game's keyword table owns, and hand-written
+`stringLen`/`stringCpy`. It is now:
+
+```cpp
+std::vector<std::unique_ptr<STR_ENTRY>> aEntries;   // by id: keyword + text
+std::unordered_map<std::string_view, UDWORD> idMap; // keyword -> id
+```
+
+Two caller requirements shaped that, both found by reading consumers rather
+than assumed. The ~500 `strresGetString` sites store the returned `STRING*`
+in widgets, view data and script string values for the session, and
+`strresGetIDString` hands out the *stored* keyword for the same purpose — so
+element addresses must never move, which is what the `unique_ptr` elements
+buy. The map keys are `string_view`s into those stable entries, so a lookup
+by `const char*` costs no allocation.
+
+Everything else fell out: `ID_ALLOC` is gone because every entry owns both
+halves, `strresDestroy` is a `delete`, the block walk is an index, and
+`strresCreate` lost its pool-sizing parameters. `strresGetIDfromString`,
+`stringLen` and `stringCpy` were deleted as unused. The public interface is
+otherwise unchanged, so the 30 consumer files were untouched.
+
+Also removes 2 of the build's 12 remaining warnings (C4715 in `treapFindRec`
+and `treapDelRec`). `check_case` clean, `crosscheck` 181/181 units clean.
 
 ## Verification
 

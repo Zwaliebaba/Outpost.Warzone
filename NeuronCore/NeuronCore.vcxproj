@@ -177,15 +177,12 @@
     <ClInclude Include="NeuronCore.h" />
     <ClInclude Include="Parse.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="PQueue.h" />
     <ClInclude Include="Priority.h" />
     <ClInclude Include="PtrList.h" />
     <ClInclude Include="Script.h" />
     <ClInclude Include="ScriptLex.h" />
     <ClInclude Include="Stack.h" />
     <ClInclude Include="StrRes.h" />
-    <ClInclude Include="Treap.h" />
-    <ClInclude Include="TreapInt.h" />
     <ClInclude Include="Types.h" />
   </ItemGroup>
   <ItemGroup>
@@ -207,14 +204,12 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="PQueue.cpp" />
     <ClCompile Include="PtrList.cpp" />
     <ClCompile Include="Script.cpp" />
     <ClCompile Include="ScriptComp.cpp" />
     <ClCompile Include="ScriptLex.cpp" />
     <ClCompile Include="Stack.cpp" />
     <ClCompile Include="StrRes.cpp" />
-    <ClCompile Include="Treap.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

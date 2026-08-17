@@ -48,8 +48,10 @@ memory — a guaranteed crash on the first script save. Both now go through
 keys the string-resource treap on **the string's address**, with
 `treapStringCmp` casting the key back to `STRING*` and calling `strcmp` on it.
 On x64 every key was truncated on the way in and a half-address was
-dereferenced on every comparison. The key is now `TREAP_KEY`
-(`std::uintptr_t`); the five casts in `StrRes.cpp` follow it.
+dereferenced on every comparison. The key was widened to `TREAP_KEY`
+(`std::uintptr_t`) as an interim fix, and the module has since been **deleted
+outright**: `StrRes` keys an `unordered_map` by the keyword's *value*, so the
+address-as-key idiom that caused this is gone rather than widened.
 
 ### Hash table keys
 
