@@ -26,6 +26,18 @@ landed. Sections 1–4 describe the pipeline *as surveyed*: the WRF layer, the
 deleted, and the code and data they name now live in git history. §8 carries
 the record of what landed and where it deviated from the design.
 
+**Superseded again (2026-08-17): every remaining generated parser is gone.**
+The "Parsed by" column of §1 and the six-grammar-stacks analysis of §2.4 are
+now history in full. The palette work replaced `.pcx` with `.dds`
+(`NeuronClient/Dds.cpp`; `Pcx.cpp` and `palette.bin` deleted), and the script
+module rewrite replaced the `.slo`, `.vlo` and `STR_RES` grammars with
+hand-written C++ — see [ScriptRewrite.md](ScriptRewrite.md) and
+[ScriptLanguage.md](ScriptLanguage.md). **No MKS lex/yacc output remains in
+the tree**, so §5's parser-count arguments and §7.2's "the parser question"
+are settled rather than open: the answer was to own the parsers, which is
+what `Neuron::Json`, `ScriptLex`/`ScriptComp`, `ScriptValsParse` and
+`strresLoad` now do.
+
 Defects noticed during the survey are recorded in
 [Appendix B](#appendix-b--defects-noticed-during-the-survey) but deliberately
 not fixed here.
@@ -733,10 +745,11 @@ contents, so their internal line numbers are unchanged.
 - `(uwID != ID_ANIM_DROIDRUN || uwID != ID_ANIM_DROIDRUN)` is always true —
   the run animation is torn down and rebuilt every move order
   (`Outpost/Move.cpp:3143-3144`).
-- PCX header validation is `(manufacturer != 10) && (version != 5)` — either
+- ~~PCX header validation is `(manufacturer != 10) && (version != 5)` — either
   field alone passes a corrupt file (`NeuronClient/Pcx.cpp:134` and three
   clones); the RLE decoder ignores `bytes_per_line`, skewing any padded
-  image.
+  image.~~ Fixed: `Pcx.cpp` is deleted and `Dds.cpp` validates the whole
+  128-byte header before reading a pixel.
 - `loadTerrainTypeMap` range check uses `>` against `TER_MAX`, letting the
   sentinel value through, and its version check is commented out
   (`Outpost/Game.cpp:1491-1510`).

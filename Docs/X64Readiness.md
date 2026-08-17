@@ -7,13 +7,20 @@ those same lines truncate a 64-bit pointer to 32 bits and hand back an address
 that is not the one that went in.
 
 The x86 CI build's own 343 warnings were cleaned up alongside this audit; that
-work is separate and is described in the commit history. Nothing here shows up
-as a warning on Win32 — it only appears when `Platform=x64` is first built, and
-some of it will not appear even then, because a truncating cast is legal C++.
+work is separate and is described in the commit history. The Win32 build now
+emits 12. Nothing here shows up as a warning on Win32 — it only appears when
+`Platform=x64` is first built, and some of it will not appear even then,
+because a truncating cast is legal C++.
 
 Status key: **Fixed** — done, and behaviour-identical on Win32.
 **Blocker** — must be designed and done before x64 can run.
 **Watch** — survives x64 by luck or convention; know it is there.
+
+**State as of 2026-08-17: no Blocker remains.** The script VM, the one item
+that was a project rather than an edit, was resolved by the module rewrite
+([`ScriptRewrite.md`](ScriptRewrite.md)). x64 configurations exist in every
+`.vcxproj` and in `Outpost.slnx`; nobody has built them yet, and doing so is
+the next step.
 
 ---
 
@@ -137,10 +144,18 @@ findings in the first x64 build, so it is worth a mechanical pass.
 
 ## Suggested order
 
-1. Add the x64 configuration and build it. Expect a wall of C4267/C4311/C4312;
-   the four **Fixed** items above are already out of the way, so what remains
-   should be the **Watch** list plus the script VM.
-2. Do the script VM (option 1). Nothing runs until it is done.
-3. Sweep the `size_t` narrowings.
-4. Retype `pUserData` and the join-path target field, or wrap both in named
-   helpers that make the intent explicit.
+The configurations exist and the Blocker is gone, so this is now a
+diagnostics-driven sweep rather than a design problem:
+
+1. **Build `Platform=x64` and capture the diagnostics.** Nobody has done this
+   yet, so the true size of the job is unmeasured — every figure below is an
+   audit's expectation, not a count. Expect mostly C4267, plus C4311/C4312 at
+   the **Watch** sites. Prefer fixing to a clean build over suppressing, and
+   do not add x64 to CI until it builds.
+2. **Sweep the `size_t` narrowings** (C4267). Mechanical and the bulk of the
+   noise; worth doing first so real findings are not buried.
+3. **Retype `pUserData` and the join-path target field**, or wrap both in
+   named helpers that make the intent explicit (C4311/C4312).
+4. **Link and run.** A clean x64 compile proves nothing about the D3D9
+   device, the MsQuic import or asset loading; the CAM_1A boot is the test.
+5. Only once it runs: add x64 to `.github/workflows/build.yml`.

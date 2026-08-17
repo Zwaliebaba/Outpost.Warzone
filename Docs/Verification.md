@@ -34,13 +34,15 @@ that exercises `/SAFESEH` — Phase 8 found that the hard way, twice.
 
 **Working directory.** `resSetBaseDir` defaults to empty
 ([FrameResource.cpp:113](../NeuronCore/FrameResource.cpp#L113)), so every asset
-path is relative to the working directory. The paths are bare names — `WinMain`
-opens `"palette.bin"`, not `"GameData/palette.bin"` — so the working directory
-must be **`GameData` itself**, not the directory containing it. Run the exe by
-its full path with `GameData` as the working directory, or pass `-datapath`.
-Getting this wrong looks exactly like a rendering failure — see below. It was
-got wrong on the first run of this sheet, and the listener is the only reason
-it took seconds rather than an afternoon: `Couldn't open palette.bin`.
+path is relative to the working directory, and the paths are bare names —
+`"datasets.json"`, not `"GameData/datasets.json"`. The working directory must
+therefore be **`GameData` itself**, not the directory containing it. Run the
+exe by its full path with `GameData` as the working directory, or pass
+`-datapath`. Getting this wrong looks exactly like a rendering failure — see
+below. It was got wrong on the first run of this sheet, and the listener is
+the only reason it took seconds rather than an afternoon: the tell then was
+`Couldn't open palette.bin`, from a load that has since been deleted with the
+palette; the equivalent failure now names whichever manifest loads first.
 
 **Attach the debug listener first.** `Neuron::Fatal` calls `__debugbreak()`, so
 an assertion under a launcher surfaces only as exit code `0xC0000003` with no
@@ -106,6 +108,16 @@ replaced the `.wrf` layer, every stats and message table through
 `Neuron::Json`, and the anim/audio configs that replaced the `audp_` parser.
 A data error now stops the boot with a named table/row/field fatal rather
 than playing on with zeroed stats — a fatal here is diagnostic, not noise.
+
+Since the script rewrite (2026-08-17, [ScriptRewrite.md](ScriptRewrite.md)),
+this boot carries more weight still: **it is the acceptance test for the new
+script compiler.** Every `.slo` the level names is compiled from source at
+load, so reaching the level proves the compiler accepts the shipped corpus,
+and a compile error stops the boot naming the file, line and column. Add a
+skirmish match to the pass — the campaign scripts and `skirmishAI.slo`
+exercise different halves of the language (callback triggers with `ref`
+parameters, arrays, object member access), and only running them proves the
+generated code *behaves*, which no compile can.
 
 1. It reaches the level without a fatal. If it does not, read the listener
    window before concluding anything about the renderer.

@@ -10,6 +10,20 @@ The one thing that is **not** free is the language: 59 `.slo` scripts and 123
 them must keep compiling to the same behaviour. The language surface is the
 contract; everything behind the lexer is replaceable.
 
+> **Delivered (2026-08-17).** All six stages of §5 landed, one commit each,
+> and both Win32 CI configurations are green. **10,907 lines of generated
+> parser code are gone and no generated parser remains anywhere in the
+> tree** — the build's warning count fell from 343 to 12, and the script VM
+> moved from the sole x64 **Blocker** to Fixed. What each stage changed is
+> recorded per stage in §5 and in the commit history; the language the new
+> compiler accepts is specified in
+> [`ScriptLanguage.md`](ScriptLanguage.md).
+>
+> **Not yet done:** the corpus acceptance test. The game compiles every
+> shipped script at startup, so booting a campaign level and a skirmish
+> match is what proves the rewrite semantically — CI only proves it
+> compiles.
+
 ---
 
 ## 1. What the module is
@@ -250,7 +264,9 @@ code on every stage.
 ## 5. Staging
 
 Each stage compiles clean through `check_case` + full `crosscheck`, is
-committed separately, and leaves the game runnable.
+committed separately, and leaves the game runnable. **All six are done**;
+the notes below are what was planned, and the deltas from plan are called
+out where they occurred.
 
 1. **Delete the dead weight.** `scriptSaveProg`/`scriptLoadProg`/
    `scriptGetVarIndex` + `BINARY_HDR` + the `FUNC_*` index-flag defines
@@ -274,6 +290,19 @@ committed separately, and leaves the game runnable.
 6. **String-resource parser** (per §6 Q1): native replacement for
    `StrRes_l/_y` — the format is `IDENT "string"` pairs with C comments —
    and lex/yacc output is extinct in the tree.
+
+**Bugs the rewrite fixed on the way through**, none of them the point of a
+stage, all of them found by the work:
+
+- `eventCopyContext` copied context values through the 32-bit `ival` union
+  member, truncating every object pointer in a copied context on x64.
+- Four sites in `ScriptAI.cpp` (`scrSkCanBuildTemplate`, `skDoResearch`,
+  `scrSkGetFactoryCapacity`, the skirmish template store) popped object
+  pointers into `SDWORD` locals and cast back.
+- Trigger labels never reached the debug info, so `eventGetTriggerID`
+  printed `NOT FOUND` for every code trigger it was asked to name.
+- The `.vlo` loader passed object pointers through a `UDWORD` parameter
+  (`eventSetContextVar`).
 
 Stage 2 is the risk mass. Mitigations: corpus keyword/operator measurement
 above bounds the lexer; the type checker reuses the same equivalence table

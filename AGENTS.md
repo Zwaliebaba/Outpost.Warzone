@@ -60,7 +60,7 @@ concept; add the layer when a second thing needs it.
 
 **R6 — Units belong in names; types do not.** `rangeTiles`, `durationTicks`, `speedUnitsPerTick` are encouraged — a world measured in tiles, world units and game ticks makes unit ambiguity a real defect class. Never encode the type: no `iCount`, `pDroid`, `strName`. The legacy Hungarian in the tree (`g_psDevice`, `bAudioEnabled`, `uiRet`) is exactly what this rule bans; it stays where it is and spreads nowhere.
 
-**R7 — A file is named for its primary type**, PascalCase, `.h` / `.cpp` only. `.hpp`, `.cc`, `.inl` are not used; template implementations live in the header. Two exceptions, both grandfathered: the bison/flex output (`Script_y.cpp`, `StrRes_l.cpp`, and the `.y`/`.l` they are generated from) keeps the generator's spelling, and per-project `pch.h`/`pch.cpp` keep the name MSBuild expects.
+**R7 — A file is named for its primary type**, PascalCase, `.h` / `.cpp` only. `.hpp`, `.cc`, `.inl` are not used; template implementations live in the header. One exception: per-project `pch.h`/`pch.cpp` keep the name MSBuild expects. (The grandfathered lex/yacc spelling — `Script_y.cpp`, `StrRes_l.cpp` and their kin — is gone; **no generated parser code remains in the tree**, and none is to be reintroduced. Formats get hand-written parsers, as `Neuron::Json`, `ScriptLex`/`ScriptComp` and `strresLoad` do.)
 
 **R8 — `m_` marks encapsulated state, not every field.** A `class` with invariants prefixes private members `m_`. A public aggregate — a `Desc` config struct, a wire record, a POD passed to the renderer — uses plain `camelCase` fields so brace initialization reads naturally. This rule extends the table rather than quoting it.
 
@@ -129,11 +129,11 @@ Two rules the config cannot express, and that a reviewer therefore has to carry:
 
 | Path | What it is | May you edit it? |
 |---|---|---|
-| `NeuronCore/` | Engine static library (27 TUs): platform, timing, the resource system and the `Neuron::Json` reader, containers, maths, script VM, string resources, networking and transport | Yes |
-| `NeuronClient/` | Client-side engine static library (43 TUs): the window, D3D9 rendering, IMD models, animations, DirectInput, XAudio2, UI widgets, fonts, images, FMV sequences | Yes |
+| `NeuronCore/` | Engine static library (23 TUs): platform, timing, the resource system and the `Neuron::Json` reader, containers, maths, the script compiler and VM, string resources, networking and transport | Yes |
+| `NeuronClient/` | Client-side engine static library (42 TUs): the window, D3D9 rendering, IMD models, animations, DirectInput, XAudio2, UI widgets, fonts, images, FMV sequences | Yes |
 | `NeuronServer/` | Server-side engine static library. **Currently a PCH shell** — one `pch.h`/`pch.cpp` and nothing else | Yes |
-| `Outpost/` | Game executable (118 TUs): simulation, AI, structures, droids, campaign, multiplayer | Yes |
-| `NeuronCoreTest/` | MSVC CppUnitTest DLL: the `Neuron::Json` test suite | Yes |
+| `Outpost/` | Game executable (117 TUs): simulation, AI, structures, droids, campaign, multiplayer | Yes |
+| `NeuronCoreTest/` | MSVC CppUnitTest DLL: the `Neuron::Json` and script compiler/VM test suites | Yes |
 | `GameData/` | Shipped content. The JSON manifests and tables (`datasets.json`, stats, messages, anims, audio configs) are text authored in this repo — `tools/validate_assets.py` must stay green. The binary media (textures, models, `.wav`, `.mp4`, levels) is authored by tools outside this repo | JSON: yes, validated. Binary: **No** |
 | `Docs/MigrationPlan.md` | The plan and the record of what each phase changed | Yes — see §6 |
 | `.clang-format`, `.clang-tidy`, `.editorconfig` | Layout and naming, machine-readable (§1, §4) | Yes — with an owner decision |
@@ -147,15 +147,15 @@ and the rest, so nothing needed them. `NetTest/`, the console harness for the Ph
 QUIC transport, is gone with them. Do not restore either, and do not add a build step
 that assumes they exist.
 
-**Five projects, and the edges run one way.** `Outpost.slnx` is the solution; its only
-platform is `x86`.
+**Five projects, and the edges run one way.** `Outpost.slnx` is the solution; its
+platforms are `x86` (the one that builds) and `x64` (see §3).
 
 ```
 NeuronCore.lib          ← the engine everything else builds on
 ├── NeuronClient.lib    ← references NeuronCore
 ├── NeuronServer.lib    ← references NeuronCore
 └── Outpost.exe         ← references all three
-NeuronCoreTest.dll      ← references nothing yet
+NeuronCoreTest.dll      ← compiles the NeuronCore sources it tests directly
 ```
 
 `NeuronClient` and `NeuronServer` are the destination of the engine split: game-engine
@@ -170,7 +170,7 @@ split, do not move a file between them** — see R13.
 
 ## 3. Build and verify
 
-**One platform exists: Win32 (x86), toolset v145, `/std:c++latest`.** There is no x64 configuration and no CMake. If a build error tempts you to add a platform, change the toolset, or lower the language standard — stop and report instead.
+**Win32 (x86) is the platform that builds and ships**, toolset v145, `/std:c++latest`, and there is no CMake. x64 configurations now exist in every `.vcxproj` and in `Outpost.slnx`, but **x64 is not yet a working build** — it is the target of an in-flight migration tracked in [`Docs/X64Readiness.md`](Docs/X64Readiness.md), not a configuration you may assume compiles. CI builds Win32 only. If a build error tempts you to change the toolset or lower the language standard — stop and report instead.
 
 ```powershell
 # Build the game. Its project references pull in NeuronCore, NeuronClient and
