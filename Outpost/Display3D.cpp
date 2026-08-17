@@ -1248,7 +1248,7 @@ void displayStaticObjects(void)
               {
                 displayAnimation(psAnimObj, FALSE);
                 if (selectedPlayer == psStructure->player)
-                  AudioSystem::PlayObjectTrack(psStructure, ID_SOUND_OIL_PUMP_2, nullptr);
+                  (void)AudioSystem::PlayObjectTrack(psStructure, ID_SOUND_OIL_PUMP_2, nullptr);
               }
               else
               {
@@ -2874,7 +2874,8 @@ void drawDeliveryPointSelection(void)
       SDWORD scrY = psDelivPoint->screenY;
       SDWORD scrR = psDelivPoint->screenR;
       /* Three DFX clips properly right now - not sure if software does */
-      if ((scrX + scrR) > 0 AND (scrY + scrR) > 0 AND (scrX - scrR) < DISP_WIDTH AND (scrY - scrR) < DISP_HEIGHT)
+      if ((scrX + scrR) > 0 AND (scrY + scrR) > 0 AND (scrX - scrR) < static_cast<SDWORD>(DISP_WIDTH) AND (scrY - scrR) <
+        static_cast<SDWORD>(DISP_HEIGHT))
         pie_Box(scrX - scrR, scrY - scrR, scrX + scrR, scrY + scrR, 0xffffff9f); // the pale yellow palette entry 110 held
     }
   }
@@ -2997,7 +2998,8 @@ void drawDroidSelections(void)
         }
 
         /* Write the droid rank out */
-        if ((scrX + scrR) > 0 AND (scrY + scrR) > 0 AND (scrX - scrR) < DISP_WIDTH AND (scrY - scrR) < DISP_HEIGHT)
+        if ((scrX + scrR) > 0 AND (scrY + scrR) > 0 AND (scrX - scrR) < static_cast<SDWORD>(DISP_WIDTH) AND (scrY - scrR) <
+          static_cast<SDWORD>(DISP_HEIGHT))
         {
           drawDroidRank(psDroid);
           drawDroidSensorLock(psDroid);
@@ -3059,7 +3061,8 @@ void drawDroidSelections(void)
 
         /* Yeah, yeah yeah - hardcoded palette entries - need to change to #defined colour names */
         /* Three DFX clips properly right now - not sure if software does */
-        if ((scrX + scrR) > 0 AND (scrY + scrR) > 0 AND (scrX - scrR) < DISP_WIDTH AND (scrY - scrR) < DISP_HEIGHT)
+        if ((scrX + scrR) > 0 AND (scrY + scrR) > 0 AND (scrX - scrR) < static_cast<SDWORD>(DISP_WIDTH) AND (scrY - scrR) <
+          static_cast<SDWORD>(DISP_HEIGHT))
         {
           if (!driveModeActive() || driveIsDriven(psDroid))
             longBoxCol = 0x00ffffff;
@@ -3575,11 +3578,11 @@ void locateMouse(void)
           mouseTileY = playerZTile + i;
           if (mouseTileX < 0)
             mouseTileX = 0;
-          if (mouseTileX > mapWidth - 1)
+          if (mouseTileX > static_cast<SDWORD>(mapWidth - 1))
             mouseTileX = mapWidth - 1;
           if (mouseTileY < 0)
             mouseTileY = 0;
-          if (mouseTileY > mapHeight - 1)
+          if (mouseTileY > static_cast<SDWORD>(mapHeight - 1))
             mouseTileY = mapHeight - 1;
 
           tile3dX = playerXTile + j;
@@ -3732,7 +3735,7 @@ void drawTerrainTile(UDWORD i, UDWORD j) //hardware only
 #endif
 
   /* Let's just get out now if we're not supposed to draw it */
-  if ((actualX < 0) OR (actualY < 0) OR (actualX > mapWidth - 1) OR (actualY > mapHeight - 1))
+  if ((actualX < 0) OR (actualY < 0) OR (actualX > static_cast<SDWORD>(mapWidth - 1)) OR (actualY > static_cast<SDWORD>(mapHeight - 1)))
   {
     psTile = &edgeTile;
     CLEAR_TILE_HIGHLIGHT(psTile);
@@ -4808,9 +4811,12 @@ static void addConstructionLine(DROID* psDroid, STRUCTURE* psStructure)
   pts[2].specular.argb = 0;
 
   /* Only do if at least one point is on-screen */
-  if (((pts[0].sx > 0 AND pts[0].sx < DISP_WIDTH) AND (pts[0].sy > 0 AND pts[0].sy < DISP_HEIGHT)) OR ((pts[1].sx > 0 AND pts[1].sx <
-    DISP_WIDTH) AND (pts[1].sy > 0 AND pts[1].sy < DISP_HEIGHT)) OR ((pts[2].sx > 0 AND pts[2].sx < DISP_WIDTH) AND (pts[2].sy > 0 AND pts[
-    2].sy < DISP_HEIGHT)))
+  if (((pts[0].sx > 0 AND pts[0].sx < static_cast<SDWORD>(DISP_WIDTH)) AND (pts[0].sy > 0 AND pts[0].sy <
+    static_cast<SDWORD>(DISP_HEIGHT)))
+    OR ((pts[1].sx > 0 AND pts[1].sx < static_cast<SDWORD>(DISP_WIDTH)) AND (pts[1].sy > 0 AND pts[1].sy <
+    static_cast<SDWORD>(DISP_HEIGHT)))
+    OR ((pts[2].sx > 0 AND pts[2].sx < static_cast<SDWORD>(DISP_WIDTH)) AND (pts[2].sy > 0 AND pts[2].sy <
+    static_cast<SDWORD>(DISP_HEIGHT))))
     pie_TransColouredTriangle((PIEVERTEX*)&pts, colour, trans);
 
   /*

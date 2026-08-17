@@ -368,7 +368,7 @@ UDWORD pie_DrawFormattedText(UBYTE* String, UDWORD x, UDWORD y, UDWORD Width, UD
   while (si < Len)
   {
     // Remove leading spaces, usefull when doing centre justify.
-    if (FFlags & FTEXTF_SKIP_LEADING_SPACES) { while ((si < strlen((char*)String)) && (String[si] == ' ')) { si++; } }
+    if (FFlags & FTEXTF_SKIP_LEADING_SPACES) { while ((si < Len) && (String[si] == ' ')) { si++; } }
 
     FString[0] = 0;
 
@@ -388,7 +388,7 @@ UDWORD pie_DrawFormattedText(UBYTE* String, UDWORD x, UDWORD y, UDWORD Width, UD
     NewLine = FALSE;
 
     // Parse through the string, adding words until width is achieved.
-    while ((si < strlen((char*)String)) && (WWidth <= Width) && (!NewLine))
+    while ((si < Len) && (WWidth <= static_cast<int>(Width)) && (!NewLine))
     {
       osi = si;
 
@@ -400,7 +400,7 @@ UDWORD pie_DrawFormattedText(UBYTE* String, UDWORD x, UDWORD y, UDWORD Width, UD
       if (AddLeadingSpace)
       {
         WWidth += Neuron::GetCharWidth(' ');
-        if (WWidth <= Width)
+        if (WWidth <= static_cast<int>(Width))
         {
           FWord[i] = ' ';
           i++;
@@ -409,7 +409,7 @@ UDWORD pie_DrawFormattedText(UBYTE* String, UDWORD x, UDWORD y, UDWORD Width, UD
         }
       }
 
-      while ((String[si] != 0) && (String[si] != ' ') && (WWidth <= Width))
+      while ((String[si] != 0) && (String[si] != ' ') && (WWidth <= static_cast<int>(Width)))
       {
         // Check for new line character.
         if (String[si] == ASCII_COLOURMODE)
@@ -425,7 +425,7 @@ UDWORD pie_DrawFormattedText(UBYTE* String, UDWORD x, UDWORD y, UDWORD Width, UD
           WWidth += Neuron::GetCharWidth(String[si]);
 
           // If width ok then add this character to the current word.
-          if (WWidth <= Width)
+          if (WWidth <= static_cast<int>(Width))
           {
             FWord[i] = String[si];
             i++;
@@ -438,7 +438,7 @@ UDWORD pie_DrawFormattedText(UBYTE* String, UDWORD x, UDWORD y, UDWORD Width, UD
       if (String[si] == ' ')
       {
         WWidth += Neuron::GetCharWidth(' ');
-        if (WWidth <= Width)
+        if (WWidth <= static_cast<int>(Width))
         {
           FWord[i] = ' ';
           i++;
@@ -451,7 +451,7 @@ UDWORD pie_DrawFormattedText(UBYTE* String, UDWORD x, UDWORD y, UDWORD Width, UD
       // to that space and finish this line.
       if (GotSpace)
       {
-        if ((WWidth >= Width))
+        if ((WWidth >= static_cast<int>(Width)))
         {
           if (FWord[i - 1] == ' ')
             FWord[i] = 0;
