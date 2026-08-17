@@ -428,7 +428,7 @@ void draw3DScene(void)
     displayMultiChat();
   else
   {
-    if (!gamePaused)
+    if (!gamePaused())
     {
       pie_DrawText((unsigned char*)"Developed by Pumpkin Studios",RET_X + 3, 467 + E_H);
       pie_DrawText((unsigned char*)"Published by EIDOS Interactive", pie_GetVideoBufferWidth() - 196, 467 + E_H);
@@ -2408,6 +2408,9 @@ BOOL renderWallSection(STRUCTURE* psStructure)
 
     return (TRUE);
   }
+
+  /* Not visible to this player, so nothing was drawn */
+  return FALSE;
 }
 
 /* renderShadow: draws shadow under droid */

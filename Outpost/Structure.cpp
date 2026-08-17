@@ -2348,8 +2348,8 @@ BOOL setFunctionality(STRUCTURE* psBuilding, UDWORD functionType)
       default: DEBUG_ASSERT_TEXT(FALSE, "setFunctionality: Invalid factory type");
       }
       //initialise the assembly point position
-      x = psBuilding->x + 256 >> TILE_SHIFT;
-      y = psBuilding->y + 256 >> TILE_SHIFT;
+      x = (psBuilding->x + 256) >> TILE_SHIFT;
+      y = (psBuilding->y + 256) >> TILE_SHIFT;
       // Belt and braces - shouldn't be able to build too near edge
       setAssemblyPoint(psFactory->psAssemblyPoint, x << TILE_SHIFT, y << TILE_SHIFT, psBuilding->player, TRUE);
 
@@ -2597,8 +2597,8 @@ BOOL setFunctionality(STRUCTURE* psBuilding, UDWORD functionType)
       addFlagPosition(psRepairFac->psDeliveryPoint);
       setFlagPositionInc(psRepairFac, psBuilding->player, REPAIR_FLAG);
       //initialise the assembly point position
-      x = psBuilding->x + 256 >> TILE_SHIFT;
-      y = psBuilding->y + 256 >> TILE_SHIFT;
+      x = (psBuilding->x + 256) >> TILE_SHIFT;
+      y = (psBuilding->y + 256) >> TILE_SHIFT;
       // Belt and braces - shouldn't be able to build too near edge
       setAssemblyPoint(psRepairFac->psDeliveryPoint, x << TILE_SHIFT, y << TILE_SHIFT, psBuilding->player, TRUE);
       break;
@@ -7458,8 +7458,8 @@ void checkDeliveryPoints(UDWORD version)
               addFlagPosition(psRepair->psDeliveryPoint);
               setFlagPositionInc(psRepair, psStruct->player, REPAIR_FLAG);
               //initialise the assembly point position
-              x = psStruct->x + 256 >> TILE_SHIFT;
-              y = psStruct->y + 256 >> TILE_SHIFT;
+              x = (psStruct->x + 256) >> TILE_SHIFT;
+              y = (psStruct->y + 256) >> TILE_SHIFT;
               // Belt and braces - shouldn't be able to build too near edge
               setAssemblyPoint(psRepair->psDeliveryPoint, x << TILE_SHIFT, y << TILE_SHIFT, inc, TRUE);
             }

@@ -239,7 +239,7 @@ void moveCalcBoundary(DROID* psDroid);
 /* Turn a vector into an angle - returns a FRACT (!) */
 static float vectorToAngle(float vx, float vy);
 
-typedef enum MOVESOUNDTYPE
+enum MOVESOUNDTYPE
 {
   MOVESOUNDSTART,
   MOVESOUNDIDLE,
@@ -2025,8 +2025,8 @@ BOOL moveReachedWayPoint(DROID* psDroid)
     // but only move onto the next way point if we can see the previous one
     // (this helps units that have got nudged off course).
     if ((psDroid->sMove.boundX * droidX + psDroid->sMove.boundY * droidY <= 0) && fpathTileLOS(
-      static_cast<SDWORD>(psDroid->x) >> TILE_UNITS, static_cast<SDWORD>(psDroid->y) >> TILE_UNITS, psDroid->sMove.targetX >> TILE_UNITS,
-      psDroid->sMove.targetY >> TILE_UNITS))
+      static_cast<SDWORD>(psDroid->x) >> TILE_SHIFT, static_cast<SDWORD>(psDroid->y) >> TILE_SHIFT, psDroid->sMove.targetX >> TILE_SHIFT,
+      psDroid->sMove.targetY >> TILE_SHIFT))
     {
 
       return TRUE;

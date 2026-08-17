@@ -1472,7 +1472,7 @@ static void processMultiopWidgets(UDWORD id)
   }
 
   // host who is setting up or has hosted
-  if (ingame.bHostSetup); // || NetPlay.bHost)
+  if (ingame.bHostSetup) // || NetPlay.bHost)
   {
     switch (id)
     {

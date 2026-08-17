@@ -846,7 +846,9 @@ SDWORD getLengthAdjust(void)
 void drawViewingWindow(UDWORD x, UDWORD y, UDWORD boxSizeH, UDWORD boxSizeV)
 {
   iVector v[4], tv[4], centre;
-  UDWORD shortX, longX, yDrop, yDropVar;
+  /* Negated below, so signed - they were UDWORD, which made -longX an
+   * unsigned wrap that only worked by two's complement accident */
+  SDWORD shortX, longX, yDrop, yDropVar;
   SDWORD dif = getDistanceAdjust();
   SDWORD dif2 = getLengthAdjust();
   UDWORD colour;

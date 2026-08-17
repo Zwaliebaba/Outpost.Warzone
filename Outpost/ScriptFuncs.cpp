@@ -1433,6 +1433,8 @@ BOOL scrGetFeature(void)
   // none found
   if (!stackPushResult(ST_FEATURE, NULL))
     return FALSE;
+
+  return TRUE;
 }
 
 /*
@@ -3113,7 +3115,7 @@ BOOL scrRefTest(void)
 {
   SDWORD Num;
 
-  if (!stackPopParams(1, VAL_INT, Num));
+  if (!stackPopParams(1, VAL_INT, &Num))
   {
     return FALSE;
   }

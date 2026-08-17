@@ -73,6 +73,8 @@ BOOL treapCreate(TREAP** ppsTreap, TREAP_CMP cmp, UDWORD init, UDWORD ext)
   (*ppsTreap)->pFile = pCFile;
   (*ppsTreap)->line = cLine;
 #endif
+
+  return TRUE;
 }
 
 /* Rotate a tree to the right

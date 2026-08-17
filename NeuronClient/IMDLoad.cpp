@@ -706,6 +706,7 @@ static iBool _imd_load_bsp(UBYTE** ppFileData, UBYTE* FileDataEnd, iIMDShape* s,
 
   s->BSPNode = &NodeList[0]; // Set the shape node list to the root node ... this can be used to FREE up the BSP memory if we needed to
 
+  return TRUE;
 }
 #endif
 

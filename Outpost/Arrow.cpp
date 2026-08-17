@@ -58,6 +58,8 @@ BOOL arrowAdd(SDWORD iBaseX, SDWORD iBaseY, SDWORD iBaseZ, SDWORD iHeadX, SDWORD
   /* add to list */
   psArrow->psNext = g_psArrowList;
   g_psArrowList = psArrow;
+
+  return TRUE;
 }
 
 /***************************************************************************/

@@ -1649,7 +1649,7 @@ void orderDroidBase(DROID* psDroid, DROID_ORDER_DATA* psOrder)
     actionDroidObj(psDroid, DACTION_CLEARWRECK, psOrder->psObj);
     break;
   case DORDER_REARM:
-    if (!vtolDroid)
+    if (!vtolDroid(psDroid))
       break;
     psDroid->order = DORDER_REARM;
     psDroid->psTarget = psOrder->psObj;

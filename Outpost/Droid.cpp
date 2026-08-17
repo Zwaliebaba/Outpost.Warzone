@@ -4218,6 +4218,9 @@ STRING* getDroidNameForRank(UDWORD rank)
   case 8:
     return strresGetString(psStringRes, STR_DL_LEVEL_ACE);
   }
+
+  DEBUG_ASSERT_TEXT(FALSE, "getDroidNameForRank: rank {} out of range", rank);
+  return strresGetString(psStringRes, STR_DL_LEVEL_ROOKIE);
 }
 
 STRING* getDroidLevelName(DROID* psDroid)
@@ -5000,6 +5003,8 @@ STRING* getTemplateName(DROID_TEMPLATE* psTemplate)
   return pNameID;
 #endif
 #endif
+
+  return pNameID;
 }
 
 /* Just returns true if the droid's present body points aren't as high as the original*/

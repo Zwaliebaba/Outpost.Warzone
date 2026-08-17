@@ -572,7 +572,7 @@ void displayMultiPlayer(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
   {
     //c2:name, 
 
-    sprintf(str, "%d:", player, getPlayerName(player));
+    sprintf(str, "%d:", player);
 
     strcat(str, getPlayerName(player));
     while (Neuron::GetTextWidth((unsigned char*)str) >= (MULTIMENU_C0 - MULTIMENU_C2 - 10)) { str[strlen(str) - 1] = '\0'; }
