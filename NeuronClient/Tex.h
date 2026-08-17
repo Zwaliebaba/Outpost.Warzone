@@ -39,11 +39,16 @@ extern iTexPage _TEX_PAGE[TEX_MAX];
 
 namespace Neuron
 {
-  extern int TexLoad(char* path, char* filename, int type, iBool palkeep, iBool bColourKeyed);
+  /* The slot a model's texture page draws from. TexLoad, which read a DDS
+     from a search path, and pie_ReloadTexPage, which refilled a page from a
+     resource buffer, both went with the TEXPAGE resource type: TextureCache
+     owns loading and rebinding now. */
   extern int TexLoadNew(char* path, char* filename, int type, iBool palkeep, iBool bColourKeyed);
 }
-extern int pie_ReloadTexPage(char* filename, UBYTE* pBuffer);
 extern int pie_AddBMPtoTexPages(iSprite* s, char* filename, int type, iBool bColourKeyed, iBool bResource);
+/* Repoint an existing page at different pixels and re-upload it, keeping
+   its slot. */
+extern BOOL pie_RefillTexPage(SDWORD index, iSprite* s);
 extern void pie_TexInit(void);
 extern UDWORD pie_GetLastPageDownloaded(void);
 

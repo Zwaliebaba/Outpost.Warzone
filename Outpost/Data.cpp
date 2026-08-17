@@ -752,140 +752,12 @@ BOOL dataIMGLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
 
 void dataIMGRelease(void* pData) { Neuron::FreeImageFile(static_cast<IMAGEFILE*>(pData)); }
 
-/* Load a PCX to an iSprite */
-//
-//
-//	if (!Neuron::PCXLoad(pFile, psSprite, sPal))
-//
-//
-
-#define TEXTUREWIDTH (256)
-#define TEXTUREHEIGHT (256)
-
-/* Load a texturepage into memory */
-// PC ONLY VERSION
-
-BOOL bufferTexPageLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
-{
-  STRING texfile[255];
-  SDWORD i;
-  size; // why?
-
-  // generate a texture page name in "page-xx" format
-  strncpy(texfile, GetLastResourceFilename(), 254);
-  texfile[254] = 0;
-  resToLower(texfile);
-
-  Neuron::DebugTrace("{} texturepage ...\n",texfile);
-
-  if (war_GetAdditive()) //(war_GetTranslucent())
-  {
-    //hardware
-    if (strstr(texfile, "soft") != nullptr) //and this is a software textpage
-    {
-      //so dont load it
-      *ppData = nullptr;
-      return TRUE;
-    }
-  }
-  else
-  {
-    //software or old d3d card
-    if (strstr(texfile, "hard") != nullptr) //and this is a hardware textpage
-    {
-      //so dont load it
-      *ppData = nullptr;
-      return TRUE;
-    }
-  }
-
-  if (strncmp(texfile, "page-", 5) == 0)
-  {
-    for (i = 5; i < static_cast<SDWORD>(strlen(texfile)); i++)
-    {
-      if (!isdigit(texfile[i]))
-        break;
-    }
-    texfile[i] = 0;
-  }
-  SetLastResourceFilename(texfile);
-
-  Neuron::DebugTrace("{} texturepage added (len={})\n",texfile,strlen(texfile));
-
-  // see if this texture page has already been loaded
-  if (resPresent("TEXPAGE", texfile))
-  {
-    // replace the old texture page with the new one
-    SDWORD id = pie_ReloadTexPage(texfile, pBuffer);
-    DEBUG_ASSERT_TEXT(id >=0, "pie_ReloadTexPage failed");
-    *ppData = nullptr;
-  }
-  else
-  {
-    auto NewTexturePage = new (std::nothrow) TEXTUREPAGE[1];
-    if (!NewTexturePage)
-      return FALSE;
-
-    NewTexturePage->Texture = nullptr;
-
-    auto psSprite = new (std::nothrow) iSprite[1];
-    if (!psSprite)
-      return FALSE;
-
-    if (!Neuron::DdsLoadMem((int8*)(SBYTE*)pBuffer, psSprite))
-    {
-      delete[] psSprite;
-      psSprite = nullptr;
-      return FALSE;
-    }
-
-    NewTexturePage->Texture = psSprite;
-
-    //Hack mar8 to load	textures in order	
-    /*	for(i=0;i<_TEX_INDEX;i++)
-      {	
-        if (stricmp(texfile,_TEX_PAGE[i].name) != 0)
-        {
-          bFound = TRUE;
-          break;
-        }
-      }
-      if (!bFound) 
-    */
-    {
-      pie_AddBMPtoTexPages(psSprite, texfile, 1, FALSE, TRUE);
-    }
-    //Hack end
-
-    *ppData = NewTexturePage;
-  }
-
-  return TRUE;
-}
-
-/* Release a texPage */
-void dataTexPageRelease(void* pData)
-{
-  auto Tpage = static_cast<TEXTUREPAGE*>(pData);
-
-  // We need to handle null texpage data 
-  if (Tpage == nullptr)
-    return;
-
-  if (Tpage->Texture != nullptr)
-  {
-    if (Tpage->Texture->bmp != nullptr)
-    {
-      delete[] Tpage->Texture->bmp;
-      Tpage->Texture->bmp = nullptr;
-    }
-    delete[] Tpage->Texture;
-    Tpage->Texture = nullptr;
-  }
-
-  delete[] pData;
-  pData = nullptr;
-}
+/* The TEXPAGE loader lived here, decoding a texture page and creating its
+ * device texture as the manifest walked past it. Texture pages are no
+ * longer a resource type: datasets.json's texturePages table binds each
+ * page id to a file, and Neuron::TextureCache decodes it and owns the
+ * pixels. Manifest.cpp applies the binding.
+ */
 
 /* The WAV and AUDIOCFG loaders lived here. Audio is no longer a resource
  * type: AudioSystem::Init indexes GameData/audio and registers what
@@ -1052,7 +924,7 @@ static RES_TYPE_MIN ResourceTypes[] = {
   {"HWTERTILES", dataHWTERTILESLoad, dataHWTERTILESRelease},
   // freed by 3d shutdow},// Tertiles Files. This version used when running with hardware renderer.
   {"ANI", dataAnimLoad, dataAnimRelease},
-  {"ANIMCFG", dataAnimCfgLoad, nullptr}, {"IMG", dataIMGLoad, dataIMGRelease}, {"TEXPAGE", bufferTexPageLoad, dataTexPageRelease},
+  {"ANIMCFG", dataAnimCfgLoad, nullptr}, {"IMG", dataIMGLoad, dataIMGRelease},
   {"IMD", dataIMDBufferLoad, (RES_FREE)Neuron::IMDRelease}, {nullptr, nullptr, nullptr} // indicates end of list
 };
 

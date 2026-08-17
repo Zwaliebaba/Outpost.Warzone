@@ -29,4 +29,10 @@ extern BOOL ManifestHasUnit(const STRING* _name);
    through the scratch buffer - the replacement for resLoad on a .wrf. */
 extern BOOL ManifestLoadUnit(const STRING* _name, SDWORD _blockID, UBYTE* _loadBuffer, SDWORD _bufferSize);
 
+/* Bind the texture pages of a group from the texturePages table, resolving
+   each page's hard/soft variant against the translucency setting. _create
+   also builds the pages that have no slot yet, which a unit wants where its
+   TEXPAGE entries used to be; binding alone leaves them to first use. */
+extern BOOL ManifestApplyTextureSet(const STRING* _group, BOOL _create);
+
 #endif

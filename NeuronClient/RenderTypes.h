@@ -259,9 +259,4 @@ using PIESTYLE = struct
 
 using fixed = int32;
 
-using TEXTUREPAGE = struct
-{
-  iSprite* Texture;
-};
-
 #endif // _renderTypes_h

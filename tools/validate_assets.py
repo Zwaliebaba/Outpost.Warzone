@@ -11,6 +11,9 @@ Checks, in order:
   5. The audio tree indexes the way AudioSystem::Init indexes it: no two
      WAVs may share a bare filename, and every name audio.json or
      AudioID.cpp spells must be findable in it.
+  6. The texturePages groups resolve: their files exist, each page offers a
+     variant for either translucency setting, every TEXSET names a real
+     group, and every page id a shipped .pie names is bound by one.
 
 Resolution is case-insensitive, because that is what the game does on NTFS.
 A name that only resolves case-insensitively is a warning; a name that does
@@ -102,6 +105,10 @@ def check_units(doc, types):
             if not isinstance(t, str) or not isinstance(f, str) or not isinstance(d, str):
                 errors.append(f'unit {name}: malformed entry {entry}')
                 continue
+            # TEXSET names a texturePages group, not a file or a resource
+            # type; check_texture_pages owns it.
+            if t == 'TEXSET':
+                continue
             if t not in types:
                 errors.append(f'unit {name}: unknown resource type {t} for "{f}"')
             key = (t, f.lower())
@@ -155,6 +162,83 @@ def check_datasets(doc, units):
                 errors.append(f'dataset {name}: slot is neither unit nor game: {slot}')
         # first declaration wins for name lookups, as in the game
         declared.setdefault(name, kind)
+
+
+def check_texture_pages(doc, units):
+    """The texturePages table replaced the TEXPAGE resource entries: a group
+    is an ordered list of page bindings, optionally extending another group,
+    and a TEXSET unit entry names one.  Checks every file exists, every
+    page offers a usable variant whichever way translucency is set, every
+    TEXSET resolves, and every page id a shipped .pie names is bound."""
+    table = doc.get('texturePages')
+    if not isinstance(table, dict) or not isinstance(table.get('groups'), dict):
+        errors.append('datasets.json: no texturePages table')
+        return
+    groups = table['groups']
+
+    def flatten(name, depth=0):
+        """A group's bindings as {page id: [files]}, base group first."""
+        if depth > 8:
+            errors.append(f'texturePages: group {name} extends itself')
+            return {}
+        group = groups.get(name)
+        if not isinstance(group, dict):
+            errors.append(f'texturePages: no group named {name}')
+            return {}
+        out = dict(flatten(group['extends'], depth + 1)) if group.get('extends') else {}
+        for n, page in enumerate(group.get('pages') or []):
+            if not isinstance(page.get('id'), str) or not isinstance(page.get('files'), list) or not page['files']:
+                errors.append(f'texturePages: group {name} page {n} is malformed')
+                continue
+            out[page['id']] = page['files']
+        return out
+
+    for name in groups:
+        for pid, files in flatten(name).items():
+            for ref in files:
+                resolved, exact = resolve(ref)
+                if resolved is None:
+                    errors.append(f'texturePages: group {name} page {pid}: file not on disk: {ref}')
+                elif not exact:
+                    warnings.append(f'texturePages: group {name} page {pid}: case mismatch: {ref} -> {resolved}')
+            # the loader picks one file per page per translucency setting;
+            # a page that resolves to none would fatal on load
+            for additive, unwanted in ((True, 'soft'), (False, 'hard')):
+                if not [f for f in files if unwanted not in f.lower()]:
+                    errors.append(f'texturePages: group {name} page {pid} has no file for '
+                                  f'{"additive" if additive else "compatible"} translucency')
+
+    # every TEXSET entry names a real group, and every page a model wants is bound
+    bound = set()
+    for unit, entries in units.items():
+        for entry in entries:
+            if entry.get('t') != 'TEXSET':
+                continue
+            if entry['f'] not in groups:
+                errors.append(f'unit {unit}: TEXSET names an unknown group {entry["f"]}')
+            else:
+                bound |= set(flatten(entry['f']))
+
+    for pid in sorted(pie_page_ids()):
+        if pid not in bound:
+            errors.append(f'texturePages: .pie models reference {pid}, which no texture group binds')
+
+
+def pie_page_ids():
+    """The page ids shipped models name, reduced the way IMDLoad reduces
+    them: a TEXTURE directive's name truncated at the first non-digit after
+    "page-"."""
+    ids = set()
+    for dirpath, _dirs, files in os.walk(GAMEDATA):
+        for name in files:
+            if not name.lower().endswith('.pie'):
+                continue
+            with open(os.path.join(dirpath, name), encoding='latin-1') as handle:
+                for m in re.finditer(r'^\s*TEXTURE\s+\S+\s+(\S+)', handle.read(), flags=re.M | re.I):
+                    page = re.match(r'(page-\d+)', m.group(1).lower())
+                    if page:
+                        ids.add(page.group(1))
+    return ids
 
 
 def audio_index():
@@ -330,6 +414,7 @@ def main():
     if types:
         units = check_units(doc, types)
         check_datasets(doc, units)
+        check_texture_pages(doc, units)
         wavs = audio_index()
         check_audio(wavs)
         check_stats(doc, wavs)

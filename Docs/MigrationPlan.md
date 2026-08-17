@@ -1211,7 +1211,7 @@ explicitly out of scope. Like everything since Phase 2 this is
 built-and-verified work, not run work; a campaign and a skirmish load are
 what a Windows run must confirm.
 
-## On-demand media: audio tracks and texture pages (2026-08-17, stage A done)
+## On-demand media: audio tracks and texture pages (2026-08-17, complete)
 
 **By owner decision, WAV and DDS media leave the manifest's upfront load for
 demand-filled caches that live for the process.** The survey, the design,
@@ -1227,15 +1227,25 @@ it claims no phase number (its decision 3). Two stages:
   re-decode of 12 MB of PCM. Track IDs are now stable for the process. One
   deliberate audible change: `frontaud.json` is absorbed into `audio.json`,
   so three frontend UI sounds take their in-game volumes.
-- **B — textures (not started).** Per-dataset texture-set tables and a
-  `TextureCache` behind `TexLoadNew`, replacing the four `wrf/vidmem*`
-  units and the 136 `TEXPAGE` entries.
+- **B — textures (landed).** A `texturePages` table of five tileset
+  groups and a `TextureCache` behind `TexLoadNew` replaced the 136
+  `TEXPAGE` entries with eight `TEXSET` markers. Decoded pages are cached
+  for the process, so a tileset swap rebinds and re-uploads rather than
+  re-reading and keeps every page's slot, and the front end binds without
+  building — the title screen no longer decodes 19 pages it needs only if
+  the force editor is opened. Pages are still created where the manifest
+  created them, so slot order is unchanged.
 
-Stage A is built-and-verified, not run: `crosscheck.py` 180/180 in both
-configurations, the three checkers green, and the index logic exercised
-offline against the real tree. The frontend→campaign→frontend and
-second-campaign-entry boundaries are what a Windows run must confirm,
-because registration moved from per-block to once-at-init.
+Both stages are built-and-verified, not run: `crosscheck.py` 181/181 in
+both configurations, the three checkers green, and the audio index, the
+texture-group resolution and the cache's rebinding exercised offline
+against the real tree — the texture parity harness reproduces every unit's
+former page bindings for both translucency settings. A Windows run must
+confirm the boundaries these changes moved: frontend→campaign→frontend and
+a second campaign entry, because track registration is now once-at-init;
+the campaign-2 and campaign-3 `camchange` transitions and the force editor,
+because those are where pages rebind and where the front end creates its
+first page.
 
 ## The display: desktop-resolution borderless window, scaled UI (2026-08-16)
 

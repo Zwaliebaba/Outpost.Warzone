@@ -441,6 +441,65 @@ boundary, the force editor, and a device reset via alt-tab in fullscreen).
   resolve in every texture set, both variants present where the pair
   convention says so).
 
+**Stage B landed (2026-08-17).** What it did, and where the design below
+turned out to be wrong:
+
+- `datasets.json` grew a `texturePages` table of five groups —
+  `arizona`, `urban`, `rockies`, `kevlar` and `rockies-kevlar`, the last
+  three extending another — and each of the eight units that listed pages
+  now carries one `TEXSET` entry naming a group, in the place its
+  `TEXPAGE` run occupied. 136 entries became 8. `Neuron::TextureCache`
+  (new, `NeuronClient`) holds the bindings and the decoded pixels; the
+  `TEXPAGE` resource type, `bufferTexPageLoad`, `dataTexPageRelease`,
+  `Neuron::TexLoad`, `pie_ReloadTexPage` and the `TEXTUREPAGE` struct are
+  gone, and `TexLoadNew` is now a lookup into the cache.
+- **The design's premise about laziness was wrong, and the mechanism
+  changed accordingly.** §3.2 argued demand creation "only lowers slot
+  pressure, since pages no loaded model references never claim one". In
+  fact **all 19 page ids are named by shipped `.pie` files**, so a campaign
+  loads every one either way and laziness buys nothing there. What it does
+  buy is the front end, which loads no models until the force editor is
+  entered. So creation is eager where the manifest created — a `TEXSET`
+  carries `"create": true` by default — and the front end's entry sets
+  `"create": false`, binding the pages the force editor needs without
+  building any. Demand creation via `PageIndex` is the path that then
+  serves it.
+- **That also removed the plan's main risk.** Creating pages where the
+  `TEXPAGE` entries were keeps page creation ahead of the terrain tiles
+  appended after it, so slot assignment order is unchanged — where fully
+  lazy creation would have flipped model and terrain pages around. (The
+  flip looked safe: `pageId[]` holds real slot indices and
+  `firstTexturePage` feeds only `freeTileTextures`, whose loop never runs
+  because `numTexturePages` is assigned after a `goto` that always jumps
+  past it. Unchanged order means none of that has to be relied on.)
+- **The tileset model is richer than "one set per campaign".**
+  `wrf/cam1/cam1kevlar` is a *per-level* page override used by twelve
+  campaign-1 datasets, swapping page-7 to the Kevlar barbarians; and
+  `cam3change` binds rockies' pages *plus* that Kevlar page-7, where
+  starting campaign 3 fresh through `vidmem3` binds the Arizona one. The
+  two routes into campaign 3 genuinely differ in the shipped data. That is
+  preserved exactly — `rockies-kevlar` exists for it — rather than
+  normalised away, which would have been a content decision.
+- **Verified:** `crosscheck.py` 181/181 in Debug and Release; `check_case`
+  and `validate_assets` (0 errors) green. A parity harness replays
+  `Manifest.cpp`'s group resolution against the deleted `TEXPAGE` entries
+  at the previous commit and confirms all eight units bind the same
+  page→file map, in the same order, for **both** translucency settings; a
+  second harness drives `TextureCache`'s state machine over the real files
+  and confirms a fresh set creates each page once in binding order, a
+  re-applied set does nothing, a camchange refills exactly the changed
+  pages without moving a slot, switching back re-uses cached pixels, and
+  binding without creating creates nothing until first use. **Not run** —
+  the container cannot launch the game.
+- **Found while doing it:** the manifests spell one texture two ways
+  (`cam3change`'s `Page-7-Barbarians-Kevlar.dds` against `vidmemc`'s
+  `page-7-barbarians-Kevlar.dds`), which a path-keyed cache would decode
+  twice and treat as a rebind; the cache keys case-insensitively, as NTFS
+  resolves. Separately, releasing base data used to free the pixels
+  `_TEX_PAGE[].tex.bmp` still pointed at, and reloading it allocated fresh
+  slots rather than reusing them; cache-owned pixels and stable slots end
+  both.
+
 A is independent of B and lands first — it is the larger entry-count win
 and touches no renderer seam while Phases 8 and 10 are in flight (R13:
 `Tex.cpp`/`TexMan.cpp` are stage B's only render-adjacent files, and it

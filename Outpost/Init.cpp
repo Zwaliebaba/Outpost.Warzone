@@ -38,6 +38,7 @@
 #include "Config.h"
 #include "PieMode.h"
 #include "Tex.h"
+#include "TextureCache.h"
 #include "resource.h"
 #include "RendMode.h"
 #include "Group.h"
@@ -764,6 +765,11 @@ BOOL systemShutdown(void)
   DisplayBuffer = nullptr;
 
   Neuron::ShutDown();
+
+  /* after Neuron::ShutDown, which takes the device and with it the pages
+   * these pixels back
+   */
+  Neuron::TextureCache::Shutdown();
 
   levShutDown();
   ManifestShutDown();

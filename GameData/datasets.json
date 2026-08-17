@@ -1,4 +1,208 @@
 {
+ "texturePages": {
+  "groups": {
+   "arizona": {
+    "pages": [
+     {
+      "id": "page-7",
+      "files": [
+       "texpages\\page-7-barbarians-arizona.dds"
+      ]
+     },
+     {
+      "id": "page-14",
+      "files": [
+       "texpages\\page-14-droid hubs.dds"
+      ]
+     },
+     {
+      "id": "page-16",
+      "files": [
+       "texpages\\page-16-droid drives.dds"
+      ]
+     },
+     {
+      "id": "page-17",
+      "files": [
+       "texpages\\page-17-droid weapons.dds"
+      ]
+     },
+     {
+      "id": "page-21",
+      "files": [
+       "texpages\\page-21-fx`s-hard.dds",
+       "texpages\\page-21-fx`s-soft.dds"
+      ]
+     },
+     {
+      "id": "page-11",
+      "files": [
+       "texpages\\page-11-player buildings.dds"
+      ]
+     },
+     {
+      "id": "page-12",
+      "files": [
+       "texpages\\page-12-player buildings.dds"
+      ]
+     },
+     {
+      "id": "page-13",
+      "files": [
+       "texpages\\page-13-player buildings.dds"
+      ]
+     },
+     {
+      "id": "page-15",
+      "files": [
+       "texpages\\page-15-droid hubs.dds"
+      ]
+     },
+     {
+      "id": "page-18",
+      "files": [
+       "texpages\\page-18-fx`s-hard.dds",
+       "texpages\\page-18-fx`s-soft.dds"
+      ]
+     },
+     {
+      "id": "page-19",
+      "files": [
+       "texpages\\page-19-fx`s-hard.dds",
+       "texpages\\page-19-fx`s-soft.dds"
+      ]
+     },
+     {
+      "id": "page-20",
+      "files": [
+       "texpages\\page-20-fx`s-hard.dds",
+       "texpages\\page-20-fx`s-soft.dds"
+      ]
+     },
+     {
+      "id": "page-10",
+      "files": [
+       "texpages\\page-10-laboratories.dds"
+      ]
+     },
+     {
+      "id": "page-22",
+      "files": [
+       "texpages\\page-22-fx`s.dds"
+      ]
+     },
+     {
+      "id": "page-23",
+      "files": [
+       "texpages\\page-23-fx`s-hard.dds",
+       "texpages\\page-23-fx`s-soft.dds"
+      ]
+     },
+     {
+      "id": "page-24",
+      "files": [
+       "texpages\\page-24-fx`s.dds"
+      ]
+     },
+     {
+      "id": "page-8",
+      "files": [
+       "texpages\\page-8-player buildings-bases.dds"
+      ]
+     },
+     {
+      "id": "page-9",
+      "files": [
+       "texpages\\page-9-player-soft buildings-bases.dds",
+       "texpages\\page-9-player-hard buildings-bases.dds"
+      ]
+     },
+     {
+      "id": "page-6",
+      "files": [
+       "texpages\\page-6-features-arizona.dds"
+      ]
+     }
+    ]
+   },
+   "urban": {
+    "extends": "arizona",
+    "pages": [
+     {
+      "id": "page-7",
+      "files": [
+       "texpages\\page-7-barbarians-Urban.dds"
+      ]
+     },
+     {
+      "id": "page-8",
+      "files": [
+       "texpages\\page-8-player buildings-bases Urban.dds"
+      ]
+     },
+     {
+      "id": "page-9",
+      "files": [
+       "texpages\\page-9-player-soft buildings-bases-urban.dds",
+       "texpages\\page-9-player-hard buildings-bases-urban.dds"
+      ]
+     },
+     {
+      "id": "page-6",
+      "files": [
+       "texpages\\page-6-features-Urban Area.dds"
+      ]
+     }
+    ]
+   },
+   "rockies": {
+    "extends": "arizona",
+    "pages": [
+     {
+      "id": "page-8",
+      "files": [
+       "texpages\\page-8-player buildings-bases-Rockies.dds"
+      ]
+     },
+     {
+      "id": "page-9",
+      "files": [
+       "texpages\\page-9-player-soft buildings-bases-rockies.dds",
+       "texpages\\page-9-player-hard buildings-bases-rockies.dds"
+      ]
+     },
+     {
+      "id": "page-6",
+      "files": [
+       "texpages\\page-6-Features-Rockies.dds"
+      ]
+     }
+    ]
+   },
+   "kevlar": {
+    "extends": "arizona",
+    "pages": [
+     {
+      "id": "page-7",
+      "files": [
+       "texpages\\page-7-barbarians-Kevlar.dds"
+      ]
+     }
+    ]
+   },
+   "rockies-kevlar": {
+    "extends": "rockies",
+    "pages": [
+     {
+      "id": "page-7",
+      "files": [
+       "texpages\\page-7-Barbarians-Kevlar.dds"
+      ]
+     }
+    ]
+   }
+  }
+ },
  "units": {
   "wrf/basic": [
    {
@@ -708,9 +912,9 @@
   ],
   "wrf/cam1/cam1kevlar": [
    {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-7-Barbarians-Kevlar.dds"
+    "d": "",
+    "t": "TEXSET",
+    "f": "kevlar"
    }
   ],
   "wrf/cam1/sub1-1": [
@@ -1408,29 +1612,9 @@
   ],
   "wrf/cam2/cam2change": [
    {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-6-features-urban area.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-8-player buildings-bases Urban.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-9-player-soft buildings-bases-urban.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-9-player-hard buildings-bases-urban.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-7-barbarians-Urban.dds"
+    "d": "",
+    "t": "TEXSET",
+    "f": "urban"
    },
    {
     "d": "texpages",
@@ -2471,29 +2655,9 @@
   ],
   "wrf/cam3/cam3change": [
    {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-6-features-rockies.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-7-Barbarians-Kevlar.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-8-player buildings-bases-Rockies.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-9-player-soft buildings-bases-rockies.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-9-player-hard buildings-bases-rockies.dds"
+    "d": "",
+    "t": "TEXSET",
+    "f": "rockies-kevlar"
    },
    {
     "d": "texpages",
@@ -3303,129 +3467,10 @@
     "f": "frend.img"
    },
    {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-7-barbarians-arizona.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-14-droid hubs.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-16-droid drives.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-17-droid weapons.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-21-fx`s-hard.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-21-fx`s-soft.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-11-player buildings.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-12-player buildings.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-13-player buildings.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-15-droid hubs.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-18-fx`s-hard.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-18-fx`s-soft.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-19-fx`s-hard.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-19-fx`s-soft.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-20-fx`s-hard.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-20-fx`s-soft.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-10-laboratories.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-22-fx`s.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-23-fx`s-hard.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-23-fx`s-soft.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-24-fx`s.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-8-player buildings-bases.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-9-player-soft buildings-bases.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-9-player-hard buildings-bases.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-6-features-arizona.dds"
+    "d": "",
+    "t": "TEXSET",
+    "f": "arizona",
+    "create": false
    },
    {
     "d": "messages\\strings",
@@ -6013,24 +6058,9 @@
     "f": "intfac.img"
    },
    {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-7-barbarians-arizona.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-14-droid hubs.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-16-droid drives.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-17-droid weapons.dds"
+    "d": "",
+    "t": "TEXSET",
+    "f": "arizona"
    },
    {
     "d": "texpages",
@@ -6041,111 +6071,6 @@
     "d": "texpages",
     "t": "HWTERTILES",
     "f": "tertilesc1hw.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-21-fx`s-hard.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-21-fx`s-soft.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-11-player buildings.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-12-player buildings.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-13-player buildings.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-15-droid hubs.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-18-fx`s-hard.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-18-fx`s-soft.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-19-fx`s-hard.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-19-fx`s-soft.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-20-fx`s-hard.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-20-fx`s-soft.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-10-laboratories.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-22-fx`s.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-23-fx`s-hard.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-23-fx`s-soft.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-24-fx`s.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-8-player buildings-bases.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-9-player-soft buildings-bases.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-9-player-hard buildings-bases.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-6-features-arizona.dds"
    }
   ],
   "wrf/vidmem2": [
@@ -6180,24 +6105,9 @@
     "f": "intfac.img"
    },
    {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-7-barbarians-Urban.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-14-droid hubs.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-16-droid drives.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-17-droid weapons.dds"
+    "d": "",
+    "t": "TEXSET",
+    "f": "urban"
    },
    {
     "d": "texpages",
@@ -6208,111 +6118,6 @@
     "d": "texpages",
     "t": "HWTERTILES",
     "f": "tertilesc2hw.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-21-fx`s-hard.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-21-fx`s-soft.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-11-player buildings.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-12-player buildings.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-13-player buildings.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-15-droid hubs.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-18-fx`s-hard.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-18-fx`s-soft.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-19-fx`s-hard.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-19-fx`s-soft.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-20-fx`s-hard.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-20-fx`s-soft.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-10-laboratories.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-22-fx`s.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-23-fx`s-hard.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-23-fx`s-soft.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-24-fx`s.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-8-player buildings-bases Urban.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-9-player-soft buildings-bases-urban.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-9-player-hard buildings-bases-urban.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-6-features-Urban Area.dds"
    }
   ],
   "wrf/vidmem3": [
@@ -6347,24 +6152,9 @@
     "f": "intfac.img"
    },
    {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-7-barbarians-arizona.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-14-droid hubs.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-16-droid drives.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-17-droid weapons.dds"
+    "d": "",
+    "t": "TEXSET",
+    "f": "rockies"
    },
    {
     "d": "texpages",
@@ -6375,111 +6165,6 @@
     "d": "texpages",
     "t": "HWTERTILES",
     "f": "tertilesC3hw.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-21-fx`s-hard.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-21-fx`s-soft.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-11-player buildings.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-12-player buildings.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-13-player buildings.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-15-droid hubs.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-18-fx`s-hard.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-18-fx`s-soft.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-19-fx`s-hard.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-19-fx`s-soft.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-20-fx`s-hard.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-20-fx`s-soft.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-10-laboratories.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-22-fx`s.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-23-fx`s-hard.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-23-fx`s-soft.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-24-fx`s.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-8-player buildings-bases-Rockies.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-9-player-soft buildings-bases-rockies.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-9-player-hard buildings-bases-rockies.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-6-Features-Rockies.dds"
    }
   ],
   "wrf/vidmemc": [
@@ -6514,24 +6199,9 @@
     "f": "intfac.img"
    },
    {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-7-barbarians-Kevlar.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-14-droid hubs.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-16-droid drives.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-17-droid weapons.dds"
+    "d": "",
+    "t": "TEXSET",
+    "f": "kevlar"
    },
    {
     "d": "texpages",
@@ -6542,111 +6212,6 @@
     "d": "texpages",
     "t": "HWTERTILES",
     "f": "tertilesc1hw.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-21-fx`s-hard.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-21-fx`s-soft.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-11-player buildings.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-12-player buildings.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-13-player buildings.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-15-droid hubs.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-18-fx`s-hard.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-18-fx`s-soft.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-19-fx`s-hard.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-19-fx`s-soft.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-20-fx`s-hard.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-20-fx`s-soft.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-10-laboratories.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-22-fx`s.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-23-fx`s-hard.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-23-fx`s-soft.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-24-fx`s.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-8-player buildings-bases.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-9-player-hard buildings-bases.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-9-player-soft buildings-bases.dds"
-   },
-   {
-    "d": "texpages",
-    "t": "TEXPAGE",
-    "f": "page-6-features-arizona.dds"
    }
   ]
  },

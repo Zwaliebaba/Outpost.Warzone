@@ -4,13 +4,12 @@
 #include <string.h>
 #include <ctype.h>
 #include "Frame.h"
-#include "FrameResource.h"
 #include "RenderTypes.h"
 #include "PieState.h"
 #include "TexMan.h"
 #include "Tex.h"
+#include "TextureCache.h"
 #include "RendMode.h"
-#include "Dds.h"
 #include "IvisPatch.h"
 #include "Render.h"
 
@@ -104,145 +103,46 @@ int pie_AddBMPtoTexPages(iSprite* s, char* filename, int type, iBool bColourKeye
   return (i);
 }
 
+/* Points an existing page at different pixels and re-uploads it, keeping
+ * its slot so the texpage indices already baked into loaded models stay
+ * right. This is what a tileset switch does to the pages it changes; it
+ * replaces pie_ReloadTexPage, which decoded into the previous page's buffer
+ * because the pixels belonged to a resource that was about to be freed.
+ */
+BOOL pie_RefillTexPage(SDWORD index, iSprite* s)
+{
+  if (index < 0 || index >= _TEX_INDEX || s == nullptr)
+    return FALSE;
+
+  _TEX_PAGE[index].tex.bmp = s->bmp;
+  _TEX_PAGE[index].tex.width = s->width;
+  _TEX_PAGE[index].tex.height = s->height;
+  _TEX_PAGE[index].tex.xshift = _tex_get_top_bit(s->width);
+
+  return dtm_LoadTexSurface(&_TEX_PAGE[index].tex, index);
+}
+
+/* The page a model's TEXTURE directive names, by the page-NN id the loader
+ * reduces that name to. The lookup, the decode and the slot all belong to
+ * TextureCache now; this stays because IMDLoad calls it and the arguments
+ * it passes - a search path, a palette flag, the model's own idea of the
+ * page type - stopped meaning anything when the pages became data.
+ */
 int Neuron::TexLoadNew(char* path, char* filename, int type, iBool palkeep, iBool bColourKeyed)
 {
-  char fname[MAX_FILE_PATH];
-  int i;
-  iSprite* s;
-  TEXTUREPAGE* TextPage; // pointer to the resource texture page structure   ... palette stuff is BACK !!!!!
+  (void)path;
+  (void)type;
+  (void)palkeep;
+  (void)bColourKeyed;
 
   // If we are in the BSP or PIEBIN tool, then just added it into the array and exit
 #ifdef PIETOOL
   return pie_AddBMPtoTexPages(NULL, filename, type, bColourKeyed, TRUE);
 #endif
 
-  /* If it's not a resource - use old way!  - PSX does not need this check because it MUST have been loaded allready by the resource loader */
-  if (!resPresent("TEXPAGE", filename))
-  {
-    Neuron::Fatal("Texture not in resources; {}.\n", filename);
-    return (Neuron::TexLoad(path, filename, type, palkeep, bColourKeyed));
-  }
-
-  /* Ensure upper case for tex file names */
   DEBUG_ASSERT_TEXT(strlen(filename)<MAX_FILE_PATH, "Texture file path too long");
 
-  /* Get a copy of the name */
-  // if we convert it to upper case ... the resource loading will not work
-
-  for (i = 0; i < static_cast<int>(strlen(filename)); i++)
-    fname[i] = filename[i];
-
-  /* Terminate it */
-  fname[i] = '\0';
-
-  /* Back to beginning */
-  i = 0;
-
-  /* Have we already loaded this one then? */
-  while (i < _TEX_INDEX)
-  {
-    if (stricmp(fname, _TEX_PAGE[i].name) == 0)
-      return i;
-    i++;
-  }
-
-  /* Get a pointer to the texpage in memory - we KNOW it's there from the check at start */
-  TextPage = static_cast<TEXTUREPAGE*>(resGetData("TEXPAGE", filename));
-  s = TextPage->Texture;
-
-  return pie_AddBMPtoTexPages(s, fname, type, bColourKeyed, TRUE);
-}
-
-int pie_ReloadTexPage(char* filename, UBYTE* pBuffer)
-{
-  char fname[MAX_FILE_PATH];
-  int i;
-  iSprite s;
-
-  /* Ensure upper case for tex file names */
-  DEBUG_ASSERT_TEXT(strlen(filename)<MAX_FILE_PATH, "Texture file path too long");
-
-  /* Get a copy of the name */
-  // if we convert it to upper case ... the resource loading will not work
-  for (i = 0; i < static_cast<int>(strlen(filename)); i++)
-    fname[i] = filename[i];
-  /* Terminate it */
-  fname[i] = '\0';
-
-  /* Back to beginning */
-  i = 0;
-  /* Have we already loaded this one then? */
-  while (stricmp(fname, _TEX_PAGE[i].name) != 0)
-  {
-    i++;
-    if (i >= _TEX_INDEX)
-    {
-      Neuron::Fatal("Texture not in resources\n",filename);
-      return -1;
-    }
-  }
-  //got the old texture page so load bmp straight in
-  s.width = _TEX_PAGE[i].tex.width;
-  s.height = _TEX_PAGE[i].tex.height;
-  s.bmp = _TEX_PAGE[i].tex.bmp;
-
-  Neuron::DdsLoadMemToBuffer((int8*)pBuffer, &s);
-
-  dtm_LoadTexSurface(&_TEX_PAGE[i].tex, i);
-
-  return i;
-}
-
-int Neuron::TexLoad(char* path, char* filename, int type, iBool palkeep, iBool bColourKeyed)
-{
-  int i;
-  char buffer[MAX_FILE_PATH], fname[MAX_FILE_PATH];
-  iSprite s;
-
-  // ensure upper case for tex file names
-  DEBUG_ASSERT_TEXT(strlen(filename)<MAX_FILE_PATH, "Texture file path too long");
-
-  for (i = 0; i < static_cast<int>(strlen(filename)); i++)
-    fname[i] = filename[i];
-
-  fname[i] = '\0';
-  i = 0;
-
-  while (i < _TEX_INDEX)
-  {
-    if (stricmp(fname, _TEX_PAGE[i].name) == 0)
-      return i;
-    i++;
-  }
-
-  strcpy(buffer, path);
-  strcat(buffer, fname);
-
-  i = _TEX_INDEX;
-
-  switch (type)
-  {
-  case 0: // dds
-
-    // load texture
-    if (!Neuron::DdsLoad(buffer, &s))
-    {
-      Neuron::DebugTrace("WARNING: tex[TexLoad] = failed to load dds file '{}'\n", buffer);
-      // the bspimd tool just needs to return a warning if the texture is not found
-#ifdef PIETOOL
-      _TEX_PAGE[i].tex.bmp = NULL; _TEX_PAGE[i].tex.width = 0; _TEX_PAGE[i].tex.height = 0; _TEX_PAGE[i].tex.xshift = 0; _TEX_PAGE[i].type =
-        type; return i;
-#else
-      // otherwise return an error					
-      return -1;
-#endif
-    }
-    return pie_AddBMPtoTexPages(&s, fname, type, bColourKeyed, FALSE);
-    break;
-  default: Neuron::DebugTrace("tex[TexLoad] = unrecognised texture page type {}\n", type);
-    return -1;
-  }
-  return -1;
+  return Neuron::TextureCache::PageIndex(filename);
 }
 
 // Routine to generate TEXpages 
