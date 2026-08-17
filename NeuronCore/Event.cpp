@@ -137,9 +137,7 @@ void eventShutDown(void)
 // get the trigger id string
 const STRING* eventGetTriggerID(SCRIPT_CODE* psCode, SDWORD trigger)
 {
-  const STRING *pID, *pTrigType;
   static STRING aIDNum[255];
-  SDWORD i;
   TRIGGER_TYPE type;
 
   if ((trigger >= 0) && (trigger < psCode->numTriggers))
@@ -147,7 +145,7 @@ const STRING* eventGetTriggerID(SCRIPT_CODE* psCode, SDWORD trigger)
   else
     return "INACTIVE";
 
-  pTrigType = "UNKNOWN";
+  const STRING* pTrigType = "UNKNOWN";
   switch (type)
   {
   case TR_INIT:
@@ -172,11 +170,11 @@ const STRING* eventGetTriggerID(SCRIPT_CODE* psCode, SDWORD trigger)
   }
 
   if (psCode->psDebug.empty() || type != TR_CODE)
-    sprintf(aIDNum, "%d (%s)", trigger, pTrigType);
+    sprintf_s(aIDNum, "%d (%s)", trigger, pTrigType);
   else
   {
-    pID = "NOT FOUND";
-    for (i = 0; i < static_cast<SDWORD>(psCode->psDebug.size()); i++)
+    const STRING* pID = "NOT FOUND";
+    for (SDWORD i = 0; i < static_cast<SDWORD>(psCode->psDebug.size()); i++)
     {
       if (psCode->psDebug[i].offset == psCode->pTriggerTab[trigger])
       {
@@ -184,7 +182,7 @@ const STRING* eventGetTriggerID(SCRIPT_CODE* psCode, SDWORD trigger)
         break;
       }
     }
-    sprintf(aIDNum, "%s (%s)", pID, pTrigType);
+    sprintf_s(aIDNum, "%s (%s)", pID, pTrigType);
   }
 
   return aIDNum;
@@ -193,18 +191,16 @@ const STRING* eventGetTriggerID(SCRIPT_CODE* psCode, SDWORD trigger)
 // get the event id string
 const STRING* eventGetEventID(SCRIPT_CODE* psCode, SDWORD event)
 {
-  const STRING* pID;
   static STRING aIDNum[255];
-  SDWORD i;
 
   if (psCode->psDebug.empty() || (event < 0) || (event > psCode->numEvents))
   {
-    sprintf(aIDNum, "%d", event);
+    sprintf_s(aIDNum, "%d", event);
     return aIDNum;
   }
 
-  pID = "NOT FOUND";
-  for (i = 0; i < static_cast<SDWORD>(psCode->psDebug.size()); i++)
+  const STRING* pID = "NOT FOUND";
+  for (SDWORD i = 0; i < static_cast<SDWORD>(psCode->psDebug.size()); i++)
   {
     if (psCode->psDebug[i].offset == psCode->pEventTab[event])
     {
@@ -221,12 +217,11 @@ void eventPrintTriggerInfo(ACTIVE_TRIGGER* psTrigger)
 {
   SCRIPT_CODE* psCode = psTrigger->psContext->psCode;
   BOOL debugInfo = !psCode->psDebug.empty();
-  const STRING *pTrigLab, *pEventLab;
 
   // find the debug info for the trigger
-  pTrigLab = eventGetTriggerID(psCode, psTrigger->trigger);
+  const STRING* pTrigLab = eventGetTriggerID(psCode, psTrigger->trigger);
   // find the debug info for the event
-  pEventLab = eventGetEventID(psCode, psTrigger->event);
+  const STRING* pEventLab = eventGetEventID(psCode, psTrigger->event);
 
   Neuron::DebugTrace("trigger {} at {} -> {}", pTrigLab, psTrigger->testTime, pEventLab);
   if (psTrigger->offset != 0)
@@ -289,10 +284,8 @@ BOOL eventAddValueRelease(INTERP_TYPE type, VAL_RELEASE_FUNC release)
 // Create a new context for a script
 BOOL eventNewContext(SCRIPT_CODE* psCode, CONTEXT_RELEASE release, SCRIPT_CONTEXT** ppsContext)
 {
-  SCRIPT_CONTEXT* psContext;
-
   // Get a new context
-  psContext = new (std::nothrow) SCRIPT_CONTEXT;
+  SCRIPT_CONTEXT* psContext = new(std::nothrow) SCRIPT_CONTEXT;
   if (psContext == nullptr)
     return FALSE;
 
@@ -369,20 +362,17 @@ BOOL eventCopyContext(SCRIPT_CONTEXT* psContext, SCRIPT_CONTEXT** ppsNew)
 // Time is the application time at which all the triggers are to be started
 BOOL eventRunContext(SCRIPT_CONTEXT* psContext, UDWORD time)
 {
-  SDWORD event;
   ACTIVE_TRIGGER* psTrigger;
-  TRIGGER_DATA* psData;
-  SCRIPT_CODE* psCode;
 
   // Now setup all the triggers
   psContext->triggerCount = 0;
-  psCode = psContext->psCode;
-  for (event = 0; event < psCode->numEvents; event++)
+  SCRIPT_CODE* psCode = psContext->psCode;
+  for (SDWORD event = 0; event < psCode->numEvents; event++)
   {
     if (psCode->pEventLinks[event] >= 0)
     {
       // See if this is an init event
-      psData = &psCode->psTriggerData[psCode->pEventLinks[event]];
+      TRIGGER_DATA* psData = &psCode->psTriggerData[psCode->pEventLinks[event]];
       if (psData->type == TR_INIT)
       {
         if (!interpRunScript(psContext, IRT_EVENT, event, 0))
@@ -408,7 +398,6 @@ void eventRemoveContext(SCRIPT_CONTEXT* psContext)
 {
   ACTIVE_TRIGGER *psCurr, *psPrev = nullptr, *psNext;
   SCRIPT_CONTEXT *psCCont, *psPCont = nullptr;
-  INTERP_VAL* psVal;
 
   // Get rid of all it's triggers
   while (psTrigList && psTrigList->psContext == psContext)
@@ -452,7 +441,7 @@ void eventRemoveContext(SCRIPT_CONTEXT* psContext)
   {
     for (UDWORD i = 0; i < psContext->psCode->numGlobals; i++)
     {
-      psVal = &psContext->aValues[i];
+      INTERP_VAL* psVal = &psContext->aValues[i];
       if (psVal->type < numFuncs && asReleaseFuncs[psVal->type] != nullptr)
         asReleaseFuncs[psVal->type](psVal);
     }
@@ -563,25 +552,21 @@ static void eventAddTrigger(ACTIVE_TRIGGER* psTrigger)
 // Initialise a trigger
 static BOOL eventInitTrigger(ACTIVE_TRIGGER** ppsTrigger, SCRIPT_CONTEXT* psContext, UDWORD event, SDWORD trigger, UDWORD currTime)
 {
-  ACTIVE_TRIGGER* psNewTrig;
-  TRIGGER_DATA* psTrigData;
-  UDWORD testTime;
-
   DEBUG_ASSERT_TEXT(event < psContext->psCode->numEvents, "eventAddTrigger: Event out of range");
   DEBUG_ASSERT_TEXT(trigger < psContext->psCode->numTriggers, "eventAddTrigger: Trigger out of range");
   if (trigger == -1)
     return FALSE;
 
   // Get a trigger object
-  psNewTrig = new (std::nothrow) ACTIVE_TRIGGER;
+  ACTIVE_TRIGGER* psNewTrig = new(std::nothrow) ACTIVE_TRIGGER;
   if (psNewTrig == nullptr)
     return FALSE;
 
   // Initialise the trigger
   psNewTrig->psContext = psContext;
   psContext->triggerCount += 1;
-  psTrigData = &psContext->psCode->psTriggerData[trigger];
-  testTime = currTime + psTrigData->time;
+  TRIGGER_DATA* psTrigData = &psContext->psCode->psTriggerData[trigger];
+  UDWORD testTime = currTime + psTrigData->time;
   psNewTrig->testTime = testTime;
   psNewTrig->trigger = static_cast<SWORD>(trigger);
   psNewTrig->type = static_cast<SWORD>(psTrigData->type);
@@ -596,14 +581,11 @@ static BOOL eventInitTrigger(ACTIVE_TRIGGER** ppsTrigger, SCRIPT_CONTEXT* psCont
 // Load a trigger into the system from a save game
 BOOL eventLoadTrigger(UDWORD time, SCRIPT_CONTEXT* psContext, SDWORD type, SDWORD trigger, UDWORD event, UDWORD offset)
 {
-  ACTIVE_TRIGGER* psNewTrig;
-  TRIGGER_DATA* psTrigData;
-
   DEBUG_ASSERT_TEXT(event < psContext->psCode->numEvents, "eventLoadTrigger: Event out of range");
   DEBUG_ASSERT_TEXT(trigger < psContext->psCode->numTriggers, "eventLoadTrigger: Trigger out of range");
 
   // Get a trigger object
-  psNewTrig = new (std::nothrow) ACTIVE_TRIGGER;
+  ACTIVE_TRIGGER* psNewTrig = new(std::nothrow) ACTIVE_TRIGGER;
   if (psNewTrig == nullptr)
   {
     Neuron::Fatal("eventLoadTrigger: out of memory");
@@ -613,7 +595,7 @@ BOOL eventLoadTrigger(UDWORD time, SCRIPT_CONTEXT* psContext, SDWORD type, SDWOR
   // Initialise the trigger
   psNewTrig->psContext = psContext;
   psContext->triggerCount += 1;
-  psTrigData = &psContext->psCode->psTriggerData[trigger];
+  TRIGGER_DATA* psTrigData = &psContext->psCode->psTriggerData[trigger];
   psNewTrig->testTime = time;
   psNewTrig->trigger = static_cast<SWORD>(trigger);
   psNewTrig->type = static_cast<SWORD>(type);
@@ -628,13 +610,12 @@ BOOL eventLoadTrigger(UDWORD time, SCRIPT_CONTEXT* psContext, SDWORD type, SDWOR
 // add a TR_PAUSE trigger to the event system.
 BOOL eventAddPauseTrigger(SCRIPT_CONTEXT* psContext, UDWORD event, UDWORD offset, UDWORD time)
 {
-  ACTIVE_TRIGGER* psNewTrig;
   SDWORD trigger;
 
   DEBUG_ASSERT_TEXT(event < psContext->psCode->numEvents, "eventAddTrigger: Event out of range");
 
   // Get a trigger object
-  psNewTrig = new (std::nothrow) ACTIVE_TRIGGER;
+  ACTIVE_TRIGGER* psNewTrig = new(std::nothrow) ACTIVE_TRIGGER;
   if (psNewTrig == nullptr)
     return FALSE;
 
@@ -689,7 +670,7 @@ static void eventFreeTrigger(ACTIVE_TRIGGER* psTrigger)
 // Activate a callback trigger
 void eventFireCallbackTrigger(TRIGGER_TYPE callback)
 {
-  ACTIVE_TRIGGER *psPrev, *psCurr, *psNext;
+  ACTIVE_TRIGGER *psCurr, *psNext;
   TRIGGER_DATA* psTrigDat;
   BOOL fired;
 
@@ -700,7 +681,7 @@ void eventFireCallbackTrigger(TRIGGER_TYPE callback)
   }
 
   //this can be called from eventProcessTriggers and so will wipe out all the current added ones
-  psPrev = nullptr;
+  ACTIVE_TRIGGER* psPrev = nullptr;
   for (psCurr = psCallbackList; psCurr && psCurr->type <= callback; psCurr = psNext)
   {
     psNext = psCurr->psNext;
@@ -786,10 +767,9 @@ void eventFireCallbackTrigger(TRIGGER_TYPE callback)
 // Run a trigger
 static BOOL eventFireTrigger(ACTIVE_TRIGGER* psTrigger)
 {
-  BOOL fired;
   INTERP_VAL sResult;
 
-  fired = FALSE;
+  BOOL fired = FALSE;
 
   // If this is a code trigger see if it fires
   if (psTrigger->type == TR_CODE)
@@ -838,7 +818,6 @@ static BOOL eventFireTrigger(ACTIVE_TRIGGER* psTrigger)
 void eventProcessTriggers(UDWORD currTime)
 {
   ACTIVE_TRIGGER *psCurr, *psNext, *psNew;
-  TRIGGER_DATA* psData;
 
   // Process all the current triggers
   psAddedTriggers = nullptr;
@@ -879,7 +858,7 @@ void eventProcessTriggers(UDWORD currTime)
       else
       {
         // Add the trigger again
-        psData = &psCurr->psContext->psCode->psTriggerData[psCurr->trigger];
+        TRIGGER_DATA* psData = &psCurr->psContext->psCode->psTriggerData[psCurr->trigger];
         psCurr->testTime = currTime + psData->time;
         psCurr->psNext = psAddedTriggers;
         psAddedTriggers = psCurr;
@@ -947,7 +926,6 @@ BOOL eventSetTrigger(void)
   ACTIVE_TRIGGER* psTrigger;
   UDWORD event;
   SDWORD trigger;
-  SCRIPT_CONTEXT* psContext;
 
   if (!stackPopParams({{VAL_EVENT, &event}, {VAL_TRIGGER, &trigger}}))
     return FALSE;
@@ -957,7 +935,7 @@ BOOL eventSetTrigger(void)
     psCode, trigger)), 2);
 
   // See if this is the event that is running
-  psContext = psFiringTrigger->psContext;
+  SCRIPT_CONTEXT* psContext = psFiringTrigger->psContext;
   if (psFiringTrigger->event == event)
     triggerChanged = TRUE;
   else
