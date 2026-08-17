@@ -1282,6 +1282,22 @@ green, the converter's own byte-level check, and a harness that replays
 `IMDLoad`'s TEXTURE parse over all 516 converted models - every one parses
 and reduces to the same 19 `page-NN` ids the texture groups bind. Not run.
 
+## Server authority: survey and staged plan (2026-08-17, planned)
+
+**The client/server direction now has a written plan.** The survey of how
+multiplayer actually works — the loose "everyone simulates, owner
+corrects" model, the distributed `whosResponsible` authority, the check
+stream, the trust holes — and the staged route to a server-authoritative
+setup live in [ServerAuthority.md](ServerAuthority.md). The headline: the
+game was never lockstep, so server authority is a collapse of authorities
+and an extraction of the simulation, not a rewrite of the sync model.
+Four stages — host authority inside the existing game, the
+sim/presentation seam (the server half of the split AGENTS.md reserves),
+the dedicated server process, and the retirement of the old trust
+machinery — plus a deliberately unplanned lane for the relay/directory/
+persistence world beyond. Nothing has been built; six decisions are
+queued in that document's §5.
+
 ## The display: desktop-resolution borderless window, scaled UI (2026-08-16)
 
 **By owner decision, the fixed-resolution display is gone.** The game now
