@@ -16,8 +16,6 @@
 #define	BASE_COORDS_X	(640)
 #define	BASE_COORDS_Y	(480)
 
-#define	BASE_COORDS_X	(640)
-#define	BASE_COORDS_Y	(480)
 #define E_W (DISP_WIDTH - BASE_COORDS_X)
 #define E_H (DISP_HEIGHT - BASE_COORDS_Y)
 #define	D_W	((DISP_WIDTH - BASE_COORDS_X)/2)

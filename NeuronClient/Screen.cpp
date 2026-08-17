@@ -23,6 +23,7 @@
 #include "DXError.h"
 #include "Font.h"
 #include "FrameInt.h"
+#include "RenderClip.h"
 
 /* The Current screen size and bit depth */
 UDWORD screenWidth = 0;
@@ -56,13 +57,6 @@ static BOOL bDeviceCreated = FALSE;
 /* The back buffer surface, only held while it is locked */
 static LPDIRECT3DSURFACE9 psLockedBackBuffer = nullptr;
 
-/* The palette entries kept for palette matching. The display has not been
- * palettised since DirectDraw went, but the game still asks for the nearest
- * entry to an RGB value when it packs its own colours.
- */
-#define PAL_MAX				256
-static PALETTEENTRY asPalEntries[PAL_MAX];
-
 /* The pixel format of the display, and of the back buffer. Both are
  * X8R8G8B8 - they are kept separate because the callers still ask for each.
  */
@@ -81,7 +75,7 @@ HANDLE hScreenFlipSemaphore;
 //backDrop
 #define BACKDROP_WIDTH	640
 #define BACKDROP_HEIGHT	480
-UWORD* pBackDropData = nullptr;
+UDWORD* pBackDropData = nullptr;
 BOOL bBackDrop = FALSE;
 BOOL bUpload = FALSE;
 
@@ -139,7 +133,10 @@ static void setPresentParameters(void)
    */
   sPresentParams.SwapEffect = D3DSWAPEFFECT_COPY;
   sPresentParams.hDeviceWindow = hWndMain;
-  sPresentParams.Windowed = (screenMode == SCREEN_WINDOWED) ? TRUE : FALSE;
+  /* Always a windowed swap chain: the borderless window covers the desktop
+   * at the desktop's own mode, so there is no exclusive mode to enter and
+   * no display mode change to lose the device over. */
+  sPresentParams.Windowed = TRUE;
   sPresentParams.EnableAutoDepthStencil = TRUE;
   sPresentParams.AutoDepthStencilFormat = D3DFMT_D16;
 
@@ -149,40 +146,6 @@ static void setPresentParameters(void)
 
   sPresentParams.FullScreen_RefreshRateInHz = 0;
   sPresentParams.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
-}
-
-/* Size and decorate the window for the current screen mode */
-static void setWindowStyle(void)
-{
-  RECT sWinSize;
-
-  if (screenMode == SCREEN_WINDOWED)
-  {
-    (void)SetWindowLong(hWndMain, GWL_STYLE, WIN_STYLE);
-    (void)SetWindowLong(hWndMain, GWL_EXSTYLE, WIN_EXSTYLE);
-
-    /* Work out how big the window has to be for the client area to be the
-     * size of the display. */
-    (void)SetRect(&sWinSize, 0, 0, screenWidth, screenHeight);
-    (void)AdjustWindowRectEx(&sWinSize, WIN_STYLE, FALSE, WIN_EXSTYLE);
-
-    sWinSize.right -= sWinSize.left;
-    sWinSize.left = 0;
-    sWinSize.bottom -= sWinSize.top;
-    sWinSize.top = 0;
-
-    (void)SetWindowPos(hWndMain, nullptr, 0, 0, sWinSize.right, sWinSize.bottom,
-                       SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOCOPYBITS);
-    (void)SetWindowPos(hWndMain, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE | SWP_NOCOPYBITS);
-  }
-  else
-  {
-    /* Make the app window completely undecorated so GDI is effectively
-     * shut out. */
-    (void)SetWindowLong(hWndMain, GWL_STYLE, WS_POPUP | WS_VISIBLE);
-    (void)SetWindowLong(hWndMain, GWL_EXSTYLE, 0);
-    (void)SetWindowPos(hWndMain, HWND_TOP, 0, 0, screenWidth, screenHeight, SWP_NOACTIVATE | SWP_NOCOPYBITS);
-  }
 }
 
 /* Create the device with the current present parameters.
@@ -222,20 +185,11 @@ static BOOL createDevice(void)
 HWND screenGetHWnd(void) { return hWndMain; }
 
 /* Initialise the display */
-BOOL screenInitialise(UDWORD width, // Display width
-                      UDWORD height, // Display height
-                      UDWORD bitDepth, // Display bit depth - the display is
-                      // always 32 bit now, this is only recorded
-                      BOOL fullScreen, // Whether to start windowed
-                      // or full screen.
-                      BOOL bVidMem, // No longer used: the managed pool
-                      // decides where resources live
+BOOL screenInitialise(UDWORD width, // Display width - the desktop's
+                      UDWORD height, // Display height - the desktop's
                       BOOL bCreateDevice, // Whether to create the device at all
                       HANDLE hWindow) // The main windows handle
 {
-  (void)bitDepth;
-  (void)bVidMem;
-
   /* Store the screen information */
   screenWidth = width;
   screenHeight = height;
@@ -245,15 +199,10 @@ BOOL screenInitialise(UDWORD width, // Display width
 
   setPixelFormats();
 
-  memset(asPalEntries, 0, sizeof(PALETTEENTRY) * PAL_MAX);
-  asPalEntries[PAL_MAX - 1].peRed = 0xff;
-  asPalEntries[PAL_MAX - 1].peGreen = 0xff;
-  asPalEntries[PAL_MAX - 1].peBlue = 0xff;
-
-  /* Both windowed and full screen render to the same 32 bit back buffer,
-   * so the library can always run either way round. */
+  /* The one mode there is: a borderless window covering the desktop,
+   * presented through a windowed swap chain. */
   displayMode = MODE_BOTH;
-  screenMode = fullScreen ? SCREEN_FULLSCREEN : SCREEN_WINDOWED;
+  screenMode = SCREEN_WINDOWED;
 
   if (!bCreateDevice)
     return TRUE;
@@ -265,21 +214,12 @@ BOOL screenInitialise(UDWORD width, // Display width
     return FALSE;
   }
 
-  setWindowStyle();
   setPresentParameters();
 
   if (!createDevice())
   {
-    /* The requested mode failed, so try the other one - this is what the
-     * DirectDraw code did with its two cooperative levels. */
-    screenMode = fullScreen ? SCREEN_WINDOWED : SCREEN_FULLSCREEN;
-    setWindowStyle();
-    setPresentParameters();
-    if (!createDevice())
-    {
-      RELEASE(psD3D);
-      return FALSE;
-    }
+    RELEASE(psD3D);
+    return FALSE;
   }
 
   bDeviceCreated = TRUE;
@@ -437,7 +377,7 @@ void screenUnlockBackBuffer(void)
 /* Backdrop                                              */
 /*********************************************************/
 
-void screen_SetBackDrop(UWORD* newBackDropBmp, UDWORD width, UDWORD height)
+void screen_SetBackDrop(UDWORD* newBackDropBmp, UDWORD width, UDWORD height)
 {
   bBackDrop = TRUE;
   pBackDropData = newBackDropBmp;
@@ -449,7 +389,7 @@ void screen_StopBackDrop(void) { bBackDrop = FALSE; }
 
 void screen_RestartBackDrop(void) { bBackDrop = TRUE; }
 
-UWORD* screen_GetBackDrop(void)
+UDWORD* screen_GetBackDrop(void)
 {
   if (bBackDrop == TRUE)
     return pBackDropData;
@@ -463,13 +403,19 @@ UDWORD screen_GetBackDropWidth(void)
   return 0;
 }
 
-/* Read the back buffer back into a 16 bit software buffer */
-void screen_Upload(UWORD* newBackDropBmp)
+/* Read the back buffer back into a 32 bit software buffer.
+ *
+ * The buffer is logical-canvas sized while the back buffer is physical, so
+ * this samples every display-scale-th pixel; the backdrop draw scales the
+ * result back up on the way in, which round-trips exactly.
+ */
+void screen_Upload(UDWORD* newBackDropBmp)
 {
   SCREEN_LOCK sLock;
   UDWORD x, y;
+  UDWORD destWidth, destHeight, scale;
   UDWORD* pSrc;
-  UWORD* pDest;
+  UDWORD* pDest;
 
   if (newBackDropBmp == nullptr)
     return;
@@ -477,13 +423,17 @@ void screen_Upload(UWORD* newBackDropBmp)
   if (!screenLockBackBuffer(&sLock))
     return;
 
+  scale = Neuron::DisplayScale();
+  destWidth = pie_GetVideoBufferWidth();
+  destHeight = pie_GetVideoBufferHeight();
+
   pDest = newBackDropBmp;
-  for (y = 0; (y < screenHeight) && (y < sLock.height); y++)
+  for (y = 0; (y < destHeight) && (y * scale < sLock.height); y++)
   {
-    pSrc = (UDWORD*)(sLock.pPixels + sLock.pitch * y);
-    for (x = 0; (x < screenWidth) && (x < sLock.width); x++)
-      pDest[x] = screen32To565(pSrc[x]);
-    pDest += screenWidth;
+    pSrc = (UDWORD*)(sLock.pPixels + sLock.pitch * (y * scale));
+    for (x = 0; (x < destWidth) && (x * scale < sLock.width); x++)
+      pDest[x] = pSrc[x * scale];
+    pDest += destWidth;
   }
 
   screenUnlockBackBuffer();
@@ -501,28 +451,36 @@ void screen_SetFogColour(UDWORD newFogColour)
 /* Present                                               */
 /*********************************************************/
 
-/* Draw the backdrop into the back buffer, centred, converting 565 to 32 bit */
+/* Draw the backdrop into the back buffer, centred and enlarged by the
+ * display scale. The backdrop bitmap is in logical-canvas units like
+ * everything else the game hands over, so a 640x480 menu backdrop keeps its
+ * size relative to the menus on top of it.
+ */
 static void drawBackDrop(void)
 {
   SCREEN_LOCK sLock;
   UDWORD x, y;
   UDWORD* pDest;
-  UWORD* pSrc;
+  UDWORD* pSrc;
   UDWORD destX, destY;
+  UDWORD scale, scaledWidth, scaledHeight;
 
   if (!screenLockBackBuffer(&sLock))
     return;
 
-  destX = (screenWidth > backDropWidth) ? (screenWidth - backDropWidth) / 2 : 0;
-  destY = (screenHeight > backDropHeight) ? (screenHeight - backDropHeight) / 2 : 0;
+  scale = Neuron::DisplayScale();
+  scaledWidth = backDropWidth * scale;
+  scaledHeight = backDropHeight * scale;
 
-  pSrc = pBackDropData;
-  for (y = 0; (y < backDropHeight) && (destY + y < sLock.height); y++)
+  destX = (screenWidth > scaledWidth) ? (screenWidth - scaledWidth) / 2 : 0;
+  destY = (screenHeight > scaledHeight) ? (screenHeight - scaledHeight) / 2 : 0;
+
+  for (y = 0; (y < scaledHeight) && (destY + y < sLock.height); y++)
   {
+    pSrc = pBackDropData + (y / scale) * backDropWidth;
     pDest = (UDWORD*)(sLock.pPixels + sLock.pitch * (destY + y)) + destX;
-    for (x = 0; (x < backDropWidth) && (destX + x < sLock.width); x++)
-      pDest[x] = screen565To32(pSrc[x]);
-    pSrc += backDropWidth;
+    for (x = 0; (x < scaledWidth) && (destX + x < sLock.width); x++)
+      pDest[x] = pSrc[x / scale];
   }
 
   screenUnlockBackBuffer();
@@ -553,7 +511,7 @@ void screenFlip(BOOL clearBackBuffer)
     {
       /* Clear first so that a backdrop smaller than the display does not
        * leave the previous frame around its edges. */
-      if ((screenWidth > backDropWidth) || (screenHeight > backDropHeight))
+      if ((screenWidth > backDropWidth * Neuron::DisplayScale()) || (screenHeight > backDropHeight * Neuron::DisplayScale()))
         (void)psD3DDevice->Clear(0, nullptr, D3DCLEAR_TARGET, 0, 1.0f, 0);
 
       drawBackDrop();
@@ -566,101 +524,16 @@ void screenFlip(BOOL clearBackBuffer)
 }
 
 /*********************************************************/
-/* Mode switching                                        */
+/* Mode query                                            */
+/*                                                       */
+/* There used to be a toggle between a decorated window   */
+/* and Direct3D exclusive full screen here. The display   */
+/* is a borderless window at the desktop mode now, so     */
+/* there is nothing to toggle to; the mode query stays    */
+/* because the renderer reads it.                        */
 /*********************************************************/
-
-/* Swap between windowed and full screen mode */
-void screenToggleMode(void)
-{
-  SCREEN_MODE newMode;
-
-  if (psD3DDevice == nullptr)
-    return;
-
-  newMode = (screenMode == SCREEN_WINDOWED) ? SCREEN_FULLSCREEN : SCREEN_WINDOWED;
-
-  screenMode = newMode;
-  setWindowStyle();
-  setPresentParameters();
-
-  if (!screenResetDevice())
-  {
-    /* Put it back the way it was and try to carry on in the old mode. */
-    screenMode = (newMode == SCREEN_FULLSCREEN) ? SCREEN_WINDOWED : SCREEN_FULLSCREEN;
-    setWindowStyle();
-    setPresentParameters();
-    if (!screenResetDevice())
-    {
-      Neuron::Fatal("screenToggleMode: couldn't reset the device for either mode");
-      frameShutDown();
-    }
-  }
-}
 
 SCREEN_MODE screenGetMode(void) { return screenMode; }
-
-/* Set screen mode */
-void screenSetMode(SCREEN_MODE mode)
-{
-  if (psD3DDevice == nullptr)
-    return;
-
-  if (mode != screenMode)
-    screenToggleMode();
-}
-
-/*********************************************************/
-/* Palette matching                                      */
-/*********************************************************/
-
-void screenSetPalette(UDWORD first, UDWORD count, PALETTEENTRY* psEntries)
-{
-  DEBUG_ASSERT_TEXT((first+count-1 < PAL_MAX), "screenSetPalette: invalid entry range");
-
-  if (count == 0)
-    return;
-
-  /* ensure that colour 0 is black and 255 is white */
-  if ((first == 0 || first == 255) && count == 1)
-    return;
-
-  if (first == 0)
-  {
-    first = 1;
-    count -= 1;
-  }
-  if (first + count - 1 == PAL_MAX)
-    count -= 1;
-
-  memcpy(asPalEntries + first, psEntries + first, sizeof(PALETTEENTRY) * count);
-}
-
-/* Return the best colour match in the stored palette */
-UBYTE screenGetPalEntry(UBYTE red, UBYTE green, UBYTE blue)
-{
-  UDWORD i, minDist, dist;
-  UDWORD redDiff, greenDiff, blueDiff;
-  UBYTE colour;
-
-  minDist = 0xff * 0xff * 0xff;
-  colour = 0;
-  for (i = 0; i < PAL_MAX; i++)
-  {
-    redDiff = asPalEntries[i].peRed - red;
-    greenDiff = asPalEntries[i].peGreen - green;
-    blueDiff = asPalEntries[i].peBlue - blue;
-    dist = redDiff * redDiff + greenDiff * greenDiff + blueDiff * blueDiff;
-    if (dist < minDist)
-    {
-      minDist = dist;
-      colour = static_cast<UBYTE>(i);
-    }
-    if (minDist == 0)
-      break;
-  }
-
-  return colour;
-}
 
 /* Return the actual value that will be poked into screen memory
  * given an RGB value.
@@ -707,7 +580,7 @@ void screenTextOut(UDWORD x, UDWORD y, STRING* pFormat, ...)
   if (x >= screenWidth)
     return;
 
-  strLen = strlen(aTxtBuff);
+  strLen = static_cast<UDWORD>(strlen(aTxtBuff));
   if (x + strLen * FONT_WIDTH >= screenWidth)
   {
     /* Chop off the end of the string */

@@ -245,10 +245,6 @@ TITLECODE titleLoop(void)
   pie_SetFogStatus(FALSE);
   pie_ScreenFlip(CLEAR_BLACK); //title loop
 
-  if ((keyDown(KEY_LALT) || keyDown(KEY_RALT)) && /* Check for toggling display mode */
-    keyPressed(KEY_RETURN))
-    screenToggleMode();
-
   return RetCode;
 }
 

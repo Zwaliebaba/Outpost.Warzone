@@ -47,7 +47,12 @@ using iClip = struct
 {
   int left, top, right, bottom;
 };
-using iBitmap = uint8;
+/* One image pixel, packed A8R8G8B8. This was uint8 - a palette index - until
+ * the palette removal's stage 2: the PCX loader expands indices through the
+ * game palette at load, so everything downstream holds and moves true-colour
+ * pixels. Alpha is 0xff except for the old "index 0 / black is transparent"
+ * convention, which the loader turns into alpha 0. */
+using iBitmap = UDWORD;
 using iColour = struct
 {
   uint8 r, g, b;
@@ -62,7 +67,6 @@ using iSprite = struct
   int width, height;
   iBitmap* bmp;
 };
-using iPalette = iColour[256];
 using iRGB8 = struct
 {
   uint8 r, g, b, p;
@@ -100,7 +104,6 @@ using iTexture = struct
 {
   int xshift, width, height;
   iBitmap* bmp;
-  iColour* pPal;
   iBool bColourKeyed;
 };
 using iVertex = struct
@@ -259,7 +262,6 @@ using fixed = int32;
 using TEXTUREPAGE = struct
 {
   iSprite* Texture;
-  iPalette* Palette;
 };
 
 #endif // _renderTypes_h

@@ -110,7 +110,7 @@ BOOL scrObjectInRange(void)
   SDWORD range, player, x, y;
   BOOL found;
 
-  if (!stackPopParams(4, VAL_INT, &player, VAL_INT, &x, VAL_INT, &y, VAL_INT, &range))
+  if (!stackPopParams({{VAL_INT, &player}, {VAL_INT, &x}, {VAL_INT, &y}, {VAL_INT, &range}}))
     return FALSE;
 
   if (player < 0 || player >= MAX_PLAYERS)
@@ -135,7 +135,7 @@ BOOL scrDroidInRange(void)
   SDWORD range, player, x, y;
   BOOL found;
 
-  if (!stackPopParams(4, VAL_INT, &player, VAL_INT, &x, VAL_INT, &y, VAL_INT, &range))
+  if (!stackPopParams({{VAL_INT, &player}, {VAL_INT, &x}, {VAL_INT, &y}, {VAL_INT, &range}}))
     return FALSE;
 
   if (player < 0 || player >= MAX_PLAYERS)
@@ -159,7 +159,7 @@ BOOL scrStructInRange(void)
   SDWORD range, player, x, y;
   BOOL found;
 
-  if (!stackPopParams(4, VAL_INT, &player, VAL_INT, &x, VAL_INT, &y, VAL_INT, &range))
+  if (!stackPopParams({{VAL_INT, &player}, {VAL_INT, &x}, {VAL_INT, &y}, {VAL_INT, &range}}))
     return FALSE;
 
   if (player < 0 || player >= MAX_PLAYERS)
@@ -181,7 +181,7 @@ BOOL scrPlayerPower(void)
 {
   SDWORD player;
 
-  if (!stackPopParams(1, VAL_INT, &player))
+  if (!stackPopParams({{VAL_INT, &player}}))
     return FALSE;
   if (player < 0 || player >= MAX_PLAYERS)
   {
@@ -223,7 +223,7 @@ BOOL scrObjectInArea(void)
   SDWORD player, x1, y1, x2, y2;
   BOOL found;
 
-  if (!stackPopParams(5, VAL_INT, &player, VAL_INT, &x1, VAL_INT, &y1, VAL_INT, &x2, VAL_INT, &y2))
+  if (!stackPopParams({{VAL_INT, &player}, {VAL_INT, &x1}, {VAL_INT, &y1}, {VAL_INT, &x2}, {VAL_INT, &y2}}))
     return FALSE;
 
   if (player < 0 || player >= MAX_PLAYERS)
@@ -248,7 +248,7 @@ BOOL scrDroidInArea(void)
   SDWORD player, x1, y1, x2, y2;
   BOOL found;
 
-  if (!stackPopParams(5, VAL_INT, &player, VAL_INT, &x1, VAL_INT, &y1, VAL_INT, &x2, VAL_INT, &y2))
+  if (!stackPopParams({{VAL_INT, &player}, {VAL_INT, &x1}, {VAL_INT, &y1}, {VAL_INT, &x2}, {VAL_INT, &y2}}))
     return FALSE;
 
   if (player < 0 || player >= MAX_PLAYERS)
@@ -272,7 +272,7 @@ BOOL scrStructInArea(void)
   SDWORD player, x1, y1, x2, y2;
   BOOL found;
 
-  if (!stackPopParams(5, VAL_INT, &player, VAL_INT, &x1, VAL_INT, &y1, VAL_INT, &x2, VAL_INT, &y2))
+  if (!stackPopParams({{VAL_INT, &player}, {VAL_INT, &x1}, {VAL_INT, &y1}, {VAL_INT, &x2}, {VAL_INT, &y2}}))
     return FALSE;
 
   if (player < 0 || player >= MAX_PLAYERS)
@@ -298,7 +298,7 @@ BOOL scrSeenStructInArea(void)
   SDWORD ox, oy;
 
   // player, enemyplayer, walls, x1,r1,x2,y2
-  if (!stackPopParams(7, VAL_INT, &player, VAL_INT, &enemy, VAL_BOOL, &walls, VAL_INT, &x1, VAL_INT, &y1, VAL_INT, &x2, VAL_INT, &y2))
+  if (!stackPopParams({{VAL_INT, &player}, {VAL_INT, &enemy}, {VAL_BOOL, &walls}, {VAL_INT, &x1}, {VAL_INT, &y1}, {VAL_INT, &x2}, {VAL_INT, &y2}}))
     return FALSE;
 
   if (player < 0 || player >= MAX_PLAYERS)
@@ -342,7 +342,7 @@ BOOL scrStructButNoWallsInArea(void)
   STRUCTURE* psStruct;
   SDWORD found = FALSE;
 
-  if (!stackPopParams(5, VAL_INT, &player, VAL_INT, &x1, VAL_INT, &y1, VAL_INT, &x2, VAL_INT, &y2))
+  if (!stackPopParams({{VAL_INT, &player}, {VAL_INT, &x1}, {VAL_INT, &y1}, {VAL_INT, &x2}, {VAL_INT, &y2}}))
     return FALSE;
 
   if (player < 0 || player >= MAX_PLAYERS)
@@ -404,7 +404,7 @@ BOOL scrNumObjectsInArea(void)
   SDWORD player, x1, y1, x2, y2;
   SDWORD count;
 
-  if (!stackPopParams(5, VAL_INT, &player, VAL_INT, &x1, VAL_INT, &y1, VAL_INT, &x2, VAL_INT, &y2))
+  if (!stackPopParams({{VAL_INT, &player}, {VAL_INT, &x1}, {VAL_INT, &y1}, {VAL_INT, &x2}, {VAL_INT, &y2}}))
     return FALSE;
 
   if (player < 0 || player >= MAX_PLAYERS)
@@ -429,7 +429,7 @@ BOOL scrNumDroidsInArea(void)
   SDWORD player, x1, y1, x2, y2;
   SDWORD count;
 
-  if (!stackPopParams(5, VAL_INT, &player, VAL_INT, &x1, VAL_INT, &y1, VAL_INT, &x2, VAL_INT, &y2))
+  if (!stackPopParams({{VAL_INT, &player}, {VAL_INT, &x1}, {VAL_INT, &y1}, {VAL_INT, &x2}, {VAL_INT, &y2}}))
     return FALSE;
 
   if (player < 0 || player >= MAX_PLAYERS)
@@ -453,7 +453,7 @@ BOOL scrNumStructsInArea(void)
   SDWORD player, x1, y1, x2, y2;
   SDWORD count;
 
-  if (!stackPopParams(5, VAL_INT, &player, VAL_INT, &x1, VAL_INT, &y1, VAL_INT, &x2, VAL_INT, &y2))
+  if (!stackPopParams({{VAL_INT, &player}, {VAL_INT, &x1}, {VAL_INT, &y1}, {VAL_INT, &x2}, {VAL_INT, &y2}}))
     return FALSE;
 
   if (player < 0 || player >= MAX_PLAYERS)
@@ -478,7 +478,7 @@ BOOL scrNumStructsButNotWallsInArea(void)
   SDWORD count, ox, oy;
   STRUCTURE* psStruct;
 
-  if (!stackPopParams(5, VAL_INT, &player, VAL_INT, &x1, VAL_INT, &y1, VAL_INT, &x2, VAL_INT, &y2))
+  if (!stackPopParams({{VAL_INT, &player}, {VAL_INT, &x1}, {VAL_INT, &y1}, {VAL_INT, &x2}, {VAL_INT, &y2}}))
     return FALSE;
 
   if (player < 0 || player >= MAX_PLAYERS)
@@ -514,7 +514,7 @@ BOOL scrNumStructsByTypeInArea(void)
   SDWORD count, ox, oy;
   STRUCTURE* psStruct;
 
-  if (!stackPopParams(6, VAL_INT, &player, VAL_INT, &type, VAL_INT, &x1, VAL_INT, &y1, VAL_INT, &x2, VAL_INT, &y2))
+  if (!stackPopParams({{VAL_INT, &player}, {VAL_INT, &type}, {VAL_INT, &x1}, {VAL_INT, &y1}, {VAL_INT, &x2}, {VAL_INT, &y2}}))
     return FALSE;
 
   if (player < 0 || player >= MAX_PLAYERS)
@@ -549,7 +549,7 @@ BOOL scrDroidHasSeen(void)
   BASE_OBJECT* psObj;
   BOOL seen;
 
-  if (!stackPopParams(2, ST_BASEOBJECT, &psObj, VAL_INT, &player))
+  if (!stackPopParams({{ST_BASEOBJECT, &psObj}, {VAL_INT, &player}}))
     return FALSE;
 
   if (psObj == nullptr)
@@ -585,7 +585,7 @@ BOOL scrDroidInRangeOfPosition(void)
   SDWORD dx, dy, dz, iX, iY, iZ;
   BOOL found;
 
-  if (!stackPopParams(5, VAL_INT, &range, VAL_INT, &player, VAL_INT, &iX, VAL_INT, &iY, VAL_INT, &iZ))
+  if (!stackPopParams({{VAL_INT, &range}, {VAL_INT, &player}, {VAL_INT, &iX}, {VAL_INT, &iY}, {VAL_INT, &iZ}}))
     return FALSE;
 
   if (player < 0 || player >= MAX_PLAYERS)
@@ -623,7 +623,7 @@ BOOL scrEnableComponent(void)
   SDWORD player;
   INTERP_VAL sVal;
 
-  if (!stackPopParams(1, VAL_INT, &player))
+  if (!stackPopParams({{VAL_INT, &player}}))
     return FALSE;
   if (!stackPop(&sVal))
     return FALSE;
@@ -675,7 +675,7 @@ BOOL scrMakeComponentAvailable(void)
   SDWORD player;
   INTERP_VAL sVal;
 
-  if (!stackPopParams(1, VAL_INT, &player))
+  if (!stackPopParams({{VAL_INT, &player}}))
     return FALSE;
   if (!stackPop(&sVal))
     return FALSE;
@@ -728,7 +728,7 @@ BOOL scrAddDroidToMissionList(void)
   DROID_TEMPLATE* psTemplate;
   DROID* psDroid;
 
-  if (!stackPopParams(2, ST_TEMPLATE, &psTemplate, VAL_INT, &player))
+  if (!stackPopParams({{ST_TEMPLATE, &psTemplate}, {VAL_INT, &player}}))
     return FALSE;
 
   /*	if ((UBYTE)player == selectedPlayer )
@@ -754,7 +754,7 @@ BOOL scrAddDroidToMissionList(void)
 #endif
     psDroid = buildMissionDroid(psTemplate, 128, 128, player);
 
-  if (!stackPushResult(ST_DROID, (SDWORD)psDroid))
+  if (!stackPushResult(ST_DROID, psDroid))
     return FALSE;
 
   return TRUE;
@@ -768,7 +768,7 @@ BOOL scrAddDroid(void)
   DROID_TEMPLATE* psTemplate;
   DROID* psDroid;
 
-  if (!stackPopParams(4, ST_TEMPLATE, &psTemplate, VAL_INT, &x, VAL_INT, &y, VAL_INT, &player))
+  if (!stackPopParams({{ST_TEMPLATE, &psTemplate}, {VAL_INT, &x}, {VAL_INT, &y}, {VAL_INT, &player}}))
     return FALSE;
   /*	if (!stackPop(&sVal))
 	{
@@ -809,7 +809,7 @@ BOOL scrAddDroid(void)
     }
   }
 
-  if (!stackPushResult(ST_DROID, (SDWORD)psDroid))
+  if (!stackPushResult(ST_DROID, psDroid))
     return FALSE;
 
   return TRUE;
@@ -822,7 +822,7 @@ BOOL scrAddDroidToTransporter(void)
 {
   DROID *psTransporter, *psDroid;
 
-  if (!stackPopParams(2, ST_DROID, &psTransporter, ST_DROID, &psDroid))
+  if (!stackPopParams({{ST_DROID, &psTransporter}, {ST_DROID, &psDroid}}))
     return FALSE;
 
   if (psTransporter == nullptr OR psDroid == nullptr)
@@ -853,7 +853,7 @@ BOOL scrBuildingDestroyed(void)
   BOOL destroyed;
   STRUCTURE* psCurr;
 
-  if (!stackPopParams(2, ST_STRUCTUREID, &structureID, VAL_INT, &player))
+  if (!stackPopParams({{ST_STRUCTUREID, &structureID}, {VAL_INT, &player}}))
     return FALSE;
   /*	if (!stackPop(&sVal))
 	{
@@ -893,7 +893,7 @@ BOOL scrEnableStructure(void)
 {
   SDWORD player, index;
 
-  if (!stackPopParams(2, ST_STRUCTURESTAT, &index, VAL_INT, &player))
+  if (!stackPopParams({{ST_STRUCTURESTAT, &index}, {VAL_INT, &player}}))
     return FALSE;
   /*	if (!stackPop(&sVal))
 	{
@@ -931,7 +931,7 @@ BOOL scrIsStructureAvailable(void)
   SDWORD player, index;
   BOOL result;
 
-  if (!stackPopParams(2, ST_STRUCTURESTAT, &index, VAL_INT, &player))
+  if (!stackPopParams({{ST_STRUCTURESTAT, &index}, {VAL_INT, &player}}))
     return FALSE;
   if (apStructTypeLists[player][index] == AVAILABLE)
     result = TRUE;
@@ -950,7 +950,7 @@ BOOL scrSelectDroidByID(void)
   SDWORD player, droidID;
   BOOL selected;
 
-  if (!stackPopParams(2, ST_DROIDID, &droidID, VAL_INT, &player))
+  if (!stackPopParams({{ST_DROIDID, &droidID}, {VAL_INT, &player}}))
     return FALSE;
   /*	if (!stackPop(&sVal))
 	{
@@ -985,7 +985,7 @@ BOOL scrNumMB(void)
 {
   SDWORD val;
 
-  if (!stackPopParams(1, VAL_INT, &val))
+  if (!stackPopParams({{VAL_INT, &val}}))
     return FALSE;
 
   Neuron::DebugTrace("scrNumMB: called by script with value: {}\n", val);
@@ -999,7 +999,7 @@ BOOL scrApproxRoot(void)
 {
   SDWORD val1, val2;
 
-  if (!stackPopParams(2, VAL_INT, &val1, VAL_INT, &val2))
+  if (!stackPopParams({{VAL_INT, &val1}, {VAL_INT, &val2}}))
     return FALSE;
 
   if (val1 < val2)
@@ -1019,7 +1019,7 @@ BOOL scrAddReticuleButton(void)
 {
   SDWORD val;
 
-  if (!stackPopParams(1, VAL_INT, &val))
+  if (!stackPopParams({{VAL_INT, &val}}))
     return FALSE;
 
 
@@ -1064,7 +1064,7 @@ BOOL scrRemoveReticuleButton(void)
   SDWORD val;
   BOOL bReset;
 
-  if (!stackPopParams(2, VAL_INT, &val, VAL_BOOL, &bReset))
+  if (!stackPopParams({{VAL_INT, &val}, {VAL_BOOL, &bReset}}))
     return FALSE;
   if (bInTutorial)
   {
@@ -1114,7 +1114,7 @@ BOOL scrAddMessage(void)
   VIEWDATA* psViewData;
   UDWORD height;
 
-  if (!stackPopParams(4, ST_INTMESSAGE, &psViewData, VAL_INT, &msgType, VAL_INT, &player, VAL_BOOL, &playImmediate))
+  if (!stackPopParams({{ST_INTMESSAGE, &psViewData}, {VAL_INT, &msgType}, {VAL_INT, &player}, {VAL_BOOL, &playImmediate}}))
     return FALSE;
   /*
 	if (!stackPop(&sVal))
@@ -1166,7 +1166,7 @@ BOOL scrRemoveMessage(void)
   SDWORD msgType, player;
   VIEWDATA* psViewData;
 
-  if (!stackPopParams(3, ST_INTMESSAGE, &psViewData, VAL_INT, &msgType, VAL_INT, &player))
+  if (!stackPopParams({{ST_INTMESSAGE, &psViewData}, {VAL_INT, &msgType}, {VAL_INT, &player}}))
     return FALSE;
 
   if (player >= MAX_PLAYERS)
@@ -1198,7 +1198,7 @@ BOOL scrRemoveMessage(void)
 	SDWORD			player;
 	VIEWDATA		*psViewData;
 
-	if (!stackPopParams(2, ST_INTMESSAGE, &psViewData , VAL_INT, &player))
+	if (!stackPopParams({{ST_INTMESSAGE, &psViewData}, {VAL_INT, &player}}))
 	{
 		return FALSE;
 	}
@@ -1229,7 +1229,7 @@ BOOL scrBuildDroid(void)
   STRUCTURE* psFactory;
   DROID_TEMPLATE* psTemplate;
 
-  if (!stackPopParams(4, ST_TEMPLATE, &psTemplate, ST_STRUCTURE, &psFactory, VAL_INT, &player, VAL_INT, &productionRun))
+  if (!stackPopParams({{ST_TEMPLATE, &psTemplate}, {ST_STRUCTURE, &psFactory}, {VAL_INT, &player}, {VAL_INT, &productionRun}}))
     return FALSE;
 
   if (psFactory == nullptr)
@@ -1273,7 +1273,7 @@ BOOL scrSetAssemblyPoint(void)
   SDWORD x, y;
   STRUCTURE* psBuilding;
 
-  if (!stackPopParams(3, ST_STRUCTURE, &psBuilding, VAL_INT, &x, VAL_INT, &y))
+  if (!stackPopParams({{ST_STRUCTURE, &psBuilding}, {VAL_INT, &x}, {VAL_INT, &y}}))
     return FALSE;
 
   if (psBuilding == nullptr)
@@ -1301,7 +1301,7 @@ BOOL scrStructureIdle(void)
   STRUCTURE* psBuilding;
   BOOL idle;
 
-  if (!stackPopParams(1, ST_STRUCTURE, &psBuilding))
+  if (!stackPopParams({{ST_STRUCTURE, &psBuilding}}))
     return FALSE;
 
   if (psBuilding == nullptr)
@@ -1327,7 +1327,7 @@ BOOL scrAttackLocation(void)
 {
   SDWORD player, x, y;
 
-  if (!stackPopParams(3, VAL_INT, &x, VAL_INT, &y, VAL_INT, &player))
+  if (!stackPopParams({{VAL_INT, &x}, {VAL_INT, &y}, {VAL_INT, &player}}))
     return FALSE;
 
   if (player >= MAX_PLAYERS)
@@ -1347,7 +1347,7 @@ BOOL scrDestroyFeature(void)
 {
   FEATURE* psFeature;
 
-  if (!stackPopParams(1, ST_FEATURE, &psFeature))
+  if (!stackPopParams({{ST_FEATURE, &psFeature}}))
     return FALSE;
 
   if (psFeature == nullptr) {  }
@@ -1369,7 +1369,7 @@ BOOL scrInitGetFeature(void)
 {
   SDWORD player, iFeat, bucket;
 
-  if (!stackPopParams(3, ST_FEATURESTAT, &iFeat, VAL_INT, &player, VAL_INT, &bucket))
+  if (!stackPopParams({{ST_FEATURESTAT, &iFeat}, {VAL_INT, &player}, {VAL_INT, &bucket}}))
     return FALSE;
 
   psFeatureStatToFind[bucket] = asFeatureStats + iFeat; // find this stat
@@ -1389,7 +1389,7 @@ BOOL scrGetFeature(void)
   SDWORD bucket, count;
   FEATURE* psFeat;
 
-  if (!stackPopParams(1, VAL_INT, &bucket))
+  if (!stackPopParams({{VAL_INT, &bucket}}))
     return FALSE;
 
   count = 0;
@@ -1408,7 +1408,7 @@ BOOL scrGetFeature(void)
   if (psFeatureStatToFind[bucket] == nullptr)
   {
     Neuron::DebugTrace("invalid feature to find. possibly due to save game\n");
-    if (!stackPushResult(ST_FEATURE,NULL))
+    if (!stackPushResult(ST_FEATURE, nullptr))
       return FALSE;
     return TRUE;
   }
@@ -1420,7 +1420,7 @@ BOOL scrGetFeature(void)
       TILE_HAS_STRUCTURE(mapTile(psFeat->x>>TILE_SHIFT,psFeat->y>>TILE_SHIFT)) && !fireOnLocation(psFeat->x, psFeat->y) // not burning.
     )
     {
-      if (!stackPushResult(ST_FEATURE, (SDWORD)psFeat)) //	push result
+      if (!stackPushResult(ST_FEATURE, psFeat)) //	push result
         return FALSE;
 
       getFeatureCount[bucket]++;
@@ -1433,6 +1433,8 @@ BOOL scrGetFeature(void)
   // none found
   if (!stackPushResult(ST_FEATURE, NULL))
     return FALSE;
+
+  return TRUE;
 }
 
 /*
@@ -1444,7 +1446,7 @@ BOOL scrGetFeature(void)
 {
 	SDWORD	bucket;
 		
-	if ( !stackPopParams(1,VAL_INT,&bucket) )
+	if ( !stackPopParams({{VAL_INT, &bucket}}) )
 	{
 		return FALSE;
 	}
@@ -1458,7 +1460,7 @@ BOOL scrGetFeature(void)
 			!TILE_HAS_STRUCTURE(mapTile(psCurrEnumFeature[bucket]->x>>TILE_SHIFT,psCurrEnumFeature[bucket]->y>>TILE_SHIFT) )
 		   )
 		{
-			if (!stackPushResult(ST_FEATURE,(UDWORD) psCurrEnumFeature[bucket]))			//	push result
+			if (!stackPushResult(ST_FEATURE, psCurrEnumFeature[bucket]))			//	push result
 			{
 				return FALSE;
 			}
@@ -1468,7 +1470,7 @@ BOOL scrGetFeature(void)
 
 		psCurrEnumFeature[bucket] = psCurrEnumFeature[bucket]->psNext;
 	}
-	if (!stackPushResult(ST_FEATURE, (UDWORD)NULL))
+	if (!stackPushResult(ST_FEATURE, nullptr))
 	{
 		return FALSE;
 	}
@@ -1484,7 +1486,7 @@ BOOL scrAddFeature(void)
   FEATURE* psFeat = nullptr;
   SDWORD iX, iY, iMapX, iMapY, iTestX, iTestY, iFeat;
 
-  if (!stackPopParams(3, ST_FEATURESTAT, &iFeat, VAL_INT, &iX, VAL_INT, &iY))
+  if (!stackPopParams({{ST_FEATURESTAT, &iFeat}, {VAL_INT, &iX}, {VAL_INT, &iY}}))
     return FALSE;
 
   psStat = asFeatureStats + iFeat;
@@ -1515,7 +1517,7 @@ BOOL scrAddFeature(void)
     psFeat = buildFeature(psStat, iX, iY, FALSE);
   }
 
-  if (!stackPushResult(ST_FEATURE, (UDWORD)psFeat))
+  if (!stackPushResult(ST_FEATURE, psFeat))
     return FALSE;
 
   return TRUE;
@@ -1530,7 +1532,7 @@ BOOL scrAddStructure(void)
   SDWORD iX, iY, iMapX, iMapY; //, iWidth, iBreadth;
   SDWORD iStruct, iPlayer; //, iW, iB;
 
-  if (!stackPopParams(4, ST_STRUCTURESTAT, &iStruct, VAL_INT, &iPlayer, VAL_INT, &iX, VAL_INT, &iY))
+  if (!stackPopParams({{ST_STRUCTURESTAT, &iStruct}, {VAL_INT, &iPlayer}, {VAL_INT, &iX}, {VAL_INT, &iY}}))
     return FALSE;
 
   psStat = asStructureStats + iStruct;
@@ -1573,7 +1575,7 @@ for ( iW=iMapX; iW<=iMapX+(SDWORD)psStat->baseWidth; iW+=iWidth )
     }
   }
 
-  if (!stackPushResult(ST_STRUCTURE, (UDWORD)psStruct))
+  if (!stackPushResult(ST_STRUCTURE, psStruct))
     return FALSE;
 
   return TRUE;
@@ -1585,7 +1587,7 @@ BOOL scrDestroyStructure(void)
 {
   STRUCTURE* psStruct;
 
-  if (!stackPopParams(1, ST_STRUCTURE, &psStruct))
+  if (!stackPopParams({{ST_STRUCTURE, &psStruct}}))
     return FALSE;
 
   if (psStruct == nullptr) {  }
@@ -1608,7 +1610,7 @@ BOOL scrInitEnumStruct(void)
 {
   SDWORD player, iStat, targetplayer, any;
 
-  if (!stackPopParams(4, VAL_BOOL, &any, ST_STRUCTURESTAT, &iStat, VAL_INT, &player, VAL_INT, &targetplayer))
+  if (!stackPopParams({{VAL_BOOL, &any}, {ST_STRUCTURESTAT, &iStat}, {VAL_INT, &player}, {VAL_INT, &targetplayer}}))
     return FALSE;
 
   if (any == 1)
@@ -1644,7 +1646,7 @@ BOOL scrEnumStruct(void)
     //		if(	(structfindany || (psStruct->pStructureType->type == psStructStatToFind->type))
     if ((structfindany || (psStruct->pStructureType->ref == psStructStatToFind->ref)) && (psStruct->visible[playerToEnumStruct]))
     {
-      if (!stackPushResult(ST_STRUCTURE, (UDWORD)psStruct)) //	push result
+      if (!stackPushResult(ST_STRUCTURE, psStruct)) //	push result
         return FALSE;
       enumStructCount++;
       return TRUE;
@@ -1666,7 +1668,7 @@ BOOL scrStructureBeingBuilt(void)
   SDWORD player;
   BOOL beingBuilt;
 
-  if (!stackPopParams(2, ST_STRUCTURESTAT, &structInc, VAL_INT, &player))
+  if (!stackPopParams({{ST_STRUCTURESTAT, &structInc}, {VAL_INT, &player}}))
     return FALSE;
 
   /*	if (!stackPop(&sVal))
@@ -1705,7 +1707,7 @@ BOOL scrStructureComplete(void)
 {
   STRUCTURE* psStruct;
   BOOL result;
-  if (!stackPopParams(1, ST_STRUCTURE, &psStruct))
+  if (!stackPopParams({{ST_STRUCTURE, &psStruct}}))
     return FALSE;
   if (psStruct->status == SS_BUILT)
     result = TRUE;
@@ -1726,7 +1728,7 @@ BOOL scrStructureBuilt(void)
   SDWORD player;
   BOOL built;
 
-  if (!stackPopParams(2, ST_STRUCTURESTAT, &structInc, VAL_INT, &player))
+  if (!stackPopParams({{ST_STRUCTURESTAT, &structInc}, {VAL_INT, &player}}))
     return FALSE;
 
   /*	if (!stackPop(&sVal))
@@ -1763,7 +1765,7 @@ BOOL scrCentreView(void)
 {
   BASE_OBJECT* psObj;
 
-  if (!stackPopParams(1, ST_BASEOBJECT, &psObj))
+  if (!stackPopParams({{ST_BASEOBJECT, &psObj}}))
     return FALSE;
 
   if (psObj == nullptr)
@@ -1784,7 +1786,7 @@ BOOL scrCentreViewPos(void)
 {
   SDWORD x, y;
 
-  if (!stackPopParams(2, VAL_INT, &x, VAL_INT, &y))
+  if (!stackPopParams({{VAL_INT, &x}, {VAL_INT, &y}}))
     return FALSE;
 
   if ((x < 0) || (x >= static_cast<SDWORD>(mapWidth) * TILE_UNITS) || (y < 0) || (y >= static_cast<SDWORD>(mapHeight) * TILE_UNITS))
@@ -1808,7 +1810,7 @@ BOOL scrGetStructure(void)
   UDWORD structType;
   BOOL found;
 
-  if (!stackPopParams(2, ST_STRUCTURESTAT, &index, VAL_INT, &player))
+  if (!stackPopParams({{ST_STRUCTURESTAT, &index}, {VAL_INT, &player}}))
     return FALSE;
 
   if (player >= MAX_PLAYERS)
@@ -1834,7 +1836,7 @@ BOOL scrGetStructure(void)
   if (!found)
     psStruct = nullptr;
 
-  if (!stackPushResult(ST_STRUCTURE, (UDWORD)psStruct))
+  if (!stackPushResult(ST_STRUCTURE, psStruct))
     return FALSE;
 
   return TRUE;
@@ -1850,7 +1852,7 @@ BOOL scrGetTemplate(void)
   INTERP_VAL sVal;
   UDWORD i;
 
-  if (!stackPopParams(1, VAL_INT, &player))
+  if (!stackPopParams({{VAL_INT, &player}}))
     return FALSE;
 
   if (player >= MAX_PLAYERS)
@@ -1914,7 +1916,7 @@ BOOL scrGetTemplate(void)
   if (!found)
     psTemplate = nullptr;
 
-  if (!stackPushResult(ST_TEMPLATE, (UDWORD)psTemplate))
+  if (!stackPushResult(ST_TEMPLATE, psTemplate))
     return FALSE;
 
   return TRUE;
@@ -1930,7 +1932,7 @@ BOOL scrGetDroid(void)
   INTERP_VAL sVal;
   UDWORD i;
 
-  if (!stackPopParams(1, VAL_INT, &player))
+  if (!stackPopParams({{VAL_INT, &player}}))
     return FALSE;
 
   if (player >= MAX_PLAYERS)
@@ -1994,7 +1996,7 @@ BOOL scrGetDroid(void)
   if (!found)
     psDroid = nullptr;
 
-  if (!stackPushResult(ST_DROID, (UDWORD)psDroid))
+  if (!stackPushResult(ST_DROID, psDroid))
     return FALSE;
 
   return TRUE;
@@ -2007,7 +2009,7 @@ BOOL scrSetScrollParams(void)
   SDWORD minX, minY, maxX, maxY;
   SDWORD prevMinX, prevMinY, prevMaxX, prevMaxY;
 
-  if (!stackPopParams(4, VAL_INT, &minX, VAL_INT, &minY, VAL_INT, &maxX, VAL_INT, &maxY))
+  if (!stackPopParams({{VAL_INT, &minX}, {VAL_INT, &minY}, {VAL_INT, &maxX}, {VAL_INT, &maxY}}))
     return FALSE;
 
   //check the values entered are valid
@@ -2050,7 +2052,7 @@ BOOL scrSetScrollMinX(void)
 {
   SDWORD minX, prevMinX;
 
-  if (!stackPopParams(1, VAL_INT, &minX))
+  if (!stackPopParams({{VAL_INT, &minX}}))
     return FALSE;
 
   //check the value entered are valid
@@ -2076,7 +2078,7 @@ BOOL scrSetScrollMinY(void)
 {
   SDWORD minY, prevMinY;
 
-  if (!stackPopParams(1, VAL_INT, &minY))
+  if (!stackPopParams({{VAL_INT, &minY}}))
     return FALSE;
 
   //check the value entered are valid
@@ -2102,7 +2104,7 @@ BOOL scrSetScrollMaxX(void)
 {
   SDWORD maxX, prevMaxX;
 
-  if (!stackPopParams(1, VAL_INT, &maxX))
+  if (!stackPopParams({{VAL_INT, &maxX}}))
     return FALSE;
 
   //check the value entered are valid
@@ -2128,7 +2130,7 @@ BOOL scrSetScrollMaxY(void)
 {
   SDWORD maxY, prevMaxY;
 
-  if (!stackPopParams(1, VAL_INT, &maxY))
+  if (!stackPopParams({{VAL_INT, &maxY}}))
     return FALSE;
 
   //check the value entered are valid
@@ -2155,7 +2157,7 @@ BOOL scrSetDefaultSensor(void)
   SDWORD player;
   UDWORD sensorInc;
 
-  if (!stackPopParams(2, ST_SENSOR, &sensorInc, VAL_INT, &player))
+  if (!stackPopParams({{ST_SENSOR, &sensorInc}, {VAL_INT, &player}}))
     return FALSE;
 
   if (player >= MAX_PLAYERS)
@@ -2191,7 +2193,7 @@ BOOL scrSetDefaultECM(void)
   SDWORD player;
   UDWORD ecmInc;
 
-  if (!stackPopParams(2, ST_ECM, &ecmInc, VAL_INT, &player))
+  if (!stackPopParams({{ST_ECM, &ecmInc}, {VAL_INT, &player}}))
     return FALSE;
 
   if (player >= MAX_PLAYERS)
@@ -2227,7 +2229,7 @@ BOOL scrSetDefaultRepair(void)
   SDWORD player;
   UDWORD repairInc;
 
-  if (!stackPopParams(2, ST_REPAIR, &repairInc, VAL_INT, &player))
+  if (!stackPopParams({{ST_REPAIR, &repairInc}, {VAL_INT, &player}}))
     return FALSE;
 
   if (player >= MAX_PLAYERS)
@@ -2264,7 +2266,7 @@ BOOL scrSetStructureLimits(void)
   UDWORD structInc;
   STRUCTURE_LIMITS* psStructLimits;
 
-  if (!stackPopParams(3, ST_STRUCTURESTAT, &structInc, VAL_INT, &limit, VAL_INT, &player))
+  if (!stackPopParams({{ST_STRUCTURESTAT, &structInc}, {VAL_INT, &limit}, {VAL_INT, &player}}))
     return FALSE;
 
   if (player >= MAX_PLAYERS)
@@ -2312,7 +2314,7 @@ BOOL scrPlaySound(void)
 {
   SDWORD player, soundID;
 
-  if (!stackPopParams(2, ST_SOUND, &soundID, VAL_INT, &player))
+  if (!stackPopParams({{ST_SOUND, &soundID}, {VAL_INT, &player}}))
     return FALSE;
 
   if (player >= MAX_PLAYERS)
@@ -2337,7 +2339,7 @@ BOOL scrPlaySoundPos(void)
 {
   SDWORD player, soundID, iX, iY, iZ;
 
-  if (!stackPopParams(5, ST_SOUND, &soundID, VAL_INT, &player, VAL_INT, &iX, VAL_INT, &iY, VAL_INT, &iZ))
+  if (!stackPopParams({{ST_SOUND, &soundID}, {VAL_INT, &player}, {VAL_INT, &iX}, {VAL_INT, &iY}, {VAL_INT, &iZ}}))
     return FALSE;
 
   if (player >= MAX_PLAYERS)
@@ -2359,7 +2361,7 @@ BOOL scrShowConsoleText(void)
   STRING* pText;
   SDWORD player;
 
-  if (!stackPopParams(2, ST_TEXTSTRING, &pText, VAL_INT, &player))
+  if (!stackPopParams({{ST_TEXTSTRING, &pText}, {VAL_INT, &player}}))
     return FALSE;
 
   if (player >= MAX_PLAYERS)
@@ -2384,7 +2386,7 @@ BOOL scrAddConsoleText(void)
   STRING* pText;
   SDWORD player;
 
-  if (!stackPopParams(2, ST_TEXTSTRING, &pText, VAL_INT, &player))
+  if (!stackPopParams({{ST_TEXTSTRING, &pText}, {VAL_INT, &player}}))
     return FALSE;
 
   if (player >= MAX_PLAYERS)
@@ -2411,7 +2413,7 @@ BOOL scrTagConsoleText(void)
   STRING* pText;
   SDWORD player;
 
-  if (!stackPopParams(2, ST_TEXTSTRING, &pText, VAL_INT, &player))
+  if (!stackPopParams({{ST_TEXTSTRING, &pText}, {VAL_INT, &player}}))
     return FALSE;
 
   if (player >= MAX_PLAYERS)
@@ -2470,7 +2472,7 @@ BOOL scrPlayVideo(void)
 {
   STRING *pVideo, *pText;
 
-  if (!stackPopParams(2, ST_TEXTSTRING, &pVideo, ST_TEXTSTRING, &pText))
+  if (!stackPopParams({{ST_TEXTSTRING, &pVideo}, {ST_TEXTSTRING, &pText}}))
     return FALSE;
 
   seq_ClearSeqList();
@@ -2487,7 +2489,7 @@ BOOL scrAnyDroidsLeft(void)
   SDWORD player;
   BOOL droidsLeft;
 
-  if (!stackPopParams(1, VAL_INT, &player))
+  if (!stackPopParams({{VAL_INT, &player}}))
     return FALSE;
 
   if (player >= MAX_PLAYERS)
@@ -2517,7 +2519,7 @@ BOOL scrGameOverMessage(void)
   SDWORD msgType, player;
   VIEWDATA* psViewData;
 
-  if (!stackPopParams(4, ST_INTMESSAGE, &psViewData, VAL_INT, &msgType, VAL_INT, &player, VAL_BOOL, &gameOver))
+  if (!stackPopParams({{ST_INTMESSAGE, &psViewData}, {VAL_INT, &msgType}, {VAL_INT, &player}, {VAL_BOOL, &gameOver}}))
     return FALSE;
 
   if (player >= MAX_PLAYERS)
@@ -2560,7 +2562,7 @@ BOOL scrGameOver(void)
 {
   BOOL gameOver;
 
-  if (!stackPopParams(1, VAL_BOOL, &gameOver))
+  if (!stackPopParams({{VAL_BOOL, &gameOver}}))
     return FALSE;
 
   /*this function will only be called with gameOver = TRUE when at the end of 
@@ -2589,7 +2591,7 @@ BOOL scrAnyFactoriesLeft(void)
   BOOL result;
   STRUCTURE* psCurr;
 
-  if (!stackPopParams(1, VAL_INT, &player))
+  if (!stackPopParams({{VAL_INT, &player}}))
     return FALSE;
 
   if (player >= MAX_PLAYERS)
@@ -2629,7 +2631,7 @@ BOOL scrAnyStructButWallsLeft(void)
   BOOL structuresLeft;
   STRUCTURE* psCurr;
 
-  if (!stackPopParams(1, VAL_INT, &player))
+  if (!stackPopParams({{VAL_INT, &player}}))
     return FALSE;
 
   if (player >= MAX_PLAYERS)
@@ -2667,7 +2669,7 @@ BOOL scrPlayCDAudio(void)
 {
   SDWORD iTrack;
 
-  if (!stackPopParams(1, VAL_INT, &iTrack))
+  if (!stackPopParams({{VAL_INT, &iTrack}}))
     return FALSE;
 
   Music::PlayTrack(iTrack);
@@ -2681,7 +2683,7 @@ BOOL scrSetRetreatPoint(void)
 {
   SDWORD player, x, y;
 
-  if (!stackPopParams(3, VAL_INT, &player, VAL_INT, &x, VAL_INT, &y))
+  if (!stackPopParams({{VAL_INT, &player}, {VAL_INT, &x}, {VAL_INT, &y}}))
     return FALSE;
 
   if (player >= MAX_PLAYERS)
@@ -2708,7 +2710,7 @@ BOOL scrSetRetreatForce(void)
   SDWORD player, level, numDroids;
   DROID* psCurr;
 
-  if (!stackPopParams(2, VAL_INT, &player, VAL_INT, &level))
+  if (!stackPopParams({{VAL_INT, &player}, {VAL_INT, &level}}))
     return FALSE;
 
   if (player >= MAX_PLAYERS)
@@ -2739,7 +2741,7 @@ BOOL scrSetRetreatLeadership(void)
 {
   SDWORD player, level;
 
-  if (!stackPopParams(2, VAL_INT, &player, VAL_INT, &level))
+  if (!stackPopParams({{VAL_INT, &player}, {VAL_INT, &level}}))
     return FALSE;
 
   if (player >= MAX_PLAYERS)
@@ -2766,7 +2768,7 @@ BOOL scrSetGroupRetreatPoint(void)
   SDWORD x, y;
   DROID_GROUP* psGroup;
 
-  if (!stackPopParams(3, ST_GROUP, &psGroup, VAL_INT, &x, VAL_INT, &y))
+  if (!stackPopParams({{ST_GROUP, &psGroup}, {VAL_INT, &x}, {VAL_INT, &y}}))
     return FALSE;
 
   if (x < 0 || x >= static_cast<SDWORD>(mapWidth) * TILE_UNITS || y < 0 || y >= static_cast<SDWORD>(mapHeight) * TILE_UNITS)
@@ -2788,7 +2790,7 @@ BOOL scrSetGroupRetreatForce(void)
   DROID_GROUP* psGroup;
   DROID* psCurr;
 
-  if (!stackPopParams(2, ST_GROUP, &psGroup, VAL_INT, &level))
+  if (!stackPopParams({{ST_GROUP, &psGroup}, {VAL_INT, &level}}))
     return FALSE;
 
   if (level > 100 || level < 0)
@@ -2813,7 +2815,7 @@ BOOL scrSetRetreatHealth(void)
 {
   SDWORD player, health;
 
-  if (!stackPopParams(2, VAL_INT, &player, VAL_INT, &health))
+  if (!stackPopParams({{VAL_INT, &player}, {VAL_INT, &health}}))
     return FALSE;
 
   if (player >= MAX_PLAYERS)
@@ -2839,7 +2841,7 @@ BOOL scrSetGroupRetreatHealth(void)
   SDWORD health;
   DROID_GROUP* psGroup;
 
-  if (!stackPopParams(2, ST_GROUP, &psGroup, VAL_INT, &health))
+  if (!stackPopParams({{ST_GROUP, &psGroup}, {VAL_INT, &health}}))
     return FALSE;
 
   if (health > 100 || health < 0)
@@ -2860,7 +2862,7 @@ BOOL scrSetGroupRetreatLeadership(void)
   SDWORD level;
   DROID_GROUP* psGroup;
 
-  if (!stackPopParams(2, ST_GROUP, &psGroup, VAL_INT, &level))
+  if (!stackPopParams({{ST_GROUP, &psGroup}, {VAL_INT, &level}}))
     return FALSE;
 
   if (level > 100 || level < 0)
@@ -2882,7 +2884,7 @@ BOOL scrStartMission(void)
   SDWORD missionType;
   LEVEL_DATASET* psNewLevel;
 
-  if (!stackPopParams(2, VAL_INT, &missionType, ST_LEVEL, &pGame))
+  if (!stackPopParams({{VAL_INT, &missionType}, {ST_LEVEL, &pGame}}))
     return FALSE;
 
   if (missionType > LDS_NONE)
@@ -2921,7 +2923,7 @@ BOOL scrStartMission(void)
 {
 	BOOL	status;
 
-	if (!stackPopParams(1, VAL_BOOL, &status))
+	if (!stackPopParams({{VAL_BOOL, &status}}))
 	{
 		return FALSE;
 	}
@@ -2935,7 +2937,7 @@ BOOL scrSetSnow(void)
 {
   BOOL bState;
 
-  if (!stackPopParams(1, VAL_BOOL, &bState))
+  if (!stackPopParams({{VAL_BOOL, &bState}}))
     return FALSE;
 
   if (bState)
@@ -2951,7 +2953,7 @@ BOOL scrSetRain(void)
 {
   BOOL bState;
 
-  if (!stackPopParams(1, VAL_BOOL, &bState))
+  if (!stackPopParams({{VAL_BOOL, &bState}}))
     return FALSE;
 
   if (bState)
@@ -2967,7 +2969,7 @@ BOOL scrSetBackgroundFog(void)
 {
   BOOL bState;
 
-  if (!stackPopParams(1, VAL_BOOL, &bState))
+  if (!stackPopParams({{VAL_BOOL, &bState}}))
     return FALSE;
   //jps 17 feb 99 just set the status let other code worry about fogEnable/reveal
   if (bState) //true, so go to false
@@ -3031,7 +3033,7 @@ BOOL scrSetDepthFog(void)
 {
   BOOL bState;
 
-  if (!stackPopParams(1, VAL_BOOL, &bState))
+  if (!stackPopParams({{VAL_BOOL, &bState}}))
     return FALSE;
   //jps 17 feb 99 just set the status let other code worry about fogEnable/reveal
   if (bState) //true, so go to false
@@ -3095,7 +3097,7 @@ BOOL scrSetFogColour(void)
   SDWORD red, green, blue;
   SDWORD scrFogColour;
 
-  if (!stackPopParams(3, VAL_INT, &red, VAL_INT, &green, VAL_INT, &blue))
+  if (!stackPopParams({{VAL_INT, &red}, {VAL_INT, &green}, {VAL_INT, &blue}}))
     return FALSE;
 
   //	if (pie_GetRenderEngine() == ENGINE_GLIDE)
@@ -3113,7 +3115,7 @@ BOOL scrRefTest(void)
 {
   SDWORD Num;
 
-  if (!stackPopParams(1, VAL_INT, Num));
+  if (!stackPopParams({{VAL_INT, &Num}}))
   {
     return FALSE;
   }
@@ -3129,7 +3131,7 @@ BOOL scrIsHumanPlayer(void)
 {
   SDWORD player;
 
-  if (!stackPopParams(1, VAL_INT, &player))
+  if (!stackPopParams({{VAL_INT, &player}}))
     return FALSE;
 
   if (!stackPushResult(VAL_BOOL, isHumanPlayer(player)))
@@ -3144,7 +3146,7 @@ BOOL scrCreateAlliance(void)
 {
   SDWORD player1, player2;
 
-  if (!stackPopParams(2, VAL_INT, &player1, VAL_INT, &player2))
+  if (!stackPopParams({{VAL_INT, &player1}, {VAL_INT, &player2}}))
     return FALSE;
 
   if (player1 < 0 || player1 >= MAX_PLAYERS || player2 < 0 || player2 >= MAX_PLAYERS)
@@ -3169,7 +3171,7 @@ BOOL scrCreateAlliance(void)
 BOOL scrOfferAlliance(void)
 {
   SDWORD player1, player2;
-  if (!stackPopParams(2, VAL_INT, &player1, VAL_INT, &player2))
+  if (!stackPopParams({{VAL_INT, &player1}, {VAL_INT, &player2}}))
     return FALSE;
   if (game.alliance == NO_ALLIANCES || player1 < 0 || player1 >= MAX_PLAYERS || player2 < 0 || player2 >= MAX_PLAYERS)
   {
@@ -3187,7 +3189,7 @@ BOOL scrBreakAlliance(void)
 {
   SDWORD player1, player2;
 
-  if (!stackPopParams(2, VAL_INT, &player1, VAL_INT, &player2))
+  if (!stackPopParams({{VAL_INT, &player1}, {VAL_INT, &player2}}))
     return FALSE;
 
   if (player1 < 0 || player1 >= MAX_PLAYERS || player2 < 0 || player2 >= MAX_PLAYERS)
@@ -3236,7 +3238,7 @@ BOOL scrAllianceExistsBetween(void)
 {
   UDWORD i, j;
 
-  if (!stackPopParams(2, VAL_INT, &i, VAL_INT, &j))
+  if (!stackPopParams({{VAL_INT, &i}, {VAL_INT, &j}}))
     return FALSE;
   if (alliances[i][j] == ALLIANCE_FORMED)
   {
@@ -3256,7 +3258,7 @@ BOOL scrPlayerInAlliance(void)
 {
   UDWORD player, j;
 
-  if (!stackPopParams(1, VAL_INT, &player))
+  if (!stackPopParams({{VAL_INT, &player}}))
     return FALSE;
 
   for (j = 0; j < MAX_PLAYERS; j++)
@@ -3303,7 +3305,7 @@ BOOL scrMyResponsibility(void)
 {
   SDWORD player;
 
-  if (!stackPopParams(1, VAL_INT, &player))
+  if (!stackPopParams({{VAL_INT, &player}}))
     return FALSE;
   if (myResponsibility(player))
   {
@@ -3331,7 +3333,7 @@ BOOL scrStructureBuiltInRange(void)
   SDWORD xdiff, ydiff;
   STRUCTURE_STATS* psTarget;
 
-  if (!stackPopParams(5, ST_STRUCTURESTAT, &index, VAL_INT, &x, VAL_INT, &y, VAL_INT, &range, VAL_INT, &player))
+  if (!stackPopParams({{ST_STRUCTURESTAT, &index}, {VAL_INT, &x}, {VAL_INT, &y}, {VAL_INT, &range}, {VAL_INT, &player}}))
     return FALSE;
 
   if (player >= MAX_PLAYERS)
@@ -3390,7 +3392,7 @@ BOOL scrStructureBuiltInRange(void)
   if (!found)
     psCurr = nullptr;
 
-  if (!stackPushResult(ST_STRUCTURE, (UDWORD)psCurr))
+  if (!stackPushResult(ST_STRUCTURE, psCurr))
     return FALSE;
 
   return TRUE;
@@ -3402,7 +3404,7 @@ BOOL scrRandom(void)
 {
   SDWORD range, result;
 
-  if (!stackPopParams(1, VAL_INT, &range))
+  if (!stackPopParams({{VAL_INT, &range}}))
     return FALSE;
 
   if (range == 0)
@@ -3434,7 +3436,7 @@ BOOL scrEnableResearch(void)
   SDWORD player;
   RESEARCH* psResearch;
 
-  if (!stackPopParams(2, ST_RESEARCH, &psResearch, VAL_INT, &player))
+  if (!stackPopParams({{ST_RESEARCH, &psResearch}, {VAL_INT, &player}}))
     return FALSE;
 
   if (player >= MAX_PLAYERS)
@@ -3456,7 +3458,7 @@ BOOL scrCompleteResearch(void)
   RESEARCH* psResearch;
   UDWORD researchIndex;
 
-  if (!stackPopParams(2, ST_RESEARCH, &psResearch, VAL_INT, &player))
+  if (!stackPopParams({{ST_RESEARCH, &psResearch}, {VAL_INT, &player}}))
     return FALSE;
 
   if (player >= MAX_PLAYERS)
@@ -3493,7 +3495,7 @@ BOOL scrFlashOn(void)
 {
   SDWORD button;
 
-  if (!stackPopParams(1, VAL_INT, &button))
+  if (!stackPopParams({{VAL_INT, &button}}))
     return FALSE;
   // For the time being ... we will perform the old code for the reticule ...
   if (button >= IDRET_OPTIONS && button <= IDRET_CANCEL)
@@ -3513,7 +3515,7 @@ BOOL scrFlashOff(void)
 {
   SDWORD button;
 
-  if (!stackPopParams(1, VAL_INT, &button))
+  if (!stackPopParams({{VAL_INT, &button}}))
     return FALSE;
   if (button >= IDRET_OPTIONS && button <= IDRET_CANCEL)
   {
@@ -3532,7 +3534,7 @@ BOOL scrSetPowerLevel(void)
 {
   SDWORD player, power;
 
-  if (!stackPopParams(2, VAL_INT, &power, VAL_INT, &player))
+  if (!stackPopParams({{VAL_INT, &power}, {VAL_INT, &player}}))
     return FALSE;
 
   if (player >= MAX_PLAYERS)
@@ -3552,7 +3554,7 @@ BOOL scrAddPower(void)
 {
   SDWORD player, power;
 
-  if (!stackPopParams(2, VAL_INT, &power, VAL_INT, &player))
+  if (!stackPopParams({{VAL_INT, &power}, {VAL_INT, &player}}))
     return FALSE;
 
   if (player >= MAX_PLAYERS)
@@ -3573,7 +3575,7 @@ BOOL scrSetLandingZone(void)
 {
   SDWORD x1, x2, y1, y2;
 
-  if (!stackPopParams(4, VAL_INT, &x1, VAL_INT, &y1, VAL_INT, &x2, VAL_INT, &y2))
+  if (!stackPopParams({{VAL_INT, &x1}, {VAL_INT, &y1}, {VAL_INT, &x2}, {VAL_INT, &y2}}))
     return FALSE;
 
   //check the values - check against max possible since can set in one mission for the next
@@ -3619,7 +3621,7 @@ BOOL scrSetLimboLanding(void)
 {
   SDWORD x1, x2, y1, y2;
 
-  if (!stackPopParams(4, VAL_INT, &x1, VAL_INT, &y1, VAL_INT, &x2, VAL_INT, &y2))
+  if (!stackPopParams({{VAL_INT, &x1}, {VAL_INT, &y1}, {VAL_INT, &x2}, {VAL_INT, &y2}}))
     return FALSE;
 
   //check the values - check against max possible since can set in one mission for the next
@@ -3677,7 +3679,7 @@ BOOL scrSetNoGoArea(void)
 {
   SDWORD x1, x2, y1, y2, area;
 
-  if (!stackPopParams(5, VAL_INT, &x1, VAL_INT, &y1, VAL_INT, &x2, VAL_INT, &y2, VAL_INT, &area))
+  if (!stackPopParams({{VAL_INT, &x1}, {VAL_INT, &y1}, {VAL_INT, &x2}, {VAL_INT, &y2}, {VAL_INT, &area}}))
     return FALSE;
 
   if (area == LIMBO_LANDING)
@@ -3735,7 +3737,7 @@ BOOL scrSetRadarZoom(void)
 {
   SDWORD level;
 
-  if (!stackPopParams(1, VAL_INT, &level))
+  if (!stackPopParams({{VAL_INT, &level}}))
     return TRUE;
 
   // MAX_RADARZOOM is different on PC and PSX
@@ -3756,7 +3758,7 @@ BOOL scrSetMissionTime(void)
 {
   SDWORD time;
 
-  if (!stackPopParams(1, VAL_INT, &time))
+  if (!stackPopParams({{VAL_INT, &time}}))
     return FALSE;
 
   time *= 100;
@@ -3814,7 +3816,7 @@ BOOL scrSetReinforcementTime(void)
   SDWORD time;
   DROID* psDroid;
 
-  if (!stackPopParams(1, VAL_INT, &time))
+  if (!stackPopParams({{VAL_INT, &time}}))
     return FALSE;
 
   time *= 100;
@@ -3865,7 +3867,7 @@ BOOL scrSetAllStructureLimits(void)
   STRUCTURE_LIMITS* psStructLimits;
   UDWORD i;
 
-  if (!stackPopParams(2, VAL_INT, &limit, VAL_INT, &player))
+  if (!stackPopParams({{VAL_INT, &limit}, {VAL_INT, &player}}))
     return FALSE;
 
   if (player >= MAX_PLAYERS)
@@ -3913,7 +3915,7 @@ BOOL scrDistanceTwoPts(void)
   SDWORD x1, y1, x2, y2;
   SDWORD retVal;
 
-  if (!stackPopParams(4, VAL_INT, &x1, VAL_INT, &y1, VAL_INT, &x2, VAL_INT, &y2))
+  if (!stackPopParams({{VAL_INT, &x1}, {VAL_INT, &y1}, {VAL_INT, &x2}, {VAL_INT, &y2}}))
   {
     DEBUG_ASSERT_TEXT(FALSE, "SCRIPT : Distance between two points - cannot get parameters");
     return (FALSE);
@@ -3938,7 +3940,7 @@ BOOL scrLOSTwoBaseObjects(void)
   BOOL bWallsBlock;
   BOOL retVal;
 
-  if (!stackPopParams(3, ST_BASEOBJECT, &psSource, ST_BASEOBJECT, &psDest, VAL_BOOL, &bWallsBlock))
+  if (!stackPopParams({{ST_BASEOBJECT, &psSource}, {ST_BASEOBJECT, &psDest}, {VAL_BOOL, &bWallsBlock}}))
   {
     DEBUG_ASSERT_TEXT(FALSE, "SCRIPT : scrLOSTwoBaseObjects - cannot get parameters");
     return (FALSE);
@@ -3969,8 +3971,7 @@ BOOL scrDestroyStructuresInArea(void)
   BOOL bVisible, bTakeFeatures;
   SDWORD sX, sY;
 
-  if (!stackPopParams(8, VAL_INT, &player, VAL_INT, &typeRef, VAL_INT, &x1, VAL_INT, &y1, VAL_INT, &x2, VAL_INT, &y2, VAL_BOOL, &bVisible,
-                      VAL_BOOL, &bTakeFeatures))
+  if (!stackPopParams({{VAL_INT, &player}, {VAL_INT, &typeRef}, {VAL_INT, &x1}, {VAL_INT, &y1}, {VAL_INT, &x2}, {VAL_INT, &y2}, {VAL_BOOL, &bVisible}, {VAL_BOOL, &bTakeFeatures}}))
   {
     DEBUG_ASSERT_TEXT(FALSE, "SCRIPT : scrDestroyStructuresInArea - Cannot get parameters");
     return (FALSE);
@@ -4039,8 +4040,7 @@ BOOL scrThreatInArea(void)
   SDWORD dX, dY;
   BOOL bVisible;
 
-  if (!stackPopParams(10, VAL_INT, &playerLooking, VAL_INT, &playerTarget, VAL_INT, &x1, VAL_INT, &y1, VAL_INT, &x2, VAL_INT, &y2, VAL_INT,
-                      &ldThreat, VAL_INT, &mdThreat, VAL_INT, &hdThreat, VAL_BOOL, &bVisible))
+  if (!stackPopParams({{VAL_INT, &playerLooking}, {VAL_INT, &playerTarget}, {VAL_INT, &x1}, {VAL_INT, &y1}, {VAL_INT, &x2}, {VAL_INT, &y2}, {VAL_INT, &ldThreat}, {VAL_INT, &mdThreat}, {VAL_INT, &hdThreat}, {VAL_BOOL, &bVisible}}))
   {
     DEBUG_ASSERT_TEXT(FALSE, "SCRIPT : scrThreatInArea - Cannot get parameters");
     return (FALSE);
@@ -4107,7 +4107,7 @@ BOOL scrGetNearestGateway(void)
   SDWORD *rX, *rY;
   BOOL success;
 
-  if (!stackPopParams(4, VAL_INT, &x, VAL_INT, &y, VAL_REF | VAL_INT, &rX, VAL_REF | VAL_INT, &rY))
+  if (!stackPopParams({{VAL_INT, &x}, {VAL_INT, &y}, {VAL_REF | VAL_INT, &rX}, {VAL_REF | VAL_INT, &rY}}))
   {
     DEBUG_ASSERT_TEXT(FALSE, "SCRIPT : Cannot get parameters for scrGetNearestGateway");
     return (FALSE);
@@ -4165,7 +4165,7 @@ BOOL scrSetWaterTile(void)
 {
   UDWORD tileNum;
 
-  if (!stackPopParams(1, VAL_INT, &tileNum))
+  if (!stackPopParams({{VAL_INT, &tileNum}}))
   {
     DEBUG_ASSERT_TEXT(FALSE, "SCRIPT : Cannot get parameter for scrSetWaterTile");
     return (FALSE);
@@ -4186,7 +4186,7 @@ BOOL scrSetRubbleTile(void)
 {
   UDWORD tileNum;
 
-  if (!stackPopParams(1, VAL_INT, &tileNum))
+  if (!stackPopParams({{VAL_INT, &tileNum}}))
   {
     DEBUG_ASSERT_TEXT(FALSE, "SCRIPT : Cannot get parameter for scrSetRubbleTile");
     return (FALSE);
@@ -4207,7 +4207,7 @@ BOOL scrSetCampaignNumber(void)
 {
   UDWORD campaignNumber;
 
-  if (!stackPopParams(1, VAL_INT, &campaignNumber))
+  if (!stackPopParams({{VAL_INT, &campaignNumber}}))
   {
     DEBUG_ASSERT_TEXT(FALSE, "SCRIPT : Cannot get parameter for scrSetCampaignNumber");
     return (FALSE);
@@ -4229,7 +4229,7 @@ BOOL scrTestStructureModule(void)
   STRUCTURE *psStructure, *psStruct;
   BOOL bFound;
 
-  if (!stackPopParams(3, VAL_INT, &player, ST_STRUCTURE, &psStructure, VAL_INT, &refId))
+  if (!stackPopParams({{VAL_INT, &player}, {ST_STRUCTURE, &psStructure}, {VAL_INT, &refId}}))
   {
     DEBUG_ASSERT_TEXT(FALSE, "SCRIPT : Cannot get parameters in scrTestStructureModule");
     return (FALSE);
@@ -4283,7 +4283,7 @@ BOOL scrForceDamage(void)
   UDWORD newVal;
 
   /* OK - let's get the vars */
-  if (!stackPopParams(2, ST_BASEOBJECT, &psObj, VAL_INT, &damagePercent))
+  if (!stackPopParams({{ST_BASEOBJECT, &psObj}, {VAL_INT, &damagePercent}}))
   {
     DEBUG_ASSERT_TEXT(FALSE, "Cannot pop params for scrForceDamage");
     return (FALSE);
@@ -4339,7 +4339,7 @@ BOOL scrDestroyUnitsInArea(void)
   UDWORD player;
   UDWORD count = 0;
 
-  if (!stackPopParams(5, VAL_INT, &x1, VAL_INT, &y1, VAL_INT, &x2, VAL_INT, &y2, VAL_INT, &player))
+  if (!stackPopParams({{VAL_INT, &x1}, {VAL_INT, &y1}, {VAL_INT, &x2}, {VAL_INT, &y2}, {VAL_INT, &player}}))
   {
     DEBUG_ASSERT_TEXT(FALSE, "Cannot get params for scrDestroyUnitsInArea");
     return (FALSE);
@@ -4370,7 +4370,7 @@ BOOL scrRemoveDroid(void)
 {
   DROID* psDroid;
 
-  if (!stackPopParams(1, ST_DROID, &psDroid))
+  if (!stackPopParams({{ST_DROID, &psDroid}}))
   {
     DEBUG_ASSERT_TEXT(FALSE, "Cannot get vars for scrRemoveDroid!");
     return (FALSE);
@@ -4444,7 +4444,7 @@ BOOL scrAddTemplate(void)
   DROID_TEMPLATE* psTemplate;
   UDWORD player;
 
-  if (!stackPopParams(2, ST_TEMPLATE, &psTemplate, VAL_INT, &player))
+  if (!stackPopParams({{ST_TEMPLATE, &psTemplate}, {VAL_INT, &player}}))
     return FALSE;
   if (player >= MAX_PLAYERS)
   {
@@ -4538,7 +4538,7 @@ BOOL scrPickStructLocation(void)
   SDWORD x = 0, y = 0;
   UDWORD player;
 
-  if (!stackPopParams(4, ST_STRUCTURESTAT, &index, VAL_REF | VAL_INT, &pX, VAL_REF | VAL_INT, &pY, VAL_INT, &player))
+  if (!stackPopParams({{ST_STRUCTURESTAT, &index}, {VAL_REF | VAL_INT, &pX}, {VAL_REF | VAL_INT, &pY}, {VAL_INT, &player}}))
     return FALSE;
 
   if (player >= MAX_PLAYERS)
@@ -4640,7 +4640,7 @@ BOOL scrSetTransporterExit(void)
 {
   SDWORD iPlayer, iExitTileX, iExitTileY;
 
-  if (!stackPopParams(3, VAL_INT, &iPlayer, VAL_INT, &iExitTileX, VAL_INT, &iExitTileY))
+  if (!stackPopParams({{VAL_INT, &iPlayer}, {VAL_INT, &iExitTileX}, {VAL_INT, &iExitTileY}}))
     return FALSE;
 
   missionSetTransporterExit(iPlayer, iExitTileX, iExitTileY);
@@ -4655,7 +4655,7 @@ BOOL scrFlyTransporterIn(void)
   SDWORD iPlayer, iEntryTileX, iEntryTileY;
   BOOL bTrackTransporter;
 
-  if (!stackPopParams(4, VAL_INT, &iPlayer, VAL_INT, &iEntryTileX, VAL_INT, &iEntryTileY, VAL_BOOL, &bTrackTransporter))
+  if (!stackPopParams({{VAL_INT, &iPlayer}, {VAL_INT, &iEntryTileX}, {VAL_INT, &iEntryTileY}, {VAL_BOOL, &bTrackTransporter}}))
     return FALSE;
 
   missionSetTransporterEntry(iPlayer, iEntryTileX, iEntryTileY);
@@ -4685,7 +4685,7 @@ BOOL scrGetGameStatus(void)
   SDWORD GameChoice;
   BOOL result;
 
-  if (!stackPopParams(1, VAL_INT, &GameChoice))
+  if (!stackPopParams({{VAL_INT, &GameChoice}}))
     return FALSE;
 
   result = FALSE; // the default result is false
@@ -4724,7 +4724,7 @@ BOOL scrGetPlayerColour(void)
 {
   SDWORD player, colour;
 
-  if (!stackPopParams(1, VAL_INT, &player))
+  if (!stackPopParams({{VAL_INT, &player}}))
     return FALSE;
 
   if (player >= MAX_PLAYERS)
@@ -4746,7 +4746,7 @@ BOOL scrSetPlayerColour(void)
 {
   SDWORD player, colour;
 
-  if (!stackPopParams(2, VAL_INT, &colour, VAL_INT, &player))
+  if (!stackPopParams({{VAL_INT, &colour}, {VAL_INT, &player}}))
     return FALSE;
 
   if (player >= MAX_PLAYERS)
@@ -4773,7 +4773,7 @@ BOOL scrTakeOverDroidsInArea(void)
   SDWORD fromPlayer, toPlayer, x1, x2, y1, y2, numChanged;
   DROID *psDroid, *psNext;
 
-  if (!stackPopParams(6, VAL_INT, &fromPlayer, VAL_INT, &toPlayer, VAL_INT, &x1, VAL_INT, &y1, VAL_INT, &x2, VAL_INT, &y2))
+  if (!stackPopParams({{VAL_INT, &fromPlayer}, {VAL_INT, &toPlayer}, {VAL_INT, &x1}, {VAL_INT, &y1}, {VAL_INT, &x2}, {VAL_INT, &y2}}))
     return FALSE;
 
   if (fromPlayer >= MAX_PLAYERS OR toPlayer >= MAX_PLAYERS)
@@ -4831,7 +4831,7 @@ BOOL scrTakeOverSingleDroid(void)
   SDWORD playerToGain;
   DROID *psDroidToTake, *psNewDroid;
 
-  if (!stackPopParams(2, ST_DROID, &psDroidToTake, VAL_INT, &playerToGain))
+  if (!stackPopParams({{ST_DROID, &psDroidToTake}, {VAL_INT, &playerToGain}}))
     return FALSE;
 
   if (playerToGain >= MAX_PLAYERS)
@@ -4848,7 +4848,7 @@ BOOL scrTakeOverSingleDroid(void)
 
   psNewDroid = giftSingleDroid(psDroidToTake, playerToGain);
 
-  if (!stackPushResult(ST_DROID, (SDWORD)psNewDroid))
+  if (!stackPushResult(ST_DROID, psNewDroid))
     return FALSE;
   return TRUE;
 }
@@ -4860,8 +4860,7 @@ BOOL scrTakeOverDroidsInAreaExp(void)
   SDWORD fromPlayer, toPlayer, x1, x2, y1, y2, numChanged, level, maxUnits;
   DROID *psDroid, *psNext;
 
-  if (!stackPopParams(8, VAL_INT, &fromPlayer, VAL_INT, &toPlayer, VAL_INT, &x1, VAL_INT, &y1, VAL_INT, &x2, VAL_INT, &y2, VAL_INT, &level,
-                      VAL_INT, &maxUnits))
+  if (!stackPopParams({{VAL_INT, &fromPlayer}, {VAL_INT, &toPlayer}, {VAL_INT, &x1}, {VAL_INT, &y1}, {VAL_INT, &x2}, {VAL_INT, &y2}, {VAL_INT, &level}, {VAL_INT, &maxUnits}}))
     return FALSE;
 
   if (fromPlayer >= MAX_PLAYERS OR toPlayer >= MAX_PLAYERS)
@@ -4926,7 +4925,7 @@ BOOL scrTakeOverSingleStructure(void)
   STRUCTURE *psStructToTake, *psNewStruct;
   UDWORD structureInc;
 
-  if (!stackPopParams(2, ST_STRUCTURE, &psStructToTake, VAL_INT, &playerToGain))
+  if (!stackPopParams({{ST_STRUCTURE, &psStructToTake}, {VAL_INT, &playerToGain}}))
     return FALSE;
 
   if (playerToGain >= MAX_PLAYERS)
@@ -4964,7 +4963,7 @@ BOOL scrTakeOverSingleStructure(void)
     }
   }
 
-  if (!stackPushResult(ST_STRUCTURE, (SDWORD)psNewStruct))
+  if (!stackPushResult(ST_STRUCTURE, psNewStruct))
     return FALSE;
   return TRUE;
 }
@@ -4977,7 +4976,7 @@ BOOL scrTakeOverStructsInArea(void)
   STRUCTURE *psStruct, *psNext, *psNewStruct;
   UDWORD structureInc;
 
-  if (!stackPopParams(6, VAL_INT, &fromPlayer, VAL_INT, &toPlayer, VAL_INT, &x1, VAL_INT, &y1, VAL_INT, &x2, VAL_INT, &y2))
+  if (!stackPopParams({{VAL_INT, &fromPlayer}, {VAL_INT, &toPlayer}, {VAL_INT, &x1}, {VAL_INT, &y1}, {VAL_INT, &x2}, {VAL_INT, &y2}}))
     return FALSE;
 
   if (fromPlayer >= MAX_PLAYERS OR toPlayer >= MAX_PLAYERS)
@@ -5054,7 +5053,7 @@ BOOL scrSetDroidsToSafetyFlag(void)
 {
   BOOL bState;
 
-  if (!stackPopParams(1, VAL_BOOL, &bState))
+  if (!stackPopParams({{VAL_BOOL, &bState}}))
     return FALSE;
 
   setDroidsToSafetyFlag(bState);
@@ -5067,7 +5066,7 @@ BOOL scrSetPlayCountDown(void)
 {
   BOOL bState;
 
-  if (!stackPopParams(1, VAL_BOOL, &bState))
+  if (!stackPopParams({{VAL_BOOL, &bState}}))
     return FALSE;
 
   setPlayCountDown(static_cast<UBYTE>(bState));
@@ -5080,7 +5079,7 @@ BOOL scrGetDroidCount(void)
 {
   SDWORD player;
 
-  if (!stackPopParams(1, VAL_INT, &player))
+  if (!stackPopParams({{VAL_INT, &player}}))
     return FALSE;
 
   if (player >= MAX_PLAYERS)
@@ -5102,7 +5101,7 @@ BOOL scrFireWeaponAtObj(void)
   BASE_OBJECT* psTarget;
   WEAPON sWeapon;
 
-  if (!stackPopParams(2, ST_WEAPON, &wIndex, ST_BASEOBJECT, &psTarget))
+  if (!stackPopParams({{ST_WEAPON, &wIndex}, {ST_BASEOBJECT, &psTarget}}))
     return FALSE;
 
   if (psTarget == nullptr)
@@ -5126,7 +5125,7 @@ BOOL scrFireWeaponAtLoc(void)
   SDWORD wIndex, x, y;
   WEAPON sWeapon;
 
-  if (!stackPopParams(3, ST_WEAPON, &wIndex, VAL_INT, &x, VAL_INT, &y))
+  if (!stackPopParams({{ST_WEAPON, &wIndex}, {VAL_INT, &x}, {VAL_INT, &y}}))
     return FALSE;
 
   memset(&sWeapon, 0, sizeof(WEAPON));
@@ -5144,7 +5143,7 @@ BOOL scrSetDroidKills(void)
   DROID* psDroid;
   SDWORD kills;
 
-  if (!stackPopParams(2, ST_DROID, &psDroid, VAL_INT, &kills))
+  if (!stackPopParams({{ST_DROID, &psDroid}, {VAL_INT, &kills}}))
     return TRUE;
 
   if ((psDroid == nullptr) || (psDroid->type != OBJ_DROID))
@@ -5164,7 +5163,7 @@ BOOL scrResetPlayerVisibility(void)
   SDWORD player, i;
   BASE_OBJECT* psObj;
 
-  if (!stackPopParams(1, VAL_INT, &player))
+  if (!stackPopParams({{VAL_INT, &player}}))
     return FALSE;
 
   if (player < 0 || player > MAX_PLAYERS)
@@ -5198,7 +5197,7 @@ BOOL scrSetVTOLReturnPos(void)
 {
   SDWORD player, tx, ty;
 
-  if (!stackPopParams(3, VAL_INT, &player, VAL_INT, &tx, VAL_INT, &ty))
+  if (!stackPopParams({{VAL_INT, &player}, {VAL_INT, &tx}, {VAL_INT, &ty}}))
     return FALSE;
 
   if (player < 0 || player >= MAX_PLAYERS)
@@ -5235,7 +5234,7 @@ BOOL scrIsVtol(void)
   DROID* psDroid;
   BOOL result;
 
-  if (!stackPopParams(1, ST_DROID, &psDroid))
+  if (!stackPopParams({{ST_DROID, &psDroid}}))
     return TRUE;
 
   if (psDroid == nullptr)

@@ -144,18 +144,18 @@ void environUpdate(void)
     startX = 0;
   if (startY < 0)
     startY = 0;
-  if (endX > mapWidth - 1)
+  if (endX > static_cast<SDWORD>(mapWidth) - 1)
     endX = mapWidth - 1;
-  if (endY > mapHeight - 1)
+  if (endY > static_cast<SDWORD>(mapHeight) - 1)
     endY = mapHeight - 1;
 
   /* Find frame interval */
   fraction = static_cast<float>(frameTime) / GAME_TICKS_PER_SEC;
 
   /* Go through the grid */
-  for (i = startY; i < endY; i++)
+  for (i = startY; i < static_cast<UDWORD>(endY); i++)
   {
-    for (j = startX; j < endX; j++)
+    for (j = startX; j < static_cast<UDWORD>(endX); j++)
     {
       /* Get our index */
       index = (i * mapWidth) + j;

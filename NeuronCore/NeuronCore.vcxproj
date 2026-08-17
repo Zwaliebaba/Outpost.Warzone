@@ -6,9 +6,17 @@
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -25,7 +33,20 @@
     <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v145</PlatformToolset>
@@ -40,11 +61,39 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <UseStructuredOutput>false</UseStructuredOutput>
+      <DisableSpecificWarnings>4129;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>false</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;DIRECTINPUT_VERSION=0x0800;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>
+      </SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Manifest>
+      <EnableSegmentHeap>true</EnableSegmentHeap>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <UseStructuredOutput>false</UseStructuredOutput>
       <DisableSpecificWarnings>4129;%(DisableSpecificWarnings)</DisableSpecificWarnings>
@@ -89,15 +138,37 @@
       <EnableSegmentHeap>true</EnableSegmentHeap>
     </Manifest>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <UseStructuredOutput>false</UseStructuredOutput>
+      <DisableSpecificWarnings>4129;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>false</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;DIRECTINPUT_VERSION=0x0800;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>
+      </SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Manifest>
+      <EnableSegmentHeap>true</EnableSegmentHeap>
+    </Manifest>
+  </ItemDefinitionGroup>
   <ItemGroup>
-                                            <ClInclude Include="CodePrint.h" />
-                <ClInclude Include="Debug.h" />
-            <ClInclude Include="Event.h" />
-                <ClInclude Include="Frame.h" />
-            <ClInclude Include="FrameResource.h" />
-        <ClInclude Include="GTime.h" />
-    <ClInclude Include="HashTabl.h" />
-                        <ClInclude Include="Interp.h" />
+    <ClInclude Include="CodePrint.h" />
+    <ClInclude Include="Debug.h" />
+    <ClInclude Include="Event.h" />
+    <ClInclude Include="Frame.h" />
+    <ClInclude Include="FrameResource.h" />
+    <ClInclude Include="GTime.h" />
+    <ClInclude Include="Interp.h" />
     <ClInclude Include="Json.h" />
     <ClInclude Include="HostCertificate.h" />
     <ClInclude Include="NetPlay.h" />
@@ -105,28 +176,21 @@
     <ClInclude Include="NetTypes.h" />
     <ClInclude Include="NeuronCore.h" />
     <ClInclude Include="Parse.h" />
-            <ClInclude Include="pch.h" />
-                                        <ClInclude Include="PQueue.h" />
+    <ClInclude Include="pch.h" />
     <ClInclude Include="Priority.h" />
-    <ClInclude Include="PtrList.h" />
-        <ClInclude Include="Script.h" />
-    <ClInclude Include="Script_y.h" />
-                <ClInclude Include="Stack.h" />
+    <ClInclude Include="Script.h" />
+    <ClInclude Include="ScriptLex.h" />
+    <ClInclude Include="Stack.h" />
     <ClInclude Include="StrRes.h" />
-    <ClInclude Include="StrResLY.h" />
-    <ClInclude Include="StrRes_y.h" />
-                                <ClInclude Include="Treap.h" />
-    <ClInclude Include="TreapInt.h" />
     <ClInclude Include="Types.h" />
-              </ItemGroup>
+  </ItemGroup>
   <ItemGroup>
-                                    <ClCompile Include="CodePrint.cpp" />
-                    <ClCompile Include="Event.cpp" />
-                <ClCompile Include="Frame.cpp" />
-        <ClCompile Include="FrameResource.cpp" />
+    <ClCompile Include="CodePrint.cpp" />
+    <ClCompile Include="Event.cpp" />
+    <ClCompile Include="Frame.cpp" />
+    <ClCompile Include="FrameResource.cpp" />
     <ClCompile Include="GTime.cpp" />
-    <ClCompile Include="HashTabl.cpp" />
-                    <ClCompile Include="Interp.cpp" />
+    <ClCompile Include="Interp.cpp" />
     <ClCompile Include="Json.cpp" />
     <ClCompile Include="HostCertificate.cpp" />
     <ClCompile Include="NetCrypt.cpp" />
@@ -135,20 +199,16 @@
     <ClCompile Include="Transport.cpp" />
     <ClCompile Include="NetSupp.cpp" />
     <ClCompile Include="NetUsers.cpp" />
-            <ClCompile Include="pch.cpp">
+    <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
-                                    <ClCompile Include="PQueue.cpp" />
-    <ClCompile Include="PtrList.cpp" />
-        <ClCompile Include="Script.cpp" />
-    <ClCompile Include="Script_l.cpp" />
-    <ClCompile Include="Script_y.cpp" />
-                <ClCompile Include="Stack.cpp" />
+    <ClCompile Include="Script.cpp" />
+    <ClCompile Include="ScriptComp.cpp" />
+    <ClCompile Include="ScriptLex.cpp" />
+    <ClCompile Include="Stack.cpp" />
     <ClCompile Include="StrRes.cpp" />
-    <ClCompile Include="StrRes_l.cpp" />
-    <ClCompile Include="StrRes_y.cpp" />
-                            <ClCompile Include="Treap.cpp" />
-      </ItemGroup>
+  </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>

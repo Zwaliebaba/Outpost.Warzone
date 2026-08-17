@@ -31,7 +31,7 @@ extern BOOL dtm_ReloadAllTextures(void);
 extern BOOL dtm_ReLoadTexture(SDWORD i);
 extern void dtm_SetTexturePage(SDWORD i);
 extern BOOL dtm_LoadTexSurface(iTexture* psIvisTex, SDWORD index);
-extern BOOL dtm_LoadRadarSurface(BYTE* radarBuffer);
+extern BOOL dtm_LoadRadarSurface(iBitmap* radarBuffer);
 extern SDWORD dtm_GetRadarTexImageSize(void);
 
 /* Set the texture stage states. Separate from dtm_Initialise because a

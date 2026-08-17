@@ -9,17 +9,22 @@ down it and record the result in [Results](#results) as you go.
 
 ## Why this exists
 
-Phase 2 was the last work verified by running it. Everything after — Phase 3
-input, Phase 4 audio, Phase 5 networking above what the `NetTest` harness once
-covered, Phase 6's Media Foundation FMV, Phase 8 stages A, B, C and D, Phase
-9's audio rewrite — is **built and linked and nothing more**. MSVC CI is green
-on all of it, and `tools/crosscheck.py` is clean in both configurations, but
-neither can say whether a renderer draws or a mixer sounds right.
+This document was written when Phase 2 was the last work anyone had verified by
+running it, and everything after — Phase 3 input, Phase 4 audio, Phase 5
+networking above what the `NetTest` harness once covered, Phase 6's Media
+Foundation FMV, Phase 8 stages A–D, Phase 9's audio rewrite — was **built and
+linked and nothing more**. Two sessions have since closed most of that on
+Win32; see [Results](#results). The habit it was written to break has not
+changed, though: MSVC CI being green and `tools/crosscheck.py` being clean say
+nothing about whether a renderer draws or a mixer sounds right, and every run
+session so far has found defects that no build could have.
 
 **CI stopped running anything on 2026-08-16**, when `NetTest/` was deleted with
-the client/server restructure. It was the only executable CI started. Until
-something replaces it, a green CI means the tree compiles and links — nothing
-more.
+the client/server restructure. It was the only executable CI started. Since
+2026-08-17 `tools/check_scripts.py` runs the real script compiler over all 59
+shipped `.slo` files on every push, so a green CI now also means the scripts
+still compile — but that is the whole of it. Nothing else in the tree is
+executed.
 
 The individual checklists live in [Phase8Plan.md](Phase8Plan.md#verification),
 [Phase9Plan.md](Phase9Plan.md#verification), [Phase4Plan.md](Phase4Plan.md#verification),
@@ -34,13 +39,15 @@ that exercises `/SAFESEH` — Phase 8 found that the hard way, twice.
 
 **Working directory.** `resSetBaseDir` defaults to empty
 ([FrameResource.cpp:113](../NeuronCore/FrameResource.cpp#L113)), so every asset
-path is relative to the working directory. The paths are bare names — `WinMain`
-opens `"palette.bin"`, not `"GameData/palette.bin"` — so the working directory
-must be **`GameData` itself**, not the directory containing it. Run the exe by
-its full path with `GameData` as the working directory, or pass `-datapath`.
-Getting this wrong looks exactly like a rendering failure — see below. It was
-got wrong on the first run of this sheet, and the listener is the only reason
-it took seconds rather than an afternoon: `Couldn't open palette.bin`.
+path is relative to the working directory, and the paths are bare names —
+`"datasets.json"`, not `"GameData/datasets.json"`. The working directory must
+therefore be **`GameData` itself**, not the directory containing it. Run the
+exe by its full path with `GameData` as the working directory, or pass
+`-datapath`. Getting this wrong looks exactly like a rendering failure — see
+below. It was got wrong on the first run of this sheet, and the listener is
+the only reason it took seconds rather than an afternoon: the tell then was
+`Couldn't open palette.bin`, from a load that has since been deleted with the
+palette; the equivalent failure now names whichever manifest loads first.
 
 **Attach the debug listener first.** `Neuron::Fatal` calls `__debugbreak()`, so
 an assertion under a launcher surfaces only as exit code `0xC0000003` with no
@@ -62,22 +69,24 @@ All parsed in [ClParse.cpp](../Outpost/ClParse.cpp).
 
 | Switch | Effect |
 |---|---|
-| `-window` | **nothing — the game always starts windowed.** See below |
+| `-window` | **nothing — accepted and ignored.** See below |
 | `-game <name>` | boot straight into a level, skipping the menus |
 | `-title` / `-intro` | start at the title screen / the intro video |
 | `-datapath <dir>` | set the asset base directory and `chdir` to it |
-| `-640` … `-1280` | pick the resolution |
 | `-noFog` / `-greyFog` | cap render fog off / to grey |
 | `-noTranslucent` / `-noAdditive` | disable translucency / additive effects |
 | `-seqSmall` / `-seqSkip` | play sequences small / skip them |
 
-**There is no command-line route to full screen.** `clStartWindowed` is
-initialised `TRUE` ([ClParse.cpp:34](../Outpost/ClParse.cpp#L34)) and `-window`
-assigns `TRUE` in *both* arms of an `#ifdef _DEBUG`/`#else` whose branches are
-identical — a vestigial no-op. Nothing anywhere assigns `FALSE`, and
-[WinMain.cpp:130](../Outpost/WinMain.cpp#L130) says so: "always start windowed
-toggle to fullscreen later". Full screen is reached only with **Alt+Enter**
-in-game ([Loop.cpp:610](../Outpost/Loop.cpp#L610)), which pass C needs.
+**There is one display mode and no switch for it.** The display is a
+borderless window covering the desktop at the desktop's own resolution,
+presented through a windowed swap chain
+([Window.cpp `frameInitialise`](../NeuronClient/Window.cpp)). The game lays
+out on a logical canvas — the desktop size divided by the integer display
+scale `ChooseDisplayScale` picks — and `D3DDrawPoly` multiplies every vertex
+back up. The `-640` … `-1280` switches, the `resolution` registry key, the
+Direct3D exclusive mode and the Alt+Enter toggle that reached it are all
+gone; `-window` is still accepted so old shortcuts keep working, but it does
+nothing.
 
 **A trap worth knowing before the fog pass.** There are two unrelated fogs.
 Render fog is the distance fog the switches above control. `game.fog` is fog of
@@ -104,6 +113,16 @@ replaced the `.wrf` layer, every stats and message table through
 `Neuron::Json`, and the anim/audio configs that replaced the `audp_` parser.
 A data error now stops the boot with a named table/row/field fatal rather
 than playing on with zeroed stats — a fatal here is diagnostic, not noise.
+
+Since the script rewrite (2026-08-17, [ScriptRewrite.md](ScriptRewrite.md)),
+this boot carries more weight still: **it is the acceptance test for the new
+script compiler.** Every `.slo` the level names is compiled from source at
+load, so reaching the level proves the compiler accepts the shipped corpus,
+and a compile error stops the boot naming the file, line and column. Add a
+skirmish match to the pass — the campaign scripts and `skirmishAI.slo`
+exercise different halves of the language (callback triggers with `ref`
+parameters, arrays, object member access), and only running them proves the
+generated code *behaves*, which no compile can.
 
 1. It reaches the level without a fatal. If it does not, read the listener
    window before concluding anything about the renderer.
@@ -138,6 +157,13 @@ rewired both sliders.
    executable is precisely what the old format never did.
 
 ## Pass C — device loss
+
+*(Recorded against the build that still had exclusive full screen; the pass
+below was run and passed then. The display is a borderless window on a
+windowed swap chain now — Alt+Enter is gone, and a windowed device survives
+alt-tab without a reset. Device loss still exists — locking the workstation
+(Win+L) or a remote-desktop session can still provoke it — so the reset path
+it exercised remains live, just rarer.)*
 
 Start windowed, **Alt+Enter to full screen** (there is no switch for it — see
 above), then alt-tab away and back. **Twice.**
@@ -303,6 +329,33 @@ reads as *slightly slower* than before at low frame rates, deliberately.
 ---
 
 ## Results
+
+**Second session: 2026-08-17, owner-run, Win32 — the game plays.** This is the
+first run since the script-module rewrite, the container retirements
+(`HASHTABLE`, `TREAP`, `PQUEUE`, `PTRLIST` all gone) and the x64 warning sweep,
+and it covers all three: scripts are compiled from source at every level load,
+so reaching gameplay exercises the whole `.slo`/`.vlo` path, and the sweep
+touched shared code that Win32 runs too.
+
+Three defects were found by running rather than by building, all fixed in the
+same session:
+
+- Menu items printed but stopped highlighting on hover. `PIE_TEXT_WHITE`,
+  `_LIGHTBLUE` and `_DARKBLUE` were the palette-era sentinels -1/-2/-3, which as
+  packed A8R8G8B8 are three indistinguishable whites.
+- `BuildTableMaps` read past the end of the callback table, because it
+  terminated on `pIdent` and the sentinel row is `{"CALLBACK LIST END", 0}`.
+  The constant table had the identical defect.
+- Every shipped script failed with `unknown type 'INT'`: `int` and `bool` are
+  lexer keywords, not rows in `asTypeTable`. `tools/check_scripts.py` now guards
+  that class of bug in CI, and would have caught it before the owner ever ran it.
+
+A fourth was self-inflicted during the sweep and caught the same way — an
+out-of-bounds `asParts[COMP_WEAPON]` read whose value I mis-predicted, which
+rejected every command turret template at load. See `checkValidWeaponForProp`.
+
+**x64 has still never been run.** It compiles and links warning-free in both
+configurations, and nothing more.
 
 First session: **2026-08-16**, Debug and Release both rebuilt clean from scratch
 under MSVC 18.9.1 (0 errors; Release links, so `/SAFESEH` holds). Passes driven

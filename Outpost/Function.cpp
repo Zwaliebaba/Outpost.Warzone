@@ -84,6 +84,8 @@ BOOL loadFunctionStats(SBYTE* pFunctionData, UDWORD bufferSize)
     if (!sTable.Text(i, "type", FunctionType, sizeof(FunctionType)))
       return FALSE;
     type = functionType(FunctionType);
+    if (type >= NUMFUNCTIONS)
+      return FALSE;
 
     if (!(pLoadFunction[type](sTable, i)))
       return FALSE;
@@ -2111,5 +2113,9 @@ UDWORD functionType(char* pType)
     return HQ_TYPE;
   }*/
 
+  /* NUMFUNCTIONS is out of range for pLoadFunction and the caller checks
+     for it. Falling off the end here returned a garbage index in release,
+     where the assert is a no-op, and then called through it. */
   DEBUG_ASSERT_TEXT(FALSE, "Unknown Function Type");
+  return NUMFUNCTIONS;
 }

@@ -16,6 +16,7 @@
 
 #include <stdio.h>
 #include <directxmath.h>
+#include <vector>
 
 #include "Frame.h"
 #include "FrameResource.h"
@@ -290,6 +291,11 @@ iIMDShape* Neuron::ProcessIMD(UBYTE** ppFileData, UBYTE* FileDataEnd, UBYTE* IMD
           return nullptr;
         }
 
+        /* "pcx" here is the PIE format's texture type tag, not a file that
+         * exists: the art is DDS since the palette removal, and for the
+         * page-* names the extension appended below is truncated away
+         * before the lookup anyway. The tag stays so the shipped .pie
+         * files keep parsing. */
         if (strcmp(texType, "pcx") != 0)
         {
           Neuron::DebugTrace("(IMDLoad) file corrupt -F\n");
@@ -298,7 +304,7 @@ iIMDShape* Neuron::ProcessIMD(UBYTE** ppFileData, UBYTE* FileDataEnd, UBYTE* IMD
 
         texfile[i] = 0;
 
-        strcat(texfile, ".pcx");
+        strcat(texfile, ".dds");
 
         if (sscanf1((char**)ppFileData, "%d %d", &pwidth, &pheight) != 2)
         {
@@ -580,10 +586,20 @@ static iBool _imd_load_bsp(UBYTE** ppFileData, UBYTE* FileDataEnd, iIMDShape* s,
   if (s->npolys > BSPPOLYID_MAXPOLYID)
     Neuron::DebugTrace("(_imd_load_bsp) Too many polygons in IMD for BSP to handle\n");
 
-  // Build table of nodes - we sort out the links later 
+  // Build table of nodes - we sort out the links later
   NodeList = new (std::nothrow) BSPTREENODE[BSPNodeCount]; // Allocate the entire node tree
 
   memset(NodeList, 0, (sizeof(BSPTREENODE)) * BSPNodeCount); // Zero it out ... we need to make all pointers NULL
+
+  /* The file names each child by index, and the indices are only resolvable
+     once every node exists, so they are parked here for the fix-up pass
+     below. They used to be parked in link[] itself, cast to a pointer and
+     back, which does not survive a pointer being wider than SDWORD. */
+  std::vector<SDWORD> aLinkIDs(static_cast<size_t>(BSPNodeCount) * 2, -1);
+  const auto linkID = [&](UWORD _node, int _side) -> SDWORD&
+  {
+    return aLinkIDs[static_cast<size_t>(_node) * 2 + _side];
+  };
 
   for (Node = 0; Node < BSPNodeCount; Node++)
   {
@@ -603,7 +619,7 @@ static iBool _imd_load_bsp(UBYTE** ppFileData, UBYTE* FileDataEnd, iIMDShape* s,
       Neuron::DebugTrace("(_load_bsp) - needed a left node!\n");
       return FALSE;
     }
-    psNode->link[LEFT] = (PSBSPTREENODE)NodeID; // This could be -1 indicating an empty node 
+    linkID(Node, LEFT) = NodeID; // This could be -1 indicating an empty node
 
     // Get forward facing polygon list - never empty apart from root node 
     while (true)
@@ -671,7 +687,7 @@ static iBool _imd_load_bsp(UBYTE** ppFileData, UBYTE* FileDataEnd, iIMDShape* s,
       Neuron::DebugTrace("(_load_bsp) - needed a right node!\n");
       return FALSE;
     }
-    psNode->link[RIGHT] = (PSBSPTREENODE)NodeID; // This could be -1 indicating an empty node 
+    linkID(Node, RIGHT) = NodeID; // This could be -1 indicating an empty node
   }
 
   // Now fix all the links
@@ -682,25 +698,16 @@ static iBool _imd_load_bsp(UBYTE** ppFileData, UBYTE* FileDataEnd, iIMDShape* s,
 
     psNode = &(NodeList[Node]);
 
-    if ((SDWORD)(psNode->link[LEFT]) == -1)
-      psNode->link[LEFT] = nullptr; // if its zero then its an empty link 
-    else
-    {
-      NodeID = (SDWORD)psNode->link[LEFT];
-      psNode->link[LEFT] = &NodeList[NodeID];
-    }
+    NodeID = linkID(Node, LEFT);
+    psNode->link[LEFT] = (NodeID == -1) ? nullptr : &NodeList[NodeID];
 
-    if ((SDWORD)(psNode->link[RIGHT]) == -1)
-      psNode->link[RIGHT] = nullptr; // if its zero then its an empty link 
-    else
-    {
-      NodeID = (SDWORD)psNode->link[RIGHT];
-      psNode->link[RIGHT] = &NodeList[NodeID];
-    }
+    NodeID = linkID(Node, RIGHT);
+    psNode->link[RIGHT] = (NodeID == -1) ? nullptr : &NodeList[NodeID];
   }
 
   s->BSPNode = &NodeList[0]; // Set the shape node list to the root node ... this can be used to FREE up the BSP memory if we needed to
 
+  return TRUE;
 }
 #endif
 
@@ -1148,7 +1155,7 @@ BOOL Neuron::setImagePath(char* path)
 {
   int i;
   strcpy(imagePath, path);
-  i = strlen(imagePath);
+  i = static_cast<int>(strlen(imagePath));
   if (imagePath[i] != '\\')
   {
     imagePath[i] = '\\';
@@ -1161,7 +1168,7 @@ static char* _imd_get_path(char* filename, char* path)
 {
   int n, i;
 
-  n = strlen(filename);
+  n = static_cast<int>(strlen(filename));
 
   for (i = n - 1; i >= 0 && (filename[i] != '\\'); i--);
 

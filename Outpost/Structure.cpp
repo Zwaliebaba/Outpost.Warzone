@@ -484,7 +484,7 @@ void initModulePIEs(char* PIEName, UDWORD i, STRUCTURE_STATS* psStructure)
   //need to work out the IMD's for the modules - HACK!
   if (psStructure->type == REF_FACTORY_MODULE)
   {
-    length = strlen(GfxFile) - 5;
+    length = static_cast<UDWORD>(strlen(GfxFile) - 5);
     for (module = 1; module < NUM_FACTORY_MODULES + 1; module++)
     {
       sprintf(charNum, "%d", module);
@@ -501,7 +501,7 @@ void initModulePIEs(char* PIEName, UDWORD i, STRUCTURE_STATS* psStructure)
   }
   if (psStructure->type == REF_VTOL_FACTORY)
   {
-    length = strlen(GfxFile) - 5;
+    length = static_cast<UDWORD>(strlen(GfxFile) - 5);
     for (module = 1; module < NUM_FACTORY_MODULES + 1; module++)
     {
       sprintf(charNum, "%d", module);
@@ -519,7 +519,7 @@ void initModulePIEs(char* PIEName, UDWORD i, STRUCTURE_STATS* psStructure)
   if (psStructure->type == REF_RESEARCH_MODULE)
   {
 #ifdef MULTI_UPGRADE
-    length = strlen(GfxFile) - 5; for (module = 1; module < NUM_RESEARCH_MODULES + 1; module++)
+    length = static_cast<UDWORD>(strlen(GfxFile) - 5); for (module = 1; module < NUM_RESEARCH_MODULES + 1; module++)
     {
       sprintf(charNum, "%d", module);
       GfxFile[length] = *charNum;
@@ -533,7 +533,7 @@ void initModulePIEs(char* PIEName, UDWORD i, STRUCTURE_STATS* psStructure)
     //store the stat for easy access later on
     researchModuleStat = i;
 #else
-    length = strlen(GfxFile) - 5;
+    length = static_cast<UDWORD>(strlen(GfxFile) - 5);
 
     GfxFile[length] = '4';
     researchModuleIMDs[0] = static_cast<iIMDShape*>(resGetData("IMD", GfxFile));
@@ -556,7 +556,7 @@ void initModulePIEs(char* PIEName, UDWORD i, STRUCTURE_STATS* psStructure)
   if (psStructure->type == REF_POWER_MODULE)
   {
 #ifdef MULTI_UPGRADE
-    length = strlen(GfxFile) - 5; for (module = 1; module < NUM_POWER_MODULES + 1; module++)
+    length = static_cast<UDWORD>(strlen(GfxFile) - 5); for (module = 1; module < NUM_POWER_MODULES + 1; module++)
     {
       sprintf(charNum, "%d", module);
       GfxFile[length] = *charNum;
@@ -570,7 +570,7 @@ void initModulePIEs(char* PIEName, UDWORD i, STRUCTURE_STATS* psStructure)
     //store the stat for easy access later on
     powerModuleStat = i;
 #else
-    length = strlen(GfxFile) - 5;
+    length = static_cast<UDWORD>(strlen(GfxFile) - 5);
     GfxFile[length] = '4';
     powerModuleIMDs[0] = static_cast<iIMDShape*>(resGetData("IMD", GfxFile));
     if (powerModuleIMDs[0] == nullptr)
@@ -622,7 +622,7 @@ void initModulePIEsNoMods(char* GfxFile, UDWORD i, STRUCTURE_STATS* psStructure)
   // Setup the PIE's for the research modules.
   if (psStructure->type == REF_RESEARCH_MODULE)
   {
-    length = strlen(GfxFile) - 5;
+    length = static_cast<UDWORD>(strlen(GfxFile) - 5);
     GfxFile[length] = '0';
     researchModuleIMDs[0] = (iIMDShape*)resGetData("IMD", GfxFile);
     if (researchModuleIMDs[0] == NULL)
@@ -642,7 +642,7 @@ void initModulePIEsNoMods(char* GfxFile, UDWORD i, STRUCTURE_STATS* psStructure)
   // Setup the PIE's for the power modules.
   if (psStructure->type == REF_POWER_MODULE)
   {
-    length = strlen(GfxFile) - 5;
+    length = static_cast<UDWORD>(strlen(GfxFile) - 5);
     GfxFile[length] = '0';
     powerModuleIMDs[0] = (iIMDShape*)resGetData("IMD", GfxFile);
     if (powerModuleIMDs[0] == NULL)
@@ -2348,8 +2348,8 @@ BOOL setFunctionality(STRUCTURE* psBuilding, UDWORD functionType)
       default: DEBUG_ASSERT_TEXT(FALSE, "setFunctionality: Invalid factory type");
       }
       //initialise the assembly point position
-      x = psBuilding->x + 256 >> TILE_SHIFT;
-      y = psBuilding->y + 256 >> TILE_SHIFT;
+      x = (psBuilding->x + 256) >> TILE_SHIFT;
+      y = (psBuilding->y + 256) >> TILE_SHIFT;
       // Belt and braces - shouldn't be able to build too near edge
       setAssemblyPoint(psFactory->psAssemblyPoint, x << TILE_SHIFT, y << TILE_SHIFT, psBuilding->player, TRUE);
 
@@ -2597,8 +2597,8 @@ BOOL setFunctionality(STRUCTURE* psBuilding, UDWORD functionType)
       addFlagPosition(psRepairFac->psDeliveryPoint);
       setFlagPositionInc(psRepairFac, psBuilding->player, REPAIR_FLAG);
       //initialise the assembly point position
-      x = psBuilding->x + 256 >> TILE_SHIFT;
-      y = psBuilding->y + 256 >> TILE_SHIFT;
+      x = (psBuilding->x + 256) >> TILE_SHIFT;
+      y = (psBuilding->y + 256) >> TILE_SHIFT;
       // Belt and braces - shouldn't be able to build too near edge
       setAssemblyPoint(psRepairFac->psDeliveryPoint, x << TILE_SHIFT, y << TILE_SHIFT, psBuilding->player, TRUE);
       break;
@@ -5402,7 +5402,7 @@ BOOL destroyStruct(STRUCTURE* psDel)
 
     //--------------------------------------- And finally, add a boom sound!!!! 
     /* and add a sound effect */
-    AudioSystem::PlayStaticTrack(psDel->x, psDel->y, ID_SOUND_EXPLOSION);
+    (void)AudioSystem::PlayStaticTrack(psDel->x, psDel->y, ID_SOUND_EXPLOSION);
   }
   //---------------------------------------------------------------------------------------
 
@@ -6278,7 +6278,7 @@ void buildingComplete(STRUCTURE* psBuilding)
   case REF_POWER_GEN:
     checkForResExtractors(psBuilding);
     if (selectedPlayer == psBuilding->player)
-      AudioSystem::PlayObjectTrack(psBuilding, ID_SOUND_POWER_HUM, nullptr);
+      (void)AudioSystem::PlayObjectTrack(psBuilding, ID_SOUND_POWER_HUM, nullptr);
     break;
   case REF_RESOURCE_EXTRACTOR:
     checkForPowerGen(psBuilding);
@@ -7458,8 +7458,8 @@ void checkDeliveryPoints(UDWORD version)
               addFlagPosition(psRepair->psDeliveryPoint);
               setFlagPositionInc(psRepair, psStruct->player, REPAIR_FLAG);
               //initialise the assembly point position
-              x = psStruct->x + 256 >> TILE_SHIFT;
-              y = psStruct->y + 256 >> TILE_SHIFT;
+              x = (psStruct->x + 256) >> TILE_SHIFT;
+              y = (psStruct->y + 256) >> TILE_SHIFT;
               // Belt and braces - shouldn't be able to build too near edge
               setAssemblyPoint(psRepair->psDeliveryPoint, x << TILE_SHIFT, y << TILE_SHIFT, inc, TRUE);
             }

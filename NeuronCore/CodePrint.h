@@ -13,14 +13,11 @@ extern void cpPrintType(INTERP_TYPE type);
 /* Display a value  */
 extern void cpPrintVal(INTERP_VAL* psVal);
 
-/* Display a value from a program that has been packed with an opcode */
-extern void cpPrintPackedVal(UDWORD* ip);
+/* Print the name of an OP_CALL / OP_SCRIPTCALL callee from its packed form */
+extern void cpPrintCallee(UDWORD packed);
 
-/* Print a function name */
-extern void cpPrintFunc(SCRIPT_FUNC pFunc);
-
-/* Print a variable access function name */
-extern void cpPrintVarFunc(SCRIPT_VARFUNC pFunc, UDWORD index);
+/* Print the name of an OP_VARCALL callee from its packed form */
+extern void cpPrintVarCallee(UDWORD packed);
 
 /* Display a maths operator */
 extern void cpPrintMathsOp(UDWORD opcode);

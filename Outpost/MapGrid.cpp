@@ -16,7 +16,7 @@
 // The number of world units per grid
 #define GRID_UNITS	(GRID_SIZE * TILE_UNITS)
 
-UDWORD gridWidth, gridHeight;
+SDWORD gridWidth, gridHeight;
 
 // The map grid 
 GRID_ARRAY* apsMapGrid[GRID_MAXAREA];
@@ -87,8 +87,8 @@ void gridReset(void)
   UBYTE inc;
 
   // Setup the grid dimensions.
-  gridWidth = (mapWidth + GRID_SIZE - 1) / GRID_SIZE;
-  gridHeight = (mapHeight + GRID_SIZE - 1) / GRID_SIZE;
+  gridWidth = static_cast<SDWORD>((mapWidth + GRID_SIZE - 1) / GRID_SIZE);
+  gridHeight = static_cast<SDWORD>((mapHeight + GRID_SIZE - 1) / GRID_SIZE);
 
   gridClear();
 

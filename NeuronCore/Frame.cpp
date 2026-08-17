@@ -45,10 +45,7 @@ BOOL loadFile(STRING* pFileName, UBYTE** ppFileData, UDWORD* pFileSize) { return
 //   
 BOOL loadFile2(STRING* pFileName, UBYTE** ppFileData, UDWORD* pFileSize, BOOL AllocateMem)
 {
-  FILE* pFileHandle;
-  UDWORD FileSize;
-
-  pFileHandle = fopen(pFileName, "rb");
+  FILE* pFileHandle = fopen(pFileName, "rb");
   if (pFileHandle == nullptr)
   {
     Neuron::Fatal("Couldn't open {}", pFileName);
@@ -61,7 +58,7 @@ BOOL loadFile2(STRING* pFileName, UBYTE** ppFileData, UDWORD* pFileSize, BOOL Al
     Neuron::Fatal("SEEK_END failed for {}", pFileName);
     return FALSE;
   }
-  FileSize = ftell(pFileHandle);
+  UDWORD FileSize = ftell(pFileHandle);
   if (fseek(pFileHandle, 0, SEEK_SET) != 0)
   {
     Neuron::Fatal("SEEK_SET failed for {}", pFileName);
@@ -201,7 +198,7 @@ BOOL saveFile(STRING* pFileName, UBYTE* pFileData, UDWORD fileSize)
   return TRUE;
 }
 
-/* next four used in HashPJW */
+/* next four used in HashString / HashStringIgnoreCase */
 #define	BITS_IN_int		32
 #define	THREE_QUARTERS	((UINT) ((BITS_IN_int * 3) / 4))
 #define	ONE_EIGHTH		((UINT) (BITS_IN_int / 8))
@@ -268,7 +265,7 @@ void ScanFilename(char* Fullname, int* PosOfDot, int* PosOfSlash)
   int SlashPos = -1;
   int Pos;
 
-  int Namelength = strlen(Fullname);
+  int Namelength = static_cast<int>(strlen(Fullname));
 
   for (Pos = Namelength; Pos >= 0; Pos--)
   {

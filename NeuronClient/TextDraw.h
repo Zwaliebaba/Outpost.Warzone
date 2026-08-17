@@ -3,13 +3,20 @@
 
 #include "BitImage.h"
 
-#define PIE_TEXT_WHITE				(-1)
-#define PIE_TEXT_LIGHTBLUE			(-2)
-#define PIE_TEXT_DARKBLUE			(-3)
-
-#define PIE_TEXT_WHITE_COLOUR		(0xffffffff)
-#define PIE_TEXT_LIGHTBLUE_COLOUR	(0xffa0a0ff)
-#define PIE_TEXT_DARKBLUE_COLOUR	(0xff6060c0)
+/* Text colours, packed A8R8G8B8.
+ *
+ * These were the palette-era sentinels -1/-2/-3, which the text renderer
+ * mapped to real colours. Once colour became the packed value those three
+ * read as 0xffffffff, 0xfffffffe and 0xfffffffd - all indistinguishably
+ * white, so a highlighted menu item looked exactly like an unhighlighted
+ * one. They are now the colours they always denoted; the separate
+ * PIE_TEXT_*_COLOUR spellings they duplicated are gone.
+ *
+ * White keeps its meaning as "no tint": modulating by 0xffffffff is
+ * identity, so the renderer still uses it as the untinted case. */
+#define PIE_TEXT_WHITE				(0xffffffff)
+#define PIE_TEXT_LIGHTBLUE			(0xffa0a0ff)
+#define PIE_TEXT_DARKBLUE			(0xff6060c0)
 
 namespace Neuron
 {
@@ -22,7 +29,7 @@ namespace Neuron
   extern int GetTextLineSize(void);
   extern int GetTextWidth(unsigned char* String);
   extern int GetCharWidth(unsigned char Char);
-  extern void SetTextColour(SWORD Index);
+  extern void SetTextColour(UDWORD Colour);
 }
 
 #define ASCII_SPACE			(32)

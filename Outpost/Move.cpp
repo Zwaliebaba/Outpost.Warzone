@@ -239,7 +239,7 @@ void moveCalcBoundary(DROID* psDroid);
 /* Turn a vector into an angle - returns a FRACT (!) */
 static float vectorToAngle(float vx, float vy);
 
-typedef enum MOVESOUNDTYPE
+enum MOVESOUNDTYPE
 {
   MOVESOUNDSTART,
   MOVESOUNDIDLE,
@@ -1695,10 +1695,10 @@ BOOL moveGetTileObst(SDWORD cx, SDWORD cy, SDWORD ox, SDWORD oy, SDWORD* pDist)
 }
 
 /* arrow colours */
-#define	YELLOWARROW		117
-#define	GREENARROW		253
-#define	WHITEARROW		255
-#define REDARROW		179
+#define	YELLOWARROW		0xffffeb13 // packed values of the palette entries these used to index
+#define	GREENARROW		0xff009100
+#define	WHITEARROW		0xffffffff
+#define REDARROW		0xff630000
 
 // get an obstacle avoidance vector
 void moveGetObstVector4(DROID* psDroid, float* pX, float* pY)
@@ -2025,8 +2025,8 @@ BOOL moveReachedWayPoint(DROID* psDroid)
     // but only move onto the next way point if we can see the previous one
     // (this helps units that have got nudged off course).
     if ((psDroid->sMove.boundX * droidX + psDroid->sMove.boundY * droidY <= 0) && fpathTileLOS(
-      static_cast<SDWORD>(psDroid->x) >> TILE_UNITS, static_cast<SDWORD>(psDroid->y) >> TILE_UNITS, psDroid->sMove.targetX >> TILE_UNITS,
-      psDroid->sMove.targetY >> TILE_UNITS))
+      static_cast<SDWORD>(psDroid->x) >> TILE_SHIFT, static_cast<SDWORD>(psDroid->y) >> TILE_SHIFT, psDroid->sMove.targetX >> TILE_SHIFT,
+      psDroid->sMove.targetY >> TILE_SHIFT))
     {
 
       return TRUE;
@@ -2544,7 +2544,7 @@ void moveUpdateVtolModel(DROID* psDroid, SDWORD speed, float direction)
 {
   float fPerpSpeed, fNormalSpeed, dx, dy, fSpeed;
   float iDroidDir, slideDir;
-  SDWORD iDZ, iDroidZ, iMapZ, iSpinSpeed, iTurnSpeed;
+  SDWORD iMapZ, iSpinSpeed, iTurnSpeed;
   float fDZ, fDroidZ, fMapZ;
 
   // nothing to do if the droid is stopped

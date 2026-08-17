@@ -27,6 +27,16 @@ them.
 | Toolset | MSVC v145, Win32 (x86) only |
 | Projects | `NeuronCore` (engine static lib), `Outpost` (game exe), plus `NeuronClient`, `NeuronServer` and `NeuronCoreTest` from the client/server restructure |
 
+**Re-measured 2026-08-17**, after the client-library split, the asset-pipeline
+and palette work, and the script module rewrite:
+
+| | |
+|---|---|
+| Translation units | 20 NeuronCore, 42 NeuronClient, 1 NeuronServer, 117 Outpost, 12 NeuronCoreTest |
+| Toolset | MSVC v145; Win32 (x86) builds and ships, x64 configurations exist but are unbuilt (`Docs/X64Readiness.md`) |
+| Generated parser code | **None.** All six MKS lex/yacc grammars are gone |
+| Win32 build warnings | 12 (was 343) |
+
 The legacy DirectX surface was **well contained**: roughly 271 COM call sites,
 almost all of them in ~15 NeuronCore files, with game code in `Outpost/`
 barely touching DirectX directly. That containment is what made the graphics
@@ -1200,6 +1210,247 @@ stay readable* — is untouched: `.gam`/`.bjo` and the media formats were
 explicitly out of scope. Like everything since Phase 2 this is
 built-and-verified work, not run work; a campaign and a skirmish load are
 what a Windows run must confirm.
+
+## The display: desktop-resolution borderless window, scaled UI (2026-08-16)
+
+**By owner decision, the fixed-resolution display is gone.** The game now
+starts in a borderless `WS_POPUP` window covering the desktop at the
+desktop's own resolution, presented through a windowed Direct3D 9 swap chain
+— there is no exclusive full-screen mode, no Alt+Enter toggle, no `-640` …
+`-1280` switches and no `resolution` registry key. `frameInitialise` makes
+the process DPI-aware (per-monitor-V2 where the OS has it, resolved at run
+time), reads the desktop metrics, and derives two sizes from them:
+
+- **Physical**: `screenWidth`/`screenHeight` in `Screen.cpp` — the desktop,
+  the back buffer, the viewport.
+- **Logical**: the `pie_GetVideoBufferWidth/Height` canvas the game computes
+  every coordinate on — the desktop divided by an integer **display scale**
+  (`Neuron::DisplayScale`, stored beside the canvas in `RenderClip.cpp`).
+  The scale is the largest whole number that keeps the canvas at least
+  960x540, so the 640x480-anchored UI keeps roughly the same physical size
+  whatever the pixel density (1080p and 1440p get 2, 4K gets 4).
+
+The bridge between the two is deliberately thin, because everything drawn
+goes through one of four narrow places: `D3DDrawPoly` multiplies every
+pre-transformed vertex by the scale (models, terrain, HUD quads, text — one
+funnel); `pie_RenderImageToBackBuffer` and `seq_RenderOneFrame` replicate
+each FMV pixel into a scale-sized square; `drawBackDrop` does the same for
+the backdrop; and `screen_Upload` samples every scale-th pixel reading the
+back buffer back down to the logical canvas. Input mirrors it: the window
+message handler divides the physical mouse position by the scale, so the
+game, the widgets and 3D picking all stay in one coordinate space. The
+640x480-relative UI layout Phase 8 chose to keep is untouched — it now lays
+out on the logical canvas and arrives on screen scaled.
+
+`pie_GetResScalingFactor` became a formula (`logicalWidth * 100 / 640`),
+scaling the world off the width: the horizontal view span stays what the
+640-wide layout was designed for and the vertical span follows the window's
+aspect ratio, the safe direction while `VISIBLE_XTILES` is still a fixed
+32-tile grid tuned for 4:3. Widening the vertical/horizontal trade for
+widescreen is a possible follow-up, not part of this change.
+
+What this deliberately does not do: change resolution at runtime (the
+canvas, `DisplayBuffer`, the widget root and the radar are all sized at
+init), scale the CPU debug-2D paths in `Screen.cpp` (`screenTextOut` and
+friends — reachable only from the `DISP2D` editor tree), or touch the dead
+DirectInput mouse path (`DInpGetMouseState` has no callers). Device loss
+handling stays exactly as Phase 2 built it; a windowed swap chain just makes
+it rarer.
+
+Like everything since Phase 2 this is built-and-verified work, not run work:
+crosscheck is green, and [Verification.md](Verification.md) now carries what
+a Windows run must confirm — the borderless boot at desktop resolution, UI
+scale 2 on a 1080p/1440p desktop, mouse-to-widget alignment, an FMV with
+subtitles, and a load/save-screen backdrop round trip.
+
+## Removing the palette: true-colour assets in DDS (2026-08-16/17, complete)
+
+**By owner decision, the 256-colour palette is to be removed, and the target
+asset format is DDS** (uncompressed A8R8G8B8, hand-rolled loader — no D3DX,
+no new dependency; the 128-byte header is trivial to read and to write from
+a stdlib-only Python tool). The palette is live and load-bearing today:
+`GameData/palette.bin` (256 RGB triplets) is the single global palette, the
+73 PCX texture pages plus the `.img` UI pages store indices *into it* (the
+PCX loader warns if a file so much as carries its own palette), and the
+pixels stay 8-bit in memory until the last moment — `dtm_UploadImage`
+expands them through `texPal32Bit` at device upload, with entry 0 as the
+transparent colour-key. On top of the assets, a wide band of code treats
+colour as a palette index: `pal_GetNearestColour` (~30 sites), the 16
+`COL_*` primaries (106 sites across the widget library and game UI), the
+index-taking draw calls (`pie_Line` 161 sites, `pie_BoxFillIndex` 50,
+`pie_Box` 9), widget colour tables and font colour indices. Team colours
+need nothing special: they are baked into palettised page variants selected
+as texture frames in `pie_Draw3DShape`.
+
+The removal is staged so every stage ships alone and the gate is visual
+parity — the same RGB values fall out of each stage, so screenshots should
+match to the pixel except where 256-colour quantisation disappears:
+
+1. **Delete the provably dead half** — *landed with this entry.* The
+   transparency lookup (`transLookup`, `pie_BuildSoftwareTransparency`),
+   `palette16Bit`, the never-read FMV palette (`pVideoPalette` and its
+   555 build loop — unread since the MP4 decoder), the Windows-palette copy
+   (`psWinPal`, `pie_GetWinPal`, `screenSetPalette`, `screenGetPalEntry`
+   and `asPalEntries` — last real consumer was the dead `DISP2D` editor
+   tree), the per-page `TEXTUREPAGE.Palette` that was allocated and freed
+   but never read, `pcxBufferTo16Bit`, `iPalette`, `gamePal`, `tempPal`,
+   the empty `pal_Init`/`pal_SelectPalette`/`pal_SetPalette` and the
+   `OLD_PALETTE` block. What survives is exactly the live half: `psGamePal`,
+   `pal_GetNearestColour`, `palShades` (radar lighting), `palette32Bit`
+   (FMV subtitle glyphs) and the `COL_*` machinery.
+2. **True colour in memory, same assets** — *landed.* `iBitmap` is the
+   packed A8R8G8B8 pixel now, which let the compiler enumerate the
+   consumers. The PCX loader expands each index as it decodes (index 0 →
+   alpha 0), `dtm_UploadImage` is a straight row copy (`texPal32Bit` and
+   its builder gone), the radar composes in 32-bit — averaged tile colours,
+   per-channel-multiply lighting replacing `palShades`, clan/flash tables
+   carrying the packed values of the entries they used to index — and the
+   backdrop is 32-bit end to end (`bufferTo16Bit` gone, `DisplayBuffer`
+   sized ×4). The FMV subtitle glyphs read page pixels directly, deleting
+   `palette32Bit`. The dead software-renderer intel-map fill went rather
+   than being converted.
+3. **Colour-as-index becomes packed RGB** — *landed.* `COL_*` are packed
+   constants (the RGB values `pie_SetColourDefines` used to ask the palette
+   for), `pie_Line`/`pie_Box`/`pie_BoxFillIndex` take packed colour as
+   `pie_BoxFill` already did, the widget colour tables, bar graph colours,
+   tool tip and text colours are packed (the negative `PIE_TEXT_*`
+   sentinels became the colours they named — `-1` still reads as white,
+   which is what "use the bitmap's own colours" meant), and every literal
+   palette index at a draw site (score bars, radar arrows, the drag-box
+   strobe ramp, health-bar backing) carries the packed value of the entry
+   it used to name. `pal_GetNearestColour` and `pie_SetColourDefines` are
+   deleted. The narrowing hazard was the real work: colour variables and
+   casts of `UBYTE`/`UWORD` width would silently truncate packed values,
+   so every one was found and widened by hand — the cross-checker cannot
+   catch those.
+4. **Convert the assets and delete the module** — *landed.*
+   `tools/convert_pcx_to_dds.py` (stdlib-only, kept as the record of the
+   conversion) expanded all 73 PCX files through `palette.bin` into
+   uncompressed A8R8G8B8 DDS - index 0 → alpha 0, the same expansion the
+   loader had been doing at run time, so the files now hold byte for byte
+   what the game held in memory - retargeted the 177 `.pcx` references in
+   `datasets.json`, and patched the fixed-width `TPageFiles` name tables in
+   the two `.img` headers ("pcx"→"dds" is the same length). The 121 `.pie`
+   model files needed nothing: the IMD loader normalises their TEXTURE
+   names to extensionless `page-NN` keys, and their `pcx` type tag stays
+   as a format token. `Dds.cpp` (~250 lines, `Neuron::DdsLoad` and the
+   Mem/ToBuffer variants - a header validation and a copy) replaced
+   `Pcx.cpp`; `Palette.cpp` and `palette.bin` are deleted, and `Palette.h`
+   is down to the packed `COL_*` colour constants. Converting GameData
+   binaries was sanctioned the way the Phase 6 `.rpl`→MP4 re-encode was:
+   by owner decision, through the committed tool.
+
+   One measured finding, for the record: every shipped PCX carries an
+   embedded palette that differs from `palette.bin` by 3-4 bytes of 768 -
+   rounding, plus disagreement about the RGB of the transparent entry 0,
+   which never renders. The game always ignored the embedded palettes, so
+   the conversion went through `palette.bin`, matching what the game drew.
+   `tools/validate_assets.py` reports the identical 0 errors / 981
+   warnings before and after the conversion.
+
+## The script module: native compiler, x64-clean VM (2026-08-17, complete)
+
+**By owner decision, the scripting module was rewritten with no lex/yacc —
+native C++ only — and made x64-clean**, with the compiled form of a script
+explicitly freed from backward compatibility and wider modernisation in
+scope. The full survey, design and staging are in
+[ScriptRewrite.md](ScriptRewrite.md); the language the new compiler accepts —
+recovered from the generated parser and pinned by measuring all 182 shipped
+script files — is specified in [ScriptLanguage.md](ScriptLanguage.md).
+
+Why it mattered beyond tidiness: the script VM was the **only remaining x64
+Blocker**. Its instruction stream was an array of 32-bit words with C
+function pointers stored inline, which cannot work where a pointer is 8
+bytes. Three generated grammars (`.slo`, `.vlo`, `STR_RES`) totalling 10,907
+lines stood in front of it, generated by an MKS lex/yacc the project no
+longer has, so the grammars could not be changed — only the generated output
+hand-edited.
+
+What landed, in six commits:
+
+1. **Dead weight deleted** — `scriptSaveProg`/`scriptLoadProg`/
+   `scriptGetVarIndex` (no callers since the save/load removal), every
+   `#ifdef NOSCRIPT`, and the declaration-only script-function machinery.
+2. **Native `.slo` compiler and a new encoding.** `ScriptLex` + `ScriptComp`
+   replace `Script_l/_y`; one `ScriptInstr` record per instruction, callees
+   held as table indices, jumps counted in instructions, `SCRIPT_CODE` owning
+   its storage. `Interp.cpp` and `CodePrint.cpp` follow. Script-defined
+   `function` blocks became a working feature (owner decision) — the old
+   grammar reserved the keyword and compiled nothing.
+3. **Native `.vlo` parser**, and `eventSetContextVar` typed on `INTERP_VAL`.
+4. **Typed instinct FFI** (owner decision): `stackPopParams`'s varargs, which
+   stored every parameter as 4 bytes through destinations that were often
+   `DROID**`, became a typed interface whose store width is fixed by the
+   destination. All 219 pop sites and every push site converted.
+5. **Context values** moved from chunked linked lists to one `std::vector`
+   per context; the `EVENT_INIT` pool tuning went with them.
+6. **Native string-resource parser**, retiring the last generated grammar.
+
+Verified: `check_case` and full `crosscheck` on every stage, both Win32 CI
+configurations green, and a `NeuronCoreTest` suite covering the compiler,
+interpreter and script functions. **The corpus acceptance test is a boot** —
+the game compiles all 59 `.slo` and 123 `.vlo` at startup, so a campaign
+level and a skirmish match are what prove the rewrite semantically.
+
+Bugs fixed on the way through, none of them the point of a stage: context
+copies truncating object pointers, four `ScriptAI.cpp` sites parking
+pointers in `SDWORD` locals, `.vlo` object initialisation truncating, and
+trigger labels never reaching the debug info (`eventGetTriggerID` printed
+`NOT FOUND` for every code trigger).
+
+## The hand-rolled containers: standard containers or deletion (2026-08-17, complete)
+
+**By owner decision, `TREAP`, `QUEUE` and `PTRLIST` were to move onto
+standard containers and their files deleted.** The survey found these are
+not the same job — two of the three had no consumers left at all:
+
+- **`PQueue.cpp`/`.h` (457 lines) had no consumers.** Nothing outside the
+  module included `PQueue.h` or called a `queue_*` function; it was the
+  A* pathfinder's queue once, and `AStar.cpp` has long had its own. There was
+  nothing to migrate — it is a deletion with a grep proof.
+- **`PtrList.cpp`/`.h` (323 lines) had no consumers either**, and could not
+  even have linked if it had: it reads an `extern void* g_ElementToBeRemoved`
+  that is defined nowhere in the tree. Its own guard — a
+  `static CRITICAL_SECTION critSecAudio` around every mutation — names the
+  owner it outlived: this was the QMixer sample list, and the audio stack
+  went in Phases 4 and 9.
+- **`Treap.cpp`/`.h`/`TreapInt.h` (588 lines) had exactly one consumer**, the
+  string-resource system, so the real work was modernising `STR_RES` rather
+  than swapping a container behind it.
+
+With these gone, and `HashTabl` before them, **`NeuronCore` has no
+hand-rolled container left** — which is what R10 was asking for: all four
+carried their own node pools (`init`/`ext`/`elementSize` triples) behind a
+container interface.
+
+`STR_RES` was a treap keyed on the *address* of the ID string (with a
+`strcmp` comparator — the idiom that had already forced the `TREAP_KEY`
+pointer-width fix in `X64Readiness.md`), a chain of fixed-size `STR_BLOCK`s
+walked linearly on every lookup, an `ID_ALLOC` flag bit separating ids the
+system allocated from ids the game's keyword table owns, and hand-written
+`stringLen`/`stringCpy`. It is now:
+
+```cpp
+std::vector<std::unique_ptr<STR_ENTRY>> aEntries;   // by id: keyword + text
+std::unordered_map<std::string_view, UDWORD> idMap; // keyword -> id
+```
+
+Two caller requirements shaped that, both found by reading consumers rather
+than assumed. The ~500 `strresGetString` sites store the returned `STRING*`
+in widgets, view data and script string values for the session, and
+`strresGetIDString` hands out the *stored* keyword for the same purpose — so
+element addresses must never move, which is what the `unique_ptr` elements
+buy. The map keys are `string_view`s into those stable entries, so a lookup
+by `const char*` costs no allocation.
+
+Everything else fell out: `ID_ALLOC` is gone because every entry owns both
+halves, `strresDestroy` is a `delete`, the block walk is an index, and
+`strresCreate` lost its pool-sizing parameters. `strresGetIDfromString`,
+`stringLen` and `stringCpy` were deleted as unused. The public interface is
+otherwise unchanged, so the 30 consumer files were untouched.
+
+Also removes 2 of the build's 12 remaining warnings (C4715 in `treapFindRec`
+and `treapDelRec`). `check_case` clean, `crosscheck` 181/181 units clean.
 
 ## Verification
 

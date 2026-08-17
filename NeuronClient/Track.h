@@ -10,10 +10,6 @@
  * surface until stage F renames the call sites.
  */
 
-#ifndef MAX_STR
-#define	MAX_STR			255
-#endif
-
 #define	SAMPLE_NOT_ALLOCATED	-1
 #define	SAMPLE_NOT_FOUND		-3
 #define	SAMPLE_COORD_INVALID	-5

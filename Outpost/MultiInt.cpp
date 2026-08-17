@@ -171,7 +171,7 @@ static VOID CurrentForce(VOID); // draw the current force
 
 // ////////////////////////////////////////////////////////////////////////////
 // map previews..
-extern UWORD backDropBmp[];
+extern iBitmap backDropBmp[];
 
 void loadMapPreview(void)
 {
@@ -180,12 +180,9 @@ void loadMapPreview(void)
   UBYTE* pFileData = nullptr;
   LEVEL_DATASET* psLevel;
 
-  iBitmap tempBmp[BACKDROP_WIDTH * BACKDROP_HEIGHT];
   UDWORD i, j, x, y, height, offX, offY;
-  UBYTE scale, col, coltab[16];
-  /* The backdrop is always composited in 16 bit now - the 8 bit path was for
-   * a palettised display, which went with DirectDraw. */
-  UBYTE bitDepth = 16;
+  UBYTE scale, level;
+  iBitmap col, coltab[16];
   MAPTILE *psTile, *WTile;
   iSprite backDropSprite;
 
@@ -207,19 +204,18 @@ void loadMapPreview(void)
   }
   gwShutDown();
 
-  for (col = 0; col < 16; col += 1)
-    coltab[col] = pal_GetNearestColour(col * 16, col * 16, col * 16);
+  /* A greyscale ramp for the height map. These were the nearest palette
+   * entries to each grey; they are the greys themselves now. */
+  for (level = 0; level < 16; level += 1)
+    coltab[level] = 0xff000000 | (static_cast<iBitmap>(level * 16) << 16) | (static_cast<iBitmap>(level * 16) << 8) |
+      static_cast<iBitmap>(level * 16);
 
   backDropSprite.width = BACKDROP_WIDTH;
   backDropSprite.height = BACKDROP_HEIGHT;
-
-  if (bitDepth == 8)
-    backDropSprite.bmp = (UBYTE*)backDropBmp;
-  else
-    backDropSprite.bmp = tempBmp;
+  backDropSprite.bmp = backDropBmp;
 
   // plot the image
-  memset(backDropSprite.bmp, 0,BACKDROP_HEIGHT * BACKDROP_WIDTH);
+  memset(backDropSprite.bmp, 0,BACKDROP_HEIGHT * BACKDROP_WIDTH * sizeof(iBitmap));
 
   scale = 1;
   if ((mapHeight < 240) && (mapWidth < 320))
@@ -256,9 +252,6 @@ void loadMapPreview(void)
   }
 
   plotStructurePreview(&backDropSprite, scale, offX, offY);
-
-  if (bitDepth != 8)
-    bufferTo16Bit(tempBmp, backDropBmp,FALSE); // convert
 
   screen_SetBackDrop(backDropBmp, BACKDROP_WIDTH, BACKDROP_HEIGHT);
   hideTime = gameTime;
@@ -534,7 +527,7 @@ static void addGames()
 
       sButInit.pTip = NetPlay.games[i].name;
 
-      sButInit.pUserData = (void*)i;
+      sButInit.pUserData = widgPackUserData(i);
       widgAddButton(psWScreen, &sButInit);
     }
   }
@@ -1134,7 +1127,7 @@ UDWORD addPlayerBox(BOOL players)
         sButInit.pTip = nullptr; //Players[i].name;
         sButInit.FontID = WFont;
         sButInit.pDisplay = displayPlayer; //intDisplayButtonHilight;
-        sButInit.pUserData = (void*)i;
+        sButInit.pUserData = widgPackUserData(i);
 
         if (bColourChooserUp && NetPlay.players[i].dpid == player2dpid[selectedPlayer])
           addColourChooser(i);
@@ -1153,7 +1146,7 @@ UDWORD addPlayerBox(BOOL players)
         sFormInit.height = MULTIOP_PLAYERHEIGHT;
         sFormInit.pTip = nullptr; //Players[i].name;
         sFormInit.pDisplay = displayPlayer; //intDisplayButtonHilight;
-        sFormInit.pUserData = (void*)i;
+        sFormInit.pUserData = widgPackUserData(i);
         widgAddForm(psWScreen, &sFormInit);
         addFESlider(MULTIOP_SKSLIDE + i, sFormInit.id, 43, 9, 20, game.skDiff[i], 0);
       }
@@ -1479,7 +1472,7 @@ static void processMultiopWidgets(UDWORD id)
   }
 
   // host who is setting up or has hosted
-  if (ingame.bHostSetup); // || NetPlay.bHost)
+  if (ingame.bHostSetup) // || NetPlay.bHost)
   {
     switch (id)
     {
@@ -2673,7 +2666,8 @@ BOOL displayWhiteBoard(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset,
   UDWORD y = D_H + yOffset + psWidget->y;
   UDWORD i;
   div_t d;
-  UBYTE j, col;
+  UBYTE j;
+  UDWORD col;
   UWORD oldPoint, newPoint, oldx, oldy, newx, newy;
 
   UNUSEDPARAMETER(pColours);
@@ -2773,7 +2767,7 @@ void displayChatEdit(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, U
   UDWORD x = xOffset + psWidget->x;
   UDWORD y = yOffset + psWidget->y - 4; // 4 is the magic number.
   UNUSEDPARAMETER(pColours);
-  pie_Line(x, y, x + psWidget->width, y, pal_GetNearestColour(100, 100, 160));
+  pie_Line(x, y, x + psWidget->width, y, 0xff6464a0); // the lavender (100,100,160) asked of the palette before
 
   AddCursorSnap(&InterfaceSnap, static_cast<SWORD>(x + (psWidget->width / 2)), static_cast<SWORD>(y + (psWidget->height / 2)),
                 psWidget->formID, psWidget->id, nullptr);
@@ -2791,7 +2785,7 @@ void displayRemoteGame(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset,
   UDWORD png;
 
   UNUSEDPARAMETER(pColours);
-  i = (int)psWidget->pUserData;
+  i = static_cast<int>(widgUnpackUserData(psWidget->pUserData));
 
   // collate info
   if (((W_BUTTON*)psWidget)->state & (WBUTS_HILITE))
@@ -2888,7 +2882,7 @@ void displayPlayer(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDW
 
   if (((W_BUTTON*)psWidget)->state & (WBUTS_HILITE | WCLICK_DOWN | WCLICK_LOCKED | WCLICK_CLICKLOCK))
     Hilight = TRUE;
-  i = (int)psWidget->pUserData;
+  i = static_cast<int>(widgUnpackUserData(psWidget->pUserData));
 
   //bluboxes.
   drawBlueBox(x, y, psWidget->width, psWidget->height); // right
@@ -3071,7 +3065,7 @@ void displayMultiEditBox(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffse
 {
   UDWORD x = xOffset + psWidget->x;
   UDWORD y = yOffset + psWidget->y;
-  UWORD im = static_cast<UWORD>((UDWORD)psWidget->pUserData);
+  UWORD im = static_cast<UWORD>(widgUnpackUserData(psWidget->pUserData));
   UNUSEDPARAMETER(pColours);
 
   drawBlueBox(x, y, psWidget->width, psWidget->height);
@@ -3099,9 +3093,9 @@ void displayMultiBut(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, U
   UDWORD Down = 0;
   UWORD hiToUse = 0;
   UDWORD Grey = 0;
-  UWORD im = static_cast<UWORD>(UNPACKDWORD_TRI_B((UDWORD)psWidget->pUserData));
-  UWORD im2 = static_cast<UWORD>((UNPACKDWORD_TRI_C((UDWORD)psWidget->pUserData)));
-  BOOL usehl = static_cast<UWORD>((UNPACKDWORD_TRI_A((UDWORD)psWidget->pUserData)));
+  UWORD im = static_cast<UWORD>(UNPACKDWORD_TRI_B(widgUnpackUserData(psWidget->pUserData)));
+  UWORD im2 = static_cast<UWORD>((UNPACKDWORD_TRI_C(widgUnpackUserData(psWidget->pUserData))));
+  BOOL usehl = static_cast<UWORD>((UNPACKDWORD_TRI_A(widgUnpackUserData(psWidget->pUserData))));
 
   UNUSEDPARAMETER(pColours);
 
@@ -3194,7 +3188,7 @@ BOOL addMultiEditBox(UDWORD formid, UDWORD id, UDWORD x, UDWORD y, UDWORD tip, S
   sEdInit.height = MULTIOP_EDITBOXH;
   sEdInit.pText = tipres;
   sEdInit.FontID = WFont;
-  sEdInit.pUserData = (void*)icon;
+  sEdInit.pUserData = widgPackUserData(icon);
   sEdInit.pBoxDisplay = displayMultiEditBox;
   if (!widgAddEditBox(psWScreen, &sEdInit))
     return FALSE;
@@ -3228,16 +3222,16 @@ BOOL addMultiBut(W_SCREEN* screen, UDWORD formid, UDWORD id, UDWORD x, UDWORD y,
   /*
     if (hiIt == 1)
     {
-      sButInit.pUserData = (void*)PACKDWORD_TRI(0,norm , hi);
+      sButInit.pUserData = widgPackUserData(PACKDWORD_TRI(0,norm , hi));
     }
     else if (hiIt == 0)
     {	
-      sButInit.pUserData = (void*)PACKDWORD_TRI(1,norm , hi);
+      sButInit.pUserData = widgPackUserData(PACKDWORD_TRI(1,norm , hi));
     }
     else 
     {}
     */
-  sButInit.pUserData = (void*)PACKDWORD_TRI(hiIt, norm, hi);
+  sButInit.pUserData = widgPackUserData(PACKDWORD_TRI(hiIt, norm, hi));
 
   if (!widgAddButton(screen, &sButInit))
     return FALSE;

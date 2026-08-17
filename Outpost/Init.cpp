@@ -684,7 +684,10 @@ BOOL systemInitialise(void)
   pie_SetTranslucent(war_GetTranslucent());
   pie_SetAdditive(war_GetAdditive());
 
-  displayBufferSize = DISP_WIDTH * DISP_HEIGHT * 2;
+  /* Big enough for a 32 bit screen-sized image - screen_Upload reads the
+   * back buffer into it for the load-screen backdrop - and reused as a
+   * general file staging buffer, which is what the floor is for. */
+  displayBufferSize = DISP_WIDTH * DISP_HEIGHT * 4;
   if (displayBufferSize < 1500000)
     displayBufferSize = 1500000;
   DisplayBuffer = new (std::nothrow) UBYTE[displayBufferSize];
@@ -857,10 +860,6 @@ BOOL frontendInitialise(char* ResourceFile)
   // clear out any existing mappings
   keyClearMappings();
   keyInitMappings(FALSE);
-
-#ifdef OLD_PALETTE
-  pal_SelectPalette(pal_AddNewPalette(&gamePal[0]));
-#endif
 
   frameSetCursorFromRes(IDC_DEFAULT);
 
@@ -1208,7 +1207,7 @@ void SetAllTilesVisible(void)
   MAPTILE* psTile = psMapTiles;
   int i;
 
-  for (i = 0; i < mapWidth * mapHeight; i++)
+  for (i = 0; i < static_cast<SDWORD>(mapWidth * mapHeight); i++)
   {
     SET_TILE_VISIBLE(selectedPlayer, psTile);
     psTile++;

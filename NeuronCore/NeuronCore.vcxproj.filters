@@ -1,163 +1,51 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-                <ClInclude Include="Frame.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
-            <ClInclude Include="FrameResource.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
-        <ClInclude Include="StrRes.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="StrRes_y.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="StrResLY.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
-        <ClInclude Include="Treap.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="TreapInt.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="Types.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
-                <ClInclude Include="GTime.h">
-      <Filter>Gamelib</Filter>
-    </ClInclude>
-    <ClInclude Include="HashTabl.h">
-      <Filter>Gamelib</Filter>
-    </ClInclude>
-                <ClInclude Include="PQueue.h">
-      <Filter>Gamelib</Filter>
-    </ClInclude>
-    <ClInclude Include="Priority.h">
-      <Filter>Gamelib</Filter>
-    </ClInclude>
-    <ClInclude Include="PtrList.h">
-      <Filter>Gamelib</Filter>
-    </ClInclude>
-                                                                                                        <ClInclude Include="HostCertificate.h">
-      <Filter>NetPlay</Filter>
-    </ClInclude>
-    <ClInclude Include="NetPlay.h">
-      <Filter>NetPlay</Filter>
-    </ClInclude>
-    <ClInclude Include="Transport.h">
-      <Filter>NetPlay</Filter>
-    </ClInclude>
-    <ClInclude Include="NetTypes.h">
-      <Filter>NetPlay</Filter>
-    </ClInclude>
-    <ClInclude Include="Debug.h" />
-    <ClInclude Include="pch.h" />
-    <ClInclude Include="NeuronCore.h" />
-                    <ClInclude Include="CodePrint.h" />
-        <ClInclude Include="Event.h" />
-        <ClInclude Include="Interp.h" />
-        <ClInclude Include="Json.h" />
-        <ClInclude Include="Parse.h" />
-    <ClInclude Include="Script.h" />
-    <ClInclude Include="Script_y.h" />
-            <ClInclude Include="Stack.h" />
-                              </ItemGroup>
-  <ItemGroup>
-                <ClCompile Include="Frame.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-            <ClCompile Include="FrameResource.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="Treap.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="StrRes.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="StrRes_l.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="StrRes_y.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-                                                        <ClCompile Include="CodePrint.cpp">
-      <Filter>Script</Filter>
-    </ClCompile>
-    <ClCompile Include="Event.cpp">
-      <Filter>Script</Filter>
-    </ClCompile>
-    <ClCompile Include="Interp.cpp">
+    <ClCompile Include="CodePrint.cpp" />
+    <ClCompile Include="Event.cpp" />
+    <ClCompile Include="Frame.cpp" />
+    <ClCompile Include="FrameResource.cpp" />
+    <ClCompile Include="GTime.cpp" />
+    <ClCompile Include="Interp.cpp" />
     <ClCompile Include="Json.cpp" />
-      <Filter>Script</Filter>
-    </ClCompile>
-    <ClCompile Include="Script.cpp">
-      <Filter>Script</Filter>
-    </ClCompile>
-    <ClCompile Include="Script_l.cpp">
-      <Filter>Script</Filter>
-    </ClCompile>
-    <ClCompile Include="Script_y.cpp">
-      <Filter>Script</Filter>
-    </ClCompile>
-    <ClCompile Include="NetCrypt.cpp">
-      <Filter>NetPlay</Filter>
-    </ClCompile>
-    <ClCompile Include="NetJoin.cpp">
-      <Filter>NetPlay</Filter>
-    </ClCompile>
-    <ClCompile Include="NetPlay.cpp">
-      <Filter>NetPlay</Filter>
-    </ClCompile>
-    <ClCompile Include="HostCertificate.cpp">
-      <Filter>NetPlay</Filter>
-    </ClCompile>
-    <ClCompile Include="Transport.cpp">
-      <Filter>NetPlay</Filter>
-    </ClCompile>
-                        <ClCompile Include="GTime.cpp" />
-    <ClCompile Include="HashTabl.cpp" />
-            <ClCompile Include="NetSupp.cpp" />
+    <ClCompile Include="HostCertificate.cpp" />
+    <ClCompile Include="NetCrypt.cpp" />
+    <ClCompile Include="NetJoin.cpp" />
+    <ClCompile Include="NetPlay.cpp" />
+    <ClCompile Include="Transport.cpp" />
+    <ClCompile Include="NetSupp.cpp" />
     <ClCompile Include="NetUsers.cpp" />
-            <ClCompile Include="pch.cpp" />
-                                    <ClCompile Include="PQueue.cpp" />
-    <ClCompile Include="PtrList.cpp" />
-                <ClCompile Include="Stack.cpp" />
-          </ItemGroup>
-  <ItemGroup>
-    <Filter Include="Framework">
-      <UniqueIdentifier>{b6512305-8326-4d86-aa65-1b1483f45df9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Gamelib">
-      <UniqueIdentifier>{13bc249d-6089-4959-965b-82b54fc8ea99}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="NetPlay">
-      <UniqueIdentifier>{4b7b78b1-878b-4b16-9995-c8f4a8151b30}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Script">
-      <UniqueIdentifier>{f59b33cc-9e12-4887-a953-c733d084fce5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Sequence">
-      <UniqueIdentifier>{9b1cf67f-c2a8-4872-aa0f-683d7d8bf174}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Sound">
-      <UniqueIdentifier>{10ac5322-19da-4c78-bc7e-eaa62a837e66}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Widget">
-      <UniqueIdentifier>{5089e6fa-7d5f-4eea-b092-848d609c2f01}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Graphics">
-      <UniqueIdentifier>{0d7d1d83-a43e-4556-b3aa-1ccadb1fb77f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Project Files">
-      <UniqueIdentifier>{bbd10971-0272-4ef4-af72-0cc83ef7dcf8}</UniqueIdentifier>
-    </Filter>
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="Script.cpp" />
+    <ClCompile Include="ScriptComp.cpp" />
+    <ClCompile Include="ScriptLex.cpp" />
+    <ClCompile Include="Stack.cpp" />
+    <ClCompile Include="StrRes.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config">
-      <Filter>Project Files</Filter>
-    </None>
+    <ClInclude Include="CodePrint.h" />
+    <ClInclude Include="Debug.h" />
+    <ClInclude Include="Event.h" />
+    <ClInclude Include="Frame.h" />
+    <ClInclude Include="FrameResource.h" />
+    <ClInclude Include="GTime.h" />
+    <ClInclude Include="Interp.h" />
+    <ClInclude Include="Json.h" />
+    <ClInclude Include="HostCertificate.h" />
+    <ClInclude Include="NetPlay.h" />
+    <ClInclude Include="Transport.h" />
+    <ClInclude Include="NetTypes.h" />
+    <ClInclude Include="NeuronCore.h" />
+    <ClInclude Include="Parse.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="Priority.h" />
+    <ClInclude Include="Script.h" />
+    <ClInclude Include="ScriptLex.h" />
+    <ClInclude Include="Stack.h" />
+    <ClInclude Include="StrRes.h" />
+    <ClInclude Include="Types.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

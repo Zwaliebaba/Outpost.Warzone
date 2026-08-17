@@ -2,6 +2,7 @@
 #include "Frame.h"
 #include "Input.h"
 #include "FrameInt.h"
+#include "RenderClip.h"
 
 #include "Widget.h"
 #include "WidgInt.h"
@@ -117,8 +118,10 @@ BOOL widgCreateScreen(W_SCREEN** ppsScreen)
   sInit.style = WFORM_PLAIN | WFORM_INVISIBLE;
   sInit.x = 0;
   sInit.y = 0;
-  sInit.width = static_cast<UWORD>(screenWidth - 1);
-  sInit.height = static_cast<UWORD>(screenHeight - 1);
+  /* The root form spans the logical canvas the widgets lay out on, not the
+   * physical display */
+  sInit.width = static_cast<UWORD>(pie_GetVideoBufferWidth() - 1);
+  sInit.height = static_cast<UWORD>(pie_GetVideoBufferHeight() - 1);
   if (!formCreate(&psForm, &sInit))
     return FALSE;
 
@@ -851,14 +854,19 @@ UDWORD widgGetButtonState(W_SCREEN* psScreen, UDWORD id)
 
   /* Get the button */
   psWidget = widgGetFromID(psScreen, id);
-  if (psWidget == nullptr)
-    DEBUG_ASSERT_TEXT(FALSE, "widgGetButtonState: Couldn't find button/click form from ID");
-  else if (psWidget->type == WIDG_BUTTON)
-    return buttonGetState((W_BUTTON*)psWidget);
-  else if ((psWidget->type == WIDG_FORM) && (psWidget->style & WFORM_CLICKABLE))
-    return formGetClickState((W_CLICKFORM*)psWidget);
-  else
-    DEBUG_ASSERT_TEXT(FALSE, "widgGetButtonState: Couldn't find button/click form from ID");
+  if (psWidget != nullptr)
+  {
+    if (psWidget->type == WIDG_BUTTON)
+      return buttonGetState((W_BUTTON*)psWidget);
+    if ((psWidget->type == WIDG_FORM) && (psWidget->style & WFORM_CLICKABLE))
+      return formGetClickState((W_CLICKFORM*)psWidget);
+  }
+
+  /* The assert is a no-op in release, so this needs a value of its own -
+     it used to run off the end of the function and return whatever was in
+     the return register. */
+  DEBUG_ASSERT_TEXT(FALSE, "widgGetButtonState: Couldn't find button/click form from ID");
+  return 0;
 }
 
 void widgSetButtonFlash(W_SCREEN* psScreen, UDWORD id)

@@ -1563,10 +1563,10 @@ void dealWithDroidSelect(DROID* psDroid, BOOL bDragBox)
   if (!bDragBox && psDroid->selected == TRUE)
   {
     DeSelectDroid(psDroid);
-    psDroid->group == UBYTE_MAX;
-    {
-      /* Fix this ALEX M!!! */
-    }
+    /* There was a `psDroid->group == UBYTE_MAX;` here - a comparison whose
+     * result was discarded, so it has never done anything. Removed rather
+     * than made an assignment, which would change 28 years of behaviour;
+     * the original author's own note was "Fix this ALEX M!!!". */
   }
   else if (keyDown(KEY_LCTRL) || keyDown(KEY_RCTRL) || keyDown(KEY_LSHIFT) || keyDown(KEY_RSHIFT) || !droidHasLeader(psDroid))
   {

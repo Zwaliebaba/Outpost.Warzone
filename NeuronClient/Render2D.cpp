@@ -20,7 +20,7 @@
 #include "PieState.h"
 #include "RendFunc.h"
 #include "RendMode.h"
-#include "Pcx.h"
+#include "Dds.h"
 #include "RenderClip.h"
 #include "PieFunc.h"
 #include "RenderMatrix.h"
@@ -30,7 +30,9 @@
  *	Local Definitions
  */
 /***************************************************************************/
-UWORD backDropBmp[BACKDROP_WIDTH * BACKDROP_HEIGHT * 2];
+/* The backdrop bitmap, packed A8R8G8B8 like every other pixel buffer. The
+ * 16 bit RGB565 halfway house it used to be went with the palette. */
+iBitmap backDropBmp[BACKDROP_WIDTH * BACKDROP_HEIGHT];
 SDWORD gSurfaceOffsetX;
 SDWORD gSurfaceOffsetY;
 UWORD* pgSrcData = nullptr;
@@ -62,17 +64,14 @@ POINT rectVerts[4];
 void pie_Line(int x0, int y0, int x1, int y1, uint32 colour)
 {
   PIELIGHT light;
-  iColour* psPalette;
 
   pie_SetRendMode(REND_FLAT);
   pie_SetColour(colour);
   pie_SetTexturePage(-1);
 
-  /* Get our colour values from the ivis palette */
-  psPalette = pie_GetGamePal();
-  light.byte.r = psPalette[colour].r;
-  light.byte.g = psPalette[colour].g;
-  light.byte.b = psPalette[colour].b;
+  /* The colour arrives packed - it was a palette index until stage 3 of
+   * the palette removal */
+  light.argb = colour;
   light.byte.a = MAX_UB_LIGHT;
   pie_DrawLine(x0, y0, x1, y1, light.argb, TRUE);
 }
@@ -82,7 +81,6 @@ void pie_Line(int x0, int y0, int x1, int y1, uint32 colour)
 void pie_Box(int x0, int y0, int x1, int y1, uint32 colour)
 {
   PIELIGHT light;
-  iColour* psPalette;
 
   pie_SetRendMode(REND_FLAT);
   pie_SetColour(colour);
@@ -100,11 +98,9 @@ void pie_Box(int x0, int y0, int x1, int y1, uint32 colour)
   if (y1 > psRendSurface->clip.bottom)
     y1 = psRendSurface->clip.bottom;
 
-  psPalette = pie_GetGamePal();
-  /* Get our colour values from the ivis palette */
-  light.byte.r = psPalette[colour].r;
-  light.byte.g = psPalette[colour].g;
-  light.byte.b = psPalette[colour].b;
+  /* The colour arrives packed - it was a palette index until stage 3 of
+   * the palette removal */
+  light.argb = colour;
   light.byte.a = MAX_UB_LIGHT;
   pie_DrawLine(x0, y0, x1, y0, light.argb, FALSE);
   pie_DrawLine(x1, y0, x1, y1, light.argb, FALSE);
@@ -114,10 +110,9 @@ void pie_Box(int x0, int y0, int x1, int y1, uint32 colour)
 
 /***************************************************************************/
 
-void pie_BoxFillIndex(int x0, int y0, int x1, int y1, UBYTE colour)
+void pie_BoxFillIndex(int x0, int y0, int x1, int y1, UDWORD colour)
 {
   PIELIGHT light;
-  iColour* psPalette;
 
   pie_SetRendMode(REND_FLAT);
   pie_SetTexturePage(-1);
@@ -134,11 +129,10 @@ void pie_BoxFillIndex(int x0, int y0, int x1, int y1, UBYTE colour)
   if (y1 > psRendSurface->clip.bottom)
     y1 = psRendSurface->clip.bottom;
 
-  /* Get our colour values from the ivis palette */
-  psPalette = pie_GetGamePal();
-  light.byte.r = psPalette[colour].r;
-  light.byte.g = psPalette[colour].g;
-  light.byte.b = psPalette[colour].b;
+  /* The colour arrives packed - the "Index" in the name is what it took
+   * until stage 3 of the palette removal; the name waits for the pie_
+   * rename Phase 8 owns. */
+  light.argb = colour;
   light.byte.a = MAX_UB_LIGHT;
   pie_DrawRect(x0, y0, x1, y1, light.argb, FALSE);
 }
@@ -411,8 +405,8 @@ void pie_UploadDisplayBuffer(UBYTE* DisplayBuffer)
 {
   //only call inside D3D render
   pie_GlobalRenderEnd(FALSE);
-  screen_Upload((UWORD*)DisplayBuffer);
-  screen_SetBackDrop((UWORD*)DisplayBuffer, pie_GetVideoBufferWidth(), pie_GetVideoBufferHeight());
+  screen_Upload((iBitmap*)DisplayBuffer);
+  screen_SetBackDrop((iBitmap*)DisplayBuffer, pie_GetVideoBufferWidth(), pie_GetVideoBufferHeight());
   pie_GlobalRenderBegin();
 }
 
@@ -420,7 +414,7 @@ BOOL pie_InitRadar(void) { return TRUE; }
 
 BOOL pie_ShutdownRadar(void) { return TRUE; }
 
-void pie_DownLoadRadar(unsigned char* buffer, UDWORD texPageID) { dtm_LoadRadarSurface(buffer); }
+void pie_DownLoadRadar(iBitmap* buffer, UDWORD texPageID) { dtm_LoadRadarSurface(buffer); }
 
 void pie_RenderRadar(IMAGEDEF* Image, iBitmap* Bmp, UDWORD Modulus, int x, int y)
 {
@@ -466,53 +460,13 @@ void pie_RenderRadarRotated(IMAGEDEF* Image, iBitmap* Bmp, UDWORD Modulus, int x
   pie_DrawImage(&pieImage, &dest, &rendStyle);
 }
 
-/*	Converts an 8 bit raw (palettised) source image to a 16 bit RGB565
-	destination image.
-
-	The bDummy argument used to say whether the destination was a 3dfx
-	surface, which was always 565, as against the display's own 16 bit
-	format, which was whatever DirectDraw had handed back. Both are 565 now,
-	so the two branches - and the bit mask scanning that fed the second one -
-	collapsed into one.
-*/
-void bufferTo16Bit(UBYTE* origBuffer, UWORD* newBuffer, BOOL bDummy)
-{
-  UBYTE paletteIndex;
-  UDWORD i;
-  iColour* psPalette;
-  UDWORD size;
-
-  (void)bDummy;
-
-  psPalette = pie_GetGamePal();
-
-  /*
-    640*480, 8 bit colour source image 
-    640*480, 16 bit colour destination image
-  */
-  size = BACKDROP_WIDTH * BACKDROP_HEIGHT;
-  for (i = 0; i < size; i++)
-  {
-    /* Get the next colour */
-    paletteIndex = *origBuffer++;
-
-    *newBuffer++ = static_cast<UWORD>(((psPalette[paletteIndex].r >> 3) << 11) | ((psPalette[paletteIndex].g >> 2) << 5) | (psPalette[
-      paletteIndex].b >> 3));
-  }
-}
-
 void pie_ResetBackDrop(void) { screen_SetBackDrop(backDropBmp, BACKDROP_WIDTH, BACKDROP_HEIGHT); }
 
 void pie_LoadBackDrop(SCREENTYPE screenType, BOOL b3DFX)
 {
   iSprite backDropSprite;
-  iBitmap tempBmp[BACKDROP_WIDTH * BACKDROP_HEIGHT];
   UDWORD chooser0, chooser1;
   CHAR backd[128];
-  /* The backdrop is always composited in 16 bit now. It used to be left as
-   * 8 bit palettised whenever the display was not 16 bit, which meant a
-   * palettised display; there is no such display any more. */
-  SDWORD bitDepth = 16;
 
   (void)b3DFX;
 
@@ -522,50 +476,47 @@ void pie_LoadBackDrop(SCREENTYPE screenType, BOOL b3DFX)
   chooser0 = 0;
   chooser1 = rand() % 7;
 
+  /* The PCX loader delivers packed 32 bit pixels, so the backdrop loads
+   * straight into its bitmap - the 8-to-16-bit conversion pass went with
+   * the palette. */
   backDropSprite.width = BACKDROP_WIDTH;
   backDropSprite.height = BACKDROP_HEIGHT;
-  if (bitDepth == 8)
-    backDropSprite.bmp = (UBYTE*)backDropBmp;
-  else
-    backDropSprite.bmp = tempBmp;
+  backDropSprite.bmp = backDropBmp;
 
   switch (screenType)
   {
   case SCREEN_RANDOMBDROP:
-    sprintf(backd, "texpages\\bdrops\\%d%d-bdrop.pcx", chooser0, chooser1);
+    sprintf(backd, "texpages\\bdrops\\%d%d-bdrop.dds", chooser0, chooser1);
     break;
   case SCREEN_MISSIONEND:
-    sprintf(backd, "texpages\\bdrops\\missionend.pcx");
+    sprintf(backd, "texpages\\bdrops\\missionend.dds");
     break;
   case SCREEN_SLIDE1:
-    sprintf(backd, "texpages\\slides\\slide1.pcx");
+    sprintf(backd, "texpages\\slides\\slide1.dds");
     break;
   case SCREEN_SLIDE2:
-    sprintf(backd, "texpages\\slides\\slide2.pcx");
+    sprintf(backd, "texpages\\slides\\slide2.dds");
     break;
   case SCREEN_SLIDE3:
-    sprintf(backd, "texpages\\slides\\slide3.pcx");
+    sprintf(backd, "texpages\\slides\\slide3.dds");
     break;
   case SCREEN_SLIDE4:
-    sprintf(backd, "texpages\\slides\\slide4.pcx");
+    sprintf(backd, "texpages\\slides\\slide4.dds");
     break;
   case SCREEN_SLIDE5:
-    sprintf(backd, "texpages\\slides\\slide5.pcx");
+    sprintf(backd, "texpages\\slides\\slide5.dds");
     break;
 
   case SCREEN_CREDITS:
-    sprintf(backd, "texpages\\bdrops\\credits.pcx");
+    sprintf(backd, "texpages\\bdrops\\credits.dds");
     break;
 
   default:
-    sprintf(backd, "texpages\\bdrops\\credits.pcx");
+    sprintf(backd, "texpages\\bdrops\\credits.dds");
     break;
   }
-  if (!pie_PCXLoadToBuffer(backd, &backDropSprite, nullptr))
+  if (!Neuron::DdsLoadToBuffer(backd, &backDropSprite))
     return;
-
-  if (bitDepth != 8)
-    bufferTo16Bit(tempBmp, backDropBmp, b3DFX); // convert
 
   screen_SetBackDrop(backDropBmp, BACKDROP_WIDTH, BACKDROP_HEIGHT);
 }

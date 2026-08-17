@@ -36,7 +36,7 @@
 /***************************************************************************/
 extern void pie_Line(int x0, int y0, int x1, int y1, uint32 colour);
 extern void pie_Box(int x0, int y0, int x1, int y1, uint32 colour);
-extern void pie_BoxFillIndex(int x0, int y0, int x1, int y1, UBYTE colour);
+extern void pie_BoxFillIndex(int x0, int y0, int x1, int y1, UDWORD colour);
 extern void pie_BoxFill(int x0, int y0, int x1, int y1, uint32 colour);
 extern void pie_DrawImageFileID(IMAGEFILE* ImageFile, UWORD ID, int x, int y);
 extern void pie_ImageFileID(IMAGEFILE* ImageFile, UWORD ID, int x, int y);
@@ -51,7 +51,7 @@ extern void pie_DrawRect(SDWORD x0, SDWORD y0, SDWORD x1, SDWORD y1, UDWORD colo
 
 extern BOOL pie_InitRadar(void);
 extern BOOL pie_ShutdownRadar(void);
-extern void pie_DownLoadRadar(unsigned char* buffer, UDWORD texPageID);
+extern void pie_DownLoadRadar(iBitmap* buffer, UDWORD texPageID);
 extern void pie_RenderRadar(IMAGEDEF* Image, iBitmap* Bmp, UDWORD Modulus, int x, int y);
 extern void pie_RenderRadarRotated(IMAGEDEF* Image, iBitmap* Bmp, UDWORD Modulus, int x, int y, int angle);
 
@@ -78,6 +78,5 @@ using SCREENTYPE = enum _screenType
 extern void pie_LoadBackDrop(SCREENTYPE screenType, BOOL b3DFX);
 extern void pie_ResetBackDrop(void);
 
-extern void bufferTo16Bit(UBYTE* origBuffer, UWORD* newBuffer, BOOL b3DFX);
 
 #endif // 

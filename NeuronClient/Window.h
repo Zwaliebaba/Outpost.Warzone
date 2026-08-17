@@ -16,14 +16,12 @@
 
 #include "Types.h"
 
-/* Initialise the frame work library */
+/* Initialise the frame work library. The display is always a borderless
+ * window covering the desktop at its resolution; the game's logical canvas
+ * and the display scale between the two are derived from it here.
+ */
 extern BOOL frameInitialise(HANDLE hInstance, // The windows application instance
-                            STRING* pWindowName, // The text to appear in the window title bar
-                            UDWORD width, // The display width
-                            UDWORD height, // The display height
-                            UDWORD bitDepth, // The display bit depth
-                            BOOL fullScreen, // Whether to start full screen or windowed
-                            BOOL bVidMem); // Whether to put surfaces in video memory
+                            STRING* pWindowName); // The text to appear in the window title bar
 
 /* Shut down the framework library.
  * This clears up all the Direct Draw stuff and ensures

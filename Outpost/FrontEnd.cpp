@@ -1311,7 +1311,7 @@ VOID addTextButton(UDWORD id, UDWORD PosX, UDWORD PosY, STRING* txt, BOOL bAlign
     sButInit.width = FRONTEND_BUTWIDTH;
   }
 
-  sButInit.pUserData = (VOID*)bGrey; // store disable state
+  sButInit.pUserData = widgPackUserData(bGrey); // store disable state
 
   sButInit.height = FRONTEND_BUTHEIGHT;
   sButInit.pDisplay = displayTextOption;
@@ -1420,7 +1420,7 @@ VOID displayTextOption(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset,
   SDWORD fx, fy, fw;
   W_BUTTON* psBut;
   BOOL hilight = FALSE;
-  BOOL greyOut = (BOOL)psWidget->pUserData; // if option is unavailable.
+  BOOL greyOut = static_cast<BOOL>(widgUnpackUserData(psWidget->pUserData)); // if option is unavailable.
 
   UNUSEDPARAMETER(pColours);
   psBut = (W_BUTTON*)psWidget;

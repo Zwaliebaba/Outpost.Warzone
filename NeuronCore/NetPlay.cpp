@@ -299,7 +299,7 @@ UBYTE NETsendFile(BOOL newFile, CHAR* fileName, NETPLAYERID player)
     currPos = 0;
     do
     {
-      bytesRead = fread(&inBuff, 1, sizeof(inBuff), pFileHandle);
+      bytesRead = static_cast<UDWORD>(fread(&inBuff, 1, sizeof(inBuff), pFileHandle));
       fileSize += bytesRead;
     }
     while (bytesRead != 0);
@@ -307,16 +307,16 @@ UBYTE NETsendFile(BOOL newFile, CHAR* fileName, NETPLAYERID player)
     pFileHandle = fopen(fileName, "rb"); // reopen
   }
   // read some bytes.
-  bytesRead = fread(&inBuff, 1, sizeof(inBuff), pFileHandle);
+  bytesRead = static_cast<UDWORD>(fread(&inBuff, 1, sizeof(inBuff), pFileHandle));
 
   // form a message
   NetAdd(msg, 0, fileSize); // total bytes in this file.
   NetAdd(msg, 4, bytesRead); // bytes in this packet	
   NetAdd(msg, 8, currPos); // start byte
-  msg.body[12] = strlen(fileName);
+  msg.body[12] = static_cast<char>(strlen(fileName));
   msg.size = 13;
   NetAddSt(msg, msg.size, fileName);
-  msg.size += strlen(fileName);
+  msg.size += static_cast<unsigned short>(strlen(fileName));
   memcpy(&(msg.body[msg.size]), &inBuff, bytesRead);
   msg.size += bytesRead;
   msg.type = FILEMSG;

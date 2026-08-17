@@ -36,7 +36,6 @@
 #include "TexMan.h"
 #include "Game.h"
 #include "Lighting.h"
-#include "Palette.h"
 
 // Warzone 2100 . Pumpkin Studios
 
@@ -90,12 +89,8 @@ int WINAPI WinMain(HINSTANCE hInstance, // handle to current instance
   BOOL quit = FALSE;
   BOOL Restart = FALSE;
   BOOL paused = FALSE; //, firstTime = TRUE;
-  BOOL bVidMem = FALSE;
-  SDWORD dispBitDepth = DISP_BITDEPTH;
   SDWORD introVideoControl = 3;
   GAMECODE loopStatus;
-  iColour* psPaletteBuffer;
-  SDWORD pSize;
 
   (void)nShowCmd;
   (void)hPrevInstance;
@@ -125,11 +120,9 @@ init: //jump here from the end if re_initialising
   _chdir(FILE_PATH);
 #endif
 
-  //always start windowed toggle to fullscreen later
-  bVidMem = TRUE;
-  dispBitDepth = DISP_HARDBITDEPTH;
-
-  if (!frameInitialise(hInstance, "Warzone 2100", DISP_WIDTH,DISP_HEIGHT, dispBitDepth, !clStartWindowed, bVidMem))
+  /* The display is a borderless window covering the desktop at its own
+   * resolution; the framework derives the game's logical canvas from it. */
+  if (!frameInitialise(hInstance, "Warzone 2100"))
     return -1;
 
   pie_SetFogStatus(FALSE);
@@ -142,22 +135,8 @@ init: //jump here from the end if re_initialising
     gameStatus = GS_TITLE_SCREEN;
   }
 
-  //load palette
-  // palette.bin is 256 entries plus one trailing byte
-  psPaletteBuffer = new (std::nothrow) iColour[257];
-  if (psPaletteBuffer == nullptr)
-  {
-    Neuron::Fatal("Out of memory");
-    return -1;
-  }
-  if (!loadFileToBuffer("palette.bin", (UBYTE*)psPaletteBuffer, (256 * sizeof(iColour) + 1), (UDWORD*)&pSize))
-  {
-    Neuron::Fatal("Couldn't load palette data");
-    return -1;
-  }
-  pal_AddNewPalette(psPaletteBuffer);
-  delete[] psPaletteBuffer;
-  psPaletteBuffer = nullptr;
+  /* palette.bin was loaded here. The art is true colour DDS now, so there
+   * is no palette to load - the colours are in the files. */
 
   pie_LoadBackDrop(SCREEN_RANDOMBDROP,FALSE);
   pie_SetFogStatus(FALSE);
@@ -168,9 +147,6 @@ init: //jump here from the end if re_initialising
   if (!systemInitialise())
     return -1;
 
-  // If windowed mode not requested then toggle to full screen. Doing
-  // it here rather than in the call to frameInitialise fixes a problem
-  // where machines with an NVidia and a 3DFX would kill the 3dfx display. (Definitly a HACK, PD)
   //set all the pause states to false
   setAllPauseStates(FALSE);
 
@@ -418,8 +394,6 @@ init: //jump here from the end if re_initialising
 
   systemShutdown();
 
-  pal_ShutDown();
-
   frameShutDown();
 
   if (reInit)
@@ -432,8 +406,6 @@ init: //jump here from the end if re_initialising
 exit: Neuron::DebugTrace("Shutting down after fail\n");
 
   systemShutdown();
-
-  pal_ShutDown();
 
   frameShutDown();
 

@@ -13,6 +13,7 @@
 #include "Screen.h"
 #include "FrameInt.h"
 #include "Frame.h"
+#include "RenderClip.h"
 
 /* The possible states for keys */
 using KEY_STATE = enum _key_state
@@ -85,8 +86,10 @@ void inputInitialise(void)
   pStartBuffer = pInputBuffer;
   pEndBuffer = pInputBuffer;
 
-  dragX = mouseXPos = screenWidth / 2;
-  dragY = mouseYPos = screenHeight / 2;
+  /* The mouse position is kept in logical-canvas coordinates, like every
+   * coordinate the game computes with. */
+  dragX = mouseXPos = pie_GetVideoBufferWidth() / 2;
+  dragY = mouseYPos = pie_GetVideoBufferHeight() / 2;
   dragKey = MOUSE_LMB;
 }
 
@@ -148,8 +151,6 @@ UDWORD inputGetKey(void)
 void inputProcessMessages(UINT message, WPARAM wParam, LPARAM lParam)
 {
   UDWORD code, i, repeat, vk;
-  float divX, divY;
-  UDWORD scrX, scrY;
 
   /* Loose the warning message */
   (void)wParam;
@@ -251,9 +252,10 @@ case WM_MOUSEWHEEL:	// not defined in non-NT.....bugger.
   case WM_MOUSEMOVE:
     if (!mouseDown(MOUSE_MMB))
     {
-      /* store the current mouse position */
-      mouseXPos = LOWORD(lParam);
-      mouseYPos = HIWORD(lParam);
+      /* store the current mouse position, taken from physical window
+       * coordinates to the logical canvas the game computes with */
+      mouseXPos = static_cast<SDWORD>(LOWORD(lParam)) / static_cast<SDWORD>(Neuron::DisplayScale());
+      mouseYPos = static_cast<SDWORD>(HIWORD(lParam)) / static_cast<SDWORD>(Neuron::DisplayScale());
 
       /* now see if a drag has started */
       if ((aMouseState[dragKey] == KEY_PRESSED || aMouseState[dragKey] == KEY_DOWN) && (ABSDIF(dragX, mouseXPos) > DRAG_THRESHOLD ||

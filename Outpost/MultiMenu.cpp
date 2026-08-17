@@ -192,7 +192,7 @@ void displayRequestOption(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffs
   pie_DrawText((UCHAR*)butString, x + 8, y + 24);
 
   // if map, then draw no. of players.
-  for (count = 0; count < (UDWORD)psWidget->pUserData; count++)
+  for (count = 0; count < widgUnpackUserData(psWidget->pUserData); count++)
     pie_ImageFileID(FrontImages, IMAGE_WEE_GUY, (x + (6 * count) + 8), y + 28);
 
   AddCursorSnap(&InterfaceSnap, static_cast<SWORD>(x + 5), static_cast<SWORD>(y + 5), psWidget->formID, psWidget->id, nullptr);
@@ -312,7 +312,7 @@ VOID addMultiRequest(STRING* ToFindb, UDWORD mode, UBYTE mapCam)
   sButInit.pTip = strresGetString(psStringRes, STR_MISC_CLOSE);
   sButInit.FontID = WFont;
   sButInit.pDisplay = intDisplayImageHilight;
-  sButInit.pUserData = (void*)PACKDWORD_TRI(0, IMAGE_CLOSEHILIGHT, IMAGE_CLOSE);
+  sButInit.pUserData = widgPackUserData(PACKDWORD_TRI(0, IMAGE_CLOSEHILIGHT, IMAGE_CLOSE));
   widgAddButton(psRScreen, &sButInit);
 
   /* Put the buttons on it */ /* Set up the button struct */
@@ -344,7 +344,7 @@ VOID addMultiRequest(STRING* ToFindb, UDWORD mode, UBYTE mapCam)
 
       if (mode == MULTIOP_MAP) // if its a map, set player flag.
       {
-        sButInit.pUserData = (void*)(found.cFileName[0] - '0');
+        sButInit.pUserData = widgPackUserData(found.cFileName[0] - '0');
 
         //				else
         if (found.cFileName[1] != 'c')
@@ -396,7 +396,7 @@ VOID addMultiRequest(STRING* ToFindb, UDWORD mode, UBYTE mapCam)
 
         sButInit.pTip = tips[sButInit.id - M_REQUEST_BUT];
         sButInit.pText = tips[sButInit.id - M_REQUEST_BUT];
-        sButInit.pUserData = (void*)players;
+        sButInit.pUserData = widgPackUserData(players);
 
         widgAddButton(psRScreen, &sButInit);
 
@@ -472,7 +472,7 @@ BOOL runMultiRequester(UDWORD id, UDWORD* mode, STRING* chosen, UDWORD* chosenVa
 
     //		if(context == MULTIOP_MAP)						// chop off the number of players.
 
-    *chosenValue = (UDWORD)((W_BUTTON*)widgGetFromID(psRScreen, id))->pUserData;
+    *chosenValue = widgUnpackUserData(widgGetFromID(psRScreen, id)->pUserData);
     closeMultiRequester();
     *mode = context;
     return TRUE;
@@ -560,7 +560,7 @@ void displayMultiPlayer(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
 
   UNUSEDPARAMETER(pColours);
 
-  player = (int)psWidget->pUserData; //get the in game player number.
+  player = static_cast<int>(widgUnpackUserData(psWidget->pUserData)); //get the in game player number.
 
   if (responsibleFor(player, 0))
     displayExtraGubbins(widgGetFromID(psWScreen,MULTIMENU_FORM)->height);
@@ -572,7 +572,7 @@ void displayMultiPlayer(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
   {
     //c2:name, 
 
-    sprintf(str, "%d:", player, getPlayerName(player));
+    sprintf(str, "%d:", player);
 
     strcat(str, getPlayerName(player));
     while (Neuron::GetTextWidth((unsigned char*)str) >= (MULTIMENU_C0 - MULTIMENU_C2 - 10)) { str[strlen(str) - 1] = '\0'; }
@@ -682,7 +682,7 @@ void displayAllianceState(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffs
 {
   UDWORD a, b, c, player;
 
-  player = (UDWORD)psWidget->pUserData;
+  player = widgUnpackUserData(psWidget->pUserData);
   switch (alliances[selectedPlayer][player])
   {
   case ALLIANCE_BROKEN:
@@ -708,16 +708,16 @@ void displayAllianceState(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffs
     break;
   }
 
-  psWidget->pUserData = (VOID*)PACKDWORD_TRI(a, b, c);
+  psWidget->pUserData = widgPackUserData(PACKDWORD_TRI(a, b, c));
   intDisplayImageHilight(psWidget, xOffset, yOffset, pColours);
-  psWidget->pUserData = (VOID*)player;
+  psWidget->pUserData = widgPackUserData(player);
 }
 
 void displayChannelState(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset, UDWORD* pColours)
 {
   UDWORD a, b, c, player;
 
-  player = (UDWORD)psWidget->pUserData;
+  player = widgUnpackUserData(psWidget->pUserData);
   switch (openchannels[player])
   {
   case 1:
@@ -732,9 +732,9 @@ void displayChannelState(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffse
     break;
   }
 
-  psWidget->pUserData = (VOID*)PACKDWORD_TRI(a, b, c);
+  psWidget->pUserData = widgPackUserData(PACKDWORD_TRI(a, b, c));
   intDisplayImageHilight(psWidget, xOffset, yOffset, pColours);
-  psWidget->pUserData = (VOID*)player;
+  psWidget->pUserData = widgPackUserData(player);
 }
 
 // ////////////////////////////////////////////////////////////////////////////
@@ -757,7 +757,7 @@ void addMultiPlayer(UDWORD player, UDWORD pos)
   sFormInit.width = MULTIMENU_FORM_W - 4;
   sFormInit.height = MULTIMENU_PLAYER_H;
   sFormInit.pDisplay = displayMultiPlayer;
-  sFormInit.pUserData = (VOID*)player;
+  sFormInit.pUserData = widgPackUserData(player);
   widgAddForm(psWScreen, &sFormInit);
 
   //name, 
@@ -780,7 +780,7 @@ void addMultiPlayer(UDWORD player, UDWORD pos)
     sButInit.id = MULTIMENU_CHANNEL + player;
     sButInit.pTip = "channel";
     sButInit.pDisplay = displayChannelState;
-    sButInit.pUserData = (VOID*)player;
+    sButInit.pUserData = widgPackUserData(player);
     widgAddButton(psWScreen, &sButInit);
   }
 
@@ -795,7 +795,7 @@ void addMultiPlayer(UDWORD player, UDWORD pos)
     sButInit.id = MULTIMENU_ALLIANCE_BASE + player;
     sButInit.pTip = strresGetString(psStringRes, STR_ALLI_STATE);
     sButInit.pDisplay = displayAllianceState;
-    sButInit.pUserData = (VOID*)player;
+    sButInit.pUserData = widgPackUserData(player);
 
     widgAddButton(psWScreen, &sButInit);
 
@@ -807,25 +807,25 @@ void addMultiPlayer(UDWORD player, UDWORD pos)
     sButInit.id = MULTIMENU_GIFT_RAD + player;
     sButInit.x = MULTIMENU_C4;
     sButInit.pTip = strresGetString(psStringRes, STR_ALLI_VIS);
-    sButInit.pUserData = (void*)PACKDWORD_TRI(0, IMAGE_MULTI_VIS_HI, IMAGE_MULTI_VIS);
+    sButInit.pUserData = widgPackUserData(PACKDWORD_TRI(0, IMAGE_MULTI_VIS_HI, IMAGE_MULTI_VIS));
     widgAddButton(psWScreen, &sButInit);
 
     sButInit.id = MULTIMENU_GIFT_RES + player;
     sButInit.x = MULTIMENU_C5;
     sButInit.pTip = strresGetString(psStringRes, STR_ALLI_TEC);
-    sButInit.pUserData = (void*)PACKDWORD_TRI(0, IMAGE_MULTI_TEK_HI, IMAGE_MULTI_TEK);
+    sButInit.pUserData = widgPackUserData(PACKDWORD_TRI(0, IMAGE_MULTI_TEK_HI, IMAGE_MULTI_TEK));
     widgAddButton(psWScreen, &sButInit);
 
     sButInit.id = MULTIMENU_GIFT_DRO + player;
     sButInit.x = MULTIMENU_C6;
     sButInit.pTip = strresGetString(psStringRes, STR_ALLI_DRO);
-    sButInit.pUserData = (void*)PACKDWORD_TRI(0, IMAGE_MULTI_DRO_HI, IMAGE_MULTI_DRO);
+    sButInit.pUserData = widgPackUserData(PACKDWORD_TRI(0, IMAGE_MULTI_DRO_HI, IMAGE_MULTI_DRO));
     widgAddButton(psWScreen, &sButInit);
 
     sButInit.id = MULTIMENU_GIFT_POW + player;
     sButInit.x = MULTIMENU_C7;
     sButInit.pTip = strresGetString(psStringRes, STR_ALLI_POW);
-    sButInit.pUserData = (void*)PACKDWORD_TRI(0, IMAGE_MULTI_POW_HI, IMAGE_MULTI_POW);
+    sButInit.pUserData = widgPackUserData(PACKDWORD_TRI(0, IMAGE_MULTI_POW_HI, IMAGE_MULTI_POW));
     widgAddButton(psWScreen, &sButInit);
 
     giftsUp[player] = TRUE; // note buttons are up!
@@ -894,7 +894,7 @@ BOOL intAddMultiMenu(VOID)
   sButInit.pTip = strresGetString(psStringRes, STR_MISC_CLOSE);
   sButInit.FontID = WFont;
   sButInit.pDisplay = intDisplayImageHilight;
-  sButInit.pUserData = (void*)PACKDWORD_TRI(0, IMAGE_CLOSEHILIGHT, IMAGE_CLOSE);
+  sButInit.pUserData = widgPackUserData(PACKDWORD_TRI(0, IMAGE_CLOSEHILIGHT, IMAGE_CLOSE));
   if (!widgAddButton(psWScreen, &sButInit))
     return FALSE;
 

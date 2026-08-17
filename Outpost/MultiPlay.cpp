@@ -185,11 +185,11 @@ BOOL multiplayerWinSequence(BOOL firstCall)
     pos2.z += (rand() % (8 << TILE_SHIFT)) - (4 << TILE_SHIFT);
     if (pos2.x < 0)
       pos2.x = 128;
-    if (pos2.x > mapWidth << TILE_SHIFT)
+    if (pos2.x > static_cast<SDWORD>(mapWidth << TILE_SHIFT))
       pos2.x = mapWidth << TILE_SHIFT;
     if (pos2.z < 0)
       pos2.z = 128;
-    if (pos2.z > mapHeight << TILE_SHIFT)
+    if (pos2.z > static_cast<SDWORD>(mapHeight << TILE_SHIFT))
       pos2.z = mapHeight << TILE_SHIFT;
 
     addEffect(&pos2, EFFECT_FIREWORK, FIREWORK_TYPE_LAUNCHER,FALSE, nullptr, 0); // throw up some fire works.

@@ -31,6 +31,6 @@
 #define NUM_TILES	100		//5 pages of 16 tiles.
 
 #define BOX_PULSE_SIZE	10
-extern UBYTE boxPulseColours[BOX_PULSE_SIZE];
+extern UDWORD boxPulseColours[BOX_PULSE_SIZE];
 
 #endif

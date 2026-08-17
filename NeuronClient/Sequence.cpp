@@ -6,6 +6,7 @@
 
 #include "MovieStream.h"
 #include "Screen.h"
+#include "RenderClip.h"
 
 #include <string>
 
@@ -179,7 +180,11 @@ int seq_RenderOneFrame(int skip, SDWORD subMin, SDWORD subMax)
    * Nearest-neighbour, because DFLAG_DOUBLED was pixel replication and this is
    * meant to look like what shipped rather than better than it.
    */
-  const SDWORD scale = ((movieWidth <= VIDEO_WIDTH / 2) && (movieHeight <= VIDEO_HEIGHT / 2) && !g_smallVideo) ? 2 : 1;
+  /* On top of the shipped doubling, the whole 640x480 playback space is
+   * enlarged by the display scale, like every other logical coordinate, so
+   * the picture stays aligned with the subtitle quads drawn over it. */
+  const SDWORD displayScale = static_cast<SDWORD>(Neuron::DisplayScale());
+  const SDWORD scale = (((movieWidth <= VIDEO_WIDTH / 2) && (movieHeight <= VIDEO_HEIGHT / 2) && !g_smallVideo) ? 2 : 1) * displayScale;
   const SDWORD drawWidth = movieWidth * scale;
   const SDWORD drawHeight = movieHeight * scale;
 
@@ -208,15 +213,20 @@ int seq_RenderOneFrame(int skip, SDWORD subMin, SDWORD subMax)
 
   if (bTextBoxes)
   {
+    /* The band arrives in the 640x480 playback space; the rows being
+     * written are that space enlarged by the display scale. */
     subYstart = subMin - 10; //only ever in fullscreen mode
     subYend = subMax + 6;
-    subXstart = 14;
-    subXend = 624;
 
     if (subYstart < 0)
       subYstart = 0;
     if (subYend > VIDEO_HEIGHT)
       subYend = VIDEO_HEIGHT;
+
+    subYstart *= displayScale;
+    subYend *= displayScale;
+    subXstart = 14 * displayScale;
+    subXend = 624 * displayScale;
   }
   else
   {

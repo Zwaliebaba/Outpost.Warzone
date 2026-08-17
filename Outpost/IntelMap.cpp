@@ -498,7 +498,7 @@ BOOL intAddMessageView(MESSAGE* psMessage)
   sButInit.height = CLOSE_SIZE;
   sButInit.pTip = strresGetString(psStringRes, STR_MISC_CLOSE);
   sButInit.pDisplay = intDisplayImageHilight;
-  sButInit.pUserData = (void*)PACKDWORD_TRI(0, IMAGE_CLOSEHILIGHT, IMAGE_CLOSE);
+  sButInit.pUserData = widgPackUserData(PACKDWORD_TRI(0, IMAGE_CLOSEHILIGHT, IMAGE_CLOSE));
   if (!widgAddButton(psWScreen, &sButInit))
     return FALSE;
 
@@ -747,28 +747,28 @@ void _intIntelButtonPressed(BOOL proxMsg, UDWORD id)
         switch (psResearch->iconID)
         {
         case IMAGE_RES_DROIDTECH:
-          AudioSystem::PlayStream("sequenceAudio\\Res_Droid.wav", AUDIO_VOL_MAX, nullptr);
+          (void)AudioSystem::PlayStream("sequenceAudio\\Res_Droid.wav", AUDIO_VOL_MAX, nullptr);
           break;
         case IMAGE_RES_WEAPONTECH:
-          AudioSystem::PlayStream("sequenceAudio\\Res_Weapons.wav", AUDIO_VOL_MAX, nullptr);
+          (void)AudioSystem::PlayStream("sequenceAudio\\Res_Weapons.wav", AUDIO_VOL_MAX, nullptr);
           break;
         case IMAGE_RES_COMPUTERTECH:
-          AudioSystem::PlayStream("sequenceAudio\\Res_com.wav", AUDIO_VOL_MAX, nullptr);
+          (void)AudioSystem::PlayStream("sequenceAudio\\Res_com.wav", AUDIO_VOL_MAX, nullptr);
           break;
         case IMAGE_RES_POWERTECH:
-          AudioSystem::PlayStream("sequenceAudio\\Res_Power.wav", AUDIO_VOL_MAX, nullptr);
+          (void)AudioSystem::PlayStream("sequenceAudio\\Res_Power.wav", AUDIO_VOL_MAX, nullptr);
           break;
         case IMAGE_RES_SYSTEMTECH:
-          AudioSystem::PlayStream("sequenceAudio\\Res_SysTech.wav", AUDIO_VOL_MAX, nullptr);
+          (void)AudioSystem::PlayStream("sequenceAudio\\Res_SysTech.wav", AUDIO_VOL_MAX, nullptr);
           break;
         case IMAGE_RES_STRUCTURETECH:
-          AudioSystem::PlayStream("sequenceAudio\\Res_StruTech.wav", AUDIO_VOL_MAX, nullptr);
+          (void)AudioSystem::PlayStream("sequenceAudio\\Res_StruTech.wav", AUDIO_VOL_MAX, nullptr);
           break;
         case IMAGE_RES_CYBORGTECH:
-          AudioSystem::PlayStream("sequenceAudio\\Res_Droid.wav", AUDIO_VOL_MAX, nullptr);
+          (void)AudioSystem::PlayStream("sequenceAudio\\Res_Droid.wav", AUDIO_VOL_MAX, nullptr);
           break;
         case IMAGE_RES_DEFENCE:
-          AudioSystem::PlayStream("sequenceAudio\\Res_StruTech.wav", AUDIO_VOL_MAX, nullptr);
+          (void)AudioSystem::PlayStream("sequenceAudio\\Res_StruTech.wav", AUDIO_VOL_MAX, nullptr);
           break;
           //				default:
         }
@@ -1116,7 +1116,7 @@ void intDisplayTEXTView(struct _widget* psWidget, UDWORD xOffset, UDWORD yOffset
     ty += 3;
     /* Fix for spacing.... */
 
-    Neuron::SetTextColour(pal_GetNearestColour(255, 255, 255));
+    Neuron::SetTextColour(PIE_TEXT_WHITE);
     //add each message
     for (i = 0; i < ((VIEWDATA*)psMessage->pViewData)->numText; i++)
     {
@@ -1306,7 +1306,7 @@ void setCurrentMsg(void)
 	}
 	
 	currentLength = 0;
-	strLen = strlen(psMessage->pViewData->pTextMsg);
+	strLen = static_cast<UDWORD>(strlen(psMessage->pViewData->pTextMsg));
 	frames = 0;
 	currentTextDisplay.totalFrames = 0;
 
@@ -1351,7 +1351,7 @@ void setCurrentMsg(void)
 	frames = 20 * (gameTime2 - currentTextDisplay.startTime)/GAME_TICKS_PER_SEC;
 
 	//get the number of chars in the string
-	strLen = strlen(pText);
+	strLen = static_cast<UDWORD>(strlen(pText));
 
 	currentLength = 0;
 

@@ -34,6 +34,12 @@
 static BOOL bClipSpecular = TRUE;
 static UDWORD videoBufferWidth = 640, videoBufferHeight = 480;
 
+/* The integer factor between the logical canvas above and the physical back
+ * buffer. Every coordinate the game computes is logical; D3DDrawPoly and the
+ * software compositing paths multiply by this on the way to the device, and
+ * the input layer divides the physical mouse position by it. */
+static UDWORD g_displayScale = 1;
+
 /***************************************************************************/
 /*
  *	Local ProtoTypes
@@ -50,20 +56,10 @@ static int pie_ClipYT(PIEVERTEX* s1, PIEVERTEX* s2, PIEVERTEX* clip);
 /***************************************************************************/
 BOOL pie_SetVideoBufferWidth(UDWORD width)
 {
-  switch (width)
-  {
-  case 640:
-  case 800:
-  case 960:
-  case 1024:
-  case 1152:
-  case 1280:
-    break;
-  default: DEBUG_ASSERT_TEXT(FALSE, "Warning: width not supported");
+  /* Any width goes, as long as the 640-wide UI layout still fits. */
+  DEBUG_ASSERT_TEXT(width >= 640, "Warning: width below the 640 the UI lays out on");
+  if (width < 640)
     width = 640;
-    videoBufferHeight = 480;
-    break;
-  }
   videoBufferWidth = width;
   return (TRUE);
 }
@@ -71,21 +67,10 @@ BOOL pie_SetVideoBufferWidth(UDWORD width)
 /***************************************************************************/
 BOOL pie_SetVideoBufferHeight(UDWORD height)
 {
-  switch (height)
-  {
-  case 480:
-  case 600:
-  case 720:
-  case 768:
-  case 864:
-  case 1024:
-    break;
-  default: DEBUG_ASSERT_TEXT(FALSE, "Warning: height not supported");
-    videoBufferWidth = 640;
+  /* Any height goes, as long as the 480-high UI layout still fits. */
+  DEBUG_ASSERT_TEXT(height >= 480, "Warning: height below the 480 the UI lays out on");
+  if (height < 480)
     height = 480;
-    break;
-  }
-
   videoBufferHeight = height;
   return (TRUE);
 }
@@ -94,6 +79,22 @@ BOOL pie_SetVideoBufferHeight(UDWORD height)
 UDWORD pie_GetVideoBufferWidth(void) { return (videoBufferWidth); }
 /***************************************************************************/
 UDWORD pie_GetVideoBufferHeight(void) { return (videoBufferHeight); }
+/***************************************************************************/
+
+namespace Neuron
+{
+
+void SetDisplayScale(UDWORD _scale)
+{
+  DEBUG_ASSERT_TEXT(_scale >= 1, "SetDisplayScale: scale must be at least 1");
+  if (_scale < 1)
+    _scale = 1;
+  g_displayScale = _scale;
+}
+
+UDWORD DisplayScale(void) { return g_displayScale; }
+
+} // namespace Neuron
 /***************************************************************************/
 
 void pie_Set2DClip(int x0, int y0, int x1, int y1)
@@ -364,7 +365,7 @@ static int pie_ClipXT(PIEVERTEX* s1, PIEVERTEX* s2, PIEVERTEX* clip)
 static int pie_ClipYT(PIEVERTEX* s1, PIEVERTEX* s2, PIEVERTEX* clip)
 
 {
-  register int n, dy;
+  int n, dy;
   int32 t;
 
   n = 1;

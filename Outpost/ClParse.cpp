@@ -30,9 +30,6 @@
 
 BOOL scanGameSpyFlags(LPSTR gflag, LPSTR value);
 
-// whether to start windowed
-BOOL clStartWindowed = TRUE;
-
 // let the end user into debug mode....
 BOOL bAllowDebugMode = FALSE;
 
@@ -42,7 +39,6 @@ BOOL ParseCommandLine(LPSTR psCmdLine)
   char seps[] = " ,\t\n";
   char* tokenType;
   char* token;
-  BOOL bCrippleD3D = FALSE; // Disable higher resolutions for d3D
   char seps2[] = "\"";
   char cl[255];
   char cl2[255];
@@ -60,11 +56,8 @@ BOOL ParseCommandLine(LPSTR psCmdLine)
   {
     if (stricmp(tokenType, "-window") == 0)
     {
-#ifdef	_DEBUG
-      clStartWindowed = TRUE;
-#else
-      clStartWindowed = TRUE;
-#endif
+      /* Accepted and ignored: the display is always a borderless window
+       * covering the desktop now. */
     }
     else if (stricmp(tokenType, "-intro") == 0)
       SetGameMode(GS_VIDEO_MODE);
@@ -99,36 +92,8 @@ BOOL ParseCommandLine(LPSTR psCmdLine)
 
     else if (stricmp(tokenType, cl2) == 0)
       bAllowDebugMode = TRUE;
-    else if (stricmp(tokenType, "-640") == 0) // Temporary - this will be switchable in game
-    {
-      pie_SetVideoBufferWidth(640);
-      pie_SetVideoBufferHeight(480);
-    }
-    else if (stricmp(tokenType, "-800") == 0)
-    {
-      pie_SetVideoBufferWidth(800);
-      pie_SetVideoBufferHeight(600);
-    }
-    else if (stricmp(tokenType, "-960") == 0)
-    {
-      pie_SetVideoBufferWidth(960);
-      pie_SetVideoBufferHeight(720);
-    }
-    else if (stricmp(tokenType, "-1024") == 0)
-    {
-      pie_SetVideoBufferWidth(1024);
-      pie_SetVideoBufferHeight(768);
-    }
-    else if (stricmp(tokenType, "-1152") == 0)
-    {
-      pie_SetVideoBufferWidth(1152);
-      pie_SetVideoBufferHeight(864);
-    }
-    else if (stricmp(tokenType, "-1280") == 0)
-    {
-      pie_SetVideoBufferWidth(1280);
-      pie_SetVideoBufferHeight(1024);
-    }
+    /* The -640 .. -1280 resolution switches are gone: the display is the
+     * desktop's own resolution, decided by the framework at start up. */
     else if (stricmp(tokenType, "-noTranslucent") == 0)
       war_SetTranslucent(FALSE);
     else if (stricmp(tokenType, "-noAdditive") == 0)
@@ -179,13 +144,6 @@ BOOL ParseCommandLine(LPSTR psCmdLine)
 
     /* Get next token: */
     tokenType = strtok(nullptr, seps);
-  }
-
-  /* Hack to disable higher resolution requests in d3d for the demo */
-  if (bCrippleD3D)
-  {
-    pie_SetVideoBufferWidth(640);
-    pie_SetVideoBufferHeight(480);
   }
 
   // look for any gamespy flags in the command line.

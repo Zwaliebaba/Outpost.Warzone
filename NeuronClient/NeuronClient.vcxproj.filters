@@ -11,6 +11,7 @@
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="DXError.cpp" />
     <ClCompile Include="DXInput.cpp" />
+    <ClCompile Include="Dds.cpp" />
     <ClCompile Include="EditBox.cpp" />
     <ClCompile Include="Fbf.cpp" />
     <ClCompile Include="Font.cpp" />
@@ -21,8 +22,6 @@
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Label.cpp" />
     <ClCompile Include="MovieStream.cpp" />
-    <ClCompile Include="Palette.cpp" />
-    <ClCompile Include="Pcx.cpp" />
     <ClCompile Include="PieFunc.cpp" />
     <ClCompile Include="PieMode.cpp" />
     <ClCompile Include="RendFunc.cpp" />
@@ -73,8 +72,8 @@
     <ClInclude Include="MaxPiDef.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="MovieStream.h" />
+    <ClInclude Include="Dds.h" />
     <ClInclude Include="Palette.h" />
-    <ClInclude Include="Pcx.h" />
     <ClInclude Include="PieFunc.h" />
     <ClInclude Include="PieMode.h" />
     <ClInclude Include="PieState.h" />
@@ -101,5 +100,8 @@
     <ClInclude Include="Widget.h" />
     <ClInclude Include="Window.h" />
     <ClInclude Include="pch.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

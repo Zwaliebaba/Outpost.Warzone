@@ -155,21 +155,16 @@ BOOL stackPopType(INTERP_VAL* psVal)
 /* Pop a number of values off the stack checking their types
  * This is used by instinct functions to get their parameters
  */
-BOOL stackPopParams(SDWORD numParams, ...)
+BOOL stackPopParams(std::initializer_list<ScriptParam> _params)
 {
-  va_list args;
-  SDWORD i;
-  INTERP_TYPE type;
-  UDWORD* pData;
   INTERP_VAL* psVal;
   UDWORD index, params;
   STACK_CHUNK* psCurr;
-
-  va_start(args, numParams);
+  const UDWORD numParams = static_cast<UDWORD>(_params.size());
 
   // Find the position of the first parameter, and set
   // the stack top to it
-  if (static_cast<UDWORD>(numParams) <= currEntry)
+  if (numParams <= currEntry)
   {
     // parameters are all on current chunk
     currEntry = currEntry - numParams;
@@ -198,21 +193,23 @@ BOOL stackPopParams(SDWORD numParams, ...)
     return FALSE;
   }
 
-  // Get the values, checking their types
+  // Get the values, checking their types.  The store width comes from
+  // the destination the call site handed over: pointer-wide destinations
+  // receive the value's pointer member whole, so nothing truncates on
+  // x64, and 32-bit destinations receive 32 bits as before.
   index = currEntry;
-  for (i = 0; i < numParams; i++)
+  for (const ScriptParam& sParam : _params)
   {
-    type = va_arg(args, INTERP_TYPE);
-    pData = va_arg(args, UDWORD *);
-
     psVal = psCurr->aVals + index;
-    if (!interpCheckEquiv(type, psVal->type))
+    if (!interpCheckEquiv(sParam.type, psVal->type))
     {
       DEBUG_ASSERT_TEXT(FALSE, "stackPopParams: type mismatch");
-      va_end(args);
       return FALSE;
     }
-    *pData = static_cast<UDWORD>(psVal->v.ival);
+    if (sParam.wide)
+      *static_cast<void**>(sParam.pDest) = psVal->v.oval;
+    else
+      *static_cast<UDWORD*>(sParam.pDest) = static_cast<UDWORD>(psVal->v.ival);
 
     index += 1;
     if (index >= psCurr->size)
@@ -222,7 +219,6 @@ BOOL stackPopParams(SDWORD numParams, ...)
     }
   }
 
-  va_end(args);
   return TRUE;
 }
 
@@ -243,6 +239,22 @@ BOOL stackPushResult(INTERP_TYPE type, SDWORD data)
       // Out of memory
       return FALSE;
     }
+  }
+
+  return TRUE;
+}
+
+/* Push an object or string result onto the stack, keeping pointer width */
+BOOL stackPushResult(INTERP_TYPE type, void* pData)
+{
+  psCurrChunk->aVals[currEntry].type = type;
+  psCurrChunk->aVals[currEntry].v.oval = pData;
+
+  currEntry++;
+  if (currEntry == psCurrChunk->size)
+  {
+    if (!stackNewChunk(EXT_SIZE))
+      return FALSE;
   }
 
   return TRUE;
@@ -284,13 +296,11 @@ BOOL stackPeek(INTERP_VAL* psVal, UDWORD index)
 /* Print the top value on the stack */
 void stackPrintTop(void)
 {
-#ifndef NOSCRIPT
   INTERP_VAL sVal;
   if (stackPeek(&sVal, 0))
     cpPrintVal(&sVal);
   else
     Neuron::DebugTrace("STACK EMPTY");
-#endif
 }
 
 /* Do binary operations on the top of the stack

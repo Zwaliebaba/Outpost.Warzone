@@ -138,7 +138,7 @@ void fpathShutDown(void)
 #define RAND_INC	13849
 #define RAND_MOD	0xffff
 
-/* next four used in HashPJW */
+/* next four used in fpathHashFunc */
 #define	BITS_IN_int		32
 #define	THREE_QUARTERS	((UINT) ((BITS_IN_int * 3) / 4))
 #define	ONE_EIGHTH		((UINT) (BITS_IN_int / 8))

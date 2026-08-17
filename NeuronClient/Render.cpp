@@ -180,9 +180,33 @@ void D3DDrawPoly(int nVerts, D3DTLVERTEX* psVert)
 {
   HRESULT hResult;
   static BOOL bFirstError = FALSE;
+  /* Callers hand over overlapping ranges of their scratch arrays, so the
+   * scale is applied to a copy - scaling in place would scale a shared
+   * vertex twice. */
+  static D3DTLVERTEX aScaledVrts[pie_MAX_POLY_VERTS];
+  UDWORD scale;
+  int i;
 
   if (g_psDevice == nullptr)
     return;
+
+  /* Every vertex arrives in logical-canvas coordinates; the display scale
+   * takes it to the physical back buffer. */
+  scale = Neuron::DisplayScale();
+  if (scale > 1)
+  {
+    DEBUG_ASSERT_TEXT(nVerts <= pie_MAX_POLY_VERTS, "D3DDrawPoly: too many vertices to scale");
+    if (nVerts > pie_MAX_POLY_VERTS)
+      nVerts = pie_MAX_POLY_VERTS;
+
+    for (i = 0; i < nVerts; i++)
+    {
+      aScaledVrts[i] = psVert[i];
+      aScaledVrts[i].sx *= static_cast<float>(scale);
+      aScaledVrts[i].sy *= static_cast<float>(scale);
+    }
+    psVert = aScaledVrts;
+  }
 
   if (nVerts >= 3) //triangle or poly
   {
@@ -443,10 +467,13 @@ void D3DApplyRenderStates(void)
   if (g_psDevice == nullptr)
     return;
 
+  /* The viewport is the physical back buffer. The game computes in logical
+   * coordinates and D3DDrawPoly multiplies by the display scale on the way
+   * here. */
   sViewport.X = 0;
   sViewport.Y = 0;
-  sViewport.Width = pie_GetVideoBufferWidth();
-  sViewport.Height = pie_GetVideoBufferHeight();
+  sViewport.Width = screenWidth;
+  sViewport.Height = screenHeight;
   sViewport.MinZ = 0.0f;
   sViewport.MaxZ = 1.0f;
 

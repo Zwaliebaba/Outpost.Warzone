@@ -8,49 +8,6 @@
 
 #include "Base.h"
 
-// The possible types of initialisation values
-using INIT_TYPE = enum _init_type
-{
-  IT_BOOL,
-  IT_INDEX,
-  IT_STRING,
-};
-
-// All the possible values that may be used to initialise a variable
-using VAR_INIT = struct _var_init
-{
-  INIT_TYPE type;
-  SDWORD index;
-  STRING* pString;
-};
-
-// store array access data
-using ARRAY_INDEXES = struct _array_indexes
-{
-  SDWORD dimensions;
-  SDWORD elements[VAR_MAX_DIMENSIONS];
-};
-
-/* Set the current input buffer for the lexer */
-extern void scrvSetInputBuffer(UBYTE* pBuffer, UDWORD size);
-
-extern void scrvGetErrorData(int* pLine, char** ppText);
-
-/* A simple error reporting routine */
-extern void scrv_error(char* pMessage, ...);
-
-// parse a value file
-extern int scrv_parse(void);
-
-// Lookup a type
-extern BOOL scrvLookUpType(STRING* pIdent, INTERP_TYPE* pType);
-
-// Lookup a variable identifier
-extern BOOL scrvLookUpVar(STRING* pIdent, UDWORD* pIndex);
-
-// Lookup an array identifier
-extern BOOL scrvLookUpArray(STRING* pIdent, UDWORD* pIndex);
-
 // Whether the script is run immediately or stored for later use
 using SCRV_TYPE = enum _scrv_type
 {

@@ -673,10 +673,8 @@ void resReleaseBlockData(SDWORD blockID)
         psPRes = psRes;
         psNRes = psRes->psNext;
       }
-      DEBUG_ASSERT_TEXT(psNRes != (RES_DATA *)0xdddddddd, "resReleaseBlockData: next data (next pointer) already freed");
     }
     psNT = resNextType(psT);
-    DEBUG_ASSERT_TEXT(psNT != (RES_TYPE *)0xdddddddd, "resReleaseBlockData: next data (next pointer) already freed");
   }
 }
 

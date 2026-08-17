@@ -10,6 +10,9 @@
 
 #include <directxmath.h>
 
+#include <iterator>
+#include <list>
+
 #include "Frame.h"
 #include "GTime.h"
 #include "Objects.h"
@@ -20,7 +23,6 @@
 #include "Map.h"
 #include "AudioID.h"
 #include "AudioSystem.h"
-#include "HashTabl.h"
 #include "AnimID.h"
 #include "Projectile.h"
 #include "Visibility.h"
@@ -42,16 +44,6 @@
 #include "MultiStat.h"
 
 /***************************************************************************/
-/* max number of slots in hash table - prime numbers are best because hash
- * function used here is modulous of object pointer with table size -
- * prime number nearest 100 is 97.
- * Table of nearest primes in Binstock+Rex, "Practical Algorithms" p 91.
- */
-
-#define	PROJ_HASH_TABLE_SIZE	97
-#define PROJ_INIT				200
-
-#define PROJ_EXT				10
 
 #define	ACC_GRAVITY				1000
 #define	DIRECT_PROJ_SPEED		500
@@ -67,7 +59,36 @@
 
 /***************************************************************************/
 
-static HASHTABLE* g_pProjObjTable;
+/* The live projectiles.
+ *
+ * This was a HashTabl.cpp table keyed on each projectile's own address,
+ * which it then never looked anything up in - it only added, removed and
+ * iterated, so the hashing was pure overhead.
+ *
+ * A node-based list, so a projectile's address stays put and erasing one
+ * leaves every other iterator valid - which proj_UpdateAll relies on,
+ * since proj_Update can destroy the projectile it is updating.
+ */
+static std::list<PROJ_OBJECT> g_projList;
+
+/* The cursor behind proj_GetFirst/proj_GetNext, which the renderer walks. */
+static std::list<PROJ_OBJECT>::iterator g_projIter;
+
+/* Erase one projectile. Returns FALSE if it was not in the list, which is
+ * what the callers report on. */
+static BOOL proj_Erase(const PROJ_OBJECT* psObj)
+{
+  for (auto it = g_projList.begin(); it != g_projList.end(); ++it)
+  {
+    if (&*it == psObj)
+    {
+      g_projList.erase(it);
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+}
 
 // the last unit that did damage - used by script functions
 BASE_OBJECT* g_pProjLastAttacker;
@@ -130,8 +151,7 @@ BOOL gfxVisible(PROJ_OBJECT* psObj)
 
 BOOL proj_InitSystem(void)
 {
-  /* allocate object hashtable */
-  hashTable_Create(&g_pProjObjTable, PROJ_HASH_TABLE_SIZE, PROJ_INIT, PROJ_EXT, sizeof(PROJ_OBJECT));
+  g_projList.clear();
 
   return TRUE;
 }
@@ -140,29 +160,39 @@ BOOL proj_InitSystem(void)
 
 void proj_FreeAllProjectiles(void)
 {
-  if (g_pProjObjTable)
-    hashTable_Clear(g_pProjObjTable);
+  g_projList.clear();
 }
 
 /***************************************************************************/
 
 BOOL proj_Shutdown(void)
 {
-  /* destroy hash table */
-  hashTable_Destroy(g_pProjObjTable);
-
-  g_pProjObjTable = nullptr;
+  g_projList.clear();
 
   return TRUE;
 }
 
 /***************************************************************************/
 
-PROJ_OBJECT* proj_GetFirst(void) { return static_cast<PROJ_OBJECT*>(hashTable_GetFirst(g_pProjObjTable)); }
+PROJ_OBJECT* proj_GetFirst(void)
+{
+  g_projIter = g_projList.begin();
+
+  return proj_GetNext();
+}
 
 /***************************************************************************/
 
-PROJ_OBJECT* proj_GetNext(void) { return static_cast<PROJ_OBJECT*>(hashTable_GetNext(g_pProjObjTable)); }
+PROJ_OBJECT* proj_GetNext(void)
+{
+  if (g_projIter == g_projList.end())
+    return nullptr;
+
+  PROJ_OBJECT* psObj = &*g_projIter;
+  ++g_projIter;
+
+  return psObj;
+}
 
 /***************************************************************************/
 
@@ -223,8 +253,10 @@ BOOL proj_SendProjectile(WEAPON* psWeap, BASE_OBJECT* psAttacker, SDWORD player,
   UDWORD heightVariance;
   WEAPON_STATS* psWeapStats = &asWeaponStats[psWeap->nStat];
 
-  /* get unused projectile object from hashtable*/
-  psObj = static_cast<PROJ_OBJECT*>(hashTable_GetElement(g_pProjObjTable));
+  /* Value initialised, where the table this replaced handed back raw
+   * uninitialised bytes. */
+  g_projList.emplace_back();
+  psObj = &g_projList.back();
 
   /* get muzzle offset */
   if (psAttacker == nullptr)
@@ -391,9 +423,6 @@ BOOL proj_SendProjectile(WEAPON* psWeap, BASE_OBJECT* psAttacker, SDWORD player,
     psObj->pInFlightFunc = proj_InFlightIndirectFunc;
   }
 
-  /* put object in hashtable */
-  hashTable_InsertElement(g_pProjObjTable, psObj, (int)psObj, UNUSED_KEY);
-
   /* play firing audio */
   // only play if either object is visible, i know it's a bit of a hack, but it avoids the problem
   // of having to calculate real visibility values for each projectile.
@@ -410,15 +439,15 @@ BOOL proj_SendProjectile(WEAPON* psWeap, BASE_OBJECT* psAttacker, SDWORD player,
       if (psObj->psSource)
       {
         /* firing sound emitted from source */
-        AudioSystem::PlayObjectTrack(psObj->psSource, psObj->psWStats->iAudioFireID, nullptr);
+        (void)AudioSystem::PlayObjectTrack(psObj->psSource, psObj->psWStats->iAudioFireID, nullptr);
         /* GJ HACK: move howitzer sound with shell */
-        if (psObj->psWStats->weaponSubClass == WSC_HOWITZERS) { AudioSystem::PlayObjectTrack(psObj, ID_SOUND_HOWITZ_FLIGHT, nullptr); }
+        if (psObj->psWStats->weaponSubClass == WSC_HOWITZERS) { (void)AudioSystem::PlayObjectTrack(psObj, ID_SOUND_HOWITZ_FLIGHT, nullptr); }
       }
       else
       {
         //don't play the sound for a LasSat in multiPlayer
         if (!(bMultiPlayer AND psWeapStats->weaponSubClass == WSC_LAS_SAT))
-          AudioSystem::PlayObjectTrack(psObj, psObj->psWStats->iAudioFireID, nullptr);
+          (void)AudioSystem::PlayObjectTrack(psObj, psObj->psWStats->iAudioFireID, nullptr);
       }
     }
   }
@@ -759,13 +788,13 @@ void proj_ImpactFunc(PROJ_OBJECT* psObj)
       if (psObj->psDest != nullptr && psObj->psWStats->weaponSubClass == WSC_MGUN && ONEINTHREE)
       {
         iAudioImpactID = ID_SOUND_RICOCHET_1 + (rand() % 3);
-        AudioSystem::PlayStaticTrack(psObj->psDest->x, psObj->psDest->y, iAudioImpactID);
+        (void)AudioSystem::PlayStaticTrack(psObj->psDest->x, psObj->psDest->y, iAudioImpactID);
       }
     }
     else
     {
-      if (psObj->psDest == nullptr) { AudioSystem::PlayStaticTrack(psObj->tarX, psObj->tarY, psStats->iAudioImpactID); }
-      else { AudioSystem::PlayStaticTrack(psObj->psDest->x, psObj->psDest->y, psStats->iAudioImpactID); }
+      if (psObj->psDest == nullptr) { (void)AudioSystem::PlayStaticTrack(psObj->tarX, psObj->tarY, psStats->iAudioImpactID); }
+      else { (void)AudioSystem::PlayStaticTrack(psObj->psDest->x, psObj->psDest->y, psStats->iAudioImpactID); }
     }
   }
   // note the attacker if any
@@ -1032,8 +1061,8 @@ void proj_ImpactFunc(PROJ_OBJECT* psObj)
     }
 
     /* This was just a simple bullet - release it and return */
-    if (hashTable_RemoveElement(g_pProjObjTable, psObj, (int)psObj, UNUSED_KEY) == FALSE)
-      Neuron::DebugTrace("proj_ImpactFunc: couldn't remove projectile from table\n");
+    if (proj_Erase(psObj) == FALSE)
+      Neuron::DebugTrace("proj_ImpactFunc: couldn't remove projectile from list\n");
     return;
   }
 
@@ -1214,8 +1243,8 @@ void proj_PostImpactFunc(PROJ_OBJECT* psObj)
   /* Time to finish postimpact effect? */
   if (age > static_cast<SDWORD>(psStats->radiusLife) && age > static_cast<SDWORD>(psStats->incenTime))
   {
-    if (hashTable_RemoveElement(g_pProjObjTable, psObj, (int)psObj, UNUSED_KEY) == FALSE)
-      Neuron::DebugTrace("proj_PostImpactFunc: couldn't remove projectile from table\n");
+    if (proj_Erase(psObj) == FALSE)
+      Neuron::DebugTrace("proj_PostImpactFunc: couldn't remove projectile from list\n");
     return;
   }
 
@@ -1275,15 +1304,21 @@ void proj_Update(PROJ_OBJECT* psObj)
 
 void proj_UpdateAll(void)
 {
-  PROJ_OBJECT* psObj;
-
-  psObj = static_cast<PROJ_OBJECT*>(hashTable_GetFirst(g_pProjObjTable));
-
-  while (psObj != nullptr)
+  /* The next iterator is taken before the update, because proj_Update
+   * destroys the projectile it is given once that projectile impacts or
+   * its post-impact effect expires. Erasing a list element leaves every
+   * other iterator valid, so `next` survives.
+   *
+   * This also fixes a skip: the table this replaced advanced its one
+   * shared cursor inside RemoveElement even though GetNext had already
+   * stepped past the element just returned, so destroying a projectile
+   * cost the next one in the same bucket a frame of movement.
+   */
+  for (auto it = g_projList.begin(); it != g_projList.end();)
   {
-    proj_Update(psObj);
-
-    psObj = static_cast<PROJ_OBJECT*>(hashTable_GetNext(g_pProjObjTable));
+    auto next = std::next(it);
+    proj_Update(&*it);
+    it = next;
   }
 }
 

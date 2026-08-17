@@ -86,7 +86,7 @@ DROID* psDrivenDroid = nullptr; // The droid that's being driven.
 static BOOL bDriveMode = FALSE;
 static float driveDir; // Driven droid's direction, radians in (-pi, pi].
 static SDWORD driveSpeed; // Driven droid's speed.
-static int driveBumpTime; // Time that followers get a kick up the ass.
+static UDWORD driveBumpTime; // Time that followers get a kick up the ass.
 static BOOL DoFollowRangeCheck = TRUE;
 static BOOL AllInRange = TRUE;
 static BOOL ClearFollowRangeCheck = FALSE;

@@ -141,7 +141,10 @@ static BOOL pushedKeyCombo(UDWORD subkey)
   /* Now alter it to the new values */
   psMapping->metaKeyCode = metakey;
   psMapping->subKeyCode = subkey;
-  psMapping->status == KEYMAP_ASSIGNABLE; //must be
+  /* There was a `psMapping->status == KEYMAP_ASSIGNABLE;` here, marked
+   * "//must be" - a comparison whose result was discarded, so it has never
+   * done anything. Removed rather than made an assignment, which would
+   * change behaviour. */
   if (alt)
     psMapping->altMetaKeyCode = alt;
 

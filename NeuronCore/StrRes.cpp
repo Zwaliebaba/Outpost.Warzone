@@ -1,269 +1,130 @@
 #include "pch.h"
 
-// Report unused strings
 #include "Types.h"
-#include "Treap.h"
 #include "StrRes.h"
-#include "StrResLY.h"
 
-/* The string resource currently being loaded */
-STR_RES* psCurrRes;
+/* The string resource system.
+ *
+ * This was a treap keyed on the *address* of the ID string, plus a chain
+ * of fixed-size string blocks walked linearly on every lookup, plus an
+ * ID_ALLOC flag bit distinguishing ids the system allocated from ids the
+ * game's fixed-keyword table owns.  It is now a vector indexed by id and
+ * a map from keyword to id; the flag bit is gone because every entry owns
+ * its own copy of both halves.
+ *
+ * Element addresses have to be stable: strresGetString's result is stored
+ * by widgets, view data and script string values for the session, and the
+ * map's keys are string_views into the entries themselves.  The
+ * unique_ptr elements are what guarantees that.
+ */
 
-/* The id number of ID strings allocated by the system is ORed with this */
-#define ID_ALLOC	0x80000000
-
-/* Allocate a string block */
-static BOOL strresAllocBlock(STR_BLOCK** ppsBlock, UDWORD size)
+namespace
 {
-  *ppsBlock = new (std::nothrow) STR_BLOCK[1];
-  if (!*ppsBlock)
-  {
-    Neuron::Fatal("strresAllocBlock: Out of memory - 1");
-    return FALSE;
-  }
+/* Find or create the entry for a keyword */
+STR_ENTRY* strresEntry(STR_RES* psRes, const STRING* pIDStr)
+{
+  const auto it = psRes->idMap.find(std::string_view(pIDStr));
+  if (it != psRes->idMap.end())
+    return psRes->aEntries[it->second].get();
 
-  (*ppsBlock)->apStrings = new (std::nothrow) STRING*[size];
-  if (!(*ppsBlock)->apStrings)
-  {
-    Neuron::Fatal("strresAllocBlock: Out of memory - 2");
-    delete[] *ppsBlock;
-    return FALSE;
-  }
-  memset((*ppsBlock)->apStrings, 0, sizeof(STRING*) * size);
+  auto psEntry = std::make_unique<STR_ENTRY>();
+  psEntry->name = pIDStr;
 
-#ifdef DEBUG
-  (*ppsBlock)->aUsage = new (std::nothrow) UDWORD[size];
-  memset((*ppsBlock)->aUsage, 0, sizeof(UDWORD) * size);
-#endif
+  const UDWORD id = static_cast<UDWORD>(psRes->aEntries.size());
+  STR_ENTRY* psResult = psEntry.get();
+  psRes->aEntries.push_back(std::move(psEntry));
+  psRes->idMap.emplace(std::string_view(psResult->name), id);
 
-  return TRUE;
+  return psResult;
 }
+} // namespace
 
 /* Initialise the string system */
-BOOL strresCreate(STR_RES** ppsRes, UDWORD init, UDWORD ext)
+BOOL strresCreate(STR_RES** ppsRes)
 {
-  STR_RES* psRes;
-
-  psRes = new (std::nothrow) STR_RES[1];
-  if (!psRes)
+  *ppsRes = new (std::nothrow) STR_RES;
+  if (!*ppsRes)
   {
     Neuron::Fatal("strresCreate: Out of memory");
     return FALSE;
   }
-  psRes->init = init;
-  psRes->ext = ext;
-  psRes->nextID = 0;
-
-  if (!TREAP_CREATE(&psRes->psIDTreap, treapStringCmp, init, ext))
-  {
-    Neuron::Fatal("strresCreate: Out of memory");
-    delete[] psRes;
-    psRes = nullptr;
-    return FALSE;
-  }
-
-  if (!strresAllocBlock(&psRes->psStrings, init))
-  {
-    TREAP_DESTROY(psRes->psIDTreap);
-    delete[] psRes;
-    psRes = nullptr;
-    return FALSE;
-  }
-  psRes->psStrings->psNext = nullptr;
-  psRes->psStrings->idStart = 0;
-  psRes->psStrings->idEnd = init - 1;
-
-  *ppsRes = psRes;
 
   return TRUE;
-}
-
-/* Release the id strings, but not the strings themselves,
- * (they can be accessed only by id number).
- */
-void strresReleaseIDStrings(STR_RES* psRes)
-{
-  STR_ID* psID;
-
-  for (psID = static_cast<STR_ID*>(TREAP_GETSMALLEST(psRes->psIDTreap)); psID; psID = static_cast<STR_ID*>(
-         TREAP_GETSMALLEST(psRes->psIDTreap)))
-  {
-    TREAP_DEL(psRes->psIDTreap, (UDWORD)psID->pIDStr);
-    if (psID->id & ID_ALLOC)
-    {
-      delete[] psID->pIDStr;
-      psID->pIDStr = nullptr;
-      delete[] psID;
-      psID = nullptr;
-    }
-  }
 }
 
 /* Shutdown the string system */
 void strresDestroy(STR_RES* psRes)
 {
-  STR_BLOCK *psBlock, *psNext = nullptr;
-  UDWORD i;
-
-  // Free the string id's
-  strresReleaseIDStrings(psRes);
-
-  // Free the strings themselves
-  for (psBlock = psRes->psStrings; psBlock; psBlock = psNext)
+#ifdef DEBUG
+  for (UDWORD i = 0; i < psRes->aEntries.size(); i++)
   {
-    for (i = psBlock->idStart; i <= psBlock->idEnd; i++)
-    {
-#ifdef DEBUG_GROUP0
-      if (psBlock->aUsage[i - psBlock->idStart] == 0 && i != 0 && i < psRes->nextID)
-      {
-      }
-#endif
-      if (psBlock->apStrings[i - psBlock->idStart]) { delete[] psBlock->apStrings[i - psBlock->idStart]; }
-#ifdef DEBUG
-      else if (i < psRes->nextID)
-        Neuron::DebugTrace("strresDestroy: No string loaded for id {}\n", i);
-#endif
-    }
-    psNext = psBlock->psNext;
-    delete[] psBlock->apStrings;
-    psBlock->apStrings = nullptr;
-#ifdef DEBUG
-    delete[] psBlock->aUsage;
-    psBlock->aUsage = nullptr;
-#endif
-    delete[] psBlock;
-    psBlock = nullptr;
+    if (!psRes->aEntries[i]->hasText)
+      Neuron::DebugTrace("strresDestroy: No string loaded for id {} ({})\n", i, psRes->aEntries[i]->name);
   }
+#endif
 
-  // Release the treap and free the final memory
-  TREAP_DESTROY(psRes->psIDTreap);
-  delete[] psRes;
-  psRes = nullptr;
+  delete psRes;
 }
 
 /* Load a list of string ID's from a memory buffer */
-BOOL strresLoadFixedID(STR_RES* psRes, STR_ID* psID, UDWORD numID)
+BOOL strresLoadFixedID(STR_RES* psRes, const STR_ID* psID, UDWORD numID)
 {
-  UDWORD i;
-
-  for (i = 0; i < numID; i++)
+  for (UDWORD i = 0; i < numID; i++)
   {
-    DEBUG_ASSERT_TEXT(psID->id == psRes->nextID, "strresLoadFixedID: id out of sequence");
+    DEBUG_ASSERT_TEXT(psID->id == psRes->aEntries.size(), "strresLoadFixedID: id out of sequence");
 
-    // Store the ID string
-    if (!TREAP_ADD(psRes->psIDTreap, (UDWORD)psID->pIDStr, psID))
-    {
-      Neuron::Fatal("strresLoadFixedID: Out of memory");
-      return FALSE;
-    }
+    /* The keyword table owns its own strings; the entry takes a copy, so
+       the two lifetimes stop being entangled. */
+    strresEntry(psRes, psID->pIDStr);
 
     psID += 1;
-    psRes->nextID += 1;
   }
 
   return TRUE;
 }
 
 /* Return the ID number for an ID string */
-BOOL strresGetIDNum(STR_RES* psRes, STRING* pIDStr, UDWORD* pIDNum)
+BOOL strresGetIDNum(STR_RES* psRes, const STRING* pIDStr, UDWORD* pIDNum)
 {
-  STR_ID* psID;
-
-  psID = static_cast<STR_ID*>(TREAP_FIND(psRes->psIDTreap, (UDWORD)pIDStr));
-  if (!psID)
+  const auto it = psRes->idMap.find(std::string_view(pIDStr));
+  if (it == psRes->idMap.end())
   {
     *pIDNum = 0;
     return FALSE;
   }
 
-  if (psID->id & ID_ALLOC)
-    *pIDNum = psID->id & ~ID_ALLOC;
-  else
-    *pIDNum = psID->id;
+  *pIDNum = it->second;
   return TRUE;
 }
 
-/* Return the ID stored ID string that matches the string passed in */
-BOOL strresGetIDString(STR_RES* psRes, STRING* pIDStr, STRING** ppStoredID)
+/* Return the stored ID string that matches the string passed in */
+BOOL strresGetIDString(STR_RES* psRes, const STRING* pIDStr, STRING** ppStoredID)
 {
-  STR_ID* psID;
-
-  psID = static_cast<STR_ID*>(TREAP_FIND(psRes->psIDTreap, (UDWORD)pIDStr));
-  if (!psID)
+  const auto it = psRes->idMap.find(std::string_view(pIDStr));
+  if (it == psRes->idMap.end())
   {
     *ppStoredID = nullptr;
     return FALSE;
   }
 
-  *ppStoredID = psID->pIDStr;
+  *ppStoredID = psRes->aEntries[it->second]->name.data();
 
   return TRUE;
 }
 
 /* Store a string */
-BOOL strresStoreString(STR_RES* psRes, STRING* pID, STRING* pString)
+BOOL strresStoreString(STR_RES* psRes, const STRING* pID, const STRING* pString)
 {
-  STR_ID* psID;
-  STRING* pNew;
-  STR_BLOCK* psBlock;
-  UDWORD id;
+  STR_ENTRY* psEntry = strresEntry(psRes, pID);
 
-  // Find the id for the string
-  psID = static_cast<STR_ID*>(TREAP_FIND(psRes->psIDTreap, (UDWORD)pID));
-  if (!psID)
+  if (psEntry->hasText)
   {
-    // No ID yet so generate a new one
-    psID = new (std::nothrow) STR_ID[1];
-    if (!psID)
-    {
-      Neuron::Fatal("strresStoreString: Out of memory");
-      return FALSE;
-    }
-    psID->pIDStr = new (std::nothrow) STRING[(stringLen(pID) + 1)];
-    if (!psID->pIDStr)
-    {
-      Neuron::Fatal("strresStoreString: Out of memory");
-      delete[] psID;
-      psID = nullptr;
-      return FALSE;
-    }
-    stringCpy(psID->pIDStr, pID);
-    psID->id = psRes->nextID | ID_ALLOC;
-    psRes->nextID += 1;
-    TREAP_ADD(psRes->psIDTreap, (UDWORD)psID->pIDStr, psID);
-  }
-  id = psID->id & ~ID_ALLOC;
-
-  // Find the block to store the string in
-  for (psBlock = psRes->psStrings; psBlock->idEnd < id; psBlock = psBlock->psNext)
-  {
-    if (!psBlock->psNext)
-    {
-      // Need to allocate a new string block
-      if (!strresAllocBlock(&psBlock->psNext, psRes->ext))
-        return FALSE;
-      psBlock->psNext->idStart = psBlock->idEnd + 1;
-      psBlock->psNext->idEnd = psBlock->idEnd + psRes->ext;
-      psBlock->psNext->psNext = nullptr;
-    }
-  }
-
-  // Put the new string in the string block
-  if (psBlock->apStrings[psID->id - psBlock->idStart] != nullptr)
-  {
-    Neuron::Fatal("strresStoreString: Duplicate string for id: {}", psID->pIDStr);
+    Neuron::Fatal("strresStoreString: Duplicate string for id: {}", psEntry->name);
     return FALSE;
   }
 
-  // Allocate a copy of the string
-  pNew = new (std::nothrow) STRING[(stringLen(pString) + 1)];
-  if (!pNew)
-  {
-    Neuron::Fatal("strresStoreString: Out of memory");
-    return FALSE;
-  }
-  stringCpy(pNew, pString);
-  psBlock->apStrings[psID->id - psBlock->idStart] = pNew;
+  psEntry->text = pString;
+  psEntry->hasText = true;
 
   return TRUE;
 }
@@ -271,79 +132,112 @@ BOOL strresStoreString(STR_RES* psRes, STRING* pID, STRING* pString)
 /* Get the string from an ID number */
 STRING* strresGetString(STR_RES* psRes, UDWORD id)
 {
-  STR_BLOCK* psBlock;
+  DEBUG_ASSERT_TEXT(id < psRes->aEntries.size(), "strresGetString: String not found");
 
-  // find the block the string is in
-  for (psBlock = psRes->psStrings; psBlock && psBlock->idEnd < id; psBlock = psBlock->psNext);
-
-  if (!psBlock)
+  /* Out of range, or a keyword no string file ever supplied text for:
+     return the default string, which is id 0 by convention. */
+  if (id >= psRes->aEntries.size() || !psRes->aEntries[id]->hasText)
   {
-    DEBUG_ASSERT_TEXT(FALSE, "strresGetString: String not found");
-    // Return the default string
-    return psRes->psStrings->apStrings[0];
+    DEBUG_ASSERT_TEXT(!psRes->aEntries.empty(), "strresGetString: no strings loaded");
+    return psRes->aEntries.empty() ? nullptr : psRes->aEntries[0]->text.data();
   }
 
-  DEBUG_ASSERT_TEXT(psBlock->apStrings[id - psBlock->idStart] != NULL, "strresGetString: String not found");
-
-#ifdef DEBUG
-  psBlock->aUsage[id - psBlock->idStart] += 1;
-#endif
-
-  if (psBlock->apStrings[id - psBlock->idStart] == nullptr)
-  {
-    // Return the default string
-    return psRes->psStrings->apStrings[0];
-  }
-
-  return psBlock->apStrings[id - psBlock->idStart];
+  return psRes->aEntries[id]->text.data();
 }
 
-/* Load a string resource file */
+/* Load a string resource file.
+
+   The format is id/string pairs - `IDENT "text"` - with C and C++
+   comments.  Measured over the nine shipped files (3,186 pairs), ids use
+   only [A-Za-z0-9_-].  This replaced the generated StrRes_y/StrRes_l
+   parser, the tree's last yacc/lex output. */
 BOOL strresLoad(STR_RES* psRes, UBYTE* pData, UDWORD size)
 {
-  psCurrRes = psRes;
-  strresSetInputBuffer(pData, size);
-  if (strres_parse() != 0)
-    return FALSE;
+  const char* p = reinterpret_cast<const char*>(pData);
+  const char* const end = p + size;
+  UDWORD line = 1;
+
+  const auto isIdChar = [](char c)
+  {
+    return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_' || c == '-';
+  };
+
+  while (p < end)
+  {
+    const char c = *p;
+
+    if (c == '\n')
+    {
+      line += 1;
+      p += 1;
+      continue;
+    }
+    if (c == ' ' || c == '\t' || c == '\r')
+    {
+      p += 1;
+      continue;
+    }
+    if (c == '/' && p + 1 < end && p[1] == '/')
+    {
+      while (p < end && *p != '\n')
+        p += 1;
+      continue;
+    }
+    if (c == '/' && p + 1 < end && p[1] == '*')
+    {
+      p += 2;
+      while (p + 1 < end && !(p[0] == '*' && p[1] == '/'))
+      {
+        if (*p == '\n')
+          line += 1;
+        p += 1;
+      }
+      if (p + 1 >= end)
+      {
+        Neuron::Fatal("strresLoad: unterminated comment at line {}", line);
+        return FALSE;
+      }
+      p += 2;
+      continue;
+    }
+
+    // An id followed by its quoted string
+    if (!isIdChar(c))
+    {
+      Neuron::Fatal("strresLoad: unexpected character '{}' at line {}", c, line);
+      return FALSE;
+    }
+    const char* idStart = p;
+    while (p < end && isIdChar(*p))
+      p += 1;
+    const std::string id(idStart, p);
+
+    while (p < end && (*p == ' ' || *p == '\t' || *p == '\r'))
+      p += 1;
+    if (p >= end || *p != '"')
+    {
+      Neuron::Fatal("strresLoad: expected a quoted string after '{}' at line {}", id, line);
+      return FALSE;
+    }
+    p += 1;
+    const char* strStart = p;
+    while (p < end && *p != '"')
+    {
+      if (*p == '\n')
+        line += 1;
+      p += 1;
+    }
+    if (p >= end)
+    {
+      Neuron::Fatal("strresLoad: unterminated string for '{}' at line {}", id, line);
+      return FALSE;
+    }
+    const std::string value(strStart, p);
+    p += 1;
+
+    if (!strresStoreString(psRes, id.c_str(), value.c_str()))
+      return FALSE;
+  }
 
   return TRUE;
-}
-
-/* Return the the length of a STRING */
-UDWORD stringLen(STRING* pStr)
-{
-  UDWORD count = 0;
-
-  while (*pStr++) { count += 1; }
-
-  return count;
-}
-
-/* Copy a STRING */
-void stringCpy(STRING* pDest, STRING* pSrc)
-{
-  do { *pDest++ = *pSrc; }
-  while (*pSrc++);
-}
-
-/* Get the ID number for a string*/
-UDWORD strresGetIDfromString(STR_RES* psRes, STRING* pString)
-{
-  STR_BLOCK *psBlock, *psNext = nullptr;
-  UDWORD i;
-
-  // Search through all the blocks to find the string
-  for (psBlock = psRes->psStrings; psBlock; psBlock = psNext)
-  {
-    for (i = psBlock->idStart; i <= psBlock->idEnd; i++)
-    {
-      if (psBlock->apStrings[i - psBlock->idStart])
-      {
-        if (!strcmp(psBlock->apStrings[i - psBlock->idStart], pString))
-          return i;
-      }
-    }
-    psNext = psBlock->psNext;
-  }
-  return 0;
 }

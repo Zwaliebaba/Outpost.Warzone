@@ -190,12 +190,16 @@ void statsDealloc(COMP_BASE_STATS* pStats, UDWORD listSize, UDWORD structureSize
 {
 #if !defined (RESOURCE_NAMES) && !defined(STORE_RESOURCE_ID)
 
-  UDWORD inc; COMP_BASE_STATS* pStatList = pStats; UDWORD address = (UDWORD)pStats; for (inc = 0; inc < listSize; inc++)
+  UDWORD inc;
+  COMP_BASE_STATS* pStatList = pStats;
+  for (inc = 0; inc < listSize; inc++)
   {
     delete[] pStatList->pName;
     pStatList->pName = nullptr;
-    address += structureSize;
-    pStatList = (COMP_BASE_STATS*)address;
+    /* The list is an array of a derived type whose stride the caller
+     * passes in, so the walk is byte-wise. It went through a UDWORD,
+     * which truncated the pointer on a 64 bit build. */
+    pStatList = (COMP_BASE_STATS*)((UBYTE*)pStatList + structureSize);
   }
 
 #else
@@ -2954,7 +2958,9 @@ SDWORD getCompFromName(UDWORD compType, STRING* pName)
   {
     if (!strcmp(pName, psStats->pName))
       return count;
-    psStats = (BASE_STATS*)((UDWORD)psStats + statSize);
+    /* Walk to the next record by bytes. Casting the pointer through
+       UDWORD to do the arithmetic truncates it on a 64-bit build. */
+    psStats = reinterpret_cast<BASE_STATS*>(reinterpret_cast<UBYTE*>(psStats) + statSize);
   }
   //return -1 if record not found or an invalid component type is passed in
   return -1;
@@ -2975,7 +2981,9 @@ SDWORD getCompFromHash(UDWORD compType, UDWORD HashedName)
   for (count = 0; count < numStats; count++)
   {
     if (HashedName == psStats->NameHash) { return count; }
-    psStats = (BASE_STATS*)((UDWORD)psStats + statSize);
+    /* Walk to the next record by bytes. Casting the pointer through
+       UDWORD to do the arithmetic truncates it on a 64-bit build. */
+    psStats = reinterpret_cast<BASE_STATS*>(reinterpret_cast<UBYTE*>(psStats) + statSize);
   }
   //return -1 if record not found or an invalid component type is passed in
   return -1;

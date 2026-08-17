@@ -3,7 +3,7 @@
 #include "RendMode.h"
 #include "FrameResource.h"
 #include "Palette.h"
-#include "Pcx.h"
+#include "Dds.h"
 #include "Tex.h"
 #include "IvisPatch.h"
 
@@ -137,7 +137,7 @@ static BOOL LoadTextureFile(char* FileName, iSprite* pSprite, int* texPageID)
 
   if (!resPresent("IMGPAGE", FileName))
   {
-    if (!Neuron::PCXLoad(FileName, pSprite, nullptr))
+    if (!Neuron::DdsLoad(FileName, pSprite))
     {
       Neuron::Fatal("Unable to load texture file : {}",FileName);
       return FALSE;

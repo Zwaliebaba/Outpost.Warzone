@@ -14,7 +14,7 @@
 #include "RenderTypes.h"
 #include "Model.h"
 #include "PieState.h"
-#include "Pcx.h"
+#include "Dds.h"
 #include "BitImage.h"
 
 #include "Texture.h"
@@ -638,7 +638,7 @@ BOOL dataIMGPAGELoad(UBYTE* pBuffer, UDWORD size, void** ppData)
   if (!psSprite)
     return FALSE;
 
-  if (!Neuron::PCXLoadMem((int8*)(SBYTE*)pBuffer, psSprite, nullptr))
+  if (!Neuron::DdsLoadMem((int8*)(SBYTE*)pBuffer, psSprite))
   {
     Neuron::Fatal("IMGPAGE load failed");
     delete[] psSprite;
@@ -689,7 +689,7 @@ BOOL dataHWTERTILESLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
   {
     Neuron::DebugTrace("Reloading terrain tiles\n");
 
-    if (!pie_PCXLoadMemToBuffer((int8*)(SBYTE*)pBuffer, &tilesPCX, nullptr))
+    if (!Neuron::DdsLoadMemToBuffer((int8*)(SBYTE*)pBuffer, &tilesPCX))
     {
       Neuron::Fatal("HWTERTILES reload failed");
       return FALSE;
@@ -698,7 +698,7 @@ BOOL dataHWTERTILESLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
   else
   {
     Neuron::DebugTrace("Loading terrain tiles\n");
-    if (!Neuron::PCXLoadMem((int8*)(SBYTE*)pBuffer, &tilesPCX, nullptr))
+    if (!Neuron::DdsLoadMem((int8*)(SBYTE*)pBuffer, &tilesPCX))
     {
       Neuron::Fatal("HWTERTILES load failed");
       return FALSE;
@@ -827,17 +827,12 @@ BOOL bufferTexPageLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
       return FALSE;
 
     NewTexturePage->Texture = nullptr;
-    NewTexturePage->Palette = nullptr;
-
-    auto psPal = new (std::nothrow) iPalette[1];
-    if (!psPal)
-      return FALSE;
 
     auto psSprite = new (std::nothrow) iSprite[1];
     if (!psSprite)
       return FALSE;
 
-    if (!Neuron::PCXLoadMem((int8*)(SBYTE*)pBuffer, psSprite, nullptr))
+    if (!Neuron::DdsLoadMem((int8*)(SBYTE*)pBuffer, psSprite))
     {
       delete[] psSprite;
       psSprite = nullptr;
@@ -845,7 +840,6 @@ BOOL bufferTexPageLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
     }
 
     NewTexturePage->Texture = psSprite;
-    NewTexturePage->Palette = psPal;
 
     //Hack mar8 to load	textures in order	
     /*	for(i=0;i<_TEX_INDEX;i++)
@@ -887,11 +881,6 @@ void dataTexPageRelease(void* pData)
     }
     delete[] Tpage->Texture;
     Tpage->Texture = nullptr;
-  }
-  if (Tpage->Palette != nullptr)
-  {
-    delete[] Tpage->Palette;
-    Tpage->Palette = nullptr;
   }
 
   delete[] pData;
@@ -1069,7 +1058,6 @@ BOOL dataScriptLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
 
   calcCheatHash(pBuffer, size,CHEAT_SCRIPT);
 
-#ifndef NOSCRIPT
   Neuron::DebugTrace("COMPILING SCRIPT ...{}\n",GetLastResourceFilename());
   // make sure the memory system uses normal malloc for a compile
 
@@ -1083,7 +1071,6 @@ BOOL dataScriptLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
     cpPrintProgram(psProg);
 
   *ppData = psProg;
-#endif
   return TRUE;
 }
 

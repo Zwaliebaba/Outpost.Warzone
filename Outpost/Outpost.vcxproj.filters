@@ -102,8 +102,7 @@
     <ClCompile Include="ScriptObj.cpp" />
     <ClCompile Include="ScriptTabs.cpp" />
     <ClCompile Include="ScriptVals.cpp" />
-    <ClCompile Include="ScriptVals_l.cpp" />
-    <ClCompile Include="ScriptVals_y.cpp" />
+    <ClCompile Include="ScriptValsParse.cpp" />
     <ClCompile Include="Selection.cpp" />
     <ClCompile Include="SeqDisp.cpp" />
     <ClCompile Include="Stats.cpp" />
@@ -241,7 +240,6 @@
     <ClInclude Include="ScriptObj.h" />
     <ClInclude Include="ScriptTabs.h" />
     <ClInclude Include="ScriptVals.h" />
-    <ClInclude Include="ScriptVals_y.h" />
     <ClInclude Include="Selection.h" />
     <ClInclude Include="SeqDisp.h" />
     <ClInclude Include="Stats.h" />

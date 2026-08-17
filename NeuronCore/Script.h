@@ -21,12 +21,11 @@ using SCR_DEBUGTYPE = enum _scr_debugtype
   // Do not generate debug info
 };
 
-// If this is defined we save out the compiled scripts
-
+// The debug-info level scripts are compiled with
 #define SCRIPTTYPE SCR_DEBUGINFO
 
 // Initialise the script library
-extern BOOL scriptInitialise(EVENT_INIT* psInit);
+extern BOOL scriptInitialise(void);
 
 // Shutdown the script library
 extern void scriptShutDown(void);
@@ -70,15 +69,6 @@ extern void scriptFreeCode(SCRIPT_CODE* psCode);
 
 /* Display the contents of a program in readable form */
 extern void cpPrintProgram(SCRIPT_CODE* psProg);
-
-// Save a binary version of a program
-extern BOOL scriptSaveProg(SCRIPT_CODE* psProg, UDWORD* pSize, UBYTE** ppData);
-
-// Load a binary version of a program
-extern BOOL scriptLoadProg(UDWORD size, UBYTE* pData, SCRIPT_CODE** ppsProg);
-
-/* Lookup a script variable */
-extern BOOL scriptGetVarIndex(SCRIPT_CODE* psCode, STRING* pID, UDWORD* pIndex);
 
 /* Run a compiled script */
 extern BOOL interpRunScript(SCRIPT_CONTEXT* psContext, INTERP_RUNTYPE runType, UDWORD index, UDWORD offset);
@@ -129,7 +119,7 @@ extern BOOL eventRunContext(SCRIPT_CONTEXT* psContext, UDWORD time);
 extern void eventRemoveContext(SCRIPT_CONTEXT* psContext);
 
 // Set a global variable value for a context
-extern BOOL eventSetContextVar(SCRIPT_CONTEXT* psContext, UDWORD index, INTERP_TYPE type, UDWORD data);
+extern BOOL eventSetContextVar(SCRIPT_CONTEXT* psContext, UDWORD index, INTERP_VAL* psNewVal);
 
 // Get the value pointer for a variable index
 extern BOOL eventGetContextVal(SCRIPT_CONTEXT* psContext, UDWORD index, INTERP_VAL** ppsVal);
@@ -146,15 +136,20 @@ extern void eventFireCallbackTrigger(TRIGGER_TYPE callback);
  * Support functions for writing instinct functions
  */
 
-/* Pop a number of values off the stack checking their types
- * This is used by instinct functions to get their parameters
- * The varargs part is a set of INTERP_TYPE, UDWORD * pairs.
- * The value of the parameter is stored in the DWORD pointed to by the UDWORD *
+/* Pop a number of values off the stack checking their types.
+ * This is how instinct functions get their parameters: each entry pairs
+ * the expected INTERP_TYPE with the destination, and the destination's
+ * pointer-ness fixes the store width (see ScriptParam in Stack.h).
+ *
+ *   stackPopParams({{VAL_INT, &iX}, {ST_DROID, &psDroid}})
  */
-extern BOOL stackPopParams(SDWORD numParams, ...);
+extern BOOL stackPopParams(std::initializer_list<ScriptParam> params);
 
 /* Push a value onto the stack without using a value structure */
 extern BOOL stackPushResult(INTERP_TYPE type, SDWORD data);
+
+/* Push an object or string result onto the stack, keeping pointer width */
+extern BOOL stackPushResult(INTERP_TYPE type, void* pData);
 
 /***********************************************************************************
  *

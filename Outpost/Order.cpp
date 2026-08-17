@@ -1649,7 +1649,7 @@ void orderDroidBase(DROID* psDroid, DROID_ORDER_DATA* psOrder)
     actionDroidObj(psDroid, DACTION_CLEARWRECK, psOrder->psObj);
     break;
   case DORDER_REARM:
-    if (!vtolDroid)
+    if (!vtolDroid(psDroid))
       break;
     psDroid->order = DORDER_REARM;
     psDroid->psTarget = psOrder->psObj;
@@ -2771,7 +2771,7 @@ void secondaryCheckDamageLevel(DROID* psDroid)
       State = 0; //never repair
 
     //don't bother checking if 'do or die'
-    if (State && PERCENT(psDroid->body, psDroid->originalBody) <= State)
+    if (State && static_cast<SDWORD>(PERCENT(psDroid->body, psDroid->originalBody)) <= State)
     {
       if (psDroid->selected)
         DeSelectDroid(psDroid);
@@ -3477,7 +3477,7 @@ void orderHealthCheck(DROID* psDroid)
     retreatY = asRunData[psDroid->player].sPos.y;
   }
 
-  if (PERCENT(psDroid->body, psDroid->originalBody) < healthLevel)
+  if (static_cast<SDWORD>(PERCENT(psDroid->body, psDroid->originalBody)) < healthLevel)
   {
     //order this droid to turn and run - // if already running - ignore
     if (!(orderState(psDroid, DORDER_RUN) || orderState(psDroid, DORDER_RUNBURN) || orderState(psDroid, DORDER_RETREAT) ||

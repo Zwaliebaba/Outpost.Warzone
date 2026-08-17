@@ -406,7 +406,7 @@ static BOOL getTileHighestCallback(SDWORD x, SDWORD y, SDWORD dist)
   if (clipXY(x, y))
   {
     height = map_Height(x, y);
-    if ((height > gHighestHeight) AND (dist >= gHMinDist))
+    if ((height > static_cast<UDWORD>(gHighestHeight)) AND (dist >= gHMinDist))
     {
       heightDif = height - gHOrigHeight;
       gHPitch = atan2f(static_cast<float>(heightDif), static_cast<float>(6*TILE_UNITS)); //MAKEFRACT(dist-(TILE_UNITS*3))));

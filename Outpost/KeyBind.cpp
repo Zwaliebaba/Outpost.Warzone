@@ -1283,7 +1283,6 @@ void kf_KillEnemy(void)
 {
   UDWORD player;
   DROID *psCDroid, *psNDroid;
-  STRUCTURE *psCStruct, *psNStruct;
 
   for (player = 0; player < MAX_PLAYERS AND !bMultiPlayer; player++)
   {
@@ -1374,7 +1373,7 @@ void kf_SendTextMessage(void)
     {
       // Kill if they hit return - it maxes out console or it's more than one line long
       if ((ch == INPBUF_CR) || (strlen(sTextToSend) >= MAX_CONSOLE_STRING_LENGTH - 16) // Prefixes with ERROR: and terminates with '?'
-        OR Neuron::GetTextWidth((unsigned char*)sTextToSend) > (DISP_WIDTH - 64)) // sendit
+        OR Neuron::GetTextWidth((unsigned char*)sTextToSend) > static_cast<SDWORD>(DISP_WIDTH - 64)) // sendit
       //	if((ch == INPBUF_CR) || (strlen(sTextToSend)==MAX_TYPING_LENGTH) 
       {
         bAllowOtherKeyPresses = TRUE;

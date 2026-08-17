@@ -369,7 +369,6 @@ VAR_SYMBOL asObjTable[] = {
   {nullptr, VAL_VOID, ST_OBJECT, VAL_VOID, 0, nullptr, nullptr}
 };
 
-#ifndef NOSCRIPT
 /* The table of constant variables
  * The format is :
  *
@@ -556,7 +555,6 @@ CONST_SYMBOL asConstantTable[] = {
   /* This entry marks the end of the constant list */
   {"CONSTANT LIST END", VAL_VOID}
 };
-#endif
 
 /* The Table of callback triggers
  * The format is :
@@ -637,26 +635,16 @@ TYPE_EQUIV asEquivTable[] = {
 // Initialise the script system
 BOOL scrTabInitialise(void)
 {
-  EVENT_INIT sInit;
-
-  sInit.valInit = 50;
-  sInit.valExt = 5;
-  sInit.trigInit = 35; // was 20 ... not enough
-  sInit.trigExt = 5;
-  sInit.contInit = 50;
-  sInit.contExt = 5;
-  if (!scriptInitialise(&sInit))
+  if (!scriptInitialise())
     return FALSE;
 
   if (!eventInitValueFuncs(ST_MAXTYPE))
     return FALSE;
 
   scrvInitialise();
-#ifndef NOSCRIPT
 
   // Set the constant table
   scriptSetConstTab(asConstantTable);
-#endif
   // Set the function table
   scriptSetFuncTab(asFuncTable);
 

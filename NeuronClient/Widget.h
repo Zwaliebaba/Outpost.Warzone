@@ -331,6 +331,24 @@ UDWORD widgGetUserData2(W_SCREEN* psScreen, UDWORD id);
 /* Set the user data for a widget */
 void widgSetUserData2(W_SCREEN* psScreen, UDWORD id, UDWORD UserData);
 
+/* Some widgets carry a small integer in pUserData instead of a pointer -
+ * a PACKDWORD_TRI image triple, a player number, a list index. The field
+ * cannot become an integer, because just as many widgets keep a real
+ * object address in it, so the round-trip goes through these instead of a
+ * direct cast: a UDWORD does not span a pointer on a 64-bit build, and
+ * casting between the two is what C4311/C4302/C4312 are complaining
+ * about. The value is carried, never dereferenced.
+ */
+inline void* widgPackUserData(UDWORD _value)
+{
+  return reinterpret_cast<void*>(static_cast<uintptr_t>(_value));
+}
+
+inline UDWORD widgUnpackUserData(const void* _pUserData)
+{
+  return static_cast<UDWORD>(reinterpret_cast<uintptr_t>(_pUserData));
+}
+
 /* Return the user data for the returned widget */
 extern void* widgGetLastUserData(W_SCREEN* psScreen);
 

@@ -80,8 +80,6 @@ void animObj_SetDoneFunc(ANIM_OBJECT* psObj, ANIMOBJDONEFUNC pDoneFunc);
 ANIM_OBJECT* animObj_Add(void* pParentObj, int iAnimID, UDWORD udwStartDelay, UWORD uwCycles);
 BOOL animObj_Remove(ANIM_OBJECT** ppsObj, int iAnimID);
 
-ANIM_OBJECT* animObj_GetFirst(void);
-ANIM_OBJECT* animObj_GetNext(void);
 ANIM_OBJECT* animObj_Find(void* pParentObj, int iAnimID);
 UWORD animObj_GetFrame3D(ANIM_OBJECT* psObj, UWORD uwObj, VECTOR3D* psPos, DirectX::XMFLOAT3* psVecRot, VECTOR3D* psVecScale);
 

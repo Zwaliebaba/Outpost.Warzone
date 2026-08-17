@@ -60,12 +60,6 @@ extern BOOL godMode;
 
 /*fills the map buffer with intelColours prior to drawing in it*/
 
-//only used in software
-/*fills the map buffer with a bitmap prior to drawing in it*/
-static void fillMapBufferWithBitmap(iSurface* surface);
-
-
-//fill the intelColours array with the colours used for the background
 /* ----------------------------------------------------------------------------------------- */
 
 static iTexture texturePage = {6, 64, 64, nullptr};
@@ -77,9 +71,6 @@ get rid of it eventually? - AB 1/4/98*/
 BOOL doBucket = TRUE;
 
 #define MAX_INTEL_SHADES		20
-
-//colours used to 'paint' the background of 3D view
-UDWORD intelColours[MAX_INTEL_SHADES];
 
 /* unused
 void	drawMapTile(SDWORD i, SDWORD j)
@@ -149,45 +140,6 @@ void	drawMapTile(SDWORD i, SDWORD j)
 	}
 #endif
 }*/
-
-//only used in software
-/*fills the map buffer with a bitmap*/
-void fillMapBufferWithBitmap(iSurface* surface)
-{
-  UBYTE* toFill;
-  UDWORD x, y, extraWidth, surfaceWidth, surfaceHeight, bitmapWidth, bitmapHeight, xSource, ySource, x0, y0;
-  iBitmap* pBitmapBuffer;
-  IMAGEDEF* pImageDef;
-  UDWORD Modulus;
-
-  toFill = surface->buffer;
-  extraWidth = MSG_BUFFER_WIDTH - surface->width;
-
-  pImageDef = &IntImages->ImageDefs[IMAGE_BUT0_UP];
-  Modulus = IntImages->TexturePages[pImageDef->TPageID].width;
-
-  pBitmapBuffer = IntImages->TexturePages[pImageDef->TPageID].bmp;
-  x0 = static_cast<UDWORD>(pImageDef->Tu) + 5;
-  y0 = static_cast<UDWORD>(pImageDef->Tv) + 5;
-
-  bitmapWidth = pImageDef->Width - 10;
-  bitmapHeight = pImageDef->Height - 10;
-  surfaceWidth = static_cast<UDWORD>(surface->width);
-  surfaceHeight = static_cast<UDWORD>(surface->height);
-
-  for (y = 0; y < surfaceHeight; y++)
-  {
-    for (x = 0; x < surfaceWidth; x++)
-    {
-      //get the source x/y for this destination
-      xSource = x * bitmapWidth / surfaceWidth;
-      ySource = y * bitmapHeight / surfaceHeight;
-
-      *toFill++ = pBitmapBuffer[x0 + xSource + (y0 + ySource) * Modulus];
-    }
-    toFill += extraWidth;
-  }
-}
 
 //clear text message background with gray fill
 /*void clearIntelText(iSurface *surface)

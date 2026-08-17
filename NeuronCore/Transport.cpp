@@ -649,7 +649,7 @@ static void SendWelcome(Peer* peer)
     if (!g_roster[i].used)
       continue;
 
-    nameLength = strlen(g_roster[i].name);
+    nameLength = static_cast<UDWORD>(strlen(g_roster[i].name));
     PutU32(frame + at, g_roster[i].id);
     PutU16(frame + at + 4, static_cast<UWORD>(nameLength));
     memcpy(frame + at + 6, g_roster[i].name, nameLength);
@@ -667,7 +667,7 @@ static void SendJoined(NETPLAYERID id, const char name[], NETPLAYERID except)
   BYTE frame[7 + StringSize];
   UDWORD nameLength;
 
-  nameLength = strlen(name);
+  nameLength = static_cast<UDWORD>(strlen(name));
   frame[0] = FrameJoined;
   PutU32(frame + 1, id);
   PutU16(frame + 5, static_cast<UWORD>(nameLength));
@@ -686,7 +686,7 @@ static void SendRename(Peer* peer, NETPLAYERID id, const char name[], BOOL toAll
   BYTE frame[7 + StringSize];
   UDWORD nameLength;
 
-  nameLength = strlen(name);
+  nameLength = static_cast<UDWORD>(strlen(name));
   if (nameLength >= StringSize)
     nameLength = StringSize - 1;
 
@@ -1230,7 +1230,7 @@ static QUIC_STATUS QUIC_API ConnectionCallback(HQUIC connection, void* pContext,
 
       EnterCriticalSection(&g_lock);
       peer->stream = stream;
-      nameLength = strlen(g_localName);
+      nameLength = static_cast<UDWORD>(strlen(g_localName));
       hello[0] = FrameHello;
       PutU16(hello + 1, static_cast<UWORD>(nameLength));
       memcpy(hello + 3, g_localName, nameLength);
@@ -1509,7 +1509,7 @@ static void SplitAddress(const char address[], char host[], UDWORD hostSize,
     udwLen = static_cast<UDWORD>(pColon - address);
   }
   else
-    udwLen = strlen(address);
+    udwLen = static_cast<UDWORD>(strlen(address));
 
   /* MsQuic wants the literal without its brackets. */
   if (address[0] == '[' && udwLen >= 2)

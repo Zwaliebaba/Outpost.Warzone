@@ -52,7 +52,6 @@ void ResetMaxStringWidth(void);
 static BOOL addQuitOptions(VOID)
 {
   W_FORMINIT sFormInit;
-  UWORD WindowWidth;
 
   DisableCursorSnapsExcept(INTINGAMEOP);
 
@@ -160,7 +159,6 @@ UDWORD GetMaxStringWidth(void) { return MaxStringWidth; }
 
 static BOOL _intAddInGameOptions(void)
 {
-  UWORD WindowWidth;
   W_FORMINIT sFormInit;
 
   AudioSystem::StopAll();

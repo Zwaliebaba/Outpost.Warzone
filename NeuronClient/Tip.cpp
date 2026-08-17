@@ -2,6 +2,7 @@
 #include "Frame.h"
 #include "Input.h"
 #include "FrameInt.h"
+#include "RenderClip.h"
 #include "Widget.h"
 #include "Tip.h"
 #include "RendMode.h"
@@ -37,7 +38,7 @@ static UDWORD* pColours; // The colours for the tool tip
 static WIDGET* psWidget; // The button the tip is for
 //static PROP_FONT	*psFont;			// The font to display the tip with
 static int FontID = 0; // ID for the Ivis Font.
-static int TipColour;
+static UDWORD TipColour;
 
 /* Initialise the tool tip module */
 void tipInitialise(void) { tipState = TIP_NONE; }
@@ -45,7 +46,7 @@ void tipInitialise(void) { tipState = TIP_NONE; }
 // Set the global toop tip text colour.
 void widgSetTipColour(W_SCREEN* psScreen, UBYTE red, UBYTE green, UBYTE blue)
 {
-  TipColour = -1; // use bitmap colourings.
+  TipColour = PIE_TEXT_WHITE; // white modulates to the bitmap's own colourings.
 }
 
 /*
@@ -119,14 +120,14 @@ void tipDisplay(void)
       tx = wx + (ww >> 1);
       ty = wy + wh + TIP_VGAP;
 
-      /* Check the box is on screen */
+      /* Check the box is on the logical canvas the widgets lay out on */
       if (tx < 0)
         tx = 0;
-      if (tx + tw >= static_cast<SDWORD>(screenWidth) - RIGHTBORDER)
-        tx = screenWidth - RIGHTBORDER - tw - 1;
+      if (tx + tw >= static_cast<SDWORD>(pie_GetVideoBufferWidth()) - RIGHTBORDER)
+        tx = pie_GetVideoBufferWidth() - RIGHTBORDER - tw - 1;
       if (ty < 0)
         ty = 0;
-      if (ty + th >= static_cast<SDWORD>(screenHeight) - BOTTOMBORDER)
+      if (ty + th >= static_cast<SDWORD>(pie_GetVideoBufferHeight()) - BOTTOMBORDER)
       {
         /* Position the tip above the button */
         ty = wy - th - TIP_VGAP;
@@ -152,7 +153,7 @@ void tipDisplay(void)
     //			((time - startTime) > TIP_TIME))
 
     /* Draw the tool tip */
-    pie_BoxFillIndex(tx, ty, tx + tw, ty + th, static_cast<UBYTE>(*(pColours + WCOL_TIPBKGRND)));
+    pie_BoxFillIndex(tx, ty, tx + tw, ty + th, *(pColours + WCOL_TIPBKGRND));
     pie_Box(tx, ty, tx + tw - 1, ty + th - 1, *(pColours + WCOL_LIGHT));
     pie_Line(tx + 1, ty + th - 2, tx + 1, ty + 1, *(pColours + WCOL_DARK));
     pie_Line(tx + 2, ty + 1, tx + tw - 2, ty + 1, *(pColours + WCOL_DARK));
@@ -160,7 +161,7 @@ void tipDisplay(void)
     pie_Line(tx + tw, ty + th - 1, tx + tw, ty, *(pColours + WCOL_DARK));
 
     Neuron::SetFont(FontID);
-    Neuron::SetTextColour(static_cast<UWORD>(TipColour));
+    Neuron::SetTextColour(TipColour);
     pie_DrawText((unsigned char*)pTip, fx, fy);
     break;
   }

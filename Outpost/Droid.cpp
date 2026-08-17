@@ -557,7 +557,7 @@ void removeDroidFX(DROID* psDel)
       if (psDel->visible[selectedPlayer])
       {
         // The babarian has been run over ...
-        AudioSystem::PlayStaticTrack(psDel->x, psDel->y, ID_SOUND_BARB_SQUISH);
+        (void)AudioSystem::PlayStaticTrack(psDel->x, psDel->y, ID_SOUND_BARB_SQUISH);
       }
     }
   }
@@ -568,7 +568,7 @@ void removeDroidFX(DROID* psDel)
     pos.z = psDel->y;
     pos.y = psDel->z;
     addEffect(&pos, EFFECT_DESTRUCTION, DESTRUCTION_TYPE_DROID,FALSE, nullptr, 0);
-    AudioSystem::PlayStaticTrack(psDel->x, psDel->y, ID_SOUND_EXPLOSION);
+    (void)AudioSystem::PlayStaticTrack(psDel->x, psDel->y, ID_SOUND_EXPLOSION);
   }
 }
 
@@ -721,7 +721,7 @@ void droidBurn(DROID* psDroid)
 
   /* add scream */
   Neuron::DebugTrace("baba burn\n");
-  AudioSystem::PlayObjectTrack(psDroid, ID_SOUND_BARB_SCREAM + (rand() % 3), nullptr);
+  (void)AudioSystem::PlayObjectTrack(psDroid, ID_SOUND_BARB_SCREAM + (rand() % 3), nullptr);
 
   /* set droid running */
   orderDroid(psDroid, DORDER_RUNBURN);
@@ -1140,7 +1140,7 @@ static BOOL droidBuildStartAudioCallback(AUDIO_SAMPLE* psSample)
   {
     if (psDroid->visible[selectedPlayer])
     {
-      AudioSystem::PlayObjectTrack(psDroid, ID_SOUND_CONSTRUCTION_LOOP, droidCheckBuildStillInProgress);
+      (void)AudioSystem::PlayObjectTrack(psDroid, ID_SOUND_CONSTRUCTION_LOOP, droidCheckBuildStillInProgress);
     }
   }
 
@@ -1234,7 +1234,7 @@ BOOL droidStartBuild(DROID* psDroid)
 
   if (psStruct->visible[selectedPlayer])
   {
-    AudioSystem::PlayObjectTrack(psDroid, ID_SOUND_CONSTRUCTION_START, droidBuildStartAudioCallback);
+    (void)AudioSystem::PlayObjectTrack(psDroid, ID_SOUND_CONSTRUCTION_START, droidBuildStartAudioCallback);
   }
 
   return TRUE;
@@ -1246,7 +1246,7 @@ static void droidAddWeldSound(iVector iVecEffect)
 
   iAudioID = ID_SOUND_CONSTRUCTION_1 + (rand() % 4);
 
-  AudioSystem::PlayStaticTrack(iVecEffect.x, iVecEffect.z, iAudioID);
+  (void)AudioSystem::PlayStaticTrack(iVecEffect.x, iVecEffect.z, iAudioID);
 }
 
 static void addConstructorEffect(STRUCTURE* psStruct)
@@ -4218,6 +4218,9 @@ STRING* getDroidNameForRank(UDWORD rank)
   case 8:
     return strresGetString(psStringRes, STR_DL_LEVEL_ACE);
   }
+
+  DEBUG_ASSERT_TEXT(FALSE, "getDroidNameForRank: rank {} out of range", rank);
+  return strresGetString(psStringRes, STR_DL_LEVEL_ROOKIE);
 }
 
 STRING* getDroidLevelName(DROID* psDroid)
@@ -5000,6 +5003,8 @@ STRING* getTemplateName(DROID_TEMPLATE* psTemplate)
   return pNameID;
 #endif
 #endif
+
+  return pNameID;
 }
 
 /* Just returns true if the droid's present body points aren't as high as the original*/
@@ -5547,7 +5552,23 @@ BOOL checkValidWeaponForProp(DROID_TEMPLATE* psTemplate)
   //also checks that there is only a weapon attached and no other system component
   if (psTemplate->numWeaps == 0)
     bValid = FALSE;
-  if ((psTemplate->asParts[COMP_BRAIN] != 0) && (psTemplate->asParts[COMP_WEAPON] != 0))
+
+  /* This second test reads oddly on purpose: it is what the line below
+     always did, written out honestly. It used to say
+     asParts[COMP_WEAPON] != 0, but asParts stops at COMP_CONSTRUCT, so
+     that element was one past the end of the array and aliased
+     buildPoints. Which meant two different rules depending on the caller:
+     loadDroidWeapons runs before initTemplatePoints fills buildPoints in,
+     so the test never fired there, while the design screen copies a
+     template that already has it, so there it reduced to "reject a design
+     with a command brain".
+
+     Both are preserved verbatim rather than guessed at. Reading it as the
+     comment above suggests - reject a template with both a brain and a
+     weapon - rejects every command turret at load, which is what a command
+     droid is; that was tried and it breaks startup. What this should
+     actually test is a gameplay decision, not a refactoring one. */
+  if ((psTemplate->asParts[COMP_BRAIN] != 0) && (psTemplate->buildPoints != 0))
     bValid = FALSE;
 
   return bValid;

@@ -36,7 +36,7 @@ void calcTileIllum(UDWORD tileX, UDWORD tileY);
 void normalsOnTile(UDWORD tileX, UDWORD tileY, UDWORD quadrant);
 UDWORD numNormals; // How many normals have we got?
 DirectX::XMFLOAT3 normals[8]; // Maximum 8 possible normals
-extern void draw3dLine(iVector* src, iVector* dest, UBYTE col);
+extern void draw3dLine(iVector* src, iVector* dest, UDWORD col);
 
 /* Unit surface normal of the triangle p1,p2,p3, with the operand order the
  * old pie_SurfaceNormal used so the winding sign is unchanged. */

@@ -9,14 +9,10 @@
 #include "StrRes.h"
 #include "Text.h"
 
-/* The numbers of strings that will be loaded */
-#define STRING_INIT		20
-#define STRING_EXT		5
-
 /* The fixed id buffer for the string resource system
  * This just tells it what the keywords are for the fixed strings
  */
-STR_ID asFixedID[STR_MAX_ID] = {
+const STR_ID asFixedID[STR_MAX_ID] = {
   // Default string
   STR_DEFAULT, "DEFAULT",
 
@@ -161,7 +157,7 @@ STR_RES* psStringRes;
 /* Initialise the string system */
 BOOL stringsInitialise(void)
 {
-  if (!strresCreate(&psStringRes, STRING_INIT, STRING_EXT))
+  if (!strresCreate(&psStringRes))
     return FALSE;
 
   if (!strresLoadFixedID(psStringRes, asFixedID, STR_MAX_ID))
