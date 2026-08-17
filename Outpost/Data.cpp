@@ -1058,7 +1058,6 @@ BOOL dataScriptLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
 
   calcCheatHash(pBuffer, size,CHEAT_SCRIPT);
 
-#ifndef NOSCRIPT
   Neuron::DebugTrace("COMPILING SCRIPT ...{}\n",GetLastResourceFilename());
   // make sure the memory system uses normal malloc for a compile
 
@@ -1072,7 +1071,6 @@ BOOL dataScriptLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
     cpPrintProgram(psProg);
 
   *ppData = psProg;
-#endif
   return TRUE;
 }
 

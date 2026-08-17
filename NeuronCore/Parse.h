@@ -130,11 +130,8 @@ using OBJVAR_BLOCK = struct _objvar_block
 /* Type for a function symbol */
 using FUNC_SYMBOL = struct _func_symbol
 {
-#ifndef NOSCRIPT
   STRING* pIdent; // function's identifier
-#endif
   SCRIPT_FUNC pFunc; // Pointer to the instinct function
-#ifndef NOSCRIPT
   INTERP_TYPE type; // function type
   UDWORD numParams; // Number of parameters to the function
   INTERP_TYPE aParams[INST_MAXPARAMS];
@@ -148,7 +145,6 @@ using FUNC_SYMBOL = struct _func_symbol
   SCRIPT_DEBUG* psDebug; // Debugging info for the script.
 
   struct _func_symbol* psNext;
-#endif
 };
 
 /* The type for a variable declaration */
@@ -273,19 +269,6 @@ extern BOOL scriptLookUpEvent(STRING* pIdent, EVENT_SYMBOL** ppsEvent);
 
 /* Reset the local variable symbol table */
 extern void scriptClearLocalVariables(void);
-
-/* Add a new function symbol */
-extern BOOL scriptStartFunctionDef(STRING* pIdent, // Functions name
-                                   INTERP_TYPE type); // return type
-
-/* Store the parameter types for the current script function definition  */
-extern BOOL scriptSetParameters(UDWORD numParams, // number of parameters
-                                INTERP_TYPE* pParams); // parameter types
-
-/* Store the code for a script function definition.
- * Clean up the local variable list for this function definition.
- */
-extern BOOL scriptSetCode(CODE_BLOCK* psBlock); // The code block
 
 /* Look up a function symbol */
 extern BOOL scriptLookUpFunction(STRING* pIdent, FUNC_SYMBOL** ppsSym);

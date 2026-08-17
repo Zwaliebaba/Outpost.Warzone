@@ -369,7 +369,6 @@ VAR_SYMBOL asObjTable[] = {
   {nullptr, VAL_VOID, ST_OBJECT, VAL_VOID, 0, nullptr, nullptr}
 };
 
-#ifndef NOSCRIPT
 /* The table of constant variables
  * The format is :
  *
@@ -556,7 +555,6 @@ CONST_SYMBOL asConstantTable[] = {
   /* This entry marks the end of the constant list */
   {"CONSTANT LIST END", VAL_VOID}
 };
-#endif
 
 /* The Table of callback triggers
  * The format is :
@@ -652,11 +650,9 @@ BOOL scrTabInitialise(void)
     return FALSE;
 
   scrvInitialise();
-#ifndef NOSCRIPT
 
   // Set the constant table
   scriptSetConstTab(asConstantTable);
-#endif
   // Set the function table
   scriptSetFuncTab(asFuncTable);
 
