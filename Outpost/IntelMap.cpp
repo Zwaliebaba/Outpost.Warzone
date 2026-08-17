@@ -1306,7 +1306,7 @@ void setCurrentMsg(void)
 	}
 	
 	currentLength = 0;
-	strLen = strlen(psMessage->pViewData->pTextMsg);
+	strLen = static_cast<UDWORD>(strlen(psMessage->pViewData->pTextMsg));
 	frames = 0;
 	currentTextDisplay.totalFrames = 0;
 
@@ -1351,7 +1351,7 @@ void setCurrentMsg(void)
 	frames = 20 * (gameTime2 - currentTextDisplay.startTime)/GAME_TICKS_PER_SEC;
 
 	//get the number of chars in the string
-	strLen = strlen(pText);
+	strLen = static_cast<UDWORD>(strlen(pText));
 
 	currentLength = 0;
 

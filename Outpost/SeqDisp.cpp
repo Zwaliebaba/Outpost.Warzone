@@ -614,7 +614,7 @@ BOOL seq_AddTextForVideo(UBYTE* pText, SDWORD xOffset, SDWORD yOffset, SDWORD st
 
   DEBUG_ASSERT_TEXT(aSeqList[currentSeq].currentText < MAX_TEXT_OVERLAYS, "seq_AddTextForVideo: too many text lines");
 
-  sourceLength = strlen((const char*)pText);
+  sourceLength = static_cast<SDWORD>(strlen((const char*)pText));
   currentLength = sourceLength;
   currentText = &(aSeqList[currentSeq].aText[aSeqList[currentSeq].currentText].pText[0]);
 
@@ -779,7 +779,7 @@ void seq_AddSeqToList(STRING* pSeqName, STRING* pAudioName, STRING* pTextName, B
   if (bSeqSubtitles)
   {
     //check for a subtitle file
-    strLen = strlen(pSeqName);
+    strLen = static_cast<SDWORD>(strlen(pSeqName));
     DEBUG_ASSERT_TEXT(strLen < MAX_STR_LENGTH, "seq_AddSeqToList: sequence name error");
     strcpy(aSubtitleName, pSeqName);
     aSubtitleName[strLen - 4] = 0;

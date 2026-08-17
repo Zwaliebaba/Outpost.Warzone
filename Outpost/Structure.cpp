@@ -484,7 +484,7 @@ void initModulePIEs(char* PIEName, UDWORD i, STRUCTURE_STATS* psStructure)
   //need to work out the IMD's for the modules - HACK!
   if (psStructure->type == REF_FACTORY_MODULE)
   {
-    length = strlen(GfxFile) - 5;
+    length = static_cast<UDWORD>(strlen(GfxFile) - 5);
     for (module = 1; module < NUM_FACTORY_MODULES + 1; module++)
     {
       sprintf(charNum, "%d", module);
@@ -501,7 +501,7 @@ void initModulePIEs(char* PIEName, UDWORD i, STRUCTURE_STATS* psStructure)
   }
   if (psStructure->type == REF_VTOL_FACTORY)
   {
-    length = strlen(GfxFile) - 5;
+    length = static_cast<UDWORD>(strlen(GfxFile) - 5);
     for (module = 1; module < NUM_FACTORY_MODULES + 1; module++)
     {
       sprintf(charNum, "%d", module);
@@ -519,7 +519,7 @@ void initModulePIEs(char* PIEName, UDWORD i, STRUCTURE_STATS* psStructure)
   if (psStructure->type == REF_RESEARCH_MODULE)
   {
 #ifdef MULTI_UPGRADE
-    length = strlen(GfxFile) - 5; for (module = 1; module < NUM_RESEARCH_MODULES + 1; module++)
+    length = static_cast<UDWORD>(strlen(GfxFile) - 5); for (module = 1; module < NUM_RESEARCH_MODULES + 1; module++)
     {
       sprintf(charNum, "%d", module);
       GfxFile[length] = *charNum;
@@ -533,7 +533,7 @@ void initModulePIEs(char* PIEName, UDWORD i, STRUCTURE_STATS* psStructure)
     //store the stat for easy access later on
     researchModuleStat = i;
 #else
-    length = strlen(GfxFile) - 5;
+    length = static_cast<UDWORD>(strlen(GfxFile) - 5);
 
     GfxFile[length] = '4';
     researchModuleIMDs[0] = static_cast<iIMDShape*>(resGetData("IMD", GfxFile));
@@ -556,7 +556,7 @@ void initModulePIEs(char* PIEName, UDWORD i, STRUCTURE_STATS* psStructure)
   if (psStructure->type == REF_POWER_MODULE)
   {
 #ifdef MULTI_UPGRADE
-    length = strlen(GfxFile) - 5; for (module = 1; module < NUM_POWER_MODULES + 1; module++)
+    length = static_cast<UDWORD>(strlen(GfxFile) - 5); for (module = 1; module < NUM_POWER_MODULES + 1; module++)
     {
       sprintf(charNum, "%d", module);
       GfxFile[length] = *charNum;
@@ -570,7 +570,7 @@ void initModulePIEs(char* PIEName, UDWORD i, STRUCTURE_STATS* psStructure)
     //store the stat for easy access later on
     powerModuleStat = i;
 #else
-    length = strlen(GfxFile) - 5;
+    length = static_cast<UDWORD>(strlen(GfxFile) - 5);
     GfxFile[length] = '4';
     powerModuleIMDs[0] = static_cast<iIMDShape*>(resGetData("IMD", GfxFile));
     if (powerModuleIMDs[0] == nullptr)
@@ -622,7 +622,7 @@ void initModulePIEsNoMods(char* GfxFile, UDWORD i, STRUCTURE_STATS* psStructure)
   // Setup the PIE's for the research modules.
   if (psStructure->type == REF_RESEARCH_MODULE)
   {
-    length = strlen(GfxFile) - 5;
+    length = static_cast<UDWORD>(strlen(GfxFile) - 5);
     GfxFile[length] = '0';
     researchModuleIMDs[0] = (iIMDShape*)resGetData("IMD", GfxFile);
     if (researchModuleIMDs[0] == NULL)
@@ -642,7 +642,7 @@ void initModulePIEsNoMods(char* GfxFile, UDWORD i, STRUCTURE_STATS* psStructure)
   // Setup the PIE's for the power modules.
   if (psStructure->type == REF_POWER_MODULE)
   {
-    length = strlen(GfxFile) - 5;
+    length = static_cast<UDWORD>(strlen(GfxFile) - 5);
     GfxFile[length] = '0';
     powerModuleIMDs[0] = (iIMDShape*)resGetData("IMD", GfxFile);
     if (powerModuleIMDs[0] == NULL)

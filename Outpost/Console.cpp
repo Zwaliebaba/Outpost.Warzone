@@ -189,7 +189,7 @@ static BOOL _addConsoleMessage(STRING* messageText, CONSOLE_TEXT_JUSTIFICATION j
     return (FALSE);
 
   /* Is the string too long? */
-  textLength = strlen(messageText);
+  textLength = static_cast<UDWORD>(strlen(messageText));
 
   DEBUG_ASSERT_TEXT(textLength<MAX_CONSOLE_STRING_LENGTH, "Attempt to add a message to the console that exceeds MAX_CONSOLE_STRING_LENGTH");
 

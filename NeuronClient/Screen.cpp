@@ -580,7 +580,7 @@ void screenTextOut(UDWORD x, UDWORD y, STRING* pFormat, ...)
   if (x >= screenWidth)
     return;
 
-  strLen = strlen(aTxtBuff);
+  strLen = static_cast<UDWORD>(strlen(aTxtBuff));
   if (x + strLen * FONT_WIDTH >= screenWidth)
   {
     /* Chop off the end of the string */

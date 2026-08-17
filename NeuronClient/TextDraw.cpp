@@ -353,7 +353,7 @@ void SetExtentsMode_USEMAX(void) { ExtentsMode = EXTENTS_USEMAXWIDTH; }
 UDWORD pie_DrawFormattedText(UBYTE* String, UDWORD x, UDWORD y, UDWORD Width, UDWORD Justify, BOOL DrawBack)
 {
   int i, si, osi;
-  int Len = strlen((char*)String);
+  int Len = static_cast<int>(strlen((char*)String));
   int jx = x; // Default to left justify.
   int jy = y;
   int WWidth;

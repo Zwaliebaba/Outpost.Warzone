@@ -268,7 +268,7 @@ void ScanFilename(char* Fullname, int* PosOfDot, int* PosOfSlash)
   int SlashPos = -1;
   int Pos;
 
-  int Namelength = strlen(Fullname);
+  int Namelength = static_cast<int>(strlen(Fullname));
 
   for (Pos = Namelength; Pos >= 0; Pos--)
   {

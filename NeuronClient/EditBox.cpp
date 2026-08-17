@@ -100,7 +100,7 @@ static void insertChar(STRING* pBuffer, UDWORD* pPos, STRING ch)
 
   DEBUG_ASSERT_TEXT(*pPos <= strlen(pBuffer), "insertChar: Invalid insertion point");
 
-  len = strlen(pBuffer);
+  len = static_cast<UDWORD>(strlen(pBuffer));
 
   if (len == WIDG_MAXSTR - 1)
   {
@@ -129,7 +129,7 @@ static void overwriteChar(STRING* pBuffer, UDWORD* pPos, STRING ch)
 
   DEBUG_ASSERT_TEXT(*pPos <= strlen(pBuffer), "insertChar: Invalid insertion point");
 
-  len = strlen(pBuffer);
+  len = static_cast<UDWORD>(strlen(pBuffer));
 
   if (len == WIDG_MAXSTR - 1)
   {
@@ -163,7 +163,7 @@ static void delCharLeft(STRING* pBuffer, UDWORD* pPos)
   if (*pPos == 0)
     return;
 
-  len = strlen(pBuffer);
+  len = static_cast<UDWORD>(strlen(pBuffer));
 
   /* Move the end of the string down by one */
   count = len - *pPos + 1;
@@ -183,7 +183,7 @@ static void delCharRight(STRING* pBuffer, UDWORD* pPos)
 
   DEBUG_ASSERT_TEXT(*pPos <= strlen(pBuffer), "delCharLeft: Invalid insertion point");
 
-  len = strlen(pBuffer);
+  len = static_cast<UDWORD>(strlen(pBuffer));
 
   /* Can't delete if we are at the end of the string */
   if (*pPos == len)
@@ -203,7 +203,7 @@ static void fitStringStart(STRING* pBuffer, UDWORD boxWidth, UWORD* pCount, UWOR
   UWORD printWidth, printChars, width;
   STRING* pCurr;
 
-  len = strlen(pBuffer);
+  len = static_cast<UDWORD>(strlen(pBuffer));
   printWidth = 0;
   printChars = 0;
   pCurr = pBuffer;
@@ -234,7 +234,7 @@ static void fitStringEnd(STRING* pBuffer, UDWORD boxWidth, UWORD* pStart, UWORD*
   UWORD printWidth, printChars, width;
   STRING* pCurr;
 
-  len = strlen(pBuffer);
+  len = static_cast<UDWORD>(strlen(pBuffer));
 
   pCurr = pBuffer + len - 1;
   printChars = 0;
@@ -327,7 +327,7 @@ void editBoxRun(W_EDITBOX* psWidget, W_CONTEXT* psContext)
       break;
     case INPBUF_RIGHT:
       /* Move the cursor right */
-      len = strlen(pBuffer);
+      len = static_cast<UDWORD>(strlen(pBuffer));
       if (pos < len)
         pos += 1;
 
@@ -354,7 +354,7 @@ void editBoxRun(W_EDITBOX* psWidget, W_CONTEXT* psContext)
       break;
     case INPBUF_END:
       /* Move the cursor to the end of the buffer */
-      pos = strlen(pBuffer);
+      pos = static_cast<UDWORD>(strlen(pBuffer));
       if (pos != static_cast<UWORD>(printStart + printChars))
         fitStringEnd(pBuffer, psWidget->width, &printStart, &printChars, &printWidth);
       break;
@@ -468,7 +468,7 @@ void editBoxClicked(W_EDITBOX* psWidget, W_CONTEXT* psContext)
 
       /* Set up the widget state */
       psWidget->state = (psWidget->state & ~WEDBS_MASK) | WEDBS_INSERT;
-      len = strlen(psWidget->aText);
+      len = static_cast<UDWORD>(strlen(psWidget->aText));
       psWidget->insPos = static_cast<UWORD>(len);
 
       /* Calculate how much of the string can appear in the box */

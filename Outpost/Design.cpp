@@ -971,7 +971,7 @@ BOOL intAddTemplateButtons(UDWORD formID, UDWORD formWidth, UDWORD formHeight, U
       DEBUG_ASSERT_TEXT(BufferPos+strlen(TempString)+1 < STRING_BUFFER_SIZE, "String Buffer Overrun");
       strcpy(&StringBuffer[BufferPos], TempString);
       sBarInit.pTip = &StringBuffer[BufferPos];
-      BufferPos += strlen(TempString) + 1;
+      BufferPos += static_cast<int>(strlen(TempString) + 1);
 
       sBarInit.formID = sButInit.id;
       if (!widgAddBarGraph(psWScreen, &sBarInit))
