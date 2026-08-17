@@ -162,7 +162,12 @@ void frameSetCursorFromRes(WORD resID)
  *
  * The windows message processing function.
  */
-static long FAR PASCAL Wndproc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+/* LRESULT, not long: LRESULT is LONG_PTR, so on x64 it is 64 bits wide and
+ * a long return truncates every value forwarded from DefWindowProc and
+ * frameWinProc.  On Win32 the two types are identical, so this is a no-op
+ * there.  CALLBACK is the portable spelling of the PASCAL/__stdcall this
+ * carried, which x64 ignores. */
+static LRESULT CALLBACK Wndproc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
   SDWORD res;
 
