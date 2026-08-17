@@ -43,6 +43,8 @@ constexpr Keyword kKeywords[] = {
   {"function", ScriptTok::KwFunction},
   {"return", ScriptTok::KwReturn},
   {"void", ScriptTok::KwVoid},
+  {"int", ScriptTok::KwInt},
+  {"bool", ScriptTok::KwBool},
   {"run", ScriptTok::KwRun},
   {"store", ScriptTok::KwStore},
   {"script", ScriptTok::KwScript},
@@ -92,6 +94,8 @@ const char* ScriptTokName(ScriptTok _type)
   case ScriptTok::KwFunction: return "function";
   case ScriptTok::KwReturn: return "return";
   case ScriptTok::KwVoid: return "void";
+  case ScriptTok::KwInt: return "int";
+  case ScriptTok::KwBool: return "bool";
   case ScriptTok::KwRun: return "run";
   case ScriptTok::KwStore: return "store";
   case ScriptTok::KwScript: return "script";

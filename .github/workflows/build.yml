@@ -6,6 +6,19 @@ on:
   workflow_dispatch:
 
 jobs:
+  # Builds the real script compiler and runs it over every shipped .slo.
+  # A green Windows build only proves the compiler compiles; it cannot
+  # notice that the compiler no longer accepts the game's own scripts,
+  # which is how `unknown type 'INT'` shipped. Linux because the harness
+  # needs nothing but g++.
+  scripts:
+    name: Script corpus
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile every shipped script
+        run: python3 tools/check_scripts.py
+
   build:
     name: ${{ matrix.configuration }}|${{ matrix.platform }}
     runs-on: windows-latest

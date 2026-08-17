@@ -47,6 +47,8 @@ enum class ScriptTok
   KwFunction,
   KwReturn,
   KwVoid,
+  KwInt, // base type: int / INT
+  KwBool, // base type: bool / BOOL
   KwRun, // .vlo only
   KwStore, // .vlo only
   KwScript, // .vlo only

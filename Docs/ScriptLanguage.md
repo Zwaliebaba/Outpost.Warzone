@@ -13,13 +13,20 @@ Where this document and the shipped scripts disagree, the scripts win.
   separates tokens and is otherwise ignored.
 - **Keywords, case-insensitive**: `trigger event wait every inactive init
   initialise link ref while if else exit pause and or not true false
-  function return void public private`. The corpus uses `and`/`AND`,
+  function return void int bool public private`. The corpus uses `and`/`AND`,
   `true`/`TRUE`, `false`/`FALSE`; no identifier in the corpus collides with
   any keyword under case folding. `public`/`private` are the two STORAGE
   keywords. `init` and `initialise` are the same token. `function`,
   `return`, `void` are new with the native compiler (the old grammar
   reserved `FUNCTION` but had no production for it); all three are unused
   as identifiers by the corpus.
+- **`int` and `bool` are keywords, not table entries.** The game's
+  `asTypeTable` holds only the *user* types, so nothing resolves `int` or
+  `bool` by lookup; the lexer has always produced them directly, and both
+  the `.slo` and `.vlo` parsers dispatch on the token. The corpus depends on
+  this heavily — `int` and `INT` together appear over 7,400 times in the
+  value files alone — and a parser that omits it rejects almost every
+  shipped script. `tools/check_scripts.py` guards against exactly that.
 - **Identifiers**: `[A-Za-z_][A-Za-z0-9_]*`, case-sensitive. Classified by
   the parser (not the lexer) against, in order: the object-variable table
   (only inside a `.` access), the external-variable table, script-declared
@@ -39,16 +46,18 @@ Sections are strictly ordered (corpus-verified: no file interleaves them).
 
 ```
 script        := header? var_list function_list? trigger_list event_list
-header        := ( "link" TYPE ";" )*          // parsed, no effect (old action empty)
+header        := ( "link" type_name ";" )*     // parsed, no effect (old action empty)
 var_list      := ( var_decl ";" )*
 var_decl      := storage type_name var_ident ( "," var_ident )*
 storage       := "public" | "private"
-type_name     := TYPE | "trigger" | "event"    // TYPE = entry in the game type table
+type_name     := "int" | "bool" | TYPE | "trigger" | "event"
+                                               // TYPE = entry in the game type table;
+                                               // int/bool are keywords (see §1)
 var_ident     := IDENT | IDENT ( "[" INTEGER "]" )+     // 1..4 dims, 1..254 elements
 
 function_list := function_def*                 // new; see §5
-function_def  := "function" ( "void" | TYPE ) IDENT
-                 "(" ( TYPE IDENT ( "," TYPE IDENT )* )? ")"
+function_def  := "function" ( "void" | type_name ) IDENT
+                 "(" ( type_name IDENT ( "," type_name IDENT )* )? ")"
                  "{" statement* "}"
 
 trigger_list  := trigger_decl*
@@ -242,13 +251,23 @@ Decisions that bind the implementation, in addition to §6:
 ## 8. `.vlo` value files (stage 3)
 
 ```
-vlo      := "script" QTEXT ( "run" | "store" QTEXT? ) "{" binding* "}"
-binding  := IDENT ( "[" INTEGER "]" )* TYPE value
-value    := INTEGER | TRUE/FALSE | QTEXT | IDENT
+vlo      := entry*
+entry    := "script" QTEXT ( "run" "{" binding* "}" | "store" QTEXT )
+binding  := IDENT ( "[" INTEGER "]" )* type_name value
+value    := INTEGER | "-" INTEGER | TRUE/FALSE | QTEXT
 ```
 `run` compiles-and-runs against the named script now; `store` registers
-the context under an id for later (`scrvAddContext`). Values resolve per
-type (stats by name, level names, messages, strings); object values
-install through `eventSetContextVar` typed as `INTERP_VAL`. Variable
-names resolve through the script's always-generated variable debug
-records.
+the context under an id for later (`scrvAddContext`) and takes no binding
+block. Only the `run` form appears in the corpus — all 123 shipped value
+files use it — so `store` is carried forward from the old grammar
+untested by data.
+
+`type_name` is the same production as §2, and value files lean on the
+`int`/`bool` keywords hard: `int`/`INT` appear 7,443 times and
+`bool`/`BOOL` 79 times across the corpus, against 5,107 occurrences of
+all the user types put together.
+
+Values resolve per type (stats by name, level names, messages, strings);
+object values install through `eventSetContextVar` typed as `INTERP_VAL`.
+Variable names resolve through the script's always-generated variable
+debug records.

@@ -150,8 +150,16 @@ void ParseBinding(VloParser& _p)
   else
     Err(sName, "unknown script variable '" + sName.text + "'");
 
-  const ScriptToken sType = Expect(_p, ScriptTok::Ident, "as the value type");
+  /* int and bool are lexer keywords rather than entries in asTypeTable,
+     which holds only the user types - the same split the generated parser
+     had.  The corpus leans on it heavily: `int` appears 2,603 times. */
+  const ScriptToken sType = Take(_p);
   INTERP_TYPE type = VAL_VOID;
+  if (sType.type == ScriptTok::KwInt)
+    type = VAL_INT;
+  else if (sType.type == ScriptTok::KwBool)
+    type = VAL_BOOL;
+  else if (sType.type == ScriptTok::Ident)
   {
     bool found = false;
     for (TYPE_SYMBOL* psCurr = asTypeTable; psCurr->typeID != 0; psCurr++)
@@ -166,6 +174,8 @@ void ParseBinding(VloParser& _p)
     if (!found)
       Err(sType, "unknown type '" + sType.text + "'");
   }
+  else
+    Err(sType, std::string("expected a type, got '") + Neuron::ScriptTokName(sType.type) + "'");
 
   /* The value token: an integer (with optional minus), a boolean, or a
      quoted string resolved per type */

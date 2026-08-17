@@ -17,9 +17,11 @@ on all of it, and `tools/crosscheck.py` is clean in both configurations, but
 neither can say whether a renderer draws or a mixer sounds right.
 
 **CI stopped running anything on 2026-08-16**, when `NetTest/` was deleted with
-the client/server restructure. It was the only executable CI started. Until
-something replaces it, a green CI means the tree compiles and links — nothing
-more.
+the client/server restructure. It was the only executable CI started. Since
+2026-08-17 `tools/check_scripts.py` runs the real script compiler over all 59
+shipped `.slo` files on every push, so a green CI now also means the scripts
+still compile — but that is the whole of it. Nothing else in the tree is
+executed.
 
 The individual checklists live in [Phase8Plan.md](Phase8Plan.md#verification),
 [Phase9Plan.md](Phase9Plan.md#verification), [Phase4Plan.md](Phase4Plan.md#verification),

@@ -199,6 +199,8 @@ The executable lands in `Debug\Outpost.exe` (or `Release\`), and it needs `GameD
 
 **Without MSVC** (Linux container), `tools/crosscheck.py` syntax-checks every translation unit with mingw-w64 against a shadow tree. It is a fast first pass, **not a build**: it cannot link, and MSVC disagrees with GCC in both directions. The Windows CI build is the authority.
 
+**After touching the script module**, run `tools/check_scripts.py`. It builds `NeuronCore/ScriptLex.cpp` and `ScriptComp.cpp` from source against the game's real symbol tables and compiles all 59 shipped `.slo` files, then checks the `.vlo` corpus for types the tables do not have. No C++ check can tell you the compiler still accepts the scripts — `int` and `bool` are keywords rather than table entries, and forgetting that built cleanly and rejected 56 of 59 scripts at runtime.
+
 **A green build says nothing about whether the game draws or runs.** For anything touching rendering, input, audio or level loading, launch it:
 
 ```

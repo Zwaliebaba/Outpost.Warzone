@@ -1053,10 +1053,17 @@ Block ParseStatementList(Compiler& _c)
 /* ------------------------------------------------------------------ */
 /* Declarations */
 
-/* TYPE, or the trigger/event keywords used as types */
+/* A type name: the int/bool base types, the trigger/event keywords used
+   as types, or a user type from the game's table.  int and bool are
+   keywords rather than table entries - asTypeTable holds only the user
+   types - which is how the lexer this replaced handled them too. */
 INTERP_TYPE ParseTypeName(Compiler& _c)
 {
   const ScriptToken& sTok = Take(_c);
+  if (sTok.type == ScriptTok::KwInt)
+    return VAL_INT;
+  if (sTok.type == ScriptTok::KwBool)
+    return VAL_BOOL;
   if (sTok.type == ScriptTok::KwTrigger)
     return VAL_TRIGGER;
   if (sTok.type == ScriptTok::KwEvent)
