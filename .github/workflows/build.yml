@@ -7,12 +7,18 @@ on:
 
 jobs:
   build:
-    name: ${{ matrix.configuration }}|Win32
+    name: ${{ matrix.configuration }}|${{ matrix.platform }}
     runs-on: windows-latest
+    # x64 is an in-flight migration (Docs/X64Readiness.md), not a
+    # configuration that is expected to build yet. It runs so its
+    # diagnostics are visible and measurable, but it must not fail the
+    # workflow or block a PR on Win32 work.
+    continue-on-error: ${{ matrix.platform == 'x64' }}
     strategy:
       fail-fast: false
       matrix:
         configuration: [Debug, Release]
+        platform: [Win32, x64]
 
     steps:
       - uses: actions/checkout@v4
@@ -46,7 +52,7 @@ jobs:
       # separator unless the whole switch is quoted. Building serially: with
       # /m the failing project's diagnostics can be interleaved away.
       - name: Build
-        run: msbuild Outpost\Outpost.vcxproj /p:Configuration=${{ matrix.configuration }} /p:Platform=Win32 /v:normal /nologo "/flp:LogFile=build.log;Verbosity=diagnostic"
+        run: msbuild Outpost\Outpost.vcxproj /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform }} /v:normal /nologo "/flp:LogFile=build.log;Verbosity=diagnostic"
 
       # MSBuild can exit non-zero with the failure only in the file log, so
       # surface it rather than leaving the job with no explanation.
@@ -58,10 +64,36 @@ jobs:
               Select-Object -Last 60 | ForEach-Object { $_.Line }
           } else { Write-Host 'no build.log produced' }
 
+      # MSBuild repeats a warning once per referencing project, so the raw
+      # count in the build summary overstates them. This reports the
+      # deduplicated set, which is the number worth tracking.
+      - name: Summarise warnings
+        if: always()
+        shell: pwsh
+        run: |
+          if (-not (Test-Path build.log)) { Write-Host 'no build.log produced'; exit 0 }
+          $root = [regex]::Escape((Get-Location).Path + '\')
+          $warnings = Select-String -Path build.log -Pattern ': warning [A-Z]+[0-9]+:' |
+            ForEach-Object { $_.Line.Trim() -replace $root, '' -replace ' \[[^\]]*\.vcxproj\]$', '' } |
+            Sort-Object -Unique
+          $header = "## ${{ matrix.configuration }}|${{ matrix.platform }} - $($warnings.Count) unique warning(s)"
+          Write-Host $header
+          $header | Out-File -Append -Encoding utf8 $env:GITHUB_STEP_SUMMARY
+          if ($warnings.Count -gt 0) {
+            $shown = $warnings | Select-Object -First 200
+            '```' | Out-File -Append -Encoding utf8 $env:GITHUB_STEP_SUMMARY
+            $shown | Out-File -Append -Encoding utf8 $env:GITHUB_STEP_SUMMARY
+            if ($warnings.Count -gt 200) {
+              "... and $($warnings.Count - 200) more" | Out-File -Append -Encoding utf8 $env:GITHUB_STEP_SUMMARY
+            }
+            '```' | Out-File -Append -Encoding utf8 $env:GITHUB_STEP_SUMMARY
+            $shown | ForEach-Object { Write-Host $_ }
+          }
+
       - name: Upload build log
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: build-log-${{ matrix.configuration }}
+          name: build-log-${{ matrix.configuration }}-${{ matrix.platform }}
           path: build.log
           if-no-files-found: ignore
