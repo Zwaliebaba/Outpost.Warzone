@@ -168,7 +168,6 @@
     <ClInclude Include="Frame.h" />
     <ClInclude Include="FrameResource.h" />
     <ClInclude Include="GTime.h" />
-    <ClInclude Include="HashTabl.h" />
     <ClInclude Include="Interp.h" />
     <ClInclude Include="Json.h" />
     <ClInclude Include="HostCertificate.h" />
@@ -197,7 +196,6 @@
     <ClCompile Include="Frame.cpp" />
     <ClCompile Include="FrameResource.cpp" />
     <ClCompile Include="GTime.cpp" />
-    <ClCompile Include="HashTabl.cpp" />
     <ClCompile Include="Interp.cpp" />
     <ClCompile Include="Json.cpp" />
     <ClCompile Include="HostCertificate.cpp" />

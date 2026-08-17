@@ -1,35 +1,39 @@
 #include "pch.h"
 
 #include "Frame.h"
-#include "HashTabl.h"
 #include "GTime.h"
 #include "AnimObj.h"
 
-/***************************************************************************/
-
-/* allocation sizes for anim object table */
-
-#define	ANIM_OBJ_INIT		100
-#define	ANIM_OBJ_EXT		20
-
-/* max number of slots in hash table - prime numbers are best because hash
- * function used here is modulous of object pointer with table size -
- * prime number nearest 500 is 499.
- * Table of nearest primes in Binstock+Rex, "Practical Algorithms" p 91.
- */
-#define	ANIM_HASH_TABLE_SIZE	499
+#include <iterator>
+#include <list>
 
 /***************************************************************************/
 /* global variables */
 
-static HASHTABLE* g_pAnimObjTable;
+/* The live animation objects.
+ *
+ * This was HashTabl.cpp - a hand-rolled table that was also an untyped
+ * allocator (new UBYTE[size], never constructed) and carried a single
+ * table-wide iteration cursor. Three responsibilities in one object.
+ *
+ * A list rather than a hash map, even though the module is a lookup by
+ * (parent, anim id): animObj_Update fires each animation's done callback
+ * mid-iteration, and those callbacks add and remove animations -
+ * droidBurntCallback adds the fall-over animation from inside the loop.
+ * An unordered_map rehashes on insert, which invalidates the loop's
+ * iterator; a list invalidates only the iterator to the element erased, so
+ * the update loop stays valid whatever a callback does. Callers also keep
+ * the ANIM_OBJECT* (STRUCTURE::psCurAnim, DROID::psCurAnim), which the
+ * list's stable element addresses satisfy for free.
+ *
+ * The lookup that costs is animObj_Find, called from the renderer for
+ * on-screen objects that have a visible animation - a linear scan of at
+ * most a few hundred entries, which is cheaper than the bookkeeping a
+ * separate index would need to stay correct across those callbacks.
+ */
+static std::list<ANIM_OBJECT> g_animObjects;
+
 static ANIMOBJDIEDTESTFUNC g_pDiedFunc;
-
-/***************************************************************************/
-/* local functions */
-
-static UINT animObj_HashFunction(int iKey1, int iKey2);
-static void animObj_HashFreeElementFunc(void* psElement);
 
 /***************************************************************************/
 /*
@@ -39,14 +43,7 @@ static void animObj_HashFreeElementFunc(void* psElement);
 
 BOOL animObj_Init(ANIMOBJDIEDTESTFUNC pDiedFunc)
 {
-  SDWORD iSize = sizeof(ANIM_OBJECT);
-
-  /* allocate hashtable */
-  hashTable_Create(&g_pAnimObjTable, ANIM_HASH_TABLE_SIZE, ANIM_OBJ_INIT, ANIM_OBJ_EXT, iSize);
-
-  /* set local hash table functions */
-  hashTable_SetHashFunction(g_pAnimObjTable, animObj_HashFunction);
-  hashTable_SetFreeElementFunction(g_pAnimObjTable, animObj_HashFreeElementFunc);
+  g_animObjects.clear();
 
   /* set global died test function */
   g_pDiedFunc = pDiedFunc;
@@ -58,8 +55,7 @@ BOOL animObj_Init(ANIMOBJDIEDTESTFUNC pDiedFunc)
 
 BOOL animObj_Shutdown(void)
 {
-  /* destroy hash table */
-  hashTable_Destroy(g_pAnimObjTable);
+  g_animObjects.clear();
 
   return TRUE;
 }
@@ -69,23 +65,6 @@ BOOL animObj_Shutdown(void)
 void animObj_SetDoneFunc(ANIM_OBJECT* psObj, ANIMOBJDONEFUNC pDoneFunc) { psObj->pDoneFunc = pDoneFunc; }
 
 /***************************************************************************/
-/*
- * animObj_HashFunction
- *
- * Takes object pointer and id and returns hashed index
- */
-/***************************************************************************/
-
-static UINT animObj_HashFunction(int iKey1, int iKey2) { return (iKey1 + iKey2) % ANIM_HASH_TABLE_SIZE; }
-
-/***************************************************************************/
-
-static void animObj_HashFreeElementFunc(void* psElement)
-{
-  (void)psElement;
-}
-
-/***************************************************************************/
 
 void animObj_Update(void)
 {
@@ -93,10 +72,17 @@ void animObj_Update(void)
   SDWORD dwTime;
   BOOL bRemove;
 
-  psObj = static_cast<ANIM_OBJECT*>(hashTable_GetFirst(g_pAnimObjTable));
-
-  while (psObj != nullptr)
+  /* The successor is taken before the body runs, because the done callback
+   * below can append to the list. Holding it across the erase is also a
+   * fix: the table this replaced advanced its one shared cursor inside
+   * RemoveElement even though GetNext had already stepped past the element
+   * just returned, so removing an animation skipped the next one in the
+   * same bucket until the following frame. */
+  for (auto it = g_animObjects.begin(); it != g_animObjects.end();)
   {
+    const auto next = std::next(it);
+
+    psObj = &*it;
     bRemove = FALSE;
 
     /* test whether parent object has died */
@@ -120,12 +106,9 @@ void animObj_Update(void)
 
     /* remove object if flagged */
     if (bRemove == TRUE)
-    {
-      if (hashTable_RemoveElement(g_pAnimObjTable, psObj, (HASH_KEY)psObj->psParent, psObj->psAnim->uwID) == FALSE)
-        Neuron::Fatal("animObj_Update: couldn't remove anim obj\n");
-    }
+      g_animObjects.erase(it);
 
-    psObj = static_cast<ANIM_OBJECT*>(hashTable_GetNext(g_pAnimObjTable));
+    it = next;
   }
 }
 
@@ -145,14 +128,9 @@ ANIM_OBJECT* animObj_Add(void* pParentObj, int iAnimID, UDWORD udwStartDelay, UW
 
   DEBUG_ASSERT_TEXT(psAnim != NULL, "anim_AddAnimObject: anim id {} not found\n", iAnimID);
 
-  /* get object from table */
-  psObj = static_cast<ANIM_OBJECT*>(hashTable_GetElement(g_pAnimObjTable));
-
-  if (psObj == nullptr)
-  {
-    Neuron::Fatal("animObj_Add: No room in hash table\n");
-    return (nullptr);
-  }
+  /* Value initialised, where the table this replaced handed back raw
+   * uninitialised bytes. */
+  psObj = &g_animObjects.emplace_back();
 
   /* init object */
   psObj->uwID = static_cast<UWORD>(iAnimID);
@@ -180,9 +158,6 @@ ANIM_OBJECT* animObj_Add(void* pParentObj, int iAnimID, UDWORD udwStartDelay, UW
     psObj->apComponents[i].psShape = psObj->psAnim->apFrame[i];
   }
 
-  /* insert object in table by parent */
-  hashTable_InsertElement(g_pAnimObjTable, psObj, (HASH_KEY)pParentObj, iAnimID);
-
   return psObj;
 }
 
@@ -206,31 +181,36 @@ UWORD animObj_GetFrame3D(ANIM_OBJECT* psObj, UWORD uwObj, VECTOR3D* psVecPos, Di
 
 /***************************************************************************/
 
-ANIM_OBJECT* animObj_GetFirst(void)
-{
-  ANIM_OBJECT* psObj;
-
-  psObj = static_cast<ANIM_OBJECT*>(hashTable_GetFirst(g_pAnimObjTable));
-
-  return psObj;
-}
-
-/***************************************************************************/
-
-ANIM_OBJECT* animObj_GetNext(void) { return static_cast<ANIM_OBJECT*>(hashTable_GetNext(g_pAnimObjTable)); }
-
-/***************************************************************************/
-
 ANIM_OBJECT* animObj_Find(void* pParentObj, int iAnimID)
 {
-  return static_cast<ANIM_OBJECT*>(hashTable_FindElement(g_pAnimObjTable, (HASH_KEY)pParentObj, iAnimID));
+  for (auto& sObj : g_animObjects)
+  {
+    if ((sObj.psParent == pParentObj) && (sObj.uwID == iAnimID))
+      return &sObj;
+  }
+
+  return nullptr;
 }
 
 /***************************************************************************/
 
 BOOL animObj_Remove(ANIM_OBJECT** ppsObj, int iAnimID)
 {
-  BOOL bRemOK = hashTable_RemoveElement(g_pAnimObjTable, *ppsObj, (HASH_KEY)(*ppsObj)->psParent, iAnimID);
+  /* Matched on the element as well as the key, as the table this replaced
+   * did: the same animation may be attached to a parent more than once, and
+   * only this object is meant to go. */
+  BOOL bRemOK = FALSE;
+
+  for (auto it = g_animObjects.begin(); it != g_animObjects.end(); ++it)
+  {
+    if ((&*it == *ppsObj) && (it->psParent == (*ppsObj)->psParent) && (it->uwID == iAnimID))
+    {
+      g_animObjects.erase(it);
+      bRemOK = TRUE;
+      break;
+    }
+  }
+
   //init the animation
   *ppsObj = nullptr;
 

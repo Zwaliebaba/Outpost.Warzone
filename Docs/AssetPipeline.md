@@ -726,9 +726,10 @@ contents, so their internal line numbers are unchanged.
   `ANIM_DELAYED` is unreachable and a delayed animation indexes a garbage
   state (`NeuronClient/Anim.cpp:325,333`); moot only because every caller
   passes delay 0.
-- `hashTable_RemoveElement` double-advances the iterator during
-  `animObj_Update`, skipping the neighbour of any anim that expires
-  (`NeuronCore/HashTabl.cpp:284`).
+- ~~`hashTable_RemoveElement` double-advances the iterator during
+  `animObj_Update`, skipping the neighbour of any anim that expires.~~ Fixed:
+  `HashTabl.cpp` is deleted and both callers are now a `std::list`, iterated
+  with the successor taken before each element is processed.
 - `(uwID != ID_ANIM_DROIDRUN || uwID != ID_ANIM_DROIDRUN)` is always true —
   the run animation is torn down and rebuilt every move order
   (`Outpost/Move.cpp:3143-3144`).
@@ -748,8 +749,8 @@ contents, so their internal line numbers are unchanged.
 
 **Blockers already known to matter later (x64)**
 
-- Parent pointers truncated to `int` for hashing in the anim system
-  (`NeuronClient/AnimObj.cpp:124,184,226,233`).
+- ~~Parent pointers truncated to `int` for hashing in the anim system
+  (`NeuronClient/AnimObj.cpp`).~~ Fixed: the hashing is gone with the table.
 - The surviving v≤8 level structs still bake 32-bit layout (padding, enum
   widths). The worst offenders went with the save/load removal — `writeFXData`
   storing a hash in a pointer field is deleted, and the

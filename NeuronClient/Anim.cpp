@@ -24,11 +24,6 @@ ANIMGLOBALS g_animGlobals;
 static UWORD s_uwNextAnimID = 0;
 
 /***************************************************************************/
-/* local functions */
-
-static UINT anim_HashFunction(int iKey1, int iKey2);
-
-/***************************************************************************/
 /*
  * Anim functions
  */

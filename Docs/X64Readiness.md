@@ -49,8 +49,22 @@ dereferenced on every comparison. The key is now `TREAP_KEY`
 `NeuronCore/HashTabl.h`/`.cpp` typed its two keys `int`, and both callers key
 on an object address — `NeuronClient/AnimObj.cpp` on the parent object,
 `Outpost/Projectile.cpp` on the projectile itself. `HashPJW` casts key 1 back
-to `CHAR*` and walks it. Same failure as the treap. The keys are now `HASH_KEY`
-(`std::intptr_t`); the seven casts at the call sites follow.
+to `CHAR*` and walks it. Same failure as the treap.
+
+The module has since been deleted outright rather than widened. Both callers are
+now a `std::list` of the object itself — `std::list<PROJ_OBJECT>` and
+`std::list<ANIM_OBJECT>` — so there is no key to truncate on any platform.
+
+A hash map was the obvious replacement for `AnimObj.cpp`, which really does look
+up by `(parent, anim id)`, and it was rejected: `animObj_Update` fires each
+animation's done callback mid-iteration, and `droidBurntCallback` adds an
+animation from inside that loop. An insert can rehash an `unordered_map`, which
+invalidates the loop's iterator; `std::list` invalidates only the iterator to
+the element erased. `animObj_Find` is a linear scan as a result, over a
+container that holds a few hundred entries at most.
+
+The same rewrite retires the iterator double-advance bug noted in
+`Docs/AssetPipeline.md`.
 
 ---
 
