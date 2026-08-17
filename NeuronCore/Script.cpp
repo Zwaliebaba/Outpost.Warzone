@@ -1,5 +1,7 @@
 #include "pch.h"
 
+#include <cstdint>
+
 #include "Frame.h"
 #include "Script.h"
 
@@ -184,7 +186,7 @@ BOOL scriptSaveProg(SCRIPT_CODE* psProg, UDWORD* pSize, UBYTE** ppData)
 
   DbgSize += (sizeof(SWORD) * (psProg->numEvents));
 
-  pPos = (UBYTE*)((((UDWORD)pPos) + 3) & (~3)); // align up me landlord !
+  pPos = (UBYTE*)((((std::uintptr_t)pPos) + 3) & ~static_cast<std::uintptr_t>(3)); // align up me landlord !
 
   // Save the code
   DEBUG_ASSERT_TEXT((pPos - *ppData) % 4 == 0, "scriptSaveProg: data not DWORD aligned");
@@ -476,7 +478,7 @@ BOOL scriptLoadProg(UDWORD size, UBYTE* pData, SCRIPT_CODE** ppsProg)
 
   DbgSize += (sizeof(SWORD) * psProg->numEvents);
 
-  pPos = (UBYTE*)((((UDWORD)pPos) + 3) & (~3)); // align up me landlord !
+  pPos = (UBYTE*)((((std::uintptr_t)pPos) + 3) & ~static_cast<std::uintptr_t>(3)); // align up me landlord !
 
   // Load the code
   DEBUG_ASSERT_TEXT((pPos - pData) % 4 == 0, "scriptLoadProg: data not DWORD aligned");

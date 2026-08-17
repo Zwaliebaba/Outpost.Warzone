@@ -121,7 +121,7 @@ void animObj_Update(void)
     /* remove object if flagged */
     if (bRemove == TRUE)
     {
-      if (hashTable_RemoveElement(g_pAnimObjTable, psObj, (int)psObj->psParent, psObj->psAnim->uwID) == FALSE)
+      if (hashTable_RemoveElement(g_pAnimObjTable, psObj, (HASH_KEY)psObj->psParent, psObj->psAnim->uwID) == FALSE)
         Neuron::Fatal("animObj_Update: couldn't remove anim obj\n");
     }
 
@@ -181,7 +181,7 @@ ANIM_OBJECT* animObj_Add(void* pParentObj, int iAnimID, UDWORD udwStartDelay, UW
   }
 
   /* insert object in table by parent */
-  hashTable_InsertElement(g_pAnimObjTable, psObj, (int)pParentObj, iAnimID);
+  hashTable_InsertElement(g_pAnimObjTable, psObj, (HASH_KEY)pParentObj, iAnimID);
 
   return psObj;
 }
@@ -223,14 +223,14 @@ ANIM_OBJECT* animObj_GetNext(void) { return static_cast<ANIM_OBJECT*>(hashTable_
 
 ANIM_OBJECT* animObj_Find(void* pParentObj, int iAnimID)
 {
-  return static_cast<ANIM_OBJECT*>(hashTable_FindElement(g_pAnimObjTable, (int)pParentObj, iAnimID));
+  return static_cast<ANIM_OBJECT*>(hashTable_FindElement(g_pAnimObjTable, (HASH_KEY)pParentObj, iAnimID));
 }
 
 /***************************************************************************/
 
 BOOL animObj_Remove(ANIM_OBJECT** ppsObj, int iAnimID)
 {
-  BOOL bRemOK = hashTable_RemoveElement(g_pAnimObjTable, *ppsObj, (int)(*ppsObj)->psParent, iAnimID);
+  BOOL bRemOK = hashTable_RemoveElement(g_pAnimObjTable, *ppsObj, (HASH_KEY)(*ppsObj)->psParent, iAnimID);
   //init the animation
   *ppsObj = nullptr;
 

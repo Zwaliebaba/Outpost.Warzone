@@ -5402,7 +5402,7 @@ BOOL destroyStruct(STRUCTURE* psDel)
 
     //--------------------------------------- And finally, add a boom sound!!!! 
     /* and add a sound effect */
-    AudioSystem::PlayStaticTrack(psDel->x, psDel->y, ID_SOUND_EXPLOSION);
+    (void)AudioSystem::PlayStaticTrack(psDel->x, psDel->y, ID_SOUND_EXPLOSION);
   }
   //---------------------------------------------------------------------------------------
 
@@ -6278,7 +6278,7 @@ void buildingComplete(STRUCTURE* psBuilding)
   case REF_POWER_GEN:
     checkForResExtractors(psBuilding);
     if (selectedPlayer == psBuilding->player)
-      AudioSystem::PlayObjectTrack(psBuilding, ID_SOUND_POWER_HUM, nullptr);
+      (void)AudioSystem::PlayObjectTrack(psBuilding, ID_SOUND_POWER_HUM, nullptr);
     break;
   case REF_RESOURCE_EXTRACTOR:
     checkForPowerGen(psBuilding);

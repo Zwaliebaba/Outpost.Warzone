@@ -36,7 +36,7 @@
 /***************************************************************************/
 
 #define MAX_TEX_PAGES TEX_MAX
-#define TEXTURE_SIZE 256
+#define TEXTURE_PAGE_PIXELS 256
 
 /* The radar occupies the top left corner of its page rather than the whole
  * of it, which is what dtm_GetRadarTexImageSize reports to the blit code. */
@@ -86,7 +86,8 @@ BOOL dtm_Initialise(void)
 
   for (i = 0; i < MAX_TEX_PAGES; i++)
   {
-    hResult = psDevice->CreateTexture(TEXTURE_SIZE, TEXTURE_SIZE, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &_TEX_PAGE[i].psTexture,
+    hResult = psDevice->CreateTexture(TEXTURE_PAGE_PIXELS, TEXTURE_PAGE_PIXELS, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED,
+                                      &_TEX_PAGE[i].psTexture,
                                       nullptr);
     if (hResult != D3D_OK)
     {

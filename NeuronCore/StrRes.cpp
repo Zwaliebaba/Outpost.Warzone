@@ -88,7 +88,7 @@ void strresReleaseIDStrings(STR_RES* psRes)
   for (psID = static_cast<STR_ID*>(TREAP_GETSMALLEST(psRes->psIDTreap)); psID; psID = static_cast<STR_ID*>(
          TREAP_GETSMALLEST(psRes->psIDTreap)))
   {
-    TREAP_DEL(psRes->psIDTreap, (UDWORD)psID->pIDStr);
+    TREAP_DEL(psRes->psIDTreap, (TREAP_KEY)psID->pIDStr);
     if (psID->id & ID_ALLOC)
     {
       delete[] psID->pIDStr;
@@ -151,7 +151,7 @@ BOOL strresLoadFixedID(STR_RES* psRes, STR_ID* psID, UDWORD numID)
     DEBUG_ASSERT_TEXT(psID->id == psRes->nextID, "strresLoadFixedID: id out of sequence");
 
     // Store the ID string
-    if (!TREAP_ADD(psRes->psIDTreap, (UDWORD)psID->pIDStr, psID))
+    if (!TREAP_ADD(psRes->psIDTreap, (TREAP_KEY)psID->pIDStr, psID))
     {
       Neuron::Fatal("strresLoadFixedID: Out of memory");
       return FALSE;
@@ -169,7 +169,7 @@ BOOL strresGetIDNum(STR_RES* psRes, STRING* pIDStr, UDWORD* pIDNum)
 {
   STR_ID* psID;
 
-  psID = static_cast<STR_ID*>(TREAP_FIND(psRes->psIDTreap, (UDWORD)pIDStr));
+  psID = static_cast<STR_ID*>(TREAP_FIND(psRes->psIDTreap, (TREAP_KEY)pIDStr));
   if (!psID)
   {
     *pIDNum = 0;
@@ -188,7 +188,7 @@ BOOL strresGetIDString(STR_RES* psRes, STRING* pIDStr, STRING** ppStoredID)
 {
   STR_ID* psID;
 
-  psID = static_cast<STR_ID*>(TREAP_FIND(psRes->psIDTreap, (UDWORD)pIDStr));
+  psID = static_cast<STR_ID*>(TREAP_FIND(psRes->psIDTreap, (TREAP_KEY)pIDStr));
   if (!psID)
   {
     *ppStoredID = nullptr;
@@ -209,7 +209,7 @@ BOOL strresStoreString(STR_RES* psRes, STRING* pID, STRING* pString)
   UDWORD id;
 
   // Find the id for the string
-  psID = static_cast<STR_ID*>(TREAP_FIND(psRes->psIDTreap, (UDWORD)pID));
+  psID = static_cast<STR_ID*>(TREAP_FIND(psRes->psIDTreap, (TREAP_KEY)pID));
   if (!psID)
   {
     // No ID yet so generate a new one
@@ -230,7 +230,7 @@ BOOL strresStoreString(STR_RES* psRes, STRING* pID, STRING* pString)
     stringCpy(psID->pIDStr, pID);
     psID->id = psRes->nextID | ID_ALLOC;
     psRes->nextID += 1;
-    TREAP_ADD(psRes->psIDTreap, (UDWORD)psID->pIDStr, psID);
+    TREAP_ADD(psRes->psIDTreap, (TREAP_KEY)psID->pIDStr, psID);
   }
   id = psID->id & ~ID_ALLOC;
 

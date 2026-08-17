@@ -699,7 +699,7 @@ void missionFlyTransportersIn(SDWORD iPlayer, BOOL bTrackTransporter)
 
         /* set fly-in order */
         orderDroidLoc(psTransporter, DORDER_TRANSPORTIN, iLandX, iLandY);
-        AudioSystem::PlayObjectTrack(psTransporter, ID_SOUND_BLIMP_FLIGHT, moveCheckDroidMovingAndVisible);
+        (void)AudioSystem::PlayObjectTrack(psTransporter, ID_SOUND_BLIMP_FLIGHT, moveCheckDroidMovingAndVisible);
         //only want to fly one transporter in at a time now - AB 14/01/99
         break;
       }

@@ -747,28 +747,28 @@ void _intIntelButtonPressed(BOOL proxMsg, UDWORD id)
         switch (psResearch->iconID)
         {
         case IMAGE_RES_DROIDTECH:
-          AudioSystem::PlayStream("sequenceAudio\\Res_Droid.wav", AUDIO_VOL_MAX, nullptr);
+          (void)AudioSystem::PlayStream("sequenceAudio\\Res_Droid.wav", AUDIO_VOL_MAX, nullptr);
           break;
         case IMAGE_RES_WEAPONTECH:
-          AudioSystem::PlayStream("sequenceAudio\\Res_Weapons.wav", AUDIO_VOL_MAX, nullptr);
+          (void)AudioSystem::PlayStream("sequenceAudio\\Res_Weapons.wav", AUDIO_VOL_MAX, nullptr);
           break;
         case IMAGE_RES_COMPUTERTECH:
-          AudioSystem::PlayStream("sequenceAudio\\Res_com.wav", AUDIO_VOL_MAX, nullptr);
+          (void)AudioSystem::PlayStream("sequenceAudio\\Res_com.wav", AUDIO_VOL_MAX, nullptr);
           break;
         case IMAGE_RES_POWERTECH:
-          AudioSystem::PlayStream("sequenceAudio\\Res_Power.wav", AUDIO_VOL_MAX, nullptr);
+          (void)AudioSystem::PlayStream("sequenceAudio\\Res_Power.wav", AUDIO_VOL_MAX, nullptr);
           break;
         case IMAGE_RES_SYSTEMTECH:
-          AudioSystem::PlayStream("sequenceAudio\\Res_SysTech.wav", AUDIO_VOL_MAX, nullptr);
+          (void)AudioSystem::PlayStream("sequenceAudio\\Res_SysTech.wav", AUDIO_VOL_MAX, nullptr);
           break;
         case IMAGE_RES_STRUCTURETECH:
-          AudioSystem::PlayStream("sequenceAudio\\Res_StruTech.wav", AUDIO_VOL_MAX, nullptr);
+          (void)AudioSystem::PlayStream("sequenceAudio\\Res_StruTech.wav", AUDIO_VOL_MAX, nullptr);
           break;
         case IMAGE_RES_CYBORGTECH:
-          AudioSystem::PlayStream("sequenceAudio\\Res_Droid.wav", AUDIO_VOL_MAX, nullptr);
+          (void)AudioSystem::PlayStream("sequenceAudio\\Res_Droid.wav", AUDIO_VOL_MAX, nullptr);
           break;
         case IMAGE_RES_DEFENCE:
-          AudioSystem::PlayStream("sequenceAudio\\Res_StruTech.wav", AUDIO_VOL_MAX, nullptr);
+          (void)AudioSystem::PlayStream("sequenceAudio\\Res_StruTech.wav", AUDIO_VOL_MAX, nullptr);
           break;
           //				default:
         }

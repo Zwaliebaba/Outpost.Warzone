@@ -20,7 +20,7 @@ void treapSetCallPos(const STRING* pFileName, SDWORD lineNumber)
 }
 
 /* Default comparison function - assumes keys are ints */
-static SDWORD defaultCmp(UDWORD key1, UDWORD key2)
+static SDWORD defaultCmp(TREAP_KEY key1, TREAP_KEY key2)
 {
   if (key1 < key2)
     return -1;
@@ -31,7 +31,7 @@ static SDWORD defaultCmp(UDWORD key1, UDWORD key2)
 }
 
 /* A useful comparison function - keys are string pointers */
-SDWORD treapStringCmp(UDWORD key1, UDWORD key2)
+SDWORD treapStringCmp(TREAP_KEY key1, TREAP_KEY key2)
 {
   SDWORD result;
   auto pStr1 = (STRING*)key1;
@@ -139,7 +139,7 @@ void treapAddNode(TREAP_NODE** ppsRoot, TREAP_NODE* psNew, TREAP_CMP cmp)
 
 /* Add an object to a treap
  */
-BOOL treapAdd(TREAP* psTreap, UDWORD key, void* pObj)
+BOOL treapAdd(TREAP* psTreap, TREAP_KEY key, void* pObj)
 {
   TREAP_NODE* psNew;
 
@@ -163,7 +163,7 @@ BOOL treapAdd(TREAP* psTreap, UDWORD key, void* pObj)
 }
 
 /* Recursively find and remove a node from the tree */
-TREAP_NODE* treapDelRec(TREAP_NODE** ppsRoot, UDWORD key, TREAP_CMP cmp)
+TREAP_NODE* treapDelRec(TREAP_NODE** ppsRoot, TREAP_KEY key, TREAP_CMP cmp)
 {
   TREAP_NODE* psFound;
 
@@ -226,7 +226,7 @@ TREAP_NODE* treapDelRec(TREAP_NODE** ppsRoot, UDWORD key, TREAP_CMP cmp)
 }
 
 /* Remove an object from the treap */
-BOOL treapDel(TREAP* psTreap, UDWORD key)
+BOOL treapDel(TREAP* psTreap, TREAP_KEY key)
 {
   TREAP_NODE* psDel;
 
@@ -246,7 +246,7 @@ BOOL treapDel(TREAP* psTreap, UDWORD key)
 }
 
 /* Recurisvely find an object in a treap */
-void* treapFindRec(TREAP_NODE* psRoot, UDWORD key, TREAP_CMP cmp)
+void* treapFindRec(TREAP_NODE* psRoot, TREAP_KEY key, TREAP_CMP cmp)
 {
   if (psRoot == nullptr)
     return nullptr;
@@ -269,7 +269,7 @@ void* treapFindRec(TREAP_NODE* psRoot, UDWORD key, TREAP_CMP cmp)
 }
 
 /* Find an object in a treap */
-void* treapFind(TREAP* psTreap, UDWORD key) { return treapFindRec(psTreap->psRoot, key, psTreap->cmp); }
+void* treapFind(TREAP* psTreap, TREAP_KEY key) { return treapFindRec(psTreap->psRoot, key, psTreap->cmp); }
 
 #if DEBUG_TREAP
 /* Recursively print out where the nodes were allocated */

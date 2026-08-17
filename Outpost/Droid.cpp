@@ -557,7 +557,7 @@ void removeDroidFX(DROID* psDel)
       if (psDel->visible[selectedPlayer])
       {
         // The babarian has been run over ...
-        AudioSystem::PlayStaticTrack(psDel->x, psDel->y, ID_SOUND_BARB_SQUISH);
+        (void)AudioSystem::PlayStaticTrack(psDel->x, psDel->y, ID_SOUND_BARB_SQUISH);
       }
     }
   }
@@ -568,7 +568,7 @@ void removeDroidFX(DROID* psDel)
     pos.z = psDel->y;
     pos.y = psDel->z;
     addEffect(&pos, EFFECT_DESTRUCTION, DESTRUCTION_TYPE_DROID,FALSE, nullptr, 0);
-    AudioSystem::PlayStaticTrack(psDel->x, psDel->y, ID_SOUND_EXPLOSION);
+    (void)AudioSystem::PlayStaticTrack(psDel->x, psDel->y, ID_SOUND_EXPLOSION);
   }
 }
 
@@ -721,7 +721,7 @@ void droidBurn(DROID* psDroid)
 
   /* add scream */
   Neuron::DebugTrace("baba burn\n");
-  AudioSystem::PlayObjectTrack(psDroid, ID_SOUND_BARB_SCREAM + (rand() % 3), nullptr);
+  (void)AudioSystem::PlayObjectTrack(psDroid, ID_SOUND_BARB_SCREAM + (rand() % 3), nullptr);
 
   /* set droid running */
   orderDroid(psDroid, DORDER_RUNBURN);
@@ -1140,7 +1140,7 @@ static BOOL droidBuildStartAudioCallback(AUDIO_SAMPLE* psSample)
   {
     if (psDroid->visible[selectedPlayer])
     {
-      AudioSystem::PlayObjectTrack(psDroid, ID_SOUND_CONSTRUCTION_LOOP, droidCheckBuildStillInProgress);
+      (void)AudioSystem::PlayObjectTrack(psDroid, ID_SOUND_CONSTRUCTION_LOOP, droidCheckBuildStillInProgress);
     }
   }
 
@@ -1234,7 +1234,7 @@ BOOL droidStartBuild(DROID* psDroid)
 
   if (psStruct->visible[selectedPlayer])
   {
-    AudioSystem::PlayObjectTrack(psDroid, ID_SOUND_CONSTRUCTION_START, droidBuildStartAudioCallback);
+    (void)AudioSystem::PlayObjectTrack(psDroid, ID_SOUND_CONSTRUCTION_START, droidBuildStartAudioCallback);
   }
 
   return TRUE;
@@ -1246,7 +1246,7 @@ static void droidAddWeldSound(iVector iVecEffect)
 
   iAudioID = ID_SOUND_CONSTRUCTION_1 + (rand() % 4);
 
-  AudioSystem::PlayStaticTrack(iVecEffect.x, iVecEffect.z, iAudioID);
+  (void)AudioSystem::PlayStaticTrack(iVecEffect.x, iVecEffect.z, iAudioID);
 }
 
 static void addConstructorEffect(STRUCTURE* psStruct)

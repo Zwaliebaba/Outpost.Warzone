@@ -18,7 +18,7 @@ extern void* g_ElementToBeRemoved;
 
 /***************************************************************************/
 
-UINT HashTest(int iKey1, int iKey2) { return static_cast<UINT>(iKey1) + iKey2; }
+UINT HashTest(HASH_KEY iKey1, HASH_KEY iKey2) { return static_cast<UINT>(iKey1) + static_cast<UINT>(iKey2); }
 
 /***************************************************************************/
 /*
@@ -31,7 +31,7 @@ UINT HashTest(int iKey1, int iKey2) { return static_cast<UINT>(iKey1) + iKey2; }
  */
 /***************************************************************************/
 
-UINT HashPJW(int iKey1, int iKey2)
+UINT HashPJW(HASH_KEY iKey1, HASH_KEY iKey2)
 {
   UINT iHashValue, i;
   auto c = (CHAR*)iKey1;
@@ -161,7 +161,7 @@ void* hashTable_GetElement(HASHTABLE* psTable)
 
 /***************************************************************************/
 
-UDWORD hashTable_GetHashKey(HASHTABLE* psTable, int iKey1, int iKey2)
+UDWORD hashTable_GetHashKey(HASHTABLE* psTable, HASH_KEY iKey1, HASH_KEY iKey2)
 {
   /* get hashed index */
   return (psTable->pHashFunc)(iKey1, iKey2) % psTable->udwTableSize;
@@ -169,7 +169,7 @@ UDWORD hashTable_GetHashKey(HASHTABLE* psTable, int iKey1, int iKey2)
 
 /***************************************************************************/
 
-void hashTable_InsertElement(HASHTABLE* psTable, void* psElement, int iKey1, int iKey2)
+void hashTable_InsertElement(HASHTABLE* psTable, void* psElement, HASH_KEY iKey1, HASH_KEY iKey2)
 {
   UDWORD udwHashIndex;
   HASHNODE* psNode;
@@ -197,7 +197,7 @@ void hashTable_InsertElement(HASHTABLE* psTable, void* psElement, int iKey1, int
  */
 /***************************************************************************/
 
-void* hashTable_FindElement(HASHTABLE* psTable, int iKey1, int iKey2)
+void* hashTable_FindElement(HASHTABLE* psTable, HASH_KEY iKey1, HASH_KEY iKey2)
 {
   UDWORD udwHashIndex;
   HASHNODE* psNode;
@@ -247,7 +247,7 @@ static void hashTable_SetNextNode(HASHTABLE* psTable, BOOL bMoveToNextNode)
 
 /***************************************************************************/
 
-BOOL hashTable_RemoveElement(HASHTABLE* psTable, void* psElement, int iKey1, int iKey2)
+BOOL hashTable_RemoveElement(HASHTABLE* psTable, void* psElement, HASH_KEY iKey1, HASH_KEY iKey2)
 {
   UDWORD udwHashIndex;
   HASHNODE *psNode, *psPrev;

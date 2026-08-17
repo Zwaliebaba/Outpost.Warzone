@@ -365,7 +365,7 @@ static int pie_ClipXT(PIEVERTEX* s1, PIEVERTEX* s2, PIEVERTEX* clip)
 static int pie_ClipYT(PIEVERTEX* s1, PIEVERTEX* s2, PIEVERTEX* clip)
 
 {
-  register int n, dy;
+  int n, dy;
   int32 t;
 
   n = 1;

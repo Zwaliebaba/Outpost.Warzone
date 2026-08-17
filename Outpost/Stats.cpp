@@ -190,12 +190,16 @@ void statsDealloc(COMP_BASE_STATS* pStats, UDWORD listSize, UDWORD structureSize
 {
 #if !defined (RESOURCE_NAMES) && !defined(STORE_RESOURCE_ID)
 
-  UDWORD inc; COMP_BASE_STATS* pStatList = pStats; UDWORD address = (UDWORD)pStats; for (inc = 0; inc < listSize; inc++)
+  UDWORD inc;
+  COMP_BASE_STATS* pStatList = pStats;
+  for (inc = 0; inc < listSize; inc++)
   {
     delete[] pStatList->pName;
     pStatList->pName = nullptr;
-    address += structureSize;
-    pStatList = (COMP_BASE_STATS*)address;
+    /* The list is an array of a derived type whose stride the caller
+     * passes in, so the walk is byte-wise. It went through a UDWORD,
+     * which truncated the pointer on a 64 bit build. */
+    pStatList = (COMP_BASE_STATS*)((UBYTE*)pStatList + structureSize);
   }
 
 #else

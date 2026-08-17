@@ -1536,7 +1536,7 @@ BOOL updateTransporter(DROID* psTransporter)
     if (psTransporter->action == DACTION_TRANSPORTIN)
     {
       /* !!!! GJ Hack - should be landing audio !!!! */
-      AudioSystem::PlayObjectTrack(psTransporter, ID_SOUND_BLIMP_TAKE_OFF, nullptr);
+      (void)AudioSystem::PlayObjectTrack(psTransporter, ID_SOUND_BLIMP_TAKE_OFF, nullptr);
     }
 
     //DON@T PLAY AUDIO FOR THE FIRST TRANSPORTER LOAD...AB 9/2/99

@@ -1007,9 +1007,9 @@ void destroyFeature(FEATURE* psDel)
 
     //play sound
     if (psDel->psStats->subType == FEAT_SKYSCRAPER)
-      AudioSystem::PlayStaticTrack(psDel->x, psDel->y, ID_SOUND_BUILDING_FALL);
+      (void)AudioSystem::PlayStaticTrack(psDel->x, psDel->y, ID_SOUND_BUILDING_FALL);
     else
-      AudioSystem::PlayStaticTrack(psDel->x, psDel->y, ID_SOUND_EXPLOSION);
+      (void)AudioSystem::PlayStaticTrack(psDel->x, psDel->y, ID_SOUND_EXPLOSION);
   }
   //---------------------------------------------------------------------------------------
 

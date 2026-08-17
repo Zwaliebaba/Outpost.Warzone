@@ -392,7 +392,7 @@ BOOL proj_SendProjectile(WEAPON* psWeap, BASE_OBJECT* psAttacker, SDWORD player,
   }
 
   /* put object in hashtable */
-  hashTable_InsertElement(g_pProjObjTable, psObj, (int)psObj, UNUSED_KEY);
+  hashTable_InsertElement(g_pProjObjTable, psObj, (HASH_KEY)psObj, UNUSED_KEY);
 
   /* play firing audio */
   // only play if either object is visible, i know it's a bit of a hack, but it avoids the problem
@@ -410,15 +410,15 @@ BOOL proj_SendProjectile(WEAPON* psWeap, BASE_OBJECT* psAttacker, SDWORD player,
       if (psObj->psSource)
       {
         /* firing sound emitted from source */
-        AudioSystem::PlayObjectTrack(psObj->psSource, psObj->psWStats->iAudioFireID, nullptr);
+        (void)AudioSystem::PlayObjectTrack(psObj->psSource, psObj->psWStats->iAudioFireID, nullptr);
         /* GJ HACK: move howitzer sound with shell */
-        if (psObj->psWStats->weaponSubClass == WSC_HOWITZERS) { AudioSystem::PlayObjectTrack(psObj, ID_SOUND_HOWITZ_FLIGHT, nullptr); }
+        if (psObj->psWStats->weaponSubClass == WSC_HOWITZERS) { (void)AudioSystem::PlayObjectTrack(psObj, ID_SOUND_HOWITZ_FLIGHT, nullptr); }
       }
       else
       {
         //don't play the sound for a LasSat in multiPlayer
         if (!(bMultiPlayer AND psWeapStats->weaponSubClass == WSC_LAS_SAT))
-          AudioSystem::PlayObjectTrack(psObj, psObj->psWStats->iAudioFireID, nullptr);
+          (void)AudioSystem::PlayObjectTrack(psObj, psObj->psWStats->iAudioFireID, nullptr);
       }
     }
   }
@@ -759,13 +759,13 @@ void proj_ImpactFunc(PROJ_OBJECT* psObj)
       if (psObj->psDest != nullptr && psObj->psWStats->weaponSubClass == WSC_MGUN && ONEINTHREE)
       {
         iAudioImpactID = ID_SOUND_RICOCHET_1 + (rand() % 3);
-        AudioSystem::PlayStaticTrack(psObj->psDest->x, psObj->psDest->y, iAudioImpactID);
+        (void)AudioSystem::PlayStaticTrack(psObj->psDest->x, psObj->psDest->y, iAudioImpactID);
       }
     }
     else
     {
-      if (psObj->psDest == nullptr) { AudioSystem::PlayStaticTrack(psObj->tarX, psObj->tarY, psStats->iAudioImpactID); }
-      else { AudioSystem::PlayStaticTrack(psObj->psDest->x, psObj->psDest->y, psStats->iAudioImpactID); }
+      if (psObj->psDest == nullptr) { (void)AudioSystem::PlayStaticTrack(psObj->tarX, psObj->tarY, psStats->iAudioImpactID); }
+      else { (void)AudioSystem::PlayStaticTrack(psObj->psDest->x, psObj->psDest->y, psStats->iAudioImpactID); }
     }
   }
   // note the attacker if any
@@ -1032,7 +1032,7 @@ void proj_ImpactFunc(PROJ_OBJECT* psObj)
     }
 
     /* This was just a simple bullet - release it and return */
-    if (hashTable_RemoveElement(g_pProjObjTable, psObj, (int)psObj, UNUSED_KEY) == FALSE)
+    if (hashTable_RemoveElement(g_pProjObjTable, psObj, (HASH_KEY)psObj, UNUSED_KEY) == FALSE)
       Neuron::DebugTrace("proj_ImpactFunc: couldn't remove projectile from table\n");
     return;
   }
@@ -1214,7 +1214,7 @@ void proj_PostImpactFunc(PROJ_OBJECT* psObj)
   /* Time to finish postimpact effect? */
   if (age > static_cast<SDWORD>(psStats->radiusLife) && age > static_cast<SDWORD>(psStats->incenTime))
   {
-    if (hashTable_RemoveElement(g_pProjObjTable, psObj, (int)psObj, UNUSED_KEY) == FALSE)
+    if (hashTable_RemoveElement(g_pProjObjTable, psObj, (HASH_KEY)psObj, UNUSED_KEY) == FALSE)
       Neuron::DebugTrace("proj_PostImpactFunc: couldn't remove projectile from table\n");
     return;
   }

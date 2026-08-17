@@ -2333,7 +2333,7 @@ SDWORD mapIconToRID(UDWORD iconID)
 /* returns a pointer to a component based on the name - used to load in the research */
 COMP_BASE_STATS* getComponentDetails(STRING* pName, STRING* pCompName)
 {
-  UDWORD stat, size, quantity, address, inc;
+  UDWORD stat, size, quantity, inc;
   COMP_BASE_STATS* pArtefact;
 #ifdef HASH_NAMES
   UDWORD HashedName;
@@ -2413,7 +2413,6 @@ COMP_BASE_STATS* getComponentDetails(STRING* pName, STRING* pCompName)
       return FALSE;
     }
   }
-  address = (UDWORD)pArtefact;
 
 #ifdef HASH_NAMES
   HashedName = HashString(pCompName);
@@ -2427,8 +2426,9 @@ COMP_BASE_STATS* getComponentDetails(STRING* pName, STRING* pCompName)
     if (!strcmp(pArtefact->pName, pCompName))
 #endif
       return pArtefact;
-    address += size;
-    pArtefact = (COMP_BASE_STATS*)address;
+    /* Variable-stride array walk; it went through a UDWORD, which
+     * truncated the pointer on a 64 bit build. */
+    pArtefact = (COMP_BASE_STATS*)((UBYTE*)pArtefact + size);
   }
 
   Neuron::Fatal("Cannot find component {}",pCompName);

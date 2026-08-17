@@ -12,6 +12,8 @@
 #ifndef _treap_h
 #define _treap_h
 
+#include <cstdint>
+
 #include "Types.h"
 
 /* Turn on and off the treap debugging */
@@ -26,14 +28,20 @@
  *         1 for more
  *         0 for equal
  */
-using TREAP_CMP = SDWORD(*)(UDWORD key1, UDWORD key2);
+/* Treap keys hold pointers as often as they hold numbers - the string
+ * resource treap keys on the string's address - so the key type is
+ * pointer-width. It was UDWORD, which silently truncated every key on a
+ * 64 bit build and handed treapStringCmp a garbage address to strcmp. */
+using TREAP_KEY = std::uintptr_t;
+
+using TREAP_CMP = SDWORD(*)(TREAP_KEY key1, TREAP_KEY key2);
 
 /* The basic elements in the treap node.
  * These are done as macros so that the memory system
  * can use parts of the treap system.
  */
 #define TREAP_NODE_BASE \
-	UDWORD				key;				/* The key to sort the node on */ \
+	TREAP_KEY			key;				/* The key to sort the node on */ \
 	UDWORD				priority;			/* Treap priority */ \
 	void				*pObj;				/* The object stored in the treap */ \
 	struct _treap_node	*psLeft, *psRight	/* The sub trees */
@@ -83,13 +91,13 @@ extern BOOL treapCreate(TREAP** ppsTreap, TREAP_CMP cmp, UDWORD init, UDWORD ext
 
 /* Add an object to a treap
  */
-extern BOOL treapAdd(TREAP* psTreap, UDWORD key, void* pObj);
+extern BOOL treapAdd(TREAP* psTreap, TREAP_KEY key, void* pObj);
 
 /* Remove an object from the treap */
-extern BOOL treapDel(TREAP* psTreap, UDWORD key);
+extern BOOL treapDel(TREAP* psTreap, TREAP_KEY key);
 
 /* Find an object in a treap */
-extern void* treapFind(TREAP* psTreap, UDWORD key);
+extern void* treapFind(TREAP* psTreap, TREAP_KEY key);
 
 /* Release all the nodes in the treap */
 extern void treapReset(TREAP* psTreap);
@@ -110,7 +118,7 @@ extern void* treapGetSmallest(TREAP* psTreap);
 /*                            Comparison Functions                                      */
 
 /* A useful comparison function - keys are string pointers */
-extern SDWORD treapStringCmp(UDWORD key1, UDWORD key2);
+extern SDWORD treapStringCmp(TREAP_KEY key1, TREAP_KEY key2);
 
 /****************************************************************************************/
 /*                            Macro definitions                                         */
