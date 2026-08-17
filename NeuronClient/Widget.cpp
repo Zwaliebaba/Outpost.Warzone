@@ -854,14 +854,19 @@ UDWORD widgGetButtonState(W_SCREEN* psScreen, UDWORD id)
 
   /* Get the button */
   psWidget = widgGetFromID(psScreen, id);
-  if (psWidget == nullptr)
-    DEBUG_ASSERT_TEXT(FALSE, "widgGetButtonState: Couldn't find button/click form from ID");
-  else if (psWidget->type == WIDG_BUTTON)
-    return buttonGetState((W_BUTTON*)psWidget);
-  else if ((psWidget->type == WIDG_FORM) && (psWidget->style & WFORM_CLICKABLE))
-    return formGetClickState((W_CLICKFORM*)psWidget);
-  else
-    DEBUG_ASSERT_TEXT(FALSE, "widgGetButtonState: Couldn't find button/click form from ID");
+  if (psWidget != nullptr)
+  {
+    if (psWidget->type == WIDG_BUTTON)
+      return buttonGetState((W_BUTTON*)psWidget);
+    if ((psWidget->type == WIDG_FORM) && (psWidget->style & WFORM_CLICKABLE))
+      return formGetClickState((W_CLICKFORM*)psWidget);
+  }
+
+  /* The assert is a no-op in release, so this needs a value of its own -
+     it used to run off the end of the function and return whatever was in
+     the return register. */
+  DEBUG_ASSERT_TEXT(FALSE, "widgGetButtonState: Couldn't find button/click form from ID");
+  return 0;
 }
 
 void widgSetButtonFlash(W_SCREEN* psScreen, UDWORD id)
