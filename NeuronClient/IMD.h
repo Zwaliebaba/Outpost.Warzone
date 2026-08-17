@@ -51,7 +51,7 @@ namespace Neuron
 {
   extern BOOL setImagePath(char* path);
   extern iIMDShape* IMDLoad(char* filename, iBool palkeep);
-  extern iIMDShape* ProcessIMD(UBYTE** ppFileData, UBYTE* FileDataEnd, UBYTE* IMDpath, UBYTE* PCXpath, iBool palkeep);
+  extern iIMDShape* ProcessIMD(UBYTE** ppFileData, UBYTE* FileDataEnd, UBYTE* IMDpath, iBool palkeep);
   iIMDShape* ProcessBPIE(iIMDShape*, UDWORD size);
 
   extern iBool IMDSave(char* filename, iIMDShape* s, BOOL PieIMD);

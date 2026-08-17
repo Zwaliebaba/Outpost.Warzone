@@ -1095,7 +1095,7 @@ BOOL stageTwoInitialise(void)
   if (!initMiscImds()) /* Set up the explosions */
   {
     Neuron::ShutDown();
-    Neuron::Fatal("Can't find all the explosions PCX's");
+    Neuron::Fatal("Can't find all the explosion textures");
     return FALSE;
   }
 

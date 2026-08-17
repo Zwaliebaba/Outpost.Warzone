@@ -476,7 +476,7 @@ void pie_LoadBackDrop(SCREENTYPE screenType, BOOL b3DFX)
   chooser0 = 0;
   chooser1 = rand() % 7;
 
-  /* The PCX loader delivers packed 32 bit pixels, so the backdrop loads
+  /* The DDS loader delivers packed 32 bit pixels, so the backdrop loads
    * straight into its bitmap - the 8-to-16-bit conversion pass went with
    * the palette. */
   backDropSprite.width = BACKDROP_WIDTH;

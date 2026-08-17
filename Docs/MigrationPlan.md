@@ -1247,6 +1247,41 @@ the campaign-2 and campaign-3 `camchange` transitions and the force editor,
 because those are where pages rebind and where the front end creates its
 first page.
 
+## The last PCX references: models, a dead decoder and misleading names (2026-08-17, complete)
+
+The palette removal converted the art to DDS and deleted `Pcx.cpp`, but it
+left the *word* behind in three places, and one of them was live data.
+
+- **The models.** All 516 `.pie` files named their texture
+  `page-NN-....pcx`, and `IMDLoad` required exactly that spelling before
+  substituting `.dds` behind it. `tools/convert_pie_textures.py` rewrites
+  the extension - and nothing else on the line, byte for byte - and the
+  loader now requires `.dds`. The converter is idempotent, `--check`
+  reports without writing, and `validate_assets.py` fails any `.pie` whose
+  TEXTURE directive names something other than a `.dds`, so the two cannot
+  drift apart again.
+- **A dead PCX decoder.** `imageParsePCX` (134 lines of RLE and palette
+  handling in `Image.cpp`) had no caller left; `imageParseBMP` beside it
+  still serves `Surface.cpp` and stays. Gone with it: `ProcessIMD`'s
+  `PCXpath` parameter - a second texture search directory that meant
+  nothing once pages were bound by name - and its retry, plus the
+  `PRE_LEVEL_TEXTURELOAD` branch, the abandoned half of a pair whose macro
+  is defined nowhere in the tree.
+- **Names that lied.** The terrain tile globals `tilesPCX`,
+  `bTilesPCXLoaded` and `numPCXTiles` had held DDS pixels since the
+  conversion; they are `tilesDds`, `bTilesLoaded` and `numTerrainTiles`.
+  (`numTiles` was the obvious name for the last and is already a global in
+  `Display3D.cpp` - a duplicate symbol the cross-checker cannot catch,
+  because it does not link.) Comments that described the PCX loader in the
+  present tense now describe the DDS one; the ones that record what the
+  PCX loader *did*, and why DDS pixels are shaped as they are, are history
+  and stay.
+
+Verified: `crosscheck.py` 181/181 in both configurations, the checkers
+green, the converter's own byte-level check, and a harness that replays
+`IMDLoad`'s TEXTURE parse over all 516 converted models - every one parses
+and reduces to the same 19 `page-NN` ids the texture groups bind. Not run.
+
 ## The display: desktop-resolution borderless window, scaled UI (2026-08-16)
 
 **By owner decision, the fixed-resolution display is gone.** The game now
@@ -1366,10 +1401,14 @@ match to the pixel except where 256-colour quantisation disappears:
    loader had been doing at run time, so the files now hold byte for byte
    what the game held in memory - retargeted the 177 `.pcx` references in
    `datasets.json`, and patched the fixed-width `TPageFiles` name tables in
-   the two `.img` headers ("pcx"→"dds" is the same length). The 121 `.pie`
-   model files needed nothing: the IMD loader normalises their TEXTURE
-   names to extensionless `page-NN` keys, and their `pcx` type tag stays
-   as a format token. `Dds.cpp` (~250 lines, `Neuron::DdsLoad` and the
+   the two `.img` headers ("pcx"→"dds" is the same length). The `.pie`
+   model files were left alone on the grounds that the IMD loader
+   normalises their TEXTURE names to extensionless `page-NN` keys and
+   their `pcx` tag is only a format token. **Superseded (2026-08-17):**
+   the models say `.dds` now — see the PCX-reference sweep below, which
+   also corrects the count, since there are 516 `.pie` files and not the
+   121 recorded here (`.pie` is the extension on 121 of them; 394 are
+   `.PIE` and one `.Pie`). `Dds.cpp` (~250 lines, `Neuron::DdsLoad` and the
    Mem/ToBuffer variants - a header validation and a copy) replaced
    `Pcx.cpp`; `Palette.cpp` and `palette.bin` are deleted, and `Palette.h`
    is down to the packed `COL_*` colour constants. Converting GameData

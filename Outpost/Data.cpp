@@ -57,7 +57,7 @@
  *
  *********************************************************/
 
-BOOL bTilesPCXLoaded = FALSE;
+BOOL bTilesLoaded = FALSE;
 
 
 UDWORD cheatHash[CHEAT_MAXCHEAT];
@@ -607,7 +607,7 @@ BOOL dataIMDBufferLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
 
   if (BinaryPIE == FALSE)
   {
-    psIMD = Neuron::ProcessIMD(&pBufferPosition, pBuffer + size, (UBYTE*)"", (UBYTE*)"",FALSE);
+    psIMD = Neuron::ProcessIMD(&pBufferPosition, pBuffer + size, (UBYTE*)"",FALSE);
     if (psIMD == nullptr)
     {
       Neuron::Fatal("IMD load failed - {}", GetLastResourceFilename());
@@ -676,7 +676,7 @@ void dataTERTILESRelease(void* pData)
   freeTileTextures();
   delete[] psSprite->bmp;
   psSprite->bmp = nullptr;
-  bTilesPCXLoaded = FALSE;
+  bTilesLoaded = FALSE;
 }
 
 // Tertiles loader. This version for hardware renderer.
@@ -685,11 +685,11 @@ BOOL dataHWTERTILESLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
   UNUSEDPARAMETER(size);
 
   // tile loader.
-  if (bTilesPCXLoaded)
+  if (bTilesLoaded)
   {
     Neuron::DebugTrace("Reloading terrain tiles\n");
 
-    if (!Neuron::DdsLoadMemToBuffer((int8*)(SBYTE*)pBuffer, &tilesPCX))
+    if (!Neuron::DdsLoadMemToBuffer((int8*)(SBYTE*)pBuffer, &tilesDds))
     {
       Neuron::Fatal("HWTERTILES reload failed");
       return FALSE;
@@ -698,7 +698,7 @@ BOOL dataHWTERTILESLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
   else
   {
     Neuron::DebugTrace("Loading terrain tiles\n");
-    if (!Neuron::DdsLoadMem((int8*)(SBYTE*)pBuffer, &tilesPCX))
+    if (!Neuron::DdsLoadMem((int8*)(SBYTE*)pBuffer, &tilesDds))
     {
       Neuron::Fatal("HWTERTILES load failed");
       return FALSE;
@@ -707,22 +707,22 @@ BOOL dataHWTERTILESLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
 
   getTileRadarColours();
   // make several 256 * 256 pages
-  if (bTilesPCXLoaded)
-    remakeTileTexturePages(tilesPCX.width, tilesPCX.height,TILE_WIDTH, TILE_HEIGHT, tilesPCX.bmp);
+  if (bTilesLoaded)
+    remakeTileTexturePages(tilesDds.width, tilesDds.height,TILE_WIDTH, TILE_HEIGHT, tilesDds.bmp);
   else
-    makeTileTexturePages(tilesPCX.width, tilesPCX.height,TILE_WIDTH, TILE_HEIGHT, tilesPCX.bmp);
+    makeTileTexturePages(tilesDds.width, tilesDds.height,TILE_WIDTH, TILE_HEIGHT, tilesDds.bmp);
   //	else
   //		/* Squirt the tiles into a nice long thin bitmap */
   //			if(!remakeTileTextures())
   //		else
   //			if(!makeTileTextures())
 
-  if (bTilesPCXLoaded)
+  if (bTilesLoaded)
     *ppData = nullptr;
   else
   {
-    bTilesPCXLoaded = TRUE;
-    *ppData = &tilesPCX;
+    bTilesLoaded = TRUE;
+    *ppData = &tilesDds;
   }
   Neuron::DebugTrace("HW Tiles loaded\n");
   return TRUE;
@@ -735,7 +735,7 @@ void dataHWTERTILESRelease(void* pData)
   freeTileTextures();
   delete[] psSprite->bmp;
   psSprite->bmp = nullptr;
-  bTilesPCXLoaded = FALSE;
+  bTilesLoaded = FALSE;
   pie_TexShutDown();
 }
 

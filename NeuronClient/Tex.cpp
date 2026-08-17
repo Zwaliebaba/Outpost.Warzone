@@ -38,7 +38,7 @@ static int _tex_get_top_bit(uint32 n)
 //*** load texture file or return index if already loaded
 //*
 //* params	filename = texture file name
-//*			type		= 0 -> pcx
+//*			type		= page type, stored and never read
 //*
 //* returns	-1			= error
 //*			else		= texture slot

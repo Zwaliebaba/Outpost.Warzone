@@ -227,14 +227,28 @@ def check_texture_pages(doc, units):
 def pie_page_ids():
     """The page ids shipped models name, reduced the way IMDLoad reduces
     them: a TEXTURE directive's name truncated at the first non-digit after
-    "page-"."""
+    "page-".
+
+    Also checks the extension.  IMDLoad requires .dds; the models said .pcx
+    until tools/convert_pie_textures.py rewrote them, and a model that says
+    anything else fails to load.
+    """
     ids = set()
     for dirpath, _dirs, files in os.walk(GAMEDATA):
         for name in files:
             if not name.lower().endswith('.pie'):
                 continue
-            with open(os.path.join(dirpath, name), encoding='latin-1') as handle:
-                for m in re.finditer(r'^\s*TEXTURE\s+\S+\s+(\S+)', handle.read(), flags=re.M | re.I):
+            path = os.path.join(dirpath, name)
+            with open(path, encoding='latin-1') as handle:
+                for line in handle:
+                    m = re.match(r'\s*TEXTURE\s+\d+\s+(\S.*?)\.(\w+)\s+\d+\s+\d+\s*$', line, flags=re.I)
+                    if not m:
+                        if re.match(r'\s*TEXTURE\b', line, flags=re.I):
+                            errors.append(f'{os.path.relpath(path, ROOT)}: unparsable TEXTURE directive: {line.strip()}')
+                        continue
+                    if m.group(2).lower() != 'dds':
+                        errors.append(f'{os.path.relpath(path, ROOT)}: TEXTURE names a .{m.group(2)}, '
+                                      f'but IMDLoad requires .dds')
                     page = re.match(r'(page-\d+)', m.group(1).lower())
                     if page:
                         ids.add(page.group(1))

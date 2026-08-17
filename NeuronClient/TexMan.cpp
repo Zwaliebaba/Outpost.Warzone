@@ -266,7 +266,7 @@ static BOOL dtm_UploadImage(LPDIRECT3DTEXTURE9 psTexture, UDWORD width, UDWORD h
     return FALSE;
   }
 
-  /* The pixels are already packed A8R8G8B8 - the PCX loader expanded them
+  /* The pixels are already packed A8R8G8B8 - the DDS loader delivers them
    * through the palette at load - so the upload is a straight row copy. */
   pSrc = pImageData;
   for (y = 0; (y < height) && (y < sDesc.Height); y++)
