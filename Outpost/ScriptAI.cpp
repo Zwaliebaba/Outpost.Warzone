@@ -1152,7 +1152,7 @@ BOOL skTopicAvail(UWORD inc, UDWORD player)
 // ********************************************************************************************
 BOOL scrSkDoResearch(void)
 {
-  SDWORD structure, player, bias; //,timeToResearch;//,*x,*y;
+  SDWORD player, bias; //,timeToResearch;//,*x,*y;
   UWORD i;
 
   STRING sTemp[128];
