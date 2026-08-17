@@ -5552,11 +5552,23 @@ BOOL checkValidWeaponForProp(DROID_TEMPLATE* psTemplate)
   //also checks that there is only a weapon attached and no other system component
   if (psTemplate->numWeaps == 0)
     bValid = FALSE;
-  /* asParts has no COMP_WEAPON slot - it stops at COMP_CONSTRUCT, and the
-     weapon is asWeaps[0]. Reading asParts[COMP_WEAPON] ran one past the
-     array into buildPoints, which is all but always non-zero, so this read
-     as "a command brain is never valid here" and still does. */
-  if ((psTemplate->asParts[COMP_BRAIN] != 0) && (psTemplate->asWeaps[0] != 0))
+
+  /* This second test reads oddly on purpose: it is what the line below
+     always did, written out honestly. It used to say
+     asParts[COMP_WEAPON] != 0, but asParts stops at COMP_CONSTRUCT, so
+     that element was one past the end of the array and aliased
+     buildPoints. Which meant two different rules depending on the caller:
+     loadDroidWeapons runs before initTemplatePoints fills buildPoints in,
+     so the test never fired there, while the design screen copies a
+     template that already has it, so there it reduced to "reject a design
+     with a command brain".
+
+     Both are preserved verbatim rather than guessed at. Reading it as the
+     comment above suggests - reject a template with both a brain and a
+     weapon - rejects every command turret at load, which is what a command
+     droid is; that was tried and it breaks startup. What this should
+     actually test is a gameplay decision, not a refactoring one. */
+  if ((psTemplate->asParts[COMP_BRAIN] != 0) && (psTemplate->buildPoints != 0))
     bValid = FALSE;
 
   return bValid;
