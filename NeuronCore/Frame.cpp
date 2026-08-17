@@ -45,10 +45,7 @@ BOOL loadFile(STRING* pFileName, UBYTE** ppFileData, UDWORD* pFileSize) { return
 //   
 BOOL loadFile2(STRING* pFileName, UBYTE** ppFileData, UDWORD* pFileSize, BOOL AllocateMem)
 {
-  FILE* pFileHandle;
-  UDWORD FileSize;
-
-  pFileHandle = fopen(pFileName, "rb");
+  FILE* pFileHandle = fopen(pFileName, "rb");
   if (pFileHandle == nullptr)
   {
     Neuron::Fatal("Couldn't open {}", pFileName);
@@ -61,7 +58,7 @@ BOOL loadFile2(STRING* pFileName, UBYTE** ppFileData, UDWORD* pFileSize, BOOL Al
     Neuron::Fatal("SEEK_END failed for {}", pFileName);
     return FALSE;
   }
-  FileSize = ftell(pFileHandle);
+  UDWORD FileSize = ftell(pFileHandle);
   if (fseek(pFileHandle, 0, SEEK_SET) != 0)
   {
     Neuron::Fatal("SEEK_SET failed for {}", pFileName);
