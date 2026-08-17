@@ -32,7 +32,7 @@ and palette work, and the script module rewrite:
 
 | | |
 |---|---|
-| Translation units | 21 NeuronCore, 42 NeuronClient, 1 NeuronServer, 117 Outpost, 12 NeuronCoreTest |
+| Translation units | 20 NeuronCore, 42 NeuronClient, 1 NeuronServer, 117 Outpost, 12 NeuronCoreTest |
 | Toolset | MSVC v145; Win32 (x86) builds and ships, x64 configurations exist but are unbuilt (`Docs/X64Readiness.md`) |
 | Generated parser code | **None.** All six MKS lex/yacc grammars are gone |
 | Win32 build warnings | 12 (was 343) |
@@ -1398,19 +1398,30 @@ pointers in `SDWORD` locals, `.vlo` object initialisation truncating, and
 trigger labels never reaching the debug info (`eventGetTriggerID` printed
 `NOT FOUND` for every code trigger).
 
-## The treap and the priority queue: standard containers (2026-08-17, complete)
+## The hand-rolled containers: standard containers or deletion (2026-08-17, complete)
 
-**By owner decision, `TREAP` and `QUEUE` were to move onto standard
-containers and their files deleted.** The survey found the two are not the
-same job:
+**By owner decision, `TREAP`, `QUEUE` and `PTRLIST` were to move onto
+standard containers and their files deleted.** The survey found these are
+not the same job — two of the three had no consumers left at all:
 
-- **`PQueue.cpp`/`.h` (457 lines) had no consumers at all.** Nothing outside
-  the module included `PQueue.h` or called a `queue_*` function; it was the
+- **`PQueue.cpp`/`.h` (457 lines) had no consumers.** Nothing outside the
+  module included `PQueue.h` or called a `queue_*` function; it was the
   A* pathfinder's queue once, and `AStar.cpp` has long had its own. There was
   nothing to migrate — it is a deletion with a grep proof.
+- **`PtrList.cpp`/`.h` (323 lines) had no consumers either**, and could not
+  even have linked if it had: it reads an `extern void* g_ElementToBeRemoved`
+  that is defined nowhere in the tree. Its own guard — a
+  `static CRITICAL_SECTION critSecAudio` around every mutation — names the
+  owner it outlived: this was the QMixer sample list, and the audio stack
+  went in Phases 4 and 9.
 - **`Treap.cpp`/`.h`/`TreapInt.h` (588 lines) had exactly one consumer**, the
   string-resource system, so the real work was modernising `STR_RES` rather
   than swapping a container behind it.
+
+With these gone, and `HashTabl` before them, **`NeuronCore` has no
+hand-rolled container left** — which is what R10 was asking for: all four
+carried their own node pools (`init`/`ext`/`elementSize` triples) behind a
+container interface.
 
 `STR_RES` was a treap keyed on the *address* of the ID string (with a
 `strcmp` comparator — the idiom that had already forced the `TREAP_KEY`

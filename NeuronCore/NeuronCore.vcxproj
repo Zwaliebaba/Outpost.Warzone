@@ -178,7 +178,6 @@
     <ClInclude Include="Parse.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Priority.h" />
-    <ClInclude Include="PtrList.h" />
     <ClInclude Include="Script.h" />
     <ClInclude Include="ScriptLex.h" />
     <ClInclude Include="Stack.h" />
@@ -204,7 +203,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="PtrList.cpp" />
     <ClCompile Include="Script.cpp" />
     <ClCompile Include="ScriptComp.cpp" />
     <ClCompile Include="ScriptLex.cpp" />
