@@ -50,8 +50,6 @@ BOOL anim_Init(GETSHAPEFUNC pGetShapeFunc)
 
 void anim_ReleaseAnim(BASEANIM* psAnim)
 {
-  ANIM3D* psAnim3D;
-
   // remove the anim from the list
   LIST_REMOVE(g_animGlobals.psAnimList, psAnim, BASEANIM);
 
@@ -62,7 +60,7 @@ void anim_ReleaseAnim(BASEANIM* psAnim)
   /* free anim shape */
   if (psAnim->animType == ANIM_3D_FRAMES || psAnim->animType == ANIM_3D_TRANS)
   {
-    psAnim3D = (ANIM3D*)psAnim;
+    ANIM3D* psAnim3D = (ANIM3D*)psAnim;
     delete[] psAnim3D->apFrame;
     psAnim3D->apFrame = nullptr;
   }
@@ -77,16 +75,14 @@ void anim_ReleaseAnim(BASEANIM* psAnim)
 
 BOOL anim_Shutdown(void)
 {
-  BASEANIM *psAnim, *psAnimTmp;
-
   if (g_animGlobals.psAnimList != nullptr)
     Neuron::DebugTrace("anim_Shutdown: warning anims still allocated");
 
   /* empty anim list */
-  psAnim = g_animGlobals.psAnimList;
+  BASEANIM* psAnim = g_animGlobals.psAnimList;
   while (psAnim != nullptr)
   {
-    psAnimTmp = psAnim->psNext;
+    BASEANIM* psAnimTmp = psAnim->psNext;
     anim_ReleaseAnim(psAnim);
     psAnim = psAnimTmp;
   }
@@ -114,8 +110,6 @@ static void anim_InitBaseMembers(BASEANIM* psAnim, UWORD uwStates, UWORD uwFrame
 BOOL anim_Create3D(char szPieFileName[], UWORD uwStates, UWORD uwFrameRate, UWORD uwObj, UBYTE ubType, UWORD uwID)
 {
   ANIM3D* psAnim3D;
-  iIMDShape* psFrames;
-  UWORD uwFrames, i;
 
   /* allocate anim */
   if ((psAnim3D = new (std::nothrow) ANIM3D[1]) == nullptr)
@@ -125,14 +119,10 @@ BOOL anim_Create3D(char szPieFileName[], UWORD uwStates, UWORD uwFrameRate, UWOR
   psAnim3D->psFrames = static_cast<iIMDShape*>((g_animGlobals.pGetShapeFunc)(szPieFileName));
 
   /* count frames in imd */
-  psFrames = psAnim3D->psFrames;
-  uwFrames = 0;
+  iIMDShape* psFrames = psAnim3D->psFrames;
+  UWORD uwFrames = 0;
   while (psFrames != nullptr)
   {
-#ifdef DEBUG
-    if (psFrames == (iIMDShape*)0xcdcdcdcd)
-      printf("bad pointer in Create 3D !!!!  -[%s]\n", szPieFileName);
-#endif
     uwFrames++;
     psFrames = psFrames->next;
   }
@@ -147,7 +137,7 @@ BOOL anim_Create3D(char szPieFileName[], UWORD uwStates, UWORD uwFrameRate, UWOR
   /* get pointers to individual frames */
   psAnim3D->apFrame = new (std::nothrow) iIMDShape*[uwFrames];
   psFrames = psAnim3D->psFrames;
-  for (i = 0; i < uwFrames; i++)
+  for (UWORD i = 0; i < uwFrames; i++)
   {
     psAnim3D->apFrame[i] = psFrames;
     psFrames = psFrames->next;
@@ -179,10 +169,8 @@ void anim_BeginScript(void)
 
 BOOL anim_EndScript(void)
 {
-  BASEANIM* psAnim;
-
   /* get pointer to current anim */
-  psAnim = g_animGlobals.psAnimList;
+  BASEANIM* psAnim = g_animGlobals.psAnimList;
 
   if (g_animGlobals.uwCurState != psAnim->uwStates)
   {
@@ -200,12 +188,8 @@ BOOL anim_EndScript(void)
 
 BOOL anim_AddFrameToAnim(int iFrame, VECTOR3D vecPos, VECTOR3D vecRot, VECTOR3D vecScale)
 {
-  ANIM_STATE* psState;
-  BASEANIM* psAnim;
-  UWORD uwState;
-
   /* get pointer to current anim */
-  psAnim = g_animGlobals.psAnimList;
+  BASEANIM* psAnim = g_animGlobals.psAnimList;
 
   /* check current anim valid */
   DEBUG_ASSERT_TEXT(psAnim != NULL, "anim_AddFrameToAnim: NULL current anim\n");
@@ -214,8 +198,8 @@ BOOL anim_AddFrameToAnim(int iFrame, VECTOR3D vecPos, VECTOR3D vecRot, VECTOR3D 
   DEBUG_ASSERT_TEXT(iFrame<psAnim->uwStates, "anim_AddFrameToAnim: frame number {} > {} frames in imd\n", iFrame, psAnim->uwObj);
 
   /* get state */
-  uwState = (g_animGlobals.uwCurObj * psAnim->uwStates) + g_animGlobals.uwCurState;
-  psState = &psAnim->psStates[uwState];
+  UWORD uwState = (g_animGlobals.uwCurObj * psAnim->uwStates) + g_animGlobals.uwCurState;
+  ANIM_STATE* psState = &psAnim->psStates[uwState];
 
   /* set state pointer */
   psState->uwFrame = static_cast<UWORD>(iFrame);
@@ -243,10 +227,8 @@ BOOL anim_AddFrameToAnim(int iFrame, VECTOR3D vecPos, VECTOR3D vecRot, VECTOR3D 
 
 BASEANIM* anim_GetAnim(UWORD uwAnimID)
 {
-  BASEANIM* psAnim;
-
   /* find matching anim id in list */
-  psAnim = g_animGlobals.psAnimList;
+  BASEANIM* psAnim = g_animGlobals.psAnimList;
   while (psAnim != nullptr && psAnim->uwID != uwAnimID) { psAnim = psAnim->psNext; }
 
   return psAnim;
@@ -276,15 +258,14 @@ void anim_SetVals(char szFileName[], UWORD uwAnimID)
 static BOOL anim_LoadStates(const Neuron::Json& states)
 {
   VECTOR3D vecPos, vecRot, vecScale;
-  std::size_t i, j;
 
   anim_BeginScript();
-  for (i = 0; i < states.Size(); i++)
+  for (std::size_t i = 0; i < states.Size(); i++)
   {
     const Neuron::Json& row = states.Item(i);
     if (!row.IsArray() || row.Size() != 10)
       return FALSE;
-    for (j = 0; j < 10; j++)
+    for (std::size_t j = 0; j < 10; j++)
     {
       if (!row.Item(j).IsNumber())
         return FALSE;
@@ -308,7 +289,6 @@ static BOOL anim_LoadStates(const Neuron::Json& states)
 BASEANIM* anim_LoadFromBuffer(UBYTE* pBuffer, UDWORD size)
 {
   char szPieName[MAX_STR];
-  std::size_t i;
 
   auto parsed = Neuron::Json::Parse(std::string_view(reinterpret_cast<char*>(pBuffer), size));
   if (!parsed.has_value())
@@ -364,7 +344,7 @@ BASEANIM* anim_LoadFromBuffer(UBYTE* pBuffer, UDWORD size)
     if (!anim_Create3D(szPieName, static_cast<UWORD>(pFirstStates->Size()), uwFrameRate,
                        static_cast<UWORD>(pObjects->Size()), ANIM_3D_TRANS, s_uwNextAnimID))
       return nullptr;
-    for (i = 0; i < pObjects->Size(); i++)
+    for (std::size_t i = 0; i < pObjects->Size(); i++)
     {
       const Neuron::Json* pStates = pObjects->Item(i).Find("states");
       if (pStates == nullptr || !pStates->IsArray() || !anim_LoadStates(*pStates))
@@ -390,16 +370,13 @@ BASEANIM* anim_LoadFromBuffer(UBYTE* pBuffer, UDWORD size)
 
 iIMDShape* anim_GetShapeFromID(UWORD uwID)
 {
-  BASEANIM* psAnim;
-  ANIM3D* psAnim3D;
-
   /* find matching anim id in list */
-  psAnim = g_animGlobals.psAnimList;
+  BASEANIM* psAnim = g_animGlobals.psAnimList;
   while (psAnim != nullptr && psAnim->uwID != uwID) { psAnim = psAnim->psNext; }
 
   if (psAnim == nullptr)
     return nullptr;
-  psAnim3D = (ANIM3D*)psAnim;
+  ANIM3D* psAnim3D = (ANIM3D*)psAnim;
 
   return psAnim3D->psFrames;
 }
@@ -409,25 +386,21 @@ iIMDShape* anim_GetShapeFromID(UWORD uwID)
 UWORD anim_GetFrame3D(ANIM3D* psAnim, UWORD uwObj, UDWORD udwGameTime, UDWORD udwStartTime, UDWORD udwStartDelay, VECTOR3D* psVecPos,
                       DirectX::XMFLOAT3* psVecRot, VECTOR3D* psVecScale)
 {
-  DWORD dwTime;
-  UWORD uwState, uwFrame;
-  ANIM_STATE* psState;
-
   /* calculate current anim frame */
-  dwTime = udwGameTime - udwStartTime - udwStartDelay;
+  DWORD dwTime = udwGameTime - udwStartTime - udwStartDelay;
 
   /* return NULL if animation still delayed */
   if (dwTime < 0)
     return ANIM_DELAYED;
 
-  uwFrame = static_cast<UWORD>((dwTime % psAnim->uwAnimTime) * psAnim->uwFrameRate / 1000);
+  UWORD uwFrame = static_cast<UWORD>((dwTime % psAnim->uwAnimTime) * psAnim->uwFrameRate / 1000);
 
   /* check in range */
   DEBUG_ASSERT_TEXT(uwFrame<psAnim->uwStates, "anim_GetObjectFrame3D: error in animation calculation\n");
 
   /* find current state */
-  uwState = (uwObj * psAnim->uwStates) + uwFrame;
-  psState = &psAnim->psStates[uwState];
+  UWORD uwState = (uwObj * psAnim->uwStates) + uwFrame;
+  ANIM_STATE* psState = &psAnim->psStates[uwState];
 
   psVecPos->x = psState->vecPos.x / INT_SCALE;
   psVecPos->y = psState->vecPos.y / INT_SCALE;
