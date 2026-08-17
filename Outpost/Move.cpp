@@ -2544,7 +2544,7 @@ void moveUpdateVtolModel(DROID* psDroid, SDWORD speed, float direction)
 {
   float fPerpSpeed, fNormalSpeed, dx, dy, fSpeed;
   float iDroidDir, slideDir;
-  SDWORD iDZ, iDroidZ, iMapZ, iSpinSpeed, iTurnSpeed;
+  SDWORD iMapZ, iSpinSpeed, iTurnSpeed;
   float fDZ, fDroidZ, fMapZ;
 
   // nothing to do if the droid is stopped

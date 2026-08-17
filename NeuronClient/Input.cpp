@@ -151,8 +151,6 @@ UDWORD inputGetKey(void)
 void inputProcessMessages(UINT message, WPARAM wParam, LPARAM lParam)
 {
   UDWORD code, i, repeat, vk;
-  float divX, divY;
-  UDWORD scrX, scrY;
 
   /* Loose the warning message */
   (void)wParam;

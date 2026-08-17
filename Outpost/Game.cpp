@@ -928,7 +928,6 @@ BOOL gameLoad(UBYTE* pFileData, UDWORD filesize)
 BOOL gameLoadV7(UBYTE* pFileData, UDWORD filesize)
 {
   SAVE_GAME_V7* psSaveGame;
-  LEVEL_DATASET* psNewLevel;
 
   psSaveGame = (SAVE_GAME_V7*)pFileData;
 

@@ -167,7 +167,6 @@ void preProcessVisibility(void)
 {
   UDWORD i, j;
   MAPTILE* psTile;
-  STRUCTURE* psStruct;
 
   for (i = 0; i < mapWidth; i++)
   {

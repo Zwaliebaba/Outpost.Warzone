@@ -326,7 +326,6 @@ BOOL SeqEndCallBack(AUDIO_SAMPLE* psSample)
 //full screenvideo functions
 BOOL seq_StartFullScreenVideo(char* videoName, char* audioName)
 {
-  SDWORD i;
   FILE* pFileHandle;
   bHoldSeqForAudio = FALSE;
 
@@ -708,8 +707,6 @@ BOOL seq_AddTextFromFile(STRING* pTextName, BOOL bJustify)
 {
   UBYTE *pTextBuffer, *pCurrentLine, *pText;
   UDWORD fileSize;
-  HANDLE fileHandle;
-  WIN32_FIND_DATA findData;
   BOOL endOfFile = FALSE;
   SDWORD xOffset, yOffset, startFrame, endFrame;
   auto seps = (UBYTE*)"\n";

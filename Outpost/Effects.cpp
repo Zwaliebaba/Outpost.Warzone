@@ -608,7 +608,7 @@ void updateFirework(EFFECT* psEffect)
       dv.z = std::lrintf(psEffect->position.z);
       dv.y = std::lrintf(psEffect->position.y) + (psEffect->radius / 2);
       addEffect(&dv, EFFECT_EXPLOSION, EXPLOSION_TYPE_MEDIUM,FALSE, nullptr, 0);
-      AudioSystem::PlayStaticTrack(std::lrintf(psEffect->position.x), std::lrintf(psEffect->position.z), ID_SOUND_EXPLOSION);
+      (void)AudioSystem::PlayStaticTrack(std::lrintf(psEffect->position.x), std::lrintf(psEffect->position.z), ID_SOUND_EXPLOSION);
 
       for (UDWORD dif = 0; dif < (psEffect->radius * 2); dif += 20)
       {
@@ -726,7 +726,7 @@ void updateSatLaser(EFFECT* psEffect)
       addEffect(&dv, EFFECT_EXPLOSION, EXPLOSION_TYPE_MEDIUM,FALSE, nullptr, 0);
     }
     /* Add a sound effect */
-    AudioSystem::PlayStaticTrack(std::lrintf(psEffect->position.x), std::lrintf(psEffect->position.z), ID_SOUND_EXPLOSION);
+    (void)AudioSystem::PlayStaticTrack(std::lrintf(psEffect->position.x), std::lrintf(psEffect->position.z), ID_SOUND_EXPLOSION);
 
     /* Add a shockwave */
     dv.x = xPos;
@@ -1226,7 +1226,7 @@ void updateDestruction(EFFECT* psEffect)
       {
         iX = std::lrintf(psEffect->position.x);
         iY = std::lrintf(psEffect->position.z);
-        AudioSystem::PlayStaticTrack(iX, iY, ID_SOUND_EXPLOSION);
+        (void)AudioSystem::PlayStaticTrack(iX, iY, ID_SOUND_EXPLOSION);
       }
       break;
     }
@@ -1267,8 +1267,9 @@ void updateConstruction(EFFECT* psEffect)
   if (TEST_CYCLIC(psEffect))
   {
     /* Has it hit the ground */
-    if (static_cast<UDWORD>(std::lrintf(psEffect->position.y)) <= map_Height(static_cast<UDWORD>(std::lrintf(psEffect->position.x)),
-                                                                         static_cast<UDWORD>(std::lrintf(psEffect->position.z))))
+    if (static_cast<UDWORD>(std::lrintf(psEffect->position.y)) <=
+      static_cast<UDWORD>(map_Height(static_cast<UDWORD>(std::lrintf(psEffect->position.x)),
+                                     static_cast<UDWORD>(std::lrintf(psEffect->position.z)))))
     {
       KILL_EFFECT(psEffect);
       return;
@@ -1550,7 +1551,6 @@ void renderExplosionEffect(EFFECT* psEffect)
   iVector dv;
   SDWORD percent;
   UDWORD specular;
-  UDWORD timeSlice;
 
   if (psEffect->type == EXPLOSION_TYPE_LAND_LIGHT)
   {
@@ -2358,7 +2358,7 @@ void effectStructureUpdates(void)
                       addEffect(&eventPos, EFFECT_SMOKE, SMOKE_TYPE_STEAM,FALSE, nullptr, 0);
 
                       if (selectedPlayer == psStructure->player)
-                        AudioSystem::PlayObjectTrack(psStructure, ID_SOUND_STEAM, nullptr);
+                        (void)AudioSystem::PlayObjectTrack(psStructure, ID_SOUND_STEAM, nullptr);
                     }
                   }
                   else if (psStructure->pStructureType->type == REF_POWER_GEN)
@@ -2393,7 +2393,7 @@ void effectStructureUpdates(void)
                       eventPos.y = psStructure->z + 48;
                       addEffect(&eventPos, EFFECT_EXPLOSION, EXPLOSION_TYPE_TESLA,FALSE, nullptr, 0);
                       if (selectedPlayer == psStructure->player)
-                        AudioSystem::PlayObjectTrack(psStructure, ID_SOUND_POWER_SPARK, nullptr);
+                        (void)AudioSystem::PlayObjectTrack(psStructure, ID_SOUND_POWER_SPARK, nullptr);
                     }
                     /*	Work out how many spires it has. This is a particularly unpleasant
 								hack and I'm not proud of it, but it needs to done. Honest. AM

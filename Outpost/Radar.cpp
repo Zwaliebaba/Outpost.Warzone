@@ -836,7 +836,7 @@ SDWORD getLengthAdjust(void)
   dif = pitch - lookingFar;
   if (dif < 0)
     dif = 0;
-  if (dif > (lookingDown - lookingFar))
+  if (dif > static_cast<SDWORD>(lookingDown - lookingFar))
     dif = (lookingDown - lookingFar);
 
   return (dif / 2);
@@ -899,7 +899,6 @@ static void DrawRadarExtras(UWORD boxSizeH, UWORD boxSizeV)
 {
   SDWORD viewX, viewY;
   SDWORD offsetX, offsetY;
-  iVector v[3], tv[3], ov;
 
   offsetX = offsetY = viewX = ((player.p.x / TILE_UNITS) - RadarScrollX - RadarMapOriginX) * boxSizeH;
   viewY = ((player.p.z / TILE_UNITS) - RadarScrollY - RadarMapOriginY) * boxSizeV;
@@ -924,7 +923,8 @@ static void DrawRadarExtras(UWORD boxSizeH, UWORD boxSizeV)
 //
 BOOL CoordInRadar(int x, int y)
 {
-  if ((x >= RADTLX - 1) && (x < RADTLX + RADWIDTH + 1) && (y >= RADTLY - 1) && (y < RADTLY + RADHEIGHT + 1))
+  if ((x >= static_cast<SDWORD>(RADTLX - 1)) && (x < static_cast<SDWORD>(RADTLX + RADWIDTH + 1)) &&
+    (y >= static_cast<SDWORD>(RADTLY - 1)) && (y < static_cast<SDWORD>(RADTLY + RADHEIGHT + 1)))
     return TRUE;
 
   return FALSE;
