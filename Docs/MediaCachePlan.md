@@ -9,6 +9,16 @@ code or data changes accompany it. Figures were measured on the tree at the
 head of this branch (2026-08-17), method: counted from `datasets.json` and
 the `GameData/` tree directly.
 
+**All open decisions are settled by owner instruction (2026-08-17)** and
+are folded into the design below rather than left as questions: the seven
+duplicate `Console/PCV48x.wav` files are deleted, `frontaud.json` is
+absorbed into `audio.json` with the in-game track volumes winning — the
+plan's one deliberate audible change, §3.1.1 — and this work is an
+**unnumbered follow-up** in the pattern of the asset-pipeline stages, since
+Phase 10 belongs to the DirectXMath renderer maths. The record, including
+one decision re-put after I got a fact wrong, is in
+[§5](#5-decisions--settled).
+
 The short answer is **yes, with honest expectations**: the load-time win is
 real but modest — the heavy remaining load costs are script recompiles and
 PIE parsing, not media ([AssetPipeline.md §3.5](AssetPipeline.md)) — and the
@@ -44,7 +54,8 @@ A `WAV` manifest entry decodes the RIFF to 16-bit PCM immediately
 (`dataAudioLoad`, `Outpost/Data.cpp:891` → `AudioSystem::LoadTrackFromBuffer`
 → `Neuron::WavData`), so entering a campaign decodes all 347 base WAVs into
 resident memory whether or not a single one plays. The `AUDIOCFG` entries —
-`audio/audio.json` (347 records) and `audio/frontaud.json` (9) — then attach
+`audio/audio.json` (347 records) and `audio/frontaud.json` (9, all of them
+names `audio.json` also carries, §3.1.1) — then attach
 per-track metadata and assign IDs (`dataAudioCfgLoad`, `Data.cpp:924` →
 `AudioSystem::SetTrackVals`, `NeuronClient/AudioSystem.cpp:438`). ID
 assignment: the game's fixed `AudioID.cpp` table wins
@@ -122,12 +133,18 @@ Details that shape the design:
 `GameData/audio/MemResSp/MissMesg/` and `…/MemResSp/Console/` both hold
 `PCV480.wav`–`PCV486.wav` (seven names), **with different content** (md5s
 differ pairwise). The manifest references only the `MissMesg` copies; the
-`Console` copies are unreachable data today. Any design that resolves a
-bare WAV name against the filesystem must decide these seven names
-explicitly — see [decision 1](#5-decisions-needed). (This is also a live
-hazard in the current tree: resource keys are bare-filename hashes, so if
-both copies were ever listed, the second would silently be skipped —
-[AssetPipeline.md §2.2](AssetPipeline.md).)
+`Console` copies are unreachable data today — nothing in the tree can load
+them, and nothing ever did once the WRFs settled on `MissMesg`. This is
+also a live hazard in the current tree: resource keys are bare-filename
+hashes, so if both copies were ever listed, the second would silently be
+skipped ([AssetPipeline.md §2.2](AssetPipeline.md)).
+
+**Resolved by owner decision (2026-08-17): the seven `Console` copies are
+deleted** as part of stage A, git history keeping them. That leaves the
+`GameData/audio/` tree free of duplicate bare names, which is what lets the
+index treat a duplicate as an error rather than a case to arbitrate (§3.1)
+— the alternative, an explicit winner-per-name table in the data, would
+have made seven files permanently special.
 
 ---
 
@@ -215,10 +232,11 @@ additions, not a new surface.
 
 - **A name → path index**, built once at `Init` by walking
   `GameData/audio/` recursively (`std::filesystem`, exact on-disk names
-  kept so the case-exactness rule stays checkable). ~539 entries. A
-  duplicate bare name is a startup `Fatal` unless listed in the explicit
-  resolution table ([decision 1](#5-decisions-needed)) — replacing today's
-  silent hash dedupe with a loud check.
+  kept so the case-exactness rule stays checkable). 532 entries after the
+  seven deletions of §1.3. **A duplicate bare name is a startup `Fatal`**,
+  with no arbitration table and no exceptions — replacing today's silent
+  hash dedupe with a loud check, and the reason the `Console` copies go
+  rather than get resolved in data.
 - **Lazy PCM on `TRACK`.** A registered track holds metadata and a path;
   `pMem` may be null. Every play/queue entry point passes through one
   `EnsureLoaded(id)`: if the PCM is absent, read the file (a per-load
@@ -229,13 +247,47 @@ additions, not a new surface.
 Registration reroutes to the same three sources it has today, minus the
 resource system:
 
-- `audio.json` + `frontaud.json` are parsed once at `Init` (they leave the
-  manifest with the `AUDIOCFG` type). Fixed IDs still come from the
+- **One `audio/audio.json`, parsed once at `Init`** — the two configs
+  leave the manifest with the `AUDIOCFG` type, and `frontaud.json` is
+  absorbed into `audio.json` (owner decision, §5). The merge is **not** a
+  concatenation: all nine `frontaud.json` records name WAVs `audio.json`
+  already names, so the merged file stays 347 records and the frontend's
+  nine values are dropped (§3.1.1). Fixed IDs still come from the
   `AudioID.cpp` table via `trackIdForName`; the handful of names without a
   fixed ID take dense slots exactly as now, just at init instead of at
   campaign entry. Track IDs thereby become stable for the process
   lifetime — an improvement with no dependents to break (nothing persists
   IDs since the save/load removal).
+
+#### 3.1.1 The one deliberate behaviour change
+
+The two configs overlap completely, and today they **alternate**: the
+frontend's block registers the nine with `frontaud.json`'s values, level
+load releases them, `wrf/audio` re-registers them with `audio.json`'s, and
+returning to the frontend swaps back. (That alternation is load-bearing
+today — `RegisterTrack` fatals on a double registration,
+`AudioSystem.cpp:493`, so the release between the two is what keeps the
+game from dying on campaign entry.) Init-time registration happens once, so
+one set of values must win for the process.
+
+Six of the nine differ only in `iPriority`, which is **write-only** —
+assigned in `RegisterTrack` and read nowhere since Phase 4 started stealing
+voices by distance (`Track.h:50`, verified across the tree). Merging those
+six is a true no-op. Three differ in `iVol`, which *is* read
+(`SampleMixVolume`, `AudioSystem.cpp:873`):
+
+| WAV | `AudioID` | In game | Frontend |
+|---|---|---|---|
+| `Beep4.wav` | `ID_SOUND_SELECT` | 15 | 30 |
+| `Beep9.wav` | `ID_SOUND_MESSAGEEND` | 100 | 30 |
+| `GmeShtDn.wav` | `ID_SOUND_GAME_SHUTDOWN` | 100 | 30 |
+
+**Owner decision: the in-game values win everywhere** and the frontend's
+are dropped, rather than carrying a per-context override to preserve both.
+So in the frontend the select beep gets quieter (30 → 15) and the
+message-end and shutdown sounds get louder (30 → 100). This is the one
+audible change in the plan; it is deliberate, and it is on the stage A
+checklist to confirm by ear on a Windows run (§4).
 - `.vlo` `SOUND` values keep their register-on-demand fallback, now
   against the index instead of `resGetData` — same defaults, same IDs.
 - Stats loaders are untouched: they resolve names against the `AudioID`
@@ -319,12 +371,24 @@ CAM_1A`, plus for stage B: a campaign-2 mission across the `camchange`
 boundary, the force editor, and a device reset via alt-tab in fullscreen).
 
 - **Stage A — audio.** The index, lazy PCM, configs-at-init, the `.vlo`
-  reroute; delete the `WAV`/`AUDIOCFG` types and their 465 entries;
-  validator learns to build the same index offline, fatal on unresolved
-  duplicates, and to check every referencable name — `audio.json`,
-  `frontaud.json`, the `AudioID.cpp` table, stats sound fields, `.vlo`
+  reroute; absorb `frontaud.json` into `audio.json` and delete the seven
+  `Console/PCV48x.wav` duplicates; delete the `WAV`/`AUDIOCFG` types and
+  their 465 entries; validator learns to build the same index offline,
+  **error on any duplicate bare name**, and check every referencable
+  name — `audio.json`, the `AudioID.cpp` table, stats sound fields, `.vlo`
   `SOUND` strings — against the filesystem, case-exact. (The known
-  `VtolMove.wav` defect stays a recorded warning.)
+  `VtolMove.wav` defect stays a recorded warning.) The two data edits are
+  the one place this stage touches `GameData/` binaries, so they land in
+  their own commit ahead of the code, where the deletion is reviewable on
+  its own.
+
+  **Stage A's run is not just `-game CAM_1A`.** Because registration moves
+  from per-block to once-at-init, the run has to cross the boundaries that
+  used to re-register: frontend → campaign → frontend, a mission briefing
+  (the `.vlo` `SOUND` lazy-registration path), and a second campaign entry
+  without restarting (the case where the old code re-read 12 MB and the
+  new code must not re-register). Listen for the three changed volumes of
+  §3.1.1 in the frontend while there.
 - **Stage B — textures.** Texture-set tables emitted by the converter;
   `TextureCache`; demand slots behind `TexLoadNew`; set-diff rebinding;
   delete the `TEXPAGE` type and its 136 entries; validator learns the
@@ -337,19 +401,37 @@ and touches no renderer seam while Phases 8 and 10 are in flight (R13:
 `Tex.cpp`/`TexMan.cpp` are stage B's only render-adjacent files, and it
 changes their internals behind existing signatures, not their callers).
 
-## 5. Decisions needed
+## 5. Decisions — settled
 
-1. **The seven duplicate WAV names** (§1.3): delete the unreachable
-   `Console/PCV480–486.wav` copies (binary data — owner's call), or carry
-   an explicit resolution table in `audio.json`? Recommendation: delete;
-   the copies differ in content but nothing can reach them today, and git
-   history keeps them.
-2. **Where the audio configs live** once they leave the manifest:
-   `GameData/audio/` as now (recommended — they are audio data), with
-   `audio.json` and `frontaud.json` merged into one file or kept split
-   (recommended: merge; the split mirrors a frontend/campaign load split
-   that no longer exists once registration is init-time).
-3. **Phase numbering** — whether this is a phase of
-   [MigrationPlan.md](MigrationPlan.md) or an unnumbered follow-up like
-   the manifest work, per the owner's standing preference
-   ([AssetPipeline.md decision 6](AssetPipeline.md)).
+All three were put to the owner and answered on 2026-08-17, before any
+implementation. They are recorded here and already folded into §1–§4, so
+nothing in this plan is waiting on an answer.
+
+1. **The seven duplicate WAV names** (§1.3) — **delete the unreachable
+   `Console/PCV480–486.wav` copies.** They differ in content from their
+   `MissMesg` namesakes but nothing in the tree can reach them, and git
+   history keeps them. Deleting is what allows a duplicate bare name to be
+   a flat error in both the runtime index and the validator (§3.1), rather
+   than seven files needing an arbitration table forever. This is the only
+   binary-data edit in the plan; it lands in its own stage A commit.
+2. **The audio configs** stay in `GameData/audio/` — they are audio data,
+   not manifest data — and **`frontaud.json` is absorbed into
+   `audio.json`**, which stays 347 records.
+
+   *This decision was first put to the owner on a premise that was wrong.*
+   I stated the two files did not overlap; in fact all nine `frontaud.json`
+   records name WAVs `audio.json` also names, and today the two alternate
+   by block rather than covering different sounds. Re-put with the
+   corrected facts (§3.1.1): six of the nine differ only in the dead
+   `iPriority` field, and for the three that differ in the live `iVol`,
+   **the owner chose the in-game values everywhere**, accepting that the
+   frontend's select beep gets quieter and its message-end and shutdown
+   sounds get louder, in preference to carrying a per-context override.
+   The merge decision itself stands; only its cost is now stated
+   correctly.
+3. **Numbering** — this is an **unnumbered follow-up**, not a phase.
+   `Docs/MediaCachePlan.md` is the record, in the pattern the
+   asset-pipeline stages set; `Docs/MigrationPlan.md` gets a pointer to it
+   when stage A lands. Phase 10 is the DirectXMath renderer maths and this
+   work claims no number, consistent with
+   [AssetPipeline.md decision 6](AssetPipeline.md).
