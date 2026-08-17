@@ -152,7 +152,8 @@ void ParseBinding(VloParser& _p)
 
   /* int and bool are lexer keywords rather than entries in asTypeTable,
      which holds only the user types - the same split the generated parser
-     had.  The corpus leans on it heavily: `int` appears 2,603 times. */
+     had.  The corpus leans on it heavily: int/INT appear 7,443 times
+     across the value files, against 5,107 uses of all the user types. */
   const ScriptToken sType = Take(_p);
   INTERP_TYPE type = VAL_VOID;
   if (sType.type == ScriptTok::KwInt)

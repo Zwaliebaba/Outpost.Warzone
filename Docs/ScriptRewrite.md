@@ -261,6 +261,16 @@ every shipped script at startup, so the MSVC CI build plus a boot is the
 acceptance test. `tools/crosscheck.py` gates syntax portability of all new
 code on every stage.
 
+**That was not enough, and it cost a shipped regression.** Leaning on "plus
+a boot" means the corpus is only proven when somebody boots the game, and
+in practice nobody did until the owner ran it: `int` and `bool` are lexer
+keywords rather than rows in `asTypeTable`, this document's recovered
+grammar did not say so, and both parsers looked them up in the table. Every
+build was green and 56 of the 59 shipped scripts failed to compile.
+`tools/check_scripts.py` now builds the real compiler against the real
+symbol tables and compiles the whole corpus on every push, so the acceptance
+test no longer depends on anyone remembering to boot.
+
 ## 5. Staging
 
 Each stage compiles clean through `check_case` + full `crosscheck`, is
