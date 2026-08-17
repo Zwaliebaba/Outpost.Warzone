@@ -36,14 +36,16 @@ SDWORD PerNumFunc(char* File, UDWORD Line, SDWORD range, SDWORD a, SDWORD b);
 #endif
 
 /* Load the file with name pointed to by pFileName into a memory buffer. */
-extern BOOL loadFile(STRING* pFileName, // The filename
+/* The name is read and never written, so it is const: that is what lets the
+   /permissive- libraries pass a literal without a const_cast (R16). */
+extern BOOL loadFile(const STRING* pFileName, // The filename
                      UBYTE** ppFileData, // A buffer containing the file contents
                      UDWORD* pFileSize); // The size of this buffer
 
 /* Load the file with name pointed to by pFileName into a memory buffer. */
 // if allocate mem is true then the memory is allocated ... else it is already in ppFileData, and the max size is in pFileSize ... this is adjusted to the actual loaded file size
-//   
-BOOL loadFile2(STRING* pFileName, UBYTE** ppFileData, UDWORD* pFileSize, BOOL AllocateMem);
+//
+BOOL loadFile2(const STRING* pFileName, UBYTE** ppFileData, UDWORD* pFileSize, BOOL AllocateMem);
 
 /* Save the data in the buffer into the given file */
 extern BOOL saveFile(STRING* pFileName, UBYTE* pFileData, UDWORD fileSize);

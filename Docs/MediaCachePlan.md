@@ -363,6 +363,51 @@ is ever measured. None of it blocks on, or is blocked by, this plan.
 
 ## 4. Staging
 
+**Stage A landed (2026-08-17).** What it did, and where it deviated from
+the design below:
+
+- `AudioSystem` indexes `GameData/audio` at `Init` (532 files, keyed by
+  lower-cased bare filename) and registers the 347 tracks `audio.json`
+  names; `TRACK::pMem` stays null until `PlayTrackOnSample` — the one
+  choke point every play path already funnelled through — reads and
+  decodes the WAV. The `WAV` and `AUDIOCFG` resource types, their three
+  loaders, and 465 manifest entries are gone, taking the `wrf/audio` and
+  `wrf/tutorial/tutaudio` units with them (eight datasets lost a slot).
+  `frontaud.json` is deleted; `audio.json` is unchanged at 347 records,
+  which is the whole of the merge (§3.1.1).
+- Tracks are the audio module's own now: a `TrackSlot` owns its `TRACK`,
+  its name and its path for the life of the process, where the resource
+  system used to allocate and free them per block.
+- **Deviations.** `CheckAllUnloaded` was deleted rather than made
+  shutdown-only as §4 proposed: it asserted that every track had been
+  released at block teardown, which is precisely the invariant this change
+  removes, and after `Shutdown` frees the slots the assertion would be
+  tautological. `TrackHashName` and `SetTrackValsByHash` went too — both
+  had zero callers, and with them `TRACK::resID`, so the hash half of the
+  registry is gone rather than left dangling. `AudioMixer::LoadTrack`
+  downgraded its undecodable-WAV `Fatal` to a trace: decoding now happens
+  mid-mission, where killing the run over one bad effect is the worse
+  trade. `loadFile`/`loadFile2` took `const STRING*` so the
+  `/permissive-` client library can pass a literal without the
+  `const_cast` R16 forbids.
+- **Verified:** `crosscheck.py` 180/180 clean in Debug and Release,
+  `check_case.py`, `check_scripts.py` (59 compiled, 123 value files) and
+  `validate_assets.py` (0 errors) all green; a container-side harness ran
+  the index logic over the real tree (532 indexed, 0 duplicates, all 347
+  config records resolving and readable) and a negative case confirmed the
+  duplicate-name refusal fires across case. An offline simulation of
+  init-time registration found 0 ID collisions and no track whose id
+  exceeds `g_trackCount`. **None of it has been run** — this container
+  cannot launch the game, per the standing caveat; the run checklist below
+  is outstanding.
+- **Found while doing it:** eight names in `AudioID.cpp` have no file on
+  disk (`CybGrnd`, `EMP`, `HevLsr`, `HvCybMov`, `LasStrk`, `PlasFlm`,
+  `UpLink`, `VtolMove`), so those sounds are silent. Only `VtolMove` was
+  visible before, as a stats cross-reference warning; the validator now
+  names all eight. They are content gaps that predate this work and are
+  left recorded, not fixed.
+
+
 Both stages follow the migration's standing pattern: independently
 shippable, converter does the data work, validator proves it in CI,
 `tools/crosscheck.py` and the MSVC CI build gate the code, and a run on a

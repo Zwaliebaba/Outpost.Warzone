@@ -887,83 +887,10 @@ void dataTexPageRelease(void* pData)
   pData = nullptr;
 }
 
-/* Load an audio file */
-BOOL dataAudioLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
-{
-  TRACK* psTrack;
-
-  if (!AudioSystem::Enabled())
-  {
-    *ppData = nullptr;
-    return TRUE;
-  }
-  if ((psTrack = AudioSystem::LoadTrackFromBuffer(std::span(reinterpret_cast<const std::byte*>(pBuffer), size))) == nullptr)
-    return FALSE;
-
-  /* save track data */
-  *ppData = psTrack;
-
-  return TRUE;
-}
-
-void dataAudioRelease(void* pData)
-{
-  if (!AudioSystem::Enabled())
-    UNUSEDPARAMETER(pData);
-  else
-  {
-    auto psTrack = static_cast<TRACK*>(pData);
-
-    AudioSystem::ReleaseTrack(*psTrack);
-    delete[] psTrack;
-    psTrack = nullptr;
-  }
-}
-
-/* Load an audio config file: a JSON array of track records */
-BOOL dataAudioCfgLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
-{
-  *ppData = nullptr;
-
-  if (!AudioSystem::Enabled())
-    return TRUE;
-
-  auto parsed = Neuron::Json::Parse(std::string_view(reinterpret_cast<char*>(pBuffer), size));
-  if (!parsed.has_value())
-  {
-    Neuron::Fatal("audio config: parse error at line {} column {}: {}",
-                  parsed.error().line, parsed.error().column, parsed.error().message);
-    return FALSE;
-  }
-  if (!parsed->IsArray())
-  {
-    Neuron::Fatal("audio config: must be a JSON array");
-    return FALSE;
-  }
-
-  for (std::size_t i = 0; i < parsed->Size(); i++)
-  {
-    const Neuron::Json& track = parsed->Item(i);
-    const Neuron::Json* pFile = track.Find("file");
-    const Neuron::Json* pLoop = track.Find("loop");
-    const Neuron::Json* pVolume = track.Find("volume");
-    const Neuron::Json* pPriority = track.Find("priority");
-    const Neuron::Json* pRadius = track.Find("radius");
-    if (pFile == nullptr || !pFile->IsString() || pLoop == nullptr || !pLoop->IsBool() ||
-      pVolume == nullptr || !pVolume->IsNumber() || pPriority == nullptr || !pPriority->IsNumber() ||
-      pRadius == nullptr || !pRadius->IsNumber())
-    {
-      Neuron::Fatal("audio config: track {} is malformed", i);
-      return FALSE;
-    }
-
-    std::int32_t iUnusedID;
-    AudioSystem::SetTrackVals(pFile->AsString().c_str(), pLoop->AsBool(), iUnusedID,
-                              pVolume->AsInt(), pPriority->AsInt(), pRadius->AsInt());
-  }
-
-  return TRUE;
-}
+/* The WAV and AUDIOCFG loaders lived here. Audio is no longer a resource
+ * type: AudioSystem::Init indexes GameData/audio and registers what
+ * audio.json names, and a track's samples are read the first time it plays.
+ */
 
 /* Load an anim file */
 BOOL dataAnimLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
@@ -1124,7 +1051,7 @@ static RES_TYPE_MIN ResourceTypes[] = {
   // freed by 3d shutdow},// Tertiles Files. This version used when running with software renderer.
   {"HWTERTILES", dataHWTERTILESLoad, dataHWTERTILESRelease},
   // freed by 3d shutdow},// Tertiles Files. This version used when running with hardware renderer.
-  {"AUDIOCFG", dataAudioCfgLoad, nullptr}, {"WAV", dataAudioLoad, dataAudioRelease}, {"ANI", dataAnimLoad, dataAnimRelease},
+  {"ANI", dataAnimLoad, dataAnimRelease},
   {"ANIMCFG", dataAnimCfgLoad, nullptr}, {"IMG", dataIMGLoad, dataIMGRelease}, {"TEXPAGE", bufferTexPageLoad, dataTexPageRelease},
   {"IMD", dataIMDBufferLoad, (RES_FREE)Neuron::IMDRelease}, {nullptr, nullptr, nullptr} // indicates end of list
 };

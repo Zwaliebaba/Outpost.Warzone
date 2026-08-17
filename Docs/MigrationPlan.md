@@ -1211,6 +1211,32 @@ explicitly out of scope. Like everything since Phase 2 this is
 built-and-verified work, not run work; a campaign and a skirmish load are
 what a Windows run must confirm.
 
+## On-demand media: audio tracks and texture pages (2026-08-17, stage A done)
+
+**By owner decision, WAV and DDS media leave the manifest's upfront load for
+demand-filled caches that live for the process.** The survey, the design,
+the settled decisions and the landed record are in
+[MediaCachePlan.md](MediaCachePlan.md); like the asset-pipeline work above
+it claims no phase number (its decision 3). Two stages:
+
+- **A — audio (landed).** `Neuron::AudioSystem` indexes `GameData/audio` at
+  `Init` and registers the 347 tracks `audio.json` names; a track's WAV is
+  read and decoded the first time it plays, then kept. The `WAV` and
+  `AUDIOCFG` resource types and 465 manifest entries are gone — a third of
+  what `datasets.json` listed — along with the per-campaign release and
+  re-decode of 12 MB of PCM. Track IDs are now stable for the process. One
+  deliberate audible change: `frontaud.json` is absorbed into `audio.json`,
+  so three frontend UI sounds take their in-game volumes.
+- **B — textures (not started).** Per-dataset texture-set tables and a
+  `TextureCache` behind `TexLoadNew`, replacing the four `wrf/vidmem*`
+  units and the 136 `TEXPAGE` entries.
+
+Stage A is built-and-verified, not run: `crosscheck.py` 180/180 in both
+configurations, the three checkers green, and the index logic exercised
+offline against the real tree. The frontend→campaign→frontend and
+second-campaign-entry boundaries are what a Windows run must confirm,
+because registration moved from per-block to once-at-init.
+
 ## The display: desktop-resolution borderless window, scaled UI (2026-08-16)
 
 **By owner decision, the fixed-resolution display is gone.** The game now

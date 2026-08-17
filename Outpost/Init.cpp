@@ -1015,9 +1015,6 @@ BOOL stageOneShutDown(void)
 
   //do this before shutting down the iV library
 
-  if (AudioSystem::Enabled())
-    AudioSystem::CheckAllUnloaded();
-
   proj_Shutdown();
 
   releaseMission();

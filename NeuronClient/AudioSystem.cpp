@@ -15,14 +15,18 @@
 /***************************************************************************/
 
 #include <algorithm>
+#include <cctype>
 #include <cstring>
 #include <deque>
+#include <filesystem>
 #include <functional>
 #include <list>
 #include <memory>
+#include <string>
+#include <unordered_map>
 
 #include "Frame.h"
-#include "FrameResource.h"
+#include "Json.h"
 #include "Priority.h"
 #include "AudioSystem.h"
 #include "AudioMixer.h"
@@ -57,12 +61,50 @@ std::int32_t g_previousZ = SAMPLE_COORD_INVALID;
 /* The duck applied to 3D sounds while queued speech plays. */
 std::int32_t g_volume3d = AUDIO_VOL_MAX;
 
-/* The track registry: small dense IDs that scripts resolve by WAV name and
- * save games by name hash. TRACKs are owned by the resource system; these
- * are borrowed pointers.
+/* Where the WAVs live, relative to the working directory, and the config
+ * that names every track the game starts with.
  */
-TRACK* g_tracks[MaxTracks] = {};
+constexpr const char* AudioDirectory = "audio";
+constexpr const char* TrackConfigFile = "audio\\audio.json";
+
+/* The track registry: small dense IDs that scripts resolve by WAV name.
+ *
+ * A slot owns its TRACK, the name pName points at, and the path the WAV is
+ * read from when the track first plays. Before this module indexed the
+ * audio tree the TRACKs belonged to the resource system, which loaded and
+ * freed them per block; they are the audio module's own now, and live for
+ * the process.
+ */
+struct TrackSlot
+{
+  std::unique_ptr<TRACK> track; // null while the slot is free
+  std::string name; // the WAV filename; TRACK::pName points into this
+  std::string path; // where to read it, e.g. "audio\\MemResSp\\Power\\PCV341.wav"
+  bool loadFailed = false; // a read or decode that failed once is not retried
+};
+
+TrackSlot g_trackSlots[MaxTracks];
 std::int32_t g_trackCount = 0;
+
+/* Every WAV under AudioDirectory, keyed by lower-cased bare filename - the
+ * name audio.json, AudioID.cpp, the stats tables and .vlo values all spell.
+ * Built once by Init; duplicate bare names are refused there, so a lookup
+ * here is unambiguous.
+ */
+std::unordered_map<std::string, std::string> g_audioFiles;
+
+/* Borrowed, for the by-ID paths that only read. Returns null on a free slot
+ * so callers keep the null checks they already had.
+ */
+TRACK* TrackById(std::int32_t _id) { return g_trackSlots[_id].track.get(); }
+
+std::string LowerCase(std::string_view _text)
+{
+  std::string out(_text);
+  for (char& c : out)
+    c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+  return out;
+}
 
 bool g_active = false;
 
@@ -91,9 +133,149 @@ bool CheckTrackId(std::int32_t _id)
     return false;
   }
 
-  if (g_tracks[_id] == nullptr)
+  if (TrackById(_id) == nullptr)
   {
     Neuron::DebugTrace("AudioSystem: track {} NULL\n", _id);
+    return false;
+  }
+
+  return true;
+}
+
+/***************************************************************************/
+
+/* Walks the audio tree once and records where each WAV lives. The keys are
+ * bare filenames because that is what every reference in the game is - the
+ * directory a sound sits in was only ever spelled in the manifests.
+ *
+ * A duplicate bare name is fatal rather than arbitrated: the resource
+ * system it replaces keyed on the same bare name and silently kept
+ * whichever loaded first, which is the kind of quiet wrong answer this
+ * index exists to make impossible.
+ */
+bool BuildAudioIndex()
+{
+  namespace fs = std::filesystem;
+
+  std::error_code error;
+  fs::recursive_directory_iterator walk(AudioDirectory, fs::directory_options::skip_permission_denied, error);
+
+  if (error)
+  {
+    Neuron::Fatal("AudioSystem: cannot read the {} directory: {}", AudioDirectory, error.message());
+    return false;
+  }
+
+  /* stepped by hand with an error_code rather than a range-for: the range
+   * form throws out of operator++, and nothing here is written to catch
+   */
+  for (const fs::recursive_directory_iterator end; walk != end; walk.increment(error))
+  {
+    if (error)
+    {
+      Neuron::Fatal("AudioSystem: cannot read the {} directory: {}", AudioDirectory, error.message());
+      return false;
+    }
+
+    if (!walk->is_regular_file(error) || error)
+      continue;
+
+    const fs::path& file = walk->path();
+    if (LowerCase(file.extension().string()) != ".wav")
+      continue;
+
+    const auto [it, inserted] = g_audioFiles.emplace(LowerCase(file.filename().string()), file.string());
+
+    if (!inserted)
+    {
+      Neuron::Fatal("AudioSystem: two audio files share the name {}:\n{}\n{}", file.filename().string(), it->second, file.string());
+      return false;
+    }
+  }
+
+  Neuron::DebugTrace("AudioSystem: indexed {} audio files\n", g_audioFiles.size());
+
+  return true;
+}
+
+/***************************************************************************/
+
+/* Registers every track audio.json names. This ran per resource block as
+ * the AUDIOCFG loader until the WAV type was removed; running it once at
+ * Init is what makes track IDs stable for the process.
+ *
+ * frontaud.json used to carry the same nine beeps at frontend volumes and
+ * alternated with this file by block. It is gone, and these values are the
+ * ones that apply everywhere now.
+ */
+bool LoadTrackConfig()
+{
+  UBYTE* buffer = nullptr;
+  UDWORD size = 0;
+
+  if (!loadFile(TrackConfigFile, &buffer, &size))
+    return false;
+
+  auto parsed = Neuron::Json::Parse(std::string_view(reinterpret_cast<char*>(buffer), size));
+  delete[] buffer;
+
+  if (!parsed.has_value())
+  {
+    Neuron::Fatal("audio config: parse error at line {} column {}: {}", parsed.error().line, parsed.error().column,
+                  parsed.error().message);
+    return false;
+  }
+  if (!parsed->IsArray())
+  {
+    Neuron::Fatal("audio config: must be a JSON array");
+    return false;
+  }
+
+  for (std::size_t i = 0; i < parsed->Size(); i++)
+  {
+    const Neuron::Json& track = parsed->Item(i);
+    const Neuron::Json* pFile = track.Find("file");
+    const Neuron::Json* pLoop = track.Find("loop");
+    const Neuron::Json* pVolume = track.Find("volume");
+    const Neuron::Json* pPriority = track.Find("priority");
+    const Neuron::Json* pRadius = track.Find("radius");
+    if (pFile == nullptr || !pFile->IsString() || pLoop == nullptr || !pLoop->IsBool() || pVolume == nullptr ||
+      !pVolume->IsNumber() || pPriority == nullptr || !pPriority->IsNumber() || pRadius == nullptr || !pRadius->IsNumber())
+    {
+      Neuron::Fatal("audio config: track {} is malformed", i);
+      return false;
+    }
+
+    std::int32_t unusedId;
+    AudioSystem::SetTrackVals(pFile->AsString().c_str(), pLoop->AsBool(), unusedId, pVolume->AsInt(), pPriority->AsInt(),
+                              pRadius->AsInt());
+  }
+
+  return true;
+}
+
+/***************************************************************************/
+
+/* Reads and decodes a track's WAV if this is the first time it is wanted.
+ * Every play path funnels through here, so a track's samples appear exactly
+ * once and only if something actually plays it.
+ */
+bool EnsureTrackLoaded(std::int32_t _id)
+{
+  TrackSlot& slot = g_trackSlots[_id];
+
+  if (slot.track->pMem != nullptr)
+    return true;
+
+  /* One failed read is enough; retrying it per play would trace every frame
+   * for a looping sound whose file is missing.
+   */
+  if (slot.loadFailed)
+    return false;
+
+  if (AudioMixer::LoadTrackFile(*slot.track, slot.path) == false)
+  {
+    slot.loadFailed = true;
     return false;
   }
 
@@ -129,7 +311,16 @@ void StopSampleVoice(AUDIO_SAMPLE& _sample)
 
 bool PlayTrackOnSample(AUDIO_SAMPLE& _sample, bool _positional, bool _queued)
 {
-  TRACK* track = g_tracks[_sample.iTrack];
+  if (CheckTrackId(_sample.iTrack) == false)
+    return false;
+
+  TRACK* track = TrackById(_sample.iTrack);
+
+  /* the one place a track's WAV is read: everything that plays comes
+   * through here, and nothing before it needs the samples
+   */
+  if (EnsureTrackLoaded(_sample.iTrack) == false)
+    return false;
 
   if (track->bCompressed)
   {
@@ -291,7 +482,8 @@ bool AudioSystem::Init(bool _enabled, AUDIO_CALLBACK _stoppedCallback, AudioWorl
                     "AudioSystem::Init: the AudioWorld provider is incomplete\n");
 
   g_trackCount = 0;
-  std::fill(std::begin(g_tracks), std::end(g_tracks), nullptr);
+  for (TrackSlot& slot : g_trackSlots)
+    slot = TrackSlot{};
 
   if (AudioMixer::Init() == false)
   {
@@ -304,6 +496,16 @@ bool AudioSystem::Init(bool _enabled, AUDIO_CALLBACK _stoppedCallback, AudioWorl
   g_enabled = true;
   g_stoppedCallback = _stoppedCallback;
   g_world = std::move(_world);
+
+  /* The registry is built here rather than per level: indexing the tree and
+   * registering audio.json's tracks is metadata only, and SetTrackVals
+   * below needs g_world in place to resolve the fixed AudioID ids.
+   */
+  if (BuildAudioIndex() == false || LoadTrackConfig() == false)
+  {
+    g_enabled = false;
+    return false;
+  }
 
   return true;
 }
@@ -320,7 +522,18 @@ bool AudioSystem::Shutdown()
 
   /* set inactive flag to prevent callbacks coming after shutdown */
   g_active = false;
-  std::fill(std::begin(g_tracks), std::end(g_tracks), nullptr);
+
+  /* the decoded samples are this module's to free now that no resource
+   * block owns them; the voices are already stopped above
+   */
+  for (TrackSlot& slot : g_trackSlots)
+  {
+    if (slot.track != nullptr && slot.track->pMem != nullptr)
+      AudioMixer::FreeTrack(*slot.track);
+    slot = TrackSlot{};
+  }
+  g_trackCount = 0;
+  g_audioFiles.clear();
 
   AudioMixer::Shutdown();
 
@@ -397,44 +610,6 @@ bool AudioSystem::Update()
 /* tracks */
 /***************************************************************************/
 
-TRACK* AudioSystem::LoadTrackFromBuffer(std::span<const std::byte> _riff)
-{
-  if (g_enabled == false)
-    return nullptr;
-
-  auto* track = new (std::nothrow) TRACK{};
-  if (track == nullptr)
-  {
-    Neuron::Fatal("AudioSystem::LoadTrackFromBuffer: couldn't allocate memory\n");
-    return nullptr;
-  }
-
-  const char* resourceName = GetLastResourceFilename();
-  track->pName = new (std::nothrow) STRING[strlen(resourceName) + 1];
-  if (track->pName == nullptr)
-  {
-    Neuron::Fatal("AudioSystem::LoadTrackFromBuffer: couldn't allocate memory\n");
-    delete track;
-    return nullptr;
-  }
-  strcpy(track->pName, resourceName);
-  track->resID = GetLastHashName();
-
-  if (AudioMixer::LoadTrack(*track, _riff) == false)
-  {
-    delete[] track->pName;
-    delete track;
-    return nullptr;
-  }
-
-  if (track->bCompressed == TRUE)
-    Neuron::DebugTrace("AudioSystem::LoadTrackFromBuffer: {} is compressed!\n", track->pName);
-
-  return track;
-}
-
-/***************************************************************************/
-
 bool AudioSystem::SetTrackVals(const char* _fileName, bool _loop, std::int32_t& _id, std::int32_t _volume, std::int32_t _priority,
                                std::int32_t _audibleRadius)
 {
@@ -442,11 +617,13 @@ bool AudioSystem::SetTrackVals(const char* _fileName, bool _loop, std::int32_t& 
   if (g_enabled == false)
     return true;
 
-  /* the resource layer takes mutable char* and never writes through it */
-  auto* track = static_cast<TRACK*>(resGetData("WAV", const_cast<char*>(_fileName)));
-  if (track == nullptr)
+  DEBUG_ASSERT_TEXT(_priority >= LOW_PRIORITY && _priority <= HIGH_PRIORITY, "AudioSystem: priority {} out of bounds\n",
+                    _priority);
+
+  const auto file = g_audioFiles.find(LowerCase(_fileName));
+  if (file == g_audioFiles.end())
   {
-    Neuron::DebugTrace("AudioSystem::SetTrackVals: track {} resource not found\n", _fileName);
+    Neuron::DebugTrace("AudioSystem::SetTrackVals: no audio file named {}\n", _fileName);
     return false;
   }
 
@@ -460,49 +637,40 @@ bool AudioSystem::SetTrackVals(const char* _fileName, bool _loop, std::int32_t& 
     return false;
   }
 
-  return RegisterTrack(*track, _loop, _id, _volume, _priority, _audibleRadius);
-}
-
-/***************************************************************************/
-
-bool AudioSystem::SetTrackValsByHash(std::uint32_t _hash, bool _loop, std::int32_t _id, std::int32_t _volume,
-                                     std::int32_t _priority, std::int32_t _audibleRadius)
-{
-  /* if audio not enabled return true to carry on game without audio */
-  if (g_enabled == false)
-    return true;
-
-  auto* track = static_cast<TRACK*>(resGetDataFromHash("WAV", _hash));
-  if (track == nullptr)
-    return false;
-
-  return RegisterTrack(*track, _loop, _id, _volume, _priority, _audibleRadius);
-}
-
-/***************************************************************************/
-
-bool AudioSystem::RegisterTrack(TRACK& _track, bool _loop, std::int32_t _id, std::int32_t _volume, std::int32_t _priority,
-                                std::int32_t _audibleRadius)
-{
-  DEBUG_ASSERT_TEXT(_priority >= LOW_PRIORITY && _priority <= HIGH_PRIORITY, "AudioSystem: priority {} out of bounds\n",
-                    _priority);
-
   if (_id >= MaxTracks)
     return false;
 
-  if (g_tracks[_id] != nullptr)
+  TrackSlot& slot = g_trackSlots[_id];
+
+  /* Registering the same file twice is how the tutorial and mission units
+   * used to re-list sounds audio.json already covered; with one registry
+   * for the process it is a no-op rather than the fatal it used to be.
+   */
+  if (slot.track != nullptr)
   {
-    Neuron::Fatal("AudioSystem::RegisterTrack: track {} already set\n", _id);
+    if (LowerCase(slot.name) == LowerCase(_fileName))
+      return true;
+
+    Neuron::Fatal("AudioSystem::SetTrackVals: track {} is {}, cannot also be {}\n", _id, slot.name, _fileName);
     return false;
   }
 
-  _track.bLoop = _loop ? TRUE : FALSE;
-  _track.iVol = _volume;
-  _track.iPriority = _priority;
-  _track.iAudibleRadius = _audibleRadius;
-  _track.iTimeLastFinished = 0;
+  slot.track = std::make_unique<TRACK>();
+  slot.name = _fileName;
+  slot.path = file->second;
+  slot.loadFailed = false;
 
-  g_tracks[_id] = &_track;
+  /* pName points into the slot's own name, which outlives the TRACK and
+   * never moves: the slot array is fixed and the string is set once here.
+   */
+  slot.track->pName = slot.name.data();
+  slot.track->bLoop = _loop ? TRUE : FALSE;
+  slot.track->iVol = _volume;
+  slot.track->iPriority = _priority;
+  slot.track->iAudibleRadius = _audibleRadius;
+  slot.track->iTimeLastFinished = 0;
+  slot.track->pMem = nullptr;
+
   g_trackCount++;
 
   return true;
@@ -510,47 +678,21 @@ bool AudioSystem::RegisterTrack(TRACK& _track, bool _loop, std::int32_t _id, std
 
 /***************************************************************************/
 
-void AudioSystem::ReleaseTrack(TRACK& _track)
-{
-  if (g_enabled == false)
-    return;
-
-  delete[] _track.pName;
-  _track.pName = nullptr;
-
-  for (std::int32_t id = 0; id < g_trackCount; id++)
-  {
-    if (g_tracks[id] == &_track)
-      g_tracks[id] = nullptr;
-  }
-
-  AudioMixer::FreeTrack(_track);
-}
-
 /***************************************************************************/
 
-void AudioSystem::CheckAllUnloaded()
-{
-  for (std::int32_t id = 0; id < MaxTracks; id++)
-  {
-    DEBUG_ASSERT_TEXT(g_tracks[id] == nullptr, "AudioSystem: track {} still loaded - check audio.json for duplicate IDs\n", id);
-  }
-}
-
-/***************************************************************************/
-
+/* Was a resource lookup followed by a scan for the pointer it returned; the
+ * registry now holds the name itself, so the scan is the whole answer.
+ */
 std::int32_t AudioSystem::TrackId(const char* _fileName)
 {
   if (g_enabled == false)
     return SAMPLE_NOT_FOUND;
 
-  auto* track = static_cast<TRACK*>(resGetData("WAV", const_cast<char*>(_fileName)));
-  if (track == nullptr)
-    return SAMPLE_NOT_FOUND;
+  const std::string wanted = LowerCase(_fileName);
 
   for (std::int32_t id = 0; id < MaxTracks; id++)
   {
-    if (g_tracks[id] != nullptr && g_tracks[id] == track)
+    if (g_trackSlots[id].track != nullptr && LowerCase(g_trackSlots[id].name) == wanted)
       return id;
   }
 
@@ -563,20 +705,12 @@ std::int32_t AudioSystem::AvailableTrackId()
 {
   for (std::int32_t id = 0; id < MaxTracks; id++)
   {
-    if (g_tracks[id] == nullptr)
+    if (g_trackSlots[id].track == nullptr)
       return id;
   }
 
   DEBUG_ASSERT_TEXT(false, "AudioSystem::AvailableTrackId: unused track not found!\n");
   return SAMPLE_NOT_ALLOCATED;
-}
-
-/***************************************************************************/
-
-std::uint32_t AudioSystem::TrackHashName(std::int32_t _id)
-{
-  DEBUG_ASSERT_TEXT(g_tracks[_id] != nullptr, "AudioSystem::TrackHashName: unallocated track");
-  return g_tracks[_id]->resID;
 }
 
 /***************************************************************************/
@@ -589,7 +723,7 @@ bool AudioSystem::TrackLooped(std::int32_t _id)
 {
   CheckTrackId(_id);
 
-  return g_tracks[_id]->bLoop == TRUE;
+  return TrackById(_id)->bLoop == TRUE;
 }
 
 /***************************************************************************/
@@ -598,7 +732,7 @@ std::int32_t AudioSystem::TrackAudibleRadius(std::int32_t _id)
 {
   CheckTrackId(_id);
 
-  return g_tracks[_id]->iAudibleRadius;
+  return TrackById(_id)->iAudibleRadius;
 }
 
 /***************************************************************************/
@@ -742,12 +876,12 @@ void AudioSystem::QueueTrackMinDelay(std::int32_t _id, std::uint32_t _minDelayMs
   if (CheckTrackId(_id) == false)
     return;
 
-  const std::uint32_t delay = g_world.gameTimeMs() - g_tracks[_id]->iTimeLastFinished;
+  const std::uint32_t delay = g_world.gameTimeMs() - TrackById(_id)->iTimeLastFinished;
   if (delay <= _minDelayMs)
     return;
 
   if (QueueSample(_id) != nullptr)
-    g_tracks[_id]->iTimeLastFinished = g_world.gameTimeMs();
+    TrackById(_id)->iTimeLastFinished = g_world.gameTimeMs();
 }
 
 /***************************************************************************/
@@ -761,7 +895,7 @@ void AudioSystem::QueueTrackMinDelayPos(std::int32_t _id, std::uint32_t _minDela
   if (CheckTrackId(_id) == false)
     return;
 
-  const std::uint32_t delay = g_world.gameTimeMs() - g_tracks[_id]->iTimeLastFinished;
+  const std::uint32_t delay = g_world.gameTimeMs() - TrackById(_id)->iTimeLastFinished;
   if (delay <= _minDelayMs)
     return;
 
@@ -769,7 +903,7 @@ void AudioSystem::QueueTrackMinDelayPos(std::int32_t _id, std::uint32_t _minDela
   if (sample == nullptr)
     return;
 
-  g_tracks[_id]->iTimeLastFinished = g_world.gameTimeMs();
+  TrackById(_id)->iTimeLastFinished = g_world.gameTimeMs();
   sample->x = _x;
   sample->y = _y;
   sample->z = _z;
@@ -870,7 +1004,7 @@ std::int32_t AudioSystem::SampleMixVolume(AUDIO_SAMPLE& _sample, std::int32_t _v
   CheckTrackId(_sample.iTrack);
 
   std::int32_t mixVolume = _volume * AudioMixer::MaxVolume() / AUDIO_VOL_RANGE;
-  mixVolume = mixVolume * g_tracks[_sample.iTrack]->iVol / AUDIO_VOL_RANGE;
+  mixVolume = mixVolume * TrackById(_sample.iTrack)->iVol / AUDIO_VOL_RANGE;
   if (_scale3d)
     mixVolume = mixVolume * g_volume3d / AUDIO_VOL_RANGE;
 
@@ -886,8 +1020,8 @@ void AudioSystem::FinishedCallback(AUDIO_SAMPLE& _sample)
 {
   CheckSampleHandle(_sample);
 
-  if (g_tracks[_sample.iTrack] != nullptr)
-    g_tracks[_sample.iTrack]->iTimeLastFinished = g_world.gameTimeMs();
+  if (TrackById(_sample.iTrack) != nullptr)
+    TrackById(_sample.iTrack)->iTimeLastFinished = g_world.gameTimeMs();
 
   if (_sample.pCallback != nullptr)
     (_sample.pCallback)(&_sample);

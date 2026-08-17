@@ -8,6 +8,9 @@ Checks, in order:
      dataset and camchange partner are declared before it, and it has at
      most LEVEL_MAXFILES slots.
   4. Duplicate (type, filename) entries within one unit are reported.
+  5. The audio tree indexes the way AudioSystem::Init indexes it: no two
+     WAVs may share a bare filename, and every name audio.json or
+     AudioID.cpp spells must be findable in it.
 
 Resolution is case-insensitive, because that is what the game does on NTFS.
 A name that only resolves case-insensitively is a warning; a name that does
@@ -154,6 +157,55 @@ def check_datasets(doc, units):
         declared.setdefault(name, kind)
 
 
+def audio_index():
+    """Every WAV under GameData/audio, keyed by lower-cased bare filename -
+    the same index Neuron::AudioSystem builds at Init, built the same way so
+    a duplicate name fails here instead of on a Windows box.  Audio is no
+    longer a resource type, so this index, not the manifest, is what says
+    whether a sound the game names can be found."""
+    root = os.path.join(GAMEDATA, 'audio')
+    index = {}
+    for dirpath, _dirs, files in os.walk(root):
+        for name in files:
+            if not name.lower().endswith('.wav'):
+                continue
+            key = name.lower()
+            path = os.path.relpath(os.path.join(dirpath, name), GAMEDATA)
+            if key in index:
+                errors.append(f'audio: two files share the bare name {name}: {index[key]} and {path}')
+                continue
+            index[key] = path
+    return index
+
+
+def check_audio(wavs):
+    """audio.json is read once at AudioSystem::Init and registers every track
+    the game starts with; AudioID.cpp maps fixed sound ids to WAV names."""
+    resolved, _exact = resolve('audio\\audio.json')
+    if resolved is None:
+        errors.append('audio: audio/audio.json is missing')
+    else:
+        config = json.load(open(os.path.join(GAMEDATA, resolved), encoding='utf-8'))
+        if not isinstance(config, list):
+            errors.append('audio: audio.json is not a JSON array')
+            config = []
+        for n, row in enumerate(config):
+            missing = [k for k in ('file', 'loop', 'volume', 'priority', 'radius') if k not in row]
+            if missing:
+                errors.append(f'audio.json row {n}: missing {", ".join(missing)}')
+                continue
+            if row['file'].lower() not in wavs:
+                errors.append(f'audio.json row {n}: names a WAV not on disk: {row["file"]}')
+
+    # A fixed id whose WAV was never shipped cannot register, so the sound is
+    # silent - a content gap rather than a manifest error, and one that
+    # predates the audio index (VtolMove.wav is the known example).
+    audio_src = open(os.path.join(ROOT, 'Outpost', 'AudioID.cpp'), encoding='latin-1').read()
+    for name in sorted({m for m in re.findall(r'"([^"]+\.wav)"', audio_src, flags=re.I)}):
+        if name.lower() not in wavs:
+            warnings.append(f'AudioID.cpp names {name}, which is not on disk - that sound is silent')
+
+
 def load_table(name):
     resolved, _exact = resolve('Stats\\' + name)
     if resolved is None:
@@ -161,21 +213,21 @@ def load_table(name):
     return json.load(open(os.path.join(GAMEDATA, resolved), encoding='utf-8'))
 
 
-def check_stats(doc):
+def check_stats(doc, wavs):
     """Cross-reference checks over the JSON stats tables: every name one
-    table uses to point at another must resolve, and every model or sound a
-    table names must be a unit entry the manifests actually load."""
+    table uses to point at another must resolve, every model a table names
+    must be a unit entry the manifests load, and every sound must be both in
+    the AudioID.cpp table and on disk."""
     weapons = load_table('Weapons.json')
     if weapons is None:
         return  # tables not converted yet
 
     units = doc.get('units', {})
     imds = {e['f'].lower() for u in units.values() for e in u if e.get('t') == 'IMD'}
-    wavs = {e['f'].lower() for u in units.values() for e in u if e.get('t') == 'WAV'}
 
     # Sound references resolve against the AudioID.cpp name table at load
-    # time; whether the named .wav is actually loaded only matters at play
-    # time, so a table hit with no loaded wav is a warning, not an error.
+    # time; the WAV behind the name is found through the audio index, so a
+    # name in the table with no file on disk is silent at runtime.
     audio_src = open(os.path.join(ROOT, 'Outpost', 'AudioID.cpp'), encoding='latin-1').read()
     audio_ids = {m.lower() for m in re.findall(r'"([^"]+\.wav)"', audio_src)}
 
@@ -185,7 +237,7 @@ def check_stats(doc):
         if value.lower() not in audio_ids:
             errors.append(f'Stats/{table} row {row}: {field} names a sound missing from AudioID.cpp: {value}')
         elif value.lower() not in wavs:
-            warnings.append(f'Stats/{table} row {row}: {field} sound {value} is in AudioID.cpp but no unit loads that .wav - silent at runtime')
+            warnings.append(f'Stats/{table} row {row}: {field} sound {value} is in AudioID.cpp but not on disk - silent at runtime')
 
     def names(table):
         rows = load_table(table) or []
@@ -278,7 +330,9 @@ def main():
     if types:
         units = check_units(doc, types)
         check_datasets(doc, units)
-        check_stats(doc)
+        wavs = audio_index()
+        check_audio(wavs)
+        check_stats(doc, wavs)
     for w in warnings:
         print(f'warning: {w}')
     for e in errors:
