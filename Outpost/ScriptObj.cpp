@@ -35,7 +35,7 @@ BOOL scrBaseObjGet(UDWORD index)
   STRUCTURE* psStruct;
   FEATURE* psFeature;
 
-  if (!stackPopParams(1, ST_BASEOBJECT, &psObj))
+  if (!stackPopParams({{ST_BASEOBJECT, &psObj}}))
     return FALSE;
 
   // Check this is a valid pointer
@@ -213,14 +213,14 @@ BOOL scrObjToDroid(void)
 {
   BASE_OBJECT* psObj;
 
-  if (!stackPopParams(1, ST_BASEOBJECT, &psObj))
+  if (!stackPopParams({{ST_BASEOBJECT, &psObj}}))
     return FALSE;
 
   // return NULL if not a droid
   if (psObj->type != OBJ_DROID)
     psObj = nullptr;
 
-  if (!stackPushResult(ST_DROID, (SDWORD)psObj))
+  if (!stackPushResult(ST_DROID, psObj))
     return FALSE;
 
   return TRUE;
@@ -231,14 +231,14 @@ BOOL scrObjToStructure(void)
 {
   BASE_OBJECT* psObj;
 
-  if (!stackPopParams(1, ST_BASEOBJECT, &psObj))
+  if (!stackPopParams({{ST_BASEOBJECT, &psObj}}))
     return FALSE;
 
   // return NULL if not a droid
   if (psObj->type != OBJ_STRUCTURE)
     psObj = nullptr;
 
-  if (!stackPushResult(ST_STRUCTURE, (SDWORD)psObj))
+  if (!stackPushResult(ST_STRUCTURE, psObj))
     return FALSE;
 
   return TRUE;
@@ -249,14 +249,14 @@ BOOL scrObjToFeature(void)
 {
   BASE_OBJECT* psObj;
 
-  if (!stackPopParams(1, ST_BASEOBJECT, &psObj))
+  if (!stackPopParams({{ST_BASEOBJECT, &psObj}}))
     return FALSE;
 
   // return NULL if not a droid
   if (psObj->type != OBJ_FEATURE)
     psObj = nullptr;
 
-  if (!stackPushResult(ST_FEATURE, (SDWORD)psObj))
+  if (!stackPushResult(ST_FEATURE, psObj))
     return FALSE;
 
   return TRUE;
@@ -276,7 +276,7 @@ BOOL scrGroupObjGet(UDWORD index)
   SDWORD val;
   DROID* psCurr;
 
-  if (!stackPopParams(1, ST_GROUP, &psGroup))
+  if (!stackPopParams({{ST_GROUP, &psGroup}}))
     return FALSE;
 
   // recalculate the values if necessary

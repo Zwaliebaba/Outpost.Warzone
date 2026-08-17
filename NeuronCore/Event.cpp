@@ -800,7 +800,7 @@ void eventFireCallbackTrigger(TRIGGER_TYPE callback)
           psPrev = psCurr;
           continue;
         }
-        if (!stackPopParams(1, VAL_BOOL, &fired))
+        if (!stackPopParams({{VAL_BOOL, &fired}}))
         {
           DEBUG_ASSERT_TEXT(FALSE, "eventFireCallbackTrigger: trigger {}: code failed",
             eventGetTriggerID(psCurr->psContext->psCode, psCurr->trigger));
@@ -1024,7 +1024,7 @@ BOOL eventSetTrigger(void)
   SDWORD trigger;
   SCRIPT_CONTEXT* psContext;
 
-  if (!stackPopParams(2, VAL_EVENT, &event, VAL_TRIGGER, &trigger))
+  if (!stackPopParams({{VAL_EVENT, &event}, {VAL_TRIGGER, &trigger}}))
     return FALSE;
 
   DB_TRACE(
@@ -1127,7 +1127,7 @@ BOOL eventSetTraceLevel(void)
 {
   SDWORD level;
 
-  if (!stackPopParams(1, VAL_INT, &level))
+  if (!stackPopParams({{VAL_INT, &level}}))
     return FALSE;
 
   if (level < 0)

@@ -85,7 +85,7 @@ static BOOL interpGetArrayVarData(const ScriptInstr& sInstr, VAL_CHUNK* psGlobal
   index = 0;
   for (i = dimensions - 1; i >= 0; i -= 1)
   {
-    if (!stackPopParams(1, VAL_INT, &val))
+    if (!stackPopParams({{VAL_INT, &val}}))
       return FALSE;
 
     if ((val < 0) || (val >= elements[i]))

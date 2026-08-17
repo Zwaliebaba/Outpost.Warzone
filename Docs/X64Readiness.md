@@ -68,47 +68,30 @@ The same rewrite retires the iterator double-advance bug noted in
 
 ---
 
-## Blocker
+## Blocker — resolved
 
-### The script VM stores function pointers in 32-bit instruction words
+### ~~The script VM stores function pointers in 32-bit instruction words~~
 
-This is the one item that is a project rather than an edit, and it will stop an
-x64 build dead.
+**Fixed by the script module rewrite** (`Docs/ScriptRewrite.md`,
+`Docs/ScriptLanguage.md`). The instruction stream is now one `ScriptInstr`
+record per instruction; `OP_CALL`/`OP_VARCALL` carry table indices resolved
+at execution time, so no pointer lives in the stream on any platform. The
+save-time pointer-to-index pass had no callers and was deleted outright.
 
-The interpreter's instruction stream is `UDWORD* ip` — an array of 32-bit
-words. `OP_CALL` stores the address of the script function **inline in the
-next word**, and `NeuronCore/Interp.cpp` executes it as:
+### ~~The instinct FFI truncates every pointer parameter~~
 
-```cpp
-scriptFunc = (SCRIPT_FUNC)*(ip + 1);
-if (!scriptFunc())
-```
-
-`SCRIPT_FUNC` is `BOOL(*)(void)`, 8 bytes on x64, being read out of a 4-byte
-slot. The same pattern serves `OP_VARCALL` and the variable get/set pointers.
-`NeuronCore/Script.cpp` walks the same stream at save time comparing
-`((UDWORD)psFunc->pFunc) == fptr` to turn pointers into table indices, which on
-x64 can also match the *wrong* function once the discriminating half of the
-address is gone.
-
-Touched by any fix: the instruction word type, `NeuronCore/Interp.cpp`,
-`NeuronCore/Script.cpp`, `NeuronCore/CodePrint.cpp`, and the bison-generated
-`Script_y.cpp` that emits the opcodes.
-
-Two ways out:
-
-1. **Store an index, not an address.** `OP_CALL` carries an index into
-   `asScrInstinctTab`; the interpreter looks the function up. The instruction
-   stream stays 32-bit, the `.slo`/`.vlo` binary layout is unchanged, and
-   `Script.cpp`'s save-time pointer-to-index pass disappears because the code
-   already holds indices. More edits, but it removes the class of bug rather
-   than widening it, and it is the only option that keeps the compiled-script
-   format portable.
-2. **Widen the instruction word** to pointer size. Fewer edits, but it doubles
-   the size of every script program, changes the on-disk format, and leaves
-   raw addresses baked into a stream that is written to disk.
-
-Recommendation: option 1.
+Found during the rewrite, worse than the instruction stream: `stackPopParams`
+wrote every popped parameter as a 4-byte store through destinations that at
+hundreds of call sites were really `DROID**` or `STRING**`, and
+`stackPushResult` carried object pointers in an `SDWORD`. **Fixed**: the FFI
+is a typed interface (`ScriptParam`, `Stack.h`) whose store width is fixed at
+compile time by the destination's type; every call site across
+`ScriptFuncs.cpp`, `ScriptAI.cpp`, `ScriptCB.cpp`, `ScriptObj.cpp` and
+`ScriptExtern.cpp` is converted and the varargs form is gone. The sweep also
+surfaced and fixed four sites in `ScriptAI.cpp` that parked object pointers
+in `SDWORD` locals, the `.vlo` loader passing object pointers through a
+`UDWORD` parameter (`eventSetContextVar`, now typed), and
+`eventCopyContext` copying context values 32 bits at a time.
 
 ---
 

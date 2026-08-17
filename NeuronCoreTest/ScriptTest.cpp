@@ -43,7 +43,7 @@ SDWORD g_callCount;
 BOOL TestRecordInt(void)
 {
   SDWORD val;
-  if (!stackPopParams(1, VAL_INT, &val))
+  if (!stackPopParams({{VAL_INT, &val}}))
     return FALSE;
   g_lastIntArg = val;
   g_callCount += 1;
@@ -53,7 +53,7 @@ BOOL TestRecordInt(void)
 BOOL TestAddTwo(void)
 {
   SDWORD a, b;
-  if (!stackPopParams(2, VAL_INT, &a, VAL_INT, &b))
+  if (!stackPopParams({{VAL_INT, &a}, {VAL_INT, &b}}))
     return FALSE;
   return stackPushResult(VAL_INT, a + b);
 }
@@ -61,7 +61,7 @@ BOOL TestAddTwo(void)
 BOOL TestIsPositive(void)
 {
   SDWORD val;
-  if (!stackPopParams(1, VAL_INT, &val))
+  if (!stackPopParams({{VAL_INT, &val}}))
     return FALSE;
   return stackPushResult(VAL_BOOL, val > 0);
 }
@@ -69,7 +69,7 @@ BOOL TestIsPositive(void)
 BOOL TestWriteRef(void)
 {
   SDWORD *pDest, val;
-  if (!stackPopParams(2, VAL_INT, &val, VAL_INT | VAL_REF, &pDest))
+  if (!stackPopParams({{VAL_INT, &val}, {VAL_INT | VAL_REF, &pDest}}))
     return FALSE;
   *pDest = val;
   return TRUE;
@@ -77,12 +77,12 @@ BOOL TestWriteRef(void)
 
 BOOL TestGetObjA(void)
 {
-  return stackPushResult(TT_OBJ, (SDWORD)&g_sObjA);
+  return stackPushResult(TT_OBJ, &g_sObjA);
 }
 
 BOOL TestGetObjB(void)
 {
-  return stackPushResult(TT_OBJ, (SDWORD)&g_sObjB);
+  return stackPushResult(TT_OBJ, &g_sObjB);
 }
 
 /* Object member accessors.  The compiler emits: value, object, set - so
@@ -91,7 +91,7 @@ BOOL TestObjHealthGet(UDWORD index)
 {
   TestObj* psObj;
   (void)index;
-  if (!stackPopParams(1, TT_OBJ, &psObj))
+  if (!stackPopParams({{TT_OBJ, &psObj}}))
     return FALSE;
   return stackPushResult(VAL_INT, psObj->health);
 }
@@ -101,7 +101,7 @@ BOOL TestObjHealthSet(UDWORD index)
   TestObj* psObj;
   SDWORD val;
   (void)index;
-  if (!stackPopParams(2, VAL_INT, &val, TT_OBJ, &psObj))
+  if (!stackPopParams({{VAL_INT, &val}, {TT_OBJ, &psObj}}))
     return FALSE;
   psObj->health = val;
   return TRUE;
@@ -116,7 +116,7 @@ BOOL TestExternGet(UDWORD index)
 BOOL TestExternSet(UDWORD index)
 {
   (void)index;
-  return stackPopParams(1, VAL_INT, &g_externValue) ? TRUE : FALSE;
+  return stackPopParams({{VAL_INT, &g_externValue}}) ? TRUE : FALSE;
 }
 
 BOOL TestCallback(void)

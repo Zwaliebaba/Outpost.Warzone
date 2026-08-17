@@ -136,15 +136,20 @@ extern void eventFireCallbackTrigger(TRIGGER_TYPE callback);
  * Support functions for writing instinct functions
  */
 
-/* Pop a number of values off the stack checking their types
- * This is used by instinct functions to get their parameters
- * The varargs part is a set of INTERP_TYPE, UDWORD * pairs.
- * The value of the parameter is stored in the DWORD pointed to by the UDWORD *
+/* Pop a number of values off the stack checking their types.
+ * This is how instinct functions get their parameters: each entry pairs
+ * the expected INTERP_TYPE with the destination, and the destination's
+ * pointer-ness fixes the store width (see ScriptParam in Stack.h).
+ *
+ *   stackPopParams({{VAL_INT, &iX}, {ST_DROID, &psDroid}})
  */
-extern BOOL stackPopParams(SDWORD numParams, ...);
+extern BOOL stackPopParams(std::initializer_list<ScriptParam> params);
 
 /* Push a value onto the stack without using a value structure */
 extern BOOL stackPushResult(INTERP_TYPE type, SDWORD data);
+
+/* Push an object or string result onto the stack, keeping pointer width */
+extern BOOL stackPushResult(INTERP_TYPE type, void* pData);
 
 /***********************************************************************************
  *

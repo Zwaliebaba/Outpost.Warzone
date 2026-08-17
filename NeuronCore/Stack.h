@@ -6,6 +6,27 @@
 #ifndef _stack_h
 #define _stack_h
 
+#include <initializer_list>
+
+/* One destination for stackPopParams.  Which constructor the call site
+   selects fixes the store width at compile time: 32-bit scalars stay
+   32-bit stores, and object/string/ref destinations - anything passed as
+   a pointer-to-pointer - get pointer-wide stores.  The old varargs form
+   wrote every parameter as 4 bytes, which truncated object pointers on
+   x64 through destinations that were really DROID** or STRING**. */
+struct ScriptParam
+{
+  INTERP_TYPE type;
+  bool wide;
+  void* pDest;
+
+  ScriptParam(INTERP_TYPE _type, SDWORD* _dest) : type(_type), wide(false), pDest(_dest) {}
+  ScriptParam(INTERP_TYPE _type, UDWORD* _dest) : type(_type), wide(false), pDest(_dest) {}
+
+  template <typename T>
+  ScriptParam(INTERP_TYPE _type, T** _dest) : type(_type), wide(true), pDest(_dest) {}
+};
+
 /* Initialise the stack */
 extern BOOL stackInitialise(void);
 

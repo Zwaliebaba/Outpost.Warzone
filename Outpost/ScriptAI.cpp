@@ -32,7 +32,7 @@ BOOL scrGroupAddDroid(void)
   DROID_GROUP* psGroup;
   DROID* psDroid;
 
-  if (!stackPopParams(2, ST_GROUP, &psGroup, ST_DROID, &psDroid))
+  if (!stackPopParams({{ST_GROUP, &psGroup}, {ST_DROID, &psDroid}}))
     return FALSE;
 
   if (psDroid == nullptr)
@@ -60,7 +60,7 @@ BOOL scrGroupAddArea(void)
   DROID* psDroid;
   SDWORD x1, y1, x2, y2, player;
 
-  if (!stackPopParams(6, ST_GROUP, &psGroup, VAL_INT, &player, VAL_INT, &x1, VAL_INT, &y1, VAL_INT, &x2, VAL_INT, &y2))
+  if (!stackPopParams({{ST_GROUP, &psGroup}, {VAL_INT, &player}, {VAL_INT, &x1}, {VAL_INT, &y1}, {VAL_INT, &x2}, {VAL_INT, &y2}}))
     return FALSE;
 
   if (player < 0 || player >= MAX_PLAYERS)
@@ -88,7 +88,7 @@ BOOL scrGroupAddAreaNoGroup(void)
   DROID* psDroid;
   SDWORD x1, y1, x2, y2, player;
 
-  if (!stackPopParams(6, ST_GROUP, &psGroup, VAL_INT, &player, VAL_INT, &x1, VAL_INT, &y1, VAL_INT, &x2, VAL_INT, &y2))
+  if (!stackPopParams({{ST_GROUP, &psGroup}, {VAL_INT, &player}, {VAL_INT, &x1}, {VAL_INT, &y1}, {VAL_INT, &x2}, {VAL_INT, &y2}}))
     return FALSE;
 
   if (player < 0 || player >= MAX_PLAYERS)
@@ -115,7 +115,7 @@ BOOL scrGroupAddGroup(void)
   DROID_GROUP *psTo, *psFrom;
   DROID *psDroid, *psNext;
 
-  if (!stackPopParams(2, ST_GROUP, &psTo, ST_GROUP, &psFrom))
+  if (!stackPopParams({{ST_GROUP, &psTo}, {ST_GROUP, &psFrom}}))
     return FALSE;
 
   for (psDroid = psFrom->psList; psDroid; psDroid = psNext)
@@ -134,7 +134,7 @@ BOOL scrGroupMember(void)
   DROID* psDroid;
   BOOL retval;
 
-  if (!stackPopParams(2, ST_GROUP, &psGroup, ST_DROID, &psDroid))
+  if (!stackPopParams({{ST_GROUP, &psGroup}, {ST_DROID, &psDroid}}))
     return FALSE;
 
   if (psDroid == nullptr)
@@ -158,7 +158,7 @@ BOOL scrIdleGroup(void)
   DROID* psDroid;
   UDWORD count = 0;
 
-  if (!stackPopParams(1, ST_GROUP, &psGroup))
+  if (!stackPopParams({{ST_GROUP, &psGroup}}))
     return FALSE;
 
   for (psDroid = psGroup->psList; psDroid; psDroid = psDroid->psGrpNext)
@@ -181,7 +181,7 @@ BOOL scrInitIterateGroup(void)
 {
   DROID_GROUP* psGroup;
 
-  if (!stackPopParams(1, ST_GROUP, &psGroup))
+  if (!stackPopParams({{ST_GROUP, &psGroup}}))
     return FALSE;
 
   psScrIterateGroup = psGroup;
@@ -196,7 +196,7 @@ BOOL scrIterateGroup(void)
   DROID_GROUP* psGroup;
   DROID* psDroid;
 
-  if (!stackPopParams(1, ST_GROUP, &psGroup))
+  if (!stackPopParams({{ST_GROUP, &psGroup}}))
     return FALSE;
 
   if (psGroup != psScrIterateGroup)
@@ -213,7 +213,7 @@ BOOL scrIterateGroup(void)
   else
     psDroid = nullptr;
 
-  if (!stackPushResult(ST_DROID, (SDWORD)psDroid))
+  if (!stackPushResult(ST_DROID, psDroid))
     return FALSE;
 
   return TRUE;
@@ -224,7 +224,7 @@ BOOL scrInitIterateCluster(void)
 {
   SDWORD clusterID;
 
-  if (!stackPopParams(1, VAL_INT, &clusterID))
+  if (!stackPopParams({{VAL_INT, &clusterID}}))
     return FALSE;
 
   clustInitIterate(clusterID);
@@ -239,7 +239,7 @@ BOOL scrIterateCluster(void)
 
   psObj = clustIterate();
 
-  if (!stackPushResult(ST_BASEOBJECT, (SDWORD)psObj))
+  if (!stackPushResult(ST_BASEOBJECT, psObj))
     return FALSE;
 
   return TRUE;
@@ -250,7 +250,7 @@ BOOL scrDroidLeaveGroup(void)
 {
   DROID* psDroid;
 
-  if (!stackPopParams(1, ST_DROID, &psDroid))
+  if (!stackPopParams({{ST_DROID, &psDroid}}))
     return FALSE;
 
   if (psDroid->psGroup != nullptr)
@@ -265,7 +265,7 @@ BOOL scrOrderGroup(void)
   DROID_GROUP* psGroup;
   SDWORD order;
 
-  if (!stackPopParams(2, ST_GROUP, &psGroup, VAL_INT, &order))
+  if (!stackPopParams({{ST_GROUP, &psGroup}, {VAL_INT, &order}}))
     return FALSE;
 
   if (order != DORDER_STOP && order != DORDER_RETREAT && order != DORDER_DESTRUCT && order != DORDER_RTR && order != DORDER_RTB && order !=
@@ -286,7 +286,7 @@ BOOL scrOrderGroupLoc(void)
   DROID_GROUP* psGroup;
   SDWORD order, x, y;
 
-  if (!stackPopParams(4, ST_GROUP, &psGroup, VAL_INT, &order, VAL_INT, &x, VAL_INT, &y))
+  if (!stackPopParams({{ST_GROUP, &psGroup}, {VAL_INT, &order}, {VAL_INT, &x}, {VAL_INT, &y}}))
     return FALSE;
 
   if (order != DORDER_MOVE && order != DORDER_SCOUT)
@@ -312,7 +312,7 @@ BOOL scrOrderGroupObj(void)
   SDWORD order;
   BASE_OBJECT* psObj;
 
-  if (!stackPopParams(3, ST_GROUP, &psGroup, VAL_INT, &order, ST_BASEOBJECT, &psObj))
+  if (!stackPopParams({{ST_GROUP, &psGroup}, {VAL_INT, &order}, {ST_BASEOBJECT, &psObj}}))
     return FALSE;
 
   if (order != DORDER_ATTACK && order != DORDER_HELPBUILD && order != DORDER_DEMOLISH && order != DORDER_REPAIR && order != DORDER_OBSERVE
@@ -333,7 +333,7 @@ BOOL scrOrderDroid(void)
   DROID* psDroid;
   SDWORD order;
 
-  if (!stackPopParams(2, ST_DROID, &psDroid, VAL_INT, &order))
+  if (!stackPopParams({{ST_DROID, &psDroid}, {VAL_INT, &order}}))
     return FALSE;
 
   if (psDroid == nullptr)
@@ -357,7 +357,7 @@ BOOL scrOrderDroidLoc(void)
   DROID* psDroid;
   SDWORD order, x, y;
 
-  if (!stackPopParams(4, ST_DROID, &psDroid, VAL_INT, &order, VAL_INT, &x, VAL_INT, &y))
+  if (!stackPopParams({{ST_DROID, &psDroid}, {VAL_INT, &order}, {VAL_INT, &x}, {VAL_INT, &y}}))
     return FALSE;
 
   if (psDroid == nullptr)
@@ -386,7 +386,7 @@ BOOL scrOrderDroidObj(void)
   SDWORD order;
   BASE_OBJECT* psObj;
 
-  if (!stackPopParams(3, ST_DROID, &psDroid, VAL_INT, &order, ST_BASEOBJECT, &psObj))
+  if (!stackPopParams({{ST_DROID, &psDroid}, {VAL_INT, &order}, {ST_BASEOBJECT, &psObj}}))
     return FALSE;
 
   if (psDroid == nullptr || psObj == nullptr)
@@ -411,7 +411,7 @@ BOOL scrOrderDroidStatsLoc(void)
   SDWORD order, x, y, statIndex;
   BASE_STATS* psStats;
 
-  if (!stackPopParams(5, ST_DROID, &psDroid, VAL_INT, &order, ST_STRUCTURESTAT, &statIndex, VAL_INT, &x, VAL_INT, &y))
+  if (!stackPopParams({{ST_DROID, &psDroid}, {VAL_INT, &order}, {ST_STRUCTURESTAT, &statIndex}, {VAL_INT, &x}, {VAL_INT, &y}}))
     return FALSE;
 
   if (statIndex < 0 || statIndex >= static_cast<SDWORD>(numStructureStats))
@@ -450,7 +450,7 @@ BOOL scrSetDroidSecondary(void)
   DROID* psDroid;
   SDWORD sec, state;
 
-  if (!stackPopParams(3, ST_DROID, &psDroid, VAL_INT, &sec, VAL_INT, &state))
+  if (!stackPopParams({{ST_DROID, &psDroid}, {VAL_INT, &sec}, {VAL_INT, &state}}))
     return FALSE;
 
   if (psDroid == nullptr)
@@ -467,7 +467,7 @@ BOOL scrSetGroupSecondary(void)
   DROID_GROUP* psGroup;
   SDWORD sec, state;
 
-  if (!stackPopParams(3, ST_GROUP, &psGroup, VAL_INT, &sec, VAL_INT, &state))
+  if (!stackPopParams({{ST_GROUP, &psGroup}, {VAL_INT, &sec}, {VAL_INT, &state}}))
     return FALSE;
 
   grpSetSecondary(psGroup, static_cast<SECONDARY_ORDER>(sec), state);
@@ -480,7 +480,7 @@ BOOL scrCmdDroidAddDroid(void)
 {
   DROID *psDroid, *psCommander;
 
-  if (!stackPopParams(2, ST_DROID, &psCommander, ST_DROID, &psDroid))
+  if (!stackPopParams({{ST_DROID, &psCommander}, {ST_DROID, &psDroid}}))
     return FALSE;
 
   cmdDroidAddDroid(psCommander, psDroid);
@@ -515,7 +515,7 @@ BOOL scrSetStructTarPref(void)
 {
   UDWORD pref;
 
-  if (!stackPopParams(1, VAL_INT, &pref))
+  if (!stackPopParams({{VAL_INT, &pref}}))
     return FALSE;
 
   DEBUG_ASSERT_TEXT((SCR_ST_HQ == pref) || (SCR_ST_FACTORY == pref) || (SCR_ST_POWER_GEN == pref) || (SCR_ST_RESOURCE_EXTRACTOR == pref) || (SCR_ST_WALL
@@ -533,7 +533,7 @@ BOOL scrSetStructTarIgnore(void)
 {
   UDWORD pref;
 
-  if (!stackPopParams(1, VAL_INT, &pref))
+  if (!stackPopParams({{VAL_INT, &pref}}))
     return FALSE;
 
   DEBUG_ASSERT_TEXT((SCR_ST_HQ == pref) || (SCR_ST_FACTORY == pref) || (SCR_ST_POWER_GEN == pref) || (SCR_ST_RESOURCE_EXTRACTOR == pref) || (SCR_ST_WALL
@@ -551,7 +551,7 @@ BOOL scrSetDroidTarPref(void)
 {
   UDWORD pref;
 
-  if (!stackPopParams(1, VAL_INT, &pref))
+  if (!stackPopParams({{VAL_INT, &pref}}))
     return FALSE;
 
   DEBUG_ASSERT_TEXT((SCR_DT_COMMAND == pref) || (SCR_DT_SENSOR == pref) || (SCR_DT_CONSTRUCT == pref) || (SCR_DT_REPAIR == pref) || (SCR_DT_WEAP_GROUND ==
@@ -571,7 +571,7 @@ BOOL scrSetDroidTarIgnore(void)
 {
   UDWORD pref;
 
-  if (!stackPopParams(1, VAL_INT, &pref))
+  if (!stackPopParams({{VAL_INT, &pref}}))
     return FALSE;
 
   DEBUG_ASSERT_TEXT((SCR_DT_COMMAND == pref) || (SCR_DT_SENSOR == pref) || (SCR_DT_CONSTRUCT == pref) || (SCR_DT_REPAIR == pref) || (SCR_DT_WEAP_GROUND ==
@@ -884,12 +884,12 @@ BOOL scrStructTargetInArea(void)
   SDWORD tarPlayer, visPlayer;
   STRUCTURE* psTarget;
 
-  if (!stackPopParams(6, VAL_INT, &tarPlayer, VAL_INT, &visPlayer, VAL_INT, &x1, VAL_INT, &y1, VAL_INT, &x2, VAL_INT, &y2))
+  if (!stackPopParams({{VAL_INT, &tarPlayer}, {VAL_INT, &visPlayer}, {VAL_INT, &x1}, {VAL_INT, &y1}, {VAL_INT, &x2}, {VAL_INT, &y2}}))
     return FALSE;
 
   psTarget = (STRUCTURE*)scrTargetInArea(tarPlayer, visPlayer, SCR_TAR_STRUCT, 0, x1, y1, x2, y2);
 
-  if (!stackPushResult(ST_STRUCTURE, (UDWORD)psTarget))
+  if (!stackPushResult(ST_STRUCTURE, psTarget))
     return FALSE;
 
   return TRUE;
@@ -901,13 +901,13 @@ BOOL scrStructTargetOnMap(void)
   SDWORD tarPlayer, visPlayer;
   STRUCTURE* psTarget;
 
-  if (!stackPopParams(2, VAL_INT, &tarPlayer, VAL_INT, &visPlayer))
+  if (!stackPopParams({{VAL_INT, &tarPlayer}, {VAL_INT, &visPlayer}}))
     return FALSE;
 
   psTarget = (STRUCTURE*)scrTargetInArea(tarPlayer, visPlayer, SCR_TAR_STRUCT, 0, scrollMinX * TILE_UNITS, scrollMinY * TILE_UNITS,
                                          scrollMaxX * TILE_UNITS, scrollMaxY * TILE_UNITS);
 
-  if (!stackPushResult(ST_STRUCTURE, (UDWORD)psTarget))
+  if (!stackPushResult(ST_STRUCTURE, psTarget))
     return FALSE;
 
   return TRUE;
@@ -920,12 +920,12 @@ BOOL scrDroidTargetInArea(void)
   SDWORD tarPlayer, visPlayer;
   DROID* psTarget;
 
-  if (!stackPopParams(6, VAL_INT, &tarPlayer, VAL_INT, &visPlayer, VAL_INT, &x1, VAL_INT, &y1, VAL_INT, &x2, VAL_INT, &y2))
+  if (!stackPopParams({{VAL_INT, &tarPlayer}, {VAL_INT, &visPlayer}, {VAL_INT, &x1}, {VAL_INT, &y1}, {VAL_INT, &x2}, {VAL_INT, &y2}}))
     return FALSE;
 
   psTarget = (DROID*)scrTargetInArea(tarPlayer, visPlayer, SCR_TAR_DROID, 0, x1, y1, x2, y2);
 
-  if (!stackPushResult(ST_DROID, (UDWORD)psTarget))
+  if (!stackPushResult(ST_DROID, psTarget))
     return FALSE;
 
   return TRUE;
@@ -937,13 +937,13 @@ BOOL scrDroidTargetOnMap(void)
   SDWORD tarPlayer, visPlayer;
   DROID* psTarget;
 
-  if (!stackPopParams(2, VAL_INT, &tarPlayer, VAL_INT, &visPlayer))
+  if (!stackPopParams({{VAL_INT, &tarPlayer}, {VAL_INT, &visPlayer}}))
     return FALSE;
 
   psTarget = (DROID*)scrTargetInArea(tarPlayer, visPlayer, SCR_TAR_DROID, 0, scrollMinX * TILE_UNITS, scrollMinY * TILE_UNITS,
                                      scrollMaxX * TILE_UNITS, scrollMaxY * TILE_UNITS);
 
-  if (!stackPushResult(ST_DROID, (UDWORD)psTarget))
+  if (!stackPushResult(ST_DROID, psTarget))
     return FALSE;
 
   return TRUE;
@@ -955,7 +955,7 @@ BOOL scrTargetInCluster(void)
   SDWORD tarPlayer, tarType, visPlayer, clusterID, cluster;
   BASE_OBJECT* psTarget;
 
-  if (!stackPopParams(2, VAL_INT, &clusterID, VAL_INT, &visPlayer))
+  if (!stackPopParams({{VAL_INT, &clusterID}, {VAL_INT, &visPlayer}}))
     return FALSE;
 
   if (clusterID < 0 || clusterID >= CLUSTER_MAX)
@@ -971,7 +971,7 @@ BOOL scrTargetInCluster(void)
   psTarget = scrTargetInArea(tarPlayer, visPlayer, tarType, cluster, scrollMinX * TILE_UNITS, scrollMinY * TILE_UNITS,
                              scrollMaxX * TILE_UNITS, scrollMaxY * TILE_UNITS);
 
-  if (!stackPushResult(ST_BASEOBJECT, (UDWORD)psTarget))
+  if (!stackPushResult(ST_BASEOBJECT, psTarget))
     return FALSE;
 
   return TRUE;
@@ -988,13 +988,10 @@ BOOL scrSkCanBuildTemplate(void)
   STRUCTURE* psStructure;
   DROID_TEMPLATE* psTempl;
 
-  SDWORD player, structure, templ;
+  SDWORD player;
 
-  if (!stackPopParams(3, VAL_INT, &player, ST_STRUCTURE, &structure, ST_TEMPLATE, &templ))
+  if (!stackPopParams({{VAL_INT, &player}, {ST_STRUCTURE, &psStructure}, {ST_TEMPLATE, &psTempl}}))
     return FALSE;
-
-  psTempl = (DROID_TEMPLATE*)templ;
-  psStructure = (STRUCTURE*)structure;
 
   // is factory big enough?
   if (!validTemplateForFactory(psTempl, psStructure))
@@ -1065,7 +1062,7 @@ BOOL scrSkLocateEnemy(void)
   SDWORD player; //,*x,*y;
   STRUCTURE* psStruct;
 
-  if (!stackPopParams(1, VAL_INT, &player))
+  if (!stackPopParams({{VAL_INT, &player}}))
     return FALSE;
 
   // find where the player has some structures..	// factories or hq.
@@ -1076,12 +1073,12 @@ BOOL scrSkLocateEnemy(void)
   // set the x and y accordingly..
   if (psStruct)
   {
-    if (!stackPushResult(ST_BASEOBJECT, (SDWORD)psStruct)) // success!
+    if (!stackPushResult(ST_BASEOBJECT, psStruct)) // success!
       return FALSE;
   }
   else
   {
-    if (!stackPushResult(ST_BASEOBJECT, 0)) // part success
+    if (!stackPushResult(ST_BASEOBJECT, nullptr)) // part success
       return FALSE;
   }
   return TRUE;
@@ -1164,10 +1161,8 @@ BOOL scrSkDoResearch(void)
   PLAYER_RESEARCH* pPlayerRes;
   RESEARCH* pResearch;
 
-  if (!stackPopParams(3, ST_STRUCTURE, &structure, VAL_INT, &player, VAL_INT, &bias))
+  if (!stackPopParams({{ST_STRUCTURE, &psBuilding}, {VAL_INT, &player}, {VAL_INT, &bias}}))
     return FALSE;
-
-  psBuilding = (STRUCTURE*)structure;
   psResFacilty = (RESEARCH_FACILITY*)psBuilding->pFunctionality;
 
   if (psResFacilty->psSubject != nullptr)
@@ -1236,7 +1231,7 @@ BOOL scrSkVtolEnableCheck(void)
   SDWORD player;
   UDWORD i;
 
-  if (!stackPopParams(1, VAL_INT, &player))
+  if (!stackPopParams({{VAL_INT, &player}}))
     return FALSE;
 
   // vtol factory
@@ -1263,12 +1258,11 @@ BOOL scrSkVtolEnableCheck(void)
 // ********************************************************************************************
 BOOL scrSkGetFactoryCapacity(void)
 {
-  SDWORD count = 0, structure;
+  SDWORD count = 0;
   STRUCTURE* psStructure;
 
-  if (!stackPopParams(1, ST_STRUCTURE, &structure))
+  if (!stackPopParams({{ST_STRUCTURE, &psStructure}}))
     return FALSE;
-  psStructure = (STRUCTURE*)structure;
 
   if (psStructure && StructIsFactory(psStructure))
     count = ((FACTORY*)psStructure->pFunctionality)->capacity;
@@ -1286,7 +1280,7 @@ BOOL scrSkDifficultyModifier(void)
   STRUCTURE* psStr;
   PLAYER_RESEARCH* pPlayerRes;
 
-  if (!stackPopParams(1, VAL_INT, &player))
+  if (!stackPopParams({{VAL_INT, &player}}))
     return FALSE;
 
   // power modifier
@@ -1332,8 +1326,7 @@ BOOL scrSkDefenseLocation(void)
   UDWORD x1, x2, x3, x4, y1, y2, y3, y4;
   BOOL noWater;
 
-  if (!stackPopParams(6, VAL_REF | VAL_INT, &pX, VAL_REF | VAL_INT, &pY, ST_STRUCTURESTAT, &statIndex, ST_STRUCTURESTAT, &statIndex2,
-                      ST_DROID, &psDroid, VAL_INT, &player))
+  if (!stackPopParams({{VAL_REF | VAL_INT, &pX}, {VAL_REF | VAL_INT, &pY}, {ST_STRUCTURESTAT, &statIndex}, {ST_STRUCTURESTAT, &statIndex2}, {ST_DROID, &psDroid}, {VAL_INT, &player}}))
     return FALSE;
 
   if (player >= MAX_PLAYERS)
@@ -1493,7 +1486,7 @@ BOOL scrSkFireLassat(void)
   SDWORD player;
   BASE_OBJECT* psObj;
 
-  if (!stackPopParams(2, VAL_INT, &player, ST_BASEOBJECT, &psObj))
+  if (!stackPopParams({{VAL_INT, &player}, {ST_BASEOBJECT, &psObj}}))
     return FALSE;
 
   if (psObj)
@@ -1510,8 +1503,7 @@ BOOL scrSkFireLassat(void)
 	SDWORD			x1,y1,x2,y2, statIndex;
 	BASE_STATS		*psStats;
 
-	if (!stackPopParams(6, ST_DROID, &psDroid, ST_STRUCTURESTAT, &statIndex,
-						   VAL_INT, &x1, VAL_INT, &y1,VAL_INT, &x2, VAL_INT, &y2))
+	if (!stackPopParams({{ST_DROID, &psDroid}, {ST_STRUCTURESTAT, &statIndex}, {VAL_INT, &x1}, {VAL_INT, &y1}, {VAL_INT, &x2}, {VAL_INT, &y2}}))
 	{
 		return FALSE;
 	}
@@ -1576,14 +1568,13 @@ BOOL skAddTemplate(void)
 {	
 	SKIRMISHSTORE *psT;
 
-	SDWORD			stempl,index,pile;
+	SDWORD			index,pile;
 	DROID_TEMPLATE	*psTempl;
 
-	if (!stackPopParams(3,VAL_INT, &pile,VAL_INT, &index, ST_TEMPLATE, &stempl))
+	if (!stackPopParams({{VAL_INT, &pile}, {VAL_INT, &index}, {ST_TEMPLATE, &psTempl}}))
 	{
 		return FALSE;
 	}
-	psTempl =(DROID_TEMPLATE *)stempl;
 	if (!HEAP_ALLOC(psTemplateHeap,&psT))
 	{
 		goto fail;
@@ -1612,7 +1603,7 @@ BOOL skGetTemplate(void)
 	SDWORD	index,pile;
 	SKIRMISHSTORE *psT;
 
-	if (!stackPopParams(2,VAL_INT, &pile,VAL_INT, &index))
+	if (!stackPopParams({{VAL_INT, &pile}, {VAL_INT, &index}}))
 	{
 		return FALSE;
 	}
@@ -1624,7 +1615,7 @@ BOOL skGetTemplate(void)
 		return FALSE;
 	}
 
-	if (!stackPushResult(ST_TEMPLATE, (UDWORD)(psT->psTempl) ))
+	if (!stackPushResult(ST_TEMPLATE, (psT->psTempl)))
 	{
 		return FALSE;
 	}

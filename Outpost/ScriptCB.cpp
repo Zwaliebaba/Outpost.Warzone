@@ -36,7 +36,7 @@ BOOL scrCBDroidTaken(void)
   DROID** ppsDroid;
   BOOL triggered = FALSE;
 
-  if (!stackPopParams(1, VAL_REF | ST_DROID, &ppsDroid))
+  if (!stackPopParams({{VAL_REF | ST_DROID, &ppsDroid}}))
     return FALSE;
 
   if (psScrCBDroidTaken == nullptr)
@@ -66,7 +66,7 @@ BOOL scrCBNewDroid(void)
   STRUCTURE** ppsStructure;
   BOOL triggered = FALSE;
 
-  if (!stackPopParams(3, VAL_INT, &player, VAL_REF | ST_DROID, &ppsDroid, VAL_REF | ST_STRUCTURE, &ppsStructure))
+  if (!stackPopParams({{VAL_INT, &player}, {VAL_REF | ST_DROID, &ppsDroid}, {VAL_REF | ST_STRUCTURE, &ppsStructure}}))
     return FALSE;
 
   if (psScrCBNewDroid == nullptr)
@@ -98,7 +98,7 @@ BOOL scrCBStructAttacked(void)
   BASE_OBJECT** ppsAttacker; //, **ppsTarget;
   BOOL triggered = FALSE;
 
-  if (!stackPopParams(3, VAL_INT, &player, VAL_REF | ST_STRUCTURE, &ppsTarget, VAL_REF | ST_BASEOBJECT, &ppsAttacker))
+  if (!stackPopParams({{VAL_INT, &player}, {VAL_REF | ST_STRUCTURE, &ppsTarget}, {VAL_REF | ST_BASEOBJECT, &ppsAttacker}}))
     return FALSE;
 
   if (psLastStructHit == nullptr)
@@ -135,7 +135,7 @@ BOOL scrCBDroidAttacked(void)
   BASE_OBJECT** ppsAttacker; //, **ppsTarget;
   BOOL triggered = FALSE;
 
-  if (!stackPopParams(3, VAL_INT, &player, VAL_REF | ST_DROID, &ppsTarget, VAL_REF | ST_BASEOBJECT, &ppsAttacker))
+  if (!stackPopParams({{VAL_INT, &player}, {VAL_REF | ST_DROID, &ppsTarget}, {VAL_REF | ST_BASEOBJECT, &ppsAttacker}}))
     return FALSE;
 
   if (psLastDroidHit == nullptr)
@@ -172,7 +172,7 @@ BOOL scrCBAttacked(void)
   BASE_OBJECT** ppsAttacker; //, **ppsTarget;
   BOOL triggered = FALSE;
 
-  if (!stackPopParams(3, VAL_INT, &player, VAL_REF | ST_BASEOBJECT, &ppsTarget, VAL_REF | ST_BASEOBJECT, &ppsAttacker))
+  if (!stackPopParams({{VAL_INT, &player}, {VAL_REF | ST_BASEOBJECT, &ppsTarget}, {VAL_REF | ST_BASEOBJECT, &ppsAttacker}}))
     return FALSE;
 
   if (psScrCBTarget == nullptr)
@@ -209,7 +209,7 @@ BOOL scrCBButtonPressed(void)
   UDWORD button;
   BOOL triggered = FALSE;
 
-  if (!stackPopParams(1, VAL_INT, &button))
+  if (!stackPopParams({{VAL_INT, &button}}))
     return FALSE;
 
   if (button == intLastWidget)
@@ -229,7 +229,7 @@ BOOL scrCBDroidSelected(void)
 {
   DROID** ppsDroid;
 
-  if (!stackPopParams(1, VAL_REF | ST_DROID, &ppsDroid))
+  if (!stackPopParams({{VAL_REF | ST_DROID, &ppsDroid}}))
     return FALSE;
 
   *ppsDroid = psCBSelectedDroid;
@@ -250,7 +250,7 @@ BOOL scrCBObjDestroyed(void)
   BASE_OBJECT** ppsObj;
   BOOL retval;
 
-  if (!stackPopParams(2, VAL_INT, &player, VAL_REF | ST_BASEOBJECT, &ppsObj))
+  if (!stackPopParams({{VAL_INT, &player}, {VAL_REF | ST_BASEOBJECT, &ppsObj}}))
     return FALSE;
 
   if ((psCBObjDestroyed != nullptr) && (psCBObjDestroyed->player == static_cast<UDWORD>(player)) && (psCBObjDestroyed->type != OBJ_FEATURE))
@@ -277,7 +277,7 @@ BOOL scrCBStructDestroyed(void)
   BASE_OBJECT** ppsObj;
   BOOL retval;
 
-  if (!stackPopParams(2, VAL_INT, &player, VAL_REF | ST_STRUCTURE, &ppsObj))
+  if (!stackPopParams({{VAL_INT, &player}, {VAL_REF | ST_STRUCTURE, &ppsObj}}))
     return FALSE;
 
   if ((psCBObjDestroyed != nullptr) && (psCBObjDestroyed->player == static_cast<UDWORD>(player)) && (psCBObjDestroyed->type ==
@@ -305,7 +305,7 @@ BOOL scrCBDroidDestroyed(void)
   BASE_OBJECT** ppsObj;
   BOOL retval;
 
-  if (!stackPopParams(2, VAL_INT, &player, VAL_REF | ST_DROID, &ppsObj))
+  if (!stackPopParams({{VAL_INT, &player}, {VAL_REF | ST_DROID, &ppsObj}}))
     return FALSE;
 
   if ((psCBObjDestroyed != nullptr) && (psCBObjDestroyed->player == static_cast<UDWORD>(player)) && (psCBObjDestroyed->type == OBJ_DROID))
@@ -331,7 +331,7 @@ BOOL scrCBFeatureDestroyed(void)
   BASE_OBJECT** ppsObj;
   BOOL retval;
 
-  if (!stackPopParams(1, VAL_REF | ST_FEATURE, &ppsObj))
+  if (!stackPopParams({{VAL_REF | ST_FEATURE, &ppsObj}}))
     return FALSE;
 
   if (psCBObjDestroyed != nullptr)
@@ -364,7 +364,7 @@ BOOL scrCBObjectSeen(SDWORD callback)
   SDWORD player;
   BOOL retval;
 
-  if (!stackPopParams(3, VAL_INT, &player, VAL_REF | ST_BASEOBJECT, &ppsObj, VAL_REF | ST_BASEOBJECT, &ppsViewer))
+  if (!stackPopParams({{VAL_INT, &player}, {VAL_REF | ST_BASEOBJECT, &ppsObj}, {VAL_REF | ST_BASEOBJECT, &ppsViewer}}))
     return FALSE;
 
   if (psScrCBObjSeen == nullptr)
@@ -413,7 +413,7 @@ BOOL scrCBTransporterOffMap(void)
   BOOL retval;
   DROID* psTransporter;
 
-  if (!stackPopParams(1, VAL_INT, &player))
+  if (!stackPopParams({{VAL_INT, &player}}))
     return FALSE;
 
   psTransporter = transporterGetScriptCurrent();
@@ -436,7 +436,7 @@ BOOL scrCBTransporterLanded(void)
   DROID *psTransporter, *psDroid, *psNext;
   BOOL retval;
 
-  if (!stackPopParams(2, ST_GROUP, &psGroup, VAL_INT, &player))
+  if (!stackPopParams({{ST_GROUP, &psGroup}, {VAL_INT, &player}}))
     return FALSE;
 
   psTransporter = transporterGetScriptCurrent();
@@ -476,7 +476,7 @@ BOOL scrCBClusterEmpty(void)
 {
   SDWORD* pClusterID;
 
-  if (!stackPopParams(1, VAL_REF | VAL_INT, &pClusterID))
+  if (!stackPopParams({{VAL_REF | VAL_INT, &pClusterID}}))
     return FALSE;
 
   *pClusterID = scrCBEmptyClusterID;
@@ -497,7 +497,7 @@ BOOL scrCBVtolOffMap(void)
   DROID** ppsVtol;
   BOOL retval;
 
-  if (!stackPopParams(2, VAL_INT, &player, VAL_REF | ST_DROID, &ppsVtol))
+  if (!stackPopParams({{VAL_INT, &player}, {VAL_REF | ST_DROID, &ppsVtol}}))
     return FALSE;
 
   if (psScrCBVtolOffMap == nullptr)
@@ -526,7 +526,7 @@ BOOL scrCBResCompleted(void)
   RESEARCH** ppsResearch;
   BOOL retVal;
 
-  if (!stackPopParams(1, VAL_REF | ST_RESEARCH, &ppsResearch))
+  if (!stackPopParams({{VAL_REF | ST_RESEARCH, &ppsResearch}}))
     return FALSE;
 
   if (psCBLastResearch == nullptr)
@@ -551,7 +551,7 @@ BOOL scrCBResCompleted(void)
 BOOL scrCBPlayerLeft(void)
 {
   SDWORD player;
-  if (!stackPopParams(1, VAL_INT, &player))
+  if (!stackPopParams({{VAL_INT, &player}}))
     return FALSE;
 
   if (!stackPushResult(VAL_BOOL, TRUE))
@@ -565,7 +565,7 @@ BOOL scrCBAllianceOffer(void)
 {
   SDWORD *from, *to;
 
-  if (!stackPopParams(2, VAL_REF | VAL_INT, &from, VAL_REF | VAL_INT, &to))
+  if (!stackPopParams({{VAL_REF | VAL_INT, &from}, {VAL_REF | VAL_INT, &to}}))
     return FALSE;
 
   *from = CBallFrom;
