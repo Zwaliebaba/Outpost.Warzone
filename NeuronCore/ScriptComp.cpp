@@ -1497,14 +1497,19 @@ void BuildTableMaps(Compiler& _c)
     for (UDWORD i = 0; asScrInstinctTab[i].pFunc != nullptr; i++)
       _c.instinctMap.emplace(asScrInstinctTab[i].pIdent, i);
   }
+  /* These two tables terminate on a *named* sentinel - the game's tables
+     end with {"CALLBACK LIST END", 0} and {"CONSTANT LIST END", VAL_VOID}
+     - so pIdent is not the field to stop on. Callbacks additionally may
+     have a null pFunc for the parameterless ones (CALL_GAMEINIT), which
+     rules that field out too. */
   if (asScrCallbackTab)
   {
-    for (UDWORD i = 0; asScrCallbackTab[i].pIdent != nullptr; i++)
+    for (UDWORD i = 0; asScrCallbackTab[i].type != 0; i++)
       _c.callbackMap.emplace(asScrCallbackTab[i].pIdent, i);
   }
   if (asScrConstantTab)
   {
-    for (UDWORD i = 0; asScrConstantTab[i].pIdent != nullptr; i++)
+    for (UDWORD i = 0; asScrConstantTab[i].type != VAL_VOID; i++)
       _c.constMap.emplace(asScrConstantTab[i].pIdent, i);
   }
   if (asScrExternalTab)
