@@ -3,6 +3,14 @@
   <ItemGroup>
     <ClCompile Include="JsonTest.cpp" />
     <ClCompile Include="..\NeuronCore\Json.cpp" />
+    <ClCompile Include="ScriptTest.cpp" />
+    <ClCompile Include="..\NeuronCore\ScriptComp.cpp" />
+    <ClCompile Include="..\NeuronCore\ScriptLex.cpp" />
+    <ClCompile Include="..\NeuronCore\Interp.cpp" />
+    <ClCompile Include="..\NeuronCore\Stack.cpp" />
+    <ClCompile Include="..\NeuronCore\Event.cpp" />
+    <ClCompile Include="..\NeuronCore\Script.cpp" />
+    <ClCompile Include="..\NeuronCore\CodePrint.cpp" />
     <ClCompile Include="NeuronCoreTest.cpp" />
     <ClCompile Include="pch.cpp" />
   </ItemGroup>

@@ -1,5 +1,7 @@
 #include "pch.h"
 
+#include <cstdint>
+
 #include "Frame.h"
 #include "Interp.h"
 #include "Parse.h"
@@ -24,9 +26,6 @@ void cpPrintType(INTERP_TYPE type)
     break;
   case VAL_INT: Neuron::DebugTrace("INT");
     break;
-  /*	case VAL_FLOAT:
-      DBPRINTF(("FLOAT"));
-      break;*/
   case VAL_STRING: Neuron::DebugTrace("STRING");
     break;
   case VAL_TRIGGER: Neuron::DebugTrace("TRIGGER");
@@ -43,7 +42,7 @@ void cpPrintType(INTERP_TYPE type)
       {
         if (asScrTypeTab[i].typeID == type)
         {
-          Neuron::DebugTrace("{}", asScrTypeTab[i].pIdent );
+          Neuron::DebugTrace("{}", asScrTypeTab[i].pIdent);
           return;
         }
       }
@@ -73,16 +72,13 @@ void cpPrintVal(INTERP_VAL* psVal)
   {
   case VAL_BOOL: Neuron::DebugTrace("type: BOOL    value: {}", psVal->v.bval ? "true" : "false");
     break;
-  case VAL_INT: Neuron::DebugTrace("type: INT     value: {}", psVal->v.ival );
+  case VAL_INT: Neuron::DebugTrace("type: INT     value: {}", psVal->v.ival);
     break;
-  /*	case VAL_FLOAT:
-      DBPRINTF(("type: FLOAT   value: %f", psVal->v.fval ));
-      break;*/
-  case VAL_STRING: Neuron::DebugTrace("type: STRING  value: {}", psVal->v.sval );
+  case VAL_STRING: Neuron::DebugTrace("type: STRING  value: {}", psVal->v.sval);
     break;
-  case VAL_TRIGGER: Neuron::DebugTrace("type: TRIGGER value: {}", psVal->v.ival );
+  case VAL_TRIGGER: Neuron::DebugTrace("type: TRIGGER value: {}", psVal->v.ival);
     break;
-  case VAL_EVENT: Neuron::DebugTrace("type: EVENT   value: {}", psVal->v.ival );
+  case VAL_EVENT: Neuron::DebugTrace("type: EVENT   value: {}", psVal->v.ival);
     break;
   default:
     // See if it is a user defined type
@@ -92,7 +88,7 @@ void cpPrintVal(INTERP_VAL* psVal)
       {
         if (asScrTypeTab[i].typeID == psVal->type)
         {
-          Neuron::DebugTrace("type: {} value: {:x}", asScrTypeTab[i].pIdent, psVal->v.ival );
+          Neuron::DebugTrace("type: {} value: {:x}", asScrTypeTab[i].pIdent, psVal->v.ival);
           return;
         }
       }
@@ -102,50 +98,46 @@ void cpPrintVal(INTERP_VAL* psVal)
   }
 }
 
-/* Display a value from a program that has been packed with an opcode */
-void cpPrintPackedVal(UDWORD* ip)
+/* Print the name of an OP_CALL / OP_SCRIPTCALL callee from its packed form */
+void cpPrintCallee(UDWORD packed)
 {
-  INTERP_TYPE type = (*ip) & OPCODE_DATAMASK;
-  UDWORD i, data = *(ip + 1);
+  const UDWORD slot = packed & INSTR_SLOTMASK;
 
-  if (type & VAL_REF)
+  if (packed & INSTR_CALLBACKFLAG)
   {
-    Neuron::DebugTrace("type: ");
-    cpPrintType(type);
-    Neuron::DebugTrace(" value: {:x}", data);
-    return;
+    if (asScrCallbackTab)
+      Neuron::DebugTrace("{}", asScrCallbackTab[slot].pIdent);
+    else
+      Neuron::DebugTrace("callback {}", slot);
   }
-
-  switch (type)
+  else
   {
-  case VAL_BOOL: Neuron::DebugTrace("BOOL   : {}", static_cast<BOOL>(data) ? "true" : "false");
-    break;
-  case VAL_INT: Neuron::DebugTrace("INT     : {}", static_cast<SDWORD>(data) );
-    break;
-  /*	case VAL_FLOAT:
-      DBPRINTF(("FLOAT   : %f", (float)data ));
-      break;*/
-  case VAL_STRING: Neuron::DebugTrace("STRING  : {}", (STRING *)data );
-    break;
-  case VAL_TRIGGER: Neuron::DebugTrace("TRIGGER : {}", static_cast<SDWORD>(data) );
-    break;
-  case VAL_EVENT: Neuron::DebugTrace("EVENT   : {}", static_cast<SDWORD>(data) );
-    break;
-  default:
-    // See if it is a user defined type
-    if (asScrTypeTab)
-    {
-      for (i = 0; asScrTypeTab[i].typeID != 0; i++)
-      {
-        if (asScrTypeTab[i].typeID == type)
-        {
-          Neuron::DebugTrace("type: {} value: {:x}", asScrTypeTab[i].pIdent, data );
-          return;
-        }
-      }
-    }
-    DEBUG_ASSERT_TEXT(FALSE, "cpPrintVal: Unknown value type");
-    break;
+    if (asScrInstinctTab)
+      Neuron::DebugTrace("{}", asScrInstinctTab[slot].pIdent);
+    else
+      Neuron::DebugTrace("instinct {}", slot);
+  }
+}
+
+/* Print the name of an OP_VARCALL callee from its packed form */
+void cpPrintVarCallee(UDWORD packed)
+{
+  const UDWORD slot = packed & INSTR_SLOTMASK;
+  const char* pDir = (packed & INSTR_VARSETFLAG) ? "set" : "get";
+
+  if (packed & INSTR_OBJVARFLAG)
+  {
+    if (asScrObjectVarTab)
+      Neuron::DebugTrace("{} {}", pDir, asScrObjectVarTab[slot].pIdent);
+    else
+      Neuron::DebugTrace("{} objvar {}", pDir, slot);
+  }
+  else
+  {
+    if (asScrExternalTab)
+      Neuron::DebugTrace("{} {}", pDir, asScrExternalTab[slot].pIdent);
+    else
+      Neuron::DebugTrace("{} extern {}", pDir, slot);
   }
 }
 
@@ -172,11 +164,11 @@ void cpPrintMathsOp(UDWORD opcode)
     break;
   case OP_EQUAL: Neuron::DebugTrace("EQUAL       ");
     break;
-  case OP_NOTEQUAL: Neuron::DebugTrace("NOT_EQUAL   ");
+  case OP_NOTEQUAL: Neuron::DebugTrace("NOTEQUAL    ");
     break;
-  case OP_GREATEREQUAL: Neuron::DebugTrace("GRT_EQUAL   ");
+  case OP_GREATEREQUAL: Neuron::DebugTrace("GREATEREQUAL");
     break;
-  case OP_LESSEQUAL: Neuron::DebugTrace("LESS_EQUAL  ");
+  case OP_LESSEQUAL: Neuron::DebugTrace("LESSEQUAL   ");
     break;
   case OP_GREATER: Neuron::DebugTrace("GREATER     ");
     break;
@@ -187,292 +179,87 @@ void cpPrintMathsOp(UDWORD opcode)
   }
 }
 
-/* Print a function name */
-void cpPrintFunc(SCRIPT_FUNC pFunc)
+/* Print a label for an instruction offset, if debug info carries one */
+static void cpPrintLabel(SCRIPT_CODE* psProg, UDWORD offset)
 {
-  SDWORD i;
-
-  // Search the instinct functions
-  if (asScrInstinctTab)
+  for (const SCRIPT_DEBUG& sEntry : psProg->psDebug)
   {
-    for (i = 0; asScrInstinctTab[i].pFunc != nullptr; i++)
-    {
-      if (asScrInstinctTab[i].pFunc == pFunc)
-      {
-        Neuron::DebugTrace("{}", asScrInstinctTab[i].pIdent);
-        return;
-      }
-    }
+    if (sEntry.offset == offset && !sEntry.pLabel.empty())
+      Neuron::DebugTrace("{}:\n", sEntry.pLabel);
   }
-
-  // Search the callback functions
-  if (asScrCallbackTab)
-  {
-    for (i = 0; asScrCallbackTab[i].type != 0; i++)
-    {
-      if (asScrCallbackTab[i].pFunc == pFunc)
-      {
-        Neuron::DebugTrace("{}", asScrCallbackTab[i].pIdent);
-        return;
-      }
-    }
-  }
-}
-
-/* Print a variable access function name */
-void cpPrintVarFunc(SCRIPT_VARFUNC pFunc, UDWORD index)
-{
-  SDWORD i;
-
-  // Search the external variable functions
-  if (asScrExternalTab)
-  {
-    for (i = 0; asScrExternalTab[i].pIdent != nullptr; i++)
-    {
-      if (asScrExternalTab[i].set == pFunc && asScrExternalTab[i].index == index)
-      {
-        Neuron::DebugTrace("{} (set)", asScrExternalTab[i].pIdent);
-        return;
-      }
-      if (asScrExternalTab[i].get == pFunc && asScrExternalTab[i].index == index)
-      {
-        Neuron::DebugTrace("{} (get)", asScrExternalTab[i].pIdent);
-        return;
-      }
-    }
-  }
-
-  // Search the object functions
-  if (asScrObjectVarTab)
-  {
-    for (i = 0; asScrObjectVarTab[i].pIdent != nullptr; i++)
-    {
-      if (asScrObjectVarTab[i].set == pFunc && asScrObjectVarTab[i].index == index)
-      {
-        Neuron::DebugTrace("{} (set)", asScrObjectVarTab[i].pIdent);
-        return;
-      }
-      if (asScrObjectVarTab[i].get == pFunc && asScrObjectVarTab[i].index == index)
-      {
-        Neuron::DebugTrace("{} (get)", asScrObjectVarTab[i].pIdent);
-        return;
-      }
-    }
-  }
-}
-
-/* Print the array information */
-void cpPrintArrayInfo(UDWORD** pip, SCRIPT_CODE* psProg)
-{
-  SDWORD i, dimensions; //, elements[VAR_MAX_DIMENSIONS];
-  UDWORD* ip = *pip;
-  UDWORD base;
-
-  // get the base index of the array
-  base = (*ip) & ARRAY_BASE_MASK;
-
-  // get the number of dimensions
-  dimensions = ((*ip) & ARRAY_DIMENSION_MASK) >> ARRAY_DIMENSION_SHIFT;
-
-  // get the number of elements for each dimension
-
-  Neuron::DebugTrace("{}->", base);
-  for (i = 0; i < psProg->psArrayInfo[base].dimensions; i += 1)
-    Neuron::DebugTrace("[{}]", psProg->psArrayInfo[base].elements[i]);
-  // calculate the number of DWORDs needed to store the number of elements for each dimension of the array
-
-  // update the insrtuction pointer
-  *pip += 1; // + elementDWords;
 }
 
 /* Display the contents of a program in readable form */
 void cpPrintProgram(SCRIPT_CODE* psProg)
 {
-  UDWORD *ip, *end;
-  OPCODE opcode;
-  UDWORD data, i, dim;
-  SCRIPT_DEBUG* psCurrDebug = nullptr;
-  BOOL debugInfo, triggerCode;
-  UDWORD jumpOffset;
-  VAR_DEBUG* psCurrVar;
-  ARRAY_DATA* psCurrArray;
-  ARRAY_DEBUG* psCurrArrayDebug;
+  DEBUG_ASSERT_TEXT(psProg != NULL, "cpPrintProgram: Invalid program pointer");
 
-  debugInfo = psProg->psDebug != nullptr;
+  Neuron::DebugTrace("triggers: {}  events: {}  functions: {}  globals: {}  arrays: {} ({} values)\n",
+                     psProg->numTriggers, psProg->numEvents, psProg->numFuncs,
+                     psProg->numGlobals, psProg->numArrays, psProg->arraySize);
 
-  if (debugInfo)
+  for (UDWORD ip = 0; ip < psProg->aCode.size(); ip++)
   {
-    // Print out the global variables
-    if (psProg->numGlobals > 0)
+    const ScriptInstr& sInstr = psProg->aCode[ip];
+
+    cpPrintLabel(psProg, ip);
+    Neuron::DebugTrace("{:6}  ", ip);
+    switch (sInstr.op)
     {
-      Neuron::DebugTrace("index  storage  type variable name\n");
-      psCurrVar = psProg->psVarDebug;
-      for (i = 0; i < psProg->numGlobals; i++)
-      {
-        Neuron::DebugTrace("{:<6} {}  {:<4} {}\n", psCurrVar - psProg->psVarDebug,
-          psCurrVar->storage == ST_PUBLIC ? "Public " : "Private", psProg->pGlobals[i], psCurrVar->pIdent);
-        psCurrVar++;
-      }
-    }
-
-    if (psProg->numArrays > 0)
-    {
-      Neuron::DebugTrace("\narrays\n");
-      psCurrArray = psProg->psArrayInfo;
-      psCurrArrayDebug = psProg->psArrayDebug;
-      for (i = 0; i < psProg->numArrays; i++)
-      {
-        Neuron::DebugTrace("{:<6} {}  {:<4} {}", i,
-          psCurrArrayDebug->storage == ST_PUBLIC ? "Public " : "Private", psCurrArray->type, psCurrArrayDebug->pIdent);
-        for (dim = 0; dim < psCurrArray->dimensions; dim += 1)
-          Neuron::DebugTrace("[{}]", psCurrArray->elements[dim]);
-        Neuron::DebugTrace("\n");
-        psCurrArray++;
-        psCurrArrayDebug++;
-      }
-    }
-
-    Neuron::DebugTrace("\nindex  line   offset\n");
-    psCurrDebug = psProg->psDebug;
-  }
-  else
-    Neuron::DebugTrace("index         offset\n");
-
-  // Find the first trigger with code
-  for (jumpOffset = 0; jumpOffset < psProg->numTriggers; jumpOffset++)
-  {
-    if (psProg->psTriggerData[jumpOffset].type == TR_CODE)
-      break;
-  }
-
-  ip = psProg->pCode;
-  triggerCode = psProg->numTriggers > 0 ? TRUE : FALSE;
-  end = (UDWORD*)(((UBYTE*)ip) + psProg->size);
-  opcode = (*ip) >> OPCODE_SHIFT;
-  data = (*ip) & OPCODE_DATAMASK;
-  while (ip < end)
-  {
-    // display a label if there is one
-    if (debugInfo)
-    {
-      if (static_cast<UDWORD>(ip - psProg->pCode) == psCurrDebug->offset && psCurrDebug->pLabel != nullptr)
-        Neuron::DebugTrace("{}\n", psCurrDebug->pLabel);
-    }
-
-    // Display the trigger/event index
-    if (triggerCode)
-    {
-      if (ip - psProg->pCode == psProg->pTriggerTab[jumpOffset])
-      {
-        Neuron::DebugTrace("{:<6} ", jumpOffset);
-        jumpOffset += 1;
-        // Find the next trigger with code
-        while (jumpOffset < psProg->numTriggers)
-        {
-          if (psProg->psTriggerData[jumpOffset].type == TR_CODE)
-            break;
-          jumpOffset++;
-        }
-        if (jumpOffset >= psProg->numTriggers)
-        {
-          // Got to the end of the triggers
-          triggerCode = FALSE;
-          jumpOffset = 0;
-        }
-      }
+    case OP_PUSH:
+      Neuron::DebugTrace("PUSH        ");
+      cpPrintType(sInstr.type);
+      if (sInstr.type == VAL_BOOL || sInstr.type == VAL_INT || sInstr.type == VAL_TRIGGER || sInstr.type == VAL_EVENT)
+        Neuron::DebugTrace(" {}", sInstr.arg.ival);
       else
-        Neuron::DebugTrace("       ");
-    }
-    else
-    {
-      if (ip - psProg->pCode == psProg->pEventTab[jumpOffset])
-      {
-        Neuron::DebugTrace("{:<6} ", jumpOffset);
-        jumpOffset += 1;
-      }
-      else
-        Neuron::DebugTrace("       ");
-    }
-
-    // Display the line number
-    if (debugInfo)
-    {
-      if (static_cast<UDWORD>(ip - psProg->pCode) == psCurrDebug->offset)
-      {
-        Neuron::DebugTrace("{:<6} ", psCurrDebug->line);
-        psCurrDebug++;
-      }
-      else
-        Neuron::DebugTrace("       ");
-    }
-
-    // Display the code offset
-    Neuron::DebugTrace("{:<6}  ", ip - psProg->pCode);
-    switch (opcode)
-    {
-    case OP_PUSH: Neuron::DebugTrace("PUSH        ");
-      cpPrintPackedVal(ip);
-      Neuron::DebugTrace("\n");
-      ip += aOpSize[opcode];
+        Neuron::DebugTrace(" {:x}", reinterpret_cast<std::uintptr_t>(sInstr.arg.oval));
       break;
-    case OP_PUSHREF: Neuron::DebugTrace("PUSHREF     ");
-      cpPrintPackedVal(ip);
-      Neuron::DebugTrace("\n");
-      ip += aOpSize[opcode];
+    case OP_PUSHREF:
+      Neuron::DebugTrace("PUSHREF     ");
+      cpPrintType(sInstr.type);
+      Neuron::DebugTrace(" var {}", sInstr.data);
       break;
-    case OP_POP: Neuron::DebugTrace("POP\n");
-      ip += aOpSize[opcode];
+    case OP_POP: Neuron::DebugTrace("POP         ");
       break;
-    case OP_PUSHGLOBAL: Neuron::DebugTrace("PUSHGLOBAL  {}\n", data);
-      ip += aOpSize[opcode];
+    case OP_PUSHGLOBAL: Neuron::DebugTrace("PUSHGLOBAL  {}", sInstr.data);
       break;
-    case OP_POPGLOBAL: Neuron::DebugTrace("POPGLOBAL   {}\n", data);
-      ip += aOpSize[opcode];
+    case OP_POPGLOBAL: Neuron::DebugTrace("POPGLOBAL   {}", sInstr.data);
       break;
-    case OP_PUSHARRAYGLOBAL: Neuron::DebugTrace("PUSHARRAYGLOBAL  ");
-      cpPrintArrayInfo(&ip, psProg);
-      Neuron::DebugTrace("\n");
+    case OP_PUSHARRAYGLOBAL: Neuron::DebugTrace("PUSHARRAY   base {} dims {}", sInstr.data, sInstr.type);
       break;
-    case OP_POPARRAYGLOBAL: Neuron::DebugTrace("POPARRAYGLOBAL   ");
-      cpPrintArrayInfo(&ip, psProg);
-      Neuron::DebugTrace("\n");
+    case OP_POPARRAYGLOBAL: Neuron::DebugTrace("POPARRAY    base {} dims {}", sInstr.data, sInstr.type);
       break;
-    case OP_CALL: Neuron::DebugTrace("CALL        ");
-      cpPrintFunc((SCRIPT_FUNC)(*(ip + 1)));
-      Neuron::DebugTrace("\n");
-      ip += aOpSize[opcode];
+    case OP_CALL:
+      Neuron::DebugTrace("CALL        ");
+      cpPrintCallee(sInstr.arg.func);
       break;
-    case OP_VARCALL: Neuron::DebugTrace("VARCALL     ");
-      cpPrintVarFunc((SCRIPT_VARFUNC)(*(ip + 1)), data);
-      Neuron::DebugTrace("({})\n", data);
-      ip += aOpSize[opcode];
+    case OP_VARCALL:
+      Neuron::DebugTrace("VARCALL     ");
+      cpPrintVarCallee(sInstr.arg.func);
+      Neuron::DebugTrace("({})", sInstr.data);
       break;
-    case OP_JUMP: Neuron::DebugTrace("JUMP        {} ({})\n", static_cast<SWORD>(data), ip - psProg->pCode + static_cast<SWORD>(data));
-      ip += aOpSize[opcode];
+    case OP_SCRIPTCALL:
+      Neuron::DebugTrace("SCRIPTCALL  {} ({} params)", sInstr.arg.func, sInstr.data);
       break;
-    case OP_JUMPTRUE: Neuron::DebugTrace("JUMPTRUE    {} ({})\n", static_cast<SWORD>(data), ip - psProg->pCode + static_cast<SWORD>(data));
-      ip += aOpSize[opcode];
+    case OP_SCRIPTRET: Neuron::DebugTrace("SCRIPTRET   ");
       break;
-    case OP_JUMPFALSE: Neuron::DebugTrace("JUMPFALSE   {} ({})\n", static_cast<SWORD>(data), ip - psProg->pCode + static_cast<SWORD>(data));
-      ip += aOpSize[opcode];
+    case OP_JUMP: Neuron::DebugTrace("JUMP        {} ({})", sInstr.data, static_cast<SDWORD>(ip) + sInstr.data);
       break;
-    case OP_BINARYOP:
-    case OP_UNARYOP:
-      cpPrintMathsOp(data);
-      Neuron::DebugTrace("\n");
-      ip += aOpSize[opcode];
+    case OP_JUMPTRUE: Neuron::DebugTrace("JUMPTRUE    {} ({})", sInstr.data, static_cast<SDWORD>(ip) + sInstr.data);
       break;
-    case OP_EXIT: Neuron::DebugTrace("EXIT\n");
-      ip += aOpSize[opcode];
+    case OP_JUMPFALSE: Neuron::DebugTrace("JUMPFALSE   {} ({})", sInstr.data, static_cast<SDWORD>(ip) + sInstr.data);
       break;
-    case OP_PAUSE: Neuron::DebugTrace("PAUSE       {}\n", data);
-      ip += aOpSize[opcode];
+    case OP_BINARYOP: cpPrintMathsOp(static_cast<UDWORD>(sInstr.data));
       break;
-    default: DEBUG_ASSERT_TEXT(FALSE,"cpPrintProgram: Unknown opcode: {:x}", *ip);
+    case OP_UNARYOP: cpPrintMathsOp(static_cast<UDWORD>(sInstr.data));
+      break;
+    case OP_EXIT: Neuron::DebugTrace("EXIT        ");
+      break;
+    case OP_PAUSE: Neuron::DebugTrace("PAUSE       {}", sInstr.data);
+      break;
+    default: DEBUG_ASSERT_TEXT(FALSE, "cpPrintProgram: unknown opcode");
       break;
     }
-
-    opcode = (*ip) >> OPCODE_SHIFT;
-    data = (*ip) & OPCODE_DATAMASK;
+    Neuron::DebugTrace("\n");
   }
 }

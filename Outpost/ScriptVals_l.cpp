@@ -246,6 +246,9 @@ static int fprintf(FILE* f, char* c, ...) { return 0; }
 /* Turn off a couple of warnings that the lex generated code gives */
 #pragma warning ( disable : 4102 4305 )
 
+/* Maximum number of TEXT items in any one rule (was in Parse.h) */
+#define TEXT_BUFFERS 10
+
 /* Maximum length for any TEXT value */
 #define YYLMAX	255
 

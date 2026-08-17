@@ -19,8 +19,8 @@
     <ClCompile Include="PQueue.cpp" />
     <ClCompile Include="PtrList.cpp" />
     <ClCompile Include="Script.cpp" />
-    <ClCompile Include="Script_l.cpp" />
-    <ClCompile Include="Script_y.cpp" />
+    <ClCompile Include="ScriptComp.cpp" />
+    <ClCompile Include="ScriptLex.cpp" />
     <ClCompile Include="Stack.cpp" />
     <ClCompile Include="StrRes.cpp" />
     <ClCompile Include="StrRes_l.cpp" />
@@ -47,7 +47,7 @@
     <ClInclude Include="Priority.h" />
     <ClInclude Include="PtrList.h" />
     <ClInclude Include="Script.h" />
-    <ClInclude Include="Script_y.h" />
+    <ClInclude Include="ScriptLex.h" />
     <ClInclude Include="Stack.h" />
     <ClInclude Include="StrRes.h" />
     <ClInclude Include="StrResLY.h" />

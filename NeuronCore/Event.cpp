@@ -171,16 +171,16 @@ const STRING* eventGetTriggerID(SCRIPT_CODE* psCode, SDWORD trigger)
     break;
   }
 
-  if (psCode->psDebug == nullptr || type != TR_CODE)
+  if (psCode->psDebug.empty() || type != TR_CODE)
     sprintf(aIDNum, "%d (%s)", trigger, pTrigType);
   else
   {
     pID = "NOT FOUND";
-    for (i = 0; i < psCode->debugEntries; i++)
+    for (i = 0; i < static_cast<SDWORD>(psCode->psDebug.size()); i++)
     {
       if (psCode->psDebug[i].offset == psCode->pTriggerTab[trigger])
       {
-        pID = psCode->psDebug[i].pLabel;
+        pID = psCode->psDebug[i].pLabel.c_str();
         break;
       }
     }
@@ -197,18 +197,18 @@ const STRING* eventGetEventID(SCRIPT_CODE* psCode, SDWORD event)
   static STRING aIDNum[255];
   SDWORD i;
 
-  if ((psCode->psDebug == nullptr) || (event < 0) || (event > psCode->numEvents))
+  if (psCode->psDebug.empty() || (event < 0) || (event > psCode->numEvents))
   {
     sprintf(aIDNum, "%d", event);
     return aIDNum;
   }
 
   pID = "NOT FOUND";
-  for (i = 0; i < psCode->debugEntries; i++)
+  for (i = 0; i < static_cast<SDWORD>(psCode->psDebug.size()); i++)
   {
     if (psCode->psDebug[i].offset == psCode->pEventTab[event])
     {
-      pID = psCode->psDebug[i].pLabel;
+      pID = psCode->psDebug[i].pLabel.c_str();
       break;
     }
   }
@@ -220,7 +220,7 @@ const STRING* eventGetEventID(SCRIPT_CODE* psCode, SDWORD event)
 void eventPrintTriggerInfo(ACTIVE_TRIGGER* psTrigger)
 {
   SCRIPT_CODE* psCode = psTrigger->psContext->psCode;
-  BOOL debugInfo = psCode->psDebug != nullptr;
+  BOOL debugInfo = !psCode->psDebug.empty();
   const STRING *pTrigLab, *pEventLab;
 
   // find the debug info for the trigger
@@ -304,7 +304,7 @@ BOOL eventNewContext(SCRIPT_CODE* psCode, CONTEXT_RELEASE release, SCRIPT_CONTEX
   psContext->release = static_cast<SWORD>(release == CR_RELEASE ? TRUE : FALSE);
   psContext->psGlobals = nullptr;
   psContext->id = -1; // only used by the save game
-  val = psCode->numGlobals + psCode->arraySize - 1;
+  val = static_cast<SDWORD>(psCode->ValueSlots()) - 1;
   arrayNum = psCode->numArrays - 1;
   arraySize = 1;
   if (psCode->numArrays > 0)
@@ -330,13 +330,19 @@ BOOL eventNewContext(SCRIPT_CODE* psCode, CONTEXT_RELEASE release, SCRIPT_CONTEX
     storeIndex = val % CONTEXT_VALS;
     while (storeIndex >= 0)
     {
-      if (val >= psCode->numGlobals)
+      /* Function parameter slots sit above the globals and arrays; they
+         are call-scoped temporaries, so they get a type but no create
+         hook (nor a release at context teardown). */
+      const bool paramSlot = val >= static_cast<SDWORD>(psCode->numGlobals + psCode->arraySize);
+      if (paramSlot)
+        type = psCode->aParamTypes[val - psCode->numGlobals - psCode->arraySize];
+      else if (val >= psCode->numGlobals)
         type = psCode->psArrayInfo[arrayNum].type;
       else
         type = psCode->pGlobals[val];
       psNewChunk->asVals[storeIndex].type = type;
-      psNewChunk->asVals[storeIndex].v.ival = 0;
-      if (asCreateFuncs != nullptr && type < numFuncs && asCreateFuncs[type])
+      psNewChunk->asVals[storeIndex].v.oval = nullptr;
+      if (!paramSlot && asCreateFuncs != nullptr && type < numFuncs && asCreateFuncs[type])
       {
         if (!asCreateFuncs[type](psNewChunk->asVals + storeIndex))
         {
@@ -352,17 +358,20 @@ BOOL eventNewContext(SCRIPT_CODE* psCode, CONTEXT_RELEASE release, SCRIPT_CONTEX
       }
       storeIndex -= 1;
       val -= 1;
-      arraySize -= 1;
-      if (arraySize <= 0)
+      if (!paramSlot)
       {
-        // finished this array
-        arrayNum -= 1;
-        if (arrayNum >= 0)
+        arraySize -= 1;
+        if (arraySize <= 0)
         {
-          // calculate the next array size
-          arraySize = 1;
-          for (i = 0; i < psCode->psArrayInfo[arrayNum].dimensions; i++)
-            arraySize *= psCode->psArrayInfo[arrayNum].elements[i];
+          // finished this array
+          arrayNum -= 1;
+          if (arrayNum >= 0)
+          {
+            // calculate the next array size
+            arraySize = 1;
+            for (i = 0; i < psCode->psArrayInfo[arrayNum].dimensions; i++)
+              arraySize *= psCode->psArrayInfo[arrayNum].elements[i];
+          }
         }
       }
     }
@@ -388,13 +397,14 @@ BOOL eventCopyContext(SCRIPT_CONTEXT* psContext, SCRIPT_CONTEXT** ppsNew)
   if (!eventNewContext(psContext->psCode, static_cast<CONTEXT_RELEASE>(psContext->release), &psNew))
     return FALSE;
 
-  // Now copy the values over
+  // Now copy the values over.  The whole union is copied - the old
+  // ival-only copy would truncate object pointers on x64.
   psChunk = psNew->psGlobals;
   psOChunk = psContext->psGlobals;
   while (psChunk)
   {
     for (val = 0; val < CONTEXT_VALS; val++)
-      psChunk->asVals[val].v.ival = psOChunk->asVals[val].v.ival;
+      psChunk->asVals[val].v = psOChunk->asVals[val].v;
     psChunk = psChunk->psNext;
     psOChunk = psOChunk->psNext;
   }
@@ -421,7 +431,7 @@ BOOL eventRunContext(SCRIPT_CONTEXT* psContext, UDWORD time)
     if (psCode->pEventLinks[event] >= 0)
     {
       // See if this is an init event
-      psData = psCode->psTriggerData + psCode->pEventLinks[event];
+      psData = &psCode->psTriggerData[psCode->pEventLinks[event]];
       if (psData->type == TR_INIT)
       {
         if (!interpRunScript(psContext, IRT_EVENT, event, 0))
@@ -644,7 +654,7 @@ static BOOL eventInitTrigger(ACTIVE_TRIGGER** ppsTrigger, SCRIPT_CONTEXT* psCont
   // Initialise the trigger
   psNewTrig->psContext = psContext;
   psContext->triggerCount += 1;
-  psTrigData = psContext->psCode->psTriggerData + trigger;
+  psTrigData = &psContext->psCode->psTriggerData[trigger];
   testTime = currTime + psTrigData->time;
   psNewTrig->testTime = testTime;
   psNewTrig->trigger = static_cast<SWORD>(trigger);
@@ -677,7 +687,7 @@ BOOL eventLoadTrigger(UDWORD time, SCRIPT_CONTEXT* psContext, SDWORD type, SDWOR
   // Initialise the trigger
   psNewTrig->psContext = psContext;
   psContext->triggerCount += 1;
-  psTrigData = psContext->psCode->psTriggerData + trigger;
+  psTrigData = &psContext->psCode->psTriggerData[trigger];
   psNewTrig->testTime = time;
   psNewTrig->trigger = static_cast<SWORD>(trigger);
   psNewTrig->type = static_cast<SWORD>(type);
@@ -776,7 +786,7 @@ void eventFireCallbackTrigger(TRIGGER_TYPE callback)
       {
         DEBUG_ASSERT_TEXT(psCurr->trigger >= 0 &&
           psCurr->trigger < psCurr->psContext->psCode->numTriggers, "eventFireCallbackTrigger: invalid trigger number");
-        psTrigDat = psCurr->psContext->psCode->psTriggerData + psCurr->trigger;
+        psTrigDat = &psCurr->psContext->psCode->psTriggerData[psCurr->trigger];
       }
       else
         psTrigDat = nullptr;
@@ -943,7 +953,7 @@ void eventProcessTriggers(UDWORD currTime)
       else
       {
         // Add the trigger again
-        psData = psCurr->psContext->psCode->psTriggerData + psCurr->trigger;
+        psData = &psCurr->psContext->psCode->psTriggerData[psCurr->trigger];
         psCurr->testTime = currTime + psData->time;
         psCurr->psNext = psAddedTriggers;
         psAddedTriggers = psCurr;

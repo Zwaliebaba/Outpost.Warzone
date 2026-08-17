@@ -197,7 +197,49 @@ low bits the slot; OP_SCRIPTCALL's `func` is the script function index and
 `asScrObjectVarTab` at execution time, so the disassembler can print real
 names and nothing survives in memory that a table reload would break.
 
-## 7. `.vlo` value files (stage 3)
+## 7. Implementation notes (native compiler)
+
+Decisions that bind the implementation, in addition to §6:
+
+- **Files**: `NeuronCore/ScriptLex.h/.cpp` (token enum, lexer — shared with
+  the stage-3 `.vlo` parser), `NeuronCore/ScriptComp.cpp` (parser +
+  codegen + the `scriptSet*Tab` setters, table globals and
+  `scriptLookUpType`, which move here from the deleted `Script_y.cpp`).
+  New code in `namespace Neuron` (R15); the legacy entry points
+  (`scriptCompile`, `cpPrintProgram`) keep their global names.
+- **`SCRIPT_CODE`** keeps its member *names* but the members become
+  `std::vector` (indexing sites compile unchanged; `psDebug == nullptr`
+  checks become `.empty()`, `debugEntries` becomes `psDebug.size()`).
+  New members for functions: `pFuncTab` (n+1 offsets), `psFuncData`
+  (`{firstParamSlot, numParams, returnType}`), `aParamTypes` (types of
+  all param slots). Context slot layout: declared globals
+  `[0, numGlobals)`, array elements `[numGlobals, numGlobals+arraySize)`,
+  function parameters after that. Parameter slots are **excluded** from
+  the create/release value hooks (they are call-scoped temporaries; the
+  hooks would leak or double-free them).
+- **Interpreter**: a frame stack (`{returnIp, frameStart, frameEnd}`)
+  serves OP_SCRIPTCALL/OP_SCRIPTRET; jump bounds check against the
+  current frame; recursion is refused by scanning the frame stack for the
+  callee. `INTERP_MAXINSTRUCTIONS` counts across frames per
+  `interpRunScript` call.
+- **Table ABI shrink**: `VAR_SYMBOL` keeps exactly the seven fields the
+  static game-table initialisers set (`pIdent, type, storage, objType,
+  index, get, set`); `FUNC_SYMBOL` keeps five (`pIdent, pFunc, type,
+  numParams, aParams`); compiler-internal symbols get their own private
+  types. `CONST_SYMBOL`/`CALLBACK_SYMBOL`/`TYPE_SYMBOL` unchanged.
+- **Errors**: compile errors report file/line/column and expected-vs-got
+  through `Neuron::Fatal`, which throws — `NeuronCoreTest` catches
+  `std::runtime_error` to assert on rejected input; the game keeps its
+  fatal-at-load behaviour.
+- **Debug info**: always generated (the `.vlo` loader resolves variable
+  names through `psVarDebug`). Each trigger and event body now gets a
+  labelled entry at its first instruction — the old parser's trigger
+  labels were lost to a buffer-management bug, so `eventGetTriggerID`
+  printed "NOT FOUND" for code triggers; now it finds them.
+- The old `OP_JUMPTRUE` was never emitted by the old compiler and is not
+  by the new one; the interpreter still executes it for completeness.
+
+## 8. `.vlo` value files (stage 3)
 
 ```
 vlo      := "script" QTEXT ( "run" | "store" QTEXT? ) "{" binding* "}"

@@ -114,7 +114,7 @@ BOOL scrvCheckArrayIndex(SDWORD base, ARRAY_INDEXES* psIndexes, UDWORD* pIndex)
 {
   SDWORD i, size;
 
-  if (!psCurrScript || psCurrScript->psDebug == nullptr)
+  if (!psCurrScript || psCurrScript->psDebug.empty())
     return FALSE;
 
   if (base < 0 || base >= psCurrScript->numArrays)
@@ -451,12 +451,12 @@ BOOL scrvLookUpVar(STRING* pIdent, UDWORD* pIndex)
 {
   UDWORD i;
 
-  if (!psCurrScript || psCurrScript->psDebug == nullptr)
+  if (!psCurrScript || psCurrScript->psDebug.empty())
     return FALSE;
 
   for (i = 0; i < psCurrScript->numGlobals; i++)
   {
-    if (psCurrScript->psVarDebug[i].pIdent != nullptr && strcmp(psCurrScript->psVarDebug[i].pIdent, pIdent) == 0)
+    if (psCurrScript->psVarDebug[i].pIdent == pIdent)
     {
       *pIndex = i;
       return TRUE;
@@ -471,12 +471,12 @@ BOOL scrvLookUpArray(STRING* pIdent, UDWORD* pIndex)
 {
   UDWORD i;
 
-  if (!psCurrScript || psCurrScript->psDebug == nullptr)
+  if (!psCurrScript || psCurrScript->psDebug.empty())
     return FALSE;
 
   for (i = 0; i < psCurrScript->numArrays; i++)
   {
-    if (psCurrScript->psArrayDebug[i].pIdent != nullptr && strcmp(psCurrScript->psArrayDebug[i].pIdent, pIdent) == 0)
+    if (psCurrScript->psArrayDebug[i].pIdent == pIdent)
     {
       *pIndex = i;
       return TRUE;
