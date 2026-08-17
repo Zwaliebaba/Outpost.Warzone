@@ -184,8 +184,6 @@
     <ClInclude Include="ScriptLex.h" />
     <ClInclude Include="Stack.h" />
     <ClInclude Include="StrRes.h" />
-    <ClInclude Include="StrResLY.h" />
-    <ClInclude Include="StrRes_y.h" />
     <ClInclude Include="Treap.h" />
     <ClInclude Include="TreapInt.h" />
     <ClInclude Include="Types.h" />
@@ -216,8 +214,6 @@
     <ClCompile Include="ScriptLex.cpp" />
     <ClCompile Include="Stack.cpp" />
     <ClCompile Include="StrRes.cpp" />
-    <ClCompile Include="StrRes_l.cpp" />
-    <ClCompile Include="StrRes_y.cpp" />
     <ClCompile Include="Treap.cpp" />
   </ItemGroup>
   <ItemGroup>

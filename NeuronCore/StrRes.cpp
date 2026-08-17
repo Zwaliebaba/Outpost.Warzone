@@ -2,12 +2,10 @@
 
 // Report unused strings
 #include "Types.h"
+#include <string>
+
 #include "Treap.h"
 #include "StrRes.h"
-#include "StrResLY.h"
-
-/* The string resource currently being loaded */
-STR_RES* psCurrRes;
 
 /* The id number of ID strings allocated by the system is ORed with this */
 #define ID_ALLOC	0x80000000
@@ -298,13 +296,99 @@ STRING* strresGetString(STR_RES* psRes, UDWORD id)
   return psBlock->apStrings[id - psBlock->idStart];
 }
 
-/* Load a string resource file */
+/* Load a string resource file.
+
+   The format is id/string pairs - `IDENT "text"` - with C and C++
+   comments.  Measured over the nine shipped files (3,186 pairs), ids use
+   only [A-Za-z0-9_-].  This replaced the generated StrRes_y/StrRes_l
+   parser, the tree's last yacc/lex output. */
 BOOL strresLoad(STR_RES* psRes, UBYTE* pData, UDWORD size)
 {
-  psCurrRes = psRes;
-  strresSetInputBuffer(pData, size);
-  if (strres_parse() != 0)
-    return FALSE;
+  const char* p = reinterpret_cast<const char*>(pData);
+  const char* const end = p + size;
+  UDWORD line = 1;
+
+  const auto isIdChar = [](char c)
+  {
+    return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_' || c == '-';
+  };
+
+  while (p < end)
+  {
+    const char c = *p;
+
+    if (c == '\n')
+    {
+      line += 1;
+      p += 1;
+      continue;
+    }
+    if (c == ' ' || c == '\t' || c == '\r')
+    {
+      p += 1;
+      continue;
+    }
+    if (c == '/' && p + 1 < end && p[1] == '/')
+    {
+      while (p < end && *p != '\n')
+        p += 1;
+      continue;
+    }
+    if (c == '/' && p + 1 < end && p[1] == '*')
+    {
+      p += 2;
+      while (p + 1 < end && !(p[0] == '*' && p[1] == '/'))
+      {
+        if (*p == '\n')
+          line += 1;
+        p += 1;
+      }
+      if (p + 1 >= end)
+      {
+        Neuron::Fatal("strresLoad: unterminated comment at line {}", line);
+        return FALSE;
+      }
+      p += 2;
+      continue;
+    }
+
+    // An id followed by its quoted string
+    if (!isIdChar(c))
+    {
+      Neuron::Fatal("strresLoad: unexpected character '{}' at line {}", c, line);
+      return FALSE;
+    }
+    const char* idStart = p;
+    while (p < end && isIdChar(*p))
+      p += 1;
+    std::string id(idStart, p);
+
+    while (p < end && (*p == ' ' || *p == '\t' || *p == '\r'))
+      p += 1;
+    if (p >= end || *p != '"')
+    {
+      Neuron::Fatal("strresLoad: expected a quoted string after '{}' at line {}", id, line);
+      return FALSE;
+    }
+    p += 1;
+    const char* strStart = p;
+    while (p < end && *p != '"')
+    {
+      if (*p == '\n')
+        line += 1;
+      p += 1;
+    }
+    if (p >= end)
+    {
+      Neuron::Fatal("strresLoad: unterminated string for '{}' at line {}", id, line);
+      return FALSE;
+    }
+    std::string value(strStart, p);
+    p += 1;
+
+    if (!strresStoreString(psRes, const_cast<STRING*>(id.c_str()), const_cast<STRING*>(value.c_str())))
+      return FALSE;
+  }
 
   return TRUE;
 }

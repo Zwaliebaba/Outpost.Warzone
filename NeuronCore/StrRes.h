@@ -65,6 +65,9 @@ extern BOOL strresGetIDString(STR_RES* psRes, STRING* pIDStr, STRING** ppStoredI
 /* Get the string from an ID number */
 extern STRING* strresGetString(STR_RES* psRes, UDWORD id);
 
+/* Store a string */
+extern BOOL strresStoreString(STR_RES* psRes, STRING* pID, STRING* pString);
+
 /* Load a string resource file */
 extern BOOL strresLoad(STR_RES* psRes, UBYTE* pData, UDWORD size);
 
