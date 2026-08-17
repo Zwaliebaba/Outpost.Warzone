@@ -609,7 +609,7 @@ BOOL loadGame(STRING* pGameToLoad, BOOL keepObjects, BOOL freeMem)
   powerCalculated = FALSE;
 
   strcpy(aFileName, pGameToLoad);
-  fileExten = strlen(aFileName) - 3; // hack - !
+  fileExten = static_cast<UDWORD>(strlen(aFileName)) - 3; // hack - !
   aFileName[fileExten - 1] = '\0';
   strcat(aFileName, "\\");
 
@@ -1642,7 +1642,9 @@ SDWORD getCompFromNamePreV7(UDWORD compType, STRING* pName)
 
     if (!strcmp(pTranslatedName, pName))
       return count;
-    psStats = (BASE_STATS*)((UDWORD)psStats + statSize);
+    /* Walk to the next record by bytes. Casting the pointer through
+       UDWORD to do the arithmetic truncates it on a 64-bit build. */
+    psStats = reinterpret_cast<BASE_STATS*>(reinterpret_cast<UBYTE*>(psStats) + statSize);
   }
 
   //return -1 if record not found or an invalid component type is passed in
@@ -1692,7 +1694,9 @@ SDWORD getStatFromNamePreV7(BOOL isFeature, STRING* pName)
 
     if (!strcmp(pTranslatedName, pName))
       return count;
-    psStats = (BASE_STATS*)((UDWORD)psStats + statSize);
+    /* Walk to the next record by bytes. Casting the pointer through
+       UDWORD to do the arithmetic truncates it on a 64-bit build. */
+    psStats = reinterpret_cast<BASE_STATS*>(reinterpret_cast<UBYTE*>(psStats) + statSize);
   }
 
   //return -1 if record not found or an invalid component type is passed in

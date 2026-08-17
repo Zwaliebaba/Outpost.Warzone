@@ -5552,7 +5552,11 @@ BOOL checkValidWeaponForProp(DROID_TEMPLATE* psTemplate)
   //also checks that there is only a weapon attached and no other system component
   if (psTemplate->numWeaps == 0)
     bValid = FALSE;
-  if ((psTemplate->asParts[COMP_BRAIN] != 0) && (psTemplate->asParts[COMP_WEAPON] != 0))
+  /* asParts has no COMP_WEAPON slot - it stops at COMP_CONSTRUCT, and the
+     weapon is asWeaps[0]. Reading asParts[COMP_WEAPON] ran one past the
+     array into buildPoints, which is all but always non-zero, so this read
+     as "a command brain is never valid here" and still does. */
+  if ((psTemplate->asParts[COMP_BRAIN] != 0) && (psTemplate->asWeaps[0] != 0))
     bValid = FALSE;
 
   return bValid;

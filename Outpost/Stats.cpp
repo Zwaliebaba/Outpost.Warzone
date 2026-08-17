@@ -2958,7 +2958,9 @@ SDWORD getCompFromName(UDWORD compType, STRING* pName)
   {
     if (!strcmp(pName, psStats->pName))
       return count;
-    psStats = (BASE_STATS*)((UDWORD)psStats + statSize);
+    /* Walk to the next record by bytes. Casting the pointer through
+       UDWORD to do the arithmetic truncates it on a 64-bit build. */
+    psStats = reinterpret_cast<BASE_STATS*>(reinterpret_cast<UBYTE*>(psStats) + statSize);
   }
   //return -1 if record not found or an invalid component type is passed in
   return -1;
@@ -2979,7 +2981,9 @@ SDWORD getCompFromHash(UDWORD compType, UDWORD HashedName)
   for (count = 0; count < numStats; count++)
   {
     if (HashedName == psStats->NameHash) { return count; }
-    psStats = (BASE_STATS*)((UDWORD)psStats + statSize);
+    /* Walk to the next record by bytes. Casting the pointer through
+       UDWORD to do the arithmetic truncates it on a 64-bit build. */
+    psStats = reinterpret_cast<BASE_STATS*>(reinterpret_cast<UBYTE*>(psStats) + statSize);
   }
   //return -1 if record not found or an invalid component type is passed in
   return -1;

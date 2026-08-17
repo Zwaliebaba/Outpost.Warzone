@@ -979,7 +979,9 @@ BOOL sendWholeDroid(DROID* pD, NETPLAYERID dest)
   NETMSG m;
   UDWORD sizecount = 0;
   UDWORD noTarget = 0;
-  SDWORD asParts[DROID_MAXCOMP];
+  /* Zeroed because COMP_UNKNOWN has no component and nothing below writes
+     slot 0, and this array goes on the wire. */
+  SDWORD asParts[DROID_MAXCOMP] = {};
   UDWORD asWeaps[DROID_MAXWEAPS];
 
   if (pD->asWeaps[0].nStat > 0) // build some bits for the template.
@@ -987,6 +989,10 @@ BOOL sendWholeDroid(DROID* pD, NETPLAYERID dest)
   else
     asWeaps[0] = 0;
 
+  /* There is deliberately no COMP_WEAPON entry: a weapon is not a part,
+     it travels in asWeaps above. DROID_MAXCOMP is COMP_NUMCOMPONENTS - 1,
+     so the valid slots stop at COMP_CONSTRUCT and asParts[COMP_WEAPON]
+     was one past the end of both this array and pD->asBits. */
   asParts[COMP_BODY] = pD->asBits[COMP_BODY].nStat; //allocate the components
   asParts[COMP_BRAIN] = pD->asBits[COMP_BRAIN].nStat;
   asParts[COMP_PROPULSION] = pD->asBits[COMP_PROPULSION].nStat;
@@ -994,7 +1000,6 @@ BOOL sendWholeDroid(DROID* pD, NETPLAYERID dest)
   asParts[COMP_ECM] = pD->asBits[COMP_ECM].nStat;
   asParts[COMP_REPAIRUNIT] = pD->asBits[COMP_REPAIRUNIT].nStat;
   asParts[COMP_CONSTRUCT] = pD->asBits[COMP_CONSTRUCT].nStat;
-  asParts[COMP_WEAPON] = pD->asBits[COMP_WEAPON].nStat;
   NetAdd(m, sizecount, asParts);
   sizecount += sizeof(asParts);
   NetAdd(m, sizecount, asWeaps);
@@ -1010,7 +1015,7 @@ BOOL sendWholeDroid(DROID* pD, NETPLAYERID dest)
   sizecount += sizeof(pD->player);
 
   NetAddSt(m, sizecount, pD->aName);
-  sizecount += strlen(pD->aName) + 1;
+  sizecount += static_cast<UDWORD>(strlen(pD->aName)) + 1;
 
   // that's enough to build a template, now the specific stuff!
   NetAdd(m, sizecount, pD->id);
@@ -1107,7 +1112,7 @@ BOOL receiveWholeDroid(NETMSG* m)
   dt.pName = (CHAR*)&dt.aName;
   strncpy(dt.aName, &(m->body[sizecount]), DROID_MAXNAME - 1);
   dt.aName[DROID_MAXNAME - 1] = 0; // just in case.
-  sizecount += strlen(dt.pName) + 1; // name is pointed at directly into the buffer.
+  sizecount += static_cast<UDWORD>(strlen(dt.pName)) + 1; // name is pointed at directly into the buffer.
 
   if (dt.asWeaps[0] == 0)
     dt.numWeaps = 0;
