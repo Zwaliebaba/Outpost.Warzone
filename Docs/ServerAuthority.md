@@ -6,11 +6,21 @@ render it and request changes to it, instead of today's model where every
 machine owns a slice of the truth? It surveys how multiplayer actually
 works in the shipped code, measures the distance from there to server
 authority, and proposes a staged route. It is a design document in the
-pattern of [AssetPipeline.md](AssetPipeline.md); no code changes accompany
-it. Figures were measured on the tree at the head of this branch
+pattern of [AssetPipeline.md](AssetPipeline.md); nothing it plans has been
+built. Figures were measured on the tree at the head of this branch
 (2026-08-17); defects noticed on the way are recorded in
-[Appendix B](#appendix-b--defects-noticed-during-the-survey) and
-deliberately not fixed here.
+[Appendix B](#appendix-b--defects-noticed-during-the-survey).
+
+**All seven decisions are settled by owner instruction (2026-08-17)** and
+are folded into the stages below rather than left as questions: the
+simulation goes to a new game-side library rather than into
+`NeuronServer`; stage A ships on its own; reconnect is lane work, not
+stage C; the server ticks at 30 Hz with check rates about ten times the
+shipped modem-era ones; the campaign moves onto `simTick` with everything
+else; the server exe targets Win32 first. The record is in
+[§5](#5-decisions--settled). One Appendix B defect was pulled forward as
+a fix rather than left recorded — the file-transfer path — and is the
+only code this document has caused.
 
 The direction itself is not this document's to decide — it is already on
 the record three times: Phase 5 deleted LAN discovery unbuilt because "the
@@ -376,10 +386,11 @@ all of it).
 - The power model becomes honest: the authority announces every player's
   power, not just its own (today AI power is never synced at all —
   §1.4), and clients stop accruing authoritatively.
-- The check rates and the `okToSend` budget become data. The shipped
-  1,201 bytes/sec was a modem's; QUIC on a modern link carries three
-  orders of magnitude more. Defaults stay shipped values until a real
-  run measures new ones — behaviour-preserving first, tuning after.
+- The check rates and the `okToSend` budget become data, the new values
+  beside the old (decision 3): droids 10 Hz, structures 2 Hz, power
+  1 Hz, roughly ten times the shipped modem-era rates. The 1998
+  constants stay in the file as the fallback and the record; neither set
+  is trusted until a run measures it.
 
 What stage A buys: the authority semantics, the validation code, the
 request/echo round-trip and its feel are all proven inside the running
@@ -412,15 +423,18 @@ reserves. Three sub-stages, each cross-checkable:
   `simTick(dt)` — that `gameLoop` calls where the block used to be, same
   `dt`, same order. The campaign and single-player run on it from this
   moment: one simulation path, no fork.
-- **B3 — the headless gate.** A minimal console target that links
-  `simTick` and its data loading *without* `NeuronClient`, built by CI
-  on every push. Like the save/load deletion's "deleted to a fixpoint",
-  this forces the dependency cleanup to done and then holds it there: a
-  presentation symbol leaking back into the sim becomes a link error,
-  not a review comment.
-
-Where the sim files land is decision 1 (§5); the moves themselves happen
-only after B3's gate holds, when they are mechanical project-file work.
+- **B3 — the headless gate, and the library.** A minimal console target
+  that links `simTick` and its data loading *without* `NeuronClient`,
+  built by CI on every push. Like the save/load deletion's "deleted to a
+  fixpoint", this forces the dependency cleanup to done and then holds
+  it there: a presentation symbol leaking back into the sim becomes a
+  link error, not a review comment. Once the gate holds, the sim files
+  move into their own **game-side static library** (decision 1) — not
+  `NeuronServer`, which keeps only session, tick and replication
+  scaffolding — linked by the game exe today and the server exe in
+  stage C. The move is mechanical project-file work at that point, and
+  it is when [AGENTS.md](../AGENTS.md) §2's repository map needs its
+  clarifying amendment.
 
 *Verified by:* `crosscheck.py` per commit; the B3 link gate in CI; the
 campaign boot run for B2 (`-game CAM_1A` plus a tutorial visit, since the
@@ -428,12 +442,14 @@ tutorial leans on `gameTime2` pause semantics — `Loop.cpp:174-180`).
 
 ### Stage C — The dedicated server process
 
-- A headless server executable: loads manifests, stats and the map
-  through the paths B3 proved, hosts the Transport listener, runs the
-  lobby protocol (the session subset of Appendix A, without the UI that
-  drives it today), ticks `simTick` on a fixed clock, emits the
-  authority stream, and validates requests with stage A's rules — now on
-  a machine no player owns.
+- A headless server executable, **Win32 first** (decision 6): loads
+  manifests, stats and the map through the paths B3 proved, hosts the
+  Transport listener, runs the lobby protocol (the session subset of
+  Appendix A, without the UI that drives it today), ticks `simTick` at
+  **30 Hz** with a fixed `dt`, emits the authority stream at the
+  decision-3 rates, and validates requests with stage A's rules — now on
+  a machine no player owns. x64 follows when
+  [X64Readiness.md](X64Readiness.md)'s run gate passes, not before.
 - "Host Game" in the client spawns a local server process and joins it —
   the listen-server experience on the dedicated-server architecture. A
   typed address joins a remote one, exactly as today.
@@ -469,10 +485,13 @@ cheat-broadcast machinery; delete distributed responsibility
 client send-half of `MultiSync.cpp`, the `turnOffMultiMsg` toggle (the
 client no longer applies anything that needs rebroadcast suppression),
 and the request-droid/whole-droid repair loop; finish command validation
-(placement, rate caps, alliance and gift rules); fix the file-transfer
-path to write only server-named files into a designated directory
-(Appendix B). Optionally — the anti-maphack line, listed rather than
-promised — per-player visibility filtering of the authority stream.
+(placement, rate caps, alliance and gift rules). The map-transfer feature
+gets its answer here too: it currently ships a `.wdg` archive whose
+reader no longer exists (Appendix B), so it is either rebuilt on the
+manifest-fragment design the asset-pipeline work called for, or deleted —
+its receive path is already hardened either way. Optionally — the
+anti-maphack line, listed rather than promised — per-player visibility
+filtering of the authority stream.
 
 ### The lane beyond (not this plan)
 
@@ -488,41 +507,57 @@ deliberately unplanned.
 
 ---
 
-## 5. Decisions needed
+## 5. Decisions — settled
 
-1. **Where the authoritative sim lives.** AGENTS.md §2 assigns
-   "authoritative simulation, session ownership" to `NeuronServer`; but
-   the sim is *game* code (droids, structures, research), and the
-   repository's layering keeps game code out of engine libraries. Either
-   (a) `NeuronServer` takes it, reading AGENTS.md literally, or (b)
-   `NeuronServer` takes session/tick/replication scaffolding and a new
-   game-side static library takes the sim, linked by both executables.
-   (b) preserves the layering and is recommended; either way the moves
-   wait for B3's gate.
-2. **Stage A: ship it or fold it into C.** It is a temporary mode — C
-   replaces host-as-authority with a process — but it is the only way to
-   prove the request/echo semantics and the validation rules inside the
-   running game before the extraction. Recommended: ship it.
-3. **The server tick.** `simTick(dt)` keeps the variable-`dt` code paths
-   (they are load-bearing everywhere), and the server calls it on a
-   fixed clock. Recommended start: 30 Hz tick, droid checks at 10 Hz,
-   structure checks at 2 Hz, power at 1 Hz — all held as data beside the
-   old modem budget, none trusted until a run measures them.
-4. **The campaign moves onto `simTick` in B2.** One simulation path is
-   the point; the risk is the campaign's pause states and
-   `gameTime2`-driven tutorial triggers. Recommended: yes, with the
-   campaign boot and tutorial on B2's run checklist.
-5. **Reconnect scope.** The world snapshot (and therefore mid-game
-   rejoin) is lane work by this plan. If the owner wants reconnect in
-   the first shipping server, it moves onto stage C and brings a
-   versioned wire serialization of world state with it — sized by what
-   `sendWholeDroid` already ships per object, and designed fresh rather
-   than resurrected from the deleted save format.
-6. **Server platform.** The server exe targets Win32 first — the only
-   configuration that has ever run — and moves to x64 when
+All seven were put to the owner and answered on 2026-08-17, before any
+implementation. They are recorded here and already folded into §4, so
+nothing in this plan is waiting on an answer.
+
+1. **Where the authoritative sim lives** — **a new game-side static
+   library**, not `NeuronServer`. `NeuronServer` keeps session, tick and
+   replication scaffolding; the simulation — droids, structures,
+   research, stats — goes to a library both executables link. The
+   alternative was reading AGENTS.md §2's "authoritative simulation" for
+   `NeuronServer` literally, which would put game code inside an engine
+   library and break the layering this repository has held everywhere
+   else. **AGENTS.md §2's wording needs a clarifying amendment when the
+   library lands**, so the map and the tree agree.
+2. **Stage A ships on its own**, ahead of the extraction. It is
+   temporary — stage C replaces host-as-authority with a process — but
+   it is the only way to prove the request/echo round-trip, the
+   validation rules and the command latency inside a game that can
+   actually be run. Folding it into C would make the first exercise of
+   those semantics simultaneous with the first headless server run.
+3. **The server tick is 30 Hz**, with check rates about ten times the
+   shipped ones: droids 10 Hz, structures 2 Hz, power 1 Hz. `simTick`
+   keeps its variable-`dt` paths; the server supplies a fixed `dt`. The
+   new rates and the 1998 constants sit side by side as data, and none
+   of them is trusted until a run measures it — the shipped
+   1,201 bytes/sec budget was a modem's, and QUIC carries this without
+   noticing.
+4. **The campaign moves onto `simTick` in B2**, with multiplayer — one
+   simulation path from the moment it exists, no fork to maintain. The
+   risk is the campaign's pause states and `gameTime2`-driven tutorial
+   triggers (`Loop.cpp:174-180`), so a campaign boot and a tutorial
+   visit are on B2's run checklist.
+5. **Reconnect is lane work, after stage C.** The first server ships
+   without mid-game join: matches start together, as they do today, and
+   every machine builds the start world from the map and the options
+   broadcast. That keeps a versioned world-state wire format off the
+   critical path. It arrives with the persistence and directory lane,
+   and is designed fresh rather than resurrected from the deleted save
+   format.
+6. **The server exe targets Win32 first** — the only configuration with
+   a running history — and moves to x64 when
    [X64Readiness.md](X64Readiness.md)'s run gate passes. The
    long-lived-process argument for x64 is real but not urgent at
-   one-match scale.
+   one-match scale, and starting there would stack two untested things.
+7. **The file-transfer hole is fixed now**, ahead of the plan, rather
+   than waiting for stage D: `NETrecvFile` wrote to whatever path
+   arrived in the packet. The rest of Appendix B stays recorded for the
+   stages that rewrite that code — `sendVtolRearm` and the null
+   dereference are simulation bugs the server work replaces, and fixing
+   them now would be churn in files stage B moves.
 
 ---
 
@@ -592,12 +627,34 @@ Recorded, not fixed — this is a design document.
   without calling `NETbcast`/`NETsend` (`Multibot.cpp:111-133`), so VTOL
   rearm state has silently never been synchronized; `recvVtolRearm` is
   unreachable.
-- **`NETrecvFile` writes whatever path the packet names.** The filename
-  comes from the message body and goes straight to `fopen(..., "wb")`
-  with no path validation and no failure check on the handle
-  (`NetPlay.cpp:337-364`); a hostile host can write outside the game
-  directory, and a dropped first chunk crashes on a null `FILE*`. Stage
-  D's file-transfer hardening owns this.
+- ~~**`NETrecvFile` writes whatever path the packet names.**~~ **Fixed
+  (2026-08-17, decision 7)** — the one item pulled forward out of this
+  appendix. The filename came from the message body and went straight to
+  `fopen(..., "wb")` with no validation and no check on the handle, and
+  its length was read into a *signed* `char`, so a peer could choose the
+  file, choose the directory it landed in, and overrun the 128-byte name
+  buffer choosing it. A transferred file is now a bare name in the
+  working directory — no separator, drive letter, parent directory,
+  control character or wildcard — the declared name and data lengths are
+  held inside the message body, an empty or inconsistent transfer is
+  refused, and a chunk arriving with no transfer open is dropped instead
+  of written through a null handle. The send side refuses a name too long
+  to survive the round trip and an empty file (which divided by zero).
+  This was worth fixing ahead of the plan because the receive path is
+  reachable from the wire *today* — a hostile host in the lobby can send
+  `FILEMSG` frames whether or not the legitimate map transfer works, and
+  it does not: it ships a `.wdg` archive, a format whose reader the
+  asset-pipeline work deleted.
+- **Map transfer sends a format nothing can read.** `recvMapFileRequested`
+  builds a `.wdg` archive name and ships it (`MultiPlay.cpp:1287-1321`),
+  but the WDG layer — reader, cache and all — was deleted by the
+  asset-pipeline work, and there are zero `.wdg` files in the tree. The
+  receiving client writes the file, announces "MAP DOWNLOADED!" and
+  re-registers its datasets from the manifest, which the download cannot
+  contribute to. Custom-map transfer has been non-functional since that
+  deletion; the asset pipeline recorded that it "wants a manifest-fragment
+  design when it returns". Stage D decides between rebuilding and deleting
+  it.
 - **`packageCheck` dereferences a null target.** When a checked droid's
   order is `DORDER_ATTACK`, `pD->psTarget->id` is read without a null
   check (`MultiSync.cpp:249-250`).

@@ -285,6 +285,14 @@ UBYTE NETsendFile(BOOL newFile, CHAR* fileName, NETPLAYERID player)
   UBYTE inBuff[2048];
   NETMSG msg;
 
+  /* the length travels as a single byte and the receiver refuses anything
+     longer, so a name that will not fit fails here rather than on arrival */
+  if (strlen(fileName) > MaxFileNameChars)
+  {
+    Neuron::DebugTrace("NETsendFile: {} is too long a name to send\n", fileName);
+    return 0;
+  }
+
   if (newFile)
   {
     // open the file.
@@ -303,9 +311,20 @@ UBYTE NETsendFile(BOOL newFile, CHAR* fileName, NETPLAYERID player)
       fileSize += bytesRead;
     }
     while (bytesRead != 0);
-    fclose(pFileHandle); // close 
+    fclose(pFileHandle); // close
+
+    if (fileSize == 0) // nothing to send, and the percentage below divides by it
+    {
+      Neuron::DebugTrace("NETsendFile: {} is empty\n", fileName);
+      pFileHandle = nullptr;
+      return 0;
+    }
+
     pFileHandle = fopen(fileName, "rb"); // reopen
   }
+
+  if (pFileHandle == nullptr) // a continuation with no transfer under it
+    return 0;
   // read some bytes.
   bytesRead = static_cast<UDWORD>(fread(&inBuff, 1, sizeof(inBuff), pFileHandle));
 
@@ -333,33 +352,119 @@ UBYTE NETsendFile(BOOL newFile, CHAR* fileName, NETPLAYERID player)
   return (currPos * 100) / fileSize;
 }
 
+/* The name a peer may write to.
+ *
+ * Every field below arrives from the network, so every one of them is
+ * checked. This used to fopen whatever path the packet named, with the
+ * length read into a signed char: a peer could pick the file, pick the
+ * directory it lived in, and overrun the name buffer choosing it. Nothing
+ * about the transport makes the sender trustworthy - the host is simply
+ * whoever the player typed an address for.
+ *
+ * A transferred file is a bare name in the working directory: no
+ * separator, no drive letter, no parent directory.
+ */
+static BOOL NETfileNameOk(const CHAR* pName, UDWORD len)
+{
+  UDWORD i;
+
+  if (len == 0)
+    return FALSE;
+
+  if (strcmp(pName, ".") == 0 || strcmp(pName, "..") == 0)
+    return FALSE;
+
+  for (i = 0; i < len; i++)
+  {
+    const CHAR c = pName[i];
+
+    if (c == '\\' || c == '/' || c == ':')
+      return FALSE;
+    /* control characters and wildcards have no business in a filename
+       and are how the odder Win32 path behaviours get reached */
+    if (static_cast<UBYTE>(c) < 0x20 || c == '*' || c == '?' || c == '"' || c == '<' || c == '>' || c == '|')
+      return FALSE;
+  }
+
+  return TRUE;
+}
+
 // recv file. it returns % of the file so far recvd.
 UBYTE NETrecvFile(NETMSG* pMsg)
 {
-  UDWORD pos, fileSize, currPos, bytesRead;
-  CHAR fileName[128], len;
+  UDWORD pos, fileSize, currPos, bytesRead, len, body;
+  CHAR fileName[MaxFileNameChars + 1];
   static FILE* pFileHandle;
+
+  /* the body length the sender declared, held to what a body can be: it
+     arrives from the wire like everything else */
+  body = pMsg->size;
+  if (body > MaxMsgSize)
+    body = MaxMsgSize;
+
+  if (body < 13)
+  {
+    Neuron::DebugTrace("NETrecvFile: message too short to carry a header\n");
+    return 0;
+  }
 
   //read incoming bytes.
   NetGet(pMsg, 0, fileSize);
   NetGet(pMsg, 4, bytesRead);
   NetGet(pMsg, 8, currPos);
 
-  // read filename
-  len = pMsg->body[12];
-  memcpy(fileName, &(pMsg->body[13]), len);
-  fileName[len] = '\0'; // terminate string.
+  // read filename. the length is a byte, and unsigned: as a signed char a
+  // peer could send a negative one and memcpy would take it as enormous.
+  len = static_cast<UBYTE>(pMsg->body[12]);
   pos = 13 + len;
 
+  if (len > MaxFileNameChars || pos > body || bytesRead > body - pos)
+  {
+    Neuron::DebugTrace("NETrecvFile: message does not hold the {} name and {} data bytes it claims\n", len, bytesRead);
+    return 0;
+  }
+
+  memcpy(fileName, &(pMsg->body[13]), len);
+  fileName[len] = '\0'; // terminate string.
+
+  if (!NETfileNameOk(fileName, len))
+  {
+    Neuron::DebugTrace("NETrecvFile: refusing to write {}\n", fileName);
+    return 0;
+  }
+
+  if (fileSize == 0 || currPos > fileSize || bytesRead > fileSize - currPos)
+  {
+    Neuron::DebugTrace("NETrecvFile: {} claims {} bytes at {} of {}\n", fileName, bytesRead, currPos, fileSize);
+    return 0;
+  }
+
   if (currPos == 0) // first packet!
+  {
+    if (pFileHandle != nullptr) // a transfer that never finished
+      fclose(pFileHandle);
     pFileHandle = fopen(fileName, "wb"); // create a new file.
+    if (pFileHandle == nullptr)
+    {
+      Neuron::DebugTrace("NETrecvFile: could not create {}\n", fileName);
+      return 0;
+    }
+  }
+  else if (pFileHandle == nullptr) // a chunk with no transfer under it
+  {
+    Neuron::DebugTrace("NETrecvFile: {} chunk at {} with no file open\n", fileName, currPos);
+    return 0;
+  }
 
   //write packet to the file.
   fwrite(&(pMsg->body[pos]), 1, bytesRead, pFileHandle);
 
   if (currPos + bytesRead == fileSize) // last packet
+  {
     fclose(pFileHandle);
+    pFileHandle = nullptr;
+  }
 
   //return the percent count.
-  return ((currPos + bytesRead) * 100) / fileSize;
+  return static_cast<UBYTE>(((currPos + bytesRead) * 100) / fileSize);
 }

@@ -34,6 +34,9 @@ using NETPLAYERID = unsigned int;
 #define MaxMsgSize			8000				// max size of a message in bytes.
 #define	StringSize			64					// size of strings used.
 #define MaxGames			12					// max number of concurrently playable games to allow.
+// longest filename a transferred file may carry. The length travels as one
+// byte, so this cannot exceed 255 whatever else it is set to.
+#define MaxFileNameChars	127
 
 /***************************************************************************/
 
