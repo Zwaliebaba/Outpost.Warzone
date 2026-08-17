@@ -120,7 +120,7 @@ int Neuron::FileGet(int fd)
 {
   if (fbf[fd].n == 0)
   {
-    fbf[fd].n = fread(fbf[fd].buffer, sizeof(int8), fbf[fd].buffersize, fbf[fd].fp);
+    fbf[fd].n = static_cast<int>(fread(fbf[fd].buffer, sizeof(int8), fbf[fd].buffersize, fbf[fd].fp));
     fbf[fd].b = fbf[fd].buffer;
   }
 
@@ -173,7 +173,7 @@ int Neuron::FilePut(int fd, int8 c)
 
   if (fbf[fd].n == fbf[fd].buffersize)
   {
-    i = fwrite(fbf[fd].buffer, sizeof(int8), fbf[fd].buffersize, fbf[fd].fp);
+    i = static_cast<int>(fwrite(fbf[fd].buffer, sizeof(int8), fbf[fd].buffersize, fbf[fd].fp));
     fbf[fd].n = 0;
     fbf[fd].b = fbf[fd].buffer;
   }

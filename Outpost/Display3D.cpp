@@ -1313,7 +1313,7 @@ void displayProximityMsgs(void)
   /* Go through all the proximity Displays*/
   for (PROXIMITY_DISPLAY* psProxDisp = apsProxDisp[selectedPlayer]; psProxDisp != nullptr; psProxDisp = psProxDisp->psNext)
   {
-    if (!((VIEW_PROXIMITY*)psProxDisp->psMessage->read))
+    if (!psProxDisp->psMessage->read)
     {
       if (psProxDisp->type == POS_PROXDATA)
       {

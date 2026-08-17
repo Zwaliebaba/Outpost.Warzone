@@ -8,19 +8,20 @@ that is not the one that went in.
 
 The x86 CI build's own 343 warnings were cleaned up alongside this audit; that
 work is separate and is described in the commit history. The Win32 build now
-emits 12. Nothing here shows up as a warning on Win32 — it only appears when
-`Platform=x64` is first built, and some of it will not appear even then,
-because a truncating cast is legal C++.
+emits 12. Nothing here showed up as a warning on Win32 — it only appeared once
+`Platform=x64` was built, and some of it never warns at all, because a
+truncating cast is legal C++.
 
 Status key: **Fixed** — done, and behaviour-identical on Win32.
 **Blocker** — must be designed and done before x64 can run.
 **Watch** — survives x64 by luck or convention; know it is there.
 
-**State as of 2026-08-17: no Blocker remains.** The script VM, the one item
-that was a project rather than an edit, was resolved by the module rewrite
-([`ScriptRewrite.md`](ScriptRewrite.md)). x64 configurations exist in every
-`.vcxproj` and in `Outpost.slnx`; nobody has built them yet, and doing so is
-the next step.
+**State as of 2026-08-17: x64 compiles and links, both configurations, zero
+errors.** The script VM, the one item that was a project rather than an edit,
+was resolved by the module rewrite ([`ScriptRewrite.md`](ScriptRewrite.md)).
+CI builds x64 on every push, non-blocking, and the diagnostics below are
+measured from those builds rather than predicted. It has still never been
+*run* -- see [Verification.md](Verification.md).
 
 ---
 
@@ -104,30 +105,59 @@ in `SDWORD` locals, the `.vlo` loader passing object pointers through a
 
 ---
 
+## Measured
+
+The first x64 build produced **203 unique warnings** (Debug; 205 Release),
+which is the only figure in this document that was ever counted rather than
+estimated -- and it inverted the audit's expectation. The audit predicted
+"mostly C4267, plus C4311/C4312 at the Watch sites". It was the other way
+round: 130 pointer truncations against 35 `size_t` narrowings.
+
+The reason is that the audit looked for *pointers parked in integers* and the
+build found the reverse -- *integers parked in pointers*, almost all of them
+one idiom. `WIDGET::pUserData` is a `void*`, and about half the game's widgets
+store a small number in it: a `PACKDWORD_TRI` image triple, a player number, a
+list index. The other half store a real object address, so the field cannot be
+retyped. `IntDisplay.cpp` alone accounted for 52 warnings, `HCI.cpp` 32,
+`MultiMenu.cpp` 19, `MultiInt.cpp` 17.
+
+Three findings were not anticipated at all:
+
+- **`Multibot.cpp:997`, C4789** -- `sendWholeDroid` wrote `asParts[COMP_WEAPON]`
+  on a 32-byte stack array whose last valid index is `COMP_CONSTRUCT`,
+  corrupting the stack. `Droid.cpp` had the same out-of-bounds index as a read.
+  A genuine memory bug, not an x64 one; x64's stricter buffer analysis is
+  simply what surfaced it.
+- **`IMDLoad.cpp`** -- `_imd_load_bsp` parked each BSP child's file index inside
+  the `link[]` pointer itself and resolved it in a second pass (12 warnings).
+- **`Stats.cpp:2961` and `Game.cpp:1645/1695`** -- stats-table walks that
+  advanced by casting `BASE_STATS*` through `UDWORD`.
+
+All of the above are fixed. `widgPackUserData` / `widgUnpackUserData` in
+`Widget.h` carry the widget integers through `uintptr_t`; the BSP indices and
+the stats walks no longer put non-pointers in pointers; the `size_t`
+narrowings are cast at the point of assignment.
+
+Fixing them also turned up one latent crash that had nothing to do with
+pointer width. `intOpenPlainForm` read `pUserData` back as a `WIDGET_DISPLAY`
+and installed it as the form's paint function whenever it was non-null.
+Nothing ever stores a display function there -- on a plain form the field is
+the close-animation flag -- so the only value the branch could ever have
+installed was `(WIDGET_DISPLAY)1`. It was unreachable solely because
+`HandleClosingWindows` deletes the form first.
+
+---
+
 ## Watch
 
 ### Small integers parked in pointer fields
 
-Two idioms store a number where a pointer lives and read it back with a
-narrowing cast. Both survive x64 — the stored value is small, so the truncated
-high half is zero — but neither is defensible and both will warn (C4311/C4312).
-
-- `Outpost/MultiInt.cpp`: `i = (int)psWidget->pUserData;` and the packed
-  variants, at four sites. The widget layer's `pUserData` is `void*` and the
-  front end uses it as an integer field.
-- `Outpost/MultiJoin.cpp`: `TarRef = (UDWORD)pD->psTarget;` then
-  `pD->psTarget = IdToPointer(TarRef, ANYPLAYER)`. The multiplayer join path
-  stashes an object *ID* in the target *pointer* field and resolves it after
-  the object lists are rebuilt. It works, but the field's type is a lie for
-  the duration.
-
-### `strlen` and `sizeof` into 32-bit locals
-
-`size_t` is 64-bit on x64, so `int Len = strlen(...)` becomes C4267. Present in
-`NeuronCore/Frame.cpp`, `NeuronClient/TextDraw.cpp`, `NeuronClient/Anim.cpp`,
-`NeuronClient/AnimObj.cpp` among others. Harmless for the string lengths this
-game handles — none approach 2 GB — but it is noise that will bury real
-findings in the first x64 build, so it is worth a mechanical pass.
+`Outpost/MultiJoin.cpp` stashes an object *ID* in the target *pointer* field
+(`TarRef = (UDWORD)pD->psTarget;`) and resolves it after the object lists are
+rebuilt. It is the same shape as the BSP loader, and it is listed here rather
+than under Fixed because **the whole block is inside a `/* ... */` comment**
+(`MultiJoin.cpp:347`-`581`) and compiles to nothing. If that code is ever
+revived, the ID needs its own field.
 
 ### What is *not* a problem
 
@@ -146,18 +176,16 @@ findings in the first x64 build, so it is worth a mechanical pass.
 
 ## Suggested order
 
-The configurations exist and the Blocker is gone, so this is now a
-diagnostics-driven sweep rather than a design problem:
+The compile is clean. What is left is everything a compiler cannot tell you:
 
-1. **Build `Platform=x64` and capture the diagnostics.** Nobody has done this
-   yet, so the true size of the job is unmeasured — every figure below is an
-   audit's expectation, not a count. Expect mostly C4267, plus C4311/C4312 at
-   the **Watch** sites. Prefer fixing to a clean build over suppressing, and
-   do not add x64 to CI until it builds.
-2. **Sweep the `size_t` narrowings** (C4267). Mechanical and the bulk of the
-   noise; worth doing first so real findings are not buried.
-3. **Retype `pUserData` and the join-path target field**, or wrap both in
-   named helpers that make the intent explicit (C4311/C4312).
-4. **Link and run.** A clean x64 compile proves nothing about the D3D9
-   device, the MsQuic import or asset loading; the CAM_1A boot is the test.
-5. Only once it runs: add x64 to `.github/workflows/build.yml`.
+1. **Run it.** A clean x64 compile proves nothing about the D3D9 device, the
+   MsQuic import or asset loading. The CAM_1A boot is the test, and
+   [Verification.md](Verification.md) is the runsheet.
+2. **Make x64 blocking in CI** once it has been run at least once. Today
+   `.github/workflows/build.yml` sets `continue-on-error` for the x64 legs,
+   which was right while it did not build and is now only inertia.
+3. **Revisit the `pUserData` design** if the widget layer is ever touched for
+   other reasons. The helpers make the round-trip correct and honest, but the
+   field still means two different things depending on which widget holds it,
+   and there is an unused `UDWORD UserData` beside it that the integer users
+   should arguably have been in all along.

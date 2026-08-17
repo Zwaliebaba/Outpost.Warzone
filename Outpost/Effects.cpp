@@ -610,7 +610,7 @@ void updateFirework(EFFECT* psEffect)
       addEffect(&dv, EFFECT_EXPLOSION, EXPLOSION_TYPE_MEDIUM,FALSE, nullptr, 0);
       (void)AudioSystem::PlayStaticTrack(std::lrintf(psEffect->position.x), std::lrintf(psEffect->position.z), ID_SOUND_EXPLOSION);
 
-      for (UDWORD dif = 0; dif < (psEffect->radius * 2); dif += 20)
+      for (UDWORD dif = 0; dif < static_cast<UDWORD>(psEffect->radius) * 2; dif += 20)
       {
         if (dif < psEffect->radius)
           drop = psEffect->radius - dif;
@@ -1126,7 +1126,7 @@ void updateDestruction(EFFECT* psEffect)
 
   if (psEffect->type == DESTRUCTION_TYPE_SKYSCRAPER)
   {
-    if ((gameTime - psEffect->birthTime) > ((9 * psEffect->lifeSpan) / 10))
+    if ((gameTime - psEffect->birthTime) > ((9 * static_cast<UDWORD>(psEffect->lifeSpan)) / 10))
     {
       pos.x = std::lrintf(psEffect->position.x);
       pos.z = std::lrintf(psEffect->position.z);

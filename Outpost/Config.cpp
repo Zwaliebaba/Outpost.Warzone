@@ -556,7 +556,7 @@ BOOL setWarzoneKeyNumeric(STRING* pName, DWORD val)
 // ////////////////////////////////////////////////////////////////////////////
 BOOL setWarzoneKeyString(STRING* pName, STRING* pString)
 {
-  RegSetValueEx(ghWarzoneKey, pName, 0, REG_SZ, (UBYTE*)pString, strlen(pString));
+  RegSetValueEx(ghWarzoneKey, pName, 0, REG_SZ, (UBYTE*)pString, static_cast<DWORD>(strlen(pString)));
   return TRUE;
 }
 

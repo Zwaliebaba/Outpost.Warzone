@@ -473,7 +473,7 @@ UDWORD pie_DrawFormattedText(UBYTE* String, UDWORD x, UDWORD y, UDWORD Width, UD
     // Remove trailing spaces, usefull when doing centre justify.
     if (FFlags & FTEXTF_SKIP_TRAILING_SPACES)
     {
-      for (t = strlen((char*)FString) - 1; t >= 0; t--)
+      for (t = static_cast<int>(strlen((char*)FString)) - 1; t >= 0; t--)
       {
         if (FString[t] != ' ')
           break;
