@@ -3,7 +3,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <functional>
-#include <span>
 
 #include "Track.h"
 
@@ -42,6 +41,10 @@ public:
   /// get. _stoppedCallback is invoked whenever an object-attached sample
   /// stops, on the game thread. _world must be fully populated when
   /// _enabled is true.
+  ///
+  /// Init also indexes GameData/audio and registers every track audio.json
+  /// names, so the registry is complete before the first level loads. No
+  /// WAV is read here - see the track comment below.
   static bool Init(bool _enabled, AUDIO_CALLBACK _stoppedCallback, AudioWorld _world);
   static bool Shutdown();
   static bool Update();
@@ -51,21 +54,18 @@ public:
   /// completion delivery checks so no callback lands after teardown began.
   [[nodiscard]] static bool Active();
 
-  /* tracks - loaded through the resource system, addressed by small dense
-   * IDs that scripts resolve by WAV name and save games by name hash
+  /* tracks - addressed by small dense IDs that scripts resolve by WAV name.
+   *
+   * A track is registered from its metadata alone; the WAV itself is read
+   * and decoded the first time the track plays and then kept for the life
+   * of the process. Init registers everything audio.json names, and
+   * SetTrackVals registers anything else on demand - the path a .vlo SOUND
+   * value takes for mission speech.
    */
-  [[nodiscard]] static TRACK* LoadTrackFromBuffer(std::span<const std::byte> _riff);
   static bool SetTrackVals(const char* _fileName, bool _loop, std::int32_t& _id, std::int32_t _volume, std::int32_t _priority,
                            std::int32_t _audibleRadius);
-  static bool SetTrackValsByHash(std::uint32_t _hash, bool _loop, std::int32_t _id, std::int32_t _volume, std::int32_t _priority,
-                                 std::int32_t _audibleRadius);
-  static bool RegisterTrack(TRACK& _track, bool _loop, std::int32_t _id, std::int32_t _volume, std::int32_t _priority,
-                            std::int32_t _audibleRadius);
-  static void ReleaseTrack(TRACK& _track);
-  static void CheckAllUnloaded();
 
   [[nodiscard]] static std::int32_t TrackId(const char* _fileName);  [[nodiscard]] static std::int32_t AvailableTrackId();
-  [[nodiscard]] static std::uint32_t TrackHashName(std::int32_t _id);
   [[nodiscard]] static bool ValidTrack(std::int32_t _id);
   [[nodiscard]] static bool TrackLooped(std::int32_t _id);
   [[nodiscard]] static std::int32_t TrackAudibleRadius(std::int32_t _id);

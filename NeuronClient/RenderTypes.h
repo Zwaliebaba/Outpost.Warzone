@@ -48,7 +48,7 @@ using iClip = struct
   int left, top, right, bottom;
 };
 /* One image pixel, packed A8R8G8B8. This was uint8 - a palette index - until
- * the palette removal's stage 2: the PCX loader expands indices through the
+ * the palette removal's stage 2: the conversion tool expanded indices through the
  * game palette at load, so everything downstream holds and moves true-colour
  * pixels. Alpha is 0xff except for the old "index 0 / black is transparent"
  * convention, which the loader turns into alpha 0. */
@@ -258,10 +258,5 @@ using PIESTYLE = struct
 }; //render style for pie draw functions
 
 using fixed = int32;
-
-using TEXTUREPAGE = struct
-{
-  iSprite* Texture;
-};
 
 #endif // _renderTypes_h

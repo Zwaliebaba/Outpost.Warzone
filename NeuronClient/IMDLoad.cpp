@@ -7,8 +7,8 @@
  * updated to load version 4 files
  * 
  * changes at version 4;
- *		pcx name as string
- *		pcx filepath
+ *		texture name as string
+ *		texture filepath
  *		cut down vertex list
  *
  */
@@ -182,7 +182,7 @@ iIMDShape* Neuron::IMDLoad(char* filename, iBool palkeep)
   }
 
   pFileDataStart = pFileData;
-  pIMD = Neuron::ProcessIMD(&pFileData, pFileData + FileSize, path, (UBYTE*)imagePath, palkeep);
+  pIMD = Neuron::ProcessIMD(&pFileData, pFileData + FileSize, path, palkeep);
 
   delete[] pFileDataStart; // free the file up
   pFileDataStart = nullptr;
@@ -211,7 +211,7 @@ static char texfile[64]; //Last loaded texture page filename
 char* GetLastLoadedTexturePage(void) { return texfile; }
 
 // ppFileData is incremented to the end of the file on exit!
-iIMDShape* Neuron::ProcessIMD(UBYTE** ppFileData, UBYTE* FileDataEnd, UBYTE* IMDpath, UBYTE* PCXpath, iBool palkeep)
+iIMDShape* Neuron::ProcessIMD(UBYTE** ppFileData, UBYTE* FileDataEnd, UBYTE* IMDpath, iBool palkeep)
 {
   char buffer[MAX_FILE_PATH], texType[MAX_FILE_PATH], ch; //, *str;
   int i, nlevels, ptype, pwidth, pheight, texpage;
@@ -291,14 +291,12 @@ iIMDShape* Neuron::ProcessIMD(UBYTE** ppFileData, UBYTE* FileDataEnd, UBYTE* IMD
           return nullptr;
         }
 
-        /* "pcx" here is the PIE format's texture type tag, not a file that
-         * exists: the art is DDS since the palette removal, and for the
-         * page-* names the extension appended below is truncated away
-         * before the lookup anyway. The tag stays so the shipped .pie
-         * files keep parsing. */
-        if (strcmp(texType, "pcx") != 0)
+        /* The extension the model names its texture with. It was "pcx"
+         * until the models were converted with the art; the loader used to
+         * demand that spelling and substitute .dds behind it. */
+        if (stricmp(texType, "dds") != 0)
         {
-          Neuron::DebugTrace("(IMDLoad) file corrupt -F\n");
+          Neuron::DebugTrace("(IMDLoad) texture '{}' is not a .dds\n", texType);
           return nullptr;
         }
 
@@ -345,24 +343,10 @@ iIMDShape* Neuron::ProcessIMD(UBYTE** ppFileData, UBYTE* FileDataEnd, UBYTE* IMD
     }
 #endif
 
-#ifdef PRE_LEVEL_TEXTURELOAD
-    if (bTextured)
-    {
-      texpage = Neuron::TexLoadNew(IMDpath, texfile, ptype, palkeep,FALSE);
-      if (texpage < 0) { texpage = Neuron::TexLoadNew(PCXpath, texfile, ptype, palkeep,FALSE); }
-      if (texpage < 0) { 
-#ifdef ALLOW_NONTEXTURED
-    TESTDEBUG = TRUE; texpage = -1;
-#else
-    Neuron::DebugTrace("(IMDLoad) could not load/alloc tex page {} or {}/{}\n", (const char*)IMDpath, (const char*)PCXpath, texfile); return NULL;
-#endif
-			}
-		}
-		else
-    {
-      texpage = -1;
-    }
-#endif
+    /* The abandoned half of a pair: this loaded the texture page
+       before the polygon levels, POST_LEVEL_TEXTURELOAD below after.
+       Only the latter was ever defined, and this branch referred to a
+       second search path that no longer exists. */
   }
 
   if (sscanf1((char**)ppFileData, "%s %d", buffer, &nlevels) != 2)
@@ -401,14 +385,13 @@ iIMDShape* Neuron::ProcessIMD(UBYTE** ppFileData, UBYTE* FileDataEnd, UBYTE* IMD
     bColourKey = TRUE; // CheckColourKey( s );//TRUE not the only imd using this texture
     if (bTextured)
     {
-      /* Note call to new texture page loader that doesn't actually load!!!!!!!!!! */
+      /* The page is bound by name, not loaded from a path: the retry against
+         a second search directory went with the paths themselves. */
       texpage = Neuron::TexLoadNew((char*)IMDpath, texfile, ptype, palkeep, bColourKey);
-      if (texpage < 0)
-        texpage = Neuron::TexLoadNew((char*)PCXpath, texfile, ptype, palkeep, bColourKey);
 
       if (texpage < 0)
       {
-        Neuron::DebugTrace("(IMDLoad) could not load/alloc tex page {} or {}/{}\n", (const char*)IMDpath, (const char*)PCXpath, texfile);
+        Neuron::DebugTrace("(IMDLoad) could not load/alloc tex page {}\n", texfile);
         return nullptr;
       }
     }
@@ -1230,7 +1213,7 @@ static int32 _imd_find_scale(int32 value, int32 limit)
 
 */
 
-iIMDShape* Neuron::ProcessIMD(UBYTE** ppFileData, UBYTE* FileDataEnd, UBYTE* IMDpath, UBYTE* PCXpath, iBool palkeep) { return (NULL); }iIMDShape*
+iIMDShape* Neuron::ProcessIMD(UBYTE** ppFileData, UBYTE* FileDataEnd, UBYTE* IMDpath, iBool palkeep) { return (NULL); }iIMDShape*
 Neuron::IMDLoad(char* filename, iBool palkeep) { return (NULL); }
 
 #endif		// ALLOW_TEXTPIES

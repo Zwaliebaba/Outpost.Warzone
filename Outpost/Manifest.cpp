@@ -10,10 +10,16 @@
  * image of one GameDesc.lev block, built into the same LEVEL_DATASET shape
  * levParse produced - including the quirk that a camchange dataset shares
  * its name with the camstart it modifies.
+ *
+ * The texturePages table is the exception to "a unit entry is a file": a
+ * TEXSET entry names a group of page bindings, which this file resolves
+ * against the translucency setting and hands to Neuron::TextureCache.
  */
 
+#include <algorithm>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 #include "Frame.h"
 #include "FrameResource.h"
@@ -21,6 +27,8 @@
 #include "Json.h"
 #include "Levels.h"
 #include "Manifest.h"
+#include "TextureCache.h"
+#include "WarzoneConfig.h"
 
 namespace
 {
@@ -74,6 +82,98 @@ namespace
       return true;
     }
     return false;
+  }
+
+  /// The file a page uses out of its candidates. A page with one file uses
+  /// it; a page with a "-hard"/"-soft" pair uses the one the translucency
+  /// setting asks for. bufferTexPageLoad made the same test by skipping the
+  /// entry it did not want.
+  const std::string* ChooseVariant(const Neuron::Json& _files)
+  {
+    const std::string* only = nullptr;
+
+    for (std::size_t i = 0; i < _files.Size(); i++)
+    {
+      if (!_files.Item(i).IsString())
+        return nullptr;
+
+      const std::string& file = _files.Item(i).AsString();
+      std::string lowered = file;
+      for (char& c : lowered)
+        c = static_cast<char>(tolower(static_cast<unsigned char>(c)));
+
+      const bool soft = lowered.find("soft") != std::string::npos;
+      const bool hard = lowered.find("hard") != std::string::npos;
+
+      if (war_GetAdditive() ? !soft : !hard)
+        only = &file;
+    }
+
+    return only;
+  }
+
+  /// Flattens a group and everything it extends into ordered bindings.
+  /// _depth guards a cycle in the data rather than trusting it.
+  BOOL CollectGroup(const STRING* _group, std::vector<Neuron::TextureCache::PageBinding>& _out, int _depth)
+  {
+    if (_depth > 8)
+    {
+      Neuron::Fatal("texturePages: group {} extends itself", _group);
+      return FALSE;
+    }
+
+    const Neuron::Json* groups = g_document.Find("texturePages");
+    groups = groups == nullptr ? nullptr : groups->Find("groups");
+    const Neuron::Json* group = groups == nullptr ? nullptr : groups->Find(_group);
+
+    if (group == nullptr || !group->IsObject())
+    {
+      Neuron::Fatal("texturePages: no group named {}", _group);
+      return FALSE;
+    }
+
+    if (const Neuron::Json* extends = group->Find("extends"))
+    {
+      if (!extends->IsString() || !CollectGroup(extends->AsString().c_str(), _out, _depth + 1))
+        return FALSE;
+    }
+
+    const Neuron::Json* pages = group->Find("pages");
+    if (pages == nullptr || !pages->IsArray())
+    {
+      Neuron::Fatal("texturePages: group {} has no page list", _group);
+      return FALSE;
+    }
+
+    for (std::size_t i = 0; i < pages->Size(); i++)
+    {
+      const Neuron::Json& page = pages->Item(i);
+      const Neuron::Json* id = page.Find("id");
+      const Neuron::Json* files = page.Find("files");
+      if (id == nullptr || !id->IsString() || files == nullptr || !files->IsArray() || files->Size() == 0)
+      {
+        Neuron::Fatal("texturePages: group {} page {} is malformed", _group, i);
+        return FALSE;
+      }
+
+      const std::string* chosen = ChooseVariant(*files);
+      if (chosen == nullptr)
+      {
+        Neuron::Fatal("texturePages: group {} page {} has no usable file", _group, id->AsString());
+        return FALSE;
+      }
+
+      /* an extending group replaces the base's binding in place, so the
+         order a page was first bound in is the order it keeps */
+      const auto at = std::find_if(_out.begin(), _out.end(),
+                                   [&](const Neuron::TextureCache::PageBinding& _b) { return _b.pageId == id->AsString(); });
+      if (at != _out.end())
+        at->file = *chosen;
+      else
+        _out.push_back({id->AsString(), *chosen});
+    }
+
+    return TRUE;
   }
 
   STRING* DupString(const std::string& _text)
@@ -248,6 +348,35 @@ BOOL ManifestLoad(void)
   return ManifestRegisterDataSets();
 }
 
+/* Bind the pages of a texture group, and optionally create them.
+ *
+ * A group is a list of page bindings; one may extend another, in which case
+ * the base group's bindings come first, in its order, with the extending
+ * group's replacing them in place. Binding order is therefore stable across
+ * every group, which is what keeps a page in the same slot however the
+ * player reached the level.
+ *
+ * A page may name two files - a "-hard" and a "-soft" variant - and the
+ * translucency setting picks one. That test was the first thing the TEXPAGE
+ * loader did; it lives here now, and being resolved at bind time is what
+ * lets a set switch notice that the chosen file changed.
+ */
+BOOL ManifestApplyTextureSet(const STRING* _group, BOOL _create)
+{
+  std::vector<Neuron::TextureCache::PageBinding> bindings;
+
+  if (!CollectGroup(_group, bindings, 0))
+    return FALSE;
+
+  if (!Neuron::TextureCache::SetBindings(bindings))
+    return FALSE;
+
+  if (_create && !Neuron::TextureCache::CreateBoundPages())
+    return FALSE;
+
+  return TRUE;
+}
+
 /* Free the resident manifest document */
 void ManifestShutDown(void)
 {
@@ -285,6 +414,21 @@ BOOL ManifestLoadUnit(const STRING* _name, SDWORD _blockID, UBYTE* _loadBuffer, 
     {
       Neuron::Fatal("ManifestLoadUnit: {} entry {} is malformed", _name, i);
       return FALSE;
+    }
+
+    /* A texture set is not a file, so it does not reach the resource
+       system: it names a group in the texturePages table and binds that
+       group's pages here, where the unit's TEXPAGE entries used to sit.
+       Binding is what the level needs; creating the pages is what the old
+       loader did in the same place, and "create": false opts out of it -
+       the front end binds so the force editor can draw, but nothing on the
+       title screen wants a page. */
+    if (type->AsString() == "TEXSET")
+    {
+      const Neuron::Json* create = entry.Find("create");
+      if (!ManifestApplyTextureSet(file->AsString().c_str(), create == nullptr || create->AsBool()))
+        return FALSE;
+      continue;
     }
 
     // resLoadFile takes mutable strings; give it bounded local copies

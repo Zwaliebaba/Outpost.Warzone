@@ -23,11 +23,11 @@
 
 iSprite tempTexStore;
 /* Stores the graphics data for the terrain tiles textures */
-iSprite tilesPCX;
-/* Stores the raw PCX data for the terrain tiles at load file time */
+iSprite tilesDds;
+/* Stores the raw tile data for the terrain tiles at load file time */
 iBitmap** tilesRAW;
 /* How many tiles have we loaded */
-UDWORD numPCXTiles;
+UDWORD numTerrainTiles;
 /* How many pages have we loaded (hardware)*/
 SDWORD firstTexturePage;
 SDWORD numTexturePages;
@@ -48,7 +48,7 @@ TEXTURE_PAGE_3DFX allPages[MAX_TEXTURE_PAGES];
 void getRectFromPage(UDWORD width, UDWORD height, iBitmap* src, UDWORD bufWidth, iBitmap* dest);
 void putRectIntoPage(UDWORD width, UDWORD height, iBitmap* dest, UDWORD bufWidth, iBitmap* src);
 
-/* Extracts the tile texture in pcx format of abc..
+/* Extracts the tile texture of abc..
 											  def..
 											  ghi..   (say)
    and puts them into raw format of a
@@ -66,13 +66,13 @@ int makeTileTextures(void)
   UDWORD x, y, i, j, w, h, t;
   iBitmap *b, *s, *saved;
 
-  w = tilesPCX.width / TILE_WIDTH;
-  h = tilesPCX.height / TILE_HEIGHT;
-  numPCXTiles = w * h;
+  w = tilesDds.width / TILE_WIDTH;
+  h = tilesDds.height / TILE_HEIGHT;
+  numTerrainTiles = w * h;
 
-  tilesRAW = new (std::nothrow) iBitmap*[numPCXTiles];
+  tilesRAW = new (std::nothrow) iBitmap*[numTerrainTiles];
 
-  for (i = 0; i < numPCXTiles; tilesRAW[i++] = nullptr); /* NOP */
+  for (i = 0; i < numTerrainTiles; tilesRAW[i++] = nullptr); /* NOP */
 
   t = 0;
   if (tilesRAW)
@@ -81,14 +81,14 @@ int makeTileTextures(void)
     {
       for (j = 0; j < w; j++)
       {
-        b = tilesPCX.bmp + j * TILE_WIDTH + i * tilesPCX.width * TILE_HEIGHT;
+        b = tilesDds.bmp + j * TILE_WIDTH + i * tilesDds.width * TILE_HEIGHT;
         saved = s = tilesRAW[t++] = new (std::nothrow) iBitmap[TILE_SIZE];
         if (s)
         {
           for (y = 0; y < TILE_HEIGHT; y++)
           {
             for (x = 0; x < TILE_WIDTH; *s++ = b[x++]); /* NOP */
-            b += tilesPCX.width;
+            b += tilesDds.width;
           }
           calcRadarColour(saved, t - 1);
         }
@@ -107,9 +107,9 @@ int remakeTileTextures(void)
   UDWORD x, y, i, j, w, h, t;
   iBitmap *b, *s, *saved;
 
-  w = tilesPCX.width / TILE_WIDTH;
-  h = tilesPCX.height / TILE_HEIGHT;
-  DEBUG_ASSERT_TEXT(numPCXTiles >= w * h, "remakeTileTextures: New Tertiles larger than existing version");
+  w = tilesDds.width / TILE_WIDTH;
+  h = tilesDds.height / TILE_HEIGHT;
+  DEBUG_ASSERT_TEXT(numTerrainTiles >= w * h, "remakeTileTextures: New Tertiles larger than existing version");
 
   //tilesRAW is already set up
   t = 0;
@@ -119,14 +119,14 @@ int remakeTileTextures(void)
     {
       for (j = 0; j < w; j++)
       {
-        b = tilesPCX.bmp + j * TILE_WIDTH + i * tilesPCX.width * TILE_HEIGHT;
+        b = tilesDds.bmp + j * TILE_WIDTH + i * tilesDds.width * TILE_HEIGHT;
         saved = s = tilesRAW[t++];
         if (s)
         {
           for (y = 0; y < TILE_HEIGHT; y++)
           {
             for (x = 0; x < TILE_WIDTH; *s++ = b[x++]); /* NOP */
-            b += tilesPCX.width;
+            b += tilesDds.width;
           }
           calcRadarColour(saved, t - 1);
         }
@@ -304,16 +304,16 @@ BOOL getTileRadarColours(void)
   iBitmap *b, *s;
   iBitmap tempBMP[TILE_WIDTH * TILE_HEIGHT];
 
-  w = tilesPCX.width / TILE_WIDTH;
-  h = tilesPCX.height / TILE_HEIGHT;
-  numPCXTiles = w * h;
+  w = tilesDds.width / TILE_WIDTH;
+  h = tilesDds.height / TILE_HEIGHT;
+  numTerrainTiles = w * h;
 
   t = 0;
   for (i = 0; i < h; i++)
   {
     for (j = 0; j < w; j++)
     {
-      b = tilesPCX.bmp + j * TILE_WIDTH + i * tilesPCX.width * TILE_HEIGHT;
+      b = tilesDds.bmp + j * TILE_WIDTH + i * tilesDds.width * TILE_HEIGHT;
       s = &tempBMP[0];
       if (s)
       {
@@ -321,7 +321,7 @@ BOOL getTileRadarColours(void)
         for (y = 0; y < TILE_HEIGHT; y++)
         {
           for (x = 0; x < TILE_WIDTH; *s++ = b[x++]); /* NOP */
-          b += tilesPCX.width;
+          b += tilesDds.width;
         }
         calcRadarColour(&tempBMP[0], t);
         t++;

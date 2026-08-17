@@ -38,12 +38,12 @@ STRING* winErrorToString(SDWORD error)
   return winErrorString;
 }
 
-BOOL loadFile(STRING* pFileName, UBYTE** ppFileData, UDWORD* pFileSize) { return (loadFile2(pFileName, ppFileData, pFileSize,TRUE)); }
+BOOL loadFile(const STRING* pFileName, UBYTE** ppFileData, UDWORD* pFileSize) { return (loadFile2(pFileName, ppFileData, pFileSize,TRUE)); }
 
 /* Load the file with name pointed to by pFileName into a memory buffer. */
 // if allocate mem is true then the memory is allocated ... else it is already in ppFileData, and the max size is in pFileSize ... this is adjusted to the actual loaded file size
 //   
-BOOL loadFile2(STRING* pFileName, UBYTE** ppFileData, UDWORD* pFileSize, BOOL AllocateMem)
+BOOL loadFile2(const STRING* pFileName, UBYTE** ppFileData, UDWORD* pFileSize, BOOL AllocateMem)
 {
   FILE* pFileHandle = fopen(pFileName, "rb");
   if (pFileHandle == nullptr)

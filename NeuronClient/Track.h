@@ -49,12 +49,11 @@ using TRACK = struct TRACK
   SDWORD iVol;
   SDWORD iPriority; /* authored in audio.json; no reader since Phase 4 stole by distance */
   SDWORD iAudibleRadius;
-  SDWORD iTime; /* duration in milliseconds */
+  SDWORD iTime; /* duration in milliseconds; set when the WAV decodes, no reader */
   UDWORD iTimeLastFinished; /* time last finished in ms */
   BOOL bCompressed; /* compression data flag    */
-  void* pMem; /* the decoded Neuron::WavData */
-  STRING* pName; // resource name of the track
-  UDWORD resID; // hashed name of the WAV
+  void* pMem; /* the decoded Neuron::WavData, null until the track first plays */
+  STRING* pName; // the WAV filename this track was registered under
 };
 
 /***************************************************************************/

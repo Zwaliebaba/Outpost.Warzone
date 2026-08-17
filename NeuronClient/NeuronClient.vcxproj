@@ -203,6 +203,7 @@
     <ClInclude Include="Tex.h" />
     <ClInclude Include="TexMan.h" />
     <ClInclude Include="TextDraw.h" />
+    <ClInclude Include="TextureCache.h" />
     <ClInclude Include="Tip.h" />
     <ClInclude Include="Track.h" />
     <ClInclude Include="WavData.h" />
@@ -250,6 +251,7 @@
     <ClCompile Include="Tex.cpp" />
     <ClCompile Include="TexMan.cpp" />
     <ClCompile Include="TextDraw.cpp" />
+    <ClCompile Include="TextureCache.cpp" />
     <ClCompile Include="Tip.cpp" />
     <ClCompile Include="WavData.cpp" />
     <ClCompile Include="Widget.cpp" />

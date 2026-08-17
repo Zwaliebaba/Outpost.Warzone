@@ -852,7 +852,12 @@ bool AudioMixer::LoadTrack(TRACK& _track, std::span<const std::byte> _riff)
 
   if (!wav || wav->SampleRate() == 0)
   {
-    Neuron::Fatal("AudioMixer::LoadTrack: cannot decode {}", _track.pName);
+    /* Was Fatal, when every WAV decoded behind the loading bar and a bad
+     * one could only fail there. Decoding now happens on first play, where
+     * killing the mission over one unplayable effect is the worse trade -
+     * so an undecodable track costs its own sound and nothing else.
+     */
+    Neuron::DebugTrace("AudioMixer::LoadTrack: cannot decode {}\n", _track.pName);
     return false;
   }
 
@@ -865,6 +870,21 @@ bool AudioMixer::LoadTrack(TRACK& _track, std::span<const std::byte> _riff)
   _track.pMem = new WavData(std::move(*wav));
 
   return true;
+}
+
+/***************************************************************************/
+
+bool AudioMixer::LoadTrackFile(TRACK& _track, std::string_view _path)
+{
+  const auto bytes = ReadWholeFile(_path);
+
+  if (bytes.empty())
+  {
+    Neuron::DebugTrace("AudioMixer::LoadTrackFile: cannot read {}\n", _path);
+    return false;
+  }
+
+  return LoadTrack(_track, bytes);
 }
 
 /***************************************************************************/

@@ -57,7 +57,7 @@
  *
  *********************************************************/
 
-BOOL bTilesPCXLoaded = FALSE;
+BOOL bTilesLoaded = FALSE;
 
 
 UDWORD cheatHash[CHEAT_MAXCHEAT];
@@ -607,7 +607,7 @@ BOOL dataIMDBufferLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
 
   if (BinaryPIE == FALSE)
   {
-    psIMD = Neuron::ProcessIMD(&pBufferPosition, pBuffer + size, (UBYTE*)"", (UBYTE*)"",FALSE);
+    psIMD = Neuron::ProcessIMD(&pBufferPosition, pBuffer + size, (UBYTE*)"",FALSE);
     if (psIMD == nullptr)
     {
       Neuron::Fatal("IMD load failed - {}", GetLastResourceFilename());
@@ -676,7 +676,7 @@ void dataTERTILESRelease(void* pData)
   freeTileTextures();
   delete[] psSprite->bmp;
   psSprite->bmp = nullptr;
-  bTilesPCXLoaded = FALSE;
+  bTilesLoaded = FALSE;
 }
 
 // Tertiles loader. This version for hardware renderer.
@@ -685,11 +685,11 @@ BOOL dataHWTERTILESLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
   UNUSEDPARAMETER(size);
 
   // tile loader.
-  if (bTilesPCXLoaded)
+  if (bTilesLoaded)
   {
     Neuron::DebugTrace("Reloading terrain tiles\n");
 
-    if (!Neuron::DdsLoadMemToBuffer((int8*)(SBYTE*)pBuffer, &tilesPCX))
+    if (!Neuron::DdsLoadMemToBuffer((int8*)(SBYTE*)pBuffer, &tilesDds))
     {
       Neuron::Fatal("HWTERTILES reload failed");
       return FALSE;
@@ -698,7 +698,7 @@ BOOL dataHWTERTILESLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
   else
   {
     Neuron::DebugTrace("Loading terrain tiles\n");
-    if (!Neuron::DdsLoadMem((int8*)(SBYTE*)pBuffer, &tilesPCX))
+    if (!Neuron::DdsLoadMem((int8*)(SBYTE*)pBuffer, &tilesDds))
     {
       Neuron::Fatal("HWTERTILES load failed");
       return FALSE;
@@ -707,22 +707,22 @@ BOOL dataHWTERTILESLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
 
   getTileRadarColours();
   // make several 256 * 256 pages
-  if (bTilesPCXLoaded)
-    remakeTileTexturePages(tilesPCX.width, tilesPCX.height,TILE_WIDTH, TILE_HEIGHT, tilesPCX.bmp);
+  if (bTilesLoaded)
+    remakeTileTexturePages(tilesDds.width, tilesDds.height,TILE_WIDTH, TILE_HEIGHT, tilesDds.bmp);
   else
-    makeTileTexturePages(tilesPCX.width, tilesPCX.height,TILE_WIDTH, TILE_HEIGHT, tilesPCX.bmp);
+    makeTileTexturePages(tilesDds.width, tilesDds.height,TILE_WIDTH, TILE_HEIGHT, tilesDds.bmp);
   //	else
   //		/* Squirt the tiles into a nice long thin bitmap */
   //			if(!remakeTileTextures())
   //		else
   //			if(!makeTileTextures())
 
-  if (bTilesPCXLoaded)
+  if (bTilesLoaded)
     *ppData = nullptr;
   else
   {
-    bTilesPCXLoaded = TRUE;
-    *ppData = &tilesPCX;
+    bTilesLoaded = TRUE;
+    *ppData = &tilesDds;
   }
   Neuron::DebugTrace("HW Tiles loaded\n");
   return TRUE;
@@ -735,7 +735,7 @@ void dataHWTERTILESRelease(void* pData)
   freeTileTextures();
   delete[] psSprite->bmp;
   psSprite->bmp = nullptr;
-  bTilesPCXLoaded = FALSE;
+  bTilesLoaded = FALSE;
   pie_TexShutDown();
 }
 
@@ -752,218 +752,17 @@ BOOL dataIMGLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
 
 void dataIMGRelease(void* pData) { Neuron::FreeImageFile(static_cast<IMAGEFILE*>(pData)); }
 
-/* Load a PCX to an iSprite */
-//
-//
-//	if (!Neuron::PCXLoad(pFile, psSprite, sPal))
-//
-//
+/* The TEXPAGE loader lived here, decoding a texture page and creating its
+ * device texture as the manifest walked past it. Texture pages are no
+ * longer a resource type: datasets.json's texturePages table binds each
+ * page id to a file, and Neuron::TextureCache decodes it and owns the
+ * pixels. Manifest.cpp applies the binding.
+ */
 
-#define TEXTUREWIDTH (256)
-#define TEXTUREHEIGHT (256)
-
-/* Load a texturepage into memory */
-// PC ONLY VERSION
-
-BOOL bufferTexPageLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
-{
-  STRING texfile[255];
-  SDWORD i;
-  size; // why?
-
-  // generate a texture page name in "page-xx" format
-  strncpy(texfile, GetLastResourceFilename(), 254);
-  texfile[254] = 0;
-  resToLower(texfile);
-
-  Neuron::DebugTrace("{} texturepage ...\n",texfile);
-
-  if (war_GetAdditive()) //(war_GetTranslucent())
-  {
-    //hardware
-    if (strstr(texfile, "soft") != nullptr) //and this is a software textpage
-    {
-      //so dont load it
-      *ppData = nullptr;
-      return TRUE;
-    }
-  }
-  else
-  {
-    //software or old d3d card
-    if (strstr(texfile, "hard") != nullptr) //and this is a hardware textpage
-    {
-      //so dont load it
-      *ppData = nullptr;
-      return TRUE;
-    }
-  }
-
-  if (strncmp(texfile, "page-", 5) == 0)
-  {
-    for (i = 5; i < static_cast<SDWORD>(strlen(texfile)); i++)
-    {
-      if (!isdigit(texfile[i]))
-        break;
-    }
-    texfile[i] = 0;
-  }
-  SetLastResourceFilename(texfile);
-
-  Neuron::DebugTrace("{} texturepage added (len={})\n",texfile,strlen(texfile));
-
-  // see if this texture page has already been loaded
-  if (resPresent("TEXPAGE", texfile))
-  {
-    // replace the old texture page with the new one
-    SDWORD id = pie_ReloadTexPage(texfile, pBuffer);
-    DEBUG_ASSERT_TEXT(id >=0, "pie_ReloadTexPage failed");
-    *ppData = nullptr;
-  }
-  else
-  {
-    auto NewTexturePage = new (std::nothrow) TEXTUREPAGE[1];
-    if (!NewTexturePage)
-      return FALSE;
-
-    NewTexturePage->Texture = nullptr;
-
-    auto psSprite = new (std::nothrow) iSprite[1];
-    if (!psSprite)
-      return FALSE;
-
-    if (!Neuron::DdsLoadMem((int8*)(SBYTE*)pBuffer, psSprite))
-    {
-      delete[] psSprite;
-      psSprite = nullptr;
-      return FALSE;
-    }
-
-    NewTexturePage->Texture = psSprite;
-
-    //Hack mar8 to load	textures in order	
-    /*	for(i=0;i<_TEX_INDEX;i++)
-      {	
-        if (stricmp(texfile,_TEX_PAGE[i].name) != 0)
-        {
-          bFound = TRUE;
-          break;
-        }
-      }
-      if (!bFound) 
-    */
-    {
-      pie_AddBMPtoTexPages(psSprite, texfile, 1, FALSE, TRUE);
-    }
-    //Hack end
-
-    *ppData = NewTexturePage;
-  }
-
-  return TRUE;
-}
-
-/* Release a texPage */
-void dataTexPageRelease(void* pData)
-{
-  auto Tpage = static_cast<TEXTUREPAGE*>(pData);
-
-  // We need to handle null texpage data 
-  if (Tpage == nullptr)
-    return;
-
-  if (Tpage->Texture != nullptr)
-  {
-    if (Tpage->Texture->bmp != nullptr)
-    {
-      delete[] Tpage->Texture->bmp;
-      Tpage->Texture->bmp = nullptr;
-    }
-    delete[] Tpage->Texture;
-    Tpage->Texture = nullptr;
-  }
-
-  delete[] pData;
-  pData = nullptr;
-}
-
-/* Load an audio file */
-BOOL dataAudioLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
-{
-  TRACK* psTrack;
-
-  if (!AudioSystem::Enabled())
-  {
-    *ppData = nullptr;
-    return TRUE;
-  }
-  if ((psTrack = AudioSystem::LoadTrackFromBuffer(std::span(reinterpret_cast<const std::byte*>(pBuffer), size))) == nullptr)
-    return FALSE;
-
-  /* save track data */
-  *ppData = psTrack;
-
-  return TRUE;
-}
-
-void dataAudioRelease(void* pData)
-{
-  if (!AudioSystem::Enabled())
-    UNUSEDPARAMETER(pData);
-  else
-  {
-    auto psTrack = static_cast<TRACK*>(pData);
-
-    AudioSystem::ReleaseTrack(*psTrack);
-    delete[] psTrack;
-    psTrack = nullptr;
-  }
-}
-
-/* Load an audio config file: a JSON array of track records */
-BOOL dataAudioCfgLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
-{
-  *ppData = nullptr;
-
-  if (!AudioSystem::Enabled())
-    return TRUE;
-
-  auto parsed = Neuron::Json::Parse(std::string_view(reinterpret_cast<char*>(pBuffer), size));
-  if (!parsed.has_value())
-  {
-    Neuron::Fatal("audio config: parse error at line {} column {}: {}",
-                  parsed.error().line, parsed.error().column, parsed.error().message);
-    return FALSE;
-  }
-  if (!parsed->IsArray())
-  {
-    Neuron::Fatal("audio config: must be a JSON array");
-    return FALSE;
-  }
-
-  for (std::size_t i = 0; i < parsed->Size(); i++)
-  {
-    const Neuron::Json& track = parsed->Item(i);
-    const Neuron::Json* pFile = track.Find("file");
-    const Neuron::Json* pLoop = track.Find("loop");
-    const Neuron::Json* pVolume = track.Find("volume");
-    const Neuron::Json* pPriority = track.Find("priority");
-    const Neuron::Json* pRadius = track.Find("radius");
-    if (pFile == nullptr || !pFile->IsString() || pLoop == nullptr || !pLoop->IsBool() ||
-      pVolume == nullptr || !pVolume->IsNumber() || pPriority == nullptr || !pPriority->IsNumber() ||
-      pRadius == nullptr || !pRadius->IsNumber())
-    {
-      Neuron::Fatal("audio config: track {} is malformed", i);
-      return FALSE;
-    }
-
-    std::int32_t iUnusedID;
-    AudioSystem::SetTrackVals(pFile->AsString().c_str(), pLoop->AsBool(), iUnusedID,
-                              pVolume->AsInt(), pPriority->AsInt(), pRadius->AsInt());
-  }
-
-  return TRUE;
-}
+/* The WAV and AUDIOCFG loaders lived here. Audio is no longer a resource
+ * type: AudioSystem::Init indexes GameData/audio and registers what
+ * audio.json names, and a track's samples are read the first time it plays.
+ */
 
 /* Load an anim file */
 BOOL dataAnimLoad(UBYTE* pBuffer, UDWORD size, void** ppData)
@@ -1124,8 +923,8 @@ static RES_TYPE_MIN ResourceTypes[] = {
   // freed by 3d shutdow},// Tertiles Files. This version used when running with software renderer.
   {"HWTERTILES", dataHWTERTILESLoad, dataHWTERTILESRelease},
   // freed by 3d shutdow},// Tertiles Files. This version used when running with hardware renderer.
-  {"AUDIOCFG", dataAudioCfgLoad, nullptr}, {"WAV", dataAudioLoad, dataAudioRelease}, {"ANI", dataAnimLoad, dataAnimRelease},
-  {"ANIMCFG", dataAnimCfgLoad, nullptr}, {"IMG", dataIMGLoad, dataIMGRelease}, {"TEXPAGE", bufferTexPageLoad, dataTexPageRelease},
+  {"ANI", dataAnimLoad, dataAnimRelease},
+  {"ANIMCFG", dataAnimCfgLoad, nullptr}, {"IMG", dataIMGLoad, dataIMGRelease},
   {"IMD", dataIMDBufferLoad, (RES_FREE)Neuron::IMDRelease}, {nullptr, nullptr, nullptr} // indicates end of list
 };
 

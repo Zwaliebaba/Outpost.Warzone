@@ -6,18 +6,6 @@
 #ifndef _image_h
 #define _image_h
 
-/* Take a memory buffer that contains a PCX file and convert it
- * to an image buffer and a palette buffer.
- * If the returned palette pointer is NULL a true colour PCX has
- * been loaded.  In this case the image data will be 32 bit true colour.
- */
-extern BOOL imageParsePCX(UBYTE* pFileData, // Original file
-                          UDWORD fileSize, // File size
-                          UDWORD* pWidth, // Image width
-                          UDWORD* pHeight, // Image height
-                          UBYTE** ppImageData, // Image data from file
-                          PALETTEENTRY** ppsPalette); // Palette data from file
-
 /* Take a memory buffer that contains a BMP file and convert it
  * to an image buffer and a palette buffer.
  * If the returned palette pointer is NULL a true colour BMP has

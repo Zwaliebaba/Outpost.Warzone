@@ -39,6 +39,11 @@ public:
 
   /// Decodes a RIFF WAVE into _track.pMem and fills in its duration.
   [[nodiscard]] static bool LoadTrack(TRACK& _track, std::span<const std::byte> _riff);
+
+  /// Reads _path and decodes it into _track, for a track whose WAV has not
+  /// been needed until now. Traces and fails rather than fataling: a sound
+  /// that cannot be read should cost its own effect, not the mission.
+  [[nodiscard]] static bool LoadTrackFile(TRACK& _track, std::string_view _path);
   static void FreeTrack(TRACK& _track);
 
   [[nodiscard]] static bool Play2D(TRACK& _track, AUDIO_SAMPLE& _sample, bool _queued);
