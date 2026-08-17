@@ -119,7 +119,7 @@ extern BOOL eventRunContext(SCRIPT_CONTEXT* psContext, UDWORD time);
 extern void eventRemoveContext(SCRIPT_CONTEXT* psContext);
 
 // Set a global variable value for a context
-extern BOOL eventSetContextVar(SCRIPT_CONTEXT* psContext, UDWORD index, INTERP_TYPE type, UDWORD data);
+extern BOOL eventSetContextVar(SCRIPT_CONTEXT* psContext, UDWORD index, INTERP_VAL* psNewVal);
 
 // Get the value pointer for a variable index
 extern BOOL eventGetContextVal(SCRIPT_CONTEXT* psContext, UDWORD index, INTERP_VAL** ppsVal);

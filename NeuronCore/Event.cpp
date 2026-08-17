@@ -569,21 +569,22 @@ BOOL eventGetContextVal(SCRIPT_CONTEXT* psContext, UDWORD index, INTERP_VAL** pp
 }
 
 // Set a global variable value for a context
-BOOL eventSetContextVar(SCRIPT_CONTEXT* psContext, UDWORD index, INTERP_TYPE type, UDWORD data)
+BOOL eventSetContextVar(SCRIPT_CONTEXT* psContext, UDWORD index, INTERP_VAL* psNewVal)
 {
   INTERP_VAL* psVal;
 
   if (!eventGetContextVal(psContext, index, &psVal))
     return FALSE;
 
-  if (psVal->type != type)
+  if (psVal->type != psNewVal->type)
   {
     DEBUG_ASSERT_TEXT(FALSE, "eventSetContextVar: Variable type mismatch");
     return FALSE;
   }
 
-  // Store the data
-  psVal->v.ival = static_cast<SDWORD>(data);
+  // Store the value.  The whole union is copied, so object pointers
+  // keep their width on x64 - the old UDWORD data parameter truncated.
+  psVal->v = psNewVal->v;
 
   return TRUE;
 }
