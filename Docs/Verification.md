@@ -9,12 +9,15 @@ down it and record the result in [Results](#results) as you go.
 
 ## Why this exists
 
-Phase 2 was the last work verified by running it. Everything after — Phase 3
-input, Phase 4 audio, Phase 5 networking above what the `NetTest` harness once
-covered, Phase 6's Media Foundation FMV, Phase 8 stages A, B, C and D, Phase
-9's audio rewrite — is **built and linked and nothing more**. MSVC CI is green
-on all of it, and `tools/crosscheck.py` is clean in both configurations, but
-neither can say whether a renderer draws or a mixer sounds right.
+This document was written when Phase 2 was the last work anyone had verified by
+running it, and everything after — Phase 3 input, Phase 4 audio, Phase 5
+networking above what the `NetTest` harness once covered, Phase 6's Media
+Foundation FMV, Phase 8 stages A–D, Phase 9's audio rewrite — was **built and
+linked and nothing more**. Two sessions have since closed most of that on
+Win32; see [Results](#results). The habit it was written to break has not
+changed, though: MSVC CI being green and `tools/crosscheck.py` being clean say
+nothing about whether a renderer draws or a mixer sounds right, and every run
+session so far has found defects that no build could have.
 
 **CI stopped running anything on 2026-08-16**, when `NetTest/` was deleted with
 the client/server restructure. It was the only executable CI started. Since
@@ -326,6 +329,33 @@ reads as *slightly slower* than before at low frame rates, deliberately.
 ---
 
 ## Results
+
+**Second session: 2026-08-17, owner-run, Win32 — the game plays.** This is the
+first run since the script-module rewrite, the container retirements
+(`HASHTABLE`, `TREAP`, `PQUEUE`, `PTRLIST` all gone) and the x64 warning sweep,
+and it covers all three: scripts are compiled from source at every level load,
+so reaching gameplay exercises the whole `.slo`/`.vlo` path, and the sweep
+touched shared code that Win32 runs too.
+
+Three defects were found by running rather than by building, all fixed in the
+same session:
+
+- Menu items printed but stopped highlighting on hover. `PIE_TEXT_WHITE`,
+  `_LIGHTBLUE` and `_DARKBLUE` were the palette-era sentinels -1/-2/-3, which as
+  packed A8R8G8B8 are three indistinguishable whites.
+- `BuildTableMaps` read past the end of the callback table, because it
+  terminated on `pIdent` and the sentinel row is `{"CALLBACK LIST END", 0}`.
+  The constant table had the identical defect.
+- Every shipped script failed with `unknown type 'INT'`: `int` and `bool` are
+  lexer keywords, not rows in `asTypeTable`. `tools/check_scripts.py` now guards
+  that class of bug in CI, and would have caught it before the owner ever ran it.
+
+A fourth was self-inflicted during the sweep and caught the same way — an
+out-of-bounds `asParts[COMP_WEAPON]` read whose value I mis-predicted, which
+rejected every command turret template at load. See `checkValidWeaponForProp`.
+
+**x64 has still never been run.** It compiles and links warning-free in both
+configurations, and nothing more.
 
 First session: **2026-08-16**, Debug and Release both rebuilt clean from scratch
 under MSVC 18.9.1 (0 errors; Release links, so `/SAFESEH` holds). Passes driven

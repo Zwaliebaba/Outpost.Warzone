@@ -191,6 +191,13 @@ The compile is clean. What is left is everything a compiler cannot tell you:
 1. **Run it.** A clean x64 compile proves nothing about the D3D9 device, the
    MsQuic import or asset loading. The CAM_1A boot is the test, and
    [Verification.md](Verification.md) is the runsheet.
+
+   Win32 *has* been played with all of the changes below in it (2026-08-17),
+   which de-risks the shared code: the widget user-data round-trip, the BSP
+   loader, the stats-table walks and the `size_t` casts are all exercised by a
+   normal game and none of them misbehaved. What that run cannot speak to is
+   the part that only differs at 64 bits — whether a pointer survives the
+   places this document was written about — so x64 still needs its own boot.
 2. **Make x64 blocking in CI** once it has been run at least once. Today
    `.github/workflows/build.yml` sets `continue-on-error` for the x64 legs,
    which was right while it did not build and is now only inertia.
