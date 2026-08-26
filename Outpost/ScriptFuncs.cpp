@@ -1399,7 +1399,7 @@ BOOL scrGetFeature(void)
 
   if (psFeat == nullptr) // no more to find.
   {
-    if (!stackPushResult(ST_FEATURE, NULL))
+    if (!stackPushResult(ST_FEATURE, nullptr))
       return FALSE;
     return TRUE;
   }
@@ -1431,7 +1431,7 @@ BOOL scrGetFeature(void)
   }
 
   // none found
-  if (!stackPushResult(ST_FEATURE, NULL))
+  if (!stackPushResult(ST_FEATURE, nullptr))
     return FALSE;
 
   return TRUE;
@@ -1636,7 +1636,7 @@ BOOL scrEnumStruct(void)
 
   if (psStruct == nullptr) // no more to find.
   {
-    if (!stackPushResult(ST_STRUCTURE, NULL))
+    if (!stackPushResult(ST_STRUCTURE, nullptr))
       return FALSE;
     return TRUE;
   }
@@ -1654,7 +1654,7 @@ BOOL scrEnumStruct(void)
     enumStructCount++;
     psStruct = psStruct->psNext;
   }
-  if (!stackPushResult(ST_STRUCTURE, NULL))
+  if (!stackPushResult(ST_STRUCTURE, nullptr))
     return FALSE;
   return TRUE;
 }
