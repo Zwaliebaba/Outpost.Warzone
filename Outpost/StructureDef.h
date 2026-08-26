@@ -193,11 +193,6 @@ using STRUCT_STATES = enum _struct_states
   SS_BEING_DEMOLISHED,
 };
 
-//this is sizeof(FACTORY) the largest at present 11-2-99 - increased AB 22-04-99
-#define	MAX_FUNCTIONALITY_SIZE	40
-
-using FUNCTIONALITY = UBYTE[MAX_FUNCTIONALITY_SIZE];
-
 using RESEARCH_FACILITY = struct _research_facility
 {
   struct _base_stats* psSubject; /* the subject the structure is working on*/
@@ -281,6 +276,37 @@ using REARM_PAD = struct _rearm_pad
   UDWORD currentPtsAdded; /* stores the amount of body points added to the unit
                                                that is being worked on */
 };
+
+/* Storage for whichever functionality struct a building needs. Every one of
+ * them is allocated as one of these by createStructFunc and cast to its real
+ * type, so this has to be at least as large -- and as strictly aligned -- as
+ * the largest of them.
+ *
+ * It used to be a hand-maintained `UBYTE[40]`, and 40 really was
+ * sizeof(FACTORY) when it was written in 1999. On x64 every one of these
+ * structs grew with its pointers -- FACTORY 40 -> 64, REPAIR_FACILITY 32 -> 56,
+ * POWER_GEN 28 -> 48 -- and the hand-written number silently became too small.
+ * POWER_GEN's apResExtractors[3] then sits at bytes 40..47, past the end of
+ * the allocation: reading it returned the debug heap's 0xFD fence bytes, which
+ * are not null, so checkForResExtractors dereferenced them.
+ *
+ * A union rather than a number, so it cannot go stale on the next platform and
+ * so it carries the alignment a byte array never did. **A new functionality
+ * struct must be added here**; nothing else sizes this.
+ */
+union FunctionalityStorage
+{
+  RESEARCH_FACILITY research;
+  FACTORY factory;
+  RES_EXTRACTOR resExtractor;
+  POWER_GEN powerGen;
+  REPAIR_FACILITY repair;
+  REARM_PAD rearmPad;
+};
+
+using FUNCTIONALITY = FunctionalityStorage;
+
+#define	MAX_FUNCTIONALITY_SIZE	(sizeof(FUNCTIONALITY))
 
 //this structure is used whenever an instance of a building is required in game
 using STRUCTURE = struct _structure
