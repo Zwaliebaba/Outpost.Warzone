@@ -22,8 +22,8 @@ Status key: **Fixed** — done, and behaviour-identical on Win32.
 errors.** The script VM, the one item that was a project rather than an edit,
 was resolved by the module rewrite ([`ScriptRewrite.md`](ScriptRewrite.md)).
 CI builds x64 on every push, non-blocking, and the diagnostics below are
-measured from those builds rather than predicted. It has still never been
-*run* -- see [Verification.md](Verification.md).
+measured from those builds rather than predicted. It had not been *run* at
+that point; it has since -- see the 2026-08-26 note below.
 
 **2026-08-26.** `tools/crosscheck.py` grew an `--x64` flag, and the four
 findings under *Fixed on the second pass* below came out of it and out of a
@@ -31,6 +31,18 @@ re-audit of what crosses a process boundary. The harness had only ever run
 `i686-w64-mingw32-g++`, so the Linux pre-CI gate was blind to exactly the
 class of defect this document exists for. All four crosscheck configurations
 -- x86 and x64, debug and release -- are now 180/180 clean.
+
+**x64 has been run.** The owner booted it, played far enough to build a base
+and a power generator, and reported two defects; both are fixed and are
+recorded under *Found by running it* below. This is the milestone the
+*Suggested order* at the foot of this document was waiting for, and it
+immediately paid for itself: the functionality-blob overflow is a heap
+overwrite that no amount of reading was going to surface, and neither
+crosscheck nor a zero-warning MSVC build had said a word about it.
+
+What the run does **not** yet cover: a full CAM_1A completion, a multiplayer
+session (so the corrected `NET_TEMPLATE` wire format still has never carried a
+packet), or FMV. [Verification.md](Verification.md) remains the runsheet.
 
 ---
 
@@ -84,6 +96,59 @@ container that holds a few hundred entries at most.
 
 The same rewrite retires the iterator double-advance bug noted in
 `Docs/AssetPipeline.md`.
+
+---
+
+## Found by running it (2026-08-26)
+
+### The functionality blob was sized for 32-bit structs
+
+`FUNCTIONALITY` was `UBYTE[40]`, hand-written in 1999 and commented "this is
+sizeof(FACTORY) the largest at present". It was exactly that -- on a 32-bit
+build. Every functionality struct is allocated as one of these blobs by
+`createStructFunc` and cast to its real type, and on x64 they all grew with
+their pointers:
+
+| struct | x86 | x64 | |
+|---|---|---|---|
+| `RES_EXTRACTOR` | 16 | 24 | fits |
+| `REARM_PAD` | 16 | 24 | fits |
+| `RESEARCH_FACILITY` | 32 | 40 | exactly at the limit |
+| `POWER_GEN` | 28 | **48** | overflows by 8 |
+| `REPAIR_FACILITY` | 32 | **56** | overflows by 16 |
+| `FACTORY` | 40 | **64** | overflows by 24 |
+
+`POWER_GEN::apResExtractors` starts at offset 16 on x64, so
+`apResExtractors[3]` occupies bytes 40..47 -- entirely past the end of the
+allocation. `memset(p, 0, sizeof(FUNCTIONALITY))` never cleared it, so it was
+never null; reading it returned the debug CRT's four `0xFD` fence bytes
+followed by the adjacent heap (`0x00044c24fdfdfdfd` as reported), and
+`checkForResExtractors` dereferenced that as a `STRUCTURE*`. Writing the slot
+corrupted the heap rather than crashing, which is the worse half: every
+`FACTORY` was also writing its last 24 bytes -- `psAssemblyPoint`,
+`psFormation`, `psCommander`, `secondaryOrder` -- outside its block.
+
+It was **not** a use-after-free, which was the first reading: the slot is
+cleared when an extractor dies, by `informPowerGen` and by the `died` check in
+`updatePower`, and freed memory would read `0xDD`/`0xFD` in all eight bytes
+rather than four. The mixed value is the signature of a read that runs off the
+end of a block, not of a dangling pointer.
+
+`FUNCTIONALITY` is now a union of the six structs, so size and alignment both
+come from the types. On x86 the union is still exactly 40 bytes and 4-aligned,
+so the shipping platform is byte-identical. Nothing else in the tree is a
+hand-sized storage blob of this shape.
+
+### The radar dish span 57 times too fast
+
+Not an x64 bug -- it is a Phase 10 units bug, and it would have been just as
+wrong on x86 -- but it is the other thing the first run surfaced.
+`STRUCTURE::turretRotation` became a float in radians; `structureUpdate`'s
+sensor sweep kept building it in degrees, so the renderer read 0..359 degrees
+as radians and turned the dish 360/(2*pi) times per three seconds instead of
+once. `Move.cpp`'s `SPIN_ANGLE` macros really are degrees and are converted at
+the boundary; the `DEG()` sites in `MapDisplay.cpp` and `IntelMap.cpp` are in
+code the preprocessor never expands. This was the only live straggler.
 
 ---
 
@@ -281,17 +346,20 @@ with the pragma commented out -- a measurement, then a decision.
 
 The compile is clean. What is left is everything a compiler cannot tell you:
 
-1. **Run it.** A clean x64 compile proves nothing about the D3D9 device, the
-   MsQuic import or asset loading. The CAM_1A boot is the test, and
-   [Verification.md](Verification.md) is the runsheet.
+1. ~~**Run it.**~~ **Done, 2026-08-26.** The boot works, the D3D9 device comes
+   up, assets load and a base can be built; the two defects it surfaced are
+   under *Found by running it* above. What it has still not covered is a full
+   CAM_1A completion, a multiplayer session and FMV, so
+   [Verification.md](Verification.md) is still the runsheet and most of it is
+   still unticked.
 
-   Win32 *has* been played with all of the changes below in it (2026-08-17),
-   which de-risks the shared code: the widget user-data round-trip, the BSP
-   loader, the stats-table walks and the `size_t` casts are all exercised by a
-   normal game and none of them misbehaved. What that run cannot speak to is
-   the part that only differs at 64 bits — whether a pointer survives the
-   places this document was written about — so x64 still needs its own boot.
-2. **Make x64 blocking in CI** once it has been run at least once. Today
+   The 2026-08-17 Win32 play-through de-risked the shared code -- the widget
+   user-data round-trip, the BSP loader, the stats-table walks and the
+   `size_t` casts are all exercised by a normal game. What it could not speak
+   to was the part that differs only at 64 bits, and that is exactly where the
+   functionality-blob overflow was hiding.
+2. **Make x64 blocking in CI.** It has now been run, so the precondition is
+   met. Today
    `.github/workflows/build.yml` sets `continue-on-error` for the x64 legs,
    which was right while it did not build and is now only inertia. The test
    projects are not built by CI at all, on either platform, so the MSTest
