@@ -25,6 +25,13 @@ CI builds x64 on every push, non-blocking, and the diagnostics below are
 measured from those builds rather than predicted. It has still never been
 *run* -- see [Verification.md](Verification.md).
 
+**2026-08-26.** `tools/crosscheck.py` grew an `--x64` flag, and the four
+findings under *Fixed on the second pass* below came out of it and out of a
+re-audit of what crosses a process boundary. The harness had only ever run
+`i686-w64-mingw32-g++`, so the Linux pre-CI gate was blind to exactly the
+class of defect this document exists for. All four crosscheck configurations
+-- x86 and x64, debug and release -- are now 180/180 clean.
+
 ---
 
 ## Fixed
@@ -77,6 +84,72 @@ container that holds a few hundred entries at most.
 
 The same rewrite retires the iterator double-advance bug noted in
 `Docs/AssetPipeline.md`.
+
+---
+
+## Fixed on the second pass (2026-08-26)
+
+### A whole `DROID_TEMPLATE`, pointers and all, went on the network wire
+
+`sendTemplate` in `Outpost/MultiPlay.cpp` did
+`memcpy(&m.body[1], pTempl, sizeof(DROID_TEMPLATE))` and `recvTemplate`
+memcpy'd the same span back out. `DROID_TEMPLATE` carries two pointers --
+`pName` from `STATS_BASE` and `psNext` at the end -- so **both** its size and
+the offsets of every field after `pName` move with the pointer width.
+Measured, by compiling the struct's field list standalone under both
+mingw targets: **`sizeof` is 136 on x86 and 152 on x64, and `aName` starts at
+offset 8 against offset 16.** An x86 client and an x64 client could not have
+agreed about any field past `ref`, and between two x64 machines the sender's
+own addresses arrived as the receiver's `pName` and `psNext`.
+
+Both halves now walk the value fields one at a time (`PackTemplate` /
+`UnpackTemplate`, **125 bytes on both platforms**) and neither pointer goes on
+the wire; `pName` is repointed at the receiving template's own `aName`. That
+last part fixes a bug that was live on x86 too -- the "template already
+exists" branch memcpy'd a stack local over the stored template and left
+`pName` pointing at the local.
+
+This changes the `NET_TEMPLATE` message layout. Both ends are the same build,
+so there is nothing to negotiate, but it is a protocol change.
+
+### `stackPushResult(ST_FEATURE, NULL)` picked the integer overload
+
+Four sites in `Outpost/ScriptFuncs.cpp` -- the "none found" returns of
+`scrGetFeature` and `scrEnumStruct` -- pushed a null *object* result as `NULL`
+rather than `nullptr`. `stackPushResult` is overloaded on `SDWORD` and
+`void*`, and `NULL` is an integer literal, so MSVC silently chose the `SDWORD`
+overload. That writes `v.ival`, which on x64 is the low **four** bytes of an
+eight-byte union; the high half keeps whatever the stack slot held. The script
+then reads the same union as `v.oval` and gets a non-null garbage pointer
+where it asked for "nothing found".
+
+On x86 the union is four bytes wide, so the two overloads wrote identical bits
+and the bug was invisible. This is the defect class the typed FFI rewrite was
+meant to close, surviving because `NULL` routes around the type that was
+supposed to fix the store width. `nullptr` makes the `void*` overload the only
+viable one on every compiler. The remaining sites in both functions already
+said `nullptr`; these four were stragglers.
+
+Found by the new `--x64` crosscheck: GCC's `__null` is pointer-width, so at
+64 bits neither overload is a better match and the call is a hard ambiguity
+error. x86 stayed 180/180 clean through the same run.
+
+### `/SAFESEH` was set on the x64 configurations
+
+`ImageHasSafeExceptionHandlers=false` was on all four configurations of
+`Outpost.vcxproj`. `/SAFESEH` describes the x86 stack-based exception chain
+and has nothing to apply to on x64. Removed from the two x64 blocks; the Win32
+ones keep it, because `dinput8.lib`'s `dilib1.obj` still carries no handler
+table.
+
+### The Release configurations searched a deleted SDK
+
+Both Release blocks put `$(MSBuildThisFileDirectory)..\DX9\Lib` first on
+`AdditionalLibraryDirectories`. AGENTS.md §2 says that vendored SDK is gone and
+must not be assumed; the directory does not exist, so MSBuild was ignoring it.
+It is a trap rather than a bug -- the legacy SDK splits its libraries into
+`Lib\x86` and `Lib\x64`, so anyone restoring that tree would have fed 32-bit
+import libraries to the x64 link. Removed from both.
 
 ---
 
@@ -169,6 +242,26 @@ than under Fixed because **the whole block is inside a `/* ... */` comment**
 (`MultiJoin.cpp:347`-`581`) and compiles to nothing. If that code is ever
 revived, the ID needs its own field.
 
+### A whole struct written to a file, inside `#if 0`
+
+`Outpost/MultiStat.cpp` has the old force-file format still in the tree:
+`fwrite(pT, sizeof(DROID_TEMPLATE), 1, ...)` and the matching `fread`, which is
+the same defect the network path had. It is behind `#if 0` -- the live format
+writes only `multiPlayerID` -- so like the `MultiJoin.cpp` block above it
+compiles to nothing. If it is ever revived it needs `PackTemplate`, not a
+`memcpy`.
+
+### `#pragma warning(disable:4244)` is tree-wide
+
+`NeuronCore/NeuronCore.h` disables C4244 ("conversion, possible loss of data")
+for every translation unit that includes it, which is all of them. On x64 that
+class includes `__int64`-to-`int` narrowings, so the "zero warnings" figure
+above is measured with one of the relevant diagnostics switched off. AGENTS.md
+§4 says not to silence a diagnostic to make a build pass, so this is reported
+rather than removed: C4244 also fires on every `float`-to-`int` in the legacy
+tree, and nobody has counted how many that is. Sizing it needs an MSVC build
+with the pragma commented out -- a measurement, then a decision.
+
 ### What is *not* a problem
 
 - **The binary asset formats.** `.gam`, `.bjo`, `.pie`, and the new `.dds`
@@ -200,8 +293,16 @@ The compile is clean. What is left is everything a compiler cannot tell you:
    places this document was written about — so x64 still needs its own boot.
 2. **Make x64 blocking in CI** once it has been run at least once. Today
    `.github/workflows/build.yml` sets `continue-on-error` for the x64 legs,
-   which was right while it did not build and is now only inertia.
-3. **Revisit the `pUserData` design** if the widget layer is ever touched for
+   which was right while it did not build and is now only inertia. The test
+   projects are not built by CI at all, on either platform, so the MSTest
+   suites in `NeuronCoreTest` never run anywhere; wiring those in is the other
+   half of the same job.
+3. **Run `tools/crosscheck.py --x64` before pushing**, not just the default
+   32-bit pass. The first run of the new flag found the `stackPushResult`
+   ambiguity above, which the x86 pass called clean 180/180 in the same
+   sitting. It costs one extra `apt-get install g++-mingw-w64-x86-64` in a
+   fresh container and about a minute at `-j 8`.
+4. **Revisit the `pUserData` design** if the widget layer is ever touched for
    other reasons. The helpers make the round-trip correct and honest, but the
    field still means two different things depending on which widget holds it,
    and there is an unused `UDWORD UserData` beside it that the integer users
