@@ -3283,8 +3283,21 @@ void aiUpdateStructure(STRUCTURE* psStructure)
   {
     //////
     // - radar should rotate every three seconds ... 'cause we timed it at Heathrow !
-    // gameTime is in milliseconds - one rotation every 3 seconds = 1 rotation event 3000 millisecs
-    psStructure->turretRotation = static_cast<UWORD>(((gameTime * 360) / 3000) % 360);
+    /* gameTime is in milliseconds, so one turn per RadarSpinPeriodMs.
+     *
+     * This used to build the sweep in degrees, which was right while
+     * turretRotation was a UDWORD of them. Phase 10 made the field radians in
+     * (-pi, pi] and this line did not follow, so the renderer read 0..359
+     * degrees as 0..359 radians and span the dish 360/(2*pi) -- about 57 --
+     * times too fast. Normalised the way calcDirection does it, because that
+     * is what every other writer of this field hands over.
+     *
+     * gameTime is reduced before the multiply, so the product cannot overflow
+     * the way (gameTime * 360) did after ~3.3 hours of game time.
+     */
+    constexpr UDWORD RadarSpinPeriodMs = 3000;
+    psStructure->turretRotation = DirectX::XMScalarModAngle(
+      DirectX::XM_2PI * static_cast<float>(gameTime % RadarSpinPeriodMs) / static_cast<float>(RadarSpinPeriodMs));
 
     psStructure->turretPitch = 0;
   }
