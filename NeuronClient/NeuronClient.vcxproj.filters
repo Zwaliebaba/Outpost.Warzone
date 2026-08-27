@@ -9,6 +9,7 @@
     <ClCompile Include="Bar.cpp" />
     <ClCompile Include="BitImage.cpp" />
     <ClCompile Include="Button.cpp" />
+    <ClCompile Include="ClientSession.cpp" />
     <ClCompile Include="DXError.cpp" />
     <ClCompile Include="DXInput.cpp" />
     <ClCompile Include="Dds.cpp" />
@@ -55,6 +56,7 @@
     <ClInclude Include="Bar.h" />
     <ClInclude Include="BitImage.h" />
     <ClInclude Include="Button.h" />
+    <ClInclude Include="ClientSession.h" />
     <ClInclude Include="D3D9Vertex.h" />
     <ClInclude Include="DXError.h" />
     <ClInclude Include="DXInput.h" />

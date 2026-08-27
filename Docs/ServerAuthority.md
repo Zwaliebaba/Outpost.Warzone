@@ -594,9 +594,51 @@ by intent:
   on, and nothing is left queued — a refused peer that keeps talking must not
   grow a queue nobody reads.
 
-Next in this stage: the client's half, the first replication of a real entity,
-then the wiring into [Loop.cpp](../Outpost/Loop.cpp) — which is the point the
-running game starts going through the boundary.
+**`ClientSession` is in, and the two halves now open a session with nothing
+hand-driven between them.**
+[ClientSession.h](../NeuronClient/ClientSession.h) is the mirror of
+`ServerSession`: the client speaks first with `Begin()`, waits for the verdict,
+is told which level to load, and answers `ReportReady()` once the caller says
+the level is up. Like the server's half it is the protocol state machine and
+nothing else. It loads no level, owns no replica store and draws nothing, which
+is why it can be tested with no device and no server.
+
+Three asymmetries with the server's half are deliberate, and each is a property
+the 1998 client did not have:
+
+- **The client speaks first, and then waits.** Nothing is sent before the hello
+  and nothing else until the verdict is in, so a server never has to decide
+  what to do with traffic from a peer it has not yet accepted.
+- **The client cannot declare itself ready on its own schedule.** `Ready`
+  answers `Start`, so `ReportReady()` does nothing until a level has been
+  named. Announcing readiness for a level that was never named would be
+  claiming to have loaded nothing.
+- **The client is told what time it is.** Nothing in `ClientSession` advances a
+  tick. `CurrentTick()` moves when the server says so and never otherwise,
+  which is the whole difference between this and a client that simulates.
+
+The rule the server applies to a client applies back, because more trusted is
+not believed blindly. A `Start` before the handshake is answered, a `Tick`
+before the level is loaded, an id this build has never heard of, a verdict or a
+`Start` that ran off the end of its buffer: each is dropped, and a verdict that
+cannot be read is a refusal rather than an acceptance. `Verdict()` is a
+`std::optional` because "not decided" and "accepted" are different answers and
+`HandshakeResult` has no value for the first. Inventing one would put it on the
+wire, where it does not belong.
+
+The two halves talking to each other, with neither side hand-driven, is the
+first time the boundary has been exercised end to end. It runs natively under
+AddressSanitizer and UndefinedBehaviorSanitizer, both halves being Windows-free
+by construction; CI runs each half against a hand-driven peer, one per test
+project.
+
+Next in this stage: the first replication of a real entity, then the wiring
+into [Loop.cpp](../Outpost/Loop.cpp) — which is the point the running game
+starts going through the boundary. One protocol gap is already visible and is
+the natural next increment. `Ready` carries no body, so a client that loaded a
+different level than the one `Start` named says nothing about it and desyncs
+from tick 1. Giving `Ready` the map hash it actually loaded, and the server a
+`Kick` for the mismatch, is the check that closes it.
 
 ### E — `OutpostServer.exe`, headless
 
