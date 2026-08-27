@@ -43,6 +43,7 @@
 #include "Display3D.h"
 #include "Combat.h"
 #include "Findpath.h"
+#include "AudioSystem.h"
 
 // how long to run for
 #define RUN_TIME		8000

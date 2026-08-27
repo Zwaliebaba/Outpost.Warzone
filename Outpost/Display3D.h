@@ -8,6 +8,7 @@
 #include "Model.h"
 #include "ObjectDef.h"
 #include "Message.h"
+#include "AnimObj.h"
 
 extern BOOL xInOrder, yInOrder, yBeforeX, spinScene;
 

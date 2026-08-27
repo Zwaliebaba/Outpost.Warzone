@@ -12,6 +12,7 @@
 #include "Geometry.h"
 #include "HCI.h"
 #include "Display.h"
+#include "RenderClip.h"
 
 void testAngles(void);
 void processImpact(UDWORD worldX, UDWORD worldY, UBYTE severity, UDWORD tilesAcross);

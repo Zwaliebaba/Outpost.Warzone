@@ -10,7 +10,6 @@
 #include "GTime.h"
 #include "Console.h"
 #include "Scores.h"
-#include "PieFunc.h"
 #include "PieMode.h"
 #include "PieState.h"
 #include "RendMode.h"
@@ -28,6 +27,7 @@
 #include "AudioSystem.h"
 #include "AudioID.h"
 #include "IntImage.h"
+#include "RenderClip.h"
 
 #define	BAR_CRAWL_TIME	(GAME_TICKS_PER_SEC*3)
 

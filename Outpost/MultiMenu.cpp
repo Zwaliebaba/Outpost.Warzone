@@ -33,6 +33,7 @@
 #include "MultiJoin.h"
 #include "Palette.h"
 #include "Scores.h"                        // getAsciiTime
+#include "RenderClip.h"
 
 // ////////////////////////////////////////////////////////////////////////////
 // defines

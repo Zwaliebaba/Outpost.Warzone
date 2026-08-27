@@ -28,8 +28,61 @@ extern UDWORD frameTime2; // Never stops.
 /* Initialise the game clock */
 extern BOOL gameTimeInit(void);
 
-/* Call this each loop to update the game timer */
+/* Call this each loop to update the game timer.
+ *
+ * This no longer advances gameTime. It advances the *target* the simulation is
+ * owed - see Neuron::ConsumeSimulationTick below - along with gameTime2, which
+ * is the client's own clock and still moves once per frame.
+ */
 extern void gameTimeUpdate(void);
+
+/***************************************************************************/
+/* The fixed simulation tick.
+ *
+ * The world used to advance by however long the last frame took, so how far a
+ * droid moved in one step depended on the frame rate; Move.cpp carries a
+ * ten-frame rolling average of frameTime for no other reason than to smooth
+ * that out. It advances by a fixed quantum now, as many whole quanta per frame
+ * as the wall clock has paid for, which is what an authoritative server needs
+ * (Docs/ServerAuthority.md stage A): a headless one has no frame to hang a
+ * timestep off.
+ */
+/***************************************************************************/
+
+namespace Neuron
+{
+
+/* Game time one simulation tick advances the world by, in game ticks
+ * (milliseconds).
+ *
+ * 25 ticks a second is BASE_DEF_RATE in Move.cpp - the rate the movement system
+ * was written around, and the value moveInitialise seeds its whole frame-time
+ * history with. So a fixed tick of this length is the one length at which
+ * baseSpeed settles on exactly the BASE_SPEED_INIT the movement code starts
+ * from, rather than on whatever the frame rate happened to average.
+ */
+inline constexpr UDWORD SimulationTickMs = GAME_TICKS_PER_SEC / 25;
+
+/* How many ticks one frame may run before the rest of what is owed is
+ * discarded. Past this a machine that cannot keep up runs the world slowly
+ * instead of fast-forwarding it, which is the policy GTIME_MAXFRAME used to
+ * enforce on a single variable-length frame - and four ticks is 160ms, near
+ * enough the same bound it enforced.
+ */
+inline constexpr UDWORD MaxSimulationTicksPerFrame = 4;
+
+/* Takes one tick's worth of game time off what the clock has accumulated,
+ * advancing gameTime by SimulationTickMs and setting frameTime to it. Returns
+ * FALSE once what is left no longer fills a whole tick, so the caller is
+ *
+ *     while (Neuron::ConsumeSimulationTick())
+ *       SimulateTick();
+ *
+ * and the remainder stays owed rather than being rounded away.
+ */
+BOOL ConsumeSimulationTick();
+
+} // namespace Neuron
 
 /* Returns TRUE if gameTime is stopped. */
 extern BOOL gameTimeIsStopped(void);

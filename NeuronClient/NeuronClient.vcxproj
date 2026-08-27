@@ -166,6 +166,7 @@
     <ClInclude Include="Bar.h" />
     <ClInclude Include="BitImage.h" />
     <ClInclude Include="Button.h" />
+    <ClInclude Include="ClientSession.h" />
     <ClInclude Include="D3D9Vertex.h" />
     <ClInclude Include="DXError.h" />
     <ClInclude Include="DXInput.h" />
@@ -179,7 +180,6 @@
     <ClInclude Include="Input.h" />
     <ClInclude Include="IvisPatch.h" />
     <ClInclude Include="Label.h" />
-    <ClInclude Include="ListMacs.h" />
     <ClInclude Include="MaxPiDef.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="MovieStream.h" />
@@ -198,6 +198,7 @@
     <ClInclude Include="RenderMatrix.h" />
     <ClInclude Include="RenderModel.h" />
     <ClInclude Include="RenderTypes.h" />
+    <ClInclude Include="ReplicaStore.h" />
     <ClInclude Include="Screen.h" />
     <ClInclude Include="Sequence.h" />
     <ClInclude Include="Slider.h" />
@@ -223,6 +224,7 @@
     <ClCompile Include="Bar.cpp" />
     <ClCompile Include="BitImage.cpp" />
     <ClCompile Include="Button.cpp" />
+    <ClCompile Include="ClientSession.cpp" />
     <ClCompile Include="DXError.cpp" />
     <ClCompile Include="DXInput.cpp" />
     <ClCompile Include="Dds.cpp" />
@@ -246,6 +248,7 @@
     <ClCompile Include="RenderClip.cpp" />
     <ClCompile Include="RenderMatrix.cpp" />
     <ClCompile Include="RenderModel.cpp" />
+    <ClCompile Include="ReplicaStore.cpp" />
     <ClCompile Include="Screen.cpp" />
     <ClCompile Include="Sequence.cpp" />
     <ClCompile Include="Slider.cpp" />

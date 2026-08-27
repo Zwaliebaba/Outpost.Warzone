@@ -32,8 +32,8 @@ and palette work, and the script module rewrite:
 
 | | |
 |---|---|
-| Translation units | 20 NeuronCore, 43 NeuronClient, 1 NeuronServer, 117 Outpost, 4 NeuronCoreTest, 3 NeuronClientTest, 2 NeuronServerTest |
-| Toolset | MSVC v145; Win32 (x86) builds and ships, x64 configurations exist but are unbuilt (`Docs/X64Readiness.md`) |
+| Translation units | 20 NeuronCore, 42 NeuronClient, 1 NeuronServer, 117 Outpost, 12 NeuronCoreTest |
+| Toolset | MSVC v145; **x64 is the platform that ships** and the only one CI builds (2026-08-27). The x86 configurations still exist in the project files and are unmaintained (`Docs/X64Readiness.md`) |
 | Generated parser code | **None.** All six MKS lex/yacc grammars are gone |
 | Win32 build warnings | 12 (was 343) |
 
@@ -516,7 +516,32 @@ same reason — only the packet cipher was the transport's to replace.
 The `NetAdd`/`NetGet` message macros and the `NETMSG` layout are unchanged,
 which kept the blast radius inside the transport.
 
-### Verification
+### The platform: x64 ships, Win32 leaves CI (2026-08-27)
+
+**By owner decision the game ships x64 and Win32 is out of the build.** The
+workflow builds Debug and Release for x64 only, and both **block**: the x64
+legs ran `continue-on-error` while the migration was in flight, and with no
+second platform to fall back on there is nothing left for that flag to
+protect. The x86 configurations remain in the `.vcxproj` files and in
+`Outpost.slnx`, unmaintained.
+
+This was earned rather than declared. x64 had been building and linking
+warning-free in all four configurations for a while, and the run before the
+switch showed Release green on both platforms with the unit tests passing —
+so x64 was already doing everything Win32 was, with the tests to say so.
+
+`tools/crosscheck.py` follows: its default target is x64, matching CI, and the
+old `--x64` flag is now `--x86` for the unmaintained half. A pre-CI gate that
+checks a platform nobody builds is worse than no gate, because it reads as
+coverage.
+
+What this closes: [AGENTS.md §3](../AGENTS.md)'s stop-and-report on adding an
+x64 platform, which has been standing since Phase 6 removed the last 32-bit
+binary. What it does not close is [X64Readiness.md](X64Readiness.md)'s **Watch**
+list — those are still there, and one of them (`==` on two objects comparing
+half a pointer each) is now the only known width defect left in the VM.
+
+## Verification
 
 `NetTest/` was a console harness CI ran in both configurations: two processes
 over 127.0.0.1, one hosting and one joining, checking the certificate and
@@ -530,8 +555,10 @@ compiling can answer.
 **The harness is gone** (2026-08-16), deleted with the client/server
 restructure that added `NeuronClient`, `NeuronServer` and `NeuronCoreTest`, and
 its steps are out of the CI workflow. That result stands as a record of the day
-it ran and is no longer re-checked on each commit: **CI now builds and does not
-run anything.** Whatever replaces it wants to keep the one property that made
+it ran and is no longer re-checked on each commit. **CI ran nothing at all
+until 2026-08-27**, when it gained the `NeuronCoreTest` suite (below); that
+still does not put bytes between two processes, which is the property NetTest
+had and nothing has yet replaced. Whatever replaces it wants to keep the one property that made
 NetTest worth having — it started real processes and put bytes between them,
 which is the only way that certificate question gets answered.
 
@@ -1463,6 +1490,76 @@ otherwise unchanged, so the 30 consumer files were untouched.
 Also removes 2 of the build's 12 remaining warnings (C4715 in `treapFindRec`
 and `treapDelRec`). `check_case` clean, `crosscheck` 181/181 units clean.
 
+## Server authority: the MMO shape (2026-08-27, stages A and B landed)
+
+**By owner decision the game is heading to a server-authoritative MMO, starting
+with single player.** The design — where the tree already stands, why the 1998
+peer-distributed model cannot be the destination, the embedded-server topology
+and its separation ladder, the A–I staging and the full client/server message
+protocol — is in [ServerAuthority.md](ServerAuthority.md); whether it takes a
+phase number is still the owner's call (its decision 5), so this entry records
+it without claiming one.
+
+Two decisions are already taken. The server side ships **embedded inside
+`Outpost.exe`** first, exchanging encoded messages with its own client through
+an in-process transport, so that where the server runs is a launch-time binding
+rather than a rewrite; and **single player is the first server-authoritative
+session**, which puts the campaign, its scripts and every AI player on the
+server side by construction. **Pause is removed as a feature** rather than
+carried — an authority serving a session does not stop the world — with game
+speed and the cheat console demoted to session commands a solo session permits
+and a service session refuses.
+
+**Stage A is done.** The simulation left the frame handler: `SimulateTick()` in
+[Loop.cpp](../Outpost/Loop.cpp) is the whole of the world update as one
+function, driven by `Neuron::ConsumeSimulationTick()` from
+[GTime.h](../NeuronCore/GTime.h) at a fixed 40 ms quantum — 25 Hz, which is
+`BASE_DEF_RATE`, the rate `Move.cpp` was written around and seeds its
+frame-time history with. `gameTimeUpdate` now advances the *target* rather than
+`gameTime`, and the leftover under a tick rolls forward instead of being
+rounded away. The 219 moved lines are byte-identical apart from indentation.
+Presentation moved off the simulation clock in the same change: `processEffects`,
+`atmosUpdateSystem` and `processAVTile` run from the terrain draw and read
+`frameTime2` now, or they would have animated at a fixed 40 ms per frame. One
+latent defect died in the rewritten lines — an unsigned wrap in the owed-time
+subtraction that read as a four-billion-tick backlog for the opening frames of
+a level, and took `baseTime` with it.
+
+`check_case` passes and `crosscheck` is clean at 180/180 units in all four
+configurations. Like everything since Phase 2 this is built-and-verified work,
+not run work: unchanged *speed* is not unchanged *smoothness*, and
+[Verification.md](Verification.md) pass J carries the question — world motion
+is 25 steps a second until the renderer interpolates between them.
+
+**Stage B's first pass is done**, and it came with its own instrument:
+`tools/crosscheck.py --sim-only` compiles the candidate server units with the
+`NeuronClient` include directory taken away, so a unit that still compiles
+reaches nothing presentational even transitively. It is a ratchet — `NeuronCore`
+stays at zero, the Outpost count falls and never rises — and it went from
+**22 of 58 client-free to 41 of 58**.
+
+The measurement is the point. 105 of 117 Outpost units reached the same ten
+client headers, because `ObjectDef.h` carried `RenderTypes.h` for its children
+while using nothing from it, and `Base.h` embeds `SCREEN_DISP_DATA`, which
+carried `IMD.h`. Almost every object-model use turned out to be a *pointer* —
+`iIMDShape`, `ANIM_OBJECT`, `AUDIO_SAMPLE`, `W_SCREEN` are stored and passed by
+the def headers and dereferenced by none of them — so ten headers now declare
+what they point at instead of including the library that defines it. `iVector`
+and `iPoint` are anonymous structs and could not be declared that way, so they
+moved from the client's `RenderTypes.h` to `NeuronCore/Types.h`, the vocabulary
+both halves share (`SDWORD` and `int32` are the same type, so no layout moved).
+`ListMacs.h` — 70 lines of list macros with no includes — moved from
+`NeuronClient` to `NeuronCore`, where a shared utility belongs. Seven includes
+were simply stale. In exchange, 24 presentation units that had been getting
+client headers transitively now include them directly.
+
+What remains is real and countable: seventeen units in three groups — five
+reading model geometry through `Model.h`, five playing sounds through
+`AudioSystem.h`, and seven one-off client calls, of which `Order.cpp` reading
+the keyboard through `keyDown` is the clearest layering defect in the tree.
+That list is the input stage D's message planes consume, and it is recorded in
+[ServerAuthority.md](ServerAuthority.md#b--split-simulation-state-from-presentation-state-first-pass-landed-2026-08-27).
+
 ## The model format: NMO, a CMO-derived binary mesh (2026-08-27)
 
 **Design and tooling, plus the engine half; nothing draws one yet.** The
@@ -1508,6 +1605,7 @@ game. Until then this is the same built-and-not-run state as everything since
 Phase 2, with the same caveat: 516 models converting and loading says nothing
 about whether one of them appears the right way up.
 
+
 ## Verification
 
 There is no MSVC or Windows SDK in the Linux development container, so a real
@@ -1531,6 +1629,18 @@ This is a **proxy, not MSVC**. GCC is stricter in some places, MSVC under
 Mplayer and WINSTR are 32-bit MSVC binaries). It reliably catches the portable
 C++ issues, which is what Phase 1 is about, but a real `msbuild` remains the
 final word.
+
+**CI runs the unit tests as of 2026-08-27.** `NeuronCoreTest` is not a
+reference of `Outpost` — it compiles the `NeuronCore` sources it tests directly
+— so building the game never built it, and the `Neuron::Json` and script
+compiler/VM suites sat in the tree unbuilt and unrun. The workflow now restores,
+builds and runs them through `vstest.console.exe` in all four configurations.
+Two things had to change for that to be possible: the project carried the
+pre-VS2017 `$(VCInstallDir)UnitTest\include` path for the native test
+framework, which VS2017 moved under `Auxiliary\VS` (both are listed now, since
+a directory that does not exist is ignored), and the project needed its own
+NuGet restore. This is the first thing CI has *executed* since NetTest was
+deleted.
 
 Two content checkers run ahead of the build in CI: `tools/check_case.py`
 (every include and project entry must match the on-disk filename case) and,

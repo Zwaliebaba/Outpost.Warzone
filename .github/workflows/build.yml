@@ -20,18 +20,16 @@ jobs:
         run: python3 tools/check_scripts.py
 
   build:
-    name: ${{ matrix.configuration }}|${{ matrix.platform }}
+    name: ${{ matrix.configuration }}|x64
     runs-on: windows-latest
-    # x64 is an in-flight migration (Docs/X64Readiness.md), not a
-    # configuration that is expected to build yet. It runs so its
-    # diagnostics are visible and measurable, but it must not fail the
-    # workflow or block a PR on Win32 work.
-    continue-on-error: ${{ matrix.platform == 'x64' }}
+    # x64 is the platform now, and it blocks. It arrived as an in-flight
+    # migration behind continue-on-error (Docs/X64Readiness.md); Win32 was
+    # dropped by owner decision on 2026-08-27, so there is no second platform
+    # to keep green and nothing left to excuse a red x64.
     strategy:
       fail-fast: false
       matrix:
         configuration: [Debug, Release]
-        platform: [Win32, x64]
 
     steps:
       - uses: actions/checkout@v4
@@ -60,22 +58,74 @@ jobs:
         run: |
           nuget install NeuronCore\packages.config -OutputDirectory packages -NonInteractive
           nuget install Outpost\packages.config -OutputDirectory packages -NonInteractive
+          nuget install NeuronCoreTest\packages.config -OutputDirectory packages -NonInteractive
+          nuget install NeuronClientTest\packages.config -OutputDirectory packages -NonInteractive
+          nuget install NeuronServerTest\packages.config -OutputDirectory packages -NonInteractive
 
       # /flp contains a semicolon, which PowerShell reads as a statement
       # separator unless the whole switch is quoted. Building serially: with
       # /m the failing project's diagnostics can be interleaved away.
       - name: Build
-        run: msbuild Outpost\Outpost.vcxproj /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform }} /v:normal /nologo "/flp:LogFile=build.log;Verbosity=diagnostic"
+        run: msbuild Outpost\Outpost.vcxproj /p:Configuration=${{ matrix.configuration }} /p:Platform=x64 /v:normal /nologo "/flp:LogFile=build.log;Verbosity=diagnostic"
+
+      # The unit tests, which until now nothing ran. NeuronCoreTest is not a
+      # reference of Outpost -- it compiles the NeuronCore sources it tests
+      # directly -- so building the game never built it, and the Json and
+      # script compiler/VM suites were dead weight in the tree. They need no
+      # GameData and open no files, so building the DLL and handing it to
+      # vstest.console is the whole of it.
+      - name: Build unit tests
+        shell: pwsh
+        run: |
+          foreach ($proj in 'NeuronCoreTest', 'NeuronClientTest', 'NeuronServerTest') {
+            msbuild "$proj\$proj.vcxproj" /p:Configuration=${{ matrix.configuration }} /p:Platform=x64 /v:normal /nologo "/flp:LogFile=test-build.log;Verbosity=diagnostic;Append"
+            if ($LASTEXITCODE -ne 0) { throw "$proj failed to build" }
+          }
+
+      # vstest.console.exe is not on PATH and its location moves with the VS
+      # edition the runner image ships, so it is found through vswhere rather
+      # than hardcoded. The DLL is globbed for the same reason: neither project
+      # sets OutDir, so where it lands is an MSBuild default and not ours to
+      # assume.
+      - name: Run unit tests
+        shell: pwsh
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          if (-not (Test-Path $vswhere)) { throw "vswhere.exe not found at $vswhere" }
+          $vs = & $vswhere -latest -products * -property installationPath
+          $vstest = Join-Path $vs 'Common7\IDE\Extensions\TestPlatform\vstest.console.exe'
+          if (-not (Test-Path $vstest)) { throw "vstest.console.exe not found at $vstest" }
+          $dlls = foreach ($proj in 'NeuronCoreTest', 'NeuronClientTest', 'NeuronServerTest') {
+            $hit = Get-ChildItem -Recurse -Filter "$proj.dll" |
+                   Where-Object { $_.FullName -notmatch '\\obj\\' } |
+                   Select-Object -First 1
+            if (-not $hit) { throw "$proj.dll was not produced" }
+            $hit.FullName
+          }
+          Write-Host "running:`n$($dlls -join "`n")"
+          & $vstest $dlls /Platform:x64 /Logger:trx /ResultsDirectory:TestResults
+          if ($LASTEXITCODE -ne 0) { throw "unit tests failed (exit $LASTEXITCODE)" }
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.configuration }}-x64
+          path: TestResults
+          if-no-files-found: ignore
 
       # MSBuild can exit non-zero with the failure only in the file log, so
       # surface it rather than leaving the job with no explanation.
       - name: Show failures from build log
         if: failure()
         run: |
-          if (Test-Path build.log) {
-            Select-String -Path build.log -Pattern 'error |fatal error|Build FAILED|Error\(s\)|LNK' |
-              Select-Object -Last 60 | ForEach-Object { $_.Line }
-          } else { Write-Host 'no build.log produced' }
+          foreach ($log in 'build.log', 'test-build.log') {
+            if (Test-Path $log) {
+              Write-Host "--- $log"
+              Select-String -Path $log -Pattern 'error |fatal error|Build FAILED|Error\(s\)|LNK' |
+                Select-Object -Last 60 | ForEach-Object { $_.Line }
+            } else { Write-Host "no $log produced" }
+          }
 
       # MSBuild repeats a warning once per referencing project, so the raw
       # count in the build summary overstates them. This reports the
@@ -89,7 +139,7 @@ jobs:
           $warnings = Select-String -Path build.log -Pattern ': warning [A-Z]+[0-9]+:' |
             ForEach-Object { $_.Line.Trim() -replace $root, '' -replace ' \[[^\]]*\.vcxproj\]$', '' } |
             Sort-Object -Unique
-          $header = "## ${{ matrix.configuration }}|${{ matrix.platform }} - $($warnings.Count) unique warning(s)"
+          $header = "## ${{ matrix.configuration }}|x64 - $($warnings.Count) unique warning(s)"
           Write-Host $header
           $header | Out-File -Append -Encoding utf8 $env:GITHUB_STEP_SUMMARY
           if ($warnings.Count -gt 0) {
@@ -107,6 +157,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: build-log-${{ matrix.configuration }}-${{ matrix.platform }}
+          name: build-log-${{ matrix.configuration }}-x64
           path: build.log
           if-no-files-found: ignore

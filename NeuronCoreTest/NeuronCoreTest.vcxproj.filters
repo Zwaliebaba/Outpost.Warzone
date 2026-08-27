@@ -2,6 +2,10 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="JsonTest.cpp" />
+    <ClCompile Include="HandshakeTest.cpp" />
+    <ClCompile Include="LoopbackTransportTest.cpp" />
+    <ClCompile Include="NetWireTest.cpp" />
+    <ClCompile Include="ReplicationRecordsTest.cpp" />
     <ClCompile Include="ScriptTest.cpp" />
     <ClCompile Include="NeuronCoreTest.cpp" />
     <ClCompile Include="pch.cpp" />

@@ -346,6 +346,37 @@ public:
     scriptFreeCode(psProg);
   }
 
+  /* stackPopType copied the popped value through v.ival, which is four bytes.
+     On Win32 that is exactly a pointer's width, so it moved every type
+     correctly by accident; on x64 it kept only the low half of an object
+     pointer and left the high half behind. Its callers are all "pop into a
+     variable", so the truncation landed in script object variables - the ones
+     scrvAddBasePointer registers - and surfaced as a live BASE_OBJECT reaching
+     scrvUpdateBasePointers as 0x00000000`367f8b70, reading as freed memory.
+
+     ObjectMembersAndEquality above already covers the same defect through a
+     script, but it fails by dereferencing the truncated pointer, so it reports
+     a crash rather than the cause. This names it.
+
+     The assertion cannot fail on Win32, where a pointer has no high half to
+     lose. It is here for the x64 configuration, which is the whole reason CI
+     runs both. */
+  TEST_METHOD(StackPopTypeKeepsTheWholeObjectPointer)
+  {
+    INTERP_VAL sPushed;
+    sPushed.type = TT_OBJ;
+    sPushed.v.oval = &g_sObjA;
+    Assert::IsTrue(stackPush(&sPushed) == TRUE);
+
+    INTERP_VAL sPopped;
+    sPopped.type = TT_OBJ;
+    sPopped.v.oval = nullptr;
+    Assert::IsTrue(stackPopType(&sPopped) == TRUE);
+
+    Assert::IsTrue(sPopped.v.oval == &g_sObjA);
+    Assert::IsTrue(stackEmpty() == TRUE);
+  }
+
   TEST_METHOD(TriggersCompileToTheRightMetadata)
   {
     SCRIPT_CODE* psProg = Compile(

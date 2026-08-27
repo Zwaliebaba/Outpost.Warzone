@@ -79,6 +79,7 @@
 #include "Effects.h"
 #include "KeyMap.h"
 #include "Palette.h"
+#include "RenderClip.h"
 
 #define	MAX_INTERFACE_SNAPS	64
 #define	MAX_RADAR_SNAPS 1

@@ -110,7 +110,7 @@ private:
 
 [`.clang-tidy`](.clang-tidy) at the repository root is the machine-readable statement of every rule above, and it is the **single source of truth** for the option values — this document does not repeat them, so there is nothing to drift. `readability-identifier-length` is deliberately left off: its defaults reject the domain vocabulary this codebase is built on (`x`, `y`, `_a`, `_b`), and short names here are precise, not lazy.
 
-**Nothing runs it automatically yet.** [`build.yml`](.github/workflows/build.yml) builds Debug and Release for Win32 and runs `tools/check_case.py` (which verifies every `#include` and project entry spells its file with the exact on-disk case — MSVC resolves includes case-insensitively, so a wrong name still builds). There is no clang-tidy step, and the `.vcxproj` files do not enable MSBuild's code analysis. Until one of those changes, §1 is enforced by **review**: check your own diff against the table before handing it back.
+**Nothing runs it automatically yet.** [`build.yml`](.github/workflows/build.yml) builds Debug and Release for x64, builds and **runs the three CppUnitTest suites** through `vstest.console.exe`, and runs `tools/check_case.py` (which verifies every `#include` and project entry spells its file with the exact on-disk case — MSVC resolves includes case-insensitively, so a wrong name still builds). There is no clang-tidy step, and the `.vcxproj` files do not enable MSBuild's code analysis. Until one of those changes, §1 is enforced by **review**: check your own diff against the table before handing it back.
 
 **When you do run it, run it on what you wrote, not on the tree.** The legacy code predates every rule here (§1, under the table), so a whole-tree pass reports thousands of grandfathered findings and tells you nothing. Point it at the files your change adds, or filter to your changed lines:
 
@@ -129,19 +129,17 @@ Two rules the config cannot express, and that a reviewer therefore has to carry:
 
 | Path | What it is | May you edit it? |
 |---|---|---|
-| `NeuronCore/` | Engine static library (20 TUs): platform, timing, the resource system and the `Neuron::Json` reader, containers, maths, the script compiler and VM, string resources, networking and transport | Yes |
-| `NeuronClient/` | Client-side engine static library (43 TUs): the window, D3D9 rendering, IMD models, animations, DirectInput, XAudio2, UI widgets, fonts, images, FMV sequences, and the NMO model loader | Yes |
-| `NeuronServer/` | Server-side engine static library. **Currently a PCH shell** — one `pch.h`/`pch.cpp` and nothing else | Yes |
-| `Outpost/` | Game executable (117 TUs): simulation, AI, structures, droids, campaign, multiplayer | Yes |
-| `NeuronCoreTest/` | MSVC CppUnitTest DLL: the `Neuron::Json` and script compiler/VM test suites | Yes |
-| `NeuronClientTest/` | MSVC CppUnitTest DLL: the NMO loader suite. References `NeuronClient`, and compiles against `..\NeuronClient` and `..\NeuronCore` | Yes |
-| `NeuronServerTest/` | MSVC CppUnitTest DLL. **A shell**, like the library it tests | Yes |
+| `NeuronCore/` | Engine static library (24 TUs): platform, timing, the resource system and the `Neuron::Json` reader, containers, maths, the script compiler and VM, string resources, networking and transport, and the client/server wire protocol | Yes |
+| `NeuronClient/` | Client-side engine static library (45 TUs): the window, D3D9 rendering, IMD models, animations, DirectInput, XAudio2, UI widgets, fonts, images, FMV sequences, the NMO model loader, and the client half of a session | Yes |
+| `NeuronServer/` | Server-side engine static library (3 TUs): the server half of a session and one client's replication stream. The simulation itself is still in `Outpost/` | Yes |
+| `Outpost/` | Game executable (118 TUs): simulation, AI, structures, droids, campaign, multiplayer | Yes |
+| `NeuronCoreTest/`, `NeuronClientTest/`, `NeuronServerTest/` | MSVC CppUnitTest DLLs, one per engine library, each referencing the library it tests and the libraries that library is built on. `NeuronCoreTest` holds the `Neuron::Json`, script compiler/VM, wire-format and protocol suites; the other two hold the client and server halves of a session, and `NeuronClientTest` also holds the NMO loader suite. **CI builds and runs all three** | Yes |
 | `GameData/` | Shipped content. The JSON manifests and tables (`datasets.json`, stats, messages, anims, audio configs) are text authored in this repo — `tools/validate_assets.py` must stay green. The binary media (textures, models, `.wav`, `.mp4`, levels) is authored by tools outside this repo | JSON: yes, validated. Binary: **No** |
 | `Docs/MigrationPlan.md` | The plan and the record of what each phase changed | Yes — see §6 |
 | `.clang-format`, `.clang-tidy`, `.editorconfig` | Layout and naming, machine-readable (§1, §4) | Yes — with an owner decision |
 | `tools/*.py` | Repository checkers and content-authoring scripts (§3) | Yes |
 | `tools/blender_nmo/` | The Blender import/export add-on for `.nmo`, and `nmo_format.py` — the reference codec the converter and the tests are built on | Yes |
-| `.github/workflows/build.yml` | CI: Debug and Release, Win32 and x64 (x64 non-blocking), plus the script corpus | Yes, carefully |
+| `.github/workflows/build.yml` | CI: Debug and Release for x64, the three unit-test suites, plus the script corpus. All of it blocks | Yes, carefully |
 | `Debug/`, `x64/`, `.vs/`, `*.user` | Build and IDE output | **No — and never commit them** |
 
 **There is no vendored SDK.** `DX9/Include` and `DX9/Lib` held a checked-in DirectX 9.0c
@@ -150,46 +148,53 @@ and the rest, so nothing needed them. `NetTest/`, the console harness for the Ph
 QUIC transport, is gone with them. Do not restore either, and do not add a build step
 that assumes they exist.
 
-**Four libraries and three test DLLs, and the edges run one way.**
-`Outpost.slnx` is the solution; its platforms are `x86` (the one that builds)
-and `x64` (see §3).
+**Seven projects, and the edges run one way.** `Outpost.slnx` is the solution; its
+platforms are `x64` (the one CI builds and gates) and `x86` (unmaintained, see §3).
 
 ```
 NeuronCore.lib          ← the engine everything else builds on
 ├── NeuronClient.lib    ← references NeuronCore
 ├── NeuronServer.lib    ← references NeuronCore
 └── Outpost.exe         ← references all three
-NeuronCoreTest.dll      ← references NeuronCore
-NeuronClientTest.dll    ← references NeuronClient
-NeuronServerTest.dll    ← references NeuronServer
+NeuronCoreTest.dll      ← references NeuronCore; likewise NeuronClientTest,
+                          NeuronServerTest against their own libraries
+NeuronClientTest.dll    ← also references NeuronServer, for one test (below)
 ```
 
-A test project reaches the sources it tests through a `ProjectReference` plus
-the library's directory on `AdditionalIncludeDirectories`; it does not list
-that library's `.cpp` files as its own.
+**One edge is deliberately not in that shape.** `NeuronClientTest` references
+`NeuronServer` as well, so that `ReplicatedWorldTest` can run a `ReplicationWriter`
+against a `ReplicaStore` and assert that the client's world is the server's world.
+That property belongs to the boundary rather than to either half, the repository
+has no home for a test of the boundary itself, and an eighth project for one test
+class buys less than it costs. The direction is the cheap one — `NeuronServer` is
+three translation units over `NeuronCore`, where the reverse would drag D3D9,
+DirectInput and XAudio2 into the server's test. **This is a test-project edge and
+not a library one:** the library graph above is unchanged, and nothing in
+`NeuronClient` may reach `NeuronServer`.
 
 `NeuronClient` and `NeuronServer` are the destination of the engine split: game-engine
 code that is meaningful only to a client (presentation, input, local prediction) or only
 to a server (authoritative simulation, session ownership) moves out of `NeuronCore`,
 which keeps what both need. **The client half has landed**: presentation, input and
-audio moved to `NeuronClient` on 2026-08-16. The server half has not — `NeuronServer` is
-still a shell and the simulation is still inside `Outpost.exe`. **Until a task is that
-split, do not move a file between them** — see R13.
+audio moved to `NeuronClient` on 2026-08-16. The server half has begun but is not done:
+`NeuronServer` owns the session and its replication stream, and the simulation is still
+inside `Outpost.exe` — [Docs/ServerAuthority.md](Docs/ServerAuthority.md) stages D and E
+are what move it. **Until a task is that split, do not move a file between them** — see
+R13.
 
 ---
 
 ## 3. Build and verify
 
-**Win32 (x86) is the platform that ships**, toolset v145, `/std:c++latest`, and there is no CMake. **x64 builds and links clean** in every `.vcxproj` and in `Outpost.slnx`, Debug and Release, with zero warnings — but it has never been *run*, so it is a configuration you may assume compiles and may not assume works. It is tracked in [`Docs/X64Readiness.md`](Docs/X64Readiness.md); read it before writing anything that puts a pointer in an integer, a struct on a wire, or a struct in a file. CI builds both platforms, with the x64 legs `continue-on-error`. If a build error tempts you to change the toolset or lower the language standard — stop and report instead.
+**x64 is the platform that ships** (owner decision, 2026-08-27), toolset v145, `/std:c++latest`, and there is no CMake. Win32 is gone from CI: the workflow builds Debug and Release for x64 only, and both **block** — there is no second platform to fall back on and nothing left to excuse a red x64. The 32-bit configurations still exist in the `.vcxproj` files and are not maintained; do not add code that only works at 32 bits, and do not spend a round making them build. [`Docs/X64Readiness.md`](Docs/X64Readiness.md) records how the migration went and what is still on watch; read it before writing anything that puts a pointer in an integer, a struct on a wire, or a struct in a file. If a build error tempts you to change the toolset or lower the language standard — stop and report instead.
 
 ```powershell
 # Build the game. Its project references pull in NeuronCore, NeuronClient and
 # NeuronServer, so this builds all four.
-msbuild Outpost\Outpost.vcxproj /p:Configuration=Debug /p:Platform=Win32 /v:normal /nologo
+msbuild Outpost\Outpost.vcxproj /p:Configuration=Debug /p:Platform=x64 /v:normal /nologo
 
-# Build everything including the test DLL. Note the platform is x86 here, not
-# Win32: that is the name the .slnx gives it.
-msbuild Outpost.slnx /p:Configuration=Debug /p:Platform=x86 /v:normal /nologo
+# Build everything including the test DLLs.
+msbuild Outpost.slnx /p:Configuration=Debug /p:Platform=x64 /v:normal /nologo
 
 # Filename-casing gate. MSVC resolves includes case-insensitively, so a wrong
 # #include still builds on Windows and only fails on the Linux checkers. Run it.
@@ -210,12 +215,19 @@ The executable lands in `Debug\Outpost.exe` (or `Release\`), and it needs `GameD
 **Without MSVC** (Linux container), `tools/crosscheck.py` syntax-checks every translation unit with mingw-w64 against a shadow tree. It is a fast first pass, **not a build**: it cannot link, and MSVC disagrees with GCC in both directions. The Windows CI build is the authority.
 
 ```
-apt-get install -y g++-mingw-w64-i686 g++-mingw-w64-x86-64   # once per container
-python3 tools/crosscheck.py -j 8            # 32-bit
-python3 tools/crosscheck.py --x64 -j 8      # 64-bit -- run this too
+apt-get install -y g++-mingw-w64-x86-64     # once per container
+python3 tools/crosscheck.py -j 8            # x64, which is what CI builds
 ```
 
-**Run the `--x64` pass as well as the default one.** On Win32 `sizeof(void*) == sizeof(UDWORD)`, so a whole class of defect compiles clean at 32 bits and only appears at 64. The first run of that flag found a null object result being pushed through the script VM's *integer* overload — invisible on x86, a garbage pointer on x64 — in a tree the 32-bit pass called clean 180/180.
+The default is x64, matching CI. `--x86` still exists and checks the unmaintained 32-bit configurations; there is no reason to run it. The width difference is why the platform matters: on Win32 `sizeof(void*) == sizeof(UDWORD)`, so a whole class of defect compiles and *runs* clean at 32 bits and only appears at 64 — `stackPopType` copying an object value through a four-byte union member survived years of shipping x86 that way.
+
+**After touching a simulation file**, run `python tools/crosscheck.py --sim-only`.
+It compiles the candidate server-side units with `NeuronClient` taken off the
+include path, and it is a **ratchet**: `NeuronCore` must stay at zero failures
+and the `Outpost` count must fall, never rise. Reaching for a client header from
+simulation code is how the server/client split gets quietly undone — see
+[Docs/ServerAuthority.md](Docs/ServerAuthority.md) stage B for the current count
+and what is left.
 
 **After touching the model format or its tools**, run the three checks that
 keep the two implementations of NMO honest. They are Python and take a second
@@ -231,9 +243,14 @@ python tools/pie_to_nmo.py --report    # all 516 shipped models still convert
 by the Python codec so both implementations are tested on the same bytes. Edit
 `tools/nmo_fixture.py` and regenerate; never hand-edit the header. The
 Blender add-on has its own test (`tools/nmo_blender_test.py`), which needs
-Blender's Python and is therefore not part of the routine pass. **Nothing runs
-any of these automatically** — CI executes only the script corpus (§3, first
-paragraph), so these are yours to run, like `clang-tidy` in §1.
+Blender's Python and is therefore not part of the routine pass.
+
+**CI runs the C++ half and not the Python half.** `NmoTest.cpp` is inside
+`NeuronClientTest`, so the loader is gated like every other suite. Nothing runs
+the three commands above, which are what hold the *reference codec* and the
+converter to the same specification — so they are yours to run, like
+`clang-tidy` in §1. They are three seconds of Python and would sit happily
+beside the script corpus if someone is in the workflow anyway.
 
 **After touching the script module**, run `tools/check_scripts.py`. It builds `NeuronCore/ScriptLex.cpp` and `ScriptComp.cpp` from source against the game's real symbol tables and compiles all 59 shipped `.slo` files, then checks the `.vlo` corpus for types the tables do not have. No C++ check can tell you the compiler still accepts the scripts — `int` and `bool` are keywords rather than table entries, and forgetting that built cleanly and rejected 56 of 59 scripts at runtime.
 

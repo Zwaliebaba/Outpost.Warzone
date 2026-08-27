@@ -26,6 +26,8 @@
 #include "Message.h"
 #include "Console.h"
 #include "Atmos.h"
+#include "AnimObj.h"
+#include "RenderClip.h"
 
 #define NUM_BUCKETS		8000
 #define NUM_OBJECTS		4000

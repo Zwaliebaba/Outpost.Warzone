@@ -20,6 +20,7 @@
 #include "FrontEnd.h"
 #include "IntDisplay.h"
 #include "Text.h"
+#include "RenderClip.h"
 
 // ////////////////////////////////////////////////////////////////////////////
 #define REQUESTER_X				130	+ D_W

@@ -8,7 +8,10 @@
 #define _move_h
 
 #include "ObjectDef.h"
-#include "AudioSystem.h"
+
+/* Pointed at, never dereferenced here, so a declaration is enough - and it
+ * keeps this header out of the client library. */
+struct AUDIO_SAMPLE;
 
 /* The base movement speed */
 extern float baseSpeed;

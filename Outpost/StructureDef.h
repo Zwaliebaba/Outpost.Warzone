@@ -1,3 +1,8 @@
+
+/* Pointed at, never dereferenced here, so a declaration is enough - and it
+ * keeps this header out of the client library. */
+struct iIMDShape;
+struct ANIM_OBJECT;
 /*
  * StructureDef.h
  *
@@ -6,8 +11,6 @@
  */
 #ifndef _structuredef_h
 #define _structuredef_h
-#include "Model.h"
-#include "RenderTypes.h"
 
 #define NUM_FACTORY_MODULES	2
 #define NUM_RESEARCH_MODULES 4

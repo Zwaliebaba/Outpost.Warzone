@@ -2,9 +2,13 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
+    <ClCompile Include="ReplicationWriter.cpp" />
+    <ClCompile Include="ServerSession.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
+    <ClInclude Include="ReplicationWriter.h" />
+    <ClInclude Include="ServerSession.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

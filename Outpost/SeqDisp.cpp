@@ -28,6 +28,7 @@
 #include "Design.h"
 #include "Wrappers.h"
 #include "Palette.h"
+#include "RenderClip.h"
 
 /***************************************************************************/
 /*

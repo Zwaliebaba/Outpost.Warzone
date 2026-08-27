@@ -5,7 +5,6 @@
  */
 
 #include "Group.h"
-#include "RenderTypes.h"
 #include "NetTypes.h"	// NETPLAYERID
 
 // Different Message Structures allowed to be sent between players. 

@@ -28,6 +28,7 @@
 #include "IntOrder.h"
 #include "Text.h"
 #include "ScriptExtern.h"
+#include "RenderClip.h"
 
 #define ORDER_X			23
 #define ORDER_Y			45
