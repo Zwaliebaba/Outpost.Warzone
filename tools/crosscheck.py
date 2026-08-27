@@ -53,11 +53,18 @@ DEFS = ['WIN32',
 
 SKIP = re.compile(r'^(GameData|Docs|tools|packages)/')
 
-# The projects mingw can syntax-check. NeuronCoreTest is deliberately absent:
-# it is built on MSVC's CppUnitTest framework, which does not ship for mingw
-# and is not worth stubbing. DX9/Include held the vendored DirectX SDK headers
-# and NetTest was the console harness; both are gone from the tree.
-PROJECTS = ('NeuronCore', 'Outpost', 'NeuronClient', 'NeuronServer')
+# The projects mingw can syntax-check. The three test projects used to be
+# absent -- CppUnitTest does not ship for mingw and was judged not worth
+# stubbing -- which left the test sources with no local gate at all. They are
+# the part of the tree most exposed to Windows header pollution, and it cost a
+# red build: NetWireTest declared a `char small[8]`, and rpcndr.h carries
+# `#define small char`. tools/stubs/CppUnitTest.h is enough to compile the
+# bodies, so that class of mistake is caught here now.
+#
+# DX9/Include held the vendored DirectX SDK headers and NetTest was the console
+# harness; both are gone from the tree.
+PROJECTS = ('NeuronCore', 'Outpost', 'NeuronClient', 'NeuronServer',
+            'NeuronCoreTest', 'NeuronClientTest', 'NeuronServerTest')
 
 # --sim-only: the candidate server-side translation units, checked with the
 # NeuronClient include directory taken away. A unit that still compiles reaches

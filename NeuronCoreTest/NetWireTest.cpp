@@ -96,10 +96,10 @@ public:
     writer.U32(0x5A5A5A5Au);
 
     NetReader reader{writer.Written()};
-    char small[8]{};
-    reader.Text(small);
-    Assert::AreEqual(static_cast<size_t>(7), std::strlen(small));
-    Assert::IsTrue(std::strncmp(small, "a-very-", 7) == 0);
+    char shortName[8]{};
+    reader.Text(shortName);
+    Assert::AreEqual(static_cast<size_t>(7), std::strlen(shortName));
+    Assert::IsTrue(std::strncmp(shortName, "a-very-", 7) == 0);
     Assert::IsTrue(reader.U32() == 0x5A5A5A5Au);
     Assert::IsTrue(reader.Ok());
   }
