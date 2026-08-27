@@ -371,11 +371,13 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>d3d9.lib;dxguid.lib;dinput8.lib;ole32.lib;wsock32.lib;comdlg32.lib;xaudio2.lib;mfplat.lib;mfreadwrite.lib;mfuuid.lib;crypt32.lib;ncrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <!-- dinput8.lib in DX9\Lib predates SafeSEH: dilib1.obj carries no
-           exception handler table, so /SAFESEH cannot be satisfied (LNK2026 ->
-           LNK1281). Debug hid this because incremental linking turns /SAFESEH
-           off; Release links /INCREMENTAL:NO and fails. Turning this back on
-           needs a SafeSEH-clean dinput8.lib first. -->
+      <!-- dinput8.lib predates SafeSEH: dilib1.obj carries no exception
+           handler table, so /SAFESEH cannot be satisfied (LNK2026 -> LNK1281).
+           Debug hid this because incremental linking turns /SAFESEH off;
+           Release links /INCREMENTAL:NO and fails. This was first hit against
+           the vendored DX9\Lib copy, which is gone; the lib now resolves from
+           the Windows SDK, and whether that copy is SafeSEH-clean has not been
+           retested. Turning this back on needs that measurement first. -->
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <Manifest>
@@ -403,7 +405,9 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>d3d9.lib;dxguid.lib;dinput8.lib;ole32.lib;wsock32.lib;comdlg32.lib;xaudio2.lib;mfplat.lib;mfreadwrite.lib;mfuuid.lib;crypt32.lib;ncrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <!-- No ImageHasSafeExceptionHandlers here: /SAFESEH describes the x86
+           stack-based exception chain and the linker has nothing to apply it
+           to on x64. The Win32 configurations carry it; see the comment there. -->
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -428,9 +432,9 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)..\DX9\Lib;$(MSBuildThisFileDirectory)..\NeuronCore;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)..\NeuronCore;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>d3d9.lib;dxguid.lib;dinput8.lib;ole32.lib;wsock32.lib;comdlg32.lib;xaudio2.lib;mfplat.lib;mfreadwrite.lib;mfuuid.lib;crypt32.lib;ncrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <!-- See the Debug comment: DX9\Lib's dinput8.lib is not SafeSEH-clean. -->
+      <!-- See the Debug comment: dinput8.lib is not SafeSEH-clean. -->
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <Manifest>
@@ -456,9 +460,11 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)..\DX9\Lib;$(MSBuildThisFileDirectory)..\NeuronCore;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)..\NeuronCore;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>d3d9.lib;dxguid.lib;dinput8.lib;ole32.lib;wsock32.lib;comdlg32.lib;xaudio2.lib;mfplat.lib;mfreadwrite.lib;mfuuid.lib;crypt32.lib;ncrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <!-- No ImageHasSafeExceptionHandlers here: /SAFESEH describes the x86
+           stack-based exception chain and the linker has nothing to apply it
+           to on x64. The Win32 configurations carry it; see the comment there. -->
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>

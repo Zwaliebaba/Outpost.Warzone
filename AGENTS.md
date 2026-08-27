@@ -138,7 +138,7 @@ Two rules the config cannot express, and that a reviewer therefore has to carry:
 | `Docs/MigrationPlan.md` | The plan and the record of what each phase changed | Yes — see §6 |
 | `.clang-format`, `.clang-tidy`, `.editorconfig` | Layout and naming, machine-readable (§1, §4) | Yes — with an owner decision |
 | `tools/*.py` | Repository checkers and content-authoring scripts (§3) | Yes |
-| `.github/workflows/build.yml` | CI: Debug and Release, Win32 | Yes, carefully |
+| `.github/workflows/build.yml` | CI: Debug and Release, Win32 and x64 (x64 non-blocking), plus the script corpus | Yes, carefully |
 | `Debug/`, `x64/`, `.vs/`, `*.user` | Build and IDE output | **No — and never commit them** |
 
 **There is no vendored SDK.** `DX9/Include` and `DX9/Lib` held a checked-in DirectX 9.0c
@@ -170,7 +170,7 @@ split, do not move a file between them** — see R13.
 
 ## 3. Build and verify
 
-**Win32 (x86) is the platform that builds and ships**, toolset v145, `/std:c++latest`, and there is no CMake. x64 configurations now exist in every `.vcxproj` and in `Outpost.slnx`, but **x64 is not yet a working build** — it is the target of an in-flight migration tracked in [`Docs/X64Readiness.md`](Docs/X64Readiness.md), not a configuration you may assume compiles. CI builds Win32 only. If a build error tempts you to change the toolset or lower the language standard — stop and report instead.
+**Win32 (x86) is the platform that ships**, toolset v145, `/std:c++latest`, and there is no CMake. **x64 builds and links clean** in every `.vcxproj` and in `Outpost.slnx`, Debug and Release, with zero warnings — but it has never been *run*, so it is a configuration you may assume compiles and may not assume works. It is tracked in [`Docs/X64Readiness.md`](Docs/X64Readiness.md); read it before writing anything that puts a pointer in an integer, a struct on a wire, or a struct in a file. CI builds both platforms, with the x64 legs `continue-on-error`. If a build error tempts you to change the toolset or lower the language standard — stop and report instead.
 
 ```powershell
 # Build the game. Its project references pull in NeuronCore, NeuronClient and
@@ -198,6 +198,14 @@ this mostly means in practice is R16.
 The executable lands in `Debug\Outpost.exe` (or `Release\`), and it needs `GameData/` beside it at runtime.
 
 **Without MSVC** (Linux container), `tools/crosscheck.py` syntax-checks every translation unit with mingw-w64 against a shadow tree. It is a fast first pass, **not a build**: it cannot link, and MSVC disagrees with GCC in both directions. The Windows CI build is the authority.
+
+```
+apt-get install -y g++-mingw-w64-i686 g++-mingw-w64-x86-64   # once per container
+python3 tools/crosscheck.py -j 8            # 32-bit
+python3 tools/crosscheck.py --x64 -j 8      # 64-bit -- run this too
+```
+
+**Run the `--x64` pass as well as the default one.** On Win32 `sizeof(void*) == sizeof(UDWORD)`, so a whole class of defect compiles clean at 32 bits and only appears at 64. The first run of that flag found a null object result being pushed through the script VM's *integer* overload — invisible on x86, a garbage pointer on x64 — in a tree the 32-bit pass called clean 180/180.
 
 **After touching the script module**, run `tools/check_scripts.py`. It builds `NeuronCore/ScriptLex.cpp` and `ScriptComp.cpp` from source against the game's real symbol tables and compiles all 59 shipped `.slo` files, then checks the `.vlo` corpus for types the tables do not have. No C++ check can tell you the compiler still accepts the scripts — `int` and `bool` are keywords rather than table entries, and forgetting that built cleanly and rejected 56 of 59 scripts at runtime.
 

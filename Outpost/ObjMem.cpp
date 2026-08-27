@@ -573,8 +573,9 @@ void checkFactoryFlags(void)
 /* Create a new Structure Functionality*/
 BOOL createStructFunc(FUNCTIONALITY** ppsNew)
 {
-  // FUNCTIONALITY is UBYTE[MAX_FUNCTIONALITY_SIZE], so the pointer this hands
-  // back has to be a pointer to the whole array, not to its first byte.
+  // FUNCTIONALITY is the union that covers every functionality struct, so this
+  // is one correctly sized and correctly aligned slab for whichever of them the
+  // caller is about to cast it to. new[]/delete[] are kept paired as they were.
   *ppsNew = new (std::nothrow) FUNCTIONALITY[1];
   if (*ppsNew == nullptr)
     return FALSE;

@@ -10,14 +10,22 @@ The shadow neutralises the things GCC cannot process: includes whose case
 does not match the real filename, and the MSVC-only headers NeuronCore.h
 pulls in but never uses.
 
-Usage:  tools/crosscheck.py [-j N] [--release] [file.cpp ...]
+Usage:  tools/crosscheck.py [-j N] [--release] [--x64] [file.cpp ...]
+
+--x64 checks with the 64-bit mingw instead of the 32-bit one. Worth its own
+run: on Win32 sizeof(void*) == sizeof(UDWORD), so every pointer-through-
+integer round trip compiles clean and the 32-bit pass cannot see it. That is
+the whole subject of Docs/X64Readiness.md, and until this flag existed the
+Linux pre-CI gate only ever looked at i686.
 """
 import argparse, os, re, shutil, subprocess, sys, tempfile
 from concurrent.futures import ThreadPoolExecutor
 from functools import lru_cache, partial
 
 ROOT = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
-CXX = 'i686-w64-mingw32-g++'
+# One per target. MSVC defines WIN32 on both platforms (every .vcxproj
+# configuration carries it), so DEFS below needs no per-target arm.
+CXX = {'x86': 'i686-w64-mingw32-g++', 'x64': 'x86_64-w64-mingw32-g++'}
 
 # CINTERFACE is deliberately absent. It used to be here because the legacy
 # DirectX files called COM through lpVtbl, but nothing in the tree defines it
@@ -222,12 +230,15 @@ def main():
                     help='parallel compiler invocations (default: %(default)s)')
     ap.add_argument('--release', action='store_true',
                     help='define NDEBUG instead of _DEBUG')
+    ap.add_argument('--x64', action='store_true',
+                    help='check with the 64-bit mingw (default: 32-bit)')
     ap.add_argument('files', nargs='*',
                     help='translation units to check (default: all of them)')
     opt = ap.parse_args()
 
-    if shutil.which(CXX) is None:
-        print(f'{CXX} not found', file=sys.stderr)
+    cxx = CXX['x64' if opt.x64 else 'x86']
+    if shutil.which(cxx) is None:
+        print(f'{cxx} not found', file=sys.stderr)
         return 2
 
     files = [f.replace('\\', '/') for f in opt.files] or sources()
@@ -251,7 +262,7 @@ def main():
         # hid the whole class under -w; the sources are grandfathered
         # generator output (AGENTS.md R7), so the diagnostic is off rather
         # than the files patched.
-        base = [CXX, '-fsyntax-only', '-std=c++23', '-fpermissive', '-fms-extensions', '-Wno-narrowing'] + \
+        base = [cxx, '-fsyntax-only', '-std=c++23', '-fpermissive', '-fms-extensions', '-Wno-narrowing'] + \
                [f'-D{d}' for d in DEFS + ['NDEBUG' if opt.release else '_DEBUG']]
         cmds = {}
         for proj in PROJECTS:
@@ -273,7 +284,7 @@ def main():
                     print(f'--- {rel}: {len(lines)} error(s)')
                     for l in lines[:12]:
                         print('   ', l.replace(shadow + '/', ''))
-        print(f'\n{len(files) - bad}/{len(files)} units clean')
+        print(f'\n{len(files) - bad}/{len(files)} units clean ({"x64" if opt.x64 else "x86"})')
         return 1 if bad else 0
     finally:
         shutil.rmtree(shadow, ignore_errors=True)

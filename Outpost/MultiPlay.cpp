@@ -1046,6 +1046,95 @@ BOOL recvTextMessage(NETMSG* pMsg)
 // ////////////////////////////////////////////////////////////////////////////
 // Templates
 
+/* The wire form of a droid template.
+ *
+ * DROID_TEMPLATE itself must never go on the wire.  It carries two pointers --
+ * pName from STATS_BASE and psNext at the end -- so both its size and the
+ * offsets of every field after pName move with the pointer width: an x86
+ * sender and an x64 receiver disagree about the whole record, and even between
+ * two x64 machines the sender's own addresses arrive as the receiver's pName
+ * and psNext.  Packing the value fields one at a time fixes the layout at the
+ * width each field already has on both platforms, and leaves the two pointers
+ * where they belong, which is the receiver's own address space.
+ *
+ * Both halves walk the fields in declaration order; keep them in step, and
+ * keep TemplateWireBytes equal to what PackTemplate writes.
+ */
+inline constexpr UDWORD TemplateWireBytes = sizeof(UDWORD) // ref
+  + sizeof(STRING) * DROID_MAXNAME // aName
+  + sizeof(UBYTE) // NameVersion
+  + sizeof(SDWORD) * DROID_MAXCOMP // asParts
+  + sizeof(UDWORD) * 4 // buildPoints, powerPoints, storeCount, numWeaps
+  + sizeof(UDWORD) * DROID_MAXWEAPS // asWeaps
+  + sizeof(UDWORD) // droidType
+  + sizeof(UDWORD); // multiPlayerID
+
+static UDWORD PackTemplate(NETMSG& _msg, UDWORD _pos, const DROID_TEMPLATE& _templ)
+{
+  NetAddType(_msg, _pos, UDWORD, _templ.ref);
+  _pos += sizeof(UDWORD);
+  NetAdd(_msg, _pos, _templ.aName);
+  _pos += sizeof(_templ.aName);
+  NetAddType(_msg, _pos, UBYTE, _templ.NameVersion);
+  _pos += sizeof(UBYTE);
+  NetAdd(_msg, _pos, _templ.asParts);
+  _pos += sizeof(_templ.asParts);
+  NetAddType(_msg, _pos, UDWORD, _templ.buildPoints);
+  _pos += sizeof(UDWORD);
+  NetAddType(_msg, _pos, UDWORD, _templ.powerPoints);
+  _pos += sizeof(UDWORD);
+  NetAddType(_msg, _pos, UDWORD, _templ.storeCount);
+  _pos += sizeof(UDWORD);
+  NetAddType(_msg, _pos, UDWORD, _templ.numWeaps);
+  _pos += sizeof(UDWORD);
+  NetAdd(_msg, _pos, _templ.asWeaps);
+  _pos += sizeof(_templ.asWeaps);
+  NetAddType(_msg, _pos, UDWORD, _templ.droidType);
+  _pos += sizeof(UDWORD);
+  NetAddType(_msg, _pos, UDWORD, _templ.multiPlayerID);
+  _pos += sizeof(UDWORD);
+
+  return _pos;
+}
+
+static UDWORD UnpackTemplate(const NETMSG* _msg, UDWORD _pos, DROID_TEMPLATE& _templ)
+{
+  UDWORD scratch;
+
+  NetGet(_msg, _pos, _templ.ref);
+  _pos += sizeof(UDWORD);
+  NetGet(_msg, _pos, _templ.aName);
+  _pos += sizeof(_templ.aName);
+  _templ.aName[DROID_MAXNAME - 1] = '\0'; // the sender's name need not be terminated
+  NetGet(_msg, _pos, _templ.NameVersion);
+  _pos += sizeof(UBYTE);
+  NetGet(_msg, _pos, _templ.asParts);
+  _pos += sizeof(_templ.asParts);
+  NetGet(_msg, _pos, _templ.buildPoints);
+  _pos += sizeof(UDWORD);
+  NetGet(_msg, _pos, _templ.powerPoints);
+  _pos += sizeof(UDWORD);
+  NetGet(_msg, _pos, _templ.storeCount);
+  _pos += sizeof(UDWORD);
+  NetGet(_msg, _pos, _templ.numWeaps);
+  _pos += sizeof(UDWORD);
+  NetGet(_msg, _pos, _templ.asWeaps);
+  _pos += sizeof(_templ.asWeaps);
+  NetGet(_msg, _pos, scratch);
+  _templ.droidType = static_cast<DROID_TYPE>(scratch);
+  _pos += sizeof(UDWORD);
+  NetGet(_msg, _pos, _templ.multiPlayerID);
+  _pos += sizeof(UDWORD);
+
+  /* Neither pointer came off the wire.  pName is the template's own editable
+   * name, exactly as the force loader sets it; psNext is the caller's to fill
+   * in when it links the template into a list. */
+  _templ.pName = _templ.aName;
+  _templ.psNext = nullptr;
+
+  return _pos;
+}
+
 // send a newly created template to other players
 BOOL sendTemplate(DROID_TEMPLATE* pTempl)
 {
@@ -1060,8 +1149,7 @@ BOOL sendTemplate(DROID_TEMPLATE* pTempl)
   }
 
   m.body[0] = static_cast<UBYTE>(selectedPlayer); //player to attach template to
-  memcpy(&(m.body[1]), pTempl, sizeof(DROID_TEMPLATE)); //the template itself
-  m.size = static_cast<UWORD>(sizeof(DROID_TEMPLATE) + 1);
+  m.size = static_cast<UWORD>(PackTemplate(m, 1, *pTempl)); //the template itself
   m.type = NET_TEMPLATE;
   return (NETbcast(&m,FALSE));
 }
@@ -1077,7 +1165,7 @@ BOOL recvTemplate(NETMSG* m)
 
   DEBUG_ASSERT_TEXT(player<MAX_PLAYERS, "recvtemplate: invalid player size:{}", player);
 
-  if (m->size < sizeof(DROID_TEMPLATE))
+  if (m->size < TemplateWireBytes + 1)
   {
 #ifdef DEBUG
     Neuron::Fatal("recvTemplate: invalid template recvd. THIS IS THE BUG THAT ISNT FIXED!!!");
@@ -1085,13 +1173,14 @@ BOOL recvTemplate(NETMSG* m)
     return TRUE;
   }
 
-  memcpy(&t, &(m->body[1]), sizeof(DROID_TEMPLATE));
+  (void)UnpackTemplate(m, 1, t);
 
   psTempl = IdToTemplate(t.multiPlayerID, player);
   if (psTempl) // already exists.	
   {
     t.psNext = psTempl->psNext;
     memcpy(psTempl, &t, sizeof(DROID_TEMPLATE));
+    psTempl->pName = psTempl->aName; // t.pName pointed into t, which is about to go
   }
   else
   {
