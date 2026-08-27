@@ -218,6 +218,43 @@ import libraries to the x64 link. Removed from both.
 
 ---
 
+## Fixed on the third pass (2026-08-27)
+
+### `stackPopType` copied a popped value through its four-byte member
+
+`NeuronCore/Stack.cpp`'s `stackPopType` finished with
+
+```cpp
+psVal->v.ival = psTop->v.ival;
+```
+
+`INTERP_VAL::v` is a union of `SDWORD ival` and `void* oval`. On Win32 those
+are the same width, so copying through `ival` moved **every** type correctly by
+accident. On x64 it takes the low four bytes of an eight-byte pointer and
+leaves the high half behind.
+
+Every caller is a pop *into a variable* -- `OP_POPGLOBAL` and the two
+variable-pop paths in `Interp.cpp`, plus the result pop in `Event.cpp` -- so
+the truncation landed in script variables of object type. Those are exactly
+the values `scrvAddBasePointer` registers, which is where it surfaced: a live
+`BASE_OBJECT` arrived in `scrvUpdateBasePointers` as `0x00000000367f8b70`, and
+`psObj->died` read freed memory. The address is its own diagnosis -- a heap
+pointer with the high 32 bits zeroed is a pointer that went through a 4-byte
+copy.
+
+The fix is the idiom the rest of the VM already uses: `psVal->v = psTop->v;`
+copies the whole union whatever the type is, and cannot drift out of step with
+a list of which types are pointers. `eventCopyContext` and `eventSetContextVar`
+were converted to it by the script rewrite; this is the one site that sweep
+missed, because it reads as an int assignment rather than as a value copy.
+
+`NeuronCoreTest`'s `ObjectMembersAndEquality` already covered the defect -- it
+assigns an object into a script variable and then writes through it -- but
+nothing had ever run the suite. It does now, on both platforms, which is what
+turned this from a crash report into a test. `StackPopTypeKeepsTheWholeObjectPointer`
+names it directly, since the script-level test fails by dereferencing the
+truncated pointer rather than by reporting it.
+
 ## Blocker — resolved
 
 ### ~~The script VM stores function pointers in 32-bit instruction words~~
@@ -297,6 +334,28 @@ installed was `(WIDGET_DISPLAY)1`. It was unreachable solely because
 ---
 
 ## Watch
+
+### `==` on two objects compares only the low 32 bits
+
+`stackBinaryOp` implements `OP_EQUAL`/`OP_NOTEQUAL` as
+`psV1->v.ival == psV2->v.ival`, and [ScriptLanguage.md](ScriptLanguage.md)
+allows `== !=` on `user/object x user/object`. On x64 that compares the low
+half of two pointers, so two distinct objects whose low 32 bits coincide
+compare equal. Comparison against a null object is unaffected -- an all-zero
+pointer has an all-zero low half.
+
+Not fixed, and deliberately so: the runtime has no cheap way to ask whether an
+`INTERP_TYPE` is `AT_OBJECT`. Only `asScrTypeTab` knows, `Stack.cpp` does not
+include it, and a linear scan of that table on every comparison sits in the
+VM's hot path. Whole-union comparison is not the answer either -- a value
+written through `ival` leaves the high half indeterminate, so simple types
+would compare garbage.
+
+In practice Windows clusters heap allocations, so game objects share their
+high 32 bits and the comparison gets the right answer; the defect needs two
+live objects more than 4 GB apart. Worth a runtime type predicate if the VM
+ever grows one for another reason.
+
 
 ### Small integers parked in pointer fields
 

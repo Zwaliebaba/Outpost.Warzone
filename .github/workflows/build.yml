@@ -61,6 +61,8 @@ jobs:
           nuget install NeuronCore\packages.config -OutputDirectory packages -NonInteractive
           nuget install Outpost\packages.config -OutputDirectory packages -NonInteractive
           nuget install NeuronCoreTest\packages.config -OutputDirectory packages -NonInteractive
+          nuget install NeuronClientTest\packages.config -OutputDirectory packages -NonInteractive
+          nuget install NeuronServerTest\packages.config -OutputDirectory packages -NonInteractive
 
       # /flp contains a semicolon, which PowerShell reads as a statement
       # separator unless the whole switch is quoted. Building serially: with
@@ -75,7 +77,12 @@ jobs:
       # GameData and open no files, so building the DLL and handing it to
       # vstest.console is the whole of it.
       - name: Build unit tests
-        run: msbuild NeuronCoreTest\NeuronCoreTest.vcxproj /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform }} /v:normal /nologo "/flp:LogFile=test-build.log;Verbosity=diagnostic"
+        shell: pwsh
+        run: |
+          foreach ($proj in 'NeuronCoreTest', 'NeuronClientTest', 'NeuronServerTest') {
+            msbuild "$proj\$proj.vcxproj" /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform }} /v:normal /nologo "/flp:LogFile=test-build.log;Verbosity=diagnostic;Append"
+            if ($LASTEXITCODE -ne 0) { throw "$proj failed to build" }
+          }
 
       # vstest.console.exe is not on PATH and its location moves with the VS
       # edition the runner image ships, so it is found through vswhere rather
@@ -90,14 +97,17 @@ jobs:
           $vs = & $vswhere -latest -products * -property installationPath
           $vstest = Join-Path $vs 'Common7\IDE\Extensions\TestPlatform\vstest.console.exe'
           if (-not (Test-Path $vstest)) { throw "vstest.console.exe not found at $vstest" }
-          $dll = Get-ChildItem -Recurse -Filter NeuronCoreTest.dll |
-                 Where-Object { $_.FullName -notmatch '\\obj\\' } |
-                 Select-Object -First 1
-          if (-not $dll) { throw 'NeuronCoreTest.dll was not produced' }
+          $dlls = foreach ($proj in 'NeuronCoreTest', 'NeuronClientTest', 'NeuronServerTest') {
+            $hit = Get-ChildItem -Recurse -Filter "$proj.dll" |
+                   Where-Object { $_.FullName -notmatch '\\obj\\' } |
+                   Select-Object -First 1
+            if (-not $hit) { throw "$proj.dll was not produced" }
+            $hit.FullName
+          }
           # Win32 is MSBuild's name for the platform; vstest calls it x86.
           $arch = if ('${{ matrix.platform }}' -eq 'x64') { 'x64' } else { 'x86' }
-          Write-Host "running $($dll.FullName) as $arch"
-          & $vstest $dll.FullName /Platform:$arch /Logger:trx /ResultsDirectory:TestResults
+          Write-Host "running as ${arch}:`n$($dlls -join "`n")"
+          & $vstest $dlls /Platform:$arch /Logger:trx /ResultsDirectory:TestResults
           if ($LASTEXITCODE -ne 0) { throw "unit tests failed (exit $LASTEXITCODE)" }
 
       - name: Upload test results

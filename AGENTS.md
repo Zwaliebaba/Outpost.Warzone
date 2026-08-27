@@ -110,7 +110,7 @@ private:
 
 [`.clang-tidy`](.clang-tidy) at the repository root is the machine-readable statement of every rule above, and it is the **single source of truth** for the option values — this document does not repeat them, so there is nothing to drift. `readability-identifier-length` is deliberately left off: its defaults reject the domain vocabulary this codebase is built on (`x`, `y`, `_a`, `_b`), and short names here are precise, not lazy.
 
-**Nothing runs it automatically yet.** [`build.yml`](.github/workflows/build.yml) builds Debug and Release for Win32 and x64, builds and **runs the `NeuronCoreTest` suite** through `vstest.console.exe`, and runs `tools/check_case.py` (which verifies every `#include` and project entry spells its file with the exact on-disk case — MSVC resolves includes case-insensitively, so a wrong name still builds). There is no clang-tidy step, and the `.vcxproj` files do not enable MSBuild's code analysis. Until one of those changes, §1 is enforced by **review**: check your own diff against the table before handing it back.
+**Nothing runs it automatically yet.** [`build.yml`](.github/workflows/build.yml) builds Debug and Release for Win32 and x64, builds and **runs the three CppUnitTest suites** through `vstest.console.exe`, and runs `tools/check_case.py` (which verifies every `#include` and project entry spells its file with the exact on-disk case — MSVC resolves includes case-insensitively, so a wrong name still builds). There is no clang-tidy step, and the `.vcxproj` files do not enable MSBuild's code analysis. Until one of those changes, §1 is enforced by **review**: check your own diff against the table before handing it back.
 
 **When you do run it, run it on what you wrote, not on the tree.** The legacy code predates every rule here (§1, under the table), so a whole-tree pass reports thousands of grandfathered findings and tells you nothing. Point it at the files your change adds, or filter to your changed lines:
 
@@ -133,12 +133,12 @@ Two rules the config cannot express, and that a reviewer therefore has to carry:
 | `NeuronClient/` | Client-side engine static library (42 TUs): the window, D3D9 rendering, IMD models, animations, DirectInput, XAudio2, UI widgets, fonts, images, FMV sequences | Yes |
 | `NeuronServer/` | Server-side engine static library. **Currently a PCH shell** — one `pch.h`/`pch.cpp` and nothing else | Yes |
 | `Outpost/` | Game executable (117 TUs): simulation, AI, structures, droids, campaign, multiplayer | Yes |
-| `NeuronCoreTest/` | MSVC CppUnitTest DLL: the `Neuron::Json` and script compiler/VM test suites | Yes |
+| `NeuronCoreTest/`, `NeuronClientTest/`, `NeuronServerTest/` | MSVC CppUnitTest DLLs, one per engine library, each referencing the library it tests. `NeuronCoreTest` holds the `Neuron::Json` and script compiler/VM suites; the other two are shells awaiting content. **CI builds and runs all three** | Yes |
 | `GameData/` | Shipped content. The JSON manifests and tables (`datasets.json`, stats, messages, anims, audio configs) are text authored in this repo — `tools/validate_assets.py` must stay green. The binary media (textures, models, `.wav`, `.mp4`, levels) is authored by tools outside this repo | JSON: yes, validated. Binary: **No** |
 | `Docs/MigrationPlan.md` | The plan and the record of what each phase changed | Yes — see §6 |
 | `.clang-format`, `.clang-tidy`, `.editorconfig` | Layout and naming, machine-readable (§1, §4) | Yes — with an owner decision |
 | `tools/*.py` | Repository checkers and content-authoring scripts (§3) | Yes |
-| `.github/workflows/build.yml` | CI: Debug and Release, Win32 and x64 (x64 non-blocking), the `NeuronCoreTest` unit tests, plus the script corpus | Yes, carefully |
+| `.github/workflows/build.yml` | CI: Debug and Release, Win32 and x64 (x64 non-blocking), the three unit-test suites, plus the script corpus | Yes, carefully |
 | `Debug/`, `x64/`, `.vs/`, `*.user` | Build and IDE output | **No — and never commit them** |
 
 **There is no vendored SDK.** `DX9/Include` and `DX9/Lib` held a checked-in DirectX 9.0c
@@ -147,7 +147,7 @@ and the rest, so nothing needed them. `NetTest/`, the console harness for the Ph
 QUIC transport, is gone with them. Do not restore either, and do not add a build step
 that assumes they exist.
 
-**Five projects, and the edges run one way.** `Outpost.slnx` is the solution; its
+**Seven projects, and the edges run one way.** `Outpost.slnx` is the solution; its
 platforms are `x86` (the one that builds) and `x64` (see §3).
 
 ```
@@ -155,7 +155,8 @@ NeuronCore.lib          ← the engine everything else builds on
 ├── NeuronClient.lib    ← references NeuronCore
 ├── NeuronServer.lib    ← references NeuronCore
 └── Outpost.exe         ← references all three
-NeuronCoreTest.dll      ← compiles the NeuronCore sources it tests directly
+NeuronCoreTest.dll      ← references NeuronCore; likewise NeuronClientTest,
+                          NeuronServerTest against their own libraries
 ```
 
 `NeuronClient` and `NeuronServer` are the destination of the engine split: game-engine

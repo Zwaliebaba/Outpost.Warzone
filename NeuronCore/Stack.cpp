@@ -146,8 +146,20 @@ BOOL stackPopType(INTERP_VAL* psVal)
     return FALSE;
   }
 
-  /* copy the value off the stack */
-  psVal->v.ival = psTop->v.ival;
+  /* Copy the value off the stack -- the whole union, not v.ival.
+   *
+   * ival is four bytes and oval is a pointer, so on Win32 copying through ival
+   * moved every type correctly by accident. On x64 it takes the low half of an
+   * eight-byte pointer and leaves the high half behind, which is how a live
+   * BASE_OBJECT arrived in scrvUpdateBasePointers as 0x00000000`367f8b70 and
+   * read as freed memory. Every caller here is "pop into a variable", so the
+   * truncation landed in script object variables -- exactly the ones
+   * scrvAddBasePointer registers.
+   *
+   * eventCopyContext and eventSetContextVar already copy the union whole; this
+   * is the site that sweep missed.
+   */
+  psVal->v = psTop->v;
 
   return TRUE;
 }
