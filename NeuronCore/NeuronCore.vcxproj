@@ -172,6 +172,7 @@
     <ClInclude Include="ListMacs.h" />
     <ClInclude Include="NetReader.h" />
     <ClInclude Include="NetWriter.h" />
+    <ClInclude Include="Protocol.h" />
     <ClInclude Include="Json.h" />
     <ClInclude Include="HostCertificate.h" />
     <ClInclude Include="NetPlay.h" />

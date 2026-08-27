@@ -3,6 +3,7 @@
 
 #include "NetWriter.h"
 #include "NetReader.h"
+#include "Protocol.h"
 
 #include <cstring>
 #include <span>
@@ -142,6 +143,46 @@ public:
     reader.Text(name);
     Assert::IsTrue(reader.Truncated());
     Assert::IsTrue(name[0] == '\0');
+  }
+
+  /* The message ids are wire values, so the rule is append, never insert.
+     A comment saying so is not a gate; this is. Anchoring the first of each
+     plane and the Count sentinel catches an insert anywhere between them,
+     because anything inserted shifts one or the other. */
+  TEST_METHOD(WireValuesAreStable)
+  {
+    Assert::AreEqual(0, static_cast<int>(ClientMessage::Hello));
+    Assert::AreEqual(10, static_cast<int>(ClientMessage::Order));
+    Assert::AreEqual(23, static_cast<int>(ClientMessage::Count));
+
+    Assert::AreEqual(0, static_cast<int>(ServerMessage::Hello));
+    Assert::AreEqual(13, static_cast<int>(ServerMessage::Tick));
+    Assert::AreEqual(25, static_cast<int>(ServerMessage::Count));
+
+    Assert::AreEqual(0, static_cast<int>(NetChannel::Session));
+    Assert::AreEqual(5, static_cast<int>(NetChannel::Count));
+  }
+
+  /* An id off the wire is a byte a peer chose. A value this build has never
+     heard of has to be told apart from a real one, or a newer peer's message
+     gets switched on as whatever it happens to collide with. */
+  TEST_METHOD(AnUnknownMessageIdIsRejected)
+  {
+    std::byte buffer[4]{};
+    NetWriter writer{buffer};
+    writer.U8(static_cast<std::uint8_t>(ClientMessage::Order));
+    writer.U8(0xFEu); // nothing this build knows
+
+    NetReader reader{writer.Written()};
+    const auto known = static_cast<ClientMessage>(reader.U8());
+    const auto alien = static_cast<ClientMessage>(reader.U8());
+
+    Assert::IsTrue(IsKnown(known));
+    Assert::IsTrue(known == ClientMessage::Order);
+    Assert::IsTrue(!IsKnown(alien));
+    Assert::IsTrue(!IsKnown(static_cast<ServerMessage>(0xFEu)));
+    Assert::IsTrue(!IsKnown(ClientMessage::Count));
+    Assert::IsTrue(reader.Ok());
   }
 
   TEST_METHOD(AnEmptyDestinationIsNotACrash)

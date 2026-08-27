@@ -36,6 +36,7 @@
     <ClInclude Include="ListMacs.h" />
     <ClInclude Include="NetReader.h" />
     <ClInclude Include="NetWriter.h" />
+    <ClInclude Include="Protocol.h" />
     <ClInclude Include="HostCertificate.h" />
     <ClInclude Include="NetPlay.h" />
     <ClInclude Include="Transport.h" />

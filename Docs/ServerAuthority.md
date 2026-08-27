@@ -449,8 +449,30 @@ These have no Windows dependency, so unlike the rest of the tree they were
 UndefinedBehaviorSanitizer, then the same cases as `NetWireTest` in
 `NeuronCoreTest`, which CI executes.
 
-Still to come in this stage: the `ClientMessage`/`ServerMessage` catalogue and
-its records, `Transport` widened to named channels, and `LoopbackTransport`.
+**The catalogue is in too.** [Protocol.h](../NeuronCore/Protocol.h) carries
+`ProtocolVersion`, the `NetChannel` enum (Session, Command, Replication,
+Snapshot, Bulk — the five the tables above describe), and the `ClientMessage`
+and `ServerMessage` id enums, plus `RejectReason`. The tables in this document
+are the specification; that header is their spelling, so the two cannot drift
+apart unnoticed.
+
+Two rules are enforced by tests rather than by comments. The ids are **wire
+values, so append, never insert** — `WireValuesAreStable` anchors the first id
+of each plane and each `Count` sentinel, so an insert anywhere between them
+fails the build rather than silently changing what an older peer thinks it
+received. And an id off the wire is a byte a peer chose, so `IsKnown` range-
+checks it: a message this build has never heard of is *distinguishable* from a
+known one, and gets ignored instead of switched on as whatever it collides
+with.
+
+**No record structs yet, deliberately.** The tables sketch each message's
+payload, but a record's fields are only really known when something encodes
+and decodes them. They land with their consumers in stage D rather than being
+guessed here — guessing forty of them now would mean rewriting forty of them
+later.
+
+Still to come in this stage: `Transport` widened to named channels, and
+`LoopbackTransport`.
 
 ### D — The embedded flip: single player over the boundary
 
