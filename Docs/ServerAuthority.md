@@ -735,20 +735,58 @@ repository has no home for a test of the boundary itself, and an eighth project
 for one test class buys less than it costs. §2 records the edge and the reason;
 the library graph is unchanged.
 
-Next in this stage: the wiring into [Loop.cpp](../Outpost/Loop.cpp), which is the
-point the running game starts going through the boundary. It lands in two steps
-rather than one, because the flip is the risky part and it does not have to be
-taken blind:
+**The boundary now runs beside the game.**
+[EmbeddedSession.h](../Outpost/EmbeddedSession.h) owns a `LoopbackTransport`, a
+`ServerSession`, a `ClientSession`, a `ReplicationWriter` and a `ReplicaStore`,
+and [Loop.cpp](../Outpost/Loop.cpp) drives it on the tick:
 
-1. **The boundary runs beside the game.** `Outpost` fills an `EntityState`
-   vector from the object lists each tick, writes it, feeds the client's
-   `ReplicaStore`, and *nothing draws from the store yet*. A Debug check then
-   compares the replica world against the real one every tick — the same
-   assertion `ReplicatedWorldTest` makes, against the campaign's own data
-   instead of four fabricated entities. Replication is proven complete and
-   correct before anything depends on it.
-2. **The renderer moves onto the store**, once step 1 has been quiet for a
-   while.
+```cpp
+while (Neuron::ConsumeSimulationTick())
+{
+  SimulateTick();
+  g_session.Tick();
+}
+```
+
+The whole handshake runs in one call, because both halves are here: hello,
+verdict, level and Ready cross a queue rather than a network. Separating the
+server changes how long that takes and nothing about what it says.
+
+**Nothing draws from the replica world yet, and that is the point.** The flip is
+the risky part of stage D and it does not have to be taken blind, so this step
+proves replication complete and correct while the renderer is still fed from the
+object lists. In a Debug build the two worlds are compared field by field every
+tick — the same claim `ReplicatedWorldTest` makes, except against a real level
+with real AI moving real droids instead of four fabricated entities.
+
+Three details decide whether that check means anything:
+
+- **When it runs.** `Tick()` is called immediately after `SimulateTick()`,
+  which is the one moment the world is settled: `objmemUpdate()` has just run,
+  so the object lists hold exactly what is alive and `psDestroyedObj` holds
+  exactly what died on this tick and nothing older. That is where `Destroy`
+  comes from, and it is the only place it could come from — a diff of two
+  visible sets cannot tell a death from a departure.
+- **It reports rather than dies.** A mismatch is a replication bug and wants
+  fixing, but `DEBUG_ASSERT_TEXT` is fatal in this tree, and killing the game
+  over one would stop stage D's own gate — boot `CAM_1A`, play it to a mission
+  win — from being runnable at all. So the first disagreement in a tick is
+  traced with the entity named and the check moves on. It becomes an assertion
+  in the step that puts the renderer on the store, where a disagreement stops
+  being survivable.
+- **There is nothing to reset.** The stream is a difference, so a level change
+  is a tick's worth of `Leave`s and `Enter`s and then agreement again. A
+  lifecycle hook that can be forgotten is worse than no hook at all.
+
+What it does not yet replicate: projectiles, which are on no object list and
+whose lifetime is short enough that "an entity that enters and leaves within a
+few ticks" is a different design question from the three lists. `EntityKind`
+names them; nothing emits one.
+
+Next in this stage: **the renderer moves onto the store**, once this step has
+been quiet for a while. That is the flip, and what it needs is a `Replica` with
+enough on it to draw — which is the second of the gaps below, now with a way to
+find out exactly which fields those are rather than guessing them.
 
 Two smaller gaps are already visible and are worth closing on the way. `Ready`
 carries no body, so a client that loaded a different level than the one `Start`

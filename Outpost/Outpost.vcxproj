@@ -63,6 +63,7 @@
     <ClCompile Include="Edit2D.cpp" />
     <ClCompile Include="Edit3D.cpp" />
     <ClCompile Include="Effects.cpp" />
+    <ClCompile Include="EmbeddedSession.cpp" />
     <ClCompile Include="Environ.cpp" />
     <ClCompile Include="Feature.cpp" />
     <ClCompile Include="Findpath.cpp" />
@@ -194,6 +195,7 @@
     <ClInclude Include="Edit2D.h" />
     <ClInclude Include="Edit3D.h" />
     <ClInclude Include="Effects.h" />
+    <ClInclude Include="EmbeddedSession.h" />
     <ClInclude Include="Environ.h" />
     <ClInclude Include="Feature.h" />
     <ClInclude Include="FeatureDef.h" />
@@ -360,7 +362,7 @@
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;DIRECTINPUT_VERSION=0x0800;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\NeuronCore;$(MSBuildThisFileDirectory)..\NeuronClient;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\NeuronCore;$(MSBuildThisFileDirectory)..\NeuronClient;$(MSBuildThisFileDirectory)..\NeuronServer;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ConformanceMode>false</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -394,7 +396,7 @@
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;DIRECTINPUT_VERSION=0x0800;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\NeuronCore;$(MSBuildThisFileDirectory)..\NeuronClient;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\NeuronCore;$(MSBuildThisFileDirectory)..\NeuronClient;$(MSBuildThisFileDirectory)..\NeuronServer;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ConformanceMode>false</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -425,7 +427,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;DIRECTINPUT_VERSION=0x0800;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\NeuronCore;$(MSBuildThisFileDirectory)..\NeuronClient;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\NeuronCore;$(MSBuildThisFileDirectory)..\NeuronClient;$(MSBuildThisFileDirectory)..\NeuronServer;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ConformanceMode>false</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
@@ -453,7 +455,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;DIRECTINPUT_VERSION=0x0800;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\NeuronCore;$(MSBuildThisFileDirectory)..\NeuronClient;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\NeuronCore;$(MSBuildThisFileDirectory)..\NeuronClient;$(MSBuildThisFileDirectory)..\NeuronServer;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ConformanceMode>false</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>

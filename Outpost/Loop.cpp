@@ -37,6 +37,7 @@
 #include "Bucket3D.h"
 #include "Display3D.h"
 #include "MultiPlay.h" //ajl
+#include "EmbeddedSession.h"
 #include "Script.h"
 #include "ScriptTabs.h"
 #include "Levels.h"
@@ -113,6 +114,17 @@ static BOOL fastExit;
 static SDWORD videoMode;
 
 static SDWORD g_iGlobalVol;
+
+namespace
+{
+/* The solo session, running the world across the client/server boundary beside
+ * the game that is still drawing it (Docs/ServerAuthority.md stage D). Nothing
+ * reads its replica world yet: this step is here to prove replication complete
+ * and correct while the renderer is still fed from the object lists, so the
+ * flip that follows is taken with evidence rather than hope.
+ */
+EmbeddedSession g_session;
+} // namespace
 
 LOOP_MISSION_STATE loopMissionState = LMS_NORMAL;
 
@@ -443,7 +455,15 @@ GAMECODE gameLoop(void)
        * ran long.
        */
       while (Neuron::ConsumeSimulationTick())
+      {
         SimulateTick();
+
+        /* After the world is settled, not before: objmemUpdate() has run, so
+         * the object lists hold what is alive and psDestroyedObj holds exactly
+         * what died on this tick.
+         */
+        g_session.Tick();
+      }
 
     }
     if (!consolePaused())

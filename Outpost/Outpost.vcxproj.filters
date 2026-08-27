@@ -33,6 +33,7 @@
     <ClCompile Include="Edit2D.cpp" />
     <ClCompile Include="Edit3D.cpp" />
     <ClCompile Include="Effects.cpp" />
+    <ClCompile Include="EmbeddedSession.cpp" />
     <ClCompile Include="Environ.cpp" />
     <ClCompile Include="Feature.cpp" />
     <ClCompile Include="Findpath.cpp" />
@@ -161,6 +162,7 @@
     <ClInclude Include="Edit2D.h" />
     <ClInclude Include="Edit3D.h" />
     <ClInclude Include="Effects.h" />
+    <ClInclude Include="EmbeddedSession.h" />
     <ClInclude Include="Environ.h" />
     <ClInclude Include="Feature.h" />
     <ClInclude Include="FeatureDef.h" />
