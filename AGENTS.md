@@ -110,7 +110,7 @@ private:
 
 [`.clang-tidy`](.clang-tidy) at the repository root is the machine-readable statement of every rule above, and it is the **single source of truth** for the option values — this document does not repeat them, so there is nothing to drift. `readability-identifier-length` is deliberately left off: its defaults reject the domain vocabulary this codebase is built on (`x`, `y`, `_a`, `_b`), and short names here are precise, not lazy.
 
-**Nothing runs it automatically yet.** [`build.yml`](.github/workflows/build.yml) builds Debug and Release for Win32 and runs `tools/check_case.py` (which verifies every `#include` and project entry spells its file with the exact on-disk case — MSVC resolves includes case-insensitively, so a wrong name still builds). There is no clang-tidy step, and the `.vcxproj` files do not enable MSBuild's code analysis. Until one of those changes, §1 is enforced by **review**: check your own diff against the table before handing it back.
+**Nothing runs it automatically yet.** [`build.yml`](.github/workflows/build.yml) builds Debug and Release for Win32 and x64, builds and **runs the `NeuronCoreTest` suite** through `vstest.console.exe`, and runs `tools/check_case.py` (which verifies every `#include` and project entry spells its file with the exact on-disk case — MSVC resolves includes case-insensitively, so a wrong name still builds). There is no clang-tidy step, and the `.vcxproj` files do not enable MSBuild's code analysis. Until one of those changes, §1 is enforced by **review**: check your own diff against the table before handing it back.
 
 **When you do run it, run it on what you wrote, not on the tree.** The legacy code predates every rule here (§1, under the table), so a whole-tree pass reports thousands of grandfathered findings and tells you nothing. Point it at the files your change adds, or filter to your changed lines:
 
@@ -138,7 +138,7 @@ Two rules the config cannot express, and that a reviewer therefore has to carry:
 | `Docs/MigrationPlan.md` | The plan and the record of what each phase changed | Yes — see §6 |
 | `.clang-format`, `.clang-tidy`, `.editorconfig` | Layout and naming, machine-readable (§1, §4) | Yes — with an owner decision |
 | `tools/*.py` | Repository checkers and content-authoring scripts (§3) | Yes |
-| `.github/workflows/build.yml` | CI: Debug and Release, Win32 and x64 (x64 non-blocking), plus the script corpus | Yes, carefully |
+| `.github/workflows/build.yml` | CI: Debug and Release, Win32 and x64 (x64 non-blocking), the `NeuronCoreTest` unit tests, plus the script corpus | Yes, carefully |
 | `Debug/`, `x64/`, `.vs/`, `*.user` | Build and IDE output | **No — and never commit them** |
 
 **There is no vendored SDK.** `DX9/Include` and `DX9/Lib` held a checked-in DirectX 9.0c

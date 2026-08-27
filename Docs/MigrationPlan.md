@@ -530,8 +530,10 @@ compiling can answer.
 **The harness is gone** (2026-08-16), deleted with the client/server
 restructure that added `NeuronClient`, `NeuronServer` and `NeuronCoreTest`, and
 its steps are out of the CI workflow. That result stands as a record of the day
-it ran and is no longer re-checked on each commit: **CI now builds and does not
-run anything.** Whatever replaces it wants to keep the one property that made
+it ran and is no longer re-checked on each commit. **CI ran nothing at all
+until 2026-08-27**, when it gained the `NeuronCoreTest` suite (below); that
+still does not put bytes between two processes, which is the property NetTest
+had and nothing has yet replaced. Whatever replaces it wants to keep the one property that made
 NetTest worth having — it started real processes and put bytes between them,
 which is the only way that certificate question gets answered.
 
@@ -1556,6 +1558,18 @@ This is a **proxy, not MSVC**. GCC is stricter in some places, MSVC under
 Mplayer and WINSTR are 32-bit MSVC binaries). It reliably catches the portable
 C++ issues, which is what Phase 1 is about, but a real `msbuild` remains the
 final word.
+
+**CI runs the unit tests as of 2026-08-27.** `NeuronCoreTest` is not a
+reference of `Outpost` — it compiles the `NeuronCore` sources it tests directly
+— so building the game never built it, and the `Neuron::Json` and script
+compiler/VM suites sat in the tree unbuilt and unrun. The workflow now restores,
+builds and runs them through `vstest.console.exe` in all four configurations.
+Two things had to change for that to be possible: the project carried the
+pre-VS2017 `$(VCInstallDir)UnitTest\include` path for the native test
+framework, which VS2017 moved under `Auxiliary\VS` (both are listed now, since
+a directory that does not exist is ignored), and the project needed its own
+NuGet restore. This is the first thing CI has *executed* since NetTest was
+deleted.
 
 Two content checkers run ahead of the build in CI: `tools/check_case.py`
 (every include and project entry must match the on-disk filename case) and,
