@@ -6,6 +6,9 @@
 
 #pragma once
 
+#include "NetReader.h"
+#include "NetWriter.h"
+
 #include <cstdint>
 
 namespace Neuron
@@ -184,5 +187,93 @@ enum class RejectReason : std::uint8_t
 {
   return static_cast<std::uint8_t>(_id) < static_cast<std::uint8_t>(ServerMessage::Count);
 }
+
+/* ---- The session handshake ------------------------------------------------
+ *
+ * The first exchange on any connection, local or remote. It is what
+ * NET_VERSION and the executable hash smuggled inside NET_OPTIONS used to do,
+ * except that it happens before anything else is believed rather than after
+ * the lobby has already been joined.
+ *
+ * Each record encodes its *body*. The message id goes on separately, because a
+ * receiver has to read the id to know which Decode to call -- so Put below
+ * writes both and takes the id from the record's own Id, which is the only way
+ * to get them out of step and it removes it.
+ */
+
+/// Why a server would not take a connection. A code rather than a string: the
+/// client has to act on it, not just print it.
+enum class HandshakeResult : std::uint8_t
+{
+  Accepted,
+
+  /// The two builds do not speak the same protocol version at all.
+  ProtocolMismatch,
+
+  /// Same protocol, different executable. What NEThashVal caught at join.
+  BuildMismatch,
+
+  ServerFull,
+
+  Count,
+};
+
+/// ClientMessage::Hello -- the first bytes a client sends.
+struct ClientHello
+{
+  static constexpr ClientMessage Id = ClientMessage::Hello;
+
+  std::uint16_t protocolVersion = ProtocolVersion;
+  std::uint32_t buildHash = 0;
+
+  void Encode(NetWriter& _writer) const;
+
+  /// Reads the body. The caller has already taken the id off the reader.
+  [[nodiscard]] static ClientHello Decode(NetReader& _reader);
+};
+
+/// ServerMessage::Hello -- the answer, and the session's terms.
+struct ServerHello
+{
+  static constexpr ServerMessage Id = ServerMessage::Hello;
+
+  HandshakeResult result = HandshakeResult::Accepted;
+
+  /// How much game time one simulation tick advances the world by. The client
+  /// derives its clock from this rather than assuming, so a server may be
+  /// retuned without every client being rebuilt.
+  std::uint16_t tickMs = 0;
+
+  std::uint32_t connectionId = 0;
+
+  void Encode(NetWriter& _writer) const;
+  [[nodiscard]] static ServerHello Decode(NetReader& _reader);
+};
+
+/// ServerMessage::Start -- the level is agreed, here is when the world begins.
+struct ServerStart
+{
+  static constexpr ServerMessage Id = ServerMessage::Start;
+
+  std::uint32_t startTick = 0;
+  std::uint16_t countdownMs = 0;
+  std::uint32_t mapHash = 0;
+
+  void Encode(NetWriter& _writer) const;
+  [[nodiscard]] static ServerStart Decode(NetReader& _reader);
+};
+
+/// Writes a message id and its body together, taking the id from the record so
+/// the two cannot disagree.
+template <typename Message>
+void Put(NetWriter& _writer, const Message& _message)
+{
+  _writer.U8(static_cast<std::uint8_t>(Message::Id));
+  _message.Encode(_writer);
+}
+
+/// Whether a server would accept this hello. The version check is a function
+/// rather than an inline test because it is policy, and policy is worth a test.
+[[nodiscard]] HandshakeResult Consider(const ClientHello& _hello, std::uint32_t _serverBuildHash) noexcept;
 
 } // namespace Neuron

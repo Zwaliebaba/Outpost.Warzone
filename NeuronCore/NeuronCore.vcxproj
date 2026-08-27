@@ -202,6 +202,7 @@
     <ClCompile Include="NetCrypt.cpp" />
     <ClCompile Include="NetJoin.cpp" />
     <ClCompile Include="NetReader.cpp" />
+    <ClCompile Include="Protocol.cpp" />
     <ClCompile Include="NetWriter.cpp" />
     <ClCompile Include="NetPlay.cpp" />
     <ClCompile Include="Transport.cpp" />

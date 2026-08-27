@@ -503,7 +503,7 @@ genuinely two implementations to abstract over.
 That leaves stage C's remaining work with its consumers: the message records,
 which land in stage D when something encodes and decodes them.
 
-### D — The embedded flip: single player over the boundary
+### D — The embedded flip: single player over the boundary  *(under way)*
 
 The first pivot. Campaign and solo skirmish move onto the architecture: the
 embedded server (the stage B TU set, ticking via stage A) loads the level,
@@ -531,6 +531,44 @@ in boundary mode (grep gate), the speed keys working through
 `SessionControl`, and a briefing FMV triggered by `UiEvent`. The `SIM_ONLY`
 shadow gains its mirror image: the client TU set compiles with the
 simulation mutators' headers absent.
+
+**This stage is built in increments, not as one pivot.** It is the riskiest
+change in the plan — it moves the whole game onto the boundary — so each piece
+lands proven before the next depends on it, and the running game is untouched
+until the pieces it needs exist.
+
+**The handshake is in** (2026-08-27). `ClientHello`, `ServerHello` and
+`ServerStart` are records in [Protocol.h](../NeuronCore/Protocol.h) with their
+encoding in `Protocol.cpp`, and `TheWholeHandshakeCrossesTheBoundary` runs the
+whole opening of a session — client hello, server verdict, client ready, server
+start — over a `LoopbackTransport`, which is the shape solo play takes at rung
+1. These are the first records to exist, and they exist now because the
+handshake is the first thing that needs them: stage C deferred records
+precisely so their fields would be settled by a consumer rather than guessed.
+
+Three things the handshake decides, which the 1998 protocol decided late or not
+at all:
+
+- **It happens before anything is believed.** `NET_VERSION` and the executable
+  hash smuggled inside `NET_OPTIONS` did this check *after* the lobby had been
+  joined. Here nothing else is read until the verdict is in.
+- **The refusal is a code, not a string.** A client has to act on
+  `ProtocolMismatch` differently from `BuildMismatch`, not just print it. And
+  an unknown result byte folds to a refusal rather than becoming a wild enum
+  value to switch on — refusing for a reason we cannot name is still refusing.
+- **The client's clock comes from the server.** `ServerHello::tickMs` carries
+  the tick quantum, so the server can be retuned without every client being
+  rebuilt, and a client never assumes 40 ms because its own build happened to
+  say so.
+
+`Consider` is the accept-or-refuse policy as a function with a test, rather
+than an `if` inside a handler. It treats a server with no build hash of its own
+as unable to check anyone's, which is exactly the solo case where both halves
+are the same binary.
+
+Next in this stage: the `Session` pair that owns this exchange and the tick,
+then the first replication of a real entity, then the wiring into
+[Loop.cpp](../Outpost/Loop.cpp).
 
 ### E — `OutpostServer.exe`, headless
 
