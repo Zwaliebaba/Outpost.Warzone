@@ -24,7 +24,10 @@ the client/server restructure. It was the only executable CI started. Since
 2026-08-17 `tools/check_scripts.py` runs the real script compiler over all 59
 shipped `.slo` files on every push, so a green CI now also means the scripts
 still compile — but that is the whole of it. Nothing else in the tree is
-executed.
+executed. The NMO checks added in 2026-08 (`tools/nmo_roundtrip_test.py` and
+`tools/pie_to_nmo.py --report`, per [AGENTS.md](../AGENTS.md) §3) are not in CI
+either; they run in a second and are worth adding when someone next touches
+the workflow.
 
 The individual checklists live in [Phase8Plan.md](Phase8Plan.md#verification),
 [Phase9Plan.md](Phase9Plan.md#verification), [Phase4Plan.md](Phase4Plan.md#verification),
@@ -466,6 +469,38 @@ behind-camera leakage) are both disproved. The qualifier is that it is not
 pixel-identical, so it is a *looks-the-same* change rather than a
 behaviour-preserving one, which is a different bar from the one Phase 8 has
 held itself to so far. That call belongs to the owner.
+
+## Not on this runsheet: NMO
+
+The model format added in 2026-08 has no pass here, deliberately. Nothing
+draws an `.nmo`: the format, its loader and the converter are in the tree and
+tested, `GameData/` still holds `.pie`, and the renderer still calls
+`pie_Draw3DShape`. There is no screen on which it could be right or wrong yet.
+
+That changes at stage D of [PieToNmoMigration.md](PieToNmoMigration.md), which
+teaches the renderer to draw NMO behind a flag and converts one level's
+models. When it lands it earns a pass of its own, and the plan already says
+what that pass has to look at, because these are the failures a converter can
+plausibly cause and a build can never catch:
+
+- **Winding.** The `.pie` renderer culls by testing screen-space winding after
+  transform rather than trusting a declared order. Index order is preserved
+  through conversion, which *should* be right — but "should" is not a
+  verification. Buildings inside-out is the symptom.
+- **Team colour.** Most of what looks like texture animation in `.pie` is the
+  player-colour atlas. Check a two-player skirmish, not a campaign boot.
+- **Terrain conforming.** Base plates have their vertices rewritten every
+  frame to sit flush on slopes. Pick a hilly level; on flat ground a broken
+  one looks fine.
+- **Build in progress.** A structure under construction is the same model,
+  height-scaled by build progress, with its base plate drawn unscaled.
+- **Turret placement.** Turrets are attached at a marker converted from a
+  connector, and connectors are the one thing in a `.pie` stored on a
+  different axis convention from its vertices. Floating or sunken turrets is
+  the symptom of getting that wrong.
+
+Until then, the honest description is the one this document exists to insist
+on: built, tested, never run.
 
 ## What each result unblocks
 

@@ -673,4 +673,10 @@ def main(argv=None):
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except BrokenPipeError:
+        # Piping the report into head closes the pipe early; that is a normal
+        # way to read it, not a crash, so do not print a traceback over it.
+        sys.stderr.close()
+        sys.exit(0)

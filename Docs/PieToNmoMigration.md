@@ -546,20 +546,23 @@ change no shipped data.
 
 | Stage | Work | Gate | Status |
 |---|---|---|---|
-| **A** | `NeuronClient/Nmo.h` — the §4 structs, no logic, with the layout assertions. | Builds Win32 + x64, `check_case.py` green | **Done.** 31 `static_assert`s, verified on 32- and 64-bit |
-| **B** | `NeuronClient/NmoLoad.cpp` — validation (`NeuronMeshObject.md` §4.11) and in-place load. Tests get the golden fixture and every malformed case the Python tests cover. | Tests pass; no renderer change yet | **Done.** `NeuronClientTest/NmoTest.cpp`, 35 tests |
+| **A** | `NeuronClient/Nmo.h` — the §4 structs, no logic, with the layout assertions. | Builds Win32 + x64, `check_case.py` green | **Done.** 31 `static_assert`s (19 size, 12 layout), verified on 32- and 64-bit |
+| **B** | `NeuronClient/NmoLoad.cpp` — validation (`NeuronMeshObject.md` §4.11) and in-place load. Tests get the golden fixture and every malformed case the Python tests cover. | Tests pass; no renderer change yet | **Done.** `NeuronClientTest/NmoTest.cpp`, 35 tests (9 reading, 26 rejecting) |
 | **C** | Production converter: `GameData/` tree mirroring, stats rewriting, role table, canonical naming. Corpus conversion is reproducible and diffable. | 516/516 convert; every converted file loads through stage B | **Done.** 516/516 convert, 516 distinct output paths, 516/516 load through the C++ loader |
 | **D** | Renderer draws NMO behind a flag, `.pie` path untouched. One campaign level converted. | **Run the game.** `Debug\Outpost.exe -window -game CAM_1A`, compare screenshots against the `.pie` path: winding, team colour, terrain conforming, build-in-progress, turret placement | Not started — needs Windows, MSVC and a GPU |
 | **E** | Convert all data, retire the `.pie` loader and the `.ani` system, delete `IMDLoad.cpp` and friends. | Full campaign run; `validate_assets.py` green on `.nmo` | Not started — gated on D |
 
 ### What stages A–C actually verified
 
-- `Nmo.h`'s 31 size and layout assertions compile on both 32- and 64-bit
-  targets, so a file written by either build is the same file.
-- The loader rejects 21 deliberately malformed files, one per clause of the
-  validation list, and accepts the golden one. The golden bytes are generated
-  from the Python codec by `tools/make_nmo_fixture.py`, so "the two
-  implementations agree" is checked rather than assumed.
+- `Nmo.h`'s 31 assertions — 19 on struct sizes, 12 on alignment and trivial
+  copyability — compile on both 32- and 64-bit targets, so a file written by
+  either build is the same file.
+- The loader accepts the golden model (9 tests reading it back) and rejects a
+  copy corrupted at one field, 26 times over, covering every clause of the
+  validation list. The Python codec is held to the same list by its own 21
+  malformed files. The golden bytes are generated from that codec by
+  `tools/make_nmo_fixture.py`, so "the two implementations agree" is checked
+  rather than assumed.
 - All 516 converted models load through the C++ loader with nothing rejected:
   544 meshes, 1,135 submeshes, 12,668 triangles, 136 markers.
 - All 181 translation units cross-check clean (`tools/crosscheck.py`), Debug
