@@ -2,8 +2,6 @@
 #include "Frame.h"
 #include "GTime.h"
 
-#define TIME_FIX
-
 #define GTIME_MINFRAME	(GAME_TICKS_PER_SEC/80)
 
 /* The current time in the game world */
@@ -38,6 +36,20 @@ static UDWORD baseTime;
 
 static UDWORD baseTime2;
 
+/* Where the wall clock says gameTime should have reached. gameTime itself only
+ * ever moves in whole ticks, so this runs ahead of it by less than one tick -
+ * and by more than one whenever the frame took longer than a tick, which is the
+ * backlog ConsumeSimulationTick works off.
+ */
+
+static UDWORD targetTime;
+
+/* The most game time one frame may hand the simulation, which is the tick
+ * length times the tick budget a frame is allowed to run.
+ */
+
+inline constexpr UDWORD MaxCatchUpMs = Neuron::SimulationTickMs * Neuron::MaxSimulationTicksPerFrame;
+
 /* When the game paused so that gameTime can be adjusted when the game restarts */
 
 static SDWORD pauseStart;
@@ -56,6 +68,10 @@ BOOL gameTimeInit(void)
   for multiPlayer they will be processed as if they died*/
 
   gameTime = 2;
+
+  targetTime = gameTime;
+
+  frameTime = Neuron::SimulationTickMs;
 
   timeOffset = 0;
 
@@ -103,7 +119,7 @@ UDWORD getStaticTimeValueRange(UDWORD tickFrequency, UDWORD requiredRange)
 void gameTimeUpdate(void)
 
 {
-  UDWORD currTime, fpMod;
+  UDWORD currTime, fpMod, owedTime;
 
   unsigned __int64 newTime;
 
@@ -144,37 +160,41 @@ void gameTimeUpdate(void)
 
     newTime += timeOffset;
 
-    // Calculate the time for this frame
+    /* How much game time the simulation is owed. This used to be spent here, as
+     * one variable-length step called frameTime; ConsumeSimulationTick spends it
+     * a whole tick at a time now, and whatever does not fill a tick stays owed
+     * and rolls into the next frame.
+     *
+     * The ordered test comes first because both sides are unsigned. gameTime
+     * starts at 2 against a newTime that starts at 0, so the clock really does
+     * sit a beat behind itself for the opening frames of a level, and an
+     * unguarded wrap would read as a four-billion-tick backlog and take baseTime
+     * out with it.
+     */
 
-    frameTime = static_cast<UDWORD>(newTime - gameTime);
+    owedTime = (newTime > gameTime) ? static_cast<UDWORD>(newTime - gameTime) : 0;
 
-    // Limit the frame time
+    /* Bound the catch-up, as the frame-time limit used to. Beyond this the
+     * excess is discarded rather than simulated - baseTime moves up to forget
+     * it - so a machine that cannot keep up runs the world slowly instead of
+     * fast-forwarding it.
+     */
 
-    if (frameTime > GTIME_MAXFRAME)
+    if (owedTime > MaxCatchUpMs)
 
     {
-#ifdef TIME_FIX
-
-      extraTime = frameTime - GTIME_MAXFRAME;
+      extraTime = owedTime - MaxCatchUpMs;
 
       extraTime = extraTime * 1000 / fpMod; //adjust the addition to base time
 
       baseTime += static_cast<UDWORD>(extraTime);
 
-#else
-
-      baseTime += frameTime - GTIME_MAXFRAME;
-
-#endif
-
-      newTime = gameTime + GTIME_MAXFRAME;
-
-      frameTime = GTIME_MAXFRAME;
+      newTime = gameTime + MaxCatchUpMs;
     }
 
-    // Store the game time
+    // Store what the simulation is owed, for ConsumeSimulationTick to spend
 
-    gameTime = static_cast<UDWORD>(newTime);
+    targetTime = static_cast<UDWORD>(newTime);
   }
 
   // now update gameTime2 which does not pause
@@ -204,6 +224,26 @@ void gameTimeUpdate(void)
   gameTime2 = static_cast<UDWORD>(newTime);
 }
 
+/* Spend one tick of what gameTimeUpdate accumulated. See GTime.h. */
+
+BOOL Neuron::ConsumeSimulationTick()
+{
+  /* Ordered test before the subtraction: these are unsigned, and targetTime
+   * sits behind gameTime for the one frame after any reset.
+   */
+  if (targetTime <= gameTime || (targetTime - gameTime) < SimulationTickMs)
+    return FALSE;
+
+  gameTime += SimulationTickMs;
+
+  /* Every step is the same length now, which is the whole point: what the
+   * simulation reads out of frameTime no longer depends on the frame rate.
+   */
+  frameTime = SimulationTickMs;
+
+  return TRUE;
+}
+
 // reset the game time modifiers
 
 void gameTimeResetMod(void)
@@ -212,6 +252,8 @@ void gameTimeResetMod(void)
   timeOffset = gameTime;
 
   timeOffset2 = gameTime2;
+
+  targetTime = gameTime;
 
   baseTime = GetTickCount();
 
@@ -266,6 +308,8 @@ void gameTimeStart(void)
 
     timeOffset = gameTime;
 
+    targetTime = gameTime;
+
     baseTime = GetTickCount();
   }
 
@@ -284,6 +328,10 @@ void gameTimeReset(UDWORD time)
   gameTime = time;
 
   timeOffset = time;
+
+  targetTime = time;
+
+  frameTime = Neuron::SimulationTickMs;
 
   gameTime2 = time;
 

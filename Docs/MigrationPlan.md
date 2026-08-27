@@ -1463,6 +1463,47 @@ otherwise unchanged, so the 30 consumer files were untouched.
 Also removes 2 of the build's 12 remaining warnings (C4715 in `treapFindRec`
 and `treapDelRec`). `check_case` clean, `crosscheck` 181/181 units clean.
 
+## Server authority: the MMO shape (2026-08-27, stage A landed)
+
+**By owner decision the game is heading to a server-authoritative MMO, starting
+with single player.** The design — where the tree already stands, why the 1998
+peer-distributed model cannot be the destination, the embedded-server topology
+and its separation ladder, the A–I staging and the full client/server message
+protocol — is in [ServerAuthority.md](ServerAuthority.md); whether it takes a
+phase number is still the owner's call (its decision 5), so this entry records
+it without claiming one.
+
+Two decisions are already taken. The server side ships **embedded inside
+`Outpost.exe`** first, exchanging encoded messages with its own client through
+an in-process transport, so that where the server runs is a launch-time binding
+rather than a rewrite; and **single player is the first server-authoritative
+session**, which puts the campaign, its scripts and every AI player on the
+server side by construction. **Pause is removed as a feature** rather than
+carried — an authority serving a session does not stop the world — with game
+speed and the cheat console demoted to session commands a solo session permits
+and a service session refuses.
+
+**Stage A is done.** The simulation left the frame handler: `SimulateTick()` in
+[Loop.cpp](../Outpost/Loop.cpp) is the whole of the world update as one
+function, driven by `Neuron::ConsumeSimulationTick()` from
+[GTime.h](../NeuronCore/GTime.h) at a fixed 40 ms quantum — 25 Hz, which is
+`BASE_DEF_RATE`, the rate `Move.cpp` was written around and seeds its
+frame-time history with. `gameTimeUpdate` now advances the *target* rather than
+`gameTime`, and the leftover under a tick rolls forward instead of being
+rounded away. The 219 moved lines are byte-identical apart from indentation.
+Presentation moved off the simulation clock in the same change: `processEffects`,
+`atmosUpdateSystem` and `processAVTile` run from the terrain draw and read
+`frameTime2` now, or they would have animated at a fixed 40 ms per frame. One
+latent defect died in the rewritten lines — an unsigned wrap in the owed-time
+subtraction that read as a four-billion-tick backlog for the opening frames of
+a level, and took `baseTime` with it.
+
+`check_case` passes and `crosscheck` is clean at 180/180 units in all four
+configurations. Like everything since Phase 2 this is built-and-verified work,
+not run work: unchanged *speed* is not unchanged *smoothness*, and
+[Verification.md](Verification.md) pass J carries the question — world motion
+is 25 steps a second until the renderer interpolates between them.
+
 ## Verification
 
 There is no MSVC or Windows SDK in the Linux development container, so a real

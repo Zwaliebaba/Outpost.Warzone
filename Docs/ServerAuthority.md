@@ -215,17 +215,38 @@ around it; nothing in the protocol hard-codes 8.
 ### The timing model
 
 The server steps the world on a **fixed tick**. `GAME_TICKS_PER_SEC` is 1000
-and all game arithmetic is in milliseconds, so the tick is chosen as a
-millisecond quantum rather than a rate: **100 ms of game time per tick, 10
-ticks per second** (decision 2 — the number is tunable; the *fixedness* is
-not). `gameTimeUpdate()` grows a server variant that advances `gameTime` by
-exactly the tick quantum, and the accumulator pattern lets a loaded server
-catch up without the world slowing down. At rung 1 the accumulator runs
-inside the client's frame loop — stage A's `SimulateTick()` called by
-quantum, exactly as the headless main loop will call it. Solo game speed is
-the server scaling its quantum (today's `gameTimeSetMod`), never the client
-scaling a shared clock; `gameTime2`, which "never stops", stays what it
-already is — the client's own UI clock.
+and all game arithmetic is in milliseconds, so the tick is a millisecond
+quantum rather than a rate: **40 ms of game time per tick, 25 ticks per
+second**, which is `Neuron::SimulationTickMs` as stage A landed it.
+
+That number is measured rather than chosen. `BASE_DEF_RATE` in
+[Move.cpp](../Outpost/Move.cpp) is 25: the rate the movement system was
+written around, and the value `moveInitialise` seeds its entire frame-time
+history with. A fixed tick of `GAME_TICKS_PER_SEC / 25` is therefore the one
+length at which `baseSpeed` settles on exactly the `BASE_SPEED_INIT` the
+movement code starts from, instead of on whatever the frame rate happened to
+average. An earlier revision of this document proposed 100 ms by analogy with
+the network snapshot rate and had no such backing; the two are independent
+(below), and this is the one the code answers for.
+
+`gameTimeUpdate()` no longer advances `gameTime` — it advances the *target*
+`gameTime` is owed, and `Neuron::ConsumeSimulationTick()` spends that a whole
+tick at a time, so the remainder rolls into the next frame instead of being
+rounded away. `Neuron::MaxSimulationTicksPerFrame` bounds the catch-up at four
+ticks, discarding the excess exactly as the old `GTIME_MAXFRAME` frame-time
+limit did and at very nearly the same 160 ms, so a machine that cannot keep up
+runs the world slowly rather than fast-forwarding it. At rung 1 that
+accumulator runs inside the client's frame loop; the headless main loop will
+drive the identical pair. Solo game speed is the server scaling its quantum
+(today's `gameTimeSetMod`), never the client scaling a shared clock; and
+`gameTime2`, which "never stops", stays what it already is — the client's own
+frame clock, which is why presentation reads `frameTime2`.
+
+**The simulation tick and the snapshot rate are separate numbers.** How often
+the world steps is a simulation-fidelity question, answered above; how often
+the server *tells* a client about it is a bandwidth question, answered in
+stage C as "every Nth tick" per replication group. Nothing requires them to
+match, and conflating them is what produced the unsupported 100 ms.
 
 The client's world clock becomes derived: `serverTick × TickMs`, plus an
 interpolation delay of ~2 snapshot intervals so entities always move between
@@ -249,7 +270,7 @@ while the current multiplayer keeps playing untouched beside it; the
 networked flip (F) then binds remote clients to a server that single player
 has already debugged.
 
-### A — Fix the timestep
+### A — Fix the timestep  *(landed 2026-08-27)*
 
 Split `gameLoop()` into `SimulateTick()` — the block from
 `eventProcessTriggers` through `objmemUpdate`: AI, movement, droids,
@@ -263,8 +284,58 @@ frame handler, and the same accumulator later runs unchanged in the headless
 main loop. This also retires `GTIME_MAXFRAME` clamping as a source of speed
 variation.
 
+**What landed.** `Neuron::SimulationTickMs`, `MaxSimulationTicksPerFrame` and
+`ConsumeSimulationTick()` in [GTime.h](../NeuronCore/GTime.h)/`GTime.cpp`, and
+`SimulateTick()` in [Loop.cpp](../Outpost/Loop.cpp) driven by
+
+```cpp
+while (Neuron::ConsumeSimulationTick())
+  SimulateTick();
+```
+
+The 219 moved lines are byte-identical to what `gameLoop` ran inline, apart
+from indentation — the move was done mechanically and checked that way rather
+than by eye. Four things are worth carrying forward:
+
+- **The compiler proved the boundary.** `SimulateTick()` takes the six object
+  pointers and the loop counter as its own locals and nothing else; that it
+  compiles is proof the simulation block never read `intRetVal` or any other
+  widget state, which is the property stage B has to keep.
+- **Presentation had to come off the simulation clock.** `processEffects`,
+  `atmosUpdateSystem` and `processAVTile` are called from the terrain draw,
+  once a frame, and were reading `frameTime`. Left alone they would have
+  animated by a fixed 40 ms per *frame*, making effect and fog-fade speed
+  frame-rate dependent — the exact bug the phase exists to remove, inverted.
+  They read `frameTime2` now, as every other presentation site in the tree
+  already did. Every remaining live reader of `frameTime` is inside
+  `SimulateTick()`'s call tree, which is the gate.
+- **`Move.cpp`'s rolling average is now provably redundant.** `baseTimes[]` is
+  ten frames of `frameTime` averaged to derive `baseSpeed`; with a fixed tick
+  every element is the same number and the average is the number. It is left
+  in place — it self-neutralises, and deleting it is a simplification to make
+  once the tick has been *run*, not a change to bundle with the one that made
+  it redundant.
+- **One latent defect died in the rewritten lines.** The owed-time subtraction
+  is unsigned and `gameTime` starts at 2 against a `newTime` starting at 0, so
+  for the opening frames of a level the wrap read as a four-billion-tick
+  backlog and pushed `baseTime` out with it. The old code computed `frameTime`
+  the same way and had the same hazard; the replacement orders the test before
+  the subtraction. The dead `#else` half of `TIME_FIX` went with it rather than
+  being rewritten as new dead code.
+
 *Gate:* campaign and skirmish play at unchanged speed; `frameTime` no longer
-reaches simulation code (grep gate on the moved block).
+reaches presentation code (grep gate above). `check_case` passes and
+`crosscheck` is clean at 180/180 units in all four configurations — Debug and
+Release, x86 and x64.
+
+*Outstanding, and it needs a Windows run:* unchanged *speed* is not unchanged
+*smoothness*. Until the renderer interpolates, world motion is 25 discrete
+steps a second rather than one per frame, so a 60 fps display advances units
+on two frames in five. Whether that reads as stutter is the one thing this
+stage cannot answer without running it, and it is the question
+[Verification.md](Verification.md) should carry. If it does, the tick is a
+single named constant and interpolation is the designed answer — in that
+order.
 
 ### B — Split simulation state from presentation state
 
@@ -661,7 +732,11 @@ sent.
 
 1. **Adopt this direction and staging** (A–I as gates; D flips single player,
    F flips multiplayer).
-2. **Tick quantum**: 100 ms proposed; 50 ms doubles cost and halves latency.
+2. ~~**Tick quantum**~~ — **answered by measurement, not open.** 40 ms / 25 Hz,
+   because `BASE_DEF_RATE` says the movement system was written for it (see
+   [the timing model](#the-timing-model)). What remains open is only whether a
+   Windows run finds 25 Hz world motion visibly steppy before the renderer
+   interpolates, which is a stage A verification item rather than a decision.
 3. **Multiplayer's first rung**: stage F can ship with remote clients joining
    the host's *embedded* server (rung 1 — no second process to manage) or
    require the separate `OutpostServer.exe` (rung 3) from its first day.

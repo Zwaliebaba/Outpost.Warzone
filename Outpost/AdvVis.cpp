@@ -124,7 +124,10 @@ void processAVTile(UDWORD x, UDWORD y)
   if (psTile->level == UBYTE_MAX OR psTile->bMaxed)
     return;
 
-  time = (static_cast<float>(frameTime) / GAME_TICKS_PER_SEC);
+  /* frameTime2 rather than frameTime: the tile fade is driven from the terrain
+   * draw, once a frame, and frameTime is the fixed simulation tick now.
+   */
+  time = (static_cast<float>(frameTime2) / GAME_TICKS_PER_SEC);
   newLevel = std::lrintf(psTile->level + (time * FADE_IN_TIME));
   if (newLevel >= psTile->illumination)
   {
