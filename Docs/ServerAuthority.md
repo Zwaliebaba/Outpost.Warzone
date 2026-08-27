@@ -471,8 +471,37 @@ and decodes them. They land with their consumers in stage D rather than being
 guessed here — guessing forty of them now would mean rewriting forty of them
 later.
 
-Still to come in this stage: `Transport` widened to named channels, and
-`LoopbackTransport`.
+**`LoopbackTransport` is in**, and with it the rung-1 boundary. A client and a
+server in one process exchange messages through per-channel queues — the same
+bytes they would exchange over a network, copied rather than borrowed, so
+neither end can reach the other's objects instead of its bytes. The moment it
+could, the server would stop being separable and rung 3 would not work; the
+tests hold that down rather than trusting it.
+
+The queues are **per channel, not one shared queue**. A single queue would
+quietly promise a global order across every channel, which QUIC does not keep —
+and code written against the stronger promise would break at rung 3 rather than
+here, which is the worst place to find out. `ChannelsDoNotBlockEachOther` sends
+on Bulk then Session and requires Session first.
+
+What loopback does *not* model is loss and reordering: delivery here is ordered
+and lossless, so the Snapshot channel's "may be dropped, the next supersedes
+it" behaviour is only exercised once rung 3 puts a real network underneath.
+That is the same gap Phase 5 recorded about NetTest, and it is stated in the
+header rather than left to be discovered.
+
+**`Transport` is deliberately not widened yet.** Its own header says a second
+implementation is the moment it becomes a base and the QUIC one becomes
+`QuicTransport` — but the second implementation of the *new* channelled API
+does not exist yet, and building the base for one derived class is the ceremony
+[AGENTS.md R2](../AGENTS.md) forbids. The legacy `NETMSG` path keeps using
+`Transport` untouched, exactly as this stage intended. The two converge in
+stage F, when the legacy protocol is deleted and a QUIC-backed sibling of
+`LoopbackTransport` is what replaces it — that is the point at which there are
+genuinely two implementations to abstract over.
+
+That leaves stage C's remaining work with its consumers: the message records,
+which land in stage D when something encodes and decodes them.
 
 ### D — The embedded flip: single player over the boundary
 
