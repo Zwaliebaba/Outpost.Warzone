@@ -58,6 +58,18 @@ ServerStart ServerStart::Decode(NetReader& _reader)
   return start;
 }
 
+void ServerTick::Encode(NetWriter& _writer) const
+{
+  _writer.U32(tick);
+}
+
+ServerTick ServerTick::Decode(NetReader& _reader)
+{
+  ServerTick value;
+  value.tick = _reader.U32();
+  return value;
+}
+
 HandshakeResult Consider(const ClientHello& _hello, std::uint32_t _serverBuildHash) noexcept
 {
   if (_hello.protocolVersion != ProtocolVersion)

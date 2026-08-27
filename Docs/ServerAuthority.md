@@ -566,9 +566,37 @@ than an `if` inside a handler. It treats a server with no build hash of its own
 as unable to check anyone's, which is exactly the solo case where both halves
 are the same binary.
 
-Next in this stage: the `Session` pair that owns this exchange and the tick,
-then the first replication of a real entity, then the wiring into
-[Loop.cpp](../Outpost/Loop.cpp).
+**`ServerSession` is in, and `NeuronServer` has its first real source.** The
+library has been a PCH shell since the client/server restructure created it;
+[ServerSession.h](../NeuronServer/ServerSession.h) is the first thing to live
+there, which also means `NeuronServerTest` has something to test.
+
+It is **the protocol state machine and nothing else — it does not own the
+world.** The caller pairs `Tick()` with whatever advances the simulation:
+`SimulateTick()` while the server is embedded, `OutpostServer`'s own loop once
+it is not. Keeping those apart is what lets the session be tested without a
+level to load, and it is why this compiles into a library that has never linked
+one.
+
+The states follow the documented order — `Handshaking`, `Greeted`, `Starting`,
+`Running`, `Refused` — and three properties are held down by tests rather than
+by intent:
+
+- **A tick is never sent to a client that has not said it is ready.** The
+  server says `Start`, the client loads and answers `Ready`, and only then does
+  `Tick()` do anything. Otherwise the first thing a loading client is told is
+  world state it has nowhere to put.
+- **A peer cannot drive the session out of order.** `Ready` before any hello is
+  dropped; so is a message id this build has never heard of; so is a hello that
+  runs off the end of its buffer, which is refused on protocol grounds because
+  we cannot tell what it meant.
+- **A refused session goes deaf but keeps draining.** Nothing further is acted
+  on, and nothing is left queued — a refused peer that keeps talking must not
+  grow a queue nobody reads.
+
+Next in this stage: the client's half, the first replication of a real entity,
+then the wiring into [Loop.cpp](../Outpost/Loop.cpp) — which is the point the
+running game starts going through the boundary.
 
 ### E — `OutpostServer.exe`, headless
 

@@ -263,6 +263,18 @@ struct ServerStart
   [[nodiscard]] static ServerStart Decode(NetReader& _reader);
 };
 
+/// ServerMessage::Tick -- heads each tick's traffic, and is the client's only
+/// statement of what time it is in the world.
+struct ServerTick
+{
+  static constexpr ServerMessage Id = ServerMessage::Tick;
+
+  std::uint32_t tick = 0;
+
+  void Encode(NetWriter& _writer) const;
+  [[nodiscard]] static ServerTick Decode(NetReader& _reader);
+};
+
 /// Writes a message id and its body together, taking the id from the record so
 /// the two cannot disagree.
 template <typename Message>
