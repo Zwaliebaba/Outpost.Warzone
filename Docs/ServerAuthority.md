@@ -404,7 +404,7 @@ measured as zero gain and was reverted rather than kept on faith. And an
 configuration caught `Loop.cpp` — which is the standing argument for checking
 both.
 
-### C — The protocol layer
+### C — The protocol layer  *(under way; the wire landed 2026-08-27)*
 
 Build the wire: the `Neuron::NetWriter`/`NetReader` pair and the message
 definitions of the three planes below; the `Transport` seam widened from one
@@ -418,6 +418,39 @@ whose only future is deletion.
 
 *Gate:* encode/decode round-trip tests in `NeuronCoreTest` for every message,
 and a loopback pair delivering all three planes end to end.
+
+**The wire is in.** `Neuron::NetWriter` and `NetReader`
+([NetWriter.h](../NeuronCore/NetWriter.h), [NetReader.h](../NeuronCore/NetReader.h))
+compose and take apart a message body a named width at a time, little-endian,
+with no padding and no struct layout involved. What `NetAdd` did — memcpy
+whatever the caller handed it, carrying the host's padding and pointer width —
+is not expressible here.
+
+Three properties are worth naming, because they are what the later stages lean
+on:
+
+- **The format is pinned by a test, not by agreement.** A round-trip test
+  passes even when both ends agree on the wrong layout, so `ByteOrderIsLittleEndian`
+  asserts the actual bytes. Changing the encoding now has to be deliberate.
+- **Bounds are sticky, never fatal.** A write past the end stores nothing and
+  sets `Overflowed`; a read past the end yields zero and sets `Truncated`; both
+  latch, so a caller encodes or decodes a whole message and asks once. Nothing
+  throws. A decoder that forgets to ask gets a zeroed record, which is inert,
+  rather than a half-populated one.
+- **Hostile input has defined outcomes.** Every byte `NetReader` sees was chosen
+  by a peer. A length that lies (65535 bytes of name, one byte supplied) is
+  refused rather than followed; a name longer than the field it lands in is
+  truncated into it *and the full declared length is still consumed*, so the
+  fields after it stay aligned. That last one is the property a decoder silently
+  depends on and would never notice losing.
+
+These have no Windows dependency, so unlike the rest of the tree they were
+**run** before they were pushed: a native harness under AddressSanitizer and
+UndefinedBehaviorSanitizer, then the same cases as `NetWireTest` in
+`NeuronCoreTest`, which CI executes.
+
+Still to come in this stage: the `ClientMessage`/`ServerMessage` catalogue and
+its records, `Transport` widened to named channels, and `LoopbackTransport`.
 
 ### D — The embedded flip: single player over the boundary
 

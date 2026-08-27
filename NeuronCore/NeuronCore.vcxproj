@@ -170,6 +170,8 @@
     <ClInclude Include="GTime.h" />
     <ClInclude Include="Interp.h" />
     <ClInclude Include="ListMacs.h" />
+    <ClInclude Include="NetReader.h" />
+    <ClInclude Include="NetWriter.h" />
     <ClInclude Include="Json.h" />
     <ClInclude Include="HostCertificate.h" />
     <ClInclude Include="NetPlay.h" />
@@ -196,6 +198,8 @@
     <ClCompile Include="HostCertificate.cpp" />
     <ClCompile Include="NetCrypt.cpp" />
     <ClCompile Include="NetJoin.cpp" />
+    <ClCompile Include="NetReader.cpp" />
+    <ClCompile Include="NetWriter.cpp" />
     <ClCompile Include="NetPlay.cpp" />
     <ClCompile Include="Transport.cpp" />
     <ClCompile Include="NetSupp.cpp" />
