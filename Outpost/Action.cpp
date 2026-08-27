@@ -22,6 +22,7 @@
 #include "ScriptTabs.h"
 #include "Transporter.h"
 #include "Visibility.h"
+#include "AudioSystem.h"
 
 /* attack run distance */
 #define	VTOL_ATTACK_LENGTH		1000

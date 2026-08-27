@@ -63,6 +63,7 @@ tMode titleMode;
 #include "MultiLimit.h"
 #include "MultiStat.h"
 #include "NetPlay.h"
+#include "RenderClip.h"
 
 #define VERSION_STRING	"VER 1.10"
 

@@ -469,11 +469,19 @@ exit_with_error:
 void scriptSetTypeEquiv(TYPE_EQUIV* psTypeTab)
 {
 #ifdef DEBUG
-  SDWORD i;
-
-  for (i = 0; psTypeTab[i].base != 0; i++)
+  /* A null table is a supported value meaning "no equivalences": it is what
+     interpInitialise sets, and interpCheckEquiv guards for it before walking.
+     This validation has to allow it too. Without the guard the Debug build
+     faults on the state the module starts from, which is what every ScriptTest
+     did the first time CI ran the suite -- the Release build has no loop here,
+     so it passed and hid it.
+   */
+  if (psTypeTab != nullptr)
   {
-    DEBUG_ASSERT_TEXT(psTypeTab[i].base >= VAL_USERTYPESTART, "scriptSetTypeEquiv: can only set type equivalence for user types");
+    for (SDWORD i = 0; psTypeTab[i].base != 0; i++)
+    {
+      DEBUG_ASSERT_TEXT(psTypeTab[i].base >= VAL_USERTYPESTART, "scriptSetTypeEquiv: can only set type equivalence for user types");
+    }
   }
 #endif
 

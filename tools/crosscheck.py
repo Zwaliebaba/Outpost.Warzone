@@ -10,13 +10,21 @@ The shadow neutralises the things GCC cannot process: includes whose case
 does not match the real filename, and the MSVC-only headers NeuronCore.h
 pulls in but never uses.
 
-Usage:  tools/crosscheck.py [-j N] [--release] [--x64] [file.cpp ...]
+Usage:  tools/crosscheck.py [-j N] [--release] [--x86] [--sim-only] [file.cpp ...]
 
---x64 checks with the 64-bit mingw instead of the 32-bit one. Worth its own
-run: on Win32 sizeof(void*) == sizeof(UDWORD), so every pointer-through-
-integer round trip compiles clean and the 32-bit pass cannot see it. That is
-the whole subject of Docs/X64Readiness.md, and until this flag existed the
-Linux pre-CI gate only ever looked at i686.
+The default target is x64, which is what CI builds and gates. --x86 checks
+with the 32-bit mingw instead; those configurations are unmaintained since
+Win32 left CI on 2026-08-27, so there is normally no reason to ask.
+
+The width is why the target matters: at 32 bits sizeof(void*) ==
+sizeof(UDWORD), so every pointer-through-integer round trip compiles clean
+and an x86 pass cannot see it. That is the whole subject of
+Docs/X64Readiness.md.
+
+--sim-only checks the candidate server-side units with the NeuronClient
+include directory taken away, which is the standing gate behind
+Docs/ServerAuthority.md stage B. It is a ratchet rather than a pass/fail:
+NeuronCore must stay at zero and the Outpost count must fall, never rise.
 """
 import argparse, os, re, shutil, subprocess, sys, tempfile
 from concurrent.futures import ThreadPoolExecutor
@@ -45,11 +53,51 @@ DEFS = ['WIN32',
 
 SKIP = re.compile(r'^(GameData|Docs|tools|packages)/')
 
-# The projects mingw can syntax-check. NeuronCoreTest is deliberately absent:
-# it is built on MSVC's CppUnitTest framework, which does not ship for mingw
-# and is not worth stubbing. DX9/Include held the vendored DirectX SDK headers
-# and NetTest was the console harness; both are gone from the tree.
-PROJECTS = ('NeuronCore', 'Outpost', 'NeuronClient', 'NeuronServer')
+# The projects mingw can syntax-check. The three test projects used to be
+# absent -- CppUnitTest does not ship for mingw and was judged not worth
+# stubbing -- which left the test sources with no local gate at all. They are
+# the part of the tree most exposed to Windows header pollution, and it cost a
+# red build: NetWireTest declared a `char small[8]`, and rpcndr.h carries
+# `#define small char`. tools/stubs/CppUnitTest.h is enough to compile the
+# bodies, so that class of mistake is caught here now.
+#
+# DX9/Include held the vendored DirectX SDK headers and NetTest was the console
+# harness; both are gone from the tree.
+PROJECTS = ('NeuronCore', 'Outpost', 'NeuronClient', 'NeuronServer',
+            'NeuronCoreTest', 'NeuronClientTest', 'NeuronServerTest')
+
+# --sim-only: the candidate server-side translation units, checked with the
+# NeuronClient include directory taken away. A unit that still compiles reaches
+# nothing presentational, even transitively, so it could link into a headless
+# server today; a unit that fails names its own coupling in the error.
+#
+# This is the standing proof behind Docs/ServerAuthority.md stage B, and it is a
+# ratchet rather than a pass/fail: the whole of NeuronCore has to stay clean,
+# and the Outpost count below has to fall, never rise. The remainder is not
+# noise -- it is the measured size of the simulation's real calls into
+# presentation, which is the work stage D's message planes absorb.
+#
+# NeuronCore is checked in this mode too and is expected to stay at zero: it is
+# the half both sides share, so a client header reaching it is a layering
+# defect rather than a coupling to unpick.
+SIM_UNITS = (
+    # the world and the things in it
+    'Droid.cpp', 'Structure.cpp', 'Feature.cpp', 'Objects.cpp', 'ObjMem.cpp',
+    'Combat.cpp', 'Projectile.cpp', 'Move.cpp', 'Action.cpp', 'Order.cpp',
+    'Group.cpp', 'Formation.cpp', 'CmdDroid.cpp', 'Target.cpp', 'Player.cpp',
+    # pathfinding
+    'FPath.cpp', 'AStar.cpp', 'GatewayRoute.cpp', 'OptimisePath.cpp',
+    'Findpath.cpp', 'LOSRoute.cpp', 'Gateway.cpp', 'GatewaySup.cpp',
+    # the map and what can be seen of it
+    'Map.cpp', 'MapGrid.cpp', 'Cluster.cpp', 'Visibility.cpp',
+    # economy, tech and rules
+    'Power.cpp', 'PowerCrypt.cpp', 'Research.cpp', 'Function.cpp',
+    'Stats.cpp', 'StatsTable.cpp', 'Difficulty.cpp',
+    # mission and campaign state
+    'Mission.cpp', 'Scores.cpp',
+    # the AI players, which are simulation and not any client's business
+    'AI.cpp', 'ScriptAI.cpp',
+)
 
 
 @lru_cache(maxsize=None)
@@ -230,18 +278,25 @@ def main():
                     help='parallel compiler invocations (default: %(default)s)')
     ap.add_argument('--release', action='store_true',
                     help='define NDEBUG instead of _DEBUG')
-    ap.add_argument('--x64', action='store_true',
-                    help='check with the 64-bit mingw (default: 32-bit)')
+    ap.add_argument('--x86', action='store_true',
+                    help='check with the 32-bit mingw (default: x64, which is what CI builds)')
+    ap.add_argument('--sim-only', action='store_true',
+                    help='check the candidate server units with NeuronClient removed '
+                         'from the include path (Docs/ServerAuthority.md stage B)')
     ap.add_argument('files', nargs='*',
                     help='translation units to check (default: all of them)')
     opt = ap.parse_args()
 
-    cxx = CXX['x64' if opt.x64 else 'x86']
+    cxx = CXX['x86' if opt.x86 else 'x64']
     if shutil.which(cxx) is None:
         print(f'{cxx} not found', file=sys.stderr)
         return 2
 
     files = [f.replace('\\', '/') for f in opt.files] or sources()
+    if opt.sim_only:
+        keep = {f'Outpost/{u}' for u in SIM_UNITS}
+        files = [f for f in files
+                 if f in keep or f.split('/')[0] == 'NeuronCore']
     files = [f for f in files if not SKIP.match(f)]
     outside = [f for f in files if f.split('/')[0] not in PROJECTS]
     if outside:
@@ -268,6 +323,8 @@ def main():
         for proj in PROJECTS:
             inc = ['-I', os.path.join(shadow, proj), '-I', os.path.join(shadow, 'stubs')]
             for sib in sibling_includes(proj):
+                if opt.sim_only and sib == 'NeuronClient':
+                    continue
                 inc += ['-I', os.path.join(shadow, sib)]
             cmds[proj] = base + inc
         ours = tuple(os.path.join(shadow, p) for p in PROJECTS)
@@ -284,7 +341,12 @@ def main():
                     print(f'--- {rel}: {len(lines)} error(s)')
                     for l in lines[:12]:
                         print('   ', l.replace(shadow + '/', ''))
-        print(f'\n{len(files) - bad}/{len(files)} units clean ({"x64" if opt.x64 else "x86"})')
+        plat = 'x86' if opt.x86 else 'x64'
+        if opt.sim_only:
+            print(f'\n{len(files) - bad}/{len(files)} candidate server units are '
+                  f'client-free ({plat}); {bad} still reach NeuronClient')
+        else:
+            print(f'\n{len(files) - bad}/{len(files)} units clean ({plat})')
         return 1 if bad else 0
     finally:
         shutil.rmtree(shadow, ignore_errors=True)

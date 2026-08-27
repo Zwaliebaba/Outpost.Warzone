@@ -1,3 +1,7 @@
+
+/* Pointed at, never dereferenced here, so a declaration is enough - and it
+ * keeps this header out of the client library. */
+struct iIMDShape;
 /*
  * ResearchDef.h
  *
@@ -6,7 +10,6 @@
  */
 #ifndef _researchdef_h
 #define _researchdef_h
-#include "Model.h"
 
 /* Research struct type definitions */
 using TECH_CODE = enum

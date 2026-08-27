@@ -2,6 +2,9 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
+    <ClCompile Include="ClientSessionTest.cpp" />
+    <ClCompile Include="ReplicatedWorldTest.cpp" />
+    <ClCompile Include="ReplicaStoreTest.cpp" />
     <ClCompile Include="NeuronClientTest.cpp" />
   </ItemGroup>
   <ItemGroup>

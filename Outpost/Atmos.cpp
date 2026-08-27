@@ -92,8 +92,11 @@ void atmosUpdateSystem(void)
   UDWORD numberToAdd;
   iVector pos;
 
-  /* Establish how long the last game frame took */
-  fraction = static_cast<float>(frameTime) / GAME_TICKS_PER_SEC;
+  /* Establish how long the last frame took. frameTime2 rather than frameTime:
+   * this is called from the terrain draw, once a frame, and frameTime is the
+   * fixed simulation tick that no longer measures a frame at all.
+   */
+  fraction = static_cast<float>(frameTime2) / GAME_TICKS_PER_SEC;
 
   for (i = 0; i < MAX_ATMOS_PARTICLES; i++)
   {

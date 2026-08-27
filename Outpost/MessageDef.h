@@ -7,8 +7,8 @@
 #define _messageDef_h
 
 #include "Deliverance.h"
-#include "RenderTypes.h"
-#include "Model.h"
+/* Pointed at, never dereferenced here, so a declaration is enough. */
+struct iIMDShape;
 
 using MESSAGE_TYPE = enum _message_type
 {

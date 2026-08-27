@@ -63,6 +63,7 @@
 
 #include "MultiPlay.h"
 #include "MultiStat.h"
+#include "RenderClip.h"
 
 #define FLASH_BUTTONS		// Enable flashing body part buttons.
 

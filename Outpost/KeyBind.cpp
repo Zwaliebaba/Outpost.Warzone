@@ -63,6 +63,7 @@
 #include "Text.h"
 #include "Selection.h"
 #include "Difficulty.h"
+#include "RenderClip.h"
 
 #define	MAP_ZOOM_RATE	(500)
 

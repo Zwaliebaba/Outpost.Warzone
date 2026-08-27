@@ -41,6 +41,7 @@
 #include "Projectile.h"
 #include "Findpath.h"
 #include "Loop.h"                          // gamePaused
+#include "AnimObj.h"
 
 void unsetMatrix(void);
 void setMatrix(iVector* Position, iVector* Rotation, iVector* CameraPos, BOOL RotXYZ);

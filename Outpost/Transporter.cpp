@@ -35,6 +35,7 @@
 #include "MultiPlay.h"
 #include "CSnap.h"
 #include "Findpath.h"
+#include "RenderClip.h"
 
 extern CURSORSNAP InterfaceSnap;
 

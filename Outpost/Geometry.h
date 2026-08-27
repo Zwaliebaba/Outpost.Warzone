@@ -2,7 +2,6 @@
 
 #ifndef _geometry_h
 #define _geometry_h
-#include "RenderTypes.h"
 
 #define SIZE_SINE_TABLE		100
 #define AMPLITUDE_HEIGHT	100

@@ -7,7 +7,6 @@
 #include <assert.h>
 #include <Frame.h>
 #include <GTime.h>
-#include <AnimObj.h>
 
 #include "StatsDef.h"
 #include "Base.h"

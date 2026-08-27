@@ -18,6 +18,7 @@
 #include <directxmath.h>
 
 #include "Frame.h"
+#include "Types.h"		// iVector, which used to be defined here
 
 /***************************************************************************/
 /***************************************************************************/
@@ -58,10 +59,7 @@ using iColour = struct
   uint8 r, g, b;
 };
 using iBool = int;
-using iPoint = struct
-{
-  int32 x, y;
-};
+/* iPoint now lives in NeuronCore/Types.h -- see the note there. */
 using iSprite = struct
 {
   int width, height;
@@ -92,10 +90,7 @@ using iPoint32 = struct
   int32 x, y;
 };
 
-using iVector = struct
-{
-  int32 x, y, z;
-};
+/* iVector now lives in NeuronCore/Types.h -- see the note there. */
 using iVectorf = struct
 {
   double x, y, z;

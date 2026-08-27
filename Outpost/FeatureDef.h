@@ -1,3 +1,7 @@
+
+/* Pointed at, never dereferenced here, so a declaration is enough - and it
+ * keeps this header out of the client library. */
+struct iIMDShape;
 /*
  * FeatureDef.h
  *
@@ -6,7 +10,6 @@
  */
 #ifndef _featuredef_h
 #define _featuredef_h
-#include "Model.h"
 
 using FEATURE_TYPE = enum _feature_type
 {

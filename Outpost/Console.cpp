@@ -10,6 +10,7 @@
 #include "ScriptExtern.h"
 #include "AudioID.h"
 #include "AudioSystem.h"
+#include "RenderClip.h"
 
 /* Alex McLean, Pumpkin Studios, EIDOS Interactive */
 

@@ -1,9 +1,12 @@
 #pragma once
 
-#include "AnimObj.h"
 #include "MoveDef.h"
 #include "StatsDef.h"
 #include "Weapons.h"
+
+/* Pointed at, never dereferenced here, so a declaration is enough - and it
+ * keeps this header out of the client library. */
+struct ANIM_OBJECT;
 
 /* The number of components in the asParts / asBits arrays */
 #define DROID_MAXCOMP		(COMP_NUMCOMPONENTS - 1)//(COMP_NUMCOMPONENTS - 2)

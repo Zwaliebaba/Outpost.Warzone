@@ -24,6 +24,7 @@
 #include "MultiPlay.h"
 #include "MultiGifts.h"
 #include "AudioID.h"
+#include "AudioSystem.h"
 
 // ////////////////////////////////////////////////////////////////////////////
 // External Variables

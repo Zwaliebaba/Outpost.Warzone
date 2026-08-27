@@ -15,7 +15,9 @@
 #include "Base.h"
 #include "StatsDef.h"
 #include "MoveDef.h"
-#include "Anim.h"
+
+/* Pointed at, never dereferenced here, so a declaration is enough - and it
+ * keeps this header out of the client library. */
 
 /***************************************************************************/
 

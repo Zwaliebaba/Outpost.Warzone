@@ -32,6 +32,7 @@
 #include "Mission.h"
 #include "Transporter.h"
 #include "NetPlay.h"
+#include "RenderClip.h"
 
 extern CURSORSNAP InterfaceSnap;
 extern void addText(int FontID, UDWORD FormID, UDWORD id, UDWORD PosX, UDWORD PosY, STRING* txt, UDWORD attachID, BOOL* State);

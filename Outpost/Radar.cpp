@@ -26,6 +26,7 @@
 #include "Mission.h"
 #include "MultiPlay.h"
 #include "PieFunc.h"
+#include "RenderClip.h"
 
 #define HIT_NOTIFICATION	(GAME_TICKS_PER_SEC*2)
 

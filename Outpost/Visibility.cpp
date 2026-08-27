@@ -20,6 +20,7 @@
 #include "Visibility.h"
 #include "MultiPlay.h"
 #include "AdvVis.h"
+#include "Model.h"
 
 // accuracy for the height gradient
 #define GRAD_MUL	10000

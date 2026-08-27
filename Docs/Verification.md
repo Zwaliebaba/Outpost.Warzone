@@ -262,7 +262,7 @@ A cheap regression tripwire for Phase 8 stage B, from
 [Phase8Plan.md](Phase8Plan.md#verification).
 
 `pie_GetResetCounts` is called every frame in
-[Loop.cpp:628](../Outpost/Loop.cpp#L628) and is compiled into Release too. On
+[Loop.cpp:610](../Outpost/Loop.cpp#L610) and is compiled into Release too. On
 the same scene, before and after stage B:
 
 - **state-change count should drop** — one cache means no forced re-sends
@@ -325,6 +325,43 @@ reads as *slightly slower* than before at low frame rates, deliberately.
    tolerance checks hold in radians: no oscillating unit headings, no
    rubber-banding snap-backs. The wire still carries whole integer degrees;
    both peers run the same binary, so lockstep is unchanged by design.
+
+## Pass J — the fixed simulation timestep
+
+Added 2026-08-27 with stage A of
+[ServerAuthority.md](ServerAuthority.md#a--fix-the-timestep). The world used to
+advance by however long the last frame took; it now advances in fixed 40 ms
+ticks (`Neuron::SimulationTickMs`, 25 Hz), as many whole ticks per frame as the
+wall clock has paid for. Speed should be unchanged. **Smoothness is the open
+question, and it is the reason this pass exists** — until the renderer
+interpolates between sim states, a 60 fps display advances the world on two
+frames in five.
+
+1. **Boot a campaign level** — `-window -game CAM_1A`. Same load, same start.
+2. **Watch a unit cross open ground.** Is the motion smooth, or visibly
+   stepped? This is the judgement call the whole pass is for. Compare against
+   the recollection of the previous session if nothing else — and say which it
+   is plainly, because "looks fine" and "looks fine once you stop looking for
+   it" unblock different things.
+3. **Check the world runs at the right rate**, not just smoothly: time a
+   construction or a research topic with a stopwatch against its stated
+   duration. A tick accounting bug shows up as the world running fast or slow,
+   which is easy to miss by eye and obvious against a clock.
+4. **Effects and fog fade.** Explosions, smoke and the advanced-visibility tile
+   fade moved onto the frame clock. They should look exactly as before at any
+   frame rate — and specifically should *not* speed up or slow down when the
+   frame rate changes (park the camera somewhere heavy, then somewhere empty).
+5. **Drop the frame rate hard** — a big battle, or windowed beside something
+   expensive. The world should slow down gracefully rather than fast-forward
+   when it recovers: the catch-up is capped at four ticks a frame.
+6. **Pause and unpause** (`kf_TogglePauseMode`), and play an FMV. Both stop the
+   clock; neither should produce a burst of catch-up on resume.
+7. **A skirmish against AI.** The AI players are simulation and now run on the
+   tick — they should behave as before, not visibly more or less responsive.
+
+If step 2 says "stepped", that is not a stage A defect to fix in place: it is
+the trigger for the renderer interpolation stage A deliberately deferred, and
+the tick constant is the cheap thing to try first.
 
 ---
 

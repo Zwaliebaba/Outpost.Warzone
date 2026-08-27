@@ -61,6 +61,7 @@
 
 #include "Music.h"
 #include "Texture.h"
+#include "RenderClip.h"
 extern CURSORSNAP InterfaceSnap;
 //DEFINES**************
 
