@@ -174,6 +174,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="NeuronServerTest.cpp" />
+    <ClCompile Include="ReplicationWriterTest.cpp" />
     <ClCompile Include="ServerSessionTest.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

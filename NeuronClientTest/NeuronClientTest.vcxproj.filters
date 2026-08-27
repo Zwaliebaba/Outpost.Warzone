@@ -3,6 +3,7 @@
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="ClientSessionTest.cpp" />
+    <ClCompile Include="ReplicatedWorldTest.cpp" />
     <ClCompile Include="ReplicaStoreTest.cpp" />
     <ClCompile Include="NeuronClientTest.cpp" />
   </ItemGroup>

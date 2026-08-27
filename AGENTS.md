@@ -129,11 +129,11 @@ Two rules the config cannot express, and that a reviewer therefore has to carry:
 
 | Path | What it is | May you edit it? |
 |---|---|---|
-| `NeuronCore/` | Engine static library (20 TUs): platform, timing, the resource system and the `Neuron::Json` reader, containers, maths, the script compiler and VM, string resources, networking and transport | Yes |
-| `NeuronClient/` | Client-side engine static library (42 TUs): the window, D3D9 rendering, IMD models, animations, DirectInput, XAudio2, UI widgets, fonts, images, FMV sequences | Yes |
-| `NeuronServer/` | Server-side engine static library. **Currently a PCH shell** — one `pch.h`/`pch.cpp` and nothing else | Yes |
+| `NeuronCore/` | Engine static library (24 TUs): platform, timing, the resource system and the `Neuron::Json` reader, containers, maths, the script compiler and VM, string resources, networking and transport, and the client/server wire protocol | Yes |
+| `NeuronClient/` | Client-side engine static library (44 TUs): the window, D3D9 rendering, IMD models, animations, DirectInput, XAudio2, UI widgets, fonts, images, FMV sequences, and the client half of a session | Yes |
+| `NeuronServer/` | Server-side engine static library (3 TUs): the server half of a session and one client's replication stream. The simulation itself is still in `Outpost/` | Yes |
 | `Outpost/` | Game executable (117 TUs): simulation, AI, structures, droids, campaign, multiplayer | Yes |
-| `NeuronCoreTest/`, `NeuronClientTest/`, `NeuronServerTest/` | MSVC CppUnitTest DLLs, one per engine library, each referencing the library it tests. `NeuronCoreTest` holds the `Neuron::Json` and script compiler/VM suites; the other two are shells awaiting content. **CI builds and runs all three** | Yes |
+| `NeuronCoreTest/`, `NeuronClientTest/`, `NeuronServerTest/` | MSVC CppUnitTest DLLs, one per engine library, each referencing the library it tests and the libraries that library is built on. `NeuronCoreTest` holds the `Neuron::Json`, script compiler/VM, wire-format and protocol suites; the other two hold the client and server halves of a session. **CI builds and runs all three** | Yes |
 | `GameData/` | Shipped content. The JSON manifests and tables (`datasets.json`, stats, messages, anims, audio configs) are text authored in this repo — `tools/validate_assets.py` must stay green. The binary media (textures, models, `.wav`, `.mp4`, levels) is authored by tools outside this repo | JSON: yes, validated. Binary: **No** |
 | `Docs/MigrationPlan.md` | The plan and the record of what each phase changed | Yes — see §6 |
 | `.clang-format`, `.clang-tidy`, `.editorconfig` | Layout and naming, machine-readable (§1, §4) | Yes — with an owner decision |
@@ -157,15 +157,29 @@ NeuronCore.lib          ← the engine everything else builds on
 └── Outpost.exe         ← references all three
 NeuronCoreTest.dll      ← references NeuronCore; likewise NeuronClientTest,
                           NeuronServerTest against their own libraries
+NeuronClientTest.dll    ← also references NeuronServer, for one test (below)
 ```
+
+**One edge is deliberately not in that shape.** `NeuronClientTest` references
+`NeuronServer` as well, so that `ReplicatedWorldTest` can run a `ReplicationWriter`
+against a `ReplicaStore` and assert that the client's world is the server's world.
+That property belongs to the boundary rather than to either half, the repository
+has no home for a test of the boundary itself, and an eighth project for one test
+class buys less than it costs. The direction is the cheap one — `NeuronServer` is
+three translation units over `NeuronCore`, where the reverse would drag D3D9,
+DirectInput and XAudio2 into the server's test. **This is a test-project edge and
+not a library one:** the library graph above is unchanged, and nothing in
+`NeuronClient` may reach `NeuronServer`.
 
 `NeuronClient` and `NeuronServer` are the destination of the engine split: game-engine
 code that is meaningful only to a client (presentation, input, local prediction) or only
 to a server (authoritative simulation, session ownership) moves out of `NeuronCore`,
 which keeps what both need. **The client half has landed**: presentation, input and
-audio moved to `NeuronClient` on 2026-08-16. The server half has not — `NeuronServer` is
-still a shell and the simulation is still inside `Outpost.exe`. **Until a task is that
-split, do not move a file between them** — see R13.
+audio moved to `NeuronClient` on 2026-08-16. The server half has begun but is not done:
+`NeuronServer` owns the session and its replication stream, and the simulation is still
+inside `Outpost.exe` — [Docs/ServerAuthority.md](Docs/ServerAuthority.md) stages D and E
+are what move it. **Until a task is that split, do not move a file between them** — see
+R13.
 
 ---
 

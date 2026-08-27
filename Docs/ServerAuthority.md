@@ -680,13 +680,80 @@ transport gives anyway — over QUIC each channel is its own stream — so the
 per-channel form is the one that survives rung 3 and the drain-everything form
 is now for emptying a link at the end of a session.
 
-Next in this stage: the wiring into [Loop.cpp](../Outpost/Loop.cpp), which is
-the point the running game starts going through the boundary, and with it the
-server side that walks a real world and emits the messages above. Two smaller
-gaps are already visible and are worth closing on the way. `Ready` carries no
-body, so a client that loaded a different level than the one `Start` named says
-nothing about it and desyncs from tick 1; giving `Ready` the map hash it
-actually loaded, and the server a `Kick` for the mismatch, is the check that
+**The server writes the stream, and a world that sits still costs nothing.**
+[ReplicationWriter.h](../NeuronServer/ReplicationWriter.h) turns what the server
+knows into what one client is told: hand it everything that client may currently
+see plus whatever died this tick, and it emits the difference against what that
+client was last told.
+
+**It holds the only record of what a client believes**, which is the whole
+reason it can send nothing at all for an entity that has not moved — and a world
+mostly sits still, so that case is the one that decides whether replication
+scales. `NET_CHECK_DROID` broadcast position on a timer whether anything had
+changed or not, because no peer knew what any other peer already had; there was
+nowhere for that record to live in a model where everyone simulated everything.
+
+Three decisions in it are worth stating:
+
+- **Deaths go first.** An entity that died this tick is never told to move on
+  its way out. "It went there and then it exploded" is a frame of a corpse
+  sliding.
+- **`Leave` cannot be derived and `Destroy` cannot either.** A diff of two
+  visible sets says an entity is absent; only the server knows whether it walked
+  into fog or blew up, so only the server can say, and `_destroyed` is that
+  saying. An id named as both is treated as destroyed: of the two ways to be
+  wrong, an entity left drawn forever is worse than one removed with an
+  explosion nobody expected.
+- **It does not decide *when* to write.** The caller pairs `Write()` with the
+  tick and gates it on the session being `Running`, exactly as it pairs
+  `ServerSession::Tick()` with whatever advances the world. That is what lets
+  one client's stream be tested with no session and no level, and it is what
+  will let stage G filter the visible set per player without this changing at
+  all.
+
+The split is deliberate and is forced by where things can be tested. `Outpost/`
+has no test project, so the half that walks `apsDroidLists` cannot be, while the
+half that decides what to send is pure logic over a set of entities and can.
+Everything interesting is therefore on the testable side, and what remains for
+the game executable is a loop that fills in a vector.
+
+**And the two worlds are checked against each other.** `ReplicatedWorldTest`
+runs a `ReplicationWriter` against a `ReplicaStore` through a `LoopbackTransport`
+for fifty ticks of a world that moves, loses an entity to fog, gains one and
+loses one to an explosion, asserting field by field every tick that the client's
+world is the server's world. Neither half's own tests can state that: one says
+the right messages go out, the other says each is applied correctly, and only
+running them against each other catches an `Update` dropped for an entity that
+had in fact moved. Checking every tick rather than at the end is deliberate — a
+replication bug that corrects itself later is still a frame the player saw
+wrong.
+
+That test is the one place [AGENTS.md §2](../AGENTS.md)'s project map is
+deviated from: `NeuronClientTest` references `NeuronServer` so the two halves can
+meet. The property belongs to the boundary rather than to either half, the
+repository has no home for a test of the boundary itself, and an eighth project
+for one test class buys less than it costs. §2 records the edge and the reason;
+the library graph is unchanged.
+
+Next in this stage: the wiring into [Loop.cpp](../Outpost/Loop.cpp), which is the
+point the running game starts going through the boundary. It lands in two steps
+rather than one, because the flip is the risky part and it does not have to be
+taken blind:
+
+1. **The boundary runs beside the game.** `Outpost` fills an `EntityState`
+   vector from the object lists each tick, writes it, feeds the client's
+   `ReplicaStore`, and *nothing draws from the store yet*. A Debug check then
+   compares the replica world against the real one every tick — the same
+   assertion `ReplicatedWorldTest` makes, against the campaign's own data
+   instead of four fabricated entities. Replication is proven complete and
+   correct before anything depends on it.
+2. **The renderer moves onto the store**, once step 1 has been quiet for a
+   while.
+
+Two smaller gaps are already visible and are worth closing on the way. `Ready`
+carries no body, so a client that loaded a different level than the one `Start`
+named says nothing about it and desyncs from tick 1; giving `Ready` the map hash
+it actually loaded, and the server a `Kick` for the mismatch, is the check that
 closes it. And a `Replica` carries position and direction only — pitch, roll,
 body and turret, damage and animation state land as the renderer is actually fed
 from the store, because that is when it becomes clear which of them the server
