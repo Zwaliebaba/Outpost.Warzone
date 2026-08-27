@@ -5,6 +5,7 @@ MSVC resolves includes case-insensitively, so a wrong name still builds on
 Windows. This is what actually catches it.
 """
 import os, re, sys
+import xml.etree.ElementTree as ET
 
 # Headers that genuinely do not ship in this repo. Each is reached only from a
 # block guarded by a feature macro that is never defined for these builds, so
@@ -26,7 +27,8 @@ SYS_OK = re.compile(r'^(windows|windowsx|stdio|stdlib|string|math|assert|time|ct
 # Every project in the solution. DX9/Include held the vendored DirectX SDK
 # headers and NetTest was the console harness; both are gone, the former as of
 # the DX9 cleanup which moved the build onto the Windows SDK's own copies.
-PROJECTS = ('NeuronCore', 'Outpost', 'NeuronClient', 'NeuronServer', 'NeuronCoreTest')
+PROJECTS = ('NeuronCore', 'Outpost', 'NeuronClient', 'NeuronServer',
+            'NeuronCoreTest', 'NeuronClientTest', 'NeuronServerTest')
 
 # Deliberately not anchored with ^...re.M. The tree is 200k lines and only 3k
 # of them are includes, so the win is in not looking at the other 197k: left
@@ -55,6 +57,47 @@ def real_name(path):
     d, b = os.path.split(path)
     return listing(d).get(b.lower())
 
+def well_formed():
+    """Every project file parses, and every item entry sits directly in an
+    ItemGroup.
+
+    Not a casing question, but this is the one place that already opens every
+    .vcxproj, and MSBuild's complaint is a long way from the cause. An entry
+    written one element too deep - inside the <ClCompile> for pch.cpp, say,
+    which has children and so is not self-closing - is still perfectly well
+    formed XML. MSBuild rejects it on its schema instead, and says only
+
+        error MSB4066: The attribute "Include" in element <ClCompile> is
+        unrecognized
+
+    naming the line it gave up on rather than the line that broke it. A build
+    agent is an expensive place to learn that.
+    """
+    items = ('ClCompile', 'ClInclude', 'None')
+    bad = []
+    for d in PROJECTS:
+        for name in (f'{d}/{d}.vcxproj', f'{d}/{d}.vcxproj.filters'):
+            if real_name(name) is None: continue
+            try:
+                root = ET.parse(name).getroot()
+            except ET.ParseError as e:
+                bad.append(f'{name}: not well-formed XML: {e}')
+                continue
+            # tags carry the MSBuild namespace; only the local name matters
+            local = lambda e: e.tag.rsplit('}', 1)[-1]
+            for parent in root.iter():
+                if local(parent) == 'ItemGroup': continue
+                for child in parent:
+                    # An Include attribute is what makes one of these an item.
+                    # The same tags appear inside ItemDefinitionGroup carrying
+                    # per-configuration compiler settings, and those are not
+                    # items and have no Include.
+                    if local(child) in items and child.get('Include') is not None:
+                        bad.append(f'{name}: <{local(child)} Include="{child.get("Include")}"> is nested '
+                                   f'inside <{local(parent)}>, not directly in an <ItemGroup>')
+    return bad
+
+
 def main():
     disk={}
     sources=[]
@@ -62,7 +105,7 @@ def main():
         for f in listing(d).values():
             disk.setdefault(f.lower(), f)
             if f.endswith(('.c', '.h', '.cpp')): sources.append(f'{d}/{f}')
-    bad=[]
+    bad=well_formed()
 
     for p in sorted(sources):
         with open(p,encoding='latin-1') as fh: text=fh.read()
