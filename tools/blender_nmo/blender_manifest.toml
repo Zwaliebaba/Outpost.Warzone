@@ -1,0 +1,18 @@
+schema_version = "1.0.0"
+
+id = "neuron_mesh_object"
+version = "1.0.0"
+name = "Neuron Mesh Object (.nmo)"
+tagline = "Import and export Neuron Mesh Object models for Outpost: Warzone"
+maintainer = "Outpost: Warzone contributors"
+type = "add-on"
+
+website = "https://github.com/Zwaliebaba/Outpost.Warzone"
+tags = ["Import-Export"]
+
+blender_version_min = "4.2.0"
+
+license = ["SPDX:GPL-2.0-or-later"]
+
+[permissions]
+files = "Import and export .nmo model files"

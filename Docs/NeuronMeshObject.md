@@ -9,8 +9,8 @@ documented in
 extensions and a set of container-level corrections that CMO's own structure
 makes necessary.
 
-**Status: design only (2026-08-27).** No loader, no converter and no `.nmo`
-file exists in the tree, and none is added by this document.
+**Status: design, with a reference codec and a Blender add-on (2026-08-27).**
+No engine loader and no shipped `.nmo` file exists in the tree.
 [Phase8Plan.md](Phase8Plan.md) deliberately fenced the model format out of the
 renderer collapse ("the `.pie`/IMD model format and its loader are game data
 and are not touched"), and [AssetPipeline.md](AssetPipeline.md) §4 ruled a
@@ -20,6 +20,17 @@ document is the groundwork for that later loader-side phase. It aligns with
 DirectXMath (`XMFLOAT3`/`XMFLOAT4X4` storage): every on-disk vector and matrix
 below is a DirectXMath storage type.
 
+What exists alongside this document:
+
+| Piece | Where | What it is |
+|---|---|---|
+| Reference codec | [`tools/blender_nmo/nmo_format.py`](../tools/blender_nmo/nmo_format.py) | The executable statement of §4: reader, writer, and the full §4.11 validation |
+| Codec tests | [`tools/nmo_roundtrip_test.py`](../tools/nmo_roundtrip_test.py) | Byte-exact round trip plus 21 malformed files the loader must reject |
+| Blender add-on | [`tools/blender_nmo/`](../tools/blender_nmo/) | Import and export, so the format is editable (§9) |
+| Add-on test | [`tools/nmo_blender_test.py`](../tools/nmo_blender_test.py) | Headless import → export → re-read through Blender |
+| PIE migration | [PieToNmoMigration.md](PieToNmoMigration.md) | How the 516 shipped `.pie` models get here, and what is unresolved |
+| Converter prototype | [`tools/pie_to_nmo.py`](../tools/pie_to_nmo.py) | Evidence for that plan: it converts all 516 files today |
+
 **Requirements**, as given:
 
 - **R-NMO-1** — Bone animation, *as defined by CMO* (a named-bone table plus
@@ -28,14 +39,38 @@ below is a DirectXMath storage type.
 - **R-NMO-2** — Each submesh carries a list of **markers**: named points, each
   with an `XMFLOAT3` position.
 - **R-NMO-3** — Analyze the proposal; state best practice and the
-  optimizations it should adopt or defer. §2 (what CMO gets wrong), §3.3 (the
-  delta table), §5–§7 (semantics and best practice) and §8 (deferred
-  optimizations, with numbers) answer this.
+  optimizations it should adopt or defer. §2, §3.3, §5–§7 and §8 answer this.
 
 **Non-goals of v1.0:** scene graphs, cameras, lights (CMO has none either),
-animation curves (converters bake to keys), LOD policy, compression, and any
-runtime blending/priority policy — the file format defines *data*; how clips
-mix at runtime is an engine decision and deliberately not encoded here.
+animation curves (converters bake to keys), LOD policy, compression, model
+*composition* (which model attaches to which — see
+[PieToNmoMigration.md](PieToNmoMigration.md) §6), and any runtime
+blending/priority policy — the file format defines *data*; how clips mix at
+runtime is an engine decision and deliberately not encoded here.
+
+## Revision note — what the corpus survey changed (2026-08-27)
+
+The first draft of this document deferred five things to a v1.1. Then the
+`.pie` corpus was measured for the migration plan, and four of the five turned
+out to be **needed by the data we actually ship**. Since nothing has shipped in
+NMO form, the cheap moment to change a record framing is now, and this revision
+takes the first draft's own advice back: pre-ship is the only cheap moment to
+change one.
+
+| Promoted into v1.0 | Why the evidence forced it |
+|---|---|
+| **SRT keyframes** (§4.8) | The one real sub-object animation in the corpus, `BLDerik`, is *already* stored as position/rotation/scale per frame. Baking it to 4×4 matrices and re-decomposing it in Blender loses rotation accuracy to buy nothing. CMO's matrix `Keyframe` stays as a second encoding, so R-NMO-1 is still met literally. |
+| **Marker orientation** (§4.9) | 136 connectors ship, and the muzzle/turret consumers want a direction, not only a point. 20 extra bytes × 136 markers is 2.7 KB across the whole game. |
+| **Material render flags and texture atlas** (§4.4) | 1,693 polygons carry PIE texture animation and **1,543 of them have exactly 8 frames — the player count**. The renderer overloads the animation frame with the team index (`if (frame == 0) frame = team;`, `NeuronClient/RenderModel.cpp:121-122`). Without an atlas descriptor, team colour cannot be migrated at all. Colour-key transparency (2,116 polys) and two-sided faces (987 polys) are the same story. |
+| **Submesh names** (§4.6) | The `.ani` data binds animation to sub-objects **by name** (`DerrickBase`, `Piston`, `Box03`), and the build-phase render rules need to tell a base plate from a body. A nameless submesh cannot carry either. |
+| **Facet ids** (§4.6) | 5,634 of 7,121 shipped polygons are quads. A triangle-only format destroys them, and an artist opening a converted model would find a triangle soup. Four bytes per triangle — 50 KB for the whole game — makes re-quadification exact. |
+| Still deferred | Packed skin vertices, packed vertex attributes, quantized animation (§8). None is needed to migrate; all three need caps probing or profiling first. |
+
+One structural addition came out of writing the converter rather than the
+survey: `SubMesh.flags` gained `DeformedAtRuntime`, because the engine rewrites
+base-plate vertices every frame to conform them to terrain
+(`flattenImd`, `Outpost/Display3D.cpp:2337-2352`). A loader that puts every
+submesh in a static vertex buffer would break those silently.
 
 ---
 
@@ -46,13 +81,14 @@ they are load-bearing rather than speculative:
 
 - **Per-submesh animation** exists today in primitive form. The `.ani` system
   (`ANIM_3D_TRANS`, [Anim.h](../NeuronClient/Anim.h)) animates *sub-objects* of
-  a droid or structure with per-state position/rotation/scale — a turret
-  spinning on a hull, the Derrick pumping. That is submesh-scope animation
-  expressed as external scripts gluing separate `.pie` files together. NMO
-  moves it inside the model, expressed with CMO's own bone/clip structures.
+  a structure with per-state position/rotation/scale — the oil derrick's pump
+  arm and piston are three named objects bound to the three LEVELs of one
+  `.pie` file. That is submesh-scope animation already, expressed as an
+  external script gluing levels of a model together. NMO moves it inside the
+  model, expressed with CMO's own bone/clip structures.
 - **Markers** are the successor of IMD **connectors**
   (`iIMDShape.nconnectors` / `connectors` in
-  [Model.h](../NeuronClient/Model.h)): the mount points the game uses for
+  [Model.h](../NeuronClient/Model.h)): the 136 mount points the game uses for
   turret placement and muzzle effects, today addressed by bare index with
   hard-coded meanings. NMO gives them names and puts them on the submesh they
   belong to.
@@ -89,7 +125,8 @@ are `#pragma pack(1)`:
 **Kept, deliberately:** the two-stream vertex layout (skinning data in a
 *separate* parallel buffer, so rigid meshes never pay for it and the static
 render path binds one stream); per-mesh extents; the material model; the
-`Bone`/`Clip`/`Keyframe` structures themselves (R-NMO-1 says "as defined in
+`Material`, `Vertex`, `SkinningVertex`, `MeshExtents`, `Bone`, `Clip` and
+`Keyframe` structures themselves, byte for byte (R-NMO-1 says "as defined in
 CMO"); size `static_assert`s on every on-disk struct.
 
 ### 2.2 What CMO gets wrong — each of these shaped the NMO container
@@ -109,12 +146,15 @@ CMO"); size `static_assert`s on every on-disk struct.
 5. **16-bit indices only.** A hard 65,535-vertex ceiling per buffer.
 6. **Matrix keyframes.** 64 bytes of `XMFLOAT4X4` per key, and linearly
    interpolating matrices shears — the correct runtime wants
-   translation/rotation/scale keys (§8.1). v1.0 keeps CMO keyframes for
-   fidelity; the container leaves room to replace them.
+   translation/rotation/scale keys, which is what §4.8 now stores by default.
 7. **Unspecified orderings.** CMO does not promise keyframe order, bone
    topological order, or how skinning buffers pair with vertex buffers; every
    loader re-discovers or re-sorts. NMO specifies all three (§3.1).
-8. **Skeleton and clips are mesh-scope only**, and there are **no attachment
+8. **No submesh names, no render state, no texture-atlas description.** A CMO
+   submesh is five integers. Real content needs to say which face is
+   two-sided, which texel is transparent, and which tile of an atlas a frame
+   or a team selects.
+9. **Skeleton and clips are mesh-scope only**, and there are **no attachment
    points** — the two requirements.
 
 ## 3. NMO design overview
@@ -136,20 +176,21 @@ consequence.
 - **Variable-size data is reached through offsets.** The file header carries a
   mesh directory; each mesh header and each submesh record carries
   byte-offsets (mesh-relative) to its sections. Offsets are authoritative;
-  §4.12 gives the recommended physical order. `0` means "absent". Records may
+  §4.13 gives the recommended physical order. `0` means "absent". Records may
   be shared: two submeshes may point at the same marker records.
 - **Bulk data is fixed-stride; only named records vary.** Vertices, indices,
-  skin vertices, keyframes, `SubMesh` and `MeshRef` tables are stride-exact
-  arrays usable in place. Only the small, parsed-once record streams
-  (materials, bones, clips, markers) contain strings.
-- **Specified orderings.** Keyframes sort by (boneIndex, time); bones are
-  topologically ordered (`parentIndex < ownIndex`); skin buffer *i* pairs
-  vertex buffer *i*. Loaders never sort.
+  skin vertices, keyframes, facet ids, `SubMesh` and `MeshRef` tables are
+  stride-exact arrays usable in place. Only the small, parsed-once record
+  streams (materials, bones, clips, markers) contain strings.
+- **Specified orderings.** Keyframes sort by (boneIndex, time) and SRT keys by
+  time within a track; bones are topologically ordered
+  (`parentIndex < ownIndex`); skin buffer *i* pairs vertex buffer *i*. Loaders
+  never sort.
 - **Strings are length-prefixed UTF-8**, not zero-terminated, padded with
   zeros to the next 4-byte boundary, at most `MaxStringBytes` (1024).
 - **Reserved means zero on write, ignored on read.** That single rule is the
-  minor-version mechanism (§4.11).
-- **Validation before trust** (§4.10). A loader rejects; it never repairs.
+  minor-version mechanism (§4.12).
+- **Validation before trust** (§4.11). A loader rejects; it never repairs.
 
 ### 3.2 Layout at a glance
 
@@ -160,11 +201,13 @@ file.nmo
 └─ mesh blob, 16-byte aligned, one per mesh:
    ├─ MeshHeader             96 B   counts + offsets of everything below
    ├─ String                        mesh name
-   ├─ material records   × materialCount   name, Material, shader, 8 texture names
+   ├─ material records   × materialCount   name, Material, MaterialExt, shader, 8 textures
    ├─ SubMesh[subMeshCount] 128 B   draw range, extents, offsets to its own:
+   │    ├─ String                         submesh name — its role and .ani binding
    │    ├─ bone records   × boneCount     submesh skeleton / bone palette   (R-NMO-1)
    │    ├─ clip records   × clipCount     submesh animation clips           (R-NMO-1)
-   │    └─ marker records × markerCount   named XMFLOAT3 points             (R-NMO-2)
+   │    ├─ marker records × markerCount   named points with orientation     (R-NMO-2)
+   │    └─ uint32[primitiveCount]         facet ids — which source polygon each tri came from
    ├─ index buffers      × indexBufferCount    BufferHeader + u16/u32 indices
    ├─ vertex buffers     × vertexBufferCount   BufferHeader + Vertex[]
    ├─ skin buffers       × skinBufferCount     BufferHeader + SkinVertex[]
@@ -183,9 +226,11 @@ file.nmo
 | Sequential-only | mesh directory + per-mesh offset tables | random access, skipping, forward compatibility |
 | `USHORT` indices only | per-buffer `u16` (preferred) or `u32` | removes the 64 K ceiling without taxing small meshes |
 | Skeleton/clips per mesh only | identical structures also per submesh, plus bone aliasing | **R-NMO-1**; bone palettes for D3D9 constant limits; independent parts (§5) |
-| No attachment points | named markers per submesh, optional bone binding | **R-NMO-2**; named successor of IMD connectors (§6) |
+| No attachment points | named markers per submesh, with orientation and optional bone binding | **R-NMO-2**; named successor of IMD connectors (§6) |
+| Matrix keyframes only | SRT tracks by default; CMO matrix keys still readable | ~4× smaller and rotationally correct; the source data is already SRT (§4.8) |
+| Material is Phong only | + render flags and a texture-atlas descriptor | team colour, colour-key transparency and two-sided faces are all real, shipped state (§4.4) |
+| Submesh is 5 integers | + name, extents, complete draw range, flags, facet ids | roles, culling, validation, quads that survive editing (§4.6) |
 | Extents per mesh | extents per submesh as well | cull independently animated parts |
-| Draw range = start + primCount | + baseVertex, minVertex, vertexCount | complete `DrawIndexedPrimitive` arguments; range validation |
 | Keyframe order unspecified | sorted (bone, time) | the flat list *is* per-bone tracks; binary search; playback cursors |
 | Bone order unspecified | parents before children | single forward pass builds a pose |
 | Skin-VB pairing implicit | explicit: count is 0 or equals VB count, pair by index | removes loader guesswork |
@@ -196,15 +241,16 @@ All C++ below is the on-disk mirror, target style per [AGENTS.md](../AGENTS.md)
 (`namespace Neuron::Nmo`, aggregate fields plain camelCase per R8, units in
 names per R6). Types come from `<cstdint>` and `<DirectXMath.h>` — both
 Windows-SDK, no new dependency. Every struct is trivially copyable and needs
-**no** packing pragma; the `static_assert`s are part of the specification.
+**no** packing pragma; the `static_assert`s are part of the specification and
+are checked in the reference codec at import time.
 
 ### 4.1 Conventions
 
 | Aspect | Rule |
 |---|---|
 | Byte order | Little-endian throughout. The magic reads `"NMO1"` on disk only when the byte order is right. |
-| Coordinates | Left-handed, +X right, +Y up, +Z forward. Clockwise front faces (D3D9 default cull assumptions, matching CMO-in-practice). The converter owns fixing source-tool conventions. |
-| Units | Spatial values are world units (unit-agnostic; pipeline policy). Time is **seconds** (`float`), as CMO. UV origin top-left, V down. |
+| Coordinates | Left-handed, +X right, +Y up, +Z forward. Clockwise front faces (D3D9 default cull assumptions, matching CMO-in-practice). The converter owns fixing source-tool conventions — and PIE has two of them (§6, and [PieToNmoMigration.md](PieToNmoMigration.md) §5.2). |
+| Units | Spatial values are world units (unit-agnostic; pipeline policy). Time is **seconds** (`float`), as CMO. UV origin top-left, V down, normalized to [0,1]. |
 | Primitive | Indexed triangle lists only. |
 | Vertex color | Byte order R,G,B,A at ascending addresses (CMO's convention). The D3D9 FVF diffuse path wants `D3DCOLOR` (B,G,R,A); the loader swizzles at upload. |
 | Floats | Writers must emit finite values. |
@@ -231,7 +277,7 @@ struct FileHeader
 {
   std::uint32_t magic;         // FileMagic
   std::uint16_t versionMajor;  // breaking changes only
-  std::uint16_t versionMinor;  // additive changes only (§4.11)
+  std::uint16_t versionMinor;  // additive changes only (§4.12)
   std::uint32_t headerBytes;   // sizeof(FileHeader) == 32
   std::uint32_t fileBytes;     // total file size, for validation
   std::uint32_t meshCount;
@@ -281,16 +327,17 @@ struct MeshHeader
   std::uint32_t bonesOffset;         // -> bone records, sequential
   std::uint32_t clipCount;           // mesh clips
   std::uint32_t clipsOffset;         // -> clip records, sequential
-  std::uint32_t reserved[7];         // 0; future sections claim these (§4.11)
+  std::uint32_t reserved[7];         // 0; future sections claim these (§4.12)
 };
 static_assert(sizeof(MeshHeader) == 96, "NMO MeshHeader size");
 ```
 
 ### 4.4 Materials
 
-A material record is, in order: `String` name, `Material`, `String`
-pixel-shader name, and exactly `TextureSlots` (8) `String` texture names,
-empty slots included — CMO's model, unchanged, including the struct layout:
+A material record is, in order: `String` name, `Material`, `MaterialExt`,
+`String` pixel-shader name, and exactly `TextureSlots` (8) `String` texture
+names, empty slots included. `Material` is CMO's struct unchanged;
+`MaterialExt` is the NMO addition.
 
 ```cpp
 struct Material                      // layout-identical to CMO Material
@@ -303,15 +350,50 @@ struct Material                      // layout-identical to CMO Material
   DirectX::XMFLOAT4X4 uvTransform;
 };
 static_assert(sizeof(Material) == 132, "NMO Material size");
+
+enum class RenderFlags : std::uint32_t
+{
+  None = 0,
+  DoubleSided = 0x1,                 // do not backface-cull
+  AlphaTest = 0x2,                   // the colour-keyed texel is transparent
+  Additive = 0x4,
+};
+
+enum class AtlasSelector : std::uint32_t
+{
+  None = 0,
+  Time = 1,                          // frame advances every atlasFrameMs
+  Team = 2,                          // frame is the owning player's index
+};
+
+struct MaterialExt
+{
+  std::uint32_t renderFlags;         // RenderFlags bitmask
+  std::uint32_t atlasFrameCount;     // 0 = the texture is not an atlas
+  std::uint32_t atlasTileWidthTexels;
+  std::uint32_t atlasTileHeightTexels;
+  std::uint32_t atlasFramesPerRow;   // 0 = derive from page width / tile width
+  std::uint32_t atlasSelector;       // AtlasSelector
+  std::uint32_t atlasFrameMs;        // Time only; 0 otherwise
+  std::uint32_t reserved;            // 0
+};
+static_assert(sizeof(MaterialExt) == 32, "NMO MaterialExt size");
 ```
+
+**Why the atlas is a material property and not a per-face one.** In `.pie` the
+animation parameters sit on each *polygon*, which is why the current renderer
+recomputes UV offsets per polygon per frame
+(`NeuronClient/RenderModel.cpp:552-579`, complete with its `// HACK - fix
+this!!!!`). Faces sharing one set of parameters are exactly the faces that can
+share one draw call, so the natural normalization is: **the converter splits a
+mesh into submeshes by atlas parameters, and the parameters become the
+material.** Frame selection stays a shader/loader concern — the file says
+*what the atlas is*, never *which frame is showing*.
 
 For this engine's current renderer (texture pages, no shader system) the
 converter emits: `texture[0]` = page name, shader name empty, `uvTransform`
-identity. The unused Phong fields cost 132 bytes per material and buy
-CMO-compatibility and a future; that trade is accepted. Note what this model
-does **not** cover: the `.pie` per-polygon frame-based texture animation
-(1,693 polygons ship with it — [AssetPipeline.md](AssetPipeline.md) §2). See
-§9 and §10.
+identity, `diffuse` white. The unused Phong fields cost 132 bytes per material
+and buy CMO-compatibility and a future; that trade is accepted.
 
 ### 4.5 Buffers
 
@@ -339,7 +421,8 @@ enum class SkinFormat : std::uint32_t { Standard = 0 };       // stride 32
 `IndexFormat::U16` is strongly preferred (half the bandwidth, and universally
 optimal on D3D9 hardware); `U32` exists so a single terrain-scale mesh no
 longer forces buffer splitting. Writers must use `U16` whenever the referenced
-vertex range fits.
+vertex range fits — for the shipped corpus the largest model has 243 points,
+so `U32` never occurs.
 
 ```cpp
 struct Vertex                        // layout-identical to CMO Vertex
@@ -368,8 +451,8 @@ descending; unused influences are index 0, weight 0.
 
 ### 4.6 Submeshes
 
-The CMO `SubMesh` plus: a complete draw range, its own extents, and the
-offsets that carry R-NMO-1 and R-NMO-2.
+The CMO `SubMesh` plus: a name, a complete draw range, its own extents, flags,
+facet ids, and the offsets that carry R-NMO-1 and R-NMO-2.
 
 ```cpp
 struct MeshExtents                   // layout-identical to CMO MeshExtents
@@ -381,6 +464,14 @@ struct MeshExtents                   // layout-identical to CMO MeshExtents
 };
 static_assert(sizeof(MeshExtents) == 40, "NMO MeshExtents size");
 
+enum class SubMeshFlags : std::uint32_t
+{
+  None = 0,
+  DeformedAtRuntime = 0x1,           // the engine rewrites these vertices per
+                                     // frame (terrain conform); the loader must
+                                     // keep a writable copy, not a static VB
+};
+
 struct SubMesh
 {
   std::uint32_t materialIndex;
@@ -391,26 +482,42 @@ struct SubMesh
   std::uint32_t baseVertex;          // added to every index at draw time
   std::uint32_t minVertex;           // lowest baseVertex-biased vertex used
   std::uint32_t vertexCount;         // biased vertices lie in [minVertex, minVertex + vertexCount)
-  std::uint32_t flags;               // 0 in v1.0
+  std::uint32_t flags;               // SubMeshFlags
+  std::uint32_t nameOffset;          // -> String; the role, and the .ani binding
   std::uint32_t boneCount;           // submesh bone table; 0 = bind to mesh skeleton
   std::uint32_t bonesOffset;         // -> bone records            (R-NMO-1)
   std::uint32_t clipCount;
   std::uint32_t clipsOffset;         // -> clip records            (R-NMO-1)
   std::uint32_t markerCount;
   std::uint32_t markersOffset;       // -> marker records          (R-NMO-2)
+  std::uint32_t facetsOffset;        // -> uint32[primitiveCount]; 0 = absent
   MeshExtents extents;               // bind-pose bounds of this submesh
-  std::uint32_t reserved[7];         // 0
+  std::uint32_t reserved[5];         // 0
 };
 static_assert(sizeof(SubMesh) == 128, "NMO SubMesh size");
 ```
 
 The three added range fields make the D3D9 call complete and checkable —
 `DrawIndexedPrimitive(D3DPT_TRIANGLELIST, baseVertex, minVertex - baseVertex,
-vertexCount, startIndex, primitiveCount)` — and give the validator (§4.10) a
+vertexCount, startIndex, primitiveCount)` — and give the validator (§4.11) a
 closed statement of which vertices a submesh may touch, which the submesh
 skeleton rules below depend on. Submesh extents are bind-pose bounds; a
 converter animating a part far from its bind pose should inflate them by the
 clip's maximum displacement.
+
+**Names are the engine's contract, not decoration.** A submesh name is how the
+`.ani` data addresses a sub-object today (`DerrickBase`, `Piston`) and how the
+build-phase renderer will tell a base plate from a body. This is deliberate:
+role belongs in a *name* the engine maps at load, not in a format field, for
+the same reason §5.3 keeps blend policy out — a mesh format that encodes game
+behaviour rots the first time the behaviour changes. Recommended role names are
+in [PieToNmoMigration.md](PieToNmoMigration.md) §4.
+
+**Facet ids** are one `uint32` per triangle naming the source polygon it was
+cut from. Triangles sharing an id were one polygon before triangulation, so a
+tool can rebuild the original quad exactly. The section is optional; a
+converter that has no source polygons omits it, and the reference exporter
+regenerates it from Blender's own faces.
 
 ### 4.7 Skeletons and bone records
 
@@ -439,6 +546,12 @@ static_assert(sizeof(Bone) == 196, "NMO Bone size");
     copies of the mesh bone's (tools duplicate them so a palette can be built
     without touching the mesh table).
 
+A table whose entries are *all* aliases is a **bone palette** and nothing more
+— it names which mesh bones this submesh uses, and adds no animation of its
+own. Tools should present it as such: the Blender add-on imports a pure-alias
+table as a property list on the object rather than as a second armature, since
+a duplicate skeleton is something an artist can desynchronise.
+
 `parentIndex` always indexes the table the record sits in. A local bone may
 parent onto an aliased entry — that is how a turret's root hangs off a hull
 bone. All bone hierarchies, both scopes, evaluate in **mesh space**: a root's
@@ -449,26 +562,77 @@ the semantics and the reasons.
 
 ### 4.8 Animation clips and keyframes
 
-A **clip record** is: `String` name, `Clip`, then `Keyframe[keyCount]` — CMO's
-structures, unchanged:
+A **clip record** is: `String` name, `Clip`, `ClipTracks`, then the payload the
+encoding names. `Clip` and `Keyframe` are CMO's structures, unchanged:
 
 ```cpp
 struct Clip                          // layout-identical to CMO Clip
 {
   float startSeconds;
   float endSeconds;                  // >= startSeconds
-  std::uint32_t keyCount;            // 0 allowed: a held pose
+  std::uint32_t keyCount;            // total keys; 0 allowed: a held pose
 };
 static_assert(sizeof(Clip) == 12, "NMO Clip size");
+
+enum class KeyEncoding : std::uint32_t
+{
+  MatrixKeys = 0,                    // Keyframe[keyCount] — exactly CMO
+  SrtTracks = 1,                     // per-bone S/R/T tracks — the default
+};
+
+struct ClipTracks
+{
+  std::uint32_t encoding;            // KeyEncoding
+  std::uint32_t trackCount;          // SrtTracks only; 0 for MatrixKeys
+};
+static_assert(sizeof(ClipTracks) == 8, "NMO ClipTracks size");
 
 struct Keyframe                      // layout-identical to CMO Keyframe
 {
   std::uint32_t boneIndex;           // into the clip's bone scope
-  float timeSeconds;                 // within [startSeconds, endSeconds]
+  float timeSeconds;
   DirectX::XMFLOAT4X4 transform;     // replaces the bone's localTransform
 };
 static_assert(sizeof(Keyframe) == 72, "NMO Keyframe size");
+
+struct SrtTrack                      // one per animated bone
+{
+  std::uint32_t boneIndex;
+  std::uint32_t translationKeyCount;
+  std::uint32_t rotationKeyCount;
+  std::uint32_t scaleKeyCount;
+};
+static_assert(sizeof(SrtTrack) == 16, "NMO SrtTrack size");
+
+struct TranslationKey { float timeSeconds; DirectX::XMFLOAT3 value; };
+struct RotationKey    { float timeSeconds; DirectX::XMFLOAT4 value; };  // quaternion
+struct ScaleKey       { float timeSeconds; float value; };              // uniform
+static_assert(sizeof(TranslationKey) == 16, "NMO TranslationKey size");
+static_assert(sizeof(RotationKey) == 20, "NMO RotationKey size");
+static_assert(sizeof(ScaleKey) == 8, "NMO ScaleKey size");
 ```
+
+`SrtTracks` payload is `SrtTrack[trackCount]`, then — for each track in the
+same order — its translation keys, its rotation keys, its scale keys.
+`MatrixKeys` payload is `Keyframe[keyCount]`, byte-for-byte what CMO writes.
+
+**Why SRT is the default, with the CMO encoding kept.** R-NMO-1 asks for bone
+animation "as defined in CMO", and `MatrixKeys` is literally that: a v1.0 file
+may store CMO keyframes and a loader must read them. But a 72-byte matrix key
+spends 64 bytes on nine meaningful degrees of freedom, and linearly
+interpolating two matrices shears through the rotation. Worked size for a
+60-bone rig, 3 s clip at 30 Hz (90 samples):
+
+| Encoding | Bytes |
+|---|---|
+| `MatrixKeys`: 60 × 90 × 72 | 388,800 (~380 KB) |
+| `SrtTracks`, uniform scale: 60 × 90 × 44 | 237,600 (~232 KB) |
+| + constant-track elimination (a static track keeps one key) | ~120,000 (~117 KB) |
+
+Roughly 3× smaller **and** correct under interpolation, which matrix keys
+cannot be at any size. The engine's own source data settles it: the `.ani`
+files already store position, rotation and scale per frame, so `MatrixKeys`
+would mean baking SRT into matrices and decomposing them again.
 
 Rules NMO adds to CMO's definition:
 
@@ -477,14 +641,13 @@ Rules NMO adds to CMO's definition:
   `boneCount == 0`, its clips are permitted and index the **mesh** table
   (same rig, private pose — see §5.1 row 2). Clip names must be unique within
   their scope; runtime addressing is `(scope, name)`.
-- **Ordering.** Keys sort by `boneIndex`, then strictly increasing
-  `timeSeconds`. The flat CMO-shaped array is thereby already a sequence of
-  contiguous per-bone tracks: a loader slices it without copying, playback
-  keeps a cursor per track, seeks binary-search within a track.
-- **Sampling semantics.** Linear interpolation between adjacent keys; clamp at
-  track ends; a bone with no keys in a clip holds its `localTransform`. (v1.0
-  interpolates matrices because CMO keys are matrices; §8.1 is the planned
-  fix.)
+- **Ordering.** `MatrixKeys` sort by `boneIndex`, then strictly increasing
+  `timeSeconds`, so the flat array is already a sequence of contiguous per-bone
+  tracks a loader can slice without copying. Within an `SrtTrack`, each of the
+  three series is strictly increasing in time.
+- **Sampling semantics.** Linear interpolation between adjacent translation and
+  scale keys, shortest-arc nlerp or slerp between rotation keys; clamp at track
+  ends; a bone with no keys in a clip holds its `localTransform`.
 
 ### 4.9 Markers (R-NMO-2)
 
@@ -494,18 +657,28 @@ A **marker record** is: `String` name, then `Marker`:
 struct Marker
 {
   DirectX::XMFLOAT3 position;        // mesh space, bind pose
+  DirectX::XMFLOAT4 orientation;     // quaternion; identity = (0,0,0,1)
+  float scale;                       // uniform; 1.0 unless the consumer uses it
   std::int32_t parentBone;           // into the submesh's bone scope; NoBone = rigid
   std::uint32_t flags;               // 0 in v1.0
 };
-static_assert(sizeof(Marker) == 20, "NMO Marker size");
+static_assert(sizeof(Marker) == 40, "NMO Marker size");
 ```
 
-The requirement is name + `XMFLOAT3`; NMO adds only `parentBone`, because a
-marker on an animated submesh is near-useless if it cannot follow the
-animation (a muzzle point must ride the recoiling barrel). Semantics, naming
-and lookup practice are §6. Marker names must be unique within their submesh.
+The requirement's minimum is name + `XMFLOAT3`; NMO adds `parentBone`,
+`orientation` and `scale`, and §6 gives the reasoning for each. Marker names
+must be unique within their submesh.
 
-### 4.10 Validation requirements
+### 4.10 Where each requirement lives
+
+| Requirement | Field |
+|---|---|
+| R-NMO-1, submesh skeleton | `SubMesh.boneCount` / `bonesOffset` → bone records, identical in shape to the mesh-scope ones (§4.7) |
+| R-NMO-1, submesh clips | `SubMesh.clipCount` / `clipsOffset` → clip records, `Clip` + `Keyframe` as CMO defines them, or SRT tracks (§4.8) |
+| R-NMO-1, sharing a mesh rig | `Bone.meshBoneIndex >= 0` — an alias entry (§4.7, §5.2) |
+| R-NMO-2, markers | `SubMesh.markerCount` / `markersOffset` → `String` + `Marker` (§4.9) |
+
+### 4.11 Validation requirements
 
 A conforming loader **must** verify, in order, before using any data — and
 reject the file on any failure (never repair):
@@ -525,19 +698,23 @@ reject the file on any failure (never repair):
 5. Per submesh: `materialIndex`, `indexBufferIndex`, `vertexBufferIndex` in
    range; the index range `[startIndex, startIndex + 3 * primitiveCount)`
    fits its IB; `minVertex >= baseVertex`; every baseVertex-biased index
-   falls in `[minVertex, minVertex + vertexCount)` and within the VB.
+   falls in `[minVertex, minVertex + vertexCount)` and within the VB; when
+   `facetsOffset` is set, the section holds exactly `primitiveCount` ids.
 6. Per bone table: `parentIndex < ownIndex` (this makes cycles impossible and
    pose evaluation a single forward loop); submesh aliases satisfy
    `meshBoneIndex < mesh boneCount`; mesh-scope records carry `NoBone`.
-7. Per clip: times ordered and within range; key ordering of §4.8; every
-   `boneIndex` within the clip's bone scope.
+7. Per clip: `endSeconds >= startSeconds`; `encoding` is a known value;
+   `trackCount == 0` unless the encoding is `SrtTracks`; the key counts sum to
+   `Clip.keyCount`; the ordering rules of §4.8 hold; every `boneIndex` is
+   within the clip's bone scope.
 8. Per skinned submesh (its VB has a non-empty companion): its bone scope is
    non-empty; every `SkinVertex.boneIndex` of vertices in
    `[minVertex, minVertex + vertexCount)` is within the scope; two skinned
    submeshes with **different** bone scopes must not have overlapping vertex
    ranges (same scope may share freely).
-9. Per marker: `parentBone` is `NoBone` or within the submesh's bone scope.
-10. Unknown **flag** bits: ignore (§4.11 guarantees they are ignorable).
+9. Per marker: `parentBone` is `NoBone` or within the submesh's bone scope;
+   names unique within the submesh.
+10. Unknown **flag** bits: ignore (§4.12 guarantees they are ignorable).
     Nonzero **reserved** fields: ignore likewise. `versionMinor` greater than
     the loader knows: load, optionally warn.
 
@@ -547,27 +724,30 @@ hostile or corrupt file can make the loader allocate before deeper checks
 run. Debug builds report failures through `DEBUG_ASSERT_TEXT` with the field
 and value (R9); release builds fail the load cleanly.
 
-### 4.11 Versioning policy
+[`tools/nmo_roundtrip_test.py`](../tools/nmo_roundtrip_test.py) has a
+deliberately malformed file for each clause above, and asserts the reference
+codec rejects every one.
+
+### 4.12 Versioning policy
 
 - **Minor bump (additive only).** New data may arrive only in ways v1.0
   loaders already ignore: a reserved field in `FileHeader`/`MeshHeader`/
   `SubMesh` becomes a new count/offset pair to a new section, or a flag bit
   is defined whose meaning is *safe to ignore*. Existing sections, strides
-  and record framings never change.
+  and record framings never change. A new `KeyEncoding` value is a **major**
+  change, because a v1.0 loader cannot skip a payload it cannot size.
 - **Major bump (breaking).** Anything else — including extending an existing
-  record's framing. This is why the marker orientation extension (§8.5) is
-  specified as a *new* section reached through `SubMesh.reserved`, not as a
-  conditional tail on the v1.0 marker record.
+  record's framing.
 
-### 4.12 Recommended physical order
+### 4.13 Recommended physical order
 
 Offsets are authoritative, but the reference writer emits each mesh blob in
 the §3.2 order — metadata first (header, name, materials, submesh table and
-its bone/clip/marker records), bulk buffers after, mesh skeleton and clips
-last. Rationale: everything a loader parses field-by-field sits in the first
-few KB (one warm read), and the bulk payload that is consumed by `memcpy` to
-GPU buffers sits contiguously behind it. `MeshRef` also allows loading one
-mesh of a many-mesh file with a single seek.
+its name/bone/clip/marker/facet records), bulk buffers after, mesh skeleton
+and clips last. Rationale: everything a loader parses field-by-field sits in
+the first few KB (one warm read), and the bulk payload that is consumed by
+`memcpy` to GPU buffers sits contiguously behind it. `MeshRef` also allows
+loading one mesh of a many-mesh file with a single seek.
 
 ## 5. Submesh bone animation — semantics and best practice (R-NMO-1)
 
@@ -577,15 +757,15 @@ mesh of a many-mesh file with a single seek.
 |---|---|---|---|
 | 0 | 0 | Plain CMO submesh: rigid, or skinned against the mesh skeleton, driven by mesh clips | body panels, terrain props |
 | 0 | > 0 | Clips scoped to this submesh but indexing the **mesh** skeleton — same rig, private pose instance | a variant idle on one part without duplicating the rig |
-| > 0, all aliased | 0 | A **bone palette**: the submesh names which mesh bones it uses; mesh clips drive them | splitting big rigs under the shader-constant ceiling (§5.2) |
-| > 0, local or mixed | ≥ 0 | An independent or semi-independent articulated part with its own CMO-style skeleton and clips | turret on a hull, radar dish, Derrick pump arm |
+| > 0, all aliased | 0 | A **bone palette**: the submesh names which mesh bones it uses; mesh clips drive them | splitting big rigs under the shader-constant ceiling (§5.2); every animated part in the converted corpus |
+| > 0, local or mixed | ≥ 0 | An independent or semi-independent articulated part with its own CMO-style skeleton and clips | turret on a hull, radar dish, an arm with its own timeline |
 
 The last row is the requirement itself: the structures inside it — named
-bones, named clips, keyframes — are byte-for-byte the CMO definitions.
+bones, named clips, keyframes — are the CMO definitions.
 
 ### 5.2 Why aliasing is in the format and not left to runtimes
 
-Two forces make per-submesh bone tables necessary rather than decorative:
+Three forces make per-submesh bone tables necessary rather than decorative:
 
 - **The D3D9 constant ceiling.** vs_2_0/vs_3_0 guarantee 256 float4 vertex
   shader constants. A skinning palette stores one 4×3 matrix (3 registers)
@@ -602,6 +782,13 @@ Two forces make per-submesh bone tables necessary rather than decorative:
   to mask bones per part by name convention. NMO states the partition in
   data: hull bones in the mesh skeleton, turret bones local to the turret
   submesh, the turret root parented onto an aliased hull bone.
+- **One animated part is often several submeshes.** This came out of running
+  the converter, not out of theory: the oil derrick's three animated
+  sub-objects become five submeshes, because two of them split on material.
+  The level is the animated unit, so it gets one bone in the *mesh* skeleton
+  and each of its submeshes carries a one-entry alias table pointing at it.
+  Without aliases the choice would be to duplicate the clip per submesh (and
+  let copies drift) or to give up submesh-scope binding entirely.
 
 Note the engine's *current* pipeline transforms on the CPU
 ([Phase8Plan.md](Phase8Plan.md), [Phase10Plan.md](Phase10Plan.md) keep the
@@ -638,7 +825,7 @@ CMO's `Bone` carries `invBindPose`, `bindPose` **and** `localTransform` —
 all three for CMO fidelity and tool convenience (64 bytes × bones is noise at
 these scales — a 60-bone rig spends 3.7 KB extra). If bones ever number in the
 thousands per file, dropping `bindPose` is the first 21 % saving available,
-behind a minor version. Not worth breaking symmetry with CMO now.
+behind a major version. Not worth breaking symmetry with CMO now.
 
 ## 6. Markers — semantics and best practice (R-NMO-2)
 
@@ -650,18 +837,28 @@ bone with **the same transform skinning uses**:
 second convention to implement or get wrong. A rigid marker is
 `world = meshWorld × position`.
 
-**Why `parentBone` and not the bare minimum.** The requirement's minimum
-(name + position) describes a static point. On any animated submesh the
-useful point rides the skeleton: muzzle on a recoiling barrel, hatch hinge on
-a turret. One `int32` per marker (markers are counted in ones and tens)
-purchases that; `NoBone` remains the requirement's plain static point.
+**One space, unlike PIE.** Worth stating because the format it replaces gets
+this wrong: `.pie` stores points as (x, y-up, z) but connectors as
+(x, y, z-up), and the renderer silently swizzles at the call site
+(`XMMatrixTranslation(connectors->x, connectors->z, connectors->y)`,
+`Outpost/Display3D.cpp:1837`). Measured across the corpus, 75 connectors match
+the model's height range on their third component and none on their second, so
+the swizzle is the convention rather than an accident. NMO has one space for
+everything; the converter is where the swap happens, once.
 
-**What is deliberately missing: orientation.** A muzzle needs a direction,
-not only a position. It is *not* in v1.0 because the stated requirement is
-position-only and because appending fields to the marker record would break
-the record framing (§4.11). The v1.1 path is §8.5. Until then the engine's
-existing convention applies (connectors are positions; directions come from
-the part's transform), so nothing regresses.
+**Why `parentBone`.** The requirement's minimum (name + position) describes a
+static point. On any animated submesh the useful point rides the skeleton:
+muzzle on a recoiling barrel, hatch hinge on a turret. One `int32` per marker
+(markers are counted in ones and tens) purchases that; `NoBone` remains the
+requirement's plain static point.
+
+**Why `orientation` and `scale`.** A muzzle needs a direction, not only a
+position, and the first draft deferred this to a v1.1 alternate section. The
+survey changed the answer: the section would have doubled the marker code path
+for 2.7 KB across the whole game, and 20 bytes now costs nothing while a
+second record framing costs forever. `scale` rounds out a full TRS so a marker
+can size an attached effect. Both default to identity, so a converter that has
+no orientation data writes the requirement's plain point.
 
 **Naming.** Names are the contract between art and code — validate them like
 one. Recommended conventions: `Muzzle0`…`MuzzleN`, `TurretMount`, `Exhaust0`,
@@ -681,7 +878,7 @@ changes strand shipped assets), and hashing at load costs microseconds.
 ## 7. Loading and runtime best practice
 
 - **One read, validate, use in place.** Read the whole file (or one
-  `MeshRef` window) into a single 16-aligned allocation, run §4.10, then
+  `MeshRef` window) into a single 16-aligned allocation, run §4.11, then
   point runtime structures into the blob: buffer payloads feed
   `IDirect3DDevice9::CreateVertexBuffer` / `CreateIndexBuffer` +
   `memcpy` (managed pool, per the device-loss conventions
@@ -691,6 +888,11 @@ changes strand shipped assets), and hashing at load costs microseconds.
   [IMD.h](../NeuronClient/IMD.h)) is this pattern, a generation early. All
   on-disk structs are trivially copyable; a loader may
   `static_assert(std::is_trivially_copyable_v<T>)` on each as insurance.
+- **Respect `DeformedAtRuntime`.** A submesh with that flag has its vertices
+  rewritten by the game each frame (terrain conforming, electronic-damage
+  jitter). Give those a dynamic or system-memory copy; everything else goes in
+  a static managed buffer. Getting this wrong is silent — the model simply
+  stops conforming — so the flag is checked, not inferred.
 - **Parse the named records once** (materials, bones, clips, markers) into
   compact runtime tables with hashed names; the blob's string bytes are not
   referenced after load.
@@ -702,139 +904,142 @@ changes strand shipped assets), and hashing at load costs microseconds.
 - **Draw order.** Sort submesh draws by material, then buffer pair — the
   usual state-change minimization; the format keeps submeshes independent
   precisely so the renderer may reorder them.
-- **Testing.** `NeuronClientTest` gets: one golden hand-authored `.nmo`
-  (bytes in the test, so no binary asset lands in `GameData/` — that
-  directory's binaries are authored outside this repo per
-  [AGENTS.md](../AGENTS.md) §2) exercising every feature — two submeshes, one
-  aliased palette, one local turret skeleton, markers bound and rigid; plus
-  adversarial loads: truncated at every section boundary, oversize counts
-  (the 64-bit-math rule), overlapping skinned ranges with different scopes,
-  out-of-range bone/parent/marker indices, bad UTF-8, `parentIndex >=
-  ownIndex`, unsorted keyframes. Every §4.10 clause has a test that violates
-  exactly it.
+- **Testing.** `NeuronClientTest` gets the same fixture the Python tests use:
+  one golden hand-authored `.nmo` (bytes in the test, so no binary asset lands
+  in `GameData/` — that directory's binaries are authored outside this repo
+  per [AGENTS.md](../AGENTS.md) §2) exercising every feature, plus the
+  adversarial loads of §4.11.
 
-## 8. Optimization roadmap — measured reasons, deferred costs
+## 8. Optimization roadmap — what is left, and why it waits
 
-Each entry states the win and why it is not in v1.0. Ordering is by expected
-payoff.
+Three items from the first draft were promoted into v1.0 (see the revision
+note). What remains is deferred for a reason, not by oversight.
 
-### 8.1 SRT keyframes (the big one) — planned v1.1
-
-CMO's 72-byte matrix keyframe is the format's worst inheritance: 64 of the
-72 bytes encode 9-ish meaningful DOF, and lerping matrices shears under
-rotation. Replacement track section (via a `SubMesh`/`MeshHeader` reserved
-offset): per bone, separately keyed translation (`XMFLOAT3`), rotation
-(quaternion `XMFLOAT4`, nlerp/slerp at runtime), uniform scale (`float`).
-
-Worked size, 60-bone rig, 3 s clip sampled at 30 Hz (90 samples):
-
-| Encoding | Bytes |
-|---|---|
-| v1.0 CMO keyframes: 60 × 90 × 72 | 388,800 (~380 KB) |
-| SRT keys, uniform scale: 60 × 90 × 36 | 194,400 (~190 KB) |
-| + constant-track elimination (half the tracks static, 1 key) | ~98,000 (~96 KB) |
-
-~4× smaller **and** rotationally correct interpolation, which matrix keys
-cannot give at any size. Deferred only because R-NMO-1 asks for CMO's
-definitions and the container had to come first; the reserved-offset
-mechanism exists exactly so this lands without a major bump (old loaders keep
-reading the matrix section; tools emit both during the transition, then drop
-matrices).
-
-### 8.2 Packed skin vertices — v1.1, with caps check
+### 8.1 Packed skin vertices — when the shader path exists
 
 `SkinVertex` spends 16 bytes on four indices that are ≤ 80 (§5.2) and 16 on
 weights. `D3DDECLTYPE_UBYTE4` indices + `D3DDECLTYPE_UBYTE4N` weights: 8
-bytes, −75 %. Requires a `SkinFormat::Packed` enum value only — the
-`BufferHeader` already carries format and stride. Deferred: the D3D9 caps
-bits (`DeclTypes`) must be probed, and the CPU-skinning path (§5.2) prefers
-the fat floats; ship when the shader path exists.
+bytes, −75 %. It needs a `SkinFormat::Packed` enum value only — `BufferHeader`
+already carries format and stride, so this is a minor version. Deferred
+because the D3D9 caps bits (`DeclTypes`) must be probed and the current CPU
+skinning path prefers the wide floats.
 
-### 8.3 Packed vertex attributes — v1.x, measure first
+### 8.2 Packed vertex attributes — measure first
 
 Normal/tangent as `DEC3N`/`UBYTE4N` and half-float UVs take `Vertex` from 52
 to ~32 bytes (−38 %). Same caps caveat, plus real visual QA on tangent
-precision. Only worth doing once model vertex counts actually pressure
-memory or bandwidth — measure before spending (this repo's rule: figures are
-measured, not estimated).
+precision. The whole converted corpus is 1.8 MB of vertex data against
+`GameData/`'s 520 MB, so this buys nothing today; it becomes interesting when
+models get denser. This repo's rule applies: figures are measured, not
+estimated — measure before spending.
 
-### 8.4 Quantized animation — v1.x, after 8.1
+### 8.3 Quantized animation — after there is animation to quantize
 
 Times as `uint16` normalized to the clip, rotations as smallest-three 48-bit
-quaternions: a further ~2–3× on top of §8.1. Complexity is real (error
-metrics per track, converter tuning); justified only if animation memory
-shows up in a profile.
+quaternions: a further ~2–3× on top of SRT. Complexity is real (error metrics
+per track, converter tuning). The corpus currently holds one clip with 225
+keys. Revisit when animation shows up in a profile.
 
-### 8.5 Marker orientation — v1.1, when a consumer exists
+### 8.4 Constant-track elimination — converter-side, no format change
 
-New per-submesh section `markers2Offset` (reserved-field mechanism): record =
-`String` name + position + `parentBone` + quaternion orientation + uniform
-scale. Supersedes the v1.0 marker list per submesh when present (a submesh
-uses one list or the other, never both). Specified now so the first consumer
-(muzzle direction is the obvious one) does not improvise; not shipped in
-v1.0 because the requirement is position-only and empty speculation in a
-v1.0 costs forever.
+A track whose value never changes needs one key, not ninety. This is already
+legal in v1.0 and costs a converter three lines; it is listed here so it is
+not forgotten when the first real rig arrives (it is where most of the ~2×
+in the §4.8 table comes from).
 
-### 8.6 Considered and rejected
+### 8.5 Considered and rejected
 
 - **A string table with indices.** Dedup would save a few hundred bytes on
   files measured in hundreds of KB, at the price of every reader doing two
   hops for every name. Rejected: not worth one indirection.
 - **Whole-file compression.** R14 forbids new dependencies, so zlib is out;
   the Windows Compression API (`cabinet.dll`, Win8+) would be sanctionable —
-  but model payloads are a rounding error next to `GameData/`'s 520 MB of
-  media, and DDS textures dominate model memory anyway. Rejected for v1.0;
-  revisit only if NMO ever carries baked animation libraries at scale.
+  but the whole converted model set is 1.8 MB against `GameData/`'s 520 MB of
+  media, and DDS textures dominate model memory anyway. Rejected for v1.0.
 - **A full RIFF/IFF chunk tree.** The offset-table header already provides
   skipping, absence and additive evolution with strictly less machinery; a
-  second framing mechanism is one too many. (This is also why §4.11 is so
+  second framing mechanism is one too many. (This is also why §4.12 is so
   short — one rule, "reserved becomes new sections", does all of it.)
 - **Name hashes in the file.** §6 — derivable data drifts; compute at load.
 - **Curve tracks (Hermite/Bézier).** Converters bake; runtimes stay dumb and
-  fast; §8.1/§8.4 recover the memory that baking costs. Revisit never,
-  probably.
+  fast; §8.3 recovers the memory that baking costs.
+- **Per-polygon render state, as `.pie` has.** It is why the current renderer
+  recomputes UVs per polygon per frame. Splitting into submeshes by state at
+  conversion time costs 1,135 submeshes for 516 models — under three each —
+  and turns a per-frame per-polygon loop into a draw call.
 
-## 9. Adoption path (when a phase picks this up)
+## 9. Editing: the Blender add-on
 
-| Piece | Where | Notes |
-|---|---|---|
-| Format header | `NeuronClient/Nmo.h` | the §4 structs verbatim, `namespace Neuron::Nmo`; no logic |
-| Loader | `NeuronClient/NmoLoad.cpp` | §4.10 validation + §7 in-place load; new files go in the `.vcxproj` **and** `.filters` (AGENTS §6) |
-| Converter | `tools/convert_pie.py` | `.pie` → `.nmo`: points/polys → welded VB/IB; `texpage` → material with `texture[0]`; connectors → `Connector0N` markers (§6); each PIE level → one mesh |
-| `.ani` mapping | same converter, later stage | `ANIM_3D_TRANS` per-sub-object pos/rot/scale states are natively submesh clips (they are SRT keys already — they should land straight into §8.1 tracks, skipping matrix keyframes entirely) |
-| Validation gate | `tools/validate_assets.py` | structural check of shipped `.nmo` once any exist, same green-gate rule as the JSON manifests |
+[`tools/blender_nmo/`](../tools/blender_nmo/) is an import/export add-on so
+`.nmo` is an editable format rather than a compiler output nobody can open. It
+targets Blender **4.2 or newer** (the extensions platform) and is exercised
+against **5.2 LTS**; it ships both a `blender_manifest.toml` and a legacy
+`bl_info`, so either installer works.
 
-Two legacy features do **not** map and must be resolved by the adopting
-phase, not silently dropped: per-polygon frame-based texture animation
-(`iTexAnim`, heavily used — 1,693 polygons) has no NMO representation
-(candidates: material-UV clip tracks as a v1.1 section, or keep it
-engine-side per material); and `ANIM_3D_FRAMES` whole-shape-per-frame
-animation is mesh *swapping*, not skeletal animation — it likely stays an
-engine behavior selecting among meshes, which NMO's multi-mesh files
-represent naturally.
+**The scene mapping** ([`nmo_scene.py`](../tools/blender_nmo/nmo_scene.py) is
+the single statement of it, so import and export cannot drift):
+
+| NMO | Blender |
+|---|---|
+| Mesh | Collection |
+| Submesh | Mesh Object inside it, named for its role |
+| Material + `MaterialExt` | Material; extension fields as custom properties |
+| Mesh / submesh bone table | Armature Object tagged with its scope |
+| Pure-alias bone table (a palette) | `nmo_palette` property listing mesh bone names — deliberately *not* a second armature (§4.7) |
+| Clip | Action; SRT tracks become pose-bone F-curves |
+| Marker | Empty (`ARROWS`), parented to the submesh or to its bone |
+| Facet ids | `nmo_facet` INT attribute on the face domain |
+| Skin weights | Vertex groups + an Armature modifier |
+
+**Axes.** NMO is Y-up, Blender is Z-up. `swap_yz()` converts either way and is
+its own inverse, so a model imported and exported unchanged comes back
+byte-identical rather than accumulating a handedness error.
+
+**Quads survive.** Export welds vertices on the whole attribute tuple
+(position, normal, colour, UV), so seams stay split and flat interiors
+collapse; facet ids record which triangles were one polygon, so a re-quadify
+pass is exact rather than heuristic.
+
+**Compatibility note.** Blender 4.4 replaced `Action.fcurves` with slotted
+actions and 5.0 removed the old attribute; `nmo_scene.action_fcurves()` and
+`iter_fcurves()` are the only two places either shape is named, which is what
+keeps one add-on working across 4.2 → 5.x.
+
+**What is verified.** `tools/nmo_blender_test.py` runs headless — import a
+fixture with two submeshes, an alias palette, a local skeleton with an SRT
+clip, mesh-scope matrix keys, bound and rigid markers and facet ids; export;
+re-read; compare. It passes on Blender 5.0.1. Real `.pie`-converted models
+(`BLDerik`, `BLGUARDR`) were pushed through the same path and came back with
+their triangle counts, markers and animation intact.
 
 ## 10. Open questions
 
-1. **Texture/UV animation** — v1.1 material tracks, or engine-side? Decide
-   when the converter meets the first `iTexAnim` polygon (§9).
-2. **Marker orientation** — is any v1.0 consumer blocked without it? If a
-   launch feature needs muzzle directions, promote §8.5 into v1.0 before the
-   first shipped file rather than after (pre-ship is the only cheap moment
-   to change a record framing).
-3. **Blend policy location** — §5.3 pushes cross-fade/layering to the
+1. **Blend policy location** — §5.3 pushes cross-fade/layering to the
    runtime; the animation system that replaces `Anim.cpp` should get its own
    short design note when built.
-4. **Coexistence** — NMO does not replace `.pie` by decree; per
+2. **Coexistence** — NMO does not replace `.pie` by decree; per
    [AssetPipeline.md](AssetPipeline.md), formats are replaced only when a
-   phase owns the conversion end-to-end, converter and loader and data in
-   one motion. Until then both formats coexist behind the resource system.
+   phase owns the conversion end-to-end, converter and loader and data in one
+   motion. [PieToNmoMigration.md](PieToNmoMigration.md) is that plan, and its
+   §7 lists what has to be decided before it can start.
+3. **Whether `MatrixKeys` should survive v1.0.** It exists because R-NMO-1
+   names CMO's definition, and the reference codec reads and writes it. If no
+   consumer ever produces it — the converter does not — a future major version
+   could drop it and take the clip record down to one encoding. Keep it until
+   there is evidence either way.
+
+*(The first draft's open questions 1 and 2 — texture/UV animation, and whether
+markers need orientation — are answered in §4.4 and §4.9. The remaining
+texture-animation question is not about this format but about how the engine
+selects a frame, and belongs to the migration:
+[PieToNmoMigration.md](PieToNmoMigration.md) §5.4.)*
 
 ---
 
 ## Appendix A — stream grammar, in CMO.h's own comment style
 
 Offsets are authoritative (§4.3); this shows the recommended writer layout
-(§4.12). `String` = `uint32` byte length + UTF-8 + pad to 4.
+(§4.13). `String` = `uint32` byte length + UTF-8 + pad to 4.
 
 ```
 // .NMO files
@@ -847,32 +1052,40 @@ Offsets are authoritative (§4.3); this shows the recommended writer layout
 //      String - name of mesh
 //      { [materialCount]
 //          String - name of material
-//          Material structure
+//          Material structure       (CMO, 132 bytes)
+//          MaterialExt structure    (render flags + texture atlas, 32 bytes)
 //          String - name of pixel shader
 //          { [8]
 //              String - name of texture
 //          }
 //      }
-//      SubMesh[subMeshCount] (128 bytes each - draw range, extents, and
-//                             offsets/counts of its bones, clips, markers)
 //      { [per submesh, at the offsets its SubMesh record names]
+//          String - name of submesh                         - role, .ani binding
 //          { [subMesh.boneCount]                            - R-NMO-1
 //              String - name of bone
-//              Bone structure
+//              Bone structure       (CMO, 196 bytes)
 //              INT - meshBoneIndex (-1 local, else alias of mesh bone)
 //          }
 //          { [subMesh.clipCount]                            - R-NMO-1
 //              String - name of clip
-//              Clip structure
-//              { [keyCount]
-//                  Keyframe structure   - sorted (boneIndex, timeSeconds)
-//              }
+//              Clip structure       (CMO, 12 bytes)
+//              ClipTracks structure (encoding, trackCount)
+//              if encoding == MatrixKeys:
+//                  { [keyCount] Keyframe structure }        - sorted (bone, time)
+//              if encoding == SrtTracks:
+//                  SrtTrack[trackCount]
+//                  { [per track, in order]
+//                      TranslationKey[] RotationKey[] ScaleKey[]
+//                  }
 //          }
 //          { [subMesh.markerCount]                          - R-NMO-2
 //              String - name of marker
-//              Marker structure (XMFLOAT3 position, INT parentBone, UINT flags)
+//              Marker structure (position, orientation, scale, parentBone, flags)
 //          }
+//          UINT[subMesh.primitiveCount] - facet ids, when facetsOffset != 0
 //      }
+//      SubMesh[subMeshCount] (128 bytes each - draw range, flags, extents, and
+//                             offsets/counts of everything above)
 //      { [indexBufferCount]
 //          BufferHeader (16 bytes) - USHORT[] or UINT[] indices - pad to 16
 //      }
@@ -888,12 +1101,11 @@ Offsets are authoritative (§4.3); this shows the recommended writer layout
 //          Bone structure
 //          INT - meshBoneIndex
 //      }
-//      { [clipCount]   - mesh clips, as CMO
+//      { [clipCount]   - mesh clips, framed as the submesh clips above
 //          String - name of clip
 //          Clip structure
-//          { [keyCount]
-//              Keyframe structure
-//          }
+//          ClipTracks structure
+//          ...keys...
 //      }
 // }
 ```
