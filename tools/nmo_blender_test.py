@@ -10,7 +10,7 @@ or with the `bpy` PyPI wheel in a virtualenv
     python -m venv env && env/bin/pip install bpy
     env/bin/python tools/nmo_blender_test.py
 
-The model it builds is the one from nmo_roundtrip_test.py, so every feature of
+The model it builds is the shared fixture from nmo_fixture.py, so every feature of
 the format crosses the Blender boundary: two submeshes, an aliased bone
 palette, a local skeleton with an SRT clip, matrix keys at mesh scope, markers
 both rigid and bone-bound, per-face facet ids, and the texture-atlas material.
@@ -22,6 +22,7 @@ import sys
 import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(HERE, 'blender_nmo'))
 
 try:
@@ -31,6 +32,7 @@ except ImportError:
              'or install the bpy wheel (see the docstring)')
 
 import nmo_format as nmo  # noqa: E402
+from nmo_fixture import build_model  # noqa: E402
 
 failures = []
 
@@ -51,17 +53,8 @@ def load_addon():
     return addon
 
 
-def source_model():
-    """Reuse the fixture from the codec test rather than keeping two of them."""
-    path = os.path.join(HERE, 'nmo_roundtrip_test.py')
-    source = open(path).read().split('model = build_model()')[0]
-    namespace = {'__file__': path}
-    exec(compile(source, path, 'exec'), namespace)
-    return namespace['build_model']()
-
-
 addon = load_addon()
-model = source_model()
+model = build_model()
 work = tempfile.mkdtemp(prefix='nmo-blender-')
 source_path = os.path.join(work, 'source.nmo')
 export_path = os.path.join(work, 'exported.nmo')

@@ -267,6 +267,40 @@ def check_stats(doc):
         check_name('StructureFunctions.json', n, 'structure', row['structure'], structure_names, 'structure')
 
 
+def check_models():
+    """Structurally validate every .nmo under GameData, once any exist.
+
+    The migration writes its candidate tree outside GameData (stage C of
+    Docs/PieToNmoMigration.md), so this finds nothing until stage E moves the
+    models in - at which point a malformed model becomes an error here rather
+    than a crash at load. Unlike the .pie names, an .nmo reference must spell
+    its file exactly: case-insensitive resolution is what let three spellings
+    of one model into the tree, and the conversion is the moment to stop it.
+    """
+    sys.path.insert(0, os.path.join(ROOT, 'tools', 'blender_nmo'))
+    try:
+        import nmo_format
+    except ImportError as err:
+        errors.append(f'tools/blender_nmo/nmo_format.py did not import: {err}')
+        return 0
+    checked = 0
+    for directory, _subdirs, files in os.walk(GAMEDATA):
+        for name in sorted(files):
+            if not name.lower().endswith('.nmo'):
+                continue
+            full = os.path.join(directory, name)
+            rel = os.path.relpath(full, GAMEDATA).replace(os.sep, '/')
+            if name != name.lower():
+                errors.append(f'{rel}: model file names must be lowercase')
+            try:
+                with open(full, 'rb') as handle:
+                    nmo_format.read_nmo(handle.read())
+                checked += 1
+            except (OSError, nmo_format.NmoError) as err:
+                errors.append(f'{rel}: not a usable NMO file: {err}')
+    return checked
+
+
 def main():
     path = os.path.join(GAMEDATA, 'datasets.json')
     try:
@@ -279,6 +313,9 @@ def main():
         units = check_units(doc, types)
         check_datasets(doc, units)
         check_stats(doc)
+    models = check_models()
+    if models:
+        print(f'{models} .nmo model(s) validated')
     for w in warnings:
         print(f'warning: {w}')
     for e in errors:

@@ -4,17 +4,19 @@ How the 516 shipped `.pie` models become [NMO](NeuronMeshObject.md), what the
 right shape of that migration is, and — the part that matters most — the
 things that will go wrong if they are not decided first.
 
-**Status: investigation and plan (2026-08-27). Nothing is converted.** Every
-number below was measured against the tree, mostly by
-[`tools/pie_to_nmo.py`](../tools/pie_to_nmo.py), a **prototype converter**
-written to test whether this plan is executable at all. It is: it converts all
-516 files today. It is not the production converter — §8 says what it still
-lacks — but it means the numbers here are observations rather than estimates.
+**Status: stages A, B and C are done; D and E are not started (2026-08-27).**
+The format header, the engine loader and the converter are in the tree and
+green; what remains needs Windows, MSVC and a running game, which is the
+subject of §9. `GameData/` is unchanged — the conversion writes a candidate
+tree beside it, because the game cannot load `.nmo` until stage D teaches the
+renderer to.
 
-Reproduce them with:
+Every number below was measured against the tree by
+[`tools/pie_to_nmo.py`](../tools/pie_to_nmo.py). Reproduce them with:
 
 ```
 python tools/pie_to_nmo.py --report
+python tools/pie_to_nmo.py --out build/models --rewrite-stats build/stats
 ```
 
 **The headline recommendations**, argued below:
@@ -517,10 +519,10 @@ needs a new field every time a rule changes.
   `DeformedAtRuntime` (§5.6). Same name, two consequences — worth setting both
   from one table rather than two.
 
-## 8. What the prototype does not do
+## 8. What the converter still does not do
 
-Being explicit about the gap between "this plan is executable" and "this plan
-is executed":
+Being explicit about the gap between "the data converts" and "the game runs
+on it":
 
 - **No tangents.** `Vertex.tangent` is written as a constant. Nothing consumes
   it; when something does, generate it properly.
@@ -528,23 +530,49 @@ is executed":
   for the shipped data; should be confirmed against art intent (§5.4).
 - **No constant-track elimination**, so `BLDerik`'s clip carries 225 keys where
   a third would do (`NeuronMeshObject.md` §8.4).
-- **Flat output directory**, no `GameData/` tree mirroring, no stats rewriting.
-- **No `DeformedAtRuntime` marking** — it needs the role table of §7.
 - **No visual verification of anything**, which is §5.12's point and the whole
-  of §9.
+  of stage D.
+
+Three items that were on this list are now done: the output mirrors the
+`GameData/` tree (which is what keeps the eight colliding basenames of §5.10
+distinct — a flat directory silently produced 508 files from 516 inputs),
+the stats tables are rewritten on request, and base plates are marked
+`DeformedAtRuntime` from the role table.
 
 ## 9. Staged plan
 
 Each stage is independently reviewable and leaves the tree working. Stages A–C
 change no shipped data.
 
-| Stage | Work | Gate |
-|---|---|---|
-| **A** | `NeuronClient/Nmo.h` — the §4 structs, no logic. `NeuronClientTest` gets the size and layout assertions. | Builds Win32 + x64, `check_case.py` green |
-| **B** | `NeuronClient/NmoLoad.cpp` — validation (`NeuronMeshObject.md` §4.11) and in-place load. Tests get the golden fixture and every malformed case the Python tests already cover. | Tests pass; no renderer change yet |
-| **C** | Production converter: `GameData/` tree mirroring, stats rewriting, role table, canonical naming. Corpus conversion is reproducible and diffable. | 516/516 convert; every converted file loads through stage B |
-| **D** | Renderer draws NMO behind a flag, `.pie` path untouched. One campaign level converted. | **Run the game.** `Debug\Outpost.exe -window -game CAM_1A`, compare screenshots against the `.pie` path: winding, team colour, terrain conforming, build-in-progress, turret placement |
-| **E** | Convert all data, retire the `.pie` loader and the `.ani` system, delete `IMDLoad.cpp` and friends. | Full campaign run; `validate_assets.py` green on `.nmo` |
+| Stage | Work | Gate | Status |
+|---|---|---|---|
+| **A** | `NeuronClient/Nmo.h` — the §4 structs, no logic, with the layout assertions. | Builds Win32 + x64, `check_case.py` green | **Done.** 31 `static_assert`s, verified on 32- and 64-bit |
+| **B** | `NeuronClient/NmoLoad.cpp` — validation (`NeuronMeshObject.md` §4.11) and in-place load. Tests get the golden fixture and every malformed case the Python tests cover. | Tests pass; no renderer change yet | **Done.** `NeuronClientTest/NmoTest.cpp`, 35 tests |
+| **C** | Production converter: `GameData/` tree mirroring, stats rewriting, role table, canonical naming. Corpus conversion is reproducible and diffable. | 516/516 convert; every converted file loads through stage B | **Done.** 516/516 convert, 516 distinct output paths, 516/516 load through the C++ loader |
+| **D** | Renderer draws NMO behind a flag, `.pie` path untouched. One campaign level converted. | **Run the game.** `Debug\Outpost.exe -window -game CAM_1A`, compare screenshots against the `.pie` path: winding, team colour, terrain conforming, build-in-progress, turret placement | Not started — needs Windows, MSVC and a GPU |
+| **E** | Convert all data, retire the `.pie` loader and the `.ani` system, delete `IMDLoad.cpp` and friends. | Full campaign run; `validate_assets.py` green on `.nmo` | Not started — gated on D |
+
+### What stages A–C actually verified
+
+- `Nmo.h`'s 31 size and layout assertions compile on both 32- and 64-bit
+  targets, so a file written by either build is the same file.
+- The loader rejects 21 deliberately malformed files, one per clause of the
+  validation list, and accepts the golden one. The golden bytes are generated
+  from the Python codec by `tools/make_nmo_fixture.py`, so "the two
+  implementations agree" is checked rather than assumed.
+- All 516 converted models load through the C++ loader with nothing rejected:
+  544 meshes, 1,135 submeshes, 12,668 triangles, 136 markers.
+- All 181 translation units cross-check clean (`tools/crosscheck.py`), Debug
+  and Release, x86 and x64.
+- `tools/validate_assets.py` now structurally validates any `.nmo` under
+  `GameData/` and makes a name that is not lowercase an error. It finds
+  nothing today, which is correct: stage E is what moves models in.
+
+**What none of that says**: whether the game draws. Everything above is
+checkable by machine, and the failures this migration can plausibly cause —
+inside-out polygons, lost team colour, floating turrets, buildings that no
+longer sit on the ground — are found by looking at the screen. That is stage
+D, and per [AGENTS.md](../AGENTS.md) §3 a green build says nothing about it.
 
 **Stage D is the real gate.** Everything before it is checkable by machine;
 the things this migration can plausibly get wrong — inside-out polygons, lost
@@ -564,13 +592,21 @@ draws.
 | Two model paths left in the tree | Exactly what Phase 8 removed at cost | Stage E is not optional; scope it in from the start |
 | `.ani` retired halfway | Animation in two places | §5.14; same phase or not at all |
 
-## 11. Recommendation
+## 11. Where this stands
 
-Do it, as one phase, in the order above, with the `.ani` system inside the
-scope — and do not start it while Phase 8's renderer collapse or Phase 10's
-maths migration is still in flight, because stage D needs a stable renderer to
-compare against. The format is ready, the converter is proven executable on
-the whole corpus, and the editing story exists. What is missing is a decision
-to own the change end to end, which is the same thing
-[AssetPipeline.md](AssetPipeline.md) concluded about every other format in this
-tree.
+Stages A–C are in the tree and green. Everything they could establish without
+a running game is established: the format is implemented on both sides, the
+whole corpus converts, and every converted file survives the engine's own
+loader.
+
+Stage D is the decision point, and it is not a coding decision. It needs a
+Windows machine with MSVC and a GPU, and it needs to happen while the renderer
+is stable enough to compare against — which argues for taking it *after* Phase
+8's collapse and Phase 10's maths migration have landed, not between them. The
+work itself is small: draw NMO behind a flag, convert one level's models, look
+at the screen.
+
+Stage E should follow immediately once D is green, and should keep the `.ani`
+system inside its scope. Splitting them leaves the engine with animation in two
+places and two model paths in the renderer, which is the exact cost Phase 8
+spent its budget removing.

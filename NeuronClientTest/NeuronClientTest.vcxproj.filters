@@ -3,8 +3,10 @@
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="NeuronClientTest.cpp" />
+    <ClCompile Include="NmoTest.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="NmoFixture.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>

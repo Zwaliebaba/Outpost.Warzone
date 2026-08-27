@@ -183,6 +183,8 @@
     <ClInclude Include="MaxPiDef.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="MovieStream.h" />
+    <ClInclude Include="Nmo.h" />
+    <ClInclude Include="NmoLoad.h" />
     <ClInclude Include="Dds.h" />
     <ClInclude Include="Palette.h" />
     <ClInclude Include="PieFunc.h" />
@@ -234,6 +236,7 @@
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Label.cpp" />
     <ClCompile Include="MovieStream.cpp" />
+    <ClCompile Include="NmoLoad.cpp" />
     <ClCompile Include="PieFunc.cpp" />
     <ClCompile Include="PieMode.cpp" />
     <ClCompile Include="RendFunc.cpp" />

@@ -1,20 +1,34 @@
 #!/usr/bin/env python3
-"""Prototype converter: .pie (PIE 2) models to .nmo.
+"""Convert .pie (PIE 2) models to .nmo - stage C of Docs/PieToNmoMigration.md.
 
-This exists to prove the migration plan in Docs/PieToNmoMigration.md is
-executable and to measure it, not to be the production converter.  It converts
-geometry, materials, connectors and - given the matching anims/*.json - the one
-sub-object animation the corpus has.  What it cannot decide alone is listed by
---report, which is the point: the unresolved cases are the plan's work items.
+Reads the shipped models, writes NMO beside them in a mirrored output tree,
+and never touches GameData: the game cannot load .nmo until the renderer does
+(stage D), so the conversion produces a candidate tree that stage D switches
+to, not an in-place edit.
 
-  python tools/pie_to_nmo.py --report                 # survey, convert nothing
-  python tools/pie_to_nmo.py --out build/models       # convert GameData
+  python tools/pie_to_nmo.py --report                  # survey, write nothing
+  python tools/pie_to_nmo.py --out build/models        # convert the whole tree
+  python tools/pie_to_nmo.py --out build/models --rewrite-stats build/stats
   python tools/pie_to_nmo.py GameData/structs/BLDerik.PIE --out /tmp
 
-Level semantics are NOT in the .pie file: a multi-level file is a stack of
+Three things the converter decides, and where each answer comes from:
+
+*Level semantics* are NOT in the .pie file.  A multi-level file is a stack of
 animation frames or a set of animated sub-objects depending on what the .ani
-that references it says.  --anims points at the directory holding those, and
-the converter refuses to guess when a multi-level file has no entry there.
+that references it says, so --anims points at those and the converter refuses
+to guess when a multi-level file has no entry there.
+
+*Roles* - which submesh is a base plate, which is a body, which is a turret -
+come from the stats tables, because that is where the game already states them
+(structures.json names a model and a baseModel, Sensor.json a model and a
+mountModel).  A role names the submeshes and decides whether they carry
+SubMeshFlags::DeformedAtRuntime, which the base plates need: the game rewrites
+their vertices every frame to conform them to the terrain.
+
+*Names* are canonicalised to lowercase, because GameData spells the same file
+three different ways and the game only gets away with it by resolving
+case-insensitively on NTFS.  The output tree mirrors the input tree, so the
+eight basenames that collide across directories stay distinct.
 """
 
 import argparse
@@ -45,6 +59,28 @@ LEVELS_ARE_OBJECTS = 'trans'
 
 class PieError(Exception):
     pass
+
+
+# Roles, and what the engine does with each. The names become submesh names;
+# the flag is what tells a loader to keep a writable copy of the vertices.
+ROLE_BASE = 'Base'
+ROLE_BODY = 'Body'
+ROLE_TURRET = 'Turret'
+ROLE_MOUNT = 'Mount'
+ROLE_MUZZLE = 'Muzzle'
+
+# The base plate is the one the game deforms: Display3D.cpp rewrites its points
+# every frame so the structure sits flush on sloped ground.
+DEFORMED_ROLES = {ROLE_BASE}
+
+# stats file -> [(field, role)], in the order the drawing code composes them.
+STATS_ROLES = [
+    ('structures.json', [('baseModel', ROLE_BASE), ('model', ROLE_BODY)]),
+    ('Sensor.json', [('model', ROLE_TURRET), ('mountModel', ROLE_MOUNT)]),
+    ('ECM.json', [('model', ROLE_TURRET), ('mountModel', ROLE_MOUNT)]),
+    ('Repair.json', [('model', ROLE_TURRET), ('mountModel', ROLE_MOUNT)]),
+    ('Weapons.json', [('model', ROLE_TURRET), ('mountModel', ROLE_MOUNT), ('muzzleModel', ROLE_MUZZLE)]),
+]
 
 
 class Level:
@@ -147,6 +183,63 @@ def parse_pie(path):
     return pie
 
 
+def load_role_index(stats_dir):
+    """model file name (lowercased) -> the role the stats give it.
+
+    Derived rather than written down: the game already states the composition
+    in these tables, and a second copy in this file would be a second thing to
+    keep true. A file that turns up in two roles is reported, not guessed at.
+    """
+    roles = {}
+    conflicts = []
+    if not stats_dir or not os.path.isdir(stats_dir):
+        return roles, conflicts
+    for name, fields in STATS_ROLES:
+        path = os.path.join(stats_dir, name)
+        if not os.path.exists(path):
+            continue
+        try:
+            rows = json.load(open(path))
+        except (ValueError, OSError):
+            continue
+        if not isinstance(rows, list):
+            continue
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            for field, role in fields:
+                value = str(row.get(field, '')).strip()
+                if not value or value == '0':
+                    continue
+                key = value.lower()
+                if roles.setdefault(key, role) != role:
+                    conflicts.append((value, roles[key], role))
+    return roles, conflicts
+
+
+def canonical_name(path, root):
+    """The output path for a model: the input tree, lowercased, as .nmo.
+
+    Mirroring the tree matters: eight basenames in GameData collide across
+    directories once case is folded away, and a flat output would silently
+    keep only one of each.
+    """
+    relative = os.path.relpath(os.path.abspath(path), os.path.abspath(root))
+    if relative.startswith(os.pardir):
+        relative = os.path.basename(path)
+    stem = os.path.splitext(relative)[0]
+    return stem.replace(os.sep, '/').lower() + '.nmo'
+
+
+def canonical_texture(name):
+    """Texture pages are named case-insensitively and still say .pcx, which
+    the palette work replaced with .dds (NeuronClient/Dds.cpp)."""
+    if not name:
+        return ''
+    stem, extension = os.path.splitext(name)
+    return (stem + ('.dds' if extension.lower() == '.pcx' else extension)).lower()
+
+
 def load_anim_index(anims_dir):
     """basename of the .pie -> the anim json that drives it."""
     index = {}
@@ -171,9 +264,8 @@ def _material_for(group_key, pie, index):
         render_flags |= nmo.MAT_ALPHA_TEST
     if flags & PIE_NO_CULL:
         render_flags |= nmo.MAT_DOUBLE_SIDED
-    texture = (pie.texture or '')
     material = nmo.Material(name='Material%d' % index,
-                            textures=[texture],
+                            textures=[canonical_texture(pie.texture)],
                             render_flags=render_flags)
     if anim:
         frames, rate, tile_w, tile_h = anim
@@ -190,7 +282,7 @@ def _material_for(group_key, pie, index):
     return material
 
 
-def _convert_level(pie, level, mesh, name, warnings):
+def _convert_level(pie, level, mesh, name, warnings, sub_flags=0):
     """One PIE level becomes one or more submeshes sharing the mesh's buffers."""
     width, height = pie.texture_size
     groups = collections.OrderedDict()
@@ -243,6 +335,7 @@ def _convert_level(pie, level, mesh, name, warnings):
             continue
         _generate_normals(vertices, index_buffer, first_index, len(index_buffer))
         sub = nmo.SubMesh(name='%s.%d' % (name, len(created)) if len(groups) > 1 else name,
+                          flags=sub_flags,
                           material_index=len(mesh.materials) - 1,
                           index_buffer_index=0, vertex_buffer_index=0,
                           start_index=first_index,
@@ -324,8 +417,13 @@ def _euler_to_quaternion(rotation):
             cx * cy * cz - sx * sy * sz)
 
 
-def convert(pie, anim=None):
-    """Return (Model, warnings).  Raises PieError when the plan needs a decision."""
+def convert(pie, anim=None, role=None):
+    """Return (Model, warnings).  Raises PieError when a decision is needed.
+
+    role, when the stats give the file one, names its submeshes and decides
+    whether they are deformed at runtime. Sub-object names from an animation
+    win over it: those are what the animation data binds to.
+    """
     warnings = []
     stem = os.path.splitext(os.path.basename(pie.path))[0]
     if pie.levels and any(level.had_bsp for level in pie.levels):
@@ -339,6 +437,9 @@ def convert(pie, anim=None):
                            % (pie.path, len(pie.levels)))
         kind = anim.get('type', LEVELS_ARE_FRAMES)
 
+    flags = nmo.SUB_DEFORMED_AT_RUNTIME if role in DEFORMED_ROLES else 0
+    part_name = role or stem
+
     model = nmo.Model()
     if len(pie.levels) <= 1 or kind == LEVELS_ARE_OBJECTS:
         mesh = nmo.Mesh(name=stem)
@@ -349,8 +450,8 @@ def convert(pie, anim=None):
         animated = anim is not None and kind == LEVELS_ARE_OBJECTS
         tracks = []
         for level_index, level in enumerate(pie.levels):
-            name = objects.get(level_index, stem if len(pie.levels) == 1 else 'Object%d' % level_index)
-            created = _convert_level(pie, level, mesh, name, warnings)
+            name = objects.get(level_index, part_name if len(pie.levels) == 1 else 'Object%d' % level_index)
+            created = _convert_level(pie, level, mesh, name, warnings, flags)
             if created:
                 _add_connectors(created[0], level)
             if not animated or not created:
@@ -379,7 +480,7 @@ def convert(pie, anim=None):
             mesh = nmo.Mesh(name='%s.frame%02d' % (stem, level_index))
             mesh.vertex_buffers.append([])
             mesh.index_buffers.append((nmo.INDEX_U16, []))
-            created = _convert_level(pie, level, mesh, mesh.name, warnings)
+            created = _convert_level(pie, level, mesh, part_name, warnings, flags)
             if created:
                 _add_connectors(created[0], level)
             _finish(mesh)
@@ -396,6 +497,54 @@ def _finish(mesh):
         mesh.skin_buffers.append([])
 
 
+def rewrite_stats(stats_dir, out_dir, model_names, markers_by_model):
+    """Write the stats tables with .nmo names and an explicit attachment marker.
+
+    Two things change. Model references become the canonical .nmo names, so the
+    case-insensitive spelling the tree relies on stops being load-bearing. And
+    a structure whose model has a connector gains "attachTo", naming the marker
+    a turret mounts on: today the drawing code assumes connectors[0] and
+    refuses to draw a turret at all unless there is exactly one connector,
+    which is a coincidence rather than a statement.
+
+    The output is a candidate tree, not an edit of GameData: the game cannot
+    load .nmo until the renderer can (stage D).
+    """
+    written = []
+    os.makedirs(out_dir, exist_ok=True)
+    for name, fields in STATS_ROLES:
+        source = os.path.join(stats_dir, name)
+        if not os.path.exists(source):
+            continue
+        rows = json.load(open(source))
+        if not isinstance(rows, list):
+            continue
+        changed = 0
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            for field, role in fields:
+                value = str(row.get(field, '')).strip()
+                if not value or value == '0':
+                    continue
+                replacement = model_names.get(value.lower())
+                if replacement and replacement != row[field]:
+                    row[field] = replacement
+                    changed += 1
+            if name == 'structures.json':
+                model = os.path.splitext(str(row.get('model', '')).strip().lower())[0]
+                markers = markers_by_model.get(model) or []
+                if markers:
+                    row['attachTo'] = markers[0]
+                    changed += 1
+        destination = os.path.join(out_dir, name)
+        with open(destination, 'w', newline='\n') as handle:
+            json.dump(rows, handle, indent=1)
+            handle.write('\n')
+        written.append((name, changed))
+    return written
+
+
 def find_pies(root):
     found = []
     for directory, _subdirs, files in os.walk(root):
@@ -408,28 +557,38 @@ def find_pies(root):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('inputs', nargs='*', help='.pie files or directories (default: GameData)')
-    parser.add_argument('--out', help='directory to write .nmo files into')
+    parser.add_argument('inputs', nargs='*', help='.pie files or directories (default: the whole --root)')
+    parser.add_argument('--root', default='GameData', help='tree the output mirrors (default: GameData)')
+    parser.add_argument('--out', help='directory to write the mirrored .nmo tree into')
     parser.add_argument('--anims', default=os.path.join('GameData', 'anims'),
                         help='directory of animation json (default: GameData/anims)')
+    parser.add_argument('--stats', default=os.path.join('GameData', 'Stats'),
+                        help='directory of stats json, which the roles come from (default: GameData/Stats)')
+    parser.add_argument('--rewrite-stats', dest='rewrite_stats',
+                        help='also write the stats tables, with .nmo names and attachment markers, into this directory')
     parser.add_argument('--report', action='store_true',
                         help='convert in memory only and print what the corpus contains')
     args = parser.parse_args(argv)
 
     targets = []
-    for item in args.inputs or [os.path.join('GameData')]:
+    for item in args.inputs or [args.root]:
         targets.extend(find_pies(item) if os.path.isdir(item) else [item])
     anims = load_anim_index(args.anims)
+    roles, role_conflicts = load_role_index(args.stats)
 
     totals = collections.Counter()
     warnings = collections.Counter()
     blocked = []
+    collisions = []
+    model_names = {}
+    markers_by_model = {}
+    claimed = {}
     pie_bytes = nmo_bytes = 0
     for path in targets:
+        basename = os.path.basename(path).lower()
         try:
             pie = parse_pie(path)
-            anim = anims.get(os.path.basename(path).lower())
-            model, notes = convert(pie, anim)
+            model, notes = convert(pie, anims.get(basename), roles.get(basename))
             data = nmo.write_nmo(model)
             nmo.read_nmo(data)                    # the converter validates its own output
         except (PieError, nmo.NmoError) as error:
@@ -444,24 +603,37 @@ def main(argv=None):
         totals['clips'] += sum(len(s.clips) for m in model.meshes for s in m.sub_meshes)
         totals['bones'] += sum(len(m.bones) for m in model.meshes)
         totals['aliased submeshes'] += sum(1 for m in model.meshes for s in m.sub_meshes if s.bones)
+        totals['deformed submeshes'] += sum(1 for m in model.meshes for s in m.sub_meshes
+                                            if s.flags & nmo.SUB_DEFORMED_AT_RUNTIME)
         totals['triangles'] += sum(s.primitive_count for m in model.meshes for s in m.sub_meshes)
         totals['vertices'] += sum(len(b) for m in model.meshes for b in m.vertex_buffers)
         totals['atlas_materials'] += sum(1 for m in model.meshes for mat in m.materials
                                          if mat.atlas_frame_count)
+        if roles.get(basename):
+            totals['with a role'] += 1
         for note in notes:
             warnings[note.split(': ', 1)[-1]] += 1
         pie_bytes += os.path.getsize(path)
         nmo_bytes += len(data)
+
+        relative = canonical_name(path, args.root)
+        model_names[basename] = os.path.basename(relative)
+        markers_by_model[os.path.splitext(basename)[0]] = [k.name for m in model.meshes for s in m.sub_meshes
+                                                           for k in s.markers]
+        if relative in claimed and claimed[relative] != path:
+            collisions.append((relative, claimed[relative], path))
+        claimed[relative] = path
+
         if args.out and not args.report:
-            relative = os.path.splitext(os.path.basename(path))[0] + '.nmo'
-            destination = os.path.join(args.out, relative)
-            os.makedirs(args.out, exist_ok=True)
+            destination = os.path.join(args.out, *relative.split('/'))
+            os.makedirs(os.path.dirname(destination), exist_ok=True)
             with open(destination, 'wb') as handle:
                 handle.write(data)
 
     print('input files          %d' % len(targets))
     print('converted            %d' % totals['converted'])
     print('blocked              %d' % totals['blocked'])
+    print('output paths         %d' % len(claimed))
     print('meshes               %d' % totals['meshes'])
     print('submeshes            %d' % totals['submeshes'])
     print('triangles            %d' % totals['triangles'])
@@ -471,17 +643,33 @@ def main(argv=None):
     print('animated bones       %d' % totals['bones'])
     print('submeshes w/ palette %d' % totals['aliased submeshes'])
     print('atlas materials      %d' % totals['atlas_materials'])
+    print('models with a role   %d of %d known' % (totals['with a role'], len(roles)))
+    print('deformed submeshes   %d' % totals['deformed submeshes'])
     print('bytes  .pie %d  ->  .nmo %d  (x%.2f)'
           % (pie_bytes, nmo_bytes, (nmo_bytes / pie_bytes) if pie_bytes else 0))
+
+    if args.rewrite_stats and not args.report:
+        print('\nstats rewritten into %s:' % args.rewrite_stats)
+        for name, changed in rewrite_stats(args.stats, args.rewrite_stats, model_names, markers_by_model):
+            print('  %-22s %d fields updated' % (name, changed))
+
     if warnings:
         print('\nwarnings:')
         for note, count in warnings.most_common():
             print('  %-50s %d' % (note, count))
+    if role_conflicts:
+        print('\nmodels the stats give more than one role - the migration must pick one:')
+        for value, first, second in role_conflicts:
+            print('  %-24s %s and %s' % (value, first, second))
+    if collisions:
+        print('\noutput path collisions - two inputs, one output:')
+        for relative, first, second in collisions:
+            print('  %-40s %s and %s' % (relative, first, second))
     if blocked:
         print('\nblocked - these need a decision from the migration plan:')
         for path, reason in blocked:
             print('  %s' % reason)
-    return 1 if blocked else 0
+    return 1 if (blocked or collisions or role_conflicts) else 0
 
 
 if __name__ == '__main__':
