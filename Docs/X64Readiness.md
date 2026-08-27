@@ -22,8 +22,27 @@ Status key: **Fixed** — done, and behaviour-identical on Win32.
 errors.** The script VM, the one item that was a project rather than an edit,
 was resolved by the module rewrite ([`ScriptRewrite.md`](ScriptRewrite.md)).
 CI builds x64 on every push, non-blocking, and the diagnostics below are
-measured from those builds rather than predicted. It has still never been
-*run* -- see [Verification.md](Verification.md).
+measured from those builds rather than predicted. It had not been *run* at
+that point; it has since -- see the 2026-08-26 note below.
+
+**2026-08-26.** `tools/crosscheck.py` grew an `--x64` flag, and the four
+findings under *Fixed on the second pass* below came out of it and out of a
+re-audit of what crosses a process boundary. The harness had only ever run
+`i686-w64-mingw32-g++`, so the Linux pre-CI gate was blind to exactly the
+class of defect this document exists for. All four crosscheck configurations
+-- x86 and x64, debug and release -- are now 180/180 clean.
+
+**x64 has been run.** The owner booted it, played far enough to build a base
+and a power generator, and reported two defects; both are fixed and are
+recorded under *Found by running it* below. This is the milestone the
+*Suggested order* at the foot of this document was waiting for, and it
+immediately paid for itself: the functionality-blob overflow is a heap
+overwrite that no amount of reading was going to surface, and neither
+crosscheck nor a zero-warning MSVC build had said a word about it.
+
+What the run does **not** yet cover: a full CAM_1A completion, a multiplayer
+session (so the corrected `NET_TEMPLATE` wire format still has never carried a
+packet), or FMV. [Verification.md](Verification.md) remains the runsheet.
 
 ---
 
@@ -77,6 +96,125 @@ container that holds a few hundred entries at most.
 
 The same rewrite retires the iterator double-advance bug noted in
 `Docs/AssetPipeline.md`.
+
+---
+
+## Found by running it (2026-08-26)
+
+### The functionality blob was sized for 32-bit structs
+
+`FUNCTIONALITY` was `UBYTE[40]`, hand-written in 1999 and commented "this is
+sizeof(FACTORY) the largest at present". It was exactly that -- on a 32-bit
+build. Every functionality struct is allocated as one of these blobs by
+`createStructFunc` and cast to its real type, and on x64 they all grew with
+their pointers:
+
+| struct | x86 | x64 | |
+|---|---|---|---|
+| `RES_EXTRACTOR` | 16 | 24 | fits |
+| `REARM_PAD` | 16 | 24 | fits |
+| `RESEARCH_FACILITY` | 32 | 40 | exactly at the limit |
+| `POWER_GEN` | 28 | **48** | overflows by 8 |
+| `REPAIR_FACILITY` | 32 | **56** | overflows by 16 |
+| `FACTORY` | 40 | **64** | overflows by 24 |
+
+`POWER_GEN::apResExtractors` starts at offset 16 on x64, so
+`apResExtractors[3]` occupies bytes 40..47 -- entirely past the end of the
+allocation. `memset(p, 0, sizeof(FUNCTIONALITY))` never cleared it, so it was
+never null; reading it returned the debug CRT's four `0xFD` fence bytes
+followed by the adjacent heap (`0x00044c24fdfdfdfd` as reported), and
+`checkForResExtractors` dereferenced that as a `STRUCTURE*`. Writing the slot
+corrupted the heap rather than crashing, which is the worse half: every
+`FACTORY` was also writing its last 24 bytes -- `psAssemblyPoint`,
+`psFormation`, `psCommander`, `secondaryOrder` -- outside its block.
+
+It was **not** a use-after-free, which was the first reading: the slot is
+cleared when an extractor dies, by `informPowerGen` and by the `died` check in
+`updatePower`, and freed memory would read `0xDD`/`0xFD` in all eight bytes
+rather than four. The mixed value is the signature of a read that runs off the
+end of a block, not of a dangling pointer.
+
+`FUNCTIONALITY` is now a union of the six structs, so size and alignment both
+come from the types. On x86 the union is still exactly 40 bytes and 4-aligned,
+so the shipping platform is byte-identical. Nothing else in the tree is a
+hand-sized storage blob of this shape.
+
+### The radar dish span 57 times too fast
+
+Not an x64 bug -- it is a Phase 10 units bug, and it would have been just as
+wrong on x86 -- but it is the other thing the first run surfaced.
+`STRUCTURE::turretRotation` became a float in radians; `structureUpdate`'s
+sensor sweep kept building it in degrees, so the renderer read 0..359 degrees
+as radians and turned the dish 360/(2*pi) times per three seconds instead of
+once. `Move.cpp`'s `SPIN_ANGLE` macros really are degrees and are converted at
+the boundary; the `DEG()` sites in `MapDisplay.cpp` and `IntelMap.cpp` are in
+code the preprocessor never expands. This was the only live straggler.
+
+---
+
+## Fixed on the second pass (2026-08-26)
+
+### A whole `DROID_TEMPLATE`, pointers and all, went on the network wire
+
+`sendTemplate` in `Outpost/MultiPlay.cpp` did
+`memcpy(&m.body[1], pTempl, sizeof(DROID_TEMPLATE))` and `recvTemplate`
+memcpy'd the same span back out. `DROID_TEMPLATE` carries two pointers --
+`pName` from `STATS_BASE` and `psNext` at the end -- so **both** its size and
+the offsets of every field after `pName` move with the pointer width.
+Measured, by compiling the struct's field list standalone under both
+mingw targets: **`sizeof` is 136 on x86 and 152 on x64, and `aName` starts at
+offset 8 against offset 16.** An x86 client and an x64 client could not have
+agreed about any field past `ref`, and between two x64 machines the sender's
+own addresses arrived as the receiver's `pName` and `psNext`.
+
+Both halves now walk the value fields one at a time (`PackTemplate` /
+`UnpackTemplate`, **125 bytes on both platforms**) and neither pointer goes on
+the wire; `pName` is repointed at the receiving template's own `aName`. That
+last part fixes a bug that was live on x86 too -- the "template already
+exists" branch memcpy'd a stack local over the stored template and left
+`pName` pointing at the local.
+
+This changes the `NET_TEMPLATE` message layout. Both ends are the same build,
+so there is nothing to negotiate, but it is a protocol change.
+
+### `stackPushResult(ST_FEATURE, NULL)` picked the integer overload
+
+Four sites in `Outpost/ScriptFuncs.cpp` -- the "none found" returns of
+`scrGetFeature` and `scrEnumStruct` -- pushed a null *object* result as `NULL`
+rather than `nullptr`. `stackPushResult` is overloaded on `SDWORD` and
+`void*`, and `NULL` is an integer literal, so MSVC silently chose the `SDWORD`
+overload. That writes `v.ival`, which on x64 is the low **four** bytes of an
+eight-byte union; the high half keeps whatever the stack slot held. The script
+then reads the same union as `v.oval` and gets a non-null garbage pointer
+where it asked for "nothing found".
+
+On x86 the union is four bytes wide, so the two overloads wrote identical bits
+and the bug was invisible. This is the defect class the typed FFI rewrite was
+meant to close, surviving because `NULL` routes around the type that was
+supposed to fix the store width. `nullptr` makes the `void*` overload the only
+viable one on every compiler. The remaining sites in both functions already
+said `nullptr`; these four were stragglers.
+
+Found by the new `--x64` crosscheck: GCC's `__null` is pointer-width, so at
+64 bits neither overload is a better match and the call is a hard ambiguity
+error. x86 stayed 180/180 clean through the same run.
+
+### `/SAFESEH` was set on the x64 configurations
+
+`ImageHasSafeExceptionHandlers=false` was on all four configurations of
+`Outpost.vcxproj`. `/SAFESEH` describes the x86 stack-based exception chain
+and has nothing to apply to on x64. Removed from the two x64 blocks; the Win32
+ones keep it, because `dinput8.lib`'s `dilib1.obj` still carries no handler
+table.
+
+### The Release configurations searched a deleted SDK
+
+Both Release blocks put `$(MSBuildThisFileDirectory)..\DX9\Lib` first on
+`AdditionalLibraryDirectories`. AGENTS.md §2 says that vendored SDK is gone and
+must not be assumed; the directory does not exist, so MSBuild was ignoring it.
+It is a trap rather than a bug -- the legacy SDK splits its libraries into
+`Lib\x86` and `Lib\x64`, so anyone restoring that tree would have fed 32-bit
+import libraries to the x64 link. Removed from both.
 
 ---
 
@@ -169,6 +307,26 @@ than under Fixed because **the whole block is inside a `/* ... */` comment**
 (`MultiJoin.cpp:347`-`581`) and compiles to nothing. If that code is ever
 revived, the ID needs its own field.
 
+### A whole struct written to a file, inside `#if 0`
+
+`Outpost/MultiStat.cpp` has the old force-file format still in the tree:
+`fwrite(pT, sizeof(DROID_TEMPLATE), 1, ...)` and the matching `fread`, which is
+the same defect the network path had. It is behind `#if 0` -- the live format
+writes only `multiPlayerID` -- so like the `MultiJoin.cpp` block above it
+compiles to nothing. If it is ever revived it needs `PackTemplate`, not a
+`memcpy`.
+
+### `#pragma warning(disable:4244)` is tree-wide
+
+`NeuronCore/NeuronCore.h` disables C4244 ("conversion, possible loss of data")
+for every translation unit that includes it, which is all of them. On x64 that
+class includes `__int64`-to-`int` narrowings, so the "zero warnings" figure
+above is measured with one of the relevant diagnostics switched off. AGENTS.md
+§4 says not to silence a diagnostic to make a build pass, so this is reported
+rather than removed: C4244 also fires on every `float`-to-`int` in the legacy
+tree, and nobody has counted how many that is. Sizing it needs an MSVC build
+with the pragma commented out -- a measurement, then a decision.
+
 ### What is *not* a problem
 
 - **The binary asset formats.** `.gam`, `.bjo`, `.pie`, and the new `.dds`
@@ -188,20 +346,31 @@ revived, the ID needs its own field.
 
 The compile is clean. What is left is everything a compiler cannot tell you:
 
-1. **Run it.** A clean x64 compile proves nothing about the D3D9 device, the
-   MsQuic import or asset loading. The CAM_1A boot is the test, and
-   [Verification.md](Verification.md) is the runsheet.
+1. ~~**Run it.**~~ **Done, 2026-08-26.** The boot works, the D3D9 device comes
+   up, assets load and a base can be built; the two defects it surfaced are
+   under *Found by running it* above. What it has still not covered is a full
+   CAM_1A completion, a multiplayer session and FMV, so
+   [Verification.md](Verification.md) is still the runsheet and most of it is
+   still unticked.
 
-   Win32 *has* been played with all of the changes below in it (2026-08-17),
-   which de-risks the shared code: the widget user-data round-trip, the BSP
-   loader, the stats-table walks and the `size_t` casts are all exercised by a
-   normal game and none of them misbehaved. What that run cannot speak to is
-   the part that only differs at 64 bits — whether a pointer survives the
-   places this document was written about — so x64 still needs its own boot.
-2. **Make x64 blocking in CI** once it has been run at least once. Today
+   The 2026-08-17 Win32 play-through de-risked the shared code -- the widget
+   user-data round-trip, the BSP loader, the stats-table walks and the
+   `size_t` casts are all exercised by a normal game. What it could not speak
+   to was the part that differs only at 64 bits, and that is exactly where the
+   functionality-blob overflow was hiding.
+2. **Make x64 blocking in CI.** It has now been run, so the precondition is
+   met. Today
    `.github/workflows/build.yml` sets `continue-on-error` for the x64 legs,
-   which was right while it did not build and is now only inertia.
-3. **Revisit the `pUserData` design** if the widget layer is ever touched for
+   which was right while it did not build and is now only inertia. The test
+   projects are not built by CI at all, on either platform, so the MSTest
+   suites in `NeuronCoreTest` never run anywhere; wiring those in is the other
+   half of the same job.
+3. **Run `tools/crosscheck.py --x64` before pushing**, not just the default
+   32-bit pass. The first run of the new flag found the `stackPushResult`
+   ambiguity above, which the x86 pass called clean 180/180 in the same
+   sitting. It costs one extra `apt-get install g++-mingw-w64-x86-64` in a
+   fresh container and about a minute at `-j 8`.
+4. **Revisit the `pUserData` design** if the widget layer is ever touched for
    other reasons. The helpers make the round-trip correct and honest, but the
    field still means two different things depending on which widget holds it,
    and there is an unused `UDWORD UserData` beside it that the integer users

@@ -1249,6 +1249,17 @@ aspect ratio, the safe direction while `VISIBLE_XTILES` is still a fixed
 32-tile grid tuned for 4:3. Widening the vertical/horizontal trade for
 widescreen is a possible follow-up, not part of this change.
 
+**Follow-up, planned 2026-08-26:
+[NativeResolutionPlan.md](NativeResolutionPlan.md).** The window is the
+desktop; the *world* is not. Because the projection's focal length and centre
+are both in logical units, a 4K desktop projects the world onto a 960x540 grid
+— and the terrain mesh goes through `Neuron::ProjectToScreen`, which returns
+`SDWORD`, so every landscape vertex is quantised to a whole logical pixel
+while the models beside it project in float. That plan gives the world pass a
+physical-resolution projection at an unchanged field of view and leaves the
+interface on this canvas. It does not touch `VISIBLE_XTILES`, which is why it
+is a renderer change rather than a widescreen one.
+
 What this deliberately does not do: change resolution at runtime (the
 canvas, `DisplayBuffer`, the widget root and the radar are all sized at
 init), scale the CPU debug-2D paths in `Screen.cpp` (`screenTextOut` and
