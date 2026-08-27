@@ -36,8 +36,10 @@ void ServerSession::SendSession(const Message& _message)
 
 void ServerSession::Service()
 {
+  /* Only the session channel. The other channels belong to consumers this does
+     not own, and eating their bytes would leave them with nothing to read. */
   LoopbackTransport::Message message;
-  while (m_link.Receive(LoopbackTransport::End::Server, message))
+  while (m_link.Receive(LoopbackTransport::End::Server, NetChannel::Session, message))
   {
     /* Once refused, the peer's bytes are drained and discarded. Draining rather
        than leaving them queued keeps a refused session from growing without

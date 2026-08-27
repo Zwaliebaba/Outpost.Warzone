@@ -5,6 +5,7 @@
     <ClCompile Include="HandshakeTest.cpp" />
     <ClCompile Include="LoopbackTransportTest.cpp" />
     <ClCompile Include="NetWireTest.cpp" />
+    <ClCompile Include="ReplicationRecordsTest.cpp" />
     <ClCompile Include="ScriptTest.cpp" />
     <ClCompile Include="NeuronCoreTest.cpp" />
     <ClCompile Include="pch.cpp" />

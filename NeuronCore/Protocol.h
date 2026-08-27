@@ -275,6 +275,104 @@ struct ServerTick
   [[nodiscard]] static ServerTick Decode(NetReader& _reader);
 };
 
+/* ---- The replication plane ------------------------------------------------
+ *
+ * How the client comes to have a world. Everything the client draws arrives
+ * through these: nothing is created because the client decided something ought
+ * to exist. That is the whole inversion, and it is why the ids below are
+ * server-minted rather than the 1998 (objID << 3) | player, which every peer
+ * could compute because every peer created objects.
+ */
+
+/// Server-minted, unique for the life of a session. Zero is not an entity.
+using EntityId = std::uint32_t;
+
+/// What kind of thing an entity is, as far as the wire is concerned.
+///
+/// This is the world's half of OBJECT_TYPE and not all of it: OBJ_TARGET is a
+/// camera-tracking placeholder rather than something that exists in the world,
+/// so it is not replicable and has no value here.
+enum class EntityKind : std::uint8_t
+{
+  Droid,
+  Structure,
+  Feature,
+  Projectile,
+
+  Count,
+};
+
+/// ServerMessage::Enter -- this entity is now in your interest set, and here is
+/// everything needed to start drawing it.
+///
+/// Enter is the only message that brings an entity into existence on a client.
+/// An Update naming an entity nobody has entered is dropped rather than used to
+/// invent one, so a lost Enter costs a missing object rather than a half-known
+/// one that is missing whatever Update does not carry.
+struct ServerEnter
+{
+  static constexpr ServerMessage Id = ServerMessage::Enter;
+
+  EntityId entityId = 0;
+  EntityKind kind = EntityKind::Droid;
+  std::uint8_t player = 0;
+  std::uint16_t x = 0;
+  std::uint16_t y = 0;
+  std::uint16_t z = 0;
+
+  /// Radians, +ve rotation about y, as BASE_OBJECT stores it.
+  float direction = 0.0f;
+
+  void Encode(NetWriter& _writer) const;
+  [[nodiscard]] static ServerEnter Decode(NetReader& _reader);
+};
+
+/// ServerMessage::Update -- where an entity is now.
+///
+/// Carries only what moves. Kind and player are stated once by Enter because
+/// they do not change, which is the difference between the two messages and the
+/// reason an Update is small enough to send every tick.
+struct ServerUpdate
+{
+  static constexpr ServerMessage Id = ServerMessage::Update;
+
+  EntityId entityId = 0;
+  std::uint16_t x = 0;
+  std::uint16_t y = 0;
+  std::uint16_t z = 0;
+  float direction = 0.0f;
+
+  void Encode(NetWriter& _writer) const;
+  [[nodiscard]] static ServerUpdate Decode(NetReader& _reader);
+};
+
+/// ServerMessage::Leave -- this entity has left your interest set.
+///
+/// It still exists; you can no longer see it. Distinct from Destroy because the
+/// client does different things: an entity that walked into fog is not an
+/// entity that blew up, and the 1998 model could not tell the two apart because
+/// every peer knew everything all the time.
+struct ServerLeave
+{
+  static constexpr ServerMessage Id = ServerMessage::Leave;
+
+  EntityId entityId = 0;
+
+  void Encode(NetWriter& _writer) const;
+  [[nodiscard]] static ServerLeave Decode(NetReader& _reader);
+};
+
+/// ServerMessage::Destroy -- this entity no longer exists.
+struct ServerDestroy
+{
+  static constexpr ServerMessage Id = ServerMessage::Destroy;
+
+  EntityId entityId = 0;
+
+  void Encode(NetWriter& _writer) const;
+  [[nodiscard]] static ServerDestroy Decode(NetReader& _reader);
+};
+
 /// Writes a message id and its body together, taking the id from the record so
 /// the two cannot disagree.
 template <typename Message>

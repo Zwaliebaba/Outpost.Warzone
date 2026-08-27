@@ -116,6 +116,28 @@ public:
     Assert::IsTrue(received.channel == NetChannel::Session); // sent second, seen first
   }
 
+  TEST_METHOD(OneChannelCanBeReadWithoutTakingAnother)
+  {
+    LoopbackTransport link;
+
+    std::byte scratch[4]{};
+    NetWriter writer{scratch};
+    writer.U8(0x01u);
+    link.Send(LoopbackTransport::End::Server, NetChannel::Session, writer.Written());
+    link.Send(LoopbackTransport::End::Server, NetChannel::Replication, writer.Written());
+
+    /* This is the form that survives rung 3, where each channel is its own QUIC
+       stream -- and the reason two consumers can share one link. A reader that
+       took whatever was next would drain the other's traffic and drop it. */
+    LoopbackTransport::Message received;
+    Assert::IsTrue(link.Receive(LoopbackTransport::End::Client, NetChannel::Replication, received));
+    Assert::IsTrue(received.channel == NetChannel::Replication);
+    Assert::IsFalse(link.Receive(LoopbackTransport::End::Client, NetChannel::Replication, received));
+
+    Assert::AreEqual(static_cast<size_t>(1), link.Pending(LoopbackTransport::End::Client));
+    Assert::IsTrue(link.Receive(LoopbackTransport::End::Client, NetChannel::Session, received));
+  }
+
   TEST_METHOD(EachDirectionIsItsOwnQueue)
   {
     LoopbackTransport link;

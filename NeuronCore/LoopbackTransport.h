@@ -58,14 +58,28 @@ public:
   /// buffer -- typically a NetWriter's stack buffer -- can be reused at once.
   void Send(End _from, NetChannel _channel, std::span<const std::byte> _bytes);
 
-  /// Takes the next message waiting for _to, or returns FALSE when there is
-  /// none.
+  /// Takes the next message waiting for _to on one channel, or returns FALSE
+  /// when that channel is empty.
+  ///
+  /// **This is the form that survives rung 3.** Over QUIC each channel is its
+  /// own stream, so reading one is reading one stream; a reader that wants the
+  /// Replication channel is not handed Session bytes it has no business
+  /// consuming. Each consumer draining its own channel is what lets two of
+  /// them share a link without either eating the other's traffic.
+  [[nodiscard]] bool Receive(End _to, NetChannel _channel, Message& _outMessage);
+
+  /// Takes the next message waiting for _to on any channel, or returns FALSE
+  /// when there is none.
   ///
   /// Channels are drained in declaration order, so Session traffic is seen
   /// ahead of world data and Bulk last. That ordering is a policy rather than
   /// a guarantee the protocol makes: a saturated Session channel would starve
   /// Bulk, which in-process cannot happen and over a real link is the
   /// transport's problem rather than this one's.
+  ///
+  /// Useful for emptying a link -- ending a session, or a test asserting that
+  /// nothing is left anywhere. A consumer that handles one channel should take
+  /// that channel rather than this.
   [[nodiscard]] bool Receive(End _to, Message& _outMessage);
 
   /// How many messages are waiting for _to, across every channel.

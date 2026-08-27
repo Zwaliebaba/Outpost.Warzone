@@ -57,8 +57,11 @@ void ClientSession::Begin()
 
 void ClientSession::Service()
 {
+  /* Only the session channel. Replication bytes belong to the replica store,
+     which drains its own; a session that swallowed them would leave the world
+     empty and nothing to say why. */
   LoopbackTransport::Message message;
-  while (m_link.Receive(LoopbackTransport::End::Client, message))
+  while (m_link.Receive(LoopbackTransport::End::Client, NetChannel::Session, message))
   {
     /* Once refused, the server's bytes are drained and discarded, for the same
        reason the server drains a refused client's: nothing is acted on, and

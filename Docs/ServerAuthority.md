@@ -632,13 +632,65 @@ AddressSanitizer and UndefinedBehaviorSanitizer, both halves being Windows-free
 by construction; CI runs each half against a hand-driven peer, one per test
 project.
 
-Next in this stage: the first replication of a real entity, then the wiring
-into [Loop.cpp](../Outpost/Loop.cpp) — which is the point the running game
-starts going through the boundary. One protocol gap is already visible and is
-the natural next increment. `Ready` carries no body, so a client that loaded a
-different level than the one `Start` named says nothing about it and desyncs
-from tick 1. Giving `Ready` the map hash it actually loaded, and the server a
-`Kick` for the mismatch, is the check that closes it.
+**Entities replicate, and the client cannot make one up.**
+`ServerEnter`, `ServerUpdate`, `ServerLeave` and `ServerDestroy` are records in
+[Protocol.h](../NeuronCore/Protocol.h), and
+[ReplicaStore.h](../NeuronClient/ReplicaStore.h) is the client's world built out
+of them.
+
+The inversion is stated as an interface rather than as a rule to remember: the
+store's mutators are private and `Apply` is the only door, so **there is no way
+to put anything in the client's world except by receiving it**. The 1998 client
+created objects because it simulated them; this one cannot create one at all.
+Four consequences fall out, and each has a test:
+
+- **Only `Enter` brings an entity into existence.** An `Update`, `Leave` or
+  `Destroy` naming an entity that was never entered changes nothing. Inventing
+  one from a delta would produce an object missing whatever that message does
+  not carry, which looks real and is wrong; a lost `Enter` costs a missing
+  object instead, which is visible.
+- **`Update` carries only what moves.** Kind and player are stated once by
+  `Enter` because they do not change, which is what makes an update small enough
+  to send every tick, and what a re-`Enter` restates in full.
+- **`Leave` is not `Destroy`.** An entity that walked into fog is not one that
+  blew up. They do the same thing to the store and stay separate messages
+  because the client does different things with them, so the store reports which
+  happened, along with the entity as it last stood — whoever puts an explosion
+  where something died needs the position it died at, and by then the store no
+  longer has it. The 1998 model could not tell the two apart, because every peer
+  knew everything all the time.
+- **An entity of a kind this build has no name for is not drawn.** There is no
+  fallback kind to fold an unknown one into, the way an unknown handshake result
+  folds to a refusal, so `NetReader` gained `Invalidate()`: a decoder can say
+  the bytes were all there and still meant nothing. That is kept apart from
+  `Truncated()` because "cut short" and "arrived whole and was nonsense" are
+  different things to have to diagnose, and folded into the same `Ok()` so a
+  caller still asks one question about the whole record.
+
+Ids are server-minted `EntityId`s. `(objID << 3) | player` worked because every
+peer created objects and so every peer could compute an id nobody else would
+use; with one authority minting them that construction has nothing left to do,
+and it survives only inside the server.
+
+**Two consumers now share one link**, which is what forced
+`LoopbackTransport::Receive` to grow a per-channel form. A session that drained
+whatever was next would swallow replication bytes and drop them, and the world
+would come up empty with nothing to say why. Reading one channel is what a real
+transport gives anyway — over QUIC each channel is its own stream — so the
+per-channel form is the one that survives rung 3 and the drain-everything form
+is now for emptying a link at the end of a session.
+
+Next in this stage: the wiring into [Loop.cpp](../Outpost/Loop.cpp), which is
+the point the running game starts going through the boundary, and with it the
+server side that walks a real world and emits the messages above. Two smaller
+gaps are already visible and are worth closing on the way. `Ready` carries no
+body, so a client that loaded a different level than the one `Start` named says
+nothing about it and desyncs from tick 1; giving `Ready` the map hash it
+actually loaded, and the server a `Kick` for the mismatch, is the check that
+closes it. And a `Replica` carries position and direction only — pitch, roll,
+body and turret, damage and animation state land as the renderer is actually fed
+from the store, because that is when it becomes clear which of them the server
+has to state and which the client can derive from a map it already has.
 
 ### E — `OutpostServer.exe`, headless
 

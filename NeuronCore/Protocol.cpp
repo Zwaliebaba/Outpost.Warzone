@@ -70,6 +70,84 @@ ServerTick ServerTick::Decode(NetReader& _reader)
   return value;
 }
 
+void ServerEnter::Encode(NetWriter& _writer) const
+{
+  _writer.U32(entityId);
+  _writer.U8(static_cast<std::uint8_t>(kind));
+  _writer.U8(player);
+  _writer.U16(x);
+  _writer.U16(y);
+  _writer.U16(z);
+  _writer.F32(direction);
+}
+
+ServerEnter ServerEnter::Decode(NetReader& _reader)
+{
+  ServerEnter enter;
+  enter.entityId = _reader.U32();
+
+  /* A kind byte off the wire is a byte a peer chose, and there is no sensible
+     default entity, so an unknown one truncates the read instead. The record
+     comes back inert and the caller's Ok() check drops it, which is what it
+     would do with any other unreadable message. */
+  const std::uint8_t raw = _reader.U8();
+  if (raw < static_cast<std::uint8_t>(EntityKind::Count))
+    enter.kind = static_cast<EntityKind>(raw);
+  else
+    _reader.Invalidate();
+
+  enter.player = _reader.U8();
+  enter.x = _reader.U16();
+  enter.y = _reader.U16();
+  enter.z = _reader.U16();
+  enter.direction = _reader.F32();
+  return enter;
+}
+
+void ServerUpdate::Encode(NetWriter& _writer) const
+{
+  _writer.U32(entityId);
+  _writer.U16(x);
+  _writer.U16(y);
+  _writer.U16(z);
+  _writer.F32(direction);
+}
+
+ServerUpdate ServerUpdate::Decode(NetReader& _reader)
+{
+  ServerUpdate update;
+  update.entityId = _reader.U32();
+  update.x = _reader.U16();
+  update.y = _reader.U16();
+  update.z = _reader.U16();
+  update.direction = _reader.F32();
+  return update;
+}
+
+void ServerLeave::Encode(NetWriter& _writer) const
+{
+  _writer.U32(entityId);
+}
+
+ServerLeave ServerLeave::Decode(NetReader& _reader)
+{
+  ServerLeave leave;
+  leave.entityId = _reader.U32();
+  return leave;
+}
+
+void ServerDestroy::Encode(NetWriter& _writer) const
+{
+  _writer.U32(entityId);
+}
+
+ServerDestroy ServerDestroy::Decode(NetReader& _reader)
+{
+  ServerDestroy destroy;
+  destroy.entityId = _reader.U32();
+  return destroy;
+}
+
 HandshakeResult Consider(const ClientHello& _hello, std::uint32_t _serverBuildHash) noexcept
 {
   if (_hello.protocolVersion != ProtocolVersion)

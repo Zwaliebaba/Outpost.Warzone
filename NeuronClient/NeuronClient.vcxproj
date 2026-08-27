@@ -196,6 +196,7 @@
     <ClInclude Include="RenderMatrix.h" />
     <ClInclude Include="RenderModel.h" />
     <ClInclude Include="RenderTypes.h" />
+    <ClInclude Include="ReplicaStore.h" />
     <ClInclude Include="Screen.h" />
     <ClInclude Include="Sequence.h" />
     <ClInclude Include="Slider.h" />
@@ -244,6 +245,7 @@
     <ClCompile Include="RenderClip.cpp" />
     <ClCompile Include="RenderMatrix.cpp" />
     <ClCompile Include="RenderModel.cpp" />
+    <ClCompile Include="ReplicaStore.cpp" />
     <ClCompile Include="Screen.cpp" />
     <ClCompile Include="Sequence.cpp" />
     <ClCompile Include="Slider.cpp" />

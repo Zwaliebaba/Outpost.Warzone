@@ -22,6 +22,11 @@ namespace Neuron
 /// zero too, so a caller decodes a whole message and asks once at the end
 /// rather than testing thirty return values. A decoder that forgets to ask gets
 /// a zeroed record, which is inert, rather than a partly-populated one.
+///
+/// A decoder may also mark the read invalid itself, for bytes that were all
+/// present and still meant nothing -- an enum value this build has no name for
+/// is the usual case. That folds into the same Ok(), so a caller still asks one
+/// question however the record failed.
 class NetReader
 {
 public:
@@ -49,11 +54,24 @@ public:
   void Text(std::span<char> _out) noexcept;
 
   /// TRUE once any read has run past the end. Everything decoded after that
-  /// point is zero, so this is the one test that says whether the record means
-  /// anything.
+  /// point is zero.
   [[nodiscard]] bool Truncated() const noexcept { return m_truncated; }
 
-  [[nodiscard]] bool Ok() const noexcept { return !m_truncated; }
+  /// Says the bytes were all there but did not mean anything -- an enum value
+  /// this build has no name for, a field a decoder can see is impossible.
+  ///
+  /// Sticky, and folded into Ok() alongside truncation, so a decoder that
+  /// finds a field it cannot use says so once and the caller still asks a
+  /// single question about the whole record. Kept apart from Truncated()
+  /// because the two are different facts: one says the message was cut short,
+  /// the other says it arrived whole and was nonsense.
+  void Invalidate() noexcept { m_invalid = true; }
+
+  /// Whether the record means anything: nothing ran off the end, and no
+  /// decoder found a field it could not use. This is the one test worth
+  /// making, and making it once at the end is the point of both flags being
+  /// sticky.
+  [[nodiscard]] bool Ok() const noexcept { return !m_truncated && !m_invalid; }
 
   [[nodiscard]] std::size_t Remaining() const noexcept { return m_buffer.size() - m_at; }
 
@@ -65,6 +83,7 @@ private:
   std::span<const std::byte> m_buffer;
   std::size_t m_at = 0;
   bool m_truncated = false;
+  bool m_invalid = false;
 };
 
 } // namespace Neuron

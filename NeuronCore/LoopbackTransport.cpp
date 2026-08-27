@@ -19,6 +19,20 @@ void LoopbackTransport::Send(End _from, NetChannel _channel, std::span<const std
   queues[Index(_channel)].push_back(std::move(message));
 }
 
+bool LoopbackTransport::Receive(End _to, NetChannel _channel, Message& _outMessage)
+{
+  if (_channel >= NetChannel::Count)
+    return false;
+
+  std::deque<Message>& queue = QueuesFor(_to)[Index(_channel)];
+  if (queue.empty())
+    return false;
+
+  _outMessage = std::move(queue.front());
+  queue.pop_front();
+  return true;
+}
+
 bool LoopbackTransport::Receive(End _to, Message& _outMessage)
 {
   ChannelQueues& queues = QueuesFor(_to);
