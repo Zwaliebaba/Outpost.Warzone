@@ -98,6 +98,42 @@ def well_formed():
     return bad
 
 
+def language_standard():
+    """Every configuration that compiles C++ names the standard it compiles it as.
+
+    Left unset, MSVC compiles as C++14, so <span>, <expected> and every other
+    C++20-and-later header simply is not there. The failure is a wall of
+    "'span': is not a member of 'std'" pointing at a header that includes
+    <span> perfectly correctly, in one project while the identical header
+    compiles in the next.
+
+    crosscheck cannot see this: it drives g++ with a -std it chooses itself, so
+    it compiles the same sources to a standard no project asked for. This is
+    the third divergence of that shape - after the `small` macro and the
+    schema check above - and like those two, the answer is to state the
+    Windows-only fact here rather than hope the harness stumbles into it.
+    """
+    bad = []
+    for d in PROJECTS:
+        name = f'{d}/{d}.vcxproj'
+        if real_name(name) is None: continue
+        try:
+            root = ET.parse(name).getroot()
+        except ET.ParseError:
+            continue    # well_formed() has already said so
+        local = lambda e: e.tag.rsplit('}', 1)[-1]
+        for group in root.iter():
+            if local(group) != 'ItemDefinitionGroup': continue
+            for settings in group:
+                if local(settings) != 'ClCompile': continue
+                if any(local(e) == 'LanguageStandard' for e in settings):
+                    continue
+                cond = group.get('Condition', '(all configurations)')
+                bad.append(f'{name}: {cond} sets no <LanguageStandard>, '
+                           f'so it compiles as C++14')
+    return bad
+
+
 def main():
     disk={}
     sources=[]
@@ -105,7 +141,7 @@ def main():
         for f in listing(d).values():
             disk.setdefault(f.lower(), f)
             if f.endswith(('.c', '.h', '.cpp')): sources.append(f'{d}/{f}')
-    bad=well_formed()
+    bad=well_formed()+language_standard()
 
     for p in sorted(sources):
         with open(p,encoding='latin-1') as fh: text=fh.read()
