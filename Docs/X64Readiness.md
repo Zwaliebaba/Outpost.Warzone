@@ -1,6 +1,12 @@
 # x64 readiness
 
-What stands between this tree and an x64 build, found by auditing for the
+> **Outcome (2026-08-27): x64 is the platform that ships.** Win32 is out of
+> CI, which now builds Debug and Release for x64 only, and both block. This
+> document keeps its original framing below — it was written as "what stands
+> between this tree and an x64 build" and reads as history now, except for the
+> **Watch** section, which is live.
+
+What stood between this tree and an x64 build, found by auditing for the
 hazards a Win32 build cannot report: on Win32 `sizeof(void*) == sizeof(UDWORD)`,
 so every pointer-through-integer round trip compiles clean and works. On x64
 those same lines truncate a 64-bit pointer to 32 bits and hand back an address

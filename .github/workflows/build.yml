@@ -20,18 +20,16 @@ jobs:
         run: python3 tools/check_scripts.py
 
   build:
-    name: ${{ matrix.configuration }}|${{ matrix.platform }}
+    name: ${{ matrix.configuration }}|x64
     runs-on: windows-latest
-    # x64 is an in-flight migration (Docs/X64Readiness.md), not a
-    # configuration that is expected to build yet. It runs so its
-    # diagnostics are visible and measurable, but it must not fail the
-    # workflow or block a PR on Win32 work.
-    continue-on-error: ${{ matrix.platform == 'x64' }}
+    # x64 is the platform now, and it blocks. It arrived as an in-flight
+    # migration behind continue-on-error (Docs/X64Readiness.md); Win32 was
+    # dropped by owner decision on 2026-08-27, so there is no second platform
+    # to keep green and nothing left to excuse a red x64.
     strategy:
       fail-fast: false
       matrix:
         configuration: [Debug, Release]
-        platform: [Win32, x64]
 
     steps:
       - uses: actions/checkout@v4
@@ -68,7 +66,7 @@ jobs:
       # separator unless the whole switch is quoted. Building serially: with
       # /m the failing project's diagnostics can be interleaved away.
       - name: Build
-        run: msbuild Outpost\Outpost.vcxproj /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform }} /v:normal /nologo "/flp:LogFile=build.log;Verbosity=diagnostic"
+        run: msbuild Outpost\Outpost.vcxproj /p:Configuration=${{ matrix.configuration }} /p:Platform=x64 /v:normal /nologo "/flp:LogFile=build.log;Verbosity=diagnostic"
 
       # The unit tests, which until now nothing ran. NeuronCoreTest is not a
       # reference of Outpost -- it compiles the NeuronCore sources it tests
@@ -80,7 +78,7 @@ jobs:
         shell: pwsh
         run: |
           foreach ($proj in 'NeuronCoreTest', 'NeuronClientTest', 'NeuronServerTest') {
-            msbuild "$proj\$proj.vcxproj" /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform }} /v:normal /nologo "/flp:LogFile=test-build.log;Verbosity=diagnostic;Append"
+            msbuild "$proj\$proj.vcxproj" /p:Configuration=${{ matrix.configuration }} /p:Platform=x64 /v:normal /nologo "/flp:LogFile=test-build.log;Verbosity=diagnostic;Append"
             if ($LASTEXITCODE -ne 0) { throw "$proj failed to build" }
           }
 
@@ -104,17 +102,15 @@ jobs:
             if (-not $hit) { throw "$proj.dll was not produced" }
             $hit.FullName
           }
-          # Win32 is MSBuild's name for the platform; vstest calls it x86.
-          $arch = if ('${{ matrix.platform }}' -eq 'x64') { 'x64' } else { 'x86' }
-          Write-Host "running as ${arch}:`n$($dlls -join "`n")"
-          & $vstest $dlls /Platform:$arch /Logger:trx /ResultsDirectory:TestResults
+          Write-Host "running:`n$($dlls -join "`n")"
+          & $vstest $dlls /Platform:x64 /Logger:trx /ResultsDirectory:TestResults
           if ($LASTEXITCODE -ne 0) { throw "unit tests failed (exit $LASTEXITCODE)" }
 
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results-${{ matrix.configuration }}-${{ matrix.platform }}
+          name: test-results-${{ matrix.configuration }}-x64
           path: TestResults
           if-no-files-found: ignore
 
@@ -143,7 +139,7 @@ jobs:
           $warnings = Select-String -Path build.log -Pattern ': warning [A-Z]+[0-9]+:' |
             ForEach-Object { $_.Line.Trim() -replace $root, '' -replace ' \[[^\]]*\.vcxproj\]$', '' } |
             Sort-Object -Unique
-          $header = "## ${{ matrix.configuration }}|${{ matrix.platform }} - $($warnings.Count) unique warning(s)"
+          $header = "## ${{ matrix.configuration }}|x64 - $($warnings.Count) unique warning(s)"
           Write-Host $header
           $header | Out-File -Append -Encoding utf8 $env:GITHUB_STEP_SUMMARY
           if ($warnings.Count -gt 0) {
@@ -161,6 +157,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: build-log-${{ matrix.configuration }}-${{ matrix.platform }}
+          name: build-log-${{ matrix.configuration }}-x64
           path: build.log
           if-no-files-found: ignore

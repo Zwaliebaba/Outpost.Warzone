@@ -10,13 +10,16 @@ The shadow neutralises the things GCC cannot process: includes whose case
 does not match the real filename, and the MSVC-only headers NeuronCore.h
 pulls in but never uses.
 
-Usage:  tools/crosscheck.py [-j N] [--release] [--x64] [--sim-only] [file.cpp ...]
+Usage:  tools/crosscheck.py [-j N] [--release] [--x86] [--sim-only] [file.cpp ...]
 
---x64 checks with the 64-bit mingw instead of the 32-bit one. Worth its own
-run: on Win32 sizeof(void*) == sizeof(UDWORD), so every pointer-through-
-integer round trip compiles clean and the 32-bit pass cannot see it. That is
-the whole subject of Docs/X64Readiness.md, and until this flag existed the
-Linux pre-CI gate only ever looked at i686.
+The default target is x64, which is what CI builds and gates. --x86 checks
+with the 32-bit mingw instead; those configurations are unmaintained since
+Win32 left CI on 2026-08-27, so there is normally no reason to ask.
+
+The width is why the target matters: at 32 bits sizeof(void*) ==
+sizeof(UDWORD), so every pointer-through-integer round trip compiles clean
+and an x86 pass cannot see it. That is the whole subject of
+Docs/X64Readiness.md.
 
 --sim-only checks the candidate server-side units with the NeuronClient
 include directory taken away, which is the standing gate behind
@@ -268,8 +271,8 @@ def main():
                     help='parallel compiler invocations (default: %(default)s)')
     ap.add_argument('--release', action='store_true',
                     help='define NDEBUG instead of _DEBUG')
-    ap.add_argument('--x64', action='store_true',
-                    help='check with the 64-bit mingw (default: 32-bit)')
+    ap.add_argument('--x86', action='store_true',
+                    help='check with the 32-bit mingw (default: x64, which is what CI builds)')
     ap.add_argument('--sim-only', action='store_true',
                     help='check the candidate server units with NeuronClient removed '
                          'from the include path (Docs/ServerAuthority.md stage B)')
@@ -277,7 +280,7 @@ def main():
                     help='translation units to check (default: all of them)')
     opt = ap.parse_args()
 
-    cxx = CXX['x64' if opt.x64 else 'x86']
+    cxx = CXX['x86' if opt.x86 else 'x64']
     if shutil.which(cxx) is None:
         print(f'{cxx} not found', file=sys.stderr)
         return 2
@@ -331,7 +334,7 @@ def main():
                     print(f'--- {rel}: {len(lines)} error(s)')
                     for l in lines[:12]:
                         print('   ', l.replace(shadow + '/', ''))
-        plat = 'x64' if opt.x64 else 'x86'
+        plat = 'x86' if opt.x86 else 'x64'
         if opt.sim_only:
             print(f'\n{len(files) - bad}/{len(files)} candidate server units are '
                   f'client-free ({plat}); {bad} still reach NeuronClient')

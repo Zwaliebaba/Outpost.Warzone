@@ -33,7 +33,7 @@ and palette work, and the script module rewrite:
 | | |
 |---|---|
 | Translation units | 20 NeuronCore, 42 NeuronClient, 1 NeuronServer, 117 Outpost, 12 NeuronCoreTest |
-| Toolset | MSVC v145; Win32 (x86) builds and ships, x64 configurations exist but are unbuilt (`Docs/X64Readiness.md`) |
+| Toolset | MSVC v145; **x64 is the platform that ships** and the only one CI builds (2026-08-27). The x86 configurations still exist in the project files and are unmaintained (`Docs/X64Readiness.md`) |
 | Generated parser code | **None.** All six MKS lex/yacc grammars are gone |
 | Win32 build warnings | 12 (was 343) |
 
@@ -516,7 +516,32 @@ same reason — only the packet cipher was the transport's to replace.
 The `NetAdd`/`NetGet` message macros and the `NETMSG` layout are unchanged,
 which kept the blast radius inside the transport.
 
-### Verification
+### The platform: x64 ships, Win32 leaves CI (2026-08-27)
+
+**By owner decision the game ships x64 and Win32 is out of the build.** The
+workflow builds Debug and Release for x64 only, and both **block**: the x64
+legs ran `continue-on-error` while the migration was in flight, and with no
+second platform to fall back on there is nothing left for that flag to
+protect. The x86 configurations remain in the `.vcxproj` files and in
+`Outpost.slnx`, unmaintained.
+
+This was earned rather than declared. x64 had been building and linking
+warning-free in all four configurations for a while, and the run before the
+switch showed Release green on both platforms with the unit tests passing —
+so x64 was already doing everything Win32 was, with the tests to say so.
+
+`tools/crosscheck.py` follows: its default target is x64, matching CI, and the
+old `--x64` flag is now `--x86` for the unmaintained half. A pre-CI gate that
+checks a platform nobody builds is worse than no gate, because it reads as
+coverage.
+
+What this closes: [AGENTS.md §3](../AGENTS.md)'s stop-and-report on adding an
+x64 platform, which has been standing since Phase 6 removed the last 32-bit
+binary. What it does not close is [X64Readiness.md](X64Readiness.md)'s **Watch**
+list — those are still there, and one of them (`==` on two objects comparing
+half a pointer each) is now the only known width defect left in the VM.
+
+## Verification
 
 `NetTest/` was a console harness CI ran in both configurations: two processes
 over 127.0.0.1, one hosting and one joining, checking the certificate and

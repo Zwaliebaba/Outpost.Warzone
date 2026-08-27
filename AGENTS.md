@@ -110,7 +110,7 @@ private:
 
 [`.clang-tidy`](.clang-tidy) at the repository root is the machine-readable statement of every rule above, and it is the **single source of truth** for the option values — this document does not repeat them, so there is nothing to drift. `readability-identifier-length` is deliberately left off: its defaults reject the domain vocabulary this codebase is built on (`x`, `y`, `_a`, `_b`), and short names here are precise, not lazy.
 
-**Nothing runs it automatically yet.** [`build.yml`](.github/workflows/build.yml) builds Debug and Release for Win32 and x64, builds and **runs the three CppUnitTest suites** through `vstest.console.exe`, and runs `tools/check_case.py` (which verifies every `#include` and project entry spells its file with the exact on-disk case — MSVC resolves includes case-insensitively, so a wrong name still builds). There is no clang-tidy step, and the `.vcxproj` files do not enable MSBuild's code analysis. Until one of those changes, §1 is enforced by **review**: check your own diff against the table before handing it back.
+**Nothing runs it automatically yet.** [`build.yml`](.github/workflows/build.yml) builds Debug and Release for x64, builds and **runs the three CppUnitTest suites** through `vstest.console.exe`, and runs `tools/check_case.py` (which verifies every `#include` and project entry spells its file with the exact on-disk case — MSVC resolves includes case-insensitively, so a wrong name still builds). There is no clang-tidy step, and the `.vcxproj` files do not enable MSBuild's code analysis. Until one of those changes, §1 is enforced by **review**: check your own diff against the table before handing it back.
 
 **When you do run it, run it on what you wrote, not on the tree.** The legacy code predates every rule here (§1, under the table), so a whole-tree pass reports thousands of grandfathered findings and tells you nothing. Point it at the files your change adds, or filter to your changed lines:
 
@@ -138,7 +138,7 @@ Two rules the config cannot express, and that a reviewer therefore has to carry:
 | `Docs/MigrationPlan.md` | The plan and the record of what each phase changed | Yes — see §6 |
 | `.clang-format`, `.clang-tidy`, `.editorconfig` | Layout and naming, machine-readable (§1, §4) | Yes — with an owner decision |
 | `tools/*.py` | Repository checkers and content-authoring scripts (§3) | Yes |
-| `.github/workflows/build.yml` | CI: Debug and Release, Win32 and x64 (x64 non-blocking), the three unit-test suites, plus the script corpus | Yes, carefully |
+| `.github/workflows/build.yml` | CI: Debug and Release for x64, the three unit-test suites, plus the script corpus. All of it blocks | Yes, carefully |
 | `Debug/`, `x64/`, `.vs/`, `*.user` | Build and IDE output | **No — and never commit them** |
 
 **There is no vendored SDK.** `DX9/Include` and `DX9/Lib` held a checked-in DirectX 9.0c
@@ -148,7 +148,7 @@ QUIC transport, is gone with them. Do not restore either, and do not add a build
 that assumes they exist.
 
 **Seven projects, and the edges run one way.** `Outpost.slnx` is the solution; its
-platforms are `x86` (the one that builds) and `x64` (see §3).
+platforms are `x64` (the one CI builds and gates) and `x86` (unmaintained, see §3).
 
 ```
 NeuronCore.lib          ← the engine everything else builds on
@@ -171,16 +171,15 @@ split, do not move a file between them** — see R13.
 
 ## 3. Build and verify
 
-**Win32 (x86) is the platform that ships**, toolset v145, `/std:c++latest`, and there is no CMake. **x64 builds and links clean** in every `.vcxproj` and in `Outpost.slnx`, Debug and Release, with zero warnings — but it has never been *run*, so it is a configuration you may assume compiles and may not assume works. It is tracked in [`Docs/X64Readiness.md`](Docs/X64Readiness.md); read it before writing anything that puts a pointer in an integer, a struct on a wire, or a struct in a file. CI builds both platforms, with the x64 legs `continue-on-error`. If a build error tempts you to change the toolset or lower the language standard — stop and report instead.
+**x64 is the platform that ships** (owner decision, 2026-08-27), toolset v145, `/std:c++latest`, and there is no CMake. Win32 is gone from CI: the workflow builds Debug and Release for x64 only, and both **block** — there is no second platform to fall back on and nothing left to excuse a red x64. The 32-bit configurations still exist in the `.vcxproj` files and are not maintained; do not add code that only works at 32 bits, and do not spend a round making them build. [`Docs/X64Readiness.md`](Docs/X64Readiness.md) records how the migration went and what is still on watch; read it before writing anything that puts a pointer in an integer, a struct on a wire, or a struct in a file. If a build error tempts you to change the toolset or lower the language standard — stop and report instead.
 
 ```powershell
 # Build the game. Its project references pull in NeuronCore, NeuronClient and
 # NeuronServer, so this builds all four.
-msbuild Outpost\Outpost.vcxproj /p:Configuration=Debug /p:Platform=Win32 /v:normal /nologo
+msbuild Outpost\Outpost.vcxproj /p:Configuration=Debug /p:Platform=x64 /v:normal /nologo
 
-# Build everything including the test DLL. Note the platform is x86 here, not
-# Win32: that is the name the .slnx gives it.
-msbuild Outpost.slnx /p:Configuration=Debug /p:Platform=x86 /v:normal /nologo
+# Build everything including the test DLLs.
+msbuild Outpost.slnx /p:Configuration=Debug /p:Platform=x64 /v:normal /nologo
 
 # Filename-casing gate. MSVC resolves includes case-insensitively, so a wrong
 # #include still builds on Windows and only fails on the Linux checkers. Run it.
@@ -201,12 +200,11 @@ The executable lands in `Debug\Outpost.exe` (or `Release\`), and it needs `GameD
 **Without MSVC** (Linux container), `tools/crosscheck.py` syntax-checks every translation unit with mingw-w64 against a shadow tree. It is a fast first pass, **not a build**: it cannot link, and MSVC disagrees with GCC in both directions. The Windows CI build is the authority.
 
 ```
-apt-get install -y g++-mingw-w64-i686 g++-mingw-w64-x86-64   # once per container
-python3 tools/crosscheck.py -j 8            # 32-bit
-python3 tools/crosscheck.py --x64 -j 8      # 64-bit -- run this too
+apt-get install -y g++-mingw-w64-x86-64     # once per container
+python3 tools/crosscheck.py -j 8            # x64, which is what CI builds
 ```
 
-**Run the `--x64` pass as well as the default one.** On Win32 `sizeof(void*) == sizeof(UDWORD)`, so a whole class of defect compiles clean at 32 bits and only appears at 64. The first run of that flag found a null object result being pushed through the script VM's *integer* overload — invisible on x86, a garbage pointer on x64 — in a tree the 32-bit pass called clean 180/180.
+The default is x64, matching CI. `--x86` still exists and checks the unmaintained 32-bit configurations; there is no reason to run it. The width difference is why the platform matters: on Win32 `sizeof(void*) == sizeof(UDWORD)`, so a whole class of defect compiles and *runs* clean at 32 bits and only appears at 64 — `stackPopType` copying an object value through a four-byte union member survived years of shipping x86 that way.
 
 **After touching a simulation file**, run `python tools/crosscheck.py --sim-only`.
 It compiles the candidate server-side units with `NeuronClient` taken off the
