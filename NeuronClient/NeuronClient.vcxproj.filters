@@ -68,7 +68,6 @@
     <ClInclude Include="Input.h" />
     <ClInclude Include="IvisPatch.h" />
     <ClInclude Include="Label.h" />
-    <ClInclude Include="ListMacs.h" />
     <ClInclude Include="MaxPiDef.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="MovieStream.h" />

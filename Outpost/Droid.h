@@ -8,7 +8,10 @@
 #define _droid_h
 
 #include "ObjectDef.h"
-#include "Track.h"
+
+/* Pointed at, never dereferenced here, so a declaration is enough - and it
+ * keeps this header out of the client library. */
+struct AUDIO_SAMPLE;
 
 #define OFF_SCREEN 9999		// world->screen check - alex
 

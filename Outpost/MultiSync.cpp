@@ -33,6 +33,7 @@
 #include "FrontEnd.h"								// for titlemode
 #include "MultiStat.h"
 #include "Power.h"									// for power checks
+#include "RenderClip.h"
 // ////////////////////////////////////////////////////////////////////////////
 // function definitions
 BOOL sendCheck(VOID); // send/recv  check info

@@ -50,6 +50,7 @@
 #include "MultiInt.h"
 #include "MultiStat.h"
 #include "MultiLimit.h"
+#include "RenderClip.h"
 
 extern void frontEndCheckCD(tMode tModeNext);
 

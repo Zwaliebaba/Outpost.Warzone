@@ -73,6 +73,7 @@
 #include "Scores.h"
 #include "Gateway.h"
 #include "StatsTable.h"
+#include "AnimObj.h"
 
 //testing the new electronic warfare for multiPlayer - AB don't want to release with this in the game!!!!!!
 

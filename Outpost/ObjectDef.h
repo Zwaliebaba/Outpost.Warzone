@@ -9,7 +9,6 @@
 #define _objectdef_h
 
 #include "Frame.h"
-#include "RenderTypes.h"
 
 #include "AIDef.h"
 #include "FunctionDef.h"
@@ -23,5 +22,8 @@
 #include "StructureDef.h"
 #include "BulletDef.h"
 #include "FeatureDef.h"
+
+/* Pointed at, never dereferenced here, so a declaration is enough - and it
+ * keeps this header out of the client library. */
 
 #endif

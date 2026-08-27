@@ -39,6 +39,7 @@
 
 #include "CSnap.h"
 #include "Palette.h"
+#include "RenderClip.h"
 extern CURSORSNAP InterfaceSnap;
 
 // See research.txt for research entry to be displayed

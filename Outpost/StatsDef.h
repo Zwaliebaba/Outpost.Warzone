@@ -1,3 +1,7 @@
+
+/* Pointed at, never dereferenced here, so a declaration is enough - and it
+ * keeps this header out of the client library. */
+struct iIMDShape;
 /*
  * StatsDef.h
  *
@@ -6,7 +10,6 @@
  */
 #ifndef _statsdef_h
 #define _statsdef_h
-#include "Model.h"
 
 #ifdef HASH_NAMES
 /* Elements common to all stats structures */

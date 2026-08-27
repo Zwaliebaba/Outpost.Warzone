@@ -337,21 +337,72 @@ stage cannot answer without running it, and it is the question
 single named constant and interpolation is the designed answer — in that
 order.
 
-### B — Split simulation state from presentation state
+### B — Split simulation state from presentation state  *(first pass landed 2026-08-27)*
 
 The object model mixes the two: `DROID` carries screen coords, `sDisplay`,
 IMD pointers and effect state beside hp, order and position. Introduce the
 discipline (not yet the library move) file by file: simulation fields and
 functions must not reach presentation fields, textures, `Screen.h` or audio.
-The compiler enforces it once headers split — `DroidDef.h` into the sim record
-plus a client-side visual record keyed by object id, and likewise structures,
-features, projectiles.
 
-*Gate:* `tools/crosscheck.py` builds a `SIM_ONLY` shadow configuration that
-compiles the simulation TUs with `NeuronClient` headers absent. That
-configuration is the server side's TU list, discovered rather than declared —
-and it is the standing proof, kept green from here on, that the embedded
-server can leave the process (rung 3) at any time.
+*Gate:* `tools/crosscheck.py --sim-only` compiles the candidate server units
+with the `NeuronClient` include directory taken away. A unit that still
+compiles reaches nothing presentational even transitively, so it could link
+into a headless server today; a unit that fails names its own coupling in the
+error. It is a **ratchet, not a pass/fail**: `NeuronCore` stays at zero, and
+the Outpost count falls and never rises.
+
+**What the instrument found.** Built first, before any untangling, because
+"the object model mixes the two" is a description and not a work list. The
+baseline was **22 of 58 candidate units client-free**; it now stands at
+**41 of 58**. The useful discovery is that almost none of that was real:
+
+- **The coupling was one hub deep.** 105 of 117 Outpost units reached the same
+  ten client headers, because `ObjectDef.h` — which 17 headers and most of the
+  tree include — pulled `RenderTypes.h`, and `Base.h` embeds `SCREEN_DISP_DATA`
+  from `DisplayDef.h`, which pulled `IMD.h`. `ObjectDef.h` used **nothing** from
+  `RenderTypes.h` itself; it was carrying it for its children.
+- **Almost every object-model use was a pointer.** `iIMDShape`, `ANIM_OBJECT`,
+  `AUDIO_SAMPLE` and `W_SCREEN` are stored and passed by the def headers and
+  dereferenced by none of them — and most were already written in the
+  elaborated `struct iIMDShape*` form, which is its own forward declaration. So
+  `StatsDef.h`, `StructureDef.h`, `FeatureDef.h`, `ResearchDef.h`, `DroidDef.h`,
+  `DisplayDef.h`, `MessageDef.h`, `Droid.h`, `Move.h` and `HCI.h` now declare
+  what they point at instead of including the library that defines it.
+- **`iVector` was the one type that had to move.** It is an anonymous struct, so
+  it cannot be forward-declared, and `StructureDef.h` holds one by value. A
+  world position is not a presentation concern, so it and `iPoint` moved from
+  the client's `RenderTypes.h` to `NeuronCore/Types.h`, the vocabulary both
+  halves already share. `SDWORD` and the `int32` they were declared with are the
+  same type, so the layout is unchanged.
+- **Some includes were simply stale.** `MultiPlay.h`, `MessageDef.h`,
+  `Geometry.h`, `OptimisePath.cpp`, `Map.cpp`, `Scores.cpp` and `Target.cpp`
+  included a client header and used nothing from it.
+- **`ListMacs.h` was in the wrong library.** 70 lines of linked-list macros with
+  no includes at all, sitting in `NeuronClient` and used by three `Outpost`
+  files. It is shared vocabulary; it moved to `NeuronCore`.
+
+The price is honest and paid in the open: 24 presentation units that had been
+getting `RenderClip.h`, `Widget.h`, `Model.h`, `AnimObj.h` or `AudioSystem.h`
+transitively now include them directly. That is the include-what-you-use half
+of the same change, and it is what makes the remaining coupling countable.
+
+**What is left is real, and it is the input stage D needs.** Seventeen units,
+in three groups — no longer a hub to unpick but a list of calls to replace:
+
+| Reaches | Units | Becomes |
+|---|---|---|
+| `Model.h` | Combat, Formation, OptimisePath, Projectile, Structure | the sim reads model *geometry* (`imd->ymax`, `->points`) to place muzzles and judge tall objects. Needs the model metadata the simulation actually uses split from the renderable mesh — a data split, not a message |
+| `AudioSystem.h` | Feature, Move, Power, Research, Visibility | the sim plays sounds directly; becomes `ServerMessage::Effect` / `UiEvent` |
+| one apiece | Droid→`Screen.h`, Order→`Input.h`, Mission→`Window.h`, Action→`Widget.h`, Scores→`PieMode.h`, Target→`RenderMatrix.h`, Map→`RenderTypes.h` | client calls that have to move to the client. `Order.cpp` reading the keyboard (`keyDown`) is the clearest layering defect in the tree and the one to fix first |
+
+Two findings worth carrying forward. `HCI.h` could not be freed by dropping
+`Widget.h` alone — `Message.h` → `MessageDef.h` → `Model.h` sits in the same
+chain, so the pair had to go together or neither moved; a single-edge fix
+measured as zero gain and was reverted rather than kept on faith. And an
+`#include` inserted after the last one in a file can land *inside* an `#ifdef`:
+`Loop.cpp` and `WarCAM.cpp` both took one that way, and only the Release
+configuration caught `Loop.cpp` — which is the standing argument for checking
+both.
 
 ### C — The protocol layer
 

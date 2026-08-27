@@ -92,6 +92,7 @@
 #include "Gateway.h"
 #include "Lighting.h"
 #include "Palette.h"
+#include "RenderClip.h"
 
 extern void statsInitVars(void);
 extern void structureInitVars(void);

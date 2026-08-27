@@ -1463,7 +1463,7 @@ otherwise unchanged, so the 30 consumer files were untouched.
 Also removes 2 of the build's 12 remaining warnings (C4715 in `treapFindRec`
 and `treapDelRec`). `check_case` clean, `crosscheck` 181/181 units clean.
 
-## Server authority: the MMO shape (2026-08-27, stage A landed)
+## Server authority: the MMO shape (2026-08-27, stages A and B landed)
 
 **By owner decision the game is heading to a server-authoritative MMO, starting
 with single player.** The design — where the tree already stands, why the 1998
@@ -1503,6 +1503,35 @@ configurations. Like everything since Phase 2 this is built-and-verified work,
 not run work: unchanged *speed* is not unchanged *smoothness*, and
 [Verification.md](Verification.md) pass J carries the question — world motion
 is 25 steps a second until the renderer interpolates between them.
+
+**Stage B's first pass is done**, and it came with its own instrument:
+`tools/crosscheck.py --sim-only` compiles the candidate server units with the
+`NeuronClient` include directory taken away, so a unit that still compiles
+reaches nothing presentational even transitively. It is a ratchet — `NeuronCore`
+stays at zero, the Outpost count falls and never rises — and it went from
+**22 of 58 client-free to 41 of 58**.
+
+The measurement is the point. 105 of 117 Outpost units reached the same ten
+client headers, because `ObjectDef.h` carried `RenderTypes.h` for its children
+while using nothing from it, and `Base.h` embeds `SCREEN_DISP_DATA`, which
+carried `IMD.h`. Almost every object-model use turned out to be a *pointer* —
+`iIMDShape`, `ANIM_OBJECT`, `AUDIO_SAMPLE`, `W_SCREEN` are stored and passed by
+the def headers and dereferenced by none of them — so ten headers now declare
+what they point at instead of including the library that defines it. `iVector`
+and `iPoint` are anonymous structs and could not be declared that way, so they
+moved from the client's `RenderTypes.h` to `NeuronCore/Types.h`, the vocabulary
+both halves share (`SDWORD` and `int32` are the same type, so no layout moved).
+`ListMacs.h` — 70 lines of list macros with no includes — moved from
+`NeuronClient` to `NeuronCore`, where a shared utility belongs. Seven includes
+were simply stale. In exchange, 24 presentation units that had been getting
+client headers transitively now include them directly.
+
+What remains is real and countable: seventeen units in three groups — five
+reading model geometry through `Model.h`, five playing sounds through
+`AudioSystem.h`, and seven one-off client calls, of which `Order.cpp` reading
+the keyboard through `keyDown` is the clearest layering defect in the tree.
+That list is the input stage D's message planes consume, and it is recorded in
+[ServerAuthority.md](ServerAuthority.md#b--split-simulation-state-from-presentation-state-first-pass-landed-2026-08-27).
 
 ## Verification
 

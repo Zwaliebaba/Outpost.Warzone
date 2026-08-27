@@ -14,7 +14,6 @@
 /* map line printf's */
 #include <assert.h>
 #include "Frame.h"
-#include "FrameInt.h"
 #define DEFINE_MAPINLINE	// defines the inline functions in this module
 #include "Map.h"
 #include "GTime.h"

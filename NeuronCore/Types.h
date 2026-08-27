@@ -23,6 +23,26 @@ using SDWORD = signed int;
 
 using BOOL = int;
 
+/* A point in the world, in world units. This lived in the client's
+   RenderTypes.h, which is what made every object-model header -- and so nearly
+   every simulation unit -- include a rendering header to describe where a droid
+   is standing. A position is not a presentation concern, so it belongs here,
+   with the rest of the vocabulary both halves share.
+
+   SDWORD rather than the int32 it was declared with: the two are the same type,
+   so the layout is unchanged. */
+using iVector = struct
+{
+  SDWORD x, y, z;
+};
+
+/* The two-dimensional sibling, here for the same reason: Geometry.h describes
+   map positions with it, and a position is not a presentation concern. */
+using iPoint = struct
+{
+  SDWORD x, y;
+};
+
 /* Numeric size defines */
 #define UBYTE_MAX	0xff
 #define SBYTE_MIN	(-128) //(0x80)

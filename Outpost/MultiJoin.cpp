@@ -47,6 +47,8 @@
 #include "MultiInt.h"
 #include "MultiStat.h"
 #include "MultiGifts.h"
+#include "RenderClip.h"
+#include "Widget.h"
 
 // ////////////////////////////////////////////////////////////////////////////
 // External Variables

@@ -6,9 +6,13 @@
 #ifndef _hci_h
 #define _hci_h
 
-#include "Widget.h"
+/* W_SCREEN is pointed at here and nowhere dereferenced, and the E_W/D_W macros
+ * below expand DISP_WIDTH at their use sites rather than here - so neither the
+ * widget library nor RenderClip.h has to come with this header. That matters
+ * because ten simulation units include it for intRefreshScreen and its kin. */
+struct _w_screen;
+using W_SCREEN = struct _w_screen;
 #include "Message.h"
-#include "RenderClip.h"
 
 // store the objects that are being used for the object bar
 #define			MAX_OBJECTS		15//10 we need at least 15 for the 3 different types of factory

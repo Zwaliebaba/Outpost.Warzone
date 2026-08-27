@@ -34,6 +34,7 @@
 #include "IntDisplay.h"
 #include "RayCast.h"
 #include "Display3D.h"
+#include "RenderClip.h"
 #ifndef PAUL
 #include "Selection.h"
 #endif

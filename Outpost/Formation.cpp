@@ -17,6 +17,7 @@
 
 #include "FormationDef.h"
 #include "Formation.h"
+#include "Model.h"
 
 // radius for the different body sizes
 static SDWORD fmLtRad = 80, fmMedRad = 100, fmHvyRad = 110;

@@ -68,6 +68,8 @@
 #include "MultiJoin.h"                     // intDisplayMultiJoiningStatus
 #include "RenderModel.h"                   // pie_GetResetCounts, called in Release too
 
+#include "Widget.h"
+
 #ifdef DEBUG
 #include "ObjMem.h"
 #endif

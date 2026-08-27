@@ -207,6 +207,14 @@ python3 tools/crosscheck.py --x64 -j 8      # 64-bit -- run this too
 
 **Run the `--x64` pass as well as the default one.** On Win32 `sizeof(void*) == sizeof(UDWORD)`, so a whole class of defect compiles clean at 32 bits and only appears at 64. The first run of that flag found a null object result being pushed through the script VM's *integer* overload — invisible on x86, a garbage pointer on x64 — in a tree the 32-bit pass called clean 180/180.
 
+**After touching a simulation file**, run `python tools/crosscheck.py --sim-only`.
+It compiles the candidate server-side units with `NeuronClient` taken off the
+include path, and it is a **ratchet**: `NeuronCore` must stay at zero failures
+and the `Outpost` count must fall, never rise. Reaching for a client header from
+simulation code is how the server/client split gets quietly undone — see
+[Docs/ServerAuthority.md](Docs/ServerAuthority.md) stage B for the current count
+and what is left.
+
 **After touching the script module**, run `tools/check_scripts.py`. It builds `NeuronCore/ScriptLex.cpp` and `ScriptComp.cpp` from source against the game's real symbol tables and compiles all 59 shipped `.slo` files, then checks the `.vlo` corpus for types the tables do not have. No C++ check can tell you the compiler still accepts the scripts — `int` and `bool` are keywords rather than table entries, and forgetting that built cleanly and rejected 56 of 59 scripts at runtime.
 
 **A green build says nothing about whether the game draws or runs.** For anything touching rendering, input, audio or level loading, launch it:

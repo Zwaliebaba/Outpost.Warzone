@@ -169,6 +169,7 @@
     <ClInclude Include="FrameResource.h" />
     <ClInclude Include="GTime.h" />
     <ClInclude Include="Interp.h" />
+    <ClInclude Include="ListMacs.h" />
     <ClInclude Include="Json.h" />
     <ClInclude Include="HostCertificate.h" />
     <ClInclude Include="NetPlay.h" />

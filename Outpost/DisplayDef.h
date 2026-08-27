@@ -7,8 +7,11 @@
 #ifndef _displaydef_h
 #define _displaydef_h
 
-#include "IMD.h"
-#include "RenderClip.h"
+/* Pointed at, never dereferenced here, so a declaration is enough - and it keeps
+ * the object model, which embeds this block in every BASE_OBJECT, out of the
+ * client library. DISP_WIDTH and DISP_HEIGHT below are macros: they expand at
+ * their use sites, which is where RenderClip.h has to be included. */
+struct iIMDShape;
 #define DISP_WIDTH		(pie_GetVideoBufferWidth())
 #define DISP_HEIGHT		(pie_GetVideoBufferHeight())
 #define DISP_HARDBITDEPTH	(32)
