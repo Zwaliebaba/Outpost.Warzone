@@ -18,7 +18,10 @@ gate (D1), both owned by the stage that runs them.
 **Scope statement, because the name is overloaded.** Two things in this
 codebase are called "pie". The `.pie`/IMD **model format** — the shape files
 under `GameData/`, their loader (`IMDLoad.cpp`) and the `iIMDShape` structures
-— is game data and **stays untouched**. What this phase removes is the
+— is game data and **stays untouched**. *(Still true. The model format has
+since been taken up separately, as [NMO](NeuronMeshObject.md) and its
+[migration](PieToNmoMigration.md); nothing in this phase changed on account of
+it, and nothing in it should.)* What this phase removes is the
 `pie_*`/`iV_*` **render layer**: the code that sat between the game and
 whichever of five backends (software DDX, Glide, PlayStation, Direct3D 6 RGB,
 Direct3D 6 HAL) the machine had. Since Phase 2 there is exactly one backend.
@@ -142,7 +145,7 @@ Each of these was grepped across both projects, including comments,
 | `pie_IvisPoly`/`pie_IvisPolyFrame` | clip then return — the software rasteriser behind them was deleted decades of commits ago |
 | `pie_DrawTriangle` | draws nothing (clips, returns). Callers: `drawTexturedTile` — inside `#ifndef BUCKET`, and `BUCKET` is defined in `Bucket3D.h`, so not compiled — and `MapDisplay.cpp:438,493`, which therefore render nothing if reached |
 | second `pie_Draw3DShape` | the `#if (_MSC_VER != 1000) && (_MSC_VER != 1020)` / `#else` split selects between two near-identical copies by *Developer Studio 4 vs 5*; the `#else` copy can never compile on v145 |
-| BSP rendering | `DrawBSPIMD` (`BSPIMD.cpp:367`) has no callers; `DrawTriangleList` + the `BSPimd`/`BSPObject`/`BSPCamera` globals in `PieDraw.cpp` are reached from nothing. **BSP loading is live** — `_imd_load_bsp` parses BSP chunks that exist in shipped `.pie` files — so only the render half goes; the loader is a data-format question this phase does not open |
+| BSP rendering | `DrawBSPIMD` (`BSPIMD.cpp:367`) has no callers; `DrawTriangleList` + the `BSPimd`/`BSPObject`/`BSPCamera` globals in `PieDraw.cpp` are reached from nothing. **BSP loading is live** — `_imd_load_bsp` parses BSP chunks that exist in shipped `.pie` files — so only the render half goes; the loader is a data-format question this phase does not open. *(Opened later, elsewhere: [PieToNmoMigration.md](PieToNmoMigration.md) §5.8 drops the trees at conversion, since 63 files carry them and nothing has traversed one since stage A.)* |
 | `pie_AddFogandMist` | entire body behind `#if SPECULAR_FOG_AND_MIST` which is `0`, and zero callers anyway |
 | `pie_CornerBox` | empty body; only caller is `pie_doWeirdBoxFX`, whose only call site is commented out (`Display3D.cpp:2797`) |
 | `iV_VideoMemoryLock`/`Alloc`/`Free` | no callers (`Unlock` only from `iV_ShutDown`); would allocate a screen-sized buffer nothing reads |

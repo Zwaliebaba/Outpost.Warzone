@@ -398,6 +398,14 @@ with the pragma commented out -- a measurement, then a decision.
   texture files are read into POD structs with no pointer members, so their
   layouts do not move with the pointer size. The save-game readers, which did
   serialise richer structures, were deleted outright in an earlier phase.
+  **`.nmo`, the model format added in 2026-08, was designed against this
+  section** ([NeuronMeshObject.md](NeuronMeshObject.md)): fixed-width fields
+  only, no `wchar_t` — which is 2 bytes on Windows and 4 on the mingw
+  cross-checkers, and is exactly why the CMO format it derives from could not
+  be adopted unchanged — and 31 `static_assert`s on the on-disk struct sizes
+  and alignments that are compiled on both targets. A file written by an x86
+  build is byte-identical to one written by an x64 build, and the assertions
+  are what makes that a checked claim rather than an intention.
 - **The renderer.** Direct3D 9 has an x64 runtime and import library, the
   vertex structures are all fixed-width floats and `UDWORD` colours, and the
   device is addressed through COM interfaces.

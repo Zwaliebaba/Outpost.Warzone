@@ -130,14 +130,15 @@ Two rules the config cannot express, and that a reviewer therefore has to carry:
 | Path | What it is | May you edit it? |
 |---|---|---|
 | `NeuronCore/` | Engine static library (24 TUs): platform, timing, the resource system and the `Neuron::Json` reader, containers, maths, the script compiler and VM, string resources, networking and transport, and the client/server wire protocol | Yes |
-| `NeuronClient/` | Client-side engine static library (44 TUs): the window, D3D9 rendering, IMD models, animations, DirectInput, XAudio2, UI widgets, fonts, images, FMV sequences, and the client half of a session | Yes |
+| `NeuronClient/` | Client-side engine static library (45 TUs): the window, D3D9 rendering, IMD models, animations, DirectInput, XAudio2, UI widgets, fonts, images, FMV sequences, the NMO model loader, and the client half of a session | Yes |
 | `NeuronServer/` | Server-side engine static library (3 TUs): the server half of a session and one client's replication stream. The simulation itself is still in `Outpost/` | Yes |
-| `Outpost/` | Game executable (117 TUs): simulation, AI, structures, droids, campaign, multiplayer | Yes |
-| `NeuronCoreTest/`, `NeuronClientTest/`, `NeuronServerTest/` | MSVC CppUnitTest DLLs, one per engine library, each referencing the library it tests and the libraries that library is built on. `NeuronCoreTest` holds the `Neuron::Json`, script compiler/VM, wire-format and protocol suites; the other two hold the client and server halves of a session. **CI builds and runs all three** | Yes |
+| `Outpost/` | Game executable (118 TUs): simulation, AI, structures, droids, campaign, multiplayer | Yes |
+| `NeuronCoreTest/`, `NeuronClientTest/`, `NeuronServerTest/` | MSVC CppUnitTest DLLs, one per engine library, each referencing the library it tests and the libraries that library is built on. `NeuronCoreTest` holds the `Neuron::Json`, script compiler/VM, wire-format and protocol suites; the other two hold the client and server halves of a session, and `NeuronClientTest` also holds the NMO loader suite. **CI builds and runs all three** | Yes |
 | `GameData/` | Shipped content. The JSON manifests and tables (`datasets.json`, stats, messages, anims, audio configs) are text authored in this repo — `tools/validate_assets.py` must stay green. The binary media (textures, models, `.wav`, `.mp4`, levels) is authored by tools outside this repo | JSON: yes, validated. Binary: **No** |
 | `Docs/MigrationPlan.md` | The plan and the record of what each phase changed | Yes — see §6 |
 | `.clang-format`, `.clang-tidy`, `.editorconfig` | Layout and naming, machine-readable (§1, §4) | Yes — with an owner decision |
 | `tools/*.py` | Repository checkers and content-authoring scripts (§3) | Yes |
+| `tools/blender_nmo/` | The Blender import/export add-on for `.nmo`, and `nmo_format.py` — the reference codec the converter and the tests are built on | Yes |
 | `.github/workflows/build.yml` | CI: Debug and Release for x64, the three unit-test suites, plus the script corpus. All of it blocks | Yes, carefully |
 | `Debug/`, `x64/`, `.vs/`, `*.user` | Build and IDE output | **No — and never commit them** |
 
@@ -227,6 +228,29 @@ and the `Outpost` count must fall, never rise. Reaching for a client header from
 simulation code is how the server/client split gets quietly undone — see
 [Docs/ServerAuthority.md](Docs/ServerAuthority.md) stage B for the current count
 and what is left.
+
+**After touching the model format or its tools**, run the three checks that
+keep the two implementations of NMO honest. They are Python and take a second
+each, so there is no excuse for skipping them:
+
+```
+python tools/nmo_roundtrip_test.py     # the reference codec: byte-exact round trip, 21 rejections
+python tools/make_nmo_fixture.py       # regenerate NeuronClientTest/NmoFixture.h; commit if it changes
+python tools/pie_to_nmo.py --report    # all 516 shipped models still convert
+```
+
+`NmoFixture.h` is **generated** — the golden `.nmo` the C++ tests load, written
+by the Python codec so both implementations are tested on the same bytes. Edit
+`tools/nmo_fixture.py` and regenerate; never hand-edit the header. The
+Blender add-on has its own test (`tools/nmo_blender_test.py`), which needs
+Blender's Python and is therefore not part of the routine pass.
+
+**CI runs the C++ half and not the Python half.** `NmoTest.cpp` is inside
+`NeuronClientTest`, so the loader is gated like every other suite. Nothing runs
+the three commands above, which are what hold the *reference codec* and the
+converter to the same specification — so they are yours to run, like
+`clang-tidy` in §1. They are three seconds of Python and would sit happily
+beside the script corpus if someone is in the workflow anyway.
 
 **After touching the script module**, run `tools/check_scripts.py`. It builds `NeuronCore/ScriptLex.cpp` and `ScriptComp.cpp` from source against the game's real symbol tables and compiles all 59 shipped `.slo` files, then checks the `.vlo` corpus for types the tables do not have. No C++ check can tell you the compiler still accepts the scripts — `int` and `bool` are keywords rather than table entries, and forgetting that built cleanly and rejected 56 of 59 scripts at runtime.
 
@@ -329,6 +353,7 @@ that project is still `/permissive`. **Watch for function-pointer typedefs** —
 - [ ] New, removed or moved files are reflected in the `.vcxproj` **and** `.filters` of every project involved.
 - [ ] No project's `ConformanceMode` was changed, and no `const_cast` was added to satisfy R16.
 - [ ] `python tools/check_case.py` passes.
+- [ ] If it touched the model format or its tools: the three NMO checks in §3 pass, and a regenerated `NmoFixture.h` is committed with the change that caused it.
 - [ ] It builds — Debug at minimum, and say which configurations you actually built.
 - [ ] If it touches rendering, input, audio or level loading: it was **run**, not just built.
 - [ ] `Docs/MigrationPlan.md` updated if the change moved a phase.

@@ -1560,6 +1560,52 @@ the keyboard through `keyDown` is the clearest layering defect in the tree.
 That list is the input stage D's message planes consume, and it is recorded in
 [ServerAuthority.md](ServerAuthority.md#b--split-simulation-state-from-presentation-state-first-pass-landed-2026-08-27).
 
+## The model format: NMO, a CMO-derived binary mesh (2026-08-27)
+
+**Design and tooling, plus the engine half; nothing draws one yet.** The
+format is [NeuronMeshObject.md](NeuronMeshObject.md), the migration is
+[PieToNmoMigration.md](PieToNmoMigration.md), and between them they answer a
+question Phase 8 deliberately left shut: the `.pie`/IMD model format is still
+untouched by that phase, but it is no longer *unexamined*.
+
+NMO derives from Microsoft's CMO (the layout in DirectXTK's `CMO.h`), keeping
+its `Material`, `Vertex`, `SkinningVertex`, `MeshExtents`, `Bone`, `Clip` and
+`Keyframe` structures byte for byte, and adds what this engine turned out to
+need: bone animation and named markers **per submesh** rather than only per
+mesh, a container that can be identified, versioned and validated, and
+material state for the two things the `.pie` renderer does per polygon per
+frame — colour-key transparency and the texture atlas that is really the
+player-colour table (1,543 of the 1,693 texture-animated polygons declare
+eight frames because eight is the player count).
+
+What is in the tree:
+
+- `NeuronClient/Nmo.h` — the file layout in C++, 31 assertions on struct
+  sizes and alignment, no logic. They hold on x86 and x64, so either build
+  writes the same file.
+- `NeuronClient/NmoLoad.cpp` — one read, validate, then views into the bytes.
+  A malformed file is rejected with a reason, never repaired and never
+  asserted on: `DEBUG_ASSERT_TEXT` routes to `Neuron::Fatal`, which would take
+  a debug build down on a bad asset.
+- `NeuronClientTest/NmoTest.cpp` — 35 tests: 9 read the golden model back, 26
+  reject a copy corrupted at one field, one per clause of the validation list.
+  The golden model is generated from the Python reference codec by
+  `tools/make_nmo_fixture.py`, so the two implementations are tested on the
+  same bytes rather than assumed to agree.
+- `tools/pie_to_nmo.py` — converts all 516 shipped models into a mirrored
+  tree, and all 516 load back through the C++ loader; `tools/blender_nmo/`
+  imports and exports them so the format is editable.
+
+**What it does not do: draw.** `GameData/` still holds `.pie`, the renderer
+still calls `pie_Draw3DShape`, and the conversion writes a candidate tree
+beside `GameData/` rather than into it. Stages D and E of the migration —
+render behind a flag, look at the screen, then convert the data and retire the
+`.pie` loader and the `.ani` system — need a Windows machine and a running
+game. Until then this is the same built-and-not-run state as everything since
+Phase 2, with the same caveat: 516 models converting and loading says nothing
+about whether one of them appears the right way up.
+
+
 ## Verification
 
 There is no MSVC or Windows SDK in the Linux development container, so a real

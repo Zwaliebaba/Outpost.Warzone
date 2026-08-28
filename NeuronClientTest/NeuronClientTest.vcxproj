@@ -177,6 +177,7 @@
     <ClCompile Include="ReplicatedWorldTest.cpp" />
     <ClCompile Include="ReplicaStoreTest.cpp" />
     <ClCompile Include="NeuronClientTest.cpp" />
+    <ClCompile Include="NmoTest.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -185,6 +186,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="NmoFixture.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
