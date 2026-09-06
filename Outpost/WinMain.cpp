@@ -198,9 +198,6 @@ init: //jump here from the end if re_initialising
       screen_StopBackDrop();
       break;
     case GS_VIDEO_MODE: Neuron::Fatal("Video_mode no longer valid");
-      if (introVideoControl == 0)
-        videoInitialised = TRUE;
-      break;
 
     default: Neuron::Fatal("Unknown game status on startup!");
     }

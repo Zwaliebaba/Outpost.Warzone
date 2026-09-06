@@ -28,7 +28,7 @@ struct AUDIO_SAMPLE;
 /* typedefs
  */
 
-using AUDIO_CALLBACK = BOOL(*)(struct AUDIO_SAMPLE* psSample);
+using AUDIO_CALLBACK = BOOL(*)(AUDIO_SAMPLE* psSample);
 
 /***************************************************************************/
 /* structs */
