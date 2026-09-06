@@ -125,7 +125,11 @@ void gwShutDown(void)
   gwFreeZoneMap();
   gwFreeEquivTable();
 
-  if (aZoneReachable != nullptr) { delete[] aZoneReachable; }
+  if (aZoneReachable != nullptr)
+  {
+    delete[] aZoneReachable;
+    aZoneReachable = nullptr;
+  }
 }
 
 // Add a gateway to the system
@@ -622,6 +626,7 @@ BOOL gwLinkGateways(void)
   BOOL bZone1, bAddLink;
 
   // note which zones have a gateway
+  delete[] aZoneReachable;
   aZoneReachable = new (std::nothrow) UBYTE[gwNumZones];
   if (aZoneReachable == nullptr)
   {
@@ -891,6 +896,9 @@ BOOL gwNewEquivTable(SDWORD numZones)
 
   DEBUG_ASSERT_TEXT(numZones < UBYTE_MAX, "gwNewEquivTable: invalid number of zones");
 
+  // drop any table left over from a previous map rather than leaking it
+  gwFreeEquivTable();
+
   gwNumZones = numZones;
   aNumEquiv = new (std::nothrow) UBYTE[numZones];
   if (aNumEquiv == nullptr)
@@ -918,7 +926,11 @@ void gwFreeEquivTable(void)
 {
   SDWORD i;
 
-  if (aNumEquiv) { delete[] aNumEquiv; }
+  if (aNumEquiv)
+  {
+    delete[] aNumEquiv;
+    aNumEquiv = nullptr;
+  }
   if (apEquivZones)
   {
     for (i = 0; i < gwNumZones; i += 1) { if (apEquivZones[i]) { delete[] apEquivZones[i]; } }
