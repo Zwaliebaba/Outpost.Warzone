@@ -1064,7 +1064,7 @@ BOOL moveBlocked(DROID* psDroid)
   }
 
   // See if the block can be cancelled
-  if (dirDiff(psDroid->direction, psDroid->sMove.bumpDir) > DirectX::XMConvertToRadians(static_cast<float>(BLOCK_DIR)))
+  if (fabsf(directionDiff(psDroid->direction, psDroid->sMove.bumpDir)) > DirectX::XMConvertToRadians(static_cast<float>(BLOCK_DIR)))
   {
     // Move on, clear the bump
     psDroid->sMove.bumpTime = 0;
@@ -2062,7 +2062,8 @@ SDWORD moveCalcDroidSpeed(DROID* psDroid)
       speed /= 2;
     }*/
 
-  pitch = psDroid->pitch;
+  // MAX_SPEED_PITCH is in degrees; the droid's pitch is radians
+  pitch = std::lrintf(DirectX::XMConvertToDegrees(psDroid->pitch));
   if (pitch > MAX_SPEED_PITCH)
     pitch = MAX_SPEED_PITCH;
   else if (pitch < -MAX_SPEED_PITCH)
@@ -2671,7 +2672,7 @@ void moveCyborgTouchDownAnimDone(ANIM_OBJECT* psObj)
   psDroid->z = map_Height(psDroid->x, psDroid->y);
 }
 
-void moveUpdateJumpCyborgModel(DROID* psDroid, SDWORD speed, SDWORD direction)
+void moveUpdateJumpCyborgModel(DROID* psDroid, SDWORD speed, float direction)
 {
   float fPerpSpeed, fNormalSpeed, dx, dy, fSpeed;
   float iDroidDir;

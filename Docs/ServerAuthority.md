@@ -202,6 +202,9 @@ both demoted from direct calls into the simulation to
 `ClientMessage::SessionControl` requests that a solo session's flags permit
 and a service session refuses.
 
+**Done, 2026-09-06.** The plumbing named above is deleted and game speed is a
+`SessionControl`; see stage D.
+
 **What "MMO" means here, concretely.** `MaxNumberOfPlayers` is 8 and player
 indices are baked into arrays, alliance matrices and `visible[MAX_PLAYERS]`
 across the whole game. The realistic MMO shape for this engine is therefore
@@ -788,14 +791,72 @@ been quiet for a while. That is the flip, and what it needs is a `Replica` with
 enough on it to draw — which is the second of the gaps below, now with a way to
 find out exactly which fields those are rather than guessing them.
 
-Two smaller gaps are already visible and are worth closing on the way. `Ready`
-carries no body, so a client that loaded a different level than the one `Start`
-named says nothing about it and desyncs from tick 1; giving `Ready` the map hash
-it actually loaded, and the server a `Kick` for the mismatch, is the check that
-closes it. And a `Replica` carries position and direction only — pitch, roll,
-body and turret, damage and animation state land as the renderer is actually fed
-from the store, because that is when it becomes clear which of them the server
-has to state and which the client can derive from a map it already has.
+**`Ready` now names the level, and a mismatch is a `Kick`** (2026-09-06). The
+bodiless `Ready` said nothing about what the client had actually loaded, so a
+client that loaded a different level desynced from tick 1 with nothing in the
+protocol able to say why. `ClientReady` carries the map hash, `ServerSession`
+compares it against what `Start` named, and a difference ends the session with
+`KickReason::MapMismatch` rather than a tick later with a mystery. A `Ready`
+that cannot be read is treated the same way: saying nothing about the level is
+the same as saying the wrong thing.
+
+**The presentation calls in the script VM are `UiEvent`s** (2026-09-06). This is
+the campaign's half of the flip, and it is the half that could be done before
+the renderer moves, because it runs the other way: the script is already on the
+server, and it was reaching into the client to put a message on the
+intelligence screen, move the camera, print console text or start a sequence.
+Ten instincts — `scrAddMessage`, `scrRemoveMessage`, `scrCentreView`,
+`scrCentreViewPos`, `scrPlaySound`, `scrAddConsoleText`, `scrShowConsoleText`,
+`scrClearConsole`, `scrTutorialEnd` and `scrPlayVideo` — now emit
+`ServerMessage::UiEvent` and nothing else, and
+[UiEvents.cpp](../Outpost/UiEvents.cpp) is the only place that carries one out.
+
+Three decisions in that record are worth stating:
+
+- **A message is named, not pointed at.** `scrAddMessage` passed a `VIEWDATA*`
+  straight to `addMessage`. A pointer means nothing on the far side of a
+  boundary, so the event carries the name the view data was loaded under and
+  the client looks it up in its own tables. That is the same discipline the
+  entity ids follow, and it is what makes the record survive a real network.
+- **An event is addressed.** The instincts each tested `player == selectedPlayer`
+  before doing anything; the event carries the player instead, and the client
+  ignores what is not for the player it is showing. The server does not know
+  which client is watching whom, and it should not have to.
+- **A kind this build cannot show is not shown as another.** `Decode`
+  invalidates an unknown kind rather than folding it to something harmless,
+  because every fold here would be a visible lie — the wrong video, the wrong
+  message — rather than a missing frame.
+
+**Game speed is a `SessionControl`, and pause is gone** (2026-09-06). The speed
+keys used to call `gameTimeSetMod` directly, which is a client reaching into
+the clock; they now ask through `ClientMessage::SessionControl`, the server
+validates the request against a `SessionPolicy` — a solo session permits it, a
+service session refuses — and hands what it permits back to the owner to
+apply, because the session state machine does not own the clock. A refusal is a
+`CommandReject` naming the request, not silence: keys that quietly do nothing
+are worse than keys that say they are not allowed. A speed outside the range
+the game has always offered is refused rather than clamped.
+
+**Pause is deleted rather than carried**, as this document said it would be:
+`PAUSE_STATE` and its five flags, `gamePaused`, `setAllPauseStates`,
+`kf_TogglePauseMode`, the mission, intelligence-screen and design-screen pause
+pairs, and the entire paused branch of the frame handler. Two things that were
+tangled up in it turned out to be something else and are named for what they
+are: the mission-results interval, where there is genuinely no world to advance
+between one mission and the next, is now `StopMissionClock` /
+`StartMissionClock`; and the script triggers that were suppressed by
+`scriptPause` between a mission's objects being cleared and the next being set
+up now wait on `loopMissionState` instead, which is the state that was actually
+meant. The forty-odd `if (!gamePaused())` guards scattered through the effects,
+the radar sweep, the flashing lights and the camera go with it: they existed to
+freeze animation while the world was stopped, and the world no longer stops.
+
+Two gaps remain in this stage. A `Replica` carries position and direction only
+— pitch, roll, body and turret, damage and animation state land as the
+renderer is actually fed from the store, because that is when it becomes clear
+which of them the server has to state and which the client can derive from a
+map it already has — and the renderer still draws from the object lists.
+**The flip is what is left.**
 
 ### E — `OutpostServer.exe`, headless
 

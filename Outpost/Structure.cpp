@@ -996,7 +996,7 @@ void setCurrentStructQuantity(BOOL displayError)
 
     for (psCurr = apsStructLists[player]; psCurr != nullptr; psCurr = psCurr->psNext)
     {
-      inc = psCurr->pStructureType - asStructureStats;
+      inc = StatIndex(psCurr->pStructureType, asStructureStats, numStructureStats);
       psStructLimits[inc].currentQuantity++;
       if (displayError)
       {
@@ -1012,7 +1012,7 @@ void setCurrentStructQuantity(BOOL displayError)
         for (psCurr = mission.apsStructLists[player]; psCurr != NULL; psCurr = 
           psCurr->psNext)
         {
-          inc = psCurr->pStructureType - asStructureStats;
+          inc = StatIndex(psCurr->pStructureType, asStructureStats, numStructureStats);
           psStructLimits[inc].currentQuantity++;
           if (displayError)
           {
@@ -1681,7 +1681,7 @@ STRUCTURE* buildStructure(STRUCTURE_STATS* pStructureType, UDWORD x, UDWORD y, U
     }*/
 
     //some prelim tests...
-    max = pStructureType - asStructureStats;
+    max = StatIndex(pStructureType, asStructureStats, numStructureStats);
     if (max > numStructureStats)
     {
       DEBUG_ASSERT_TEXT(FALSE, "buildStructure:Invalid structure type");
@@ -1907,7 +1907,7 @@ STRUCTURE* buildStructure(STRUCTURE_STATS* pStructureType, UDWORD x, UDWORD y, U
       if (bMultiPlayer AND pStructureType->psWeapStat->weaponSubClass == WSC_LAS_SAT)
         psBuilding->asWeaps[weapon].lastFired = gameTime;
       //psBuilding->asWeaps[weapon].nStat =	pStructureType->
-      psBuilding->asWeaps[weapon].nStat = pStructureType->psWeapStat - asWeaponStats;
+      psBuilding->asWeaps[weapon].nStat = StatIndex(pStructureType->psWeapStat, asWeaponStats, numWeaponStats);
       psBuilding->asWeaps[weapon].hitPoints = (asWeaponStats + psBuilding->asWeaps[weapon].nStat)->hitPoints;
       psBuilding->asWeaps[weapon].ammo = (asWeaponStats + psBuilding->asWeaps[weapon].nStat)->numRounds;
       psBuilding->asWeaps[weapon].recoilValue = 0;

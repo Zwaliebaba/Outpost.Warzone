@@ -428,11 +428,8 @@ void draw3DScene(void)
     displayMultiChat();
   else
   {
-    if (!gamePaused())
-    {
-      pie_DrawText((unsigned char*)"Developed by Pumpkin Studios",RET_X + 3, 467 + E_H);
-      pie_DrawText((unsigned char*)"Published by EIDOS Interactive", pie_GetVideoBufferWidth() - 196, 467 + E_H);
-    }
+    pie_DrawText((unsigned char*)"Developed by Pumpkin Studios",RET_X + 3, 467 + E_H);
+    pie_DrawText((unsigned char*)"Published by EIDOS Interactive", pie_GetVideoBufferWidth() - 196, 467 + E_H);
   }
 
   /*
@@ -455,17 +452,14 @@ void draw3DScene(void)
   //----------------------------------------------------------
   //----------------------------------------------------------
   //----------------------------------------------------------
-  if (getDebugMappingStatus() AND !gamePaused())
+  if (getDebugMappingStatus())
     pie_DrawText((unsigned char*)"DEBUG ",RET_X + 134, 440 + E_H);
   else
   {
 #ifdef DEBUG
-    if (!gamePaused())
-    {
-      pie_DrawText(getLevelName(),RET_X + 134, 420 + E_H);
-      getAsciiTime((STRING*)buildInfo, gameTime);
-      pie_DrawText(buildInfo,RET_X + 134, 434 + E_H);
-    }
+    pie_DrawText(getLevelName(),RET_X + 134, 420 + E_H);
+    getAsciiTime((STRING*)buildInfo, gameTime);
+    pie_DrawText(buildInfo,RET_X + 134, 434 + E_H);
 #endif
   }
 
@@ -558,16 +552,13 @@ void drawTiles(iView* camera, iView* player)
 
   // Animate the water texture, just cycles the V coordinate through half the tiles height.
 
-  if (!gamePaused())
+  float fraction = static_cast<float>(frameTime2) / GAME_TICKS_PER_SEC;
+  waterRealValue += (fraction * WAVE_SPEED);
+  vOffset = static_cast<SWORD>(std::lrintf(waterRealValue));
+  if (vOffset >= 64 / 2)
   {
-    float fraction = static_cast<float>(frameTime2) / GAME_TICKS_PER_SEC;
-    waterRealValue += (fraction * WAVE_SPEED);
-    vOffset = static_cast<SWORD>(std::lrintf(waterRealValue));
-    if (vOffset >= 64 / 2)
-    {
-      vOffset = 0;
-      waterRealValue = static_cast<float>(0);
-    }
+    vOffset = 0;
+    waterRealValue = static_cast<float>(0);
   }
   /* Is the scene spinning? - showcase demo stuff */
   if (spinScene)
@@ -817,8 +808,7 @@ void drawTiles(iView* camera, iView* player)
     if (psObj != nullptr)
       targetMarkCurrent();
   }
-  if (!gamePaused())
-    doConstructionLines();
+  doConstructionLines();
 
   /* Clear the matrix stack */
   Neuron::MatrixPop();
@@ -1627,10 +1617,7 @@ void renderProximityMsg(PROXIMITY_DISPLAY* psProxDisp)
   Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(-player.r.y) * Neuron::WorldMatrix();
   Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(-player.r.x) * Neuron::WorldMatrix();
 
-  if (!gamePaused())
-    pie_Draw3DShape(proxImd, getTimeValueRange(1000, 4), 0, brightness, specular, pie_ADDITIVE, 192);
-  else
-    pie_Draw3DShape(proxImd, 0, 0, brightness, specular, pie_ADDITIVE, 192);
+  pie_Draw3DShape(proxImd, getTimeValueRange(1000, 4), 0, brightness, specular, pie_ADDITIVE, 192);
 
   //get the screen coords for determining when clicked on
   calcFlagPosScreenCoords(&x, &y, &r);
@@ -1730,12 +1717,9 @@ void renderStructure(STRUCTURE* psStructure)
 
     if (psStructure->selected)
     {
-      if (!gamePaused())
-      {
-        brightVar = getStaticTimeValueRange(990, 110);
-        if (brightVar > 55)
-          brightVar = 110 - brightVar;
-      }
+      brightVar = getStaticTimeValueRange(990, 110);
+      if (brightVar > 55)
+        brightVar = 110 - brightVar;
       else
         brightVar = 55;
 
@@ -2035,12 +2019,9 @@ void renderDefensiveStructure(STRUCTURE* psStructure)
     /* If it's selected, then it's brighter */
     if (psStructure->selected)
     {
-      if (!gamePaused())
-      {
-        brightVar = getStaticTimeValueRange(990, 110);
-        if (brightVar > 55)
-          brightVar = 110 - brightVar;
-      }
+      brightVar = getStaticTimeValueRange(990, 110);
+      if (brightVar > 55)
+        brightVar = 110 - brightVar;
       else
         brightVar = 55;
 
@@ -2308,12 +2289,9 @@ BOOL renderWallSection(STRUCTURE* psStructure)
 
     if (psStructure->selected)
     {
-      if (!gamePaused())
-      {
-        brightVar = getStaticTimeValueRange(990, 110);
-        if (brightVar > 55)
-          brightVar = 110 - brightVar;
-      }
+      brightVar = getStaticTimeValueRange(990, 110);
+      if (brightVar > 55)
+        brightVar = 110 - brightVar;
       else
         brightVar = 55;
 
@@ -4254,10 +4232,7 @@ void processSensorTarget(void)
       {
         SWORD x = /*mouseX();*/static_cast<SWORD>(psSensorObj->sDisplay.screenX);
         SWORD y = static_cast<SWORD>(psSensorObj->sDisplay.screenY);
-        if (!gamePaused())
-          index = IMAGE_BLUE1 + getStaticTimeValueRange(1020, 5);
-        else
-          index = IMAGE_BLUE1;
+        index = IMAGE_BLUE1 + getStaticTimeValueRange(1020, 5);
         pie_ImageFileID(IntImages, index, x, y);
 
         SWORD offset = static_cast<SWORD>(12 + ((TARGET_TO_SENSOR_TIME) - (gameTime2 - lastTargetAssignation)) / 2);
@@ -4413,10 +4388,7 @@ void testEffect2(UDWORD player)
             if (!psDroid->died AND psDroid->action == DACTION_WAITDURINGREARM)
               bFXSize = 30;
             /* Then it's repairing...? */
-            if (!gamePaused())
-              val = lastSpinVal = getTimeValueRange(720, 360); // grab an angle - 4 seconds cyclic
-            else
-              val = lastSpinVal;
+            val = lastSpinVal = getTimeValueRange(720, 360); // grab an angle - 4 seconds cyclic
             radius = psStructure->sDisplay.imd->radius;
             float valSin, valCos;
             DirectX::XMScalarSinCos(&valSin, &valCos, DirectX::XMConvertToRadians(static_cast<float>(val)));

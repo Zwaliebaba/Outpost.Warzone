@@ -275,6 +275,95 @@ struct ServerTick
   [[nodiscard]] static ServerTick Decode(NetReader& _reader);
 };
 
+/// ClientMessage::Ready -- the client has a level loaded and can be sent world
+/// state.
+///
+/// It names the level it *actually* loaded, so a client that loaded something
+/// other than what Start named is found out here rather than left to desync
+/// from tick 1 with nothing to say why.
+struct ClientReady
+{
+  static constexpr ClientMessage Id = ClientMessage::Ready;
+
+  std::uint32_t mapHash = 0;
+
+  void Encode(NetWriter& _writer) const;
+  [[nodiscard]] static ClientReady Decode(NetReader& _reader);
+};
+
+/// Why a server ended a session it had accepted. A code rather than a string,
+/// for the same reason HandshakeResult is one.
+enum class KickReason : std::uint8_t
+{
+  /// The server gave a reason this build has no name for. The session is
+  /// still over; only the reason is missing.
+  Unstated,
+
+  /// Ready named a different level than Start did.
+  MapMismatch,
+
+  Count,
+};
+
+/// ServerMessage::Kick -- this session is over.
+struct ServerKick
+{
+  static constexpr ServerMessage Id = ServerMessage::Kick;
+
+  KickReason reason = KickReason::Unstated;
+
+  void Encode(NetWriter& _writer) const;
+  [[nodiscard]] static ServerKick Decode(NetReader& _reader);
+};
+
+/* ---- The command plane -----------------------------------------------------
+ *
+ * What a client asks for. Every record here is sequence numbered so that a
+ * refusal can say which request it refused; acceptance is never announced,
+ * because it is visible as world change.
+ */
+
+/// What a SessionControl asks the session to do.
+enum class SessionControlKind : std::uint8_t
+{
+  /// Run the world at value times normal speed. What the speed keys used to do
+  /// to the clock directly.
+  GameSpeed,
+
+  Count,
+};
+
+/// ClientMessage::SessionControl -- game speed, and in time the cheat console:
+/// what a solo session's flags permit and a service session refuses.
+struct ClientSessionControl
+{
+  static constexpr ClientMessage Id = ClientMessage::SessionControl;
+
+  std::uint32_t sequence = 0;
+  SessionControlKind kind = SessionControlKind::GameSpeed;
+  float value = 1.0f;
+
+  void Encode(NetWriter& _writer) const;
+  [[nodiscard]] static ClientSessionControl Decode(NetReader& _reader);
+};
+
+/// ServerMessage::CommandReject -- the server would not run a command.
+struct ServerCommandReject
+{
+  static constexpr ServerMessage Id = ServerMessage::CommandReject;
+
+  /// The sequence number of the request refused.
+  std::uint32_t sequence = 0;
+
+  /// Which kind of request it was.
+  ClientMessage command = ClientMessage::SessionControl;
+
+  RejectReason reason = RejectReason::NotPermitted;
+
+  void Encode(NetWriter& _writer) const;
+  [[nodiscard]] static ServerCommandReject Decode(NetReader& _reader);
+};
+
 /* ---- The replication plane ------------------------------------------------
  *
  * How the client comes to have a world. Everything the client draws arrives
@@ -371,6 +460,78 @@ struct ServerDestroy
 
   void Encode(NetWriter& _writer) const;
   [[nodiscard]] static ServerDestroy Decode(NetReader& _reader);
+};
+
+/* ---- UiEvent -----------------------------------------------------------------
+ *
+ * What the server's script VM emits in place of the presentation calls it used
+ * to make directly. A mission script that says addMessage, centreView or
+ * playVideo is running on the server, and the server has no screen; it says
+ * what it wants shown and the client shows it.
+ */
+
+/// The player a UiEvent is addressed to when it is addressed to everyone.
+inline constexpr std::uint8_t UiEventEveryPlayer = 0xFF;
+
+/// The fixed record fields a UiEvent's strings land in. A name longer than
+/// this is truncated into it, as NetReader::Text does everywhere.
+inline constexpr std::size_t UiEventNameChars = 64;
+inline constexpr std::size_t UiEventTextChars = 256;
+
+/// What a UiEvent asks the client to show. The fields each kind uses are named
+/// beside it; the rest are zero.
+enum class UiEventKind : std::uint8_t
+{
+  /// An intelligence message. name is the view data, a is the message type,
+  /// b is non-zero to display it immediately.
+  AddMessage,
+
+  /// Remove an intelligence message. name is the view data, a is the type.
+  RemoveMessage,
+
+  /// Centre the view. a and b are the tile coordinates.
+  CentreView,
+
+  /// Play a sound. a is the sound id.
+  PlaySound,
+
+  /// Show console text. text is the line; a is non-zero if it is permanent.
+  ConsoleText,
+
+  ClearConsole,
+
+  /// The tutorial is over; the console goes back to normal.
+  TutorialEnd,
+
+  /// Play a sequence. name is the video, text the subtitle file.
+  PlayVideo,
+
+  Count,
+};
+
+/// ServerMessage::UiEvent.
+struct ServerUiEvent
+{
+  static constexpr ServerMessage Id = ServerMessage::UiEvent;
+
+  UiEventKind kind = UiEventKind::ClearConsole;
+
+  /// Whose presentation this is for, or UiEventEveryPlayer. A client showing
+  /// another player's world ignores what is not addressed to it.
+  std::uint8_t player = UiEventEveryPlayer;
+
+  std::uint32_t a = 0;
+  std::uint32_t b = 0;
+  char name[UiEventNameChars] = {};
+  char text[UiEventTextChars] = {};
+
+  /// Copies into the fixed fields, truncating to fit. A null pointer is an
+  /// empty string.
+  void SetName(const char* _name) noexcept;
+  void SetText(const char* _text) noexcept;
+
+  void Encode(NetWriter& _writer) const;
+  [[nodiscard]] static ServerUiEvent Decode(NetReader& _reader);
 };
 
 /// Writes a message id and its body together, taking the id from the record so

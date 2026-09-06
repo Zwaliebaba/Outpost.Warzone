@@ -424,9 +424,6 @@ BOOL _intAddDesign(BOOL bShowCentreScreen)
 
   desSetupDesignTemplates();
 
-  //set which states are to be paused while design screen is up
-  setDesignPauseState();
-
   if ((GetGameMode() == GS_NORMAL) && !bMultiPlayer)
   {
     // Only do this in main game.
@@ -2843,16 +2840,12 @@ static void intSetDesignPower(DROID_TEMPLATE* psTemplate)
    heap blocks, which is meaningless as an index and, once it is narrowed into
    the template's 32-bit slot, no longer even wraps back on x64 -- a negative
    difference lands in asWeaps as ~4G and calcTemplateBody reads a terabyte
-   past asWeaponStats. The assert is what catches a pointer that is not in the
-   array at all, at the point it becomes an index rather than where it is
-   dereferenced. */
+   past asWeaponStats. StatIndex asserts the pointer is in the array at the
+   point it becomes an index rather than where it is dereferenced. */
 template <typename Stats>
 static UDWORD ShadowStatIndex(const COMP_BASE_STATS* _stats, const Stats* _base, UDWORD _count)
 {
-  const std::ptrdiff_t index = reinterpret_cast<const Stats*>(_stats) - _base;
-  DEBUG_ASSERT_TEXT(index >= 0 && index < static_cast<std::ptrdiff_t>(_count),
-                    "ShadowStatIndex: stat ref {:#x} is not in the array its type says it is in", _stats->ref);
-  return static_cast<UDWORD>(index);
+  return StatIndex(reinterpret_cast<const Stats*>(_stats), _base, _count);
 }
 
 /* Build the template the shadow bars compare against: the current design with
@@ -2983,7 +2976,7 @@ static UDWORD intCalcSpeed(TYPE_OF_TERRAIN type, PROPULSION_STATS* psProp)
       return 0;
   }
 
-  return calcDroidSpeed(calcDroidBaseSpeed(&sCurrDesign, weight, static_cast<UBYTE>(selectedPlayer)), type, psProp - asPropulsionStats);
+  return calcDroidSpeed(calcDroidBaseSpeed(&sCurrDesign, weight, static_cast<UBYTE>(selectedPlayer)), type, StatIndex(psProp, asPropulsionStats, numPropulsionStats));
 }
 
 /* Set the bar graphs for the Propulsion stats */
@@ -3129,7 +3122,7 @@ static BOOL intValidTemplate(DROID_TEMPLATE* psTempl)
   if (psTempl->asParts[COMP_BRAIN] != 0)
   {
     psTempl->numWeaps = 1;
-    psTempl->asWeaps[0] = asBrainStats[psTempl->asParts[COMP_BRAIN]].psWeaponStat - asWeaponStats;
+    psTempl->asWeaps[0] = StatIndex(asBrainStats[psTempl->asParts[COMP_BRAIN]].psWeaponStat, asWeaponStats, numWeaponStats);
   }
 
   /* Check all the components have been set */
@@ -3253,8 +3246,6 @@ void intRemoveDesign(void)
 
   widgDelete(psWScreen, IDDES_FORM);
   widgDelete(psWScreen, IDDES_STATSFORM);
-
-  resetDesignPauseState();
 }
 
 /* set flashing flag for button */
@@ -3454,7 +3445,7 @@ void intProcessDesign(UDWORD id)
       break;
     case IDES_TURRET:
       /* Calculate the index of the component */
-      sCurrDesign.asWeaps[0] = ((WEAPON_STATS*)apsComponentList[id - IDDES_COMPSTART]) - asWeaponStats;
+      sCurrDesign.asWeaps[0] = StatIndex((WEAPON_STATS*)apsComponentList[id - IDDES_COMPSTART], asWeaponStats, numWeaponStats);
       sCurrDesign.numWeaps = 1;
       /* Reset the sensor, ECM and constructor and repair
         - defaults will be set when OK is hit */
@@ -3474,7 +3465,7 @@ void intProcessDesign(UDWORD id)
       widgReveal(psWScreen, IDDES_PROPBUTTON);
 
       /* Calculate the index of the component */
-      sCurrDesign.asParts[COMP_BODY] = ((BODY_STATS*)apsComponentList[id - IDDES_COMPSTART]) - asBodyStats;
+      sCurrDesign.asParts[COMP_BODY] = StatIndex((BODY_STATS*)apsComponentList[id - IDDES_COMPSTART], asBodyStats, numBodyStats);
       /* Set the new stats on the display */
       intSetBodyStats((BODY_STATS*)apsComponentList[id - IDDES_COMPSTART]);
       // do the callback if in the tutorial
@@ -3483,7 +3474,7 @@ void intProcessDesign(UDWORD id)
       break;
     case IDES_PROPULSION:
       /* Calculate the index of the component */
-      sCurrDesign.asParts[COMP_PROPULSION] = ((PROPULSION_STATS*)apsComponentList[id - IDDES_COMPSTART]) - asPropulsionStats;
+      sCurrDesign.asParts[COMP_PROPULSION] = StatIndex((PROPULSION_STATS*)apsComponentList[id - IDDES_COMPSTART], asPropulsionStats, numPropulsionStats);
       /* Set the new stats on the display */
       intSetPropulsionStats((PROPULSION_STATS*)apsComponentList[id - IDDES_COMPSTART]);
 
@@ -3573,7 +3564,7 @@ void intProcessDesign(UDWORD id)
     {
     case COMP_SENSOR:
       // Calculate the index of the component
-      sCurrDesign.asParts[COMP_SENSOR] = ((SENSOR_STATS*)apsExtraSysList[id - IDDES_EXTRASYSSTART]) - asSensorStats;
+      sCurrDesign.asParts[COMP_SENSOR] = StatIndex((SENSOR_STATS*)apsExtraSysList[id - IDDES_EXTRASYSSTART], asSensorStats, numSensorStats);
       // Reset the ECM, constructor and weapon and repair
       //	- defaults will be set when OK is hit
       sCurrDesign.numWeaps = 0;
@@ -3587,7 +3578,7 @@ void intProcessDesign(UDWORD id)
       break;
     case COMP_ECM:
       // Calculate the index of the component
-      sCurrDesign.asParts[COMP_ECM] = ((ECM_STATS*)apsExtraSysList[id - IDDES_EXTRASYSSTART]) - asECMStats;
+      sCurrDesign.asParts[COMP_ECM] = StatIndex((ECM_STATS*)apsExtraSysList[id - IDDES_EXTRASYSSTART], asECMStats, numECMStats);
       // Reset the Sensor, constructor and weapon and repair
       //	- defaults will be set when OK is hit
       sCurrDesign.numWeaps = 0;
@@ -3601,7 +3592,7 @@ void intProcessDesign(UDWORD id)
       break;
     case COMP_CONSTRUCT:
       // Calculate the index of the component and repair
-      sCurrDesign.asParts[COMP_CONSTRUCT] = ((CONSTRUCT_STATS*)apsExtraSysList[id - IDDES_EXTRASYSSTART]) - asConstructStats;
+      sCurrDesign.asParts[COMP_CONSTRUCT] = StatIndex((CONSTRUCT_STATS*)apsExtraSysList[id - IDDES_EXTRASYSSTART], asConstructStats, numConstructStats);
       // Reset the Sensor, ECM and weapon
       //	- defaults will be set when OK is hit 
       sCurrDesign.numWeaps = 0;
@@ -3615,7 +3606,7 @@ void intProcessDesign(UDWORD id)
       break;
     case COMP_REPAIRUNIT:
       // Calculate the index of the component
-      sCurrDesign.asParts[COMP_REPAIRUNIT] = ((REPAIR_STATS*)apsExtraSysList[id - IDDES_EXTRASYSSTART]) - asRepairStats;
+      sCurrDesign.asParts[COMP_REPAIRUNIT] = StatIndex((REPAIR_STATS*)apsExtraSysList[id - IDDES_EXTRASYSSTART], asRepairStats, numRepairStats);
       // Reset the Sensor, ECM and weapon and construct
       //	- defaults will be set when OK is hit 
       sCurrDesign.numWeaps = 0;
@@ -3629,7 +3620,7 @@ void intProcessDesign(UDWORD id)
       break;
     case COMP_BRAIN:
       /* Calculate the index of the brain */
-      sCurrDesign.asParts[COMP_BRAIN] = ((BRAIN_STATS*)apsExtraSysList[id - IDDES_EXTRASYSSTART]) - asBrainStats;
+      sCurrDesign.asParts[COMP_BRAIN] = StatIndex((BRAIN_STATS*)apsExtraSysList[id - IDDES_EXTRASYSSTART], asBrainStats, numBrainStats);
       /* Reset the sensor, ECM and constructor and repair
         - defaults will be set when OK is hit */
       sCurrDesign.asParts[COMP_SENSOR] = 0;
@@ -4321,28 +4312,6 @@ void runTemplateShadowStats(UDWORD id)
     widgSetMinorBarSize(psWScreen, IDDES_BODYPOINTS, calcTemplateBody(psTempl, static_cast<UBYTE>(selectedPlayer)));
 
     widgSetMinorBarSize(psWScreen, IDDES_POWERBAR, calcTemplatePower(psTempl));
-  }
-}
-
-/*sets which states need to be paused when the design screen is up*/
-void setDesignPauseState(void)
-{
-  if (!bMultiPlayer)
-  {
-    gameTimeStop();
-    setGameUpdatePause(TRUE);
-    setScrollPause(TRUE);
-  }
-}
-
-/*resets the pause states */
-void resetDesignPauseState(void)
-{
-  if (!bMultiPlayer)
-  {
-    setGameUpdatePause(FALSE);
-    setScrollPause(FALSE);
-    gameTimeStart();
   }
 }
 

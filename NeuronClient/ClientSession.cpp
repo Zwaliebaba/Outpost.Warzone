@@ -8,7 +8,8 @@ namespace Neuron
 
 namespace
 {
-/// Big enough for any session-plane record, which are all a handful of fields.
+/// Big enough for any session- or command-plane record this end sends, which
+/// are all a handful of fields.
 constexpr std::size_t SessionScratchBytes = 64;
 } // namespace
 
@@ -18,7 +19,7 @@ ClientSession::ClientSession(LoopbackTransport& _link, std::uint32_t _buildHash)
 }
 
 template <typename Message>
-void ClientSession::SendSession(const Message& _message)
+void ClientSession::Send(NetChannel _channel, const Message& _message)
 {
   std::byte scratch[SessionScratchBytes]{};
   NetWriter writer{scratch};
@@ -27,19 +28,11 @@ void ClientSession::SendSession(const Message& _message)
   /* An overflow here would be a record outgrowing the buffer, which is our
      mistake rather than a peer's, so it is dropped loudly rather than sent
      half-written. */
-  DEBUG_ASSERT_TEXT(!writer.Overflowed(), "ClientSession: session record does not fit the scratch buffer");
+  DEBUG_ASSERT_TEXT(!writer.Overflowed(), "ClientSession: record does not fit the scratch buffer");
   if (writer.Overflowed())
     return;
 
-  m_link.Send(LoopbackTransport::End::Client, NetChannel::Session, writer.Written());
-}
-
-void ClientSession::SendSessionId(ClientMessage _id)
-{
-  std::byte scratch[1]{};
-  NetWriter writer{scratch};
-  writer.U8(static_cast<std::uint8_t>(_id));
-  m_link.Send(LoopbackTransport::End::Client, NetChannel::Session, writer.Written());
+  m_link.Send(LoopbackTransport::End::Client, _channel, writer.Written());
 }
 
 void ClientSession::Begin()
@@ -50,7 +43,7 @@ void ClientSession::Begin()
   ClientHello hello;
   hello.protocolVersion = ProtocolVersion;
   hello.buildHash = m_buildHash;
-  SendSession(hello);
+  Send(NetChannel::Session, hello);
 
   m_state = State::Handshaking;
 }
@@ -102,10 +95,25 @@ void ClientSession::Deliver(NetChannel _channel, std::span<const std::byte> _byt
       OnTick(reader);
     break;
 
+  case ServerMessage::Kick:
+    /* A kick can come at any point after the hello was answered: the server
+       has accepted this client and is now sending it away. Before the verdict
+       it means nothing, since nothing has been agreed to end. */
+    if (_channel == NetChannel::Session && m_state != State::Fresh && m_state != State::Handshaking)
+      OnKick(reader);
+    break;
+
+  case ServerMessage::CommandReject:
+    /* An answer to something this client asked for, which it can only have
+       done once Running. */
+    if (_channel == NetChannel::Session && m_state == State::Running)
+      OnReject(reader);
+    break;
+
   default:
-    /* Every other message belongs to a plane this session does not read yet.
-       Stage D adds them one at a time as their handlers arrive -- the replica
-       store is the next of them. */
+    /* Every other message belongs to a plane this session does not read.
+       Replication, UiEvent included, is the replica world's; it drains its
+       own channel. */
     break;
   }
 }
@@ -156,13 +164,58 @@ void ClientSession::OnTick(NetReader& _reader)
   m_tick = tick.tick;
 }
 
-void ClientSession::ReportReady()
+void ClientSession::OnKick(NetReader& _reader)
+{
+  const ServerKick kick = ServerKick::Decode(_reader);
+
+  /* A kick that could not be read is still a kick: the server has said the
+     session is over, and only the reason is missing. Decode already folded
+     that to Unstated. */
+  m_kicked = kick.reason;
+  m_state = State::Refused;
+}
+
+void ClientSession::OnReject(NetReader& _reader)
+{
+  const ServerCommandReject reject = ServerCommandReject::Decode(_reader);
+  if (!_reader.Ok())
+    return;
+
+  m_rejects.push_back(reject);
+}
+
+void ClientSession::ReportReady(std::uint32_t _loadedMapHash)
 {
   if (m_state != State::Loading)
     return;
 
-  SendSessionId(ClientMessage::Ready);
+  ClientReady ready;
+  ready.mapHash = _loadedMapHash;
+  Send(NetChannel::Session, ready);
+
   m_state = State::Running;
+}
+
+void ClientSession::RequestGameSpeed(float _modifier)
+{
+  if (m_state != State::Running)
+    return;
+
+  ClientSessionControl control;
+  control.sequence = m_nextSequence++;
+  control.kind = SessionControlKind::GameSpeed;
+  control.value = _modifier;
+  Send(NetChannel::Command, control);
+}
+
+bool ClientSession::TakeReject(ServerCommandReject& _outReject)
+{
+  if (m_rejects.empty())
+    return false;
+
+  _outReject = m_rejects.front();
+  m_rejects.erase(m_rejects.begin());
+  return true;
 }
 
 } // namespace Neuron

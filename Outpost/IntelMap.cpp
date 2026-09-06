@@ -225,9 +225,6 @@ BOOL _intAddIntelMap(void)
     }
   }
 
-  //set pause states before putting the interface up
-  setIntelligencePauseState();
-
   memset(&sFormInit, 0, sizeof(W_FORMINIT));
 
   // Add the main Intelligence Map form 
@@ -793,7 +790,6 @@ void intCleanUpIntelMap(void)
     if (psMessage->type == MSG_RESEARCH AND psMessage->read)
       removeMessage(psMessage, selectedPlayer);
   }
-  resetIntelligencePauseState();
   immediateMessage = FALSE;
 
   Music::Resume();
@@ -1580,36 +1576,6 @@ void setCurrentMsg(void)
 	}
 }*/
 
-/*sets which states need to be paused when the intelligence screen is up*/
-void setIntelligencePauseState(void)
-{
-  if (!bMultiPlayer)
-  {
-    gameTimeStop();
-    setGameUpdatePause(TRUE);
-    if (!bInTutorial)
-    {
-      // Don't pause the scripts or the console if the tutorial is running.
-      setScriptPause(TRUE);
-      setConsolePause(TRUE);
-    }
-    setScrollPause(TRUE);
-  }
-}
-
-/*resets the pause states */
-void resetIntelligencePauseState(void)
-{
-  if (!bMultiPlayer)
-  {
-    setGameUpdatePause(FALSE);
-    if (!bInTutorial)
-      setScriptPause(FALSE);
-    setScrollPause(FALSE);
-    setConsolePause(FALSE);
-    gameTimeStart();
-  }
-}
 
 static BOOL ResearchStringsAreLoaded = FALSE; // this really doesn't need to be a static ..
 // play this message immediately, but definitely donot tell the intelligence screen to start 

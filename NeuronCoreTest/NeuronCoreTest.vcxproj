@@ -175,6 +175,7 @@
   <ItemGroup>
     <ClCompile Include="JsonTest.cpp" />
     <ClCompile Include="HandshakeTest.cpp" />
+    <ClCompile Include="SessionPlaneTest.cpp" />
     <ClCompile Include="LoopbackTransportTest.cpp" />
     <ClCompile Include="NetWireTest.cpp" />
     <ClCompile Include="ReplicationRecordsTest.cpp" />

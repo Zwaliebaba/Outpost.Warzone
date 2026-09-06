@@ -2779,8 +2779,8 @@ void intDisplayMissionBackDrop(struct _widget* psWidget, UDWORD xOffset, UDWORD 
 
 void missionResetInGameState(void)
 {
-  //stop the game if in single player mode
-  setMissionPauseState();
+  //the mission is over; the clock stops until the next one
+  StopMissionClock();
 
   // reset the input state
   resetInput();
@@ -2952,8 +2952,7 @@ void intRemoveMissionResultNoAnim(void)
   ClosingMissionRes = FALSE;
   intMode = INT_NORMAL;
 
-  //reset the pauses
-  resetMissionPauseState();
+  StartMissionClock();
 
   // add back the reticule and power bar.
   intAddReticule();
@@ -3048,7 +3047,7 @@ void launchMission(void)
 void intCDOK(void)
 {
   //		// Clear the screen.
-  resetMissionPauseState();
+  StartMissionClock();
   intAddReticule();
   intShowPowerBar();
 
@@ -3155,31 +3154,22 @@ void adjustMissionPower(void)
   }
 }
 
-/*sets the appropriate pause states for when the interface is up but the 
-game needs to be paused*/
-void setMissionPauseState(void)
+/* The mission is over and the results screen is up: there is no world to
+   advance until the next mission is set up, so the clock stops between the
+   two. This is the mission's timeline ending, not a pause -- pause was removed
+   as a feature (Docs/ServerAuthority.md), and nothing the player does stops a
+   world that is running. */
+void StopMissionClock(void)
 {
   if (!bMultiPlayer)
-  {
     gameTimeStop();
-    setGameUpdatePause(TRUE);
-    setAudioPause(TRUE);
-    setScriptPause(TRUE);
-    setConsolePause(TRUE);
-  }
 }
 
-/*resets the pause states */
-void resetMissionPauseState(void)
+/* The next mission is under way. */
+void StartMissionClock(void)
 {
   if (!bMultiPlayer)
-  {
-    setGameUpdatePause(FALSE);
-    setAudioPause(FALSE);
-    setScriptPause(FALSE);
-    setConsolePause(FALSE);
     gameTimeStart();
-  }
 }
 
 //gets the coords for a no go area

@@ -23,6 +23,7 @@
 #include "Structure.h"
 #include "Display3D.h"
 #include "Research.h"
+#include "Stats.h"
 #include "AudioSystem.h"
 #include "Text.h"
 #include "AudioID.h"
@@ -37,6 +38,7 @@
 #include "Component.h"
 #include "ScriptExtern.h"
 #include "SeqDisp.h"
+#include "EmbeddedSession.h"
 
 #include "FPath.h"
 #include "WarzoneConfig.h"
@@ -1108,52 +1110,34 @@ BOOL scrRemoveReticuleButton(void)
 // add a message to the Intelligence Display
 BOOL scrAddMessage(void)
 {
-  MESSAGE* psMessage;
   SDWORD msgType, player;
   BOOL playImmediate;
   VIEWDATA* psViewData;
-  UDWORD height;
 
   if (!stackPopParams({{ST_INTMESSAGE, &psViewData}, {VAL_INT, &msgType}, {VAL_INT, &player}, {VAL_BOOL, &playImmediate}}))
     return FALSE;
-  /*
-	if (!stackPop(&sVal))
-	{
-		return FALSE;
-	}
 
-	if (sVal.type != ST_INTMESSAGE)
-	{
-		ASSERT((FALSE, "scrAddMessage: type mismatch for object"));
-		return FALSE;
-	}
-*/
   if (player >= MAX_PLAYERS)
   {
     DEBUG_ASSERT_TEXT(FALSE, "scrAddMessage:player number is too high");
     return FALSE;
   }
-
-  //create the message
-  psMessage = addMessage(msgType, FALSE, player);
-  if (psMessage)
+  if (psViewData == nullptr)
   {
-    //set the data
-    psMessage->pViewData = (MSG_VIEWDATA*)psViewData;
-    if (msgType == MSG_PROXIMITY)
-    {
-      //check the z value is at least the height of the terrain
-      height = map_Height(static_cast<VIEW_PROXIMITY*>(psViewData->pData)->x, static_cast<VIEW_PROXIMITY*>(psViewData->pData)->y);
-      if (static_cast<VIEW_PROXIMITY*>(psViewData->pData)->z < height)
-        static_cast<VIEW_PROXIMITY*>(psViewData->pData)->z = height;
-    }
-
-    if (playImmediate)
-    {
-      displayImmediateMessage(psMessage);
-      stopReticuleButtonFlash(IDRET_INTEL_MAP);
-    }
+    DEBUG_ASSERT_TEXT(FALSE, "scrAddMessage: NULL view data");
+    return FALSE;
   }
+
+  /* The script runs on the server and the server has no screen. It names the
+     message it wants shown, by the name the view data was loaded under, and
+     the client that owns the intelligence screen shows it (UiEvents.cpp). */
+  Neuron::ServerUiEvent event;
+  event.kind = Neuron::UiEventKind::AddMessage;
+  event.player = static_cast<std::uint8_t>(player);
+  event.a = static_cast<std::uint32_t>(msgType);
+  event.b = playImmediate ? 1u : 0u;
+  event.SetName(psViewData->pName);
+  EmbeddedSession::Instance().Emit(event);
 
   return TRUE;
 }
@@ -1162,7 +1146,6 @@ BOOL scrAddMessage(void)
 // remove a message from the Intelligence Display
 BOOL scrRemoveMessage(void)
 {
-  MESSAGE* psMessage;
   SDWORD msgType, player;
   VIEWDATA* psViewData;
 
@@ -1171,22 +1154,21 @@ BOOL scrRemoveMessage(void)
 
   if (player >= MAX_PLAYERS)
   {
-    DEBUG_ASSERT_TEXT(FALSE, "scrAddMessage:player number is too high");
+    DEBUG_ASSERT_TEXT(FALSE, "scrRemoveMessage:player number is too high");
+    return FALSE;
+  }
+  if (psViewData == nullptr)
+  {
+    DEBUG_ASSERT_TEXT(FALSE, "scrRemoveMessage: NULL view data");
     return FALSE;
   }
 
-  //find the message
-  psMessage = findMessage((MSG_VIEWDATA*)psViewData, static_cast<MESSAGE_TYPE>(msgType), player);
-  if (psMessage)
-  {
-    //delete it
-    removeMessage(psMessage, player);
-  }
-  else
-  {
-    DEBUG_ASSERT_TEXT(FALSE, "scrRemoveMessage:cannot find message - {}", psViewData->pName);
-    return FALSE;
-  }
+  Neuron::ServerUiEvent event;
+  event.kind = Neuron::UiEventKind::RemoveMessage;
+  event.player = static_cast<std::uint8_t>(player);
+  event.a = static_cast<std::uint32_t>(msgType);
+  event.SetName(psViewData->pName);
+  EmbeddedSession::Instance().Emit(event);
 
   return TRUE;
 }
@@ -1775,7 +1757,11 @@ BOOL scrCentreView(void)
   }
 
   //centre the view on the objects x/y
-  setViewPos(psObj->x >> TILE_SHIFT, psObj->y >> TILE_SHIFT,FALSE);
+  Neuron::ServerUiEvent event;
+  event.kind = Neuron::UiEventKind::CentreView;
+  event.a = psObj->x >> TILE_SHIFT;
+  event.b = psObj->y >> TILE_SHIFT;
+  EmbeddedSession::Instance().Emit(event);
 
   return TRUE;
 }
@@ -1796,7 +1782,11 @@ BOOL scrCentreViewPos(void)
   }
 
   //centre the view on the objects x/y
-  setViewPos(x >> TILE_SHIFT, y >> TILE_SHIFT,FALSE);
+  Neuron::ServerUiEvent event;
+  event.kind = Neuron::UiEventKind::CentreView;
+  event.a = static_cast<std::uint32_t>(x >> TILE_SHIFT);
+  event.b = static_cast<std::uint32_t>(y >> TILE_SHIFT);
+  EmbeddedSession::Instance().Emit(event);
 
   return TRUE;
 }
@@ -2323,12 +2313,12 @@ BOOL scrPlaySound(void)
     return FALSE;
   }
 
-  if (player == static_cast<SDWORD>(selectedPlayer))
-  {
-    AudioSystem::QueueTrack(soundID);
-    if (bInTutorial)
-      AudioSystem::QueueTrack(ID_SOUND_OF_SILENCE);
-  }
+  Neuron::ServerUiEvent event;
+  event.kind = Neuron::UiEventKind::PlaySound;
+  event.player = static_cast<std::uint8_t>(player);
+  event.a = static_cast<std::uint32_t>(soundID);
+  EmbeddedSession::Instance().Emit(event);
+
   return TRUE;
 }
 
@@ -2366,15 +2356,16 @@ BOOL scrShowConsoleText(void)
 
   if (player >= MAX_PLAYERS)
   {
-    DEBUG_ASSERT_TEXT(FALSE, "scrAddConsoleText:player number is too high");
+    DEBUG_ASSERT_TEXT(FALSE, "scrShowConsoleText:player number is too high");
     return FALSE;
   }
 
-  if (player == static_cast<SDWORD>(selectedPlayer))
-  {
-    permitNewConsoleMessages(TRUE);
-    addConsoleMessage(pText, CENTRE_JUSTIFY);
-  }
+  Neuron::ServerUiEvent event;
+  event.kind = Neuron::UiEventKind::ConsoleText;
+  event.player = static_cast<std::uint8_t>(player);
+  event.a = 0u; // transient
+  event.SetText(pText);
+  EmbeddedSession::Instance().Emit(event);
 
   return TRUE;
 }
@@ -2395,13 +2386,12 @@ BOOL scrAddConsoleText(void)
     return FALSE;
   }
 
-  if (player == static_cast<SDWORD>(selectedPlayer))
-  {
-    permitNewConsoleMessages(TRUE);
-    setConsolePermanence(TRUE,TRUE);
-    addConsoleMessage(pText, CENTRE_JUSTIFY);
-    permitNewConsoleMessages(FALSE);
-  }
+  Neuron::ServerUiEvent event;
+  event.kind = Neuron::UiEventKind::ConsoleText;
+  event.player = static_cast<std::uint8_t>(player);
+  event.a = 1u; // permanent
+  event.SetText(pText);
+  EmbeddedSession::Instance().Emit(event);
 
   return TRUE;
 }
@@ -2436,8 +2426,10 @@ BOOL scrTagConsoleText(void)
 // -----------------------------------------------------------------------------------------
 BOOL scrClearConsole(void)
 {
-  flushConsoleMessages();
-  return (TRUE);
+  Neuron::ServerUiEvent event;
+  event.kind = Neuron::UiEventKind::ClearConsole;
+  EmbeddedSession::Instance().Emit(event);
+  return TRUE;
 }
 
 // -----------------------------------------------------------------------------------------
@@ -2462,7 +2454,9 @@ BOOL scrTurnPowerOn(void)
 //flags when the tutorial is over so that console messages can be turned on again
 BOOL scrTutorialEnd(void)
 {
-  initConsoleMessages();
+  Neuron::ServerUiEvent event;
+  event.kind = Neuron::UiEventKind::TutorialEnd;
+  EmbeddedSession::Instance().Emit(event);
   return TRUE;
 }
 
@@ -2475,9 +2469,13 @@ BOOL scrPlayVideo(void)
   if (!stackPopParams({{ST_TEXTSTRING, &pVideo}, {ST_TEXTSTRING, &pText}}))
     return FALSE;
 
-  seq_ClearSeqList();
-  seq_AddSeqToList(pVideo, nullptr, pText, FALSE, 0); // Arpzzzzzzzzzzzzzzzlksht!
-  seq_StartNextFullScreenVideo();
+  /* The briefing the gate names: a sequence the script asks for, played by the
+     client because the client is what has a screen. */
+  Neuron::ServerUiEvent event;
+  event.kind = Neuron::UiEventKind::PlayVideo;
+  event.SetName(pVideo);
+  event.SetText(pText);
+  EmbeddedSession::Instance().Emit(event);
 
   return TRUE;
 }
@@ -3473,7 +3471,7 @@ BOOL scrCompleteResearch(void)
     return FALSE;
   }
 
-  researchIndex = psResearch - asResearch;
+  researchIndex = StatIndex(psResearch, asResearch, numResearch);
   if (researchIndex > numResearch)
   {
     DEBUG_ASSERT_TEXT(FALSE, "scrCompleteResearch: invalid research index");

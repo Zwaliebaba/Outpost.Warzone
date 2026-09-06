@@ -85,11 +85,9 @@ extern void intProcessMissionResult(UDWORD id);
 extern void intRunMissionResult(void);
 
 extern void unloadTransporter(DROID* psTransporter, UDWORD x, UDWORD y, BOOL goingHome);
-/*sets the appropriate pause states for when the interface is up but the 
-game needs to be paused*/
-extern void setMissionPauseState(void);
-/*resets the pause states */
-extern void resetMissionPauseState(void);
+/* Stops the clock while the mission results are up, and starts it for the next mission */
+extern void StopMissionClock(void);
+extern void StartMissionClock(void);
 //returns the x coord for where the Transporter can land
 extern UWORD getLandingX(SDWORD iPlayer);
 //returns the y coord for where the Transporter can land

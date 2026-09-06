@@ -387,17 +387,13 @@ static void UpdateRadar(UWORD boxSizeH, UWORD boxSizeV)
   UNUSEDPARAMETER(boxSizeH);
   UNUSEDPARAMETER(boxSizeV);
 
-  if (!gamePaused())
-    sweep += boxSizeV;
+  sweep += boxSizeV;
 
   if (sweep >= static_cast<UDWORD>(RadarHeight))
     sweep = 0;
 
-  if (!gamePaused())
-  {
-    if (sweepStrobeIndex++ >= BOX_PULSE_SIZE)
-      sweepStrobeIndex = 0;
-  }
+  if (sweepStrobeIndex++ >= BOX_PULSE_SIZE)
+    sweepStrobeIndex = 0;
 }
 
 // Clear the radar buffer.
@@ -908,9 +904,6 @@ static void DrawRadarExtras(UWORD boxSizeH, UWORD boxSizeV)
 
   viewX = viewX & (~(boxSizeH - 1));
   viewY = viewY & (~(boxSizeV - 1));
-
-  //don't update the strobe whilst the game is paused
-  if (!gameUpdatePaused()) {}
 
   drawViewingWindow(viewX, viewY, boxSizeH, boxSizeV);
   DrawEnableLocks(FALSE);

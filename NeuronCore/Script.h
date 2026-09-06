@@ -38,6 +38,9 @@ extern void scriptShutDown(void);
 /* Set the type table */
 extern void scriptSetTypeTab(TYPE_SYMBOL* psTypeTab);
 
+/* Whether a type id names an AT_OBJECT type in the table set above */
+extern BOOL ScriptTypeIsObject(INTERP_TYPE _type);
+
 /* Set the function table */
 extern void scriptSetFuncTab(FUNC_SYMBOL* psFuncTab);
 

@@ -306,7 +306,7 @@ BASE_OBJECT* camFindTarget(void)
 
   if (bRadarTrackingRequested)
   {
-    setUpRadarTarget(radarX, radarY);
+    setUpRadarTarget(std::lrintf(radarX), std::lrintf(radarY));
     bRadarTrackingRequested = FALSE;
     return (&radarTarget);
   }
@@ -328,9 +328,12 @@ void camAllignWithTarget(BASE_OBJECT* psTarget)
   trackingCamera.oldView.r.z = trackingCamera.rotation.z = player.r.z;
 
   /* Store away the old positions and set the start position too */
-  trackingCamera.oldView.p.x = trackingCamera.position.x = static_cast<float>(player.p.x);
-  trackingCamera.oldView.p.y = trackingCamera.position.y = static_cast<float>(player.p.y);
-  trackingCamera.oldView.p.z = trackingCamera.position.z = static_cast<float>(player.p.z);
+  trackingCamera.position.x = static_cast<float>(player.p.x);
+  trackingCamera.oldView.p.x = player.p.x;
+  trackingCamera.position.y = static_cast<float>(player.p.y);
+  trackingCamera.oldView.p.y = player.p.y;
+  trackingCamera.position.z = static_cast<float>(player.p.z);
+  trackingCamera.oldView.p.z = player.p.z;
 
   /* No initial velocity for moving */
   trackingCamera.velocity.x = trackingCamera.velocity.y = trackingCamera.velocity.z = 0.0f;
@@ -780,9 +783,9 @@ BOOL camTrackCamera(void)
   oldPosition.z = player.p.z;
 
   /* Update the position that's now stored in trackingCamera.position (iVector) */
-  player.p.x = trackingCamera.position.x;
-  player.p.y = trackingCamera.position.y;
-  player.p.z = trackingCamera.position.z;
+  player.p.x = std::lrintf(trackingCamera.position.x);
+  player.p.y = std::lrintf(trackingCamera.position.y);
+  player.p.z = std::lrintf(trackingCamera.position.z);
 
   /* Record the old positions for comparison */
   oldRotation.x = player.r.x;

@@ -275,9 +275,6 @@ void addEffect(iVector* pos, EFFECT_GROUP group, EFFECT_TYPE type, BOOL specifie
 
   aeCalls++;
 
-  if (gamePaused())
-    return;
-
   /* Quick optimsation to reject every second non-essential effect if it's off grid */
   //	if(clipXY((UDWORD)MAKEINT(pos->x),(UDWORD)MAKEINT(pos->z)) == FALSE)
   if (clipXY(static_cast<UDWORD>(pos->x), static_cast<UDWORD>(pos->z)) == FALSE)
@@ -532,50 +529,41 @@ void updateEffect(EFFECT* psEffect)
     break;
 
   case EFFECT_WAYPOINT:
-    if (!gamePaused())
-      updateWaypoint(psEffect);
+    updateWaypoint(psEffect);
     break;
 
   case EFFECT_CONSTRUCTION:
-    if (!gamePaused())
-      updateConstruction(psEffect);
+    updateConstruction(psEffect);
     break;
 
   case EFFECT_SMOKE:
-    if (!gamePaused())
-      updatePolySmoke(psEffect);
+    updatePolySmoke(psEffect);
     break;
 
   case EFFECT_STRUCTURE:
     break;
 
   case EFFECT_GRAVITON:
-    if (!gamePaused())
-      updateGraviton(psEffect);
+    updateGraviton(psEffect);
     break;
 
   case EFFECT_BLOOD:
-    if (!gamePaused())
-      updateBlood(psEffect);
+    updateBlood(psEffect);
     break;
 
   case EFFECT_DESTRUCTION:
-    if (!gamePaused())
-      updateDestruction(psEffect);
+    updateDestruction(psEffect);
     break;
 
   case EFFECT_FIRE:
-    if (!gamePaused())
-      updateFire(psEffect);
+    updateFire(psEffect);
     break;
 
   case EFFECT_SAT_LASER:
-    if (!gamePaused())
-      updateSatLaser(psEffect);
+    updateSatLaser(psEffect);
     break;
   case EFFECT_FIREWORK:
-    if (!gamePaused())
-      updateFirework(psEffect);
+    updateFirework(psEffect);
     break;
   default: Neuron::Fatal("Weirdy class of effect passed to updateEffect");
     break;
@@ -822,9 +810,9 @@ void updateExplosion(EFFECT* psEffect)
 
   if (psEffect->type == EXPLOSION_TYPE_SHOCKWAVE)
   {
-    psEffect->size += std::lrintf(fraction * SHOCKWAVE_SPEED);
+    psEffect->size = static_cast<UWORD>(psEffect->size + std::lrintf(fraction * SHOCKWAVE_SPEED));
     scaling = static_cast<float>(psEffect->size) / MAX_SHOCKWAVE_SIZE;
-    psEffect->frameNumber = std::lrintf(scaling * EffectGetNumFrames(psEffect));
+    psEffect->frameNumber = static_cast<UBYTE>(std::lrintf(scaling * EffectGetNumFrames(psEffect)));
 #ifdef DOLIGHTS
     light.position.x = std::lrintf(psEffect->position.x);
     light.position.y = std::lrintf(psEffect->position.y);
@@ -859,12 +847,9 @@ void updateExplosion(EFFECT* psEffect)
     }
   }
 
-  if (!gamePaused())
-  {
-    /* Tesla explosions are the only ones that rise, or indeed move */
-    if (psEffect->type == EXPLOSION_TYPE_TESLA)
-      psEffect->position.y += (std::lrintf(psEffect->velocity.y) * fraction);
-  }
+  /* Tesla explosions are the only ones that rise, or indeed move */
+  if (psEffect->type == EXPLOSION_TYPE_TESLA)
+    psEffect->position.y += (std::lrintf(psEffect->velocity.y) * fraction);
 }
 
 // ----------------------------------------------------------------------------------------
@@ -968,11 +953,6 @@ void updateGraviton(EFFECT* psEffect)
   }
 #endif
 
-  if (gamePaused())
-  {
-    /* Only update the lights if it's paused */
-    return;
-  }
   /* Move it about in the world */
   DirectX::XMStoreFloat3(&psEffect->position,
     DirectX::XMVectorAdd(DirectX::XMLoadFloat3(&psEffect->position),
@@ -1492,10 +1472,10 @@ void renderDestructionEffect(EFFECT* psEffect)
   Neuron::WorldMatrix() = DirectX::XMMatrixTranslation(static_cast<float>(rx), 0.0f, static_cast<float>(-rz)) * Neuron::WorldMatrix(); /* Translate */
 
   float div = static_cast<float>(gameTime - psEffect->birthTime) / psEffect->lifeSpan;
-  if (div > 1.0)
-    div = 1.0; //temporary!
+  if (div > 1.0f)
+    div = 1.0f; //temporary!
   {
-    div = 1.0 - div;
+    div = 1.0f - div;
     percent = static_cast<SDWORD>(div * pie_RAISE_SCALE);
   }
 
@@ -1503,12 +1483,9 @@ void renderDestructionEffect(EFFECT* psEffect)
   UDWORD brightness = lightDoFogAndIllumination(pie_MAX_BRIGHT_LEVEL, getCentreX() - std::lrintf(psEffect->position.x),
                                                 getCentreZ() - std::lrintf(psEffect->position.z), &specular);
 
-  if (!gamePaused())
-  {
-    Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(SKY_SHIMMY) * Neuron::WorldMatrix();
-    Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(SKY_SHIMMY) * Neuron::WorldMatrix();
-    Neuron::WorldMatrix() = DirectX::XMMatrixRotationZ(SKY_SHIMMY) * Neuron::WorldMatrix();
-  }
+  Neuron::WorldMatrix() = DirectX::XMMatrixRotationX(SKY_SHIMMY) * Neuron::WorldMatrix();
+  Neuron::WorldMatrix() = DirectX::XMMatrixRotationY(SKY_SHIMMY) * Neuron::WorldMatrix();
+  Neuron::WorldMatrix() = DirectX::XMMatrixRotationZ(SKY_SHIMMY) * Neuron::WorldMatrix();
   pie_Draw3DShape(psEffect->imd, 0, 0, brightness, 0,pie_RAISE, percent);
 
   Neuron::MatrixPop();
@@ -1583,7 +1560,7 @@ void renderExplosionEffect(EFFECT* psEffect)
   /* Tesla explosions diminish in size */
   if (psEffect->type == EXPLOSION_TYPE_TESLA)
   {
-    percent = std::lrintf(PERCENT((gameTime - psEffect->birthTime), psEffect->lifeSpan));
+    percent = PERCENT((gameTime - psEffect->birthTime), psEffect->lifeSpan);
     if (percent < 0)
       percent = 0;
     if (percent > 45)
@@ -1592,7 +1569,7 @@ void renderExplosionEffect(EFFECT* psEffect)
   }
   else if (psEffect->type == EXPLOSION_TYPE_PLASMA)
   {
-    percent = (std::lrintf(PERCENT((gameTime - psEffect->birthTime), psEffect->lifeSpan))) / 3;
+    percent = (PERCENT((gameTime - psEffect->birthTime), psEffect->lifeSpan)) / 3;
     scaleMatrix(BASE_PLASMA_SIZE + percent);
   }
   else
@@ -1700,7 +1677,7 @@ void renderConstructionEffect(EFFECT* psEffect)
   }
 
   /* Scale size according to age */
-  SDWORD percent = std::lrintf(PERCENT((gameTime - psEffect->birthTime), psEffect->lifeSpan));
+  SDWORD percent = PERCENT((gameTime - psEffect->birthTime), psEffect->lifeSpan);
   if (percent < 0)
     percent = 0;
   if (percent > 100)
@@ -1769,7 +1746,7 @@ void renderSmokeEffect(EFFECT* psEffect)
   {
     UDWORD percent;
 #ifdef HARDWARE_TEST//test additive
-    percent = (std::lrintf(PERCENT((gameTime - psEffect->birthTime), psEffect->lifeSpan))); if (percent < 10 AND psEffect->type ==
+    percent = (PERCENT((gameTime - psEffect->birthTime), psEffect->lifeSpan)); if (percent < 10 AND psEffect->type ==
       SMOKE_TYPE_TRAIL)
     {
       scaleMatrix((3 * percent / 10 * psEffect->baseScale) / 100);
@@ -1781,7 +1758,7 @@ void renderSmokeEffect(EFFECT* psEffect)
       transparency = (EFFECT_SMOKE_ADDITIVE * (100 - percent)) / 100;
     }
 #else//Constant alpha
-    percent = (std::lrintf(PERCENT((gameTime - psEffect->birthTime), psEffect->lifeSpan)));
+    percent = (PERCENT((gameTime - psEffect->birthTime), psEffect->lifeSpan));
     scaleMatrix(percent + psEffect->baseScale);
     transparency = (EFFECT_SMOKE_TRANSPARENCY * (100 - percent)) / 100;
 #endif
@@ -1817,9 +1794,9 @@ void effectSetUpFirework(EFFECT* psEffect)
 {
   if (psEffect->type == FIREWORK_TYPE_LAUNCHER)
   {
-    psEffect->velocity.x = 200 - rand() % 400;
-    psEffect->velocity.z = 200 - rand() % 400;
-    psEffect->velocity.y = 400 + rand() % 200; //height
+    psEffect->velocity.x = static_cast<float>(200 - rand() % 400);
+    psEffect->velocity.z = static_cast<float>(200 - rand() % 400);
+    psEffect->velocity.y = static_cast<float>(400 + rand() % 200); //height
     psEffect->lifeSpan = GAME_TICKS_PER_SEC * 3;
     psEffect->radius = 80 + rand() % 150;
     UDWORD camExtra = 0;
@@ -1830,9 +1807,9 @@ void effectSetUpFirework(EFFECT* psEffect)
   }
   else
   {
-    psEffect->velocity.x = 20 - rand() % 40;
-    psEffect->velocity.z = 20 - rand() % 40;
-    psEffect->velocity.y = 0 - (20 + rand() % 40); //height
+    psEffect->velocity.x = static_cast<float>(20 - rand() % 40);
+    psEffect->velocity.z = static_cast<float>(20 - rand() % 40);
+    psEffect->velocity.y = static_cast<float>(0 - (20 + rand() % 40)); //height
     psEffect->lifeSpan = GAME_TICKS_PER_SEC * 4;
 
     /* setup the imds */

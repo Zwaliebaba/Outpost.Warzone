@@ -179,10 +179,6 @@ static BOOL _intAddInGameOptions(void)
 
   intResetScreen(FALSE);
 
-  // Pause the game.
-  if (!gamePaused())
-    kf_TogglePauseMode();
-
   memset(&sFormInit, 0, sizeof(W_FORMINIT));
 
   sFormInit.width = INTINGAMEOP_W;
@@ -227,10 +223,6 @@ BOOL intAddInGameOptions(void) { return _intAddInGameOptions(); }
 void ProcessOptionFinished(void)
 {
   intMode = INT_NORMAL;
-
-  //unpause.
-  if (gamePaused())
-    kf_TogglePauseMode();
 
   EnableAllCursorSnaps();
 }

@@ -40,7 +40,7 @@
 #include "Transporter.h"
 #include "Projectile.h"
 #include "Findpath.h"
-#include "Loop.h"                          // gamePaused
+#include "Loop.h"
 #include "AnimObj.h"
 
 void unsetMatrix(void);
@@ -644,7 +644,7 @@ void displayCompObj(BASE_OBJECT* psObj, DirectX::XMFLOAT3* mountRotation, BOOL b
 
   /* Cast the droid pointer */
   psDroid = (DROID*)psObj;
-  if ((gameTime - psDroid->timeLastHit < GAME_TICKS_PER_SEC / 4) AND psDroid->lastHitWeapon == WSC_ELECTRONIC AND !gamePaused())
+  if ((gameTime - psDroid->timeLastHit < GAME_TICKS_PER_SEC / 4) AND psDroid->lastHitWeapon == WSC_ELECTRONIC)
   {
     colour = getPlayerColour(rand() % MAX_PLAYERS);
     bDarkSide = TRUE;

@@ -344,28 +344,6 @@ BOOL saveForce(char* name, FORCE* pfForce)
     return FALSE;
   }
 
-#if 0
-  // old method. save whole template
-  for (pT = pfForce->pForceTemplates; pT; pT = pT->psNext) // save templates
-  {
-    if (fwrite(pT, sizeof(DROID_TEMPLATE), 1, pFileHandle) != 1) // template
-    {
-      Neuron::Fatal("Write failed for {}", fileName);
-      return FALSE;
-    }
-    fputc(10, pFileHandle); //seperator.
-  }
-
-  // save force
-  for (pMember = pfForce->pMembers; pMember; pMember = pMember->psNext)
-  {
-    if (fwrite(&(pMember->pTempl->ref), sizeof(pMember->pTempl->ref), 1, pFileHandle) != 1)
-    {
-      Neuron::Fatal("Write failed for {}", fileName); // force type
-      return FALSE;
-    }
-  }
-#else
   // new method. refs to templates. USED FOR MULITLANG SUPP.
   for (pMember = pfForce->pMembers; pMember; pMember = pMember->psNext)
   {
@@ -375,7 +353,6 @@ BOOL saveForce(char* name, FORCE* pfForce)
       return FALSE;
     }
   }
-#endif
 
   if (fclose(pFileHandle) != 0)
   {
@@ -423,48 +400,6 @@ BOOL loadForce(char* name)
     return FALSE;
   }
 
-#if 0
-  // old method
-  for (tcount; tcount != 0; tcount--) // get templates
-  {
-    psTempl = new (std::nothrow) DROID_TEMPLATE;
-    if (psTempl == NULL) //!HEAP_ALLOC(psTemplateHeap, &psTempl))
-    {
-      Neuron::Fatal("Couldn't allocate template for {}", fileName);
-      return FALSE;
-    }
-    if (fread(psTempl, sizeof(DROID_TEMPLATE), 1, pFileHandle) != 1) // read in a template.		
-    {
-      Neuron::Fatal("read failed for {}", fileName);
-      fclose(pFileHandle);
-      return FALSE;
-    }
-    psTempl->pName = (CHAR*)&psTempl->aName;
-    fgetc(pFileHandle); // remove the template separator in the force file.	
-    psTempl->psNext = Force.pForceTemplates;
-    Force.pForceTemplates = psTempl;
-  } for (fcount; fcount != 0; fcount--) // get forces.
-  {
-    if (fread(&ref, sizeof(ref), 1, pFileHandle) != 1) // read in a template ref code.
-    {
-      Neuron::Fatal("read failed for {}", fileName);
-      fclose(pFileHandle);
-      return FALSE;
-    }
-
-    for (psTempl = Force.pForceTemplates; // find relevant template
-         psTempl && (psTempl->ref != ref); psTempl = psTempl->psNext);
-
-    if (!psTempl)
-    {
-      Neuron::Fatal("failed to load. invalid file.");
-      fclose(pFileHandle);
-      return FALSE;
-    }
-
-    addToForce(psTempl); // add it to the force.
-  }
-#else
   // new method.
   for (fcount; fcount != 0; fcount--) // get forces.
   {
@@ -479,7 +414,6 @@ BOOL loadForce(char* name)
     if (psTempl)
       addToForce(psTempl); // add it to the force.
   }
-#endif
 
   if (fclose(pFileHandle) != 0)
   {

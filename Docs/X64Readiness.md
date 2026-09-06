@@ -3,8 +3,9 @@
 > **Outcome (2026-08-27): x64 is the platform that ships.** Win32 is out of
 > CI, which now builds Debug and Release for x64 only, and both block. This
 > document keeps its original framing below — it was written as "what stands
-> between this tree and an x64 build" and reads as history now, except for the
-> **Watch** section, which is live.
+> between this tree and an x64 build" and reads as history now. Nothing is
+> left under **Watch** but the list of what was checked and found not to be a
+> problem; the last four Watch items closed on 2026-09-06.
 
 What stood between this tree and an x64 build, found by auditing for the
 hazards a Win32 build cannot report: on Win32 `sizeof(void*) == sizeof(UDWORD)`,
@@ -17,8 +18,10 @@ work is separate and is described in the commit history. Nothing here showed up
 as a warning on Win32 — it only appeared once `Platform=x64` was built, and
 some of it never warns at all, because a truncating cast is legal C++.
 
-**All four configurations now build warning-free**: Debug and Release, Win32
-and x64, zero warnings and zero errors.
+**Both x64 configurations build warning-free**, Debug and Release, zero
+warnings and zero errors -- and since 2026-09-06 that figure is measured with
+C4244 enabled, which the tree-wide pragma had switched off (see *Fixed on the
+fourth pass*). The Win32 configurations are unmaintained.
 
 Status key: **Fixed** — done, and behaviour-identical on Win32.
 **Blocker** — must be designed and done before x64 can run.
@@ -46,9 +49,10 @@ immediately paid for itself: the functionality-blob overflow is a heap
 overwrite that no amount of reading was going to surface, and neither
 crosscheck nor a zero-warning MSVC build had said a word about it.
 
-What the run does **not** yet cover: a full CAM_1A completion, a multiplayer
-session (so the corrected `NET_TEMPLATE` wire format still has never carried a
-packet), or FMV. [Verification.md](Verification.md) remains the runsheet.
+What the run did **not** cover at that point was a full CAM_1A completion, a
+multiplayer session (so the corrected `NET_TEMPLATE` wire format had never
+carried a packet), or FMV. **2026-09-06: the owner validated that run coverage
+and closed it.** [Verification.md](Verification.md) remains the runsheet.
 
 ---
 
@@ -314,6 +318,10 @@ write breakpoint on `&asWeaponStats` after `statsAllocWeapons` to find the
 writer. The path above faults on the same line, from the same call stack, with
 the global intact.
 
+**Closed 2026-09-06, not reproduced.** The owner's validation run did not see
+it again and the fix above explains the fault path in full. The write
+breakpoint is the tool if it ever comes back.
+
 ---
 
 ## Blocker — resolved
@@ -394,69 +402,80 @@ installed was `(WIDGET_DISPLAY)1`. It was unreachable solely because
 
 ---
 
+## Fixed on the fourth pass (2026-09-06)
+
+The four items that sat under *Watch* until this pass, taken by owner
+decision on 2026-09-06.
+
+### `==` on two objects compared only the low 32 bits
+
+`stackBinaryOp` implemented `OP_EQUAL`/`OP_NOTEQUAL` as
+`psV1->v.ival == psV2->v.ival`, which on x64 compares the low half of two
+object pointers. The objection to fixing it was a linear walk of the type
+table on the VM's hot path; there is no walk. `scriptSetTypeTab` now builds a
+bitset of the `AT_OBJECT` type ids once, `ScriptTypeIsObject` is one lookup,
+and the interpreter compares `oval` when both operands are objects and `ival`
+otherwise -- a simple value is written through `ival` and the rest of its
+union is indeterminate, so it must not be compared whole.
+`ObjectEqualityComparesTheWholePointer` in `NeuronCoreTest` pins it with two
+synthetic addresses that agree in the low half.
+
+### The tree-wide `#pragma warning(disable:4244)` is gone
+
+Measured first: with the pragma commented out, the x64 Debug build reported
+**52 unique C4244 sites**, 48 in `Outpost` and 4 in `NeuronClient`:
+
+| Conversion | Sites |
+|---|---|
+| `__int64` to a 32-bit integer | 18 |
+| `long` or `WPARAM` to a narrower integer | 3 |
+| `float`/`double` to integer, or integer to `float` | 31 |
+
+Every one of the 18 was a pointer difference used as an index --
+`psCurr->pStructureType - asStructureStats`, `psResearch - asResearch`,
+`psWeapStat - asWeaponStats` -- the exact pattern behind the design-screen
+fault above, which the pragma had been hiding at every other site. They now go
+through `StatIndex` in `Outpost/Stats.h`, which asserts the pointer is inside
+the array it is being indexed against at the point it becomes an index;
+`ShadowStatIndex` in `Design.cpp` delegates to it. The float and integer
+conversions are cast where they narrow.
+
+The measurement also surfaced three Phase 10 escapes that C4244 had been
+reporting into the void, all of them a radian angle meeting integer code:
+
+- `moveBlocked` passed two radian directions to `dirDiff`, a degrees
+  function taking `SDWORD`, so both truncated to 0 or +-1 and the block-cancel
+  test compared that against `BLOCK_DIR` in radians. It now uses
+  `directionDiff`; `dirDiff` had no other caller and is deleted.
+- `moveCalcDroidSpeed` clamped the droid's radian pitch against
+  `MAX_SPEED_PITCH`, which is 60 degrees. The pitch is converted to degrees
+  first.
+- `moveUpdateJumpCyborgModel` took its direction as `SDWORD` and was called
+  with a `float`; `formationCalcPos` stored a radian direction in an `SDWORD`
+  before taking its sine. Both are `float` now.
+
+The pragma is gone from `NeuronCore/NeuronCore.h`; Debug and Release x64 both
+build with zero warnings, C4244 included.
+
+### Template indices off the wire are validated
+
+`receiveWholeDroid` now runs `TemplateIndicesValid` (the check
+`calcTemplate*` runs in Debug, exported from `Droid.cpp` as a predicate) on the
+template it reassembles from the packet, and refuses the droid if any index is
+outside its stats array, in Release as well as Debug. Both ends are still the
+same build, so a refusal is a bug at the sender; the point is that no index the
+game did not compute reaches the arithmetic unchecked.
+
+### The two dead blocks are deleted
+
+The commented-out `multiPlayerRequest` in `Outpost/MultiJoin.cpp` (the object
+ID parked in a target pointer) and the `#if 0` force-file format in
+`Outpost/MultiStat.cpp` (a whole `DROID_TEMPLATE` through `fwrite`) compiled to
+nothing and existed only to be revived wrongly. Git history keeps the text.
+
+---
+
 ## Watch
-
-### `==` on two objects compares only the low 32 bits
-
-`stackBinaryOp` implements `OP_EQUAL`/`OP_NOTEQUAL` as
-`psV1->v.ival == psV2->v.ival`, and [ScriptLanguage.md](ScriptLanguage.md)
-allows `== !=` on `user/object x user/object`. On x64 that compares the low
-half of two pointers, so two distinct objects whose low 32 bits coincide
-compare equal. Comparison against a null object is unaffected -- an all-zero
-pointer has an all-zero low half.
-
-Not fixed, and deliberately so: the runtime has no cheap way to ask whether an
-`INTERP_TYPE` is `AT_OBJECT`. Only `asScrTypeTab` knows, `Stack.cpp` does not
-include it, and a linear scan of that table on every comparison sits in the
-VM's hot path. Whole-union comparison is not the answer either -- a value
-written through `ival` leaves the high half indeterminate, so simple types
-would compare garbage.
-
-In practice Windows clusters heap allocations, so game objects share their
-high 32 bits and the comparison gets the right answer; the defect needs two
-live objects more than 4 GB apart. Worth a runtime type predicate if the VM
-ever grows one for another reason.
-
-
-### Small integers parked in pointer fields
-
-`Outpost/MultiJoin.cpp` stashes an object *ID* in the target *pointer* field
-(`TarRef = (UDWORD)pD->psTarget;`) and resolves it after the object lists are
-rebuilt. It is the same shape as the BSP loader, and it is listed here rather
-than under Fixed because **the whole block is inside a `/* ... */` comment**
-(`MultiJoin.cpp:347`-`581`) and compiles to nothing. If that code is ever
-revived, the ID needs its own field.
-
-### A whole struct written to a file, inside `#if 0`
-
-`Outpost/MultiStat.cpp` has the old force-file format still in the tree:
-`fwrite(pT, sizeof(DROID_TEMPLATE), 1, ...)` and the matching `fread`, which is
-the same defect the network path had. It is behind `#if 0` -- the live format
-writes only `multiPlayerID` -- so like the `MultiJoin.cpp` block above it
-compiles to nothing. If it is ever revived it needs `PackTemplate`, not a
-`memcpy`.
-
-### `#pragma warning(disable:4244)` is tree-wide
-
-`NeuronCore/NeuronCore.h` disables C4244 ("conversion, possible loss of data")
-for every translation unit that includes it, which is all of them. On x64 that
-class includes `__int64`-to-`int` narrowings, so the "zero warnings" figure
-above is measured with one of the relevant diagnostics switched off. AGENTS.md
-§4 says not to silence a diagnostic to make a build pass, so this is reported
-rather than removed: C4244 also fires on every `float`-to-`int` in the legacy
-tree, and nobody has counted how many that is. Sizing it needs an MSVC build
-with the pragma commented out -- a measurement, then a decision.
-
-### Template indices off the wire are not validated
-
-`receiveWholeDroid` in `Outpost/Multibot.cpp` reads `asParts` and `asWeaps`
-straight into a `DROID_TEMPLATE` and calls `calcTemplatePower` on it, which
-dereferences every one of them; nothing checks them against the `num*Stats`
-counts. A Debug build now stops in `CheckTemplateIndices` with the template
-named, a Release build dereferences whatever arrived. Both ends are the same
-build today, so a bad index means a bug rather than a hostile peer, but it is
-the one remaining way an index the game did not compute reaches that
-arithmetic.
 
 ### What is *not* a problem
 
@@ -497,20 +516,16 @@ The compile is clean. What is left is everything a compiler cannot tell you:
    `size_t` casts are all exercised by a normal game. What it could not speak
    to was the part that differs only at 64 bits, and that is exactly where the
    functionality-blob overflow was hiding.
-2. **Make x64 blocking in CI.** It has now been run, so the precondition is
-   met. Today
-   `.github/workflows/build.yml` sets `continue-on-error` for the x64 legs,
-   which was right while it did not build and is now only inertia. The test
-   projects are not built by CI at all, on either platform, so the MSTest
-   suites in `NeuronCoreTest` never run anywhere; wiring those in is the other
-   half of the same job.
-3. **Run `tools/crosscheck.py --x64` before pushing**, not just the default
-   32-bit pass. The first run of the new flag found the `stackPushResult`
-   ambiguity above, which the x86 pass called clean 180/180 in the same
-   sitting. It costs one extra `apt-get install g++-mingw-w64-x86-64` in a
-   fresh container and about a minute at `-j 8`.
-4. **Revisit the `pUserData` design** if the widget layer is ever touched for
-   other reasons. The helpers make the round-trip correct and honest, but the
-   field still means two different things depending on which widget holds it,
-   and there is an unused `UDWORD UserData` beside it that the integer users
-   should arguably have been in all along.
+2. ~~**Make x64 blocking in CI.**~~ **Done, 2026-08-27** (`8f3742a`).
+   `.github/workflows/build.yml` builds Debug and Release for x64 only, both
+   block, and the three test suites run through `vstest.console` on every
+   push.
+3. ~~**Run `tools/crosscheck.py --x64` before pushing.**~~ **Moot:** the
+   checker's default target is x64 now and `--x86` is the flag for the
+   unmaintained 32-bit pass.
+4. **`pUserData` -- accepted as it is (owner decision, 2026-09-06).** The
+   helpers make the round-trip correct and honest; the field still means two
+   different things depending on which widget holds it, and there is an unused
+   `UDWORD UserData` beside it that the integer users should arguably have
+   been in all along. Not worth the churn on its own; revisit only if the
+   widget layer is rewritten.

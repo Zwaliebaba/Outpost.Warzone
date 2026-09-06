@@ -831,7 +831,7 @@ void processMouseClickInput(void)
   selection = establishSelection(selectedPlayer);
   DEBUG_ASSERT_TEXT(selection<=POSSIBLE_SELECTIONS, "Weirdy selection!");
 
-  if ((selection != SC_INVALID) && !gamePaused())
+  if (selection != SC_INVALID)
   {
     BASE_OBJECT* ObjUnderMouse;
 

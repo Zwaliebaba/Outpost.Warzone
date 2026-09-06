@@ -25,7 +25,32 @@ VAR_SYMBOL* asScrObjectVarTab;
 CONST_SYMBOL* asScrConstantTab;
 CALLBACK_SYMBOL* asScrCallbackTab;
 
-void scriptSetTypeTab(TYPE_SYMBOL* psTypeTab) { asScrTypeTab = psTypeTab; }
+/* Which type ids are AT_OBJECT, indexed by type id, so the interpreter can
+   ask whether a value is an object in one lookup rather than a walk of the
+   type table on every comparison. */
+static std::vector<bool> g_objectTypes;
+
+void scriptSetTypeTab(TYPE_SYMBOL* psTypeTab)
+{
+  asScrTypeTab = psTypeTab;
+  g_objectTypes.clear();
+  if (psTypeTab == nullptr)
+    return;
+  for (UDWORD i = 0; psTypeTab[i].typeID != 0; i++)
+  {
+    if (psTypeTab[i].accessType != AT_OBJECT || psTypeTab[i].typeID < 0)
+      continue;
+    const size_t id = static_cast<size_t>(psTypeTab[i].typeID);
+    if (id >= g_objectTypes.size())
+      g_objectTypes.resize(id + 1, false);
+    g_objectTypes[id] = true;
+  }
+}
+
+BOOL ScriptTypeIsObject(INTERP_TYPE _type)
+{
+  return (_type >= 0 && static_cast<size_t>(_type) < g_objectTypes.size() && g_objectTypes[static_cast<size_t>(_type)]) ? TRUE : FALSE;
+}
 void scriptSetFuncTab(FUNC_SYMBOL* psFuncTab) { asScrInstinctTab = psFuncTab; }
 void scriptSetExternalTab(VAR_SYMBOL* psExtTab) { asScrExternalTab = psExtTab; }
 void scriptSetObjectTab(VAR_SYMBOL* psObjTab) { asScrObjectVarTab = psObjTab; }

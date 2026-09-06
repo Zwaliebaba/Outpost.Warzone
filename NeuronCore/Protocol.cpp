@@ -1,6 +1,10 @@
 #include "pch.h"
 #include "Protocol.h"
 
+#include <algorithm>
+#include <cstring>
+#include <string_view>
+
 namespace Neuron
 {
 
@@ -146,6 +150,145 @@ ServerDestroy ServerDestroy::Decode(NetReader& _reader)
   ServerDestroy destroy;
   destroy.entityId = _reader.U32();
   return destroy;
+}
+
+void ClientReady::Encode(NetWriter& _writer) const
+{
+  _writer.U32(mapHash);
+}
+
+ClientReady ClientReady::Decode(NetReader& _reader)
+{
+  ClientReady ready;
+  ready.mapHash = _reader.U32();
+  return ready;
+}
+
+void ServerKick::Encode(NetWriter& _writer) const
+{
+  _writer.U8(static_cast<std::uint8_t>(reason));
+}
+
+ServerKick ServerKick::Decode(NetReader& _reader)
+{
+  ServerKick kick;
+
+  /* A reason this build has no name for folds to Unstated rather than into
+     the enum: the session is over either way, and a wild value is not a reason
+     anyone can act on. */
+  const std::uint8_t raw = _reader.U8();
+  kick.reason = raw < static_cast<std::uint8_t>(KickReason::Count) ? static_cast<KickReason>(raw) : KickReason::Unstated;
+  return kick;
+}
+
+void ClientSessionControl::Encode(NetWriter& _writer) const
+{
+  _writer.U32(sequence);
+  _writer.U8(static_cast<std::uint8_t>(kind));
+  _writer.F32(value);
+}
+
+ClientSessionControl ClientSessionControl::Decode(NetReader& _reader)
+{
+  ClientSessionControl control;
+  control.sequence = _reader.U32();
+
+  /* A kind this build has no name for is not a control it can carry out, and
+     there is no harmless default to fold it to, so the record is invalidated
+     and the caller's Ok() drops it. */
+  const std::uint8_t raw = _reader.U8();
+  if (raw < static_cast<std::uint8_t>(SessionControlKind::Count))
+    control.kind = static_cast<SessionControlKind>(raw);
+  else
+    _reader.Invalidate();
+
+  control.value = _reader.F32();
+  return control;
+}
+
+void ServerCommandReject::Encode(NetWriter& _writer) const
+{
+  _writer.U32(sequence);
+  _writer.U8(static_cast<std::uint8_t>(command));
+  _writer.U8(static_cast<std::uint8_t>(reason));
+}
+
+ServerCommandReject ServerCommandReject::Decode(NetReader& _reader)
+{
+  ServerCommandReject reject;
+  reject.sequence = _reader.U32();
+
+  const std::uint8_t command = _reader.U8();
+  if (IsKnown(static_cast<ClientMessage>(command)))
+    reject.command = static_cast<ClientMessage>(command);
+  else
+    _reader.Invalidate();
+
+  /* A reason this build has no name for is still a refusal. NotPermitted is
+     the one that says least, which is the honest reading of a code we cannot
+     read. */
+  const std::uint8_t reason = _reader.U8();
+  reject.reason = reason < static_cast<std::uint8_t>(RejectReason::Count) ? static_cast<RejectReason>(reason)
+                                                                          : RejectReason::NotPermitted;
+  return reject;
+}
+
+namespace
+{
+/// Copies _from into a fixed field, truncating to fit and always terminating.
+template <std::size_t Chars>
+void CopyField(char (&_field)[Chars], const char* _from) noexcept
+{
+  if (_from == nullptr)
+  {
+    _field[0] = '\0';
+    return;
+  }
+
+  const std::size_t length = std::min(std::strlen(_from), Chars - 1);
+  std::memcpy(_field, _from, length);
+  _field[length] = '\0';
+}
+} // namespace
+
+void ServerUiEvent::SetName(const char* _name) noexcept
+{
+  CopyField(name, _name);
+}
+
+void ServerUiEvent::SetText(const char* _text) noexcept
+{
+  CopyField(text, _text);
+}
+
+void ServerUiEvent::Encode(NetWriter& _writer) const
+{
+  _writer.U8(static_cast<std::uint8_t>(kind));
+  _writer.U8(player);
+  _writer.U32(a);
+  _writer.U32(b);
+  _writer.Text(std::string_view{name, std::strlen(name)});
+  _writer.Text(std::string_view{text, std::strlen(text)});
+}
+
+ServerUiEvent ServerUiEvent::Decode(NetReader& _reader)
+{
+  ServerUiEvent event;
+
+  /* A kind this build has no name for is nothing it can show. There is no
+     harmless default, so the record is invalidated and dropped whole. */
+  const std::uint8_t raw = _reader.U8();
+  if (raw < static_cast<std::uint8_t>(UiEventKind::Count))
+    event.kind = static_cast<UiEventKind>(raw);
+  else
+    _reader.Invalidate();
+
+  event.player = _reader.U8();
+  event.a = _reader.U32();
+  event.b = _reader.U32();
+  _reader.Text(event.name);
+  _reader.Text(event.text);
+  return event;
 }
 
 HandshakeResult Consider(const ClientHello& _hello, std::uint32_t _serverBuildHash) noexcept

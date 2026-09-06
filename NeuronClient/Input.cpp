@@ -335,7 +335,7 @@ case WM_MOUSEWHEEL:	// not defined in non-NT.....bugger.
     repeat = lParam & 0xf;
     /* Store the repeat count number of characters
        while there is space in the buffer */
-    inputAddBuffer(wParam, repeat);
+    inputAddBuffer(static_cast<UDWORD>(wParam), repeat);
     break;
   default:
     break;

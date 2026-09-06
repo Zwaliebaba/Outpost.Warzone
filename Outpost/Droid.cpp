@@ -2910,13 +2910,13 @@ BOOL droidTemplateShutDown()
   return TRUE;
 }
 
-/* Check that every stats index a template carries is inside the array it
+/* True when every stats index a template carries is inside the array it
    indexes. The calcTemplate* family below dereferences all of them without a
-   guard, so a bad index fails here naming the template rather than as an
-   access violation inside the arithmetic. The design screen's shadow template
-   used to carry one (Docs/X64Readiness.md); the network and the template
-   loader are the other sources. Compiles to nothing in Release. */
-static void CheckTemplateIndices(DROID_TEMPLATE* _template)
+   guard. The design screen's shadow template used to carry a bad one
+   (Docs/X64Readiness.md); the network is the other source that the game did
+   not compute itself, and receiveWholeDroid refuses a template this rejects.
+   The trace names the part; it compiles to nothing in Release. */
+BOOL TemplateIndicesValid(DROID_TEMPLATE* _template)
 {
   const struct
   {
@@ -2935,16 +2935,36 @@ static void CheckTemplateIndices(DROID_TEMPLATE* _template)
 
   for (const auto& part : parts)
   {
-    DEBUG_ASSERT_TEXT(_template->asParts[part.type] >= 0 && static_cast<UDWORD>(_template->asParts[part.type]) < part.count,
-                      "Invalid {} index {} on template {}", part.name, _template->asParts[part.type], getTemplateName(_template));
+    const SDWORD index = _template->asParts[part.type];
+    if (index < 0 || static_cast<UDWORD>(index) >= part.count)
+    {
+      Neuron::DebugTrace("Invalid {} index {} on template {}\n", part.name, index, getTemplateName(_template));
+      return FALSE;
+    }
   }
 
-  DEBUG_ASSERT_TEXT(_template->numWeaps <= DROID_MAXWEAPS, "{} weapons on template {}", _template->numWeaps, getTemplateName(_template));
-  for (UDWORD i = 0; i < _template->numWeaps && i < DROID_MAXWEAPS; i++)
+  if (_template->numWeaps > DROID_MAXWEAPS)
   {
-    DEBUG_ASSERT_TEXT(_template->asWeaps[i] < numWeaponStats, "Invalid weapon index {} on template {}", _template->asWeaps[i],
-                      getTemplateName(_template));
+    Neuron::DebugTrace("{} weapons on template {}\n", _template->numWeaps, getTemplateName(_template));
+    return FALSE;
   }
+  for (UDWORD i = 0; i < _template->numWeaps; i++)
+  {
+    if (_template->asWeaps[i] >= numWeaponStats)
+    {
+      Neuron::DebugTrace("Invalid weapon index {} on template {}\n", _template->asWeaps[i], getTemplateName(_template));
+      return FALSE;
+    }
+  }
+  return TRUE;
+}
+
+/* The Debug-only guard the calcTemplate* family runs first, so a bad index
+   fails naming the template rather than as an access violation inside the
+   arithmetic. */
+static void CheckTemplateIndices(DROID_TEMPLATE* _template)
+{
+  DEBUG_ASSERT_TEXT(TemplateIndicesValid(_template), "Template {} carries an index outside its stats array", getTemplateName(_template));
 }
 
 /* Calculate the weight of a droid from it's template */

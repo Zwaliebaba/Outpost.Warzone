@@ -1303,8 +1303,6 @@ BOOL stageThreeInitialise(void)
   driveInitVars(FALSE);
   displayInitVars();
 
-  setAllPauseStates(FALSE);
-
   eventFireCallbackTrigger(CALL_GAMEINIT);
 
   return TRUE;

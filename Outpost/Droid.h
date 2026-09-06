@@ -113,6 +113,10 @@ extern UDWORD calcTemplateBuild(DROID_TEMPLATE* psTemplate);
 /* Calculate the power points required to build/maintain the droid */
 extern UDWORD calcTemplatePower(DROID_TEMPLATE* psTemplate);
 
+/* Whether every stats index the template carries is inside its array; the
+   calcTemplate* functions dereference them all without a guard */
+extern BOOL TemplateIndicesValid(DROID_TEMPLATE* _template);
+
 // return whether a template is for an IDF droid
 BOOL templateIsIDF(DROID_TEMPLATE* psTemplate);
 

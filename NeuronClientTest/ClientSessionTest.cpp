@@ -12,7 +12,9 @@ using namespace Neuron;
    client's side: bytes arriving on a channel. What these hold down is that the
    client believes only what it has actually been told -- no clock it invented,
    no level it was not given, no tick before it said it was ready -- and that a
-   server sending nonsense moves it nowhere.
+   server sending nonsense moves it nowhere. What the client asks for goes out
+   as a request the server may refuse, and a kick ends the session whatever
+   state it was in.
 
    The two halves talking to each other with nothing hand-driven is
    ServerSessionTest's other side of the same boundary; that pairing lives in
@@ -87,7 +89,7 @@ public:
 
     /* Ready answers Start, so before one has arrived there is nothing to be
        ready for and nothing is sent. */
-    client.ReportReady();
+    client.ReportReady(0xC0FFEEu);
     Assert::IsTrue(client.CurrentState() == State::Greeted);
     Assert::AreEqual(static_cast<size_t>(0), link.Pending(End::Server));
 
@@ -102,12 +104,13 @@ public:
     client.Service();
     Assert::AreEqual(static_cast<std::uint32_t>(3), client.CurrentTick());
 
-    client.ReportReady();
+    client.ReportReady(0xC0FFEEu);
     Assert::IsTrue(client.CurrentState() == State::Running);
     Assert::IsTrue(link.Receive(End::Server, message));
     {
       NetReader reader{message.bytes};
       Assert::IsTrue(static_cast<ClientMessage>(reader.U8()) == ClientMessage::Ready);
+      Assert::AreEqual(static_cast<std::uint32_t>(0xC0FFEE), ClientReady::Decode(reader).mapHash);
     }
 
     ServerSends(link, ServerTick{5u});
@@ -217,6 +220,107 @@ public:
     client.Begin();
     client.Begin();
     Assert::AreEqual(static_cast<size_t>(1), link.Pending(End::Server));
+  }
+
+  /* A kick ends the session from any state after the verdict, with the reason
+     kept, and nothing further is believed. */
+  TEST_METHOD(AKickEndsTheSession)
+  {
+    LoopbackTransport link;
+    ClientSession client{link, 0u};
+    client.Begin();
+    GreetTheClient(link, 40u);
+    client.Service();
+    ServerSends(link, ServerStart{0u, 0u, 0xC0FFEEu});
+    client.Service();
+    client.ReportReady(0xC0FFEEu);
+    Assert::IsTrue(client.CurrentState() == State::Running);
+
+    ServerSends(link, ServerKick{KickReason::MapMismatch});
+    client.Service();
+    Assert::IsTrue(client.CurrentState() == State::Refused);
+    Assert::IsTrue(client.Kicked().has_value() && *client.Kicked() == KickReason::MapMismatch);
+
+    ServerSends(link, ServerTick{9u});
+    client.Service();
+    Assert::AreEqual(static_cast<std::uint32_t>(0), client.CurrentTick());
+    Assert::AreEqual(static_cast<size_t>(0), link.Pending(End::Client));
+
+    /* Before the verdict there is nothing agreed to end, so a kick there is
+       just bytes from a server that has not answered. */
+    LoopbackTransport otherLink;
+    ClientSession fresh{otherLink, 0u};
+    fresh.Begin();
+    ServerSends(otherLink, ServerKick{KickReason::MapMismatch});
+    fresh.Service();
+    Assert::IsTrue(fresh.CurrentState() == State::Handshaking);
+    Assert::IsFalse(fresh.Kicked().has_value());
+  }
+
+  /* The speed keys ask; they no longer set. The request goes out on the
+     command channel, numbered, once there is a world to run at a speed. */
+  TEST_METHOD(ARequestedSpeedGoesOutOnTheCommandChannel)
+  {
+    LoopbackTransport link;
+    ClientSession client{link, 0u};
+    client.Begin();
+    GreetTheClient(link, 40u);
+    client.Service();
+
+    /* Nothing to run yet, so nothing is asked. */
+    client.RequestGameSpeed(2.0f);
+    Assert::AreEqual(static_cast<size_t>(0), link.Pending(End::Server));
+
+    ServerSends(link, ServerStart{0u, 0u, 0xC0FFEEu});
+    client.Service();
+    client.ReportReady(0xC0FFEEu);
+    LoopbackTransport::Message message;
+    Assert::IsTrue(link.Receive(End::Server, NetChannel::Session, message)); // the Ready
+
+    client.RequestGameSpeed(1.5f);
+    client.RequestGameSpeed(0.5f);
+    Assert::IsTrue(link.Receive(End::Server, NetChannel::Command, message));
+    {
+      NetReader reader{message.bytes};
+      Assert::IsTrue(static_cast<ClientMessage>(reader.U8()) == ClientMessage::SessionControl);
+      const ClientSessionControl control = ClientSessionControl::Decode(reader);
+      Assert::AreEqual(static_cast<std::uint32_t>(1), control.sequence);
+      Assert::IsTrue(control.kind == SessionControlKind::GameSpeed);
+      Assert::AreEqual(1.5f, control.value);
+    }
+    Assert::IsTrue(link.Receive(End::Server, NetChannel::Command, message));
+    {
+      NetReader reader{message.bytes};
+      (void)reader.U8();
+      const ClientSessionControl control = ClientSessionControl::Decode(reader);
+      Assert::AreEqual(static_cast<std::uint32_t>(2), control.sequence);
+      Assert::AreEqual(0.5f, control.value);
+    }
+    Assert::AreEqual(static_cast<size_t>(0), link.Pending(End::Server));
+  }
+
+  /* A refusal is kept for the caller, which is the only way the keys can say
+     why they did nothing. */
+  TEST_METHOD(ARejectIsReportedToTheCaller)
+  {
+    LoopbackTransport link;
+    ClientSession client{link, 0u};
+    client.Begin();
+    GreetTheClient(link, 40u);
+    client.Service();
+    ServerSends(link, ServerStart{0u, 0u, 0xC0FFEEu});
+    client.Service();
+    client.ReportReady(0xC0FFEEu);
+
+    ServerCommandReject reject;
+    Assert::IsFalse(client.TakeReject(reject));
+
+    ServerSends(link, ServerCommandReject{3u, ClientMessage::SessionControl, RejectReason::NotPermitted});
+    client.Service();
+    Assert::IsTrue(client.TakeReject(reject));
+    Assert::AreEqual(static_cast<std::uint32_t>(3), reject.sequence);
+    Assert::IsTrue(reject.reason == RejectReason::NotPermitted);
+    Assert::IsFalse(client.TakeReject(reject));
   }
 };
 } // namespace NeuronClientTest

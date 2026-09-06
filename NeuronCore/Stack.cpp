@@ -381,13 +381,19 @@ BOOL stackBinaryOp(OPCODE opcode)
     psV1->v.bval = psV1->v.bval || psV2->v.bval;
     break;
   case OP_EQUAL:
-    psV1->type = VAL_BOOL;
-    psV1->v.ival = psV1->v.ival == psV2->v.ival;
-    break;
   case OP_NOTEQUAL:
+  {
+    /* An object value is a whole pointer, and ival is only its low half on
+       x64, so two objects are compared through oval. A simple value is
+       written through ival and leaves the rest of the union indeterminate,
+       so it is compared through ival. */
+    const bool equal = (ScriptTypeIsObject(psV1->type) && ScriptTypeIsObject(psV2->type))
+                         ? psV1->v.oval == psV2->v.oval
+                         : psV1->v.ival == psV2->v.ival;
     psV1->type = VAL_BOOL;
-    psV1->v.ival = psV1->v.ival != psV2->v.ival;
+    psV1->v.ival = (opcode == OP_EQUAL) ? equal : !equal;
     break;
+  }
   case OP_GREATEREQUAL:
     psV1->type = VAL_BOOL;
     psV1->v.bval = psV1->v.ival >= psV2->v.ival;

@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "EmbeddedSession.h"
 #include <directxmath.h>
 #include "Frame.h"
 #include "GTime.h"
@@ -992,35 +993,6 @@ void kf_SeekNorth(void)
 }
 
 // --------------------------------------------------------------------------
-void kf_TogglePauseMode(void)
-{
-  if (bMultiPlayer && (NetPlay.bComms != 0))
-    return;
-
-  /* Is the game running? */
-  if (gamePaused() == FALSE)
-  {
-    /* Then pause it */
-    setGamePauseStatus(TRUE);
-    setConsolePause(TRUE);
-    setScriptPause(TRUE);
-    setAudioPause(TRUE);
-    /* And stop the clock */
-    gameTimeStop();
-    addConsoleMessage(strresGetString(psStringRes, STR_MISC_PAUSED), CENTRE_JUSTIFY);
-  }
-  else
-  {
-    /* Else get it going again */
-    setGamePauseStatus(FALSE);
-    setConsolePause(FALSE);
-    setScriptPause(FALSE);
-    setAudioPause(FALSE);
-    /* And start the clock again */
-    gameTimeStart();
-  }
-}
-
 // --------------------------------------------------------------------------
 // finish all the research for the selected player
 void kf_FinishResearch(void)
@@ -1209,13 +1181,6 @@ void kf_MovePause(void)
   {
     if (!bMovePause)
     {
-      /* Then pause it */
-      setGamePauseStatus(TRUE);
-      setConsolePause(TRUE);
-      setScriptPause(TRUE);
-      setAudioPause(TRUE);
-      /* And stop the clock */
-      gameTimeStop();
       setWidgetsStatus(FALSE);
       radarOnScreen = FALSE;
       bMovePause = TRUE;
@@ -1224,13 +1189,6 @@ void kf_MovePause(void)
     {
       setWidgetsStatus(TRUE);
       radarOnScreen = TRUE;
-      /* Else get it going again */
-      setGamePauseStatus(FALSE);
-      setConsolePause(FALSE);
-      setScriptPause(FALSE);
-      setAudioPause(FALSE);
-      /* And start the clock again */
-      gameTimeStart();
       bMovePause = FALSE;
     }
   }
@@ -1819,7 +1777,7 @@ void kf_SpeedUp(void)
       CONPRINTF(ConsoleString, (ConsoleString,strresGetString(psStringRes,STR_GAM_SPEED_UP),fast2));
       mod = fast2;
     }
-    gameTimeSetMod(mod);
+    EmbeddedSession::Instance().RequestGameSpeed(mod);
   }
 }
 
@@ -1864,7 +1822,7 @@ void kf_SlowDown(void)
       CONPRINTF(ConsoleString, (ConsoleString,strresGetString(psStringRes,STR_GAM_SLOW_DOWN),(1.0f / 3.0f)));
       mod = (1.0f / 3.0f);
     }
-    gameTimeSetMod(mod);
+    EmbeddedSession::Instance().RequestGameSpeed(mod);
   }
 }
 
@@ -1873,7 +1831,7 @@ void kf_NormalSpeed(void)
   if ((!bMultiPlayer || (NetPlay.bComms == 0)) && !bInTutorial)
   {
     CONPRINTF(ConsoleString, (ConsoleString,strresGetString(psStringRes,STR_GAM_NORMAL_SPEED)));
-    gameTimeResetMod();
+    EmbeddedSession::Instance().RequestGameSpeed(1.0f);
   }
 }
 

@@ -43,8 +43,6 @@ extern BOOL MovementUpdate(BASE_OBJECT* Obj, MOVE_CONTROL* MoveData);
 extern BOOL NewMovementUpdate(BASE_OBJECT* Obj, MOVE_CONTROL* MoveData);
 /* Turn towards a target */
 extern void TurnToTarget(BASE_OBJECT* Obj, MOVE_CONTROL* MoveData, UDWORD tarX, UDWORD tarY);
-/* Return the difference in directions */
-extern UDWORD dirDiff(SDWORD start, SDWORD end);
 
 #define POS	0
 #define NEG 1

@@ -106,7 +106,7 @@ void atmosUpdateSystem(void)
   }
 
   /* This bit below needs to go into a "precipitation function" */
-  if (!gamePaused() AND weather != WT_NONE)
+  if (weather != WT_NONE)
   {
     numberToAdd = ((weather == WT_SNOWING) ? 2 : 4);
     /* Temporary stuff - just adds a few particles! */
@@ -151,60 +151,57 @@ void processParticle(ATPART* psPart)
   MAPTILE* psTile;
 
   /* Only move if the game isn't paused */
-  if (!gamePaused())
+  /* Move the particle - frame rate controlled */
+  DirectX::XMStoreFloat3(&psPart->position,
+    DirectX::XMVectorAdd(DirectX::XMLoadFloat3(&psPart->position),
+                         DirectX::XMVectorScale(DirectX::XMLoadFloat3(&psPart->velocity), fraction)));
+
+  /* Wrap it around if it's gone off grid... */
+  testParticleWrap(psPart);
+
+  /* If it's gone off the WORLD... */
+  if (psPart->position.x < 0 OR psPart->position.z < 0 OR psPart->position.x > ((mapWidth - 1) * TILE_UNITS) OR psPart->position.z > ((
+    mapHeight - 1) * TILE_UNITS))
   {
-    /* Move the particle - frame rate controlled */
-    DirectX::XMStoreFloat3(&psPart->position,
-      DirectX::XMVectorAdd(DirectX::XMLoadFloat3(&psPart->position),
-                           DirectX::XMVectorScale(DirectX::XMLoadFloat3(&psPart->velocity), fraction)));
+    /* The kill it */
+    psPart->status = APS_INACTIVE;
+    return;
+  }
 
-    /* Wrap it around if it's gone off grid... */
-    testParticleWrap(psPart);
+  /* What height is the ground under it? Only do if low enough...*/
+  if (psPart->position.y < 255 * ELEVATION_SCALE)
+  {
+    /* Get ground height */
+    groundHeight = map_Height(static_cast<UDWORD>(std::lrintf(psPart->position.x)), static_cast<UDWORD>(std::lrintf(psPart->position.z)));
 
-    /* If it's gone off the WORLD... */
-    if (psPart->position.x < 0 OR psPart->position.z < 0 OR psPart->position.x > ((mapWidth - 1) * TILE_UNITS) OR psPart->position.z > ((
-      mapHeight - 1) * TILE_UNITS))
+    /* Are we below ground? */
+    if ((std::lrintf(psPart->position.y) < groundHeight) OR (psPart->position.y < 0.0f))
     {
-      /* The kill it */
+      /* Kill it and return */
       psPart->status = APS_INACTIVE;
+      if (psPart->type == AP_RAIN)
+      {
+        x = (std::lrintf(psPart->position.x)) >> TILE_SHIFT;
+        y = (std::lrintf(psPart->position.z)) >> TILE_SHIFT;
+        psTile = mapTile(x, y);
+        if (TERRAIN_TYPE(psTile) == TER_WATER AND TEST_TILE_VISIBLE(selectedPlayer, psTile))
+        {
+          pos.x = std::lrintf(psPart->position.x);
+          pos.z = std::lrintf(psPart->position.z);
+          pos.y = groundHeight;
+          effectSetSize(60);
+          addEffect(&pos, EFFECT_EXPLOSION, EXPLOSION_TYPE_SPECIFIED,TRUE, getImdFromIndex(MI_SPLASH), 0);
+        }
+      }
       return;
     }
-
-    /* What height is the ground under it? Only do if low enough...*/
-    if (psPart->position.y < 255 * ELEVATION_SCALE)
-    {
-      /* Get ground height */
-      groundHeight = map_Height(static_cast<UDWORD>(std::lrintf(psPart->position.x)), static_cast<UDWORD>(std::lrintf(psPart->position.z)));
-
-      /* Are we below ground? */
-      if ((std::lrintf(psPart->position.y) < groundHeight) OR (psPart->position.y < 0.0f))
-      {
-        /* Kill it and return */
-        psPart->status = APS_INACTIVE;
-        if (psPart->type == AP_RAIN)
-        {
-          x = (std::lrintf(psPart->position.x)) >> TILE_SHIFT;
-          y = (std::lrintf(psPart->position.z)) >> TILE_SHIFT;
-          psTile = mapTile(x, y);
-          if (TERRAIN_TYPE(psTile) == TER_WATER AND TEST_TILE_VISIBLE(selectedPlayer, psTile))
-          {
-            pos.x = std::lrintf(psPart->position.x);
-            pos.z = std::lrintf(psPart->position.z);
-            pos.y = groundHeight;
-            effectSetSize(60);
-            addEffect(&pos, EFFECT_EXPLOSION, EXPLOSION_TYPE_SPECIFIED,TRUE, getImdFromIndex(MI_SPLASH), 0);
-          }
-        }
-        return;
-      }
-    }
-    if (psPart->type == AP_SNOW)
-    {
-      if (rand() % 30 == 1)
-        psPart->velocity.z = static_cast<float>(SNOW_SPEED_DRIFT);
-      if (rand() % 30 == 1)
-        psPart->velocity.x = static_cast<float>(SNOW_SPEED_DRIFT);
-    }
+  }
+  if (psPart->type == AP_SNOW)
+  {
+    if (rand() % 30 == 1)
+      psPart->velocity.z = static_cast<float>(SNOW_SPEED_DRIFT);
+    if (rand() % 30 == 1)
+      psPart->velocity.x = static_cast<float>(SNOW_SPEED_DRIFT);
   }
 }
 

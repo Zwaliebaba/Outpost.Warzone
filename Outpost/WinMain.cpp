@@ -147,9 +147,6 @@ init: //jump here from the end if re_initialising
   if (!systemInitialise())
     return -1;
 
-  //set all the pause states to false
-  setAllPauseStates(FALSE);
-
   while (!quit)
   {
     // Do the game mode specific initialisation.

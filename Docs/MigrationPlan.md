@@ -1490,7 +1490,7 @@ otherwise unchanged, so the 30 consumer files were untouched.
 Also removes 2 of the build's 12 remaining warnings (C4715 in `treapFindRec`
 and `treapDelRec`). `check_case` clean, `crosscheck` 181/181 units clean.
 
-## Server authority: the MMO shape (2026-08-27, stages A and B landed)
+## Server authority: the MMO shape (2026-08-27, stages A to C landed, D under way)
 
 **By owner decision the game is heading to a server-authoritative MMO, starting
 with single player.** The design — where the tree already stands, why the 1998
@@ -1559,6 +1559,71 @@ reading model geometry through `Model.h`, five playing sounds through
 the keyboard through `keyDown` is the clearest layering defect in the tree.
 That list is the input stage D's message planes consume, and it is recorded in
 [ServerAuthority.md](ServerAuthority.md#b--split-simulation-state-from-presentation-state-first-pass-landed-2026-08-27).
+
+**Stage C is done, bar the records that land with their consumers.** The wire
+is `Neuron::NetWriter`/`NetReader` ([NetWriter.h](../NeuronCore/NetWriter.h),
+[NetReader.h](../NeuronCore/NetReader.h)): a message body composed a named
+width at a time, little-endian, with no struct layout involved, so what
+`NetAdd` did -- memcpy the host's padding and pointer width onto the wire --
+cannot be expressed. Bounds are sticky rather than fatal, a length that lies is
+refused rather than followed, and the byte layout is pinned by a test rather
+than by agreement. [Protocol.h](../NeuronCore/Protocol.h) is the catalogue:
+`ProtocolVersion`, the five `NetChannel`s, the `ClientMessage`/`ServerMessage`
+ids and `RejectReason`, with `WireValuesAreStable` failing the build on an
+insert and `IsKnown` range-checking every id off the wire.
+[LoopbackTransport.h](../NeuronCore/LoopbackTransport.h) is the in-process
+implementation: per-channel queues carrying copied bytes, so neither half can
+reach the other's objects, and no promise of cross-channel order that QUIC
+would not keep. `Transport` itself was deliberately not widened -- the second
+implementation of the channelled API arrives in stage F. Everything here is
+Windows-free and was run under AddressSanitizer and UndefinedBehaviorSanitizer
+before it was pushed; `NetWireTest` and `LoopbackTransportTest` carry it in CI.
+
+**Stage D is under way, built in increments rather than as one pivot.** Landed
+on 2026-08-27, each with its tests: the handshake records (`ClientHello`,
+`ServerHello`, `ServerStart`, `ServerTick`) and `Consider`, the accept-or-refuse
+policy as a function; [ServerSession.h](../NeuronServer/ServerSession.h), the
+first real source in `NeuronServer` and the protocol state machine that does
+not own the world; its mirror [ClientSession.h](../NeuronClient/ClientSession.h),
+which speaks first, cannot declare itself ready for a level nobody named, and is
+told what time it is; the replication records (`Enter`, `Update`, `Leave`,
+`Destroy`) and [ReplicaStore.h](../NeuronClient/ReplicaStore.h), whose mutators
+are private so that nothing can enter the client's world except by being
+received; [ReplicationWriter.h](../NeuronServer/ReplicationWriter.h), which
+holds the only record of what a client believes and so sends nothing for a
+world that sits still; and `ReplicatedWorldTest`, which runs the writer against
+the store for fifty ticks and asserts field by field that the client's world is
+the server's -- the one place `NeuronClientTest` references `NeuronServer`, as
+[AGENTS.md §2](../AGENTS.md) records. `NeuronServerTest` exists because of this
+work and CI runs it. [EmbeddedSession.h](../Outpost/EmbeddedSession.h) then put
+the boundary beside the game: [Loop.cpp](../Outpost/Loop.cpp) ticks a server
+session, a writer, a client session and a replica store on every simulation
+tick, and a Debug build compares the replica world against the object lists
+field by field, reporting rather than dying so the campaign stays playable
+while the step proves itself.
+
+**More of stage D landed on 2026-09-06.** `Ready` now carries the map hash the
+client actually loaded and a mismatch is a `Kick`, so a client that loaded the
+wrong level is told rather than left to desync. The script VM's ten
+presentation instincts — intelligence messages, camera moves, console text,
+sounds and sequence playback — emit `ServerMessage::UiEvent` instead of
+calling the client, with [UiEvents.cpp](../Outpost/UiEvents.cpp) the only place
+that carries one out; a message is named rather than pointed at, because a
+pointer means nothing across a boundary. Game speed became a
+`ClientMessage::SessionControl` that the server validates against a session
+policy and answers with a `CommandReject` when it refuses. **And pause is
+deleted**, as the design said it would be: `PAUSE_STATE`, `gamePaused`,
+`kf_TogglePauseMode`, the three screen-pause pairs and the paused branch of the
+frame handler are gone, along with the forty-odd animation guards that existed
+only to freeze a stopped world. What was genuinely a mission-results interval
+rather than a pause is now `StopMissionClock`/`StartMissionClock`.
+
+**What stage D still owes**: a `Replica` with enough on it to draw; the renderer
+fed from the store, which is the flip; the rest of the command plane, so unit
+orders and building stop calling simulation mutators directly; and server-minted
+ids replacing `(objID << 3) | player` outside the server. The gate is unchanged:
+`CAM_1A` to a mission win with the client's direct simulation calls severed in
+boundary mode.
 
 ## The model format: NMO, a CMO-derived binary mesh (2026-08-27)
 

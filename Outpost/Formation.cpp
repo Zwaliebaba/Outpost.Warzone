@@ -301,7 +301,8 @@ void formationReset(FORMATION* psFormation)
 // calculate the coordinates of a position on a line
 void formationCalcPos(FORMATION* psFormation, SDWORD line, SDWORD dist, SDWORD* pX, SDWORD* pY)
 {
-  SDWORD dir, xoffset, yoffset, rank;
+  float dir;
+  SDWORD xoffset, yoffset, rank;
 
   rank = dist / psFormation->size;
 

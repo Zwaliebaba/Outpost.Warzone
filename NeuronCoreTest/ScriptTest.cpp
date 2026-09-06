@@ -3,6 +3,7 @@
 
 #include "Script.h"
 
+#include <cstdint>
 #include <cstring>
 #include <stdexcept>
 #include <string>
@@ -375,6 +376,44 @@ public:
 
     Assert::IsTrue(sPopped.v.oval == &g_sObjA);
     Assert::IsTrue(stackEmpty() == TRUE);
+  }
+
+  /* == and != on two objects compared v.ival, the low 32 bits of the pointer,
+     so on x64 two distinct objects whose addresses agree in the low half
+     compared equal. Both operands being an AT_OBJECT type now selects a
+     whole-pointer comparison. The addresses below are synthetic and are
+     never dereferenced; on Win32 the pair differs in the low word instead
+     and the test still holds. */
+  TEST_METHOD(ObjectEqualityComparesTheWholePointer)
+  {
+    auto compare = [](void* _a, void* _b, OPCODE _op) {
+      INTERP_VAL lhs;
+      lhs.type = TT_OBJ;
+      lhs.v.oval = _a;
+      INTERP_VAL rhs;
+      rhs.type = TT_OBJ;
+      rhs.v.oval = _b;
+      Assert::IsTrue(stackPush(&lhs) == TRUE);
+      Assert::IsTrue(stackPush(&rhs) == TRUE);
+      Assert::IsTrue(stackBinaryOp(_op) == TRUE);
+      INTERP_VAL result;
+      Assert::IsTrue(stackPop(&result) == TRUE);
+      Assert::IsTrue(result.type == VAL_BOOL);
+      Assert::IsTrue(stackEmpty() == TRUE);
+      return result.v.ival != 0;
+    };
+
+    const std::uintptr_t low = 0x10000;
+    const std::uintptr_t high = low + (sizeof(void*) > 4 ? (std::uintptr_t{1} << 32) : 1);
+    void* a = reinterpret_cast<void*>(low);
+    void* b = reinterpret_cast<void*>(high);
+
+    Assert::IsTrue(compare(a, a, OP_EQUAL));
+    Assert::IsFalse(compare(a, a, OP_NOTEQUAL));
+    Assert::IsFalse(compare(a, b, OP_EQUAL));
+    Assert::IsTrue(compare(a, b, OP_NOTEQUAL));
+    Assert::IsFalse(compare(&g_sObjA, &g_sObjB, OP_EQUAL));
+    Assert::IsTrue(compare(&g_sObjA, &g_sObjA, OP_EQUAL));
   }
 
   TEST_METHOD(TriggersCompileToTheRightMetadata)

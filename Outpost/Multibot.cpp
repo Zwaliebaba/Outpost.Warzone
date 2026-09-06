@@ -1118,6 +1118,17 @@ BOOL receiveWholeDroid(NETMSG* m)
     dt.numWeaps = 0;
   else
     dt.numWeaps = 1;
+
+  /* The indices arrived off the wire and calcTemplatePower dereferences every
+     one of them. Both ends are the same build today, so a bad one is a bug at
+     the sender rather than a hostile peer, but this is the one place an index
+     the game did not compute reaches that arithmetic, and a Release build has
+     no other guard. */
+  if (!TemplateIndicesValid(&dt))
+  {
+    Neuron::DebugTrace("receiveWholeDroid: refusing template {} from player {}: stats index out of range\n", dt.aName, static_cast<int>(player));
+    return FALSE;
+  }
   dt.powerPoints = calcTemplatePower(&dt);
 
   NetGet(m, sizecount, id);

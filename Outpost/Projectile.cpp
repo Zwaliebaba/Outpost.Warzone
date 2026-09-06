@@ -1542,9 +1542,6 @@ BOOL justBeenHitByEW(BASE_OBJECT* psObj)
   FEATURE* psFeature;
   STRUCTURE* psStructure;
 
-  if (gamePaused())
-    return (FALSE); // Don't shake when paused...!
-
   switch (psObj->type)
   {
   case OBJ_DROID:

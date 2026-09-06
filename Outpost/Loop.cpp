@@ -88,22 +88,10 @@ SDWORD loopStateChanges;
  * local variables
  */
 
-static BOOL paused = FALSE;
 static BOOL video = FALSE;
 static BOOL bQuitVideo = FALSE;
 static SDWORD clearCount = 0;
 
-//holds which pause is valid at any one time
-using PAUSE_STATE = struct _pause_state
-{
-  unsigned gameUpdatePause : 1;
-  unsigned audioPause : 1;
-  unsigned scriptPause : 1;
-  unsigned scrollPause : 1;
-  unsigned consolePause : 1;
-};
-
-static PAUSE_STATE pauseState;
 static UDWORD numDroids[MAX_PLAYERS];
 static UDWORD numMissionDroids[MAX_PLAYERS];
 static UDWORD numTransporterDroids[MAX_PLAYERS];
@@ -115,17 +103,6 @@ static SDWORD videoMode;
 
 static SDWORD g_iGlobalVol;
 
-namespace
-{
-/* The solo session, running the world across the client/server boundary beside
- * the game that is still drawing it (Docs/ServerAuthority.md stage D). Nothing
- * reads its replica world yet: this step is here to prove replication complete
- * and correct while the renderer is still fed from the object lists, so the
- * flip that follows is taken with evidence rather than hope.
- */
-EmbeddedSession g_session;
-} // namespace
-
 LOOP_MISSION_STATE loopMissionState = LMS_NORMAL;
 
 // this is set by scrStartMission to say what type of new level is to be started
@@ -135,13 +112,6 @@ SDWORD nextMissionType = LDS_NONE; //MISSION_NONE;
 UDWORD mcTime;
 BOOL display3D = TRUE;
 extern BOOL godMode;
-
-BOOL gamePaused(void);
-void setGamePauseStatus(BOOL val);
-void setGameUpdatePause(BOOL state);
-void setAudioPause(BOOL state);
-void setScriptPause(BOOL state);
-void setScrollPause(BOOL state);
 
 // signal a fast exit from the game
 void loopFastExit(void) { fastExit = TRUE; }
@@ -166,7 +136,12 @@ static void SimulateTick(void)
   FEATURE *psCFeat, *psNFeat;
   UDWORD i;
 
-  if (!scriptPaused())
+  /* Between a mission's objects being cleared and the next mission being set
+   * up there is no world for the scripts to run against, so the triggers wait
+   * for it. That is the mission's state, not a pause: pause was removed as a
+   * feature (Docs/ServerAuthority.md), and nothing else stops the world.
+   */
+  if (loopMissionState != LMS_SETUPMISSION)
   {
 #ifdef SCRIPTS
     /* Update the event system */
@@ -391,7 +366,6 @@ static void SimulateTick(void)
 /* The main game loop */
 GAMECODE gameLoop(void)
 {
-  UDWORD widgval;
   BOOL quitting = FALSE;
   INT_RETVAL intRetVal;
   CLEAR_MODE clearMode;
@@ -420,86 +394,56 @@ GAMECODE gameLoop(void)
 
   AudioSystem::Update();
 
-  if (!paused)
-  {
-    /* Run the in game interface and see if it grabbed any mouse clicks */
-    if ((!rotActive) && getWidgetsStatus() && (dragBox3D.status != DRAG_DRAGGING) && (wallDrag.status != DRAG_DRAGGING))
-      intRetVal = intRunWidgets();
-    else
-      intRetVal = INT_NONE;
-
-    //don't process the object lists if paused or about to quit to the front end
-    if (!(gameUpdatePaused() OR intRetVal == INT_QUIT))
-    {
-      if ((dragBox3D.status != DRAG_DRAGGING) && (wallDrag.status != DRAG_DRAGGING))
-      {
-        if ((intRetVal == INT_INTERCEPT) || (radarOnScreen && CoordInRadar(mouseX(), mouseY()) AND getHQExists(selectedPlayer)))
-        {
-          frameSetCursorFromRes(IDC_DEFAULT);
-          //if( (intRetVal != INT_FULLSCREENPAUSE) && (
-          //	intRetVal != INT_INTELPAUSE) ) 
-          intRetVal = INT_INTERCEPT;
-        }
-      }
-
-      // we need two versions of the loop conditions, since PSX doesn't have
-      // multiplayer stuff.
-
-      // Don't update the game world if the design screen is up and single player game
-      //if (((intRetVal != INT_FULLSCREENPAUSE) || bMultiPlayer) AND ((intRetVal != 
-      //	INT_INTELPAUSE) || bMultiPlayer))
-
-      /* The world advances on the fixed tick, not on the frame: as many whole
-       * ticks as the wall clock has paid for since the last pass, which is none
-       * at all on a frame shorter than a tick and more than one on a frame that
-       * ran long.
-       */
-      while (Neuron::ConsumeSimulationTick())
-      {
-        SimulateTick();
-
-        /* After the world is settled, not before: objmemUpdate() has run, so
-         * the object lists hold what is alive and psDestroyedObj holds exactly
-         * what died on this tick.
-         */
-        g_session.Tick();
-      }
-
-    }
-    if (!consolePaused())
-    {
-      /* Process all the console messages */
-      updateConsoleMessages();
-    }
-    if (!scrollPaused())
-    {
-      if (!getWarCamStatus()) //this could set scrollPause?
-      {
-        if (dragBox3D.status != DRAG_DRAGGING && intMode != INT_INGAMEOP)
-          scroll();
-      }
-    }
-  }
-  else //paused
-  {
+  /* Run the in game interface and see if it grabbed any mouse clicks */
+  if ((!rotActive) && getWidgetsStatus() && (dragBox3D.status != DRAG_DRAGGING) && (wallDrag.status != DRAG_DRAGGING))
+    intRetVal = intRunWidgets();
+  else
     intRetVal = INT_NONE;
-    if (video)
-      bQuitVideo = !seq_UpdateFullScreenVideo(nullptr);
-    if (dragBox3D.status != DRAG_DRAGGING)
-      scroll();
-    if (InGameOpUp) // ingame options menu up, run it!
+
+  //don't process the object lists if about to quit to the front end
+  if (intRetVal != INT_QUIT)
+  {
+    if ((dragBox3D.status != DRAG_DRAGGING) && (wallDrag.status != DRAG_DRAGGING))
     {
-      intRunInGameOptions();
-      widgval = widgRunScreen(psWScreen);
-      intProcessInGameOptions(widgval);
-      if (widgval == INTINGAMEOP_QUIT_CONFIRM)
+      if ((intRetVal == INT_INTERCEPT) || (radarOnScreen && CoordInRadar(mouseX(), mouseY()) AND getHQExists(selectedPlayer)))
       {
-        if (gamePaused())
-          kf_TogglePauseMode();
-        intRetVal = INT_QUIT;
+        frameSetCursorFromRes(IDC_DEFAULT);
+        //if( (intRetVal != INT_FULLSCREENPAUSE) && (
+        //	intRetVal != INT_INTELPAUSE) ) 
+        intRetVal = INT_INTERCEPT;
       }
     }
 
+    // we need two versions of the loop conditions, since PSX doesn't have
+    // multiplayer stuff.
+
+    // Don't update the game world if the design screen is up and single player game
+    //if (((intRetVal != INT_FULLSCREENPAUSE) || bMultiPlayer) AND ((intRetVal != 
+    //	INT_INTELPAUSE) || bMultiPlayer))
+
+    /* The world advances on the fixed tick, not on the frame: as many whole
+     * ticks as the wall clock has paid for since the last pass, which is none
+     * at all on a frame shorter than a tick and more than one on a frame that
+     * ran long.
+     */
+    while (Neuron::ConsumeSimulationTick())
+    {
+      SimulateTick();
+
+      /* After the world is settled, not before: objmemUpdate() has run, so
+       * the object lists hold what is alive and psDestroyedObj holds exactly
+       * what died on this tick.
+       */
+      EmbeddedSession::Instance().Tick();
+    }
+
+  }
+  /* Process all the console messages */
+  updateConsoleMessages();
+  if (!getWarCamStatus()) //this could set scrollPause?
+  {
+    if (dragBox3D.status != DRAG_DRAGGING && intMode != INT_INGAMEOP)
+      scroll();
   }
 
   /* Check for quit */
@@ -520,50 +464,47 @@ GAMECODE gameLoop(void)
   {
     if (!quitting)
     {
-      if (!gameUpdatePaused())
+      if (display3D)
       {
-        if (display3D)
+        /*bPlayerHasHQ=FALSE;
+        for (psStructure = apsStructLists[selectedPlayer]; psStructure AND 
+          !bPlayerHasHQ; psStructure = psStructure->psNext)
         {
-          /*bPlayerHasHQ=FALSE;
-          for (psStructure = apsStructLists[selectedPlayer]; psStructure AND 
-            !bPlayerHasHQ; psStructure = psStructure->psNext)
+          if (psStructure->pStructureType->type == REF_HQ)
           {
-            if (psStructure->pStructureType->type == REF_HQ)
-            {
-              bPlayerHasHQ = TRUE;
-            }
+            bPlayerHasHQ = TRUE;
           }
-          */
-
-          if ( //(intRetVal != INT_INTELPAUSE) &&
-            (dragBox3D.status != DRAG_DRAGGING) && (wallDrag.status != DRAG_DRAGGING))
-          {
-            ProcessRadarInput();
-          }
-          processInput();
-
-          //no key clicks or in Intelligence Screen
-          if (intRetVal == INT_NONE && !InGameOpUp) // OR intRetVal == INT_INTELPAUSE)
-          {
-            //don't want to handle the mouse input here when in intelligence screen
-            processMouseClickInput();
-          }
-          downloadAtStartOfFrame();
-          displayWorld();
         }
-        else
+        */
+
+        if ( //(intRetVal != INT_INTELPAUSE) &&
+          (dragBox3D.status != DRAG_DRAGGING) && (wallDrag.status != DRAG_DRAGGING))
         {
-          //no key clicks or in Intelligence Screen
-          if (intRetVal == INT_NONE) // OR intRetVal == INT_INTELPAUSE)
-          {
+          ProcessRadarInput();
+        }
+        processInput();
+
+        //no key clicks or in Intelligence Screen
+        if (intRetVal == INT_NONE && !InGameOpUp) // OR intRetVal == INT_INTELPAUSE)
+        {
+          //don't want to handle the mouse input here when in intelligence screen
+          processMouseClickInput();
+        }
+        downloadAtStartOfFrame();
+        displayWorld();
+      }
+      else
+      {
+        //no key clicks or in Intelligence Screen
+        if (intRetVal == INT_NONE) // OR intRetVal == INT_INTELPAUSE)
+        {
 #ifdef DISP2D
-            quitting = process2DInput();
-#endif
-          }
-#ifdef DISP2D
-          display2DWorld();
+          quitting = process2DInput();
 #endif
         }
+#ifdef DISP2D
+        display2DWorld();
+#endif
       }
       /* Display the in game interface */
       pie_SetDepthBufferStatus(DEPTH_CMP_ALWAYS_WRT_ON);
@@ -664,7 +605,6 @@ GAMECODE gameLoop(void)
   {
   case LMS_CLEAROBJECTS:
     missionDestroyObjects();
-    setScriptPause(TRUE);
     loopMissionState = LMS_SETUPMISSION;
     break;
 
@@ -672,7 +612,6 @@ GAMECODE gameLoop(void)
     // default
     break;
   case LMS_SETUPMISSION:
-    setScriptPause(FALSE);
     if (!setUpMission(nextMissionType))
       return GAMECODE_QUITGAME;
     break;
@@ -851,7 +790,6 @@ void loop_SetVideoPlaybackMode(void)
   screen_GetBackDrop(); //test only remove JPS feb26
 #endif
   videoMode += 1;
-  paused = TRUE;
   video = TRUE;
   clearCount = 0;
   gameTimeStop();
@@ -862,7 +800,6 @@ void loop_SetVideoPlaybackMode(void)
 void loop_ClearVideoPlaybackMode(void)
 {
   videoMode -= 1;
-  paused = FALSE;
   video = FALSE;
   gameTimeStart();
   Music::Resume();
@@ -872,40 +809,6 @@ void loop_ClearVideoPlaybackMode(void)
 SDWORD loop_GetVideoMode(void) { return videoMode; }
 
 BOOL loop_GetVideoStatus(void) { return video; }
-
-BOOL gamePaused(void) { return (paused); }
-
-void setGamePauseStatus(BOOL val) { paused = val; }
-
-BOOL gameUpdatePaused(void) { return pauseState.gameUpdatePause; }
-BOOL audioPaused(void) { return pauseState.audioPause; }
-BOOL scriptPaused(void) { return pauseState.scriptPause; }
-BOOL scrollPaused(void) { return pauseState.scrollPause; }
-BOOL consolePaused(void) { return pauseState.consolePause; }
-
-void setGameUpdatePause(BOOL state)
-{
-  pauseState.gameUpdatePause = state;
-  if (state)
-    screen_RestartBackDrop();
-  else
-    screen_StopBackDrop();
-}
-
-void setAudioPause(BOOL state) { pauseState.audioPause = state; }
-void setScriptPause(BOOL state) { pauseState.scriptPause = state; }
-void setScrollPause(BOOL state) { pauseState.scrollPause = state; }
-void setConsolePause(BOOL state) { pauseState.consolePause = state; }
-
-//set all the pause states to the state value
-void setAllPauseStates(BOOL state)
-{
-  setGameUpdatePause(state);
-  setAudioPause(state);
-  setScriptPause(state);
-  setScrollPause(state);
-  setConsolePause(state);
-}
 
 UDWORD getNumDroids(UDWORD player) { return (numDroids[player]); }
 

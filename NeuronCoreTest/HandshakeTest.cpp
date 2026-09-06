@@ -135,13 +135,14 @@ public:
 
     {
       NetWriter writer{scratch};
-      writer.U8(static_cast<std::uint8_t>(ClientMessage::Ready)); // no body
+      Put(writer, ClientReady{0xC0FFEEu}); // the level it loaded
       link.Send(End::Client, NetChannel::Session, writer.Written());
     }
 
     Assert::IsTrue(link.Receive(End::Server, message));
     NetReader readyReader{message.bytes};
     Assert::IsTrue(static_cast<ClientMessage>(readyReader.U8()) == ClientMessage::Ready);
+    Assert::IsTrue(ClientReady::Decode(readyReader).mapHash == 0xC0FFEEu);
 
     {
       NetWriter writer{scratch};

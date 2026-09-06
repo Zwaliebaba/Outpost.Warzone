@@ -23,6 +23,18 @@
 /// the server gathers what exists, writes the difference to the client, and the
 /// client rebuilds its world out of nothing but those bytes.
 ///
+/// Three things cross it besides the world now:
+///
+/// - **UiEvents**, from the server's script VM to the client's screen. A
+///   mission script that says addMessage or playVideo is running on the server,
+///   which has no screen, so the instinct emits what it wants shown and the
+///   client shows it (UiEvents.cpp).
+/// - **Session controls**, from the client's keys to the server's clock. The
+///   speed keys ask; the server's policy permits or refuses; what it permits it
+///   hands back here to apply, because the session does not own the clock.
+/// - **The level hash**, both ways: Start names the level and Ready names what
+///   was loaded, and the server kicks a client whose answer differs.
+///
 /// **Nothing draws from the replica world yet, deliberately.** This step exists
 /// to prove replication complete and correct while the game is still rendering
 /// from the object lists, so the flip that follows is taken with evidence
@@ -38,6 +50,11 @@
 class EmbeddedSession
 {
 public:
+  /// The one session this process runs. A single instance rather than a
+  /// global object because the instincts that emit UiEvents and the keys that
+  /// request a speed live in files that have no business owning it.
+  [[nodiscard]] static EmbeddedSession& Instance();
+
   /// Advances the session by one simulation tick.
   ///
   /// Call it immediately after SimulateTick(), which is the one moment the
@@ -46,18 +63,36 @@ public:
   /// tick and nothing older.
   void Tick(void);
 
+  /// Sends one UiEvent from the server's side to the client's. The script VM's
+  /// presentation instincts call this in place of the presentation itself.
+  /// Opens the session first if it is not open yet, so a briefing a script
+  /// starts on its first tick is not lost to a session still handshaking.
+  void Emit(const Neuron::ServerUiEvent& _event);
+
+  /// Asks the server, from the client's side, to run the world at _modifier
+  /// times normal speed. What the speed keys do now.
+  void RequestGameSpeed(float _modifier);
+
   /// The client's world, built from the wire.
   [[nodiscard]] const Neuron::ReplicaStore& Store(void) const noexcept { return m_store; }
 
 private:
-  /// Runs the whole handshake. In one call, because both halves are here: the
-  /// client's hello, the server's verdict, the level, and the client's Ready
-  /// all cross a queue rather than a network. Separating the server changes
-  /// how long this takes and nothing about what it says.
-  void Open(void);
+  /// Runs the whole handshake if the session is not Running, and returns
+  /// whether it is. In one call, because both halves are here: the client's
+  /// hello, the server's verdict, the level, and the client's Ready all cross
+  /// a queue rather than a network. Separating the server changes how long
+  /// this takes and nothing about what it says.
+  [[nodiscard]] bool EnsureOpen(void);
 
   /// Fills m_visible and m_destroyed from the world.
   void Gather(void);
+
+  /// Applies what the server permitted: today, the game speed.
+  void ApplyControls(void);
+
+  /// Drains the replication channel into the store, and UiEvents to the
+  /// screen, in the order the server sent them.
+  void Receive(void);
 
 #ifdef DEBUG
   /// Reports the first place the client's world is not the server's world.
@@ -71,7 +106,10 @@ private:
 #endif
 
   Neuron::LoopbackTransport m_link;
-  Neuron::ServerSession m_server{m_link, 0u, static_cast<std::uint16_t>(Neuron::SimulationTickMs)};
+
+  /// A solo session permits what the player used to do with a key.
+  Neuron::ServerSession m_server{m_link, 0u, static_cast<std::uint16_t>(Neuron::SimulationTickMs),
+                                 Neuron::SessionPolicy{true}};
   Neuron::ClientSession m_client{m_link, 0u};
   Neuron::ReplicationWriter m_writer{m_link};
   Neuron::ReplicaStore m_store;

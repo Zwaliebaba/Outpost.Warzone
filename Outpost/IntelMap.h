@@ -49,10 +49,6 @@ extern void intRemoveIntelMapNoAnim(void);
 /*sets psCurrentMsg for the Intelligence screen*/
 extern void setCurrentMsg(void);
 
-/*sets which states need to be paused when the intelligence screen is up*/
-extern void setIntelligencePauseState(void);
-/*resets the pause states */
-extern void resetIntelligencePauseState(void);
 
 // tell the intelligence screen to play this message immediately
 extern void displayImmediateMessage(MESSAGE* psMessage);

@@ -109,7 +109,7 @@ KEYMAP_SAVE keyMapSaveTable[] = {
   {"kf_SelectNextResearch", kf_SelectNextResearch}, {"kf_SelectNextPowerStation", kf_SelectNextPowerStation}, {"kf_SelectNextCyborgFactory", kf_SelectNextCyborgFactory}, {"kf_ToggleConsoleDrop", kf_ToggleConsoleDrop}, {"kf_SelectCommander", kf_SelectCommander}, {"kf_FaceNorth", kf_FaceNorth},
   {"kf_FaceSouth", kf_FaceSouth}, {"kf_FaceWest", kf_FaceWest}, {"kf_FaceEast", kf_FaceEast}, {"kf_SpeedUp", kf_SpeedUp}, {"kf_SlowDown", kf_SlowDown}, {"kf_NormalSpeed", kf_NormalSpeed}, {"kf_ToggleRadarJump", kf_ToggleRadarJump}, {"kf_MovePause", kf_MovePause},
   {"kf_ToggleReopenBuildMenu", kf_ToggleReopenBuildMenu}, {"kf_SensorDisplayOn", kf_SensorDisplayOn}, {"kf_SensorDisplayOff", kf_SensorDisplayOff}, {"kf_AllAvailable", kf_AllAvailable}, {"kf_ToggleDebugMappings", kf_ToggleDebugMappings}, {"kf_NewPlayerPower", kf_NewPlayerPower},
-  {"kf_TogglePauseMode", kf_TogglePauseMode}, {"kf_MaxScrollLimits", kf_MaxScrollLimits}, {"kf_DebugDroidInfo", kf_DebugDroidInfo}, {"kf_RecalcLighting", kf_RecalcLighting}, {"kf_ToggleFog", kf_ToggleFog}, {"kf_ChooseOptions", kf_ChooseOptions}, {"kf_TogglePower", kf_TogglePower},
+  {"kf_MaxScrollLimits", kf_MaxScrollLimits}, {"kf_DebugDroidInfo", kf_DebugDroidInfo}, {"kf_RecalcLighting", kf_RecalcLighting}, {"kf_ToggleFog", kf_ToggleFog}, {"kf_ChooseOptions", kf_ChooseOptions}, {"kf_TogglePower", kf_TogglePower},
   {"kf_ToggleWeather", kf_ToggleWeather}, {"kf_SelectPlayer", kf_SelectPlayer}, {"kf_ToggleMistFog", kf_ToggleMistFog}, {"kf_ToggleFogColour", kf_ToggleFogColour}, {"kf_AddMissionOffWorld", kf_AddMissionOffWorld}, {"kf_KillSelected", kf_KillSelected}, {"kf_ShowMappings", kf_ShowMappings},
   {"kf_GiveTemplateSet", kf_GiveTemplateSet}, {"kf_ToggleVisibility", kf_ToggleVisibility},
   //	{"kf_ToggleSensorDisplay", kf_ToggleSensorDisplay},
@@ -311,7 +311,6 @@ void keyInitMappings(BOOL bForceDefaults)
   keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE, KEY_A, KEYMAP_PRESSED, kf_AllAvailable, "Make all items available");
   keyAddMapping(KEYMAP___HIDE, KEY_LSHIFT, KEY_FORWARDSLASH, KEYMAP_PRESSED, kf_ToggleDebugMappings, "TOGGLE Debug Mappings");
   keyAddMapping(KEYMAP__DEBUG, KEY_LCTRL, KEY_X, KEYMAP_PRESSED, kf_FinishResearch, "Complete current research");
-  keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE, KEY_SCROLLLOCK, KEYMAP_PRESSED, kf_TogglePauseMode, strresGetString(psStringRes, STR_BIND_PAUSE));
   keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE, KEY_J, KEYMAP_PRESSED, kf_MaxScrollLimits, "Maximum scroll limits");
   keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE, KEY_K, KEYMAP_PRESSED, kf_KillSelected, "Kill Selected Unit(s)");
   keyAddMapping(KEYMAP__DEBUG,KEY_IGNORE, KEY_M, KEYMAP_PRESSED, kf_ShowMappings, "Show all keyboard mappings - use pause!");

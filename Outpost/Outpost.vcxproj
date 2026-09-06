@@ -147,6 +147,7 @@
     <ClCompile Include="Text.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Transporter.cpp" />
+    <ClCompile Include="UiEvents.cpp" />
     <ClCompile Include="Visibility.cpp" />
     <ClCompile Include="WarCAM.cpp" />
     <ClCompile Include="WarzoneConfig.cpp" />
@@ -287,6 +288,7 @@
     <ClInclude Include="Text.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Transporter.h" />
+    <ClInclude Include="UiEvents.h" />
     <ClInclude Include="Visibility.h" />
     <ClInclude Include="WarCAM.h" />
     <ClInclude Include="WarzoneConfig.h" />

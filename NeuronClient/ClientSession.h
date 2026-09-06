@@ -12,6 +12,7 @@
 
 #include <cstdint>
 #include <optional>
+#include <vector>
 
 namespace Neuron
 {
@@ -41,6 +42,11 @@ namespace Neuron
 /// - **The client is told what time it is.** Nothing here advances a tick on
 ///   its own. m_tick moves when the server says so and never otherwise, which
 ///   is the whole difference between this and a client that simulates.
+///
+/// What the client *asks* for goes out on the command plane as a request the
+/// server may refuse. RequestGameSpeed() is the first of them: what the speed
+/// keys used to do to the clock directly, they now ask for, and a refusal comes
+/// back as a CommandReject the caller can read through TakeReject().
 class ClientSession
 {
 public:
@@ -62,8 +68,9 @@ public:
     /// Ready is out and the world is ticking.
     Running,
 
-    /// The server refused, or answered with something that could not be read.
-    /// Nothing further is believed and nothing further is sent.
+    /// The server refused, kicked this client, or answered with something that
+    /// could not be read. Nothing further is believed and nothing further is
+    /// sent.
     Refused,
   };
 
@@ -85,9 +92,22 @@ public:
   /// a Tick before the level is loaded still has nowhere to go.
   void Service();
 
-  /// Tells the server this client has the named level loaded and can be sent
-  /// world state. Does nothing unless the session is Loading.
-  void ReportReady();
+  /// Tells the server this client has a level loaded and can be sent world
+  /// state. _loadedMapHash is the level that was *actually* loaded, which the
+  /// server checks against the one it named; a client that loaded something
+  /// else is kicked rather than left to desync. Does nothing unless the
+  /// session is Loading.
+  void ReportReady(std::uint32_t _loadedMapHash);
+
+  /// Asks the server to run the world at _modifier times normal speed. Sent on
+  /// the command channel once the session is Running; before that there is no
+  /// world to run at any speed, and nothing is sent. The server applies it or
+  /// answers with a CommandReject.
+  void RequestGameSpeed(float _modifier);
+
+  /// Takes the next refusal the server sent for something this client asked
+  /// for, or returns FALSE when there is none.
+  [[nodiscard]] bool TakeReject(ServerCommandReject& _outReject);
 
   [[nodiscard]] State CurrentState() const noexcept { return m_state; }
 
@@ -96,6 +116,9 @@ public:
   /// HandshakeResult has no value meaning "not decided", and inventing one
   /// would put it on the wire where it does not belong.
   [[nodiscard]] std::optional<HandshakeResult> Verdict() const noexcept { return m_verdict; }
+
+  /// Why the server ended the session, if it did. Empty unless a Kick arrived.
+  [[nodiscard]] std::optional<KickReason> Kicked() const noexcept { return m_kicked; }
 
   /// How much game time one tick advances the world by, as the *server* states
   /// it. Zero until the hello is answered -- a client never assumes 40 ms
@@ -116,24 +139,29 @@ private:
   void OnHello(NetReader& _reader);
   void OnStart(NetReader& _reader);
   void OnTick(NetReader& _reader);
+  void OnKick(NetReader& _reader);
+  void OnReject(NetReader& _reader);
 
-  /// Sends one message on the session channel. The buffer is a local: nothing
+  /// Sends one message on the given channel. The buffer is a local: nothing
   /// the session sends is larger than a handshake record.
   template <typename Message>
-  void SendSession(const Message& _message);
-
-  /// Sends a message that is only its id. Ready has no body -- what it means
-  /// is entirely in having arrived.
-  void SendSessionId(ClientMessage _id);
+  void Send(NetChannel _channel, const Message& _message);
 
   LoopbackTransport& m_link;
   std::uint32_t m_buildHash = 0;
   State m_state = State::Fresh;
   std::optional<HandshakeResult> m_verdict;
+  std::optional<KickReason> m_kicked;
   std::uint16_t m_tickMs = 0;
   std::uint32_t m_connectionId = 0;
   std::uint32_t m_mapHash = 0;
   std::uint32_t m_tick = 0;
+
+  /// The command plane is sequence numbered so a refusal can name what it
+  /// refused. Counts up from one; zero is never a sequence.
+  std::uint32_t m_nextSequence = 1;
+
+  std::vector<ServerCommandReject> m_rejects;
 };
 
 } // namespace Neuron

@@ -12,6 +12,7 @@
 #include "Objects.h"
 #include "GTime.h"
 #include "Research.h"
+#include "Stats.h"
 #include "Message.h"
 #include "Text.h"
 #include "AudioSystem.h"
@@ -2043,7 +2044,7 @@ void cancelResearch(STRUCTURE* psBuilding)
   DEBUG_ASSERT_TEXT(psBuilding->pStructureType->type == REF_RESEARCH, "cancelResearch: structure not a research facility");
 
   psResFac = (RESEARCH_FACILITY*)psBuilding->pFunctionality;
-  topicInc = ((RESEARCH*)psResFac->psSubject) - asResearch;
+  topicInc = StatIndex((RESEARCH*)psResFac->psSubject, asResearch, numResearch);
   if (topicInc > numResearch)
   {
     DEBUG_ASSERT_TEXT(FALSE, "cancelResearch: invalid research topic");
@@ -2643,7 +2644,7 @@ BOOL enableResearch(RESEARCH* psResearch, UDWORD player)
   STRUCTURE* psStruct;
   BOOL resFree = FALSE;
 
-  inc = psResearch - asResearch;
+  inc = StatIndex(psResearch, asResearch, numResearch);
   if (inc > numResearch)
   {
     DEBUG_ASSERT_TEXT(FALSE, "enableResearch: Invalid research topic - {}", getResearchName(psResearch));

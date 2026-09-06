@@ -115,10 +115,6 @@ extern void intDisplayViewForm(struct _widget* psWidget, UDWORD xOffset, UDWORD 
 
 extern void SetDesignWidgetName(char* Name);
 
-/*sets which states need to be paused when the design screen is up*/
-extern void setDesignPauseState(void);
-/*resets the pause states */
-extern void resetDesignPauseState(void);
 
 extern void reverseTemplateList(DROID_TEMPLATE** ppsList);
 

@@ -8,6 +8,9 @@
 #define _stats_h
 
 #include "ObjectDef.h"
+#include "Debug.h"
+
+#include <cstddef>
 /**************************************************************************************
  *
  * Function prototypes and data storage for the stats
@@ -308,5 +311,21 @@ extern UDWORD getMaxWeaponDamage(void);
 extern UDWORD getMaxPropulsionSpeed(void);
 
 extern void adjustMaxDesignStats(void);
+
+/* The index of _stat inside the array that starts at _base, checked against
+   _count at the point the pointer becomes an index. Subtracting the base of
+   any other array gives the distance between two unrelated heap blocks, and
+   on x64 that distance no longer even wraps back into range once it is
+   narrowed to 32 bits, so a pointer that is not in the array is reported
+   here rather than where the index is dereferenced. A subtraction and a
+   narrowing in Release. */
+template <typename Stats>
+UDWORD StatIndex(const Stats* _stat, const Stats* _base, UDWORD _count)
+{
+  const std::ptrdiff_t index = _stat - _base;
+  DEBUG_ASSERT_TEXT(index >= 0 && index < static_cast<std::ptrdiff_t>(_count),
+                    "StatIndex: pointer is not inside its stats array (index {} of {})", index, _count);
+  return static_cast<UDWORD>(index);
+}
 
 #endif

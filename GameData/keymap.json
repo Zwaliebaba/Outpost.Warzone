@@ -26,7 +26,6 @@
  {"name": "Show all keyboard mappings - use pause!", "status": 0, "meta": 5190, "sub": 50, "action": 1, "function": "kf_ShowMappings"},
  {"name": "Kill Selected Unit(s)", "status": 0, "meta": 5190, "sub": 37, "action": 1, "function": "kf_KillSelected"},
  {"name": "Maximum scroll limits", "status": 0, "meta": 5190, "sub": 36, "action": 1, "function": "kf_MaxScrollLimits"},
- {"name": "Toggle Pause Mode", "status": 0, "meta": 5190, "sub": 70, "action": 1, "function": "kf_TogglePauseMode"},
  {"name": "Complete current research", "status": 0, "meta": 29, "sub": 45, "action": 1, "function": "kf_FinishResearch"},
  {"name": "TOGGLE Debug Mappings", "status": 4, "meta": 42, "sub": 53, "action": 1, "function": "kf_ToggleDebugMappings"},
  {"name": "Make all items available", "status": 0, "meta": 5190, "sub": 30, "action": 1, "function": "kf_AllAvailable"},

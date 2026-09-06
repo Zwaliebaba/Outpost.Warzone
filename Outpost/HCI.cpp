@@ -2171,7 +2171,7 @@ static void intAddObjectStats(BASE_OBJECT* psObj, UDWORD id)
     //set to value that won't be reached in fillResearchList
     index = numResearch + 1;
     if (psStats)
-      index = (RESEARCH*)psStats - asResearch;
+      index = StatIndex((RESEARCH*)psStats, asResearch, numResearch);
     //recalculate the list
     numStatsListEntries = fillResearchList(pList, selectedPlayer, static_cast<UWORD>(index), MAXRESEARCH);
 

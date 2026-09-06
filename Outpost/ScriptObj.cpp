@@ -24,6 +24,7 @@
 #include "Levels.h"
 #include "ScriptVals.h"
 #include "Research.h"
+#include "Stats.h"
 
 // Get values from a base object
 BOOL scrBaseObjGet(UDWORD index)
@@ -186,7 +187,7 @@ BOOL scrBaseObjGet(UDWORD index)
       return FALSE;
     }
     type = ST_STRUCTURESTAT;
-    val = ((STRUCTURE*)psObj)->pStructureType - asStructureStats;
+    val = StatIndex(((STRUCTURE*)psObj)->pStructureType, asStructureStats, numStructureStats);
     break;
   default: DEBUG_ASSERT_TEXT(FALSE, "scrBaseObjGet: unknown variable index");
     return FALSE;

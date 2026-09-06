@@ -5,7 +5,9 @@
 #include "Debug.h"
 #include "Deliverance.h"
 #include "Frame.h"
+#include "FrontEnd.h"
 #include "ObjMem.h"
+#include "UiEvents.h"
 
 namespace
 {
@@ -66,24 +68,54 @@ void GatherList(const Object* _list, EntityKind _kind, std::vector<EntityState>&
     _outVisible.push_back(StateOf(object, _kind));
   }
 }
+
+/// The level the game has loaded, as the number both halves name it by. The
+/// two halves are one process, so they agree by construction; what this puts
+/// in place is the check itself, which a separated server will run for real.
+[[nodiscard]] std::uint32_t LoadedLevelHash()
+{
+  return HashString(pLevelName);
+}
 } // namespace
 
-void EmbeddedSession::Open(void)
+EmbeddedSession& EmbeddedSession::Instance()
 {
+  static EmbeddedSession session;
+  return session;
+}
+
+bool EmbeddedSession::EnsureOpen(void)
+{
+  if (m_failed)
+    return false;
+
+  if (m_client.CurrentState() == Neuron::ClientSession::State::Running)
+    return true;
+
+  const std::uint32_t level = LoadedLevelHash();
+
   m_client.Begin();
   m_server.Service();
 
   m_client.Service();
-
-  /* No map hash yet. Naming the level is what ServerStart is for, but a client
-     that loaded the wrong one still cannot say so -- ClientMessage::Ready
-     carries no body -- so a hash here would be checked against nothing.
-     Docs/ServerAuthority.md carries that gap; this is the other end of it. */
-  m_server.Start(0u);
+  m_server.Start(level);
 
   m_client.Service();
-  m_client.ReportReady();
+  m_client.ReportReady(level);
   m_server.Service();
+
+  if (m_client.CurrentState() != Neuron::ClientSession::State::Running ||
+      m_server.CurrentState() != Neuron::ServerSession::State::Running)
+  {
+    /* Cannot happen: both halves are this executable, so the version, the
+       build hash and the level are its own, and the server accepts all three.
+       If it ever does, this says so once and stops. */
+    Neuron::DebugTrace("EmbeddedSession: the local session would not open\n");
+    m_failed = true;
+    return false;
+  }
+
+  return true;
 }
 
 void EmbeddedSession::Gather(void)
@@ -110,41 +142,85 @@ void EmbeddedSession::Gather(void)
   }
 }
 
-void EmbeddedSession::Tick(void)
+void EmbeddedSession::ApplyControls(void)
 {
-  if (m_failed)
-    return;
-
-  if (m_client.CurrentState() != Neuron::ClientSession::State::Running)
+  Neuron::ClientSessionControl control;
+  while (m_server.TakeControl(control))
   {
-    Open();
+    /* The session validated it against the policy and the range; applying it
+       is the world's business, and the clock is the world's. */
+    if (control.kind == Neuron::SessionControlKind::GameSpeed)
+      gameTimeSetMod(control.value);
+  }
+}
 
-    if (m_client.CurrentState() != Neuron::ClientSession::State::Running)
+void EmbeddedSession::Receive(void)
+{
+  /* One channel, in order: a camera move the script asked for after entering
+     an object arrives after the Enter, because the server sent it after. */
+  Neuron::LoopbackTransport::Message message;
+  while (m_link.Receive(Neuron::LoopbackTransport::End::Client, Neuron::NetChannel::Replication, message))
+  {
+    Neuron::NetReader reader{message.bytes};
+    const auto id = static_cast<Neuron::ServerMessage>(reader.U8());
+
+    if (id == Neuron::ServerMessage::UiEvent)
     {
-      /* Cannot happen: both halves are this executable, so the version and the
-         build hash are its own and Consider accepts. If it ever does, this says
-         so once and stops. */
-      Neuron::DebugTrace("EmbeddedSession: the local session would not open\n");
-      m_failed = true;
-      return;
+      const Neuron::ServerUiEvent event = Neuron::ServerUiEvent::Decode(reader);
+      if (reader.Ok())
+        ApplyUiEvent(event);
+      continue;
     }
+
+    m_store.Apply(message.bytes);
   }
 
+  Neuron::ServerCommandReject reject;
+  while (m_client.TakeReject(reject))
+  {
+    Neuron::DebugTrace("EmbeddedSession: the server refused request {} (reason {})\n", reject.sequence,
+                       static_cast<unsigned>(reject.reason));
+  }
+}
+
+void EmbeddedSession::Tick(void)
+{
+  if (!EnsureOpen())
+    return;
+
   m_server.Service();
+  ApplyControls();
   m_server.Tick();
 
   Gather();
   m_writer.Write(m_visible, m_destroyed);
 
   m_client.Service();
-
-  Neuron::LoopbackTransport::Message message;
-  while (m_link.Receive(Neuron::LoopbackTransport::End::Client, Neuron::NetChannel::Replication, message))
-    m_store.Apply(message.bytes);
+  Receive();
 
 #ifdef DEBUG
   Verify();
 #endif
+}
+
+void EmbeddedSession::Emit(const Neuron::ServerUiEvent& _event)
+{
+  /* A script's first tick can ask for a briefing before Tick() has ever run,
+     so the session is opened here rather than the event being dropped on a
+     handshake still in flight. */
+  if (!EnsureOpen())
+    return;
+
+  if (!m_server.SendUiEvent(_event))
+    Neuron::DebugTrace("EmbeddedSession: UiEvent {} was not sent\n", static_cast<unsigned>(_event.kind));
+}
+
+void EmbeddedSession::RequestGameSpeed(float _modifier)
+{
+  if (!EnsureOpen())
+    return;
+
+  m_client.RequestGameSpeed(_modifier);
 }
 
 #ifdef DEBUG
