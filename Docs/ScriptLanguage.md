@@ -168,7 +168,7 @@ defined with an inline trigger links to `numTriggers-1`).
 
 `function` blocks are new working behaviour: the old tree reserved the
 keyword but had no grammar rule, no definition machinery, and the call
-path emitted nothing (see `Docs/ScriptRewrite.md` §6.2).
+path emitted nothing (see `Docs/Archive/ScriptRewrite.md` §6.2).
 
 - Defined between the variable and trigger sections; usable everywhere an
   instinct function of the same type is, **after** definition.

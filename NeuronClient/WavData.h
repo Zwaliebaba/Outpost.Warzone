@@ -20,7 +20,7 @@ enum class WavError : std::uint8_t
 
 /// A WAV decoded to the one format the mixer plays: 16-bit signed PCM.
 /// This is the module's single decode seam - a future codec (Media
-/// Foundation, per Phase9Plan.md) adds a sibling factory here and nothing
+/// Foundation, per Docs/Archive/Phase9Plan.md) adds a sibling factory here and nothing
 /// downstream changes.
 class WavData
 {

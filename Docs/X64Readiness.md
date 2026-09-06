@@ -26,7 +26,7 @@ Status key: **Fixed** — done, and behaviour-identical on Win32.
 
 **State as of 2026-08-17: x64 compiles and links, both configurations, zero
 errors.** The script VM, the one item that was a project rather than an edit,
-was resolved by the module rewrite ([`ScriptRewrite.md`](ScriptRewrite.md)).
+was resolved by the module rewrite ([`ScriptRewrite.md`](Archive/ScriptRewrite.md)).
 CI builds x64 on every push, non-blocking, and the diagnostics below are
 measured from those builds rather than predicted. It had not been *run* at
 that point; it has since -- see the 2026-08-26 note below.
@@ -101,7 +101,7 @@ the element erased. `animObj_Find` is a linear scan as a result, over a
 container that holds a few hundred entries at most.
 
 The same rewrite retires the iterator double-advance bug noted in
-`Docs/AssetPipeline.md`.
+`Docs/Archive/AssetPipeline.md`.
 
 ---
 
@@ -320,7 +320,7 @@ the global intact.
 
 ### ~~The script VM stores function pointers in 32-bit instruction words~~
 
-**Fixed by the script module rewrite** (`Docs/ScriptRewrite.md`,
+**Fixed by the script module rewrite** (`Docs/Archive/ScriptRewrite.md`,
 `Docs/ScriptLanguage.md`). The instruction stream is now one `ScriptInstr`
 record per instruction; `OP_CALL`/`OP_VARCALL` carry table indices resolved
 at execution time, so no pointer lives in the stream on any platform. The

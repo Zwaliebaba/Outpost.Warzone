@@ -7,7 +7,7 @@ that swap, rewrites the module as C++23 in `namespace Neuron`, and shapes it so
 the features the game does not have yet (buses, effects, more codecs, real
 streaming) land as additions rather than rewrites.
 
-This is [Phase 7](MigrationPlan.md#phase-7--incremental-c-modernisation)'s
+This is [Phase 7](../MigrationPlan.md#phase-7--incremental-c-modernisation)'s
 method applied to the audio stack, taken as a numbered phase of its own the way
 Phase 8 took the render layer — and it is the same shape of work: a layer built
 to abstract over multiple backends now abstracts over exactly one, so the layer
@@ -61,7 +61,7 @@ the caller could do, or a name for something `Audio.cpp` should own outright.
 ### The dead surface, measured
 
 Tree-wide grep over `NeuronCore/` and `Outpost/`, including headers and the
-generated parsers, per the rule in [AGENTS.md §6](../AGENTS.md); the
+generated parsers, per the rule in [AGENTS.md §6](../../AGENTS.md); the
 `tools/check_case.py` feature-macro allow-list was checked and its only
 audio-adjacent entry (`qmdx.h`, dead under `#if QMIXER`) does not reach any of
 these. Zero callers anywhere:
@@ -158,7 +158,7 @@ against the tree, not assumed:
 
 1. ~~**Save games round-trip track IDs by WAV-name hash.**~~ *(Dissolved by
    the save/load removal, 2026-08-16 — see
-   [MigrationPlan.md](MigrationPlan.md#removed-outright-saveload-and-the-demo-2026-08-16);
+   [MigrationPlan.md](../MigrationPlan.md#removed-outright-saveload-and-the-demo-2026-08-16);
    `AudioSystem::TrackIdFromHash` lost its last caller and is deleted.)*
    `ScriptObj.cpp:549`
    saved `sound_GetTrackHashName(id)`; `:793` restored with
@@ -209,7 +209,7 @@ And the behaviour the rewrite must reproduce, which is the Phase 4 contract:
 Seven engine files (`Audio.*`, `Track.*`, `TrackLib.h`, `XA2Track.cpp`,
 `Aud.h`) become six, and the game side keeps three modules under conforming
 names. New engine code in `namespace Neuron`, per
-[AGENTS.md §1](../AGENTS.md) and the `TexturePage` worked example; the class
+[AGENTS.md §1](../../AGENTS.md) and the `TexturePage` worked example; the class
 shape follows the Phase 5 `Transport` precedent — one implementation, no
 interface ceremony, state internal to the translation unit.
 
@@ -527,7 +527,7 @@ things there were more than a substitution:
   (`INGAME_AUDIO` → `InGameAudio`) and the function (`audioID_GetIDFromStr`
   → `AudioIdFromName`) conform now, but renaming the file for R4's
   acronym-casing would have touched 41 includers for one letter's
-  difference, which is the drive-by churn [AGENTS.md §6](../AGENTS.md)
+  difference, which is the drive-by churn [AGENTS.md §6](../../AGENTS.md)
   exists to prevent. Recorded here rather than done silently.
 
 Everything is cross-checked clean in both configurations. Stages A–E are

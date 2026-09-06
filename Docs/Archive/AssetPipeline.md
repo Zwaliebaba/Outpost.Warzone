@@ -13,7 +13,7 @@ re-measured after the merge of main described below.
 (2026-08-16).** Two owner decisions landed on `main` after the first draft
 and changed this analysis: user save/load was removed outright — the game is
 heading server-authoritative, where a local save of world state has no
-meaning; the record is in [MigrationPlan.md](MigrationPlan.md) under
+meaning; the record is in [MigrationPlan.md](../MigrationPlan.md) under
 "Removed outright" — and the engine began splitting into `NeuronCore` /
 `NeuronClient` / `NeuronServer`, moving the model, animation, texture and
 audio loaders into the client library. Every figure and path below reflects
@@ -32,7 +32,7 @@ now history in full. The palette work replaced `.pcx` with `.dds`
 (`NeuronClient/Dds.cpp`; `Pcx.cpp` and `palette.bin` deleted), and the script
 module rewrite replaced the `.slo`, `.vlo` and `STR_RES` grammars with
 hand-written C++ — see [ScriptRewrite.md](ScriptRewrite.md) and
-[ScriptLanguage.md](ScriptLanguage.md). **No MKS lex/yacc output remains in
+[ScriptLanguage.md](../ScriptLanguage.md). **No MKS lex/yacc output remains in
 the tree**, so §5's parser-count arguments and §7.2's "the parser question"
 are settled rather than open: the answer was to own the parsers, which is
 what `Neuron::Json`, `ScriptLex`/`ScriptComp`, `ScriptValsParse` and
@@ -44,8 +44,8 @@ that "changing the file format would buy nothing", §7's `.pie` row and §8's
 JSON**, and they remain right about that. They were also read as settling the
 model-format question in general, and that turned out to be wrong: a *binary*
 successor buys things JSON never could. NMO is that successor — the design is
-[NeuronMeshObject.md](NeuronMeshObject.md), the migration
-[PieToNmoMigration.md](PieToNmoMigration.md) — and the loader-side wins §4
+[NeuronMeshObject.md](../NeuronMeshObject.md), the migration
+[PieToNmoMigration.md](../PieToNmoMigration.md) — and the loader-side wins §4
 lists are the ones it collects. Each of the three places is annotated in
 place below.
 
@@ -284,7 +284,7 @@ model path now lives in `NeuronClient` after the client-library split.
 > is text; the per-frame UV recomputation exists because the animation
 > parameters are per polygon; the dead BSP trees are in the files. A binary
 > format states each of them once, at conversion time — which is what
-> [NMO](NeuronMeshObject.md) does. The one thing this paragraph got exactly
+> [NMO](../NeuronMeshObject.md) does. The one thing this paragraph got exactly
 > right is that the wins are loader-side; NMO's are too.
 >
 > Also worth correcting here: the 1,693 "texture-animated" polygons are
@@ -513,7 +513,7 @@ server-side tooling — from one set of files.
 | String tables (`STR_RES`) | `IDENT "text"` + yacc | Optional, later | Already simple and localisation-shaped; convert for parser-count reasons only. |
 | `.vlo` script values | yacc grammar | Later, maybe | Data-shaped, but entangled with the script compiler's type system; decide when the script system is on the table. |
 | `.slo` scripts | script language | **No** | It is code, not data. |
-| `.pie` models | custom text | **No — to JSON.** Superseded for binary | Compact, diff-able, tool-supported; JSON would multiply size and buy nothing. The wins are loader-side (§4). A *binary* successor is a different answer and is now designed: [NMO](NeuronMeshObject.md). |
+| `.pie` models | custom text | **No — to JSON.** Superseded for binary | Compact, diff-able, tool-supported; JSON would multiply size and buy nothing. The wins are loader-side (§4). A *binary* successor is a different answer and is now designed: [NMO](../NeuronMeshObject.md). |
 | `.wav`/`.pcx`/`.mp4` | binary media | **No** | Media stays media. (`.pcx`→PNG is a conceivable separate modernisation; different discussion, touches `TexMan`.) |
 | `.map`/`.gam`/`.bjo`/`.ttp` | raw structs | **Not now** | The save-game half is already deleted; what remains is the v≤8 level format, which must stay readable. Converting the scenario data to a text form — also the way to purge the shipped heap garbage — is now unblocked *in principle*, but wants the map-tooling question answered first. |
 
@@ -673,7 +673,7 @@ box remains the final word, as always.)
   8 stage D), media formats, `.map`/`.gam`/`.bjo` and anything else under
   the v≤8 level-format-readability rule, and the script language.
   *(The `.pie` exclusion held for this work and still does: the model format
-  is now [its own migration](PieToNmoMigration.md), not part of this one.
+  is now [its own migration](../PieToNmoMigration.md), not part of this one.
   Note that it takes `.ani` with it — stage D's JSON conversion of the ten
   animation files was the right move for this pipeline, but the animation
   data itself belongs inside the model, which is where NMO puts it.)*

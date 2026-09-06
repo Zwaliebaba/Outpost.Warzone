@@ -11,7 +11,7 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 /* The compiler, interpreter and event system under a miniature set of game
    tables.  Script-defined functions have no shipped script exercising
-   them, so this suite is their only harness (Docs/ScriptRewrite.md 6.2).
+   them, so this suite is their only harness (Docs/Archive/ScriptRewrite.md 6.2).
 
    The instinct FFI here still pops object values through UDWORD
    destinations, matching ScriptFuncs.cpp today; stage 4 of the rewrite

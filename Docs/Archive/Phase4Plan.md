@@ -1,6 +1,6 @@
 # Phase 4 — Audio: XAudio2, dropping QMixer and CD audio
 
-Working plan for the phase described in [MigrationPlan.md](MigrationPlan.md#phase-4--audio-xaudio2-dropping-qmixer-and-cd-audio).
+Working plan for the phase described in [MigrationPlan.md](../MigrationPlan.md#phase-4--audio-xaudio2-dropping-qmixer-and-cd-audio).
 As there, the figures here were measured against the tree, not estimated; the
 method is at the end.
 

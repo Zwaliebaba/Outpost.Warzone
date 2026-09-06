@@ -445,7 +445,7 @@ decision has since been taken in Phase 6** — the FMV conversion installs the
 movies to disk, so `CDSpan.cpp` goes with it.
 
 What it took, what was decided and what is still unverified are in
-[Phase4Plan.md](Phase4Plan.md).
+[Phase4Plan.md](Archive/Phase4Plan.md).
 
 This is well contained because `TrackLib.h` is already a clean ~80-line
 interface: `QSTrack.cpp` (849 lines) is simply its QMixer implementation. The
@@ -588,7 +588,7 @@ been renamed to conform — `Transport` in `Transport.h` with static methods,
 `HostCertificate` beside it, and the harness re-verifying both in CI.
 
 The full record — the eight decisions, the four things the plan got wrong, and
-what each step actually cost — is in [Phase5Plan.md](Phase5Plan.md).
+what each step actually cost — is in [Phase5Plan.md](Archive/Phase5Plan.md).
 
 ## Phase 6 — Removing Mplayer.lib and WINSTR.LIB
 
@@ -1011,7 +1011,7 @@ Stages A–E are green on MSVC CI in both configurations;
 `tools/crosscheck.py` (now `-std=c++23`) is clean at 193/193 through stage
 F. **Not run** — the listening pass is the outstanding verification. The
 record of what came out differently is in
-[Phase9Plan.md](Phase9Plan.md#what-was-built).
+[Phase9Plan.md](Archive/Phase9Plan.md#what-was-built).
 
 Phase 4 swapped the backend behind an interface it deliberately
 did not change; this phase changes the interface. The `audio_*`/`sound_*`
@@ -1044,7 +1044,7 @@ decision, after Phase 6 stage B6.
 
 The full analysis — the dead-surface evidence, the constraint list, the
 idiom-by-idiom mapping, what is deliberately left unchanged, and the five
-decisions to confirm — is in [Phase9Plan.md](Phase9Plan.md).
+decisions to confirm — is in [Phase9Plan.md](Archive/Phase9Plan.md).
 
 ## Phase 10 — Renderer maths onto DirectXMath
 
@@ -1052,7 +1052,7 @@ decisions to confirm — is in [Phase9Plan.md](Phase9Plan.md).
 (2026-08-16). Two rulings went beyond the plan's recommendation and widened
 the scope: `NeuronCore/Trig.cpp` is in the phase, and the angle units stored
 in game state migrate to float radians. The record and the staged execution
-are in [Phase10Plan.md](Phase10Plan.md). **Stage A is done** — the
+are in [Phase10Plan.md](Archive/Phase10Plan.md). **Stage A is done** — the
 dead-maths sweep removed 88 lines from `RenderMatrix.cpp`/`.h`
 (`pie_MatCreate`, `pie_VectorInverseRotate0`, the `pie_INVTRANS*` and
 `pie_CLOCKWISE`/`X_INTERCEPT` macros, `pie_Clockwise`, and `pie_MatReset`
@@ -1208,7 +1208,7 @@ multiplayer force picker are the paths this work touched most.
 
 **By owner decision, the data-description formats are JSON and their four
 parsers are deleted.** The survey, the design and the full landed record live
-in [AssetPipeline.md](AssetPipeline.md); whether this work takes a phase
+in [AssetPipeline.md](Archive/AssetPipeline.md); whether this work takes a phase
 number is still the owner's call (its decision 6), so this entry records it
 without claiming one. Four stages, each pushed CI-green:
 
@@ -1392,7 +1392,7 @@ match to the pixel except where 256-colour quantisation disappears:
 native C++ only — and made x64-clean**, with the compiled form of a script
 explicitly freed from backward compatibility and wider modernisation in
 scope. The full survey, design and staging are in
-[ScriptRewrite.md](ScriptRewrite.md); the language the new compiler accepts —
+[ScriptRewrite.md](Archive/ScriptRewrite.md); the language the new compiler accepts —
 recovered from the generated parser and pinned by measuring all 182 shipped
 script files — is specified in [ScriptLanguage.md](ScriptLanguage.md).
 

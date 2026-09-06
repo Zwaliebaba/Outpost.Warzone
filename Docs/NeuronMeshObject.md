@@ -16,10 +16,10 @@ NMO and `GameData/` still holds `.pie`, which is stage D of
 [PieToNmoMigration.md](PieToNmoMigration.md).
 [Phase8Plan.md](Phase8Plan.md) deliberately fenced the model format out of the
 renderer collapse ("the `.pie`/IMD model format and its loader are game data
-and are not touched"), and [AssetPipeline.md](AssetPipeline.md) §4 ruled a
+and are not touched"), and [AssetPipeline.md](Archive/AssetPipeline.md) §4 ruled a
 `.pie` text-to-JSON conversion out because the wins are loader-side. This
 document is the groundwork for that later loader-side phase. It aligns with
-[Phase10Plan.md](Phase10Plan.md), which commits the renderer to native
+[Phase10Plan.md](Archive/Phase10Plan.md), which commits the renderer to native
 DirectXMath (`XMFLOAT3`/`XMFLOAT4X4` storage): every on-disk vector and matrix
 below is a DirectXMath storage type.
 
@@ -695,7 +695,7 @@ reject the file on any failure (never repair):
 2. Every `MeshRef` window lies within `[headerBytes + meshCount * 8,
    fileBytes)`; all arithmetic in 64-bit before any allocation or pointer
    math (counts and offsets are attacker-controlled until proven otherwise —
-   the survey in [AssetPipeline.md](AssetPipeline.md) Appendix B records what
+   the survey in [AssetPipeline.md](Archive/AssetPipeline.md) Appendix B records what
    trusting loaders did to this codebase).
 3. Every offset in `MeshHeader`/`SubMesh` plus its section's computed size
    lies within the mesh blob; alignment as specified; every `String` obeys
@@ -811,7 +811,7 @@ Three forces make per-submesh bone tables necessary rather than decorative:
   let copies drift) or to give up submesh-scope binding entirely.
 
 Note the engine's *current* pipeline transforms on the CPU
-([Phase8Plan.md](Phase8Plan.md), [Phase10Plan.md](Phase10Plan.md) keep the
+([Phase8Plan.md](Phase8Plan.md), [Phase10Plan.md](Archive/Phase10Plan.md) keep the
 `D3DFVF_XYZRHW` funnel), where no constant ceiling exists — but a CPU skinner
 still wins from local tables (smaller matrix arrays, better locality), and the
 format must not bake in an assumption the shader path breaks three phases
@@ -1039,7 +1039,7 @@ their triangle counts, markers and animation intact.
    runtime; the animation system that replaces `Anim.cpp` should get its own
    short design note when built.
 2. **Coexistence** — NMO does not replace `.pie` by decree; per
-   [AssetPipeline.md](AssetPipeline.md), formats are replaced only when a
+   [AssetPipeline.md](Archive/AssetPipeline.md), formats are replaced only when a
    phase owns the conversion end-to-end, converter and loader and data in one
    motion. [PieToNmoMigration.md](PieToNmoMigration.md) is that plan, and its
    §7 lists what has to be decided before it can start.

@@ -8,7 +8,7 @@
  * winmm API use in the tree.
  *
  * The subset accepted is the subset the game ships: integer PCM, one or two
- * channels, 8 or 16 bits (all 551 WAVs measured in Phase4Plan.md). 8-bit
+ * channels, 8 or 16 bits (all 551 WAVs measured in Docs/Archive/Phase4Plan.md). 8-bit
  * unsigned widens to 16-bit signed; stereo folds to mono when the caller
  * asks, because the pooled voices share one channel layout.
  */

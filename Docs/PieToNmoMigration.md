@@ -34,7 +34,7 @@ python tools/pie_to_nmo.py --out build/models --rewrite-stats build/stats
    of a multi-level `.pie` lives in the `.ani`, not in the `.pie` (§5.1); a
    converter that ignores animation silently produces wrong models.
 5. **Do it as one owned phase**, converter and loader and data together, per
-   [AssetPipeline.md](AssetPipeline.md)'s rule about format replacement. A
+   [AssetPipeline.md](Archive/AssetPipeline.md)'s rule about format replacement. A
    half-migration leaves two model paths in the renderer, which is exactly
    what Phase 8 spent its budget removing.
 
@@ -287,7 +287,7 @@ parameters are now one submesh.
 
 **The problem.** The format stores no vertex or face normals. The loader
 computes face normals and never reads them (recorded in
-[AssetPipeline.md](AssetPipeline.md) §4); shading today is a per-object light
+[AssetPipeline.md](Archive/AssetPipeline.md) §4); shading today is a per-object light
 level, flat across the model. NMO's `Vertex` has a normal, so the converter
 must invent one — and if the renderer ever starts using it, every model's
 appearance changes at once.

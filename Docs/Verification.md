@@ -35,8 +35,8 @@ defects in. Two checks are also outside CI entirely: the Python NMO checks
 to the same specification as the C++ loader.
 
 The individual checklists live in [Phase8Plan.md](Phase8Plan.md#verification),
-[Phase9Plan.md](Phase9Plan.md#verification), [Phase4Plan.md](Phase4Plan.md#verification),
-[Phase6Plan.md](Phase6Plan.md) and [Phase10Plan.md](Phase10Plan.md#f--verification).
+[Phase9Plan.md](Archive/Phase9Plan.md#verification), [Phase4Plan.md](Archive/Phase4Plan.md#verification),
+[Phase6Plan.md](Phase6Plan.md) and [Phase10Plan.md](Archive/Phase10Plan.md#f--verification).
 This document does not replace them; it is the order to do them in.
 
 ## Before you start
@@ -115,14 +115,14 @@ the HUD, the terrain, the units and the translucent build overlay on screen in
 one shot without needing menu input.
 
 Since the asset-pipeline conversion (2026-08-16,
-[AssetPipeline.md](AssetPipeline.md) §8), reaching the level at all also
+[AssetPipeline.md](Archive/AssetPipeline.md) §8), reaching the level at all also
 proves the new data path end to end: the `datasets.json` manifest replay that
 replaced the `.wrf` layer, every stats and message table through
 `Neuron::Json`, and the anim/audio configs that replaced the `audp_` parser.
 A data error now stops the boot with a named table/row/field fatal rather
 than playing on with zeroed stats — a fatal here is diagnostic, not noise.
 
-Since the script rewrite (2026-08-17, [ScriptRewrite.md](ScriptRewrite.md)),
+Since the script rewrite (2026-08-17, [ScriptRewrite.md](Archive/ScriptRewrite.md)),
 this boot carries more weight still: **it is the acceptance test for the new
 script compiler.** Every `.slo` the level names is compiled from source at
 load, so reaching the level proves the compiler accepts the shipped corpus,
@@ -218,7 +218,7 @@ why the radar viewing window is the case to look at hardest.
 
 Phase 9 rewrote the audio module and Phase 4 replaced the backend under it.
 This is inherited wholesale from
-[Phase4Plan.md](Phase4Plan.md#verification) and is the part most likely to be
+[Phase4Plan.md](Archive/Phase4Plan.md#verification) and is the part most likely to be
 subtly wrong.
 
 1. Unit acknowledgements play, in the queue slot, with the duck audible under
@@ -229,7 +229,7 @@ subtly wrong.
    *not* a Phase 9 defect: the VTOL move loop never sounds, because
    `PropulsionSounds` and `AudioID.cpp` name `VtolMove.wav` while the shipped
    file is `Vtol-Move.wav` — recorded by the asset validator, fix pending an
-   owner decision ([AssetPipeline.md](AssetPipeline.md) §8, stage C).
+   owner decision ([AssetPipeline.md](Archive/AssetPipeline.md) §8, stage C).
 3. A research-message stream plays.
 4. Music survives a briefing, and stays paused across a video.
 5. ~~Save and load a campaign game with a script-assigned sound in flight.~~
@@ -293,7 +293,7 @@ sheet's rule means it compiles and links — nothing more.
 **Intended behaviour changes first**, so a difference from memory is not
 misread as a regression. Seven latent angle defects were fixed during the
 migration (each recorded in the stage E status blocks of
-[Phase10Plan.md](Phase10Plan.md)): the ballistic pitch-swap that flattened
+[Phase10Plan.md](Archive/Phase10Plan.md)): the ballistic pitch-swap that flattened
 some indirect-fire arcs, an unreachable negative-pitch branch, perpendicular
 speed lost past a 180° heading difference, the unwrapped vtol roll, an
 uninitialised track-angle average, the tracking camera's garbage offsets on
@@ -419,7 +419,7 @@ Anything needing ears or menu navigation is not done.
 | F — FMV and gates | not run | Needs menu navigation to reach a briefing |
 | G — fog parity | **pass** | Three-point comparison: default = warm haze over distance, `-noFog` = none, `-greyFog` = grey haze. The hue tracks the switch names, which excludes the day/night script as the cause. Closes the last open Phase 2 item |
 | H — counters | not run | `pie_GetResetCounts` has no visible readout from a plain launch |
-| I — Phase 10 | **pass** | Owner-run session, 2026-08-16. The boot surfaced two boundary-conversion escapes — an unwrapped 222° map heading and a visibility ray index past the trig tables — both fixed during the session and recorded in [Phase10Plan.md](Phase10Plan.md#f--verification); after the fixes the run came back clean. Covers the pass-A re-flag too, since reaching gameplay re-exercises the rewritten renderer |
+| I — Phase 10 | **pass** | Owner-run session, 2026-08-16. The boot surfaced two boundary-conversion escapes — an unwrapped 222° map heading and a visibility ray index past the trig tables — both fixed during the session and recorded in [Phase10Plan.md](Archive/Phase10Plan.md#f--verification); after the fixes the run came back clean. Covers the pass-A re-flag too, since reaching gameplay re-exercises the rewritten renderer |
 
 Two defects found by running, both fixed in the same session: `tools/dbg.py`
 crashed on its first-ever Windows run (`ctypes.wintypes` is a submodule and was

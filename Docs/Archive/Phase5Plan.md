@@ -1,6 +1,6 @@
 # Phase 5 — Networking: QUIC transport via MsQuic  *(Done)*
 
-Working plan for the phase described in [MigrationPlan.md](MigrationPlan.md#phase-5--networking-quic-transport-via-msquic-done).
+Working plan for the phase described in [MigrationPlan.md](../MigrationPlan.md#phase-5--networking-quic-transport-via-msquic-done).
 As with Phase 4, the figures were measured against the tree rather than
 estimated.
 

@@ -17,7 +17,7 @@ contract; everything behind the lexer is replaceable.
 > moved from the sole x64 **Blocker** to Fixed. What each stage changed is
 > recorded per stage in §5 and in the commit history; the language the new
 > compiler accepts is specified in
-> [`ScriptLanguage.md`](ScriptLanguage.md).
+> [`ScriptLanguage.md`](../ScriptLanguage.md).
 >
 > **Not yet done:** the corpus acceptance test. The game compiles every
 > shipped script at startup, so booting a campaign level and a skirmish

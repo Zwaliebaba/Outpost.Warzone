@@ -30,7 +30,7 @@ head of this branch; the method is at the [end](#measurement).
 
 `<DirectXMath.h>` ships in the Windows SDK — header-only, `namespace
 DirectX`, nothing to link, nothing to restore. Under
-[AGENTS.md R14](../AGENTS.md) that makes it part of what the build is already
+[AGENTS.md R14](../../AGENTS.md) that makes it part of what the build is already
 allowed to depend on, alongside `d3d9.h`. It is the designed successor to
 exactly this kind of code: D3DX's maths went deprecated with the June 2010
 SDK and DirectXMath is its replacement.
@@ -262,7 +262,7 @@ phase's default.
 Each stage ends green on Debug and Release, `check_case.py` clean, and — per
 Phase 8's rule, since every stage touches rendering — **run**, not just
 built, once a Windows environment is available: `Debug\Outpost.exe -window
--game CAM_1A` plus the relevant [Verification.md](Verification.md) passes.
+-game CAM_1A` plus the relevant [Verification.md](../Verification.md) passes.
 
 ### A — Dead-maths sweep  *(behaviour-preserving)*
 
@@ -275,7 +275,7 @@ after the sweep the same grep returns nothing. `tools/check_case.py` is
 clean. mingw-w64 is not installed in the development container, so the
 cross-check did not run; MSVC CI is the compile authority for the stage.
 The items, each with zero callers anywhere in the tree, feature-macro
-allow-list checked, per the [AGENTS.md §6](../AGENTS.md) rule:
+allow-list checked, per the [AGENTS.md §6](../../AGENTS.md) rule:
 
 - `pie_MatCreate` — defined, not even declared in the header.
 - `pie_VectorInverseRotate0` — declared and defined, never called.
@@ -432,7 +432,7 @@ The stage as planned:
 
 Delete `aSinTable`, `pie_MatInit`'s table build (init collapses to a stack
 reset), the parity instrumentation, and every remaining shim. The module's
-public names land per [AGENTS.md §1](../AGENTS.md) in `namespace Neuron` —
+public names land per [AGENTS.md §1](../../AGENTS.md) in `namespace Neuron` —
 checked against the platform headers first, per Phase 8's C4 lesson.
 `RenderMatrix.h` at that point declares the stack, the projection, the
 offset setter and the one conversion constant, and includes
@@ -614,7 +614,7 @@ run is entered as a debt in the tree's runsheet.
 - MSVC CI, Debug and Release Win32: green at every stage boundary, A
   through E4 (`7fbc2a0`, run 171).
 
-**The run — owed, entered as [Verification.md](Verification.md#pass-i--phase-10-directxmath-and-the-radian-flip)
+**The run — owed, entered as [Verification.md](../Verification.md#pass-i--phase-10-directxmath-and-the-radian-flip)
 pass I:**
 
 - The CAM_1A re-boot with the projection attention points (a systematic

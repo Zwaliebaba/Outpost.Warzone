@@ -10,7 +10,7 @@ the server separable later — the staged plan, and, in the most detail, **the
 message protocol between client and server**, derived message by message from
 the protocol the game speaks today.
 
-Like [AssetPipeline.md](AssetPipeline.md), this records a design without
+Like [AssetPipeline.md](Archive/AssetPipeline.md), this records a design without
 claiming a phase number; whether it takes one is the owner's call. The
 [decisions](#decisions-for-the-owner) it is gated on are listed at the end.
 Everything *new* this design names — messages, types, functions, files —
