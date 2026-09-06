@@ -2836,63 +2836,100 @@ static void intSetDesignPower(DROID_TEMPLATE* psTemplate)
   widgSetBarSize(psWScreen, IDDES_POWERBAR, calcTemplatePower(psTemplate));
 }
 
+/* Index of a component within the stats array its ref says it belongs to.
+   The comparison template stores indices, and the only safe way to make one
+   from a pointer is to subtract the base of the array that pointer is actually
+   in: subtracting any other base gives the distance between two unrelated
+   heap blocks, which is meaningless as an index and, once it is narrowed into
+   the template's 32-bit slot, no longer even wraps back on x64 -- a negative
+   difference lands in asWeaps as ~4G and calcTemplateBody reads a terabyte
+   past asWeaponStats. The assert is what catches a pointer that is not in the
+   array at all, at the point it becomes an index rather than where it is
+   dereferenced. */
+template <typename Stats>
+static UDWORD ShadowStatIndex(const COMP_BASE_STATS* _stats, const Stats* _base, UDWORD _count)
+{
+  const std::ptrdiff_t index = reinterpret_cast<const Stats*>(_stats) - _base;
+  DEBUG_ASSERT_TEXT(index >= 0 && index < static_cast<std::ptrdiff_t>(_count),
+                    "ShadowStatIndex: stat ref {:#x} is not in the array its type says it is in", _stats->ref);
+  return static_cast<UDWORD>(index);
+}
+
+/* Build the template the shadow bars compare against: the current design with
+   the hilited component fitted in place of what it would replace. Which slot
+   that is comes from the hilited stat's own type, never from what the design
+   happens to carry -- the two are unrelated on the system tab, where the
+   component list mixes sensors, ECMs, brains, constructors and repair units
+   and the design may hold a weapon. Fitting a system component clears every
+   other system slot, exactly as the click handlers in intProcessDesign do, so
+   the bar shows what the design would become. */
+static void SetShadowTemplateComponent(DROID_TEMPLATE& _template, const COMP_BASE_STATS* _stats)
+{
+  const UDWORD type = statType(_stats->ref);
+
+  switch (type)
+  {
+  case COMP_BODY:
+    _template.asParts[COMP_BODY] = ShadowStatIndex(_stats, asBodyStats, numBodyStats);
+    return;
+  case COMP_PROPULSION:
+    _template.asParts[COMP_PROPULSION] = ShadowStatIndex(_stats, asPropulsionStats, numPropulsionStats);
+    return;
+  case COMP_SENSOR:
+  case COMP_ECM:
+  case COMP_CONSTRUCT:
+  case COMP_REPAIRUNIT:
+  case COMP_BRAIN:
+  case COMP_WEAPON:
+    break;
+  default:
+    //don't want to draw for unknown comp
+    return;
+  }
+
+  // A system component replaces whatever system is fitted
+  _template.asParts[COMP_SENSOR] = 0;
+  _template.asParts[COMP_ECM] = 0;
+  _template.asParts[COMP_CONSTRUCT] = 0;
+  _template.asParts[COMP_REPAIRUNIT] = 0;
+  _template.asParts[COMP_BRAIN] = 0;
+  _template.numWeaps = 0;
+  _template.asWeaps[0] = 0;
+
+  switch (type)
+  {
+  case COMP_SENSOR:
+    _template.asParts[COMP_SENSOR] = ShadowStatIndex(_stats, asSensorStats, numSensorStats);
+    break;
+  case COMP_ECM:
+    _template.asParts[COMP_ECM] = ShadowStatIndex(_stats, asECMStats, numECMStats);
+    break;
+  case COMP_CONSTRUCT:
+    _template.asParts[COMP_CONSTRUCT] = ShadowStatIndex(_stats, asConstructStats, numConstructStats);
+    break;
+  case COMP_REPAIRUNIT:
+    _template.asParts[COMP_REPAIRUNIT] = ShadowStatIndex(_stats, asRepairStats, numRepairStats);
+    break;
+  case COMP_BRAIN:
+    _template.asParts[COMP_BRAIN] = ShadowStatIndex(_stats, asBrainStats, numBrainStats);
+    break;
+  case COMP_WEAPON:
+    _template.asWeaps[0] = ShadowStatIndex(_stats, asWeaponStats, numWeaponStats);
+    _template.numWeaps = 1;
+    break;
+  }
+}
+
 /* Set the shadow bar graphs for the template power points - psStats is new hilited stats*/
 static void intSetTemplatePowerShadowStats(COMP_BASE_STATS* psStats)
 {
-  UDWORD type;
   DROID_TEMPLATE compTempl;
 
-  if (&sCurrDesign != nullptr AND psStats != nullptr)
+  if (psStats != nullptr)
   {
     //create the comparison Template
     memcpy(&compTempl, &sCurrDesign, sizeof(DROID_TEMPLATE));
-    type = statType(psStats->ref);
-    /*if type = BODY or PROPULSION can do a straight comparison but if the new stat is
-    a 'system' stat then need to find out which 'system' is currently in place so the
-    comparison is meaningful*/
-    if (desCompMode == IDES_SYSTEM)
-    {
-      //work out current system component
-      if (sCurrDesign.asParts[COMP_ECM])
-        type = COMP_ECM;
-      else if (sCurrDesign.asParts[COMP_SENSOR])
-        type = COMP_SENSOR;
-      else if (sCurrDesign.asParts[COMP_CONSTRUCT])
-        type = COMP_CONSTRUCT;
-      else if (sCurrDesign.asParts[COMP_REPAIRUNIT])
-        type = COMP_REPAIRUNIT;
-      else if (sCurrDesign.asWeaps[0])
-        type = COMP_WEAPON;
-      else
-        type = COMP_UNKNOWN;
-    }
-
-    switch (type)
-    {
-    case COMP_BODY:
-      compTempl.asParts[COMP_BODY] = (BODY_STATS*)psStats - asBodyStats;
-      break;
-    case COMP_PROPULSION:
-      compTempl.asParts[COMP_PROPULSION] = (PROPULSION_STATS*)psStats - asPropulsionStats;
-      break;
-    case COMP_ECM:
-      compTempl.asParts[COMP_ECM] = (ECM_STATS*)psStats - asECMStats;
-      break;
-    case COMP_SENSOR:
-      compTempl.asParts[COMP_SENSOR] = (SENSOR_STATS*)psStats - asSensorStats;
-      break;
-    case COMP_CONSTRUCT:
-      compTempl.asParts[COMP_CONSTRUCT] = (CONSTRUCT_STATS*)psStats - asConstructStats;
-      break;
-    case COMP_REPAIRUNIT:
-      compTempl.asParts[COMP_REPAIRUNIT] = (REPAIR_STATS*)psStats - asRepairStats;
-      break;
-    case COMP_WEAPON:
-      compTempl.asWeaps[0] = (WEAPON_STATS*)psStats - asWeaponStats;
-      break;
-      //default:
-      //don't want to draw for unknown comp
-    }
+    SetShadowTemplateComponent(compTempl, psStats);
 
     widgSetMinorBarSize(psWScreen, IDDES_POWERBAR, calcTemplatePower(&compTempl));
   }
@@ -2913,63 +2950,13 @@ static void intSetBodyPoints(DROID_TEMPLATE* psTemplate)
 /* Set the shadow bar graphs for the template Body points - psStats is new hilited stats*/
 static void intSetTemplateBodyShadowStats(COMP_BASE_STATS* psStats)
 {
-  UDWORD type;
   DROID_TEMPLATE compTempl;
 
-  //	// Something in this function may be causeing a crash....
-  //#warning HMMMMMMM.... THIS FUNCTION APPEARS TO CAUSE A CRASH.... MUST FIX....
-
-  if (&sCurrDesign != nullptr AND psStats != nullptr)
+  if (psStats != nullptr)
   {
     //create the comparison Template
     memcpy(&compTempl, &sCurrDesign, sizeof(DROID_TEMPLATE));
-    type = statType(psStats->ref);
-    /*if type = BODY or PROPULSION can do a straight comparison but if the new stat is
-    a 'system' stat then need to find out which 'system' is currently in place so the
-    comparison is meaningful*/
-    if (desCompMode == IDES_SYSTEM)
-    {
-      //work out current system component
-      if (sCurrDesign.asParts[COMP_ECM])
-        type = COMP_ECM;
-      else if (sCurrDesign.asParts[COMP_SENSOR])
-        type = COMP_SENSOR;
-      else if (sCurrDesign.asParts[COMP_CONSTRUCT])
-        type = COMP_CONSTRUCT;
-      else if (sCurrDesign.asParts[COMP_REPAIRUNIT])
-        type = COMP_REPAIRUNIT;
-      else if (sCurrDesign.asWeaps[0])
-        type = COMP_WEAPON;
-      else
-        type = COMP_UNKNOWN;
-    }
-
-    switch (type)
-    {
-    case COMP_BODY:
-      compTempl.asParts[COMP_BODY] = (BODY_STATS*)psStats - asBodyStats;
-      break;
-    case COMP_PROPULSION:
-      compTempl.asParts[COMP_PROPULSION] = (PROPULSION_STATS*)psStats - asPropulsionStats;
-      break;
-    case COMP_ECM:
-      compTempl.asParts[COMP_ECM] = (ECM_STATS*)psStats - asECMStats;
-      break;
-    case COMP_SENSOR:
-      compTempl.asParts[COMP_SENSOR] = (SENSOR_STATS*)psStats - asSensorStats;
-      break;
-    case COMP_CONSTRUCT:
-      compTempl.asParts[COMP_CONSTRUCT] = (CONSTRUCT_STATS*)psStats - asConstructStats;
-      break;
-    case COMP_REPAIRUNIT:
-      compTempl.asParts[COMP_REPAIRUNIT] = (REPAIR_STATS*)psStats - asRepairStats;
-      break;
-    case COMP_WEAPON:
-      compTempl.asWeaps[0] = (WEAPON_STATS*)psStats - asWeaponStats;
-      break;
-      //default:
-      //don't want to draw for unknown comp
-    }
+    SetShadowTemplateComponent(compTempl, psStats);
 
     widgSetMinorBarSize(psWScreen, IDDES_BODYPOINTS, calcTemplateBody(&compTempl, static_cast<UBYTE>(selectedPlayer)));
   }

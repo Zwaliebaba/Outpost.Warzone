@@ -2910,10 +2910,49 @@ BOOL droidTemplateShutDown()
   return TRUE;
 }
 
+/* Check that every stats index a template carries is inside the array it
+   indexes. The calcTemplate* family below dereferences all of them without a
+   guard, so a bad index fails here naming the template rather than as an
+   access violation inside the arithmetic. The design screen's shadow template
+   used to carry one (Docs/X64Readiness.md); the network and the template
+   loader are the other sources. Compiles to nothing in Release. */
+static void CheckTemplateIndices(DROID_TEMPLATE* _template)
+{
+  const struct
+  {
+    COMPONENT_TYPE type;
+    UDWORD count;
+    const char* name;
+  } parts[] = {
+    {COMP_BODY, numBodyStats, "body"},
+    {COMP_BRAIN, numBrainStats, "brain"},
+    {COMP_PROPULSION, numPropulsionStats, "propulsion"},
+    {COMP_REPAIRUNIT, numRepairStats, "repair"},
+    {COMP_ECM, numECMStats, "ECM"},
+    {COMP_SENSOR, numSensorStats, "sensor"},
+    {COMP_CONSTRUCT, numConstructStats, "construct"},
+  };
+
+  for (const auto& part : parts)
+  {
+    DEBUG_ASSERT_TEXT(_template->asParts[part.type] >= 0 && static_cast<UDWORD>(_template->asParts[part.type]) < part.count,
+                      "Invalid {} index {} on template {}", part.name, _template->asParts[part.type], getTemplateName(_template));
+  }
+
+  DEBUG_ASSERT_TEXT(_template->numWeaps <= DROID_MAXWEAPS, "{} weapons on template {}", _template->numWeaps, getTemplateName(_template));
+  for (UDWORD i = 0; i < _template->numWeaps && i < DROID_MAXWEAPS; i++)
+  {
+    DEBUG_ASSERT_TEXT(_template->asWeaps[i] < numWeaponStats, "Invalid weapon index {} on template {}", _template->asWeaps[i],
+                      getTemplateName(_template));
+  }
+}
+
 /* Calculate the weight of a droid from it's template */
 UDWORD calcDroidWeight(DROID_TEMPLATE* psTemplate)
 {
   UDWORD weight, i;
+
+  CheckTemplateIndices(psTemplate);
 
   /* Get the basic component weight */
   weight = (asBodyStats + psTemplate->asParts[COMP_BODY])->weight + (asBrainStats + psTemplate->asParts[COMP_BRAIN])->weight +
@@ -2941,6 +2980,7 @@ UDWORD calcTemplateBody(DROID_TEMPLATE* psTemplate, UBYTE player)
 
   if (psTemplate == nullptr)
     return 0;
+  CheckTemplateIndices(psTemplate);
   /* Get the basic component body points */
   body = (asBodyStats + psTemplate->asParts[COMP_BODY])->body + (asBrainStats + psTemplate->asParts[COMP_BRAIN])->body +
     //(asPropulsionStats + psTemplate->asParts[COMP_PROPULSION])->body + 
@@ -3041,6 +3081,7 @@ UDWORD calcTemplateBuild(DROID_TEMPLATE* psTemplate)
 {
   UDWORD build, i;
 
+  CheckTemplateIndices(psTemplate);
   build = (asBodyStats + psTemplate->asParts[COMP_BODY])->buildPoints + (asBrainStats + psTemplate->asParts[COMP_BRAIN])->buildPoints +
     //(asPropulsionStats + psTemplate->asParts[COMP_PROPULSION])->buildPoints + 
     (asSensorStats + psTemplate->asParts[COMP_SENSOR])->buildPoints + (asECMStats + psTemplate->asParts[COMP_ECM])->buildPoints + (
@@ -3053,10 +3094,7 @@ UDWORD calcTemplateBuild(DROID_TEMPLATE* psTemplate)
 
   //add weapon power
   for (i = 0; i < psTemplate->numWeaps; i++)
-  {
-    DEBUG_ASSERT_TEXT(psTemplate->asWeaps[i]<numWeaponStats, "Invalid Template weapon for {}", getTemplateName(psTemplate));
     build += (asWeaponStats + psTemplate->asWeaps[i])->buildPoints;
-  }
 
   //add program power
   /*for(i=0; i<psTemplate->numProgs; i++)
@@ -3101,6 +3139,7 @@ UDWORD calcTemplatePower(DROID_TEMPLATE* psTemplate)
 {
   UDWORD power, i;
 
+  CheckTemplateIndices(psTemplate);
   //get the component power
   power = (asBodyStats + psTemplate->asParts[COMP_BODY])->buildPower + (asBrainStats + psTemplate->asParts[COMP_BRAIN])->buildPower +
     //(asPropulsionStats + psTemplate->asParts[COMP_PROPULSION])->buildPower + 
