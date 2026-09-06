@@ -261,6 +261,61 @@ turned this from a crash report into a test. `StackPopTypeKeepsTheWholeObjectPoi
 names it directly, since the script-level test fails by dereferencing the
 truncated pointer rather than by reporting it.
 
+## Found by running it, second round (2026-09-06)
+
+### The design screen's shadow bars indexed one stats array with another's pointer
+
+Hovering a component on the design screen draws a "shadow" on the body and
+power bars: what the design would score with that component fitted.
+`intSetTemplateBodyShadowStats` and `intSetTemplatePowerShadowStats` built the
+comparison template by copying `sCurrDesign` and writing the hovered stat's
+index into one slot -- and on the system tab they chose the slot from **what
+the design already carried**, not from the hovered stat. The system tab lists
+sensors, ECMs, brains, constructors and repair units together, so a design
+with a weapon fitted meant `COMP_WEAPON`, and hovering a sensor ran
+
+```cpp
+compTempl.asWeaps[0] = (WEAPON_STATS*)psStats - asWeaponStats;
+```
+
+with `psStats` pointing into `asSensorStats`. That is the distance between two
+unrelated heap blocks in units of `sizeof(WEAPON_STATS)`, narrowed from
+`ptrdiff_t` into the template's `UDWORD` slot. `calcTemplateBody` then
+evaluated `asWeaponStats + asWeaps[0]` and faulted (`Droid.cpp:2955` before
+this change).
+
+Why it is an x64 defect: on Win32 the narrowing is lossless and the pointer
+arithmetic wraps at 32 bits, so a negative difference truncated to `UDWORD`
+and added back to the base lands where it started -- near the sensor array,
+which is mapped -- and the bar showed a garbage number nobody noticed. On x64
+the `UDWORD` is zero-extended to a 64-bit offset, so a negative difference
+becomes ~4G entries, times 240 bytes (`sizeof(WEAPON_STATS)` on x64, measured
+with the cross-checker), and the read lands a terabyte past the heap. It
+reproduces only when the hovered array sits below the weapon array in memory,
+which is why the 1999 comment on the function said it "appears to cause a
+crash" rather than "crashes". The `asParts` slots are `SDWORD`, so the same
+mistake with a sensor design and a hovered ECM still sign-extends and merely
+reads the wrong struct; only the weapon slot is unsigned, and only it faults.
+
+The fix takes the slot from the hovered stat's own `ref`, subtracts the base
+of the array that ref names, and clears the other system slots the way a
+click on the same button does (`SetShadowTemplateComponent` in `Design.cpp`,
+with the subtraction asserted in range at the point it becomes an index).
+`Droid.cpp`'s `calcTemplate*` family now runs a Debug-only
+`CheckTemplateIndices` first, so any other template carrying an index past its
+array fails naming the template rather than as an access violation inside the
+arithmetic.
+
+One thing this does not explain: the fault was reported with `asWeaponStats`
+showing `0x011104376310DCEA`. No 32-bit index added to a canonical user-mode
+base reaches a 57-bit value, so if that was the global's own value rather than
+the faulting expression's, the global was corrupt as well and needs a hardware
+write breakpoint on `&asWeaponStats` after `statsAllocWeapons` to find the
+writer. The path above faults on the same line, from the same call stack, with
+the global intact.
+
+---
+
 ## Blocker — resolved
 
 ### ~~The script VM stores function pointers in 32-bit instruction words~~
@@ -391,6 +446,17 @@ above is measured with one of the relevant diagnostics switched off. AGENTS.md
 rather than removed: C4244 also fires on every `float`-to-`int` in the legacy
 tree, and nobody has counted how many that is. Sizing it needs an MSVC build
 with the pragma commented out -- a measurement, then a decision.
+
+### Template indices off the wire are not validated
+
+`receiveWholeDroid` in `Outpost/Multibot.cpp` reads `asParts` and `asWeaps`
+straight into a `DROID_TEMPLATE` and calls `calcTemplatePower` on it, which
+dereferences every one of them; nothing checks them against the `num*Stats`
+counts. A Debug build now stops in `CheckTemplateIndices` with the template
+named, a Release build dereferences whatever arrived. Both ends are the same
+build today, so a bad index means a bug rather than a hostile peer, but it is
+the one remaining way an index the game did not compute reaches that
+arithmetic.
 
 ### What is *not* a problem
 

@@ -153,7 +153,9 @@ rewired both sliders.
 3. Both options sliders move **and are audible** — Phase 4 moved them off the
    Windows system mixer onto the XAudio2 graph, and Phase 9 rewrote the graph.
 4. Menu sounds play.
-5. The design screen draws its 3D component buttons.
+5. The design screen draws its 3D component buttons. Fit a weapon, switch to
+   the system tab and hover a sensor: the body and power shadow bars move to
+   the sensor design and nothing faults (`X64Readiness.md`, 2026-09-06).
 6. Console text and `pie_TransBoxFill` filter boxes draw.
 7. The intelligence screen draws.
 8. Radar draws, rotated radar draws, and the radar viewing-window quad draws.
