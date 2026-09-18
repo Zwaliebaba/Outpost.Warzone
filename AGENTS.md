@@ -229,15 +229,20 @@ simulation code is how the server/client split gets quietly undone — see
 [Docs/ServerAuthority.md](Docs/ServerAuthority.md) stage B for the current count
 and what is left.
 
-**After touching the model format or its tools**, run the three checks that
-keep the two implementations of NMO honest. They are Python and take a second
-each, so there is no excuse for skipping them:
+**After touching the model format or its tools**, run the four checks that keep
+the two implementations of NMO honest and the `.pie` readers agreeing. They are
+Python and take a second each, so there is no excuse for skipping them:
 
 ```
 python tools/nmo_roundtrip_test.py     # the reference codec: byte-exact round trip, 21 rejections
 python tools/make_nmo_fixture.py       # regenerate NeuronClientTest/NmoFixture.h; commit if it changes
 python tools/pie_to_nmo.py --report    # all 516 shipped models still convert
+python tools/pie_to_obj_test.py        # the .obj export, and no closed model inside-out
 ```
+
+`tools/pie_format.py` is the one PIE 2 reader, shared by both converters, so a
+change to it moves `.nmo` and `.obj` together — run both. `tools/pie_to_obj.py`
+writes `.obj` for inspection and editing only; nothing in the game loads it.
 
 `NmoFixture.h` is **generated** — the golden `.nmo` the C++ tests load, written
 by the Python codec so both implementations are tested on the same bytes. Edit
@@ -247,9 +252,9 @@ Blender's Python and is therefore not part of the routine pass.
 
 **CI runs the C++ half and not the Python half.** `NmoTest.cpp` is inside
 `NeuronClientTest`, so the loader is gated like every other suite. Nothing runs
-the three commands above, which are what hold the *reference codec* and the
-converter to the same specification — so they are yours to run, like
-`clang-tidy` in §1. They are three seconds of Python and would sit happily
+the four commands above, which are what hold the *reference codec* and the
+converters to the same specification — so they are yours to run, like
+`clang-tidy` in §1. They are four seconds of Python and would sit happily
 beside the script corpus if someone is in the workflow anyway.
 
 **After touching the script module**, run `tools/check_scripts.py`. It builds `NeuronCore/ScriptLex.cpp` and `ScriptComp.cpp` from source against the game's real symbol tables and compiles all 59 shipped `.slo` files, then checks the `.vlo` corpus for types the tables do not have. No C++ check can tell you the compiler still accepts the scripts — `int` and `bool` are keywords rather than table entries, and forgetting that built cleanly and rejected 56 of 59 scripts at runtime.
@@ -353,7 +358,7 @@ that project is still `/permissive`. **Watch for function-pointer typedefs** —
 - [ ] New, removed or moved files are reflected in the `.vcxproj` **and** `.filters` of every project involved.
 - [ ] No project's `ConformanceMode` was changed, and no `const_cast` was added to satisfy R16.
 - [ ] `python tools/check_case.py` passes.
-- [ ] If it touched the model format or its tools: the three NMO checks in §3 pass, and a regenerated `NmoFixture.h` is committed with the change that caused it.
+- [ ] If it touched the model format or its tools: the four model checks in §3 pass, and a regenerated `NmoFixture.h` is committed with the change that caused it.
 - [ ] It builds — Debug at minimum, and say which configurations you actually built.
 - [ ] If it touches rendering, input, audio or level loading: it was **run**, not just built.
 - [ ] `Docs/MigrationPlan.md` updated if the change moved a phase.

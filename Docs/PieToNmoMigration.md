@@ -12,12 +12,18 @@ tree beside it, because the game cannot load `.nmo` until stage D teaches the
 renderer to.
 
 Every number below was measured against the tree by
-[`tools/pie_to_nmo.py`](../tools/pie_to_nmo.py). Reproduce them with:
+[`tools/pie_to_nmo.py`](../tools/pie_to_nmo.py), which reads `.pie` through
+[`tools/pie_format.py`](../tools/pie_format.py). Reproduce them with:
 
 ```
 python tools/pie_to_nmo.py --report
 python tools/pie_to_nmo.py --out build/models --rewrite-stats build/stats
 ```
+
+[`tools/pie_to_obj.py`](../tools/pie_to_obj.py) shares that reader and is not
+part of this migration: it exports geometry as `.obj` for inspection in Blender
+or MeshLab, with no materials and nothing the game loads. It is cited in §5.12
+for the one measurement it contributes.
 
 **The headline recommendations**, argued below:
 
@@ -373,6 +379,13 @@ but the count should be reviewed by eye before the conversion is accepted —
 one of them might be a quad that should have been a triangle, in which case
 dropping it leaves a hole.
 
+Counted by position rather than by vertex, the same 15 files hold 125 zero-area
+triangles, which is what `tools/pie_to_obj.py` reports. The converter's 55 is
+lower because it tests a whole polygon against vertices split by `(point, u,
+v)`, so a repeated corner carrying two different UVs survives as two vertices
+at one position — 38 triangles that render nothing either way. Neither number
+counts a triangle with three distinct positions.
+
 ### 5.12 Winding and culling need a visual check, not a proof
 
 The renderer culls by testing screen-space winding after transform
@@ -381,6 +394,23 @@ declared order, and `PIE_NO_CULL` opts 987 polygons out. The converter
 preserves index order, which *should* be right — but "should" is not a
 verification. This is the one item on the list that only a running game can
 settle: build a level, look at the buildings, check nothing is inside-out.
+
+What *can* be settled without a game, and now is, is the weaker question the
+source data answers on its own: is the declared index order consistently
+outward-facing? Signed volume answers it wherever the surface is closed enough
+for the number to mean anything. `python tools/pie_to_obj.py --report` prints
+the tally — positive, meaning counter-clockwise seen from outside when read as
+right-handed, for 439 of the 465 levels with a non-zero volume, with 81 more
+flat and unsignable. The 26 negatives are billboards, jet flames, tree crosses
+and projectiles, where an open surface makes the number noise rather than a
+verdict. `tools/pie_to_obj_test.py` asserts the part that is not a judgement
+call: of the 10 levels that are closed and consistently oriented, none is
+inward-facing, and it fails if that ever changes.
+
+That is a statement about the corpus, not about the renderer: it says the
+converter has consistent input and inherits no sign error from it, which is
+worth knowing before a visual check so that anything seen inside-out in stage D
+is the renderer's doing. It does not replace the visual check.
 
 ### 5.13 The files get 3.2× bigger
 
